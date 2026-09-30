@@ -1,0 +1,23 @@
+# 数据来源登记（M2 起填写）
+# 每个来源在采集前必须登记并核实使用条款；未核实（terms_checked: false）的来源不得入库。
+# 原始规格书与缓存放在 data/raw/、data/cache/，不入库（见 .gitignore）。
+#
+# 字段说明：
+#   id:             来源唯一标识，如 harmonic-drive
+#   vendor:         厂商或组织名称
+#   url:            产品目录或下载页
+#   categories:     覆盖的品类：servo_motor | reducer | drive | bearing | fastener
+#   license:        params-only（仅提取参数） | open（开源许可，注明许可证） | partner（厂商授权）
+#   terms_checked:  是否已核实使用条款
+#   terms_note:     核实结论与日期
+#
+# 示例：
+# - id: example-vendor
+#   vendor: Example Vendor
+#   url: https://example.com/catalog
+#   categories: [reducer]
+#   license: params-only
+#   terms_checked: false
+#   terms_note: ""
+
+sources: []

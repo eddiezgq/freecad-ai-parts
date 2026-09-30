@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "freecad-ai-parts"
+version = "0.0.1"
+description = "AI 原生 FreeCAD 与零件产品库：以端口 + 参数 + 包络描述厂商零件，由 AI 选型、校验并装配成系统"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+authors = [{ name = "Guoqing (Eddie) Zhang" }]
+dependencies = [
+    "fastmcp>=2.10",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "jsonschema>=4.21",
+    "ruff>=0.5",
+]
+
+[project.scripts]
+freecad-ai-parts-mcp = "mcp_server.server:main"
+
+[tool.setuptools.packages.find]
+include = ["kb*", "ingest*", "engine*", "mcp_server*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

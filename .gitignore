@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# 环境与密钥（API key 等只放在本地 .env，不入库）
+.env
+.env.*
+!.env.example
+
+# FreeCAD
+*.FCStd1
+*.FCBak
+
+# 采集的原始规格书与缓存：可能受厂商版权保护，不入库，只在 data/sources.yaml 登记来源
+data/raw/
+data/cache/
+
+# 编辑器与系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
