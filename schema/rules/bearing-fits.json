@@ -2,7 +2,7 @@
   "table": "bearing-fits",
   "version": "0.1.0-draft",
   "status": "draft",
-  "verification": "取自 NTN 目录与 Coolen 两个来源（两者一致），NHBB 在小轴径轻、中载项上略有差异已注明；尚未对照轴承厂商原始目录或 ISO 标准逐项核对。",
+  "verification": "取自 NTN 目录与 Coolen 两个来源（两者一致），NHBB 在小轴径轻、中载项上略有差异已注明；尚未对照轴承厂商原始目录或 ISO 标准逐项核对。 2026-10-01 项目负责人审核通过、同意合并；逐项对照原始目录或标准的核对尚未完成，各项 verified 保持 false。",
   "sources": [
     {
       "id": "ntn-2203e-fits",
