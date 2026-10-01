@@ -15,7 +15,7 @@ from fastmcp.exceptions import ToolError
 from pydantic import Field
 
 from kb.library import Library, default_library
-from mcp_server import __version__, tools
+from mcp_server import __version__, rest, tools
 
 # V1 计划的 10 个工具
 PLANNED_TOOLS: list[str] = [
@@ -57,10 +57,15 @@ def create_server(library_factory: Callable[[], Library] = default_library) -> F
             state["lib"] = library_factory()
         return state["lib"]
 
+    def info() -> dict:
+        return {"name": "freecad-ai-parts", "version": __version__, "stage": "M4a", "planned_tools": PLANNED_TOOLS}
+
     @mcp.tool
     def server_info() -> dict:
         """返回服务端名称、版本、当前阶段和计划中的工具清单。"""
-        return {"name": "freecad-ai-parts", "version": __version__, "stage": "M4a", "planned_tools": PLANNED_TOOLS}
+        return info()
+
+    rest.register(mcp, lib, info)
 
     @mcp.tool
     @_guard
@@ -132,9 +137,19 @@ def create_server(library_factory: Callable[[], Library] = default_library) -> F
 mcp = create_server()
 
 
-def main() -> None:
-    """以 stdio 方式运行，供 MCP 客户端启动。"""
-    mcp.run()
+def main(argv: list[str] | None = None) -> None:
+    """默认以 stdio 运行，供 MCP 客户端启动；--http 时同时提供 MCP（/mcp）与 REST（/api）。"""
+    import argparse
+
+    parser = argparse.ArgumentParser(prog="freecad-ai-parts-mcp", description="FreeCAD AI Parts MCP / REST 服务")
+    parser.add_argument("--http", action="store_true", help="以 HTTP 方式运行（MCP 在 /mcp，REST 在 /api）")
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", type=int, default=8000)
+    args = parser.parse_args(argv)
+    if args.http:
+        mcp.run(transport="http", host=args.host, port=args.port)
+    else:
+        mcp.run()
 
 
 if __name__ == "__main__":
