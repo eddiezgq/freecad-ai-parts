@@ -1,0 +1,56 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "requirement/1",
+  "request_key": "cfe6b379b8f0c7dedf4e3be6327d1a453e7feccce23a0e9a1395eb52cbf9f77e",
+  "response": {
+    "id": "simulated-joint2",
+    "simulated": true,
+    "tool_input": {
+      "items": [
+        {
+          "field": "output_torque_cont_nm",
+          "quote": "输出连续扭矩 25 N·m",
+          "unit": "N·m",
+          "value": 25
+        },
+        {
+          "field": "output_torque_peak_nm",
+          "quote": "峰值 50 N·m",
+          "unit": "N·m",
+          "value": 50
+        },
+        {
+          "field": "output_speed_rpm",
+          "quote": "输出转速 30 rpm",
+          "unit": "rpm",
+          "value": 30
+        },
+        {
+          "field": "supply.voltage_v",
+          "quote": "220 V 单相供电",
+          "unit": "V",
+          "value": 220
+        },
+        {
+          "field": "supply.current_type",
+          "quote": "220 V 单相供电",
+          "unit": "",
+          "value": "ac"
+        },
+        {
+          "field": "supply.phases",
+          "quote": "220 V 单相供电",
+          "unit": "",
+          "value": 1
+        },
+        {
+          "field": "fieldbus_protocol",
+          "quote": "EtherCAT 总线",
+          "unit": "",
+          "value": "ethercat"
+        }
+      ],
+      "unclear": []
+    }
+  }
+}
