@@ -33,5 +33,6 @@
 | [0016](adr/0016-not-applicable-status.md) | 校验结果增加“不适用”状态 | 2026-09-30 |
 | [0017](adr/0017-bearing-fit-judgement.md) | C2 对轴承端口的判定方式 | 2026-09-30 |
 | [0018](adr/0018-kb-storage.md) | 组件知识库的存储设计 | 2026-10-01 |
+| [0019](adr/0019-vendor-source-consistency.md) | 组件引用的来源文档必须属于组件厂商 | 2026-10-01 |
 
 新决策按 [模板](adr/template.md) 编写，编号顺延；已接受的决策不改写，被取代时新建一条并标注。
