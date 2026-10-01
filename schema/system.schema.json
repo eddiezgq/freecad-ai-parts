@@ -34,11 +34,43 @@
         "additionalProperties": false
       }
     },
+    "layout": {"$ref": "#/$defs/layout"},
     "note": {"type": "string"}
   },
   "required": ["id", "requirement", "components", "connections"],
   "additionalProperties": false,
   "$defs": {
-    "port_ref": {"type": "string", "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"}
+    "port_ref": {"type": "string", "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"},
+    "layout": {
+      "type": "object",
+      "description": "布局结果（ADR-0034）：各实例在世界坐标中的位姿，长度单位 mm。由 FreeCAD 布局工具生成；给出时 C11 按它计算包络长度。位姿中的实例须在 components 中列出，未给位姿的实例视为未布局，由代码校验。",
+      "properties": {
+        "poses": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {"pattern": "^[a-z][a-z0-9_]*$"},
+          "additionalProperties": {"$ref": "#/$defs/pose"}
+        },
+        "note": {"type": "string"}
+      },
+      "required": ["poses"],
+      "additionalProperties": false
+    },
+    "pose": {
+      "type": "object",
+      "description": "实例坐标系（组件包络坐标系）到世界坐标的刚体变换：先绕 rotation.axis 转 rotation.angle_deg 度，再平移 position_mm。旋转轴须为非零向量，由代码校验。",
+      "properties": {
+        "position_mm": {"$ref": "#/$defs/vec3"},
+        "rotation": {
+          "type": "object",
+          "properties": {"axis": {"$ref": "#/$defs/vec3"}, "angle_deg": {"type": "number"}},
+          "required": ["axis", "angle_deg"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["position_mm", "rotation"],
+      "additionalProperties": false
+    },
+    "vec3": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}}
   }
 }

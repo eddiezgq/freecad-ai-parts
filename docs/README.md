@@ -48,5 +48,6 @@
 | [0031](adr/0031-mount-face-pattern.md) | 安装面孔位阵列增加 linear，明确 rect 的孔位 | 2026-10-01 |
 | [0032](adr/0032-m4b-layout-architecture.md) | M4b FreeCAD 布局的架构、配合约定与测试方式 | 2026-10-01 |
 | [0033](adr/0033-interference-pass-through.md) | 干涉检查中的轴穿过通道，以及 worker 的启动方式 | 2026-10-01 |
+| [0034](adr/0034-system-layout.md) | 系统布局字段与 C11 包络长度 | 2026-10-01 |
 
 新决策按 [模板](adr/template.md) 编写，编号顺延；已接受的决策不改写，被取代时新建一条并标注。
