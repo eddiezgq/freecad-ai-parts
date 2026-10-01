@@ -35,7 +35,21 @@ pip install -e .
 }
 ```
 
-Windows 下 `command` 为 `C:\\path\\to\\freecad-ai-parts\\.venv\\Scripts\\python.exe`。重启 Claude Desktop 后，工具列表中应出现 7 个工具：`server_info`、`search_components`、`get_component`、`find_compatible`、`compose_chain`、`verify_system`、`export_system`，另有一个提示模板 `joint_selection`。
+Windows 下 `command` 为 `C:\\path\\to\\freecad-ai-parts\\.venv\\Scripts\\python.exe`。重启 Claude Desktop 后，工具列表中应出现 11 个工具：
+
+- 选型与校验：`server_info`、`search_components`、`get_component`、`find_compatible`、`compose_chain`、`verify_system`、`export_system`
+- FreeCAD 布局（M4b）：`place_component`、`connect_ports`、`check_interference`、`snapshot`
+
+另有一个提示模板 `joint_selection`。
+
+### FreeCAD 布局工具（可选）
+
+`place_component`、`connect_ports` 不需要 FreeCAD。`check_interference`、`snapshot` 需要在 `env` 中加 `"FAP_FREECAD": "headless"`，服务端会按需启动一个无界面的 FreeCAD（ADR-0032、ADR-0033）。
+
+- Linux：先运行 `scripts/fetch_freecad.sh` 下载锁定版本的 FreeCAD 1.0.2。worker 只用标准库和本仓库代码，FreeCAD 的 Python 里不需要另装依赖
+- 其他系统：用 `FAP_FREECAD_PYTHON` 指向 FreeCAD 内带的 Python，必要时用 `FAP_FREECAD_LIB` 指向 FreeCAD 模块目录
+
+没有设置时，这两个工具会返回“未连接 FreeCAD”的说明。
 
 ## 4. 试一句话需求（M4a 验收）
 
@@ -64,5 +78,5 @@ python -m mcp_server.demo examples/joint2-requirement.json --lang en
 ```bash
 freecad-ai-parts-mcp --http --port 8000
 # MCP：http://127.0.0.1:8000/mcp
-# REST：http://127.0.0.1:8000/api/health、/api/components、/api/compose …（见 mcp_server/rest.py）
+# REST：http://127.0.0.1:8000/api/health、/api/components、/api/compose、/api/layout/… （见 mcp_server/rest.py）
 ```

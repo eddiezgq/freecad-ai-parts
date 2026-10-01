@@ -26,7 +26,7 @@ def client():
 
 def test_health(client):
     r = client.get("/api/health")
-    assert r.status_code == 200 and r.json()["stage"] == "M4a"
+    assert r.status_code == 200 and r.json()["stage"] == "M4b"
 
 
 def test_search_and_get(client):

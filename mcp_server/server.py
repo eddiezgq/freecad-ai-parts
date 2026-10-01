@@ -1,21 +1,26 @@
 """FreeCAD AI Parts 的 MCP 服务端入口。
 
-M4a 实现不依赖 FreeCAD 的工具（ADR-0003“先外后内”）；FreeCAD 组的工具在 M4b 实现。
+M4a 实现不依赖 FreeCAD 的工具（ADR-0003“先外后内”）；M4b 加入 FreeCAD 组的 4 个工具（ADR-0032）：
+场景由服务端持有，干涉检查与截图经 FreeCAD worker 完成（FAP_FREECAD=headless）。
 组件库按 kb.library.default_library() 配置：FAP_LIBRARY（JSON 目录）或 DATABASE_URL（知识库）。
 """
 
 from __future__ import annotations
 
+import base64
+import json
 from collections.abc import Callable
 from functools import wraps
 from typing import Annotated, Any
 
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
+from fastmcp.utilities.types import Image
 from pydantic import Field
 
 from kb.library import Library, default_library
 from mcp_server import __version__, rest, tools
+from mcp_server.layout import Backend, LayoutSession, default_backend
 
 # V1 计划的 10 个工具
 PLANNED_TOOLS: list[str] = [
@@ -45,8 +50,9 @@ def _guard(fn: Callable) -> Callable:
     return wrapper
 
 
-def create_server(library_factory: Callable[[], Library] = default_library) -> FastMCP:
-    """创建 MCP 服务端；组件库在第一次用到时才连接。"""
+def create_server(library_factory: Callable[[], Library] = default_library,
+                  backend_factory: Callable[[], Backend | None] = default_backend) -> FastMCP:
+    """创建 MCP 服务端；组件库在第一次用到时才连接，FreeCAD 后端在第一次干涉检查或截图时才启动。"""
     mcp = FastMCP("freecad-ai-parts", instructions=(
         "机电零件选型与校验工具。组件是“端口 + 参数 + 包络”的黑箱；凡影响能不能用的判断都由确定性校验完成。"
         "参数一律用标准单位（mm、N·m、rpm、kg、kg·m²、W、V、A 有效值）。"))
@@ -58,14 +64,16 @@ def create_server(library_factory: Callable[[], Library] = default_library) -> F
         return state["lib"]
 
     def info() -> dict:
-        return {"name": "freecad-ai-parts", "version": __version__, "stage": "M4a", "planned_tools": PLANNED_TOOLS}
+        return {"name": "freecad-ai-parts", "version": __version__, "stage": "M4b", "planned_tools": PLANNED_TOOLS}
 
     @mcp.tool
     def server_info() -> dict:
         """返回服务端名称、版本、当前阶段和计划中的工具清单。"""
         return info()
 
-    rest.register(mcp, lib, info)
+    session = LayoutSession(lib, backend_factory)
+    state["layout"] = session
+    rest.register(mcp, lib, info, session)
 
     @mcp.prompt
     def joint_selection(statement: Annotated[str, Field(description="用户的一句话需求")]) -> str:
@@ -145,6 +153,53 @@ def create_server(library_factory: Callable[[], Library] = default_library) -> F
     ) -> dict:
         """导出方案的 BOM（含原厂模型链接与数据来源）或系统 JSON（含校验报告与组件数据）。"""
         return tools.export_system(lib(), system, format=format)
+
+    @mcp.tool
+    @_guard
+    def place_component(
+        instance: Annotated[str, Field(description="实例名，如 motor、reducer、drive（小写字母开头）")],
+        component_id: Annotated[str | None, Field(description="组件 id；新实例必填，移动已有实例时可省略")] = None,
+        position_mm: Annotated[list[float] | None, Field(description="实例原点的世界坐标 [x, y, z]，mm；缺省原点")] = None,
+        rotation_axis: Annotated[list[float] | None, Field(description="旋转轴 [x, y, z]；缺省 z 轴")] = None,
+        rotation_deg: Annotated[float, Field(description="绕旋转轴的转角，度")] = 0.0,
+        remove: Annotated[bool, Field(description="为 true 时从场景删除该实例及其配合")] = False,
+    ) -> dict:
+        """在布局场景中放置组件（包络）或移动已有实例；已配合的实例连同其刚性组一起移动。返回当前布局。"""
+        return session.place(instance, component_id, position_mm, rotation_axis, rotation_deg, remove)
+
+    @mcp.tool
+    @_guard
+    def connect_ports(
+        a: Annotated[str, Field(description="基准端口，写成 实例.端口，如 motor.mount_flange；其所在组不动")],
+        b: Annotated[str, Field(description="被移动的端口，如 reducer.motor_flange；其所在刚性组整体移动")],
+        roll_deg: Annotated[float, Field(description="绕配合轴的转角，度")] = 0.0,
+        offset_mm: Annotated[float, Field(description="仅圆柱配合：沿轴向平移被移动件，mm")] = 0.0,
+    ) -> dict:
+        """按端口坐标系对齐两个机械端口：法兰、安装面原点重合；轴与孔同轴（插入深度按数据，未知时提示）。
+        两端已在同一刚性组时只核对对齐。电气、信号端口不参与布局。"""
+        return session.connect(a, b, roll_deg, offset_mm)
+
+    @mcp.tool
+    @_guard
+    def check_interference(
+        threshold_mm3: Annotated[float, Field(description="重叠体积阈值，mm³；不大于它的不报", ge=0)] = 1.0,
+    ) -> dict:
+        """在 FreeCAD 中检查当前布局的干涉：返回干涉对、重叠体积、包围盒和是否有配合关系；
+        轴穿过同组零件（如转接板）的部分单独列在 pass_through，需确认该零件有通孔。"""
+        return session.interference(threshold_mm3)
+
+    @mcp.tool
+    @_guard
+    def snapshot(
+        view: Annotated[str, Field(description="视角：iso / front / rear / left / right / top / bottom")] = "iso",
+        width: Annotated[int, Field(ge=64, le=4096)] = 800,
+        height: Annotated[int, Field(ge=64, le=4096)] = 600,
+    ) -> list:
+        """在 FreeCAD 中渲染当前布局的截图（按品类着色），供自查摆放是否合理。"""
+        result = session.snapshot(view, width, height)
+        data = base64.b64decode(result["png_base64"])
+        meta = {k: v for k, v in result.items() if k != "png_base64"}
+        return [Image(data=data, format="png"), json.dumps({**meta, "layout": session.state()}, ensure_ascii=False)]
 
     return mcp
 
