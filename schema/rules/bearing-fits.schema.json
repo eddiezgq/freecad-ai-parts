@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/rules/bearing-fits.schema.json",
+  "title": "轴承配合推荐表",
+  "description": "C2 判定轴承端口用：按内/外圈、圈上载荷是否旋转、载荷大小、轴径范围，给出配合件（轴或轴承座）推荐的 ISO 286 公差带。范围为 (d_over_mm, d_upto_mm]。只覆盖径向球轴承（深沟、角接触）。判定方式见 ADR-0017。",
+  "type": "object",
+  "properties": {
+    "table": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "verified"
+      ]
+    },
+    "verification": {
+      "type": "string"
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "standard",
+              "secondary",
+              "engineering_judgment"
+            ]
+          },
+          "accessed": {
+            "type": "string",
+            "format": "date"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "kind"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "ring": {
+            "enum": [
+              "inner",
+              "outer"
+            ]
+          },
+          "mating": {
+            "enum": [
+              "shaft",
+              "housing"
+            ]
+          },
+          "load_on_ring": {
+            "enum": [
+              "rotating",
+              "stationary"
+            ]
+          },
+          "load": {
+            "enum": [
+              "light",
+              "normal",
+              "heavy",
+              "any"
+            ]
+          },
+          "bearing_kinds": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "enum": [
+                "deep_groove",
+                "angular_contact",
+                "cross_roller",
+                "tapered_roller"
+              ]
+            }
+          },
+          "d_over_mm": {
+            "type": "number",
+            "minimum": 0
+          },
+          "d_upto_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "classes": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^(JS|js|[A-Za-z])[0-9]{1,2}$"
+            }
+          },
+          "sources": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "note": {
+            "type": "string"
+          },
+          "verified": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ring",
+          "mating",
+          "load_on_ring",
+          "load",
+          "bearing_kinds",
+          "d_over_mm",
+          "d_upto_mm",
+          "classes",
+          "sources",
+          "verified"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "table",
+    "version",
+    "status",
+    "verification",
+    "sources",
+    "entries"
+  ],
+  "additionalProperties": false
+}

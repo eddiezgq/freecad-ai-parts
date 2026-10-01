@@ -29,7 +29,7 @@ def _table(name: str) -> dict:
 
 def test_three_tables_present():
     names = {p.stem for p in TABLES}
-    assert names == {"iso273-clearance-holes", "iso286-fits", "feature-clamping-matrix"}
+    assert names == {"iso273-clearance-holes", "iso286-fits", "feature-clamping-matrix", "bearing-fits"}
 
 
 @pytest.mark.parametrize("path", TABLES, ids=lambda p: p.stem)
@@ -46,8 +46,9 @@ def test_verified_status_requires_every_entry_verified(path: Path):
         assert all(e["verified"] for e in table["entries"])
 
 
-def test_fit_sources_are_declared():
-    table = _table("iso286-fits")
+@pytest.mark.parametrize("name", ["iso286-fits", "bearing-fits"])
+def test_fit_sources_are_declared(name: str):
+    table = _table(name)
     declared = {s["id"] for s in table["sources"]}
     for e in table["entries"]:
         assert set(e["sources"]) <= declared, e
@@ -84,3 +85,25 @@ def test_matrix_non_pass_has_reason():
     for e in _table("feature-clamping-matrix")["entries"]:
         if e["result"] != "pass":
             assert e.get("reason"), e
+
+
+def test_bearing_fit_ranges_and_mating():
+    for e in _table("bearing-fits")["entries"]:
+        assert e["d_over_mm"] < e["d_upto_mm"], e
+        assert e["mating"] == ("shaft" if e["ring"] == "inner" else "housing"), e
+        cls = e["classes"]
+        if e["mating"] == "shaft":
+            assert all(c[0].islower() for c in cls), e
+        else:
+            assert all(c[0].isupper() for c in cls), e
+
+
+def test_bearing_fit_ranges_do_not_overlap():
+    groups = {}
+    for e in _table("bearing-fits")["entries"]:
+        key = (e["ring"], e["load_on_ring"], e["load"])
+        groups.setdefault(key, []).append((e["d_over_mm"], e["d_upto_mm"]))
+    for key, ranges in groups.items():
+        ranges.sort()
+        for (a0, a1), (b0, b1) in itertools.pairwise(ranges):
+            assert a1 <= b0, (key, ranges)
