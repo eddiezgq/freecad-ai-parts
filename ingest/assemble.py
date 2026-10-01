@@ -87,8 +87,12 @@ def derive(category: str, values: dict) -> dict:
             elif hole and not thread:
                 put(f"{base}/hole_kind", "through", "印有孔径，故为通孔", [hole])
         if "mechanical.mount_face" in p.types and f"{base}/pitch_x_mm" in values:
-            put(f"{base}/pattern", "rect", "安装孔按水平、垂直间距排列（schema 只有 rect）",
-                [values[f"{base}/pitch_x_mm"]])
+            # 有水平孔距、孔数为 2 或 4 时只能是矩形角点（ADR-0031）；没有水平孔距不推断，
+            # 可能是规格书漏印，由复核员补 pattern
+            count = _num(values, f"{base}/hole_count")
+            if count in (2, 4):
+                put(f"{base}/pattern", "rect", f"给出了水平与垂直孔距、{count} 孔，按矩形角点排列（ADR-0031）",
+                    [values[f"{base}/pitch_x_mm"], values[f"{base}/hole_count"]])
     if category == "bearing":
         for port in ("inner", "outer"):
             fit = values.get(f"ports/{port}/fit")
