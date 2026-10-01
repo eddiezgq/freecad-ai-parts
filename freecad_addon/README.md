@@ -37,3 +37,18 @@ MCP 服务端通过 `freecad_addon.fc.client.HeadlessWorker` 用 FreeCAD 内带�
 
 - `interferences`：干涉对、重叠体积、包围盒、两者是否有配合关系
 - `pass_through`：轴从根部到孔口之间穿过的同组零件，需人工确认这些零件有通孔
+
+## 界面桥接（gui 后端，ADR-0036）
+
+让外部 MCP 客户端（如 Claude Desktop）驱动你打开的 FreeCAD：布局实时显示在窗口里，截图截的就是这个窗口。
+
+1. 在 FreeCAD 中启用桥接
+   - 工作台完成前（#89），可以在 FreeCAD 的 Python 控制台中运行：
+     ```python
+     import sys; sys.path.insert(0, "/path/to/freecad-ai-parts")
+     from freecad_addon.fc.bridge import Bridge; bridge = Bridge(); bridge.start()
+     ```
+   - 桥接只监听本机，端口与一次性令牌写在 `~/.freecad-ai-parts/bridge.json`（仅本人可读写）
+2. MCP 服务端设置 `FAP_FREECAD=gui`
+   - `place_component`、`connect_ports` 之后，FreeCAD 中的 `FapLayout` 文档会自动更新
+   - `check_interference` 和 `snapshot` 在这个 FreeCAD 中执行

@@ -2,6 +2,7 @@
 
 后端由环境变量 FAP_FREECAD 选择：
 - headless：按需启动 FreeCAD 子进程（freecad_addon.fc.client.HeadlessWorker）
+- gui：连接用户打开的 FreeCAD 中的桥接（ADR-0036）；布局变化后同步显示
 - 未设置或 none：位姿类工具（place_component、connect_ports）照常可用，干涉检查与截图报“未连接 FreeCAD”
 一个服务端进程一个场景（stdio 下即一个客户端）；HTTP 下多个客户端共用同一场景。
 """
@@ -17,7 +18,7 @@ from typing import Any, Protocol
 from freecad_addon.core.geometry import LayoutError, bbox
 from freecad_addon.core.pose import Pose, quat_axis_angle
 from freecad_addon.core.scene import Scene
-from freecad_addon.fc.client import VIEW_NAMES, HeadlessWorker, WorkerError
+from freecad_addon.fc.client import VIEW_NAMES, GuiBridgeClient, HeadlessWorker, WorkerError
 from mcp_server.tools import ToolInputError
 
 DEFAULT_THRESHOLD_MM3 = 1.0
@@ -37,9 +38,11 @@ def default_backend() -> Backend | None:
     mode = (os.environ.get("FAP_FREECAD") or "none").lower()
     if mode == "headless":
         return HeadlessWorker()
+    if mode == "gui":
+        return GuiBridgeClient()
     if mode == "none":
         return None
-    raise ToolBackendError(f"FAP_FREECAD={mode!r} 无效，可选 headless、none（gui 后端随 FreeCAD 面板提供）")
+    raise ToolBackendError(f"FAP_FREECAD={mode!r} 无效，可选 headless、gui、none")
 
 
 def _vec3(v: Any, what: str) -> tuple[float, float, float]:
@@ -65,6 +68,7 @@ class LayoutSession:
         self._backend_factory = backend_factory
         self._backend: Backend | None = None
         self._backend_ready = False
+        self._backend_error: ToolBackendError | None = None
         self._lock = threading.RLock()
         self.scene = Scene()
 
@@ -105,10 +109,31 @@ class LayoutSession:
             raise ToolInputError("use_layout 须为 true / false")
         return {**system, "layout": self.layout_for(system)} if use_layout else system
 
-    def _backend_or_error(self) -> Backend:
+    def _synced(self, result: dict) -> dict:
+        """gui 后端：布局变化后让 FreeCAD 同步显示；失败不影响工具结果，只在 view 中注明（ADR-0036）。"""
+        self._ensure_backend()
+        if self._backend is None or not getattr(self._backend, "syncs_view", False):
+            return result
+        try:
+            if self.scene.instances:
+                self._backend.call("sync", {"scene": self.scene.to_dict()})
+            result["view"] = "已同步到 FreeCAD"
+        except WorkerError as exc:
+            result["view"] = f"未同步到 FreeCAD：{exc}"
+        return result
+
+    def _ensure_backend(self) -> None:
         if not self._backend_ready:
-            self._backend = self._backend_factory()
+            try:
+                self._backend = self._backend_factory()
+            except ToolBackendError as exc:
+                self._backend, self._backend_error = None, exc
             self._backend_ready = True
+
+    def _backend_or_error(self) -> Backend:
+        self._ensure_backend()
+        if self._backend_error is not None:
+            raise self._backend_error
         if self._backend is None:
             raise ToolBackendError("未连接 FreeCAD：干涉检查与截图需要 FreeCAD。设置环境变量 FAP_FREECAD=headless"
                                    "（并用 scripts/fetch_freecad.sh 准备 FreeCAD，或设置 FAP_FREECAD_PYTHON）后重启服务端")
@@ -137,7 +162,7 @@ class LayoutSession:
                     if component_id is not None or position_mm is not None or rotation_axis is not None or rotation_deg:
                         raise ToolInputError("remove 时不能同时给出组件或位姿")
                     out = self.scene.remove(instance)
-                    return {**out, "layout": self.state()}
+                    return self._synced({**out, "layout": self.state()})
                 comp = None
                 if component_id is not None:
                     comp = self._library().get(component_id)
@@ -152,7 +177,7 @@ class LayoutSession:
                 out = self.scene.place(instance, comp, Pose(rot, pos))
             except LayoutError as exc:
                 raise ToolInputError(str(exc)) from exc
-            return {**out, "layout": self.state()}
+            return self._synced({**out, "layout": self.state()})
 
     def connect(self, a: str, b: str, roll_deg: Any = 0.0, offset_mm: Any = 0.0) -> dict:
         with self._lock:
@@ -160,7 +185,7 @@ class LayoutSession:
                 out = self.scene.connect(a, b, _num(roll_deg, "roll_deg"), _num(offset_mm, "offset_mm"))
             except LayoutError as exc:
                 raise ToolInputError(str(exc)) from exc
-            return {**out, "layout": self.state()}
+            return self._synced({**out, "layout": self.state()})
 
     def interference(self, threshold_mm3: Any = DEFAULT_THRESHOLD_MM3) -> dict:
         thr = _num(threshold_mm3, "threshold_mm3")

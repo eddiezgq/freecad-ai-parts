@@ -41,6 +41,10 @@ class SnapshotError(RuntimeError):
 
 
 def _gui():
+    if FreeCAD.GuiUp:  # 用户打开的 FreeCAD（gui 后端）：直接用已有界面
+        import FreeCADGui
+
+        return FreeCADGui
     if not os.environ.get("DISPLAY") and os.name != "nt" and not os.environ.get("WAYLAND_DISPLAY"):
         raise SnapshotError("没有显示环境，无法截图；headless 模式请在 Xvfb 下运行 FreeCAD worker")
     import FreeCADGui
@@ -80,11 +84,8 @@ def build_document(scene: Scene):
     return doc
 
 
-def snapshot(scene: Scene, view: str = "iso", width: int = 800, height: int = 600) -> dict:
-    if view not in VIEWS:
-        raise SnapshotError(f"未知视角 {view}，可选：{'、'.join(VIEWS)}")
-    if not (64 <= width <= 4096 and 64 <= height <= 4096):
-        raise SnapshotError("宽高须在 64–4096 像素之间")
+def show(scene: Scene, fit: bool = True):
+    """在 FreeCAD 界面中重建布局文档并着色，返回其视图。"""
     gui = _gui()
     doc = build_document(scene)
     gui.updateGui()
@@ -97,8 +98,26 @@ def snapshot(scene: Scene, view: str = "iso", width: int = 800, height: int = 60
         _matte(vo, color)
     gui.setActiveDocument(doc.Name)
     v = gdoc.activeView()
-    # 每步之后处理界面事件，否则视角与适配在保存前不生效
     gui.updateGui()
+    if fit:
+        v.fitAll()
+        gui.updateGui()
+    return gui, v
+
+
+def sync(scene: Scene) -> dict:
+    """gui 后端：把场景显示在用户的 FreeCAD 中（ADR-0036）。"""
+    show(scene)
+    return {"document": DOC_NAME, "instances": sorted(scene.instances)}
+
+
+def snapshot(scene: Scene, view: str = "iso", width: int = 800, height: int = 600) -> dict:
+    if view not in VIEWS:
+        raise SnapshotError(f"未知视角 {view}，可选：{'、'.join(VIEWS)}")
+    if not (64 <= width <= 4096 and 64 <= height <= 4096):
+        raise SnapshotError("宽高须在 64–4096 像素之间")
+    gui, v = show(scene, fit=False)
+    # 每步之后处理界面事件，否则视角与适配在保存前不生效
     getattr(v, VIEWS[view])()
     gui.updateGui()
     v.fitAll()
