@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import sys
 from pathlib import Path
 
@@ -36,21 +37,54 @@ def expected_targets(answer: dict) -> dict[str, dict]:
     return out
 
 
-def _same(want, got) -> bool:
+def _loose(text: str) -> str:
+    return re.sub(r"[\W_]+", "", text.casefold())
+
+
+def _same(want, got, *, loose: bool = False) -> bool:
+    """单个值是否等价。loose：没有枚举的字符串，忽略大小写、空白和标点（ADR-0038）。"""
     if isinstance(want, bool) or isinstance(got, bool):
         return want is got
     if isinstance(want, (int, float)) and isinstance(got, (int, float)):
         return math.isclose(want, got, rel_tol=REL_TOL, abs_tol=1e-12)
     if isinstance(want, list) and isinstance(got, list):
-        return len(want) == len(got) and all(any(_same(w, g) for g in got) for w in want)
+        return len(want) == len(got) and all(any(_same(w, g, loose=loose) for g in got) for w in want)
+    if loose and isinstance(want, str) and isinstance(got, str):
+        return _loose(want) == _loose(got)
     return want == got
 
 
+def _equivalent(target, want, got) -> bool:
+    """按字段类型比较（ADR-0038）：string_or_list 中单值等于单元素列表；无枚举字符串宽松比较。"""
+    loose = target.enum is None and target.kind in ("string", "string_or_list")
+    if target.kind == "string_or_list":
+        want = want if isinstance(want, list) else [want]
+        got = got if isinstance(got, list) else [got]
+    return _same(want, got, loose=loose)
+
+
+def _component_value(component: dict, path: str) -> dict | None:
+    head, *rest = path.split("/")
+    try:
+        if head == "params":
+            return component["params"].get(rest[0])
+        if head == "ports":
+            port = next(p for p in component["ports"] if p["id"] == rest[0])
+            return port["spec"].get(rest[1])
+    except (KeyError, StopIteration, IndexError):
+        return None
+    return None
+
+
 def score(answer: dict, result: dict) -> dict[str, dict]:
-    """逐目标评分：target → {"outcome", "key", "condition_ok"(有工况时)}。"""
+    """逐目标评分：target → {"outcome", "key", "condition_ok"(有工况时)}。
+
+    outcome：correct / wrong / missed / extra / implicit（报了可推出字段且与推导值相同，不计分，ADR-0038）。
+    """
     exp = expected_targets(answer)
     got = {i["target"]: i["value"] for i in result["items"]}
     tmap = targets(answer["category"])
+    implicit = set(answer.get("implicit", []))
     out: dict[str, dict] = {}
     for t, e in exp.items():
         pv = got.get(t)
@@ -58,25 +92,35 @@ def score(answer: dict, result: dict) -> dict[str, dict]:
             row = {"outcome": "missed", "key": e["key"]}
         else:
             shape = set(pv) & {"value", "min", "max", "nominal", "tol_upper", "tol_lower"}
-            ok = shape == set(e["expected"]) and all(_same(v, pv[k]) for k, v in e["expected"].items())
+            ok = shape == set(e["expected"]) and all(_equivalent(tmap[t][0], v, pv[k])
+                                                     for k, v in e["expected"].items())
             row = {"outcome": "correct" if ok else "wrong", "key": e["key"]}
         if e["condition"]:
             row["condition_ok"] = pv is not None and pv.get("condition") == e["condition"]
         out[t] = row
-    for t in got:
-        if t not in exp:
-            out[t] = {"outcome": "extra", "key": tmap[t][0].key if t in tmap else False}
+    for t, pv in got.items():
+        if t in exp:
+            continue
+        key = tmap[t][0].key if t in tmap else False
+        derived = _component_value(answer.get("component", {}), t) if t in implicit else None
+        if derived is not None and t in tmap and "value" in pv and "value" in derived \
+                and _equivalent(tmap[t][0], derived["value"], pv["value"]):
+            out[t] = {"outcome": "implicit", "key": key}
+        else:
+            out[t] = {"outcome": "extra", "key": key}
     return out
 
 
 def _bucket() -> dict:
-    return {"expected": 0, "correct": 0, "wrong": 0, "missed": 0, "extra": 0,
+    return {"expected": 0, "correct": 0, "wrong": 0, "missed": 0, "extra": 0, "implicit": 0,
             "key_expected": 0, "key_correct": 0, "condition_expected": 0, "condition_correct": 0}
 
 
 def _add(b: dict, row: dict) -> None:
     o = row["outcome"]
     b[o] += 1
+    if o == "implicit":  # 可推出字段：不计分（ADR-0038）
+        return
     if o != "extra":
         b["expected"] += 1
         if row["key"]:
@@ -138,7 +182,7 @@ def render_markdown(report: dict) -> str:
         (f"- 关键字段准确率：{_pct(o['key_accuracy'])}（{o['key_correct']}/{o['key_expected']}），"
          f"门槛 {_pct(report['threshold'])}：**{verdict}**"),
         (f"- 全部字段：召回 {_pct(o['recall'])}，精确 {_pct(o['precision'])}；"
-         f"错 {o['wrong']}，漏 {o['missed']}，多 {o['extra']}"),
+         f"错 {o['wrong']}，漏 {o['missed']}，多 {o['extra']}；可推出字段（不计分）{o['implicit']}"),
         f"- 工况：{_pct(o['condition_accuracy'])}（{o['condition_correct']}/{o['condition_expected']}）",
         "", "## 逐品类", "",
         "| 品类 | 关键字段准确率 | 召回 | 精确 | 错 | 漏 | 多 |", "| --- | --- | --- | --- | --- | --- | --- |",
