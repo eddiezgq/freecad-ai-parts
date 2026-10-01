@@ -77,6 +77,28 @@ class LayoutSession:
             "connections": [c.to_dict() for c in self.scene.connections],
         }
 
+    def layout_for(self, system: dict) -> dict:
+        """把当前场景中属于该系统的实例位姿写成系统的 layout（ADR-0034）；实例的组件须与系统一致。"""
+        if not isinstance(system, dict) or not isinstance(system.get("components"), list):
+            raise ToolInputError("系统须含 components 列表")
+        with self._lock:
+            poses = {}
+            for item in system["components"]:
+                name = item.get("instance") if isinstance(item, dict) else None
+                if name in self.scene.instances:
+                    have = self.scene.component(name)["id"]
+                    if have != item.get("component"):
+                        raise ToolInputError(f"场景中的 {name} 是 {have}，与系统中的 {item.get('component')} 不一致")
+                    poses[name] = self.scene.pose(name).to_dict()
+            if not poses:
+                raise ToolInputError("场景中没有该系统的实例：先用 place_component、connect_ports 布局")
+            return {"poses": poses}
+
+    def with_layout(self, system: dict, use_layout: bool) -> dict:
+        if not isinstance(use_layout, bool):
+            raise ToolInputError("use_layout 须为 true / false")
+        return {**system, "layout": self.layout_for(system)} if use_layout else system
+
     def _backend_or_error(self) -> Backend:
         if not self._backend_ready:
             self._backend = self._backend_factory()

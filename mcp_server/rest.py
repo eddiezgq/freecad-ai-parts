@@ -10,8 +10,8 @@ MCP 在 /mcp，REST 在 /api。
 | GET | /api/components/{id} | get_component |
 | GET | /api/components/{id}/ports/{port}/compatible?category=&include_unknown=&via_adapters=&limit= | find_compatible |
 | POST | /api/compose  {requirement, top_n?, include_unknown?, lang?} | compose_chain |
-| POST | /api/verify   {system, lang?} | verify_system |
-| POST | /api/export   {system, format?} | export_system |
+| POST | /api/verify   {system, lang?, use_layout?} | verify_system |
+| POST | /api/export   {system, format?, use_layout?} | export_system（format 含 urdf） |
 | GET | /api/layout | 当前布局（各工具结果中的 layout） |
 | POST | /api/layout/place {instance, component_id?, position_mm?, rotation_axis?, rotation_deg?, remove?} | place_component |
 | POST | /api/layout/connect {a, b, roll_deg?, offset_mm?} | connect_ports |
@@ -145,14 +145,16 @@ def register(mcp, lib: Callable[[], Any], info: Callable[[], dict], layout: Any 
     @route("/api/verify", ["POST"])
     async def verify(request: Request):
         data = await _body(request)
-        _only(data, {"system", "lang"}, {"system"})
-        return tools.verify_system(lib(), data["system"], lang=data.get("lang", "zh"))
+        _only(data, {"system", "lang", "use_layout"}, {"system"})
+        system = layout.with_layout(data["system"], data.get("use_layout", False)) if layout else data["system"]
+        return tools.verify_system(lib(), system, lang=data.get("lang", "zh"))
 
     @route("/api/export", ["POST"])
     async def export(request: Request):
         data = await _body(request)
-        _only(data, {"system", "format"}, {"system"})
-        return tools.export_system(lib(), data["system"], format=data.get("format", "bom_csv"))
+        _only(data, {"system", "format", "use_layout"}, {"system"})
+        system = layout.with_layout(data["system"], data.get("use_layout", False)) if layout else data["system"]
+        return tools.export_system(lib(), system, format=data.get("format", "bom_csv"))
 
     if layout is None:
         return

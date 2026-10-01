@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 
 from engine.checks_interface import _pair_ok
+from engine.geometry import envelope_extent, unit
 from engine.result import FAIL, NA, PASS, UNKNOWN, WARN, CheckResult, Finding, not_applicable
 from engine.system import PortRef, System
 from engine.values import capacity, demand, items, nominal, span, text
@@ -164,8 +165,46 @@ def _part_diameter(part: dict) -> float | None:
     return math.hypot(w, h) if w is not None and h is not None else None
 
 
+def _length_finding(system: System, l_max: float) -> Finding:
+    """布局后的系统长度（ADR-0034）：除驱动器外各实例的包络，在减速器输出轴方向上的投影范围。"""
+    many = system.too_many("reducer")
+    if many:
+        return Finding(UNKNOWN, f"包络长度：{many}", [])
+    reducer = system.one("reducer")
+    out = PortRef(reducer, "output_flange") if reducer else None
+    if out is None or not system.has_port(out) or "frame" not in system.port(out):
+        return Finding(UNKNOWN, "包络长度：系统中没有带输出法兰的减速器，无法确定输出轴方向", [])
+    chain = [n for n, c in system.instances.items() if c["category"] != "drive"]
+    missing = [n for n in chain if n not in system.poses]
+    if missing:
+        return Finding(UNKNOWN, f"包络长度：{', '.join(missing)} 未布局（layout 中没有位姿）", [])
+    try:
+        axis = system.poses[reducer].apply_dir(unit(tuple(system.port(out)["frame"]["axis"])))
+    except ValueError:
+        return Finding(UNKNOWN, "包络长度：减速器输出法兰的轴向为零向量", [str(out)])
+    lo, hi, lacking = math.inf, -math.inf, []
+    for name in chain:
+        for part in system.instances[name]["envelope"]["parts"]:
+            dims = {k: nominal(part.get(k)) for k in ("length_mm", "diameter_mm", "width_mm", "height_mm")}
+            need = ["length_mm"] + (["diameter_mm"] if part["shape"] == "cylinder" else ["width_mm", "height_mm"])
+            if any(dims[k] is None for k in need):
+                lacking.append(name)
+                continue
+            a, b = envelope_extent(part["shape"], part["z_start_mm"], dims["length_mm"], system.poses[name], axis,
+                                   diameter=dims["diameter_mm"], width=dims["width_mm"], height=dims["height_mm"])
+            lo, hi = min(lo, a), max(hi, b)
+    if lacking:
+        return Finding(UNKNOWN, f"包络长度：{', '.join(sorted(set(lacking)))} 的包络缺少尺寸", [])
+    length = hi - lo
+    ok = length <= l_max + 1e-9
+    return Finding(PASS if ok else FAIL,
+                   f"系统长度（沿减速器输出轴，按布局）{length:.4g} mm {'≤' if ok else '>'} 限值 {l_max:g} mm",
+                   [str(out)], length, l_max, "mm")
+
+
 def c11(system: System) -> CheckResult:
-    """轴承与包络：轴承转速（取输出转速）≤ 极限转速；系统外径 ≤ 需求限值；长度 M3 不判（ADR-0020）。"""
+    """轴承与包络：轴承转速（取输出转速）≤ 极限转速；系统外径 ≤ 需求限值；
+    有布局时系统长度 ≤ 需求限值，没有布局时长度不判（ADR-0020、ADR-0034）。"""
     req = system.requirement
     res = CheckResult("C11")
     notes = []
@@ -199,8 +238,12 @@ def c11(system: System) -> CheckResult:
             ok = worst_d <= d_max + 1e-9
             msg = f"系统外径（外接圆）{worst_d:.4g} mm {'≤' if ok else '>'} 限值 {d_max:g} mm（最大处：{where}）"
             res.findings.append(Finding(PASS if ok else FAIL, msg, [], worst_d, d_max, "mm"))
-    if req.get("max_envelope_length_mm") is not None:
-        notes.append("包络长度须 FreeCAD 布局后计算，M3 不判（ADR-0020）")
+    l_max = req.get("max_envelope_length_mm")
+    if l_max is not None:
+        if system.poses is None:
+            notes.append("包络长度须 FreeCAD 布局后计算；系统没有 layout，不判（ADR-0020、ADR-0034）")
+        else:
+            res.findings.append(_length_finding(system, l_max))
     if not res.findings:
         reason = "；".join(notes) or "系统中没有轴承，需求也未给包络外径限值"
         return not_applicable("C11", reason)

@@ -51,6 +51,11 @@ Windows 下 `command` 为 `C:\\path\\to\\freecad-ai-parts\\.venv\\Scripts\\pytho
 
 没有设置时，这两个工具会返回“未连接 FreeCAD”的说明。
 
+布局完成后，`verify_system` 和 `export_system` 加上 `use_layout: true`，就会用当前布局作为系统的 `layout`（ADR-0034）：
+
+- C11 会计算包络长度
+- `export_system` 可以导出 `urdf`（ADR-0035）
+
 ## 4. 试一句话需求（M4a 验收）
 
 在 Claude Desktop 中输入：

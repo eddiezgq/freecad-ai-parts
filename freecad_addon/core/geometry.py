@@ -7,9 +7,9 @@
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 
+from engine.geometry import envelope_extent
 from engine.values import nominal
 from freecad_addon.core.pose import Pose, Vec, dot, norm, unit
 
@@ -120,19 +120,9 @@ def bores(comp: dict) -> list[Bore]:
 
 
 def part_extent(part: Part, pose: Pose, direction: Vec) -> tuple[float, float]:
-    """一段包络（经位姿变换后）在单位方向 direction 上的投影范围。圆柱与长方体都有解析式。"""
-    d = unit(direction)
-    ez = pose.apply_dir((0.0, 0.0, 1.0))
-    c = pose.apply((0.0, 0.0, part.z_start + part.length / 2))
-    mid = dot(c, d)
-    half = abs(dot(ez, d)) * part.length / 2
-    if part.shape == "cylinder":
-        sin = math.sqrt(max(0.0, 1.0 - dot(ez, d) ** 2))
-        half += sin * part.diameter / 2  # type: ignore[operator]
-    else:
-        ex, ey = pose.apply_dir((1.0, 0.0, 0.0)), pose.apply_dir((0.0, 1.0, 0.0))
-        half += abs(dot(ex, d)) * part.width / 2 + abs(dot(ey, d)) * part.height / 2  # type: ignore[operator]
-    return mid - half, mid + half
+    """一段包络（经位姿变换后）在方向 direction 上的投影范围（engine.geometry.envelope_extent）。"""
+    return envelope_extent(part.shape, part.z_start, part.length, pose, direction, diameter=part.diameter,
+                           width=part.width, height=part.height)
 
 
 def distance_to_line(p: Vec, origin: Vec, axis: Vec) -> float:

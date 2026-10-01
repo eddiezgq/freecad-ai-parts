@@ -8,6 +8,8 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 
+from engine.geometry import Pose
+
 
 class SystemError_(ValueError):
     """系统本身不合法（实例重复、引用不存在的组件或端口、端口重复连接）。"""
@@ -34,6 +36,7 @@ class System:
     instances: dict[str, dict]  # 实例名 → 组件
     connections: list[tuple[PortRef, PortRef]]
     _ports: dict[PortRef, dict] = field(default_factory=dict, repr=False)
+    poses: dict[str, Pose] | None = None  # 布局结果（ADR-0034）；没有 layout 时为 None
 
     def port(self, ref: PortRef) -> dict:
         return self._ports[ref]
@@ -117,4 +120,14 @@ def load_system(system: Mapping, resolve: Callable[[str], dict | None]) -> Syste
                 raise SystemError_(f"端口重复连接：{r}")
             used.add(r)
         conns.append((a, b))
-    return System(system["id"], dict(system["requirement"]), instances, conns, ports)
+    poses = None
+    if system.get("layout") is not None:
+        poses = {}
+        for name, raw in system["layout"]["poses"].items():
+            if name not in instances:
+                raise SystemError_(f"布局中的实例 {name} 不在 components 中")
+            try:
+                poses[name] = Pose.from_dict(raw)
+            except (ValueError, KeyError, TypeError) as exc:
+                raise SystemError_(f"实例 {name} 的位姿不合法：{exc}") from exc
+    return System(system["id"], dict(system["requirement"]), instances, conns, ports, poses)
