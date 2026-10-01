@@ -1,0 +1,110 @@
+{
+  "why": "抽取结果不得标为已复核",
+  "instance": {
+    "format": "extraction/1",
+    "document": {
+      "doc": "src-test-fixture",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "pages": 2
+    },
+    "category": "reducer",
+    "vendor": "Synth Gear",
+    "model": "SGH-13-100",
+    "extractor": {
+      "model": "claude-sonnet-5-5",
+      "prompt_version": "extract/1",
+      "simulated": true
+    },
+    "items": [
+      {
+        "target": "params/rated_torque_nm",
+        "value": {
+          "value": 18.5,
+          "condition": "输入转速 2000 r/min 时",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "extracted",
+          "confidence": 0.9,
+          "reviewed": true
+        },
+        "printed": {
+          "label": "额定扭矩",
+          "text": "18.5",
+          "unit": "N·m",
+          "quote": "额定扭矩（输入转速 2000 r/min 时） 18.5 N·m"
+        }
+      },
+      {
+        "target": "params/input_inertia_kgm2",
+        "value": {
+          "value": 9.2e-06,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "extracted",
+          "confidence": 0.9,
+          "reviewed": false
+        },
+        "printed": {
+          "label": "输入侧转动惯量",
+          "text": "0.092",
+          "unit": "×10⁻⁴ kg·m²"
+        },
+        "issues": [
+          "单位换算：0.092 ×10⁻⁴ kg·m² → 9.2e-06 kg·m²"
+        ]
+      },
+      {
+        "target": "ports/input_bore/diameter_mm",
+        "value": {
+          "value": 8,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 2
+          },
+          "method": "extracted",
+          "confidence": 0.9,
+          "reviewed": false
+        },
+        "printed": {
+          "text": "8",
+          "unit": "mm"
+        }
+      },
+      {
+        "target": "dims/outer_diameter_mm",
+        "value": {
+          "value": 82,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 2
+          },
+          "method": "extracted",
+          "confidence": 0.9,
+          "reviewed": false
+        },
+        "printed": {
+          "text": "82",
+          "unit": "mm"
+        }
+      }
+    ],
+    "rejected": [
+      {
+        "target": "params/rated_torque_nm",
+        "page": 1,
+        "printed": {
+          "text": "16",
+          "unit": "N·m"
+        },
+        "reason": "原文引用在第 1 页找不到"
+      }
+    ],
+    "missing_key_fields": [
+      "params/efficiency_ratio"
+    ]
+  }
+}
