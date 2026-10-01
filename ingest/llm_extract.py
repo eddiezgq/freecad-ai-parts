@@ -298,7 +298,6 @@ class AnthropicClient:
         msg = self._client.messages.create(
             model=request["model"],
             max_tokens=16000,
-            temperature=0,
             system=request["system"],
             tools=[request["tool"]],
             tool_choice={"type": "tool", "name": request["tool"]["name"]},
