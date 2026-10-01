@@ -2,7 +2,7 @@
   "table": "feature-clamping-matrix",
   "version": "0.1.0-draft",
   "status": "draft",
-  "verification": "工程判断，不出自标准；由形状配合与紧固方式两条规则组合生成，取较严结果。需机械工程背景的人评审。",
+  "verification": "工程判断，不出自标准；由形状配合与紧固方式两条规则组合生成，取较严结果。需机械工程背景的人评审。 2026-09-30 项目负责人审核通过、同意合并；各项 verified 保持 false，待有机械设计经验的人逐项确认。",
   "sources": [
     {
       "id": "engineering-judgment",

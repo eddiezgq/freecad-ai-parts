@@ -2,7 +2,7 @@
   "table": "iso273-clearance-holes",
   "version": "0.1.0-draft",
   "status": "draft",
-  "verification": "数值取自两个公开二手来源，两者在 M1.6–M30 范围内完全一致；尚未对照 ISO 273 原文核对。",
+  "verification": "数值取自两个公开二手来源，两者在 M1.6–M30 范围内完全一致；尚未对照 ISO 273 原文核对。 2026-09-30 项目负责人审核通过、同意合并；逐项对照 ISO 273 原文的核对尚未完成，各项 verified 保持 false。",
   "sources": [
     {
       "id": "iso-273",

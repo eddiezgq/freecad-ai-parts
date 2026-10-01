@@ -2,7 +2,7 @@
   "table": "iso286-fits",
   "version": "0.1.0-draft",
   "status": "draft",
-  "verification": "配合类别取自公开二手来源；两个来源对 H7/k6 归类不一致，H7/js6、H7/m6 未见于二手来源。尚未对照 ISO 286 原文核对。",
+  "verification": "配合类别取自公开二手来源；两个来源对 H7/k6 归类不一致，H7/js6、H7/m6 未见于二手来源。尚未对照 ISO 286 原文核对。 2026-09-30 项目负责人审核通过、同意合并；逐项对照 ISO 286 原文的核对（含 H7/k6、H7/js6、H7/m6）尚未完成，各项 verified 保持 false。",
   "sources": [
     {
       "id": "iso-286",
