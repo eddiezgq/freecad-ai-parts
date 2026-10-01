@@ -676,8 +676,8 @@ def check_proposal(p: Any, category: str, doc_id: str, ctx: _Ctx) -> tuple[dict 
             pv.update({k: int(pv[k]) for k in keys if float(pv[k]).is_integer()})
         if "min" in pv and "max" in pv and pv["min"] > pv["max"]:
             return None, "下限大于上限"
-        if pv.get("tol_upper", 0) < 0 or pv.get("tol_lower", 0) > 0:
-            return None, "公差须满足 下偏差 ≤ 0 ≤ 上偏差"
+        if "tol_upper" in pv and "tol_lower" in pv and pv["tol_lower"] > pv["tol_upper"]:
+            return None, "公差须满足 下偏差 ≤ 上偏差（ADR-0022）"
         if tgt.startswith("dims/") and any(pv[k] <= 0 for k in keys if k in ("value", "min", "max", "nominal")):
             return None, "尺寸须为正数"
     elif spec.kind == "number_pair":
