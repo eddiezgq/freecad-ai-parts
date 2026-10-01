@@ -108,6 +108,9 @@ def urdf(system: dict, resolve: Callable[[str], dict | None]) -> str:
     if sys_.poses is None:
         raise ValueError("导出 URDF 需要系统带 layout（各实例的位姿）；请先布局（ADR-0034、ADR-0035）")
     chain = [n for n, c in sys_.instances.items() if c["category"] != "drive"]
+    clash = sorted(set(chain) & {"base", "output"})
+    if clash:
+        raise ValueError(f"实例名 {', '.join(clash)} 与 URDF 的固定连杆名（base、output）冲突，请改名后再导出")
     missing = [n for n in chain if n not in sys_.poses]
     if missing:
         raise ValueError(f"以下实例没有位姿，无法导出 URDF：{', '.join(missing)}")

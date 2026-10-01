@@ -184,8 +184,10 @@ def test_cylinder_after_face_only_checks():
     out = s.connect("motor.shaft", "reducer.input_bore")
     assert out["moved"] == [] and out["check"] == {
         "position_deviation_mm": 0.0, "angle_deviation_deg": 0.0, "engagement_mm": 30.0}
-    with pytest.raises(LayoutError, match="同一刚性组"):
-        Scene.from_dict(s.to_dict()).connect("motor.mount_flange", "reducer.housing_mount", roll_deg=5)
+    s2 = _motor_reducer()
+    s2.connect("motor.mount_flange", "reducer.motor_flange")
+    with pytest.raises(LayoutError, match="同一刚性组"):  # 同组内不能再用 roll_deg 调整
+        s2.connect("motor.shaft", "reducer.input_bore", roll_deg=5)
 
 
 def _offset_bore_reducer(dx: float) -> dict:
@@ -274,6 +276,19 @@ def test_other_scene_errors():
         s.place("motor", REDUCER)
     out = s.remove("reducer")
     assert out["dropped_connections"][0]["kind"] == "face" and s.connections == []
+
+
+def test_port_cannot_mate_twice():
+    """一个端口只能连一个对象（#104 评审）：与 engine.system.load_system 的“端口重复连接”一致。"""
+    s = Scene()
+    s.place("motor", LIB.get("test.servo_motor.test-vendor.m200"))
+    s.place("plate", PLATE)
+    s.place("reducer", LIB.get("test.reducer.test-vendor.r25-100"))
+    s.connect("motor.mount_flange", "plate.motor_side")
+    before = s.pose("reducer")
+    with pytest.raises(LayoutError, match="已与 plate.motor_side 连接"):
+        s.connect("motor.mount_flange", "reducer.motor_flange")
+    assert s.pose("reducer") == before and len(s.connections) == 1
 
 
 def test_face_offset_rejected():
