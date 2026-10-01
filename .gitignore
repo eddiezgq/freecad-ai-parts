@@ -26,6 +26,7 @@ data/cache/
 
 # 模拟规格书（由 python -m ingest.synthetic 按需生成）
 data/synthetic/
+data/eval/
 
 # 编辑器与系统
 .vscode/
