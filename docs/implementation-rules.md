@@ -335,3 +335,5 @@ PDF 提取：`ingest/pdf_extract.py` 用 pdfplumber 逐页提取正文与表格�
 LLM 抽取：`ingest/llm_extract.py`，流程与分工见 ADR-0021。LLM 只报印出的内容（数值、单位、页码、原文引用），代码逐项核对后输出抽取结果（`schema/extraction.schema.json`），一律未复核、不直接入库。测试只用录制回放或标明 `simulated` 的模拟响应（`ingest/llm_simulate.py`）；录制方法见 `tests/recordings/llm/README.md`。真实调用需要 `pip install -e ".[llm]"` 和本地 `.env` 中的密钥。
 
 人工复核：`kb/review.py`（ADR-0023）。抽取结果入队后，关键字段、置信度低于 0.9、带注意事项的项，以及全部被拒提议与缺失的关键字段进入复核；复核决定只增不改，可改判，须选错误分类。全部决定后由 `ingest/assemble.py` 组装组件（端口坐标系按品类约定，需确认；包络由整体尺寸生成），复核员核对计划后带指纹确认，经 `kb.store.import_component` 写入并记修改历史；已在库中的组件须 `--update`。命令：`python -m kb.review enqueue / list / show / decide / add / commit / stats`。
+
+准确率评测：`ingest/evaluate.py`。对每个可抽取目标判为对、错、漏、多，数值按相对误差 ≤ 0.1% 判对（规格书印 4 位有效数字），工况单独计；关键字段准确率 = 关键字段判对数 / 答案中的关键字段数，门槛 95%。驱动器品类没有关键字段（接口数据都在端口里），只看召回与精确。报告分总体、逐品类、逐字段、逐份规格书。模拟响应只用于检验评测代码，报告会标注且永不判为通过；验收须用真实录制：`python -m ingest.evaluate --variants 2 --record`（本地，需要密钥），之后可用 `--replay` 复现。
