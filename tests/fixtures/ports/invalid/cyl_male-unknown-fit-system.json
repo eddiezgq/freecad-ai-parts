@@ -1,0 +1,64 @@
+{
+  "why": "未定义的公差体系",
+  "instance": {
+    "id": "outer",
+    "type": "mechanical.cyl_male",
+    "dir": "bidir",
+    "motion": "stationary",
+    "frame": {
+      "origin_mm": [
+        0,
+        0,
+        0
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ]
+    },
+    "spec": {
+      "diameter_mm": {
+        "value": 42,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "fit_system": {
+        "value": "din620",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "fit": {
+        "value": "P6",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "feature": {
+        "value": "plain",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      }
+    },
+    "note": "测试用虚构数值，不代表任何真实产品"
+  }
+}

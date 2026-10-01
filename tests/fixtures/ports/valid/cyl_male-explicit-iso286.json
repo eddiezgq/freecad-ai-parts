@@ -1,0 +1,64 @@
+{
+  "why": "显式写明 iso286 公差体系",
+  "instance": {
+    "id": "shaft",
+    "type": "mechanical.cyl_male",
+    "dir": "out",
+    "motion": "rotating",
+    "frame": {
+      "origin_mm": [
+        0,
+        0,
+        0
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ]
+    },
+    "spec": {
+      "diameter_mm": {
+        "value": 14,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "fit_system": {
+        "value": "iso286",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "fit": {
+        "value": "k6",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "feature": {
+        "value": "plain",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      }
+    },
+    "note": "测试用虚构数值，不代表任何真实产品"
+  }
+}
