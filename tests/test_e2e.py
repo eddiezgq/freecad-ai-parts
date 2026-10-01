@@ -56,7 +56,7 @@ def test_structured_requirement_input(tmp_path, monkeypatch):
 def test_needs_input_stops_before_selection(tmp_path, monkeypatch):
     def fake_parse(statement, client=None):
         return requirement_parse.interpret(statement, {"items": []}) | {
-            "llm": {"model": "m", "prompt_version": "requirement/1", "response_id": None, "simulated": True}}
+            "llm": {"model": "m", "prompt_version": "requirement/2", "response_id": None, "simulated": True}}
 
     monkeypatch.setattr(requirement_parse, "parse", fake_parse)
     assert e2e.main(["给第 2 关节选个电机", "--out", str(tmp_path)]) == 1

@@ -149,7 +149,7 @@ def test_request_is_stable_and_validates_input():
     f = Fake([])
     rp.parse(S, f)
     assert request_key(f.requests[0]) == request_key(rp.build_request(S))
-    assert f.requests[0]["prompt_version"] == "requirement/1" and S in f.requests[0]["user"]
+    assert f.requests[0]["prompt_version"] == "requirement/2" and S in f.requests[0]["user"]
     with pytest.raises(ValueError):
         rp.parse("  ")
     garbage = rp.interpret(S, {"items": ["x", 3]})

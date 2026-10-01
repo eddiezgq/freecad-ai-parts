@@ -1,6 +1,6 @@
 """LLM 结构化抽取（issue #29，ADR-0021）。
 
-流程：PDF 提取结果（#28）+ 品类字段清单 → LLM 通过强制工具调用提议抽取项 → 代码逐项核对 → 抽取结果
+流程：PDF 提取结果（#28）+ 品类字段清单 → LLM 通过工具调用提议抽取项 → 代码逐项核对 → 抽取结果
 （符合 schema/extraction.schema.json）。LLM 只报规格书上印出的内容；单位换算、枚举与范围校验、原文引用核对
 全部由本模块的确定性代码完成。核对函数是纯函数，不联网。
 
@@ -27,7 +27,7 @@ from ingest.pdf_extract import Document, ExtractError, extract
 from ingest.units import UnitError, standard_unit, to_standard
 from kb.validation import ID_BASE, SCHEMA_DIR, errors, validator_for_ref
 
-PROMPT_VERSION = "extract/2"
+PROMPT_VERSION = "extract/3"
 DEFAULT_MODEL = "claude-sonnet-5-5"
 TOOL_NAME = "record_extraction"
 ROOT = Path(__file__).resolve().parent.parent
@@ -199,6 +199,10 @@ TOOL_SCHEMA: dict = {
 }
 
 
+# 部分模型不支持强制指定工具（tool_choice 为 tool / any），改为 auto，并在提示词中要求调用
+TOOL_INSTRUCTION = "\n\n只通过调用工具 {name} 一次提交全部结果，不要只用文字回答。"
+
+
 def build_request(document: Document, category: str, *, model: str = DEFAULT_MODEL,
                   prompt_version: str = PROMPT_VERSION) -> dict:
     if category not in CATEGORIES:
@@ -210,7 +214,7 @@ def build_request(document: Document, category: str, *, model: str = DEFAULT_MOD
     return {
         "model": model,
         "prompt_version": prompt_version,
-        "system": SYSTEM_PROMPT,
+        "system": SYSTEM_PROMPT + TOOL_INSTRUCTION.format(name=TOOL_NAME),
         "user": user,
         "tool": {"name": TOOL_NAME, "description": "记录从规格书抽取的参数", "input_schema": TOOL_SCHEMA},
     }
@@ -300,11 +304,11 @@ class AnthropicClient:
             max_tokens=16000,
             system=request["system"],
             tools=[request["tool"]],
-            tool_choice={"type": "tool", "name": request["tool"]["name"]},
+            tool_choice={"type": "auto"},  # 部分模型不支持 tool / any；提示词中要求调用工具
             messages=[{"role": "user", "content": request["user"]}],
         )
         if getattr(msg, "stop_reason", None) != "tool_use":
-            raise RuntimeError(f"LLM 没有正常完成工具调用（stop_reason={getattr(msg, 'stop_reason', None)}），不写录制")
+            raise RuntimeError(f"LLM 没有调用工具（stop_reason={getattr(msg, 'stop_reason', None)}），不写录制；可重试")
         blocks = [b for b in msg.content if getattr(b, "type", "") == "tool_use"]
         if len(blocks) != 1:
             raise RuntimeError(f"LLM 响应中有 {len(blocks)} 个工具调用，应为 1 个")

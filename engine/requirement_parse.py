@@ -19,13 +19,14 @@ from typing import Any
 
 from ingest.llm_extract import (
     DEFAULT_MODEL,
+    TOOL_INSTRUCTION,
     LLMClient,
     RecordedClient,
 )
 from ingest.units import UnitError, to_standard
 from kb.validation import errors as schema_errors
 
-PROMPT_VERSION = "requirement/1"
+PROMPT_VERSION = "requirement/2"
 TOOL_NAME = "record_requirement"
 RECORDINGS_DIR = Path(__file__).resolve().parent.parent / "tests" / "recordings" / "requirement"
 DEFAULT_SAFETY_FACTOR = 1.2  # ADR-0008
@@ -107,7 +108,7 @@ def build_request(statement: str, *, model: str = DEFAULT_MODEL) -> dict:
     return {
         "model": model,
         "prompt_version": PROMPT_VERSION,
-        "system": SYSTEM_PROMPT,
+        "system": SYSTEM_PROMPT + TOOL_INSTRUCTION.format(name=TOOL_NAME),
         "user": f"字段清单（field ; 类型 ; 说明）：\n{_catalog()}\n\n用户原话：\n{statement}",
         "tool": {"name": TOOL_NAME, "description": "记录从用户原话中识别出的需求指标", "input_schema": TOOL_SCHEMA},
     }
