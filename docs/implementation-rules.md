@@ -327,3 +327,5 @@ M1 提前约 3 周完成，M2 随即开工，完成日期不变，多出的时�
 | 8 | M2 验收 | 取得授权后在真实规格书上复测；并入真实种子数据（issue #7） | 见开发计划 |
 
 真实 LLM 调用需要项目负责人的 Anthropic API 密钥，只放在本地 `.env`；CI 与测试一律使用录制的响应。
+
+模拟规格书：虚构组件目录在 `ingest/synthetic_catalog.py`（4 个品类各 5 个，部分型号故意缺项，用来检验“缺数据不写”），由 `python -m ingest.synthetic --out data/synthetic --variants N` 生成 PDF 与答案（`*.answer.json`），输出目录不入 git。同一组件与变体号生成的结果完全相同。答案中 `fields` 是规格书上印出的每一行（页码、文字、单位、换算到标准单位后的期望值），`implicit` 是由品类或其他字段推出、规格书上不直接印出的字段，评测时不计分。生成 PDF 需要 DejaVu Sans 与文泉驿正黑字体（`fonts-dejavu-core`、`fonts-wqy-zenhei`），字体会嵌入 PDF。
