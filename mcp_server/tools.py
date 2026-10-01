@@ -216,5 +216,39 @@ def compose_chain(library: Library, requirement: dict, *, top_n: int = 5, includ
     }
 
 
-__all__: list[Any] = ["SEARCH_LIMIT_MAX", "ToolInputError", "compose_chain", "find_compatible", "get_component",
-                      "search_components", "verify_system"]
+EXPORT_FORMATS = ("bom_csv", "bom_json", "system_json")
+
+
+def export_system(library: Library, system: dict, *, format: str = "bom_csv") -> dict:
+    """导出方案：bom_csv / bom_json / system_json（含校验报告与所用组件数据）。URDF 在 M4b 布局后提供。
+
+    返回 {"filename", "media_type", "content"}；content 为文本（CSV）或对象（JSON）。
+    """
+    import json
+
+    from engine import export
+    from engine.system import SystemError_
+    from engine.validate import validate
+
+    if format not in EXPORT_FORMATS:
+        raise ToolInputError(f"format 须为 {', '.join(EXPORT_FORMATS)} 之一（URDF 在 M4b 提供）")
+    _schema_check("system.schema.json", system, "系统")
+    try:
+        report = validate(system, library.get)
+    except SystemError_ as exc:
+        raise ToolInputError(str(exc)) from exc
+    sid = system["id"]
+    if format == "bom_csv":
+        return {"filename": f"{sid}-bom.csv", "media_type": "text/csv",
+                "content": export.bom_csv(system, library.get), "overall": report["overall"]}
+    if format == "bom_json":
+        return {"filename": f"{sid}-bom.json", "media_type": "application/json",
+                "content": export.bom_json(system, library.get), "overall": report["overall"]}
+    content = export.system_json(system, library.get, report)
+    json.dumps(content, allow_nan=False)  # 确保是合法 JSON
+    return {"filename": f"{sid}.json", "media_type": "application/json", "content": content,
+            "overall": report["overall"]}
+
+
+__all__: list[Any] = ["EXPORT_FORMATS", "SEARCH_LIMIT_MAX", "ToolInputError", "compose_chain", "export_system",
+                      "find_compatible", "get_component", "search_components", "verify_system"]
