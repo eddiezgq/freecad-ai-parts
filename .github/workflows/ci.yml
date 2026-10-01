@@ -7,15 +7,15 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - name: 安装依赖
         run: pip install -e ".[dev]"
       - name: 代码检查
-        run: ruff check .
+        run: python -m ruff check .
       - name: schema 校验与单元测试
         run: python -m pytest -v

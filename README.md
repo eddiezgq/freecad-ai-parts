@@ -38,7 +38,8 @@ AI 原生的 FreeCAD 与零件产品库。把厂商零件抽象成"端口 + 参�
 
 ```bash
 pip install -e ".[dev]"
-pytest -v
+python -m ruff check .
+python -m pytest -v
 ```
 
 ### 接入 MCP 客户端
