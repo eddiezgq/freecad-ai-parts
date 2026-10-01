@@ -124,3 +124,36 @@ def test_cli(tmp_path, runs):
     rc = main(["--variants", "1", "--work", str(tmp_path / "w"), "--out", str(tmp_path / "o2"),
                "--replay", str(tmp_path / "none")])
     assert rc == 2  # 没有真实录制
+
+
+# ------------------------------------------------------------------ 等价规则（ADR-0038）
+
+
+def test_equivalence_rules():
+    from ingest.evaluate import _equivalent
+    from ingest.llm_extract import Target
+
+    sol = Target("params/safety_functions", "string_or_list", None, None, "", False)
+    assert _equivalent(sol, ["STO"], "STO") and _equivalent(sol, "canopen", ["canopen"])
+    assert _equivalent(sol, ["STO", "SS1"], ["SS1", "STO"])
+    assert not _equivalent(sol, ["STO", "SS1"], "STO")
+    free = Target("ports/bus/profile", "string", None, None, "", False)
+    assert _equivalent(free, "cia402", "CiA 402") and not _equivalent(free, "cia402", "cia401")
+    enum = Target("ports/bus/protocol", "string_or_list", None, ("ethercat", "canopen"), "", False)
+    assert not _equivalent(enum, "ethercat", "EtherCAT")  # 有枚举时须与枚举值完全相同
+    num = Target("params/mass_kg", "number", "kg", None, "", True)
+    assert _equivalent(num, 1.0, 1.0005) and not _equivalent(num, 1.0, 1.01)  # 数值规则不变
+
+
+def test_implicit_targets_not_scored_unless_wrong():
+    from ingest.evaluate import expected_targets, score
+
+    sheet = next(s for s in datasheets(0) if s.answer["category"] == "bearing")
+    answer = sheet.answer
+    implicit = next(t for t in answer["implicit"] if t.endswith("fit_system"))
+    base = [{"target": t, "value": {"value": e["expected"]["value"]} if "value" in e["expected"] else e["expected"]}
+            for t, e in expected_targets(answer).items()]
+    ok = score(answer, {"items": [*base, {"target": implicit, "value": {"value": "bearing"}}]})
+    assert ok[implicit]["outcome"] == "implicit"
+    bad = score(answer, {"items": [*base, {"target": implicit, "value": {"value": "iso286"}}]})
+    assert bad[implicit]["outcome"] == "extra"
