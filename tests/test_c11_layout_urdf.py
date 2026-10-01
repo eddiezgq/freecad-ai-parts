@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import copy
+import json
 import math
 import xml.etree.ElementTree as ET
 
@@ -206,3 +207,27 @@ def test_use_layout_via_mcp():
     assert c11_["status"] == "pass" and "195" in c11_["message"]
     assert out["urdf"]["content"].startswith("<?xml")
     assert "不一致" in out["mismatch"]
+
+
+# ------------------------------------------------------------------ 独立评审发现的问题（#104）
+
+
+@pytest.mark.parametrize("roll", [0, 10, 30, 45, 90, 135, 180, -30])
+@pytest.mark.parametrize("pitch", [90, -90])
+def test_rpy_at_gimbal_lock(roll, pitch):
+    """俯仰 ±90° 时 roll、yaw 不唯一，但重建的旋转须与原旋转相同（经位姿序列化往返后也一样）。"""
+    q = Pose(quat_axis_angle((1, 0, 0), roll)).compose(Pose(quat_axis_angle((0, 1, 0), pitch))).rotation
+    q = Pose.from_dict(Pose(q).to_dict()).rotation
+    back = _rot_from_rpy(*rpy(q))
+    for v in ((1, 0, 0), (0, 1, 0), (0, 0, 1)):
+        assert back.apply_dir(v) == pytest.approx(rotate(q, v), abs=1e-9)
+    q2 = Pose.from_dict(Pose(quat_axis_angle((1, 0, 1), 180)).to_dict()).rotation
+    assert _rot_from_rpy(*rpy(q2)).apply_dir((1, 0, 0)) == pytest.approx(rotate(q2, (1, 0, 0)), abs=1e-9)
+
+
+@pytest.mark.parametrize("name", ["base", "output"])
+def test_urdf_rejects_reserved_instance_names(name):
+    s = with_layout(BASE)
+    s = json.loads(json.dumps(s).replace('"motor', f'"{name}'))
+    with pytest.raises(ValueError, match="固定连杆名"):
+        urdf(s, LIB.get)

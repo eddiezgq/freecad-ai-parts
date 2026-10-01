@@ -174,10 +174,14 @@ def envelope_extent(shape: str, z_start: float, length: float, pose: Pose, direc
 
 
 def rpy(q: Quat) -> tuple[float, float, float]:
-    """四元数转 URDF 的 roll、pitch、yaw（弧度，固定轴 X-Y-Z：R = Rz(yaw)·Ry(pitch)·Rx(roll)）。"""
-    w, x, y, z = q
-    roll = math.atan2(2 * (w * x + y * z), 1 - 2 * (x * x + y * y))
-    s = max(-1.0, min(1.0, 2 * (w * y - z * x)))
-    pitch = math.asin(s)
-    yaw = math.atan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z))
-    return roll, pitch, yaw
+    """四元数转 URDF 的 roll、pitch、yaw（弧度，固定轴 X-Y-Z：R = Rz(yaw)·Ry(pitch)·Rx(roll)）。
+
+    由旋转矩阵求角；俯仰为 ±90°（万向锁）时 roll 与 yaw 不唯一，取 roll = 0，由矩阵求 yaw，保证重建的旋转正确。
+    """
+    cols = [rotate(q, e) for e in ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))]
+    r = [[cols[j][i] for j in range(3)] for i in range(3)]  # r[行][列]
+    s = max(-1.0, min(1.0, -r[2][0]))
+    if abs(s) > 1 - 1e-9:
+        pitch = math.copysign(math.pi / 2, s)
+        return 0.0, pitch, math.atan2(-r[0][1], r[1][1])
+    return math.atan2(r[2][1], r[2][2]), math.asin(s), math.atan2(r[1][0], r[0][0])

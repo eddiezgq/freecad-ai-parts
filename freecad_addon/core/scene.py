@@ -147,6 +147,9 @@ class Scene:
         for c in self.connections:
             if {c.a, c.b} == {a, b}:
                 raise LayoutError(f"{a} 与 {b} 已经连接")
+            for ref in (a, b):
+                if ref in (c.a, c.b):  # 一个端口只能连一个对象（同 engine.system.load_system）
+                    raise LayoutError(f"端口 {ref} 已与 {c.b if ref == c.a else c.a} 连接，不能再连接其他端口")
         if kind == "face" and offset_mm:
             raise LayoutError("面配合不支持 offset_mm（原点须重合）")
         result: dict = {"a": a, "b": b, "kind": kind}
