@@ -105,5 +105,5 @@ def test_bearing_fit_ranges_do_not_overlap():
         groups.setdefault(key, []).append((e["d_over_mm"], e["d_upto_mm"]))
     for key, ranges in groups.items():
         ranges.sort()
-        for (a0, a1), (b0, b1) in zip(ranges, ranges[1:]):
+        for (a0, a1), (b0, b1) in itertools.pairwise(ranges):
             assert a1 <= b0, (key, ranges)
