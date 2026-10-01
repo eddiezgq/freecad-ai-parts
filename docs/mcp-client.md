@@ -94,7 +94,26 @@ FAP_FREECAD=headless python -m mcp_server.layout_demo examples/joint2-requiremen
 
 截图和 URDF 保存在 `out/`。在 Claude Desktop 中，可以用 `joint_layout` 提示，让客户端的 LLM 自己走这套流程。
 
-## 7. HTTP 方式（MCP + REST）
+## 7. 端到端演示（M5）
+
+```bash
+FAP_FREECAD=headless python -m mcp_server.e2e "六轴机械臂第 2 关节：输出连续扭矩 25 N·m、峰值 50 N·m，输出转速 30 rpm，220 V 单相供电，EtherCAT 总线" --out out/
+```
+
+一句话需求经需求解析（ADR-0037）后，依次完成：
+
+1. 选型
+2. 布局并消除干涉
+3. 按布局复核
+4. 导出 BOM、系统 JSON 和 URDF，有 FreeCAD 时另附截图
+
+`out/README.md` 汇总每个需求值的原文依据、方案、干涉检查过程与校验结论。说明：
+
+- 同一句话重跑，除截图外的输出逐字节相同
+- 离线时，需求解析回放录制；示例句子的录制是标注为“模拟”的手写响应。有密钥时加 `--record`，会真实调用并录制
+- 也可以用 `--requirement examples/joint2-requirement.json` 直接给结构化需求
+
+## 8. HTTP 方式（MCP + REST）
 
 ```bash
 freecad-ai-parts-mcp --http --port 8000

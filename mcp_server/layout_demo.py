@@ -118,7 +118,8 @@ async def run(requirement: dict, *, lang: str = "zh", gap_mm: float = 20.0, max_
         out["layout"] = (await c.call_tool("place_component", {"instance": system["components"][0]["instance"],
                                                                 "position_mm": [0, 0, 0]})).data["layout"]
         out["verified"] = (await call("verify_system", {"system": system, "use_layout": True, "lang": lang})).data
-        out["urdf"] = (await call("export_system", {"system": system, "format": "urdf", "use_layout": True})).data
+        for fmt in ("urdf", "bom_csv", "bom_json", "system_json"):
+            out[fmt] = (await call("export_system", {"system": system, "format": fmt, "use_layout": True})).data
     return out
 
 
