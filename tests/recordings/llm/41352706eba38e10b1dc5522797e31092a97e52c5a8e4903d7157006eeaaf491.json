@@ -1,0 +1,255 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "41352706eba38e10b1dc5522797e31092a97e52c5a8e4903d7157006eeaaf491",
+  "response": {
+    "id": "msg_011CfcLKng5yG1EDN9FNzEHr",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Rotor moment of inertia [kg·m²]",
+          "printed_text": "0.000009",
+          "printed_unit": "kg·m²",
+          "quote": "Rotor moment of inertia [kg·m²] 0.000009",
+          "target": "params/rotor_inertia_kgm2",
+          "value": 9e-06
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Continuous rated torque [Nm]",
+          "printed_text": "0.48",
+          "printed_unit": "Nm",
+          "quote": "Continuous rated torque [Nm] 0.48",
+          "target": "params/rated_torque_nm",
+          "value": 0.48
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Rated speed [min⁻¹]",
+          "printed_text": "3000",
+          "printed_unit": "min⁻¹",
+          "quote": "Rated speed [min⁻¹] 3000",
+          "target": "params/rated_speed_rpm",
+          "value": 3000
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Peak current [Arms]",
+          "printed_text": "18",
+          "printed_unit": "Arms",
+          "quote": "Peak current [Arms] 18",
+          "target": "ports/power_in/peak_current_a",
+          "value": 18
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Mass [kg]",
+          "printed_text": "0.6",
+          "printed_unit": "kg",
+          "quote": "Mass [kg] 0.6",
+          "target": "params/mass_kg",
+          "value": 0.6
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Torque constant [Nm/A]",
+          "printed_text": "0.08",
+          "printed_unit": "Nm/A",
+          "quote": "Torque constant [Nm/A] 0.08",
+          "target": "params/torque_constant_nm_per_a",
+          "value": 0.08
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Supply voltage class [V]",
+          "printed_text": "48",
+          "printed_unit": "V",
+          "quote": "Supply voltage class [V] 48",
+          "target": "ports/power_in/voltage_class_v",
+          "value": 48
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Max. speed [min⁻¹]",
+          "printed_text": "4000",
+          "printed_unit": "min⁻¹",
+          "quote": "Max. speed [min⁻¹] 4000",
+          "target": "params/max_speed_rpm",
+          "value": 4000
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Encoder interface",
+          "printed_text": "A/B/Z incremental",
+          "printed_unit": "",
+          "quote": "Encoder interface A/B/Z incremental",
+          "target": "ports/encoder/protocol",
+          "value": "incremental_abz"
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Encoder type",
+          "printed_text": "Incremental",
+          "printed_unit": "",
+          "quote": "Encoder type Incremental",
+          "target": "ports/encoder/kind",
+          "value": "incremental"
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Rated output [W]",
+          "printed_text": "150",
+          "printed_unit": "W",
+          "quote": "Rated output [W] 150",
+          "target": "params/rated_power_w",
+          "value": 150
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Rated current [Arms]",
+          "printed_text": "6",
+          "printed_unit": "Arms",
+          "quote": "Rated current [Arms] 6",
+          "target": "ports/power_in/rated_current_a",
+          "value": 6
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Instantaneous max. torque [Nm]",
+          "printed_text": "1.44",
+          "printed_unit": "Nm",
+          "quote": "Instantaneous max. torque [Nm] 1.44",
+          "target": "params/peak_torque_nm",
+          "value": 1.44
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Usable shaft length [mm]",
+          "printed_text": "20",
+          "printed_unit": "mm",
+          "quote": "Usable shaft length [mm] 20",
+          "target": "ports/shaft/usable_length_mm",
+          "value": 20
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Number of mounting holes",
+          "printed_text": "4",
+          "printed_unit": "",
+          "quote": "Number of mounting holes 4",
+          "target": "ports/mount_flange/hole_count",
+          "value": 4
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Shaft tolerance",
+          "printed_text": "h7",
+          "printed_unit": "",
+          "quote": "Shaft tolerance h7",
+          "target": "ports/shaft/fit",
+          "value": "h7"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Spigot diameter [mm]",
+          "printed_text": "22",
+          "printed_unit": "mm",
+          "quote": "Spigot diameter [mm] 22",
+          "target": "ports/mount_flange/pilot_diameter_mm",
+          "value": 22
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Mounting thread",
+          "printed_text": "M3",
+          "printed_unit": "",
+          "quote": "Mounting thread M3",
+          "target": "ports/mount_flange/thread",
+          "value": "M3"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Flange size (square) [mm]",
+          "printed_text": "42",
+          "printed_unit": "mm",
+          "quote": "Flange size (square) [mm] 42",
+          "target": "ports/mount_flange/square_size_mm",
+          "value": 42
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Flange size (square) [mm]",
+          "printed_text": "42",
+          "printed_unit": "mm",
+          "quote": "Flange size (square) [mm] 42",
+          "target": "dims/square_mm",
+          "value": 42
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Mounting hole type",
+          "printed_text": "Tapped",
+          "printed_unit": "",
+          "quote": "Mounting hole type Tapped",
+          "target": "ports/mount_flange/hole_kind",
+          "value": "threaded"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Bolt circle diameter [mm]",
+          "printed_text": "50",
+          "printed_unit": "mm",
+          "quote": "Bolt circle diameter [mm] 50",
+          "target": "ports/mount_flange/pcd_mm",
+          "value": 50
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Body length (excl. shaft) [mm]",
+          "printed_text": "70",
+          "printed_unit": "mm",
+          "quote": "Body length (excl. shaft) [mm] 70",
+          "target": "dims/body_length_mm",
+          "value": 70
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Shaft diameter [mm]",
+          "printed_text": "8",
+          "printed_unit": "mm",
+          "quote": "Shaft diameter [mm] 8",
+          "target": "ports/shaft/diameter_mm",
+          "value": 8
+        }
+      ],
+      "model": "SM48-150",
+      "vendor": "Synth Motion"
+    }
+  }
+}

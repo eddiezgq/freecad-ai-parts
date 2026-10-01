@@ -1,0 +1,227 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "1b7f5fc7193d53561a0b3eb8d4eb55061633f281819ed73ea1d2922b864910b1",
+  "response": {
+    "id": "msg_011CfcL8mzMo1mBXeXwztPRP",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Rated input current",
+          "printed_text": "1.2",
+          "printed_unit": "Arms",
+          "quote": "Rated input current 1.2 Arms",
+          "target": "ports/power_in/rated_current_a",
+          "value": 1.2
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Safety functions",
+          "printed_text": "STO",
+          "printed_unit": "",
+          "quote": "Safety functions STO —",
+          "target": "params/safety_functions",
+          "value": "STO"
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Mass",
+          "printed_text": "0.6",
+          "printed_unit": "kg",
+          "quote": "Mass 0.6 kg",
+          "target": "params/mass_kg",
+          "value": 0.6
+        },
+        {
+          "confidence": 0.93,
+          "max": 60,
+          "min": 50,
+          "page": 1,
+          "printed_label": "Input frequency",
+          "printed_text": "50 ~ 60",
+          "printed_unit": "Hz",
+          "quote": "Input frequency 50 ~ 60 Hz",
+          "target": "ports/power_in/frequency_hz"
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Device profile",
+          "printed_text": "CiA402",
+          "printed_unit": "",
+          "quote": "Device profile CiA402 —",
+          "target": "ports/bus/profile",
+          "value": "CiA402"
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Peak output current",
+          "printed_text": "3.3",
+          "printed_unit": "Arms",
+          "quote": "Peak output current 3.3 Arms",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 3.3
+        },
+        {
+          "confidence": 0.92,
+          "page": 1,
+          "printed_label": "Supported encoders",
+          "printed_text": "BiSS-C",
+          "printed_unit": "",
+          "quote": "Supported encoders BiSS-C —",
+          "target": "ports/encoder_in/protocol",
+          "value": "biss_c"
+        },
+        {
+          "confidence": 0.93,
+          "page": 1,
+          "printed_label": "Input phases",
+          "printed_text": "1-phase",
+          "printed_unit": "",
+          "quote": "Input phases 1-phase —",
+          "target": "ports/power_in/phases",
+          "value": 1
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Rated output current",
+          "printed_text": "1.1",
+          "printed_unit": "Arms",
+          "quote": "Rated output current 1.1 Arms",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 1.1
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Motor voltage class",
+          "printed_text": "200",
+          "printed_unit": "V",
+          "quote": "Motor voltage class 200 V",
+          "target": "ports/motor_out/voltage_class_v",
+          "value": 200
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Fieldbus",
+          "printed_text": "EtherCAT",
+          "printed_unit": "",
+          "quote": "Fieldbus EtherCAT —",
+          "target": "ports/bus/protocol",
+          "value": "ethercat"
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Power supply",
+          "printed_text": "AC",
+          "printed_unit": "",
+          "quote": "Power supply AC —",
+          "target": "ports/power_in/current_type",
+          "value": "ac"
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Rated output power",
+          "printed_text": "0.1",
+          "printed_unit": "kW",
+          "quote": "Rated output power 0.1 kW",
+          "target": "params/rated_output_power_w",
+          "value": 0.1
+        },
+        {
+          "confidence": 0.93,
+          "max": 240,
+          "min": 200,
+          "page": 1,
+          "printed_label": "Input voltage",
+          "printed_text": "200 ~ 240",
+          "printed_unit": "V",
+          "quote": "Input voltage 200 ~ 240 V",
+          "target": "ports/power_in/voltage_v"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Mounting hole diameter",
+          "printed_text": "5.5",
+          "printed_unit": "mm",
+          "quote": "Mounting hole diameter 5.5 mm",
+          "target": "ports/mount/hole_diameter_mm",
+          "value": 5.5
+        },
+        {
+          "confidence": 0.8,
+          "page": 2,
+          "printed_label": "Mounting hole pitch (vertical)",
+          "printed_text": "150",
+          "printed_unit": "mm",
+          "quote": "Mounting hole pitch (vertical) 150 mm",
+          "target": "ports/mount/pitch_y_mm",
+          "value": 150
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Height",
+          "printed_text": "160",
+          "printed_unit": "mm",
+          "quote": "Height 160 mm",
+          "target": "dims/height_mm",
+          "value": 160
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Width",
+          "printed_text": "40",
+          "printed_unit": "mm",
+          "quote": "Width 40 mm",
+          "target": "dims/width_mm",
+          "value": 40
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Depth",
+          "printed_text": "130",
+          "printed_unit": "mm",
+          "quote": "Depth 130 mm",
+          "target": "dims/depth_mm",
+          "value": 130
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Number of mounting holes",
+          "printed_text": "2",
+          "printed_unit": "",
+          "quote": "Number of mounting holes 2 —",
+          "target": "ports/mount/hole_count",
+          "value": 2
+        },
+        {
+          "confidence": 0.8,
+          "page": 2,
+          "printed_label": "Mounting hole pitch (horizontal)",
+          "printed_text": "30",
+          "printed_unit": "mm",
+          "quote": "Mounting hole pitch (horizontal) 30 mm",
+          "target": "ports/mount/pitch_x_mm",
+          "value": 30
+        }
+      ],
+      "model": "SD100",
+      "vendor": "Synth Motion"
+    }
+  }
+}

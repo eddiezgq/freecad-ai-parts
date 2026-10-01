@@ -1,0 +1,145 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "d52b121e152d1b13f068ea92a27ae24ff376b6bd47b4835e026dfa65b36dd01c",
+  "response": {
+    "id": "msg_011CfcLZNr1VVbeqoPG3RsYy",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "轴承类型",
+          "printed_text": "圆锥滚子轴承",
+          "printed_unit": "",
+          "quote": "轴承类型 圆锥滚子轴承",
+          "target": "params/bearing_kind",
+          "value": "tapered_roller"
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "宽度 B（mm）",
+          "printed_text": "16.25",
+          "printed_unit": "mm",
+          "quote": "宽度 B（mm） 16.25",
+          "target": "params/width_mm",
+          "value": 16.25
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "基本额定动载荷 Cr（N）",
+          "printed_text": "30500",
+          "printed_unit": "N",
+          "quote": "基本额定动载荷 Cr（N） 30500",
+          "target": "params/dynamic_load_rating_n",
+          "value": 30500
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "基本额定静载荷 C0r（N）",
+          "printed_text": "35500",
+          "printed_unit": "N",
+          "quote": "基本额定静载荷 C0r（N） 35500",
+          "target": "params/static_load_rating_n",
+          "value": 35500
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "极限转速（min⁻¹）",
+          "printed_text": "7600",
+          "printed_unit": "min⁻¹",
+          "quote": "极限转速（min⁻¹） 7600",
+          "target": "params/limiting_speed_rpm",
+          "value": 7600
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "质量（g）",
+          "printed_text": "155",
+          "printed_unit": "g",
+          "quote": "质量（g） 155",
+          "target": "params/mass_kg",
+          "value": 155
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "内径 d（mm）",
+          "printed_text": "25",
+          "printed_unit": "mm",
+          "quote": "内径 d（mm） 25",
+          "target": "ports/inner/diameter_mm",
+          "value": 25
+        },
+        {
+          "confidence": 0.85,
+          "page": 1,
+          "printed_label": "精度等级",
+          "printed_text": "P0",
+          "printed_unit": "",
+          "quote": "精度等级 P0",
+          "target": "ports/inner/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "精度等级",
+          "printed_text": "P0",
+          "printed_unit": "",
+          "quote": "精度等级 P0",
+          "target": "ports/inner/fit",
+          "value": "P0"
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "外径 D（mm）",
+          "printed_text": "52",
+          "printed_unit": "mm",
+          "quote": "外径 D（mm） 52",
+          "target": "ports/outer/diameter_mm",
+          "value": 52
+        },
+        {
+          "confidence": 0.85,
+          "page": 1,
+          "printed_label": "精度等级",
+          "printed_text": "P0",
+          "printed_unit": "",
+          "quote": "精度等级 P0",
+          "target": "ports/outer/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "精度等级",
+          "printed_text": "P0",
+          "printed_unit": "",
+          "quote": "精度等级 P0",
+          "target": "ports/outer/fit",
+          "value": "P0"
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "外径 D（mm）",
+          "printed_text": "52",
+          "printed_unit": "mm",
+          "quote": "外径 D（mm） 52",
+          "target": "dims/outer_diameter_mm",
+          "value": 52
+        }
+      ],
+      "model": "SBT-2552",
+      "vendor": "Synth Bearing"
+    }
+  }
+}

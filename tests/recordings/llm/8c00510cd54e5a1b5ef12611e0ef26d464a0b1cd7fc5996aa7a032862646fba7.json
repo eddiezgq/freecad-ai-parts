@@ -1,0 +1,155 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "8c00510cd54e5a1b5ef12611e0ef26d464a0b1cd7fc5996aa7a032862646fba7",
+  "response": {
+    "id": "msg_011CfcLXP4Mnt1s6kgQtx4Dj",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "基本额定动载荷 Cr",
+          "printed_text": "927.9",
+          "printed_unit": "kgf",
+          "quote": "基本额定动载荷 Cr 927.9 kgf",
+          "target": "params/dynamic_load_rating_n",
+          "value": 927.9
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "基本额定静载荷 C0r",
+          "printed_text": "489.5",
+          "printed_unit": "kgf",
+          "quote": "基本额定静载荷 C0r 489.5 kgf",
+          "target": "params/static_load_rating_n",
+          "value": 489.5
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "极限转速",
+          "printed_text": "12500",
+          "printed_unit": "min⁻¹",
+          "quote": "极限转速 12500 min⁻¹",
+          "target": "params/limiting_speed_rpm",
+          "value": 12500
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "宽度 B",
+          "printed_text": "12",
+          "printed_unit": "mm",
+          "quote": "宽度 B 12 mm",
+          "target": "params/width_mm",
+          "value": 12
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "密封形式",
+          "printed_text": "2RS",
+          "printed_unit": "",
+          "quote": "密封形式 2RS —",
+          "target": "params/seal",
+          "value": "2RS"
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "质量",
+          "printed_text": "0.072",
+          "printed_unit": "kg",
+          "quote": "质量 0.072 kg",
+          "target": "params/mass_kg",
+          "value": 0.072
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "轴承类型",
+          "printed_text": "深沟球轴承",
+          "printed_unit": "",
+          "quote": "轴承类型 深沟球轴承 —",
+          "target": "params/bearing_kind",
+          "value": "deep_groove"
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "内径 d",
+          "printed_text": "20",
+          "printed_unit": "mm",
+          "quote": "内径 d 20 mm",
+          "target": "ports/inner/diameter_mm",
+          "value": 20
+        },
+        {
+          "confidence": 0.85,
+          "page": 1,
+          "printed_label": "精度等级",
+          "printed_text": "P0 级",
+          "printed_unit": "",
+          "quote": "精度等级 P0 级 —",
+          "target": "ports/inner/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "精度等级",
+          "printed_text": "P0 级",
+          "printed_unit": "",
+          "quote": "精度等级 P0 级 —",
+          "target": "ports/inner/fit",
+          "value": "P0"
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "外径 D",
+          "printed_text": "42",
+          "printed_unit": "mm",
+          "quote": "外径 D 42 mm",
+          "target": "ports/outer/diameter_mm",
+          "value": 42
+        },
+        {
+          "confidence": 0.85,
+          "page": 1,
+          "printed_label": "精度等级",
+          "printed_text": "P0 级",
+          "printed_unit": "",
+          "quote": "精度等级 P0 级 —",
+          "target": "ports/outer/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "精度等级",
+          "printed_text": "P0 级",
+          "printed_unit": "",
+          "quote": "精度等级 P0 级 —",
+          "target": "ports/outer/fit",
+          "value": "P0"
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "外径 D",
+          "printed_text": "42",
+          "printed_unit": "mm",
+          "quote": "外径 D 42 mm",
+          "target": "dims/outer_diameter_mm",
+          "value": 42
+        }
+      ],
+      "model": "SB-2042-RS",
+      "vendor": "Synth Bearing"
+    }
+  }
+}

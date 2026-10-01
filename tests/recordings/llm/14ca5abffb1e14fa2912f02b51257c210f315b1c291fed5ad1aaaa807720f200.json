@@ -1,0 +1,233 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "14ca5abffb1e14fa2912f02b51257c210f315b1c291fed5ad1aaaa807720f200",
+  "response": {
+    "id": "msg_011CfcLWhwdX8hhzCpHkahVZ",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.8,
+          "page": 1,
+          "printed_label": "Applicable motor power [kW]",
+          "printed_text": "0.3",
+          "printed_unit": "kW",
+          "quote": "Applicable motor power [kW] 0.3",
+          "target": "params/rated_output_power_w",
+          "value": 0.3
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Safety functions",
+          "printed_text": "STO",
+          "printed_unit": "",
+          "quote": "Safety functions STO",
+          "target": "params/safety_functions",
+          "value": [
+            "STO"
+          ]
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Mass [kg]",
+          "printed_text": "0.25",
+          "printed_unit": "kg",
+          "quote": "Mass [kg] 0.25",
+          "target": "params/mass_kg",
+          "value": 0.25
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Power supply",
+          "printed_text": "DC",
+          "printed_unit": "",
+          "quote": "Power supply DC",
+          "target": "ports/power_in/current_type",
+          "value": "dc"
+        },
+        {
+          "confidence": 0.8,
+          "page": 1,
+          "printed_label": "Power supply",
+          "printed_text": "DC",
+          "printed_unit": "",
+          "quote": "Power supply DC",
+          "target": "ports/power_in/phases",
+          "value": 0
+        },
+        {
+          "confidence": 0.95,
+          "max": 60,
+          "min": 24,
+          "page": 1,
+          "printed_label": "Input voltage [V]",
+          "printed_text": "24–60",
+          "printed_unit": "V",
+          "quote": "Input voltage [V] 24–60",
+          "target": "ports/power_in/voltage_v"
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Rated input current [A]",
+          "printed_text": "8",
+          "printed_unit": "A",
+          "quote": "Rated input current [A] 8",
+          "target": "ports/power_in/rated_current_a",
+          "value": 8
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Motor voltage class [V]",
+          "printed_text": "48",
+          "printed_unit": "V",
+          "quote": "Motor voltage class [V] 48",
+          "target": "ports/motor_out/voltage_class_v",
+          "value": 48
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Continuous output current [A]",
+          "printed_text": "6.5",
+          "printed_unit": "A",
+          "quote": "Continuous output current [A] 6.5",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 6.5
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Max. output current [A]",
+          "printed_text": "20",
+          "printed_unit": "A",
+          "quote": "Max. output current [A] 20",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 20
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Supported encoders",
+          "printed_text": "Incremental ABZ, BiSS C",
+          "printed_unit": "",
+          "quote": "Supported encoders Incremental ABZ, BiSS C",
+          "target": "ports/encoder_in/protocol",
+          "value": [
+            "incremental_abz",
+            "biss_c"
+          ]
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Fieldbus",
+          "printed_text": "CANopen",
+          "printed_unit": "",
+          "quote": "Fieldbus CANopen",
+          "target": "ports/bus/protocol",
+          "value": [
+            "canopen"
+          ]
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Device profile",
+          "printed_text": "CiA 402",
+          "printed_unit": "",
+          "quote": "Device profile CiA 402",
+          "target": "ports/bus/profile",
+          "value": "cia402"
+        },
+        {
+          "confidence": 0.7,
+          "page": 2,
+          "printed_label": "Mounting hole pitch (horizontal) [mm]",
+          "printed_text": "70",
+          "printed_unit": "",
+          "quote": "Mounting hole pitch (horizontal) [mm] 70",
+          "target": "ports/mount/pattern",
+          "value": "rect"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Mounting hole pitch (horizontal) [mm]",
+          "printed_text": "70",
+          "printed_unit": "mm",
+          "quote": "Mounting hole pitch (horizontal) [mm] 70",
+          "target": "ports/mount/pitch_x_mm",
+          "value": 70
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Mounting hole pitch (vertical) [mm]",
+          "printed_text": "90",
+          "printed_unit": "mm",
+          "quote": "Mounting hole pitch (vertical) [mm] 90",
+          "target": "ports/mount/pitch_y_mm",
+          "value": 90
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Number of mounting holes",
+          "printed_text": "4",
+          "printed_unit": "",
+          "quote": "Number of mounting holes 4",
+          "target": "ports/mount/hole_count",
+          "value": 4
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Mounting hole diameter [mm]",
+          "printed_text": "4.5",
+          "printed_unit": "mm",
+          "quote": "Mounting hole diameter [mm] 4.5",
+          "target": "ports/mount/hole_diameter_mm",
+          "value": 4.5
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Width [mm]",
+          "printed_text": "80",
+          "printed_unit": "mm",
+          "quote": "Width [mm] 80",
+          "target": "dims/width_mm",
+          "value": 80
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Height [mm]",
+          "printed_text": "100",
+          "printed_unit": "mm",
+          "quote": "Height [mm] 100",
+          "target": "dims/height_mm",
+          "value": 100
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Depth [mm]",
+          "printed_text": "30",
+          "printed_unit": "mm",
+          "quote": "Depth [mm] 30",
+          "target": "dims/depth_mm",
+          "value": 30
+        }
+      ],
+      "model": "SD48-20",
+      "vendor": "Synth Motion"
+    }
+  }
+}

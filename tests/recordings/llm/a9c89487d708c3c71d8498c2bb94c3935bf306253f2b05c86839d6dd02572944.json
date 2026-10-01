@@ -1,0 +1,145 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "a9c89487d708c3c71d8498c2bb94c3935bf306253f2b05c86839d6dd02572944",
+  "response": {
+    "id": "msg_011CfcLYSk9XamA3HnNSNyex",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "基本额定动载荷 Cr",
+          "printed_text": "14800",
+          "printed_unit": "N",
+          "quote": "基本额定动载荷 Cr 14800 N",
+          "target": "params/dynamic_load_rating_n",
+          "value": 14800
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "外径 D",
+          "printed_text": "55",
+          "printed_unit": "mm",
+          "quote": "外径 D 55 mm",
+          "target": "dims/outer_diameter_mm",
+          "value": 55
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "外径 D",
+          "printed_text": "55",
+          "printed_unit": "mm",
+          "quote": "外径 D 55 mm",
+          "target": "ports/outer/diameter_mm",
+          "value": 55
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "基本额定静载荷 C0r",
+          "printed_text": "9600",
+          "printed_unit": "N",
+          "quote": "基本额定静载荷 C0r 9600 N",
+          "target": "params/static_load_rating_n",
+          "value": 9600
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "重量",
+          "printed_text": "0.118",
+          "printed_unit": "kg",
+          "quote": "重量 0.118 kg",
+          "target": "params/mass_kg",
+          "value": 0.118
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "轴承类型",
+          "printed_text": "角接触球轴承",
+          "printed_unit": "",
+          "quote": "轴承类型 角接触球轴承 —",
+          "target": "params/bearing_kind",
+          "value": "angular_contact"
+        },
+        {
+          "confidence": 0.85,
+          "page": 1,
+          "printed_label": "精度等级",
+          "printed_text": "P5 级",
+          "printed_unit": "",
+          "quote": "精度等级 P5 级 —",
+          "target": "ports/inner/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.85,
+          "page": 1,
+          "printed_label": "精度等级",
+          "printed_text": "P5 级",
+          "printed_unit": "",
+          "quote": "精度等级 P5 级 —",
+          "target": "ports/inner/fit",
+          "value": "P5"
+        },
+        {
+          "confidence": 0.8,
+          "page": 1,
+          "printed_label": "精度等级",
+          "printed_text": "P5 级",
+          "printed_unit": "",
+          "quote": "精度等级 P5 级 —",
+          "target": "ports/outer/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.8,
+          "page": 1,
+          "printed_label": "精度等级",
+          "printed_text": "P5 级",
+          "printed_unit": "",
+          "quote": "精度等级 P5 级 —",
+          "target": "ports/outer/fit",
+          "value": "P5"
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "内径 d",
+          "printed_text": "30",
+          "printed_unit": "mm",
+          "quote": "内径 d 30 mm",
+          "target": "ports/inner/diameter_mm",
+          "value": 30
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "宽度 B",
+          "printed_text": "13",
+          "printed_unit": "mm",
+          "quote": "宽度 B 13 mm",
+          "target": "params/width_mm",
+          "value": 13
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "极限转速",
+          "printed_text": "14000",
+          "printed_unit": "rpm",
+          "quote": "极限转速 14000 rpm",
+          "target": "params/limiting_speed_rpm",
+          "value": 14000
+        }
+      ],
+      "model": "SBA-3055",
+      "vendor": "Synth Bearing"
+    }
+  }
+}
