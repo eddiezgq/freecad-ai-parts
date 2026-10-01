@@ -1,0 +1,39 @@
+# golden 用例草稿：预期结果为人工手算，须由人审定（CLAUDE.md、ADR-0015）；M3 扩充（issue #55），待人逐个确认
+id: invalid/c3-both-threaded-warn
+description: 电机与减速器法兰都是螺纹孔（仅告警，ADR-0025）
+system:
+  id: c3-both-threaded-warn
+  requirement:
+    output_torque_cont_nm: 25
+    output_torque_peak_nm: 50
+    output_speed_rpm: 30
+    safety_factor: 1.2
+    supply:
+      current_type: ac
+      voltage_v: 220
+      phases: 1
+    fieldbus_protocol: ethercat
+  components:
+  - instance: motor
+    component: test.servo_motor.test-vendor.m400-threaded
+  - instance: reducer
+    component: test.reducer.test-vendor.r20-100
+  - instance: drive
+    component: test.drive.test-vendor.d400
+  connections:
+  - a: motor.shaft
+    b: reducer.input_bore
+  - a: motor.mount_flange
+    b: reducer.motor_flange
+  - a: drive.motor_out
+    b: motor.power_in
+  - a: motor.encoder
+    b: drive.encoder_in
+expected:
+  overall: warn
+  checks:
+    C3: warn
+    others: not_fail
+calc: 'C3: 两侧都是 M5 螺纹孔 → warn，须用双头螺柱（ADR-0025 补充规则）
+
+  其余同 valid/m400-r20-d400：C1–C3、C5、C7、C9、C10 通过；C6 3.82 × 100 × 0.7 = 267.4 > 98 → warn；C8、C11 不适用'

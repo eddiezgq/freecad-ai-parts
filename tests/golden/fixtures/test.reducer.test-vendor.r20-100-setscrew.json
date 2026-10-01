@@ -1,0 +1,403 @@
+{
+  "id": "test.reducer.test-vendor.r20-100-setscrew",
+  "category": "reducer",
+  "vendor": "Test Vendor",
+  "model": "R20-100-SETSCREW",
+  "status": "active",
+  "license": "params-only",
+  "params": {
+    "reducer_kind": {
+      "value": "harmonic",
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    },
+    "ratio": {
+      "value": 100,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    },
+    "rated_torque_nm": {
+      "value": 34,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true,
+      "condition": "at input speed 2000 rpm"
+    },
+    "repeated_peak_torque_nm": {
+      "value": 54,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    },
+    "momentary_max_torque_nm": {
+      "value": 98,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    },
+    "max_input_speed_rpm": {
+      "value": 6500,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    },
+    "avg_input_speed_limit_rpm": {
+      "value": 3500,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    },
+    "efficiency_ratio": {
+      "value": 0.7,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true,
+      "condition": "at rated torque, input 2000 rpm, 25 °C"
+    },
+    "mass_kg": {
+      "value": 0.9,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    },
+    "input_inertia_kgm2": {
+      "value": 6.9e-06,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    }
+  },
+  "ports": [
+    {
+      "id": "input_bore",
+      "type": "mechanical.cyl_female",
+      "dir": "in",
+      "motion": "rotating",
+      "frame": {
+        "origin_mm": [
+          0,
+          0,
+          -20
+        ],
+        "axis": [
+          0,
+          0,
+          1
+        ]
+      },
+      "spec": {
+        "diameter_mm": {
+          "value": 14,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "fit": {
+          "value": "H7",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "feature": {
+          "value": "plain",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "clamping": {
+          "value": "set_screw",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    },
+    {
+      "id": "motor_flange",
+      "type": "mechanical.flange",
+      "dir": "bidir",
+      "motion": "stationary",
+      "frame": {
+        "origin_mm": [
+          0,
+          0,
+          -20
+        ],
+        "axis": [
+          0,
+          0,
+          1
+        ]
+      },
+      "spec": {
+        "pcd_mm": {
+          "value": 70,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "hole_count": {
+          "value": 4,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "hole_kind": {
+          "value": "threaded",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "thread": {
+          "value": "M5",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "pilot_diameter_mm": {
+          "value": 50,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "pilot_kind": {
+          "value": "female",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    },
+    {
+      "id": "output_flange",
+      "type": "mechanical.flange",
+      "dir": "out",
+      "motion": "rotating",
+      "frame": {
+        "origin_mm": [
+          0,
+          0,
+          45
+        ],
+        "axis": [
+          0,
+          0,
+          1
+        ]
+      },
+      "spec": {
+        "pcd_mm": {
+          "value": 30,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "hole_count": {
+          "value": 8,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "hole_kind": {
+          "value": "threaded",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "thread": {
+          "value": "M4",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    },
+    {
+      "id": "housing_mount",
+      "type": "mechanical.flange",
+      "dir": "bidir",
+      "motion": "stationary",
+      "frame": {
+        "origin_mm": [
+          0,
+          0,
+          0
+        ],
+        "axis": [
+          0,
+          0,
+          1
+        ]
+      },
+      "spec": {
+        "pcd_mm": {
+          "value": 64,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "hole_count": {
+          "value": 12,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "hole_kind": {
+          "value": "through",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "hole_diameter_mm": {
+          "value": 3.4,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    }
+  ],
+  "envelope": {
+    "parts": [
+      {
+        "shape": "cylinder",
+        "z_start_mm": -20,
+        "length_mm": {
+          "value": 65,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "diameter_mm": {
+          "value": 70,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    ]
+  },
+  "note": "golden 用虚构组件（ADR-0015），数值不代表任何真实产品；M3 golden 扩充：输入孔为光孔、紧定螺钉紧固"
+}

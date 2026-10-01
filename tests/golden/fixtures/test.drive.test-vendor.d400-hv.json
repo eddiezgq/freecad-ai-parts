@@ -1,0 +1,265 @@
+{
+  "id": "test.drive.test-vendor.d400-hv",
+  "category": "drive",
+  "vendor": "Test Vendor",
+  "model": "D400-HV",
+  "status": "active",
+  "license": "params-only",
+  "params": {
+    "mass_kg": {
+      "value": 0.8,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    }
+  },
+  "ports": [
+    {
+      "id": "power_in",
+      "type": "electrical.power_supply",
+      "dir": "in",
+      "spec": {
+        "current_type": {
+          "value": "ac",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "voltage_v": {
+          "min": 200,
+          "max": 240,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "phases": {
+          "value": 1,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    },
+    {
+      "id": "motor_out",
+      "type": "electrical.motor_power",
+      "dir": "out",
+      "spec": {
+        "voltage_class_v": {
+          "value": 400,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "rated_current_a": {
+          "value": 2.8,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "peak_current_a": {
+          "value": 10,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    },
+    {
+      "id": "encoder_in",
+      "type": "signal.encoder",
+      "dir": "in",
+      "spec": {
+        "protocol": {
+          "value": [
+            "biss_c",
+            "endat_2_2"
+          ],
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "kind": {
+          "value": [
+            "absolute"
+          ],
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    },
+    {
+      "id": "bus",
+      "type": "signal.fieldbus",
+      "dir": "bidir",
+      "spec": {
+        "protocol": {
+          "value": "ethercat",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "profile": {
+          "value": "cia402",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    },
+    {
+      "id": "mount",
+      "type": "mechanical.mount_face",
+      "dir": "bidir",
+      "motion": "stationary",
+      "frame": {
+        "origin_mm": [
+          0,
+          0,
+          0
+        ],
+        "axis": [
+          0,
+          0,
+          1
+        ]
+      },
+      "spec": {
+        "pattern": {
+          "value": "rect",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "pitch_x_mm": {
+          "value": 30,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "pitch_y_mm": {
+          "value": 150,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "hole_count": {
+          "value": 2,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "hole_diameter_mm": {
+          "value": 5.5,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    }
+  ],
+  "envelope": {
+    "parts": [
+      {
+        "shape": "box",
+        "z_start_mm": 0,
+        "length_mm": {
+          "value": 140,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "width_mm": {
+          "value": 40,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "height_mm": {
+          "value": 160,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    ]
+  },
+  "note": "golden 用虚构组件（ADR-0015），数值不代表任何真实产品；M3 golden 扩充：电机输出电压等级 400 V"
+}

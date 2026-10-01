@@ -1,0 +1,40 @@
+# golden 用例草稿：预期结果为人工手算，须由人审定（CLAUDE.md、ADR-0015）；M3 扩充（issue #55），待人逐个确认
+id: invalid/c7-reducer-max-speed
+description: 所需输入转速 5700 rpm 超过减速器最高输入 5600（电机 6000 满足）
+system:
+  id: c7-reducer-max-speed
+  requirement:
+    output_torque_cont_nm: 40
+    output_torque_peak_nm: 80
+    output_speed_rpm: 57
+    safety_factor: 1.2
+    supply:
+      current_type: ac
+      voltage_v: 220
+      phases: 1
+    fieldbus_protocol: ethercat
+    load_inertia_kgm2: 2.0
+  components:
+  - instance: motor
+    component: test.servo_motor.test-vendor.m750
+  - instance: reducer
+    component: test.reducer.test-vendor.r25-100
+  - instance: drive
+    component: test.drive.test-vendor.d750
+  connections:
+  - a: motor.shaft
+    b: reducer.input_bore
+  - a: motor.mount_flange
+    b: reducer.motor_flange
+  - a: drive.motor_out
+    b: motor.power_in
+  - a: motor.encoder
+    b: drive.encoder_in
+expected:
+  overall: fail
+  checks:
+    C7: fail
+    others: not_fail
+calc: 'C7: 57 × 100 = 5700 ≤ 6000；> 5600 → fail
+
+  其余同 valid/m750-r25-d750（C6 warn）'
