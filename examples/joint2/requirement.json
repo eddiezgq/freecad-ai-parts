@@ -1,0 +1,16 @@
+{
+  "requirement": {
+    "fieldbus_protocol": "ethercat",
+    "id": "joint-2",
+    "output_speed_rpm": 30,
+    "output_torque_cont_nm": 25,
+    "output_torque_peak_nm": 50,
+    "safety_factor": 1.2,
+    "statement": "六轴机械臂第 2 关节：输出连续扭矩 25 N·m、峰值 50 N·m，输出转速 30 rpm，220 V 单相供电，EtherCAT 总线",
+    "supply": {
+      "current_type": "ac",
+      "phases": 1,
+      "voltage_v": 220
+    }
+  }
+}

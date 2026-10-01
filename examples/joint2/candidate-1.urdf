@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!-- 由 freecad-ai-parts 生成（ADR-0035）：长度单位 m，角度单位 rad；未写 inertial（无整件惯性数据） -->
+<robot name="candidate-1">
+  <link name="base"/>
+  <!-- motor: test.servo_motor.test-vendor.m200（Test Vendor M200）；质量 0.8 kg -->
+  <link name="motor">
+    <visual><origin xyz="0.0 0.0 -0.005" rpy="0.0 0.0 0.0"/><geometry><box size="0.06 0.06 0.01"/></geometry></visual>
+    <collision><origin xyz="0.0 0.0 -0.005" rpy="0.0 0.0 0.0"/><geometry><box size="0.06 0.06 0.01"/></geometry></collision>
+    <visual><origin xyz="0.0 0.0 -0.05" rpy="0.0 0.0 0.0"/><geometry><box size="0.06 0.06 0.08"/></geometry></visual>
+    <collision><origin xyz="0.0 0.0 -0.05" rpy="0.0 0.0 0.0"/><geometry><box size="0.06 0.06 0.08"/></geometry></collision>
+    <visual><origin xyz="0.0 0.0 0.015" rpy="0.0 0.0 0.0"/><geometry><cylinder radius="0.0055" length="0.03"/></geometry></visual>
+    <collision><origin xyz="0.0 0.0 0.015" rpy="0.0 0.0 0.0"/><geometry><cylinder radius="0.0055" length="0.03"/></geometry></collision>
+  </link>
+  <joint name="motor_mount" type="fixed"><parent link="base"/><child link="motor"/><origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/></joint>
+  <!-- reducer: test.reducer.test-vendor.r25-100（Test Vendor R25-100）；质量 1.5 kg -->
+  <link name="reducer">
+    <visual><origin xyz="0.0 0.0 0.0175" rpy="0.0 0.0 0.0"/><geometry><cylinder radius="0.0475" length="0.075"/></geometry></visual>
+    <collision><origin xyz="0.0 0.0 0.0175" rpy="0.0 0.0 0.0"/><geometry><cylinder radius="0.0475" length="0.075"/></geometry></collision>
+  </link>
+  <joint name="reducer_mount" type="fixed"><parent link="base"/><child link="reducer"/><origin xyz="0.0 0.0 0.03" rpy="0.0 0.0 0.0"/></joint>
+  <!-- sleeve: test.adapter.test-vendor.sleeve-11-19（Test Vendor SL-11-19）；质量 0.03 kg -->
+  <link name="sleeve">
+    <visual><origin xyz="0.0 0.0 0.0125" rpy="0.0 0.0 0.0"/><geometry><cylinder radius="0.0095" length="0.025"/></geometry></visual>
+    <collision><origin xyz="0.0 0.0 0.0125" rpy="0.0 0.0 0.0"/><geometry><cylinder radius="0.0095" length="0.025"/></geometry></collision>
+  </link>
+  <joint name="sleeve_mount" type="fixed"><parent link="base"/><child link="sleeve"/><origin xyz="0.0 0.0 0.03" rpy="0.0 0.0 0.0"/></joint>
+  <!-- plate: test.adapter.test-vendor.plate-70-90（Test Vendor PL-70-90）；质量 0.2 kg -->
+  <link name="plate">
+    <visual><origin xyz="0.0 0.0 0.005" rpy="0.0 0.0 0.0"/><geometry><box size="0.1 0.1 0.01"/></geometry></visual>
+    <collision><origin xyz="0.0 0.0 0.005" rpy="0.0 0.0 0.0"/><geometry><box size="0.1 0.1 0.01"/></geometry></collision>
+  </link>
+  <joint name="plate_mount" type="fixed"><parent link="base"/><child link="plate"/><origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/></joint>
+  <link name="output"/>
+  <joint name="output_joint" type="continuous"><parent link="reducer"/><child link="output"/><origin xyz="0.0 0.0 0.055" rpy="0.0 0.0 0.0"/><axis xyz="0 0 1"/></joint>
+</robot>

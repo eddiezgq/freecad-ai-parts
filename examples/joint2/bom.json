@@ -1,0 +1,104 @@
+{
+  "format": "fap-export/1",
+  "kind": "bom",
+  "note": "质量缺失时总质量为空；source_docs 为该组件数据引用的来源文档（data/sources.yaml）",
+  "rows": [
+    {
+      "all_params_reviewed": true,
+      "category": "servo_motor",
+      "component_id": "test.servo_motor.test-vendor.m200",
+      "instances": [
+        "motor"
+      ],
+      "item": 1,
+      "license": "params-only",
+      "model": "M200",
+      "quantity": 1,
+      "source_docs": [
+        "src-test-fixture"
+      ],
+      "total_mass_kg": 0.8,
+      "unit_mass_kg": 0.8,
+      "vendor": "Test Vendor",
+      "vendor_cad_url": null
+    },
+    {
+      "all_params_reviewed": true,
+      "category": "reducer",
+      "component_id": "test.reducer.test-vendor.r25-100",
+      "instances": [
+        "reducer"
+      ],
+      "item": 2,
+      "license": "params-only",
+      "model": "R25-100",
+      "quantity": 1,
+      "source_docs": [
+        "src-test-fixture"
+      ],
+      "total_mass_kg": 1.5,
+      "unit_mass_kg": 1.5,
+      "vendor": "Test Vendor",
+      "vendor_cad_url": null
+    },
+    {
+      "all_params_reviewed": true,
+      "category": "drive",
+      "component_id": "test.drive.test-vendor.d200",
+      "instances": [
+        "drive"
+      ],
+      "item": 3,
+      "license": "params-only",
+      "model": "D200",
+      "quantity": 1,
+      "source_docs": [
+        "src-test-fixture"
+      ],
+      "total_mass_kg": 0.8,
+      "unit_mass_kg": 0.8,
+      "vendor": "Test Vendor",
+      "vendor_cad_url": null
+    },
+    {
+      "all_params_reviewed": true,
+      "category": "adapter",
+      "component_id": "test.adapter.test-vendor.sleeve-11-19",
+      "instances": [
+        "sleeve"
+      ],
+      "item": 4,
+      "license": "params-only",
+      "model": "SL-11-19",
+      "quantity": 1,
+      "source_docs": [
+        "src-test-fixture"
+      ],
+      "total_mass_kg": 0.03,
+      "unit_mass_kg": 0.03,
+      "vendor": "Test Vendor",
+      "vendor_cad_url": null
+    },
+    {
+      "all_params_reviewed": true,
+      "category": "adapter",
+      "component_id": "test.adapter.test-vendor.plate-70-90",
+      "instances": [
+        "plate"
+      ],
+      "item": 5,
+      "license": "params-only",
+      "model": "PL-70-90",
+      "quantity": 1,
+      "source_docs": [
+        "src-test-fixture"
+      ],
+      "total_mass_kg": 0.2,
+      "unit_mass_kg": 0.2,
+      "vendor": "Test Vendor",
+      "vendor_cad_url": null
+    }
+  ],
+  "system": "candidate-1",
+  "total_mass_kg": 3.33
+}
