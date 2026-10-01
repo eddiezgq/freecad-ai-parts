@@ -45,5 +45,6 @@
 | [0028](adr/0028-engine-review-fixes.md) | 校验引擎独立评审后的规则修订 | 2026-10-01 |
 | [0029](adr/0029-compose-ranking.md) | 链路模板与候选方案排序 | 2026-10-01 |
 | [0030](adr/0030-explanations.md) | 方案解释的生成方式 | 2026-10-01 |
+| [0031](adr/0031-mount-face-pattern.md) | 安装面孔位阵列增加 linear，明确 rect 的孔位 | 2026-10-01 |
 
 新决策按 [模板](adr/template.md) 编写，编号顺延；已接受的决策不改写，被取代时新建一条并标注。
