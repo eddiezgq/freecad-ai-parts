@@ -25,6 +25,7 @@
 | [0008](adr/0008-validation-defaults.md) | 校验默认值：安全系数 1.2，惯量比告警阈值 10 | 2026-09-30 |
 | [0009](adr/0009-workflow-and-rules.md) | main 受保护、全部改动走 PR；实施细则入库；M1 提前开工 | 2026-09-30 |
 | [0010](adr/0010-schema-representation.md) | 参数值与端口类型的 schema 表示约定 | 2026-09-30 |
+| [0011](adr/0011-rule-tables.md) | 校验规则数据表的格式与核对状态 | 2026-09-30 |
 | [0012](adr/0012-component-system-requirement.md) | 组件、系统、需求 schema 的结构 | 2026-09-30 |
 | [0013](adr/0013-bearing-fit-system.md) | 圆柱端口增加公差体系，轴承用 ISO 492 精度等级 | 2026-09-30 |
 | [0014](adr/0014-interface-data-in-ports.md) | 品类 schema：接口数据只放在端口里，参数名封闭 | 2026-09-30 |

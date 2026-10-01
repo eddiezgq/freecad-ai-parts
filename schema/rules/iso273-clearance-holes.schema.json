@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/rules/iso273-clearance-holes.schema.json",
+  "title": "ISO 273 间隙孔表",
+  "description": "螺纹公称直径对应的螺栓间隙孔直径（mm），分精装、中等、粗装三个系列。C3 校验用中等系列。",
+  "type": "object",
+  "properties": {
+    "table": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "verified"
+      ]
+    },
+    "verification": {
+      "type": "string",
+      "description": "核对说明：谁、对照什么、何时"
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "standard",
+              "secondary",
+              "engineering_judgment"
+            ]
+          },
+          "accessed": {
+            "type": "string",
+            "format": "date"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "kind"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "thread": {
+            "type": "string",
+            "pattern": "^M[0-9]+(\\.[0-9]+)?$"
+          },
+          "fine_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "medium_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "coarse_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "verified": {
+            "type": "boolean",
+            "description": "是否已由人对照标准原文核对"
+          }
+        },
+        "required": [
+          "thread",
+          "fine_mm",
+          "medium_mm",
+          "coarse_mm",
+          "verified"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "table",
+    "version",
+    "status",
+    "verification",
+    "sources",
+    "entries"
+  ],
+  "additionalProperties": false
+}
