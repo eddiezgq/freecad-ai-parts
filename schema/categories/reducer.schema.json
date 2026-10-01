@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/categories/reducer.schema.json",
+  "title": "品类：减速器（整机型）（reducer）",
+  "description": "由 component.schema.json 按 category 引用。约束该品类的参数名（只允许列出的必填与选填参数）和必须具备的标准端口；接口数据只放在端口里，不在参数表重复（ADR-0014）。x-key-fields 列出关键参数：缺失时组件仍可入库，但进入复核，相关校验结果为 unknown。",
+  "type": "object",
+  "x-key-fields": [
+    "reducer_kind",
+    "ratio",
+    "rated_torque_nm",
+    "repeated_peak_torque_nm",
+    "momentary_max_torque_nm",
+    "max_input_speed_rpm",
+    "efficiency_ratio",
+    "mass_kg"
+  ],
+  "properties": {
+    "params": {
+      "type": "object",
+      "properties": {
+        "reducer_kind": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string"
+            },
+            {
+              "properties": {
+                "value": {
+                  "enum": [
+                    "harmonic",
+                    "planetary"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "ratio": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/number"
+            },
+            {
+              "properties": {
+                "value": {
+                  "exclusiveMinimum": 0
+                },
+                "min": {
+                  "exclusiveMinimum": 0
+                },
+                "max": {
+                  "exclusiveMinimum": 0
+                },
+                "nominal": {
+                  "exclusiveMinimum": 0
+                }
+              }
+            }
+          ],
+          "description": "减速比，须大于 0"
+        },
+        "rated_torque_nm": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/number"
+            },
+            {
+              "required": [
+                "condition"
+              ]
+            }
+          ],
+          "description": "须注明工况（condition 必填）"
+        },
+        "repeated_peak_torque_nm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "启停时允许峰值扭矩"
+        },
+        "momentary_max_torque_nm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "瞬间最大扭矩"
+        },
+        "max_input_speed_rpm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "efficiency_ratio": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/number"
+            },
+            {
+              "properties": {
+                "value": {
+                  "exclusiveMinimum": 0,
+                  "maximum": 1
+                },
+                "min": {
+                  "exclusiveMinimum": 0,
+                  "maximum": 1
+                },
+                "max": {
+                  "exclusiveMinimum": 0,
+                  "maximum": 1
+                },
+                "nominal": {
+                  "exclusiveMinimum": 0,
+                  "maximum": 1
+                }
+              }
+            },
+            {
+              "required": [
+                "condition"
+              ]
+            }
+          ],
+          "description": "0 < η ≤ 1，须注明工况（condition 必填）；公差叠加后的范围由代码校验"
+        },
+        "mass_kg": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "avg_input_speed_limit_rpm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "backlash_arcmin": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "行星减速器"
+        },
+        "lost_motion_arcmin": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "谐波减速器"
+        },
+        "torsional_stiffness_nm_per_arcmin": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "input_inertia_kgm2": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "output_bearing_dynamic_load_rating_n": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "输出轴承额定动载荷"
+        },
+        "output_bearing_moment_load_rating_nm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "输出轴承许用倾覆力矩"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ports": {
+      "allOf": [
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "input_bore"
+              },
+              "type": {
+                "const": "mechanical.cyl_female"
+              },
+              "dir": {
+                "const": "in"
+              },
+              "motion": {
+                "const": "rotating"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "dir",
+              "motion"
+            ]
+          },
+          "description": "输入孔"
+        },
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "motor_flange"
+              },
+              "type": {
+                "const": "mechanical.flange"
+              },
+              "motion": {
+                "const": "stationary"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "motion"
+            ]
+          },
+          "description": "电机安装法兰"
+        },
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "output_flange"
+              },
+              "type": {
+                "const": "mechanical.flange"
+              },
+              "dir": {
+                "const": "out"
+              },
+              "motion": {
+                "const": "rotating"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "dir",
+              "motion"
+            ]
+          },
+          "description": "输出法兰"
+        },
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "housing_mount"
+              },
+              "type": {
+                "enum": [
+                  "mechanical.flange",
+                  "mechanical.mount_face"
+                ]
+              },
+              "motion": {
+                "const": "stationary"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "motion"
+            ]
+          },
+          "description": "壳体安装"
+        }
+      ]
+    }
+  }
+}

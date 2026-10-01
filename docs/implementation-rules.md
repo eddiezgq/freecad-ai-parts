@@ -141,15 +141,15 @@ V1 共 8 种端口类型：4 种机械、2 种电气、2 种信号，覆盖关�
 
 ## 六、品类参数规格
 
-必填参数就是第七节校验要用到的参数，也就是录入和复核时的“关键字段”；必填项缺失的组件可以入库，但相关校验结果为“未知”。
+必填参数就是第七节校验要用到的参数，也就是录入和复核时的“关键字段”；必填项缺失的组件可以入库，但相关校验结果为“未知”。**接口数据只放在端口里，不在参数表重复**（ADR-0014）：尺寸、电流、电压、协议等描述连接的数据写在对应端口的 `spec` 中；参数表只允许列出的必填与选填参数；必填参数在品类 schema 中以 `x-key-fields` 标注，不强制，缺失时进入复核。减速比须大于 0，效率须在 (0, 1] 内，额定扭矩与效率必须注明工况。
 
 | 品类 | 必填参数 | 选填参数 | 标准端口 |
 | --- | --- | --- | --- |
-| 伺服电机 `servo_motor` | `rated_power_w`、`rated_torque_nm`、`peak_torque_nm`、`rated_speed_rpm`、`max_speed_rpm`、`rotor_inertia_kgm2`、`mass_kg` | `brake`、`ip_rating`、`torque_constant_nm_per_a`、`frame_size_mm` | `shaft`（cyl_male, out, rotating）、`mount_flange`（flange, stationary）、`power_in`（motor_power, in）、`encoder`（encoder, out） |
-| 减速器 `reducer` | `reducer_kind`（`harmonic` / `planetary`）、`ratio`、`rated_torque_nm`（注明工况）、`repeated_peak_torque_nm`、`momentary_max_torque_nm`、`max_input_speed_rpm`、`efficiency_ratio`（注明工况）、`mass_kg` | `avg_input_speed_limit_rpm`、`backlash_arcmin`（行星）、`lost_motion_arcmin`（谐波）、`torsional_stiffness_nm_per_arcmin`、`input_inertia_kgm2`、`output_bearing` | `input_bore`（cyl_female, in, rotating）、`motor_flange`（flange, stationary）、`output_flange`（flange, out, rotating）、`housing_mount`（flange 或 mount_face, stationary） |
-| 驱动器 `drive` | `supply`（电压、相数）、`rated_output_current_a`、`peak_output_current_a`、`supported_encoder_protocols`、`fieldbus_protocols` | `rated_output_power_w`、`safety_functions`（如 STO）、`mass_kg` | `power_in`（power_supply, in）、`motor_out`（motor_power, out）、`encoder_in`（encoder, in）、`bus`（fieldbus, bidir）、`mount`（mount_face） |
-| 轴承 `bearing` | `bearing_kind`（`deep_groove` / `angular_contact` / `cross_roller` / `tapered_roller`）、`bore_mm`、`outer_diameter_mm`、`width_mm`、`dynamic_load_rating_n`、`static_load_rating_n`、`limiting_speed_rpm` | `moment_load_rating_nm`（交叉滚子）、`seal`、`mass_kg` | `inner`（cyl_female, rotating）、`outer`（cyl_male, stationary） |
-| 转接件 `adapter` | `adapter_kind`（`sleeve` / `flange_plate`）、两侧端口规格、`mass_kg` | `length_mm` | 两个相对的端口，如轴套为 `inner`（cyl_female）与 `outer`（cyl_male） |
+| 伺服电机 `servo_motor` | `rated_power_w`、`rated_torque_nm`、`peak_torque_nm`、`rated_speed_rpm`、`max_speed_rpm`、`rotor_inertia_kgm2`、`mass_kg` | `brake`、`ip_rating`、`torque_constant_nm_per_a`（法兰边长写在 `mount_flange` 端口的 `square_size_mm`） | `shaft`（cyl_male, out, rotating）、`mount_flange`（flange, stationary）、`power_in`（motor_power, in；额定/峰值电流在此）、`encoder`（encoder, out） |
+| 减速器 `reducer` | `reducer_kind`（`harmonic` / `planetary`）、`ratio`、`rated_torque_nm`（注明工况）、`repeated_peak_torque_nm`、`momentary_max_torque_nm`、`max_input_speed_rpm`、`efficiency_ratio`（注明工况）、`mass_kg` | `avg_input_speed_limit_rpm`、`backlash_arcmin`（行星）、`lost_motion_arcmin`（谐波）、`torsional_stiffness_nm_per_arcmin`、`input_inertia_kgm2`、`output_bearing_dynamic_load_rating_n`、`output_bearing_moment_load_rating_nm` | `input_bore`（cyl_female, in, rotating）、`motor_flange`（flange, stationary）、`output_flange`（flange, out, rotating）、`housing_mount`（flange 或 mount_face, stationary） |
+| 驱动器 `drive` | 无（供电、输出电流、支持的编码器与总线协议都在端口里） | `rated_output_power_w`、`safety_functions`（如 STO）、`mass_kg` | `power_in`（power_supply, in；电压、相数）、`motor_out`（motor_power, out；额定/峰值输出电流）、`encoder_in`（encoder, in；支持的协议列表）、`bus`（fieldbus, bidir）、`mount`（mount_face） |
+| 轴承 `bearing` | `bearing_kind`（`deep_groove` / `angular_contact` / `cross_roller` / `tapered_roller`）、`width_mm`、`dynamic_load_rating_n`、`static_load_rating_n`、`limiting_speed_rpm` | `moment_load_rating_nm`（交叉滚子）、`seal`、`mass_kg` | `inner`（cyl_female, rotating；内径在此）、`outer`（cyl_male, stationary；外径在此）；两者 `fit_system` 均为 `bearing` |
+| 转接件 `adapter` | `adapter_kind`（`sleeve` / `flange_plate`）、`mass_kg` | `length_mm` | 恰为两个端口：轴套为 `inner`（cyl_female）与 `outer`（cyl_male）；适配法兰为两个 flange |
 
 补充规则：
 
@@ -183,8 +183,8 @@ V1 共 11 项静态校验，全部由 `engine/` 的确定性代码完成；每�
 | C6 | 减速器过载保护 | 电机峰值扭矩经减速后超过减速器瞬间最大扭矩，公式 (5) | warn（需在驱动器设置扭矩限幅） |
 | C7 | 转速 | 所需输出转速 × 减速比 ≤ 电机最高转速，且 ≤ 减速器最高输入转速；超过减速器平均输入转速限制时告警 | fail / warn |
 | C8 | 惯量比 | 仅当需求给出负载惯量时计算，公式 (6)，阈值默认 10 | warn |
-| C9 | 电气匹配 | 供电电压在驱动器范围内且相数一致；驱动器与电机电压等级一致；驱动器额定电流 ≥ 电机额定电流；驱动器峰值电流 ≥ 电机峰值电流 | 前三项 fail；峰值电流不足 warn（峰值扭矩受限） |
-| C10 | 信号匹配 | 电机编码器协议在驱动器支持列表内，私有协议要求同一厂商；驱动器总线协议与需求一致 | fail |
+| C9 | 电气匹配 | 数据取自驱动器 `power_in`、`motor_out` 与电机 `power_in` 端口（ADR-0014）；供电电压在驱动器范围内且相数一致；驱动器与电机电压等级一致；驱动器额定电流 ≥ 电机额定电流；驱动器峰值电流 ≥ 电机峰值电流 | 前三项 fail；峰值电流不足 warn（峰值扭矩受限） |
+| C10 | 信号匹配 | 数据取自编码器与总线端口（ADR-0014）；电机编码器协议在驱动器支持列表内，私有协议要求同一厂商；驱动器总线协议与需求一致 | fail |
 | C11 | 轴承与包络 | 轴承处转速 ≤ 极限转速；系统包络外径和长度 ≤ 需求限值 | fail |
 
 ### 扭矩与惯量公式

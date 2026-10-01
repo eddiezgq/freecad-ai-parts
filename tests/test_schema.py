@@ -146,3 +146,24 @@ def test_component_and_system_id_patterns_match():
     system = _load(SCHEMA_DIR / "system.schema.json")
     ref = system["properties"]["components"]["items"]["properties"]["component"]["pattern"]
     assert comp == ref
+
+
+CATEGORY_FILES = sorted((SCHEMA_DIR / "categories").glob("*.schema.json"))
+
+
+@pytest.mark.parametrize("path", CATEGORY_FILES, ids=lambda p: p.stem)
+def test_each_category_has_valid_and_invalid_samples(path: Path):
+    category = path.name.removesuffix(".schema.json")
+
+    def categories(kind: str) -> set[str]:
+        return {_load(p)["instance"].get("category") for p in _fixtures("component", kind)}
+
+    assert category in categories("valid")
+    assert category in categories("invalid")
+
+
+@pytest.mark.parametrize("path", CATEGORY_FILES, ids=lambda p: p.stem)
+def test_key_fields_are_declared_params(path: Path):
+    schema = _load(path)
+    declared = set(schema["properties"]["params"]["properties"])
+    assert set(schema["x-key-fields"]) <= declared

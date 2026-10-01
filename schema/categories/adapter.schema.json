@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/categories/adapter.schema.json",
+  "title": "品类：转接件（adapter）",
+  "description": "由 component.schema.json 按 category 引用。约束该品类的参数名（只允许列出的必填与选填参数）和必须具备的标准端口；接口数据只放在端口里，不在参数表重复（ADR-0014）。x-key-fields 列出关键参数：缺失时组件仍可入库，但进入复核，相关校验结果为 unknown。 转接件恰有两个端口：轴套为 inner（孔）与 outer（外圆），适配法兰为两个法兰。",
+  "type": "object",
+  "x-key-fields": [
+    "adapter_kind",
+    "mass_kg"
+  ],
+  "properties": {
+    "params": {
+      "type": "object",
+      "properties": {
+        "adapter_kind": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string"
+            },
+            {
+              "properties": {
+                "value": {
+                  "enum": [
+                    "sleeve",
+                    "flange_plate"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "mass_kg": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "length_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ports": {
+      "minItems": 2,
+      "maxItems": 2
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "params": {
+            "properties": {
+              "adapter_kind": {
+                "properties": {
+                  "value": {
+                    "const": "sleeve"
+                  }
+                }
+              }
+            },
+            "required": [
+              "adapter_kind"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "ports": {
+            "allOf": [
+              {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "inner"
+                    },
+                    "type": {
+                      "const": "mechanical.cyl_female"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "type"
+                  ]
+                },
+                "description": "内孔"
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "outer"
+                    },
+                    "type": {
+                      "const": "mechanical.cyl_male"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "type"
+                  ]
+                },
+                "description": "外圆"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "params": {
+            "properties": {
+              "adapter_kind": {
+                "properties": {
+                  "value": {
+                    "const": "flange_plate"
+                  }
+                }
+              }
+            },
+            "required": [
+              "adapter_kind"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "ports": {
+            "items": {
+              "properties": {
+                "type": {
+                  "const": "mechanical.flange"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

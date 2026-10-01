@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/component.schema.json",
   "title": "组件",
-  "description": "一个厂商型号或一个标准件规格，以“端口 + 参数 + 包络”描述的黑箱。品类专属的必填参数与标准端口由 schema/categories/ 约束（issue #5）。端口 id 在组件内唯一、id 中的品类与 category 一致等跨字段关系由代码校验。",
+  "description": "一个厂商型号或一个标准件规格，以“端口 + 参数 + 包络”描述的黑箱。品类专属的参数与标准端口由 schema/categories/ 约束（fastener 在 V1 暂无品类约束）。端口 id 在组件内唯一、id 中的品类与 category 一致等跨字段关系由代码校验。",
   "type": "object",
   "properties": {
     "id": {
@@ -44,7 +44,12 @@
     {"if": {"properties": {"category": {"const": "drive"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?drive\\."}}}},
     {"if": {"properties": {"category": {"const": "bearing"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?bearing\\."}}}},
     {"if": {"properties": {"category": {"const": "adapter"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?adapter\\."}}}},
-    {"if": {"properties": {"category": {"const": "fastener"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?fastener\\."}}}}
+    {"if": {"properties": {"category": {"const": "fastener"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?fastener\\."}}}},
+    {"if": {"properties": {"category": {"const": "servo_motor"}}, "required": ["category"]}, "then": {"$ref": "categories/servo_motor.schema.json"}},
+    {"if": {"properties": {"category": {"const": "reducer"}}, "required": ["category"]}, "then": {"$ref": "categories/reducer.schema.json"}},
+    {"if": {"properties": {"category": {"const": "drive"}}, "required": ["category"]}, "then": {"$ref": "categories/drive.schema.json"}},
+    {"if": {"properties": {"category": {"const": "bearing"}}, "required": ["category"]}, "then": {"$ref": "categories/bearing.schema.json"}},
+    {"if": {"properties": {"category": {"const": "adapter"}}, "required": ["category"]}, "then": {"$ref": "categories/adapter.schema.json"}}
   ],
   "$defs": {
     "envelope": {

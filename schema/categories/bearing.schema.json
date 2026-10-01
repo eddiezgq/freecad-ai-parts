@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/categories/bearing.schema.json",
+  "title": "品类：滚动轴承（bearing）",
+  "description": "由 component.schema.json 按 category 引用。约束该品类的参数名（只允许列出的必填与选填参数）和必须具备的标准端口；接口数据只放在端口里，不在参数表重复（ADR-0014）。x-key-fields 列出关键参数：缺失时组件仍可入库，但进入复核，相关校验结果为 unknown。",
+  "type": "object",
+  "x-key-fields": [
+    "bearing_kind",
+    "width_mm",
+    "dynamic_load_rating_n",
+    "static_load_rating_n",
+    "limiting_speed_rpm"
+  ],
+  "properties": {
+    "params": {
+      "type": "object",
+      "properties": {
+        "bearing_kind": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string"
+            },
+            {
+              "properties": {
+                "value": {
+                  "enum": [
+                    "deep_groove",
+                    "angular_contact",
+                    "cross_roller",
+                    "tapered_roller"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "width_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "dynamic_load_rating_n": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "static_load_rating_n": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "limiting_speed_rpm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "moment_load_rating_nm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "交叉滚子轴承"
+        },
+        "seal": {
+          "$ref": "../common/param-value.schema.json#/$defs/string"
+        },
+        "mass_kg": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ports": {
+      "allOf": [
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "inner"
+              },
+              "type": {
+                "const": "mechanical.cyl_female"
+              },
+              "motion": {
+                "const": "rotating"
+              },
+              "spec": {
+                "properties": {
+                  "fit_system": {
+                    "properties": {
+                      "value": {
+                        "const": "bearing"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "fit_system"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "motion"
+            ]
+          },
+          "description": "内圈（内径在此，公差体系为 bearing）"
+        },
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "outer"
+              },
+              "type": {
+                "const": "mechanical.cyl_male"
+              },
+              "motion": {
+                "const": "stationary"
+              },
+              "spec": {
+                "properties": {
+                  "fit_system": {
+                    "properties": {
+                      "value": {
+                        "const": "bearing"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "fit_system"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "motion"
+            ]
+          },
+          "description": "外圈（外径在此，公差体系为 bearing）"
+        }
+      ]
+    }
+  }
+}

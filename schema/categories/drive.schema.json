@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/categories/drive.schema.json",
+  "title": "品类：伺服驱动器（drive）",
+  "description": "由 component.schema.json 按 category 引用。约束该品类的参数名（只允许列出的必填与选填参数）和必须具备的标准端口；接口数据只放在端口里，不在参数表重复（ADR-0014）。x-key-fields 列出关键参数：缺失时组件仍可入库，但进入复核，相关校验结果为 unknown。",
+  "type": "object",
+  "x-key-fields": [],
+  "properties": {
+    "params": {
+      "type": "object",
+      "properties": {
+        "rated_output_power_w": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "safety_functions": {
+          "$ref": "../common/param-value.schema.json#/$defs/string_or_list",
+          "description": "安全功能，如 STO、SS1"
+        },
+        "mass_kg": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ports": {
+      "allOf": [
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "power_in"
+              },
+              "type": {
+                "const": "electrical.power_supply"
+              },
+              "dir": {
+                "const": "in"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "dir"
+            ]
+          },
+          "description": "供电输入（电压、相数在此）"
+        },
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "motor_out"
+              },
+              "type": {
+                "const": "electrical.motor_power"
+              },
+              "dir": {
+                "const": "out"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "dir"
+            ]
+          },
+          "description": "电机输出（额定/峰值输出电流在此）"
+        },
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "encoder_in"
+              },
+              "type": {
+                "const": "signal.encoder"
+              },
+              "dir": {
+                "const": "in"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "dir"
+            ]
+          },
+          "description": "编码器输入（支持的协议列表在此）"
+        },
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "bus"
+              },
+              "type": {
+                "const": "signal.fieldbus"
+              },
+              "dir": {
+                "const": "bidir"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "dir"
+            ]
+          },
+          "description": "总线（支持的协议在此）"
+        },
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "mount"
+              },
+              "type": {
+                "const": "mechanical.mount_face"
+              }
+            },
+            "required": [
+              "id",
+              "type"
+            ]
+          },
+          "description": "安装面"
+        }
+      ]
+    }
+  }
+}
