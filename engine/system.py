@@ -38,6 +38,9 @@ class System:
     def port(self, ref: PortRef) -> dict:
         return self._ports[ref]
 
+    def has_port(self, ref: PortRef) -> bool:
+        return ref in self._ports
+
     def spec(self, ref: PortRef, name: str) -> dict | None:
         return self._ports[ref]["spec"].get(name)
 
