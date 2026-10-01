@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/rules/iso286-fits.schema.json",
+  "title": "ISO 286 配合表",
+  "description": "C2 校验用：孔、轴公差带配对及其配合类别。配对在表内为 pass，不在表内为 warn。归类为典型情况，个别尺寸段可能不同。",
+  "type": "object",
+  "properties": {
+    "table": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "verified"
+      ]
+    },
+    "verification": {
+      "type": "string",
+      "description": "核对说明：谁、对照什么、何时"
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "standard",
+              "secondary",
+              "engineering_judgment"
+            ]
+          },
+          "accessed": {
+            "type": "string",
+            "format": "date"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "kind"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "hole": {
+            "type": "string",
+            "pattern": "^(JS|[A-Z])[0-9]{1,2}$"
+          },
+          "shaft": {
+            "type": "string",
+            "pattern": "^(js|[a-z])[0-9]{1,2}$"
+          },
+          "fit_class": {
+            "enum": [
+              "clearance",
+              "transition",
+              "interference"
+            ]
+          },
+          "typical_use": {
+            "type": "string"
+          },
+          "sources": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "note": {
+            "type": "string"
+          },
+          "verified": {
+            "type": "boolean",
+            "description": "是否已由人对照标准原文核对"
+          }
+        },
+        "required": [
+          "hole",
+          "shaft",
+          "fit_class",
+          "sources",
+          "verified"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "table",
+    "version",
+    "status",
+    "verification",
+    "sources",
+    "entries"
+  ],
+  "additionalProperties": false
+}

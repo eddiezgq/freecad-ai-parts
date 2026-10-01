@@ -1,0 +1,190 @@
+{
+  "table": "iso286-fits",
+  "version": "0.1.0-draft",
+  "status": "draft",
+  "verification": "配合类别取自公开二手来源；两个来源对 H7/k6 归类不一致，H7/js6、H7/m6 未见于二手来源。尚未对照 ISO 286 原文核对。 2026-09-30 项目负责人审核通过、同意合并；逐项对照 ISO 286 原文的核对（含 H7/k6、H7/js6、H7/m6）尚未完成，各项 verified 保持 false。",
+  "sources": [
+    {
+      "id": "iso-286",
+      "title": "ISO 286-1/-2 Geometrical product specifications — ISO code system for tolerances on linear sizes",
+      "kind": "standard",
+      "note": "原文未取得"
+    },
+    {
+      "id": "roymech-fits",
+      "title": "ISO Hole and Shaft Tolerances (Roymech)",
+      "url": "https://www.roymech.co.uk/Useful_Tables/ISO_Tolerances/",
+      "kind": "secondary",
+      "accessed": "2026-09-30"
+    },
+    {
+      "id": "metricmech-fits",
+      "title": "ISO 286 Fits Chart: H7/g6 to H7/s6",
+      "url": "https://metricmech.com/reference/iso-286-fits-chart",
+      "kind": "secondary",
+      "accessed": "2026-09-30"
+    }
+  ],
+  "entries": [
+    {
+      "hole": "H7",
+      "shaft": "g6",
+      "fit_class": "clearance",
+      "typical_use": "滑动配合、定位销",
+      "sources": [
+        "roymech-fits",
+        "metricmech-fits"
+      ],
+      "verified": false
+    },
+    {
+      "hole": "H7",
+      "shaft": "h6",
+      "fit_class": "clearance",
+      "typical_use": "精确定位、便于装拆；伺服电机轴常用",
+      "sources": [
+        "roymech-fits",
+        "metricmech-fits"
+      ],
+      "verified": false
+    },
+    {
+      "hole": "H7",
+      "shaft": "js6",
+      "fit_class": "transition",
+      "typical_use": "定位，轻微间隙或过盈",
+      "sources": [
+        "iso-286"
+      ],
+      "note": "两个二手来源均未列出，归类按 ISO 286 偏差推断，待核对",
+      "verified": false
+    },
+    {
+      "hole": "H7",
+      "shaft": "j6",
+      "fit_class": "transition",
+      "typical_use": "手压装配，轻微间隙或过盈",
+      "sources": [
+        "metricmech-fits"
+      ],
+      "verified": false
+    },
+    {
+      "hole": "H7",
+      "shaft": "k6",
+      "fit_class": "transition",
+      "typical_use": "定位，可拆卸；伺服电机轴常用",
+      "sources": [
+        "roymech-fits",
+        "metricmech-fits"
+      ],
+      "note": "Roymech 标为 interference（slight interference），metricmech 标为 transition；按 ISO 286 偏差计算为过渡配合，待核对",
+      "verified": false
+    },
+    {
+      "hole": "H7",
+      "shaft": "m6",
+      "fit_class": "transition",
+      "typical_use": "定位，偏紧",
+      "sources": [
+        "iso-286"
+      ],
+      "note": "两个二手来源均未列出；部分尺寸段接近过盈，待核对",
+      "verified": false
+    },
+    {
+      "hole": "H7",
+      "shaft": "n6",
+      "fit_class": "transition",
+      "typical_use": "定位，需轻压装配",
+      "sources": [
+        "roymech-fits",
+        "metricmech-fits"
+      ],
+      "verified": false
+    },
+    {
+      "hole": "H7",
+      "shaft": "p6",
+      "fit_class": "interference",
+      "typical_use": "压入，可拆",
+      "sources": [
+        "roymech-fits",
+        "metricmech-fits"
+      ],
+      "verified": false
+    },
+    {
+      "hole": "H7",
+      "shaft": "r6",
+      "fit_class": "interference",
+      "typical_use": "轮毂与轴（钢对钢）",
+      "sources": [
+        "metricmech-fits"
+      ],
+      "verified": false
+    },
+    {
+      "hole": "H7",
+      "shaft": "s6",
+      "fit_class": "interference",
+      "typical_use": "中等压入，永久装配",
+      "sources": [
+        "roymech-fits",
+        "metricmech-fits"
+      ],
+      "verified": false
+    },
+    {
+      "hole": "H7",
+      "shaft": "u6",
+      "fit_class": "interference",
+      "typical_use": "需热装或冷装",
+      "sources": [
+        "roymech-fits",
+        "metricmech-fits"
+      ],
+      "verified": false
+    },
+    {
+      "hole": "H8",
+      "shaft": "f7",
+      "fit_class": "clearance",
+      "typical_use": "较紧的间隙配合，止口与定位",
+      "sources": [
+        "roymech-fits"
+      ],
+      "verified": false
+    },
+    {
+      "hole": "H8",
+      "shaft": "f8",
+      "fit_class": "clearance",
+      "typical_use": "转动配合",
+      "sources": [
+        "roymech-fits"
+      ],
+      "verified": false
+    },
+    {
+      "hole": "H9",
+      "shaft": "d9",
+      "fit_class": "clearance",
+      "typical_use": "自由转动",
+      "sources": [
+        "roymech-fits"
+      ],
+      "verified": false
+    },
+    {
+      "hole": "H11",
+      "shaft": "c11",
+      "fit_class": "clearance",
+      "typical_use": "松转动",
+      "sources": [
+        "roymech-fits"
+      ],
+      "verified": false
+    }
+  ]
+}

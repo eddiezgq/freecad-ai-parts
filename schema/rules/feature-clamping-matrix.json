@@ -1,0 +1,525 @@
+{
+  "table": "feature-clamping-matrix",
+  "version": "0.1.0-draft",
+  "status": "draft",
+  "verification": "工程判断，不出自标准；由形状配合与紧固方式两条规则组合生成，取较严结果。需机械工程背景的人评审。 2026-09-30 项目负责人审核通过、同意合并；各项 verified 保持 false，待有机械设计经验的人逐项确认。",
+  "sources": [
+    {
+      "id": "engineering-judgment",
+      "title": "工程判断（V1 起草）",
+      "kind": "engineering_judgment"
+    }
+  ],
+  "entries": [
+    {
+      "shaft_feature": "plain",
+      "bore_feature": "plain",
+      "clamping": "key",
+      "result": "fail",
+      "reason": "键连接要求轴和孔都有键槽",
+      "verified": false
+    },
+    {
+      "shaft_feature": "plain",
+      "bore_feature": "plain",
+      "clamping": "clamp_ring",
+      "result": "pass",
+      "verified": false
+    },
+    {
+      "shaft_feature": "plain",
+      "bore_feature": "plain",
+      "clamping": "set_screw",
+      "result": "warn",
+      "reason": "紧定螺钉直接压在圆轴上，传扭能力有限",
+      "verified": false
+    },
+    {
+      "shaft_feature": "plain",
+      "bore_feature": "plain",
+      "clamping": "press_fit",
+      "result": "pass",
+      "reason": "须为过盈或过渡配合（见配合表）",
+      "verified": false
+    },
+    {
+      "shaft_feature": "plain",
+      "bore_feature": "keyed",
+      "clamping": "key",
+      "result": "fail",
+      "reason": "光轴没有键槽，无法与键槽孔形成键连接；键连接要求轴和孔都有键槽",
+      "verified": false
+    },
+    {
+      "shaft_feature": "plain",
+      "bore_feature": "keyed",
+      "clamping": "clamp_ring",
+      "result": "fail",
+      "reason": "光轴没有键槽，无法与键槽孔形成键连接",
+      "verified": false
+    },
+    {
+      "shaft_feature": "plain",
+      "bore_feature": "keyed",
+      "clamping": "set_screw",
+      "result": "fail",
+      "reason": "光轴没有键槽，无法与键槽孔形成键连接；紧定螺钉直接压在圆轴上，传扭能力有限",
+      "verified": false
+    },
+    {
+      "shaft_feature": "plain",
+      "bore_feature": "keyed",
+      "clamping": "press_fit",
+      "result": "fail",
+      "reason": "光轴没有键槽，无法与键槽孔形成键连接",
+      "verified": false
+    },
+    {
+      "shaft_feature": "plain",
+      "bore_feature": "d_cut",
+      "clamping": "key",
+      "result": "fail",
+      "reason": "D 形孔一侧为平面，圆轴无法装入；键连接要求轴和孔都有键槽",
+      "verified": false
+    },
+    {
+      "shaft_feature": "plain",
+      "bore_feature": "d_cut",
+      "clamping": "clamp_ring",
+      "result": "fail",
+      "reason": "D 形孔一侧为平面，圆轴无法装入",
+      "verified": false
+    },
+    {
+      "shaft_feature": "plain",
+      "bore_feature": "d_cut",
+      "clamping": "set_screw",
+      "result": "fail",
+      "reason": "D 形孔一侧为平面，圆轴无法装入；紧定螺钉直接压在圆轴上，传扭能力有限",
+      "verified": false
+    },
+    {
+      "shaft_feature": "plain",
+      "bore_feature": "d_cut",
+      "clamping": "press_fit",
+      "result": "fail",
+      "reason": "D 形孔一侧为平面，圆轴无法装入",
+      "verified": false
+    },
+    {
+      "shaft_feature": "plain",
+      "bore_feature": "spline",
+      "clamping": "key",
+      "result": "fail",
+      "reason": "花键只能与花键配合；键连接要求轴和孔都有键槽",
+      "verified": false
+    },
+    {
+      "shaft_feature": "plain",
+      "bore_feature": "spline",
+      "clamping": "clamp_ring",
+      "result": "fail",
+      "reason": "花键只能与花键配合",
+      "verified": false
+    },
+    {
+      "shaft_feature": "plain",
+      "bore_feature": "spline",
+      "clamping": "set_screw",
+      "result": "fail",
+      "reason": "花键只能与花键配合；紧定螺钉直接压在圆轴上，传扭能力有限",
+      "verified": false
+    },
+    {
+      "shaft_feature": "plain",
+      "bore_feature": "spline",
+      "clamping": "press_fit",
+      "result": "fail",
+      "reason": "花键只能与花键配合",
+      "verified": false
+    },
+    {
+      "shaft_feature": "keyed",
+      "bore_feature": "plain",
+      "clamping": "key",
+      "result": "fail",
+      "reason": "带键轴装入光孔：需拆除键，扭矩由夹紧或过盈传递；键连接要求轴和孔都有键槽",
+      "verified": false
+    },
+    {
+      "shaft_feature": "keyed",
+      "bore_feature": "plain",
+      "clamping": "clamp_ring",
+      "result": "warn",
+      "reason": "带键轴装入光孔：需拆除键，扭矩由夹紧或过盈传递",
+      "verified": false
+    },
+    {
+      "shaft_feature": "keyed",
+      "bore_feature": "plain",
+      "clamping": "set_screw",
+      "result": "warn",
+      "reason": "带键轴装入光孔：需拆除键，扭矩由夹紧或过盈传递",
+      "verified": false
+    },
+    {
+      "shaft_feature": "keyed",
+      "bore_feature": "plain",
+      "clamping": "press_fit",
+      "result": "warn",
+      "reason": "带键轴装入光孔：需拆除键，扭矩由夹紧或过盈传递",
+      "verified": false
+    },
+    {
+      "shaft_feature": "keyed",
+      "bore_feature": "keyed",
+      "clamping": "key",
+      "result": "pass",
+      "reason": "键宽须相等（另行检查）",
+      "verified": false
+    },
+    {
+      "shaft_feature": "keyed",
+      "bore_feature": "keyed",
+      "clamping": "clamp_ring",
+      "result": "pass",
+      "reason": "键宽须相等（另行检查）",
+      "verified": false
+    },
+    {
+      "shaft_feature": "keyed",
+      "bore_feature": "keyed",
+      "clamping": "set_screw",
+      "result": "pass",
+      "reason": "键宽须相等（另行检查）",
+      "verified": false
+    },
+    {
+      "shaft_feature": "keyed",
+      "bore_feature": "keyed",
+      "clamping": "press_fit",
+      "result": "pass",
+      "reason": "键宽须相等（另行检查）；须为过盈或过渡配合（见配合表）",
+      "verified": false
+    },
+    {
+      "shaft_feature": "keyed",
+      "bore_feature": "d_cut",
+      "clamping": "key",
+      "result": "fail",
+      "reason": "键槽轴与 D 形孔形状不匹配；键连接要求轴和孔都有键槽",
+      "verified": false
+    },
+    {
+      "shaft_feature": "keyed",
+      "bore_feature": "d_cut",
+      "clamping": "clamp_ring",
+      "result": "fail",
+      "reason": "键槽轴与 D 形孔形状不匹配",
+      "verified": false
+    },
+    {
+      "shaft_feature": "keyed",
+      "bore_feature": "d_cut",
+      "clamping": "set_screw",
+      "result": "fail",
+      "reason": "键槽轴与 D 形孔形状不匹配",
+      "verified": false
+    },
+    {
+      "shaft_feature": "keyed",
+      "bore_feature": "d_cut",
+      "clamping": "press_fit",
+      "result": "fail",
+      "reason": "键槽轴与 D 形孔形状不匹配",
+      "verified": false
+    },
+    {
+      "shaft_feature": "keyed",
+      "bore_feature": "spline",
+      "clamping": "key",
+      "result": "fail",
+      "reason": "花键只能与花键配合；键连接要求轴和孔都有键槽",
+      "verified": false
+    },
+    {
+      "shaft_feature": "keyed",
+      "bore_feature": "spline",
+      "clamping": "clamp_ring",
+      "result": "fail",
+      "reason": "花键只能与花键配合",
+      "verified": false
+    },
+    {
+      "shaft_feature": "keyed",
+      "bore_feature": "spline",
+      "clamping": "set_screw",
+      "result": "fail",
+      "reason": "花键只能与花键配合",
+      "verified": false
+    },
+    {
+      "shaft_feature": "keyed",
+      "bore_feature": "spline",
+      "clamping": "press_fit",
+      "result": "fail",
+      "reason": "花键只能与花键配合",
+      "verified": false
+    },
+    {
+      "shaft_feature": "d_cut",
+      "bore_feature": "plain",
+      "clamping": "key",
+      "result": "fail",
+      "reason": "D 形轴装入圆孔：接触面减少，需确认紧固方式能传递扭矩；键连接要求轴和孔都有键槽",
+      "verified": false
+    },
+    {
+      "shaft_feature": "d_cut",
+      "bore_feature": "plain",
+      "clamping": "clamp_ring",
+      "result": "warn",
+      "reason": "D 形轴装入圆孔：接触面减少，需确认紧固方式能传递扭矩；夹紧在 D 形平面上，夹紧力分布不均",
+      "verified": false
+    },
+    {
+      "shaft_feature": "d_cut",
+      "bore_feature": "plain",
+      "clamping": "set_screw",
+      "result": "warn",
+      "reason": "D 形轴装入圆孔：接触面减少，需确认紧固方式能传递扭矩",
+      "verified": false
+    },
+    {
+      "shaft_feature": "d_cut",
+      "bore_feature": "plain",
+      "clamping": "press_fit",
+      "result": "warn",
+      "reason": "D 形轴装入圆孔：接触面减少，需确认紧固方式能传递扭矩；非圆截面过盈配合不常见，需人工确认",
+      "verified": false
+    },
+    {
+      "shaft_feature": "d_cut",
+      "bore_feature": "keyed",
+      "clamping": "key",
+      "result": "fail",
+      "reason": "D 形轴与键槽孔形状不匹配；键连接要求轴和孔都有键槽",
+      "verified": false
+    },
+    {
+      "shaft_feature": "d_cut",
+      "bore_feature": "keyed",
+      "clamping": "clamp_ring",
+      "result": "fail",
+      "reason": "D 形轴与键槽孔形状不匹配；夹紧在 D 形平面上，夹紧力分布不均",
+      "verified": false
+    },
+    {
+      "shaft_feature": "d_cut",
+      "bore_feature": "keyed",
+      "clamping": "set_screw",
+      "result": "fail",
+      "reason": "D 形轴与键槽孔形状不匹配",
+      "verified": false
+    },
+    {
+      "shaft_feature": "d_cut",
+      "bore_feature": "keyed",
+      "clamping": "press_fit",
+      "result": "fail",
+      "reason": "D 形轴与键槽孔形状不匹配；非圆截面过盈配合不常见，需人工确认",
+      "verified": false
+    },
+    {
+      "shaft_feature": "d_cut",
+      "bore_feature": "d_cut",
+      "clamping": "key",
+      "result": "fail",
+      "reason": "键连接要求轴和孔都有键槽",
+      "verified": false
+    },
+    {
+      "shaft_feature": "d_cut",
+      "bore_feature": "d_cut",
+      "clamping": "clamp_ring",
+      "result": "warn",
+      "reason": "夹紧在 D 形平面上，夹紧力分布不均",
+      "verified": false
+    },
+    {
+      "shaft_feature": "d_cut",
+      "bore_feature": "d_cut",
+      "clamping": "set_screw",
+      "result": "pass",
+      "verified": false
+    },
+    {
+      "shaft_feature": "d_cut",
+      "bore_feature": "d_cut",
+      "clamping": "press_fit",
+      "result": "warn",
+      "reason": "非圆截面过盈配合不常见，需人工确认",
+      "verified": false
+    },
+    {
+      "shaft_feature": "d_cut",
+      "bore_feature": "spline",
+      "clamping": "key",
+      "result": "fail",
+      "reason": "花键只能与花键配合；键连接要求轴和孔都有键槽",
+      "verified": false
+    },
+    {
+      "shaft_feature": "d_cut",
+      "bore_feature": "spline",
+      "clamping": "clamp_ring",
+      "result": "fail",
+      "reason": "花键只能与花键配合；夹紧在 D 形平面上，夹紧力分布不均",
+      "verified": false
+    },
+    {
+      "shaft_feature": "d_cut",
+      "bore_feature": "spline",
+      "clamping": "set_screw",
+      "result": "fail",
+      "reason": "花键只能与花键配合",
+      "verified": false
+    },
+    {
+      "shaft_feature": "d_cut",
+      "bore_feature": "spline",
+      "clamping": "press_fit",
+      "result": "fail",
+      "reason": "花键只能与花键配合；非圆截面过盈配合不常见，需人工确认",
+      "verified": false
+    },
+    {
+      "shaft_feature": "spline",
+      "bore_feature": "plain",
+      "clamping": "key",
+      "result": "fail",
+      "reason": "花键只能与花键配合；键连接要求轴和孔都有键槽",
+      "verified": false
+    },
+    {
+      "shaft_feature": "spline",
+      "bore_feature": "plain",
+      "clamping": "clamp_ring",
+      "result": "fail",
+      "reason": "花键只能与花键配合",
+      "verified": false
+    },
+    {
+      "shaft_feature": "spline",
+      "bore_feature": "plain",
+      "clamping": "set_screw",
+      "result": "fail",
+      "reason": "花键只能与花键配合",
+      "verified": false
+    },
+    {
+      "shaft_feature": "spline",
+      "bore_feature": "plain",
+      "clamping": "press_fit",
+      "result": "fail",
+      "reason": "花键只能与花键配合；非圆截面过盈配合不常见，需人工确认",
+      "verified": false
+    },
+    {
+      "shaft_feature": "spline",
+      "bore_feature": "keyed",
+      "clamping": "key",
+      "result": "fail",
+      "reason": "花键只能与花键配合；键连接要求轴和孔都有键槽",
+      "verified": false
+    },
+    {
+      "shaft_feature": "spline",
+      "bore_feature": "keyed",
+      "clamping": "clamp_ring",
+      "result": "fail",
+      "reason": "花键只能与花键配合",
+      "verified": false
+    },
+    {
+      "shaft_feature": "spline",
+      "bore_feature": "keyed",
+      "clamping": "set_screw",
+      "result": "fail",
+      "reason": "花键只能与花键配合",
+      "verified": false
+    },
+    {
+      "shaft_feature": "spline",
+      "bore_feature": "keyed",
+      "clamping": "press_fit",
+      "result": "fail",
+      "reason": "花键只能与花键配合；非圆截面过盈配合不常见，需人工确认",
+      "verified": false
+    },
+    {
+      "shaft_feature": "spline",
+      "bore_feature": "d_cut",
+      "clamping": "key",
+      "result": "fail",
+      "reason": "花键只能与花键配合；键连接要求轴和孔都有键槽",
+      "verified": false
+    },
+    {
+      "shaft_feature": "spline",
+      "bore_feature": "d_cut",
+      "clamping": "clamp_ring",
+      "result": "fail",
+      "reason": "花键只能与花键配合",
+      "verified": false
+    },
+    {
+      "shaft_feature": "spline",
+      "bore_feature": "d_cut",
+      "clamping": "set_screw",
+      "result": "fail",
+      "reason": "花键只能与花键配合",
+      "verified": false
+    },
+    {
+      "shaft_feature": "spline",
+      "bore_feature": "d_cut",
+      "clamping": "press_fit",
+      "result": "fail",
+      "reason": "花键只能与花键配合；非圆截面过盈配合不常见，需人工确认",
+      "verified": false
+    },
+    {
+      "shaft_feature": "spline",
+      "bore_feature": "spline",
+      "clamping": "key",
+      "result": "fail",
+      "reason": "花键齿形规格 V1 未建模，需人工确认；键连接要求轴和孔都有键槽",
+      "verified": false
+    },
+    {
+      "shaft_feature": "spline",
+      "bore_feature": "spline",
+      "clamping": "clamp_ring",
+      "result": "warn",
+      "reason": "花键齿形规格 V1 未建模，需人工确认",
+      "verified": false
+    },
+    {
+      "shaft_feature": "spline",
+      "bore_feature": "spline",
+      "clamping": "set_screw",
+      "result": "warn",
+      "reason": "花键齿形规格 V1 未建模，需人工确认",
+      "verified": false
+    },
+    {
+      "shaft_feature": "spline",
+      "bore_feature": "spline",
+      "clamping": "press_fit",
+      "result": "warn",
+      "reason": "花键齿形规格 V1 未建模，需人工确认；非圆截面过盈配合不常见，需人工确认",
+      "verified": false
+    }
+  ]
+}

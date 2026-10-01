@@ -1,0 +1,156 @@
+{
+  "table": "iso273-clearance-holes",
+  "version": "0.1.0-draft",
+  "status": "draft",
+  "verification": "数值取自两个公开二手来源，两者在 M1.6–M30 范围内完全一致；尚未对照 ISO 273 原文核对。 2026-09-30 项目负责人审核通过、同意合并；逐项对照 ISO 273 原文的核对尚未完成，各项 verified 保持 false。",
+  "sources": [
+    {
+      "id": "iso-273",
+      "title": "ISO 273:1979 Fasteners — Clearance holes for bolts and screws",
+      "kind": "standard",
+      "note": "原文未取得"
+    },
+    {
+      "id": "mechcodex-clearance",
+      "title": "Metric Clearance Hole Sizes (ISO 273)",
+      "url": "https://mechcodex.com/reference/metric-clearance-hole-sizes",
+      "kind": "secondary",
+      "accessed": "2026-09-30"
+    },
+    {
+      "id": "ekinsun-clearance",
+      "title": "ISO 273 Clearance Hole Chart",
+      "url": "https://www.ekinsun.com/custom-fasteners/clearance-hole-chart/",
+      "kind": "secondary",
+      "accessed": "2026-09-30"
+    }
+  ],
+  "entries": [
+    {
+      "thread": "M1.6",
+      "fine_mm": 1.7,
+      "medium_mm": 1.8,
+      "coarse_mm": 2.0,
+      "verified": false
+    },
+    {
+      "thread": "M2",
+      "fine_mm": 2.2,
+      "medium_mm": 2.4,
+      "coarse_mm": 2.6,
+      "verified": false
+    },
+    {
+      "thread": "M2.5",
+      "fine_mm": 2.7,
+      "medium_mm": 2.9,
+      "coarse_mm": 3.1,
+      "verified": false
+    },
+    {
+      "thread": "M3",
+      "fine_mm": 3.2,
+      "medium_mm": 3.4,
+      "coarse_mm": 3.6,
+      "verified": false
+    },
+    {
+      "thread": "M4",
+      "fine_mm": 4.3,
+      "medium_mm": 4.5,
+      "coarse_mm": 4.8,
+      "verified": false
+    },
+    {
+      "thread": "M5",
+      "fine_mm": 5.3,
+      "medium_mm": 5.5,
+      "coarse_mm": 5.8,
+      "verified": false
+    },
+    {
+      "thread": "M6",
+      "fine_mm": 6.4,
+      "medium_mm": 6.6,
+      "coarse_mm": 7.0,
+      "verified": false
+    },
+    {
+      "thread": "M8",
+      "fine_mm": 8.4,
+      "medium_mm": 9.0,
+      "coarse_mm": 10.0,
+      "verified": false
+    },
+    {
+      "thread": "M10",
+      "fine_mm": 10.5,
+      "medium_mm": 11.0,
+      "coarse_mm": 12.0,
+      "verified": false
+    },
+    {
+      "thread": "M12",
+      "fine_mm": 13.0,
+      "medium_mm": 13.5,
+      "coarse_mm": 14.5,
+      "verified": false
+    },
+    {
+      "thread": "M14",
+      "fine_mm": 15.0,
+      "medium_mm": 15.5,
+      "coarse_mm": 16.5,
+      "verified": false
+    },
+    {
+      "thread": "M16",
+      "fine_mm": 17.0,
+      "medium_mm": 17.5,
+      "coarse_mm": 18.5,
+      "verified": false
+    },
+    {
+      "thread": "M18",
+      "fine_mm": 19.0,
+      "medium_mm": 20.0,
+      "coarse_mm": 21.0,
+      "verified": false
+    },
+    {
+      "thread": "M20",
+      "fine_mm": 21.0,
+      "medium_mm": 22.0,
+      "coarse_mm": 24.0,
+      "verified": false
+    },
+    {
+      "thread": "M22",
+      "fine_mm": 23.0,
+      "medium_mm": 24.0,
+      "coarse_mm": 26.0,
+      "verified": false
+    },
+    {
+      "thread": "M24",
+      "fine_mm": 25.0,
+      "medium_mm": 26.0,
+      "coarse_mm": 28.0,
+      "verified": false
+    },
+    {
+      "thread": "M27",
+      "fine_mm": 28.0,
+      "medium_mm": 30.0,
+      "coarse_mm": 32.0,
+      "verified": false
+    },
+    {
+      "thread": "M30",
+      "fine_mm": 31.0,
+      "medium_mm": 33.0,
+      "coarse_mm": 35.0,
+      "verified": false
+    }
+  ]
+}
