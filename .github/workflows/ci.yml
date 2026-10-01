@@ -56,4 +56,9 @@ jobs:
       - name: 在 FreeCAD 内带 Python 中安装本项目
         run: '"$FC/usr/bin/python" -m pip install -e ".[dev]"'
       - name: FreeCAD 测试
-        run: PYTHONPATH="$FC/usr/lib" xvfb-run -a -s "-screen 0 1280x1024x24" "$FC/usr/bin/python" -m pytest -m freecad -v
+        run: |
+          set -o pipefail
+          PYTHONPATH="$FC/usr/lib" xvfb-run -a -s "-screen 0 1280x1024x24" "$FC/usr/bin/python" -m pytest -m freecad -v -rf 2>&1 | tee freecad-tests.log
+      - name: 失败摘要写成注解（便于在检查结果中直接看到原因）
+        if: failure()
+        run: grep -E "^(FAILED|ERROR) |^E  " freecad-tests.log | head -40 | sed 's/^/::error::/' || true
