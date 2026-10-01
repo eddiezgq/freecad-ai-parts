@@ -11,6 +11,7 @@
 | `port-types/*.schema.json` | 8 种端口类型，各含 `x-connects-to` | M1 issue #2 |
 | `port.schema.json` | 任意端口：按 `type` 分派到对应端口类型 | M1 issue #2 |
 | `rules/` | ISO 286 配合表、轴孔形式与紧固方式兼容矩阵、ISO 273 间隙孔表；格式与核对状态见 [ADR-0011](../docs/adr/0011-rule-tables.md) | M1 issue #3，草稿待人工核对 |
+| `rules/bearing-fits.json` | 轴承配合推荐表（轴、轴承座公差带）；判定方式见 [ADR-0017](../docs/adr/0017-bearing-fit-judgement.md) | M1 issue #14，草稿待人工核对 |
 | `component.schema.json` | 组件：基本信息、参数表、端口列表、分段包络；结构见 [ADR-0012](../docs/adr/0012-component-system-requirement.md) | M1 issue #4 |
 | `requirement.schema.json` | 需求：与 C4–C11 对应的需求值 | M1 issue #4 |
 | `system.schema.json` | 系统：需求、组件实例、端口连接 | M1 issue #4 |

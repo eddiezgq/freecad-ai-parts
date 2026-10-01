@@ -31,5 +31,6 @@
 | [0014](adr/0014-interface-data-in-ports.md) | 品类 schema：接口数据只放在端口里，参数名封闭 | 2026-09-30 |
 | [0015](adr/0015-data-authorization.md) | 数据获取路线：先用虚构组件开发，真实厂商数据须取得书面授权 | 2026-09-30 |
 | [0016](adr/0016-not-applicable-status.md) | 校验结果增加“不适用”状态 | 2026-09-30 |
+| [0017](adr/0017-bearing-fit-judgement.md) | C2 对轴承端口的判定方式（提议） | 2026-09-30 |
 
 新决策按 [模板](adr/template.md) 编写，编号顺延；已接受的决策不改写，被取代时新建一条并标注。

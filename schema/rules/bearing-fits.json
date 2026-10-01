@@ -1,0 +1,321 @@
+{
+  "table": "bearing-fits",
+  "version": "0.1.0-draft",
+  "status": "draft",
+  "verification": "取自 NTN 目录与 Coolen 两个来源（两者一致），NHBB 在小轴径轻、中载项上略有差异已注明；尚未对照轴承厂商原始目录或 ISO 标准逐项核对。",
+  "sources": [
+    {
+      "id": "ntn-2203e-fits",
+      "title": "NTN Ball and Roller Bearings catalog 2203E, 7. Bearing fits (Table 7.2)",
+      "url": "https://www.ntnglobal.com/en/products/catalog/pdf/2203E_a07.pdf",
+      "kind": "secondary",
+      "accessed": "2026-09-30",
+      "note": "厂商目录，非标准原文"
+    },
+    {
+      "id": "coolen-fits",
+      "title": "Recommended fits chart, bearing fits to shafts and housings (Coolen Bearings)",
+      "url": "https://www.coolenbearings.com/tech/rolling-bearings/fits/recommended-fits-chart-bearing-fits-shafts-and-housings",
+      "kind": "secondary",
+      "accessed": "2026-09-30"
+    },
+    {
+      "id": "nhbb-fits",
+      "title": "Shaft and Housing Fits (NHBB)",
+      "url": "https://www.nhbb.com/knowledge-center/engineering-reference/ball-roller-bearings/shaft-housing-fits",
+      "kind": "secondary",
+      "accessed": "2026-09-30"
+    }
+  ],
+  "entries": [
+    {
+      "ring": "inner",
+      "mating": "shaft",
+      "load_on_ring": "rotating",
+      "load": "light",
+      "bearing_kinds": [
+        "deep_groove",
+        "angular_contact"
+      ],
+      "d_over_mm": 0,
+      "d_upto_mm": 18,
+      "classes": [
+        "h5"
+      ],
+      "sources": [
+        "ntn-2203e-fits",
+        "coolen-fits"
+      ],
+      "verified": false,
+      "note": "NHBB 对 0–0.71 in（约 18 mm）给出 h5 或 j6"
+    },
+    {
+      "ring": "inner",
+      "mating": "shaft",
+      "load_on_ring": "rotating",
+      "load": "light",
+      "bearing_kinds": [
+        "deep_groove",
+        "angular_contact"
+      ],
+      "d_over_mm": 18,
+      "d_upto_mm": 100,
+      "classes": [
+        "js6"
+      ],
+      "sources": [
+        "ntn-2203e-fits",
+        "coolen-fits"
+      ],
+      "verified": false
+    },
+    {
+      "ring": "inner",
+      "mating": "shaft",
+      "load_on_ring": "rotating",
+      "load": "light",
+      "bearing_kinds": [
+        "deep_groove",
+        "angular_contact"
+      ],
+      "d_over_mm": 100,
+      "d_upto_mm": 200,
+      "classes": [
+        "k6"
+      ],
+      "sources": [
+        "ntn-2203e-fits",
+        "coolen-fits"
+      ],
+      "verified": false
+    },
+    {
+      "ring": "inner",
+      "mating": "shaft",
+      "load_on_ring": "rotating",
+      "load": "normal",
+      "bearing_kinds": [
+        "deep_groove",
+        "angular_contact"
+      ],
+      "d_over_mm": 0,
+      "d_upto_mm": 18,
+      "classes": [
+        "js5"
+      ],
+      "sources": [
+        "ntn-2203e-fits",
+        "coolen-fits"
+      ],
+      "verified": false,
+      "note": "NHBB 给出 j5 或 k5"
+    },
+    {
+      "ring": "inner",
+      "mating": "shaft",
+      "load_on_ring": "rotating",
+      "load": "normal",
+      "bearing_kinds": [
+        "deep_groove",
+        "angular_contact"
+      ],
+      "d_over_mm": 18,
+      "d_upto_mm": 100,
+      "classes": [
+        "k5"
+      ],
+      "sources": [
+        "ntn-2203e-fits",
+        "coolen-fits"
+      ],
+      "verified": false,
+      "note": "NHBB 对 0.71 in 以上给出 j5、k5 或 m5"
+    },
+    {
+      "ring": "inner",
+      "mating": "shaft",
+      "load_on_ring": "rotating",
+      "load": "normal",
+      "bearing_kinds": [
+        "deep_groove",
+        "angular_contact"
+      ],
+      "d_over_mm": 100,
+      "d_upto_mm": 140,
+      "classes": [
+        "m5"
+      ],
+      "sources": [
+        "ntn-2203e-fits",
+        "coolen-fits"
+      ],
+      "verified": false
+    },
+    {
+      "ring": "inner",
+      "mating": "shaft",
+      "load_on_ring": "rotating",
+      "load": "normal",
+      "bearing_kinds": [
+        "deep_groove",
+        "angular_contact"
+      ],
+      "d_over_mm": 140,
+      "d_upto_mm": 200,
+      "classes": [
+        "m6"
+      ],
+      "sources": [
+        "ntn-2203e-fits",
+        "coolen-fits"
+      ],
+      "verified": false
+    },
+    {
+      "ring": "inner",
+      "mating": "shaft",
+      "load_on_ring": "rotating",
+      "load": "heavy",
+      "bearing_kinds": [
+        "deep_groove",
+        "angular_contact"
+      ],
+      "d_over_mm": 50,
+      "d_upto_mm": 140,
+      "classes": [
+        "n6"
+      ],
+      "sources": [
+        "ntn-2203e-fits",
+        "coolen-fits"
+      ],
+      "verified": false
+    },
+    {
+      "ring": "inner",
+      "mating": "shaft",
+      "load_on_ring": "rotating",
+      "load": "heavy",
+      "bearing_kinds": [
+        "deep_groove",
+        "angular_contact"
+      ],
+      "d_over_mm": 140,
+      "d_upto_mm": 200,
+      "classes": [
+        "p6"
+      ],
+      "sources": [
+        "ntn-2203e-fits",
+        "coolen-fits"
+      ],
+      "verified": false
+    },
+    {
+      "ring": "inner",
+      "mating": "shaft",
+      "load_on_ring": "stationary",
+      "load": "any",
+      "bearing_kinds": [
+        "deep_groove",
+        "angular_contact"
+      ],
+      "d_over_mm": 0,
+      "d_upto_mm": 200,
+      "classes": [
+        "g6",
+        "h6"
+      ],
+      "sources": [
+        "ntn-2203e-fits",
+        "coolen-fits",
+        "nhbb-fits"
+      ],
+      "verified": false,
+      "note": "g6：内圈须能轴向移动；h6：不需移动"
+    },
+    {
+      "ring": "outer",
+      "mating": "housing",
+      "load_on_ring": "stationary",
+      "load": "any",
+      "bearing_kinds": [
+        "deep_groove",
+        "angular_contact"
+      ],
+      "d_over_mm": 0,
+      "d_upto_mm": 500,
+      "classes": [
+        "H7"
+      ],
+      "sources": [
+        "ntn-2203e-fits",
+        "coolen-fits"
+      ],
+      "verified": false,
+      "note": "NTN 注明大型轴承或温差大时可用 G7；Coolen 注明轻、中载可用 H8"
+    },
+    {
+      "ring": "outer",
+      "mating": "housing",
+      "load_on_ring": "rotating",
+      "load": "light",
+      "bearing_kinds": [
+        "deep_groove",
+        "angular_contact"
+      ],
+      "d_over_mm": 0,
+      "d_upto_mm": 500,
+      "classes": [
+        "M7"
+      ],
+      "sources": [
+        "ntn-2203e-fits",
+        "coolen-fits"
+      ],
+      "verified": false
+    },
+    {
+      "ring": "outer",
+      "mating": "housing",
+      "load_on_ring": "rotating",
+      "load": "normal",
+      "bearing_kinds": [
+        "deep_groove",
+        "angular_contact"
+      ],
+      "d_over_mm": 0,
+      "d_upto_mm": 500,
+      "classes": [
+        "N7"
+      ],
+      "sources": [
+        "ntn-2203e-fits",
+        "coolen-fits"
+      ],
+      "verified": false
+    },
+    {
+      "ring": "outer",
+      "mating": "housing",
+      "load_on_ring": "rotating",
+      "load": "heavy",
+      "bearing_kinds": [
+        "deep_groove",
+        "angular_contact"
+      ],
+      "d_over_mm": 0,
+      "d_upto_mm": 500,
+      "classes": [
+        "N7",
+        "P7"
+      ],
+      "sources": [
+        "ntn-2203e-fits",
+        "coolen-fits"
+      ],
+      "verified": false,
+      "note": "P7 用于薄壁轴承座且有重冲击（Coolen）"
+    }
+  ]
+}
