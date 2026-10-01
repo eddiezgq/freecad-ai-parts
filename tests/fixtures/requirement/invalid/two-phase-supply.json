@@ -1,0 +1,20 @@
+{
+  "why": "相数只能是 0、1、3",
+  "instance": {
+    "id": "joint-2",
+    "statement": "第 2 关节：连续 20 N·m，30 rpm，外径不超过 90 mm",
+    "output_torque_cont_nm": 20,
+    "output_torque_peak_nm": 55,
+    "output_speed_rpm": 30,
+    "safety_factor": 1.2,
+    "load_inertia_kgm2": 0.15,
+    "max_envelope_diameter_mm": 90,
+    "max_envelope_length_mm": 160,
+    "supply": {
+      "current_type": "ac",
+      "voltage_v": 220,
+      "phases": 2
+    },
+    "fieldbus_protocol": "ethercat"
+  }
+}

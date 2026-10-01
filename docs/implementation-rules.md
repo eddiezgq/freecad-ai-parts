@@ -245,15 +245,19 @@ golden 用例是配置引擎的验收标准：每个错配用例只含一个错�
 ```yaml
 id: invalid/flange-pcd-mismatch
 description: 电机法兰分度圆 70 mm，减速器输入法兰 63 mm
-requirement:
-  output_torque_cont_nm: 20
-  output_speed_rpm: 30
-  safety_factor: 1.2
-system:
-  components: [motor.a, reducer.b, drive.c]
+system:                 # 完整的系统对象，遵循 schema/system.schema.json（ADR-0012）
+  id: flange-pcd-mismatch
+  requirement:
+    output_torque_cont_nm: 20
+    output_speed_rpm: 30
+    safety_factor: 1.2
+  components:
+    - {instance: motor, component: test.servo_motor.test-vendor.m100}
+    - {instance: reducer, component: test.reducer.test-vendor.r20-100}
+    - {instance: drive, component: test.drive.test-vendor.d400}
   connections:
-    - [motor.a.shaft, reducer.b.input_bore]
-    - [motor.a.mount_flange, reducer.b.motor_flange]
+    - {a: motor.shaft, b: reducer.input_bore}
+    - {a: motor.mount_flange, b: reducer.motor_flange}
 expected:
   overall: fail
   checks:

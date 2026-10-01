@@ -25,5 +25,6 @@
 | [0008](adr/0008-validation-defaults.md) | 校验默认值：安全系数 1.2，惯量比告警阈值 10 | 2026-09-30 |
 | [0009](adr/0009-workflow-and-rules.md) | main 受保护、全部改动走 PR；实施细则入库；M1 提前开工 | 2026-09-30 |
 | [0010](adr/0010-schema-representation.md) | 参数值与端口类型的 schema 表示约定 | 2026-09-30 |
+| [0012](adr/0012-component-system-requirement.md) | 组件、系统、需求 schema 的结构 | 2026-09-30 |
 
 新决策按 [模板](adr/template.md) 编写，编号顺延；已接受的决策不改写，被取代时新建一条并标注。

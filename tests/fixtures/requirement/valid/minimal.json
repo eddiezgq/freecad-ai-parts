@@ -1,0 +1,7 @@
+{
+  "why": "只有必填字段",
+  "instance": {
+    "output_torque_cont_nm": 20,
+    "output_speed_rpm": 30
+  }
+}
