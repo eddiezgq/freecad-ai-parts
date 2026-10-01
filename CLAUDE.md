@@ -30,8 +30,8 @@ AI 原生 FreeCAD 与零件产品库。厂商零件抽象为“端口 + 参数 +
 
 ```bash
 pip install -e ".[dev]"
-ruff check .
+python -m ruff check .
 python -m pytest -v
 ```
 
-每次会话结束前运行 `ruff check .` 和 `python -m pytest`，并把结果写入 PR 描述。
+每次会话结束前运行 `python -m ruff check .` 和 `python -m pytest`，并把结果写入 PR 描述。
