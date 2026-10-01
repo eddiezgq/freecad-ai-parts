@@ -649,3 +649,19 @@ def test_comma_decimal_document():
     doc = _doc([["Mass", "1,5", "kg"], ["Speed", "3,000", "r/min"]])
     assert _verify(doc, _p("params/mass_kg", "1,5", "kg", "Mass", "Mass 1,5 kg", value=1.5))["items"]
     assert _verify(doc, _p("params/max_speed_rpm", "3,000", "r/min", "Speed", "Speed 3,000", value=3000))["items"] == []
+
+
+
+@pytest.mark.parametrize(
+    ("cell", "upper", "lower"),
+    [("14 -0.006/-0.017", -0.006, -0.017), ("14 +0.034/+0.016", 0.034, 0.016)],
+)
+def test_same_sign_tolerance_accepted(cell, upper, lower):
+    """两侧同号的公差（g6、F7）合法（ADR-0022）。"""
+    doc = _doc([["Shaft", cell, "mm"]])
+    p = _p("ports/shaft/diameter_mm", cell, "mm", "Shaft", f"Shaft {cell} mm",
+           nominal=14, tol_upper=upper, tol_lower=lower)
+    r = _verify(doc, p)
+    assert r["rejected"] == [], r["rejected"]
+    v = r["items"][0]["value"]
+    assert (v["tol_upper"], v["tol_lower"]) == (upper, lower)
