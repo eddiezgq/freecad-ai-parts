@@ -14,7 +14,7 @@ import threading
 from collections.abc import Callable
 from typing import Any, Protocol
 
-from freecad_addon.core.geometry import LayoutError
+from freecad_addon.core.geometry import LayoutError, bbox
 from freecad_addon.core.pose import Pose, quat_axis_angle
 from freecad_addon.core.scene import Scene
 from freecad_addon.fc.client import VIEW_NAMES, HeadlessWorker, WorkerError
@@ -71,11 +71,17 @@ class LayoutSession:
     # ------------------------------------------------------------ 状态
 
     def state(self) -> dict:
-        return {
-            "instances": [{"instance": n, "component": v["component"]["id"], **v["pose"].to_dict()}
-                          for n, v in sorted(self.scene.instances.items())],
-            "connections": [c.to_dict() for c in self.scene.connections],
-        }
+        """当前布局：各实例的组件、位姿、世界包围盒与所在刚性组，以及配合关系。"""
+        instances = []
+        for n, v in sorted(self.scene.instances.items()):
+            item = {"instance": n, "component": v["component"]["id"], **v["pose"].to_dict()}
+            try:
+                item["bbox_mm"] = bbox(v["component"], v["pose"])
+            except LayoutError:
+                item["bbox_mm"] = None  # 包络缺尺寸
+            item["group"] = sorted(self.scene.group(n))
+            instances.append(item)
+        return {"instances": instances, "connections": [c.to_dict() for c in self.scene.connections]}
 
     def layout_for(self, system: dict) -> dict:
         """把当前场景中属于该系统的实例位姿写成系统的 layout（ADR-0034）；实例的组件须与系统一致。"""

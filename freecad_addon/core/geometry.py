@@ -125,6 +125,16 @@ def part_extent(part: Part, pose: Pose, direction: Vec) -> tuple[float, float]:
                            width=part.width, height=part.height)
 
 
+def bbox(comp: dict, pose: Pose) -> dict:
+    """实例包络在世界坐标中的轴对齐包围盒 {"min_mm": [...], "max_mm": [...]}（解析计算）。"""
+    lo, hi = [], []
+    for axis in ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)):
+        ext = [part_extent(p, pose, axis) for p in parts(comp)]
+        lo.append(round(min(e[0] for e in ext), 6) + 0.0)
+        hi.append(round(max(e[1] for e in ext), 6) + 0.0)
+    return {"min_mm": lo, "max_mm": hi}
+
+
 def distance_to_line(p: Vec, origin: Vec, axis: Vec) -> float:
     v = (p[0] - origin[0], p[1] - origin[1], p[2] - origin[2])
     t = dot(v, axis)
