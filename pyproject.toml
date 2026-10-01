@@ -16,6 +16,7 @@ dependencies = [
     "pint>=0.24",
     "pyyaml>=6",
     "jsonschema>=4.21",
+    "pdfplumber>=0.11",
 ]
 
 [project.optional-dependencies]
@@ -23,6 +24,7 @@ dev = [
     "pytest>=8",
     "jsonschema>=4.21",
     "ruff>=0.16.9,<0.17",
+    "reportlab>=4.2",
     "pyyaml>=6",
 ]
 
