@@ -60,3 +60,16 @@ python -m mcp_server.e2e "你的一句话需求" --record --out out/
 ```
 
 `--record` 会真实调用 LLM 解析需求，并把响应录制到 `tests/recordings/requirement/`；之后同一句话可以离线复现。解析时，每个数值都要能在原话里找到依据（数字、单位、指标名称），缺少连续扭矩或转速时会列出追问，不会猜。
+
+## 录制演示视频
+
+```bash
+sudo apt-get install -y xvfb ffmpeg
+scripts/record_demo.sh demo.mp4            # 回放：LLM 回复是预先写好的脚本，工具调用、校验与布局真实执行
+scripts/record_demo.sh demo.mp4 --live     # 真实调用 LLM（需要 ANTHROPIC_API_KEY），用于正式演示
+```
+
+脚本在 Xvfb 虚拟屏幕上打开 FreeCAD 和 AI 对话面板，逐字输入示例需求，跑完一轮对话，同时用 ffmpeg 录屏。
+
+- 回放模式的面板顶部会注明“回放”
+- 正式的 M5 演示视频请用 `--live` 录制，或者在自己的桌面上手动操作并录屏
