@@ -117,6 +117,15 @@ def create_server(library_factory: Callable[[], Library] = default_library) -> F
         """对一个系统做全部 11 项校验，返回逐项结果、整体结论与说明。"""
         return tools.verify_system(lib(), system, lang=lang)
 
+    @mcp.tool
+    @_guard
+    def export_system(
+        system: Annotated[dict, Field(description="系统（schema/system.schema.json）")],
+        format: Annotated[str, Field(description="bom_csv / bom_json / system_json")] = "bom_csv",
+    ) -> dict:
+        """导出方案的 BOM（含原厂模型链接与数据来源）或系统 JSON（含校验报告与组件数据）。"""
+        return tools.export_system(lib(), system, format=format)
+
     return mcp
 
 
