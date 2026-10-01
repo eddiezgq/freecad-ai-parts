@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/port-types/mechanical.cyl_male.schema.json",
   "title": "轴 / 外圆柱配合面（mechanical.cyl_male）",
-  "description": "电机轴、轴承外圈等外圆柱配合面。",
+  "description": "电机轴、轴承外圈等外圆柱配合面。 公差体系由 fit_system 指定，缺省为 ISO 286（ADR-0013）。",
   "x-connects-to": [
     "mechanical.cyl_female"
   ],
@@ -25,7 +25,7 @@
           "$ref": "../common/param-value.schema.json#/$defs/number",
           "description": "名义直径"
         },
-        "fit": {
+        "fit_system": {
           "allOf": [
             {
               "$ref": "../common/param-value.schema.json#/$defs/string"
@@ -33,12 +33,19 @@
             {
               "properties": {
                 "value": {
-                  "pattern": "^(js|[a-z])[0-9]{1,2}$"
+                  "enum": [
+                    "iso286",
+                    "bearing"
+                  ]
                 }
               }
             }
           ],
-          "description": "ISO 286 轴公差带，如 h6、k6、js6"
+          "description": "公差体系：iso286（缺省）或 bearing（滚动轴承内外圈，ISO 492 精度等级）"
+        },
+        "fit": {
+          "$ref": "../common/param-value.schema.json#/$defs/string",
+          "description": "iso286 时为轴公差带（小写，如 h6、k6、js6）；bearing 时为轴承精度等级 P0、P6、P5、P4、P2（对应 ISO 492 的 Normal、6、5、4、2 级）"
         },
         "feature": {
           "allOf": [
@@ -78,7 +85,47 @@
         "fit",
         "feature"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "fit_system": {
+                "properties": {
+                  "value": {
+                    "const": "bearing"
+                  }
+                }
+              }
+            },
+            "required": [
+              "fit_system"
+            ]
+          },
+          "then": {
+            "properties": {
+              "fit": {
+                "properties": {
+                  "value": {
+                    "pattern": "^P(0|6|5|4|2)$"
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "fit": {
+                "properties": {
+                  "value": {
+                    "pattern": "^(js|[a-z])[0-9]{1,2}$"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }
