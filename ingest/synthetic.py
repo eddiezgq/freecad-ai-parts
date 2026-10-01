@@ -37,7 +37,7 @@ from ingest.synthetic_catalog import CATALOG, VENDORS
 from ingest.units import standard_unit, to_standard
 
 TEST_DOC = "src-test-fixture"  # 与 kb.sources.TEST_DOC 一致：测试专用来源，正式库拒收
-ANSWER_FORMAT = "synthetic-answer/1"
+ANSWER_FORMAT = "synthetic-answer/2"  # /2：组件 id 规则与 ingest.assemble 一致；轴承内圈不含紧固方式
 SPEC, IFACE = "spec", "interface"
 
 # ---------------------------------------------------------------- 字段定义
@@ -335,12 +335,11 @@ COMPONENT_NOTE = "模拟规格书用虚构组件（ADR-0015），数值不代表
 # ---------------------------------------------------------------- 组件构建（答案）
 
 
-def _slug(text: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "-", text.casefold()).strip("-")
-
-
 def component_id(category: str, model: str) -> str:
-    return f"test.{category}.{_slug(VENDORS[category])}.{_slug(model).replace('-', '')}"
+    """与复核后组装（ingest.assemble）用同一规则生成 id。"""
+    from ingest.assemble import component_id as cid
+
+    return cid(category, VENDORS[category], model, test=True)
 
 
 def _pv(raw, page: int, condition: str | None = None) -> dict:
@@ -421,7 +420,6 @@ def _implicit(category: str, row: dict) -> dict[str, tuple[object, str]]:
     elif category == "bearing":
         out["ports/inner/fit_system"] = ("bearing", "滚动轴承内圈按 ISO 492 精度等级")
         out["ports/inner/feature"] = ("plain", "轴承内圈为光孔")
-        out["ports/inner/clamping"] = ("press_fit", "轴承内圈按过盈配合安装")
         out["ports/outer/fit_system"] = ("bearing", "滚动轴承外圈按 ISO 492 精度等级")
         out["ports/outer/feature"] = ("plain", "轴承外圈为光面")
     return out

@@ -333,3 +333,5 @@ M1 提前约 3 周完成，M2 随即开工，完成日期不变，多出的时�
 PDF 提取：`ingest/pdf_extract.py` 用 pdfplumber 逐页提取正文与表格，页码从 1 开始；单元格内的排版折行按两侧字符合并（中文与中文直接相连，其余用空格）。表格只认有边框的表；无边框表格的内容仍在该页正文中，交给 LLM 抽取时一并提供（`Document.to_prompt_text()`）。只做忠实提取，不解释单位、不合并跨页表格。
 
 LLM 抽取：`ingest/llm_extract.py`，流程与分工见 ADR-0021。LLM 只报印出的内容（数值、单位、页码、原文引用），代码逐项核对后输出抽取结果（`schema/extraction.schema.json`），一律未复核、不直接入库。测试只用录制回放或标明 `simulated` 的模拟响应（`ingest/llm_simulate.py`）；录制方法见 `tests/recordings/llm/README.md`。真实调用需要 `pip install -e ".[llm]"` 和本地 `.env` 中的密钥。
+
+人工复核：`kb/review.py`（ADR-0023）。抽取结果入队后，关键字段、置信度低于 0.9、带注意事项的项，以及全部被拒提议与缺失的关键字段进入复核；复核决定只增不改，可改判，须选错误分类。全部决定后由 `ingest/assemble.py` 组装组件（端口坐标系按品类约定，需确认；包络由整体尺寸生成），复核员核对计划后带指纹确认，经 `kb.store.import_component` 写入并记修改历史；已在库中的组件须 `--update`。命令：`python -m kb.review enqueue / list / show / decide / add / commit / stats`。
