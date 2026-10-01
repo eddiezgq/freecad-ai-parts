@@ -175,3 +175,142 @@ def test_export_snapshot_round_trip(db, tmp_path: Path):
     exported = {json.loads(f.read_text("utf-8"))["id"]: json.loads(f.read_text("utf-8")) for f in files}
     assert exported == {c["id"]: c for c in comps}
     assert all(f.parent.name == exported[f.stem]["category"] for f in files)
+
+
+# ---------- 独立评审（PR #33）发现的问题的回归测试 ----------
+
+
+def _schema_of(conn) -> str:
+    return conn.execute("SHOW search_path").fetchone()[0].split(",")[0].strip()
+
+
+def _url_with_search_path(url: str, schema: str) -> str:
+    sep = "&" if "?" in url else "?"
+    return f"{url}{sep}options=-c%20search_path%3D{schema},public"
+
+
+def test_connect_commits_writes(db, db_url):
+    from kb.db import connect
+
+    conn = connect(_url_with_search_path(db_url, _schema_of(db)))
+    try:
+        import_component(conn, _fixture(MOTOR), registry=EMPTY, changed_by="test", allow_test=True)
+    finally:
+        conn.close()
+    assert get_component(db, MOTOR) == _fixture(MOTOR)
+
+
+def test_non_autocommit_connection_rejected(db, db_url):
+    import psycopg
+
+    conn = psycopg.connect(_url_with_search_path(db_url, _schema_of(db)))
+    try:
+        with pytest.raises(ValueError):
+            migrate(conn)
+        with pytest.raises(ValueError):
+            import_component(conn, _fixture(MOTOR), registry=EMPTY, changed_by="test", allow_test=True)
+    finally:
+        conn.close()
+
+
+def test_port_change_and_reorder_both_logged(db):
+    comp = _fixture(MOTOR)
+    import_component(db, comp, registry=EMPTY, changed_by="test", allow_test=True)
+    comp["ports"].reverse()
+    shaft = next(p for p in comp["ports"] if p["id"] == "shaft")
+    shaft["spec"]["diameter_mm"]["value"] = 16
+    import_component(db, comp, registry=EMPTY, changed_by="test", reason="改直径并重排", allow_test=True)
+    names = [(e["scope"], e["name"]) for e in change_log(db, MOTOR)[1:]]
+    assert names == [("port", "shaft"), ("component", "port_order")]
+    assert get_component(db, MOTOR) == comp
+
+
+def test_reorder_only_logged(db):
+    comp = _fixture(MOTOR)
+    import_component(db, comp, registry=EMPTY, changed_by="test", allow_test=True)
+    comp["ports"].reverse()
+    result = import_component(db, comp, registry=EMPTY, changed_by="test", reason="重排", allow_test=True)
+    assert result["changes"] == 1
+    assert change_log(db, MOTOR)[-1]["name"] == "port_order"
+
+
+def test_component_field_change_logged(db):
+    comp = _fixture(MOTOR)
+    import_component(db, comp, registry=EMPTY, changed_by="test", allow_test=True)
+    comp["status"] = "discontinued"
+    import_component(db, comp, registry=EMPTY, changed_by="test", reason="停产", allow_test=True)
+    entry = change_log(db, MOTOR)[-1]
+    assert (entry["scope"], entry["name"], entry["old_value"], entry["new_value"]) == (
+        "component", "status", "active", "discontinued")
+
+
+@pytest.mark.parametrize("changed_by,reason", [("", "复核"), ("   ", "复核"), ("test", ""), ("test", "   ")])
+def test_blank_reason_or_changed_by_rejected(db, changed_by, reason):
+    comp = _fixture(MOTOR)
+    import_component(db, comp, registry=EMPTY, changed_by="test", allow_test=True)
+    comp["params"]["mass_kg"]["value"] = 1.3
+    with pytest.raises(ValueError):
+        import_component(db, comp, registry=EMPTY, changed_by=changed_by, reason=reason, allow_test=True)
+
+
+def test_blank_changed_by_rejected_on_create(db):
+    with pytest.raises(ValueError):
+        import_component(db, _fixture(MOTOR), registry=EMPTY, changed_by=" ", allow_test=True)
+
+
+@pytest.mark.parametrize("bad", ["a string", None, 42])
+def test_non_object_rejected_cleanly(bad):
+    assert check_component(bad, EMPTY) == ["组件必须是 JSON 对象"]
+
+
+def test_malformed_ports_rejected_cleanly(db):
+    comp = _fixture(MOTOR)
+    comp["ports"] = None
+    with pytest.raises(ImportRejected):
+        import_component(db, comp, registry=EMPTY, changed_by="test", allow_test=True)
+
+
+@pytest.mark.parametrize("bad", [float("nan"), float("inf")])
+def test_non_finite_number_rejected(bad):
+    comp = _fixture(MOTOR)
+    comp["params"]["mass_kg"]["value"] = bad
+    assert any("不是有限数值" in r for r in check_component(comp, EMPTY, allow_test=True))
+
+
+def test_nul_character_rejected():
+    comp = _fixture(MOTOR)
+    comp["note"] = "abc\x00def"
+    assert any("NUL" in r for r in check_component(comp, EMPTY, allow_test=True))
+
+
+def test_unapproved_document_in_envelope_rejected():
+    comp = _as_real(_fixture(MOTOR), "src-acme-catalog")
+    reg = _registry("partner")
+    comp["envelope"]["parts"][0]["length_mm"]["source"]["doc"] = "src-other-doc"
+    assert any("src-other-doc" in r for r in check_component(comp, reg))
+
+
+def test_get_missing_component_returns_none(db):
+    assert get_component(db, "servo_motor.nobody.nothing") is None
+
+
+def test_change_log_is_append_only(db):
+    import psycopg
+
+    import_component(db, _fixture(MOTOR), registry=EMPTY, changed_by="test", allow_test=True)
+    with pytest.raises(psycopg.errors.RaiseException):
+        db.execute("UPDATE change_log SET reason = 'x'")
+    with pytest.raises(psycopg.errors.RaiseException):
+        db.execute("DELETE FROM change_log")
+
+
+def test_export_is_byte_stable_and_prunes(db, tmp_path: Path):
+    import_component(db, _fixture(MOTOR), registry=EMPTY, changed_by="test", allow_test=True)
+    first = export_snapshot(db, tmp_path)[0].read_bytes()
+    second = export_snapshot(db, tmp_path)[0].read_bytes()
+    assert first == second
+    stale = tmp_path / "reducer" / "test.reducer.old.json"
+    stale.parent.mkdir(parents=True)
+    stale.write_text("{}")
+    export_snapshot(db, tmp_path, prune=True)
+    assert not stale.exists()

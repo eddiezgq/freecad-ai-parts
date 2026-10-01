@@ -1,5 +1,5 @@
 -- 组件知识库初始结构（ADR-0018）
-CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS vector SCHEMA public;
 
 CREATE TABLE components (
     id              text PRIMARY KEY,
@@ -55,8 +55,18 @@ CREATE TABLE change_log (
     name            text NOT NULL,
     old_value       jsonb,
     new_value       jsonb,
-    reason          text NOT NULL,
-    changed_by      text NOT NULL,
+    reason          text NOT NULL CHECK (btrim(reason) <> ''),
+    changed_by      text NOT NULL CHECK (btrim(changed_by) <> ''),
     changed_at      timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX change_log_component_idx ON change_log (component_id);
+
+-- change_log 只增不改（ADR-0018）
+CREATE FUNCTION change_log_append_only() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+    RAISE EXCEPTION 'change_log 只允许追加，不允许修改或删除';
+END;
+$$;
+CREATE TRIGGER change_log_no_update_delete
+    BEFORE UPDATE OR DELETE ON change_log
+    FOR EACH ROW EXECUTE FUNCTION change_log_append_only();
