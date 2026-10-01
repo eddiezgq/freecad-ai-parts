@@ -266,4 +266,4 @@ def test_cli_writes_pdf_and_answer(tmp_path):
     answers = sorted(tmp_path.glob("*.answer.json"))
     assert len(pdfs) == len(answers) == len(datasheets(0))
     data = json.loads(answers[0].read_text(encoding="utf-8"))
-    assert data["format"] == "synthetic-answer/1"
+    assert data["format"] == "synthetic-answer/2"
