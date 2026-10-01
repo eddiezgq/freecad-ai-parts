@@ -19,18 +19,19 @@ AI 原生的 FreeCAD 与零件产品库。把厂商零件抽象成"端口 + 参�
 
 ## 当前状态
 
-**M0 已完成**（2026-09-30）：目录骨架、CI、示例 MCP 工具 `server_info`、实施细则与 `CLAUDE.md`。下一阶段 M1 于 2026-10-05 开工。
+V1 各阶段的**开发部分已全部完成**（2026-10-01，比计划大幅提前），剩下的是需要人完成的验收、规则表核对与厂商数据授权，见 [开发计划的进度一节](docs/plan.md#进度截至-2026-10-01)。
 
-| 阶段 | 计划时间 | 内容 |
+| 阶段 | 内容 | 开发 |
 | --- | --- | --- |
-| M0 | 已完成 | 环境与骨架 |
-| M1 | 10/5–10/25 | schema 与端口类型库定稿，手工种子数据，golden 用例 |
-| M2 | 10/26–11/22 | 数据流水线，4 类各 30–50 个型号入库 |
-| M3 | 11/23–12/13 | 配置引擎 |
-| 缓冲 | 12/14–2027/1/3 | 学期假期；补遗留问题 |
-| M4a | 2027/1/4–1/17 | MCP 工具 |
-| M4b | 1/18–2/14 | FreeCAD 插件 |
-| M5 | 2/15–2/28 | 端到端演示 |
+| M0 | 环境与骨架 | 完成 |
+| M1 | schema 与端口类型库，golden 用例 | 完成（有条件通过验收） |
+| M2 | 数据流水线：合成规格书、LLM 抽取与核对、人工复核队列、准确率评测 | 完成 |
+| M3 | 配置引擎：11 项校验、候选求解与排序、中英文解释 | 完成 |
+| M4a | MCP 工具与 REST，外部客户端接入 | 完成 |
+| M4b | FreeCAD：按端口布局、干涉检查、截图、URDF、工作台与对话面板 | 完成 |
+| M5 | 一句话需求解析、端到端演示、样例输出 | 完成 |
+
+组件数据目前全部是虚构的测试组件（ADR-0015）。真实厂商数据须先取得书面授权。
 
 ## 快速开始
 
@@ -38,20 +39,28 @@ AI 原生的 FreeCAD 与零件产品库。把厂商零件抽象成"端口 + 参�
 
 ```bash
 pip install -e ".[dev]"
+python -m mcp_server.e2e "六轴机械臂第 2 关节：输出连续扭矩 25 N·m、峰值 50 N·m，输出转速 30 rpm，220 V 单相供电，EtherCAT 总线" --out out/
+```
+
+`out/` 中有方案汇总、BOM、系统 JSON 和 URDF；样例见 [`examples/joint2/`](examples/joint2/)。加上 FreeCAD 做干涉检查与截图、在 FreeCAD 里用自然语言对话的步骤，见 [演示](docs/demo.md)。
+
+| 入口 | 说明 |
+| --- | --- |
+| 命令行端到端演示 | `python -m mcp_server.e2e`，见 [docs/demo.md](docs/demo.md) |
+| 外部 MCP 客户端（Claude Desktop 等） | 11 个工具与提示模板，见 [docs/mcp-client.md](docs/mcp-client.md) |
+| REST | `freecad-ai-parts-mcp --http`，路由见 `mcp_server/rest.py` |
+| FreeCAD 工作台与对话面板 | `python -m freecad_addon.install`，见 [freecad_addon/README.md](freecad_addon/README.md) |
+
+### 测试
+
+```bash
 python -m ruff check .
 python -m pytest -v
 ```
 
-数据库测试需要 PostgreSQL 16 与 pgvector 扩展。设置测试库地址后运行，未设置时这部分测试会跳过：
-
-```bash
-export FAP_TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/fap_test
-python -m pytest -v
-```
-
-### 接入 MCP 客户端
-
-M4a 已提供 7 个不依赖 FreeCAD 的工具（查询、兼容查找、候选求解、校验、导出）与 REST 接口。Claude Desktop 等客户端的配置、试用的一句话需求和离线演示见 [docs/mcp-client.md](docs/mcp-client.md)。
+- 数据库测试需要 PostgreSQL 16 与 pgvector：设置 `FAP_TEST_DATABASE_URL` 后运行，未设置时跳过
+- FreeCAD 测试（标记 `freecad`）的运行方式见 [freecad_addon/README.md](freecad_addon/README.md)
+- CI 中这两类测试都必须运行
 
 ## 开发约定
 

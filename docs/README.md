@@ -2,14 +2,18 @@
 
 ## 主文档
 
-- **整体架构**：五层架构、核心数据模型、AI 分工、MCP 工具清单、技术选型、V1 范围与已定决策
-  https://claude.ai/code/artifact/9e2aadfe-9b17-4969-b4c9-d1896a671360
-- **V1 开发方案与计划**：仓库结构、开发方法、进度计划、各阶段验收、风险
-  https://claude.ai/code/artifact/0dfaf0f2-9658-4655-8a98-b7d6bb8491e8
-- **V1 实施细则**：开发流程、代码规范、schema 字段级规格、校验规则、数据复核、golden 用例、M1 分周任务
-  [implementation-rules.md](implementation-rules.md)（在线版含端口连接图：https://claude.ai/code/artifact/ffce2bff-a1ce-4a2a-a45a-b8e50a67baee）
+| 文档 | 内容 |
+| --- | --- |
+| [整体架构](architecture.md) | 五层架构、核心数据模型、AI 分工、MCP 工具清单、技术选型、V1 范围与已定决策 |
+| [V1 开发方案与计划](plan.md) | 仓库结构、开发方法、进度计划、各阶段验收、风险、当前进度 |
+| [V1 实施细则](implementation-rules.md) | 开发流程、代码规范、schema 字段级规格、校验规则、数据复核、golden 用例、各阶段分项任务 |
+| [演示](demo.md) | 从一句需求到 BOM 的三种演示方式 |
+| [MCP 客户端接入](mcp-client.md) | Claude Desktop 等客户端的配置、工具清单、HTTP 与 REST |
 
-前两份文档目前为私有链接，仓库公开前会把定稿内容转存到本目录。
+文件优先级：架构 > 实施细则 > 开发计划 > 其他（实施细则第一节）。
+
+- 前两份原为私有在线文档，2026-10-01 转存到本目录，此后以仓库版本为准
+- 实施细则的在线版含端口连接图：https://claude.ai/code/artifact/ffce2bff-a1ce-4a2a-a45a-b8e50a67baee
 
 ## 决策记录（ADR）
 
