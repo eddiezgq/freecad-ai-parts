@@ -9,6 +9,8 @@
 #   categories:     覆盖的品类：servo_motor | reducer | drive | bearing | fastener
 #   license:        params-only（仅提取参数） | open（开源许可，注明许可证） | partner（厂商授权） | pending（待定）
 #   terms_url:      使用条款页面
+#   documents:      该来源下登记的规格书，每份一项：id（src- 开头）、title、version、url、sha256（ADR-0018）
+#                   导入知识库时，参数引用的来源文档必须在此登记，且所属来源已核实条款或取得授权
 #   terms_checked:  是否已核实使用条款
 #   terms_note:     核实结论与日期
 #

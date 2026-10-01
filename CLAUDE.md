@@ -34,4 +34,6 @@ python -m ruff check .
 python -m pytest -v
 ```
 
+数据库测试需要 PostgreSQL 16 + pgvector，用环境变量 `FAP_TEST_DATABASE_URL` 指定测试库；未配置时本地跳过，CI 中必须运行。
+
 每次会话结束前运行 `python -m ruff check .` 和 `python -m pytest`，并把结果写入 PR 描述。
