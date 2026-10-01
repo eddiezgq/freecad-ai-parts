@@ -122,7 +122,7 @@ V1 共 8 种端口类型：4 种机械、2 种电气、2 种信号，覆盖关�
 | 类型 | 含义 | 必填字段 | 选填字段 | 可连接到 |
 | --- | --- | --- | --- | --- |
 | `mechanical.cyl_male` | 轴 / 外圆柱配合面（电机轴、轴承外圈） | `diameter_mm`、`fit`（ISO 286 公差带如 `h6`、`k6`；轴承外圈为精度等级如 `P0`）、`feature`（`plain` / `keyed` / `d_cut` / `spline`） | `fit_system`（`iso286` 缺省 / `bearing`）、`usable_length_mm`、`key_width_mm`、`max_radial_load_n`、`max_axial_load_n` | `cyl_female` |
-| `mechanical.cyl_female` | 孔 / 内圆柱配合面（减速器输入孔、轴承内圈、轴承座孔） | `diameter_mm`、`fit`（ISO 286 公差带如 `H7`；轴承内圈为精度等级如 `P0`）、`feature`、`clamping`（`key` / `clamp_ring` / `set_screw` / `press_fit`） | `fit_system`（`iso286` 缺省 / `bearing`）、`depth_mm`、`key_width_mm`、`accepted_diameter_range_mm`（可换轴套时） | `cyl_male` |
+| `mechanical.cyl_female` | 孔 / 内圆柱配合面（减速器输入孔、轴承内圈、轴承座孔） | `diameter_mm`、`fit`（ISO 286 公差带如 `H7`；轴承内圈为精度等级如 `P0`）、`feature`、`clamping`（`key` / `clamp_ring` / `set_screw` / `press_fit`；轴承内圈可不填，ADR-0024） | `fit_system`（`iso286` 缺省 / `bearing`）、`depth_mm`、`key_width_mm`、`accepted_diameter_range_mm`（可换轴套时） | `cyl_male` |
 | `mechanical.flange` | 圆形安装法兰（电机法兰、减速器输入/输出法兰） | `pcd_mm`、`hole_count`、`hole_kind`（`through` / `threaded`）、`hole_diameter_mm` 或 `thread`（如 `M5`） | `pilot_diameter_mm`、`pilot_kind`（`male` / `female`）、`pilot_fit`、`square_size_mm`、`hole_angle_offset_deg` | `flange` |
 | `mechanical.mount_face` | 非圆形安装面（驱动器底板、壳体安装面） | `pattern`（`rect`，含 `pitch_x_mm`、`pitch_y_mm`）、`hole_count`、`hole_diameter_mm` 或 `thread` | `face_size_mm`、`din_rail` | `mount_face` |
 | `electrical.power_supply` | 供电输入/输出（电网、直流母线 → 驱动器） | `current_type`（`ac` / `dc`）、`voltage_v`（范围）、`phases`（1 / 3，直流填 0） | `rated_current_a`、`frequency_hz`、`connector` | `power_supply` |
@@ -177,7 +177,7 @@ V1 共 11 项静态校验，全部由 `engine/` 的确定性代码完成；每�
 | 编号 | 校验 | 判定条件 | 不满足时 |
 | --- | --- | --- | --- |
 | C1 | 端口兼容 | 类型在“可连接到”列表内；方向为 out→in 或含 bidir；`motion` 相同 | fail |
-| C2 | 圆柱配合 | 内外圆柱名义直径相等；公差配对在配合表内（一侧为轴承时，按轴承配合推荐表判定）；`feature` 与 `clamping` 兼容，有键时键宽相等 | 直径或键不符 fail；公差配对不在表内 warn |
+| C2 | 圆柱配合 | 内外圆柱名义直径相等；公差配对在配合表内（一侧为轴承时，按轴承配合推荐表判定）；`feature` 与 `clamping` 兼容（轴承一侧未写 `clamping` 时此项不适用，ADR-0024），有键时键宽相等 | 直径或键不符 fail；公差配对不在表内 warn |
 | C3 | 法兰配合 | 分度圆直径相差 ≤ 0.05 mm；孔数相等；一侧螺纹孔时，另一侧通孔直径 ≥ 按 ISO 273 中等系列的间隙孔；止口一公一母且直径相等 | 分度圆、孔数、孔径、止口不符 fail；一侧没有止口 warn |
 | C4 | 连续扭矩 | 公式 (1)(2) | fail |
 | C5 | 峰值扭矩 | 公式 (3)(4) | fail |
