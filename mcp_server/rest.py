@@ -12,8 +12,13 @@ MCP 在 /mcp，REST 在 /api。
 | POST | /api/compose  {requirement, top_n?, include_unknown?, lang?} | compose_chain |
 | POST | /api/verify   {system, lang?} | verify_system |
 | POST | /api/export   {system, format?} | export_system |
+| GET | /api/layout | 当前布局（各工具结果中的 layout） |
+| POST | /api/layout/place {instance, component_id?, position_mm?, rotation_axis?, rotation_deg?, remove?} | place_component |
+| POST | /api/layout/connect {a, b, roll_deg?, offset_mm?} | connect_ports |
+| POST | /api/layout/interference {threshold_mm3?} | check_interference |
+| POST | /api/layout/snapshot {view?, width?, height?} | snapshot（PNG 以 base64 返回） |
 
-入参错误返回 400，组件或端口不存在返回 404，响应体为 {"error": 说明}。
+入参错误返回 400，组件或端口不存在返回 404，FreeCAD 后端不可用返回 503，响应体为 {"error": 说明}。
 """
 
 from __future__ import annotations
@@ -22,6 +27,7 @@ import json
 from collections.abc import Callable
 from typing import Any
 
+from starlette.concurrency import run_in_threadpool
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
@@ -29,7 +35,11 @@ from mcp_server import tools
 
 
 def _error(exc: Exception) -> JSONResponse:
+    from mcp_server.layout import ToolBackendError
+
     msg = str(exc)
+    if isinstance(exc, ToolBackendError):
+        return JSONResponse({"error": msg}, status_code=503)
     status = 404 if ("不存在" in msg or "没有端口" in msg) else 400
     return JSONResponse({"error": msg}, status_code=status)
 
@@ -42,6 +52,12 @@ def _bool(v: str | None, default: bool) -> bool:
     if v.lower() in ("0", "false", "no"):
         return False
     raise tools.ToolInputError(f"布尔参数只能是 true / false，现为 {v!r}")
+
+
+def _flag(v: Any) -> bool:
+    if not isinstance(v, bool):
+        raise tools.ToolInputError("remove 须为 true / false")
+    return v
 
 
 def _int(v: str | None, default: int) -> int:
@@ -71,7 +87,7 @@ def _only(data: dict, allowed: set[str], required: set[str]) -> None:
         raise tools.ToolInputError(f"缺少字段：{', '.join(sorted(missing))}")
 
 
-def register(mcp, lib: Callable[[], Any], info: Callable[[], dict]) -> None:
+def register(mcp, lib: Callable[[], Any], info: Callable[[], dict], layout: Any = None) -> None:
     """在 FastMCP 服务上注册 REST 路由。"""
 
     def route(path: str, methods: list[str]):
@@ -137,3 +153,39 @@ def register(mcp, lib: Callable[[], Any], info: Callable[[], dict]) -> None:
         data = await _body(request)
         _only(data, {"system", "format"}, {"system"})
         return tools.export_system(lib(), data["system"], format=data.get("format", "bom_csv"))
+
+    if layout is None:
+        return
+
+    @route("/api/layout", ["GET"])
+    async def layout_state(request: Request):
+        return layout.state()
+
+    @route("/api/layout/place", ["POST"])
+    async def layout_place(request: Request):
+        data = await _body(request)
+        _only(data, {"instance", "component_id", "position_mm", "rotation_axis", "rotation_deg", "remove"},
+              {"instance"})
+        return await run_in_threadpool(layout.place, data["instance"], data.get("component_id"),
+                                       data.get("position_mm"), data.get("rotation_axis"),
+                                       data.get("rotation_deg", 0.0), _flag(data.get("remove", False)))
+
+    @route("/api/layout/connect", ["POST"])
+    async def layout_connect(request: Request):
+        data = await _body(request)
+        _only(data, {"a", "b", "roll_deg", "offset_mm"}, {"a", "b"})
+        return await run_in_threadpool(layout.connect, data["a"], data["b"], data.get("roll_deg", 0.0),
+                                       data.get("offset_mm", 0.0))
+
+    @route("/api/layout/interference", ["POST"])
+    async def layout_interference(request: Request):
+        data = await _body(request)
+        _only(data, {"threshold_mm3"}, set())
+        return await run_in_threadpool(layout.interference, data.get("threshold_mm3", 1.0))
+
+    @route("/api/layout/snapshot", ["POST"])
+    async def layout_snapshot(request: Request):
+        data = await _body(request)
+        _only(data, {"view", "width", "height"}, set())
+        return await run_in_threadpool(layout.snapshot, data.get("view", "iso"), data.get("width", 800),
+                                       data.get("height", 600))

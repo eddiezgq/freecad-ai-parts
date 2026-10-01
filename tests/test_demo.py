@@ -46,6 +46,7 @@ def test_prompt_and_tool_list():
             return tools, prompt
     tools, prompt = asyncio.run(run())
     assert tools == sorted(["server_info", "search_components", "get_component", "find_compatible",
-                            "compose_chain", "verify_system", "export_system"])
+                            "compose_chain", "verify_system", "export_system",
+                            "place_component", "connect_ports", "check_interference", "snapshot"])
     text = prompt.messages[0].content.text
     assert "第 2 关节" in text and "compose_chain" in text and "不要猜" in text

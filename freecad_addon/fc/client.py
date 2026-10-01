@@ -20,6 +20,7 @@ import threading
 from pathlib import Path
 
 PREFIX = "@@FAP@@ "
+VIEW_NAMES = ("iso", "front", "rear", "left", "right", "top", "bottom")  # 截图视角，与 fc.snapshot.VIEWS 一致
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PYTHON = REPO_ROOT / ".freecad/squashfs-root/usr/bin/python"
 
