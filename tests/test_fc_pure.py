@@ -75,3 +75,34 @@ def test_worker_unavailable_raises_on_call(monkeypatch, tmp_path):
 def test_pass_through_volume_reference():
     # ADR-0033 中引用的数值：直径 11 的轴穿过 10 mm 厚的板
     assert math.pi * 5.5**2 * 10 == pytest.approx(950.33, abs=0.01)
+
+
+def test_worker_timeout_kills_whole_process_group(monkeypatch, tmp_path):
+    """超时终止 worker 时，连同它启动的子进程一起终止，不留孤儿进程（#104 评审）。"""
+    import os
+    import time
+
+    marker = tmp_path / "child.pid"
+    fake = tmp_path / "python"
+    fake.write_text(f"#!/bin/sh\nsleep 300 &\necho $! > {marker}\nwait\n")
+    fake.chmod(0o755)
+    (tmp_path / "FreeCAD.so").write_text("")
+    monkeypatch.setenv("FAP_FREECAD_PYTHON", str(fake))
+    monkeypatch.setenv("FAP_FREECAD_LIB", str(tmp_path))
+    monkeypatch.setenv("DISPLAY", ":0")  # 不经 xvfb-run
+    w = client.HeadlessWorker(timeout_s=1)
+    with pytest.raises(client.WorkerError) as exc:
+        w.call("ping")
+    assert exc.value.kind == "timeout"
+    pid = int(marker.read_text())
+    for _ in range(50):
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            break
+        with open(f"/proc/{pid}/stat") as f:  # 只剩僵尸也算已终止
+            if f.read().split()[2] == "Z":
+                break
+        time.sleep(0.1)
+    else:
+        pytest.fail("worker 的子进程在超时后仍在运行")
