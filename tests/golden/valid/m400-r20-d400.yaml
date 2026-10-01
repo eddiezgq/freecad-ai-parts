@@ -1,0 +1,54 @@
+# golden 用例草稿：预期结果为人工手算，须由人审定（CLAUDE.md、ADR-0015）
+id: valid/m400-r20-d400
+description: 400 W 电机 + 谐波减速器 r20-100（100:1）+ 驱动器 d400，直连
+system:
+  id: m400-r20-d400
+  requirement:
+    output_torque_cont_nm: 25
+    output_torque_peak_nm: 50
+    output_speed_rpm: 30
+    safety_factor: 1.2
+    supply:
+      current_type: ac
+      voltage_v: 220
+      phases: 1
+    fieldbus_protocol: ethercat
+  components:
+  - instance: motor
+    component: test.servo_motor.test-vendor.m400
+  - instance: reducer
+    component: test.reducer.test-vendor.r20-100
+  - instance: drive
+    component: test.drive.test-vendor.d400
+  connections:
+  - a: motor.shaft
+    b: reducer.input_bore
+  - a: motor.mount_flange
+    b: reducer.motor_flange
+  - a: drive.motor_out
+    b: motor.power_in
+  - a: motor.encoder
+    b: drive.encoder_in
+expected:
+  overall: warn
+  checks:
+    C1: pass
+    C2: pass
+    C3: pass
+    C4: pass
+    C5: pass
+    C6: warn
+    C7: pass
+    C9: pass
+    C10: pass
+calc: |
+  C2: 轴 14 h6 带键（键宽 5）↔ 孔 14 H7 键连接（键宽 5）；H7/h6 在配合表内；keyed/keyed/key 为 pass
+  C3: 电机法兰 PCD 70、4×通孔 5.5、凸止口 50 ↔ 减速器法兰 PCD 70、4×M5、凹止口 50；M5 中等系列间隙孔 5.5，5.5 ≥ 5.5
+  C4: SF·T_cont = 1.2 × 25 = 30 N·m ≤ 减速器额定 34；折算电机侧 30 / (100 × 0.70) = 0.429 N·m ≤ 1.27
+  C5: T_peak = 50 ≤ 减速器启停峰值 54；折算电机侧 50 / 70 = 0.714 N·m ≤ 3.82
+  C6: 电机峰值经减速 3.82 × 100 × 0.70 = 267.4 N·m > 减速器瞬间最大 98 → warn（须在驱动器设扭矩限幅）
+  C7: 30 × 100 = 3000 rpm ≤ 电机最高 6000，≤ 减速器最高输入 6500，≤ 平均输入转速限制 3500
+  C8: 需求未给负载惯量，不计算
+  C9: 供电 AC 220 V 单相，在驱动器 200–240 V 单相内；电压等级 200 = 200；驱动器额定 2.8 A ≥ 电机 2.8 A（边界）；峰值 10 A ≥ 8.5 A
+  C10: 编码器 biss_c ∈ 驱动器 [biss_c, endat_2_2]；总线 ethercat = 需求 ethercat
+  C11: 无轴承、无包络限值，不适用

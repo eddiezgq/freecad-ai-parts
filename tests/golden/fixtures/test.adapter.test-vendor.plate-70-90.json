@@ -1,0 +1,241 @@
+{
+  "id": "test.adapter.test-vendor.plate-70-90",
+  "category": "adapter",
+  "vendor": "Test Vendor",
+  "model": "PL-70-90",
+  "status": "active",
+  "license": "params-only",
+  "params": {
+    "adapter_kind": {
+      "value": "flange_plate",
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    },
+    "mass_kg": {
+      "value": 0.2,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    },
+    "length_mm": {
+      "value": 10,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    }
+  },
+  "ports": [
+    {
+      "id": "motor_side",
+      "type": "mechanical.flange",
+      "dir": "bidir",
+      "motion": "stationary",
+      "frame": {
+        "origin_mm": [
+          0,
+          0,
+          0
+        ],
+        "axis": [
+          0,
+          0,
+          1
+        ]
+      },
+      "spec": {
+        "pcd_mm": {
+          "value": 70,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "hole_count": {
+          "value": 4,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "hole_kind": {
+          "value": "threaded",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "thread": {
+          "value": "M5",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "pilot_diameter_mm": {
+          "value": 50,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "pilot_kind": {
+          "value": "female",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    },
+    {
+      "id": "reducer_side",
+      "type": "mechanical.flange",
+      "dir": "bidir",
+      "motion": "stationary",
+      "frame": {
+        "origin_mm": [
+          0,
+          0,
+          10
+        ],
+        "axis": [
+          0,
+          0,
+          1
+        ]
+      },
+      "spec": {
+        "pcd_mm": {
+          "value": 90,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "hole_count": {
+          "value": 4,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "hole_kind": {
+          "value": "through",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "hole_diameter_mm": {
+          "value": 6.6,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "pilot_diameter_mm": {
+          "value": 70,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "pilot_kind": {
+          "value": "male",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    }
+  ],
+  "envelope": {
+    "parts": [
+      {
+        "shape": "box",
+        "z_start_mm": 0,
+        "length_mm": {
+          "value": 10,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "width_mm": {
+          "value": 100,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "height_mm": {
+          "value": 100,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    ]
+  },
+  "note": "golden 用虚构组件（ADR-0015），数值不代表任何真实产品"
+}
