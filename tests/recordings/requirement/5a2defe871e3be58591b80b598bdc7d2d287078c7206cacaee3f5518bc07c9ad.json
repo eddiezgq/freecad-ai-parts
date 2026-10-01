@@ -3,8 +3,8 @@
   "prompt_version": "requirement/2",
   "request_key": "5a2defe871e3be58591b80b598bdc7d2d287078c7206cacaee3f5518bc07c9ad",
   "response": {
-    "id": "simulated-joint2",
-    "simulated": true,
+    "id": "msg_011CfcR9TeuZuSK19MFFgvnw",
+    "simulated": false,
     "tool_input": {
       "items": [
         {
@@ -32,16 +32,10 @@
           "value": 220
         },
         {
-          "field": "supply.current_type",
-          "quote": "220 V 单相供电",
-          "unit": "",
-          "value": "ac"
-        },
-        {
           "field": "supply.phases",
           "quote": "220 V 单相供电",
           "unit": "",
-          "value": 1
+          "value": "1"
         },
         {
           "field": "fieldbus_protocol",
@@ -50,7 +44,9 @@
           "value": "ethercat"
         }
       ],
-      "unclear": []
+      "unclear": [
+        "供电电流类型(交流/直流)原话未明确说明,未报告"
+      ]
     }
   }
 }
