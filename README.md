@@ -42,6 +42,13 @@ python -m ruff check .
 python -m pytest -v
 ```
 
+数据库测试需要 PostgreSQL 16 与 pgvector 扩展。设置测试库地址后运行，未设置时这部分测试会跳过：
+
+```bash
+export FAP_TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/fap_test
+python -m pytest -v
+```
+
 ### 接入 MCP 客户端
 
 以 Claude Desktop 为例，在其配置文件的 `mcpServers` 中加入（路径换成本仓库的实际位置）：
