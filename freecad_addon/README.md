@@ -42,13 +42,29 @@ MCP 服务端通过 `freecad_addon.fc.client.HeadlessWorker` 用 FreeCAD 内带�
 
 让外部 MCP 客户端（如 Claude Desktop）驱动你打开的 FreeCAD：布局实时显示在窗口里，截图截的就是这个窗口。
 
-1. 在 FreeCAD 中启用桥接
-   - 工作台完成前（#89），可以在 FreeCAD 的 Python 控制台中运行：
-     ```python
-     import sys; sys.path.insert(0, "/path/to/freecad-ai-parts")
-     from freecad_addon.fc.bridge import Bridge; bridge = Bridge(); bridge.start()
-     ```
+1. 在 FreeCAD 中启用桥接：在 AI Parts 工作台中点“启用 / 停止桥接”
    - 桥接只监听本机，端口与一次性令牌写在 `~/.freecad-ai-parts/bridge.json`（仅本人可读写）
 2. MCP 服务端设置 `FAP_FREECAD=gui`
    - `place_component`、`connect_ports` 之后，FreeCAD 中的 `FapLayout` 文档会自动更新
    - `check_interference` 和 `snapshot` 在这个 FreeCAD 中执行
+
+## 安装工作台与内置对话面板（ADR-0036）
+
+```bash
+python -m freecad_addon.install                          # 写入 FreeCAD 用户目录的 Mod/FreeCADAIParts/InitGui.py
+<FreeCAD 的 python> -m pip install -e ".[llm]"           # 面板依赖（在本仓库目录下运行）
+export ANTHROPIC_API_KEY=...                             # 或写在本仓库的 .env 中（不入 git）
+```
+
+重启 FreeCAD 后选择 “AI Parts” 工作台：
+
+- **AI 对话面板**：右侧停靠窗口。用一句话描述需求，助手会：
+  - 调用选型、校验与布局工具，布局实时显示在 `FapLayout` 文档中
+  - 检查并消除干涉，截图自查，最后按布局复核
+- **启用 / 停止桥接**：供外部 MCP 客户端驱动当前 FreeCAD（见上一节）
+
+说明：
+
+- 模型缺省为 `claude-sonnet-5-5`，可用 `FAP_CHAT_MODEL` 更换
+- 组件库按 `FAP_LIBRARY` / `DATABASE_URL` 配置；都没设置时用虚构测试组件库，面板顶部会注明
+- 卸载：`python -m freecad_addon.install --uninstall`
