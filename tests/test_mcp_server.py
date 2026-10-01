@@ -1,4 +1,4 @@
-"""M0 验收：MCP 客户端能调用示例工具。"""
+"""M0 验收：MCP 客户端能调用示例工具（阶段号随里程碑更新）。"""
 
 import asyncio
 
@@ -17,6 +17,6 @@ def test_server_info_tool_is_callable():
 
     data = asyncio.run(run())
     assert data["name"] == "freecad-ai-parts"
-    assert data["stage"] == "M0"
+    assert data["stage"] == "M4a"
     assert data["planned_tools"] == PLANNED_TOOLS
     assert len(PLANNED_TOOLS) == 10
