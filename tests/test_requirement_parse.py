@@ -72,9 +72,9 @@ def test_chinese_unit_words():
 @pytest.mark.parametrize(("bad", "reason"), [
     (item("output_torque_cont_nm", 25, "N·m", "连续扭矩 25 N·m（编的）"), "不在原话中"),
     (item("output_torque_cont_nm", 26, "N·m", "输出连续扭矩 25 N·m"), "不在引用"),
-    (item("output_torque_cont_nm", 50, "N·m", "峰值 50 N·m"), "峰值"),
+    (item("output_torque_cont_nm", 50, "N·m", "峰值 50 N·m"), "关键词"),
     (item("output_torque_cont_nm", 25, "", "输出连续扭矩 25 N·m"), "没有单位"),
-    (item("output_torque_cont_nm", 25, "kN·m", "输出连续扭矩 25 N·m"), "不在引用"),
+    (item("output_torque_cont_nm", 25, "kN·m", "输出连续扭矩 25 N·m"), "没有紧跟"),
     (item("output_speed_rpm", 30, "N·m", "输出连续扭矩 25 N·m"), "不在引用"),
     (item("output_speed_rpm", 25, "N·m", "输出连续扭矩 25 N·m"), "关键词"),
     (item("output_speed_rpm", "30", "rpm", "输出转速 30 rpm"), "须为数字"),
@@ -159,3 +159,58 @@ def test_request_is_stable_and_validates_input():
 def test_cli(capsys):
     assert rp.main([S]) == 0
     assert json.loads(capsys.readouterr().out)["status"] == "ok"
+
+
+# ------------------------------------------------------------------ 独立评审发现的问题（#104）
+
+
+def _one(statement, it):
+    return rp.interpret(statement, {"items": [it]})
+
+
+@pytest.mark.parametrize(("statement", "it", "reason"), [
+    # 1. 单位须紧跟在数字后：mN·m 不能报成 N·m，mm 不能报成 m
+    ("连续扭矩 500 mN·m，转速 30 rpm", item("output_torque_cont_nm", 500, "N·m", "连续扭矩 500 mN·m"), "没有紧跟"),
+    ("长度不超过 120 mm", item("max_envelope_length_mm", 120, "m", "长度不超过 120 mm"), "没有紧跟"),
+    # 2. 关键词须在该数字前、同一分句内
+    ("额定扭矩 20 N·m，转速 50 rpm", item("output_torque_cont_nm", 50, "rpm", "额定扭矩 20 N·m，转速 50 rpm"), "关键词"),
+    ("扭矩 20 N·m，最大转速 60 rpm", item("output_torque_peak_nm", 20, "N·m", "扭矩 20 N·m，最大"), "关键词"),
+    # 3. 特殊工况扭矩不是连续扭矩
+    ("堵转扭矩 50 N·m，转速 30 rpm", item("output_torque_cont_nm", 50, "N·m", "堵转扭矩 50 N·m"), "特殊工况"),
+    ("最高扭矩 50 N·m", item("output_torque_cont_nm", 50, "N·m", "最高扭矩 50 N·m"), "特殊工况"),
+    ("过载扭矩 50 N·m", item("output_torque_cont_nm", 50, "N·m", "过载扭矩 50 N·m"), "特殊工况"),
+    # 4. 千分位是一个数；倍数词须追问
+    ("speed 1,500 rpm", item("output_speed_rpm", 1, "rpm", "speed 1,500 rpm"), "不在引用"),
+    ("转速 0.3万 rpm", item("output_speed_rpm", 0.3, "rpm", "转速 0.3万 rpm"), "倍数词"),
+    # 5. ASCII 关键词按单词边界
+    ("48 V single-axis actuator", item("supply.current_type", "ac", "", "actuator"), "关键词"),
+    ("48 V single-axis actuator", item("supply.phases", 1, "", "single-axis"), "关键词"),
+    # 引用过长
+    ("连续扭矩 25 N·m" + "，说明" * 40, item("output_torque_cont_nm", 25, "N·m", "连续扭矩 25 N·m" + "，说明" * 40),
+     "过长"),
+    # 11. 类型不对的条目给出原因而不是崩溃
+    ("连续扭矩 25 N·m", item("output_torque_cont_nm", 25, "N·m", 5), "字符串"),
+    ("EtherCAT 总线", item("fieldbus_protocol", ["ethercat"], "", "EtherCAT 总线"), "可选值"),
+    ("EtherCAT 总线", {"field": ["x"], "value": 1}, "未知字段"),
+])
+def test_review_findings_rejected(statement, it, reason):
+    out = _one(statement, it)
+    assert any(reason in r["reason"] for r in out["rejected"]), out["rejected"]
+    field = it.get("field")
+    if isinstance(field, str) and field != "safety_factor":
+        assert field.split(".")[0] not in out["requirement"]
+
+
+@pytest.mark.parametrize(("statement", "it", "want"), [
+    ("speed 1,500 rpm", item("output_speed_rpm", 1500, "rpm", "speed 1,500 rpm"), 1500),
+    ("连续扭矩25N·m", item("output_torque_cont_nm", 25, "N·m", "连续扭矩25N·m"), 25),
+    ("扭矩 20 N·m，转速 50 rpm", item("output_speed_rpm", 50, "rpm", "扭矩 20 N·m，转速 50 rpm"), 50),
+    ("负载惯量 2000 kg·cm²", item("load_inertia_kgm2", 2000, "kg·cm²", "负载惯量 2000 kg·cm²"), 0.2),
+    ("220 VAC 单相", item("supply.voltage_v", 220, "VAC", "220 VAC 单相"), None),
+])
+def test_review_valid_forms_still_accepted(statement, it, want):
+    out = _one(statement, it)
+    if want is None:  # VAC 不是 pint 单位：拒绝并说明，不猜
+        assert out["rejected"] and "supply" not in out["requirement"]
+        return
+    assert out["requirement"][it["field"]] == pytest.approx(want)
