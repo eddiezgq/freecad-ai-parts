@@ -13,6 +13,15 @@
 | `invalid/` | 错配方案：每个用例只含一个错误，C1–C11 每项至少一个（C6、C8 只告警，故为 `warn`） |
 | `unknown/` | 缺关键数据的方案：整体结论为 `unknown` |
 
+## 运行
+
+```bash
+python -m engine.golden            # 用引擎跑全部用例，逐项对照预期
+python -m engine.golden --verbose  # 同时打印每个用例的完整校验结果
+```
+
+CI 中由 `tests/test_golden_engine.py` 运行；`any` 项会输出引擎的实际结果，供人决定是否更新预期。
+
 ## 用例格式（YAML）
 
 ```yaml

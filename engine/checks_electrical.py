@@ -7,7 +7,7 @@ import math
 from engine.checks_interface import _pair_ok
 from engine.result import FAIL, NA, PASS, UNKNOWN, WARN, CheckResult, Finding, not_applicable
 from engine.system import PortRef, System
-from engine.values import capacity, items, nominal, span, text
+from engine.values import capacity, demand, items, nominal, span, text
 
 
 def _link(system: System, a: PortRef, b: PortRef) -> bool:
@@ -24,11 +24,17 @@ def _motor_drive(system: System) -> tuple[str | None, str | None]:
 
 def c9(system: System) -> CheckResult:
     """电气匹配：动力连接；供电电压、电流类型、相数；电压等级；额定电流（fail）；峰值电流（warn）。"""
+    many = system.too_many("servo_motor", "drive")
+    if many:
+        return CheckResult("C9", [Finding(UNKNOWN, many)])
     motor, drive = _motor_drive(system)
     if motor is None or drive is None:
         return not_applicable("C9", "系统中没有同时包含电机和驱动器")
     out, pin, supply = PortRef(drive, "motor_out"), PortRef(motor, "power_in"), PortRef(drive, "power_in")
     ports = [str(out), str(pin)]
+    missing = [str(r) for r in (out, pin, supply) if not system.has_port(r)]
+    if missing:
+        return CheckResult("C9", [Finding(UNKNOWN, f"缺少标准端口 {', '.join(missing)}", missing)])
     if not _link(system, out, pin):
         return CheckResult("C9", [Finding(FAIL, f"缺少动力连接：{out} 与 {pin} 之间没有正确的连接", ports)])
     res = CheckResult("C9")
@@ -65,7 +71,7 @@ def c9(system: System) -> CheckResult:
     else:
         res.findings.append(Finding(PASS, f"电压等级 {vd:g} V 一致", ports))
     for key, name, status in (("rated_current_a", "额定电流", FAIL), ("peak_current_a", "峰值电流", WARN)):
-        need, have = capacity(system.spec(pin, key)), capacity(system.spec(out, key))
+        need, have = demand(system.spec(pin, key)), capacity(system.spec(out, key))
         if need is None or have is None:
             res.findings.append(Finding(UNKNOWN, f"缺少{name}", ports))
         elif have + 1e-12 >= need:
@@ -87,12 +93,17 @@ def _same_vendor(a: str | None, b: str | None) -> bool:
 
 def c10(system: System) -> CheckResult:
     """信号匹配：编码器连接；电机编码器协议在驱动器支持列表内（私有协议须同一厂商）；总线协议与需求一致。"""
+    many = system.too_many("servo_motor", "drive")
+    if many:
+        return CheckResult("C10", [Finding(UNKNOWN, many)])
     motor, drive = _motor_drive(system)
     res = CheckResult("C10")
     if motor is not None and drive is not None:
         enc, ein = PortRef(motor, "encoder"), PortRef(drive, "encoder_in")
         ports = [str(enc), str(ein)]
-        if not _link(system, enc, ein):
+        if not (system.has_port(enc) and system.has_port(ein)):
+            res.findings.append(Finding(UNKNOWN, f"缺少标准端口 {enc} 或 {ein}", ports))
+        elif not _link(system, enc, ein):
             res.findings.append(Finding(FAIL, f"缺少编码器连接：{enc} 与 {ein} 之间没有正确的连接", ports))
         else:
             proto = text(system.spec(enc, "protocol"))
