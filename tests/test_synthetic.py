@@ -112,6 +112,8 @@ def test_answer_matches_component(sheet):
     comp = ans["component"]
     for e in ans["fields"]:
         for path in e["paths"]:
+            if path.startswith("dims/"):
+                continue
             pv = _get(comp, path)
             for k, v in e["expected"].items():
                 assert pv[k] == v, (path, k)
@@ -139,7 +141,8 @@ def test_answer_covers_catalog_row(category):
             comp_paths |= {f"ports/{p['id']}/{k}" for k in p["spec"]}
         for n, part in enumerate(comp["envelope"]["parts"]):
             comp_paths |= {f"envelope/{n}/{k}" for k in part if k.endswith("_mm") and k != "z_start_mm"}
-        answered = {p for e in sheet.answer["fields"] for p in e["paths"]} | set(sheet.answer["implicit"])
+        answered = {p for e in sheet.answer["fields"] for p in e["paths"] if not p.startswith("dims/")}
+        answered |= set(sheet.answer["implicit"])
         assert comp_paths == answered
 
 

@@ -117,9 +117,9 @@ FIELDS: dict[str, list[Field]] = {
         F("flange_pilot_diameter_mm", "ports/mount_flange/pilot_diameter_mm",
           ("Spigot diameter", "Pilot diameter"), "止口直径", section=IFACE),
         F("flange_square_mm",
-          ("ports/mount_flange/square_size_mm", "envelope/0/width_mm", "envelope/0/height_mm"),
+          ("ports/mount_flange/square_size_mm", "envelope/0/width_mm", "envelope/0/height_mm", "dims/square_mm"),
           "Flange size (square)", "法兰尺寸（方）", section=IFACE),
-        F("body_length_mm", "envelope/0/length_mm", "Body length (excl. shaft)", "机身长度（不含轴）",
+        F("body_length_mm", ("envelope/0/length_mm", "dims/body_length_mm"), "Body length (excl. shaft)", "机身长度（不含轴）",
           section=IFACE),
     ],
     "reducer": [
@@ -169,10 +169,11 @@ FIELDS: dict[str, list[Field]] = {
           section=IFACE),
         F("housing_hole_diameter_mm", "ports/housing_mount/hole_diameter_mm", "Housing mounting hole diameter",
           "壳体安装孔直径", section=IFACE),
-        F("outer_diameter_mm", "envelope/0/diameter_mm", "Outer diameter", "外径", section=IFACE),
-        F("square_mm", ("envelope/0/width_mm", "envelope/0/height_mm"), "Housing size (square)", "壳体尺寸（方）",
+        F("outer_diameter_mm", ("envelope/0/diameter_mm", "dims/outer_diameter_mm"), "Outer diameter", "外径",
           section=IFACE),
-        F("length_mm", "envelope/0/length_mm", "Overall length", "总长", section=IFACE),
+        F("square_mm", ("envelope/0/width_mm", "envelope/0/height_mm", "dims/square_mm"), "Housing size (square)", "壳体尺寸（方）",
+          section=IFACE),
+        F("length_mm", ("envelope/0/length_mm", "dims/overall_length_mm"), "Overall length", "总长", section=IFACE),
     ],
     "drive": [
         F("rated_output_power_w", "params/rated_output_power_w", ("Rated output power", "Applicable motor power"),
@@ -200,14 +201,15 @@ FIELDS: dict[str, list[Field]] = {
         F("mount_hole_count", "ports/mount/hole_count", "Number of mounting holes", "安装孔数量", section=IFACE),
         F("mount_hole_diameter_mm", "ports/mount/hole_diameter_mm", "Mounting hole diameter", "安装孔直径",
           section=IFACE),
-        F("width_mm", "envelope/0/width_mm", "Width", "宽度", section=IFACE),
-        F("height_mm", "envelope/0/height_mm", "Height", "高度", section=IFACE),
-        F("depth_mm", "envelope/0/length_mm", "Depth", "深度", section=IFACE),
+        F("width_mm", ("envelope/0/width_mm", "dims/width_mm"), "Width", "宽度", section=IFACE),
+        F("height_mm", ("envelope/0/height_mm", "dims/height_mm"), "Height", "高度", section=IFACE),
+        F("depth_mm", ("envelope/0/length_mm", "dims/depth_mm"), "Depth", "深度", section=IFACE),
     ],
     "bearing": [
         F("bearing_kind", "params/bearing_kind", "Bearing type", "轴承类型", vocab="bearing_kind"),
         F("bore_mm", "ports/inner/diameter_mm", "Bore diameter d", "内径 d"),
-        F("outer_diameter_mm", ("ports/outer/diameter_mm", "envelope/0/diameter_mm"), "Outside diameter D",
+        F("outer_diameter_mm", ("ports/outer/diameter_mm", "envelope/0/diameter_mm", "dims/outer_diameter_mm"),
+          "Outside diameter D",
           "外径 D"),
         F("width_mm", ("params/width_mm", "envelope/0/length_mm"), "Width B", "宽度 B"),
         F("dynamic_load_rating_n", "params/dynamic_load_rating_n",
@@ -294,7 +296,8 @@ VOCAB: dict[str, dict] = {
         "profinet": {"en": ("PROFINET",), "zh": ("PROFINET",)},
     },
     "profile": {
-        "cia402": {"en": ("CiA 402", "CiA402", "DS402"), "zh": ("CiA 402", "CiA402")},
+        # 行规是自由文字字段（无枚举），只用能按原文还原为 cia402 的写法
+        "cia402": {"en": ("CiA 402", "CiA402"), "zh": ("CiA 402", "CiA402")},
     },
     "bearing_kind": {
         "deep_groove": {"en": ("Deep groove ball bearing",), "zh": ("深沟球轴承",)},
@@ -431,6 +434,8 @@ def _derived_pv(value, why: str) -> dict:
 
 def _set(comp: dict, path: str, pv: dict) -> None:
     head, *rest = path.split("/")
+    if head == "dims":  # 抽取目标（ADR-0021），组件中由包络表示
+        return
     if head == "params":
         comp["params"][rest[0]] = pv
     elif head == "ports":
