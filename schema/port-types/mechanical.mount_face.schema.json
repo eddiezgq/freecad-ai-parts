@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/port-types/mechanical.mount_face.schema.json",
   "title": "非圆形安装面（mechanical.mount_face）",
-  "description": "驱动器底板、壳体安装面。孔为通孔时给 hole_diameter_mm，螺纹孔时给 thread，至少给一项。",
+  "description": "驱动器底板、壳体安装面。孔为通孔时给 hole_diameter_mm，螺纹孔时给 thread，至少给一项。孔位在端口坐标系的安装面内（x 水平、y 垂直），以端口原点为中心（ADR-0031）：rect 为 pitch_x_mm × pitch_y_mm 矩形的角点，4 孔占四角、2 孔占一对对角；linear 为沿 y 的单列，相邻孔距 pitch_y_mm。",
   "x-connects-to": [
     "mechanical.mount_face"
   ],
@@ -30,19 +30,22 @@
               "properties": {
                 "value": {
                   "enum": [
-                    "rect"
+                    "rect",
+                    "linear"
                   ]
                 }
               }
             }
           ],
-          "description": "孔位阵列形式"
+          "description": "孔位阵列形式：rect（矩形角点）或 linear（沿 y 单列）"
         },
         "pitch_x_mm": {
-          "$ref": "../common/param-value.schema.json#/$defs/number"
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "rect：矩形水平边长（孔中心距）；linear 不得填写"
         },
         "pitch_y_mm": {
-          "$ref": "../common/param-value.schema.json#/$defs/number"
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "rect：矩形垂直边长；linear：相邻孔中心距"
         },
         "hole_count": {
           "$ref": "../common/param-value.schema.json#/$defs/integer"
@@ -75,7 +78,6 @@
       },
       "required": [
         "pattern",
-        "pitch_x_mm",
         "pitch_y_mm",
         "hole_count"
       ],
@@ -90,6 +92,73 @@
           "required": [
             "thread"
           ]
+        }
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "pattern": {
+                "properties": {
+                  "value": {
+                    "const": "rect"
+                  }
+                }
+              }
+            },
+            "required": [
+              "pattern"
+            ]
+          },
+          "then": {
+            "required": [
+              "pitch_x_mm"
+            ],
+            "properties": {
+              "hole_count": {
+                "properties": {
+                  "value": {
+                    "enum": [
+                      2,
+                      4
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "pattern": {
+                "properties": {
+                  "value": {
+                    "const": "linear"
+                  }
+                }
+              }
+            },
+            "required": [
+              "pattern"
+            ]
+          },
+          "then": {
+            "not": {
+              "required": [
+                "pitch_x_mm"
+              ]
+            },
+            "properties": {
+              "hole_count": {
+                "properties": {
+                  "value": {
+                    "minimum": 2
+                  }
+                }
+              }
+            }
+          }
         }
       ]
     }
