@@ -338,7 +338,8 @@ def test_anthropic_client_maps_request_and_records(rendered, tmp_path, monkeypat
 
     client = lx.AnthropicClient(record_dir=tmp_path)
     result = extract_document(doc, "bearing", DOC_ID, client)
-    assert sent["temperature"] == 0
+    # 只用新旧 SDK 都接受的参数：anthropic 1.x 的 messages.create() 已不接受 temperature
+    assert set(sent) == {"model", "max_tokens", "system", "tools", "tool_choice", "messages"}
     assert sent["tool_choice"] == {"type": "tool", "name": lx.TOOL_NAME}
     assert sent["messages"][0]["role"] == "user"
     assert "simulated" not in result["extractor"] and result["extractor"]["response_id"] == "msg_1"
