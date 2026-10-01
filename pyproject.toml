@@ -35,10 +35,13 @@ dev = [
 freecad-ai-parts-mcp = "mcp_server.server:main"
 
 [tool.setuptools.packages.find]
-include = ["kb*", "ingest*", "engine*", "mcp_server*"]
+include = ["kb*", "ingest*", "engine*", "mcp_server*", "freecad_addon*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "freecad: 需要 FreeCAD；未安装时跳过，CI 的 freecad 作业中（FAP_REQUIRE_FREECAD=1）不得跳过（ADR-0032）",
+]
 
 [tool.ruff]
 line-length = 100
