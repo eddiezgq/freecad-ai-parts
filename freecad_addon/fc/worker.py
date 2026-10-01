@@ -2,7 +2,7 @@
 
 启动：用 FreeCAD 内带的 Python 运行 `python -m freecad_addon.fc.worker`，PYTHONPATH 含 FreeCAD 模块目录与本仓库
 （由 freecad_addon.fc.client 负责；freecadcmd 运行脚本时会占用标准输入，不能用）。headless 截图需在 Xvfb 下。
-请求一行一个 JSON：{"id": 1, "method": "ping" | "interference" | "snapshot", "params": {...}}
+请求一行一个 JSON：{"id": 1, "method": "ping" | "interference" | "snapshot" | "sync", "params": {...}}
 回复一行一个 JSON，前缀 PREFIX：FreeCAD 会向标准输出打印启动信息，客户端只认带前缀的行。
 """
 
@@ -29,6 +29,10 @@ def handle(req: dict) -> dict:
 
             scene = Scene.from_dict(params["scene"])
             return {"id": rid, "result": check(scene, float(params.get("threshold_mm3", DEFAULT_THRESHOLD_MM3)))}
+        if method == "sync":
+            from freecad_addon.fc.snapshot import sync
+
+            return {"id": rid, "result": sync(Scene.from_dict(params["scene"]))}
         if method == "snapshot":
             from freecad_addon.fc.snapshot import snapshot
 

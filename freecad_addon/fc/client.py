@@ -14,6 +14,7 @@ import json
 import os
 import queue
 import shutil
+import socket
 import subprocess
 import sys
 import threading
@@ -124,3 +125,61 @@ class HeadlessWorker:
         except (OSError, subprocess.TimeoutExpired):
             proc.kill()
             proc.wait()
+
+
+# ---------------------------------------------------------------- gui 后端（ADR-0036）
+
+
+def bridge_file() -> Path:
+    """桥接文件位置：FAP_BRIDGE_FILE，缺省 ~/.freecad-ai-parts/bridge.json。"""
+    return Path(os.environ.get("FAP_BRIDGE_FILE") or Path.home() / ".freecad-ai-parts" / "bridge.json")
+
+
+class GuiBridgeClient:
+    """连接用户打开的 FreeCAD 中的桥接（freecad_addon.fc.bridge）；每个请求一个连接。"""
+
+    syncs_view = True  # 布局变化后让 FreeCAD 同步显示
+
+    def __init__(self, timeout_s: float = 180.0, path: Path | None = None):
+        self.timeout_s = timeout_s
+        self.path = Path(path) if path else bridge_file()
+        self._next_id = 0
+        self._lock = threading.Lock()
+
+    def _info(self) -> dict:
+        try:
+            info = json.loads(self.path.read_text(encoding="utf-8"))
+            return {"host": info["host"], "port": int(info["port"]), "token": str(info["token"])}
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            raise WorkerError("unavailable", f"找不到 FreeCAD 桥接（{self.path}）：请在 FreeCAD 中切换到 AI Parts 工作台"
+                                             "并启用桥接") from exc
+
+    def call(self, method: str, params: dict | None = None) -> dict:
+        info = self._info()
+        with self._lock:
+            self._next_id += 1
+            rid = self._next_id
+        req = {"id": rid, "method": method, "params": params or {}, "token": info["token"]}
+        try:
+            with socket.create_connection((info["host"], info["port"]), timeout=self.timeout_s) as s:
+                s.sendall((json.dumps(req, ensure_ascii=False) + "\n").encode("utf-8"))
+                f = s.makefile("r", encoding="utf-8")
+                for line in f:
+                    if not line.startswith(PREFIX):
+                        continue
+                    resp = json.loads(line[len(PREFIX):])
+                    if resp.get("id") != rid:
+                        continue
+                    if "error" in resp:
+                        err = resp["error"]
+                        raise WorkerError(err.get("kind", "internal"), err.get("message", "未知错误"))
+                    return resp["result"]
+        except TimeoutError as exc:
+            raise WorkerError("timeout", f"FreeCAD 桥接 {self.timeout_s:.0f} 秒内未响应") from exc
+        except OSError as exc:
+            raise WorkerError("unavailable", f"连不上 FreeCAD 桥接（端口 {info['port']}）：{exc}；"
+                                             "FreeCAD 可能已关闭，请重新启用桥接") from exc
+        raise WorkerError("unavailable", "FreeCAD 桥接断开了连接")
+
+    def close(self) -> None:
+        pass
