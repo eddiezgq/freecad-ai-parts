@@ -1,0 +1,48 @@
+# golden 用例草稿：预期结果为人工手算，须由人审定（CLAUDE.md、ADR-0015）；M3 扩充（issue #55），待人逐个确认
+id: invalid/c4-motor-side
+description: 200 W 电机：连续扭矩折算到电机侧超过电机额定（减速器侧满足）
+system:
+  id: c4-motor-side
+  requirement:
+    output_torque_cont_nm: 40
+    output_torque_peak_nm: 80
+    output_speed_rpm: 25
+    safety_factor: 1.2
+    supply:
+      current_type: ac
+      voltage_v: 220
+      phases: 1
+    fieldbus_protocol: ethercat
+    load_inertia_kgm2: 1.0
+  components:
+  - instance: motor
+    component: test.servo_motor.test-vendor.m200
+  - instance: reducer
+    component: test.reducer.test-vendor.r25-100
+  - instance: drive
+    component: test.drive.test-vendor.d400
+  - instance: sleeve
+    component: test.adapter.test-vendor.sleeve-11-19
+  - instance: plate
+    component: test.adapter.test-vendor.plate-70-90
+  connections:
+  - a: motor.shaft
+    b: sleeve.inner
+  - a: sleeve.outer
+    b: reducer.input_bore
+  - a: motor.mount_flange
+    b: plate.motor_side
+  - a: plate.reducer_side
+    b: reducer.motor_flange
+  - a: drive.motor_out
+    b: motor.power_in
+  - a: motor.encoder
+    b: drive.encoder_in
+expected:
+  overall: fail
+  checks:
+    C4: fail
+    others: not_fail
+calc: 'C4: 1.2 × 40 = 48 ≤ 51；电机侧 48 / 70 = 0.686 > 0.64 → fail
+
+  其余同 valid/m200-adapters-r25-d400（C5 80 ≤ 82、80 / 70 = 1.143 ≤ 1.91；C6 1.91 × 70 = 133.7 ≤ 147；C8 8.35 ≤ 10）'

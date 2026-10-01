@@ -29,7 +29,7 @@ def test_finds_golden_solution_with_adapters():
 
 def test_no_fail_and_ranked():
     req = case_by_id("valid/m400-r20-d400")["system"]["requirement"]
-    res = compose_chain(req, LIB, top_n=20, include_unknown=True)
+    res = compose_chain(req, LIB, top_n=500, include_unknown=True)
     assert res and all(c.overall != FAIL for c in res)
     keys = [c.sort_key() for c in res]
     assert keys == sorted(keys)

@@ -1,0 +1,221 @@
+{
+  "id": "test.bearing.test-vendor.b6005-slow",
+  "category": "bearing",
+  "vendor": "Test Vendor",
+  "model": "B6005-SLOW",
+  "status": "active",
+  "license": "params-only",
+  "params": {
+    "bearing_kind": {
+      "value": "deep_groove",
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    },
+    "width_mm": {
+      "value": 12,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    },
+    "dynamic_load_rating_n": {
+      "value": 10000,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    },
+    "static_load_rating_n": {
+      "value": 6000,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    },
+    "limiting_speed_rpm": {
+      "value": 25,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    },
+    "mass_kg": {
+      "value": 0.08,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    }
+  },
+  "ports": [
+    {
+      "id": "inner",
+      "type": "mechanical.cyl_female",
+      "dir": "bidir",
+      "motion": "rotating",
+      "frame": {
+        "origin_mm": [
+          0,
+          0,
+          0
+        ],
+        "axis": [
+          0,
+          0,
+          1
+        ]
+      },
+      "spec": {
+        "diameter_mm": {
+          "value": 25,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "fit_system": {
+          "value": "bearing",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "fit": {
+          "value": "P0",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "feature": {
+          "value": "plain",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    },
+    {
+      "id": "outer",
+      "type": "mechanical.cyl_male",
+      "dir": "bidir",
+      "motion": "stationary",
+      "frame": {
+        "origin_mm": [
+          0,
+          0,
+          0
+        ],
+        "axis": [
+          0,
+          0,
+          1
+        ]
+      },
+      "spec": {
+        "diameter_mm": {
+          "value": 47,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "fit_system": {
+          "value": "bearing",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "fit": {
+          "value": "P0",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "feature": {
+          "value": "plain",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    }
+  ],
+  "envelope": {
+    "parts": [
+      {
+        "shape": "cylinder",
+        "z_start_mm": 0,
+        "length_mm": {
+          "value": 12,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "diameter_mm": {
+          "value": 47,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    ]
+  },
+  "note": "golden 用虚构组件（ADR-0015），数值不代表任何真实产品；M3 golden 扩充：深沟球轴承，极限转速 25 rpm（故意取低，用于 C11 轴承转速用例）"
+}
