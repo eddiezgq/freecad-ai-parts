@@ -90,6 +90,25 @@ def create_server(library_factory: Callable[[], Library] = default_library,
             "4. 用户选定后，可用 verify_system 复核，用 export_system 导出 BOM。"
         )
 
+    @mcp.prompt
+    def joint_layout(system: Annotated[str, Field(description="选定方案的系统 JSON（compose_chain 返回的 system）")]) -> str:
+        """FreeCAD 布局的工作流程提示：按端口摆放选定方案，检查并消除干涉，截图自查，按布局复核与导出。"""
+        return (
+            f"选定的方案：\n{system}\n\n"
+            "请在 FreeCAD 中完成布局（M4b 验收：独立完成布局并消除干涉）：\n"
+            "1. 对方案中的每个实例调用 place_component（实例名、组件 id），先都放在原点。\n"
+            "2. 按方案的 connections 调用 connect_ports，只连机械端口（法兰、安装面、轴、孔）；电气与信号连接跳过。"
+            "先连法兰、安装面，再连轴与孔；a 写基准端，b 写被移动端。返回 note 时（如插入深度未知）如实告诉用户。\n"
+            "3. 调用 check_interference。有干涉时，看 interferences 中每一对的 connected、same_group："
+            "不在同一刚性组的（如驱动器），用 place_component 把它移到不重叠的位置。"
+            "参考布局结果中各实例的 bbox_mm（世界包围盒），沿 x 方向留出约 20 mm 间隙。"
+            "移动时保持原有转角。同组内的干涉说明方案本身有问题（如轴伸过长），不要硬挪，报告给用户，并建议换候选方案。\n"
+            "4. 重复第 3 步，直到没有干涉。pass_through 中列出的零件需要有供轴穿过的孔，请提醒用户核对。\n"
+            "5. 调用 snapshot（iso）看一眼摆放是否合理。\n"
+            "6. 调用 verify_system 与 export_system 时带上 use_layout=true：C11 会按布局判定包络长度；可导出 urdf。"
+            "能不能用以工具结果为准。"
+        )
+
     @mcp.tool
     @_guard
     def search_components(

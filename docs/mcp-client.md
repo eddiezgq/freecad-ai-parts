@@ -78,7 +78,23 @@ python -m mcp_server.demo examples/joint2-requirement.json --lang en
 
 脚本经 MCP 协议调用同一组工具，依次输出候选方案、方案 1 的复核和 BOM。
 
-## 6. HTTP 方式（MCP + REST）
+## 6. 布局演示（M4b）
+
+```bash
+FAP_FREECAD=headless python -m mcp_server.layout_demo examples/joint2-requirement.json --out out/
+```
+
+脚本按提示模板 `joint_layout` 的流程，经 MCP 工具依次完成：
+
+1. 选出候选方案
+2. 按端口摆放（`place_component`、`connect_ports`）
+3. 检查干涉，把不在同一刚性组的干涉件（如驱动器）移开，直到没有干涉
+4. 截图
+5. 按布局复核（C11 长度）并导出 URDF
+
+截图和 URDF 保存在 `out/`。在 Claude Desktop 中，可以用 `joint_layout` 提示，让客户端的 LLM 自己走这套流程。
+
+## 7. HTTP 方式（MCP + REST）
 
 ```bash
 freecad-ai-parts-mcp --http --port 8000
