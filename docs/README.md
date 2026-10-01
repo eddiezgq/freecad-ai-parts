@@ -6,8 +6,10 @@
   https://claude.ai/code/artifact/9e2aadfe-9b17-4969-b4c9-d1896a671360
 - **V1 开发方案与计划**：仓库结构、开发方法、进度计划、各阶段验收、风险
   https://claude.ai/code/artifact/0dfaf0f2-9658-4655-8a98-b7d6bb8491e8
+- **V1 实施细则**：开发流程、代码规范、schema 字段级规格、校验规则、数据复核、golden 用例、M1 分周任务
+  [implementation-rules.md](implementation-rules.md)（在线版含端口连接图：https://claude.ai/code/artifact/ffce2bff-a1ce-4a2a-a45a-b8e50a67baee）
 
-两份文档目前为私有链接，仓库公开前会把定稿内容转存到本目录。
+前两份文档目前为私有链接，仓库公开前会把定稿内容转存到本目录。
 
 ## 决策记录（ADR）
 
@@ -19,5 +21,8 @@
 | [0004](adr/0004-v1-scope.md) | V1 只做 4 类核心链路，每类 30–50 个型号，只做静态匹配 | 2026-09-30 |
 | [0005](adr/0005-data-sources.md) | 数据来源：参数入库、包络自生成、原厂模型只留链接 | 2026-09-30 |
 | [0006](adr/0006-robotics-academy.md) | 与机器人学院共用组件库，学院作为独立使用方接入 | 2026-09-30 |
+| [0007](adr/0007-reducer-units-and-adapters.md) | 减速器只收录整机型；新增 adapter 组件类型 | 2026-09-30 |
+| [0008](adr/0008-validation-defaults.md) | 校验默认值：安全系数 1.2，惯量比告警阈值 10 | 2026-09-30 |
+| [0009](adr/0009-workflow-and-rules.md) | main 受保护、全部改动走 PR；实施细则入库；M1 提前开工 | 2026-09-30 |
 
 新决策按 [模板](adr/template.md) 编写，编号顺延；已接受的决策不改写，被取代时新建一条并标注。
