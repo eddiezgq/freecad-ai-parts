@@ -51,21 +51,7 @@ python -m pytest -v
 
 ### 接入 MCP 客户端
 
-以 Claude Desktop 为例，在其配置文件的 `mcpServers` 中加入（路径换成本仓库的实际位置）：
-
-```json
-{
-  "mcpServers": {
-    "freecad-ai-parts": {
-      "command": "python",
-      "args": ["-m", "mcp_server.server"],
-      "cwd": "/path/to/freecad-ai-parts"
-    }
-  }
-}
-```
-
-重启客户端后，让它调用 `server_info`，返回版本和计划中的 10 个工具即表示连通（M0 验收标准）。
+M4a 已提供 7 个不依赖 FreeCAD 的工具（查询、兼容查找、候选求解、校验、导出）与 REST 接口。Claude Desktop 等客户端的配置、试用的一句话需求和离线演示见 [docs/mcp-client.md](docs/mcp-client.md)。
 
 ## 开发约定
 

@@ -67,6 +67,21 @@ def create_server(library_factory: Callable[[], Library] = default_library) -> F
 
     rest.register(mcp, lib, info)
 
+    @mcp.prompt
+    def joint_selection(statement: Annotated[str, Field(description="用户的一句话需求")]) -> str:
+        """关节模组选型的工作流程提示：把一句话需求转成结构化需求，调用工具，交付校验过的方案。"""
+        return (
+            f"用户需求：{statement}\n\n"
+            "请按以下步骤完成关节模组选型：\n"
+            "1. 把需求转成 schema/requirement.schema.json 的结构化需求，一律用标准单位"
+            "（扭矩 N·m、转速 rpm、惯量 kg·m²、长度 mm、电压 V）。输出连续扭矩与输出转速是必填项；"
+            "缺少这两项或含义不清时先问用户，不要猜。用户没说安全系数时用 1.2。\n"
+            "2. 调用 compose_chain 得到候选方案；没有方案时，说明是哪类约束无法满足，并建议放宽哪一项。\n"
+            "3. 向用户展示前几个方案：组成、整体结论、告警与待确认项，以及工具返回的说明。"
+            "能不能用以工具的校验结果为准，不要自行改判。\n"
+            "4. 用户选定后，可用 verify_system 复核，用 export_system 导出 BOM。"
+        )
+
     @mcp.tool
     @_guard
     def search_components(
