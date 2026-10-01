@@ -85,7 +85,7 @@
               }
             }
           ],
-          "description": "紧固方式"
+          "description": "紧固方式；轴承内圈（fit_system 为 bearing）由装配设计决定，可不填（ADR-0024），其余必填"
         },
         "depth_mm": {
           "$ref": "../common/param-value.schema.json#/$defs/number"
@@ -101,8 +101,7 @@
       "required": [
         "diameter_mm",
         "fit",
-        "feature",
-        "clamping"
+        "feature"
       ],
       "additionalProperties": false,
       "allOf": [
@@ -141,7 +140,10 @@
                   }
                 }
               }
-            }
+            },
+            "required": [
+              "clamping"
+            ]
           }
         }
       ]

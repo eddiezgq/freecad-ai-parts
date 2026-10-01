@@ -1,0 +1,64 @@
+{
+  "why": "轴承内圈不写紧固方式（由装配设计决定，ADR-0024）",
+  "instance": {
+    "id": "inner",
+    "type": "mechanical.cyl_female",
+    "dir": "bidir",
+    "motion": "rotating",
+    "frame": {
+      "origin_mm": [
+        0,
+        0,
+        0
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ]
+    },
+    "spec": {
+      "diameter_mm": {
+        "value": 20,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "fit_system": {
+        "value": "bearing",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "fit": {
+        "value": "P0",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "feature": {
+        "value": "plain",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      }
+    },
+    "note": "测试用虚构数值，不代表任何真实产品"
+  }
+}
