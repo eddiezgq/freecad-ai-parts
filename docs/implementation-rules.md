@@ -223,7 +223,7 @@ C2 的公差配合表、C2 的 `feature`/`clamping` 兼容矩阵、C3 的 ISO 27
 
 | 阶段 | 方式 | 文件位置 |
 | --- | --- | --- |
-| M1 种子数据（每类约 5 个型号） | 人工录入，`method: manual` | `data/seed/<品类>/<组件 id>.json`，每个组件一个文件 |
+| 种子数据（每类约 5 个型号，issue #7，移至 M2） | 取得厂商书面授权后人工录入，`method: manual`（ADR-0015） | `data/sources.yaml` 中 `license: partner` 或 `terms_checked: true` 的来源；`data/seed/<品类>/<组件 id>.json`，每个组件一个文件 |
 | M2 批量数据（每类 30–50 个型号） | LLM 抽取，`method: extracted`，进复核队列 | 复核通过后写入数据库，并导出为 JSON 快照纳入版本管理 |
 | 紧固件 | 按 ISO/DIN 标准表程序生成，`method: standard` | 生成脚本入库，数据由脚本产出 |
 
@@ -303,7 +303,9 @@ expected:
 | 周 | 任务 | 交付物 |
 | --- | --- | --- |
 | 第 1 周（10/5–10/11） | 建 GitHub 里程碑和 M1 issues；定稿参数值结构与 8 种端口类型 schema；定稿公差配合表、兼容矩阵、间隙孔表 | `schema/common/`、`schema/port-types/`、`schema/rules/` |
-| 第 2 周（10/12–10/18） | 组件（含 `adapter`）、系统、需求 schema；4 个品类的参数 schema；登记首批来源并核实条款；录入种子数据约 20 个型号（每类约 5 个） | `schema/component.schema.json` 等、`data/sources.yaml`、`data/seed/` |
-| 第 3 周（10/19–10/25） | 编写 golden 用例（≥ 3 正确、≥ 11 错配、若干未知）；用手工数据表达一套完整关节并手算校验结果；schema 评审与定稿 `0.1.0`；M1 验收 | `tests/golden/`、`docs/milestones/M1.md`、标签 `v0.1.0` |
+| 第 2 周（10/12–10/18） | 组件（含 `adapter`）、系统、需求 schema；5 个品类的参数 schema；初查首批来源条款；向候选厂商发出授权请求（ADR-0015） | `schema/component.schema.json` 等、`schema/categories/`、`data/sources.yaml` |
+| 第 3 周（10/19–10/25） | 编写虚构测试组件库与 golden 用例（≥ 3 正确、≥ 11 错配、若干未知）；用虚构组件表达一套完整关节并手算校验结果；schema 评审与定稿 `0.1.0`；M1 验收 | `tests/golden/`、`docs/milestones/M1.md`、标签 `v0.1.0` |
 
 M1 阶段还没有引擎代码，golden 用例的预期结果由人手算确定，到 M3 由引擎自动验证。
+
+真实厂商数据须先取得书面授权（ADR-0015）：M1–M3 的开发与 golden 用例一律使用虚构测试组件，真实种子数据（issue #7）移至 M2，取得首批授权后录入。
