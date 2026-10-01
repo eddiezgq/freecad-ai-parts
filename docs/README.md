@@ -27,5 +27,6 @@
 | [0010](adr/0010-schema-representation.md) | 参数值与端口类型的 schema 表示约定 | 2026-09-30 |
 | [0012](adr/0012-component-system-requirement.md) | 组件、系统、需求 schema 的结构 | 2026-09-30 |
 | [0013](adr/0013-bearing-fit-system.md) | 圆柱端口增加公差体系，轴承用 ISO 492 精度等级 | 2026-09-30 |
+| [0014](adr/0014-interface-data-in-ports.md) | 品类 schema：接口数据只放在端口里，参数名封闭 | 2026-09-30 |
 
 新决策按 [模板](adr/template.md) 编写，编号顺延；已接受的决策不改写，被取代时新建一条并标注。

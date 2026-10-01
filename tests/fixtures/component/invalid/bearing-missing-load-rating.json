@@ -1,0 +1,214 @@
+{
+  "why": "轴承缺额定动载荷",
+  "instance": {
+    "id": "test.bearing.test-vendor.b6004",
+    "category": "bearing",
+    "vendor": "Test Vendor",
+    "model": "B6004",
+    "status": "active",
+    "license": "params-only",
+    "params": {
+      "bearing_kind": {
+        "value": "deep_groove",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "width_mm": {
+        "value": 12,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "static_load_rating_n": {
+        "value": 5000,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "limiting_speed_rpm": {
+        "value": 19000,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      }
+    },
+    "ports": [
+      {
+        "id": "inner",
+        "type": "mechanical.cyl_female",
+        "dir": "bidir",
+        "motion": "rotating",
+        "frame": {
+          "origin_mm": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        "spec": {
+          "diameter_mm": {
+            "value": 20,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "fit_system": {
+            "value": "bearing",
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "fit": {
+            "value": "P0",
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "feature": {
+            "value": "plain",
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "clamping": {
+            "value": "press_fit",
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          }
+        }
+      },
+      {
+        "id": "outer",
+        "type": "mechanical.cyl_male",
+        "dir": "bidir",
+        "motion": "stationary",
+        "frame": {
+          "origin_mm": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        "spec": {
+          "diameter_mm": {
+            "value": 42,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "fit_system": {
+            "value": "bearing",
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "fit": {
+            "value": "P0",
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "feature": {
+            "value": "plain",
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          }
+        }
+      }
+    ],
+    "envelope": {
+      "parts": [
+        {
+          "shape": "cylinder",
+          "z_start_mm": 0,
+          "length_mm": {
+            "value": 12,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "diameter_mm": {
+            "value": 42,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          }
+        }
+      ]
+    },
+    "note": "测试用虚构组件，数值不代表任何真实产品"
+  }
+}

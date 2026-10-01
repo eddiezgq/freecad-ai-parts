@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/categories/servo_motor.schema.json",
+  "title": "品类：伺服电机（servo_motor）",
+  "description": "由 component.schema.json 按 category 引用。约束该品类的参数名（只允许列出的必填与选填参数）和必须具备的标准端口；接口数据只放在端口里，不在参数表重复（ADR-0014）。",
+  "type": "object",
+  "properties": {
+    "params": {
+      "type": "object",
+      "properties": {
+        "rated_power_w": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "rated_torque_nm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "peak_torque_nm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "rated_speed_rpm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "max_speed_rpm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "rotor_inertia_kgm2": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "mass_kg": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "brake": {
+          "$ref": "../common/param-value.schema.json#/$defs/boolean",
+          "description": "是否带制动器"
+        },
+        "ip_rating": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string"
+            },
+            {
+              "properties": {
+                "value": {
+                  "pattern": "^IP[0-9X]{2}$"
+                }
+              }
+            }
+          ]
+        },
+        "torque_constant_nm_per_a": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        }
+      },
+      "required": [
+        "rated_power_w",
+        "rated_torque_nm",
+        "peak_torque_nm",
+        "rated_speed_rpm",
+        "max_speed_rpm",
+        "rotor_inertia_kgm2",
+        "mass_kg"
+      ],
+      "additionalProperties": false
+    },
+    "ports": {
+      "allOf": [
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "shaft"
+              },
+              "type": {
+                "const": "mechanical.cyl_male"
+              },
+              "dir": {
+                "const": "out"
+              },
+              "motion": {
+                "const": "rotating"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "dir",
+              "motion"
+            ]
+          },
+          "description": "输出轴"
+        },
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "mount_flange"
+              },
+              "type": {
+                "const": "mechanical.flange"
+              },
+              "motion": {
+                "const": "stationary"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "motion"
+            ]
+          },
+          "description": "安装法兰"
+        },
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "power_in"
+              },
+              "type": {
+                "const": "electrical.motor_power"
+              },
+              "dir": {
+                "const": "in"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "dir"
+            ]
+          },
+          "description": "动力输入"
+        },
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "encoder"
+              },
+              "type": {
+                "const": "signal.encoder"
+              },
+              "dir": {
+                "const": "out"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "dir"
+            ]
+          },
+          "description": "编码器输出"
+        }
+      ]
+    }
+  }
+}
