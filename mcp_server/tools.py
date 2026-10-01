@@ -108,4 +108,66 @@ def get_component(library: Library, component_id: str) -> dict:
     return comp
 
 
-__all__: list[Any] = ["SEARCH_LIMIT_MAX", "ToolInputError", "get_component", "search_components"]
+_RANK = {"pass": 0, "warn": 1, "unknown": 2, "fail": 3}
+
+
+def find_compatible(library: Library, component_id: str, port_id: str, *, category: str | None = None,
+                    include_unknown: bool = True, via_adapters: bool = True, limit: int = 50) -> dict:
+    """能连到该端口的组件及端口，附单连接校验结果（engine.link.check_link）。
+
+    - 只返回不为 fail 的连接；include_unknown 为假时也去掉 unknown（数据缺失）的
+    - via_adapters：对直连不通过的圆柱与法兰端口，再找能补上的转接件（轴套、适配法兰板），结果注明 via
+    """
+    from engine.checks_interface import connects_to
+    from engine.link import check_link
+
+    src = get_component(library, component_id)
+    sport = next((p for p in src["ports"] if p["id"] == port_id), None)
+    if sport is None:
+        raise ToolInputError(f"组件 {component_id} 没有端口 {port_id}")
+    if category is not None and category not in CATEGORIES:
+        raise ToolInputError(f"未知品类 {category!r}")
+    if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= SEARCH_LIMIT_MAX:
+        raise ToolInputError(f"limit 须为 1–{SEARCH_LIMIT_MAX} 的整数")
+    allowed = {"pass", "warn"} | ({"unknown"} if include_unknown else set())
+    targets_types = connects_to(sport["type"])
+    adapters = library.all("adapter") if via_adapters else []
+    results = []
+    for comp in library.all(category):
+        if comp["id"] == component_id:
+            continue
+        for port in comp["ports"]:
+            if port["type"] not in targets_types:
+                continue
+            direct = check_link(src, port_id, comp, port["id"])
+            if direct["status"] in allowed:
+                results.append({"component_id": comp["id"], "port_id": port["id"], **direct})
+                continue
+            if comp["category"] == "adapter" or port["type"] not in (
+                    "mechanical.cyl_male", "mechanical.cyl_female", "mechanical.flange"):
+                continue
+            for ad in adapters:
+                for p1 in ad["ports"]:
+                    if p1["type"] not in targets_types:
+                        continue
+                    first = check_link(src, port_id, ad, p1["id"])
+                    if first["status"] not in allowed:
+                        continue
+                    for p2 in ad["ports"]:
+                        if p2["id"] == p1["id"] or port["type"] not in connects_to(p2["type"]):
+                            continue
+                        second = check_link(ad, p2["id"], comp, port["id"])
+                        if second["status"] not in allowed:
+                            continue
+                        status = max(first["status"], second["status"], key=_RANK.__getitem__)
+                        results.append({"component_id": comp["id"], "port_id": port["id"], "status": status,
+                                        "via": {"adapter": ad["id"], "in": p1["id"], "out": p2["id"]},
+                                        "findings": first["findings"] + second["findings"]})
+    results.sort(key=lambda r: (_RANK[r["status"]], "via" in r, r["component_id"], r["port_id"],
+                                (r.get("via") or {}).get("adapter", "")))
+    return {"source": {"component_id": component_id, "port_id": port_id, "type": sport["type"]},
+            "total": len(results), "results": results[:limit], "truncated": len(results) > limit}
+
+
+__all__: list[Any] = ["SEARCH_LIMIT_MAX", "ToolInputError", "find_compatible", "get_component",
+                      "search_components"]

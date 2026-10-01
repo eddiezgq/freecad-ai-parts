@@ -22,6 +22,30 @@ def _motor_drive(system: System) -> tuple[str | None, str | None]:
 # ---------------------------------------------------------------- C9
 
 
+def c9_link(system: System, out: PortRef, pin: PortRef) -> list[Finding]:
+    """驱动器 motor_out 与电机 power_in 一个连接的判定：电压等级、额定电流、峰值电流。"""
+    ports = [str(out), str(pin)]
+    found: list[Finding] = []
+    vd, vm = nominal(system.spec(out, "voltage_class_v")), nominal(system.spec(pin, "voltage_class_v"))
+    if vd is None or vm is None:
+        found.append(Finding(UNKNOWN, "缺少电压等级", ports))
+    elif abs(vd - vm) > 1e-9:
+        found.append(Finding(FAIL, f"电压等级不符：驱动器 {vd:g} V，电机 {vm:g} V", ports))
+    else:
+        found.append(Finding(PASS, f"电压等级 {vd:g} V 一致", ports))
+    for key, name, status in (("rated_current_a", "额定电流", FAIL), ("peak_current_a", "峰值电流", WARN)):
+        need, have = demand(system.spec(pin, key)), capacity(system.spec(out, key))
+        if need is None or have is None:
+            found.append(Finding(UNKNOWN, f"缺少{name}", ports))
+        elif have + 1e-12 >= need:
+            found.append(Finding(PASS, f"驱动器{name} {have:g} A ≥ 电机 {need:g} A", ports, need, have, "A"))
+        else:
+            tail = "（峰值扭矩受限）" if status == WARN else ""
+            found.append(Finding(status, f"驱动器{name} {have:g} A < 电机 {need:g} A{tail}", ports,
+                                        need, have, "A"))
+    return found
+
+
 def c9(system: System) -> CheckResult:
     """电气匹配：动力连接；供电电压、电流类型、相数；电压等级；额定电流（fail）；峰值电流（warn）。"""
     many = system.too_many("servo_motor", "drive")
@@ -63,23 +87,7 @@ def c9(system: System) -> CheckResult:
             res.findings.append(Finding(FAIL, f"相数不符：可用 {req['phases']}，驱动器要求 {ph:g}", sp))
         else:
             res.findings.append(Finding(PASS, f"相数 {ph:g} 一致", sp))
-    vd, vm = nominal(system.spec(out, "voltage_class_v")), nominal(system.spec(pin, "voltage_class_v"))
-    if vd is None or vm is None:
-        res.findings.append(Finding(UNKNOWN, "缺少电压等级", ports))
-    elif abs(vd - vm) > 1e-9:
-        res.findings.append(Finding(FAIL, f"电压等级不符：驱动器 {vd:g} V，电机 {vm:g} V", ports))
-    else:
-        res.findings.append(Finding(PASS, f"电压等级 {vd:g} V 一致", ports))
-    for key, name, status in (("rated_current_a", "额定电流", FAIL), ("peak_current_a", "峰值电流", WARN)):
-        need, have = demand(system.spec(pin, key)), capacity(system.spec(out, key))
-        if need is None or have is None:
-            res.findings.append(Finding(UNKNOWN, f"缺少{name}", ports))
-        elif have + 1e-12 >= need:
-            res.findings.append(Finding(PASS, f"驱动器{name} {have:g} A ≥ 电机 {need:g} A", ports, need, have, "A"))
-        else:
-            tail = "（峰值扭矩受限）" if status == WARN else ""
-            res.findings.append(Finding(status, f"驱动器{name} {have:g} A < 电机 {need:g} A{tail}", ports,
-                                        need, have, "A"))
+    res.findings += c9_link(system, out, pin)
     return res
 
 
@@ -89,6 +97,29 @@ def c9(system: System) -> CheckResult:
 def _same_vendor(a: str | None, b: str | None) -> bool:
     norm = lambda s: "".join(ch for ch in s.casefold() if ch.isalnum())
     return a is not None and b is not None and norm(a) == norm(b)
+
+
+def c10_encoder_link(system: System, enc: PortRef, ein: PortRef) -> list[Finding]:
+    """电机 encoder 与驱动器 encoder_in 一个连接的判定：协议受支持，私有协议须同一厂商。"""
+    ports = [str(enc), str(ein)]
+    found: list[Finding] = []
+    proto = text(system.spec(enc, "protocol"))
+    supported = items(system.spec(ein, "protocol"))
+    if proto is None or supported is None:
+        found.append(Finding(UNKNOWN, "缺少编码器协议", ports))
+    elif proto not in supported:
+        found.append(Finding(FAIL, f"电机编码器协议 {proto} 不在驱动器支持列表 {supported} 内", ports))
+    elif proto == "vendor_proprietary":
+        mv, dv = text(system.spec(enc, "vendor")), text(system.spec(ein, "vendor"))
+        if mv is None or dv is None:
+            found.append(Finding(UNKNOWN, "私有编码器协议缺少厂商信息", ports))
+        elif _same_vendor(mv, dv):
+            found.append(Finding(PASS, f"私有编码器协议，厂商一致（{mv}）", ports))
+        else:
+            found.append(Finding(FAIL, f"私有编码器协议厂商不同：电机 {mv}，驱动器 {dv}", ports))
+    else:
+        found.append(Finding(PASS, f"编码器协议 {proto} 受驱动器支持", ports))
+    return found
 
 
 def c10(system: System) -> CheckResult:
@@ -106,22 +137,7 @@ def c10(system: System) -> CheckResult:
         elif not _link(system, enc, ein):
             res.findings.append(Finding(FAIL, f"缺少编码器连接：{enc} 与 {ein} 之间没有正确的连接", ports))
         else:
-            proto = text(system.spec(enc, "protocol"))
-            supported = items(system.spec(ein, "protocol"))
-            if proto is None or supported is None:
-                res.findings.append(Finding(UNKNOWN, "缺少编码器协议", ports))
-            elif proto not in supported:
-                res.findings.append(Finding(FAIL, f"电机编码器协议 {proto} 不在驱动器支持列表 {supported} 内", ports))
-            elif proto == "vendor_proprietary":
-                mv, dv = text(system.spec(enc, "vendor")), text(system.spec(ein, "vendor"))
-                if mv is None or dv is None:
-                    res.findings.append(Finding(UNKNOWN, "私有编码器协议缺少厂商信息", ports))
-                elif _same_vendor(mv, dv):
-                    res.findings.append(Finding(PASS, f"私有编码器协议，厂商一致（{mv}）", ports))
-                else:
-                    res.findings.append(Finding(FAIL, f"私有编码器协议厂商不同：电机 {mv}，驱动器 {dv}", ports))
-            else:
-                res.findings.append(Finding(PASS, f"编码器协议 {proto} 受驱动器支持", ports))
+            res.findings += c10_encoder_link(system, enc, ein)
     want = system.requirement.get("fieldbus_protocol")
     if want and drive is not None:
         bus = PortRef(drive, "bus")

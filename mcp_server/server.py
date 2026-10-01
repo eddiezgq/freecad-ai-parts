@@ -81,6 +81,20 @@ def create_server(library_factory: Callable[[], Library] = default_library) -> F
         """返回组件的完整参数、端口与包络（参数值含来源、置信度与复核状态）。"""
         return tools.get_component(lib(), component_id)
 
+    @mcp.tool
+    @_guard
+    def find_compatible(
+        component_id: Annotated[str, Field(description="组件 id")],
+        port_id: Annotated[str, Field(description="该组件的端口 id，如 shaft、mount_flange、encoder")],
+        category: Annotated[str | None, Field(description="只在该品类中找")] = None,
+        include_unknown: Annotated[bool, Field(description="是否包含数据缺失、待确认的连接")] = True,
+        via_adapters: Annotated[bool, Field(description="直连不通时是否找转接件")] = True,
+        limit: Annotated[int, Field(ge=1, le=tools.SEARCH_LIMIT_MAX)] = 50,
+    ) -> dict:
+        """找能连到某个端口的组件及端口，附单连接校验结果；需经转接件的注明 via。"""
+        return tools.find_compatible(lib(), component_id, port_id, category=category,
+                                     include_unknown=include_unknown, via_adapters=via_adapters, limit=limit)
+
     return mcp
 
 
