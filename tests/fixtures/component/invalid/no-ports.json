@@ -1,0 +1,63 @@
+{
+  "why": "组件至少有一个端口",
+  "instance": {
+    "id": "test.adapter.test-vendor.sleeve-14-19",
+    "category": "adapter",
+    "vendor": "Test Vendor",
+    "model": "SL-14-19",
+    "status": "active",
+    "license": "params-only",
+    "params": {
+      "adapter_kind": {
+        "value": "sleeve",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "mass_kg": {
+        "value": 0.02,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      }
+    },
+    "ports": [],
+    "envelope": {
+      "parts": [
+        {
+          "shape": "cylinder",
+          "z_start_mm": 0,
+          "length_mm": {
+            "value": 25,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "diameter_mm": {
+            "value": 19,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          }
+        }
+      ]
+    },
+    "note": "测试用虚构组件，数值不代表任何真实产品"
+  }
+}

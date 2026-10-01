@@ -1,0 +1,63 @@
+{
+  "why": "连接是 {a, b} 对象，不是列表",
+  "instance": {
+    "id": "joint-2-option-a",
+    "requirement": {
+      "id": "joint-2",
+      "statement": "第 2 关节：连续 20 N·m，30 rpm，外径不超过 90 mm",
+      "output_torque_cont_nm": 20,
+      "output_torque_peak_nm": 55,
+      "output_speed_rpm": 30,
+      "safety_factor": 1.2,
+      "load_inertia_kgm2": 0.15,
+      "max_envelope_diameter_mm": 90,
+      "max_envelope_length_mm": 160,
+      "supply": {
+        "current_type": "ac",
+        "voltage_v": 220,
+        "phases": 1
+      },
+      "fieldbus_protocol": "ethercat"
+    },
+    "components": [
+      {
+        "instance": "motor",
+        "component": "test.servo_motor.test-vendor.m100"
+      },
+      {
+        "instance": "reducer",
+        "component": "test.reducer.test-vendor.r20-100"
+      },
+      {
+        "instance": "drive",
+        "component": "test.drive.test-vendor.d400"
+      },
+      {
+        "instance": "bearing_2",
+        "component": "test.bearing.test-vendor.b6004"
+      }
+    ],
+    "connections": [
+      {
+        "a": "motor.shaft",
+        "b": "reducer.input_bore"
+      },
+      {
+        "a": "motor.mount_flange",
+        "b": "reducer.motor_flange"
+      },
+      {
+        "a": "drive.motor_out",
+        "b": "motor.power_in"
+      },
+      {
+        "a": "motor.encoder",
+        "b": "drive.encoder_in"
+      },
+      [
+        "motor.shaft",
+        "reducer.input_bore"
+      ]
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/requirement.schema.json",
+  "title": "需求",
+  "description": "一个关节模组的设计需求，由 LLM 从自然语言解析得到或由用户直接给出。字段对应 C4–C11 校验的需求值；数值为用户给定，不是规格书数据，因此用裸数字而非参数值对象。",
+  "type": "object",
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"},
+    "statement": {"type": "string", "description": "需求原文（用户的自然语言描述）"},
+    "output_torque_cont_nm": {"type": "number", "exclusiveMinimum": 0, "description": "输出端连续扭矩（C4）"},
+    "output_torque_peak_nm": {"type": "number", "exclusiveMinimum": 0, "description": "输出端峰值扭矩（C5）"},
+    "output_speed_rpm": {"type": "number", "exclusiveMinimum": 0, "description": "输出端所需转速（C7、C11）"},
+    "safety_factor": {"type": "number", "minimum": 1, "default": 1.2, "description": "连续扭矩安全系数，默认 1.2（ADR-0008）"},
+    "load_inertia_kgm2": {"type": "number", "exclusiveMinimum": 0, "description": "负载惯量，给出时才计算惯量比（C8）"},
+    "inertia_ratio_limit": {"type": "number", "exclusiveMinimum": 0, "default": 10, "description": "惯量比告警阈值，默认 10（ADR-0008）"},
+    "max_envelope_diameter_mm": {"type": "number", "exclusiveMinimum": 0, "description": "系统包络外径上限（C11）"},
+    "max_envelope_length_mm": {"type": "number", "exclusiveMinimum": 0, "description": "系统包络长度上限（C11）"},
+    "supply": {
+      "type": "object",
+      "description": "可用供电（C9）",
+      "properties": {
+        "current_type": {"enum": ["ac", "dc"]},
+        "voltage_v": {"type": "number", "exclusiveMinimum": 0},
+        "phases": {"enum": [0, 1, 3]}
+      },
+      "required": ["current_type", "voltage_v", "phases"],
+      "additionalProperties": false
+    },
+    "fieldbus_protocol": {
+      "enum": ["ethercat", "canopen", "modbus_rtu", "profinet", "ethernet_ip", "pulse_dir"],
+      "description": "控制器使用的总线（C10）；须与 signal.fieldbus 端口类型的枚举一致（测试检查）"
+    },
+    "note": {"type": "string"}
+  },
+  "required": ["output_torque_cont_nm", "output_speed_rpm"],
+  "additionalProperties": false
+}

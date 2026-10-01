@@ -108,3 +108,41 @@ def test_connects_to_is_known_and_symmetric():
         for target in targets:
             assert target in connects, f"{t} -> 未定义的 {target}"
             assert t in connects[target], f"{t} -> {target} 不对称"
+
+
+# ---------- 组件、需求、系统 ----------
+
+TOP_LEVEL = {
+    "component": "component.schema.json",
+    "requirement": "requirement.schema.json",
+    "system": "system.schema.json",
+}
+
+
+def _cases(kind: str) -> list[tuple[str, Path]]:
+    return [(g, p) for g in TOP_LEVEL for p in _fixtures(g, kind)]
+
+
+@pytest.mark.parametrize("group,path", _cases("valid"), ids=lambda x: getattr(x, "stem", x))
+def test_top_level_valid(group: str, path: Path):
+    errors = list(_validator(TOP_LEVEL[group]).iter_errors(_load(path)["instance"]))
+    assert not errors, [e.message for e in errors]
+
+
+@pytest.mark.parametrize("group,path", _cases("invalid"), ids=lambda x: getattr(x, "stem", x))
+def test_top_level_invalid(group: str, path: Path):
+    assert not _validator(TOP_LEVEL[group]).is_valid(_load(path)["instance"]), _load(path)["why"]
+
+
+def test_requirement_bus_enum_matches_port_type():
+    req = _load(SCHEMA_DIR / "requirement.schema.json")["properties"]["fieldbus_protocol"]["enum"]
+    port = _load(SCHEMA_DIR / "port-types" / "signal.fieldbus.schema.json")
+    port_enum = port["properties"]["spec"]["properties"]["protocol"]["allOf"][1]["properties"]["value"]["anyOf"][0]["enum"]
+    assert req == port_enum
+
+
+def test_component_and_system_id_patterns_match():
+    comp = _load(SCHEMA_DIR / "component.schema.json")["properties"]["id"]["pattern"]
+    system = _load(SCHEMA_DIR / "system.schema.json")
+    ref = system["properties"]["components"]["items"]["properties"]["component"]["pattern"]
+    assert comp == ref
