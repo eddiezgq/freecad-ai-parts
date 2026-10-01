@@ -56,4 +56,4 @@ jobs:
       - name: 在 FreeCAD 内带 Python 中安装本项目
         run: '"$FC/usr/bin/python" -m pip install -e ".[dev]"'
       - name: FreeCAD 测试
-        run: PYTHONPATH="$FC/usr/lib" xvfb-run -a "$FC/usr/bin/python" -m pytest -m freecad -v
+        run: PYTHONPATH="$FC/usr/lib" xvfb-run -a -s "-screen 0 1280x1024x24" "$FC/usr/bin/python" -m pytest -m freecad -v

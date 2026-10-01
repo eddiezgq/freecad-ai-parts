@@ -21,7 +21,19 @@ FreeCAD 1.x 工作台（Python + Qt），在 M4b 实现。架构、配合约定�
 ```bash
 FC=$(scripts/fetch_freecad.sh)            # 下载锁定版本 1.0.2 并核对 SHA-256，解包到 .freecad/
 "$FC/usr/bin/python" -m pip install -e ".[dev]"
-PYTHONPATH="$FC/usr/lib" xvfb-run -a "$FC/usr/bin/python" -m pytest -m freecad -v
+PYTHONPATH="$FC/usr/lib" xvfb-run -a -s "-screen 0 1280x1024x24" "$FC/usr/bin/python" -m pytest -m freecad -v
 ```
 
 普通的 `python -m pytest` 会跳过标记为 `freecad` 的测试；CI 的 `freecad` 作业会运行这些测试，并且不允许跳过。
+
+## FreeCAD worker
+
+MCP 服务端通过 `freecad_addon.fc.client.HeadlessWorker` 用 FreeCAD 内带的 Python 启动 `python -m freecad_addon.fc.worker`，按 JSON 行协议请求干涉检查与截图（ADR-0033）。
+
+- 路径：`FAP_FREECAD_PYTHON`、`FAP_FREECAD_LIB`；缺省用 `scripts/fetch_freecad.sh` 的解包位置
+- Linux 下没有显示环境时，自动在 `xvfb-run` 下启动
+
+干涉结果包括：
+
+- `interferences`：干涉对、重叠体积、包围盒、两者是否有配合关系
+- `pass_through`：轴从根部到孔口之间穿过的同组零件，需人工确认这些零件有通孔
