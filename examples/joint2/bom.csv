@@ -1,0 +1,6 @@
+item,component_id,category,vendor,model,quantity,instances,unit_mass_kg,total_mass_kg,license,vendor_cad_url,source_docs,all_params_reviewed
+1,test.servo_motor.test-vendor.m200,servo_motor,Test Vendor,M200,1,motor,0.8,0.8,params-only,,src-test-fixture,True
+2,test.reducer.test-vendor.r25-100,reducer,Test Vendor,R25-100,1,reducer,1.5,1.5,params-only,,src-test-fixture,True
+3,test.drive.test-vendor.d200,drive,Test Vendor,D200,1,drive,0.8,0.8,params-only,,src-test-fixture,True
+4,test.adapter.test-vendor.sleeve-11-19,adapter,Test Vendor,SL-11-19,1,sleeve,0.03,0.03,params-only,,src-test-fixture,True
+5,test.adapter.test-vendor.plate-70-90,adapter,Test Vendor,PL-70-90,1,plate,0.2,0.2,params-only,,src-test-fixture,True

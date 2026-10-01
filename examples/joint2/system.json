@@ -1,0 +1,2119 @@
+{
+  "components": {
+    "test.adapter.test-vendor.plate-70-90": {
+      "category": "adapter",
+      "envelope": {
+        "parts": [
+          {
+            "height_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 100
+            },
+            "length_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 10
+            },
+            "shape": "box",
+            "width_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 100
+            },
+            "z_start_mm": 0
+          }
+        ]
+      },
+      "id": "test.adapter.test-vendor.plate-70-90",
+      "license": "params-only",
+      "model": "PL-70-90",
+      "note": "golden 用虚构组件（ADR-0015），数值不代表任何真实产品",
+      "params": {
+        "adapter_kind": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": "flange_plate"
+        },
+        "length_mm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 10
+        },
+        "mass_kg": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 0.2
+        }
+      },
+      "ports": [
+        {
+          "dir": "bidir",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              0
+            ]
+          },
+          "id": "motor_side",
+          "motion": "stationary",
+          "spec": {
+            "hole_count": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 4
+            },
+            "hole_kind": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "threaded"
+            },
+            "pcd_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 70
+            },
+            "pilot_diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 50
+            },
+            "pilot_kind": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "female"
+            },
+            "thread": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "M5"
+            }
+          },
+          "type": "mechanical.flange"
+        },
+        {
+          "dir": "bidir",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              10
+            ]
+          },
+          "id": "reducer_side",
+          "motion": "stationary",
+          "spec": {
+            "hole_count": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 4
+            },
+            "hole_diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 6.6
+            },
+            "hole_kind": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "through"
+            },
+            "pcd_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 90
+            },
+            "pilot_diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 70
+            },
+            "pilot_kind": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "male"
+            }
+          },
+          "type": "mechanical.flange"
+        }
+      ],
+      "status": "active",
+      "vendor": "Test Vendor"
+    },
+    "test.adapter.test-vendor.sleeve-11-19": {
+      "category": "adapter",
+      "envelope": {
+        "parts": [
+          {
+            "diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 19
+            },
+            "length_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 25
+            },
+            "shape": "cylinder",
+            "z_start_mm": 0
+          }
+        ]
+      },
+      "id": "test.adapter.test-vendor.sleeve-11-19",
+      "license": "params-only",
+      "model": "SL-11-19",
+      "note": "golden 用虚构组件（ADR-0015），数值不代表任何真实产品",
+      "params": {
+        "adapter_kind": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": "sleeve"
+        },
+        "length_mm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 25
+        },
+        "mass_kg": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 0.03
+        }
+      },
+      "ports": [
+        {
+          "dir": "in",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              0
+            ]
+          },
+          "id": "inner",
+          "motion": "rotating",
+          "spec": {
+            "clamping": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "key"
+            },
+            "diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 11
+            },
+            "feature": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "keyed"
+            },
+            "fit": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "H7"
+            },
+            "key_width_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 4
+            }
+          },
+          "type": "mechanical.cyl_female"
+        },
+        {
+          "dir": "out",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              0
+            ]
+          },
+          "id": "outer",
+          "motion": "rotating",
+          "spec": {
+            "diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 19
+            },
+            "feature": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "keyed"
+            },
+            "fit": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "h6"
+            },
+            "key_width_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 6
+            }
+          },
+          "type": "mechanical.cyl_male"
+        }
+      ],
+      "status": "active",
+      "vendor": "Test Vendor"
+    },
+    "test.drive.test-vendor.d200": {
+      "category": "drive",
+      "envelope": {
+        "parts": [
+          {
+            "height_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 160
+            },
+            "length_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 140
+            },
+            "shape": "box",
+            "width_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 40
+            },
+            "z_start_mm": 0
+          }
+        ]
+      },
+      "id": "test.drive.test-vendor.d200",
+      "license": "params-only",
+      "model": "D200",
+      "note": "golden 用虚构组件（ADR-0015），数值不代表任何真实产品",
+      "params": {
+        "mass_kg": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 0.8
+        }
+      },
+      "ports": [
+        {
+          "dir": "in",
+          "id": "power_in",
+          "spec": {
+            "current_type": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "ac"
+            },
+            "phases": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 1
+            },
+            "voltage_v": {
+              "confidence": 1,
+              "max": 240,
+              "method": "manual",
+              "min": 200,
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              }
+            }
+          },
+          "type": "electrical.power_supply"
+        },
+        {
+          "dir": "out",
+          "id": "motor_out",
+          "spec": {
+            "peak_current_a": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 5.8
+            },
+            "rated_current_a": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 1.6
+            },
+            "voltage_class_v": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 200
+            }
+          },
+          "type": "electrical.motor_power"
+        },
+        {
+          "dir": "in",
+          "id": "encoder_in",
+          "spec": {
+            "kind": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": [
+                "absolute"
+              ]
+            },
+            "protocol": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": [
+                "biss_c",
+                "endat_2_2"
+              ]
+            }
+          },
+          "type": "signal.encoder"
+        },
+        {
+          "dir": "bidir",
+          "id": "bus",
+          "spec": {
+            "profile": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "cia402"
+            },
+            "protocol": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "ethercat"
+            }
+          },
+          "type": "signal.fieldbus"
+        },
+        {
+          "dir": "bidir",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              0
+            ]
+          },
+          "id": "mount",
+          "motion": "stationary",
+          "spec": {
+            "hole_count": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 2
+            },
+            "hole_diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 5.5
+            },
+            "pattern": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "rect"
+            },
+            "pitch_x_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 30
+            },
+            "pitch_y_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 150
+            }
+          },
+          "type": "mechanical.mount_face"
+        }
+      ],
+      "status": "active",
+      "vendor": "Test Vendor"
+    },
+    "test.reducer.test-vendor.r25-100": {
+      "category": "reducer",
+      "envelope": {
+        "parts": [
+          {
+            "diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 95
+            },
+            "length_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 75
+            },
+            "shape": "cylinder",
+            "z_start_mm": -20
+          }
+        ]
+      },
+      "id": "test.reducer.test-vendor.r25-100",
+      "license": "params-only",
+      "model": "R25-100",
+      "note": "golden 用虚构组件（ADR-0015），数值不代表任何真实产品",
+      "params": {
+        "avg_input_speed_limit_rpm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 3500
+        },
+        "efficiency_ratio": {
+          "condition": "at rated torque, input 2000 rpm, 25 °C",
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 0.7
+        },
+        "input_inertia_kgm2": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 1.69e-05
+        },
+        "mass_kg": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 1.5
+        },
+        "max_input_speed_rpm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 5600
+        },
+        "momentary_max_torque_nm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 147
+        },
+        "rated_torque_nm": {
+          "condition": "at input speed 2000 rpm",
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 51
+        },
+        "ratio": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 100
+        },
+        "reducer_kind": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": "harmonic"
+        },
+        "repeated_peak_torque_nm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 82
+        }
+      },
+      "ports": [
+        {
+          "dir": "in",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              -20
+            ]
+          },
+          "id": "input_bore",
+          "motion": "rotating",
+          "spec": {
+            "clamping": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "key"
+            },
+            "diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 19
+            },
+            "feature": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "keyed"
+            },
+            "fit": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "H7"
+            },
+            "key_width_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 6
+            }
+          },
+          "type": "mechanical.cyl_female"
+        },
+        {
+          "dir": "bidir",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              -20
+            ]
+          },
+          "id": "motor_flange",
+          "motion": "stationary",
+          "spec": {
+            "hole_count": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 4
+            },
+            "hole_kind": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "threaded"
+            },
+            "pcd_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 90
+            },
+            "pilot_diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 70
+            },
+            "pilot_kind": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "female"
+            },
+            "thread": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "M6"
+            }
+          },
+          "type": "mechanical.flange"
+        },
+        {
+          "dir": "out",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              55
+            ]
+          },
+          "id": "output_flange",
+          "motion": "rotating",
+          "spec": {
+            "hole_count": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 8
+            },
+            "hole_kind": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "threaded"
+            },
+            "pcd_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 30
+            },
+            "thread": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "M4"
+            }
+          },
+          "type": "mechanical.flange"
+        },
+        {
+          "dir": "bidir",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              0
+            ]
+          },
+          "id": "housing_mount",
+          "motion": "stationary",
+          "spec": {
+            "hole_count": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 12
+            },
+            "hole_diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 3.4
+            },
+            "hole_kind": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "through"
+            },
+            "pcd_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 89
+            }
+          },
+          "type": "mechanical.flange"
+        }
+      ],
+      "status": "active",
+      "vendor": "Test Vendor"
+    },
+    "test.servo_motor.test-vendor.m200": {
+      "category": "servo_motor",
+      "envelope": {
+        "parts": [
+          {
+            "height_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 60
+            },
+            "length_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 10
+            },
+            "shape": "box",
+            "width_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 60
+            },
+            "z_start_mm": -10
+          },
+          {
+            "height_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 60
+            },
+            "length_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 80
+            },
+            "shape": "box",
+            "width_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 60
+            },
+            "z_start_mm": -90
+          },
+          {
+            "diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 11
+            },
+            "length_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 30
+            },
+            "shape": "cylinder",
+            "z_start_mm": 0
+          }
+        ]
+      },
+      "id": "test.servo_motor.test-vendor.m200",
+      "license": "params-only",
+      "model": "M200",
+      "note": "golden 用虚构组件（ADR-0015），数值不代表任何真实产品",
+      "params": {
+        "mass_kg": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 0.8
+        },
+        "max_speed_rpm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 6000
+        },
+        "peak_torque_nm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 1.91
+        },
+        "rated_power_w": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 200
+        },
+        "rated_speed_rpm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 3000
+        },
+        "rated_torque_nm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 0.64
+        },
+        "rotor_inertia_kgm2": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "value": 1.4e-05
+        }
+      },
+      "ports": [
+        {
+          "dir": "out",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              30
+            ]
+          },
+          "id": "shaft",
+          "motion": "rotating",
+          "spec": {
+            "diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 11
+            },
+            "feature": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "keyed"
+            },
+            "fit": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "h6"
+            },
+            "key_width_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 4
+            }
+          },
+          "type": "mechanical.cyl_male"
+        },
+        {
+          "dir": "bidir",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              0
+            ]
+          },
+          "id": "mount_flange",
+          "motion": "stationary",
+          "spec": {
+            "hole_count": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 4
+            },
+            "hole_diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 5.5
+            },
+            "hole_kind": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "through"
+            },
+            "pcd_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 70
+            },
+            "pilot_diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 50
+            },
+            "pilot_kind": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "male"
+            },
+            "square_size_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 60
+            }
+          },
+          "type": "mechanical.flange"
+        },
+        {
+          "dir": "in",
+          "id": "power_in",
+          "spec": {
+            "peak_current_a": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 4.5
+            },
+            "rated_current_a": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 1.5
+            },
+            "voltage_class_v": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": 200
+            }
+          },
+          "type": "electrical.motor_power"
+        },
+        {
+          "dir": "out",
+          "id": "encoder",
+          "spec": {
+            "kind": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "absolute"
+            },
+            "protocol": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-test-fixture",
+                "page": 1
+              },
+              "value": "biss_c"
+            }
+          },
+          "type": "signal.encoder"
+        }
+      ],
+      "status": "active",
+      "vendor": "Test Vendor"
+    }
+  },
+  "format": "fap-export/1",
+  "kind": "system",
+  "report": {
+    "checks": [
+      {
+        "check": "C1",
+        "findings": [
+          {
+            "message": "motor.shaft — sleeve.inner：类型、方向、运动方式匹配",
+            "ports": [
+              "motor.shaft",
+              "sleeve.inner"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "sleeve.outer — reducer.input_bore：类型、方向、运动方式匹配",
+            "ports": [
+              "sleeve.outer",
+              "reducer.input_bore"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "motor.mount_flange — plate.motor_side：类型、方向、运动方式匹配",
+            "ports": [
+              "motor.mount_flange",
+              "plate.motor_side"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "plate.reducer_side — reducer.motor_flange：类型、方向、运动方式匹配",
+            "ports": [
+              "plate.reducer_side",
+              "reducer.motor_flange"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "drive.motor_out — motor.power_in：类型、方向、运动方式匹配",
+            "ports": [
+              "drive.motor_out",
+              "motor.power_in"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "motor.encoder — drive.encoder_in：类型、方向、运动方式匹配",
+            "ports": [
+              "motor.encoder",
+              "drive.encoder_in"
+            ],
+            "status": "pass"
+          }
+        ],
+        "message": "motor.shaft — sleeve.inner：类型、方向、运动方式匹配",
+        "ports": [
+          "motor.shaft",
+          "sleeve.inner"
+        ],
+        "status": "pass"
+      },
+      {
+        "check": "C2",
+        "findings": [
+          {
+            "message": "直径 11 mm 相等",
+            "ports": [
+              "motor.shaft",
+              "sleeve.inner"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "H7/h6 为 clearance 配合（草稿规则表）",
+            "ports": [
+              "motor.shaft",
+              "sleeve.inner"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "轴 keyed / 孔 keyed / 紧固 key：键宽须相等（另行检查）（草稿规则表）",
+            "ports": [
+              "motor.shaft",
+              "sleeve.inner"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "键宽 4 mm 相等",
+            "ports": [
+              "motor.shaft",
+              "sleeve.inner"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "直径 19 mm 相等",
+            "ports": [
+              "sleeve.outer",
+              "reducer.input_bore"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "H7/h6 为 clearance 配合（草稿规则表）",
+            "ports": [
+              "sleeve.outer",
+              "reducer.input_bore"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "轴 keyed / 孔 keyed / 紧固 key：键宽须相等（另行检查）（草稿规则表）",
+            "ports": [
+              "sleeve.outer",
+              "reducer.input_bore"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "键宽 6 mm 相等",
+            "ports": [
+              "sleeve.outer",
+              "reducer.input_bore"
+            ],
+            "status": "pass"
+          }
+        ],
+        "message": "直径 11 mm 相等",
+        "ports": [
+          "motor.shaft",
+          "sleeve.inner"
+        ],
+        "status": "pass"
+      },
+      {
+        "check": "C3",
+        "findings": [
+          {
+            "message": "分度圆 70 mm 一致",
+            "ports": [
+              "motor.mount_flange",
+              "plate.motor_side"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "孔数 4 相等",
+            "ports": [
+              "motor.mount_flange",
+              "plate.motor_side"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "通孔 5.5 mm ≥ M5 中等系列间隙孔 5.5 mm（草稿规则表）",
+            "ports": [
+              "motor.mount_flange",
+              "plate.motor_side"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "止口一凸一凹，直径 50 mm 相等",
+            "ports": [
+              "motor.mount_flange",
+              "plate.motor_side"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "分度圆 90 mm 一致",
+            "ports": [
+              "plate.reducer_side",
+              "reducer.motor_flange"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "孔数 4 相等",
+            "ports": [
+              "plate.reducer_side",
+              "reducer.motor_flange"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "通孔 6.6 mm ≥ M6 中等系列间隙孔 6.6 mm（草稿规则表）",
+            "ports": [
+              "plate.reducer_side",
+              "reducer.motor_flange"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "止口一凸一凹，直径 70 mm 相等",
+            "ports": [
+              "plate.reducer_side",
+              "reducer.motor_flange"
+            ],
+            "status": "pass"
+          }
+        ],
+        "message": "分度圆 70 mm 一致",
+        "ports": [
+          "motor.mount_flange",
+          "plate.motor_side"
+        ],
+        "status": "pass"
+      },
+      {
+        "check": "C4",
+        "findings": [
+          {
+            "limit": 0.64,
+            "margin_ratio": 0.3303571428571429,
+            "measured": 0.42857142857142855,
+            "message": "连续扭矩折算到电机侧 0.4286 ≤ 电机额定扭矩 0.64 N·m",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "pass",
+            "unit": "N*m"
+          },
+          {
+            "limit": 51.0,
+            "margin_ratio": 0.4117647058823529,
+            "measured": 30.0,
+            "message": "含安全系数的连续扭矩 30 ≤ 减速器额定扭矩 51 N·m",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "pass",
+            "unit": "N*m"
+          }
+        ],
+        "limit": 0.64,
+        "margin_ratio": 0.3303571428571429,
+        "measured": 0.42857142857142855,
+        "message": "连续扭矩折算到电机侧 0.4286 ≤ 电机额定扭矩 0.64 N·m",
+        "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+        ],
+        "status": "pass",
+        "unit": "N*m"
+      },
+      {
+        "check": "C5",
+        "findings": [
+          {
+            "limit": 1.91,
+            "margin_ratio": 0.6260284218399402,
+            "measured": 0.7142857142857143,
+            "message": "峰值扭矩折算到电机侧 0.7143 ≤ 电机峰值扭矩 1.91 N·m",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "pass",
+            "unit": "N*m"
+          },
+          {
+            "limit": 82.0,
+            "margin_ratio": 0.3902439024390244,
+            "measured": 50,
+            "message": "峰值扭矩 50 ≤ 减速器启停允许峰值扭矩 82 N·m",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "pass",
+            "unit": "N*m"
+          }
+        ],
+        "limit": 1.91,
+        "margin_ratio": 0.6260284218399402,
+        "measured": 0.7142857142857143,
+        "message": "峰值扭矩折算到电机侧 0.7143 ≤ 电机峰值扭矩 1.91 N·m",
+        "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+        ],
+        "status": "pass",
+        "unit": "N*m"
+      },
+      {
+        "check": "C6",
+        "limit": 147.0,
+        "margin_ratio": 0.09047619047619056,
+        "measured": 133.7,
+        "message": "电机峰值扭矩经减速后 133.7 N·m ≤ 减速器瞬间允许最大 147 N·m",
+        "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+        ],
+        "status": "pass",
+        "unit": "N*m"
+      },
+      {
+        "check": "C7",
+        "findings": [
+          {
+            "limit": 6000.0,
+            "margin_ratio": 0.5,
+            "measured": 3000.0,
+            "message": "所需电机转速 3000 ≤ 电机最高转速 6000 rpm",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "pass",
+            "unit": "rpm"
+          },
+          {
+            "limit": 5600.0,
+            "margin_ratio": 0.4642857142857143,
+            "measured": 3000.0,
+            "message": "所需输入转速 3000 ≤ 减速器最高输入转速 5600 rpm",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "pass",
+            "unit": "rpm"
+          },
+          {
+            "limit": 3500.0,
+            "margin_ratio": 0.14285714285714285,
+            "measured": 3000.0,
+            "message": "所需输入转速 3000 ≤ 减速器平均输入转速限制 3500 rpm",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "pass",
+            "unit": "rpm"
+          }
+        ],
+        "limit": 6000.0,
+        "margin_ratio": 0.5,
+        "measured": 3000.0,
+        "message": "所需电机转速 3000 ≤ 电机最高转速 6000 rpm",
+        "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+        ],
+        "status": "pass",
+        "unit": "rpm"
+      },
+      {
+        "check": "C8",
+        "message": "需求未给负载惯量",
+        "status": "not_applicable"
+      },
+      {
+        "check": "C9",
+        "findings": [
+          {
+            "message": "供电类型 ac 一致",
+            "ports": [
+              "drive.power_in"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "供电 220 V 在驱动器输入范围 200–240 V 内",
+            "ports": [
+              "drive.power_in"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "相数 1 一致",
+            "ports": [
+              "drive.power_in"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "电压等级 200 V 一致",
+            "ports": [
+              "drive.motor_out",
+              "motor.power_in"
+            ],
+            "status": "pass"
+          },
+          {
+            "limit": 1.6,
+            "margin_ratio": 0.06250000000000006,
+            "measured": 1.5,
+            "message": "驱动器额定电流 1.6 A ≥ 电机 1.5 A",
+            "ports": [
+              "drive.motor_out",
+              "motor.power_in"
+            ],
+            "status": "pass",
+            "unit": "A"
+          },
+          {
+            "limit": 5.8,
+            "margin_ratio": 0.22413793103448273,
+            "measured": 4.5,
+            "message": "驱动器峰值电流 5.8 A ≥ 电机 4.5 A",
+            "ports": [
+              "drive.motor_out",
+              "motor.power_in"
+            ],
+            "status": "pass",
+            "unit": "A"
+          }
+        ],
+        "message": "供电类型 ac 一致",
+        "ports": [
+          "drive.power_in"
+        ],
+        "status": "pass"
+      },
+      {
+        "check": "C10",
+        "findings": [
+          {
+            "message": "编码器协议 biss_c 受驱动器支持",
+            "ports": [
+              "motor.encoder",
+              "drive.encoder_in"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "总线 ethercat 一致",
+            "ports": [
+              "drive.bus"
+            ],
+            "status": "pass"
+          }
+        ],
+        "message": "编码器协议 biss_c 受驱动器支持",
+        "ports": [
+          "motor.encoder",
+          "drive.encoder_in"
+        ],
+        "status": "pass"
+      },
+      {
+        "check": "C11",
+        "message": "系统中没有轴承，需求也未给包络外径限值",
+        "status": "not_applicable"
+      }
+    ],
+    "overall": "pass",
+    "system": "candidate-1"
+  },
+  "system": {
+    "components": [
+      {
+        "component": "test.servo_motor.test-vendor.m200",
+        "instance": "motor"
+      },
+      {
+        "component": "test.reducer.test-vendor.r25-100",
+        "instance": "reducer"
+      },
+      {
+        "component": "test.drive.test-vendor.d200",
+        "instance": "drive"
+      },
+      {
+        "component": "test.adapter.test-vendor.sleeve-11-19",
+        "instance": "sleeve"
+      },
+      {
+        "component": "test.adapter.test-vendor.plate-70-90",
+        "instance": "plate"
+      }
+    ],
+    "connections": [
+      {
+        "a": "motor.shaft",
+        "b": "sleeve.inner"
+      },
+      {
+        "a": "sleeve.outer",
+        "b": "reducer.input_bore"
+      },
+      {
+        "a": "motor.mount_flange",
+        "b": "plate.motor_side"
+      },
+      {
+        "a": "plate.reducer_side",
+        "b": "reducer.motor_flange"
+      },
+      {
+        "a": "drive.motor_out",
+        "b": "motor.power_in"
+      },
+      {
+        "a": "motor.encoder",
+        "b": "drive.encoder_in"
+      }
+    ],
+    "id": "candidate-1",
+    "layout": {
+      "poses": {
+        "drive": {
+          "position_mm": [
+            90.0,
+            0.0,
+            0.0
+          ],
+          "rotation": {
+            "angle_deg": 0.0,
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        },
+        "motor": {
+          "position_mm": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": {
+            "angle_deg": 0.0,
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        },
+        "plate": {
+          "position_mm": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": {
+            "angle_deg": 0.0,
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        },
+        "reducer": {
+          "position_mm": [
+            0.0,
+            0.0,
+            30.0
+          ],
+          "rotation": {
+            "angle_deg": 0.0,
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        },
+        "sleeve": {
+          "position_mm": [
+            0.0,
+            0.0,
+            30.0
+          ],
+          "rotation": {
+            "angle_deg": 0.0,
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        }
+      }
+    },
+    "requirement": {
+      "fieldbus_protocol": "ethercat",
+      "id": "joint-2",
+      "output_speed_rpm": 30,
+      "output_torque_cont_nm": 25,
+      "output_torque_peak_nm": 50,
+      "safety_factor": 1.2,
+      "statement": "六轴机械臂第 2 关节：输出连续扭矩 25 N·m、峰值 50 N·m，输出转速 30 rpm，220 V 单相供电，EtherCAT 总线",
+      "supply": {
+        "current_type": "ac",
+        "phases": 1,
+        "voltage_v": 220
+      }
+    }
+  }
+}
