@@ -1,0 +1,14 @@
+{
+  "why": "单位由字段名后缀表达，不允许 unit 字段",
+  "instance": {
+    "value": 1,
+    "source": {
+      "doc": "src-test-fixture",
+      "page": 1
+    },
+    "method": "manual",
+    "confidence": 1,
+    "reviewed": true,
+    "unit": "mm"
+  }
+}

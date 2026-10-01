@@ -1,0 +1,51 @@
+{
+  "why": "私有协议必须注明厂商",
+  "instance": {
+    "id": "encoder",
+    "type": "signal.encoder",
+    "dir": "out",
+    "spec": {
+      "protocol": {
+        "value": "vendor_proprietary",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "kind": {
+        "value": "absolute",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "resolution_bits": {
+        "value": 23,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "multi_turn": {
+        "value": true,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      }
+    },
+    "note": "测试用虚构数值，不代表任何真实产品"
+  }
+}

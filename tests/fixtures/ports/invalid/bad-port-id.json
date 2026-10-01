@@ -1,0 +1,31 @@
+{
+  "why": "端口 id 必须小写字母开头",
+  "instance": {
+    "id": "Bus-1",
+    "type": "signal.fieldbus",
+    "dir": "bidir",
+    "spec": {
+      "protocol": {
+        "value": "ethercat",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "profile": {
+        "value": "cia402",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      }
+    },
+    "note": "测试用虚构数值，不代表任何真实产品"
+  }
+}

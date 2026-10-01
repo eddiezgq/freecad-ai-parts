@@ -1,0 +1,14 @@
+{
+  "why": "带工况",
+  "instance": {
+    "value": 0.7,
+    "condition": "at rated input speed 2000 rpm, 25 °C",
+    "method": "extracted",
+    "confidence": 0.85,
+    "reviewed": false,
+    "source": {
+      "doc": "src-test-fixture",
+      "page": 1
+    }
+  }
+}

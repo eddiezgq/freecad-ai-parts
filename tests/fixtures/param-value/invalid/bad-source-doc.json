@@ -1,0 +1,13 @@
+{
+  "why": "来源文档 id 必须以 src- 开头",
+  "instance": {
+    "value": 1,
+    "source": {
+      "doc": "yaskawa catalog",
+      "page": 3
+    },
+    "method": "manual",
+    "confidence": 1,
+    "reviewed": true
+  }
+}

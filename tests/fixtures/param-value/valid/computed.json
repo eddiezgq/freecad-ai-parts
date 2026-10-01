@@ -1,0 +1,12 @@
+{
+  "why": "计算值写公式",
+  "instance": {
+    "value": 0.8,
+    "method": "computed",
+    "source": {
+      "formula": "rated_torque_nm / torque_constant_nm_per_a"
+    },
+    "confidence": 0.9,
+    "reviewed": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "why": "没有给出任何数值",
+  "instance": {
+    "source": {
+      "doc": "src-test-fixture",
+      "page": 1
+    },
+    "method": "manual",
+    "confidence": 1,
+    "reviewed": true
+  }
+}

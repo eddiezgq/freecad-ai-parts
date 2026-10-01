@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/port-types/mechanical.flange.schema.json",
+  "title": "圆形安装法兰（mechanical.flange）",
+  "description": "电机法兰、减速器输入/输出法兰。通孔须给 hole_diameter_mm，螺纹孔须给 thread。",
+  "x-connects-to": [
+    "mechanical.flange"
+  ],
+  "allOf": [
+    {
+      "$ref": "../common/port-base.schema.json"
+    },
+    {
+      "$ref": "../common/port-base.schema.json#/$defs/mechanical"
+    }
+  ],
+  "properties": {
+    "type": {
+      "const": "mechanical.flange"
+    },
+    "spec": {
+      "type": "object",
+      "properties": {
+        "pcd_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "分度圆直径"
+        },
+        "hole_count": {
+          "$ref": "../common/param-value.schema.json#/$defs/integer"
+        },
+        "hole_kind": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string"
+            },
+            {
+              "properties": {
+                "value": {
+                  "enum": [
+                    "through",
+                    "threaded"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "hole_diameter_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "通孔直径"
+        },
+        "thread": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string"
+            },
+            {
+              "properties": {
+                "value": {
+                  "pattern": "^M[0-9]+(\\.[0-9]+)?(x[0-9]+(\\.[0-9]+)?)?$"
+                }
+              }
+            }
+          ],
+          "description": "螺纹规格，如 M5、M8x1"
+        },
+        "pilot_diameter_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "止口直径"
+        },
+        "pilot_kind": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string"
+            },
+            {
+              "properties": {
+                "value": {
+                  "enum": [
+                    "male",
+                    "female"
+                  ]
+                }
+              }
+            }
+          ],
+          "description": "止口凸（male）或凹（female）"
+        },
+        "pilot_fit": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string"
+            },
+            {
+              "properties": {
+                "value": {
+                  "pattern": "^(JS|js|[A-Za-z])[0-9]{1,2}$"
+                }
+              }
+            }
+          ],
+          "description": "止口公差带"
+        },
+        "square_size_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "方形法兰边长"
+        },
+        "hole_angle_offset_deg": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "第一个孔相对端口坐标系 x 轴的角度"
+        }
+      },
+      "required": [
+        "pcd_mm",
+        "hole_count",
+        "hole_kind"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "hole_kind": {
+                "properties": {
+                  "value": {
+                    "const": "through"
+                  }
+                }
+              }
+            },
+            "required": [
+              "hole_kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "hole_diameter_mm"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "hole_kind": {
+                "properties": {
+                  "value": {
+                    "const": "threaded"
+                  }
+                }
+              }
+            },
+            "required": [
+              "hole_kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "thread"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

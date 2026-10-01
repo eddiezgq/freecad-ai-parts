@@ -1,0 +1,41 @@
+{
+  "why": "电机动力线",
+  "instance": {
+    "id": "power_in",
+    "type": "electrical.motor_power",
+    "dir": "in",
+    "spec": {
+      "voltage_class_v": {
+        "value": 200,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "rated_current_a": {
+        "value": 1.5,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "peak_current_a": {
+        "value": 4.5,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      }
+    },
+    "note": "测试用虚构数值，不代表任何真实产品"
+  }
+}

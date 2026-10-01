@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/port-types/electrical.motor_power.schema.json",
+  "title": "电机动力线（electrical.motor_power）",
+  "description": "驱动器到电机的动力连接。电流为有效值。",
+  "x-connects-to": [
+    "electrical.motor_power"
+  ],
+  "allOf": [
+    {
+      "$ref": "../common/port-base.schema.json"
+    },
+    {
+      "$ref": "../common/port-base.schema.json#/$defs/non_mechanical"
+    }
+  ],
+  "properties": {
+    "type": {
+      "const": "electrical.motor_power"
+    },
+    "spec": {
+      "type": "object",
+      "properties": {
+        "voltage_class_v": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "电压等级"
+        },
+        "rated_current_a": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "peak_current_a": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "connector": {
+          "$ref": "../common/param-value.schema.json#/$defs/string"
+        },
+        "brake_voltage_v": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        }
+      },
+      "required": [
+        "voltage_class_v",
+        "rated_current_a",
+        "peak_current_a"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

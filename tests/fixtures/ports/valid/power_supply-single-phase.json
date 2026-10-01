@@ -1,0 +1,52 @@
+{
+  "why": "单相交流供电，电压用范围表示",
+  "instance": {
+    "id": "power_in",
+    "type": "electrical.power_supply",
+    "dir": "in",
+    "spec": {
+      "current_type": {
+        "value": "ac",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "voltage_v": {
+        "min": 200,
+        "max": 240,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "phases": {
+        "value": 1,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "frequency_hz": {
+        "value": 50,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      }
+    },
+    "note": "测试用虚构数值，不代表任何真实产品"
+  }
+}

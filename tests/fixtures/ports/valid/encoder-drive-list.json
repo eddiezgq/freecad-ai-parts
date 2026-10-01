@@ -1,0 +1,36 @@
+{
+  "why": "驱动器端：支持多个协议",
+  "instance": {
+    "id": "encoder_in",
+    "type": "signal.encoder",
+    "dir": "in",
+    "spec": {
+      "protocol": {
+        "value": [
+          "biss_c",
+          "endat_2_2"
+        ],
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "kind": {
+        "value": [
+          "absolute"
+        ],
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      }
+    },
+    "note": "测试用虚构数值，不代表任何真实产品"
+  }
+}

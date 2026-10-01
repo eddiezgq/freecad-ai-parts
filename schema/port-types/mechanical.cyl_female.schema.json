@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/port-types/mechanical.cyl_female.schema.json",
+  "title": "孔 / 内圆柱配合面（mechanical.cyl_female）",
+  "description": "减速器输入孔、轴承内圈、轴承座孔等内圆柱配合面。",
+  "x-connects-to": [
+    "mechanical.cyl_male"
+  ],
+  "allOf": [
+    {
+      "$ref": "../common/port-base.schema.json"
+    },
+    {
+      "$ref": "../common/port-base.schema.json#/$defs/mechanical"
+    }
+  ],
+  "properties": {
+    "type": {
+      "const": "mechanical.cyl_female"
+    },
+    "spec": {
+      "type": "object",
+      "properties": {
+        "diameter_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "名义直径"
+        },
+        "fit": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string"
+            },
+            {
+              "properties": {
+                "value": {
+                  "pattern": "^(JS|[A-Z])[0-9]{1,2}$"
+                }
+              }
+            }
+          ],
+          "description": "ISO 286 孔公差带，如 H7、JS7"
+        },
+        "feature": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string"
+            },
+            {
+              "properties": {
+                "value": {
+                  "enum": [
+                    "plain",
+                    "keyed",
+                    "d_cut",
+                    "spline"
+                  ]
+                }
+              }
+            }
+          ],
+          "description": "孔的形式"
+        },
+        "clamping": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string"
+            },
+            {
+              "properties": {
+                "value": {
+                  "enum": [
+                    "key",
+                    "clamp_ring",
+                    "set_screw",
+                    "press_fit"
+                  ]
+                }
+              }
+            }
+          ],
+          "description": "紧固方式"
+        },
+        "depth_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "key_width_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "accepted_diameter_range_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "可换轴套时可接受的轴径范围，用 min/max 表示"
+        }
+      },
+      "required": [
+        "diameter_mm",
+        "fit",
+        "feature",
+        "clamping"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

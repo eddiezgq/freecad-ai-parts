@@ -1,0 +1,14 @@
+{
+  "why": "单值与范围不能同时出现",
+  "instance": {
+    "value": 1,
+    "min": 0,
+    "source": {
+      "doc": "src-test-fixture",
+      "page": 1
+    },
+    "method": "manual",
+    "confidence": 1,
+    "reviewed": true
+  }
+}

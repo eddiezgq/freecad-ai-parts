@@ -1,0 +1,16 @@
+{
+  "why": "列表值",
+  "instance": {
+    "value": [
+      "biss_c",
+      "endat_2_2"
+    ],
+    "source": {
+      "doc": "src-test-fixture",
+      "page": 1
+    },
+    "method": "manual",
+    "confidence": 1,
+    "reviewed": true
+  }
+}
