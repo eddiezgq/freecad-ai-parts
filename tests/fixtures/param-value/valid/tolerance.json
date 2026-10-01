@@ -1,0 +1,15 @@
+{
+  "why": "公差",
+  "instance": {
+    "nominal": 14,
+    "tol_upper": 0,
+    "tol_lower": -0.011,
+    "source": {
+      "doc": "src-test-fixture",
+      "page": 1
+    },
+    "method": "manual",
+    "confidence": 1,
+    "reviewed": true
+  }
+}

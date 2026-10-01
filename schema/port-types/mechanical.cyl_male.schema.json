@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/port-types/mechanical.cyl_male.schema.json",
+  "title": "轴 / 外圆柱配合面（mechanical.cyl_male）",
+  "description": "电机轴、轴承外圈等外圆柱配合面。",
+  "x-connects-to": [
+    "mechanical.cyl_female"
+  ],
+  "allOf": [
+    {
+      "$ref": "../common/port-base.schema.json"
+    },
+    {
+      "$ref": "../common/port-base.schema.json#/$defs/mechanical"
+    }
+  ],
+  "properties": {
+    "type": {
+      "const": "mechanical.cyl_male"
+    },
+    "spec": {
+      "type": "object",
+      "properties": {
+        "diameter_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "名义直径"
+        },
+        "fit": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string"
+            },
+            {
+              "properties": {
+                "value": {
+                  "pattern": "^(js|[a-z])[0-9]{1,2}$"
+                }
+              }
+            }
+          ],
+          "description": "ISO 286 轴公差带，如 h6、k6、js6"
+        },
+        "feature": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string"
+            },
+            {
+              "properties": {
+                "value": {
+                  "enum": [
+                    "plain",
+                    "keyed",
+                    "d_cut",
+                    "spline"
+                  ]
+                }
+              }
+            }
+          ],
+          "description": "轴端形式"
+        },
+        "usable_length_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "key_width_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "max_radial_load_n": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "max_axial_load_n": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        }
+      },
+      "required": [
+        "diameter_mm",
+        "fit",
+        "feature"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

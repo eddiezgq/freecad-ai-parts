@@ -1,0 +1,14 @@
+{
+  "why": "范围",
+  "instance": {
+    "min": 200,
+    "max": 240,
+    "source": {
+      "doc": "src-test-fixture",
+      "page": 1
+    },
+    "method": "manual",
+    "confidence": 1,
+    "reviewed": true
+  }
+}

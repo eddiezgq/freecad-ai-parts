@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/port-types/mechanical.mount_face.schema.json",
+  "title": "非圆形安装面（mechanical.mount_face）",
+  "description": "驱动器底板、壳体安装面。孔为通孔时给 hole_diameter_mm，螺纹孔时给 thread，至少给一项。",
+  "x-connects-to": [
+    "mechanical.mount_face"
+  ],
+  "allOf": [
+    {
+      "$ref": "../common/port-base.schema.json"
+    },
+    {
+      "$ref": "../common/port-base.schema.json#/$defs/mechanical"
+    }
+  ],
+  "properties": {
+    "type": {
+      "const": "mechanical.mount_face"
+    },
+    "spec": {
+      "type": "object",
+      "properties": {
+        "pattern": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string"
+            },
+            {
+              "properties": {
+                "value": {
+                  "enum": [
+                    "rect"
+                  ]
+                }
+              }
+            }
+          ],
+          "description": "孔位阵列形式"
+        },
+        "pitch_x_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "pitch_y_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "hole_count": {
+          "$ref": "../common/param-value.schema.json#/$defs/integer"
+        },
+        "hole_diameter_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "thread": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string"
+            },
+            {
+              "properties": {
+                "value": {
+                  "pattern": "^M[0-9]+(\\.[0-9]+)?(x[0-9]+(\\.[0-9]+)?)?$"
+                }
+              }
+            }
+          ]
+        },
+        "face_size_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number_pair",
+          "description": "安装面外形 [宽, 高]"
+        },
+        "din_rail": {
+          "$ref": "../common/param-value.schema.json#/$defs/boolean",
+          "description": "是否支持导轨安装"
+        }
+      },
+      "required": [
+        "pattern",
+        "pitch_x_mm",
+        "pitch_y_mm",
+        "hole_count"
+      ],
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "hole_diameter_mm"
+          ]
+        },
+        {
+          "required": [
+            "thread"
+          ]
+        }
+      ]
+    }
+  }
+}

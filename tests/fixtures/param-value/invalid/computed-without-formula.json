@@ -1,0 +1,13 @@
+{
+  "why": "计算值必须写公式",
+  "instance": {
+    "value": 1,
+    "method": "computed",
+    "source": {
+      "doc": "src-test-fixture",
+      "page": 1
+    },
+    "confidence": 1,
+    "reviewed": true
+  }
+}

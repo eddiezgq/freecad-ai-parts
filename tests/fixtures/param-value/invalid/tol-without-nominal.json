@@ -1,0 +1,14 @@
+{
+  "why": "偏差必须配名义值",
+  "instance": {
+    "min": 1,
+    "tol_upper": 0.1,
+    "source": {
+      "doc": "src-test-fixture",
+      "page": 1
+    },
+    "method": "manual",
+    "confidence": 1,
+    "reviewed": true
+  }
+}

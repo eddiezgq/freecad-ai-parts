@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/port.schema.json",
+  "title": "端口",
+  "description": "任意一种 V1 端口类型。按 type 选择对应的端口类型 schema。",
+  "type": "object",
+  "required": [
+    "type"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "mechanical.cyl_male"
+          }
+        }
+      },
+      "then": {
+        "$ref": "port-types/mechanical.cyl_male.schema.json"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "mechanical.cyl_female"
+          }
+        }
+      },
+      "then": {
+        "$ref": "port-types/mechanical.cyl_female.schema.json"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "mechanical.flange"
+          }
+        }
+      },
+      "then": {
+        "$ref": "port-types/mechanical.flange.schema.json"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "mechanical.mount_face"
+          }
+        }
+      },
+      "then": {
+        "$ref": "port-types/mechanical.mount_face.schema.json"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "electrical.power_supply"
+          }
+        }
+      },
+      "then": {
+        "$ref": "port-types/electrical.power_supply.schema.json"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "electrical.motor_power"
+          }
+        }
+      },
+      "then": {
+        "$ref": "port-types/electrical.motor_power.schema.json"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "signal.encoder"
+          }
+        }
+      },
+      "then": {
+        "$ref": "port-types/signal.encoder.schema.json"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "signal.fieldbus"
+          }
+        }
+      },
+      "then": {
+        "$ref": "port-types/signal.fieldbus.schema.json"
+      }
+    },
+    {
+      "properties": {
+        "type": {
+          "enum": [
+            "mechanical.cyl_male",
+            "mechanical.cyl_female",
+            "mechanical.flange",
+            "mechanical.mount_face",
+            "electrical.power_supply",
+            "electrical.motor_power",
+            "signal.encoder",
+            "signal.fieldbus"
+          ]
+        }
+      }
+    }
+  ]
+}

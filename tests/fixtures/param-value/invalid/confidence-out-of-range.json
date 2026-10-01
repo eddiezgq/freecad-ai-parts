@@ -1,0 +1,13 @@
+{
+  "why": "置信度超出 0–1",
+  "instance": {
+    "value": 1,
+    "confidence": 1.5,
+    "source": {
+      "doc": "src-test-fixture",
+      "page": 1
+    },
+    "method": "manual",
+    "reviewed": true
+  }
+}

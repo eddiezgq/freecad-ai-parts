@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/port-types/signal.encoder.schema.json",
+  "title": "编码器（signal.encoder）",
+  "description": "编码器反馈。电机端填单个协议；驱动器端可填支持的协议列表。私有协议必须注明 vendor。",
+  "x-connects-to": [
+    "signal.encoder"
+  ],
+  "allOf": [
+    {
+      "$ref": "../common/port-base.schema.json"
+    },
+    {
+      "$ref": "../common/port-base.schema.json#/$defs/non_mechanical"
+    }
+  ],
+  "properties": {
+    "type": {
+      "const": "signal.encoder"
+    },
+    "spec": {
+      "type": "object",
+      "properties": {
+        "protocol": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string_or_list"
+            },
+            {
+              "properties": {
+                "value": {
+                  "anyOf": [
+                    {
+                      "enum": [
+                        "endat_2_2",
+                        "biss_c",
+                        "ssi",
+                        "incremental_abz",
+                        "vendor_proprietary"
+                      ]
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "enum": [
+                          "endat_2_2",
+                          "biss_c",
+                          "ssi",
+                          "incremental_abz",
+                          "vendor_proprietary"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "kind": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string_or_list"
+            },
+            {
+              "properties": {
+                "value": {
+                  "anyOf": [
+                    {
+                      "enum": [
+                        "absolute",
+                        "incremental"
+                      ]
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "enum": [
+                          "absolute",
+                          "incremental"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "resolution_bits": {
+          "$ref": "../common/param-value.schema.json#/$defs/integer"
+        },
+        "multi_turn": {
+          "$ref": "../common/param-value.schema.json#/$defs/boolean"
+        },
+        "vendor": {
+          "$ref": "../common/param-value.schema.json#/$defs/string",
+          "description": "私有协议所属厂商"
+        },
+        "connector": {
+          "$ref": "../common/param-value.schema.json#/$defs/string"
+        }
+      },
+      "required": [
+        "protocol",
+        "kind"
+      ],
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "protocol": {
+            "properties": {
+              "value": {
+                "anyOf": [
+                  {
+                    "const": "vendor_proprietary"
+                  },
+                  {
+                    "type": "array",
+                    "contains": {
+                      "const": "vendor_proprietary"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "required": [
+          "protocol"
+        ]
+      },
+      "then": {
+        "required": [
+          "vendor"
+        ]
+      }
+    }
+  }
+}

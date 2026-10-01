@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/port-types/signal.fieldbus.schema.json",
+  "title": "总线与命令接口（signal.fieldbus）",
+  "description": "控制器与驱动器之间的总线或脉冲接口。",
+  "x-connects-to": [
+    "signal.fieldbus"
+  ],
+  "allOf": [
+    {
+      "$ref": "../common/port-base.schema.json"
+    },
+    {
+      "$ref": "../common/port-base.schema.json#/$defs/non_mechanical"
+    }
+  ],
+  "properties": {
+    "type": {
+      "const": "signal.fieldbus"
+    },
+    "spec": {
+      "type": "object",
+      "properties": {
+        "protocol": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string_or_list"
+            },
+            {
+              "properties": {
+                "value": {
+                  "anyOf": [
+                    {
+                      "enum": [
+                        "ethercat",
+                        "canopen",
+                        "modbus_rtu",
+                        "profinet",
+                        "ethernet_ip",
+                        "pulse_dir"
+                      ]
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "enum": [
+                          "ethercat",
+                          "canopen",
+                          "modbus_rtu",
+                          "profinet",
+                          "ethernet_ip",
+                          "pulse_dir"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "profile": {
+          "$ref": "../common/param-value.schema.json#/$defs/string",
+          "description": "如 cia402"
+        },
+        "connector": {
+          "$ref": "../common/param-value.schema.json#/$defs/string"
+        }
+      },
+      "required": [
+        "protocol"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

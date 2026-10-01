@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/common/port-base.schema.json",
+  "title": "端口公共字段",
+  "description": "所有端口共有的字段。具体端口类型在 schema/port-types/ 中约束 type 与 spec。frame.axis 须为单位向量，由代码校验。",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "组件内唯一，用功能命名，如 shaft、mount_flange、power_in"
+    },
+    "type": {
+      "enum": [
+        "mechanical.cyl_male",
+        "mechanical.cyl_female",
+        "mechanical.flange",
+        "mechanical.mount_face",
+        "electrical.power_supply",
+        "electrical.motor_power",
+        "signal.encoder",
+        "signal.fieldbus"
+      ]
+    },
+    "dir": {
+      "enum": ["in", "out", "bidir"],
+      "description": "机械端口按功率流向填；固定连接填 bidir"
+    },
+    "motion": {
+      "enum": ["rotating", "stationary"],
+      "description": "仅机械端口：随转子转动或与壳体固定"
+    },
+    "frame": {
+      "type": "object",
+      "description": "仅机械端口：端口坐标系在组件包络坐标系中的位置与轴向（指向配合方向）",
+      "properties": {
+        "origin_mm": {"$ref": "#/$defs/vec3"},
+        "axis": {"$ref": "#/$defs/vec3"}
+      },
+      "required": ["origin_mm", "axis"],
+      "additionalProperties": false
+    },
+    "spec": {"type": "object", "description": "类型专属字段，由具体端口类型定义"},
+    "note": {"type": "string"}
+  },
+  "required": ["id", "type", "dir", "spec"],
+  "additionalProperties": false,
+  "$defs": {
+    "vec3": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}},
+    "mechanical": {
+      "description": "机械端口：motion 与 frame 必填",
+      "required": ["motion", "frame"]
+    },
+    "non_mechanical": {
+      "description": "电气与信号端口：不得有 motion 与 frame",
+      "not": {"anyOf": [{"required": ["motion"]}, {"required": ["frame"]}]}
+    }
+  }
+}
