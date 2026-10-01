@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/common/param-value.schema.json",
   "title": "参数值",
-  "description": "每个参数是一个对象而不是裸数字：数值三选一（单值 value、范围 min/max、公差 nominal + tol_upper/tol_lower），并记录工况、来源、获取方式、置信度和复核状态。单位由字段名后缀表达（见实施细则第四节），本对象不含单位字段。min ≤ max、tol_lower ≤ 0 ≤ tol_upper 等跨字段数值关系由代码校验。",
+  "description": "每个参数是一个对象而不是裸数字：数值三选一（单值 value、范围 min/max、公差 nominal + tol_upper/tol_lower），并记录工况、来源、获取方式、置信度和复核状态。单位由字段名后缀表达（见实施细则第四节），本对象不含单位字段。min ≤ max、tol_lower ≤ tol_upper 等跨字段数值关系由代码校验（偏差带符号，两侧可同号，见 ADR-0022）。",
   "type": "object",
   "properties": {
     "value": {
