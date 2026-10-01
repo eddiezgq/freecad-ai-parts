@@ -1,0 +1,224 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/extraction.schema.json",
+  "title": "抽取结果",
+  "description": "一份来源文档的 LLM 结构化抽取结果（ADR-0021）。只记录从规格书读到并通过代码核对的值，不含几何布置，不直接入库；复核（#30）后再生成组件。target 是否属于该品类、值是否符合该字段的 schema、引用的来源文档是否与 document.doc 一致，由代码校验。",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "extraction/1"
+    },
+    "document": {
+      "type": "object",
+      "properties": {
+        "doc": {
+          "type": "string",
+          "pattern": "^src-[a-z0-9]+(-[a-z0-9]+)*$",
+          "description": "data/sources.yaml 中登记的来源文档 id"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "pages": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "doc",
+        "sha256",
+        "pages"
+      ],
+      "additionalProperties": false
+    },
+    "category": {
+      "enum": [
+        "servo_motor",
+        "reducer",
+        "drive",
+        "bearing",
+        "adapter"
+      ]
+    },
+    "vendor": {
+      "type": "string",
+      "minLength": 1,
+      "description": "规格书上的厂商名称（原文）；读不到时不写"
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1,
+      "description": "规格书上的完整型号（原文）；读不到时不写"
+    },
+    "series": {
+      "type": "string",
+      "minLength": 1
+    },
+    "extractor": {
+      "type": "object",
+      "properties": {
+        "model": {
+          "type": "string",
+          "minLength": 1,
+          "description": "LLM 模型名"
+        },
+        "prompt_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "response_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "simulated": {
+          "type": "boolean",
+          "description": "true 表示响应是测试用模拟响应，不得计入准确率"
+        }
+      },
+      "required": [
+        "model",
+        "prompt_version"
+      ],
+      "additionalProperties": false
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/item"
+      }
+    },
+    "rejected": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rejected"
+      }
+    },
+    "missing_key_fields": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/target"
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "format",
+    "document",
+    "category",
+    "extractor",
+    "items",
+    "rejected",
+    "missing_key_fields"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "target": {
+      "type": "string",
+      "description": "抽取目标：params/<参数名>、ports/<端口 id>/<规格字段>，或 dims/<整体尺寸>（只用于生成包络）",
+      "pattern": "^(params/[a-z][a-z0-9_]*|ports/[a-z][a-z0-9_]*/[a-z][a-z0-9_]*|dims/(overall_length_mm|body_length_mm|outer_diameter_mm|square_mm|width_mm|height_mm|depth_mm))$"
+    },
+    "printed": {
+      "type": "object",
+      "description": "规格书原文",
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "description": "参数叫法"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "description": "印出的数值或文字"
+        },
+        "unit": {
+          "type": "string",
+          "description": "印出的单位；无单位为空字符串"
+        },
+        "quote": {
+          "type": "string",
+          "minLength": 1,
+          "description": "LLM 给出的原文引用，代码核对其确实出现在该页"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "item": {
+      "type": "object",
+      "properties": {
+        "target": {
+          "$ref": "#/$defs/target"
+        },
+        "value": {
+          "allOf": [
+            {
+              "$ref": "common/param-value.schema.json"
+            },
+            {
+              "properties": {
+                "method": {
+                  "const": "extracted"
+                },
+                "reviewed": {
+                  "const": false
+                },
+                "source": {
+                  "required": [
+                    "doc",
+                    "page"
+                  ]
+                }
+              }
+            }
+          ],
+          "description": "标准单位下的参数值；method 固定为 extracted，reviewed 固定为 false"
+        },
+        "printed": {
+          "$ref": "#/$defs/printed"
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "需要复核员注意的问题"
+        }
+      },
+      "required": [
+        "target",
+        "value",
+        "printed"
+      ],
+      "additionalProperties": false
+    },
+    "rejected": {
+      "type": "object",
+      "description": "没通过代码核对的提议",
+      "properties": {
+        "target": {
+          "type": "string",
+          "description": "LLM 提议的目标，可能不合法，故不限定写法"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "printed": {
+          "$ref": "#/$defs/printed"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "reason"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

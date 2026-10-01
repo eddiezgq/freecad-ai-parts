@@ -116,6 +116,7 @@ TOP_LEVEL = {
     "component": "component.schema.json",
     "requirement": "requirement.schema.json",
     "system": "system.schema.json",
+    "extraction": "extraction.schema.json",
 }
 
 

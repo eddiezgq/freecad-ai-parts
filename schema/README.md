@@ -15,6 +15,7 @@
 | `component.schema.json` | 组件：基本信息、参数表、端口列表、分段包络；结构见 [ADR-0012](../docs/adr/0012-component-system-requirement.md) | M1 issue #4 |
 | `requirement.schema.json` | 需求：与 C4–C11 对应的需求值 | M1 issue #4 |
 | `system.schema.json` | 系统：需求、组件实例、端口连接 | M1 issue #4 |
+| `extraction.schema.json` | LLM 抽取结果：通过核对的抽取项、被拒提议、缺失关键字段；见 [ADR-0021](../docs/adr/0021-llm-extraction.md) | M2 issue #29 |
 | `categories/` | 5 个品类的参数与标准端口，由 `component.schema.json` 按 `category` 引用；见 [ADR-0014](../docs/adr/0014-interface-data-in-ports.md) | M1 issue #5 |
 
 ## 约定

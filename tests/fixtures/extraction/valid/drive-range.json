@@ -1,0 +1,51 @@
+{
+  "why": "范围值",
+  "instance": {
+    "format": "extraction/1",
+    "document": {
+      "doc": "src-test-fixture",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "pages": 2
+    },
+    "category": "drive",
+    "vendor": "Synth Gear",
+    "model": "SGH-13-100",
+    "extractor": {
+      "model": "claude-sonnet-5-5",
+      "prompt_version": "extract/1",
+      "simulated": true
+    },
+    "items": [
+      {
+        "target": "ports/power_in/voltage_v",
+        "value": {
+          "min": 200,
+          "max": 240,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "extracted",
+          "confidence": 0.9,
+          "reviewed": false
+        },
+        "printed": {
+          "text": "200–240",
+          "unit": "V"
+        }
+      }
+    ],
+    "rejected": [
+      {
+        "target": "params/rated_torque_nm",
+        "page": 1,
+        "printed": {
+          "text": "16",
+          "unit": "N·m"
+        },
+        "reason": "原文引用在第 1 页找不到"
+      }
+    ],
+    "missing_key_fields": []
+  }
+}

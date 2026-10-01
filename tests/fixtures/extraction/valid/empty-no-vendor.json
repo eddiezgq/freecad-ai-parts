@@ -1,0 +1,20 @@
+{
+  "why": "什么都没抽到、厂商型号也读不到，仍是合法的抽取结果",
+  "instance": {
+    "format": "extraction/1",
+    "document": {
+      "doc": "src-test-fixture",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "pages": 2
+    },
+    "category": "reducer",
+    "extractor": {
+      "model": "claude-sonnet-5-5",
+      "prompt_version": "extract/1",
+      "simulated": true
+    },
+    "items": [],
+    "rejected": [],
+    "missing_key_fields": []
+  }
+}
