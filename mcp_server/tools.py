@@ -169,5 +169,52 @@ def find_compatible(library: Library, component_id: str, port_id: str, *, catego
             "total": len(results), "results": results[:limit], "truncated": len(results) > limit}
 
 
-__all__: list[Any] = ["SEARCH_LIMIT_MAX", "ToolInputError", "find_compatible", "get_component",
-                      "search_components"]
+def _schema_check(relative: str, obj: Any, what: str) -> None:
+    from kb.validation import errors
+
+    errs = errors(relative, obj)
+    if errs:
+        raise ToolInputError(f"{what}不符合 schema：" + "；".join(errs[:5]))
+
+
+def _lang(lang: str) -> str:
+    if lang not in ("zh", "en"):
+        raise ToolInputError("lang 须为 zh 或 en")
+    return lang
+
+
+def verify_system(library: Library, system: dict, *, lang: str = "zh") -> dict:
+    """对一个系统（schema/system.schema.json）做全部 11 项校验，返回结构化报告与说明。"""
+    from engine.explain import explain
+    from engine.system import SystemError_
+    from engine.validate import validate
+
+    _lang(lang)
+    _schema_check("system.schema.json", system, "系统")
+    try:
+        report = validate(system, library.get)
+    except SystemError_ as exc:
+        raise ToolInputError(str(exc)) from exc
+    return {"report": report, "explanation": explain(report, lang)}
+
+
+def compose_chain(library: Library, requirement: dict, *, top_n: int = 5, include_unknown: bool = False,
+                  lang: str = "zh") -> dict:
+    """按需求从组件库组合“电机 →（转接件）→ 减速器 + 驱动器”，返回校验过、排好序的候选方案（ADR-0029）。"""
+    from engine.compose import compose_chain as solve
+    from engine.explain import explain, explain_candidates
+
+    _lang(lang)
+    _schema_check("requirement.schema.json", requirement, "需求")
+    if isinstance(top_n, bool) or not isinstance(top_n, int) or not 1 <= top_n <= 20:
+        raise ToolInputError("top_n 须为 1–20 的整数")
+    cands = solve(requirement, library.all(), top_n=top_n, include_unknown=include_unknown)
+    return {
+        "count": len(cands),
+        "candidates": [{**c.to_dict(), "overall": c.overall, "explanation": explain(c.report, lang)} for c in cands],
+        "explanation": explain_candidates(cands, lang),
+    }
+
+
+__all__: list[Any] = ["SEARCH_LIMIT_MAX", "ToolInputError", "compose_chain", "find_compatible", "get_component",
+                      "search_components", "verify_system"]

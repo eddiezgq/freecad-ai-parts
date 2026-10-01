@@ -95,6 +95,28 @@ def create_server(library_factory: Callable[[], Library] = default_library) -> F
         return tools.find_compatible(lib(), component_id, port_id, category=category,
                                      include_unknown=include_unknown, via_adapters=via_adapters, limit=limit)
 
+    @mcp.tool
+    @_guard
+    def compose_chain(
+        requirement: Annotated[dict, Field(description="需求（schema/requirement.schema.json）：输出连续扭矩 N·m、"
+                                                       "峰值扭矩、输出转速 rpm、安全系数、负载惯量 kg·m²、外径上限 mm、"
+                                                       "供电、总线等，标准单位")],
+        top_n: Annotated[int, Field(ge=1, le=20)] = 5,
+        include_unknown: Annotated[bool, Field(description="是否包含数据缺失、待确认的方案")] = False,
+        lang: Annotated[str, Field(description="说明语言：zh 或 en")] = "zh",
+    ) -> dict:
+        """按需求组合电机、减速器、驱动器（必要时加转接件），全部校验后排序返回候选方案与说明。"""
+        return tools.compose_chain(lib(), requirement, top_n=top_n, include_unknown=include_unknown, lang=lang)
+
+    @mcp.tool
+    @_guard
+    def verify_system(
+        system: Annotated[dict, Field(description="系统（schema/system.schema.json）：需求、组件实例、端口连接")],
+        lang: Annotated[str, Field(description="说明语言：zh 或 en")] = "zh",
+    ) -> dict:
+        """对一个系统做全部 11 项校验，返回逐项结果、整体结论与说明。"""
+        return tools.verify_system(lib(), system, lang=lang)
+
     return mcp
 
 
