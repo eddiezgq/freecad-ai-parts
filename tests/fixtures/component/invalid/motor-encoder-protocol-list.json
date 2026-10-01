@@ -1,0 +1,393 @@
+{
+  "why": "电机端编码器协议须为单值（列表只用于驱动器端）",
+  "instance": {
+    "id": "test.servo_motor.test-vendor.m100",
+    "category": "servo_motor",
+    "vendor": "Test Vendor",
+    "model": "M100",
+    "status": "active",
+    "license": "params-only",
+    "params": {
+      "rated_power_w": {
+        "value": 400,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "rated_torque_nm": {
+        "value": 1.27,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "peak_torque_nm": {
+        "value": 3.8,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "rated_speed_rpm": {
+        "value": 3000,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "max_speed_rpm": {
+        "value": 6000,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "rotor_inertia_kgm2": {
+        "value": 2.6e-05,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "mass_kg": {
+        "value": 1.2,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      }
+    },
+    "ports": [
+      {
+        "id": "shaft",
+        "type": "mechanical.cyl_male",
+        "dir": "out",
+        "motion": "rotating",
+        "frame": {
+          "origin_mm": [
+            0,
+            0,
+            30
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        "spec": {
+          "diameter_mm": {
+            "value": 14,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "fit": {
+            "value": "h6",
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "feature": {
+            "value": "keyed",
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "key_width_mm": {
+            "value": 5,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          }
+        }
+      },
+      {
+        "id": "mount_flange",
+        "type": "mechanical.flange",
+        "dir": "bidir",
+        "motion": "stationary",
+        "frame": {
+          "origin_mm": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        "spec": {
+          "pcd_mm": {
+            "value": 70,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "hole_count": {
+            "value": 4,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "hole_kind": {
+            "value": "through",
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "hole_diameter_mm": {
+            "value": 5.5,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "pilot_diameter_mm": {
+            "value": 50,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "pilot_kind": {
+            "value": "male",
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          }
+        }
+      },
+      {
+        "id": "power_in",
+        "type": "electrical.motor_power",
+        "dir": "in",
+        "spec": {
+          "voltage_class_v": {
+            "value": 200,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "rated_current_a": {
+            "value": 2.8,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "peak_current_a": {
+            "value": 8.5,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          }
+        }
+      },
+      {
+        "id": "encoder",
+        "type": "signal.encoder",
+        "dir": "out",
+        "spec": {
+          "protocol": {
+            "value": [
+              "biss_c",
+              "ssi"
+            ],
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "kind": {
+            "value": "absolute",
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          }
+        }
+      }
+    ],
+    "envelope": {
+      "parts": [
+        {
+          "shape": "box",
+          "label": "flange",
+          "z_start_mm": -10,
+          "length_mm": {
+            "value": 10,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "width_mm": {
+            "value": 60,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "height_mm": {
+            "value": 60,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          }
+        },
+        {
+          "shape": "box",
+          "label": "body",
+          "z_start_mm": -110,
+          "length_mm": {
+            "value": 100,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "width_mm": {
+            "value": 60,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "height_mm": {
+            "value": 60,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          }
+        },
+        {
+          "shape": "cylinder",
+          "label": "shaft",
+          "z_start_mm": 0,
+          "length_mm": {
+            "value": 30,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "diameter_mm": {
+            "value": 14,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          }
+        }
+      ]
+    },
+    "vendor_cad_url": "https://example.com/cad/m100",
+    "note": "测试用虚构组件，数值不代表任何真实产品"
+  }
+}

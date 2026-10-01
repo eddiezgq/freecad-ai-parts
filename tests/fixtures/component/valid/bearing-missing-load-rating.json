@@ -1,5 +1,5 @@
 {
-  "why": "轴承缺额定动载荷",
+  "why": "缺关键参数仍可入库：进入复核，相关校验结果为 unknown（实施细则第六节、ADR-0014）",
   "instance": {
     "id": "test.bearing.test-vendor.b6004",
     "category": "bearing",

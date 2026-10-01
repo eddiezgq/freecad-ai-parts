@@ -10,370 +10,73 @@
       "description": "<品类>.<厂商>.<型号>，全小写；虚构测试组件以 test. 开头，永不进入正式库",
       "pattern": "^(test\\.)?(servo_motor|reducer|drive|bearing|adapter|fastener)\\.[a-z0-9]+(-[a-z0-9]+)*\\.[a-z0-9]+([.-][a-z0-9]+)*$"
     },
-    "category": {
-      "enum": [
-        "servo_motor",
-        "reducer",
-        "drive",
-        "bearing",
-        "adapter",
-        "fastener"
-      ]
-    },
-    "vendor": {
-      "type": "string",
-      "minLength": 1,
-      "description": "厂商名称（原文）"
-    },
-    "model": {
-      "type": "string",
-      "minLength": 1,
-      "description": "厂商完整型号（原文）"
-    },
-    "series": {
-      "type": "string"
-    },
-    "status": {
-      "enum": [
-        "active",
-        "discontinued"
-      ],
-      "description": "停产或规格书改版时标记，不删除"
-    },
-    "superseded_by": {
-      "type": "string",
-      "description": "替代型号的组件 id"
-    },
+    "category": {"enum": ["servo_motor", "reducer", "drive", "bearing", "adapter", "fastener"]},
+    "vendor": {"type": "string", "minLength": 1, "description": "厂商名称（原文）"},
+    "model": {"type": "string", "minLength": 1, "description": "厂商完整型号（原文）"},
+    "series": {"type": "string"},
+    "status": {"enum": ["active", "discontinued"], "description": "停产或规格书改版时标记，不删除"},
+    "superseded_by": {"type": "string", "description": "替代型号的组件 id"},
     "license": {
-      "enum": [
-        "params-only",
-        "open",
-        "partner",
-        "standard"
-      ],
+      "enum": ["params-only", "open", "partner", "standard"],
       "description": "数据使用依据：仅提取参数 / 开源许可 / 厂商授权 / 按标准生成（ADR-0005）"
     },
     "params": {
       "type": "object",
       "description": "参数表：字段名带单位后缀（实施细则第四节），值为参数值对象",
-      "propertyNames": {
-        "pattern": "^[a-z][a-z0-9_]*$"
-      },
-      "additionalProperties": {
-        "$ref": "common/param-value.schema.json"
-      }
+      "propertyNames": {"pattern": "^[a-z][a-z0-9_]*$"},
+      "additionalProperties": {"$ref": "common/param-value.schema.json"}
     },
     "ports": {
       "type": "array",
       "minItems": 1,
-      "items": {
-        "$ref": "port.schema.json"
-      }
+      "items": {"$ref": "port.schema.json"}
     },
-    "envelope": {
-      "$ref": "#/$defs/envelope"
-    },
-    "vendor_cad_url": {
-      "type": "string",
-      "pattern": "^https?://",
-      "description": "原厂 CAD 模型下载页，只保留链接"
-    },
-    "note": {
-      "type": "string"
-    }
+    "envelope": {"$ref": "#/$defs/envelope"},
+    "vendor_cad_url": {"type": "string", "pattern": "^https?://", "description": "原厂 CAD 模型下载页，只保留链接"},
+    "note": {"type": "string"}
   },
-  "required": [
-    "id",
-    "category",
-    "vendor",
-    "model",
-    "status",
-    "license",
-    "params",
-    "ports",
-    "envelope"
-  ],
+  "required": ["id", "category", "vendor", "model", "status", "license", "params", "ports", "envelope"],
   "additionalProperties": false,
   "allOf": [
-    {
-      "if": {
-        "properties": {
-          "status": {
-            "const": "discontinued"
-          }
-        }
-      },
-      "else": {
-        "not": {
-          "required": [
-            "superseded_by"
-          ]
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "category": {
-            "const": "servo_motor"
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "id": {
-            "pattern": "^(test\\.)?servo_motor\\."
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "category": {
-            "const": "reducer"
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "id": {
-            "pattern": "^(test\\.)?reducer\\."
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "category": {
-            "const": "drive"
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "id": {
-            "pattern": "^(test\\.)?drive\\."
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "category": {
-            "const": "bearing"
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "id": {
-            "pattern": "^(test\\.)?bearing\\."
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "category": {
-            "const": "adapter"
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "id": {
-            "pattern": "^(test\\.)?adapter\\."
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "category": {
-            "const": "fastener"
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "id": {
-            "pattern": "^(test\\.)?fastener\\."
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "category": {
-            "const": "servo_motor"
-          }
-        },
-        "required": [
-          "category"
-        ]
-      },
-      "then": {
-        "$ref": "categories/servo_motor.schema.json"
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "category": {
-            "const": "reducer"
-          }
-        },
-        "required": [
-          "category"
-        ]
-      },
-      "then": {
-        "$ref": "categories/reducer.schema.json"
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "category": {
-            "const": "drive"
-          }
-        },
-        "required": [
-          "category"
-        ]
-      },
-      "then": {
-        "$ref": "categories/drive.schema.json"
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "category": {
-            "const": "bearing"
-          }
-        },
-        "required": [
-          "category"
-        ]
-      },
-      "then": {
-        "$ref": "categories/bearing.schema.json"
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "category": {
-            "const": "adapter"
-          }
-        },
-        "required": [
-          "category"
-        ]
-      },
-      "then": {
-        "$ref": "categories/adapter.schema.json"
-      }
-    }
+    {"if": {"properties": {"status": {"const": "discontinued"}}}, "else": {"not": {"required": ["superseded_by"]}}},
+    {"if": {"properties": {"category": {"const": "servo_motor"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?servo_motor\\."}}}},
+    {"if": {"properties": {"category": {"const": "reducer"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?reducer\\."}}}},
+    {"if": {"properties": {"category": {"const": "drive"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?drive\\."}}}},
+    {"if": {"properties": {"category": {"const": "bearing"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?bearing\\."}}}},
+    {"if": {"properties": {"category": {"const": "adapter"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?adapter\\."}}}},
+    {"if": {"properties": {"category": {"const": "fastener"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?fastener\\."}}}},
+    {"if": {"properties": {"category": {"const": "servo_motor"}}, "required": ["category"]}, "then": {"$ref": "categories/servo_motor.schema.json"}},
+    {"if": {"properties": {"category": {"const": "reducer"}}, "required": ["category"]}, "then": {"$ref": "categories/reducer.schema.json"}},
+    {"if": {"properties": {"category": {"const": "drive"}}, "required": ["category"]}, "then": {"$ref": "categories/drive.schema.json"}},
+    {"if": {"properties": {"category": {"const": "bearing"}}, "required": ["category"]}, "then": {"$ref": "categories/bearing.schema.json"}},
+    {"if": {"properties": {"category": {"const": "adapter"}}, "required": ["category"]}, "then": {"$ref": "categories/adapter.schema.json"}}
   ],
   "$defs": {
     "envelope": {
       "type": "object",
       "description": "包络：由一个或多个圆柱、长方体组成。坐标原点在安装法兰面中心，z 轴指向输出方向；各部分沿 z 轴从 z_start_mm 起延伸。",
       "properties": {
-        "parts": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/$defs/envelope_part"
-          }
-        }
+        "parts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/envelope_part"}}
       },
-      "required": [
-        "parts"
-      ],
+      "required": ["parts"],
       "additionalProperties": false
     },
     "envelope_part": {
       "type": "object",
       "properties": {
-        "shape": {
-          "enum": [
-            "cylinder",
-            "box"
-          ]
-        },
-        "z_start_mm": {
-          "type": "number",
-          "description": "该部分起点在 z 轴上的位置（可为负，表示在法兰面之后）"
-        },
-        "length_mm": {
-          "$ref": "common/param-value.schema.json#/$defs/number"
-        },
-        "diameter_mm": {
-          "$ref": "common/param-value.schema.json#/$defs/number"
-        },
-        "width_mm": {
-          "$ref": "common/param-value.schema.json#/$defs/number"
-        },
-        "height_mm": {
-          "$ref": "common/param-value.schema.json#/$defs/number"
-        },
-        "label": {
-          "type": "string",
-          "description": "如 flange、body、brake"
-        }
+        "shape": {"enum": ["cylinder", "box"]},
+        "z_start_mm": {"type": "number", "description": "该部分起点在 z 轴上的位置（可为负，表示在法兰面之后）"},
+        "length_mm": {"$ref": "common/param-value.schema.json#/$defs/number"},
+        "diameter_mm": {"$ref": "common/param-value.schema.json#/$defs/number"},
+        "width_mm": {"$ref": "common/param-value.schema.json#/$defs/number"},
+        "height_mm": {"$ref": "common/param-value.schema.json#/$defs/number"},
+        "label": {"type": "string", "description": "如 flange、body、brake"}
       },
-      "required": [
-        "shape",
-        "z_start_mm",
-        "length_mm"
-      ],
+      "required": ["shape", "z_start_mm", "length_mm"],
       "additionalProperties": false,
-      "if": {
-        "properties": {
-          "shape": {
-            "const": "cylinder"
-          }
-        }
-      },
-      "then": {
-        "required": [
-          "diameter_mm"
-        ],
-        "not": {
-          "anyOf": [
-            {
-              "required": [
-                "width_mm"
-              ]
-            },
-            {
-              "required": [
-                "height_mm"
-              ]
-            }
-          ]
-        }
-      },
-      "else": {
-        "required": [
-          "width_mm",
-          "height_mm"
-        ],
-        "not": {
-          "required": [
-            "diameter_mm"
-          ]
-        }
-      }
+      "if": {"properties": {"shape": {"const": "cylinder"}}},
+      "then": {"required": ["diameter_mm"], "not": {"anyOf": [{"required": ["width_mm"]}, {"required": ["height_mm"]}]}},
+      "else": {"required": ["width_mm", "height_mm"], "not": {"required": ["diameter_mm"]}}
     }
   }
 }

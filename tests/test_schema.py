@@ -160,3 +160,10 @@ def test_each_category_has_valid_and_invalid_samples(path: Path):
 
     assert category in categories("valid")
     assert category in categories("invalid")
+
+
+@pytest.mark.parametrize("path", CATEGORY_FILES, ids=lambda p: p.stem)
+def test_key_fields_are_declared_params(path: Path):
+    schema = _load(path)
+    declared = set(schema["properties"]["params"]["properties"])
+    assert set(schema["x-key-fields"]) <= declared

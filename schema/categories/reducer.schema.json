@@ -2,8 +2,18 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/categories/reducer.schema.json",
   "title": "品类：减速器（整机型）（reducer）",
-  "description": "由 component.schema.json 按 category 引用。约束该品类的参数名（只允许列出的必填与选填参数）和必须具备的标准端口；接口数据只放在端口里，不在参数表重复（ADR-0014）。",
+  "description": "由 component.schema.json 按 category 引用。约束该品类的参数名（只允许列出的必填与选填参数）和必须具备的标准端口；接口数据只放在端口里，不在参数表重复（ADR-0014）。x-key-fields 列出关键参数：缺失时组件仍可入库，但进入复核，相关校验结果为 unknown。",
   "type": "object",
+  "x-key-fields": [
+    "reducer_kind",
+    "ratio",
+    "rated_torque_nm",
+    "repeated_peak_torque_nm",
+    "momentary_max_torque_nm",
+    "max_input_speed_rpm",
+    "efficiency_ratio",
+    "mass_kg"
+  ],
   "properties": {
     "params": {
       "type": "object",
@@ -26,12 +36,41 @@
           ]
         },
         "ratio": {
-          "$ref": "../common/param-value.schema.json#/$defs/number",
-          "description": "减速比"
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/number"
+            },
+            {
+              "properties": {
+                "value": {
+                  "exclusiveMinimum": 0
+                },
+                "min": {
+                  "exclusiveMinimum": 0
+                },
+                "max": {
+                  "exclusiveMinimum": 0
+                },
+                "nominal": {
+                  "exclusiveMinimum": 0
+                }
+              }
+            }
+          ],
+          "description": "减速比，须大于 0"
         },
         "rated_torque_nm": {
-          "$ref": "../common/param-value.schema.json#/$defs/number",
-          "description": "须注明工况"
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/number"
+            },
+            {
+              "required": [
+                "condition"
+              ]
+            }
+          ],
+          "description": "须注明工况（condition 必填）"
         },
         "repeated_peak_torque_nm": {
           "$ref": "../common/param-value.schema.json#/$defs/number",
@@ -52,18 +91,30 @@
             {
               "properties": {
                 "value": {
+                  "exclusiveMinimum": 0,
+                  "maximum": 1
+                },
+                "min": {
+                  "exclusiveMinimum": 0,
                   "maximum": 1
                 },
                 "max": {
+                  "exclusiveMinimum": 0,
                   "maximum": 1
                 },
                 "nominal": {
+                  "exclusiveMinimum": 0,
                   "maximum": 1
                 }
               }
+            },
+            {
+              "required": [
+                "condition"
+              ]
             }
           ],
-          "description": "0–1，须注明工况"
+          "description": "0 < η ≤ 1，须注明工况（condition 必填）；公差叠加后的范围由代码校验"
         },
         "mass_kg": {
           "$ref": "../common/param-value.schema.json#/$defs/number"
@@ -94,16 +145,6 @@
           "description": "输出轴承许用倾覆力矩"
         }
       },
-      "required": [
-        "reducer_kind",
-        "ratio",
-        "rated_torque_nm",
-        "repeated_peak_torque_nm",
-        "momentary_max_torque_nm",
-        "max_input_speed_rpm",
-        "efficiency_ratio",
-        "mass_kg"
-      ],
       "additionalProperties": false
     },
     "ports": {

@@ -2,8 +2,17 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/categories/servo_motor.schema.json",
   "title": "品类：伺服电机（servo_motor）",
-  "description": "由 component.schema.json 按 category 引用。约束该品类的参数名（只允许列出的必填与选填参数）和必须具备的标准端口；接口数据只放在端口里，不在参数表重复（ADR-0014）。",
+  "description": "由 component.schema.json 按 category 引用。约束该品类的参数名（只允许列出的必填与选填参数）和必须具备的标准端口；接口数据只放在端口里，不在参数表重复（ADR-0014）。x-key-fields 列出关键参数：缺失时组件仍可入库，但进入复核，相关校验结果为 unknown。",
   "type": "object",
+  "x-key-fields": [
+    "rated_power_w",
+    "rated_torque_nm",
+    "peak_torque_nm",
+    "rated_speed_rpm",
+    "max_speed_rpm",
+    "rotor_inertia_kgm2",
+    "mass_kg"
+  ],
   "properties": {
     "params": {
       "type": "object",
@@ -41,7 +50,7 @@
             {
               "properties": {
                 "value": {
-                  "pattern": "^IP[0-9X]{2}$"
+                  "pattern": "^IP[0-9X][0-9XK]{1,4}$"
                 }
               }
             }
@@ -51,15 +60,6 @@
           "$ref": "../common/param-value.schema.json#/$defs/number"
         }
       },
-      "required": [
-        "rated_power_w",
-        "rated_torque_nm",
-        "peak_torque_nm",
-        "rated_speed_rpm",
-        "max_speed_rpm",
-        "rotor_inertia_kgm2",
-        "mass_kg"
-      ],
       "additionalProperties": false
     },
     "ports": {
@@ -142,6 +142,24 @@
               },
               "dir": {
                 "const": "out"
+              },
+              "spec": {
+                "properties": {
+                  "protocol": {
+                    "properties": {
+                      "value": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "kind": {
+                    "properties": {
+                      "value": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
               }
             },
             "required": [
@@ -150,7 +168,7 @@
               "dir"
             ]
           },
-          "description": "编码器输出"
+          "description": "编码器输出：电机端协议与类型须为单值"
         }
       ]
     }
