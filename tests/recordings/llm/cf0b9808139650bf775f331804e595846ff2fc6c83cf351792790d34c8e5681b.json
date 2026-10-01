@@ -1,0 +1,145 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "cf0b9808139650bf775f331804e595846ff2fc6c83cf351792790d34c8e5681b",
+  "response": {
+    "id": "msg_011CfcLEPRDFvk29u3gGx4xH",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Bearing type",
+          "printed_text": "Angular contact ball bearing",
+          "printed_unit": "",
+          "quote": "Bearing type Angular contact ball bearing",
+          "target": "params/bearing_kind",
+          "value": "angular_contact"
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Width B",
+          "printed_text": "13",
+          "printed_unit": "mm",
+          "quote": "Width B [mm] 13",
+          "target": "params/width_mm",
+          "value": 13
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Basic dynamic load rating Cr",
+          "printed_text": "14800",
+          "printed_unit": "N",
+          "quote": "Basic dynamic load rating Cr [N] 14800",
+          "target": "params/dynamic_load_rating_n",
+          "value": 14800
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Basic static load rating C0r",
+          "printed_text": "9600",
+          "printed_unit": "N",
+          "quote": "Basic static load rating C0r [N] 9600",
+          "target": "params/static_load_rating_n",
+          "value": 9600
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Limiting speed",
+          "printed_text": "14000",
+          "printed_unit": "rpm",
+          "quote": "Limiting speed [rpm] 14000",
+          "target": "params/limiting_speed_rpm",
+          "value": 14000
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Mass",
+          "printed_text": "118",
+          "printed_unit": "g",
+          "quote": "Mass [g] 118",
+          "target": "params/mass_kg",
+          "value": 118
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Bore diameter d",
+          "printed_text": "30",
+          "printed_unit": "mm",
+          "quote": "Bore diameter d [mm] 30",
+          "target": "ports/inner/diameter_mm",
+          "value": 30
+        },
+        {
+          "confidence": 0.7,
+          "page": 1,
+          "printed_label": "Tolerance class",
+          "printed_text": "Class 5 (P5)",
+          "printed_unit": "",
+          "quote": "Tolerance class Class 5 (P5)",
+          "target": "ports/inner/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.8,
+          "page": 1,
+          "printed_label": "Tolerance class",
+          "printed_text": "Class 5 (P5)",
+          "printed_unit": "",
+          "quote": "Tolerance class Class 5 (P5)",
+          "target": "ports/inner/fit",
+          "value": "P5"
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Outside diameter D",
+          "printed_text": "55",
+          "printed_unit": "mm",
+          "quote": "Outside diameter D [mm] 55",
+          "target": "ports/outer/diameter_mm",
+          "value": 55
+        },
+        {
+          "confidence": 0.7,
+          "page": 1,
+          "printed_label": "Tolerance class",
+          "printed_text": "Class 5 (P5)",
+          "printed_unit": "",
+          "quote": "Tolerance class Class 5 (P5)",
+          "target": "ports/outer/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.8,
+          "page": 1,
+          "printed_label": "Tolerance class",
+          "printed_text": "Class 5 (P5)",
+          "printed_unit": "",
+          "quote": "Tolerance class Class 5 (P5)",
+          "target": "ports/outer/fit",
+          "value": "P5"
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Outside diameter D",
+          "printed_text": "55",
+          "printed_unit": "mm",
+          "quote": "Outside diameter D [mm] 55",
+          "target": "dims/outer_diameter_mm",
+          "value": 55
+        }
+      ],
+      "model": "SBA-3055",
+      "vendor": "Synth Bearing"
+    }
+  }
+}

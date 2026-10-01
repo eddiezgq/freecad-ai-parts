@@ -1,0 +1,155 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "9e823d4f5657729019a006059171fe101e22408ec44bbc9b1604fb4e06ba37b6",
+  "response": {
+    "id": "msg_011CfcLF5S1S1KExySEaGXzF",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Width B",
+          "printed_text": "10",
+          "printed_unit": "mm",
+          "quote": "Width B 10 mm",
+          "target": "params/width_mm",
+          "value": 10
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Limiting speed",
+          "printed_text": "2800",
+          "printed_unit": "min⁻¹",
+          "quote": "Limiting speed 2800 min⁻¹",
+          "target": "params/limiting_speed_rpm",
+          "value": 2800
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Allowable moment load",
+          "printed_text": "145",
+          "printed_unit": "Nm",
+          "quote": "Allowable moment load 145 Nm",
+          "target": "params/moment_load_rating_nm",
+          "value": 145
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Bearing type",
+          "printed_text": "Crossed roller bearing",
+          "printed_unit": "",
+          "quote": "Bearing type Crossed roller bearing —",
+          "target": "params/bearing_kind",
+          "value": "cross_roller"
+        },
+        {
+          "confidence": 0.8,
+          "page": 1,
+          "printed_label": "Tolerance class",
+          "printed_text": "P5",
+          "printed_unit": "",
+          "quote": "Tolerance class P5 —",
+          "target": "ports/inner/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.85,
+          "page": 1,
+          "printed_label": "Tolerance class",
+          "printed_text": "P5",
+          "printed_unit": "",
+          "quote": "Tolerance class P5 —",
+          "target": "ports/inner/fit",
+          "value": "P5"
+        },
+        {
+          "confidence": 0.75,
+          "page": 1,
+          "printed_label": "Tolerance class",
+          "printed_text": "P5",
+          "printed_unit": "",
+          "quote": "Tolerance class P5 —",
+          "target": "ports/outer/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.8,
+          "page": 1,
+          "printed_label": "Tolerance class",
+          "printed_text": "P5",
+          "printed_unit": "",
+          "quote": "Tolerance class P5 —",
+          "target": "ports/outer/fit",
+          "value": "P5"
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Weight",
+          "printed_text": "0.125",
+          "printed_unit": "kg",
+          "quote": "Weight 0.125 kg",
+          "target": "params/mass_kg",
+          "value": 0.125
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Dynamic load rating",
+          "printed_text": "6.9",
+          "printed_unit": "kN",
+          "quote": "Dynamic load rating 6.9 kN",
+          "target": "params/dynamic_load_rating_n",
+          "value": 6.9
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Basic static load rating C0r",
+          "printed_text": "8.8",
+          "printed_unit": "kN",
+          "quote": "Basic static load rating C0r 8.8 kN",
+          "target": "params/static_load_rating_n",
+          "value": 8.8
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Outside diameter D",
+          "printed_text": "65",
+          "printed_unit": "mm",
+          "quote": "Outside diameter D 65 mm",
+          "target": "ports/outer/diameter_mm",
+          "value": 65
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Outside diameter D",
+          "printed_text": "65",
+          "printed_unit": "mm",
+          "quote": "Outside diameter D 65 mm",
+          "target": "dims/outer_diameter_mm",
+          "value": 65
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Bore diameter d",
+          "printed_text": "40",
+          "printed_unit": "mm",
+          "quote": "Bore diameter d 40 mm",
+          "target": "ports/inner/diameter_mm",
+          "value": 40
+        }
+      ],
+      "model": "SBX-4065",
+      "vendor": "Synth Bearing"
+    }
+  }
+}

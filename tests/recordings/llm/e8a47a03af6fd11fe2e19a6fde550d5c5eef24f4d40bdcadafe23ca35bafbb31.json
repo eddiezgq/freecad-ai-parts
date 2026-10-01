@@ -1,0 +1,297 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "e8a47a03af6fd11fe2e19a6fde550d5c5eef24f4d40bdcadafe23ca35bafbb31",
+  "response": {
+    "id": "msg_011CfcL3GQjDhcqmGqw3h3KY",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Type",
+          "printed_text": "Strain wave gear",
+          "printed_unit": "",
+          "quote": "Type Strain wave gear",
+          "target": "params/reducer_kind",
+          "value": "harmonic"
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Gear ratio",
+          "printed_text": "i = 50",
+          "printed_unit": "",
+          "quote": "Gear ratio i = 50",
+          "target": "params/ratio",
+          "value": 50
+        },
+        {
+          "condition": "at input speed 2000 rpm",
+          "confidence": 0.93,
+          "page": 1,
+          "printed_label": "Rated torque",
+          "printed_text": "63.22",
+          "printed_unit": "kgf·cm",
+          "quote": "Rated torque (at input speed 2000 rpm) [kgf·cm] 63.22",
+          "target": "params/rated_torque_nm",
+          "value": 63.22
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Allowable peak torque (start/stop)",
+          "printed_text": "214.1",
+          "printed_unit": "kgf·cm",
+          "quote": "Allowable peak torque (start/stop) [kgf·cm] 214.1",
+          "target": "params/repeated_peak_torque_nm",
+          "value": 214.1
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Allowable momentary torque",
+          "printed_text": "418.1",
+          "printed_unit": "kgf·cm",
+          "quote": "Allowable momentary torque [kgf·cm] 418.1",
+          "target": "params/momentary_max_torque_nm",
+          "value": 418.1
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Max. input speed",
+          "printed_text": "8000",
+          "printed_unit": "min⁻¹",
+          "quote": "Max. input speed [min⁻¹] 8000",
+          "target": "params/max_input_speed_rpm",
+          "value": 8000
+        },
+        {
+          "condition": "at rated torque, 25 °C",
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Efficiency",
+          "printed_text": "62",
+          "printed_unit": "%",
+          "quote": "Efficiency (at rated torque, 25 °C) [%] 62",
+          "target": "params/efficiency_ratio",
+          "value": 62
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Weight",
+          "printed_text": "410",
+          "printed_unit": "g",
+          "quote": "Weight [g] 410",
+          "target": "params/mass_kg",
+          "value": 410
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Allowable average input speed",
+          "printed_text": "3200",
+          "printed_unit": "min⁻¹",
+          "quote": "Allowable average input speed [min⁻¹] 3200",
+          "target": "params/avg_input_speed_limit_rpm",
+          "value": 3200
+        },
+        {
+          "confidence": 0.93,
+          "page": 1,
+          "printed_label": "Lost motion",
+          "printed_text": "90",
+          "printed_unit": "arcsec",
+          "quote": "Lost motion [arcsec] 90",
+          "target": "params/lost_motion_arcmin",
+          "value": 90
+        },
+        {
+          "confidence": 0.93,
+          "page": 1,
+          "printed_label": "Torsional stiffness",
+          "printed_text": "5.5",
+          "printed_unit": "kN·m/rad",
+          "quote": "Torsional stiffness [kN·m/rad] 5.5",
+          "target": "params/torsional_stiffness_nm_per_arcmin",
+          "value": 5.5
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Moment of inertia (input side)",
+          "printed_text": "0.0000041",
+          "printed_unit": "kg·m²",
+          "quote": "Moment of inertia (input side) [kg·m²] 0.0000041",
+          "target": "params/input_inertia_kgm2",
+          "value": 4.1e-06
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Input bore diameter",
+          "printed_text": "6",
+          "printed_unit": "mm",
+          "quote": "Input bore diameter [mm] 6",
+          "target": "ports/input_bore/diameter_mm",
+          "value": 6
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Input bore tolerance",
+          "printed_text": "H7",
+          "printed_unit": "",
+          "quote": "Input bore tolerance H7",
+          "target": "ports/input_bore/fit",
+          "value": "H7"
+        },
+        {
+          "confidence": 0.92,
+          "page": 2,
+          "printed_label": "Input bore type",
+          "printed_text": "D-bore",
+          "printed_unit": "",
+          "quote": "Input bore type D-bore",
+          "target": "ports/input_bore/feature",
+          "value": "d_cut"
+        },
+        {
+          "confidence": 0.92,
+          "page": 2,
+          "printed_label": "Input shaft fastening",
+          "printed_text": "Set screw",
+          "printed_unit": "",
+          "quote": "Input shaft fastening Set screw",
+          "target": "ports/input_bore/clamping",
+          "value": "set_screw"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Motor flange PCD",
+          "printed_text": "48",
+          "printed_unit": "mm",
+          "quote": "Motor flange PCD [mm] 48",
+          "target": "ports/motor_flange/pcd_mm",
+          "value": 48
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Motor flange holes",
+          "printed_text": "4",
+          "printed_unit": "",
+          "quote": "Motor flange holes 4",
+          "target": "ports/motor_flange/hole_count",
+          "value": 4
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Motor flange thread",
+          "printed_text": "M3",
+          "printed_unit": "",
+          "quote": "Motor flange thread M3",
+          "target": "ports/motor_flange/thread",
+          "value": "M3"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Motor flange spigot diameter",
+          "printed_text": "32",
+          "printed_unit": "mm",
+          "quote": "Motor flange spigot diameter [mm] 32",
+          "target": "ports/motor_flange/pilot_diameter_mm",
+          "value": 32
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Output flange PCD",
+          "printed_text": "24",
+          "printed_unit": "mm",
+          "quote": "Output flange PCD [mm] 24",
+          "target": "ports/output_flange/pcd_mm",
+          "value": 24
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Output flange holes",
+          "printed_text": "6",
+          "printed_unit": "",
+          "quote": "Output flange holes 6",
+          "target": "ports/output_flange/hole_count",
+          "value": 6
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Output flange thread",
+          "printed_text": "M3",
+          "printed_unit": "",
+          "quote": "Output flange thread M3",
+          "target": "ports/output_flange/thread",
+          "value": "M3"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Housing mounting PCD",
+          "printed_text": "66",
+          "printed_unit": "mm",
+          "quote": "Housing mounting PCD [mm] 66",
+          "target": "ports/housing_mount/pcd_mm",
+          "value": 66
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Housing mounting holes",
+          "printed_text": "8",
+          "printed_unit": "",
+          "quote": "Housing mounting holes 8",
+          "target": "ports/housing_mount/hole_count",
+          "value": 8
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Housing mounting hole diameter",
+          "printed_text": "3.4",
+          "printed_unit": "mm",
+          "quote": "Housing mounting hole diameter [mm] 3.4",
+          "target": "ports/housing_mount/hole_diameter_mm",
+          "value": 3.4
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Overall length",
+          "printed_text": "39",
+          "printed_unit": "mm",
+          "quote": "Overall length [mm] 39",
+          "target": "dims/overall_length_mm",
+          "value": 39
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Outer diameter",
+          "printed_text": "72",
+          "printed_unit": "mm",
+          "quote": "Outer diameter [mm] 72",
+          "target": "dims/outer_diameter_mm",
+          "value": 72
+        }
+      ],
+      "model": "SGH-11-50",
+      "vendor": "Synth Gear"
+    }
+  }
+}

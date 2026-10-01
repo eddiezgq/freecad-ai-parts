@@ -1,0 +1,145 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "7eed13f54c8999dd524d2271bad8fc6d452424674c7d71b1247b46b19542a2a8",
+  "response": {
+    "id": "msg_011CfcLFYArKYZVfNZ3Q1DKH",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.98,
+          "page": 1,
+          "printed_label": "Bearing type",
+          "printed_text": "Tapered roller bearing",
+          "printed_unit": "",
+          "quote": "Bearing type Tapered roller bearing",
+          "target": "params/bearing_kind",
+          "value": "tapered_roller"
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Width B [mm]",
+          "printed_text": "16.25",
+          "printed_unit": "mm",
+          "quote": "Width B [mm] 16.25",
+          "target": "params/width_mm",
+          "value": 16.25
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Dynamic load rating [N]",
+          "printed_text": "30500",
+          "printed_unit": "N",
+          "quote": "Dynamic load rating [N] 30500",
+          "target": "params/dynamic_load_rating_n",
+          "value": 30500
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Basic static load rating C0r [N]",
+          "printed_text": "35500",
+          "printed_unit": "N",
+          "quote": "Basic static load rating C0r [N] 35500",
+          "target": "params/static_load_rating_n",
+          "value": 35500
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Limiting speed [min⁻¹]",
+          "printed_text": "7600",
+          "printed_unit": "min⁻¹",
+          "quote": "Limiting speed [min⁻¹] 7600",
+          "target": "params/limiting_speed_rpm",
+          "value": 7600
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Weight [kg]",
+          "printed_text": "0.155",
+          "printed_unit": "kg",
+          "quote": "Weight [kg] 0.155",
+          "target": "params/mass_kg",
+          "value": 0.155
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Bore diameter d [mm]",
+          "printed_text": "25",
+          "printed_unit": "mm",
+          "quote": "Bore diameter d [mm] 25",
+          "target": "ports/inner/diameter_mm",
+          "value": 25
+        },
+        {
+          "confidence": 0.85,
+          "page": 1,
+          "printed_label": "Tolerance class",
+          "printed_text": "Normal (P0)",
+          "printed_unit": "",
+          "quote": "Tolerance class Normal (P0)",
+          "target": "ports/inner/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Tolerance class",
+          "printed_text": "Normal (P0)",
+          "printed_unit": "",
+          "quote": "Tolerance class Normal (P0)",
+          "target": "ports/inner/fit",
+          "value": "P0"
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Outside diameter D [mm]",
+          "printed_text": "52",
+          "printed_unit": "mm",
+          "quote": "Outside diameter D [mm] 52",
+          "target": "ports/outer/diameter_mm",
+          "value": 52
+        },
+        {
+          "confidence": 0.85,
+          "page": 1,
+          "printed_label": "Tolerance class",
+          "printed_text": "Normal (P0)",
+          "printed_unit": "",
+          "quote": "Tolerance class Normal (P0)",
+          "target": "ports/outer/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Tolerance class",
+          "printed_text": "Normal (P0)",
+          "printed_unit": "",
+          "quote": "Tolerance class Normal (P0)",
+          "target": "ports/outer/fit",
+          "value": "P0"
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Outside diameter D [mm]",
+          "printed_text": "52",
+          "printed_unit": "mm",
+          "quote": "Outside diameter D [mm] 52",
+          "target": "dims/outer_diameter_mm",
+          "value": 52
+        }
+      ],
+      "model": "SBT-2552",
+      "vendor": "Synth Bearing"
+    }
+  }
+}

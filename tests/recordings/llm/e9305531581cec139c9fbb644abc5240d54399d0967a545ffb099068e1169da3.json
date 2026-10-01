@@ -1,0 +1,155 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "e9305531581cec139c9fbb644abc5240d54399d0967a545ffb099068e1169da3",
+  "response": {
+    "id": "msg_011CfcLYsi4KeecPa2gs84r5",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "极限转速",
+          "printed_text": "2800",
+          "printed_unit": "min⁻¹",
+          "quote": "极限转速 2800 min⁻¹",
+          "target": "params/limiting_speed_rpm",
+          "value": 2800
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "宽度 B",
+          "printed_text": "10",
+          "printed_unit": "mm",
+          "quote": "宽度 B 10 mm",
+          "target": "params/width_mm",
+          "value": 10
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "轴承类型",
+          "printed_text": "交叉滚子轴承",
+          "printed_unit": "",
+          "quote": "轴承类型 交叉滚子轴承 —",
+          "target": "params/bearing_kind",
+          "value": "cross_roller"
+        },
+        {
+          "confidence": 0.8,
+          "page": 1,
+          "printed_label": "精度等级",
+          "printed_text": "P5 级",
+          "printed_unit": "",
+          "quote": "精度等级 P5 级 —",
+          "target": "ports/inner/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.85,
+          "page": 1,
+          "printed_label": "精度等级",
+          "printed_text": "P5 级",
+          "printed_unit": "",
+          "quote": "精度等级 P5 级 —",
+          "target": "ports/inner/fit",
+          "value": "P5"
+        },
+        {
+          "confidence": 0.8,
+          "page": 1,
+          "printed_label": "精度等级",
+          "printed_text": "P5 级",
+          "printed_unit": "",
+          "quote": "精度等级 P5 级 —",
+          "target": "ports/outer/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.85,
+          "page": 1,
+          "printed_label": "精度等级",
+          "printed_text": "P5 级",
+          "printed_unit": "",
+          "quote": "精度等级 P5 级 —",
+          "target": "ports/outer/fit",
+          "value": "P5"
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "基本额定静载荷 C0r",
+          "printed_text": "8.8",
+          "printed_unit": "kN",
+          "quote": "基本额定静载荷 C0r 8.8 kN",
+          "target": "params/static_load_rating_n",
+          "value": 8.8
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "质量",
+          "printed_text": "0.125",
+          "printed_unit": "kg",
+          "quote": "质量 0.125 kg",
+          "target": "params/mass_kg",
+          "value": 0.125
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "内径 d",
+          "printed_text": "40",
+          "printed_unit": "mm",
+          "quote": "内径 d 40 mm",
+          "target": "ports/inner/diameter_mm",
+          "value": 40
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "额定动载荷",
+          "printed_text": "6.9",
+          "printed_unit": "kN",
+          "quote": "额定动载荷 6.9 kN",
+          "target": "params/dynamic_load_rating_n",
+          "value": 6.9
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "许用倾覆力矩",
+          "printed_text": "145",
+          "printed_unit": "Nm",
+          "quote": "许用倾覆力矩 145 Nm",
+          "target": "params/moment_load_rating_nm",
+          "value": 145
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "外径 D",
+          "printed_text": "65",
+          "printed_unit": "mm",
+          "quote": "外径 D 65 mm",
+          "target": "ports/outer/diameter_mm",
+          "value": 65
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "外径 D",
+          "printed_text": "65",
+          "printed_unit": "mm",
+          "quote": "外径 D 65 mm",
+          "target": "dims/outer_diameter_mm",
+          "value": 65
+        }
+      ],
+      "model": "SBX-4065",
+      "vendor": "Synth Bearing"
+    }
+  }
+}

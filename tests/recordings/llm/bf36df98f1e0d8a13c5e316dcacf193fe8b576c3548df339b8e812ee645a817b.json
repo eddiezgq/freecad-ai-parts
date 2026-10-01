@@ -1,0 +1,305 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "bf36df98f1e0d8a13c5e316dcacf193fe8b576c3548df339b8e812ee645a817b",
+  "response": {
+    "id": "msg_011CfcKzftmg8SH6j3r3cyad",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "编码器协议",
+          "printed_text": "EnDat 2.2",
+          "printed_unit": "",
+          "quote": "编码器协议 EnDat 2.2",
+          "target": "ports/encoder/protocol",
+          "value": "endat_2_2"
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "额定输出（W）",
+          "printed_text": "400",
+          "printed_unit": "W",
+          "quote": "额定输出（W） 400",
+          "target": "params/rated_power_w",
+          "value": 400
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "额定转矩（N·m）",
+          "printed_text": "1.27",
+          "printed_unit": "N·m",
+          "quote": "额定转矩（N·m） 1.27",
+          "target": "params/rated_torque_nm",
+          "value": 1.27
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "瞬时最大转矩（N·m）",
+          "printed_text": "3.82",
+          "printed_unit": "N·m",
+          "quote": "瞬时最大转矩（N·m） 3.82",
+          "target": "params/peak_torque_nm",
+          "value": 3.82
+        },
+        {
+          "confidence": 0.93,
+          "page": 1,
+          "printed_label": "额定电流（Arms）",
+          "printed_text": "2.8",
+          "printed_unit": "Arms",
+          "quote": "额定电流（Arms） 2.8",
+          "target": "ports/power_in/rated_current_a",
+          "value": 2.8
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "峰值电流（A）",
+          "printed_text": "8.5",
+          "printed_unit": "A",
+          "quote": "峰值电流（A） 8.5",
+          "target": "ports/power_in/peak_current_a",
+          "value": 8.5
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "电压等级（V）",
+          "printed_text": "200",
+          "printed_unit": "V",
+          "quote": "电压等级（V） 200",
+          "target": "ports/power_in/voltage_class_v",
+          "value": 200
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "转矩常数（N·m/A）",
+          "printed_text": "0.45",
+          "printed_unit": "N·m/A",
+          "quote": "转矩常数（N·m/A） 0.45",
+          "target": "params/torque_constant_nm_per_a",
+          "value": 0.45
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "编码器类型",
+          "printed_text": "绝对值",
+          "printed_unit": "",
+          "quote": "编码器类型 绝对值",
+          "target": "ports/encoder/kind",
+          "value": "absolute"
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "转子惯量（kg·m²）",
+          "printed_text": "0.000029",
+          "printed_unit": "kg·m²",
+          "quote": "转子惯量（kg·m²） 0.000029",
+          "target": "params/rotor_inertia_kgm2",
+          "value": 2.9e-05
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "编码器分辨率（位）",
+          "printed_text": "25",
+          "printed_unit": "位",
+          "quote": "编码器分辨率（位） 25",
+          "target": "ports/encoder/resolution_bits",
+          "value": 25
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "防护等级",
+          "printed_text": "IP67",
+          "printed_unit": "",
+          "quote": "防护等级 IP67",
+          "target": "params/ip_rating",
+          "value": "IP67"
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "保持制动器",
+          "printed_text": "带",
+          "printed_unit": "",
+          "quote": "保持制动器 带",
+          "target": "params/brake",
+          "value": true
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "质量（g）",
+          "printed_text": "1600",
+          "printed_unit": "g",
+          "quote": "质量（g） 1600",
+          "target": "params/mass_kg",
+          "value": 1600
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "额定转速（rpm）",
+          "printed_text": "3000",
+          "printed_unit": "rpm",
+          "quote": "额定转速（rpm） 3000",
+          "target": "params/rated_speed_rpm",
+          "value": 3000
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "最大转速（rpm）",
+          "printed_text": "6000",
+          "printed_unit": "rpm",
+          "quote": "最大转速（rpm） 6000",
+          "target": "params/max_speed_rpm",
+          "value": 6000
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "安装孔节圆直径（mm）",
+          "printed_text": "70",
+          "printed_unit": "mm",
+          "quote": "安装孔节圆直径（mm） 70",
+          "target": "ports/mount_flange/pcd_mm",
+          "value": 70
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "安装孔数量",
+          "printed_text": "4",
+          "printed_unit": "",
+          "quote": "安装孔数量 4",
+          "target": "ports/mount_flange/hole_count",
+          "value": 4
+        },
+        {
+          "confidence": 0.93,
+          "page": 2,
+          "printed_label": "轴伸长度（mm）",
+          "printed_text": "30",
+          "printed_unit": "mm",
+          "quote": "轴伸长度（mm） 30",
+          "target": "ports/shaft/usable_length_mm",
+          "value": 30
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "止口直径（mm）",
+          "printed_text": "50",
+          "printed_unit": "mm",
+          "quote": "止口直径（mm） 50",
+          "target": "ports/mount_flange/pilot_diameter_mm",
+          "value": 50
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "安装孔类型",
+          "printed_text": "通孔",
+          "printed_unit": "",
+          "quote": "安装孔类型 通孔",
+          "target": "ports/mount_flange/hole_kind",
+          "value": "through"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "键宽（mm）",
+          "printed_text": "5",
+          "printed_unit": "mm",
+          "quote": "键宽（mm） 5",
+          "target": "ports/shaft/key_width_mm",
+          "value": 5
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "法兰尺寸（方）（mm）",
+          "printed_text": "60",
+          "printed_unit": "mm",
+          "quote": "法兰尺寸（方）（mm） 60",
+          "target": "ports/mount_flange/square_size_mm",
+          "value": 60
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "法兰尺寸（方）（mm）",
+          "printed_text": "60",
+          "printed_unit": "mm",
+          "quote": "法兰尺寸（方）（mm） 60",
+          "target": "dims/square_mm",
+          "value": 60
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "轴公差",
+          "printed_text": "h6",
+          "printed_unit": "",
+          "quote": "轴公差 h6",
+          "target": "ports/shaft/fit",
+          "value": "h6"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "机身长度（不含轴）（mm）",
+          "printed_text": "140",
+          "printed_unit": "mm",
+          "quote": "机身长度（不含轴）（mm） 140",
+          "target": "dims/body_length_mm",
+          "value": 140
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "输出轴直径（mm）",
+          "printed_text": "14",
+          "printed_unit": "mm",
+          "quote": "输出轴直径（mm） 14",
+          "target": "ports/shaft/diameter_mm",
+          "value": 14
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "轴端形式",
+          "printed_text": "带键",
+          "printed_unit": "",
+          "quote": "轴端形式 带键",
+          "target": "ports/shaft/feature",
+          "value": "keyed"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "安装孔直径（mm）",
+          "printed_text": "5.5",
+          "printed_unit": "mm",
+          "quote": "安装孔直径（mm） 5.5",
+          "target": "ports/mount_flange/hole_diameter_mm",
+          "value": 5.5
+        }
+      ],
+      "model": "SM400B",
+      "vendor": "Synth Motion"
+    }
+  }
+}

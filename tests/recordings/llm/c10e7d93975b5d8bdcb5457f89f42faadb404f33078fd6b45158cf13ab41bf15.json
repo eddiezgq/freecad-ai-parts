@@ -1,0 +1,327 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "c10e7d93975b5d8bdcb5457f89f42faadb404f33078fd6b45158cf13ab41bf15",
+  "response": {
+    "id": "msg_011CfcL5RPmdGKqxUYkWcg9d",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "类型",
+          "printed_text": "谐波",
+          "printed_unit": "",
+          "quote": "类型 谐波",
+          "target": "params/reducer_kind",
+          "value": "harmonic"
+        },
+        {
+          "confidence": 0.98,
+          "page": 1,
+          "printed_label": "减速比",
+          "printed_text": "120",
+          "printed_unit": "",
+          "quote": "减速比 120",
+          "target": "params/ratio",
+          "value": 120
+        },
+        {
+          "condition": "输入转速 2000 r/min 时",
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "额定扭矩",
+          "printed_text": "37",
+          "printed_unit": "N·m",
+          "quote": "额定扭矩（输入转速 2000 r/min 时）（N·m） 37",
+          "target": "params/rated_torque_nm",
+          "value": 37
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "启停允许峰值扭矩",
+          "printed_text": "69",
+          "printed_unit": "N·m",
+          "quote": "启停允许峰值扭矩（N·m） 69",
+          "target": "params/repeated_peak_torque_nm",
+          "value": 69
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "瞬时最大扭矩",
+          "printed_text": "121",
+          "printed_unit": "N·m",
+          "quote": "瞬时最大扭矩（N·m） 121",
+          "target": "params/momentary_max_torque_nm",
+          "value": 121
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "最高输入转速",
+          "printed_text": "6200",
+          "printed_unit": "rpm",
+          "quote": "最高输入转速（rpm） 6200",
+          "target": "params/max_input_speed_rpm",
+          "value": 6200
+        },
+        {
+          "condition": "额定扭矩、25 °C 时",
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "效率",
+          "printed_text": "63",
+          "printed_unit": "%",
+          "quote": "效率（额定扭矩、25 °C 时）（%） 63",
+          "target": "params/efficiency_ratio",
+          "value": 63
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "重量",
+          "printed_text": "0.97",
+          "printed_unit": "kg",
+          "quote": "重量（kg） 0.97",
+          "target": "params/mass_kg",
+          "value": 0.97
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "平均输入转速限制",
+          "printed_text": "3200",
+          "printed_unit": "rpm",
+          "quote": "平均输入转速限制（rpm） 3200",
+          "target": "params/avg_input_speed_limit_rpm",
+          "value": 3200
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "空程",
+          "printed_text": "1.2",
+          "printed_unit": "arcmin",
+          "quote": "空程（arcmin） 1.2",
+          "target": "params/lost_motion_arcmin",
+          "value": 1.2
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "扭转刚度",
+          "printed_text": "6.1",
+          "printed_unit": "N·m/arcmin",
+          "quote": "扭转刚度（N·m/arcmin） 6.1",
+          "target": "params/torsional_stiffness_nm_per_arcmin",
+          "value": 6.1
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "输入侧转动惯量",
+          "printed_text": "0.22",
+          "printed_unit": "kg·cm²",
+          "quote": "输入侧转动惯量（kg·cm²） 0.22",
+          "target": "params/input_inertia_kgm2",
+          "value": 0.22
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "输出轴承额定动载荷",
+          "printed_text": "15.8",
+          "printed_unit": "kN",
+          "quote": "输出轴承额定动载荷（kN） 15.8",
+          "target": "params/output_bearing_dynamic_load_rating_n",
+          "value": 15.8
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "输出轴承许用倾覆力矩",
+          "printed_text": "205",
+          "printed_unit": "N·m",
+          "quote": "输出轴承许用倾覆力矩（N·m） 205",
+          "target": "params/output_bearing_moment_load_rating_nm",
+          "value": 205
+        },
+        {
+          "confidence": 0.97,
+          "page": 2,
+          "printed_label": "电机法兰分布圆直径",
+          "printed_text": "70",
+          "printed_unit": "mm",
+          "quote": "电机法兰分布圆直径（mm） 70",
+          "target": "ports/motor_flange/pcd_mm",
+          "value": 70
+        },
+        {
+          "confidence": 0.97,
+          "page": 2,
+          "printed_label": "输出法兰分布圆直径",
+          "printed_text": "38",
+          "printed_unit": "mm",
+          "quote": "输出法兰分布圆直径（mm） 38",
+          "target": "ports/output_flange/pcd_mm",
+          "value": 38
+        },
+        {
+          "confidence": 0.97,
+          "page": 2,
+          "printed_label": "输入孔径",
+          "printed_text": "11",
+          "printed_unit": "mm",
+          "quote": "输入孔径（mm） 11",
+          "target": "ports/input_bore/diameter_mm",
+          "value": 11
+        },
+        {
+          "confidence": 0.97,
+          "page": 2,
+          "printed_label": "输出法兰孔数",
+          "printed_text": "8",
+          "printed_unit": "",
+          "quote": "输出法兰孔数 8",
+          "target": "ports/output_flange/hole_count",
+          "value": 8
+        },
+        {
+          "confidence": 0.97,
+          "page": 2,
+          "printed_label": "输出法兰螺纹",
+          "printed_text": "M4",
+          "printed_unit": "",
+          "quote": "输出法兰螺纹 M4",
+          "target": "ports/output_flange/thread",
+          "value": "M4"
+        },
+        {
+          "confidence": 0.97,
+          "page": 2,
+          "printed_label": "壳体安装孔分布圆直径",
+          "printed_text": "86",
+          "printed_unit": "mm",
+          "quote": "壳体安装孔分布圆直径（mm） 86",
+          "target": "ports/housing_mount/pcd_mm",
+          "value": 86
+        },
+        {
+          "confidence": 0.97,
+          "page": 2,
+          "printed_label": "壳体安装孔数",
+          "printed_text": "12",
+          "printed_unit": "",
+          "quote": "壳体安装孔数 12",
+          "target": "ports/housing_mount/hole_count",
+          "value": 12
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "输入轴紧固方式",
+          "printed_text": "平键",
+          "printed_unit": "",
+          "quote": "输入轴紧固方式 平键",
+          "target": "ports/input_bore/clamping",
+          "value": "key"
+        },
+        {
+          "confidence": 0.97,
+          "page": 2,
+          "printed_label": "键槽宽",
+          "printed_text": "4",
+          "printed_unit": "mm",
+          "quote": "键槽宽（mm） 4",
+          "target": "ports/input_bore/key_width_mm",
+          "value": 4
+        },
+        {
+          "confidence": 0.97,
+          "page": 2,
+          "printed_label": "电机法兰螺纹",
+          "printed_text": "M5",
+          "printed_unit": "",
+          "quote": "电机法兰螺纹 M5",
+          "target": "ports/motor_flange/thread",
+          "value": "M5"
+        },
+        {
+          "confidence": 0.97,
+          "page": 2,
+          "printed_label": "电机法兰止口直径",
+          "printed_text": "50",
+          "printed_unit": "mm",
+          "quote": "电机法兰止口直径（mm） 50",
+          "target": "ports/motor_flange/pilot_diameter_mm",
+          "value": 50
+        },
+        {
+          "confidence": 0.97,
+          "page": 2,
+          "printed_label": "总长",
+          "printed_text": "49",
+          "printed_unit": "mm",
+          "quote": "总长（mm） 49",
+          "target": "dims/overall_length_mm",
+          "value": 49
+        },
+        {
+          "confidence": 0.97,
+          "page": 2,
+          "printed_label": "输入孔公差",
+          "printed_text": "H7",
+          "printed_unit": "",
+          "quote": "输入孔公差 H7",
+          "target": "ports/input_bore/fit",
+          "value": "H7"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "输入孔形式",
+          "printed_text": "带键槽",
+          "printed_unit": "",
+          "quote": "输入孔形式 带键槽",
+          "target": "ports/input_bore/feature",
+          "value": "keyed"
+        },
+        {
+          "confidence": 0.97,
+          "page": 2,
+          "printed_label": "电机法兰孔数",
+          "printed_text": "4",
+          "printed_unit": "",
+          "quote": "电机法兰孔数 4",
+          "target": "ports/motor_flange/hole_count",
+          "value": 4
+        },
+        {
+          "confidence": 0.97,
+          "page": 2,
+          "printed_label": "外径",
+          "printed_text": "94",
+          "printed_unit": "mm",
+          "quote": "外径（mm） 94",
+          "target": "dims/outer_diameter_mm",
+          "value": 94
+        },
+        {
+          "confidence": 0.97,
+          "page": 2,
+          "printed_label": "壳体安装孔直径",
+          "printed_text": "3.4",
+          "printed_unit": "mm",
+          "quote": "壳体安装孔直径（mm） 3.4",
+          "target": "ports/housing_mount/hole_diameter_mm",
+          "value": 3.4
+        }
+      ],
+      "model": "SGH-15-120",
+      "vendor": "Synth Gear"
+    }
+  }
+}

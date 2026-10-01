@@ -1,0 +1,155 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "d7981aa2ce53ecac738546acecb84f083c3354d7edd01848bef78ac0e8f875e1",
+  "response": {
+    "id": "msg_011CfcLDPinjLcpV2dsct5m4",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Bearing type",
+          "printed_text": "Deep groove ball bearing",
+          "printed_unit": "",
+          "quote": "Bearing type Deep groove ball bearing",
+          "target": "params/bearing_kind",
+          "value": "deep_groove"
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Basic dynamic load rating Cr",
+          "printed_text": "927.9",
+          "printed_unit": "kgf",
+          "quote": "Basic dynamic load rating Cr [kgf] 927.9",
+          "target": "params/dynamic_load_rating_n",
+          "value": 927.9
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Bore diameter d",
+          "printed_text": "20",
+          "printed_unit": "mm",
+          "quote": "Bore diameter d [mm] 20",
+          "target": "ports/inner/diameter_mm",
+          "value": 20
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Weight",
+          "printed_text": "0.072",
+          "printed_unit": "kg",
+          "quote": "Weight [kg] 0.072",
+          "target": "params/mass_kg",
+          "value": 0.072
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Precision class",
+          "printed_text": "Normal (P0)",
+          "printed_unit": "",
+          "quote": "Precision class Normal (P0)",
+          "target": "ports/inner/fit",
+          "value": "P0"
+        },
+        {
+          "confidence": 0.85,
+          "page": 1,
+          "printed_label": "Precision class",
+          "printed_text": "Normal (P0)",
+          "printed_unit": "",
+          "quote": "Precision class Normal (P0)",
+          "target": "ports/inner/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.85,
+          "page": 1,
+          "printed_label": "Precision class",
+          "printed_text": "Normal (P0)",
+          "printed_unit": "",
+          "quote": "Precision class Normal (P0)",
+          "target": "ports/outer/fit",
+          "value": "P0"
+        },
+        {
+          "confidence": 0.85,
+          "page": 1,
+          "printed_label": "Precision class",
+          "printed_text": "Normal (P0)",
+          "printed_unit": "",
+          "quote": "Precision class Normal (P0)",
+          "target": "ports/outer/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Limiting speed",
+          "printed_text": "12500",
+          "printed_unit": "min⁻¹",
+          "quote": "Limiting speed [min⁻¹] 12500",
+          "target": "params/limiting_speed_rpm",
+          "value": 12500
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Outside diameter D",
+          "printed_text": "42",
+          "printed_unit": "mm",
+          "quote": "Outside diameter D [mm] 42",
+          "target": "ports/outer/diameter_mm",
+          "value": 42
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Outside diameter D",
+          "printed_text": "42",
+          "printed_unit": "mm",
+          "quote": "Outside diameter D [mm] 42",
+          "target": "dims/outer_diameter_mm",
+          "value": 42
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "Width B",
+          "printed_text": "12",
+          "printed_unit": "mm",
+          "quote": "Width B [mm] 12",
+          "target": "params/width_mm",
+          "value": 12
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Seal / shield",
+          "printed_text": "2RS",
+          "printed_unit": "",
+          "quote": "Seal / shield 2RS",
+          "target": "params/seal",
+          "value": "2RS"
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Basic static load rating C0r",
+          "printed_text": "489.5",
+          "printed_unit": "kgf",
+          "quote": "Basic static load rating C0r [kgf] 489.5",
+          "target": "params/static_load_rating_n",
+          "value": 489.5
+        }
+      ],
+      "model": "SB-2042-RS",
+      "vendor": "Synth Bearing"
+    }
+  }
+}

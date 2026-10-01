@@ -1,0 +1,242 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "f295cb3fe92d2ba84ed0e2043a027b526f2f12045c761da10fc8c6c07b8c070f",
+  "response": {
+    "id": "msg_011CfcLCeU35zX6848uX77GS",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "额定输出电流（A）",
+          "printed_text": "6.5",
+          "printed_unit": "A",
+          "quote": "额定输出电流（A） 6.5",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 6.5
+        },
+        {
+          "confidence": 0.93,
+          "page": 1,
+          "printed_label": "支持的编码器",
+          "printed_text": "ABZ 增量, BiSS C",
+          "printed_unit": "",
+          "quote": "支持的编码器 ABZ 增量, BiSS C",
+          "target": "ports/encoder_in/protocol",
+          "value": [
+            "incremental_abz",
+            "biss_c"
+          ]
+        },
+        {
+          "confidence": 0.8,
+          "page": 1,
+          "printed_label": "支持的编码器",
+          "printed_text": "ABZ 增量, BiSS C",
+          "printed_unit": "",
+          "quote": "支持的编码器 ABZ 增量, BiSS C",
+          "target": "ports/encoder_in/kind",
+          "value": [
+            "incremental",
+            "absolute"
+          ]
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "峰值输出电流（A(0-p)）",
+          "printed_text": "28.28",
+          "printed_unit": "A(0-p)",
+          "quote": "峰值输出电流（A(0-p)） 28.28",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 28.28
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "适配电机电压等级（V）",
+          "printed_text": "48",
+          "printed_unit": "V",
+          "quote": "适配电机电压等级（V） 48",
+          "target": "ports/motor_out/voltage_class_v",
+          "value": 48
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "适配电机功率（W）",
+          "printed_text": "300",
+          "printed_unit": "W",
+          "quote": "适配电机功率（W） 300",
+          "target": "params/rated_output_power_w",
+          "value": 300
+        },
+        {
+          "confidence": 0.93,
+          "page": 1,
+          "printed_label": "重量（g）",
+          "printed_text": "250",
+          "printed_unit": "g",
+          "quote": "重量（g） 250",
+          "target": "params/mass_kg",
+          "value": 250
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "安全功能",
+          "printed_text": "STO",
+          "printed_unit": "",
+          "quote": "安全功能 STO",
+          "target": "params/safety_functions",
+          "value": "STO"
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "电源类型",
+          "printed_text": "直流",
+          "printed_unit": "",
+          "quote": "电源类型 直流",
+          "target": "ports/power_in/current_type",
+          "value": "dc"
+        },
+        {
+          "confidence": 0.85,
+          "page": 1,
+          "printed_label": "电源类型",
+          "printed_text": "直流",
+          "printed_unit": "",
+          "quote": "电源类型 直流",
+          "target": "ports/power_in/phases",
+          "value": 0
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "设备行规",
+          "printed_text": "CiA 402",
+          "printed_unit": "",
+          "quote": "设备行规 CiA 402",
+          "target": "ports/bus/profile",
+          "value": "cia402"
+        },
+        {
+          "confidence": 0.93,
+          "max": 60,
+          "min": 24,
+          "page": 1,
+          "printed_label": "输入电压（V）",
+          "printed_text": "24 ~ 60",
+          "printed_unit": "V",
+          "quote": "输入电压（V） 24 ~ 60",
+          "target": "ports/power_in/voltage_v"
+        },
+        {
+          "confidence": 0.97,
+          "page": 1,
+          "printed_label": "通信总线",
+          "printed_text": "CANopen",
+          "printed_unit": "",
+          "quote": "通信总线 CANopen",
+          "target": "ports/bus/protocol",
+          "value": "canopen"
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "额定输入电流（A）",
+          "printed_text": "8",
+          "printed_unit": "A",
+          "quote": "额定输入电流（A） 8",
+          "target": "ports/power_in/rated_current_a",
+          "value": 8
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "安装孔直径（mm）",
+          "printed_text": "4.5",
+          "printed_unit": "mm",
+          "quote": "安装孔直径（mm） 4.5",
+          "target": "ports/mount/hole_diameter_mm",
+          "value": 4.5
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "安装孔垂直间距（mm）",
+          "printed_text": "90",
+          "printed_unit": "mm",
+          "quote": "安装孔垂直间距（mm） 90",
+          "target": "ports/mount/pitch_y_mm",
+          "value": 90
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "安装孔数量",
+          "printed_text": "4",
+          "printed_unit": "",
+          "quote": "安装孔数量 4",
+          "target": "ports/mount/hole_count",
+          "value": 4
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "深度（mm）",
+          "printed_text": "30",
+          "printed_unit": "mm",
+          "quote": "深度（mm） 30",
+          "target": "dims/depth_mm",
+          "value": 30
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "高度（mm）",
+          "printed_text": "100",
+          "printed_unit": "mm",
+          "quote": "高度（mm） 100",
+          "target": "dims/height_mm",
+          "value": 100
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "安装孔水平间距（mm）",
+          "printed_text": "70",
+          "printed_unit": "mm",
+          "quote": "安装孔水平间距（mm） 70",
+          "target": "ports/mount/pitch_x_mm",
+          "value": 70
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "宽度（mm）",
+          "printed_text": "80",
+          "printed_unit": "mm",
+          "quote": "宽度（mm） 80",
+          "target": "dims/width_mm",
+          "value": 80
+        },
+        {
+          "confidence": 0.6,
+          "page": 2,
+          "printed_label": "安装孔水平间距（mm）",
+          "printed_text": "70",
+          "printed_unit": "mm",
+          "quote": "安装孔水平间距（mm） 70",
+          "target": "ports/mount/pattern",
+          "value": "rect"
+        }
+      ],
+      "model": "SD48-20",
+      "vendor": "Synth Motion"
+    }
+  }
+}

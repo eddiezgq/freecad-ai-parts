@@ -1,0 +1,204 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "c030c13dd06222755dd0fff89f970aa4fed8bc4617592ac523a25002795aea94",
+  "response": {
+    "id": "msg_011CfcLBmUwGGEFD4Va1sXLP",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Fieldbus",
+          "printed_text": "PROFINET",
+          "printed_unit": "",
+          "quote": "Fieldbus PROFINET —",
+          "target": "ports/bus/protocol",
+          "value": "profinet"
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Weight",
+          "printed_text": "1400",
+          "printed_unit": "g",
+          "quote": "Weight 1400 g",
+          "target": "params/mass_kg",
+          "value": 1400
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Motor voltage class",
+          "printed_text": "200",
+          "printed_unit": "V",
+          "quote": "Motor voltage class 200 V",
+          "target": "ports/motor_out/voltage_class_v",
+          "value": 200
+        },
+        {
+          "confidence": 0.93,
+          "page": 1,
+          "printed_label": "Rated input current",
+          "printed_text": "4.1",
+          "printed_unit": "Arms",
+          "quote": "Rated input current 4.1 Arms",
+          "target": "ports/power_in/rated_current_a",
+          "value": 4.1
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Input phases",
+          "printed_text": "Three-phase",
+          "printed_unit": "",
+          "quote": "Input phases Three-phase —",
+          "target": "ports/power_in/phases",
+          "value": 3
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Safety functions",
+          "printed_text": "STO / SS1",
+          "printed_unit": "",
+          "quote": "Safety functions STO / SS1 —",
+          "target": "params/safety_functions",
+          "value": [
+            "STO",
+            "SS1"
+          ]
+        },
+        {
+          "confidence": 0.93,
+          "max": 240,
+          "min": 200,
+          "page": 1,
+          "printed_label": "Input voltage",
+          "printed_text": "200–240",
+          "printed_unit": "V",
+          "quote": "Input voltage 200–240 V",
+          "target": "ports/power_in/voltage_v"
+        },
+        {
+          "confidence": 0.93,
+          "max": 60,
+          "min": 50,
+          "page": 1,
+          "printed_label": "Input frequency",
+          "printed_text": "50 ~ 60",
+          "printed_unit": "Hz",
+          "quote": "Input frequency 50 ~ 60 Hz",
+          "target": "ports/power_in/frequency_hz"
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Power supply",
+          "printed_text": "AC",
+          "printed_unit": "",
+          "quote": "Power supply AC —",
+          "target": "ports/power_in/current_type",
+          "value": "ac"
+        },
+        {
+          "confidence": 0.8,
+          "page": 1,
+          "printed_label": "Applicable motor power",
+          "printed_text": "0.75",
+          "printed_unit": "kW",
+          "quote": "Applicable motor power 0.75 kW",
+          "target": "params/rated_output_power_w",
+          "value": 0.75
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Continuous output current",
+          "printed_text": "5",
+          "printed_unit": "Arms",
+          "quote": "Continuous output current 5 Arms",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 5
+        },
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Supported encoders",
+          "printed_text": "BiSS C, EnDat 2.2, SSI",
+          "printed_unit": "",
+          "quote": "Supported encoders BiSS C, EnDat 2.2, SSI —",
+          "target": "ports/encoder_in/protocol",
+          "value": [
+            "biss_c",
+            "endat_2_2",
+            "ssi"
+          ]
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Max. output current",
+          "printed_text": "15",
+          "printed_unit": "A",
+          "quote": "Max. output current 15 A",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 15
+        },
+        {
+          "confidence": 0.93,
+          "page": 2,
+          "printed_label": "Number of mounting holes",
+          "printed_text": "2",
+          "printed_unit": "",
+          "quote": "Number of mounting holes 2 —",
+          "target": "ports/mount/hole_count",
+          "value": 2
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Depth",
+          "printed_text": "170",
+          "printed_unit": "mm",
+          "quote": "Depth 170 mm",
+          "target": "dims/depth_mm",
+          "value": 170
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Mounting hole diameter",
+          "printed_text": "5.5",
+          "printed_unit": "mm",
+          "quote": "Mounting hole diameter 5.5 mm",
+          "target": "ports/mount/hole_diameter_mm",
+          "value": 5.5
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Width",
+          "printed_text": "70",
+          "printed_unit": "mm",
+          "quote": "Width 70 mm",
+          "target": "dims/width_mm",
+          "value": 70
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Height",
+          "printed_text": "160",
+          "printed_unit": "mm",
+          "quote": "Height 160 mm",
+          "target": "dims/height_mm",
+          "value": 160
+        }
+      ],
+      "model": "SD750",
+      "vendor": "Synth Motion"
+    }
+  }
+}
