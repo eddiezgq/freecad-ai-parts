@@ -261,6 +261,27 @@ def test_real_bridge_end_to_end(gui, tmp_path, monkeypatch):
             assert stat.S_IMODE(path.stat().st_mode) == 0o600
         client = GuiBridgeClient(path=path)
         assert _in_thread(gui, lambda: client.call("ping")) == {"freecad": "1.0.2"}
+        # 非 ASCII 令牌、非法 UTF-8、超长请求都给出错误而不是让连接线程崩溃（#104 评审）
+        from freecad_addon.fc import bridge as bridge_mod
+
+        def raw_exchange(payload: bytes) -> dict:
+            with socket.create_connection(("127.0.0.1", bridge.port), timeout=10) as s:
+                s.sendall(payload)
+                f = s.makefile("r", encoding="utf-8")
+                for line in f:
+                    if line.startswith(PREFIX):
+                        return json.loads(line[len(PREFIX):])
+            return {}
+
+        assert _in_thread(gui, lambda: raw_exchange(
+            (json.dumps({"id": 1, "method": "ping", "token": "令牌"}) + "\n").encode()))["error"]["kind"] == "auth"
+        assert _in_thread(gui, lambda: raw_exchange(b"\xff\xfe\n"))["error"]["kind"] == "input"
+        saved = bridge_mod.MAX_LINE
+        bridge_mod.MAX_LINE = 64
+        try:
+            assert "超过" in _in_thread(gui, lambda: raw_exchange(b"x" * 200 + b"\n"))["error"]["message"]
+        finally:
+            bridge_mod.MAX_LINE = saved
         bad = tmp_path / "bad.json"
         bad.write_text(json.dumps({**info, "token": "0" * 32}))
         with pytest.raises(WorkerError, match="令牌"):

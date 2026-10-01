@@ -23,25 +23,44 @@ class _Handler(socketserver.StreamRequestHandler):
         from freecad_addon.fc.worker import handle as dispatch
 
         bridge: Bridge = self.server.bridge  # type: ignore[attr-defined]
-        for raw in self.rfile:
-            line = raw.decode("utf-8").strip()
-            if not line:
-                continue
+        while True:
+            raw = self.rfile.readline(MAX_LINE + 1)
+            if not raw:
+                return
+            if len(raw) > MAX_LINE:
+                self._reply({"id": None, "error": {"kind": "input", "message": f"请求超过 {MAX_LINE} 字节，连接关闭"}})
+                return
             try:
-                req = json.loads(line)
-            except json.JSONDecodeError as exc:
-                resp = {"id": None, "error": {"kind": "input", "message": f"请求不是合法 JSON：{exc}"}}
+                line = raw.decode("utf-8").strip()
+                req = json.loads(line) if line else None
+            except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+                self._reply({"id": None, "error": {"kind": "input", "message": f"请求不是合法的 UTF-8 JSON：{exc}"}})
+                continue
+            if req is None:
+                continue
+            if not isinstance(req, dict) or not _token_ok(req.get("token"), bridge.token):
+                resp = {"id": req.get("id") if isinstance(req, dict) else None,
+                        "error": {"kind": "auth", "message": "令牌不正确"}}
             else:
-                if not isinstance(req, dict) or not secrets.compare_digest(str(req.get("token", "")), bridge.token):
-                    resp = {"id": req.get("id") if isinstance(req, dict) else None,
-                            "error": {"kind": "auth", "message": "令牌不正确"}}
-                else:
-                    try:
-                        resp = bridge.executor.run(dispatch, req, timeout_s=bridge.timeout_s)
-                    except MainThreadTimeout as exc:
-                        resp = {"id": req.get("id"), "error": {"kind": "timeout", "message": str(exc)}}
-            self.wfile.write((PREFIX + json.dumps(resp, ensure_ascii=False) + "\n").encode("utf-8"))
-            self.wfile.flush()
+                try:
+                    resp = bridge.executor.run(dispatch, req, timeout_s=bridge.timeout_s)
+                except MainThreadTimeout as exc:
+                    resp = {"id": req.get("id"), "error": {"kind": "timeout", "message": str(exc)}}
+            self._reply(resp)
+
+    def _reply(self, resp: dict) -> None:
+        self.wfile.write((PREFIX + json.dumps(resp, ensure_ascii=False) + "\n").encode("utf-8"))
+        self.wfile.flush()
+
+
+MAX_LINE = 16 * 1024 * 1024  # 单个请求的上限（场景 JSON 远小于此）
+
+
+def _token_ok(given, expected: str) -> bool:
+    """按字节比较令牌（compare_digest 对非 ASCII 字符串会抛出异常）。"""
+    if not isinstance(given, str):
+        return False
+    return secrets.compare_digest(given.encode("utf-8"), expected.encode("utf-8"))
 
 
 class _Server(socketserver.ThreadingTCPServer):

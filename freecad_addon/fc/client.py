@@ -72,8 +72,10 @@ class HeadlessWorker:
 
     def _start(self) -> None:
         cmd, env = worker_command()
+        # 独立进程组：超时或关闭时连同 xvfb-run 启动的 Xvfb 与 FreeCAD 一起终止（#104 评审）
         self._proc = subprocess.Popen(cmd, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                      stderr=subprocess.DEVNULL, text=True, encoding="utf-8", bufsize=1)
+                                      stderr=subprocess.DEVNULL, text=True, encoding="utf-8", bufsize=1,
+                                      start_new_session=os.name != "nt")
         threading.Thread(target=self._pump, args=(self._proc,), daemon=True).start()
 
     def _pump(self, proc: subprocess.Popen) -> None:
@@ -122,9 +124,26 @@ class HeadlessWorker:
                 proc.stdin.write(json.dumps({"id": 0, "method": "shutdown"}) + "\n")  # type: ignore[union-attr]
                 proc.stdin.flush()  # type: ignore[union-attr]
                 proc.wait(timeout=10)
-        except (OSError, subprocess.TimeoutExpired):
-            proc.kill()
-            proc.wait()
+        except (OSError, ValueError, subprocess.TimeoutExpired):
+            pass
+        _kill_group(proc)
+
+
+def _kill_group(proc: subprocess.Popen) -> None:
+    """终止 worker 的整个进程组（xvfb-run、Xvfb、FreeCAD），只剩僵尸时回收。"""
+    if os.name != "nt":
+        import signal
+
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except (ProcessLookupError, PermissionError):
+            pass
+    elif proc.poll() is None:
+        proc.kill()
+    try:
+        proc.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        pass
 
 
 # ---------------------------------------------------------------- gui 后端（ADR-0036）

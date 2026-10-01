@@ -308,3 +308,27 @@ def test_panel_reports_missing_key(gui, monkeypatch):
         assert "ANTHROPIC_API_KEY" in panel.transcript.toPlainText()
     finally:
         panel.close()
+
+
+def test_truncated_tool_use_is_not_left_dangling(tools):
+    """响应被截断（max_tokens）却带着 tool_use：不执行，也不留下没有结果的 tool_use（#104 评审）。"""
+    llm, engine = _engine(tools, [
+        reply({"type": "text", "text": "先放置"}, use(1, "place_component", {"instance": "m", "component_id": MOTOR}),
+              stop="max_tokens"),
+        reply({"type": "text", "text": "好的"}, stop="end_turn"),
+    ])
+    events = engine.send("放一个电机")
+    assert [e.kind for e in events] == ["user", "assistant", "error"] and "截断" in events[-1].text
+    engine.send("继续")
+    sent = llm.requests[1]["messages"]
+    assert not any(b.get("type") == "tool_use" for m in sent if isinstance(m["content"], list) for b in m["content"])
+    roles = [m["role"] for m in engine.messages]
+    assert all(a != b for a, b in itertools.pairwise(roles))
+
+
+def test_empty_response_keeps_roles_alternating(tools):
+    _, engine = _engine(tools, [reply(stop="end_turn"), reply({"type": "text", "text": "好"}, stop="end_turn")])
+    engine.send("你好")
+    assert engine.messages == []
+    engine.send("在吗")
+    assert [m["role"] for m in engine.messages] == ["user", "assistant"]

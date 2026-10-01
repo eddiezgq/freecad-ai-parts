@@ -210,13 +210,24 @@ class ChatEngine:
                 if saved_last is not None:
                     self.messages.append(saved_last)
                 return events
-            content = resp.get("content", [])
-            self.messages.append({"role": "assistant", "content": content})
+            content = [b for b in resp.get("content", []) if isinstance(b, dict)]
             for block in content:
                 if block.get("type") == "text" and block.get("text"):
                     emit(Event("assistant", block["text"]))
             uses = [b for b in content if b.get("type") == "tool_use"]
-            if resp.get("stop_reason") != "tool_use" or not uses:
+            if uses and resp.get("stop_reason") != "tool_use":
+                # 响应被截断（如 max_tokens）却带着工具调用：不执行，也不留下没有结果的 tool_use，
+                # 否则之后每次请求都会被 API 拒绝（#104 评审）
+                content = [b for b in content if b.get("type") != "tool_use"]
+                emit(Event("error", f"LLM 响应被截断（{resp.get('stop_reason')}），未执行其中的工具调用；可以让助手继续"))
+                uses = []
+            if content:
+                self.messages.append({"role": "assistant", "content": content})
+            if not uses:
+                if not content:  # 空响应：撤回本轮用户消息，保持角色交替
+                    del self.messages[start:]
+                    if saved_last is not None:
+                        self.messages.append(saved_last)
                 return events
             results = []
             for use in uses:
