@@ -76,7 +76,7 @@ def check_component(comp: Any, registry: SourceRegistry, *, allow_test: bool = F
     if cid.startswith("test.") and not allow_test:
         reasons.append("虚构测试组件（test.）不得进入正式库")
     for doc in sorted(_source_docs(comp)):
-        why = registry.check_document(doc, allow_test=allow_test)
+        why = registry.check_document(doc, vendor=comp["vendor"], allow_test=allow_test)
         if why:
             reasons.append(why)
     port_ids = [p["id"] for p in comp["ports"]]

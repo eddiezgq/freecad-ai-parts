@@ -35,7 +35,7 @@ def _as_real(comp: dict, doc: str) -> dict:
 
 def _registry(license_: str = "pending", terms_checked: bool = False) -> SourceRegistry:
     return SourceRegistry.from_dict({"sources": [{
-        "id": "acme", "vendor": "Acme", "license": license_, "terms_checked": terms_checked,
+        "id": "acme", "vendor": "Test Vendor", "license": license_, "terms_checked": terms_checked,
         "documents": [{"id": "src-acme-catalog"}],
     }]})
 
@@ -314,3 +314,29 @@ def test_export_is_byte_stable_and_prunes(db, tmp_path: Path):
     stale.write_text("{}")
     export_snapshot(db, tmp_path, prune=True)
     assert not stale.exists()
+
+
+# ---------- 厂商与来源一致（issue #34，ADR-0019） ----------
+
+
+def _vendor_registry(vendor: str = "Test Vendor", covers: list[str] | None = None) -> SourceRegistry:
+    return SourceRegistry.from_dict({"sources": [{
+        "id": "acme", "vendor": vendor, "license": "partner", "covers_vendors": covers or [],
+        "documents": [{"id": "src-acme-catalog"}],
+    }]})
+
+
+def test_document_of_same_vendor_accepted():
+    comp = _as_real(_fixture(MOTOR), "src-acme-catalog")
+    assert check_component(comp, _vendor_registry("  test   VENDOR ")) == []
+
+
+def test_document_of_other_vendor_rejected():
+    comp = _as_real(_fixture(MOTOR), "src-acme-catalog")
+    reasons = check_component(comp, _vendor_registry("Acme"))
+    assert any("不能用于厂商 Test Vendor" in r for r in reasons)
+
+
+def test_distributor_document_accepted_when_vendor_listed():
+    comp = _as_real(_fixture(MOTOR), "src-acme-catalog")
+    assert check_component(comp, _vendor_registry("Distributor Ltd", ["Test Vendor"])) == []
