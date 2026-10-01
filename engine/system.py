@@ -48,9 +48,15 @@ class System:
         return [name for name, c in self.instances.items() if c["category"] == category]
 
     def one(self, category: str) -> str | None:
-        """该品类的唯一实例名；没有或多于一个时返回 None（多于一个由链路模板负责，V1 校验按唯一实例处理）。"""
+        """该品类的唯一实例名；没有时返回 None。多于一个时也返回 None，调用方须先用 too_many 检查。"""
         found = self.of_category(category)
         return found[0] if len(found) == 1 else None
+
+    def too_many(self, *categories: str) -> str | None:
+        """V1 的电机、减速器、驱动器在一个系统中各至多一个；超出时返回说明（相关校验判 unknown）。"""
+        names = {"servo_motor": "电机", "reducer": "减速器", "drive": "驱动器"}
+        extra = [f"{len(self.of_category(c))} 个{names.get(c, c)}" for c in categories if len(self.of_category(c)) > 1]
+        return f"系统中有 {'、'.join(extra)}，V1 每个关节只支持一个，无法判定" if extra else None
 
     def partner(self, ref: PortRef) -> PortRef | None:
         for a, b in self.connections:
@@ -60,10 +66,12 @@ class System:
                 return a
         return None
 
-    def connected(self, start: PortRef, goal: PortRef, port_types: set[str]) -> bool:
+    def connected(self, start: PortRef, goal: PortRef, port_types: set[str],
+                  link_ok: Callable[[dict, dict], bool] | None = None) -> bool:
         """start 与 goal 之间是否有一条连接路径，中间只经过转接件（ADR-0020）。
 
         转接件视为直通：从它的一个端口进入，可以从它另一个同类端口（同在 port_types 中）出去。
+        link_ok 给出时，只走它认可的连接（如只走通过 C1 的连接）。
         """
         seen = {start}
         frontier = [start]
@@ -73,7 +81,7 @@ class System:
                 return True
             nxt = []
             other = self.partner(ref)
-            if other is not None:
+            if other is not None and (link_ok is None or link_ok(self.port(ref), self.port(other))):
                 nxt.append(other)
             comp = self.instances[ref.instance]
             if comp["category"] == "adapter" and ref != start:

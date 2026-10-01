@@ -221,8 +221,10 @@ def test_c3_both_threaded_warns():
 def test_c3_pilot_rules():
     over = edited(M400, lambda c: port(c, "mount_flange")["spec"]["pilot_kind"].update(value="female"))
     assert c3(_sys(overrides=over)).findings[3].status == FAIL
+    over = edited(M400, lambda c: [port(c, "mount_flange")["spec"].pop(k) for k in ("pilot_diameter_mm", "pilot_kind")])
+    assert c3(_sys(overrides=over)).findings[3].status == WARN  # 一侧没有止口
     over = edited(M400, lambda c: port(c, "mount_flange")["spec"].pop("pilot_diameter_mm"))
-    assert c3(_sys(overrides=over)).findings[3].status == WARN
+    assert c3(_sys(overrides=over)).findings[3].status == UNKNOWN  # 有止口形式、缺直径
     over = edited(M400, lambda c: port(c, "mount_flange")["spec"]["pilot_diameter_mm"].update(value=49))
     assert c3(_sys(overrides=over)).findings[3].status == FAIL
 

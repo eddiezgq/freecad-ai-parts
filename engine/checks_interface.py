@@ -59,13 +59,19 @@ def _compatible_links(system: System, types: set[str]) -> list[tuple[PortRef, Po
 def _missing_link(system: System, start: tuple[str, str], goal: tuple[str, str],
                   types: set[str], what: str) -> Finding | None:
     """电机与减速器同在时，必须有 start → goal 的连接路径（可经转接件，ADR-0020）。"""
+    many = system.too_many("servo_motor", "reducer")
+    if many:
+        return Finding(UNKNOWN, many)
     motor, reducer = system.one("servo_motor"), system.one("reducer")
     if motor is None or reducer is None:
         return None
     s, g = PortRef(motor, start[1]), PortRef(reducer, goal[1])
-    if system.connected(s, g, types):
+    if not (system.has_port(s) and system.has_port(g)):
+        return Finding(UNKNOWN, f"缺少标准端口 {s} 或 {g}", [str(s), str(g)])
+    if system.connected(s, g, types, lambda a, b: _pair_ok(a, b)[0]):
         return None
-    return Finding(FAIL, f"缺少{what}：{s} 与 {g} 之间没有连接（可经转接件）", [str(s), str(g)])
+    return Finding(FAIL, f"缺少{what}：{s} 与 {g} 之间没有正确的连接（可经转接件；接错的连接见 C1）",
+                   [str(s), str(g)])
 
 
 # ---------------------------------------------------------------- C2
@@ -80,11 +86,11 @@ def _fit_finding(system: System, shaft: PortRef, bore: PortRef) -> Finding:
     if s_sys == "bearing" and b_sys == "bearing":
         return Finding(WARN, "轴承圈与轴承圈直接配合，配合表不适用，须人工确认", ports)
     if "bearing" in (s_sys, b_sys):
-        ring_ref, mate_fit = (bore, s_fit) if b_sys == "bearing" else (shaft, b_fit)
+        ring_ref, mate_ref, mate_fit = (bore, shaft, s_fit) if b_sys == "bearing" else (shaft, bore, b_fit)
         ring = "inner" if system.port(ring_ref)["type"] == "mechanical.cyl_female" else "outer"
         load = "rotating" if system.port(ring_ref).get("motion") == "rotating" else "stationary"
         kind = text(system.instances[ring_ref.instance]["params"].get("bearing_kind"))
-        d = nominal(system.spec(ring_ref, "diameter_mm"))
+        d = nominal(system.spec(mate_ref, "diameter_mm"))  # 轴径取配合件的名义直径（ADR-0017）
         if mate_fit is None or kind is None or d is None:
             return Finding(UNKNOWN, "轴承配合缺少数据（配合件公差带、轴承类型或直径）", ports)
         classes = rules.bearing_fit_classes(ring, load, kind, d)
@@ -97,6 +103,9 @@ def _fit_finding(system: System, shaft: PortRef, bore: PortRef) -> Finding:
     if s_fit is None or b_fit is None:
         return Finding(UNKNOWN, "缺少公差带", ports)
     fit_class = rules.iso286_pairs().get((b_fit, s_fit))
+    clamping = text(system.spec(bore, "clamping"))
+    if fit_class == "clearance" and clamping == "press_fit":
+        return Finding(FAIL, f"{b_fit}/{s_fit} 为间隙配合，不能压装（压装须过盈或过渡配合，ADR-0028）", ports)
     if fit_class:
         return Finding(PASS, f"{b_fit}/{s_fit} 为 {fit_class} 配合（草稿规则表）", ports)
     return Finding(WARN, f"{b_fit}/{s_fit} 不在配合表内，须人工确认（草稿规则表）", ports)
@@ -114,10 +123,16 @@ def c2(system: System) -> CheckResult:
         shaft, bore = _shaft_and_bore(system, a, b)
         ports = [str(shaft), str(bore)]
         ds, db = nominal(system.spec(shaft, "diameter_mm")), nominal(system.spec(bore, "diameter_mm"))
+        accepted = system.spec(bore, "accepted_diameter_range_mm")
+        lo_hi = (accepted.get("min"), accepted.get("max")) if accepted else (None, None)
         if ds is None or db is None:
             res.findings.append(Finding(UNKNOWN, f"{shaft} — {bore}：缺少名义直径", ports))
         elif abs(ds - db) > DIAMETER_TOL_MM:
-            res.findings.append(Finding(FAIL, f"轴径 {ds:g} mm ≠ 孔径 {db:g} mm", ports, ds, db, "mm"))
+            if None not in lo_hi and lo_hi[0] <= ds <= lo_hi[1]:
+                res.findings.append(Finding(WARN, f"轴径 {ds:g} mm ≠ 孔径 {db:g} mm，在可换轴套范围 "
+                                                  f"{lo_hi[0]:g}–{lo_hi[1]:g} mm 内，须选配轴套", ports))
+            else:
+                res.findings.append(Finding(FAIL, f"轴径 {ds:g} mm ≠ 孔径 {db:g} mm", ports))
         else:
             res.findings.append(Finding(PASS, f"直径 {ds:g} mm 相等", ports))
         res.findings.append(_fit_finding(system, shaft, bore))
@@ -132,15 +147,14 @@ def c2(system: System) -> CheckResult:
             result, reason = rules.clamping_matrix().get((sf, bf, clamping), (UNKNOWN, "兼容矩阵未覆盖"))
             msg = f"轴 {sf} / 孔 {bf} / 紧固 {clamping}" + (f"：{reason}" if reason else "：兼容")
             res.findings.append(Finding(result, msg + "（草稿规则表）", ports))
-        if "keyed" in (sf, bf) or clamping == "key":
+        if sf == "keyed" and bf == "keyed":  # 只有一侧有键时由兼容矩阵判定
             ks, kb = nominal(system.spec(shaft, "key_width_mm")), nominal(system.spec(bore, "key_width_mm"))
-            if sf == "keyed" and bf == "keyed":
-                if ks is None or kb is None:
-                    res.findings.append(Finding(UNKNOWN, "缺少键宽", ports))
-                elif abs(ks - kb) > DIAMETER_TOL_MM:
-                    res.findings.append(Finding(FAIL, f"键宽 {ks:g} mm ≠ {kb:g} mm", ports, ks, kb, "mm"))
-                else:
-                    res.findings.append(Finding(PASS, f"键宽 {ks:g} mm 相等", ports))
+            if ks is None or kb is None:
+                res.findings.append(Finding(UNKNOWN, "缺少键宽", ports))
+            elif abs(ks - kb) > DIAMETER_TOL_MM:
+                res.findings.append(Finding(FAIL, f"键宽 {ks:g} mm ≠ {kb:g} mm", ports))
+            else:
+                res.findings.append(Finding(PASS, f"键宽 {ks:g} mm 相等", ports))
     missing = _missing_link(system, ("motor", "shaft"), ("reducer", "input_bore"), CYL, "电机轴到减速器输入孔的连接")
     if missing:
         res.findings.append(missing)
@@ -161,7 +175,7 @@ def c3(system: System) -> CheckResult:
         da, db = nominal(pa.get("pcd_mm")), nominal(pb.get("pcd_mm"))
         if da is None or db is None:
             res.findings.append(Finding(UNKNOWN, "缺少分度圆直径", ports))
-        elif abs(da - db) > PCD_TOL_MM:
+        elif abs(da - db) > PCD_TOL_MM + 1e-9:
             res.findings.append(Finding(FAIL, f"分度圆 {da:g} mm 与 {db:g} mm 相差超过 {PCD_TOL_MM} mm",
                                         ports, abs(da - db), PCD_TOL_MM, "mm"))
         else:
@@ -209,18 +223,19 @@ def _holes(a: PortRef, pa: dict, b: PortRef, pb: dict) -> Finding:
 
 def _pilot(a: PortRef, pa: dict, b: PortRef, pb: dict) -> Finding:
     ports = [str(a), str(b)]
-    ha, hb = "pilot_diameter_mm" in pa, "pilot_diameter_mm" in pb
+    ha = "pilot_diameter_mm" in pa or "pilot_kind" in pa  # 写了任一止口字段即视为有止口，缺的另一项判 unknown
+    hb = "pilot_diameter_mm" in pb or "pilot_kind" in pb
     if not ha and not hb:
         return Finding(WARN, "两侧都没有止口，定位靠螺栓，须确认同轴度", ports)
     if ha != hb:
         return Finding(WARN, "只有一侧有止口，无法止口定位", ports)
     ka, kb = text(pa.get("pilot_kind")), text(pb.get("pilot_kind"))
-    da, db = nominal(pa["pilot_diameter_mm"]), nominal(pb["pilot_diameter_mm"])
+    da, db = nominal(pa.get("pilot_diameter_mm")), nominal(pb.get("pilot_diameter_mm"))
     if ka is None or kb is None or da is None or db is None:
         return Finding(UNKNOWN, "缺少止口形式或直径", ports)
     if {ka, kb} != {"male", "female"}:
         return Finding(FAIL, f"止口须一凸一凹（现为 {ka} 与 {kb}）", ports)
     if abs(da - db) > DIAMETER_TOL_MM:
-        return Finding(FAIL, f"止口直径 {da:g} mm ≠ {db:g} mm", ports, da, db, "mm")
+        return Finding(FAIL, f"止口直径 {da:g} mm ≠ {db:g} mm", ports)
     return Finding(PASS, f"止口一凸一凹，直径 {da:g} mm 相等", ports)
 

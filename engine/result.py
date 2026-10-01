@@ -75,6 +75,9 @@ def not_applicable(check: str, reason: str) -> CheckResult:
 
 
 def overall(results: list[CheckResult]) -> str:
-    """整体结论：有 fail 即 fail；否则有 unknown 即 unknown；否则有 warn 即 warn；适用项全 pass 为 pass。"""
+    """整体结论：有 fail 即 fail；否则有 unknown 即 unknown；否则有 warn 即 warn；适用项全 pass 为 pass。
+
+    全部不适用（没有可判定的项）时为 unknown，不得呈现为通过（ADR-0028）。
+    """
     status = worst(r.status for r in results)
-    return PASS if status == NA else status
+    return UNKNOWN if status == NA else status

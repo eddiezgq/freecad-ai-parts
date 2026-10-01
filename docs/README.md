@@ -42,5 +42,6 @@
 | [0025](adr/0025-engine-conventions.md) | 校验引擎的实现约定 | 2026-10-01 |
 | [0026](adr/0026-performance-chain.md) | 性能链校验（C4–C8）的实现约定 | 2026-10-01 |
 | [0027](adr/0027-electrical-envelope.md) | 电气、信号与包络校验（C9–C11）的实现约定 | 2026-10-01 |
+| [0028](adr/0028-engine-review-fixes.md) | 校验引擎独立评审后的规则修订 | 2026-10-01 |
 
 新决策按 [模板](adr/template.md) 编写，编号顺延；已接受的决策不改写，被取代时新建一条并标注。
