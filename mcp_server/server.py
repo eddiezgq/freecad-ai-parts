@@ -139,20 +139,23 @@ def create_server(library_factory: Callable[[], Library] = default_library,
     @mcp.tool
     @_guard
     def verify_system(
-        system: Annotated[dict, Field(description="系统（schema/system.schema.json）：需求、组件实例、端口连接")],
+        system: Annotated[dict, Field(description="系统（schema/system.schema.json）：需求、组件实例、端口连接，可带 layout")],
         lang: Annotated[str, Field(description="说明语言：zh 或 en")] = "zh",
+        use_layout: Annotated[bool, Field(description="为 true 时用当前布局场景中的位姿作为系统的 layout（C11 计算包络长度）")]
+        = False,
     ) -> dict:
         """对一个系统做全部 11 项校验，返回逐项结果、整体结论与说明。"""
-        return tools.verify_system(lib(), system, lang=lang)
+        return tools.verify_system(lib(), session.with_layout(system, use_layout), lang=lang)
 
     @mcp.tool
     @_guard
     def export_system(
-        system: Annotated[dict, Field(description="系统（schema/system.schema.json）")],
-        format: Annotated[str, Field(description="bom_csv / bom_json / system_json")] = "bom_csv",
+        system: Annotated[dict, Field(description="系统（schema/system.schema.json），可带 layout")],
+        format: Annotated[str, Field(description="bom_csv / bom_json / system_json / urdf（urdf 须带 layout）")] = "bom_csv",
+        use_layout: Annotated[bool, Field(description="为 true 时用当前布局场景中的位姿作为系统的 layout")] = False,
     ) -> dict:
-        """导出方案的 BOM（含原厂模型链接与数据来源）或系统 JSON（含校验报告与组件数据）。"""
-        return tools.export_system(lib(), system, format=format)
+        """导出方案的 BOM（含原厂模型链接与数据来源）、系统 JSON（含校验报告、组件数据与布局）或 URDF。"""
+        return tools.export_system(lib(), session.with_layout(system, use_layout), format=format)
 
     @mcp.tool
     @_guard

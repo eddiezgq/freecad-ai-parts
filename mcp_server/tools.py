@@ -216,11 +216,11 @@ def compose_chain(library: Library, requirement: dict, *, top_n: int = 5, includ
     }
 
 
-EXPORT_FORMATS = ("bom_csv", "bom_json", "system_json")
+EXPORT_FORMATS = ("bom_csv", "bom_json", "system_json", "urdf")
 
 
 def export_system(library: Library, system: dict, *, format: str = "bom_csv") -> dict:
-    """导出方案：bom_csv / bom_json / system_json（含校验报告与所用组件数据）。URDF 在 M4b 布局后提供。
+    """导出方案：bom_csv / bom_json / system_json（含校验报告与所用组件数据）/ urdf（须带 layout，ADR-0035）。
 
     返回 {"filename", "media_type", "content"}；content 为文本（CSV）或对象（JSON）。
     """
@@ -231,7 +231,7 @@ def export_system(library: Library, system: dict, *, format: str = "bom_csv") ->
     from engine.validate import validate
 
     if format not in EXPORT_FORMATS:
-        raise ToolInputError(f"format 须为 {', '.join(EXPORT_FORMATS)} 之一（URDF 在 M4b 提供）")
+        raise ToolInputError(f"format 须为 {', '.join(EXPORT_FORMATS)} 之一")
     _schema_check("system.schema.json", system, "系统")
     try:
         report = validate(system, library.get)
@@ -244,6 +244,13 @@ def export_system(library: Library, system: dict, *, format: str = "bom_csv") ->
     if format == "bom_json":
         return {"filename": f"{sid}-bom.json", "media_type": "application/json",
                 "content": export.bom_json(system, library.get), "overall": report["overall"]}
+    if format == "urdf":
+        try:
+            text = export.urdf(system, library.get)
+        except ValueError as exc:
+            raise ToolInputError(str(exc)) from exc
+        return {"filename": f"{sid}.urdf", "media_type": "application/xml", "content": text,
+                "overall": report["overall"]}
     content = export.system_json(system, library.get, report)
     json.dumps(content, allow_nan=False)  # 确保是合法 JSON
     return {"filename": f"{sid}.json", "media_type": "application/json", "content": content,
