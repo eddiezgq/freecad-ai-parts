@@ -106,8 +106,12 @@ def show(scene: Scene, fit: bool = True):
 
 
 def sync(scene: Scene) -> dict:
-    """gui 后端：把场景显示在用户的 FreeCAD 中（ADR-0036）。"""
-    show(scene)
+    """gui 后端：把场景显示在用户的 FreeCAD 中（ADR-0036），等轴测视角并适配。"""
+    gui, v = show(scene, fit=False)
+    v.viewIsometric()
+    gui.updateGui()
+    v.fitAll()
+    gui.updateGui()
     return {"document": DOC_NAME, "instances": sorted(scene.instances)}
 
 

@@ -152,6 +152,9 @@ def test_summaries():
     assert summarize("snapshot", json.dumps({"view": "iso", "width": 1, "height": 2})) == "截图（iso，1×2）"
     assert summarize("verify_system", json.dumps({"explanation": "可用：全部通过。\n细节"})) == "可用：全部通过。"
     assert summarize("export_system", json.dumps({"filename": "a.urdf"})) == "已导出 a.urdf"
+    cand = {"candidates": [{"overall": "pass", "system": {"components": [{"component": "a"}, {"component": "b"}]}}]}
+    assert summarize("compose_chain", json.dumps(cand)) == "1 个候选方案；方案 1（pass）：a、b"
+    assert summarize("compose_chain", json.dumps({"candidates": []})) == "没有找到满足需求的方案"
     assert summarize("x", "组件不存在", True) == "组件不存在"
     assert summarize("x", "纯文本") == "纯文本"
     assert len(summarize("get_component", json.dumps({"k": "v" * 500}))) == 160
@@ -332,3 +335,29 @@ def test_empty_response_keeps_roles_alternating(tools):
     assert engine.messages == []
     engine.send("在吗")
     assert [m["role"] for m in engine.messages] == ["user", "assistant"]
+
+
+@pytest.mark.freecad
+def test_demo_driver_replay_runs(tmp_path):
+    """录屏用的演示驱动（#105）：回放模式在 FreeCAD 界面中跑完一轮对话。"""
+    import subprocess
+
+    if not os.environ.get("DISPLAY"):
+        pytest.skip("没有显示环境")
+    env = {**os.environ, "PYTHONUTF8": "1"}
+    env.pop("FAP_LIBRARY", None)
+    env.pop("DATABASE_URL", None)
+    out = subprocess.run([sys.executable, "-m", "freecad_addon.gui.demo_driver", "--pause", "0", "--hold", "0"],
+                         env=env, capture_output=True, text=True, timeout=300, check=False)
+    assert out.returncode == 0, out.stderr[-2000:]
+
+
+def test_scripted_demo_matches_sample_system():
+    from freecad_addon.gui import demo_driver
+
+    script = demo_driver.scripted_responses()
+    assert script[-1]["stop_reason"] == "end_turn"
+    names = [b["name"] for r in script for b in r["content"] if b["type"] == "tool_use"]
+    assert names[0] == "compose_chain" and names[-1] == "verify_system" and "snapshot" in names
+    ids = [b["id"] for r in script for b in r["content"] if b["type"] == "tool_use"]
+    assert len(ids) == len(set(ids))

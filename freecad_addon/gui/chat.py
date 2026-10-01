@@ -148,7 +148,14 @@ def summarize(name: str, text: str, is_error: bool = False) -> str:
         return out
     if name == "snapshot":
         return f"截图（{data.get('view')}，{data.get('width')}×{data.get('height')}）"
-    if name in ("verify_system", "export_system", "compose_chain") and data.get("explanation"):
+    if name == "compose_chain" and isinstance(data.get("candidates"), list):
+        cands = data["candidates"]
+        if not cands:
+            return "没有找到满足需求的方案"
+        first = cands[0]
+        comps = "、".join(c.get("component", "") for c in first.get("system", {}).get("components", []))
+        return f"{len(cands)} 个候选方案；方案 1（{first.get('overall')}）：{comps}"
+    if name in ("verify_system", "export_system") and data.get("explanation"):
         first = str(data["explanation"]).strip().splitlines()[0]
         return first if len(first) <= 160 else first[:159] + "…"
     if name == "export_system" and data.get("filename"):
