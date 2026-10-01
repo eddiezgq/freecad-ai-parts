@@ -92,6 +92,21 @@ def test_derive_only_fills_gaps():
     assert "ports/encoder_in/kind" not in derive("drive", {"ports/encoder_in/protocol": {"value": "vendor_proprietary"}})
 
 
+def test_derive_mount_pattern_only_when_unambiguous():
+    """ADR-0031：有水平孔距且 2 或 4 孔时推为 rect；其余情况不推断。"""
+    def pv(v):
+        return {"value": v, "reviewed": True}
+
+    base = {"ports/mount/pitch_y_mm": pv(150), "ports/mount/hole_diameter_mm": pv(5.5)}
+    for count in (2, 4):
+        d = derive("drive", {**base, "ports/mount/pitch_x_mm": pv(30), "ports/mount/hole_count": pv(count)})
+        assert d["ports/mount/pattern"]["value"] == "rect" and d["ports/mount/pattern"]["reviewed"] is True
+    assert "ports/mount/pattern" not in derive(
+        "drive", {**base, "ports/mount/pitch_x_mm": pv(30), "ports/mount/hole_count": pv(3)})
+    assert "ports/mount/pattern" not in derive("drive", {**base, "ports/mount/pitch_x_mm": pv(30)})
+    assert "ports/mount/pattern" not in derive("drive", {**base, "ports/mount/hole_count": pv(2)})
+
+
 def test_component_id_rules():
     assert component_id("reducer", "Synth Gear", "SGH-13-100", test=True) == "test.reducer.synth-gear.sgh-13-100"
     assert component_id("bearing", "ACME Corp.", "6204 2RS") == "bearing.acme-corp.6204-2rs"
