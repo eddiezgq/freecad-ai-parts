@@ -92,7 +92,7 @@
 }
 ```
 
-- 数值三选一：`value`（单值）、`min`/`max`（范围）、`nominal` + `tol_upper`/`tol_lower`（公差）
+- 数值三选一：`value`（单值）、`min`/`max`（范围）、`nominal` + `tol_upper`/`tol_lower`（公差）；偏差带符号，要求 `tol_lower ≤ tol_upper`，两侧可同号（如 g6 的 −0.006/−0.017，ADR-0022）
 - `condition`：该值成立的工况，规格书有就必填（如减速器效率随转速、负载、温度变化）
 - `source`：来源文档 id（对应 `data/sources.yaml` 登记）和页码；计算得出的值写明公式
 - `method`：`extracted`（LLM 抽取）、`manual`（人工录入）、`computed`（由其他参数计算）、`standard`（按标准生成，如 ISO 紧固件）
