@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 import os
 import re
+import subprocess
+import sys
 from collections import Counter
 
 import pytest
@@ -14,6 +16,7 @@ from ingest.synthetic import (
     UNIT_OPTIONS,
     VOCAB,
     FontMissing,
+    build_datasheet,
     datasheets,
     find_font,
     main,
@@ -65,6 +68,29 @@ def test_generation_is_deterministic():
     assert json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
 
 
+def test_sheet_depends_only_on_component_and_variant():
+    """同一（组件，变体号）的规格书与目录中的顺序无关。"""
+    by_id = {s.id: s.answer for s in datasheets(1)}
+    for category, rows in CATALOG.items():
+        for row in reversed(rows):
+            sheet = build_datasheet(category, row, 1)
+            assert sheet.answer == by_id[sheet.id]
+
+
+def test_generation_is_deterministic_across_processes():
+    code = (
+        "import hashlib, json; from ingest.synthetic import datasheets; "
+        "print(hashlib.sha256(json.dumps([s.answer for v in (0, 1) for s in datasheets(v)],"
+        " sort_keys=True, ensure_ascii=False).encode()).hexdigest())"
+    )
+    digests = set()
+    for seed in ("1", "2"):
+        env = {**os.environ, "PYTHONHASHSEED": seed}
+        out = subprocess.run([sys.executable, "-c", code], env=env, capture_output=True, text=True, check=True)
+        digests.add(out.stdout.strip())
+    assert len(digests) == 1
+
+
 def test_variants_differ():
     v0 = {s.id.rsplit(".", 1)[0]: s.answer for s in datasheets(0)}
     v1 = {s.id.rsplit(".", 1)[0]: s.answer for s in datasheets(1)}
@@ -92,7 +118,8 @@ def test_answer_matches_component(sheet):
             assert pv["source"]["page"] == e["page"]
             assert pv.get("condition") == e.get("condition")
     for path in ans["implicit"]:
-        _get(comp, path)
+        pv = _get(comp, path)
+        assert pv["method"] == "computed" and pv["source"]["formula"], path
 
 
 @pytest.mark.parametrize("category", V1_CATEGORIES)
@@ -102,6 +129,9 @@ def test_answer_covers_catalog_row(category):
         row = CATALOG[category][i]
         printed = {e["key"] for e in sheet.answer["fields"]}
         assert printed == {f.key for f in FIELDS[category] if f.key in row}
+        for e in sheet.answer["fields"]:
+            raw = row[e["key"]]
+            assert e["expected"] == (dict(raw) if isinstance(raw, dict) else {"value": raw}), e["key"]
         comp_paths = set()
         comp = sheet.answer["component"]
         comp_paths |= {f"params/{k}" for k in comp["params"]}
@@ -143,6 +173,23 @@ def test_rendered_enums_use_known_variants(sheet):
         assert len(parts) == len(items)
         for text, item in zip(parts, items, strict=True):
             assert text in VOCAB[vocab][item][lang]
+
+
+@pytest.mark.parametrize("sheet", SHEETS, ids=lambda s: s.id)
+def test_rendered_plain_values(sheet):
+    """无单位、无同义写法的行（孔数、位数、公差、螺纹、IP 等级、安全功能、减速比）原样印出。"""
+    fields = {f.key: f for f in FIELDS[sheet.answer["category"]]}
+    for e in sheet.answer["fields"]:
+        vocab = fields[e["key"]].vocab
+        expected = e["expected"].get("value")
+        if vocab == "ratio":
+            m = re.fullmatch(r"(?:1:|i = )?([0-9.]+)", e["text"])
+            assert m and float(m.group(1)) == expected, e["text"]
+        elif vocab is None and not e["unit"] and not e["key"].endswith("_ratio"):
+            if isinstance(expected, list):
+                assert re.split(r", | / ", e["text"]) == [str(x) for x in expected]
+            else:
+                assert e["text"] == str(expected), e["key"]
 
 
 def test_unit_options_are_convertible():

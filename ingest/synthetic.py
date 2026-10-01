@@ -16,6 +16,7 @@ LLM 结构化抽取（#29）和准确率评估（#31）使用。
 - implicit：组件中有、但规格书上没有直接印出的字段路径（由品类或其他字段推出，评估时不计）
 
 规格书上印有“虚构产品”声明；这些数据永不进入正式库。
+生成 PDF 需要 reportlab（开发依赖）；只用答案不需要。
 """
 
 from __future__ import annotations
@@ -127,11 +128,11 @@ FIELDS: dict[str, list[Field]] = {
         F("rated_torque_nm", "params/rated_torque_nm", "Rated torque", ("额定扭矩", "额定转矩"),
           condition_key="rated_torque_condition"),
         F("repeated_peak_torque_nm", "params/repeated_peak_torque_nm",
-          ("Limit for repeated peak torque", "Max. acceleration torque"), ("启停允许峰值扭矩", "重复峰值扭矩")),
+          ("Allowable peak torque (start/stop)", "Max. acceleration torque"), ("启停允许峰值扭矩", "重复峰值扭矩")),
         F("momentary_max_torque_nm", "params/momentary_max_torque_nm",
-          ("Limit for momentary torque", "Emergency stop torque"), ("瞬间允许最大扭矩", "瞬时最大扭矩")),
+          ("Allowable momentary torque", "Emergency stop torque"), ("瞬间允许最大扭矩", "瞬时最大扭矩")),
         F("max_input_speed_rpm", "params/max_input_speed_rpm", "Max. input speed", "最高输入转速"),
-        F("avg_input_speed_limit_rpm", "params/avg_input_speed_limit_rpm", "Limit for average input speed",
+        F("avg_input_speed_limit_rpm", "params/avg_input_speed_limit_rpm", "Allowable average input speed",
           "平均输入转速限制"),
         F("efficiency_ratio", "params/efficiency_ratio", "Efficiency", "效率", condition_key="efficiency_condition"),
         F("lost_motion_arcmin", "params/lost_motion_arcmin", "Lost motion", "空程"),
@@ -169,6 +170,8 @@ FIELDS: dict[str, list[Field]] = {
         F("housing_hole_diameter_mm", "ports/housing_mount/hole_diameter_mm", "Housing mounting hole diameter",
           "壳体安装孔直径", section=IFACE),
         F("outer_diameter_mm", "envelope/0/diameter_mm", "Outer diameter", "外径", section=IFACE),
+        F("square_mm", ("envelope/0/width_mm", "envelope/0/height_mm"), "Housing size (square)", "壳体尺寸（方）",
+          section=IFACE),
         F("length_mm", "envelope/0/length_mm", "Overall length", "总长", section=IFACE),
     ],
     "drive": [
@@ -378,7 +381,7 @@ def _skeleton(category: str, row: dict) -> tuple[list[dict], list[dict]]:
             port("output_flange", "mechanical.flange", "out", "rotating", length),
             port("housing_mount", "mechanical.flange", "bidir", "stationary", length),
         ]
-        env = [{"shape": "cylinder", "z_start_mm": 0, "label": "body"}]
+        env = [{"shape": "box" if "square_mm" in row else "cylinder", "z_start_mm": 0, "label": "body"}]
     elif category == "drive":
         ports = [
             port("power_in", "electrical.power_supply", "in"),
@@ -399,26 +402,31 @@ def _skeleton(category: str, row: dict) -> tuple[list[dict], list[dict]]:
     return ports, env
 
 
-def _implicit(category: str, row: dict) -> dict[str, object]:
-    """规格书上不直接印出、由品类或其他字段推出的值：路径 → 值。"""
-    out: dict[str, object] = {}
+def _implicit(category: str, row: dict) -> dict[str, tuple[object, str]]:
+    """规格书上不直接印出、由品类或其他字段推出的值：路径 → (值, 推导依据)。"""
+    out: dict[str, tuple[object, str]] = {}
     if category == "reducer":
-        out["ports/motor_flange/hole_kind"] = "threaded"
-        out["ports/output_flange/hole_kind"] = "threaded"
-        out["ports/housing_mount/hole_kind"] = "through"
+        out["ports/motor_flange/hole_kind"] = ("threaded", "印有螺纹规格，故为螺纹孔")
+        out["ports/output_flange/hole_kind"] = ("threaded", "印有螺纹规格，故为螺纹孔")
+        out["ports/housing_mount/hole_kind"] = ("through", "印有孔径，故为通孔")
     elif category == "drive":
-        out["ports/mount/pattern"] = "rect"
+        out["ports/mount/pattern"] = ("rect", "安装孔按水平、垂直间距排列")
         if row["supply_current_type"] == "dc":
-            out["ports/power_in/phases"] = 0
+            out["ports/power_in/phases"] = (0, "直流供电，相数按约定记 0")
         kinds = sorted({"incremental" if p == "incremental_abz" else "absolute" for p in row["encoder_protocols"]})
-        out["ports/encoder_in/kind"] = kinds
+        out["ports/encoder_in/kind"] = (kinds, "由支持的编码器协议推出")
     elif category == "bearing":
-        out["ports/inner/fit_system"] = "bearing"
-        out["ports/inner/feature"] = "plain"
-        out["ports/inner/clamping"] = "press_fit"
-        out["ports/outer/fit_system"] = "bearing"
-        out["ports/outer/feature"] = "plain"
+        out["ports/inner/fit_system"] = ("bearing", "滚动轴承内圈按 ISO 492 精度等级")
+        out["ports/inner/feature"] = ("plain", "轴承内圈为光孔")
+        out["ports/inner/clamping"] = ("press_fit", "轴承内圈按过盈配合安装")
+        out["ports/outer/fit_system"] = ("bearing", "滚动轴承外圈按 ISO 492 精度等级")
+        out["ports/outer/feature"] = ("plain", "轴承外圈为光面")
     return out
+
+
+def _derived_pv(value, why: str) -> dict:
+    """隐含字段：不是从规格书读出的，按推导值记录（method=computed，来源写推导依据）。"""
+    return {"value": value, "source": {"formula": why}, "method": "computed", "confidence": 1, "reviewed": True}
 
 
 def _set(comp: dict, path: str, pv: dict) -> None:
@@ -494,11 +502,11 @@ class Datasheet:
         return render_pdf(self.answer, Path(path))
 
 
-def build_datasheet(category: str, row: dict, variant: int = 0, index: int = 0) -> Datasheet:
+def build_datasheet(category: str, row: dict, variant: int = 0) -> Datasheet:
     """由目录中的一行生成一份规格书的答案（含渲染所需的全部文字）。"""
     cid = component_id(category, row["model"])
     rng = random.Random(_seed(cid, variant))
-    lang = ("en", "zh")[(index + variant) % 2]
+    lang = ("en", "zh")[(_seed(cid, "lang") + variant) % 2]  # 只由组件与变体号决定，与目录顺序无关
     layout = rng.choice(("three_col", "two_col"))
     sections = [s for s in (SPEC, IFACE) if any(f.section == s and f.key in row for f in FIELDS[category])]
     pages = {s: i + 1 for i, s in enumerate(sections)}
@@ -521,6 +529,8 @@ def build_datasheet(category: str, row: dict, variant: int = 0, index: int = 0) 
             suffix, _ = standard_unit(field.unit_field)
             if field.units is not None:
                 unit = rng.choice(field.units)
+            elif suffix == "_a" and row.get("supply_current_type") == "dc" and "power_in" in field.paths[0]:
+                unit = "A"  # 直流电流不写 Arms
             else:
                 unit = unit_choice.setdefault(suffix, rng.choice(UNIT_OPTIONS[suffix]))
         condition = row[field.condition_key][lang] if field.condition_key else None
@@ -538,8 +548,8 @@ def build_datasheet(category: str, row: dict, variant: int = 0, index: int = 0) 
         fields_out.append(entry)
 
     implicit = _implicit(category, row)
-    for path, value in implicit.items():
-        _set(comp, path, _pv(value, 1))
+    for path, (value, why) in implicit.items():
+        _set(comp, path, _derived_pv(value, why))
     comp["note"] = COMPONENT_NOTE
     # 端口 spec 按 schema 中字段顺序无要求；排序让答案稳定
     for p in comp["ports"]:
@@ -572,8 +582,7 @@ def datasheets(variant: int = 0, categories: list[str] | None = None) -> list[Da
     for category, rows in CATALOG.items():
         if categories and category not in categories:
             continue
-        for i, row in enumerate(rows):
-            out.append(build_datasheet(category, row, variant, i))
+        out += [build_datasheet(category, row, variant) for row in rows]
     return out
 
 
