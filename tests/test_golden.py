@@ -23,7 +23,7 @@ CASES = sorted(GOLDEN.glob("*/*.yaml"))
 FIXTURES = {p.stem: json.loads(p.read_text(encoding="utf-8")) for p in (GOLDEN / "fixtures").glob("*.json")}
 CHECKS = {f"C{i}" for i in range(1, 12)}
 STATUS = {"pass", "warn", "fail", "unknown"}
-CHECK_VALUES = STATUS | {"any"}
+CHECK_VALUES = STATUS | {"any", "not_applicable"}
 
 
 def _case(path: Path) -> dict:
