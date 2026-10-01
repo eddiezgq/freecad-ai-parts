@@ -36,3 +36,9 @@ def errors(relative_id: str, instance: object) -> list[str]:
         path = "/".join(str(p) for p in e.absolute_path) or "<root>"
         out.append(f"{path}: {e.message}")
     return out
+
+
+@cache
+def validator_for_ref(ref: str) -> Draft202012Validator:
+    """按完整 URI（可带 JSON Pointer 片段）取子 schema 的校验器，例如某个品类参数的参数值 schema。"""
+    return Draft202012Validator({"$ref": ref}, registry=_registry())

@@ -331,3 +331,5 @@ M1 提前约 3 周完成，M2 随即开工，完成日期不变，多出的时�
 模拟规格书：虚构组件目录在 `ingest/synthetic_catalog.py`（4 个品类各 5 个，部分型号故意缺项，用来检验“缺数据不写”），由 `python -m ingest.synthetic --out data/synthetic --variants N` 生成 PDF 与答案（`*.answer.json`），输出目录不入 git。同一组件与变体号生成的结果完全相同。答案中 `fields` 是规格书上印出的每一行（页码、文字、单位、换算到标准单位后的期望值），`implicit` 是由品类或其他字段推出、规格书上不直接印出的字段（组件中记为 `method: computed`，来源写推导依据），评测时不计分。语言、单位、叫法与版式只由组件 id 和变体号决定，与目录顺序无关。生成 PDF 需要 DejaVu Sans 与文泉驿正黑字体（`fonts-dejavu-core`、`fonts-wqy-zenhei`），字体会嵌入 PDF。
 
 PDF 提取：`ingest/pdf_extract.py` 用 pdfplumber 逐页提取正文与表格，页码从 1 开始；单元格内的排版折行按两侧字符合并（中文与中文直接相连，其余用空格）。表格只认有边框的表；无边框表格的内容仍在该页正文中，交给 LLM 抽取时一并提供（`Document.to_prompt_text()`）。只做忠实提取，不解释单位、不合并跨页表格。
+
+LLM 抽取：`ingest/llm_extract.py`，流程与分工见 ADR-0021。LLM 只报印出的内容（数值、单位、页码、原文引用），代码逐项核对后输出抽取结果（`schema/extraction.schema.json`），一律未复核、不直接入库。测试只用录制回放或标明 `simulated` 的模拟响应（`ingest/llm_simulate.py`）；录制方法见 `tests/recordings/llm/README.md`。真实调用需要 `pip install -e ".[llm]"` 和本地 `.env` 中的密钥。
