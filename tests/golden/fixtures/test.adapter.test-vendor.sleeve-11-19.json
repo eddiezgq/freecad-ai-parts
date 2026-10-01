@@ -1,0 +1,201 @@
+{
+  "id": "test.adapter.test-vendor.sleeve-11-19",
+  "category": "adapter",
+  "vendor": "Test Vendor",
+  "model": "SL-11-19",
+  "status": "active",
+  "license": "params-only",
+  "params": {
+    "adapter_kind": {
+      "value": "sleeve",
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    },
+    "mass_kg": {
+      "value": 0.03,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    },
+    "length_mm": {
+      "value": 25,
+      "source": {
+        "doc": "src-test-fixture",
+        "page": 1
+      },
+      "method": "manual",
+      "confidence": 1,
+      "reviewed": true
+    }
+  },
+  "ports": [
+    {
+      "id": "inner",
+      "type": "mechanical.cyl_female",
+      "dir": "in",
+      "motion": "rotating",
+      "frame": {
+        "origin_mm": [
+          0,
+          0,
+          0
+        ],
+        "axis": [
+          0,
+          0,
+          1
+        ]
+      },
+      "spec": {
+        "diameter_mm": {
+          "value": 11,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "fit": {
+          "value": "H7",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "feature": {
+          "value": "keyed",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "clamping": {
+          "value": "key",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "key_width_mm": {
+          "value": 4,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    },
+    {
+      "id": "outer",
+      "type": "mechanical.cyl_male",
+      "dir": "out",
+      "motion": "rotating",
+      "frame": {
+        "origin_mm": [
+          0,
+          0,
+          0
+        ],
+        "axis": [
+          0,
+          0,
+          1
+        ]
+      },
+      "spec": {
+        "diameter_mm": {
+          "value": 19,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "fit": {
+          "value": "h6",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "feature": {
+          "value": "keyed",
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "key_width_mm": {
+          "value": 6,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    }
+  ],
+  "envelope": {
+    "parts": [
+      {
+        "shape": "cylinder",
+        "z_start_mm": 0,
+        "length_mm": {
+          "value": 25,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        },
+        "diameter_mm": {
+          "value": 19,
+          "source": {
+            "doc": "src-test-fixture",
+            "page": 1
+          },
+          "method": "manual",
+          "confidence": 1,
+          "reviewed": true
+        }
+      }
+    ]
+  },
+  "note": "golden 用虚构组件（ADR-0015），数值不代表任何真实产品"
+}

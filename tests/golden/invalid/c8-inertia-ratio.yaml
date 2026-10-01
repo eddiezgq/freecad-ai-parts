@@ -1,0 +1,48 @@
+# golden 用例草稿：预期结果为人工手算，须由人审定（CLAUDE.md、ADR-0015）
+id: invalid/c8-inertia-ratio
+description: 负载惯量过大（仅告警）
+system:
+  id: c8-inertia-ratio
+  requirement:
+    output_torque_cont_nm: 30
+    output_torque_peak_nm: 80
+    output_speed_rpm: 25
+    safety_factor: 1.2
+    supply:
+      current_type: ac
+      voltage_v: 220
+      phases: 1
+    fieldbus_protocol: ethercat
+    load_inertia_kgm2: 2.0
+  components:
+  - instance: motor
+    component: test.servo_motor.test-vendor.m200
+  - instance: reducer
+    component: test.reducer.test-vendor.r25-100
+  - instance: drive
+    component: test.drive.test-vendor.d400
+  - instance: sleeve
+    component: test.adapter.test-vendor.sleeve-11-19
+  - instance: plate
+    component: test.adapter.test-vendor.plate-70-90
+  connections:
+  - a: motor.shaft
+    b: sleeve.inner
+  - a: sleeve.outer
+    b: reducer.input_bore
+  - a: motor.mount_flange
+    b: plate.motor_side
+  - a: plate.reducer_side
+    b: reducer.motor_flange
+  - a: drive.motor_out
+    b: motor.power_in
+  - a: motor.encoder
+    b: drive.encoder_in
+expected:
+  overall: warn
+  checks:
+    C8: warn
+    others: not_fail
+calc: |
+  以 valid/m200-adapters-r25-d400 为基础，负载惯量改为 2.0 kg·m²
+  C8: (2.0 / 100² + 1.69e-5) / 1.4e-5 = 2.169e-4 / 0.14e-4 = 15.49 > 10 → warn

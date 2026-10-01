@@ -1,0 +1,39 @@
+# golden 用例草稿：预期结果为人工手算，须由人审定（CLAUDE.md、ADR-0015）
+id: invalid/c10-proprietary-encoder
+description: 电机为私有编码器协议，驱动器不支持
+system:
+  id: c10-proprietary-encoder
+  requirement:
+    output_torque_cont_nm: 25
+    output_torque_peak_nm: 50
+    output_speed_rpm: 30
+    safety_factor: 1.2
+    supply:
+      current_type: ac
+      voltage_v: 220
+      phases: 1
+    fieldbus_protocol: ethercat
+  components:
+  - instance: motor
+    component: test.servo_motor.test-vendor.m400-proprietary-enc
+  - instance: reducer
+    component: test.reducer.test-vendor.r20-100
+  - instance: drive
+    component: test.drive.test-vendor.d400
+  connections:
+  - a: motor.shaft
+    b: reducer.input_bore
+  - a: motor.mount_flange
+    b: reducer.motor_flange
+  - a: drive.motor_out
+    b: motor.power_in
+  - a: motor.encoder
+    b: drive.encoder_in
+expected:
+  overall: fail
+  checks:
+    C10: fail
+    others: not_fail
+calc: |
+  C10: vendor_proprietary（test-vendor-b）不在驱动器支持列表 [biss_c, endat_2_2]，且厂商不同 → fail
+  其余同 valid/m400-r20-d400

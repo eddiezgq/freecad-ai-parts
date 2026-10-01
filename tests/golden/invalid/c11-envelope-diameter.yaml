@@ -1,0 +1,41 @@
+# golden 用例草稿：预期结果为人工手算，须由人审定（CLAUDE.md、ADR-0015）
+id: invalid/c11-envelope-diameter
+description: 包络外径限值小于组件尺寸
+system:
+  id: c11-envelope-diameter
+  requirement:
+    output_torque_cont_nm: 25
+    output_torque_peak_nm: 50
+    output_speed_rpm: 30
+    safety_factor: 1.2
+    supply:
+      current_type: ac
+      voltage_v: 220
+      phases: 1
+    fieldbus_protocol: ethercat
+    max_envelope_diameter_mm: 55
+  components:
+  - instance: motor
+    component: test.servo_motor.test-vendor.m400
+  - instance: reducer
+    component: test.reducer.test-vendor.r20-100
+  - instance: drive
+    component: test.drive.test-vendor.d400
+  connections:
+  - a: motor.shaft
+    b: reducer.input_bore
+  - a: motor.mount_flange
+    b: reducer.motor_flange
+  - a: drive.motor_out
+    b: motor.power_in
+  - a: motor.encoder
+    b: drive.encoder_in
+expected:
+  overall: fail
+  checks:
+    C11: fail
+    others: not_fail
+calc: |
+  C11: 减速器圆柱外径 70 mm > 55；电机方形截面 60 × 60 mm，按边长（60）或对角线（84.9）计都 > 55 → fail
+  （系统包络外径的确切算法待 M3 定义；本用例取值保证任一算法都判 fail）
+  其余同 valid/m400-r20-d400

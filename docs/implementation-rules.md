@@ -269,7 +269,7 @@ expected:
     others: not_fail  # 其余各项不得为 fail
 ```
 
-用例引用的组件可以是种子数据，也可以是放在 `tests/golden/fixtures/` 里的虚构测试组件；虚构组件的 id 以 `test.` 开头，永远不进入正式库。
+用例引用的组件放在 `tests/golden/fixtures/`，M1–M3 一律为虚构测试组件（ADR-0015），id 以 `test.` 开头，永远不进入正式库。缺关键数据、整体结论为 `unknown` 的用例放在 `unknown/` 目录。`checks` 的值除四种状态外还可为 `any`，表示该项依赖 M3 尚未定义的规则、本用例不断言。
 
 ### 2. 覆盖要求
 
