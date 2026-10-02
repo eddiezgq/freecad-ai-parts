@@ -13,7 +13,7 @@ import hashlib
 import json
 import re
 import sys
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 
 EXTRACTOR_VERSION = "pdfplumber-lines/1"
@@ -55,6 +55,14 @@ class Document:
     def to_dict(self) -> dict:
         return asdict(self)
 
+    def select(self, pages: list[int]) -> Document:
+        """只保留给定页码（原页码不变，SHA-256 仍是整份文件的）：多型号目录只把相关页交给 LLM（ADR-0040）。"""
+        wanted = set(pages)
+        missing = sorted(wanted - {p.page for p in self.pages})
+        if missing:
+            raise ExtractError(f"页码 {missing} 超出文档范围（共 {len(self.pages)} 页）")
+        return replace(self, pages=[p for p in self.pages if p.page in wanted])
+
     def to_prompt_text(self) -> str:
         """给 LLM 的文本：逐页列出表格（Markdown）和正文，每页标明页码。"""
         out = []
@@ -66,6 +74,25 @@ class Document:
             out.append("[正文 / text]")
             out.append(p.text)
         return "\n".join(out).strip() + "\n"
+
+
+def parse_pages(spec: str) -> list[int]:
+    """“2-5,8” → [2, 3, 4, 5, 8]：页码从 1 开始，升序去重。"""
+    out: set[int] = set()
+    for part in (spec or "").replace("，", ",").split(","):
+        part = part.strip()
+        if not part:
+            continue
+        m = re.fullmatch(r"(\d+)\s*[-–]\s*(\d+)|(\d+)", part)
+        if not m:
+            raise ValueError(f"页码写法不对：{part!r}（例：2-5,8）")
+        lo, hi = (int(m.group(1)), int(m.group(2))) if m.group(1) else (int(m.group(3)), int(m.group(3)))
+        if lo < 1 or hi < lo:
+            raise ValueError(f"页码范围不对：{part!r}")
+        out.update(range(lo, hi + 1))
+    if not out:
+        raise ValueError("没有给出页码")
+    return sorted(out)
 
 
 def clean_cell(text: str | None) -> str | None:

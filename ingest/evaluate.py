@@ -207,6 +207,8 @@ def main(argv: list[str] | None = None) -> int:
     mode.add_argument("--replay", type=Path, help="只回放此目录中的录制（默认 tests/recordings/llm）")
     mode.add_argument("--record", action="store_true", help="真实调用并录制（需要 ANTHROPIC_API_KEY）")
     mode.add_argument("--simulate", action="store_true", help="用模拟响应检验评测代码（结果不计入验收）")
+    parser.add_argument("--catalogs", action="store_true",
+                        help="评测多型号目录（ADR-0040）：按页码范围与目标型号逐个型号抽取")
     args = parser.parse_args(argv)
 
     from ingest.llm_extract import (
@@ -226,6 +228,17 @@ def main(argv: list[str] | None = None) -> int:
     pairs = []
     try:
         for v in range(args.variants):
+            if args.catalogs:
+                from ingest.synthetic_multi import catalogs
+
+                for cat in catalogs(v):
+                    doc = extract(cat.render(args.work / "catalogs" / f"{cat.id}.pdf"))
+                    for model, answer in cat.answers.items():
+                        client = SimulatedClient(simulated_response(answer)) if args.simulate else (live or replay)
+                        result = extract_document(doc, cat.category, TEST_DOC, client, pages=answer["pages"],
+                                                  target_model=model)
+                        pairs.append((answer, result))
+                continue
             for sheet in datasheets(v):
                 doc = extract(sheet.render(args.work / f"{sheet.id}.pdf"))
                 client = SimulatedClient(simulated_response(sheet.answer)) if args.simulate else (live or replay)

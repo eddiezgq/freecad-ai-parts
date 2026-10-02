@@ -28,7 +28,10 @@ def proposals_from_answer(answer: dict) -> list[dict]:
     out = []
     for e in answer["fields"]:
         label = row_label(e, lang, layout)
-        quote = " ".join([label, e["text"]] + ([e["unit"] or "—"] if layout == "three_col" else []))
+        if "row" in e:  # 多型号目录：引用整行（ingest.synthetic_multi）
+            quote = " ".join(e["row"])
+        else:
+            quote = " ".join([label, e["text"]] + ([e["unit"] or "—"] if layout == "three_col" else []))
         expected = e["expected"]
         for tgt in e["paths"]:
             if tgt not in known:
