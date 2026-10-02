@@ -418,3 +418,15 @@ M4b 开发部分完成后，验收只剩人工演示（#90），M5 先行。需�
 
 规格书的下载与真实抽取在 GitHub Actions 或 Codespaces 中运行（本工作环境访问不到厂商网站）；在 Actions 中运行时，密钥 `ANTHROPIC_API_KEY` 取自仓库的 demo 环境。
 
+### M7 分项任务（2026-10-02 开工）：操作录制与学习
+
+项目负责人提出“自动录屏供 AI 学习”，决定录操作过程、视频可选（ADR-0042）。按依赖顺序：
+
+| 顺序 | issue | 内容 | 验收 |
+| --- | --- | --- | --- |
+| 1 | 方案 | ADR-0042；计划与细则 | 文档一致 |
+| 2 | 录制器与 FreeCAD 接入 | `freecad_addon/core/session_log.py`：会话包 `session/1`（meta、events.jsonl、snapshots/、outcome）、去密钥、改动来源、截图限频；`freecad_addon/fc/` 文档观察者与命令记录；工作台“开始 / 停止录制”、状态栏标记、停止时评价；对话面板事件写入录制 | 记录逻辑单测；FreeCAD 作业中文档改动被记下且来源正确 |
+| 3 | 可选视频 | ffmpeg 只录 FreeCAD 主窗口区域，默认关闭 | 有 ffmpeg 时生成视频，没有时说明原因、其余照常 |
+| 4 | 重放与数据集导出 | `python -m freecad_addon.sessions list / show / export / replay` | 导出 JSONL；重放在新文档中重建对象 |
+| 5 | 相似会话检索 | 对话助手按需求与组件检索历史会话，作为参考放进提示词 | 检索结果确定；不含密钥；可关闭 |
+| 6 | M7 验收 | | 录一次手工建模加一次 AI 布局，导出数据集，重放成功 |
