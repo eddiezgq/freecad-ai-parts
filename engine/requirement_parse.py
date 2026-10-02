@@ -272,6 +272,11 @@ def interpret(statement: str, tool_input: dict) -> dict:
     if supply.get("current_type") == "dc" and "phases" not in supply:
         supply["phases"] = 0
         defaults.append("直流供电，相数按 schema 约定记 0")
+    if "current_type" not in supply and supply.get("phases") in (1, 3):
+        # 单相、三相供电按定义是交流（ADR-0039）；原话没说“交流”时不必追问
+        supply["current_type"] = "ac"
+        basis.setdefault("supply.current_type", basis.get("supply.phases", ""))
+        defaults.append(f"{'单' if supply['phases'] == 1 else '三'}相供电，按定义为交流（ADR-0039）")
     if supply:
         if len(supply) == 3:
             if (supply["current_type"] == "dc") != (supply["phases"] == 0):

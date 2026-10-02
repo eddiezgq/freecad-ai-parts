@@ -37,13 +37,14 @@ def test_statement_to_bom_without_freecad_is_reproducible(tmp_path, monkeypatch)
     assert a == b
     assert set(a) == {"README.md", "requirement.json", "bom.csv", "bom.json", "system.json", "candidate-1.urdf"}
     req = json.loads(a["requirement.json"])
-    assert req["llm"]["simulated"] is True and req["basis"]["output_speed_rpm"] == "输出转速 30 rpm"
+    assert req["llm"]["simulated"] is False and req["basis"]["output_speed_rpm"] == "输出转速 30 rpm"
+    assert req["requirement"]["supply"] == {"current_type": "ac", "voltage_v": 220.0, "phases": 1}
     rows = list(csv.DictReader(io.StringIO(a["bom.csv"].decode())))
     assert {r["component_id"] for r in rows} >= {"test.servo_motor.test-vendor.m200", "test.reducer.test-vendor.r25-100"}
     system = json.loads(a["system.json"])
     assert system["system"]["layout"]["poses"]["reducer"]["position_mm"] == [0.0, 0.0, 30.0]
     readme = a["README.md"].decode()
-    assert "模拟响应" in readme and "没有做干涉检查" in readme and "可用" in readme
+    assert "claude-sonnet-5-5 的录制响应" in readme and "没有做干涉检查" in readme and "可用" in readme
 
 
 def test_structured_requirement_input(tmp_path, monkeypatch):
