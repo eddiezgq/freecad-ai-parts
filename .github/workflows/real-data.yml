@@ -1,0 +1,85 @@
+name: 真实数据（手动运行）
+
+# ADR-0040、issue #124：在云端按 data/sources.yaml 登记的网址下载规格书，建页码索引，按 data/extract_jobs.yaml 抽取。
+# 只把 SHA-256、页码索引、录制与抽取结果推到新分支 m6/data-run-<运行号>，再由人或 Claude 开 PR 合并；
+# 规格书 PDF 只在运行器的临时目录中，不提交、不作为构建产物保存。
+# 抽取需要仓库的 Actions secrets 中有 ANTHROPIC_API_KEY；没有时只下载、固定 SHA-256 和建索引。
+
+on:
+  workflow_dispatch:
+    inputs:
+      docs:
+        description: 只处理这些来源文档（空格分隔；留空为全部）
+        required: false
+        default: ""
+      extract:
+        description: 运行抽取任务（需要 ANTHROPIC_API_KEY）
+        type: boolean
+        default: true
+      catalog_eval:
+        description: 同时在合成的多型号目录上评测并录制（issue #125）
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: real-data
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      DOCS: ${{ inputs.docs }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: 安装字体（合成目录 PDF 用）
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends fonts-dejavu-core fonts-wqy-zenhei
+      - name: 安装依赖
+        run: pip install -e ".[dev,llm]"
+      - name: 下载登记的规格书，核对或固定 SHA-256
+        run: |
+          args=(); for d in $DOCS; do args+=(--doc "$d"); done
+          python -m ingest.fetch --pin "${args[@]}"
+      - name: 页码索引（不含原文）
+        run: |
+          python -m ingest.jobs index --summary index.md
+          { echo "## 页码索引"; cat index.md; } >> "$GITHUB_STEP_SUMMARY"
+      - name: 抽取
+        if: inputs.extract && env.ANTHROPIC_API_KEY != ''
+        run: |
+          args=(); for d in $DOCS; do args+=(--doc "$d"); done
+          python -m ingest.jobs run --record --summary jobs.md "${args[@]}" || echo "::warning::部分抽取任务失败，见摘要"
+          { echo "## 抽取"; cat jobs.md; } >> "$GITHUB_STEP_SUMMARY"
+      - name: 没有密钥时说明
+        if: inputs.extract && env.ANTHROPIC_API_KEY == ''
+        run: echo "::warning::仓库 Actions secrets 中没有 ANTHROPIC_API_KEY，只做了下载与索引，未抽取"
+      - name: 多型号目录评测（合成数据）
+        if: inputs.catalog_eval && env.ANTHROPIC_API_KEY != ''
+        run: |
+          python -m ingest.evaluate --catalogs --variants 2 --record --out eval-catalogs || true
+          { echo "## 多型号目录评测"; sed -n '1,/## 逐品类/p' eval-catalogs/report.md; } >> "$GITHUB_STEP_SUMMARY"
+      - name: 推到新分支（不含 PDF）
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          branch="m6/data-run-${GITHUB_RUN_ID}"
+          git checkout -b "$branch"
+          for p in data/sources.yaml data/extracted data/recordings tests/recordings/llm; do
+            if [ -e "$p" ]; then git add "$p"; fi
+          done
+          if git diff --cached --name-only | grep -Eiq '\.(pdf|part)$|^data/raw/'; then
+            echo "::error::暂存区中有规格书文件，停止"; exit 1
+          fi
+          if git diff --cached --quiet; then
+            echo "没有需要提交的变化"; exit 0
+          fi
+          git commit -m "M6: 云端下载与抽取结果（运行 ${GITHUB_RUN_ID}）" -m "由 .github/workflows/real-data.yml 生成；不含规格书原文件（ADR-0040）"
+          git push origin "$branch"
+          echo "已推到分支 $branch" >> "$GITHUB_STEP_SUMMARY"

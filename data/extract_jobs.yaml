@@ -1,0 +1,15 @@
+# 真实规格书的抽取任务（ADR-0040，issue #124、#125）。规格书须先在 data/sources.yaml 登记。
+#
+# index：先给规格书建页码索引（每页的表格数与检索词出现情况，不含原文），据此确定 pages
+#   - doc: src-...            来源文档 id
+#     terms: [型号或参数名…]
+#
+# jobs：抽取任务；每个目标型号抽取一次，结果写到 data/extracted/<doc>/<型号>.json
+#   - doc: src-...
+#     category: reducer        servo_motor | reducer | drive | bearing
+#     pages: "12-15,20"        只把这些页交给 LLM（原文页码）
+#     targets: [型号, …]       按目录中印出的写法
+
+index: []
+
+jobs: []

@@ -9,6 +9,7 @@
 | [V1 实施细则](implementation-rules.md) | 开发流程、代码规范、schema 字段级规格、校验规则、数据复核、golden 用例、各阶段分项任务 |
 | [演示](demo.md) | 从一句需求到 BOM 的三种演示方式 |
 | [MCP 客户端接入](mcp-client.md) | Claude Desktop 等客户端的配置、工具清单、HTTP 与 REST |
+| [真实数据](real-data.md) | 规格书登记、下载、页码索引与抽取（M6，ADR-0040） |
 
 文件优先级：架构 > 实施细则 > 开发计划 > 其他（实施细则第一节）。
 
