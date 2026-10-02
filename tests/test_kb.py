@@ -49,7 +49,11 @@ MOTOR = "test.servo_motor.test-vendor.m400"
 def test_project_sources_file_loads():
     reg = SourceRegistry.load()
     assert "harmonic-drive" in reg.sources
-    assert not reg.sources["harmonic-drive"].approved
+    assert reg.sources["harmonic-drive"].approved  # ADR-0040：公开目录参数，已核实
+    assert not reg.sources["leaderdrive"].approved  # 尚未核实条款的来源仍被拒
+    for s in reg.sources.values():  # 撤回或待定的来源一律不得入库
+        if s.license in ("withdrawn", "pending"):
+            assert not s.terms_checked
 
 
 def test_test_component_rejected_by_default():

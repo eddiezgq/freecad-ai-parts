@@ -33,7 +33,7 @@
 | [0012](adr/0012-component-system-requirement.md) | 组件、系统、需求 schema 的结构 | 2026-09-30 |
 | [0013](adr/0013-bearing-fit-system.md) | 圆柱端口增加公差体系，轴承用 ISO 492 精度等级 | 2026-09-30 |
 | [0014](adr/0014-interface-data-in-ports.md) | 品类 schema：接口数据只放在端口里，参数名封闭 | 2026-09-30 |
-| [0015](adr/0015-data-authorization.md) | 数据获取路线：先用虚构组件开发，真实厂商数据须取得书面授权 | 2026-09-30 |
+| [0015](adr/0015-data-authorization.md) | 数据获取路线：先用虚构组件开发，真实厂商数据须取得书面授权（第 2 条被 ADR-0040 取代） | 2026-09-30 |
 | [0016](adr/0016-not-applicable-status.md) | 校验结果增加“不适用”状态 | 2026-09-30 |
 | [0017](adr/0017-bearing-fit-judgement.md) | C2 对轴承端口的判定方式 | 2026-09-30 |
 | [0018](adr/0018-kb-storage.md) | 组件知识库的存储设计 | 2026-10-01 |
@@ -58,5 +58,6 @@
 | [0037](adr/0037-requirement-parsing.md) | 一句话需求的解析与端到端演示的可复现性 | 2026-10-01 |
 | [0038](adr/0038-eval-equivalence.md) | 抽取评测的等价规则与可推出字段 | 2026-10-01 |
 | [0039](adr/0039-phases-imply-ac.md) | 需求解析中单相、三相供电推出交流 | 2026-10-01 |
+| [0040](adr/0040-public-catalog-data.md) | 用厂商公开的产品目录参数跑通真实数据（取代 ADR-0015 第 2 条） | 2026-10-01 |
 
 新决策按 [模板](adr/template.md) 编写，编号顺延；已接受的决策不改写，被取代时新建一条并标注。
