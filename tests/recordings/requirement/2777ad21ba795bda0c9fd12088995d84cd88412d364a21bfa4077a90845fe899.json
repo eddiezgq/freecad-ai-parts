@@ -1,0 +1,44 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "requirement/2",
+  "request_key": "2777ad21ba795bda0c9fd12088995d84cd88412d364a21bfa4077a90845fe899",
+  "response": {
+    "id": "msg_011CfcWgHyRaaUYeKryrpMeF",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "field": "output_torque_cont_nm",
+          "quote": "连续扭矩 8 N·m",
+          "unit": "N·m",
+          "value": 8
+        },
+        {
+          "field": "output_torque_peak_nm",
+          "quote": "峰值 20 N·m",
+          "unit": "N·m",
+          "value": 20
+        },
+        {
+          "field": "supply.voltage_v",
+          "quote": "48 V 直流供电",
+          "unit": "V",
+          "value": 48
+        },
+        {
+          "field": "supply.current_type",
+          "quote": "48 V 直流供电",
+          "unit": "",
+          "value": "dc"
+        },
+        {
+          "field": "max_envelope_diameter_mm",
+          "quote": "外径不超过 80 mm",
+          "unit": "mm",
+          "value": 80
+        }
+      ],
+      "unclear": []
+    }
+  }
+}
