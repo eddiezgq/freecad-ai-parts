@@ -117,9 +117,15 @@ class ChatPanel(QtWidgets.QDockWidget):
         self.send_button.setEnabled(False)
         self.status.setText("思考中…")
 
+        def on_event(e: Event) -> None:
+            from freecad_addon.gui import recording
+
+            recording.chat_event(e)  # 录制中时写入会话包（ADR-0042），并标出 AI 工具调用的时间段
+            self.event_posted.emit(e)
+
         def work() -> None:
             try:
-                engine.send(text, on_event=self.event_posted.emit)
+                engine.send(text, on_event=on_event)
             finally:
                 self.turn_done.emit()
 

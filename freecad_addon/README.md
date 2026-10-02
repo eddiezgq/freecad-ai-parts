@@ -68,3 +68,23 @@ export ANTHROPIC_API_KEY=...                             # 或写在本仓库的
 - 模型缺省为 `claude-sonnet-5-5`，可用 `FAP_CHAT_MODEL` 更换
 - 组件库按 `FAP_LIBRARY` / `DATABASE_URL` 配置；都没设置时用虚构测试组件库，面板顶部会注明
 - 卸载：`python -m freecad_addon.install --uninstall`
+
+## 操作录制（ADR-0042）
+
+在 AI Parts 工作台点 **开始 / 停止录制**，录下这次的操作过程，供 AI 学习。录制默认关闭；录制期间，状态栏一直显示“● 录制中”。
+
+- **录什么**：
+  - 界面命令
+  - 文档改动：增加、删除、属性前后的值，每条都标明来自用户（`user`）还是 AI 助手的工具调用（`ai`）
+  - 选择
+  - 对话面板的消息与工具调用
+  - 重算后的 3D 视图截图，至少间隔 2 秒
+- **停止时**：请你评价这次结果（采纳 / 修改后采纳 / 未采纳），可以不评；最后的方案与校验结论一并记下
+- **存在哪**：本机 `~/.freecad-ai-parts/sessions/<时间>-<编号>/`，可用 `FAP_SESSIONS_DIR` 另指目录；不自动上传
+  - `meta.json`
+  - `events.jsonl`
+  - `snapshots/`
+  - `outcome.json`
+- **隐私**：写盘前去掉密钥（`ANTHROPIC_API_KEY` 的值、`sk-ant-…` 等）；属性值只记简短表示，不记形体数据
+
+视频（可选）、重放与数据集导出、相似会话检索见 M7 后续任务。
