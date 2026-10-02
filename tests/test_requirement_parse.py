@@ -44,6 +44,19 @@ def test_replay_of_example_matches_example_requirement():
     assert rp.parse(S) == out  # 回放确定
 
 
+def test_replay_missing_speed_asks_instead_of_guessing():
+    """真实录制（claude-sonnet-5-5）：没说转速时停下追问，不编造转速。"""
+    s = "给协作机器人腕部关节选型，连续扭矩 8 N·m，峰值 20 N·m，48 V 直流供电，外径不超过 80 mm"
+    out = rp.parse(s)
+    assert out["status"] == "needs_input" and out["llm"]["simulated"] is False
+    assert "output_speed_rpm" not in out["requirement"]
+    assert out["questions"] == [rp.QUESTIONS["output_speed_rpm"]]
+    assert out["requirement"]["supply"] == {"current_type": "dc", "voltage_v": 48.0, "phases": 0}
+    assert out["requirement"]["max_envelope_diameter_mm"] == 80.0
+    assert all(out["basis"][k] for k in out["basis"])  # 每个字段（含推导值）都有原文依据
+    assert out["rejected"] == [] and rp.parse(s) == out
+
+
 def test_unrecorded_statement_raises():
     with pytest.raises(RecordingMissing):
         rp.parse("一句没有录制过的话")
