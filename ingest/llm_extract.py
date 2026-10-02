@@ -384,6 +384,7 @@ class _Line:
     is_row: bool
     header: str = ""  # 表格行：所在表格首行（表头）去空白后的文字
     header_cells: tuple[str, ...] = ()  # 表格行：表头各单元格（去空白）
+    head_rows: tuple[tuple[str, ...], ...] = ()  # 表格行：表格前三行（多层表头，型号常在第二、三行）
 
     @property
     def joined(self) -> str:
@@ -406,8 +407,9 @@ def _context(document: Document, target_model: str | None = None) -> _Ctx:
         for t in p.tables:
             header = _squash(" ".join(c or "" for c in t.rows[0])) if t.rows else ""
             hcells = tuple(_squash(c or "") for c in t.rows[0]) if t.rows else ()
+            heads = tuple(tuple(_squash(c or "") for c in r) for r in t.rows[:3])
             ls += [_Line(tuple(_squash(c or "") for c in row), _spaced(" ".join(c or "" for c in row)), True, header,
-                         hcells)
+                         hcells, heads)
                    for row in t.rows]
         ls += [_Line((_squash(ln),), _spaced(ln), False) for ln in p.text.splitlines() if ln.strip()]
         lines[p.page] = ls
@@ -548,15 +550,30 @@ def _cell_is(cell: str, text: str, unit: str) -> bool:
     return cell == t or bool(u) and cell in (t + u, u + t)
 
 
+def _model_col(row: tuple[str, ...], model: str) -> int | None:
+    """表头行中目标型号所在的列：整格就是型号；或前缀写在左侧某格（如“型号 SGM7J-”），本格是后缀（如“02A”）。"""
+    cells = [_loose(c) for c in row]
+    if model in cells:
+        return cells.index(model)
+    for j, c in enumerate(cells):
+        if c and model.endswith(c) and len(c) < len(model):
+            prefix = model[: -len(c)]
+            if any(h.endswith(prefix) for h in cells[:j] if h):
+                return j
+    return None
+
+
 def _model_column(line: _Line, model: str, text: str, unit: str) -> bool | None:
     """多型号目录：数值是否在目标型号的列（或行）中。True 已确认，False 不在，None 判断不了（交给复核）。"""
     if any(_loose(c) == model for c in line.cells):  # 按型号分行：型号就在这一行
         return True
-    heads = [_loose(c) for c in line.header_cells]
-    if model not in heads:
-        return None
-    j = heads.index(model)
-    return j < len(line.cells) and _cell_is(line.cells[j], text, unit)
+    for row in line.head_rows or (line.header_cells,):
+        if row == line.cells:  # 表头行本身
+            break
+        j = _model_col(row, model)
+        if j is not None:
+            return j < len(line.cells) and _cell_is(line.cells[j], text, unit)
+    return None
 
 
 def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list[str]]:
