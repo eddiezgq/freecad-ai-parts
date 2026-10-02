@@ -64,6 +64,8 @@ Windows 下 `command` 为 `C:\\path\\to\\freecad-ai-parts\\.venv\\Scripts\\pytho
 
 预期过程：客户端的 LLM 把需求转成结构化需求，调用 `compose_chain`，然后展示候选方案的组成、整体结论（通过、有条件可用等）和每个告警的原因。每个方案都经过 11 项校验。在虚构组件库上，排第一的是 200 W 电机经轴套与适配法兰板接 r25 减速器（全部通过）；400 W 电机直连 r20 的方案排在后面，带一条“减速器过载保护”告警，提示在驱动器里设置扭矩限幅。
 
+组件库里没有合适的轴套或转接板时，`compose_chain` 会按两侧端口尺寸生成转接件（ADR-0041），厂商记为 `freecad-ai-parts (generated)`，须加工。参数 `generate_adapters` 不填时，组件库里一个转接件都没有（如由公开目录建的真实组件库）就生成。生成件在本会话中可按 id 复核、布局和导出。
+
 还可以接着问：
 - “方案 1 的 BOM 导出成 CSV”（`export_system`）
 - “m200 电机的轴能接哪些减速器？”（`find_compatible`，会注明哪些需要经轴套）

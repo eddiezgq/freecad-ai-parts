@@ -58,6 +58,33 @@ class KbLibrary:
         return [self._get(self.conn, cid) for cid in list_components(self.conn, category)]
 
 
+class WithGenerated:
+    """在组件库之上叠加本会话生成的转接件（ADR-0041）：get 能找到它们，all 只列组件库本身。
+
+    生成件由求解时按端口尺寸生成，不进入组件库；方案随后的复核、布局与导出都要能按 id 找到它们。
+    """
+
+    PREFIX = "adapter.fap-generated."
+
+    def __init__(self, base: Library):
+        self.base = base
+        self._generated: dict[str, dict] = {}
+
+    def register(self, comp: dict) -> None:
+        if not str(comp.get("id", "")).startswith(self.PREFIX):
+            raise ValueError(f"只能登记生成的转接件（id 以 {self.PREFIX} 开头）：{comp.get('id')}")
+        old = self._generated.get(comp["id"])
+        if old is not None and old != comp:
+            raise ValueError(f"生成件 {comp['id']} 与已登记的内容不同")
+        self._generated[comp["id"]] = comp
+
+    def get(self, cid: str) -> dict | None:
+        return self.base.get(cid) or self._generated.get(cid)
+
+    def all(self, category: str | None = None) -> list[dict]:
+        return self.base.all(category)
+
+
 def default_library() -> Library:
     path = os.environ.get("FAP_LIBRARY")
     if path:

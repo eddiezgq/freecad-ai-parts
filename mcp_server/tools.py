@@ -199,8 +199,13 @@ def verify_system(library: Library, system: dict, *, lang: str = "zh") -> dict:
 
 
 def compose_chain(library: Library, requirement: dict, *, top_n: int = 5, include_unknown: bool = False,
-                  lang: str = "zh") -> dict:
-    """按需求从组件库组合“电机 →（转接件）→ 减速器 + 驱动器”，返回校验过、排好序的候选方案（ADR-0029）。"""
+                  lang: str = "zh", generate_adapters: bool | None = None) -> dict:
+    """按需求从组件库组合“电机 →（转接件）→ 减速器 + 驱动器”，返回校验过、排好序的候选方案（ADR-0029）。
+
+    generate_adapters：库中没有合适的轴套或转接板时按端口尺寸生成（ADR-0041）。缺省（None）时，组件库里
+    一个转接件都没有（如由公开目录建的真实组件库）就生成，否则不生成。生成件登记到会话中，后续复核、布局与
+    导出按 id 能找到。
+    """
     from engine.compose import compose_chain as solve
     from engine.explain import explain, explain_candidates
 
@@ -208,7 +213,19 @@ def compose_chain(library: Library, requirement: dict, *, top_n: int = 5, includ
     _schema_check("requirement.schema.json", requirement, "需求")
     if isinstance(top_n, bool) or not isinstance(top_n, int) or not 1 <= top_n <= 20:
         raise ToolInputError("top_n 须为 1–20 的整数")
-    cands = solve(requirement, library.all(), top_n=top_n, include_unknown=include_unknown)
+    if generate_adapters is not None and not isinstance(generate_adapters, bool):
+        raise ToolInputError("generate_adapters 须为 true、false 或不填")
+    comps = library.all()
+    if generate_adapters is None:
+        generate_adapters = not any(c["category"] == "adapter" for c in comps)
+    cands = solve(requirement, comps, top_n=top_n, include_unknown=include_unknown,
+                  generate_adapters=generate_adapters)
+    register = getattr(library, "register", None)
+    for c in cands:
+        for g in c.generated:
+            if register is None:
+                raise ToolInputError("当前组件库不能登记生成的转接件；请关闭 generate_adapters")
+            register(g)
     return {
         "count": len(cands),
         "candidates": [{**c.to_dict(), "overall": c.overall, "explanation": explain(c.report, lang)} for c in cands],
