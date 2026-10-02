@@ -1,0 +1,2448 @@
+[
+ {
+  "page": 1,
+  "tables": 0,
+  "chars": 658,
+  "head": [
+   "-7-Series AC Servo Drive",
+   "Rotary Servomotor"
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 2,
+  "tables": 0,
+  "chars": 822,
+  "head": [
+   "Copyright © 2014 YASKAWA ELECTRIC CORPORATION",
+   "All rights reserved. No part of this publication may be repr"
+  ],
+  "terms": []
+ },
+ {
+  "page": 3,
+  "tables": 1,
+  "chars": 2273,
+  "head": [
+   "About this Manual",
+   "This manual provides information required to select, install"
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 4,
+  "tables": 11,
+  "chars": 1314,
+  "head": [
+   "Related Documents",
+   "The relationships between the documents that are related to "
+  ],
+  "terms": []
+ },
+ {
+  "page": 5,
+  "tables": 1,
+  "chars": 2279,
+  "head": [
+   "Classification Document Name Document No. Description",
+   "Describes the features and applica-"
+  ],
+  "terms": []
+ },
+ {
+  "page": 6,
+  "tables": 1,
+  "chars": 2072,
+  "head": [
+   "Continued from previous page.",
+   "Classification Document Name Document No. Description"
+  ],
+  "terms": []
+ },
+ {
+  "page": 7,
+  "tables": 1,
+  "chars": 1509,
+  "head": [
+   "Continued from previous page.",
+   "Classification Document Name Document No. Description"
+  ],
+  "terms": []
+ },
+ {
+  "page": 8,
+  "tables": 1,
+  "chars": 2150,
+  "head": [
+   "Continued from previous page.",
+   "Classification Document Name Document No. Description"
+  ],
+  "terms": []
+ },
+ {
+  "page": 9,
+  "tables": 1,
+  "chars": 2159,
+  "head": [
+   "Continued from previous page.",
+   "Classification Document Name Document No. Description"
+  ],
+  "terms": []
+ },
+ {
+  "page": 10,
+  "tables": 1,
+  "chars": 1294,
+  "head": [
+   "Using This Manual",
+   " Technical Terms Used in This Manual"
+  ],
+  "terms": []
+ },
+ {
+  "page": 11,
+  "tables": 4,
+  "chars": 876,
+  "head": [
+   "Safety Precautions",
+   " Safety Information"
+  ],
+  "terms": []
+ },
+ {
+  "page": 12,
+  "tables": 4,
+  "chars": 2800,
+  "head": [
+   " Safety Precautions That Must Always Be Observed",
+   " General Precautions"
+  ],
+  "terms": []
+ },
+ {
+  "page": 13,
+  "tables": 3,
+  "chars": 2026,
+  "head": [
+   " Storage Precautions",
+   "CAUTION"
+  ],
+  "terms": []
+ },
+ {
+  "page": 14,
+  "tables": 2,
+  "chars": 2082,
+  "head": [
+   "NOTICE",
+   "A SERVOPACK or Servomotor is a precision device. Do not dro"
+  ],
+  "terms": []
+ },
+ {
+  "page": 15,
+  "tables": 2,
+  "chars": 3506,
+  "head": [
+   "NOTICE",
+   "Do not install or store the product in any of the following"
+  ],
+  "terms": []
+ },
+ {
+  "page": 16,
+  "tables": 3,
+  "chars": 3261,
+  "head": [
+   "WARNING",
+   "Wiring and inspections must be performed only by qualified "
+  ],
+  "terms": []
+ },
+ {
+  "page": 17,
+  "tables": 2,
+  "chars": 3027,
+  "head": [
+   " Operation Precautions",
+   "WARNING"
+  ],
+  "terms": []
+ },
+ {
+  "page": 18,
+  "tables": 5,
+  "chars": 2145,
+  "head": [
+   "NOTICE",
+   "Always measure the vibration of the Servomotor with the Ser"
+  ],
+  "terms": []
+ },
+ {
+  "page": 19,
+  "tables": 1,
+  "chars": 2024,
+  "head": [
+   "CAUTION",
+   "When an alarm occurs, remove the cause of the alarm and ens"
+  ],
+  "terms": []
+ },
+ {
+  "page": 20,
+  "tables": 0,
+  "chars": 2316,
+  "head": [
+   "Warranty",
+   " Details of Warranty"
+  ],
+  "terms": []
+ },
+ {
+  "page": 21,
+  "tables": 0,
+  "chars": 2349,
+  "head": [
+   " Suitability for Use",
+   "• It is the customer’s responsibility to confirm conformity "
+  ],
+  "terms": []
+ },
+ {
+  "page": 22,
+  "tables": 1,
+  "chars": 797,
+  "head": [
+   "Compliance with UL Standards, EU Directives, and Other Safet",
+   "Certification marks for the standards for which the product "
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 23,
+  "tables": 1,
+  "chars": 1774,
+  "head": [
+   " European Directives",
+   "Product Model European Directive Harmonized Standards"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 24,
+  "tables": 3,
+  "chars": 771,
+  "head": [
+   " Safety Standards",
+   "Product Model Safety Standards Standards"
+  ],
+  "terms": []
+ },
+ {
+  "page": 25,
+  "tables": 7,
+  "chars": 3540,
+  "head": [
+   "Contents",
+   "About this Manual. . . . . . . . . . . . . . . . . . . . . ."
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 26,
+  "tables": 6,
+  "chars": 4318,
+  "head": [
+   "3.2.6 Allowable Load Moment of Inertia Scaling Factor",
+   "for SERVOPACKs without Built-in Regenerative Resistors . . ."
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 27,
+  "tables": 6,
+  "chars": 4413,
+  "head": [
+   "5.2.11 Applications Where the Surrounding Air Temperature",
+   "of the Servomotor Exceeds 40°C . . . . . . . . . . . . . . ."
+  ],
+  "terms": [
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 28,
+  "tables": 10,
+  "chars": 4079,
+  "head": [
+   "7.3 External Dimensions . . . . . . . . . . . . . . . . . . ",
+   "7.3.1 Servomotors without Holding Brakes. . . . . . . . . . "
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 29,
+  "tables": 5,
+  "chars": 1227,
+  "head": [
+   "Maintenance and Inspection",
+   "10"
+  ],
+  "terms": []
+ },
+ {
+  "page": 30,
+  "tables": 4,
+  "chars": 1187,
+  "head": [
+   "Basic Information on",
+   "Servomotors 1"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 31,
+  "tables": 0,
+  "chars": 1213,
+  "head": [
+   "1.1 Servomotor Part Names",
+   "1.1.1 SGMMV Servomotors"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 32,
+  "tables": 1,
+  "chars": 973,
+  "head": [
+   "1.1 Servomotor Part Names",
+   "1.1.4 SGM7A Servomotors of 1.5 kW to 5.0 kW and SGM7G Servom"
+  ],
+  "terms": []
+ },
+ {
+  "page": 33,
+  "tables": 1,
+  "chars": 1141,
+  "head": [
+   "1.2 Interpreting the Nameplates",
+   "1.2.1 SGMMV Servomotors"
+  ],
+  "terms": [
+   "SGM7J",
+   "Rated Output",
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 34,
+  "tables": 7,
+  "chars": 2422,
+  "head": [
+   "1.3 Outline of Model Designations",
+   "1.3.1 Servomotor"
+  ],
+  "terms": [
+   "SGM7J",
+   "Rated Output"
+  ]
+ },
+ {
+  "page": 35,
+  "tables": 1,
+  "chars": 1796,
+  "head": [
+   "1.4 Combinations of Servomotors and SERVOPACKs",
+   "1.4 Combinations of Servomotors and SERVOPACKs"
+  ],
+  "terms": [
+   "SGM7J",
+   "SGM7J-A5A",
+   "SGM7J-01A",
+   "SGM7J-C2A",
+   "SGM7J-02A",
+   "SGM7J-04A",
+   "SGM7J-06A",
+   "SGM7J-08A",
+   "Rated Output"
+  ]
+ },
+ {
+  "page": 36,
+  "tables": 1,
+  "chars": 375,
+  "head": [
+   "Capacity Selection 2",
+   "This chapter describes calculation methods to use when"
+  ],
+  "terms": []
+ },
+ {
+  "page": 37,
+  "tables": 3,
+  "chars": 1480,
+  "head": [
+   "2.1 Selecting the Servomotor Capacity",
+   "2.1.1 Capacity Selection Example for a Rotary Servomotor: Fo"
+  ],
+  "terms": []
+ },
+ {
+  "page": 38,
+  "tables": 2,
+  "chars": 1893,
+  "head": [
+   "2.1 Selecting the Servomotor Capacity",
+   "2.1.1 Capacity Selection Example for a Rotary Servomotor: Fo"
+  ],
+  "terms": [
+   "SGM7J",
+   "SGM7J-02A",
+   "Rated Output",
+   "Rated Torque",
+   "Instantaneous Maximum Torque"
+  ]
+ },
+ {
+  "page": 39,
+  "tables": 4,
+  "chars": 1488,
+  "head": [
+   "2.1 Selecting the Servomotor Capacity",
+   "2.1.2 Capacity Selection Example for a Rotary Servomotor: Fo"
+  ],
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 40,
+  "tables": 2,
+  "chars": 1753,
+  "head": [
+   "2.1 Selecting the Servomotor Capacity",
+   "2.1.2 Capacity Selection Example for a Rotary Servomotor: Fo"
+  ],
+  "terms": [
+   "SGM7J",
+   "SGM7J-01A",
+   "Rated Output",
+   "Rated Torque",
+   "Instantaneous Maximum Torque"
+  ]
+ },
+ {
+  "page": 41,
+  "tables": 0,
+  "chars": 2147,
+  "head": [
+   "2.1 Selecting the Servomotor Capacity",
+   "2.1.2 Capacity Selection Example for a Rotary Servomotor: Fo"
+  ],
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 42,
+  "tables": 3,
+  "chars": 1238,
+  "head": [
+   "Specifications,",
+   "Ratings, and External"
+  ],
+  "terms": [
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 43,
+  "tables": 5,
+  "chars": 559,
+  "head": [
+   "3.1 Model Designations",
+   "3.1 Model Designations"
+  ],
+  "terms": [
+   "Rated Output"
+  ]
+ },
+ {
+  "page": 44,
+  "tables": 5,
+  "chars": 2501,
+  "head": [
+   "3.2 Specifications and Ratings",
+   "3.2.1 Specifications"
+  ],
+  "terms": []
+ },
+ {
+  "page": 45,
+  "tables": 4,
+  "chars": 2318,
+  "head": [
+   "3.2 Specifications and Ratings",
+   "3.2.2 Servomotor Ratings"
+  ],
+  "terms": [
+   "Rated Output",
+   "Rated Torque",
+   "Instantaneous Maximum Torque",
+   "Torque Constant"
+  ]
+ },
+ {
+  "page": 46,
+  "tables": 4,
+  "chars": 1809,
+  "head": [
+   "3.2 Specifications and Ratings",
+   "3.2.3 Torque-Motor Speed Characteristics"
+  ],
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 47,
+  "tables": 0,
+  "chars": 1372,
+  "head": [
+   "3.2 Specifications and Ratings",
+   "3.2.5 Load Moment of Inertia"
+  ],
+  "terms": []
+ },
+ {
+  "page": 48,
+  "tables": 4,
+  "chars": 2370,
+  "head": [
+   "3.2 Specifications and Ratings",
+   "3.2.6 Allowable Load Moment of Inertia Scaling Factor for SE"
+  ],
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 49,
+  "tables": 6,
+  "chars": 854,
+  "head": [
+   "3.3 External Dimensions",
+   "3.3.1 Servomotors without Holding Brakes"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 50,
+  "tables": 7,
+  "chars": 915,
+  "head": [
+   "3.3 External Dimensions",
+   "3.3.2 Servomotors with Holding Brakes"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 51,
+  "tables": 3,
+  "chars": 602,
+  "head": [
+   "3.3 External Dimensions",
+   "3.3.3 Connector Specifications"
+  ],
+  "terms": [
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 52,
+  "tables": 3,
+  "chars": 1760,
+  "head": [
+   "Specifications,",
+   "Ratings, and External"
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 53,
+  "tables": 12,
+  "chars": 1755,
+  "head": [
+   "4.1 Model Designations",
+   "4.1.1 Without Gears"
+  ],
+  "terms": [
+   "SGM7J",
+   "SGM7J-01A",
+   "Rated Output"
+  ]
+ },
+ {
+  "page": 54,
+  "tables": 5,
+  "chars": 2492,
+  "head": [
+   "4.2 Specifications and Ratings",
+   "4.2.1 Specifications"
+  ],
+  "terms": [
+   "SGM7J",
+   "SGM7J-A5A"
+  ]
+ },
+ {
+  "page": 55,
+  "tables": 2,
+  "chars": 2631,
+  "head": [
+   "4.2 Specifications and Ratings",
+   "4.2.2 Ratings of Servomotors without Gears"
+  ],
+  "terms": [
+   "SGM7J",
+   "SGM7J-A5A",
+   "Rated Output",
+   "Rated Torque",
+   "Instantaneous Maximum Torque",
+   "Torque Constant"
+  ]
+ },
+ {
+  "page": 56,
+  "tables": 9,
+  "chars": 3172,
+  "head": [
+   "4.2 Specifications and Ratings",
+   "4.2.3 Torque-Motor Speed Characteristics"
+  ],
+  "terms": [
+   "SGM7J",
+   "SGM7J-A5A",
+   "SGM7J-01A",
+   "SGM7J-C2A",
+   "SGM7J-02A",
+   "SGM7J-04A",
+   "SGM7J-06A",
+   "SGM7J-08A",
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 57,
+  "tables": 2,
+  "chars": 3292,
+  "head": [
+   "4.2 Specifications and Ratings",
+   "4.2.4 Ratings of Servomotors with Gears"
+  ],
+  "terms": [
+   "SGM7J",
+   "SGM7J-A5A",
+   "SGM7J-01A",
+   "SGM7J-C2A",
+   "Rated Output",
+   "Rated Torque",
+   "Instantaneous Maximum Torque"
+  ]
+ },
+ {
+  "page": 58,
+  "tables": 4,
+  "chars": 2538,
+  "head": [
+   "4.2 Specifications and Ratings",
+   "4.2.4 Ratings of Servomotors with Gears"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 59,
+  "tables": 2,
+  "chars": 1562,
+  "head": [
+   "4.2 Specifications and Ratings",
+   "4.2.5 Servomotor Overload Protection Characteristics"
+  ],
+  "terms": [
+   "SGM7J",
+   "SGM7J-A5A",
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 60,
+  "tables": 1,
+  "chars": 1462,
+  "head": [
+   "4.2 Specifications and Ratings",
+   "4.2.6 Load Moment of Inertia"
+  ],
+  "terms": []
+ },
+ {
+  "page": 61,
+  "tables": 5,
+  "chars": 1473,
+  "head": [
+   "4.2 Specifications and Ratings",
+   "4.2.7 Allowable Load Moment of Inertia Scaling Factor for SE"
+  ],
+  "terms": [
+   "SGM7J",
+   "SGM7J-A5A",
+   "SGM7J-01A",
+   "SGM7J-C2A",
+   "SGM7J-02A",
+   "SGM7J-04A",
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 62,
+  "tables": 6,
+  "chars": 3005,
+  "head": [
+   "4.2 Specifications and Ratings",
+   "4.2.8 Servomotor Heat Dissipation Conditions"
+  ],
+  "terms": [
+   "SGM7J",
+   "SGM7J-A5A",
+   "SGM7J-01A",
+   "SGM7J-02A",
+   "SGM7J-06A"
+  ]
+ },
+ {
+  "page": 63,
+  "tables": 2,
+  "chars": 1350,
+  "head": [
+   "4.2 Specifications and Ratings",
+   "4.2.10 Applications Where the Altitude of the Servomotor Exc"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 64,
+  "tables": 7,
+  "chars": 1458,
+  "head": [
+   "4.3 External Dimensions",
+   "4.3.1 Servomotors without Gears"
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 65,
+  "tables": 5,
+  "chars": 1607,
+  "head": [
+   "4.3 External Dimensions",
+   "4.3.1 Servomotors without Gears"
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 66,
+  "tables": 6,
+  "chars": 836,
+  "head": [
+   "4.3 External Dimensions",
+   "4.3.2 Shaft End Specifications"
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 67,
+  "tables": 7,
+  "chars": 452,
+  "head": [
+   "4.3 External Dimensions",
+   "4.3.3 Connector Mounting Dimensions"
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 68,
+  "tables": 6,
+  "chars": 2199,
+  "head": [
+   "4.3 External Dimensions",
+   "4.3.4 Servomotors with Gears"
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 69,
+  "tables": 4,
+  "chars": 2122,
+  "head": [
+   "4.3 External Dimensions",
+   "4.3.4 Servomotors with Gears"
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 70,
+  "tables": 7,
+  "chars": 2325,
+  "head": [
+   "4.3 External Dimensions",
+   "4.3.4 Servomotors with Gears"
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 71,
+  "tables": 3,
+  "chars": 1307,
+  "head": [
+   "4.3 External Dimensions",
+   "4.3.4 Servomotors with Gears"
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 72,
+  "tables": 5,
+  "chars": 1509,
+  "head": [
+   "4.3 External Dimensions",
+   "4.3.4 Servomotors with Gears"
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 73,
+  "tables": 3,
+  "chars": 935,
+  "head": [
+   "4.3 External Dimensions",
+   "4.3.4 Servomotors with Gears"
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 74,
+  "tables": 2,
+  "chars": 654,
+  "head": [
+   "4.3 External Dimensions",
+   "4.3.4 Servomotors with Gears"
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 75,
+  "tables": 2,
+  "chars": 1920,
+  "head": [
+   "4.3 External Dimensions",
+   "4.3.4 Servomotors with Gears"
+  ],
+  "terms": [
+   "SGM7J",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 76,
+  "tables": 2,
+  "chars": 1743,
+  "head": [
+   "Specifications,",
+   "Ratings, and External"
+  ],
+  "terms": [
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 77,
+  "tables": 1,
+  "chars": 758,
+  "head": [
+   "5.3 External Dimensions . . . . . . . . . . . . . . . . .5-1",
+   "5.3.1 Servomotors without Gears . . . . . . . . . . . . . . "
+  ],
+  "terms": [
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 78,
+  "tables": 13,
+  "chars": 2132,
+  "head": [
+   "5.1 Model Designations",
+   "5.1.1 Without Gears"
+  ],
+  "terms": [
+   "Rated Output"
+  ]
+ },
+ {
+  "page": 79,
+  "tables": 3,
+  "chars": 2058,
+  "head": [
+   "5.2 Specifications and Ratings",
+   "5.2.1 Specifications"
+  ],
+  "terms": []
+ },
+ {
+  "page": 80,
+  "tables": 3,
+  "chars": 2879,
+  "head": [
+   "5.2 Specifications and Ratings",
+   "5.2.2 Ratings of Servomotors without Gears for the SGM7A-A5 "
+  ],
+  "terms": [
+   "Rated Output",
+   "Rated Torque",
+   "Instantaneous Maximum Torque",
+   "Torque Constant"
+  ]
+ },
+ {
+  "page": 81,
+  "tables": 9,
+  "chars": 2483,
+  "head": [
+   "5.2 Specifications and Ratings",
+   "5.2.3 Torque-Motor Speed Characteristics of the SGM7A-A5 to "
+  ],
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 82,
+  "tables": 2,
+  "chars": 1977,
+  "head": [
+   "5.2 Specifications and Ratings",
+   "5.2.4 Ratings of Servomotors without Gears for the SGM7A-15 "
+  ],
+  "terms": [
+   "Rated Output",
+   "Rated Torque",
+   "Torque Constant"
+  ]
+ },
+ {
+  "page": 83,
+  "tables": 8,
+  "chars": 3772,
+  "head": [
+   "5.2 Specifications and Ratings",
+   "5.2.5 Torque-Motor Speed Characteristics of the SGM7A-15 to "
+  ],
+  "terms": [
+   "Rated Output",
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 84,
+  "tables": 3,
+  "chars": 2938,
+  "head": [
+   "5.2 Specifications and Ratings",
+   "5.2.6 Ratings of Servomotors with Gears"
+  ],
+  "terms": [
+   "Rated Output",
+   "Rated Torque",
+   "Instantaneous Maximum Torque"
+  ]
+ },
+ {
+  "page": 85,
+  "tables": 3,
+  "chars": 3380,
+  "head": [
+   "5.2 Specifications and Ratings",
+   "5.2.6 Ratings of Servomotors with Gears"
+  ],
+  "terms": [
+   "Rated Output"
+  ]
+ },
+ {
+  "page": 86,
+  "tables": 4,
+  "chars": 2002,
+  "head": [
+   "5.2 Specifications and Ratings",
+   "5.2.7 Servomotor Overload Protection Characteristics"
+  ],
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 87,
+  "tables": 0,
+  "chars": 1502,
+  "head": [
+   "5.2 Specifications and Ratings",
+   "5.2.8 Load Moment of Inertia"
+  ],
+  "terms": []
+ },
+ {
+  "page": 88,
+  "tables": 6,
+  "chars": 1563,
+  "head": [
+   "5.2 Specifications and Ratings",
+   "5.2.9 Allowable Load Moment of Inertia Scaling Factor for SE"
+  ],
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 89,
+  "tables": 5,
+  "chars": 1917,
+  "head": [
+   "5.2 Specifications and Ratings",
+   "5.2.10 Servomotor Heat Dissipation Conditions"
+  ],
+  "terms": []
+ },
+ {
+  "page": 90,
+  "tables": 6,
+  "chars": 1813,
+  "head": [
+   "5.2 Specifications and Ratings",
+   "5.2.11 Applications Where the Surrounding Air Temperature of"
+  ],
+  "terms": []
+ },
+ {
+  "page": 91,
+  "tables": 5,
+  "chars": 1657,
+  "head": [
+   "5.2 Specifications and Ratings",
+   "5.2.12 Applications Where the Altitude of the Servomotor Exc"
+  ],
+  "terms": []
+ },
+ {
+  "page": 92,
+  "tables": 6,
+  "chars": 1478,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.1 Servomotors without Gears"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 93,
+  "tables": 5,
+  "chars": 1742,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.1 Servomotors without Gears"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 94,
+  "tables": 7,
+  "chars": 879,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.2 Shaft End Specifications for SGM7A-A5 to -10"
+  ],
+  "terms": [
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 95,
+  "tables": 8,
+  "chars": 500,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.3 Connector Mounting Dimensions for SGM7A-A5 to -10"
+  ],
+  "terms": [
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 96,
+  "tables": 9,
+  "chars": 1378,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.4 Servomotors without Gears and without Holding Brakes"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 97,
+  "tables": 5,
+  "chars": 1250,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.4 Servomotors without Gears and without Holding Brakes"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 98,
+  "tables": 9,
+  "chars": 1679,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.4 Servomotors without Gears and without Holding Brakes"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 99,
+  "tables": 7,
+  "chars": 1335,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.5 Servomotors without Gears and with Holding Brakes"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 100,
+  "tables": 4,
+  "chars": 1334,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.5 Servomotors without Gears and with Holding Brakes"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 101,
+  "tables": 7,
+  "chars": 578,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.6 Shaft End Specifications for SGM7A-15 to -70"
+  ],
+  "terms": [
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 102,
+  "tables": 6,
+  "chars": 2199,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.7 Servomotors with Gears"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 103,
+  "tables": 4,
+  "chars": 2106,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.7 Servomotors with Gears"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 104,
+  "tables": 7,
+  "chars": 2325,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.7 Servomotors with Gears"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 105,
+  "tables": 3,
+  "chars": 1306,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.7 Servomotors with Gears"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 106,
+  "tables": 4,
+  "chars": 1863,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.7 Servomotors with Gears"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 107,
+  "tables": 4,
+  "chars": 1103,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.7 Servomotors with Gears"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 108,
+  "tables": 2,
+  "chars": 1058,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.7 Servomotors with Gears"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 109,
+  "tables": 2,
+  "chars": 2102,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.7 Servomotors with Gears"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 110,
+  "tables": 6,
+  "chars": 1690,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.8 Connector Specifications"
+  ],
+  "terms": [
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 111,
+  "tables": 3,
+  "chars": 952,
+  "head": [
+   "5.3 External Dimensions",
+   "5.3.8 Connector Specifications"
+  ],
+  "terms": [
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 112,
+  "tables": 3,
+  "chars": 1710,
+  "head": [
+   "Specifications,",
+   "Ratings, and External"
+  ],
+  "terms": [
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 113,
+  "tables": 14,
+  "chars": 1582,
+  "head": [
+   "6.1 Model Designations",
+   "6.1.1 Without Gears"
+  ],
+  "terms": [
+   "Rated Output"
+  ]
+ },
+ {
+  "page": 114,
+  "tables": 5,
+  "chars": 2470,
+  "head": [
+   "6.2 Specifications and Ratings",
+   "6.2.1 Specifications"
+  ],
+  "terms": []
+ },
+ {
+  "page": 115,
+  "tables": 2,
+  "chars": 2250,
+  "head": [
+   "6.2 Specifications and Ratings",
+   "6.2.2 Ratings of Servomotors without Gears"
+  ],
+  "terms": [
+   "Rated Output",
+   "Rated Torque",
+   "Instantaneous Maximum Torque",
+   "Torque Constant"
+  ]
+ },
+ {
+  "page": 116,
+  "tables": 7,
+  "chars": 3055,
+  "head": [
+   "6.2 Specifications and Ratings",
+   "6.2.3 Torque-Motor Speed Characteristics"
+  ],
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 117,
+  "tables": 2,
+  "chars": 3206,
+  "head": [
+   "6.2 Specifications and Ratings",
+   "6.2.4 Ratings of Servomotors with Gears"
+  ],
+  "terms": [
+   "Rated Output",
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 118,
+  "tables": 5,
+  "chars": 2558,
+  "head": [
+   "6.2 Specifications and Ratings",
+   "6.2.4 Ratings of Servomotors with Gears"
+  ],
+  "terms": []
+ },
+ {
+  "page": 119,
+  "tables": 1,
+  "chars": 2057,
+  "head": [
+   "6.2 Specifications and Ratings",
+   "6.2.5 Servomotor Overload Protection Characteristics"
+  ],
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 120,
+  "tables": 4,
+  "chars": 1251,
+  "head": [
+   "6.2 Specifications and Ratings",
+   "6.2.7 Allowable Load Moment of Inertia Scaling Factor for SE"
+  ],
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 121,
+  "tables": 4,
+  "chars": 2818,
+  "head": [
+   "6.2 Specifications and Ratings",
+   "6.2.8 Servomotor Heat Dissipation Conditions"
+  ],
+  "terms": []
+ },
+ {
+  "page": 122,
+  "tables": 3,
+  "chars": 1408,
+  "head": [
+   "6.2 Specifications and Ratings",
+   "6.2.10 Applications Where the Altitude of the Servomotor Exc"
+  ],
+  "terms": []
+ },
+ {
+  "page": 123,
+  "tables": 7,
+  "chars": 1249,
+  "head": [
+   "6.3 External Dimensions",
+   "6.3.1 Servomotors without Gears"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 124,
+  "tables": 6,
+  "chars": 1206,
+  "head": [
+   "6.3 External Dimensions",
+   "6.3.1 Servomotors without Gears"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 125,
+  "tables": 6,
+  "chars": 671,
+  "head": [
+   "6.3 External Dimensions",
+   "6.3.2 Shaft End Specifications"
+  ],
+  "terms": [
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 126,
+  "tables": 6,
+  "chars": 2171,
+  "head": [
+   "6.3 External Dimensions",
+   "6.3.3 Servomotors with Gears"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 127,
+  "tables": 5,
+  "chars": 2153,
+  "head": [
+   "6.3 External Dimensions",
+   "6.3.3 Servomotors with Gears"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 128,
+  "tables": 5,
+  "chars": 2048,
+  "head": [
+   "6.3 External Dimensions",
+   "6.3.3 Servomotors with Gears"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 129,
+  "tables": 3,
+  "chars": 1296,
+  "head": [
+   "6.3 External Dimensions",
+   "6.3.3 Servomotors with Gears"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 130,
+  "tables": 4,
+  "chars": 1928,
+  "head": [
+   "6.3 External Dimensions",
+   "6.3.3 Servomotors with Gears"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 131,
+  "tables": 3,
+  "chars": 1552,
+  "head": [
+   "Specifications,",
+   "Ratings, and External"
+  ],
+  "terms": [
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 132,
+  "tables": 5,
+  "chars": 837,
+  "head": [
+   "7.1 Model Designations",
+   "7.1 Model Designations"
+  ],
+  "terms": [
+   "Rated Output"
+  ]
+ },
+ {
+  "page": 133,
+  "tables": 4,
+  "chars": 2360,
+  "head": [
+   "7.2 Specifications and Ratings",
+   "7.2.1 Specifications"
+  ],
+  "terms": []
+ },
+ {
+  "page": 134,
+  "tables": 3,
+  "chars": 2318,
+  "head": [
+   "7.2 Specifications and Ratings",
+   "7.2.2 Servomotor Ratings of the SGM7G-03 to -20"
+  ],
+  "terms": [
+   "Rated Output",
+   "Rated Torque",
+   "Instantaneous Maximum Torque",
+   "Torque Constant"
+  ]
+ },
+ {
+  "page": 135,
+  "tables": 7,
+  "chars": 2600,
+  "head": [
+   "7.2 Specifications and Ratings",
+   "7.2.3 Torque-Motor Speed Characteristics of the SGM7G-03 to "
+  ],
+  "terms": [
+   "Rated Output",
+   "Rated Torque",
+   "Instantaneous Maximum Torque",
+   "Torque Constant"
+  ]
+ },
+ {
+  "page": 136,
+  "tables": 7,
+  "chars": 2513,
+  "head": [
+   "7.2 Specifications and Ratings",
+   "7.2.5 Torque-Motor Speed Characteristics of the SGM7G-30 to "
+  ],
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 137,
+  "tables": 3,
+  "chars": 2458,
+  "head": [
+   "7.2 Specifications and Ratings",
+   "7.2.6 Servomotor Overload Protection Characteristics"
+  ],
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 138,
+  "tables": 4,
+  "chars": 2714,
+  "head": [
+   "7.2 Specifications and Ratings",
+   "7.2.7 Load Moment of Inertia"
+  ],
+  "terms": []
+ },
+ {
+  "page": 139,
+  "tables": 7,
+  "chars": 2821,
+  "head": [
+   "7.2 Specifications and Ratings",
+   "7.2.9 Servomotor Derating Rates for Surrounding Air Temperat"
+  ],
+  "terms": []
+ },
+ {
+  "page": 140,
+  "tables": 4,
+  "chars": 1499,
+  "head": [
+   "7.3 External Dimensions",
+   "7.3.1 Servomotors without Holding Brakes"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 141,
+  "tables": 8,
+  "chars": 2003,
+  "head": [
+   "7.3 External Dimensions",
+   "7.3.1 Servomotors without Holding Brakes"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 142,
+  "tables": 5,
+  "chars": 1110,
+  "head": [
+   "7.3 External Dimensions",
+   "7.3.1 Servomotors without Holding Brakes"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 143,
+  "tables": 6,
+  "chars": 1485,
+  "head": [
+   "7.3 External Dimensions",
+   "7.3.2 Servomotors with Holding Brakes"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 144,
+  "tables": 3,
+  "chars": 2074,
+  "head": [
+   "7.3 External Dimensions",
+   "7.3.2 Servomotors with Holding Brakes"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 145,
+  "tables": 3,
+  "chars": 1211,
+  "head": [
+   "7.3 External Dimensions",
+   "7.3.2 Servomotors with Holding Brakes"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 146,
+  "tables": 2,
+  "chars": 881,
+  "head": [
+   "7.3 External Dimensions",
+   "7.3.2 Servomotors with Holding Brakes"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 147,
+  "tables": 8,
+  "chars": 1413,
+  "head": [
+   "7.3 External Dimensions",
+   "7.3.3 Shaft End Specifications"
+  ],
+  "terms": [
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 148,
+  "tables": 5,
+  "chars": 1258,
+  "head": [
+   "7.3 External Dimensions",
+   "7.3.4 Connector Specifications"
+  ],
+  "terms": [
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 149,
+  "tables": 7,
+  "chars": 1649,
+  "head": [
+   "7.3 External Dimensions",
+   "7.3.4 Connector Specifications"
+  ],
+  "terms": [
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 150,
+  "tables": 4,
+  "chars": 866,
+  "head": [
+   "Servomotor",
+   "8"
+  ],
+  "terms": []
+ },
+ {
+  "page": 151,
+  "tables": 0,
+  "chars": 3301,
+  "head": [
+   "8.1 Installation Conditions",
+   "8.1.1 Installation Precautions"
+  ],
+  "terms": []
+ },
+ {
+  "page": 152,
+  "tables": 4,
+  "chars": 1671,
+  "head": [
+   "8.1 Installation Conditions",
+   "8.1.2 Installation Environment"
+  ],
+  "terms": []
+ },
+ {
+  "page": 153,
+  "tables": 0,
+  "chars": 1001,
+  "head": [
+   "8.1 Installation Conditions",
+   "8.1.5 Using Servomotors with Holding Brakes"
+  ],
+  "terms": []
+ },
+ {
+  "page": 154,
+  "tables": 4,
+  "chars": 1427,
+  "head": [
+   "8.2 Coupling to the Machine",
+   "8.2.1 Using a Coupling"
+  ],
+  "terms": []
+ },
+ {
+  "page": 155,
+  "tables": 2,
+  "chars": 1663,
+  "head": [
+   "8.2 Coupling to the Machine",
+   "8.2.2 Using a Belt"
+  ],
+  "terms": []
+ },
+ {
+  "page": 156,
+  "tables": 3,
+  "chars": 567,
+  "head": [
+   "8.2 Coupling to the Machine",
+   "8.2.2 Using a Belt"
+  ],
+  "terms": []
+ },
+ {
+  "page": 157,
+  "tables": 1,
+  "chars": 1215,
+  "head": [
+   "8.3 Oil and Water Countermeasures",
+   "8.3 Oil and Water Countermeasures"
+  ],
+  "terms": []
+ },
+ {
+  "page": 158,
+  "tables": 1,
+  "chars": 1285,
+  "head": [
+   "8.4 Servomotor Temperature Increase",
+   "8"
+  ],
+  "terms": []
+ },
+ {
+  "page": 159,
+  "tables": 5,
+  "chars": 1644,
+  "head": [
+   "Connections between",
+   "Servomotors and"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 160,
+  "tables": 0,
+  "chars": 1268,
+  "head": [
+   "9.1 Cables for the SGMMV Servomotors",
+   "9.1.1 System Configurations"
+  ],
+  "terms": []
+ },
+ {
+  "page": 161,
+  "tables": 4,
+  "chars": 2033,
+  "head": [
+   "9.1 Cables for the SGMMV Servomotors",
+   "9.1.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": []
+ },
+ {
+  "page": 162,
+  "tables": 2,
+  "chars": 630,
+  "head": [
+   "9.1 Cables for the SGMMV Servomotors",
+   "9.1.4 Relay Encoder Cables of 30 m to 50 m"
+  ],
+  "terms": []
+ },
+ {
+  "page": 163,
+  "tables": 2,
+  "chars": 2026,
+  "head": [
+   "9.2 Cables for the SGM7J and SGM7A Servomotors",
+   "9.2.1 System Configurations"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 164,
+  "tables": 2,
+  "chars": 1801,
+  "head": [
+   "9.2 Cables for the SGM7J and SGM7A Servomotors",
+   "9.2.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 165,
+  "tables": 2,
+  "chars": 2736,
+  "head": [
+   "9.2 Cables for the SGM7J and SGM7A Servomotors",
+   "9.2.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 166,
+  "tables": 1,
+  "chars": 1521,
+  "head": [
+   "9.2 Cables for the SGM7J and SGM7A Servomotors",
+   "9.2.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 167,
+  "tables": 1,
+  "chars": 1977,
+  "head": [
+   "9.2 Cables for the SGM7J and SGM7A Servomotors",
+   "9.2.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 168,
+  "tables": 1,
+  "chars": 1929,
+  "head": [
+   "9.2 Cables for the SGM7J and SGM7A Servomotors",
+   "9.2.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 169,
+  "tables": 2,
+  "chars": 1978,
+  "head": [
+   "9.2 Cables for the SGM7J and SGM7A Servomotors",
+   "9.2.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 170,
+  "tables": 1,
+  "chars": 1944,
+  "head": [
+   "9.2 Cables for the SGM7J and SGM7A Servomotors",
+   "9.2.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 171,
+  "tables": 3,
+  "chars": 2981,
+  "head": [
+   "9.2 Cables for the SGM7J and SGM7A Servomotors",
+   "9.2.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 172,
+  "tables": 4,
+  "chars": 2962,
+  "head": [
+   "9.2 Cables for the SGM7J and SGM7A Servomotors",
+   "9.2.3 Encoder Cables of 20 m or Less"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 173,
+  "tables": 1,
+  "chars": 1631,
+  "head": [
+   "9.2 Cables for the SGM7J and SGM7A Servomotors",
+   "9.2.4 Relay Encoder Cable of 30 m to 50 m"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 174,
+  "tables": 0,
+  "chars": 1613,
+  "head": [
+   "9.3 Cables for the SGM7G Servomotors",
+   "9.3.1 System Configurations"
+  ],
+  "terms": []
+ },
+ {
+  "page": 175,
+  "tables": 3,
+  "chars": 1119,
+  "head": [
+   "9.3 Cables for the SGM7G Servomotors",
+   "9.3.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": []
+ },
+ {
+  "page": 176,
+  "tables": 1,
+  "chars": 1934,
+  "head": [
+   "9.3 Cables for the SGM7G Servomotors",
+   "9.3.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": []
+ },
+ {
+  "page": 177,
+  "tables": 2,
+  "chars": 2092,
+  "head": [
+   "9.3 Cables for the SGM7G Servomotors",
+   "9.3.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": []
+ },
+ {
+  "page": 178,
+  "tables": 1,
+  "chars": 2084,
+  "head": [
+   "9.3 Cables for the SGM7G Servomotors",
+   "9.3.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": []
+ },
+ {
+  "page": 179,
+  "tables": 2,
+  "chars": 2108,
+  "head": [
+   "9.3 Cables for the SGM7G Servomotors",
+   "9.3.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": []
+ },
+ {
+  "page": 180,
+  "tables": 1,
+  "chars": 2059,
+  "head": [
+   "9.3 Cables for the SGM7G Servomotors",
+   "9.3.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": []
+ },
+ {
+  "page": 181,
+  "tables": 2,
+  "chars": 2085,
+  "head": [
+   "9.3 Cables for the SGM7G Servomotors",
+   "9.3.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": []
+ },
+ {
+  "page": 182,
+  "tables": 4,
+  "chars": 2214,
+  "head": [
+   "9.3 Cables for the SGM7G Servomotors",
+   "9.3.3 Encoder Cables of 20 m or Less"
+  ],
+  "terms": []
+ },
+ {
+  "page": 183,
+  "tables": 1,
+  "chars": 1681,
+  "head": [
+   "9.4 Cables for the SGM7P Servomotors",
+   "9.4.1 System Configurations"
+  ],
+  "terms": []
+ },
+ {
+  "page": 184,
+  "tables": 3,
+  "chars": 1788,
+  "head": [
+   "9.4 Cables for the SGM7P Servomotors",
+   "9.4.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": []
+ },
+ {
+  "page": 185,
+  "tables": 2,
+  "chars": 1528,
+  "head": [
+   "9.4 Cables for the SGM7P Servomotors",
+   "9.4.2 Servomotor Main Circuit Cables"
+  ],
+  "terms": []
+ },
+ {
+  "page": 186,
+  "tables": 4,
+  "chars": 2294,
+  "head": [
+   "9.4 Cables for the SGM7P Servomotors",
+   "9.4.3 Encoder Cables of 20 m or Less"
+  ],
+  "terms": []
+ },
+ {
+  "page": 187,
+  "tables": 2,
+  "chars": 2920,
+  "head": [
+   "9.5 Wiring Servomotors and SERVOPACKs",
+   "9.5.1 Wiring Precautions"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 188,
+  "tables": 3,
+  "chars": 1809,
+  "head": [
+   "9.5 Wiring Servomotors and SERVOPACKs",
+   "9.5.1 Wiring Precautions"
+  ],
+  "terms": []
+ },
+ {
+  "page": 189,
+  "tables": 1,
+  "chars": 984,
+  "head": [
+   "9.5 Wiring Servomotors and SERVOPACKs",
+   "9.5.1 Wiring Precautions"
+  ],
+  "terms": []
+ },
+ {
+  "page": 190,
+  "tables": 2,
+  "chars": 1799,
+  "head": [
+   "9.5 Wiring Servomotors and SERVOPACKs",
+   "9.5.2 Wiring Procedure"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 191,
+  "tables": 1,
+  "chars": 377,
+  "head": [
+   "9.5 Wiring Servomotors and SERVOPACKs",
+   "9.5.2 Wiring Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 192,
+  "tables": 3,
+  "chars": 302,
+  "head": [
+   "Maintenance and",
+   "10"
+  ],
+  "terms": []
+ },
+ {
+  "page": 193,
+  "tables": 2,
+  "chars": 2328,
+  "head": [
+   "10.1 Periodic Inspections",
+   "10.1 Periodic Inspections"
+  ],
+  "terms": []
+ },
+ {
+  "page": 194,
+  "tables": 2,
+  "chars": 1148,
+  "head": [
+   "10.2 Service Lives of Parts",
+   "10"
+  ],
+  "terms": []
+ },
+ {
+  "page": 195,
+  "tables": 0,
+  "chars": 265,
+  "head": [
+   "10.3 Disposing of Servomotors",
+   "10.3 Disposing of Servomotors"
+  ],
+  "terms": []
+ },
+ {
+  "page": 196,
+  "tables": 2,
+  "chars": 917,
+  "head": [
+   "Appendices 11",
+   "The appendices provide additional information on Servo-"
+  ],
+  "terms": []
+ },
+ {
+  "page": 197,
+  "tables": 3,
+  "chars": 1454,
+  "head": [
+   "11.1 Terminology and Data for Servomotors with Gears",
+   "11.1.1 Terminology for Servomotors with Low-backlash Gears"
+  ],
+  "terms": [
+   "Rated Output",
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 198,
+  "tables": 2,
+  "chars": 374,
+  "head": [
+   "11.1 Terminology and Data for Servomotors with Gears",
+   "11.1.3 Efficiency"
+  ],
+  "terms": []
+ },
+ {
+  "page": 199,
+  "tables": 1,
+  "chars": 2046,
+  "head": [
+   "11.2 Reference Information for Servomotor Capacity Selection",
+   "11.2.1 Formulas Required to Select the Servomotor Capacity"
+  ],
+  "terms": []
+ },
+ {
+  "page": 200,
+  "tables": 3,
+  "chars": 1724,
+  "head": [
+   "11.2 Reference Information for Servomotor Capacity Selection",
+   "11.2.2 GD2 for Simple Diagrams"
+  ],
+  "terms": []
+ },
+ {
+  "page": 201,
+  "tables": 2,
+  "chars": 1237,
+  "head": [
+   "11.2 Reference Information for Servomotor Capacity Selection",
+   "11.2.3 Conversions between Engineering Units and SI Units"
+  ],
+  "terms": []
+ },
+ {
+  "page": 202,
+  "tables": 7,
+  "chars": 2404,
+  "head": [
+   "11.2 Reference Information for Servomotor Capacity Selection",
+   "11.2.4 Application Examples by Type of Application"
+  ],
+  "terms": []
+ },
+ {
+  "page": 203,
+  "tables": 3,
+  "chars": 2256,
+  "head": [
+   "11.2 Reference Information for Servomotor Capacity Selection",
+   "11.2.4 Application Examples by Type of Application"
+  ],
+  "terms": []
+ },
+ {
+  "page": 204,
+  "tables": 5,
+  "chars": 2203,
+  "head": [
+   "11.2 Reference Information for Servomotor Capacity Selection",
+   "11.2.4 Application Examples by Type of Application"
+  ],
+  "terms": []
+ },
+ {
+  "page": 205,
+  "tables": 1,
+  "chars": 1704,
+  "head": [
+   "Revision History",
+   "The revision dates and numbers of the revised manuals are gi"
+  ],
+  "terms": [
+   "SGM7J"
+  ]
+ },
+ {
+  "page": 206,
+  "tables": 0,
+  "chars": 2399,
+  "head": [
+   "-7-Series AC Servo Drive",
+   "Rotary Servomotor"
+  ],
+  "terms": []
+ }
+]
