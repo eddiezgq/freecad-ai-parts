@@ -169,7 +169,7 @@ def summarize(name: str, text: str, is_error: bool = False) -> str:
 
 @dataclass
 class Event:
-    kind: str  # user / tool_call / tool_result / assistant / error
+    kind: str  # user / tool_call / tool_result / assistant / error / info
     text: str = ""
     name: str | None = None
     data: Any = None
@@ -178,12 +178,15 @@ class Event:
 
 class ChatEngine:
     def __init__(self, llm: LLM, tools: list[dict], call_tool: Callable[[str, dict], ToolOutcome], *,
-                 system: str = SYSTEM_PROMPT, max_tool_calls: int = MAX_TOOL_CALLS):
+                 system: str = SYSTEM_PROMPT, max_tool_calls: int = MAX_TOOL_CALLS,
+                 context: Callable[[str], str] | None = None):
+        """context：按用户这句话给出补充参考（如相似的历史录制会话，ADR-0042），附在本轮的系统提示之后。"""
         self.llm = llm
         self.tools = tools
         self.call_tool = call_tool
         self.system = system
         self.max_tool_calls = max_tool_calls
+        self.context = context
         self.messages: list[dict] = []
 
     def send(self, text: str, on_event: Callable[[Event], None] | None = None) -> list[Event]:
@@ -195,6 +198,16 @@ class ChatEngine:
                 on_event(e)
 
         emit(Event("user", text))
+        system = self.system
+        if self.context is not None:
+            try:
+                extra = self.context(text)
+            except Exception as exc:  # noqa: BLE001 — 参考检索出错不影响对话
+                extra = ""
+                emit(Event("info", f"历史会话检索出错，已跳过：{exc}"))
+            if extra:
+                system = f"{self.system}\n\n{extra}"
+                emit(Event("info", "参考了相似的历史录制会话", data=extra))
         start = len(self.messages)
         last = self.messages[-1] if self.messages else None
         if last and last["role"] == "user" and isinstance(last["content"], list):
@@ -208,7 +221,7 @@ class ChatEngine:
         calls = 0
         while True:
             try:
-                resp = self.llm.create(system=self.system, messages=self.messages, tools=self.tools)
+                resp = self.llm.create(system=system, messages=self.messages, tools=self.tools)
             except Exception as exc:  # noqa: BLE001 — 网络、密钥等错误交给界面显示
                 emit(Event("error", f"调用 LLM 失败：{exc}"
                                     + ("；本轮已执行的工具改动（如布局）保留在场景中" if calls else "")))
