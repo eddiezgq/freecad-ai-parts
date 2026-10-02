@@ -112,14 +112,18 @@ def run(jobs: list[dict], client, *, raw_dir: Path = RAW_DIR, out_dir: Path = OU
 
 
 def page_index(document, terms: list[str]) -> list[dict]:
-    """每页的表格数、文字量和出现的检索词，用来确定抽取任务的页码范围；不含规格书原文。"""
+    """每页的表格数、文字量、出现的检索词，以及页眉标题（每页前两行，各截取前 60 字），用来确定抽取任务的页码范围。
+
+    只留定位用的标题短句，不含正文与表格内容（ADR-0040）。
+    """
     def norm(t: str) -> str:
         return re.sub(r"\s+", "", t or "").casefold()
 
     out = []
     for p in document.pages:
         body = norm(p.text) + "".join(norm(c or "") for t in p.tables for row in t.rows for c in row)
-        out.append({"page": p.page, "tables": len(p.tables), "chars": len(p.text),
+        heads = [ln.strip()[:60] for ln in p.text.splitlines() if ln.strip()][:2]
+        out.append({"page": p.page, "tables": len(p.tables), "chars": len(p.text), "head": heads,
                     "terms": [t for t in terms if norm(t) and norm(t) in body]})
     return out
 
@@ -137,10 +141,11 @@ def load_index_requests(data: dict) -> list[dict]:
 
 
 def render_index(doc: str, index: list[dict]) -> str:
-    lines = [f"### {doc}（共 {len(index)} 页）", "", "| 页 | 表格 | 字数 | 检索词 |", "| --- | --- | --- | --- |"]
+    lines = [f"### {doc}（共 {len(index)} 页）", "", "| 页 | 表格 | 字数 | 页眉 | 检索词 |", "| --- | --- | --- | --- | --- |"]
     for r in index:
         if r["tables"] or r["terms"]:
-            lines.append(f"| {r['page']} | {r['tables']} | {r['chars']} | {'、'.join(r['terms'])} |")
+            head = " / ".join(r.get("head", [])).replace("|", "\\|")
+            lines.append(f"| {r['page']} | {r['tables']} | {r['chars']} | {head} | {'、'.join(r['terms'])} |")
     return "\n".join(lines) + "\n"
 
 

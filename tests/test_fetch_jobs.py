@@ -205,7 +205,8 @@ def test_page_index_has_no_text(catalog_pdf):
     index = jx.page_index(extract(raw / "src-fake-cat.pdf"), [cat.models[0], "nonexistent-term"])
     assert [r["page"] for r in index] == [1, 2, 3, 4]
     assert [r["tables"] for r in index] == [0, 1, 1, 0]
-    assert all(set(r) == {"page", "tables", "chars", "terms"} for r in index)
+    assert all(set(r) == {"page", "tables", "chars", "head", "terms"} for r in index)
+    assert all(len(r["head"]) <= 2 and all(len(h) <= 60 for h in r["head"]) for r in index)
     assert cat.models[0] in index[1]["terms"] and all("nonexistent-term" not in r["terms"] for r in index)
     md = jx.render_index("src-fake-cat", index)
-    assert "| 2 | 1 |" in md
+    assert "| 2 | 1 |" in md and cat.title[:20] in md
