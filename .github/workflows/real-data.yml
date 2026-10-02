@@ -3,7 +3,7 @@ name: 真实数据（手动运行）
 # ADR-0040、issue #124：在云端按 data/sources.yaml 登记的网址下载规格书，建页码索引，按 data/extract_jobs.yaml 抽取。
 # 只把 SHA-256、页码索引、录制与抽取结果推到新分支 m6/data-run-<运行号>，再由人或 Claude 开 PR 合并；
 # 规格书 PDF 只在运行器的临时目录中，不提交、不作为构建产物保存。
-# 抽取需要仓库的 Actions secrets 中有 ANTHROPIC_API_KEY；没有时只下载、固定 SHA-256 和建索引。
+# 抽取需要 ANTHROPIC_API_KEY（存在仓库 Settings → Environments → demo 中）；没有时只下载、固定 SHA-256 和建索引。
 
 on:
   workflow_dispatch:
@@ -31,6 +31,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-24.04
+    environment: demo  # ANTHROPIC_API_KEY 存在仓库的 demo 环境中
     env:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       DOCS: ${{ inputs.docs }}
@@ -64,7 +65,7 @@ jobs:
           { echo "## 比对与入库"; cat crosscheck.md; } >> "$GITHUB_STEP_SUMMARY"
       - name: 没有密钥时说明
         if: inputs.extract && env.ANTHROPIC_API_KEY == ''
-        run: echo "::warning::仓库 Actions secrets 中没有 ANTHROPIC_API_KEY，只做了下载与索引，未抽取"
+        run: echo "::warning::demo 环境中没有 ANTHROPIC_API_KEY，只做了下载与索引，未抽取"
       - name: 多型号目录评测（合成数据）
         if: inputs.catalog_eval && env.ANTHROPIC_API_KEY != ''
         run: |
