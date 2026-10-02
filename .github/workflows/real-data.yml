@@ -57,6 +57,11 @@ jobs:
           args=(); for d in $DOCS; do args+=(--doc "$d"); done
           python -m ingest.jobs run --record --summary jobs.md "${args[@]}" || echo "::warning::部分抽取任务失败，见摘要"
           { echo "## 抽取"; cat jobs.md; } >> "$GITHUB_STEP_SUMMARY"
+          # AI 复核（issue #127）：另一个模型独立再抽一次，逐项比对，一致的项组装成组件
+          python -m ingest.jobs run --record --check --summary check.md "${args[@]}" || echo "::warning::部分复核抽取失败"
+          { echo "## 复核抽取"; cat check.md; } >> "$GITHUB_STEP_SUMMARY"
+          python -m ingest.crosscheck --summary crosscheck.md "${args[@]}"
+          { echo "## 比对与入库"; cat crosscheck.md; } >> "$GITHUB_STEP_SUMMARY"
       - name: 没有密钥时说明
         if: inputs.extract && env.ANTHROPIC_API_KEY == ''
         run: echo "::warning::仓库 Actions secrets 中没有 ANTHROPIC_API_KEY，只做了下载与索引，未抽取"
@@ -71,7 +76,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           branch="m6/data-run-${GITHUB_RUN_ID}"
           git checkout -b "$branch"
-          for p in data/sources.yaml data/extracted data/recordings tests/recordings/llm; do
+          for p in data/sources.yaml data/extracted data/recordings data/library data/review tests/recordings/llm; do
             if [ -e "$p" ]; then git add "$p"; fi
           done
           if git diff --cached --name-only | grep -Eiq '\.(pdf|part)$|^data/raw/'; then

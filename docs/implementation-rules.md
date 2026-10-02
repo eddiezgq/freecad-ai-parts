@@ -410,7 +410,7 @@ M4b 开发部分完成后，验收只剩人工演示（#90），M5 先行。需�
 | 2 | 规格书下载与真实抽取流水线 | `ingest/fetch.py` 按登记网址下载到 `data/raw/` 并核对 SHA-256；`data/extract_jobs.yaml` 列出抽取任务；GitHub Actions 手动工作流在云端下载、抽取、录制，开 PR 提交录制与抽取结果 | PDF 不入 git、不留构建产物；SHA-256 不符即停；本地与 Codespaces 可用同一命令 |
 | 3 | 多型号目录抽取 | 真实目录一份含多个型号、几百页：抽取任务指定页码范围与目标型号 | 合成的多型号目录上关键字段准确率 ≥ 95%；回放确定 |
 | 4 | 开源硬件数据 | moteus（Apache-2.0）、ODrive v3.6（MIT）等许可明确的开源设计，按仓库提交登记，人工录入参数 | 入库；每个参数可追溯到仓库文件与提交 |
-| 5 | AI 复核 | 用与抽取不同的方式独立读取原文，逐项比对；复核人记为 `claude（AI 复核）`；不一致项不入库，列入待人工核对清单 | 比对规则单测；清单可导出 |
+| 5 | AI 复核 | 另一个模型独立再抽一次（`ingest.jobs run --check`），`ingest/crosscheck.py` 逐项比对；一致的项标为已复核（复核人 `claude（AI 复核）`），组装成组件写到 `data/library/`；不一致项不入库，列在 `data/review/` | 比对规则单测；同一模型不算独立复核；清单可导出 |
 | 6 | 首批厂商数据 | Harmonic Drive 整机型减速器、安川 Σ-7 伺服电机与 EtherCAT 驱动器，各取公开目录中适合关节的型号 | 每类至少 5 个型号入库，来源可追溯 |
 | 7 | 转接件参数化生成 | 真实电机与减速器之间需要轴套和转接板：`engine/adapters.py` 按两侧端口尺寸生成（ADR-0041；用 `computed` 与 `license: open` 表达，不改 schema）；`compose_chain(generate_adapters=True)` 在库中没有合适转接件时使用 | 生成的转接件通过 schema 与 C2、C3；同一输入结果确定 |
 | 8 | 真实数据端到端样例 | `examples/joint-real/`：用真实组件从一句需求到 BOM、布局与 URDF | 样例可重复生成 |
