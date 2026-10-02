@@ -1,0 +1,7473 @@
+[
+ {
+  "page": 1,
+  "tables": 0,
+  "chars": 594,
+  "head": [
+   "-7-Series AC Servo Drive",
+   "-7S SERVOPACK with"
+  ],
+  "terms": [
+   "SGD7S",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 2,
+  "tables": 0,
+  "chars": 822,
+  "head": [
+   "Copyright © 2014 YASKAWA ELECTRIC CORPORATION",
+   "All rights reserved. No part of this publication may be repr"
+  ],
+  "terms": []
+ },
+ {
+  "page": 3,
+  "tables": 1,
+  "chars": 2641,
+  "head": [
+   "About this Manual",
+   "This manual provides information required to select Σ-7S SER"
+  ],
+  "terms": [
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 4,
+  "tables": 12,
+  "chars": 1314,
+  "head": [
+   "Related Documents",
+   "The relationships between the documents that are related to "
+  ],
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 5,
+  "tables": 1,
+  "chars": 2279,
+  "head": [
+   "Classification Document Name Document No. Description",
+   "Describes the features and applica-"
+  ],
+  "terms": []
+ },
+ {
+  "page": 6,
+  "tables": 1,
+  "chars": 2003,
+  "head": [
+   "Continued from previous page.",
+   "Classification Document Name Document No. Description"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 7,
+  "tables": 1,
+  "chars": 1760,
+  "head": [
+   "Continued from previous page.",
+   "Classification Document Name Document No. Description"
+  ],
+  "terms": [
+   "HWBB",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 8,
+  "tables": 1,
+  "chars": 1888,
+  "head": [
+   "Continued from previous page.",
+   "Classification Document Name Document No. Description"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 9,
+  "tables": 1,
+  "chars": 3039,
+  "head": [
+   "Continued from previous page.",
+   "Classification Document Name Document No. Description"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 10,
+  "tables": 1,
+  "chars": 597,
+  "head": [
+   "Continued from previous page.",
+   "Classification Document Name Document No. Description"
+  ],
+  "terms": []
+ },
+ {
+  "page": 11,
+  "tables": 2,
+  "chars": 2919,
+  "head": [
+   "Using This Manual",
+   " Technical Terms Used in This Manual"
+  ],
+  "terms": [
+   "Main Circuit",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 12,
+  "tables": 3,
+  "chars": 2907,
+  "head": [
+   " Notation Used in this Manual",
+   " Notation for Reverse Signals"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 13,
+  "tables": 0,
+  "chars": 884,
+  "head": [
+   " Trademarks",
+   "• EtherCAT® is a registered trademark and patented technolog"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 14,
+  "tables": 4,
+  "chars": 877,
+  "head": [
+   "Safety Precautions",
+   " Safety Information"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 15,
+  "tables": 3,
+  "chars": 2256,
+  "head": [
+   " Safety Precautions That Must Always Be Observed",
+   " General Precautions"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 16,
+  "tables": 4,
+  "chars": 2321,
+  "head": [
+   "NOTICE",
+   "Do not attempt to use a SERVOPACK or Servomotor that is dam"
+  ],
+  "terms": []
+ },
+ {
+  "page": 17,
+  "tables": 2,
+  "chars": 2023,
+  "head": [
+   "NOTICE",
+   "Do not hold onto the front cover or connectors when you mov"
+  ],
+  "terms": []
+ },
+ {
+  "page": 18,
+  "tables": 3,
+  "chars": 2663,
+  "head": [
+   "NOTICE",
+   "Do not install or store the product in any of the following"
+  ],
+  "terms": []
+ },
+ {
+  "page": 19,
+  "tables": 2,
+  "chars": 3396,
+  "head": [
+   "CAUTION",
+   "Wait for at least six minutes after turning OFF the power s"
+  ],
+  "terms": [
+   "Main Circuit",
+   "Safety"
+  ]
+ },
+ {
+  "page": 20,
+  "tables": 2,
+  "chars": 3218,
+  "head": [
+   " Operation Precautions",
+   "WARNING"
+  ],
+  "terms": [
+   "Main Circuit",
+   "Safety"
+  ]
+ },
+ {
+  "page": 21,
+  "tables": 5,
+  "chars": 2508,
+  "head": [
+   "NOTICE",
+   "When you adjust the gain during system commissioning, use a"
+  ],
+  "terms": []
+ },
+ {
+  "page": 22,
+  "tables": 3,
+  "chars": 2386,
+  "head": [
+   " Troubleshooting Precautions",
+   "DANGER"
+  ],
+  "terms": [
+   "Main Circuit",
+   "Safety"
+  ]
+ },
+ {
+  "page": 23,
+  "tables": 0,
+  "chars": 1012,
+  "head": [
+   " General Precautions",
+   "Figures provided in this document are typical examples or c"
+  ],
+  "terms": []
+ },
+ {
+  "page": 24,
+  "tables": 0,
+  "chars": 2318,
+  "head": [
+   "Warranty",
+   " Details of Warranty"
+  ],
+  "terms": []
+ },
+ {
+  "page": 25,
+  "tables": 0,
+  "chars": 2349,
+  "head": [
+   " Suitability for Use",
+   "• It is the customer’s responsibility to confirm conformity "
+  ],
+  "terms": [
+   "Ratings",
+   "Safety"
+  ]
+ },
+ {
+  "page": 26,
+  "tables": 2,
+  "chars": 1162,
+  "head": [
+   "Compliance with UL Standards, EU Directives, UK Regulations,",
+   "Certification marks for the standards for which the product "
+  ],
+  "terms": [
+   "SGD7S",
+   "Safety"
+  ]
+ },
+ {
+  "page": 27,
+  "tables": 3,
+  "chars": 1509,
+  "head": [
+   " UK Conformity Assessed (UKCA)",
+   "Product Model UK Regulations Designated Standards"
+  ],
+  "terms": [
+   "SGD7S",
+   "Safety"
+  ]
+ },
+ {
+  "page": 28,
+  "tables": 9,
+  "chars": 3569,
+  "head": [
+   "Contents",
+   "About this Manual . . . . . . . . . . . . . . . . . . . . . "
+  ],
+  "terms": [
+   "Ratings",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 29,
+  "tables": 13,
+  "chars": 3662,
+  "head": [
+   "2.2 Block Diagrams . . . . . . . . . . . . . . . . . . . . .",
+   "2.2.1 SGD7S-R70A, -R90A, and -1R6A . . . . . . . . . . . . ."
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Ratings",
+   "Main Circuit",
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 30,
+  "tables": 13,
+  "chars": 3408,
+  "head": [
+   "4.4 Wiring Servomotors . . . . . . . . . . . . . . . . . . .",
+   "4.4.1 Terminal Symbols and Terminal Names . . . . . . . . . "
+  ],
+  "terms": [
+   "Main Circuit",
+   "Single-phase",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 31,
+  "tables": 9,
+  "chars": 3820,
+  "head": [
+   "5.9 Polarity Detection. . . . . . . . . . . . . . . . . . . ",
+   "5.9.1 Restrictions. . . . . . . . . . . . . . . . . . . . . "
+  ],
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 32,
+  "tables": 10,
+  "chars": 4271,
+  "head": [
+   "Application Functions",
+   "6"
+  ],
+  "terms": []
+ },
+ {
+  "page": 33,
+  "tables": 12,
+  "chars": 3741,
+  "head": [
+   "6.11 Initializing the Vibration Detection Level . . . . . . ",
+   "6.11.1 Preparations . . . . . . . . . . . . . . . . . . . . "
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 34,
+  "tables": 7,
+  "chars": 5330,
+  "head": [
+   "8.3 Precautions to Ensure Safe Tuning . . . . . . . . . . . ",
+   "8.3.1 Overtravel Settings. . . . . . . . . . . . . . . . . ."
+  ],
+  "terms": []
+ },
+ {
+  "page": 35,
+  "tables": 10,
+  "chars": 4716,
+  "head": [
+   "8.10 Vibration Suppression . . . . . . . . . . . . . . . . .",
+   "8.10.1 Outline. . . . . . . . . . . . . . . . . . . . . . . "
+  ],
+  "terms": []
+ },
+ {
+  "page": 36,
+  "tables": 10,
+  "chars": 3853,
+  "head": [
+   "Fully-Closed Loop Control",
+   "10"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 37,
+  "tables": 13,
+  "chars": 3740,
+  "head": [
+   "11.7 Safety Module Safety Functions . . . . . . . . . . . . ",
+   "11.7.1 Safety Base Block with Delay (SBB-D) . . . . . . . . "
+  ],
+  "terms": [
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 38,
+  "tables": 21,
+  "chars": 2156,
+  "head": [
+   "13.7 Torque Limits . . . . . . . . . . . . . . . . . . . . .",
+   "13.8 Digital I/O Signals. . . . . . . . . . . . . . . . . . "
+  ],
+  "terms": []
+ },
+ {
+  "page": 39,
+  "tables": 10,
+  "chars": 3286,
+  "head": [
+   "Maintenance",
+   "15"
+  ],
+  "terms": []
+ },
+ {
+  "page": 40,
+  "tables": 0,
+  "chars": 2,
+  "head": [
+   "xl"
+  ],
+  "terms": []
+ },
+ {
+  "page": 41,
+  "tables": 7,
+  "chars": 1551,
+  "head": [
+   "Basic Information on",
+   "SERVOPACKs 1"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 42,
+  "tables": 1,
+  "chars": 295,
+  "head": [
+   "1.8 EtherCAT Communications LED Indicators . . 1-19",
+   "1.8.1 RUN . . . . . . . . . . . . . . . . . . . . . . . . . "
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 43,
+  "tables": 0,
+  "chars": 444,
+  "head": [
+   "1.1 The Σ-7 Series",
+   "1"
+  ],
+  "terms": []
+ },
+ {
+  "page": 44,
+  "tables": 1,
+  "chars": 2255,
+  "head": [
+   "1.2 Introduction to EtherCAT",
+   "1.2.1 Introduction to CANopen"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 45,
+  "tables": 1,
+  "chars": 3055,
+  "head": [
+   "1.2 Introduction to EtherCAT",
+   "1.2.3 Sending and Receiving Data in EtherCAT (CoE) Communica"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 46,
+  "tables": 3,
+  "chars": 1664,
+  "head": [
+   "1.2 Introduction to EtherCAT",
+   "1.2.5 Data Types"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 47,
+  "tables": 0,
+  "chars": 299,
+  "head": [
+   "1.3 Interpreting the Nameplate",
+   "1"
+  ],
+  "terms": []
+ },
+ {
+  "page": 48,
+  "tables": 2,
+  "chars": 2164,
+  "head": [
+   "1.4 Part Names",
+   "1.4 Part Names"
+  ],
+  "terms": [
+   "Ratings",
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 49,
+  "tables": 1,
+  "chars": 597,
+  "head": [
+   "1.4 Part Names",
+   "1"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 50,
+  "tables": 6,
+  "chars": 2092,
+  "head": [
+   "1.5 Model Designations",
+   "1.5.1 Interpreting SERVOPACK Model Numbers"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "2R8A",
+   "3R8A",
+   "120A",
+   "Single-phase",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 51,
+  "tables": 2,
+  "chars": 2167,
+  "head": [
+   "1.5 Model Designations",
+   "1.5.2 Interpreting Servomotor Model Numbers"
+  ],
+  "terms": []
+ },
+ {
+  "page": 52,
+  "tables": 2,
+  "chars": 504,
+  "head": [
+   "1.5 Model Designations",
+   "1.5.2 Interpreting Servomotor Model Numbers"
+  ],
+  "terms": []
+ },
+ {
+  "page": 53,
+  "tables": 1,
+  "chars": 1607,
+  "head": [
+   "1.6 Combinations of SERVOPACKs and Servomotors",
+   "1.6.1 Combinations of Rotary Servomotors and SERVOPACKs"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 54,
+  "tables": 1,
+  "chars": 1424,
+  "head": [
+   "1.6 Combinations of SERVOPACKs and Servomotors",
+   "1.6.2 Combinations of Direct Drive Servomotors and SERVOPACK"
+  ],
+  "terms": [
+   "SGD7S",
+   "2R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 55,
+  "tables": 2,
+  "chars": 1672,
+  "head": [
+   "1.6 Combinations of SERVOPACKs and Servomotors",
+   "1.6.3 Combinations of Linear Servomotors and SERVOPACKs"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 56,
+  "tables": 1,
+  "chars": 1293,
+  "head": [
+   "1.6 Combinations of SERVOPACKs and Servomotors",
+   "1.6.3 Combinations of Linear Servomotors and SERVOPACKs"
+  ],
+  "terms": [
+   "SGD7S",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 57,
+  "tables": 2,
+  "chars": 1882,
+  "head": [
+   "1.7 Functions",
+   "1"
+  ],
+  "terms": [
+   "Main Circuit",
+   "Safety"
+  ]
+ },
+ {
+  "page": 58,
+  "tables": 4,
+  "chars": 1523,
+  "head": [
+   "1.7 Functions",
+   "Continued from previous page."
+  ],
+  "terms": []
+ },
+ {
+  "page": 59,
+  "tables": 1,
+  "chars": 774,
+  "head": [
+   "1.8 EtherCAT Communications LED Indicators",
+   "1.8.1 RUN"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 60,
+  "tables": 2,
+  "chars": 1184,
+  "head": [
+   "1.8 EtherCAT Communications LED Indicators",
+   "1.8.2 ERR"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 61,
+  "tables": 4,
+  "chars": 1586,
+  "head": [
+   "Selecting a",
+   "SERVOPACK 2"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Ratings",
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 62,
+  "tables": 1,
+  "chars": 1506,
+  "head": [
+   "2.1 Ratings and Specifications",
+   "2.1.1 Ratings"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Ratings",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 63,
+  "tables": 2,
+  "chars": 2285,
+  "head": [
+   "2.1 Ratings and Specifications",
+   "2.1.1 Ratings"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "5R5A",
+   "120A",
+   "Ratings",
+   "Maximum Applicable Motor Capacity",
+   "Continuous Output Current",
+   "Instantaneous Maximum Output Current",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 64,
+  "tables": 2,
+  "chars": 1836,
+  "head": [
+   "2.1 Ratings and Specifications",
+   "2.1.1 Ratings"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Ratings",
+   "Maximum Applicable Motor Capacity",
+   "Continuous Output Current",
+   "Instantaneous Maximum Output Current",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 65,
+  "tables": 1,
+  "chars": 891,
+  "head": [
+   "2.1 Ratings and Specifications",
+   "2.1.1 Ratings"
+  ],
+  "terms": [
+   "SGD7S",
+   "Ratings",
+   "Maximum Applicable Motor Capacity",
+   "Continuous Output Current",
+   "Instantaneous Maximum Output Current",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 66,
+  "tables": 2,
+  "chars": 2043,
+  "head": [
+   "2.1 Ratings and Specifications",
+   "2.1.2 SERVOPACK Overload Protection Characteristics"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Ratings",
+   "Continuous Output Current",
+   "Instantaneous Maximum Output Current"
+  ]
+ },
+ {
+  "page": 67,
+  "tables": 2,
+  "chars": 2132,
+  "head": [
+   "2.1 Ratings and Specifications",
+   "2.1.3 Specifications"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Ratings",
+   "Safety"
+  ]
+ },
+ {
+  "page": 68,
+  "tables": 1,
+  "chars": 2181,
+  "head": [
+   "2.1 Ratings and Specifications",
+   "2.1.3 Specifications"
+  ],
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 69,
+  "tables": 2,
+  "chars": 2572,
+  "head": [
+   "2.1 Ratings and Specifications",
+   "2.1.3 Specifications"
+  ],
+  "terms": [
+   "Ratings",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 70,
+  "tables": 2,
+  "chars": 1775,
+  "head": [
+   "2.1 Ratings and Specifications",
+   "2.1.3 Specifications"
+  ],
+  "terms": [
+   "SGD7S",
+   "Ratings",
+   "Main Circuit",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 71,
+  "tables": 14,
+  "chars": 1545,
+  "head": [
+   "2.2 Block Diagrams",
+   "2.2.1 SGD7S-R70A, -R90A, and -1R6A"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 72,
+  "tables": 6,
+  "chars": 788,
+  "head": [
+   "2.2 Block Diagrams",
+   "2.2.3 SGD7S-3R8A, -5R5A, and -7R6A"
+  ],
+  "terms": [
+   "SGD7S",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 73,
+  "tables": 5,
+  "chars": 1663,
+  "head": [
+   "2.2 Block Diagrams",
+   "2.2.4 SGD7S-120A"
+  ],
+  "terms": [
+   "SGD7S",
+   "120A",
+   "Main Circuit",
+   "Single-phase",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 74,
+  "tables": 7,
+  "chars": 819,
+  "head": [
+   "2.2 Block Diagrams",
+   "2.2.5 SGD7S-180A and -200A"
+  ],
+  "terms": [
+   "SGD7S",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 75,
+  "tables": 5,
+  "chars": 771,
+  "head": [
+   "2.2 Block Diagrams",
+   "2.2.6 SGD7S-330A"
+  ],
+  "terms": [
+   "SGD7S",
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 76,
+  "tables": 5,
+  "chars": 770,
+  "head": [
+   "2.2 Block Diagrams",
+   "2.2.7 SGD7S-470A and -550A"
+  ],
+  "terms": [
+   "SGD7S",
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 77,
+  "tables": 7,
+  "chars": 1457,
+  "head": [
+   "2.2 Block Diagrams",
+   "2.2.8 SGD7S-590A and -780A"
+  ],
+  "terms": [
+   "SGD7S",
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 78,
+  "tables": 6,
+  "chars": 698,
+  "head": [
+   "2.2 Block Diagrams",
+   "2.2.10 SGD7S-2R8F"
+  ],
+  "terms": [
+   "SGD7S",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 79,
+  "tables": 2,
+  "chars": 1131,
+  "head": [
+   "2.3 External Dimensions",
+   "2.3.1 Front Cover Dimensions and Connector Specifications"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 80,
+  "tables": 2,
+  "chars": 927,
+  "head": [
+   "2.3 External Dimensions",
+   "2.3.2 SERVOPACK External Dimensions"
+  ],
+  "terms": [
+   "SGD7S",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Single-phase",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 81,
+  "tables": 4,
+  "chars": 921,
+  "head": [
+   "2.3 External Dimensions",
+   "2.3.2 SERVOPACK External Dimensions"
+  ],
+  "terms": [
+   "SGD7S",
+   "120A",
+   "Single-phase",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 82,
+  "tables": 1,
+  "chars": 939,
+  "head": [
+   "2.3 External Dimensions",
+   "2.3.2 SERVOPACK External Dimensions"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "Single-phase",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 83,
+  "tables": 4,
+  "chars": 999,
+  "head": [
+   "2.3 External Dimensions",
+   "2.3.2 SERVOPACK External Dimensions"
+  ],
+  "terms": [
+   "SGD7S",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Single-phase",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 84,
+  "tables": 4,
+  "chars": 936,
+  "head": [
+   "2.3 External Dimensions",
+   "2.3.2 SERVOPACK External Dimensions"
+  ],
+  "terms": [
+   "SGD7S",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 85,
+  "tables": 0,
+  "chars": 1611,
+  "head": [
+   "2.4 Examples of Standard Connections between SERVOPACKs and ",
+   "2"
+  ],
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 86,
+  "tables": 0,
+  "chars": 983,
+  "head": [
+   "2.4 Examples of Standard Connections between SERVOPACKs and ",
+   "• Linear Servomotors"
+  ],
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 87,
+  "tables": 7,
+  "chars": 707,
+  "head": [
+   "SERVOPACK",
+   "Installation 3"
+  ],
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 88,
+  "tables": 0,
+  "chars": 784,
+  "head": [
+   "3.1 Installation Precautions",
+   "3.1 Installation Precautions"
+  ],
+  "terms": []
+ },
+ {
+  "page": 89,
+  "tables": 1,
+  "chars": 710,
+  "head": [
+   "3.2 Mounting Types and Orientation",
+   "3"
+  ],
+  "terms": []
+ },
+ {
+  "page": 90,
+  "tables": 3,
+  "chars": 1643,
+  "head": [
+   "3.3 Mounting Hole Dimensions",
+   "3.3 Mounting Hole Dimensions"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 91,
+  "tables": 1,
+  "chars": 1719,
+  "head": [
+   "3.4 Mounting Interval",
+   "3.4.1 Installing One SERVOPACK in a Control Panel"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 92,
+  "tables": 0,
+  "chars": 1040,
+  "head": [
+   "3.5 Monitoring the Installation Environment",
+   "3.5 Monitoring the Installation Environment"
+  ],
+  "terms": []
+ },
+ {
+  "page": 93,
+  "tables": 6,
+  "chars": 871,
+  "head": [
+   "3.6 Derating Specifications",
+   "3"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Ratings"
+  ]
+ },
+ {
+  "page": 94,
+  "tables": 15,
+  "chars": 1673,
+  "head": [
+   "3.7 EMC Installation Conditions",
+   "3.7 EMC Installation Conditions"
+  ],
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 95,
+  "tables": 13,
+  "chars": 727,
+  "head": [
+   "3.7 EMC Installation Conditions",
+   "3"
+  ],
+  "terms": [
+   "Main Circuit",
+   "Single-phase",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 96,
+  "tables": 13,
+  "chars": 703,
+  "head": [
+   "3.7 EMC Installation Conditions",
+   "• Single-Phase, 100 VAC"
+  ],
+  "terms": [
+   "Main Circuit",
+   "Single-phase",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 97,
+  "tables": 5,
+  "chars": 1663,
+  "head": [
+   "Wiring and",
+   "Connecting"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 98,
+  "tables": 3,
+  "chars": 643,
+  "head": [
+   "4.6 Connecting Safety Function Signals . . . . .4-44",
+   "4.6.1 Pin Arrangement of Safety Function Signals (CN8) . . 4"
+  ],
+  "terms": [
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 99,
+  "tables": 2,
+  "chars": 1387,
+  "head": [
+   "4.1 Wiring and Connecting SERVOPACKs",
+   "4.1.1 General Precautions"
+  ],
+  "terms": []
+ },
+ {
+  "page": 100,
+  "tables": 2,
+  "chars": 3461,
+  "head": [
+   "4.1 Wiring and Connecting SERVOPACKs",
+   "4.1.1 General Precautions"
+  ],
+  "terms": [
+   "Main Circuit",
+   "Safety"
+  ]
+ },
+ {
+  "page": 101,
+  "tables": 0,
+  "chars": 1676,
+  "head": [
+   "4.1 Wiring and Connecting SERVOPACKs",
+   "4.1.1 General Precautions"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 102,
+  "tables": 0,
+  "chars": 1812,
+  "head": [
+   "4.1 Wiring and Connecting SERVOPACKs",
+   "4.1.2 Countermeasures against Noise"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 103,
+  "tables": 2,
+  "chars": 914,
+  "head": [
+   "4.1 Wiring and Connecting SERVOPACKs",
+   "4.1.2 Countermeasures against Noise"
+  ],
+  "terms": []
+ },
+ {
+  "page": 104,
+  "tables": 6,
+  "chars": 1080,
+  "head": [
+   "4.1 Wiring and Connecting SERVOPACKs",
+   "4.1.2 Countermeasures against Noise"
+  ],
+  "terms": []
+ },
+ {
+  "page": 105,
+  "tables": 3,
+  "chars": 1720,
+  "head": [
+   "4.1 Wiring and Connecting SERVOPACKs",
+   "4.1.3 Grounding"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 106,
+  "tables": 8,
+  "chars": 2718,
+  "head": [
+   "4.2 Basic Wiring Diagrams",
+   "4.2 Basic Wiring Diagrams"
+  ],
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 107,
+  "tables": 0,
+  "chars": 611,
+  "head": [
+   "4.2 Basic Wiring Diagrams",
+   "4"
+  ],
+  "terms": []
+ },
+ {
+  "page": 108,
+  "tables": 2,
+  "chars": 2800,
+  "head": [
+   "4.3 Wiring the Power Supply to the SERVOPACK",
+   "4.3.1 Terminal Symbols and Terminal Names"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 109,
+  "tables": 2,
+  "chars": 3073,
+  "head": [
+   "4.3 Wiring the Power Supply to the SERVOPACK",
+   "4.3.1 Terminal Symbols and Terminal Names"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "5R5A",
+   "120A",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 110,
+  "tables": 1,
+  "chars": 807,
+  "head": [
+   "4.3 Wiring the Power Supply to the SERVOPACK",
+   "4.3.1 Terminal Symbols and Terminal Names"
+  ],
+  "terms": [
+   "SGD7S",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 111,
+  "tables": 3,
+  "chars": 1407,
+  "head": [
+   "4.3 Wiring the Power Supply to the SERVOPACK",
+   "4.3.2 Wiring Procedure for Main Circuit Connector"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 112,
+  "tables": 4,
+  "chars": 1973,
+  "head": [
+   "4.3 Wiring the Power Supply to the SERVOPACK",
+   "4.3.3 Power ON Sequence"
+  ],
+  "terms": [
+   "SGD7S",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 113,
+  "tables": 1,
+  "chars": 802,
+  "head": [
+   "4.3 Wiring the Power Supply to the SERVOPACK",
+   "4.3.3 Power ON Sequence"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 114,
+  "tables": 10,
+  "chars": 1548,
+  "head": [
+   "4.3 Wiring the Power Supply to the SERVOPACK",
+   "4.3.4 Power Supply Wiring Diagrams"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 115,
+  "tables": 4,
+  "chars": 770,
+  "head": [
+   "4.3 Wiring the Power Supply to the SERVOPACK",
+   "4.3.4 Power Supply Wiring Diagrams"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 116,
+  "tables": 7,
+  "chars": 838,
+  "head": [
+   "4.3 Wiring the Power Supply to the SERVOPACK",
+   "4.3.4 Power Supply Wiring Diagrams"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 117,
+  "tables": 5,
+  "chars": 966,
+  "head": [
+   "4.3 Wiring the Power Supply to the SERVOPACK",
+   "4.3.4 Power Supply Wiring Diagrams"
+  ],
+  "terms": [
+   "SGD7S",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 118,
+  "tables": 4,
+  "chars": 639,
+  "head": [
+   "4.3 Wiring the Power Supply to the SERVOPACK",
+   "4.3.4 Power Supply Wiring Diagrams"
+  ],
+  "terms": [
+   "SGD7S",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 119,
+  "tables": 6,
+  "chars": 1757,
+  "head": [
+   "4.3 Wiring the Power Supply to the SERVOPACK",
+   "4.3.4 Power Supply Wiring Diagrams"
+  ],
+  "terms": [
+   "Main Circuit",
+   "Safety"
+  ]
+ },
+ {
+  "page": 120,
+  "tables": 1,
+  "chars": 1099,
+  "head": [
+   "4.3 Wiring the Power Supply to the SERVOPACK",
+   "4.3.5 Wiring Regenerative Resistors"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 121,
+  "tables": 2,
+  "chars": 1079,
+  "head": [
+   "4.3 Wiring the Power Supply to the SERVOPACK",
+   "4.3.5 Wiring Regenerative Resistors"
+  ],
+  "terms": [
+   "SGD7S"
+  ]
+ },
+ {
+  "page": 122,
+  "tables": 1,
+  "chars": 958,
+  "head": [
+   "4.3 Wiring the Power Supply to the SERVOPACK",
+   "4.3.6 Wiring Reactors for Harmonic Suppression"
+  ],
+  "terms": [
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 123,
+  "tables": 4,
+  "chars": 1401,
+  "head": [
+   "4.4 Wiring Servomotors",
+   "4.4.1 Terminal Symbols and Terminal Names"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 124,
+  "tables": 2,
+  "chars": 1127,
+  "head": [
+   "4.4 Wiring Servomotors",
+   "4.4.3 Wiring the SERVOPACK to the Encoder"
+  ],
+  "terms": []
+ },
+ {
+  "page": 125,
+  "tables": 1,
+  "chars": 1098,
+  "head": [
+   "4.4 Wiring Servomotors",
+   "4.4.3 Wiring the SERVOPACK to the Encoder"
+  ],
+  "terms": []
+ },
+ {
+  "page": 126,
+  "tables": 2,
+  "chars": 959,
+  "head": [
+   "4.4 Wiring Servomotors",
+   "4.4.3 Wiring the SERVOPACK to the Encoder"
+  ],
+  "terms": []
+ },
+ {
+  "page": 127,
+  "tables": 3,
+  "chars": 823,
+  "head": [
+   "4.4 Wiring Servomotors",
+   "4.4.3 Wiring the SERVOPACK to the Encoder"
+  ],
+  "terms": []
+ },
+ {
+  "page": 128,
+  "tables": 3,
+  "chars": 797,
+  "head": [
+   "4.4 Wiring Servomotors",
+   "4.4.3 Wiring the SERVOPACK to the Encoder"
+  ],
+  "terms": []
+ },
+ {
+  "page": 129,
+  "tables": 3,
+  "chars": 856,
+  "head": [
+   "4.4 Wiring Servomotors",
+   "4.4.3 Wiring the SERVOPACK to the Encoder"
+  ],
+  "terms": []
+ },
+ {
+  "page": 130,
+  "tables": 3,
+  "chars": 795,
+  "head": [
+   "4.4 Wiring Servomotors",
+   "4.4.3 Wiring the SERVOPACK to the Encoder"
+  ],
+  "terms": []
+ },
+ {
+  "page": 131,
+  "tables": 4,
+  "chars": 1197,
+  "head": [
+   "4.4 Wiring Servomotors",
+   "4.4.3 Wiring the SERVOPACK to the Encoder"
+  ],
+  "terms": []
+ },
+ {
+  "page": 132,
+  "tables": 2,
+  "chars": 1379,
+  "head": [
+   "4.4 Wiring Servomotors",
+   "4.4.4 Wiring the SERVOPACK to the Holding Brake"
+  ],
+  "terms": []
+ },
+ {
+  "page": 133,
+  "tables": 1,
+  "chars": 2389,
+  "head": [
+   "4.5 I/O Signal Connections",
+   "4.5.1 I/O Signal Connector (CN1) Names and Functions"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 134,
+  "tables": 1,
+  "chars": 1310,
+  "head": [
+   "4.5 I/O Signal Connections",
+   "4.5.1 I/O Signal Connector (CN1) Names and Functions"
+  ],
+  "terms": []
+ },
+ {
+  "page": 135,
+  "tables": 1,
+  "chars": 1570,
+  "head": [
+   "4.5 I/O Signal Connections",
+   "4.5.2 I/O Signal Connector (CN1) Pin Arrangement"
+  ],
+  "terms": []
+ },
+ {
+  "page": 136,
+  "tables": 2,
+  "chars": 2066,
+  "head": [
+   "4.5 I/O Signal Connections",
+   "4.5.3 I/O Signal Wiring Examples"
+  ],
+  "terms": []
+ },
+ {
+  "page": 137,
+  "tables": 2,
+  "chars": 1823,
+  "head": [
+   "4.5 I/O Signal Connections",
+   "4.5.3 I/O Signal Wiring Examples"
+  ],
+  "terms": []
+ },
+ {
+  "page": 138,
+  "tables": 5,
+  "chars": 1105,
+  "head": [
+   "4.5 I/O Signal Connections",
+   "4.5.4 I/O Circuits"
+  ],
+  "terms": []
+ },
+ {
+  "page": 139,
+  "tables": 2,
+  "chars": 1736,
+  "head": [
+   "4.5 I/O Signal Connections",
+   "4.5.4 I/O Circuits"
+  ],
+  "terms": []
+ },
+ {
+  "page": 140,
+  "tables": 4,
+  "chars": 1688,
+  "head": [
+   "4.6 Connecting Safety Function Signals",
+   "4.6.1 Pin Arrangement of Safety Function Signals (CN8)"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 141,
+  "tables": 4,
+  "chars": 1498,
+  "head": [
+   "4.6 Connecting Safety Function Signals",
+   "4.6.2 I/O Circuits"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 142,
+  "tables": 2,
+  "chars": 671,
+  "head": [
+   "4.7 Connecting EtherCAT Communications Cables",
+   "4.7.1 EtherCAT Connectors (RJ45)"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 143,
+  "tables": 1,
+  "chars": 407,
+  "head": [
+   "4.7 Connecting EtherCAT Communications Cables",
+   "4.7.2 Ethernet Communications Cables"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 144,
+  "tables": 1,
+  "chars": 1290,
+  "head": [
+   "4.8 Connecting the Other Connectors",
+   "4.8.1 Serial Communications Connector (CN502)"
+  ],
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 145,
+  "tables": 0,
+  "chars": 603,
+  "head": [
+   "4.8 Connecting the Other Connectors",
+   "4.8.3 Analog Monitor Connector (CN5)"
+  ],
+  "terms": []
+ },
+ {
+  "page": 146,
+  "tables": 0,
+  "chars": 77,
+  "head": [
+   "4.8 Connecting the Other Connectors",
+   "4.8.3 Analog Monitor Connector (CN5)"
+  ],
+  "terms": []
+ },
+ {
+  "page": 147,
+  "tables": 8,
+  "chars": 1243,
+  "head": [
+   "Basic Functions That",
+   "Require Setting"
+  ],
+  "terms": [
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 148,
+  "tables": 9,
+  "chars": 2804,
+  "head": [
+   "5.9 Polarity Detection . . . . . . . . . . . . . . . . . . .",
+   "5.9.1 Restrictions . . . . . . . . . . . . . . . . . . . . ."
+  ],
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 149,
+  "tables": 2,
+  "chars": 1459,
+  "head": [
+   "5.1 Manipulating SERVOPACK Parameters (Pn)",
+   "5.1.1 Classifications of SERVOPACK Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 150,
+  "tables": 2,
+  "chars": 2396,
+  "head": [
+   "5.1 Manipulating SERVOPACK Parameters (Pn)",
+   "5.1.2 Notation for SERVOPACK Parameters"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 151,
+  "tables": 0,
+  "chars": 1052,
+  "head": [
+   "5.1 Manipulating SERVOPACK Parameters (Pn)",
+   "5.1.3 Setting Methods for SERVOPACK Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 152,
+  "tables": 0,
+  "chars": 660,
+  "head": [
+   "5.1 Manipulating SERVOPACK Parameters (Pn)",
+   "5.1.3 Setting Methods for SERVOPACK Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 153,
+  "tables": 1,
+  "chars": 1913,
+  "head": [
+   "5.1 Manipulating SERVOPACK Parameters (Pn)",
+   "5.1.4 Write Prohibition Setting for SERVOPACK Parameters"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 154,
+  "tables": 0,
+  "chars": 371,
+  "head": [
+   "5.1 Manipulating SERVOPACK Parameters (Pn)",
+   "5.1.4 Write Prohibition Setting for SERVOPACK Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 155,
+  "tables": 1,
+  "chars": 2474,
+  "head": [
+   "5.1 Manipulating SERVOPACK Parameters (Pn)",
+   "5.1.4 Write Prohibition Setting for SERVOPACK Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 156,
+  "tables": 2,
+  "chars": 2262,
+  "head": [
+   "5.1 Manipulating SERVOPACK Parameters (Pn)",
+   "5.1.5 Initializing SERVOPACK Parameter Settings"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 157,
+  "tables": 0,
+  "chars": 583,
+  "head": [
+   "5.1 Manipulating SERVOPACK Parameters (Pn)",
+   "5.1.5 Initializing SERVOPACK Parameter Settings"
+  ],
+  "terms": []
+ },
+ {
+  "page": 158,
+  "tables": 2,
+  "chars": 3232,
+  "head": [
+   "5.2 Power Supply Type Settings for the Main Circuit and Cont",
+   "5.2.1 AC Power Supply Input/DC Power Supply Input Setting"
+  ],
+  "terms": [
+   "SGD7S",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 159,
+  "tables": 1,
+  "chars": 2190,
+  "head": [
+   "5.2 Power Supply Type Settings for the Main Circuit and Cont",
+   "5.2.2 Single-phase AC Power Supply Input/Three-phase AC Powe"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "5R5A",
+   "120A",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 160,
+  "tables": 1,
+  "chars": 1047,
+  "head": [
+   "5.3 Automatic Detection of Connected Motor",
+   "5.3 Automatic Detection of Connected Motor"
+  ],
+  "terms": []
+ },
+ {
+  "page": 161,
+  "tables": 2,
+  "chars": 3277,
+  "head": [
+   "5.4 Motor Direction Setting",
+   "5"
+  ],
+  "terms": []
+ },
+ {
+  "page": 162,
+  "tables": 2,
+  "chars": 1907,
+  "head": [
+   "5.5 Setting the Linear Encoder Pitch",
+   "5.5 Setting the Linear Encoder Pitch"
+  ],
+  "terms": []
+ },
+ {
+  "page": 163,
+  "tables": 3,
+  "chars": 2117,
+  "head": [
+   "5.6 Writing Linear Servomotor Parameters",
+   "5"
+  ],
+  "terms": []
+ },
+ {
+  "page": 164,
+  "tables": 0,
+  "chars": 785,
+  "head": [
+   "5.6 Writing Linear Servomotor Parameters",
+   "Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 165,
+  "tables": 0,
+  "chars": 482,
+  "head": [
+   "5.6 Writing Linear Servomotor Parameters",
+   "5"
+  ],
+  "terms": []
+ },
+ {
+  "page": 166,
+  "tables": 0,
+  "chars": 703,
+  "head": [
+   "5.6 Writing Linear Servomotor Parameters",
+   "Click the No Button to cancel writing the motor parameters t"
+  ],
+  "terms": []
+ },
+ {
+  "page": 167,
+  "tables": 3,
+  "chars": 2542,
+  "head": [
+   "5.7 Selecting the Phase Sequence for a Linear Servomotor",
+   "5"
+  ],
+  "terms": []
+ },
+ {
+  "page": 168,
+  "tables": 2,
+  "chars": 1708,
+  "head": [
+   "5.7 Selecting the Phase Sequence for a Linear Servomotor",
+   "If the correct value is not displayed for the feedback pulse"
+  ],
+  "terms": []
+ },
+ {
+  "page": 169,
+  "tables": 1,
+  "chars": 1090,
+  "head": [
+   "5.8 Polarity Sensor Setting",
+   "5"
+  ],
+  "terms": []
+ },
+ {
+  "page": 170,
+  "tables": 1,
+  "chars": 2848,
+  "head": [
+   "5.9 Polarity Detection",
+   "5.9.1 Restrictions"
+  ],
+  "terms": [
+   "Main Circuit",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 171,
+  "tables": 0,
+  "chars": 1826,
+  "head": [
+   "5.9 Polarity Detection",
+   "5.9.2 Using the Servo ON Command (Enable Operation Command) "
+  ],
+  "terms": []
+ },
+ {
+  "page": 172,
+  "tables": 1,
+  "chars": 955,
+  "head": [
+   "5.9 Polarity Detection",
+   "5.9.3 Using a Tool Function to Perform Polarity Detection"
+  ],
+  "terms": []
+ },
+ {
+  "page": 173,
+  "tables": 2,
+  "chars": 2504,
+  "head": [
+   "5.10 Overtravel and Related Settings",
+   "5.10.1 Overtravel Signals"
+  ],
+  "terms": []
+ },
+ {
+  "page": 174,
+  "tables": 2,
+  "chars": 2168,
+  "head": [
+   "5.10 Overtravel and Related Settings",
+   "5.10.2 Setting to Enable/Disable Overtravel"
+  ],
+  "terms": []
+ },
+ {
+  "page": 175,
+  "tables": 2,
+  "chars": 1578,
+  "head": [
+   "5.10 Overtravel and Related Settings",
+   "5.10.3 Motor Stopping Method for Overtravel"
+  ],
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 176,
+  "tables": 1,
+  "chars": 2731,
+  "head": [
+   "5.10 Overtravel and Related Settings",
+   "5.10.4 Overtravel Warnings"
+  ],
+  "terms": []
+ },
+ {
+  "page": 177,
+  "tables": 3,
+  "chars": 1464,
+  "head": [
+   "5.10 Overtravel and Related Settings",
+   "5.10.5 Overtravel Release Method Selection"
+  ],
+  "terms": []
+ },
+ {
+  "page": 178,
+  "tables": 1,
+  "chars": 2384,
+  "head": [
+   "5.10 Overtravel and Related Settings",
+   "5.10.6 Overtravel Status"
+  ],
+  "terms": []
+ },
+ {
+  "page": 179,
+  "tables": 3,
+  "chars": 2146,
+  "head": [
+   "5.11 Holding Brake",
+   "5.11.1 Brake Operating Sequence"
+  ],
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 180,
+  "tables": 2,
+  "chars": 2055,
+  "head": [
+   "5.11 Holding Brake",
+   "5.11.2 /BK (Brake) Signal"
+  ],
+  "terms": []
+ },
+ {
+  "page": 181,
+  "tables": 2,
+  "chars": 2498,
+  "head": [
+   "5.11 Holding Brake",
+   "5.11.3 Output Timing of /BK (Brake) Signal When the Servomot"
+  ],
+  "terms": []
+ },
+ {
+  "page": 182,
+  "tables": 3,
+  "chars": 2002,
+  "head": [
+   "5.11 Holding Brake",
+   "5.11.4 Output Timing of /BK (Brake) Signal When the Servomot"
+  ],
+  "terms": []
+ },
+ {
+  "page": 183,
+  "tables": 1,
+  "chars": 755,
+  "head": [
+   "5.11 Holding Brake",
+   "5.11.4 Output Timing of /BK (Brake) Signal When the Servomot"
+  ],
+  "terms": []
+ },
+ {
+  "page": 184,
+  "tables": 3,
+  "chars": 2671,
+  "head": [
+   "5.12 Motor Stopping Methods for Servo OFF and Alarms",
+   "5.12 Motor Stopping Methods for Servo OFF and Alarms"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 185,
+  "tables": 1,
+  "chars": 2471,
+  "head": [
+   "5.12 Motor Stopping Methods for Servo OFF and Alarms",
+   "5.12.1 Stopping Method for Servo OFF"
+  ],
+  "terms": []
+ },
+ {
+  "page": 186,
+  "tables": 1,
+  "chars": 1581,
+  "head": [
+   "5.12 Motor Stopping Methods for Servo OFF and Alarms",
+   "5.12.2 Servomotor Stopping Method for Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 187,
+  "tables": 1,
+  "chars": 1681,
+  "head": [
+   "5.13 Motor Overload Detection Level",
+   "5.13.1 Detection Timing for Overload Warnings (A.910)"
+  ],
+  "terms": [
+   "Ratings",
+   "Safety"
+  ]
+ },
+ {
+  "page": 188,
+  "tables": 1,
+  "chars": 1540,
+  "head": [
+   "5.13 Motor Overload Detection Level",
+   "5.13.2 Detection Timing for Overload Alarms (A.720)"
+  ],
+  "terms": []
+ },
+ {
+  "page": 189,
+  "tables": 1,
+  "chars": 2494,
+  "head": [
+   "5.14 Setting Unit Systems",
+   "5.14.1 Setting the Position Reference Unit"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 190,
+  "tables": 0,
+  "chars": 2524,
+  "head": [
+   "5.14 Setting Unit Systems",
+   "5.14.1 Setting the Position Reference Unit"
+  ],
+  "terms": []
+ },
+ {
+  "page": 191,
+  "tables": 5,
+  "chars": 1943,
+  "head": [
+   "5.14 Setting Unit Systems",
+   "5.14.1 Setting the Position Reference Unit"
+  ],
+  "terms": []
+ },
+ {
+  "page": 192,
+  "tables": 1,
+  "chars": 1206,
+  "head": [
+   "5.14 Setting Unit Systems",
+   "5.14.1 Setting the Position Reference Unit"
+  ],
+  "terms": []
+ },
+ {
+  "page": 193,
+  "tables": 1,
+  "chars": 1680,
+  "head": [
+   "5.14 Setting Unit Systems",
+   "5.14.1 Setting the Position Reference Unit"
+  ],
+  "terms": []
+ },
+ {
+  "page": 194,
+  "tables": 1,
+  "chars": 1884,
+  "head": [
+   "5.14 Setting Unit Systems",
+   "5.14.1 Setting the Position Reference Unit"
+  ],
+  "terms": []
+ },
+ {
+  "page": 195,
+  "tables": 3,
+  "chars": 2300,
+  "head": [
+   "5.14 Setting Unit Systems",
+   "5.14.1 Setting the Position Reference Unit"
+  ],
+  "terms": []
+ },
+ {
+  "page": 196,
+  "tables": 1,
+  "chars": 1359,
+  "head": [
+   "5.14 Setting Unit Systems",
+   "5.14.2 Setting the Speed Reference Unit"
+  ],
+  "terms": []
+ },
+ {
+  "page": 197,
+  "tables": 3,
+  "chars": 2355,
+  "head": [
+   "5.14 Setting Unit Systems",
+   "5.14.3 Setting the Acceleration Reference Unit"
+  ],
+  "terms": []
+ },
+ {
+  "page": 198,
+  "tables": 2,
+  "chars": 2746,
+  "head": [
+   "5.15 Resetting the Absolute Encoder",
+   "5.15.1 Precautions on Resetting"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 199,
+  "tables": 0,
+  "chars": 811,
+  "head": [
+   "5.15 Resetting the Absolute Encoder",
+   "5.15.3 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 200,
+  "tables": 0,
+  "chars": 721,
+  "head": [
+   "5.15 Resetting the Absolute Encoder",
+   "5.15.3 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 201,
+  "tables": 1,
+  "chars": 2015,
+  "head": [
+   "5.16 Setting the Origin of the Absolute Encoder",
+   "5.16.1 Absolute Encoder Origin Offset"
+  ],
+  "terms": []
+ },
+ {
+  "page": 202,
+  "tables": 1,
+  "chars": 973,
+  "head": [
+   "5.16 Setting the Origin of the Absolute Encoder",
+   "5.16.2 Setting the Origin of the Absolute Linear Encoder"
+  ],
+  "terms": []
+ },
+ {
+  "page": 203,
+  "tables": 0,
+  "chars": 688,
+  "head": [
+   "5.16 Setting the Origin of the Absolute Encoder",
+   "5.16.2 Setting the Origin of the Absolute Linear Encoder"
+  ],
+  "terms": []
+ },
+ {
+  "page": 204,
+  "tables": 2,
+  "chars": 2503,
+  "head": [
+   "5.17 Setting the Regenerative Resistor Capacity",
+   "5.17 Setting the Regenerative Resistor Capacity"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 205,
+  "tables": 7,
+  "chars": 1609,
+  "head": [
+   "Application",
+   "Functions 6"
+  ],
+  "terms": []
+ },
+ {
+  "page": 206,
+  "tables": 7,
+  "chars": 2861,
+  "head": [
+   "6.8 Absolute Encoders . . . . . . . . . . . . . . . . . .6-3",
+   "6.8.1 Connecting an Absolute Encoder . . . . . . . . . . . ."
+  ],
+  "terms": []
+ },
+ {
+  "page": 207,
+  "tables": 2,
+  "chars": 2475,
+  "head": [
+   "6.1 I/O Signal Allocations",
+   "6.1.1 Input Signal Allocations"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 208,
+  "tables": 1,
+  "chars": 2176,
+  "head": [
+   "6.1 I/O Signal Allocations",
+   "6.1.2 Output Signal Allocations"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 209,
+  "tables": 3,
+  "chars": 2340,
+  "head": [
+   "6.1 I/O Signal Allocations",
+   "6.1.2 Output Signal Allocations"
+  ],
+  "terms": []
+ },
+ {
+  "page": 210,
+  "tables": 3,
+  "chars": 2342,
+  "head": [
+   "6.1 I/O Signal Allocations",
+   "6.1.3 ALM (Servo Alarm) Signal"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 211,
+  "tables": 4,
+  "chars": 3090,
+  "head": [
+   "6.1 I/O Signal Allocations",
+   "6.1.6 /S-RDY (Servo Ready) Signal"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 212,
+  "tables": 4,
+  "chars": 1266,
+  "head": [
+   "6.1 I/O Signal Allocations",
+   "6.1.7 /V-CMP (Speed Coincidence Detection) Signal"
+  ],
+  "terms": []
+ },
+ {
+  "page": 213,
+  "tables": 2,
+  "chars": 2017,
+  "head": [
+   "6.1 I/O Signal Allocations",
+   "6.1.8 /COIN (Positioning Completion) Signal"
+  ],
+  "terms": []
+ },
+ {
+  "page": 214,
+  "tables": 2,
+  "chars": 2117,
+  "head": [
+   "6.1 I/O Signal Allocations",
+   "6.1.9 /NEAR (Near) Signal"
+  ],
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 215,
+  "tables": 3,
+  "chars": 2240,
+  "head": [
+   "6.1 I/O Signal Allocations",
+   "6.1.10 Speed Limit during Torque Control"
+  ],
+  "terms": []
+ },
+ {
+  "page": 216,
+  "tables": 3,
+  "chars": 1508,
+  "head": [
+   "6.1 I/O Signal Allocations",
+   "6.1.10 Speed Limit during Torque Control"
+  ],
+  "terms": []
+ },
+ {
+  "page": 217,
+  "tables": 2,
+  "chars": 2204,
+  "head": [
+   "6.2 Operation for Momentary Power Interruptions",
+   "6"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 218,
+  "tables": 1,
+  "chars": 2146,
+  "head": [
+   "6.3 SEMI F47 Function",
+   "6.3 SEMI F47 Function"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 219,
+  "tables": 1,
+  "chars": 2514,
+  "head": [
+   "6.3 SEMI F47 Function",
+   "6"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 220,
+  "tables": 2,
+  "chars": 1671,
+  "head": [
+   "6.4 Setting the Motor Maximum Speed",
+   "6.4 Setting the Motor Maximum Speed"
+  ],
+  "terms": []
+ },
+ {
+  "page": 221,
+  "tables": 5,
+  "chars": 1896,
+  "head": [
+   "6.5 Encoder Divided Pulse Output",
+   "6.5.1 Encoder Divided Pulse Output Signals"
+  ],
+  "terms": []
+ },
+ {
+  "page": 222,
+  "tables": 2,
+  "chars": 2190,
+  "head": [
+   "6.5 Encoder Divided Pulse Output",
+   "6.5.1 Encoder Divided Pulse Output Signals"
+  ],
+  "terms": []
+ },
+ {
+  "page": 223,
+  "tables": 2,
+  "chars": 2454,
+  "head": [
+   "6.5 Encoder Divided Pulse Output",
+   "6.5.1 Encoder Divided Pulse Output Signals"
+  ],
+  "terms": []
+ },
+ {
+  "page": 224,
+  "tables": 4,
+  "chars": 1794,
+  "head": [
+   "6.5 Encoder Divided Pulse Output",
+   "6.5.1 Encoder Divided Pulse Output Signals"
+  ],
+  "terms": []
+ },
+ {
+  "page": 225,
+  "tables": 2,
+  "chars": 1786,
+  "head": [
+   "6.5 Encoder Divided Pulse Output",
+   "6.5.1 Encoder Divided Pulse Output Signals"
+  ],
+  "terms": []
+ },
+ {
+  "page": 226,
+  "tables": 2,
+  "chars": 2538,
+  "head": [
+   "6.5 Encoder Divided Pulse Output",
+   "6.5.2 Setting for the Encoder Divided Pulse Output"
+  ],
+  "terms": []
+ },
+ {
+  "page": 227,
+  "tables": 1,
+  "chars": 2750,
+  "head": [
+   "6.5 Encoder Divided Pulse Output",
+   "6.5.2 Setting for the Encoder Divided Pulse Output"
+  ],
+  "terms": []
+ },
+ {
+  "page": 228,
+  "tables": 0,
+  "chars": 373,
+  "head": [
+   "6.6 Software Limits",
+   "6.6 Software Limits"
+  ],
+  "terms": []
+ },
+ {
+  "page": 229,
+  "tables": 4,
+  "chars": 1898,
+  "head": [
+   "6.7 Selecting Torque Limits",
+   "6.7.1 Internal Torque Limits"
+  ],
+  "terms": []
+ },
+ {
+  "page": 230,
+  "tables": 4,
+  "chars": 2350,
+  "head": [
+   "6.7 Selecting Torque Limits",
+   "6.7.2 External Torque Limits"
+  ],
+  "terms": []
+ },
+ {
+  "page": 231,
+  "tables": 2,
+  "chars": 2151,
+  "head": [
+   "6.7 Selecting Torque Limits",
+   "6.7.2 External Torque Limits"
+  ],
+  "terms": []
+ },
+ {
+  "page": 232,
+  "tables": 3,
+  "chars": 834,
+  "head": [
+   "6.7 Selecting Torque Limits",
+   "6.7.2 External Torque Limits"
+  ],
+  "terms": []
+ },
+ {
+  "page": 233,
+  "tables": 1,
+  "chars": 692,
+  "head": [
+   "6.7 Selecting Torque Limits",
+   "6.7.3 /CLT (Torque Limit Detection) Signal"
+  ],
+  "terms": []
+ },
+ {
+  "page": 234,
+  "tables": 5,
+  "chars": 2562,
+  "head": [
+   "6.8 Absolute Encoders",
+   "6.8 Absolute Encoders"
+  ],
+  "terms": []
+ },
+ {
+  "page": 235,
+  "tables": 3,
+  "chars": 2589,
+  "head": [
+   "6.8 Absolute Encoders",
+   "6.8.1 Connecting an Absolute Encoder"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 236,
+  "tables": 5,
+  "chars": 2229,
+  "head": [
+   "6.8 Absolute Encoders",
+   "6.8.4 Reading the Position Data from the Absolute Encoder"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 237,
+  "tables": 2,
+  "chars": 1014,
+  "head": [
+   "6.8 Absolute Encoders",
+   "6.8.5 Transmission Specifications"
+  ],
+  "terms": []
+ },
+ {
+  "page": 238,
+  "tables": 2,
+  "chars": 2009,
+  "head": [
+   "6.8 Absolute Encoders",
+   "6.8.6 Calculating the Current Position in Machine Coordinate"
+  ],
+  "terms": []
+ },
+ {
+  "page": 239,
+  "tables": 2,
+  "chars": 2390,
+  "head": [
+   "6.8 Absolute Encoders",
+   "6.8.7 Multiturn Limit Setting"
+  ],
+  "terms": []
+ },
+ {
+  "page": 240,
+  "tables": 3,
+  "chars": 1539,
+  "head": [
+   "6.8 Absolute Encoders",
+   "6.8.8 Multiturn Limit Disagreement Alarm (A.CC0)"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 241,
+  "tables": 0,
+  "chars": 606,
+  "head": [
+   "6.8 Absolute Encoders",
+   "6.8.8 Multiturn Limit Disagreement Alarm (A.CC0)"
+  ],
+  "terms": []
+ },
+ {
+  "page": 242,
+  "tables": 0,
+  "chars": 595,
+  "head": [
+   "6.8 Absolute Encoders",
+   "6.8.8 Multiturn Limit Disagreement Alarm (A.CC0)"
+  ],
+  "terms": []
+ },
+ {
+  "page": 243,
+  "tables": 3,
+  "chars": 2069,
+  "head": [
+   "6.9 Absolute Linear Encoders",
+   "6.9.1 Connecting an Absolute Linear Encoder"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 244,
+  "tables": 3,
+  "chars": 1936,
+  "head": [
+   "6.9 Absolute Linear Encoders",
+   "6.9.3 Output Ports for the Position Data from the Absolute L"
+  ],
+  "terms": []
+ },
+ {
+  "page": 245,
+  "tables": 5,
+  "chars": 1688,
+  "head": [
+   "6.9 Absolute Linear Encoders",
+   "6.9.4 Reading the Position Data from the Absolute Linear Enc"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 246,
+  "tables": 4,
+  "chars": 2487,
+  "head": [
+   "6.9 Absolute Linear Encoders",
+   "6.9.6 Calculating the Current Position in Machine Coordinate"
+  ],
+  "terms": []
+ },
+ {
+  "page": 247,
+  "tables": 1,
+  "chars": 1547,
+  "head": [
+   "6.10 Software Reset",
+   "6.10.1 Preparations"
+  ],
+  "terms": []
+ },
+ {
+  "page": 248,
+  "tables": 0,
+  "chars": 742,
+  "head": [
+   "6.10 Software Reset",
+   "6.10.3 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 249,
+  "tables": 3,
+  "chars": 2904,
+  "head": [
+   "6.11 Initializing the Vibration Detection Level",
+   "6.11.1 Preparations"
+  ],
+  "terms": []
+ },
+ {
+  "page": 250,
+  "tables": 0,
+  "chars": 728,
+  "head": [
+   "6.11 Initializing the Vibration Detection Level",
+   "6.11.3 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 251,
+  "tables": 1,
+  "chars": 1090,
+  "head": [
+   "6.11 Initializing the Vibration Detection Level",
+   "6.11.4 Related Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 252,
+  "tables": 1,
+  "chars": 1787,
+  "head": [
+   "6.12 Adjusting the Motor Current Detection Signal Offset",
+   "6.12.1 Automatic Adjustment"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 253,
+  "tables": 0,
+  "chars": 459,
+  "head": [
+   "6.12 Adjusting the Motor Current Detection Signal Offset",
+   "6.12.1 Automatic Adjustment"
+  ],
+  "terms": []
+ },
+ {
+  "page": 254,
+  "tables": 1,
+  "chars": 1849,
+  "head": [
+   "6.12 Adjusting the Motor Current Detection Signal Offset",
+   "6.12.2 Manual Adjustment"
+  ],
+  "terms": []
+ },
+ {
+  "page": 255,
+  "tables": 0,
+  "chars": 1005,
+  "head": [
+   "6.12 Adjusting the Motor Current Detection Signal Offset",
+   "6.12.2 Manual Adjustment"
+  ],
+  "terms": []
+ },
+ {
+  "page": 256,
+  "tables": 3,
+  "chars": 2505,
+  "head": [
+   "6.13 Forcing the Motor to Stop",
+   "6.13.1 FSTP (Forced Stop Input) Signal"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 257,
+  "tables": 2,
+  "chars": 1593,
+  "head": [
+   "6.13 Forcing the Motor to Stop",
+   "6.13.2 Stopping Method Selection for Forced Stops"
+  ],
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 258,
+  "tables": 0,
+  "chars": 918,
+  "head": [
+   "6.13 Forcing the Motor to Stop",
+   "6.13.3 Resetting Method for Forced Stops"
+  ],
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 259,
+  "tables": 2,
+  "chars": 1636,
+  "head": [
+   "6.14 Overheat Protection",
+   "6.14.1 Connecting the Overheat Protection Input (TH) Signal"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 260,
+  "tables": 2,
+  "chars": 1522,
+  "head": [
+   "6.14 Overheat Protection",
+   "6.14.2 Overheat Protection Selections"
+  ],
+  "terms": []
+ },
+ {
+  "page": 261,
+  "tables": 1,
+  "chars": 2139,
+  "head": [
+   "6.14 Overheat Protection",
+   "6.14.2 Overheat Protection Selections"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 262,
+  "tables": 0,
+  "chars": 67,
+  "head": [
+   "6.14 Overheat Protection",
+   "6.14.2 Overheat Protection Selections"
+  ],
+  "terms": []
+ },
+ {
+  "page": 263,
+  "tables": 6,
+  "chars": 1375,
+  "head": [
+   "Trial Operation and",
+   "Actual Operation 7"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 264,
+  "tables": 1,
+  "chars": 968,
+  "head": [
+   "7.1 Flow of Trial Operation",
+   "7.1.1 Flow of Trial Operation for Rotary Servomotors"
+  ],
+  "terms": []
+ },
+ {
+  "page": 265,
+  "tables": 1,
+  "chars": 992,
+  "head": [
+   "7.1 Flow of Trial Operation",
+   "7.1.1 Flow of Trial Operation for Rotary Servomotors"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 266,
+  "tables": 2,
+  "chars": 1658,
+  "head": [
+   "7.1 Flow of Trial Operation",
+   "7.1.2 Flow of Trial Operation for Linear Servomotors"
+  ],
+  "terms": []
+ },
+ {
+  "page": 267,
+  "tables": 1,
+  "chars": 694,
+  "head": [
+   "7.1 Flow of Trial Operation",
+   "7.1.2 Flow of Trial Operation for Linear Servomotors"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 268,
+  "tables": 2,
+  "chars": 1281,
+  "head": [
+   "7.2 Inspections and Confirmations before Trial Operation",
+   "7.2 Inspections and Confirmations before Trial Operation"
+  ],
+  "terms": []
+ },
+ {
+  "page": 269,
+  "tables": 3,
+  "chars": 2227,
+  "head": [
+   "7.3 Trial Operation for the Servomotor without a Load",
+   "7.3.1 Preparations"
+  ],
+  "terms": [
+   "Main Circuit",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 270,
+  "tables": 2,
+  "chars": 1188,
+  "head": [
+   "7.3 Trial Operation for the Servomotor without a Load",
+   "7.3.2 Applicable Tools"
+  ],
+  "terms": []
+ },
+ {
+  "page": 271,
+  "tables": 0,
+  "chars": 568,
+  "head": [
+   "7.3 Trial Operation for the Servomotor without a Load",
+   "7.3.3 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 272,
+  "tables": 1,
+  "chars": 2620,
+  "head": [
+   "7.4 Trial Operation with EtherCAT (CoE) Communications",
+   "7.4 Trial Operation with EtherCAT (CoE) Communications"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 273,
+  "tables": 1,
+  "chars": 2699,
+  "head": [
+   "7.5 Trial Operation with the Servomotor Connected to the Mac",
+   "7.5.1 Precautions"
+  ],
+  "terms": [
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 274,
+  "tables": 0,
+  "chars": 2094,
+  "head": [
+   "7.5 Trial Operation with the Servomotor Connected to the Mac",
+   "7.5.3 Operating Procedure"
+  ],
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 275,
+  "tables": 0,
+  "chars": 1459,
+  "head": [
+   "7.6 Convenient Function to Use during Trial Operation",
+   "7.6.1 Program Jogging"
+  ],
+  "terms": [
+   "Main Circuit",
+   "HWBB",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 276,
+  "tables": 3,
+  "chars": 2626,
+  "head": [
+   "7.6 Convenient Function to Use during Trial Operation",
+   "7.6.1 Program Jogging"
+  ],
+  "terms": []
+ },
+ {
+  "page": 277,
+  "tables": 2,
+  "chars": 1496,
+  "head": [
+   "7.6 Convenient Function to Use during Trial Operation",
+   "7.6.1 Program Jogging"
+  ],
+  "terms": []
+ },
+ {
+  "page": 278,
+  "tables": 2,
+  "chars": 2514,
+  "head": [
+   "7.6 Convenient Function to Use during Trial Operation",
+   "7.6.1 Program Jogging"
+  ],
+  "terms": []
+ },
+ {
+  "page": 279,
+  "tables": 2,
+  "chars": 1545,
+  "head": [
+   "7.6 Convenient Function to Use during Trial Operation",
+   "7.6.1 Program Jogging"
+  ],
+  "terms": []
+ },
+ {
+  "page": 280,
+  "tables": 0,
+  "chars": 526,
+  "head": [
+   "7.6 Convenient Function to Use during Trial Operation",
+   "7.6.1 Program Jogging"
+  ],
+  "terms": []
+ },
+ {
+  "page": 281,
+  "tables": 1,
+  "chars": 672,
+  "head": [
+   "7.6 Convenient Function to Use during Trial Operation",
+   "7.6.1 Program Jogging"
+  ],
+  "terms": []
+ },
+ {
+  "page": 282,
+  "tables": 5,
+  "chars": 1904,
+  "head": [
+   "7.6 Convenient Function to Use during Trial Operation",
+   "7.6.2 Origin Search"
+  ],
+  "terms": [
+   "Main Circuit",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 283,
+  "tables": 0,
+  "chars": 434,
+  "head": [
+   "7.6 Convenient Function to Use during Trial Operation",
+   "7.6.2 Origin Search"
+  ],
+  "terms": []
+ },
+ {
+  "page": 284,
+  "tables": 3,
+  "chars": 2562,
+  "head": [
+   "7.6 Convenient Function to Use during Trial Operation",
+   "7.6.3 Test without a Motor"
+  ],
+  "terms": []
+ },
+ {
+  "page": 285,
+  "tables": 4,
+  "chars": 2103,
+  "head": [
+   "7.6 Convenient Function to Use during Trial Operation",
+   "7.6.3 Test without a Motor"
+  ],
+  "terms": []
+ },
+ {
+  "page": 286,
+  "tables": 1,
+  "chars": 2119,
+  "head": [
+   "7.6 Convenient Function to Use during Trial Operation",
+   "7.6.3 Test without a Motor"
+  ],
+  "terms": []
+ },
+ {
+  "page": 287,
+  "tables": 1,
+  "chars": 942,
+  "head": [
+   "7.6 Convenient Function to Use during Trial Operation",
+   "7.6.3 Test without a Motor"
+  ],
+  "terms": []
+ },
+ {
+  "page": 288,
+  "tables": 0,
+  "chars": 85,
+  "head": [
+   "7.6 Convenient Function to Use during Trial Operation",
+   "7.6.3 Test without a Motor"
+  ],
+  "terms": []
+ },
+ {
+  "page": 289,
+  "tables": 5,
+  "chars": 1751,
+  "head": [
+   "Tuning 8",
+   "This chapter provides information on the flow of tuning,"
+  ],
+  "terms": []
+ },
+ {
+  "page": 290,
+  "tables": 6,
+  "chars": 3123,
+  "head": [
+   "8.6 Autotuning without Host Reference . . . . .8-23",
+   "8.6.1 Outline . . . . . . . . . . . . . . . . . . . . . . . "
+  ],
+  "terms": []
+ },
+ {
+  "page": 291,
+  "tables": 3,
+  "chars": 1047,
+  "head": [
+   "8.12 Additional Adjustment Functions . . . . . . . 8-65",
+   "8.12.1 Gain Switching . . . . . . . . . . . . . . . . . . . "
+  ],
+  "terms": []
+ },
+ {
+  "page": 292,
+  "tables": 0,
+  "chars": 1678,
+  "head": [
+   "8.1 Overview and Flow of Tuning",
+   "8.1 Overview and Flow of Tuning"
+  ],
+  "terms": []
+ },
+ {
+  "page": 293,
+  "tables": 1,
+  "chars": 2770,
+  "head": [
+   "8.1 Overview and Flow of Tuning",
+   "8.1.1 Tuning Functions"
+  ],
+  "terms": []
+ },
+ {
+  "page": 294,
+  "tables": 1,
+  "chars": 672,
+  "head": [
+   "8.1 Overview and Flow of Tuning",
+   "8.1.2 Diagnostic Tool"
+  ],
+  "terms": []
+ },
+ {
+  "page": 295,
+  "tables": 5,
+  "chars": 849,
+  "head": [
+   "8.2 Monitoring Methods",
+   "8"
+  ],
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 296,
+  "tables": 1,
+  "chars": 2284,
+  "head": [
+   "8.3 Precautions to Ensure Safe Tuning",
+   "8.3.1 Overtravel Settings"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 297,
+  "tables": 3,
+  "chars": 2827,
+  "head": [
+   "8.3 Precautions to Ensure Safe Tuning",
+   "8.3.3 Setting the Position Deviation Overflow Alarm Level"
+  ],
+  "terms": []
+ },
+ {
+  "page": 298,
+  "tables": 4,
+  "chars": 2541,
+  "head": [
+   "8.3 Precautions to Ensure Safe Tuning",
+   "8.3.4 Vibration Detection Level Setting"
+  ],
+  "terms": []
+ },
+ {
+  "page": 299,
+  "tables": 1,
+  "chars": 365,
+  "head": [
+   "8.3 Precautions to Ensure Safe Tuning",
+   "8.3.5 Setting the Position Deviation Overflow Alarm Level at"
+  ],
+  "terms": []
+ },
+ {
+  "page": 300,
+  "tables": 2,
+  "chars": 1947,
+  "head": [
+   "8.4 Tuning-less Function",
+   "8.4.1 Application Restrictions"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 301,
+  "tables": 2,
+  "chars": 1896,
+  "head": [
+   "8.4 Tuning-less Function",
+   "8.4.2 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 302,
+  "tables": 3,
+  "chars": 1924,
+  "head": [
+   "8.4 Tuning-less Function",
+   "8.4.3 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 303,
+  "tables": 3,
+  "chars": 2509,
+  "head": [
+   "8.4 Tuning-less Function",
+   "8.4.4 Parameters Disabled by Tuning-less Function"
+  ],
+  "terms": []
+ },
+ {
+  "page": 304,
+  "tables": 0,
+  "chars": 2316,
+  "head": [
+   "8.5 Estimating the Moment of Inertia",
+   "8.5.1 Outline"
+  ],
+  "terms": []
+ },
+ {
+  "page": 305,
+  "tables": 3,
+  "chars": 2263,
+  "head": [
+   "8.5 Estimating the Moment of Inertia",
+   "8.5.3 Applicable Tools"
+  ],
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 306,
+  "tables": 1,
+  "chars": 178,
+  "head": [
+   "8.5 Estimating the Moment of Inertia",
+   "8.5.4 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 307,
+  "tables": 1,
+  "chars": 2940,
+  "head": [
+   "8.5 Estimating the Moment of Inertia",
+   "8.5.4 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 308,
+  "tables": 2,
+  "chars": 1313,
+  "head": [
+   "8.5 Estimating the Moment of Inertia",
+   "8.5.4 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 309,
+  "tables": 0,
+  "chars": 1157,
+  "head": [
+   "8.5 Estimating the Moment of Inertia",
+   "8.5.4 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 310,
+  "tables": 0,
+  "chars": 1197,
+  "head": [
+   "8.5 Estimating the Moment of Inertia",
+   "8.5.4 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 311,
+  "tables": 1,
+  "chars": 2908,
+  "head": [
+   "8.6 Autotuning without Host Reference",
+   "8.6.1 Outline"
+  ],
+  "terms": []
+ },
+ {
+  "page": 312,
+  "tables": 1,
+  "chars": 2276,
+  "head": [
+   "8.6 Autotuning without Host Reference",
+   "8.6.2 Restrictions"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 313,
+  "tables": 2,
+  "chars": 2238,
+  "head": [
+   "8.6 Autotuning without Host Reference",
+   "8.6.3 Applicable Tools"
+  ],
+  "terms": [
+   "Main Circuit",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 314,
+  "tables": 0,
+  "chars": 377,
+  "head": [
+   "8.6 Autotuning without Host Reference",
+   "8.6.4 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 315,
+  "tables": 2,
+  "chars": 2821,
+  "head": [
+   "8.6 Autotuning without Host Reference",
+   "8.6.4 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 316,
+  "tables": 0,
+  "chars": 132,
+  "head": [
+   "8.6 Autotuning without Host Reference",
+   "8.6.4 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 317,
+  "tables": 1,
+  "chars": 1679,
+  "head": [
+   "8.6 Autotuning without Host Reference",
+   "8.6.5 Troubleshooting Problems in Autotuning without a Host "
+  ],
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 318,
+  "tables": 3,
+  "chars": 2836,
+  "head": [
+   "8.6 Autotuning without Host Reference",
+   "8.6.5 Troubleshooting Problems in Autotuning without a Host "
+  ],
+  "terms": []
+ },
+ {
+  "page": 319,
+  "tables": 2,
+  "chars": 2956,
+  "head": [
+   "8.6 Autotuning without Host Reference",
+   "8.6.6 Automatically Adjusted Function Settings"
+  ],
+  "terms": []
+ },
+ {
+  "page": 320,
+  "tables": 4,
+  "chars": 2762,
+  "head": [
+   "8.6 Autotuning without Host Reference",
+   "8.6.6 Automatically Adjusted Function Settings"
+  ],
+  "terms": []
+ },
+ {
+  "page": 321,
+  "tables": 1,
+  "chars": 2183,
+  "head": [
+   "8.6 Autotuning without Host Reference",
+   "8.6.7 Related Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 322,
+  "tables": 1,
+  "chars": 1287,
+  "head": [
+   "8.7 Autotuning with a Host Reference",
+   "8.7.1 Outline"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 323,
+  "tables": 1,
+  "chars": 2108,
+  "head": [
+   "8.7 Autotuning with a Host Reference",
+   "8.7.2 Restrictions"
+  ],
+  "terms": []
+ },
+ {
+  "page": 324,
+  "tables": 0,
+  "chars": 761,
+  "head": [
+   "8.7 Autotuning with a Host Reference",
+   "8.7.4 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 325,
+  "tables": 2,
+  "chars": 2039,
+  "head": [
+   "8.7 Autotuning with a Host Reference",
+   "8.7.4 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 326,
+  "tables": 0,
+  "chars": 593,
+  "head": [
+   "8.7 Autotuning with a Host Reference",
+   "8.7.4 Operating Procedure"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 327,
+  "tables": 3,
+  "chars": 2733,
+  "head": [
+   "8.7 Autotuning with a Host Reference",
+   "8.7.5 Troubleshooting Problems in Autotuning with a Host Ref"
+  ],
+  "terms": [
+   "Main Circuit",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 328,
+  "tables": 1,
+  "chars": 1814,
+  "head": [
+   "8.7 Autotuning with a Host Reference",
+   "8.7.7 Related Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 329,
+  "tables": 1,
+  "chars": 2227,
+  "head": [
+   "8.8 Custom Tuning",
+   "8.8.1 Outline"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 330,
+  "tables": 2,
+  "chars": 1488,
+  "head": [
+   "8.8 Custom Tuning",
+   "8.8.3 Applicable Tools"
+  ],
+  "terms": []
+ },
+ {
+  "page": 331,
+  "tables": 0,
+  "chars": 310,
+  "head": [
+   "8.8 Custom Tuning",
+   "8.8.4 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 332,
+  "tables": 2,
+  "chars": 2080,
+  "head": [
+   "8.8 Custom Tuning",
+   "8.8.4 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 333,
+  "tables": 0,
+  "chars": 1077,
+  "head": [
+   "8.8 Custom Tuning",
+   "8.8.4 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 334,
+  "tables": 2,
+  "chars": 1322,
+  "head": [
+   "8.8 Custom Tuning",
+   "8.8.4 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 335,
+  "tables": 0,
+  "chars": 1519,
+  "head": [
+   "8.8 Custom Tuning",
+   "8.8.5 Automatically Adjusted Function Settings"
+  ],
+  "terms": []
+ },
+ {
+  "page": 336,
+  "tables": 1,
+  "chars": 1353,
+  "head": [
+   "8.8 Custom Tuning",
+   "8.8.6 Tuning Example for Tuning Mode 2 or 3"
+  ],
+  "terms": []
+ },
+ {
+  "page": 337,
+  "tables": 1,
+  "chars": 1764,
+  "head": [
+   "8.8 Custom Tuning",
+   "8.8.7 Related Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 338,
+  "tables": 1,
+  "chars": 2775,
+  "head": [
+   "8.9 Anti-Resonance Control Adjustment",
+   "8.9.1 Outline"
+  ],
+  "terms": []
+ },
+ {
+  "page": 339,
+  "tables": 2,
+  "chars": 2274,
+  "head": [
+   "8.9 Anti-Resonance Control Adjustment",
+   "8.9.3 Applicable Tools"
+  ],
+  "terms": []
+ },
+ {
+  "page": 340,
+  "tables": 0,
+  "chars": 1047,
+  "head": [
+   "8.9 Anti-Resonance Control Adjustment",
+   "8.9.4 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 341,
+  "tables": 1,
+  "chars": 1723,
+  "head": [
+   "8.9 Anti-Resonance Control Adjustment",
+   "8.9.5 Related Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 342,
+  "tables": 3,
+  "chars": 2610,
+  "head": [
+   "8.9 Anti-Resonance Control Adjustment",
+   "8.9.6 Suppressing Different Vibration Frequencies with Anti-"
+  ],
+  "terms": []
+ },
+ {
+  "page": 343,
+  "tables": 2,
+  "chars": 3338,
+  "head": [
+   "8.10 Vibration Suppression",
+   "8.10.1 Outline"
+  ],
+  "terms": []
+ },
+ {
+  "page": 344,
+  "tables": 1,
+  "chars": 952,
+  "head": [
+   "8.10 Vibration Suppression",
+   "8.10.2 Preparations"
+  ],
+  "terms": []
+ },
+ {
+  "page": 345,
+  "tables": 0,
+  "chars": 1204,
+  "head": [
+   "8.10 Vibration Suppression",
+   "8.10.4 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 346,
+  "tables": 2,
+  "chars": 2618,
+  "head": [
+   "8.10 Vibration Suppression",
+   "8.10.5 Setting Combined Functions"
+  ],
+  "terms": []
+ },
+ {
+  "page": 347,
+  "tables": 1,
+  "chars": 1601,
+  "head": [
+   "8.11 Speed Ripple Compensation",
+   "8.11.1 Outline"
+  ],
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 348,
+  "tables": 1,
+  "chars": 914,
+  "head": [
+   "8.11 Speed Ripple Compensation",
+   "8.11.2 Setting Up Speed Ripple Compensation"
+  ],
+  "terms": []
+ },
+ {
+  "page": 349,
+  "tables": 0,
+  "chars": 219,
+  "head": [
+   "8.11 Speed Ripple Compensation",
+   "8.11.2 Setting Up Speed Ripple Compensation"
+  ],
+  "terms": []
+ },
+ {
+  "page": 350,
+  "tables": 0,
+  "chars": 914,
+  "head": [
+   "8.11 Speed Ripple Compensation",
+   "8.11.2 Setting Up Speed Ripple Compensation"
+  ],
+  "terms": []
+ },
+ {
+  "page": 351,
+  "tables": 4,
+  "chars": 1875,
+  "head": [
+   "8.11 Speed Ripple Compensation",
+   "8.11.3 Setting Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 352,
+  "tables": 2,
+  "chars": 884,
+  "head": [
+   "8.11 Speed Ripple Compensation",
+   "8.11.3 Setting Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 353,
+  "tables": 4,
+  "chars": 2638,
+  "head": [
+   "8.12 Additional Adjustment Functions",
+   "8.12.1 Gain Switching"
+  ],
+  "terms": []
+ },
+ {
+  "page": 354,
+  "tables": 2,
+  "chars": 1884,
+  "head": [
+   "8.12 Additional Adjustment Functions",
+   "8.12.1 Gain Switching"
+  ],
+  "terms": []
+ },
+ {
+  "page": 355,
+  "tables": 2,
+  "chars": 2529,
+  "head": [
+   "8.12 Additional Adjustment Functions",
+   "8.12.1 Gain Switching"
+  ],
+  "terms": []
+ },
+ {
+  "page": 356,
+  "tables": 4,
+  "chars": 2179,
+  "head": [
+   "8.12 Additional Adjustment Functions",
+   "8.12.2 Friction Compensation"
+  ],
+  "terms": []
+ },
+ {
+  "page": 357,
+  "tables": 2,
+  "chars": 1840,
+  "head": [
+   "8.12 Additional Adjustment Functions",
+   "8.12.2 Friction Compensation"
+  ],
+  "terms": []
+ },
+ {
+  "page": 358,
+  "tables": 5,
+  "chars": 1882,
+  "head": [
+   "8.12 Additional Adjustment Functions",
+   "8.12.3 Gravity Compensation"
+  ],
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 359,
+  "tables": 3,
+  "chars": 2027,
+  "head": [
+   "8.12 Additional Adjustment Functions",
+   "8.12.4 Current Control Mode Selection"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 360,
+  "tables": 3,
+  "chars": 2103,
+  "head": [
+   "8.12 Additional Adjustment Functions",
+   "8.12.6 Speed Detection Method Selection"
+  ],
+  "terms": []
+ },
+ {
+  "page": 361,
+  "tables": 2,
+  "chars": 2290,
+  "head": [
+   "8.12 Additional Adjustment Functions",
+   "8.12.8 Backlash Compensation"
+  ],
+  "terms": []
+ },
+ {
+  "page": 362,
+  "tables": 3,
+  "chars": 2169,
+  "head": [
+   "8.12 Additional Adjustment Functions",
+   "8.12.8 Backlash Compensation"
+  ],
+  "terms": []
+ },
+ {
+  "page": 363,
+  "tables": 5,
+  "chars": 2098,
+  "head": [
+   "8.12 Additional Adjustment Functions",
+   "8.12.8 Backlash Compensation"
+  ],
+  "terms": []
+ },
+ {
+  "page": 364,
+  "tables": 4,
+  "chars": 2815,
+  "head": [
+   "8.12 Additional Adjustment Functions",
+   "8.12.8 Backlash Compensation"
+  ],
+  "terms": []
+ },
+ {
+  "page": 365,
+  "tables": 0,
+  "chars": 1472,
+  "head": [
+   "8.12 Additional Adjustment Functions",
+   "8.12.8 Backlash Compensation"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 366,
+  "tables": 0,
+  "chars": 2280,
+  "head": [
+   "8.13 Manual Tuning",
+   "8.13.1 Tuning the Servo Gains"
+  ],
+  "terms": []
+ },
+ {
+  "page": 367,
+  "tables": 1,
+  "chars": 2837,
+  "head": [
+   "8.13 Manual Tuning",
+   "8.13.1 Tuning the Servo Gains"
+  ],
+  "terms": []
+ },
+ {
+  "page": 368,
+  "tables": 5,
+  "chars": 2671,
+  "head": [
+   "8.13 Manual Tuning",
+   "8.13.1 Tuning the Servo Gains"
+  ],
+  "terms": []
+ },
+ {
+  "page": 369,
+  "tables": 8,
+  "chars": 3014,
+  "head": [
+   "8.13 Manual Tuning",
+   "8.13.1 Tuning the Servo Gains"
+  ],
+  "terms": []
+ },
+ {
+  "page": 370,
+  "tables": 1,
+  "chars": 1953,
+  "head": [
+   "8.13 Manual Tuning",
+   "8.13.1 Tuning the Servo Gains"
+  ],
+  "terms": []
+ },
+ {
+  "page": 371,
+  "tables": 1,
+  "chars": 2763,
+  "head": [
+   "8.13 Manual Tuning",
+   "8.13.1 Tuning the Servo Gains"
+  ],
+  "terms": []
+ },
+ {
+  "page": 372,
+  "tables": 0,
+  "chars": 3129,
+  "head": [
+   "8.13 Manual Tuning",
+   "8.13.1 Tuning the Servo Gains"
+  ],
+  "terms": []
+ },
+ {
+  "page": 373,
+  "tables": 0,
+  "chars": 3123,
+  "head": [
+   "8.13 Manual Tuning",
+   "8.13.1 Tuning the Servo Gains"
+  ],
+  "terms": [
+   "SGD7S"
+  ]
+ },
+ {
+  "page": 374,
+  "tables": 2,
+  "chars": 3013,
+  "head": [
+   "8.13 Manual Tuning",
+   "8.13.1 Tuning the Servo Gains"
+  ],
+  "terms": []
+ },
+ {
+  "page": 375,
+  "tables": 4,
+  "chars": 2574,
+  "head": [
+   "8.13 Manual Tuning",
+   "8.13.1 Tuning the Servo Gains"
+  ],
+  "terms": []
+ },
+ {
+  "page": 376,
+  "tables": 3,
+  "chars": 2194,
+  "head": [
+   "8.13 Manual Tuning",
+   "8.13.2 Compatible Adjustment Functions"
+  ],
+  "terms": []
+ },
+ {
+  "page": 377,
+  "tables": 4,
+  "chars": 1970,
+  "head": [
+   "8.13 Manual Tuning",
+   "8.13.2 Compatible Adjustment Functions"
+  ],
+  "terms": []
+ },
+ {
+  "page": 378,
+  "tables": 4,
+  "chars": 1805,
+  "head": [
+   "8.13 Manual Tuning",
+   "8.13.2 Compatible Adjustment Functions"
+  ],
+  "terms": []
+ },
+ {
+  "page": 379,
+  "tables": 4,
+  "chars": 1410,
+  "head": [
+   "8.13 Manual Tuning",
+   "8.13.2 Compatible Adjustment Functions"
+  ],
+  "terms": []
+ },
+ {
+  "page": 380,
+  "tables": 2,
+  "chars": 1386,
+  "head": [
+   "8.14 Diagnostic Tools",
+   "8.14.1 Mechanical Analysis"
+  ],
+  "terms": []
+ },
+ {
+  "page": 381,
+  "tables": 0,
+  "chars": 1294,
+  "head": [
+   "8.14 Diagnostic Tools",
+   "8.14.1 Mechanical Analysis"
+  ],
+  "terms": []
+ },
+ {
+  "page": 382,
+  "tables": 3,
+  "chars": 1930,
+  "head": [
+   "8.14 Diagnostic Tools",
+   "8.14.2 Easy FFT"
+  ],
+  "terms": [
+   "Main Circuit",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 383,
+  "tables": 0,
+  "chars": 421,
+  "head": [
+   "8.14 Diagnostic Tools",
+   "8.14.2 Easy FFT"
+  ],
+  "terms": []
+ },
+ {
+  "page": 384,
+  "tables": 0,
+  "chars": 431,
+  "head": [
+   "8.14 Diagnostic Tools",
+   "8.14.2 Easy FFT"
+  ],
+  "terms": []
+ },
+ {
+  "page": 385,
+  "tables": 1,
+  "chars": 866,
+  "head": [
+   "8.14 Diagnostic Tools",
+   "8.14.2 Easy FFT"
+  ],
+  "terms": []
+ },
+ {
+  "page": 386,
+  "tables": 0,
+  "chars": 42,
+  "head": [
+   "8.14 Diagnostic Tools",
+   "8.14.2 Easy FFT"
+  ],
+  "terms": []
+ },
+ {
+  "page": 387,
+  "tables": 5,
+  "chars": 1332,
+  "head": [
+   "Monitoring 9",
+   "This chapter provides information on monitoring SERVO-"
+  ],
+  "terms": []
+ },
+ {
+  "page": 388,
+  "tables": 1,
+  "chars": 1203,
+  "head": [
+   "9.1 Monitoring Product Information",
+   "9.1.1 Items That You Can Monitor"
+  ],
+  "terms": []
+ },
+ {
+  "page": 389,
+  "tables": 0,
+  "chars": 1830,
+  "head": [
+   "9.2 Monitoring SERVOPACK Status",
+   "9.2.1 Servo Drive Status"
+  ],
+  "terms": []
+ },
+ {
+  "page": 390,
+  "tables": 1,
+  "chars": 2291,
+  "head": [
+   "9.2 Monitoring SERVOPACK Status",
+   "9.2.2 Monitoring Operation, Status, and I/O"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 391,
+  "tables": 0,
+  "chars": 520,
+  "head": [
+   "9.2 Monitoring SERVOPACK Status",
+   "9.2.3 I/O Signals Status Monitor"
+  ],
+  "terms": []
+ },
+ {
+  "page": 392,
+  "tables": 0,
+  "chars": 714,
+  "head": [
+   "9.2 Monitoring SERVOPACK Status",
+   "9.2.3 I/O Signals Status Monitor"
+  ],
+  "terms": []
+ },
+ {
+  "page": 393,
+  "tables": 5,
+  "chars": 1831,
+  "head": [
+   "9.3 Monitoring Machine Operation Status and Signal Waveforms",
+   "9.3.1 Items That You Can Monitor"
+  ],
+  "terms": []
+ },
+ {
+  "page": 394,
+  "tables": 0,
+  "chars": 1007,
+  "head": [
+   "9.3 Monitoring Machine Operation Status and Signal Waveforms",
+   "9.3.2 Using the SigmaWin+"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 395,
+  "tables": 1,
+  "chars": 1556,
+  "head": [
+   "9.3 Monitoring Machine Operation Status and Signal Waveforms",
+   "9.3.2 Using the SigmaWin+"
+  ],
+  "terms": [
+   "Main Circuit",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 396,
+  "tables": 2,
+  "chars": 2322,
+  "head": [
+   "9.3 Monitoring Machine Operation Status and Signal Waveforms",
+   "9.3.3 Using the Analog Monitors"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 397,
+  "tables": 3,
+  "chars": 2759,
+  "head": [
+   "9.3 Monitoring Machine Operation Status and Signal Waveforms",
+   "9.3.3 Using the Analog Monitors"
+  ],
+  "terms": []
+ },
+ {
+  "page": 398,
+  "tables": 4,
+  "chars": 1952,
+  "head": [
+   "9.3 Monitoring Machine Operation Status and Signal Waveforms",
+   "9.3.3 Using the Analog Monitors"
+  ],
+  "terms": []
+ },
+ {
+  "page": 399,
+  "tables": 1,
+  "chars": 984,
+  "head": [
+   "9.3 Monitoring Machine Operation Status and Signal Waveforms",
+   "9.3.3 Using the Analog Monitors"
+  ],
+  "terms": []
+ },
+ {
+  "page": 400,
+  "tables": 1,
+  "chars": 2324,
+  "head": [
+   "9.4 Monitoring Product Life",
+   "9.4.1 Items That You Can Monitor"
+  ],
+  "terms": [
+   "Ratings",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 401,
+  "tables": 0,
+  "chars": 667,
+  "head": [
+   "9.4 Monitoring Product Life",
+   "9.4.2 Operating Procedure"
+  ],
+  "terms": []
+ },
+ {
+  "page": 402,
+  "tables": 2,
+  "chars": 2186,
+  "head": [
+   "9.4 Monitoring Product Life",
+   "9.4.3 Preventative Maintenance"
+  ],
+  "terms": []
+ },
+ {
+  "page": 403,
+  "tables": 1,
+  "chars": 1501,
+  "head": [
+   "9.5 Alarm Tracing",
+   "9.5.1 Data for Which Alarm Tracing Is Performed"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 404,
+  "tables": 0,
+  "chars": 45,
+  "head": [
+   "9.5 Alarm Tracing",
+   "9.5.2 Applicable Tools"
+  ],
+  "terms": []
+ },
+ {
+  "page": 405,
+  "tables": 4,
+  "chars": 1409,
+  "head": [
+   "Fully-Closed Loop",
+   "Control 10"
+  ],
+  "terms": []
+ },
+ {
+  "page": 406,
+  "tables": 0,
+  "chars": 1205,
+  "head": [
+   "10.1 Fully-Closed System",
+   "10.1 Fully-Closed System"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 407,
+  "tables": 1,
+  "chars": 3396,
+  "head": [
+   "10.2 SERVOPACK Commissioning Procedure",
+   "10"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 408,
+  "tables": 1,
+  "chars": 860,
+  "head": [
+   "10.2 SERVOPACK Commissioning Procedure",
+   "Continued from previous page."
+  ],
+  "terms": []
+ },
+ {
+  "page": 409,
+  "tables": 3,
+  "chars": 1900,
+  "head": [
+   "10.3 Parameter and Object Settings for Fully-closed Loop Con",
+   "10.3.1 Control Block Diagram for Fully-Closed Loop Control"
+  ],
+  "terms": []
+ },
+ {
+  "page": 410,
+  "tables": 2,
+  "chars": 2370,
+  "head": [
+   "10.3 Parameter and Object Settings for Fully-closed Loop Con",
+   "10.3.2 Setting the Motor Direction and the Machine Movement "
+  ],
+  "terms": []
+ },
+ {
+  "page": 411,
+  "tables": 1,
+  "chars": 2272,
+  "head": [
+   "10.3 Parameter and Object Settings for Fully-closed Loop Con",
+   "10.3.3 Setting the Number of External Encoder Scale Pitches"
+  ],
+  "terms": []
+ },
+ {
+  "page": 412,
+  "tables": 2,
+  "chars": 2359,
+  "head": [
+   "10.3 Parameter and Object Settings for Fully-closed Loop Con",
+   "10.3.5 External Absolute Encoder Data Reception Sequence"
+  ],
+  "terms": []
+ },
+ {
+  "page": 413,
+  "tables": 3,
+  "chars": 1891,
+  "head": [
+   "10.3 Parameter and Object Settings for Fully-closed Loop Con",
+   "10.3.8 Analog Monitor Signal Settings"
+  ],
+  "terms": []
+ },
+ {
+  "page": 414,
+  "tables": 1,
+  "chars": 1330,
+  "head": [
+   "10.4 Monitoring an External Encoder",
+   "10.4.1 Option Module Required for Monitoring"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 415,
+  "tables": 3,
+  "chars": 1611,
+  "head": [
+   "10.4 Monitoring an External Encoder",
+   "10.4.2 Block Diagrams"
+  ],
+  "terms": []
+ },
+ {
+  "page": 416,
+  "tables": 0,
+  "chars": 63,
+  "head": [
+   "10.4 Monitoring an External Encoder",
+   "10.4.2 Block Diagrams"
+  ],
+  "terms": []
+ },
+ {
+  "page": 417,
+  "tables": 6,
+  "chars": 1622,
+  "head": [
+   "Safety Functions 11",
+   "This chapter provides detailed information on the safety"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 418,
+  "tables": 1,
+  "chars": 321,
+  "head": [
+   "11.7 Safety Module Safety Functions . . . . . . . . . . .11-",
+   "11.7.1 Safety Base Block with Delay (SBB-D) . . . . . . .11-"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 419,
+  "tables": 1,
+  "chars": 2257,
+  "head": [
+   "11.1 Introduction to the Safety Functions",
+   "11.1.1 Safety Functions"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 420,
+  "tables": 1,
+  "chars": 1568,
+  "head": [
+   "11.1 Introduction to the Safety Functions",
+   "11.1.2 Precautions for Safety Functions"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 421,
+  "tables": 4,
+  "chars": 2206,
+  "head": [
+   "11.2 Hard Wire Base Block (HWBB and SBB)",
+   "11.2.1 Risk Assessment"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 422,
+  "tables": 0,
+  "chars": 1633,
+  "head": [
+   "11.2 Hard Wire Base Block (HWBB and SBB)",
+   "11.2.2 Hard Wire Base Block (HWBB) State"
+  ],
+  "terms": [
+   "Ratings",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 423,
+  "tables": 0,
+  "chars": 1560,
+  "head": [
+   "11.2 Hard Wire Base Block (HWBB and SBB)",
+   "11.2.3 Resetting the HWBB State"
+  ],
+  "terms": [
+   "Ratings",
+   "Main Circuit",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 424,
+  "tables": 2,
+  "chars": 1727,
+  "head": [
+   "11.2 Hard Wire Base Block (HWBB and SBB)",
+   "11.2.4 Recovery Method"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 425,
+  "tables": 1,
+  "chars": 1576,
+  "head": [
+   "11.2 Hard Wire Base Block (HWBB and SBB)",
+   "11.2.6 HWBB Input Signal Specifications"
+  ],
+  "terms": [
+   "Ratings",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 426,
+  "tables": 1,
+  "chars": 1516,
+  "head": [
+   "11.2 Hard Wire Base Block (HWBB and SBB)",
+   "11.2.8 /S-RDY (Servo Ready Output) Signal"
+  ],
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 427,
+  "tables": 1,
+  "chars": 1101,
+  "head": [
+   "11.2 Hard Wire Base Block (HWBB and SBB)",
+   "11.2.10 Stopping Methods"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 428,
+  "tables": 2,
+  "chars": 1695,
+  "head": [
+   "11.3 EDM1 (External Device Monitor)",
+   "11.3.1 EDM1 Output Signal Specifications"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 429,
+  "tables": 5,
+  "chars": 1474,
+  "head": [
+   "11.4 Applications Examples for Safety Functions",
+   "11.4.1 Connection Example"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 430,
+  "tables": 7,
+  "chars": 556,
+  "head": [
+   "11.4 Applications Examples for Safety Functions",
+   "11.4.3 Procedure"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 431,
+  "tables": 0,
+  "chars": 1027,
+  "head": [
+   "11.5 Validating Safety Functions",
+   "11"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 432,
+  "tables": 1,
+  "chars": 823,
+  "head": [
+   "11.6 Connecting a Safety Function Device",
+   "11.6 Connecting a Safety Function Device"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 433,
+  "tables": 1,
+  "chars": 1860,
+  "head": [
+   "11.7 Safety Module Safety Functions",
+   "11.7.1 Safety Base Block with Delay (SBB-D)"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 434,
+  "tables": 3,
+  "chars": 1426,
+  "head": [
+   "11.7 Safety Module Safety Functions",
+   "11.7.2 Safe Position Monitor with Delay (SPM-D)"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 435,
+  "tables": 2,
+  "chars": 1914,
+  "head": [
+   "11.7 Safety Module Safety Functions",
+   "11.7.3 Safe Speed Limit with Delay (SLS-D)"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 436,
+  "tables": 3,
+  "chars": 1271,
+  "head": [
+   "11.7 Safety Module Safety Functions",
+   "11.7.4 Active Mode Function"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 437,
+  "tables": 1,
+  "chars": 3044,
+  "head": [
+   "11.7 Safety Module Safety Functions",
+   "11.7.4 Active Mode Function"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 438,
+  "tables": 0,
+  "chars": 69,
+  "head": [
+   "11.7 Safety Module Safety Functions",
+   "11.7.4 Active Mode Function"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 439,
+  "tables": 6,
+  "chars": 777,
+  "head": [
+   "EtherCAT",
+   "Communications 12"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 440,
+  "tables": 1,
+  "chars": 415,
+  "head": [
+   "12.1 EtherCAT SubDevice Information",
+   "12.1 EtherCAT SubDevice Information"
+  ],
+  "terms": [
+   "SGD7S",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 441,
+  "tables": 1,
+  "chars": 1796,
+  "head": [
+   "12.2 EtherCAT State Machine",
+   "12"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 442,
+  "tables": 2,
+  "chars": 755,
+  "head": [
+   "12.2 EtherCAT State Machine",
+   "Information 1. The SERVOPACK does not support EtherCAT Read/"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 443,
+  "tables": 0,
+  "chars": 1763,
+  "head": [
+   "12.3 EtherCAT (CoE) Communications Settings",
+   "12.3.1 Normal Device Recognition Process at Startup"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 444,
+  "tables": 5,
+  "chars": 1457,
+  "head": [
+   "12.4 PDO Mappings",
+   "12.4 PDO Mappings"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 445,
+  "tables": 8,
+  "chars": 1940,
+  "head": [
+   "12.4 PDO Mappings",
+   "12.4.1 Setting Procedure for PDO Mappings"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 446,
+  "tables": 3,
+  "chars": 1385,
+  "head": [
+   "12.5 Synchronization with Distributed Clocks",
+   "12.5 Synchronization with Distributed Clocks"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 447,
+  "tables": 3,
+  "chars": 1171,
+  "head": [
+   "12.5 Synchronization with Distributed Clocks",
+   "12"
+  ],
+  "terms": []
+ },
+ {
+  "page": 448,
+  "tables": 8,
+  "chars": 1007,
+  "head": [
+   "12.5 Synchronization with Distributed Clocks",
+   "Example of PDO Data Exchange Timing in DC Mode"
+  ],
+  "terms": []
+ },
+ {
+  "page": 449,
+  "tables": 1,
+  "chars": 709,
+  "head": [
+   "12.6 Emergency Messages",
+   "12"
+  ],
+  "terms": []
+ },
+ {
+  "page": 450,
+  "tables": 0,
+  "chars": 29,
+  "head": [
+   "12.6 Emergency Messages",
+   "12-12"
+  ],
+  "terms": []
+ },
+ {
+  "page": 451,
+  "tables": 7,
+  "chars": 1469,
+  "head": [
+   "CiA402 Drive Profile 13",
+   "13.1 Device Control . . . . . . . . . . . . . . . . . . . . "
+  ],
+  "terms": []
+ },
+ {
+  "page": 452,
+  "tables": 3,
+  "chars": 373,
+  "head": [
+   "13.8 Digital I/O Signals . . . . . . . . . . . . . . . . . .",
+   "13.9 Touch Probe . . . . . . . . . . . . . . . . . . . . . ."
+  ],
+  "terms": []
+ },
+ {
+  "page": 453,
+  "tables": 8,
+  "chars": 2725,
+  "head": [
+   "13.1 Device Control",
+   "13"
+  ],
+  "terms": [
+   "Main Circuit",
+   "HWBB",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 454,
+  "tables": 3,
+  "chars": 1144,
+  "head": [
+   "13.1 Device Control",
+   "13.1.1 State Machine Control Commands"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 455,
+  "tables": 2,
+  "chars": 1954,
+  "head": [
+   "13.2 Modes of Operation",
+   "13.2.1 Related Objects"
+  ],
+  "terms": []
+ },
+ {
+  "page": 456,
+  "tables": 7,
+  "chars": 2446,
+  "head": [
+   "13.3 Position Control Modes",
+   "13.3.1 Profile Position Mode"
+  ],
+  "terms": []
+ },
+ {
+  "page": 457,
+  "tables": 2,
+  "chars": 1137,
+  "head": [
+   "13.3 Position Control Modes",
+   "13.3.1 Profile Position Mode"
+  ],
+  "terms": []
+ },
+ {
+  "page": 458,
+  "tables": 1,
+  "chars": 1050,
+  "head": [
+   "13.3 Position Control Modes",
+   "13.3.1 Profile Position Mode"
+  ],
+  "terms": []
+ },
+ {
+  "page": 459,
+  "tables": 5,
+  "chars": 2600,
+  "head": [
+   "13.3 Position Control Modes",
+   "13.3.2 Interpolated Position Mode"
+  ],
+  "terms": []
+ },
+ {
+  "page": 460,
+  "tables": 10,
+  "chars": 2629,
+  "head": [
+   "13.3 Position Control Modes",
+   "13.3.2 Interpolated Position Mode"
+  ],
+  "terms": []
+ },
+ {
+  "page": 461,
+  "tables": 5,
+  "chars": 1570,
+  "head": [
+   "13.3 Position Control Modes",
+   "13.3.2 Interpolated Position Mode"
+  ],
+  "terms": []
+ },
+ {
+  "page": 462,
+  "tables": 6,
+  "chars": 2725,
+  "head": [
+   "13.3 Position Control Modes",
+   "13.3.3 Cyclic Synchronous Position Mode"
+  ],
+  "terms": []
+ },
+ {
+  "page": 463,
+  "tables": 2,
+  "chars": 344,
+  "head": [
+   "13.3 Position Control Modes",
+   "13.3.3 Cyclic Synchronous Position Mode"
+  ],
+  "terms": []
+ },
+ {
+  "page": 464,
+  "tables": 4,
+  "chars": 1420,
+  "head": [
+   "13.4 Homing",
+   "13.4.1 Related Objects"
+  ],
+  "terms": []
+ },
+ {
+  "page": 465,
+  "tables": 4,
+  "chars": 1414,
+  "head": [
+   "13.4 Homing",
+   "13.4.2 Homing Method (6098h)"
+  ],
+  "terms": []
+ },
+ {
+  "page": 466,
+  "tables": 7,
+  "chars": 1020,
+  "head": [
+   "13.4 Homing",
+   "13.4.2 Homing Method (6098h)"
+  ],
+  "terms": []
+ },
+ {
+  "page": 467,
+  "tables": 4,
+  "chars": 1807,
+  "head": [
+   "13.5 Velocity Control Modes",
+   "13.5.1 Profile Velocity Mode"
+  ],
+  "terms": []
+ },
+ {
+  "page": 468,
+  "tables": 7,
+  "chars": 1888,
+  "head": [
+   "13.5 Velocity Control Modes",
+   "13.5.2 Cyclic Synchronous Velocity Mode"
+  ],
+  "terms": []
+ },
+ {
+  "page": 469,
+  "tables": 2,
+  "chars": 1272,
+  "head": [
+   "13.6 Torque Control Modes",
+   "13.6.1 Profile Torque Mode"
+  ],
+  "terms": []
+ },
+ {
+  "page": 470,
+  "tables": 2,
+  "chars": 1180,
+  "head": [
+   "13.6 Torque Control Modes",
+   "13.6.2 Cyclic Sync Torque Mode"
+  ],
+  "terms": []
+ },
+ {
+  "page": 471,
+  "tables": 1,
+  "chars": 706,
+  "head": [
+   "13.7 Torque Limits",
+   "13"
+  ],
+  "terms": []
+ },
+ {
+  "page": 472,
+  "tables": 2,
+  "chars": 342,
+  "head": [
+   "13.8 Digital I/O Signals",
+   "13.8 Digital I/O Signals"
+  ],
+  "terms": []
+ },
+ {
+  "page": 473,
+  "tables": 1,
+  "chars": 1473,
+  "head": [
+   "13.9 Touch Probe",
+   "13.9.1 Related Objects"
+  ],
+  "terms": []
+ },
+ {
+  "page": 474,
+  "tables": 0,
+  "chars": 640,
+  "head": [
+   "13.9 Touch Probe",
+   "13.9.2 Example of Execution Procedure for a Touch Probe"
+  ],
+  "terms": []
+ },
+ {
+  "page": 475,
+  "tables": 8,
+  "chars": 1563,
+  "head": [
+   "13.10 Fully-Closed Loop Control",
+   "13"
+  ],
+  "terms": []
+ },
+ {
+  "page": 476,
+  "tables": 0,
+  "chars": 37,
+  "head": [
+   "13.10 Fully-Closed Loop Control",
+   "13-26"
+  ],
+  "terms": []
+ },
+ {
+  "page": 477,
+  "tables": 13,
+  "chars": 935,
+  "head": [
+   "Object Dictionary 14",
+   "This chapter provides tables of the objects that are sup-"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 478,
+  "tables": 4,
+  "chars": 247,
+  "head": [
+   "14.14 Torque Limit Function . . . . . . . . . . . . . . .14-",
+   "14.15 Touch Probe Function . . . . . . . . . . . . . . .14-4"
+  ],
+  "terms": []
+ },
+ {
+  "page": 479,
+  "tables": 1,
+  "chars": 1774,
+  "head": [
+   "14.1 Object Dictionary List",
+   "14"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 480,
+  "tables": 1,
+  "chars": 2021,
+  "head": [
+   "14.1 Object Dictionary List",
+   "Continued from previous page."
+  ],
+  "terms": []
+ },
+ {
+  "page": 481,
+  "tables": 6,
+  "chars": 1330,
+  "head": [
+   "14.2 General Objects",
+   "14"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 482,
+  "tables": 3,
+  "chars": 1952,
+  "head": [
+   "14.2 General Objects",
+   "Store Parameters (1010h)"
+  ],
+  "terms": []
+ },
+ {
+  "page": 483,
+  "tables": 3,
+  "chars": 2140,
+  "head": [
+   "14.2 General Objects",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 484,
+  "tables": 2,
+  "chars": 770,
+  "head": [
+   "14.2 General Objects",
+   "Identity Object (1018h)"
+  ],
+  "terms": [
+   "Ratings",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 485,
+  "tables": 2,
+  "chars": 1690,
+  "head": [
+   "14.3 PDO Mapping Objects",
+   "14"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 486,
+  "tables": 3,
+  "chars": 1245,
+  "head": [
+   "14.3 PDO Mapping Objects",
+   " 2nd Receive PDO Mapping"
+  ],
+  "terms": []
+ },
+ {
+  "page": 487,
+  "tables": 2,
+  "chars": 1246,
+  "head": [
+   "14.3 PDO Mapping Objects",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 488,
+  "tables": 2,
+  "chars": 914,
+  "head": [
+   "14.3 PDO Mapping Objects",
+   " 3rd Transmit PDO Mapping"
+  ],
+  "terms": []
+ },
+ {
+  "page": 489,
+  "tables": 2,
+  "chars": 1584,
+  "head": [
+   "14.4 Sync Manager Communications Objects",
+   "14"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 490,
+  "tables": 1,
+  "chars": 940,
+  "head": [
+   "14.4 Sync Manager Communications Objects",
+   "Sync Manager Synchronization (1C32h and 1C33h)"
+  ],
+  "terms": []
+ },
+ {
+  "page": 491,
+  "tables": 1,
+  "chars": 956,
+  "head": [
+   "14.4 Sync Manager Communications Objects",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 492,
+  "tables": 2,
+  "chars": 2664,
+  "head": [
+   "14.4 Sync Manager Communications Objects",
+   "Sync Error Settings (10F1h)"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 493,
+  "tables": 2,
+  "chars": 1792,
+  "head": [
+   "14.5 Manufacturer-Specific Objects",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 494,
+  "tables": 4,
+  "chars": 2080,
+  "head": [
+   "14.5 Manufacturer-Specific Objects",
+   "Velocity User Unit (2702h)"
+  ],
+  "terms": []
+ },
+ {
+  "page": 495,
+  "tables": 3,
+  "chars": 1609,
+  "head": [
+   "14.5 Manufacturer-Specific Objects",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 496,
+  "tables": 1,
+  "chars": 2344,
+  "head": [
+   "14.5 Manufacturer-Specific Objects",
+   " Executable Adjustment Services"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 497,
+  "tables": 2,
+  "chars": 1765,
+  "head": [
+   "14.5 Manufacturer-Specific Objects",
+   "14"
+  ],
+  "terms": [
+   "Ratings",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 498,
+  "tables": 4,
+  "chars": 1428,
+  "head": [
+   "14.6 Device Control",
+   "14.6 Device Control"
+  ],
+  "terms": []
+ },
+ {
+  "page": 499,
+  "tables": 5,
+  "chars": 1785,
+  "head": [
+   "14.6 Device Control",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 500,
+  "tables": 4,
+  "chars": 1636,
+  "head": [
+   "14.6 Device Control",
+   "• Bits 4, 5, 6, 8, and 9: Profile Velocity/Torque Mode"
+  ],
+  "terms": [
+   "Ratings",
+   "Safety"
+  ]
+ },
+ {
+  "page": 501,
+  "tables": 3,
+  "chars": 2246,
+  "head": [
+   "14.6 Device Control",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 502,
+  "tables": 5,
+  "chars": 2422,
+  "head": [
+   "14.6 Device Control",
+   "• Bits 10, 12, and 13: Interpolated Position Mode"
+  ],
+  "terms": []
+ },
+ {
+  "page": 503,
+  "tables": 6,
+  "chars": 2731,
+  "head": [
+   "14.6 Device Control",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 504,
+  "tables": 5,
+  "chars": 1351,
+  "head": [
+   "14.6 Device Control",
+   "Fault Reaction Option Code (605Eh)"
+  ],
+  "terms": []
+ },
+ {
+  "page": 505,
+  "tables": 2,
+  "chars": 747,
+  "head": [
+   "14.6 Device Control",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 506,
+  "tables": 3,
+  "chars": 2064,
+  "head": [
+   "14.7 Profile Position Mode",
+   "14.7 Profile Position Mode"
+  ],
+  "terms": []
+ },
+ {
+  "page": 507,
+  "tables": 4,
+  "chars": 1247,
+  "head": [
+   "14.7 Profile Position Mode",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 508,
+  "tables": 3,
+  "chars": 1456,
+  "head": [
+   "14.8 Homing Mode",
+   "14.8 Homing Mode"
+  ],
+  "terms": []
+ },
+ {
+  "page": 509,
+  "tables": 2,
+  "chars": 810,
+  "head": [
+   "14.8 Homing Mode",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 510,
+  "tables": 6,
+  "chars": 2107,
+  "head": [
+   "14.9 Position Control Function",
+   "14.9 Position Control Function"
+  ],
+  "terms": []
+ },
+ {
+  "page": 511,
+  "tables": 3,
+  "chars": 1337,
+  "head": [
+   "14.9 Position Control Function",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 512,
+  "tables": 4,
+  "chars": 2458,
+  "head": [
+   "14.10 Interpolated Position Mode",
+   "14.10 Interpolated Position Mode"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 513,
+  "tables": 5,
+  "chars": 2114,
+  "head": [
+   "14.10 Interpolated Position Mode",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 514,
+  "tables": 4,
+  "chars": 1861,
+  "head": [
+   "14.10 Interpolated Position Mode",
+   " 2730h: 9 Behavior after Reaching Buffer Position"
+  ],
+  "terms": []
+ },
+ {
+  "page": 515,
+  "tables": 5,
+  "chars": 2074,
+  "head": [
+   "14.10 Interpolated Position Mode",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 516,
+  "tables": 3,
+  "chars": 2121,
+  "head": [
+   "14.10 Interpolated Position Mode",
+   "Interpolation Data Record for 1st Profile (27C0h) (Mode 2"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 517,
+  "tables": 2,
+  "chars": 897,
+  "head": [
+   "14.11 Cyclic Synchronous Position Mode",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 518,
+  "tables": 5,
+  "chars": 1925,
+  "head": [
+   "14.12 Profile Velocity/Cyclic Synchronous Velocity Mode",
+   "14.12 Profile Velocity/Cyclic Synchronous Velocity Mode"
+  ],
+  "terms": []
+ },
+ {
+  "page": 519,
+  "tables": 5,
+  "chars": 1612,
+  "head": [
+   "14.13 Profile Torque/Cyclic Synchronous Torque Mode",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 520,
+  "tables": 3,
+  "chars": 1036,
+  "head": [
+   "14.14 Torque Limit Function",
+   "14.14 Torque Limit Function"
+  ],
+  "terms": []
+ },
+ {
+  "page": 521,
+  "tables": 3,
+  "chars": 1795,
+  "head": [
+   "14.15 Touch Probe Function",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 522,
+  "tables": 3,
+  "chars": 1469,
+  "head": [
+   "14.15 Touch Probe Function",
+   " Data Description"
+  ],
+  "terms": []
+ },
+ {
+  "page": 523,
+  "tables": 2,
+  "chars": 903,
+  "head": [
+   "14.16 Digital Inputs/Outputs",
+   "14"
+  ],
+  "terms": [
+   "HWBB"
+  ]
+ },
+ {
+  "page": 524,
+  "tables": 3,
+  "chars": 1385,
+  "head": [
+   "14.16 Digital Inputs/Outputs",
+   "Digital Outputs (60FEh)"
+  ],
+  "terms": []
+ },
+ {
+  "page": 525,
+  "tables": 1,
+  "chars": 360,
+  "head": [
+   "14.17 Dual Encoder Feedback",
+   "14"
+  ],
+  "terms": []
+ },
+ {
+  "page": 526,
+  "tables": 0,
+  "chars": 33,
+  "head": [
+   "14.17 Dual Encoder Feedback",
+   "14-50"
+  ],
+  "terms": []
+ },
+ {
+  "page": 527,
+  "tables": 4,
+  "chars": 1432,
+  "head": [
+   "Maintenance 15",
+   "This chapter provides information on the meaning of,"
+  ],
+  "terms": []
+ },
+ {
+  "page": 528,
+  "tables": 2,
+  "chars": 1995,
+  "head": [
+   "15.1 Inspections and Part Replacement",
+   "15.1.1 Inspections"
+  ],
+  "terms": []
+ },
+ {
+  "page": 529,
+  "tables": 2,
+  "chars": 2031,
+  "head": [
+   "15.1 Inspections and Part Replacement",
+   "15.1.3 Replacing the Battery"
+  ],
+  "terms": []
+ },
+ {
+  "page": 530,
+  "tables": 0,
+  "chars": 835,
+  "head": [
+   "15.1 Inspections and Part Replacement",
+   "15.1.3 Replacing the Battery"
+  ],
+  "terms": []
+ },
+ {
+  "page": 531,
+  "tables": 1,
+  "chars": 2071,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.1 List of Alarms"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 532,
+  "tables": 1,
+  "chars": 3025,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.1 List of Alarms"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 533,
+  "tables": 1,
+  "chars": 2922,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.1 List of Alarms"
+  ],
+  "terms": [
+   "Main Circuit",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 534,
+  "tables": 1,
+  "chars": 2810,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.1 List of Alarms"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 535,
+  "tables": 1,
+  "chars": 3133,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.1 List of Alarms"
+  ],
+  "terms": [
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 536,
+  "tables": 1,
+  "chars": 2136,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.1 List of Alarms"
+  ],
+  "terms": [
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 537,
+  "tables": 1,
+  "chars": 2993,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 538,
+  "tables": 1,
+  "chars": 2403,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 539,
+  "tables": 1,
+  "chars": 2706,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 540,
+  "tables": 1,
+  "chars": 2513,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": [
+   "Ratings",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 541,
+  "tables": 1,
+  "chars": 2506,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": [
+   "Ratings",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 542,
+  "tables": 1,
+  "chars": 2048,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 543,
+  "tables": 1,
+  "chars": 1894,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 544,
+  "tables": 1,
+  "chars": 1684,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 545,
+  "tables": 1,
+  "chars": 1664,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 546,
+  "tables": 1,
+  "chars": 2452,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 547,
+  "tables": 1,
+  "chars": 1891,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 548,
+  "tables": 1,
+  "chars": 2894,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 549,
+  "tables": 1,
+  "chars": 2740,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 550,
+  "tables": 1,
+  "chars": 2399,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 551,
+  "tables": 1,
+  "chars": 2249,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 552,
+  "tables": 1,
+  "chars": 2077,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 553,
+  "tables": 1,
+  "chars": 2755,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 554,
+  "tables": 1,
+  "chars": 2324,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 555,
+  "tables": 1,
+  "chars": 2328,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 556,
+  "tables": 1,
+  "chars": 1765,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 557,
+  "tables": 1,
+  "chars": 2531,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 558,
+  "tables": 1,
+  "chars": 2072,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 559,
+  "tables": 1,
+  "chars": 1872,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 560,
+  "tables": 1,
+  "chars": 2373,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 561,
+  "tables": 1,
+  "chars": 1356,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 562,
+  "tables": 1,
+  "chars": 2256,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 563,
+  "tables": 1,
+  "chars": 2763,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": [
+   "Main Circuit",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 564,
+  "tables": 1,
+  "chars": 2472,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": [
+   "Ratings",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 565,
+  "tables": 1,
+  "chars": 2226,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 566,
+  "tables": 1,
+  "chars": 2713,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": [
+   "Single-phase",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 567,
+  "tables": 1,
+  "chars": 2184,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.2 Troubleshooting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 568,
+  "tables": 0,
+  "chars": 1314,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.3 Resetting Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 569,
+  "tables": 1,
+  "chars": 1889,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.4 Displaying the Alarm History"
+  ],
+  "terms": [
+   "Main Circuit",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 570,
+  "tables": 1,
+  "chars": 1155,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.5 Clearing the Alarm History"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 571,
+  "tables": 1,
+  "chars": 1474,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.6 Resetting Alarms Detected in Option Modules"
+  ],
+  "terms": []
+ },
+ {
+  "page": 572,
+  "tables": 0,
+  "chars": 431,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.6 Resetting Alarms Detected in Option Modules"
+  ],
+  "terms": []
+ },
+ {
+  "page": 573,
+  "tables": 1,
+  "chars": 1692,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.7 Resetting Motor Type Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 574,
+  "tables": 0,
+  "chars": 230,
+  "head": [
+   "15.2 Alarm Displays",
+   "15.2.7 Resetting Motor Type Alarms"
+  ],
+  "terms": []
+ },
+ {
+  "page": 575,
+  "tables": 1,
+  "chars": 2761,
+  "head": [
+   "15.3 Warning Displays",
+   "15.3.1 List of Warnings"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 576,
+  "tables": 4,
+  "chars": 3000,
+  "head": [
+   "15.3 Warning Displays",
+   "15.3.2 Troubleshooting Warnings"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 577,
+  "tables": 1,
+  "chars": 2179,
+  "head": [
+   "15.3 Warning Displays",
+   "15.3.2 Troubleshooting Warnings"
+  ],
+  "terms": []
+ },
+ {
+  "page": 578,
+  "tables": 1,
+  "chars": 2551,
+  "head": [
+   "15.3 Warning Displays",
+   "15.3.2 Troubleshooting Warnings"
+  ],
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 579,
+  "tables": 1,
+  "chars": 2696,
+  "head": [
+   "15.3 Warning Displays",
+   "15.3.2 Troubleshooting Warnings"
+  ],
+  "terms": []
+ },
+ {
+  "page": 580,
+  "tables": 1,
+  "chars": 2453,
+  "head": [
+   "15.3 Warning Displays",
+   "15.3.2 Troubleshooting Warnings"
+  ],
+  "terms": []
+ },
+ {
+  "page": 581,
+  "tables": 1,
+  "chars": 882,
+  "head": [
+   "15.3 Warning Displays",
+   "15.3.2 Troubleshooting Warnings"
+  ],
+  "terms": []
+ },
+ {
+  "page": 582,
+  "tables": 1,
+  "chars": 3013,
+  "head": [
+   "15.4 Troubleshooting Based on the Operation and Conditions o",
+   "15.4 Troubleshooting Based on the Operation and Conditions o"
+  ],
+  "terms": [
+   "Main Circuit",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 583,
+  "tables": 1,
+  "chars": 2467,
+  "head": [
+   "15.4 Troubleshooting Based on the Operation and Conditions o",
+   "15"
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 584,
+  "tables": 1,
+  "chars": 2318,
+  "head": [
+   "15.4 Troubleshooting Based on the Operation and Conditions o",
+   "Continued from previous page."
+  ],
+  "terms": []
+ },
+ {
+  "page": 585,
+  "tables": 1,
+  "chars": 2162,
+  "head": [
+   "15.4 Troubleshooting Based on the Operation and Conditions o",
+   "15"
+  ],
+  "terms": []
+ },
+ {
+  "page": 586,
+  "tables": 1,
+  "chars": 2671,
+  "head": [
+   "15.4 Troubleshooting Based on the Operation and Conditions o",
+   "Continued from previous page."
+  ],
+  "terms": []
+ },
+ {
+  "page": 587,
+  "tables": 1,
+  "chars": 2728,
+  "head": [
+   "15.4 Troubleshooting Based on the Operation and Conditions o",
+   "15"
+  ],
+  "terms": []
+ },
+ {
+  "page": 588,
+  "tables": 1,
+  "chars": 2319,
+  "head": [
+   "15.4 Troubleshooting Based on the Operation and Conditions o",
+   "Continued from previous page."
+  ],
+  "terms": []
+ },
+ {
+  "page": 589,
+  "tables": 1,
+  "chars": 1686,
+  "head": [
+   "15.4 Troubleshooting Based on the Operation and Conditions o",
+   "15"
+  ],
+  "terms": []
+ },
+ {
+  "page": 590,
+  "tables": 1,
+  "chars": 2628,
+  "head": [
+   "15.4 Troubleshooting Based on the Operation and Conditions o",
+   "Continued from previous page."
+  ],
+  "terms": []
+ },
+ {
+  "page": 591,
+  "tables": 1,
+  "chars": 2178,
+  "head": [
+   "15.4 Troubleshooting Based on the Operation and Conditions o",
+   "15"
+  ],
+  "terms": []
+ },
+ {
+  "page": 592,
+  "tables": 1,
+  "chars": 2572,
+  "head": [
+   "15.4 Troubleshooting Based on the Operation and Conditions o",
+   "Continued from previous page."
+  ],
+  "terms": []
+ },
+ {
+  "page": 593,
+  "tables": 4,
+  "chars": 496,
+  "head": [
+   "Parameter and",
+   "Object Lists 16"
+  ],
+  "terms": []
+ },
+ {
+  "page": 594,
+  "tables": 5,
+  "chars": 2030,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.1 Interpreting the Parameter Lists"
+  ],
+  "terms": []
+ },
+ {
+  "page": 595,
+  "tables": 9,
+  "chars": 2659,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 596,
+  "tables": 5,
+  "chars": 1429,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 597,
+  "tables": 4,
+  "chars": 1721,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 598,
+  "tables": 4,
+  "chars": 1691,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 599,
+  "tables": 9,
+  "chars": 1604,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 600,
+  "tables": 9,
+  "chars": 2638,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": [
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 601,
+  "tables": 13,
+  "chars": 1675,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 602,
+  "tables": 13,
+  "chars": 2359,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 603,
+  "tables": 5,
+  "chars": 2701,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 604,
+  "tables": 9,
+  "chars": 2671,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 605,
+  "tables": 9,
+  "chars": 2717,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 606,
+  "tables": 5,
+  "chars": 1777,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 607,
+  "tables": 13,
+  "chars": 2386,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 608,
+  "tables": 5,
+  "chars": 2704,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 609,
+  "tables": 5,
+  "chars": 2623,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 610,
+  "tables": 9,
+  "chars": 2346,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 611,
+  "tables": 9,
+  "chars": 2848,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 612,
+  "tables": 5,
+  "chars": 3031,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 613,
+  "tables": 5,
+  "chars": 2494,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 614,
+  "tables": 9,
+  "chars": 2174,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 615,
+  "tables": 13,
+  "chars": 2191,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 616,
+  "tables": 9,
+  "chars": 2637,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 617,
+  "tables": 5,
+  "chars": 2941,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 618,
+  "tables": 5,
+  "chars": 2315,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": []
+ },
+ {
+  "page": 619,
+  "tables": 5,
+  "chars": 2341,
+  "head": [
+   "16.1 List of Parameters",
+   "16.1.2 List of Parameters"
+  ],
+  "terms": [
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 620,
+  "tables": 1,
+  "chars": 2415,
+  "head": [
+   "16.2 Object List",
+   "16.2 Object List"
+  ],
+  "terms": []
+ },
+ {
+  "page": 621,
+  "tables": 1,
+  "chars": 2560,
+  "head": [
+   "16.2 Object List",
+   "16"
+  ],
+  "terms": []
+ },
+ {
+  "page": 622,
+  "tables": 1,
+  "chars": 2655,
+  "head": [
+   "16.2 Object List",
+   "Continued from previous page."
+  ],
+  "terms": []
+ },
+ {
+  "page": 623,
+  "tables": 1,
+  "chars": 2375,
+  "head": [
+   "16.2 Object List",
+   "16"
+  ],
+  "terms": []
+ },
+ {
+  "page": 624,
+  "tables": 1,
+  "chars": 2524,
+  "head": [
+   "16.2 Object List",
+   "Continued from previous page."
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 625,
+  "tables": 1,
+  "chars": 2311,
+  "head": [
+   "16.2 Object List",
+   "16"
+  ],
+  "terms": []
+ },
+ {
+  "page": 626,
+  "tables": 1,
+  "chars": 2469,
+  "head": [
+   "16.2 Object List",
+   "Continued from previous page."
+  ],
+  "terms": []
+ },
+ {
+  "page": 627,
+  "tables": 1,
+  "chars": 1554,
+  "head": [
+   "16.2 Object List",
+   "16"
+  ],
+  "terms": [
+   "SGD7S"
+  ]
+ },
+ {
+  "page": 628,
+  "tables": 1,
+  "chars": 1678,
+  "head": [
+   "16.3 SDO Abort Code List",
+   "16.3 SDO Abort Code List"
+  ],
+  "terms": []
+ },
+ {
+  "page": 629,
+  "tables": 1,
+  "chars": 1819,
+  "head": [
+   "16.4 Parameter Recording Table",
+   "16"
+  ],
+  "terms": []
+ },
+ {
+  "page": 630,
+  "tables": 1,
+  "chars": 1881,
+  "head": [
+   "16.4 Parameter Recording Table",
+   "Continued from previous page."
+  ],
+  "terms": []
+ },
+ {
+  "page": 631,
+  "tables": 1,
+  "chars": 1875,
+  "head": [
+   "16.4 Parameter Recording Table",
+   "16"
+  ],
+  "terms": []
+ },
+ {
+  "page": 632,
+  "tables": 1,
+  "chars": 1809,
+  "head": [
+   "16.4 Parameter Recording Table",
+   "Continued from previous page."
+  ],
+  "terms": []
+ },
+ {
+  "page": 633,
+  "tables": 1,
+  "chars": 1900,
+  "head": [
+   "16.4 Parameter Recording Table",
+   "16"
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 634,
+  "tables": 1,
+  "chars": 1865,
+  "head": [
+   "16.4 Parameter Recording Table",
+   "Continued from previous page."
+  ],
+  "terms": []
+ },
+ {
+  "page": 635,
+  "tables": 1,
+  "chars": 1926,
+  "head": [
+   "16.4 Parameter Recording Table",
+   "16"
+  ],
+  "terms": []
+ },
+ {
+  "page": 636,
+  "tables": 1,
+  "chars": 906,
+  "head": [
+   "16.4 Parameter Recording Table",
+   "Continued from previous page."
+  ],
+  "terms": []
+ },
+ {
+  "page": 637,
+  "tables": 2,
+  "chars": 874,
+  "head": [
+   "Appendices 17",
+   "The appendix provides information on interpreting panel"
+  ],
+  "terms": []
+ },
+ {
+  "page": 638,
+  "tables": 2,
+  "chars": 1606,
+  "head": [
+   "17.1 Interpreting Panel Displays",
+   "17.1.1 Interpreting Status Displays"
+  ],
+  "terms": [
+   "HWBB"
+  ]
+ },
+ {
+  "page": 639,
+  "tables": 1,
+  "chars": 1989,
+  "head": [
+   "17.2 Corresponding SERVOPACK and SigmaWin+ Function Names",
+   "17.2.1 Corresponding SERVOPACK Utility Function Names"
+  ],
+  "terms": []
+ },
+ {
+  "page": 640,
+  "tables": 1,
+  "chars": 848,
+  "head": [
+   "17.2 Corresponding SERVOPACK and SigmaWin+ Function Names",
+   "17.2.1 Corresponding SERVOPACK Utility Function Names"
+  ],
+  "terms": []
+ },
+ {
+  "page": 641,
+  "tables": 1,
+  "chars": 2240,
+  "head": [
+   "17.2 Corresponding SERVOPACK and SigmaWin+ Function Names",
+   "17.2.2 Corresponding SERVOPACK Monitor Display Function Name"
+  ],
+  "terms": []
+ },
+ {
+  "page": 642,
+  "tables": 1,
+  "chars": 2961,
+  "head": [
+   "17.2 Corresponding SERVOPACK and SigmaWin+ Function Names",
+   "17.2.2 Corresponding SERVOPACK Monitor Display Function Name"
+  ],
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 643,
+  "tables": 0,
+  "chars": 992,
+  "head": [
+   "17.2 Corresponding SERVOPACK and SigmaWin+ Function Names",
+   "17.2.2 Corresponding SERVOPACK Monitor Display Function Name"
+  ],
+  "terms": []
+ },
+ {
+  "page": 644,
+  "tables": 0,
+  "chars": 5765,
+  "head": [
+   "Index",
+   "Index autotuning without a host reference - - - - - - - - - "
+  ],
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 645,
+  "tables": 0,
+  "chars": 5536,
+  "head": [
+   "Index",
+   "digital I/O signals- - - - - - - - - - - - - - - - - - - - -"
+  ],
+  "terms": [
+   "HWBB",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 646,
+  "tables": 0,
+  "chars": 5842,
+  "head": [
+   "Index",
+   "Linear Servomotor - - - - - - - - - - - - - - - - - - - - - "
+  ],
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 647,
+  "tables": 0,
+  "chars": 6145,
+  "head": [
+   "Index",
+   "Q SERVOPACK- - - - - - - - - - - - - - - - - - - - - - - - -"
+  ],
+  "terms": [
+   "Ratings",
+   "Single-phase",
+   "Safety"
+  ]
+ },
+ {
+  "page": 648,
+  "tables": 0,
+  "chars": 3164,
+  "head": [
+   "Index",
+   "Sync Manager Communication Type (1C00h)- - - - - -14-13 Velo"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 649,
+  "tables": 1,
+  "chars": 1917,
+  "head": [
+   "Revision History",
+   "The revision dates and numbers of the revised manuals are gi"
+  ],
+  "terms": []
+ },
+ {
+  "page": 650,
+  "tables": 1,
+  "chars": 2883,
+  "head": [
+   "Web",
+   "Date of Rev."
+  ],
+  "terms": [
+   "SGD7S",
+   "120A",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 651,
+  "tables": 1,
+  "chars": 119,
+  "head": [
+   "Web",
+   "Date of Rev."
+  ],
+  "terms": []
+ },
+ {
+  "page": 652,
+  "tables": 0,
+  "chars": 2455,
+  "head": [
+   "-7-Series AC Servo Drive",
+   "-7S SERVOPACK with"
+  ],
+  "terms": [
+   "EtherCAT"
+  ]
+ }
+]
