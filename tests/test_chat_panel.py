@@ -247,7 +247,7 @@ def test_workbench_registers_from_generated_initgui(gui, tmp_path):
     runpy.run_path(str(target / "InitGui.py"))  # 与 FreeCAD 启动时执行 InitGui.py 相同
     assert "AiPartsWorkbench" in FreeCADGui.listWorkbenches()
     FreeCADGui.activateWorkbench("AiPartsWorkbench")
-    assert {"FAP_ChatPanel", "FAP_Bridge", "FAP_Record"} <= set(FreeCADGui.listCommands())
+    assert {"FAP_ChatPanel", "FAP_Bridge", "FAP_Record", "FAP_RecordVideo"} <= set(FreeCADGui.listCommands())
 
 
 @pytest.mark.freecad
@@ -336,6 +336,40 @@ def test_recording_a_panel_conversation(gui, tmp_path, monkeypatch):
     label = [e for e in layout if e.get("property") == "Label" and e["value"] == "我的电机"]
     assert label and label[-1]["origin"] == "user"
     assert s["outcome"]["rating"] == "modified" and s["meta"]["freecad_version"].startswith("1.0")
+
+
+@pytest.mark.freecad
+def test_recording_with_video(gui, tmp_path, monkeypatch):
+    """可选视频（ADR-0042）：有 ffmpeg 时生成 video.mp4；没有时说明原因，其余照常录制。"""
+    import stat
+    import textwrap
+
+    from freecad_addon.core.session_log import read_session
+    from freecad_addon.gui import recording
+
+    fake = tmp_path / "ffmpeg"
+    fake.write_text(textwrap.dedent(f"""\
+        #!{sys.executable}
+        import sys
+        sys.stdin.read(1)
+        open(sys.argv[-1], "wb").write(b"fake-mp4")
+    """), encoding="utf-8")
+    fake.chmod(fake.stat().st_mode | stat.S_IEXEC)
+    monkeypatch.setenv("FAP_SESSIONS_DIR", str(tmp_path / "sessions"))
+    monkeypatch.setattr(recording, "_recorder", None)
+
+    monkeypatch.setenv("FAP_FFMPEG", str(fake))
+    path = recording.start(video=True)
+    out = read_session(recording.stop())["outcome"]
+    assert out["video"] == "video.mp4" and (path / "video.mp4").read_bytes() == b"fake-mp4"
+
+    monkeypatch.delenv("FAP_FFMPEG")
+    monkeypatch.setattr("shutil.which", lambda name: None)
+    path = recording.start(video=True)
+    s = read_session(recording.stop())
+    assert s["outcome"]["video"] is None and "ffmpeg" in s["outcome"]["video_error"]
+    assert s["events"][0]["kind"] == "note" and s["events"][0]["what"] == "video_unavailable"
+    assert not (path / "video.mp4").exists()
 
 
 @pytest.mark.freecad
