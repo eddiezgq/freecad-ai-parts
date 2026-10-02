@@ -42,6 +42,11 @@ sources:
       适用美国马萨诸塞州法律。结论（2026-09-30）：未取得书面许可前，不得从该站采集数据。
       2026-10-01 按 ADR-0040：只收录公开产品目录中的参数与接口尺寸，逐项注明出处并链接回本站；
       规格书逐份按官方下载网址下载一次，不遍历、不批量爬取；不转存文档、图片、图纸与 CAD。
+    documents:
+      - id: src-hd-csg-csf-gear-units
+        title: Speed Reducers for Precision Motion Control - Reducer Catalog, Gear Units CSG/CSF (Engineering Data)
+        version: 未印版本号，以 SHA-256 标识（2026-10-01 登记）
+        url: https://www.harmonicdrive.net/_hd/content/documents/CSG-CSF_GearUnits.pdf
   - id: yaskawa-america
     vendor: Yaskawa America, Inc.
     url: https://www.yaskawa.com
@@ -55,6 +60,12 @@ sources:
       结论（2026-09-30）：未取得书面许可前，不得从该站采集数据。
       2026-10-01 按 ADR-0040：只收录公开产品目录中的参数与接口尺寸，逐项注明出处并链接回本站；
       规格书逐份按官方下载网址下载一次，不遍历、不批量爬取；不转存文档、图片、图纸与 CAD。
+    covers_vendors: [Yaskawa Electric Corporation]
+    documents:
+      - id: src-yaskawa-sgd7s-ethercat-manual
+        title: Σ-7S SERVOPACK with 100/200 V Input Power and EtherCAT (CoE) Communications References, Product Manual
+        version: SIEP S800001 55V <21>-0（2026-04-01）
+        url: https://www.yaskawa.com/delegate/getAttachment?documentId=SIEPS80000155&cmd=documents&documentName=SIEPS80000155V_21_0.pdf
   - id: yaskawa-electric
     vendor: Yaskawa Electric Corporation
     url: https://www.yaskawa-global.com
@@ -66,7 +77,13 @@ sources:
       2026-09-30 初查：版权法禁止未经事先书面同意以任何形式复制本站信息；未专门提及自动访问；
       适用日本法律，东京地方法院管辖。结论（2026-09-30）：未取得书面许可前，不得从该站采集数据。
       2026-10-01 按 ADR-0040：只收录公开产品目录中的参数与接口尺寸，逐项注明出处并链接回本站；
-      规格书逐份按官方下载网址下载一次，不遍历、不批量爬取；不转存文档、图片、图纸与 CAD。
+      规格书逐份按官方下载网址下载一次（含安川地区官方站点，如 yaskawa.com.sg），不遍历、不批量爬取；
+      不转存文档、图片、图纸与 CAD。
+    documents:
+      - id: src-yaskawa-sgm7-rotary-manual
+        title: Σ-7-Series AC Servo Drive, Rotary Servomotor Product Manual (SGMMV/SGM7J/SGM7A/SGM7P/SGM7G)
+        version: SIEP S800001 36D <3>-0
+        url: https://www.yaskawa.com.sg/editor/source/Sigma7series/7S_Rotary_sieps80000136d_3_0.pdf
   - id: leaderdrive
     vendor: 苏州绿的谐波传动科技股份有限公司（Leaderdrive）
     url: https://www.leaderdrive.com
