@@ -10,6 +10,18 @@
 #     pages: "12-15,20"        只把这些页交给 LLM（原文页码）
 #     targets: [型号, …]       按目录中印出的写法
 
-index: []
+index:
+  - doc: src-hd-csg-csf-gear-units
+    terms: [CSF-2UH, CSG-2UH, CSF-14-50-2UH, CSF-17-100-2UH, CSF-20-100-2UH, CSF-25-100-2UH, CSF-32-100-2UH,
+            Rated Torque, Limit for Repeated Peak Torque, Limit for Momentary Torque, Moment of Inertia,
+            Outline Dimensions, Backlash, Lost Motion, Torsional Stiffness, Mass, Table 126-1, Table 127-1, Table 129-1]
+  - doc: src-yaskawa-sgm7-rotary-manual
+    terms: [SGM7J, SGM7J-A5A, SGM7J-01A, SGM7J-C2A, SGM7J-02A, SGM7J-04A, SGM7J-06A, SGM7J-08A, Rated Output,
+            Rated Torque, Instantaneous Maximum Torque, Rated Rotation Speed, Maximum Rotation Speed, Rotor Moment of Inertia,
+            Torque Constant, External Dimensions, Approx. mass]
+  - doc: src-yaskawa-sgd7s-ethercat-manual
+    terms: [SGD7S, R70A, R90A, 1R6A, 2R8A, 3R8A, 5R5A, 7R6A, 120A, Ratings, Maximum Applicable Motor Capacity,
+            Continuous Output Current, Instantaneous Maximum Output Current, Main Circuit, Single-phase, External Dimensions,
+            Approx. mass, Safety, HWBB, EtherCAT]
 
 jobs: []
