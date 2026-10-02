@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -68,9 +69,15 @@ def output_path(job: dict, out_dir: Path = OUT_DIR) -> Path:
     return out_dir / job["doc"] / f"{slug}.json"
 
 
+CHECK_MODEL = "claude-opus-5-5"
+
+
 def run(jobs: list[dict], client, *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_DIR,
-        sources: dict | None = None) -> list[dict]:
-    """逐个任务抽取，写出结果；返回每项的摘要。任务之间互不影响，单个失败只记在摘要里。"""
+        sources: dict | None = None, model: str | None = None, check: bool = False) -> list[dict]:
+    """逐个任务抽取，写出结果；返回每项的摘要。任务之间互不影响，单个失败只记在摘要里。
+
+    check 为真时是复核抽取（issue #127）：用另一个模型，结果写到 <型号>.check.json。
+    """
     from ingest.llm_extract import RecordingMissing, extract_document
     from ingest.pdf_extract import ExtractError, extract
     from kb.sources import SourceRegistry
@@ -96,13 +103,15 @@ def run(jobs: list[dict], client, *, raw_dir: Path = RAW_DIR, out_dir: Path = OU
         try:
             if job["doc"] not in loaded:
                 loaded[job["doc"]] = extract(pdf)
-            result = extract_document(loaded[job["doc"]], job["category"], job["doc"], client,
+            result = extract_document(loaded[job["doc"]], job["category"], job["doc"], client, model=model,
                                       pages=job["pages"], target_model=job["target"])
         except (RecordingMissing, ExtractError, ValueError, RuntimeError) as exc:
             row["error"] = str(exc)
             summary.append(row)
             continue
         path = output_path(job, out_dir)
+        if check:
+            path = path.with_suffix(".check.json")
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
         row.update(out=str(path), items=len(result["items"]), rejected=len(result["rejected"]),
@@ -169,6 +178,8 @@ def main(argv: list[str] | None = None) -> int:
     p_run = sub.add_parser("run", help="运行抽取任务")
     p_run.add_argument("--record", action="store_true", help="真实调用 LLM 并录制（需要 ANTHROPIC_API_KEY）")
     p_run.add_argument("--doc", action="append", default=[], help="只运行这些文档的任务（可重复）")
+    p_run.add_argument("--check", action="store_true",
+                       help="复核抽取：用另一个模型（FAP_CHECK_MODEL，缺省 claude-opus-5-5），结果写到 .check.json")
     p_run.add_argument("--summary", type=Path, help="把摘要（Markdown）写到此文件")
     args = parser.parse_args(argv)
 
@@ -208,7 +219,8 @@ def main(argv: list[str] | None = None) -> int:
     from ingest.llm_extract import AnthropicClient, RecordedClient
 
     client = AnthropicClient(record_dir=REAL_RECORDINGS) if args.record else RecordedClient(REAL_RECORDINGS)
-    summary = run(jobs, client)
+    model = (os.environ.get("FAP_CHECK_MODEL") or CHECK_MODEL) if args.check else None
+    summary = run(jobs, client, model=model, check=args.check)
     text = render_summary(summary)
     print(text, end="")
     if args.summary:
