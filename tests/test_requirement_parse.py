@@ -127,6 +127,7 @@ def test_supply_rules():
     out = run(s, *base, item("supply.voltage_v", 48, "V", "48 V 直流供电"),
               item("supply.current_type", "dc", "", "48 V 直流供电"))
     assert out["requirement"]["supply"] == {"current_type": "dc", "voltage_v": 48.0, "phases": 0}
+    assert out["basis"]["supply.phases"] == "48 V 直流供电"  # 推导值也有依据
     out = run(s, *base, item("supply.voltage_v", 48, "V", "48 V 直流供电"))
     assert "supply" not in out["requirement"] and rp.QUESTIONS["supply"] in out["questions"]
     assert out["status"] == "ok"  # 供电不是必填，缺了只追问

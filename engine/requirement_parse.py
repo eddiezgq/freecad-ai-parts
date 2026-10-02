@@ -271,6 +271,7 @@ def interpret(statement: str, tool_input: dict) -> dict:
               if k in accepted}
     if supply.get("current_type") == "dc" and "phases" not in supply:
         supply["phases"] = 0
+        basis.setdefault("supply.phases", basis.get("supply.current_type", ""))  # 推导值沿用供电类型的依据
         defaults.append("直流供电，相数按 schema 约定记 0")
     if "current_type" not in supply and supply.get("phases") in (1, 3):
         # 单相、三相供电按定义是交流（ADR-0039）；原话没说“交流”时不必追问
