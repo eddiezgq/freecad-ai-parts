@@ -92,4 +92,17 @@ export ANTHROPIC_API_KEY=...                             # 或写在本仓库的
 - 支持 Linux（X11）与 Windows；需要 ffmpeg，可用 `FAP_FFMPEG` 指定路径
 - 录不了时（没有 ffmpeg、macOS、Wayland）在 FreeCAD 报告视图中说明原因，其他内容照常录制
 
-重放与数据集导出、相似会话检索见 M7 后续任务。
+**查看、导出与重放**：
+
+```bash
+python -m freecad_addon.sessions list                       # 列出会话
+python -m freecad_addon.sessions show <会话>                 # 摘要：事件数、改动来源、命令、工具调用、结果
+python -m freecad_addon.sessions export ds.jsonl --rated-only   # 导出数据集，每行一个会话
+<FreeCAD 的 python> -m freecad_addon.sessions replay <会话> --save out.FCStd   # 在新文档中重建对象
+```
+
+数据集的每行包含：需求原话、对话、操作序列（每步标 `user` / `ai`）、命令、截图、评价、最后的结论，以及 `user_edits_after_ai`，即用户在 AI 改过之后又改的属性。
+
+重放只重建参数化对象（类型、属性、位置）。形体数据不录，AI 布局里的零件可用会话中记下的工具调用重新生成。
+
+相似会话检索见 M7 后续任务。
