@@ -23,7 +23,7 @@ from functools import cache
 from pathlib import Path
 from typing import Any, Protocol
 
-from ingest.pdf_extract import Document, ExtractError, extract
+from ingest.pdf_extract import Document, ExtractError, extract, parse_pages
 from ingest.units import UnitError, standard_unit, to_standard
 from kb.validation import ID_BASE, SCHEMA_DIR, errors, validator_for_ref
 
@@ -203,13 +203,29 @@ TOOL_SCHEMA: dict = {
 TOOL_INSTRUCTION = "\n\n只通过调用工具 {name} 一次提交全部结果，不要只用文字回答。"
 
 
+TARGET_INSTRUCTION = (
+    "目标型号：{model}\n"
+    "这份目录含多个型号。只报告目标型号的数值：表格按型号分列时取该型号所在列，按型号分行时取该型号所在行；"
+    "对所有型号通用的数值（如整个系列共用的一项）也报告。其他型号的数值一律不报。"
+    "model 写目标型号在目录中印出的写法。\n\n"
+)
+
+
 def build_request(document: Document, category: str, *, model: str = DEFAULT_MODEL,
-                  prompt_version: str = PROMPT_VERSION) -> dict:
+                  prompt_version: str = PROMPT_VERSION, target_model: str | None = None,
+                  excerpt: bool = False) -> dict:
+    """target_model、excerpt 只在多型号目录中使用（ADR-0040）；不用时请求与以前完全相同，已有录制仍可回放。"""
     if category not in CATEGORIES:
         raise ValueError(f"不支持的品类 {category}")
+    if excerpt:
+        pages = "、".join(str(p.page) for p in document.pages)
+        head = f"规格书节选（第 {pages} 页，页码为原文页码）"
+    else:
+        head = f"规格书（共 {len(document.pages)} 页）"
+    target = TARGET_INSTRUCTION.format(model=target_model.strip()) if target_model else ""
     user = (
         f"品类：{category}\n\n字段清单（target ; 类型 ; 标准单位 ; 可选值 ; 说明）：\n{field_catalog(category)}\n\n"
-        f"规格书（共 {len(document.pages)} 页）：\n{document.to_prompt_text()}"
+        f"{target}{head}：\n{document.to_prompt_text()}"
     )
     return {
         "model": model,
@@ -367,6 +383,7 @@ class _Line:
     spaced: str  # 空白规范化后的整行
     is_row: bool
     header: str = ""  # 表格行：所在表格首行（表头）去空白后的文字
+    header_cells: tuple[str, ...] = ()  # 表格行：表头各单元格（去空白）
 
     @property
     def joined(self) -> str:
@@ -378,16 +395,19 @@ class _Ctx:
     lines: dict[int, list[_Line]]
     page_spaced: dict[int, str]
     comma_thousands: bool | None  # 全文逗号是千分位（True）、小数点（False），判断不了为 None
+    target_model: str = ""  # 多型号目录的目标型号（_loose 后）；空表示单型号规格书
 
 
-def _context(document: Document) -> _Ctx:
+def _context(document: Document, target_model: str | None = None) -> _Ctx:
     lines: dict[int, list[_Line]] = {}
     spaced: dict[int, str] = {}
     for p in document.pages:
         ls = []
         for t in p.tables:
             header = _squash(" ".join(c or "" for c in t.rows[0])) if t.rows else ""
-            ls += [_Line(tuple(_squash(c or "") for c in row), _spaced(" ".join(c or "" for c in row)), True, header)
+            hcells = tuple(_squash(c or "") for c in t.rows[0]) if t.rows else ()
+            ls += [_Line(tuple(_squash(c or "") for c in row), _spaced(" ".join(c or "" for c in row)), True, header,
+                         hcells)
                    for row in t.rows]
         ls += [_Line((_squash(ln),), _spaced(ln), False) for ln in p.text.splitlines() if ln.strip()]
         lines[p.page] = ls
@@ -397,7 +417,7 @@ def _context(document: Document) -> _Ctx:
     comma_dec = re.search(r"(?<![\d.,])\d+,\d{1,2}(?![\d.,])", text) is not None
     comma_k = re.search(r"(?<![\d.,])\d{1,3}(?:,\d{3})+\.\d+(?![\d,])", text) is not None
     comma = True if (dot or comma_k) and not comma_dec else False if comma_dec and not dot else None
-    return _Ctx(lines, spaced, comma)
+    return _Ctx(lines, spaced, comma, _loose(target_model or ""))
 
 
 def _tokens(text: str, comma_thousands: bool | None = None) -> tuple[list[float], str | None]:
@@ -523,6 +543,22 @@ def _other_units(ctx: _Ctx, page: int, unit: str, field: str) -> list[str]:
     return sorted(out)
 
 
+def _cell_is(cell: str, text: str, unit: str) -> bool:
+    t, u = _squash(text), _squash(unit)
+    return cell == t or bool(u) and cell in (t + u, u + t)
+
+
+def _model_column(line: _Line, model: str, text: str, unit: str) -> bool | None:
+    """多型号目录：数值是否在目标型号的列（或行）中。True 已确认，False 不在，None 判断不了（交给复核）。"""
+    if any(_loose(c) == model for c in line.cells):  # 按型号分行：型号就在这一行
+        return True
+    heads = [_loose(c) for c in line.header_cells]
+    if model not in heads:
+        return None
+    j = heads.index(model)
+    return j < len(line.cells) and _cell_is(line.cells[j], text, unit)
+
+
 def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list[str]]:
     """在引用所在的那一行核对叫法、数值、单位、工况；返回（拒绝原因, 注意事项）。"""
     page = p["page"]
@@ -534,6 +570,9 @@ def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list
     candidates = [ln for ln in ctx.lines[page] if quote and quote in ln.joined]
     if not candidates:
         return f"原文引用在第 {page} 页的任何一行中都找不到", []
+    if ctx.target_model and any(ln.is_row for ln in candidates):
+        # 多型号目录：正文里重复的表格行没有列信息，以表格行为准（否则能绕过型号列核对）
+        candidates = [ln for ln in candidates if ln.is_row]
     best = "引用所在行中找不到与印出文字完全一致的数值"
     page_squashed = _squash(ctx.page_spaced[page])
     for ln in candidates:
@@ -560,6 +599,13 @@ def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list
                 best = f"单位 {unit!r} 不在同一行，而本页还有其他同类单位 {others}，无法判断"
                 continue
             notes.append(f"单位 {unit} 不在同一行，取自本页其他位置")
+        if ln.is_row and ctx.target_model:
+            column = _model_column(ln, ctx.target_model, text, unit)
+            if column is False:
+                best = "数值不在目标型号所在的列"
+                continue
+            if column is True:
+                return None, notes
         if ln.is_row:
             numeric_cells = [c for c in ln.cells if c != _squash(text) and _tokens(c)[0] and not _loose(c).isalpha()]
             if len(numeric_cells) >= 1 and len(ln.cells) > 3:
@@ -729,9 +775,13 @@ def _same_value(a: dict, b: dict) -> bool:
     return True
 
 
-def verify(tool_input: Any, document: Document, category: str, doc_id: str) -> dict:
-    """核对 LLM 的全部提议，返回抽取结果中的 vendor/model/series/items/rejected/missing_key_fields。"""
-    ctx = _context(document)
+def verify(tool_input: Any, document: Document, category: str, doc_id: str, *,
+           target_model: str | None = None) -> dict:
+    """核对 LLM 的全部提议，返回抽取结果中的 vendor/model/series/items/rejected/missing_key_fields。
+
+    target_model：多型号目录的目标型号。表头列出各型号时，数值必须在目标型号那一列；型号以目标型号为准。
+    """
+    ctx = _context(document, target_model)
     proposals = tool_input.get("items") if isinstance(tool_input, dict) else None
     if not isinstance(proposals, list):
         proposals = []
@@ -765,6 +815,11 @@ def verify(tool_input: Any, document: Document, category: str, doc_id: str) -> d
     all_text = "\n".join(ctx.page_spaced.values())
     for k in ("vendor", "model", "series"):
         v = tool_input.get(k) if isinstance(tool_input, dict) else None
+        if k == "model" and target_model:
+            if isinstance(v, str) and v.strip() and _loose(v) != _loose(target_model):
+                rejected.append({"target": k, "printed": {"text": v.strip()},
+                                 "reason": f"报的型号与目标型号 {target_model} 不同"})
+            v = target_model
         if not isinstance(v, str) or not v.strip():
             continue
         if re.search(r"(?<![A-Za-z0-9-])" + re.escape(_spaced(v)) + r"(?![A-Za-z0-9-])", all_text):
@@ -782,15 +837,22 @@ class ExtractionInvalid(RuntimeError):
 
 
 def extract_document(document: Document, category: str, doc_id: str, client: LLMClient, *,
-                     model: str | None = None, prompt_version: str = PROMPT_VERSION) -> dict:
+                     model: str | None = None, prompt_version: str = PROMPT_VERSION,
+                     pages: list[int] | None = None, target_model: str | None = None) -> dict:
+    """pages：只把这些页交给 LLM；target_model：多型号目录中要抽取的型号（ADR-0040）。"""
     if not document.pages:
         raise ValueError("文档没有任何页面")
+    if target_model is not None and not target_model.strip():
+        raise ValueError("目标型号不能为空")
+    if pages:
+        document = document.select(pages)
     if not re.fullmatch(r"src-[a-z0-9]+(-[a-z0-9]+)*", doc_id or ""):
         raise ValueError(f"来源文档 id 格式不对：{doc_id!r}")
     model = model or os.environ.get("FAP_LLM_MODEL") or DEFAULT_MODEL
-    request = build_request(document, category, model=model, prompt_version=prompt_version)
+    request = build_request(document, category, model=model, prompt_version=prompt_version,
+                            target_model=target_model, excerpt=bool(pages))
     response = client.complete(request)
-    checked = verify(response.get("tool_input") or {}, document, category, doc_id)
+    checked = verify(response.get("tool_input") or {}, document, category, doc_id, target_model=target_model)
     extractor = {"model": model, "prompt_version": prompt_version}
     if response.get("id"):
         extractor["response_id"] = str(response["id"])
@@ -818,6 +880,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--category", required=True, choices=CATEGORIES)
     parser.add_argument("--doc", required=True, help="data/sources.yaml 中登记的来源文档 id")
     parser.add_argument("--out", type=Path, help="抽取结果写到此文件（默认打印）")
+    parser.add_argument("--pages", help="只把这些页交给 LLM，如 12-15,20（多型号目录）")
+    parser.add_argument("--target", help="多型号目录中要抽取的型号（按目录中印出的写法）")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--replay", type=Path, default=None, help="只回放此目录中的录制（默认 tests/recordings/llm）")
     mode.add_argument("--record", type=Path, nargs="?", const=RECORDINGS_DIR, default=None,
@@ -838,7 +902,8 @@ def main(argv: list[str] | None = None) -> int:
             client: LLMClient = AnthropicClient(record_dir=args.record)
         else:
             client = RecordedClient(args.replay or RECORDINGS_DIR)
-        result = extract_document(document, args.category, args.doc, client)
+        pages = parse_pages(args.pages) if args.pages else None
+        result = extract_document(document, args.category, args.doc, client, pages=pages, target_model=args.target)
     except (RecordingMissing, ExtractError, ValueError, RuntimeError) as exc:
         print(exc, file=sys.stderr)
         return 1
