@@ -1,0 +1,438 @@
+[
+ {
+  "page": 1,
+  "tables": 0,
+  "chars": 199,
+  "terms": [
+   "CSF-2UH"
+  ]
+ },
+ {
+  "page": 2,
+  "tables": 0,
+  "chars": 3668,
+  "terms": [
+   "Backlash",
+   "Torsional Stiffness"
+  ]
+ },
+ {
+  "page": 3,
+  "tables": 0,
+  "chars": 3668,
+  "terms": [
+   "Backlash",
+   "Torsional Stiffness"
+  ]
+ },
+ {
+  "page": 4,
+  "tables": 0,
+  "chars": 560,
+  "terms": [
+   "CSF-2UH"
+  ]
+ },
+ {
+  "page": 5,
+  "tables": 4,
+  "chars": 2334,
+  "terms": [
+   "CSF-2UH",
+   "CSG-2UH",
+   "Backlash",
+   "Torsional Stiffness"
+  ]
+ },
+ {
+  "page": 6,
+  "tables": 1,
+  "chars": 2790,
+  "terms": [
+   "CSF-25-100-2UH",
+   "Rated Torque",
+   "Backlash"
+  ]
+ },
+ {
+  "page": 7,
+  "tables": 3,
+  "chars": 2790,
+  "terms": [
+   "CSF-25-100-2UH",
+   "Rated Torque",
+   "Backlash"
+  ]
+ },
+ {
+  "page": 8,
+  "tables": 2,
+  "chars": 5671,
+  "terms": [
+   "Rated Torque",
+   "Limit for Repeated Peak Torque",
+   "Moment of Inertia",
+   "Table 126-1",
+   "Table 127-1"
+  ]
+ },
+ {
+  "page": 9,
+  "tables": 1,
+  "chars": 5671,
+  "terms": [
+   "Rated Torque",
+   "Limit for Repeated Peak Torque",
+   "Moment of Inertia",
+   "Table 126-1",
+   "Table 127-1"
+  ]
+ },
+ {
+  "page": 10,
+  "tables": 3,
+  "chars": 4801,
+  "terms": [
+   "Outline Dimensions",
+   "Mass",
+   "Table 129-1"
+  ]
+ },
+ {
+  "page": 11,
+  "tables": 5,
+  "chars": 4801,
+  "terms": [
+   "Outline Dimensions",
+   "Mass",
+   "Table 129-1"
+  ]
+ },
+ {
+  "page": 12,
+  "tables": 4,
+  "chars": 5448,
+  "terms": [
+   "Backlash",
+   "Torsional Stiffness"
+  ]
+ },
+ {
+  "page": 13,
+  "tables": 5,
+  "chars": 5448,
+  "terms": [
+   "Backlash",
+   "Torsional Stiffness"
+  ]
+ },
+ {
+  "page": 14,
+  "tables": 6,
+  "chars": 3103,
+  "terms": []
+ },
+ {
+  "page": 15,
+  "tables": 4,
+  "chars": 3103,
+  "terms": []
+ },
+ {
+  "page": 16,
+  "tables": 2,
+  "chars": 3224,
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 17,
+  "tables": 8,
+  "chars": 3224,
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 18,
+  "tables": 2,
+  "chars": 4941,
+  "terms": []
+ },
+ {
+  "page": 19,
+  "tables": 10,
+  "chars": 4941,
+  "terms": []
+ },
+ {
+  "page": 20,
+  "tables": 6,
+  "chars": 5817,
+  "terms": []
+ },
+ {
+  "page": 21,
+  "tables": 7,
+  "chars": 5817,
+  "terms": []
+ },
+ {
+  "page": 22,
+  "tables": 1,
+  "chars": 3213,
+  "terms": [
+   "Mass"
+  ]
+ },
+ {
+  "page": 23,
+  "tables": 3,
+  "chars": 3213,
+  "terms": [
+   "Mass"
+  ]
+ },
+ {
+  "page": 24,
+  "tables": 3,
+  "chars": 2536,
+  "terms": []
+ },
+ {
+  "page": 25,
+  "tables": 3,
+  "chars": 2536,
+  "terms": []
+ },
+ {
+  "page": 26,
+  "tables": 2,
+  "chars": 1046,
+  "terms": [
+   "Backlash"
+  ]
+ },
+ {
+  "page": 27,
+  "tables": 0,
+  "chars": 198,
+  "terms": []
+ },
+ {
+  "page": 28,
+  "tables": 1,
+  "chars": 2221,
+  "terms": [
+   "Torsional Stiffness"
+  ]
+ },
+ {
+  "page": 29,
+  "tables": 2,
+  "chars": 4262,
+  "terms": [
+   "Torsional Stiffness"
+  ]
+ },
+ {
+  "page": 30,
+  "tables": 1,
+  "chars": 4576,
+  "terms": []
+ },
+ {
+  "page": 31,
+  "tables": 0,
+  "chars": 4576,
+  "terms": []
+ },
+ {
+  "page": 32,
+  "tables": 6,
+  "chars": 5505,
+  "terms": [
+   "Rated Torque",
+   "Limit for Repeated Peak Torque",
+   "Moment of Inertia"
+  ]
+ },
+ {
+  "page": 33,
+  "tables": 6,
+  "chars": 5505,
+  "terms": [
+   "Rated Torque",
+   "Limit for Repeated Peak Torque",
+   "Moment of Inertia"
+  ]
+ },
+ {
+  "page": 34,
+  "tables": 2,
+  "chars": 6333,
+  "terms": [
+   "Limit for Momentary Torque"
+  ]
+ },
+ {
+  "page": 35,
+  "tables": 0,
+  "chars": 6440,
+  "terms": [
+   "Limit for Momentary Torque"
+  ]
+ },
+ {
+  "page": 36,
+  "tables": 9,
+  "chars": 6509,
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 37,
+  "tables": 2,
+  "chars": 6509,
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 38,
+  "tables": 1,
+  "chars": 4611,
+  "terms": []
+ },
+ {
+  "page": 39,
+  "tables": 3,
+  "chars": 4611,
+  "terms": []
+ },
+ {
+  "page": 40,
+  "tables": 2,
+  "chars": 5113,
+  "terms": [
+   "Rated Torque",
+   "Backlash",
+   "Torsional Stiffness"
+  ]
+ },
+ {
+  "page": 41,
+  "tables": 2,
+  "chars": 5113,
+  "terms": [
+   "Rated Torque",
+   "Backlash",
+   "Torsional Stiffness"
+  ]
+ },
+ {
+  "page": 42,
+  "tables": 2,
+  "chars": 4148,
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 43,
+  "tables": 5,
+  "chars": 4148,
+  "terms": [
+   "Rated Torque"
+  ]
+ },
+ {
+  "page": 44,
+  "tables": 5,
+  "chars": 2681,
+  "terms": [
+   "Backlash"
+  ]
+ },
+ {
+  "page": 45,
+  "tables": 3,
+  "chars": 2681,
+  "terms": [
+   "Backlash"
+  ]
+ },
+ {
+  "page": 46,
+  "tables": 6,
+  "chars": 3844,
+  "terms": []
+ },
+ {
+  "page": 47,
+  "tables": 10,
+  "chars": 3844,
+  "terms": []
+ },
+ {
+  "page": 48,
+  "tables": 3,
+  "chars": 6378,
+  "terms": []
+ },
+ {
+  "page": 49,
+  "tables": 2,
+  "chars": 6378,
+  "terms": []
+ },
+ {
+  "page": 50,
+  "tables": 3,
+  "chars": 3260,
+  "terms": []
+ },
+ {
+  "page": 51,
+  "tables": 4,
+  "chars": 3260,
+  "terms": []
+ },
+ {
+  "page": 52,
+  "tables": 3,
+  "chars": 2706,
+  "terms": []
+ },
+ {
+  "page": 53,
+  "tables": 1,
+  "chars": 2706,
+  "terms": []
+ },
+ {
+  "page": 54,
+  "tables": 3,
+  "chars": 1757,
+  "terms": [
+   "Backlash",
+   "Torsional Stiffness"
+  ]
+ },
+ {
+  "page": 55,
+  "tables": 3,
+  "chars": 6536,
+  "terms": [
+   "Backlash"
+  ]
+ },
+ {
+  "page": 56,
+  "tables": 0,
+  "chars": 1068,
+  "terms": []
+ }
+]

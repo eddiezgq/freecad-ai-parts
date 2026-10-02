@@ -47,6 +47,7 @@ sources:
         title: Speed Reducers for Precision Motion Control - Reducer Catalog, Gear Units CSG/CSF (Engineering Data)
         version: 未印版本号，以 SHA-256 标识（2026-10-01 登记）
         url: https://www.harmonicdrive.net/_hd/content/documents/CSG-CSF_GearUnits.pdf
+        sha256: "51ef1a16a6782b481fc97ddaec9739ea3df9ae2b1a0e057773497b3cc664a521"
   - id: yaskawa-america
     vendor: Yaskawa America, Inc.
     url: https://www.yaskawa.com
@@ -66,6 +67,7 @@ sources:
         title: Σ-7S SERVOPACK with 100/200 V Input Power and EtherCAT (CoE) Communications References, Product Manual
         version: SIEP S800001 55V <21>-0（2026-04-01）
         url: https://www.yaskawa.com/delegate/getAttachment?documentId=SIEPS80000155&cmd=documents&documentName=SIEPS80000155V_21_0.pdf
+        sha256: "723e4704cd939ecb805de328160b869a89909aff7050b33885c95a787c98fed6"
   - id: yaskawa-electric
     vendor: Yaskawa Electric Corporation
     url: https://www.yaskawa-global.com
@@ -84,6 +86,7 @@ sources:
         title: Σ-7-Series AC Servo Drive, Rotary Servomotor Product Manual (SGMMV/SGM7J/SGM7A/SGM7P/SGM7G)
         version: SIEP S800001 36D <3>-0
         url: https://www.yaskawa.com.sg/editor/source/Sigma7series/7S_Rotary_sieps80000136d_3_0.pdf
+        sha256: "790923847a5463eac791c35ef87062807b20d2f39e6ded523d51b63ed7d88044"
   - id: leaderdrive
     vendor: 苏州绿的谐波传动科技股份有限公司（Leaderdrive）
     url: https://www.leaderdrive.com

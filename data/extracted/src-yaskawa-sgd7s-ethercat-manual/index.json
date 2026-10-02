@@ -1,0 +1,4866 @@
+[
+ {
+  "page": 1,
+  "tables": 0,
+  "chars": 594,
+  "terms": [
+   "SGD7S",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 2,
+  "tables": 0,
+  "chars": 822,
+  "terms": []
+ },
+ {
+  "page": 3,
+  "tables": 1,
+  "chars": 2641,
+  "terms": [
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 4,
+  "tables": 12,
+  "chars": 1314,
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 5,
+  "tables": 1,
+  "chars": 2279,
+  "terms": []
+ },
+ {
+  "page": 6,
+  "tables": 1,
+  "chars": 2003,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 7,
+  "tables": 1,
+  "chars": 1760,
+  "terms": [
+   "HWBB",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 8,
+  "tables": 1,
+  "chars": 1888,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 9,
+  "tables": 1,
+  "chars": 3039,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 10,
+  "tables": 1,
+  "chars": 597,
+  "terms": []
+ },
+ {
+  "page": 11,
+  "tables": 2,
+  "chars": 2919,
+  "terms": [
+   "Main Circuit",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 12,
+  "tables": 3,
+  "chars": 2907,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 13,
+  "tables": 0,
+  "chars": 884,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 14,
+  "tables": 4,
+  "chars": 877,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 15,
+  "tables": 3,
+  "chars": 2256,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 16,
+  "tables": 4,
+  "chars": 2321,
+  "terms": []
+ },
+ {
+  "page": 17,
+  "tables": 2,
+  "chars": 2023,
+  "terms": []
+ },
+ {
+  "page": 18,
+  "tables": 3,
+  "chars": 2663,
+  "terms": []
+ },
+ {
+  "page": 19,
+  "tables": 2,
+  "chars": 3396,
+  "terms": [
+   "Main Circuit",
+   "Safety"
+  ]
+ },
+ {
+  "page": 20,
+  "tables": 2,
+  "chars": 3218,
+  "terms": [
+   "Main Circuit",
+   "Safety"
+  ]
+ },
+ {
+  "page": 21,
+  "tables": 5,
+  "chars": 2508,
+  "terms": []
+ },
+ {
+  "page": 22,
+  "tables": 3,
+  "chars": 2386,
+  "terms": [
+   "Main Circuit",
+   "Safety"
+  ]
+ },
+ {
+  "page": 23,
+  "tables": 0,
+  "chars": 1012,
+  "terms": []
+ },
+ {
+  "page": 24,
+  "tables": 0,
+  "chars": 2318,
+  "terms": []
+ },
+ {
+  "page": 25,
+  "tables": 0,
+  "chars": 2349,
+  "terms": [
+   "Ratings",
+   "Safety"
+  ]
+ },
+ {
+  "page": 26,
+  "tables": 2,
+  "chars": 1162,
+  "terms": [
+   "SGD7S",
+   "Safety"
+  ]
+ },
+ {
+  "page": 27,
+  "tables": 3,
+  "chars": 1509,
+  "terms": [
+   "SGD7S",
+   "Safety"
+  ]
+ },
+ {
+  "page": 28,
+  "tables": 9,
+  "chars": 3569,
+  "terms": [
+   "Ratings",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 29,
+  "tables": 13,
+  "chars": 3662,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Ratings",
+   "Main Circuit",
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 30,
+  "tables": 13,
+  "chars": 3408,
+  "terms": [
+   "Main Circuit",
+   "Single-phase",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 31,
+  "tables": 9,
+  "chars": 3820,
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 32,
+  "tables": 10,
+  "chars": 4271,
+  "terms": []
+ },
+ {
+  "page": 33,
+  "tables": 12,
+  "chars": 3741,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 34,
+  "tables": 7,
+  "chars": 5330,
+  "terms": []
+ },
+ {
+  "page": 35,
+  "tables": 10,
+  "chars": 4716,
+  "terms": []
+ },
+ {
+  "page": 36,
+  "tables": 10,
+  "chars": 3853,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 37,
+  "tables": 13,
+  "chars": 3740,
+  "terms": [
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 38,
+  "tables": 21,
+  "chars": 2156,
+  "terms": []
+ },
+ {
+  "page": 39,
+  "tables": 10,
+  "chars": 3286,
+  "terms": []
+ },
+ {
+  "page": 40,
+  "tables": 0,
+  "chars": 2,
+  "terms": []
+ },
+ {
+  "page": 41,
+  "tables": 7,
+  "chars": 1551,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 42,
+  "tables": 1,
+  "chars": 295,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 43,
+  "tables": 0,
+  "chars": 444,
+  "terms": []
+ },
+ {
+  "page": 44,
+  "tables": 1,
+  "chars": 2255,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 45,
+  "tables": 1,
+  "chars": 3055,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 46,
+  "tables": 3,
+  "chars": 1664,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 47,
+  "tables": 0,
+  "chars": 299,
+  "terms": []
+ },
+ {
+  "page": 48,
+  "tables": 2,
+  "chars": 2164,
+  "terms": [
+   "Ratings",
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 49,
+  "tables": 1,
+  "chars": 597,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 50,
+  "tables": 6,
+  "chars": 2092,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "2R8A",
+   "3R8A",
+   "120A",
+   "Single-phase",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 51,
+  "tables": 2,
+  "chars": 2167,
+  "terms": []
+ },
+ {
+  "page": 52,
+  "tables": 2,
+  "chars": 504,
+  "terms": []
+ },
+ {
+  "page": 53,
+  "tables": 1,
+  "chars": 1607,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 54,
+  "tables": 1,
+  "chars": 1424,
+  "terms": [
+   "SGD7S",
+   "2R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 55,
+  "tables": 2,
+  "chars": 1672,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 56,
+  "tables": 1,
+  "chars": 1293,
+  "terms": [
+   "SGD7S",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 57,
+  "tables": 2,
+  "chars": 1882,
+  "terms": [
+   "Main Circuit",
+   "Safety"
+  ]
+ },
+ {
+  "page": 58,
+  "tables": 4,
+  "chars": 1523,
+  "terms": []
+ },
+ {
+  "page": 59,
+  "tables": 1,
+  "chars": 774,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 60,
+  "tables": 2,
+  "chars": 1184,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 61,
+  "tables": 4,
+  "chars": 1586,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Ratings",
+   "External Dimensions"
+  ]
+ },
+ {
+  "page": 62,
+  "tables": 1,
+  "chars": 1506,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Ratings",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 63,
+  "tables": 2,
+  "chars": 2285,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "5R5A",
+   "120A",
+   "Ratings",
+   "Maximum Applicable Motor Capacity",
+   "Continuous Output Current",
+   "Instantaneous Maximum Output Current",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 64,
+  "tables": 2,
+  "chars": 1836,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Ratings",
+   "Maximum Applicable Motor Capacity",
+   "Continuous Output Current",
+   "Instantaneous Maximum Output Current",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 65,
+  "tables": 1,
+  "chars": 891,
+  "terms": [
+   "SGD7S",
+   "Ratings",
+   "Maximum Applicable Motor Capacity",
+   "Continuous Output Current",
+   "Instantaneous Maximum Output Current",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 66,
+  "tables": 2,
+  "chars": 2043,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Ratings",
+   "Continuous Output Current",
+   "Instantaneous Maximum Output Current"
+  ]
+ },
+ {
+  "page": 67,
+  "tables": 2,
+  "chars": 2132,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Ratings",
+   "Safety"
+  ]
+ },
+ {
+  "page": 68,
+  "tables": 1,
+  "chars": 2181,
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 69,
+  "tables": 2,
+  "chars": 2572,
+  "terms": [
+   "Ratings",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 70,
+  "tables": 2,
+  "chars": 1775,
+  "terms": [
+   "SGD7S",
+   "Ratings",
+   "Main Circuit",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 71,
+  "tables": 14,
+  "chars": 1545,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 72,
+  "tables": 6,
+  "chars": 788,
+  "terms": [
+   "SGD7S",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 73,
+  "tables": 5,
+  "chars": 1663,
+  "terms": [
+   "SGD7S",
+   "120A",
+   "Main Circuit",
+   "Single-phase",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 74,
+  "tables": 7,
+  "chars": 819,
+  "terms": [
+   "SGD7S",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 75,
+  "tables": 5,
+  "chars": 771,
+  "terms": [
+   "SGD7S",
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 76,
+  "tables": 5,
+  "chars": 770,
+  "terms": [
+   "SGD7S",
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 77,
+  "tables": 7,
+  "chars": 1457,
+  "terms": [
+   "SGD7S",
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 78,
+  "tables": 6,
+  "chars": 698,
+  "terms": [
+   "SGD7S",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 79,
+  "tables": 2,
+  "chars": 1131,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 80,
+  "tables": 2,
+  "chars": 927,
+  "terms": [
+   "SGD7S",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Single-phase",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 81,
+  "tables": 4,
+  "chars": 921,
+  "terms": [
+   "SGD7S",
+   "120A",
+   "Single-phase",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 82,
+  "tables": 1,
+  "chars": 939,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "Single-phase",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 83,
+  "tables": 4,
+  "chars": 999,
+  "terms": [
+   "SGD7S",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Single-phase",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 84,
+  "tables": 4,
+  "chars": 936,
+  "terms": [
+   "SGD7S",
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 85,
+  "tables": 0,
+  "chars": 1611,
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 86,
+  "tables": 0,
+  "chars": 983,
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 87,
+  "tables": 7,
+  "chars": 707,
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 88,
+  "tables": 0,
+  "chars": 784,
+  "terms": []
+ },
+ {
+  "page": 89,
+  "tables": 1,
+  "chars": 710,
+  "terms": []
+ },
+ {
+  "page": 90,
+  "tables": 3,
+  "chars": 1643,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 91,
+  "tables": 1,
+  "chars": 1719,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 92,
+  "tables": 0,
+  "chars": 1040,
+  "terms": []
+ },
+ {
+  "page": 93,
+  "tables": 6,
+  "chars": 871,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Ratings"
+  ]
+ },
+ {
+  "page": 94,
+  "tables": 15,
+  "chars": 1673,
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 95,
+  "tables": 13,
+  "chars": 727,
+  "terms": [
+   "Main Circuit",
+   "Single-phase",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 96,
+  "tables": 13,
+  "chars": 703,
+  "terms": [
+   "Main Circuit",
+   "Single-phase",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 97,
+  "tables": 5,
+  "chars": 1663,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 98,
+  "tables": 3,
+  "chars": 643,
+  "terms": [
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 99,
+  "tables": 2,
+  "chars": 1387,
+  "terms": []
+ },
+ {
+  "page": 100,
+  "tables": 2,
+  "chars": 3461,
+  "terms": [
+   "Main Circuit",
+   "Safety"
+  ]
+ },
+ {
+  "page": 101,
+  "tables": 0,
+  "chars": 1676,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 102,
+  "tables": 0,
+  "chars": 1812,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 103,
+  "tables": 2,
+  "chars": 914,
+  "terms": []
+ },
+ {
+  "page": 104,
+  "tables": 6,
+  "chars": 1080,
+  "terms": []
+ },
+ {
+  "page": 105,
+  "tables": 3,
+  "chars": 1720,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 106,
+  "tables": 8,
+  "chars": 2718,
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 107,
+  "tables": 0,
+  "chars": 611,
+  "terms": []
+ },
+ {
+  "page": 108,
+  "tables": 2,
+  "chars": 2800,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 109,
+  "tables": 2,
+  "chars": 3073,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "5R5A",
+   "120A",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 110,
+  "tables": 1,
+  "chars": 807,
+  "terms": [
+   "SGD7S",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 111,
+  "tables": 3,
+  "chars": 1407,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 112,
+  "tables": 4,
+  "chars": 1973,
+  "terms": [
+   "SGD7S",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 113,
+  "tables": 1,
+  "chars": 802,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 114,
+  "tables": 10,
+  "chars": 1548,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 115,
+  "tables": 4,
+  "chars": 770,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 116,
+  "tables": 7,
+  "chars": 838,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 117,
+  "tables": 5,
+  "chars": 966,
+  "terms": [
+   "SGD7S",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 118,
+  "tables": 4,
+  "chars": 639,
+  "terms": [
+   "SGD7S",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 119,
+  "tables": 6,
+  "chars": 1757,
+  "terms": [
+   "Main Circuit",
+   "Safety"
+  ]
+ },
+ {
+  "page": 120,
+  "tables": 1,
+  "chars": 1099,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 121,
+  "tables": 2,
+  "chars": 1079,
+  "terms": [
+   "SGD7S"
+  ]
+ },
+ {
+  "page": 122,
+  "tables": 1,
+  "chars": 958,
+  "terms": [
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 123,
+  "tables": 4,
+  "chars": 1401,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 124,
+  "tables": 2,
+  "chars": 1127,
+  "terms": []
+ },
+ {
+  "page": 125,
+  "tables": 1,
+  "chars": 1098,
+  "terms": []
+ },
+ {
+  "page": 126,
+  "tables": 2,
+  "chars": 959,
+  "terms": []
+ },
+ {
+  "page": 127,
+  "tables": 3,
+  "chars": 823,
+  "terms": []
+ },
+ {
+  "page": 128,
+  "tables": 3,
+  "chars": 797,
+  "terms": []
+ },
+ {
+  "page": 129,
+  "tables": 3,
+  "chars": 856,
+  "terms": []
+ },
+ {
+  "page": 130,
+  "tables": 3,
+  "chars": 795,
+  "terms": []
+ },
+ {
+  "page": 131,
+  "tables": 4,
+  "chars": 1197,
+  "terms": []
+ },
+ {
+  "page": 132,
+  "tables": 2,
+  "chars": 1379,
+  "terms": []
+ },
+ {
+  "page": 133,
+  "tables": 1,
+  "chars": 2389,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 134,
+  "tables": 1,
+  "chars": 1310,
+  "terms": []
+ },
+ {
+  "page": 135,
+  "tables": 1,
+  "chars": 1570,
+  "terms": []
+ },
+ {
+  "page": 136,
+  "tables": 2,
+  "chars": 2066,
+  "terms": []
+ },
+ {
+  "page": 137,
+  "tables": 2,
+  "chars": 1823,
+  "terms": []
+ },
+ {
+  "page": 138,
+  "tables": 5,
+  "chars": 1105,
+  "terms": []
+ },
+ {
+  "page": 139,
+  "tables": 2,
+  "chars": 1736,
+  "terms": []
+ },
+ {
+  "page": 140,
+  "tables": 4,
+  "chars": 1688,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 141,
+  "tables": 4,
+  "chars": 1498,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 142,
+  "tables": 2,
+  "chars": 671,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 143,
+  "tables": 1,
+  "chars": 407,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 144,
+  "tables": 1,
+  "chars": 1290,
+  "terms": [
+   "External Dimensions",
+   "Approx. mass"
+  ]
+ },
+ {
+  "page": 145,
+  "tables": 0,
+  "chars": 603,
+  "terms": []
+ },
+ {
+  "page": 146,
+  "tables": 0,
+  "chars": 77,
+  "terms": []
+ },
+ {
+  "page": 147,
+  "tables": 8,
+  "chars": 1243,
+  "terms": [
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 148,
+  "tables": 9,
+  "chars": 2804,
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 149,
+  "tables": 2,
+  "chars": 1459,
+  "terms": []
+ },
+ {
+  "page": 150,
+  "tables": 2,
+  "chars": 2396,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 151,
+  "tables": 0,
+  "chars": 1052,
+  "terms": []
+ },
+ {
+  "page": 152,
+  "tables": 0,
+  "chars": 660,
+  "terms": []
+ },
+ {
+  "page": 153,
+  "tables": 1,
+  "chars": 1913,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 154,
+  "tables": 0,
+  "chars": 371,
+  "terms": []
+ },
+ {
+  "page": 155,
+  "tables": 1,
+  "chars": 2474,
+  "terms": []
+ },
+ {
+  "page": 156,
+  "tables": 2,
+  "chars": 2262,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 157,
+  "tables": 0,
+  "chars": 583,
+  "terms": []
+ },
+ {
+  "page": 158,
+  "tables": 2,
+  "chars": 3232,
+  "terms": [
+   "SGD7S",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 159,
+  "tables": 1,
+  "chars": 2190,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "5R5A",
+   "120A",
+   "Main Circuit",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 160,
+  "tables": 1,
+  "chars": 1047,
+  "terms": []
+ },
+ {
+  "page": 161,
+  "tables": 2,
+  "chars": 3277,
+  "terms": []
+ },
+ {
+  "page": 162,
+  "tables": 2,
+  "chars": 1907,
+  "terms": []
+ },
+ {
+  "page": 163,
+  "tables": 3,
+  "chars": 2117,
+  "terms": []
+ },
+ {
+  "page": 164,
+  "tables": 0,
+  "chars": 785,
+  "terms": []
+ },
+ {
+  "page": 165,
+  "tables": 0,
+  "chars": 482,
+  "terms": []
+ },
+ {
+  "page": 166,
+  "tables": 0,
+  "chars": 703,
+  "terms": []
+ },
+ {
+  "page": 167,
+  "tables": 3,
+  "chars": 2542,
+  "terms": []
+ },
+ {
+  "page": 168,
+  "tables": 2,
+  "chars": 1708,
+  "terms": []
+ },
+ {
+  "page": 169,
+  "tables": 1,
+  "chars": 1090,
+  "terms": []
+ },
+ {
+  "page": 170,
+  "tables": 1,
+  "chars": 2848,
+  "terms": [
+   "Main Circuit",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 171,
+  "tables": 0,
+  "chars": 1826,
+  "terms": []
+ },
+ {
+  "page": 172,
+  "tables": 1,
+  "chars": 955,
+  "terms": []
+ },
+ {
+  "page": 173,
+  "tables": 2,
+  "chars": 2504,
+  "terms": []
+ },
+ {
+  "page": 174,
+  "tables": 2,
+  "chars": 2168,
+  "terms": []
+ },
+ {
+  "page": 175,
+  "tables": 2,
+  "chars": 1578,
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 176,
+  "tables": 1,
+  "chars": 2731,
+  "terms": []
+ },
+ {
+  "page": 177,
+  "tables": 3,
+  "chars": 1464,
+  "terms": []
+ },
+ {
+  "page": 178,
+  "tables": 1,
+  "chars": 2384,
+  "terms": []
+ },
+ {
+  "page": 179,
+  "tables": 3,
+  "chars": 2146,
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 180,
+  "tables": 2,
+  "chars": 2055,
+  "terms": []
+ },
+ {
+  "page": 181,
+  "tables": 2,
+  "chars": 2498,
+  "terms": []
+ },
+ {
+  "page": 182,
+  "tables": 3,
+  "chars": 2002,
+  "terms": []
+ },
+ {
+  "page": 183,
+  "tables": 1,
+  "chars": 755,
+  "terms": []
+ },
+ {
+  "page": 184,
+  "tables": 3,
+  "chars": 2671,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 185,
+  "tables": 1,
+  "chars": 2471,
+  "terms": []
+ },
+ {
+  "page": 186,
+  "tables": 1,
+  "chars": 1581,
+  "terms": []
+ },
+ {
+  "page": 187,
+  "tables": 1,
+  "chars": 1681,
+  "terms": [
+   "Ratings",
+   "Safety"
+  ]
+ },
+ {
+  "page": 188,
+  "tables": 1,
+  "chars": 1540,
+  "terms": []
+ },
+ {
+  "page": 189,
+  "tables": 1,
+  "chars": 2494,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 190,
+  "tables": 0,
+  "chars": 2524,
+  "terms": []
+ },
+ {
+  "page": 191,
+  "tables": 5,
+  "chars": 1943,
+  "terms": []
+ },
+ {
+  "page": 192,
+  "tables": 1,
+  "chars": 1206,
+  "terms": []
+ },
+ {
+  "page": 193,
+  "tables": 1,
+  "chars": 1680,
+  "terms": []
+ },
+ {
+  "page": 194,
+  "tables": 1,
+  "chars": 1884,
+  "terms": []
+ },
+ {
+  "page": 195,
+  "tables": 3,
+  "chars": 2300,
+  "terms": []
+ },
+ {
+  "page": 196,
+  "tables": 1,
+  "chars": 1359,
+  "terms": []
+ },
+ {
+  "page": 197,
+  "tables": 3,
+  "chars": 2355,
+  "terms": []
+ },
+ {
+  "page": 198,
+  "tables": 2,
+  "chars": 2746,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 199,
+  "tables": 0,
+  "chars": 811,
+  "terms": []
+ },
+ {
+  "page": 200,
+  "tables": 0,
+  "chars": 721,
+  "terms": []
+ },
+ {
+  "page": 201,
+  "tables": 1,
+  "chars": 2015,
+  "terms": []
+ },
+ {
+  "page": 202,
+  "tables": 1,
+  "chars": 973,
+  "terms": []
+ },
+ {
+  "page": 203,
+  "tables": 0,
+  "chars": 688,
+  "terms": []
+ },
+ {
+  "page": 204,
+  "tables": 2,
+  "chars": 2503,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 205,
+  "tables": 7,
+  "chars": 1609,
+  "terms": []
+ },
+ {
+  "page": 206,
+  "tables": 7,
+  "chars": 2861,
+  "terms": []
+ },
+ {
+  "page": 207,
+  "tables": 2,
+  "chars": 2475,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 208,
+  "tables": 1,
+  "chars": 2176,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 209,
+  "tables": 3,
+  "chars": 2340,
+  "terms": []
+ },
+ {
+  "page": 210,
+  "tables": 3,
+  "chars": 2342,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 211,
+  "tables": 4,
+  "chars": 3090,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 212,
+  "tables": 4,
+  "chars": 1266,
+  "terms": []
+ },
+ {
+  "page": 213,
+  "tables": 2,
+  "chars": 2017,
+  "terms": []
+ },
+ {
+  "page": 214,
+  "tables": 2,
+  "chars": 2117,
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 215,
+  "tables": 3,
+  "chars": 2240,
+  "terms": []
+ },
+ {
+  "page": 216,
+  "tables": 3,
+  "chars": 1508,
+  "terms": []
+ },
+ {
+  "page": 217,
+  "tables": 2,
+  "chars": 2204,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 218,
+  "tables": 1,
+  "chars": 2146,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 219,
+  "tables": 1,
+  "chars": 2514,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 220,
+  "tables": 2,
+  "chars": 1671,
+  "terms": []
+ },
+ {
+  "page": 221,
+  "tables": 5,
+  "chars": 1896,
+  "terms": []
+ },
+ {
+  "page": 222,
+  "tables": 2,
+  "chars": 2190,
+  "terms": []
+ },
+ {
+  "page": 223,
+  "tables": 2,
+  "chars": 2454,
+  "terms": []
+ },
+ {
+  "page": 224,
+  "tables": 4,
+  "chars": 1794,
+  "terms": []
+ },
+ {
+  "page": 225,
+  "tables": 2,
+  "chars": 1786,
+  "terms": []
+ },
+ {
+  "page": 226,
+  "tables": 2,
+  "chars": 2538,
+  "terms": []
+ },
+ {
+  "page": 227,
+  "tables": 1,
+  "chars": 2750,
+  "terms": []
+ },
+ {
+  "page": 228,
+  "tables": 0,
+  "chars": 373,
+  "terms": []
+ },
+ {
+  "page": 229,
+  "tables": 4,
+  "chars": 1898,
+  "terms": []
+ },
+ {
+  "page": 230,
+  "tables": 4,
+  "chars": 2350,
+  "terms": []
+ },
+ {
+  "page": 231,
+  "tables": 2,
+  "chars": 2151,
+  "terms": []
+ },
+ {
+  "page": 232,
+  "tables": 3,
+  "chars": 834,
+  "terms": []
+ },
+ {
+  "page": 233,
+  "tables": 1,
+  "chars": 692,
+  "terms": []
+ },
+ {
+  "page": 234,
+  "tables": 5,
+  "chars": 2562,
+  "terms": []
+ },
+ {
+  "page": 235,
+  "tables": 3,
+  "chars": 2589,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 236,
+  "tables": 5,
+  "chars": 2229,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 237,
+  "tables": 2,
+  "chars": 1014,
+  "terms": []
+ },
+ {
+  "page": 238,
+  "tables": 2,
+  "chars": 2009,
+  "terms": []
+ },
+ {
+  "page": 239,
+  "tables": 2,
+  "chars": 2390,
+  "terms": []
+ },
+ {
+  "page": 240,
+  "tables": 3,
+  "chars": 1539,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 241,
+  "tables": 0,
+  "chars": 606,
+  "terms": []
+ },
+ {
+  "page": 242,
+  "tables": 0,
+  "chars": 595,
+  "terms": []
+ },
+ {
+  "page": 243,
+  "tables": 3,
+  "chars": 2069,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 244,
+  "tables": 3,
+  "chars": 1936,
+  "terms": []
+ },
+ {
+  "page": 245,
+  "tables": 5,
+  "chars": 1688,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 246,
+  "tables": 4,
+  "chars": 2487,
+  "terms": []
+ },
+ {
+  "page": 247,
+  "tables": 1,
+  "chars": 1547,
+  "terms": []
+ },
+ {
+  "page": 248,
+  "tables": 0,
+  "chars": 742,
+  "terms": []
+ },
+ {
+  "page": 249,
+  "tables": 3,
+  "chars": 2904,
+  "terms": []
+ },
+ {
+  "page": 250,
+  "tables": 0,
+  "chars": 728,
+  "terms": []
+ },
+ {
+  "page": 251,
+  "tables": 1,
+  "chars": 1090,
+  "terms": []
+ },
+ {
+  "page": 252,
+  "tables": 1,
+  "chars": 1787,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 253,
+  "tables": 0,
+  "chars": 459,
+  "terms": []
+ },
+ {
+  "page": 254,
+  "tables": 1,
+  "chars": 1849,
+  "terms": []
+ },
+ {
+  "page": 255,
+  "tables": 0,
+  "chars": 1005,
+  "terms": []
+ },
+ {
+  "page": 256,
+  "tables": 3,
+  "chars": 2505,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 257,
+  "tables": 2,
+  "chars": 1593,
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 258,
+  "tables": 0,
+  "chars": 918,
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 259,
+  "tables": 2,
+  "chars": 1636,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 260,
+  "tables": 2,
+  "chars": 1522,
+  "terms": []
+ },
+ {
+  "page": 261,
+  "tables": 1,
+  "chars": 2139,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 262,
+  "tables": 0,
+  "chars": 67,
+  "terms": []
+ },
+ {
+  "page": 263,
+  "tables": 6,
+  "chars": 1375,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 264,
+  "tables": 1,
+  "chars": 968,
+  "terms": []
+ },
+ {
+  "page": 265,
+  "tables": 1,
+  "chars": 992,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 266,
+  "tables": 2,
+  "chars": 1658,
+  "terms": []
+ },
+ {
+  "page": 267,
+  "tables": 1,
+  "chars": 694,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 268,
+  "tables": 2,
+  "chars": 1281,
+  "terms": []
+ },
+ {
+  "page": 269,
+  "tables": 3,
+  "chars": 2227,
+  "terms": [
+   "Main Circuit",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 270,
+  "tables": 2,
+  "chars": 1188,
+  "terms": []
+ },
+ {
+  "page": 271,
+  "tables": 0,
+  "chars": 568,
+  "terms": []
+ },
+ {
+  "page": 272,
+  "tables": 1,
+  "chars": 2620,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 273,
+  "tables": 1,
+  "chars": 2699,
+  "terms": [
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 274,
+  "tables": 0,
+  "chars": 2094,
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 275,
+  "tables": 0,
+  "chars": 1459,
+  "terms": [
+   "Main Circuit",
+   "HWBB",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 276,
+  "tables": 3,
+  "chars": 2626,
+  "terms": []
+ },
+ {
+  "page": 277,
+  "tables": 2,
+  "chars": 1496,
+  "terms": []
+ },
+ {
+  "page": 278,
+  "tables": 2,
+  "chars": 2514,
+  "terms": []
+ },
+ {
+  "page": 279,
+  "tables": 2,
+  "chars": 1545,
+  "terms": []
+ },
+ {
+  "page": 280,
+  "tables": 0,
+  "chars": 526,
+  "terms": []
+ },
+ {
+  "page": 281,
+  "tables": 1,
+  "chars": 672,
+  "terms": []
+ },
+ {
+  "page": 282,
+  "tables": 5,
+  "chars": 1904,
+  "terms": [
+   "Main Circuit",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 283,
+  "tables": 0,
+  "chars": 434,
+  "terms": []
+ },
+ {
+  "page": 284,
+  "tables": 3,
+  "chars": 2562,
+  "terms": []
+ },
+ {
+  "page": 285,
+  "tables": 4,
+  "chars": 2103,
+  "terms": []
+ },
+ {
+  "page": 286,
+  "tables": 1,
+  "chars": 2119,
+  "terms": []
+ },
+ {
+  "page": 287,
+  "tables": 1,
+  "chars": 942,
+  "terms": []
+ },
+ {
+  "page": 288,
+  "tables": 0,
+  "chars": 85,
+  "terms": []
+ },
+ {
+  "page": 289,
+  "tables": 5,
+  "chars": 1751,
+  "terms": []
+ },
+ {
+  "page": 290,
+  "tables": 6,
+  "chars": 3123,
+  "terms": []
+ },
+ {
+  "page": 291,
+  "tables": 3,
+  "chars": 1047,
+  "terms": []
+ },
+ {
+  "page": 292,
+  "tables": 0,
+  "chars": 1678,
+  "terms": []
+ },
+ {
+  "page": 293,
+  "tables": 1,
+  "chars": 2770,
+  "terms": []
+ },
+ {
+  "page": 294,
+  "tables": 1,
+  "chars": 672,
+  "terms": []
+ },
+ {
+  "page": 295,
+  "tables": 5,
+  "chars": 849,
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 296,
+  "tables": 1,
+  "chars": 2284,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 297,
+  "tables": 3,
+  "chars": 2827,
+  "terms": []
+ },
+ {
+  "page": 298,
+  "tables": 4,
+  "chars": 2541,
+  "terms": []
+ },
+ {
+  "page": 299,
+  "tables": 1,
+  "chars": 365,
+  "terms": []
+ },
+ {
+  "page": 300,
+  "tables": 2,
+  "chars": 1947,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 301,
+  "tables": 2,
+  "chars": 1896,
+  "terms": []
+ },
+ {
+  "page": 302,
+  "tables": 3,
+  "chars": 1924,
+  "terms": []
+ },
+ {
+  "page": 303,
+  "tables": 3,
+  "chars": 2509,
+  "terms": []
+ },
+ {
+  "page": 304,
+  "tables": 0,
+  "chars": 2316,
+  "terms": []
+ },
+ {
+  "page": 305,
+  "tables": 3,
+  "chars": 2263,
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 306,
+  "tables": 1,
+  "chars": 178,
+  "terms": []
+ },
+ {
+  "page": 307,
+  "tables": 1,
+  "chars": 2940,
+  "terms": []
+ },
+ {
+  "page": 308,
+  "tables": 2,
+  "chars": 1313,
+  "terms": []
+ },
+ {
+  "page": 309,
+  "tables": 0,
+  "chars": 1157,
+  "terms": []
+ },
+ {
+  "page": 310,
+  "tables": 0,
+  "chars": 1197,
+  "terms": []
+ },
+ {
+  "page": 311,
+  "tables": 1,
+  "chars": 2908,
+  "terms": []
+ },
+ {
+  "page": 312,
+  "tables": 1,
+  "chars": 2276,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 313,
+  "tables": 2,
+  "chars": 2238,
+  "terms": [
+   "Main Circuit",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 314,
+  "tables": 0,
+  "chars": 377,
+  "terms": []
+ },
+ {
+  "page": 315,
+  "tables": 2,
+  "chars": 2821,
+  "terms": []
+ },
+ {
+  "page": 316,
+  "tables": 0,
+  "chars": 132,
+  "terms": []
+ },
+ {
+  "page": 317,
+  "tables": 1,
+  "chars": 1679,
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 318,
+  "tables": 3,
+  "chars": 2836,
+  "terms": []
+ },
+ {
+  "page": 319,
+  "tables": 2,
+  "chars": 2956,
+  "terms": []
+ },
+ {
+  "page": 320,
+  "tables": 4,
+  "chars": 2762,
+  "terms": []
+ },
+ {
+  "page": 321,
+  "tables": 1,
+  "chars": 2183,
+  "terms": []
+ },
+ {
+  "page": 322,
+  "tables": 1,
+  "chars": 1287,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 323,
+  "tables": 1,
+  "chars": 2108,
+  "terms": []
+ },
+ {
+  "page": 324,
+  "tables": 0,
+  "chars": 761,
+  "terms": []
+ },
+ {
+  "page": 325,
+  "tables": 2,
+  "chars": 2039,
+  "terms": []
+ },
+ {
+  "page": 326,
+  "tables": 0,
+  "chars": 593,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 327,
+  "tables": 3,
+  "chars": 2733,
+  "terms": [
+   "Main Circuit",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 328,
+  "tables": 1,
+  "chars": 1814,
+  "terms": []
+ },
+ {
+  "page": 329,
+  "tables": 1,
+  "chars": 2227,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 330,
+  "tables": 2,
+  "chars": 1488,
+  "terms": []
+ },
+ {
+  "page": 331,
+  "tables": 0,
+  "chars": 310,
+  "terms": []
+ },
+ {
+  "page": 332,
+  "tables": 2,
+  "chars": 2080,
+  "terms": []
+ },
+ {
+  "page": 333,
+  "tables": 0,
+  "chars": 1077,
+  "terms": []
+ },
+ {
+  "page": 334,
+  "tables": 2,
+  "chars": 1322,
+  "terms": []
+ },
+ {
+  "page": 335,
+  "tables": 0,
+  "chars": 1519,
+  "terms": []
+ },
+ {
+  "page": 336,
+  "tables": 1,
+  "chars": 1353,
+  "terms": []
+ },
+ {
+  "page": 337,
+  "tables": 1,
+  "chars": 1764,
+  "terms": []
+ },
+ {
+  "page": 338,
+  "tables": 1,
+  "chars": 2775,
+  "terms": []
+ },
+ {
+  "page": 339,
+  "tables": 2,
+  "chars": 2274,
+  "terms": []
+ },
+ {
+  "page": 340,
+  "tables": 0,
+  "chars": 1047,
+  "terms": []
+ },
+ {
+  "page": 341,
+  "tables": 1,
+  "chars": 1723,
+  "terms": []
+ },
+ {
+  "page": 342,
+  "tables": 3,
+  "chars": 2610,
+  "terms": []
+ },
+ {
+  "page": 343,
+  "tables": 2,
+  "chars": 3338,
+  "terms": []
+ },
+ {
+  "page": 344,
+  "tables": 1,
+  "chars": 952,
+  "terms": []
+ },
+ {
+  "page": 345,
+  "tables": 0,
+  "chars": 1204,
+  "terms": []
+ },
+ {
+  "page": 346,
+  "tables": 2,
+  "chars": 2618,
+  "terms": []
+ },
+ {
+  "page": 347,
+  "tables": 1,
+  "chars": 1601,
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 348,
+  "tables": 1,
+  "chars": 914,
+  "terms": []
+ },
+ {
+  "page": 349,
+  "tables": 0,
+  "chars": 219,
+  "terms": []
+ },
+ {
+  "page": 350,
+  "tables": 0,
+  "chars": 914,
+  "terms": []
+ },
+ {
+  "page": 351,
+  "tables": 4,
+  "chars": 1875,
+  "terms": []
+ },
+ {
+  "page": 352,
+  "tables": 2,
+  "chars": 884,
+  "terms": []
+ },
+ {
+  "page": 353,
+  "tables": 4,
+  "chars": 2638,
+  "terms": []
+ },
+ {
+  "page": 354,
+  "tables": 2,
+  "chars": 1884,
+  "terms": []
+ },
+ {
+  "page": 355,
+  "tables": 2,
+  "chars": 2529,
+  "terms": []
+ },
+ {
+  "page": 356,
+  "tables": 4,
+  "chars": 2179,
+  "terms": []
+ },
+ {
+  "page": 357,
+  "tables": 2,
+  "chars": 1840,
+  "terms": []
+ },
+ {
+  "page": 358,
+  "tables": 5,
+  "chars": 1882,
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 359,
+  "tables": 3,
+  "chars": 2027,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 360,
+  "tables": 3,
+  "chars": 2103,
+  "terms": []
+ },
+ {
+  "page": 361,
+  "tables": 2,
+  "chars": 2290,
+  "terms": []
+ },
+ {
+  "page": 362,
+  "tables": 3,
+  "chars": 2169,
+  "terms": []
+ },
+ {
+  "page": 363,
+  "tables": 5,
+  "chars": 2098,
+  "terms": []
+ },
+ {
+  "page": 364,
+  "tables": 4,
+  "chars": 2815,
+  "terms": []
+ },
+ {
+  "page": 365,
+  "tables": 0,
+  "chars": 1472,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 366,
+  "tables": 0,
+  "chars": 2280,
+  "terms": []
+ },
+ {
+  "page": 367,
+  "tables": 1,
+  "chars": 2837,
+  "terms": []
+ },
+ {
+  "page": 368,
+  "tables": 5,
+  "chars": 2671,
+  "terms": []
+ },
+ {
+  "page": 369,
+  "tables": 8,
+  "chars": 3014,
+  "terms": []
+ },
+ {
+  "page": 370,
+  "tables": 1,
+  "chars": 1953,
+  "terms": []
+ },
+ {
+  "page": 371,
+  "tables": 1,
+  "chars": 2763,
+  "terms": []
+ },
+ {
+  "page": 372,
+  "tables": 0,
+  "chars": 3129,
+  "terms": []
+ },
+ {
+  "page": 373,
+  "tables": 0,
+  "chars": 3123,
+  "terms": [
+   "SGD7S"
+  ]
+ },
+ {
+  "page": 374,
+  "tables": 2,
+  "chars": 3013,
+  "terms": []
+ },
+ {
+  "page": 375,
+  "tables": 4,
+  "chars": 2574,
+  "terms": []
+ },
+ {
+  "page": 376,
+  "tables": 3,
+  "chars": 2194,
+  "terms": []
+ },
+ {
+  "page": 377,
+  "tables": 4,
+  "chars": 1970,
+  "terms": []
+ },
+ {
+  "page": 378,
+  "tables": 4,
+  "chars": 1805,
+  "terms": []
+ },
+ {
+  "page": 379,
+  "tables": 4,
+  "chars": 1410,
+  "terms": []
+ },
+ {
+  "page": 380,
+  "tables": 2,
+  "chars": 1386,
+  "terms": []
+ },
+ {
+  "page": 381,
+  "tables": 0,
+  "chars": 1294,
+  "terms": []
+ },
+ {
+  "page": 382,
+  "tables": 3,
+  "chars": 1930,
+  "terms": [
+   "Main Circuit",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 383,
+  "tables": 0,
+  "chars": 421,
+  "terms": []
+ },
+ {
+  "page": 384,
+  "tables": 0,
+  "chars": 431,
+  "terms": []
+ },
+ {
+  "page": 385,
+  "tables": 1,
+  "chars": 866,
+  "terms": []
+ },
+ {
+  "page": 386,
+  "tables": 0,
+  "chars": 42,
+  "terms": []
+ },
+ {
+  "page": 387,
+  "tables": 5,
+  "chars": 1332,
+  "terms": []
+ },
+ {
+  "page": 388,
+  "tables": 1,
+  "chars": 1203,
+  "terms": []
+ },
+ {
+  "page": 389,
+  "tables": 0,
+  "chars": 1830,
+  "terms": []
+ },
+ {
+  "page": 390,
+  "tables": 1,
+  "chars": 2291,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 391,
+  "tables": 0,
+  "chars": 520,
+  "terms": []
+ },
+ {
+  "page": 392,
+  "tables": 0,
+  "chars": 714,
+  "terms": []
+ },
+ {
+  "page": 393,
+  "tables": 5,
+  "chars": 1831,
+  "terms": []
+ },
+ {
+  "page": 394,
+  "tables": 0,
+  "chars": 1007,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 395,
+  "tables": 1,
+  "chars": 1556,
+  "terms": [
+   "Main Circuit",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 396,
+  "tables": 2,
+  "chars": 2322,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 397,
+  "tables": 3,
+  "chars": 2759,
+  "terms": []
+ },
+ {
+  "page": 398,
+  "tables": 4,
+  "chars": 1952,
+  "terms": []
+ },
+ {
+  "page": 399,
+  "tables": 1,
+  "chars": 984,
+  "terms": []
+ },
+ {
+  "page": 400,
+  "tables": 1,
+  "chars": 2324,
+  "terms": [
+   "Ratings",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 401,
+  "tables": 0,
+  "chars": 667,
+  "terms": []
+ },
+ {
+  "page": 402,
+  "tables": 2,
+  "chars": 2186,
+  "terms": []
+ },
+ {
+  "page": 403,
+  "tables": 1,
+  "chars": 1501,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 404,
+  "tables": 0,
+  "chars": 45,
+  "terms": []
+ },
+ {
+  "page": 405,
+  "tables": 4,
+  "chars": 1409,
+  "terms": []
+ },
+ {
+  "page": 406,
+  "tables": 0,
+  "chars": 1205,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 407,
+  "tables": 1,
+  "chars": 3396,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 408,
+  "tables": 1,
+  "chars": 860,
+  "terms": []
+ },
+ {
+  "page": 409,
+  "tables": 3,
+  "chars": 1900,
+  "terms": []
+ },
+ {
+  "page": 410,
+  "tables": 2,
+  "chars": 2370,
+  "terms": []
+ },
+ {
+  "page": 411,
+  "tables": 1,
+  "chars": 2272,
+  "terms": []
+ },
+ {
+  "page": 412,
+  "tables": 2,
+  "chars": 2359,
+  "terms": []
+ },
+ {
+  "page": 413,
+  "tables": 3,
+  "chars": 1891,
+  "terms": []
+ },
+ {
+  "page": 414,
+  "tables": 1,
+  "chars": 1330,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 415,
+  "tables": 3,
+  "chars": 1611,
+  "terms": []
+ },
+ {
+  "page": 416,
+  "tables": 0,
+  "chars": 63,
+  "terms": []
+ },
+ {
+  "page": 417,
+  "tables": 6,
+  "chars": 1622,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 418,
+  "tables": 1,
+  "chars": 321,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 419,
+  "tables": 1,
+  "chars": 2257,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 420,
+  "tables": 1,
+  "chars": 1568,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 421,
+  "tables": 4,
+  "chars": 2206,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 422,
+  "tables": 0,
+  "chars": 1633,
+  "terms": [
+   "Ratings",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 423,
+  "tables": 0,
+  "chars": 1560,
+  "terms": [
+   "Ratings",
+   "Main Circuit",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 424,
+  "tables": 2,
+  "chars": 1727,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 425,
+  "tables": 1,
+  "chars": 1576,
+  "terms": [
+   "Ratings",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 426,
+  "tables": 1,
+  "chars": 1516,
+  "terms": [
+   "Main Circuit",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 427,
+  "tables": 1,
+  "chars": 1101,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 428,
+  "tables": 2,
+  "chars": 1695,
+  "terms": [
+   "Safety",
+   "HWBB",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 429,
+  "tables": 5,
+  "chars": 1474,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 430,
+  "tables": 7,
+  "chars": 556,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 431,
+  "tables": 0,
+  "chars": 1027,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 432,
+  "tables": 1,
+  "chars": 823,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 433,
+  "tables": 1,
+  "chars": 1860,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 434,
+  "tables": 3,
+  "chars": 1426,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 435,
+  "tables": 2,
+  "chars": 1914,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 436,
+  "tables": 3,
+  "chars": 1271,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 437,
+  "tables": 1,
+  "chars": 3044,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 438,
+  "tables": 0,
+  "chars": 69,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 439,
+  "tables": 6,
+  "chars": 777,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 440,
+  "tables": 1,
+  "chars": 415,
+  "terms": [
+   "SGD7S",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 441,
+  "tables": 1,
+  "chars": 1796,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 442,
+  "tables": 2,
+  "chars": 755,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 443,
+  "tables": 0,
+  "chars": 1763,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 444,
+  "tables": 5,
+  "chars": 1457,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 445,
+  "tables": 8,
+  "chars": 1940,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 446,
+  "tables": 3,
+  "chars": 1385,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 447,
+  "tables": 3,
+  "chars": 1171,
+  "terms": []
+ },
+ {
+  "page": 448,
+  "tables": 8,
+  "chars": 1007,
+  "terms": []
+ },
+ {
+  "page": 449,
+  "tables": 1,
+  "chars": 709,
+  "terms": []
+ },
+ {
+  "page": 450,
+  "tables": 0,
+  "chars": 29,
+  "terms": []
+ },
+ {
+  "page": 451,
+  "tables": 7,
+  "chars": 1469,
+  "terms": []
+ },
+ {
+  "page": 452,
+  "tables": 3,
+  "chars": 373,
+  "terms": []
+ },
+ {
+  "page": 453,
+  "tables": 8,
+  "chars": 2725,
+  "terms": [
+   "Main Circuit",
+   "HWBB",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 454,
+  "tables": 3,
+  "chars": 1144,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 455,
+  "tables": 2,
+  "chars": 1954,
+  "terms": []
+ },
+ {
+  "page": 456,
+  "tables": 7,
+  "chars": 2446,
+  "terms": []
+ },
+ {
+  "page": 457,
+  "tables": 2,
+  "chars": 1137,
+  "terms": []
+ },
+ {
+  "page": 458,
+  "tables": 1,
+  "chars": 1050,
+  "terms": []
+ },
+ {
+  "page": 459,
+  "tables": 5,
+  "chars": 2600,
+  "terms": []
+ },
+ {
+  "page": 460,
+  "tables": 10,
+  "chars": 2629,
+  "terms": []
+ },
+ {
+  "page": 461,
+  "tables": 5,
+  "chars": 1570,
+  "terms": []
+ },
+ {
+  "page": 462,
+  "tables": 6,
+  "chars": 2725,
+  "terms": []
+ },
+ {
+  "page": 463,
+  "tables": 2,
+  "chars": 344,
+  "terms": []
+ },
+ {
+  "page": 464,
+  "tables": 4,
+  "chars": 1420,
+  "terms": []
+ },
+ {
+  "page": 465,
+  "tables": 4,
+  "chars": 1414,
+  "terms": []
+ },
+ {
+  "page": 466,
+  "tables": 7,
+  "chars": 1020,
+  "terms": []
+ },
+ {
+  "page": 467,
+  "tables": 4,
+  "chars": 1807,
+  "terms": []
+ },
+ {
+  "page": 468,
+  "tables": 7,
+  "chars": 1888,
+  "terms": []
+ },
+ {
+  "page": 469,
+  "tables": 2,
+  "chars": 1272,
+  "terms": []
+ },
+ {
+  "page": 470,
+  "tables": 2,
+  "chars": 1180,
+  "terms": []
+ },
+ {
+  "page": 471,
+  "tables": 1,
+  "chars": 706,
+  "terms": []
+ },
+ {
+  "page": 472,
+  "tables": 2,
+  "chars": 342,
+  "terms": []
+ },
+ {
+  "page": 473,
+  "tables": 1,
+  "chars": 1473,
+  "terms": []
+ },
+ {
+  "page": 474,
+  "tables": 0,
+  "chars": 640,
+  "terms": []
+ },
+ {
+  "page": 475,
+  "tables": 8,
+  "chars": 1563,
+  "terms": []
+ },
+ {
+  "page": 476,
+  "tables": 0,
+  "chars": 37,
+  "terms": []
+ },
+ {
+  "page": 477,
+  "tables": 13,
+  "chars": 935,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 478,
+  "tables": 4,
+  "chars": 247,
+  "terms": []
+ },
+ {
+  "page": 479,
+  "tables": 1,
+  "chars": 1774,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 480,
+  "tables": 1,
+  "chars": 2021,
+  "terms": []
+ },
+ {
+  "page": 481,
+  "tables": 6,
+  "chars": 1330,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 482,
+  "tables": 3,
+  "chars": 1952,
+  "terms": []
+ },
+ {
+  "page": 483,
+  "tables": 3,
+  "chars": 2140,
+  "terms": []
+ },
+ {
+  "page": 484,
+  "tables": 2,
+  "chars": 770,
+  "terms": [
+   "Ratings",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 485,
+  "tables": 2,
+  "chars": 1690,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 486,
+  "tables": 3,
+  "chars": 1245,
+  "terms": []
+ },
+ {
+  "page": 487,
+  "tables": 2,
+  "chars": 1246,
+  "terms": []
+ },
+ {
+  "page": 488,
+  "tables": 2,
+  "chars": 914,
+  "terms": []
+ },
+ {
+  "page": 489,
+  "tables": 2,
+  "chars": 1584,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 490,
+  "tables": 1,
+  "chars": 940,
+  "terms": []
+ },
+ {
+  "page": 491,
+  "tables": 1,
+  "chars": 956,
+  "terms": []
+ },
+ {
+  "page": 492,
+  "tables": 2,
+  "chars": 2664,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 493,
+  "tables": 2,
+  "chars": 1792,
+  "terms": []
+ },
+ {
+  "page": 494,
+  "tables": 4,
+  "chars": 2080,
+  "terms": []
+ },
+ {
+  "page": 495,
+  "tables": 3,
+  "chars": 1609,
+  "terms": []
+ },
+ {
+  "page": 496,
+  "tables": 1,
+  "chars": 2344,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 497,
+  "tables": 2,
+  "chars": 1765,
+  "terms": [
+   "Ratings",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 498,
+  "tables": 4,
+  "chars": 1428,
+  "terms": []
+ },
+ {
+  "page": 499,
+  "tables": 5,
+  "chars": 1785,
+  "terms": []
+ },
+ {
+  "page": 500,
+  "tables": 4,
+  "chars": 1636,
+  "terms": [
+   "Ratings",
+   "Safety"
+  ]
+ },
+ {
+  "page": 501,
+  "tables": 3,
+  "chars": 2246,
+  "terms": []
+ },
+ {
+  "page": 502,
+  "tables": 5,
+  "chars": 2422,
+  "terms": []
+ },
+ {
+  "page": 503,
+  "tables": 6,
+  "chars": 2731,
+  "terms": []
+ },
+ {
+  "page": 504,
+  "tables": 5,
+  "chars": 1351,
+  "terms": []
+ },
+ {
+  "page": 505,
+  "tables": 2,
+  "chars": 747,
+  "terms": []
+ },
+ {
+  "page": 506,
+  "tables": 3,
+  "chars": 2064,
+  "terms": []
+ },
+ {
+  "page": 507,
+  "tables": 4,
+  "chars": 1247,
+  "terms": []
+ },
+ {
+  "page": 508,
+  "tables": 3,
+  "chars": 1456,
+  "terms": []
+ },
+ {
+  "page": 509,
+  "tables": 2,
+  "chars": 810,
+  "terms": []
+ },
+ {
+  "page": 510,
+  "tables": 6,
+  "chars": 2107,
+  "terms": []
+ },
+ {
+  "page": 511,
+  "tables": 3,
+  "chars": 1337,
+  "terms": []
+ },
+ {
+  "page": 512,
+  "tables": 4,
+  "chars": 2458,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 513,
+  "tables": 5,
+  "chars": 2114,
+  "terms": []
+ },
+ {
+  "page": 514,
+  "tables": 4,
+  "chars": 1861,
+  "terms": []
+ },
+ {
+  "page": 515,
+  "tables": 5,
+  "chars": 2074,
+  "terms": []
+ },
+ {
+  "page": 516,
+  "tables": 3,
+  "chars": 2121,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 517,
+  "tables": 2,
+  "chars": 897,
+  "terms": []
+ },
+ {
+  "page": 518,
+  "tables": 5,
+  "chars": 1925,
+  "terms": []
+ },
+ {
+  "page": 519,
+  "tables": 5,
+  "chars": 1612,
+  "terms": []
+ },
+ {
+  "page": 520,
+  "tables": 3,
+  "chars": 1036,
+  "terms": []
+ },
+ {
+  "page": 521,
+  "tables": 3,
+  "chars": 1795,
+  "terms": []
+ },
+ {
+  "page": 522,
+  "tables": 3,
+  "chars": 1469,
+  "terms": []
+ },
+ {
+  "page": 523,
+  "tables": 2,
+  "chars": 903,
+  "terms": [
+   "HWBB"
+  ]
+ },
+ {
+  "page": 524,
+  "tables": 3,
+  "chars": 1385,
+  "terms": []
+ },
+ {
+  "page": 525,
+  "tables": 1,
+  "chars": 360,
+  "terms": []
+ },
+ {
+  "page": 526,
+  "tables": 0,
+  "chars": 33,
+  "terms": []
+ },
+ {
+  "page": 527,
+  "tables": 4,
+  "chars": 1432,
+  "terms": []
+ },
+ {
+  "page": 528,
+  "tables": 2,
+  "chars": 1995,
+  "terms": []
+ },
+ {
+  "page": 529,
+  "tables": 2,
+  "chars": 2031,
+  "terms": []
+ },
+ {
+  "page": 530,
+  "tables": 0,
+  "chars": 835,
+  "terms": []
+ },
+ {
+  "page": 531,
+  "tables": 1,
+  "chars": 2071,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 532,
+  "tables": 1,
+  "chars": 3025,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 533,
+  "tables": 1,
+  "chars": 2922,
+  "terms": [
+   "Main Circuit",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 534,
+  "tables": 1,
+  "chars": 2810,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 535,
+  "tables": 1,
+  "chars": 3133,
+  "terms": [
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 536,
+  "tables": 1,
+  "chars": 2136,
+  "terms": [
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 537,
+  "tables": 1,
+  "chars": 2993,
+  "terms": []
+ },
+ {
+  "page": 538,
+  "tables": 1,
+  "chars": 2403,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 539,
+  "tables": 1,
+  "chars": 2706,
+  "terms": []
+ },
+ {
+  "page": 540,
+  "tables": 1,
+  "chars": 2513,
+  "terms": [
+   "Ratings",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 541,
+  "tables": 1,
+  "chars": 2506,
+  "terms": [
+   "Ratings",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 542,
+  "tables": 1,
+  "chars": 2048,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 543,
+  "tables": 1,
+  "chars": 1894,
+  "terms": []
+ },
+ {
+  "page": 544,
+  "tables": 1,
+  "chars": 1684,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 545,
+  "tables": 1,
+  "chars": 1664,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 546,
+  "tables": 1,
+  "chars": 2452,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 547,
+  "tables": 1,
+  "chars": 1891,
+  "terms": []
+ },
+ {
+  "page": 548,
+  "tables": 1,
+  "chars": 2894,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 549,
+  "tables": 1,
+  "chars": 2740,
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 550,
+  "tables": 1,
+  "chars": 2399,
+  "terms": []
+ },
+ {
+  "page": 551,
+  "tables": 1,
+  "chars": 2249,
+  "terms": []
+ },
+ {
+  "page": 552,
+  "tables": 1,
+  "chars": 2077,
+  "terms": []
+ },
+ {
+  "page": 553,
+  "tables": 1,
+  "chars": 2755,
+  "terms": []
+ },
+ {
+  "page": 554,
+  "tables": 1,
+  "chars": 2324,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 555,
+  "tables": 1,
+  "chars": 2328,
+  "terms": []
+ },
+ {
+  "page": 556,
+  "tables": 1,
+  "chars": 1765,
+  "terms": []
+ },
+ {
+  "page": 557,
+  "tables": 1,
+  "chars": 2531,
+  "terms": []
+ },
+ {
+  "page": 558,
+  "tables": 1,
+  "chars": 2072,
+  "terms": []
+ },
+ {
+  "page": 559,
+  "tables": 1,
+  "chars": 1872,
+  "terms": []
+ },
+ {
+  "page": 560,
+  "tables": 1,
+  "chars": 2373,
+  "terms": []
+ },
+ {
+  "page": 561,
+  "tables": 1,
+  "chars": 1356,
+  "terms": []
+ },
+ {
+  "page": 562,
+  "tables": 1,
+  "chars": 2256,
+  "terms": []
+ },
+ {
+  "page": 563,
+  "tables": 1,
+  "chars": 2763,
+  "terms": [
+   "Main Circuit",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 564,
+  "tables": 1,
+  "chars": 2472,
+  "terms": [
+   "Ratings",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 565,
+  "tables": 1,
+  "chars": 2226,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 566,
+  "tables": 1,
+  "chars": 2713,
+  "terms": [
+   "Single-phase",
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 567,
+  "tables": 1,
+  "chars": 2184,
+  "terms": []
+ },
+ {
+  "page": 568,
+  "tables": 0,
+  "chars": 1314,
+  "terms": []
+ },
+ {
+  "page": 569,
+  "tables": 1,
+  "chars": 1889,
+  "terms": [
+   "Main Circuit",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 570,
+  "tables": 1,
+  "chars": 1155,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 571,
+  "tables": 1,
+  "chars": 1474,
+  "terms": []
+ },
+ {
+  "page": 572,
+  "tables": 0,
+  "chars": 431,
+  "terms": []
+ },
+ {
+  "page": 573,
+  "tables": 1,
+  "chars": 1692,
+  "terms": []
+ },
+ {
+  "page": 574,
+  "tables": 0,
+  "chars": 230,
+  "terms": []
+ },
+ {
+  "page": 575,
+  "tables": 1,
+  "chars": 2761,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 576,
+  "tables": 4,
+  "chars": 3000,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 577,
+  "tables": 1,
+  "chars": 2179,
+  "terms": []
+ },
+ {
+  "page": 578,
+  "tables": 1,
+  "chars": 2551,
+  "terms": [
+   "Ratings"
+  ]
+ },
+ {
+  "page": 579,
+  "tables": 1,
+  "chars": 2696,
+  "terms": []
+ },
+ {
+  "page": 580,
+  "tables": 1,
+  "chars": 2453,
+  "terms": []
+ },
+ {
+  "page": 581,
+  "tables": 1,
+  "chars": 882,
+  "terms": []
+ },
+ {
+  "page": 582,
+  "tables": 1,
+  "chars": 3013,
+  "terms": [
+   "Main Circuit",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 583,
+  "tables": 1,
+  "chars": 2467,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 584,
+  "tables": 1,
+  "chars": 2318,
+  "terms": []
+ },
+ {
+  "page": 585,
+  "tables": 1,
+  "chars": 2162,
+  "terms": []
+ },
+ {
+  "page": 586,
+  "tables": 1,
+  "chars": 2671,
+  "terms": []
+ },
+ {
+  "page": 587,
+  "tables": 1,
+  "chars": 2728,
+  "terms": []
+ },
+ {
+  "page": 588,
+  "tables": 1,
+  "chars": 2319,
+  "terms": []
+ },
+ {
+  "page": 589,
+  "tables": 1,
+  "chars": 1686,
+  "terms": []
+ },
+ {
+  "page": 590,
+  "tables": 1,
+  "chars": 2628,
+  "terms": []
+ },
+ {
+  "page": 591,
+  "tables": 1,
+  "chars": 2178,
+  "terms": []
+ },
+ {
+  "page": 592,
+  "tables": 1,
+  "chars": 2572,
+  "terms": []
+ },
+ {
+  "page": 593,
+  "tables": 4,
+  "chars": 496,
+  "terms": []
+ },
+ {
+  "page": 594,
+  "tables": 5,
+  "chars": 2030,
+  "terms": []
+ },
+ {
+  "page": 595,
+  "tables": 9,
+  "chars": 2659,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 596,
+  "tables": 5,
+  "chars": 1429,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 597,
+  "tables": 4,
+  "chars": 1721,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 598,
+  "tables": 4,
+  "chars": 1691,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 599,
+  "tables": 9,
+  "chars": 1604,
+  "terms": [
+   "SGD7S",
+   "R70A",
+   "R90A",
+   "1R6A",
+   "2R8A",
+   "3R8A",
+   "5R5A",
+   "7R6A",
+   "120A"
+  ]
+ },
+ {
+  "page": 600,
+  "tables": 9,
+  "chars": 2638,
+  "terms": [
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 601,
+  "tables": 13,
+  "chars": 1675,
+  "terms": []
+ },
+ {
+  "page": 602,
+  "tables": 13,
+  "chars": 2359,
+  "terms": []
+ },
+ {
+  "page": 603,
+  "tables": 5,
+  "chars": 2701,
+  "terms": []
+ },
+ {
+  "page": 604,
+  "tables": 9,
+  "chars": 2671,
+  "terms": []
+ },
+ {
+  "page": 605,
+  "tables": 9,
+  "chars": 2717,
+  "terms": []
+ },
+ {
+  "page": 606,
+  "tables": 5,
+  "chars": 1777,
+  "terms": []
+ },
+ {
+  "page": 607,
+  "tables": 13,
+  "chars": 2386,
+  "terms": []
+ },
+ {
+  "page": 608,
+  "tables": 5,
+  "chars": 2704,
+  "terms": []
+ },
+ {
+  "page": 609,
+  "tables": 5,
+  "chars": 2623,
+  "terms": []
+ },
+ {
+  "page": 610,
+  "tables": 9,
+  "chars": 2346,
+  "terms": []
+ },
+ {
+  "page": 611,
+  "tables": 9,
+  "chars": 2848,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 612,
+  "tables": 5,
+  "chars": 3031,
+  "terms": []
+ },
+ {
+  "page": 613,
+  "tables": 5,
+  "chars": 2494,
+  "terms": []
+ },
+ {
+  "page": 614,
+  "tables": 9,
+  "chars": 2174,
+  "terms": []
+ },
+ {
+  "page": 615,
+  "tables": 13,
+  "chars": 2191,
+  "terms": []
+ },
+ {
+  "page": 616,
+  "tables": 9,
+  "chars": 2637,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 617,
+  "tables": 5,
+  "chars": 2941,
+  "terms": []
+ },
+ {
+  "page": 618,
+  "tables": 5,
+  "chars": 2315,
+  "terms": []
+ },
+ {
+  "page": 619,
+  "tables": 5,
+  "chars": 2341,
+  "terms": [
+   "Safety",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 620,
+  "tables": 1,
+  "chars": 2415,
+  "terms": []
+ },
+ {
+  "page": 621,
+  "tables": 1,
+  "chars": 2560,
+  "terms": []
+ },
+ {
+  "page": 622,
+  "tables": 1,
+  "chars": 2655,
+  "terms": []
+ },
+ {
+  "page": 623,
+  "tables": 1,
+  "chars": 2375,
+  "terms": []
+ },
+ {
+  "page": 624,
+  "tables": 1,
+  "chars": 2524,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 625,
+  "tables": 1,
+  "chars": 2311,
+  "terms": []
+ },
+ {
+  "page": 626,
+  "tables": 1,
+  "chars": 2469,
+  "terms": []
+ },
+ {
+  "page": 627,
+  "tables": 1,
+  "chars": 1554,
+  "terms": [
+   "SGD7S"
+  ]
+ },
+ {
+  "page": 628,
+  "tables": 1,
+  "chars": 1678,
+  "terms": []
+ },
+ {
+  "page": 629,
+  "tables": 1,
+  "chars": 1819,
+  "terms": []
+ },
+ {
+  "page": 630,
+  "tables": 1,
+  "chars": 1881,
+  "terms": []
+ },
+ {
+  "page": 631,
+  "tables": 1,
+  "chars": 1875,
+  "terms": []
+ },
+ {
+  "page": 632,
+  "tables": 1,
+  "chars": 1809,
+  "terms": []
+ },
+ {
+  "page": 633,
+  "tables": 1,
+  "chars": 1900,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 634,
+  "tables": 1,
+  "chars": 1865,
+  "terms": []
+ },
+ {
+  "page": 635,
+  "tables": 1,
+  "chars": 1926,
+  "terms": []
+ },
+ {
+  "page": 636,
+  "tables": 1,
+  "chars": 906,
+  "terms": []
+ },
+ {
+  "page": 637,
+  "tables": 2,
+  "chars": 874,
+  "terms": []
+ },
+ {
+  "page": 638,
+  "tables": 2,
+  "chars": 1606,
+  "terms": [
+   "HWBB"
+  ]
+ },
+ {
+  "page": 639,
+  "tables": 1,
+  "chars": 1989,
+  "terms": []
+ },
+ {
+  "page": 640,
+  "tables": 1,
+  "chars": 848,
+  "terms": []
+ },
+ {
+  "page": 641,
+  "tables": 1,
+  "chars": 2240,
+  "terms": []
+ },
+ {
+  "page": 642,
+  "tables": 1,
+  "chars": 2961,
+  "terms": [
+   "Safety"
+  ]
+ },
+ {
+  "page": 643,
+  "tables": 0,
+  "chars": 992,
+  "terms": []
+ },
+ {
+  "page": 644,
+  "tables": 0,
+  "chars": 5765,
+  "terms": [
+   "Safety",
+   "HWBB"
+  ]
+ },
+ {
+  "page": 645,
+  "tables": 0,
+  "chars": 5536,
+  "terms": [
+   "HWBB",
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 646,
+  "tables": 0,
+  "chars": 5842,
+  "terms": [
+   "Main Circuit"
+  ]
+ },
+ {
+  "page": 647,
+  "tables": 0,
+  "chars": 6145,
+  "terms": [
+   "Ratings",
+   "Single-phase",
+   "Safety"
+  ]
+ },
+ {
+  "page": 648,
+  "tables": 0,
+  "chars": 3164,
+  "terms": [
+   "EtherCAT"
+  ]
+ },
+ {
+  "page": 649,
+  "tables": 1,
+  "chars": 1917,
+  "terms": []
+ },
+ {
+  "page": 650,
+  "tables": 1,
+  "chars": 2883,
+  "terms": [
+   "SGD7S",
+   "120A",
+   "Single-phase"
+  ]
+ },
+ {
+  "page": 651,
+  "tables": 1,
+  "chars": 119,
+  "terms": []
+ },
+ {
+  "page": 652,
+  "tables": 0,
+  "chars": 2455,
+  "terms": [
+   "EtherCAT"
+  ]
+ }
+]
