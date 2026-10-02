@@ -247,7 +247,7 @@ def test_workbench_registers_from_generated_initgui(gui, tmp_path):
     runpy.run_path(str(target / "InitGui.py"))  # 与 FreeCAD 启动时执行 InitGui.py 相同
     assert "AiPartsWorkbench" in FreeCADGui.listWorkbenches()
     FreeCADGui.activateWorkbench("AiPartsWorkbench")
-    assert {"FAP_ChatPanel", "FAP_Bridge"} <= set(FreeCADGui.listCommands())
+    assert {"FAP_ChatPanel", "FAP_Bridge", "FAP_Record"} <= set(FreeCADGui.listCommands())
 
 
 @pytest.mark.freecad
@@ -296,6 +296,46 @@ def test_panel_conversation_lays_out_in_freecad(gui):
         assert re.findall(r'<img src="([^"]+)"', panel.transcript.toHtml()) == ["fap-image:snapshot-1"], text
     finally:
         panel.close()
+
+
+@pytest.mark.freecad
+def test_recording_a_panel_conversation(gui, tmp_path, monkeypatch):
+    """操作录制（ADR-0042）：AI 工具调用造成的文档改动标为 ai，之后的手工改动标为 user；状态栏有标记。"""
+    import FreeCAD
+    import FreeCADGui
+
+    from freecad_addon.core.session_log import read_session
+    from freecad_addon.gui import recording
+    from freecad_addon.gui.panel import ChatPanel
+
+    monkeypatch.setenv("FAP_SESSIONS_DIR", str(tmp_path / "sessions"))
+    monkeypatch.setattr(recording, "_recorder", None)
+    script = [
+        reply(use(1, "place_component", {"instance": "motor", "component_id": MOTOR})),
+        reply({"type": "text", "text": "已放置。"}, stop="end_turn"),
+    ]
+    panel = ChatPanel(llm_factory=lambda: ScriptedLLM(script), library_factory=lambda: LIB)
+    path = recording.start()
+    try:
+        bar = FreeCADGui.getMainWindow().statusBar()
+        assert any(w.text() == "● 录制中" for w in bar.findChildren(type(recording._indicator)))
+        assert panel.send("放一个电机")
+        _pump_until(gui, lambda: not panel.busy)
+        obj = FreeCAD.getDocument("FapLayout").getObject("motor")
+        obj.Label = "我的电机"  # 用户手工改动
+        gui.processEvents()
+    finally:
+        out = recording.stop("modified", "改了名字")
+        panel.close()
+    assert out == path and recording._indicator is None
+    s = read_session(path)
+    roles = [e.get("role") for e in s["events"] if e["kind"] == "chat"]
+    assert roles == ["user", "tool_call", "tool_result", "assistant"]
+    layout = [e for e in s["events"] if e["kind"] == "doc_change" and e["doc"] == "FapLayout"]
+    assert any(e["op"] == "created" and e["object"] == "motor" and e["origin"] == "ai" for e in layout)
+    label = [e for e in layout if e.get("property") == "Label" and e["value"] == "我的电机"]
+    assert label and label[-1]["origin"] == "user"
+    assert s["outcome"]["rating"] == "modified" and s["meta"]["freecad_version"].startswith("1.0")
 
 
 @pytest.mark.freecad

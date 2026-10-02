@@ -56,6 +56,28 @@ class BridgeCommand:
         return True
 
 
+class RecordCommand:
+    """开始 / 停止操作录制（ADR-0042）：默认关闭，录制时状态栏显示“● 录制中”，会话包只存本机。"""
+
+    def GetResources(self):
+        return {"MenuText": "开始 / 停止录制",
+                "ToolTip": "录下操作过程（命令、文档改动、对话、截图）供 AI 学习；只存本机，去掉密钥"}
+
+    def Activated(self):
+        from freecad_addon.gui import recording
+
+        if recording.recorder().active:
+            rating, note = recording.ask_rating()
+            path = recording.stop(rating, note)
+            FreeCAD.Console.PrintMessage(f"AI Parts 录制已保存：{path}\n")
+        else:
+            path = recording.start()
+            FreeCAD.Console.PrintMessage(f"AI Parts 开始录制：{path}\n")
+
+    def IsActive(self):
+        return True
+
+
 class AiPartsWorkbench(FreeCADGui.Workbench):
     MenuText = "AI Parts"
     ToolTip = "AI 原生零件选型、校验与布局"
@@ -63,8 +85,9 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
     def Initialize(self):
         FreeCADGui.addCommand("FAP_ChatPanel", ChatPanelCommand())
         FreeCADGui.addCommand("FAP_Bridge", BridgeCommand())
-        self.appendToolbar("AI Parts", ["FAP_ChatPanel", "FAP_Bridge"])
-        self.appendMenu("AI Parts", ["FAP_ChatPanel", "FAP_Bridge"])
+        FreeCADGui.addCommand("FAP_Record", RecordCommand())
+        self.appendToolbar("AI Parts", ["FAP_ChatPanel", "FAP_Bridge", "FAP_Record"])
+        self.appendMenu("AI Parts", ["FAP_ChatPanel", "FAP_Bridge", "FAP_Record"])
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"
