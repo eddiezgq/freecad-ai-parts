@@ -87,4 +87,9 @@ export ANTHROPIC_API_KEY=...                             # 或写在本仓库的
   - `outcome.json`
 - **隐私**：写盘前去掉密钥（`ANTHROPIC_API_KEY` 的值、`sk-ant-…` 等）；属性值只记简短表示，不记形体数据
 
-视频（可选）、重放与数据集导出、相似会话检索见 M7 后续任务。
+**视频（可选）**：点 **开始 / 停止录制（含视频）**，会另外用 ffmpeg 录 FreeCAD 主窗口所在区域，存为会话目录中的 `video.mp4`。
+
+- 支持 Linux（X11）与 Windows；需要 ffmpeg，可用 `FAP_FFMPEG` 指定路径
+- 录不了时（没有 ffmpeg、macOS、Wayland）在 FreeCAD 报告视图中说明原因，其他内容照常录制
+
+重放与数据集导出、相似会话检索见 M7 后续任务。

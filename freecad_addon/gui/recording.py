@@ -17,6 +17,8 @@ OUTCOME_TOOLS = ("compose_chain", "verify_system", "export_system", "check_inter
 _recorder: SessionRecorder | None = None
 _attachment = None
 _indicator = None
+_video = None  # (VideoRecorder, 文件名) 或 None
+_video_note = ""
 
 
 def recorder() -> SessionRecorder:
@@ -50,7 +52,7 @@ def _meta() -> dict:
     from freecad_addon.gui.panel import library_note
 
     return {"app": "freecad-ai-parts", "freecad_version": ".".join(FreeCAD.Version()[:3]),
-            "library": library_note(), "video": False}
+            "library": library_note()}
 
 
 def _show_indicator(on: bool) -> None:
@@ -69,12 +71,42 @@ def _show_indicator(on: bool) -> None:
         _indicator = None
 
 
-def start() -> Path:
-    global _attachment
+def _window_region():
+    import FreeCADGui
+
+    from freecad_addon.core.video import Region
+
+    mw = FreeCADGui.getMainWindow()
+    g = mw.frameGeometry()
+    ratio = mw.devicePixelRatioF() if hasattr(mw, "devicePixelRatioF") else 1.0
+    return Region(round(g.x() * ratio), round(g.y() * ratio), round(g.width() * ratio), round(g.height() * ratio))
+
+
+def _start_video(directory: Path) -> str:
+    """开始录视频；返回说明（成功为空）。录不了时不影响其他内容的录制。"""
+    global _video
+    from freecad_addon.core.video import VideoRecorder, VideoUnavailable, command, find_ffmpeg
+
+    out = directory / "video.mp4"
+    try:
+        video = VideoRecorder(command(find_ffmpeg(), _window_region(), out), out)
+        video.start()
+    except (VideoUnavailable, OSError) as exc:
+        return str(exc)
+    _video = (video, out.name)
+    return ""
+
+
+def start(video: bool = False) -> Path:
+    """开始录制。video 为真时同时用 ffmpeg 录 FreeCAD 主窗口（ADR-0042，可选）。"""
+    global _attachment, _video_note
     from freecad_addon.fc.session_observers import Attachment
 
     rec = recorder()
-    path = rec.start(_meta())
+    path = rec.start({**_meta(), "video": video})
+    _video_note = _start_video(path) if video else ""
+    if _video_note:
+        rec.event("note", what="video_unavailable", reason=_video_note)
     _attachment = Attachment(rec)
     _attachment.attach()
     _show_indicator(True)
@@ -102,9 +134,21 @@ def ask_rating() -> tuple[str | None, str]:
 
 
 def stop(rating: str | None = None, note: str = "") -> Path:
-    global _attachment
+    global _attachment, _video, _video_note
     if _attachment is not None:
         _attachment.detach()
         _attachment = None
+    extra: dict = {}
+    if _video is not None:
+        video, name = _video
+        ok, err = video.stop()
+        extra["video"] = name if ok else None
+        if err or not ok:
+            extra["video_error"] = err or "没有生成视频文件"
+        _video = None
+    elif _video_note:
+        extra.update(video=None, video_error=_video_note)
+    _video_note = ""
     _show_indicator(False)
-    return recorder().stop(rating=rating, note=note)
+    return recorder().stop(rating=rating, note=note, extra=extra)
+
