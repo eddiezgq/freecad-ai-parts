@@ -24,4 +24,20 @@ index:
             Continuous Output Current, Instantaneous Maximum Output Current, Main Circuit, Single-phase, External Dimensions,
             Approx. mass, Safety, HWBB, EtherCAT]
 
-jobs: []
+jobs:
+  # Harmonic Drive CSF-2UH 整机型：额定值表（Table 127-1）、外形尺寸与质量（Table 129-1）、回差与刚度
+  - doc: src-hd-csg-csf-gear-units
+    category: reducer
+    pages: "8-13"
+    targets: [CSF-14-50-2UH, CSF-14-100-2UH, CSF-17-50-2UH, CSF-17-100-2UH, CSF-20-50-2UH, CSF-20-100-2UH,
+              CSF-25-100-2UH, CSF-32-100-2UH]
+  # 安川 Σ-7 SGM7J（第 4 章）：规格、无减速机型的额定值、外形尺寸、轴端
+  - doc: src-yaskawa-sgm7-rotary-manual
+    category: servo_motor
+    pages: "54-55,64-66"
+    targets: [SGM7J-A5A, SGM7J-01A, SGM7J-C2A, SGM7J-02A, SGM7J-04A, SGM7J-06A, SGM7J-08A]
+  # 安川 Σ-7S EtherCAT 驱动器（200 V）：额定值、规格、外形尺寸与质量
+  - doc: src-yaskawa-sgd7s-ethercat-manual
+    category: drive
+    pages: "62-65,67-70,80-83"
+    targets: [SGD7S-R70A, SGD7S-R90A, SGD7S-1R6A, SGD7S-2R8A, SGD7S-3R8A, SGD7S-5R5A, SGD7S-7R6A, SGD7S-120A]
