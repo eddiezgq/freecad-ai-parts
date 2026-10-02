@@ -9,7 +9,7 @@ MCP 在 /mcp，REST 在 /api。
 | GET | /api/components?category=&vendor=&text=&params=<JSON>&limit= | search_components |
 | GET | /api/components/{id} | get_component |
 | GET | /api/components/{id}/ports/{port}/compatible?category=&include_unknown=&via_adapters=&limit= | find_compatible |
-| POST | /api/compose  {requirement, top_n?, include_unknown?, lang?} | compose_chain |
+| POST | /api/compose  {requirement, top_n?, include_unknown?, lang?, generate_adapters?} | compose_chain |
 | POST | /api/verify   {system, lang?, use_layout?} | verify_system |
 | POST | /api/export   {system, format?, use_layout?} | export_system（format 含 urdf） |
 | GET | /api/layout | 当前布局（各工具结果中的 layout） |
@@ -140,7 +140,8 @@ def register(mcp, lib: Callable[[], Any], info: Callable[[], dict], layout: Any 
         data = await _body(request)
         _only(data, {"requirement", "top_n", "include_unknown", "lang"}, {"requirement"})
         return tools.compose_chain(lib(), data["requirement"], top_n=data.get("top_n", 5),
-                                   include_unknown=data.get("include_unknown", False), lang=data.get("lang", "zh"))
+                                   include_unknown=data.get("include_unknown", False), lang=data.get("lang", "zh"),
+                                   generate_adapters=data.get("generate_adapters"))
 
     @route("/api/verify", ["POST"])
     async def verify(request: Request):

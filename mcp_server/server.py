@@ -18,7 +18,7 @@ from fastmcp.exceptions import ToolError
 from fastmcp.utilities.types import Image
 from pydantic import Field
 
-from kb.library import Library, default_library
+from kb.library import Library, WithGenerated, default_library
 from mcp_server import __version__, rest, tools
 from mcp_server.layout import Backend, LayoutSession, default_backend
 
@@ -60,7 +60,7 @@ def create_server(library_factory: Callable[[], Library] = default_library,
 
     def lib() -> Library:
         if "lib" not in state:
-            state["lib"] = library_factory()
+            state["lib"] = WithGenerated(library_factory())  # 求解时生成的转接件在本会话中可按 id 找到（ADR-0041）
         return state["lib"]
 
     def info() -> dict:
@@ -151,9 +151,12 @@ def create_server(library_factory: Callable[[], Library] = default_library,
         top_n: Annotated[int, Field(ge=1, le=20)] = 5,
         include_unknown: Annotated[bool, Field(description="是否包含数据缺失、待确认的方案")] = False,
         lang: Annotated[str, Field(description="说明语言：zh 或 en")] = "zh",
+        generate_adapters: Annotated[bool | None, Field(
+            description="库中没有合适的轴套或转接板时按端口尺寸生成（ADR-0041）；不填时组件库没有转接件就生成")] = None,
     ) -> dict:
         """按需求组合电机、减速器、驱动器（必要时加转接件），全部校验后排序返回候选方案与说明。"""
-        return tools.compose_chain(lib(), requirement, top_n=top_n, include_unknown=include_unknown, lang=lang)
+        return tools.compose_chain(lib(), requirement, top_n=top_n, include_unknown=include_unknown, lang=lang,
+                                   generate_adapters=generate_adapters)
 
     @mcp.tool
     @_guard
