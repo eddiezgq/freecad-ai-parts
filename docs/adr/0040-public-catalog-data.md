@@ -55,5 +55,5 @@ V1 的开发已经全部完成，但用的都是虚构组件。ADR-0015 规定�
 - `data/sources.yaml` 中厂商来源的 `license`、`terms_checked`、`terms_note` 按本 ADR 更新
 - 本工作环境的命令行访问不到厂商网站，规格书的下载和真实 LLM 抽取在 GitHub Actions 或 Codespaces 中进行
   - 只把录制、抽取结果和 SHA-256 提交回仓库，不提交 PDF
-  - 在 Actions 中运行真实抽取，需要在仓库的 Actions secrets 中设置 `ANTHROPIC_API_KEY`
+  - 在 Actions 中运行真实抽取时，密钥取自仓库的 demo 环境
 - 风险：厂商可能对收录其数据提出异议，按第 6 条处理

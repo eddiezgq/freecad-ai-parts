@@ -416,5 +416,5 @@ M4b 开发部分完成后，验收只剩人工演示（#90），M5 先行。需�
 | 8 | 真实数据端到端样例 | `examples/joint-real/`：用真实组件从一句需求到 BOM、布局与 URDF | 样例可重复生成 |
 | 9 | M6 验收 | | 至少一套由真实组件组成的关节方案通过全部校验，所有数据可追溯来源 |
 
-规格书的下载与真实抽取在 GitHub Actions 或 Codespaces 中运行（本工作环境访问不到厂商网站）；在 Actions 中运行需要仓库的 Actions secrets 中设置 `ANTHROPIC_API_KEY`。
+规格书的下载与真实抽取在 GitHub Actions 或 Codespaces 中运行（本工作环境访问不到厂商网站）；在 Actions 中运行时，密钥 `ANTHROPIC_API_KEY` 取自仓库的 demo 环境。
 

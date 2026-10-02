@@ -24,7 +24,7 @@
 
 - 运行结束后，结果推到分支 `m6/data-run-<运行号>`，再开 PR 合并
 - 规格书 PDF 只在运行器的临时目录中，不提交，也不保存为构建产物
-- 抽取需要在仓库 Settings → Secrets and variables → Actions 中设置 `ANTHROPIC_API_KEY`；没有时只做下载和索引
+- 抽取用仓库 Settings → Environments → demo 中的 `ANTHROPIC_API_KEY`；没有时只做下载和索引
 
 **Codespaces 或本地**：
 
