@@ -16,6 +16,7 @@ from pathlib import Path
 
 from PySide import QtCore, QtGui, QtWidgets
 
+from freecad_addon.core.retrieval import default_hints
 from freecad_addon.fc.inprocess import InProcessBackend
 from freecad_addon.fc.mainthread import MainThreadExecutor
 from freecad_addon.gui.chat import (
@@ -97,7 +98,7 @@ class ChatPanel(QtWidgets.QDockWidget):
     def _ensure_engine(self) -> ChatEngine:
         if self._engine is None:
             tools = mcp_tools_to_anthropic(self.tools.list_tools())
-            self._engine = ChatEngine(self._llm_factory(), tools, self.tools.call)
+            self._engine = ChatEngine(self._llm_factory(), tools, self.tools.call, context=default_hints())
         return self._engine
 
     def send(self, text: str | None = None) -> bool:
@@ -167,6 +168,8 @@ class ChatPanel(QtWidgets.QDockWidget):
             self._append(f'<p style="color:{color}">→ {esc(summarize(e.name or "", e.text, bool(e.data)))}</p>')
             for png in e.images:
                 self._append(f"<p>{self._add_image(png)}</p>")
+        elif e.kind == "info":
+            self._append(f'<p style="color:#666"><i>{esc(e.text)}</i></p>')
         else:
             self._append(f'<p style="color:#b00"><b>出错：</b>{esc(e.text)}</p>')
 

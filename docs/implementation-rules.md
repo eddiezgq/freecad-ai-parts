@@ -428,5 +428,5 @@ M4b 开发部分完成后，验收只剩人工演示（#90），M5 先行。需�
 | 2 | 录制器与 FreeCAD 接入 | `freecad_addon/core/session_log.py`：会话包 `session/1`（meta、events.jsonl、snapshots/、outcome）、去密钥、改动来源、截图限频；`freecad_addon/fc/` 文档观察者与命令记录；工作台“开始 / 停止录制”、状态栏标记、停止时评价；对话面板事件写入录制 | 记录逻辑单测；FreeCAD 作业中文档改动被记下且来源正确 |
 | 3 | 可选视频 | ffmpeg 只录 FreeCAD 主窗口区域，默认关闭 | 有 ffmpeg 时生成视频，没有时说明原因、其余照常 |
 | 4 | 重放与数据集导出 | `python -m freecad_addon.sessions list / show / export / replay` | 导出 JSONL；重放在新文档中重建对象 |
-| 5 | 相似会话检索 | 对话助手按需求与组件检索历史会话，作为参考放进提示词 | 检索结果确定；不含密钥；可关闭 |
+| 5 | 相似会话检索 | `freecad_addon/core/retrieval.py`：按需求词项（英文单词、数字带单位、中文二字组）的 Jaccard 相似度加相同组件检索正常结束的会话；参考文字（需求、评价、用户修改、结论）附在本轮系统提示之后；`FAP_SESSION_HINTS=0` 关闭 | 检索结果确定；不含密钥；可关闭 |
 | 6 | M7 验收 | | 录一次手工建模加一次 AI 布局，导出数据集，重放成功 |
