@@ -9,8 +9,10 @@ from __future__ import annotations
 
 import math
 from collections.abc import Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
+from engine import adapters as adapters_mod
+from engine.adapters import AdapterError
 from engine.result import FAIL, PASS, UNKNOWN, WARN
 from engine.validate import validate
 from engine.values import capacity, nominal, text
@@ -26,6 +28,7 @@ class Candidate:
     adapters: int
     mass_kg: float | None
     min_margin: float | None
+    generated: list[dict] = field(default_factory=list)  # 本方案中按端口尺寸生成的转接件（ADR-0041）
 
     @property
     def overall(self) -> str:
@@ -39,8 +42,11 @@ class Candidate:
         return (_RANK[self.overall], self.adapters, warns, mass, margin, ids)
 
     def to_dict(self) -> dict:
-        return {"system": self.system, "report": self.report, "adapters": self.adapters,
-                "mass_kg": self.mass_kg, "min_margin": self.min_margin}
+        out = {"system": self.system, "report": self.report, "adapters": self.adapters,
+               "mass_kg": self.mass_kg, "min_margin": self.min_margin}
+        if self.generated:  # 只在有生成件时出现，已有输出保持不变
+            out["generated_components"] = self.generated
+        return out
 
 
 def _port(comp: dict, pid: str) -> dict | None:
@@ -135,11 +141,22 @@ def _min_margin(report: dict) -> float | None:
     return min(margins) if margins else None
 
 
+def _generated(make, motor: dict, reducer: dict, links, lookup: dict) -> list[tuple[dict | None, list[dict]]]:
+    """库中没有合适的转接件时，按两侧端口尺寸生成一个（ADR-0041）；生成不了就没有这条路。"""
+    try:
+        comp = make(motor, reducer)
+    except AdapterError:
+        return []
+    lookup.setdefault(comp["id"], comp)
+    return [(lookup[comp["id"]], links)]
+
+
 def compose_chain(requirement: dict, library: Iterable[dict], *, top_n: int = 5,
-                  include_unknown: bool = False) -> list[Candidate]:
+                  include_unknown: bool = False, generate_adapters: bool = False) -> list[Candidate]:
     """按需求从组件库中组合“电机 →（转接件）→ 减速器 + 驱动器”，校验后排序，返回前 top_n 个。
 
     include_unknown 为真时，也返回整体为 unknown（数据缺失、待确认）的方案，排在 pass、warn 之后。
+    generate_adapters 为真时，库中没有合适的轴套或转接板，就按两侧端口尺寸生成（ADR-0041）。
     """
     comps = list(library)
     by_cat: dict[str, list[dict]] = {}
@@ -156,6 +173,14 @@ def compose_chain(requirement: dict, library: Iterable[dict], *, top_n: int = 5,
                 continue
             shafts = _shaft_options(motor, reducer, adapters)
             flanges = _flange_options(motor, reducer, adapters)
+            if generate_adapters and not shafts:
+                shafts = _generated(adapters_mod.sleeve, motor, reducer,
+                                    [{"a": "motor.shaft", "b": "sleeve.inner"},
+                                     {"a": "sleeve.outer", "b": "reducer.input_bore"}], lookup)
+            if generate_adapters and not flanges:
+                flanges = _generated(adapters_mod.plate, motor, reducer,
+                                     [{"a": "motor.mount_flange", "b": "plate.motor_side"},
+                                      {"a": "plate.reducer_side", "b": "reducer.motor_flange"}], lookup)
             for drive in by_cat.get("drive", []):
                 for sleeve, shaft_links in shafts:
                     for plate, flange_links in flanges:
@@ -176,7 +201,8 @@ def compose_chain(requirement: dict, library: Iterable[dict], *, top_n: int = 5,
                         if report["overall"] not in allowed:
                             continue
                         found.append(Candidate(system, report, len(parts) - 3, _mass(c for _, c in parts),
-                                               _min_margin(report)))
+                                               _min_margin(report),
+                                               [c for _, c in parts if c.get("vendor") == adapters_mod.VENDOR]))
     found.sort(key=Candidate.sort_key)
     # 同一机械链（电机、减速器、转接件相同）只保留排序最前的驱动器，让前 N 个方案更有区别
     seen: set[tuple] = set()
