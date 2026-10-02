@@ -7,7 +7,8 @@
 #   vendor:         厂商或组织名称
 #   url:            产品目录或下载页
 #   categories:     覆盖的品类：servo_motor | reducer | drive | bearing | fastener
-#   license:        params-only（仅提取参数） | open（开源许可，注明许可证） | partner（厂商授权） | pending（待定）
+#   license:        params-only（仅提取公开目录参数，ADR-0040） | open（开源许可，注明许可证） | partner（厂商授权）
+#                   | pending（待定） | withdrawn（厂商异议后撤回，数据已删除）
 #   terms_url:      使用条款页面
 #   covers_vendors: 可选。经销商目录、第三方手册等涵盖其他厂商时，列出这些厂商名；
 #                   组件引用的来源文档必须属于组件厂商本身或在此列出的厂商（ADR-0019）
@@ -26,39 +27,46 @@
 #   terms_note: ""
 
 sources:
-  # 2026-09-30 初查（issue #6）。terms_checked 须由人判断后才能改为 true；以下摘要不构成法律意见。
+  # 2026-09-30 初查（issue #6）；2026-10-01 按 ADR-0040（项目负责人决定）更新：公开产品目录的参数与接口尺寸可收录，
+  # 不转存文档、图片与 CAD，不批量爬取，逐份登记官方下载网址。以下摘要不构成法律意见。
   - id: harmonic-drive
     vendor: Harmonic Drive LLC
     url: https://www.harmonicdrive.net
     terms_url: https://www.harmonicdrive.net/about-us/terms-of-use
     categories: [reducer]
-    license: pending
-    terms_checked: false
+    license: params-only
+    terms_checked: true
     terms_note: >-
       2026-09-30 初查（条款最后更新 2015-02-18）：禁止未经授权复制、分发或使用网站内容；
       禁止用 robot、spider、scraper 等自动方式访问或提取数据；网站内容不得用于商业目的；
-      适用美国马萨诸塞州法律。结论：未取得书面许可前，不得从该站采集数据。
+      适用美国马萨诸塞州法律。结论（2026-09-30）：未取得书面许可前，不得从该站采集数据。
+      2026-10-01 按 ADR-0040：只收录公开产品目录中的参数与接口尺寸，逐项注明出处并链接回本站；
+      规格书逐份按官方下载网址下载一次，不遍历、不批量爬取；不转存文档、图片、图纸与 CAD。
   - id: yaskawa-america
     vendor: Yaskawa America, Inc.
     url: https://www.yaskawa.com
     terms_url: https://www.yaskawa.com/terms-of-use
     categories: [servo_motor, drive]
-    license: pending
-    terms_checked: false
+    license: params-only
+    terms_checked: true
     terms_note: >-
       2026-09-30 初查（条款最后更新 2016-09-23）：知识产权内容未经书面许可不得复制、下载、
       再发布；禁止用 robot、spider 等自动方式访问；不得用于任何商业目的。
-      结论：未取得书面许可前，不得从该站采集数据。
+      结论（2026-09-30）：未取得书面许可前，不得从该站采集数据。
+      2026-10-01 按 ADR-0040：只收录公开产品目录中的参数与接口尺寸，逐项注明出处并链接回本站；
+      规格书逐份按官方下载网址下载一次，不遍历、不批量爬取；不转存文档、图片、图纸与 CAD。
   - id: yaskawa-electric
     vendor: Yaskawa Electric Corporation
     url: https://www.yaskawa-global.com
     terms_url: https://www.yaskawa-global.com/term
     categories: [servo_motor, drive]
-    license: pending
-    terms_checked: false
+    license: params-only
+    terms_checked: true
     terms_note: >-
       2026-09-30 初查：版权法禁止未经事先书面同意以任何形式复制本站信息；未专门提及自动访问；
-      适用日本法律，东京地方法院管辖。结论：未取得书面许可前，不得从该站采集数据。
+      适用日本法律，东京地方法院管辖。结论（2026-09-30）：未取得书面许可前，不得从该站采集数据。
+      2026-10-01 按 ADR-0040：只收录公开产品目录中的参数与接口尺寸，逐项注明出处并链接回本站；
+      规格书逐份按官方下载网址下载一次，不遍历、不批量爬取；不转存文档、图片、图纸与 CAD。
   - id: leaderdrive
     vendor: 苏州绿的谐波传动科技股份有限公司（Leaderdrive）
     url: https://www.leaderdrive.com
