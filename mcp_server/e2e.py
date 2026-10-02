@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import os
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -26,6 +27,35 @@ FILES = ("requirement.json", "bom.csv", "bom.json", "system.json")
 
 def _dump(obj) -> str:
     return json.dumps(obj, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+
+
+GENERATED_VENDOR = "freecad-ai-parts (generated)"
+
+
+def _provenance(out: dict) -> list[str]:
+    """每个组件的数据来源与复核状态（ADR-0040、0041）：用的是真实数据、虚构数据还是生成件，一眼可见。"""
+    comps = out.get("system_json", {}).get("content", {}).get("components", {})
+    if not comps:
+        return []
+    lines = ["| 实例 | 厂商与型号 | 数据来源 | 复核 |", "| --- | --- | --- | --- |"]
+    for c in out["system"]["components"]:
+        comp = comps.get(c["component"]) or {}
+        values = list(comp.get("params", {}).values()) + [
+            v for p in comp.get("ports", []) for v in p.get("spec", {}).values()]
+        docs = sorted({v["source"]["doc"] for v in values if v.get("source", {}).get("doc")})
+        if comp.get("vendor") == GENERATED_VENDOR:
+            source, review = "按两侧端口尺寸生成（ADR-0041），须加工", "加工前按图纸复核"
+        elif c["component"].startswith("test."):
+            source, review = "虚构测试组件（ADR-0015）", "—"
+        else:
+            source = "、".join(f"`{d}`" for d in docs) or "—"
+            notes = {v.get("source", {}).get("note", "") for v in values}
+            if values and all(v.get("reviewed") is True for v in values):
+                review = "AI 复核（两次独立抽取一致）" if any("AI 复核" in n for n in notes) else "已复核"
+            else:
+                review = "部分未复核"
+        lines.append(f"| `{c['instance']}` | {comp.get('vendor', '')} {comp.get('model', '')} | {source} | {review} |")
+    return [*lines, ""]
 
 
 def _summary(parsed: dict | None, requirement: dict, out: dict) -> str:
@@ -45,6 +75,7 @@ def _summary(parsed: dict | None, requirement: dict, out: dict) -> str:
     if "error" in out:
         return "\n".join([*lines, f"**{out['error']}**", ""])
     lines += ["## 方案", ""] + [f"- `{c['instance']}`：{c['component']}" for c in out["system"]["components"]] + [""]
+    lines += _provenance(out)
     lines += ["## 布局与干涉", ""]
     if not out.get("interference_checked"):
         lines.append("未连接 FreeCAD，没有做干涉检查（设置 FAP_FREECAD=headless 后重跑）。")
@@ -116,7 +147,13 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--out", type=Path, required=True, help="输出目录")
     p.add_argument("--record", action="store_true", help="需求解析真实调用 LLM 并录制（需要 ANTHROPIC_API_KEY）")
     p.add_argument("--lang", choices=("zh", "en"), default="zh")
+    p.add_argument("--library", type=Path,
+                   help="组件库目录（同 FAP_LIBRARY），如真实组件库 data/library；不给时用 FAP_LIBRARY 或虚构测试组件")
     args = p.parse_args(argv)
+    if args.library is not None:
+        if not args.library.is_dir():
+            p.error(f"组件库目录不存在：{args.library}")
+        os.environ["FAP_LIBRARY"] = str(args.library)
     if (args.statement is None) == (args.requirement is None):
         p.error("一句话需求与 --requirement 二选一")
     req = json.loads(args.requirement.read_text(encoding="utf-8")) if args.requirement else None

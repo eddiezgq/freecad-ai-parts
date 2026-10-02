@@ -87,3 +87,31 @@ def test_e2e_with_library_without_adapters(tmp_path, monkeypatch):
     assert "freecad-ai-parts (generated)" in bom
     system = json.loads((tmp_path / "out" / "system.json").read_text(encoding="utf-8"))
     assert any(cid.startswith("adapter.fap-generated.") for cid in system["components"])
+
+
+def test_e2e_readme_shows_provenance(tmp_path, monkeypatch):
+    from mcp_server import e2e
+
+    lib = _write_library(tmp_path)
+    monkeypatch.setenv("FAP_LIBRARY", "unused")  # main 会改写 FAP_LIBRARY；由 monkeypatch 在测试结束后还原
+    req = tmp_path / "req.json"
+    req.write_text(json.dumps(REQ), encoding="utf-8")
+    e2e.main(["--requirement", str(req), "--out", str(tmp_path / "out"), "--library", str(lib)])
+    text = (tmp_path / "out" / "README.md").read_text(encoding="utf-8")
+    assert "按两侧端口尺寸生成（ADR-0041），须加工" in text and "虚构测试组件（ADR-0015）" in text
+    with pytest.raises(SystemExit):
+        e2e.main(["--requirement", str(req), "--out", str(tmp_path / "o2"), "--library", str(tmp_path / "nope")])
+
+
+def test_provenance_marks_ai_review():
+    from mcp_server.e2e import _provenance
+
+    pv = {"value": 1, "source": {"doc": "src-hd-csg-csf-gear-units", "page": 8, "note": "claude（AI 复核）：一致"},
+          "method": "extracted", "confidence": 0.9, "reviewed": True}
+    comp = {"vendor": "Harmonic Drive LLC", "model": "CSF-14-50-2UH", "params": {"ratio": pv}, "ports": []}
+    out = {"system": {"components": [{"instance": "reducer", "component": "reducer.harmonic-drive-llc.csf-14"}]},
+           "system_json": {"content": {"components": {"reducer.harmonic-drive-llc.csf-14": comp}}}}
+    row = _provenance(out)[2]
+    assert "`src-hd-csg-csf-gear-units`" in row and "AI 复核" in row
+    comp["params"]["ratio"] = {**pv, "reviewed": False}
+    assert "部分未复核" in _provenance(out)[2]
