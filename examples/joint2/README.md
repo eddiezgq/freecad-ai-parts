@@ -12,6 +12,14 @@
 - `sleeve`：test.adapter.test-vendor.sleeve-11-19
 - `plate`：test.adapter.test-vendor.plate-70-90
 
+| 实例 | 厂商与型号 | 数据来源 | 复核 |
+| --- | --- | --- | --- |
+| `motor` | Test Vendor M200 | 虚构测试组件（ADR-0015） | — |
+| `reducer` | Test Vendor R25-100 | 虚构测试组件（ADR-0015） | — |
+| `drive` | Test Vendor D200 | 虚构测试组件（ADR-0015） | — |
+| `sleeve` | Test Vendor SL-11-19 | 虚构测试组件（ADR-0015） | — |
+| `plate` | Test Vendor PL-70-90 | 虚构测试组件（ADR-0015） | — |
+
 ## 布局与干涉
 
 - 第 1 轮：有干涉；干涉：drive–motor 2850.99 mm³、drive–plate 40000 mm³、drive–reducer 255075 mm³、drive–sleeve 4712.39 mm³

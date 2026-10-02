@@ -25,3 +25,18 @@ CI 的 `freecad` 作业会重新生成这些文件，并逐字节比对（截图
 
 - `system.json` 中的报告与引擎重新校验的结果相同
 - BOM 与按系统重新导出的结果相同
+
+## 用真实组件（M6）
+
+真实组件入库后（`data/library/`，ADR-0040），用同一条命令生成真实数据样例：
+
+```bash
+FAP_FREECAD=headless python -m mcp_server.e2e --requirement examples/joint2-requirement.json \
+    --library data/library --out examples/joint-real
+```
+
+`README.md` 的“方案”一节列出每个组件的数据来源与复核状态：
+
+- 真实组件写明来源文档和复核状态，例如“AI 复核”
+- 虚构组件写明是虚构测试组件
+- 按端口尺寸生成的转接件标明须加工（ADR-0041）
