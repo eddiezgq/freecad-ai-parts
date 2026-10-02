@@ -195,3 +195,22 @@ def test_cli_pages_and_target(rendered, tmp_path, monkeypatch):
     assert lx.main([str(pdf), "--category", cat.category, "--doc", DOC_ID, "--pages", "2-3",
                     "--target", model, "--out", str(tmp_path / "o.json")]) == 0
     assert seen["pages"] == [2, 3] and seen["target_model"] == model
+
+
+def test_split_model_header_on_second_row():
+    """安川式表头：第一行是电压，第二行“型号 SGM7J-”后面各列是型号后缀。"""
+    rows = [["Voltage", "", "200 V", ""], ["Model SGM7J-", "", "A5A", "02A"], ["Rated torque", "N·m", "0.159", "0.637"]]
+    doc = Document("x", "0" * 64, [Page(1, "", [Table(1, 0, rows, (0, 0, 1, 1))])])
+
+    def p(text, value):
+        return {"target": "params/rated_torque_nm", "printed_text": text, "printed_unit": "N·m",
+                "printed_label": "Rated torque", "quote": "Rated torque N·m 0.159 0.637", "page": 1,
+                "confidence": 0.9, "value": value}
+
+    ok = verify({"items": [p("0.637", 0.637)]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-02A")
+    assert ok["items"] and not any("型号列" in i for i in ok["items"][0].get("issues", []))
+    bad = verify({"items": [p("0.159", 0.159)]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-02A")
+    assert bad["items"] == [] and bad["rejected"][0]["reason"] == "数值不在目标型号所在的列"
+    # 后缀相同但前缀不同的型号不算匹配
+    other = verify({"items": [p("0.637", 0.637)]}, doc, "servo_motor", DOC_ID, target_model="SGM7A-02A")
+    assert other["items"] and any("型号列" in i for i in other["items"][0]["issues"])
