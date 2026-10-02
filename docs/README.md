@@ -57,5 +57,6 @@
 | [0036](adr/0036-gui-bridge-and-chat-panel.md) | FreeCAD 界面桥接与内置对话面板 | 2026-10-01 |
 | [0037](adr/0037-requirement-parsing.md) | 一句话需求的解析与端到端演示的可复现性 | 2026-10-01 |
 | [0038](adr/0038-eval-equivalence.md) | 抽取评测的等价规则与可推出字段 | 2026-10-01 |
+| [0039](adr/0039-phases-imply-ac.md) | 需求解析中单相、三相供电推出交流 | 2026-10-01 |
 
 新决策按 [模板](adr/template.md) 编写，编号顺延；已接受的决策不改写，被取代时新建一条并标注。

@@ -110,7 +110,7 @@ FAP_FREECAD=headless python -m mcp_server.e2e "六轴机械臂第 2 关节：输
 `out/README.md` 汇总每个需求值的原文依据、方案、干涉检查过程与校验结论。说明：
 
 - 同一句话重跑，除截图外的输出逐字节相同
-- 离线时，需求解析回放录制；示例句子的录制是标注为“模拟”的手写响应。有密钥时加 `--record`，会真实调用并录制
+- 离线时，需求解析回放录制；示例句子的录制是真实 LLM 的响应（claude-sonnet-5-5）。有密钥时加 `--record`，会真实调用并录制
 - 也可以用 `--requirement examples/joint2-requirement.json` 直接给结构化需求
 
 ## 8. HTTP 方式（MCP + REST）

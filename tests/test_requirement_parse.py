@@ -35,11 +35,12 @@ def run(statement, *items, unclear=()):
 
 def test_replay_of_example_matches_example_requirement():
     out = rp.parse(S)
-    assert out["status"] == "ok" and out["llm"]["simulated"] is True
+    assert out["status"] == "ok" and out["llm"]["simulated"] is False  # 真实录制（claude-sonnet-5-5）
     want = {k: v for k, v in EXAMPLE.items() if k != "id"}
     assert out["requirement"] == want
     assert out["basis"]["output_torque_peak_nm"] == "峰值 50 N·m"
-    assert out["defaults"] == ["安全系数未说明，按默认值 1.2（ADR-0008）"]
+    assert out["defaults"] == ["单相供电，按定义为交流（ADR-0039）", "安全系数未说明，按默认值 1.2（ADR-0008）"]
+    assert out["unclear"] and out["rejected"] == []
     assert rp.parse(S) == out  # 回放确定
 
 
@@ -214,3 +215,17 @@ def test_review_valid_forms_still_accepted(statement, it, want):
         assert out["rejected"] and "supply" not in out["requirement"]
         return
     assert out["requirement"][it["field"]] == pytest.approx(want)
+
+
+def test_phases_imply_ac():
+    """单相、三相供电按定义是交流（ADR-0039）：原话没说“交流”也不追问；直流的推导不变。"""
+    s = "连续扭矩 25 N·m，转速 30 rpm，380 V 三相供电"
+    base = [item("output_torque_cont_nm", 25, "N·m", "连续扭矩 25 N·m"), item("output_speed_rpm", 30, "rpm", "转速 30 rpm")]
+    out = run(s, *base, item("supply.voltage_v", 380, "V", "380 V 三相供电"), item("supply.phases", 3, "", "380 V 三相供电"))
+    assert out["requirement"]["supply"] == {"current_type": "ac", "voltage_v": 380.0, "phases": 3}
+    assert out["basis"]["supply.current_type"] == "380 V 三相供电" and out["questions"] == []
+    # 明说直流却又说三相：矛盾，不采用并追问
+    s2 = "连续扭矩 25 N·m，转速 30 rpm，48 V 直流 三相"
+    out = run(s2, *base, item("supply.voltage_v", 48, "V", "48 V 直流 三相"),
+              item("supply.current_type", "dc", "", "48 V 直流 三相"), item("supply.phases", 3, "", "48 V 直流 三相"))
+    assert "supply" not in out["requirement"] and any("矛盾" in r["reason"] for r in out["rejected"])
