@@ -412,3 +412,16 @@ def test_catalog_request_asks_for_every_dimension():
     req = build_request(doc, "servo_motor", target_model="SGM7J-04A", excerpt=True)
     assert req["catalog_prompt"] == CATALOG_PROMPT_VERSION and "逐项报告" in req["user"] and "quote 优先摘表格" in req["user"]
     assert "catalog_prompt" not in build_request(doc, "servo_motor")
+
+
+def test_drawing_hole_count():
+    text = ("Unit: mm\nL* LL* LM S MD MW MH ML Mass\nSGM7J- LR LE LG LC LA LB LZ\n0.02 4 × LZ dia. Unit: mm\n"
+            "02AA2 51.2 30 3 6 60 70 50 5.5\n04AA2 67.2 30 3 6 60 70 50 5.5")
+    doc = Document("x", "0" * 64, [Page(1, text)])
+    hc = {"target": "ports/mount_flange/hole_count", "printed_text": "4 × LZ dia.", "printed_unit": "",
+          "printed_label": "LZ dia.", "quote": "0.02 4 × LZ dia. Unit: mm", "page": 1, "confidence": 0.9, "value": 4}
+    got = verify({"items": [hc]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-04A")
+    assert got["items"] and any("图纸标注" in i for i in got["items"][0]["issues"])
+    # 本页尺寸表没有列出的型号、孔数不符：拒收
+    assert verify({"items": [hc]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-08A")["items"] == []
+    assert verify({"items": [dict(hc, value=2)]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-04A")["items"] == []

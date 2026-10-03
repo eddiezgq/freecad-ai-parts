@@ -80,6 +80,17 @@ def derive(category: str, values: dict) -> dict:
 
     for p in standard_ports(category):
         base = f"ports/{p.id}"
+        cyl = {"mechanical.cyl_male": False, "mechanical.cyl_female": True}
+        dia = values.get(f"{base}/diameter_mm")
+        if category != "bearing" and dia and any(t in cyl for t in p.types) and \
+                all(isinstance(dia.get(k), (int, float)) for k in ("nominal", "tol_upper", "tol_lower")):
+            from ingest import iso286
+
+            hole = cyl[next(t for t in p.types if t in cyl)]
+            zone = iso286.match(dia["nominal"], dia["tol_upper"], dia["tol_lower"], hole=hole)
+            if zone:
+                put(f"{base}/fit", zone, f"ISO 286：{dia['nominal']:g} mm 的偏差 {dia['tol_upper']:+g}/{dia['tol_lower']:+g} mm"
+                    f" 即公差带 {zone}（ADR-0044）", [dia])
         if "mechanical.flange" in p.types:
             thread, hole = values.get(f"{base}/thread"), values.get(f"{base}/hole_diameter_mm")
             if thread and not hole:

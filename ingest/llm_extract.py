@@ -865,6 +865,37 @@ def _label_span(line: _Line, label: str) -> range | None:
     return range(*spans.pop()) if len(spans) == 1 else None
 
 
+_COUNT_MARK = re.compile(r"(?<![\d.])(\d+)\s*[×xX]\s*([A-Z]{1,3})\b")
+
+
+def _drawing_count(ctx: _Ctx, page: int, p: dict) -> tuple[str | None, list[str]] | None:
+    """图纸标注“4 × LZ dia.”：孔数 × 尺寸表中的孔径列。只有本页的尺寸表列出目标型号时才适用。"""
+    marks = [m for ln in ctx.lines[page] if not ln.is_row for m in _COUNT_MARK.finditer(ln.spaced)]
+    names = {m.group(2) for m in marks}
+    if not marks or not p.get("value") or not isinstance(p.get("value"), (int, float)):
+        return None
+    mine = [m for m in marks if m.group(0) in _spaced(p["quote"]) or m.group(0) in _spaced(p["printed_text"])]
+    if not mine:
+        return None
+    m = mine[0]
+    if int(m.group(1)) != p["value"]:
+        return "孔数与图纸标注不符", []
+    word = re.compile(r"(?<![A-Za-z])" + m.group(2) + r"(?![A-Za-z])")
+    in_table_head = any(m.group(2) in r for ln in ctx.lines[page] + ((ctx.layout or {}).get(page) or [])
+                        if ln.is_row for r in ln.head_rows)
+    in_text_head = any(word.search(ln.spaced) for ln in ctx.lines[page]
+                       if not ln.is_row and len(ln.spaced.split(" ")) >= 4 and not _COUNT_MARK.search(ln.spaced))
+    if len(names) > 1 or not (in_table_head or in_text_head):
+        return "图纸标注的孔径名不在本页尺寸表的表头中，无法确认", []
+    suffix = next((ctx.target_model[len(_loose(w)):] for ln in ctx.lines[page] if not ln.is_row
+                   for w in ln.spaced.split(" ")[:1] if w.endswith("-") and ctx.target_model.startswith(_loose(w))
+                   and len(_loose(w)) >= 3), None)
+    codes = [ln.spaced.split(" ")[0] for ln in ctx.lines[page] if not ln.is_row and ln.spaced]
+    if not suffix or not any(_loose(c).startswith(suffix) and len(_loose(c)) > len(suffix) for c in codes):
+        return "本页的尺寸表没有列出目标型号，图纸标注不能确认适用于它", []
+    return None, [f"孔数取自图纸标注 {m.group(0)!r}，适用于本页尺寸表所列型号"]
+
+
 def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list[str]]:
     """在引用所在的那一行核对叫法、数值、单位、工况；返回（拒绝原因, 注意事项）。"""
     page = p["page"]
@@ -873,6 +904,10 @@ def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list
     cond = p.get("condition") if isinstance(p.get("condition"), str) else ""
     if _squash(text) not in quote:
         return "原文引用中没有印出的文字", []
+    if str(p.get("target", "")).endswith("/hole_count") and ctx.target_model:
+        hit = _drawing_count(ctx, page, p)
+        if hit is not None:
+            return hit
     candidates = [ln for ln in ctx.lines[page] if quote and quote in ln.joined]
     if not candidates:
         return f"原文引用在第 {page} 页的任何一行中都找不到", []

@@ -461,3 +461,18 @@ def test_rejected_corrected_to_existing_target(db, results):
     rv.decide(db, rej["id"], "correct", reviewer="t", error_category="false_reject", value={"value": 7.7}, page=1)
     _, problems = rv.effective_values(db, eid)
     assert any("矛盾" in p for p in problems)
+
+
+def test_derive_iso286_fit():
+    shaft = {"nominal": 8, "tol_upper": 0, "tol_lower": -0.009, "reviewed": True}
+    d = derive("servo_motor", {"ports/shaft/diameter_mm": shaft})
+    fit = d["ports/shaft/fit"]
+    assert fit["value"] == "h6" and fit["method"] == "computed" and fit["reviewed"] is True
+    assert "ISO 286" in fit["source"]["formula"]
+    # 偏差对应不上常用公差带：不推导
+    odd = dict(shaft, tol_lower=-0.010)
+    assert "ports/shaft/fit" not in derive("servo_motor", {"ports/shaft/diameter_mm": odd})
+    # 只有名义值：不推导；已给出的公差带不覆盖
+    assert "ports/shaft/fit" not in derive("servo_motor", {"ports/shaft/diameter_mm": {"value": 8, "reviewed": True}})
+    given = {"ports/shaft/diameter_mm": shaft, "ports/shaft/fit": {"value": "k6"}}
+    assert "ports/shaft/fit" not in derive("servo_motor", given)
