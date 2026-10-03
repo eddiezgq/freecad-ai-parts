@@ -1,6 +1,17 @@
 {
-  "agreed": [],
+  "agreed": [
+    "ports/motor_out/peak_current_a",
+    "ports/motor_out/rated_current_a"
+  ],
   "pending": [
+    {
+      "target": "params/rated_output_power_w",
+      "check": {
+        "value": 100.0,
+        "condition": "Single-Phase, 200 VAC"
+      },
+      "reason": "只有复核抽取报出"
+    },
     {
       "target": "ports/bus/connector",
       "primary": {
