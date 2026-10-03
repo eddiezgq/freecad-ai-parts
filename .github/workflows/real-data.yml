@@ -63,7 +63,8 @@ jobs:
           python -m ingest.fetch --pin "${args[@]}"
       - name: 页码索引（不含原文）
         run: |
-          python -m ingest.jobs index --summary index.md
+          args=(); for d in $DOCS; do args+=(--doc "$d"); done
+          python -m ingest.jobs index --summary index.md "${args[@]}"
           { echo "## 页码索引"; cat index.md; } >> "$GITHUB_STEP_SUMMARY"
       - name: 抽取
         if: inputs.extract && !inputs.replay && env.ANTHROPIC_API_KEY != ''
