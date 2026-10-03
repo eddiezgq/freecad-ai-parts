@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -19,14 +20,26 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 MARKER = "# 由 python -m freecad_addon.install 生成"
 
 
-def default_mod_dir() -> Path:
-    """FreeCAD 1.0 的用户 Mod 目录（可在 FreeCAD 的 Python 控制台中用 FreeCAD.getUserAppDataDir() 核对）。"""
+def _freecad_root() -> Path:
     home = Path.home()
     if sys.platform.startswith("win"):
-        return Path(os.environ.get("APPDATA") or home / "AppData" / "Roaming") / "FreeCAD" / "Mod"
+        return Path(os.environ.get("APPDATA") or home / "AppData" / "Roaming") / "FreeCAD"
     if sys.platform == "darwin":
-        return home / "Library" / "Application Support" / "FreeCAD" / "Mod"
-    return Path(os.environ.get("XDG_DATA_HOME") or home / ".local" / "share") / "FreeCAD" / "Mod"
+        return home / "Library" / "Application Support" / "FreeCAD"
+    return Path(os.environ.get("XDG_DATA_HOME") or home / ".local" / "share") / "FreeCAD"
+
+
+def default_mod_dir() -> Path:
+    """FreeCAD 1.0 的用户 Mod 目录（可在 FreeCAD 的 Python 控制台中用 FreeCAD.getUserAppDataDir() 核对）。"""
+    return _freecad_root() / "Mod"
+
+
+def default_mod_dirs() -> list[Path]:
+    """要安装到的全部 Mod 目录：1.0 的目录，加上已有的按版本分开的用户目录（FreeCAD 1.1 起为 v1-1/ 等）。"""
+    root = _freecad_root()
+    versioned = sorted(d for d in root.glob("v*") if d.is_dir() and re.fullmatch(r"v\d+-\d+", d.name)) \
+        if root.is_dir() else []
+    return [root / "Mod", *(d / "Mod" for d in versioned)]
 
 
 def init_gui_source(repo: Path = REPO_ROOT) -> str:
@@ -64,12 +77,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--mod-dir", type=Path, default=None, help="FreeCAD 用户 Mod 目录（缺省按系统推断）")
     parser.add_argument("--uninstall", action="store_true")
     args = parser.parse_args(argv)
-    mod_dir = args.mod_dir or default_mod_dir()
+    mod_dirs = [args.mod_dir] if args.mod_dir else default_mod_dirs()
     if args.uninstall:
-        print(f"已卸载：{mod_dir / MOD_NAME}" if uninstall(mod_dir) else f"未安装：{mod_dir / MOD_NAME}")
+        for mod_dir in mod_dirs:
+            print(f"已卸载：{mod_dir / MOD_NAME}" if uninstall(mod_dir) else f"未安装：{mod_dir / MOD_NAME}")
         return 0
-    target = install(mod_dir)
-    print(f"已安装到 {target}\n重启 FreeCAD 后，在工作台列表中选择 “AI Parts”。\n"
+    targets = [install(mod_dir) for mod_dir in mod_dirs]
+    print("已安装到：\n" + "\n".join(f"  {t}" for t in targets) + "\n"
+          "重启 FreeCAD 后，在工作台列表中选择 “AI Parts”。\n"
+          "列表中没有时，在 FreeCAD 的 Python 控制台运行 FreeCAD.getUserAppDataDir() 查看用户目录，"
+          "再用 --mod-dir <用户目录>/Mod 安装。\n"
           "对话面板还需要：\n"
           "  1. 在 FreeCAD 的 Python 中安装依赖：<FreeCAD 的 python> -m pip install -e \".[llm]\"\n"
           "  2. 启动 FreeCAD 前设置环境变量 ANTHROPIC_API_KEY（或写在本仓库的 .env 中）")
