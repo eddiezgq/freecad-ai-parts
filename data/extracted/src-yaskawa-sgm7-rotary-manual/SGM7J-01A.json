@@ -6,6 +6,7 @@
     "pages": 5
   },
   "category": "servo_motor",
+  "model": "SGM7J-01A",
   "series": "SGM7J",
   "extractor": {
     "model": "claude-sonnet-5-5",
@@ -14,49 +15,17 @@
   },
   "items": [
     {
-      "target": "ports/shaft/max_radial_load_n",
-      "value": {
-        "value": 78.0,
-        "source": {
-          "doc": "src-yaskawa-sgm7-rotary-manual",
-          "page": 55
-        },
-        "method": "extracted",
-        "confidence": 0.85,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "78",
-        "unit": "N",
-        "label": "Allowable Radial Load",
-        "quote": "Allowable Radial Load N 78 245 392"
-      }
-    },
-    {
-      "target": "ports/shaft/max_axial_load_n",
-      "value": {
-        "value": 54.0,
-        "source": {
-          "doc": "src-yaskawa-sgm7-rotary-manual",
-          "page": 55
-        },
-        "method": "extracted",
-        "confidence": 0.85,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "54",
-        "unit": "N",
-        "label": "Allowable Thrust Load",
-        "quote": "Allowable Thrust Load N 54 74 147"
-      }
-    }
-  ],
-  "rejected": [
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/rated_power_w",
-      "page": 55,
+      "value": {
+        "value": 100.0,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 55
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "100",
         "unit": "W",
@@ -64,6 +33,90 @@
         "quote": "Rated Output*1 W 50 100 150 200 400 600 750"
       }
     },
+    {
+      "target": "params/rated_speed_rpm",
+      "value": {
+        "value": 3000.0,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 55
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "3000",
+        "unit": "min-1",
+        "label": "Rated Motor Speed",
+        "quote": "Rated Motor Speed*1 min-1 3000"
+      },
+      "issues": [
+        "该行只有一个数值，按各型号共用（合并单元格）处理"
+      ]
+    },
+    {
+      "target": "params/max_speed_rpm",
+      "value": {
+        "value": 6000.0,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 55
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "6000",
+        "unit": "min-1",
+        "label": "Maximum Motor Speed",
+        "quote": "Maximum Motor Speed*1 min-1 6000"
+      },
+      "issues": [
+        "该行只有一个数值，按各型号共用（合并单元格）处理"
+      ]
+    },
+    {
+      "target": "ports/power_in/rated_current_a",
+      "value": {
+        "value": 0.85,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 55
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "0.85",
+        "unit": "Arms",
+        "label": "Rated Current",
+        "quote": "Rated Current*1 Arms 0.55 0.85 1.6 1.6 2.5 4.2 4.4"
+      }
+    },
+    {
+      "target": "ports/power_in/peak_current_a",
+      "value": {
+        "value": 3.1,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 55
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "3.1",
+        "unit": "Arms",
+        "label": "Instantaneous Maximum Current",
+        "quote": "Instantaneous Maximum Current*1 Arms 2.0 3.1 5.7 5.8 9.3 15.3 16.9"
+      }
+    }
+  ],
+  "rejected": [
     {
       "reason": "原文引用在第 55 页的任何一行中都找不到",
       "target": "params/rated_torque_nm",
@@ -87,29 +140,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/rated_speed_rpm",
-      "page": 55,
-      "printed": {
-        "text": "3000",
-        "unit": "min-1",
-        "label": "Rated Motor Speed",
-        "quote": "Rated Motor Speed*1 min-1 3000"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/max_speed_rpm",
-      "page": 55,
-      "printed": {
-        "text": "6000",
-        "unit": "min-1",
-        "label": "Maximum Motor Speed",
-        "quote": "Maximum Motor Speed*1 min-1 6000"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "单位 '×10-4 kgm2' 不在引用所在的行中，本页也找不到",
       "target": "params/rotor_inertia_kgm2",
       "page": 55,
       "printed": {
@@ -120,7 +151,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 0 个数值，与 7 个型号列对不上",
       "target": "params/ip_rating",
       "page": 55,
       "printed": {
@@ -142,25 +173,25 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/rated_current_a",
+      "reason": "该行有 3 个数值，与 7 个型号列对不上",
+      "target": "ports/shaft/max_radial_load_n",
       "page": 55,
       "printed": {
-        "text": "0.85",
-        "unit": "Arms",
-        "label": "Rated Current",
-        "quote": "Rated Current*1 Arms 0.55 0.85 1.6 1.6 2.5 4.2 4.4"
+        "text": "78",
+        "unit": "N",
+        "label": "Allowable Radial Load",
+        "quote": "Allowable Radial Load N 78 245 392"
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/peak_current_a",
+      "reason": "该行有 3 个数值，与 7 个型号列对不上",
+      "target": "ports/shaft/max_axial_load_n",
       "page": 55,
       "printed": {
-        "text": "3.1",
-        "unit": "Arms",
-        "label": "Instantaneous Maximum Current",
-        "quote": "Instantaneous Maximum Current*1 Arms 2.0 3.1 5.7 5.8 9.3 15.3 16.9"
+        "text": "54",
+        "unit": "N",
+        "label": "Allowable Thrust Load",
+        "quote": "Allowable Thrust Load N 54 74 147"
       }
     },
     {
@@ -279,21 +310,11 @@
         "text": "Yaskawa"
       },
       "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "SGM7J-01A"
-      },
-      "reason": "model 在规格书中找不到"
     }
   ],
   "missing_key_fields": [
-    "params/rated_power_w",
     "params/rated_torque_nm",
     "params/peak_torque_nm",
-    "params/rated_speed_rpm",
-    "params/max_speed_rpm",
     "params/rotor_inertia_kgm2",
     "params/mass_kg"
   ]

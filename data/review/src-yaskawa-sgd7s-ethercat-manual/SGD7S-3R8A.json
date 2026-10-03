@@ -7,6 +7,13 @@
         "value": 1.6
       },
       "reason": "只有主抽取报出"
+    },
+    {
+      "target": "ports/motor_out/rated_current_a",
+      "primary": {
+        "value": 3.8
+      },
+      "reason": "只有主抽取报出"
     }
   ],
   "problems": [

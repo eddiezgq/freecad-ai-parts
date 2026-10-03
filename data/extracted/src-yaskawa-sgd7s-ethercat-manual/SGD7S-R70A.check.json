@@ -76,7 +76,7 @@
   ],
   "rejected": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 0 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/current_type",
       "page": 62,
       "printed": {
@@ -87,7 +87,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 1 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/phases",
       "page": 62,
       "printed": {
@@ -98,7 +98,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 1 个数值，与 6 个型号列对不上",
       "target": "ports/power_in/phases",
       "page": 63,
       "printed": {
@@ -109,7 +109,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 4 个数值，与 6 个型号列对不上",
       "target": "ports/power_in/voltage_v",
       "page": 63,
       "printed": {
@@ -120,7 +120,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 4 个数值，与 6 个型号列对不上",
       "target": "ports/power_in/frequency_hz",
       "page": 63,
       "printed": {
@@ -131,7 +131,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "叫法不在引用所在的行中",
       "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
@@ -153,7 +153,7 @@
       }
     },
     {
-      "reason": "工况 '270 VDC input, Main Circuit' 在第 64 页找不到",
+      "reason": "该行有 2 个数值，与 8 个型号列对不上",
       "target": "ports/power_in/voltage_v",
       "page": 64,
       "printed": {

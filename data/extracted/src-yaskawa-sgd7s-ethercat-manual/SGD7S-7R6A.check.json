@@ -6,15 +6,36 @@
     "pages": 12
   },
   "category": "drive",
+  "model": "SGD7S-7R6A",
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
     "response_id": "msg_011CfeTbme6fpP98H1U5QCcM"
   },
-  "items": [],
+  "items": [
+    {
+      "target": "ports/motor_out/rated_current_a",
+      "value": {
+        "value": 7.6,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 64
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "7.6",
+        "unit": "Arms",
+        "label": "Continuous Output Current [Arms]",
+        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6"
+      }
+    }
+  ],
   "rejected": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "叫法不在引用所在的行中",
       "target": "params/rated_output_power_w",
       "page": 62,
       "printed": {
@@ -36,18 +57,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/motor_out/rated_current_a",
-      "page": 64,
-      "printed": {
-        "text": "7.6",
-        "unit": "Arms",
-        "label": "Continuous Output Current [Arms]",
-        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "叫法不在引用所在的行中",
       "target": "ports/motor_out/peak_current_a",
       "page": 62,
       "printed": {
@@ -58,7 +68,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 4 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/voltage_v",
       "page": 62,
       "printed": {
@@ -69,7 +79,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 4 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/frequency_hz",
       "page": 62,
       "printed": {
@@ -80,7 +90,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 1 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/phases",
       "page": 62,
       "printed": {
@@ -91,7 +101,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 0 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/current_type",
       "page": 62,
       "printed": {
@@ -102,7 +112,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "叫法不在引用所在的行中",
       "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
@@ -210,13 +220,6 @@
         "label": "mounting pitch",
         "quote": "58 ±0.5 (mounting pitch)"
       }
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "SGD7S-7R6A"
-      },
-      "reason": "model 在规格书中找不到"
     },
     {
       "target": "series",

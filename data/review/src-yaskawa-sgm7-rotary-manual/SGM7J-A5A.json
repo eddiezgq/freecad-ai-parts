@@ -1,23 +1,27 @@
 {
   "agreed": [
-    "ports/power_in/voltage_class_v",
-    "ports/shaft/max_axial_load_n",
-    "ports/shaft/max_radial_load_n"
+    "params/max_speed_rpm",
+    "params/rated_power_w",
+    "params/rated_speed_rpm",
+    "ports/mount_flange/pilot_diameter_mm",
+    "ports/power_in/peak_current_a",
+    "ports/power_in/rated_current_a",
+    "ports/power_in/voltage_class_v"
   ],
   "pending": [
     {
-      "target": "params/ip_rating",
-      "primary": {
-        "value": "IP67"
+      "target": "dims/square_mm",
+      "check": {
+        "value": 40.0
       },
-      "reason": "只有主抽取报出"
+      "reason": "只有复核抽取报出"
     },
     {
-      "target": "params/rated_power_w",
-      "primary": {
-        "value": 50.0
+      "target": "ports/mount_flange/hole_diameter_mm",
+      "check": {
+        "value": 4.3
       },
-      "reason": "只有主抽取报出"
+      "reason": "只有复核抽取报出"
     },
     {
       "target": "ports/mount_flange/pcd_mm",
@@ -27,18 +31,11 @@
       "reason": "只有复核抽取报出"
     },
     {
-      "target": "ports/power_in/peak_current_a",
-      "primary": {
-        "value": 2.0
+      "target": "ports/mount_flange/square_size_mm",
+      "check": {
+        "value": 40.0
       },
-      "reason": "只有主抽取报出"
-    },
-    {
-      "target": "ports/power_in/rated_current_a",
-      "primary": {
-        "value": 0.55
-      },
-      "reason": "只有主抽取报出"
+      "reason": "只有复核抽取报出"
     },
     {
       "target": "ports/shaft/diameter_mm",
@@ -46,6 +43,27 @@
         "nominal": 8.0,
         "tol_upper": 0.0,
         "tol_lower": -0.009
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/shaft/max_axial_load_n",
+      "check": {
+        "value": 54.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/shaft/max_radial_load_n",
+      "check": {
+        "value": 78.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/shaft/usable_length_mm",
+      "check": {
+        "value": 25.0
       },
       "reason": "只有复核抽取报出"
     }

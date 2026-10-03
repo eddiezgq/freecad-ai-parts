@@ -7,6 +7,24 @@
         "value": 2.2
       },
       "reason": "只有主抽取报出"
+    },
+    {
+      "target": "ports/motor_out/peak_current_a",
+      "primary": {
+        "value": 28.0
+      },
+      "check": {
+        "value": 28.0,
+        "condition": "Single-Phase, 200 VAC"
+      },
+      "reason": "两次的值不一致"
+    },
+    {
+      "target": "ports/motor_out/rated_current_a",
+      "primary": {
+        "value": 11.6
+      },
+      "reason": "只有主抽取报出"
     }
   ],
   "problems": [

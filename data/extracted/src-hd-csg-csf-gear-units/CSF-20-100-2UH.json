@@ -32,8 +32,7 @@
         "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Ratio' 在表头，须核对所在列",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Ratio' 在表头，数值在该列"
       ]
     },
     {
@@ -56,10 +55,8 @@
         "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Rated Torque at 2000rpm' 在表头，须核对所在列",
-        "工况 'at 2000rpm' 不在同一行，取自本页其他位置（表头或脚注），须核对",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Rated Torque at 2000rpm' 在表头，数值在该列",
+        "工况 'at 2000rpm' 不在同一行，取自本页其他位置（表头或脚注），须核对"
       ]
     },
     {
@@ -81,9 +78,7 @@
         "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Limit for Repeated Peak Torque' 在表头，须核对所在列",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Limit for Repeated Peak Torque' 在表头，数值在该列"
       ]
     },
     {
@@ -105,24 +100,30 @@
         "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Limit for Momentary Peak Torque' 在表头，须核对所在列",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Limit for Momentary Peak Torque' 在表头，数值在该列"
       ]
-    }
-  ],
-  "rejected": [
+    },
     {
-      "reason": "叫法不在引用所在的行中",
       "target": "params/mass_kg",
-      "page": 11,
+      "value": {
+        "value": 0.98,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
       "printed": {
         "text": "0.98",
         "unit": "kg",
         "label": "Mass (kg) CSF Series",
         "quote": "|  | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |"
       }
-    },
+    }
+  ],
+  "rejected": [
     {
       "reason": "单位 'mm' 不在同一行，而本页还有其他同类单位 ['m']，无法判断",
       "target": "dims/outer_diameter_mm",
@@ -135,7 +136,7 @@
       }
     },
     {
-      "reason": "叫法不在引用所在的行中",
+      "reason": "单位：字段 lost_motion_arcmin 不接受单位 'arc min'（只接受 ['\"', \"'\", 'arcmin', 'arcsec', 'deg', 'degree', 'rad', 'radian', '°']）",
       "target": "params/lost_motion_arcmin",
       "page": 12,
       "printed": {
@@ -174,7 +175,6 @@
   "missing_key_fields": [
     "params/reducer_kind",
     "params/max_input_speed_rpm",
-    "params/efficiency_ratio",
-    "params/mass_kg"
+    "params/efficiency_ratio"
   ]
 }

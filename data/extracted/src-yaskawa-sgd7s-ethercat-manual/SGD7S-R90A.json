@@ -6,12 +6,51 @@
     "pages": 12
   },
   "category": "drive",
+  "model": "SGD7S-R90A",
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
     "response_id": "msg_011CfeSCdrXen8AZEE5m9XNL"
   },
   "items": [
+    {
+      "target": "ports/motor_out/rated_current_a",
+      "value": {
+        "value": 0.91,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "0.91",
+        "unit": "Arms",
+        "label": "Continuous Output Current",
+        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6"
+      }
+    },
+    {
+      "target": "ports/motor_out/peak_current_a",
+      "value": {
+        "value": 3.2,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "3.2",
+        "unit": "Arms",
+        "label": "Instantaneous Maximum Output Current",
+        "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
+      }
+    },
     {
       "target": "ports/bus/protocol",
       "value": {
@@ -53,28 +92,6 @@
   ],
   "rejected": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/motor_out/rated_current_a",
-      "page": 63,
-      "printed": {
-        "text": "0.91",
-        "unit": "Arms",
-        "label": "Continuous Output Current",
-        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/motor_out/peak_current_a",
-      "page": 63,
-      "printed": {
-        "text": "3.2",
-        "unit": "Arms",
-        "label": "Instantaneous Maximum Output Current",
-        "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
-      }
-    },
-    {
       "reason": "值 'HWBB' 与印出的文字 '/HWBB1 and /HWBB2: Base block signals for Power Modules' 不一致",
       "target": "params/safety_functions",
       "page": 70,
@@ -91,13 +108,6 @@
         "text": "Yaskawa"
       },
       "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "SGD7S-R90A"
-      },
-      "reason": "model 在规格书中找不到"
     },
     {
       "target": "series",

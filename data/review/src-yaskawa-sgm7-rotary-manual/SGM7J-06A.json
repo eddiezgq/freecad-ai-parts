@@ -1,5 +1,10 @@
 {
   "agreed": [
+    "params/max_speed_rpm",
+    "params/rated_power_w",
+    "params/rated_speed_rpm",
+    "ports/power_in/peak_current_a",
+    "ports/power_in/rated_current_a",
     "ports/power_in/voltage_class_v"
   ],
   "pending": [],

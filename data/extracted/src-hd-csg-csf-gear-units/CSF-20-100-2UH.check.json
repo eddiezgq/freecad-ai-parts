@@ -32,8 +32,7 @@
         "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |"
       },
       "issues": [
-        "叫法 'Ratio' 在表头，须核对所在列",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Ratio' 在表头，数值在该列"
       ]
     },
     {
@@ -56,10 +55,8 @@
         "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |"
       },
       "issues": [
-        "叫法 'Rated Torque at 2000rpm' 在表头，须核对所在列",
-        "工况 'at 2000rpm' 不在同一行，取自本页其他位置（表头或脚注），须核对",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Rated Torque at 2000rpm' 在表头，数值在该列",
+        "工况 'at 2000rpm' 不在同一行，取自本页其他位置（表头或脚注），须核对"
       ]
     },
     {
@@ -81,9 +78,7 @@
         "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |"
       },
       "issues": [
-        "叫法 'Limit for Repeated Peak Torque' 在表头，须核对所在列",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Limit for Repeated Peak Torque' 在表头，数值在该列"
       ]
     },
     {
@@ -105,10 +100,27 @@
         "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |"
       },
       "issues": [
-        "叫法 'Limit for Momentary Peak Torque' 在表头，须核对所在列",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Limit for Momentary Peak Torque' 在表头，数值在该列"
       ]
+    },
+    {
+      "target": "params/mass_kg",
+      "value": {
+        "value": 0.98,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "0.98",
+        "unit": "kg",
+        "label": "Mass (kg) CSF Series",
+        "quote": "|  | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |"
+      }
     },
     {
       "target": "ports/input_bore/key_width_mm",
@@ -135,6 +147,50 @@
   ],
   "rejected": [
     {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/max_input_speed_rpm",
+      "page": 9,
+      "printed": {
+        "text": "10000",
+        "unit": "rpm",
+        "label": "Maximum Input Speed (rpm)",
+        "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/max_input_speed_rpm",
+      "page": 9,
+      "printed": {
+        "text": "6500",
+        "unit": "rpm",
+        "label": "Maximum Input Speed (rpm)",
+        "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/avg_input_speed_limit_rpm",
+      "page": 9,
+      "printed": {
+        "text": "6500",
+        "unit": "rpm",
+        "label": "Limit for Average Input Speed (rpm)",
+        "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/avg_input_speed_limit_rpm",
+      "page": 9,
+      "printed": {
+        "text": "3500",
+        "unit": "rpm",
+        "label": "Limit for Average Input Speed (rpm)",
+        "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
+      }
+    },
+    {
       "reason": "叫法不在引用所在的行中",
       "target": "params/input_inertia_kgm2",
       "page": 9,
@@ -143,17 +199,6 @@
         "unit": "×10−4kgm2",
         "label": "Moment of Inertia I",
         "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
-      }
-    },
-    {
-      "reason": "叫法不在引用所在的行中",
-      "target": "params/mass_kg",
-      "page": 11,
-      "printed": {
-        "text": "0.98",
-        "unit": "kg",
-        "label": "Mass (kg) CSF Series",
-        "quote": "|  | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |"
       }
     },
     {
@@ -256,50 +301,6 @@
       }
     },
     {
-      "target": "params/max_input_speed_rpm",
-      "page": 9,
-      "printed": {
-        "text": "10000",
-        "unit": "rpm",
-        "label": "Maximum Input Speed (rpm)",
-        "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
-      },
-      "reason": "同一 target 有互相矛盾的值"
-    },
-    {
-      "target": "params/max_input_speed_rpm",
-      "page": 9,
-      "printed": {
-        "text": "6500",
-        "unit": "rpm",
-        "label": "Maximum Input Speed (rpm)",
-        "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
-      },
-      "reason": "同一 target 有互相矛盾的值"
-    },
-    {
-      "target": "params/avg_input_speed_limit_rpm",
-      "page": 9,
-      "printed": {
-        "text": "6500",
-        "unit": "rpm",
-        "label": "Limit for Average Input Speed (rpm)",
-        "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
-      },
-      "reason": "同一 target 有互相矛盾的值"
-    },
-    {
-      "target": "params/avg_input_speed_limit_rpm",
-      "page": 9,
-      "printed": {
-        "text": "3500",
-        "unit": "rpm",
-        "label": "Limit for Average Input Speed (rpm)",
-        "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
-      },
-      "reason": "同一 target 有互相矛盾的值"
-    },
-    {
       "target": "vendor",
       "printed": {
         "text": "Harmonic Drive"
@@ -317,7 +318,6 @@
   "missing_key_fields": [
     "params/reducer_kind",
     "params/max_input_speed_rpm",
-    "params/efficiency_ratio",
-    "params/mass_kg"
+    "params/efficiency_ratio"
   ]
 }

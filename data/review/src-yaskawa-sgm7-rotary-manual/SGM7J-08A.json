@@ -1,13 +1,12 @@
 {
-  "agreed": [],
+  "agreed": [
+    "params/max_speed_rpm",
+    "params/rated_power_w",
+    "params/rated_speed_rpm",
+    "ports/power_in/peak_current_a",
+    "ports/power_in/rated_current_a"
+  ],
   "pending": [
-    {
-      "target": "params/ip_rating",
-      "primary": {
-        "value": "IP67"
-      },
-      "reason": "只有主抽取报出"
-    },
     {
       "target": "ports/power_in/voltage_class_v",
       "check": {
