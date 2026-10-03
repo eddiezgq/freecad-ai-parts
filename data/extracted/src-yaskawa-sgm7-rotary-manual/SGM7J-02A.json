@@ -1,0 +1,292 @@
+{
+  "format": "extraction/1",
+  "document": {
+    "doc": "src-yaskawa-sgm7-rotary-manual",
+    "sha256": "790923847a5463eac791c35ef87062807b20d2f39e6ded523d51b63ed7d88044",
+    "pages": 5
+  },
+  "category": "servo_motor",
+  "series": "SGM7J",
+  "extractor": {
+    "model": "claude-sonnet-5-5",
+    "prompt_version": "extract/3",
+    "response_id": "msg_011CfeRvVQ68nxgBPBh2Yv3S"
+  },
+  "items": [
+    {
+      "target": "ports/power_in/voltage_class_v",
+      "value": {
+        "value": 200.0,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 55
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "200 V",
+        "unit": "V",
+        "label": "Voltage",
+        "quote": "Voltage 200 V"
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/rated_power_w",
+      "page": 55,
+      "printed": {
+        "text": "200",
+        "unit": "W",
+        "label": "Rated Output",
+        "quote": "Rated Output*1 W 50 100 150 200 400 600 750"
+      }
+    },
+    {
+      "reason": "原文引用在第 55 页的任何一行中都找不到",
+      "target": "params/rated_torque_nm",
+      "page": 55,
+      "printed": {
+        "text": "0.637",
+        "unit": "Nm",
+        "label": "Rated Torque",
+        "quote": "Rated Torque*1, *2 Nm 0.159 0.318 0.477 0.637 1.27 1.91 2.39"
+      }
+    },
+    {
+      "reason": "原文引用在第 55 页的任何一行中都找不到",
+      "target": "params/peak_torque_nm",
+      "page": 55,
+      "printed": {
+        "text": "2.23",
+        "unit": "Nm",
+        "label": "Instantaneous Maximum Torque",
+        "quote": "Instantaneous Maximum Torque*1 Nm 0.557 1.11 1.67 2.23 4.46 6.69 8.36"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/rated_speed_rpm",
+      "page": 55,
+      "printed": {
+        "text": "3000",
+        "unit": "min-1",
+        "label": "Rated Motor Speed",
+        "quote": "Rated Motor Speed*1 min-1 3000"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/max_speed_rpm",
+      "page": 55,
+      "printed": {
+        "text": "6000",
+        "unit": "min-1",
+        "label": "Maximum Motor Speed",
+        "quote": "Maximum Motor Speed*1 min-1 6000"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/rotor_inertia_kgm2",
+      "page": 55,
+      "printed": {
+        "text": "0.263",
+        "unit": "×10-4 kgm2",
+        "label": "Motor Moment of Inertia",
+        "quote": "Motor Moment of Inertia 0.0395 0.0659 0.0915 0.263 0.486 0.800 1.59"
+      }
+    },
+    {
+      "reason": "原文引用在第 55 页的任何一行中都找不到",
+      "target": "params/torque_constant_nm_per_a",
+      "page": 55,
+      "printed": {
+        "text": "0.444",
+        "unit": "Nm/Arms",
+        "label": "Torque Constant",
+        "quote": "Torque Constant Nm/Arms 0.316 0.413 0.321 0.444 0.544 0.493 0.584"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/ip_rating",
+      "page": 55,
+      "printed": {
+        "text": "Totally enclosed, self-cooled, IP67",
+        "unit": "",
+        "label": "Protective Structure",
+        "quote": "Protective Structure*3 Totally enclosed, self-cooled, IP67"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/rated_current_a",
+      "page": 55,
+      "printed": {
+        "text": "1.6",
+        "unit": "Arms",
+        "label": "Rated Current",
+        "quote": "Rated Current*1 Arms 0.55 0.85 1.6 1.6 2.5 4.2 4.4"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/peak_current_a",
+      "page": 55,
+      "printed": {
+        "text": "5.8",
+        "unit": "Arms",
+        "label": "Instantaneous Maximum Current",
+        "quote": "Instantaneous Maximum Current*1 Arms 2.0 3.1 5.7 5.8 9.3 15.3 16.9"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/shaft/max_radial_load_n",
+      "page": 55,
+      "printed": {
+        "text": "245",
+        "unit": "N",
+        "label": "Allowable Radial Load",
+        "quote": "Allowable Radial Load N 78 245 392"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/shaft/max_axial_load_n",
+      "page": 55,
+      "printed": {
+        "text": "74",
+        "unit": "N",
+        "label": "Allowable Thrust Load",
+        "quote": "Allowable Thrust Load N 54 74 147"
+      }
+    },
+    {
+      "reason": "原文引用中没有印出的文字",
+      "target": "ports/shaft/diameter_mm",
+      "page": 65,
+      "printed": {
+        "text": "14 0 -0.011",
+        "unit": "mm",
+        "label": "S",
+        "quote": "02AA2 51.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/shaft/usable_length_mm",
+      "page": 66,
+      "printed": {
+        "text": "30",
+        "unit": "mm",
+        "label": "LR",
+        "quote": "LR 25 30 40"
+      }
+    },
+    {
+      "reason": "原文引用在第 65 页的任何一行中都找不到",
+      "target": "ports/mount_flange/pcd_mm",
+      "page": 65,
+      "printed": {
+        "text": "70",
+        "unit": "mm",
+        "label": "LA",
+        "quote": "02AA2 51.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1"
+      }
+    },
+    {
+      "reason": "原文引用在第 65 页的任何一行中都找不到",
+      "target": "ports/mount_flange/hole_diameter_mm",
+      "page": 65,
+      "printed": {
+        "text": "5.5",
+        "unit": "mm",
+        "label": "LZ",
+        "quote": "02AA2 51.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1"
+      }
+    },
+    {
+      "reason": "原文引用在第 65 页的任何一行中都找不到",
+      "target": "ports/mount_flange/pilot_diameter_mm",
+      "page": 65,
+      "printed": {
+        "text": "50",
+        "unit": "mm",
+        "label": "LB",
+        "quote": "02AA2 51.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1"
+      }
+    },
+    {
+      "reason": "原文引用在第 65 页的任何一行中都找不到",
+      "target": "ports/mount_flange/square_size_mm",
+      "page": 65,
+      "printed": {
+        "text": "60",
+        "unit": "mm",
+        "label": "LC",
+        "quote": "02AA2 51.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1"
+      }
+    },
+    {
+      "reason": "原文引用在第 65 页的任何一行中都找不到",
+      "target": "dims/square_mm",
+      "page": 65,
+      "printed": {
+        "text": "60",
+        "unit": "mm",
+        "label": "LC",
+        "quote": "02AA2 51.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "dims/overall_length_mm",
+      "page": 65,
+      "printed": {
+        "text": "99.5",
+        "unit": "mm",
+        "label": "L",
+        "quote": "99.5 69.5 0.8"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/mass_kg",
+      "page": 65,
+      "printed": {
+        "text": "0.8",
+        "unit": "kg",
+        "label": "Approx. Mass",
+        "quote": "99.5 69.5 0.8"
+      }
+    },
+    {
+      "target": "vendor",
+      "printed": {
+        "text": "YASKAWA"
+      },
+      "reason": "vendor 在规格书中找不到"
+    },
+    {
+      "target": "model",
+      "printed": {
+        "text": "SGM7J-02A"
+      },
+      "reason": "model 在规格书中找不到"
+    }
+  ],
+  "missing_key_fields": [
+    "params/rated_power_w",
+    "params/rated_torque_nm",
+    "params/peak_torque_nm",
+    "params/rated_speed_rpm",
+    "params/max_speed_rpm",
+    "params/rotor_inertia_kgm2",
+    "params/mass_kg"
+  ]
+}

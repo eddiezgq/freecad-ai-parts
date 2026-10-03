@@ -1,0 +1,55 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "20080cf6b42bc64caba06e9b79e500f0dfe65a785d4e4d3726547482e7dc574a",
+  "response": {
+    "id": "msg_011CfeSBJxSqcXF5cX4VduqJ",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.9,
+          "page": 63,
+          "printed_label": "Continuous Output Current",
+          "printed_text": "0.66",
+          "printed_unit": "Arms",
+          "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 0.66
+        },
+        {
+          "confidence": 0.9,
+          "page": 63,
+          "printed_label": "Instantaneous Maximum Output Current",
+          "printed_text": "2.1",
+          "printed_unit": "Arms",
+          "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 2.1
+        },
+        {
+          "confidence": 0.7,
+          "page": 69,
+          "printed_label": "Applicable Communications Standards",
+          "printed_text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "printed_unit": "",
+          "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "target": "ports/bus/profile",
+          "value": "cia402"
+        },
+        {
+          "confidence": 0.6,
+          "page": 69,
+          "printed_label": "Communications Connectors",
+          "printed_text": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "printed_unit": "",
+          "quote": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "target": "ports/bus/connector",
+          "value": "RJ45"
+        }
+      ],
+      "model": "SGD7S-R70A",
+      "vendor": "Yaskawa"
+    }
+  }
+}

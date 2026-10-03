@@ -1,0 +1,87 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "a05f974e27cbddcbc755772f9291204a80a532cdd7c6b5fe6551ece6f14308a7",
+  "response": {
+    "id": "msg_011CfeRZiiT6XPiwR8SaqoiE",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "CSF Series",
+          "printed_text": "CSF",
+          "printed_unit": "",
+          "quote": "■ CSF Series Table 127-1",
+          "target": "params/reducer_kind",
+          "value": "harmonic"
+        },
+        {
+          "confidence": 0.9,
+          "page": 9,
+          "printed_label": "Ratio",
+          "printed_text": "50",
+          "printed_unit": "",
+          "quote": "|  | 50 | 5.4 | 0.55 | 18 | 1.8 | 6.9 | 0.70 | 35 | 3.6 |",
+          "target": "params/ratio",
+          "value": 50
+        },
+        {
+          "condition": "Rated Torque at 2000rpm",
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Rated Torque at 2000rpm",
+          "printed_text": "5.4",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 5.4 | 0.55 | 18 | 1.8 | 6.9 | 0.70 | 35 | 3.6 |",
+          "target": "params/rated_torque_nm",
+          "value": 5.4
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Repeated Peak Torque",
+          "printed_text": "18",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 5.4 | 0.55 | 18 | 1.8 | 6.9 | 0.70 | 35 | 3.6 |",
+          "target": "params/repeated_peak_torque_nm",
+          "value": 18
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Momentary Peak Torque",
+          "printed_text": "35",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 5.4 | 0.55 | 18 | 1.8 | 6.9 | 0.70 | 35 | 3.6 |",
+          "target": "params/momentary_max_torque_nm",
+          "value": 35
+        },
+        {
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Moment of Inertia I ×10−4kgm2",
+          "printed_text": "0.033",
+          "printed_unit": "×10−4 kgm2",
+          "quote": "| 14 | 30 | 4.0 | 0.41 | 9.0 | 0.92 | 6.8 | 0.69 | 17 | 1.7 | 14000 | 8500 | 6500 | 3500 | 0.033 | 0.034 |",
+          "target": "params/input_inertia_kgm2",
+          "value": 0.033
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "Mass (kg)",
+          "printed_text": "0.52",
+          "printed_unit": "kg",
+          "quote": "| Mass (kg) | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |",
+          "target": "params/mass_kg",
+          "value": 0.52
+        }
+      ],
+      "model": "CSF-14-50-2UH",
+      "series": "CSF",
+      "vendor": "Harmonic Drive"
+    }
+  }
+}

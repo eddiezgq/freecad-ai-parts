@@ -1,0 +1,169 @@
+{
+  "format": "extraction/1",
+  "document": {
+    "doc": "src-hd-csg-csf-gear-units",
+    "sha256": "51ef1a16a6782b481fc97ddaec9739ea3df9ae2b1a0e057773497b3cc664a521",
+    "pages": 6
+  },
+  "category": "reducer",
+  "series": "CSF",
+  "extractor": {
+    "model": "claude-sonnet-5-5",
+    "prompt_version": "extract/3",
+    "response_id": "msg_011CfeRZiiT6XPiwR8SaqoiE"
+  },
+  "items": [
+    {
+      "target": "params/ratio",
+      "value": {
+        "value": 50.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 9
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "50",
+        "unit": "",
+        "label": "Ratio",
+        "quote": "|  | 50 | 5.4 | 0.55 | 18 | 1.8 | 6.9 | 0.70 | 35 | 3.6 |"
+      },
+      "issues": [
+        "叫法 'Ratio' 在表头，须核对所在列",
+        "该行有多个数值，须核对型号列"
+      ]
+    },
+    {
+      "target": "params/rated_torque_nm",
+      "value": {
+        "value": 5.4,
+        "condition": "Rated Torque at 2000rpm",
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 9
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "5.4",
+        "unit": "Nm",
+        "label": "Rated Torque at 2000rpm",
+        "quote": "|  | 50 | 5.4 | 0.55 | 18 | 1.8 | 6.9 | 0.70 | 35 | 3.6 |"
+      },
+      "issues": [
+        "叫法 'Rated Torque at 2000rpm' 在表头，须核对所在列",
+        "工况 'Rated Torque at 2000rpm' 不在同一行，取自本页其他位置（表头或脚注），须核对",
+        "单位 Nm 不在同一行，取自本页其他位置",
+        "该行有多个数值，须核对型号列"
+      ]
+    },
+    {
+      "target": "params/repeated_peak_torque_nm",
+      "value": {
+        "value": 18.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 9
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "18",
+        "unit": "Nm",
+        "label": "Limit for Repeated Peak Torque",
+        "quote": "|  | 50 | 5.4 | 0.55 | 18 | 1.8 | 6.9 | 0.70 | 35 | 3.6 |"
+      },
+      "issues": [
+        "叫法 'Limit for Repeated Peak Torque' 在表头，须核对所在列",
+        "单位 Nm 不在同一行，取自本页其他位置",
+        "该行有多个数值，须核对型号列"
+      ]
+    },
+    {
+      "target": "params/momentary_max_torque_nm",
+      "value": {
+        "value": 35.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 9
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "35",
+        "unit": "Nm",
+        "label": "Limit for Momentary Peak Torque",
+        "quote": "|  | 50 | 5.4 | 0.55 | 18 | 1.8 | 6.9 | 0.70 | 35 | 3.6 |"
+      },
+      "issues": [
+        "叫法 'Limit for Momentary Peak Torque' 在表头，须核对所在列",
+        "单位 Nm 不在同一行，取自本页其他位置",
+        "该行有多个数值，须核对型号列"
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/reducer_kind",
+      "page": 9,
+      "printed": {
+        "text": "CSF",
+        "unit": "",
+        "label": "CSF Series",
+        "quote": "■ CSF Series Table 127-1"
+      }
+    },
+    {
+      "reason": "叫法不在引用所在的行中",
+      "target": "params/input_inertia_kgm2",
+      "page": 9,
+      "printed": {
+        "text": "0.033",
+        "unit": "×10−4 kgm2",
+        "label": "Moment of Inertia I ×10−4kgm2",
+        "quote": "| 14 | 30 | 4.0 | 0.41 | 9.0 | 0.92 | 6.8 | 0.69 | 17 | 1.7 | 14000 | 8500 | 6500 | 3500 | 0.033 | 0.034 |"
+      }
+    },
+    {
+      "reason": "原文引用在第 11 页的任何一行中都找不到",
+      "target": "params/mass_kg",
+      "page": 11,
+      "printed": {
+        "text": "0.52",
+        "unit": "kg",
+        "label": "Mass (kg)",
+        "quote": "| Mass (kg) | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |"
+      }
+    },
+    {
+      "target": "vendor",
+      "printed": {
+        "text": "Harmonic Drive"
+      },
+      "reason": "vendor 在规格书中找不到"
+    },
+    {
+      "target": "model",
+      "printed": {
+        "text": "CSF-14-50-2UH"
+      },
+      "reason": "model 在规格书中找不到"
+    }
+  ],
+  "missing_key_fields": [
+    "params/reducer_kind",
+    "params/max_input_speed_rpm",
+    "params/efficiency_ratio",
+    "params/mass_kg"
+  ]
+}

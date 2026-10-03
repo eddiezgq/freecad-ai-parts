@@ -1,0 +1,224 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "0cc3aab2b2424605fd30b922482eed08d9e350f6cc3e158dbb54927ee3f65873",
+  "response": {
+    "id": "msg_011CfeTyuYDqKDSPKjBrpoAN",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "额定输出功率",
+          "printed_text": "0.75",
+          "printed_unit": "kW",
+          "quote": "额定输出功率 kW 0.1 0.2 0.4 0.75 0.3",
+          "target": "params/rated_output_power_w",
+          "value": 0.75
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "重量",
+          "printed_text": "1400",
+          "printed_unit": "g",
+          "quote": "重量 g 600 700 900 1400 250",
+          "target": "params/mass_kg",
+          "value": 1400
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "安全功能",
+          "printed_text": "STO / SS1",
+          "printed_unit": "",
+          "quote": "安全功能 — STO STO STO, SS1 STO / SS1 STO",
+          "target": "params/safety_functions",
+          "value": [
+            "STO",
+            "SS1"
+          ]
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "电源类型",
+          "printed_text": "交流",
+          "printed_unit": "",
+          "quote": "电源类型 — 交流 交流 交流 交流 直流",
+          "target": "ports/power_in/current_type",
+          "value": "ac"
+        },
+        {
+          "confidence": 0.9,
+          "max": 240,
+          "min": 200,
+          "page": 2,
+          "printed_label": "输入电压",
+          "printed_text": "200 ~ 240",
+          "printed_unit": "V",
+          "quote": "输入电压 V 200–240 200–240 200 ~ 240 200 ~ 240 24 ~ 60",
+          "target": "ports/power_in/voltage_v"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "输入相数",
+          "printed_text": "三相",
+          "printed_unit": "",
+          "quote": "输入相数 — 单相 单相 单相 三相 —",
+          "target": "ports/power_in/phases",
+          "value": 3
+        },
+        {
+          "confidence": 0.9,
+          "max": 60,
+          "min": 50,
+          "page": 2,
+          "printed_label": "输入频率",
+          "printed_text": "50–60",
+          "printed_unit": "Hz",
+          "quote": "输入频率 Hz 50–60 50–60 50–60 50–60 —",
+          "target": "ports/power_in/frequency_hz"
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "额定输入电流",
+          "printed_text": "4.1",
+          "printed_unit": "A",
+          "quote": "额定输入电流 A 1.2 2 3.5 4.1 8",
+          "target": "ports/power_in/rated_current_a",
+          "value": 4.1
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "适配电机电压等级",
+          "printed_text": "200",
+          "printed_unit": "V",
+          "quote": "适配电机电压等级 V 200 200 200 200 48",
+          "target": "ports/motor_out/voltage_class_v",
+          "value": 200
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "额定输出电流",
+          "printed_text": "5",
+          "printed_unit": "A",
+          "quote": "额定输出电流 A 1.1 1.6 2.8 5 6.5",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 5
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "峰值输出电流",
+          "printed_text": "15",
+          "printed_unit": "Arms",
+          "quote": "峰值输出电流 Arms 3.3 5.8 10 15 20",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 15
+        },
+        {
+          "confidence": 0.85,
+          "page": 2,
+          "printed_label": "支持的编码器",
+          "printed_text": "BiSS C / EnDat 2.2 / SSI",
+          "printed_unit": "",
+          "quote": "| 支持的编码器 | — | BiSS-C | BiSS-C, EnDat 2.2 | BiSS-C, EnDat 2.2 | BiSS C / EnDat 2.2 / SSI | ABZ 增量 / BiSS C |",
+          "target": "ports/encoder_in/protocol",
+          "value": [
+            "biss_c",
+            "endat_2_2",
+            "ssi"
+          ]
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "总线",
+          "printed_text": "PROFINET",
+          "printed_unit": "",
+          "quote": "总线 — EtherCAT EtherCAT EtherCAT PROFINET CANopen",
+          "target": "ports/bus/protocol",
+          "value": "profinet"
+        },
+        {
+          "confidence": 0.9,
+          "page": 3,
+          "printed_label": "安装孔水平间距",
+          "printed_text": "60",
+          "printed_unit": "mm",
+          "quote": "安装孔水平间距 mm 30 30 40 60 70",
+          "target": "ports/mount/pitch_x_mm",
+          "value": 60
+        },
+        {
+          "confidence": 0.9,
+          "page": 3,
+          "printed_label": "安装孔垂直间距",
+          "printed_text": "150",
+          "printed_unit": "mm",
+          "quote": "安装孔垂直间距 mm 150 150 150 150 90",
+          "target": "ports/mount/pitch_y_mm",
+          "value": 150
+        },
+        {
+          "confidence": 0.9,
+          "page": 3,
+          "printed_label": "安装孔数量",
+          "printed_text": "2",
+          "printed_unit": "",
+          "quote": "安装孔数量 — 2 2 2 2 4",
+          "target": "ports/mount/hole_count",
+          "value": 2
+        },
+        {
+          "confidence": 0.9,
+          "page": 3,
+          "printed_label": "安装孔直径",
+          "printed_text": "5.5",
+          "printed_unit": "mm",
+          "quote": "安装孔直径 mm 5.5 5.5 5.5 5.5 4.5",
+          "target": "ports/mount/hole_diameter_mm",
+          "value": 5.5
+        },
+        {
+          "confidence": 0.9,
+          "page": 3,
+          "printed_label": "宽度",
+          "printed_text": "70",
+          "printed_unit": "mm",
+          "quote": "宽度 mm 40 40 50 70 80",
+          "target": "dims/width_mm",
+          "value": 70
+        },
+        {
+          "confidence": 0.9,
+          "page": 3,
+          "printed_label": "高度",
+          "printed_text": "160",
+          "printed_unit": "mm",
+          "quote": "高度 mm 160 160 160 160 100",
+          "target": "dims/height_mm",
+          "value": 160
+        },
+        {
+          "confidence": 0.9,
+          "page": 3,
+          "printed_label": "深度",
+          "printed_text": "170",
+          "printed_unit": "mm",
+          "quote": "深度 mm 130 130 150 170 30",
+          "target": "dims/depth_mm",
+          "value": 170
+        }
+      ],
+      "model": "SD750",
+      "vendor": "Synth Motion"
+    }
+  }
+}

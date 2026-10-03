@@ -1,0 +1,13 @@
+{
+  "agreed": [],
+  "pending": [],
+  "problems": [
+    "端口 shaft 的坐标系需要轴伸或总长，请补字段",
+    "包络缺少 dims/body_length_mm",
+    "包络缺少 dims/square_mm"
+  ],
+  "notes": [],
+  "reviewer": "claude（AI 复核）",
+  "primary_model": "claude-sonnet-5-5",
+  "check_model": "claude-opus-5-5"
+}

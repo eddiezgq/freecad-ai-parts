@@ -1,0 +1,144 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "bbae6e266daffc791c115c2d9f31ddc3484feef04ff76c683d97a92b3bc8089f",
+  "response": {
+    "id": "msg_011CfeU4FZqTwgNfi7MTS31A",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Bearing type",
+          "printed_text": "Tapered roller bearing",
+          "printed_unit": "",
+          "quote": "| Bearing type | — | Deep groove ball bearing | Deep groove ball bearing | Angular contact ball bearing | Crossed roller bearing | Tapered roller bearing |",
+          "target": "params/bearing_kind",
+          "value": "tapered_roller"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Width B",
+          "printed_text": "16.25",
+          "printed_unit": "mm",
+          "quote": "Width B mm 12 15 13 10 16.25",
+          "target": "params/width_mm",
+          "value": 16.25
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Dynamic load rating",
+          "printed_text": "30500",
+          "printed_unit": "N",
+          "quote": "Dynamic load rating N 9100 13300 14800 6900 30500",
+          "target": "params/dynamic_load_rating_n",
+          "value": 30500
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Basic static load rating C0r",
+          "printed_text": "35500",
+          "printed_unit": "N",
+          "quote": "Basic static load rating C0r N 4800 7500 9600 8800 35500",
+          "target": "params/static_load_rating_n",
+          "value": 35500
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Limiting speed",
+          "printed_text": "7600",
+          "printed_unit": "r/min",
+          "quote": "Limiting speed r/min 12500 11500 14000 2800 7600",
+          "target": "params/limiting_speed_rpm",
+          "value": 7600
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Mass",
+          "printed_text": "0.155",
+          "printed_unit": "kg",
+          "quote": "Mass kg 0.072 0.13 0.118 0.125 0.155",
+          "target": "params/mass_kg",
+          "value": 0.155
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Bore diameter d",
+          "printed_text": "25",
+          "printed_unit": "mm",
+          "quote": "Bore diameter d mm 20 25 30 40 25",
+          "target": "ports/inner/diameter_mm",
+          "value": 25
+        },
+        {
+          "confidence": 0.8,
+          "page": 2,
+          "printed_label": "Precision class",
+          "printed_text": "Normal (P0)",
+          "printed_unit": "",
+          "quote": "Precision class — P0 Class 6 (P6) P5 P5 Normal (P0)",
+          "target": "ports/inner/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Precision class",
+          "printed_text": "Normal (P0)",
+          "printed_unit": "",
+          "quote": "Precision class — P0 Class 6 (P6) P5 P5 Normal (P0)",
+          "target": "ports/inner/fit",
+          "value": "P0"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Outside diameter D",
+          "printed_text": "52",
+          "printed_unit": "mm",
+          "quote": "Outside diameter D mm 42 52 55 65 52",
+          "target": "ports/outer/diameter_mm",
+          "value": 52
+        },
+        {
+          "confidence": 0.8,
+          "page": 2,
+          "printed_label": "Precision class",
+          "printed_text": "Normal (P0)",
+          "printed_unit": "",
+          "quote": "Precision class — P0 Class 6 (P6) P5 P5 Normal (P0)",
+          "target": "ports/outer/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Precision class",
+          "printed_text": "Normal (P0)",
+          "printed_unit": "",
+          "quote": "Precision class — P0 Class 6 (P6) P5 P5 Normal (P0)",
+          "target": "ports/outer/fit",
+          "value": "P0"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Outside diameter D",
+          "printed_text": "52",
+          "printed_unit": "mm",
+          "quote": "Outside diameter D mm 42 52 55 65 52",
+          "target": "dims/outer_diameter_mm",
+          "value": 52
+        }
+      ],
+      "model": "SBT-2552"
+    }
+  }
+}

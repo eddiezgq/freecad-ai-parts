@@ -1,0 +1,29 @@
+{
+  "agreed": [],
+  "pending": [
+    {
+      "target": "params/mass_kg",
+      "primary": {
+        "value": 1.6
+      },
+      "reason": "只有主抽取报出"
+    },
+    {
+      "target": "ports/power_in/current_type",
+      "primary": {
+        "value": "ac",
+        "condition": "Three-Phase, 200 VAC"
+      },
+      "reason": "只有主抽取报出"
+    }
+  ],
+  "problems": [
+    "包络缺少 dims/width_mm",
+    "包络缺少 dims/height_mm",
+    "包络缺少 dims/depth_mm"
+  ],
+  "notes": [],
+  "reviewer": "claude（AI 复核）",
+  "primary_model": "claude-sonnet-5-5",
+  "check_model": "claude-opus-5-5"
+}

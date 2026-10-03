@@ -1,0 +1,21 @@
+{
+  "agreed": [],
+  "pending": [
+    {
+      "target": "ports/bus/protocol",
+      "primary": {
+        "value": "ethercat"
+      },
+      "reason": "只有主抽取报出"
+    }
+  ],
+  "problems": [
+    "包络缺少 dims/width_mm",
+    "包络缺少 dims/height_mm",
+    "包络缺少 dims/depth_mm"
+  ],
+  "notes": [],
+  "reviewer": "claude（AI 复核）",
+  "primary_model": "claude-sonnet-5-5",
+  "check_model": "claude-opus-5-5"
+}

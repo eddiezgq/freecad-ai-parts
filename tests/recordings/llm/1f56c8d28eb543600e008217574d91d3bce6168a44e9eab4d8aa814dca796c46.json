@@ -1,0 +1,145 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "1f56c8d28eb543600e008217574d91d3bce6168a44e9eab4d8aa814dca796c46",
+  "response": {
+    "id": "msg_011CfeUQAzKrnpDMhW25YrgC",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "轴承类型",
+          "printed_text": "角接触球轴承",
+          "printed_unit": "",
+          "quote": "轴承类型 — 深沟球轴承 深沟球轴承 角接触球轴承 交叉滚子轴承 圆锥滚子轴承",
+          "target": "params/bearing_kind",
+          "value": "angular_contact"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "宽度 B",
+          "printed_text": "13",
+          "printed_unit": "mm",
+          "quote": "宽度 B mm 12 15 13 10 16.25",
+          "target": "params/width_mm",
+          "value": 13
+        },
+        {
+          "confidence": 0.93,
+          "page": 2,
+          "printed_label": "基本额定动载荷 Cr",
+          "printed_text": "1509",
+          "printed_unit": "kgf",
+          "quote": "基本额定动载荷 Cr kgf 927.9 1356 1509 703.6 3110",
+          "target": "params/dynamic_load_rating_n",
+          "value": 1509
+        },
+        {
+          "confidence": 0.93,
+          "page": 2,
+          "printed_label": "基本额定静载荷 C0r",
+          "printed_text": "978.9",
+          "printed_unit": "kgf",
+          "quote": "基本额定静载荷 C0r kgf 489.5 764.8 978.9 897.4 3620",
+          "target": "params/static_load_rating_n",
+          "value": 978.9
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "极限转速",
+          "printed_text": "14000",
+          "printed_unit": "rpm",
+          "quote": "极限转速 rpm 12500 11500 14000 2800 7600",
+          "target": "params/limiting_speed_rpm",
+          "value": 14000
+        },
+        {
+          "confidence": 0.93,
+          "page": 2,
+          "printed_label": "重量",
+          "printed_text": "118",
+          "printed_unit": "g",
+          "quote": "重量 g 72 130 118 125 155",
+          "target": "params/mass_kg",
+          "value": 118
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "内径 d",
+          "printed_text": "30",
+          "printed_unit": "mm",
+          "quote": "内径 d mm 20 25 30 40 25",
+          "target": "ports/inner/diameter_mm",
+          "value": 30
+        },
+        {
+          "confidence": 0.8,
+          "page": 2,
+          "printed_label": "精度等级",
+          "printed_text": "P5",
+          "printed_unit": "",
+          "quote": "精度等级 — P0 P6 级 P5 P5 级 P0",
+          "target": "ports/inner/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.85,
+          "page": 2,
+          "printed_label": "精度等级",
+          "printed_text": "P5",
+          "printed_unit": "",
+          "quote": "精度等级 — P0 P6 级 P5 P5 级 P0",
+          "target": "ports/inner/fit",
+          "value": "P5"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "外径 D",
+          "printed_text": "55",
+          "printed_unit": "mm",
+          "quote": "外径 D mm 42 52 55 65 52",
+          "target": "ports/outer/diameter_mm",
+          "value": 55
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "外径 D",
+          "printed_text": "55",
+          "printed_unit": "mm",
+          "quote": "外径 D mm 42 52 55 65 52",
+          "target": "dims/outer_diameter_mm",
+          "value": 55
+        },
+        {
+          "confidence": 0.7,
+          "page": 2,
+          "printed_label": "精度等级",
+          "printed_text": "P5",
+          "printed_unit": "",
+          "quote": "精度等级 — P0 P6 级 P5 P5 级 P0",
+          "target": "ports/outer/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.7,
+          "page": 2,
+          "printed_label": "精度等级",
+          "printed_text": "P5",
+          "printed_unit": "",
+          "quote": "精度等级 — P0 P6 级 P5 P5 级 P0",
+          "target": "ports/outer/fit",
+          "value": "P5"
+        }
+      ],
+      "model": "SBA-3055",
+      "vendor": "Synth Bearing"
+    }
+  }
+}

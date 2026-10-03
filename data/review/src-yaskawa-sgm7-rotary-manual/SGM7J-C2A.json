@@ -1,0 +1,27 @@
+{
+  "agreed": [
+    "ports/power_in/voltage_class_v",
+    "ports/shaft/max_axial_load_n",
+    "ports/shaft/max_radial_load_n"
+  ],
+  "pending": [
+    {
+      "target": "ports/shaft/diameter_mm",
+      "check": {
+        "nominal": 8.0,
+        "tol_upper": 0.0,
+        "tol_lower": -0.009
+      },
+      "reason": "只有复核抽取报出"
+    }
+  ],
+  "problems": [
+    "端口 shaft 的坐标系需要轴伸或总长，请补字段",
+    "包络缺少 dims/body_length_mm",
+    "包络缺少 dims/square_mm"
+  ],
+  "notes": [],
+  "reviewer": "claude（AI 复核）",
+  "primary_model": "claude-sonnet-5-5",
+  "check_model": "claude-opus-5-5"
+}

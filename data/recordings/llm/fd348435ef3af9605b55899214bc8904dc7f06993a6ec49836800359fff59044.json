@@ -1,0 +1,66 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "fd348435ef3af9605b55899214bc8904dc7f06993a6ec49836800359fff59044",
+  "response": {
+    "id": "msg_011CfeSCdrXen8AZEE5m9XNL",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.85,
+          "page": 63,
+          "printed_label": "Continuous Output Current",
+          "printed_text": "0.91",
+          "printed_unit": "Arms",
+          "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 0.91
+        },
+        {
+          "confidence": 0.85,
+          "page": 63,
+          "printed_label": "Instantaneous Maximum Output Current",
+          "printed_text": "3.2",
+          "printed_unit": "Arms",
+          "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 3.2
+        },
+        {
+          "confidence": 0.5,
+          "page": 70,
+          "printed_label": "Inputs",
+          "printed_text": "/HWBB1 and /HWBB2: Base block signals for Power Modules",
+          "printed_unit": "",
+          "quote": "Inputs /HWBB1 and /HWBB2: Base block signals for Power Modules",
+          "target": "params/safety_functions",
+          "value": "HWBB"
+        },
+        {
+          "confidence": 0.6,
+          "page": 69,
+          "printed_label": "ETHERCAT IN",
+          "printed_text": "EtherCAT",
+          "printed_unit": "",
+          "quote": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "target": "ports/bus/protocol",
+          "value": "ethercat"
+        },
+        {
+          "confidence": 0.6,
+          "page": 69,
+          "printed_label": "CN6A",
+          "printed_text": "RJ45",
+          "printed_unit": "",
+          "quote": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "target": "ports/bus/connector",
+          "value": "RJ45"
+        }
+      ],
+      "model": "SGD7S-R90A",
+      "series": "Σ-7S",
+      "vendor": "Yaskawa"
+    }
+  }
+}

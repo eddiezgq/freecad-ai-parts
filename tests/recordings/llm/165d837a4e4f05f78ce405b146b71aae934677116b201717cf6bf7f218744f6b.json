@@ -1,0 +1,156 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "165d837a4e4f05f78ce405b146b71aae934677116b201717cf6bf7f218744f6b",
+  "response": {
+    "id": "msg_011CfeU22u3X6q4Hjb3KRdn8",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Bearing type",
+          "printed_text": "Deep groove ball bearing",
+          "printed_unit": "",
+          "quote": "Bearing type | — | Deep groove ball bearing",
+          "target": "params/bearing_kind",
+          "value": "deep_groove"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Bore diameter d",
+          "printed_text": "20",
+          "printed_unit": "mm",
+          "quote": "Bore diameter d | mm | 20",
+          "target": "ports/inner/diameter_mm",
+          "value": 20
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Outside diameter D",
+          "printed_text": "42",
+          "printed_unit": "mm",
+          "quote": "Outside diameter D | mm | 42",
+          "target": "ports/outer/diameter_mm",
+          "value": 42
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Outside diameter D",
+          "printed_text": "42",
+          "printed_unit": "mm",
+          "quote": "Outside diameter D | mm | 42",
+          "target": "dims/outer_diameter_mm",
+          "value": 42
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Width B",
+          "printed_text": "12",
+          "printed_unit": "mm",
+          "quote": "Width B | mm | 12",
+          "target": "params/width_mm",
+          "value": 12
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Dynamic load rating",
+          "printed_text": "9100",
+          "printed_unit": "N",
+          "quote": "Dynamic load rating | N | 9100",
+          "target": "params/dynamic_load_rating_n",
+          "value": 9100
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Basic static load rating C0r",
+          "printed_text": "4800",
+          "printed_unit": "N",
+          "quote": "Basic static load rating C0r | N | 4800",
+          "target": "params/static_load_rating_n",
+          "value": 4800
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Limiting speed",
+          "printed_text": "12500",
+          "printed_unit": "r/min",
+          "quote": "Limiting speed | r/min | 12500",
+          "target": "params/limiting_speed_rpm",
+          "value": 12500
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Seal / shield",
+          "printed_text": "2RS",
+          "printed_unit": "",
+          "quote": "Seal / shield | — | 2RS",
+          "target": "params/seal",
+          "value": "2RS"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Mass",
+          "printed_text": "0.072",
+          "printed_unit": "kg",
+          "quote": "Mass | kg | 0.072",
+          "target": "params/mass_kg",
+          "value": 0.072
+        },
+        {
+          "confidence": 0.8,
+          "page": 2,
+          "printed_label": "Precision class",
+          "printed_text": "P0",
+          "printed_unit": "",
+          "quote": "Precision class | — | P0",
+          "target": "ports/inner/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.85,
+          "page": 2,
+          "printed_label": "Precision class",
+          "printed_text": "P0",
+          "printed_unit": "",
+          "quote": "Precision class | — | P0",
+          "target": "ports/inner/fit",
+          "value": "P0"
+        },
+        {
+          "confidence": 0.8,
+          "page": 2,
+          "printed_label": "Precision class",
+          "printed_text": "P0",
+          "printed_unit": "",
+          "quote": "Precision class | — | P0",
+          "target": "ports/outer/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.85,
+          "page": 2,
+          "printed_label": "Precision class",
+          "printed_text": "P0",
+          "printed_unit": "",
+          "quote": "Precision class | — | P0",
+          "target": "ports/outer/fit",
+          "value": "P0"
+        }
+      ],
+      "model": "SB-2042-RS",
+      "series": "SB",
+      "vendor": "Synth Bearing"
+    }
+  }
+}
