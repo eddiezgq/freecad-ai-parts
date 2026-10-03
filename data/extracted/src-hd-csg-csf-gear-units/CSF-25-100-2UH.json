@@ -6,6 +6,7 @@
     "pages": 6
   },
   "category": "reducer",
+  "model": "CSF-25-100-2UH",
   "series": "CSF",
   "extractor": {
     "model": "claude-sonnet-5-5",
@@ -32,8 +33,7 @@
         "quote": "|  | 100 | 67 | 6.8 | 157 | 16 | 108 | 11 | 284 | 29 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Ratio' 在表头，须核对所在列",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Ratio' 在表头，数值在该列"
       ]
     },
     {
@@ -56,10 +56,8 @@
         "quote": "|  | 100 | 67 | 6.8 | 157 | 16 | 108 | 11 | 284 | 29 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Rated Torque at 2000rpm' 在表头，须核对所在列",
-        "工况 'Rated Torque at 2000rpm' 不在同一行，取自本页其他位置（表头或脚注），须核对",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Rated Torque at 2000rpm' 在表头，数值在该列",
+        "工况 'Rated Torque at 2000rpm' 不在同一行，取自本页其他位置（表头或脚注），须核对"
       ]
     },
     {
@@ -81,9 +79,7 @@
         "quote": "|  | 100 | 67 | 6.8 | 157 | 16 | 108 | 11 | 284 | 29 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Limit for Repeated Peak Torque' 在表头，须核对所在列",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Limit for Repeated Peak Torque' 在表头，数值在该列"
       ]
     },
     {
@@ -105,9 +101,29 @@
         "quote": "|  | 100 | 67 | 6.8 | 157 | 16 | 108 | 11 | 284 | 29 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Limit for Momentary Peak Torque' 在表头，须核对所在列",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Limit for Momentary Peak Torque' 在表头，数值在该列"
+      ]
+    },
+    {
+      "target": "dims/outer_diameter_mm",
+      "value": {
+        "value": 107.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 10
+        },
+        "method": "extracted",
+        "confidence": 0.55,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "107",
+        "unit": "mm",
+        "label": "φA",
+        "quote": "φA 73 79 93 107 138 160 180 190 226 260"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
       ]
     }
   ],
@@ -124,7 +140,7 @@
       }
     },
     {
-      "reason": "单位：无法识别的单位 '×10−4kgm2'",
+      "reason": "数值不在目标型号所在的列",
       "target": "params/input_inertia_kgm2",
       "page": 9,
       "printed": {
@@ -146,7 +162,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "叫法不在引用所在的行中",
       "target": "params/mass_kg",
       "page": 10,
       "printed": {
@@ -157,29 +173,11 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "dims/outer_diameter_mm",
-      "page": 10,
-      "printed": {
-        "text": "107",
-        "unit": "mm",
-        "label": "φA",
-        "quote": "φA 73 79 93 107 138 160 180 190 226 260"
-      }
-    },
-    {
       "target": "vendor",
       "printed": {
         "text": "Harmonic Drive"
       },
       "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "CSF-25-100-2UH"
-      },
-      "reason": "model 在规格书中找不到"
     }
   ],
   "missing_key_fields": [

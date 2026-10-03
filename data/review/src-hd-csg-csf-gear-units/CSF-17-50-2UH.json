@@ -1,5 +1,7 @@
 {
   "agreed": [
+    "dims/outer_diameter_mm",
+    "params/mass_kg",
     "params/momentary_max_torque_nm",
     "params/rated_torque_nm",
     "params/ratio",

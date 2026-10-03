@@ -1,5 +1,6 @@
 {
   "agreed": [
+    "dims/outer_diameter_mm",
     "params/momentary_max_torque_nm",
     "params/rated_torque_nm",
     "params/ratio",
@@ -7,9 +8,44 @@
   ],
   "pending": [
     {
+      "target": "params/mass_kg",
+      "primary": {
+        "value": 0.68
+      },
+      "reason": "只有主抽取报出"
+    },
+    {
+      "target": "ports/input_bore/diameter_mm",
+      "check": {
+        "value": 8.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
       "target": "ports/output_flange/hole_count",
       "check": {
         "value": 6
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/output_flange/hole_kind",
+      "check": {
+        "value": "threaded"
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/output_flange/pcd_mm",
+      "check": {
+        "value": 27.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/output_flange/thread",
+      "check": {
+        "value": "M5"
       },
       "reason": "只有复核抽取报出"
     }

@@ -6,12 +6,73 @@
     "pages": 12
   },
   "category": "drive",
+  "model": "SGD7S-5R5A",
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
     "response_id": "msg_011CfeTYHBVk3L2ppk96deZt"
   },
   "items": [
+    {
+      "target": "params/rated_output_power_w",
+      "value": {
+        "value": 750.0,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "0.75",
+        "unit": "kW",
+        "label": "Maximum Applicable Motor Capacity",
+        "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.75 1.5"
+      },
+      "issues": [
+        "单位换算：0.75 kW → 标准单位 W"
+      ]
+    },
+    {
+      "target": "ports/motor_out/rated_current_a",
+      "value": {
+        "value": 5.5,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "5.5",
+        "unit": "Arms",
+        "label": "Continuous Output Current",
+        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6"
+      }
+    },
+    {
+      "target": "ports/motor_out/peak_current_a",
+      "value": {
+        "value": 16.9,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "16.9",
+        "unit": "Arms",
+        "label": "Instantaneous Maximum Output Current",
+        "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
+      }
+    },
     {
       "target": "ports/encoder_in/resolution_bits",
       "value": {
@@ -34,40 +95,7 @@
   ],
   "rejected": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/rated_output_power_w",
-      "page": 63,
-      "printed": {
-        "text": "0.75",
-        "unit": "kW",
-        "label": "Maximum Applicable Motor Capacity",
-        "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.75 1.5"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/motor_out/rated_current_a",
-      "page": 63,
-      "printed": {
-        "text": "5.5",
-        "unit": "Arms",
-        "label": "Continuous Output Current",
-        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/motor_out/peak_current_a",
-      "page": 63,
-      "printed": {
-        "text": "16.9",
-        "unit": "Arms",
-        "label": "Instantaneous Maximum Output Current",
-        "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 1 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/current_type",
       "page": 62,
       "printed": {
@@ -100,7 +128,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 4 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/voltage_v",
       "page": 62,
       "printed": {
@@ -111,7 +139,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 4 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/frequency_hz",
       "page": 62,
       "printed": {
@@ -122,7 +150,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 4 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/frequency_hz",
       "page": 62,
       "printed": {
@@ -144,7 +172,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 5 个数值，与 6 个型号列对不上",
       "target": "ports/power_in/rated_current_a",
       "page": 63,
       "printed": {
@@ -155,7 +183,7 @@
       }
     },
     {
-      "reason": "字段 ports/power_in/current_type 无单位，但印有单位 'VDC'",
+      "reason": "该行有 2 个数值，与 8 个型号列对不上",
       "target": "ports/power_in/current_type",
       "page": 64,
       "printed": {
@@ -166,7 +194,7 @@
       }
     },
     {
-      "reason": "字段 ports/power_in/phases 无单位，但印有单位 'VDC'",
+      "reason": "该行有 2 个数值，与 8 个型号列对不上",
       "target": "ports/power_in/phases",
       "page": 64,
       "printed": {
@@ -177,7 +205,7 @@
       }
     },
     {
-      "reason": "工况 '270 VDC input' 在第 64 页找不到",
+      "reason": "该行有 2 个数值，与 8 个型号列对不上",
       "target": "ports/power_in/voltage_v",
       "page": 64,
       "printed": {
@@ -188,7 +216,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "工况 '270 VDC, Main Circuit' 在第 64 页找不到",
       "target": "ports/power_in/rated_current_a",
       "page": 64,
       "printed": {
@@ -314,13 +342,6 @@
         "text": "Yaskawa"
       },
       "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "SGD7S-5R5A"
-      },
-      "reason": "model 在规格书中找不到"
     },
     {
       "target": "series",
