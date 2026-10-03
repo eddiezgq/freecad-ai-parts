@@ -15,6 +15,7 @@ import hashlib
 import re
 import sys
 import time
+import urllib.error
 import urllib.request
 from collections.abc import Callable
 from pathlib import Path
@@ -51,7 +52,19 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def _download(url: str, dest: Path) -> None:
+def _download(url: str, dest: Path, *, attempts: int = 3, wait_s: float = 10.0) -> None:
+    """网络一时不通（域名解析失败、超时、连接被重置）时等一会儿再试，最多 attempts 次。"""
+    for i in range(attempts):
+        try:
+            _download_once(url, dest)
+            return
+        except (urllib.error.URLError, TimeoutError, ConnectionError) as exc:
+            if isinstance(exc, urllib.error.HTTPError) and exc.code < 500 or i == attempts - 1:
+                raise
+            time.sleep(wait_s * (i + 1))
+
+
+def _download_once(url: str, dest: Path) -> None:
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/pdf,*/*"})
     with urllib.request.urlopen(req, timeout=120) as resp, dest.open("wb") as f:  # 只用登记的 https 网址
         total = 0
