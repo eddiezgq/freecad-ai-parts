@@ -43,7 +43,7 @@ SUFFIX_UNITS: dict[str, str] = {
 # 量纲有歧义的字段，只接受白名单中的写法（规范化后的形式）
 _ANGLE = {"arcmin", "arcsec", "degree", "deg", "rad", "radian", "'", '"', "°"}
 _RATIO = {"", "1", "dimensionless", "%", "percent"}
-_SPEED = {"rpm", "r/min", "rev/min", "min^-1", "1/min", "rps", "r/s", "rev/s"}
+_SPEED = {"rpm", "r/min", "rev/min", "min^-1", "min-1", "1/min", "rps", "r/s", "rev/s"}
 _FREQ = {"Hz", "kHz"}
 WHITELIST: dict[str, set[str]] = {
     "_arcmin": _ANGLE, "_deg": _ANGLE, "_ratio": _RATIO, "_rpm": _SPEED, "_hz": _FREQ,
@@ -53,11 +53,12 @@ WHITELIST: dict[str, set[str]] = {
 _TORQUE_SUFFIXES = {"_nm", "_nm_per_a", "_nm_per_arcmin"}
 _TORQUE_ALIASES = {"nm": "N*m", "n.m": "N*m", "n-m": "N*m"}  # 只用于扭矩字段，避免与纳米（nm）混淆
 _ALIASES = {
-    "r/min": "rpm", "rev/min": "rpm", "min^-1": "rpm", "1/min": "rpm",
+    "r/min": "rpm", "rev/min": "rpm", "min^-1": "rpm", "min-1": "rpm", "1/min": "rpm",
     "rps": "rpm*60", "r/s": "rpm*60", "rev/s": "rpm*60",
     "'": "arcmin", '"': "arcsec", "°": "degree", "deg": "degree",
     "%": "percent", "": "dimensionless", "1": "dimensionless",
     "arms": "A", "a rms": "A", "a(rms)": "A",
+    "vdc": "V", "vac": "V", "v dc": "V", "v ac": "V", "vrms": "V", "v(rms)": "V",
 }
 _AMPLITUDE = {"a(0-p)", "a0-p", "a (0-p)", "apk", "a peak", "a(peak)", "a(pk)"}
 
@@ -68,7 +69,10 @@ def _ureg() -> pint.UnitRegistry:
 
 
 def _clean(unit: str) -> str:
-    u = unit.strip()
+    u = unit.strip().replace("−", "-")  # 排版用的减号
+    u = re.sub(r"^[×x]\s*10\s*-\s*(\d+)", r"*10^-\1 ", u)  # “×10-4 kg·m²”：上标压平后的写法
+    u = re.sub(r"(?i)(?<![A-Za-z])A\s*rms(?![A-Za-z])", "A", u) if "/" in u else u  # “Nm/Arms”
+    u = re.sub(r"(?<![A-Za-z])kg\s*m\s*(?:\^|²)?2?(?![A-Za-z0-9])", "kg*m^2", u) if re.search(r"kg\s*m\s*(\^?2|²)", u) else u
     u = u.replace("⁻¹", "^-1").replace("²", "^2").replace("³", "^3").replace("·", "*").replace("×", "*")
     u = re.sub(r"\s*\*\s*", "*", u)
     return u.lstrip("*")  # “×10⁻⁴ kg·m²”这类前置乘号写法

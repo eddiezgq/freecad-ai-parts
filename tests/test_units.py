@@ -13,6 +13,8 @@ from ingest.units import UnitError, normalize_param, standard_unit, to_standard
     (0.26, "kg*cm^2", "rotor_inertia_kgm2", 0.26e-4),
     (0.26, "10^-4 kg·m²", "rotor_inertia_kgm2", 0.26e-4),
     (0.26, "×10⁻⁴ kg·m²", "rotor_inertia_kgm2", 0.26e-4),
+    (0.486, "×10-4 kgm2", "rotor_inertia_kgm2", 0.486e-4),   # 安川目录：上标压平后的写法
+    (0.486, "×10−4kgm2", "rotor_inertia_kgm2", 0.486e-4),    # 排版减号、无空格
     (2.6e-5, "kg·m²", "rotor_inertia_kgm2", 2.6e-5),
     (260, "g·cm²", "rotor_inertia_kgm2", 2.6e-5),
     # 扭矩
@@ -24,10 +26,12 @@ from ingest.units import UnitError, normalize_param, standard_unit, to_standard
     (1.27, "N.m", "rated_torque_nm", 1.27),
     (10, "lbf·in", "rated_torque_nm", 10 * 4.4482216152605 * 0.0254),
     (0.5, "Nm/A", "torque_constant_nm_per_a", 0.5),
+    (0.544, "Nm/Arms", "torque_constant_nm_per_a", 0.544),
     # 转速
     (3000, "r/min", "rated_speed_rpm", 3000),
     (3000, "min⁻¹", "rated_speed_rpm", 3000),
     (3000, "min^-1", "rated_speed_rpm", 3000),
+    (3000, "min-1", "rated_speed_rpm", 3000),                # 上标压平后的写法
     (50, "r/s", "rated_speed_rpm", 3000),
     # 长度、质量、力、功率
     (1.0, "in", "diameter_mm", 25.4),
@@ -35,6 +39,8 @@ from ingest.units import UnitError, normalize_param, standard_unit, to_standard
     (900, "g", "mass_kg", 0.9),
     (1, "kgf", "dynamic_load_rating_n", 9.80665),
     (0.4, "kW", "rated_power_w", 400),
+    (240, "VAC", "voltage_v", 240),
+    (324, "VDC", "voltage_v", 324),
     # 角度、效率
     (60, "arcsec", "backlash_arcmin", 1),
     (1, "'", "lost_motion_arcmin", 1),
@@ -60,6 +66,8 @@ def test_conversions(value, unit, field, expected):
     ("1/s", "rated_speed_rpm"),
     ("rpm", "frequency_hz"),
     ("A(0-p)", "rated_power_w"),        # 幅值写法只用于电流
+    ("min-1", "frequency_hz"),          # 转速写法不用于频率
+    ("Arms", "voltage_v"),
 ])
 def test_rejections(unit, field):
     with pytest.raises(UnitError):
