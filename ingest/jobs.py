@@ -223,6 +223,7 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("list", help="列出全部抽取任务")
     p_index = sub.add_parser("index", help="为 index 中列出的规格书生成页码索引（不含原文）")
     p_index.add_argument("--summary", type=Path, help="把索引（Markdown）写到此文件")
+    p_index.add_argument("--doc", action="append", default=[], help="只为这些文档建索引（可重复）")
     p_run = sub.add_parser("run", help="运行抽取任务")
     p_run.add_argument("--record", action="store_true", help="真实调用 LLM 并录制（需要 ANTHROPIC_API_KEY）")
     p_run.add_argument("--doc", action="append", default=[], help="只运行这些文档的任务（可重复）")
@@ -247,6 +248,8 @@ def main(argv: list[str] | None = None) -> int:
 
         texts, code = [], 0
         for req in index_requests:
+            if args.doc and req["doc"] not in args.doc:
+                continue
             pdf = RAW_DIR / f"{req['doc']}.pdf"
             try:
                 index = page_index(extract(pdf), req["terms"])
