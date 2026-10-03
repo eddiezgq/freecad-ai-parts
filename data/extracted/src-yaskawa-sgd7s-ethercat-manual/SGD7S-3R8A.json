@@ -1,0 +1,134 @@
+{
+  "format": "extraction/1",
+  "document": {
+    "doc": "src-yaskawa-sgd7s-ethercat-manual",
+    "sha256": "723e4704cd939ecb805de328160b869a89909aff7050b33885c95a787c98fed6",
+    "pages": 12
+  },
+  "category": "drive",
+  "model": "SGD7S-3R8A",
+  "extractor": {
+    "model": "claude-sonnet-5-5",
+    "prompt_version": "extract/3",
+    "response_id": "msg_011CfeSGp8Gwk7eePTX1evr4"
+  },
+  "items": [
+    {
+      "target": "params/mass_kg",
+      "value": {
+        "value": 1.6,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 80
+        },
+        "method": "extracted",
+        "confidence": 0.8,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "1.6 kg",
+        "unit": "kg",
+        "label": "SGD7S-3R8A, -5R5A, -7R6A",
+        "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg"
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/voltage_v",
+      "page": 62,
+      "printed": {
+        "text": "200 VAC to 240 VAC",
+        "unit": "VAC",
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/frequency_hz",
+      "page": 62,
+      "printed": {
+        "text": "50 Hz/60 Hz",
+        "unit": "Hz",
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/current_type",
+      "page": 62,
+      "printed": {
+        "text": "Three-Phase, 200 VAC",
+        "unit": "",
+        "label": "Three-Phase, 200 VAC",
+        "quote": "Three-Phase, 200 VAC"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/phases",
+      "page": 62,
+      "printed": {
+        "text": "Three-Phase",
+        "unit": "",
+        "label": "Three-Phase",
+        "quote": "Three-Phase, 200 VAC"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/motor_out/rated_current_a",
+      "page": 64,
+      "printed": {
+        "text": "3.8",
+        "unit": "Arms",
+        "label": "Continuous Output Current [Arms]",
+        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/bus/protocol",
+      "page": 69,
+      "printed": {
+        "text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+        "unit": "",
+        "label": "Applicable Communications Standards",
+        "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/bus/profile",
+      "page": 69,
+      "printed": {
+        "text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+        "unit": "",
+        "label": "Applicable Communications Standards",
+        "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
+      }
+    },
+    {
+      "reason": "原文引用在第 69 页的任何一行中都找不到",
+      "target": "ports/bus/connector",
+      "page": 69,
+      "printed": {
+        "text": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+        "unit": "",
+        "label": "Communications Connectors",
+        "quote": "Connectors CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
+      }
+    },
+    {
+      "target": "vendor",
+      "printed": {
+        "text": "Yaskawa"
+      },
+      "reason": "vendor 在规格书中找不到"
+    }
+  ],
+  "missing_key_fields": []
+}

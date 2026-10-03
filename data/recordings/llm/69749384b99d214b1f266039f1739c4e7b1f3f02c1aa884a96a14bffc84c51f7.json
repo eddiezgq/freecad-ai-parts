@@ -1,0 +1,97 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "69749384b99d214b1f266039f1739c4e7b1f3f02c1aa884a96a14bffc84c51f7",
+  "response": {
+    "id": "msg_011CfeRgWC4xsSdeiJuLRBTJ",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.9,
+          "page": 9,
+          "printed_label": "Ratio",
+          "printed_text": "100",
+          "printed_unit": "",
+          "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |  |  |  |  |  |  |",
+          "target": "params/ratio",
+          "value": 100
+        },
+        {
+          "condition": "at 2000rpm",
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Rated Torque at 2000rpm",
+          "printed_text": "40",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |  |  |  |  |  |  |",
+          "target": "params/rated_torque_nm",
+          "value": 40
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Repeated Peak Torque",
+          "printed_text": "82",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |  |  |  |  |  |  |",
+          "target": "params/repeated_peak_torque_nm",
+          "value": 82
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Momentary Peak Torque",
+          "printed_text": "147",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |  |  |  |  |  |  |",
+          "target": "params/momentary_max_torque_nm",
+          "value": 147
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "Mass (kg) CSF Series",
+          "printed_text": "0.98",
+          "printed_unit": "kg",
+          "quote": "|  | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |",
+          "target": "params/mass_kg",
+          "value": 0.98
+        },
+        {
+          "confidence": 0.8,
+          "page": 11,
+          "printed_label": "φA",
+          "printed_text": "93",
+          "printed_unit": "mm",
+          "quote": "| φA |  | 73 | 79 | 93 | 107 | 138 | 160 | 180 | 190 | 226 | 260 |",
+          "target": "dims/outer_diameter_mm",
+          "value": 93
+        },
+        {
+          "confidence": 0.6,
+          "page": 12,
+          "printed_label": "80 or more arc min",
+          "printed_text": "1.0",
+          "printed_unit": "arc min",
+          "quote": "|  | arc min | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 |",
+          "target": "params/lost_motion_arcmin",
+          "value": 1.0
+        },
+        {
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Moment of Inertia I",
+          "printed_text": "0.193",
+          "printed_unit": "×10−4kgm2",
+          "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |",
+          "target": "params/input_inertia_kgm2",
+          "value": 0.193
+        }
+      ],
+      "model": "CSF-20-100-2UH",
+      "series": "CSF",
+      "vendor": "Harmonic Drive"
+    }
+  }
+}

@@ -1,0 +1,234 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "ea787d74d4f7a0d754eaf7fdfd7b44d44870d4ae998e7fa1530917a7baf3bef8",
+  "response": {
+    "id": "msg_011CfeUKTsC6SeQDDVexTLst",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Rated output power",
+          "printed_text": "0.4",
+          "printed_unit": "kW",
+          "quote": "Rated output power kW 0.1 0.2 0.4 0.75 0.3",
+          "target": "params/rated_output_power_w",
+          "value": 0.4
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Mass",
+          "printed_text": "900",
+          "printed_unit": "g",
+          "quote": "Mass g 600 700 900 1400 250",
+          "target": "params/mass_kg",
+          "value": 900
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Safety functions",
+          "printed_text": "STO / SS1",
+          "printed_unit": "",
+          "quote": "Safety functions — STO STO STO / SS1 STO, SS1 STO",
+          "target": "params/safety_functions",
+          "value": [
+            "STO",
+            "SS1"
+          ]
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Power supply",
+          "printed_text": "AC",
+          "printed_unit": "",
+          "quote": "Power supply — AC AC AC AC DC",
+          "target": "ports/power_in/current_type",
+          "value": "ac"
+        },
+        {
+          "confidence": 0.9,
+          "max": 240,
+          "min": 200,
+          "page": 2,
+          "printed_label": "Input voltage",
+          "printed_text": "200–240",
+          "printed_unit": "V",
+          "quote": "Input voltage V 200–240 200–240 200–240 200 ~ 240 24–60",
+          "target": "ports/power_in/voltage_v"
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Input phases",
+          "printed_text": "1-phase",
+          "printed_unit": "",
+          "quote": "Input phases — Single-phase 1-phase 1-phase 3-phase —",
+          "target": "ports/power_in/phases",
+          "value": 1
+        },
+        {
+          "confidence": 0.9,
+          "max": 60,
+          "min": 50,
+          "page": 2,
+          "printed_label": "Input frequency",
+          "printed_text": "50 ~ 60",
+          "printed_unit": "Hz",
+          "quote": "Input frequency Hz 50–60 50 ~ 60 50 ~ 60 50–60 —",
+          "target": "ports/power_in/frequency_hz"
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Rated input current",
+          "printed_text": "3.5",
+          "printed_unit": "Arms",
+          "quote": "Rated input current Arms 1.2 2 3.5 4.1 8",
+          "target": "ports/power_in/rated_current_a",
+          "value": 3.5
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Motor voltage class",
+          "printed_text": "200",
+          "printed_unit": "V",
+          "quote": "Motor voltage class V 200 200 200 200 48",
+          "target": "ports/motor_out/voltage_class_v",
+          "value": 200
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Continuous output current",
+          "printed_text": "2.8",
+          "printed_unit": "Arms",
+          "quote": "Continuous output current Arms 1.1 1.6 2.8 5 6.5",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 2.8
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Peak output current",
+          "printed_text": "10",
+          "printed_unit": "Arms",
+          "quote": "Peak output current Arms 3.3 5.8 10 15 20",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 10
+        },
+        {
+          "confidence": 0.8,
+          "page": 2,
+          "printed_label": "Supported encoders",
+          "printed_text": "BiSS-C / EnDat 2.2",
+          "printed_unit": "",
+          "quote": "Supported encoders — BiSS-C BiSS C, EnDat 2.2 BiSS-C / EnDat 2.2",
+          "target": "ports/encoder_in/protocol",
+          "value": [
+            "biss_c",
+            "endat_2_2"
+          ]
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Fieldbus",
+          "printed_text": "EtherCAT",
+          "printed_unit": "",
+          "quote": "Fieldbus — EtherCAT EtherCAT EtherCAT PROFINET CANopen",
+          "target": "ports/bus/protocol",
+          "value": "ethercat"
+        },
+        {
+          "confidence": 0.85,
+          "page": 2,
+          "printed_label": "Device profile",
+          "printed_text": "CiA402",
+          "printed_unit": "",
+          "quote": "Device profile — CiA 402 CiA402 CiA402 — CiA402",
+          "target": "ports/bus/profile",
+          "value": "cia402"
+        },
+        {
+          "confidence": 0.8,
+          "page": 3,
+          "printed_label": "Mounting hole pitch (horizontal)",
+          "printed_text": "40",
+          "printed_unit": "mm",
+          "quote": "Mounting hole pitch (horizontal) mm 30 30 40 60 70",
+          "target": "ports/mount/pitch_x_mm",
+          "value": 40
+        },
+        {
+          "confidence": 0.8,
+          "page": 3,
+          "printed_label": "Mounting hole pitch (vertical)",
+          "printed_text": "150",
+          "printed_unit": "mm",
+          "quote": "Mounting hole pitch (vertical) mm 150 150 150 150 90",
+          "target": "ports/mount/pitch_y_mm",
+          "value": 150
+        },
+        {
+          "confidence": 0.9,
+          "page": 3,
+          "printed_label": "Number of mounting holes",
+          "printed_text": "2",
+          "printed_unit": "",
+          "quote": "Number of mounting holes — 2 2 2 2 4",
+          "target": "ports/mount/hole_count",
+          "value": 2
+        },
+        {
+          "confidence": 0.9,
+          "page": 3,
+          "printed_label": "Mounting hole diameter",
+          "printed_text": "5.5",
+          "printed_unit": "mm",
+          "quote": "Mounting hole diameter mm 5.5 5.5 5.5 5.5 4.5",
+          "target": "ports/mount/hole_diameter_mm",
+          "value": 5.5
+        },
+        {
+          "confidence": 0.9,
+          "page": 3,
+          "printed_label": "Width",
+          "printed_text": "50",
+          "printed_unit": "mm",
+          "quote": "Width mm 40 40 50 70 80",
+          "target": "dims/width_mm",
+          "value": 50
+        },
+        {
+          "confidence": 0.9,
+          "page": 3,
+          "printed_label": "Height",
+          "printed_text": "160",
+          "printed_unit": "mm",
+          "quote": "Height mm 160 160 160 160 100",
+          "target": "dims/height_mm",
+          "value": 160
+        },
+        {
+          "confidence": 0.9,
+          "page": 3,
+          "printed_label": "Depth",
+          "printed_text": "150",
+          "printed_unit": "mm",
+          "quote": "Depth mm 130 130 150 170 30",
+          "target": "dims/depth_mm",
+          "value": 150
+        }
+      ],
+      "model": "SD400",
+      "series": "SD",
+      "vendor": "Synth Motion"
+    }
+  }
+}

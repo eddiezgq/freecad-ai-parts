@@ -1,0 +1,121 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "42c3da85e83ad6f8ead6c0503e8625c87a2ad9c1e3483f470cc9cae8cb3cdd85",
+  "response": {
+    "id": "msg_011CfeSJRDBnWL7rTH1cq7VG",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "condition": "base-mounted SERVOPACK",
+          "confidence": 0.7,
+          "page": 80,
+          "printed_label": "Approx. mass: SGD7S-3R8A, -5R5A, -7R6A",
+          "printed_text": "1.6 kg",
+          "printed_unit": "kg",
+          "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg",
+          "target": "params/mass_kg",
+          "value": 1.6
+        },
+        {
+          "condition": "Three-Phase, 200 VAC, main circuit",
+          "confidence": 0.8,
+          "max": 240,
+          "min": 200,
+          "page": 62,
+          "printed_label": "Power Supply",
+          "printed_text": "200 VAC to 240 VAC",
+          "printed_unit": "VAC",
+          "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz",
+          "target": "ports/power_in/voltage_v"
+        },
+        {
+          "confidence": 0.6,
+          "page": 62,
+          "printed_label": "Three-Phase, 200 VAC",
+          "printed_text": "Three-Phase",
+          "printed_unit": "",
+          "quote": "Three-Phase, 200 VAC",
+          "target": "ports/power_in/phases",
+          "value": 3
+        },
+        {
+          "condition": "Three-Phase, 200 VAC, main circuit",
+          "confidence": 0.8,
+          "page": 62,
+          "printed_label": "Input Current [Arms]*",
+          "printed_text": "4.1",
+          "printed_unit": "Arms",
+          "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |",
+          "target": "ports/power_in/rated_current_a",
+          "value": 4.1
+        },
+        {
+          "confidence": 0.85,
+          "page": 64,
+          "printed_label": "Continuous Output Current [Arms]",
+          "printed_text": "5.5",
+          "printed_unit": "Arms",
+          "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 5.5
+        },
+        {
+          "confidence": 0.85,
+          "page": 63,
+          "printed_label": "Instantaneous Maximum Output Current [Arms]",
+          "printed_text": "16.9",
+          "printed_unit": "Arms",
+          "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 16.9
+        },
+        {
+          "confidence": 0.6,
+          "page": 69,
+          "printed_label": "Applicable Communications Standards",
+          "printed_text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "printed_unit": "",
+          "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "target": "ports/bus/profile",
+          "value": "cia402"
+        },
+        {
+          "confidence": 0.55,
+          "page": 69,
+          "printed_label": "Communications Connectors",
+          "printed_text": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "printed_unit": "",
+          "quote": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "target": "ports/bus/connector",
+          "value": "RJ45"
+        },
+        {
+          "confidence": 0.55,
+          "nominal": 58,
+          "page": 80,
+          "printed_label": "mounting pitch",
+          "printed_text": "58 ±0.5 (mounting pitch)",
+          "printed_unit": "mm",
+          "quote": "58 ±0.5 (mounting pitch)",
+          "target": "ports/mount/pitch_y_mm",
+          "tol_lower": -0.5,
+          "tol_upper": 0.5
+        },
+        {
+          "confidence": 0.3,
+          "page": 80,
+          "printed_label": "mounting pitch",
+          "printed_text": "58 ±0.5 (mounting pitch)",
+          "printed_unit": "",
+          "quote": "58 ±0.5 (mounting pitch)",
+          "target": "ports/mount/pattern",
+          "value": "linear"
+        }
+      ],
+      "model": "SGD7S-5R5A",
+      "vendor": "Yaskawa"
+    }
+  }
+}

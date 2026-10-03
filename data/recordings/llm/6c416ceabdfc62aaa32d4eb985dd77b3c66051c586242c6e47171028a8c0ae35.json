@@ -1,0 +1,166 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "6c416ceabdfc62aaa32d4eb985dd77b3c66051c586242c6e47171028a8c0ae35",
+  "response": {
+    "id": "msg_011CfeS1BJnwkL6b2herp3Fd",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 55,
+          "printed_label": "Rated Output*1",
+          "printed_text": "750",
+          "printed_unit": "W",
+          "quote": "Rated Output*1 W 50 100 150 200 400 600 750",
+          "target": "params/rated_power_w",
+          "value": 750
+        },
+        {
+          "confidence": 0.95,
+          "page": 55,
+          "printed_label": "Rated Torque*1, *2",
+          "printed_text": "2.39",
+          "printed_unit": "Nm",
+          "quote": "Rated Torque*1, *2 Nm 0.159 0.318 0.477 0.637 1.27 1.91 2.39",
+          "target": "params/rated_torque_nm",
+          "value": 2.39
+        },
+        {
+          "confidence": 0.95,
+          "page": 55,
+          "printed_label": "Instantaneous Maximum Torque*1",
+          "printed_text": "8.36",
+          "printed_unit": "Nm",
+          "quote": "Instantaneous Maximum Torque*1 Nm 0.557 1.11 1.67 2.23 4.46 6.69 8.36",
+          "target": "params/peak_torque_nm",
+          "value": 8.36
+        },
+        {
+          "confidence": 0.95,
+          "page": 55,
+          "printed_label": "Rated Motor Speed*1",
+          "printed_text": "3000",
+          "printed_unit": "min-1",
+          "quote": "Rated Motor Speed*1 min-1 3000",
+          "target": "params/rated_speed_rpm",
+          "value": 3000
+        },
+        {
+          "confidence": 0.95,
+          "page": 55,
+          "printed_label": "Maximum Motor Speed*1",
+          "printed_text": "6000",
+          "printed_unit": "min-1",
+          "quote": "Maximum Motor Speed*1 min-1 6000",
+          "target": "params/max_speed_rpm",
+          "value": 6000
+        },
+        {
+          "confidence": 0.6,
+          "page": 55,
+          "printed_label": "Motor Moment of Inertia",
+          "printed_text": "1.59",
+          "printed_unit": "×10-4 kgm2",
+          "quote": "0.0395 0.0659 0.0915 0.263 0.486 0.800 1.59",
+          "target": "params/rotor_inertia_kgm2",
+          "value": 1.59
+        },
+        {
+          "confidence": 0.95,
+          "page": 55,
+          "printed_label": "Torque Constant",
+          "printed_text": "0.584",
+          "printed_unit": "Nm/Arms",
+          "quote": "Torque Constant Nm/Arms 0.316 0.413 0.321 0.444 0.544 0.493 0.584",
+          "target": "params/torque_constant_nm_per_a",
+          "value": 0.584
+        },
+        {
+          "confidence": 0.9,
+          "page": 55,
+          "printed_label": "Protective Structure*3",
+          "printed_text": "Totally enclosed, self-cooled, IP67",
+          "printed_unit": "",
+          "quote": "Protective Structure*3 Totally enclosed, self-cooled, IP67",
+          "target": "params/ip_rating",
+          "value": "IP67"
+        },
+        {
+          "confidence": 0.95,
+          "page": 55,
+          "printed_label": "Rated Current*1",
+          "printed_text": "4.4",
+          "printed_unit": "Arms",
+          "quote": "Rated Current*1 Arms 0.55 0.85 1.6 1.6 2.5 4.2 4.4",
+          "target": "ports/power_in/rated_current_a",
+          "value": 4.4
+        },
+        {
+          "confidence": 0.95,
+          "page": 55,
+          "printed_label": "Instantaneous Maximum Current*1",
+          "printed_text": "16.9",
+          "printed_unit": "Arms",
+          "quote": "Instantaneous Maximum Current*1 Arms 2.0 3.1 5.7 5.8 9.3 15.3 16.9",
+          "target": "ports/power_in/peak_current_a",
+          "value": 16.9
+        },
+        {
+          "confidence": 0.95,
+          "page": 55,
+          "printed_label": "Allowable Radial Load",
+          "printed_text": "392",
+          "printed_unit": "N",
+          "quote": "Allowable Radial Load N 78 245 392",
+          "target": "ports/shaft/max_radial_load_n",
+          "value": 392
+        },
+        {
+          "confidence": 0.95,
+          "page": 55,
+          "printed_label": "Allowable Thrust Load",
+          "printed_text": "147",
+          "printed_unit": "N",
+          "quote": "Allowable Thrust Load N 54 74 147",
+          "target": "ports/shaft/max_axial_load_n",
+          "value": 147
+        },
+        {
+          "confidence": 0.85,
+          "page": 66,
+          "printed_label": "S",
+          "printed_text": "19",
+          "printed_unit": "mm",
+          "quote": "S 8 14 19",
+          "target": "ports/shaft/diameter_mm",
+          "value": 19
+        },
+        {
+          "confidence": 0.8,
+          "page": 66,
+          "printed_label": "LR",
+          "printed_text": "40",
+          "printed_unit": "mm",
+          "quote": "LR 25 30 40",
+          "target": "ports/shaft/usable_length_mm",
+          "value": 40
+        },
+        {
+          "confidence": 0.8,
+          "page": 66,
+          "printed_label": "W",
+          "printed_text": "6",
+          "printed_unit": "mm",
+          "quote": "W 3 5 6",
+          "target": "ports/shaft/key_width_mm",
+          "value": 6
+        }
+      ],
+      "model": "SGM7J-08A",
+      "series": "SGM7J",
+      "vendor": "YASKAWA"
+    }
+  }
+}

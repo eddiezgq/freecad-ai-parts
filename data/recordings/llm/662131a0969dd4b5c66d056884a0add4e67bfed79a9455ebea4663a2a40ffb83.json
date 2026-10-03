@@ -1,0 +1,119 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "662131a0969dd4b5c66d056884a0add4e67bfed79a9455ebea4663a2a40ffb83",
+  "response": {
+    "id": "msg_011CfeRjUwVrViB1jUhLytaU",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.6,
+          "page": 9,
+          "printed_label": "Gear Unit CSG/CSF",
+          "printed_text": "CSF Series",
+          "printed_unit": "",
+          "quote": "| Mass (kg) | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |",
+          "target": "params/reducer_kind",
+          "value": "harmonic"
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Ratio",
+          "printed_text": "100",
+          "printed_unit": "",
+          "quote": "|  | 100 | 137 | 14 | 333 | 34 | 216 | 22 | 647 | 66 |  |  |  |  |  |  |",
+          "target": "params/ratio",
+          "value": 100
+        },
+        {
+          "condition": "Rated Torque at 2000rpm",
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Rated Torque at 2000rpm",
+          "printed_text": "137",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 137 | 14 | 333 | 34 | 216 | 22 | 647 | 66 |  |  |  |  |  |  |",
+          "target": "params/rated_torque_nm",
+          "value": 137
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Repeated Peak Torque",
+          "printed_text": "333",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 137 | 14 | 333 | 34 | 216 | 22 | 647 | 66 |  |  |  |  |  |  |",
+          "target": "params/repeated_peak_torque_nm",
+          "value": 333
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Momentary Peak Torque",
+          "printed_text": "647",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 137 | 14 | 333 | 34 | 216 | 22 | 647 | 66 |  |  |  |  |  |  |",
+          "target": "params/momentary_max_torque_nm",
+          "value": 647
+        },
+        {
+          "condition": "Oil lubricant",
+          "confidence": 0.7,
+          "page": 9,
+          "printed_label": "Maximum Input Speed (rpm)",
+          "printed_text": "7000",
+          "printed_unit": "rpm",
+          "quote": "| 32 | 30 | 54 | 5.5 | 100 | 10 | 75 | 7.7 | 200 | 20 | 7000 | 4800 | 4600 | 3500 | 1.69 | 1.72 |",
+          "target": "params/max_input_speed_rpm",
+          "value": 7000
+        },
+        {
+          "condition": "Oil lubricant",
+          "confidence": 0.7,
+          "page": 9,
+          "printed_label": "Limit for Average Input Speed (rpm)",
+          "printed_text": "4600",
+          "printed_unit": "rpm",
+          "quote": "| 32 | 30 | 54 | 5.5 | 100 | 10 | 75 | 7.7 | 200 | 20 | 7000 | 4800 | 4600 | 3500 | 1.69 | 1.72 |",
+          "target": "params/avg_input_speed_limit_rpm",
+          "value": 4600
+        },
+        {
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Moment of Inertia I ×10−4kgm2",
+          "printed_text": "1.69",
+          "printed_unit": "×10−4 kg·m²",
+          "quote": "| 32 | 30 | 54 | 5.5 | 100 | 10 | 75 | 7.7 | 200 | 20 | 7000 | 4800 | 4600 | 3500 | 1.69 | 1.72 |",
+          "target": "params/input_inertia_kgm2",
+          "value": 1.69
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "Mass (kg)",
+          "printed_text": "3.2",
+          "printed_unit": "kg",
+          "quote": "| Mass (kg) | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |",
+          "target": "params/mass_kg",
+          "value": 3.2
+        },
+        {
+          "confidence": 0.8,
+          "page": 11,
+          "printed_label": "φA",
+          "printed_text": "138",
+          "printed_unit": "mm",
+          "quote": "| φA |  | 73 | 79 | 93 | 107 | 138 | 160 | 180 | 190 | 226 | 260 |",
+          "target": "dims/outer_diameter_mm",
+          "value": 138
+        }
+      ],
+      "model": "CSF-32-100-2UH",
+      "series": "CSF",
+      "vendor": "Harmonic Drive"
+    }
+  }
+}

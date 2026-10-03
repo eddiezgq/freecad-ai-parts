@@ -1,0 +1,155 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "0996129492b498d85931005024deef38ac9020d11bac489c12592c230620ae57",
+  "response": {
+    "id": "msg_011CfeU3hLNAABfNeUCq1Mna",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.85,
+          "page": 2,
+          "printed_label": "Bearing type",
+          "printed_text": "Crossed roller bearing",
+          "printed_unit": "",
+          "quote": "Deep groove ball Deep groove ball Angular contact ball Crossed roller Tapered roller",
+          "target": "params/bearing_kind",
+          "value": "cross_roller"
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Bore diameter d",
+          "printed_text": "40",
+          "printed_unit": "mm",
+          "quote": "Bore diameter d mm 20 25 30 40 25",
+          "target": "ports/inner/diameter_mm",
+          "value": 40
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Outside diameter D",
+          "printed_text": "65",
+          "printed_unit": "mm",
+          "quote": "Outside diameter D mm 42 52 55 65 52",
+          "target": "ports/outer/diameter_mm",
+          "value": 65
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Outside diameter D",
+          "printed_text": "65",
+          "printed_unit": "mm",
+          "quote": "Outside diameter D mm 42 52 55 65 52",
+          "target": "dims/outer_diameter_mm",
+          "value": 65
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Width B",
+          "printed_text": "10",
+          "printed_unit": "mm",
+          "quote": "Width B mm 12 15 13 10 16.25",
+          "target": "params/width_mm",
+          "value": 10
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Dynamic load rating",
+          "printed_text": "6900",
+          "printed_unit": "N",
+          "quote": "Dynamic load rating N 9100 13300 14800 6900 30500",
+          "target": "params/dynamic_load_rating_n",
+          "value": 6900
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Basic static load rating C0r",
+          "printed_text": "8800",
+          "printed_unit": "N",
+          "quote": "Basic static load rating C0r N 4800 7500 9600 8800 35500",
+          "target": "params/static_load_rating_n",
+          "value": 8800
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Limiting speed",
+          "printed_text": "2800",
+          "printed_unit": "r/min",
+          "quote": "Limiting speed r/min 12500 11500 14000 2800 7600",
+          "target": "params/limiting_speed_rpm",
+          "value": 2800
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Allowable moment load",
+          "printed_text": "145",
+          "printed_unit": "Nm",
+          "quote": "Allowable moment load Nm — — — 145 —",
+          "target": "params/moment_load_rating_nm",
+          "value": 145
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Mass",
+          "printed_text": "0.125",
+          "printed_unit": "kg",
+          "quote": "Mass kg 0.072 0.13 0.118 0.125 0.155",
+          "target": "params/mass_kg",
+          "value": 0.125
+        },
+        {
+          "confidence": 0.8,
+          "page": 2,
+          "printed_label": "Precision class",
+          "printed_text": "P5",
+          "printed_unit": "",
+          "quote": "Precision class — P0 Class 6 (P6) P5 P5 Normal (P0)",
+          "target": "ports/inner/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.85,
+          "page": 2,
+          "printed_label": "Precision class",
+          "printed_text": "P5",
+          "printed_unit": "",
+          "quote": "Precision class — P0 Class 6 (P6) P5 P5 Normal (P0)",
+          "target": "ports/inner/fit",
+          "value": "P5"
+        },
+        {
+          "confidence": 0.8,
+          "page": 2,
+          "printed_label": "Precision class",
+          "printed_text": "P5",
+          "printed_unit": "",
+          "quote": "Precision class — P0 Class 6 (P6) P5 P5 Normal (P0)",
+          "target": "ports/outer/fit_system",
+          "value": "bearing"
+        },
+        {
+          "confidence": 0.85,
+          "page": 2,
+          "printed_label": "Precision class",
+          "printed_text": "P5",
+          "printed_unit": "",
+          "quote": "Precision class — P0 Class 6 (P6) P5 P5 Normal (P0)",
+          "target": "ports/outer/fit",
+          "value": "P5"
+        }
+      ],
+      "model": "SBX-4065",
+      "vendor": "Synth Bearing"
+    }
+  }
+}

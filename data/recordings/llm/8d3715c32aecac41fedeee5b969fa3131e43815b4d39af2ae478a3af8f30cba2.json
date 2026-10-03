@@ -1,0 +1,218 @@
+{
+  "model": "claude-opus-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "8d3715c32aecac41fedeee5b969fa3131e43815b4d39af2ae478a3af8f30cba2",
+  "response": {
+    "id": "msg_011CfeTMSrMm1f7ZRznpRnJ6",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "condition": "Single-Phase, 200 VAC",
+          "confidence": 0.55,
+          "page": 63,
+          "printed_label": "Maximum Applicable Motor Capacity [kW]",
+          "printed_text": "0.1",
+          "printed_unit": "kW",
+          "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.75 1.5",
+          "target": "params/rated_output_power_w",
+          "value": 0.1
+        },
+        {
+          "confidence": 0.9,
+          "page": 63,
+          "printed_label": "Continuous Output Current [Arms]",
+          "printed_text": "0.91",
+          "printed_unit": "Arms",
+          "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 0.91
+        },
+        {
+          "confidence": 0.9,
+          "page": 63,
+          "printed_label": "Instantaneous Maximum Output Current [Arms]",
+          "printed_text": "3.2",
+          "printed_unit": "Arms",
+          "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 3.2
+        },
+        {
+          "confidence": 0.6,
+          "page": 63,
+          "printed_label": "Power Supply",
+          "printed_text": "200 VAC to 240 VAC, 50 Hz/60 Hz",
+          "printed_unit": "",
+          "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz",
+          "target": "ports/power_in/current_type",
+          "value": "ac"
+        },
+        {
+          "confidence": 0.85,
+          "max": 240,
+          "min": 200,
+          "page": 63,
+          "printed_label": "Power Supply",
+          "printed_text": "200 VAC to 240 VAC",
+          "printed_unit": "VAC",
+          "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz",
+          "target": "ports/power_in/voltage_v"
+        },
+        {
+          "confidence": 0.75,
+          "max": 60,
+          "min": 50,
+          "page": 63,
+          "printed_label": "Power Supply",
+          "printed_text": "50 Hz/60 Hz",
+          "printed_unit": "Hz",
+          "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz",
+          "target": "ports/power_in/frequency_hz"
+        },
+        {
+          "confidence": 0.8,
+          "page": 62,
+          "printed_label": "Three-Phase, 200 VAC",
+          "printed_text": "Three-Phase",
+          "printed_unit": "",
+          "quote": "Three-Phase, 200 VAC",
+          "target": "ports/power_in/phases",
+          "value": 3
+        },
+        {
+          "confidence": 0.8,
+          "page": 63,
+          "printed_label": "Single-Phase, 200 VAC",
+          "printed_text": "Single-Phase",
+          "printed_unit": "",
+          "quote": "Single-Phase, 200 VAC",
+          "target": "ports/power_in/phases",
+          "value": 1
+        },
+        {
+          "condition": "Single-Phase, 200 VAC, Main Circuit, net value at the rated load",
+          "confidence": 0.8,
+          "page": 63,
+          "printed_label": "Input Current [Arms]*",
+          "printed_text": "1.6",
+          "printed_unit": "Arms",
+          "quote": "Input Current [Arms]* 0.8 1.6 2.4 5.0 8.7 16",
+          "target": "ports/power_in/rated_current_a",
+          "value": 1.6
+        },
+        {
+          "condition": "270 VDC, Main Circuit, net value at the rated load",
+          "confidence": 0.75,
+          "page": 64,
+          "printed_label": "Input Current [Arms]*1",
+          "printed_text": "1.0",
+          "printed_unit": "Arms",
+          "quote": "Input Current [Arms]*1 0.5 1.0 1.5 3.0 3.8 4.9 6.9 11",
+          "target": "ports/power_in/rated_current_a",
+          "value": 1.0
+        },
+        {
+          "condition": "270 VDC",
+          "confidence": 0.75,
+          "max": 324,
+          "min": 270,
+          "page": 64,
+          "printed_label": "Power Supply",
+          "printed_text": "270 VDC to 324 VDC",
+          "printed_unit": "VDC",
+          "quote": "Power Supply 270 VDC to 324 VDC",
+          "target": "ports/power_in/voltage_v"
+        },
+        {
+          "condition": "270 VDC",
+          "confidence": 0.6,
+          "page": 64,
+          "printed_label": "Power Supply",
+          "printed_text": "270 VDC to 324 VDC",
+          "printed_unit": "",
+          "quote": "Power Supply 270 VDC to 324 VDC",
+          "target": "ports/power_in/current_type",
+          "value": "dc"
+        },
+        {
+          "condition": "Rack-mounted SERVOPACKs, Hardware Option Code: 001 (SGD7S-R70A, -R90A, -1R6A)",
+          "confidence": 0.6,
+          "page": 82,
+          "printed_label": "Approx. mass",
+          "printed_text": "1.0",
+          "printed_unit": "kg",
+          "quote": "Approx. mass: 1.0 kg",
+          "target": "params/mass_kg",
+          "value": 1.0
+        },
+        {
+          "confidence": 0.55,
+          "page": 70,
+          "printed_label": "Inputs",
+          "printed_text": "/HWBB1 and /HWBB2",
+          "printed_unit": "",
+          "quote": "Inputs /HWBB1 and /HWBB2: Base block signals for Power Modules",
+          "target": "params/safety_functions",
+          "value": "HWBB"
+        },
+        {
+          "confidence": 0.65,
+          "page": 67,
+          "printed_label": "Serial encoder",
+          "printed_text": "Serial encoder",
+          "printed_unit": "",
+          "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute",
+          "target": "ports/encoder_in/protocol",
+          "value": "vendor_proprietary"
+        },
+        {
+          "confidence": 0.7,
+          "page": 67,
+          "printed_label": "Serial encoder",
+          "printed_text": "incremental encoder/absolute",
+          "printed_unit": "",
+          "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute",
+          "target": "ports/encoder_in/kind",
+          "value": [
+            "incremental",
+            "absolute"
+          ]
+        },
+        {
+          "confidence": 0.85,
+          "page": 69,
+          "printed_label": "Communications Connectors",
+          "printed_text": "ETHERCAT IN",
+          "printed_unit": "",
+          "quote": "Connectors CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "target": "ports/bus/protocol",
+          "value": "ethercat"
+        },
+        {
+          "confidence": 0.8,
+          "page": 69,
+          "printed_label": "Communications Connectors",
+          "printed_text": "RJ45",
+          "printed_unit": "",
+          "quote": "Connectors CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "target": "ports/bus/connector",
+          "value": "RJ45"
+        },
+        {
+          "confidence": 0.75,
+          "page": 69,
+          "printed_label": "Applicable Communications Standards",
+          "printed_text": "CiA402 Drive Profile",
+          "printed_unit": "",
+          "quote": "cations Standards IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "target": "ports/bus/profile",
+          "value": "cia402"
+        }
+      ],
+      "model": "SGD7S-R90A",
+      "series": "Σ-7",
+      "vendor": "YASKAWA"
+    }
+  }
+}
