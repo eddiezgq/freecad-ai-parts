@@ -124,21 +124,21 @@ DIAGNOSE_REASONS = ("找不到", "叫法不在", "不在目标型号")
 
 
 def diagnose(jobs: list[dict], *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_DIR, per_item: int = 2,
-             limit: int = 40) -> str:
+             limit: int = 25) -> str:
     """排查核对程序（不调用 LLM）：对被拒的引用，列出规格书该页上最接近的行（表格行列出各单元格）。
 
-    只列与被拒引用最接近的少数几行（参数表的行），用于改进核对程序；结果只打印到运行日志，不写进仓库（ADR-0040）。
+    同一文档中相同的引用只列一次，每份文档最多 limit 条。只列与被拒引用最接近的少数几行（参数表的行），用于改进核对程序；结果只打印到运行日志，不写进仓库（ADR-0040）。
     """
     import difflib
 
     from ingest.llm_extract import _context
     from ingest.pdf_extract import extract
 
-    out, loaded, shown = [], {}, 0
+    out, loaded, shown, seen = [], {}, {}, set()
     for job in jobs:
         path = output_path(job, out_dir)
         for p in (path, path.with_suffix(".check.json")):
-            if not p.is_file() or shown >= limit:
+            if not p.is_file() or shown.get(job["doc"], 0) >= limit:
                 continue
             pdf = raw_dir / f"{job['doc']}.pdf"
             if not pdf.is_file():
@@ -146,15 +146,15 @@ def diagnose(jobs: list[dict], *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_D
             if job["doc"] not in loaded:
                 loaded[job["doc"]] = _context(extract(pdf))
             ctx = loaded[job["doc"]]
-            seen = set()
             for r in json.loads(p.read_text(encoding="utf-8")).get("rejected", []):
                 quote, page = (r.get("printed") or {}).get("quote"), r.get("page")
                 if not quote or page not in ctx.lines or not any(k in r["reason"] for k in DIAGNOSE_REASONS):
                     continue
-                if (page, quote) in seen or shown >= limit:
+                key = (job["doc"], page, re.sub(r"\s+", "", quote.replace("|", "")))
+                if key in seen or shown.get(job["doc"], 0) >= limit:
                     continue
-                seen.add((page, quote))
-                shown += 1
+                seen.add(key)
+                shown[job["doc"]] = shown.get(job["doc"], 0) + 1
                 q = re.sub(r"\s+", "", quote.replace("|", ""))
                 ranked = sorted(ctx.lines[page], key=lambda ln: -difflib.SequenceMatcher(None, q, ln.joined).ratio())
                 out.append(f"#### {p.name} · {r['target']} · 第 {page} 页\n\n- 原因：{r['reason']}\n- 引用：`{quote}`")
@@ -231,7 +231,7 @@ def main(argv: list[str] | None = None) -> int:
     p_run.add_argument("--summary", type=Path, help="把摘要（Markdown）写到此文件")
     p_diag = sub.add_parser("diagnose", help="排查被拒的引用：列出该页最接近的行（只打印，不写进仓库）")
     p_diag.add_argument("--doc", action="append", default=[], help="只排查这些文档（可重复）")
-    p_diag.add_argument("--limit", type=int, default=40, help="最多列出多少条被拒引用")
+    p_diag.add_argument("--limit", type=int, default=25, help="每份文档最多列出多少条被拒引用")
     p_diag.add_argument("--summary", type=Path, help="把结果（Markdown）写到此文件")
     args = parser.parse_args(argv)
 
