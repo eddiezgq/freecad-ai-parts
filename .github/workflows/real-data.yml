@@ -60,7 +60,14 @@ jobs:
       - name: 下载登记的规格书，核对或固定 SHA-256
         run: |
           args=(); for d in $DOCS; do args+=(--doc "$d"); done
-          python -m ingest.fetch --pin "${args[@]}"
+          set +e
+          python -m ingest.fetch --pin "${args[@]}" 2>&1 | tee fetch.log
+          code=${PIPESTATUS[0]}
+          set -e
+          if [ "$code" -ne 0 ]; then  # 失败原因写成注释，运行日志之外也能看到
+            tail -n 5 fetch.log | while IFS= read -r line; do echo "::error::$line"; done
+            exit "$code"
+          fi
       - name: 页码索引（不含原文）
         run: |
           args=(); for d in $DOCS; do args+=(--doc "$d"); done
