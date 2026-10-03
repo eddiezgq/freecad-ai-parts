@@ -271,7 +271,7 @@ def test_size_columns_and_series_rows():
 def _yaskawa_text_doc():
     """安川式额定值页：表格只截到一部分（缺最后一列、缺叫法列），完整的数值在正文行里，带脚注标记 *1。"""
     lines = ["Voltage 200 V", "Model SGM7J- A5A 01A C2A 02A 04A",
-             "Rated Output∗1 W 50 100 150 200 400", "Rated Torque*1, *2 Nm 0.159 0.318 0.477 0.637 1.27",
+             "Rated Output∗1 W 50 100 150 200 400", "Rated Torque*1, *2 N\uf09em 0.159 0.318 0.477 0.637 1.27",
              "Rated Motor Speed*1 min-1 3000", "Rated Current*1 Arms 0.55 0.85 1.6 1.6"]
     text = "\n".join(lines)
     rows = [["Voltage", None, None, "200V", None], ["ModelSGM7J-", None, None, "A5A", "01A"],
@@ -292,6 +292,12 @@ def test_catalog_text_rows_by_model_column():
     bad = verify({"items": [dict(power, printed_text="200", value=200)]}, doc, "servo_motor", DOC_ID,
                  target_model="SGM7J-04A")
     assert bad["items"] == [] and bad["rejected"][0]["reason"] == "数值不在目标型号所在的列"
+    # 符号字体的私用区字形（N·m 中的点印成 U+F09E）：模型引用时略去，比较时一并去掉
+    torque = _yk("params/rated_torque_nm", "1.27", 1.27, "Rated Torque",
+                 "Rated Torque*1, *2 Nm 0.159 0.318 0.477 0.637 1.27", "Nm")
+    torque["condition"] = "Rated"
+    got = verify({"items": [torque]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-04A")
+    assert got["items"] and got["items"][0]["value"]["value"] == 1.27, got["rejected"]
     # 合并单元格：整行一个数，各型号共用，并注明
     speed = _yk("params/rated_speed_rpm", "3000", 3000, "Rated Motor Speed", "Rated Motor Speed*1 min-1 3000", "min-1")
     got = verify({"items": [speed]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-02A")
@@ -309,7 +315,8 @@ def test_dimension_rows_identified_by_code_line():
             [None, None, None, None, "LR", "LC", "LB"],
             [None, "81.5(122)", "56.5(97)", "37.9", "25", "40", "30 0 -0.021"],
             [None, "93.5(134)", "68.5(109)", "49.9", "25", "40", "30 0 -0.021"]]
-    text = "Unit: mm\nA5AA2 37.9 25 40 30 0 -0.021\n01AA2 49.9 25 40 30 0 -0.021"
+    text = ("Unit: mm\nA5A\uf06fA2\uf06f 37.9 25 40 30 0 -0.021\n81.5 56.5 0.3\n"
+            "01A\uf06fA2\uf06f 49.9 25 40 30 0 -0.021\n93.5 68.5 0.4")
     doc = Document("x", "0" * 64, [Page(1, text, [Table(1, 0, rows, (0, 0, 1, 1))])])
     lm = {"target": "dims/body_length_mm", "printed_text": "49.9", "printed_unit": "mm", "printed_label": "LM",
           "quote": "93.5(134) 68.5(109) 49.9 25 40", "page": 1, "confidence": 0.9, "value": 49.9}
@@ -317,3 +324,14 @@ def test_dimension_rows_identified_by_code_line():
     assert got["items"] and got["items"][0]["value"]["value"] == 49.9
     other = verify({"items": [lm]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-A5A")
     assert other["items"] == [] and other["rejected"][0]["reason"] == "数值不在目标型号所在的列"
+    # 模型引用的是表格外的正文行：按内容对到同一表格行，再核对型号与列
+    lc = dict(lm, target="dims/square_mm", printed_text="40", value=40, printed_label="LC",
+              quote="01AA2 49.9 25 40 30 0 -0.021")
+    assert verify({"items": [lc]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-01A")["items"]
+    assert verify({"items": [lc]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-A5A")["items"] == []
+    # “93.5 68.5 0.4”：L、LL（表格中带括号的制动器型号值）与质量；表格行在质量之前截断
+    ll = dict(lm, target="dims/body_length_mm", printed_text="68.5", value=68.5, printed_label="LL",
+              quote="93.5 68.5 0.4")
+    got = verify({"items": [ll]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-01A")
+    assert got["items"] and any("括号" in i for i in got["items"][0]["issues"])
+    assert verify({"items": [ll]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-A5A")["items"] == []
