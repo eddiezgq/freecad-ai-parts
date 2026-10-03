@@ -203,11 +203,17 @@ TOOL_SCHEMA: dict = {
 TOOL_INSTRUCTION = "\n\n只通过调用工具 {name} 一次提交全部结果，不要只用文字回答。"
 
 
+# 多型号目录的提示词版本（ADR-0040、ADR-0043）：catalog/2 起要求逐列报告外形尺寸，引用优先摘表格行
+CATALOG_PROMPT_VERSION = "catalog/2"
 TARGET_INSTRUCTION = (
     "目标型号：{model}\n"
     "这份目录含多个型号。只报告目标型号的数值：表格按型号分列时取该型号所在列，按型号分行时取该型号所在行；"
     "对所有型号通用的数值（如整个系列共用的一项）也报告。其他型号的数值一律不报。"
-    "model 写目标型号在目录中印出的写法。\n\n"
+    "model 写目标型号在目录中印出的写法。\n"
+    "外形尺寸、法兰与轴端尺寸表：目标型号那一行（或列）的每个尺寸都对照字段清单逐项报告"
+    "（如总长 L、机身长 LL、法兰边长 LC、安装孔分布圆 LA、止口直径 LB、安装孔径 LZ、轴径 S、轴伸 LR、外径 φA），"
+    "不要只报其中几项；同一数值对应多个 target 时分别报告。\n"
+    "quote 优先摘表格中的那一行（[表] 下以 | 分隔的行，原样照抄单元格）；表格里没有这一行时再摘正文行。\n\n"
 )
 
 
@@ -233,6 +239,7 @@ def build_request(document: Document, category: str, *, model: str = DEFAULT_MOD
         "system": SYSTEM_PROMPT + TOOL_INSTRUCTION.format(name=TOOL_NAME),
         "user": user,
         "tool": {"name": TOOL_NAME, "description": "记录从规格书抽取的参数", "input_schema": TOOL_SCHEMA},
+        **({"catalog_prompt": CATALOG_PROMPT_VERSION} if target_model else {}),
     }
 
 

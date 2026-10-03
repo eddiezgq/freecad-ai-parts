@@ -14,6 +14,7 @@
    - 另一个模型（`FAP_CHECK_MODEL`，缺省 `claude-opus-5-5`）对同一页、同一型号独立再抽一次（`python -m ingest.jobs run --check`），结果写到 `<型号>.check.json`
    - `python -m ingest.crosscheck` 逐项比对两次抽取，两次一致的项标为已复核，复核人记为“claude（AI 复核）”
    - 一致的项组装成组件，通过入库把关后写到 `data/library/<品类>/<组件 id>.json`；`FAP_LIBRARY` 可直接指向这个目录
+   - 多型号目录的请求另带提示词版本 `catalog_prompt`（`catalog/2` 起要求逐列报告外形尺寸，引用优先摘表格行）；改动后须重新录制
    - 不一致的项和只报出一次的项不收录，列在 `data/review/<文档>/<型号>.json` 中，留待人工核对
 
 ## 在哪里运行
