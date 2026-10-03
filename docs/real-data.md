@@ -10,7 +10,7 @@
    - 在 `data/extract_jobs.yaml` 的 `index` 中列出检索词（型号、参数名），生成页码索引：每页的表格数、出现的检索词和页眉标题（每页前两行的短句），不含正文与表格内容
 3. **定任务**：按索引在 `jobs` 中写页码范围和目标型号
 4. **抽取**：真实 LLM 逐个型号抽取，结果写到 `data/extracted/<文档>/<型号>.json`，录制写到 `data/recordings/llm/`
-5. **AI 复核与入库**（issue #127）：
+5. **AI 复核与入库**（issue #127；引用核对规则见 [ADR-0043](adr/0043-catalog-citation-check.md)）：
    - 另一个模型（`FAP_CHECK_MODEL`，缺省 `claude-opus-5-5`）对同一页、同一型号独立再抽一次（`python -m ingest.jobs run --check`），结果写到 `<型号>.check.json`
    - `python -m ingest.crosscheck` 逐项比对两次抽取，两次一致的项标为已复核，复核人记为“claude（AI 复核）”
    - 一致的项组装成组件，通过入库把关后写到 `data/library/<品类>/<组件 id>.json`；`FAP_LIBRARY` 可直接指向这个目录
