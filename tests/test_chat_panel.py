@@ -215,6 +215,22 @@ def test_default_mod_dir(monkeypatch, platform, env, tail):
     assert install.default_mod_dir().as_posix().endswith(tail)
 
 
+def test_default_mod_dirs_include_versioned(monkeypatch, tmp_path, capsys):
+    """FreeCAD 1.1 起用户目录按版本分开（v1-1/），已有的版本目录都装上。"""
+    monkeypatch.setattr(install.sys, "platform", "linux")
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path))
+    assert install.default_mod_dirs() == [tmp_path / "FreeCAD" / "Mod"]
+    for d in ("v1-1", "v1-2", "vfoo", "macros"):
+        (tmp_path / "FreeCAD" / d).mkdir(parents=True)
+    root = tmp_path / "FreeCAD"
+    assert install.default_mod_dirs() == [root / "Mod", root / "v1-1" / "Mod", root / "v1-2" / "Mod"]
+    assert install.main([]) == 0
+    assert (root / "v1-1" / "Mod" / "FreeCADAIParts" / "InitGui.py").is_file()
+    assert "v1-2" in capsys.readouterr().out
+    assert install.main(["--uninstall"]) == 0
+    assert not (root / "v1-1" / "Mod" / "FreeCADAIParts").exists()
+
+
 # ------------------------------------------------------------------ FreeCAD 界面
 
 

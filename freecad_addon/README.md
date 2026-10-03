@@ -51,7 +51,7 @@ MCP 服务端通过 `freecad_addon.fc.client.HeadlessWorker` 用 FreeCAD 内带�
 ## 安装工作台与内置对话面板（ADR-0036）
 
 ```bash
-python -m freecad_addon.install                          # 写入 FreeCAD 用户目录的 Mod/FreeCADAIParts/InitGui.py
+python -m freecad_addon.install                          # 写入 FreeCAD 用户目录的 Mod/FreeCADAIParts/InitGui.py（1.1 起另有 v1-1/Mod 等，一并写入）
 <FreeCAD 的 python> -m pip install -e ".[llm]"           # 面板依赖（在本仓库目录下运行）
 export ANTHROPIC_API_KEY=...                             # 或写在本仓库的 .env 中（不入 git）
 ```
