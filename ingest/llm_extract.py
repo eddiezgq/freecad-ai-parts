@@ -355,12 +355,16 @@ _UNIT_AFTER = r"(?![A-Za-z0-9·/^²³⁰¹⁴⁵⁶⁷⁸⁹⁻(])"
 _UNIT_TOKEN = re.compile(r"[^\s|\[\]（）,，;；:：]+")
 
 
+_LOOKALIKE = str.maketrans({"∗": "*", "＊": "*", "﹡": "*", "⁎": "*"})
+_FOOTNOTE = re.compile(r"\*\s*\d+(?:\s*,\s*\*\s*\d+)*")
+
+
 def _squash(text: str) -> str:
-    return _WS.sub("", text or "")
+    return _WS.sub("", (text or "").translate(_LOOKALIKE))
 
 
 def _spaced(text: str) -> str:
-    return _WS.sub(" ", text or "").strip()
+    return _WS.sub(" ", (text or "").translate(_LOOKALIKE)).strip()
 
 
 def _loose(text: str) -> str:
@@ -397,6 +401,26 @@ class _Ctx:
     page_spaced: dict[int, str]
     comma_thousands: bool | None  # 全文逗号是千分位（True）、小数点（False），判断不了为 None
     target_model: str = ""  # 多型号目录的目标型号（_loose 后）；空表示单型号规格书
+    target_raw: str = ""  # 目标型号原文（按“-”分段核对尺寸、减速比等键列）
+
+
+def _fill_down(rows: list[list[str | None]]) -> list[list[str | None]]:
+    """纵向合并的单元格：行首的空格子取上一行同列的文字（如“Mass (kg)”跨 CSG、CSF 两行，“14”跨各减速比）。
+
+    只补行首连续的空格子，表头前两行不补。
+    """
+    out: list[list[str | None]] = []
+    for i, row in enumerate(rows):
+        row = list(row)
+        if i >= 2 and out:
+            prev = out[-1]
+            for j, c in enumerate(row):
+                if (c or "").strip():
+                    break
+                if j < len(prev) and (prev[j] or "").strip():
+                    row[j] = prev[j]
+        out.append(row)
+    return out
 
 
 def _context(document: Document, target_model: str | None = None) -> _Ctx:
@@ -410,7 +434,7 @@ def _context(document: Document, target_model: str | None = None) -> _Ctx:
             heads = tuple(tuple(_squash(c or "") for c in r) for r in t.rows[:3])
             ls += [_Line(tuple(_squash(c or "") for c in row), _spaced(" ".join(c or "" for c in row)), True, header,
                          hcells, heads)
-                   for row in t.rows]
+                   for row in _fill_down(t.rows)]
         ls += [_Line((_squash(ln),), _spaced(ln), False) for ln in p.text.splitlines() if ln.strip()]
         lines[p.page] = ls
         spaced[p.page] = "\n".join(ln.spaced for ln in ls)
@@ -419,7 +443,7 @@ def _context(document: Document, target_model: str | None = None) -> _Ctx:
     comma_dec = re.search(r"(?<![\d.,])\d+,\d{1,2}(?![\d.,])", text) is not None
     comma_k = re.search(r"(?<![\d.,])\d{1,3}(?:,\d{3})+\.\d+(?![\d,])", text) is not None
     comma = True if (dot or comma_k) and not comma_dec else False if comma_dec and not dot else None
-    return _Ctx(lines, spaced, comma, _loose(target_model or ""))
+    return _Ctx(lines, spaced, comma, _loose(target_model or ""), (target_model or "").strip())
 
 
 def _tokens(text: str, comma_thousands: bool | None = None) -> tuple[list[float], str | None]:
@@ -512,7 +536,7 @@ def _value_in_line(line: _Line, text: str, label: str, unit: str) -> bool:
     i = low.find(_spaced(label).casefold())
     if i < 0:
         return False
-    rest = line.spaced[i + len(_spaced(label)):]
+    rest = _FOOTNOTE.sub(" ", line.spaced[i + len(_spaced(label)):])
     m = re.search(_bounded(text), rest)
     return m is not None and not _tokens(rest[: m.start()])[0]
 
@@ -563,17 +587,169 @@ def _model_col(row: tuple[str, ...], model: str) -> int | None:
     return None
 
 
-def _model_column(line: _Line, model: str, text: str, unit: str) -> bool | None:
+def _key_segments(raw: str) -> tuple[str, list[str]]:
+    """型号的系列前缀（开头的字母）与纯数字的分段：CSF-14-50-2UH → ("csf", ["14", "50"])。"""
+    m = re.match(r"[A-Za-z]+", raw)
+    return (m.group().casefold() if m else ""), [x for x in re.split(r"[-\s]+", raw) if x.isdigit()]
+
+
+def _value_col(line: _Line, text: str, unit: str) -> int | None:
+    hits = [j for j, c in enumerate(line.cells) if _cell_is(c, text, unit)]
+    return hits[0] if len(hits) == 1 else None
+
+
+def _row_code(line: _Line, text_lines: list[_Line]) -> str | None:
+    """表格行的型号格是空的（型号印在表格外）：找一行正文，首词是型号代码、其余与这一表格行的内容相同。"""
+    for tl in text_lines:
+        words = tl.spaced.split(" ")
+        tail = _squash(" ".join(words[1:]))
+        if len(words) >= 3 and len(tail) >= 8 and tail in line.joined:
+            return words[0]
+    return None
+
+
+def _model_suffix(line: _Line, model: str) -> str | None:
+    """表头中写的型号前缀（如“Model SGM7J-”）之后的部分，即各行型号代码的开头。"""
+    for row in line.head_rows:
+        if row == line.cells:
+            break
+        for c in row:
+            lc = _loose(c)
+            for cut in range(len(model) - 1, 2, -1):
+                if lc and lc.endswith(model[:cut]):
+                    return model[cut:]
+    return None
+
+
+def _model_column(line: _Line, model: str, text: str, unit: str, raw: str = "",
+                  text_lines: list[_Line] | None = None) -> bool | None:
     """多型号目录：数值是否在目标型号的列（或行）中。True 已确认，False 不在，None 判断不了（交给复核）。"""
     if any(_loose(c) == model for c in line.cells):  # 按型号分行：型号就在这一行
         return True
+    if line.cells and not line.cells[0] and text_lines:
+        code, suffix = _row_code(line, text_lines), _model_suffix(line, model)
+        if code and suffix:
+            return _loose(code).startswith(suffix)
+    series, segs = _key_segments(raw)
+    if series and any(_loose(c).endswith("series") and len(_loose(c)) > len("series")
+                      and not _loose(c).startswith(series) for c in line.cells):
+        return False  # 另一个系列的行（如 CSG Series 与 CSF Series 并列）
+    if segs:
+        # 按尺寸、减速比分行：行首的数字键须与型号的数字分段一致（CSF-14-50 → 14 ¦ 50）
+        lead = []
+        for c in line.cells:
+            if not c.isdigit() or len(lead) == len(segs):
+                break
+            lead.append(c)
+        if lead and len(lead) < len(line.cells):
+            return lead == segs[:len(lead)]
     for row in line.head_rows or (line.header_cells,):
         if row == line.cells:  # 表头行本身
             break
         j = _model_col(row, model)
         if j is not None:
             return j < len(line.cells) and _cell_is(line.cells[j], text, unit)
+    if segs:
+        # 按尺寸分列：表头某一行以“Size”开头，各列是尺寸
+        for row in line.head_rows:
+            if row == line.cells:
+                break
+            first = next((c for c in row if c), "")
+            if _loose(first).startswith("size") and segs[0] in row:
+                j = row.index(segs[0])
+                return j < len(line.cells) and _cell_is(line.cells[j], text, unit)
     return None
+
+
+def _model_printed_split(ctx: _Ctx, raw: str) -> bool:
+    """型号没有整串印出，但按目录的编排分开印出：
+    - 表头（表格行或正文行）写前缀、各列写后缀（“Model SGM7J-” ¦ “A5A” ¦ “02A”）
+    - 尺寸、减速比作为表格行的键（14 ¦ 50），其余字母分段（CSF、2UH）都印在所选页上
+    """
+    rows = [ln for lines in ctx.lines.values() for ln in lines if ln.is_row]
+    if any(_model_columns(ctx, pg) is not None for pg in ctx.lines):
+        return True
+    _, segs = _key_segments(raw)
+    words = [x for x in re.split(r"[-\s]+", raw) if x and not x.isdigit()]
+    if not segs or not words:
+        return False
+    page_text = _loose("".join(ctx.page_spaced.values()))
+    return all(_loose(w) in page_text for w in words) and any(
+        list(ln.cells[:len(segs)]) == segs for ln in rows)
+
+
+def _unit_in_column_head(line: _Line, text: str, unit: str) -> bool:
+    """表格行：单位写在数值所在列的表头里（如“I×10−4kgm2”）。"""
+    col = _value_col(line, text, unit) if line.is_row else None
+    u = _squash(unit)
+    return col is not None and bool(u) and any(col < len(r) and u in r[col] for r in line.head_rows
+                                               if r != line.cells)
+
+
+def _model_columns(ctx: _Ctx, page: int) -> tuple[int, int] | None:
+    """本页型号的列序（第几列, 共几列）：表头行或正文行写成“Model SGM7J- A5A 01A …”的形式。"""
+    model = ctx.target_model
+    for ln in ctx.lines[page]:
+        if ln.is_row:
+            j = _model_col(ln.cells, model)
+            if j is None:
+                continue
+            if _loose(ln.cells[j]) == model:  # 整格就是型号：其他整格型号在同一行
+                names = [c for c in ln.cells if c]
+            else:
+                prefix = model[: -len(_loose(ln.cells[j]))]
+                start = next((i for i in range(j) if ln.cells[i] and _loose(ln.cells[i]).endswith(prefix)), -1) + 1
+                names = [c for c in ln.cells[start:] if c]
+            if ln.cells[j] in names:
+                return names.index(ln.cells[j]), len(names)
+        else:
+            words = ln.spaced.split(" ")
+            for i, w in enumerate(words):
+                lw = _loose(w)
+                if len(lw) >= 3 and model.startswith(lw) and model != lw and w.rstrip().endswith("-"):
+                    names = [_loose(x) for x in words[i + 1:]]
+                    suffix = model[len(lw):]
+                    if suffix in names:
+                        return names.index(suffix), len(names)
+    return None
+
+
+def _text_row_column(line: _Line, label: str, text: str, unit: str, cols: tuple[int, int]) -> tuple[bool, str]:
+    """多型号目录的正文行（“Rated Output*1 W 50 100 … 750”）：去掉脚注标记与单位后，第 k 个数是目标型号的值；
+    整行只有一个数时是各型号共用的合并格。返回（是否通过, 说明或拒绝原因）。"""
+    i = line.spaced.casefold().find(_spaced(label).casefold())
+    if i < 0:
+        return False, "叫法不在引用所在的行中"
+    rest = _FOOTNOTE.sub(" ", line.spaced[i + len(_spaced(label)):])
+    if unit:
+        rest = re.sub(_UNIT_BEFORE + re.escape(_spaced(unit)) + _UNIT_AFTER, " ", rest, count=1)
+    words = [w for w in rest.split() if _tokens(w)[0]]
+    k, n = cols
+    if len(words) == n:
+        return (_squash(words[k]) == _squash(text), "" if _squash(words[k]) == _squash(text)
+                else "数值不在目标型号所在的列")
+    if len(words) == 1 and _squash(words[0]) == _squash(text):
+        return True, "该行只有一个数值，按各型号共用（合并单元格）处理"
+    return False, f"该行有 {len(words)} 个数值，与 {n} 个型号列对不上"
+
+
+def _label_span(line: _Line, label: str) -> range | None:
+    """表格行：叫法在表头中的列（含向右合并的空格子）；找不到或不止一处时为 None。"""
+    key = _loose(label)
+    if not key:
+        return None
+    spans = set()
+    for row in line.head_rows:
+        if row == line.cells:
+            break
+        for j, c in enumerate(row):
+            lc = _loose(c)
+            if lc and (key in lc or len(lc) >= 4 and lc in key):
+                k = j + 1
+                while k < len(row) and not row[k]:
+                    k += 1
+                spans.add((j, k))
+    return range(*spans.pop()) if len(spans) == 1 else None
 
 
 def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list[str]]:
@@ -592,13 +768,27 @@ def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list
         candidates = [ln for ln in candidates if ln.is_row]
     best = "引用所在行中找不到与印出文字完全一致的数值"
     page_squashed = _squash(ctx.page_spaced[page])
+    cols = _model_columns(ctx, page) if ctx.target_model else None
     for ln in candidates:
         notes: list[str] = []
-        if not _value_in_line(ln, text, label, unit):
+        if cols and not ln.is_row:
+            ok, why = _text_row_column(ln, label, text, unit, cols)
+            if not ok:
+                best = why
+                continue
+            if why:
+                notes.append(why)
+        elif not _value_in_line(ln, text, label, unit):
             continue
         if _loose(label) not in _loose(ln.joined):
-            if ln.is_row and _loose(label) in _loose(ln.header):
-                notes.append(f"叫法 {label!r} 在表头，须核对所在列")
+            heads = "".join("".join(r) for r in ln.head_rows) or ln.header
+            if ln.is_row and _loose(label) in _loose(heads):
+                span, col = _label_span(ln, label), _value_col(ln, text, unit)
+                if span is not None and col is not None and col not in span:
+                    best = "数值不在叫法所在的列"
+                    continue
+                notes.append(f"叫法 {label!r} 在表头，" + ("须核对所在列" if span is None or col is None
+                                                           else "数值在该列"))
             else:
                 best = "叫法不在引用所在的行中"
                 continue
@@ -607,7 +797,7 @@ def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list
                 best = f"工况 {cond!r} 在第 {page} 页找不到"
                 continue
             notes.append(f"工况 {cond!r} 不在同一行，取自本页其他位置（表头或脚注），须核对")
-        if unit and not _unit_in(ln.spaced, unit):
+        if unit and not _unit_in(ln.spaced, unit) and not _unit_in_column_head(ln, text, unit):
             if not _unit_in(ctx.page_spaced[page], unit):
                 best = f"单位 {unit!r} 不在引用所在的行中，本页也找不到"
                 continue
@@ -617,7 +807,8 @@ def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list
                 continue
             notes.append(f"单位 {unit} 不在同一行，取自本页其他位置")
         if ln.is_row and ctx.target_model:
-            column = _model_column(ln, ctx.target_model, text, unit)
+            column = _model_column(ln, ctx.target_model, text, unit, ctx.target_raw,
+                                   [x for x in ctx.lines[page] if not x.is_row])
             if column is False:
                 best = "数值不在目标型号所在的列"
                 continue
@@ -839,7 +1030,8 @@ def verify(tool_input: Any, document: Document, category: str, doc_id: str, *,
             v = target_model
         if not isinstance(v, str) or not v.strip():
             continue
-        if re.search(r"(?<![A-Za-z0-9-])" + re.escape(_spaced(v)) + r"(?![A-Za-z0-9-])", all_text):
+        if re.search(r"(?<![A-Za-z0-9-])" + re.escape(_spaced(v)) + r"(?![A-Za-z0-9-])", all_text) or (
+                k == "model" and target_model and _model_printed_split(ctx, target_model)):
             out[k] = v.strip()
         else:
             rejected.append({"target": k, "printed": {"text": v.strip()}, "reason": f"{k} 在规格书中找不到"})

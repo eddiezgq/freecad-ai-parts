@@ -214,3 +214,106 @@ def test_split_model_header_on_second_row():
     # 后缀相同但前缀不同的型号不算匹配
     other = verify({"items": [p("0.637", 0.637)]}, doc, "servo_motor", DOC_ID, target_model="SGM7A-02A")
     assert other["items"] and any("型号列" in i for i in other["items"][0]["issues"])
+
+
+def _hd_doc():
+    """Harmonic Drive 式的表：按尺寸、减速比分行（尺寸纵向合并）；按尺寸分列（Mass 跨 CSG、CSF 两行）。"""
+    rated = [["CSF-2UH Size", "Ratio", "Rated Torque at 2000rpm", None, "Moment of Inertia", None],
+             [None, None, "Nm", "kgfm", "I×10−4kgm2", "J×10−5kgfms2"],
+             ["14", "30", "4.0", "0.41", "0.033", "0.034"],
+             [None, "50", "5.4", "0.55", "0.033", "0.034"],
+             ["17", "50", "16", "1.6", "0.079", "0.081"]]
+    dims = [["Size Symbol", None, "14", "17"], ["φA", None, "73", "79"], ["B*", None, "41", "45"],
+            ["Mass (kg)", "CSG Series", "0.52", "0.68"], [None, "CSF Series", "0.50", "0.66"]]
+    return Document("x", "0" * 64, [Page(1, "", [Table(1, 0, rated, (0, 0, 1, 1))]),
+                                    Page(2, "", [Table(2, 0, dims, (0, 0, 1, 1))])])
+
+
+def _hd(target, text, value, label, quote, unit, page=1):
+    p = {"target": target, "printed_text": text, "printed_unit": unit, "printed_label": label, "quote": quote,
+         "page": page, "confidence": 0.9, "value": value}
+    if target == "params/rated_torque_nm":
+        p["condition"] = "2000rpm"
+    return p
+
+
+def test_size_ratio_rows_and_merged_cells():
+    doc = _hd_doc()
+    ok = verify({"items": [_hd("params/rated_torque_nm", "5.4", 5.4, "Rated Torque", "14 50 5.4 0.55", "Nm")]},
+                doc, "reducer", DOC_ID, target_model="CSF-14-50-2UH")
+    assert ok["items"] and ok["items"][0]["value"]["value"] == 5.4
+    # 同一尺寸、另一个减速比的行：拒收
+    bad = verify({"items": [_hd("params/rated_torque_nm", "4.0", 4.0, "Rated Torque", "14 30 4.0 0.41", "Nm")]},
+                 doc, "reducer", DOC_ID, target_model="CSF-14-50-2UH")
+    assert bad["items"] == [] and bad["rejected"][0]["reason"] == "数值不在目标型号所在的列"
+    # 叫法在表头：数值须在叫法所在的列（0.033 在 Moment of Inertia 下；0.55 在 Rated Torque 下）
+    inertia = _hd("params/input_inertia_kgm2", "0.033", 0.033, "Moment of Inertia", "14 50 5.4 0.55 0.033 0.034",
+                  "×10−4kgm2")
+    got = verify({"items": [inertia]}, doc, "reducer", DOC_ID, target_model="CSF-14-50-2UH")
+    assert got["items"] and got["items"][0]["value"]["value"] == pytest.approx(0.033e-4)
+    wrong = dict(inertia, printed_text="0.55", value=0.55)
+    got = verify({"items": [wrong]}, doc, "reducer", DOC_ID, target_model="CSF-14-50-2UH")
+    assert got["items"] == []
+
+
+def test_size_columns_and_series_rows():
+    doc = _hd_doc()
+    mass = _hd("params/mass_kg", "0.50", 0.5, "Mass", "Mass (kg) CSF Series 0.50 0.66", "kg", page=2)
+    ok = verify({"items": [mass]}, doc, "reducer", DOC_ID, target_model="CSF-14-50-2UH")
+    assert ok["items"] and ok["items"][0]["value"]["value"] == 0.5
+    other_size = verify({"items": [dict(mass, printed_text="0.66", value=0.66)]}, doc, "reducer", DOC_ID,
+                        target_model="CSF-14-50-2UH")
+    assert other_size["items"] == []
+    csg = _hd("params/mass_kg", "0.52", 0.52, "Mass", "Mass (kg) CSG Series 0.52 0.68", "kg", page=2)
+    assert verify({"items": [csg]}, doc, "reducer", DOC_ID, target_model="CSF-14-50-2UH")["items"] == []
+
+
+def _yaskawa_text_doc():
+    """安川式额定值页：表格只截到一部分（缺最后一列、缺叫法列），完整的数值在正文行里，带脚注标记 *1。"""
+    lines = ["Voltage 200 V", "Model SGM7J- A5A 01A C2A 02A 04A",
+             "Rated Output∗1 W 50 100 150 200 400", "Rated Torque*1, *2 Nm 0.159 0.318 0.477 0.637 1.27",
+             "Rated Motor Speed*1 min-1 3000", "Rated Current*1 Arms 0.55 0.85 1.6 1.6"]
+    text = "\n".join(lines)
+    rows = [["Voltage", None, None, "200V", None], ["ModelSGM7J-", None, None, "A5A", "01A"],
+            [None, None, "W", "50", "100"]]
+    return Document("x", "0" * 64, [Page(1, text, [Table(1, 0, rows, (0, 0, 1, 1))])])
+
+
+def _yk(target, text, value, label, quote, unit):
+    return {"target": target, "printed_text": text, "printed_unit": unit, "printed_label": label, "quote": quote,
+            "page": 1, "confidence": 0.9, "value": value}
+
+
+def test_catalog_text_rows_by_model_column():
+    doc = _yaskawa_text_doc()
+    power = _yk("params/rated_power_w", "400", 400, "Rated Output", "Rated Output*1 W 50 100 150 200 400", "W")
+    ok = verify({"items": [power]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-04A")
+    assert ok["items"] and ok["items"][0]["value"]["value"] == 400 and ok["model"] == "SGM7J-04A"
+    bad = verify({"items": [dict(power, printed_text="200", value=200)]}, doc, "servo_motor", DOC_ID,
+                 target_model="SGM7J-04A")
+    assert bad["items"] == [] and bad["rejected"][0]["reason"] == "数值不在目标型号所在的列"
+    # 合并单元格：整行一个数，各型号共用，并注明
+    speed = _yk("params/rated_speed_rpm", "3000", 3000, "Rated Motor Speed", "Rated Motor Speed*1 min-1 3000", "min-1")
+    got = verify({"items": [speed]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-02A")
+    assert got["items"] and any("共用" in i for i in got["items"][0]["issues"])
+    # 数值个数与型号列数对不上（少了一列）：拒收，不猜
+    cur = _yk("ports/power_in/rated_current_a", "1.6", 1.6, "Rated Current", "Rated Current*1 Arms 0.55 0.85 1.6 1.6",
+              "Arms")
+    got = verify({"items": [cur]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-C2A")
+    assert got["items"] == [] and "对不上" in got["rejected"][0]["reason"]
+
+
+def test_dimension_rows_identified_by_code_line():
+    """安川式外形尺寸表：表格行的型号格是空的，型号代码印在表格外的同内容正文行里（A5AA2 37.9 25 …）。"""
+    rows = [["ModelSGM7J-", "L*", "LL*", "LM", "Flange Dimensions", None, None],
+            [None, None, None, None, "LR", "LC", "LB"],
+            [None, "81.5(122)", "56.5(97)", "37.9", "25", "40", "30 0 -0.021"],
+            [None, "93.5(134)", "68.5(109)", "49.9", "25", "40", "30 0 -0.021"]]
+    text = "Unit: mm\nA5AA2 37.9 25 40 30 0 -0.021\n01AA2 49.9 25 40 30 0 -0.021"
+    doc = Document("x", "0" * 64, [Page(1, text, [Table(1, 0, rows, (0, 0, 1, 1))])])
+    lm = {"target": "dims/body_length_mm", "printed_text": "49.9", "printed_unit": "mm", "printed_label": "LM",
+          "quote": "93.5(134) 68.5(109) 49.9 25 40", "page": 1, "confidence": 0.9, "value": 49.9}
+    got = verify({"items": [lm]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-01A")
+    assert got["items"] and got["items"][0]["value"]["value"] == 49.9
+    other = verify({"items": [lm]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-A5A")
+    assert other["items"] == [] and other["rejected"][0]["reason"] == "数值不在目标型号所在的列"
