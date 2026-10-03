@@ -394,3 +394,14 @@ def test_layout_rows_fallback():
     assert got["items"] and any("版面" in i for i in got["items"][0]["issues"])
     wrong = dict(lc, quote="02AA2 51.2 30 60 50")
     assert verify({"items": [wrong]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-04A")["items"] == []
+
+
+def test_bracket_unit_row_is_model_row():
+    """“Continuous Output Current [Arms] 0.66 0.91 1.6”：单位写在方括号里，仍是逐型号的数值行。"""
+    text = "Model SGD7S- R70A R90A 1R6A\nContinuous Output Current [Arms] 0.66 0.91 1.6"
+    doc = Document("x", "0" * 64, [Page(1, text)])
+    c = {"target": "ports/motor_out/rated_current_a", "printed_text": "0.91", "printed_unit": "Arms",
+         "printed_label": "Continuous Output Current", "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6",
+         "page": 1, "confidence": 0.9, "value": 0.91}
+    assert verify({"items": [c]}, doc, "drive", DOC_ID, target_model="SGD7S-R90A")["items"]
+    assert verify({"items": [c]}, doc, "drive", DOC_ID, target_model="SGD7S-1R6A")["items"] == []

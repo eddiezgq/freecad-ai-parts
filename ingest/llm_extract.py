@@ -819,7 +819,7 @@ def _text_row_column(line: _Line, label: str, text: str, unit: str, cols: tuple[
         ok = _value_in_line(line, text, label, unit)
         return ok, ("文字值在型号表中各型号共用（合并单元格）" if ok else "引用所在行中找不到与印出文字完全一致的数值")
     words = [w for w in rest.split() if _tokens(w)[0]]
-    if len(words) > 1 and any(not re.fullmatch(r"[-+±−]?\d+(?:\.\d+)?", w) for w in rest.split()):
+    if len(words) > 1 and any(re.search(r"[A-Za-z]", w) for w in rest.split()):
         # 夹着文字的规格行（“200 VAC to 240 VAC, 50 Hz/60 Hz”）不是逐型号的数值行，按共用的规格行核对
         ok = _value_in_line(line, text, label, unit)
         return ok, ("规格行，各型号共用" if ok else "引用所在行中找不到与印出文字完全一致的数值")
