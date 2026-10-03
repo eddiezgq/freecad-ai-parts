@@ -66,6 +66,7 @@ export ANTHROPIC_API_KEY=...                             # 或写在本仓库的
 说明：
 
 - 模型缺省为 `claude-sonnet-5-5`，可用 `FAP_CHAT_MODEL` 更换
+- 每轮最多调用 40 次工具（完整流程约 20–30 次），可用 `FAP_CHAT_MAX_TOOLS` 调整
 - 组件库按 `FAP_LIBRARY` / `DATABASE_URL` 配置；都没设置时用虚构测试组件库，面板顶部会注明
 - 卸载：`python -m freecad_addon.install --uninstall`
 

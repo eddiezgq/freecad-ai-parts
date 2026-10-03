@@ -15,7 +15,13 @@ from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 DEFAULT_MODEL = "claude-sonnet-5-5"
-MAX_TOOL_CALLS = 20
+MAX_TOOL_CALLS = 40  # 完整流程（选型、校验、放置 5 件、配合 4 处、干涉、截图、复核）约 20–30 次
+
+
+def tool_call_limit() -> int:
+    """每轮工具调用上限：FAP_CHAT_MAX_TOOLS（正整数），缺省 MAX_TOOL_CALLS。"""
+    v = os.environ.get("FAP_CHAT_MAX_TOOLS", "")
+    return int(v) if v.isdigit() and int(v) > 0 else MAX_TOOL_CALLS
 
 SYSTEM_PROMPT = (
     "你是 FreeCAD 中的机电零件选型与布局助手。组件是“端口 + 参数 + 包络”的黑箱；"
@@ -178,14 +184,14 @@ class Event:
 
 class ChatEngine:
     def __init__(self, llm: LLM, tools: list[dict], call_tool: Callable[[str, dict], ToolOutcome], *,
-                 system: str = SYSTEM_PROMPT, max_tool_calls: int = MAX_TOOL_CALLS,
+                 system: str = SYSTEM_PROMPT, max_tool_calls: int | None = None,
                  context: Callable[[str], str] | None = None):
         """context：按用户这句话给出补充参考（如相似的历史录制会话，ADR-0042），附在本轮的系统提示之后。"""
         self.llm = llm
         self.tools = tools
         self.call_tool = call_tool
         self.system = system
-        self.max_tool_calls = max_tool_calls
+        self.max_tool_calls = max_tool_calls if max_tool_calls is not None else tool_call_limit()
         self.context = context
         self.messages: list[dict] = []
 
