@@ -210,3 +210,19 @@ def test_page_index_has_no_text(catalog_pdf):
     assert cat.models[0] in index[1]["terms"] and all("nonexistent-term" not in r["terms"] for r in index)
     md = jx.render_index("src-fake-cat", index)
     assert "| 2 | 1 |" in md and cat.title[:20] in md
+
+
+def test_diagnose_lists_nearest_lines(catalog_pdf, tmp_path):
+    cat, raw, sha = catalog_pdf
+    job = {"doc": "src-fake-cat", "category": "reducer", "pages": [2, 3], "target": cat.models[0]}
+    jx.run([job], _ByTarget(cat), raw_dir=raw, out_dir=tmp_path, sources=_sources(sha))
+    path = jx.output_path(job, tmp_path)
+    result = json.loads(path.read_text(encoding="utf-8"))
+    result["rejected"] = [{"target": "params/ratio", "page": 2, "reason": "原文引用在第 2 页的任何一行中都找不到",
+                           "printed": {"text": "x", "unit": "", "quote": cat.models[0]}},
+                          {"target": "params/mass_kg", "page": 2, "reason": "单位不对",
+                           "printed": {"text": "x", "unit": "", "quote": "skip me"}}]
+    path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
+    text = jx.diagnose([job], raw_dir=raw, out_dir=tmp_path)
+    assert "params/ratio" in text and "表格行" in text and "skip me" not in text
+    assert jx.diagnose([job], raw_dir=raw, out_dir=tmp_path, limit=0).strip() == ""
