@@ -123,7 +123,7 @@ def run(jobs: list[dict], client, *, raw_dir: Path = RAW_DIR, out_dir: Path = OU
 DIAGNOSE_REASONS = ("找不到", "叫法不在", "不在目标型号")
 
 
-def diagnose(jobs: list[dict], *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_DIR, per_item: int = 2,
+def diagnose(jobs: list[dict], *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_DIR, per_item: int = 3,
              limit: int = 25) -> str:
     """排查核对程序（不调用 LLM）：对被拒的引用，列出规格书该页上最接近的行（表格行列出各单元格）。
 
@@ -158,6 +158,12 @@ def diagnose(jobs: list[dict], *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_D
                 q = re.sub(r"\s+", "", quote.replace("|", ""))
                 ranked = sorted(ctx.lines[page], key=lambda ln: -difflib.SequenceMatcher(None, q, ln.joined).ratio())
                 out.append(f"#### {p.name} · {r['target']} · 第 {page} 页\n\n- 原因：{r['reason']}\n- 引用：`{quote}`")
+                best = ranked[0].joined if ranked else ""
+                m = difflib.SequenceMatcher(None, q, best).find_longest_match(0, len(q), 0, len(best))
+                if m.size < len(q):
+                    odd = sorted({f"U+{ord(ch):04X}" for ch in best if ord(ch) > 127})
+                    out.append(f"- 最长公共片段 {m.size}/{len(q)} 字；引用此后为 `{q[m.a + m.size:m.a + m.size + 12]}`，"
+                               f"该行此后为 `{best[m.b + m.size:m.b + m.size + 12]}`；该行非 ASCII 字符：{odd}")
                 for ln in ranked[:per_item]:
                     kind = "表格行" if ln.is_row else "正文行"
                     shown_cells = " ¦ ".join(ln.cells) if ln.is_row else ln.spaced

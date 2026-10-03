@@ -723,6 +723,9 @@ def _text_row_column(line: _Line, label: str, text: str, unit: str, cols: tuple[
     rest = _FOOTNOTE.sub(" ", line.spaced[i + len(_spaced(label)):])
     if unit:
         rest = re.sub(_UNIT_BEFORE + re.escape(_spaced(unit)) + _UNIT_AFTER, " ", rest, count=1)
+    if not _tokens(text)[0]:  # 文字值（如防护等级）：整行一段文字，各型号共用
+        ok = _value_in_line(line, text, label, unit)
+        return ok, ("文字值在型号表中各型号共用（合并单元格）" if ok else "引用所在行中找不到与印出文字完全一致的数值")
     words = [w for w in rest.split() if _tokens(w)[0]]
     k, n = cols
     if len(words) == n:
