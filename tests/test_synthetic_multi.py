@@ -369,3 +369,14 @@ def test_size_text_rows_and_twin_rows():
     # 目标型号所在行同一列的数不同：仍拒收
     other = verify({"items": [twin]}, doc, "reducer", DOC_ID, target_model="CSF-17-50-2UH")
     assert other["items"] == []
+
+
+def test_spec_line_shared_by_models():
+    """驱动器规格页：型号表在同页，但“Power Supply 200 VAC to 240 VAC”是各型号共用的规格行。"""
+    text = "Model SGD7S- R70A R90A 1R6A\nPower Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+    doc = Document("x", "0" * 64, [Page(1, text)])
+    v = {"target": "ports/power_in/voltage_v", "printed_text": "200 VAC to 240 VAC", "printed_unit": "V",
+         "printed_label": "Power Supply", "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz", "page": 1,
+         "confidence": 0.9, "value": {"min": 200, "max": 240}}
+    got = verify({"items": [v]}, doc, "drive", DOC_ID, target_model="SGD7S-R90A")
+    assert got["items"] or "对不上" not in got["rejected"][0]["reason"]
