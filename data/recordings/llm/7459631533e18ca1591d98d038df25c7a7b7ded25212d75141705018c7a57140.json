@@ -1,0 +1,180 @@
+{
+  "model": "claude-opus-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "7459631533e18ca1591d98d038df25c7a7b7ded25212d75141705018c7a57140",
+  "response": {
+    "id": "msg_011CffNxgDRfRMcFx9bN7UJ8",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.9,
+          "page": 9,
+          "printed_label": "Ratio",
+          "printed_text": "100",
+          "printed_unit": "",
+          "quote": "|  | 100 | 24 | 2.4 | 54 | 5.5 | 39 | 4.0 | 108 | 11 |  |  |  |  |  |  |",
+          "target": "params/ratio",
+          "value": 100
+        },
+        {
+          "condition": "Rated Torque at 2000rpm",
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Rated Torque at 2000rpm",
+          "printed_text": "24",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 24 | 2.4 | 54 | 5.5 | 39 | 4.0 | 108 | 11 |  |  |  |  |  |  |",
+          "target": "params/rated_torque_nm",
+          "value": 24
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Repeated Peak Torque",
+          "printed_text": "54",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 24 | 2.4 | 54 | 5.5 | 39 | 4.0 | 108 | 11 |  |  |  |  |  |  |",
+          "target": "params/repeated_peak_torque_nm",
+          "value": 54
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Momentary Peak Torque",
+          "printed_text": "108",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 24 | 2.4 | 54 | 5.5 | 39 | 4.0 | 108 | 11 |  |  |  |  |  |  |",
+          "target": "params/momentary_max_torque_nm",
+          "value": 108
+        },
+        {
+          "condition": "Oil lubricant",
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Maximum Input Speed (rpm)",
+          "printed_text": "10000",
+          "printed_unit": "rpm",
+          "quote": "| 17 | 30 | 8.8 | 0.90 | 16 | 1.6 | 12 | 1.2 | 30 | 3.1 | 10000 | 7300 | 6500 | 3500 | 0.079 | 0.081 |",
+          "target": "params/max_input_speed_rpm",
+          "value": 10000
+        },
+        {
+          "condition": "Grease lubricant",
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Maximum Input Speed (rpm)",
+          "printed_text": "7300",
+          "printed_unit": "rpm",
+          "quote": "| 17 | 30 | 8.8 | 0.90 | 16 | 1.6 | 12 | 1.2 | 30 | 3.1 | 10000 | 7300 | 6500 | 3500 | 0.079 | 0.081 |",
+          "target": "params/max_input_speed_rpm",
+          "value": 7300
+        },
+        {
+          "condition": "Oil lubricant",
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Limit for Average Input Speed (rpm)",
+          "printed_text": "6500",
+          "printed_unit": "rpm",
+          "quote": "| 17 | 30 | 8.8 | 0.90 | 16 | 1.6 | 12 | 1.2 | 30 | 3.1 | 10000 | 7300 | 6500 | 3500 | 0.079 | 0.081 |",
+          "target": "params/avg_input_speed_limit_rpm",
+          "value": 6500
+        },
+        {
+          "condition": "Grease lubricant",
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Limit for Average Input Speed (rpm)",
+          "printed_text": "3500",
+          "printed_unit": "rpm",
+          "quote": "| 17 | 30 | 8.8 | 0.90 | 16 | 1.6 | 12 | 1.2 | 30 | 3.1 | 10000 | 7300 | 6500 | 3500 | 0.079 | 0.081 |",
+          "target": "params/avg_input_speed_limit_rpm",
+          "value": 3500
+        },
+        {
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Moment of Inertia I",
+          "printed_text": "0.079",
+          "printed_unit": "×10−4kgm2",
+          "quote": "| 17 | 30 | 8.8 | 0.90 | 16 | 1.6 | 12 | 1.2 | 30 | 3.1 | 10000 | 7300 | 6500 | 3500 | 0.079 | 0.081 |",
+          "target": "params/input_inertia_kgm2",
+          "value": 0.079
+        },
+        {
+          "confidence": 0.8,
+          "page": 11,
+          "printed_label": "Mass (kg) CSF Series",
+          "printed_text": "0.68",
+          "printed_unit": "kg",
+          "quote": "|  | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |",
+          "target": "params/mass_kg",
+          "value": 0.68
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "φA",
+          "printed_text": "79",
+          "printed_unit": "mm",
+          "quote": "| φA |  | 73 | 79 | 93 | 107 | 138 | 160 | 180 | 190 | 226 | 260 |",
+          "target": "dims/outer_diameter_mm",
+          "value": 79
+        },
+        {
+          "confidence": 0.6,
+          "page": 11,
+          "printed_label": "φU H7",
+          "printed_text": "8",
+          "printed_unit": "mm",
+          "quote": "φU H7 6 8 12 14 14 14 19 19 22 24",
+          "target": "ports/input_bore/diameter_mm",
+          "value": 8
+        },
+        {
+          "confidence": 0.6,
+          "page": 11,
+          "printed_label": "φU H7",
+          "printed_text": "H7",
+          "printed_unit": "",
+          "quote": "φU H7 6 8 12 14 14 14 19 19 22 24",
+          "target": "ports/input_bore/fit",
+          "value": "H7"
+        },
+        {
+          "confidence": 0.55,
+          "page": 11,
+          "printed_label": "c CSF Series",
+          "printed_text": "6",
+          "printed_unit": "",
+          "quote": "|  | CSF Series | 6 | 6 | 6 | 8 | 12 | 8 | 12 | 12 | 12 | 8 |",
+          "target": "ports/housing_mount/hole_count",
+          "value": 6
+        },
+        {
+          "confidence": 0.55,
+          "page": 10,
+          "printed_label": "φd",
+          "printed_text": "4.5",
+          "printed_unit": "mm",
+          "quote": "φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14",
+          "target": "ports/housing_mount/hole_diameter_mm",
+          "value": 4.5
+        },
+        {
+          "confidence": 0.5,
+          "page": 10,
+          "printed_label": "φb",
+          "printed_text": "71",
+          "printed_unit": "mm",
+          "quote": "φb 65 71 82 96 125 144 164 174 206 236",
+          "target": "ports/housing_mount/pcd_mm",
+          "value": 71
+        }
+      ],
+      "model": "CSF-17-100-2UH",
+      "series": "CSF Series"
+    }
+  }
+}

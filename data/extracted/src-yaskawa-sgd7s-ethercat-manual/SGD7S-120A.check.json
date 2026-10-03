@@ -10,14 +10,43 @@
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfeTePTC8PvsJAYXN5EqJ"
+    "response_id": "msg_011CffQ6e43PLcQGo8BNdd9c"
   },
-  "items": [],
-  "rejected": [
+  "items": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/rated_output_power_w",
+      "value": {
+        "value": 1500.0,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.8,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "1.5",
+        "unit": "kW",
+        "label": "Maximum Applicable Motor Capacity",
+        "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.75 1.5"
+      },
+      "issues": [
+        "单位换算：1.5 kW → 标准单位 W"
+      ]
+    },
+    {
       "target": "ports/motor_out/rated_current_a",
-      "page": 63,
+      "value": {
+        "value": 11.6,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "11.6",
         "unit": "Arms",
@@ -26,33 +55,32 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/motor_out/peak_current_a",
-      "page": 63,
+      "value": {
+        "value": 28.0,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "28",
         "unit": "Arms",
         "label": "Instantaneous Maximum Output Current",
         "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
       }
-    },
+    }
+  ],
+  "rejected": [
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/motor_out/rated_current_a",
-      "page": 64,
-      "printed": {
-        "text": "11.6",
-        "unit": "Arms",
-        "label": "Continuous Output Current",
-        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6"
-      }
-    },
-    {
-      "reason": "工况 'Three-Phase, 200 VAC, Main Circuit' 在第 62 页找不到",
       "target": "ports/power_in/current_type",
       "page": 62,
       "printed": {
-        "text": "200 VAC to 240 VAC, 50 Hz/60 Hz",
+        "text": "200 VAC to 240 VAC",
         "unit": "VAC",
         "label": "Power Supply",
         "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
@@ -71,6 +99,17 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/frequency_hz",
+      "page": 62,
+      "printed": {
+        "text": "50 Hz/60 Hz",
+        "unit": "Hz",
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+      }
+    },
+    {
+      "reason": "该行有 1 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/phases",
       "page": 62,
       "printed": {
@@ -81,7 +120,7 @@
       }
     },
     {
-      "reason": "工况 'Three-Phase, 200 VAC, Main Circuit' 在第 62 页找不到",
+      "reason": "工况 'Main Circuit, Three-Phase 200 VAC, net value at the rated load' 在第 62 页找不到",
       "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
@@ -92,69 +131,100 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/phases",
-      "page": 63,
+      "reason": "工况 'Base-mounted' 在第 80 页找不到",
+      "target": "params/mass_kg",
+      "page": 80,
       "printed": {
-        "text": "Single-Phase, 200 VAC",
+        "text": "2.2",
+        "unit": "kg",
+        "label": "Approx. mass",
+        "quote": "Approx. mass: 2.2 kg"
+      }
+    },
+    {
+      "reason": "缺少 printed_label",
+      "target": "dims/width_mm",
+      "page": 80,
+      "printed": {
+        "text": "90",
+        "unit": "mm",
+        "quote": "90 180"
+      }
+    },
+    {
+      "reason": "缺少 printed_label",
+      "target": "dims/depth_mm",
+      "page": 80,
+      "printed": {
+        "text": "180",
+        "unit": "mm",
+        "quote": "90 180"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/mount/pitch_x_mm",
+      "page": 80,
+      "printed": {
+        "text": "80 ±0.5",
+        "unit": "mm",
+        "label": "mounting pitch",
+        "quote": "80 ±0.5 (mounting pitch)"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/mount/hole_count",
+      "page": 80,
+      "printed": {
+        "text": "3×M4",
         "unit": "",
-        "label": "Single-Phase",
-        "quote": "Single-Phase, 200 VAC"
+        "label": "3×M4",
+        "quote": "3×M4"
       }
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/rated_current_a",
-      "page": 63,
+      "target": "ports/mount/thread",
+      "page": 80,
       "printed": {
-        "text": "16",
-        "unit": "Arms",
-        "label": "Input Current",
-        "quote": "Input Current [Arms]* 0.8 1.6 2.4 5.0 8.7 16"
-      }
-    },
-    {
-      "reason": "工况 '270 VDC, Main Circuit' 在第 64 页找不到",
-      "target": "ports/power_in/current_type",
-      "page": 64,
-      "printed": {
-        "text": "270 VDC to 324 VDC",
-        "unit": "VDC",
-        "label": "Power Supply",
-        "quote": "Power Supply 270 VDC to 324 VDC"
-      }
-    },
-    {
-      "reason": "工况 '270 VDC, Main Circuit' 在第 64 页找不到",
-      "target": "ports/power_in/voltage_v",
-      "page": 64,
-      "printed": {
-        "text": "270 VDC to 324 VDC",
-        "unit": "VDC",
-        "label": "Power Supply",
-        "quote": "Power Supply 270 VDC to 324 VDC"
+        "text": "3×M4",
+        "unit": "",
+        "label": "3×M4",
+        "quote": "3×M4"
       }
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/rated_current_a",
-      "page": 64,
+      "target": "ports/encoder_in/kind",
+      "page": 67,
       "printed": {
-        "text": "11",
-        "unit": "Arms",
-        "label": "Input Current",
-        "quote": "Input Current [Arms]*1 0.5 1.0 1.5 3.0 3.8 4.9 6.9 11"
+        "text": "incremental encoder/absolute",
+        "unit": "",
+        "label": "Serial encoder",
+        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
       }
     },
     {
-      "reason": "原文引用中没有印出的文字",
+      "reason": "原文引用在第 69 页的任何一行中都找不到",
       "target": "ports/bus/protocol",
       "page": 69,
       "printed": {
-        "text": "ETHERCAT IN",
+        "text": "CN6A (RJ45): ETHERCAT IN",
         "unit": "",
         "label": "Communications Connectors",
-        "quote": "Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)"
+        "quote": "Connectors CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
+      }
+    },
+    {
+      "reason": "原文引用在第 69 页的任何一行中都找不到",
+      "target": "ports/bus/connector",
+      "page": 69,
+      "printed": {
+        "text": "CN6A (RJ45)",
+        "unit": "",
+        "label": "Communications Connectors",
+        "quote": "Connectors CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
       }
     },
     {
@@ -170,57 +240,13 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/bus/connector",
-      "page": 69,
-      "printed": {
-        "text": "RJ45",
-        "unit": "",
-        "label": "Communications Connectors",
-        "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/encoder_in/kind",
-      "page": 67,
-      "printed": {
-        "text": "incremental encoder/absolute",
-        "unit": "",
-        "label": "Serial encoder",
-        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/safety_functions",
       "page": 70,
       "printed": {
-        "text": "/HWBB1 and /HWBB2",
+        "text": "/HWBB1 and /HWBB2: Base block signals for Power Modules",
         "unit": "",
         "label": "Safety Functions Inputs",
         "quote": "Inputs /HWBB1 and /HWBB2: Base block signals for Power Modules"
-      }
-    },
-    {
-      "reason": "工况 'Base-mounted, Three-phase, 200 VAC: SGD7S-120A' 在第 80 页找不到",
-      "target": "params/mass_kg",
-      "page": 80,
-      "printed": {
-        "text": "2.2",
-        "unit": "kg",
-        "label": "Approx. mass",
-        "quote": "Approx. mass: 2.2 kg"
-      }
-    },
-    {
-      "reason": "工况 'Rack-mounted, Three-phase, 200 VAC: SGD7S-120A' 在第 83 页找不到",
-      "target": "params/mass_kg",
-      "page": 83,
-      "printed": {
-        "text": "2.3",
-        "unit": "kg",
-        "label": "Approx. mass",
-        "quote": "Approx. mass: 2.3 kg"
       }
     },
     {
@@ -233,7 +259,7 @@
     {
       "target": "series",
       "printed": {
-        "text": "Σ-7S"
+        "text": "Σ-7"
       },
       "reason": "series 在规格书中找不到"
     }

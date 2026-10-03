@@ -1,0 +1,87 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "7c5dd5174c3b1159b5cb3340d88ba5c1fd995d772694e7081d6987f133c11326",
+  "response": {
+    "id": "msg_011CffNgrEyzZCrzw2PyUYMu",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.85,
+          "page": 62,
+          "printed_label": "Three-Phase, 200 VAC",
+          "printed_text": "Three-Phase, 200 VAC",
+          "printed_unit": "",
+          "quote": "Three-Phase, 200 VAC",
+          "target": "ports/power_in/current_type",
+          "value": "ac"
+        },
+        {
+          "confidence": 0.7,
+          "page": 62,
+          "printed_label": "Three-Phase, 200 VAC",
+          "printed_text": "Three-Phase, 200 VAC",
+          "printed_unit": "",
+          "quote": "Three-Phase, 200 VAC",
+          "target": "ports/power_in/phases",
+          "value": 3
+        },
+        {
+          "condition": "Three-Phase, 200 VAC, main circuit",
+          "confidence": 0.8,
+          "page": 62,
+          "printed_label": "Input Current [Arms]*",
+          "printed_text": "4.1",
+          "printed_unit": "Arms",
+          "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |",
+          "target": "ports/power_in/rated_current_a",
+          "value": 4.1
+        },
+        {
+          "confidence": 0.85,
+          "page": 63,
+          "printed_label": "Continuous Output Current [Arms]",
+          "printed_text": "5.5",
+          "printed_unit": "Arms",
+          "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 5.5
+        },
+        {
+          "confidence": 0.85,
+          "page": 63,
+          "printed_label": "Instantaneous Maximum Output Current [Arms]",
+          "printed_text": "16.9",
+          "printed_unit": "Arms",
+          "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 16.9
+        },
+        {
+          "confidence": 0.8,
+          "page": 80,
+          "printed_label": "Approx. mass: SGD7S-3R8A, -5R5A, -7R6A",
+          "printed_text": "1.6 kg",
+          "printed_unit": "kg",
+          "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg",
+          "target": "params/mass_kg",
+          "value": 1.6
+        },
+        {
+          "confidence": 0.6,
+          "page": 69,
+          "printed_label": "EtherCAT Communications",
+          "printed_text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "printed_unit": "",
+          "quote": "Applicable Communi- IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "target": "ports/bus/protocol",
+          "value": "ethercat"
+        }
+      ],
+      "model": "SGD7S-5R5A",
+      "series": "Σ-7",
+      "vendor": "Yaskawa"
+    }
+  }
+}

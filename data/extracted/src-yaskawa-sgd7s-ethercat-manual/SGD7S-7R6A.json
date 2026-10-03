@@ -6,35 +6,50 @@
     "pages": 12
   },
   "category": "drive",
+  "model": "SGD7S-7R6A",
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfeSL7DkkitGefp12u7yp"
+    "response_id": "msg_011CffNiTGATQ9kzfGGZrwhr"
   },
   "items": [
     {
-      "target": "ports/power_in/current_type",
+      "target": "ports/power_in/rated_current_a",
       "value": {
-        "value": "ac",
-        "condition": "Three-Phase, 200 VAC",
+        "value": 5.7,
         "source": {
           "doc": "src-yaskawa-sgd7s-ethercat-manual",
           "page": 62
+        },
+        "method": "extracted",
+        "confidence": 0.8,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "5.7",
+        "unit": "Arms",
+        "label": "Input Current [Arms]*",
+        "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |"
+      }
+    },
+    {
+      "target": "ports/motor_out/rated_current_a",
+      "value": {
+        "value": 7.6,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 64
         },
         "method": "extracted",
         "confidence": 0.85,
         "reviewed": false
       },
       "printed": {
-        "text": "200 VAC to 240 VAC, 50 Hz/60 Hz",
-        "unit": "",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
-      },
-      "issues": [
-        "工况 'Three-Phase, 200 VAC' 不在同一行，取自本页其他位置（表头或脚注），须核对",
-        "枚举映射：'200 VAC to 240 VAC, 50 Hz/60 Hz' → ac，未自动核对"
-      ]
+        "text": "7.6",
+        "unit": "Arms",
+        "label": "Continuous Output Current [Arms]",
+        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6"
+      }
     },
     {
       "target": "params/mass_kg",
@@ -45,7 +60,7 @@
           "page": 80
         },
         "method": "extracted",
-        "confidence": 0.75,
+        "confidence": 0.8,
         "reviewed": false
       },
       "printed": {
@@ -58,36 +73,14 @@
   ],
   "rejected": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/motor_out/rated_current_a",
+      "reason": "该行有 0 个数值，与 11 个型号列对不上",
+      "target": "ports/power_in/current_type",
       "page": 62,
       "printed": {
-        "text": "7.6",
-        "unit": "Arms",
-        "label": "Continuous Output Current [Arms]",
-        "quote": "0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6 18.5 19.6 32.9"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/motor_out/peak_current_a",
-      "page": 62,
-      "printed": {
-        "text": "17",
-        "unit": "Arms",
-        "label": "Instantaneous Maximum Output Current [Arms]",
-        "quote": "2.1 3.2 5.9 9.3 11 16.9 17 28 42 56 84"
-      }
-    },
-    {
-      "reason": "工况 'Three-Phase, 200 VAC, main circuit' 在第 62 页找不到",
-      "target": "ports/power_in/rated_current_a",
-      "page": 62,
-      "printed": {
-        "text": "5.7",
-        "unit": "Arms",
-        "label": "Input Current [Arms]*",
-        "quote": "| Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |"
+        "text": "Three-Phase, 200 VAC",
+        "unit": "",
+        "label": "Three-Phase, 200 VAC",
+        "quote": "Three-Phase, 200 VAC"
       }
     },
     {
@@ -95,10 +88,43 @@
       "target": "ports/power_in/phases",
       "page": 62,
       "printed": {
-        "text": "Three-Phase, 200 VAC",
+        "text": "Three-Phase",
         "unit": "",
         "label": "Three-Phase, 200 VAC",
         "quote": "Three-Phase, 200 VAC"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/voltage_v",
+      "page": 62,
+      "printed": {
+        "text": "200 VAC to 240 VAC",
+        "unit": "VAC",
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+      }
+    },
+    {
+      "reason": "该行有 0 个数值，与 11 个型号列对不上",
+      "target": "ports/motor_out/voltage_class_v",
+      "page": 62,
+      "printed": {
+        "text": "200 VAC",
+        "unit": "VAC",
+        "label": "Three-Phase, 200 VAC",
+        "quote": "Three-Phase, 200 VAC"
+      }
+    },
+    {
+      "reason": "叫法不在引用所在的行中",
+      "target": "ports/motor_out/peak_current_a",
+      "page": 62,
+      "printed": {
+        "text": "17",
+        "unit": "Arms",
+        "label": "Instantaneous Maximum Output Current [Arms]",
+        "quote": "2.1 3.2 5.9 9.3 11 16.9 17 28 42 56 84"
       }
     },
     {
@@ -117,32 +143,32 @@
       "target": "ports/bus/profile",
       "page": 69,
       "printed": {
-        "text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+        "text": "CiA402",
         "unit": "",
-        "label": "Applicable Communications Standards",
+        "label": "CiA402 Drive Profile",
         "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/mount/pitch_y_mm",
-      "page": 80,
+      "reason": "原文引用在第 69 页的任何一行中都找不到",
+      "target": "ports/bus/connector",
+      "page": 69,
       "printed": {
-        "text": "58 ±0.5 (mounting pitch)",
-        "unit": "mm",
-        "label": "mounting pitch",
-        "quote": "58 ±0.5 (mounting pitch)"
+        "text": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+        "unit": "",
+        "label": "Communications Connectors",
+        "quote": "Connectors CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
       }
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/mount/pattern",
-      "page": 80,
+      "target": "params/safety_functions",
+      "page": 70,
       "printed": {
-        "text": "58 ±0.5 (mounting pitch)",
-        "unit": "mm",
-        "label": "mounting pitch",
-        "quote": "58 ±0.5 (mounting pitch)"
+        "text": "/HWBB1 and /HWBB2: Base block signals for Power Modules",
+        "unit": "",
+        "label": "Safety Functions",
+        "quote": "Inputs /HWBB1 and /HWBB2: Base block signals for Power Modules"
       }
     },
     {
@@ -151,20 +177,6 @@
         "text": "Yaskawa"
       },
       "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "SGD7S-7R6A"
-      },
-      "reason": "model 在规格书中找不到"
-    },
-    {
-      "target": "series",
-      "printed": {
-        "text": "Σ-7S"
-      },
-      "reason": "series 在规格书中找不到"
     }
   ],
   "missing_key_fields": []

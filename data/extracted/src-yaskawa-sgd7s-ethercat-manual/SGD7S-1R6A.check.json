@@ -6,28 +6,47 @@
     "pages": 12
   },
   "category": "drive",
+  "model": "SGD7S-1R6A",
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfeTPogY6j7Eqkn1ZFbVF"
+    "response_id": "msg_011CffPrTgoc1mJgwPVX7Msh"
   },
-  "items": [],
-  "rejected": [
+  "items": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/rated_output_power_w",
-      "page": 63,
+      "value": {
+        "value": 200.0,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
       "printed": {
         "text": "0.2",
         "unit": "kW",
         "label": "Maximum Applicable Motor Capacity",
         "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.75 1.5"
-      }
+      },
+      "issues": [
+        "单位换算：0.2 kW → 标准单位 W"
+      ]
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/motor_out/rated_current_a",
-      "page": 63,
+      "value": {
+        "value": 1.6,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "1.6",
         "unit": "Arms",
@@ -36,30 +55,51 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/motor_out/peak_current_a",
-      "page": 63,
+      "value": {
+        "value": 5.9,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "5.9",
         "unit": "Arms",
         "label": "Instantaneous Maximum Output Current",
         "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
       }
-    },
+    }
+  ],
+  "rejected": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/voltage_v",
+      "reason": "该行有 0 个数值，与 11 个型号列对不上",
+      "target": "ports/power_in/current_type",
       "page": 62,
       "printed": {
-        "text": "200 VAC to 240 VAC",
-        "unit": "VAC",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+        "text": "Three-Phase, 200 VAC",
+        "unit": "",
+        "label": "Three-Phase, 200 VAC",
+        "quote": "Three-Phase, 200 VAC"
       }
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/current_type",
+      "target": "ports/power_in/phases",
+      "page": 62,
+      "printed": {
+        "text": "Three-Phase",
+        "unit": "",
+        "label": "Three-Phase, 200 VAC",
+        "quote": "Three-Phase, 200 VAC"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/voltage_v",
       "page": 62,
       "printed": {
         "text": "200 VAC to 240 VAC",
@@ -80,80 +120,14 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/phases",
-      "page": 62,
-      "printed": {
-        "text": "Three-Phase",
-        "unit": "",
-        "label": "Three-Phase",
-        "quote": "Three-Phase, 200 VAC"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/phases",
-      "page": 63,
-      "printed": {
-        "text": "Single-Phase",
-        "unit": "",
-        "label": "Single-Phase",
-        "quote": "Single-Phase, 200 VAC"
-      }
-    },
-    {
-      "reason": "工况 'Three-Phase, 200 VAC, Main Circuit, net value at rated load' 在第 62 页找不到",
+      "reason": "工况 'Three-Phase, 200 VAC, Main Circuit' 在第 62 页找不到",
       "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
         "text": "1.3",
         "unit": "Arms",
-        "label": "Input Current",
+        "label": "Input Current [Arms]*",
         "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/rated_current_a",
-      "page": 63,
-      "printed": {
-        "text": "2.4",
-        "unit": "Arms",
-        "label": "Input Current",
-        "quote": "Input Current [Arms]* 0.8 1.6 2.4 5.0 8.7 16"
-      }
-    },
-    {
-      "reason": "单位：无法识别的单位 'VDC'",
-      "target": "ports/power_in/voltage_v",
-      "page": 64,
-      "printed": {
-        "text": "270 VDC to 324 VDC",
-        "unit": "VDC",
-        "label": "Power Supply",
-        "quote": "Power Supply 270 VDC to 324 VDC"
-      }
-    },
-    {
-      "reason": "字段 ports/power_in/current_type 无单位，但印有单位 'VDC'",
-      "target": "ports/power_in/current_type",
-      "page": 64,
-      "printed": {
-        "text": "270 VDC to 324 VDC",
-        "unit": "VDC",
-        "label": "Power Supply",
-        "quote": "Power Supply 270 VDC to 324 VDC"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/rated_current_a",
-      "page": 64,
-      "printed": {
-        "text": "1.5",
-        "unit": "Arms",
-        "label": "Input Current",
-        "quote": "Input Current [Arms]*1 0.5 1.0 1.5 3.0 3.8 4.9 6.9 11"
       }
     },
     {
@@ -168,14 +142,14 @@
       }
     },
     {
-      "reason": "原文引用中没有印出的文字",
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/bus/protocol",
       "page": 69,
       "printed": {
-        "text": "ETHERCAT IN",
+        "text": "EtherCAT",
         "unit": "",
         "label": "Communications Connectors",
-        "quote": "Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)"
+        "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
       }
     },
     {
@@ -186,7 +160,7 @@
         "text": "RJ45",
         "unit": "",
         "label": "Communications Connectors",
-        "quote": "Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)"
+        "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
       }
     },
     {
@@ -212,7 +186,7 @@
       }
     },
     {
-      "reason": "工况 'Rack-mounted SERVOPACKs, Hardware Option Code: 001 (SGD7S-R70A, -R90A, -1R6A)' 在第 82 页找不到",
+      "reason": "工况 'Rack-mounted SERVOPACKs, Hardware Option Code: 001' 在第 82 页找不到",
       "target": "params/mass_kg",
       "page": 82,
       "printed": {
@@ -228,13 +202,6 @@
         "text": "Yaskawa"
       },
       "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "SGD7S-1R6A"
-      },
-      "reason": "model 在规格书中找不到"
     },
     {
       "target": "series",

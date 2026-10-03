@@ -6,11 +6,12 @@
     "pages": 6
   },
   "category": "reducer",
+  "model": "CSF-14-100-2UH",
   "series": "CSF",
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfeSSwhU6MGaTDgZvnzrN"
+    "response_id": "msg_011CffNsCiZUxWjJrAhrgFRp"
   },
   "items": [
     {
@@ -29,37 +30,34 @@
         "text": "100",
         "unit": "",
         "label": "Ratio",
-        "quote": "|  | 100 | 7.8 | 0.80 | 28 | 2.9 | 11 | 1.1 | 54 | 5.5 |"
+        "quote": "|  | 100 | 7.8 | 0.80 | 28 | 2.9 | 11 | 1.1 | 54 | 5.5 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Ratio' 在表头，须核对所在列",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Ratio' 在表头，数值在该列"
       ]
     },
     {
       "target": "params/rated_torque_nm",
       "value": {
         "value": 7.8,
-        "condition": "at 2000rpm",
+        "condition": "Rated Torque at 2000rpm",
         "source": {
           "doc": "src-hd-csg-csf-gear-units",
           "page": 9
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.88,
         "reviewed": false
       },
       "printed": {
         "text": "7.8",
         "unit": "Nm",
         "label": "Rated Torque at 2000rpm",
-        "quote": "|  | 100 | 7.8 | 0.80 | 28 | 2.9 | 11 | 1.1 | 54 | 5.5 |"
+        "quote": "|  | 100 | 7.8 | 0.80 | 28 | 2.9 | 11 | 1.1 | 54 | 5.5 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Rated Torque at 2000rpm' 在表头，须核对所在列",
-        "工况 'at 2000rpm' 不在同一行，取自本页其他位置（表头或脚注），须核对",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Rated Torque at 2000rpm' 在表头，数值在该列",
+        "工况 'Rated Torque at 2000rpm' 不在同一行，取自本页其他位置（表头或脚注），须核对"
       ]
     },
     {
@@ -71,19 +69,17 @@
           "page": 9
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.88,
         "reviewed": false
       },
       "printed": {
         "text": "28",
         "unit": "Nm",
         "label": "Limit for Repeated Peak Torque",
-        "quote": "|  | 100 | 7.8 | 0.80 | 28 | 2.9 | 11 | 1.1 | 54 | 5.5 |"
+        "quote": "|  | 100 | 7.8 | 0.80 | 28 | 2.9 | 11 | 1.1 | 54 | 5.5 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Limit for Repeated Peak Torque' 在表头，须核对所在列",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Limit for Repeated Peak Torque' 在表头，数值在该列"
       ]
     },
     {
@@ -95,25 +91,259 @@
           "page": 9
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.88,
         "reviewed": false
       },
       "printed": {
         "text": "54",
         "unit": "Nm",
         "label": "Limit for Momentary Peak Torque",
-        "quote": "|  | 100 | 7.8 | 0.80 | 28 | 2.9 | 11 | 1.1 | 54 | 5.5 |"
+        "quote": "|  | 100 | 7.8 | 0.80 | 28 | 2.9 | 11 | 1.1 | 54 | 5.5 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Limit for Momentary Peak Torque' 在表头，须核对所在列",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Limit for Momentary Peak Torque' 在表头，数值在该列"
+      ]
+    },
+    {
+      "target": "params/mass_kg",
+      "value": {
+        "value": 0.52,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.8,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "0.52",
+        "unit": "kg",
+        "label": "Mass (kg) CSF Series",
+        "quote": "|  | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |"
+      }
+    },
+    {
+      "target": "dims/outer_diameter_mm",
+      "value": {
+        "value": 73.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "73",
+        "unit": "mm",
+        "label": "φA",
+        "quote": "| φA |  | 73 | 79 | 93 | 107 | 138 | 160 | 180 | 190 | 226 | 260 |"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "dims/overall_length_mm",
+      "value": {
+        "value": 34.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.55,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "34",
+        "unit": "mm",
+        "label": "C",
+        "quote": "| C |  | 34 | 37 | 38 | 46 | 57 | 66.5 | 74 | 85 | 97 | 108.5 |"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "ports/housing_mount/pcd_mm",
+      "value": {
+        "value": 65.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.7,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "65",
+        "unit": "mm",
+        "label": "φb",
+        "quote": "φb 65 71 82 96 125 144 164 174 206 236"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "ports/housing_mount/hole_diameter_mm",
+      "value": {
+        "value": 4.5,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.7,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "4.5",
+        "unit": "mm",
+        "label": "φd",
+        "quote": "φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "ports/output_flange/pcd_mm",
+      "value": {
+        "value": 38.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.65,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "38",
+        "unit": "mm",
+        "label": "φe",
+        "quote": "(Note) Note that the length of the path of contact of the bolt will be within the depth of the female screw. If the length exceeds the size indicated φe 38 45 53 66 86 106 119 133 154 172"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "ports/output_flange/hole_kind",
+      "value": {
+        "value": "threaded",
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.65,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "M4",
+        "unit": "",
+        "label": "g",
+        "quote": "| g |  | M4 | M4 | M5 | M5 | M6 | M8 | M8 | M8 | M10 | M12 |"
+      },
+      "issues": [
+        "枚举映射：'M4' → threaded，未自动核对"
+      ]
+    },
+    {
+      "target": "ports/output_flange/thread",
+      "value": {
+        "value": "M4",
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.65,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "M4",
+        "unit": "",
+        "label": "g",
+        "quote": "| g |  | M4 | M4 | M5 | M5 | M6 | M8 | M8 | M8 | M10 | M12 |"
+      }
+    },
+    {
+      "target": "ports/input_bore/diameter_mm",
+      "value": {
+        "value": 6.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.7,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "6",
+        "unit": "mm",
+        "label": "φU H7",
+        "quote": "φU H7 6 8 12 14 14 14 19 19 22 24"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
       ]
     }
   ],
   "rejected": [
     {
-      "reason": "叫法不在引用所在的行中",
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/max_input_speed_rpm",
+      "page": 9,
+      "printed": {
+        "text": "14000",
+        "unit": "rpm",
+        "label": "Maximum Input Speed (rpm)",
+        "quote": "| 14 | 30 | 4.0 | 0.41 | 9.0 | 0.92 | 6.8 | 0.69 | 17 | 1.7 | 14000 | 8500 | 6500 | 3500 | 0.033 | 0.034 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/max_input_speed_rpm",
+      "page": 9,
+      "printed": {
+        "text": "8500",
+        "unit": "rpm",
+        "label": "Maximum Input Speed (rpm)",
+        "quote": "| 14 | 30 | 4.0 | 0.41 | 9.0 | 0.92 | 6.8 | 0.69 | 17 | 1.7 | 14000 | 8500 | 6500 | 3500 | 0.033 | 0.034 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/avg_input_speed_limit_rpm",
+      "page": 9,
+      "printed": {
+        "text": "6500",
+        "unit": "rpm",
+        "label": "Limit for Average Input Speed (rpm)",
+        "quote": "| 14 | 30 | 4.0 | 0.41 | 9.0 | 0.92 | 6.8 | 0.69 | 17 | 1.7 | 14000 | 8500 | 6500 | 3500 | 0.033 | 0.034 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/avg_input_speed_limit_rpm",
+      "page": 9,
+      "printed": {
+        "text": "3500",
+        "unit": "rpm",
+        "label": "Limit for Average Input Speed (rpm)",
+        "quote": "| 14 | 30 | 4.0 | 0.41 | 9.0 | 0.92 | 6.8 | 0.69 | 17 | 1.7 | 14000 | 8500 | 6500 | 3500 | 0.033 | 0.034 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
       "target": "params/input_inertia_kgm2",
       "page": 9,
       "printed": {
@@ -125,33 +355,44 @@
     },
     {
       "reason": "叫法不在引用所在的行中",
-      "target": "params/mass_kg",
-      "page": 11,
+      "target": "ports/housing_mount/hole_count",
+      "page": 10,
       "printed": {
-        "text": "0.52",
-        "unit": "kg",
-        "label": "Mass (kg) CSF Series",
-        "quote": "CSF Series 0.52 0.68 0.98 1.5 3.2 5.0 7.0 8.9 14.6 20.9"
+        "text": "6",
+        "unit": "",
+        "label": "c CSF Series",
+        "quote": "Shape of the wave generator hub for size The shape on the output side Enlarged view of the input side CSF Series 6 6 6 8 12 8 12 12 12 8"
       }
     },
     {
-      "reason": "单位 'mm' 不在同一行，而本页还有其他同类单位 ['m']，无法判断",
-      "target": "dims/outer_diameter_mm",
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/housing_mount/hole_kind",
       "page": 11,
       "printed": {
-        "text": "73",
-        "unit": "mm",
-        "label": "φA",
-        "quote": "φA 73 79 93 107 138 160 180 190 226 260"
+        "text": "φd",
+        "unit": "",
+        "label": "φd",
+        "quote": "φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14"
       }
     },
     {
-      "reason": "单位 'mm' 不在同一行，而本页还有其他同类单位 ['m']，无法判断",
-      "target": "ports/input_bore/diameter_mm",
+      "reason": "叫法不在引用所在的行中",
+      "target": "ports/output_flange/hole_count",
       "page": 11,
       "printed": {
         "text": "6",
-        "unit": "mm",
+        "unit": "",
+        "label": "f CSF Series",
+        "quote": "* The shape of the output flange may vary depending on the size. Contact us for details. * Check the confirmation drawing for details of the sizes. CSF Series 6 6 6 8 12 8 12 12 12 8"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/input_bore/fit_system",
+      "page": 11,
+      "printed": {
+        "text": "H7",
+        "unit": "",
         "label": "φU H7",
         "quote": "φU H7 6 8 12 14 14 14 19 19 22 24"
       }
@@ -168,83 +409,16 @@
       }
     },
     {
-      "reason": "单位 'mm' 不在同一行，而本页还有其他同类单位 ['m']，无法判断",
-      "target": "ports/housing_mount/pcd_mm",
-      "page": 11,
+      "target": "vendor",
       "printed": {
-        "text": "65",
-        "unit": "mm",
-        "label": "φb",
-        "quote": "φb 65 71 82 96 125 144 164 174 206 236"
-      }
-    },
-    {
-      "reason": "单位 'mm' 不在同一行，而本页还有其他同类单位 ['m']，无法判断",
-      "target": "ports/housing_mount/hole_diameter_mm",
-      "page": 11,
-      "printed": {
-        "text": "4.5",
-        "unit": "mm",
-        "label": "φd",
-        "quote": "φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14"
-      }
-    },
-    {
-      "target": "params/max_input_speed_rpm",
-      "page": 9,
-      "printed": {
-        "text": "14000",
-        "unit": "rpm",
-        "label": "Maximum Input Speed (rpm)",
-        "quote": "| 14 | 30 | 4.0 | 0.41 | 9.0 | 0.92 | 6.8 | 0.69 | 17 | 1.7 | 14000 | 8500 | 6500 | 3500 | 0.033 | 0.034 |"
+        "text": "Harmonic Drive"
       },
-      "reason": "同一 target 有互相矛盾的值"
-    },
-    {
-      "target": "params/max_input_speed_rpm",
-      "page": 9,
-      "printed": {
-        "text": "8500",
-        "unit": "rpm",
-        "label": "Maximum Input Speed (rpm)",
-        "quote": "| 14 | 30 | 4.0 | 0.41 | 9.0 | 0.92 | 6.8 | 0.69 | 17 | 1.7 | 14000 | 8500 | 6500 | 3500 | 0.033 | 0.034 |"
-      },
-      "reason": "同一 target 有互相矛盾的值"
-    },
-    {
-      "target": "params/avg_input_speed_limit_rpm",
-      "page": 9,
-      "printed": {
-        "text": "6500",
-        "unit": "rpm",
-        "label": "Limit for Average Input Speed (rpm)",
-        "quote": "| 14 | 30 | 4.0 | 0.41 | 9.0 | 0.92 | 6.8 | 0.69 | 17 | 1.7 | 14000 | 8500 | 6500 | 3500 | 0.033 | 0.034 |"
-      },
-      "reason": "同一 target 有互相矛盾的值"
-    },
-    {
-      "target": "params/avg_input_speed_limit_rpm",
-      "page": 9,
-      "printed": {
-        "text": "3500",
-        "unit": "rpm",
-        "label": "Limit for Average Input Speed (rpm)",
-        "quote": "| 14 | 30 | 4.0 | 0.41 | 9.0 | 0.92 | 6.8 | 0.69 | 17 | 1.7 | 14000 | 8500 | 6500 | 3500 | 0.033 | 0.034 |"
-      },
-      "reason": "同一 target 有互相矛盾的值"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "CSF-14-100-2UH"
-      },
-      "reason": "model 在规格书中找不到"
+      "reason": "vendor 在规格书中找不到"
     }
   ],
   "missing_key_fields": [
     "params/reducer_kind",
     "params/max_input_speed_rpm",
-    "params/efficiency_ratio",
-    "params/mass_kg"
+    "params/efficiency_ratio"
   ]
 }

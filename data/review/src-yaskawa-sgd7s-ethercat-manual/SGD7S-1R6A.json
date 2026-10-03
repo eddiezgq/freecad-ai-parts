@@ -1,12 +1,15 @@
 {
-  "agreed": [],
+  "agreed": [
+    "ports/motor_out/peak_current_a",
+    "ports/motor_out/rated_current_a"
+  ],
   "pending": [
     {
-      "target": "ports/bus/protocol",
-      "primary": {
-        "value": "ethercat"
+      "target": "params/rated_output_power_w",
+      "check": {
+        "value": 200.0
       },
-      "reason": "只有主抽取报出"
+      "reason": "只有复核抽取报出"
     }
   ],
   "problems": [

@@ -6,28 +6,49 @@
     "pages": 12
   },
   "category": "drive",
+  "model": "SGD7S-R90A",
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfeTMSrMm1f7ZRznpRnJ6"
+    "response_id": "msg_011CffPpNg89Ec5LpRaQg1Vn"
   },
-  "items": [],
-  "rejected": [
+  "items": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/rated_output_power_w",
-      "page": 63,
+      "value": {
+        "value": 100.0,
+        "condition": "Single-Phase, 200 VAC",
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
       "printed": {
         "text": "0.1",
         "unit": "kW",
         "label": "Maximum Applicable Motor Capacity [kW]",
         "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.75 1.5"
-      }
+      },
+      "issues": [
+        "工况 'Single-Phase, 200 VAC' 不在同一行，取自本页其他位置（表头或脚注），须核对",
+        "单位换算：0.1 kW → 标准单位 W"
+      ]
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/motor_out/rated_current_a",
-      "page": 63,
+      "value": {
+        "value": 0.91,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "0.91",
         "unit": "Arms",
@@ -36,9 +57,17 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/motor_out/peak_current_a",
-      "page": 63,
+      "value": {
+        "value": 3.2,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "3.2",
         "unit": "Arms",
@@ -46,6 +75,31 @@
         "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
       }
     },
+    {
+      "target": "ports/power_in/current_type",
+      "value": {
+        "value": "ac",
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "200 VAC to 240 VAC, 50 Hz/60 Hz",
+        "unit": "",
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+      },
+      "issues": [
+        "规格行，各型号共用",
+        "枚举映射：'200 VAC to 240 VAC, 50 Hz/60 Hz' → ac，未自动核对"
+      ]
+    }
+  ],
+  "rejected": [
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/power_in/voltage_v",
@@ -80,80 +134,47 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/phases",
-      "page": 63,
-      "printed": {
-        "text": "Single-Phase",
-        "unit": "",
-        "label": "Single-Phase, 200 VAC",
-        "quote": "Single-Phase, 200 VAC"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "工况 'Three-Phase, 200 VAC, Main Circuit, net value at the rated load' 在第 62 页找不到",
       "target": "ports/power_in/rated_current_a",
-      "page": 63,
+      "page": 62,
       "printed": {
-        "text": "1.6",
+        "text": "0.8",
         "unit": "Arms",
         "label": "Input Current [Arms]*",
-        "quote": "Input Current [Arms]* 0.8 1.6 2.4 5.0 8.7 16"
+        "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |"
       }
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/rated_current_a",
-      "page": 64,
+      "target": "ports/bus/protocol",
+      "page": 69,
       "printed": {
-        "text": "1.0",
-        "unit": "Arms",
-        "label": "Input Current [Arms]*1",
-        "quote": "Input Current [Arms]*1 0.5 1.0 1.5 3.0 3.8 4.9 6.9 11"
-      }
-    },
-    {
-      "reason": "单位：无法识别的单位 'VDC'",
-      "target": "ports/power_in/voltage_v",
-      "page": 64,
-      "printed": {
-        "text": "270 VDC to 324 VDC",
-        "unit": "VDC",
-        "label": "Power Supply",
-        "quote": "Power Supply 270 VDC to 324 VDC"
-      }
-    },
-    {
-      "reason": "工况 'Rack-mounted SERVOPACKs, Hardware Option Code: 001 (SGD7S-R70A, -R90A, -1R6A)' 在第 82 页找不到",
-      "target": "params/mass_kg",
-      "page": 82,
-      "printed": {
-        "text": "1.0",
-        "unit": "kg",
-        "label": "Approx. mass",
-        "quote": "Approx. mass: 1.0 kg"
-      }
-    },
-    {
-      "reason": "值 'HWBB' 与印出的文字 '/HWBB1 and /HWBB2' 不一致",
-      "target": "params/safety_functions",
-      "page": 70,
-      "printed": {
-        "text": "/HWBB1 and /HWBB2",
+        "text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
         "unit": "",
-        "label": "Inputs",
-        "quote": "Inputs /HWBB1 and /HWBB2: Base block signals for Power Modules"
+        "label": "Applicable Communications Standards",
+        "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
       }
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/encoder_in/protocol",
-      "page": 67,
+      "target": "ports/bus/profile",
+      "page": 69,
       "printed": {
-        "text": "Serial encoder",
+        "text": "CiA402 Drive Profile",
         "unit": "",
-        "label": "Serial encoder",
-        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
+        "label": "Applicable Communications Standards",
+        "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/bus/connector",
+      "page": 69,
+      "printed": {
+        "text": "RJ45",
+        "unit": "",
+        "label": "Communications Connectors",
+        "quote": "Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)"
       }
     },
     {
@@ -168,73 +189,15 @@
       }
     },
     {
-      "reason": "原文引用在第 69 页的任何一行中都找不到",
-      "target": "ports/bus/protocol",
-      "page": 69,
+      "reason": "值 'HWBB' 与印出的文字 '/HWBB1 and /HWBB2' 不一致",
+      "target": "params/safety_functions",
+      "page": 70,
       "printed": {
-        "text": "ETHERCAT IN",
+        "text": "/HWBB1 and /HWBB2",
         "unit": "",
-        "label": "Communications Connectors",
-        "quote": "Connectors CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
+        "label": "Inputs",
+        "quote": "Inputs /HWBB1 and /HWBB2: Base block signals for Power Modules"
       }
-    },
-    {
-      "reason": "原文引用在第 69 页的任何一行中都找不到",
-      "target": "ports/bus/connector",
-      "page": 69,
-      "printed": {
-        "text": "RJ45",
-        "unit": "",
-        "label": "Communications Connectors",
-        "quote": "Connectors CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
-      }
-    },
-    {
-      "reason": "原文引用在第 69 页的任何一行中都找不到",
-      "target": "ports/bus/profile",
-      "page": 69,
-      "printed": {
-        "text": "CiA402 Drive Profile",
-        "unit": "",
-        "label": "Applicable Communications Standards",
-        "quote": "cations Standards IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
-      }
-    },
-    {
-      "target": "ports/power_in/current_type",
-      "page": 63,
-      "printed": {
-        "text": "200 VAC to 240 VAC, 50 Hz/60 Hz",
-        "unit": "",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
-      },
-      "reason": "同一 target 有互相矛盾的值"
-    },
-    {
-      "target": "ports/power_in/current_type",
-      "page": 64,
-      "printed": {
-        "text": "270 VDC to 324 VDC",
-        "unit": "",
-        "label": "Power Supply",
-        "quote": "Power Supply 270 VDC to 324 VDC"
-      },
-      "reason": "同一 target 有互相矛盾的值"
-    },
-    {
-      "target": "vendor",
-      "printed": {
-        "text": "YASKAWA"
-      },
-      "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "SGD7S-R90A"
-      },
-      "reason": "model 在规格书中找不到"
     },
     {
       "target": "series",

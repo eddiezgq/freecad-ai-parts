@@ -1,0 +1,109 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "b513da9f427fda1d887c49f91171555317042d4dbdab5801d330b760c5156f0a",
+  "response": {
+    "id": "msg_011CffMnQx14yWu85EDMbCTq",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Ratio",
+          "printed_text": "50",
+          "printed_unit": "",
+          "quote": "|  | 50 | 5.4 | 0.55 | 18 | 1.8 | 6.9 | 0.70 | 35 | 3.6 |  |  |  |  |  |  |",
+          "target": "params/ratio",
+          "value": 50
+        },
+        {
+          "condition": "Rated Torque at 2000rpm",
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Rated Torque at 2000rpm",
+          "printed_text": "5.4",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 5.4 | 0.55 | 18 | 1.8 | 6.9 | 0.70 | 35 | 3.6 |  |  |  |  |  |  |",
+          "target": "params/rated_torque_nm",
+          "value": 5.4
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Repeated Peak Torque",
+          "printed_text": "18",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 5.4 | 0.55 | 18 | 1.8 | 6.9 | 0.70 | 35 | 3.6 |  |  |  |  |  |  |",
+          "target": "params/repeated_peak_torque_nm",
+          "value": 18
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Momentary Peak Torque",
+          "printed_text": "35",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 5.4 | 0.55 | 18 | 1.8 | 6.9 | 0.70 | 35 | 3.6 |  |  |  |  |  |  |",
+          "target": "params/momentary_max_torque_nm",
+          "value": 35
+        },
+        {
+          "condition": "Oil lubricant",
+          "confidence": 0.5,
+          "page": 9,
+          "printed_label": "Maximum Input Speed (rpm)",
+          "printed_text": "14000",
+          "printed_unit": "rpm",
+          "quote": "| 14 | 30 | 4.0 | 0.41 | 9.0 | 0.92 | 6.8 | 0.69 | 17 | 1.7 | 14000 | 8500 | 6500 | 3500 | 0.033 | 0.034 |",
+          "target": "params/max_input_speed_rpm",
+          "value": 14000
+        },
+        {
+          "condition": "Oil lubricant",
+          "confidence": 0.5,
+          "page": 9,
+          "printed_label": "Limit for Average Input Speed (rpm)",
+          "printed_text": "6500",
+          "printed_unit": "rpm",
+          "quote": "| 14 | 30 | 4.0 | 0.41 | 9.0 | 0.92 | 6.8 | 0.69 | 17 | 1.7 | 14000 | 8500 | 6500 | 3500 | 0.033 | 0.034 |",
+          "target": "params/avg_input_speed_limit_rpm",
+          "value": 6500
+        },
+        {
+          "confidence": 0.75,
+          "page": 9,
+          "printed_label": "Moment of Inertia I",
+          "printed_text": "0.033",
+          "printed_unit": "×10−4 kg·m²",
+          "quote": "| 14 | 30 | 4.0 | 0.41 | 9.0 | 0.92 | 6.8 | 0.69 | 17 | 1.7 | 14000 | 8500 | 6500 | 3500 | 0.033 | 0.034 |",
+          "target": "params/input_inertia_kgm2",
+          "value": 0.033
+        },
+        {
+          "confidence": 0.8,
+          "page": 11,
+          "printed_label": "Mass (kg) CSF Series",
+          "printed_text": "0.52",
+          "printed_unit": "kg",
+          "quote": "|  | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |",
+          "target": "params/mass_kg",
+          "value": 0.52
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "φA",
+          "printed_text": "73",
+          "printed_unit": "mm",
+          "quote": "| φA |  | 73 | 79 | 93 | 107 | 138 | 160 | 180 | 190 | 226 | 260 |",
+          "target": "dims/outer_diameter_mm",
+          "value": 73
+        }
+      ],
+      "model": "CSF-14-50-2UH",
+      "series": "CSF",
+      "vendor": "Harmonic Drive"
+    }
+  }
+}

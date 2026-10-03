@@ -6,11 +6,12 @@
     "pages": 6
   },
   "category": "reducer",
+  "model": "CSF-17-100-2UH",
   "series": "CSF",
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfeRdUCgGgCHJHBhM7vWM"
+    "response_id": "msg_011CffMuEo1r5q25do83VXBr"
   },
   "items": [
     {
@@ -22,18 +23,17 @@
           "page": 9
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
         "text": "100",
         "unit": "",
         "label": "Ratio",
-        "quote": "|  | 100 | 24 | 2.4 | 54 | 5.5 | 39 | 4.0 | 108 | 11 |"
+        "quote": "|  | 100 | 24 | 2.4 | 54 | 5.5 | 39 | 4.0 | 108 | 11 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Ratio' 在表头，须核对所在列",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Ratio' 在表头，数值在该列"
       ]
     },
     {
@@ -53,13 +53,11 @@
         "text": "24",
         "unit": "Nm",
         "label": "Rated Torque at 2000rpm",
-        "quote": "|  | 100 | 24 | 2.4 | 54 | 5.5 | 39 | 4.0 | 108 | 11 |"
+        "quote": "|  | 100 | 24 | 2.4 | 54 | 5.5 | 39 | 4.0 | 108 | 11 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Rated Torque at 2000rpm' 在表头，须核对所在列",
-        "工况 'Rated Torque at 2000rpm' 不在同一行，取自本页其他位置（表头或脚注），须核对",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Rated Torque at 2000rpm' 在表头，数值在该列",
+        "工况 'Rated Torque at 2000rpm' 不在同一行，取自本页其他位置（表头或脚注），须核对"
       ]
     },
     {
@@ -78,12 +76,10 @@
         "text": "54",
         "unit": "Nm",
         "label": "Limit for Repeated Peak Torque",
-        "quote": "|  | 100 | 24 | 2.4 | 54 | 5.5 | 39 | 4.0 | 108 | 11 |"
+        "quote": "|  | 100 | 24 | 2.4 | 54 | 5.5 | 39 | 4.0 | 108 | 11 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Limit for Repeated Peak Torque' 在表头，须核对所在列",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Limit for Repeated Peak Torque' 在表头，数值在该列"
       ]
     },
     {
@@ -102,42 +98,24 @@
         "text": "108",
         "unit": "Nm",
         "label": "Limit for Momentary Peak Torque",
-        "quote": "|  | 100 | 24 | 2.4 | 54 | 5.5 | 39 | 4.0 | 108 | 11 |"
+        "quote": "|  | 100 | 24 | 2.4 | 54 | 5.5 | 39 | 4.0 | 108 | 11 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Limit for Momentary Peak Torque' 在表头，须核对所在列",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Limit for Momentary Peak Torque' 在表头，数值在该列"
       ]
-    }
-  ],
-  "rejected": [
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/reducer_kind",
-      "page": 9,
-      "printed": {
-        "text": "CSF",
-        "unit": "",
-        "label": "CSF Series",
-        "quote": "■ CSF Series Table 127-1"
-      }
     },
     {
-      "reason": "叫法不在引用所在的行中",
-      "target": "params/input_inertia_kgm2",
-      "page": 9,
-      "printed": {
-        "text": "0.079",
-        "unit": "×10−4 kg·m²",
-        "label": "Moment of Inertia I ×10−4kgm2",
-        "quote": "| 17 | 30 | 8.8 | 0.90 | 16 | 1.6 | 12 | 1.2 | 30 | 3.1 | 10000 | 7300 | 6500 | 3500 | 0.079 | 0.081 |"
-      }
-    },
-    {
-      "reason": "叫法不在引用所在的行中",
       "target": "params/mass_kg",
-      "page": 11,
+      "value": {
+        "value": 0.68,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.8,
+        "reviewed": false
+      },
       "printed": {
         "text": "0.68",
         "unit": "kg",
@@ -146,14 +124,71 @@
       }
     },
     {
-      "reason": "单位 'mm' 不在同一行，而本页还有其他同类单位 ['m']，无法判断",
       "target": "dims/outer_diameter_mm",
-      "page": 11,
+      "value": {
+        "value": 79.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
       "printed": {
         "text": "79",
         "unit": "mm",
         "label": "φA",
         "quote": "| φA |  | 73 | 79 | 93 | 107 | 138 | 160 | 180 | 190 | 226 | 260 |"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/reducer_kind",
+      "page": 10,
+      "printed": {
+        "text": "CSF",
+        "unit": "",
+        "label": "Gear Unit CSG/CSF",
+        "quote": "Gear Unit CSG/CSF"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/max_input_speed_rpm",
+      "page": 9,
+      "printed": {
+        "text": "10000",
+        "unit": "rpm",
+        "label": "Maximum Input Speed (rpm) Oil lubricant",
+        "quote": "| 17 | 30 | 8.8 | 0.90 | 16 | 1.6 | 12 | 1.2 | 30 | 3.1 | 10000 | 7300 | 6500 | 3500 | 0.079 | 0.081 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/avg_input_speed_limit_rpm",
+      "page": 9,
+      "printed": {
+        "text": "6500",
+        "unit": "rpm",
+        "label": "Limit for Average Input Speed (rpm) Oil lubricant",
+        "quote": "| 17 | 30 | 8.8 | 0.90 | 16 | 1.6 | 12 | 1.2 | 30 | 3.1 | 10000 | 7300 | 6500 | 3500 | 0.079 | 0.081 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/input_inertia_kgm2",
+      "page": 9,
+      "printed": {
+        "text": "0.079",
+        "unit": "×10−4kgm2",
+        "label": "Moment of Inertia",
+        "quote": "| 17 | 30 | 8.8 | 0.90 | 16 | 1.6 | 12 | 1.2 | 30 | 3.1 | 10000 | 7300 | 6500 | 3500 | 0.079 | 0.081 |"
       }
     },
     {
@@ -162,19 +197,11 @@
         "text": "Harmonic Drive"
       },
       "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "CSF-17-100-2UH"
-      },
-      "reason": "model 在规格书中找不到"
     }
   ],
   "missing_key_fields": [
     "params/reducer_kind",
     "params/max_input_speed_rpm",
-    "params/efficiency_ratio",
-    "params/mass_kg"
+    "params/efficiency_ratio"
   ]
 }
