@@ -164,6 +164,11 @@ def diagnose(jobs: list[dict], *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_D
                     odd = sorted({f"U+{ord(ch):04X}" for ch in best if ord(ch) > 127})
                     out.append(f"- 最长公共片段 {m.size}/{len(q)} 字；引用此后为 `{q[m.a + m.size:m.a + m.size + 12]}`，"
                                f"该行此后为 `{best[m.b + m.size:m.b + m.size + 12]}`；该行非 ASCII 字符：{odd}")
+                label = (r.get("printed") or {}).get("label") or ""
+                if label and r["reason"].startswith("引用所在行"):
+                    pat = re.compile(r"(?<![A-Za-z0-9])" + re.escape(label.strip()) + r"(?![A-Za-z0-9])")
+                    with_label = [ln for ln in ctx.lines[page] if not ln.is_row and pat.search(ln.spaced)][:2]
+                    out += [f"- 含叫法 {label!r} 的正文行：`{ln.spaced}`" for ln in with_label]
                 for ln in ranked[:per_item]:
                     kind = "表格行" if ln.is_row else "正文行"
                     shown_cells = " ¦ ".join(ln.cells) if ln.is_row else ln.spaced
