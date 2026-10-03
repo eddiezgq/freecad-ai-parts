@@ -355,7 +355,9 @@ _UNIT_AFTER = r"(?![A-Za-z0-9·/^²³⁰¹⁴⁵⁶⁷⁸⁹⁻(])"
 _UNIT_TOKEN = re.compile(r"[^\s|\[\]（）,，;；:：]+")
 
 
-_LOOKALIKE = str.maketrans({"∗": "*", "＊": "*", "﹡": "*", "⁎": "*"})
+# 排版变体与符号字体的私用区字形：∗ ＊ 视同 *；安川规格书中 U+F09E 是 N·m 里的点，U+F06F 是型号中的占位框（A5A□A2□），
+# 模型看到的是缺字，引用时会略去，比较时一并去掉
+_LOOKALIKE = str.maketrans({"∗": "*", "＊": "*", "﹡": "*", "⁎": "*", "\uf09e": None, "\uf06f": None})
 _FOOTNOTE = re.compile(r"\*\s*\d+(?:\s*,\s*\*\s*\d+)*")
 
 
@@ -524,13 +526,14 @@ def _bounded(text: str) -> str:
 
 
 def _unit_in(spaced: str, unit: str) -> bool:
-    return re.search(_UNIT_BEFORE + re.escape(_spaced(unit)) + _UNIT_AFTER, spaced) is not None
+    """单位印在文字中（空白可有可无：“×10-4 kgm2”与“×10-4kgm2”相同）。"""
+    body = r"\s*".join(re.escape(ch) for ch in _squash(unit))
+    return bool(body) and re.search(_UNIT_BEFORE + body + _UNIT_AFTER, _spaced(spaced)) is not None
 
 
 def _value_in_line(line: _Line, text: str, label: str, unit: str) -> bool:
-    t, u = _squash(text), _squash(unit)
     if line.is_row:
-        return any(c == t or (u and c in (t + u, u + t)) for c in line.cells)
+        return any(_cell_is(c, text, unit) for c in line.cells)
     # 正文行：数值紧跟在叫法之后，中间不夹其他数字（防止借用同一句里另一个参数的值）
     low = line.spaced.casefold()
     i = low.find(_spaced(label).casefold())
@@ -570,8 +573,45 @@ def _other_units(ctx: _Ctx, page: int, unit: str, field: str) -> list[str]:
 
 
 def _cell_is(cell: str, text: str, unit: str) -> bool:
+    """单元格就是印出的数值（可带单位）；或数值后面括号里另有一个值（如“85.5(125.5)”，括号内为带制动器的型号）。"""
     t, u = _squash(text), _squash(unit)
-    return cell == t or bool(u) and cell in (t + u, u + t)
+    return cell == t or bool(u) and cell in (t + u, u + t) or bool(t) and _alt_cell(cell, t)
+
+
+def _alt_cell(cell: str, t: str) -> bool:
+    return re.fullmatch(re.escape(t) + r"\([^()]+\)", cell) is not None
+
+
+def _rows_for_text_line(lines: list[_Line], tl: _Line) -> list[_Line]:
+    """正文行与表格行是同一行内容的两种抽取：
+    - 首词是型号代码、其余与表格行一致（“A5A□A2□ 37.9 25 …”）
+    - 全是数字，从表格行第一个非空格起至少两格逐格相同（格中括号内的另一个值不计）
+    """
+    words = tl.spaced.split(" ")
+    out = []
+    for ln in lines:
+        if not ln.is_row:
+            continue
+        tail = _squash(" ".join(words[1:]))
+        if len(words) >= 3 and re.search(r"[A-Za-z]", words[0]) and len(tail) >= 8 and tail in ln.joined:
+            out.append(ln)
+            continue
+        if len(words) < 2 or not all(re.fullmatch(r"[-+±−]?\d+(?:\.\d+)?", w) for w in words):
+            continue
+        j = next((i for i, c in enumerate(ln.cells) if c), None)
+        if j is None:
+            continue
+        hits = 0
+        for i, w in enumerate(words):
+            if j + i >= len(ln.cells) or not ln.cells[j + i]:
+                break
+            c, sw = ln.cells[j + i], _squash(w)
+            if c != sw and not _alt_cell(c, sw):
+                break
+            hits += 1
+        if hits >= 2:  # 开头至少两格逐格相同；其余的数（如另起一列的质量）不在这一表格行中，按格核对时自然不通过
+            out.append(ln)
+    return out
 
 
 def _model_col(row: tuple[str, ...], model: str) -> int | None:
@@ -766,6 +806,9 @@ def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list
     candidates = [ln for ln in ctx.lines[page] if quote and quote in ln.joined]
     if not candidates:
         return f"原文引用在第 {page} 页的任何一行中都找不到", []
+    if ctx.target_model:
+        linked = [r for ln in candidates if not ln.is_row for r in _rows_for_text_line(ctx.lines[page], ln)]
+        candidates += [r for r in linked if r not in candidates]
     if ctx.target_model and any(ln.is_row for ln in candidates):
         # 多型号目录：正文里重复的表格行没有列信息，以表格行为准（否则能绕过型号列核对）
         candidates = [ln for ln in candidates if ln.is_row]
@@ -809,6 +852,9 @@ def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list
                 best = f"单位 {unit!r} 不在同一行，而本页还有其他同类单位 {others}，无法判断"
                 continue
             notes.append(f"单位 {unit} 不在同一行，取自本页其他位置")
+        col = _value_col(ln, text, unit) if ln.is_row else None
+        if col is not None and _alt_cell(ln.cells[col], _squash(text)):
+            notes.append("单元格括号内另有一个值（如带制动器的型号），取括号外的值")
         if ln.is_row and ctx.target_model:
             column = _model_column(ln, ctx.target_model, text, unit, ctx.target_raw,
                                    [x for x in ctx.lines[page] if not x.is_row])
