@@ -10,7 +10,7 @@
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfeSMcA63V8tKMZ3eJWox"
+    "response_id": "msg_011CffNkRJQi8PQ9tAKsLfpA"
   },
   "items": [
     {
@@ -22,7 +22,7 @@
           "page": 80
         },
         "method": "extracted",
-        "confidence": 0.55,
+        "confidence": 0.7,
         "reviewed": false
       },
       "printed": {
@@ -31,13 +31,19 @@
         "label": "Approx. mass",
         "quote": "Approx. mass: 2.2 kg"
       }
-    }
-  ],
-  "rejected": [
+    },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/motor_out/rated_current_a",
-      "page": 63,
+      "value": {
+        "value": 11.6,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
       "printed": {
         "text": "11.6",
         "unit": "Arms",
@@ -46,46 +52,34 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/motor_out/peak_current_a",
-      "page": 63,
+      "value": {
+        "value": 28.0,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
       "printed": {
         "text": "28",
         "unit": "Arms",
         "label": "Instantaneous Maximum Output Current [Arms]",
         "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
       }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/voltage_v",
-      "page": 62,
-      "printed": {
-        "text": "200 VAC to 240 VAC",
-        "unit": "V",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/current_type",
-      "page": 62,
-      "printed": {
-        "text": "200 VAC to 240 VAC",
-        "unit": "",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
-      }
-    },
+    }
+  ],
+  "rejected": [
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/bus/profile",
       "page": 69,
       "printed": {
-        "text": "CiA402",
+        "text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
         "unit": "",
-        "label": "CiA402 Drive Profile",
+        "label": "Applicable Communi- cations Standards",
         "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
       }
     },
@@ -99,20 +93,6 @@
         "label": "Communications Connectors",
         "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
       }
-    },
-    {
-      "target": "vendor",
-      "printed": {
-        "text": "Yaskawa"
-      },
-      "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "series",
-      "printed": {
-        "text": "Σ-7"
-      },
-      "reason": "series 在规格书中找不到"
     }
   ],
   "missing_key_fields": []

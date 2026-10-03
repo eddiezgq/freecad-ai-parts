@@ -6,48 +6,47 @@
     "pages": 12
   },
   "category": "drive",
+  "model": "SGD7S-5R5A",
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfeTYHBVk3L2ppk96deZt"
+    "response_id": "msg_011CffQ18Lj26zvYapsL1hVN"
   },
   "items": [
     {
-      "target": "ports/encoder_in/resolution_bits",
+      "target": "params/rated_output_power_w",
       "value": {
-        "value": 20,
+        "value": 750.0,
         "source": {
           "doc": "src-yaskawa-sgd7s-ethercat-manual",
-          "page": 67
+          "page": 63
         },
         "method": "extracted",
-        "confidence": 0.65,
+        "confidence": 0.6,
         "reviewed": false
       },
-      "printed": {
-        "text": "20 bits",
-        "unit": "bits",
-        "label": "Serial encoder",
-        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
-      }
-    }
-  ],
-  "rejected": [
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/rated_output_power_w",
-      "page": 63,
       "printed": {
         "text": "0.75",
         "unit": "kW",
         "label": "Maximum Applicable Motor Capacity",
         "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.75 1.5"
-      }
+      },
+      "issues": [
+        "单位换算：0.75 kW → 标准单位 W"
+      ]
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/motor_out/rated_current_a",
-      "page": 63,
+      "value": {
+        "value": 5.5,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "5.5",
         "unit": "Arms",
@@ -56,49 +55,26 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/motor_out/peak_current_a",
-      "page": 63,
+      "value": {
+        "value": 16.9,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "16.9",
         "unit": "Arms",
         "label": "Instantaneous Maximum Output Current",
         "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
       }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/current_type",
-      "page": 62,
-      "printed": {
-        "text": "Three-Phase, 200 VAC",
-        "unit": "VAC",
-        "label": "Three-Phase",
-        "quote": "Three-Phase, 200 VAC"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/phases",
-      "page": 62,
-      "printed": {
-        "text": "Three-Phase",
-        "unit": "",
-        "label": "Three-Phase",
-        "quote": "Three-Phase, 200 VAC"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/phases",
-      "page": 63,
-      "printed": {
-        "text": "Single-Phase",
-        "unit": "",
-        "label": "Single-Phase",
-        "quote": "Single-Phase, 200 VAC"
-      }
-    },
+    }
+  ],
+  "rejected": [
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/power_in/voltage_v",
@@ -112,24 +88,24 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/frequency_hz",
+      "target": "ports/power_in/current_type",
       "page": 62,
       "printed": {
-        "text": "50 Hz",
-        "unit": "Hz",
+        "text": "VAC",
+        "unit": "",
         "label": "Power Supply",
         "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
       }
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/frequency_hz",
+      "target": "ports/power_in/phases",
       "page": 62,
       "printed": {
-        "text": "60 Hz",
-        "unit": "Hz",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+        "text": "Three-Phase",
+        "unit": "",
+        "label": "Three-Phase",
+        "quote": "Three-Phase, 200 VAC"
       }
     },
     {
@@ -145,57 +121,46 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/rated_current_a",
-      "page": 63,
+      "target": "ports/encoder_in/kind",
+      "page": 67,
       "printed": {
-        "text": "8.7",
-        "unit": "Arms",
-        "label": "Input Current",
-        "quote": "Input Current [Arms]* 0.8 1.6 2.4 5.0 8.7 16"
-      }
-    },
-    {
-      "reason": "字段 ports/power_in/current_type 无单位，但印有单位 'VDC'",
-      "target": "ports/power_in/current_type",
-      "page": 64,
-      "printed": {
-        "text": "270 VDC to 324 VDC",
-        "unit": "VDC",
-        "label": "Power Supply",
-        "quote": "Power Supply 270 VDC to 324 VDC"
-      }
-    },
-    {
-      "reason": "字段 ports/power_in/phases 无单位，但印有单位 'VDC'",
-      "target": "ports/power_in/phases",
-      "page": 64,
-      "printed": {
-        "text": "270 VDC to 324 VDC",
-        "unit": "VDC",
-        "label": "Power Supply",
-        "quote": "Power Supply 270 VDC to 324 VDC"
-      }
-    },
-    {
-      "reason": "工况 '270 VDC input' 在第 64 页找不到",
-      "target": "ports/power_in/voltage_v",
-      "page": 64,
-      "printed": {
-        "text": "270 VDC to 324 VDC",
-        "unit": "VDC",
-        "label": "Power Supply",
-        "quote": "Power Supply 270 VDC to 324 VDC"
+        "text": "incremental encoder/absolute",
+        "unit": "",
+        "label": "Serial encoder",
+        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
       }
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/rated_current_a",
-      "page": 64,
+      "target": "ports/bus/protocol",
+      "page": 69,
       "printed": {
-        "text": "4.9",
-        "unit": "Arms",
-        "label": "Input Current",
-        "quote": "Input Current [Arms]*1 0.5 1.0 1.5 3.0 3.8 4.9 6.9 11"
+        "text": "EtherCAT",
+        "unit": "",
+        "label": "EtherCAT Communications",
+        "quote": "EtherCAT Communications Setting"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/bus/profile",
+      "page": 69,
+      "printed": {
+        "text": "CiA402 Drive Profile",
+        "unit": "",
+        "label": "Applicable Communications Standards",
+        "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/bus/connector",
+      "page": 69,
+      "printed": {
+        "text": "RJ45",
+        "unit": "",
+        "label": "Communications Connectors",
+        "quote": "Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)"
       }
     },
     {
@@ -207,17 +172,6 @@
         "unit": "kg",
         "label": "Approx. mass",
         "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/mass_kg",
-      "page": 83,
-      "printed": {
-        "text": "1.7",
-        "unit": "kg",
-        "label": "Approx. mass",
-        "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.7 kg"
       }
     },
     {
@@ -252,75 +206,6 @@
         "label": "Exterior",
         "quote": "70 (75) 180 70"
       }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/encoder_in/kind",
-      "page": 67,
-      "printed": {
-        "text": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute",
-        "unit": "bits",
-        "label": "Serial encoder",
-        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/encoder_in/resolution_bits",
-      "page": 67,
-      "printed": {
-        "text": "24 bits",
-        "unit": "bits",
-        "label": "Serial encoder",
-        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
-      }
-    },
-    {
-      "reason": "原文引用中没有印出的文字",
-      "target": "ports/bus/protocol",
-      "page": 69,
-      "printed": {
-        "text": "ETHERCAT IN",
-        "unit": "",
-        "label": "Communications Connectors",
-        "quote": "Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/bus/connector",
-      "page": 69,
-      "printed": {
-        "text": "RJ45",
-        "unit": "",
-        "label": "Communications Connectors",
-        "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/bus/profile",
-      "page": 69,
-      "printed": {
-        "text": "CiA402 Drive Profile",
-        "unit": "",
-        "label": "Applicable Communications Standards",
-        "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
-      }
-    },
-    {
-      "target": "vendor",
-      "printed": {
-        "text": "Yaskawa"
-      },
-      "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "SGD7S-5R5A"
-      },
-      "reason": "model 在规格书中找不到"
     },
     {
       "target": "series",

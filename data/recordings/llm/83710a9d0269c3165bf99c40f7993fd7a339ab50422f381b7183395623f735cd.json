@@ -1,0 +1,138 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "83710a9d0269c3165bf99c40f7993fd7a339ab50422f381b7183395623f735cd",
+  "response": {
+    "id": "msg_011CffNiTGATQ9kzfGGZrwhr",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.85,
+          "page": 62,
+          "printed_label": "Three-Phase, 200 VAC",
+          "printed_text": "Three-Phase, 200 VAC",
+          "printed_unit": "",
+          "quote": "Three-Phase, 200 VAC",
+          "target": "ports/power_in/current_type",
+          "value": "ac"
+        },
+        {
+          "confidence": 0.85,
+          "page": 62,
+          "printed_label": "Three-Phase, 200 VAC",
+          "printed_text": "Three-Phase",
+          "printed_unit": "",
+          "quote": "Three-Phase, 200 VAC",
+          "target": "ports/power_in/phases",
+          "value": 3
+        },
+        {
+          "confidence": 0.7,
+          "max": 240,
+          "min": 200,
+          "page": 62,
+          "printed_label": "Power Supply",
+          "printed_text": "200 VAC to 240 VAC",
+          "printed_unit": "VAC",
+          "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz",
+          "target": "ports/power_in/voltage_v"
+        },
+        {
+          "confidence": 0.8,
+          "page": 62,
+          "printed_label": "Input Current [Arms]*",
+          "printed_text": "5.7",
+          "printed_unit": "Arms",
+          "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |",
+          "target": "ports/power_in/rated_current_a",
+          "value": 5.7
+        },
+        {
+          "confidence": 0.5,
+          "page": 62,
+          "printed_label": "Three-Phase, 200 VAC",
+          "printed_text": "200 VAC",
+          "printed_unit": "VAC",
+          "quote": "Three-Phase, 200 VAC",
+          "target": "ports/motor_out/voltage_class_v",
+          "value": 200
+        },
+        {
+          "confidence": 0.85,
+          "page": 64,
+          "printed_label": "Continuous Output Current [Arms]",
+          "printed_text": "7.6",
+          "printed_unit": "Arms",
+          "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 7.6
+        },
+        {
+          "confidence": 0.8,
+          "page": 62,
+          "printed_label": "Instantaneous Maximum Output Current [Arms]",
+          "printed_text": "17",
+          "printed_unit": "Arms",
+          "quote": "2.1 3.2 5.9 9.3 11 16.9 17 28 42 56 84",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 17
+        },
+        {
+          "confidence": 0.8,
+          "page": 80,
+          "printed_label": "SGD7S-3R8A, -5R5A, -7R6A",
+          "printed_text": "1.6 kg",
+          "printed_unit": "kg",
+          "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg",
+          "target": "params/mass_kg",
+          "value": 1.6
+        },
+        {
+          "confidence": 0.6,
+          "page": 69,
+          "printed_label": "Applicable Communications Standards",
+          "printed_text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "printed_unit": "",
+          "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "target": "ports/bus/protocol",
+          "value": "ethercat"
+        },
+        {
+          "confidence": 0.6,
+          "page": 69,
+          "printed_label": "CiA402 Drive Profile",
+          "printed_text": "CiA402",
+          "printed_unit": "",
+          "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "target": "ports/bus/profile",
+          "value": "cia402"
+        },
+        {
+          "confidence": 0.5,
+          "page": 69,
+          "printed_label": "Communications Connectors",
+          "printed_text": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "printed_unit": "",
+          "quote": "Connectors CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "target": "ports/bus/connector",
+          "value": "RJ45"
+        },
+        {
+          "confidence": 0.5,
+          "page": 70,
+          "printed_label": "Safety Functions",
+          "printed_text": "/HWBB1 and /HWBB2: Base block signals for Power Modules",
+          "printed_unit": "",
+          "quote": "Inputs /HWBB1 and /HWBB2: Base block signals for Power Modules",
+          "target": "params/safety_functions",
+          "value": [
+            "HWBB"
+          ]
+        }
+      ],
+      "model": "SGD7S-7R6A",
+      "vendor": "Yaskawa"
+    }
+  }
+}

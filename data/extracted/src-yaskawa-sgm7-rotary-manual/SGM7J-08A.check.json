@@ -6,17 +6,18 @@
     "pages": 5
   },
   "category": "servo_motor",
+  "model": "SGM7J-08A",
   "series": "SGM7J",
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfeT7TA5FcU4aZoo3kSy2"
+    "response_id": "msg_011CffPbvg7GM62Yv5RHYuW8"
   },
   "items": [
     {
-      "target": "ports/power_in/voltage_class_v",
+      "target": "params/rated_power_w",
       "value": {
-        "value": 200.0,
+        "value": 750.0,
         "source": {
           "doc": "src-yaskawa-sgm7-rotary-manual",
           "page": 55
@@ -26,19 +27,6 @@
         "reviewed": false
       },
       "printed": {
-        "text": "200 V",
-        "unit": "V",
-        "label": "Voltage",
-        "quote": "Voltage 200 V"
-      }
-    }
-  ],
-  "rejected": [
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/rated_power_w",
-      "page": 55,
-      "printed": {
         "text": "750",
         "unit": "W",
         "label": "Rated Output",
@@ -46,9 +34,17 @@
       }
     },
     {
-      "reason": "原文引用在第 55 页的任何一行中都找不到",
       "target": "params/rated_torque_nm",
-      "page": 55,
+      "value": {
+        "value": 2.39,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 55
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "2.39",
         "unit": "Nm",
@@ -57,9 +53,17 @@
       }
     },
     {
-      "reason": "原文引用在第 55 页的任何一行中都找不到",
       "target": "params/peak_torque_nm",
-      "page": 55,
+      "value": {
+        "value": 8.36,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 55
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "8.36",
         "unit": "Nm",
@@ -68,9 +72,17 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/power_in/rated_current_a",
-      "page": 55,
+      "value": {
+        "value": 4.4,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 55
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "4.4",
         "unit": "Arms",
@@ -79,9 +91,17 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/power_in/peak_current_a",
-      "page": 55,
+      "value": {
+        "value": 16.9,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 55
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "16.9",
         "unit": "Arms",
@@ -90,31 +110,61 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/rated_speed_rpm",
-      "page": 55,
+      "value": {
+        "value": 3000.0,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 55
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "3000",
         "unit": "min-1",
         "label": "Rated Motor Speed",
         "quote": "Rated Motor Speed*1 min-1 3000"
-      }
+      },
+      "issues": [
+        "该行只有一个数值，按各型号共用（合并单元格）处理"
+      ]
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/max_speed_rpm",
-      "page": 55,
+      "value": {
+        "value": 6000.0,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 55
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "6000",
         "unit": "min-1",
         "label": "Maximum Motor Speed",
         "quote": "Maximum Motor Speed*1 min-1 6000"
-      }
+      },
+      "issues": [
+        "该行只有一个数值，按各型号共用（合并单元格）处理"
+      ]
     },
     {
-      "reason": "原文引用在第 55 页的任何一行中都找不到",
       "target": "params/torque_constant_nm_per_a",
-      "page": 55,
+      "value": {
+        "value": 0.584,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 55
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "0.584",
         "unit": "Nm/Arms",
@@ -123,18 +173,239 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/rotor_inertia_kgm2",
+      "value": {
+        "value": 0.00015900000000000002,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 55
+        },
+        "method": "extracted",
+        "confidence": 0.7,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "1.59",
+        "unit": "×10-4 kgm2",
+        "label": "Motor Moment of Inertia",
+        "quote": "Motor Moment of Inertia 0.0395 0.0659 0.0915 0.263 0.486 0.800 1.59"
+      },
+      "issues": [
+        "单位 ×10-4 kgm2 不在同一行，取自本页其他位置",
+        "单位换算：1.59 ×10-4 kgm2 → 标准单位 kg*m**2"
+      ]
+    },
+    {
       "target": "params/ip_rating",
-      "page": 55,
+      "value": {
+        "value": "IP67",
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 55
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
       "printed": {
         "text": "Totally enclosed, self-cooled, IP67",
         "unit": "",
         "label": "Protective Structure",
         "quote": "Protective Structure*3 Totally enclosed, self-cooled, IP67"
+      },
+      "issues": [
+        "文字值在型号表中各型号共用（合并单元格）",
+        "文字取自原文的一部分：'Totally enclosed, self-cooled, IP67' → 'IP67'，需复核"
+      ]
+    },
+    {
+      "target": "ports/power_in/voltage_class_v",
+      "value": {
+        "value": 200.0,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 55
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "200 V",
+        "unit": "V",
+        "label": "Voltage",
+        "quote": "Voltage 200 V"
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/shaft/usable_length_mm",
+      "value": {
+        "value": 40.0,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 65
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "40",
+        "unit": "mm",
+        "label": "LR",
+        "quote": "|  | 137  (184) | 97 (144) | 78.5 | 40 | 3 | 8 | 80 | 90 | 70 0 -0.030 | 7 | 19 0 -0.013 | 13.6 | 38 | 14.7 | 19.3 |  |"
+      },
+      "issues": [
+        "叫法 'LR' 在表头，数值在该列",
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "ports/mount_flange/square_size_mm",
+      "value": {
+        "value": 80.0,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 65
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "80",
+        "unit": "mm",
+        "label": "LC",
+        "quote": "|  | 137  (184) | 97 (144) | 78.5 | 40 | 3 | 8 | 80 | 90 | 70 0 -0.030 | 7 | 19 0 -0.013 | 13.6 | 38 | 14.7 | 19.3 |  |"
+      },
+      "issues": [
+        "叫法 'LC' 在表头，数值在该列",
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "dims/square_mm",
+      "value": {
+        "value": 80.0,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 65
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "80",
+        "unit": "mm",
+        "label": "LC",
+        "quote": "|  | 137  (184) | 97 (144) | 78.5 | 40 | 3 | 8 | 80 | 90 | 70 0 -0.030 | 7 | 19 0 -0.013 | 13.6 | 38 | 14.7 | 19.3 |  |"
+      },
+      "issues": [
+        "叫法 'LC' 在表头，数值在该列",
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "ports/mount_flange/pcd_mm",
+      "value": {
+        "value": 90.0,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 65
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "90",
+        "unit": "mm",
+        "label": "LA",
+        "quote": "|  | 137  (184) | 97 (144) | 78.5 | 40 | 3 | 8 | 80 | 90 | 70 0 -0.030 | 7 | 19 0 -0.013 | 13.6 | 38 | 14.7 | 19.3 |  |"
+      },
+      "issues": [
+        "叫法 'LA' 在表头，须核对所在列",
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "ports/mount_flange/pilot_diameter_mm",
+      "value": {
+        "nominal": 70.0,
+        "tol_upper": 0.0,
+        "tol_lower": -0.03,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 65
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "70 0 -0.030",
+        "unit": "mm",
+        "label": "LB",
+        "quote": "|  | 137  (184) | 97 (144) | 78.5 | 40 | 3 | 8 | 80 | 90 | 70 0 -0.030 | 7 | 19 0 -0.013 | 13.6 | 38 | 14.7 | 19.3 |  |"
+      },
+      "issues": [
+        "叫法 'LB' 在表头，数值在该列",
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "ports/mount_flange/hole_diameter_mm",
+      "value": {
+        "value": 7.0,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 65
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "7",
+        "unit": "mm",
+        "label": "LZ",
+        "quote": "|  | 137  (184) | 97 (144) | 78.5 | 40 | 3 | 8 | 80 | 90 | 70 0 -0.030 | 7 | 19 0 -0.013 | 13.6 | 38 | 14.7 | 19.3 |  |"
+      },
+      "issues": [
+        "叫法 'LZ' 在表头，数值在该列",
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "ports/shaft/diameter_mm",
+      "value": {
+        "nominal": 19.0,
+        "tol_upper": 0.0,
+        "tol_lower": -0.013,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 65
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "19 0 -0.013",
+        "unit": "mm",
+        "label": "S",
+        "quote": "|  | 137  (184) | 97 (144) | 78.5 | 40 | 3 | 8 | 80 | 90 | 70 0 -0.030 | 7 | 19 0 -0.013 | 13.6 | 38 | 14.7 | 19.3 |  |"
+      },
+      "issues": [
+        "叫法 'S' 在表头，须核对所在列",
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "该行有 3 个数值，与 7 个型号列对不上",
       "target": "ports/shaft/max_radial_load_n",
       "page": 55,
       "printed": {
@@ -145,7 +416,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 3 个数值，与 7 个型号列对不上",
       "target": "ports/shaft/max_axial_load_n",
       "page": 55,
       "printed": {
@@ -182,76 +453,10 @@
       "target": "params/mass_kg",
       "page": 65,
       "printed": {
-        "text": "2.2*2",
+        "text": "2.2",
         "unit": "kg",
         "label": "Approx. Mass",
         "quote": "137 97 2.2*2"
-      }
-    },
-    {
-      "reason": "原文引用在第 65 页的任何一行中都找不到",
-      "target": "ports/shaft/diameter_mm",
-      "page": 65,
-      "printed": {
-        "text": "19",
-        "unit": "mm",
-        "label": "S",
-        "quote": "08AA2 78.5 40 3 8 80 90 70 7 19 13.6 38 14.7 19.3"
-      }
-    },
-    {
-      "reason": "原文引用在第 65 页的任何一行中都找不到",
-      "target": "ports/mount_flange/square_size_mm",
-      "page": 65,
-      "printed": {
-        "text": "80",
-        "unit": "mm",
-        "label": "LC",
-        "quote": "08AA2 78.5 40 3 8 80 90 70 7 19 13.6 38 14.7 19.3"
-      }
-    },
-    {
-      "reason": "原文引用在第 65 页的任何一行中都找不到",
-      "target": "dims/square_mm",
-      "page": 65,
-      "printed": {
-        "text": "80",
-        "unit": "mm",
-        "label": "LC",
-        "quote": "08AA2 78.5 40 3 8 80 90 70 7 19 13.6 38 14.7 19.3"
-      }
-    },
-    {
-      "reason": "原文引用在第 65 页的任何一行中都找不到",
-      "target": "ports/mount_flange/pcd_mm",
-      "page": 65,
-      "printed": {
-        "text": "90",
-        "unit": "mm",
-        "label": "LA",
-        "quote": "08AA2 78.5 40 3 8 80 90 70 7 19 13.6 38 14.7 19.3"
-      }
-    },
-    {
-      "reason": "原文引用在第 65 页的任何一行中都找不到",
-      "target": "ports/mount_flange/pilot_diameter_mm",
-      "page": 65,
-      "printed": {
-        "text": "70",
-        "unit": "mm",
-        "label": "LB",
-        "quote": "08AA2 78.5 40 3 8 80 90 70 7 19 13.6 38 14.7 19.3"
-      }
-    },
-    {
-      "reason": "原文引用在第 65 页的任何一行中都找不到",
-      "target": "ports/mount_flange/hole_diameter_mm",
-      "page": 65,
-      "printed": {
-        "text": "7",
-        "unit": "mm",
-        "label": "LZ",
-        "quote": "08AA2 78.5 40 3 8 80 90 70 7 19 13.6 38 14.7 19.3"
       }
     },
     {
@@ -259,7 +464,7 @@
       "target": "ports/mount_flange/hole_count",
       "page": 65,
       "printed": {
-        "text": "4 × LZ dia.",
+        "text": "4",
         "unit": "",
         "label": "4 × LZ dia.",
         "quote": "0.02 4 × LZ dia. Unit: mm"
@@ -279,25 +484,12 @@
     {
       "target": "vendor",
       "printed": {
-        "text": "YASKAWA"
+        "text": "Yaskawa"
       },
       "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "SGM7J-08A"
-      },
-      "reason": "model 在规格书中找不到"
     }
   ],
   "missing_key_fields": [
-    "params/rated_power_w",
-    "params/rated_torque_nm",
-    "params/peak_torque_nm",
-    "params/rated_speed_rpm",
-    "params/max_speed_rpm",
-    "params/rotor_inertia_kgm2",
     "params/mass_kg"
   ]
 }

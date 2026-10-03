@@ -6,11 +6,12 @@
     "pages": 6
   },
   "category": "reducer",
+  "model": "CSF-20-100-2UH",
   "series": "CSF",
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfeRgWC4xsSdeiJuLRBTJ"
+    "response_id": "msg_011CffMzMrJkJrQtvg5K1V6M"
   },
   "items": [
     {
@@ -32,15 +33,14 @@
         "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Ratio' 在表头，须核对所在列",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Ratio' 在表头，数值在该列"
       ]
     },
     {
       "target": "params/rated_torque_nm",
       "value": {
         "value": 40.0,
-        "condition": "at 2000rpm",
+        "condition": "Rated Torque at 2000rpm",
         "source": {
           "doc": "src-hd-csg-csf-gear-units",
           "page": 9
@@ -56,10 +56,8 @@
         "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Rated Torque at 2000rpm' 在表头，须核对所在列",
-        "工况 'at 2000rpm' 不在同一行，取自本页其他位置（表头或脚注），须核对",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Rated Torque at 2000rpm' 在表头，数值在该列",
+        "工况 'Rated Torque at 2000rpm' 不在同一行，取自本页其他位置（表头或脚注），须核对"
       ]
     },
     {
@@ -81,9 +79,7 @@
         "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Limit for Repeated Peak Torque' 在表头，须核对所在列",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Limit for Repeated Peak Torque' 在表头，数值在该列"
       ]
     },
     {
@@ -105,17 +101,21 @@
         "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Limit for Momentary Peak Torque' 在表头，须核对所在列",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Limit for Momentary Peak Torque' 在表头，数值在该列"
       ]
-    }
-  ],
-  "rejected": [
+    },
     {
-      "reason": "叫法不在引用所在的行中",
       "target": "params/mass_kg",
-      "page": 11,
+      "value": {
+        "value": 0.98,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.8,
+        "reviewed": false
+      },
       "printed": {
         "text": "0.98",
         "unit": "kg",
@@ -124,36 +124,148 @@
       }
     },
     {
-      "reason": "单位 'mm' 不在同一行，而本页还有其他同类单位 ['m']，无法判断",
       "target": "dims/outer_diameter_mm",
-      "page": 11,
+      "value": {
+        "value": 93.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
       "printed": {
         "text": "93",
         "unit": "mm",
         "label": "φA",
         "quote": "| φA |  | 73 | 79 | 93 | 107 | 138 | 160 | 180 | 190 | 226 | 260 |"
-      }
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
     },
     {
-      "reason": "叫法不在引用所在的行中",
-      "target": "params/lost_motion_arcmin",
-      "page": 12,
+      "target": "ports/input_bore/diameter_mm",
+      "value": {
+        "value": 12.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 10
+        },
+        "method": "extracted",
+        "confidence": 0.6,
+        "reviewed": false
+      },
       "printed": {
-        "text": "1.0",
-        "unit": "arc min",
-        "label": "80 or more arc min",
-        "quote": "|  | arc min | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 |"
-      }
+        "text": "12",
+        "unit": "mm",
+        "label": "φU H7",
+        "quote": "φU H7 6 8 12 14 14 14 19 19 22 24"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
     },
     {
-      "reason": "叫法不在引用所在的行中",
+      "target": "ports/housing_mount/pcd_mm",
+      "value": {
+        "value": 82.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 10
+        },
+        "method": "extracted",
+        "confidence": 0.5,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "82",
+        "unit": "mm",
+        "label": "φb",
+        "quote": "φb 65 71 82 96 125 144 164 174 206 236"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "ports/housing_mount/hole_diameter_mm",
+      "value": {
+        "value": 5.5,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 10
+        },
+        "method": "extracted",
+        "confidence": 0.5,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "5.5",
+        "unit": "mm",
+        "label": "φd",
+        "quote": "φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "数值不在目标型号所在的列",
       "target": "params/input_inertia_kgm2",
       "page": 9,
       "printed": {
         "text": "0.193",
-        "unit": "×10−4kgm2",
-        "label": "Moment of Inertia I",
+        "unit": "×10−4 kgm2",
+        "label": "Moment of Inertia I ×10−4kgm2",
         "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/input_bore/fit",
+      "page": 10,
+      "printed": {
+        "text": "H7",
+        "unit": "",
+        "label": "φU H7",
+        "quote": "φU H7 6 8 12 14 14 14 19 19 22 24"
+      }
+    },
+    {
+      "reason": "该行有 8 个数值，与 10 个型号列对不上",
+      "target": "ports/input_bore/key_width_mm",
+      "page": 10,
+      "printed": {
+        "text": "4",
+        "unit": "mm",
+        "label": "W Js9",
+        "quote": "W Js9 - - 4 5 5 5 6 6 6 8"
+      }
+    },
+    {
+      "reason": "叫法不在引用所在的行中",
+      "target": "ports/housing_mount/hole_count",
+      "page": 10,
+      "printed": {
+        "text": "6",
+        "unit": "",
+        "label": "c CSF Series",
+        "quote": "14 and 17 (no keyhole) of size 65 CSF-LW Series 6 8 8 10 12 10 16 18 16 12"
+      }
+    },
+    {
+      "reason": "字段 ports/housing_mount/hole_kind 无单位，但印有单位 'mm'",
+      "target": "ports/housing_mount/hole_kind",
+      "page": 10,
+      "printed": {
+        "text": "5.5",
+        "unit": "mm",
+        "label": "φd",
+        "quote": "φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14"
       }
     },
     {
@@ -162,19 +274,11 @@
         "text": "Harmonic Drive"
       },
       "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "CSF-20-100-2UH"
-      },
-      "reason": "model 在规格书中找不到"
     }
   ],
   "missing_key_fields": [
     "params/reducer_kind",
     "params/max_input_speed_rpm",
-    "params/efficiency_ratio",
-    "params/mass_kg"
+    "params/efficiency_ratio"
   ]
 }

@@ -10,9 +10,47 @@
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfeSFRJJuviaHYAhLQm39"
+    "response_id": "msg_011CffNcmkFVxUjVZamFhwvt"
   },
   "items": [
+    {
+      "target": "ports/motor_out/rated_current_a",
+      "value": {
+        "value": 2.8,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "2.8",
+        "unit": "Arms",
+        "label": "Continuous Output Current [Arms]",
+        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6"
+      }
+    },
+    {
+      "target": "ports/motor_out/peak_current_a",
+      "value": {
+        "value": 9.3,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "9.3",
+        "unit": "Arms",
+        "label": "Instantaneous Maximum Output Current [Arms]",
+        "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
+      }
+    },
     {
       "target": "params/mass_kg",
       "value": {
@@ -26,7 +64,7 @@
         "reviewed": false
       },
       "printed": {
-        "text": "1.1 kg",
+        "text": "1.1",
         "unit": "kg",
         "label": "Approx. mass",
         "quote": "Approx. mass: 1.1 kg"
@@ -36,30 +74,8 @@
   "rejected": [
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/motor_out/rated_current_a",
-      "page": 63,
-      "printed": {
-        "text": "2.8",
-        "unit": "Arms",
-        "label": "Continuous Output Current [Arms]",
-        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/motor_out/peak_current_a",
-      "page": 63,
-      "printed": {
-        "text": "9.3",
-        "unit": "Arms",
-        "label": "Instantaneous Maximum Output Current [Arms]",
-        "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/power_in/voltage_v",
-      "page": 63,
+      "page": 62,
       "printed": {
         "text": "200 VAC to 240 VAC",
         "unit": "VAC",
@@ -70,7 +86,7 @@
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/power_in/current_type",
-      "page": 63,
+      "page": 62,
       "printed": {
         "text": "200 VAC to 240 VAC",
         "unit": "VAC",
@@ -80,10 +96,43 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/bus/profile",
+      "target": "ports/power_in/phases",
+      "page": 62,
+      "printed": {
+        "text": "Three-Phase",
+        "unit": "",
+        "label": "Three-Phase, 200 VAC",
+        "quote": "Three-Phase, 200 VAC"
+      }
+    },
+    {
+      "reason": "工况 'Three-Phase, 200 VAC, main circuit' 在第 62 页找不到",
+      "target": "ports/power_in/rated_current_a",
+      "page": 62,
+      "printed": {
+        "text": "2.5",
+        "unit": "Arms",
+        "label": "Input Current [Arms]*",
+        "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |"
+      }
+    },
+    {
+      "reason": "原文引用中没有印出的文字",
+      "target": "ports/bus/protocol",
       "page": 69,
       "printed": {
         "text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+        "unit": "",
+        "label": "Applicable Communications Standards",
+        "quote": "CHARGE, PWR, CN, RUN, ERR, and L/A (A and B) indicators, and one-"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/bus/profile",
+      "page": 69,
+      "printed": {
+        "text": "CiA402",
         "unit": "",
         "label": "CiA402 Drive Profile",
         "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
@@ -97,7 +146,7 @@
         "text": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
         "unit": "",
         "label": "Communications Connectors",
-        "quote": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
+        "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
       }
     },
     {
@@ -106,13 +155,6 @@
         "text": "Yaskawa"
       },
       "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "series",
-      "printed": {
-        "text": "Σ-7 SERVOPACK"
-      },
-      "reason": "series 在规格书中找不到"
     }
   ],
   "missing_key_fields": []

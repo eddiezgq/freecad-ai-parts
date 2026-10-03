@@ -1,26 +1,41 @@
 {
   "agreed": [
+    "dims/outer_diameter_mm",
+    "params/mass_kg",
     "params/momentary_max_torque_nm",
     "params/rated_torque_nm",
     "params/ratio",
-    "params/repeated_peak_torque_nm"
+    "params/repeated_peak_torque_nm",
+    "ports/input_bore/diameter_mm"
   ],
   "pending": [
     {
-      "target": "params/avg_input_speed_limit_rpm",
-      "primary": {
-        "value": 4600.0,
-        "condition": "Oil lubricant"
+      "target": "ports/housing_mount/hole_diameter_mm",
+      "check": {
+        "value": 6.6
       },
-      "reason": "只有主抽取报出"
+      "reason": "只有复核抽取报出"
     },
     {
-      "target": "params/max_input_speed_rpm",
-      "primary": {
-        "value": 7000.0,
-        "condition": "Oil lubricant"
+      "target": "ports/housing_mount/pcd_mm",
+      "check": {
+        "value": 125.0
       },
-      "reason": "只有主抽取报出"
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/output_flange/hole_count",
+      "check": {
+        "value": 8
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/output_flange/pcd_mm",
+      "check": {
+        "value": 55.0
+      },
+      "reason": "只有复核抽取报出"
     }
   ],
   "problems": [

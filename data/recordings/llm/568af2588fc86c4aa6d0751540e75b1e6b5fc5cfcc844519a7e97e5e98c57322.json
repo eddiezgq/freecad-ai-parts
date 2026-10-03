@@ -1,0 +1,112 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "568af2588fc86c4aa6d0751540e75b1e6b5fc5cfcc844519a7e97e5e98c57322",
+  "response": {
+    "id": "msg_011CffNYFYSLHw5zaEAuZTGa",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "condition": "Three-Phase, 200 VAC",
+          "confidence": 0.5,
+          "page": 62,
+          "printed_label": "Maximum Applicable Motor Capacity [kW]",
+          "printed_text": "0.05",
+          "printed_unit": "kW",
+          "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.5 0.75 1.0 1.5 2.0 3.0 5.0",
+          "target": "params/rated_output_power_w",
+          "value": 0.05
+        },
+        {
+          "condition": "Three-Phase, 200 VAC",
+          "confidence": 0.8,
+          "page": 62,
+          "printed_label": "Power Supply",
+          "printed_text": "200 VAC to 240 VAC",
+          "printed_unit": "",
+          "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz",
+          "target": "ports/power_in/current_type",
+          "value": "ac"
+        },
+        {
+          "confidence": 0.7,
+          "page": 62,
+          "printed_label": "Three-Phase, 200 VAC",
+          "printed_text": "Three-Phase",
+          "printed_unit": "",
+          "quote": "Three-Phase, 200 VAC",
+          "target": "ports/power_in/phases",
+          "value": 3
+        },
+        {
+          "condition": "Main circuit, Three-Phase, 200 VAC",
+          "confidence": 0.7,
+          "page": 62,
+          "printed_label": "Input Current [Arms]*",
+          "printed_text": "0.4",
+          "printed_unit": "Arms",
+          "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |",
+          "target": "ports/power_in/rated_current_a",
+          "value": 0.4
+        },
+        {
+          "confidence": 0.85,
+          "page": 63,
+          "printed_label": "Continuous Output Current [Arms]",
+          "printed_text": "0.66",
+          "printed_unit": "Arms",
+          "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 0.66
+        },
+        {
+          "confidence": 0.85,
+          "page": 63,
+          "printed_label": "Instantaneous Maximum Output Current [Arms]",
+          "printed_text": "2.1",
+          "printed_unit": "Arms",
+          "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 2.1
+        },
+        {
+          "confidence": 0.7,
+          "page": 69,
+          "printed_label": "EtherCAT error status",
+          "printed_text": "EtherCAT",
+          "printed_unit": "",
+          "quote": "EtherCAT error status: ERR x 1",
+          "target": "ports/bus/protocol",
+          "value": [
+            "ethercat"
+          ]
+        },
+        {
+          "confidence": 0.8,
+          "page": 69,
+          "printed_label": "CiA402 Drive Profile",
+          "printed_text": "CiA402",
+          "printed_unit": "",
+          "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "target": "ports/bus/profile",
+          "value": "cia402"
+        },
+        {
+          "confidence": 0.5,
+          "page": 70,
+          "printed_label": "Inputs",
+          "printed_text": "/HWBB1 and /HWBB2: Base block signals for Power Modules",
+          "printed_unit": "",
+          "quote": "Inputs /HWBB1 and /HWBB2: Base block signals for Power Modules",
+          "target": "params/safety_functions",
+          "value": [
+            "HWBB"
+          ]
+        }
+      ],
+      "model": "SGD7S-R70A",
+      "vendor": "Yaskawa"
+    }
+  }
+}

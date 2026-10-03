@@ -10,52 +10,72 @@
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfeTVkNY8rSCRnsfkHXAS"
+    "response_id": "msg_011CffPxDWvvXzFVoHrtee93"
   },
-  "items": [],
-  "rejected": [
+  "items": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/rated_output_power_w",
-      "page": 62,
+      "value": {
+        "value": 500.0,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 64
+        },
+        "method": "extracted",
+        "confidence": 0.75,
+        "reviewed": false
+      },
       "printed": {
         "text": "0.5",
         "unit": "kW",
-        "label": "Maximum Applicable Motor Capacity [kW]",
-        "quote": "0.05 0.1 0.2 0.4 0.5 0.75 1.0 1.5 2.0 3.0 5.0"
-      }
+        "label": "Maximum Applicable Motor Capacity",
+        "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.5 0.75 1.0 1.5"
+      },
+      "issues": [
+        "单位换算：0.5 kW → 标准单位 W"
+      ]
     },
     {
-      "reason": "原文引用在第 63 页的任何一行中都找不到",
       "target": "ports/motor_out/rated_current_a",
-      "page": 63,
+      "value": {
+        "value": 3.8,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 64
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "3.8",
         "unit": "Arms",
-        "label": "Continuous Output Current [Arms]",
+        "label": "Continuous Output Current",
         "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6"
       }
-    },
+    }
+  ],
+  "rejected": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "叫法不在引用所在的行中",
       "target": "ports/motor_out/peak_current_a",
       "page": 62,
       "printed": {
         "text": "11",
         "unit": "Arms",
-        "label": "Instantaneous Maximum Output Current [Arms]",
-        "quote": "2.1 3.2 5.9 9.3 11 16.9 17 28 42 56 84"
+        "label": "Instantaneous Maximum Output Current",
+        "quote": "|  |  |  | 2.1 | 3.2 | 5.9 | 9.3 | 11 | 16.9 | 17 | 28 | 42 | 56 |  |"
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/current_type",
+      "reason": "工况 'Main Circuit, Three-Phase, 200 VAC' 在第 62 页找不到",
+      "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
-        "text": "200 VAC to 240 VAC",
-        "unit": "VAC",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+        "text": "3.0",
+        "unit": "Arms",
+        "label": "Input Current",
+        "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |"
       }
     },
     {
@@ -71,11 +91,11 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/frequency_hz",
+      "target": "ports/power_in/current_type",
       "page": 62,
       "printed": {
-        "text": "50 Hz/60 Hz",
-        "unit": "Hz",
+        "text": "200 VAC to 240 VAC",
+        "unit": "",
         "label": "Power Supply",
         "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
       }
@@ -85,32 +105,10 @@
       "target": "ports/power_in/phases",
       "page": 62,
       "printed": {
-        "text": "Three-Phase, 200 VAC",
-        "unit": "VAC",
-        "label": "Three-Phase, 200 VAC",
-        "quote": "Three-Phase, 200 VAC"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/rated_current_a",
-      "page": 62,
-      "printed": {
-        "text": "3.0",
-        "unit": "Arms",
-        "label": "Input Current [Arms]*",
-        "quote": "0.4 0.8 1.3 2.5 3.0 4.1 5.7 7.3 10 15 25"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/encoder_in/kind",
-      "page": 67,
-      "printed": {
-        "text": "incremental encoder/absolute",
+        "text": "Three-Phase",
         "unit": "",
-        "label": "Serial encoder",
-        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
+        "label": "Three-Phase",
+        "quote": "Three-Phase, 200 VAC"
       }
     },
     {
@@ -129,7 +127,7 @@
       "target": "ports/bus/connector",
       "page": 69,
       "printed": {
-        "text": "CN6A (RJ45)",
+        "text": "RJ45",
         "unit": "",
         "label": "Communications Connectors",
         "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
@@ -140,7 +138,7 @@
       "target": "ports/bus/profile",
       "page": 69,
       "printed": {
-        "text": "IEC 61800-7 CiA402 Drive Profile",
+        "text": "CiA402 Drive Profile",
         "unit": "",
         "label": "Applicable Communications Standards",
         "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
@@ -148,46 +146,70 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/encoder_in/kind",
+      "page": 67,
+      "printed": {
+        "text": "incremental encoder/absolute",
+        "unit": "",
+        "label": "Serial encoder",
+        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/mass_kg",
       "page": 80,
       "printed": {
-        "text": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg",
+        "text": "1.6",
         "unit": "kg",
         "label": "Approx. mass",
         "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg"
       }
     },
     {
-      "reason": "缺少 printed_label",
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/mount/pitch_x_mm",
+      "page": 80,
+      "printed": {
+        "text": "58 ±0.5",
+        "unit": "mm",
+        "label": "mounting pitch",
+        "quote": "58 ±0.5 (mounting pitch)"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "dims/width_mm",
       "page": 80,
       "printed": {
         "text": "70",
         "unit": "mm",
+        "label": "Exterior",
         "quote": "70 (75) 180 70"
       }
     },
     {
-      "reason": "缺少 printed_label",
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "dims/depth_mm",
       "page": 80,
       "printed": {
         "text": "180",
         "unit": "mm",
+        "label": "Exterior",
         "quote": "70 (75) 180 70"
       }
     },
     {
       "target": "vendor",
       "printed": {
-        "text": "YASKAWA"
+        "text": "Yaskawa"
       },
       "reason": "vendor 在规格书中找不到"
     },
     {
       "target": "series",
       "printed": {
-        "text": "Σ-7 SGD7S"
+        "text": "Σ-7"
       },
       "reason": "series 在规格书中找不到"
     }

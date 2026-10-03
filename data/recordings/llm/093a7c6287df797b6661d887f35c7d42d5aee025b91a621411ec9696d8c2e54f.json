@@ -1,0 +1,174 @@
+{
+  "model": "claude-opus-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "093a7c6287df797b6661d887f35c7d42d5aee025b91a621411ec9696d8c2e54f",
+  "response": {
+    "id": "msg_011CffPxDWvvXzFVoHrtee93",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.75,
+          "page": 64,
+          "printed_label": "Maximum Applicable Motor Capacity",
+          "printed_text": "0.5",
+          "printed_unit": "kW",
+          "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.5 0.75 1.0 1.5",
+          "target": "params/rated_output_power_w",
+          "value": 0.5
+        },
+        {
+          "confidence": 0.9,
+          "page": 64,
+          "printed_label": "Continuous Output Current",
+          "printed_text": "3.8",
+          "printed_unit": "Arms",
+          "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 3.8
+        },
+        {
+          "confidence": 0.75,
+          "page": 62,
+          "printed_label": "Instantaneous Maximum Output Current",
+          "printed_text": "11",
+          "printed_unit": "Arms",
+          "quote": "|  |  |  | 2.1 | 3.2 | 5.9 | 9.3 | 11 | 16.9 | 17 | 28 | 42 | 56 |  |",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 11
+        },
+        {
+          "condition": "Main Circuit, Three-Phase, 200 VAC",
+          "confidence": 0.85,
+          "page": 62,
+          "printed_label": "Input Current",
+          "printed_text": "3.0",
+          "printed_unit": "Arms",
+          "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |",
+          "target": "ports/power_in/rated_current_a",
+          "value": 3.0
+        },
+        {
+          "confidence": 0.85,
+          "max": 240,
+          "min": 200,
+          "page": 62,
+          "printed_label": "Power Supply",
+          "printed_text": "200 VAC to 240 VAC",
+          "printed_unit": "VAC",
+          "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz",
+          "target": "ports/power_in/voltage_v"
+        },
+        {
+          "confidence": 0.85,
+          "page": 62,
+          "printed_label": "Power Supply",
+          "printed_text": "200 VAC to 240 VAC",
+          "printed_unit": "",
+          "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz",
+          "target": "ports/power_in/current_type",
+          "value": "ac"
+        },
+        {
+          "confidence": 0.85,
+          "page": 62,
+          "printed_label": "Three-Phase",
+          "printed_text": "Three-Phase",
+          "printed_unit": "",
+          "quote": "Three-Phase, 200 VAC",
+          "target": "ports/power_in/phases",
+          "value": 3
+        },
+        {
+          "confidence": 0.9,
+          "page": 69,
+          "printed_label": "Communications Connectors",
+          "printed_text": "ETHERCAT IN",
+          "printed_unit": "",
+          "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "target": "ports/bus/protocol",
+          "value": "ethercat"
+        },
+        {
+          "confidence": 0.85,
+          "page": 69,
+          "printed_label": "Communications Connectors",
+          "printed_text": "RJ45",
+          "printed_unit": "",
+          "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "target": "ports/bus/connector",
+          "value": "RJ45"
+        },
+        {
+          "confidence": 0.85,
+          "page": 69,
+          "printed_label": "Applicable Communications Standards",
+          "printed_text": "CiA402 Drive Profile",
+          "printed_unit": "",
+          "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "target": "ports/bus/profile",
+          "value": "cia402"
+        },
+        {
+          "confidence": 0.7,
+          "page": 67,
+          "printed_label": "Serial encoder",
+          "printed_text": "incremental encoder/absolute",
+          "printed_unit": "",
+          "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute",
+          "target": "ports/encoder_in/kind",
+          "value": [
+            "incremental",
+            "absolute"
+          ]
+        },
+        {
+          "condition": "Base-mounted",
+          "confidence": 0.8,
+          "page": 80,
+          "printed_label": "Approx. mass",
+          "printed_text": "1.6",
+          "printed_unit": "kg",
+          "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg",
+          "target": "params/mass_kg",
+          "value": 1.6
+        },
+        {
+          "confidence": 0.7,
+          "nominal": 58,
+          "page": 80,
+          "printed_label": "mounting pitch",
+          "printed_text": "58 ±0.5",
+          "printed_unit": "mm",
+          "quote": "58 ±0.5 (mounting pitch)",
+          "target": "ports/mount/pitch_x_mm",
+          "tol_lower": -0.5,
+          "tol_upper": 0.5
+        },
+        {
+          "confidence": 0.55,
+          "page": 80,
+          "printed_label": "Exterior",
+          "printed_text": "70",
+          "printed_unit": "mm",
+          "quote": "70 (75) 180 70",
+          "target": "dims/width_mm",
+          "value": 70
+        },
+        {
+          "confidence": 0.55,
+          "page": 80,
+          "printed_label": "Exterior",
+          "printed_text": "180",
+          "printed_unit": "mm",
+          "quote": "70 (75) 180 70",
+          "target": "dims/depth_mm",
+          "value": 180
+        }
+      ],
+      "model": "SGD7S-3R8A",
+      "series": "Σ-7",
+      "vendor": "Yaskawa"
+    }
+  }
+}

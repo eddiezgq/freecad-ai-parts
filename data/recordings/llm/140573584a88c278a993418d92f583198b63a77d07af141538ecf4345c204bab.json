@@ -1,0 +1,240 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "140573584a88c278a993418d92f583198b63a77d07af141538ecf4345c204bab",
+  "response": {
+    "id": "msg_011CffNEX36MS88TwsqSGavg",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.9,
+          "page": 55,
+          "printed_label": "Rated Output",
+          "printed_text": "150",
+          "printed_unit": "W",
+          "quote": "Rated Output*1 W 50 100 150 200 400 600 750",
+          "target": "params/rated_power_w",
+          "value": 150
+        },
+        {
+          "confidence": 0.9,
+          "page": 55,
+          "printed_label": "Rated Torque",
+          "printed_text": "0.477",
+          "printed_unit": "Nm",
+          "quote": "Rated Torque*1, *2 Nm 0.159 0.318 0.477 0.637 1.27 1.91 2.39",
+          "target": "params/rated_torque_nm",
+          "value": 0.477
+        },
+        {
+          "confidence": 0.9,
+          "page": 55,
+          "printed_label": "Instantaneous Maximum Torque",
+          "printed_text": "1.67",
+          "printed_unit": "Nm",
+          "quote": "Instantaneous Maximum Torque*1 Nm 0.557 1.11 1.67 2.23 4.46 6.69 8.36",
+          "target": "params/peak_torque_nm",
+          "value": 1.67
+        },
+        {
+          "confidence": 0.9,
+          "page": 55,
+          "printed_label": "Rated Motor Speed",
+          "printed_text": "3000",
+          "printed_unit": "min-1",
+          "quote": "Rated Motor Speed*1 min-1 3000",
+          "target": "params/rated_speed_rpm",
+          "value": 3000
+        },
+        {
+          "confidence": 0.9,
+          "page": 55,
+          "printed_label": "Maximum Motor Speed",
+          "printed_text": "6000",
+          "printed_unit": "min-1",
+          "quote": "Maximum Motor Speed*1 min-1 6000",
+          "target": "params/max_speed_rpm",
+          "value": 6000
+        },
+        {
+          "confidence": 0.75,
+          "page": 55,
+          "printed_label": "Motor Moment of Inertia",
+          "printed_text": "0.0915",
+          "printed_unit": "×10-4 kgm2",
+          "quote": "|  |  | ×10-4 kgm2 | 0.0395 | 0.0659 | 0.0915 | 0.263 | 0.486 | 0.800 |  |",
+          "target": "params/rotor_inertia_kgm2",
+          "value": 0.0915
+        },
+        {
+          "confidence": 0.9,
+          "page": 55,
+          "printed_label": "Protective Structure",
+          "printed_text": "Totally enclosed, self-cooled, IP67",
+          "printed_unit": "",
+          "quote": "Protective Structure*3 Totally enclosed, self-cooled, IP67",
+          "target": "params/ip_rating",
+          "value": "IP67"
+        },
+        {
+          "confidence": 0.9,
+          "page": 55,
+          "printed_label": "Torque Constant",
+          "printed_text": "0.321",
+          "printed_unit": "Nm/Arms",
+          "quote": "Torque Constant Nm/Arms 0.316 0.413 0.321 0.444 0.544 0.493 0.584",
+          "target": "params/torque_constant_nm_per_a",
+          "value": 0.321
+        },
+        {
+          "confidence": 0.9,
+          "page": 55,
+          "printed_label": "Rated Current",
+          "printed_text": "1.6",
+          "printed_unit": "Arms",
+          "quote": "Rated Current*1 Arms 0.55 0.85 1.6 1.6 2.5 4.2 4.4",
+          "target": "ports/power_in/rated_current_a",
+          "value": 1.6
+        },
+        {
+          "confidence": 0.9,
+          "page": 55,
+          "printed_label": "Instantaneous Maximum Current",
+          "printed_text": "5.7",
+          "printed_unit": "Arms",
+          "quote": "Instantaneous Maximum Current*1 Arms 2.0 3.1 5.7 5.8 9.3 15.3 16.9",
+          "target": "ports/power_in/peak_current_a",
+          "value": 5.7
+        },
+        {
+          "confidence": 0.9,
+          "page": 55,
+          "printed_label": "Voltage",
+          "printed_text": "200 V",
+          "printed_unit": "V",
+          "quote": "Voltage 200 V",
+          "target": "ports/power_in/voltage_class_v",
+          "value": 200
+        },
+        {
+          "confidence": 0.7,
+          "page": 55,
+          "printed_label": "Allowable Radial Load",
+          "printed_text": "78",
+          "printed_unit": "N",
+          "quote": "Allowable Radial Load N 78 245 392",
+          "target": "ports/shaft/max_radial_load_n",
+          "value": 78
+        },
+        {
+          "confidence": 0.7,
+          "page": 55,
+          "printed_label": "Allowable Thrust Load",
+          "printed_text": "54",
+          "printed_unit": "N",
+          "quote": "Allowable Thrust Load N 54 74 147",
+          "target": "ports/shaft/max_axial_load_n",
+          "value": 54
+        },
+        {
+          "confidence": 0.6,
+          "page": 64,
+          "printed_label": "L*",
+          "printed_text": "105.5 (153.5)",
+          "printed_unit": "mm",
+          "quote": "|  | 105.5 (153.5) | 80.5 (128.5 | 61.9 ) | 25 | 2.5 | 5 | 40 | 46 | 30 0 -0.021 | 4.3 | 8 0 -0.009 | 8.8 | 25.8 | 14.7 | 16.1 |  |",
+          "target": "dims/overall_length_mm",
+          "value": 105.5
+        },
+        {
+          "confidence": 0.6,
+          "page": 64,
+          "printed_label": "LL*",
+          "printed_text": "80.5 (128.5",
+          "printed_unit": "mm",
+          "quote": "|  | 105.5 (153.5) | 80.5 (128.5 | 61.9 ) | 25 | 2.5 | 5 | 40 | 46 | 30 0 -0.021 | 4.3 | 8 0 -0.009 | 8.8 | 25.8 | 14.7 | 16.1 |  |",
+          "target": "dims/body_length_mm",
+          "value": 80.5
+        },
+        {
+          "confidence": 0.7,
+          "page": 64,
+          "printed_label": "LC",
+          "printed_text": "40",
+          "printed_unit": "mm",
+          "quote": "|  | 105.5 (153.5) | 80.5 (128.5 | 61.9 ) | 25 | 2.5 | 5 | 40 | 46 | 30 0 -0.021 | 4.3 | 8 0 -0.009 | 8.8 | 25.8 | 14.7 | 16.1 |  |",
+          "target": "dims/square_mm",
+          "value": 40
+        },
+        {
+          "confidence": 0.7,
+          "page": 64,
+          "printed_label": "LC",
+          "printed_text": "40",
+          "printed_unit": "mm",
+          "quote": "|  | 105.5 (153.5) | 80.5 (128.5 | 61.9 ) | 25 | 2.5 | 5 | 40 | 46 | 30 0 -0.021 | 4.3 | 8 0 -0.009 | 8.8 | 25.8 | 14.7 | 16.1 |  |",
+          "target": "ports/mount_flange/square_size_mm",
+          "value": 40
+        },
+        {
+          "confidence": 0.7,
+          "page": 64,
+          "printed_label": "LA",
+          "printed_text": "46",
+          "printed_unit": "mm",
+          "quote": "|  | 105.5 (153.5) | 80.5 (128.5 | 61.9 ) | 25 | 2.5 | 5 | 40 | 46 | 30 0 -0.021 | 4.3 | 8 0 -0.009 | 8.8 | 25.8 | 14.7 | 16.1 |  |",
+          "target": "ports/mount_flange/pcd_mm",
+          "value": 46
+        },
+        {
+          "confidence": 0.7,
+          "nominal": 30,
+          "page": 64,
+          "printed_label": "LB",
+          "printed_text": "30 0 -0.021",
+          "printed_unit": "mm",
+          "quote": "|  | 105.5 (153.5) | 80.5 (128.5 | 61.9 ) | 25 | 2.5 | 5 | 40 | 46 | 30 0 -0.021 | 4.3 | 8 0 -0.009 | 8.8 | 25.8 | 14.7 | 16.1 |  |",
+          "target": "ports/mount_flange/pilot_diameter_mm",
+          "tol_lower": -0.021,
+          "tol_upper": 0
+        },
+        {
+          "confidence": 0.7,
+          "page": 64,
+          "printed_label": "LZ",
+          "printed_text": "4.3",
+          "printed_unit": "mm",
+          "quote": "|  | 105.5 (153.5) | 80.5 (128.5 | 61.9 ) | 25 | 2.5 | 5 | 40 | 46 | 30 0 -0.021 | 4.3 | 8 0 -0.009 | 8.8 | 25.8 | 14.7 | 16.1 |  |",
+          "target": "ports/mount_flange/hole_diameter_mm",
+          "value": 4.3
+        },
+        {
+          "confidence": 0.7,
+          "nominal": 8,
+          "page": 64,
+          "printed_label": "S",
+          "printed_text": "8 0 -0.009",
+          "printed_unit": "mm",
+          "quote": "|  | 105.5 (153.5) | 80.5 (128.5 | 61.9 ) | 25 | 2.5 | 5 | 40 | 46 | 30 0 -0.021 | 4.3 | 8 0 -0.009 | 8.8 | 25.8 | 14.7 | 16.1 |  |",
+          "target": "ports/shaft/diameter_mm",
+          "tol_lower": -0.009,
+          "tol_upper": 0
+        },
+        {
+          "confidence": 0.6,
+          "page": 66,
+          "printed_label": "LR",
+          "printed_text": "25",
+          "printed_unit": "mm",
+          "quote": "| LR | 25 | 30 |",
+          "target": "ports/shaft/usable_length_mm",
+          "value": 25
+        }
+      ],
+      "model": "SGM7J-C2A",
+      "series": "SGM7J",
+      "vendor": "Yaskawa"
+    }
+  }
+}

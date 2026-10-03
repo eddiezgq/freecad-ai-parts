@@ -6,11 +6,12 @@
     "pages": 6
   },
   "category": "reducer",
+  "model": "CSF-25-100-2UH",
   "series": "CSF",
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfeRi21y1nVoWWR7qAWGX"
+    "response_id": "msg_011CffN2cPUPVr93vV3g1s9h"
   },
   "items": [
     {
@@ -22,7 +23,7 @@
           "page": 9
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.85,
         "reviewed": false
       },
       "printed": {
@@ -32,8 +33,7 @@
         "quote": "|  | 100 | 67 | 6.8 | 157 | 16 | 108 | 11 | 284 | 29 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Ratio' 在表头，须核对所在列",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Ratio' 在表头，数值在该列"
       ]
     },
     {
@@ -56,10 +56,8 @@
         "quote": "|  | 100 | 67 | 6.8 | 157 | 16 | 108 | 11 | 284 | 29 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Rated Torque at 2000rpm' 在表头，须核对所在列",
-        "工况 'Rated Torque at 2000rpm' 不在同一行，取自本页其他位置（表头或脚注），须核对",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Rated Torque at 2000rpm' 在表头，数值在该列",
+        "工况 'Rated Torque at 2000rpm' 不在同一行，取自本页其他位置（表头或脚注），须核对"
       ]
     },
     {
@@ -81,9 +79,7 @@
         "quote": "|  | 100 | 67 | 6.8 | 157 | 16 | 108 | 11 | 284 | 29 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Limit for Repeated Peak Torque' 在表头，须核对所在列",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Limit for Repeated Peak Torque' 在表头，数值在该列"
       ]
     },
     {
@@ -105,66 +101,182 @@
         "quote": "|  | 100 | 67 | 6.8 | 157 | 16 | 108 | 11 | 284 | 29 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Limit for Momentary Peak Torque' 在表头，须核对所在列",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Limit for Momentary Peak Torque' 在表头，数值在该列"
       ]
-    }
-  ],
-  "rejected": [
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/reducer_kind",
-      "page": 9,
-      "printed": {
-        "text": "CSF",
-        "unit": "",
-        "label": "CSF Series",
-        "quote": "■ CSG Series Table 126-1 ■ CSF Series Table 127-1"
-      }
     },
     {
-      "reason": "单位：无法识别的单位 '×10−4kgm2'",
-      "target": "params/input_inertia_kgm2",
-      "page": 9,
-      "printed": {
-        "text": "0.413",
-        "unit": "×10−4kgm2",
-        "label": "Moment of Inertia",
-        "quote": "| 25 | 30 | 27 | 2.8 | 50 | 5.1 | 38 | 3.9 | 95 | 9.7 | 7500 | 5600 | 5600 | 3500 | 0.413 | 0.421 |"
-      }
-    },
-    {
-      "reason": "原文引用中没有印出的文字",
-      "target": "params/lost_motion_arcmin",
-      "page": 12,
-      "printed": {
-        "text": "1.0",
-        "unit": "arc min",
-        "label": "arc min",
-        "quote": "| 80 or more | ×10-4rad | 2.9 | 2.9 | 2.9 | 2.9 | 2.9 | 2.9 |"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/mass_kg",
-      "page": 10,
+      "value": {
+        "value": 1.5,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
       "printed": {
         "text": "1.5",
         "unit": "kg",
         "label": "Mass (kg)",
-        "quote": "CSF Series 0.52 0.68 0.98 1.5 3.2 5.0 7.0 8.9 14.6 20.9"
+        "quote": "|  | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |"
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "dims/outer_diameter_mm",
-      "page": 10,
+      "value": {
+        "value": 107.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 10
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
       "printed": {
         "text": "107",
         "unit": "mm",
         "label": "φA",
         "quote": "φA 73 79 93 107 138 160 180 190 226 260"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "ports/input_bore/diameter_mm",
+      "value": {
+        "value": 15.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 10
+        },
+        "method": "extracted",
+        "confidence": 0.6,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "15",
+        "unit": "mm",
+        "label": "φS",
+        "quote": "φS 8 7 10 15 20 24 25 32 38 44"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "ports/housing_mount/pcd_mm",
+      "value": {
+        "value": 96.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 10
+        },
+        "method": "extracted",
+        "confidence": 0.6,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "96",
+        "unit": "mm",
+        "label": "φb",
+        "quote": "φb 65 71 82 96 125 144 164 174 206 236"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "ports/housing_mount/hole_diameter_mm",
+      "value": {
+        "value": 5.5,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 10
+        },
+        "method": "extracted",
+        "confidence": 0.6,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "5.5",
+        "unit": "mm",
+        "label": "φd",
+        "quote": "φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "ports/output_flange/pcd_mm",
+      "value": {
+        "value": 42.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 10
+        },
+        "method": "extracted",
+        "confidence": 0.55,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "42",
+        "unit": "mm",
+        "label": "φX",
+        "quote": "φX 23 27 32 42 55 68 82 84 100 110"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/max_input_speed_rpm",
+      "page": 9,
+      "printed": {
+        "text": "7500",
+        "unit": "rpm",
+        "label": "Maximum Input Speed (rpm)",
+        "quote": "| 25 | 30 | 27 | 2.8 | 50 | 5.1 | 38 | 3.9 | 95 | 9.7 | 7500 | 5600 | 5600 | 3500 | 0.413 | 0.421 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/avg_input_speed_limit_rpm",
+      "page": 9,
+      "printed": {
+        "text": "5600",
+        "unit": "rpm",
+        "label": "Limit for Average Input Speed (rpm)",
+        "quote": "| 25 | 30 | 27 | 2.8 | 50 | 5.1 | 38 | 3.9 | 95 | 9.7 | 7500 | 5600 | 5600 | 3500 | 0.413 | 0.421 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/input_inertia_kgm2",
+      "page": 9,
+      "printed": {
+        "text": "0.413",
+        "unit": "×10−4 kgm2",
+        "label": "Moment of Inertia I ×10−4kgm2",
+        "quote": "| 25 | 30 | 27 | 2.8 | 50 | 5.1 | 38 | 3.9 | 95 | 9.7 | 7500 | 5600 | 5600 | 3500 | 0.413 | 0.421 |"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/output_flange/thread",
+      "page": 10,
+      "printed": {
+        "text": "M8×12",
+        "unit": "",
+        "label": "Z",
+        "quote": "Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24"
       }
     },
     {
@@ -173,19 +285,11 @@
         "text": "Harmonic Drive"
       },
       "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "CSF-25-100-2UH"
-      },
-      "reason": "model 在规格书中找不到"
     }
   ],
   "missing_key_fields": [
     "params/reducer_kind",
     "params/max_input_speed_rpm",
-    "params/efficiency_ratio",
-    "params/mass_kg"
+    "params/efficiency_ratio"
   ]
 }

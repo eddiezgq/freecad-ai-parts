@@ -1,5 +1,6 @@
 {
   "agreed": [
+    "dims/outer_diameter_mm",
     "params/momentary_max_torque_nm",
     "params/rated_torque_nm",
     "params/ratio",
@@ -7,9 +8,55 @@
   ],
   "pending": [
     {
-      "target": "params/reducer_kind",
+      "target": "params/mass_kg",
+      "primary": {
+        "value": 0.52
+      },
       "check": {
-        "value": "harmonic"
+        "value": 0.52,
+        "condition": "CSF Series"
+      },
+      "reason": "两次的值不一致"
+    },
+    {
+      "target": "ports/housing_mount/hole_diameter_mm",
+      "check": {
+        "value": 4.5
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/housing_mount/pcd_mm",
+      "check": {
+        "value": 65.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/input_bore/diameter_mm",
+      "check": {
+        "value": 6.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/output_flange/hole_count",
+      "check": {
+        "value": 6
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/output_flange/pcd_mm",
+      "check": {
+        "value": 23.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/output_flange/thread",
+      "check": {
+        "value": "M4"
       },
       "reason": "只有复核抽取报出"
     }

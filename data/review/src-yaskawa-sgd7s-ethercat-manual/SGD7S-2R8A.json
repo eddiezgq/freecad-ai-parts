@@ -1,17 +1,14 @@
 {
-  "agreed": [],
+  "agreed": [
+    "params/mass_kg",
+    "ports/motor_out/peak_current_a",
+    "ports/motor_out/rated_current_a"
+  ],
   "pending": [
     {
-      "target": "params/mass_kg",
-      "primary": {
-        "value": 1.1
-      },
-      "reason": "只有主抽取报出"
-    },
-    {
-      "target": "ports/power_in/current_type",
+      "target": "params/rated_output_power_w",
       "check": {
-        "value": "ac"
+        "value": 400.0
       },
       "reason": "只有复核抽取报出"
     }

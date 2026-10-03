@@ -1,0 +1,159 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "ff5f1a6176cc7c0feee87f320962a25a82de978501564fd2f9823a426cff9eda",
+  "response": {
+    "id": "msg_011CffMwg6b7sGqeM8rx63Ee",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.9,
+          "page": 9,
+          "printed_label": "Ratio",
+          "printed_text": "50",
+          "printed_unit": "",
+          "quote": "|  | 50 | 25 | 2.5 | 56 | 5.7 | 34 | 3.5 | 98 | 10 |  |  |  |  |  |  |",
+          "target": "params/ratio",
+          "value": 50
+        },
+        {
+          "condition": "Rated Torque at 2000rpm",
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Rated Torque at 2000rpm",
+          "printed_text": "25",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 25 | 2.5 | 56 | 5.7 | 34 | 3.5 | 98 | 10 |  |  |  |  |  |  |",
+          "target": "params/rated_torque_nm",
+          "value": 25
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Repeated Peak Torque",
+          "printed_text": "56",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 25 | 2.5 | 56 | 5.7 | 34 | 3.5 | 98 | 10 |  |  |  |  |  |  |",
+          "target": "params/repeated_peak_torque_nm",
+          "value": 56
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Momentary Peak Torque",
+          "printed_text": "98",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 25 | 2.5 | 56 | 5.7 | 34 | 3.5 | 98 | 10 |  |  |  |  |  |  |",
+          "target": "params/momentary_max_torque_nm",
+          "value": 98
+        },
+        {
+          "condition": "Grease lubricant",
+          "confidence": 0.5,
+          "page": 9,
+          "printed_label": "Maximum Input Speed (rpm) Grease lubricant",
+          "printed_text": "6500",
+          "printed_unit": "rpm",
+          "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |",
+          "target": "params/max_input_speed_rpm",
+          "value": 6500
+        },
+        {
+          "condition": "Grease lubricant",
+          "confidence": 0.5,
+          "page": 9,
+          "printed_label": "Limit for Average Input Speed (rpm) Grease lubricant",
+          "printed_text": "3500",
+          "printed_unit": "rpm",
+          "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |",
+          "target": "params/avg_input_speed_limit_rpm",
+          "value": 3500
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Moment of Inertia I ×10−4kgm2",
+          "printed_text": "0.193",
+          "printed_unit": "×10−4 kg·m²",
+          "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |",
+          "target": "params/input_inertia_kgm2",
+          "value": 0.193
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "Mass (kg)",
+          "printed_text": "0.98",
+          "printed_unit": "kg",
+          "quote": "| Mass (kg) | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |",
+          "target": "params/mass_kg",
+          "value": 0.98
+        },
+        {
+          "confidence": 0.45,
+          "page": 12,
+          "printed_label": "arc min",
+          "printed_text": "2.0",
+          "printed_unit": "arc min",
+          "quote": "|  | arc min | 2.0 | 2.0 | 2.0 | 2.0 | 2.0 | 2.0 |",
+          "target": "params/lost_motion_arcmin",
+          "value": 2.0
+        },
+        {
+          "confidence": 0.8,
+          "page": 10,
+          "printed_label": "φA",
+          "printed_text": "93",
+          "printed_unit": "mm",
+          "quote": "φA 73 79 93 107 138 160 180 190 226 260",
+          "target": "dims/outer_diameter_mm",
+          "value": 93
+        },
+        {
+          "confidence": 0.5,
+          "page": 10,
+          "printed_label": "φU H7",
+          "printed_text": "12",
+          "printed_unit": "mm",
+          "quote": "φU H7 6 8 12 14 14 14 19 19 22 24",
+          "target": "ports/input_bore/diameter_mm",
+          "value": 12
+        },
+        {
+          "confidence": 0.5,
+          "page": 10,
+          "printed_label": "φb",
+          "printed_text": "82",
+          "printed_unit": "mm",
+          "quote": "φb 65 71 82 96 125 144 164 174 206 236",
+          "target": "ports/housing_mount/pcd_mm",
+          "value": 82
+        },
+        {
+          "confidence": 0.5,
+          "page": 10,
+          "printed_label": "φd",
+          "printed_text": "5.5",
+          "printed_unit": "mm",
+          "quote": "φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14",
+          "target": "ports/housing_mount/hole_diameter_mm",
+          "value": 5.5
+        },
+        {
+          "confidence": 0.0,
+          "page": 10,
+          "printed_label": "φe",
+          "printed_text": "53",
+          "printed_unit": "mm",
+          "quote": "by the symbol, Z, it will damage the flexspline. CSG Series 8 8 8 10 12 10 12 14 12 8",
+          "target": "ports/output_flange/pcd_mm",
+          "value": 53
+        }
+      ],
+      "model": "CSF-20-50-2UH",
+      "series": "CSF",
+      "vendor": "Harmonic Drive"
+    }
+  }
+}

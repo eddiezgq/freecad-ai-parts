@@ -6,11 +6,12 @@
     "pages": 6
   },
   "category": "reducer",
+  "model": "CSF-32-100-2UH",
   "series": "CSF",
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfeRjUwVrViB1jUhLytaU"
+    "response_id": "msg_011CffN5Gx1n5s1XfCmB2Grm"
   },
   "items": [
     {
@@ -22,7 +23,7 @@
           "page": 9
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
@@ -32,8 +33,7 @@
         "quote": "|  | 100 | 137 | 14 | 333 | 34 | 216 | 22 | 647 | 66 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Ratio' 在表头，须核对所在列",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Ratio' 在表头，数值在该列"
       ]
     },
     {
@@ -56,10 +56,8 @@
         "quote": "|  | 100 | 137 | 14 | 333 | 34 | 216 | 22 | 647 | 66 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Rated Torque at 2000rpm' 在表头，须核对所在列",
-        "工况 'Rated Torque at 2000rpm' 不在同一行，取自本页其他位置（表头或脚注），须核对",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Rated Torque at 2000rpm' 在表头，数值在该列",
+        "工况 'Rated Torque at 2000rpm' 不在同一行，取自本页其他位置（表头或脚注），须核对"
       ]
     },
     {
@@ -81,9 +79,7 @@
         "quote": "|  | 100 | 137 | 14 | 333 | 34 | 216 | 22 | 647 | 66 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Limit for Repeated Peak Torque' 在表头，须核对所在列",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Limit for Repeated Peak Torque' 在表头，数值在该列"
       ]
     },
     {
@@ -105,107 +101,160 @@
         "quote": "|  | 100 | 137 | 14 | 333 | 34 | 216 | 22 | 647 | 66 |  |  |  |  |  |  |"
       },
       "issues": [
-        "叫法 'Limit for Momentary Peak Torque' 在表头，须核对所在列",
-        "单位 Nm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
+        "叫法 'Limit for Momentary Peak Torque' 在表头，数值在该列"
       ]
     },
     {
-      "target": "params/max_input_speed_rpm",
-      "value": {
-        "value": 7000.0,
-        "condition": "Oil lubricant",
-        "source": {
-          "doc": "src-hd-csg-csf-gear-units",
-          "page": 9
-        },
-        "method": "extracted",
-        "confidence": 0.7,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "7000",
-        "unit": "rpm",
-        "label": "Maximum Input Speed (rpm)",
-        "quote": "| 32 | 30 | 54 | 5.5 | 100 | 10 | 75 | 7.7 | 200 | 20 | 7000 | 4800 | 4600 | 3500 | 1.69 | 1.72 |"
-      },
-      "issues": [
-        "叫法 'Maximum Input Speed (rpm)' 在表头，须核对所在列",
-        "工况 'Oil lubricant' 不在同一行，取自本页其他位置（表头或脚注），须核对",
-        "单位 rpm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
-      ]
-    },
-    {
-      "target": "params/avg_input_speed_limit_rpm",
-      "value": {
-        "value": 4600.0,
-        "condition": "Oil lubricant",
-        "source": {
-          "doc": "src-hd-csg-csf-gear-units",
-          "page": 9
-        },
-        "method": "extracted",
-        "confidence": 0.7,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "4600",
-        "unit": "rpm",
-        "label": "Limit for Average Input Speed (rpm)",
-        "quote": "| 32 | 30 | 54 | 5.5 | 100 | 10 | 75 | 7.7 | 200 | 20 | 7000 | 4800 | 4600 | 3500 | 1.69 | 1.72 |"
-      },
-      "issues": [
-        "叫法 'Limit for Average Input Speed (rpm)' 在表头，须核对所在列",
-        "工况 'Oil lubricant' 不在同一行，取自本页其他位置（表头或脚注），须核对",
-        "单位 rpm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
-      ]
-    }
-  ],
-  "rejected": [
-    {
-      "reason": "原文引用在第 9 页的任何一行中都找不到",
-      "target": "params/reducer_kind",
-      "page": 9,
-      "printed": {
-        "text": "CSF Series",
-        "unit": "",
-        "label": "Gear Unit CSG/CSF",
-        "quote": "| Mass (kg) | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |"
-      }
-    },
-    {
-      "reason": "叫法不在引用所在的行中",
-      "target": "params/input_inertia_kgm2",
-      "page": 9,
-      "printed": {
-        "text": "1.69",
-        "unit": "×10−4 kg·m²",
-        "label": "Moment of Inertia I ×10−4kgm2",
-        "quote": "| 32 | 30 | 54 | 5.5 | 100 | 10 | 75 | 7.7 | 200 | 20 | 7000 | 4800 | 4600 | 3500 | 1.69 | 1.72 |"
-      }
-    },
-    {
-      "reason": "原文引用在第 11 页的任何一行中都找不到",
       "target": "params/mass_kg",
-      "page": 11,
+      "value": {
+        "value": 3.2,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
       "printed": {
         "text": "3.2",
         "unit": "kg",
         "label": "Mass (kg)",
-        "quote": "| Mass (kg) | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |"
+        "quote": "|  | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |"
       }
     },
     {
-      "reason": "单位 'mm' 不在同一行，而本页还有其他同类单位 ['m']，无法判断",
       "target": "dims/outer_diameter_mm",
-      "page": 11,
+      "value": {
+        "value": 138.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
       "printed": {
         "text": "138",
         "unit": "mm",
         "label": "φA",
         "quote": "| φA |  | 73 | 79 | 93 | 107 | 138 | 160 | 180 | 190 | 226 | 260 |"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "ports/input_bore/diameter_mm",
+      "value": {
+        "value": 14.0,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 10
+        },
+        "method": "extracted",
+        "confidence": 0.6,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "14",
+        "unit": "mm",
+        "label": "φU H7",
+        "quote": "φU H7 6 8 12 14 14 14 19 19 22 24"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/reducer_kind",
+      "page": 9,
+      "printed": {
+        "text": "CSF",
+        "unit": "",
+        "label": "CSF Series",
+        "quote": "■ CSF Series Table 127-1"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/max_input_speed_rpm",
+      "page": 9,
+      "printed": {
+        "text": "7000",
+        "unit": "rpm",
+        "label": "Maximum Input Speed (rpm)",
+        "quote": "| 32 | 30 | 54 | 5.5 | 100 | 10 | 75 | 7.7 | 200 | 20 | 7000 | 4800 | 4600 | 3500 | 1.69 | 1.72 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/avg_input_speed_limit_rpm",
+      "page": 9,
+      "printed": {
+        "text": "4600",
+        "unit": "rpm",
+        "label": "Limit for Average Input Speed (rpm)",
+        "quote": "| 32 | 30 | 54 | 5.5 | 100 | 10 | 75 | 7.7 | 200 | 20 | 7000 | 4800 | 4600 | 3500 | 1.69 | 1.72 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/input_inertia_kgm2",
+      "page": 9,
+      "printed": {
+        "text": "1.69",
+        "unit": "×10−4kgm2",
+        "label": "Moment of Inertia",
+        "quote": "| 32 | 30 | 54 | 5.5 | 100 | 10 | 75 | 7.7 | 200 | 20 | 7000 | 4800 | 4600 | 3500 | 1.69 | 1.72 |"
+      }
+    },
+    {
+      "reason": "工况 'Ratio 80 or more' 在第 12 页找不到",
+      "target": "params/lost_motion_arcmin",
+      "page": 12,
+      "printed": {
+        "text": "1.0",
+        "unit": "arc min",
+        "label": "arc min",
+        "quote": "|  | arc min | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 |"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/input_bore/fit_system",
+      "page": 10,
+      "printed": {
+        "text": "H7",
+        "unit": "",
+        "label": "φU H7",
+        "quote": "φU H7 6 8 12 14 14 14 19 19 22 24"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/input_bore/fit",
+      "page": 10,
+      "printed": {
+        "text": "H7",
+        "unit": "",
+        "label": "φU H7",
+        "quote": "φU H7 6 8 12 14 14 14 19 19 22 24"
+      }
+    },
+    {
+      "reason": "该行有 8 个数值，与 10 个型号列对不上",
+      "target": "ports/input_bore/key_width_mm",
+      "page": 10,
+      "printed": {
+        "text": "5",
+        "unit": "mm",
+        "label": "W Js9",
+        "quote": "W Js9 - - 4 5 5 5 6 6 6 8"
       }
     },
     {
@@ -214,18 +263,11 @@
         "text": "Harmonic Drive"
       },
       "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "CSF-32-100-2UH"
-      },
-      "reason": "model 在规格书中找不到"
     }
   ],
   "missing_key_fields": [
     "params/reducer_kind",
-    "params/efficiency_ratio",
-    "params/mass_kg"
+    "params/max_input_speed_rpm",
+    "params/efficiency_ratio"
   ]
 }
