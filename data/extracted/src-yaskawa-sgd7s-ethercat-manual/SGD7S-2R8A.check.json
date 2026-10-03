@@ -14,6 +14,66 @@
   },
   "items": [
     {
+      "target": "params/rated_output_power_w",
+      "value": {
+        "value": 400.0,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.55,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "0.4",
+        "unit": "kW",
+        "label": "Maximum Applicable Motor Capacity [kW]",
+        "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.75 1.5"
+      },
+      "issues": [
+        "单位换算：0.4 kW → 标准单位 W"
+      ]
+    },
+    {
+      "target": "ports/motor_out/rated_current_a",
+      "value": {
+        "value": 2.8,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "2.8",
+        "unit": "Arms",
+        "label": "Continuous Output Current [Arms]",
+        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6"
+      }
+    },
+    {
+      "target": "ports/motor_out/peak_current_a",
+      "value": {
+        "value": 9.3,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "9.3",
+        "unit": "Arms",
+        "label": "Instantaneous Maximum Output Current [Arms]",
+        "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
+      }
+    },
+    {
       "target": "ports/power_in/current_type",
       "value": {
         "value": "ac",
@@ -32,44 +92,12 @@
         "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
       },
       "issues": [
+        "规格行，各型号共用",
         "枚举映射：'200 VAC to 240 VAC, 50 Hz/60 Hz' → ac，未自动核对"
       ]
     }
   ],
   "rejected": [
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/rated_output_power_w",
-      "page": 63,
-      "printed": {
-        "text": "0.4",
-        "unit": "kW",
-        "label": "Maximum Applicable Motor Capacity [kW]",
-        "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.75 1.5"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/motor_out/rated_current_a",
-      "page": 63,
-      "printed": {
-        "text": "2.8",
-        "unit": "Arms",
-        "label": "Continuous Output Current [Arms]",
-        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/motor_out/peak_current_a",
-      "page": 63,
-      "printed": {
-        "text": "9.3",
-        "unit": "Arms",
-        "label": "Instantaneous Maximum Output Current [Arms]",
-        "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
-      }
-    },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/power_in/voltage_v",
@@ -104,7 +132,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "叫法不在引用所在的行中",
       "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
@@ -126,7 +154,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "工况 'Single-Phase, 200 VAC, Main Circuit' 在第 63 页找不到",
       "target": "ports/power_in/rated_current_a",
       "page": 63,
       "printed": {

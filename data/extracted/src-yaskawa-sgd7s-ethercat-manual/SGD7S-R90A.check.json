@@ -6,28 +6,49 @@
     "pages": 12
   },
   "category": "drive",
+  "model": "SGD7S-R90A",
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
     "response_id": "msg_011CfeTMSrMm1f7ZRznpRnJ6"
   },
-  "items": [],
-  "rejected": [
+  "items": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/rated_output_power_w",
-      "page": 63,
+      "value": {
+        "value": 100.0,
+        "condition": "Single-Phase, 200 VAC",
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.55,
+        "reviewed": false
+      },
       "printed": {
         "text": "0.1",
         "unit": "kW",
         "label": "Maximum Applicable Motor Capacity [kW]",
         "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.75 1.5"
-      }
+      },
+      "issues": [
+        "工况 'Single-Phase, 200 VAC' 不在同一行，取自本页其他位置（表头或脚注），须核对",
+        "单位换算：0.1 kW → 标准单位 W"
+      ]
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/motor_out/rated_current_a",
-      "page": 63,
+      "value": {
+        "value": 0.91,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "0.91",
         "unit": "Arms",
@@ -36,9 +57,17 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/motor_out/peak_current_a",
-      "page": 63,
+      "value": {
+        "value": 3.2,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "3.2",
         "unit": "Arms",
@@ -46,6 +75,32 @@
         "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
       }
     },
+    {
+      "target": "ports/power_in/voltage_v",
+      "value": {
+        "min": 270.0,
+        "max": 324.0,
+        "condition": "270 VDC",
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 64
+        },
+        "method": "extracted",
+        "confidence": 0.75,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "270 VDC to 324 VDC",
+        "unit": "VDC",
+        "label": "Power Supply",
+        "quote": "Power Supply 270 VDC to 324 VDC"
+      },
+      "issues": [
+        "规格行，各型号共用"
+      ]
+    }
+  ],
+  "rejected": [
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/power_in/voltage_v",
@@ -91,7 +146,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "工况 'Single-Phase, 200 VAC, Main Circuit, net value at the rated load' 在第 63 页找不到",
       "target": "ports/power_in/rated_current_a",
       "page": 63,
       "printed": {
@@ -102,7 +157,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "工况 '270 VDC, Main Circuit, net value at the rated load' 在第 64 页找不到",
       "target": "ports/power_in/rated_current_a",
       "page": 64,
       "printed": {
@@ -110,17 +165,6 @@
         "unit": "Arms",
         "label": "Input Current [Arms]*1",
         "quote": "Input Current [Arms]*1 0.5 1.0 1.5 3.0 3.8 4.9 6.9 11"
-      }
-    },
-    {
-      "reason": "单位：无法识别的单位 'VDC'",
-      "target": "ports/power_in/voltage_v",
-      "page": 64,
-      "printed": {
-        "text": "270 VDC to 324 VDC",
-        "unit": "VDC",
-        "label": "Power Supply",
-        "quote": "Power Supply 270 VDC to 324 VDC"
       }
     },
     {
@@ -228,13 +272,6 @@
         "text": "YASKAWA"
       },
       "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "SGD7S-R90A"
-      },
-      "reason": "model 在规格书中找不到"
     },
     {
       "target": "series",

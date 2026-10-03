@@ -15,7 +15,7 @@
   "items": [],
   "rejected": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "叫法不在引用所在的行中",
       "target": "params/rated_output_power_w",
       "page": 62,
       "printed": {
@@ -37,7 +37,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "叫法不在引用所在的行中",
       "target": "ports/motor_out/peak_current_a",
       "page": 62,
       "printed": {
@@ -81,7 +81,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 0 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/phases",
       "page": 62,
       "printed": {
@@ -92,7 +92,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "叫法不在引用所在的行中",
       "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
