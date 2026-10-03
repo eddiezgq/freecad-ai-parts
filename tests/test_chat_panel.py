@@ -451,3 +451,15 @@ def test_scripted_demo_matches_sample_system():
     assert names[0] == "compose_chain" and names[-1] == "verify_system" and "snapshot" in names
     ids = [b["id"] for r in script for b in r["content"] if b["type"] == "tool_use"]
     assert len(ids) == len(set(ids))
+
+
+def test_tool_call_limit_env(monkeypatch):
+    from freecad_addon.gui import chat
+
+    monkeypatch.delenv("FAP_CHAT_MAX_TOOLS", raising=False)
+    assert chat.tool_call_limit() == chat.MAX_TOOL_CALLS == 40
+    monkeypatch.setenv("FAP_CHAT_MAX_TOOLS", "60")
+    assert chat.tool_call_limit() == 60 and chat.ChatEngine(None, [], lambda n, a: None).max_tool_calls == 60
+    for bad in ("0", "-3", "abc"):
+        monkeypatch.setenv("FAP_CHAT_MAX_TOOLS", bad)
+        assert chat.tool_call_limit() == 40
