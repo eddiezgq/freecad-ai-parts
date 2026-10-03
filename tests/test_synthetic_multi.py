@@ -405,3 +405,10 @@ def test_bracket_unit_row_is_model_row():
          "page": 1, "confidence": 0.9, "value": 0.91}
     assert verify({"items": [c]}, doc, "drive", DOC_ID, target_model="SGD7S-R90A")["items"]
     assert verify({"items": [c]}, doc, "drive", DOC_ID, target_model="SGD7S-1R6A")["items"] == []
+def test_catalog_request_asks_for_every_dimension():
+    from ingest.llm_extract import CATALOG_PROMPT_VERSION, build_request
+
+    doc = Document("x", "0" * 64, [Page(1, "text")])
+    req = build_request(doc, "servo_motor", target_model="SGM7J-04A", excerpt=True)
+    assert req["catalog_prompt"] == CATALOG_PROMPT_VERSION and "逐项报告" in req["user"] and "quote 优先摘表格" in req["user"]
+    assert "catalog_prompt" not in build_request(doc, "servo_motor")
