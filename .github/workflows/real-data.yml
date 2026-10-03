@@ -28,9 +28,14 @@ on:
         description: 排查被拒的引用：在运行日志中列出规格书该页最接近的行（不提交）
         type: boolean
         default: false
+      report_issue:
+        description: 排查结果另外发到这个 issue 的评论（填编号；留空不发）
+        required: false
+        default: ""
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: real-data
@@ -87,6 +92,13 @@ jobs:
           args=(); for d in $DOCS; do args+=(--doc "$d"); done
           python -m ingest.jobs diagnose --summary diagnose.md "${args[@]}"
           { echo "## 排查被拒的引用"; cat diagnose.md; } >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "$REPORT_ISSUE" ]; then
+            { echo "排查结果（运行 ${GITHUB_RUN_ID}）"; echo; head -c 60000 diagnose.md; } > report.md
+            gh issue comment "$REPORT_ISSUE" --body-file report.md
+          fi
+        env:
+          REPORT_ISSUE: ${{ inputs.report_issue }}
+          GH_TOKEN: ${{ github.token }}
       - name: 没有密钥时说明
         if: inputs.extract && env.ANTHROPIC_API_KEY == ''
         run: echo "::warning::demo 环境中没有 ANTHROPIC_API_KEY，只做了下载与索引，未抽取"
