@@ -399,6 +399,11 @@ def test_panel_reports_missing_key(gui, monkeypatch):
     try:
         assert panel.send("你好") is False
         assert "ANTHROPIC_API_KEY" in panel.transcript.toPlainText()
+        # 按钮的 clicked 信号会带上 checked=False（PySide6 / FreeCAD 1.1）：取输入框的文字，不报错
+        panel.input.setPlainText("你好")
+        assert panel.send(False) is False and panel.transcript.toPlainText().count("ANTHROPIC_API_KEY") == 2
+        panel.send_button.click()
+        assert panel.transcript.toPlainText().count("ANTHROPIC_API_KEY") == 3
     finally:
         panel.close()
 

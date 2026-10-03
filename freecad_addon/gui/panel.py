@@ -89,7 +89,7 @@ class ChatPanel(QtWidgets.QDockWidget):
         lay.addLayout(row)
         self.setWidget(body)
 
-        self.send_button.clicked.connect(self.send)
+        self.send_button.clicked.connect(lambda *_: self.send())  # clicked 会带上 checked（PySide6 / FreeCAD 1.1）
         self.event_posted.connect(self._show_event, QtCore.Qt.QueuedConnection)
         self.turn_done.connect(self._finish_turn, QtCore.Qt.QueuedConnection)
 
@@ -105,7 +105,7 @@ class ChatPanel(QtWidgets.QDockWidget):
         """发送一条消息；对话在后台线程进行。正在进行时返回 False。"""
         if self._busy:
             return False
-        text = (text if text is not None else self.input.toPlainText()).strip()
+        text = (text if isinstance(text, str) else self.input.toPlainText()).strip()
         if not text:
             return False
         try:
