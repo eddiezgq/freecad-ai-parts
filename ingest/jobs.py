@@ -123,22 +123,22 @@ def run(jobs: list[dict], client, *, raw_dir: Path = RAW_DIR, out_dir: Path = OU
 DIAGNOSE_REASONS = ("找不到", "叫法不在", "不在目标型号")
 
 
-def diagnose(jobs: list[dict], *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_DIR, per_item: int = 2,
-             limit: int = 40) -> str:
+def diagnose(jobs: list[dict], *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_DIR, per_item: int = 3,
+             limit: int = 25) -> str:
     """排查核对程序（不调用 LLM）：对被拒的引用，列出规格书该页上最接近的行（表格行列出各单元格）。
 
-    只列与被拒引用最接近的少数几行（参数表的行），用于改进核对程序；结果只打印到运行日志，不写进仓库（ADR-0040）。
+    同一文档中相同的引用只列一次，每份文档最多 limit 条。只列与被拒引用最接近的少数几行（参数表的行），用于改进核对程序；结果只打印到运行日志，不写进仓库（ADR-0040）。
     """
     import difflib
 
     from ingest.llm_extract import _context
     from ingest.pdf_extract import extract
 
-    out, loaded, shown = [], {}, 0
+    out, loaded, shown, seen = [], {}, {}, set()
     for job in jobs:
         path = output_path(job, out_dir)
         for p in (path, path.with_suffix(".check.json")):
-            if not p.is_file() or shown >= limit:
+            if not p.is_file() or shown.get(job["doc"], 0) >= limit:
                 continue
             pdf = raw_dir / f"{job['doc']}.pdf"
             if not pdf.is_file():
@@ -146,20 +146,33 @@ def diagnose(jobs: list[dict], *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_D
             if job["doc"] not in loaded:
                 loaded[job["doc"]] = _context(extract(pdf))
             ctx = loaded[job["doc"]]
-            seen = set()
             for r in json.loads(p.read_text(encoding="utf-8")).get("rejected", []):
                 quote, page = (r.get("printed") or {}).get("quote"), r.get("page")
                 if not quote or page not in ctx.lines or not any(k in r["reason"] for k in DIAGNOSE_REASONS):
                     continue
-                if (page, quote) in seen or shown >= limit:
+                key = (job["doc"], page, re.sub(r"\s+", "", quote.replace("|", "")))
+                if key in seen or shown.get(job["doc"], 0) >= limit:
                     continue
-                seen.add((page, quote))
-                shown += 1
+                seen.add(key)
+                shown[job["doc"]] = shown.get(job["doc"], 0) + 1
                 q = re.sub(r"\s+", "", quote.replace("|", ""))
-                ranked = sorted(ctx.lines[page], key=lambda ln: -difflib.SequenceMatcher(None, q, ln.joined).ratio())
+                pool = ctx.lines[page] + ((ctx.layout or {}).get(page) or [])
+                ranked = sorted(pool, key=lambda ln: -difflib.SequenceMatcher(None, q, ln.joined).ratio())
                 out.append(f"#### {p.name} · {r['target']} · 第 {page} 页\n\n- 原因：{r['reason']}\n- 引用：`{quote}`")
+                best = ranked[0].joined if ranked else ""
+                m = difflib.SequenceMatcher(None, q, best).find_longest_match(0, len(q), 0, len(best))
+                if m.size < len(q):
+                    odd = sorted({f"U+{ord(ch):04X}" for ch in best if ord(ch) > 127})
+                    out.append(f"- 最长公共片段 {m.size}/{len(q)} 字；引用此后为 `{q[m.a + m.size:m.a + m.size + 12]}`，"
+                               f"该行此后为 `{best[m.b + m.size:m.b + m.size + 12]}`；该行非 ASCII 字符：{odd}")
+                label = (r.get("printed") or {}).get("label") or ""
+                if label and r["reason"].startswith("引用所在行"):
+                    pat = re.compile(r"(?<![A-Za-z0-9])" + re.escape(label.strip()) + r"(?![A-Za-z0-9])")
+                    with_label = [ln for ln in ctx.lines[page] if not ln.is_row and pat.search(ln.spaced)][:2]
+                    out += [f"- 含叫法 {label!r} 的正文行：`{ln.spaced}`" for ln in with_label]
                 for ln in ranked[:per_item]:
-                    kind = "表格行" if ln.is_row else "正文行"
+                    layout_rows = (ctx.layout or {}).get(page) or []
+                    kind = "版面行" if any(ln is x for x in layout_rows) else "表格行" if ln.is_row else "正文行"
                     shown_cells = " ¦ ".join(ln.cells) if ln.is_row else ln.spaced
                     out.append(f"- {kind}：`{shown_cells}`")
                     if ln.is_row:
@@ -223,6 +236,7 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("list", help="列出全部抽取任务")
     p_index = sub.add_parser("index", help="为 index 中列出的规格书生成页码索引（不含原文）")
     p_index.add_argument("--summary", type=Path, help="把索引（Markdown）写到此文件")
+    p_index.add_argument("--doc", action="append", default=[], help="只为这些文档建索引（可重复）")
     p_run = sub.add_parser("run", help="运行抽取任务")
     p_run.add_argument("--record", action="store_true", help="真实调用 LLM 并录制（需要 ANTHROPIC_API_KEY）")
     p_run.add_argument("--doc", action="append", default=[], help="只运行这些文档的任务（可重复）")
@@ -231,7 +245,7 @@ def main(argv: list[str] | None = None) -> int:
     p_run.add_argument("--summary", type=Path, help="把摘要（Markdown）写到此文件")
     p_diag = sub.add_parser("diagnose", help="排查被拒的引用：列出该页最接近的行（只打印，不写进仓库）")
     p_diag.add_argument("--doc", action="append", default=[], help="只排查这些文档（可重复）")
-    p_diag.add_argument("--limit", type=int, default=40, help="最多列出多少条被拒引用")
+    p_diag.add_argument("--limit", type=int, default=25, help="每份文档最多列出多少条被拒引用")
     p_diag.add_argument("--summary", type=Path, help="把结果（Markdown）写到此文件")
     args = parser.parse_args(argv)
 
@@ -247,6 +261,8 @@ def main(argv: list[str] | None = None) -> int:
 
         texts, code = [], 0
         for req in index_requests:
+            if args.doc and req["doc"] not in args.doc:
+                continue
             pdf = RAW_DIR / f"{req['doc']}.pdf"
             try:
                 index = page_index(extract(pdf), req["terms"])

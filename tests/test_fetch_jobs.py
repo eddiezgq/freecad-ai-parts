@@ -226,3 +226,30 @@ def test_diagnose_lists_nearest_lines(catalog_pdf, tmp_path):
     text = jx.diagnose([job], raw_dir=raw, out_dir=tmp_path)
     assert "params/ratio" in text and "表格行" in text and "skip me" not in text
     assert jx.diagnose([job], raw_dir=raw, out_dir=tmp_path, limit=0).strip() == ""
+    assert jx.diagnose([job, job], raw_dir=raw, out_dir=tmp_path).count("params/ratio") == 1  # 相同引用只列一次
+
+
+def test_download_retries_transient_errors(tmp_path, monkeypatch):
+    import urllib.error
+
+    calls = []
+
+    def flaky(url, dest):
+        calls.append(url)
+        if len(calls) < 3:
+            raise urllib.error.URLError("[Errno -3] Temporary failure in name resolution")
+        dest.write_bytes(b"%PDF-1.4")
+
+    monkeypatch.setattr(fx, "_download_once", flaky)
+    fx._download("https://example.com/a.pdf", tmp_path / "a.pdf", wait_s=0)
+    assert len(calls) == 3 and (tmp_path / "a.pdf").read_bytes().startswith(b"%PDF")
+
+    def not_found(url, dest):
+        calls.append(url)
+        raise urllib.error.HTTPError(url, 404, "Not Found", {}, None)
+
+    calls.clear()
+    monkeypatch.setattr(fx, "_download_once", not_found)
+    with pytest.raises(urllib.error.HTTPError):
+        fx._download("https://example.com/b.pdf", tmp_path / "b.pdf", wait_s=0)
+    assert len(calls) == 1  # 4xx 不重试

@@ -39,6 +39,8 @@ class Page:
     page: int
     text: str
     tables: list[Table] = field(default_factory=list)
+    # 按文字对齐切出的行与列（pdfplumber 的“文字”策略）：没有边框的表也能分出列；只用于核对引用，不交给 LLM
+    layout_rows: list[list[str]] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -130,6 +132,18 @@ def _sha256(path: Path) -> str:
     return h.hexdigest()
 
 
+_LAYOUT = {"vertical_strategy": "text", "horizontal_strategy": "text", "snap_tolerance": 3, "join_tolerance": 3,
+           "intersection_tolerance": 5, "text_x_tolerance": 2}
+
+
+def _layout_rows(pg) -> list[list[str]]:
+    try:
+        tables = pg.extract_tables(_LAYOUT) or []
+    except Exception:  # noqa: BLE001 — 版面切分失败不影响文本与表格
+        return []
+    return [[clean_cell(c) or "" for c in row] for rows in tables for row in rows if any((c or "").strip() for c in row)]
+
+
 def extract(path: str | Path) -> Document:
     """提取 PDF 的逐页文本与表格。表格用 pdfplumber 的“线框”策略：只认有边框的表。"""
     import pdfplumber
@@ -151,7 +165,7 @@ def extract(path: str | Path) -> Document:
                     tables.append(Table(page=n, index=i, rows=rows, bbox=tuple(round(v, 2) for v in t.bbox)))
                 text = "\n".join(clean_line for ln in (pg.extract_text() or "").splitlines()
                                  if (clean_line := _SPACES.sub(" ", ln).strip()))
-                pages.append(Page(page=n, text=text, tables=tables))
+                pages.append(Page(page=n, text=text, tables=tables, layout_rows=_layout_rows(pg)))
     except PDFSyntaxError as exc:
         raise ExtractError(f"PDF 无法解析：{path}（{exc}）") from exc
     except Exception as exc:  # 加密、损坏等情况 pdfminer 抛出的异常类型很多
