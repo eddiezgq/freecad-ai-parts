@@ -138,10 +138,10 @@ _LAYOUT = {"vertical_strategy": "text", "horizontal_strategy": "text", "snap_tol
 
 def _layout_rows(pg) -> list[list[str]]:
     try:
-        rows = pg.extract_table(_LAYOUT) or []
+        tables = pg.extract_tables(_LAYOUT) or []
     except Exception:  # noqa: BLE001 — 版面切分失败不影响文本与表格
         return []
-    return [[clean_cell(c) or "" for c in row] for row in rows if any((c or "").strip() for c in row)]
+    return [[clean_cell(c) or "" for c in row] for rows in tables for row in rows if any((c or "").strip() for c in row)]
 
 
 def extract(path: str | Path) -> Document:
