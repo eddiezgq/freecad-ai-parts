@@ -1,17 +1,69 @@
 {
-  "agreed": [],
+  "agreed": [
+    "params/ip_rating",
+    "params/max_speed_rpm",
+    "params/peak_torque_nm",
+    "params/rated_power_w",
+    "params/rated_speed_rpm",
+    "params/rated_torque_nm",
+    "params/torque_constant_nm_per_a",
+    "ports/power_in/peak_current_a",
+    "ports/power_in/rated_current_a"
+  ],
   "pending": [
     {
-      "target": "params/ip_rating",
+      "target": "dims/square_mm",
+      "check": {
+        "value": 80.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "params/rotor_inertia_kgm2",
       "primary": {
-        "value": "IP67"
+        "value": 0.00015900000000000002
       },
       "reason": "只有主抽取报出"
+    },
+    {
+      "target": "ports/mount_flange/hole_diameter_mm",
+      "check": {
+        "value": 7.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/mount_flange/pcd_mm",
+      "check": {
+        "value": 90.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/mount_flange/pilot_diameter_mm",
+      "check": {
+        "value": 70.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/mount_flange/square_size_mm",
+      "check": {
+        "value": 80.0
+      },
+      "reason": "只有复核抽取报出"
     },
     {
       "target": "ports/power_in/voltage_class_v",
       "check": {
         "value": 200.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/shaft/diameter_mm",
+      "check": {
+        "value": 19.0
       },
       "reason": "只有复核抽取报出"
     }

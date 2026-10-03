@@ -1,11 +1,19 @@
 {
   "agreed": [
+    "params/mass_kg",
     "params/momentary_max_torque_nm",
     "params/rated_torque_nm",
     "params/ratio",
     "params/repeated_peak_torque_nm"
   ],
   "pending": [
+    {
+      "target": "dims/outer_diameter_mm",
+      "check": {
+        "value": 73.0
+      },
+      "reason": "只有复核抽取报出"
+    },
     {
       "target": "params/reducer_kind",
       "check": {

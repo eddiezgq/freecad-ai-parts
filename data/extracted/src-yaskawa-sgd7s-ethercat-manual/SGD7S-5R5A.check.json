@@ -6,6 +6,7 @@
     "pages": 12
   },
   "category": "drive",
+  "model": "SGD7S-5R5A",
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
@@ -67,7 +68,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 1 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/current_type",
       "page": 62,
       "printed": {
@@ -314,13 +315,6 @@
         "text": "Yaskawa"
       },
       "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "SGD7S-5R5A"
-      },
-      "reason": "model 在规格书中找不到"
     },
     {
       "target": "series",

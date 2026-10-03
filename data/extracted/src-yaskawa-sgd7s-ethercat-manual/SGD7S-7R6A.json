@@ -6,6 +6,7 @@
     "pages": 12
   },
   "category": "drive",
+  "model": "SGD7S-7R6A",
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
@@ -32,6 +33,7 @@
         "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
       },
       "issues": [
+        "规格行，各型号共用",
         "工况 'Three-Phase, 200 VAC' 不在同一行，取自本页其他位置（表头或脚注），须核对",
         "枚举映射：'200 VAC to 240 VAC, 50 Hz/60 Hz' → ac，未自动核对"
       ]
@@ -58,7 +60,7 @@
   ],
   "rejected": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "叫法不在引用所在的行中",
       "target": "ports/motor_out/rated_current_a",
       "page": 62,
       "printed": {
@@ -69,7 +71,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "叫法不在引用所在的行中",
       "target": "ports/motor_out/peak_current_a",
       "page": 62,
       "printed": {
@@ -91,7 +93,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 0 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/phases",
       "page": 62,
       "printed": {
@@ -151,13 +153,6 @@
         "text": "Yaskawa"
       },
       "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "SGD7S-7R6A"
-      },
-      "reason": "model 在规格书中找不到"
     },
     {
       "target": "series",

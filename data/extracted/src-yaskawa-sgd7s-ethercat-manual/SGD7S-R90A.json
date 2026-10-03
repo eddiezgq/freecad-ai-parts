@@ -6,6 +6,7 @@
     "pages": 12
   },
   "category": "drive",
+  "model": "SGD7S-R90A",
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
@@ -91,13 +92,6 @@
         "text": "Yaskawa"
       },
       "reason": "vendor 在规格书中找不到"
-    },
-    {
-      "target": "model",
-      "printed": {
-        "text": "SGD7S-R90A"
-      },
-      "reason": "model 在规格书中找不到"
     },
     {
       "target": "series",

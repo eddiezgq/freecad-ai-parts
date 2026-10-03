@@ -1,5 +1,6 @@
 {
   "agreed": [
+    "params/mass_kg",
     "params/momentary_max_torque_nm",
     "params/rated_torque_nm",
     "params/ratio",
@@ -7,20 +8,18 @@
   ],
   "pending": [
     {
-      "target": "params/avg_input_speed_limit_rpm",
-      "primary": {
-        "value": 6500.0,
-        "condition": "Oil lubricant"
+      "target": "dims/outer_diameter_mm",
+      "check": {
+        "value": 93.0
       },
-      "reason": "只有主抽取报出"
+      "reason": "只有复核抽取报出"
     },
     {
-      "target": "params/max_input_speed_rpm",
-      "primary": {
-        "value": 10000.0,
-        "condition": "Oil lubricant"
+      "target": "ports/input_bore/diameter_mm",
+      "check": {
+        "value": 12.0
       },
-      "reason": "只有主抽取报出"
+      "reason": "只有复核抽取报出"
     },
     {
       "target": "ports/input_bore/key_width_mm",

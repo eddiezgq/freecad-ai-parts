@@ -2,6 +2,14 @@
   "agreed": [],
   "pending": [
     {
+      "target": "params/rated_output_power_w",
+      "check": {
+        "value": 100.0,
+        "condition": "Single-Phase, 200 VAC"
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
       "target": "ports/bus/connector",
       "primary": {
         "value": "RJ45"
@@ -14,6 +22,29 @@
         "value": "ethercat"
       },
       "reason": "只有主抽取报出"
+    },
+    {
+      "target": "ports/motor_out/peak_current_a",
+      "check": {
+        "value": 3.2
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/motor_out/rated_current_a",
+      "check": {
+        "value": 0.91
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/power_in/voltage_v",
+      "check": {
+        "min": 270.0,
+        "max": 324.0,
+        "condition": "270 VDC"
+      },
+      "reason": "只有复核抽取报出"
     }
   ],
   "problems": [
