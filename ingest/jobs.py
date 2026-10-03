@@ -156,7 +156,8 @@ def diagnose(jobs: list[dict], *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_D
                 seen.add(key)
                 shown[job["doc"]] = shown.get(job["doc"], 0) + 1
                 q = re.sub(r"\s+", "", quote.replace("|", ""))
-                ranked = sorted(ctx.lines[page], key=lambda ln: -difflib.SequenceMatcher(None, q, ln.joined).ratio())
+                pool = ctx.lines[page] + ((ctx.layout or {}).get(page) or [])
+                ranked = sorted(pool, key=lambda ln: -difflib.SequenceMatcher(None, q, ln.joined).ratio())
                 out.append(f"#### {p.name} · {r['target']} · 第 {page} 页\n\n- 原因：{r['reason']}\n- 引用：`{quote}`")
                 best = ranked[0].joined if ranked else ""
                 m = difflib.SequenceMatcher(None, q, best).find_longest_match(0, len(q), 0, len(best))
@@ -170,7 +171,8 @@ def diagnose(jobs: list[dict], *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_D
                     with_label = [ln for ln in ctx.lines[page] if not ln.is_row and pat.search(ln.spaced)][:2]
                     out += [f"- 含叫法 {label!r} 的正文行：`{ln.spaced}`" for ln in with_label]
                 for ln in ranked[:per_item]:
-                    kind = "表格行" if ln.is_row else "正文行"
+                    layout_rows = (ctx.layout or {}).get(page) or []
+                    kind = "版面行" if any(ln is x for x in layout_rows) else "表格行" if ln.is_row else "正文行"
                     shown_cells = " ¦ ".join(ln.cells) if ln.is_row else ln.spaced
                     out.append(f"- {kind}：`{shown_cells}`")
                     if ln.is_row:

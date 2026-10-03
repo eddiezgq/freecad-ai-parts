@@ -380,3 +380,17 @@ def test_spec_line_shared_by_models():
          "confidence": 0.9, "value": {"min": 200, "max": 240}}
     got = verify({"items": [v]}, doc, "drive", DOC_ID, target_model="SGD7S-R90A")
     assert got["items"] or "对不上" not in got["rejected"][0]["reason"]
+
+
+def test_layout_rows_fallback():
+    """续页没有边框表：按文字对齐切出的行（layout_rows）带列与表头，核对时再试一次，且必须确认型号行。"""
+    layout = [["", "L*", "LL*", "LM", "Flange", "", ""], ["SGM7J-", "", "", "", "LR", "LC", "LB"],
+              ["02AA2", "", "", "51.2", "30", "60", "50"], ["04AA2", "115.5", "85.5", "67.2", "30", "60", "50"]]
+    text = "Unit: mm\nSGM7J- LR LC LB\n02AA2 51.2 30 60 50\n04AA2 67.2 30 60 50\n115.5 85.5 1.1"  # 正文行没有列信息
+    doc = Document("x", "0" * 64, [Page(1, text, [], layout)])
+    lc = {"target": "dims/square_mm", "printed_text": "60", "printed_unit": "mm", "printed_label": "LC",
+          "quote": "04AA2 67.2 30 60 50", "page": 1, "confidence": 0.9, "value": 60}
+    got = verify({"items": [lc]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-04A")
+    assert got["items"] and any("版面" in i for i in got["items"][0]["issues"])
+    wrong = dict(lc, quote="02AA2 51.2 30 60 50")
+    assert verify({"items": [wrong]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-04A")["items"] == []

@@ -404,6 +404,7 @@ class _Ctx:
     comma_thousands: bool | None  # 全文逗号是千分位（True）、小数点（False），判断不了为 None
     target_model: str = ""  # 多型号目录的目标型号（_loose 后）；空表示单型号规格书
     target_raw: str = ""  # 目标型号原文（按“-”分段核对尺寸、减速比等键列）
+    layout: dict[int, list[_Line]] | None = None  # 按文字对齐切出的行（没有边框的表），引用核对不通过时再试
 
 
 def _fill_down(rows: list[list[str | None]]) -> list[list[str | None]]:
@@ -422,6 +423,29 @@ def _fill_down(rows: list[list[str | None]]) -> list[list[str | None]]:
                 if j < len(prev) and (prev[j] or "").strip():
                     row[j] = prev[j]
         out.append(row)
+    return out
+
+
+def _is_label_row(cells: tuple[str, ...]) -> bool:
+    filled = [c for c in cells if c]
+    return len(filled) >= 2 and sum(bool(re.fullmatch(r"[-+±−()\d.]+", c)) for c in filled) <= len(filled) * 0.3
+
+
+def _layout_lines(rows: list[list[str]]) -> list[_Line]:
+    """按文字对齐切出的行：每行的表头取它上方最近的几行“叫法行”（多数格子不是数字）。"""
+    cells = [tuple(_squash(c) for c in r) for r in rows]
+    out = []
+    for i, (raw, row) in enumerate(zip(rows, cells, strict=True)):
+        heads: list[tuple[str, ...]] = []
+        for j in range(i - 1, max(-1, i - 13), -1):
+            if _is_label_row(cells[j]):
+                heads.insert(0, cells[j])
+                if len(heads) == 3:
+                    break
+            elif heads:
+                break
+        out.append(_Line(row, _spaced(" ".join(raw)), True, "".join(heads[0]) if heads else "",
+                         heads[0] if heads else (), tuple(heads)))
     return out
 
 
@@ -445,7 +469,8 @@ def _context(document: Document, target_model: str | None = None) -> _Ctx:
     comma_dec = re.search(r"(?<![\d.,])\d+,\d{1,2}(?![\d.,])", text) is not None
     comma_k = re.search(r"(?<![\d.,])\d{1,3}(?:,\d{3})+\.\d+(?![\d,])", text) is not None
     comma = True if (dot or comma_k) and not comma_dec else False if comma_dec and not dot else None
-    return _Ctx(lines, spaced, comma, _loose(target_model or ""), (target_model or "").strip())
+    layout = {p.page: _layout_lines(p.layout_rows) for p in document.pages}
+    return _Ctx(lines, spaced, comma, _loose(target_model or ""), (target_model or "").strip(), layout)
 
 
 def _tokens(text: str, comma_thousands: bool | None = None) -> tuple[list[float], str | None]:
@@ -688,6 +713,10 @@ def _model_column(line: _Line, model: str, text: str, unit: str, raw: str = "",
         code, suffix = _row_code(line, text_lines), _model_suffix(line, model)
         if code and suffix:
             return _loose(code).startswith(suffix)
+    if line.cells and re.fullmatch(r"[0-9A-Z]{3}[0-9A-Z]*", line.cells[0] or "") and re.search(r"[A-Z]", line.cells[0]):
+        suffix = _model_suffix(line, model)  # 行首格就是型号代码（“04AA2”，表头写前缀“SGM7J-”）
+        if suffix:
+            return _loose(line.cells[0]).startswith(suffix)
     series, segs = _key_segments(raw)
     if series and any(_loose(c).endswith("series") and len(_loose(c)) > len("series")
                       and not _loose(c).startswith(series) for c in line.cells):
@@ -846,6 +875,24 @@ def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list
     if ctx.target_model and any(ln.is_row for ln in candidates):
         # 多型号目录：正文里重复的表格行没有列信息，以表格行为准（否则能绕过型号列核对）
         candidates = [ln for ln in candidates if ln.is_row]
+    reason, notes = _check_lines(ctx, page, candidates, text, label, unit, field, cond, ctx.lines[page])
+    if reason is None or not ctx.target_model or not (ctx.layout or {}).get(page):
+        return reason, notes
+    # 没有边框的表（如安川外形尺寸表的续页）：按文字对齐切出的行再核对一次，须确认型号所在的列
+    layout = ctx.layout[page]
+    alt = [r for r in layout if quote in r.joined]
+    alt += [r for ln in candidates if not ln.is_row for r in _rows_for_text_line(layout, ln) if r not in alt]
+    if not alt:
+        return reason, notes
+    pool = layout + [x for x in ctx.lines[page] if not x.is_row]
+    reason2, notes2 = _check_lines(ctx, page, alt, text, label, unit, field, cond, pool, strict=True)
+    return (None, [*notes2, "按版面对齐切出的行核对"]) if reason2 is None else (reason, notes)
+
+
+def _check_lines(ctx: _Ctx, page: int, candidates: list[_Line], text: str, label: str, unit: str, field: str,
+                 cond: str, pool: list[_Line], strict: bool = False) -> tuple[str | None, list[str]]:
+    """逐个候选行核对；pool 是同页的行（找同表的其他行、表格外的型号代码行）。
+    strict 为真时（按版面对齐的行）必须确认型号所在的列或行，判断不了的不收。"""
     best = "引用所在行中找不到与印出文字完全一致的数值"
     page_squashed = _squash(ctx.page_spaced[page])
     cols = _model_columns(ctx, page) if ctx.target_model else None
@@ -893,7 +940,7 @@ def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list
         if col is not None and _alt_cell(ln.cells[col], _squash(text)):
             notes.append("单元格另印有括号内的值（如带制动器的型号）或公差，取名义值")
         if ln.is_row and ctx.target_model:
-            text_lines = [x for x in ctx.lines[page] if not x.is_row]
+            text_lines = [x for x in pool if not x.is_row]
             column = _model_column(ln, ctx.target_model, text, unit, ctx.target_raw, text_lines)
             if column is False:
                 # 引用的是同一张表的另一行：目标型号所在的行，同一列印着同一个数时也算（如各减速比的输入转速相同）
@@ -902,7 +949,7 @@ def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list
                     r is not ln and r.is_row and r.head_rows == ln.head_rows and col < len(r.cells)
                     and _cell_is(r.cells[col], text, unit)
                     and _row_key_is(r, ctx.target_raw)
-                    for r in ctx.lines[page]) and ln.cells[0].isdigit() and not _row_key_is(ln, ctx.target_raw)
+                    for r in pool) and ln.cells[0].isdigit() and not _row_key_is(ln, ctx.target_raw)
                 if not twin:
                     best = "数值不在目标型号所在的列"
                     continue
@@ -910,6 +957,9 @@ def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list
                 column = True
             if column is True:
                 return None, notes
+        if strict:
+            best = "按版面对齐的行无法确认型号所在的列"
+            continue
         if ln.is_row:
             numeric_cells = [c for c in ln.cells if c != _squash(text) and _tokens(c)[0] and not _loose(c).isalpha()]
             if len(numeric_cells) >= 1 and len(ln.cells) > 3:
