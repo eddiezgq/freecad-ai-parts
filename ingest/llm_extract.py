@@ -578,8 +578,20 @@ def _cell_is(cell: str, text: str, unit: str) -> bool:
     return cell == t or bool(u) and cell in (t + u, u + t) or bool(t) and _alt_cell(cell, t)
 
 
+_UNIT_MM = re.compile(r"(?i)\bunits?\s*[:：]?\s*mm\b|单位\s*[:：]?\s*mm\b")
+_TOL_TAIL = re.compile(r"(?:\+?0(?:\.\d+)?|\+\d+(?:\.\d+)?)[-−]\d+(?:\.\d+)?")
+
+
 def _alt_cell(cell: str, t: str) -> bool:
-    return re.fullmatch(re.escape(t) + r"\([^()]+\)", cell) is not None
+    """“85.5(125.5)”：括号内为另一规格的值；“300-0.021”：名义值 30 后面印着上、下偏差 0 与 -0.021。"""
+    if re.fullmatch(re.escape(t) + r"\([^()]+\)", cell):
+        return True
+    return cell.startswith(t) and "." not in t[-1:] and _TOL_TAIL.fullmatch(cell[len(t):]) is not None
+
+
+def _word_is_cell(word: str, cell: str) -> bool:
+    w = _squash(word)
+    return bool(w) and (cell == w or _alt_cell(cell, w))
 
 
 def _rows_for_text_line(lines: list[_Line], tl: _Line) -> list[_Line]:
@@ -592,9 +604,11 @@ def _rows_for_text_line(lines: list[_Line], tl: _Line) -> list[_Line]:
     for ln in lines:
         if not ln.is_row:
             continue
-        tail = _squash(" ".join(words[1:]))
-        if len(words) >= 3 and re.search(r"[A-Za-z]", words[0]) and len(tail) >= 8 and tail in ln.joined:
-            out.append(ln)
+        if len(words) >= 4 and re.search(r"[A-Za-z]", words[0]):
+            rest = words[1:]
+            if any(all(k + i < len(ln.cells) and _word_is_cell(w, ln.cells[k + i]) for i, w in enumerate(rest))
+                   for k in range(len(ln.cells) - len(rest) + 1)):
+                out.append(ln)
             continue
         if len(words) < 2 or not all(re.fullmatch(r"[-+±−]?\d+(?:\.\d+)?", w) for w in words):
             continue
@@ -605,8 +619,7 @@ def _rows_for_text_line(lines: list[_Line], tl: _Line) -> list[_Line]:
         for i, w in enumerate(words):
             if j + i >= len(ln.cells) or not ln.cells[j + i]:
                 break
-            c, sw = ln.cells[j + i], _squash(w)
-            if c != sw and not _alt_cell(c, sw):
+            if not _word_is_cell(w, ln.cells[j + i]):
                 break
             hits += 1
         if hits >= 2:  # 开头至少两格逐格相同；其余的数（如另起一列的质量）不在这一表格行中，按格核对时自然不通过
@@ -642,8 +655,7 @@ def _row_code(line: _Line, text_lines: list[_Line]) -> str | None:
     """表格行的型号格是空的（型号印在表格外）：找一行正文，首词是型号代码、其余与这一表格行的内容相同。"""
     for tl in text_lines:
         words = tl.spaced.split(" ")
-        tail = _squash(" ".join(words[1:]))
-        if len(words) >= 3 and len(tail) >= 8 and tail in line.joined:
+        if len(words) >= 4 and re.search(r"[A-Za-z]", words[0]) and line in _rows_for_text_line([line], tl):
             return words[0]
     return None
 
@@ -659,6 +671,12 @@ def _model_suffix(line: _Line, model: str) -> str | None:
                 if lc and lc.endswith(model[:cut]):
                     return model[cut:]
     return None
+
+
+def _row_key_is(line: _Line, raw: str) -> bool:
+    """按尺寸、减速比分行的表：行首的数字键与型号的数字分段完全一致（CSF-20-100 → 20 ¦ 100）。"""
+    _, segs = _key_segments(raw)
+    return bool(segs) and len(line.cells) > len(segs) and list(line.cells[:len(segs)]) == segs
 
 
 def _model_column(line: _Line, model: str, text: str, unit: str, raw: str = "",
@@ -744,6 +762,11 @@ def _model_columns(ctx: _Ctx, page: int) -> tuple[int, int] | None:
                 return names.index(ln.cells[j]), len(names)
         else:
             words = ln.spaced.split(" ")
+            _, segs = _key_segments(ctx.target_raw)
+            if segs and _loose(ln.spaced).startswith("size"):  # “Size Symbol 14 17 20 …”：按尺寸分列
+                nums = [w for w in words if re.fullmatch(r"\d+", w)]
+                if segs[0] in nums and len(nums) >= 3:
+                    return nums.index(segs[0]), len(nums)
             for i, w in enumerate(words):
                 lw = _loose(w)
                 if len(lw) >= 3 and model.startswith(lw) and model != lw and w.rstrip().endswith("-"):
@@ -774,6 +797,13 @@ def _text_row_column(line: _Line, label: str, text: str, unit: str, cols: tuple[
     if len(words) == 1 and _squash(words[0]) == _squash(text):
         return True, "该行只有一个数值，按各型号共用（合并单元格）处理"
     return False, f"该行有 {len(words)} 个数值，与 {n} 个型号列对不上"
+
+
+def _label_prefixes(label: str) -> list[str]:
+    """叫法本身，以及去掉末尾几个词后的说法（“Moment of Inertia I”的“I”是下一层表头）。"""
+    words = _spaced(label).split(" ")
+    return [_spaced(label)] + [" ".join(words[:k]) for k in range(len(words) - 1, 0, -1)
+                               if len(_loose(" ".join(words[:k]))) >= 4]
 
 
 def _label_span(line: _Line, label: str) -> range | None:
@@ -828,8 +858,9 @@ def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list
             continue
         if _loose(label) not in _loose(ln.joined):
             heads = "".join("".join(r) for r in ln.head_rows) or ln.header
-            if ln.is_row and _loose(label) in _loose(heads):
-                span, col = _label_span(ln, label), _value_col(ln, text, unit)
+            head_label = next((lb for lb in _label_prefixes(label) if _loose(lb) in _loose(heads)), None)
+            if ln.is_row and head_label:
+                span, col = _label_span(ln, head_label), _value_col(ln, text, unit)
                 if span is not None and col is not None and col not in span:
                     best = "数值不在叫法所在的列"
                     continue
@@ -848,19 +879,31 @@ def _locate(ctx: _Ctx, p: dict, unit: str, field: str) -> tuple[str | None, list
                 best = f"单位 {unit!r} 不在引用所在的行中，本页也找不到"
                 continue
             others = _other_units(ctx, page, unit, field)
+            if others and unit.strip().casefold() == "mm" and _UNIT_MM.search(ctx.page_spaced[page]):
+                others = []  # 本页写明了“Unit: mm”
             if others:
                 best = f"单位 {unit!r} 不在同一行，而本页还有其他同类单位 {others}，无法判断"
                 continue
             notes.append(f"单位 {unit} 不在同一行，取自本页其他位置")
         col = _value_col(ln, text, unit) if ln.is_row else None
         if col is not None and _alt_cell(ln.cells[col], _squash(text)):
-            notes.append("单元格括号内另有一个值（如带制动器的型号），取括号外的值")
+            notes.append("单元格另印有括号内的值（如带制动器的型号）或公差，取名义值")
         if ln.is_row and ctx.target_model:
-            column = _model_column(ln, ctx.target_model, text, unit, ctx.target_raw,
-                                   [x for x in ctx.lines[page] if not x.is_row])
+            text_lines = [x for x in ctx.lines[page] if not x.is_row]
+            column = _model_column(ln, ctx.target_model, text, unit, ctx.target_raw, text_lines)
             if column is False:
-                best = "数值不在目标型号所在的列"
-                continue
+                # 引用的是同一张表的另一行：目标型号所在的行，同一列印着同一个数时也算（如各减速比的输入转速相同）
+                col = _value_col(ln, text, unit)
+                twin = col is not None and any(
+                    r is not ln and r.is_row and r.head_rows == ln.head_rows and col < len(r.cells)
+                    and _cell_is(r.cells[col], text, unit)
+                    and _row_key_is(r, ctx.target_raw)
+                    for r in ctx.lines[page]) and ln.cells[0].isdigit() and not _row_key_is(ln, ctx.target_raw)
+                if not twin:
+                    best = "数值不在目标型号所在的列"
+                    continue
+                notes.append("引用的是同表另一行；目标型号所在行的同一列印着同一个数")
+                column = True
             if column is True:
                 return None, notes
         if ln.is_row:

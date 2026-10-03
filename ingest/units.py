@@ -41,7 +41,7 @@ SUFFIX_UNITS: dict[str, str] = {
 }
 
 # 量纲有歧义的字段，只接受白名单中的写法（规范化后的形式）
-_ANGLE = {"arcmin", "arcsec", "degree", "deg", "rad", "radian", "'", '"', "°"}
+_ANGLE = {"arcmin", "arcsec", "arc min", "arc-min", "arc sec", "arc-sec", "degree", "deg", "rad", "radian", "'", '"', "°"}
 _RATIO = {"", "1", "dimensionless", "%", "percent"}
 _SPEED = {"rpm", "r/min", "rev/min", "min^-1", "min-1", "1/min", "rps", "r/s", "rev/s"}
 _FREQ = {"Hz", "kHz"}
@@ -56,6 +56,7 @@ _ALIASES = {
     "r/min": "rpm", "rev/min": "rpm", "min^-1": "rpm", "min-1": "rpm", "1/min": "rpm",
     "rps": "rpm*60", "r/s": "rpm*60", "rev/s": "rpm*60",
     "'": "arcmin", '"': "arcsec", "°": "degree", "deg": "degree",
+    "arc min": "arcmin", "arc-min": "arcmin", "arc sec": "arcsec", "arc-sec": "arcsec",
     "%": "percent", "": "dimensionless", "1": "dimensionless",
     "arms": "A", "a rms": "A", "a(rms)": "A",
     "vdc": "V", "vac": "V", "v dc": "V", "v ac": "V", "vrms": "V", "v(rms)": "V",

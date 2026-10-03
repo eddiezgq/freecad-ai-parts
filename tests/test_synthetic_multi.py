@@ -315,8 +315,9 @@ def test_dimension_rows_identified_by_code_line():
             [None, None, None, None, "LR", "LC", "LB"],
             [None, "81.5(122)", "56.5(97)", "37.9", "25", "40", "30 0 -0.021"],
             [None, "93.5(134)", "68.5(109)", "49.9", "25", "40", "30 0 -0.021"]]
-    text = ("Unit: mm\nA5A\uf06fA2\uf06f 37.9 25 40 30 0 -0.021\n81.5 56.5 0.3\n"
-            "01A\uf06fA2\uf06f 49.9 25 40 30 0 -0.021\n93.5 68.5 0.4")
+    # 正文行只印名义值（30），表格格子带公差（30 0 -0.021）
+    text = ("Unit: mm\nA5A\uf06fA2\uf06f 37.9 25 40 30\n81.5 56.5 0.3\n"
+            "01A\uf06fA2\uf06f 49.9 25 40 30\n93.5 68.5 0.4")
     doc = Document("x", "0" * 64, [Page(1, text, [Table(1, 0, rows, (0, 0, 1, 1))])])
     lm = {"target": "dims/body_length_mm", "printed_text": "49.9", "printed_unit": "mm", "printed_label": "LM",
           "quote": "93.5(134) 68.5(109) 49.9 25 40", "page": 1, "confidence": 0.9, "value": 49.9}
@@ -326,12 +327,45 @@ def test_dimension_rows_identified_by_code_line():
     assert other["items"] == [] and other["rejected"][0]["reason"] == "数值不在目标型号所在的列"
     # 模型引用的是表格外的正文行：按内容对到同一表格行，再核对型号与列
     lc = dict(lm, target="dims/square_mm", printed_text="40", value=40, printed_label="LC",
-              quote="01AA2 49.9 25 40 30 0 -0.021")
+              quote="01AA2 49.9 25 40 30")
     assert verify({"items": [lc]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-01A")["items"]
     assert verify({"items": [lc]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-A5A")["items"] == []
     # “93.5 68.5 0.4”：L、LL（表格中带括号的制动器型号值）与质量；表格行在质量之前截断
     ll = dict(lm, target="dims/body_length_mm", printed_text="68.5", value=68.5, printed_label="LL",
               quote="93.5 68.5 0.4")
     got = verify({"items": [ll]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-01A")
-    assert got["items"] and any("括号" in i for i in got["items"][0]["issues"])
+    assert got["items"] and any("括号内的值" in i for i in got["items"][0]["issues"])
     assert verify({"items": [ll]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-A5A")["items"] == []
+    # 名义值后印着公差（表格格子“300-0.021”），正文行只有名义值“30”
+    lb = dict(lm, target="ports/mount_flange/pilot_diameter_mm", printed_text="30", value=30, printed_label="LB",
+              quote="01AA2 49.9 25 40 30")
+    assert verify({"items": [lb]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-01A")["items"]
+
+
+def test_tolerance_cells():
+    from ingest.llm_extract import _alt_cell
+
+    assert _alt_cell("300-0.021", "30") and _alt_cell("140-0.011", "14") and _alt_cell("85.5(125.5)", "85.5")
+    assert not _alt_cell("300", "30") and not _alt_cell("30.5", "30") and not _alt_cell("3000-0.021", "3")
+
+
+def test_size_text_rows_and_twin_rows():
+    doc = _hd_doc()
+    # 外形尺寸印在正文行：按“Size Symbol 14 17”的列序取数；本页写明“Unit: mm”时 mm 不与其他单位混淆
+    text = "Unit: mm  Torque 10 m\nSize Symbol 14 17 20\nφX 23 27 32"
+    dims = Document("x", "0" * 64, [Page(1, text)])
+    px = _hd("ports/output_flange/pcd_mm", "27", 27, "φX", "φX 23 27 32", "mm")
+    assert verify({"items": [px]}, dims, "reducer", DOC_ID, target_model="CSF-17-100-2UH")["items"]
+    assert verify({"items": [px]}, dims, "reducer", DOC_ID, target_model="CSF-20-100-2UH")["items"] == []
+    # 叫法“Moment of Inertia I”：末尾的“I”在下一层表头
+    inertia = _hd("params/input_inertia_kgm2", "0.079", 0.079, "Moment of Inertia I", "17 50 16 1.6 0.079 0.081",
+                  "×10−4kgm2")
+    assert verify({"items": [inertia]}, doc, "reducer", DOC_ID, target_model="CSF-17-50-2UH")["items"]
+    # 引用了同表另一行（14-30），目标型号（14-50）所在行同一列印着同一个数：接受并注明
+    twin = _hd("params/input_inertia_kgm2", "0.033", 0.033, "Moment of Inertia", "14 30 4.0 0.41 0.033 0.034",
+               "×10−4kgm2")
+    got = verify({"items": [twin]}, doc, "reducer", DOC_ID, target_model="CSF-14-50-2UH")
+    assert got["items"] and any("同表另一行" in i for i in got["items"][0]["issues"])
+    # 目标型号所在行同一列的数不同：仍拒收
+    other = verify({"items": [twin]}, doc, "reducer", DOC_ID, target_model="CSF-17-50-2UH")
+    assert other["items"] == []
