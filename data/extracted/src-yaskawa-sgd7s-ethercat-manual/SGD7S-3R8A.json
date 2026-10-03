@@ -14,6 +14,25 @@
   },
   "items": [
     {
+      "target": "ports/motor_out/rated_current_a",
+      "value": {
+        "value": 3.8,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 64
+        },
+        "method": "extracted",
+        "confidence": 0.8,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "3.8",
+        "unit": "Arms",
+        "label": "Continuous Output Current [Arms]",
+        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6"
+      }
+    },
+    {
       "target": "params/mass_kg",
       "value": {
         "value": 1.6,
@@ -57,7 +76,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 0 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/current_type",
       "page": 62,
       "printed": {
@@ -76,17 +95,6 @@
         "unit": "",
         "label": "Three-Phase",
         "quote": "Three-Phase, 200 VAC"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/motor_out/rated_current_a",
-      "page": 64,
-      "printed": {
-        "text": "3.8",
-        "unit": "Arms",
-        "label": "Continuous Output Current [Arms]",
-        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6"
       }
     },
     {

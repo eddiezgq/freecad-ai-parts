@@ -1,12 +1,34 @@
 {
-  "agreed": [],
-  "pending": [],
+  "agreed": [
+    "dims/overall_length_mm",
+    "params/ip_rating",
+    "params/max_speed_rpm",
+    "params/peak_torque_nm",
+    "params/rated_power_w",
+    "params/rated_speed_rpm",
+    "params/rated_torque_nm",
+    "params/rotor_inertia_kgm2",
+    "params/torque_constant_nm_per_a",
+    "ports/power_in/peak_current_a",
+    "ports/power_in/rated_current_a"
+  ],
+  "pending": [
+    {
+      "target": "dims/body_length_mm",
+      "check": {
+        "value": 85.5
+      },
+      "reason": "只有复核抽取报出"
+    }
+  ],
   "problems": [
     "端口 shaft 的坐标系需要轴伸或总长，请补字段",
     "包络缺少 dims/body_length_mm",
     "包络缺少 dims/square_mm"
   ],
-  "notes": [],
+  "notes": [
+    "dims/overall_length_mm 未用于包络，不会写入组件"
+  ],
   "reviewer": "claude（AI 复核）",
   "primary_model": "claude-sonnet-5-5",
   "check_model": "claude-opus-5-5"

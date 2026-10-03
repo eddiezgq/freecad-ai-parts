@@ -1,11 +1,48 @@
 {
   "agreed": [
+    "dims/outer_diameter_mm",
     "params/momentary_max_torque_nm",
     "params/rated_torque_nm",
     "params/ratio",
     "params/repeated_peak_torque_nm"
   ],
-  "pending": [],
+  "pending": [
+    {
+      "target": "ports/housing_mount/hole_diameter_mm",
+      "check": {
+        "value": 5.5
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/housing_mount/pcd_mm",
+      "check": {
+        "value": 96.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/input_bore/diameter_mm",
+      "check": {
+        "value": 14.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/output_flange/hole_count",
+      "check": {
+        "value": 8
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/output_flange/pcd_mm",
+      "check": {
+        "value": 42.0
+      },
+      "reason": "只有复核抽取报出"
+    }
+  ],
   "problems": [
     "端口 output_flange 的坐标系需要轴伸或总长，请补字段",
     "端口 housing_mount 的类型无法由已给字段判断（mechanical.flange / mechanical.mount_face），请补字段",

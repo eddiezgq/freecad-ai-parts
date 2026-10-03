@@ -1,8 +1,33 @@
 {
   "agreed": [
+    "params/ip_rating",
+    "params/max_speed_rpm",
+    "params/peak_torque_nm",
+    "params/rated_power_w",
+    "params/rated_speed_rpm",
+    "params/rated_torque_nm",
+    "params/rotor_inertia_kgm2",
+    "params/torque_constant_nm_per_a",
+    "ports/power_in/peak_current_a",
+    "ports/power_in/rated_current_a",
     "ports/power_in/voltage_class_v"
   ],
-  "pending": [],
+  "pending": [
+    {
+      "target": "dims/body_length_mm",
+      "check": {
+        "value": 107.5
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "dims/overall_length_mm",
+      "check": {
+        "value": 137.5
+      },
+      "reason": "只有复核抽取报出"
+    }
+  ],
   "problems": [
     "端口 shaft 的坐标系需要轴伸或总长，请补字段",
     "包络缺少 dims/body_length_mm",

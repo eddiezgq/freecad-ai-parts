@@ -12,41 +12,32 @@
     "prompt_version": "extract/3",
     "response_id": "msg_011CfeTePTC8PvsJAYXN5EqJ"
   },
-  "items": [],
-  "rejected": [
+  "items": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/motor_out/rated_current_a",
-      "page": 63,
-      "printed": {
-        "text": "11.6",
-        "unit": "Arms",
-        "label": "Continuous Output Current",
-        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/motor_out/peak_current_a",
-      "page": 63,
+      "value": {
+        "value": 28.0,
+        "condition": "Single-Phase, 200 VAC",
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 63
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "28",
         "unit": "Arms",
         "label": "Instantaneous Maximum Output Current",
         "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/motor_out/rated_current_a",
-      "page": 64,
-      "printed": {
-        "text": "11.6",
-        "unit": "Arms",
-        "label": "Continuous Output Current",
-        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6"
-      }
-    },
+      },
+      "issues": [
+        "工况 'Single-Phase, 200 VAC' 不在同一行，取自本页其他位置（表头或脚注），须核对"
+      ]
+    }
+  ],
+  "rejected": [
     {
       "reason": "工况 'Three-Phase, 200 VAC, Main Circuit' 在第 62 页找不到",
       "target": "ports/power_in/current_type",
@@ -70,7 +61,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 1 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/phases",
       "page": 62,
       "printed": {
@@ -92,7 +83,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 1 个数值，与 6 个型号列对不上",
       "target": "ports/power_in/phases",
       "page": 63,
       "printed": {
@@ -103,7 +94,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 5 个数值，与 6 个型号列对不上",
       "target": "ports/power_in/rated_current_a",
       "page": 63,
       "printed": {
@@ -136,7 +127,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "工况 '270 VDC, Main Circuit' 在第 64 页找不到",
       "target": "ports/power_in/rated_current_a",
       "page": 64,
       "printed": {
@@ -222,6 +213,28 @@
         "label": "Approx. mass",
         "quote": "Approx. mass: 2.3 kg"
       }
+    },
+    {
+      "target": "ports/motor_out/rated_current_a",
+      "page": 63,
+      "printed": {
+        "text": "11.6",
+        "unit": "Arms",
+        "label": "Continuous Output Current",
+        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6"
+      },
+      "reason": "同一 target 有互相矛盾的值"
+    },
+    {
+      "target": "ports/motor_out/rated_current_a",
+      "page": 64,
+      "printed": {
+        "text": "11.6",
+        "unit": "Arms",
+        "label": "Continuous Output Current",
+        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6"
+      },
+      "reason": "同一 target 有互相矛盾的值"
     },
     {
       "target": "vendor",
