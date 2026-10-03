@@ -44,6 +44,7 @@ from ingest.units import UnitError, normalize_param, standard_unit, to_standard
     # 角度、效率
     (60, "arcsec", "backlash_arcmin", 1),
     (1, "'", "lost_motion_arcmin", 1),
+    (1.0, "arc min", "lost_motion_arcmin", 1),                # Harmonic Drive 目录的写法
     (0.5, "°", "lost_motion_arcmin", 30),
     (70, "%", "efficiency_ratio", 0.7),
     (0.7, "", "efficiency_ratio", 0.7),
