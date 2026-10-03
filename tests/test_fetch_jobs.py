@@ -226,3 +226,4 @@ def test_diagnose_lists_nearest_lines(catalog_pdf, tmp_path):
     text = jx.diagnose([job], raw_dir=raw, out_dir=tmp_path)
     assert "params/ratio" in text and "表格行" in text and "skip me" not in text
     assert jx.diagnose([job], raw_dir=raw, out_dir=tmp_path, limit=0).strip() == ""
+    assert jx.diagnose([job, job], raw_dir=raw, out_dir=tmp_path).count("params/ratio") == 1  # 相同引用只列一次
