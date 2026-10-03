@@ -120,6 +120,54 @@ def run(jobs: list[dict], client, *, raw_dir: Path = RAW_DIR, out_dir: Path = OU
     return summary
 
 
+DIAGNOSE_REASONS = ("找不到", "叫法不在", "不在目标型号")
+
+
+def diagnose(jobs: list[dict], *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_DIR, per_item: int = 2,
+             limit: int = 40) -> str:
+    """排查核对程序（不调用 LLM）：对被拒的引用，列出规格书该页上最接近的行（表格行列出各单元格）。
+
+    只列与被拒引用最接近的少数几行（参数表的行），用于改进核对程序；结果只打印到运行日志，不写进仓库（ADR-0040）。
+    """
+    import difflib
+
+    from ingest.llm_extract import _context
+    from ingest.pdf_extract import extract
+
+    out, loaded, shown = [], {}, 0
+    for job in jobs:
+        path = output_path(job, out_dir)
+        for p in (path, path.with_suffix(".check.json")):
+            if not p.is_file() or shown >= limit:
+                continue
+            pdf = raw_dir / f"{job['doc']}.pdf"
+            if not pdf.is_file():
+                continue
+            if job["doc"] not in loaded:
+                loaded[job["doc"]] = _context(extract(pdf))
+            ctx = loaded[job["doc"]]
+            seen = set()
+            for r in json.loads(p.read_text(encoding="utf-8")).get("rejected", []):
+                quote, page = (r.get("printed") or {}).get("quote"), r.get("page")
+                if not quote or page not in ctx.lines or not any(k in r["reason"] for k in DIAGNOSE_REASONS):
+                    continue
+                if (page, quote) in seen or shown >= limit:
+                    continue
+                seen.add((page, quote))
+                shown += 1
+                q = re.sub(r"\s+", "", quote.replace("|", ""))
+                ranked = sorted(ctx.lines[page], key=lambda ln: -difflib.SequenceMatcher(None, q, ln.joined).ratio())
+                out.append(f"#### {p.name} · {r['target']} · 第 {page} 页\n\n- 原因：{r['reason']}\n- 引用：`{quote}`")
+                for ln in ranked[:per_item]:
+                    kind = "表格行" if ln.is_row else "正文行"
+                    shown_cells = " ¦ ".join(ln.cells) if ln.is_row else ln.spaced
+                    out.append(f"- {kind}：`{shown_cells}`")
+                    if ln.is_row:
+                        out.append(f"  - 表头前三行：`{' / '.join(' ¦ '.join(h) for h in ln.head_rows)}`")
+                out.append("")
+    return "\n".join(out) + "\n"
+
+
 def page_index(document, terms: list[str]) -> list[dict]:
     """每页的表格数、文字量、出现的检索词，以及页眉标题（每页前两行，各截取前 60 字），用来确定抽取任务的页码范围。
 
@@ -181,6 +229,10 @@ def main(argv: list[str] | None = None) -> int:
     p_run.add_argument("--check", action="store_true",
                        help="复核抽取：用另一个模型（FAP_CHECK_MODEL，缺省 claude-opus-5-5），结果写到 .check.json")
     p_run.add_argument("--summary", type=Path, help="把摘要（Markdown）写到此文件")
+    p_diag = sub.add_parser("diagnose", help="排查被拒的引用：列出该页最接近的行（只打印，不写进仓库）")
+    p_diag.add_argument("--doc", action="append", default=[], help="只排查这些文档（可重复）")
+    p_diag.add_argument("--limit", type=int, default=40, help="最多列出多少条被拒引用")
+    p_diag.add_argument("--summary", type=Path, help="把结果（Markdown）写到此文件")
     args = parser.parse_args(argv)
 
     data = yaml.safe_load(JOBS_FILE.read_text(encoding="utf-8")) if JOBS_FILE.is_file() else {}
@@ -216,6 +268,12 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{j['doc']}  {j['category']}  第 {j['pages'][0]}–{j['pages'][-1]} 页  {j['target']}")
         return 0
     jobs = [j for j in jobs if not args.doc or j["doc"] in args.doc]
+    if args.cmd == "diagnose":
+        text = diagnose(jobs, limit=args.limit)
+        print(text, end="")
+        if args.summary:
+            args.summary.write_text(text, encoding="utf-8")
+        return 0
     from ingest.llm_extract import AnthropicClient, RecordedClient
 
     client = AnthropicClient(record_dir=REAL_RECORDINGS) if args.record else RecordedClient(REAL_RECORDINGS)
