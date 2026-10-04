@@ -1,0 +1,143 @@
+{
+  "model": "claude-opus-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "a09cd6c6ea148250b62492456f8efb048af4b91257986e652f9ab7a8061b3a01",
+  "response": {
+    "id": "msg_011CfhedAZ4xQ93NscomGo4R",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.8,
+          "page": 64,
+          "printed_label": "Maximum Applicable Motor Capacity",
+          "printed_text": "0.1",
+          "printed_unit": "kW",
+          "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.5 0.75 1.0 1.5",
+          "target": "params/rated_output_power_w",
+          "value": 0.1
+        },
+        {
+          "confidence": 0.9,
+          "page": 63,
+          "printed_label": "Continuous Output Current",
+          "printed_text": "0.91",
+          "printed_unit": "Arms",
+          "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 0.91
+        },
+        {
+          "confidence": 0.9,
+          "page": 63,
+          "printed_label": "Instantaneous Maximum Output Current",
+          "printed_text": "3.2",
+          "printed_unit": "Arms",
+          "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 3.2
+        },
+        {
+          "confidence": 0.85,
+          "page": 62,
+          "printed_label": "Three-Phase, 200 VAC",
+          "printed_text": "Three-Phase, 200 VAC",
+          "printed_unit": "",
+          "quote": "Three-Phase, 200 VAC",
+          "target": "ports/power_in/current_type",
+          "value": "ac"
+        },
+        {
+          "confidence": 0.85,
+          "page": 62,
+          "printed_label": "Three-Phase, 200 VAC",
+          "printed_text": "Three-Phase",
+          "printed_unit": "",
+          "quote": "Three-Phase, 200 VAC",
+          "target": "ports/power_in/phases",
+          "value": 3
+        },
+        {
+          "condition": "Three-Phase, 200 VAC, Main Circuit",
+          "confidence": 0.85,
+          "max": 240,
+          "min": 200,
+          "page": 62,
+          "printed_label": "Power Supply",
+          "printed_text": "200 VAC to 240 VAC",
+          "printed_unit": "VAC",
+          "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz",
+          "target": "ports/power_in/voltage_v"
+        },
+        {
+          "condition": "Three-Phase, 200 VAC, Main Circuit",
+          "confidence": 0.8,
+          "page": 62,
+          "printed_label": "Input Current [Arms]*",
+          "printed_text": "0.8",
+          "printed_unit": "Arms",
+          "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |",
+          "target": "ports/power_in/rated_current_a",
+          "value": 0.8
+        },
+        {
+          "confidence": 0.9,
+          "page": 69,
+          "printed_label": "ETHERCAT IN",
+          "printed_text": "EtherCAT",
+          "printed_unit": "",
+          "quote": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "target": "ports/bus/protocol",
+          "value": "ethercat"
+        },
+        {
+          "confidence": 0.85,
+          "page": 69,
+          "printed_label": "ETHERCAT IN",
+          "printed_text": "RJ45",
+          "printed_unit": "",
+          "quote": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "target": "ports/bus/connector",
+          "value": "RJ45"
+        },
+        {
+          "confidence": 0.85,
+          "page": 69,
+          "printed_label": "CiA402 Drive Profile",
+          "printed_text": "CiA402",
+          "printed_unit": "",
+          "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "target": "ports/bus/profile",
+          "value": "cia402"
+        },
+        {
+          "condition": "Σ-7-series Mounting Hole Dimensions, C",
+          "confidence": 0.7,
+          "nominal": 160,
+          "page": 90,
+          "printed_label": "R70A, R90A, 1R6A",
+          "printed_text": "160 ±0.5",
+          "printed_unit": "mm",
+          "quote": "|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |",
+          "target": "ports/mount/pitch_y_mm",
+          "tol_lower": -0.5,
+          "tol_upper": 0.5
+        },
+        {
+          "condition": "Σ-7-series Mounting Hole Dimensions, Screw Size",
+          "confidence": 0.8,
+          "page": 90,
+          "printed_label": "R70A, R90A, 1R6A",
+          "printed_text": "M4",
+          "printed_unit": "",
+          "quote": "|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |",
+          "target": "ports/mount/thread",
+          "value": "M4"
+        }
+      ],
+      "model": "SGD7S-R90A",
+      "series": "Σ-7",
+      "vendor": "Yaskawa"
+    }
+  }
+}

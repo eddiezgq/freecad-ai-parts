@@ -1,6 +1,15 @@
 {
-  "agreed": [],
+  "agreed": [
+    "ports/motor_out/rated_current_a"
+  ],
   "pending": [
+    {
+      "target": "dims/width_mm",
+      "check": {
+        "value": 70.0
+      },
+      "reason": "只有复核抽取报出"
+    },
     {
       "target": "params/rated_output_power_w",
       "check": {
@@ -9,9 +18,41 @@
       "reason": "只有复核抽取报出"
     },
     {
-      "target": "ports/motor_out/rated_current_a",
+      "target": "ports/bus/connector",
       "check": {
-        "value": 3.8
+        "value": "RJ45"
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/bus/protocol",
+      "check": {
+        "value": "ethercat"
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/mount/pitch_x_mm",
+      "check": {
+        "nominal": 58.0,
+        "tol_upper": 0.5,
+        "tol_lower": -0.5
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/mount/pitch_y_mm",
+      "check": {
+        "nominal": 160.0,
+        "tol_upper": 0.5,
+        "tol_lower": -0.5
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/mount/thread",
+      "check": {
+        "value": "M4"
       },
       "reason": "只有复核抽取报出"
     }

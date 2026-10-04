@@ -1,0 +1,107 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "bad3dd047cd1334b4e83185f93e3bd0b93d6fcfe765e4d2d56831f7381c82455",
+  "response": {
+    "id": "msg_011Cfhe6hK8QK8z9B2c4sPcr",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.8,
+          "page": 63,
+          "printed_label": "Continuous Output Current [Arms]",
+          "printed_text": "0.91",
+          "printed_unit": "Arms",
+          "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 0.91
+        },
+        {
+          "confidence": 0.8,
+          "page": 63,
+          "printed_label": "Instantaneous Maximum Output Current [Arms]",
+          "printed_text": "3.2",
+          "printed_unit": "Arms",
+          "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 3.2
+        },
+        {
+          "confidence": 0.6,
+          "page": 69,
+          "printed_label": "Applicable Communications Standards",
+          "printed_text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "printed_unit": "",
+          "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "target": "ports/bus/protocol",
+          "value": "ethercat"
+        },
+        {
+          "confidence": 0.7,
+          "page": 69,
+          "printed_label": "CiA402 Drive Profile",
+          "printed_text": "CiA402",
+          "printed_unit": "",
+          "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "target": "ports/bus/profile",
+          "value": "cia402"
+        },
+        {
+          "confidence": 0.4,
+          "page": 69,
+          "printed_label": "Communications Connectors",
+          "printed_text": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "printed_unit": "",
+          "quote": "Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)",
+          "target": "ports/bus/connector",
+          "value": "RJ45"
+        },
+        {
+          "confidence": 0.5,
+          "page": 90,
+          "printed_label": "Mounting Hole Dimensions",
+          "printed_text": "160 ±0.5",
+          "printed_unit": "mm",
+          "quote": "168 5 160 ±0.5 45 35 − 25 − M4 2",
+          "target": "ports/mount/pattern",
+          "value": "linear"
+        },
+        {
+          "confidence": 0.6,
+          "nominal": 160,
+          "page": 90,
+          "printed_label": "C",
+          "printed_text": "160 ±0.5",
+          "printed_unit": "mm",
+          "quote": "|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |",
+          "target": "ports/mount/pitch_y_mm",
+          "tol_lower": -0.5,
+          "tol_upper": 0.5
+        },
+        {
+          "confidence": 0.6,
+          "page": 90,
+          "printed_label": "Number of Screws",
+          "printed_text": "2",
+          "printed_unit": "",
+          "quote": "168 5 160 ±0.5 45 35 − 25 − M4 2",
+          "target": "ports/mount/hole_count",
+          "value": 2
+        },
+        {
+          "confidence": 0.8,
+          "page": 90,
+          "printed_label": "Screw Size",
+          "printed_text": "M4",
+          "printed_unit": "",
+          "quote": "|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |",
+          "target": "ports/mount/thread",
+          "value": "M4"
+        }
+      ],
+      "model": "SGD7S-R90A",
+      "vendor": "Yaskawa"
+    }
+  }
+}
