@@ -102,7 +102,7 @@ def apply_confirmations(primary: dict, check: dict, cmp: dict, confirms: list[di
         if c.get("doc") != doc or c.get("model") != model or c.get("target") in cmp["agreed"]:
             continue
         t, v, who, day = c.get("target"), c.get("value"), c.get("confirmed_by"), c.get("date")
-        if not (isinstance(t, str) and isinstance(v, (int, float)) and who and day):
+        if not (isinstance(t, str) and isinstance(v, (int, float, str)) and not isinstance(v, bool) and who and day):
             notes.append(f"人工确认写法不全，未采用：{c}")
             continue
         field = t.rsplit("/", 1)[-1]
@@ -110,8 +110,12 @@ def apply_confirmations(primary: dict, check: dict, cmp: dict, confirms: list[di
         for ext in (primary, check):
             for it in ext["items"]:
                 got = it["value"].get("value", it["value"].get("nominal"))
-                if it["target"] == t and isinstance(got, (int, float)) and math.isclose(got, v, rel_tol=1e-6):
+                same = (got == v) if isinstance(v, str) else (
+                    isinstance(got, (int, float)) and not isinstance(got, bool) and math.isclose(got, v, rel_tol=1e-6))
+                if it["target"] == t and same:
                     pv = copy.deepcopy(it["value"])
+            if isinstance(v, str):
+                continue  # 文字值只能确认已通过引用核对的读数
             for r in ext["rejected"]:
                 printed = r.get("printed") or {}
                 if pv is None and r.get("target") == t and r.get("page") == c.get("page"):

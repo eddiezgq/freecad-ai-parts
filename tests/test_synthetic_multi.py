@@ -425,3 +425,16 @@ def test_drawing_hole_count():
     # 本页尺寸表没有列出的型号、孔数不符：拒收
     assert verify({"items": [hc]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-08A")["items"] == []
     assert verify({"items": [dict(hc, value=2)]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-04A")["items"] == []
+
+
+def test_option_condition_needs_code_in_line():
+    """型号选项（ADR-0044 第 3 条）：condition “编码器代码 7”，代码须印在引用的型号说明行里。"""
+    text = "Model SGM7J- A5A 01A\n7 24-bit absolute\nF 24-bit incremental\n2 Straight without key"
+    doc = Document("x", "0" * 64, [Page(1, text)])
+    p = {"target": "ports/shaft/feature", "printed_text": "Straight without key", "printed_unit": "",
+         "printed_label": "2", "quote": "2 Straight without key", "page": 1, "confidence": 0.9, "value": "plain",
+         "condition": "轴端代码 2"}
+    got = verify({"items": [p]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-01A")
+    assert got["items"] and any("型号选项" in i for i in got["items"][0]["issues"])
+    bad = dict(p, condition="轴端代码 6")
+    assert verify({"items": [bad]}, doc, "servo_motor", DOC_ID, target_model="SGM7J-01A")["items"] == []

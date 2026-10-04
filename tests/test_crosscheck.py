@@ -176,3 +176,17 @@ def test_human_confirmation_only_of_values_read_on_the_page():
         cmp = cx.compare(p, c)
         cx.apply_confirmations(p, c, cmp, [bad], "D-1")
         assert "dims/width_mm" not in cmp["agreed"]
+
+
+def test_human_confirmation_of_text_value_must_match_a_checked_reading():
+    item = {"target": "ports/encoder/kind", "value": {"value": "absolute", "source": {"doc": "src-x-doc", "page": 53},
+                                                      "method": "extracted", "confidence": 0.9, "reviewed": False}}
+    p, c = _ext("a", items=[item]), _ext("b")
+    ok = {"doc": "src-x-doc", "model": "D-1", "target": "ports/encoder/kind", "value": "absolute", "page": 53,
+          "confirmed_by": "张国庆", "date": "2026-10-04"}
+    cmp = cx.compare(p, c)
+    cx.apply_confirmations(p, c, cmp, [ok], "D-1")
+    assert cmp["agreed"]["ports/encoder/kind"]["value"] == "absolute" and not cmp["pending"]
+    cmp = cx.compare(p, c)
+    cx.apply_confirmations(p, c, cmp, [dict(ok, value="incremental")], "D-1")
+    assert "ports/encoder/kind" not in cmp["agreed"]
