@@ -476,3 +476,22 @@ def test_derive_iso286_fit():
     assert "ports/shaft/fit" not in derive("servo_motor", {"ports/shaft/diameter_mm": {"value": 8, "reviewed": True}})
     given = {"ports/shaft/diameter_mm": shaft, "ports/shaft/fit": {"value": "k6"}}
     assert "ports/shaft/fit" not in derive("servo_motor", given)
+
+
+def test_configurable_port_only_when_declared_and_empty():
+    """ADR-0045：人在任务中写明的端口、且没有任何规格时，按 configurable 输出；否则照常要求必填项。"""
+    a = next(s.answer for s in datasheets(0) if s.answer["category"] == "reducer")
+    values = {k: v for k, v in _answer_values(a).items() if not k.startswith("ports/motor_flange/")}
+    comp, problems, _ = assemble("reducer", "Synth Gear", "X", values, test=True)
+    assert comp is None and any("ports/1/spec" in p or "motor_flange" in p for p in problems)
+    why = {"motor_flange": "按所配电机定制"}
+    comp, problems, notes = assemble("reducer", "Synth Gear", "X", values, test=True, configurable=why)
+    port = next(p for p in comp["ports"] if p["id"] == "motor_flange")
+    assert port["configurable"] is True and port["spec"] == {} and "按所配电机定制" in port["note"]
+    from kb.validation import errors
+
+    assert errors("component.schema.json", comp) == [] and any("ADR-0045" in n for n in notes)
+    # 给了规格的端口不因写明 configurable 而放宽
+    full = _answer_values(a)
+    comp, _, _ = assemble("reducer", "Synth Gear", "X", full, test=True, configurable=why)
+    assert "configurable" not in next(p for p in comp["ports"] if p["id"] == "motor_flange")

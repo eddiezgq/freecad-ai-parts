@@ -145,7 +145,7 @@ def load_confirmations(path: Path = CONFIRMED_FILE) -> list[dict]:
 
 
 def build(primary: dict, check: dict, *, vendor: str, model: str, registry,
-          confirms: list[dict] | None = None) -> dict:
+          confirms: list[dict] | None = None, configurable: dict | None = None) -> dict:
     """比对并组装组件；返回 {component?, problems, notes, agreed, pending}。组件通过入库把关才返回。"""
     from ingest.assemble import assemble
     from kb.store import check_component
@@ -155,7 +155,8 @@ def build(primary: dict, check: dict, *, vendor: str, model: str, registry,
     doc = primary["document"]["doc"]
     note = (f"参数取自厂商公开资料 {doc}（ADR-0040），经两次独立抽取比对一致（{REVIEWER}）；"
             "不一致的项未收录，见 data/review/")
-    comp, problems, notes = assemble(primary["category"], vendor, model, cmp["agreed"], note=note)
+    comp, problems, notes = assemble(primary["category"], vendor, model, cmp["agreed"], note=note,
+                                     configurable=configurable)
     out = {"agreed": sorted(cmp["agreed"]), "pending": cmp["pending"], "problems": problems,
            "notes": confirmed + notes}
     if comp is not None:
@@ -178,6 +179,7 @@ def _jobs_with_vendor(data: dict, sources: dict) -> list[dict]:
     for j in load_jobs(data):
         spec = raw.get((j["doc"], j["category"]), {})
         j["vendor"] = spec.get("vendor") or vendors.get(owner.get(j["doc"], ""), "")
+        j["configurable_ports"] = dict(spec.get("configurable_ports") or {})  # 端口 id → 依据（ADR-0045）
         out.append(j)
     return out
 
@@ -215,7 +217,7 @@ def main(argv: list[str] | None = None) -> int:
         primary = json.loads(p_path.read_text(encoding="utf-8"))
         check = json.loads(c_path.read_text(encoding="utf-8"))
         res = build(primary, check, vendor=job["vendor"], model=primary.get("model") or job["target"],
-                    registry=registry, confirms=load_confirmations())
+                    registry=registry, confirms=load_confirmations(), configurable=job.get("configurable_ports"))
         review = args.review / job["doc"] / p_path.name
         review.parent.mkdir(parents=True, exist_ok=True)
         body = {k: res[k] for k in ("agreed", "pending", "problems", "notes")}
