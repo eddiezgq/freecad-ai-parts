@@ -12,6 +12,42 @@
     },
     {
       "$ref": "../common/port-base.schema.json#/$defs/mechanical"
+    },
+    {
+      "if": {
+        "properties": {
+          "configurable": {
+            "const": true
+          }
+        },
+        "required": [
+          "configurable"
+        ]
+      },
+      "then": {},
+      "else": {
+        "properties": {
+          "spec": {
+            "required": [
+              "pattern",
+              "pitch_y_mm",
+              "hole_count"
+            ],
+            "anyOf": [
+              {
+                "required": [
+                  "hole_diameter_mm"
+                ]
+              },
+              {
+                "required": [
+                  "thread"
+                ]
+              }
+            ]
+          }
+        }
+      }
     }
   ],
   "properties": {
@@ -76,24 +112,7 @@
           "description": "是否支持导轨安装"
         }
       },
-      "required": [
-        "pattern",
-        "pitch_y_mm",
-        "hole_count"
-      ],
       "additionalProperties": false,
-      "anyOf": [
-        {
-          "required": [
-            "hole_diameter_mm"
-          ]
-        },
-        {
-          "required": [
-            "thread"
-          ]
-        }
-      ],
       "allOf": [
         {
           "if": {

@@ -1,0 +1,22 @@
+{
+  "why": "没有标 configurable 时，分度圆、孔数、孔的形式仍须给出",
+  "instance": {
+    "id": "motor_flange",
+    "type": "mechanical.flange",
+    "dir": "bidir",
+    "motion": "stationary",
+    "frame": {
+      "origin_mm": [
+        0,
+        0,
+        0
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ]
+    },
+    "spec": {}
+  }
+}

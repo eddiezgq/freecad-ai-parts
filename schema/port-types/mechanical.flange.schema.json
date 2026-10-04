@@ -12,6 +12,30 @@
     },
     {
       "$ref": "../common/port-base.schema.json#/$defs/mechanical"
+    },
+    {
+      "if": {
+        "properties": {
+          "configurable": {
+            "const": true
+          }
+        },
+        "required": [
+          "configurable"
+        ]
+      },
+      "then": {},
+      "else": {
+        "properties": {
+          "spec": {
+            "required": [
+              "pcd_mm",
+              "hole_count",
+              "hole_kind"
+            ]
+          }
+        }
+      }
     }
   ],
   "properties": {
@@ -110,11 +134,6 @@
           "description": "第一个孔相对端口坐标系 x 轴的角度"
         }
       },
-      "required": [
-        "pcd_mm",
-        "hole_count",
-        "hole_kind"
-      ],
       "additionalProperties": false,
       "allOf": [
         {

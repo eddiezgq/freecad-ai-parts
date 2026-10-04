@@ -41,6 +41,10 @@
       "additionalProperties": false
     },
     "spec": {"type": "object", "description": "类型专属字段，由具体端口类型定义"},
+    "configurable": {
+      "type": "boolean",
+      "description": "厂商目录不规定、按配套件定制的端口（如整机型减速器按所配电机定制的输入法兰，ADR-0045）：spec 可以不全，相关校验结果为 unknown，不判通过"
+    },
     "note": {"type": "string"}
   },
   "required": ["id", "type", "dir", "spec"],

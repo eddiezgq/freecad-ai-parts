@@ -1,0 +1,23 @@
+{
+  "why": "安装面孔位按安装方式选配、目录不规定（ADR-0045）：configurable 为 true，spec 可以为空",
+  "instance": {
+    "id": "mount",
+    "type": "mechanical.mount_face",
+    "dir": "bidir",
+    "motion": "stationary",
+    "frame": {
+      "origin_mm": [
+        0,
+        0,
+        0
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ]
+    },
+    "configurable": true,
+    "spec": {}
+  }
+}

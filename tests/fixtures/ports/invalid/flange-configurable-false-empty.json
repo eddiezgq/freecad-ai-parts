@@ -1,0 +1,23 @@
+{
+  "why": "configurable 为 false 时与不写相同，仍须给出必填字段",
+  "instance": {
+    "id": "motor_flange",
+    "type": "mechanical.flange",
+    "dir": "bidir",
+    "motion": "stationary",
+    "frame": {
+      "origin_mm": [
+        0,
+        0,
+        0
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ]
+    },
+    "configurable": false,
+    "spec": {}
+  }
+}

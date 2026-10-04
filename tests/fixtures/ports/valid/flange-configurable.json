@@ -1,0 +1,23 @@
+{
+  "why": "整机型减速器的输入法兰按所配电机定制，目录不规定（ADR-0045）：configurable 为 true，spec 可以为空",
+  "instance": {
+    "id": "motor_flange",
+    "type": "mechanical.flange",
+    "dir": "bidir",
+    "motion": "stationary",
+    "frame": {
+      "origin_mm": [
+        0,
+        0,
+        0
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ]
+    },
+    "configurable": true,
+    "spec": {}
+  }
+}
