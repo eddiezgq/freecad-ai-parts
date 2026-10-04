@@ -88,11 +88,13 @@ def _numbers(text: str) -> list[float]:
 
 
 def apply_confirmations(primary: dict, check: dict, cmp: dict, confirms: list[dict], model: str) -> list[str]:
-    """人工确认（ADR-0044 第 4 条）：只能确认至少一次抽取在规格书该页上读到的数。
+    """人工确认与人工录入（ADR-0044 第 4 条）。
 
-    - 已通过引用核对的项：确认值须等于它的值
-    - 被引用核对拒收的项（如只印在图纸上的尺寸）：确认值须出现在它印出的文字中，页码一致
-    确认后的值记为 reviewed，来源注明确认人与日期。返回说明。
+    - 确认：已通过引用核对的项，确认值须等于它的值；被拒收的项（如只印在图纸上的尺寸），确认值须出现在
+      它印出的文字中，页码一致
+    - 录入：没有任何抽取读到时，由人对照规格书填写，须给出页码与照抄的原文 quote
+    - 给出 tol_upper / tol_lower 时按名义值加公差记录
+    确认或录入的值记为 reviewed，来源注明确认人与日期。返回说明。
     """
     from ingest.units import to_standard
 
@@ -126,14 +128,25 @@ def apply_confirmations(primary: dict, check: dict, cmp: dict, confirms: list[di
                     if any(math.isclose(n * factor, v, rel_tol=1e-6) for n in _numbers(printed.get("text", ""))):
                         pv = {"value": v, "source": {"doc": doc, "page": r["page"]}, "method": "manual",
                               "confidence": 1}
+        quote = c.get("quote")
+        manual = pv is None and isinstance(c.get("page"), int) and isinstance(quote, str) and quote.strip()
+        if manual:
+            pv = {"value": v, "source": {"doc": doc, "page": c["page"]}, "method": "manual", "confidence": 1}
         if pv is None:
-            notes.append(f"{t} 的人工确认值 {v} 不是任何一次抽取在该页读到的数，未采用")
+            notes.append(f"{t} 的人工确认值 {v} 不是任何一次抽取在该页读到的数，也没有给出页码与原文，未采用")
             continue
+        tol = (c.get("tol_upper"), c.get("tol_lower"))
+        if all(isinstance(x, (int, float)) and not isinstance(x, bool) for x in tol) and not isinstance(v, str):
+            for k in ("value", "min", "max"):
+                pv.pop(k, None)
+            pv.update(nominal=v, tol_upper=tol[0], tol_lower=tol[1])
         pv["reviewed"] = True
-        pv["source"]["note"] = f"人工确认：{who}（{day}），对照规格书第 {pv['source'].get('page')} 页"
+        how = f"人工录入：{who}（{day}），规格书第 {c['page']} 页原文“{quote.strip()}”" if manual else \
+            f"人工确认：{who}（{day}），对照规格书第 {pv['source'].get('page')} 页"
+        pv["source"]["note"] = how
         cmp["agreed"][t] = pv
         cmp["pending"] = [row for row in cmp["pending"] if row["target"] != t]
-        notes.append(f"{t} = {v} 由 {who} 人工确认")
+        notes.append(f"{t} = {v} 由 {who} {'人工录入' if manual else '人工确认'}")
     return notes
 
 
