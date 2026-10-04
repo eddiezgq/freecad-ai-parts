@@ -1,0 +1,319 @@
+# 人工确认与人工录入（ADR-0044 第 4 条）。2026-10-04：项目负责人上传规格书并指示“都确认”，由 Claude 逐项对照原页核对；项目负责人可抽查推翻。
+confirmations:
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-02A
+  target: ports/shaft/usable_length_mm
+  value: 30.0
+  page: 65
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 02AA2 51.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-02A
+  target: dims/square_mm
+  value: 60.0
+  page: 65
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 02AA2 51.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-02A
+  target: ports/shaft/diameter_mm
+  value: 14.0
+  page: 66
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '| S | 8 0 -0.009 | 14 0 -0.011 |'
+  tol_upper: 0.0
+  tol_lower: -0.011
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-02A
+  target: ports/shaft/feature
+  value: plain
+  page: 53
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '| 2 | Straight without key |'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-02A
+  target: ports/mount_flange/pcd_mm
+  value: 70.0
+  page: 65
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 02AA2 51.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-02A
+  target: ports/mount_flange/hole_diameter_mm
+  value: 5.5
+  page: 65
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 02AA2 51.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-02A
+  target: ports/mount_flange/hole_kind
+  value: through
+  page: 65
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '0.02 4 × LZ dia. Unit: mm'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-02A
+  target: ports/power_in/voltage_class_v
+  value: 200.0
+  page: 53
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '| A | 200 VAC |'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-02A
+  target: ports/encoder/kind
+  value: absolute
+  page: 53
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '| 6 | 24-bit batteryless absolute |'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-25-100-2UH
+  target: ports/housing_mount/pcd_mm
+  value: 96.0
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-25-100-2UH
+  target: ports/housing_mount/hole_count
+  value: 8
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | CSF Series | 6 | 6 | 6 | 8 | 12 | 8 | 12 | 12 | 12 | 8 |'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-25-100-2UH
+  target: ports/housing_mount/hole_diameter_mm
+  value: 5.5
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-25-100-2UH
+  target: ports/housing_mount/hole_kind
+  value: through
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-25-100-2UH
+  target: ports/input_bore/diameter_mm
+  value: 14.0
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-25-100-2UH
+  target: ports/input_bore/fit
+  value: H7
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φU H7 6 8 12 14 14 14 19 19 22 24
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-25-100-2UH
+  target: ports/input_bore/feature
+  value: keyed
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: W Js9 - - 4 5 5 5 6 6 6 8
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-25-100-2UH
+  target: ports/output_flange/pcd_mm
+  value: 42.0
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-25-100-2UH
+  target: ports/output_flange/hole_count
+  value: 8
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-25-100-2UH
+  target: ports/output_flange/hole_kind
+  value: threaded
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-1R6A
+  target: ports/power_in/current_type
+  value: ac
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-1R6A
+  target: ports/power_in/voltage_v
+  value: 200.0
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-1R6A
+  target: ports/power_in/phases
+  value: 3
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Three-Phase, 200 VAC
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-1R6A
+  target: ports/bus/protocol
+  value: ethercat
+  page: 69
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 'Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-1R6A
+  target: ports/mount/pitch_y_mm
+  value: 160.0
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-1R6A
+  target: ports/mount/hole_count
+  value: 2
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 1R6A 168 5 160 ±0.5 45 35 − 25 − M4 2
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-1R6A
+  target: dims/width_mm
+  value: 45.0
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-1R6A
+  target: dims/height_mm
+  value: 168.0
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-25-100-2UH
+  target: dims/overall_length_mm
+  value: 46.0
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: C 34 37 38 46 57 66.5 74 85 97 108.5
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-25-100-2UH
+  target: ports/input_bore/clamping
+  value: key
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: W Js9 - - 4 5 5 5 6 6 6 8
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-25-100-2UH
+  target: ports/output_flange/thread
+  value: M8
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-02A
+  target: ports/encoder/protocol
+  value: vendor_proprietary
+  page: 53
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '| 6 | 24-bit batteryless absolute |'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-02A
+  target: ports/encoder/vendor
+  value: Yaskawa
+  page: 53
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '| 6 | 24-bit batteryless absolute |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-1R6A
+  target: dims/depth_mm
+  value: 140.0
+  page: 79
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 2 × M4 45 (75) 140
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-1R6A
+  target: ports/motor_out/voltage_class_v
+  value: 200.0
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Three-Phase, 200 VAC
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-1R6A
+  target: ports/encoder_in/protocol
+  value: vendor_proprietary
+  page: 67
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 'Serial encoder: 20 bits or 24 bits (incremental encoder/absolute'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-1R6A
+  target: ports/encoder_in/kind
+  value: absolute
+  page: 67
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 'Serial encoder: 20 bits or 24 bits (incremental encoder/absolute'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-1R6A
+  target: ports/encoder_in/vendor
+  value: Yaskawa
+  page: 67
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 'Serial encoder: 20 bits or 24 bits (incremental encoder/absolute'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-1R6A
+  target: ports/mount/pattern
+  value: rect
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-1R6A
+  target: ports/mount/pitch_x_mm
+  value: 10.0
+  page: 79
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 25 10 ±0.5 (mounting pitch)
+  tol_upper: 0.5
+  tol_lower: -0.5
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-1R6A
+  target: ports/mount/thread
+  value: M4
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |'

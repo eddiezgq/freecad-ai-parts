@@ -17,7 +17,8 @@
     "包络缺少 dims/overall_length_mm"
   ],
   "notes": [
-    "推导 ports/housing_mount/hole_kind = through（印有孔径，故为通孔）"
+    "推导 ports/housing_mount/hole_kind = through（印有孔径，故为通孔）",
+    "端口 motor_flange 由厂商目录不规定，按 configurable 输出：Harmonic Drive CSF-2UH 整机型的电机安装法兰按所配电机定制，目录不规定孔位（ADR-0045）"
   ],
   "reviewer": "claude（AI 复核）",
   "primary_model": "claude-sonnet-5-5",
