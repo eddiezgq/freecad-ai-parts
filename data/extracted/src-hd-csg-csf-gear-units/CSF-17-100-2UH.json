@@ -7,11 +7,10 @@
   },
   "category": "reducer",
   "model": "CSF-17-100-2UH",
-  "series": "CSF",
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CffMuEo1r5q25do83VXBr"
+    "response_id": "msg_011CfhXqaVjkh3Wt48ttZi5w"
   },
   "items": [
     {
@@ -23,7 +22,7 @@
           "page": 9
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.85,
         "reviewed": false
       },
       "printed": {
@@ -46,7 +45,7 @@
           "page": 9
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.8,
         "reviewed": false
       },
       "printed": {
@@ -69,7 +68,7 @@
           "page": 9
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.8,
         "reviewed": false
       },
       "printed": {
@@ -91,7 +90,7 @@
           "page": 9
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.8,
         "reviewed": false
       },
       "printed": {
@@ -113,14 +112,14 @@
           "page": 11
         },
         "method": "extracted",
-        "confidence": 0.8,
+        "confidence": 0.85,
         "reviewed": false
       },
       "printed": {
         "text": "0.68",
         "unit": "kg",
-        "label": "Mass (kg) CSF Series",
-        "quote": "|  | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |"
+        "label": "Mass (kg)",
+        "quote": "| Mass (kg) | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |"
       }
     },
     {
@@ -160,28 +159,6 @@
     },
     {
       "reason": "数值不在目标型号所在的列",
-      "target": "params/max_input_speed_rpm",
-      "page": 9,
-      "printed": {
-        "text": "10000",
-        "unit": "rpm",
-        "label": "Maximum Input Speed (rpm) Oil lubricant",
-        "quote": "| 17 | 30 | 8.8 | 0.90 | 16 | 1.6 | 12 | 1.2 | 30 | 3.1 | 10000 | 7300 | 6500 | 3500 | 0.079 | 0.081 |"
-      }
-    },
-    {
-      "reason": "数值不在目标型号所在的列",
-      "target": "params/avg_input_speed_limit_rpm",
-      "page": 9,
-      "printed": {
-        "text": "6500",
-        "unit": "rpm",
-        "label": "Limit for Average Input Speed (rpm) Oil lubricant",
-        "quote": "| 17 | 30 | 8.8 | 0.90 | 16 | 1.6 | 12 | 1.2 | 30 | 3.1 | 10000 | 7300 | 6500 | 3500 | 0.079 | 0.081 |"
-      }
-    },
-    {
-      "reason": "数值不在目标型号所在的列",
       "target": "params/input_inertia_kgm2",
       "page": 9,
       "printed": {
@@ -190,13 +167,6 @@
         "label": "Moment of Inertia",
         "quote": "| 17 | 30 | 8.8 | 0.90 | 16 | 1.6 | 12 | 1.2 | 30 | 3.1 | 10000 | 7300 | 6500 | 3500 | 0.079 | 0.081 |"
       }
-    },
-    {
-      "target": "vendor",
-      "printed": {
-        "text": "Harmonic Drive"
-      },
-      "reason": "vendor 在规格书中找不到"
     }
   ],
   "missing_key_fields": [

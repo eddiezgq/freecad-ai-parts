@@ -10,7 +10,7 @@
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CffQ18Lj26zvYapsL1hVN"
+    "response_id": "msg_011Cfha8esPAQ9GwjifYuaAg"
   },
   "items": [
     {
@@ -22,7 +22,7 @@
           "page": 63
         },
         "method": "extracted",
-        "confidence": 0.6,
+        "confidence": 0.85,
         "reviewed": false
       },
       "printed": {
@@ -76,6 +76,28 @@
   ],
   "rejected": [
     {
+      "reason": "该行有 0 个数值，与 11 个型号列对不上",
+      "target": "ports/power_in/current_type",
+      "page": 62,
+      "printed": {
+        "text": "Three-Phase, 200 VAC",
+        "unit": "",
+        "label": "Three-Phase, 200 VAC",
+        "quote": "Three-Phase, 200 VAC"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/phases",
+      "page": 62,
+      "printed": {
+        "text": "Three-Phase",
+        "unit": "",
+        "label": "Three-Phase, 200 VAC",
+        "quote": "Three-Phase, 200 VAC"
+      }
+    },
+    {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/power_in/voltage_v",
       "page": 62,
@@ -88,24 +110,13 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/current_type",
+      "target": "ports/power_in/frequency_hz",
       "page": 62,
       "printed": {
-        "text": "VAC",
-        "unit": "",
+        "text": "50 Hz/60 Hz",
+        "unit": "Hz",
         "label": "Power Supply",
         "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/phases",
-      "page": 62,
-      "printed": {
-        "text": "Three-Phase",
-        "unit": "",
-        "label": "Three-Phase",
-        "quote": "Three-Phase, 200 VAC"
       }
     },
     {
@@ -115,19 +126,8 @@
       "printed": {
         "text": "4.1",
         "unit": "Arms",
-        "label": "Input Current",
+        "label": "Input Current [Arms]*",
         "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/encoder_in/kind",
-      "page": 67,
-      "printed": {
-        "text": "incremental encoder/absolute",
-        "unit": "",
-        "label": "Serial encoder",
-        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
       }
     },
     {
@@ -146,7 +146,7 @@
       "target": "ports/bus/profile",
       "page": 69,
       "printed": {
-        "text": "CiA402 Drive Profile",
+        "text": "CiA402",
         "unit": "",
         "label": "Applicable Communications Standards",
         "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
@@ -160,7 +160,29 @@
         "text": "RJ45",
         "unit": "",
         "label": "Communications Connectors",
-        "quote": "Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)"
+        "quote": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/encoder_in/kind",
+      "page": 67,
+      "printed": {
+        "text": "incremental encoder/absolute",
+        "unit": "",
+        "label": "Serial encoder",
+        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/safety_functions",
+      "page": 70,
+      "printed": {
+        "text": "/HWBB1 and /HWBB2",
+        "unit": "",
+        "label": "Safety Functions Inputs",
+        "quote": "Inputs /HWBB1 and /HWBB2: Base block signals for Power Modules"
       }
     },
     {
@@ -168,10 +190,30 @@
       "target": "params/mass_kg",
       "page": 80,
       "printed": {
-        "text": "1.6",
+        "text": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg",
         "unit": "kg",
         "label": "Approx. mass",
         "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg"
+      }
+    },
+    {
+      "reason": "缺少 printed_label",
+      "target": "dims/width_mm",
+      "page": 80,
+      "printed": {
+        "text": "70",
+        "unit": "mm",
+        "quote": "70 (75) 180 70"
+      }
+    },
+    {
+      "reason": "缺少 printed_label",
+      "target": "dims/depth_mm",
+      "page": 80,
+      "printed": {
+        "text": "180",
+        "unit": "mm",
+        "quote": "70 (75) 180 70"
       }
     },
     {
@@ -186,26 +228,11 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "dims/width_mm",
-      "page": 80,
+      "target": "vendor",
       "printed": {
-        "text": "70",
-        "unit": "mm",
-        "label": "Exterior",
-        "quote": "70 (75) 180 70"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "dims/depth_mm",
-      "page": 80,
-      "printed": {
-        "text": "180",
-        "unit": "mm",
-        "label": "Exterior",
-        "quote": "70 (75) 180 70"
-      }
+        "text": "Yaskawa"
+      },
+      "reason": "vendor 在规格书中找不到"
     },
     {
       "target": "series",

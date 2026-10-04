@@ -1,0 +1,182 @@
+{
+  "model": "claude-opus-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "ffbd831103a58e239fbccfec44d3cfec6b36c205b8d84d64eefb1de09dd81bde",
+  "response": {
+    "id": "msg_011CfhZ9zYxyE732ZQ5EUdLk",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.8,
+          "page": 10,
+          "printed_label": "wave generator, flexspline, circular spline",
+          "printed_text": "wave generator, flexspline, circular spline",
+          "printed_unit": "",
+          "quote": "components (wave generator, flexspline, circular spline). Please strictly ● CSF & CSG-LW available in sizes 14 to 45.",
+          "target": "params/reducer_kind",
+          "value": "harmonic"
+        },
+        {
+          "confidence": 0.9,
+          "page": 9,
+          "printed_label": "Ratio",
+          "printed_text": "100",
+          "printed_unit": "",
+          "quote": "|  | 100 | 137 | 14 | 333 | 34 | 216 | 22 | 647 | 66 |  |  |  |  |  |  |",
+          "target": "params/ratio",
+          "value": 100
+        },
+        {
+          "condition": "Rated Torque at 2000rpm",
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Rated Torque at 2000rpm",
+          "printed_text": "137",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 137 | 14 | 333 | 34 | 216 | 22 | 647 | 66 |  |  |  |  |  |  |",
+          "target": "params/rated_torque_nm",
+          "value": 137
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Repeated Peak Torque",
+          "printed_text": "333",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 137 | 14 | 333 | 34 | 216 | 22 | 647 | 66 |  |  |  |  |  |  |",
+          "target": "params/repeated_peak_torque_nm",
+          "value": 333
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Momentary Peak Torque",
+          "printed_text": "647",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 137 | 14 | 333 | 34 | 216 | 22 | 647 | 66 |  |  |  |  |  |  |",
+          "target": "params/momentary_max_torque_nm",
+          "value": 647
+        },
+        {
+          "condition": "Oil lubricant",
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Maximum Input Speed (rpm)",
+          "printed_text": "7000",
+          "printed_unit": "rpm",
+          "quote": "| 32 | 30 | 54 | 5.5 | 100 | 10 | 75 | 7.7 | 200 | 20 | 7000 | 4800 | 4600 | 3500 | 1.69 | 1.72 |",
+          "target": "params/max_input_speed_rpm",
+          "value": 7000
+        },
+        {
+          "condition": "Grease lubricant",
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Maximum Input Speed (rpm)",
+          "printed_text": "4800",
+          "printed_unit": "rpm",
+          "quote": "| 32 | 30 | 54 | 5.5 | 100 | 10 | 75 | 7.7 | 200 | 20 | 7000 | 4800 | 4600 | 3500 | 1.69 | 1.72 |",
+          "target": "params/max_input_speed_rpm",
+          "value": 4800
+        },
+        {
+          "condition": "Oil lubricant",
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Limit for Average Input Speed (rpm)",
+          "printed_text": "4600",
+          "printed_unit": "rpm",
+          "quote": "| 32 | 30 | 54 | 5.5 | 100 | 10 | 75 | 7.7 | 200 | 20 | 7000 | 4800 | 4600 | 3500 | 1.69 | 1.72 |",
+          "target": "params/avg_input_speed_limit_rpm",
+          "value": 4600
+        },
+        {
+          "condition": "Grease lubricant",
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Limit for Average Input Speed (rpm)",
+          "printed_text": "3500",
+          "printed_unit": "rpm",
+          "quote": "| 32 | 30 | 54 | 5.5 | 100 | 10 | 75 | 7.7 | 200 | 20 | 7000 | 4800 | 4600 | 3500 | 1.69 | 1.72 |",
+          "target": "params/avg_input_speed_limit_rpm",
+          "value": 3500
+        },
+        {
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Moment of Inertia I",
+          "printed_text": "1.69",
+          "printed_unit": "×10−4kgm2",
+          "quote": "| 32 | 30 | 54 | 5.5 | 100 | 10 | 75 | 7.7 | 200 | 20 | 7000 | 4800 | 4600 | 3500 | 1.69 | 1.72 |",
+          "target": "params/input_inertia_kgm2",
+          "value": 1.69
+        },
+        {
+          "confidence": 0.75,
+          "page": 11,
+          "printed_label": "CSF Series",
+          "printed_text": "3.2",
+          "printed_unit": "kg",
+          "quote": "|  | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |",
+          "target": "params/mass_kg",
+          "value": 3.2
+        },
+        {
+          "condition": "Reduction ratio 80 or more, K1",
+          "confidence": 0.7,
+          "page": 13,
+          "printed_label": "K1",
+          "printed_text": "6.7",
+          "printed_unit": "×104Nm/rad",
+          "quote": "| Reduction ratio 80 or more | K1 | ×104Nm/rad | 0.47 | 1 | 1.6 | 3.1 | 6.7 | 13 | 18 | 25 | 40 | 54 |",
+          "target": "params/torsional_stiffness_nm_per_arcmin",
+          "value": 6.7
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "φA",
+          "printed_text": "138",
+          "printed_unit": "mm",
+          "quote": "| φA |  | 73 | 79 | 93 | 107 | 138 | 160 | 180 | 190 | 226 | 260 |",
+          "target": "dims/outer_diameter_mm",
+          "value": 138
+        },
+        {
+          "confidence": 0.7,
+          "page": 11,
+          "printed_label": "φU H7",
+          "printed_text": "14",
+          "printed_unit": "mm",
+          "quote": "φU H7 6 8 12 14 14 14 19 19 22 24",
+          "target": "ports/input_bore/diameter_mm",
+          "value": 14
+        },
+        {
+          "confidence": 0.7,
+          "page": 11,
+          "printed_label": "φU H7",
+          "printed_text": "H7",
+          "printed_unit": "",
+          "quote": "φU H7 6 8 12 14 14 14 19 19 22 24",
+          "target": "ports/input_bore/fit",
+          "value": "H7"
+        },
+        {
+          "confidence": 0.65,
+          "page": 11,
+          "printed_label": "W Js9",
+          "printed_text": "5",
+          "printed_unit": "mm",
+          "quote": "W Js9 - - 4 5 5 5 6 6 6 8",
+          "target": "ports/input_bore/key_width_mm",
+          "value": 5
+        }
+      ],
+      "model": "CSF-32-100-2UH",
+      "series": "CSF",
+      "vendor": "Harmonic Drive"
+    }
+  }
+}

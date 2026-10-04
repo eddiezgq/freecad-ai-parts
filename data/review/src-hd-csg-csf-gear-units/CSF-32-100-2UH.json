@@ -5,37 +5,29 @@
     "params/momentary_max_torque_nm",
     "params/rated_torque_nm",
     "params/ratio",
-    "params/repeated_peak_torque_nm",
-    "ports/input_bore/diameter_mm"
+    "params/repeated_peak_torque_nm"
   ],
   "pending": [
     {
-      "target": "ports/housing_mount/hole_diameter_mm",
+      "target": "ports/input_bore/diameter_mm",
       "check": {
+        "value": 14.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/output_flange/hole_diameter_mm",
+      "primary": {
         "value": 6.6
       },
-      "reason": "只有复核抽取报出"
-    },
-    {
-      "target": "ports/housing_mount/pcd_mm",
-      "check": {
-        "value": 125.0
-      },
-      "reason": "只有复核抽取报出"
-    },
-    {
-      "target": "ports/output_flange/hole_count",
-      "check": {
-        "value": 8
-      },
-      "reason": "只有复核抽取报出"
+      "reason": "只有主抽取报出"
     },
     {
       "target": "ports/output_flange/pcd_mm",
-      "check": {
-        "value": 55.0
+      "primary": {
+        "value": 125.0
       },
-      "reason": "只有复核抽取报出"
+      "reason": "只有主抽取报出"
     }
   ],
   "problems": [

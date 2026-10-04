@@ -10,7 +10,7 @@
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CffNYFYSLHw5zaEAuZTGa"
+    "response_id": "msg_011CfhYUmT5exMiyzvbJuSYz"
   },
   "items": [
     {
@@ -54,22 +54,11 @@
   ],
   "rejected": [
     {
-      "reason": "原文引用在第 62 页的任何一行中都找不到",
-      "target": "params/rated_output_power_w",
-      "page": 62,
-      "printed": {
-        "text": "0.05",
-        "unit": "kW",
-        "label": "Maximum Applicable Motor Capacity [kW]",
-        "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.5 0.75 1.0 1.5 2.0 3.0 5.0"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "工况 'Three-Phase, 200 VAC, Main Circuit' 在第 62 页找不到",
       "target": "ports/power_in/current_type",
       "page": 62,
       "printed": {
-        "text": "200 VAC to 240 VAC",
+        "text": "200 VAC to 240 VAC, 50 Hz/60 Hz",
         "unit": "",
         "label": "Power Supply",
         "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
@@ -77,17 +66,28 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/voltage_v",
+      "page": 62,
+      "printed": {
+        "text": "200 VAC to 240 VAC",
+        "unit": "VAC",
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+      }
+    },
+    {
+      "reason": "该行有 0 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/phases",
       "page": 62,
       "printed": {
-        "text": "Three-Phase",
+        "text": "Three-Phase, 200 VAC",
         "unit": "",
         "label": "Three-Phase, 200 VAC",
         "quote": "Three-Phase, 200 VAC"
       }
     },
     {
-      "reason": "工况 'Main circuit, Three-Phase, 200 VAC' 在第 62 页找不到",
+      "reason": "工况 'Three-Phase 200 VAC, Main Circuit' 在第 62 页找不到",
       "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
@@ -102,10 +102,10 @@
       "target": "ports/bus/protocol",
       "page": 69,
       "printed": {
-        "text": "EtherCAT",
+        "text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
         "unit": "",
-        "label": "EtherCAT error status",
-        "quote": "EtherCAT error status: ERR x 1"
+        "label": "Applicable Communications Standards",
+        "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
       }
     },
     {
@@ -113,21 +113,10 @@
       "target": "ports/bus/profile",
       "page": 69,
       "printed": {
-        "text": "CiA402",
+        "text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
         "unit": "",
         "label": "CiA402 Drive Profile",
         "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
-      }
-    },
-    {
-      "reason": "值 ['HWBB'] 与印出的文字 '/HWBB1 and /HWBB2: Base block signals for Power Modules' 不一致",
-      "target": "params/safety_functions",
-      "page": 70,
-      "printed": {
-        "text": "/HWBB1 and /HWBB2: Base block signals for Power Modules",
-        "unit": "",
-        "label": "Inputs",
-        "quote": "Inputs /HWBB1 and /HWBB2: Base block signals for Power Modules"
       }
     },
     {

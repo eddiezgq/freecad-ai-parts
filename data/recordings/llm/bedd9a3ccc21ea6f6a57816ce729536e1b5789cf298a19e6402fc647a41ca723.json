@@ -1,0 +1,75 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "bedd9a3ccc21ea6f6a57816ce729536e1b5789cf298a19e6402fc647a41ca723",
+  "response": {
+    "id": "msg_011CfhXwpWmLBotHDxYFitiX",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.6,
+          "page": 9,
+          "printed_label": "Ratio",
+          "printed_text": "100",
+          "printed_unit": "",
+          "quote": "|  | 100 | 67 | 6.8 | 157 | 16 | 108 | 11 | 284 | 29 |  |  |  |  |  |  |",
+          "target": "params/ratio",
+          "value": 100
+        },
+        {
+          "condition": "Rated Torque at 2000rpm",
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Rated Torque at 2000rpm",
+          "printed_text": "67",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 67 | 6.8 | 157 | 16 | 108 | 11 | 284 | 29 |  |  |  |  |  |  |",
+          "target": "params/rated_torque_nm",
+          "value": 67
+        },
+        {
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Limit for Repeated Peak Torque",
+          "printed_text": "157",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 67 | 6.8 | 157 | 16 | 108 | 11 | 284 | 29 |  |  |  |  |  |  |",
+          "target": "params/repeated_peak_torque_nm",
+          "value": 157
+        },
+        {
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Limit for Momentary Peak Torque",
+          "printed_text": "284",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 67 | 6.8 | 157 | 16 | 108 | 11 | 284 | 29 |  |  |  |  |  |  |",
+          "target": "params/momentary_max_torque_nm",
+          "value": 284
+        },
+        {
+          "confidence": 0.6,
+          "page": 11,
+          "printed_label": "Mass (kg)",
+          "printed_text": "1.5",
+          "printed_unit": "kg",
+          "quote": "|  | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |",
+          "target": "params/mass_kg",
+          "value": 1.5
+        },
+        {
+          "confidence": 0.8,
+          "page": 11,
+          "printed_label": "φA",
+          "printed_text": "107",
+          "printed_unit": "mm",
+          "quote": "| φA |  | 73 | 79 | 93 | 107 | 138 | 160 | 180 | 190 | 226 | 260 |",
+          "target": "dims/outer_diameter_mm",
+          "value": 107
+        }
+      ],
+      "model": "CSF-25-100-2UH"
+    }
+  }
+}

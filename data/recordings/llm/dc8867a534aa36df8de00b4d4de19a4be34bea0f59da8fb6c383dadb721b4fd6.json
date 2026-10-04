@@ -1,0 +1,151 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "dc8867a534aa36df8de00b4d4de19a4be34bea0f59da8fb6c383dadb721b4fd6",
+  "response": {
+    "id": "msg_011CfhYeY5hYy2sB3P19Lgts",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.8,
+          "page": 80,
+          "printed_label": "Approx. mass",
+          "printed_text": "1.6 kg",
+          "printed_unit": "kg",
+          "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg",
+          "target": "params/mass_kg",
+          "value": 1.6
+        },
+        {
+          "confidence": 0.85,
+          "page": 62,
+          "printed_label": "Power Supply",
+          "printed_text": "200 VAC to 240 VAC, 50 Hz/60 Hz",
+          "printed_unit": "",
+          "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz",
+          "target": "ports/power_in/current_type",
+          "value": "ac"
+        },
+        {
+          "confidence": 0.8,
+          "max": 240,
+          "min": 200,
+          "page": 62,
+          "printed_label": "Power Supply",
+          "printed_text": "200 VAC to 240 VAC",
+          "printed_unit": "VAC",
+          "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz",
+          "target": "ports/power_in/voltage_v"
+        },
+        {
+          "confidence": 0.8,
+          "page": 62,
+          "printed_label": "Three-Phase, 200 VAC",
+          "printed_text": "Three-Phase",
+          "printed_unit": "",
+          "quote": "Three-Phase, 200 VAC",
+          "target": "ports/power_in/phases",
+          "value": 3
+        },
+        {
+          "confidence": 0.6,
+          "max": 60,
+          "min": 50,
+          "page": 62,
+          "printed_label": "Power Supply",
+          "printed_text": "50 Hz/60 Hz",
+          "printed_unit": "Hz",
+          "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz",
+          "target": "ports/power_in/frequency_hz"
+        },
+        {
+          "condition": "Main circuit, three-phase 200 VAC",
+          "confidence": 0.7,
+          "page": 62,
+          "printed_label": "Input Current [Arms]*",
+          "printed_text": "5.7",
+          "printed_unit": "Arms",
+          "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |",
+          "target": "ports/power_in/rated_current_a",
+          "value": 5.7
+        },
+        {
+          "confidence": 0.6,
+          "page": 62,
+          "printed_label": "Three-Phase, 200 VAC",
+          "printed_text": "200 VAC",
+          "printed_unit": "VAC",
+          "quote": "Three-Phase, 200 VAC",
+          "target": "ports/motor_out/voltage_class_v",
+          "value": 200
+        },
+        {
+          "confidence": 0.85,
+          "page": 64,
+          "printed_label": "Continuous Output Current [Arms]",
+          "printed_text": "7.6",
+          "printed_unit": "Arms",
+          "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 7.6
+        },
+        {
+          "confidence": 0.75,
+          "page": 62,
+          "printed_label": "Instantaneous Maximum Output Current [Arms]",
+          "printed_text": "17",
+          "printed_unit": "Arms",
+          "quote": "|  |  |  | 2.1 | 3.2 | 5.9 | 9.3 | 11 | 16.9 | 17 | 28 | 42 | 56 |  |",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 17
+        },
+        {
+          "confidence": 0.6,
+          "page": 69,
+          "printed_label": "Applicable Communications Standards",
+          "printed_text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "printed_unit": "",
+          "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "target": "ports/bus/protocol",
+          "value": "ethercat"
+        },
+        {
+          "confidence": 0.7,
+          "page": 69,
+          "printed_label": "CiA402 Drive Profile",
+          "printed_text": "CiA402 Drive Profile",
+          "printed_unit": "",
+          "quote": "CiA402 Drive Profile",
+          "target": "ports/bus/profile",
+          "value": "cia402"
+        },
+        {
+          "confidence": 0.5,
+          "page": 69,
+          "printed_label": "Communications Connectors",
+          "printed_text": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "printed_unit": "",
+          "quote": "Connectors CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "target": "ports/bus/connector",
+          "value": "RJ45"
+        },
+        {
+          "confidence": 0.55,
+          "nominal": 58,
+          "page": 80,
+          "printed_label": "mounting pitch",
+          "printed_text": "58 ±0.5",
+          "printed_unit": "mm",
+          "quote": "58 ±0.5 (mounting pitch)",
+          "target": "ports/mount/pitch_y_mm",
+          "tol_lower": -0.5,
+          "tol_upper": 0.5
+        }
+      ],
+      "model": "SGD7S-7R6A",
+      "series": "Σ-7S SERVOPACK",
+      "vendor": "Yaskawa"
+    }
+  }
+}

@@ -3,7 +3,7 @@
   "document": {
     "doc": "src-yaskawa-sgm7-rotary-manual",
     "sha256": "790923847a5463eac791c35ef87062807b20d2f39e6ded523d51b63ed7d88044",
-    "pages": 5
+    "pages": 6
   },
   "category": "servo_motor",
   "model": "SGM7J-C2A",
@@ -11,7 +11,7 @@
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CffNEX36MS88TwsqSGavg"
+    "response_id": "msg_011CfhY9S1FzhcNjXg4BLEe7"
   },
   "items": [
     {
@@ -23,7 +23,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.93,
         "reviewed": false
       },
       "printed": {
@@ -42,7 +42,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.93,
         "reviewed": false
       },
       "printed": {
@@ -61,7 +61,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.93,
         "reviewed": false
       },
       "printed": {
@@ -80,7 +80,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.93,
         "reviewed": false
       },
       "printed": {
@@ -102,7 +102,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.93,
         "reviewed": false
       },
       "printed": {
@@ -113,6 +113,29 @@
       },
       "issues": [
         "该行只有一个数值，按各型号共用（合并单元格）处理"
+      ]
+    },
+    {
+      "target": "params/rotor_inertia_kgm2",
+      "value": {
+        "value": 9.15e-06,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 55
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "0.0915",
+        "unit": "×10-4 kgm2",
+        "label": "Motor Moment of Inertia",
+        "quote": "Motor Moment of Inertia 0.0395 0.0659 0.0915 0.263 0.486 0.800 1.59"
+      },
+      "issues": [
+        "单位 ×10-4 kgm2 不在同一行，取自本页其他位置",
+        "单位换算：0.0915 ×10-4 kgm2 → 标准单位 kg*m**2"
       ]
     },
     {
@@ -147,7 +170,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.93,
         "reviewed": false
       },
       "printed": {
@@ -204,7 +227,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.85,
         "reviewed": false
       },
       "printed": {
@@ -213,78 +236,6 @@
         "label": "Voltage",
         "quote": "Voltage 200 V"
       }
-    },
-    {
-      "target": "dims/square_mm",
-      "value": {
-        "value": 40.0,
-        "source": {
-          "doc": "src-yaskawa-sgm7-rotary-manual",
-          "page": 64
-        },
-        "method": "extracted",
-        "confidence": 0.7,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "40",
-        "unit": "mm",
-        "label": "LC",
-        "quote": "|  | 105.5 (153.5) | 80.5 (128.5 | 61.9 ) | 25 | 2.5 | 5 | 40 | 46 | 30 0 -0.021 | 4.3 | 8 0 -0.009 | 8.8 | 25.8 | 14.7 | 16.1 |  |"
-      },
-      "issues": [
-        "叫法 'LC' 在表头，数值在该列",
-        "单位 mm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
-      ]
-    },
-    {
-      "target": "ports/mount_flange/square_size_mm",
-      "value": {
-        "value": 40.0,
-        "source": {
-          "doc": "src-yaskawa-sgm7-rotary-manual",
-          "page": 64
-        },
-        "method": "extracted",
-        "confidence": 0.7,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "40",
-        "unit": "mm",
-        "label": "LC",
-        "quote": "|  | 105.5 (153.5) | 80.5 (128.5 | 61.9 ) | 25 | 2.5 | 5 | 40 | 46 | 30 0 -0.021 | 4.3 | 8 0 -0.009 | 8.8 | 25.8 | 14.7 | 16.1 |  |"
-      },
-      "issues": [
-        "叫法 'LC' 在表头，数值在该列",
-        "单位 mm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
-      ]
-    },
-    {
-      "target": "ports/mount_flange/pcd_mm",
-      "value": {
-        "value": 46.0,
-        "source": {
-          "doc": "src-yaskawa-sgm7-rotary-manual",
-          "page": 64
-        },
-        "method": "extracted",
-        "confidence": 0.7,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "46",
-        "unit": "mm",
-        "label": "LA",
-        "quote": "|  | 105.5 (153.5) | 80.5 (128.5 | 61.9 ) | 25 | 2.5 | 5 | 40 | 46 | 30 0 -0.021 | 4.3 | 8 0 -0.009 | 8.8 | 25.8 | 14.7 | 16.1 |  |"
-      },
-      "issues": [
-        "叫法 'LA' 在表头，须核对所在列",
-        "单位 mm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
-      ]
     },
     {
       "target": "ports/mount_flange/pilot_diameter_mm",
@@ -297,84 +248,23 @@
           "page": 64
         },
         "method": "extracted",
-        "confidence": 0.7,
+        "confidence": 0.75,
         "reviewed": false
       },
       "printed": {
         "text": "30 0 -0.021",
         "unit": "mm",
         "label": "LB",
-        "quote": "|  | 105.5 (153.5) | 80.5 (128.5 | 61.9 ) | 25 | 2.5 | 5 | 40 | 46 | 30 0 -0.021 | 4.3 | 8 0 -0.009 | 8.8 | 25.8 | 14.7 | 16.1 |  |"
+        "quote": "| 105.5 (153.5) | 80.5 (128.5 | 61.9 ) | 25 | 2.5 | 5 | 40 | 46 | 30 0 -0.021 | 4.3 | 8 0 -0.009 | 8.8 | 25.8 | 14.7 | 16.1 |"
       },
       "issues": [
         "叫法 'LB' 在表头，数值在该列",
         "单位 mm 不在同一行，取自本页其他位置",
         "该行有多个数值，须核对型号列"
       ]
-    },
-    {
-      "target": "ports/mount_flange/hole_diameter_mm",
-      "value": {
-        "value": 4.3,
-        "source": {
-          "doc": "src-yaskawa-sgm7-rotary-manual",
-          "page": 64
-        },
-        "method": "extracted",
-        "confidence": 0.7,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "4.3",
-        "unit": "mm",
-        "label": "LZ",
-        "quote": "|  | 105.5 (153.5) | 80.5 (128.5 | 61.9 ) | 25 | 2.5 | 5 | 40 | 46 | 30 0 -0.021 | 4.3 | 8 0 -0.009 | 8.8 | 25.8 | 14.7 | 16.1 |  |"
-      },
-      "issues": [
-        "叫法 'LZ' 在表头，数值在该列",
-        "单位 mm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
-      ]
-    },
-    {
-      "target": "ports/shaft/diameter_mm",
-      "value": {
-        "nominal": 8.0,
-        "tol_upper": 0.0,
-        "tol_lower": -0.009,
-        "source": {
-          "doc": "src-yaskawa-sgm7-rotary-manual",
-          "page": 64
-        },
-        "method": "extracted",
-        "confidence": 0.7,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "8 0 -0.009",
-        "unit": "mm",
-        "label": "S",
-        "quote": "|  | 105.5 (153.5) | 80.5 (128.5 | 61.9 ) | 25 | 2.5 | 5 | 40 | 46 | 30 0 -0.021 | 4.3 | 8 0 -0.009 | 8.8 | 25.8 | 14.7 | 16.1 |  |"
-      },
-      "issues": [
-        "叫法 'S' 在表头，须核对所在列",
-        "单位 mm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
-      ]
     }
   ],
   "rejected": [
-    {
-      "reason": "叫法不在引用所在的行中",
-      "target": "params/rotor_inertia_kgm2",
-      "page": 55,
-      "printed": {
-        "text": "0.0915",
-        "unit": "×10-4 kgm2",
-        "label": "Motor Moment of Inertia",
-        "quote": "|  |  | ×10-4 kgm2 | 0.0395 | 0.0659 | 0.0915 | 0.263 | 0.486 | 0.800 |  |"
-      }
-    },
     {
       "reason": "该行有 3 个数值，与 7 个型号列对不上",
       "target": "ports/shaft/max_radial_load_n",
@@ -398,25 +288,36 @@
       }
     },
     {
-      "reason": "印出的文字 '105.5 (153.5)' 中的数字与给出的 ['value'] 不一一对应",
-      "target": "dims/overall_length_mm",
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/mass_kg",
       "page": 64,
       "printed": {
-        "text": "105.5 (153.5)",
-        "unit": "mm",
-        "label": "L*",
-        "quote": "|  | 105.5 (153.5) | 80.5 (128.5 | 61.9 ) | 25 | 2.5 | 5 | 40 | 46 | 30 0 -0.021 | 4.3 | 8 0 -0.009 | 8.8 | 25.8 | 14.7 | 16.1 |  |"
+        "text": "0.5",
+        "unit": "kg",
+        "label": "Approx. Mass",
+        "quote": "105.5 80.5 0.5"
       }
     },
     {
-      "reason": "印出的文字 '80.5 (128.5' 中的数字与给出的 ['value'] 不一一对应",
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "dims/overall_length_mm",
+      "page": 64,
+      "printed": {
+        "text": "105.5",
+        "unit": "mm",
+        "label": "L*",
+        "quote": "105.5 80.5 0.5"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "dims/body_length_mm",
       "page": 64,
       "printed": {
-        "text": "80.5 (128.5",
+        "text": "80.5",
         "unit": "mm",
         "label": "LL*",
-        "quote": "|  | 105.5 (153.5) | 80.5 (128.5 | 61.9 ) | 25 | 2.5 | 5 | 40 | 46 | 30 0 -0.021 | 4.3 | 8 0 -0.009 | 8.8 | 25.8 | 14.7 | 16.1 |  |"
+        "quote": "105.5 80.5 0.5"
       }
     },
     {
@@ -431,6 +332,94 @@
       }
     },
     {
+      "reason": "原文引用中没有印出的文字",
+      "target": "ports/shaft/diameter_mm",
+      "page": 64,
+      "printed": {
+        "text": "8 0 -0.009",
+        "unit": "mm",
+        "label": "S",
+        "quote": "C2AA2 61.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1"
+      }
+    },
+    {
+      "reason": "叫法不在引用所在的行中",
+      "target": "ports/shaft/feature",
+      "page": 53,
+      "printed": {
+        "text": "Straight without key",
+        "unit": "",
+        "label": "Shaft End",
+        "quote": "2 Straight without key"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/mount_flange/pcd_mm",
+      "page": 64,
+      "printed": {
+        "text": "46",
+        "unit": "mm",
+        "label": "LA",
+        "quote": "C2AA2 61.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/mount_flange/hole_diameter_mm",
+      "page": 64,
+      "printed": {
+        "text": "4.3",
+        "unit": "mm",
+        "label": "LZ",
+        "quote": "C2AA2 61.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/mount_flange/square_size_mm",
+      "page": 64,
+      "printed": {
+        "text": "40",
+        "unit": "mm",
+        "label": "LC",
+        "quote": "C2AA2 61.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "dims/square_mm",
+      "page": 64,
+      "printed": {
+        "text": "40",
+        "unit": "mm",
+        "label": "LC",
+        "quote": "C2AA2 61.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1"
+      }
+    },
+    {
+      "reason": "工况 '编码器代码 6' 在第 53 页找不到",
+      "target": "ports/encoder/kind",
+      "page": 53,
+      "printed": {
+        "text": "24-bit batteryless absolute",
+        "unit": "",
+        "label": "Serial Encoder",
+        "quote": "6 24-bit batteryless absolute"
+      }
+    },
+    {
+      "reason": "工况 '编码器代码 6' 在第 53 页找不到",
+      "target": "ports/encoder/resolution_bits",
+      "page": 53,
+      "printed": {
+        "text": "24-bit batteryless absolute",
+        "unit": "bit",
+        "label": "Serial Encoder",
+        "quote": "6 24-bit batteryless absolute"
+      }
+    },
+    {
       "target": "vendor",
       "printed": {
         "text": "Yaskawa"
@@ -439,7 +428,6 @@
     }
   ],
   "missing_key_fields": [
-    "params/rotor_inertia_kgm2",
     "params/mass_kg"
   ]
 }

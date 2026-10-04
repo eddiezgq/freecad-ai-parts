@@ -7,11 +7,10 @@
   },
   "category": "reducer",
   "model": "CSF-20-100-2UH",
-  "series": "CSF",
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CffMzMrJkJrQtvg5K1V6M"
+    "response_id": "msg_011CfhXuw76Q4YF7YuFVYMfm"
   },
   "items": [
     {
@@ -46,7 +45,7 @@
           "page": 9
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.88,
         "reviewed": false
       },
       "printed": {
@@ -69,7 +68,7 @@
           "page": 9
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.88,
         "reviewed": false
       },
       "printed": {
@@ -91,7 +90,7 @@
           "page": 9
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.88,
         "reviewed": false
       },
       "printed": {
@@ -113,14 +112,14 @@
           "page": 11
         },
         "method": "extracted",
-        "confidence": 0.8,
+        "confidence": 0.88,
         "reviewed": false
       },
       "printed": {
         "text": "0.98",
         "unit": "kg",
-        "label": "Mass (kg) CSF Series",
-        "quote": "|  | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |"
+        "label": "Mass (kg)",
+        "quote": "| Mass (kg) | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |"
       }
     },
     {
@@ -144,75 +143,42 @@
       "issues": [
         "单位 mm 不在同一行，取自本页其他位置"
       ]
-    },
-    {
-      "target": "ports/input_bore/diameter_mm",
-      "value": {
-        "value": 12.0,
-        "source": {
-          "doc": "src-hd-csg-csf-gear-units",
-          "page": 10
-        },
-        "method": "extracted",
-        "confidence": 0.6,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "12",
-        "unit": "mm",
-        "label": "φU H7",
-        "quote": "φU H7 6 8 12 14 14 14 19 19 22 24"
-      },
-      "issues": [
-        "单位 mm 不在同一行，取自本页其他位置"
-      ]
-    },
-    {
-      "target": "ports/housing_mount/pcd_mm",
-      "value": {
-        "value": 82.0,
-        "source": {
-          "doc": "src-hd-csg-csf-gear-units",
-          "page": 10
-        },
-        "method": "extracted",
-        "confidence": 0.5,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "82",
-        "unit": "mm",
-        "label": "φb",
-        "quote": "φb 65 71 82 96 125 144 164 174 206 236"
-      },
-      "issues": [
-        "单位 mm 不在同一行，取自本页其他位置"
-      ]
-    },
-    {
-      "target": "ports/housing_mount/hole_diameter_mm",
-      "value": {
-        "value": 5.5,
-        "source": {
-          "doc": "src-hd-csg-csf-gear-units",
-          "page": 10
-        },
-        "method": "extracted",
-        "confidence": 0.5,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "5.5",
-        "unit": "mm",
-        "label": "φd",
-        "quote": "φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14"
-      },
-      "issues": [
-        "单位 mm 不在同一行，取自本页其他位置"
-      ]
     }
   ],
   "rejected": [
+    {
+      "reason": "原文引用中没有印出的文字",
+      "target": "params/reducer_kind",
+      "page": 9,
+      "printed": {
+        "text": "CSF",
+        "unit": "",
+        "label": "Gear Unit CSG/CSF",
+        "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/max_input_speed_rpm",
+      "page": 9,
+      "printed": {
+        "text": "10000",
+        "unit": "rpm",
+        "label": "Maximum Input Speed (rpm)",
+        "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/avg_input_speed_limit_rpm",
+      "page": 9,
+      "printed": {
+        "text": "6500",
+        "unit": "rpm",
+        "label": "Limit for Average Input Speed (rpm)",
+        "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
+      }
+    },
     {
       "reason": "数值不在目标型号所在的列",
       "target": "params/input_inertia_kgm2",
@@ -220,60 +186,20 @@
       "printed": {
         "text": "0.193",
         "unit": "×10−4 kgm2",
-        "label": "Moment of Inertia I ×10−4kgm2",
+        "label": "Moment of Inertia I",
         "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/input_bore/fit",
-      "page": 10,
+      "reason": "工况 'Ratio 80 or more, size 20' 在第 12 页找不到",
+      "target": "params/lost_motion_arcmin",
+      "page": 12,
       "printed": {
-        "text": "H7",
-        "unit": "",
-        "label": "φU H7",
-        "quote": "φU H7 6 8 12 14 14 14 19 19 22 24"
+        "text": "1.0",
+        "unit": "arc min",
+        "label": "arc min",
+        "quote": "|  | arc min | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 |"
       }
-    },
-    {
-      "reason": "该行有 8 个数值，与 10 个型号列对不上",
-      "target": "ports/input_bore/key_width_mm",
-      "page": 10,
-      "printed": {
-        "text": "4",
-        "unit": "mm",
-        "label": "W Js9",
-        "quote": "W Js9 - - 4 5 5 5 6 6 6 8"
-      }
-    },
-    {
-      "reason": "叫法不在引用所在的行中",
-      "target": "ports/housing_mount/hole_count",
-      "page": 10,
-      "printed": {
-        "text": "6",
-        "unit": "",
-        "label": "c CSF Series",
-        "quote": "14 and 17 (no keyhole) of size 65 CSF-LW Series 6 8 8 10 12 10 16 18 16 12"
-      }
-    },
-    {
-      "reason": "字段 ports/housing_mount/hole_kind 无单位，但印有单位 'mm'",
-      "target": "ports/housing_mount/hole_kind",
-      "page": 10,
-      "printed": {
-        "text": "5.5",
-        "unit": "mm",
-        "label": "φd",
-        "quote": "φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14"
-      }
-    },
-    {
-      "target": "vendor",
-      "printed": {
-        "text": "Harmonic Drive"
-      },
-      "reason": "vendor 在规格书中找不到"
     }
   ],
   "missing_key_fields": [
