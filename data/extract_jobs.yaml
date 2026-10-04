@@ -31,10 +31,10 @@ jobs:
     pages: "8-13"
     targets: [CSF-14-50-2UH, CSF-14-100-2UH, CSF-17-50-2UH, CSF-17-100-2UH, CSF-20-50-2UH, CSF-20-100-2UH,
               CSF-25-100-2UH, CSF-32-100-2UH]
-  # 安川 Σ-7 SGM7J（第 4 章）：规格、无减速机型的额定值、外形尺寸、轴端
+  # 安川 Σ-7 SGM7J（第 4 章）：型号说明（编码器、轴端选项，ADR-0044）、规格、无减速机型的额定值、外形尺寸、轴端
   - doc: src-yaskawa-sgm7-rotary-manual
     category: servo_motor
-    pages: "54-55,64-66"
+    pages: "53-55,64-66"
     targets: [SGM7J-A5A, SGM7J-01A, SGM7J-C2A, SGM7J-02A, SGM7J-04A, SGM7J-06A, SGM7J-08A]
   # 安川 Σ-7S EtherCAT 驱动器（200 V）：额定值、规格、外形尺寸与质量
   - doc: src-yaskawa-sgd7s-ethercat-manual
