@@ -869,6 +869,7 @@ def _label_span(line: _Line, label: str) -> range | None:
     return range(*spans.pop()) if len(spans) == 1 else None
 
 
+_OPTION_COND = re.compile(r"[^\s]{1,8}代码\s*([0-9A-Za-z]{1,3})")
 _COUNT_MARK = re.compile(r"(?<![\d.])(\d+)\s*[×xX]\s*([A-Z]{1,3})\b")
 
 
@@ -966,7 +967,15 @@ def _check_lines(ctx: _Ctx, page: int, candidates: list[_Line], text: str, label
             else:
                 best = "叫法不在引用所在的行中"
                 continue
-        if cond.strip() and _squash(cond) not in ln.joined:
+        option = _OPTION_COND.fullmatch(cond.strip()) if cond.strip() else None
+        if option:
+            # 型号选项（ADR-0044 第 3 条）：condition 是“轴端代码 2”这样的说明，代码须印在引用的那一行
+            code = _squash(option.group(1))
+            if not re.search(r"(?<![A-Za-z0-9])" + re.escape(code) + r"(?![A-Za-z0-9])", ln.spaced):
+                best = f"选项代码 {code!r} 不在引用所在的行中"
+                continue
+            notes.append(f"按型号选项 {cond.strip()!r} 取值")
+        elif cond.strip() and _squash(cond) not in ln.joined:
             if _squash(cond) not in page_squashed:
                 best = f"工况 {cond!r} 在第 {page} 页找不到"
                 continue
