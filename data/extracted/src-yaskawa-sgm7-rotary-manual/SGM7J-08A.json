@@ -373,6 +373,31 @@
         "label": "Instantaneous Maximum Current*1",
         "quote": "Instantaneous Maximum Current*1 Arms 2.0 3.1 5.7 5.8 9.3 15.3 16.9"
       }
+    },
+    {
+      "target": "ports/encoder/kind",
+      "value": {
+        "value": "absolute",
+        "condition": "编码器代码 6",
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 53
+        },
+        "method": "extracted",
+        "confidence": 0.7,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "24-bit batteryless absolute",
+        "unit": "",
+        "label": "4th digit Serial Encoder",
+        "quote": "| 6 | 24-bit batteryless absolute |"
+      },
+      "issues": [
+        "叫法 '4th digit Serial Encoder' 在表头，须核对所在列",
+        "按型号选项 '编码器代码 6' 取值",
+        "枚举映射：'24-bit batteryless absolute' → absolute，未自动核对"
+      ]
     }
   ],
   "rejected": [
@@ -451,17 +476,6 @@
         "unit": "",
         "label": "LZ",
         "quote": "0.02 4 × LZ dia. Unit: mm"
-      }
-    },
-    {
-      "reason": "工况 '编码器代码 6' 在第 53 页找不到",
-      "target": "ports/encoder/kind",
-      "page": 53,
-      "printed": {
-        "text": "24-bit batteryless absolute",
-        "unit": "",
-        "label": "4th digit Serial Encoder",
-        "quote": "| 6 | 24-bit batteryless absolute |"
       }
     },
     {

@@ -10,6 +10,8 @@
     "params/rated_torque_nm",
     "params/rotor_inertia_kgm2",
     "params/torque_constant_nm_per_a",
+    "ports/encoder/kind",
+    "ports/encoder/resolution_bits",
     "ports/mount_flange/hole_count",
     "ports/power_in/peak_current_a",
     "ports/power_in/rated_current_a",

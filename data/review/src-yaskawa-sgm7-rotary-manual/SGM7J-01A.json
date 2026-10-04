@@ -8,6 +8,8 @@
     "params/rated_speed_rpm",
     "params/rated_torque_nm",
     "params/torque_constant_nm_per_a",
+    "ports/encoder/kind",
+    "ports/encoder/resolution_bits",
     "ports/mount_flange/hole_diameter_mm",
     "ports/mount_flange/pcd_mm",
     "ports/mount_flange/pilot_diameter_mm",

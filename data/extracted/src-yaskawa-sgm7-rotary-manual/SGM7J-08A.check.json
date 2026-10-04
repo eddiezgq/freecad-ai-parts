@@ -381,6 +381,55 @@
         "叫法 'S' 在表头，须核对所在列",
         "单位 mm 不在同一行，取自本页其他位置"
       ]
+    },
+    {
+      "target": "ports/encoder/kind",
+      "value": {
+        "value": "absolute",
+        "condition": "编码器代码 6",
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 53
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "24-bit batteryless absolute",
+        "unit": "",
+        "label": "Serial Encoder",
+        "quote": "| 6 | 24-bit batteryless absolute |"
+      },
+      "issues": [
+        "叫法 'Serial Encoder' 在表头，须核对所在列",
+        "按型号选项 '编码器代码 6' 取值",
+        "枚举映射：'24-bit batteryless absolute' → absolute，未自动核对"
+      ]
+    },
+    {
+      "target": "ports/encoder/resolution_bits",
+      "value": {
+        "value": 24,
+        "condition": "编码器代码 6",
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 53
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "24-bit batteryless absolute",
+        "unit": "",
+        "label": "Serial Encoder",
+        "quote": "| 6 | 24-bit batteryless absolute |"
+      },
+      "issues": [
+        "叫法 'Serial Encoder' 在表头，须核对所在列",
+        "按型号选项 '编码器代码 6' 取值"
+      ]
     }
   ],
   "rejected": [
@@ -470,28 +519,6 @@
         "unit": "",
         "label": "Shaft End",
         "quote": "| 2 | Straight without key |"
-      }
-    },
-    {
-      "reason": "工况 '编码器代码 6' 在第 53 页找不到",
-      "target": "ports/encoder/kind",
-      "page": 53,
-      "printed": {
-        "text": "24-bit batteryless absolute",
-        "unit": "",
-        "label": "Serial Encoder",
-        "quote": "| 6 | 24-bit batteryless absolute |"
-      }
-    },
-    {
-      "reason": "工况 '编码器代码 6' 在第 53 页找不到",
-      "target": "ports/encoder/resolution_bits",
-      "page": 53,
-      "printed": {
-        "text": "24-bit batteryless absolute",
-        "unit": "",
-        "label": "Serial Encoder",
-        "quote": "| 6 | 24-bit batteryless absolute |"
       }
     },
     {

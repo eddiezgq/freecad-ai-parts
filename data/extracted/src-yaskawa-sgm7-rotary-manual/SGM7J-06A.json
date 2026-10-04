@@ -308,6 +308,31 @@
         "单元格另印有括号内的值（如带制动器的型号）或公差，取名义值",
         "该行有多个数值，须核对型号列"
       ]
+    },
+    {
+      "target": "ports/encoder/kind",
+      "value": {
+        "value": "absolute",
+        "condition": "编码器代码 6",
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 53
+        },
+        "method": "extracted",
+        "confidence": 0.7,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "24-bit batteryless absolute",
+        "unit": "",
+        "label": "Code Specification",
+        "quote": "6 24-bit batteryless absolute"
+      },
+      "issues": [
+        "叫法 'Code Specification' 在表头，须核对所在列",
+        "按型号选项 '编码器代码 6' 取值",
+        "枚举映射：'24-bit batteryless absolute' → absolute，未自动核对"
+      ]
     }
   ],
   "rejected": [
@@ -438,17 +463,6 @@
       "page": 53,
       "printed": {
         "text": "24-bit",
-        "unit": "",
-        "label": "Code Specification",
-        "quote": "6 24-bit batteryless absolute"
-      }
-    },
-    {
-      "reason": "工况 '编码器代码 6' 在第 53 页找不到",
-      "target": "ports/encoder/kind",
-      "page": 53,
-      "printed": {
-        "text": "24-bit batteryless absolute",
         "unit": "",
         "label": "Code Specification",
         "quote": "6 24-bit batteryless absolute"

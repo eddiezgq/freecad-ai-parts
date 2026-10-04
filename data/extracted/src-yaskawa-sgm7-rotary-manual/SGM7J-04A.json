@@ -286,6 +286,55 @@
         "单元格另印有括号内的值（如带制动器的型号）或公差，取名义值",
         "该行有多个数值，须核对型号列"
       ]
+    },
+    {
+      "target": "ports/encoder/kind",
+      "value": {
+        "value": "absolute",
+        "condition": "编码器代码 6",
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 53
+        },
+        "method": "extracted",
+        "confidence": 0.75,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "24-bit batteryless absolute",
+        "unit": "",
+        "label": "4th digit Serial Encoder",
+        "quote": "6 24-bit batteryless absolute"
+      },
+      "issues": [
+        "叫法 '4th digit Serial Encoder' 在表头，须核对所在列",
+        "按型号选项 '编码器代码 6' 取值",
+        "枚举映射：'24-bit batteryless absolute' → absolute，未自动核对"
+      ]
+    },
+    {
+      "target": "ports/encoder/resolution_bits",
+      "value": {
+        "value": 24,
+        "condition": "编码器代码 6",
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 53
+        },
+        "method": "extracted",
+        "confidence": 0.75,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "24-bit batteryless absolute",
+        "unit": "",
+        "label": "4th digit Serial Encoder",
+        "quote": "6 24-bit batteryless absolute"
+      },
+      "issues": [
+        "叫法 '4th digit Serial Encoder' 在表头，须核对所在列",
+        "按型号选项 '编码器代码 6' 取值"
+      ]
     }
   ],
   "rejected": [
@@ -408,28 +457,6 @@
         "unit": "mm",
         "label": "LC",
         "quote": "04AA2 67.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1"
-      }
-    },
-    {
-      "reason": "工况 '编码器代码 6' 在第 53 页找不到",
-      "target": "ports/encoder/kind",
-      "page": 53,
-      "printed": {
-        "text": "24-bit batteryless absolute",
-        "unit": "",
-        "label": "4th digit Serial Encoder",
-        "quote": "6 24-bit batteryless absolute"
-      }
-    },
-    {
-      "reason": "工况 '编码器代码 6' 在第 53 页找不到",
-      "target": "ports/encoder/resolution_bits",
-      "page": 53,
-      "printed": {
-        "text": "24-bit batteryless absolute",
-        "unit": "",
-        "label": "4th digit Serial Encoder",
-        "quote": "6 24-bit batteryless absolute"
       }
     },
     {
