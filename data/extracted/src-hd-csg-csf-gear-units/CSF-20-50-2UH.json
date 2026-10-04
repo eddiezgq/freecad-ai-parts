@@ -11,7 +11,7 @@
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CffMwg6b7sGqeM8rx63Ee"
+    "response_id": "msg_011CfhXsjazsx5tqeszZWbEm"
   },
   "items": [
     {
@@ -23,7 +23,7 @@
           "page": 9
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.85,
         "reviewed": false
       },
       "printed": {
@@ -46,7 +46,7 @@
           "page": 9
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.8,
         "reviewed": false
       },
       "printed": {
@@ -69,7 +69,7 @@
           "page": 9
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.8,
         "reviewed": false
       },
       "printed": {
@@ -91,7 +91,7 @@
           "page": 9
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.8,
         "reviewed": false
       },
       "printed": {
@@ -113,7 +113,7 @@
           "page": 11
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.8,
         "reviewed": false
       },
       "printed": {
@@ -129,7 +129,7 @@
         "value": 93.0,
         "source": {
           "doc": "src-hd-csg-csf-gear-units",
-          "page": 10
+          "page": 11
         },
         "method": "extracted",
         "confidence": 0.8,
@@ -139,7 +139,7 @@
         "text": "93",
         "unit": "mm",
         "label": "φA",
-        "quote": "φA 73 79 93 107 138 160 180 190 226 260"
+        "quote": "| φA |  | 73 | 79 | 93 | 107 | 138 | 160 | 180 | 190 | 226 | 260 |"
       },
       "issues": [
         "单位 mm 不在同一行，取自本页其他位置"
@@ -166,88 +166,22 @@
       "issues": [
         "单位 mm 不在同一行，取自本页其他位置"
       ]
-    },
-    {
-      "target": "ports/housing_mount/pcd_mm",
-      "value": {
-        "value": 82.0,
-        "source": {
-          "doc": "src-hd-csg-csf-gear-units",
-          "page": 10
-        },
-        "method": "extracted",
-        "confidence": 0.5,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "82",
-        "unit": "mm",
-        "label": "φb",
-        "quote": "φb 65 71 82 96 125 144 164 174 206 236"
-      },
-      "issues": [
-        "单位 mm 不在同一行，取自本页其他位置"
-      ]
-    },
-    {
-      "target": "ports/housing_mount/hole_diameter_mm",
-      "value": {
-        "value": 5.5,
-        "source": {
-          "doc": "src-hd-csg-csf-gear-units",
-          "page": 10
-        },
-        "method": "extracted",
-        "confidence": 0.5,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "5.5",
-        "unit": "mm",
-        "label": "φd",
-        "quote": "φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14"
-      },
-      "issues": [
-        "单位 mm 不在同一行，取自本页其他位置"
-      ]
     }
   ],
   "rejected": [
     {
-      "reason": "数值不在目标型号所在的列",
-      "target": "params/max_input_speed_rpm",
-      "page": 9,
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/reducer_kind",
+      "page": 10,
       "printed": {
-        "text": "6500",
-        "unit": "rpm",
-        "label": "Maximum Input Speed (rpm) Grease lubricant",
-        "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
+        "text": "CSF",
+        "unit": "",
+        "label": "Gear Unit CSG/CSF",
+        "quote": "Gear Unit CSG/CSF"
       }
     },
     {
-      "reason": "数值不在目标型号所在的列",
-      "target": "params/avg_input_speed_limit_rpm",
-      "page": 9,
-      "printed": {
-        "text": "3500",
-        "unit": "rpm",
-        "label": "Limit for Average Input Speed (rpm) Grease lubricant",
-        "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
-      }
-    },
-    {
-      "reason": "单位 '×10−4 kg·m²' 不在引用所在的行中，本页也找不到",
-      "target": "params/input_inertia_kgm2",
-      "page": 9,
-      "printed": {
-        "text": "0.193",
-        "unit": "×10−4 kg·m²",
-        "label": "Moment of Inertia I ×10−4kgm2",
-        "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
-      }
-    },
-    {
-      "reason": "数值不在目标型号所在的列",
+      "reason": "工况 'Hysteresis loss, ratio 50' 在第 12 页找不到",
       "target": "params/lost_motion_arcmin",
       "page": 12,
       "printed": {
@@ -258,14 +192,25 @@
       }
     },
     {
-      "reason": "原文引用中没有印出的文字",
-      "target": "ports/output_flange/pcd_mm",
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/input_inertia_kgm2",
+      "page": 9,
+      "printed": {
+        "text": "0.193",
+        "unit": "×10−4kgm2",
+        "label": "Moment of Inertia",
+        "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |"
+      }
+    },
+    {
+      "reason": "该行有 8 个数值，与 10 个型号列对不上",
+      "target": "ports/input_bore/key_width_mm",
       "page": 10,
       "printed": {
-        "text": "53",
+        "text": "4",
         "unit": "mm",
-        "label": "φe",
-        "quote": "by the symbol, Z, it will damage the flexspline. CSG Series 8 8 8 10 12 10 12 14 12 8"
+        "label": "W Js9",
+        "quote": "W Js9 - - 4 5 5 5 6 6 6 8"
       }
     },
     {

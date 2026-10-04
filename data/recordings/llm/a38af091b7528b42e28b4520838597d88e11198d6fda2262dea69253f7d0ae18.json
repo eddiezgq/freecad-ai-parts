@@ -1,0 +1,128 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "a38af091b7528b42e28b4520838597d88e11198d6fda2262dea69253f7d0ae18",
+  "response": {
+    "id": "msg_011CfhXuw76Q4YF7YuFVYMfm",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.7,
+          "page": 9,
+          "printed_label": "Gear Unit CSG/CSF",
+          "printed_text": "CSF",
+          "printed_unit": "",
+          "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |",
+          "target": "params/reducer_kind",
+          "value": "harmonic"
+        },
+        {
+          "confidence": 0.9,
+          "page": 9,
+          "printed_label": "Ratio",
+          "printed_text": "100",
+          "printed_unit": "",
+          "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |  |  |  |  |  |  |",
+          "target": "params/ratio",
+          "value": 100
+        },
+        {
+          "condition": "Rated Torque at 2000rpm",
+          "confidence": 0.88,
+          "page": 9,
+          "printed_label": "Rated Torque at 2000rpm",
+          "printed_text": "40",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |  |  |  |  |  |  |",
+          "target": "params/rated_torque_nm",
+          "value": 40
+        },
+        {
+          "confidence": 0.88,
+          "page": 9,
+          "printed_label": "Limit for Repeated Peak Torque",
+          "printed_text": "82",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |  |  |  |  |  |  |",
+          "target": "params/repeated_peak_torque_nm",
+          "value": 82
+        },
+        {
+          "confidence": 0.88,
+          "page": 9,
+          "printed_label": "Limit for Momentary Peak Torque",
+          "printed_text": "147",
+          "printed_unit": "Nm",
+          "quote": "|  | 100 | 40 | 4.1 | 82 | 8.4 | 49 | 5.0 | 147 | 15 |  |  |  |  |  |  |",
+          "target": "params/momentary_max_torque_nm",
+          "value": 147
+        },
+        {
+          "condition": "Oil lubricant",
+          "confidence": 0.55,
+          "page": 9,
+          "printed_label": "Maximum Input Speed (rpm)",
+          "printed_text": "10000",
+          "printed_unit": "rpm",
+          "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |",
+          "target": "params/max_input_speed_rpm",
+          "value": 10000
+        },
+        {
+          "condition": "Oil lubricant",
+          "confidence": 0.5,
+          "page": 9,
+          "printed_label": "Limit for Average Input Speed (rpm)",
+          "printed_text": "6500",
+          "printed_unit": "rpm",
+          "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |",
+          "target": "params/avg_input_speed_limit_rpm",
+          "value": 6500
+        },
+        {
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Moment of Inertia I",
+          "printed_text": "0.193",
+          "printed_unit": "×10−4 kgm2",
+          "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |",
+          "target": "params/input_inertia_kgm2",
+          "value": 0.193
+        },
+        {
+          "confidence": 0.88,
+          "page": 11,
+          "printed_label": "Mass (kg)",
+          "printed_text": "0.98",
+          "printed_unit": "kg",
+          "quote": "| Mass (kg) | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |",
+          "target": "params/mass_kg",
+          "value": 0.98
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "φA",
+          "printed_text": "93",
+          "printed_unit": "mm",
+          "quote": "| φA |  | 73 | 79 | 93 | 107 | 138 | 160 | 180 | 190 | 226 | 260 |",
+          "target": "dims/outer_diameter_mm",
+          "value": 93
+        },
+        {
+          "condition": "Ratio 80 or more, size 20",
+          "confidence": 0.6,
+          "page": 12,
+          "printed_label": "arc min",
+          "printed_text": "1.0",
+          "printed_unit": "arc min",
+          "quote": "|  | arc min | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 |",
+          "target": "params/lost_motion_arcmin",
+          "value": 1.0
+        }
+      ],
+      "model": "CSF-20-100-2UH"
+    }
+  }
+}

@@ -10,52 +10,32 @@
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CffQ3r7ymD9963p4N7s3t"
+    "response_id": "msg_011CfhaBLVfqk99Hz7Y1kLyu"
   },
-  "items": [
+  "items": [],
+  "rejected": [
     {
+      "reason": "叫法不在引用所在的行中",
       "target": "params/rated_output_power_w",
-      "value": {
-        "value": 1000.0,
-        "source": {
-          "doc": "src-yaskawa-sgd7s-ethercat-manual",
-          "page": 64
-        },
-        "method": "extracted",
-        "confidence": 0.75,
-        "reviewed": false
-      },
+      "page": 62,
       "printed": {
         "text": "1.0",
         "unit": "kW",
-        "label": "Maximum Applicable Motor Capacity",
-        "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.5 0.75 1.0 1.5"
-      },
-      "issues": [
-        "单位换算：1.0 kW → 标准单位 W"
-      ]
+        "label": "Maximum Applicable Motor Capacity [kW]",
+        "quote": "|  |  |  | 0.05 | 0.1 | 0.2 | 0.4 | 0.5 | 0.75 | 1.0 | 1.5 | 2.0 | 3.0 |  |"
+      }
     },
     {
+      "reason": "叫法不在引用所在的行中",
       "target": "ports/motor_out/rated_current_a",
-      "value": {
-        "value": 7.6,
-        "source": {
-          "doc": "src-yaskawa-sgd7s-ethercat-manual",
-          "page": 64
-        },
-        "method": "extracted",
-        "confidence": 0.9,
-        "reviewed": false
-      },
+      "page": 62,
       "printed": {
         "text": "7.6",
         "unit": "Arms",
-        "label": "Continuous Output Current",
-        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6"
+        "label": "Continuous Output Current [Arms]",
+        "quote": "|  |  |  | 0.66 | 0.91 | 1.6 | 2.8 | 3.8 | 5.5 | 7.6 | 11.6 | 18.5 | 19.6 |  |"
       }
-    }
-  ],
-  "rejected": [
+    },
     {
       "reason": "叫法不在引用所在的行中",
       "target": "ports/motor_out/peak_current_a",
@@ -63,12 +43,12 @@
       "printed": {
         "text": "17",
         "unit": "Arms",
-        "label": "Instantaneous Maximum Output Current",
+        "label": "Instantaneous Maximum Output Current [Arms]",
         "quote": "|  |  |  | 2.1 | 3.2 | 5.9 | 9.3 | 11 | 16.9 | 17 | 28 | 42 | 56 |  |"
       }
     },
     {
-      "reason": "工况 'Three-Phase, 200 VAC, Main Circuit' 在第 62 页找不到",
+      "reason": "工况 'Three-Phase, 200 VAC, Main Circuit, at rated load' 在第 62 页找不到",
       "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
@@ -91,23 +71,23 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/current_type",
-      "page": 62,
-      "printed": {
-        "text": "200 VAC to 240 VAC",
-        "unit": "",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
-      }
-    },
-    {
-      "reason": "该行有 1 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/phases",
       "page": 62,
       "printed": {
-        "text": "Three-Phase, 200 VAC",
+        "text": "Three-Phase",
         "unit": "",
         "label": "Three-Phase",
+        "quote": "Three-Phase, 200 VAC"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/current_type",
+      "page": 62,
+      "printed": {
+        "text": "VAC",
+        "unit": "",
+        "label": "Three-Phase, 200 VAC",
         "quote": "Three-Phase, 200 VAC"
       }
     },
@@ -124,24 +104,46 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/bus/protocol",
-      "page": 69,
+      "target": "dims/width_mm",
+      "page": 80,
       "printed": {
-        "text": "ETHERCAT IN",
-        "unit": "",
-        "label": "Communications Connectors",
-        "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
+        "text": "70",
+        "unit": "mm",
+        "label": "Exterior",
+        "quote": "70 (75) 180 70"
       }
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/bus/connector",
+      "target": "dims/depth_mm",
+      "page": 80,
+      "printed": {
+        "text": "180",
+        "unit": "mm",
+        "label": "Exterior",
+        "quote": "70 (75) 180 70"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/mount/pitch_x_mm",
+      "page": 80,
+      "printed": {
+        "text": "58 ±0.5",
+        "unit": "mm",
+        "label": "mounting pitch",
+        "quote": "58 ±0.5 (mounting pitch)"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/bus/protocol",
       "page": 69,
       "printed": {
-        "text": "CN6A (RJ45)",
+        "text": "EtherCAT",
         "unit": "",
-        "label": "Communications Connectors",
-        "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
+        "label": "EtherCAT Communications Setting",
+        "quote": "EtherCAT Communications Setting"
       }
     },
     {
@@ -157,44 +159,24 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/encoder_in/kind",
-      "page": 67,
+      "target": "ports/bus/connector",
+      "page": 69,
       "printed": {
-        "text": "incremental encoder/absolute",
+        "text": "RJ45",
         "unit": "",
-        "label": "Serial encoder",
-        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
+        "label": "Communications Connectors",
+        "quote": "Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)"
       }
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/mount/pitch_x_mm",
-      "page": 80,
+      "target": "params/safety_functions",
+      "page": 70,
       "printed": {
-        "text": "58 ±0.5",
-        "unit": "mm",
-        "label": "mounting pitch",
-        "quote": "58 ±0.5 (mounting pitch)"
-      }
-    },
-    {
-      "reason": "缺少 printed_label",
-      "target": "dims/width_mm",
-      "page": 80,
-      "printed": {
-        "text": "70",
-        "unit": "mm",
-        "quote": "70 (75) 180 70"
-      }
-    },
-    {
-      "reason": "缺少 printed_label",
-      "target": "dims/depth_mm",
-      "page": 80,
-      "printed": {
-        "text": "180",
-        "unit": "mm",
-        "quote": "70 (75) 180 70"
+        "text": "/HWBB1 and /HWBB2",
+        "unit": "",
+        "label": "Safety Functions Inputs",
+        "quote": "Inputs /HWBB1 and /HWBB2: Base block signals for Power Modules"
       }
     },
     {
@@ -207,7 +189,7 @@
     {
       "target": "series",
       "printed": {
-        "text": "Σ-7 SGD7S"
+        "text": "Σ-7"
       },
       "reason": "series 在规格书中找不到"
     }

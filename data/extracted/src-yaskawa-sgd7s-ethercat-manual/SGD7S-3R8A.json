@@ -10,7 +10,7 @@
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CffNewSCptpePxNR2mhAz"
+    "response_id": "msg_011CfhYb8CRTSSWR2L4aqpYn"
   },
   "items": [],
   "rejected": [
@@ -26,24 +26,24 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 0 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/current_type",
       "page": 62,
       "printed": {
-        "text": "200 VAC to 240 VAC",
-        "unit": "VAC",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+        "text": "Three-Phase, 200 VAC",
+        "unit": "",
+        "label": "Three-Phase, 200 VAC",
+        "quote": "Three-Phase, 200 VAC"
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "该行有 1 个数值，与 11 个型号列对不上",
       "target": "ports/power_in/phases",
       "page": 62,
       "printed": {
-        "text": "Three-Phase",
+        "text": "Three-Phase, 200 VAC",
         "unit": "",
-        "label": "Three-Phase, 200 VAC",
+        "label": "Three-Phase",
         "quote": "Three-Phase, 200 VAC"
       }
     },
@@ -59,18 +59,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/frequency_hz",
-      "page": 62,
-      "printed": {
-        "text": "50 Hz/60 Hz",
-        "unit": "Hz",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
-      }
-    },
-    {
-      "reason": "工况 'Three-Phase, 200 VAC, Main Circuit' 在第 62 页找不到",
+      "reason": "工况 'Main circuit, Three-Phase 200 VAC' 在第 62 页找不到",
       "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
@@ -104,10 +93,10 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/bus/profile",
+      "target": "ports/bus/protocol",
       "page": 69,
       "printed": {
-        "text": "CiA402 Drive Profile",
+        "text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
         "unit": "",
         "label": "Applicable Communications Standards",
         "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
@@ -115,13 +104,24 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/bus/profile",
+      "page": 69,
+      "printed": {
+        "text": "CiA402 Drive Profile",
+        "unit": "",
+        "label": "CiA402 Drive Profile",
+        "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
+      }
+    },
+    {
+      "reason": "原文引用在第 69 页的任何一行中都找不到",
       "target": "ports/bus/connector",
       "page": 69,
       "printed": {
-        "text": "RJ45",
+        "text": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
         "unit": "",
         "label": "Communications Connectors",
-        "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
+        "quote": "Connectors CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
       }
     }
   ],

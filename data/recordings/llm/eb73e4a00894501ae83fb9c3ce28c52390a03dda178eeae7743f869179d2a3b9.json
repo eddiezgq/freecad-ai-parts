@@ -1,0 +1,128 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "eb73e4a00894501ae83fb9c3ce28c52390a03dda178eeae7743f869179d2a3b9",
+  "response": {
+    "id": "msg_011CfhXsjazsx5tqeszZWbEm",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.7,
+          "page": 10,
+          "printed_label": "Gear Unit CSG/CSF",
+          "printed_text": "CSF",
+          "printed_unit": "",
+          "quote": "Gear Unit CSG/CSF",
+          "target": "params/reducer_kind",
+          "value": "harmonic"
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Ratio",
+          "printed_text": "50",
+          "printed_unit": "",
+          "quote": "|  | 50 | 25 | 2.5 | 56 | 5.7 | 34 | 3.5 | 98 | 10 |  |  |  |  |  |  |",
+          "target": "params/ratio",
+          "value": 50
+        },
+        {
+          "condition": "Rated Torque at 2000rpm",
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Rated Torque at 2000rpm",
+          "printed_text": "25",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 25 | 2.5 | 56 | 5.7 | 34 | 3.5 | 98 | 10 |  |  |  |  |  |  |",
+          "target": "params/rated_torque_nm",
+          "value": 25
+        },
+        {
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Limit for Repeated Peak Torque",
+          "printed_text": "56",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 25 | 2.5 | 56 | 5.7 | 34 | 3.5 | 98 | 10 |  |  |  |  |  |  |",
+          "target": "params/repeated_peak_torque_nm",
+          "value": 56
+        },
+        {
+          "confidence": 0.8,
+          "page": 9,
+          "printed_label": "Limit for Momentary Peak Torque",
+          "printed_text": "98",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 25 | 2.5 | 56 | 5.7 | 34 | 3.5 | 98 | 10 |  |  |  |  |  |  |",
+          "target": "params/momentary_max_torque_nm",
+          "value": 98
+        },
+        {
+          "condition": "Hysteresis loss, ratio 50",
+          "confidence": 0.5,
+          "page": 12,
+          "printed_label": "arc min",
+          "printed_text": "2.0",
+          "printed_unit": "arc min",
+          "quote": "|  | arc min | 2.0 | 2.0 | 2.0 | 2.0 | 2.0 | 2.0 |",
+          "target": "params/lost_motion_arcmin",
+          "value": 2.0
+        },
+        {
+          "confidence": 0.6,
+          "page": 9,
+          "printed_label": "Moment of Inertia",
+          "printed_text": "0.193",
+          "printed_unit": "×10−4kgm2",
+          "quote": "| 20 | 30 | 15 | 1.5 | 27 | 2.8 | 20 | 2.0 | 50 | 5.1 | 10000 | 6500 | 6500 | 3500 | 0.193 | 0.197 |",
+          "target": "params/input_inertia_kgm2",
+          "value": 0.193
+        },
+        {
+          "confidence": 0.8,
+          "page": 11,
+          "printed_label": "Mass (kg)",
+          "printed_text": "0.98",
+          "printed_unit": "kg",
+          "quote": "| Mass (kg) | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |",
+          "target": "params/mass_kg",
+          "value": 0.98
+        },
+        {
+          "confidence": 0.8,
+          "page": 11,
+          "printed_label": "φA",
+          "printed_text": "93",
+          "printed_unit": "mm",
+          "quote": "| φA |  | 73 | 79 | 93 | 107 | 138 | 160 | 180 | 190 | 226 | 260 |",
+          "target": "dims/outer_diameter_mm",
+          "value": 93
+        },
+        {
+          "confidence": 0.5,
+          "page": 10,
+          "printed_label": "φU H7",
+          "printed_text": "12",
+          "printed_unit": "mm",
+          "quote": "φU H7 6 8 12 14 14 14 19 19 22 24",
+          "target": "ports/input_bore/diameter_mm",
+          "value": 12
+        },
+        {
+          "confidence": 0.5,
+          "page": 10,
+          "printed_label": "W Js9",
+          "printed_text": "4",
+          "printed_unit": "mm",
+          "quote": "W Js9 - - 4 5 5 5 6 6 6 8",
+          "target": "ports/input_bore/key_width_mm",
+          "value": 4
+        }
+      ],
+      "model": "CSF-20-50-2UH",
+      "series": "CSF",
+      "vendor": "Harmonic Drive"
+    }
+  }
+}

@@ -1,0 +1,159 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "60e3866e13bb7012f6a42627579667c325b832cdaaa40d1bb57a8427cd50df6d",
+  "response": {
+    "id": "msg_011CfhXo1hxp9yFhgLbq7RLr",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.6,
+          "page": 9,
+          "printed_label": "CSF Series",
+          "printed_text": "CSF Series",
+          "printed_unit": "",
+          "quote": "■ CSF Series Table 127-1",
+          "target": "params/reducer_kind",
+          "value": "harmonic"
+        },
+        {
+          "confidence": 0.9,
+          "page": 9,
+          "printed_label": "Ratio",
+          "printed_text": "50",
+          "printed_unit": "",
+          "quote": "|  | 50 | 16 | 1.6 | 34 | 3.5 | 26 | 2.6 | 70 | 7.1 |  |  |  |  |  |  |",
+          "target": "params/ratio",
+          "value": 50
+        },
+        {
+          "condition": "Rated Torque at 2000rpm",
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Rated Torque at 2000rpm",
+          "printed_text": "16",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 16 | 1.6 | 34 | 3.5 | 26 | 2.6 | 70 | 7.1 |  |  |  |  |  |  |",
+          "target": "params/rated_torque_nm",
+          "value": 16
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Repeated Peak Torque",
+          "printed_text": "34",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 16 | 1.6 | 34 | 3.5 | 26 | 2.6 | 70 | 7.1 |  |  |  |  |  |  |",
+          "target": "params/repeated_peak_torque_nm",
+          "value": 34
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Momentary Peak Torque",
+          "printed_text": "70",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 16 | 1.6 | 34 | 3.5 | 26 | 2.6 | 70 | 7.1 |  |  |  |  |  |  |",
+          "target": "params/momentary_max_torque_nm",
+          "value": 70
+        },
+        {
+          "condition": "Oil lubricant",
+          "confidence": 0.6,
+          "page": 9,
+          "printed_label": "Maximum Input Speed (rpm)",
+          "printed_text": "10000",
+          "printed_unit": "rpm",
+          "quote": "| 17 | 30 | 8.8 | 0.90 | 16 | 1.6 | 12 | 1.2 | 30 | 3.1 | 10000 | 7300 | 6500 | 3500 | 0.079 | 0.081 |",
+          "target": "params/max_input_speed_rpm",
+          "value": 10000
+        },
+        {
+          "condition": "Oil lubricant",
+          "confidence": 0.6,
+          "page": 9,
+          "printed_label": "Limit for Average Input Speed (rpm)",
+          "printed_text": "6500",
+          "printed_unit": "rpm",
+          "quote": "| 17 | 30 | 8.8 | 0.90 | 16 | 1.6 | 12 | 1.2 | 30 | 3.1 | 10000 | 7300 | 6500 | 3500 | 0.079 | 0.081 |",
+          "target": "params/avg_input_speed_limit_rpm",
+          "value": 6500
+        },
+        {
+          "confidence": 0.75,
+          "page": 9,
+          "printed_label": "Moment of Inertia I ×10−4kgm2",
+          "printed_text": "0.079",
+          "printed_unit": "×10−4 kg·m²",
+          "quote": "| 17 | 30 | 8.8 | 0.90 | 16 | 1.6 | 12 | 1.2 | 30 | 3.1 | 10000 | 7300 | 6500 | 3500 | 0.079 | 0.081 |",
+          "target": "params/input_inertia_kgm2",
+          "value": 0.079
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "Mass (kg)",
+          "printed_text": "0.68",
+          "printed_unit": "kg",
+          "quote": "| Mass (kg) | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |",
+          "target": "params/mass_kg",
+          "value": 0.68
+        },
+        {
+          "confidence": 0.5,
+          "page": 12,
+          "printed_label": "arc min",
+          "printed_text": "2.0",
+          "printed_unit": "arc min",
+          "quote": "|  | arc min | 2.0 | 2.0 | 2.0 | 2.0 | 2.0 | 2.0 |",
+          "target": "params/lost_motion_arcmin",
+          "value": 2.0
+        },
+        {
+          "confidence": 0.8,
+          "page": 11,
+          "printed_label": "φA",
+          "printed_text": "79",
+          "printed_unit": "mm",
+          "quote": "| φA |  | 73 | 79 | 93 | 107 | 138 | 160 | 180 | 190 | 226 | 260 |",
+          "target": "dims/outer_diameter_mm",
+          "value": 79
+        },
+        {
+          "confidence": 0.5,
+          "page": 10,
+          "printed_label": "φb",
+          "printed_text": "71",
+          "printed_unit": "mm",
+          "quote": "φb 65 71 82 96 125 144 164 174 206 236",
+          "target": "ports/housing_mount/pcd_mm",
+          "value": 71
+        },
+        {
+          "confidence": 0.5,
+          "page": 10,
+          "printed_label": "φd",
+          "printed_text": "4.5",
+          "printed_unit": "mm",
+          "quote": "φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14",
+          "target": "ports/housing_mount/hole_diameter_mm",
+          "value": 4.5
+        },
+        {
+          "confidence": 0.4,
+          "page": 10,
+          "printed_label": "φd",
+          "printed_text": "4.5",
+          "printed_unit": "mm",
+          "quote": "φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14",
+          "target": "ports/housing_mount/hole_kind",
+          "value": "through"
+        }
+      ],
+      "model": "CSF-17-50-2UH",
+      "series": "CSF",
+      "vendor": "Harmonic Drive"
+    }
+  }
+}

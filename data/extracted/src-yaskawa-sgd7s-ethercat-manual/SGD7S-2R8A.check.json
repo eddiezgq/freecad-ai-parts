@@ -10,35 +10,14 @@
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CffPu4ZbdG9wpa9yT3Kp8"
+    "response_id": "msg_011Cfha2DYD5CWZSsTQxZPLi"
   },
   "items": [
-    {
-      "target": "params/rated_output_power_w",
-      "value": {
-        "value": 400.0,
-        "source": {
-          "doc": "src-yaskawa-sgd7s-ethercat-manual",
-          "page": 63
-        },
-        "method": "extracted",
-        "confidence": 0.8,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "0.4",
-        "unit": "kW",
-        "label": "Maximum Applicable Motor Capacity",
-        "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.75 1.5"
-      },
-      "issues": [
-        "单位换算：0.4 kW → 标准单位 W"
-      ]
-    },
     {
       "target": "ports/motor_out/rated_current_a",
       "value": {
         "value": 2.8,
+        "condition": "Single-Phase, 200 VAC",
         "source": {
           "doc": "src-yaskawa-sgd7s-ethercat-manual",
           "page": 63
@@ -52,12 +31,16 @@
         "unit": "Arms",
         "label": "Continuous Output Current",
         "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6"
-      }
+      },
+      "issues": [
+        "工况 'Single-Phase, 200 VAC' 不在同一行，取自本页其他位置（表头或脚注），须核对"
+      ]
     },
     {
       "target": "ports/motor_out/peak_current_a",
       "value": {
         "value": 9.3,
+        "condition": "Single-Phase, 200 VAC",
         "source": {
           "doc": "src-yaskawa-sgd7s-ethercat-manual",
           "page": 63
@@ -71,49 +54,69 @@
         "unit": "Arms",
         "label": "Instantaneous Maximum Output Current",
         "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
-      }
+      },
+      "issues": [
+        "工况 'Single-Phase, 200 VAC' 不在同一行，取自本页其他位置（表头或脚注），须核对"
+      ]
     },
     {
-      "target": "params/mass_kg",
+      "target": "params/rated_output_power_w",
       "value": {
-        "value": 1.1,
+        "value": 400.0,
+        "condition": "Single-Phase, 200 VAC",
         "source": {
           "doc": "src-yaskawa-sgd7s-ethercat-manual",
-          "page": 80
+          "page": 63
         },
         "method": "extracted",
-        "confidence": 0.75,
+        "confidence": 0.6,
         "reviewed": false
       },
       "printed": {
-        "text": "1.1",
-        "unit": "kg",
-        "label": "Approx. mass",
-        "quote": "Approx. mass: 1.1 kg"
-      }
+        "text": "0.4",
+        "unit": "kW",
+        "label": "Maximum Applicable Motor Capacity",
+        "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.75 1.5"
+      },
+      "issues": [
+        "工况 'Single-Phase, 200 VAC' 不在同一行，取自本页其他位置（表头或脚注），须核对",
+        "单位换算：0.4 kW → 标准单位 W"
+      ]
+    },
+    {
+      "target": "ports/power_in/current_type",
+      "value": {
+        "value": "ac",
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 62
+        },
+        "method": "extracted",
+        "confidence": 0.8,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "200 VAC to 240 VAC, 50 Hz/60 Hz",
+        "unit": "",
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+      },
+      "issues": [
+        "规格行，各型号共用",
+        "枚举映射：'200 VAC to 240 VAC, 50 Hz/60 Hz' → ac，未自动核对"
+      ]
     }
   ],
   "rejected": [
     {
-      "reason": "该行有 1 个数值，与 11 个型号列对不上",
-      "target": "ports/power_in/current_type",
+      "reason": "工况 'Three-Phase, 200 VAC; Main Circuit' 在第 62 页找不到",
+      "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
-        "text": "Three-Phase, 200 VAC",
-        "unit": "",
-        "label": "Three-Phase",
-        "quote": "Three-Phase, 200 VAC"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/phases",
-      "page": 62,
-      "printed": {
-        "text": "Three-Phase",
-        "unit": "",
-        "label": "Three-Phase",
-        "quote": "Three-Phase, 200 VAC"
+        "text": "2.5",
+        "unit": "Arms",
+        "label": "Input Current [Arms]*",
+        "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |"
       }
     },
     {
@@ -129,35 +132,68 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/frequency_hz",
+      "target": "ports/power_in/phases",
       "page": 62,
       "printed": {
-        "text": "50 Hz/60 Hz",
-        "unit": "Hz",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
-      }
-    },
-    {
-      "reason": "工况 'Three-Phase, 200 VAC, Main Circuit' 在第 62 页找不到",
-      "target": "ports/power_in/rated_current_a",
-      "page": 62,
-      "printed": {
-        "text": "2.5",
-        "unit": "Arms",
-        "label": "Input Current [Arms]*",
-        "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |"
-      }
-    },
-    {
-      "reason": "该行有 1 个数值，与 11 个型号列对不上",
-      "target": "ports/motor_out/voltage_class_v",
-      "page": 62,
-      "printed": {
-        "text": "200 VAC",
-        "unit": "VAC",
+        "text": "Three-Phase",
+        "unit": "",
         "label": "Three-Phase",
         "quote": "Three-Phase, 200 VAC"
+      }
+    },
+    {
+      "reason": "工况 'Base-mounted' 在第 80 页找不到",
+      "target": "params/mass_kg",
+      "page": 80,
+      "printed": {
+        "text": "1.1",
+        "unit": "kg",
+        "label": "Approx. mass",
+        "quote": "Approx. mass: 1.1 kg"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "dims/width_mm",
+      "page": 80,
+      "printed": {
+        "text": "45",
+        "unit": "mm",
+        "label": "45",
+        "quote": "2 × M4 45 (75) 170"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "dims/depth_mm",
+      "page": 80,
+      "printed": {
+        "text": "170",
+        "unit": "mm",
+        "label": "170",
+        "quote": "2 × M4 45 (75) 170"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/mount/pitch_x_mm",
+      "page": 80,
+      "printed": {
+        "text": "20 ±0.5",
+        "unit": "mm",
+        "label": "mounting pitch",
+        "quote": "20 ±0.5 (mounting pitch)"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/mount/thread",
+      "page": 80,
+      "printed": {
+        "text": "2×M4",
+        "unit": "",
+        "label": "2×M4",
+        "quote": "5 2×M4"
       }
     },
     {
@@ -195,6 +231,17 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/bus/connector",
+      "page": 69,
+      "printed": {
+        "text": "RJ45",
+        "unit": "",
+        "label": "Communications Connectors",
+        "quote": "Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/bus/profile",
       "page": 69,
       "printed": {
@@ -202,17 +249,6 @@
         "unit": "",
         "label": "Applicable Communications Standards",
         "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/bus/connector",
-      "page": 69,
-      "printed": {
-        "text": "RJ45",
-        "unit": "",
-        "label": "Communications Connectors",
-        "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
       }
     },
     {
@@ -227,37 +263,11 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/mount/pitch_x_mm",
-      "page": 80,
+      "target": "series",
       "printed": {
-        "text": "20 ±0.5",
-        "unit": "mm",
-        "label": "mounting pitch",
-        "quote": "20 ±0.5 (mounting pitch)"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "dims/width_mm",
-      "page": 80,
-      "printed": {
-        "text": "45",
-        "unit": "mm",
-        "label": "Exterior",
-        "quote": "2 × M4 45 (75) 170"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "dims/depth_mm",
-      "page": 80,
-      "printed": {
-        "text": "170",
-        "unit": "mm",
-        "label": "Exterior",
-        "quote": "2 × M4 45 (75) 170"
-      }
+        "text": "SGD7S"
+      },
+      "reason": "series 在规格书中找不到"
     }
   ],
   "missing_key_fields": []

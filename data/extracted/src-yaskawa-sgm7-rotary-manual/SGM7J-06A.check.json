@@ -3,7 +3,7 @@
   "document": {
     "doc": "src-yaskawa-sgm7-rotary-manual",
     "sha256": "790923847a5463eac791c35ef87062807b20d2f39e6ded523d51b63ed7d88044",
-    "pages": 5
+    "pages": 6
   },
   "category": "servo_motor",
   "model": "SGM7J-06A",
@@ -11,7 +11,7 @@
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CffPYShX3qzDtjzS9LHwv"
+    "response_id": "msg_011CfhZbgMZd81AbQ7m8GqRi"
   },
   "items": [
     {
@@ -173,29 +173,6 @@
       }
     },
     {
-      "target": "params/rotor_inertia_kgm2",
-      "value": {
-        "value": 8e-05,
-        "source": {
-          "doc": "src-yaskawa-sgm7-rotary-manual",
-          "page": 55
-        },
-        "method": "extracted",
-        "confidence": 0.8,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "0.800",
-        "unit": "×10-4 kgm2",
-        "label": "Motor Moment of Inertia",
-        "quote": "Motor Moment of Inertia 0.0395 0.0659 0.0915 0.263 0.486 0.800 1.59"
-      },
-      "issues": [
-        "单位 ×10-4 kgm2 不在同一行，取自本页其他位置",
-        "单位换算：0.800 ×10-4 kgm2 → 标准单位 kg*m**2"
-      ]
-    },
-    {
       "target": "params/ip_rating",
       "value": {
         "value": "IP67",
@@ -216,69 +193,6 @@
       "issues": [
         "文字值在型号表中各型号共用（合并单元格）",
         "文字取自原文的一部分：'Totally enclosed, self-cooled, IP67' → 'IP67'，需复核"
-      ]
-    },
-    {
-      "target": "ports/power_in/voltage_class_v",
-      "value": {
-        "value": 200.0,
-        "source": {
-          "doc": "src-yaskawa-sgm7-rotary-manual",
-          "page": 55
-        },
-        "method": "extracted",
-        "confidence": 0.9,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "200 V",
-        "unit": "V",
-        "label": "Voltage",
-        "quote": "Voltage 200 V"
-      }
-    },
-    {
-      "target": "ports/shaft/max_radial_load_n",
-      "value": {
-        "value": 245.0,
-        "source": {
-          "doc": "src-yaskawa-sgm7-rotary-manual",
-          "page": 55
-        },
-        "method": "extracted",
-        "confidence": 0.85,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "245",
-        "unit": "N",
-        "label": "Allowable Radial Load",
-        "quote": "| Allowable Radial Load | N | 78 |  |  | 245 |  |  |"
-      },
-      "issues": [
-        "该行有多个数值，须核对型号列"
-      ]
-    },
-    {
-      "target": "ports/shaft/max_axial_load_n",
-      "value": {
-        "value": 74.0,
-        "source": {
-          "doc": "src-yaskawa-sgm7-rotary-manual",
-          "page": 55
-        },
-        "method": "extracted",
-        "confidence": 0.85,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "74",
-        "unit": "N",
-        "label": "Allowable Thrust Load",
-        "quote": "| Allowable Thrust Load | N | 54 |  |  | 74 |  |  |"
-      },
-      "issues": [
-        "该行有多个数值，须核对型号列"
       ]
     },
     {
@@ -306,40 +220,117 @@
         "单位 mm 不在同一行，取自本页其他位置",
         "该行有多个数值，须核对型号列"
       ]
+    },
+    {
+      "target": "ports/mount_flange/hole_count",
+      "value": {
+        "value": 4,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 65
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "4 × LZ dia.",
+        "unit": "",
+        "label": "LZ dia.",
+        "quote": "0.02 4 × LZ dia. Unit: mm"
+      },
+      "issues": [
+        "孔数取自图纸标注 '4 × LZ'，适用于本页尺寸表所列型号"
+      ]
     }
   ],
   "rejected": [
     {
-      "reason": "工况 'without holding brake' 在第 65 页找不到",
+      "reason": "工况 '不带制动器' 在第 55 页找不到",
+      "target": "params/rotor_inertia_kgm2",
+      "page": 55,
+      "printed": {
+        "text": "0.800",
+        "unit": "×10-4 kgm2",
+        "label": "Motor Moment of Inertia",
+        "quote": "Motor Moment of Inertia 0.0395 0.0659 0.0915 0.263 0.486 0.800 1.59"
+      }
+    },
+    {
+      "reason": "该行有 3 个数值，与 7 个型号列对不上",
+      "target": "ports/shaft/max_radial_load_n",
+      "page": 55,
+      "printed": {
+        "text": "245",
+        "unit": "N",
+        "label": "Allowable Radial Load",
+        "quote": "Allowable Radial Load N 78 245 392"
+      }
+    },
+    {
+      "reason": "该行有 3 个数值，与 7 个型号列对不上",
+      "target": "ports/shaft/max_axial_load_n",
+      "page": 55,
+      "printed": {
+        "text": "74",
+        "unit": "N",
+        "label": "Allowable Thrust Load",
+        "quote": "Allowable Thrust Load N 54 74 147"
+      }
+    },
+    {
+      "reason": "叫法不在引用所在的行中",
+      "target": "ports/power_in/voltage_class_v",
+      "page": 53,
+      "printed": {
+        "text": "200 VAC",
+        "unit": "VAC",
+        "label": "Power Supply Voltage",
+        "quote": "| A | 200 VAC |"
+      }
+    },
+    {
+      "reason": "工况 '选项代码 C' 在第 53 页找不到",
+      "target": "ports/power_in/brake_voltage_v",
+      "page": 53,
+      "printed": {
+        "text": "With holding brake (24 VDC)",
+        "unit": "VDC",
+        "label": "With holding brake",
+        "quote": "| C | With holding brake (24 VDC) |"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/mass_kg",
+      "page": 65,
+      "printed": {
+        "text": "1.6",
+        "unit": "kg",
+        "label": "Approx. Mass",
+        "quote": "137.5 107.5 1.6"
+      }
+    },
+    {
+      "reason": "工况 '06AA2，不带制动器' 在第 65 页找不到",
       "target": "dims/overall_length_mm",
       "page": 65,
       "printed": {
         "text": "137.5",
         "unit": "mm",
         "label": "L",
-        "quote": "|  | 137.5  (191.5) | 107.5 (161.5) | 89.2 | 30 | 3 | 6 | 60 | 70 | 50 0 -0.025 | 5. | 5 14 0 -0.011 | 8.5 | 28.7 | 14.7 | 17.1 |  |"
+        "quote": "137.5 107.5 1.6"
       }
     },
     {
-      "reason": "工况 'without holding brake' 在第 65 页找不到",
+      "reason": "工况 '06AA2，不带制动器' 在第 65 页找不到",
       "target": "dims/body_length_mm",
       "page": 65,
       "printed": {
         "text": "107.5",
         "unit": "mm",
         "label": "LL",
-        "quote": "|  | 137.5  (191.5) | 107.5 (161.5) | 89.2 | 30 | 3 | 6 | 60 | 70 | 50 0 -0.025 | 5. | 5 14 0 -0.011 | 8.5 | 28.7 | 14.7 | 17.1 |  |"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/shaft/usable_length_mm",
-      "page": 65,
-      "printed": {
-        "text": "30",
-        "unit": "mm",
-        "label": "LR",
-        "quote": "06AA2 89.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1"
+        "quote": "137.5 107.5 1.6"
       }
     },
     {
@@ -388,57 +379,73 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/mount_flange/hole_count",
-      "page": 65,
-      "printed": {
-        "text": "4 × LZ dia.",
-        "unit": "",
-        "label": "4 × LZ dia.",
-        "quote": "0.02 4 × LZ dia. Unit: mm"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/mount_flange/hole_kind",
       "page": 65,
       "printed": {
         "text": "4 × LZ dia.",
         "unit": "",
-        "label": "4 × LZ dia.",
+        "label": "LZ dia.",
         "quote": "0.02 4 × LZ dia. Unit: mm"
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "工况 '轴端代码 2' 在第 66 页找不到",
       "target": "ports/shaft/diameter_mm",
-      "page": 65,
+      "page": 66,
       "printed": {
         "text": "14 0 -0.011",
         "unit": "mm",
         "label": "S",
-        "quote": "|  | 137.5  (191.5) | 107.5 (161.5) | 89.2 | 30 | 3 | 6 | 60 | 70 | 50 0 -0.025 | 5. | 5 14 0 -0.011 | 8.5 | 28.7 | 14.7 | 17.1 |  |"
+        "quote": "| S | 8 0 -0.009 | 14 0 -0.011 |"
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/mass_kg",
-      "page": 65,
+      "reason": "工况 '轴端代码 2' 在第 66 页找不到",
+      "target": "ports/shaft/usable_length_mm",
+      "page": 66,
       "printed": {
-        "text": "1.6",
-        "unit": "kg",
-        "label": "Approx. Mass",
-        "quote": "137.5 107.5 1.6"
+        "text": "30",
+        "unit": "mm",
+        "label": "LR",
+        "quote": "| LR | 25 | 30 |"
       }
     },
     {
-      "target": "vendor",
+      "reason": "叫法不在引用所在的行中",
+      "target": "ports/shaft/feature",
+      "page": 53,
       "printed": {
-        "text": "Yaskawa"
-      },
-      "reason": "vendor 在规格书中找不到"
+        "text": "Straight without key",
+        "unit": "",
+        "label": "Shaft End",
+        "quote": "| 2 | Straight without key |"
+      }
+    },
+    {
+      "reason": "工况 '编码器代码 6' 在第 53 页找不到",
+      "target": "ports/encoder/kind",
+      "page": 53,
+      "printed": {
+        "text": "24-bit batteryless absolute",
+        "unit": "",
+        "label": "Serial Encoder",
+        "quote": "| 6 | 24-bit batteryless absolute |"
+      }
+    },
+    {
+      "reason": "工况 '编码器代码 6' 在第 53 页找不到",
+      "target": "ports/encoder/resolution_bits",
+      "page": 53,
+      "printed": {
+        "text": "24-bit batteryless absolute",
+        "unit": "",
+        "label": "Serial Encoder",
+        "quote": "| 6 | 24-bit batteryless absolute |"
+      }
     }
   ],
   "missing_key_fields": [
+    "params/rotor_inertia_kgm2",
     "params/mass_kg"
   ]
 }

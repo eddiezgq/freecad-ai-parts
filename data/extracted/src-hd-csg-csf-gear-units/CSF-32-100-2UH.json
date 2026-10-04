@@ -11,7 +11,7 @@
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CffN5Gx1n5s1XfCmB2Grm"
+    "response_id": "msg_011CfhXyMimoBDsShBFG5Udh"
   },
   "items": [
     {
@@ -113,14 +113,14 @@
           "page": 11
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
         "text": "3.2",
         "unit": "kg",
         "label": "Mass (kg)",
-        "quote": "|  | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |"
+        "quote": "| Mass (kg) | CSF Series | 0.52 | 0.68 | 0.98 | 1.5 | 3.2 | 5.0 | 7.0 | 8.9 | 14.6 | 20.9 |"
       }
     },
     {
@@ -132,7 +132,7 @@
           "page": 11
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
@@ -146,9 +146,9 @@
       ]
     },
     {
-      "target": "ports/input_bore/diameter_mm",
+      "target": "ports/output_flange/pcd_mm",
       "value": {
-        "value": 14.0,
+        "value": 125.0,
         "source": {
           "doc": "src-hd-csg-csf-gear-units",
           "page": 10
@@ -158,10 +158,32 @@
         "reviewed": false
       },
       "printed": {
-        "text": "14",
+        "text": "125",
         "unit": "mm",
-        "label": "φU H7",
-        "quote": "φU H7 6 8 12 14 14 14 19 19 22 24"
+        "label": "φb",
+        "quote": "φb 65 71 82 96 125 144 164 174 206 236"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置"
+      ]
+    },
+    {
+      "target": "ports/output_flange/hole_diameter_mm",
+      "value": {
+        "value": 6.6,
+        "source": {
+          "doc": "src-hd-csg-csf-gear-units",
+          "page": 10
+        },
+        "method": "extracted",
+        "confidence": 0.6,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "6.6",
+        "unit": "mm",
+        "label": "φd",
+        "quote": "φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14"
       },
       "issues": [
         "单位 mm 不在同一行，取自本页其他位置"
@@ -169,17 +191,6 @@
     }
   ],
   "rejected": [
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/reducer_kind",
-      "page": 9,
-      "printed": {
-        "text": "CSF",
-        "unit": "",
-        "label": "CSF Series",
-        "quote": "■ CSF Series Table 127-1"
-      }
-    },
     {
       "reason": "数值不在目标型号所在的列",
       "target": "params/max_input_speed_rpm",
@@ -203,58 +214,14 @@
       }
     },
     {
-      "reason": "数值不在目标型号所在的列",
+      "reason": "单位 '×10−4 kg·m²' 不在引用所在的行中，本页也找不到",
       "target": "params/input_inertia_kgm2",
       "page": 9,
       "printed": {
         "text": "1.69",
-        "unit": "×10−4kgm2",
-        "label": "Moment of Inertia",
+        "unit": "×10−4 kg·m²",
+        "label": "Moment of Inertia I ×10−4kgm2",
         "quote": "| 32 | 30 | 54 | 5.5 | 100 | 10 | 75 | 7.7 | 200 | 20 | 7000 | 4800 | 4600 | 3500 | 1.69 | 1.72 |"
-      }
-    },
-    {
-      "reason": "工况 'Ratio 80 or more' 在第 12 页找不到",
-      "target": "params/lost_motion_arcmin",
-      "page": 12,
-      "printed": {
-        "text": "1.0",
-        "unit": "arc min",
-        "label": "arc min",
-        "quote": "|  | arc min | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 |"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/input_bore/fit_system",
-      "page": 10,
-      "printed": {
-        "text": "H7",
-        "unit": "",
-        "label": "φU H7",
-        "quote": "φU H7 6 8 12 14 14 14 19 19 22 24"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/input_bore/fit",
-      "page": 10,
-      "printed": {
-        "text": "H7",
-        "unit": "",
-        "label": "φU H7",
-        "quote": "φU H7 6 8 12 14 14 14 19 19 22 24"
-      }
-    },
-    {
-      "reason": "该行有 8 个数值，与 10 个型号列对不上",
-      "target": "ports/input_bore/key_width_mm",
-      "page": 10,
-      "printed": {
-        "text": "5",
-        "unit": "mm",
-        "label": "W Js9",
-        "quote": "W Js9 - - 4 5 5 5 6 6 6 8"
       }
     },
     {

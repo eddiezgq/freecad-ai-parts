@@ -10,13 +10,6 @@
         "value": 2.2
       },
       "reason": "只有主抽取报出"
-    },
-    {
-      "target": "params/rated_output_power_w",
-      "check": {
-        "value": 1500.0
-      },
-      "reason": "只有复核抽取报出"
     }
   ],
   "problems": [
