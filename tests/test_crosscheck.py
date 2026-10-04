@@ -190,3 +190,25 @@ def test_human_confirmation_of_text_value_must_match_a_checked_reading():
     cmp = cx.compare(p, c)
     cx.apply_confirmations(p, c, cmp, [dict(ok, value="incremental")], "D-1")
     assert "ports/encoder/kind" not in cmp["agreed"]
+
+
+def test_manual_entry_needs_page_and_quote():
+    p, c = _ext("a"), _ext("b")
+    entry = {"doc": "src-x-doc", "model": "D-1", "target": "dims/height_mm", "value": 160, "page": 82,
+             "quote": "160", "confirmed_by": "张国庆", "date": "2026-10-04"}
+    cmp = cx.compare(p, c)
+    notes = cx.apply_confirmations(p, c, cmp, [entry], "D-1")
+    pv = cmp["agreed"]["dims/height_mm"]
+    assert pv["method"] == "manual" and pv["source"]["page"] == 82 and "人工录入" in pv["source"]["note"]
+    assert any("人工录入" in n for n in notes)
+    for bad in ({k: v for k, v in entry.items() if k != "quote"}, dict(entry, quote="  ")):
+        cmp = cx.compare(p, c)
+        cx.apply_confirmations(p, c, cmp, [bad], "D-1")
+        assert "dims/height_mm" not in cmp["agreed"]
+    # 名义值加公差
+    shaft = dict(entry, target="ports/shaft/diameter_mm", value=14, tol_upper=0, tol_lower=-0.011, quote="14 0 -0.011")
+    cmp = cx.compare(p, c)
+    cx.apply_confirmations(p, c, cmp, [shaft], "D-1")
+    pv = cmp["agreed"]["ports/shaft/diameter_mm"]
+    assert pv["nominal"] == 14 and pv["tol_lower"] == -0.011 and "value" not in pv
+    assert errors("common/param-value.schema.json", pv) == []
