@@ -10,27 +10,31 @@
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CffNiTGATQ9kzfGGZrwhr"
+    "response_id": "msg_011CfhYeY5hYy2sB3P19Lgts"
   },
   "items": [
     {
-      "target": "ports/power_in/rated_current_a",
+      "target": "ports/power_in/current_type",
       "value": {
-        "value": 5.7,
+        "value": "ac",
         "source": {
           "doc": "src-yaskawa-sgd7s-ethercat-manual",
           "page": 62
         },
         "method": "extracted",
-        "confidence": 0.8,
+        "confidence": 0.85,
         "reviewed": false
       },
       "printed": {
-        "text": "5.7",
-        "unit": "Arms",
-        "label": "Input Current [Arms]*",
-        "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |"
-      }
+        "text": "200 VAC to 240 VAC, 50 Hz/60 Hz",
+        "unit": "",
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+      },
+      "issues": [
+        "规格行，各型号共用",
+        "枚举映射：'200 VAC to 240 VAC, 50 Hz/60 Hz' → ac，未自动核对"
+      ]
     },
     {
       "target": "ports/motor_out/rated_current_a",
@@ -50,37 +54,29 @@
         "label": "Continuous Output Current [Arms]",
         "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6"
       }
-    },
-    {
-      "target": "params/mass_kg",
-      "value": {
-        "value": 1.6,
-        "source": {
-          "doc": "src-yaskawa-sgd7s-ethercat-manual",
-          "page": 80
-        },
-        "method": "extracted",
-        "confidence": 0.8,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "1.6 kg",
-        "unit": "kg",
-        "label": "SGD7S-3R8A, -5R5A, -7R6A",
-        "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg"
-      }
     }
   ],
   "rejected": [
     {
-      "reason": "该行有 0 个数值，与 11 个型号列对不上",
-      "target": "ports/power_in/current_type",
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/mass_kg",
+      "page": 80,
+      "printed": {
+        "text": "1.6 kg",
+        "unit": "kg",
+        "label": "Approx. mass",
+        "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/voltage_v",
       "page": 62,
       "printed": {
-        "text": "Three-Phase, 200 VAC",
-        "unit": "",
-        "label": "Three-Phase, 200 VAC",
-        "quote": "Three-Phase, 200 VAC"
+        "text": "200 VAC to 240 VAC",
+        "unit": "VAC",
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
       }
     },
     {
@@ -96,13 +92,24 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/voltage_v",
+      "target": "ports/power_in/frequency_hz",
       "page": 62,
       "printed": {
-        "text": "200 VAC to 240 VAC",
-        "unit": "VAC",
+        "text": "50 Hz/60 Hz",
+        "unit": "Hz",
         "label": "Power Supply",
         "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+      }
+    },
+    {
+      "reason": "工况 'Main circuit, three-phase 200 VAC' 在第 62 页找不到",
+      "target": "ports/power_in/rated_current_a",
+      "page": 62,
+      "printed": {
+        "text": "5.7",
+        "unit": "Arms",
+        "label": "Input Current [Arms]*",
+        "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |"
       }
     },
     {
@@ -124,7 +131,7 @@
         "text": "17",
         "unit": "Arms",
         "label": "Instantaneous Maximum Output Current [Arms]",
-        "quote": "2.1 3.2 5.9 9.3 11 16.9 17 28 42 56 84"
+        "quote": "|  |  |  | 2.1 | 3.2 | 5.9 | 9.3 | 11 | 16.9 | 17 | 28 | 42 | 56 |  |"
       }
     },
     {
@@ -143,10 +150,10 @@
       "target": "ports/bus/profile",
       "page": 69,
       "printed": {
-        "text": "CiA402",
+        "text": "CiA402 Drive Profile",
         "unit": "",
         "label": "CiA402 Drive Profile",
-        "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
+        "quote": "CiA402 Drive Profile"
       }
     },
     {
@@ -162,13 +169,13 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/safety_functions",
-      "page": 70,
+      "target": "ports/mount/pitch_y_mm",
+      "page": 80,
       "printed": {
-        "text": "/HWBB1 and /HWBB2: Base block signals for Power Modules",
-        "unit": "",
-        "label": "Safety Functions",
-        "quote": "Inputs /HWBB1 and /HWBB2: Base block signals for Power Modules"
+        "text": "58 ±0.5",
+        "unit": "mm",
+        "label": "mounting pitch",
+        "quote": "58 ±0.5 (mounting pitch)"
       }
     },
     {
@@ -177,6 +184,13 @@
         "text": "Yaskawa"
       },
       "reason": "vendor 在规格书中找不到"
+    },
+    {
+      "target": "series",
+      "printed": {
+        "text": "Σ-7S SERVOPACK"
+      },
+      "reason": "series 在规格书中找不到"
     }
   ],
   "missing_key_fields": []

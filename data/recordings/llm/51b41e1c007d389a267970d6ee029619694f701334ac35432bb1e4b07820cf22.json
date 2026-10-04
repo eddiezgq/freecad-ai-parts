@@ -1,0 +1,137 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "51b41e1c007d389a267970d6ee029619694f701334ac35432bb1e4b07820cf22",
+  "response": {
+    "id": "msg_011CfhXiWjapyqWAf3z9r8JX",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.6,
+          "page": 9,
+          "printed_label": "CSF",
+          "printed_text": "CSF",
+          "printed_unit": "",
+          "quote": "■ CSF Series Table 127-1",
+          "target": "params/reducer_kind",
+          "value": "harmonic"
+        },
+        {
+          "confidence": 0.9,
+          "page": 9,
+          "printed_label": "Ratio",
+          "printed_text": "50",
+          "printed_unit": "",
+          "quote": "|  | 50 | 5.4 | 0.55 | 18 | 1.8 | 6.9 | 0.70 | 35 | 3.6 |  |  |  |  |  |  |",
+          "target": "params/ratio",
+          "value": 50
+        },
+        {
+          "condition": "Rated Torque at 2000rpm",
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Rated Torque at 2000rpm",
+          "printed_text": "5.4",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 5.4 | 0.55 | 18 | 1.8 | 6.9 | 0.70 | 35 | 3.6 |  |  |  |  |  |  |",
+          "target": "params/rated_torque_nm",
+          "value": 5.4
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Repeated Peak Torque",
+          "printed_text": "18",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 5.4 | 0.55 | 18 | 1.8 | 6.9 | 0.70 | 35 | 3.6 |  |  |  |  |  |  |",
+          "target": "params/repeated_peak_torque_nm",
+          "value": 18
+        },
+        {
+          "confidence": 0.85,
+          "page": 9,
+          "printed_label": "Limit for Momentary Peak Torque",
+          "printed_text": "35",
+          "printed_unit": "Nm",
+          "quote": "|  | 50 | 5.4 | 0.55 | 18 | 1.8 | 6.9 | 0.70 | 35 | 3.6 |  |  |  |  |  |  |",
+          "target": "params/momentary_max_torque_nm",
+          "value": 35
+        },
+        {
+          "confidence": 0.7,
+          "page": 9,
+          "printed_label": "Moment of Inertia",
+          "printed_text": "0.033",
+          "printed_unit": "I ×10−4kgm2",
+          "quote": "| 14 | 30 | 4.0 | 0.41 | 9.0 | 0.92 | 6.8 | 0.69 | 17 | 1.7 | 14000 | 8500 | 6500 | 3500 | 0.033 | 0.034 |",
+          "target": "params/input_inertia_kgm2",
+          "value": 0.033
+        },
+        {
+          "confidence": 0.6,
+          "page": 11,
+          "printed_label": "CSF Series",
+          "printed_text": "0.52",
+          "printed_unit": "kg",
+          "quote": "CSF Series 0.52 0.68 0.98 1.5 3.2 5.0 7.0 8.9 14.6 20.9",
+          "target": "params/mass_kg",
+          "value": 0.52
+        },
+        {
+          "confidence": 0.8,
+          "page": 11,
+          "printed_label": "φA",
+          "printed_text": "73",
+          "printed_unit": "mm",
+          "quote": "| φA |  | 73 | 79 | 93 | 107 | 138 | 160 | 180 | 190 | 226 | 260 |",
+          "target": "dims/outer_diameter_mm",
+          "value": 73
+        },
+        {
+          "confidence": 0.55,
+          "page": 11,
+          "printed_label": "φU H7",
+          "printed_text": "6",
+          "printed_unit": "mm",
+          "quote": "φU H7 6 8 12 14 14 14 19 19 22 24",
+          "target": "ports/input_bore/diameter_mm",
+          "value": 6
+        },
+        {
+          "confidence": 0.6,
+          "page": 11,
+          "printed_label": "φb",
+          "printed_text": "65",
+          "printed_unit": "mm",
+          "quote": "φb 65 71 82 96 125 144 164 174 206 236",
+          "target": "ports/housing_mount/pcd_mm",
+          "value": 65
+        },
+        {
+          "confidence": 0.55,
+          "page": 11,
+          "printed_label": "φd",
+          "printed_text": "4.5",
+          "printed_unit": "mm",
+          "quote": "φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14",
+          "target": "ports/housing_mount/hole_diameter_mm",
+          "value": 4.5
+        },
+        {
+          "confidence": 0.0,
+          "page": 11,
+          "printed_label": "φe",
+          "printed_text": "38",
+          "printed_unit": "mm",
+          "quote": "by the symbol, Z, it will damage the flexspline. CSG Series 8 8 8 10 12 10 12 14 12 8",
+          "target": "ports/output_flange/pcd_mm",
+          "value": 38
+        }
+      ],
+      "model": "CSF-14-50-2UH",
+      "series": "CSF",
+      "vendor": "Harmonic Drive"
+    }
+  }
+}

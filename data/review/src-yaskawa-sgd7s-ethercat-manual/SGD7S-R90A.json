@@ -7,17 +7,17 @@
     {
       "target": "params/rated_output_power_w",
       "check": {
-        "value": 100.0,
-        "condition": "Single-Phase, 200 VAC"
+        "value": 100.0
       },
       "reason": "只有复核抽取报出"
     },
     {
       "target": "ports/power_in/current_type",
-      "check": {
-        "value": "ac"
+      "primary": {
+        "value": "ac",
+        "condition": "Three-Phase, 200 VAC"
       },
-      "reason": "只有复核抽取报出"
+      "reason": "只有主抽取报出"
     }
   ],
   "problems": [

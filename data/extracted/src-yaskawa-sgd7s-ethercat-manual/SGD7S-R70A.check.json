@@ -10,7 +10,7 @@
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CffPnVf1G1Vv8K8j75mpN"
+    "response_id": "msg_011CfhZtTrTVQyHgEig2ec3N"
   },
   "items": [
     {
@@ -22,13 +22,13 @@
           "page": 63
         },
         "method": "extracted",
-        "confidence": 0.6,
+        "confidence": 0.7,
         "reviewed": false
       },
       "printed": {
         "text": "0.05",
         "unit": "kW",
-        "label": "Maximum Applicable Motor Capacity",
+        "label": "Maximum Applicable Motor Capacity [kW]",
         "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.75 1.5"
       },
       "issues": [
@@ -50,7 +50,7 @@
       "printed": {
         "text": "0.66",
         "unit": "Arms",
-        "label": "Continuous Output Current",
+        "label": "Continuous Output Current [Arms]",
         "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6"
       }
     },
@@ -69,44 +69,21 @@
       "printed": {
         "text": "2.1",
         "unit": "Arms",
-        "label": "Instantaneous Maximum Output Current",
+        "label": "Instantaneous Maximum Output Current [Arms]",
         "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
       }
-    },
-    {
-      "target": "ports/power_in/current_type",
-      "value": {
-        "value": "ac",
-        "source": {
-          "doc": "src-yaskawa-sgd7s-ethercat-manual",
-          "page": 62
-        },
-        "method": "extracted",
-        "confidence": 0.85,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "200 VAC to 240 VAC, 50 Hz/60 Hz",
-        "unit": "",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
-      },
-      "issues": [
-        "规格行，各型号共用",
-        "枚举映射：'200 VAC to 240 VAC, 50 Hz/60 Hz' → ac，未自动核对"
-      ]
     }
   ],
   "rejected": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/voltage_v",
+      "reason": "该行有 1 个数值，与 11 个型号列对不上",
+      "target": "ports/power_in/current_type",
       "page": 62,
       "printed": {
-        "text": "200 VAC to 240 VAC",
+        "text": "Three-Phase, 200 VAC",
         "unit": "VAC",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+        "label": "Three-Phase",
+        "quote": "Three-Phase, 200 VAC"
       }
     },
     {
@@ -121,13 +98,24 @@
       }
     },
     {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/voltage_v",
+      "page": 62,
+      "printed": {
+        "text": "200 VAC to 240 VAC",
+        "unit": "VAC",
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+      }
+    },
+    {
       "reason": "工况 'Three-Phase, 200 VAC, Main Circuit, net value at the rated load' 在第 62 页找不到",
       "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
         "text": "0.4",
         "unit": "Arms",
-        "label": "Input Current",
+        "label": "Input Current [Arms]*",
         "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |"
       }
     },
@@ -136,10 +124,10 @@
       "target": "ports/bus/protocol",
       "page": 69,
       "printed": {
-        "text": "ETHERCAT IN",
+        "text": "ETHERCAT",
         "unit": "",
         "label": "Communications Connectors",
-        "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
+        "quote": "Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)"
       }
     },
     {
@@ -158,21 +146,43 @@
       "target": "ports/bus/profile",
       "page": 69,
       "printed": {
-        "text": "CiA402 Drive Profile",
+        "text": "CiA402",
         "unit": "",
-        "label": "Applicable Communications Standards",
+        "label": "CiA402 Drive Profile",
         "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
       }
     },
     {
-      "reason": "工况 'Rack-mounted SERVOPACKs, Hardware Option Code: 001' 在第 82 页找不到",
-      "target": "params/mass_kg",
-      "page": 82,
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/encoder_in/protocol",
+      "page": 67,
       "printed": {
-        "text": "1.0",
-        "unit": "kg",
-        "label": "Approx. mass",
-        "quote": "Approx. mass: 1.0 kg"
+        "text": "Serial encoder",
+        "unit": "",
+        "label": "With Rotary Servomotor",
+        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/encoder_in/kind",
+      "page": 67,
+      "printed": {
+        "text": "incremental encoder/absolute",
+        "unit": "",
+        "label": "Serial encoder",
+        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
+      }
+    },
+    {
+      "reason": "值 'HWBB' 与印出的文字 '/HWBB1 and /HWBB2: Base block signals for Power Modules' 不一致",
+      "target": "params/safety_functions",
+      "page": 70,
+      "printed": {
+        "text": "/HWBB1 and /HWBB2: Base block signals for Power Modules",
+        "unit": "",
+        "label": "Inputs",
+        "quote": "Inputs /HWBB1 and /HWBB2: Base block signals for Power Modules"
       }
     },
     {

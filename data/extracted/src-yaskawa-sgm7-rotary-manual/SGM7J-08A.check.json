@@ -3,7 +3,7 @@
   "document": {
     "doc": "src-yaskawa-sgm7-rotary-manual",
     "sha256": "790923847a5463eac791c35ef87062807b20d2f39e6ded523d51b63ed7d88044",
-    "pages": 5
+    "pages": 6
   },
   "category": "servo_motor",
   "model": "SGM7J-08A",
@@ -11,7 +11,7 @@
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CffPbvg7GM62Yv5RHYuW8"
+    "response_id": "msg_011CfhZfMR92sMg1rJhvg8s1"
   },
   "items": [
     {
@@ -23,7 +23,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.95,
         "reviewed": false
       },
       "printed": {
@@ -42,7 +42,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.95,
         "reviewed": false
       },
       "printed": {
@@ -61,7 +61,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.95,
         "reviewed": false
       },
       "printed": {
@@ -80,7 +80,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.95,
         "reviewed": false
       },
       "printed": {
@@ -99,7 +99,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.95,
         "reviewed": false
       },
       "printed": {
@@ -118,7 +118,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.95,
         "reviewed": false
       },
       "printed": {
@@ -140,7 +140,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.95,
         "reviewed": false
       },
       "printed": {
@@ -162,7 +162,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.95,
         "reviewed": false
       },
       "printed": {
@@ -173,29 +173,6 @@
       }
     },
     {
-      "target": "params/rotor_inertia_kgm2",
-      "value": {
-        "value": 0.00015900000000000002,
-        "source": {
-          "doc": "src-yaskawa-sgm7-rotary-manual",
-          "page": 55
-        },
-        "method": "extracted",
-        "confidence": 0.7,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "1.59",
-        "unit": "×10-4 kgm2",
-        "label": "Motor Moment of Inertia",
-        "quote": "Motor Moment of Inertia 0.0395 0.0659 0.0915 0.263 0.486 0.800 1.59"
-      },
-      "issues": [
-        "单位 ×10-4 kgm2 不在同一行，取自本页其他位置",
-        "单位换算：1.59 ×10-4 kgm2 → 标准单位 kg*m**2"
-      ]
-    },
-    {
       "target": "params/ip_rating",
       "value": {
         "value": "IP67",
@@ -204,7 +181,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
@@ -219,25 +196,6 @@
       ]
     },
     {
-      "target": "ports/power_in/voltage_class_v",
-      "value": {
-        "value": 200.0,
-        "source": {
-          "doc": "src-yaskawa-sgm7-rotary-manual",
-          "page": 55
-        },
-        "method": "extracted",
-        "confidence": 0.85,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "200 V",
-        "unit": "V",
-        "label": "Voltage",
-        "quote": "Voltage 200 V"
-      }
-    },
-    {
       "target": "ports/shaft/usable_length_mm",
       "value": {
         "value": 40.0,
@@ -246,7 +204,7 @@
           "page": 65
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.75,
         "reviewed": false
       },
       "printed": {
@@ -269,7 +227,7 @@
           "page": 65
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
@@ -292,7 +250,7 @@
           "page": 65
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
@@ -315,7 +273,7 @@
           "page": 65
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
@@ -340,7 +298,7 @@
           "page": 65
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
@@ -363,7 +321,7 @@
           "page": 65
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
@@ -378,6 +336,28 @@
       ]
     },
     {
+      "target": "ports/mount_flange/hole_count",
+      "value": {
+        "value": 4,
+        "source": {
+          "doc": "src-yaskawa-sgm7-rotary-manual",
+          "page": 65
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "4 × LZ dia.",
+        "unit": "",
+        "label": "4 × LZ dia.",
+        "quote": "0.02 4 × LZ dia. Unit: mm"
+      },
+      "issues": [
+        "孔数取自图纸标注 '4 × LZ'，适用于本页尺寸表所列型号"
+      ]
+    },
+    {
       "target": "ports/shaft/diameter_mm",
       "value": {
         "nominal": 19.0,
@@ -388,7 +368,7 @@
           "page": 65
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
@@ -404,6 +384,17 @@
     }
   ],
   "rejected": [
+    {
+      "reason": "工况 'without holding brake' 在第 55 页找不到",
+      "target": "params/rotor_inertia_kgm2",
+      "page": 55,
+      "printed": {
+        "text": "1.59",
+        "unit": "×10-4 kgm2",
+        "label": "Motor Moment of Inertia",
+        "quote": "Motor Moment of Inertia 0.0395 0.0659 0.0915 0.263 0.486 0.800 1.59"
+      }
+    },
     {
       "reason": "该行有 3 个数值，与 7 个型号列对不上",
       "target": "ports/shaft/max_radial_load_n",
@@ -428,28 +419,6 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "dims/overall_length_mm",
-      "page": 65,
-      "printed": {
-        "text": "137",
-        "unit": "mm",
-        "label": "L",
-        "quote": "137 97 2.2*2"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "dims/body_length_mm",
-      "page": 65,
-      "printed": {
-        "text": "97",
-        "unit": "mm",
-        "label": "LL",
-        "quote": "137 97 2.2*2"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/mass_kg",
       "page": 65,
       "printed": {
@@ -460,14 +429,25 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/mount_flange/hole_count",
+      "reason": "工况 'without holding brake' 在第 65 页找不到",
+      "target": "dims/overall_length_mm",
       "page": 65,
       "printed": {
-        "text": "4",
-        "unit": "",
-        "label": "4 × LZ dia.",
-        "quote": "0.02 4 × LZ dia. Unit: mm"
+        "text": "137",
+        "unit": "mm",
+        "label": "L",
+        "quote": "|  | 137  (184) | 97 (144) | 78.5 | 40 | 3 | 8 | 80 | 90 | 70 0 -0.030 | 7 | 19 0 -0.013 | 13.6 | 38 | 14.7 | 19.3 |  |"
+      }
+    },
+    {
+      "reason": "工况 'without holding brake' 在第 65 页找不到",
+      "target": "dims/body_length_mm",
+      "page": 65,
+      "printed": {
+        "text": "97",
+        "unit": "mm",
+        "label": "LL",
+        "quote": "|  | 137  (184) | 97 (144) | 78.5 | 40 | 3 | 8 | 80 | 90 | 70 0 -0.030 | 7 | 19 0 -0.013 | 13.6 | 38 | 14.7 | 19.3 |  |"
       }
     },
     {
@@ -482,6 +462,50 @@
       }
     },
     {
+      "reason": "叫法不在引用所在的行中",
+      "target": "ports/shaft/feature",
+      "page": 53,
+      "printed": {
+        "text": "Straight without key",
+        "unit": "",
+        "label": "Shaft End",
+        "quote": "| 2 | Straight without key |"
+      }
+    },
+    {
+      "reason": "工况 '编码器代码 6' 在第 53 页找不到",
+      "target": "ports/encoder/kind",
+      "page": 53,
+      "printed": {
+        "text": "24-bit batteryless absolute",
+        "unit": "",
+        "label": "Serial Encoder",
+        "quote": "| 6 | 24-bit batteryless absolute |"
+      }
+    },
+    {
+      "reason": "工况 '编码器代码 6' 在第 53 页找不到",
+      "target": "ports/encoder/resolution_bits",
+      "page": 53,
+      "printed": {
+        "text": "24-bit batteryless absolute",
+        "unit": "",
+        "label": "Serial Encoder",
+        "quote": "| 6 | 24-bit batteryless absolute |"
+      }
+    },
+    {
+      "reason": "叫法不在引用所在的行中",
+      "target": "ports/power_in/voltage_class_v",
+      "page": 53,
+      "printed": {
+        "text": "200 VAC",
+        "unit": "VAC",
+        "label": "Power Supply Voltage",
+        "quote": "| A | 200 VAC |"
+      }
+    },
+    {
       "target": "vendor",
       "printed": {
         "text": "Yaskawa"
@@ -490,6 +514,7 @@
     }
   ],
   "missing_key_fields": [
+    "params/rotor_inertia_kgm2",
     "params/mass_kg"
   ]
 }

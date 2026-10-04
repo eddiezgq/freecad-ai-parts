@@ -3,7 +3,7 @@
   "document": {
     "doc": "src-yaskawa-sgm7-rotary-manual",
     "sha256": "790923847a5463eac791c35ef87062807b20d2f39e6ded523d51b63ed7d88044",
-    "pages": 5
+    "pages": 6
   },
   "category": "servo_motor",
   "model": "SGM7J-04A",
@@ -11,7 +11,7 @@
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CffNJfVCgKFU9Y4EFwX1D"
+    "response_id": "msg_011CfhYDh2ki8tv6YKiHmBNB"
   },
   "items": [
     {
@@ -23,7 +23,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.93,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
@@ -42,7 +42,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.93,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
@@ -61,7 +61,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.93,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
@@ -80,7 +80,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.93,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
@@ -102,7 +102,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.93,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
@@ -124,7 +124,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.8,
         "reviewed": false
       },
       "printed": {
@@ -147,7 +147,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.85,
         "reviewed": false
       },
       "printed": {
@@ -170,7 +170,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.93,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
@@ -178,25 +178,6 @@
         "unit": "Nm/Arms",
         "label": "Torque Constant",
         "quote": "Torque Constant Nm/Arms 0.316 0.413 0.321 0.444 0.544 0.493 0.584"
-      }
-    },
-    {
-      "target": "ports/power_in/voltage_class_v",
-      "value": {
-        "value": 200.0,
-        "source": {
-          "doc": "src-yaskawa-sgm7-rotary-manual",
-          "page": 55
-        },
-        "method": "extracted",
-        "confidence": 0.9,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "200 V",
-        "unit": "V",
-        "label": "Voltage",
-        "quote": "Voltage 200 V"
       }
     },
     {
@@ -208,7 +189,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.92,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
@@ -227,7 +208,7 @@
           "page": 55
         },
         "method": "extracted",
-        "confidence": 0.92,
+        "confidence": 0.9,
         "reviewed": false
       },
       "printed": {
@@ -238,30 +219,23 @@
       }
     },
     {
-      "target": "ports/mount_flange/pilot_diameter_mm",
+      "target": "ports/power_in/voltage_class_v",
       "value": {
-        "nominal": 50.0,
-        "tol_upper": 0.0,
-        "tol_lower": -0.025,
+        "value": 200.0,
         "source": {
           "doc": "src-yaskawa-sgm7-rotary-manual",
-          "page": 65
+          "page": 55
         },
         "method": "extracted",
         "confidence": 0.8,
         "reviewed": false
       },
       "printed": {
-        "text": "50 0 -0.025",
-        "unit": "mm",
-        "label": "LB",
-        "quote": "| | 115.5  (156) | 85.5 (126) | 67.2 | 30 | 3 | 6 | 60 | 70 | 50 0 -0.025 | 5. | 5 14 0 -0.011 | 8.5 | 28.7 | 14.7 | 17.1 | |"
-      },
-      "issues": [
-        "叫法 'LB' 在表头，数值在该列",
-        "单位 mm 不在同一行，取自本页其他位置",
-        "该行有多个数值，须核对型号列"
-      ]
+        "text": "200 V",
+        "unit": "V",
+        "label": "Voltage",
+        "quote": "Voltage 200 V"
+      }
     },
     {
       "target": "dims/overall_length_mm",
@@ -322,7 +296,7 @@
       "printed": {
         "text": "1.1",
         "unit": "kg",
-        "label": "Approx. Mass",
+        "label": "Approx. Mass [kg]",
         "quote": "115.5 85.5 1.1"
       }
     },
@@ -349,36 +323,36 @@
       }
     },
     {
-      "reason": "单位 'mm' 不在引用所在的行中，本页也找不到",
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/shaft/diameter_mm",
       "page": 66,
       "printed": {
-        "text": "14 0 -0.011",
+        "text": "14",
         "unit": "mm",
         "label": "S",
-        "quote": "| S | 8 0 -0.009 | 14 0 -0.011 |"
+        "quote": "S 8 14 19"
       }
     },
     {
-      "reason": "单位 'mm' 不在引用所在的行中，本页也找不到",
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/shaft/feature",
+      "page": 66,
+      "printed": {
+        "text": "Straight without key",
+        "unit": "",
+        "label": "Code 2",
+        "quote": "2 Straight without key"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/shaft/usable_length_mm",
       "page": 66,
       "printed": {
         "text": "30",
         "unit": "mm",
         "label": "LR",
-        "quote": "| LR | 25 | 30 |"
-      }
-    },
-    {
-      "reason": "单位 'mm' 不在引用所在的行中，本页也找不到",
-      "target": "ports/shaft/key_width_mm",
-      "page": 66,
-      "printed": {
-        "text": "5",
-        "unit": "mm",
-        "label": "W",
-        "quote": "| W | 3 | 5 |"
+        "quote": "LR 25 30 40"
       }
     },
     {
@@ -394,23 +368,23 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/mount_flange/hole_count",
-      "page": 65,
-      "printed": {
-        "text": "4",
-        "unit": "",
-        "label": "LZ",
-        "quote": "0.02 4 × LZ dia. Unit: mm"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/mount_flange/hole_diameter_mm",
       "page": 65,
       "printed": {
         "text": "5.5",
         "unit": "mm",
         "label": "LZ",
+        "quote": "04AA2 67.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/mount_flange/pilot_diameter_mm",
+      "page": 65,
+      "printed": {
+        "text": "50",
+        "unit": "mm",
+        "label": "LB",
         "quote": "04AA2 67.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1"
       }
     },
@@ -434,6 +408,28 @@
         "unit": "mm",
         "label": "LC",
         "quote": "04AA2 67.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1"
+      }
+    },
+    {
+      "reason": "工况 '编码器代码 6' 在第 53 页找不到",
+      "target": "ports/encoder/kind",
+      "page": 53,
+      "printed": {
+        "text": "24-bit batteryless absolute",
+        "unit": "",
+        "label": "4th digit Serial Encoder",
+        "quote": "6 24-bit batteryless absolute"
+      }
+    },
+    {
+      "reason": "工况 '编码器代码 6' 在第 53 页找不到",
+      "target": "ports/encoder/resolution_bits",
+      "page": 53,
+      "printed": {
+        "text": "24-bit batteryless absolute",
+        "unit": "",
+        "label": "4th digit Serial Encoder",
+        "quote": "6 24-bit batteryless absolute"
       }
     },
     {

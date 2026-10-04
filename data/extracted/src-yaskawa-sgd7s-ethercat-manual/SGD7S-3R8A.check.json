@@ -10,7 +10,7 @@
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CffPxDWvvXzFVoHrtee93"
+    "response_id": "msg_011Cfha5X2kfr4TrX7ZsejEp"
   },
   "items": [
     {
@@ -22,7 +22,7 @@
           "page": 64
         },
         "method": "extracted",
-        "confidence": 0.75,
+        "confidence": 0.8,
         "reviewed": false
       },
       "printed": {
@@ -68,14 +68,14 @@
       }
     },
     {
-      "reason": "工况 'Main Circuit, Three-Phase, 200 VAC' 在第 62 页找不到",
-      "target": "ports/power_in/rated_current_a",
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/current_type",
       "page": 62,
       "printed": {
-        "text": "3.0",
-        "unit": "Arms",
-        "label": "Input Current",
-        "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |"
+        "text": "200 VAC to 240 VAC",
+        "unit": "",
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
       }
     },
     {
@@ -91,17 +91,6 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/current_type",
-      "page": 62,
-      "printed": {
-        "text": "200 VAC to 240 VAC",
-        "unit": "",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/power_in/phases",
       "page": 62,
       "printed": {
@@ -109,6 +98,61 @@
         "unit": "",
         "label": "Three-Phase",
         "quote": "Three-Phase, 200 VAC"
+      }
+    },
+    {
+      "reason": "工况 'Three-Phase, 200 VAC; Main Circuit' 在第 62 页找不到",
+      "target": "ports/power_in/rated_current_a",
+      "page": 62,
+      "printed": {
+        "text": "3.0",
+        "unit": "Arms",
+        "label": "Input Current [Arms]*",
+        "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/mass_kg",
+      "page": 80,
+      "printed": {
+        "text": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg",
+        "unit": "kg",
+        "label": "Approx. mass",
+        "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg"
+      }
+    },
+    {
+      "reason": "原文引用中没有印出的文字",
+      "target": "dims/width_mm",
+      "page": 80,
+      "printed": {
+        "text": "70",
+        "unit": "mm",
+        "label": "Exterior",
+        "quote": "8 18 (4) 6"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "dims/depth_mm",
+      "page": 80,
+      "printed": {
+        "text": "180",
+        "unit": "mm",
+        "label": "Exterior",
+        "quote": "70 (75) 180 70"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/mount/pitch_x_mm",
+      "page": 80,
+      "printed": {
+        "text": "58 ±0.5",
+        "unit": "mm",
+        "label": "mounting pitch",
+        "quote": "58 ±0.5 (mounting pitch)"
       }
     },
     {
@@ -156,50 +200,6 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/mass_kg",
-      "page": 80,
-      "printed": {
-        "text": "1.6",
-        "unit": "kg",
-        "label": "Approx. mass",
-        "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/mount/pitch_x_mm",
-      "page": 80,
-      "printed": {
-        "text": "58 ±0.5",
-        "unit": "mm",
-        "label": "mounting pitch",
-        "quote": "58 ±0.5 (mounting pitch)"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "dims/width_mm",
-      "page": 80,
-      "printed": {
-        "text": "70",
-        "unit": "mm",
-        "label": "Exterior",
-        "quote": "70 (75) 180 70"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "dims/depth_mm",
-      "page": 80,
-      "printed": {
-        "text": "180",
-        "unit": "mm",
-        "label": "Exterior",
-        "quote": "70 (75) 180 70"
-      }
-    },
-    {
       "target": "vendor",
       "printed": {
         "text": "Yaskawa"
@@ -209,7 +209,7 @@
     {
       "target": "series",
       "printed": {
-        "text": "Σ-7"
+        "text": "Σ-7 SGD7S"
       },
       "reason": "series 在规格书中找不到"
     }
