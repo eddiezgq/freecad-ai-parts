@@ -29,6 +29,9 @@ jobs:
   - doc: src-hd-csg-csf-gear-units
     category: reducer
     pages: "8-13"
+    # 整机型的电机侧法兰按所配电机定制，目录只给输入孔（ADR-0045）
+    configurable_ports:
+      motor_flange: Harmonic Drive CSF-2UH 整机型的电机安装法兰按所配电机定制，目录不规定孔位
     targets: [CSF-14-50-2UH, CSF-14-100-2UH, CSF-17-50-2UH, CSF-17-100-2UH, CSF-20-50-2UH, CSF-20-100-2UH,
               CSF-25-100-2UH, CSF-32-100-2UH]
   # 安川 Σ-7 SGM7J（第 4 章）：型号说明（编码器、轴端选项，ADR-0044）、规格、无减速机型的额定值、外形尺寸、轴端
@@ -36,8 +39,8 @@ jobs:
     category: servo_motor
     pages: "53-55,64-66"
     targets: [SGM7J-A5A, SGM7J-01A, SGM7J-C2A, SGM7J-02A, SGM7J-04A, SGM7J-06A, SGM7J-08A]
-  # 安川 Σ-7S EtherCAT 驱动器（200 V）：额定值、规格、外形尺寸与质量
+  # 安川 Σ-7S EtherCAT 驱动器（200 V）：额定值、规格、外形尺寸与质量、安装孔尺寸（第 90 页）
   - doc: src-yaskawa-sgd7s-ethercat-manual
     category: drive
-    pages: "62-65,67-70,80-83"
+    pages: "62-65,67-70,80-83,90"
     targets: [SGD7S-R70A, SGD7S-R90A, SGD7S-1R6A, SGD7S-2R8A, SGD7S-3R8A, SGD7S-5R5A, SGD7S-7R6A, SGD7S-120A]

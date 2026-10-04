@@ -216,10 +216,13 @@ _ENVELOPE_DIMS = {
 def assemble(category: str, vendor: str, model: str, values: dict, *, test: bool = False,
              license: str = "params-only", note: str | None = None,
              fallback_envelope: dict | None = None,
-             fallback_frames: dict | None = None) -> tuple[dict | None, list[str], list[str]]:
+             fallback_frames: dict | None = None,
+             configurable: dict | None = None) -> tuple[dict | None, list[str], list[str]]:
     """组装组件。返回（组件或 None, 缺项与错误, 需要复核员确认的事项）。
 
     fallback_envelope / fallback_frames：更新已有组件且本次没有足够的整体尺寸时，沿用原包络与原端口坐标系。
+    configurable：端口 id → 依据。人在抽取任务中写明厂商目录不规定的端口（ADR-0045），
+    这些端口没有给出规格时按 configurable 输出，类型取第一种允许的类型。
     """
     problems: list[str] = []
     notes: list[str] = []
@@ -238,6 +241,10 @@ def assemble(category: str, vendor: str, model: str, values: dict, *, test: bool
     for p in standard_ports(category):
         spec = {t.rsplit("/", 1)[-1]: copy.deepcopy(pv) for t, pv in values.items() if t.startswith(f"ports/{p.id}/")}
         ptype = _port_type(p, values)
+        open_port = bool(configurable and p.id in configurable and not spec)
+        if open_port:
+            ptype = p.types[0]
+            notes.append(f"端口 {p.id} 由厂商目录不规定，按 configurable 输出：{configurable[p.id]}（ADR-0045）")
         if ptype is None:
             problems.append(f"端口 {p.id} 的类型无法由已给字段判断（{' / '.join(p.types)}），请补字段")
             continue
@@ -254,6 +261,9 @@ def assemble(category: str, vendor: str, model: str, values: dict, *, test: bool
                 continue
             port["note"] = FRAME_NOTE
         port["spec"] = dict(sorted(spec.items()))
+        if open_port:
+            port["configurable"] = True
+            port["note"] = f"{port.get('note', '')}；厂商目录不规定，按配套件定制：{configurable[p.id]}".lstrip("；")
         comp["ports"].append(port)
     parts, missing = envelope(category, values)
     if parts is None and fallback_envelope is not None:
