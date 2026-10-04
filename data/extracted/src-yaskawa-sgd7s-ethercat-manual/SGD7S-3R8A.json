@@ -3,48 +3,58 @@
   "document": {
     "doc": "src-yaskawa-sgd7s-ethercat-manual",
     "sha256": "723e4704cd939ecb805de328160b869a89909aff7050b33885c95a787c98fed6",
-    "pages": 12
+    "pages": 13
   },
   "category": "drive",
+  "vendor": "Yaskawa",
   "model": "SGD7S-3R8A",
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfhYb8CRTSSWR2L4aqpYn"
+    "response_id": "msg_011CfheCH8kQ3fCBrCChKBbh"
   },
-  "items": [],
+  "items": [
+    {
+      "target": "ports/motor_out/rated_current_a",
+      "value": {
+        "value": 3.8,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 64
+        },
+        "method": "extracted",
+        "confidence": 0.75,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "3.8",
+        "unit": "Arms",
+        "label": "Continuous Output Current [Arms]",
+        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6"
+      }
+    }
+  ],
   "rejected": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "reason": "工况 'Base-mounted, Approx. mass' 在第 80 页找不到",
       "target": "params/mass_kg",
       "page": 80,
       "printed": {
         "text": "1.6 kg",
         "unit": "kg",
-        "label": "Approx. mass",
+        "label": "SGD7S-3R8A, -5R5A, -7R6A",
         "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg"
       }
     },
     {
-      "reason": "该行有 0 个数值，与 11 个型号列对不上",
+      "reason": "字段 ports/power_in/current_type 无单位，但印有单位 'VAC'",
       "target": "ports/power_in/current_type",
       "page": 62,
       "printed": {
-        "text": "Three-Phase, 200 VAC",
-        "unit": "",
-        "label": "Three-Phase, 200 VAC",
-        "quote": "Three-Phase, 200 VAC"
-      }
-    },
-    {
-      "reason": "该行有 1 个数值，与 11 个型号列对不上",
-      "target": "ports/power_in/phases",
-      "page": 62,
-      "printed": {
-        "text": "Three-Phase, 200 VAC",
-        "unit": "",
-        "label": "Three-Phase",
-        "quote": "Three-Phase, 200 VAC"
+        "text": "200 VAC to 240 VAC, 50 Hz/60 Hz",
+        "unit": "VAC",
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
       }
     },
     {
@@ -59,7 +69,18 @@
       }
     },
     {
-      "reason": "工况 'Main circuit, Three-Phase 200 VAC' 在第 62 页找不到",
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/phases",
+      "page": 62,
+      "printed": {
+        "text": "Three-Phase",
+        "unit": "",
+        "label": "Three-Phase, 200 VAC",
+        "quote": "Three-Phase, 200 VAC"
+      }
+    },
+    {
+      "reason": "工况 'Three-Phase 200 VAC, main circuit' 在第 62 页找不到",
       "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
@@ -67,28 +88,6 @@
         "unit": "Arms",
         "label": "Input Current [Arms]*",
         "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |"
-      }
-    },
-    {
-      "reason": "叫法不在引用所在的行中",
-      "target": "ports/motor_out/rated_current_a",
-      "page": 62,
-      "printed": {
-        "text": "3.8",
-        "unit": "Arms",
-        "label": "Continuous Output Current [Arms]",
-        "quote": "0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6 18.5 19.6 32.9"
-      }
-    },
-    {
-      "reason": "叫法不在引用所在的行中",
-      "target": "ports/motor_out/peak_current_a",
-      "page": 62,
-      "printed": {
-        "text": "11",
-        "unit": "Arms",
-        "label": "Instantaneous Maximum Output Current [Arms]",
-        "quote": "2.1 3.2 5.9 9.3 11 16.9 17 28 42 56 84"
       }
     },
     {
@@ -107,22 +106,40 @@
       "target": "ports/bus/profile",
       "page": 69,
       "printed": {
-        "text": "CiA402 Drive Profile",
+        "text": "CiA402",
         "unit": "",
         "label": "CiA402 Drive Profile",
         "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
       }
     },
     {
-      "reason": "原文引用在第 69 页的任何一行中都找不到",
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/bus/connector",
       "page": 69,
       "printed": {
         "text": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
         "unit": "",
         "label": "Communications Connectors",
-        "quote": "Connectors CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
+        "quote": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
       }
+    },
+    {
+      "reason": "值 ['HWBB'] 与印出的文字 '/HWBB1 and /HWBB2: Base block signals for Power Modules' 不一致",
+      "target": "params/safety_functions",
+      "page": 70,
+      "printed": {
+        "text": "/HWBB1 and /HWBB2: Base block signals for Power Modules",
+        "unit": "",
+        "label": "Inputs",
+        "quote": "Inputs /HWBB1 and /HWBB2: Base block signals for Power Modules"
+      }
+    },
+    {
+      "target": "series",
+      "printed": {
+        "text": "Σ-7"
+      },
+      "reason": "series 在规格书中找不到"
     }
   ],
   "missing_key_fields": []

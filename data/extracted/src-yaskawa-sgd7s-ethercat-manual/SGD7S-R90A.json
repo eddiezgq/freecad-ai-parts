@@ -3,14 +3,15 @@
   "document": {
     "doc": "src-yaskawa-sgd7s-ethercat-manual",
     "sha256": "723e4704cd939ecb805de328160b869a89909aff7050b33885c95a787c98fed6",
-    "pages": 12
+    "pages": 13
   },
   "category": "drive",
+  "vendor": "Yaskawa",
   "model": "SGD7S-R90A",
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfhYW9Ug4CFGreNh3R4ZL"
+    "response_id": "msg_011Cfhe6hK8QK8z9B2c4sPcr"
   },
   "items": [
     {
@@ -28,7 +29,7 @@
       "printed": {
         "text": "0.91",
         "unit": "Arms",
-        "label": "Continuous Output Current",
+        "label": "Continuous Output Current [Arms]",
         "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6"
       }
     },
@@ -47,68 +48,70 @@
       "printed": {
         "text": "3.2",
         "unit": "Arms",
-        "label": "Instantaneous Maximum Output Current",
+        "label": "Instantaneous Maximum Output Current [Arms]",
         "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
       }
     },
     {
-      "target": "ports/power_in/current_type",
+      "target": "ports/mount/pitch_y_mm",
       "value": {
-        "value": "ac",
-        "condition": "Three-Phase, 200 VAC",
+        "nominal": 160.0,
+        "tol_upper": 0.5,
+        "tol_lower": -0.5,
         "source": {
           "doc": "src-yaskawa-sgd7s-ethercat-manual",
-          "page": 62
+          "page": 90
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.6,
         "reviewed": false
       },
       "printed": {
-        "text": "200 VAC to 240 VAC, 50 Hz/60 Hz",
-        "unit": "",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+        "text": "160 ±0.5",
+        "unit": "mm",
+        "label": "C",
+        "quote": "|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |"
       },
       "issues": [
-        "规格行，各型号共用",
-        "工况 'Three-Phase, 200 VAC' 不在同一行，取自本页其他位置（表头或脚注），须核对",
-        "枚举映射：'200 VAC to 240 VAC, 50 Hz/60 Hz' → ac，未自动核对"
+        "叫法 'C' 在表头，须核对所在列",
+        "单位 mm 不在同一行，取自本页其他位置",
+        "该行有多个数值，须核对型号列"
+      ]
+    },
+    {
+      "target": "ports/mount/thread",
+      "value": {
+        "value": "M4",
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 90
+        },
+        "method": "extracted",
+        "confidence": 0.8,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "M4",
+        "unit": "",
+        "label": "Screw Size",
+        "quote": "|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |"
+      },
+      "issues": [
+        "叫法 'Screw Size' 在表头，数值在该列",
+        "该行有多个数值，须核对型号列"
       ]
     }
   ],
   "rejected": [
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/voltage_v",
-      "page": 62,
+      "target": "ports/bus/protocol",
+      "page": 69,
       "printed": {
-        "text": "200 VAC to 240 VAC",
-        "unit": "VAC",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
-      }
-    },
-    {
-      "reason": "该行有 0 个数值，与 11 个型号列对不上",
-      "target": "ports/power_in/phases",
-      "page": 62,
-      "printed": {
-        "text": "Three-Phase, 200 VAC",
+        "text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
         "unit": "",
-        "label": "Three-Phase, 200 VAC",
-        "quote": "Three-Phase, 200 VAC"
-      }
-    },
-    {
-      "reason": "工况 'Three-Phase, 200 VAC, main circuit' 在第 62 页找不到",
-      "target": "ports/power_in/rated_current_a",
-      "page": 62,
-      "printed": {
-        "text": "0.8",
-        "unit": "Arms",
-        "label": "Input Current [Arms]*",
-        "quote": "| Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |"
+        "label": "Applicable Communications Standards",
+        "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
       }
     },
     {
@@ -116,10 +119,43 @@
       "target": "ports/bus/profile",
       "page": 69,
       "printed": {
-        "text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+        "text": "CiA402",
         "unit": "",
-        "label": "Applicable Communications Standards",
+        "label": "CiA402 Drive Profile",
         "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
+      }
+    },
+    {
+      "reason": "原文引用中没有印出的文字",
+      "target": "ports/bus/connector",
+      "page": 69,
+      "printed": {
+        "text": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+        "unit": "",
+        "label": "Communications Connectors",
+        "quote": "Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/mount/pattern",
+      "page": 90,
+      "printed": {
+        "text": "160 ±0.5",
+        "unit": "mm",
+        "label": "Mounting Hole Dimensions",
+        "quote": "168 5 160 ±0.5 45 35 − 25 − M4 2"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/mount/hole_count",
+      "page": 90,
+      "printed": {
+        "text": "2",
+        "unit": "",
+        "label": "Number of Screws",
+        "quote": "168 5 160 ±0.5 45 35 − 25 − M4 2"
       }
     }
   ],

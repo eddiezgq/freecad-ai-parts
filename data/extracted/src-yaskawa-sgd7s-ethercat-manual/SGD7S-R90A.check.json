@@ -3,14 +3,15 @@
   "document": {
     "doc": "src-yaskawa-sgd7s-ethercat-manual",
     "sha256": "723e4704cd939ecb805de328160b869a89909aff7050b33885c95a787c98fed6",
-    "pages": 12
+    "pages": 13
   },
   "category": "drive",
+  "vendor": "Yaskawa",
   "model": "SGD7S-R90A",
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfhZvuqhFTmArmnEWCVps"
+    "response_id": "msg_011CfhedAZ4xQ93NscomGo4R"
   },
   "items": [
     {
@@ -19,17 +20,17 @@
         "value": 100.0,
         "source": {
           "doc": "src-yaskawa-sgd7s-ethercat-manual",
-          "page": 63
+          "page": 64
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.8,
         "reviewed": false
       },
       "printed": {
         "text": "0.1",
         "unit": "kW",
         "label": "Maximum Applicable Motor Capacity",
-        "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.75 1.5"
+        "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.5 0.75 1.0 1.5"
       },
       "issues": [
         "单位换算：0.1 kW → 标准单位 W"
@@ -72,9 +73,39 @@
         "label": "Instantaneous Maximum Output Current",
         "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
       }
+    },
+    {
+      "target": "ports/bus/protocol",
+      "value": {
+        "value": "ethercat",
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 69
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "EtherCAT",
+        "unit": "",
+        "label": "ETHERCAT IN",
+        "quote": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
+      }
     }
   ],
   "rejected": [
+    {
+      "reason": "该行有 0 个数值，与 11 个型号列对不上",
+      "target": "ports/power_in/current_type",
+      "page": 62,
+      "printed": {
+        "text": "Three-Phase, 200 VAC",
+        "unit": "",
+        "label": "Three-Phase, 200 VAC",
+        "quote": "Three-Phase, 200 VAC"
+      }
+    },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/power_in/phases",
@@ -84,17 +115,6 @@
         "unit": "",
         "label": "Three-Phase, 200 VAC",
         "quote": "Three-Phase, 200 VAC"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/current_type",
-      "page": 62,
-      "printed": {
-        "text": "VAC",
-        "unit": "",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
       }
     },
     {
@@ -109,36 +129,14 @@
       }
     },
     {
-      "reason": "工况 'Three-Phase, 200 VAC, Main Circuit, net value at the rated load' 在第 62 页找不到",
+      "reason": "工况 'Three-Phase, 200 VAC, Main Circuit' 在第 62 页找不到",
       "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
         "text": "0.8",
         "unit": "Arms",
-        "label": "Input Current",
+        "label": "Input Current [Arms]*",
         "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/bus/protocol",
-      "page": 69,
-      "printed": {
-        "text": "EtherCAT",
-        "unit": "",
-        "label": "EtherCAT Communications Setting",
-        "quote": "EtherCAT Communications Setting"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/bus/profile",
-      "page": 69,
-      "printed": {
-        "text": "CiA402 Drive Profile",
-        "unit": "",
-        "label": "Applicable Communications Standards",
-        "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
       }
     },
     {
@@ -148,54 +146,47 @@
       "printed": {
         "text": "RJ45",
         "unit": "",
-        "label": "Communications Connectors",
-        "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
+        "label": "ETHERCAT IN",
+        "quote": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
       }
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/encoder_in/kind",
-      "page": 67,
+      "target": "ports/bus/profile",
+      "page": 69,
       "printed": {
-        "text": "incremental encoder/absolute",
+        "text": "CiA402",
         "unit": "",
-        "label": "Serial encoder",
-        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
+        "label": "CiA402 Drive Profile",
+        "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/safety_functions",
-      "page": 70,
+      "reason": "工况 'Σ-7-series Mounting Hole Dimensions, C' 在第 90 页找不到",
+      "target": "ports/mount/pitch_y_mm",
+      "page": 90,
       "printed": {
-        "text": "/HWBB1 and /HWBB2: Base block signals for Power Modules",
+        "text": "160 ±0.5",
+        "unit": "mm",
+        "label": "R70A, R90A, 1R6A",
+        "quote": "|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |"
+      }
+    },
+    {
+      "reason": "工况 'Σ-7-series Mounting Hole Dimensions, Screw Size' 在第 90 页找不到",
+      "target": "ports/mount/thread",
+      "page": 90,
+      "printed": {
+        "text": "M4",
         "unit": "",
-        "label": "Safety Functions Inputs",
-        "quote": "Inputs /HWBB1 and /HWBB2: Base block signals for Power Modules"
+        "label": "R70A, R90A, 1R6A",
+        "quote": "|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |"
       }
-    },
-    {
-      "reason": "工况 'Rack-mounted SERVOPACKs, Hardware Option Code: 001 (SGD7S-R70A, -R90A, -1R6A)' 在第 82 页找不到",
-      "target": "params/mass_kg",
-      "page": 82,
-      "printed": {
-        "text": "1.0",
-        "unit": "kg",
-        "label": "Approx. mass",
-        "quote": "Approx. mass: 1.0 kg"
-      }
-    },
-    {
-      "target": "vendor",
-      "printed": {
-        "text": "YASKAWA"
-      },
-      "reason": "vendor 在规格书中找不到"
     },
     {
       "target": "series",
       "printed": {
-        "text": "Σ-7S"
+        "text": "Σ-7"
       },
       "reason": "series 在规格书中找不到"
     }

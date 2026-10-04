@@ -5,11 +5,66 @@
   ],
   "pending": [
     {
+      "target": "dims/height_mm",
+      "check": {
+        "value": 168.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "dims/width_mm",
+      "check": {
+        "value": 90.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
       "target": "params/mass_kg",
       "primary": {
         "value": 2.2
       },
       "reason": "只有主抽取报出"
+    },
+    {
+      "target": "params/rated_output_power_w",
+      "check": {
+        "value": 1500.0
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/bus/connector",
+      "check": {
+        "value": "RJ45"
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/mount/pitch_x_mm",
+      "check": {
+        "nominal": 80.0,
+        "tol_upper": 0.5,
+        "tol_lower": -0.5,
+        "condition": "Σ-7-series Mounting Hole Dimensions"
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/mount/pitch_y_mm",
+      "check": {
+        "nominal": 160.0,
+        "tol_upper": 0.5,
+        "tol_lower": -0.5,
+        "condition": "Σ-7-series Mounting Hole Dimensions"
+      },
+      "reason": "只有复核抽取报出"
+    },
+    {
+      "target": "ports/mount/thread",
+      "check": {
+        "value": "M4"
+      },
+      "reason": "只有复核抽取报出"
     }
   ],
   "problems": [

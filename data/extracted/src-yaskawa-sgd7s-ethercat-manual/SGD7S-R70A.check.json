@@ -3,87 +3,160 @@
   "document": {
     "doc": "src-yaskawa-sgd7s-ethercat-manual",
     "sha256": "723e4704cd939ecb805de328160b869a89909aff7050b33885c95a787c98fed6",
-    "pages": 12
+    "pages": 13
   },
   "category": "drive",
+  "vendor": "Yaskawa",
   "model": "SGD7S-R70A",
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfhZtTrTVQyHgEig2ec3N"
+    "response_id": "msg_011CfheaH3QRZaV3Q6vpPkG6"
   },
   "items": [
     {
-      "target": "params/rated_output_power_w",
+      "target": "ports/mount/pitch_y_mm",
       "value": {
-        "value": 50.0,
+        "nominal": 160.0,
+        "tol_upper": 0.5,
+        "tol_lower": -0.5,
+        "condition": "Σ-7-series Mounting Hole Dimensions",
         "source": {
           "doc": "src-yaskawa-sgd7s-ethercat-manual",
-          "page": 63
+          "page": 90
         },
         "method": "extracted",
-        "confidence": 0.7,
+        "confidence": 0.75,
         "reviewed": false
       },
       "printed": {
-        "text": "0.05",
-        "unit": "kW",
-        "label": "Maximum Applicable Motor Capacity [kW]",
-        "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.75 1.5"
+        "text": "160 ±0.5",
+        "unit": "mm",
+        "label": "C",
+        "quote": "|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |"
       },
       "issues": [
-        "单位换算：0.05 kW → 标准单位 W"
+        "叫法 'C' 在表头，须核对所在列",
+        "工况 'Σ-7-series Mounting Hole Dimensions' 不在同一行，取自本页其他位置（表头或脚注），须核对",
+        "单位 mm 不在同一行，取自本页其他位置",
+        "该行有多个数值，须核对型号列"
       ]
     },
     {
-      "target": "ports/motor_out/rated_current_a",
+      "target": "ports/mount/thread",
       "value": {
-        "value": 0.66,
+        "value": "M4",
+        "condition": "Σ-7-series Mounting Hole Dimensions",
         "source": {
           "doc": "src-yaskawa-sgd7s-ethercat-manual",
-          "page": 63
+          "page": 90
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.8,
         "reviewed": false
       },
       "printed": {
-        "text": "0.66",
-        "unit": "Arms",
-        "label": "Continuous Output Current [Arms]",
-        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6"
-      }
+        "text": "M4",
+        "unit": "",
+        "label": "Screw Size",
+        "quote": "|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |"
+      },
+      "issues": [
+        "叫法 'Screw Size' 在表头，数值在该列",
+        "工况 'Σ-7-series Mounting Hole Dimensions' 不在同一行，取自本页其他位置（表头或脚注），须核对",
+        "该行有多个数值，须核对型号列"
+      ]
     },
     {
-      "target": "ports/motor_out/peak_current_a",
+      "target": "dims/height_mm",
       "value": {
-        "value": 2.1,
+        "value": 168.0,
         "source": {
           "doc": "src-yaskawa-sgd7s-ethercat-manual",
-          "page": 63
+          "page": 90
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.65,
         "reviewed": false
       },
       "printed": {
-        "text": "2.1",
-        "unit": "Arms",
-        "label": "Instantaneous Maximum Output Current [Arms]",
-        "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
-      }
+        "text": "168",
+        "unit": "mm",
+        "label": "A",
+        "quote": "|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |"
+      },
+      "issues": [
+        "该行有多个数值，须核对型号列"
+      ]
+    },
+    {
+      "target": "dims/width_mm",
+      "value": {
+        "value": 45.0,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 90
+        },
+        "method": "extracted",
+        "confidence": 0.65,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "45",
+        "unit": "mm",
+        "label": "D",
+        "quote": "|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |"
+      },
+      "issues": [
+        "叫法 'D' 在表头，须核对所在列",
+        "单位 mm 不在同一行，取自本页其他位置",
+        "该行有多个数值，须核对型号列"
+      ]
     }
   ],
   "rejected": [
     {
-      "reason": "该行有 1 个数值，与 11 个型号列对不上",
-      "target": "ports/power_in/current_type",
+      "reason": "工况 'Single-Phase, 200 VAC（三相 200 VAC、270 VDC 表同值）' 在第 63 页找不到",
+      "target": "params/rated_output_power_w",
+      "page": 63,
+      "printed": {
+        "text": "0.05",
+        "unit": "kW",
+        "label": "Maximum Applicable Motor Capacity",
+        "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.75 1.5"
+      }
+    },
+    {
+      "reason": "工况 'Single-Phase, 200 VAC（三相 200 VAC 表同值）' 在第 63 页找不到",
+      "target": "ports/motor_out/rated_current_a",
+      "page": 63,
+      "printed": {
+        "text": "0.66",
+        "unit": "Arms",
+        "label": "Continuous Output Current",
+        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6"
+      }
+    },
+    {
+      "reason": "工况 'Single-Phase, 200 VAC（三相 200 VAC 表同值）' 在第 63 页找不到",
+      "target": "ports/motor_out/peak_current_a",
+      "page": 63,
+      "printed": {
+        "text": "2.1",
+        "unit": "Arms",
+        "label": "Instantaneous Maximum Output Current",
+        "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/voltage_v",
       "page": 62,
       "printed": {
-        "text": "Three-Phase, 200 VAC",
+        "text": "200 VAC to 240 VAC",
         "unit": "VAC",
-        "label": "Three-Phase",
-        "quote": "Three-Phase, 200 VAC"
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
       }
     },
     {
@@ -99,17 +172,17 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/voltage_v",
+      "target": "ports/power_in/current_type",
       "page": 62,
       "printed": {
-        "text": "200 VAC to 240 VAC",
-        "unit": "VAC",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+        "text": "VAC",
+        "unit": "",
+        "label": "Three-Phase",
+        "quote": "Three-Phase, 200 VAC"
       }
     },
     {
-      "reason": "工况 'Three-Phase, 200 VAC, Main Circuit, net value at the rated load' 在第 62 页找不到",
+      "reason": "工况 'Three-Phase, 200 VAC, Main Circuit, at the rated load' 在第 62 页找不到",
       "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
@@ -124,7 +197,7 @@
       "target": "ports/bus/protocol",
       "page": 69,
       "printed": {
-        "text": "ETHERCAT",
+        "text": "EtherCAT",
         "unit": "",
         "label": "Communications Connectors",
         "quote": "Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)"
@@ -146,51 +219,22 @@
       "target": "ports/bus/profile",
       "page": 69,
       "printed": {
-        "text": "CiA402",
+        "text": "CiA402 Drive Profile",
         "unit": "",
-        "label": "CiA402 Drive Profile",
+        "label": "Applicable Communications Standards",
         "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/encoder_in/protocol",
-      "page": 67,
+      "reason": "叫法不在引用所在的行中",
+      "target": "ports/mount/pattern",
+      "page": 90,
       "printed": {
-        "text": "Serial encoder",
-        "unit": "",
-        "label": "With Rotary Servomotor",
-        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
+        "text": "160 ±0.5",
+        "unit": "mm",
+        "label": "Mounting Hole Dimensions",
+        "quote": "|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |"
       }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/encoder_in/kind",
-      "page": 67,
-      "printed": {
-        "text": "incremental encoder/absolute",
-        "unit": "",
-        "label": "Serial encoder",
-        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
-      }
-    },
-    {
-      "reason": "值 'HWBB' 与印出的文字 '/HWBB1 and /HWBB2: Base block signals for Power Modules' 不一致",
-      "target": "params/safety_functions",
-      "page": 70,
-      "printed": {
-        "text": "/HWBB1 and /HWBB2: Base block signals for Power Modules",
-        "unit": "",
-        "label": "Inputs",
-        "quote": "Inputs /HWBB1 and /HWBB2: Base block signals for Power Modules"
-      }
-    },
-    {
-      "target": "vendor",
-      "printed": {
-        "text": "Yaskawa"
-      },
-      "reason": "vendor 在规格书中找不到"
     },
     {
       "target": "series",

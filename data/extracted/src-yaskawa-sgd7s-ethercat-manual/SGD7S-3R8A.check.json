@@ -3,14 +3,15 @@
   "document": {
     "doc": "src-yaskawa-sgd7s-ethercat-manual",
     "sha256": "723e4704cd939ecb805de328160b869a89909aff7050b33885c95a787c98fed6",
-    "pages": 12
+    "pages": 13
   },
   "category": "drive",
+  "vendor": "Yaskawa",
   "model": "SGD7S-3R8A",
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011Cfha5X2kfr4TrX7ZsejEp"
+    "response_id": "msg_011CfhemuBbH5EoY2H9JjhZK"
   },
   "items": [
     {
@@ -22,7 +23,7 @@
           "page": 64
         },
         "method": "extracted",
-        "confidence": 0.8,
+        "confidence": 0.6,
         "reviewed": false
       },
       "printed": {
@@ -44,7 +45,7 @@
           "page": 64
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.85,
         "reviewed": false
       },
       "printed": {
@@ -53,6 +54,142 @@
         "label": "Continuous Output Current",
         "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6"
       }
+    },
+    {
+      "target": "ports/bus/protocol",
+      "value": {
+        "value": "ethercat",
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 69
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "EtherCAT",
+        "unit": "",
+        "label": "Communications",
+        "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
+      }
+    },
+    {
+      "target": "ports/bus/connector",
+      "value": {
+        "value": "RJ45",
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 69
+        },
+        "method": "extracted",
+        "confidence": 0.8,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "RJ45",
+        "unit": "",
+        "label": "Communications",
+        "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
+      }
+    },
+    {
+      "target": "dims/width_mm",
+      "value": {
+        "value": 70.0,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 90
+        },
+        "method": "extracted",
+        "confidence": 0.7,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "70",
+        "unit": "mm",
+        "label": "D",
+        "quote": "|  | 3R8A, 5R5A, 7R6A, 2R8F | 168 | 5 | 160 ±0.5 | 70 | 6 | 58 ±0.5 | 64 | − | M4 |  |"
+      },
+      "issues": [
+        "叫法 'D' 在表头，须核对所在列",
+        "单位 mm 不在同一行，取自本页其他位置",
+        "该行有多个数值，须核对型号列"
+      ]
+    },
+    {
+      "target": "ports/mount/pitch_y_mm",
+      "value": {
+        "nominal": 160.0,
+        "tol_upper": 0.5,
+        "tol_lower": -0.5,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 90
+        },
+        "method": "extracted",
+        "confidence": 0.7,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "160 ±0.5",
+        "unit": "mm",
+        "label": "C",
+        "quote": "|  | 3R8A, 5R5A, 7R6A, 2R8F | 168 | 5 | 160 ±0.5 | 70 | 6 | 58 ±0.5 | 64 | − | M4 |  |"
+      },
+      "issues": [
+        "叫法 'C' 在表头，须核对所在列",
+        "单位 mm 不在同一行，取自本页其他位置",
+        "该行有多个数值，须核对型号列"
+      ]
+    },
+    {
+      "target": "ports/mount/pitch_x_mm",
+      "value": {
+        "nominal": 58.0,
+        "tol_upper": 0.5,
+        "tol_lower": -0.5,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 90
+        },
+        "method": "extracted",
+        "confidence": 0.65,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "58 ±0.5",
+        "unit": "mm",
+        "label": "F",
+        "quote": "|  | 3R8A, 5R5A, 7R6A, 2R8F | 168 | 5 | 160 ±0.5 | 70 | 6 | 58 ±0.5 | 64 | − | M4 |  |"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置",
+        "该行有多个数值，须核对型号列"
+      ]
+    },
+    {
+      "target": "ports/mount/thread",
+      "value": {
+        "value": "M4",
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 90
+        },
+        "method": "extracted",
+        "confidence": 0.8,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "M4",
+        "unit": "",
+        "label": "Screw Size",
+        "quote": "|  | 3R8A, 5R5A, 7R6A, 2R8F | 168 | 5 | 160 ±0.5 | 70 | 6 | 58 ±0.5 | 64 | − | M4 |  |"
+      },
+      "issues": [
+        "叫法 'Screw Size' 在表头，数值在该列",
+        "该行有多个数值，须核对型号列"
+      ]
     }
   ],
   "rejected": [
@@ -64,7 +201,7 @@
         "text": "11",
         "unit": "Arms",
         "label": "Instantaneous Maximum Output Current",
-        "quote": "|  |  |  | 2.1 | 3.2 | 5.9 | 9.3 | 11 | 16.9 | 17 | 28 | 42 | 56 |  |"
+        "quote": "2.1 3.2 5.9 9.3 11 16.9 17 28 42 56 84"
       }
     },
     {
@@ -72,21 +209,10 @@
       "target": "ports/power_in/current_type",
       "page": 62,
       "printed": {
-        "text": "200 VAC to 240 VAC",
+        "text": "VAC",
         "unit": "",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/voltage_v",
-      "page": 62,
-      "printed": {
-        "text": "200 VAC to 240 VAC",
-        "unit": "VAC",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+        "label": "Three-Phase",
+        "quote": "Three-Phase, 200 VAC"
       }
     },
     {
@@ -101,7 +227,18 @@
       }
     },
     {
-      "reason": "工况 'Three-Phase, 200 VAC; Main Circuit' 在第 62 页找不到",
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/voltage_v",
+      "page": 62,
+      "printed": {
+        "text": "200 VAC to 240 VAC",
+        "unit": "VAC",
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+      }
+    },
+    {
+      "reason": "工况 'Three-Phase, 200 VAC, Main Circuit' 在第 62 页找不到",
       "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
@@ -113,79 +250,13 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/mass_kg",
-      "page": 80,
+      "target": "ports/encoder_in/protocol",
+      "page": 67,
       "printed": {
-        "text": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg",
-        "unit": "kg",
-        "label": "Approx. mass",
-        "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg"
-      }
-    },
-    {
-      "reason": "原文引用中没有印出的文字",
-      "target": "dims/width_mm",
-      "page": 80,
-      "printed": {
-        "text": "70",
-        "unit": "mm",
-        "label": "Exterior",
-        "quote": "8 18 (4) 6"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "dims/depth_mm",
-      "page": 80,
-      "printed": {
-        "text": "180",
-        "unit": "mm",
-        "label": "Exterior",
-        "quote": "70 (75) 180 70"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/mount/pitch_x_mm",
-      "page": 80,
-      "printed": {
-        "text": "58 ±0.5",
-        "unit": "mm",
-        "label": "mounting pitch",
-        "quote": "58 ±0.5 (mounting pitch)"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/bus/protocol",
-      "page": 69,
-      "printed": {
-        "text": "ETHERCAT IN",
+        "text": "Serial encoder",
         "unit": "",
-        "label": "Communications Connectors",
-        "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/bus/connector",
-      "page": 69,
-      "printed": {
-        "text": "RJ45",
-        "unit": "",
-        "label": "Communications Connectors",
-        "quote": "Communications CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/bus/profile",
-      "page": 69,
-      "printed": {
-        "text": "CiA402 Drive Profile",
-        "unit": "",
-        "label": "Applicable Communications Standards",
-        "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
+        "label": "Serial encoder",
+        "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute"
       }
     },
     {
@@ -200,16 +271,42 @@
       }
     },
     {
-      "target": "vendor",
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/bus/profile",
+      "page": 69,
       "printed": {
-        "text": "Yaskawa"
-      },
-      "reason": "vendor 在规格书中找不到"
+        "text": "CiA402 Drive Profile",
+        "unit": "",
+        "label": "Applicable Communi-",
+        "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/mass_kg",
+      "page": 80,
+      "printed": {
+        "text": "1.6",
+        "unit": "kg",
+        "label": "Approx. mass",
+        "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/mount/hole_count",
+      "page": 90,
+      "printed": {
+        "text": "3",
+        "unit": "",
+        "label": "Number of Screws",
+        "quote": "168 5 160 ±0.5 70 6 58 ±0.5 64 − M4 3"
+      }
     },
     {
       "target": "series",
       "printed": {
-        "text": "Σ-7 SGD7S"
+        "text": "Σ-7"
       },
       "reason": "series 在规格书中找不到"
     }

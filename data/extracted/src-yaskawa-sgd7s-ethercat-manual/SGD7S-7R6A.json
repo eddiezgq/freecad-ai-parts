@@ -3,69 +3,38 @@
   "document": {
     "doc": "src-yaskawa-sgd7s-ethercat-manual",
     "sha256": "723e4704cd939ecb805de328160b869a89909aff7050b33885c95a787c98fed6",
-    "pages": 12
+    "pages": 13
   },
   "category": "drive",
+  "vendor": "Yaskawa",
   "model": "SGD7S-7R6A",
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfhYeY5hYy2sB3P19Lgts"
+    "response_id": "msg_011CfheGL5DkFZr1evVv7QLA"
   },
-  "items": [
-    {
-      "target": "ports/power_in/current_type",
-      "value": {
-        "value": "ac",
-        "source": {
-          "doc": "src-yaskawa-sgd7s-ethercat-manual",
-          "page": 62
-        },
-        "method": "extracted",
-        "confidence": 0.85,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "200 VAC to 240 VAC, 50 Hz/60 Hz",
-        "unit": "",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
-      },
-      "issues": [
-        "规格行，各型号共用",
-        "枚举映射：'200 VAC to 240 VAC, 50 Hz/60 Hz' → ac，未自动核对"
-      ]
-    },
-    {
-      "target": "ports/motor_out/rated_current_a",
-      "value": {
-        "value": 7.6,
-        "source": {
-          "doc": "src-yaskawa-sgd7s-ethercat-manual",
-          "page": 64
-        },
-        "method": "extracted",
-        "confidence": 0.85,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "7.6",
-        "unit": "Arms",
-        "label": "Continuous Output Current [Arms]",
-        "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6"
-      }
-    }
-  ],
+  "items": [],
   "rejected": [
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/mass_kg",
       "page": 80,
       "printed": {
-        "text": "1.6 kg",
+        "text": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg",
         "unit": "kg",
         "label": "Approx. mass",
         "quote": "SGD7S-3R8A, -5R5A, -7R6A: 1.6 kg"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/current_type",
+      "page": 62,
+      "printed": {
+        "text": "200 VAC to 240 VAC",
+        "unit": "",
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
       }
     },
     {
@@ -75,6 +44,17 @@
       "printed": {
         "text": "200 VAC to 240 VAC",
         "unit": "VAC",
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/frequency_hz",
+      "page": 62,
+      "printed": {
+        "text": "50 Hz/60 Hz",
+        "unit": "Hz",
         "label": "Power Supply",
         "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
       }
@@ -91,18 +71,7 @@
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/frequency_hz",
-      "page": 62,
-      "printed": {
-        "text": "50 Hz/60 Hz",
-        "unit": "Hz",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
-      }
-    },
-    {
-      "reason": "工况 'Main circuit, three-phase 200 VAC' 在第 62 页找不到",
+      "reason": "工况 'Main circuit, Three-Phase 200 VAC' 在第 62 页找不到",
       "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
@@ -113,14 +82,14 @@
       }
     },
     {
-      "reason": "该行有 0 个数值，与 11 个型号列对不上",
-      "target": "ports/motor_out/voltage_class_v",
-      "page": 62,
+      "reason": "原文引用中没有印出的文字",
+      "target": "ports/motor_out/rated_current_a",
+      "page": 64,
       "printed": {
-        "text": "200 VAC",
-        "unit": "VAC",
-        "label": "Three-Phase, 200 VAC",
-        "quote": "Three-Phase, 200 VAC"
+        "text": "7.6",
+        "unit": "Arms",
+        "label": "Continuous Output Current [Arms]",
+        "quote": "Model SGD7S- R70A R90A 1R6A 2R8A 3R8A 5R5A 7R6A 120A"
       }
     },
     {
@@ -131,18 +100,7 @@
         "text": "17",
         "unit": "Arms",
         "label": "Instantaneous Maximum Output Current [Arms]",
-        "quote": "|  |  |  | 2.1 | 3.2 | 5.9 | 9.3 | 11 | 16.9 | 17 | 28 | 42 | 56 |  |"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/bus/protocol",
-      "page": 69,
-      "printed": {
-        "text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
-        "unit": "",
-        "label": "Applicable Communications Standards",
-        "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
+        "quote": "2.1 3.2 5.9 9.3 11 16.9 17 28 42 56 84"
       }
     },
     {
@@ -157,38 +115,31 @@
       }
     },
     {
-      "reason": "原文引用在第 69 页的任何一行中都找不到",
-      "target": "ports/bus/connector",
-      "page": 69,
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/mount/hole_count",
+      "page": 90,
       "printed": {
-        "text": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+        "text": "3",
         "unit": "",
-        "label": "Communications Connectors",
-        "quote": "Connectors CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
+        "label": "Number of Screws",
+        "quote": "168 5 160 ±0.5 70 6 58 ±0.5 64 − M4 3"
       }
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/mount/pitch_y_mm",
-      "page": 80,
+      "target": "ports/mount/thread",
+      "page": 90,
       "printed": {
-        "text": "58 ±0.5",
-        "unit": "mm",
-        "label": "mounting pitch",
-        "quote": "58 ±0.5 (mounting pitch)"
+        "text": "M4",
+        "unit": "",
+        "label": "Screw Size",
+        "quote": "168 5 160 ±0.5 70 6 58 ±0.5 64 − M4 3"
       }
-    },
-    {
-      "target": "vendor",
-      "printed": {
-        "text": "Yaskawa"
-      },
-      "reason": "vendor 在规格书中找不到"
     },
     {
       "target": "series",
       "printed": {
-        "text": "Σ-7S SERVOPACK"
+        "text": "Σ-7"
       },
       "reason": "series 在规格书中找不到"
     }

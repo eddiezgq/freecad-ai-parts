@@ -1,0 +1,222 @@
+{
+  "model": "claude-opus-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "db6054390770933b61c59b6f001a80f8fe1b2e0ab15fda10892b971cd55ef411",
+  "response": {
+    "id": "msg_011CfhewWsCRiQsMRee8xVqu",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.85,
+          "page": 63,
+          "printed_label": "Maximum Applicable Motor Capacity",
+          "printed_text": "1.5",
+          "printed_unit": "kW",
+          "quote": "Maximum Applicable Motor Capacity [kW] 0.05 0.1 0.2 0.4 0.75 1.5",
+          "target": "params/rated_output_power_w",
+          "value": 1.5
+        },
+        {
+          "confidence": 0.9,
+          "page": 63,
+          "printed_label": "Continuous Output Current",
+          "printed_text": "11.6",
+          "printed_unit": "Arms",
+          "quote": "Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 5.5 11.6",
+          "target": "ports/motor_out/rated_current_a",
+          "value": 11.6
+        },
+        {
+          "confidence": 0.9,
+          "page": 63,
+          "printed_label": "Instantaneous Maximum Output Current",
+          "printed_text": "28",
+          "printed_unit": "Arms",
+          "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28",
+          "target": "ports/motor_out/peak_current_a",
+          "value": 28
+        },
+        {
+          "confidence": 0.85,
+          "page": 62,
+          "printed_label": "Three-Phase",
+          "printed_text": "Three-Phase",
+          "printed_unit": "",
+          "quote": "Three-Phase, 200 VAC",
+          "target": "ports/power_in/phases",
+          "value": 3
+        },
+        {
+          "confidence": 0.85,
+          "page": 62,
+          "printed_label": "Three-Phase, 200 VAC",
+          "printed_text": "VAC",
+          "printed_unit": "",
+          "quote": "Three-Phase, 200 VAC",
+          "target": "ports/power_in/current_type",
+          "value": "ac"
+        },
+        {
+          "condition": "Three-Phase, 200 VAC",
+          "confidence": 0.85,
+          "max": 240,
+          "min": 200,
+          "page": 62,
+          "printed_label": "Power Supply",
+          "printed_text": "200 VAC to 240 VAC",
+          "printed_unit": "VAC",
+          "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz",
+          "target": "ports/power_in/voltage_v"
+        },
+        {
+          "condition": "Three-Phase, 200 VAC, Main Circuit; net value at the rated load",
+          "confidence": 0.85,
+          "page": 62,
+          "printed_label": "Input Current [Arms]*",
+          "printed_text": "7.3",
+          "printed_unit": "Arms",
+          "quote": "|  | Input Current [Arms]* |  | 0.4 | 0.8 | 1.3 | 2.5 | 3.0 | 4.1 | 5.7 | 7.3 | 10 | 15 |  |",
+          "target": "ports/power_in/rated_current_a",
+          "value": 7.3
+        },
+        {
+          "condition": "With Rotary Servomotor",
+          "confidence": 0.7,
+          "page": 67,
+          "printed_label": "Serial encoder",
+          "printed_text": "incremental encoder/absolute",
+          "printed_unit": "",
+          "quote": "Serial encoder: 20 bits or 24 bits (incremental encoder/absolute",
+          "target": "ports/encoder_in/kind",
+          "value": [
+            "incremental",
+            "absolute"
+          ]
+        },
+        {
+          "confidence": 0.85,
+          "page": 69,
+          "printed_label": "EtherCAT Communications",
+          "printed_text": "EtherCAT",
+          "printed_unit": "",
+          "quote": "EtherCAT Communications Setting",
+          "target": "ports/bus/protocol",
+          "value": "ethercat"
+        },
+        {
+          "confidence": 0.85,
+          "page": 69,
+          "printed_label": "CiA402 Drive Profile",
+          "printed_text": "CiA402",
+          "printed_unit": "",
+          "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
+          "target": "ports/bus/profile",
+          "value": "cia402"
+        },
+        {
+          "confidence": 0.8,
+          "page": 69,
+          "printed_label": "CN6A",
+          "printed_text": "RJ45",
+          "printed_unit": "",
+          "quote": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)",
+          "target": "ports/bus/connector",
+          "value": "RJ45"
+        },
+        {
+          "confidence": 0.55,
+          "page": 70,
+          "printed_label": "Inputs",
+          "printed_text": "/HWBB1 and /HWBB2",
+          "printed_unit": "",
+          "quote": "Inputs /HWBB1 and /HWBB2: Base block signals for Power Modules",
+          "target": "params/safety_functions",
+          "value": [
+            "HWBB"
+          ]
+        },
+        {
+          "condition": "Base-mounted, Three-phase, 200 VAC: SGD7S-120A",
+          "confidence": 0.75,
+          "page": 80,
+          "printed_label": "Approx. mass",
+          "printed_text": "2.2",
+          "printed_unit": "kg",
+          "quote": "Approx. mass: 2.2 kg",
+          "target": "params/mass_kg",
+          "value": 2.2
+        },
+        {
+          "confidence": 0.75,
+          "page": 90,
+          "printed_label": "D",
+          "printed_text": "90",
+          "printed_unit": "mm",
+          "quote": "|  | 120A | 168 | 5 | 160 ±0.5 | 90 | 5 | 80 ±0.5 | 12.5 | − | M4 |  |",
+          "target": "dims/width_mm",
+          "value": 90
+        },
+        {
+          "confidence": 0.65,
+          "page": 90,
+          "printed_label": "A",
+          "printed_text": "168",
+          "printed_unit": "mm",
+          "quote": "|  | 120A | 168 | 5 | 160 ±0.5 | 90 | 5 | 80 ±0.5 | 12.5 | − | M4 |  |",
+          "target": "dims/height_mm",
+          "value": 168
+        },
+        {
+          "condition": "Σ-7-series Mounting Hole Dimensions",
+          "confidence": 0.7,
+          "nominal": 80,
+          "page": 90,
+          "printed_label": "F",
+          "printed_text": "80 ±0.5",
+          "printed_unit": "mm",
+          "quote": "|  | 120A | 168 | 5 | 160 ±0.5 | 90 | 5 | 80 ±0.5 | 12.5 | − | M4 |  |",
+          "target": "ports/mount/pitch_x_mm",
+          "tol_lower": -0.5,
+          "tol_upper": 0.5
+        },
+        {
+          "condition": "Σ-7-series Mounting Hole Dimensions",
+          "confidence": 0.7,
+          "nominal": 160,
+          "page": 90,
+          "printed_label": "C",
+          "printed_text": "160 ±0.5",
+          "printed_unit": "mm",
+          "quote": "|  | 120A | 168 | 5 | 160 ±0.5 | 90 | 5 | 80 ±0.5 | 12.5 | − | M4 |  |",
+          "target": "ports/mount/pitch_y_mm",
+          "tol_lower": -0.5,
+          "tol_upper": 0.5
+        },
+        {
+          "confidence": 0.8,
+          "page": 90,
+          "printed_label": "Screw Size",
+          "printed_text": "M4",
+          "printed_unit": "",
+          "quote": "|  | 120A | 168 | 5 | 160 ±0.5 | 90 | 5 | 80 ±0.5 | 12.5 | − | M4 |  |",
+          "target": "ports/mount/thread",
+          "value": "M4"
+        },
+        {
+          "confidence": 0.75,
+          "page": 90,
+          "printed_label": "Number of Screws",
+          "printed_text": "3",
+          "printed_unit": "",
+          "quote": "SGD7S- 120A 168 5 160 ±0.5 90 5 80 ±0.5 12.5 − M4 3",
+          "target": "ports/mount/hole_count",
+          "value": 3
+        }
+      ],
+      "model": "SGD7S-120A",
+      "series": "Σ-7",
+      "vendor": "Yaskawa"
+    }
+  }
+}

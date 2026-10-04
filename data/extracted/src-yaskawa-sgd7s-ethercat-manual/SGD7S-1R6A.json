@@ -3,16 +3,42 @@
   "document": {
     "doc": "src-yaskawa-sgd7s-ethercat-manual",
     "sha256": "723e4704cd939ecb805de328160b869a89909aff7050b33885c95a787c98fed6",
-    "pages": 12
+    "pages": 13
   },
   "category": "drive",
+  "vendor": "Yaskawa",
   "model": "SGD7S-1R6A",
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011CfhYXoP1SRcENh32JgJ2j"
+    "response_id": "msg_011Cfhe8U6hbfigaqAgGs4jJ"
   },
   "items": [
+    {
+      "target": "ports/power_in/current_type",
+      "value": {
+        "value": "ac",
+        "condition": "Three-Phase, 200 VAC",
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 62
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "200 VAC to 240 VAC, 50 Hz/60 Hz",
+        "unit": "",
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+      },
+      "issues": [
+        "规格行，各型号共用",
+        "工况 'Three-Phase, 200 VAC' 不在同一行，取自本页其他位置（表头或脚注），须核对",
+        "枚举映射：'200 VAC to 240 VAC, 50 Hz/60 Hz' → ac，未自动核对"
+      ]
+    },
     {
       "target": "ports/motor_out/rated_current_a",
       "value": {
@@ -22,7 +48,7 @@
           "page": 63
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.85,
         "reviewed": false
       },
       "printed": {
@@ -41,7 +67,7 @@
           "page": 63
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.85,
         "reviewed": false
       },
       "printed": {
@@ -50,31 +76,58 @@
         "label": "Instantaneous Maximum Output Current [Arms]",
         "quote": "Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 16.9 28"
       }
+    },
+    {
+      "target": "ports/mount/pitch_y_mm",
+      "value": {
+        "nominal": 160.0,
+        "tol_upper": 0.5,
+        "tol_lower": -0.5,
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 90
+        },
+        "method": "extracted",
+        "confidence": 0.6,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "160 ±0.5",
+        "unit": "mm",
+        "label": "C",
+        "quote": "|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |"
+      },
+      "issues": [
+        "叫法 'C' 在表头，须核对所在列",
+        "单位 mm 不在同一行，取自本页其他位置",
+        "该行有多个数值，须核对型号列"
+      ]
+    },
+    {
+      "target": "ports/mount/thread",
+      "value": {
+        "value": "M4",
+        "source": {
+          "doc": "src-yaskawa-sgd7s-ethercat-manual",
+          "page": 90
+        },
+        "method": "extracted",
+        "confidence": 0.8,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "M4",
+        "unit": "",
+        "label": "Screw Size",
+        "quote": "|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |"
+      },
+      "issues": [
+        "叫法 'Screw Size' 在表头，数值在该列",
+        "该行有多个数值，须核对型号列"
+      ]
     }
   ],
   "rejected": [
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/voltage_v",
-      "page": 62,
-      "printed": {
-        "text": "200 VAC to 240 VAC",
-        "unit": "VAC",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/power_in/current_type",
-      "page": 62,
-      "printed": {
-        "text": "200 VAC to 240 VAC",
-        "unit": "VAC",
-        "label": "Power Supply",
-        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
-      }
-    },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/power_in/phases",
@@ -87,7 +140,18 @@
       }
     },
     {
-      "reason": "工况 'Main circuit, Three-Phase 200 VAC' 在第 62 页找不到",
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/power_in/voltage_v",
+      "page": 62,
+      "printed": {
+        "text": "200 VAC to 240 VAC",
+        "unit": "VAC",
+        "label": "Power Supply",
+        "quote": "Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz"
+      }
+    },
+    {
+      "reason": "工况 'Three-Phase, 200 VAC, main circuit' 在第 62 页找不到",
       "target": "ports/power_in/rated_current_a",
       "page": 62,
       "printed": {
@@ -102,10 +166,10 @@
       "target": "ports/bus/protocol",
       "page": 69,
       "printed": {
-        "text": "ETHERCAT IN (EtherCAT signal input connector)",
+        "text": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile",
         "unit": "",
-        "label": "Communications Connectors",
-        "quote": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
+        "label": "Applicable Communications Standards",
+        "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
       }
     },
     {
@@ -113,22 +177,40 @@
       "target": "ports/bus/profile",
       "page": 69,
       "printed": {
-        "text": "CiA402",
+        "text": "CiA402 Drive Profile",
         "unit": "",
-        "label": "CiA402 Drive Profile",
+        "label": "Applicable Communications Standards",
         "quote": "IEC 61158 Type 12, IEC 61800-7 CiA402 Drive Profile"
       }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/bus/connector",
-      "page": 69,
+      "reason": "叫法不在引用所在的行中",
+      "target": "ports/mount/pattern",
+      "page": 90,
       "printed": {
-        "text": "RJ45",
-        "unit": "",
-        "label": "Communications Connectors",
-        "quote": "CN6A (RJ45): ETHERCAT IN (EtherCAT signal input connector)"
+        "text": "160 ±0.5",
+        "unit": "mm",
+        "label": "Mounting Hole Dimensions",
+        "quote": "|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |"
       }
+    },
+    {
+      "reason": "原文引用在第 90 页的任何一行中都找不到",
+      "target": "ports/mount/hole_count",
+      "page": 90,
+      "printed": {
+        "text": "2",
+        "unit": "",
+        "label": "Number of Screws",
+        "quote": "1R6A 168 5 160 ±0.5 45 35 − 25 − M4 2"
+      }
+    },
+    {
+      "target": "series",
+      "printed": {
+        "text": "Σ-7"
+      },
+      "reason": "series 在规格书中找不到"
     }
   ],
   "missing_key_fields": []
