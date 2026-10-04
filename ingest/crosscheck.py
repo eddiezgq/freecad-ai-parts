@@ -26,6 +26,7 @@ ROOT = Path(__file__).resolve().parent.parent
 LIBRARY_DIR = ROOT / "data" / "library"
 REVIEW_DIR = ROOT / "data" / "review"
 REVIEWER = "claude（AI 复核）"
+CONFIRMED_FILE = REVIEW_DIR / "confirmed.yaml"
 _KEYS = ("value", "min", "max", "nominal", "tol_upper", "tol_lower")
 
 
@@ -80,17 +81,79 @@ def compare(primary: dict, check: dict) -> dict:
     return {"agreed": agreed, "pending": pending}
 
 
-def build(primary: dict, check: dict, *, vendor: str, model: str, registry) -> dict:
+def _numbers(text: str) -> list[float]:
+    import re
+
+    return [float(x) for x in re.findall(r"(?<![\d.])\d+(?:\.\d+)?(?![\d.])", text or "")]
+
+
+def apply_confirmations(primary: dict, check: dict, cmp: dict, confirms: list[dict], model: str) -> list[str]:
+    """人工确认（ADR-0044 第 4 条）：只能确认至少一次抽取在规格书该页上读到的数。
+
+    - 已通过引用核对的项：确认值须等于它的值
+    - 被引用核对拒收的项（如只印在图纸上的尺寸）：确认值须出现在它印出的文字中，页码一致
+    确认后的值记为 reviewed，来源注明确认人与日期。返回说明。
+    """
+    from ingest.units import to_standard
+
+    doc = primary["document"]["doc"]
+    notes = []
+    for c in confirms:
+        if c.get("doc") != doc or c.get("model") != model or c.get("target") in cmp["agreed"]:
+            continue
+        t, v, who, day = c.get("target"), c.get("value"), c.get("confirmed_by"), c.get("date")
+        if not (isinstance(t, str) and isinstance(v, (int, float)) and who and day):
+            notes.append(f"人工确认写法不全，未采用：{c}")
+            continue
+        field = t.rsplit("/", 1)[-1]
+        pv = None
+        for ext in (primary, check):
+            for it in ext["items"]:
+                got = it["value"].get("value", it["value"].get("nominal"))
+                if it["target"] == t and isinstance(got, (int, float)) and math.isclose(got, v, rel_tol=1e-6):
+                    pv = copy.deepcopy(it["value"])
+            for r in ext["rejected"]:
+                printed = r.get("printed") or {}
+                if pv is None and r.get("target") == t and r.get("page") == c.get("page"):
+                    try:
+                        factor = to_standard(1.0, printed.get("unit") or "mm", field)
+                    except ValueError:
+                        continue
+                    if any(math.isclose(n * factor, v, rel_tol=1e-6) for n in _numbers(printed.get("text", ""))):
+                        pv = {"value": v, "source": {"doc": doc, "page": r["page"]}, "method": "manual",
+                              "confidence": 1}
+        if pv is None:
+            notes.append(f"{t} 的人工确认值 {v} 不是任何一次抽取在该页读到的数，未采用")
+            continue
+        pv["reviewed"] = True
+        pv["source"]["note"] = f"人工确认：{who}（{day}），对照规格书第 {pv['source'].get('page')} 页"
+        cmp["agreed"][t] = pv
+        cmp["pending"] = [row for row in cmp["pending"] if row["target"] != t]
+        notes.append(f"{t} = {v} 由 {who} 人工确认")
+    return notes
+
+
+def load_confirmations(path: Path = CONFIRMED_FILE) -> list[dict]:
+    if not path.is_file():
+        return []
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    return list(data.get("confirmations") or [])
+
+
+def build(primary: dict, check: dict, *, vendor: str, model: str, registry,
+          confirms: list[dict] | None = None) -> dict:
     """比对并组装组件；返回 {component?, problems, notes, agreed, pending}。组件通过入库把关才返回。"""
     from ingest.assemble import assemble
     from kb.store import check_component
 
     cmp = compare(primary, check)
+    confirmed = apply_confirmations(primary, check, cmp, confirms or [], model)
     doc = primary["document"]["doc"]
     note = (f"参数取自厂商公开资料 {doc}（ADR-0040），经两次独立抽取比对一致（{REVIEWER}）；"
             "不一致的项未收录，见 data/review/")
     comp, problems, notes = assemble(primary["category"], vendor, model, cmp["agreed"], note=note)
-    out = {"agreed": sorted(cmp["agreed"]), "pending": cmp["pending"], "problems": problems, "notes": notes}
+    out = {"agreed": sorted(cmp["agreed"]), "pending": cmp["pending"], "problems": problems,
+           "notes": confirmed + notes}
     if comp is not None:
         reasons = check_component(comp, registry)
         if reasons:
@@ -148,7 +211,7 @@ def main(argv: list[str] | None = None) -> int:
         primary = json.loads(p_path.read_text(encoding="utf-8"))
         check = json.loads(c_path.read_text(encoding="utf-8"))
         res = build(primary, check, vendor=job["vendor"], model=primary.get("model") or job["target"],
-                    registry=registry)
+                    registry=registry, confirms=load_confirmations())
         review = args.review / job["doc"] / p_path.name
         review.parent.mkdir(parents=True, exist_ok=True)
         body = {k: res[k] for k in ("agreed", "pending", "problems", "notes")}

@@ -152,3 +152,27 @@ def test_main_writes_library_and_review(catalog, tmp_path, monkeypatch):
     review = json.loads((rev / "src-fake-cat" / f"{cat.models[0]}.json").read_text(encoding="utf-8"))
     assert review["component"] == comp["id"] and review["reviewer"] == cx.REVIEWER
     assert "入库" in (tmp_path / "s.md").read_text(encoding="utf-8")
+
+
+def _ext(model, items=(), rejected=()):
+    return {"document": {"doc": "src-x-doc"}, "category": "drive", "extractor": {"model": model},
+            "items": list(items), "rejected": list(rejected)}
+
+
+def test_human_confirmation_only_of_values_read_on_the_page():
+    """人工确认（ADR-0044 第 4 条）：只能确认至少一次抽取在该页读到的数；不能凭空补数。"""
+    rej = {"target": "dims/width_mm", "page": 80, "reason": "引用所在行中找不到与印出文字完全一致的数值",
+           "printed": {"text": "40", "unit": "", "quote": "2 × M4 40 (75) 170"}}
+    p, c = _ext("a", rejected=[rej]), _ext("b", rejected=[rej])
+    ok = {"doc": "src-x-doc", "model": "D-1", "target": "dims/width_mm", "value": 40, "page": 80,
+          "confirmed_by": "张国庆", "date": "2026-10-04"}
+    cmp = cx.compare(p, c)
+    notes = cx.apply_confirmations(p, c, cmp, [ok], "D-1")
+    pv = cmp["agreed"]["dims/width_mm"]
+    assert pv["value"] == 40 and pv["reviewed"] is True and pv["method"] == "manual" and "张国庆" in pv["source"]["note"]
+    assert errors("common/param-value.schema.json", pv) == [] and any("人工确认" in n for n in notes)
+    # 页上没读到的数、别的型号、写法不全：不采用
+    for bad in (dict(ok, value=45), dict(ok, page=81), dict(ok, model="D-2"), {k: v for k, v in ok.items() if k != "date"}):
+        cmp = cx.compare(p, c)
+        cx.apply_confirmations(p, c, cmp, [bad], "D-1")
+        assert "dims/width_mm" not in cmp["agreed"]
