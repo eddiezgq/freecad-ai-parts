@@ -2,7 +2,8 @@
 
 - 工具：进程内创建 MCP 服务端，几何后端为本 FreeCAD（主线程执行器），布局实时显示在 FapLayout 文档中
 - LLM：AnthropicChat（密钥只从环境变量读取）；对话循环在后台线程运行，不阻塞界面
-- 组件库：FAP_LIBRARY / DATABASE_URL；都没设置时用虚构测试组件库（tests/golden/fixtures），并在面板中注明
+- 组件库与工具：共用工具宿主（gui/host.py，ADR-0048）；组件库按 FAP_LIBRARY、DATABASE_URL、仓库 data/library、
+  虚构测试组件的顺序选择，并在面板中注明
 """
 
 from __future__ import annotations
@@ -16,9 +17,8 @@ from pathlib import Path
 
 from PySide import QtCore, QtGui, QtWidgets
 
+from freecad_addon.core import library_choice
 from freecad_addon.core.retrieval import default_hints
-from freecad_addon.fc.inprocess import InProcessBackend
-from freecad_addon.fc.mainthread import MainThreadExecutor
 from freecad_addon.gui.chat import (
     LLM,
     AnthropicChat,
@@ -27,23 +27,17 @@ from freecad_addon.gui.chat import (
     mcp_tools_to_anthropic,
     summarize,
 )
-from freecad_addon.gui.tools_client import InProcessTools
+from freecad_addon.gui.host import ToolsHost, get_host
 
 GOLDEN_FIXTURES = Path(__file__).resolve().parents[2] / "tests" / "golden" / "fixtures"
 
 
 def panel_library():
-    from kb.library import JsonLibrary, default_library
-
-    if os.environ.get("FAP_LIBRARY") or os.environ.get("DATABASE_URL"):
-        return default_library()
-    return JsonLibrary(GOLDEN_FIXTURES)
+    return library_choice.load(library_choice.choose(os.environ))
 
 
 def library_note() -> str:
-    if os.environ.get("FAP_LIBRARY") or os.environ.get("DATABASE_URL"):
-        return "组件库：按 FAP_LIBRARY / DATABASE_URL 配置"
-    return "组件库：虚构测试组件（未设置 FAP_LIBRARY / DATABASE_URL）"
+    return library_choice.choose(os.environ).note
 
 
 def _short(data, limit: int = 160) -> str:
@@ -55,8 +49,8 @@ class ChatPanel(QtWidgets.QDockWidget):
     event_posted = QtCore.Signal(object)
     turn_done = QtCore.Signal()
 
-    def __init__(self, llm_factory: Callable[[], LLM] = AnthropicChat, library_factory=panel_library,
-                 parent: QtWidgets.QWidget | None = None):
+    def __init__(self, llm_factory: Callable[[], LLM] = AnthropicChat, library_factory=None,
+                 parent: QtWidgets.QWidget | None = None, host: ToolsHost | None = None):
         super().__init__("AI Parts 对话", parent)
         self.setObjectName("FapChatPanel")
         self._llm_factory = llm_factory
@@ -64,14 +58,14 @@ class ChatPanel(QtWidgets.QDockWidget):
         self._images = 0
         self._busy = False
 
-        from mcp_server.server import create_server
-
-        self.executor = MainThreadExecutor()
-        self.tools = InProcessTools(create_server(library_factory, lambda: InProcessBackend(self.executor)))
+        # 指定组件库时（测试）自建宿主；否则与库浏览器、接口命令共用一个（ADR-0048 第 1 条）
+        self.host = host or (ToolsHost(library_factory) if library_factory else get_host())
+        self.executor = self.host.executor
+        self.tools = self.host.tools
 
         body = QtWidgets.QWidget()
         lay = QtWidgets.QVBoxLayout(body)
-        self.header = QtWidgets.QLabel(library_note())
+        self.header = QtWidgets.QLabel(self.host.note)
         self.header.setWordWrap(True)
         self.transcript = QtWidgets.QTextBrowser()
         self.transcript.setOpenExternalLinks(True)
@@ -98,7 +92,8 @@ class ChatPanel(QtWidgets.QDockWidget):
     def _ensure_engine(self) -> ChatEngine:
         if self._engine is None:
             tools = mcp_tools_to_anthropic(self.tools.list_tools())
-            self._engine = ChatEngine(self._llm_factory(), tools, self.tools.call, context=default_hints())
+            call = lambda name, args: self.host.call(name, args, source="ai")  # AI 的改动同样通知监听者
+            self._engine = ChatEngine(self._llm_factory(), tools, call, context=default_hints())
         return self._engine
 
     def send(self, text: str | None = None) -> bool:
@@ -174,5 +169,12 @@ class ChatPanel(QtWidgets.QDockWidget):
             self._append(f'<p style="color:#b00"><b>出错：</b>{esc(e.text)}</p>')
 
     def closeEvent(self, event) -> None:
-        self.tools.close()
+        if self.host is not _shared_host():  # 共用宿主随 FreeCAD 进程存在，只关自建的
+            self.tools.close()
         super().closeEvent(event)
+
+
+def _shared_host():
+    from freecad_addon.gui import host
+
+    return host._host
