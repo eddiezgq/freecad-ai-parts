@@ -11,8 +11,9 @@ import tempfile
 
 import FreeCAD
 
+from freecad_addon.core.port_markers import PART_TRANSPARENCY, TYPE_COLORS, Marker, markers
 from freecad_addon.core.scene import Scene
-from freecad_addon.fc.shapes import instance_shape
+from freecad_addon.fc.shapes import instance_shape, vec
 
 VIEWS = {
     "iso": "viewIsometric",
@@ -70,16 +71,54 @@ def _matte(vo, color) -> None:
         pass  # 旧版 FreeCAD 没有 ShapeAppearance，保留缺省材质
 
 
+def _prop(obj, name: str, value: str, doc: str) -> None:
+    obj.addProperty("App::PropertyString", name, "AI Parts", doc)
+    setattr(obj, name, value)
+    obj.setEditorMode(name, 1)  # 只读：由场景决定，改它不会改场景
+
+
+def _marker_shape(m: Marker):
+    """接口标记：端口面上的薄圆盘，加沿端口轴向的小箭头。"""
+    import Part
+
+    base, axis = vec(m.origin), vec(m.axis)
+    r = m.diameter / 2
+    disc = Part.makeCylinder(r, 1.0, base - axis * 0.5, axis)
+    tip = min(12.0, max(4.0, r))
+    cone = Part.makeCone(min(3.0, r * 0.4), 0.0, tip, base + axis * 0.5, axis)
+    return disc.fuse(cone)
+
+
 def build_document(scene: Scene):
-    """重建（或新建）布局文档：每个实例一个对象，名称为实例名。"""
+    """重建（或新建）布局文档（ADR-0048 第 4 条）：每个实例一组，含零件（名称为实例名，带组件 id、实例名、
+    品类属性）与各机械端口的接口标记（名称 <实例>__<端口>，标签 <实例>.<端口>，带端口属性）。"""
     if DOC_NAME in FreeCAD.listDocuments():
         FreeCAD.closeDocument(DOC_NAME)
     doc = FreeCAD.newDocument(DOC_NAME)
+    by_inst: dict[str, list[Marker]] = {}
+    for m in markers(scene):
+        by_inst.setdefault(m.instance, []).append(m)
     for name in sorted(scene.instances):
         comp = scene.component(name)
+        group = doc.addObject("App::DocumentObjectGroup", f"{name}_group")
+        group.Label = f"{name}（{comp.get('model', '')}）"
         obj = doc.addObject("Part::Feature", name)
         obj.Label = name
         obj.Shape = instance_shape(comp, scene.pose(name))
+        _prop(obj, "FapInstance", name, "实例名")
+        _prop(obj, "FapComponent", comp.get("id", ""), "组件 id")
+        _prop(obj, "FapCategory", comp.get("category", ""), "品类")
+        group.addObject(obj)
+        for m in by_inst.get(name, []):
+            mk = doc.addObject("Part::Feature", m.object_name)
+            mk.Label = m.ref
+            mk.Shape = _marker_shape(m)
+            _prop(mk, "FapInstance", m.instance, "实例名")
+            _prop(mk, "FapPort", m.port, "端口 id")
+            _prop(mk, "FapPortType", m.type, "端口类型")
+            _prop(mk, "FapPortDir", m.dir, "方向")
+            _prop(mk, "FapConnected", "是" if m.connected else "否", "是否已连接")
+            group.addObject(mk)
     doc.recompute()
     return doc
 
@@ -93,6 +132,13 @@ def show(scene: Scene, fit: bool = True):
     for name in scene.instances:
         vo = gdoc.getObject(name)
         color = COLORS.get(scene.component(name).get("category"), (0.7, 0.7, 0.7))
+        vo.ShapeColor = color
+        vo.DisplayMode = "Shaded"
+        _matte(vo, color)
+        vo.Transparency = PART_TRANSPARENCY
+    for m in markers(scene):
+        vo = gdoc.getObject(m.object_name)
+        color = TYPE_COLORS.get(m.type, (0.7, 0.7, 0.7))
         vo.ShapeColor = color
         vo.DisplayMode = "Shaded"
         _matte(vo, color)
