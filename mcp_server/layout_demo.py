@@ -62,7 +62,7 @@ def _resolve_moves(layout: dict, interferences: list, gap_mm: float) -> tuple[li
 
 
 async def run(requirement: dict, *, lang: str = "zh", gap_mm: float = 20.0, max_rounds: int = 5,
-              backend_factory: Callable[[], Backend | None] = default_backend) -> dict:
+              backend_factory: Callable[[], Backend | None] = default_backend, include_unknown: bool = False) -> dict:
     out: dict = {"steps": [], "rounds": [], "notes": []}
     async with Client(create_server(_library, backend_factory)) as c:
         async def call(name: str, args: dict):
@@ -70,7 +70,10 @@ async def run(requirement: dict, *, lang: str = "zh", gap_mm: float = 20.0, max_
             out["steps"].append({"tool": name, "args": args})
             return res
 
-        composed = (await c.call_tool("compose_chain", {"requirement": requirement, "top_n": 1, "lang": lang})).data
+        args = {"requirement": requirement, "top_n": 1, "lang": lang}
+        if include_unknown:  # 待确认方案也输出（ADR-0046 第 2 条）；有 fail 的方案始终不输出
+            args["include_unknown"] = True
+        composed = (await c.call_tool("compose_chain", args)).data
         if not composed["candidates"]:
             out["error"] = "没有候选方案"
             return out

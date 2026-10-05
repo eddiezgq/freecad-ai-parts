@@ -95,12 +95,14 @@ def _summary(parsed: dict | None, requirement: dict, out: dict) -> str:
     return "\n".join(lines)
 
 
-async def _run(requirement: dict, backend_factory: Callable[[], Backend | None], lang: str) -> dict:
-    return await run_layout(requirement, lang=lang, backend_factory=backend_factory)
+async def _run(requirement: dict, backend_factory: Callable[[], Backend | None], lang: str,
+               include_unknown: bool = False) -> dict:
+    return await run_layout(requirement, lang=lang, backend_factory=backend_factory, include_unknown=include_unknown)
 
 
 def run(*, statement: str | None = None, requirement: dict | None = None, out_dir: Path, record: bool = False,
-        lang: str = "zh", backend_factory: Callable[[], Backend | None] = default_backend) -> int:
+        lang: str = "zh", backend_factory: Callable[[], Backend | None] = default_backend,
+        include_unknown: bool = False) -> int:
     parsed = None
     if statement is not None:
         from engine.requirement_parse import RECORDINGS_DIR, parse
@@ -119,7 +121,7 @@ def run(*, statement: str | None = None, requirement: dict | None = None, out_di
         (out_dir / "README.md").write_text(text, encoding="utf-8")
         print(text)
         return 1
-    out = asyncio.run(_run(requirement, backend_factory, lang))
+    out = asyncio.run(_run(requirement, backend_factory, lang, include_unknown))
     record_req = {"requirement": requirement, **({k: parsed[k] for k in ("basis", "defaults", "llm")}
                                                   if parsed else {})}
     (out_dir / "requirement.json").write_text(_dump(record_req), encoding="utf-8")
@@ -147,6 +149,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--out", type=Path, required=True, help="输出目录")
     p.add_argument("--record", action="store_true", help="需求解析真实调用 LLM 并录制（需要 ANTHROPIC_API_KEY）")
     p.add_argument("--lang", choices=("zh", "en"), default="zh")
+    p.add_argument("--include-unknown", action="store_true",
+                   help="待确认（缺数据）的方案也输出，有不通过项的方案仍不输出（ADR-0046）；真实组件样例使用")
     p.add_argument("--library", type=Path,
                    help="组件库目录（同 FAP_LIBRARY），如真实组件库 data/library；不给时用 FAP_LIBRARY 或虚构测试组件")
     args = p.parse_args(argv)
@@ -157,7 +161,8 @@ def main(argv: list[str] | None = None) -> int:
     if (args.statement is None) == (args.requirement is None):
         p.error("一句话需求与 --requirement 二选一")
     req = json.loads(args.requirement.read_text(encoding="utf-8")) if args.requirement else None
-    return run(statement=args.statement, requirement=req, out_dir=args.out, record=args.record, lang=args.lang)
+    return run(statement=args.statement, requirement=req, out_dir=args.out, record=args.record, lang=args.lang,
+               include_unknown=args.include_unknown)
 
 
 if __name__ == "__main__":
