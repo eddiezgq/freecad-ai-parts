@@ -2,6 +2,7 @@
   "agreed": [
     "dims/outer_diameter_mm",
     "dims/overall_length_mm",
+    "params/efficiency_curve",
     "params/mass_kg",
     "params/max_input_speed_rpm",
     "params/momentary_max_torque_nm",
@@ -38,6 +39,7 @@
     "ports/input_bore/clamping = key 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
     "ports/output_flange/thread = M8 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
     "params/max_input_speed_rpm = 5600.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
+    "params/efficiency_curve 由 Claude（对照规格书原页核对，经张国庆授权） 按第 17 页曲线读点录入（24 点）",
     "端口 motor_flange 由厂商目录不规定，按 configurable 输出：Harmonic Drive CSF-2UH 整机型的电机安装法兰按所配电机定制，目录不规定孔位（ADR-0045）"
   ],
   "reviewer": "claude（AI 复核）",

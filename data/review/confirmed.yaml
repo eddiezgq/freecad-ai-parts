@@ -1578,3 +1578,651 @@ confirmations:
   quote: Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 11 16.9 17 28
     42 56 84
   value: 9.3
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-50-2UH
+  target: params/efficiency_curve
+  points:
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.56
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.48
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.39
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.31
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.64
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.58
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.5
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.43
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.69
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.65
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.59
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.53
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.71
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.68
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.64
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.59
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.73
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.71
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.68
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.64
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.74
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.72
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.7
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.67
+  page: 17
+  quote: Efficiency at rated torque (Size 14) Ratio 50, 80 Graph 135-2
+  condition: 额定扭矩、脂润滑（目录第 134 页表 134-1 测量条件）；网格温度读点，向下取整到 1%
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-100-2UH
+  target: params/efficiency_curve
+  points:
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.53
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.44
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.34
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.26
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.63
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.55
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.46
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.38
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.7
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.64
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.56
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.49
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.73
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.69
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.63
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.57
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.76
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.73
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.68
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.63
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.77
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.75
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.71
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.67
+  page: 17
+  quote: Efficiency at rated torque (Size 14) Ratio 100 Graph 135-3
+  condition: 额定扭矩、脂润滑（目录第 134 页表 134-1 测量条件）；网格温度读点，向下取整到 1%
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-50-2UH
+  target: params/efficiency_curve
+  points:
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.63
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.54
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.44
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.36
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.71
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.65
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.57
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.49
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.76
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.71
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.65
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.59
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.78
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.75
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.71
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.66
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.8
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.78
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.75
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.71
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.81
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.79
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.77
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.74
+  page: 17
+  quote: Efficiency at rated torque (Sizes 17 to 65) Ratio 50 Graph 135-5
+  condition: 额定扭矩、脂润滑（目录第 134 页表 134-1 测量条件）；网格温度读点，向下取整到 1%
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-50-2UH
+  target: params/efficiency_curve
+  points:
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.63
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.54
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.44
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.36
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.71
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.65
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.57
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.49
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.76
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.71
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.65
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.59
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.78
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.75
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.71
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.66
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.8
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.78
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.75
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.71
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.81
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.79
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.77
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.74
+  page: 17
+  quote: Efficiency at rated torque (Sizes 17 to 65) Ratio 50 Graph 135-5
+  condition: 额定扭矩、脂润滑（目录第 134 页表 134-1 测量条件）；网格温度读点，向下取整到 1%
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-100-2UH
+  target: params/efficiency_curve
+  points:
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.63
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.53
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.42
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.34
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.72
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.65
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.56
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.47
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.78
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.73
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.66
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.59
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.81
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.77
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.72
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.66
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.83
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.81
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.77
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.72
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.84
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.83
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.79
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.76
+  page: 17
+  quote: Efficiency at rated torque (Sizes 17 to 65) Ratio 80, 100 Graph 135-6
+  condition: 额定扭矩、脂润滑（目录第 134 页表 134-1 测量条件）；网格温度读点，向下取整到 1%
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-100-2UH
+  target: params/efficiency_curve
+  points:
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.63
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.53
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.42
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.34
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.72
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.65
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.56
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.47
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.78
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.73
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.66
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.59
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.81
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.77
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.72
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.66
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.83
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.81
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.77
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.72
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.84
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.83
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.79
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.76
+  page: 17
+  quote: Efficiency at rated torque (Sizes 17 to 65) Ratio 80, 100 Graph 135-6
+  condition: 额定扭矩、脂润滑（目录第 134 页表 134-1 测量条件）；网格温度读点，向下取整到 1%
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-25-100-2UH
+  target: params/efficiency_curve
+  points:
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.63
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.53
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.42
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.34
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.72
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.65
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.56
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.47
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.78
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.73
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.66
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.59
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.81
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.77
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.72
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.66
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.83
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.81
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.77
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.72
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.84
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.83
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.79
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.76
+  page: 17
+  quote: Efficiency at rated torque (Sizes 17 to 65) Ratio 80, 100 Graph 135-6
+  condition: 额定扭矩、脂润滑（目录第 134 页表 134-1 测量条件）；网格温度读点，向下取整到 1%
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-32-100-2UH
+  target: params/efficiency_curve
+  points:
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.63
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.53
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.42
+  - ambient_temp_c: -10.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.34
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.72
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.65
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.56
+  - ambient_temp_c: 0.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.47
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.78
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.73
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.66
+  - ambient_temp_c: 10.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.59
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.81
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.77
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.72
+  - ambient_temp_c: 20.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.66
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.83
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.81
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.77
+  - ambient_temp_c: 30.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.72
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 500.0
+    efficiency_ratio: 0.84
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 1000.0
+    efficiency_ratio: 0.83
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 2000.0
+    efficiency_ratio: 0.79
+  - ambient_temp_c: 40.0
+    input_speed_rpm: 3500.0
+    efficiency_ratio: 0.76
+  page: 17
+  quote: Efficiency at rated torque (Sizes 17 to 65) Ratio 80, 100 Graph 135-6
+  condition: 额定扭矩、脂润滑（目录第 134 页表 134-1 测量条件）；网格温度读点，向下取整到 1%
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'

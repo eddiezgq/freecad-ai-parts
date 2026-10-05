@@ -1,10 +1,11 @@
 {
   "id": "joint-real",
-  "statement": "六轴机械臂第 2 关节：输出连续扭矩 25 N·m、峰值 50 N·m，输出转速 30 rpm，200 V 三相供电，EtherCAT 总线",
+  "statement": "六轴机械臂第 2 关节：输出连续扭矩 25 N·m、峰值 50 N·m，输出转速 30 rpm，室内环境 25 °C，200 V 三相供电，EtherCAT 总线",
   "output_torque_cont_nm": 25,
   "output_torque_peak_nm": 50,
   "output_speed_rpm": 30,
   "safety_factor": 1.2,
+  "ambient_temp_c": 25,
   "supply": {
     "current_type": "ac",
     "phases": 3,
