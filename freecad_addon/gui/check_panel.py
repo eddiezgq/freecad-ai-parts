@@ -125,7 +125,66 @@ class CheckPanel(QtWidgets.QDockWidget):
                              if r["mode"] != "empty" else "场景中还没有零件")
         self.report.setHtml(render(r))
         colorize(r)
+        self.save_record()
         return r
+
+    def save_record(self) -> bool:
+        """把方案写进布局文档的 FapProject（ADR-0049 第 2 条）；场景为空且文档中没有记录时不写。"""
+        try:
+            import FreeCAD
+
+            from freecad_addon.core import project
+            from freecad_addon.fc import project_doc
+            from freecad_addon.fc.snapshot import _target
+        except ImportError:
+            return False
+        if _target["name"] not in FreeCAD.listDocuments():
+            return False
+        doc = FreeCAD.getDocument(_target["name"])
+        if not self.layout_state.get("instances") and project_doc.read(doc) is None:
+            return False
+        import datetime
+
+        rec = project.record(self.layout_state, self.requirement, self.result, self.host.library().get,
+                             self.host.note, datetime.datetime.now().astimezone().isoformat(timespec="seconds"))
+        project_doc.write(doc, project.dumps(rec))
+        return True
+
+    def restore(self, done=None) -> str | None:
+        """从当前活动文档的方案记录恢复场景：清空场景，按记录依次放置、连接（与 AI 用同一工具）。
+        返回错误说明；开始恢复时返回 None，完成后调用 done(说明列表)。"""
+        import FreeCAD
+
+        from freecad_addon.core import project
+        from freecad_addon.fc import project_doc, snapshot
+
+        doc = FreeCAD.ActiveDocument
+        text = project_doc.read(doc) if doc is not None else None
+        if not text:
+            return "当前文档中没有 AI Parts 方案记录"
+        try:
+            rec = project.loads(text)
+        except project.ProjectError as exc:
+            return str(exc)
+        calls, missing = project.rebuild_calls(rec, self.host.library().get)
+        snapshot.set_target(doc.Name)
+        seq = project.clear_calls(self.layout_state) + calls
+        self.requirement = rec.get("requirement")
+
+        def work() -> None:
+            notes = list(missing)
+            for name, args in seq:
+                out = self.host.call(name, args)
+                if out.is_error:
+                    notes.append(f"{name} {args.get('instance') or args.get('a')}：{'；'.join(out.texts)}")
+            if done:
+                done(notes)
+            self.changed.emit()
+
+        import threading
+
+        threading.Thread(target=work, name="fap-restore", daemon=True).start()
+        return None
 
     def closeEvent(self, event) -> None:
         if self._on_tool in self.host.listeners:
@@ -159,11 +218,12 @@ def colorize(r: dict) -> None:
     except ImportError:
         return
     from freecad_addon.core.port_markers import TYPE_COLORS
-    from freecad_addon.fc.snapshot import DOC_NAME
+    from freecad_addon.fc.snapshot import _target
 
-    if DOC_NAME not in FreeCAD.listDocuments() or not FreeCAD.GuiUp:
+    name = _target["name"]
+    if name not in FreeCAD.listDocuments() or not FreeCAD.GuiUp:
         return
-    doc, gdoc = FreeCAD.getDocument(DOC_NAME), FreeCADGui.getDocument(DOC_NAME)
+    doc, gdoc = FreeCAD.getDocument(name), FreeCADGui.getDocument(name)
     for obj in doc.Objects:
         vo = gdoc.getObject(obj.Name)
         if vo is None:

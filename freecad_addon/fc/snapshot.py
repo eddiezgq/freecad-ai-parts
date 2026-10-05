@@ -89,12 +89,41 @@ def _marker_shape(m: Marker):
     return disc.fuse(cone)
 
 
-def build_document(scene: Scene):
-    """重建（或新建）布局文档（ADR-0048 第 4 条）：每个实例一组，含零件（名称为实例名，带组件 id、实例名、
-    品类属性）与各机械端口的接口标记（名称 <实例>__<端口>，标签 <实例>.<端口>，带端口属性）。"""
+_target: dict[str, str] = {"name": DOC_NAME}  # 布局显示在哪个文档；恢复方案时切到打开的文件（ADR-0049）
+
+
+def set_target(name: str) -> None:
+    _target["name"] = name
+
+
+def target_document():
+    """布局文档：目标文档还开着就用它，否则新建 FapLayout。"""
+    if _target["name"] in FreeCAD.listDocuments():
+        return FreeCAD.getDocument(_target["name"])
+    _target["name"] = DOC_NAME
     if DOC_NAME in FreeCAD.listDocuments():
-        FreeCAD.closeDocument(DOC_NAME)
-    doc = FreeCAD.newDocument(DOC_NAME)
+        return FreeCAD.getDocument(DOC_NAME)
+    return FreeCAD.newDocument(DOC_NAME)
+
+
+def _ours(obj) -> bool:
+    return any(hasattr(obj, p) for p in ("FapInstance", "FapGroup"))
+
+
+def clear_ours(doc) -> None:
+    """删除文档中 AI Parts 的零件、标记与组；方案记录与用户自己的对象保留。"""
+    for obj in [o for o in doc.Objects if hasattr(o, "FapInstance")]:
+        doc.removeObject(obj.Name)
+    for obj in [o for o in doc.Objects if hasattr(o, "FapGroup")]:
+        doc.removeObject(obj.Name)
+
+
+def build_document(scene: Scene):
+    """就地更新布局文档（ADR-0048 第 4 条、ADR-0049 第 1 条）：每个实例一组，含零件（名称为实例名，带组件 id、
+    实例名、品类属性）与各机械端口的接口标记（名称 <实例>__<端口>，标签 <实例>.<端口>，带端口属性）。
+    不再关闭重建文档：用户另存的文件名、视角与其他对象保留。"""
+    doc = target_document()
+    clear_ours(doc)
     by_inst: dict[str, list[Marker]] = {}
     for m in markers(scene):
         by_inst.setdefault(m.instance, []).append(m)
@@ -102,6 +131,7 @@ def build_document(scene: Scene):
         comp = scene.component(name)
         group = doc.addObject("App::DocumentObjectGroup", f"{name}_group")
         group.Label = f"{name}（{comp.get('model', '')}）"
+        _prop(group, "FapGroup", name, "实例名")
         obj = doc.addObject("Part::Feature", name)
         obj.Label = name
         obj.Shape = instance_shape(comp, scene.pose(name))
@@ -158,7 +188,7 @@ def sync(scene: Scene) -> dict:
     gui.updateGui()
     v.fitAll()
     gui.updateGui()
-    return {"document": DOC_NAME, "instances": sorted(scene.instances)}
+    return {"document": _target["name"], "instances": sorted(scene.instances)}
 
 
 def snapshot(scene: Scene, view: str = "iso", width: int = 800, height: int = 600) -> dict:

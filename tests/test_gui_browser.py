@@ -139,3 +139,59 @@ def test_manual_assembly_connect_and_live_check(gui):
     finally:
         panel.close()
         host.tools.close()
+
+
+@pytest.mark.freecad
+def test_project_is_saved_in_fcstd_and_restored(gui, tmp_path):
+    """ADR-0049 第 1、2 条：布局文档就地更新；方案记录随 .FCStd 保存；打开后恢复方案，场景一致。"""
+    import FreeCAD
+
+    from freecad_addon.core import project
+    from freecad_addon.fc import project_doc, snapshot
+    from freecad_addon.gui.check_panel import CheckPanel
+    from freecad_addon.gui.host import ToolsHost
+
+    host = ToolsHost(lambda: REAL, note="组件库：真实厂商组件（测试）")
+    panel = CheckPanel(host=host)
+    try:
+        box = []
+        for n, (name, args) in enumerate((
+                ("place_component", {"instance": "motor",
+                                     "component_id": "servo_motor.yaskawa-electric-corporation.sgm7j-02a-6"}),
+                ("place_component", {"instance": "reducer", "component_id": "reducer.harmonic-drive-llc.csf-25-100-2uh",
+                                     "position_mm": [0, 0, 200]}),
+                ("connect_ports", {"a": "motor.shaft", "b": "reducer.input_bore"})), start=1):
+            host.call_in_background(name, args, box.append)
+            _pump_until(gui, lambda n=n: len(box) == n)
+        _pump_until(gui, lambda: panel.layout_state["connections"])
+        doc = FreeCAD.getDocument(snapshot._target["name"])
+        user_box = doc.addObject("Part::Box", "UserBox")  # 用户自己的对象：就地更新时保留
+        host.call_in_background("place_component", {"instance": "drive", "component_id":
+                                "drive.yaskawa-america-inc.sgd7s-1r6a", "position_mm": [150, 0, 0]}, box.append)
+        _pump_until(gui, lambda: len(box) == 4 and len(panel.layout_state["instances"]) == 3)
+        assert doc.getObject("UserBox") is user_box
+        panel.set_requirement({"output_torque_cont_nm": 25, "output_speed_rpm": 30})
+        rec = project.loads(project_doc.read(doc))
+        assert rec["requirement"]["output_speed_rpm"] == 30 and len(rec["layout"]["instances"]) == 3
+        before = panel.layout_state
+        path = str(tmp_path / "joint.FCStd")
+        doc.saveAs(path)
+        FreeCAD.closeDocument(doc.Name)
+        # 场景被清空后，打开文件恢复
+        for k, inst in enumerate(("motor", "reducer", "drive"), start=len(box) + 1):
+            host.call_in_background("place_component", {"instance": inst, "remove": True}, box.append)
+            _pump_until(gui, lambda k=k: len(box) == k)
+        opened = FreeCAD.openDocument(path)
+        FreeCAD.setActiveDocument(opened.Name)
+        notes = []
+        assert panel.restore(notes.append) is None
+        _pump_until(gui, lambda: notes)
+        _pump_until(gui, lambda: len(panel.layout_state["instances"]) == 3)
+        assert notes == [[]] and not project.diff(before, panel.layout_state)["changed"]
+        assert snapshot._target["name"] == opened.Name and opened.getObject("motor").FapCategory == "servo_motor"
+        assert panel.requirement["output_speed_rpm"] == 30
+        FreeCAD.closeDocument(opened.Name)
+    finally:
+        snapshot.set_target(snapshot.DOC_NAME)
+        panel.close()
+        host.tools.close()

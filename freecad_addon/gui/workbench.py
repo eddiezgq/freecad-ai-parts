@@ -24,6 +24,7 @@ class ChatPanelCommand:
         panel = _state.get("panel")
         if panel is None:
             panel = ChatPanel(parent=_main_window())
+            _check_panel()  # 校验与方案记录随场景改动更新（ADR-0049）
             _main_window().addDockWidget(QtCore.Qt.RightDockWidgetArea, panel)
             _state["panel"] = panel
         panel.show()
@@ -47,6 +48,7 @@ class LibraryBrowserCommand:
         dock = _state.get("browser")
         if dock is None:
             dock = LibraryBrowser(parent=_main_window())
+            _check_panel()  # 校验与方案记录随场景改动更新（ADR-0049）
             _main_window().addDockWidget(QtCore.Qt.LeftDockWidgetArea, dock)
             _state["browser"] = dock
         dock.show()
@@ -83,6 +85,22 @@ def _check_panel(show: bool = False):
         dock.show()
         dock.raise_()
     return dock
+
+
+class RestoreProjectCommand:
+    """恢复方案（ADR-0049）：从打开的 .FCStd 中的方案记录重建场景，之后的改动显示在这个文档中。"""
+
+    def GetResources(self):
+        return {"MenuText": "恢复方案", "ToolTip": "从当前文档保存的 AI Parts 方案记录恢复零件、连接与需求"}
+
+    def Activated(self):
+        panel = _check_panel(show=True)
+        err = panel.restore(lambda notes: [FreeCAD.Console.PrintMessage(f"AI Parts 恢复方案：{n}\n") for n in notes])
+        if err:
+            FreeCAD.Console.PrintWarning(f"AI Parts：{err}\n")
+
+    def IsActive(self):
+        return FreeCAD.ActiveDocument is not None
 
 
 class ConnectPortsCommand:
@@ -170,10 +188,11 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         FreeCADGui.addCommand("FAP_Browser", LibraryBrowserCommand())
         FreeCADGui.addCommand("FAP_Connect", ConnectPortsCommand())
         FreeCADGui.addCommand("FAP_Checks", CheckPanelCommand())
+        FreeCADGui.addCommand("FAP_Restore", RestoreProjectCommand())
         FreeCADGui.addCommand("FAP_Bridge", BridgeCommand())
         FreeCADGui.addCommand("FAP_Record", RecordCommand())
         FreeCADGui.addCommand("FAP_RecordVideo", RecordVideoCommand())
-        tools = ["FAP_ChatPanel", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bridge", "FAP_Record"]
+        tools = ["FAP_ChatPanel", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Restore", "FAP_Bridge", "FAP_Record"]
         self.appendToolbar("AI Parts", tools)
         self.appendMenu("AI Parts", [*tools, "FAP_RecordVideo"])
 
