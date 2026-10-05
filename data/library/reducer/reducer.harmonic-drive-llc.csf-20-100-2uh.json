@@ -300,6 +300,17 @@
             "page": 11
           },
           "value": "H7"
+        },
+        "key_width_mm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），规格书第 11 页原文“W Js9 - - 4 5 5 5 6 6 6 8”",
+            "page": 11
+          },
+          "value": 4.0
         }
       },
       "type": "mechanical.cyl_female"

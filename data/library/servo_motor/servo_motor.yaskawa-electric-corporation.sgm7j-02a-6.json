@@ -217,6 +217,18 @@
           },
           "value": "h6"
         },
+        "key_width_mm": {
+          "condition": "轴端代码 6（Straight with key and tap），02、04、06 一档",
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），规格书第 66 页原文“W 3 5 6”",
+            "page": 66
+          },
+          "value": 5.0
+        },
         "max_axial_load_n": {
           "confidence": 0.8,
           "method": "extracted",

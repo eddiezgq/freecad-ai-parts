@@ -36,10 +36,10 @@ def test_without_requirement_only_interface_checks_run():
     assert out["mode"] == "interface"
     assert by["C1"]["status"] == "pass" and by["C10"]["status"] == "pass"
     assert by["C4"]["status"] == "not_applicable" and "需求未给出" in by["C4"]["message"]
-    # 带键轴配键槽孔：键宽缺，C2 待确认；可配置法兰：C3 待确认
-    assert by["C2"]["status"] == "unknown" and by["C3"]["status"] == "unknown"
+    # 带键轴配键槽孔、键宽一致（5 mm）：C2 通过；可配置法兰：C3 待确认
+    assert by["C2"]["status"] == "pass" and by["C3"]["status"] == "unknown"
     assert out["overall"] == "unknown"
-    assert out["ports"]["motor.shaft"] == "unknown" and out["ports"]["reducer.motor_flange"] == "unknown"
+    assert out["ports"]["motor.shaft"] == "pass" and out["ports"]["reducer.motor_flange"] == "unknown"
 
 
 def test_plain_shaft_on_keyed_bore_fails_and_colors_the_ports():

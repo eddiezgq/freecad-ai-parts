@@ -578,6 +578,17 @@
                 "page": 11
               },
               "value": "H7"
+            },
+            "key_width_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-hd-csg-csf-gear-units",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），对照规格书第 11 页",
+                "page": 11
+              },
+              "value": 5.0
             }
           },
           "type": "mechanical.cyl_female"
@@ -956,6 +967,18 @@
               },
               "value": "h6"
             },
+            "key_width_mm": {
+              "condition": "轴端代码 6（Straight with key and tap），02、04、06 一档",
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），规格书第 66 页原文“W 3 5 6”",
+                "page": 66
+              },
+              "value": 5.0
+            },
             "max_axial_load_n": {
               "confidence": 0.8,
               "method": "extracted",
@@ -1217,20 +1240,20 @@
             "status": "pass"
           },
           {
-            "message": "缺少键宽",
+            "message": "键宽 5 mm 相等",
             "ports": [
               "motor.shaft",
               "reducer.input_bore"
             ],
-            "status": "unknown"
+            "status": "pass"
           }
         ],
-        "message": "缺少键宽",
+        "message": "直径 14 mm 相等",
         "ports": [
           "motor.shaft",
           "reducer.input_bore"
         ],
-        "status": "unknown"
+        "status": "pass"
       },
       {
         "check": "C3",
