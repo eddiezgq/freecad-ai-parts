@@ -10,6 +10,7 @@ import json
 import os
 import sys
 import types
+from pathlib import Path
 
 import pytest
 
@@ -667,3 +668,17 @@ def test_same_sign_tolerance_accepted(cell, upper, lower):
     assert r["rejected"] == [], r["rejected"]
     v = r["items"][0]["value"]
     assert (v["tol_upper"], v["tol_lower"]) == (upper, lower)
+
+
+def test_targets_skip_params_that_are_not_param_values():
+    """ADR-0047：参数的 schema 不是“参数值”（如效率曲线）时不作为抽取目标；现有参数都是参数值。"""
+    from ingest.llm_extract import _is_param_value
+
+    assert _is_param_value({"$ref": "../common/param-value.schema.json#/$defs/number"})
+    assert _is_param_value({"allOf": [{"$ref": "../common/param-value.schema.json#/$defs/number"}, {}]})
+    assert not _is_param_value({"type": "object", "properties": {"points": {"type": "array"}}})
+    for cat in ("servo_motor", "reducer", "drive", "bearing"):
+        names = {t.split("/", 1)[1] for t in targets(cat) if t.startswith("params/")}
+        path = Path(__file__).resolve().parent.parent / "schema" / "categories" / f"{cat}.schema.json"
+        schema = json.loads(path.read_text(encoding="utf-8"))
+        assert names == set(schema["properties"]["params"]["properties"])
