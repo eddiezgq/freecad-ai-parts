@@ -31,9 +31,12 @@ CI 的 `freecad` 作业会重新生成这些文件，并逐字节比对（截图
 真实组件入库后（`data/library/`，ADR-0040），用同一条命令生成真实数据样例：
 
 ```bash
-FAP_FREECAD=headless python -m mcp_server.e2e --requirement examples/joint2-requirement.json \
-    --library data/library --out examples/joint-real
+FAP_FREECAD=headless python -m mcp_server.e2e --requirement examples/joint-real-requirement.json \
+    --library data/library --include-unknown --out examples/joint-real
 ```
+
+- `joint-real-requirement.json` 与 joint2 的扭矩、转速相同，供电为 200 V 三相（ADR-0046 第 6 条）
+- `--include-unknown`：缺数据、待确认的方案也输出，复核结论逐条列出缺什么；有不通过项的方案仍不输出（ADR-0046 第 2 条）
 
 `README.md` 的“方案”一节列出每个组件的数据来源与复核状态：
 

@@ -83,3 +83,32 @@ def test_missing_mass_ranks_later():
 def test_empty_category(cat):
     req = case_by_id("valid/m400-r20-d400")["system"]["requirement"]
     assert compose_chain(req, [c for c in LIB if c["category"] != cat]) == []
+
+
+def _configurable_flange_lib():
+    """减速器电机侧法兰标 configurable、不给孔位（ADR-0045），库中没有转接板。"""
+    lib = [copy.deepcopy(c) for c in LIB if c["params"].get("adapter_kind", {}).get("value") != "flange_plate"]
+    for c in lib:
+        if c["id"] == "test.reducer.test-vendor.r25-100":
+            for p in c["ports"]:
+                if p["id"] == "motor_flange":
+                    p["configurable"] = True
+                    p["spec"] = {}
+    return lib
+
+
+def test_configurable_motor_flange_connects_directly():
+    """ADR-0046 第 1 条：可配置法兰直连，不找也不生成转接板；C3 为 unknown，方案只在 include_unknown 时输出。"""
+    lib = _configurable_flange_lib()
+    req = case_by_id("valid/m200-adapters-r25-d400")["system"]["requirement"]
+    assert not any("test-vendor.r25-100" in _ids(c) for c in compose_chain(req, lib))
+    for gen in (False, True):
+        cands = [c for c in compose_chain(req, lib, include_unknown=True, generate_adapters=gen)
+                 if "test-vendor.r25-100" in _ids(c)]
+        assert cands
+        cand = cands[0]
+        links = {(x["a"], x["b"]) for x in cand.system["connections"]}
+        assert ("motor.mount_flange", "reducer.motor_flange") in links
+        assert "plate" not in {c["instance"] for c in cand.system["components"]}
+        c3 = next(c for c in cand.report["checks"] if c["check"] == "C3")
+        assert c3["status"] == "unknown" and cand.report["overall"] == "unknown"

@@ -92,3 +92,28 @@ def test_end_to_end_with_real_freecad(tmp_path, monkeypatch):
     assert png[:4] == b"\x89PNG" and len(png) > 5000
     readme = (tmp_path / "a" / "README.md").read_text(encoding="utf-8")
     assert "第 2 轮：通过" in readme and "需有通孔：plate" in readme
+
+
+def test_include_unknown_outputs_pending_candidate(tmp_path, monkeypatch):
+    """ADR-0046 第 2 条：待确认方案在 --include-unknown 时输出，README 的复核结论写明“待确认”并列出缺的数据。"""
+    sys.path.insert(0, str(ROOT / "tests"))
+    from engine_helpers import case_by_id
+    from test_engine_compose import _configurable_flange_lib
+
+    lib = tmp_path / "lib"
+    case = case_by_id("valid/m200-adapters-r25-d400")["system"]
+    keep = {x["component"] for x in case["components"]}
+    for c in (c for c in _configurable_flange_lib() if c["id"] in keep):
+        (lib / c["category"]).mkdir(parents=True, exist_ok=True)
+        (lib / c["category"] / f"{c['id']}.json").write_text(json.dumps(c, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.delenv("FAP_FREECAD", raising=False)
+    req = tmp_path / "r.json"
+    req.write_text(json.dumps(case["requirement"]), encoding="utf-8")
+    base = ["--requirement", str(req), "--library", str(lib)]
+    assert e2e.main([*base, "--out", str(tmp_path / "a")]) in (1, 2)
+    assert e2e.main([*base, "--include-unknown", "--out", str(tmp_path / "b")]) == 2  # 未连接 FreeCAD
+    readme = (tmp_path / "b" / "README.md").read_text(encoding="utf-8")
+    assert "待确认：有数据缺失" in readme and "- C3 法兰配合：待确认" in readme
+    system = json.loads((tmp_path / "b" / "system.json").read_text(encoding="utf-8"))
+    links = {(x["a"], x["b"]) for x in system["system"]["connections"]}
+    assert ("motor.mount_flange", "reducer.motor_flange") in links

@@ -88,6 +88,9 @@ def _shaft_options(motor: dict, reducer: dict, adapters: list[dict]) -> list[tup
 
 def _flange_options(motor: dict, reducer: dict, adapters: list[dict]) -> list[tuple[dict | None, list[dict]]]:
     """电机法兰 → 减速器电机法兰：直连，或经一块适配法兰板（两种朝向都试）。"""
+    if (_port(reducer, "motor_flange") or {}).get("configurable") is True:
+        # 厂商按所配电机定制的法兰（ADR-0045）：直连，不找也不生成转接板；C3 为 unknown（ADR-0046 第 1 条）
+        return [(None, [{"a": "motor.mount_flange", "b": "reducer.motor_flange"}])]
     pm = nominal(_spec(motor, "mount_flange", "pcd_mm"))
     pr = nominal(_spec(reducer, "motor_flange", "pcd_mm"))
     if _same(pm, pr, PCD_TOL_MM):
