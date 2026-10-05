@@ -21,6 +21,7 @@ REQ_FIELDS = (("output_torque_cont_nm", "连续扭矩 N·m"), ("output_torque_pe
 
 class CheckPanel(QtWidgets.QDockWidget):
     changed = QtCore.Signal()  # 后台线程中布局或需求变化后，排队回到界面线程重新校验
+    proposal_changed = QtCore.Signal()  # 有新提案或提案被结算后，排队回到界面线程更新提案框
 
     def __init__(self, parent: QtWidgets.QWidget | None = None, host: ToolsHost | None = None):
         super().__init__("AI Parts 校验", parent)
@@ -49,6 +50,21 @@ class CheckPanel(QtWidgets.QDockWidget):
         row.addWidget(self.clear_button)
         self.overall = QtWidgets.QLabel("")
         self.report = QtWidgets.QTextBrowser()
+        # AI 改动提案（ADR-0049 第 4 条）
+        self.proposal_box = QtWidgets.QGroupBox("AI 改动提案")
+        pl = QtWidgets.QVBoxLayout(self.proposal_box)
+        self.proposal_text = QtWidgets.QLabel("")
+        self.proposal_text.setWordWrap(True)
+        self.accept_button = QtWidgets.QPushButton("接受")
+        self.reject_button = QtWidgets.QPushButton("拒绝（恢复原状）")
+        prow = QtWidgets.QHBoxLayout()
+        prow.addWidget(self.accept_button)
+        prow.addWidget(self.reject_button)
+        pl.addWidget(self.proposal_text)
+        pl.addLayout(prow)
+        self.proposal_box.setVisible(False)
+        self.proposal_note = ""
+        lay.addWidget(self.proposal_box)
         lay.addLayout(form)
         lay.addWidget(self.req_note)
         lay.addLayout(row)
@@ -59,6 +75,11 @@ class CheckPanel(QtWidgets.QDockWidget):
         self.apply_button.clicked.connect(lambda *_: self.apply_form())
         self.clear_button.clicked.connect(lambda *_: self.set_requirement(None))
         self.changed.connect(self.recheck, QtCore.Qt.QueuedConnection)
+        self.proposal_changed.connect(self._show_proposal, QtCore.Qt.QueuedConnection)
+        self.accept_button.clicked.connect(lambda *_: self.host.settle("accepted"))
+        self.reject_button.clicked.connect(lambda *_: self.reject())
+        self.host.proposal_handlers.append(self._on_proposal)
+        self.host.settle_handlers.append(self._on_settle)
         self.drag = None
         try:  # 拖动回写（ADR-0049 第 3 条）：在 FreeCAD 界面中才有
             import FreeCAD
@@ -76,6 +97,8 @@ class CheckPanel(QtWidgets.QDockWidget):
     def _on_tool(self, name: str, info: dict) -> None:
         """工具调用成功后（调用线程中）：记下布局或 AI 给出的需求，排队重新校验。"""
         result, args = info.get("result") or {}, info.get("args") or {}
+        if info.get("source") == "user" and "layout" in result and self.host.pending is not None:
+            self.host.settle("accepted")  # 提案未处理时的手动改动视为接受
         hit = False
         if isinstance(result.get("layout"), dict):
             self.layout_state = result["layout"]
@@ -196,7 +219,75 @@ class CheckPanel(QtWidgets.QDockWidget):
         threading.Thread(target=work, name="fap-restore", daemon=True).start()
         return None
 
+    # ------------------------------------------------------------ 提案
+
+    def _on_proposal(self, p: dict) -> None:
+        self.proposal_changed.emit()
+
+    def _on_settle(self, p: dict, decision: str) -> None:
+        self.proposal_note = "已接受 AI 的改动" if decision == "accepted" else "已拒绝 AI 的改动，正在恢复原状"
+        try:
+            from freecad_addon.gui import recording
+
+            rec = recording.recorder()
+            if rec.active:
+                rec.event("proposal", decision=decision, diff=p.get("diff"), request=p.get("request"))
+        except ImportError:
+            pass
+        self.proposal_changed.emit()
+
+    def _show_proposal(self) -> None:
+        from freecad_addon.core import project
+
+        p = self.host.pending
+        if p is None:
+            self.proposal_box.setVisible(bool(self.proposal_note))
+            self.proposal_text.setText(self.proposal_note)
+            self.accept_button.setVisible(False)
+            self.reject_button.setVisible(False)
+            return
+        lines = project.describe(p["diff"])
+        expl = p.get("explanation", "").strip()
+        text = "<br>".join(html.escape(x) for x in lines)
+        if expl:
+            text += f"<br><span style='color:#555'>AI 说明：{html.escape(expl[:400])}</span>"
+        text += "<br>结论见下方校验。接受才保留；拒绝就恢复到这一轮之前。"
+        self.proposal_text.setText(text)
+        self.accept_button.setVisible(True)
+        self.reject_button.setVisible(True)
+        self.proposal_box.setVisible(True)
+
+    def reject(self, done=None) -> bool:
+        """拒绝提案：清空场景，按这一轮之前的快照重建（后台线程），完成后调用 done(说明列表)。"""
+        from freecad_addon.core import project
+
+        p = self.host.settle("rejected")
+        if p is None:
+            return False
+        calls, missing = project.rebuild_calls({"layout": p["before"]}, self.host.library().get)
+        seq = project.clear_calls(self.host.layout) + calls
+
+        def work() -> None:
+            notes = list(missing)
+            for name, args in seq:
+                out = self.host.call(name, args, source="restore")
+                if out.is_error:
+                    notes.append(f"{name} {args.get('instance') or args.get('a')}：{'；'.join(out.texts)}")
+            self.proposal_note = "已拒绝 AI 的改动，已恢复原状" + (f"（{'；'.join(notes)}）" if notes else "")
+            self.proposal_changed.emit()
+            if done:
+                done(notes)
+
+        import threading
+
+        threading.Thread(target=work, name="fap-reject", daemon=True).start()
+        return True
+
     def closeEvent(self, event) -> None:
+        for lst, fn in ((self.host.proposal_handlers, self._on_proposal),
+                        (self.host.settle_handlers, self._on_settle)):
+            if fn in lst:
+                lst.remove(fn)
         if self._on_tool in self.host.listeners:
             self.host.listeners.remove(self._on_tool)
         if self.drag is not None:

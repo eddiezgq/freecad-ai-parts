@@ -28,6 +28,10 @@ class ToolsHost:
         self.executor = MainThreadExecutor()
         self.tools = InProcessTools(create_server(self.library, lambda: InProcessBackend(self.executor)))
         self.listeners: list[Callable[[str, dict], None]] = []  # 工具调用成功后通知（浏览器、校验窗口），在调用线程中
+        self.layout: dict = {"instances": [], "connections": []}  # 最新布局（来自带 layout 的工具结果）
+        self.proposal_handlers: list[Callable[[dict], None]] = []  # 有新提案时通知（ADR-0049 第 4 条）
+        self.settle_handlers: list[Callable[[dict, str], None]] = []  # 提案被接受或拒绝时通知
+        self.pending: dict | None = None  # 尚未处理的提案
 
     def library(self):
         if self._lib is None:
@@ -42,9 +46,26 @@ class ToolsHost:
         out = self.tools.call(name, args)
         if not out.is_error:
             info = {"args": args, "source": source, "result": _parse(out)}
+            if isinstance((info["result"] or {}).get("layout"), dict):
+                self.layout = info["result"]["layout"]
             for fn in list(self.listeners):
                 fn(name, info)
         return out
+
+    def propose(self, proposal: dict) -> None:
+        """AI 一轮改动后的提案：记为待处理并通知（校验窗口显示）；在调用线程中。"""
+        self.settle("accepted")  # 上一个未处理的提案视为接受
+        self.pending = proposal
+        for fn in list(self.proposal_handlers):
+            fn(proposal)
+
+    def settle(self, decision: str) -> dict | None:
+        """结算待处理的提案：accepted / rejected；没有待处理的提案时什么也不做。返回被结算的提案。"""
+        p, self.pending = self.pending, None
+        if p is not None:
+            for fn in list(self.settle_handlers):
+                fn(p, decision)
+        return p
 
     def call_in_background(self, name: str, args: dict, done: Callable, source: str = "user") -> None:
         """在后台线程调用工具，完成后调用 done(结果或异常)。界面线程不能直接调 call：工具要回到主线程更新
