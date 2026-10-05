@@ -116,6 +116,71 @@
           ],
           "description": "0 < η ≤ 1，须注明工况（condition 必填）；公差叠加后的范围由代码校验"
         },
+        "efficiency_curve": {
+          "description": "效率曲线（ADR-0047）：目录只以曲线给出效率时，按图的网格读出的点（环境温度 °C、输入转速 rpm、效率 0–1），读数向下取整；查表规则见 ADR-0047",
+          "type": "object",
+          "properties": {
+            "points": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "ambient_temp_c": {
+                    "type": "number"
+                  },
+                  "input_speed_rpm": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "efficiency_ratio": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1
+                  }
+                },
+                "required": [
+                  "ambient_temp_c",
+                  "input_speed_rpm",
+                  "efficiency_ratio"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "condition": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source": {
+              "$ref": "../common/param-value.schema.json#/$defs/source"
+            },
+            "method": {
+              "enum": [
+                "extracted",
+                "manual",
+                "computed",
+                "standard"
+              ]
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "reviewed": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "points",
+            "condition",
+            "source",
+            "method",
+            "confidence",
+            "reviewed"
+          ],
+          "additionalProperties": false
+        },
         "mass_kg": {
           "$ref": "../common/param-value.schema.json#/$defs/number"
         },
