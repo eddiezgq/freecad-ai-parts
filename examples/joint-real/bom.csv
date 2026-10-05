@@ -1,0 +1,4 @@
+item,component_id,category,vendor,model,quantity,instances,unit_mass_kg,total_mass_kg,license,vendor_cad_url,source_docs,all_params_reviewed
+1,servo_motor.yaskawa-electric-corporation.sgm7j-02a-6,servo_motor,Yaskawa Electric Corporation,SGM7J-02A（轴端代码 6）,1,motor,,,params-only,,src-yaskawa-sgm7-rotary-manual,True
+2,reducer.harmonic-drive-llc.csf-25-100-2uh,reducer,Harmonic Drive LLC,CSF-25-100-2UH,1,reducer,1.5,1.5,params-only,,src-hd-csg-csf-gear-units,True
+3,drive.yaskawa-america-inc.sgd7s-1r6a,drive,"Yaskawa America, Inc.",SGD7S-1R6A,1,drive,,,params-only,,src-yaskawa-sgd7s-ethercat-manual,True

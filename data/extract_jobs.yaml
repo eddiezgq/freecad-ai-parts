@@ -39,6 +39,11 @@ jobs:
     category: servo_motor
     pages: "53-55,64-66"
     targets: [SGM7J-A5A, SGM7J-01A, SGM7J-C2A, SGM7J-02A, SGM7J-04A, SGM7J-06A, SGM7J-08A]
+    # 订货选项变体（ADR-0046 第 4 条）：沿用基本型号的数据，随选项变化的项在 confirmed.yaml 中按变体型号确认
+    variants:
+      - of: SGM7J-02A
+        model: SGM7J-02A（轴端代码 6）
+        basis: 第 53 页型号说明“6 Straight with key and tap”
   # 安川 Σ-7S EtherCAT 驱动器（200 V）：额定值、规格、外形尺寸与质量、安装孔尺寸（第 90 页）
   - doc: src-yaskawa-sgd7s-ethercat-manual
     category: drive

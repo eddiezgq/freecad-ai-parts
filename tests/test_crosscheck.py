@@ -231,3 +231,16 @@ def test_manual_entry_of_a_range_with_condition():
         cmp = cx.compare(p, c)
         cx.apply_confirmations(p, c, cmp, [bad], "D-1")
         assert cmp["agreed"].get("ports/power_in/voltage_v", {}).get("min") is None
+
+
+def test_variant_inherits_base_confirmations_and_overrides_its_own():
+    """订货选项变体（ADR-0046 第 4 条）：沿用基本型号的确认，变体自己的确认按字段覆盖。"""
+    base = {"doc": "d", "model": "M-1", "target": "ports/shaft/feature", "value": "plain"}
+    other = {"doc": "d", "model": "M-1", "target": "dims/square_mm", "value": 60}
+    own = {"doc": "d", "model": "M-1（轴端代码 6）", "target": "ports/shaft/feature", "value": "keyed"}
+    unrelated = {"doc": "d", "model": "M-2", "target": "dims/square_mm", "value": 80}
+    got = cx.variant_confirmations([base, other, own, unrelated], "M-1", "M-1（轴端代码 6）")
+    by_target = {c["target"]: c for c in got}
+    assert by_target["ports/shaft/feature"]["value"] == "keyed"
+    assert by_target["dims/square_mm"]["value"] == 60 and by_target["dims/square_mm"]["model"] == "M-1（轴端代码 6）"
+    assert len(got) == 2

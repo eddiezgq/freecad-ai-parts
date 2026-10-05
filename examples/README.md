@@ -4,6 +4,8 @@
 | --- | --- |
 | `joint2-requirement.json` | 六轴机械臂第 2 关节的结构化需求（含原话） |
 | `joint2/` | 由上面的需求经端到端演示生成的全部输出（ADR-0037） |
+| `joint-real-requirement.json` | 同一关节，供电 200 V 三相（ADR-0046） |
+| `joint-real/` | 用真实厂商组件（`data/library/`）生成的输出；结论为待确认，README 列出缺的数据 |
 
 `joint2/` 中的文件：
 

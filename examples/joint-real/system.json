@@ -1,0 +1,1456 @@
+{
+  "components": {
+    "drive.yaskawa-america-inc.sgd7s-1r6a": {
+      "category": "drive",
+      "envelope": {
+        "parts": [
+          {
+            "height_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 90 页原文“|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |”",
+                "page": 90
+              },
+              "value": 168.0
+            },
+            "label": "body",
+            "length_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 79 页原文“2 × M4 45 (75) 140”",
+                "page": 79
+              },
+              "value": 140.0
+            },
+            "shape": "box",
+            "width_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 90 页原文“|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |”",
+                "page": 90
+              },
+              "value": 45.0
+            },
+            "z_start_mm": 0
+          }
+        ]
+      },
+      "id": "drive.yaskawa-america-inc.sgd7s-1r6a",
+      "license": "params-only",
+      "model": "SGD7S-1R6A",
+      "note": "参数取自厂商公开资料 src-yaskawa-sgd7s-ethercat-manual（ADR-0040），经两次独立抽取比对一致（claude（AI 复核））；不一致的项未收录，见 data/review/",
+      "params": {},
+      "ports": [
+        {
+          "dir": "in",
+          "id": "power_in",
+          "spec": {
+            "current_type": {
+              "condition": "Three-Phase, 200 VAC",
+              "confidence": 0.85,
+              "method": "extracted",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 62 页",
+                "page": 62
+              },
+              "value": "ac"
+            },
+            "phases": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 62 页原文“Three-Phase, 200 VAC”",
+                "page": 62
+              },
+              "value": 3
+            },
+            "voltage_v": {
+              "confidence": 1,
+              "max": 240.0,
+              "method": "manual",
+              "min": 200.0,
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 62 页原文“Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz”",
+                "page": 62
+              }
+            }
+          },
+          "type": "electrical.power_supply"
+        },
+        {
+          "dir": "out",
+          "id": "motor_out",
+          "spec": {
+            "peak_current_a": {
+              "confidence": 0.85,
+              "method": "extracted",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+                "page": 63
+              },
+              "value": 5.9
+            },
+            "rated_current_a": {
+              "confidence": 0.85,
+              "method": "extracted",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+                "page": 63
+              },
+              "value": 1.6
+            },
+            "voltage_class_v": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 62 页原文“Three-Phase, 200 VAC”",
+                "page": 62
+              },
+              "value": 200.0
+            }
+          },
+          "type": "electrical.motor_power"
+        },
+        {
+          "dir": "in",
+          "id": "encoder_in",
+          "spec": {
+            "kind": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 67 页原文“Serial encoder: 20 bits or 24 bits (incremental encoder/absolute”",
+                "page": 67
+              },
+              "value": "absolute"
+            },
+            "protocol": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 67 页原文“Serial encoder: 20 bits or 24 bits (incremental encoder/absolute”",
+                "page": 67
+              },
+              "value": "vendor_proprietary"
+            },
+            "vendor": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 67 页原文“Serial encoder: 20 bits or 24 bits (incremental encoder/absolute”",
+                "page": 67
+              },
+              "value": "Yaskawa"
+            }
+          },
+          "type": "signal.encoder"
+        },
+        {
+          "dir": "bidir",
+          "id": "bus",
+          "spec": {
+            "protocol": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 69 页原文“Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)”",
+                "page": 69
+              },
+              "value": "ethercat"
+            }
+          },
+          "type": "signal.fieldbus"
+        },
+        {
+          "dir": "bidir",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              0
+            ]
+          },
+          "id": "mount",
+          "motion": "stationary",
+          "note": "坐标系按品类约定生成（ADR-0023），布局时核对",
+          "spec": {
+            "hole_count": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 90 页原文“1R6A 168 5 160 ±0.5 45 35 − 25 − M4 2”",
+                "page": 90
+              },
+              "value": 2
+            },
+            "pattern": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 90 页原文“|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |”",
+                "page": 90
+              },
+              "value": "rect"
+            },
+            "pitch_x_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "nominal": 10.0,
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 79 页原文“25 10 ±0.5 (mounting pitch)”",
+                "page": 79
+              },
+              "tol_lower": -0.5,
+              "tol_upper": 0.5
+            },
+            "pitch_y_mm": {
+              "condition": "Σ-7-series Mounting Hole Dimensions",
+              "confidence": 0.65,
+              "method": "extracted",
+              "nominal": 160.0,
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 90 页",
+                "page": 90
+              },
+              "tol_lower": -0.5,
+              "tol_upper": 0.5
+            },
+            "thread": {
+              "condition": "Σ-7-series Mounting Hole Dimensions",
+              "confidence": 0.8,
+              "method": "extracted",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgd7s-ethercat-manual",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 90 页",
+                "page": 90
+              },
+              "value": "M4"
+            }
+          },
+          "type": "mechanical.mount_face"
+        }
+      ],
+      "status": "active",
+      "vendor": "Yaskawa America, Inc."
+    },
+    "reducer.harmonic-drive-llc.csf-25-100-2uh": {
+      "category": "reducer",
+      "envelope": {
+        "parts": [
+          {
+            "diameter_mm": {
+              "confidence": 0.8,
+              "method": "extracted",
+              "reviewed": true,
+              "source": {
+                "doc": "src-hd-csg-csf-gear-units",
+                "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+                "page": 11
+              },
+              "value": 107.0
+            },
+            "label": "body",
+            "length_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-hd-csg-csf-gear-units",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 11 页原文“C 34 37 38 46 57 66.5 74 85 97 108.5”",
+                "page": 11
+              },
+              "value": 46.0
+            },
+            "shape": "cylinder",
+            "z_start_mm": 0
+          }
+        ]
+      },
+      "id": "reducer.harmonic-drive-llc.csf-25-100-2uh",
+      "license": "params-only",
+      "model": "CSF-25-100-2UH",
+      "note": "参数取自厂商公开资料 src-hd-csg-csf-gear-units（ADR-0040），经两次独立抽取比对一致（claude（AI 复核））；不一致的项未收录，见 data/review/",
+      "params": {
+        "mass_kg": {
+          "confidence": 0.6,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 11
+          },
+          "value": 1.5
+        },
+        "max_input_speed_rpm": {
+          "condition": "脂润滑（Grease lubricant）；油润滑为 7500",
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 9 页",
+            "page": 9
+          },
+          "value": 5600.0
+        },
+        "momentary_max_torque_nm": {
+          "confidence": 0.8,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 9
+          },
+          "value": 284.0
+        },
+        "rated_torque_nm": {
+          "condition": "Rated Torque at 2000rpm",
+          "confidence": 0.8,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 9
+          },
+          "value": 67.0
+        },
+        "ratio": {
+          "confidence": 0.6,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 9
+          },
+          "value": 100.0
+        },
+        "repeated_peak_torque_nm": {
+          "confidence": 0.8,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 9
+          },
+          "value": 157.0
+        }
+      },
+      "ports": [
+        {
+          "dir": "in",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              0
+            ]
+          },
+          "id": "input_bore",
+          "motion": "rotating",
+          "note": "坐标系按品类约定生成（ADR-0023），布局时核对",
+          "spec": {
+            "clamping": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-hd-csg-csf-gear-units",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 11 页原文“W Js9 - - 4 5 5 5 6 6 6 8”",
+                "page": 11
+              },
+              "value": "key"
+            },
+            "diameter_mm": {
+              "confidence": 0.75,
+              "method": "extracted",
+              "reviewed": true,
+              "source": {
+                "doc": "src-hd-csg-csf-gear-units",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 11 页",
+                "page": 11
+              },
+              "value": 14.0
+            },
+            "feature": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-hd-csg-csf-gear-units",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 11 页原文“W Js9 - - 4 5 5 5 6 6 6 8”",
+                "page": 11
+              },
+              "value": "keyed"
+            },
+            "fit": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-hd-csg-csf-gear-units",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 11 页原文“φU H7 6 8 12 14 14 14 19 19 22 24”",
+                "page": 11
+              },
+              "value": "H7"
+            }
+          },
+          "type": "mechanical.cyl_female"
+        },
+        {
+          "configurable": true,
+          "dir": "bidir",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              0
+            ]
+          },
+          "id": "motor_flange",
+          "motion": "stationary",
+          "note": "坐标系按品类约定生成（ADR-0023），布局时核对；厂商目录不规定，按配套件定制：Harmonic Drive CSF-2UH 整机型的电机安装法兰按所配电机定制，目录不规定孔位",
+          "spec": {},
+          "type": "mechanical.flange"
+        },
+        {
+          "dir": "out",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              46.0
+            ]
+          },
+          "id": "output_flange",
+          "motion": "rotating",
+          "note": "坐标系按品类约定生成（ADR-0023），布局时核对",
+          "spec": {
+            "hole_count": {
+              "confidence": 0.55,
+              "method": "extracted",
+              "reviewed": true,
+              "source": {
+                "doc": "src-hd-csg-csf-gear-units",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 11 页",
+                "page": 11
+              },
+              "value": 8
+            },
+            "hole_kind": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-hd-csg-csf-gear-units",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 11 页原文“Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24”",
+                "page": 11
+              },
+              "value": "threaded"
+            },
+            "pcd_mm": {
+              "confidence": 0.55,
+              "method": "extracted",
+              "reviewed": true,
+              "source": {
+                "doc": "src-hd-csg-csf-gear-units",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 11 页",
+                "page": 11
+              },
+              "value": 42.0
+            },
+            "thread": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-hd-csg-csf-gear-units",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 11 页原文“Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24”",
+                "page": 11
+              },
+              "value": "M8"
+            }
+          },
+          "type": "mechanical.flange"
+        },
+        {
+          "dir": "bidir",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              46.0
+            ]
+          },
+          "id": "housing_mount",
+          "motion": "stationary",
+          "note": "坐标系按品类约定生成（ADR-0023），布局时核对",
+          "spec": {
+            "hole_count": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-hd-csg-csf-gear-units",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 11 页原文“|  | CSF Series | 6 | 6 | 6 | 8 | 12 | 8 | 12 | 12 | 12 | 8 |”",
+                "page": 11
+              },
+              "value": 8
+            },
+            "hole_diameter_mm": {
+              "confidence": 0.55,
+              "method": "extracted",
+              "reviewed": true,
+              "source": {
+                "doc": "src-hd-csg-csf-gear-units",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 11 页",
+                "page": 11
+              },
+              "value": 5.5
+            },
+            "hole_kind": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-hd-csg-csf-gear-units",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 11 页原文“φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14”",
+                "page": 11
+              },
+              "value": "through"
+            },
+            "pcd_mm": {
+              "confidence": 0.55,
+              "method": "extracted",
+              "reviewed": true,
+              "source": {
+                "doc": "src-hd-csg-csf-gear-units",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 11 页",
+                "page": 11
+              },
+              "value": 96.0
+            }
+          },
+          "type": "mechanical.flange"
+        }
+      ],
+      "status": "active",
+      "vendor": "Harmonic Drive LLC"
+    },
+    "servo_motor.yaskawa-electric-corporation.sgm7j-02a-6": {
+      "category": "servo_motor",
+      "envelope": {
+        "parts": [
+          {
+            "height_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 65 页",
+                "page": 65
+              },
+              "value": 60.0
+            },
+            "label": "body",
+            "length_mm": {
+              "confidence": 0.8,
+              "method": "extracted",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+                "page": 65
+              },
+              "value": 69.5
+            },
+            "shape": "box",
+            "width_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 65 页",
+                "page": 65
+              },
+              "value": 60.0
+            },
+            "z_start_mm": -69.5
+          },
+          {
+            "diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "nominal": 14.0,
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 66 页",
+                "page": 66
+              },
+              "tol_lower": -0.011,
+              "tol_upper": 0.0
+            },
+            "label": "shaft",
+            "length_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 65 页",
+                "page": 65
+              },
+              "value": 30.0
+            },
+            "shape": "cylinder",
+            "z_start_mm": 0
+          }
+        ]
+      },
+      "id": "servo_motor.yaskawa-electric-corporation.sgm7j-02a-6",
+      "license": "params-only",
+      "model": "SGM7J-02A（轴端代码 6）",
+      "note": "参数取自厂商公开资料 src-yaskawa-sgm7-rotary-manual（ADR-0040），经两次独立抽取比对一致（claude（AI 复核））；不一致的项未收录，见 data/review/",
+      "params": {
+        "ip_rating": {
+          "confidence": 0.9,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 55
+          },
+          "value": "IP67"
+        },
+        "max_speed_rpm": {
+          "confidence": 0.9,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 55
+          },
+          "value": 6000.0
+        },
+        "peak_torque_nm": {
+          "confidence": 0.95,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 55
+          },
+          "value": 2.23
+        },
+        "rated_power_w": {
+          "confidence": 0.95,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 55
+          },
+          "value": 200.0
+        },
+        "rated_speed_rpm": {
+          "confidence": 0.9,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 55
+          },
+          "value": 3000.0
+        },
+        "rated_torque_nm": {
+          "confidence": 0.95,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 55
+          },
+          "value": 0.637
+        },
+        "rotor_inertia_kgm2": {
+          "confidence": 0.85,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 55
+          },
+          "value": 2.6300000000000002e-05
+        },
+        "torque_constant_nm_per_a": {
+          "confidence": 0.95,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 55
+          },
+          "value": 0.444
+        }
+      },
+      "ports": [
+        {
+          "dir": "out",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              30.0
+            ]
+          },
+          "id": "shaft",
+          "motion": "rotating",
+          "note": "坐标系按品类约定生成（ADR-0023），布局时核对",
+          "spec": {
+            "diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "nominal": 14.0,
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 66 页",
+                "page": 66
+              },
+              "tol_lower": -0.011,
+              "tol_upper": 0.0
+            },
+            "feature": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 53 页原文“6 Straight with key and tap”",
+                "page": 53
+              },
+              "value": "keyed"
+            },
+            "fit": {
+              "confidence": 1,
+              "method": "computed",
+              "reviewed": true,
+              "source": {
+                "formula": "ISO 286：14 mm 的偏差 +0/-0.011 mm 即公差带 h6（ADR-0044）"
+              },
+              "value": "h6"
+            },
+            "max_axial_load_n": {
+              "confidence": 0.8,
+              "method": "extracted",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+                "page": 55
+              },
+              "value": 74.0
+            },
+            "max_radial_load_n": {
+              "confidence": 0.8,
+              "method": "extracted",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+                "page": 55
+              },
+              "value": 245.0
+            },
+            "usable_length_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 65 页",
+                "page": 65
+              },
+              "value": 30.0
+            }
+          },
+          "type": "mechanical.cyl_male"
+        },
+        {
+          "dir": "bidir",
+          "frame": {
+            "axis": [
+              0,
+              0,
+              1
+            ],
+            "origin_mm": [
+              0,
+              0,
+              0
+            ]
+          },
+          "id": "mount_flange",
+          "motion": "stationary",
+          "note": "坐标系按品类约定生成（ADR-0023），布局时核对",
+          "spec": {
+            "hole_count": {
+              "confidence": 0.7,
+              "method": "extracted",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+                "page": 65
+              },
+              "value": 4
+            },
+            "hole_diameter_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 65 页",
+                "page": 65
+              },
+              "value": 5.5
+            },
+            "hole_kind": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 65 页原文“0.02 4 × LZ dia. Unit: mm”",
+                "page": 65
+              },
+              "value": "through"
+            },
+            "pcd_mm": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 65 页",
+                "page": 65
+              },
+              "value": 70.0
+            }
+          },
+          "type": "mechanical.flange"
+        },
+        {
+          "dir": "in",
+          "id": "power_in",
+          "spec": {
+            "peak_current_a": {
+              "confidence": 0.95,
+              "method": "extracted",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+                "page": 55
+              },
+              "value": 5.8
+            },
+            "rated_current_a": {
+              "confidence": 0.9,
+              "method": "extracted",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+                "page": 55
+              },
+              "value": 1.6
+            },
+            "voltage_class_v": {
+              "confidence": 0.9,
+              "method": "extracted",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 55 页",
+                "page": 55
+              },
+              "value": 200.0
+            }
+          },
+          "type": "electrical.motor_power"
+        },
+        {
+          "dir": "out",
+          "id": "encoder",
+          "spec": {
+            "kind": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 53 页原文“| 6 | 24-bit batteryless absolute |”",
+                "page": 53
+              },
+              "value": "absolute"
+            },
+            "protocol": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 53 页原文“| 6 | 24-bit batteryless absolute |”",
+                "page": 53
+              },
+              "value": "vendor_proprietary"
+            },
+            "vendor": {
+              "confidence": 1,
+              "method": "manual",
+              "reviewed": true,
+              "source": {
+                "doc": "src-yaskawa-sgm7-rotary-manual",
+                "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 53 页原文“| 6 | 24-bit batteryless absolute |”",
+                "page": 53
+              },
+              "value": "Yaskawa"
+            }
+          },
+          "type": "signal.encoder"
+        }
+      ],
+      "status": "active",
+      "vendor": "Yaskawa Electric Corporation"
+    }
+  },
+  "format": "fap-export/1",
+  "kind": "system",
+  "report": {
+    "checks": [
+      {
+        "check": "C1",
+        "findings": [
+          {
+            "message": "motor.shaft — reducer.input_bore：类型、方向、运动方式匹配",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "motor.mount_flange — reducer.motor_flange：类型、方向、运动方式匹配",
+            "ports": [
+              "motor.mount_flange",
+              "reducer.motor_flange"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "drive.motor_out — motor.power_in：类型、方向、运动方式匹配",
+            "ports": [
+              "drive.motor_out",
+              "motor.power_in"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "motor.encoder — drive.encoder_in：类型、方向、运动方式匹配",
+            "ports": [
+              "motor.encoder",
+              "drive.encoder_in"
+            ],
+            "status": "pass"
+          }
+        ],
+        "message": "motor.shaft — reducer.input_bore：类型、方向、运动方式匹配",
+        "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+        ],
+        "status": "pass"
+      },
+      {
+        "check": "C2",
+        "findings": [
+          {
+            "message": "直径 14 mm 相等",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "H7/h6 为 clearance 配合（草稿规则表）",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "轴 keyed / 孔 keyed / 紧固 key：键宽须相等（另行检查）（草稿规则表）",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "缺少键宽",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "unknown"
+          }
+        ],
+        "message": "缺少键宽",
+        "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+        ],
+        "status": "unknown"
+      },
+      {
+        "check": "C3",
+        "findings": [
+          {
+            "message": "缺少分度圆直径",
+            "ports": [
+              "motor.mount_flange",
+              "reducer.motor_flange"
+            ],
+            "status": "unknown"
+          },
+          {
+            "message": "缺少孔数",
+            "ports": [
+              "motor.mount_flange",
+              "reducer.motor_flange"
+            ],
+            "status": "unknown"
+          },
+          {
+            "message": "缺少孔的形式（通孔 / 螺纹孔）",
+            "ports": [
+              "motor.mount_flange",
+              "reducer.motor_flange"
+            ],
+            "status": "unknown"
+          },
+          {
+            "message": "两侧都没有止口，定位靠螺栓，须确认同轴度",
+            "ports": [
+              "motor.mount_flange",
+              "reducer.motor_flange"
+            ],
+            "status": "warn"
+          }
+        ],
+        "message": "缺少分度圆直径",
+        "ports": [
+          "motor.mount_flange",
+          "reducer.motor_flange"
+        ],
+        "status": "unknown"
+      },
+      {
+        "check": "C4",
+        "findings": [
+          {
+            "message": "连续扭矩折算到电机侧：缺少减速比或效率",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "unknown"
+          },
+          {
+            "limit": 67.0,
+            "margin_ratio": 0.5522388059701493,
+            "measured": 30.0,
+            "message": "含安全系数的连续扭矩 30 ≤ 减速器额定扭矩 67 N·m",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "pass",
+            "unit": "N*m"
+          }
+        ],
+        "message": "连续扭矩折算到电机侧：缺少减速比或效率",
+        "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+        ],
+        "status": "unknown"
+      },
+      {
+        "check": "C5",
+        "findings": [
+          {
+            "message": "峰值扭矩折算到电机侧：缺少减速比或效率",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "unknown"
+          },
+          {
+            "limit": 157.0,
+            "margin_ratio": 0.6815286624203821,
+            "measured": 50,
+            "message": "峰值扭矩 50 ≤ 减速器启停允许峰值扭矩 157 N·m",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "pass",
+            "unit": "N*m"
+          }
+        ],
+        "message": "峰值扭矩折算到电机侧：缺少减速比或效率",
+        "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+        ],
+        "status": "unknown"
+      },
+      {
+        "check": "C6",
+        "message": "过载保护：缺少电机峰值扭矩、减速比、效率或减速器瞬间最大扭矩",
+        "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+        ],
+        "status": "unknown"
+      },
+      {
+        "check": "C7",
+        "findings": [
+          {
+            "limit": 6000.0,
+            "margin_ratio": 0.5,
+            "measured": 3000.0,
+            "message": "所需电机转速 3000 ≤ 电机最高转速 6000 rpm",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "pass",
+            "unit": "rpm"
+          },
+          {
+            "limit": 5600.0,
+            "margin_ratio": 0.4642857142857143,
+            "measured": 3000.0,
+            "message": "所需输入转速 3000 ≤ 减速器最高输入转速 5600 rpm",
+            "ports": [
+              "motor.shaft",
+              "reducer.input_bore"
+            ],
+            "status": "pass",
+            "unit": "rpm"
+          }
+        ],
+        "limit": 6000.0,
+        "margin_ratio": 0.5,
+        "measured": 3000.0,
+        "message": "所需电机转速 3000 ≤ 电机最高转速 6000 rpm",
+        "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+        ],
+        "status": "pass",
+        "unit": "rpm"
+      },
+      {
+        "check": "C8",
+        "message": "需求未给负载惯量",
+        "status": "not_applicable"
+      },
+      {
+        "check": "C9",
+        "findings": [
+          {
+            "message": "供电类型 ac 一致",
+            "ports": [
+              "drive.power_in"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "供电 200 V 在驱动器输入范围 200–240 V 内",
+            "ports": [
+              "drive.power_in"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "相数 3 一致",
+            "ports": [
+              "drive.power_in"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "电压等级 200 V 一致",
+            "ports": [
+              "drive.motor_out",
+              "motor.power_in"
+            ],
+            "status": "pass"
+          },
+          {
+            "limit": 1.6,
+            "margin_ratio": 0.0,
+            "measured": 1.6,
+            "message": "驱动器额定电流 1.6 A ≥ 电机 1.6 A",
+            "ports": [
+              "drive.motor_out",
+              "motor.power_in"
+            ],
+            "status": "pass",
+            "unit": "A"
+          },
+          {
+            "limit": 5.9,
+            "margin_ratio": 0.01694915254237297,
+            "measured": 5.8,
+            "message": "驱动器峰值电流 5.9 A ≥ 电机 5.8 A",
+            "ports": [
+              "drive.motor_out",
+              "motor.power_in"
+            ],
+            "status": "pass",
+            "unit": "A"
+          }
+        ],
+        "message": "供电类型 ac 一致",
+        "ports": [
+          "drive.power_in"
+        ],
+        "status": "pass"
+      },
+      {
+        "check": "C10",
+        "findings": [
+          {
+            "message": "私有编码器协议，厂商一致（Yaskawa）",
+            "ports": [
+              "motor.encoder",
+              "drive.encoder_in"
+            ],
+            "status": "pass"
+          },
+          {
+            "message": "总线 ethercat 一致",
+            "ports": [
+              "drive.bus"
+            ],
+            "status": "pass"
+          }
+        ],
+        "message": "私有编码器协议，厂商一致（Yaskawa）",
+        "ports": [
+          "motor.encoder",
+          "drive.encoder_in"
+        ],
+        "status": "pass"
+      },
+      {
+        "check": "C11",
+        "message": "系统中没有轴承，需求也未给包络外径限值",
+        "status": "not_applicable"
+      }
+    ],
+    "overall": "unknown",
+    "system": "candidate-1"
+  },
+  "system": {
+    "components": [
+      {
+        "component": "servo_motor.yaskawa-electric-corporation.sgm7j-02a-6",
+        "instance": "motor"
+      },
+      {
+        "component": "reducer.harmonic-drive-llc.csf-25-100-2uh",
+        "instance": "reducer"
+      },
+      {
+        "component": "drive.yaskawa-america-inc.sgd7s-1r6a",
+        "instance": "drive"
+      }
+    ],
+    "connections": [
+      {
+        "a": "motor.shaft",
+        "b": "reducer.input_bore"
+      },
+      {
+        "a": "motor.mount_flange",
+        "b": "reducer.motor_flange"
+      },
+      {
+        "a": "drive.motor_out",
+        "b": "motor.power_in"
+      },
+      {
+        "a": "motor.encoder",
+        "b": "drive.encoder_in"
+      }
+    ],
+    "id": "candidate-1",
+    "layout": {
+      "poses": {
+        "drive": {
+          "position_mm": [
+            96.0,
+            0.0,
+            0.0
+          ],
+          "rotation": {
+            "angle_deg": 0.0,
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        },
+        "motor": {
+          "position_mm": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": {
+            "angle_deg": 0.0,
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        },
+        "reducer": {
+          "position_mm": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": {
+            "angle_deg": 0.0,
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        }
+      }
+    },
+    "requirement": {
+      "fieldbus_protocol": "ethercat",
+      "id": "joint-real",
+      "output_speed_rpm": 30,
+      "output_torque_cont_nm": 25,
+      "output_torque_peak_nm": 50,
+      "safety_factor": 1.2,
+      "statement": "六轴机械臂第 2 关节：输出连续扭矩 25 N·m、峰值 50 N·m，输出转速 30 rpm，200 V 三相供电，EtherCAT 总线",
+      "supply": {
+        "current_type": "ac",
+        "phases": 3,
+        "voltage_v": 200
+      }
+    }
+  }
+}
