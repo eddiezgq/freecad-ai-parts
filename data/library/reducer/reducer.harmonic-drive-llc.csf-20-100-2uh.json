@@ -1,0 +1,328 @@
+{
+  "category": "reducer",
+  "envelope": {
+    "parts": [
+      {
+        "diameter_mm": {
+          "confidence": 0.85,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 11
+          },
+          "value": 93.0
+        },
+        "label": "body",
+        "length_mm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 11 页原文“C 34 37 38 46 57 66.5 74 85 97 108.5”",
+            "page": 11
+          },
+          "value": 38.0
+        },
+        "shape": "cylinder",
+        "z_start_mm": 0
+      }
+    ]
+  },
+  "id": "reducer.harmonic-drive-llc.csf-20-100-2uh",
+  "license": "params-only",
+  "model": "CSF-20-100-2UH",
+  "note": "参数取自厂商公开资料 src-hd-csg-csf-gear-units（ADR-0040），经两次独立抽取比对一致（claude（AI 复核））；不一致的项未收录，见 data/review/",
+  "params": {
+    "mass_kg": {
+      "confidence": 0.88,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+        "page": 11
+      },
+      "value": 0.98
+    },
+    "max_input_speed_rpm": {
+      "condition": "脂润滑（Grease lubricant）",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 9 页",
+        "page": 9
+      },
+      "value": 6500.0
+    },
+    "momentary_max_torque_nm": {
+      "confidence": 0.88,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+        "page": 9
+      },
+      "value": 147.0
+    },
+    "rated_torque_nm": {
+      "condition": "Rated Torque at 2000rpm",
+      "confidence": 0.88,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致；复核抽取的工况写法：at 2000rpm",
+        "page": 9
+      },
+      "value": 40.0
+    },
+    "ratio": {
+      "confidence": 0.9,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+        "page": 9
+      },
+      "value": 100.0
+    },
+    "repeated_peak_torque_nm": {
+      "confidence": 0.88,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+        "page": 9
+      },
+      "value": 82.0
+    }
+  },
+  "ports": [
+    {
+      "dir": "in",
+      "frame": {
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "origin_mm": [
+          0,
+          0,
+          0
+        ]
+      },
+      "id": "input_bore",
+      "motion": "rotating",
+      "note": "坐标系按品类约定生成（ADR-0023），布局时核对",
+      "spec": {
+        "clamping": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 11 页原文“W Js9 - - 4 5 5 5 6 6 6 8”",
+            "page": 11
+          },
+          "value": "key"
+        },
+        "diameter_mm": {
+          "confidence": 0.6,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 10 页",
+            "page": 10
+          },
+          "value": 12.0
+        },
+        "feature": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 11 页原文“W Js9 - - 4 5 5 5 6 6 6 8”",
+            "page": 11
+          },
+          "value": "keyed"
+        },
+        "fit": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 11 页原文“φU H7 6 8 12 14 14 14 19 19 22 24”",
+            "page": 11
+          },
+          "value": "H7"
+        }
+      },
+      "type": "mechanical.cyl_female"
+    },
+    {
+      "configurable": true,
+      "dir": "bidir",
+      "frame": {
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "origin_mm": [
+          0,
+          0,
+          0
+        ]
+      },
+      "id": "motor_flange",
+      "motion": "stationary",
+      "note": "坐标系按品类约定生成（ADR-0023），布局时核对；厂商目录不规定，按配套件定制：Harmonic Drive CSF-2UH 整机型的电机安装法兰按所配电机定制，目录不规定孔位",
+      "spec": {},
+      "type": "mechanical.flange"
+    },
+    {
+      "dir": "out",
+      "frame": {
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "origin_mm": [
+          0,
+          0,
+          38.0
+        ]
+      },
+      "id": "output_flange",
+      "motion": "rotating",
+      "note": "坐标系按品类约定生成（ADR-0023），布局时核对",
+      "spec": {
+        "hole_count": {
+          "confidence": 0.5,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 10 页",
+            "page": 10
+          },
+          "value": 8
+        },
+        "hole_kind": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 11 页原文“Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24”",
+            "page": 11
+          },
+          "value": "threaded"
+        },
+        "pcd_mm": {
+          "confidence": 0.45,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 10 页",
+            "page": 10
+          },
+          "value": 32.0
+        },
+        "thread": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 11 页原文“Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24”",
+            "page": 11
+          },
+          "value": "M6"
+        }
+      },
+      "type": "mechanical.flange"
+    },
+    {
+      "dir": "bidir",
+      "frame": {
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "origin_mm": [
+          0,
+          0,
+          38.0
+        ]
+      },
+      "id": "housing_mount",
+      "motion": "stationary",
+      "note": "坐标系按品类约定生成（ADR-0023），布局时核对",
+      "spec": {
+        "hole_count": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 11 页原文“CSF Series 6 6 6 8 12 8 12 12 12 8”",
+            "page": 11
+          },
+          "value": 6
+        },
+        "hole_diameter_mm": {
+          "confidence": 0.5,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 10 页",
+            "page": 10
+          },
+          "value": 5.5
+        },
+        "hole_kind": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 11 页原文“φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14”",
+            "page": 11
+          },
+          "value": "through"
+        },
+        "pcd_mm": {
+          "confidence": 0.5,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-hd-csg-csf-gear-units",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 10 页",
+            "page": 10
+          },
+          "value": 82.0
+        }
+      },
+      "type": "mechanical.flange"
+    }
+  ],
+  "status": "active",
+  "vendor": "Harmonic Drive LLC"
+}

@@ -335,3 +335,1246 @@ confirmations:
   confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
   date: '2026-10-04'
   quote: 6 Straight with key and tap
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-50-2UH
+  target: dims/overall_length_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: C 34 37 38 46 57 66.5 74 85 97 108.5
+  value: 34.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-50-2UH
+  target: ports/input_bore/diameter_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φU H7 6 8 12 14 14 14 19 19 22 24
+  value: 6.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-50-2UH
+  target: ports/input_bore/fit
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φU H7 6 8 12 14 14 14 19 19 22 24
+  value: H7
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-50-2UH
+  target: ports/input_bore/feature
+  page: 10
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 14 and 17 (no keyhole)
+  value: plain
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-50-2UH
+  target: ports/input_bore/clamping
+  page: 10
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 2-M3×4 (Size 14)
+  value: set_screw
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-50-2UH
+  target: ports/output_flange/pcd_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φX 23 27 32 42 55 68 82 84 100 110
+  value: 23.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-50-2UH
+  target: ports/output_flange/hole_count
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Y 6 6 8 8 8 8 8 8 8 8
+  value: 6
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-50-2UH
+  target: ports/output_flange/hole_kind
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24
+  value: threaded
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-50-2UH
+  target: ports/output_flange/thread
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24
+  value: M4
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-50-2UH
+  target: ports/housing_mount/pcd_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φb 65 71 82 96 125 144 164 174 206 236
+  value: 65.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-50-2UH
+  target: ports/housing_mount/hole_count
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: CSF Series 6 6 6 8 12 8 12 12 12 8
+  value: 6
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-50-2UH
+  target: ports/housing_mount/hole_kind
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14
+  value: through
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-50-2UH
+  target: ports/housing_mount/hole_diameter_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14
+  value: 4.5
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-50-2UH
+  target: params/max_input_speed_rpm
+  page: 9
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 14 14000 8500 6500 3500 0.033 0.034
+  value: 8500.0
+  condition: 脂润滑（Grease lubricant）
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-100-2UH
+  target: dims/overall_length_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: C 34 37 38 46 57 66.5 74 85 97 108.5
+  value: 34.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-100-2UH
+  target: ports/input_bore/diameter_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φU H7 6 8 12 14 14 14 19 19 22 24
+  value: 6.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-100-2UH
+  target: ports/input_bore/fit
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φU H7 6 8 12 14 14 14 19 19 22 24
+  value: H7
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-100-2UH
+  target: ports/input_bore/feature
+  page: 10
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 14 and 17 (no keyhole)
+  value: plain
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-100-2UH
+  target: ports/input_bore/clamping
+  page: 10
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 2-M3×4 (Size 14)
+  value: set_screw
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-100-2UH
+  target: ports/output_flange/pcd_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φX 23 27 32 42 55 68 82 84 100 110
+  value: 23.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-100-2UH
+  target: ports/output_flange/hole_count
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Y 6 6 8 8 8 8 8 8 8 8
+  value: 6
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-100-2UH
+  target: ports/output_flange/hole_kind
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24
+  value: threaded
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-100-2UH
+  target: ports/output_flange/thread
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24
+  value: M4
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-100-2UH
+  target: ports/housing_mount/pcd_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φb 65 71 82 96 125 144 164 174 206 236
+  value: 65.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-100-2UH
+  target: ports/housing_mount/hole_count
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: CSF Series 6 6 6 8 12 8 12 12 12 8
+  value: 6
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-100-2UH
+  target: ports/housing_mount/hole_kind
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14
+  value: through
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-100-2UH
+  target: ports/housing_mount/hole_diameter_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14
+  value: 4.5
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-14-100-2UH
+  target: params/max_input_speed_rpm
+  page: 9
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 14 14000 8500 6500 3500 0.033 0.034
+  value: 8500.0
+  condition: 脂润滑（Grease lubricant）
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-50-2UH
+  target: dims/overall_length_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: C 34 37 38 46 57 66.5 74 85 97 108.5
+  value: 37.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-50-2UH
+  target: ports/input_bore/diameter_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φU H7 6 8 12 14 14 14 19 19 22 24
+  value: 8.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-50-2UH
+  target: ports/input_bore/fit
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φU H7 6 8 12 14 14 14 19 19 22 24
+  value: H7
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-50-2UH
+  target: ports/input_bore/feature
+  page: 10
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 14 and 17 (no keyhole)
+  value: plain
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-50-2UH
+  target: ports/input_bore/clamping
+  page: 10
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 2-M3×6 (Size 17)
+  value: set_screw
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-50-2UH
+  target: ports/output_flange/pcd_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φX 23 27 32 42 55 68 82 84 100 110
+  value: 27.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-50-2UH
+  target: ports/output_flange/hole_count
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Y 6 6 8 8 8 8 8 8 8 8
+  value: 6
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-50-2UH
+  target: ports/output_flange/hole_kind
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24
+  value: threaded
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-50-2UH
+  target: ports/output_flange/thread
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24
+  value: M5
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-50-2UH
+  target: ports/housing_mount/pcd_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φb 65 71 82 96 125 144 164 174 206 236
+  value: 71.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-50-2UH
+  target: ports/housing_mount/hole_count
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: CSF Series 6 6 6 8 12 8 12 12 12 8
+  value: 6
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-50-2UH
+  target: ports/housing_mount/hole_kind
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14
+  value: through
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-50-2UH
+  target: ports/housing_mount/hole_diameter_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14
+  value: 4.5
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-50-2UH
+  target: params/max_input_speed_rpm
+  page: 9
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 17 80 22 2.2 43 4.4 27 2.7 87 8.9 10000 7300 6500 3500 0.079 0.081
+  value: 7300.0
+  condition: 脂润滑（Grease lubricant）
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-100-2UH
+  target: dims/overall_length_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: C 34 37 38 46 57 66.5 74 85 97 108.5
+  value: 37.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-100-2UH
+  target: ports/input_bore/diameter_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φU H7 6 8 12 14 14 14 19 19 22 24
+  value: 8.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-100-2UH
+  target: ports/input_bore/fit
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φU H7 6 8 12 14 14 14 19 19 22 24
+  value: H7
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-100-2UH
+  target: ports/input_bore/feature
+  page: 10
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 14 and 17 (no keyhole)
+  value: plain
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-100-2UH
+  target: ports/input_bore/clamping
+  page: 10
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 2-M3×6 (Size 17)
+  value: set_screw
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-100-2UH
+  target: ports/output_flange/pcd_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φX 23 27 32 42 55 68 82 84 100 110
+  value: 27.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-100-2UH
+  target: ports/output_flange/hole_count
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Y 6 6 8 8 8 8 8 8 8 8
+  value: 6
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-100-2UH
+  target: ports/output_flange/hole_kind
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24
+  value: threaded
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-100-2UH
+  target: ports/output_flange/thread
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24
+  value: M5
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-100-2UH
+  target: ports/housing_mount/pcd_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φb 65 71 82 96 125 144 164 174 206 236
+  value: 71.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-100-2UH
+  target: ports/housing_mount/hole_count
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: CSF Series 6 6 6 8 12 8 12 12 12 8
+  value: 6
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-100-2UH
+  target: ports/housing_mount/hole_kind
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14
+  value: through
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-100-2UH
+  target: ports/housing_mount/hole_diameter_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14
+  value: 4.5
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-17-100-2UH
+  target: params/max_input_speed_rpm
+  page: 9
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 17 80 22 2.2 43 4.4 27 2.7 87 8.9 10000 7300 6500 3500 0.079 0.081
+  value: 7300.0
+  condition: 脂润滑（Grease lubricant）
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-50-2UH
+  target: dims/overall_length_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: C 34 37 38 46 57 66.5 74 85 97 108.5
+  value: 38.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-50-2UH
+  target: ports/input_bore/diameter_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φU H7 6 8 12 14 14 14 19 19 22 24
+  value: 12.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-50-2UH
+  target: ports/input_bore/fit
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φU H7 6 8 12 14 14 14 19 19 22 24
+  value: H7
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-50-2UH
+  target: ports/input_bore/feature
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: W Js9 - - 4 5 5 5 6 6 6 8
+  value: keyed
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-50-2UH
+  target: ports/input_bore/clamping
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: W Js9 - - 4 5 5 5 6 6 6 8
+  value: key
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-50-2UH
+  target: ports/output_flange/pcd_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φX 23 27 32 42 55 68 82 84 100 110
+  value: 32.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-50-2UH
+  target: ports/output_flange/hole_count
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Y 6 6 8 8 8 8 8 8 8 8
+  value: 8
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-50-2UH
+  target: ports/output_flange/hole_kind
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24
+  value: threaded
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-50-2UH
+  target: ports/output_flange/thread
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24
+  value: M6
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-50-2UH
+  target: ports/housing_mount/pcd_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φb 65 71 82 96 125 144 164 174 206 236
+  value: 82.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-50-2UH
+  target: ports/housing_mount/hole_count
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: CSF Series 6 6 6 8 12 8 12 12 12 8
+  value: 6
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-50-2UH
+  target: ports/housing_mount/hole_kind
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14
+  value: through
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-50-2UH
+  target: ports/housing_mount/hole_diameter_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14
+  value: 5.5
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-50-2UH
+  target: params/max_input_speed_rpm
+  page: 9
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 20 10000 6500 6500 3500 0.193 0.197
+  value: 6500.0
+  condition: 脂润滑（Grease lubricant）
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-100-2UH
+  target: dims/overall_length_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: C 34 37 38 46 57 66.5 74 85 97 108.5
+  value: 38.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-100-2UH
+  target: ports/input_bore/diameter_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φU H7 6 8 12 14 14 14 19 19 22 24
+  value: 12.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-100-2UH
+  target: ports/input_bore/fit
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φU H7 6 8 12 14 14 14 19 19 22 24
+  value: H7
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-100-2UH
+  target: ports/input_bore/feature
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: W Js9 - - 4 5 5 5 6 6 6 8
+  value: keyed
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-100-2UH
+  target: ports/input_bore/clamping
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: W Js9 - - 4 5 5 5 6 6 6 8
+  value: key
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-100-2UH
+  target: ports/output_flange/pcd_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φX 23 27 32 42 55 68 82 84 100 110
+  value: 32.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-100-2UH
+  target: ports/output_flange/hole_count
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Y 6 6 8 8 8 8 8 8 8 8
+  value: 8
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-100-2UH
+  target: ports/output_flange/hole_kind
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24
+  value: threaded
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-100-2UH
+  target: ports/output_flange/thread
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24
+  value: M6
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-100-2UH
+  target: ports/housing_mount/pcd_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φb 65 71 82 96 125 144 164 174 206 236
+  value: 82.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-100-2UH
+  target: ports/housing_mount/hole_count
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: CSF Series 6 6 6 8 12 8 12 12 12 8
+  value: 6
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-100-2UH
+  target: ports/housing_mount/hole_kind
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14
+  value: through
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-100-2UH
+  target: ports/housing_mount/hole_diameter_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14
+  value: 5.5
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-100-2UH
+  target: params/max_input_speed_rpm
+  page: 9
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 20 10000 6500 6500 3500 0.193 0.197
+  value: 6500.0
+  condition: 脂润滑（Grease lubricant）
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-32-100-2UH
+  target: dims/overall_length_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: C 34 37 38 46 57 66.5 74 85 97 108.5
+  value: 57.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-32-100-2UH
+  target: ports/input_bore/diameter_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φU H7 6 8 12 14 14 14 19 19 22 24
+  value: 14.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-32-100-2UH
+  target: ports/input_bore/fit
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φU H7 6 8 12 14 14 14 19 19 22 24
+  value: H7
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-32-100-2UH
+  target: ports/input_bore/feature
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: W Js9 - - 4 5 5 5 6 6 6 8
+  value: keyed
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-32-100-2UH
+  target: ports/input_bore/clamping
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: W Js9 - - 4 5 5 5 6 6 6 8
+  value: key
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-32-100-2UH
+  target: ports/output_flange/pcd_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φX 23 27 32 42 55 68 82 84 100 110
+  value: 55.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-32-100-2UH
+  target: ports/output_flange/hole_count
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Y 6 6 8 8 8 8 8 8 8 8
+  value: 8
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-32-100-2UH
+  target: ports/output_flange/hole_kind
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24
+  value: threaded
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-32-100-2UH
+  target: ports/output_flange/thread
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Z M4×8 M5×10 M6×9 M8×12 M10×15 M10×15 M12×18 M14×21 M16×24 M16×24
+  value: M10
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-32-100-2UH
+  target: ports/housing_mount/pcd_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φb 65 71 82 96 125 144 164 174 206 236
+  value: 125.0
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-32-100-2UH
+  target: ports/housing_mount/hole_count
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: CSF Series 6 6 6 8 12 8 12 12 12 8
+  value: 12
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-32-100-2UH
+  target: ports/housing_mount/hole_kind
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14
+  value: through
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-32-100-2UH
+  target: ports/housing_mount/hole_diameter_mm
+  page: 11
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: φd 4.5 4.5 5.5 5.5 6.6 9 9 9 11 14
+  value: 6.6
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-32-100-2UH
+  target: params/max_input_speed_rpm
+  page: 9
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 32 7000 4800 4600 3500 1.69 1.72
+  value: 4800.0
+  condition: 脂润滑（Grease lubricant）
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: ports/power_in/current_type
+  value: ac
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: ports/power_in/voltage_v
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz
+  min: 200.0
+  max: 240.0
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: ports/power_in/phases
+  value: 3
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Three-Phase, 200 VAC
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: ports/bus/protocol
+  value: ethercat
+  page: 69
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 'Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: ports/mount/pitch_y_mm
+  value: 160.0
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: ports/mount/hole_count
+  value: 2
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 1R6A 168 5 160 ±0.5 45 35 − 25 − M4 2
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: dims/width_mm
+  value: 45.0
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: dims/height_mm
+  value: 168.0
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: dims/depth_mm
+  value: 140.0
+  page: 79
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 2 × M4 45 (75) 140
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: ports/motor_out/voltage_class_v
+  value: 200.0
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Three-Phase, 200 VAC
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: ports/encoder_in/protocol
+  value: vendor_proprietary
+  page: 67
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 'Serial encoder: 20 bits or 24 bits (incremental encoder/absolute'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: ports/encoder_in/kind
+  value: absolute
+  page: 67
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 'Serial encoder: 20 bits or 24 bits (incremental encoder/absolute'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: ports/encoder_in/vendor
+  value: Yaskawa
+  page: 67
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 'Serial encoder: 20 bits or 24 bits (incremental encoder/absolute'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: ports/mount/pattern
+  value: rect
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: ports/mount/pitch_x_mm
+  value: 10.0
+  page: 79
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 25 10 ±0.5 (mounting pitch)
+  tol_upper: 0.5
+  tol_lower: -0.5
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: ports/mount/thread
+  value: M4
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: ports/motor_out/rated_current_a
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6 18.5
+    19.6 32.9
+  value: 0.66
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: ports/motor_out/peak_current_a
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 11 16.9 17 28
+    42 56 84
+  value: 2.1
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: ports/power_in/current_type
+  value: ac
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: ports/power_in/voltage_v
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz
+  min: 200.0
+  max: 240.0
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: ports/power_in/phases
+  value: 3
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Three-Phase, 200 VAC
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: ports/bus/protocol
+  value: ethercat
+  page: 69
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 'Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: ports/mount/pitch_y_mm
+  value: 160.0
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: ports/mount/hole_count
+  value: 2
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 1R6A 168 5 160 ±0.5 45 35 − 25 − M4 2
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: dims/width_mm
+  value: 45.0
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: dims/height_mm
+  value: 168.0
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: dims/depth_mm
+  value: 140.0
+  page: 79
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 2 × M4 45 (75) 140
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: ports/motor_out/voltage_class_v
+  value: 200.0
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Three-Phase, 200 VAC
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: ports/encoder_in/protocol
+  value: vendor_proprietary
+  page: 67
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 'Serial encoder: 20 bits or 24 bits (incremental encoder/absolute'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: ports/encoder_in/kind
+  value: absolute
+  page: 67
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 'Serial encoder: 20 bits or 24 bits (incremental encoder/absolute'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: ports/encoder_in/vendor
+  value: Yaskawa
+  page: 67
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 'Serial encoder: 20 bits or 24 bits (incremental encoder/absolute'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: ports/mount/pattern
+  value: rect
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: ports/mount/pitch_x_mm
+  value: 10.0
+  page: 79
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 25 10 ±0.5 (mounting pitch)
+  tol_upper: 0.5
+  tol_lower: -0.5
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: ports/mount/thread
+  value: M4
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: ports/motor_out/rated_current_a
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6 18.5
+    19.6 32.9
+  value: 0.91
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: ports/motor_out/peak_current_a
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 11 16.9 17 28
+    42 56 84
+  value: 3.2
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: ports/power_in/current_type
+  value: ac
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: ports/power_in/voltage_v
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz
+  min: 200.0
+  max: 240.0
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: ports/power_in/phases
+  value: 3
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Three-Phase, 200 VAC
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: ports/bus/protocol
+  value: ethercat
+  page: 69
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 'Connectors CN6B (RJ45): ETHERCAT OUT (EtherCAT signal output connector)'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: ports/mount/pitch_y_mm
+  value: 160.0
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | 2R8A, R70F, R90F, 2R1F | 168 | 5 | 160 ±0.5 | 45 | 5 | − | 25 | − |
+    M4 |  |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: ports/mount/hole_count
+  value: 2
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 2R8A, R70F, 168 5 160 ±0.5 45 5 − 25 − M4 2
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: dims/width_mm
+  value: 45.0
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | 2R8A, R70F, R90F, 2R1F | 168 | 5 | 160 ±0.5 | 45 | 5 | − | 25 | − |
+    M4 |  |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: dims/height_mm
+  value: 168.0
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | 2R8A, R70F, R90F, 2R1F | 168 | 5 | 160 ±0.5 | 45 | 5 | − | 25 | − |
+    M4 |  |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: dims/depth_mm
+  value: 170.0
+  page: 80
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 2×M4 45 (75) 170
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: ports/motor_out/voltage_class_v
+  value: 200.0
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Three-Phase, 200 VAC
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: ports/encoder_in/protocol
+  value: vendor_proprietary
+  page: 67
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 'Serial encoder: 20 bits or 24 bits (incremental encoder/absolute'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: ports/encoder_in/kind
+  value: absolute
+  page: 67
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 'Serial encoder: 20 bits or 24 bits (incremental encoder/absolute'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: ports/encoder_in/vendor
+  value: Yaskawa
+  page: 67
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 'Serial encoder: 20 bits or 24 bits (incremental encoder/absolute'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: ports/mount/pattern
+  value: rect
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | 2R8A, R70F, R90F, 2R1F | 168 | 5 | 160 ±0.5 | 45 | 5 | − | 25 | − |
+    M4 |  |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: ports/mount/pitch_x_mm
+  value: 20.0
+  page: 80
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 5 20 ±0.5 (mounting pitch)
+  tol_upper: 0.5
+  tol_lower: -0.5
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: ports/mount/thread
+  value: M4
+  page: 90
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: '|  | 2R8A, R70F, R90F, 2R1F | 168 | 5 | 160 ±0.5 | 45 | 5 | − | 25 | − |
+    M4 |  |'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: ports/motor_out/rated_current_a
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Continuous Output Current [Arms] 0.66 0.91 1.6 2.8 3.8 5.5 7.6 11.6 18.5
+    19.6 32.9
+  value: 2.8
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: ports/motor_out/peak_current_a
+  page: 62
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: Instantaneous Maximum Output Current [Arms] 2.1 3.2 5.9 9.3 11 16.9 17 28
+    42 56 84
+  value: 9.3

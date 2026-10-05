@@ -1,10 +1,24 @@
 {
   "agreed": [
     "dims/outer_diameter_mm",
+    "dims/overall_length_mm",
+    "params/max_input_speed_rpm",
     "params/momentary_max_torque_nm",
     "params/rated_torque_nm",
     "params/ratio",
-    "params/repeated_peak_torque_nm"
+    "params/repeated_peak_torque_nm",
+    "ports/housing_mount/hole_count",
+    "ports/housing_mount/hole_diameter_mm",
+    "ports/housing_mount/hole_kind",
+    "ports/housing_mount/pcd_mm",
+    "ports/input_bore/clamping",
+    "ports/input_bore/diameter_mm",
+    "ports/input_bore/feature",
+    "ports/input_bore/fit",
+    "ports/output_flange/hole_count",
+    "ports/output_flange/hole_kind",
+    "ports/output_flange/pcd_mm",
+    "ports/output_flange/thread"
   ],
   "pending": [
     {
@@ -13,66 +27,28 @@
         "value": 0.52
       },
       "reason": "只有复核抽取报出"
-    },
-    {
-      "target": "ports/housing_mount/hole_diameter_mm",
-      "primary": {
-        "value": 4.5
-      },
-      "reason": "只有主抽取报出"
-    },
-    {
-      "target": "ports/housing_mount/pcd_mm",
-      "primary": {
-        "value": 65.0
-      },
-      "reason": "只有主抽取报出"
-    },
-    {
-      "target": "ports/input_bore/diameter_mm",
-      "check": {
-        "value": 6.0
-      },
-      "reason": "只有复核抽取报出"
-    },
-    {
-      "target": "ports/output_flange/hole_count",
-      "check": {
-        "value": 6
-      },
-      "reason": "只有复核抽取报出"
-    },
-    {
-      "target": "ports/output_flange/hole_kind",
-      "check": {
-        "value": "threaded"
-      },
-      "reason": "只有复核抽取报出"
-    },
-    {
-      "target": "ports/output_flange/pcd_mm",
-      "check": {
-        "value": 23.0
-      },
-      "reason": "只有复核抽取报出"
-    },
-    {
-      "target": "ports/output_flange/thread",
-      "check": {
-        "value": "M4"
-      },
-      "reason": "只有复核抽取报出"
     }
   ],
-  "problems": [
-    "端口 output_flange 的坐标系需要轴伸或总长，请补字段",
-    "端口 housing_mount 的类型无法由已给字段判断（mechanical.flange / mechanical.mount_face），请补字段",
-    "包络缺少 dims/overall_length_mm"
-  ],
+  "problems": [],
   "notes": [
+    "dims/overall_length_mm = 34.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "ports/input_bore/diameter_mm = 6.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
+    "ports/input_bore/fit = H7 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "ports/input_bore/feature = plain 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "ports/input_bore/clamping = set_screw 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "ports/output_flange/pcd_mm = 23.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
+    "ports/output_flange/hole_count = 6 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
+    "ports/output_flange/hole_kind = threaded 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
+    "ports/output_flange/thread = M4 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
+    "ports/housing_mount/pcd_mm = 65.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
+    "ports/housing_mount/hole_count = 6 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "ports/housing_mount/hole_kind = through 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "ports/housing_mount/hole_diameter_mm = 4.5 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
+    "params/max_input_speed_rpm = 8500.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
     "端口 motor_flange 由厂商目录不规定，按 configurable 输出：Harmonic Drive CSF-2UH 整机型的电机安装法兰按所配电机定制，目录不规定孔位（ADR-0045）"
   ],
   "reviewer": "claude（AI 复核）",
   "primary_model": "claude-sonnet-5-5",
-  "check_model": "claude-opus-5-5"
+  "check_model": "claude-opus-5-5",
+  "component": "reducer.harmonic-drive-llc.csf-14-100-2uh"
 }

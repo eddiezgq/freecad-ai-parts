@@ -1,0 +1,273 @@
+{
+  "category": "drive",
+  "envelope": {
+    "parts": [
+      {
+        "height_mm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 90 页原文“|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |”",
+            "page": 90
+          },
+          "value": 168.0
+        },
+        "label": "body",
+        "length_mm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 79 页原文“2 × M4 45 (75) 140”",
+            "page": 79
+          },
+          "value": 140.0
+        },
+        "shape": "box",
+        "width_mm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 90 页原文“|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |”",
+            "page": 90
+          },
+          "value": 45.0
+        },
+        "z_start_mm": 0
+      }
+    ]
+  },
+  "id": "drive.yaskawa-america-inc.sgd7s-r90a",
+  "license": "params-only",
+  "model": "SGD7S-R90A",
+  "note": "参数取自厂商公开资料 src-yaskawa-sgd7s-ethercat-manual（ADR-0040），经两次独立抽取比对一致（claude（AI 复核））；不一致的项未收录，见 data/review/",
+  "params": {},
+  "ports": [
+    {
+      "dir": "in",
+      "id": "power_in",
+      "spec": {
+        "current_type": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 62 页原文“Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz”",
+            "page": 62
+          },
+          "value": "ac"
+        },
+        "phases": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 62 页原文“Three-Phase, 200 VAC”",
+            "page": 62
+          },
+          "value": 3
+        },
+        "voltage_v": {
+          "confidence": 1,
+          "max": 240.0,
+          "method": "manual",
+          "min": 200.0,
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 62 页原文“Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz”",
+            "page": 62
+          }
+        }
+      },
+      "type": "electrical.power_supply"
+    },
+    {
+      "dir": "out",
+      "id": "motor_out",
+      "spec": {
+        "peak_current_a": {
+          "confidence": 0.8,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 63
+          },
+          "value": 3.2
+        },
+        "rated_current_a": {
+          "confidence": 0.8,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 63
+          },
+          "value": 0.91
+        },
+        "voltage_class_v": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 62 页原文“Three-Phase, 200 VAC”",
+            "page": 62
+          },
+          "value": 200.0
+        }
+      },
+      "type": "electrical.motor_power"
+    },
+    {
+      "dir": "in",
+      "id": "encoder_in",
+      "spec": {
+        "kind": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 67 页原文“Serial encoder: 20 bits or 24 bits (incremental encoder/absolute”",
+            "page": 67
+          },
+          "value": "absolute"
+        },
+        "protocol": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 67 页原文“Serial encoder: 20 bits or 24 bits (incremental encoder/absolute”",
+            "page": 67
+          },
+          "value": "vendor_proprietary"
+        },
+        "vendor": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 67 页原文“Serial encoder: 20 bits or 24 bits (incremental encoder/absolute”",
+            "page": 67
+          },
+          "value": "Yaskawa"
+        }
+      },
+      "type": "signal.encoder"
+    },
+    {
+      "dir": "bidir",
+      "id": "bus",
+      "spec": {
+        "protocol": {
+          "confidence": 0.9,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 69 页",
+            "page": 69
+          },
+          "value": "ethercat"
+        }
+      },
+      "type": "signal.fieldbus"
+    },
+    {
+      "dir": "bidir",
+      "frame": {
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "origin_mm": [
+          0,
+          0,
+          0
+        ]
+      },
+      "id": "mount",
+      "motion": "stationary",
+      "note": "坐标系按品类约定生成（ADR-0023），布局时核对",
+      "spec": {
+        "hole_count": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 90 页原文“1R6A 168 5 160 ±0.5 45 35 − 25 − M4 2”",
+            "page": 90
+          },
+          "value": 2
+        },
+        "pattern": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 90 页原文“|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |”",
+            "page": 90
+          },
+          "value": "rect"
+        },
+        "pitch_x_mm": {
+          "confidence": 1,
+          "method": "manual",
+          "nominal": 10.0,
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 79 页原文“25 10 ±0.5 (mounting pitch)”",
+            "page": 79
+          },
+          "tol_lower": -0.5,
+          "tol_upper": 0.5
+        },
+        "pitch_y_mm": {
+          "confidence": 0.6,
+          "method": "extracted",
+          "nominal": 160.0,
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 90 页",
+            "page": 90
+          },
+          "tol_lower": -0.5,
+          "tol_upper": 0.5
+        },
+        "thread": {
+          "confidence": 0.8,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgd7s-ethercat-manual",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 90 页",
+            "page": 90
+          },
+          "value": "M4"
+        }
+      },
+      "type": "mechanical.mount_face"
+    }
+  ],
+  "status": "active",
+  "vendor": "Yaskawa America, Inc."
+}
