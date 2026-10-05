@@ -299,7 +299,9 @@ def test_real_bridge_end_to_end(gui, tmp_path, monkeypatch):
         out = _in_thread(gui, agent)
         assert out[2]["view"] == "已同步到 FreeCAD" and out[3]["ok"] is True
         doc = FreeCAD.getDocument("FapLayout")
-        assert sorted(o.Name for o in doc.Objects) == ["motor", "reducer"]
+        parts = sorted(o.Name for o in doc.Objects if getattr(o, "FapComponent", None))  # 实例零件（ADR-0048）
+        assert parts == ["motor", "reducer"]
+        assert doc.getObject("motor").FapComponent == MOTOR and doc.getObject("motor__mount_flange").FapPort == "mount_flange"
         assert doc.getObject("reducer").Shape.Placement.Base.z == pytest.approx(20)
     finally:
         bridge.stop()

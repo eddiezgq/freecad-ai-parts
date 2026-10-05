@@ -67,3 +67,30 @@ def test_browse_filter_detail_and_place(gui):
     finally:
         dock.close()
         host.tools.close()
+
+
+@pytest.mark.freecad
+def test_document_groups_instances_with_port_markers_on_their_frames(gui):
+    import FreeCAD
+
+    from freecad_addon.core.scene import Scene
+    from freecad_addon.fc import snapshot
+
+    s = Scene()
+    s.place("motor", REAL.get("servo_motor.yaskawa-electric-corporation.sgm7j-02a-6"))
+    s.place("reducer", REAL.get("reducer.harmonic-drive-llc.csf-25-100-2uh"))
+    s.connect("motor.shaft", "reducer.input_bore")
+    doc = snapshot.build_document(s)
+    group = doc.getObject("reducer_group")
+    names = {o.Name for o in group.Group}
+    assert {"reducer", "reducer__input_bore", "reducer__output_flange", "reducer__motor_flange"} <= names
+    part = doc.getObject("reducer")
+    assert part.FapComponent == "reducer.harmonic-drive-llc.csf-25-100-2uh" and part.FapCategory == "reducer"
+    mk = doc.getObject("reducer__output_flange")
+    assert mk.Label == "reducer.output_flange" and mk.FapPortType == "mechanical.flange"
+    assert doc.getObject("motor__shaft").FapConnected == "是" and mk.FapConnected == "否"
+    # 标记圆盘中心在端口坐标系原点
+    _, origin, _ = s.port_world("reducer.output_flange")
+    c = mk.Shape.Solids[0].CenterOfMass  # 圆盘
+    assert (c.x, c.y) == pytest.approx(tuple(origin[:2]), abs=1e-6) and abs(c.z - origin[2]) < 1.0
+    FreeCAD.closeDocument(doc.Name)

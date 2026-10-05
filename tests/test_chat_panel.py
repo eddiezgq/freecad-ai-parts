@@ -305,7 +305,9 @@ def test_panel_conversation_lays_out_in_freecad(gui):
             assert word in text
         assert "→ 无干涉" in text and "→ 已配合 motor.mount_flange ↔ reducer.motor_flange" in text
         doc = FreeCAD.getDocument("FapLayout")  # 布局实时显示在当前 FreeCAD 中
-        assert sorted(o.Name for o in doc.Objects) == ["motor", "reducer"]
+        parts = sorted(o.Name for o in doc.Objects if getattr(o, "FapComponent", None))  # 实例零件（ADR-0048）
+        assert parts == ["motor", "reducer"]
+        assert doc.getObject("motor").FapComponent == MOTOR and doc.getObject("motor__mount_flange").FapPort == "mount_flange"
         assert doc.getObject("reducer").Shape.Placement.Base.z == pytest.approx(20)
         import re
 
