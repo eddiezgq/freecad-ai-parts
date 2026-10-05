@@ -25,6 +25,7 @@
 
 问渠 WenQuest
 张国庆
+parts@wenquestrobotics.com
 https://wenquestrobotics.com
 
 ## English
@@ -50,6 +51,7 @@ If you prefer not to take part, a one-line reply is enough and we will not conta
 
 WenQuest
 Guoqing (Eddie) Zhang
+parts@wenquestrobotics.com
 https://wenquestrobotics.com
 
 ## 跟进（首封后不早于 7 天，只发一次）
