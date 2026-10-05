@@ -125,8 +125,9 @@ class LibraryBrowser(QtWidgets.QDockWidget):
     # ------------------------------------------------------------ 放入布局
 
     def _on_scene(self, name: str, info: dict) -> None:
-        if name == "place_component":
-            self.instances.add(info["args"]["instance"])
+        layout = (info.get("result") or {}).get("layout")
+        if layout is not None:  # 人或 AI 放入、删除实例后，按当前布局更新已有实例名
+            self.instances = {i["instance"] for i in layout.get("instances", [])}
 
     def place_selected(self) -> str | None:
         row = self.selected()

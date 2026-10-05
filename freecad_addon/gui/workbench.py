@@ -56,6 +56,52 @@ class LibraryBrowserCommand:
         return True
 
 
+class CheckPanelCommand:
+    """校验窗口（ADR-0048）：场景每次改动后自动校验，接口标记按结论着色。"""
+
+    def GetResources(self):
+        return {"MenuText": "校验", "ToolTip": "装配即校验：逐项列出结论；接口标记按结论着色（红不通过、黄待确认、绿通过）"}
+
+    def Activated(self):
+        _check_panel(show=True)
+
+    def IsActive(self):
+        return True
+
+
+def _check_panel(show: bool = False):
+    from PySide import QtCore
+
+    from freecad_addon.gui.check_panel import CheckPanel
+
+    dock = _state.get("checks")
+    if dock is None:
+        dock = CheckPanel(parent=_main_window())
+        _main_window().addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
+        _state["checks"] = dock
+    if show:
+        dock.show()
+        dock.raise_()
+    return dock
+
+
+class ConnectPortsCommand:
+    """连接接口（ADR-0048）：选两个接口标记，按端口坐标系对接；与 AI 用同一个 connect_ports。"""
+
+    def GetResources(self):
+        return {"MenuText": "连接接口", "ToolTip": "在 3D 视图中按住 Ctrl 选两个接口标记（先选的不动），对接这两个接口"}
+
+    def Activated(self):
+        from freecad_addon.gui.check_panel import PortConnector
+
+        _check_panel(show=True)  # 连接后的结论显示在校验窗口
+        conn = _state.setdefault("connector", PortConnector())
+        conn.connect_selected()
+
+    def IsActive(self):
+        return True
+
+
 class BridgeCommand:
     def GetResources(self):
         return {"MenuText": "启用 / 停止桥接",
@@ -122,11 +168,14 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
     def Initialize(self):
         FreeCADGui.addCommand("FAP_ChatPanel", ChatPanelCommand())
         FreeCADGui.addCommand("FAP_Browser", LibraryBrowserCommand())
+        FreeCADGui.addCommand("FAP_Connect", ConnectPortsCommand())
+        FreeCADGui.addCommand("FAP_Checks", CheckPanelCommand())
         FreeCADGui.addCommand("FAP_Bridge", BridgeCommand())
         FreeCADGui.addCommand("FAP_Record", RecordCommand())
         FreeCADGui.addCommand("FAP_RecordVideo", RecordVideoCommand())
-        self.appendToolbar("AI Parts", ["FAP_ChatPanel", "FAP_Browser", "FAP_Bridge", "FAP_Record"])
-        self.appendMenu("AI Parts", ["FAP_ChatPanel", "FAP_Browser", "FAP_Bridge", "FAP_Record", "FAP_RecordVideo"])
+        tools = ["FAP_ChatPanel", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bridge", "FAP_Record"]
+        self.appendToolbar("AI Parts", tools)
+        self.appendMenu("AI Parts", [*tools, "FAP_RecordVideo"])
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"

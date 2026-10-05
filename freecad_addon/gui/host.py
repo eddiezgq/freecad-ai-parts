@@ -27,7 +27,7 @@ class ToolsHost:
         self._factory = library_factory
         self.executor = MainThreadExecutor()
         self.tools = InProcessTools(create_server(self.library, lambda: InProcessBackend(self.executor)))
-        self.listeners: list[Callable[[str, dict], None]] = []  # 场景改动后通知（浏览器、校验窗口）
+        self.listeners: list[Callable[[str, dict], None]] = []  # 工具调用成功后通知（浏览器、校验窗口），在调用线程中
 
     def library(self):
         if self._lib is None:
@@ -35,14 +35,15 @@ class ToolsHost:
         return self._lib
 
     def call(self, name: str, args: dict, source: str = "user"):
-        """调用工具；改动场景的工具调用后通知监听者。source 标明来自用户还是 AI（ADR-0042）。
+        """调用工具；成功后通知监听者 fn(工具名, {args, source, result})。source 标明来自用户还是 AI（ADR-0042）。
         不能在界面（主）线程调用，否则与主线程执行器互等；界面上请用 call_in_background。"""
         if threading.current_thread() is self.executor._thread:
             raise RuntimeError("不能在界面线程直接调用工具，请用 call_in_background")
         out = self.tools.call(name, args)
-        if not out.is_error and name in SCENE_TOOLS:
+        if not out.is_error:
+            info = {"args": args, "source": source, "result": _parse(out)}
             for fn in list(self.listeners):
-                fn(name, {"args": args, "source": source})
+                fn(name, info)
         return out
 
     def call_in_background(self, name: str, args: dict, done: Callable, source: str = "user") -> None:
@@ -58,7 +59,21 @@ class ToolsHost:
         threading.Thread(target=work, name=f"fap-{name}", daemon=True).start()
 
 
-SCENE_TOOLS = {"place_component", "connect_ports"}
+SCENE_TOOLS = {"place_component", "connect_ports"}  # 返回结果中带当前布局（layout）的工具
+
+
+def _parse(out) -> dict | None:
+    """工具结果的 JSON 文本解析为字典；不是 JSON 时返回 None。"""
+    import json
+
+    for text in getattr(out, "texts", []):
+        try:
+            data = json.loads(text)
+        except (TypeError, ValueError):
+            continue
+        if isinstance(data, dict):
+            return data
+    return None
 
 _lock = threading.Lock()
 _host: ToolsHost | None = None

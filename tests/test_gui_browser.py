@@ -94,3 +94,48 @@ def test_document_groups_instances_with_port_markers_on_their_frames(gui):
     c = mk.Shape.Solids[0].CenterOfMass  # 圆盘
     assert (c.x, c.y) == pytest.approx(tuple(origin[:2]), abs=1e-6) and abs(c.z - origin[2]) < 1.0
     FreeCAD.closeDocument(doc.Name)
+
+
+@pytest.mark.freecad
+def test_manual_assembly_connect_and_live_check(gui):
+    """ADR-0048 第 5 条：人选两个接口标记连接，校验窗口自动校验并着色；与 AI 用同一场景与工具。"""
+    import FreeCAD
+    import FreeCADGui
+
+    from freecad_addon.core import live_check
+    from freecad_addon.gui.check_panel import CheckPanel, PortConnector
+    from freecad_addon.gui.host import ToolsHost
+
+    host = ToolsHost(lambda: REAL, note="组件库：真实厂商组件（测试）")
+    panel, conn = CheckPanel(host=host), PortConnector(host)
+    try:
+        assert panel.result["mode"] == "empty"
+        box = []
+        for n, (inst, cid) in enumerate((("motor", "servo_motor.yaskawa-electric-corporation.sgm7j-02a"),
+                                         ("reducer", "reducer.harmonic-drive-llc.csf-25-100-2uh")), start=1):
+            host.call_in_background("place_component", {"instance": inst, "component_id": cid}, box.append)
+            _pump_until(gui, lambda n=n: len(box) == n)
+        _pump_until(gui, lambda: len(panel.layout_state["instances"]) == 2 and panel.result["mode"] == "interface")
+        FreeCADGui.Selection.clearSelection()
+        assert conn.connect_selected() is False and "选两个接口标记" in conn.last  # 没选就提示
+        doc = FreeCAD.getDocument("FapLayout")
+        FreeCADGui.Selection.addSelection(doc.getObject("motor__shaft"))
+        FreeCADGui.Selection.addSelection(doc.getObject("reducer__input_bore"))
+        assert conn.selected_refs() == ["motor.shaft", "reducer.input_bore"]
+        assert conn.connect_selected() is True
+        _pump_until(gui, lambda: conn.last.startswith("已连接") or conn.last.startswith("没有连接"))
+        assert conn.last == "已连接 motor.shaft ↔ reducer.input_bore"
+        _pump_until(gui, lambda: panel.layout_state["connections"])
+        r = panel.result
+        assert r["mode"] == "interface" and r["overall"] == "fail"  # 光轴配键槽孔
+        assert r["ports"]["motor.shaft"] == "fail"
+        gdoc = FreeCADGui.getDocument("FapLayout")
+        assert tuple(gdoc.getObject("motor__shaft").ShapeColor[:3]) == pytest.approx(live_check.STATUS_COLORS["fail"], abs=0.01)
+        assert "C2 圆柱配合：不通过" in panel.report.toPlainText()
+        # 填需求后按需求校验全部 11 项
+        panel.inputs["output_torque_cont_nm"].setText("25")
+        panel.inputs["output_speed_rpm"].setText("30")
+        assert panel.apply_form() and panel.result["mode"] == "full"
+    finally:
+        panel.close()
+        host.tools.close()
