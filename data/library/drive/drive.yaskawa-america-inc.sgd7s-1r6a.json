@@ -77,14 +77,15 @@
         },
         "voltage_v": {
           "confidence": 1,
+          "max": 240.0,
           "method": "manual",
+          "min": 200.0,
           "reviewed": true,
           "source": {
             "doc": "src-yaskawa-sgd7s-ethercat-manual",
-            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 62 页",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 62 页原文“Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz”",
             "page": 62
-          },
-          "value": 200.0
+          }
         }
       },
       "type": "electrical.power_supply"

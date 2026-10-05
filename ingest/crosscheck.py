@@ -94,6 +94,7 @@ def apply_confirmations(primary: dict, check: dict, cmp: dict, confirms: list[di
       它印出的文字中，页码一致
     - 录入：没有任何抽取读到时，由人对照规格书填写，须给出页码与照抄的原文 quote
     - 给出 tol_upper / tol_lower 时按名义值加公差记录
+    - 只给 min、max 时为范围值，只能人工录入；可附 condition（工况，如润滑方式）
     确认或录入的值记为 reviewed，来源注明确认人与日期。返回说明。
     """
     from ingest.units import to_standard
@@ -104,12 +105,15 @@ def apply_confirmations(primary: dict, check: dict, cmp: dict, confirms: list[di
         if c.get("doc") != doc or c.get("model") != model or c.get("target") in cmp["agreed"]:
             continue
         t, v, who, day = c.get("target"), c.get("value"), c.get("confirmed_by"), c.get("date")
+        rng = _range(c)
+        if rng is not None:
+            v = f"{rng[0]:g}–{rng[1]:g}"  # 范围只能人工录入（须给页码与原文），见 ADR-0046 第 5 条
         if not (isinstance(t, str) and isinstance(v, (int, float, str)) and not isinstance(v, bool) and who and day):
             notes.append(f"人工确认写法不全，未采用：{c}")
             continue
         field = t.rsplit("/", 1)[-1]
         pv = None
-        for ext in (primary, check):
+        for ext in (primary, check) if rng is None else ():
             for it in ext["items"]:
                 got = it["value"].get("value", it["value"].get("nominal"))
                 same = (got == v) if isinstance(v, str) else (
@@ -132,6 +136,9 @@ def apply_confirmations(primary: dict, check: dict, cmp: dict, confirms: list[di
         manual = pv is None and isinstance(c.get("page"), int) and isinstance(quote, str) and quote.strip()
         if manual:
             pv = {"value": v, "source": {"doc": doc, "page": c["page"]}, "method": "manual", "confidence": 1}
+            if rng is not None:
+                pv.pop("value")
+                pv.update(min=rng[0], max=rng[1])
         if pv is None:
             notes.append(f"{t} 的人工确认值 {v} 不是任何一次抽取在该页读到的数，也没有给出页码与原文，未采用")
             continue
@@ -141,6 +148,8 @@ def apply_confirmations(primary: dict, check: dict, cmp: dict, confirms: list[di
                 pv.pop(k, None)
             pv.update(nominal=v, tol_upper=tol[0], tol_lower=tol[1])
         pv["reviewed"] = True
+        if isinstance(c.get("condition"), str) and c["condition"].strip():
+            pv["condition"] = c["condition"].strip()
         how = f"人工录入：{who}（{day}），规格书第 {c['page']} 页原文“{quote.strip()}”" if manual else \
             f"人工确认：{who}（{day}），对照规格书第 {pv['source'].get('page')} 页"
         pv["source"]["note"] = how
@@ -148,6 +157,15 @@ def apply_confirmations(primary: dict, check: dict, cmp: dict, confirms: list[di
         cmp["pending"] = [row for row in cmp["pending"] if row["target"] != t]
         notes.append(f"{t} = {v} 由 {who} {'人工录入' if manual else '人工确认'}")
     return notes
+
+
+def _range(c: dict) -> tuple[float, float] | None:
+    """条目只给 min、max（不给 value）时为范围值，如原文“200 VAC to 240 VAC”（ADR-0046 第 5 条）。"""
+    lo, hi = c.get("min"), c.get("max")
+    num = all(isinstance(x, (int, float)) and not isinstance(x, bool) for x in (lo, hi))
+    if "value" in c or not num or lo > hi:
+        return None
+    return float(lo), float(hi)
 
 
 def load_confirmations(path: Path = CONFIRMED_FILE) -> list[dict]:

@@ -23,7 +23,7 @@
   "problems": [],
   "notes": [
     "ports/power_in/current_type = ac 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
-    "ports/power_in/voltage_v = 200.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
+    "ports/power_in/voltage_v = 200–240 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
     "ports/power_in/phases = 3 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
     "ports/bus/protocol = ethercat 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
     "ports/mount/pitch_y_mm = 160.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",

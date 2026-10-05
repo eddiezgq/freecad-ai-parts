@@ -159,11 +159,12 @@ confirmations:
 - doc: src-yaskawa-sgd7s-ethercat-manual
   model: SGD7S-1R6A
   target: ports/power_in/voltage_v
-  value: 200.0
   page: 62
   confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
   date: '2026-10-04'
   quote: Power Supply 200 VAC to 240 VAC, 50 Hz/60 Hz
+  min: 200.0
+  max: 240.0
 - doc: src-yaskawa-sgd7s-ethercat-manual
   model: SGD7S-1R6A
   target: ports/power_in/phases
@@ -317,3 +318,12 @@ confirmations:
   confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
   date: '2026-10-04'
   quote: '|  | R70A, R90A, 1R6A | 168 | 5 | 160 ±0.5 | 45 | 35 | − | 25 | − | M4 |  |'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-25-100-2UH
+  target: params/max_input_speed_rpm
+  value: 5600.0
+  page: 9
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 25 7500 5600 5600 3500 0.413 0.421
+  condition: 脂润滑（Grease lubricant）；油润滑为 7500

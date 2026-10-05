@@ -47,6 +47,18 @@
       },
       "value": 1.5
     },
+    "max_input_speed_rpm": {
+      "condition": "脂润滑（Grease lubricant）；油润滑为 7500",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），对照规格书第 9 页",
+        "page": 9
+      },
+      "value": 5600.0
+    },
     "momentary_max_torque_nm": {
       "confidence": 0.8,
       "method": "extracted",
