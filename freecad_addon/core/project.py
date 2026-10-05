@@ -112,3 +112,13 @@ def diff(before: Mapping, after: Mapping, tol_mm: float = 1e-6, tol_deg: float =
            "disconnected": sorted(f"{x} ↔ {y}" for x, y in ca - cb)}
     out["changed"] = any(out[k] for k in ("added", "removed", "moved", "connected", "disconnected"))
     return out
+
+
+def describe(d: Mapping) -> list[str]:
+    """场景差异的中文说明（提案中逐行列出）。"""
+    out = []
+    for key, label in (("added", "增加"), ("removed", "删除"), ("moved", "移动或更换"), ("connected", "新连接"),
+                       ("disconnected", "断开")):
+        if d.get(key):
+            out.append(f"{label}：{'、'.join(d[key])}")
+    return out or ["场景没有变化"]

@@ -244,3 +244,63 @@ def test_dragging_a_part_writes_back_to_the_scene(gui):
     finally:
         panel.close()
         host.tools.close()
+
+
+@pytest.mark.freecad
+def test_ai_changes_become_a_proposal_to_accept_or_reject(gui):
+    """ADR-0049 第 4 条：AI 一轮改动后列为提案；拒绝恢复原状，接受保留；未处理时手动改动视为接受。"""
+    import sys
+
+    sys.path.insert(0, str(ROOT / "tests"))
+    from test_chat_panel import ScriptedLLM, reply, use
+
+    from freecad_addon.gui.check_panel import CheckPanel
+    from freecad_addon.gui.host import ToolsHost
+    from freecad_addon.gui.panel import ChatPanel
+
+    M = "servo_motor.yaskawa-electric-corporation.sgm7j-02a-6"
+    R = "reducer.harmonic-drive-llc.csf-25-100-2uh"
+
+    def script():
+        return [reply(use(1, "place_component", {"instance": "motor", "component_id": M}),
+                      use(2, "place_component", {"instance": "reducer", "component_id": R,
+                                                 "position_mm": [0, 0, 200]})),
+                reply(use(3, "connect_ports", {"a": "motor.shaft", "b": "reducer.input_bore"})),
+                reply({"type": "text", "text": "电机与减速器已对接。"}, stop="end_turn")]
+
+    host = ToolsHost(lambda: REAL, note="组件库：真实厂商组件（测试）")
+    checks = CheckPanel(host=host)
+    chat = ChatPanel(llm_factory=lambda: ScriptedLLM(script() + script() + [
+        reply(use(4, "place_component", {"instance": "drive", "component_id": "drive.yaskawa-america-inc.sgd7s-1r6a",
+                                         "position_mm": [150, 0, 0]})),
+        reply({"type": "text", "text": "加了驱动器。"}, stop="end_turn")]), host=host)
+    try:
+        assert chat.review.isChecked()
+        # 第一轮：拒绝 → 恢复为空
+        assert chat.send("装配电机与减速器")
+        _pump_until(gui, lambda: not chat.busy and host.pending is not None)
+        _pump_until(gui, lambda: not checks.proposal_box.isHidden() and not checks.reject_button.isHidden())
+        text = checks.proposal_text.text()
+        assert "增加：motor、reducer" in text and "新连接：motor.shaft ↔ reducer.input_bore" in text
+        assert "电机与减速器已对接" in text
+        notes = []
+        assert checks.reject(notes.append)
+        _pump_until(gui, lambda: notes)
+        assert notes == [[]] and host.pending is None and host.layout["instances"] == []
+        _pump_until(gui, lambda: "已恢复原状" in checks.proposal_text.text())
+        # 第二轮：接受 → 保留
+        assert chat.send("再装一次")
+        _pump_until(gui, lambda: not chat.busy and host.pending is not None)
+        checks.accept_button.click()
+        assert host.pending is None and len(host.layout["instances"]) == 2
+        # 第三轮：提案未处理时手动改动视为接受
+        assert chat.send("加一个驱动器")
+        _pump_until(gui, lambda: not chat.busy and host.pending is not None)
+        box = []
+        host.call_in_background("place_component", {"instance": "drive", "position_mm": [180, 0, 0]}, box.append)
+        _pump_until(gui, lambda: box)
+        assert host.pending is None and len(host.layout["instances"]) == 3
+    finally:
+        chat.close()
+        checks.close()
+        host.tools.close()

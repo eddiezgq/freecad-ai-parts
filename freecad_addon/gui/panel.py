@@ -59,6 +59,7 @@ class ChatPanel(QtWidgets.QDockWidget):
         self._busy = False
 
         # 指定组件库时（测试）自建宿主；否则与库浏览器、接口命令共用一个（ADR-0048 第 1 条）
+        self._own_host = host is None and library_factory is not None  # 只关闭自己建的宿主
         self.host = host or (ToolsHost(library_factory) if library_factory else get_host())
         self.executor = self.host.executor
         self.tools = self.host.tools
@@ -73,10 +74,14 @@ class ChatPanel(QtWidgets.QDockWidget):
         self.input.setPlaceholderText("例如：给六轴机械臂第 2 关节选一套驱动，输出连续扭矩 25 N·m、输出转速 30 rpm，"
                                       "并在 FreeCAD 里布局")
         self.input.setMaximumHeight(90)
+        self.review = QtWidgets.QCheckBox("AI 改动先审阅")
+        self.review.setChecked(True)
+        self.review.setToolTip("AI 每轮改动布局后，在校验窗口中列为提案，接受才保留，拒绝就恢复原状（ADR-0049）")
         self.send_button = QtWidgets.QPushButton("发送")
         self.status = QtWidgets.QLabel("")
         row = QtWidgets.QHBoxLayout()
         row.addWidget(self.status, 1)
+        row.addWidget(self.review)
         row.addWidget(self.send_button)
         for w in (self.header, self.transcript, self.input):
             lay.addWidget(w)
@@ -113,16 +118,30 @@ class ChatPanel(QtWidgets.QDockWidget):
         self.send_button.setEnabled(False)
         self.status.setText("思考中…")
 
+        before = json.loads(json.dumps(self.host.layout))  # 本轮开始前的场景快照（ADR-0049 第 4 条）
+        review = self.review.isChecked()
+        said: list[str] = []
+        self.host.settle("accepted")  # 新的对话视为接受尚未处理的提案
+
         def on_event(e: Event) -> None:
             from freecad_addon.gui import recording
 
             recording.chat_event(e)  # 录制中时写入会话包（ADR-0042），并标出 AI 工具调用的时间段
+            if e.kind == "assistant" and e.text:
+                said.append(e.text)
             self.event_posted.emit(e)
 
         def work() -> None:
             try:
                 engine.send(text, on_event=on_event)
             finally:
+                if review:
+                    from freecad_addon.core import project
+
+                    d = project.diff(before, self.host.layout)
+                    if d["changed"]:
+                        self.host.propose({"before": before, "diff": d, "request": text,
+                                           "explanation": said[-1] if said else ""})
                 self.turn_done.emit()
 
         threading.Thread(target=work, name="fap-chat", daemon=True).start()
@@ -169,12 +188,6 @@ class ChatPanel(QtWidgets.QDockWidget):
             self._append(f'<p style="color:#b00"><b>出错：</b>{esc(e.text)}</p>')
 
     def closeEvent(self, event) -> None:
-        if self.host is not _shared_host():  # 共用宿主随 FreeCAD 进程存在，只关自建的
+        if self._own_host:  # 共用宿主与调用方传入的宿主由别处关闭
             self.tools.close()
         super().closeEvent(event)
-
-
-def _shared_host():
-    from freecad_addon.gui import host
-
-    return host._host

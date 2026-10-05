@@ -76,3 +76,14 @@ def test_diff_lists_added_removed_moved_and_links():
     assert not diff(before, before)["changed"]
     assert clear_calls(after) == [("place_component", {"instance": n, "remove": True})
                                   for n in ("drive", "motor", "motor2", "reducer")]
+
+
+def test_describe_diff():
+    from freecad_addon.core.project import describe
+
+    s = _session()
+    before = s.state()
+    s.place("motor2", M6, [0, 300, 0])
+    lines = describe(diff(before, s.state()))
+    assert lines == ["增加：motor2"]
+    assert describe(diff(before, before)) == ["场景没有变化"]
