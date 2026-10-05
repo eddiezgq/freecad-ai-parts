@@ -1,0 +1,66 @@
+{
+  "format": "fap-export/1",
+  "kind": "bom",
+  "note": "质量缺失时总质量为空；source_docs 为该组件数据引用的来源文档（data/sources.yaml）",
+  "rows": [
+    {
+      "all_params_reviewed": true,
+      "category": "servo_motor",
+      "component_id": "servo_motor.yaskawa-electric-corporation.sgm7j-02a-6",
+      "instances": [
+        "motor"
+      ],
+      "item": 1,
+      "license": "params-only",
+      "model": "SGM7J-02A（轴端代码 6）",
+      "quantity": 1,
+      "source_docs": [
+        "src-yaskawa-sgm7-rotary-manual"
+      ],
+      "total_mass_kg": null,
+      "unit_mass_kg": null,
+      "vendor": "Yaskawa Electric Corporation",
+      "vendor_cad_url": null
+    },
+    {
+      "all_params_reviewed": true,
+      "category": "reducer",
+      "component_id": "reducer.harmonic-drive-llc.csf-25-100-2uh",
+      "instances": [
+        "reducer"
+      ],
+      "item": 2,
+      "license": "params-only",
+      "model": "CSF-25-100-2UH",
+      "quantity": 1,
+      "source_docs": [
+        "src-hd-csg-csf-gear-units"
+      ],
+      "total_mass_kg": 1.5,
+      "unit_mass_kg": 1.5,
+      "vendor": "Harmonic Drive LLC",
+      "vendor_cad_url": null
+    },
+    {
+      "all_params_reviewed": true,
+      "category": "drive",
+      "component_id": "drive.yaskawa-america-inc.sgd7s-1r6a",
+      "instances": [
+        "drive"
+      ],
+      "item": 3,
+      "license": "params-only",
+      "model": "SGD7S-1R6A",
+      "quantity": 1,
+      "source_docs": [
+        "src-yaskawa-sgd7s-ethercat-manual"
+      ],
+      "total_mass_kg": null,
+      "unit_mass_kg": null,
+      "vendor": "Yaskawa America, Inc.",
+      "vendor_cad_url": null
+    }
+  ],
+  "system": "candidate-1",
+  "total_mass_kg": null
+}

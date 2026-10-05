@@ -327,3 +327,11 @@ confirmations:
   date: '2026-10-04'
   quote: 25 7500 5600 5600 3500 0.413 0.421
   condition: 脂润滑（Grease lubricant）；油润滑为 7500
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-02A（轴端代码 6）
+  target: ports/shaft/feature
+  value: keyed
+  page: 53
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-04'
+  quote: 6 Straight with key and tap

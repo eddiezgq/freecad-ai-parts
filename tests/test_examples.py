@@ -55,3 +55,44 @@ def test_regenerated_sample_is_identical(tmp_path, monkeypatch):
     assert got.keys() == want.keys()
     for name, content in want.items():
         assert got[name] == content, f"examples/joint2/{name} 与当前代码的输出不一致，请重新生成"
+
+
+# 真实组件样例 examples/joint-real（#130，ADR-0046）：结论可以是待确认，不能有不通过项
+REAL = ROOT / "examples" / "joint-real"
+REAL_LIB = JsonLibrary(ROOT / "data" / "library")
+REAL_JSON = json.loads((REAL / "system.json").read_text(encoding="utf-8"))
+
+
+def test_real_sample_report_matches_engine():
+    assert validate(REAL_JSON["system"], REAL_LIB.get) == REAL_JSON["report"]
+    assert REAL_JSON["report"]["overall"] in ("pass", "warn", "unknown")
+    assert all(c["status"] != "fail" for c in REAL_JSON["report"]["checks"])
+    for cid, comp in REAL_JSON["components"].items():
+        assert not cid.startswith("test.") and comp == REAL_LIB.get(cid)
+
+
+def test_real_sample_bom_and_urdf_match_export():
+    system = REAL_JSON["system"]
+    assert (REAL / "bom.csv").read_text(encoding="utf-8") == export.bom_csv(system, REAL_LIB.get)
+    bom = json.loads((REAL / "bom.json").read_text(encoding="utf-8"))
+    assert bom == json.loads(json.dumps(export.bom_json(system, REAL_LIB.get)))
+    assert (REAL / f"{system['id']}.urdf").read_text(encoding="utf-8") == export.urdf(system, REAL_LIB.get)
+    req = json.loads((REAL / "requirement.json").read_text(encoding="utf-8"))["requirement"]
+    assert req == json.loads((ROOT / "examples" / "joint-real-requirement.json").read_text(encoding="utf-8"))
+
+
+@pytest.mark.freecad
+def test_regenerated_real_sample_is_identical(tmp_path, monkeypatch):
+    if "FreeCAD" in sys.modules or os.environ.get("FAP_REQUIRE_FREECAD") == "1":
+        monkeypatch.setenv("FAP_FREECAD_PYTHON", os.environ.get("FAP_FREECAD_PYTHON", sys.executable))
+    monkeypatch.setenv("FAP_FREECAD", "headless")
+    monkeypatch.setenv("FAP_LIBRARY", str(ROOT / "data" / "library"))  # e2e 会改写它，测试后还原
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    args = ["--requirement", str(ROOT / "examples" / "joint-real-requirement.json"),
+            "--library", str(ROOT / "data" / "library"), "--include-unknown", "--out", str(tmp_path)]
+    assert e2e.main(args) == 0
+    want = {p.name: p.read_bytes() for p in REAL.iterdir() if p.suffix != ".png"}
+    got = {p.name: p.read_bytes() for p in tmp_path.iterdir() if p.suffix != ".png"}
+    assert got.keys() == want.keys()
+    for name, content in want.items():
+        assert got[name] == content, f"examples/joint-real/{name} 与当前代码的输出不一致，请重新生成"

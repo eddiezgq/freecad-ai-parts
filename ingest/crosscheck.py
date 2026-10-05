@@ -168,6 +168,15 @@ def _range(c: dict) -> tuple[float, float] | None:
     return float(lo), float(hi)
 
 
+def variant_confirmations(confirms: list[dict], base: str, variant: str) -> list[dict]:
+    """订货选项变体（ADR-0046 第 4 条）：沿用基本型号的确认，变体型号自己的确认按字段覆盖。"""
+    own = [c for c in confirms if c.get("model") == variant]
+    mine = {(c.get("doc"), c.get("target")) for c in own}
+    inherited = [dict(c, model=variant) for c in confirms
+                 if c.get("model") == base and (c.get("doc"), c.get("target")) not in mine]
+    return own + inherited
+
+
 def load_confirmations(path: Path = CONFIRMED_FILE) -> list[dict]:
     if not path.is_file():
         return []
@@ -211,6 +220,7 @@ def _jobs_with_vendor(data: dict, sources: dict) -> list[dict]:
         spec = raw.get((j["doc"], j["category"]), {})
         j["vendor"] = spec.get("vendor") or vendors.get(owner.get(j["doc"], ""), "")
         j["configurable_ports"] = dict(spec.get("configurable_ports") or {})  # 端口 id → 依据（ADR-0045）
+        j["variants"] = [v for v in spec.get("variants") or [] if v.get("of") == j["target"] and v.get("model")]
         out.append(j)
     return out
 
@@ -223,7 +233,30 @@ def render(rows: list[dict]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _build_one(args, job: dict, primary: dict, check: dict, model: str, review_name: str, confirms: list[dict],
+               registry) -> dict:
+    res = build(primary, check, vendor=job["vendor"], model=model, registry=registry, confirms=confirms,
+                configurable=job.get("configurable_ports"))
+    review = args.review / job["doc"] / review_name
+    review.parent.mkdir(parents=True, exist_ok=True)
+    body = {k: res[k] for k in ("agreed", "pending", "problems", "notes")}
+    body.update(reviewer=REVIEWER, primary_model=primary["extractor"]["model"],
+                check_model=check["extractor"]["model"])
+    row = {"doc": job["doc"], "target": model, "agreed": len(res["agreed"]),
+           "pending": len(res["pending"]), "problems": res["problems"]}
+    if "component" in res:
+        comp = res["component"]
+        path = args.library / comp["category"] / f"{comp['id']}.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(comp, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        body["component"] = comp["id"]
+        row["component_id"] = comp["id"]
+    review.write_text(json.dumps(body, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return row
+
+
 def main(argv: list[str] | None = None) -> int:
+    from ingest.assemble import slug
     from ingest.jobs import JOBS_FILE, OUT_DIR, SOURCES_FILE, output_path
     from kb.sources import SourceRegistry
 
@@ -247,24 +280,12 @@ def main(argv: list[str] | None = None) -> int:
             continue
         primary = json.loads(p_path.read_text(encoding="utf-8"))
         check = json.loads(c_path.read_text(encoding="utf-8"))
-        res = build(primary, check, vendor=job["vendor"], model=primary.get("model") or job["target"],
-                    registry=registry, confirms=load_confirmations(), configurable=job.get("configurable_ports"))
-        review = args.review / job["doc"] / p_path.name
-        review.parent.mkdir(parents=True, exist_ok=True)
-        body = {k: res[k] for k in ("agreed", "pending", "problems", "notes")}
-        body.update(reviewer=REVIEWER, primary_model=primary["extractor"]["model"],
-                    check_model=check["extractor"]["model"])
-        row = {"doc": job["doc"], "target": job["target"], "agreed": len(res["agreed"]),
-               "pending": len(res["pending"]), "problems": res["problems"]}
-        if "component" in res:
-            comp = res["component"]
-            path = args.library / comp["category"] / f"{comp['id']}.json"
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(json.dumps(comp, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-            body["component"] = comp["id"]
-            row["component_id"] = comp["id"]
-        review.write_text(json.dumps(body, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        rows.append(row)
+        base = primary.get("model") or job["target"]
+        confirms = load_confirmations()
+        for model, review_name, conf in [(base, p_path.name, confirms)] + [
+                (v["model"], f"{slug(v['model'])}.json", variant_confirmations(confirms, base, v["model"]))
+                for v in job.get("variants", [])]:
+            rows.append(_build_one(args, job, primary, check, model, review_name, conf, registry))
     text = render(rows)
     print(text, end="")
     if args.summary:
