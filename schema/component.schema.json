@@ -24,6 +24,7 @@
       "type": "object",
       "description": "参数表：字段名带单位后缀（实施细则第四节），值为参数值对象",
       "propertyNames": {"pattern": "^[a-z][a-z0-9_]*$"},
+      "properties": {"efficiency_curve": {"type": "object", "description": "效率曲线读点，不是参数值对象；格式由品类 schema 约束（ADR-0047）"}},
       "additionalProperties": {"$ref": "common/param-value.schema.json"}
     },
     "ports": {
