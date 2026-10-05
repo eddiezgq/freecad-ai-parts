@@ -98,6 +98,12 @@ def _unit_for(field: str) -> str | None:
         return None
 
 
+def _is_param_value(sub: dict) -> bool:
+    """参数的 schema 是否引用 common/param-value.schema.json（直接引用或在 allOf 中）。"""
+    refs = [sub.get("$ref", "")] + [x.get("$ref", "") for x in sub.get("allOf", [])]
+    return any("param-value.schema.json" in r for r in refs)
+
+
 @cache
 def targets(category: str) -> dict[str, tuple[Target, tuple[str, ...]]]:
     """品类的全部抽取目标：target → (Target, 校验用的 schema 引用；有多个时符合任一即可)。"""
@@ -106,6 +112,8 @@ def targets(category: str) -> dict[str, tuple[Target, tuple[str, ...]]]:
     out: dict[str, tuple[Target, tuple[str, ...]]] = {}
     cat_id = f"{ID_BASE}categories/{category}.schema.json"
     for name, sub in cat["properties"]["params"]["properties"].items():
+        if not _is_param_value(sub):
+            continue  # 不是“参数值”的参数（如效率曲线，ADR-0047）不由模型抽取
         kind, enum, desc = _kind_and_enum(sub)
         t = Target(f"params/{name}", kind, _unit_for(name), enum, desc, name in key_fields)
         out[t.target] = (t, (f"{cat_id}#/properties/params/properties/{name}",))
