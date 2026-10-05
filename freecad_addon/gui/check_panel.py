@@ -59,6 +59,16 @@ class CheckPanel(QtWidgets.QDockWidget):
         self.apply_button.clicked.connect(lambda *_: self.apply_form())
         self.clear_button.clicked.connect(lambda *_: self.set_requirement(None))
         self.changed.connect(self.recheck, QtCore.Qt.QueuedConnection)
+        self.drag = None
+        try:  # 拖动回写（ADR-0049 第 3 条）：在 FreeCAD 界面中才有
+            import FreeCAD
+
+            if FreeCAD.GuiUp:
+                from freecad_addon.fc.drag_observer import DragWriter
+
+                self.drag = DragWriter(self.host, lambda: self.layout_state)
+        except ImportError:
+            pass
         self.recheck()
 
     # ------------------------------------------------------------ 输入
@@ -189,6 +199,9 @@ class CheckPanel(QtWidgets.QDockWidget):
     def closeEvent(self, event) -> None:
         if self._on_tool in self.host.listeners:
             self.host.listeners.remove(self._on_tool)
+        if self.drag is not None:
+            self.drag.close()
+            self.drag = None
         super().closeEvent(event)
 
 
