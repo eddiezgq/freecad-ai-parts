@@ -244,3 +244,21 @@ def test_variant_inherits_base_confirmations_and_overrides_its_own():
     assert by_target["ports/shaft/feature"]["value"] == "keyed"
     assert by_target["dims/square_mm"]["value"] == 60 and by_target["dims/square_mm"]["model"] == "M-1（轴端代码 6）"
     assert len(got) == 2
+
+
+def test_manual_entry_of_an_efficiency_curve():
+    """ADR-0047：效率曲线按网格读点录入，须给页码、图号原文与工况；不满足就不采用。"""
+    p, c = _ext("a"), _ext("b")
+    pts = [{"ambient_temp_c": t, "input_speed_rpm": 3500, "efficiency_ratio": e} for t, e in ((-10, 0.33), (0, 0.47))]
+    entry = {"doc": "src-x-doc", "model": "D-1", "target": "params/efficiency_curve", "points": pts, "page": 17,
+             "quote": "Graph 135-6", "condition": "额定扭矩、脂润滑", "confirmed_by": "张国庆", "date": "2026-10-05"}
+    cmp = cx.compare(p, c)
+    notes = cx.apply_confirmations(p, c, cmp, [entry], "D-1")
+    pv = cmp["agreed"]["params/efficiency_curve"]
+    assert pv["points"][0] == {"ambient_temp_c": -10.0, "input_speed_rpm": 3500.0, "efficiency_ratio": 0.33}
+    assert pv["source"]["page"] == 17 and "Graph 135-6" in pv["source"]["note"] and any("2 点" in n for n in notes)
+    for bad in (dict(entry, quote=""), {k: v for k, v in entry.items() if k != "condition"},
+                dict(entry, points=pts[:1]), dict(entry, points=[dict(pts[0], efficiency_ratio=1.5), pts[1]])):
+        cmp = cx.compare(p, c)
+        cx.apply_confirmations(p, c, cmp, [bad], "D-1")
+        assert "params/efficiency_curve" not in cmp["agreed"]

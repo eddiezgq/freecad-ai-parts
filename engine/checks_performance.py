@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+from engine import efficiency
 from engine.result import FAIL, PASS, UNKNOWN, WARN, CheckResult, Finding, not_applicable
 from engine.system import System
 from engine.values import bounds, capacity, demand
@@ -28,6 +29,7 @@ class _Chain:
 
     def __init__(self, system: System):
         self.req = system.requirement
+        self.eta_note = ""
         self.motor = system.one("servo_motor")
         self.reducer = system.one("reducer")
         self.many = system.too_many("servo_motor", "reducer")
@@ -40,12 +42,23 @@ class _Chain:
         else:
             self.i, self.i_hi = bounds(_param(system, self.reducer, "ratio"))
             self.eta_lo, self.eta_hi = bounds(_param(system, self.reducer, "efficiency_ratio"))
+            curve = _param(system, self.reducer, "efficiency_curve")
+            if self.eta_lo is None and curve and self.i_hi:
+                n_in = self.req.get("output_speed_rpm", 0) * self.i_hi  # 所需输入转速取减速比上端
+                hit = efficiency.lookup(curve, n_in, self.req.get("ambient_temp_c"))
+                if hit:
+                    self.eta_lo, self.eta_hi, self.eta_note = hit
         self.motor_port = f"{self.motor}.shaft" if self.motor else None
         self.reducer_port = f"{self.reducer}.input_bore" if self.reducer else None
 
     @property
     def ports(self) -> list[str]:
         return [p for p in (self.motor_port, self.reducer_port) if p]
+
+
+def _with_note(what: str, ch: _Chain) -> str:
+    """效率按曲线取值时，在判定说明中写明取法（ADR-0047），并注明未计负载补偿系数 Ke。"""
+    return f"{what}（{ch.eta_note}；未计轻载效率补偿系数）" if ch.eta_note else what
 
 
 def _le(name: str, measured: float | None, limit: float | None, unit: str, ports: list[str], what: str,
@@ -73,7 +86,7 @@ def c4(system: System) -> CheckResult:
         motor_side = t / (ch.i * ch.eta_lo) if ch.i and ch.eta_lo else None
         missing = "减速比或效率" if motor_side is None else "电机额定扭矩"
         res.findings.append(_le("电机额定扭矩", motor_side, ch.m("rated_torque_nm"), "N*m", ch.ports,
-                                "连续扭矩折算到电机侧", missing))
+                                _with_note("连续扭矩折算到电机侧", ch), missing))
     if ch.reducer:
         res.findings.append(_le("减速器额定扭矩", t, ch.r("rated_torque_nm"), "N*m", ch.ports,
                                 "含安全系数的连续扭矩", "减速器额定扭矩"))
@@ -95,7 +108,7 @@ def c5(system: System) -> CheckResult:
         motor_side = t / (ch.i * ch.eta_lo) if ch.i and ch.eta_lo else None
         missing = "减速比或效率" if motor_side is None else "电机峰值扭矩"
         res.findings.append(_le("电机峰值扭矩", motor_side, ch.m("peak_torque_nm"), "N*m", ch.ports,
-                                "峰值扭矩折算到电机侧", missing))
+                                _with_note("峰值扭矩折算到电机侧", ch), missing))
     if ch.reducer:
         res.findings.append(_le("减速器启停允许峰值扭矩", t, ch.r("repeated_peak_torque_nm"), "N*m", ch.ports,
                                 "峰值扭矩", "减速器启停允许峰值扭矩"))
@@ -114,11 +127,12 @@ def c6(system: System) -> CheckResult:
         return CheckResult("C6", [Finding(UNKNOWN, "过载保护：缺少电机峰值扭矩、减速比、效率或减速器瞬间最大扭矩",
                                           ch.ports)])
     out = peak * ch.i_hi * ch.eta_hi
+    note = f"（{ch.eta_note}）" if ch.eta_note else ""
     if out > limit * (1 + 1e-12):
         msg = (f"电机峰值扭矩经减速后 {out:.4g} N·m > 减速器瞬间允许最大 {limit:.4g} N·m，"
-               "须在驱动器设置扭矩限幅")
+               f"须在驱动器设置扭矩限幅{note}")
         return CheckResult("C6", [Finding(WARN, msg, ch.ports, out, limit, "N*m")])
-    return CheckResult("C6", [Finding(PASS, f"电机峰值扭矩经减速后 {out:.4g} N·m ≤ 减速器瞬间允许最大 {limit:.4g} N·m",
+    return CheckResult("C6", [Finding(PASS, f"电机峰值扭矩经减速后 {out:.4g} N·m ≤ 减速器瞬间允许最大 {limit:.4g} N·m{note}",
                                       ch.ports, out, limit, "N*m")])
 
 

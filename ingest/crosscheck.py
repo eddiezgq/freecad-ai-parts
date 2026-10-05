@@ -105,6 +105,17 @@ def apply_confirmations(primary: dict, check: dict, cmp: dict, confirms: list[di
         if c.get("doc") != doc or c.get("model") != model or c.get("target") in cmp["agreed"]:
             continue
         t, v, who, day = c.get("target"), c.get("value"), c.get("confirmed_by"), c.get("date")
+        curve = _curve(c)
+        if curve is not None:  # 效率曲线读点（ADR-0047）：只能人工录入，须给图所在页码、图号原文与工况
+            if not (who and day):
+                notes.append(f"人工确认写法不全，未采用：{t}")
+                continue
+            curve["source"] = {"doc": doc, "page": c["page"],
+                               "note": f"人工录入：{who}（{day}），规格书第 {c['page']} 页“{c['quote'].strip()}”按网格读点"}
+            cmp["agreed"][t] = curve
+            cmp["pending"] = [row for row in cmp["pending"] if row["target"] != t]
+            notes.append(f"{t} 由 {who} 按第 {c['page']} 页曲线读点录入（{len(curve['points'])} 点）")
+            continue
         rng = _range(c)
         if rng is not None:
             v = f"{rng[0]:g}–{rng[1]:g}"  # 范围只能人工录入（须给页码与原文），见 ADR-0046 第 5 条
@@ -157,6 +168,21 @@ def apply_confirmations(primary: dict, check: dict, cmp: dict, confirms: list[di
         cmp["pending"] = [row for row in cmp["pending"] if row["target"] != t]
         notes.append(f"{t} = {v} 由 {who} {'人工录入' if manual else '人工确认'}")
     return notes
+
+
+def _curve(c: dict) -> dict | None:
+    """条目给 points（温度、输入转速、效率读点）时为效率曲线（ADR-0047）；须有页码、原文与工况。"""
+    pts = c.get("points")
+    keys = ("ambient_temp_c", "input_speed_rpm", "efficiency_ratio")
+    ok = isinstance(pts, list) and len(pts) >= 2 and all(
+        isinstance(p, dict) and set(p) == set(keys)
+        and all(isinstance(p[k], (int, float)) and not isinstance(p[k], bool) for k in keys)
+        and 0 < p["efficiency_ratio"] <= 1 for p in pts)
+    if not (ok and isinstance(c.get("page"), int) and isinstance(c.get("quote"), str) and c["quote"].strip()
+            and isinstance(c.get("condition"), str) and c["condition"].strip()):
+        return None
+    return {"points": [{k: float(p[k]) for k in keys} for p in pts], "condition": c["condition"].strip(),
+            "method": "manual", "confidence": 1, "reviewed": True}
 
 
 def _range(c: dict) -> tuple[float, float] | None:
