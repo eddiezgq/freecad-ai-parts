@@ -87,6 +87,18 @@
       },
       "value": "IP67"
     },
+    "mass_kg": {
+      "condition": "无制动器，编码器代码 7（Approx. Mass，括号内为带制动器）",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-yaskawa-sgm7-rotary-manual",
+        "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），对照规格书第 65 页",
+        "page": 65
+      },
+      "value": 0.8
+    },
     "max_speed_rpm": {
       "confidence": 0.9,
       "method": "extracted",
@@ -363,34 +375,37 @@
       "id": "encoder",
       "spec": {
         "kind": {
+          "condition": "编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）",
           "confidence": 1,
           "method": "manual",
           "reviewed": true,
           "source": {
             "doc": "src-yaskawa-sgm7-rotary-manual",
-            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 53 页原文“| 6 | 24-bit batteryless absolute |”",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），规格书第 53 页原文“7 24-bit absolute”",
             "page": 53
           },
           "value": "absolute"
         },
         "protocol": {
+          "condition": "编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）",
           "confidence": 1,
           "method": "manual",
           "reviewed": true,
           "source": {
             "doc": "src-yaskawa-sgm7-rotary-manual",
-            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 53 页原文“| 6 | 24-bit batteryless absolute |”",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），规格书第 53 页原文“7 24-bit absolute”",
             "page": 53
           },
           "value": "vendor_proprietary"
         },
         "vendor": {
+          "condition": "编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）",
           "confidence": 1,
           "method": "manual",
           "reviewed": true,
           "source": {
             "doc": "src-yaskawa-sgm7-rotary-manual",
-            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-04），规格书第 53 页原文“| 6 | 24-bit batteryless absolute |”",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），规格书第 53 页原文“7 24-bit absolute”",
             "page": 53
           },
           "value": "Yaskawa"

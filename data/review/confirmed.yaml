@@ -72,8 +72,9 @@ confirmations:
   value: absolute
   page: 53
   confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
-  date: '2026-10-04'
-  quote: '| 6 | 24-bit batteryless absolute |'
+  date: '2026-10-05'
+  quote: 7 24-bit absolute
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
 - doc: src-hd-csg-csf-gear-units
   model: CSF-25-100-2UH
   target: ports/housing_mount/pcd_mm
@@ -242,16 +243,18 @@ confirmations:
   value: vendor_proprietary
   page: 53
   confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
-  date: '2026-10-04'
-  quote: '| 6 | 24-bit batteryless absolute |'
+  date: '2026-10-05'
+  quote: 7 24-bit absolute
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
 - doc: src-yaskawa-sgm7-rotary-manual
   model: SGM7J-02A
   target: ports/encoder/vendor
   value: Yaskawa
   page: 53
   confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
-  date: '2026-10-04'
-  quote: '| 6 | 24-bit batteryless absolute |'
+  date: '2026-10-05'
+  quote: 7 24-bit absolute
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
 - doc: src-yaskawa-sgd7s-ethercat-manual
   model: SGD7S-1R6A
   target: dims/depth_mm
@@ -2265,5 +2268,866 @@ confirmations:
   value: 5.0
   page: 11
   quote: W Js9 - - 4 5 5 5 6 6 6 8
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A
+  target: dims/body_length_mm
+  page: 64
+  quote: A5A□A2□ 81.5 56.5 37.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.3
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 56.5
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A
+  target: dims/square_mm
+  page: 64
+  quote: A5A□A2□ 81.5 56.5 37.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.3
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 40.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A
+  target: ports/shaft/usable_length_mm
+  page: 64
+  quote: A5A□A2□ 81.5 56.5 37.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.3
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 25.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A
+  target: ports/shaft/diameter_mm
+  page: 66
+  quote: S 8 -0.009 14 -0.011 19 -0.013
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 8.0
+  tol_upper: 0.0
+  tol_lower: -0.009
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A
+  target: ports/shaft/feature
+  page: 53
+  quote: 2 Straight without key
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: plain
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A
+  target: ports/mount_flange/pcd_mm
+  page: 64
+  quote: A5A□A2□ 81.5 56.5 37.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.3
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 46.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A
+  target: ports/mount_flange/hole_diameter_mm
+  page: 64
+  quote: A5A□A2□ 81.5 56.5 37.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.3
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 4.3
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A
+  target: ports/mount_flange/hole_kind
+  page: 64
+  quote: 2 × LZ dia.
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: through
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A
+  target: ports/mount_flange/hole_count
+  page: 64
+  quote: 2 × LZ dia.
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 2
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A
+  target: ports/power_in/voltage_class_v
+  page: 53
+  quote: A 200 VAC
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 200.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A
+  target: ports/encoder/kind
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: absolute
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A
+  target: ports/encoder/protocol
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: vendor_proprietary
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A
+  target: ports/encoder/vendor
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: Yaskawa
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A（轴端代码 6）
+  target: ports/shaft/feature
+  page: 53
+  quote: 6 Straight with key and tap
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: keyed
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A（轴端代码 6）
+  target: ports/shaft/key_width_mm
+  page: 66
+  quote: W 3 5 6
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 3.0
+  condition: 轴端代码 6（Straight with key and tap）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A
+  target: dims/body_length_mm
+  page: 64
+  quote: 01A□A2□ 93.5 68.5 49.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.4
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 68.5
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A
+  target: dims/square_mm
+  page: 64
+  quote: 01A□A2□ 93.5 68.5 49.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.4
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 40.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A
+  target: ports/shaft/usable_length_mm
+  page: 64
+  quote: 01A□A2□ 93.5 68.5 49.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.4
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 25.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A
+  target: ports/shaft/diameter_mm
+  page: 66
+  quote: S 8 -0.009 14 -0.011 19 -0.013
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 8.0
+  tol_upper: 0.0
+  tol_lower: -0.009
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A
+  target: ports/shaft/feature
+  page: 53
+  quote: 2 Straight without key
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: plain
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A
+  target: ports/mount_flange/pcd_mm
+  page: 64
+  quote: 01A□A2□ 93.5 68.5 49.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.4
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 46.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A
+  target: ports/mount_flange/hole_diameter_mm
+  page: 64
+  quote: 01A□A2□ 93.5 68.5 49.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.4
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 4.3
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A
+  target: ports/mount_flange/hole_kind
+  page: 64
+  quote: 2 × LZ dia.
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: through
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A
+  target: ports/mount_flange/hole_count
+  page: 64
+  quote: 2 × LZ dia.
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 2
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A
+  target: ports/power_in/voltage_class_v
+  page: 53
+  quote: A 200 VAC
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 200.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A
+  target: ports/encoder/kind
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: absolute
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A
+  target: ports/encoder/protocol
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: vendor_proprietary
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A
+  target: ports/encoder/vendor
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: Yaskawa
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A（轴端代码 6）
+  target: ports/shaft/feature
+  page: 53
+  quote: 6 Straight with key and tap
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: keyed
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A（轴端代码 6）
+  target: ports/shaft/key_width_mm
+  page: 66
+  quote: W 3 5 6
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 3.0
+  condition: 轴端代码 6（Straight with key and tap）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A
+  target: dims/body_length_mm
+  page: 64
+  quote: C2A□A2□ 105.5 80.5 61.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.5
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 80.5
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A
+  target: dims/square_mm
+  page: 64
+  quote: C2A□A2□ 105.5 80.5 61.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.5
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 40.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A
+  target: ports/shaft/usable_length_mm
+  page: 64
+  quote: C2A□A2□ 105.5 80.5 61.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.5
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 25.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A
+  target: ports/shaft/diameter_mm
+  page: 66
+  quote: S 8 -0.009 14 -0.011 19 -0.013
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 8.0
+  tol_upper: 0.0
+  tol_lower: -0.009
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A
+  target: ports/shaft/feature
+  page: 53
+  quote: 2 Straight without key
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: plain
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A
+  target: ports/mount_flange/pcd_mm
+  page: 64
+  quote: C2A□A2□ 105.5 80.5 61.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.5
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 46.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A
+  target: ports/mount_flange/hole_diameter_mm
+  page: 64
+  quote: C2A□A2□ 105.5 80.5 61.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.5
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 4.3
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A
+  target: ports/mount_flange/hole_kind
+  page: 64
+  quote: 2 × LZ dia.
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: through
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A
+  target: ports/mount_flange/hole_count
+  page: 64
+  quote: 2 × LZ dia.
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 2
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A
+  target: ports/power_in/voltage_class_v
+  page: 53
+  quote: A 200 VAC
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 200.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A
+  target: ports/encoder/kind
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: absolute
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A
+  target: ports/encoder/protocol
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: vendor_proprietary
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A
+  target: ports/encoder/vendor
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: Yaskawa
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A（轴端代码 6）
+  target: ports/shaft/feature
+  page: 53
+  quote: 6 Straight with key and tap
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: keyed
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A（轴端代码 6）
+  target: ports/shaft/key_width_mm
+  page: 66
+  quote: W 3 5 6
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 3.0
+  condition: 轴端代码 6（Straight with key and tap）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A
+  target: dims/body_length_mm
+  page: 65
+  quote: 04A□A2□ 115.5 85.5 67.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1 1.1
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 85.5
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A
+  target: dims/square_mm
+  page: 65
+  quote: 04A□A2□ 115.5 85.5 67.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1 1.1
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 60.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A
+  target: ports/shaft/usable_length_mm
+  page: 65
+  quote: 04A□A2□ 115.5 85.5 67.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1 1.1
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 30.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A
+  target: ports/shaft/diameter_mm
+  page: 66
+  quote: S 8 -0.009 14 -0.011 19 -0.013
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 14.0
+  tol_upper: 0.0
+  tol_lower: -0.011
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A
+  target: ports/shaft/feature
+  page: 53
+  quote: 2 Straight without key
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: plain
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A
+  target: ports/mount_flange/pcd_mm
+  page: 65
+  quote: 04A□A2□ 115.5 85.5 67.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1 1.1
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 70.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A
+  target: ports/mount_flange/hole_diameter_mm
+  page: 65
+  quote: 04A□A2□ 115.5 85.5 67.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1 1.1
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 5.5
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A
+  target: ports/mount_flange/hole_kind
+  page: 65
+  quote: 4 × LZ dia.
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: through
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A
+  target: ports/mount_flange/hole_count
+  page: 65
+  quote: 4 × LZ dia.
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 4
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A
+  target: ports/power_in/voltage_class_v
+  page: 53
+  quote: A 200 VAC
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 200.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A
+  target: ports/encoder/kind
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: absolute
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A
+  target: ports/encoder/protocol
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: vendor_proprietary
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A
+  target: ports/encoder/vendor
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: Yaskawa
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A（轴端代码 6）
+  target: ports/shaft/feature
+  page: 53
+  quote: 6 Straight with key and tap
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: keyed
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A（轴端代码 6）
+  target: ports/shaft/key_width_mm
+  page: 66
+  quote: W 3 5 6
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 5.0
+  condition: 轴端代码 6（Straight with key and tap）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A
+  target: dims/body_length_mm
+  page: 65
+  quote: 06A□A2□ 137.5 107.5 89.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1 1.6
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 107.5
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A
+  target: dims/square_mm
+  page: 65
+  quote: 06A□A2□ 137.5 107.5 89.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1 1.6
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 60.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A
+  target: ports/shaft/usable_length_mm
+  page: 65
+  quote: 06A□A2□ 137.5 107.5 89.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1 1.6
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 30.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A
+  target: ports/shaft/diameter_mm
+  page: 66
+  quote: S 8 -0.009 14 -0.011 19 -0.013
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 14.0
+  tol_upper: 0.0
+  tol_lower: -0.011
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A
+  target: ports/shaft/feature
+  page: 53
+  quote: 2 Straight without key
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: plain
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A
+  target: ports/mount_flange/pcd_mm
+  page: 65
+  quote: 06A□A2□ 137.5 107.5 89.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1 1.6
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 70.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A
+  target: ports/mount_flange/hole_diameter_mm
+  page: 65
+  quote: 06A□A2□ 137.5 107.5 89.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1 1.6
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 5.5
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A
+  target: ports/mount_flange/hole_kind
+  page: 65
+  quote: 4 × LZ dia.
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: through
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A
+  target: ports/mount_flange/hole_count
+  page: 65
+  quote: 4 × LZ dia.
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 4
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A
+  target: ports/power_in/voltage_class_v
+  page: 53
+  quote: A 200 VAC
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 200.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A
+  target: ports/encoder/kind
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: absolute
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A
+  target: ports/encoder/protocol
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: vendor_proprietary
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A
+  target: ports/encoder/vendor
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: Yaskawa
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A（轴端代码 6）
+  target: ports/shaft/feature
+  page: 53
+  quote: 6 Straight with key and tap
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: keyed
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A（轴端代码 6）
+  target: ports/shaft/key_width_mm
+  page: 66
+  quote: W 3 5 6
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 5.0
+  condition: 轴端代码 6（Straight with key and tap）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A
+  target: dims/body_length_mm
+  page: 65
+  quote: 08A□A2□ 137 97 78.5 40 3 8 80 90 70 7 19 13.6 38 14.7 19.3 2.2
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 97.0
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A
+  target: dims/square_mm
+  page: 65
+  quote: 08A□A2□ 137 97 78.5 40 3 8 80 90 70 7 19 13.6 38 14.7 19.3 2.2
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 80.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A
+  target: ports/shaft/usable_length_mm
+  page: 65
+  quote: 08A□A2□ 137 97 78.5 40 3 8 80 90 70 7 19 13.6 38 14.7 19.3 2.2
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 40.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A
+  target: ports/shaft/diameter_mm
+  page: 66
+  quote: S 8 -0.009 14 -0.011 19 -0.013
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 19.0
+  tol_upper: 0.0
+  tol_lower: -0.013
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A
+  target: ports/shaft/feature
+  page: 53
+  quote: 2 Straight without key
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: plain
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A
+  target: ports/mount_flange/pcd_mm
+  page: 65
+  quote: 08A□A2□ 137 97 78.5 40 3 8 80 90 70 7 19 13.6 38 14.7 19.3 2.2
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 90.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A
+  target: ports/mount_flange/hole_diameter_mm
+  page: 65
+  quote: 08A□A2□ 137 97 78.5 40 3 8 80 90 70 7 19 13.6 38 14.7 19.3 2.2
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 7.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A
+  target: ports/mount_flange/hole_kind
+  page: 65
+  quote: 4 × LZ dia.
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: through
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A
+  target: ports/mount_flange/hole_count
+  page: 65
+  quote: 4 × LZ dia.
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 4
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A
+  target: ports/power_in/voltage_class_v
+  page: 53
+  quote: A 200 VAC
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 200.0
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A
+  target: ports/encoder/kind
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: absolute
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A
+  target: ports/encoder/protocol
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: vendor_proprietary
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A
+  target: ports/encoder/vendor
+  page: 53
+  quote: 7 24-bit absolute
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: Yaskawa
+  condition: 编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A（轴端代码 6）
+  target: ports/shaft/feature
+  page: 53
+  quote: 6 Straight with key and tap
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: keyed
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A（轴端代码 6）
+  target: ports/shaft/key_width_mm
+  page: 66
+  quote: W 3 5 6
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+  value: 6.0
+  condition: 轴端代码 6（Straight with key and tap）
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A
+  target: params/mass_kg
+  value: 0.3
+  page: 64
+  quote: A5A□A2□ 81.5 56.5 37.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.3
+  condition: 无制动器，编码器代码 7（Approx. Mass，括号内为带制动器）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A
+  target: params/mass_kg
+  value: 0.4
+  page: 64
+  quote: 01A□A2□ 93.5 68.5 49.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.4
+  condition: 无制动器，编码器代码 7（Approx. Mass，括号内为带制动器）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A
+  target: params/mass_kg
+  value: 0.5
+  page: 64
+  quote: C2A□A2□ 105.5 80.5 61.9 25 2.5 5 40 46 30 4.3 8 8.8 25.8 14.7 16.1 0.5
+  condition: 无制动器，编码器代码 7（Approx. Mass，括号内为带制动器）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-02A
+  target: params/mass_kg
+  value: 0.8
+  page: 65
+  quote: 02A□A2□ 99.5 69.5 51.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1 0.8
+  condition: 无制动器，编码器代码 7（Approx. Mass，括号内为带制动器）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A
+  target: params/mass_kg
+  value: 1.1
+  page: 65
+  quote: 04A□A2□ 115.5 85.5 67.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1 1.1
+  condition: 无制动器，编码器代码 7（Approx. Mass，括号内为带制动器）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A
+  target: params/mass_kg
+  value: 1.6
+  page: 65
+  quote: 06A□A2□ 137.5 107.5 89.2 30 3 6 60 70 50 5.5 14 8.5 28.7 14.7 17.1 1.6
+  condition: 无制动器，编码器代码 7（Approx. Mass，括号内为带制动器）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A
+  target: params/mass_kg
+  value: 2.2
+  page: 65
+  quote: 08A□A2□ 137 97 78.5 40 3 8 80 90 70 7 19 13.6 38 14.7 19.3 2.2
+  condition: 无制动器，编码器代码 7（Approx. Mass，括号内为带制动器）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R70A
+  target: params/mass_kg
+  value: 0.9
+  page: 79
+  quote: 'Approx. mass: 0.9 kg'
+  condition: 底座安装（Base-mounted）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-R90A
+  target: params/mass_kg
+  value: 0.9
+  page: 79
+  quote: 'Approx. mass: 0.9 kg'
+  condition: 底座安装（Base-mounted）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-1R6A
+  target: params/mass_kg
+  value: 0.9
+  page: 79
+  quote: 'Approx. mass: 0.9 kg'
+  condition: 底座安装（Base-mounted）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-yaskawa-sgd7s-ethercat-manual
+  model: SGD7S-2R8A
+  target: params/mass_kg
+  value: 1.1
+  page: 80
+  quote: 'Approx. mass: 1.1 kg'
+  condition: 底座安装（Base-mounted）
   confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
   date: '2026-10-05'

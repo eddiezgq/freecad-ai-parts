@@ -3,6 +3,7 @@
     "dims/depth_mm",
     "dims/height_mm",
     "dims/width_mm",
+    "params/mass_kg",
     "ports/bus/protocol",
     "ports/encoder_in/kind",
     "ports/encoder_in/protocol",
@@ -37,7 +38,8 @@
     "ports/encoder_in/vendor = Yaskawa 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
     "ports/mount/pattern = rect 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
     "ports/mount/pitch_x_mm = 10.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
-    "ports/mount/thread = M4 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认"
+    "ports/mount/thread = M4 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
+    "params/mass_kg = 0.9 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入"
   ],
   "reviewer": "claude（AI 复核）",
   "primary_model": "claude-sonnet-5-5",

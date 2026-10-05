@@ -17,8 +17,8 @@
       "source_docs": [
         "src-yaskawa-sgm7-rotary-manual"
       ],
-      "total_mass_kg": null,
-      "unit_mass_kg": null,
+      "total_mass_kg": 0.8,
+      "unit_mass_kg": 0.8,
       "vendor": "Yaskawa Electric Corporation",
       "vendor_cad_url": null
     },
@@ -55,12 +55,12 @@
       "source_docs": [
         "src-yaskawa-sgd7s-ethercat-manual"
       ],
-      "total_mass_kg": null,
-      "unit_mass_kg": null,
+      "total_mass_kg": 0.9,
+      "unit_mass_kg": 0.9,
       "vendor": "Yaskawa America, Inc.",
       "vendor_cad_url": null
     }
   ],
   "system": "candidate-1",
-  "total_mass_kg": null
+  "total_mass_kg": 3.2
 }

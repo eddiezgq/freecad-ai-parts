@@ -1,0 +1,387 @@
+{
+  "category": "servo_motor",
+  "envelope": {
+    "parts": [
+      {
+        "height_mm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），对照规格书第 65 页",
+            "page": 65
+          },
+          "value": 60.0
+        },
+        "label": "body",
+        "length_mm": {
+          "condition": "编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）",
+          "confidence": 0.6,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），对照规格书第 65 页",
+            "page": 65
+          },
+          "value": 107.5
+        },
+        "shape": "box",
+        "width_mm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），对照规格书第 65 页",
+            "page": 65
+          },
+          "value": 60.0
+        },
+        "z_start_mm": -107.5
+      },
+      {
+        "diameter_mm": {
+          "confidence": 1,
+          "method": "manual",
+          "nominal": 14.0,
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），对照规格书第 66 页",
+            "page": 66
+          },
+          "tol_lower": -0.011,
+          "tol_upper": 0.0
+        },
+        "label": "shaft",
+        "length_mm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），对照规格书第 65 页",
+            "page": 65
+          },
+          "value": 30.0
+        },
+        "shape": "cylinder",
+        "z_start_mm": 0
+      }
+    ]
+  },
+  "id": "servo_motor.yaskawa-electric-corporation.sgm7j-06a",
+  "license": "params-only",
+  "model": "SGM7J-06A",
+  "note": "参数取自厂商公开资料 src-yaskawa-sgm7-rotary-manual（ADR-0040），经两次独立抽取比对一致（claude（AI 复核））；不一致的项未收录，见 data/review/",
+  "params": {
+    "ip_rating": {
+      "confidence": 0.9,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-yaskawa-sgm7-rotary-manual",
+        "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+        "page": 55
+      },
+      "value": "IP67"
+    },
+    "mass_kg": {
+      "condition": "无制动器，编码器代码 7（Approx. Mass，括号内为带制动器）",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-yaskawa-sgm7-rotary-manual",
+        "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），对照规格书第 65 页",
+        "page": 65
+      },
+      "value": 1.6
+    },
+    "max_speed_rpm": {
+      "confidence": 0.9,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-yaskawa-sgm7-rotary-manual",
+        "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+        "page": 55
+      },
+      "value": 6000.0
+    },
+    "peak_torque_nm": {
+      "confidence": 0.9,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-yaskawa-sgm7-rotary-manual",
+        "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+        "page": 55
+      },
+      "value": 6.69
+    },
+    "rated_power_w": {
+      "confidence": 0.9,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-yaskawa-sgm7-rotary-manual",
+        "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+        "page": 55
+      },
+      "value": 600.0
+    },
+    "rated_speed_rpm": {
+      "confidence": 0.9,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-yaskawa-sgm7-rotary-manual",
+        "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+        "page": 55
+      },
+      "value": 3000.0
+    },
+    "rated_torque_nm": {
+      "confidence": 0.9,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-yaskawa-sgm7-rotary-manual",
+        "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+        "page": 55
+      },
+      "value": 1.91
+    },
+    "torque_constant_nm_per_a": {
+      "confidence": 0.9,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-yaskawa-sgm7-rotary-manual",
+        "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+        "page": 55
+      },
+      "value": 0.493
+    }
+  },
+  "ports": [
+    {
+      "dir": "out",
+      "frame": {
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "origin_mm": [
+          0,
+          0,
+          30.0
+        ]
+      },
+      "id": "shaft",
+      "motion": "rotating",
+      "note": "坐标系按品类约定生成（ADR-0023），布局时核对",
+      "spec": {
+        "diameter_mm": {
+          "confidence": 1,
+          "method": "manual",
+          "nominal": 14.0,
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），对照规格书第 66 页",
+            "page": 66
+          },
+          "tol_lower": -0.011,
+          "tol_upper": 0.0
+        },
+        "feature": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），规格书第 53 页原文“2 Straight without key”",
+            "page": 53
+          },
+          "value": "plain"
+        },
+        "fit": {
+          "confidence": 1,
+          "method": "computed",
+          "reviewed": true,
+          "source": {
+            "formula": "ISO 286：14 mm 的偏差 +0/-0.011 mm 即公差带 h6（ADR-0044）"
+          },
+          "value": "h6"
+        },
+        "usable_length_mm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），对照规格书第 65 页",
+            "page": 65
+          },
+          "value": 30.0
+        }
+      },
+      "type": "mechanical.cyl_male"
+    },
+    {
+      "dir": "bidir",
+      "frame": {
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "origin_mm": [
+          0,
+          0,
+          0
+        ]
+      },
+      "id": "mount_flange",
+      "motion": "stationary",
+      "note": "坐标系按品类约定生成（ADR-0023），布局时核对",
+      "spec": {
+        "hole_count": {
+          "confidence": 0.7,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 65
+          },
+          "value": 4
+        },
+        "hole_diameter_mm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），对照规格书第 65 页",
+            "page": 65
+          },
+          "value": 5.5
+        },
+        "hole_kind": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），规格书第 65 页原文“4 × LZ dia.”",
+            "page": 65
+          },
+          "value": "through"
+        },
+        "pcd_mm": {
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），对照规格书第 65 页",
+            "page": 65
+          },
+          "value": 70.0
+        }
+      },
+      "type": "mechanical.flange"
+    },
+    {
+      "dir": "in",
+      "id": "power_in",
+      "spec": {
+        "peak_current_a": {
+          "confidence": 0.9,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 55
+          },
+          "value": 15.3
+        },
+        "rated_current_a": {
+          "confidence": 0.9,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+            "page": 55
+          },
+          "value": 4.2
+        },
+        "voltage_class_v": {
+          "confidence": 0.85,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），对照规格书第 55 页",
+            "page": 55
+          },
+          "value": 200.0
+        }
+      },
+      "type": "electrical.motor_power"
+    },
+    {
+      "dir": "out",
+      "id": "encoder",
+      "spec": {
+        "kind": {
+          "condition": "编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）",
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），规格书第 53 页原文“7 24-bit absolute”",
+            "page": 53
+          },
+          "value": "absolute"
+        },
+        "protocol": {
+          "condition": "编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）",
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），规格书第 53 页原文“7 24-bit absolute”",
+            "page": 53
+          },
+          "value": "vendor_proprietary"
+        },
+        "vendor": {
+          "condition": "编码器代码 7（24-bit absolute），外形尺寸主表适用（ADR-0044 第 3 条 2026-10-05 补充）",
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-05），规格书第 53 页原文“7 24-bit absolute”",
+            "page": 53
+          },
+          "value": "Yaskawa"
+        }
+      },
+      "type": "signal.encoder"
+    }
+  ],
+  "status": "active",
+  "vendor": "Yaskawa Electric Corporation"
+}
