@@ -195,3 +195,52 @@ def test_project_is_saved_in_fcstd_and_restored(gui, tmp_path):
         snapshot.set_target(snapshot.DOC_NAME)
         panel.close()
         host.tools.close()
+
+
+@pytest.mark.freecad
+def test_dragging_a_part_writes_back_to_the_scene(gui):
+    """ADR-0049 第 3 条：用户移动零件后场景随之改变，已连接的刚性组一起动；同步造成的改动不回写。"""
+    import FreeCAD
+
+    from freecad_addon.fc import snapshot
+    from freecad_addon.gui.check_panel import CheckPanel
+    from freecad_addon.gui.host import ToolsHost
+
+    host = ToolsHost(lambda: REAL, note="组件库：真实厂商组件（测试）")
+    panel = CheckPanel(host=host)
+    try:
+        box = []
+        for n, (name, args) in enumerate((
+                ("place_component", {"instance": "motor",
+                                     "component_id": "servo_motor.yaskawa-electric-corporation.sgm7j-02a-6"}),
+                ("place_component", {"instance": "reducer", "component_id": "reducer.harmonic-drive-llc.csf-25-100-2uh",
+                                     "position_mm": [0, 0, 200]}),
+                ("connect_ports", {"a": "motor.shaft", "b": "reducer.input_bore"}),
+                ("place_component", {"instance": "drive", "component_id": "drive.yaskawa-america-inc.sgd7s-1r6a",
+                                     "position_mm": [150, 0, 0]})), start=1):
+            host.call_in_background(name, args, box.append)
+            _pump_until(gui, lambda n=n: len(box) == n)
+        _pump_until(gui, lambda: len(panel.layout_state["instances"]) == 3)
+        gui.processEvents()
+        assert panel.drag is not None and not panel.drag.pending  # 同步造成的改动没有排队
+        pos = {i["instance"]: i["position_mm"] for i in panel.layout_state["instances"]}
+        doc = FreeCAD.getDocument(snapshot._target["name"])
+        # 用户把电机挪到 x=50：减速器与它是一个刚性组，一起挪；驱动器不动
+        pl = doc.getObject("motor").Placement
+        pl.Base = FreeCAD.Vector(50, 0, 0)
+        doc.getObject("motor").Placement = pl
+        assert "motor" in panel.drag.pending
+        _pump_until(gui, lambda: {i["instance"]: i["position_mm"] for i in panel.layout_state["instances"]}["motor"]
+                    == pytest.approx([50, 0, 0]))
+        new = {i["instance"]: i["position_mm"] for i in panel.layout_state["instances"]}
+        assert new["reducer"] == pytest.approx([pos["reducer"][0] + 50, pos["reducer"][1], pos["reducer"][2]])
+        assert new["drive"] == pytest.approx(pos["drive"])
+        # 拖动接口标记不回写
+        mk = doc.getObject("drive__mount")
+        mpl = mk.Placement
+        mpl.Base = FreeCAD.Vector(999, 0, 0)
+        mk.Placement = mpl
+        assert not panel.drag.pending
+    finally:
+        panel.close()
+        host.tools.close()

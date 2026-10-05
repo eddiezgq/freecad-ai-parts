@@ -90,6 +90,20 @@ def _marker_shape(m: Marker):
 
 
 _target: dict[str, str] = {"name": DOC_NAME}  # 布局显示在哪个文档；恢复方案时切到打开的文件（ADR-0049）
+_syncing = {"depth": 0}  # 同步显示期间造成的位姿改动不回写（ADR-0049 第 3 条）
+
+
+def syncing() -> bool:
+    return _syncing["depth"] > 0
+
+
+class _Sync:
+    def __enter__(self):
+        _syncing["depth"] += 1
+
+    def __exit__(self, *exc):
+        _syncing["depth"] -= 1
+        return False
 
 
 def set_target(name: str) -> None:
@@ -122,6 +136,11 @@ def build_document(scene: Scene):
     """就地更新布局文档（ADR-0048 第 4 条、ADR-0049 第 1 条）：每个实例一组，含零件（名称为实例名，带组件 id、
     实例名、品类属性）与各机械端口的接口标记（名称 <实例>__<端口>，标签 <实例>.<端口>，带端口属性）。
     不再关闭重建文档：用户另存的文件名、视角与其他对象保留。"""
+    with _Sync():
+        return _build(scene)
+
+
+def _build(scene: Scene):
     doc = target_document()
     clear_ours(doc)
     by_inst: dict[str, list[Marker]] = {}
@@ -155,6 +174,11 @@ def build_document(scene: Scene):
 
 def show(scene: Scene, fit: bool = True):
     """在 FreeCAD 界面中重建布局文档并着色，返回其视图。"""
+    with _Sync():
+        return _show(scene, fit)
+
+
+def _show(scene: Scene, fit: bool):
     gui = _gui()
     doc = build_document(scene)
     gui.updateGui()
