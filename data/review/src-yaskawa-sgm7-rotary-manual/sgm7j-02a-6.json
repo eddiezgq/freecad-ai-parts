@@ -23,6 +23,7 @@
     "ports/power_in/voltage_class_v",
     "ports/shaft/diameter_mm",
     "ports/shaft/feature",
+    "ports/shaft/key_width_mm",
     "ports/shaft/max_axial_load_n",
     "ports/shaft/max_radial_load_n",
     "ports/shaft/usable_length_mm"
@@ -41,6 +42,7 @@
   "problems": [],
   "notes": [
     "ports/shaft/feature = keyed 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "ports/shaft/key_width_mm = 5.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
     "ports/shaft/usable_length_mm = 30.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
     "dims/square_mm = 60.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
     "ports/shaft/diameter_mm = 14.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",

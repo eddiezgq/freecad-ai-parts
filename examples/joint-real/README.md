@@ -31,13 +31,11 @@
 ## 按布局复核
 
 待确认：有数据缺失，不能判定为可用。
-- C2 圆柱配合：待确认（数据缺失）
-  - 缺少键宽（端口：motor.shaft、reducer.input_bore）
 - C3 法兰配合：待确认（数据缺失）
   - 缺少分度圆直径（端口：motor.mount_flange、reducer.motor_flange）
   - 缺少孔数（端口：motor.mount_flange、reducer.motor_flange）
   - 缺少孔的形式（通孔 / 螺纹孔）（端口：motor.mount_flange、reducer.motor_flange）
-通过：C1、C4、C5、C6、C7、C9、C10
+通过：C1、C2、C4、C5、C6、C7、C9、C10
 不适用：C8 惯量比（需求未给负载惯量）
 不适用：C11 轴承与包络（系统中没有轴承，需求也未给包络外径限值）
 

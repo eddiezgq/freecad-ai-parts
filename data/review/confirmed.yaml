@@ -2226,3 +2226,44 @@ confirmations:
   condition: 额定扭矩、脂润滑（目录第 134 页表 134-1 测量条件）；网格温度读点，向下取整到 1%
   confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
   date: '2026-10-05'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-02A（轴端代码 6）
+  target: ports/shaft/key_width_mm
+  value: 5.0
+  page: 66
+  quote: W 3 5 6
+  condition: 轴端代码 6（Straight with key and tap），02、04、06 一档
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-50-2UH
+  target: ports/input_bore/key_width_mm
+  value: 4.0
+  page: 11
+  quote: W Js9 - - 4 5 5 5 6 6 6 8
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-20-100-2UH
+  target: ports/input_bore/key_width_mm
+  value: 4.0
+  page: 11
+  quote: W Js9 - - 4 5 5 5 6 6 6 8
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-25-100-2UH
+  target: ports/input_bore/key_width_mm
+  value: 5.0
+  page: 11
+  quote: W Js9 - - 4 5 5 5 6 6 6 8
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'
+- doc: src-hd-csg-csf-gear-units
+  model: CSF-32-100-2UH
+  target: ports/input_bore/key_width_mm
+  value: 5.0
+  page: 11
+  quote: W Js9 - - 4 5 5 5 6 6 6 8
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-05'

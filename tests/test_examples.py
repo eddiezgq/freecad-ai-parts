@@ -96,3 +96,18 @@ def test_regenerated_real_sample_is_identical(tmp_path, monkeypatch):
     assert got.keys() == want.keys()
     for name, content in want.items():
         assert got[name] == content, f"examples/joint-real/{name} 与当前代码的输出不一致，请重新生成"
+
+
+def test_real_sample_meets_m6_acceptance():
+    """M6 验收（ADR-0046 第 7 条）：没有 fail；unknown 只来自厂商按设计不规定、标为 configurable 的端口。"""
+    comps = {c["instance"]: REAL_LIB.get(c["component"]) for c in REAL_JSON["system"]["components"]}
+
+    def configurable(ref: str) -> bool:
+        inst, pid = ref.split(".", 1)
+        return any(p["id"] == pid and p.get("configurable") for p in comps[inst]["ports"])
+
+    for c in REAL_JSON["report"]["checks"]:
+        assert c["status"] != "fail", c
+        if c["status"] == "unknown":
+            refs = {r for f in c.get("findings", [c]) if f["status"] == "unknown" for r in f.get("ports", [])}
+            assert refs and any(configurable(r) for r in refs), c
