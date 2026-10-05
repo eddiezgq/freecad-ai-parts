@@ -1,7 +1,23 @@
 {
   "agreed": [
+    "dims/depth_mm",
+    "dims/height_mm",
+    "dims/width_mm",
+    "ports/bus/protocol",
+    "ports/encoder_in/kind",
+    "ports/encoder_in/protocol",
+    "ports/encoder_in/vendor",
     "ports/motor_out/peak_current_a",
-    "ports/motor_out/rated_current_a"
+    "ports/motor_out/rated_current_a",
+    "ports/motor_out/voltage_class_v",
+    "ports/mount/hole_count",
+    "ports/mount/pattern",
+    "ports/mount/pitch_x_mm",
+    "ports/mount/pitch_y_mm",
+    "ports/mount/thread",
+    "ports/power_in/current_type",
+    "ports/power_in/phases",
+    "ports/power_in/voltage_v"
   ],
   "pending": [
     {
@@ -10,38 +26,29 @@
         "value": 100.0
       },
       "reason": "只有复核抽取报出"
-    },
-    {
-      "target": "ports/bus/protocol",
-      "check": {
-        "value": "ethercat"
-      },
-      "reason": "只有复核抽取报出"
-    },
-    {
-      "target": "ports/mount/pitch_y_mm",
-      "primary": {
-        "nominal": 160.0,
-        "tol_upper": 0.5,
-        "tol_lower": -0.5
-      },
-      "reason": "只有主抽取报出"
-    },
-    {
-      "target": "ports/mount/thread",
-      "primary": {
-        "value": "M4"
-      },
-      "reason": "只有主抽取报出"
     }
   ],
-  "problems": [
-    "包络缺少 dims/width_mm",
-    "包络缺少 dims/height_mm",
-    "包络缺少 dims/depth_mm"
+  "problems": [],
+  "notes": [
+    "ports/power_in/current_type = ac 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "ports/power_in/voltage_v = 200–240 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "ports/power_in/phases = 3 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "ports/bus/protocol = ethercat 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
+    "ports/mount/pitch_y_mm = 160.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
+    "ports/mount/hole_count = 2 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "dims/width_mm = 45.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "dims/height_mm = 168.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "dims/depth_mm = 140.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "ports/motor_out/voltage_class_v = 200.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "ports/encoder_in/protocol = vendor_proprietary 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "ports/encoder_in/kind = absolute 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "ports/encoder_in/vendor = Yaskawa 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "ports/mount/pattern = rect 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "ports/mount/pitch_x_mm = 10.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "ports/mount/thread = M4 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认"
   ],
-  "notes": [],
   "reviewer": "claude（AI 复核）",
   "primary_model": "claude-sonnet-5-5",
-  "check_model": "claude-opus-5-5"
+  "check_model": "claude-opus-5-5",
+  "component": "drive.yaskawa-america-inc.sgd7s-r90a"
 }
