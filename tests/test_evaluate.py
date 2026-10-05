@@ -157,3 +157,16 @@ def test_implicit_targets_not_scored_unless_wrong():
     assert ok[implicit]["outcome"] == "implicit"
     bad = score(answer, {"items": [*base, {"target": implicit, "value": {"value": "iso286"}}]})
     assert bad[implicit]["outcome"] == "extra"
+
+
+def test_multi_model_catalogs_replay_meets_threshold(tmp_path):
+    """#125 验收：合成的多型号目录上，用仓库中的真实录制回放，关键字段准确率 ≥ 95%，两次回放结果相同。"""
+    import json
+
+    reports = []
+    for run in ("a", "b"):
+        out = tmp_path / run
+        assert main(["--catalogs", "--variants", "2", "--work", str(tmp_path / "work"), "--out", str(out)]) == 0
+        reports.append(json.loads((out / "report.json").read_text(encoding="utf-8")))
+    assert reports[0] == reports[1]
+    assert reports[0]["passed"] is True
