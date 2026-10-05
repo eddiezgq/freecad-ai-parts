@@ -414,7 +414,7 @@ M4b 开发部分完成后，验收只剩人工演示（#90），M5 先行。需�
 | 6 | 首批厂商数据 | Harmonic Drive 整机型减速器、安川 Σ-7 伺服电机与 EtherCAT 驱动器，各取公开目录中适合关节的型号 | 每类至少 5 个型号入库，来源可追溯 |
 | 7 | 转接件参数化生成 | 真实电机与减速器之间需要轴套和转接板：`engine/adapters.py` 按两侧端口尺寸生成（ADR-0041；用 `computed` 与 `license: open` 表达，不改 schema）；`compose_chain(generate_adapters=True)` 在库中没有合适转接件时使用 | 生成的转接件通过 schema 与 C2、C3；同一输入结果确定 |
 | 8 | 真实数据端到端样例 | `examples/joint-real/`：用真实组件从一句需求到 BOM、布局与 URDF | 样例可重复生成 |
-| 9 | M6 验收 | | 至少一套由真实组件组成的关节方案通过全部校验，所有数据可追溯来源 |
+| 9 | M6 验收 | | 至少一套由真实组件组成的关节方案通过全部校验，所有数据可追溯来源；厂商目录按设计不规定的端口（ADR-0045 的 configurable）所对应的 unknown 不计为未通过（ADR-0046 第 7 条） |
 
 规格书的下载与真实抽取在 GitHub Actions 或 Codespaces 中运行（本工作环境访问不到厂商网站）；在 Actions 中运行时，密钥 `ANTHROPIC_API_KEY` 取自仓库的 demo 环境。
 

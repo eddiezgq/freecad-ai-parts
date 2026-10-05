@@ -41,6 +41,10 @@
 6. **样例需求**
    - `examples/joint-real-requirement.json` 使用 joint2 的扭矩与转速，供电写 200 V 三相
    - 端口 schema 的相数只收一个值。SGD7S-1R6A 另有单相 200 V 版本（第 63 页），这次不录；允许多个相数需要改 schema，另开 issue
+7. **M6 验收口径**（2026-10-05，项目负责人决定）
+   - “通过全部校验”指：没有 fail；除下列情况外没有 unknown
+   - 例外：厂商目录按设计不规定、由人标为 configurable 的端口（ADR-0045），其配合校验为 unknown，不计为未通过。复核结论照常列出，并写明须按所配零件设计
+   - 其他 unknown（缺数据）仍须补齐
 
 ## 后果
 
