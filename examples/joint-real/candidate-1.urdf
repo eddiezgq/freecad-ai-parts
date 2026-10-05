@@ -2,7 +2,7 @@
 <!-- 由 freecad-ai-parts 生成（ADR-0035）：长度单位 m，角度单位 rad；未写 inertial（无整件惯性数据） -->
 <robot name="candidate-1">
   <link name="base"/>
-  <!-- motor: servo_motor.yaskawa-electric-corporation.sgm7j-02a-6（Yaskawa Electric Corporation SGM7J-02A（轴端代码 6））；质量 未知 -->
+  <!-- motor: servo_motor.yaskawa-electric-corporation.sgm7j-02a-6（Yaskawa Electric Corporation SGM7J-02A（轴端代码 6））；质量 0.8 kg -->
   <link name="motor">
     <visual><origin xyz="0.0 0.0 -0.03475" rpy="0.0 0.0 0.0"/><geometry><box size="0.06 0.06 0.0695"/></geometry></visual>
     <collision><origin xyz="0.0 0.0 -0.03475" rpy="0.0 0.0 0.0"/><geometry><box size="0.06 0.06 0.0695"/></geometry></collision>

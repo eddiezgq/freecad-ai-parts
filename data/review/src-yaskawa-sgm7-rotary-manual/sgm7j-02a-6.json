@@ -4,6 +4,7 @@
     "dims/overall_length_mm",
     "dims/square_mm",
     "params/ip_rating",
+    "params/mass_kg",
     "params/max_speed_rpm",
     "params/peak_torque_nm",
     "params/rated_power_w",
@@ -53,6 +54,7 @@
     "ports/encoder/kind = absolute 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
     "ports/encoder/protocol = vendor_proprietary 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
     "ports/encoder/vendor = Yaskawa 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
+    "params/mass_kg = 0.8 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
     "推导 ports/shaft/fit = h6（ISO 286：14 mm 的偏差 +0/-0.011 mm 即公差带 h6（ADR-0044））",
     "dims/overall_length_mm 未用于包络，不会写入组件"
   ],

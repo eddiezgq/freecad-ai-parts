@@ -3,6 +3,7 @@
     "dims/depth_mm",
     "dims/height_mm",
     "dims/width_mm",
+    "params/mass_kg",
     "ports/bus/protocol",
     "ports/encoder_in/kind",
     "ports/encoder_in/protocol",
@@ -20,13 +21,6 @@
     "ports/power_in/voltage_v"
   ],
   "pending": [
-    {
-      "target": "params/mass_kg",
-      "primary": {
-        "value": 1.1
-      },
-      "reason": "只有主抽取报出"
-    },
     {
       "target": "params/rated_output_power_w",
       "check": {
@@ -52,7 +46,8 @@
     "ports/encoder_in/vendor = Yaskawa 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
     "ports/mount/pattern = rect 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
     "ports/mount/pitch_x_mm = 20.0 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
-    "ports/mount/thread = M4 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认"
+    "ports/mount/thread = M4 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
+    "params/mass_kg = 1.1 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认"
   ],
   "reviewer": "claude（AI 复核）",
   "primary_model": "claude-sonnet-5-5",
