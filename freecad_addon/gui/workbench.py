@@ -33,6 +33,29 @@ class ChatPanelCommand:
         return True
 
 
+class LibraryBrowserCommand:
+    """零件库浏览器（ADR-0048）：搜零件、看参数出处与复核状态、放入布局；与对话面板共用一个场景。"""
+
+    def GetResources(self):
+        return {"MenuText": "零件库", "ToolTip": "按品类、型号与参数搜零件，查看出处与复核状态，放入布局"}
+
+    def Activated(self):
+        from PySide import QtCore
+
+        from freecad_addon.gui.browser import LibraryBrowser
+
+        dock = _state.get("browser")
+        if dock is None:
+            dock = LibraryBrowser(parent=_main_window())
+            _main_window().addDockWidget(QtCore.Qt.LeftDockWidgetArea, dock)
+            _state["browser"] = dock
+        dock.show()
+        dock.raise_()
+
+    def IsActive(self):
+        return True
+
+
 class BridgeCommand:
     def GetResources(self):
         return {"MenuText": "启用 / 停止桥接",
@@ -98,11 +121,12 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
 
     def Initialize(self):
         FreeCADGui.addCommand("FAP_ChatPanel", ChatPanelCommand())
+        FreeCADGui.addCommand("FAP_Browser", LibraryBrowserCommand())
         FreeCADGui.addCommand("FAP_Bridge", BridgeCommand())
         FreeCADGui.addCommand("FAP_Record", RecordCommand())
         FreeCADGui.addCommand("FAP_RecordVideo", RecordVideoCommand())
-        self.appendToolbar("AI Parts", ["FAP_ChatPanel", "FAP_Bridge", "FAP_Record"])
-        self.appendMenu("AI Parts", ["FAP_ChatPanel", "FAP_Bridge", "FAP_Record", "FAP_RecordVideo"])
+        self.appendToolbar("AI Parts", ["FAP_ChatPanel", "FAP_Browser", "FAP_Bridge", "FAP_Record"])
+        self.appendMenu("AI Parts", ["FAP_ChatPanel", "FAP_Browser", "FAP_Bridge", "FAP_Record", "FAP_RecordVideo"])
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"

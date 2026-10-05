@@ -35,12 +35,27 @@ class ToolsHost:
         return self._lib
 
     def call(self, name: str, args: dict, source: str = "user"):
-        """调用工具；改动场景的工具调用后通知监听者。source 标明来自用户还是 AI（ADR-0042）。"""
+        """调用工具；改动场景的工具调用后通知监听者。source 标明来自用户还是 AI（ADR-0042）。
+        不能在界面（主）线程调用，否则与主线程执行器互等；界面上请用 call_in_background。"""
+        if threading.current_thread() is self.executor._thread:
+            raise RuntimeError("不能在界面线程直接调用工具，请用 call_in_background")
         out = self.tools.call(name, args)
         if not out.is_error and name in SCENE_TOOLS:
             for fn in list(self.listeners):
                 fn(name, {"args": args, "source": source})
         return out
+
+    def call_in_background(self, name: str, args: dict, done: Callable, source: str = "user") -> None:
+        """在后台线程调用工具，完成后调用 done(结果或异常)。界面线程不能直接调 call：工具要回到主线程更新
+        FreeCAD 文档，主线程若在等待就会互相等死（ADR-0036 的主线程执行器）。done 在后台线程中调用，
+        界面应通过 Qt 排队信号处理它。"""
+        def work() -> None:
+            try:
+                done(self.call(name, args, source))
+            except Exception as exc:  # noqa: BLE001 — 交给界面显示
+                done(exc)
+
+        threading.Thread(target=work, name=f"fap-{name}", daemon=True).start()
 
 
 SCENE_TOOLS = {"place_component", "connect_ports"}
