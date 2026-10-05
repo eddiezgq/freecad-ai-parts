@@ -2,7 +2,7 @@
 
 ## 需求
 
-原话：六轴机械臂第 2 关节：输出连续扭矩 25 N·m、峰值 50 N·m，输出转速 30 rpm，200 V 三相供电，EtherCAT 总线
+原话：六轴机械臂第 2 关节：输出连续扭矩 25 N·m、峰值 50 N·m，输出转速 30 rpm，室内环境 25 °C，200 V 三相供电，EtherCAT 总线
 
 ## 方案
 
@@ -37,13 +37,7 @@
   - 缺少分度圆直径（端口：motor.mount_flange、reducer.motor_flange）
   - 缺少孔数（端口：motor.mount_flange、reducer.motor_flange）
   - 缺少孔的形式（通孔 / 螺纹孔）（端口：motor.mount_flange、reducer.motor_flange）
-- C4 连续扭矩：待确认（数据缺失）
-  - 连续扭矩折算到电机侧：缺少减速比或效率（端口：motor.shaft、reducer.input_bore）
-- C5 峰值扭矩：待确认（数据缺失）
-  - 峰值扭矩折算到电机侧：缺少减速比或效率（端口：motor.shaft、reducer.input_bore）
-- C6 减速器过载保护：待确认（数据缺失）
-  - 过载保护：缺少电机峰值扭矩、减速比、效率或减速器瞬间最大扭矩（端口：motor.shaft、reducer.input_bore）
-通过：C1、C7、C9、C10
+通过：C1、C4、C5、C6、C7、C9、C10
 不适用：C8 惯量比（需求未给负载惯量）
 不适用：C11 轴承与包络（系统中没有轴承，需求也未给包络外径限值）
 
