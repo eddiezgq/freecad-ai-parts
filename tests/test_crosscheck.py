@@ -212,3 +212,22 @@ def test_manual_entry_needs_page_and_quote():
     pv = cmp["agreed"]["ports/shaft/diameter_mm"]
     assert pv["nominal"] == 14 and pv["tol_lower"] == -0.011 and "value" not in pv
     assert errors("common/param-value.schema.json", pv) == []
+
+
+def test_manual_entry_of_a_range_with_condition():
+    """原文印的是范围（如“200 VAC to 240 VAC”）时写 min、max，只能人工录入（ADR-0046 第 5 条）。"""
+    p, c = _ext("a"), _ext("b")
+    entry = {"doc": "src-x-doc", "model": "D-1", "target": "ports/power_in/voltage_v", "min": 200, "max": 240,
+             "page": 62, "quote": "200 VAC to 240 VAC, 50 Hz/60 Hz", "condition": "三相",
+             "confirmed_by": "张国庆", "date": "2026-10-04"}
+    cmp = cx.compare(p, c)
+    notes = cx.apply_confirmations(p, c, cmp, [entry], "D-1")
+    pv = cmp["agreed"]["ports/power_in/voltage_v"]
+    assert (pv["min"], pv["max"]) == (200, 240) and "value" not in pv and pv["condition"] == "三相"
+    assert pv["method"] == "manual" and errors("common/param-value.schema.json", pv) == []
+    assert any("200–240" in n for n in notes)
+    # 范围不给原文、上下限颠倒、同时给 value：不采用
+    for bad in ({k: v for k, v in entry.items() if k != "quote"}, dict(entry, min=250), dict(entry, value=200)):
+        cmp = cx.compare(p, c)
+        cx.apply_confirmations(p, c, cmp, [bad], "D-1")
+        assert cmp["agreed"].get("ports/power_in/voltage_v", {}).get("min") is None
