@@ -10,7 +10,6 @@ import json
 import os
 import sys
 import types
-from pathlib import Path
 
 import pytest
 
@@ -73,8 +72,9 @@ def _proposal(answer, target):
 def test_targets_cover_category_schema(category):
     tmap = targets(category)
     cat = json.loads((lx.SCHEMA_DIR / "categories" / f"{category}.schema.json").read_text(encoding="utf-8"))
-    for name in cat["properties"]["params"]["properties"]:
-        assert f"params/{name}" in tmap
+    for name, sub in cat["properties"]["params"]["properties"].items():
+        # 参数值类的参数都是抽取目标；效率曲线等不是参数值的参数不由模型抽取（ADR-0047）
+        assert (f"params/{name}" in tmap) == lx._is_param_value(sub), name
     for key in cat.get("x-key-fields", []):
         assert tmap[f"params/{key}"][0].key
     assert {t for t in tmap if t.startswith("dims/")} == {f"dims/{d}" for d in lx.CATEGORY_DIMS[category]}
@@ -671,14 +671,11 @@ def test_same_sign_tolerance_accepted(cell, upper, lower):
 
 
 def test_targets_skip_params_that_are_not_param_values():
-    """ADR-0047：参数的 schema 不是“参数值”（如效率曲线）时不作为抽取目标；现有参数都是参数值。"""
+    """ADR-0047：参数的 schema 不是“参数值”（如效率曲线）时不作为抽取目标。"""
     from ingest.llm_extract import _is_param_value
 
     assert _is_param_value({"$ref": "../common/param-value.schema.json#/$defs/number"})
     assert _is_param_value({"allOf": [{"$ref": "../common/param-value.schema.json#/$defs/number"}, {}]})
     assert not _is_param_value({"type": "object", "properties": {"points": {"type": "array"}}})
-    for cat in ("servo_motor", "reducer", "drive", "bearing"):
-        names = {t.split("/", 1)[1] for t in targets(cat) if t.startswith("params/")}
-        path = Path(__file__).resolve().parent.parent / "schema" / "categories" / f"{cat}.schema.json"
-        schema = json.loads(path.read_text(encoding="utf-8"))
-        assert names == set(schema["properties"]["params"]["properties"])
+    assert "params/efficiency_curve" not in targets("reducer")
+    assert "params/efficiency_ratio" in targets("reducer")

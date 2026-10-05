@@ -13,6 +13,7 @@
     "safety_factor": {"type": "number", "minimum": 1, "default": 1.2, "description": "连续扭矩安全系数，默认 1.2（ADR-0008）"},
     "load_inertia_kgm2": {"type": "number", "exclusiveMinimum": 0, "description": "负载惯量，给出时才计算惯量比（C8）"},
     "inertia_ratio_limit": {"type": "number", "exclusiveMinimum": 0, "default": 10, "description": "惯量比告警阈值，默认 10（ADR-0008）"},
+    "ambient_temp_c": {"type": "number", "description": "环境温度 °C。减速器效率只给曲线时按此温度查表；不给时取曲线最低值（ADR-0047）"},
     "max_envelope_diameter_mm": {"type": "number", "exclusiveMinimum": 0, "description": "系统包络外径上限（C11）"},
     "max_envelope_length_mm": {"type": "number", "exclusiveMinimum": 0, "description": "系统包络长度上限（C11）"},
     "supply": {
