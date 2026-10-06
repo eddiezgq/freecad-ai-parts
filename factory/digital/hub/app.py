@@ -474,6 +474,7 @@ def config():
                         else os.environ.get("WQ_ERPNEXT_URL", "http://localhost:8090")),   # 线上：经单点登录入口（第 7 轮）
         "nodered_url": os.environ.get("WQ_NODERED_URL", "http://localhost:1880"),   # 线上设为空：不对外（D8）
         "auth": AUTH, "login_url": LOGIN_URL,
+        "edition": os.environ.get("WQ_EDITION", "server"),  # local：企业本地版（ADR-0058）
         "default_mode": DEFAULT_MODE, "roles": ROLE_NAMES, "factory_name": FACTORY_NAME, "ai_engine": H.ai.llm.name if H.ai else "rules",
         "tz": str(kpi.TZ), "customers": F.CUSTOMERS, "fg": [{"item_code": "WQR-105", "name": F.ITEMS["WQR-105"][0],
                                                                "price": F.FG_SELLING_PRICE}],

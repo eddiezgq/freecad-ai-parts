@@ -117,3 +117,35 @@ jobs:
       - name: 工作台网页能打包
         working-directory: factory/digital/web
         run: npm ci --no-audit --no-fund && npm run build
+
+  factory-local:
+    # 本地版能一条命令启动（ADR-0058，M10 第 6b 项）：构建镜像、启动、枢纽健康、仿真车间有数据进总线
+    runs-on: ubuntu-24.04
+    needs: factory
+    steps:
+      - uses: actions/checkout@v5
+      - name: 启动本地工厂
+        run: factory/local/start.sh
+      - name: 枢纽健康、总线已连、仿真车间在发数据
+        run: |
+          for i in $(seq 1 60); do
+            h=$(curl -fsS http://localhost:8100/api/health || true)
+            echo "$h"
+            python3 - "$h" <<'PY' && exit 0
+          import json, sys
+          h = json.loads(sys.argv[1] or "{}")
+          sys.exit(0 if h.get("ok") and h.get("bus") and h.get("messages", 0) > 0 else 1)
+          PY
+            sleep 5
+          done
+          exit 1
+      - name: 网页与“本地版”标识
+        run: |
+          curl -fsS http://localhost:8100/ | grep -q "<div id=\"app\"" || curl -fsS http://localhost:8100/ | head -20
+          curl -fsS http://localhost:8100/api/config | python3 -c "import json,sys; assert json.load(sys.stdin)['edition']=='local'"
+      - name: 失败时的日志
+        if: failure()
+        run: cd factory/digital && docker compose --profile mock ps && docker compose --profile mock logs --no-color --tail 80
+      - name: 停止
+        if: always()
+        run: factory/local/stop.sh --reset
