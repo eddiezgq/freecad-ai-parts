@@ -258,6 +258,25 @@ def suggest_replacements(library: Library, layout: dict, instance: str, *, requi
 EXPORT_FORMATS = ("bom_csv", "bom_json", "system_json", "urdf")
 
 
+def list_analyses() -> dict:
+    """本机可用的分析模块（ADR-0056）：id、名称、是否可用、缺什么、怎么装。"""
+    import analysis
+
+    return {"modules": analysis.modules()}
+
+
+def run_analysis(module: str, setup: dict) -> dict:
+    """运行一个分析模块（本机计算，不联网）；返回结果外壳（analysis-result/1）。结果不写入零件参数。"""
+    import analysis
+
+    if not isinstance(setup, dict):
+        raise ToolInputError("setup 须为对象")
+    try:
+        return analysis.run(module, setup)
+    except analysis.UnknownModule as exc:
+        raise ToolInputError(str(exc)) from exc
+
+
 def export_system(library: Library, system: dict, *, format: str = "bom_csv") -> dict:
     """导出方案：bom_csv / bom_json / system_json（含校验报告与所用组件数据）/ urdf（须带 layout，ADR-0035）。
 
@@ -296,5 +315,16 @@ def export_system(library: Library, system: dict, *, format: str = "bom_csv") ->
             "overall": report["overall"]}
 
 
-__all__: list[Any] = ["EXPORT_FORMATS", "SEARCH_LIMIT_MAX", "ToolInputError", "compose_chain", "export_system",
-                      "find_compatible", "get_component", "search_components", "verify_system"]
+__all__: list[Any] = [
+    "EXPORT_FORMATS",
+    "SEARCH_LIMIT_MAX",
+    "ToolInputError",
+    "compose_chain",
+    "export_system",
+    "find_compatible",
+    "get_component",
+    "list_analyses",
+    "run_analysis",
+    "search_components",
+    "verify_system",
+]

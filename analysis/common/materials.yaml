@@ -1,0 +1,58 @@
+# 分析模块用的材料性能（ADR-0056；格式见 schema/material.schema.json）。
+# 搬自问渠数字工厂材料库（第 11、14 轮），只保留规格书、标准或手册印出的值；原表中“估算”的值（如按 0.45σb 估的疲劳极限、
+# 按钢的曲线形状估的 S-N 斜率、标准区间取中值的弹性模量、塑料的典型值）一律不收，相应模块会报缺数据。
+# 热物性（导热、比热、线膨胀，20–100 ℃）：钢、不锈钢、铝取 ASM Handbook 对应牌号（45→AISI 1045、40Cr→4140、
+# 20CrMnTi→8620、Q235→A36、304、6061-T6、7075-T6）的典型值；铸铁取 GB/T 9439、GB/T 1348 附录的物理性能参考值。
+sources:
+  PU: 濮良贵、陈国定《机械设计》第十版，高等教育出版社，表 15-1（轴的常用材料及其主要力学性能）
+  PU-SN: 濮良贵、陈国定《机械设计》第十版 第 3 章：钢的疲劳曲线 N₀ = 10⁷，m = 9
+  "699": GB/T 699-2015《优质碳素结构钢》
+  "3077": GB/T 3077-2015《合金结构钢》
+  "700": GB/T 700-2006《碳素结构钢》
+  "1591": GB/T 1591-2018《低合金高强度结构钢》（Q345 已改称 Q355，数值按 Q355）
+  "9439": GB/T 9439-2023《灰铸铁件》
+  "1348": GB/T 1348-2019《球墨铸铁件》（附录：力学和物理性能参考值）
+  "3191": GB/T 3191-2019《铝及铝合金挤压棒材》
+  ASM: "ASM Handbook Vol.2《Properties and Selection: Nonferrous Alloys》"
+  "1220": GB/T 1220-2007《不锈钢棒》
+  ASM1: "ASM Handbook Vol.1《Properties and Selection: Irons, Steels》"
+  HB: 成大先《机械设计手册》第六版 第 1 卷（材料弹性常数）
+  TH-ASM: ASM Handbook Vol.1 / Vol.2 对应牌号的热物性典型值（20–100 ℃）
+  TH-CI: GB/T 9439-2023、GB/T 1348-2019 附录的物理性能参考值
+materials:
+  - {id: 45-QT, name: 45 钢（调质）, elastic_modulus_mpa: 210000, poisson_ratio: 0.30, density_kg_m3: 7850,
+     yield_strength_mpa: 355, ultimate_strength_mpa: 640, fatigue_limit_bending_mpa: 275, fatigue_limit_torsion_mpa: 155,
+     sn_knee_cycles: 1.0e+7, sn_exponent: 9, thermal_conductivity_w_per_m_k: 49.8, specific_heat_j_per_kg_k: 486,
+     thermal_expansion_per_k: 1.12e-5, src: [PU, PU-SN, "699", HB, TH-ASM], note: 减速器轴最常用；强度取表 15-1（直径 ≤ 200 mm）}
+  - {id: 40Cr-QT, name: 40Cr（调质）, elastic_modulus_mpa: 210000, poisson_ratio: 0.30, density_kg_m3: 7850,
+     yield_strength_mpa: 540, ultimate_strength_mpa: 735, fatigue_limit_bending_mpa: 355, fatigue_limit_torsion_mpa: 200,
+     sn_knee_cycles: 1.0e+7, sn_exponent: 9, thermal_conductivity_w_per_m_k: 42.6, specific_heat_j_per_kg_k: 473,
+     thermal_expansion_per_k: 1.22e-5, src: [PU, PU-SN, "3077", HB, TH-ASM], note: 受载较大的轴、齿轮；表 15-1（直径 ≤ 100 mm）}
+  - {id: 20CrMnTi-CQ, name: 20CrMnTi（渗碳淬火回火）, elastic_modulus_mpa: 207000, poisson_ratio: 0.30, density_kg_m3: 7850,
+     yield_strength_mpa: 835, ultimate_strength_mpa: 1080, fatigue_limit_bending_mpa: 525, fatigue_limit_torsion_mpa: 300,
+     sn_knee_cycles: 1.0e+7, sn_exponent: 9, thermal_conductivity_w_per_m_k: 46.6, specific_heat_j_per_kg_k: 477,
+     thermal_expansion_per_k: 1.19e-5, src: [PU, PU-SN, "3077", TH-ASM], note: 齿轮轴、高速重载；表 15-1（直径 ≤ 15 mm 时的芯部性能）}
+  - {id: Q235, name: Q235, elastic_modulus_mpa: 206000, poisson_ratio: 0.30, density_kg_m3: 7850,
+     yield_strength_mpa: 235, ultimate_strength_mpa: 440, fatigue_limit_bending_mpa: 180, fatigue_limit_torsion_mpa: 105,
+     sn_knee_cycles: 1.0e+7, sn_exponent: 9, thermal_conductivity_w_per_m_k: 51.9, specific_heat_j_per_kg_k: 486,
+     thermal_expansion_per_k: 1.17e-5, src: ["700", PU, PU-SN, TH-ASM], note: 屈服强度按 GB/T 700（≤ 16 mm），抗拉强度与疲劳极限取表 15-1 的 Q235-A}
+  - {id: Q345, name: Q345（Q355）, elastic_modulus_mpa: 206000, poisson_ratio: 0.30, density_kg_m3: 7850,
+     yield_strength_mpa: 355, ultimate_strength_mpa: 470, thermal_conductivity_w_per_m_k: 46.0, specific_heat_j_per_kg_k: 480,
+     thermal_expansion_per_k: 1.20e-5, src: ["1591", HB, TH-ASM], note: 焊接结构、机架；GB/T 1591 不给疲劳值，疲劳计算缺数据}
+  - {id: HT200, name: HT200 灰铸铁, poisson_ratio: 0.26, density_kg_m3: 7200, ultimate_strength_mpa: 200, brittle: true,
+     thermal_conductivity_w_per_m_k: 50.0, specific_heat_j_per_kg_k: 460, thermal_expansion_per_k: 1.05e-5,
+     src: ["9439", HB, TH-CI], note: 脆性材料，安全系数按抗拉强度；标准只给弹性模量区间，没有单值，强度计算缺数据}
+  - {id: QT500-7, name: QT500-7 球墨铸铁, elastic_modulus_mpa: 169000, poisson_ratio: 0.275, density_kg_m3: 7100,
+     yield_strength_mpa: 320, ultimate_strength_mpa: 500, fatigue_limit_bending_mpa: 224, thermal_conductivity_w_per_m_k: 35.2,
+     specific_heat_j_per_kg_k: 515, thermal_expansion_per_k: 1.25e-5, src: ["1348", TH-CI], note: 箱体、轮毂；无缺口疲劳极限，S-N 斜率缺数据}
+  - {id: 6061-T6, name: 6061-T6 铝合金, elastic_modulus_mpa: 68900, poisson_ratio: 0.33, density_kg_m3: 2700,
+     yield_strength_mpa: 276, ultimate_strength_mpa: 310, fatigue_limit_bending_mpa: 96.5, sn_knee_cycles: 5.0e+8,
+     thermal_conductivity_w_per_m_k: 167.0, specific_heat_j_per_kg_k: 896, thermal_expansion_per_k: 2.36e-5,
+     src: ["3191", ASM, TH-ASM], note: 铝没有真正的疲劳极限：取 5×10⁸ 次的值（ASM，R.R. Moore 旋转弯曲）；S-N 斜率缺数据}
+  - {id: 7075-T6, name: 7075-T6 铝合金, elastic_modulus_mpa: 71700, poisson_ratio: 0.33, density_kg_m3: 2810,
+     yield_strength_mpa: 503, ultimate_strength_mpa: 572, fatigue_limit_bending_mpa: 159, sn_knee_cycles: 5.0e+8,
+     thermal_conductivity_w_per_m_k: 130.0, specific_heat_j_per_kg_k: 960, thermal_expansion_per_k: 2.36e-5,
+     src: ["3191", ASM, TH-ASM], note: 同 6061-T6}
+  - {id: "304", name: 304 不锈钢（固溶）, elastic_modulus_mpa: 193000, poisson_ratio: 0.29, density_kg_m3: 7930,
+     yield_strength_mpa: 205, ultimate_strength_mpa: 520, fatigue_limit_bending_mpa: 240, thermal_conductivity_w_per_m_k: 16.2,
+     specific_heat_j_per_kg_k: 500, thermal_expansion_per_k: 1.73e-5, src: ["1220", ASM1, TH-ASM], note: 耐腐蚀件；ASM 退火态疲劳极限；S-N 曲线缺数据}

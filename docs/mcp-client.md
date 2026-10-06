@@ -35,10 +35,12 @@ pip install -e .
 }
 ```
 
-Windows 下 `command` 为 `C:\\path\\to\\freecad-ai-parts\\.venv\\Scripts\\python.exe`。重启 Claude Desktop 后，工具列表中应出现 11 个工具：
+Windows 下 `command` 为 `C:\\path\\to\\freecad-ai-parts\\.venv\\Scripts\\python.exe`。重启 Claude Desktop 后，工具列表中应出现 14 个工具：
 
 - 选型与校验：`server_info`、`search_components`、`get_component`、`find_compatible`、`compose_chain`、`verify_system`、`export_system`
 - FreeCAD 布局（M4b）：`place_component`、`connect_ports`、`check_interference`、`snapshot`
+- 改正（ADR-0052）：`suggest_replacements`
+- 分析模块（ADR-0056）：`list_analyses`、`run_analysis`（本机计算；按需安装 `pip install -e ".[mbd,fea,optimize]"`）
 
 另有一个提示模板 `joint_selection`。
 

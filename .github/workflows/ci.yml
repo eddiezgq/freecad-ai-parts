@@ -28,10 +28,10 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - name: 安装字体（模拟规格书 PDF 用）
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends fonts-dejavu-core fonts-wqy-zenhei
+      - name: 安装字体（模拟规格书 PDF 用）与 CalculiX（分析模块，ADR-0056）
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends fonts-dejavu-core fonts-wqy-zenhei calculix-ccx
       - name: 安装依赖
-        run: pip install -e ".[dev]"
+        run: pip install -e ".[dev,mbd,fea,optimize]"
       - name: 代码检查
         run: python -m ruff check .
       - name: schema 校验、单元测试与数据库测试
@@ -54,7 +54,7 @@ jobs:
       - name: 安装 Xvfb（截图测试用）
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends xvfb
       - name: 在 FreeCAD 内带 Python 中安装本项目
-        run: '"$FC/usr/bin/python" -m pip install -e ".[dev]"'
+        run: '"$FC/usr/bin/python" -m pip install -e ".[dev,mbd,fea,optimize]"'
       - name: FreeCAD 测试
         run: |
           set -o pipefail

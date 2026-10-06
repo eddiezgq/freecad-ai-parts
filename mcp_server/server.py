@@ -192,6 +192,22 @@ def create_server(library_factory: Callable[[], Library] = default_library,
 
     @mcp.tool
     @_guard
+    def list_analyses() -> dict:
+        """本机可用的分析模块（ADR-0056）：多体动力学、有限元、疲劳、热分析、设计优化、数字孪生等；
+        每个给出是否可用、缺什么、怎么装。"""
+        return tools.list_analyses()
+
+    @mcp.tool
+    @_guard
+    def run_analysis(
+        module: Annotated[str, Field(description="模块 id，取自 list_analyses")],
+        setup: Annotated[dict, Field(description="该模块的设置（见模块说明）")],
+    ) -> dict:
+        """在本机运行一个分析模块，返回结果（设置、数据、与手算的核对、局限）。分析结果是计算，不写入零件参数。"""
+        return tools.run_analysis(module, setup)
+
+    @mcp.tool
+    @_guard
     def place_component(
         instance: Annotated[str, Field(description="实例名，如 motor、reducer、drive（小写字母开头）")],
         component_id: Annotated[str | None, Field(description="组件 id；新实例必填，移动已有实例时可省略")] = None,

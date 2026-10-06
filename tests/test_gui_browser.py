@@ -706,3 +706,23 @@ def test_new_part_wizard_creates_selectable_part(gui, tmp_path):
     finally:
         library_choice.SETTINGS = old_settings
         host.tools.close()
+
+
+@pytest.mark.freecad
+def test_analysis_list_dialog(gui, monkeypatch):
+    """ADR-0056：分析模块一览列出各模块的可用状态。"""
+    import types
+
+    import analysis
+    from analysis.common import result
+    from freecad_addon.gui.analysis_list import AnalysisListDialog
+
+    fake = types.ModuleType("fake")
+    fake.MODULE = {"id": "demo", "name": "演示模块", "python": ["no_such_pkg_xyz"], "install": "pip install demo"}
+    fake.run = lambda setup: result.make("demo", "1", setup, {})
+    monkeypatch.setattr(analysis, "MODULE_PATHS", ("x",))
+    monkeypatch.setattr(analysis, "_load", lambda p: fake)
+    dlg = AnalysisListDialog()
+    assert dlg.table.rowCount() == 1
+    assert dlg.table.item(0, 0).text() == "演示模块" and "no_such_pkg_xyz" in dlg.table.item(0, 1).text()
+    assert dlg.table.item(0, 2).text() == "pip install demo"

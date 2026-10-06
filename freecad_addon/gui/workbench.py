@@ -159,6 +159,21 @@ class NewPartCommand:
         return True
 
 
+class AnalysesCommand:
+    """分析模块一览（ADR-0056）：本机各分析模块是否可用、缺什么。"""
+
+    def GetResources(self):
+        return {"MenuText": "分析模块", "ToolTip": "多体动力学、有限元、疲劳、热分析、设计优化、数字孪生：本机运行，查看可用状态"}
+
+    def Activated(self):
+        from freecad_addon.gui.analysis_list import AnalysisListDialog
+
+        AnalysisListDialog(_main_window()).exec()
+
+    def IsActive(self):
+        return True
+
+
 class CheckPanelCommand:
     """校验窗口（ADR-0048）：场景每次改动后自动校验，接口标记按结论着色。"""
 
@@ -291,6 +306,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         FreeCADGui.addCommand("FAP_Bom", BomCommand())
         FreeCADGui.addCommand("FAP_Enterprise", EnterpriseLibraryCommand())
         FreeCADGui.addCommand("FAP_NewPart", NewPartCommand())
+        FreeCADGui.addCommand("FAP_Analyses", AnalysesCommand())
         FreeCADGui.addCommand("FAP_Connect", ConnectPortsCommand())
         FreeCADGui.addCommand("FAP_Checks", CheckPanelCommand())
         FreeCADGui.addCommand("FAP_Restore", RestoreProjectCommand())
@@ -300,7 +316,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bom",
                  "FAP_Restore", "FAP_Bridge", "FAP_Record"]
         self.appendToolbar("AI Parts", tools)
-        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_RecordVideo"])
+        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_RecordVideo"])
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"

@@ -47,7 +47,7 @@ python -m mcp_server.e2e "六轴机械臂第 2 关节：输出连续扭矩 25 N�
 | 入口 | 说明 |
 | --- | --- |
 | 命令行端到端演示 | `python -m mcp_server.e2e`，见 [docs/demo.md](docs/demo.md) |
-| 外部 MCP 客户端（Claude Desktop 等） | 11 个工具与提示模板，见 [docs/mcp-client.md](docs/mcp-client.md) |
+| 外部 MCP 客户端（Claude Desktop 等） | 14 个工具与提示模板，见 [docs/mcp-client.md](docs/mcp-client.md) |
 | REST | `freecad-ai-parts-mcp --http`，路由见 `mcp_server/rest.py` |
 | FreeCAD 工作台与对话面板 | `python -m freecad_addon.install`，见 [freecad_addon/README.md](freecad_addon/README.md) |
 
