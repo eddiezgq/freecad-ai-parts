@@ -1,0 +1,7 @@
+# MuJoCo Menagerie（Google DeepMind）：B 部分现成机器人的来源（第 2 轮 L13 第一期）
+# 构建时按这里固定的提交浅克隆到 vendor_src/mujoco_menagerie（不进仓库）
+repo: https://github.com/google-deepmind/mujoco_menagerie
+commit: 4d038b3feae26ec82b46a4d586379114012a8ac7
+date: 2026-09-29
+license_rule: 以每个模型文件夹里的 LICENSE 为准（tools/import_menagerie.py 自动识别并逐个写进条目；不在可收名单的不收）
+skip_types: [BIOMECHANICAL]   # 果蝇、人体肌肉骨骼、软足：不是机器人，不收

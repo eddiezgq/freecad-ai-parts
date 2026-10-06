@@ -1,0 +1,25 @@
+domain: 设备
+items:
+  - id: M01
+    q: "外圆磨床停了影响什么？"
+    tools: [impact, compare_options]
+    contains: ["GRD-01", "{late_so}", "维修加急"]
+  - id: M02
+    q: "外圆磨床要是再停一天，哪张订单受影响？怎么办最划算？"
+    tools: [compare_options]
+    contains: ["{late_so}", "不处理", "维修加急"]
+    any_of: ["建议", "不处理就够了"]
+  - id: M03
+    q: "磨床再停 8 小时会怎样？"
+    tools: [compare_options]
+    contains: ["GRD-01", "不处理"]
+  - id: M04
+    q: "GRD-01"
+    tools: [search_objects, get_object]
+    contains: ["外圆磨床"]
+  - id: M05
+    q: "外圆磨床停了影响什么？"
+    as: student
+    contains: ["提示", "因果链"]
+    not_contains: ["{late_so}", "{grd_anomaly}", "建议 "]
+    cite: false

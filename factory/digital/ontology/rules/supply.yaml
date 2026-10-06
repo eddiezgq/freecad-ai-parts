@@ -1,0 +1,16 @@
+domain: supply
+rules:
+  W1:
+    name: 缺料 / 低于安全库存
+    fn: stock_short
+    severity: warn
+    role: [planner]
+    desc: 看板“关键物料”为红色。原 AI 提醒迁来
+    hint: 起草请购单
+  W2:
+    name: 采购单逾期到货
+    fn: po_late
+    severity: warn
+    role: [planner]
+    desc: 采购行的计划到货日已过、未收齐
+    hint: 催货；评估是否影响工单，必要时找替代供应商

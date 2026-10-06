@@ -1,0 +1,182 @@
+' WenQuest Digital Factory - SolidWorks submit macro (round 10, S1)
+' Use: open the part (or assembly) in SolidWorks, then Tools > Macro > Run, pick this file (file type *.swb).
+' It exports STEP (and a PDF of the same-named drawing if that drawing is open), asks for the item code and a change note,
+' and submits to "Design release & approval" (enterprise mode: waits for approval; teaching mode: released at once).
+' Hub address and your login token are filled in by "My CAD macro pack" (valid 7 days). ASCII only, so it runs on any Windows language.
+
+Const WQ_HUB = "__WQ_HUB__"
+Const WQ_TOKEN = "__WQ_TOKEN__"
+
+Dim swApp As Object
+
+Sub main()
+    Set swApp = Application.SldWorks
+    Dim doc As Object
+    Set doc = swApp.ActiveDoc
+    If doc Is Nothing Then
+        MsgBox "Open the part or assembly to submit first.", vbExclamation, "WenQuest"
+        Exit Sub
+    End If
+    If doc.GetType <> 1 And doc.GetType <> 2 Then
+        MsgBox "This window is a drawing. Switch to the part or assembly window and run again (the same-named drawing is exported to PDF automatically).", vbExclamation, "WenQuest"
+        Exit Sub
+    End If
+
+    Dim item As String, note As String
+    item = GetProp(doc, "WQ_Item")
+    item = Trim(InputBox("Item code (an existing ERPNext item, e.g. SH-301, CAP-52-T):", "Submit to WenQuest", item))
+    If item = "" Then Exit Sub
+    note = InputBox("Change note (what changed and why):", "Submit to WenQuest", "")
+
+    Dim tmp As String, stepPath As String, pdfPath As String, errs As Long
+    tmp = Environ("TEMP") & "\wenquest"
+    If Dir(tmp, vbDirectory) = "" Then MkDir tmp
+    stepPath = tmp & "\" & SafeName(item) & ".step"
+    pdfPath = ""
+    errs = doc.SaveAs3(stepPath, 0, 2)          ' 0 = current version, 2 = save as copy
+    If errs <> 0 Or Dir(stepPath) = "" Then
+        MsgBox "STEP export failed (error " & errs & ").", vbCritical, "WenQuest"
+        Exit Sub
+    End If
+
+    Dim drwName As String, drw As Object
+    drwName = doc.GetPathName
+    If drwName <> "" Then
+        drwName = Left(drwName, InStrRev(drwName, ".")) & "SLDDRW"
+        Set drw = swApp.GetOpenDocumentByName(drwName)
+        If Not drw Is Nothing Then
+            pdfPath = tmp & "\" & SafeName(item) & "-drawing.pdf"
+            If drw.SaveAs3(pdfPath, 0, 2) <> 0 Then pdfPath = ""
+        End If
+    End If
+
+    Dim res As String
+    res = Submit(item, note, stepPath, pdfPath)
+    If res = "" Then Exit Sub
+    SetProp doc, "WQ_Item", item
+    Dim sid As String, msg As String
+    sid = JsonField(res, "id")
+    If InStr(res, """status"":""approved""") > 0 Then
+        msg = "Released as rev " & JsonField(res, "revision")
+    Else
+        msg = "Submitted for approval"
+    End If
+    If pdfPath = "" Then msg = msg & " (no open drawing with the same name, model only)"
+    MsgBox msg & "." & vbCrLf & "View it at: " & WQ_HUB & "/design/" & sid, vbInformation, "WenQuest"
+End Sub
+
+' ---------------------------------------------------------------- upload (multipart/form-data)
+Function Submit(item As String, note As String, stepPath As String, pdfPath As String) As String
+    Dim boundary As String
+    boundary = "----wq" & Format(Now, "yyyymmddhhnnss") & Int(Rnd * 100000)
+    Dim body As Object
+    Set body = CreateObject("ADODB.Stream")
+    body.Type = 1
+    body.Open
+    AddText body, "--" & boundary & vbCrLf & "Content-Disposition: form-data; name=""item""" & vbCrLf & vbCrLf & item & vbCrLf
+    AddText body, "--" & boundary & vbCrLf & "Content-Disposition: form-data; name=""note""" & vbCrLf & vbCrLf & note & vbCrLf
+    AddFile body, boundary, "step", item & ".step", "application/step", stepPath
+    If pdfPath <> "" Then AddFile body, boundary, "drawing", item & "-drawing.pdf", "application/pdf", pdfPath
+    AddText body, "--" & boundary & "--" & vbCrLf
+    body.Position = 0
+
+    Dim http As Object
+    Set http = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+    http.setTimeouts 10000, 30000, 180000, 180000
+    On Error GoTo Fail
+    http.Open "POST", WQ_HUB & "/api/plm/submit", False
+    http.setRequestHeader "Content-Type", "multipart/form-data; boundary=" & boundary
+    http.setRequestHeader "x-wq-token", WQ_TOKEN
+    http.send body.Read
+    If http.Status = 200 Then
+        Submit = Utf8(http.responseBody)
+    ElseIf http.Status = 401 Then
+        MsgBox "Login token expired: download ""My CAD macro pack"" again from the Design & process page.", vbExclamation, "WenQuest"
+    Else
+        MsgBox "Submit failed (" & http.Status & "): " & JsonField(Utf8(http.responseBody), "detail"), vbCritical, "WenQuest"
+    End If
+    Exit Function
+Fail:
+    MsgBox "Cannot reach WenQuest: " & Err.Description, vbCritical, "WenQuest"
+End Function
+
+Sub AddText(st As Object, s As String)
+    Dim t As Object
+    Set t = CreateObject("ADODB.Stream")
+    t.Type = 2
+    t.Charset = "utf-8"
+    t.Open
+    t.WriteText s
+    t.Position = 0
+    t.Type = 1
+    t.Position = 3                                  ' skip the UTF-8 BOM
+    t.CopyTo st
+    t.Close
+End Sub
+
+Sub AddFile(st As Object, boundary As String, field As String, fname As String, mime As String, path As String)
+    AddText st, "--" & boundary & vbCrLf & "Content-Disposition: form-data; name=""" & field & """; filename=""" & fname & """" & vbCrLf & _
+        "Content-Type: " & mime & vbCrLf & vbCrLf
+    Dim f As Object
+    Set f = CreateObject("ADODB.Stream")
+    f.Type = 1
+    f.Open
+    f.LoadFromFile path
+    f.CopyTo st
+    f.Close
+    AddText st, vbCrLf
+End Sub
+
+Function Utf8(bytes) As String
+    Dim t As Object
+    Set t = CreateObject("ADODB.Stream")
+    t.Type = 1
+    t.Open
+    t.Write bytes
+    t.Position = 0
+    t.Type = 2
+    t.Charset = "utf-8"
+    Utf8 = t.ReadText
+    t.Close
+End Function
+
+' read one top-level JSON field (string or number) - good enough here
+Function JsonField(s As String, key As String) As String
+    Dim p As Long, q As Long
+    p = InStr(s, """" & key & """:")
+    If p = 0 Then Exit Function
+    p = p + Len(key) + 3
+    If Mid(s, p, 1) = """" Then
+        q = InStr(p + 1, s, """")
+        JsonField = Mid(s, p + 1, q - p - 1)
+    Else
+        q = p
+        Do While q <= Len(s) And InStr(",}", Mid(s, q, 1)) = 0
+            q = q + 1
+        Loop
+        JsonField = Mid(s, p, q - p)
+    End If
+End Function
+
+' ---------------------------------------------------------------- custom property: remember the item code
+Function GetProp(doc As Object, name As String) As String
+    Dim v As String, r As String
+    On Error Resume Next
+    doc.Extension.CustomPropertyManager("").Get4 name, False, v, r
+    GetProp = r
+End Function
+
+Sub SetProp(doc As Object, name As String, value As String)
+    On Error Resume Next
+    doc.Extension.CustomPropertyManager("").Add3 name, 30, value, 1      ' 30 = text, 1 = replace
+End Sub
+
+Function SafeName(s As String) As String
+    Dim c, r As String, i As Long
+    For i = 1 To Len(s)
+        c = Mid(s, i, 1)
+        If InStr("\/:*?""<>|", c) > 0 Then c = "_"
+        r = r & c
+    Next
+    SafeName = r
+End Function

@@ -1,0 +1,76 @@
+domain: people
+order: 13
+label: 人员与组织
+label_en: People & organization
+row: support
+types:
+  Department:
+    label: 部门
+    label_en: Department
+    maturity: capture
+    key: 部门代号
+    title: "{name}"
+    props:
+      name: {t: str, l: 名称}
+  Position:
+    label: 岗位
+    label_en: Position
+    maturity: capture
+    key: 岗位代号
+    title: "{name}"
+    props:
+      name: {t: str, l: 名称}
+    links:
+      department: {to: Department, l: 部门, inv: 岗位}
+  Employee:
+    label: 员工
+    label_en: Employee
+    maturity: capture
+    sensitivity: 2
+    key: 工号
+    title: "{key} {name}"
+    props:
+      name: {t: str, l: 姓名}
+      status: {t: str, l: 在岗状态}
+    links:
+      position: {to: Position, l: 岗位, inv: 员工}
+  Qualification:
+    label: 技能与资质
+    label_en: Qualification
+    maturity: capture
+    sensitivity: 2
+    key: 工号/资质代号
+    title: "{employee} {name}"
+    props:
+      employee: {t: str, l: 员工}
+      name: {t: str, l: 资质}
+      valid_until: {t: date, l: 有效期}
+    links:
+      employee: {to: Employee, l: 员工, inv: 资质}
+      machine: {to: Machine, l: 可操作, inv: 持证人员}
+  TrainingRecord:
+    label: 培训记录
+    label_en: Training record
+    maturity: capture
+    sensitivity: 2
+    key: 工号/培训编号
+    title: "{key}"
+    props:
+      date: {t: date, l: 日期}
+      passed: {t: bool, l: 通过}
+    links:
+      employee: {to: Employee, l: 员工, inv: 培训}
+      training: {to: SafetyTraining, l: 培训, inv: 参加人员}
+  Roster:
+    label: 排班
+    label_en: Roster
+    maturity: capture
+    sensitivity: 2
+    key: 日期/班次/工号
+    title: "{key}"
+    props:
+      shift: {t: str, l: 班次}
+      attended: {t: bool, l: 出勤}
+    links:
+      employee: {to: Employee, l: 员工, inv: 排班}
+      machine: {to: Machine, l: 设备, inv: 排班}

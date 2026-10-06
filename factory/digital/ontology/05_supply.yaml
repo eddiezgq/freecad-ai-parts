@@ -1,0 +1,86 @@
+domain: supply
+order: 5
+label: 供应链
+label_en: Supply chain
+row: chain
+types:
+  Supplier:
+    label: 供应商
+    label_en: Supplier
+    maturity: have
+    key: ERPNext 供应商名
+    title: "{name}"
+    sources: [工厂主数据, erp.doc Purchase Order]
+    props:
+      name: {t: str, l: 名称}
+      lead_days: {t: int, l: 提前期, u: 天}
+      category: {t: str, l: 类别}
+  SupplierRating:
+    label: 供应商评价
+    label_en: Supplier rating
+    maturity: capture
+    key: 供应商-期间
+    title: "{key}"
+    props:
+      on_time: {t: num, l: 准时率, u: "%"}
+      quality: {t: num, l: 合格率, u: "%"}
+    links:
+      supplier: {to: Supplier, l: 供应商, inv: 评价}
+  MaterialRequest:
+    label: 请购单
+    label_en: Material request
+    maturity: have
+    key: ERPNext 请购单号
+    title: "{key}"
+    sources: [erp.doc Material Request]
+    props:
+      status: {t: str, l: 状态}
+      schedule_date: {t: date, l: 需要日期}
+      lines: {t: json, l: 明细}
+    links:
+      item: {to: Item, l: 物料, inv: 请购, many: true}
+  PurchaseOrder:
+    label: 采购单
+    label_en: Purchase order
+    maturity: have
+    key: ERPNext 采购单号
+    title: "{key}"
+    sources: [erp.doc Purchase Order]
+    props:
+      status: {t: str, l: 状态}
+      lines: {t: json, l: 明细}
+    links:
+      supplier: {to: Supplier, l: 供应商, inv: 采购单}
+      item: {to: Item, l: 物料, inv: 采购, many: true}
+  PurchaseReceipt:
+    label: 收货单
+    label_en: Purchase receipt
+    maturity: have
+    key: ERPNext 收货单号
+    title: "{key}"
+    sources: [erp.doc Purchase Receipt]
+    props:
+      status: {t: str, l: 状态}
+    links:
+      purchase_order: {to: PurchaseOrder, l: 采购单, inv: 收货}
+  IncomingInspection:
+    label: 来料检验
+    label_en: Incoming inspection
+    maturity: erp
+    key: ERPNext 质量检验单号
+    title: "{key}"
+    props:
+      result: {t: str, l: 结论}
+    links:
+      receipt: {to: PurchaseReceipt, l: 收货单, inv: 来料检验}
+  Batch:
+    label: 批次
+    label_en: Batch
+    maturity: erp
+    key: 批次号
+    title: "{key}"
+    props:
+      qty: {t: num, l: 数量}
+    links:
+      item: {to: Item, l: 物料, inv: 批次}
+      supplier: {to: Supplier, l: 供应商, inv: 批次}

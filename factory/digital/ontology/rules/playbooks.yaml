@@ -1,0 +1,16 @@
+# 处理预案（第 17 轮 C 期 C8）：每类异常在指挥台右栏自动推演的候选方案（按顺序标 A、B、C……）。
+# 方案种类的参数由 hub/ont/playbook.py 按当时的情况填：
+#   none 不处理 · overtime 加班（只在按班次时出现）· reassign 改派到同类设备 · expedite 维修加急（设备在停机时）
+#   reorder 把订单的工单排到最前 · outsource 瓶颈工序外协几件 · urgent_purchase 缺的料紧急采购 · split 分批交货
+P1: [none, overtime, reassign, expedite]
+M1: [none, overtime, reassign, expedite]
+P5: [none, overtime, reassign]
+S1: [none, overtime, reorder, outsource, split]
+S2: [none, overtime, reorder, outsource]
+W1: [none, urgent_purchase, split]
+W2: [none, urgent_purchase, split]
+params:
+  overtime_minutes: 120      # 加班默认 2 小时
+  expedite_factor: 0.5       # 维修加急：剩余停机时间减半
+  outsource_qty: 3           # 外协件数
+  outsource_days: 1          # 外协周期（天）

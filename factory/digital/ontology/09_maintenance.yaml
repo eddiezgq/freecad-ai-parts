@@ -1,0 +1,88 @@
+domain: maintenance
+order: 11
+label: 设备维护与资产
+label_en: Maintenance & assets
+row: support
+types:
+  Asset:
+    label: 资产
+    label_en: Asset
+    maturity: erp
+    key: 资产编号
+    title: "{key} {name}"
+    props:
+      name: {t: str, l: 名称}
+      purchase_date: {t: date, l: 购置}
+      value: {t: num, l: 原值, u: $}
+    links:
+      machine: {to: Machine, l: 对应设备, inv: 资产}
+  MaintenancePlan:
+    label: 维护计划
+    label_en: Maintenance plan
+    maturity: erp
+    key: 计划编号
+    title: "{key}"
+    props:
+      interval_h: {t: num, l: 周期, u: h}
+      next_due: {t: date, l: 下次到期}
+    links:
+      machine: {to: Machine, l: 设备, inv: 维护计划}
+  Inspection:
+    label: 点检
+    label_en: Routine check
+    maturity: capture
+    key: 点检记录号
+    title: "{key}"
+    props:
+      result: {t: str, l: 结论}
+      at: {t: time, l: 时间}
+    links:
+      machine: {to: Machine, l: 设备, inv: 点检}
+  RepairOrder:
+    label: 维修工单
+    label_en: Repair order
+    maturity: erp
+    key: 维修单号
+    title: "{key}"
+    props:
+      status: {t: str, l: 状态}
+      cost: {t: num, l: 费用, u: $}
+    links:
+      machine: {to: Machine, l: 设备, inv: 维修}
+  FailureRecord:
+    label: 故障记录
+    label_en: Failure record
+    maturity: capture
+    key: 故障号
+    title: "{key}"
+    props:
+      mode: {t: str, l: 故障模式}
+      cause: {t: str, l: 原因}
+    links:
+      machine: {to: Machine, l: 设备, inv: 故障}
+  SparePart:
+    label: 备件
+    label_en: Spare part
+    maturity: erp
+    key: 物料号
+    title: "{key}"
+    props:
+      stock: {t: num, l: 库存}
+      min_stock: {t: num, l: 最低库存}
+  Downtime:
+    label: 停机记录
+    label_en: Downtime
+    maturity: have
+    key: 设备号/开始时间
+    title: "{machine} 停机 · {reason}"
+    sources: [machine.event alarm / fault / recover]
+    props:
+      machine: {t: str, l: 设备}
+      reason: {t: str, l: 原因}
+      kind: {t: str, l: 种类}
+      start: {t: time, l: 开始}
+      end: {t: time, l: 结束}
+      minutes: {t: num, l: 时长, u: 分（仿真）}
+      expected_min: {t: num, l: 预计时长, u: 分（仿真）}
+    links:
+      machine: {to: Machine, l: 设备, inv: 停机}

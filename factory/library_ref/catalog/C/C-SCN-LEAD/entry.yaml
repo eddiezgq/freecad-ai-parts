@@ -1,0 +1,75 @@
+# C-SCN-LEAD · 丝杠螺母机构（梯形螺纹）（自建机构，第 5 轮第 6 步）
+schema: 1
+id: C-SCN-LEAD
+kind: mechanism
+name:
+  zh: 丝杠螺母机构（梯形螺纹）
+  en: Lead screw and nut (trapezoidal thread)
+category: SCN
+tags:
+- 丝杠
+- 螺母
+- 螺旋传动
+- 梯形螺纹
+- lead screw
+standards: []
+params:
+- key: diameter_mm
+  zh: 公称直径 d
+  en: Nominal diameter
+  role: key
+  unit: mm
+- key: lead_mm
+  zh: 导程 Ph
+  en: Lead
+  role: key
+  unit: mm
+- key: screw_length_m
+  zh: 丝杠长
+  en: Screw length
+  role: key
+  unit: m
+- key: nut_length_m
+  zh: 螺母长
+  en: Nut length
+  role: key
+  unit: m
+defaults:
+  diameter_mm: 16
+  lead_mm: 4
+  screw_length_m: 0.3
+  nut_length_m: 0.04
+ranges:
+  diameter_mm:
+  - 8
+  - 40
+  lead_mm:
+  - 1.5
+  - 10
+model:
+  engine: wqmech:lead_screw
+  formats:
+  - glb
+  origin: 机构坐标系：平面机构在竖直 XZ 平面内（转角绕 −Y，从前方看逆时针为正），齿轮轴沿 Y；每个构件一个节点
+  note: 参数化自建模型；运动表 motion.csv 按默认参数采样（R5）
+source:
+  origin: wenquest
+  license: Apache-2.0
+  attribution: 问渠零件库（参数化生成器 generators/c_mech.py）
+  checked:
+    by: Claude
+    'on': '2026-10-01'
+    note: 自建；位置分析由测试核对（两种算法互核、闭环约束、传动比）
+teaching:
+  principle: 丝杠转动、螺母（滑台）不转只沿导轨移动，丝杠每转一圈螺母移动一个导程：把旋转变成直线移动。梯形螺纹的导程角小于当量摩擦角时能自锁（推螺母转不动丝杠），所以常用于需要停住的升降、调节。
+  uses:
+  - 机床手动进给、台钳
+  - 升降台、千斤顶
+  - 直线模组（与滚珠丝杠对比）
+  courses:
+  - course: 机械设计基础
+    chapter: 螺旋传动
+  labs: []
+factory:
+  erp_items: []
+  suppliers: []

@@ -1,0 +1,309 @@
+[
+  {
+    "id": "wq-bridge-tab",
+    "type": "tab",
+    "label": "ERPNext ↔ 统一数据总线",
+    "disabled": false,
+    "info": "问渠数字工厂桥接。所有组件只经总线交换数据（附录 A.4）；ERPNext 的读写全部在这里完成，结果以 erp.doc 发回总线。业务逻辑在 lib/erp.js，函数节点只负责调用。"
+  },
+  {
+    "id": "wq-broker",
+    "type": "mqtt-broker",
+    "name": "统一数据总线",
+    "broker": "${WQ_MQTT_HOST}",
+    "port": "${WQ_MQTT_PORT}",
+    "clientid": "wq-bridge",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "30",
+    "cleansession": true,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "closeTopic": "",
+    "willTopic": ""
+  },
+  {
+    "id": "out-bus",
+    "type": "mqtt out",
+    "z": "wq-bridge-tab",
+    "name": "发到总线（erp.doc）",
+    "topic": "",
+    "qos": "1",
+    "retain": "false",
+    "broker": "wq-broker",
+    "x": 900,
+    "y": 280,
+    "wires": []
+  },
+  {
+    "id": "out-debug",
+    "type": "debug",
+    "z": "wq-bridge-tab",
+    "name": "最近发出的单据",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "complete": "payload.data",
+    "targetType": "msg",
+    "statusVal": "payload.data.name",
+    "statusType": "msg",
+    "x": 910,
+    "y": 360,
+    "wires": []
+  },
+  {
+    "id": "in-proposal",
+    "type": "mqtt in",
+    "z": "wq-bridge-tab",
+    "name": "wq/gearbox/ai/proposal",
+    "topic": "wq/gearbox/ai/proposal",
+    "qos": "1",
+    "datatype": "json",
+    "broker": "wq-broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 190,
+    "y": 60,
+    "wires": [
+      [
+        "fn-proposal"
+      ]
+    ]
+  },
+  {
+    "id": "fn-proposal",
+    "type": "function",
+    "z": "wq-bridge-tab",
+    "name": "执行已确认的提议",
+    "func": "// 只处理“人已确认”的提议（附录 A.4 第 2 条）；写入 ERPNext 后把每张单据作为 erp.doc 发回总线，corr = 提议编号\nconst erp = global.get('wqErp');\nconst m = msg.payload;\nif (!m || !m.data || m.mode !== erp.mode || m.data.status !== 'confirmed') return null;\nnode.status({ fill: 'blue', shape: 'dot', text: '执行 ' + m.data.proposal_id });\nerp.execProposal(m).then((out) => {\n  const bad = out.some((o) => o.payload.data.action === 'failed');\n  node.status({ fill: bad ? 'red' : 'green', shape: 'dot', text: m.data.proposal_id + (bad ? ' 失败' : ' 已写入 ' + out.length + ' 张') });\n  node.send([out]);\n}).catch((e) => { node.status({ fill: 'red', shape: 'ring', text: e.message.slice(0, 50) }); node.error(e.message, msg); });\nreturn null;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "info": "AI 或计划员起草、人确认后的提议 → 销售订单、工单、请购单",
+    "x": 500,
+    "y": 60,
+    "wires": [
+      [
+        "out-bus",
+        "out-debug"
+      ]
+    ]
+  },
+  {
+    "id": "in-shop",
+    "type": "mqtt in",
+    "z": "wq-bridge-tab",
+    "name": "wq/gearbox/+/+/event",
+    "topic": "wq/gearbox/+/+/event",
+    "qos": "1",
+    "datatype": "json",
+    "broker": "wq-broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 190,
+    "y": 140,
+    "wires": [
+      [
+        "fn-shop"
+      ]
+    ]
+  },
+  {
+    "id": "fn-shop",
+    "type": "function",
+    "z": "wq-bridge-tab",
+    "name": "车间报工 → 作业卡、完工入库",
+    "func": "// 设备事件 → ERPNext 作业卡：每完成一件记一条工时（按工厂时间）；一道工序做完就提交作业卡；\n// 最后一道工序做完，按合格数做完工入库（扣原材料、加成品，工单完工数随之更新）\nconst erp = global.get('wqErp');\nconst m = msg.payload;\nif (!m || !m.data || m.mode !== erp.mode || !m.data.work_order) return null;\nlet job = null;\nif (m.data.event === 'cycle_end') job = erp.onCycleEnd(m);\nelse if (m.data.event === 'op_complete') job = erp.onOpComplete(m);\nif (!job) return null;\njob.then((out) => {\n  if (out.length) node.status({ fill: 'green', shape: 'dot', text: m.data.work_order + ' ' + m.data.operation.split(' ')[0] + ' ' + m.data.event });\n  node.send([out]);\n}).catch((e) => {\n  node.status({ fill: 'red', shape: 'ring', text: e.message.slice(0, 50) });\n  node.error(e.message, msg);\n  // 写 ERPNext 失败也发到总线（erp.doc，action=failed），看板、AI 和老师都能看到原因\n  node.send([[erp.failed('Job Card', e, { corr: m.corr, mode: m.mode, extra: { work_order: m.data.work_order, operation: m.data.operation, event: m.data.event } })]]);\n});\nreturn null;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "info": "每件完工记工时；工序做完提交作业卡；最后一道做完按合格数入库",
+    "x": 500,
+    "y": 140,
+    "wires": [
+      [
+        "out-bus",
+        "out-debug"
+      ]
+    ]
+  },
+  {
+    "id": "in-qc",
+    "type": "mqtt in",
+    "z": "wq-bridge-tab",
+    "name": "wq/gearbox/quality/qc-01/measurement",
+    "topic": "wq/gearbox/quality/qc-01/measurement",
+    "qos": "1",
+    "datatype": "json",
+    "broker": "wq-broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 190,
+    "y": 220,
+    "wires": [
+      [
+        "fn-qc"
+      ]
+    ]
+  },
+  {
+    "id": "fn-qc",
+    "type": "function",
+    "z": "wq-bridge-tab",
+    "name": "测量值 → 质量检验单",
+    "func": "// 三坐标测量值 → ERPNext 质量检验单：一件零件的全部特性到齐后建一张，关联到“零件检验”工序的作业卡\nconst erp = global.get('wqErp');\nconst m = msg.payload;\nif (!m || !m.data || m.mode !== erp.mode) return null;\nerp.onMeasurement(m).then((out) => {\n  if (out.length) node.status({ fill: 'green', shape: 'dot', text: m.data.part_serial + ' 检验单已建' });\n  node.send([out]);\n}).catch((e) => {\n  node.status({ fill: 'red', shape: 'ring', text: e.message.slice(0, 50) });\n  node.error(e.message, msg);\n  // 写 ERPNext 失败也发到总线（erp.doc，action=failed），看板、AI 和老师都能看到原因\n  node.send([[erp.failed('Quality Inspection', e, { corr: m.corr, mode: m.mode, extra: { work_order: m.data.work_order, part_serial: m.data.part_serial } })]]);\n});\nreturn null;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "info": "一件零件的全部特性到齐后建检验单",
+    "x": 500,
+    "y": 220,
+    "wires": [
+      [
+        "out-bus",
+        "out-debug"
+      ]
+    ]
+  },
+  {
+    "id": "in-design",
+    "type": "mqtt in",
+    "z": "wq-bridge-tab",
+    "name": "wq/gearbox/design/+/+",
+    "topic": "wq/gearbox/design/+/+",
+    "qos": "1",
+    "datatype": "json",
+    "broker": "wq-broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 190,
+    "y": 300,
+    "wires": [
+      [
+        "fn-design"
+      ]
+    ]
+  },
+  {
+    "id": "fn-design",
+    "type": "function",
+    "z": "wq-bridge-tab",
+    "name": "设计发布 → 物料版本、BOM、附件",
+    "func": "// 设计发布 → ERPNext；工艺规程生效 → 新版 BOM 工序（第 13 轮）。FreeCAD 发布 → ERPNext：物料版本号加一；BOM 用量变了就建新版 BOM；STEP、图纸、G 代码作为附件挂到物料上\nconst erp = global.get('wqErp');\nconst m = msg.payload;\nif (!m || !m.data || m.mode !== erp.mode) return null;\nif (!['design.release', 'design.gcode', 'process.release'].includes(m.type)) return null;   // 待审、退回等消息不写 ERPNext\nconst job = m.type === 'design.release' ? erp.onRelease(m) : m.type === 'process.release' ? erp.onProcess(m) : erp.onGcode(m);\njob.then((out) => {\n  node.status({ fill: 'green', shape: 'dot', text: m.data.item + (m.type === 'process.release' ? ' 工艺 rev ' : ' rev ') + m.data.revision });\n  node.send([out]);\n}).catch((e) => {\n  node.status({ fill: 'red', shape: 'ring', text: e.message.slice(0, 50) });\n  node.error(e.message, msg);\n  // 写 ERPNext 失败也发到总线（erp.doc，action=failed），看板、AI 和老师都能看到原因\n  node.send([[erp.failed('Item', e, { corr: m.corr, mode: m.mode, extra: { name: m.data.item, revision: m.data.revision } })]]);\n});\nreturn null;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "info": "FreeCAD 发布宏和 CAM 发出的消息",
+    "x": 500,
+    "y": 300,
+    "wires": [
+      [
+        "out-bus",
+        "out-debug"
+      ]
+    ]
+  },
+  {
+    "id": "in-poll",
+    "type": "inject",
+    "z": "wq-bridge-tab",
+    "name": "每 30 秒",
+    "props": [],
+    "repeat": "30",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "5",
+    "topic": "",
+    "x": 190,
+    "y": 380,
+    "wires": [
+      [
+        "fn-poll"
+      ]
+    ]
+  },
+  {
+    "id": "fn-poll",
+    "type": "function",
+    "z": "wq-bridge-tab",
+    "name": "ERPNext 单据变化 → 总线",
+    "func": "// 每 30 秒看一次 ERPNext 里有没有新改的订单、工单、请购单、采购单（例如学生直接在 ERPNext 里操作），有就发到总线\nconst erp = global.get('wqErp');\nerp.poll().then((out) => {\n  node.status({ fill: 'grey', shape: 'dot', text: new Date().toLocaleTimeString() + ' 变化 ' + out.length });\n  node.send([out]);\n}).catch((e) => { node.status({ fill: 'red', shape: 'ring', text: e.message.slice(0, 50) }); node.error(e.message, msg); });\nreturn null;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "info": "每 30 秒轮询订单、工单、请购单、采购单",
+    "x": 500,
+    "y": 380,
+    "wires": [
+      [
+        "out-bus",
+        "out-debug"
+      ]
+    ]
+  },
+  {
+    "id": "in-bins",
+    "type": "inject",
+    "z": "wq-bridge-tab",
+    "name": "每 60 秒",
+    "props": [],
+    "repeat": "60",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "5",
+    "topic": "",
+    "x": 190,
+    "y": 460,
+    "wires": [
+      [
+        "fn-bins"
+      ]
+    ]
+  },
+  {
+    "id": "fn-bins",
+    "type": "function",
+    "z": "wq-bridge-tab",
+    "name": "库存快照 → 总线",
+    "func": "// 每 60 秒取一次库存（Bin），有变化的发到总线；看板的“关键物料”和算料都用它\nconst erp = global.get('wqErp');\nerp.bins().then((out) => {\n  node.status({ fill: 'grey', shape: 'dot', text: new Date().toLocaleTimeString() + ' 库存变化 ' + out.length });\n  node.send([out]);\n}).catch((e) => { node.status({ fill: 'red', shape: 'ring', text: e.message.slice(0, 50) }); node.error(e.message, msg); });\nreturn null;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "info": "每 60 秒取一次库存",
+    "x": 500,
+    "y": 460,
+    "wires": [
+      [
+        "out-bus",
+        "out-debug"
+      ]
+    ]
+  }
+]

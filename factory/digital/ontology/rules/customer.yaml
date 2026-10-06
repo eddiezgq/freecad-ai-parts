@@ -1,0 +1,4 @@
+domain: customer
+rules:
+  C1: {name: 重要客户投诉, status: waiting, severity: critical, role: [manager], desc: 待数据：需要客户投诉（ERPNext Issue 或领域包）}
+  C2: {name: 满意度下降, status: waiting, severity: warn, role: [manager], desc: 待数据：需要满意度调查}

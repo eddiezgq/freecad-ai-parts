@@ -1,0 +1,10 @@
+domain: sales
+rules:
+  S1:
+    name: 订单可能延期
+    fn: order_late
+    severity: warn            # 预计晚于交期超过 critical_days 天为 critical
+    role: [planner]
+    params: {critical_days: 2}
+    desc: 看板“订单与交期”预测为红色。原 AI 提醒迁来
+    hint: 考虑加班、调整优先级或与客户沟通交期

@@ -1,0 +1,85 @@
+domain: production
+order: 7
+label: 生产执行
+label_en: Production
+row: chain
+types:
+  Machine:
+    label: 设备
+    label_en: Machine
+    maturity: have
+    key: 设备号，小写，如 grd-01
+    title: "{code} {name}"
+    sources: [工厂主数据, machine.status, machine.event]
+    props:
+      code: {t: str, l: 设备号}
+      name: {t: str, l: 名称}
+      kind: {t: str, l: 类型}
+      state: {t: str, l: 状态, series: true}
+      reason: {t: str, l: 停机原因}
+      work_order: {t: str, l: 当前工单}
+      operation: {t: str, l: 当前工序}
+      queue: {t: int, l: 待加工, u: 件}
+      tool_life: {t: num, l: 刀具剩余寿命, u: "%", series: true}
+      updated: {t: time, l: 更新时间}
+    links:
+      tool: {to: Tool, l: 装有, inv: 装在}
+  Tool:
+    label: 刀具 / 砂轮
+    label_en: Tool
+    maturity: have
+    key: 设备号/序号（换一次刀加一）
+    title: "{machine} 第 {seq} 把{kind}"
+    sources: [machine.event tool_change, machine.status]
+    props:
+      machine: {t: str, l: 设备}
+      seq: {t: int, l: 序号}
+      kind: {t: str, l: 种类}
+      installed_at: {t: time, l: 装上}
+      removed_at: {t: time, l: 换下}
+      life_left: {t: num, l: 剩余寿命, u: "%"}
+      parts: {t: int, l: 加工件数}
+  Agv:
+    label: AGV
+    label_en: AGV
+    maturity: have
+    key: AGV 号，如 agv-01
+    title: "{key}"
+    sources: [logistics.status]
+    props:
+      battery: {t: num, l: 电量, u: "%"}
+      task: {t: str, l: 当前任务}
+      x_m: {t: num, l: 位置 x, u: m}
+      y_m: {t: num, l: 位置 y, u: m}
+  PartSerial:
+    label: 零件实物
+    label_en: Serialized part
+    maturity: have
+    key: 序列号，如 SH301-00016-05；减速器总成用出厂序列号
+    title: "{key}"
+    sources: [machine.event, quality.measurement, test.torque, 数字孪生出厂数据]
+    props:
+      item: {t: str, l: 物料}
+      work_order: {t: str, l: 工单}
+      result: {t: str, l: 检验结论}
+      ops_done: {t: int, l: 已完成工序}
+      completed_at: {t: time, l: 完工时间}
+    links:
+      work_order: {to: WorkOrder, l: 工单, inv: 产出}
+      processed: {to: OperationTask, l: 加工于, inv: 加工的零件}
+      installed_in: {to: PartSerial, l: 装入, inv: 装有}
+      became: {to: FieldUnit, l: 出厂为, inv: 出厂序列号}
+  PlcRun:
+    label: 虚拟 PLC 运行
+    label_en: Virtual PLC run
+    maturity: have
+    key: 运行号
+    title: "{unit} {key}"
+    sources: [plc.shift, plc.cycle]
+    props:
+      unit: {t: str, l: 工位}
+      author: {t: str, l: 程序作者}
+      cycles: {t: int, l: 循环数}
+      faults: {t: int, l: 故障数}
+    links:
+      machine: {to: Machine, l: 工位, inv: PLC 运行}

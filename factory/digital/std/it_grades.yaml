@@ -1,0 +1,71 @@
+standard: {short: "GB/T 1800.1-2020 表 1", code: "GB/T 1800.1-2020（修改采用 ISO 286-1:2010）表1", title: "产品几何技术规范(GPS) 线性尺寸公差ISO代号体系 第1部分：公差、偏差和配合的基础 —— 标准公差数值（公称尺寸至 500 mm，IT1–IT18）"}
+sources:
+  - {key: "s1", title: "易紧通 164580.com《GB/T 1800.1-2020 产品几何技术规范(GPS) 线性尺寸公差ISO代号体系 第1部分（ISO 286-1:2010, MOD）》转载，表1 公称尺寸至3150mm的标准公差数值", url: "https://www.164580.com/info_415140.html?pc=1", note: "全部 13 行 IT1–IT18 的主出处（原表 IT1–IT11 单位 μm，IT12–IT18 单位 mm，本表换成 μm）"}
+  - {key: "s2", title: "jxsk.ren《公差等级表 IT01-IT18 完整对照（GB/T 1800.1国标）》", url: "https://www.jxsk.ren/%E5%85%AC%E5%B7%AE%E7%AD%89%E7%BA%A7%E8%A1%A8-it01-it18-%E5%AE%8C%E6%95%B4%E5%AF%B9%E7%85%A7%EF%BC%88gb-t-1800-1%E5%9B%BD%E6%A0%87%EF%BC%89/", note: "全部 13 行 IT1–IT18 逐格互核（分 IT01–IT8、IT9–IT18 两张表）"}
+  - {key: "s3", title: "firatbc.com《ISO 286 — IT Tolerance Grades Reference》IT Grade Values 表", url: "https://www.firatbc.com/ref_it_grades.html", note: "IT1–IT16（全部以 μm 给出）逐格互核；该页没有 IT17、IT18"}
+  - {key: "s4", title: "GB/T 1800.3-1998《极限与配合 基础 第3部分：标准公差和基本偏差数值表》（等效 ISO 286-1:1988）PDF", url: "https://u.dianyuan.com/bbs/u/66/312931213468465.pdf", note: "附录 A2.2.2 标准公差因子 i=0.45∛D+0.001D、A2.3 IT5–IT18 倍数表（7i…2500i）的出处；另抽查 180–500 mm 四行数值（扫描件 OCR，有个别错字，见 checked）"}
+  - {key: "s5", title: "IIT Bombay ME 216/ME338 讲义《Engineering Metrology 1: Fundamentals of Limits and Fits》", url: "https://www.me.iitb.ac.in/~ramesh/courses/ME338/metrology6.pdf", note: "第二出处：D 为尺寸段上下限的几何平均；IT6=10i … IT16=1000i 倍数（讲义只列到 IT16）"}
+columns:
+  - [size_over_mm, 公称尺寸 大于, nominal size above, mm]
+  - [size_to_mm, 公称尺寸 至, nominal size up to and including, mm]
+  - [IT1_um, 标准公差 IT1, standard tolerance IT1, μm]
+  - [IT2_um, 标准公差 IT2, standard tolerance IT2, μm]
+  - [IT3_um, 标准公差 IT3, standard tolerance IT3, μm]
+  - [IT4_um, 标准公差 IT4, standard tolerance IT4, μm]
+  - [IT5_um, 标准公差 IT5, standard tolerance IT5, μm]
+  - [IT6_um, 标准公差 IT6, standard tolerance IT6, μm]
+  - [IT7_um, 标准公差 IT7, standard tolerance IT7, μm]
+  - [IT8_um, 标准公差 IT8, standard tolerance IT8, μm]
+  - [IT9_um, 标准公差 IT9, standard tolerance IT9, μm]
+  - [IT10_um, 标准公差 IT10, standard tolerance IT10, μm]
+  - [IT11_um, 标准公差 IT11, standard tolerance IT11, μm]
+  - [IT12_um, 标准公差 IT12, standard tolerance IT12, μm]
+  - [IT13_um, 标准公差 IT13, standard tolerance IT13, μm]
+  - [IT14_um, 标准公差 IT14, standard tolerance IT14, μm]
+  - [IT15_um, 标准公差 IT15, standard tolerance IT15, μm]
+  - [IT16_um, 标准公差 IT16, standard tolerance IT16, μm]
+  - [IT17_um, 标准公差 IT17, standard tolerance IT17, μm]
+  - [IT18_um, 标准公差 IT18, standard tolerance IT18, μm]
+rows:
+  - {key: "0-3", src: "s1+s2+s3", size_over_mm: 0, size_to_mm: 3, IT1_um: 0.8, IT2_um: 1.2, IT3_um: 2, IT4_um: 3, IT5_um: 4, IT6_um: 6, IT7_um: 10, IT8_um: 14, IT9_um: 25, IT10_um: 40, IT11_um: 60, IT12_um: 100, IT13_um: 140, IT14_um: 250, IT15_um: 400, IT16_um: 600, IT17_um: 1000, IT18_um: 1400}
+  - {key: "3-6", src: "s1+s2+s3", size_over_mm: 3, size_to_mm: 6, IT1_um: 1, IT2_um: 1.5, IT3_um: 2.5, IT4_um: 4, IT5_um: 5, IT6_um: 8, IT7_um: 12, IT8_um: 18, IT9_um: 30, IT10_um: 48, IT11_um: 75, IT12_um: 120, IT13_um: 180, IT14_um: 300, IT15_um: 480, IT16_um: 750, IT17_um: 1200, IT18_um: 1800}
+  - {key: "6-10", src: "s1+s2+s3", size_over_mm: 6, size_to_mm: 10, IT1_um: 1, IT2_um: 1.5, IT3_um: 2.5, IT4_um: 4, IT5_um: 6, IT6_um: 9, IT7_um: 15, IT8_um: 22, IT9_um: 36, IT10_um: 58, IT11_um: 90, IT12_um: 150, IT13_um: 220, IT14_um: 360, IT15_um: 580, IT16_um: 900, IT17_um: 1500, IT18_um: 2200}
+  - {key: "10-18", src: "s1+s2+s3", size_over_mm: 10, size_to_mm: 18, IT1_um: 1.2, IT2_um: 2, IT3_um: 3, IT4_um: 5, IT5_um: 8, IT6_um: 11, IT7_um: 18, IT8_um: 27, IT9_um: 43, IT10_um: 70, IT11_um: 110, IT12_um: 180, IT13_um: 270, IT14_um: 430, IT15_um: 700, IT16_um: 1100, IT17_um: 1800, IT18_um: 2700}
+  - {key: "18-30", src: "s1+s2+s3", size_over_mm: 18, size_to_mm: 30, IT1_um: 1.5, IT2_um: 2.5, IT3_um: 4, IT4_um: 6, IT5_um: 9, IT6_um: 13, IT7_um: 21, IT8_um: 33, IT9_um: 52, IT10_um: 84, IT11_um: 130, IT12_um: 210, IT13_um: 330, IT14_um: 520, IT15_um: 840, IT16_um: 1300, IT17_um: 2100, IT18_um: 3300}
+  - {key: "30-50", src: "s1+s2+s3", size_over_mm: 30, size_to_mm: 50, IT1_um: 1.5, IT2_um: 2.5, IT3_um: 4, IT4_um: 7, IT5_um: 11, IT6_um: 16, IT7_um: 25, IT8_um: 39, IT9_um: 62, IT10_um: 100, IT11_um: 160, IT12_um: 250, IT13_um: 390, IT14_um: 620, IT15_um: 1000, IT16_um: 1600, IT17_um: 2500, IT18_um: 3900}
+  - {key: "50-80", src: "s1+s2+s3", size_over_mm: 50, size_to_mm: 80, IT1_um: 2, IT2_um: 3, IT3_um: 5, IT4_um: 8, IT5_um: 13, IT6_um: 19, IT7_um: 30, IT8_um: 46, IT9_um: 74, IT10_um: 120, IT11_um: 190, IT12_um: 300, IT13_um: 460, IT14_um: 740, IT15_um: 1200, IT16_um: 1900, IT17_um: 3000, IT18_um: 4600}
+  - {key: "80-120", src: "s1+s2+s3", size_over_mm: 80, size_to_mm: 120, IT1_um: 2.5, IT2_um: 4, IT3_um: 6, IT4_um: 10, IT5_um: 15, IT6_um: 22, IT7_um: 35, IT8_um: 54, IT9_um: 87, IT10_um: 140, IT11_um: 220, IT12_um: 350, IT13_um: 540, IT14_um: 870, IT15_um: 1400, IT16_um: 2200, IT17_um: 3500, IT18_um: 5400}
+  - {key: "120-180", src: "s1+s2+s3", size_over_mm: 120, size_to_mm: 180, IT1_um: 3.5, IT2_um: 5, IT3_um: 8, IT4_um: 12, IT5_um: 18, IT6_um: 25, IT7_um: 40, IT8_um: 63, IT9_um: 100, IT10_um: 160, IT11_um: 250, IT12_um: 400, IT13_um: 630, IT14_um: 1000, IT15_um: 1600, IT16_um: 2500, IT17_um: 4000, IT18_um: 6300}
+  - {key: "180-250", src: "s1+s2+s3", size_over_mm: 180, size_to_mm: 250, IT1_um: 4.5, IT2_um: 7, IT3_um: 10, IT4_um: 14, IT5_um: 20, IT6_um: 29, IT7_um: 46, IT8_um: 72, IT9_um: 115, IT10_um: 185, IT11_um: 290, IT12_um: 460, IT13_um: 720, IT14_um: 1150, IT15_um: 1850, IT16_um: 2900, IT17_um: 4600, IT18_um: 7200}
+  - {key: "250-315", src: "s1+s2+s3", size_over_mm: 250, size_to_mm: 315, IT1_um: 6, IT2_um: 8, IT3_um: 12, IT4_um: 16, IT5_um: 23, IT6_um: 32, IT7_um: 52, IT8_um: 81, IT9_um: 130, IT10_um: 210, IT11_um: 320, IT12_um: 520, IT13_um: 810, IT14_um: 1300, IT15_um: 2100, IT16_um: 3200, IT17_um: 5200, IT18_um: 8100}
+  - {key: "315-400", src: "s1+s2+s3", size_over_mm: 315, size_to_mm: 400, IT1_um: 7, IT2_um: 9, IT3_um: 13, IT4_um: 18, IT5_um: 25, IT6_um: 36, IT7_um: 57, IT8_um: 89, IT9_um: 140, IT10_um: 230, IT11_um: 360, IT12_um: 570, IT13_um: 890, IT14_um: 1400, IT15_um: 2300, IT16_um: 3600, IT17_um: 5700, IT18_um: 8900}
+  - {key: "400-500", src: "s1+s2+s3", size_over_mm: 400, size_to_mm: 500, IT1_um: 8, IT2_um: 10, IT3_um: 15, IT4_um: 20, IT5_um: 27, IT6_um: 40, IT7_um: 63, IT8_um: 97, IT9_um: 155, IT10_um: 250, IT11_um: 400, IT12_um: 630, IT13_um: 970, IT14_um: 1550, IT15_um: 2500, IT16_um: 4000, IT17_um: 6300, IT18_um: 9700}
+checked:
+  - {row: "0-3", col: "IT7_um", value: 10, against: "s3", where: "IT Grade Values 表", ok: True}
+  - {row: "10-18", col: "IT7_um", value: 18, against: "s3", where: "IT Grade Values 表", ok: True}
+  - {row: "18-30", col: "IT6_um", value: 13, against: "s3", where: "IT Grade Values 表", ok: True}
+  - {row: "30-50", col: "IT11_um", value: 160, against: "s3", where: "IT Grade Values 表", ok: True}
+  - {row: "80-120", col: "IT9_um", value: 87, against: "s3", where: "IT Grade Values 表", ok: True}
+  - {row: "120-180", col: "IT1_um", value: 3.5, against: "s3", where: "IT Grade Values 表", ok: True}
+  - {row: "120-180", col: "IT14_um", value: 1000, against: "s3", where: "IT Grade Values 表（以 μm 给出）", ok: True}
+  - {row: "400-500", col: "IT16_um", value: 4000, against: "s3", where: "IT Grade Values 表（以 μm 给出）", ok: True}
+  - {row: "180-250", col: "IT10_um", value: 185, against: "s4", where: "表1 标准公差数值，180–250 行", ok: True}
+  - {row: "180-250", col: "IT15_um", value: 1850, against: "s4", where: "表1，180–250 行（原表 1.85 mm）", ok: True}
+  - {row: "250-315", col: "IT7_um", value: 52, against: "s4", where: "表1，250–315 行", ok: True}
+  - {row: "315-400", col: "IT18_um", value: 8900, against: "s4", where: "表1，315–400 行（原表 8.9 mm）", ok: True}
+  - {row: "315-400", col: "IT8_um", value: 89, against: "s4", where: "表1，315–400 行：OCR 读成 99，与 s1、s2、s3 的 89 不符，判为扫描错字", ok: False}
+  - {row: "400-500", col: "IT13_um", value: 970, against: "s4", where: "表1，400–500 行（原表 0.97 mm）", ok: True}
+  - {row: "400-500", col: "IT9_um", value: 155, against: "s4", where: "表1，400–500 行", ok: True}
+excluded:
+  - "IT01、IT0：s1、s2、s3 都有，但任务只要 IT1–IT18，未收。"
+  - "公称尺寸 500–3150 mm 各行：s1 有，但未做第二出处核对，未收。"
+  - "GB/T 1800.1-2020 标准原文 PDF（muzing OSS 链接）返回 404，engineersedge、tokari 被 robots 拒绝，均未能读取。"
+  - "IT1–IT4 的计算公式（ISO 286-1 附录中的几何级数插值）：没有读到可靠原文，不收。"
+notes:
+  - "单位：原标准 IT1–IT11 以 μm 给出，IT12–IT18 以 mm 给出；本表全部换成 μm（IT12–IT18 的值 = 原 mm 值 ×1000），列名后缀统一为 _um。"
+  - "src=s1+s2+s3：IT1–IT16 三站逐格一致；IT17、IT18 只在 s1、s2 中有，两站一致（s3 无这两级）。"
+  - "查表规则：尺寸段为“大于 size_over_mm，至 size_to_mm（含）”；第一段为 ≤3 mm（size_over_mm 记 0）。标准公差按尺寸段取值，段内不插值。"
+  - "formula：IT5–IT18 的标准公差 = 倍数 × i，标准公差因子 i = 0.45·D^(1/3) + 0.001·D（i 单位 μm，D 单位 mm，D = 尺寸段上下限的几何平均 √(D1·D2)）。倍数：IT5=7i，IT6=10i，IT7=16i，IT8=25i，IT9=40i，IT10=64i，IT11=100i，IT12=160i，IT13=250i，IT14=400i，IT15=640i，IT16=1000i，IT17=1600i，IT18=2500i。出处：s4 附录 A2.2.2（i 公式）与 A2.3（IT5–IT18 倍数，7i…2500i）；s5 独立给出 i 的定义（D 为几何平均）和 IT6–IT16 的倍数（10i…1000i），一致。另 Wikipedia“IT Grade”条目给出“IT6 起每隔 5 级乘 10”的规律，与倍数表相符。"
+  - "公式自检（本工作用上面公式重算，与表值比较）：>3 mm 的 12 行中，IT5–IT18 的表值与“倍数×i”相差都在 ±5% 以内，只有 3–6 mm 的 IT6（8 对 7.33，+9.2%）和 10–18 mm 的 IT5（8 对 7.58，+5.6%）超出；≤3 mm 一行按 D=√(1×3) 计算时偏差达 +15%（D 取 1 是本工作的假设，标准对首段的处理未在所读出处中见到）。所以教学和计算一律查表，公式只用来讲规律、不用来代替表值。"
+  - "等级规律（可用于自检）：从 IT6 起，每隔 5 级公差乘 10（如 80–120 mm：IT6=22 μm，IT11=220 μm，IT16=2200 μm），各行均成立。"
+  - "适用：GB/T 1800.1-2020 修改采用 ISO 286-1:2010，表1 数值与 ISO 286-1 相同（s1 为 GB 转载，s3 为 ISO 286 转载，两者一致）。"

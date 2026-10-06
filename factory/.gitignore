@@ -1,0 +1,7 @@
+node_modules/
+.node-red/
+__pycache__/
+.pytest_cache/
+digital/web/dist/
+digital/.env
+*.zip

@@ -1,0 +1,47 @@
+domain: sales
+order: 3
+label: 销售与交付
+label_en: Sales & delivery
+row: chain
+types:
+  SalesOrder:
+    label: 销售订单
+    label_en: Sales order
+    maturity: have
+    key: ERPNext 销售订单号
+    title: "{key}"
+    sources: [erp.doc Sales Order]
+    props:
+      delivery_date: {t: date, l: 交期}
+      transaction_date: {t: date, l: 下单日期}
+      status: {t: str, l: 状态}
+      item: {t: str, l: 产品}
+      qty: {t: num, l: 数量, u: 台}
+      delivered_qty: {t: num, l: 已发货, u: 台}
+      per_delivered: {t: num, l: 发货进度, u: "%"}
+      demo: {t: bool, l: 演示数据}
+    links:
+      customer: {to: Customer, l: 客户, inv: 订单}
+  DeliveryNote:
+    label: 发货单
+    label_en: Delivery note
+    maturity: have
+    key: ERPNext 发货单号
+    title: "{key}"
+    sources: [erp.doc Delivery Note]
+    props:
+      date: {t: date, l: 发货日期}
+      status: {t: str, l: 状态}
+    links:
+      sales_order: {to: SalesOrder, l: 订单, inv: 发货}
+  DeliveryPromise:
+    label: 交付承诺
+    label_en: Delivery promise
+    maturity: capture
+    key: 订单号-序号
+    title: "{key}"
+    props:
+      promised_date: {t: date, l: 承诺日期}
+      qty: {t: num, l: 数量}
+    links:
+      sales_order: {to: SalesOrder, l: 订单, inv: 承诺}

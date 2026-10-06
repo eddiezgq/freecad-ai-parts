@@ -1,0 +1,98 @@
+# 问渠数字工厂 · 第 1 轮
+# 启动：docker compose up -d --build          打开工作台：http://localhost:8100
+# 没装 ERPNext 想先试：docker compose --profile mock up -d --build   （用模拟 ERPNext，见 README）
+# 组件：统一数据总线（Mosquitto）、历史库（PostgreSQL）、枢纽服务（看板 + AI 助手 + MES + 工作台网页）、
+#       仿真车间、Node-RED 桥接；ERPNext 用上一级 factory 目录里原有的那套（端口 8090）。
+name: wq-digital-factory
+
+x-app: &app
+  build:
+    context: ..
+    dockerfile: digital/Dockerfile
+  image: wq-digital-factory:1.0
+  restart: unless-stopped
+  env_file: [{ path: .env, required: false }]
+  environment: &env
+    WQ_DB: postgresql://wq:wq@db:5432/wq_factory
+    WQ_MQTT_HOST: bus
+    WQ_MQTT_PORT: "1883"
+    WQ_MODE: ${WQ_MODE:-teach}
+    WQ_TZ: ${WQ_TZ:-America/New_York}
+
+services:
+  bus:
+    image: eclipse-mosquitto:2.0.20
+    restart: unless-stopped
+    ports: ["1883:1883", "9001:9001"]
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - bus-data:/mosquitto/data
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: wq
+      POSTGRES_PASSWORD: wq
+      POSTGRES_DB: wq_factory
+    volumes: [db-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wq -d wq_factory"]
+      interval: 5s
+      retries: 20
+
+  hub:
+    <<: *app
+    ports: ["8100:8100"]
+    environment:
+      <<: *env
+      WQ_MQTT_WS: ws://localhost:9001
+      WQ_ERPNEXT_URL: ${WQ_ERPNEXT_URL:-http://localhost:8090}
+      WQ_NODERED_URL: http://localhost:1880
+    depends_on:
+      db: { condition: service_healthy }
+      bus: { condition: service_started }
+
+  sim:
+    <<: *app
+    command: ["python", "sim/main.py"]
+    environment:
+      <<: *env
+      WQ_SIM_SPEED: ${WQ_SIM_SPEED:-20}
+      WQ_OPENPLC_CHECK_URL: http://openplc:8300
+    depends_on: [bus]
+
+  # OpenPLC 运行时（第 18 轮第 8 步）：虚拟 PLC 的程序在这里再编译、运行一次，检查是不是标准 IEC 61131-3
+  openplc:
+    build:
+      context: .
+      dockerfile: openplc/Dockerfile
+    image: wq-digital-factory-openplc:1.0
+    restart: unless-stopped
+
+  bridge:
+    build: ./bridge
+    image: wq-digital-factory-bridge:1.0
+    restart: unless-stopped
+    ports: ["1880:1880"]
+    env_file: [{ path: .env, required: false }]
+    environment:
+      WQ_MQTT_HOST: bus
+      WQ_MQTT_PORT: "1883"
+      WQ_MODE: ${WQ_MODE:-teach}
+      WQ_TZ: ${WQ_TZ:-America/New_York}
+      WQ_ERPNEXT_API: ${WQ_ERPNEXT_API:-http://host.docker.internal:8090}
+      WQ_HUB_PUBLIC_URL: http://localhost:8100
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    depends_on: [bus]
+
+  # 没有 ERPNext 时先试用：docker compose --profile mock up -d，并在 .env 里设 WQ_ERPNEXT_API=http://mock-erpnext:8091
+  mock-erpnext:
+    <<: *app
+    profiles: [mock]
+    command: ["uvicorn", "mock_erpnext.server:app", "--host", "0.0.0.0", "--port", "8091"]
+    ports: ["8091:8091"]
+
+volumes:
+  bus-data:
+  db-data:

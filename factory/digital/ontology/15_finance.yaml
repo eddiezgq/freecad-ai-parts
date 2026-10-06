@@ -1,0 +1,45 @@
+domain: finance
+order: 15
+label: 财务
+label_en: Finance
+row: support
+types:
+  Receivable:
+    label: 应收
+    label_en: Receivable
+    maturity: erp
+    sensitivity: 2
+    key: ERPNext 销售发票号
+    title: "{key}"
+    props:
+      amount: {t: num, l: 金额, u: $}
+      due: {t: date, l: 到期}
+      status: {t: str, l: 状态}
+    links:
+      sales_order: {to: SalesOrder, l: 订单, inv: 应收}
+  Payable:
+    label: 应付
+    label_en: Payable
+    maturity: erp
+    sensitivity: 2
+    key: ERPNext 采购发票号
+    title: "{key}"
+    props:
+      amount: {t: num, l: 金额, u: $}
+      due: {t: date, l: 到期}
+    links:
+      purchase_order: {to: PurchaseOrder, l: 采购单, inv: 应付}
+  CostRecord:
+    label: 工单成本
+    label_en: Work order cost
+    maturity: have
+    sensitivity: 1
+    key: 工单号
+    title: "{key} 成本"
+    sources: [hub.kpi 工单成本（由设备事件和费率算）]
+    props:
+      std_total: {t: num, l: 标准成本, u: $}
+      act_total: {t: num, l: 实际成本, u: $}
+      variance_pct: {t: num, l: 差异, u: "%"}
+    links:
+      work_order: {to: WorkOrder, l: 工单, inv: 成本}

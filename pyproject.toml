@@ -62,3 +62,4 @@ markers = [
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+extend-exclude = ["factory"]  # 搬入的数字工厂是独立子项目，有自己的测试（ADR-0058）

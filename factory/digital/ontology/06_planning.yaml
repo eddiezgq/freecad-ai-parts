@@ -1,0 +1,63 @@
+domain: planning
+order: 6
+label: 计划与排产
+label_en: Planning & scheduling
+row: chain
+types:
+  MasterPlan:
+    label: 主计划
+    label_en: Master plan
+    maturity: capture
+    key: 周次
+    title: "{key}"
+    props:
+      planned: {t: json, l: 计划数}
+  WorkOrder:
+    label: 工单
+    label_en: Work order
+    maturity: have
+    key: ERPNext 工单号
+    title: "{key} {item}×{qty}"
+    sources: [erp.doc Work Order, machine.cmd 派工, machine.event]
+    props:
+      item: {t: str, l: 物料}
+      qty: {t: num, l: 数量}
+      produced_qty: {t: num, l: 已完工}
+      status: {t: str, l: 状态}
+      planned_start: {t: date, l: 计划开工}
+      expected_delivery: {t: date, l: 计划完工}
+      released: {t: bool, l: 已下达车间}
+      demo: {t: bool, l: 演示数据}
+    links:
+      sales_order: {to: SalesOrder, l: 订单, inv: 工单}
+      item: {to: Item, l: 物料, inv: 工单}
+  OperationTask:
+    label: 工序任务
+    label_en: Operation task
+    maturity: have
+    key: 工单号/工序序号
+    title: "{work_order} · {operation}"
+    sources: [machine.cmd 派工, machine.status, machine.event]
+    props:
+      work_order: {t: str, l: 工单}
+      op_index: {t: int, l: 工序序号}
+      operation: {t: str, l: 工序}
+      std_min: {t: num, l: 标准工时, u: 分/件}
+      qty: {t: num, l: 数量}
+      done: {t: num, l: 已完成}
+      started: {t: bool, l: 已开工}
+      first_start: {t: time, l: 开始}
+      completed_at: {t: time, l: 完成}
+      time_s: {t: num, l: 累计加工, u: s}
+    links:
+      work_order: {to: WorkOrder, l: 工单, inv: 工序}
+      machine: {to: Machine, l: 设备, inv: 工序任务}
+  ShiftCalendar:
+    label: 班次日历
+    label_en: Shift calendar
+    maturity: capture
+    key: 日期
+    title: "{key}"
+    props:
+      shifts: {t: json, l: 班次}
+      overtime_h: {t: num, l: 加班, u: h}

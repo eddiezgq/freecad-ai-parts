@@ -1,0 +1,16 @@
+domain: 质量
+items:
+  - id: Q01
+    q: "质量怎么样？"
+    tools: [metrics, list_anomalies]
+    contains: ["Ø35", "µm"]
+  - id: Q02
+    q: "轴承位尺寸为什么在变大？"
+    tools: [metrics]
+    contains: ["上移"]
+  - id: Q03
+    q: "质量怎么样？"
+    as: student
+    contains: ["提示", "控制图"]
+    not_contains: ["砂轮"]
+    cite: false

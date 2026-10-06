@@ -1,0 +1,84 @@
+# C-LNK-SLIDER · 曲柄滑块机构（自建机构，第 5 轮第 6 步）
+schema: 1
+id: C-LNK-SLIDER
+kind: mechanism
+name:
+  zh: 曲柄滑块机构
+  en: Slider-crank mechanism
+category: LNK
+tags:
+- 曲柄滑块
+- 连杆机构
+- 活塞
+- 平面机构
+- slider-crank
+standards: []
+params:
+- key: crank_m
+  zh: 曲柄长 r
+  en: Crank r
+  role: key
+  unit: m
+- key: rod_m
+  zh: 连杆长 l
+  en: Rod l
+  role: key
+  unit: m
+- key: offset_m
+  zh: 偏距 e
+  en: Offset e
+  role: key
+  unit: m
+- key: link_width_m
+  zh: 杆宽
+  en: Link width
+  role: key
+  unit: m
+- key: link_thickness_m
+  zh: 杆厚
+  en: Link thickness
+  role: key
+  unit: m
+defaults:
+  crank_m: 0.04
+  rod_m: 0.14
+  offset_m: 0.0
+  link_width_m: 0.012
+  link_thickness_m: 0.006
+ranges:
+  crank_m:
+  - 0.02
+  - 0.08
+  rod_m:
+  - 0.08
+  - 0.3
+  offset_m:
+  - 0
+  - 0.03
+model:
+  engine: wqmech:slider_crank
+  formats:
+  - glb
+  origin: 机构坐标系：平面机构在竖直 XZ 平面内（转角绕 −Y，从前方看逆时针为正），齿轮轴沿 Y；每个构件一个节点
+  note: 参数化自建模型；运动表 motion.csv 按默认参数采样（R5）
+source:
+  origin: wenquest
+  license: Apache-2.0
+  attribution: 问渠零件库（参数化生成器 generators/c_mech.py）
+  checked:
+    by: Claude
+    'on': '2026-10-01'
+    note: 自建；位置分析由测试核对（两种算法互核、闭环约束、传动比）
+teaching:
+  principle: 曲柄整周转动，经连杆推动滑块沿导路往复移动（或反过来：活塞推动曲轴转动）。对心时滑块行程等于两倍曲柄长；有偏距时出现急回特性。
+  uses:
+  - 内燃机、空压机
+  - 冲床
+  - 往复泵
+  courses:
+  - course: 机械设计基础
+    chapter: 平面连杆机构
+  labs: []
+factory:
+  erp_items: []
+  suppliers: []

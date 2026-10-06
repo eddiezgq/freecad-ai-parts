@@ -67,3 +67,53 @@ jobs:
       - name: 失败摘要写成注解（便于在检查结果中直接看到原因）
         if: failure()
         run: grep -E "^(FAILED|ERROR) |^E  " freecad-tests.log | head -40 | sed 's/^/::error::/' || true
+
+  factory:
+    # 搬入的数字工厂（ADR-0058）：独立子项目，沿用问渠仓库 factory 工作流的测试作业
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ["5433:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: 有限元、流体求解器（CalculiX、gmsh 所需系统库、OpenFOAM）
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends calculix-ccx libglu1-mesa libxcursor1 libxft2 libxinerama1 openfoam openmpi-bin
+          (ccx -v || true) | grep -q Version
+          which simpleFoam snappyHexMesh mpirun
+      - name: 动力学用的机器人模型（Menagerie 固定提交）
+        run: sh factory/deploy/fetch_menagerie.sh "$RUNNER_TEMP/menagerie" && echo "WQ_MENAGERIE=$RUNNER_TEMP/menagerie" >> "$GITHUB_ENV"
+      - name: 工厂数据与导入脚本
+        working-directory: factory
+        run: pip install -q -r digital/requirements.txt pytest "requests>=2.31" matplotlib && python -m pytest -q tests
+      - name: 独立的 G 代码解析器（只装在测试环境）
+        run: |
+          pip install -q --no-deps pygcode==0.2.1 six
+          pip download -q --no-deps --no-binary :all: euclid3==0.01 -d "$RUNNER_TEMP/eu"
+          tar -xzf "$RUNNER_TEMP/eu/euclid3-0.01.tar.gz" -C "$RUNNER_TEMP/eu"
+          cp "$RUNNER_TEMP/eu/euclid3-0.01/euclid3.py" "$(python -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')/"
+          python -c "import pygcode"
+      - name: 总线、仿真、枢纽、计算服务
+        working-directory: factory/digital
+        run: |
+          set +e
+          python -m pytest -q tests 2>&1 | tee /tmp/pytest.log
+          st=${PIPESTATUS[0]}
+          if [ "$st" != 0 ]; then python3 ../deploy/ci_annotate.py 单元测试 /tmp/pytest.log 120; fi
+          exit "$st"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: 工作台网页能打包
+        working-directory: factory/digital/web
+        run: npm ci --no-audit --no-fund && npm run build

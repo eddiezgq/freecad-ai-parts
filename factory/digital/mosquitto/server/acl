@@ -1,0 +1,15 @@
+# 服务账号的主题授权（附录 A.4 第 7 条）：设备只写自己区域，桥接只写 ERP 单据，枢纽全权
+user hub
+topic readwrite wq/#
+
+user sim
+topic read wq/#
+topic write wq/gearbox/machining/#
+topic write wq/gearbox/quality/#
+topic write wq/gearbox/logistics/#
+topic write wq/gearbox/warehouse/#
+topic write wq/gearbox/office/erp/#
+
+user bridge
+topic read wq/#
+topic write wq/gearbox/office/#

@@ -1,0 +1,105 @@
+domain: customer
+order: 2
+label: 市场与客户
+label_en: Market & customers
+row: chain
+types:
+  Customer:
+    label: 客户
+    label_en: Customer
+    maturity: have
+    key: ERPNext 客户名
+    title: "{name}"
+    sources: [erp.doc Sales Order, 工厂主数据, 数字孪生现场]
+    props:
+      name: {t: str, l: 名称}
+      industry: {t: str, l: 行业 / 用途}
+      site: {t: str, l: 现场}
+      demo: {t: bool, l: 演示数据}
+  Contact:
+    label: 联系人
+    label_en: Contact
+    maturity: erp
+    key: ERPNext 联系人
+    title: "{name}"
+    sensitivity: 2
+    props:
+      name: {t: str, l: 姓名}
+      role: {t: str, l: 职务}
+    links:
+      customer: {to: Customer, l: 属于, inv: 联系人}
+  Lead:
+    label: 线索
+    label_en: Lead
+    maturity: erp
+    key: ERPNext 线索号
+    title: "{name}"
+    props:
+      name: {t: str, l: 名称}
+      source: {t: str, l: 来源}
+      status: {t: str, l: 状态}
+  Opportunity:
+    label: 商机
+    label_en: Opportunity
+    maturity: erp
+    key: ERPNext 商机号
+    title: "{key}"
+    props:
+      amount: {t: num, l: 金额, u: $}
+      stage: {t: str, l: 阶段}
+      expected_close: {t: date, l: 预计成交}
+    links:
+      customer: {to: Customer, l: 客户, inv: 商机}
+      lead: {to: Lead, l: 来自, inv: 转化为}
+  Quotation:
+    label: 报价
+    label_en: Quotation
+    maturity: erp
+    key: ERPNext 报价单号
+    title: "{key}"
+    sources: [参数配置器（报价）]
+    props:
+      amount: {t: num, l: 金额, u: $}
+      valid_till: {t: date, l: 有效期}
+      status: {t: str, l: 状态}
+    links:
+      customer: {to: Customer, l: 客户, inv: 报价}
+      opportunity: {to: Opportunity, l: 商机, inv: 报价}
+  Contract:
+    label: 合同
+    label_en: Contract
+    maturity: capture
+    key: 合同号
+    title: "{key}"
+    sensitivity: 2
+    props:
+      warranty_months: {t: int, l: 保修期, u: 月}
+      penalty_per_day: {t: num, l: 延期违约金, u: $/天}
+      start: {t: date, l: 生效}
+    links:
+      customer: {to: Customer, l: 客户, inv: 合同}
+  SatisfactionSurvey:
+    label: 满意度调查
+    label_en: Satisfaction survey
+    maturity: capture
+    key: 调查号
+    title: "{key}"
+    props:
+      score: {t: num, l: 得分}
+      date: {t: date, l: 日期}
+    links:
+      customer: {to: Customer, l: 客户, inv: 满意度}
+  Complaint:
+    label: 客户投诉
+    label_en: Customer complaint
+    maturity: capture
+    key: 投诉号
+    title: "{key} {subject}"
+    props:
+      subject: {t: str, l: 主题}
+      severity: {t: str, l: 严重度}
+      status: {t: str, l: 状态}
+      date: {t: date, l: 日期}
+    links:
+      customer: {to: Customer, l: 客户, inv: 投诉}
+      field_unit: {to: FieldUnit, l: 涉及设备, inv: 投诉}

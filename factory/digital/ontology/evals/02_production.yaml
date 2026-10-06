@@ -1,0 +1,22 @@
+domain: 生产
+items:
+  - id: P01
+    q: "本周瓶颈在哪？"
+    tools: [metrics]
+    contains: ["瓶颈", "{bottleneck}"]
+  - id: P02
+    q: "现在怎么样"
+    tools: [metrics]
+    contains: ["OEE", "在制品"]
+  - id: P03
+    q: "{grd} 现在怎么样？有什么影响？"
+    tools: [impact]
+    contains: ["{grd}", "{late_so}"]
+  - id: P04
+    q: "{wo}"
+    tools: [search_objects, get_object]
+    contains: ["{wo}"]
+  - id: P05
+    q: "数控车床 B 要是再停 4 小时，影响哪张订单？"
+    tools: [impact, compare_options]
+    contains: ["CNC-L01-B", "不处理"]

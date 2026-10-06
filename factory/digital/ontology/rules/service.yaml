@@ -1,0 +1,26 @@
+domain: service
+rules:
+  V1:
+    name: 现场设备报警
+    fn: field_alarm
+    severity: warn            # 孪生红色为 critical
+    role: [manager]
+    alert: false              # 孪生自己已经发 ai.alert，这里只开异常
+    desc: 数字孪生的健康度为黄或红（读孪生的报警，不重复发提醒）
+    hint: 在数字孪生页查看寿命与建议；查同批设备
+  V2:
+    name: 同批多台报警
+    fn: field_batch
+    severity: critical
+    role: [manager, quality]
+    params: {min_units: 2, kinds: [bearing, shaft]}
+    desc: 报警的现场设备里，至少 min_units 台的输出轴出自同一片砂轮或同一张工单。只算可能与制造批次有关的报警（kinds：轴承、输出轴）；换油过期、散热变差这类与批次无关，不算
+    hint: 看因果链里的“建议排查范围”，安排预防性服务；查这批轴的检验数据
+  V3:
+    name: 服务工单超时未关闭
+    fn: service_overdue
+    severity: warn
+    role: [manager]
+    params: {days: 5}
+    desc: 维修单开出超过 days 个现场日仍未完成
+    hint: 联系服务工程师，确认备件和上门时间

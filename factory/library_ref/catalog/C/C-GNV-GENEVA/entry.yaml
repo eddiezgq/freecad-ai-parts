@@ -1,0 +1,66 @@
+# C-GNV-GENEVA · 外槽轮机构（日内瓦机构）（自建机构，第 5 轮第 6 步）
+schema: 1
+id: C-GNV-GENEVA
+kind: mechanism
+name:
+  zh: 外槽轮机构（日内瓦机构）
+  en: External Geneva mechanism
+category: GNV
+tags:
+- 槽轮
+- 日内瓦机构
+- 间歇运动
+- 分度
+- Geneva
+standards: []
+params:
+- key: slots
+  zh: 槽数 n
+  en: Slots
+  role: key
+- key: crank_m
+  zh: 拨销回转半径 R
+  en: Crank radius R
+  role: key
+  unit: m
+- key: thickness_m
+  zh: 厚度
+  en: Thickness
+  role: key
+  unit: m
+defaults:
+  slots: 4
+  crank_m: 0.05
+  thickness_m: 0.008
+ranges:
+  slots:
+  - 3
+  - 8
+model:
+  engine: wqmech:geneva
+  formats:
+  - glb
+  origin: 机构坐标系：平面机构在竖直 XZ 平面内（转角绕 −Y，从前方看逆时针为正），齿轮轴沿 Y；每个构件一个节点
+  note: 参数化自建模型；运动表 motion.csv 按默认参数采样（R5）
+source:
+  origin: wenquest
+  license: Apache-2.0
+  attribution: 问渠零件库（参数化生成器 generators/c_mech.py）
+  checked:
+    by: Claude
+    'on': '2026-10-01'
+    note: 自建；位置分析由测试核对（两种算法互核、闭环约束、传动比）
+teaching:
+  principle: 拨盘匀速转动，拨销进入槽轮的径向槽时带着槽轮转过 360°/n，拨销离开后，拨盘上的锁止弧卡住槽轮让它停住。中心距 C = R / sin(π/n)，拨销进出槽时方向沿槽，没有刚性冲击；运动时间只占一圈的
+    (n − 2)/(2n)。
+  uses:
+  - 转塔刀架、自动机床分度
+  - 电影放映机输片
+  - 包装机转盘
+  courses:
+  - course: 机械设计基础
+    chapter: 间歇运动机构
+  labs: []
+factory:
+  erp_items: []
+  suppliers: []

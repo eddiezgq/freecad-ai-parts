@@ -1,0 +1,20 @@
+domain: 交付
+items:
+  - id: D01
+    q: "{late_so} 为什么会晚？"
+    tools: [metrics, impact]
+    contains: ["{late_so}", "交期"]
+  - id: D02
+    q: "哪张订单可能延期？为什么？"
+    tools: [metrics, impact]
+    contains: ["{late_so}"]
+  - id: D03
+    q: "{late_so} 来得及吗？"
+    tools: [metrics]
+    contains: ["{late_so}", "预计"]
+  - id: D04
+    q: "{late_so} 为什么会晚？"
+    as: student
+    contains: ["提示"]
+    not_contains: ["{late_so}"]
+    cite: false

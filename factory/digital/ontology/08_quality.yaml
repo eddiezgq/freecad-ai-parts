@@ -1,0 +1,100 @@
+domain: quality
+order: 8
+label: 质量
+label_en: Quality
+row: chain
+types:
+  Measurement:
+    label: 测量
+    label_en: Measurement
+    maturity: have
+    key: 序列号/特性代号
+    title: "{part} {name}"
+    sources: [quality.measurement]
+    props:
+      part: {t: str, l: 零件}
+      characteristic: {t: str, l: 特性代号}
+      name: {t: str, l: 特性}
+      value_mm: {t: num, l: 实测, u: mm}
+      lower_mm: {t: num, l: 下限, u: mm}
+      upper_mm: {t: num, l: 上限, u: mm}
+      result: {t: str, l: 判定}
+      at: {t: time, l: 测量时间}
+    links:
+      part: {to: PartSerial, l: 零件, inv: 测量}
+  Ncr:
+    label: 不合格品
+    label_en: Nonconformance
+    maturity: have
+    key: 不合格品单号
+    title: "{key} {part}"
+    sources: [ncr 表, quality.ncr]
+    props:
+      part: {t: str, l: 零件}
+      status: {t: str, l: 处置}
+      detail: {t: json, l: 超差项}
+      created: {t: time, l: 开单时间}
+    links:
+      part: {to: PartSerial, l: 零件, inv: 不合格品}
+      work_order: {to: WorkOrder, l: 工单, inv: 不合格品}
+  Q8d:
+    label: 质量异常单（8D）
+    label_en: 8D report
+    maturity: have
+    key: 8D 单号
+    title: "{key} {title}"
+    sources: [quality_8d 表]
+    props:
+      title: {t: str, l: 标题}
+      status: {t: str, l: 状态}
+      characteristic: {t: str, l: 特性}
+      author: {t: str, l: 开单人}
+      created: {t: time, l: 开单时间}
+    links:
+      item: {to: Item, l: 零件, inv: 质量异常单}
+  QualityProblem:
+    label: 质量问题情景
+    label_en: Injected quality problem
+    maturity: sim
+    sensitivity: 3
+    key: 编号
+    title: "{name}"
+    sources: [quality_problem 表（老师注入）]
+    props:
+      name: {t: str, l: 问题}
+      unit: {t: str, l: 设备}
+      magnitude: {t: num, l: 量值}
+      injected_at: {t: time, l: 注入时间}
+      cleared_at: {t: time, l: 消除时间}
+    links:
+      machine: {to: Machine, l: 设备, inv: 隐藏问题}
+  InspectionPlan:
+    label: 检验计划
+    label_en: Inspection plan
+    maturity: have
+    key: 物料号
+    title: "{key} 检验计划"
+    sources: [工厂主数据（检验特性）]
+    props:
+      chars: {t: json, l: 检验特性}
+    links:
+      item: {to: Item, l: 物料, inv: 检验计划}
+  Gauge:
+    label: 计量器具
+    label_en: Gauge
+    maturity: erp
+    key: 器具编号
+    title: "{key} {name}"
+    props:
+      name: {t: str, l: 名称}
+      calibrated_until: {t: date, l: 校准有效期}
+  QmsAudit:
+    label: 体系审核
+    label_en: QMS audit
+    maturity: capture
+    key: 审核编号
+    title: "{key}"
+    props:
+      standard: {t: str, l: 标准}
+      findings: {t: int, l: 不符合项}
+      date: {t: date, l: 日期}

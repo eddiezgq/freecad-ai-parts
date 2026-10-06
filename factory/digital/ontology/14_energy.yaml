@@ -1,0 +1,36 @@
+domain: energy
+order: 14
+label: 能源与公用
+label_en: Energy & utilities
+row: support
+types:
+  Meter:
+    label: 计量点
+    label_en: Meter
+    maturity: sim
+    key: 计量点编号
+    title: "{key} {medium}"
+    props:
+      medium: {t: str, l: 介质（电 / 气 / 水 / 压缩空气）}
+      unit: {t: str, l: 单位}
+    links:
+      machine: {to: Machine, l: 设备, inv: 计量点}
+  EnergyUse:
+    label: 能耗
+    label_en: Energy use
+    maturity: sim
+    key: 计量点/日期
+    title: "{key}"
+    props:
+      value: {t: num, l: 用量, series: true}
+      per_part: {t: num, l: 单件能耗}
+    links:
+      meter: {to: Meter, l: 计量点, inv: 能耗}
+  CarbonAccount:
+    label: 碳排放核算
+    label_en: Carbon account
+    maturity: capture
+    key: 期间
+    title: "{key}"
+    props:
+      t_co2e: {t: num, l: 排放, u: t CO2e}
