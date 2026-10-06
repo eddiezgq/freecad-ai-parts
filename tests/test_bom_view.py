@@ -29,7 +29,7 @@ JOINT = layout(("motor", M), ("reducer", R), ("drive", D))
 
 def test_empty_scene_has_no_rows():
     b = bom_view.bom({"instances": []}, LIB.get)
-    assert b == {"rows": [], "total_mass_kg": 0.0, "count": 0}
+    assert b == {"rows": [], "total_mass_kg": 0.0, "count": 0, "custom_requirements": []}
     assert bom_view.total_text(b) == "场景中还没有零件"
     with pytest.raises(ValueError, match="还没有零件"):
         bom_view.export_text({"instances": []}, LIB.get, "csv")

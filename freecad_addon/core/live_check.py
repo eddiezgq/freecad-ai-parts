@@ -46,6 +46,11 @@ def check(layout: Mapping, lookup: Callable[[str], dict | None], requirement: Ma
                 "instances": {}}
     system, notes = system_from_layout(layout, lookup, requirement)
     report = validate(system, lookup)
+    from engine.custom import custom_requirements
+
+    for cr in custom_requirements(system, lookup):
+        notes.append(f"{cr['instance']}.{cr['port']} 按配套件定制（{cr['mate']['model']} 的 {cr['mate']['port']}），"
+                     "定制要求见 BOM 窗口（ADR-0053）")
     checks = report["checks"]
     mode = "full" if requirement else "interface"
     if not requirement:

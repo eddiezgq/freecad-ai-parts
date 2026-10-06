@@ -24,12 +24,18 @@ def _system(layout: Mapping, lookup: Callable[[str], dict | None]) -> dict:
 
 
 def bom(layout: Mapping, lookup: Callable[[str], dict | None]) -> dict:
-    """{rows, total_mass_kg, count}；场景为空时 rows 为空、总质量为 0。"""
+    """{rows, total_mass_kg, count, custom_requirements}；场景为空时 rows 为空、总质量为 0。"""
     if not layout.get("instances"):
-        return {"rows": [], "total_mass_kg": 0.0, "count": 0}
+        return {"rows": [], "total_mass_kg": 0.0, "count": 0, "custom_requirements": []}
     out = export.bom_json(_system(layout, lookup), lookup)
     return {"rows": out["rows"], "total_mass_kg": out["total_mass_kg"],
-            "count": sum(r["quantity"] for r in out["rows"])}
+            "count": sum(r["quantity"] for r in out["rows"]), "custom_requirements": out["custom_requirements"]}
+
+
+def custom_text(b: Mapping) -> str:
+    """定制要求的文字（ADR-0053）；没有时为空。"""
+    reqs = b.get("custom_requirements") or []
+    return "\n\n".join(r["text"] for r in reqs)
 
 
 def _kg(v: float | None) -> str:

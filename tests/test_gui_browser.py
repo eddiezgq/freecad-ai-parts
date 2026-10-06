@@ -378,12 +378,18 @@ def test_bom_panel_follows_the_scene_and_exports(gui, tmp_path):
             _pump_until(gui, lambda n=n: len(box) == n)
         _pump_until(gui, lambda: dock.table.rowCount() == 3)
         assert dock.csv_button.isEnabled() and dock.total.text().startswith("共 3 种、3 件")
+        assert dock.custom.isHidden()  # 还没连接，没有定制要求
+        host.call_in_background("connect_ports", {"a": "motor.mount_flange", "b": "reducer.motor_flange"},
+                                box.append)
+        _pump_until(gui, lambda: not dock.custom.isHidden())
+        assert "须按" in dock.custom.toPlainText() and "第 65 页" in dock.custom.toPlainText()
         path = dock.export("csv", str(tmp_path / "bom.csv"))
         system, _ = system_from_layout(dock.layout_state, REAL.get)
         want = tools.export_system(REAL, system, format="bom_csv")["content"]
         assert Path(path).read_text(encoding="utf-8") == want
         host.call_in_background("place_component", {"instance": "drive", "remove": True}, box.append)
         _pump_until(gui, lambda: dock.table.rowCount() == 2)
+        assert not dock.custom.isHidden()
     finally:
         dock.close()
         host.tools.close()

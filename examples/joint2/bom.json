@@ -1,7 +1,8 @@
 {
+  "custom_requirements": [],
   "format": "fap-export/1",
   "kind": "bom",
-  "note": "质量缺失时总质量为空；source_docs 为该组件数据引用的来源文档（data/sources.yaml）",
+  "note": "质量缺失时总质量为空；source_docs 为该组件数据引用的来源文档（data/sources.yaml）；custom_requirements 为按配套件定制的端口应照录的对方规格（ADR-0053）",
   "rows": [
     {
       "all_params_reviewed": true,
