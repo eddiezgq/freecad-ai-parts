@@ -77,3 +77,11 @@ outreach:
     product_line: wire race bearings and slim bearings
     status: draft
     drafted: 2026-10-06
+  - vendor: 国创基础资源库（粤港澳大湾区(广东)国创中心；运营方广州泊沧数据技术有限公司）
+    email: bocangku@ncti-gba.cn
+    email_source: 《国创基础资源库用户服务协议》第 4.6 条（2025-11-27 版）
+    lang: zh
+    product_line: 平台合作咨询（模型链接、正式接入方式、书面授权途径）
+    status: draft
+    drafted: 2026-10-06
+    note: 不是数据来源。协议第 1.1、3.10 条禁止把其数据用于竞争性元器件库或其他产品、服务（含迁移至其他系统），未经书面许可不得商业使用；不抓取、不转用其数据。厂商资料只向厂商本身索取
