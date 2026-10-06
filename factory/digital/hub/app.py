@@ -919,6 +919,31 @@ def http_publish(body: dict = Body(...), u=Depends(user_of)):
     return {"id": msg["id"]}
 
 
+@app.post("/api/cad/release")
+def cad_release(body: dict = Body(...), u=Depends(user_of)):
+    """FreeCAD 选型方案发布到工厂（本仓库 ADR-0058）：存新版本，发 cad.release 到总线"""
+    from hub import cad_link
+    try:
+        return cad_link.release(H.db, _emit_as(u, source="freecad"), u["mode"], who(u), body)
+    except cad_link.CadError as e:
+        raise HTTPException(422, str(e)) from None
+
+
+@app.get("/api/cad/designs")
+def cad_designs(u=Depends(user_of)):
+    from hub import cad_link
+    return cad_link.designs(H.db, u["mode"])
+
+
+@app.get("/api/cad/designs/{code}")
+def cad_design(code: str, u=Depends(user_of)):
+    from hub import cad_link
+    d = cad_link.design(H.db, u["mode"], code)
+    if d is None:
+        raise HTTPException(404, "没有这个方案")
+    return d
+
+
 @app.get("/api/design/{item}")
 def design(item: str, u=Depends(user_of)):
     rel = H.db.messages(["design.release"], mode=u["mode"], order="desc", limit=20)

@@ -267,6 +267,22 @@ class TwinCommand:
         return True
 
 
+class PublishCommand:
+    """发布到工厂（ADR-0058）：当前方案的 BOM、需求、校验结论与布局 STEP 发到本地工厂。"""
+
+    def GetResources(self):
+        return {"MenuText": "发布到工厂", "ToolTip": "把当前方案（BOM、需求、校验结论、布局 STEP）发到本地数字工厂"}
+
+    def Activated(self):
+        from freecad_addon.gui.host import get_host
+        from freecad_addon.gui.publish_dialog import PublishDialog
+
+        PublishDialog(get_host(), _state.get("checks"), _main_window()).exec()
+
+    def IsActive(self):
+        return True
+
+
 class CheckPanelCommand:
     """校验窗口（ADR-0048）：场景每次改动后自动校验，接口标记按结论着色。"""
 
@@ -404,6 +420,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         FreeCADGui.addCommand("FAP_Fea", FeaCommand())
         FreeCADGui.addCommand("FAP_Optimize", OptimizeCommand())
         FreeCADGui.addCommand("FAP_Twin", TwinCommand())
+        FreeCADGui.addCommand("FAP_Publish", PublishCommand())
         FreeCADGui.addCommand("FAP_Connect", ConnectPortsCommand())
         FreeCADGui.addCommand("FAP_Checks", CheckPanelCommand())
         FreeCADGui.addCommand("FAP_Restore", RestoreProjectCommand())
@@ -413,7 +430,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bom",
                  "FAP_Restore", "FAP_Bridge", "FAP_Record"]
         self.appendToolbar("AI Parts", tools)
-        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_Fea", "FAP_Optimize", "FAP_Twin", "FAP_RecordVideo"])
+        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_Fea", "FAP_Optimize", "FAP_Twin", "FAP_Publish", "FAP_RecordVideo"])
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"

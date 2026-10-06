@@ -20,6 +20,7 @@ const routes = [
   { path: '/bus', component: () => import('./pages/BusView.vue') },
   { path: '/library', component: () => import('./pages/Library.vue') },
   { path: '/design', component: () => import('./pages/DesignRelease.vue') },
+  { path: '/cad', component: () => import('./pages/CadDesigns.vue') },
   { path: '/process', component: () => import('./pages/ProcessPlan.vue') },
   { path: '/process/:sid', component: () => import('./pages/ProcessPlan.vue') },
   { path: '/design/:id', component: () => import('./pages/DesignReview.vue') },

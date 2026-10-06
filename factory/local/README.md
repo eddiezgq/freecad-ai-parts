@@ -36,6 +36,12 @@ AI 工厂助手的密钥（可选）填在里面，不填就用规则回答。
 | <http://localhost:1880> | Node-RED 数据流 |
 | `localhost:1883` | 数据总线（MQTT），设备与 FreeCAD 发布都走这里 |
 
+## 与 FreeCAD 连起来
+
+FreeCAD 的 AI Parts 工作台：菜单“发布到工厂”，把当前方案（BOM、需求、校验结论、布局 STEP）发到本地工厂；
+工作台左侧“CAD 方案”页列出各方案、BOM（零件来自公共库或企业库，带资料出处）与版本记录。数据经数据总线以
+`cad.release` 消息发出（主题 `wq/gearbox/design/cad-<编号>/release`）。
+
 ## 说明
 
 - 演示工厂“问渠减速器厂”和产品 WQR-105 的数据是虚构的演示数据

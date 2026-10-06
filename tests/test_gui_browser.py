@@ -931,3 +931,72 @@ def test_twin_panel(gui, tmp_path):
         finally:
             panel.close()
             host.tools.close()
+
+
+@pytest.mark.freecad
+def test_publish_dialog_to_factory(gui, tmp_path):
+    """M10 第 6c 项：发布到工厂——当前布局 → 本机假工厂（用工厂的 cad_link 检查内容）→ 第 1 版。"""
+    import importlib.util
+    import json
+    import threading
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    from freecad_addon.core import library_choice
+    from freecad_addon.gui.check_panel import CheckPanel
+    from freecad_addon.gui.host import ToolsHost
+    from freecad_addon.gui.publish_dialog import PublishDialog
+
+    spec = importlib.util.spec_from_file_location("cad_link", ROOT / "factory" / "digital" / "hub" / "cad_link.py")
+    cad = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cad)
+    got = []
+
+    class Hub(BaseHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+        def do_POST(self):
+            raw = self.rfile.read(int(self.headers["Content-Length"]))
+            if self.path == "/api/login":
+                out = {"token": "tok"}
+            elif self.path == "/api/files":
+                out = {"url": "/api/files/s", "sha256": "s", "size": len(raw)}
+            else:
+                body = json.loads(raw)
+                cad.validate(body)
+                got.append(body)
+                out = {"code": body["code"], "revision": len(got), "name": body["name"]}
+            b = json.dumps(out).encode()
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(b)))
+            self.end_headers()
+            self.wfile.write(b)
+
+    srv = HTTPServer(("127.0.0.1", 0), Hub)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    host = ToolsHost(lambda: REAL, note="测试")
+    panel = CheckPanel(host=host)
+    old = library_choice.SETTINGS
+    library_choice.SETTINGS = tmp_path / "settings.json"
+    try:
+        dlg = PublishDialog(host, panel)
+        dlg.name.setText("第 2 关节")
+        dlg.author.setText("张工")
+        assert dlg.publish() is False and "没有零件" in dlg.status.text()
+        box = []
+        for n, (inst, cid) in enumerate((("motor", "servo_motor.yaskawa-electric-corporation.sgm7j-02a-6"),
+                                         ("reducer", "reducer.harmonic-drive-llc.csf-25-100-2uh")), start=1):
+            host.call_in_background("place_component", {"instance": inst, "component_id": cid}, box.append)
+            _pump_until(gui, lambda n=n: len(box) == n)
+        dlg.url.setText(f"http://127.0.0.1:{srv.server_port}")
+        assert dlg.publish() is True
+        _pump_until(gui, lambda: not dlg.busy)
+        assert dlg.result == {"code": dlg.code.text(), "revision": 1, "name": "第 2 关节"}, dlg.status.text()
+        body = got[0]
+        assert len(body["bom"]) == 2 and body["files"] and body["files"][0]["name"] == "layout.step"
+        assert library_choice.read_settings(tmp_path / "settings.json")["factory_url"].startswith("http://127.0.0.1")
+    finally:
+        library_choice.SETTINGS = old
+        srv.shutdown()
+        panel.close()
+        host.tools.close()
