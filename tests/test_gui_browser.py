@@ -509,3 +509,60 @@ def bom_view_headers():
     from freecad_addon.core import bom_view
 
     return bom_view.HEADERS
+
+
+@pytest.mark.freecad
+def test_fill_dialog_writes_enterprise_value_and_rechecks(gui, tmp_path):
+    """M9 第二步：校验窗口“补数据”为减速器补电机法兰分度圆，写入企业库并重新校验；缺依据时不写。"""
+    from freecad_addon.core import library_choice
+    from freecad_addon.gui.check_panel import CheckPanel
+    from freecad_addon.gui.host import ToolsHost
+    from kb.enterprise import EnterpriseLibrary
+    from kb.library import LayeredLibrary
+
+    ent = EnterpriseLibrary(tmp_path / "ent", create=True)
+    lib = LayeredLibrary(ent, REAL)
+    host = ToolsHost(lambda: lib, note="企业库（测试）")
+    panel = CheckPanel(host=host)
+    old_settings = library_choice.SETTINGS
+    library_choice.SETTINGS = tmp_path / "settings.json"  # 不写用户目录
+    try:
+        box = []
+        steps = [("place_component", {"instance": "motor", "component_id":
+                                      "servo_motor.yaskawa-electric-corporation.sgm7j-02a-6"}),
+                 ("place_component", {"instance": "reducer", "component_id": "reducer.harmonic-drive-llc.csf-25-100-2uh"}),
+                 ("connect_ports", {"a": "motor.mount_flange", "b": "reducer.motor_flange"})]
+        for n, (name, args) in enumerate(steps, start=1):
+            host.call_in_background(name, args, box.append)
+            _pump_until(gui, lambda n=n: len(box) == n)
+        _pump_until(gui, lambda: len(panel.layout_state["connections"]) == 1)
+        panel.recheck()
+        sb = panel.swap
+        sb.instance.setCurrentText("reducer")
+        dlg = sb.fill_dialog()
+        # 待确认所涉端口（电机法兰，以及尚未连接的输入孔）的字段排在前面
+        assert dlg.row().target.split("/")[:2] in (["ports", "motor_flange"], ["ports", "input_bore"])
+        targets = [r.target for r in dlg.rows]
+        assert targets.index("ports/motor_flange/pcd_mm") < targets.index("params/backlash_arcmin")
+        dlg.field.setCurrentIndex(dlg.field.findData("ports/motor_flange/pcd_mm"))
+        dlg.value.setText("70")
+        assert dlg.save() is False and "资料、页码、原文与录入人" in dlg.status.text()  # 缺依据不写
+        assert ent.get("reducer.harmonic-drive-llc.csf-25-100-2uh") is None
+        spec = tmp_path / "order.pdf"
+        spec.write_bytes(b"%PDF order")
+        dlg.actor.setText("张工")
+        doc = dlg.register(str(spec), "HD 订货确认单")
+        assert doc and dlg.doc.currentData() == doc
+        dlg.page.setValue(1)
+        dlg.quote.setText("PCD 70")
+        assert dlg.save() is True
+        comp = lib.get("reducer.harmonic-drive-llc.csf-25-100-2uh")
+        assert comp["ports"][1]["spec"]["pcd_mm"]["value"] == 70.0 and lib.origin(comp["id"]) == "enterprise"
+        assert library_choice.read_settings(tmp_path / "settings.json")["actor"] == "张工"
+        r = panel.recheck()
+        c3 = next(c for c in r["checks"] if c["check"] == "C3")
+        assert "缺少分度圆直径" not in [f["message"] for f in c3.get("findings", [])]
+    finally:
+        library_choice.SETTINGS = old_settings
+        panel.close()
+        host.tools.close()

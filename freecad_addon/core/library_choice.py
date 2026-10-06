@@ -30,9 +30,10 @@ class LibraryChoice:
     enterprise: Path | None = None  # 企业库目录（ADR-0055）
 
 
-def read_settings(path: Path = SETTINGS) -> dict:
+def read_settings(path: Path | None = None) -> dict:
     import json
 
+    path = path or SETTINGS
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
@@ -40,9 +41,10 @@ def read_settings(path: Path = SETTINGS) -> dict:
     return data if isinstance(data, dict) else {}
 
 
-def write_setting(key: str, value, path: Path = SETTINGS) -> None:
+def write_setting(key: str, value, path: Path | None = None) -> None:
     import json
 
+    path = path or SETTINGS
     data = read_settings(path)
     data[key] = value
     path.parent.mkdir(parents=True, exist_ok=True)

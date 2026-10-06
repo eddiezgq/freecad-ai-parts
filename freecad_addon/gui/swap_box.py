@@ -34,6 +34,9 @@ class SwapBox(QtWidgets.QGroupBox):
         row.addWidget(QtWidgets.QLabel("零件"))
         row.addWidget(self.instance, 1)
         row.addWidget(self.find_button)
+        self.fill_button = QtWidgets.QPushButton("补数据")  # M9：写入企业库
+        self.fill_button.setToolTip("为这个零件补一项数据（附规格书页码与原文），写入企业库")
+        row.addWidget(self.fill_button)
         self.list = QtWidgets.QListWidget()
         self.list.setMaximumHeight(110)
         self.detail = QtWidgets.QLabel("")
@@ -46,6 +49,7 @@ class SwapBox(QtWidgets.QGroupBox):
         for w in (self.list, self.detail, self.swap_button, self.status):
             lay.addWidget(w)
         self.find_button.clicked.connect(lambda *_: self.find())
+        self.fill_button.clicked.connect(lambda *_: self.open_fill())
         self.swap_button.clicked.connect(lambda *_: self.swap_selected())
         self.list.currentRowChanged.connect(lambda *_: self._show_detail())
         self.found.connect(self._found, QtCore.Qt.QueuedConnection)
@@ -67,6 +71,28 @@ class SwapBox(QtWidgets.QGroupBox):
             self.instance.setCurrentText(min(names, key=lambda n: (RANK.get(status.get(n, "pass"), 3), n)))
         self.instance.blockSignals(False)
         self.find_button.setEnabled(bool(names) and not self.busy)
+
+    # ------------------------------------------------------------ 补数据（M9）
+
+    def fill_dialog(self):
+        """为当前零件建补数据对话框；待确认结论所涉的端口排在前面。"""
+        from freecad_addon.gui.fill_dialog import FillDialog
+
+        inst = self.instance.currentText()
+        item = next((i for i in self.panel.layout_state.get("instances", []) if i["instance"] == inst), None)
+        if item is None:
+            return None
+        ports = (self.panel.result or {}).get("ports", {})
+        focus = {ref.split(".", 1)[1] for ref, st in ports.items() if ref.startswith(inst + ".") and st != "pass"}
+        return FillDialog(self.panel.host.library(), item["component"], focus, self)
+
+    def open_fill(self) -> bool:
+        dlg = self.fill_dialog()
+        if dlg is None or not dlg.exec():
+            return False
+        self.status.setText(f"已写入企业库：{dlg.saved['target']}；已重新校验")
+        self.panel.recheck()
+        return True
 
     # ------------------------------------------------------------ 建议
 
