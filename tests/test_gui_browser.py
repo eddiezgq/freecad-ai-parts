@@ -355,3 +355,35 @@ def test_selection_panel_finds_and_places_a_candidate(gui):
         panel.close()
         checks.close()
         host.tools.close()
+
+
+@pytest.mark.freecad
+def test_bom_panel_follows_the_scene_and_exports(gui, tmp_path):
+    """ADR-0051 第 2 条：BOM 面板随场景刷新；导出的 CSV 与 export_system 一致。"""
+    from freecad_addon.core.live_check import system_from_layout
+    from freecad_addon.gui.bom_panel import BomPanel
+    from freecad_addon.gui.host import ToolsHost
+    from mcp_server import tools
+
+    host = ToolsHost(lambda: REAL, note="组件库：真实厂商组件（测试）")
+    dock = BomPanel(host=host)
+    try:
+        assert dock.result["rows"] == [] and not dock.csv_button.isEnabled()
+        assert dock.export("csv", str(tmp_path / "x.csv")) is None and "还没有零件" in dock.status.text()
+        box = []
+        for n, (inst, cid) in enumerate((("motor", "servo_motor.yaskawa-electric-corporation.sgm7j-02a-6"),
+                                         ("reducer", "reducer.harmonic-drive-llc.csf-25-100-2uh"),
+                                         ("drive", "drive.yaskawa-america-inc.sgd7s-1r6a")), start=1):
+            host.call_in_background("place_component", {"instance": inst, "component_id": cid}, box.append)
+            _pump_until(gui, lambda n=n: len(box) == n)
+        _pump_until(gui, lambda: dock.table.rowCount() == 3)
+        assert dock.csv_button.isEnabled() and dock.total.text().startswith("共 3 种、3 件")
+        path = dock.export("csv", str(tmp_path / "bom.csv"))
+        system, _ = system_from_layout(dock.layout_state, REAL.get)
+        want = tools.export_system(REAL, system, format="bom_csv")["content"]
+        assert Path(path).read_text(encoding="utf-8") == want
+        host.call_in_background("place_component", {"instance": "drive", "remove": True}, box.append)
+        _pump_until(gui, lambda: dock.table.rowCount() == 2)
+    finally:
+        dock.close()
+        host.tools.close()
