@@ -304,3 +304,54 @@ def test_ai_changes_become_a_proposal_to_accept_or_reject(gui):
         chat.close()
         checks.close()
         host.tools.close()
+
+
+@pytest.mark.freecad
+def test_selection_panel_finds_and_places_a_candidate(gui):
+    """ADR-0051 第 1 条：不经对话，在选型面板填需求、查找、放入布局；校验窗口按全部 11 项校验。"""
+    import json
+
+    from freecad_addon.core import selection
+    from freecad_addon.core.system_layout import mechanical_connections
+    from freecad_addon.gui.check_panel import CheckPanel
+    from freecad_addon.gui.host import ToolsHost
+    from freecad_addon.gui.selection_panel import SelectionPanel
+
+    req = json.loads((ROOT / "examples" / "joint-real-requirement.json").read_text(encoding="utf-8"))
+    host = ToolsHost(lambda: REAL, note="组件库：真实厂商组件（测试）")
+    checks, panel = CheckPanel(host=host), SelectionPanel(host=host)
+    try:
+        assert panel.find() is False and "至少要填" in panel.status.text()  # 空表单
+        panel.set_requirement(req)
+        assert panel.find() is True
+        _pump_until(gui, lambda: panel.find_button.isEnabled())
+        assert panel.rows and panel.table.rowCount() == len(panel.rows)
+        row = panel.selected()
+        assert row is not None and row.rank == 1
+        assert "SGM7J-02A" in selection.cells(row)[2]
+        _pump_until(gui, lambda: checks.requirement is not None)  # 查找时的需求同步到校验窗口
+        # 先放一个无关零件，放入方案时应被清掉
+        box = []
+        host.call_in_background("place_component", {"instance": "stray", "component_id":
+                                                    "reducer.harmonic-drive-llc.csf-14-50-2uh"}, box.append)
+        _pump_until(gui, lambda: box)
+        assert panel.place_selected(confirm=False) is True
+        _pump_until(gui, lambda: panel.find_button.isEnabled())
+        assert panel.status.text().startswith("已放入布局"), panel.status.text()
+        lay = host.layout
+        assert sorted(i["instance"] for i in lay["instances"]) == sorted(c["instance"] for c in row.system["components"])
+        ordered, _ = mechanical_connections(row.system, REAL.get)
+        assert {(c["a"], c["b"]) for c in lay["connections"]} == {(c["a"], c["b"]) for c in ordered}
+        boxes = {i["instance"]: i["bbox_mm"] for i in lay["instances"]}
+        cats = {c["instance"]: REAL.get(c["component"])["category"] for c in row.system["components"]}
+        drive = next(n for n, c in cats.items() if c == "drive")
+        others = max(b["max_mm"][0] for n, b in boxes.items() if n != drive)
+        assert boxes[drive]["min_mm"][0] == pytest.approx(others + selection.GAP_MM, abs=1e-6)
+        _pump_until(gui, lambda: len(checks.layout_state["instances"]) == len(lay["instances"]))
+        r = checks.recheck()
+        assert r["mode"] == "full" and r["overall"] == "unknown"  # 只有 C3（可配置法兰）待确认
+        assert not [c for c in r["checks"] if c["status"] == "fail"]
+    finally:
+        panel.close()
+        checks.close()
+        host.tools.close()

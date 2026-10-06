@@ -58,6 +58,30 @@ class LibraryBrowserCommand:
         return True
 
 
+class SelectionCommand:
+    """选型面板（ADR-0051）：填需求、查找方案、一键放入布局；不经过对话。"""
+
+    def GetResources(self):
+        return {"MenuText": "选型", "ToolTip": "填扭矩、转速等需求，列出校验过的电机 + 减速器 + 驱动器方案，一键放入布局"}
+
+    def Activated(self):
+        from PySide import QtCore
+
+        from freecad_addon.gui.selection_panel import SelectionPanel
+
+        dock = _state.get("selection")
+        if dock is None:
+            dock = SelectionPanel(parent=_main_window())
+            _check_panel()  # 放入后的结论显示在校验窗口
+            _main_window().addDockWidget(QtCore.Qt.LeftDockWidgetArea, dock)
+            _state["selection"] = dock
+        dock.show()
+        dock.raise_()
+
+    def IsActive(self):
+        return True
+
+
 class CheckPanelCommand:
     """校验窗口（ADR-0048）：场景每次改动后自动校验，接口标记按结论着色。"""
 
@@ -186,13 +210,15 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
     def Initialize(self):
         FreeCADGui.addCommand("FAP_ChatPanel", ChatPanelCommand())
         FreeCADGui.addCommand("FAP_Browser", LibraryBrowserCommand())
+        FreeCADGui.addCommand("FAP_Selection", SelectionCommand())
         FreeCADGui.addCommand("FAP_Connect", ConnectPortsCommand())
         FreeCADGui.addCommand("FAP_Checks", CheckPanelCommand())
         FreeCADGui.addCommand("FAP_Restore", RestoreProjectCommand())
         FreeCADGui.addCommand("FAP_Bridge", BridgeCommand())
         FreeCADGui.addCommand("FAP_Record", RecordCommand())
         FreeCADGui.addCommand("FAP_RecordVideo", RecordVideoCommand())
-        tools = ["FAP_ChatPanel", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Restore", "FAP_Bridge", "FAP_Record"]
+        tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Restore",
+                 "FAP_Bridge", "FAP_Record"]
         self.appendToolbar("AI Parts", tools)
         self.appendMenu("AI Parts", [*tools, "FAP_RecordVideo"])
 
