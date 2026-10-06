@@ -40,6 +40,17 @@ def library_note() -> str:
     return library_choice.choose(os.environ).note
 
 
+def key_note() -> str:
+    """没有密钥时面板顶部的提示；有密钥时为空。选型、BOM、校验不需要密钥。"""
+    from freecad_addon.gui.chat import _load_dotenv
+
+    _load_dotenv()
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        return ""
+    return ("未设置 ANTHROPIC_API_KEY，AI 对话不能用：在本仓库目录的 .env 文件中写一行 ANTHROPIC_API_KEY=你的密钥，"
+            "重启 FreeCAD。不用对话也可以用“选型”“零件库”“校验”“BOM”。")
+
+
 def _short(data, limit: int = 160) -> str:
     text = data if isinstance(data, str) else json.dumps(data, ensure_ascii=False)
     return text if len(text) <= limit else text[: limit - 1] + "…"
@@ -74,6 +85,8 @@ class ChatPanel(QtWidgets.QDockWidget):
         self.input.setPlaceholderText("例如：给六轴机械臂第 2 关节选一套驱动，输出连续扭矩 25 N·m、输出转速 30 rpm，"
                                       "并在 FreeCAD 里布局")
         self.input.setMaximumHeight(90)
+        self.input.setToolTip("回车发送，Shift+回车换行")
+        self.input.installEventFilter(self)
         self.review = QtWidgets.QCheckBox("AI 改动先审阅")
         self.review.setChecked(True)
         self.review.setToolTip("AI 每轮改动布局后，在校验窗口中列为提案，接受才保留，拒绝就恢复原状（ADR-0049）")
@@ -83,7 +96,11 @@ class ChatPanel(QtWidgets.QDockWidget):
         row.addWidget(self.status, 1)
         row.addWidget(self.review)
         row.addWidget(self.send_button)
-        for w in (self.header, self.transcript, self.input):
+        self.key_note = QtWidgets.QLabel(key_note())
+        self.key_note.setWordWrap(True)
+        self.key_note.setStyleSheet("color:#b00")
+        self.key_note.setVisible(bool(self.key_note.text()))
+        for w in (self.header, self.key_note, self.transcript, self.input):
             lay.addWidget(w)
         lay.addLayout(row)
         self.setWidget(body)
@@ -91,6 +108,19 @@ class ChatPanel(QtWidgets.QDockWidget):
         self.send_button.clicked.connect(lambda *_: self.send())  # clicked 会带上 checked（PySide6 / FreeCAD 1.1）
         self.event_posted.connect(self._show_event, QtCore.Qt.QueuedConnection)
         self.turn_done.connect(self._finish_turn, QtCore.Qt.QueuedConnection)
+
+    def eventFilter(self, obj, event) -> bool:
+        """输入框中回车发送，Shift+回车换行；输入法组字时的回车交给输入法。"""
+        if obj is self.input and event.type() == QtCore.QEvent.KeyPress \
+                and event.key() in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter) \
+                and not event.modifiers() & QtCore.Qt.ShiftModifier:
+            self.send()
+            return True
+        return super().eventFilter(obj, event)
+
+    def showEvent(self, event) -> None:
+        super().showEvent(event)
+        self.input.setFocus()
 
     # ------------------------------------------------------------ 对话
 

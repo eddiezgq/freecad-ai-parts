@@ -399,6 +399,7 @@ def test_panel_reports_missing_key(gui, monkeypatch):
     monkeypatch.setattr(chat, "_load_dotenv", lambda: None)
     panel = ChatPanel(llm_factory=chat.AnthropicChat, library_factory=lambda: LIB)
     try:
+        assert "ANTHROPIC_API_KEY" in panel.key_note.text() and not panel.key_note.isHidden()  # 打开就提示
         assert panel.send("你好") is False
         assert "ANTHROPIC_API_KEY" in panel.transcript.toPlainText()
         # 按钮的 clicked 信号会带上 checked=False（PySide6 / FreeCAD 1.1）：取输入框的文字，不报错
@@ -470,3 +471,28 @@ def test_tool_call_limit_env(monkeypatch):
     for bad in ("0", "-3", "abc"):
         monkeypatch.setenv("FAP_CHAT_MAX_TOOLS", bad)
         assert chat.tool_call_limit() == 40
+
+
+@pytest.mark.freecad
+def test_enter_sends_and_shift_enter_adds_a_line(gui):
+    from PySide import QtCore, QtGui
+
+    from freecad_addon.gui.panel import ChatPanel
+
+    script = [reply({"type": "text", "text": "好的。"}, stop="end_turn")]
+    panel = ChatPanel(llm_factory=lambda: ScriptedLLM(script), library_factory=lambda: LIB)
+    try:
+        panel.input.setPlainText("第一行")
+        shift = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, QtCore.Qt.Key_Return, QtCore.Qt.ShiftModifier)
+        assert panel.eventFilter(panel.input, shift) is False  # 交给输入框换行
+        assert not panel.busy
+        enter = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, QtCore.Qt.Key_Return, QtCore.Qt.NoModifier)
+        assert panel.eventFilter(panel.input, enter) is True
+        assert panel.busy and panel.input.toPlainText() == ""
+        deadline = time.time() + 60
+        while panel.busy and time.time() < deadline:
+            gui.processEvents()
+            time.sleep(0.005)
+        assert "好的。" in panel.transcript.toPlainText()
+    finally:
+        panel.close()
