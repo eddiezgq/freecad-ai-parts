@@ -148,6 +148,18 @@ class SelectionPanel(QtWidgets.QDockWidget):
         for e in self.inputs.values():
             e.clear()
 
+    def load_requirement(self, req: dict, note: str) -> None:
+        """由别处（如多体动力学）算出的需求：表单内的填进表单，表单外的指标（如负载惯量）一并带入。"""
+        self.clear()
+        texts = requirement_form.to_texts(req)
+        for key, text in texts.items():
+            self.inputs[key].setText(text)
+        self.extra = {k: v for k, v in req.items() if k not in texts and k not in ("supply",)}
+        shown = {k: v for k, v in self.extra.items() if k != "statement"}
+        lines = [note] + (["表单外一并带入：" + "，".join(
+            f"{requirement_form.FIELD_NAMES.get(k, k)} {v}" for k, v in shown.items())] if shown else [])
+        self.parse_note.setText("\n".join(lines))
+
     def set_requirement(self, req: dict | None) -> None:
         for key, text in requirement_form.to_texts(req).items():
             self.inputs[key].setText(text)

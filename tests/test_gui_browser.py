@@ -726,3 +726,40 @@ def test_analysis_list_dialog(gui, monkeypatch):
     assert dlg.table.rowCount() == 1
     assert dlg.table.item(0, 0).text() == "演示模块" and "no_such_pkg_xyz" in dlg.table.item(0, 1).text()
     assert dlg.table.item(0, 2).text() == "pip install demo"
+
+
+@pytest.mark.freecad
+def test_mbd_panel_computes_and_sends_to_selection(gui):
+    """M10 第二步：多体动力学窗口——填机械臂、计算、看关节力矩表，送去选型窗口。"""
+    pytest.importorskip("mujoco")
+    from freecad_addon.gui.host import ToolsHost
+    from freecad_addon.gui.mbd_panel import MbdPanel
+    from freecad_addon.gui.selection_panel import SelectionPanel
+
+    host = ToolsHost(lambda: REAL, note="组件库：真实厂商组件（测试）")
+    sel = SelectionPanel(host=host)
+    panel = MbdPanel(selection=lambda: sel, host=host)
+    try:
+        assert panel.compute() is False and "请填写" in panel.status.text()  # 质量不估：没填不算
+        for key, text in {"base_height_mm": "160", "l1_mm": "300", "m1_kg": "3", "l2_mm": "250", "m2_kg": "1.2",
+                          "elbow_kg": "1", "payload_kg": "1.5", "j1_deg": "90", "j2_deg": "30", "move_s": "1.2",
+                          "duration_s": "1.5"}.items():
+            panel.inputs[key].setText(text)
+        assert panel.compute() is True
+        _pump_until(gui, lambda: not panel.busy)
+        assert panel.result and panel.result["status"] == "ok", panel.status.text()
+        assert panel.table.rowCount() == 3 and panel.joint.currentText() == "j2"  # 最吃力的关节
+        assert panel.send_to_selection() is True
+        req, err = sel.requirement()
+        assert err is None and req["output_torque_peak_nm"] > req["output_torque_cont_nm"] > 0
+        assert req["load_inertia_kgm2"] > 0  # 表单外一并带入
+        assert "多体动力学" in sel.parse_note.text()
+        # 机构
+        panel.model.setCurrentIndex(panel.model.findData("C-LNK-4BAR"))
+        assert panel.compute() is True
+        _pump_until(gui, lambda: not panel.busy)
+        assert panel.table.rowCount() == 1 and panel.joint.currentText() == "crank"
+    finally:
+        panel.close()
+        sel.close()
+        host.tools.close()
