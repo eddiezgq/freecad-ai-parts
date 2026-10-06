@@ -138,6 +138,27 @@ class EnterpriseLibraryCommand:
         return True
 
 
+class NewPartCommand:
+    """新建零件向导（M9 第四步）：从厂商规格书建企业自己的零件，存入企业库后可选型、放入、出 BOM。"""
+
+    def GetResources(self):
+        return {"MenuText": "新建零件", "ToolTip": "选品类与厂商规格书（PDF / Excel），AI 抽取、代码核对、逐项确认，生成新零件存入企业库"}
+
+    def Activated(self):
+        from freecad_addon.gui.host import get_host
+        from freecad_addon.gui.import_dialog import NewPartDialog
+
+        dlg = NewPartDialog(get_host().library(), parent=_main_window())
+        if dlg.exec() and dlg.saved:
+            from PySide import QtWidgets
+
+            QtWidgets.QMessageBox.information(_main_window(), "新建零件",
+                                              f"已存入企业库：{dlg.saved['id']}\n可在库浏览器、选型窗口中使用。")
+
+    def IsActive(self):
+        return True
+
+
 class CheckPanelCommand:
     """校验窗口（ADR-0048）：场景每次改动后自动校验，接口标记按结论着色。"""
 
@@ -269,6 +290,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         FreeCADGui.addCommand("FAP_Selection", SelectionCommand())
         FreeCADGui.addCommand("FAP_Bom", BomCommand())
         FreeCADGui.addCommand("FAP_Enterprise", EnterpriseLibraryCommand())
+        FreeCADGui.addCommand("FAP_NewPart", NewPartCommand())
         FreeCADGui.addCommand("FAP_Connect", ConnectPortsCommand())
         FreeCADGui.addCommand("FAP_Checks", CheckPanelCommand())
         FreeCADGui.addCommand("FAP_Restore", RestoreProjectCommand())
@@ -278,7 +300,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bom",
                  "FAP_Restore", "FAP_Bridge", "FAP_Record"]
         self.appendToolbar("AI Parts", tools)
-        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_RecordVideo"])
+        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_RecordVideo"])
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"

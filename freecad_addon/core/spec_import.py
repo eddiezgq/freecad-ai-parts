@@ -129,8 +129,8 @@ def _current(comp: Mapping, target: str) -> tuple[str, bool, str]:
     return "", False, "外形尺寸只用于包络，在新建零件时使用"
 
 
-def rows(extraction: Mapping, comp: Mapping) -> list[Row]:
-    """抽取结果 → 确认表。可写且有变化的排在前面。"""
+def rows(extraction: Mapping, comp: Mapping | None) -> list[Row]:
+    """抽取结果 → 确认表。可写且有变化的排在前面。comp 为 None 时是新建零件：各项（含外形尺寸）都可写。"""
     tmap = targets(extraction["category"])
     out = []
     for item in extraction.get("items", []):
@@ -139,7 +139,7 @@ def rows(extraction: Mapping, comp: Mapping) -> list[Row]:
         where = f"{tgt.split('/')[1]} · " if tgt.startswith("ports/") else ("外形 · " if tgt.startswith("dims/") else "")
         unit = tmap[tgt][0].unit if tgt in tmap else None
         printed = item["printed"]
-        current, writable, why = _current(comp, tgt)
+        current, writable, why = ("", True, "") if comp is None else _current(comp, tgt)
         out.append(Row(
             target=tgt, label=where + NAMES.get(name, name), value=value_text(item["value"]),
             unit=UNIT_TEXT.get(unit or "", unit or ""),
