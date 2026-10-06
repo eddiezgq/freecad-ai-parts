@@ -46,4 +46,34 @@ outreach:
     status: sent
     drafted: 2026-10-05
     sent: 2026-10-05
-    note: 欧洲站一般咨询邮箱；国内官网未公开邮箱
+    note: 欧洲站一般咨询邮箱；国内官网未公开邮箱。2026-10-06 收到自动答复（国庆假期 10 月 1–7 日休息，10 月 8 日恢复办公），非正式回信，状态不变
+  - vendor: 深圳市步科电气有限公司 (Kinco)
+    email: sales@kincoautomation.com
+    email_source: https://www.kincoautomation.com/contact-us
+    lang: zh
+    product_line: 伺服电机与驱动器
+    status: draft
+    drafted: 2026-10-06
+    note: en.kinco.cn 联系页跳转至该页；页面上国内各办事处共用此销售邮箱
+  - vendor: 湖北科峰智能传动股份有限公司 (Kofon)
+    email: info@kofon.com.cn
+    email_source: https://www.kofon.com.cn/contact_detail.html
+    lang: zh
+    product_line: 谐波减速器
+    status: draft
+    drafted: 2026-10-06
+  - vendor: HIWIN Corporation
+    email: info@hiwin.com
+    email_source: https://hiwin.com/contact-us/
+    lang: en
+    product_line: crossed roller bearings
+    status: draft
+    drafted: 2026-10-06
+    note: 上银美洲公司（北美、拉美、南美）；台湾/大陆官网未取得公开邮箱
+  - vendor: Franke GmbH
+    email: info@franke-gmbh.de
+    email_source: https://www.franke-gmbh.com/contacts/
+    lang: en
+    product_line: wire race bearings and slim bearings
+    status: draft
+    drafted: 2026-10-06
