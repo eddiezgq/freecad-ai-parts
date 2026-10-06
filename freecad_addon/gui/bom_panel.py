@@ -72,7 +72,7 @@ class BomPanel(QtWidgets.QDockWidget):
         rows = self.result["rows"]
         self.table.setRowCount(len(rows))
         for i, r in enumerate(rows):
-            for j, text in enumerate(bom_view.cells(r)):
+            for j, text in enumerate(bom_view.cells(r, getattr(self.host.library(), "origin", None))):
                 self.table.setItem(i, j, QtWidgets.QTableWidgetItem(text))
         self.table.resizeColumnsToContents()
         self.total.setText(bom_view.total_text(self.result) if rows or not self.status.text() else "")

@@ -105,6 +105,39 @@ class BomCommand:
         return True
 
 
+class EnterpriseLibraryCommand:
+    """企业库（ADR-0055）：选择企业自己的零件库文件夹，叠加在公共库上；重启 FreeCAD 后生效。"""
+
+    def GetResources(self):
+        return {"MenuText": "企业库", "ToolTip": "选择或新建企业自己的零件库文件夹（数据只存在企业那边），叠加在公共库上"}
+
+    def Activated(self):
+        from PySide import QtWidgets
+
+        from freecad_addon.core import library_choice
+
+        current = library_choice.enterprise_dir({}, library_choice.read_settings())
+        path = QtWidgets.QFileDialog.getExistingDirectory(_main_window(), "选择企业库文件夹（空文件夹将新建企业库）",
+                                                          str(current or ""))
+        if not path:
+            return
+        from pathlib import Path
+
+        from kb.enterprise import EnterpriseLibrary
+
+        try:
+            EnterpriseLibrary(Path(path), create=True)
+        except Exception as exc:  # noqa: BLE001 — 显示给用户
+            QtWidgets.QMessageBox.warning(_main_window(), "企业库", f"不能使用这个文件夹：{exc}")
+            return
+        library_choice.write_setting("enterprise_library", path)
+        QtWidgets.QMessageBox.information(_main_window(), "企业库",
+                                          f"企业库已设为：\n{path}\n\n重启 FreeCAD 后生效。企业库的数据只存在这个文件夹里。")
+
+    def IsActive(self):
+        return True
+
+
 class CheckPanelCommand:
     """校验窗口（ADR-0048）：场景每次改动后自动校验，接口标记按结论着色。"""
 
@@ -235,6 +268,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         FreeCADGui.addCommand("FAP_Browser", LibraryBrowserCommand())
         FreeCADGui.addCommand("FAP_Selection", SelectionCommand())
         FreeCADGui.addCommand("FAP_Bom", BomCommand())
+        FreeCADGui.addCommand("FAP_Enterprise", EnterpriseLibraryCommand())
         FreeCADGui.addCommand("FAP_Connect", ConnectPortsCommand())
         FreeCADGui.addCommand("FAP_Checks", CheckPanelCommand())
         FreeCADGui.addCommand("FAP_Restore", RestoreProjectCommand())
@@ -244,7 +278,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bom",
                  "FAP_Restore", "FAP_Bridge", "FAP_Record"]
         self.appendToolbar("AI Parts", tools)
-        self.appendMenu("AI Parts", [*tools, "FAP_RecordVideo"])
+        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_RecordVideo"])
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"

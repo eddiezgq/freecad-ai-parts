@@ -22,7 +22,7 @@
    - 没有指定时只用公共库，行为与现在相同
 2. **结构**
    - `components/<品类>/<组件 id>.json`：完整组件，与 `component.schema.json` 相同
-   - `sources.yaml`：企业登记的资料（id 以 `ent-` 开头、标题、文件名、SHA-256、登记人、日期）
+   - `sources.yaml`：企业登记的资料（id 以 `src-ent-` 开头，符合参数来源的 id 规则、标题、文件名、SHA-256、登记人、日期）
    - `docs/`：企业的规格书原件，只在企业那边
    - `history.jsonl`：每次写入一行（时间、操作人、组件、字段、旧值、新值、依据）
 3. **叠加**：`LayeredLibrary(企业库, 公共库)`
