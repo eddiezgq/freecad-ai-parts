@@ -433,3 +433,38 @@ def test_swap_suggestion_fixes_a_failed_shaft_fit(gui):
     finally:
         panel.close()
         host.tools.close()
+
+
+@pytest.mark.freecad
+def test_sentence_is_parsed_into_the_form_without_searching(gui):
+    """ADR-0054：一句话需求经解析（录制回放）只填表单，不自动查找；缺密钥时提示可直接填表。"""
+    import json
+
+    from engine import requirement_parse as rp
+    from freecad_addon.gui.host import ToolsHost
+    from freecad_addon.gui.selection_panel import SelectionPanel
+    from ingest.llm_extract import RecordedClient
+
+    joint2 = json.loads((ROOT / "examples" / "joint2-requirement.json").read_text(encoding="utf-8"))
+    host = ToolsHost(lambda: REAL, note="组件库：真实厂商组件（测试）")
+    panel = SelectionPanel(host=host, client_factory=lambda: RecordedClient(rp.RECORDINGS_DIR))
+    try:
+        panel.sentence.setPlainText(joint2["statement"])
+        assert panel.parse() is True
+        _pump_until(gui, lambda: not panel.parsing)
+        assert panel.parse_note.text().startswith("解析完成"), panel.parse_note.text()
+        req, err = panel.requirement()
+        assert err is None and req == {k: v for k, v in joint2.items() if k != "id"}
+        assert panel.rows == [] and panel.table.rowCount() == 0  # 没有自动查找
+        panel.clear()
+        assert panel.extra == {} and panel.inputs["output_torque_cont_nm"].text() == ""
+
+        def no_key():
+            raise RuntimeError("未设置 ANTHROPIC_API_KEY")
+
+        panel._client_factory = no_key
+        panel.sentence.setPlainText("随便一句")
+        assert panel.parse() is False and "可以直接在下表填数" in panel.parse_note.text()
+    finally:
+        panel.close()
+        host.tools.close()

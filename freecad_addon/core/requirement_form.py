@@ -50,3 +50,37 @@ def to_texts(req: Mapping | None) -> dict[str, str]:
         v = flat.get(key)
         out[key] = "" if v is None else f"{v:g}" if isinstance(v, (int, float)) and not isinstance(v, bool) else str(v)
     return out
+
+
+FIELD_NAMES = {**LABELS, "safety_factor": "安全系数", "load_inertia_kgm2": "负载惯量 kg·m²",
+               "inertia_ratio_limit": "惯量比上限", "max_envelope_length_mm": "长度上限 mm",
+               "fieldbus_protocol": "总线", "supply.current_type": "供电类型", "supply.voltage_v": "供电电压 V",
+               "supply.phases": "相数"}
+
+
+def merge_parsed(parsed: Mapping) -> tuple[dict[str, str], dict, list[str]]:
+    """一句话需求的解析结果（engine.requirement_parse）→ (表单文字, 表单外的指标, 说明行)（ADR-0054）。
+    表单外的指标（安全系数、负载惯量、总线等）随需求带入查找；说明行列出依据、默认值、未采用的条目与追问。"""
+    req = dict(parsed.get("requirement") or {})
+    texts = to_texts(req)
+    form_keys = {k for k, _ in FIELDS} | {"supply"}
+    extra = {k: v for k, v in req.items() if k not in form_keys and k != "statement"}
+    if req.get("statement"):
+        extra["statement"] = req["statement"]
+    lines = []
+    for field, quote in (parsed.get("basis") or {}).items():
+        lines.append(f"依据 · {FIELD_NAMES.get(field, field)}：“{quote}”")
+    lines += [f"默认 · {d}" for d in parsed.get("defaults") or []]
+    for r in parsed.get("rejected") or []:
+        name = FIELD_NAMES.get(r.get("field") or "", r.get("field") or "")
+        lines.append(f"未采用 · {name + '：' if name else ''}{r.get('reason', '')}")
+    lines += [f"请补充 · {q}" for q in parsed.get("questions") or []]
+    lines += [f"不清楚 · {u}" for u in parsed.get("unclear") or []]
+    return texts, extra, lines
+
+
+def with_extra(req: dict | None, extra: Mapping) -> dict | None:
+    """表单得出的需求加上表单外的指标；表单已有的栏位以表单为准。"""
+    if req is None:
+        return None
+    return {**{k: v for k, v in extra.items() if k not in req}, **req}
