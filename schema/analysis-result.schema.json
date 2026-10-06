@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/analysis-result.schema.json",
+  "title": "分析结果",
+  "description": "分析模块（ADR-0056）一次计算的结果外壳：设置、数据、与手算或解析解的核对、局限。分析结果是计算，不写入零件参数。data 的结构由各模块说明并由其测试检查。",
+  "type": "object",
+  "properties": {
+    "format": {"const": "analysis-result/1"},
+    "module": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "模块 id，如 mbd、fea、fatigue、thermal、optimize、twin"},
+    "module_version": {"type": "string", "minLength": 1},
+    "status": {"enum": ["ok", "failed"]},
+    "setup": {"type": "object", "description": "本次计算的完整输入（可复算）"},
+    "data": {"type": "object", "description": "计算结果；status 为 failed 时可为空对象"},
+    "solver": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1}
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    },
+    "checks": {
+      "type": "array",
+      "description": "与手算、解析解或教材公式的核对",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "computed": {"type": "number"},
+          "reference": {"type": "number"},
+          "formula": {"type": "string", "minLength": 1},
+          "relative_error_ratio": {"type": "number", "minimum": 0}
+        },
+        "required": ["name", "computed", "reference", "formula"],
+        "additionalProperties": false
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string", "minLength": 1}, "description": "方法的局限（如线弹性、尖角奇异点）"},
+    "messages": {"type": "array", "items": {"type": "string", "minLength": 1}, "description": "提示、缺数据说明或失败原因"},
+    "elapsed_s": {"type": "number", "minimum": 0}
+  },
+  "required": ["format", "module", "module_version", "status", "setup", "data", "limitations", "messages"],
+  "additionalProperties": false,
+  "if": {"properties": {"status": {"const": "failed"}}},
+  "then": {"properties": {"messages": {"minItems": 1}}}
+}

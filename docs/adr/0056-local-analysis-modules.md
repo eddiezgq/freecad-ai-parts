@@ -25,6 +25,8 @@ Docker 里，通过网页使用。
    `analysis/optimize`、`analysis/twin`，共用 `analysis/common`（材料库、网格、求解器查找）。
    - 每个模块对外只有一个约定：`MODULE`（id、名称、依赖）、`available()`（依赖是否齐全及缺什么）、
      `run(setup) -> result`（输入输出为 JSON 可序列化的字典，有 JSON schema）
+   - 结果外壳统一为 `schema/analysis-result.schema.json`（设置、数据、核对、局限、提示）；`data` 的结构由各模块说明并由测试检查
+   - 材料性能统一为 `schema/material.schema.json`（标准单位、每条注明出处，没有出处的性能不写）
    - 模块之间只通过结果字典衔接（如动力学的关节力矩记录 → 疲劳的载荷谱），不互相导入内部函数
    - 依赖分开装：`pip install -e ".[mbd]"`（mujoco）、`".[fea]"`（gmsh）、`".[optimize]"`（optuna）；缺依赖时
      模块显示“不可用”及安装方法，其余模块照常可用

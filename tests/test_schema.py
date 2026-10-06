@@ -168,3 +168,18 @@ def test_key_fields_are_declared_params(path: Path):
     schema = _load(path)
     declared = set(schema["properties"]["params"]["properties"])
     assert set(schema["x-key-fields"]) <= declared
+
+
+# ---------- 分析结果与材料（ADR-0056） ----------
+
+
+@pytest.mark.parametrize(("group", "schema"), [("analysis-result", "analysis-result.schema.json"),
+                                                ("material", "material.schema.json")])
+def test_analysis_fixtures(group: str, schema: str):
+    valid, invalid = _fixtures(group, "valid"), _fixtures(group, "invalid")
+    assert valid and invalid
+    for path in valid:
+        errors = list(_validator(schema).iter_errors(_load(path)["instance"]))
+        assert not errors, (path.name, [e.message for e in errors])
+    for path in invalid:
+        assert not _validator(schema).is_valid(_load(path)["instance"]), (path.name, _load(path)["why"])
