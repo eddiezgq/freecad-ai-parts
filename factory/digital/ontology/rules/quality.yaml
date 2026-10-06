@@ -1,0 +1,42 @@
+domain: quality
+rules:
+  Q1:
+    name: SPC 判异（西电规则 1–4）
+    fn: spc_signal
+    severity: warn            # 规则 1（超出 3σ）为 critical
+    role: [quality]
+    params: {item: SH-301, n: 5, recent_groups: 2}
+    desc: 每个检验特性画均值–极差图（每组 n 件），最近 recent_groups 组里出现判异就报
+    hint: 判异不等于超差；先找原因（刀具、热变形、夹具），再决定是否调整
+  Q2:
+    name: 测量值趋近公差限
+    fn: near_limit
+    severity: warn
+    role: [quality]
+    params: {margin_frac: 0.25, shift_um: 2}
+    desc: 看板控制图上，最近 5 件均值距公差限不到公差带的 margin_frac，且偏离中值至少 shift_um 微米。原“质量趋势”提醒迁来
+    hint: 检查磨床 GRD-01 砂轮磨损，考虑提前修整
+  Q3:
+    name: 不合格品未处置
+    fn: ncr_open
+    severity: warn
+    role: [quality]
+    params: {escalate_h: 2}
+    desc: 开着的不合格品单；超过 escalate_h 小时未评审升为严重。原“不合格品”提醒迁来
+    hint: 质检员评审：返修、报废或让步接收
+  Q4:
+    name: 一次合格率下降
+    fn: fpy_drop
+    severity: warn
+    role: [quality, engineer]
+    params: {item: SH-301, last_parts: 20, min_parts: 10, below: 0.95}
+    desc: 最近 last_parts 件（至少 min_parts 件）一次合格率低于 below
+    hint: 看不合格零件的共同点：同一设备、同一刀具、同一特性
+  Q5:
+    name: 8D 久拖未关
+    fn: q8d_stale
+    severity: warn
+    role: [quality]
+    params: {days: 7}
+    desc: 8D 开单超过 days 天还没关闭（8D 单没有分步计划日期，先按总天数）
+    hint: 打开 8D，看卡在哪一步

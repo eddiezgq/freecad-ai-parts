@@ -1,0 +1,20 @@
+fastapi==0.141.1
+uvicorn==0.46.0
+python-multipart>=0.0.20
+psycopg[binary]==3.3.6
+paho-mqtt==2.1.0
+jsonschema>=4.23
+httpx==0.28.1
+build123d==0.13.0
+trimesh==5.1.0
+rtree==1.4.1
+scipy==1.17.1
+shapely==2.1.2
+optuna==5.0.0            # 设计优化（第 14 轮，MIT）
+networkx==3.6.1          # trimesh 截面拼多边形要用（数控编程识别铣削特征）
+gmsh==4.15.2
+pylife==2.3.1
+python-docx==1.2.0
+pyyaml>=6.0
+mujoco==3.14.0
+pypdf==6.19.0

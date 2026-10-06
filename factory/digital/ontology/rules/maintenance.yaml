@@ -1,0 +1,16 @@
+domain: maintenance
+rules:
+  M1:
+    name: 同一设备反复停机
+    fn: repeat_down
+    severity: warn
+    role: [manager]
+    params: {hours: 24, times: 3}
+    desc: hours 小时内停机（报警或故障）达到 times 次
+    hint: 安排维修人员查根因；考虑预防性维护
+  M2:
+    name: 预防性维护逾期
+    status: waiting
+    severity: warn
+    role: [manager]
+    desc: 待数据：需要维护计划（ERPNext 资产维护模块或设备维护领域包）

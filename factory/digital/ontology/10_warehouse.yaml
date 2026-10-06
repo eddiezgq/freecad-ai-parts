@@ -1,0 +1,60 @@
+domain: warehouse
+order: 9
+label: 仓储与物流
+label_en: Warehouse & logistics
+row: chain
+types:
+  Warehouse:
+    label: 仓库
+    label_en: Warehouse
+    maturity: have
+    key: ERPNext 仓库名
+    title: "{key}"
+    sources: [工厂主数据]
+    props:
+      kind: {t: str, l: 用途}
+  StockLevel:
+    label: 库存
+    label_en: Stock level
+    maturity: have
+    key: 物料号@仓库
+    title: "{item} @ {warehouse}"
+    sources: [erp.doc Bin]
+    props:
+      item: {t: str, l: 物料}
+      warehouse: {t: str, l: 仓库}
+      actual_qty: {t: num, l: 现存, series: true}
+      reserved_qty: {t: num, l: 占用}
+      ordered_qty: {t: num, l: 在途}
+      projected_qty: {t: num, l: 可用}
+    links:
+      item: {to: Item, l: 物料, inv: 库存}
+      warehouse: {to: Warehouse, l: 仓库, inv: 库存}
+  StockMove:
+    label: 出入库
+    label_en: Stock movement
+    maturity: have
+    key: ERPNext 库存凭证号
+    title: "{key} {purpose}"
+    sources: [erp.doc Stock Entry]
+    props:
+      purpose: {t: str, l: 用途}
+      qty: {t: num, l: 数量}
+    links:
+      work_order: {to: WorkOrder, l: 工单, inv: 出入库}
+  TransportTask:
+    label: 搬运任务
+    label_en: Transport task
+    maturity: have
+    key: AGV 号/开始时间
+    title: "{agv} {from} → {to}"
+    sources: [logistics.status]
+    props:
+      agv: {t: str, l: AGV}
+      from: {t: str, l: 起点}
+      to: {t: str, l: 终点}
+      part: {t: str, l: 零件}
+      start: {t: time, l: 开始}
+    links:
+      agv: {to: Agv, l: AGV, inv: 搬运任务}
+      part: {to: PartSerial, l: 搬运, inv: 搬运记录}

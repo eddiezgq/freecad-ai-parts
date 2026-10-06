@@ -1,0 +1,79 @@
+# C-WRM-WORM · 蜗杆蜗轮机构（自建机构，第 5 轮第 6 步）
+schema: 1
+id: C-WRM-WORM
+kind: mechanism
+name:
+  zh: 蜗杆蜗轮机构
+  en: Worm and worm wheel
+category: WRM
+tags:
+- 蜗杆
+- 蜗轮
+- 交错轴
+- 自锁
+- worm gear
+standards: []
+params:
+- key: module_mm
+  zh: 模数
+  en: Module
+  role: key
+  unit: mm
+- key: worm_starts
+  zh: 蜗杆头数 z1
+  en: Worm starts
+  role: key
+- key: wheel_teeth
+  zh: 蜗轮齿数 z2
+  en: Wheel teeth
+  role: key
+- key: diameter_factor
+  zh: 直径系数 q
+  en: Diameter factor q
+  role: key
+- key: wheel_face_mm
+  zh: 蜗轮齿宽
+  en: Wheel face width
+  role: key
+  unit: mm
+defaults:
+  module_mm: 2
+  worm_starts: 1
+  wheel_teeth: 30
+  diameter_factor: 10
+  wheel_face_mm: 14
+ranges:
+  worm_starts:
+  - 1
+  - 4
+  wheel_teeth:
+  - 20
+  - 80
+model:
+  engine: wqmech:worm
+  formats:
+  - glb
+  origin: 机构坐标系：平面机构在竖直 XZ 平面内（转角绕 −Y，从前方看逆时针为正），齿轮轴沿 Y；每个构件一个节点
+  note: 参数化自建模型；运动表 motion.csv 按默认参数采样（R5）
+source:
+  origin: wenquest
+  license: Apache-2.0
+  attribution: 问渠零件库（参数化生成器 generators/c_mech.py）
+  checked:
+    by: Claude
+    'on': '2026-10-01'
+    note: 自建；位置分析由测试核对（两种算法互核、闭环约束、传动比）
+teaching:
+  principle: 蜗杆像一根螺杆，转一圈推动蜗轮转过 z1 个齿，单级就能得到很大的传动比 i = z2/z1，两轴在空间垂直交错。导程角很小时（tanγ
+    = z1/q），蜗轮推不动蜗杆，具有自锁性。
+  uses:
+  - 起重机、电梯曳引
+  - 分度机构
+  - 转台、阀门执行器
+  courses:
+  - course: 机械设计基础
+    chapter: 蜗杆传动
+  labs: []
+factory:
+  erp_items: []
+  suppliers: []

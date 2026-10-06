@@ -1,0 +1,102 @@
+# C-GER-TRAIN · 两级定轴齿轮系（自建机构，第 5 轮第 6 步）
+schema: 1
+id: C-GER-TRAIN
+kind: mechanism
+name:
+  zh: 两级定轴齿轮系
+  en: Two-stage fixed-axis gear train
+category: GER
+tags:
+- 齿轮系
+- 定轴轮系
+- 传动比
+- 渐开线齿轮
+- gear train
+standards: []
+params:
+- key: module1_mm
+  zh: 第一级模数
+  en: Module, stage 1
+  role: key
+  unit: mm
+- key: z1
+  zh: 齿数 z1
+  en: z1
+  role: key
+- key: z2
+  zh: 齿数 z2
+  en: z2
+  role: key
+- key: face1_mm
+  zh: 第一级齿宽
+  en: Face width 1
+  role: key
+  unit: mm
+- key: module2_mm
+  zh: 第二级模数
+  en: Module, stage 2
+  role: key
+  unit: mm
+- key: z3
+  zh: 齿数 z3
+  en: z3
+  role: key
+- key: z4
+  zh: 齿数 z4
+  en: z4
+  role: key
+- key: face2_mm
+  zh: 第二级齿宽
+  en: Face width 2
+  role: key
+  unit: mm
+defaults:
+  module1_mm: 2
+  z1: 20
+  z2: 40
+  face1_mm: 12
+  module2_mm: 2.5
+  z3: 18
+  z4: 54
+  face2_mm: 16
+ranges:
+  z1:
+  - 12
+  - 40
+  z2:
+  - 20
+  - 120
+  z3:
+  - 12
+  - 40
+  z4:
+  - 20
+  - 120
+model:
+  engine: wqmech:gear_train
+  formats:
+  - glb
+  origin: 机构坐标系：平面机构在竖直 XZ 平面内（转角绕 −Y，从前方看逆时针为正），齿轮轴沿 Y；每个构件一个节点
+  note: 参数化自建模型；运动表 motion.csv 按默认参数采样（R5）
+source:
+  origin: wenquest
+  license: Apache-2.0
+  attribution: 问渠零件库（参数化生成器 generators/c_mech.py）
+  checked:
+    by: Claude
+    'on': '2026-10-01'
+    note: 自建；位置分析由测试核对（两种算法互核、闭环约束、传动比）
+teaching:
+  principle: 两对外啮合直齿轮串联：总传动比等于各级从动轮齿数积除以主动轮齿数积，i = (z2·z4)/(z1·z3)；每经过一对外啮合转向反一次。齿形是渐开线，中心距
+    a = m(z1 + z2)/2。
+  uses:
+  - 减速器
+  - 机床主轴箱
+  - 钟表
+  courses:
+  - course: 机械设计基础
+    chapter: 齿轮系及其传动比
+  labs: []
+factory:
+  erp_items: []
+  suppliers: []

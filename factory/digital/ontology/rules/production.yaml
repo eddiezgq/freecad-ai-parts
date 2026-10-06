@@ -1,0 +1,42 @@
+# 规则目录 · 生产执行（第 17 轮 B 期）。格式见 README.md
+domain: production
+rules:
+  P1:
+    name: 设备停机 / 故障
+    fn: machine_down
+    severity: warn            # 故障时升为 critical
+    role: [operator, manager]
+    desc: 设备状态为停机或故障。原 AI 提醒迁来，文字不变
+    hint: 查看受影响的订单；必要时安排加班或转移工序
+  P2:
+    name: 刀具 / 砂轮剩余寿命低
+    fn: tool_life_low
+    severity: info
+    role: [operator]
+    params: {below: 0.15}
+    desc: 剩余寿命低于阈值且设备不空闲（停机时只报 P1）
+    hint: 提前准备刀具，安排在换件间隙
+  P3:
+    name: 设备当日 OEE 低于目标
+    fn: oee_low
+    severity: warn
+    role: [manager]
+    params: {below: 0.6, min_load_h: 2}
+    desc: 负荷时间超过 min_load_h 小时后，OEE 低于 below；说明里给出损失最大的一项
+    hint: 看“经营与成本”页的 OEE 分解，针对最大损失
+  P4:
+    name: 换刀频率异常
+    fn: tool_change_rate
+    severity: info
+    role: [engineer]
+    params: {times: 2, min_count: 3}
+    desc: 今天换刀次数超过过去 7 天日均的 times 倍，且至少 min_count 次（工厂单班，日即班）
+    hint: 查切削参数、来料硬度、刀具批次
+  P5:
+    name: 在制积压
+    fn: wip_backlog
+    severity: warn
+    role: [planner]
+    params: {above: 6}
+    desc: 瓶颈设备前排队超过 above 件
+    hint: 调整投料节奏，或给瓶颈加班

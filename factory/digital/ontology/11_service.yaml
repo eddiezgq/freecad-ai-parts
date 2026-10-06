@@ -1,0 +1,85 @@
+domain: service
+order: 10
+label: 客户服务
+label_en: Customer service
+row: chain
+types:
+  FieldUnit:
+    label: 现场设备
+    label_en: Field unit
+    maturity: have
+    key: 出厂序列号
+    title: "{key} · {customer}"
+    sources: [数字孪生（twin、field_unit、twin_event 表）]
+    props:
+      customer: {t: str, l: 客户}
+      site: {t: str, l: 现场}
+      start_day: {t: date, l: 投运日期}
+      run_h: {t: num, l: 运行小时, u: h}
+      health: {t: str, l: 健康度}
+      worst_bearing: {t: str, l: 最先到期的轴承}
+      worst_bearing_used: {t: num, l: 已用 L10, u: "%"}
+      shaft_damage: {t: num, l: 输出轴疲劳损伤}
+      oil_t_c: {t: num, l: 油温, u: ℃}
+      vib_mm_s: {t: num, l: 振动烈度, u: mm/s}
+      alerts: {t: json, l: 报警}
+    links:
+      customer: {to: Customer, l: 客户, inv: 现场设备}
+  Installation:
+    label: 安装记录
+    label_en: Installation
+    maturity: capture
+    key: 序列号
+    title: "{key} 安装"
+    props:
+      date: {t: date, l: 日期}
+      engineer: {t: str, l: 工程师}
+    links:
+      unit: {to: FieldUnit, l: 设备, inv: 安装}
+  Warranty:
+    label: 保修
+    label_en: Warranty
+    maturity: erp
+    key: 序列号
+    title: "{key} 保修"
+    props:
+      until: {t: date, l: 保修到期}
+    links:
+      unit: {to: FieldUnit, l: 设备, inv: 保修}
+  ServiceOrder:
+    label: 服务工单
+    label_en: Service order
+    maturity: have
+    key: ERPNext Issue 号或孪生维修单号
+    title: "{key} {subject}"
+    sources: [erp.doc Issue, twin_event 维修单]
+    props:
+      subject: {t: str, l: 主题}
+      status: {t: str, l: 状态}
+      action: {t: str, l: 维修动作}
+      opened: {t: date, l: 开单（现场日）}
+    links:
+      unit: {to: FieldUnit, l: 设备, inv: 服务工单}
+      engineer: {to: ServiceEngineer, l: 工程师, inv: 服务工单}
+  ServiceEngineer:
+    label: 服务工程师
+    label_en: Service engineer
+    maturity: capture
+    key: 工号
+    title: "{name}"
+    sensitivity: 2
+    props:
+      name: {t: str, l: 姓名}
+      region: {t: str, l: 负责区域}
+    links:
+      employee: {to: Employee, l: 员工, inv: 服务工程师}
+  FollowUp:
+    label: 回访
+    label_en: Follow-up
+    maturity: capture
+    key: 回访号
+    title: "{key}"
+    props:
+      score: {t: num, l: 满意度}
+    links:
+      order: {to: ServiceOrder, l: 服务工单, inv: 回访}

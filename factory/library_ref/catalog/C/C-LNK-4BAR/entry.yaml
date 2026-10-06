@@ -1,0 +1,93 @@
+# C-LNK-4BAR · 曲柄摇杆机构（铰链四杆）（自建机构，第 5 轮第 6 步）
+schema: 1
+id: C-LNK-4BAR
+kind: mechanism
+name:
+  zh: 曲柄摇杆机构（铰链四杆）
+  en: Crank-rocker four-bar linkage
+category: LNK
+tags:
+- 四杆机构
+- 曲柄摇杆
+- 连杆机构
+- 平面机构
+- four-bar
+standards: []
+params:
+- key: crank_m
+  zh: 曲柄长 a
+  en: Crank a
+  role: key
+  unit: m
+- key: coupler_m
+  zh: 连杆长 b
+  en: Coupler b
+  role: key
+  unit: m
+- key: rocker_m
+  zh: 摇杆长 c
+  en: Rocker c
+  role: key
+  unit: m
+- key: ground_m
+  zh: 机架长 d
+  en: Ground d
+  role: key
+  unit: m
+- key: link_width_m
+  zh: 杆宽
+  en: Link width
+  role: key
+  unit: m
+- key: link_thickness_m
+  zh: 杆厚
+  en: Link thickness
+  role: key
+  unit: m
+defaults:
+  crank_m: 0.04
+  coupler_m: 0.12
+  rocker_m: 0.08
+  ground_m: 0.1
+  link_width_m: 0.012
+  link_thickness_m: 0.006
+ranges:
+  crank_m:
+  - 0.02
+  - 0.08
+  coupler_m:
+  - 0.06
+  - 0.2
+  rocker_m:
+  - 0.04
+  - 0.15
+  ground_m:
+  - 0.06
+  - 0.2
+model:
+  engine: wqmech:four_bar
+  formats:
+  - glb
+  origin: 机构坐标系：平面机构在竖直 XZ 平面内（转角绕 −Y，从前方看逆时针为正），齿轮轴沿 Y；每个构件一个节点
+  note: 参数化自建模型；运动表 motion.csv 按默认参数采样（R5）
+source:
+  origin: wenquest
+  license: Apache-2.0
+  attribution: 问渠零件库（参数化生成器 generators/c_mech.py）
+  checked:
+    by: Claude
+    'on': '2026-10-01'
+    note: 自建；位置分析由测试核对（两种算法互核、闭环约束、传动比）
+teaching:
+  principle: 四根杆用四个转动副连成封闭环：最短杆 + 最长杆 ≤ 另两杆之和（格拉霍夫条件）且最短杆是曲柄时，曲柄整周转动、摇杆往复摆动。连杆上的点画出各种连杆曲线，可用来实现给定轨迹。
+  uses:
+  - 雨刷、缝纫机踏板
+  - 颚式破碎机
+  - 搅拌机、步行机构
+  courses:
+  - course: 机械设计基础
+    chapter: 平面连杆机构
+  labs: []
+factory:
+  erp_items: []
+  suppliers: []

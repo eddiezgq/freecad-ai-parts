@@ -1,0 +1,93 @@
+# C-CAM-DISC · 盘形凸轮机构（直动滚子从动件）（自建机构，第 5 轮第 6 步）
+schema: 1
+id: C-CAM-DISC
+kind: mechanism
+name:
+  zh: 盘形凸轮机构（直动滚子从动件）
+  en: Disc cam with translating roller follower
+category: CAM
+tags:
+- 凸轮
+- 盘形凸轮
+- 从动件
+- 简谐运动
+- cam
+standards: []
+params:
+- key: base_radius_m
+  zh: 基圆半径 r0
+  en: Base radius
+  role: key
+  unit: m
+- key: roller_radius_m
+  zh: 滚子半径
+  en: Roller radius
+  role: key
+  unit: m
+- key: lift_m
+  zh: 行程 h
+  en: Lift h
+  role: key
+  unit: m
+- key: rise_deg
+  zh: 推程角
+  en: Rise angle
+  role: key
+  unit: deg
+- key: far_dwell_deg
+  zh: 远休止角
+  en: Far dwell
+  role: key
+  unit: deg
+- key: return_deg
+  zh: 回程角
+  en: Return angle
+  role: key
+  unit: deg
+- key: thickness_m
+  zh: 凸轮厚
+  en: Cam thickness
+  role: key
+  unit: m
+defaults:
+  base_radius_m: 0.04
+  roller_radius_m: 0.008
+  lift_m: 0.02
+  rise_deg: 120
+  far_dwell_deg: 60
+  return_deg: 120
+  thickness_m: 0.01
+ranges:
+  base_radius_m:
+  - 0.025
+  - 0.08
+  lift_m:
+  - 0.005
+  - 0.04
+model:
+  engine: wqmech:cam
+  formats:
+  - glb
+  origin: 机构坐标系：平面机构在竖直 XZ 平面内（转角绕 −Y，从前方看逆时针为正），齿轮轴沿 Y；每个构件一个节点
+  note: 参数化自建模型；运动表 motion.csv 按默认参数采样（R5）
+source:
+  origin: wenquest
+  license: Apache-2.0
+  attribution: 问渠零件库（参数化生成器 generators/c_mech.py）
+  checked:
+    by: Claude
+    'on': '2026-10-01'
+    note: 自建；位置分析由测试核对（两种算法互核、闭环约束、传动比）
+teaching:
+  principle: 凸轮转一圈，轮廓推动从动件按规定的规律升起、停留、回落、停留。先定从动件运动规律（这里推程、回程都用余弦加速度规律），再按“反转法”求出凸轮轮廓：理论轮廓是滚子中心的轨迹，实际轮廓向内偏移一个滚子半径。
+  uses:
+  - 内燃机配气机构
+  - 自动机床送料
+  - 纺织机械
+  courses:
+  - course: 机械设计基础
+    chapter: 凸轮机构
+  labs: []
+factory:
+  erp_items: []
+  suppliers: []

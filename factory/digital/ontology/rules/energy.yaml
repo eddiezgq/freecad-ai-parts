@@ -1,0 +1,4 @@
+domain: energy
+rules:
+  N1: {name: 单耗突增, status: waiting, severity: warn, role: [manager], desc: 待数据：需要电表计量点（能源领域包）}
+  N2: {name: 空转能耗, status: waiting, severity: info, role: [manager], desc: 待数据：同上}

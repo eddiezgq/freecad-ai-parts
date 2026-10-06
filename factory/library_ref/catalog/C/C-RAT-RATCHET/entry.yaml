@@ -1,0 +1,74 @@
+# C-RAT-RATCHET · 棘轮机构（自建机构，第 5 轮第 6 步）
+schema: 1
+id: C-RAT-RATCHET
+kind: mechanism
+name:
+  zh: 棘轮机构
+  en: Ratchet mechanism
+category: RAT
+tags:
+- 棘轮
+- 棘爪
+- 间歇运动
+- 止回
+- ratchet
+standards: []
+params:
+- key: teeth
+  zh: 棘轮齿数
+  en: Teeth
+  role: key
+- key: wheel_radius_m
+  zh: 棘轮半径
+  en: Wheel radius
+  role: key
+  unit: m
+- key: swing_deg
+  zh: 摇杆摆角
+  en: Rocker swing
+  role: key
+  unit: deg
+- key: thickness_m
+  zh: 厚度
+  en: Thickness
+  role: key
+  unit: m
+defaults:
+  teeth: 12
+  wheel_radius_m: 0.05
+  swing_deg: 40
+  thickness_m: 0.008
+ranges:
+  teeth:
+  - 8
+  - 36
+  swing_deg:
+  - 20
+  - 90
+model:
+  engine: wqmech:ratchet
+  formats:
+  - glb
+  origin: 机构坐标系：平面机构在竖直 XZ 平面内（转角绕 −Y，从前方看逆时针为正），齿轮轴沿 Y；每个构件一个节点
+  note: 参数化自建模型；运动表 motion.csv 按默认参数采样（R5）
+source:
+  origin: wenquest
+  license: Apache-2.0
+  attribution: 问渠零件库（参数化生成器 generators/c_mech.py）
+  checked:
+    by: Claude
+    'on': '2026-10-01'
+    note: 自建；位置分析由测试核对（两种算法互核、闭环约束、传动比）
+teaching:
+  principle: 摇杆往复摆动：推程时驱动棘爪推着棘轮转过一个齿（摆角大于一个齿距，多出的是空程），回程时棘爪在齿背上滑过，止回棘爪顶住棘轮不让倒转。把连续的往复摆动变成单向的间歇转动。
+  uses:
+  - 牛头刨床进给
+  - 千斤顶、扳手
+  - 卷扬机止回
+  courses:
+  - course: 机械设计基础
+    chapter: 间歇运动机构
+  labs: []
+factory:
+  erp_items: []
+  suppliers: []

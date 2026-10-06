@@ -1,0 +1,9 @@
+# 班级（小组）工厂（数字工厂第 10 轮）。加一行、推送，自动部署时建好一座独立的教学工厂。
+#   id：网址里的编号（小写字母开头，只用小写字母和数字，2～20 位）→ https://<id>.factory.wenquestrobotics.com
+#   name：显示名；course：对应的问渠课程（备注）；teachers：任课老师的问渠账号编号（能建课的老师账号本来就是厂长，可不填）
+# 删掉一行不会删数据（防误删）；要清理请运行 deploy/class_remove.sh <id>。
+classes:
+  - id: pilot
+    name: 试点班
+    course: ""
+    teachers: []

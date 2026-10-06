@@ -1,0 +1,6 @@
+domain: ehs
+rules:
+  E1: {name: 重大隐患未关闭, status: waiting, severity: critical, role: [manager], desc: 待数据：需要“隐患随手拍”采集应用（领域包）}
+  E2: {name: 隐患整改逾期, status: waiting, severity: warn, role: [manager], desc: 待数据：同上}
+  E3: {name: 作业许可缺资质, status: waiting, severity: critical, role: [manager], desc: 待数据：需要作业许可与人员资质}
+  E4: {name: 安全培训到期, status: waiting, severity: warn, role: [manager], desc: 待数据：需要培训记录}

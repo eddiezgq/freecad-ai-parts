@@ -1,0 +1,155 @@
+domain: product
+order: 4
+label: 产品与研发
+label_en: Product & engineering
+row: chain
+types:
+  Product:
+    label: 产品
+    label_en: Product
+    maturity: have
+    key: 产品物料号，如 WQR-105
+    title: "{key} {name}"
+    sources: [工厂主数据]
+    props:
+      name: {t: str, l: 名称}
+      price: {t: num, l: 售价, u: $}
+      rated_torque_nm: {t: num, l: 额定输出转矩, u: N·m}
+    links:
+      item: {to: Item, l: 物料, inv: 产品}
+  Item:
+    label: 物料
+    label_en: Item
+    maturity: have
+    key: 物料号，如 SH-301、BRG-6207
+    title: "{key} {name}"
+    sources: [工厂主数据, erp.doc Item]
+    props:
+      name: {t: str, l: 名称}
+      kind: {t: str, l: 类别（原材料 / 外购 / 自制 / 成品）}
+      uom: {t: str, l: 单位}
+      revision: {t: int, l: 现行设计版本}
+      safety_stock: {t: num, l: 安全库存}
+      std_cost: {t: num, l: 标准成本, u: $}
+    links:
+      library: {to: LibraryEntry, l: 零件库, inv: 工厂物料}
+      supplier: {to: Supplier, l: 首选供应商, inv: 供货}
+      revision_now: {to: DesignRevision, l: 现行版本, inv: 是现行版本}
+      process_plan: {to: ProcessPlan, l: 工艺规程, inv: 物料}
+  Bom:
+    label: 物料清单
+    label_en: BOM
+    maturity: have
+    key: BOM 号
+    title: "{key}"
+    sources: [工厂主数据, erp.doc BOM]
+    props:
+      lines: {t: json, l: 组成}
+      active: {t: bool, l: 生效}
+    links:
+      item: {to: Item, l: 产出, inv: BOM}
+      component: {to: Item, l: 用料, inv: 用于, many: true}
+  DesignRevision:
+    label: 设计版本
+    label_en: Design revision
+    maturity: have
+    key: 物料号-rev 版本号
+    title: "{item} rev {revision}"
+    sources: [design.release]
+    props:
+      item: {t: str, l: 物料}
+      revision: {t: int, l: 版本}
+      author: {t: str, l: 设计者}
+      change_note: {t: str, l: 改动说明}
+      released_at: {t: time, l: 发布时间}
+      files: {t: json, l: 文件}
+      params: {t: json, l: 参数}
+    links:
+      item: {to: Item, l: 物料, inv: 设计版本}
+      submission: {to: DesignSubmission, l: 来自提交, inv: 生效为}
+  DesignSubmission:
+    label: 设计提交
+    label_en: Design submission
+    maturity: have
+    key: 提交号
+    title: "{item} · {status}"
+    sources: [design_submission 表]
+    props:
+      item: {t: str, l: 物料}
+      status: {t: str, l: 状态}
+      author: {t: str, l: 提交人}
+      note: {t: str, l: 说明}
+      revision: {t: int, l: 生效版本}
+      submitted_at: {t: time, l: 提交时间}
+      decided_by: {t: str, l: 审批人}
+    links:
+      item: {to: Item, l: 物料, inv: 设计提交}
+  ProcessPlan:
+    label: 工艺规程
+    label_en: Process plan
+    maturity: have
+    key: 提交号
+    title: "{item} 工艺规程 · {status}"
+    sources: [process_submission 表, process.release]
+    props:
+      item: {t: str, l: 物料}
+      status: {t: str, l: 状态}
+      revision: {t: int, l: 版本}
+      ops: {t: json, l: 工序}
+      author: {t: str, l: 编制人}
+    links:
+      item: {to: Item, l: 物料, inv: 工艺规程}
+  NcProgram:
+    label: 数控程序
+    label_en: NC program
+    maturity: have
+    key: 程序引用（gcode_ref）
+    title: "{item} {operation}"
+    sources: [design.gcode]
+    props:
+      item: {t: str, l: 物料}
+      operation: {t: str, l: 工序}
+      program: {t: str, l: 程序号}
+      lines: {t: int, l: 行数}
+    links:
+      item: {to: Item, l: 物料, inv: 数控程序}
+      process_plan: {to: ProcessPlan, l: 工艺规程, inv: 程序}
+  AnalysisJob:
+    label: 分析作业
+    label_en: Analysis job
+    maturity: have
+    key: 计算服务作业号
+    title: "{title}"
+    sources: [计算服务 /jobs（强度、疲劳、温度、流体、动力学、优化、拓扑、数控编程）]
+    props:
+      title: {t: str, l: 名称}
+      kind: {t: str, l: 种类}
+      status: {t: str, l: 状态}
+      owner: {t: str, l: 提交人}
+      created: {t: time, l: 时间}
+      result: {t: json, l: 主要结论}
+    links:
+      item: {to: Item, l: 零件, inv: 分析}
+  EngineeringChange:
+    label: 工程更改
+    label_en: Engineering change
+    maturity: capture
+    key: 更改单号
+    title: "{key} {subject}"
+    props:
+      subject: {t: str, l: 主题}
+      reason: {t: str, l: 原因}
+      status: {t: str, l: 状态}
+    links:
+      item: {to: Item, l: 物料, inv: 工程更改}
+  LibraryEntry:
+    label: 零件库条目
+    label_en: Library entry
+    maturity: have
+    key: 零件库编号，如 A-BRG-DG/6207
+    title: "{key} {name}"
+    sources: [零件库 latest.json]
+    props:
+      name: {t: str, l: 名称}
+      standard: {t: str, l: 标准}
+      library_version: {t: str, l: 零件库版本}

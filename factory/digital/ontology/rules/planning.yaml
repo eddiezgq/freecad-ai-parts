@@ -1,0 +1,9 @@
+domain: planning
+rules:
+  S2:
+    name: 工单逾期
+    fn: wo_overdue
+    severity: warn
+    role: [planner]
+    desc: 计划完工日已过且未完工（演示工单除外）
+    hint: 看工单卡在哪道工序；更新计划或与销售沟通

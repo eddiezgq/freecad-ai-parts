@@ -1,0 +1,18 @@
+# WQR-105 减速器中还没有完整工艺规程的零件的工艺尺寸链（第 13 轮，配教材第 53 章）。
+# 第 59 章（轴）、第 64 章（齿轮）写出这些零件的完整工艺规程时，尺寸链移到各自的 <零件>_process.yaml 里。
+# 数值为教学设计值：渗碳层深度要求、余量、中间工序公差按“企业工艺标准”取，不是国家标准。
+chains:
+  - item: SH-101
+    name: 轴承位磨削后的渗碳层深度
+    char: {name: 轴承位渗碳层深度（磨后，有效硬化层）, nominal: 1.0, es: 0.2, ei: -0.2}
+    drawing: {name: 轴承位, size_mm: 25, es_mm: 0.015, ei_mm: 0.002}       # Ø25 k6，与检验模板一致
+    before_heat: {name: 渗碳前精车轴承位, size_mm: 25.4, es_mm: 0, ei_mm: -0.05}
+    unknown: 渗碳层深度 t1（渗碳淬火工序）
+    note: 磨后层深 t0 = t1 − (r1 − r2)：渗碳前的半径 r1 减去磨后的半径 r2 就是磨掉的层厚
+  - item: GR-203
+    name: 齿轮孔键槽深度（插键槽后渗碳淬火、磨孔）
+    char: {name: 键槽深 d + t2, nominal: 38.3, es: 0.2, ei: 0}             # 键 10×8，t2 = 3.3（+0.2）
+    drawing: {name: 齿轮孔, size_mm: 35, es_mm: 0.025, ei_mm: 0}            # Ø35 H7
+    before_heat: {name: 精车孔, size_mm: 34.6, es_mm: 0.1, ei_mm: 0}
+    coaxiality: 0.05                                                         # 磨孔与精车孔（插键槽时的基准）的同轴度
+    unknown: 插键槽工序尺寸 A（键槽底到孔对面母线）

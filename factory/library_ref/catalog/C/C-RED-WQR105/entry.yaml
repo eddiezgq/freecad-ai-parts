@@ -1,0 +1,97 @@
+# C-RED-WQR105 · WQR-105 二级圆柱齿轮减速器（传动机构）（自建机构，第 5 轮第 6 步）
+schema: 1
+id: C-RED-WQR105
+kind: mechanism
+name:
+  zh: WQR-105 二级圆柱齿轮减速器（传动机构）
+  en: WQR-105 two-stage gear reducer (gear mechanism)
+category: RED
+tags:
+- 减速器
+- WQR-105
+- 二级圆柱齿轮减速器
+- 问渠虚拟工厂
+- gear reducer
+standards: []
+params:
+- key: module1_mm
+  zh: 第一级模数
+  en: Module, stage 1
+  role: key
+  unit: mm
+- key: z1
+  zh: 输入齿轮轴 SH-101 齿数
+  en: z1 (SH-101)
+  role: key
+- key: z2
+  zh: 第一级大齿轮 GR-202 齿数
+  en: z2 (GR-202)
+  role: key
+- key: face1_mm
+  zh: 第一级齿宽
+  en: Face width 1
+  role: key
+  unit: mm
+- key: module2_mm
+  zh: 第二级模数
+  en: Module, stage 2
+  role: key
+  unit: mm
+- key: z3
+  zh: 第二级小齿轮 GR-203 齿数
+  en: z3 (GR-203)
+  role: key
+- key: z4
+  zh: 第二级大齿轮 GR-302 齿数
+  en: z4 (GR-302)
+  role: key
+- key: face2_mm
+  zh: 第二级齿宽
+  en: Face width 2
+  role: key
+  unit: mm
+defaults:
+  module1_mm: 2
+  z1: 24
+  z2: 72
+  face1_mm: 30
+  module2_mm: 3
+  z3: 20
+  z4: 70
+  face2_mm: 40
+ranges: {}
+model:
+  engine: wqmech:gear_train
+  formats:
+  - glb
+  origin: 机构坐标系：平面机构在竖直 XZ 平面内（转角绕 −Y，从前方看逆时针为正），齿轮轴沿 Y；每个构件一个节点
+  note: 参数化自建模型；运动表 motion.csv 按默认参数采样（R5）
+source:
+  origin: wenquest
+  license: Apache-2.0
+  attribution: 问渠零件库（参数化生成器 generators/c_mech.py）
+  checked:
+    by: Claude
+    'on': '2026-10-01'
+    note: 自建；位置分析由测试核对（两种算法互核、闭环约束、传动比）
+teaching:
+  principle: 问渠虚拟工厂的产品：电机 1450 r/min 输入，第一级 24:72（i = 3），第二级 20:70（i = 3.5），总传动比 10.5，输出约
+    138 r/min。齿数、模数取自工厂主数据（factory/factory/data.py），与 ERPNext 物料、检验计划一致。
+  uses:
+  - 课程设计（减速器设计）
+  - 数字工厂虚拟产线的产品
+  - 装配与检验实验
+  courses:
+  - course: 机械设计基础
+    chapter: 减速器（课程设计）
+  labs: []
+factory:
+  erp_items:
+  - item_code: WQR-105
+    size: default
+  suppliers: []
+mechanism_names:
+  ground: 箱座（轴承座示意）
+  shaft1: 输入齿轮轴 SH-101（z = 24）
+  shaft2: 中间轴（GR-202 z = 72、GR-203 z = 20）
+  shaft3: 输出轴（GR-302 z = 70）

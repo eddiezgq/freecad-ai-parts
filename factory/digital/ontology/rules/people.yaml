@@ -1,0 +1,4 @@
+domain: people
+rules:
+  H1: {name: 关键资质人员单点依赖, status: waiting, severity: warn, role: [manager], desc: 待数据：需要员工、技能与资质}
+  H2: {name: 排班缺口, status: waiting, severity: warn, role: [manager, planner], desc: 待数据：需要排班}

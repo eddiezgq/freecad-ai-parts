@@ -1,0 +1,23 @@
+{
+  "name": "wq-digital-factory-workbench",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "问渠数字工厂工作台：首页运营总览看板、角色工作区、车间终端、3D 车间、AI 工厂助手",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "cytoscape": "3.33.1",
+    "mqtt": "5.14.1",
+    "three": "0.180.0",
+    "vue": "3.5.22",
+    "vue-router": "4.5.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "6.0.1",
+    "vite": "7.1.7"
+  }
+}

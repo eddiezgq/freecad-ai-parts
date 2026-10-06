@@ -1,0 +1,20 @@
+domain: 物料
+items:
+  - id: W01
+    q: "轴承 6207 够不够？"
+    tools: [metrics, impact]
+    contains: ["BRG-6207", "安全库存"]
+  - id: W02
+    q: "现在缺什么料？"
+    tools: [metrics]
+    contains: ["{low_item}"]
+  - id: W03
+    q: "{low_anomaly} 怎么处理？"
+    tools: [get_anomaly, compare_options]
+    contains: ["不处理", "紧急采购"]
+  - id: W04
+    q: "物料够不够？"
+    as: student
+    contains: ["提示", "安全库存"]
+    not_contains: ["{low_item}"]
+    cite: false

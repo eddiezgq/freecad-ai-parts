@@ -1,0 +1,9 @@
+domain: product
+rules:
+  D1:
+    name: 设计改版后在制工单仍按旧版加工
+    fn: rev_in_wip
+    severity: info
+    role: [engineer]
+    desc: 物料发布新版时，它的在制工单已经有零件按旧版开工
+    hint: 工艺员决定已开工零件按旧版继续还是返工；确认工艺与 G 代码同步

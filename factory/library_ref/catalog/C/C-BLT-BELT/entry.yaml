@@ -1,0 +1,78 @@
+# C-BLT-BELT · 开口带传动（自建机构，第 5 轮第 6 步）
+schema: 1
+id: C-BLT-BELT
+kind: mechanism
+name:
+  zh: 开口带传动
+  en: Open belt drive
+category: BLT
+tags:
+- 带传动
+- 平带
+- V 带
+- 包角
+- belt drive
+standards: []
+params:
+- key: d1_m
+  zh: 小带轮直径 D1
+  en: Small pulley D1
+  role: key
+  unit: m
+- key: d2_m
+  zh: 大带轮直径 D2
+  en: Large pulley D2
+  role: key
+  unit: m
+- key: center_m
+  zh: 中心距 a
+  en: Center distance a
+  role: key
+  unit: m
+- key: width_m
+  zh: 带宽
+  en: Belt width
+  role: key
+  unit: m
+defaults:
+  d1_m: 0.06
+  d2_m: 0.12
+  center_m: 0.25
+  width_m: 0.02
+ranges:
+  d1_m:
+  - 0.03
+  - 0.15
+  d2_m:
+  - 0.05
+  - 0.3
+  center_m:
+  - 0.15
+  - 0.6
+model:
+  engine: wqmech:belt
+  formats:
+  - glb
+  origin: 机构坐标系：平面机构在竖直 XZ 平面内（转角绕 −Y，从前方看逆时针为正），齿轮轴沿 Y；每个构件一个节点
+  note: 参数化自建模型；运动表 motion.csv 按默认参数采样（R5）
+source:
+  origin: wenquest
+  license: Apache-2.0
+  attribution: 问渠零件库（参数化生成器 generators/c_mech.py）
+  checked:
+    by: Claude
+    'on': '2026-10-01'
+    note: 自建；位置分析由测试核对（两种算法互核、闭环约束、传动比）
+teaching:
+  principle: 带套在两个带轮上，靠带与轮面的摩擦传递运动，传动比约为 D2/D1（有弹性滑动，略大）。小轮包角越大能传的力越大，一般要求不小于 120°；带长按两段切线加两段圆弧计算。
+  uses:
+  - 电机到风机、水泵的传动
+  - 机床主传动
+  - 农机
+  courses:
+  - course: 机械设计基础
+    chapter: 带传动
+  labs: []
+factory:
+  erp_items: []
+  suppliers: []

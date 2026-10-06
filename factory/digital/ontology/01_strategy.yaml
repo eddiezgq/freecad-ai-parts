@@ -1,0 +1,63 @@
+domain: strategy
+order: 1
+label: 经营与战略
+label_en: Strategy & management
+row: chain
+types:
+  Plant:
+    label: 工厂
+    label_en: Plant
+    maturity: have
+    key: 工厂代号（与 WQ_FACTORY_ID 一致）
+    title: "{name}"
+    sources: [工厂主数据]
+    props:
+      name: {t: str, l: 名称}
+      product_line: {t: str, l: 主要产品}
+      mode: {t: str, l: 模式（教学 / 生产）}
+  Objective:
+    label: 经营目标
+    label_en: Objective
+    maturity: capture
+    key: 年度-序号
+    title: "{name}"
+    props:
+      name: {t: str, l: 目标}
+      period: {t: str, l: 期间}
+      owner: {t: str, l: 负责部门}
+    links:
+      plant: {to: Plant, l: 属于, inv: 目标}
+  Metric:
+    label: 指标
+    label_en: Metric
+    maturity: have
+    key: 指标代号，如 otd、oee、fpy
+    title: "{name}"
+    sources: [hub.kpi（由历史库计算）]
+    props:
+      name: {t: str, l: 名称}
+      value: {t: num, l: 当前值, series: true}
+      target: {t: num, l: 目标值}
+      unit: {t: str, l: 单位}
+    links:
+      objective: {to: Objective, l: 支撑, inv: 指标}
+  Budget:
+    label: 预算
+    label_en: Budget
+    maturity: capture
+    key: 年度-成本中心
+    title: "{name}"
+    sensitivity: 2
+    props:
+      name: {t: str, l: 名称}
+      amount: {t: num, l: 金额, u: $}
+    links:
+      cost_center: {to: CostCenter, l: 成本中心, inv: 预算}
+  CostCenter:
+    label: 成本中心
+    label_en: Cost center
+    maturity: erp
+    key: ERPNext 成本中心名
+    title: "{name}"
+    props:
+      name: {t: str, l: 名称}

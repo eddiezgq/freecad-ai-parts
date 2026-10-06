@@ -1,0 +1,30 @@
+domain: 异常与动作
+items:
+  - id: A01
+    q: "现在有哪些异常？"
+    tools: [list_anomalies]
+    contains: ["{grd_anomaly}", "{low_anomaly}"]
+  - id: A02
+    q: "{grd_anomaly} 怎么处理？"
+    tools: [get_anomaly, compare_options]
+    contains: ["不处理", "维修加急", "多花"]
+  - id: A03
+    q: "有什么问题要处理？给个建议"
+    tools: [compare_options]
+    contains: ["方案"]
+  - id: A04
+    q: "起草 {grd_anomaly} 的方案 B"
+    tools: [compare_options, draft_action]
+    contains: ["草稿", "提交"]
+    drafts: true
+  - id: A05
+    q: "起草 {grd_anomaly} 的方案 B"
+    as: student
+    contains: ["不代做"]
+    cite: false
+  - id: A06
+    q: "现在有哪些异常？"
+    as: student
+    contains: ["提示"]
+    not_contains: ["{grd_anomaly}", "GRD-01"]
+    cite: false

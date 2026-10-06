@@ -1,0 +1,16 @@
+domain: finance
+rules:
+  F1:
+    name: 工单成本差异超标
+    fn: cost_variance
+    severity: warn
+    role: [manager]
+    params: {above_pct: 10}
+    desc: 工单加工实际成本比标准高 above_pct% 以上
+    hint: 在“经营与成本”页看分解：调整、换刀工时还是废品
+  F2:
+    name: 应收逾期
+    status: waiting
+    severity: warn
+    role: [manager]
+    desc: 待数据：需要 ERPNext 应收（销售发票、收款）

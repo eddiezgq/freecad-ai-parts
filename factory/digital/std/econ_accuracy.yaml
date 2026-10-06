@@ -1,0 +1,59 @@
+# 各加工方法的加工经济精度与表面粗糙度（首批，只收两处网上转载读数一致的行）
+standard: {short: "加工方法经济精度表，国内教材通用数据", code: "教材通用数据：外圆/内孔表面加工方法的经济精度与表面粗糙度（国内《机械制造技术基础》《机械制造工艺学》教材体系；未能核对到李益民《机械制造工艺设计简明手册》表 1.4-x 原表）", title: "常用加工方法的加工经济精度（IT 公差等级）与可达表面粗糙度 Ra"}
+sources:
+  - {key: s1, title: "大连冶金轴承 dyzv-bearing.com《外圆表面的加工方法和加工方案》（轴承知识栏目，正文逐方法叙述）", url: "https://www.dyzv-bearing.com/knowledgeshow.php?titleid=15708&pid=&name=%E8%BD%B4%E6%89%BF%E7%9F%A5%E8%AF%86", note: "外圆：粗车、半精车、精车、精细车的 IT 与 Ra 原句；读了两遍，一致"}
+  - {key: s2, title: "搜搜钢百科（mysteel）《外圆表面的车削加工》", url: "https://baike.mysteel.com/doc/view/58045.html", note: "外圆：荒车/粗车/半精车/精车/精细车的 IT 与 Ra 原句；读了两遍，一致（粗车 Ra 写作 30-12.5，见 notes）"}
+  - {key: s3, title: "搜搜钢百科（mysteel）《外圆表面常用加工方法》中的“外圆表面加工方案”表（10 行，含经济精度、Ra、适用范围）", url: "https://baike.mysteel.com/doc/view/58025.html", note: "即国内教材常见的外圆加工方案表的网页转载；读了两遍，一致；转载有错字（“粗车-半粗车”“液压（或抛光）”“0.2-0.255”“R20.1”），只用到第 1、2、3、8 行"}
+  - {key: s4, title: "搜狐《【机械加工】内孔表面加工常用方法大汇总，又要收藏了》", url: "https://www.sohu.com/a/517523920_121124370", note: "内孔：钻、扩、铰、粗/半精/精镗、精细镗、拉、磨、珩、研的 IT 与 Ra 原句；读了两遍，一致"}
+  - {key: s5, title: "搜狐《一文搞懂：钻孔、扩孔、铰孔、镗孔、珩磨孔、拉孔……》", url: "https://www.sohu.com/a/764427757_121124545", note: "内孔：钻、扩、铰、镗、金刚镗、拉、珩的 IT 与 Ra 原句；与 OFweek 工控网 2019-07 同题文章（https://gongkong.ofweek.com/2019-07/ART-310000-8120-30397405.html）及搜狐 462224668 号文逐字相同，三者算同一出处"}
+columns:
+  - [feature, 表面类型（外圆/孔/平面）, surface type, "-"]
+  - [method_zh, 加工方法, machining method (Chinese), "-"]
+  - [method_en, 英文名, machining method (English), "-"]
+  - [IT_min, 经济精度最高等级（数字小者）, best economic IT grade, IT]
+  - [IT_max, 经济精度最低等级（数字大者）, worst economic IT grade, IT]
+  - [Ra_min_um, 表面粗糙度下限, Ra lower bound, μm]
+  - [Ra_max_um, 表面粗糙度上限, Ra upper bound, μm]
+rows:
+  - {key: od_rough_turn, src: s1+s3, feature: 外圆, method_zh: 粗车, method_en: rough turning, IT_min: 11, IT_max: 13, Ra_min_um: 12.5, Ra_max_um: 50}
+  - {key: od_semi_turn, src: s1+s2+s3, feature: 外圆, method_zh: 半精车, method_en: semi-finish turning, IT_min: 8, IT_max: 10, Ra_min_um: 3.2, Ra_max_um: 6.3}
+  - {key: od_finish_turn, src: s1+s2+s3, feature: 外圆, method_zh: 精车, method_en: finish turning, IT_min: 7, IT_max: 8, Ra_min_um: 0.8, Ra_max_um: 1.6}
+  - {key: od_fine_turn, src: s1+s2+s3, feature: 外圆, method_zh: 精细车（金刚石车）, method_en: fine (diamond) turning, IT_min: 6, IT_max: 7, Ra_min_um: 0.025, Ra_max_um: 0.4}
+  - {key: hole_drill, src: s4+s5, feature: 孔, method_zh: 钻, method_en: drilling, IT_min: 11, IT_max: 13, Ra_min_um: 12.5, Ra_max_um: 50}
+  - {key: hole_core_drill, src: s4+s5, feature: 孔, method_zh: 扩, method_en: core drilling (counter-boring with core drill), IT_min: 10, IT_max: 11, Ra_min_um: 6.3, Ra_max_um: 12.5}
+  - {key: hole_fine_bore, src: s4+s5, feature: 孔, method_zh: 精细镗（金刚镗）, method_en: fine (diamond) boring, IT_min: 6, IT_max: 7, Ra_min_um: 0.05, Ra_max_um: 0.4}
+  - {key: hole_broach, src: s4+s5, feature: 孔, method_zh: 拉, method_en: broaching (round hole), IT_min: 7, IT_max: 9}
+  - {key: hole_hone, src: s4+s5, feature: 孔, method_zh: 珩, method_en: honing, IT_min: 6, IT_max: 7, Ra_max_um: 0.2}
+checked:
+  - {row: od_rough_turn, col: IT_max, value: 13, against: s3, where: "外圆表面加工方案表 第 1 行“粗车 IT13-11”", ok: true}
+  - {row: od_rough_turn, col: Ra_max_um, value: 50, against: s3, where: "同上 “50-12.5”", ok: true}
+  - {row: od_rough_turn, col: Ra_max_um, value: 50, against: s2, where: "正文“粗车后…Ra值为30-12.5um”", ok: false}
+  - {row: od_semi_turn, col: IT_min, value: 8, against: s2, where: "正文“半精车后…IT10-IT8”", ok: true}
+  - {row: od_semi_turn, col: Ra_max_um, value: 6.3, against: s3, where: "方案表 第 2 行“6.3-3.2”", ok: true}
+  - {row: od_finish_turn, col: IT_min, value: 7, against: s2, where: "正文“精车后…IT8-IT7”", ok: true}
+  - {row: od_finish_turn, col: Ra_min_um, value: 0.8, against: s3, where: "方案表 第 3 行“IT8-7, 0.8-1.6”", ok: true}
+  - {row: od_fine_turn, col: Ra_min_um, value: 0.025, against: s2, where: "正文“精细车后…Ra值为0.4-0.025um”", ok: true}
+  - {row: od_fine_turn, col: IT_min, value: 6, against: s3, where: "方案表 第 8 行“粗车-半精车-精车-精细车（金刚车） IT7-6, 0.4-0.025”", ok: true}
+  - {row: hole_drill, col: IT_min, value: 11, against: s5, where: "钻孔段“一般只能达到IT13～IT11”", ok: true}
+  - {row: hole_drill, col: Ra_max_um, value: 50, against: s5, where: "钻孔段“Ra一般为50~12.5μm”", ok: true}
+  - {row: hole_core_drill, col: Ra_min_um, value: 6.3, against: s5, where: "扩孔段“Ra为12.5~6.3μm”", ok: true}
+  - {row: hole_fine_bore, col: Ra_min_um, value: 0.05, against: s5, where: "金刚镗段“IT7～IT6…Ra为0.4~0.05”", ok: true}
+  - {row: hole_broach, col: IT_max, value: 9, against: s5, where: "拉孔段“拉孔精度可达IT9~IT7”", ok: true}
+  - {row: hole_hone, col: IT_min, value: 6, against: s5, where: "珩磨段“加工精度为IT7~IT6级”", ok: true}
+excluded:
+  - "外圆 粗磨、精磨、研磨、超精加工：只有 s3 方案表一处（读两遍一致）：粗车-半精车-磨削 IT7-6 / Ra0.8-0.4；…-粗磨-精磨 IT7-6 / Ra0.4-0.1；…-粗磨-精磨-超精加工（或轮式超精磨）IT5 / Ra0.1-0.012；…-超精磨（或镜面磨）IT5以上 / Ra0.025-0.006；…-精磨-研磨 IT5以上 / Ra0.1-0.012。s1 只给“中心磨削 IT6~IT8、Ra0.8~0.1”“无心磨 IT6~IT7、Ra0.8~0.2”，与 s3 对不上，s2 无磨削数据。缺第二处一致读数，不收，上列数值只作待核线索。"
+  - "孔 粗铰、精铰：s4、s5 都不分粗/精；铰孔整体 s4 为 IT9~IT6、Ra3.2~0.2，s5 为 IT9~IT7、Ra3.2~0.8，互相不一致，不收。"
+  - "孔 粗镗、半精镗、精镗：只有 s4（粗镗 IT13~IT12 Ra12.5~6.3；半精镗 IT10~IT9 Ra6.3~3.2；精镗 IT8~IT7 Ra1.6~0.8）；s5 只说“镗孔 IT9～IT7”，不收。"
+  - "孔 拉 的 Ra：s4 为 1.6~0.4，s5 为 6.3~1.6，矛盾，只收 IT。"
+  - "孔 珩 的 Ra 下限：s4 为 0.05，s5 为 0.025，只收上限 0.2。"
+  - "孔 粗磨、精磨（内圆磨）：只有 s4“磨孔 IT8~IT6、Ra0.8~0.4”，不分粗精，单一出处，不收。"
+  - "平面 粗铣、精铣、刨、粗磨、精磨、刮研：能打开的网页只有“车铣刨磨钻镗最高精度”类文章（搜狐 302093609、博客园 josephcnblog 9881325、搜狐 328788288 等，同一原文，数值如“粗车 Ra20—10”“精铣 IT16—IT8”明显是旧光洁度换算或错字），国际金属加工网《平面加工方法和平面加工方案》有验证码打不开，均不收。"
+  - "李益民《机械制造工艺设计简明手册》表 1.4-6/1.4-7/1.4-8、王先逵《机械制造工艺学》、《机械加工工艺手册》原表：本次没有读到可信转载。嘉立创/机械工程师设计手册“切削加工的经济精度”页（https://www.jlc-jdgf.com/mcbook/new02099.htm）是按 IT 列打点的表，抓取工具两次读出的格位不一致，只确认它不含 Ra，不收。原创力文档 max.book118 两份“各种加工方法的经济精度与表面粗糙度”只预览到孔的 IT 表（如粗铰 IT9、精铰 IT7~8、细镗 IT6~7），没有 Ra，也不收。"
+  - "英文对照：ANSI B4.1 “Relation of machining processes to tolerance grades” 图在 roymech、brainly 页面上数据格为空；utec.co、firatbc.com 等厂商页面数值互相不一致且无原始出处，没有用作核对源。Kalpakjian/Groover 原图未取得。"
+notes:
+  - "出处性质：本表各行来自网络转载的国内教材通用数据（外圆加工方案表与逐方法叙述），不是标准，也未能对到手册原表号。两个出处数值一致才收；s5 与 OFweek、搜狐 462224668 是同一篇文章，只算一处。s1、s2、s3 也很可能同源于同一教材，“两处一致”只能排除转载错字，不能排除原书差异。正式出版前应拿李益民《简明手册》表 1.4-6～1.4-8 纸本逐格复核。"
+  - "粗车 Ra：s1、s3 为 12.5~50，s2 为 12.5~30；取 12.5~50（两处一致），s2 视为转载差异。"
+  - "IT 用 IT_min（精者）~IT_max（粗者）；Ra 用 μm，Ra_min~Ra_max。经济精度指正常生产条件（合格设备、标准技术等级工人、不延长工时）下能经济达到的范围，不是极限精度。"
+  - "适用范围（s3 方案表）：车削方案适用于淬火钢以外的各种金属；精细车（金刚石车）主要用于有色金属；淬火钢外圆应安排磨削。"
+  - "SH-301（45 钢台阶轴）轴承轴颈通常要求 IT6 左右、Ra0.8 以下，已超出本表精车（IT7~8、Ra0.8~1.6）范围，需磨削；磨削行待补。"
+  - "行缺 Ra 列（拉、珩）表示该列未收，不是零。"

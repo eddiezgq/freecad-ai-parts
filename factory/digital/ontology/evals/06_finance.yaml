@@ -1,0 +1,15 @@
+domain: 成本
+items:
+  - id: F01
+    q: "{wo} 的实际成本比标准高多少？为什么？"
+    tools: [work_order_cost]
+    contains: ["{wo}", "标准成本", "实际"]
+  - id: F02
+    q: "最近那张工单的成本为什么超了？"
+    tools: [work_order_cost]
+    contains: ["调整与换刀"]
+  - id: F03
+    q: "{wo} 的成本为什么超了？"
+    as: student
+    contains: ["提示", "成本差异"]
+    cite: false

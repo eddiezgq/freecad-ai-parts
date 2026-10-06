@@ -1,0 +1,13 @@
+{
+  "name": "wq-digital-factory-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "问渠数字工厂：ERPNext ↔ 统一数据总线 桥接（Node-RED）",
+  "scripts": {
+    "start": "node-red --settings settings.js",
+    "build": "python3 build_flows.py"
+  },
+  "dependencies": {
+    "node-red": "4.1.1"
+  }
+}
