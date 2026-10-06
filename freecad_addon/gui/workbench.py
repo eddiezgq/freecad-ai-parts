@@ -224,6 +224,26 @@ class FeaCommand:
         return True
 
 
+class OptimizeCommand:
+    """设计优化（ADR-0056）：阶梯轴在安全系数与疲劳要求下最轻的直径，可生成到 FreeCAD。"""
+
+    def GetResources(self):
+        return {"MenuText": "设计优化", "ToolTip": "阶梯轴各段直径自动寻优：满足安全系数与疲劳要求下最轻（Optuna 驱动本机有限元）"}
+
+    def Activated(self):
+        from freecad_addon.gui.optimize_dialog import OptimizeDialog
+
+        dlg = _state.get("optimize")
+        if dlg is None:
+            dlg = OptimizeDialog(_main_window())
+            _state["optimize"] = dlg
+        dlg.show()
+        dlg.raise_()
+
+    def IsActive(self):
+        return True
+
+
 class CheckPanelCommand:
     """校验窗口（ADR-0048）：场景每次改动后自动校验，接口标记按结论着色。"""
 
@@ -359,6 +379,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         FreeCADGui.addCommand("FAP_Analyses", AnalysesCommand())
         FreeCADGui.addCommand("FAP_Mbd", MbdCommand())
         FreeCADGui.addCommand("FAP_Fea", FeaCommand())
+        FreeCADGui.addCommand("FAP_Optimize", OptimizeCommand())
         FreeCADGui.addCommand("FAP_Connect", ConnectPortsCommand())
         FreeCADGui.addCommand("FAP_Checks", CheckPanelCommand())
         FreeCADGui.addCommand("FAP_Restore", RestoreProjectCommand())
@@ -368,7 +389,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bom",
                  "FAP_Restore", "FAP_Bridge", "FAP_Record"]
         self.appendToolbar("AI Parts", tools)
-        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_Fea", "FAP_RecordVideo"])
+        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_Fea", "FAP_Optimize", "FAP_RecordVideo"])
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"
