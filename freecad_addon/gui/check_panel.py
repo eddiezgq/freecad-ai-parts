@@ -68,6 +68,10 @@ class CheckPanel(QtWidgets.QDockWidget):
         lay.addLayout(row)
         lay.addWidget(self.overall)
         lay.addWidget(self.report, 1)
+        from freecad_addon.gui.swap_box import SwapBox
+
+        self.swap = SwapBox(self)  # 换件建议（ADR-0052）
+        lay.addWidget(self.swap)
         self.setWidget(body)
 
         self.apply_button.clicked.connect(lambda *_: self.apply_form())
@@ -142,6 +146,7 @@ class CheckPanel(QtWidgets.QDockWidget):
         self.overall.setText(f"<b>结论：{live_check.STATUS_TEXT.get(r['overall'], r['overall'])}</b>"
                              if r["mode"] != "empty" else "场景中还没有零件")
         self.report.setHtml(render(r))
+        self.swap.refresh_instances(self.layout_state, r)
         colorize(r)
         self.save_record()
         return r

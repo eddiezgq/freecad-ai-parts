@@ -181,6 +181,17 @@ def create_server(library_factory: Callable[[], Library] = default_library,
 
     @mcp.tool
     @_guard
+    def suggest_replacements(
+        instance: Annotated[str, Field(description="要换的实例名，如 motor")],
+        requirement: Annotated[dict | None, Field(description="需求（同 compose_chain）；不给时只按接口校验")] = None,
+        top_n: Annotated[int, Field(ge=1, le=20)] = 5,
+    ) -> dict:
+        """换件建议（ADR-0052）：把当前布局中的一个实例换成同品类的其他组件、连接不变，按装配校验的同一规则整体重算，
+        返回不为不通过的候选（排好序）与结论变化。换件用 place_component（先 remove，再原位姿放入）与 connect_ports。"""
+        return tools.suggest_replacements(lib(), session.state(), instance, requirement=requirement, top_n=top_n)
+
+    @mcp.tool
+    @_guard
     def place_component(
         instance: Annotated[str, Field(description="实例名，如 motor、reducer、drive（小写字母开头）")],
         component_id: Annotated[str | None, Field(description="组件 id；新实例必填，移动已有实例时可省略")] = None,

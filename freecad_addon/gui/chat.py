@@ -32,6 +32,8 @@ SYSTEM_PROMPT = (
     "布局：用户选定方案后，place_component 放置各实例，connect_ports 只连机械端口（先法兰与安装面，再轴与孔），"
     "check_interference 检查干涉；不同刚性组的干涉件按 bbox_mm 沿 x 移开约 20 mm，同组干涉报告给用户；"
     "pass_through 中的零件提醒用户核对通孔；snapshot 截图自查；最后 verify_system 与 export_system 带 use_layout=true。\n"
+    "改正：校验不通过或待确认时，用 suggest_replacements 取得同品类可替换的零件与结论变化，说明理由后再换"
+    "（place_component 先 remove，再按原位姿放入，connect_ports 重建原连接），不要凭印象挑零件。\n"
     "回答用中文，简洁，先给结论。"
 )
 
