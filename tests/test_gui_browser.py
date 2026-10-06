@@ -638,3 +638,71 @@ def test_import_dialog_extracts_confirms_and_writes(gui, tmp_path):
         library_choice.SETTINGS = old_settings
         panel.close()
         host.tools.close()
+
+
+@pytest.mark.freecad
+def test_new_part_wizard_creates_selectable_part(gui, tmp_path):
+    """M9 第四步：新建零件向导——Excel 规格书 → 模拟 AI 抽取 → 补录一项 → 生成零件存入企业库 → 放入布局、出 BOM。"""
+    from openpyxl import Workbook
+
+    from engine.export import bom_rows
+    from freecad_addon.core import library_choice
+    from freecad_addon.gui.host import ToolsHost
+    from freecad_addon.gui.import_dialog import NewPartDialog
+    from ingest.llm_simulate import SimulatedClient, simulated_response
+    from ingest.synthetic import datasheets, row_label
+    from kb.enterprise import EnterpriseLibrary
+    from kb.library import LayeredLibrary
+
+    sheet = next(s for s in datasheets(0, ["reducer"]) if s.answer["layout"] == "two_col")
+    a = sheet.answer
+    wb = Workbook()
+    wb.remove(wb.active)
+    for page in sorted({e["page"] for e in a["fields"]}):
+        ws = wb.create_sheet(f"P{page}")
+        ws.append([a["title"]])
+        for e in a["fields"]:
+            if e["page"] == page:
+                ws.append([row_label(e, a["lang"], a["layout"]), e["text"]])
+    xlsx = tmp_path / "new.xlsx"
+    wb.save(xlsx)
+
+    ent = EnterpriseLibrary(tmp_path / "ent", create=True)
+    lib = LayeredLibrary(ent, REAL)
+    host = ToolsHost(lambda: lib, note="企业库（测试）")
+    old_settings = library_choice.SETTINGS
+    library_choice.SETTINGS = tmp_path / "settings.json"
+    try:
+        dlg = NewPartDialog(lib, lambda: SimulatedClient(simulated_response(a)))
+        dlg.category.setCurrentIndex(dlg.category.findData("reducer"))
+        assert dlg.add_manual() is False and "先导入规格书" in dlg.status.text()
+        dlg.file.setText(str(xlsx))
+        dlg.actor.setText("张工")
+        assert dlg.extract() is True
+        _pump_until(gui, lambda: not dlg.busy)
+        assert dlg.rows and all(r.writable for r in dlg.rows), dlg.status.text()
+        assert dlg.vendor.text() and dlg.model.text()  # 由规格书预填
+        for r in dlg.rows:
+            dlg.set_checked(r.target, True)
+        # 补录一项 AI 没抽到的值（须写页码与原文）
+        got = {r.target for r in dlg.rows}
+        extra = next(r for r in dlg.m_rows if r.target.startswith("params/") and r.kind == "number"
+                     and not r.enum and r.target not in got)
+        dlg.m_field.setCurrentIndex(dlg.m_field.findData(extra.target))
+        dlg.m_value.setText("1.5")
+        assert dlg.add_manual() is False  # 缺页码、原文
+        dlg.m_page.setValue(1)
+        dlg.m_quote.setText("printed 1.5")
+        assert dlg.add_manual() is True and extra.target in dlg.manual
+        assert dlg.save() is True, dlg.status.text()
+        cid = dlg.saved["id"]
+        assert lib.origin(cid) == "enterprise" and cid in {c["id"] for c in lib.all("reducer")}
+        assert lib.get(cid)["params"][extra.target.split("/")[1]]["value"] == 1.5
+        box = []
+        host.call_in_background("place_component", {"instance": "reducer", "component_id": cid}, box.append)
+        _pump_until(gui, lambda: len(box) == 1)
+        system = {"id": "s", "components": [{"instance": "reducer", "component": cid}], "connections": []}
+        assert bom_rows(system, lib.get)[0]["component_id"] == cid
+    finally:
+        library_choice.SETTINGS = old_settings
+        host.tools.close()
