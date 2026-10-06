@@ -10,35 +10,40 @@ outreach:
     email_source: https://www.leaderdrive.com/contact.html
     lang: zh
     product_line: 谐波减速器
-    status: draft
+    status: sent
     drafted: 2026-10-05
+    sent: 2026-10-05
   - vendor: 浙江来福谐波传动股份有限公司 (Laifual)
     email: sales@laifual.com
     email_source: https://www.laifual.com/
     lang: zh
     product_line: 谐波减速器、关节模组
-    status: draft
+    status: sent
     drafted: 2026-10-05
+    sent: 2026-10-05
   - vendor: 深圳市雷赛智能控制股份有限公司 (Leadshine)
     email: marketing@leisai.com
     email_source: https://www.leisai.com/category/contact.html
     lang: zh
     product_line: 交流伺服电机与驱动器
-    status: draft
+    status: sent
     drafted: 2026-10-05
+    sent: 2026-10-05
   - vendor: 浙江禾川科技股份有限公司 (HCFA)
     email: leo.wang@hcfa.cn
     email_source: https://www.hcfaglobal.com/about/contact.html
     lang: en
     product_line: AC servo motors and drives
-    status: draft
+    status: sent
     drafted: 2026-10-05
+    sent: 2026-10-05
     note: 官网标为海外业务窗口
   - vendor: Inovance Technology Europe
     email: info@inovance.eu
     email_source: https://www.inovance.eu/contact-us
     lang: en
     product_line: AC servo motors and drives
-    status: draft
+    status: sent
     drafted: 2026-10-05
+    sent: 2026-10-05
     note: 欧洲站一般咨询邮箱；国内官网未公开邮箱
