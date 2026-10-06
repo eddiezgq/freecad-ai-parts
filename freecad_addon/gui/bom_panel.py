@@ -20,7 +20,7 @@ class BomPanel(QtWidgets.QDockWidget):
         self.setObjectName("FapBomPanel")
         self.host = host or get_host()
         self.layout_state: dict = dict(self.host.layout)
-        self.result: dict = {"rows": [], "total_mass_kg": 0.0, "count": 0}
+        self.result: dict = {"rows": [], "total_mass_kg": 0.0, "count": 0, "custom_requirements": []}
         self.host.listeners.append(self._on_tool)
 
         body = QtWidgets.QWidget()
@@ -30,6 +30,10 @@ class BomPanel(QtWidgets.QDockWidget):
         self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.table.verticalHeader().setVisible(False)
         self.total = QtWidgets.QLabel("")
+        self.custom = QtWidgets.QPlainTextEdit()  # 定制要求（ADR-0053）
+        self.custom.setReadOnly(True)
+        self.custom.setMaximumHeight(120)
+        self.custom.setVisible(False)
         self.note = QtWidgets.QLabel("价格、交期等采购信息尚未收录。")
         self.note.setWordWrap(True)
         self.csv_button = QtWidgets.QPushButton("导出 CSV")
@@ -41,6 +45,7 @@ class BomPanel(QtWidgets.QDockWidget):
         self.status.setWordWrap(True)
         lay.addWidget(self.table, 1)
         lay.addWidget(self.total)
+        lay.addWidget(self.custom)
         lay.addWidget(self.note)
         lay.addLayout(row)
         lay.addWidget(self.status)
@@ -62,7 +67,7 @@ class BomPanel(QtWidgets.QDockWidget):
             self.result = bom_view.bom(self.layout_state, self.host.library().get)
             self.status.setText("")
         except Exception as exc:  # noqa: BLE001 — 显示给用户
-            self.result = {"rows": [], "total_mass_kg": None, "count": 0}
+            self.result = {"rows": [], "total_mass_kg": None, "count": 0, "custom_requirements": []}
             self.status.setText(f"不能生成 BOM：{exc}")
         rows = self.result["rows"]
         self.table.setRowCount(len(rows))
@@ -71,6 +76,9 @@ class BomPanel(QtWidgets.QDockWidget):
                 self.table.setItem(i, j, QtWidgets.QTableWidgetItem(text))
         self.table.resizeColumnsToContents()
         self.total.setText(bom_view.total_text(self.result) if rows or not self.status.text() else "")
+        text = bom_view.custom_text(self.result)
+        self.custom.setPlainText(("定制要求（订货时提供给厂商）：\n" + text) if text else "")
+        self.custom.setVisible(bool(text))
         enabled = bool(rows)
         self.csv_button.setEnabled(enabled)
         self.json_button.setEnabled(enabled)

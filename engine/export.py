@@ -55,12 +55,16 @@ def bom_rows(system: dict, resolve: Callable[[str], dict | None]) -> list[dict]:
 
 
 def bom_json(system: dict, resolve: Callable[[str], dict | None]) -> dict:
+    from engine.custom import custom_requirements
+
     rows = bom_rows(system, resolve)
     masses = [r["total_mass_kg"] for r in rows]
     return {
         "format": EXPORT_FORMAT, "kind": "bom", "system": system["id"], "rows": rows,
         "total_mass_kg": None if any(m is None for m in masses) else round(sum(masses), 9),
-        "note": "质量缺失时总质量为空；source_docs 为该组件数据引用的来源文档（data/sources.yaml）",
+        "custom_requirements": custom_requirements(system, resolve),
+        "note": "质量缺失时总质量为空；source_docs 为该组件数据引用的来源文档（data/sources.yaml）；"
+                "custom_requirements 为按配套件定制的端口应照录的对方规格（ADR-0053）",
     }
 
 
