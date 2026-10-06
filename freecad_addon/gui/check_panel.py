@@ -11,12 +11,10 @@ import html
 
 from PySide import QtCore, QtWidgets
 
-from freecad_addon.core import live_check
+from freecad_addon.core import live_check, requirement_form
 from freecad_addon.gui.host import ToolsHost, get_host
 
-REQ_FIELDS = (("output_torque_cont_nm", "连续扭矩 N·m"), ("output_torque_peak_nm", "峰值扭矩 N·m"),
-              ("output_speed_rpm", "输出转速 rpm"), ("ambient_temp_c", "环境温度 °C"),
-              ("voltage_v", "供电电压 V"), ("phases", "相数"))
+REQ_FIELDS = requirement_form.FIELDS  # 与选型面板共用（ADR-0051）
 
 
 class CheckPanel(QtWidgets.QDockWidget):
@@ -112,22 +110,10 @@ class CheckPanel(QtWidgets.QDockWidget):
             self.changed.emit()
 
     def apply_form(self) -> bool:
-        vals = {}
-        for key, edit in self.inputs.items():
-            text = edit.text().strip()
-            if text:
-                try:
-                    vals[key] = float(text)
-                except ValueError:
-                    self.req_note.setText(f"{key} 须为数字")
-                    return False
-        if "output_torque_cont_nm" not in vals or "output_speed_rpm" not in vals:
-            self.req_note.setText("按需求校验至少要填连续扭矩和输出转速")
+        req, err = requirement_form.from_texts({k: e.text() for k, e in self.inputs.items()})
+        if err:
+            self.req_note.setText(err)
             return False
-        req = {k: v for k, v in vals.items() if k not in ("voltage_v", "phases")}
-        if "voltage_v" in vals:
-            req["supply"] = {"current_type": "ac", "voltage_v": vals["voltage_v"],
-                             "phases": int(vals.get("phases", 3))}
         self.set_requirement(req)
         return True
 
@@ -137,10 +123,9 @@ class CheckPanel(QtWidgets.QDockWidget):
 
     def _show_requirement(self) -> None:
         req = self.requirement or {}
-        flat = {**req, **{k: v for k, v in (req.get("supply") or {}).items() if k in ("voltage_v", "phases")}}
-        for key, edit in self.inputs.items():
-            if key in flat and edit.text().strip() == "":
-                edit.setText(f"{flat[key]:g}" if isinstance(flat[key], (int, float)) else str(flat[key]))
+        for key, text in requirement_form.to_texts(req).items():
+            if text and self.inputs[key].text().strip() == "":
+                self.inputs[key].setText(text)
         self.req_note.setText("按需求校验全部 11 项" if req else
                               "没有需求：只校验接口（C1、C2、C3、C10）。填连续扭矩与输出转速后点“按需求校验”。")
 
