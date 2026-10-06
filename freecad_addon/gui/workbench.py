@@ -201,6 +201,29 @@ class MbdCommand:
         return True
 
 
+class FeaCommand:
+    """有限元 · 疲劳窗口（ADR-0056）：选零件、选面加约束与载荷、本机计算、着色显示、疲劳寿命。"""
+
+    def GetResources(self):
+        return {"MenuText": "有限元 · 疲劳", "ToolTip": "零件的应力、安全系数、固有频率（本机 CalculiX），并按载荷谱算疲劳寿命"}
+
+    def Activated(self):
+        from PySide import QtCore
+
+        from freecad_addon.gui.fea_panel import FeaPanel
+
+        dock = _state.get("fea")
+        if dock is None:
+            dock = FeaPanel(parent=_main_window(), mbd_result=lambda: getattr(_state.get("mbd"), "result", None))
+            _main_window().addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
+            _state["fea"] = dock
+        dock.show()
+        dock.raise_()
+
+    def IsActive(self):
+        return True
+
+
 class CheckPanelCommand:
     """校验窗口（ADR-0048）：场景每次改动后自动校验，接口标记按结论着色。"""
 
@@ -335,6 +358,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         FreeCADGui.addCommand("FAP_NewPart", NewPartCommand())
         FreeCADGui.addCommand("FAP_Analyses", AnalysesCommand())
         FreeCADGui.addCommand("FAP_Mbd", MbdCommand())
+        FreeCADGui.addCommand("FAP_Fea", FeaCommand())
         FreeCADGui.addCommand("FAP_Connect", ConnectPortsCommand())
         FreeCADGui.addCommand("FAP_Checks", CheckPanelCommand())
         FreeCADGui.addCommand("FAP_Restore", RestoreProjectCommand())
@@ -344,7 +368,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bom",
                  "FAP_Restore", "FAP_Bridge", "FAP_Record"]
         self.appendToolbar("AI Parts", tools)
-        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_RecordVideo"])
+        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_Fea", "FAP_RecordVideo"])
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"

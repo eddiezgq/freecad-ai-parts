@@ -31,6 +31,7 @@ mbd = [
 fea = [
     "gmsh>=4.13",
     "numpy>=1.26",
+    "scipy>=1.11",
 ]
 optimize = [
     "optuna>=4.0",
