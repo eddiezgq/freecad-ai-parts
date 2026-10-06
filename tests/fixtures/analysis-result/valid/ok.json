@@ -1,0 +1,5 @@
+{"instance": {"format": "analysis-result/1", "module": "fea", "module_version": "1", "status": "ok",
+  "setup": {"material": "45-QT"}, "data": {"max_von_mises_mpa": 72.4},
+  "solver": {"name": "CalculiX", "version": "2.21"},
+  "checks": [{"name": "光滑段扭转应力", "computed": 72.4, "reference": 72.0, "formula": "√3·16T/(πd³)", "relative_error_ratio": 0.0056}],
+  "limitations": ["线弹性、小变形"], "messages": [], "elapsed_s": 6.1}}

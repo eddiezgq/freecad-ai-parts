@@ -17,6 +17,8 @@
 | `system.schema.json` | 系统：需求、组件实例、端口连接 | M1 issue #4 |
 | `extraction.schema.json` | LLM 抽取结果：通过核对的抽取项、被拒提议、缺失关键字段；见 [ADR-0021](../docs/adr/0021-llm-extraction.md) | M2 issue #29 |
 | `categories/` | 5 个品类的参数与标准端口，由 `component.schema.json` 按 `category` 引用；见 [ADR-0014](../docs/adr/0014-interface-data-in-ports.md) | M1 issue #5 |
+| `analysis-result.schema.json` | 分析模块一次计算的结果外壳（设置、数据、核对、局限）；见 [ADR-0056](../docs/adr/0056-local-analysis-modules.md) | M10 |
+| `material.schema.json` | 分析模块用的材料性能（标准单位，每条注明出处） ；见 ADR-0056 | M10 |
 
 ## 约定
 

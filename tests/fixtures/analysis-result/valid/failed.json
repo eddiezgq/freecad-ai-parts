@@ -1,0 +1,2 @@
+{"instance": {"format": "analysis-result/1", "module": "fea", "module_version": "1", "status": "failed",
+  "setup": {}, "data": {}, "limitations": [], "messages": ["没有找到 CalculiX（ccx）"]}}

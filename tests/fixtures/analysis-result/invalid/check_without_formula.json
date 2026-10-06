@@ -1,0 +1,2 @@
+{"why": "核对须写公式", "instance": {"format": "analysis-result/1", "module": "fea", "module_version": "1", "status": "ok",
+  "setup": {}, "data": {}, "checks": [{"name": "x", "computed": 1, "reference": 1}], "limitations": [], "messages": []}}
