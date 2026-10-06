@@ -136,3 +136,38 @@ def test_side_calls_put_unmated_parts_beside_the_assembly():
                                             "rotation_axis": [0, 0, 1], "rotation_deg": 90})
     assert calls[1][1]["position_mm"] == [170.0, 0, 0]  # 30 + 50 + 40 + 50 − 0
     assert len(calls) == 2  # 包络缺尺寸的不挪
+
+
+# ------------------------------------------------------------ 一句话需求（ADR-0054）
+
+
+JOINT2 = json.loads((ROOT / "examples" / "joint2-requirement.json").read_text(encoding="utf-8"))
+
+
+def test_parsed_sentence_fills_form_and_keeps_other_fields():
+    from engine import requirement_parse as rp
+
+    parsed = rp.parse(JOINT2["statement"])  # 录制回放，不联网
+    texts, extra, lines = requirement_form.merge_parsed(parsed)
+    req, err = requirement_form.from_texts(texts)
+    assert err is None
+    full = requirement_form.with_extra(req, extra)
+    assert full == {k: v for k, v in JOINT2.items() if k != "id"}
+    assert any(line.startswith("依据 · ") for line in lines)
+
+
+def test_form_edits_win_over_parsed_extras_and_questions_are_listed():
+    parsed = {"status": "needs_input", "requirement": {"statement": "s", "output_torque_cont_nm": 5.0,
+                                                       "safety_factor": 1.2},
+              "basis": {"output_torque_cont_nm": "5 N·m"}, "defaults": ["安全系数未说明，按默认值 1.2（ADR-0008）"],
+              "rejected": [{"field": "output_speed_rpm", "reason": "数值没有单位"}],
+              "questions": ["输出转速是多少？"], "unclear": []}
+    texts, extra, lines = requirement_form.merge_parsed(parsed)
+    assert texts["output_torque_cont_nm"] == "5" and texts["output_speed_rpm"] == ""
+    assert extra == {"safety_factor": 1.2, "statement": "s"}
+    assert lines == ["依据 · 连续扭矩 N·m：“5 N·m”", "默认 · 安全系数未说明，按默认值 1.2（ADR-0008）",
+                     "未采用 · 输出转速 rpm：数值没有单位", "请补充 · 输出转速是多少？"]
+    req = requirement_form.with_extra({"output_torque_cont_nm": 6.0, "output_speed_rpm": 30.0,
+                                       "safety_factor": 1.5}, extra)
+    assert req["safety_factor"] == 1.5 and req["statement"] == "s"
+    assert requirement_form.with_extra(None, extra) is None

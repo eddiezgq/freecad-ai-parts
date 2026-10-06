@@ -19,15 +19,35 @@ class SelectionPanel(QtWidgets.QDockWidget):
     found = QtCore.Signal(object)  # 后台线程中查找完成后，排队回到界面线程
     placed = QtCore.Signal(object)  # 后台线程中放入完成后（None 表示成功，否则为错误文字）
 
-    def __init__(self, parent: QtWidgets.QWidget | None = None, host: ToolsHost | None = None):
+    parsed = QtCore.Signal(object)  # 后台线程中一句话需求解析完成
+
+    def __init__(self, parent: QtWidgets.QWidget | None = None, host: ToolsHost | None = None,
+                 client_factory=None):
         super().__init__("AI Parts 选型", parent)
         self.setObjectName("FapSelectionPanel")
         self.host = host or get_host()
         self.rows: list[selection.CandidateRow] = []
         self.summary = ""
+        self.extra: dict = {}  # 一句话需求带入、表单中没有栏位的指标（ADR-0054）
+        self._client_factory = client_factory  # 测试注入；缺省真实调用（密钥只从环境变量或 .env 读取）
 
         body = QtWidgets.QWidget()
         lay = QtWidgets.QVBoxLayout(body)
+        # 一句话需求（ADR-0054）：LLM 解析、代码核对，只填表单
+        self.sentence = QtWidgets.QPlainTextEdit()
+        self.sentence.setPlaceholderText("一句话需求，例如：六轴机械臂第 2 关节，连续 25 N·m、峰值 50 N·m，30 rpm，200 V 三相")
+        self.sentence.setMaximumHeight(60)
+        self.parse_button = QtWidgets.QPushButton("解析（填入下表，核对后再查找）")
+        self.parse_note = QtWidgets.QLabel("")
+        self.parse_note.setWordWrap(True)
+        self.parse_note.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+        self.clear_button = QtWidgets.QPushButton("清除")
+        prow = QtWidgets.QHBoxLayout()
+        prow.addWidget(self.parse_button, 1)
+        prow.addWidget(self.clear_button)
+        lay.addWidget(self.sentence)
+        lay.addLayout(prow)
+        lay.addWidget(self.parse_note)
         form = QtWidgets.QFormLayout()
         self.inputs: dict[str, QtWidgets.QLineEdit] = {}
         for key, label in requirement_form.FIELDS:
@@ -63,11 +83,70 @@ class SelectionPanel(QtWidgets.QDockWidget):
         self.table.itemSelectionChanged.connect(self._show_detail)
         self.found.connect(self._found, QtCore.Qt.QueuedConnection)
         self.placed.connect(self._placed, QtCore.Qt.QueuedConnection)
+        self.parse_button.clicked.connect(lambda *_: self.parse())
+        self.clear_button.clicked.connect(lambda *_: self.clear())
+        self.parsed.connect(self._parsed, QtCore.Qt.QueuedConnection)
+        self.parsing = False
 
     # ------------------------------------------------------------ 查找
 
     def requirement(self) -> tuple[dict | None, str | None]:
-        return requirement_form.from_texts({k: e.text() for k, e in self.inputs.items()})
+        req, err = requirement_form.from_texts({k: e.text() for k, e in self.inputs.items()})
+        return requirement_form.with_extra(req, self.extra), err
+
+    # ------------------------------------------------------------ 一句话需求（ADR-0054）
+
+    def parse(self) -> bool:
+        text = self.sentence.toPlainText().strip()
+        if not text or self.parsing:
+            return False
+        try:
+            if self._client_factory is not None:
+                client = self._client_factory()
+            else:
+                from ingest.llm_extract import AnthropicClient
+
+                client = AnthropicClient()
+        except Exception as exc:  # noqa: BLE001 — 缺密钥、缺依赖等
+            self.parse_note.setText(f"不能解析：{exc}。可以直接在下表填数。")
+            return False
+        self.parsing = True
+        self.parse_button.setEnabled(False)
+        self.parse_note.setText("正在解析 …")
+
+        def work() -> None:
+            from engine import requirement_parse
+
+            try:
+                self.parsed.emit(requirement_parse.parse(text, client))
+            except Exception as exc:  # noqa: BLE001 — 交给界面显示
+                self.parsed.emit(exc)
+
+        threading.Thread(target=work, name="fap-parse", daemon=True).start()
+        return True
+
+    def _parsed(self, out) -> None:
+        self.parsing = False
+        self.parse_button.setEnabled(True)
+        if isinstance(out, Exception):
+            self.parse_note.setText(f"解析失败：{out}。可以直接在下表填数。")
+            return
+        texts, self.extra, lines = requirement_form.merge_parsed(out)
+        for key, text in texts.items():
+            self.inputs[key].setText(text)
+        shown = {k: v for k, v in self.extra.items() if k != "statement"}
+        if shown:
+            lines.append("表单外一并带入：" + "，".join(
+                f"{requirement_form.FIELD_NAMES.get(k, k)} {v}" for k, v in shown.items()))
+        head = "解析完成，请核对下表后点“查找方案”" if out.get("status") == "ok" else "还缺必填项，请补充后再查找"
+        self.parse_note.setText(head + ("\n" + "\n".join(lines) if lines else ""))
+
+    def clear(self) -> None:
+        self.extra = {}
+        self.sentence.clear()
+        self.parse_note.setText("")
+        for e in self.inputs.values():
+            e.clear()
 
     def set_requirement(self, req: dict | None) -> None:
         for key, text in requirement_form.to_texts(req).items():
