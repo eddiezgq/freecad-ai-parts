@@ -29,6 +29,7 @@ SUFFIX_UNITS: dict[str, str] = {
     "_arcmin": "arcmin",
     "_ratio": "dimensionless",
     "_rpm": "rpm",
+    "_h": "hour",
     "_deg": "degree",
     "_hz": "Hz",
     "_mm": "mm",

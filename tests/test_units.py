@@ -132,3 +132,10 @@ def test_normalize_param_standard_unit_unchanged():
 def test_normalize_param_leaves_strings_alone():
     pv = _pv(value="biss_c")
     assert normalize_param(pv, "", "efficiency_ratio") == pv
+
+
+def test_hours_suffix():
+    """寿命字段（ADR-0057）：小时。"""
+    assert standard_unit("rated_life_h") == ("_h", "hour")
+    assert to_standard(7000, "h", "rated_life_h") == 7000
+    assert to_standard(7000, "hours", "rated_life_h") == 7000
