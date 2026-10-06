@@ -879,3 +879,55 @@ def test_optimize_dialog_makes_shaft(gui):
         assert obj is not None and obj.Shape.isValid() and abs(obj.Shape.BoundBox.ZLength - 130) < 1e-6
     finally:
         FreeCAD.closeDocument(doc.Name)
+
+
+@pytest.mark.freecad
+def test_twin_panel(gui, tmp_path):
+    """M10 第五步：数字孪生窗口——布局中的减速器 + 运行记录 CSV → 已用寿命、剩余、假如；缺参数时待确认。"""
+    import copy
+
+    from freecad_addon.gui.host import ToolsHost
+    from freecad_addon.gui.twin_panel import TwinPanel
+    from kb.library import LayeredLibrary
+
+    rid = "reducer.harmonic-drive-llc.csf-25-100-2uh"
+
+    class Top:  # 测试数据：在 CSF-25 上加额定寿命等（不进零件库）
+        def __init__(self):
+            c = copy.deepcopy(REAL.get(rid))
+            src = {"doc": "src-ent-test", "page": 1, "note": "测试数据"}
+            c["params"]["rated_life_h"] = {"value": 7000, "condition": "L10", "source": src, "method": "manual",
+                                           "confidence": 1, "reviewed": True}
+            c["params"]["rated_input_speed_rpm"] = {"value": 2000, "source": src, "method": "manual", "confidence": 1,
+                                                    "reviewed": True}
+            self.c = c
+
+        def get(self, cid):
+            return self.c if cid == rid else None
+
+        def all(self, category=None):
+            return [self.c] if category in (None, "reducer") else []
+
+    csv = tmp_path / "run.csv"
+    csv.write_text("instance,hours,output_torque_avg_nm,output_torque_max_nm,output_speed_rpm\n"
+                   + "reducer,16,30,60,15\n" * 30, encoding="utf-8")
+    for lib, expect in ((LayeredLibrary(Top(), REAL), "正常"), (REAL, "待确认")):
+        host = ToolsHost(lambda lib=lib: lib, note="测试")
+        panel = TwinPanel(host=host)
+        try:
+            assert panel.compute() is False and "没有减速器" in panel.status.text()
+            box = []
+            host.call_in_background("place_component", {"instance": "reducer", "component_id": rid}, box.append)
+            _pump_until(gui, lambda box=box: len(box) == 1)
+            assert panel.load_csv(str(csv)) and len(panel.records) == 30
+            panel.load_factor.setText("0.8")
+            assert panel.compute() is True
+            assert panel.table.rowCount() == 1 and panel.table.item(0, 2).text() == expect
+            if expect == "正常":
+                p = panel.result["data"]["parts"][0]
+                assert p["used_ratio"] > 0 and panel.result["data"]["whatif"]["parts"][0]["remaining_h"] > p["remaining_h"]
+            else:
+                assert "补数据" in panel.status.text()
+        finally:
+            panel.close()
+            host.tools.close()
