@@ -24,6 +24,17 @@ dependencies = [
 llm = [
     "anthropic>=0.40",
 ]
+# 分析模块（ADR-0056）：按需安装
+mbd = [
+    "mujoco>=3.2",
+]
+fea = [
+    "gmsh>=4.13",
+    "numpy>=1.26",
+]
+optimize = [
+    "optuna>=4.0",
+]
 dev = [
     "pytest>=8",
     "jsonschema>=4.21",
@@ -36,7 +47,10 @@ dev = [
 freecad-ai-parts-mcp = "mcp_server.server:main"
 
 [tool.setuptools.packages.find]
-include = ["kb*", "ingest*", "engine*", "mcp_server*", "freecad_addon*"]
+include = ["kb*", "ingest*", "engine*", "mcp_server*", "freecad_addon*", "analysis*"]
+
+[tool.setuptools.package-data]
+analysis = ["common/*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
