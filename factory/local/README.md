@@ -1,0 +1,43 @@
+# 问渠数字工厂 · 本地版
+
+在企业自己的电脑或内网服务器上运行整座数字工厂（ADR-0058）：数据总线、历史库、工厂枢纽与工作台网页、仿真车间、
+虚拟 PLC、Node-RED 桥接、模拟 ERPNext。数据只在本机的 Docker 卷里。
+
+## 需要
+
+- Docker：Windows / macOS 装 Docker Desktop 并启动；Linux 装 Docker Engine 与 compose 插件
+- 第一次启动要下载镜像、构建（含 CalculiX、OpenFOAM、网页），约 10–20 分钟；之后几十秒
+- 内存建议 8 GB 以上
+
+## 启动与停止
+
+Windows（PowerShell，在仓库根目录）：
+
+```powershell
+.\factory\local\start.ps1          # 演示：仿真车间在跑，看板有数据，用模拟 ERPNext
+.\factory\local\start.ps1 -Prod    # 生产模式：只显示接入的真实设备
+.\factory\local\stop.ps1           # 停止（数据保留）；-Reset 连数据一起删
+```
+
+Linux / macOS：
+
+```bash
+factory/local/start.sh             # 同上；--prod 生产模式；--erpnext http://你的ERPNext:8080 接真 ERPNext
+factory/local/stop.sh              # 停止；--reset 连数据一起删
+```
+
+启动后打开 <http://localhost:8100>，左上角显示“本地版”。第一次启动会生成 `factory/digital/.env`（登录签名密钥随机生成）；
+AI 工厂助手的密钥（可选）填在里面，不填就用规则回答。
+
+| 地址 | 内容 |
+| --- | --- |
+| <http://localhost:8100> | 工作台（看板、订单与计划、设计与工艺、车间、质量、经营、3D 车间、仿真与分析、数字孪生） |
+| <http://localhost:8091> | 模拟 ERPNext（演示用；接真 ERPNext 见上） |
+| <http://localhost:1880> | Node-RED 数据流 |
+| `localhost:1883` | 数据总线（MQTT），设备与 FreeCAD 发布都走这里 |
+
+## 说明
+
+- 演示工厂“问渠减速器厂”和产品 WQR-105 的数据是虚构的演示数据
+- 接真 ERPNext：在 ERPNext 里生成 API 密钥，填进 `factory/digital/.env` 的 `WQ_ERP_API_KEY`、`WQ_ERP_API_SECRET`，用 `--erpnext` 启动
+- 服务器部署（域名、HTTPS、备份）的脚本在 `factory/deploy/`，本地版不用
