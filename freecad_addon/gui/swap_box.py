@@ -37,6 +37,9 @@ class SwapBox(QtWidgets.QGroupBox):
         self.fill_button = QtWidgets.QPushButton("补数据")  # M9：写入企业库
         self.fill_button.setToolTip("为这个零件补一项数据（附规格书页码与原文），写入企业库")
         row.addWidget(self.fill_button)
+        self.import_button = QtWidgets.QPushButton("导入规格书")  # M9：AI 抽取、代码核对、逐项确认
+        self.import_button.setToolTip("选厂商 PDF 或 Excel，AI 抽取这个零件的参数，核对原文后逐项确认写入企业库")
+        row.addWidget(self.import_button)
         self.list = QtWidgets.QListWidget()
         self.list.setMaximumHeight(110)
         self.detail = QtWidgets.QLabel("")
@@ -50,6 +53,7 @@ class SwapBox(QtWidgets.QGroupBox):
             lay.addWidget(w)
         self.find_button.clicked.connect(lambda *_: self.find())
         self.fill_button.clicked.connect(lambda *_: self.open_fill())
+        self.import_button.clicked.connect(lambda *_: self.open_import())
         self.swap_button.clicked.connect(lambda *_: self.swap_selected())
         self.list.currentRowChanged.connect(lambda *_: self._show_detail())
         self.found.connect(self._found, QtCore.Qt.QueuedConnection)
@@ -91,6 +95,28 @@ class SwapBox(QtWidgets.QGroupBox):
         if dlg is None or not dlg.exec():
             return False
         self.status.setText(f"已写入企业库：{dlg.saved['target']}；已重新校验")
+        self.panel.recheck()
+        return True
+
+    def _current_component(self) -> str | None:
+        inst = self.instance.currentText()
+        item = next((i for i in self.panel.layout_state.get("instances", []) if i["instance"] == inst), None)
+        return None if item is None else item["component"]
+
+    def import_dialog(self, client_factory=None):
+        """为当前零件建导入规格书对话框（M9 第三步）。"""
+        from freecad_addon.gui.import_dialog import ImportDialog, default_client
+
+        cid = self._current_component()
+        if cid is None:
+            return None
+        return ImportDialog(self.panel.host.library(), cid, client_factory or default_client, self)
+
+    def open_import(self) -> bool:
+        dlg = self.import_dialog()
+        if dlg is None or not dlg.exec():
+            return False
+        self.status.setText(f"已从规格书写入企业库 {len(dlg.written)} 项；已重新校验")
         self.panel.recheck()
         return True
 

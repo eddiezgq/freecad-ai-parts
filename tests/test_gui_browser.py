@@ -566,3 +566,75 @@ def test_fill_dialog_writes_enterprise_value_and_rechecks(gui, tmp_path):
         library_choice.SETTINGS = old_settings
         panel.close()
         host.tools.close()
+
+
+@pytest.mark.freecad
+def test_import_dialog_extracts_confirms_and_writes(gui, tmp_path):
+    """M9 第三步：校验窗口“导入规格书”——Excel 选型表 → 模拟 AI 抽取 → 代码核对 → 取消一项 → 写入企业库并重新校验。"""
+    import copy
+
+    from openpyxl import Workbook
+
+    from freecad_addon.core import library_choice
+    from freecad_addon.gui.check_panel import CheckPanel
+    from freecad_addon.gui.host import ToolsHost
+    from ingest.llm_simulate import SimulatedClient, simulated_response
+    from ingest.synthetic import datasheets, row_label
+    from kb.enterprise import EnterpriseLibrary
+    from kb.library import LayeredLibrary
+
+    rid = "reducer.harmonic-drive-llc.csf-25-100-2uh"
+    sheet = next(s for s in datasheets(0, ["reducer"]) if s.answer["layout"] == "two_col")
+    answer = copy.deepcopy(sheet.answer)
+    answer["component"]["model"] = REAL.get(rid)["model"]  # 让模拟响应报这个零件的型号
+    a = answer
+    wb = Workbook()
+    wb.remove(wb.active)
+    for page in sorted({e["page"] for e in a["fields"]}):
+        ws = wb.create_sheet(f"P{page}")
+        ws.append([f"Harmonic Drive {a['component']['model']}"])
+        for e in a["fields"]:
+            if e["page"] == page:
+                ws.append([row_label(e, a["lang"], a["layout"]), e["text"]])
+    xlsx = tmp_path / "selection.xlsx"
+    wb.save(xlsx)
+
+    ent = EnterpriseLibrary(tmp_path / "ent", create=True)
+    lib = LayeredLibrary(ent, REAL)
+    host = ToolsHost(lambda: lib, note="企业库（测试）")
+    panel = CheckPanel(host=host)
+    old_settings = library_choice.SETTINGS
+    library_choice.SETTINGS = tmp_path / "settings.json"
+    try:
+        box = []
+        host.call_in_background("place_component", {"instance": "reducer", "component_id": rid}, box.append)
+        _pump_until(gui, lambda: len(box) == 1)
+        _pump_until(gui, lambda: panel.layout_state.get("instances"))
+        panel.recheck()
+        sb = panel.swap
+        sb.instance.setCurrentText("reducer")
+        dlg = sb.import_dialog(lambda: SimulatedClient(simulated_response(answer)))
+        assert dlg.extract() is False and "规格书文件" in dlg.status.text()
+        dlg.file.setText(str(xlsx))
+        dlg.actor.setText("张工")
+        assert dlg.extract() is True
+        _pump_until(gui, lambda: not dlg.busy)
+        assert dlg.rows and dlg.save_button.isEnabled(), dlg.status.text()
+        chosen = dlg.chosen()
+        assert "params/rated_torque_nm" in chosen and all(t.startswith(("params/", "ports/")) for t in chosen)
+        dlg.set_checked("params/rated_torque_nm", False)
+        assert "params/rated_torque_nm" not in dlg.chosen()
+        assert dlg.save() is True
+        comp = lib.get(rid)
+        assert lib.origin(rid) == "enterprise"
+        written = set(dlg.written)
+        assert written and "params/rated_torque_nm" not in written
+        tgt = min(t for t in written if t.startswith("params/"))
+        pv = comp["params"][tgt.split("/")[1]]
+        assert pv["method"] == "extracted" and pv["reviewed"] and "确认人：张工" in pv["source"]["note"]
+        assert comp["params"]["rated_torque_nm"] == REAL.get(rid)["params"]["rated_torque_nm"]  # 未勾选的不变
+        assert panel.recheck() is not None
+    finally:
+        library_choice.SETTINGS = old_settings
+        panel.close()
+        host.tools.close()
