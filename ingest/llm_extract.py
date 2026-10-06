@@ -139,10 +139,17 @@ def targets(category: str) -> dict[str, tuple[Target, tuple[str, ...]]]:
     return out
 
 
+# 录制回放（ADR-0021）之后才加入 schema 的字段：暂不放进提示词，否则请求哈希变化、已有录制失效。
+# 下一个提示词版本（重新录制）时放进来；在此之前这些字段由“补数据”录入（ADR-0057）。
+NOT_IN_PROMPT = frozenset({"params/rated_life_h", "params/rated_input_speed_rpm"})
+
+
 def field_catalog(category: str) -> str:
     """给 LLM 的字段清单（每行一个 target）。"""
     lines = []
     for t, _ in targets(category).values():
+        if t.target in NOT_IN_PROMPT:
+            continue
         bits = [t.target, t.kind]
         if t.unit:
             bits.append(f"标准单位 {t.unit}")

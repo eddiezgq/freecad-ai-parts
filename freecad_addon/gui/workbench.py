@@ -244,6 +244,29 @@ class OptimizeCommand:
         return True
 
 
+class TwinCommand:
+    """数字孪生（ADR-0057）：当前布局的减速器、轴承 + 运行记录 → 已用寿命、剩余寿命、报警、假如。"""
+
+    def GetResources(self):
+        return {"MenuText": "数字孪生", "ToolTip": "按零件样本参数与运行记录算已用寿命、剩余寿命与报警，可做“假如”分析"}
+
+    def Activated(self):
+        from PySide import QtCore
+
+        from freecad_addon.gui.twin_panel import TwinPanel
+
+        dock = _state.get("twin")
+        if dock is None:
+            dock = TwinPanel(parent=_main_window())
+            _main_window().addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
+            _state["twin"] = dock
+        dock.show()
+        dock.raise_()
+
+    def IsActive(self):
+        return True
+
+
 class CheckPanelCommand:
     """校验窗口（ADR-0048）：场景每次改动后自动校验，接口标记按结论着色。"""
 
@@ -380,6 +403,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         FreeCADGui.addCommand("FAP_Mbd", MbdCommand())
         FreeCADGui.addCommand("FAP_Fea", FeaCommand())
         FreeCADGui.addCommand("FAP_Optimize", OptimizeCommand())
+        FreeCADGui.addCommand("FAP_Twin", TwinCommand())
         FreeCADGui.addCommand("FAP_Connect", ConnectPortsCommand())
         FreeCADGui.addCommand("FAP_Checks", CheckPanelCommand())
         FreeCADGui.addCommand("FAP_Restore", RestoreProjectCommand())
@@ -389,7 +413,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bom",
                  "FAP_Restore", "FAP_Bridge", "FAP_Record"]
         self.appendToolbar("AI Parts", tools)
-        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_Fea", "FAP_Optimize", "FAP_RecordVideo"])
+        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_Fea", "FAP_Optimize", "FAP_Twin", "FAP_RecordVideo"])
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"

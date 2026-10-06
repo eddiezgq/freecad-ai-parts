@@ -265,12 +265,18 @@ def list_analyses() -> dict:
     return {"modules": analysis.modules()}
 
 
-def run_analysis(module: str, setup: dict) -> dict:
-    """运行一个分析模块（本机计算，不联网）；返回结果外壳（analysis-result/1）。结果不写入零件参数。"""
+def run_analysis(module: str, setup: dict, library: Library | None = None) -> dict:
+    """运行一个分析模块（本机计算，不联网）；返回结果外壳（analysis-result/1）。结果不写入零件参数。
+    数字孪生的 setup 可给 system（实例 → 组件 id），零件参数从组件库取（ADR-0057）。"""
     import analysis
 
     if not isinstance(setup, dict):
         raise ToolInputError("setup 须为对象")
+    if module == "twin" and "system" in setup and library is not None:
+        from analysis import twin
+
+        setup = {k: v for k, v in setup.items() if k != "system"} | {
+            "parts": twin.parts_from_system(setup["system"], library.get)}
     try:
         return analysis.run(module, setup)
     except analysis.UnknownModule as exc:

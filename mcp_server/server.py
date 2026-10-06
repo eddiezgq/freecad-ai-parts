@@ -201,10 +201,10 @@ def create_server(library_factory: Callable[[], Library] = default_library,
     @_guard
     def run_analysis(
         module: Annotated[str, Field(description="模块 id，取自 list_analyses")],
-        setup: Annotated[dict, Field(description="该模块的设置（见模块说明）")],
+        setup: Annotated[dict, Field(description="该模块的设置（见模块说明）；数字孪生可给 system（实例 → 组件 id）")],
     ) -> dict:
         """在本机运行一个分析模块，返回结果（设置、数据、与手算的核对、局限）。分析结果是计算，不写入零件参数。"""
-        return tools.run_analysis(module, setup)
+        return tools.run_analysis(module, setup, lib())
 
     @mcp.tool
     @_guard
