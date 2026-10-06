@@ -29,13 +29,18 @@ jobs:
         with:
           python-version: "3.11"
       - name: 安装字体（模拟规格书 PDF 用）与 CalculiX（分析模块，ADR-0056）
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends fonts-dejavu-core fonts-wqy-zenhei calculix-ccx
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends fonts-dejavu-core fonts-wqy-zenhei calculix-ccx libglu1-mesa libxcursor1 libxft2 libxinerama1 libgomp1
       - name: 安装依赖
         run: pip install -e ".[dev,mbd,fea,optimize]"
       - name: 代码检查
         run: python -m ruff check .
       - name: schema 校验、单元测试与数据库测试
-        run: python -m pytest -v
+        run: |
+          set -o pipefail
+          python -m pytest -v -rf 2>&1 | tee unit-tests.log
+      - name: 失败摘要写成注解
+        if: failure()
+        run: grep -E "^(FAILED|ERROR) |^E  " unit-tests.log | head -40 | sed 's/^/::error::/' || true
 
   freecad:
     # FreeCAD 相关测试（ADR-0032）：锁定 FreeCAD 1.0.2 AppImage，用其内带 Python 运行 pytest -m freecad

@@ -763,3 +763,49 @@ def test_mbd_panel_computes_and_sends_to_selection(gui):
         panel.close()
         sel.close()
         host.tools.close()
+
+
+@pytest.mark.freecad
+def test_fea_panel_static_color_and_fatigue(gui, tmp_path):
+    """M10 第三步：有限元窗口——FreeCAD 中的轴（Part 圆柱）→ 选端面固定、另一端加扭矩 → 计算 → 着色 → 疲劳。"""
+    pytest.importorskip("gmsh")
+    import FreeCAD
+    import FreeCADGui
+    import Part
+
+    from analysis.common.solvers import find_ccx
+    from freecad_addon.gui.fea_panel import FeaPanel
+
+    if find_ccx() is None:
+        pytest.skip("没有 CalculiX")
+    doc = FreeCAD.newDocument("FeaTest")
+    try:
+        obj = doc.addObject("Part::Feature", "Shaft")
+        obj.Shape = Part.makeCylinder(17.5, 100)
+        doc.recompute()
+        FreeCADGui.ActiveDocument.ActiveView.viewIsometric()
+        panel = FeaPanel(mbd_result=lambda: {"data": {"series": {"j2": {"drive": [0, 100, 350, 200, 0]}}}})
+        assert panel.set_part(obj) and len(panel.faces) == 3
+        bottom = next(f"Face{i + 1}" for i, f in enumerate(obj.Shape.Faces)
+                      if f.Surface.__class__.__name__ == "Plane" and abs(f.CenterOfMass.z) < 1e-6)
+        top = next(f"Face{i + 1}" for i, f in enumerate(obj.Shape.Faces)
+                   if f.Surface.__class__.__name__ == "Plane" and abs(f.CenterOfMass.z - 100) < 1e-6)
+        assert panel.add_load("fixed", panel.face_ids([bottom]))
+        assert panel.add_load("torque", panel.face_ids([top]), "350")
+        panel.material.setCurrentIndex(panel.material.findData("45-QT"))
+        panel.mesh.setText("4")
+        assert panel.compute() is True
+        _pump_until(gui, lambda: not panel.busy, timeout=300)
+        assert panel.result and panel.result["status"] == "ok", panel.status.text()
+        assert panel.result["data"]["vm_max_mpa"] == pytest.approx(72.0, rel=0.05)
+        assert panel.node is not None and "安全系数" in panel.summary.text()
+        assert panel.load_ref() == 350
+        assert panel.compute_fatigue() is False and "β" in panel.fatigue_label.text()  # 不给缺省值
+        panel.surface.setText("0.92")
+        panel.size.setText("0.85")
+        panel.series_kind.setCurrentIndex(panel.series_kind.findData("mbd"))
+        panel.mbd_joint.setText("j2")
+        assert panel.compute_fatigue() is True and panel.fatigue["data"]["cycles_per_block"] >= 1
+        panel.close()
+    finally:
+        FreeCAD.closeDocument(doc.Name)
