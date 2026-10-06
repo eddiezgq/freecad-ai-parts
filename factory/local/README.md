@@ -42,6 +42,13 @@ FreeCAD 的 AI Parts 工作台：菜单“发布到工厂”，把当前方案�
 工作台左侧“CAD 方案”页列出各方案、BOM（零件来自公共库或企业库，带资料出处）与版本记录。数据经数据总线以
 `cad.release` 消息发出（主题 `wq/gearbox/design/cad-<编号>/release`）。
 
+**选型零件库**：工厂工作台左侧“选型零件库”页列出与 FreeCAD 同一份零件库——仓库的 `data/library`（公共库）
+叠加企业库（同一零件以企业库为准）。企业库文件夹取环境变量 `FAP_ENTERPRISE_LIBRARY`，没有就取 FreeCAD 设置里选的
+（`~/.freecad-ai-parts/settings.json`），启动时挂进工厂，只读。
+
+**孪生记录给 FreeCAD**：`http://localhost:8100/api/twin/units/<序列号>/records.csv?instance=<布局里的减速器实例名>`
+导出这台设备每天的运行小时、输出扭矩、输入转速，作为 FreeCAD“数字孪生”里的运行记录 CSV 打开即可算寿命消耗。
+
 ## 说明
 
 - 演示工厂“问渠减速器厂”和产品 WQR-105 的数据是虚构的演示数据

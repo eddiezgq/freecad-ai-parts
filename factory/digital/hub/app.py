@@ -919,6 +919,22 @@ def http_publish(body: dict = Body(...), u=Depends(user_of)):
     return {"id": msg["id"]}
 
 
+@app.get("/api/fap/components")
+def fap_components(category: str = "", q: str = "", u=Depends(user_of)):
+    """选型零件库（本仓库 ADR-0058）：公共库叠加企业库，与 FreeCAD 选型同一份数据"""
+    from hub import fap_library
+    return {"categories": fap_library.CATEGORIES, "items": fap_library.search(category, q)}
+
+
+@app.get("/api/fap/components/{cid}")
+def fap_component(cid: str, u=Depends(user_of)):
+    from hub import fap_library
+    c = fap_library.get(cid)
+    if c is None:
+        raise HTTPException(404, "零件库里没有这个组件")
+    return c
+
+
 @app.post("/api/cad/release")
 def cad_release(body: dict = Body(...), u=Depends(user_of)):
     """FreeCAD 选型方案发布到工厂（本仓库 ADR-0058）：存新版本，发 cad.release 到总线"""

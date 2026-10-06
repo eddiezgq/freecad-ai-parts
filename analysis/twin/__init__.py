@@ -3,13 +3,13 @@
 
 设置：
   parts: [{"instance": "reducer", "component": {完整组件}}]（可由 parts_from_system(系统, 取组件) 生成）
-  records: [{"instance", "hours", "output_torque_avg_nm", "output_torque_max_nm", "output_speed_rpm"}（减速器）,
+  records: [{"instance", "hours", "output_torque_avg_nm", "output_torque_max_nm", "output_speed_rpm" 或 "input_speed_rpm"}（减速器）,
             {"instance", "hours", "radial_load_n", "speed_rpm"}（轴承：当量动载荷与转速）]，可由 read_csv(路径) 读入
   recent_records: 估算剩余寿命用的最近记录条数（缺省 30）
   whatif: {"load_factor": 0.8, "speed_factor": 1.0}（可选）
 
 模型：
-  减速器：L = L_r·(T_r/T_av)³·(n_r/n_in)（厂商样本的寿命式，n_in = 输出转速 × 减速比），变工况 Σ 小时 / Lᵢ
+  减速器：L = L_r·(T_r/T_av)³·(n_r/n_in)（厂商样本的寿命式；记录有输入转速时直接用，否则 n_in = 输出转速 × 减速比），变工况 Σ 小时 / Lᵢ
   轴承：ISO 281 L10 = (C/P)^p × 10⁶ 转，球轴承 p = 3、滚子轴承 p = 10/3
   过载：最大扭矩超过启停允许峰值扭矩报警，超过瞬间最大扭矩为严重
 """
@@ -31,8 +31,8 @@ LIMITS = ["寿命为厂商样本寿命式与 ISO 281 基本额定寿命（L10，
           "运行记录中的扭矩、载荷为每段的平均值；段内的波动按平均值的三次方计入会偏乐观",
           "剩余寿命按最近记录的消耗速度外推"]
 WARN, SEVERE = 0.8, 1.0
-CSV_FIELDS = ("instance", "hours", "output_torque_avg_nm", "output_torque_max_nm", "output_speed_rpm", "radial_load_n",
-              "speed_rpm")
+CSV_FIELDS = ("instance", "hours", "output_torque_avg_nm", "output_torque_max_nm", "output_speed_rpm", "input_speed_rpm",
+              "radial_load_n", "speed_rpm")
 
 
 def _v(comp: Mapping, name: str) -> float | None:
@@ -70,12 +70,16 @@ def read_csv(path: str | Path) -> list[dict]:
     return rows
 
 
-def reducer_life_h(comp: Mapping, torque_nm: float, out_speed_rpm: float) -> float | None:
-    """厂商样本的寿命式；缺参数时为 None。"""
+def reducer_life_h(comp: Mapping, torque_nm: float, out_speed_rpm: float, *,
+                   in_speed_rpm: float | None = None) -> float | None:
+    """厂商样本的寿命式；缺参数时为 None。给了输入转速（如工厂现场记录）就直接用，否则由输出转速 × 减速比得到。"""
     lr, tr, nr, ratio = (_v(comp, k) for k in ("rated_life_h", "rated_torque_nm", "rated_input_speed_rpm", "ratio"))
-    if None in (lr, tr, nr, ratio) or torque_nm <= 0 or out_speed_rpm <= 0:
+    if None in (lr, tr, nr, ratio) or torque_nm <= 0:
         return None
-    return lr * (tr / torque_nm) ** 3 * (nr / (out_speed_rpm * ratio))
+    n_in = in_speed_rpm if in_speed_rpm is not None else out_speed_rpm * ratio
+    if n_in <= 0:
+        return None
+    return lr * (tr / torque_nm) ** 3 * (nr / n_in)
 
 
 def bearing_life_h(comp: Mapping, load_n: float, speed_rpm: float) -> float | None:
@@ -107,7 +111,9 @@ def assess(part: Mapping, records: Iterable[Mapping], *, load_factor: float = 1.
     for r in recs:
         if comp["category"] == "reducer":
             t = r.get("output_torque_avg_nm", 0) * load_factor
-            life = reducer_life_h(comp, t, r.get("output_speed_rpm", 0) * speed_factor)
+            n_in_rec = r.get("input_speed_rpm")
+            n_in_rec = None if n_in_rec is None else n_in_rec * speed_factor
+            life = reducer_life_h(comp, t, r.get("output_speed_rpm", 0) * speed_factor, in_speed_rpm=n_in_rec)
             tmax = r.get("output_torque_max_nm", 0) * load_factor
             rep, mom = _v(comp, "repeated_peak_torque_nm"), _v(comp, "momentary_max_torque_nm")
             if mom is not None and tmax > mom:
@@ -115,7 +121,7 @@ def assess(part: Mapping, records: Iterable[Mapping], *, load_factor: float = 1.
             elif rep is not None and tmax > rep:
                 out["alerts"].append({"level": "warn", "text": f"最大扭矩 {tmax:g} N·m 超过启停允许峰值扭矩 {rep:g} N·m"})
             lim = _v(comp, "avg_input_speed_limit_rpm")
-            n_in = r.get("output_speed_rpm", 0) * speed_factor * (_v(comp, "ratio") or 0)
+            n_in = n_in_rec if n_in_rec is not None else r.get("output_speed_rpm", 0) * speed_factor * (_v(comp, "ratio") or 0)
             if lim is not None and n_in > lim:
                 out["alerts"].append({"level": "warn", "text": f"平均输入转速 {n_in:g} rpm 超过限值 {lim:g} rpm"})
         else:

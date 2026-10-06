@@ -121,3 +121,24 @@ def test_twin_errors():
     out = analysis.run("twin", {"parts": [{"instance": "joint", "component": REDUCER}], "records": [],
                                 "whatif": {"load_factor": 0}})
     assert out["status"] == "failed"
+
+
+def test_input_speed_from_factory_records(tmp_path):
+    """工厂现场记录给的是输入转速（ADR-0058 第 4 条）：直接用，不再乘减速比；与输出转速给法结果一致。"""
+    by_out = twin.assess({"instance": "joint", "component": REDUCER},
+                         _rows(10, output_torque_avg_nm=30, output_speed_rpm=15))
+    by_in = twin.assess({"instance": "joint", "component": REDUCER},
+                        _rows(10, output_torque_avg_nm=30, input_speed_rpm=1500))
+    assert by_in["used_ratio"] == pytest.approx(by_out["used_ratio"], rel=1e-12)
+    assert twin.reducer_life_h(REDUCER, 30, 0, in_speed_rpm=1500) == pytest.approx(
+        7000 * (67 / 30) ** 3 * (2000 / 1500), rel=1e-12)
+    # 输入转速超过平均输入转速限值报警
+    hot = twin.assess({"instance": "joint", "component": REDUCER}, _rows(1, output_torque_avg_nm=30, input_speed_rpm=4000))
+    assert any("4000" in a["text"] for a in hot["alerts"])
+    # 工厂导出的 CSV（多一列 day，忽略）
+    f = tmp_path / "rec.csv"
+    f.write_text("day,instance,hours,output_torque_avg_nm,output_torque_max_nm,input_speed_rpm\n"
+                 "2026-09-01,joint,10,30,60,1500\n2026-09-02,joint,0,,,\n", encoding="utf-8")
+    rows = twin.read_csv(f)
+    assert rows == [{"instance": "joint", "hours": 10.0, "output_torque_avg_nm": 30.0, "output_torque_max_nm": 60.0,
+                     "input_speed_rpm": 1500.0}]

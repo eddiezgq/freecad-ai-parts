@@ -18,6 +18,12 @@ function Set-Env($key, $value) {
 }
 Set-Env "WQ_MODE" ($(if ($Prod) { "prod" } else { "teach" }))
 Set-Env "WQ_EDITION" "local"
+# 企业库（ADR-0055 / 0058）：与 FreeCAD 同一个文件夹——环境变量 FAP_ENTERPRISE_LIBRARY，或 FreeCAD 设置里选的
+$ent = $env:FAP_ENTERPRISE_LIBRARY
+$settings = Join-Path $HOME ".freecad-ai-parts\settings.json"
+if (-not $ent -and (Test-Path $settings)) { try { $ent = (Get-Content -Raw -Encoding utf8 $settings | ConvertFrom-Json).enterprise_library } catch { $ent = $null } }
+if ($ent -and (Test-Path $ent)) { Set-Env "FAP_ENTERPRISE_LIBRARY" ($ent -replace '\\', '/'); Write-Host "企业库：$ent" }
+else { (Get-Content $envFile) | Where-Object { $_ -notmatch '^FAP_ENTERPRISE_LIBRARY=' } | Set-Content -Encoding utf8 $envFile }
 $profileArgs = @()
 if ($ErpNext) { Set-Env "WQ_ERPNEXT_API" $ErpNext; Set-Env "WQ_ERPNEXT_URL" $ErpNext }
 else {

@@ -166,6 +166,39 @@ jobs:
           assert lst[0]["code"] == "CI-JOINT" and d["revision"] == 2 and len(d["bom"]) == 2, (lst, d)
           print("发布到工厂：", r1, r2)
           PY
+      - name: 工厂读本仓库零件库、孪生记录导出给 FreeCAD（M10 第 6d 项）
+        run: |
+          python - <<'PY'
+          import tempfile, time, urllib.request
+          from freecad_addon.core import factory_link as F
+          from analysis import twin
+          c = F.HubClient("http://localhost:8100")
+          c.login("CI", "teach")
+          r = c._req("/api/fap/components?category=reducer&q=csf%2025")
+          ids = [i["id"] for i in r["items"]]
+          assert "reducer.harmonic-drive-llc.csf-25-100-2uh" in ids, ids
+          comp = c._req("/api/fap/components/reducer.harmonic-drive-llc.csf-25-100-2uh")
+          assert comp["library"] == "public" and comp["params"], comp
+          rows, deadline = [], time.time() + 240
+          while not rows and time.time() < deadline:
+              units = c._req("/api/twin/fleet")["units"]
+              for u in units:
+                  req = urllib.request.Request(f"http://localhost:8100/api/twin/units/{u['serial']}/records.csv?instance=j2",
+                                               headers={"x-wq-token": c.token})
+                  try:
+                      text = urllib.request.urlopen(req, timeout=30).read().decode("utf-8")
+                  except urllib.error.HTTPError:
+                      continue
+                  with tempfile.NamedTemporaryFile("w", suffix=".csv", delete=False, encoding="utf-8") as f:
+                      f.write(text)
+                  rows = twin.read_csv(f.name)
+                  if rows:
+                      break
+              if not rows:
+                  time.sleep(10)
+          assert rows and rows[0]["instance"] == "j2" and rows[0]["hours"] > 0, rows
+          print("零件库：", len(r["items"]), "个减速器；孪生记录：", len(rows), "行，例", rows[0])
+          PY
       - name: 失败时的日志
         if: failure()
         run: cd factory/digital && docker compose --profile mock ps && docker compose --profile mock logs --no-color --tail 80

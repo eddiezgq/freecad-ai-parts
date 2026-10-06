@@ -30,6 +30,18 @@ set_env() {  # 改写或追加一行 KEY=VALUE
 }
 set_env WQ_MODE "$mode"
 set_env WQ_EDITION local
+# 企业库（ADR-0055 / 0058）：与 FreeCAD 同一个文件夹——环境变量 FAP_ENTERPRISE_LIBRARY，或 FreeCAD 设置里选的
+ent="${FAP_ENTERPRISE_LIBRARY:-}"
+settings="$HOME/.freecad-ai-parts/settings.json"
+if [ -z "$ent" ] && [ -f "$settings" ]; then
+  ent="$(sed -n 's/.*"enterprise_library"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$settings" | head -n 1)"
+fi
+if [ -n "$ent" ] && [ -d "$ent" ]; then
+  set_env FAP_ENTERPRISE_LIBRARY "$ent"
+  echo "企业库：$ent"
+elif grep -q "^FAP_ENTERPRISE_LIBRARY=" "$env"; then
+  sed -i.bak -e "/^FAP_ENTERPRISE_LIBRARY=/d" "$env" && rm -f "$env.bak"
+fi
 profile=()
 if [ -n "$erp" ]; then
   set_env WQ_ERPNEXT_API "$erp"
