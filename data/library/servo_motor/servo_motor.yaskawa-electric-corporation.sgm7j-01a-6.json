@@ -320,6 +320,18 @@
           "tol_lower": -0.021,
           "tol_upper": 0.0
         },
+        "pilot_kind": {
+          "condition": "外形图：止口为法兰面上的凸台",
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-06），规格书第 64 页原文“LB dia.（止口凸出法兰面，高 LE）”",
+            "page": 64
+          },
+          "value": "male"
+        },
         "square_size_mm": {
           "confidence": 0.75,
           "method": "extracted",

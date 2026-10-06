@@ -294,6 +294,32 @@
             "page": 65
           },
           "value": 70.0
+        },
+        "pilot_diameter_mm": {
+          "condition": "法兰止口（图中 LB dia.，凸出法兰面 LE）",
+          "confidence": 0.85,
+          "method": "extracted",
+          "nominal": 50.0,
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-10-06），对照规格书第 65 页",
+            "page": 65
+          },
+          "tol_lower": -0.025,
+          "tol_upper": 0.0
+        },
+        "pilot_kind": {
+          "condition": "外形图：止口为法兰面上的凸台",
+          "confidence": 1,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-yaskawa-sgm7-rotary-manual",
+            "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-10-06），规格书第 65 页原文“LB dia.（止口凸出法兰面，高 LE）”",
+            "page": 65
+          },
+          "value": "male"
         }
       },
       "type": "mechanical.flange"

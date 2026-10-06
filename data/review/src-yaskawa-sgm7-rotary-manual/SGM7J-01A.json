@@ -18,6 +18,7 @@
     "ports/mount_flange/hole_kind",
     "ports/mount_flange/pcd_mm",
     "ports/mount_flange/pilot_diameter_mm",
+    "ports/mount_flange/pilot_kind",
     "ports/mount_flange/square_size_mm",
     "ports/power_in/peak_current_a",
     "ports/power_in/rated_current_a",
@@ -54,6 +55,7 @@
     "ports/encoder/protocol = vendor_proprietary 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
     "ports/encoder/vendor = Yaskawa 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
     "params/mass_kg = 0.4 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
+    "ports/mount_flange/pilot_kind = male 由 Claude（对照规格书原页核对，经张国庆授权） 人工录入",
     "推导 ports/shaft/fit = h6（ISO 286：8 mm 的偏差 +0/-0.009 mm 即公差带 h6（ADR-0044））"
   ],
   "reviewer": "claude（AI 复核）",

@@ -27,6 +27,18 @@
           "name": "通孔直径",
           "source": "src-yaskawa-sgm7-rotary-manual 第 65 页",
           "value": "5.5"
+        },
+        {
+          "field": "pilot_diameter_mm",
+          "name": "止口直径",
+          "source": "src-yaskawa-sgm7-rotary-manual 第 65 页",
+          "value": "50（+0 / -0.025）"
+        },
+        {
+          "field": "pilot_kind",
+          "name": "止口形式",
+          "source": "src-yaskawa-sgm7-rotary-manual 第 65 页",
+          "value": "凸"
         }
       ],
       "mate": {
@@ -34,12 +46,10 @@
         "model": "Yaskawa Electric Corporation SGM7J-02A（轴端代码 6）",
         "port": "mount_flange"
       },
-      "missing": [
-        "止口直径"
-      ],
+      "missing": [],
       "model": "Harmonic Drive LLC CSF-25-100-2UH",
       "port": "motor_flange",
-      "text": "Harmonic Drive LLC CSF-25-100-2UH 的 motor_flange 须按 Yaskawa Electric Corporation SGM7J-02A（轴端代码 6） 的 mount_flange 定制\n· 分度圆直径：70（src-yaskawa-sgm7-rotary-manual 第 65 页）\n· 孔数：4（src-yaskawa-sgm7-rotary-manual 第 65 页）\n· 孔的形式：通孔（src-yaskawa-sgm7-rotary-manual 第 65 页）\n· 通孔直径：5.5（src-yaskawa-sgm7-rotary-manual 第 65 页）\n· 对方数据缺：止口直径，订货前须与厂商确认"
+      "text": "Harmonic Drive LLC CSF-25-100-2UH 的 motor_flange 须按 Yaskawa Electric Corporation SGM7J-02A（轴端代码 6） 的 mount_flange 定制\n· 分度圆直径：70（src-yaskawa-sgm7-rotary-manual 第 65 页）\n· 孔数：4（src-yaskawa-sgm7-rotary-manual 第 65 页）\n· 孔的形式：通孔（src-yaskawa-sgm7-rotary-manual 第 65 页）\n· 通孔直径：5.5（src-yaskawa-sgm7-rotary-manual 第 65 页）\n· 止口直径：50（+0 / -0.025）（src-yaskawa-sgm7-rotary-manual 第 65 页）\n· 止口形式：凸（src-yaskawa-sgm7-rotary-manual 第 65 页）"
     }
   ],
   "format": "fap-export/1",
