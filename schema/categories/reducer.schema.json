@@ -208,6 +208,23 @@
         "output_bearing_moment_load_rating_nm": {
           "$ref": "../common/param-value.schema.json#/$defs/number",
           "description": "输出轴承许用倾覆力矩"
+        },
+        "rated_life_h": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/number"
+            },
+            {
+              "required": [
+                "condition"
+              ]
+            }
+          ],
+          "description": "额定寿命（小时，ADR-0057）；condition 写明 L10 / L50 与适用的部件（如“波发生器轴承 L10”）"
+        },
+        "rated_input_speed_rpm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "额定转矩与额定寿命对应的输入转速（ADR-0057）"
         }
       },
       "additionalProperties": false
