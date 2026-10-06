@@ -387,3 +387,43 @@ def test_bom_panel_follows_the_scene_and_exports(gui, tmp_path):
     finally:
         dock.close()
         host.tools.close()
+
+
+@pytest.mark.freecad
+def test_swap_suggestion_fixes_a_failed_shaft_fit(gui):
+    """ADR-0052：光轴电机配键槽孔减速器 C2 不通过；换件建议给出带键电机，换上后 C2 通过。"""
+    from freecad_addon.gui.check_panel import CheckPanel
+    from freecad_addon.gui.host import ToolsHost
+
+    plain = "servo_motor.yaskawa-electric-corporation.sgm7j-02a"
+    keyed = "servo_motor.yaskawa-electric-corporation.sgm7j-02a-6"
+    host = ToolsHost(lambda: REAL, note="组件库：真实厂商组件（测试）")
+    panel = CheckPanel(host=host)
+    try:
+        box = []
+        steps = [("place_component", {"instance": "motor", "component_id": plain}),
+                 ("place_component", {"instance": "reducer", "component_id": "reducer.harmonic-drive-llc.csf-25-100-2uh"}),
+                 ("connect_ports", {"a": "motor.mount_flange", "b": "reducer.motor_flange"}),
+                 ("connect_ports", {"a": "motor.shaft", "b": "reducer.input_bore"})]
+        for n, (name, args) in enumerate(steps, start=1):
+            host.call_in_background(name, args, box.append)
+            _pump_until(gui, lambda n=n: len(box) == n)
+        _pump_until(gui, lambda: len(panel.layout_state["connections"]) == 2)
+        r = panel.recheck()
+        assert {c["check"]: c["status"] for c in r["checks"]}["C2"] == "fail"
+        sb = panel.swap
+        assert sb.instance.currentText() == "motor"  # 默认选结论最差的
+        assert sb.find() is True
+        _pump_until(gui, lambda: not sb.busy)
+        assert sb.suggestions and sb.suggestions[0]["component_id"] == keyed
+        assert "C2 圆柱配合：不通过 → 通过" in sb.detail.text()
+        assert sb.swap_selected() is True
+        _pump_until(gui, lambda: not sb.busy)
+        assert sb.status.text().startswith("已换上"), sb.status.text()
+        _pump_until(gui, lambda: any(i["component"] == keyed for i in panel.layout_state["instances"])
+                    and len(panel.layout_state["connections"]) == 2)
+        r = panel.recheck()
+        assert {c["check"]: c["status"] for c in r["checks"]}["C2"] == "pass"
+    finally:
+        panel.close()
+        host.tools.close()

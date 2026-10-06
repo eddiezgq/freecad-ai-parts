@@ -233,6 +233,28 @@ def compose_chain(library: Library, requirement: dict, *, top_n: int = 5, includ
     }
 
 
+def suggest_replacements(library: Library, layout: dict, instance: str, *, requirement: dict | None = None,
+                         top_n: int = 5) -> dict:
+    """换件建议（ADR-0052）：把布局中的一个实例换成同品类的其他组件，连接不变，整体重新校验；
+    返回不为不通过的候选（排好序）及与当前相比结论变化的校验项。"""
+    from freecad_addon.core import swap
+
+    if requirement is not None:
+        _schema_check("requirement.schema.json", requirement, "需求")
+    if isinstance(top_n, bool) or not isinstance(top_n, int) or not 1 <= top_n <= 20:
+        raise ToolInputError("top_n 须为 1–20 的整数")
+    item = next((i for i in layout.get("instances", []) if i["instance"] == instance), None)
+    if item is None:
+        raise ToolInputError(f"场景中没有实例 {instance}")
+    comp = library.get(item["component"])
+    if comp is None:
+        raise ToolInputError(f"组件库中没有 {item['component']}")
+    try:
+        return swap.suggest(layout, instance, library.get, library.all(comp["category"]), requirement, top_n)
+    except ValueError as exc:
+        raise ToolInputError(str(exc)) from exc
+
+
 EXPORT_FORMATS = ("bom_csv", "bom_json", "system_json", "urdf")
 
 
