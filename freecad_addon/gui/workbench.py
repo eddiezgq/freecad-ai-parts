@@ -174,6 +174,33 @@ class AnalysesCommand:
         return True
 
 
+class MbdCommand:
+    """多体动力学窗口（ADR-0056）：机械臂或机构的关节力矩、转速、功率，结果送去选型。"""
+
+    def GetResources(self):
+        return {"MenuText": "多体动力学", "ToolTip": "机械臂或常用机构在给定运动下各关节需要的力矩、转速、功率（本机 MuJoCo），可直接送去选型"}
+
+    def Activated(self):
+        from PySide import QtCore
+
+        from freecad_addon.gui.mbd_panel import MbdPanel
+
+        def selection():
+            SelectionCommand().Activated()
+            return _state.get("selection")
+
+        dock = _state.get("mbd")
+        if dock is None:
+            dock = MbdPanel(parent=_main_window(), selection=selection)
+            _main_window().addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
+            _state["mbd"] = dock
+        dock.show()
+        dock.raise_()
+
+    def IsActive(self):
+        return True
+
+
 class CheckPanelCommand:
     """校验窗口（ADR-0048）：场景每次改动后自动校验，接口标记按结论着色。"""
 
@@ -307,6 +334,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         FreeCADGui.addCommand("FAP_Enterprise", EnterpriseLibraryCommand())
         FreeCADGui.addCommand("FAP_NewPart", NewPartCommand())
         FreeCADGui.addCommand("FAP_Analyses", AnalysesCommand())
+        FreeCADGui.addCommand("FAP_Mbd", MbdCommand())
         FreeCADGui.addCommand("FAP_Connect", ConnectPortsCommand())
         FreeCADGui.addCommand("FAP_Checks", CheckPanelCommand())
         FreeCADGui.addCommand("FAP_Restore", RestoreProjectCommand())
@@ -316,7 +344,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bom",
                  "FAP_Restore", "FAP_Bridge", "FAP_Record"]
         self.appendToolbar("AI Parts", tools)
-        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_RecordVideo"])
+        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_RecordVideo"])
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"
