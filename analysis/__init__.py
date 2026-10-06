@@ -15,7 +15,8 @@ from analysis.common import result
 from analysis.common.solvers import find_ccx, missing_python
 
 # 已实现的模块（按 M10 顺序逐个加入）
-MODULE_PATHS: tuple[str, ...] = ("analysis.mbd", "analysis.fea", "analysis.fatigue")
+MODULE_PATHS: tuple[str, ...] = ("analysis.mbd", "analysis.fea", "analysis.fatigue", "analysis.thermal",
+                                    "analysis.optimize")
 
 
 class UnknownModule(LookupError):

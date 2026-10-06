@@ -15,7 +15,9 @@ from pathlib import Path
 
 from PySide import QtCore, QtWidgets
 
-LOAD_KINDS = (("fixed", "固定"), ("force", "力 N（x, y, z）"), ("torque", "扭矩 N·m（绕面的轴线）"), ("pressure", "压力 MPa"))
+LOAD_KINDS = (("fixed", "固定"), ("force", "力 N（x, y, z）"), ("torque", "扭矩 N·m（绕面的轴线）"), ("pressure", "压力 MPa"),
+              ("temperature", "定温 ℃"), ("convection", "对流 h W/(m²·K), 环境 ℃"), ("heat_flux", "发热 W"))
+THERMAL_KINDS = ("temperature", "convection", "heat_flux")
 
 
 def match_face(faces: list[dict], center, area: float, tol: float = 1e-3) -> int | None:
@@ -77,6 +79,8 @@ class FeaPanel(QtWidgets.QDockWidget):
         self.kind = QtWidgets.QComboBox()
         self.kind.addItem("强度（静力）", "static")
         self.kind.addItem("固有频率", "modal")
+        self.kind.addItem("温度场", "thermal")
+        self.kind.addItem("热应力（温度 + 结构）", "thermo_mech")
         self.mesh = QtWidgets.QLineEdit()
         self.mesh.setPlaceholderText("网格尺寸 mm（空 = 自动）")
         form.addRow("材料", self.material)
@@ -207,6 +211,13 @@ class FeaPanel(QtWidgets.QDockWidget):
                 ld["vector_n"] = v
             elif kind == "pressure":
                 ld["value_mpa"] = float(value)
+            elif kind == "temperature":
+                ld["value_c"] = float(value)
+            elif kind == "heat_flux":
+                ld["power_w"] = float(value)
+            elif kind == "convection":
+                h, t = (float(x) for x in value.replace("，", ",").split(","))
+                ld.update(h_w_m2k=h, t_inf_c=t)
             elif kind == "torque":
                 ld["value_nm"] = float(value)
                 f = next(x for x in self.faces if x["id"] == faces[0])
@@ -216,7 +227,7 @@ class FeaPanel(QtWidgets.QDockWidget):
                     raise ValueError
                 ld["axis"] = {"origin": origin, "dir": axis}
         except (ValueError, StopIteration):
-            self.status.setText("值填写有误（力写 x, y, z；扭矩要加在有轴线或法向的面上）")
+            self.status.setText("值填写有误（力写 x, y, z；对流写 h, 环境温度；扭矩要加在有轴线或法向的面上）")
             return False
         self.loads.append(ld)
         label = dict(LOAD_KINDS)[kind].split(" ")[0]
@@ -231,10 +242,15 @@ class FeaPanel(QtWidgets.QDockWidget):
 
     def setup(self) -> dict:
         s = {"analysis": self.kind.currentData(), "step_path": self.step_path, "material": self.material.currentData(),
-             "loads": list(self.loads)}
+             "loads": [ld for ld in self.loads if ld["type"] not in THERMAL_KINDS]}
+        if self.module() == "thermal":
+            s["thermal"] = [ld for ld in self.loads if ld["type"] in THERMAL_KINDS]
         if self.mesh.text().strip():
             s["mesh"] = {"size_mm": float(self.mesh.text())}
         return s
+
+    def module(self) -> str:
+        return "thermal" if self.kind.currentData() in ("thermal", "thermo_mech") else "fea"
 
     def compute(self) -> bool:
         if self.busy or self.step_path is None:
@@ -242,9 +258,10 @@ class FeaPanel(QtWidgets.QDockWidget):
             return False
         import analysis
 
-        st = next((m for m in analysis.modules() if m["id"] == "fea"), None)
+        module = self.module()
+        st = next((m for m in analysis.modules() if m["id"] == module), None)
         if st is None or not st["available"]:
-            self.status.setText("有限元模块不可用：" + "、".join((st or {}).get("missing", [])) + "。" + (st or {}).get("install", ""))
+            self.status.setText("分析模块不可用：" + "、".join((st or {}).get("missing", [])) + "。" + (st or {}).get("install", ""))
             return False
         try:
             setup = self.setup()
@@ -257,7 +274,7 @@ class FeaPanel(QtWidgets.QDockWidget):
 
         def work() -> None:
             try:
-                out = analysis.run("fea", setup)
+                out = analysis.run(module, setup)
             except Exception as exc:  # noqa: BLE001 — 交给界面
                 out = {"status": "failed", "messages": [str(exc)]}
             self.done.emit(out)
@@ -273,18 +290,25 @@ class FeaPanel(QtWidgets.QDockWidget):
             return
         self.result = out
         d = out["data"]
-        if out["setup"].get("analysis") == "modal":
+        kind = out["setup"].get("analysis")
+        if kind == "thermal":
+            self.summary.setText(f"最高 {d['t_max_c']:.1f} ℃、最低 {d['t_min_c']:.1f} ℃、表面平均 {d['t_surface_mean_c']:.1f} ℃；"
+                                 f"输入 {d['heat_in_w']:g} W，对流散走 {d['heat_out_convection_w']:g} W")
+        elif kind == "thermo_mech":
+            self.summary.setText(f"最高 {d['t_max_c']:.1f} ℃；热应力最大 {d['vm_max_mpa']:.1f} MPa，"
+                                 f"安全系数 {d['safety_factor']:.2f}，最大热变形 {d['u_max_mm']:.4f} mm")
+        elif kind == "modal":
             self.summary.setText("固有频率：" + "，".join(f"{f['hz']:.1f} Hz" for f in d["freqs"]) +
                                  f"（{d['elements']} 个单元）")
         else:
             self.summary.setText(f"最大 Von Mises 应力 {d['vm_max_mpa']:.1f} MPa（面 {d.get('vm_max_faces')}），"
                                  f"安全系数 {d['safety_factor']:.2f}（按{d['strength_kind']} {d['strength_mpa']:g} MPa），"
                                  f"最大位移 {d['u_max_mm']:.4f} mm；{d['elements']} 个单元、网格 {d['mesh_size_mm']} mm")
-        self.show_surface(d["surface"])
+        self.show_surface(d["surface"], "temp" if kind == "thermal" else "vm")
         self.status.setText(f"算完（{out.get('elapsed_s', 0):.1f} s，CalculiX {out['solver']['version']}）。"
                             + "；".join(out["limitations"][:1]))
 
-    def show_surface(self, surface: dict) -> None:
+    def show_surface(self, surface: dict, field: str = "vm") -> None:
         """在三维视图中按应力（或振型幅值）着色显示表面。"""
         try:
             import FreeCADGui
@@ -301,7 +325,7 @@ class FeaPanel(QtWidgets.QDockWidget):
         coords = coin.SoCoordinate3()
         coords.point.setValues(0, len(surface["positions"]), [tuple(p) for p in surface["positions"]])
         mat = coin.SoMaterial()
-        cols = colors(surface["vm"])
+        cols = colors(surface[field])
         mat.diffuseColor.setValues(0, len(cols), cols)
         bind = coin.SoMaterialBinding()
         bind.value = coin.SoMaterialBinding.PER_VERTEX_INDEXED
@@ -332,7 +356,7 @@ class FeaPanel(QtWidgets.QDockWidget):
         return abs(ld.get("value_nm", ld.get("value_mpa", 0)))
 
     def compute_fatigue(self) -> bool:
-        if not self.result or self.result["setup"].get("analysis") == "modal":
+        if not self.result or self.result["setup"].get("analysis") != "static":
             self.fatigue_label.setText("请先做强度计算")
             return False
         ref = self.load_ref()

@@ -809,3 +809,73 @@ def test_fea_panel_static_color_and_fatigue(gui, tmp_path):
         panel.close()
     finally:
         FreeCAD.closeDocument(doc.Name)
+
+
+@pytest.mark.freecad
+def test_fea_panel_thermal(gui):
+    """M10 第四步：有限元窗口的温度场——一端定温、另一端发热，热平衡与公式一致，按温度着色。"""
+    pytest.importorskip("gmsh")
+    import FreeCAD
+    import Part
+
+    from analysis.common.solvers import find_ccx
+    from freecad_addon.gui.fea_panel import FeaPanel
+
+    if find_ccx() is None:
+        pytest.skip("没有 CalculiX")
+    doc = FreeCAD.newDocument("ThermTest")
+    try:
+        obj = doc.addObject("Part::Feature", "Wall")
+        obj.Shape = Part.makeBox(100, 20, 20)
+        doc.recompute()
+        panel = FeaPanel()
+        assert panel.set_part(obj)
+        end0 = next(f"Face{i + 1}" for i, f in enumerate(obj.Shape.Faces) if abs(f.CenterOfMass.x) < 1e-6)
+        end1 = next(f"Face{i + 1}" for i, f in enumerate(obj.Shape.Faces) if abs(f.CenterOfMass.x - 100) < 1e-6)
+        panel.kind.setCurrentIndex(panel.kind.findData("thermal"))
+        panel.material.setCurrentIndex(panel.material.findData("45-QT"))
+        assert panel.add_load("temperature", panel.face_ids([end0]), "20")
+        assert panel.add_load("heat_flux", panel.face_ids([end1]), "10")
+        assert panel.add_load("convection", panel.face_ids([end1]), "abc") is False  # 对流写 h, 环境温度
+        panel.mesh.setText("5")
+        assert panel.compute() is True
+        _pump_until(gui, lambda: not panel.busy, timeout=300)
+        assert panel.result and panel.result["status"] == "ok", panel.status.text()
+        assert panel.result["data"]["t_max_c"] == pytest.approx(70.2, rel=0.01)
+        assert "℃" in panel.summary.text() and panel.node is not None
+        panel.close()
+    finally:
+        FreeCAD.closeDocument(doc.Name)
+
+
+@pytest.mark.freecad
+def test_optimize_dialog_makes_shaft(gui):
+    """M10 第四步：设计优化对话框——两段直径寻优，满足安全系数，生成最优的轴到 FreeCAD。"""
+    pytest.importorskip("optuna")
+    import FreeCAD
+
+    from analysis.common.solvers import find_ccx
+    from freecad_addon.gui.optimize_dialog import OptimizeDialog, parse_groups, parse_segments
+
+    if find_ccx() is None:
+        pytest.skip("没有 CalculiX")
+    assert parse_segments("30x40, 35×12") == [[30, 40], [35, 12]] and parse_groups("0+4, 2") == [[0, 4], [2]]
+    dlg = OptimizeDialog()
+    assert dlg.start() is False  # 没填不算
+    dlg.segments.setText("30x40, 40x60, 30x30")
+    dlg.torque.setText("350")
+    dlg.groups.setText("0+2")
+    dlg.low.setText("26")
+    dlg.high.setText("33")
+    dlg.material.setCurrentIndex(dlg.material.findData("45-QT"))
+    dlg.trials.setValue(6)
+    assert dlg.start() is True
+    _pump_until(gui, lambda: not dlg.busy, timeout=600)
+    assert dlg.result and dlg.result["status"] == "ok", dlg.status.text()
+    assert dlg.table.rowCount() >= 2 and dlg.make_button.isEnabled()
+    doc = FreeCAD.newDocument("OptTest")
+    try:
+        obj = dlg.make_shaft()
+        assert obj is not None and obj.Shape.isValid() and abs(obj.Shape.BoundBox.ZLength - 130) < 1e-6
+    finally:
+        FreeCAD.closeDocument(doc.Name)
