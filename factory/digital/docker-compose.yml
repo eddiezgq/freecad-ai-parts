@@ -44,8 +44,14 @@ services:
   hub:
     <<: *app
     ports: ["8100:8100"]
+    # 选型零件库（本仓库 ADR-0058）：公共库与企业库只读挂进来
+    volumes:
+      - ../../data/library:/fap/library:ro
+      - ${FAP_ENTERPRISE_LIBRARY:-../local/no-enterprise-library}:/fap/enterprise:ro
     environment:
       <<: *env
+      FAP_LIBRARY_DIR: /fap/library
+      FAP_ENTERPRISE_DIR: /fap/enterprise
       WQ_MQTT_WS: ws://localhost:9001
       WQ_ERPNEXT_URL: ${WQ_ERPNEXT_URL:-http://localhost:8090}
       WQ_NODERED_URL: http://localhost:1880

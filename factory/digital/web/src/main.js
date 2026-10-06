@@ -21,6 +21,7 @@ const routes = [
   { path: '/library', component: () => import('./pages/Library.vue') },
   { path: '/design', component: () => import('./pages/DesignRelease.vue') },
   { path: '/cad', component: () => import('./pages/CadDesigns.vue') },
+  { path: '/fap', component: () => import('./pages/FapLibrary.vue') },
   { path: '/process', component: () => import('./pages/ProcessPlan.vue') },
   { path: '/process/:sid', component: () => import('./pages/ProcessPlan.vue') },
   { path: '/design/:id', component: () => import('./pages/DesignReview.vue') },
