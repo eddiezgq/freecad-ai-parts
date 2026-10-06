@@ -468,3 +468,44 @@ def test_sentence_is_parsed_into_the_form_without_searching(gui):
     finally:
         panel.close()
         host.tools.close()
+
+
+@pytest.mark.freecad
+def test_enterprise_component_is_marked_in_browser_and_bom(gui, tmp_path):
+    """ADR-0055：企业库叠加在公共库上，企业补过的组件在浏览器与 BOM 中标为企业库。"""
+    from freecad_addon.gui.bom_panel import BomPanel
+    from freecad_addon.gui.browser import LibraryBrowser
+    from freecad_addon.gui.host import ToolsHost
+    from kb.enterprise import EnterpriseLibrary
+    from kb.library import LayeredLibrary
+
+    ent = EnterpriseLibrary(tmp_path / "ent", create=True)
+    spec = tmp_path / "spec.pdf"
+    spec.write_bytes(b"%PDF fake")
+    doc = ent.register_document(spec, "供应商规格书", "张工")["id"]
+    cid = "reducer.harmonic-drive-llc.csf-25-100-2uh"
+    ent.set_value(cid, "params/backlash_arcmin", {"value": 1, "method": "manual", "confidence": 1, "reviewed": True,
+                                                  "source": {"doc": doc, "page": 2, "note": "原文“1 arcmin”；录入人：张工"}},
+                  "张工", REAL.get)
+    lib = LayeredLibrary(ent, REAL)
+    host = ToolsHost(lambda: lib, note="企业库（测试）")
+    browser, bom = LibraryBrowser(host=host), BomPanel(host=host)
+    try:
+        browser.text.setText("csf 25-100")
+        rows = [r.id for r in browser._rows]
+        browser.table.selectRow(rows.index(cid))
+        assert "来自企业库" in browser.detail.toHtml()
+        box = []
+        host.call_in_background("place_component", {"instance": "reducer", "component_id": cid}, box.append)
+        _pump_until(gui, lambda: bom.table.rowCount() == 1)
+        assert bom.table.item(0, len(bom_view_headers()) - 1).text() == "企业"
+    finally:
+        browser.close()
+        bom.close()
+        host.tools.close()
+
+
+def bom_view_headers():
+    from freecad_addon.core import bom_view
+
+    return bom_view.HEADERS

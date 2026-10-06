@@ -80,3 +80,11 @@ def test_export_matches_export_system_tool(fmt, tool_fmt):
 def test_unknown_format_is_refused():
     with pytest.raises(ValueError, match="格式"):
         bom_view.export_text(JOINT, LIB.get, "xlsx")
+
+
+def test_origin_column_marks_enterprise_rows():
+    b = bom_view.bom(JOINT, LIB.get)
+    origin = {M: "enterprise"}.get
+    cells = [bom_view.cells(r, lambda cid: origin(cid) or "public") for r in b["rows"]]
+    assert [c[-1] for c in cells] == ["企业", "公共", "公共"]
+    assert bom_view.cells(b["rows"][0])[-1] == "公共"  # 没有企业库

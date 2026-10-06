@@ -14,7 +14,8 @@ from freecad_addon.core.browser import CATEGORIES
 from freecad_addon.core.live_check import system_from_layout
 
 HEADERS = ["#", "品类", "厂商", "型号", "数量", "实例", "单件质量", "合计质量", "来源文档", "参数全部已复核", "许可",
-           "原厂 CAD"]
+           "原厂 CAD", "库"]
+ORIGIN_TEXT = {"enterprise": "企业", "public": "公共"}
 FORMATS = {"csv": ("bom_csv", "-bom.csv"), "json": ("bom_json", "-bom.json")}
 
 
@@ -42,11 +43,13 @@ def _kg(v: float | None) -> str:
     return "未知" if v is None else f"{v:g} kg"
 
 
-def cells(row: Mapping) -> list[str]:
+def cells(row: Mapping, origin: Callable[[str], str | None] | None = None) -> list[str]:
+    """表格各栏文字；origin 给出组件来自企业库还是公共库（ADR-0055），没有企业库时为“公共”。"""
+    where = ORIGIN_TEXT.get(origin(row["component_id"]) if origin else "public", "—")
     return [str(row["item"]), CATEGORIES.get(row["category"], row["category"]), row["vendor"], row["model"],
             str(row["quantity"]), "、".join(row["instances"]), _kg(row["unit_mass_kg"]), _kg(row["total_mass_kg"]),
             "、".join(row["source_docs"]) or "—", "是" if row["all_params_reviewed"] else "否", row["license"],
-            row.get("vendor_cad_url") or "—"]
+            row.get("vendor_cad_url") or "—", where]
 
 
 def total_text(b: Mapping) -> str:

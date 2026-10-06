@@ -120,7 +120,11 @@ class LibraryBrowser(QtWidgets.QDockWidget):
         if row is None:
             self.detail.setHtml("<p style='color:#666'>选一个组件查看参数出处与复核状态。</p>")
             return
-        self.detail.setHtml(render_detail(core.detail(self.host.library().get(row.id))))
+        lib = self.host.library()
+        where = getattr(lib, "origin", lambda _cid: None)(row.id)
+        head = {"enterprise": "<p><b>来自企业库</b>（企业自己补充或新建的数据）</p>",
+                "public": "<p style='color:#666'>来自公共库</p>"}.get(where, "")
+        self.detail.setHtml(head + render_detail(core.detail(lib.get(row.id))))
 
     # ------------------------------------------------------------ 放入布局
 

@@ -85,6 +85,27 @@ class WithGenerated:
         return self.base.all(category)
 
 
+class LayeredLibrary:
+    """企业库叠加在公共库上（ADR-0055）：按 id 取组件时上层优先；列表合并，同 id 以上层为准。"""
+
+    def __init__(self, top: Library, base: Library, names: tuple[str, str] = ("enterprise", "public")):
+        self.top, self.base, self.names = top, base, names
+
+    def get(self, cid: str) -> dict | None:
+        return self.top.get(cid) or self.base.get(cid)
+
+    def all(self, category: str | None = None) -> list[dict]:
+        merged = {c["id"]: c for c in self.base.all(category)}
+        merged.update({c["id"]: c for c in self.top.all(category)})
+        return [c for _, c in sorted(merged.items())]
+
+    def origin(self, cid: str) -> str | None:
+        """组件来自哪一层：enterprise / public；都没有时为 None。"""
+        if self.top.get(cid) is not None:
+            return self.names[0]
+        return self.names[1] if self.base.get(cid) is not None else None
+
+
 def default_library() -> Library:
     path = os.environ.get("FAP_LIBRARY")
     if path:
