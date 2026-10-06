@@ -82,6 +82,29 @@ class SelectionCommand:
         return True
 
 
+class BomCommand:
+    """BOM 面板（ADR-0051）：由当前场景列出物料清单，随场景刷新，可导出 CSV / JSON。"""
+
+    def GetResources(self):
+        return {"MenuText": "BOM", "ToolTip": "当前场景的物料清单：厂商、型号、数量、质量、数据出处与复核状态；可导出"}
+
+    def Activated(self):
+        from PySide import QtCore
+
+        from freecad_addon.gui.bom_panel import BomPanel
+
+        dock = _state.get("bom")
+        if dock is None:
+            dock = BomPanel(parent=_main_window())
+            _main_window().addDockWidget(QtCore.Qt.BottomDockWidgetArea, dock)
+            _state["bom"] = dock
+        dock.show()
+        dock.raise_()
+
+    def IsActive(self):
+        return True
+
+
 class CheckPanelCommand:
     """校验窗口（ADR-0048）：场景每次改动后自动校验，接口标记按结论着色。"""
 
@@ -211,14 +234,15 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         FreeCADGui.addCommand("FAP_ChatPanel", ChatPanelCommand())
         FreeCADGui.addCommand("FAP_Browser", LibraryBrowserCommand())
         FreeCADGui.addCommand("FAP_Selection", SelectionCommand())
+        FreeCADGui.addCommand("FAP_Bom", BomCommand())
         FreeCADGui.addCommand("FAP_Connect", ConnectPortsCommand())
         FreeCADGui.addCommand("FAP_Checks", CheckPanelCommand())
         FreeCADGui.addCommand("FAP_Restore", RestoreProjectCommand())
         FreeCADGui.addCommand("FAP_Bridge", BridgeCommand())
         FreeCADGui.addCommand("FAP_Record", RecordCommand())
         FreeCADGui.addCommand("FAP_RecordVideo", RecordVideoCommand())
-        tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Restore",
-                 "FAP_Bridge", "FAP_Record"]
+        tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bom",
+                 "FAP_Restore", "FAP_Bridge", "FAP_Record"]
         self.appendToolbar("AI Parts", tools)
         self.appendMenu("AI Parts", [*tools, "FAP_RecordVideo"])
 
