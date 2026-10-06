@@ -60,6 +60,9 @@ DATA_SCHEMAS = {
         "action": {"enum": ["created", "submitted", "updated", "cancelled", "snapshot", "failed"]}}),
     "design.release": _obj(["item", "revision"], {"revision": {"type": "integer", "minimum": 1},
                                                   "bom": {"type": "array"}, "files": {"type": "array"}}),
+    # FreeCAD 选型方案发布到工厂（本仓库 ADR-0058），主题 wq/gearbox/design/cad-<编号>/release
+    "cad.release": _obj(["code", "revision", "name", "bom"], {"revision": {"type": "integer", "minimum": 1},
+                                                             "bom": {"type": "array", "minItems": 1}, "files": {"type": "array"}}),
     "design.submit": _obj(["item", "submission"], {}),                        # 企业版：提交待审（第 8 轮）
     "design.review": _obj(["item", "submission", "decision"], {"decision": {"enum": ["approved", "rejected", "withdrawn"]}}),
     "design.gcode": _obj(["item", "revision", "operation", "machine", "gcode_ref"], {"est_time_s": NUM}),
