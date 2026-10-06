@@ -37,12 +37,23 @@ def test_real_joint_flange_requirement_copies_motor_values_with_pages():
     assert r["mate"]["component_id"] == M and r["mate"]["port"] == "mount_flange"
     items = {i["field"]: (i["value"], i["source"]) for i in r["items"]}
     spec = _port(M, "mount_flange")["spec"]
-    for field, want in (("pcd_mm", "70"), ("hole_count", "4"), ("hole_kind", "通孔"), ("hole_diameter_mm", "5.5")):
+    for field, want in (("pcd_mm", "70"), ("hole_count", "4"), ("hole_kind", "通孔"), ("hole_diameter_mm", "5.5"),
+                        ("pilot_diameter_mm", "50（+0 / -0.025）"), ("pilot_kind", "凸")):
         assert items[field][0] == want
         assert items[field][1] == f"{spec[field]['source']['doc']} 第 {spec[field]['source']['page']} 页"
     assert "thread" not in items  # 通孔时不列螺纹
-    assert r["missing"] == ["止口直径"]  # 电机数据中没有止口，不补
-    assert "订货前须与厂商确认" in r["text"] and r["text"].startswith("Harmonic Drive LLC CSF-25-100-2UH 的 motor_flange")
+    assert r["missing"] == []  # 止口按第 65 页 LB 栏录入后，法兰要求齐全
+    assert r["text"].startswith("Harmonic Drive LLC CSF-25-100-2UH 的 motor_flange")
+
+
+def test_missing_mate_values_are_listed_not_filled():
+    target, mate = copy.deepcopy(LIB.get(R)), copy.deepcopy(LIB.get(M))
+    tp = next(p for p in target["ports"] if p["id"] == "motor_flange")
+    mp = next(p for p in mate["ports"] if p["id"] == "mount_flange")
+    del mp["spec"]["pilot_diameter_mm"]
+    r = requirement_for(target, tp, mate, mp)
+    assert r["missing"] == ["止口直径"] and "订货前须与厂商确认" in r["text"]
+    assert "pilot_diameter_mm" not in {i["field"] for i in r["items"]}
 
 
 def test_direction_of_the_connection_does_not_matter():

@@ -3131,3 +3131,143 @@ confirmations:
   condition: 底座安装（Base-mounted）
   confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
   date: '2026-10-05'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A
+  target: ports/mount_flange/pilot_diameter_mm
+  value: 30.0
+  page: 64
+  quote: A5AA2 37.9 25 2.5 5 40 46 30 4.3 …（LB 栏 30，图中 LB dia. 偏差 0 -0.021）
+  tol_upper: 0.0
+  tol_lower: -0.021
+  condition: 法兰止口（图中 LB dia.，凸出法兰面 LE）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-06'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-A5A
+  target: ports/mount_flange/pilot_kind
+  value: male
+  page: 64
+  quote: LB dia.（止口凸出法兰面，高 LE）
+  condition: 外形图：止口为法兰面上的凸台
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-06'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A
+  target: ports/mount_flange/pilot_diameter_mm
+  value: 30.0
+  page: 64
+  quote: 01AA2 49.9 25 2.5 5 40 46 30 4.3 …（LB 栏 30，图中 LB dia. 偏差 0 -0.021）
+  tol_upper: 0.0
+  tol_lower: -0.021
+  condition: 法兰止口（图中 LB dia.，凸出法兰面 LE）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-06'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-01A
+  target: ports/mount_flange/pilot_kind
+  value: male
+  page: 64
+  quote: LB dia.（止口凸出法兰面，高 LE）
+  condition: 外形图：止口为法兰面上的凸台
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-06'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A
+  target: ports/mount_flange/pilot_diameter_mm
+  value: 30.0
+  page: 64
+  quote: C2AA2 61.9 25 2.5 5 40 46 30 4.3 …（LB 栏 30，图中 LB dia. 偏差 0 -0.021）
+  tol_upper: 0.0
+  tol_lower: -0.021
+  condition: 法兰止口（图中 LB dia.，凸出法兰面 LE）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-06'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-C2A
+  target: ports/mount_flange/pilot_kind
+  value: male
+  page: 64
+  quote: LB dia.（止口凸出法兰面，高 LE）
+  condition: 外形图：止口为法兰面上的凸台
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-06'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-02A
+  target: ports/mount_flange/pilot_diameter_mm
+  value: 50.0
+  page: 65
+  quote: 02AA2 51.2 30 3 6 60 70 50 5.5 …（LB 栏 50，图中 LB dia. 偏差 0 -0.025）
+  tol_upper: 0.0
+  tol_lower: -0.025
+  condition: 法兰止口（图中 LB dia.，凸出法兰面 LE）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-06'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-02A
+  target: ports/mount_flange/pilot_kind
+  value: male
+  page: 65
+  quote: LB dia.（止口凸出法兰面，高 LE）
+  condition: 外形图：止口为法兰面上的凸台
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-06'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A
+  target: ports/mount_flange/pilot_diameter_mm
+  value: 50.0
+  page: 65
+  quote: 04AA2 67.2 30 3 6 60 70 50 5.5 …（LB 栏 50，图中 LB dia. 偏差 0 -0.025）
+  tol_upper: 0.0
+  tol_lower: -0.025
+  condition: 法兰止口（图中 LB dia.，凸出法兰面 LE）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-06'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-04A
+  target: ports/mount_flange/pilot_kind
+  value: male
+  page: 65
+  quote: LB dia.（止口凸出法兰面，高 LE）
+  condition: 外形图：止口为法兰面上的凸台
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-06'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A
+  target: ports/mount_flange/pilot_diameter_mm
+  value: 50.0
+  page: 65
+  quote: 06AA2 89.2 30 3 6 60 70 50 5.5 …（LB 栏 50，图中 LB dia. 偏差 0 -0.025）
+  tol_upper: 0.0
+  tol_lower: -0.025
+  condition: 法兰止口（图中 LB dia.，凸出法兰面 LE）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-06'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-06A
+  target: ports/mount_flange/pilot_kind
+  value: male
+  page: 65
+  quote: LB dia.（止口凸出法兰面，高 LE）
+  condition: 外形图：止口为法兰面上的凸台
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-06'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A
+  target: ports/mount_flange/pilot_diameter_mm
+  value: 70.0
+  page: 65
+  quote: 08AA2 78.5 40 3 8 80 90 70 7 …（LB 栏 70，图中 LB dia. 偏差 0 -0.030）
+  tol_upper: 0.0
+  tol_lower: -0.03
+  condition: 法兰止口（图中 LB dia.，凸出法兰面 LE）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-06'
+- doc: src-yaskawa-sgm7-rotary-manual
+  model: SGM7J-08A
+  target: ports/mount_flange/pilot_kind
+  value: male
+  page: 65
+  quote: LB dia.（止口凸出法兰面，高 LE）
+  condition: 外形图：止口为法兰面上的凸台
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-10-06'
