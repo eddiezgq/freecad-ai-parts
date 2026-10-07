@@ -1,0 +1,898 @@
+{
+ "app": "factory_flow",
+ "title": "典型应用的工厂一侧：ERP、MRP、MES、工厂计算、厂情中枢",
+ "sources": [
+  {
+   "title": "问渠数字工厂（本仓库 factory/digital）",
+   "url": "http://localhost:8100",
+   "note": "本机原生启动的整座工厂：枢纽、假 ERPNext、桥接、车间仿真、计算服务"
+  }
+ ],
+ "assumptions": [
+  "订货客户“示例·绿谷输送设备 GreenValley Conveyor (Demo)”、每种产品 2 台、交期 2026-11-21：演练假设",
+  "采购件交期、单价、成品售价零件库里没有，本脚本不填：工厂按“交期待确认”排程",
+  "车间仿真 120 倍速；采购到货由脚本代替供应商送货",
+  "自制件工艺规程以方案带来的工艺路线为起点，第一道机加工工序的粗基准与装夹（回转件外圆 / 三爪卡盘，板件毛坯底面 / 平口钳）由脚本按工艺员的常规写法补上；工艺计算书没有，AI 评审会提醒"
+ ],
+ "steps": [
+  {
+   "step": "COBOT-J2：设计方案",
+   "status": "ok",
+   "summary": "第 1 版，外购件 3 种、自制件 2 种；校验结论 unknown"
+  },
+  {
+   "step": "COBOT-J2：转为生产物料（ERP）",
+   "status": "ok",
+   "summary": "提议“转为生产物料：COBOT-J2 协作机器人肩关节（UR5e 一类）（7 种物料）”经厂长确认后由桥接在 ERPNext 建 3 个供应商、7 种物料、3 张 BOM（含工序）：executed；提醒：Yaskawa Electric Corporation 交期待确认（没填采购提前期）；Harmonic Drive LLC 交期待确认（没填采购提前期）；Yaskawa America, Inc. 交期待确认（没填采购提前期）",
+   "data": {
+    "result": {
+     "created": [
+      [
+       "Supplier",
+       "Yaskawa Electric Corporation"
+      ],
+      [
+       "Supplier",
+       "Harmonic Drive LLC"
+      ],
+      [
+       "Supplier",
+       "Yaskawa America, Inc."
+      ],
+      [
+       "Item",
+       "SGM7J-04A-6"
+      ],
+      [
+       "Item",
+       "CSF-32-100-2UH"
+      ],
+      [
+       "Item",
+       "SGD7S-2R8A"
+      ],
+      [
+       "Item",
+       "RJ-201"
+      ],
+      [
+       "Item",
+       "RM-6061-B140"
+      ],
+      [
+       "Item",
+       "J2-HSG"
+      ],
+      [
+       "Item",
+       "COBOT-J2"
+      ],
+      [
+       "BOM",
+       "BOM-RJ-201-001"
+      ],
+      [
+       "BOM",
+       "BOM-J2-HSG-001"
+      ],
+      [
+       "BOM",
+       "BOM-COBOT-J2-001"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "step": "RJ-201：工艺规程",
+   "status": "ok",
+   "summary": "工艺员提交 6 道工序，AI 工艺评审 1 条意见（没有附工艺计算书（工序尺寸、余量、切削用量和工时的计算过程）。），技术负责人批准为第 1 版"
+  },
+  {
+   "step": "J2-HSG：工艺规程",
+   "status": "ok",
+   "summary": "工艺员提交 3 道工序，AI 工艺评审 1 条意见（没有附工艺计算书（工序尺寸、余量、切削用量和工时的计算过程）。），技术负责人批准为第 1 版"
+  },
+  {
+   "step": "COBOT-J2：接单与计划（MRP）",
+   "status": "ok",
+   "summary": "2 台：工单 RJ-201×2（约 77 min）、J2-HSG×2（约 65 min）、COBOT-J2×2（约 115 min）；请购 CSF-32-100-2UH×2、SGD7S-2R8A×2、SGM7J-04A-6×2、RM-45-D50×50、RM-6061-B140×10；提醒：CSF-32-100-2UH 的采购交期待确认（Harmonic Drive LLC 没有登记提前期），请购单需求日暂按 2026-10-08；SGD7S-2R8A 的采购交期待确认（Yaskawa America, Inc. 没有登记提前期），请购单需求日暂按 2026-10-08；SGM7J-04A-6 的采购交期待确认（Yaskawa Electric Corporation 没有登记提前期），请购单需求日暂按 2026-10-08；ERP 执行：executed",
+   "data": {
+    "preview": {
+     "sales_order": {
+      "customer": "示例·绿谷输送设备 GreenValley Conveyor (Demo)",
+      "company": "问渠减速器厂 WenQuest Gearbox (Demo)",
+      "item_code": "COBOT-J2",
+      "qty": 2,
+      "rate": null,
+      "amount": null,
+      "delivery_date": "2026-11-21",
+      "transaction_date": "2026-10-07"
+     },
+     "mrp": [
+      {
+       "item_code": "CSF-32-100-2UH",
+       "name": "Harmonic Drive LLC CSF-32-100-2UH",
+       "kind": "buy",
+       "uom": "Nos",
+       "gross": 2.0,
+       "committed": 0.0,
+       "stock": 0.0,
+       "on_order": 0.0,
+       "safety": 0,
+       "net": 2.0,
+       "action": "请购 2"
+      },
+      {
+       "item_code": "SGD7S-2R8A",
+       "name": "Yaskawa America, Inc. SGD7S-2R8A",
+       "kind": "buy",
+       "uom": "Nos",
+       "gross": 2.0,
+       "committed": 0.0,
+       "stock": 0.0,
+       "on_order": 0.0,
+       "safety": 0,
+       "net": 2.0,
+       "action": "请购 2"
+      },
+      {
+       "item_code": "SGM7J-04A-6",
+       "name": "Yaskawa Electric Corporation SGM7J-04A（轴端代码 6）",
+       "kind": "buy",
+       "uom": "Nos",
+       "gross": 2.0,
+       "committed": 0.0,
+       "stock": 0.0,
+       "on_order": 0.0,
+       "safety": 0,
+       "net": 2.0,
+       "action": "请购 2"
+      },
+      {
+       "item_code": "RM-45-D50",
+       "name": "45钢圆棒 Ø50 Steel bar 1045 Ø50",
+       "kind": "raw",
+       "uom": "Kg",
+       "gross": 3.2,
+       "committed": 99.6,
+       "stock": 60.0,
+       "on_order": 0.0,
+       "safety": 0,
+       "net": 42.8,
+       "action": "请购 50"
+      },
+      {
+       "item_code": "RM-6061-B140",
+       "name": "6061-T6 方料 140×140×90",
+       "kind": "raw",
+       "uom": "Nos",
+       "gross": 2.0,
+       "committed": 0.0,
+       "stock": 0.0,
+       "on_order": 0.0,
+       "safety": 0,
+       "net": 2.0,
+       "action": "请购 10"
+      }
+     ],
+     "work_orders": [
+      {
+       "production_item": "RJ-201",
+       "qty": 2,
+       "bom_no": null,
+       "planned_start_date": "2026-10-08",
+       "expected_delivery_date": "2026-10-08",
+       "est_minutes": 77.0,
+       "routing": [
+        "下料 Sawing",
+        "粗车 Rough turning",
+        "调质 Quench & temper",
+        "精车 Finish turning",
+        "磨外圆 Cylindrical grinding",
+        "零件检验 Part inspection"
+       ],
+       "warehouse": "semi",
+       "sources": {
+        "RM-45-D50": "raw"
+       }
+      },
+      {
+       "production_item": "J2-HSG",
+       "qty": 2,
+       "bom_no": null,
+       "planned_start_date": "2026-10-08",
+       "expected_delivery_date": "2026-10-08",
+       "est_minutes": 65.0,
+       "routing": [
+        "铣结合面 Face milling",
+        "钻攻螺纹孔 Drilling & tapping",
+        "零件检验 Part inspection"
+       ],
+       "warehouse": "semi",
+       "sources": {
+        "RM-6061-B140": "raw"
+       }
+      },
+      {
+       "production_item": "COBOT-J2",
+       "qty": 2,
+       "bom_no": null,
+       "planned_start_date": "2026-10-08",
+       "expected_delivery_date": "2026-10-08",
+       "est_minutes": 115.0,
+       "routing": [
+        "总装 Final assembly",
+        "跑合试验 Run-in test",
+        "出厂检验 Final inspection",
+        "清洗包装 Cleaning & packing"
+       ],
+       "warehouse": "fg",
+       "sources": {
+        "SGM7J-04A-6": "raw",
+        "CSF-32-100-2UH": "raw",
+        "SGD7S-2R8A": "raw",
+        "RJ-201": "semi",
+        "J2-HSG": "semi"
+       }
+      }
+     ],
+     "material_requests": [
+      {
+       "item_code": "CSF-32-100-2UH",
+       "qty": 2,
+       "uom": "Nos",
+       "schedule_date": "2026-10-08",
+       "supplier": "Harmonic Drive LLC",
+       "reason": "净需求 2，按批量 1 取整"
+      },
+      {
+       "item_code": "SGD7S-2R8A",
+       "qty": 2,
+       "uom": "Nos",
+       "schedule_date": "2026-10-08",
+       "supplier": "Yaskawa America, Inc.",
+       "reason": "净需求 2，按批量 1 取整"
+      },
+      {
+       "item_code": "SGM7J-04A-6",
+       "qty": 2,
+       "uom": "Nos",
+       "schedule_date": "2026-10-08",
+       "supplier": "Yaskawa Electric Corporation",
+       "reason": "净需求 2，按批量 1 取整"
+      },
+      {
+       "item_code": "RM-45-D50",
+       "qty": 50,
+       "uom": "Kg",
+       "schedule_date": "2026-10-13",
+       "supplier": "示例·中西部钢材 Midwest Steel (Demo)",
+       "reason": "净需求 42.8，按批量 50 取整"
+      },
+      {
+       "item_code": "RM-6061-B140",
+       "qty": 10,
+       "uom": "Nos",
+       "schedule_date": "2026-10-13",
+       "supplier": "示例·中西部钢材 Midwest Steel (Demo)",
+       "reason": "净需求 2，按批量 10 取整"
+      }
+     ],
+     "deferred": [],
+     "warnings": [
+      "CSF-32-100-2UH 的采购交期待确认（Harmonic Drive LLC 没有登记提前期），请购单需求日暂按 2026-10-08",
+      "SGD7S-2R8A 的采购交期待确认（Yaskawa America, Inc. 没有登记提前期），请购单需求日暂按 2026-10-08",
+      "SGM7J-04A-6 的采购交期待确认（Yaskawa Electric Corporation 没有登记提前期），请购单需求日暂按 2026-10-08"
+     ],
+     "std_cost_sh301": {
+      "material": 4.48,
+      "operations": 54.85,
+      "total": 59.33
+     },
+     "basis": "库存取自 office/erp/bin 最新快照；在途取自采购单与请购单；占用取自在手订单与未开工工单"
+    }
+   }
+  },
+  {
+   "step": "COBOT-J2：采购到货",
+   "status": "ok",
+   "summary": "5 种物料入原材料库（ERPNext 物料收货单）：executed"
+  },
+  {
+   "step": "COBOT-J2：车间执行（MES）",
+   "status": "ok",
+   "summary": "自制件工单 MFG-WO-2026-00001（RJ-201）、MFG-WO-2026-00002（J2-HSG） 派到 7 台设备，完工（仿真 97 s）；总装工单 MFG-WO-2026-00003 完工（74 s）",
+   "data": {
+    "work_orders": {
+     "RJ-201": "MFG-WO-2026-00001",
+     "J2-HSG": "MFG-WO-2026-00002",
+     "COBOT-J2": "MFG-WO-2026-00003"
+    }
+   }
+  },
+  {
+   "step": "SCARA-600：设计方案",
+   "status": "ok",
+   "summary": "第 1 版，外购件 3 种、自制件 2 种；校验结论 unknown"
+  },
+  {
+   "step": "SCARA-600：转为生产物料（ERP）",
+   "status": "ok",
+   "summary": "提议“转为生产物料：SCARA-600 SCARA 机器人大臂关节（600 mm 臂展一类）（8 种物料）”经厂长确认后由桥接在 ERPNext 建 3 个供应商、8 种物料、3 张 BOM（含工序）：executed；提醒：Yaskawa Electric Corporation 交期待确认（没填采购提前期）；Harmonic Drive LLC 交期待确认（没填采购提前期）；Yaskawa America, Inc. 交期待确认（没填采购提前期）",
+   "data": {
+    "result": {
+     "created": [
+      [
+       "Item",
+       "SGM7J-02A-6"
+      ],
+      [
+       "Item",
+       "CSF-25-100-2UH"
+      ],
+      [
+       "Item",
+       "SGD7S-1R6A"
+      ],
+      [
+       "Item",
+       "RM-6061-P380"
+      ],
+      [
+       "Item",
+       "SC-ARM1"
+      ],
+      [
+       "Item",
+       "RM-6061-P330"
+      ],
+      [
+       "Item",
+       "SC-ARM2"
+      ],
+      [
+       "Item",
+       "SCARA-600"
+      ],
+      [
+       "BOM",
+       "BOM-SC-ARM1-001"
+      ],
+      [
+       "BOM",
+       "BOM-SC-ARM2-001"
+      ],
+      [
+       "BOM",
+       "BOM-SCARA-600-001"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "step": "SC-ARM1：工艺规程",
+   "status": "ok",
+   "summary": "工艺员提交 3 道工序，AI 工艺评审 1 条意见（没有附工艺计算书（工序尺寸、余量、切削用量和工时的计算过程）。），技术负责人批准为第 1 版"
+  },
+  {
+   "step": "SC-ARM2：工艺规程",
+   "status": "ok",
+   "summary": "工艺员提交 3 道工序，AI 工艺评审 1 条意见（没有附工艺计算书（工序尺寸、余量、切削用量和工时的计算过程）。），技术负责人批准为第 1 版"
+  },
+  {
+   "step": "SCARA-600：接单与计划（MRP）",
+   "status": "ok",
+   "summary": "2 台：工单 SC-ARM1×2（约 84 min）、SC-ARM2×2（约 74 min）、SCARA-600×2（约 165 min）；请购 CSF-25-100-2UH×2、SGD7S-1R6A×2、SGM7J-02A-6×2、RM-6061-P330×10、RM-6061-P380×10；提醒：CSF-25-100-2UH 的采购交期待确认（Harmonic Drive LLC 没有登记提前期），请购单需求日暂按 2026-10-08；SGD7S-1R6A 的采购交期待确认（Yaskawa America, Inc. 没有登记提前期），请购单需求日暂按 2026-10-08；SGM7J-02A-6 的采购交期待确认（Yaskawa Electric Corporation 没有登记提前期），请购单需求日暂按 2026-10-08；ERP 执行：executed",
+   "data": {
+    "preview": {
+     "sales_order": {
+      "customer": "示例·绿谷输送设备 GreenValley Conveyor (Demo)",
+      "company": "问渠减速器厂 WenQuest Gearbox (Demo)",
+      "item_code": "SCARA-600",
+      "qty": 2,
+      "rate": null,
+      "amount": null,
+      "delivery_date": "2026-11-21",
+      "transaction_date": "2026-10-07"
+     },
+     "mrp": [
+      {
+       "item_code": "CSF-25-100-2UH",
+       "name": "Harmonic Drive LLC CSF-25-100-2UH",
+       "kind": "buy",
+       "uom": "Nos",
+       "gross": 2.0,
+       "committed": 0.0,
+       "stock": 0.0,
+       "on_order": 0.0,
+       "safety": 0,
+       "net": 2.0,
+       "action": "请购 2"
+      },
+      {
+       "item_code": "SGD7S-1R6A",
+       "name": "Yaskawa America, Inc. SGD7S-1R6A",
+       "kind": "buy",
+       "uom": "Nos",
+       "gross": 2.0,
+       "committed": 0.0,
+       "stock": 0.0,
+       "on_order": 0.0,
+       "safety": 0,
+       "net": 2.0,
+       "action": "请购 2"
+      },
+      {
+       "item_code": "SGM7J-02A-6",
+       "name": "Yaskawa Electric Corporation SGM7J-02A（轴端代码 6）",
+       "kind": "buy",
+       "uom": "Nos",
+       "gross": 2.0,
+       "committed": 0.0,
+       "stock": 0.0,
+       "on_order": 0.0,
+       "safety": 0,
+       "net": 2.0,
+       "action": "请购 2"
+      },
+      {
+       "item_code": "RM-6061-P330",
+       "name": "6061-T6 板材 330×110×20",
+       "kind": "raw",
+       "uom": "Nos",
+       "gross": 2.0,
+       "committed": 0.0,
+       "stock": 0.0,
+       "on_order": 0.0,
+       "safety": 0,
+       "net": 2.0,
+       "action": "请购 10"
+      },
+      {
+       "item_code": "RM-6061-P380",
+       "name": "6061-T6 板材 380×120×20",
+       "kind": "raw",
+       "uom": "Nos",
+       "gross": 2.0,
+       "committed": 0.0,
+       "stock": 0.0,
+       "on_order": 0.0,
+       "safety": 0,
+       "net": 2.0,
+       "action": "请购 10"
+      }
+     ],
+     "work_orders": [
+      {
+       "production_item": "SC-ARM1",
+       "qty": 2,
+       "bom_no": null,
+       "planned_start_date": "2026-10-08",
+       "expected_delivery_date": "2026-10-08",
+       "est_minutes": 84.0,
+       "routing": [
+        "铣结合面 Face milling",
+        "钻攻螺纹孔 Drilling & tapping",
+        "零件检验 Part inspection"
+       ],
+       "warehouse": "semi",
+       "sources": {
+        "RM-6061-P380": "raw"
+       }
+      },
+      {
+       "production_item": "SC-ARM2",
+       "qty": 2,
+       "bom_no": null,
+       "planned_start_date": "2026-10-08",
+       "expected_delivery_date": "2026-10-08",
+       "est_minutes": 74.0,
+       "routing": [
+        "铣结合面 Face milling",
+        "钻攻螺纹孔 Drilling & tapping",
+        "零件检验 Part inspection"
+       ],
+       "warehouse": "semi",
+       "sources": {
+        "RM-6061-P330": "raw"
+       }
+      },
+      {
+       "production_item": "SCARA-600",
+       "qty": 2,
+       "bom_no": null,
+       "planned_start_date": "2026-10-08",
+       "expected_delivery_date": "2026-10-08",
+       "est_minutes": 165.0,
+       "routing": [
+        "总装 Final assembly",
+        "跑合试验 Run-in test",
+        "出厂检验 Final inspection"
+       ],
+       "warehouse": "fg",
+       "sources": {
+        "SGM7J-02A-6": "raw",
+        "CSF-25-100-2UH": "raw",
+        "SGD7S-1R6A": "raw",
+        "SC-ARM1": "semi",
+        "SC-ARM2": "semi"
+       }
+      }
+     ],
+     "material_requests": [
+      {
+       "item_code": "CSF-25-100-2UH",
+       "qty": 2,
+       "uom": "Nos",
+       "schedule_date": "2026-10-08",
+       "supplier": "Harmonic Drive LLC",
+       "reason": "净需求 2，按批量 1 取整"
+      },
+      {
+       "item_code": "SGD7S-1R6A",
+       "qty": 2,
+       "uom": "Nos",
+       "schedule_date": "2026-10-08",
+       "supplier": "Yaskawa America, Inc.",
+       "reason": "净需求 2，按批量 1 取整"
+      },
+      {
+       "item_code": "SGM7J-02A-6",
+       "qty": 2,
+       "uom": "Nos",
+       "schedule_date": "2026-10-08",
+       "supplier": "Yaskawa Electric Corporation",
+       "reason": "净需求 2，按批量 1 取整"
+      },
+      {
+       "item_code": "RM-6061-P330",
+       "qty": 10,
+       "uom": "Nos",
+       "schedule_date": "2026-10-13",
+       "supplier": "示例·中西部钢材 Midwest Steel (Demo)",
+       "reason": "净需求 2，按批量 10 取整"
+      },
+      {
+       "item_code": "RM-6061-P380",
+       "qty": 10,
+       "uom": "Nos",
+       "schedule_date": "2026-10-13",
+       "supplier": "示例·中西部钢材 Midwest Steel (Demo)",
+       "reason": "净需求 2，按批量 10 取整"
+      }
+     ],
+     "deferred": [],
+     "warnings": [
+      "CSF-25-100-2UH 的采购交期待确认（Harmonic Drive LLC 没有登记提前期），请购单需求日暂按 2026-10-08",
+      "SGD7S-1R6A 的采购交期待确认（Yaskawa America, Inc. 没有登记提前期），请购单需求日暂按 2026-10-08",
+      "SGM7J-02A-6 的采购交期待确认（Yaskawa Electric Corporation 没有登记提前期），请购单需求日暂按 2026-10-08"
+     ],
+     "std_cost_sh301": {
+      "material": 4.48,
+      "operations": 54.85,
+      "total": 59.33
+     },
+     "basis": "库存取自 office/erp/bin 最新快照；在途取自采购单与请购单；占用取自在手订单与未开工工单"
+    }
+   }
+  },
+  {
+   "step": "SCARA-600：采购到货",
+   "status": "ok",
+   "summary": "5 种物料入原材料库（ERPNext 物料收货单）：executed"
+  },
+  {
+   "step": "SCARA-600：车间执行（MES）",
+   "status": "ok",
+   "summary": "自制件工单 MFG-WO-2026-00004（SC-ARM1）、MFG-WO-2026-00005（SC-ARM2） 派到 2 台设备，完工（仿真 112 s）；总装工单 MFG-WO-2026-00006 完工（99 s）",
+   "data": {
+    "work_orders": {
+     "SC-ARM1": "MFG-WO-2026-00004",
+     "SC-ARM2": "MFG-WO-2026-00005",
+     "SCARA-600": "MFG-WO-2026-00006"
+    }
+   }
+  },
+  {
+   "step": "LOCKSTITCH-DD：设计方案",
+   "status": "ok",
+   "summary": "第 1 版，外购件 2 种、自制件 2 种；校验结论 fail"
+  },
+  {
+   "step": "LOCKSTITCH-DD：转为生产物料（ERP）",
+   "status": "ok",
+   "summary": "提议“转为生产物料：LOCKSTITCH-DD 工业直驱平缝机主轴驱动（DDL-9000C 一类）（6 种物料）”经厂长确认后由桥接在 ERPNext 建 2 个供应商、6 种物料、3 张 BOM（含工序）：executed；提醒：Yaskawa Electric Corporation 交期待确认（没填采购提前期）；Yaskawa America, Inc. 交期待确认（没填采购提前期）",
+   "data": {
+    "result": {
+     "created": [
+      [
+       "Item",
+       "SGM7J-06A"
+      ],
+      [
+       "Item",
+       "LS-101"
+      ],
+      [
+       "Item",
+       "RM-6061-B125"
+      ],
+      [
+       "Item",
+       "LS-HS"
+      ],
+      [
+       "Item",
+       "LOCKSTITCH-DD"
+      ],
+      [
+       "BOM",
+       "BOM-LS-101-001"
+      ],
+      [
+       "BOM",
+       "BOM-LS-HS-001"
+      ],
+      [
+       "BOM",
+       "BOM-LOCKSTITCH-DD-001"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "step": "LS-101：工艺规程",
+   "status": "ok",
+   "summary": "工艺员提交 6 道工序，AI 工艺评审 1 条意见（没有附工艺计算书（工序尺寸、余量、切削用量和工时的计算过程）。），技术负责人批准为第 1 版"
+  },
+  {
+   "step": "LS-HS：工艺规程",
+   "status": "ok",
+   "summary": "工艺员提交 3 道工序，AI 工艺评审 1 条意见（没有附工艺计算书（工序尺寸、余量、切削用量和工时的计算过程）。），技术负责人批准为第 1 版"
+  },
+  {
+   "step": "LOCKSTITCH-DD：接单与计划（MRP）",
+   "status": "ok",
+   "summary": "2 台：工单 LS-101×2（约 53 min）、LS-HS×2（约 62 min）、LOCKSTITCH-DD×2（约 133 min）；请购 SGD7S-2R8A×2、SGM7J-06A×2、RM-6061-B125×10；提醒：SGD7S-2R8A 的采购交期待确认（Yaskawa America, Inc. 没有登记提前期），请购单需求日暂按 2026-10-08；SGM7J-06A 的采购交期待确认（Yaskawa Electric Corporation 没有登记提前期），请购单需求日暂按 2026-10-08；ERP 执行：executed",
+   "data": {
+    "preview": {
+     "sales_order": {
+      "customer": "示例·绿谷输送设备 GreenValley Conveyor (Demo)",
+      "company": "问渠减速器厂 WenQuest Gearbox (Demo)",
+      "item_code": "LOCKSTITCH-DD",
+      "qty": 2,
+      "rate": null,
+      "amount": null,
+      "delivery_date": "2026-11-21",
+      "transaction_date": "2026-10-07"
+     },
+     "mrp": [
+      {
+       "item_code": "SGD7S-2R8A",
+       "name": "Yaskawa America, Inc. SGD7S-2R8A",
+       "kind": "buy",
+       "uom": "Nos",
+       "gross": 2.0,
+       "committed": 2.0,
+       "stock": 0.0,
+       "on_order": 2.0,
+       "safety": 0,
+       "net": 2.0,
+       "action": "请购 2"
+      },
+      {
+       "item_code": "SGM7J-06A",
+       "name": "Yaskawa Electric Corporation SGM7J-06A",
+       "kind": "buy",
+       "uom": "Nos",
+       "gross": 2.0,
+       "committed": 0.0,
+       "stock": 0.0,
+       "on_order": 0.0,
+       "safety": 0,
+       "net": 2.0,
+       "action": "请购 2"
+      },
+      {
+       "item_code": "RM-45-D50",
+       "name": "45钢圆棒 Ø50 Steel bar 1045 Ø50",
+       "kind": "raw",
+       "uom": "Kg",
+       "gross": 1.2,
+       "committed": 102.8,
+       "stock": 106.8,
+       "on_order": 50.0,
+       "safety": 0,
+       "net": 0.0,
+       "action": "库存够用"
+      },
+      {
+       "item_code": "RM-6061-B125",
+       "name": "6061-T6 方料 125×85×40",
+       "kind": "raw",
+       "uom": "Nos",
+       "gross": 2.0,
+       "committed": 0.0,
+       "stock": 0.0,
+       "on_order": 0.0,
+       "safety": 0,
+       "net": 2.0,
+       "action": "请购 10"
+      }
+     ],
+     "work_orders": [
+      {
+       "production_item": "LS-101",
+       "qty": 2,
+       "bom_no": null,
+       "planned_start_date": "2026-10-08",
+       "expected_delivery_date": "2026-10-08",
+       "est_minutes": 53.0,
+       "routing": [
+        "下料 Sawing",
+        "粗车 Rough turning",
+        "调质 Quench & temper",
+        "精车 Finish turning",
+        "磨外圆 Cylindrical grinding",
+        "零件检验 Part inspection"
+       ],
+       "warehouse": "semi",
+       "sources": {
+        "RM-45-D50": "raw"
+       }
+      },
+      {
+       "production_item": "LS-HS",
+       "qty": 2,
+       "bom_no": null,
+       "planned_start_date": "2026-10-08",
+       "expected_delivery_date": "2026-10-08",
+       "est_minutes": 62.0,
+       "routing": [
+        "铣结合面 Face milling",
+        "钻攻螺纹孔 Drilling & tapping",
+        "零件检验 Part inspection"
+       ],
+       "warehouse": "semi",
+       "sources": {
+        "RM-6061-B125": "raw"
+       }
+      },
+      {
+       "production_item": "LOCKSTITCH-DD",
+       "qty": 2,
+       "bom_no": null,
+       "planned_start_date": "2026-10-08",
+       "expected_delivery_date": "2026-10-08",
+       "est_minutes": 133.0,
+       "routing": [
+        "总装 Final assembly",
+        "跑合试验 Run-in test",
+        "出厂检验 Final inspection",
+        "清洗包装 Cleaning & packing"
+       ],
+       "warehouse": "fg",
+       "sources": {
+        "SGM7J-06A": "raw",
+        "SGD7S-2R8A": "raw",
+        "LS-101": "semi",
+        "LS-HS": "semi"
+       }
+      }
+     ],
+     "material_requests": [
+      {
+       "item_code": "SGD7S-2R8A",
+       "qty": 2,
+       "uom": "Nos",
+       "schedule_date": "2026-10-08",
+       "supplier": "Yaskawa America, Inc.",
+       "reason": "净需求 2，按批量 1 取整"
+      },
+      {
+       "item_code": "SGM7J-06A",
+       "qty": 2,
+       "uom": "Nos",
+       "schedule_date": "2026-10-08",
+       "supplier": "Yaskawa Electric Corporation",
+       "reason": "净需求 2，按批量 1 取整"
+      },
+      {
+       "item_code": "RM-6061-B125",
+       "qty": 10,
+       "uom": "Nos",
+       "schedule_date": "2026-10-13",
+       "supplier": "示例·中西部钢材 Midwest Steel (Demo)",
+       "reason": "净需求 2，按批量 10 取整"
+      }
+     ],
+     "deferred": [],
+     "warnings": [
+      "SGD7S-2R8A 的采购交期待确认（Yaskawa America, Inc. 没有登记提前期），请购单需求日暂按 2026-10-08",
+      "SGM7J-06A 的采购交期待确认（Yaskawa Electric Corporation 没有登记提前期），请购单需求日暂按 2026-10-08"
+     ],
+     "std_cost_sh301": {
+      "material": 4.48,
+      "operations": 54.85,
+      "total": 59.33
+     },
+     "basis": "库存取自 office/erp/bin 最新快照；在途取自采购单与请购单；占用取自在手订单与未开工工单"
+    }
+   }
+  },
+  {
+   "step": "LOCKSTITCH-DD：采购到货",
+   "status": "ok",
+   "summary": "3 种物料入原材料库（ERPNext 物料收货单）：executed"
+  },
+  {
+   "step": "LOCKSTITCH-DD：车间执行（MES）",
+   "status": "ok",
+   "summary": "自制件工单 MFG-WO-2026-00007（LS-101）、MFG-WO-2026-00008（LS-HS） 派到 7 台设备，完工（仿真 52 s）；总装工单 MFG-WO-2026-00009 完工（89 s）",
+   "data": {
+    "work_orders": {
+     "LS-101": "MFG-WO-2026-00007",
+     "LS-HS": "MFG-WO-2026-00008",
+     "LOCKSTITCH-DD": "MFG-WO-2026-00009"
+    }
+   }
+  },
+  {
+   "step": "RJ-201：工厂有限元",
+   "status": "ok",
+   "summary": "工厂计算服务（与设计院同一份内核）复算：Ø42.75 段加设计院动力学的峰值扭矩 92.5 N·m、远端端面固定，10362 个单元、最大 Von Mises 20.2 MPa、安全系数 17.6（设计院 27.7 MPa；网格与固定面不同，量级应一致）"
+  },
+  {
+   "step": "RJ-201：工厂数控编程",
+   "status": "ok",
+   "summary": "从 STEP 认出回转轮廓、生成粗车程序：1 个程序，检查没有问题"
+  },
+  {
+   "step": "LS-101：工厂有限元",
+   "status": "ok",
+   "summary": "工厂计算服务（与设计院同一份内核）复算：Ø10 段加设计院动力学的峰值扭矩 2.5 N·m、远端端面固定，15892 个单元、最大 Von Mises 30.4 MPa、安全系数 11.7（设计院 33.4 MPa；网格与固定面不同，量级应一致）"
+  },
+  {
+   "step": "LS-101：工厂数控编程",
+   "status": "ok",
+   "summary": "从 STEP 认出回转轮廓、生成粗车程序：2 个程序，检查没有问题"
+  },
+  {
+   "step": "UR5e：工厂动力学",
+   "status": "ok",
+   "summary": "MuJoCo Menagerie 的 UR5e 模型保持姿态：肩关节 29.3 N·m、肘关节 15.6 N·m（与设计院的手算重力矩同一量级）"
+  },
+  {
+   "step": "厂情中枢：异常与追因",
+   "status": "ok",
+   "summary": "cnc-l01-a 注入停机 12 s 后出现异常“CNC-L01-A 停机：典型应用演练：主轴过热”；因果链：CNC-L01-A 停机（典型应用演练：主轴过热），预计还要约 240 分钟（仿真时间）"
+  },
+  {
+   "step": "厂情中枢：预案推演",
+   "status": "ok",
+   "summary": "2 个方案：A 不处理（费用 0）；B 维修加急（费用 300）。推荐 A：不处理就够了：SAL-ORD-2026-00001 按时（余 31 天）；SAL-ORD-2026-00002 按时（余 31 天）；SAL-ORD-2026-00003 按时（余 31 天）；SAL-ORD-2026-00019 按时（余 0 天）；SAL-ORD-2026-00020 按时（余 3 天）。其他方案多花钱或不改善交期。"
+  },
+  {
+   "step": "厂情中枢：动作审批执行",
+   "status": "ok",
+   "summary": "推荐的是不处理；演练仍批准“维修加急”，看动作能否下到车间：B 维修加急 → done，已发给车间：CNC-L01-A 维修加急"
+  },
+  {
+   "step": "厂情中枢：简报、日报、态势、搜索",
+   "status": "ok",
+   "summary": "AI 简报刷新（1008 字）；日报“厂情日报 2026-10-07 13:45”；全厂态势 15 块；对象搜索命中：COBOT-J2 7 个、SCARA-600 7 个、LOCKSTITCH-DD 7 个",
+   "data": {
+    "report_id": 1
+   }
+  },
+  {
+   "step": "ERPNext 一致性",
+   "status": "ok",
+   "summary": "这次演练中假 ERPNext 记录的错误 0 条"
+  }
+ ],
+ "elapsed_s": 590.3
+}

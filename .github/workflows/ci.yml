@@ -218,6 +218,12 @@ jobs:
           assert abs(r["error"]) < 0.03, r
           print("计算服务：analysis 在", analysis.__file__, "；Poiseuille 误差", round(r["error"], 4))
           PY
+      - name: 典型应用发布到工厂并走完工厂一侧（M13，ADR-0061）
+        run: |
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends calculix-ccx libglu1-mesa libxcursor1 libxft2 libxinerama1 libgomp1
+          pip install -q -e ".[mbd,fea]"
+          python -m examples.apps.lockstitch --quick --no-cfd --hub http://localhost:8100
+          python -m examples.apps.factory_flow --hub http://localhost:8100 --erp http://localhost:8091 --products LOCKSTITCH-DD --speed 240
       - name: 失败时的日志
         if: failure()
         run: cd factory/digital && docker compose --profile mock ps && docker compose --profile mock logs --no-color --tail 80
