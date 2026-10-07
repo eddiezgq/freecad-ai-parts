@@ -178,9 +178,14 @@ class ERP {
             ...(direct ? { sales_order: soDoc.name } : { wq_sales_order: soDoc.name }),
             planned_start_date: `${w.planned_start_date} 08:00:00`,
             expected_delivery_date: w.expected_delivery_date, skip_transfer: 1,
-            source_warehouse: WH.raw, wip_warehouse: WH.wip, fg_warehouse: MAKE_WH[w.production_item] || WH.semi,
+            source_warehouse: WH.raw, wip_warehouse: WH.wip,
+            fg_warehouse: MAKE_WH[w.production_item] || (w.warehouse === 'fg' ? WH.fg : WH.semi),
             use_multi_level_bom: 0,
           });
+          if (w.sources) {     // 本仓库 ADR-0061：成品领料——自制件从半成品库，其余从原材料库
+            wo.required_items = (wo.required_items || []).map((r) => ({ ...r,
+              source_warehouse: w.sources[r.item_code] === 'semi' ? WH.semi : WH.raw }));
+          }
           const woDoc = await this.insert('Work Order', { ...wo, docstatus: 1 });
           out.push(this.doc('Work Order', woDoc, 'submitted', opt));
           created.push(['Work Order', woDoc.name]);
@@ -190,6 +195,43 @@ class ERP {
           out.push(this.doc('Material Request', mr, 'submitted', opt));
           created.push(['Material Request', mr.name]);
         }
+      } else if (d.action === 'cad_to_erp') {
+        // 本仓库 ADR-0061：FreeCAD 方案转为生产物料——建供应商、物料、BOM（自下而上）；已有的不重建
+        const pv = d.preview;
+        const company = await this.getCompany();
+        for (const sp of pv.suppliers || []) {
+          if (!(await this.list('Supplier', [['name', '=', sp.name]], ['name'])).length) {
+            const doc = await this.insert('Supplier', { supplier_name: sp.name, supplier_group: sp.supplier_group,
+              supplier_type: 'Company' });
+            created.push(['Supplier', doc.name]);
+          }
+        }
+        for (const it of pv.items || []) {
+          if ((await this.list('Item', [['name', '=', it.item_code]], ['name'])).length) continue;
+          const doc = await this.insert('Item', { item_code: it.item_code, item_name: it.item_name, item_group: it.item_group,
+            stock_uom: it.uom, is_stock_item: 1, include_item_in_manufacturing: 1, description: it.description || it.item_name,
+            ...(it.price != null ? { standard_rate: it.price } : {}) });
+          out.push(this.doc('Item', doc, 'created', opt));
+          created.push(['Item', doc.name]);
+        }
+        for (const b of pv.boms || []) {
+          const ops = (pv.routings[b.routing] || []).map(([op, mins], i) => ({ operation: op, workstation: pv.operations[op],
+            time_in_mins: Number(mins), sequence_id: i + 1 }));
+          const doc = await this.insert('BOM', { item: b.item, quantity: 1, company, is_active: 1, is_default: 1,
+            with_operations: 1, inspection_required: 0, docstatus: 1,
+            items: b.items.map(([c, q]) => ({ item_code: c, qty: Number(q) })), operations: ops });
+          out.push(this.doc('BOM', doc, 'submitted', opt));
+          created.push(['BOM', doc.name]);
+        }
+        if (!out.length) out.push(this.doc('Item', { name: pv.code, item_code: pv.code }, 'snapshot', opt));
+      } else if (d.action === 'material_receipt') {
+        // 演示：供应商送货到原材料库（ERPNext 物料收货单）
+        const company = await this.getCompany();
+        const se = await this.insert('Stock Entry', { stock_entry_type: 'Material Receipt', purpose: 'Material Receipt', company,
+          docstatus: 1, items: d.preview.items.map((r) => ({ item_code: r.item_code, qty: r.qty, uom: r.uom, stock_uom: r.uom,
+            conversion_factor: 1, t_warehouse: WH.raw })) });
+        out.push(this.doc('Stock Entry', se, 'submitted', opt));
+        created.push(['Stock Entry', se.name]);
       } else if (d.action === 'purchase_request') {
         const company = await this.getCompany();
         const mr = await this.materialRequest(company, d.preview.material_requests, erpDate(new Date().toISOString()));

@@ -14,6 +14,7 @@ from collections import defaultdict
 
 from factory import data as F
 from sim.engine import OP_UNITS, SETUP_MIN, TOOL_CHANGE_MIN, expected_minutes, routing_for
+from hub import products
 from hub.kpi import TZ, add_working_days, explode, rate_per_hour, Overview
 
 RELEASED_THIS_ROUND = {"SH-301"}
@@ -22,6 +23,8 @@ COMPANY = "问渠减速器厂 WenQuest Gearbox (Demo)"
 
 
 def lot_size(code):
+    if str(F.ITEMS[code][4] or "").startswith("lib:"):   # 零件库来的外购件（本仓库 ADR-0061）按需采购，不凑批量
+        return 1
     return LOT["raw_kg"] if F.ITEMS[code][2] == "Kg" else LOT["default"]
 
 
@@ -84,34 +87,48 @@ def plan_order(db, customer, item, qty, delivery_date, mode="teach", now=None):
         if net > 1e-6:
             q = math.ceil(net / lot_size(code)) * lot_size(code)
             sup = F.SUPPLIERS[F.ITEMS[code][4]]
-            sched = add_working_days(start, sup["lead"] * 5 // 7 or 1)
+            if sup["lead"] is None:          # 登记产品的采购件没填交期（本仓库 ADR-0061）：不估，标待确认
+                sched = start
+                warnings.append("{} 的采购交期待确认（{} 没有登记提前期），请购单需求日暂按 {}".format(
+                    code, sup["name"], start.isoformat()))
+            else:
+                sched = add_working_days(start, sup["lead"] * 5 // 7 or 1)
             mrs.append({"item_code": code, "qty": q, "uom": F.ITEMS[code][2], "schedule_date": sched.isoformat(),
                         "supplier": sup["name"], "reason": "净需求 {:g}，按批量 {} 取整".format(round(net, 2), lot_size(code))})
             action = "请购 {:g}".format(q)
-            if sched > due:
+            if sup["lead"] is not None and sched > due:
                 warnings.append("{} 采购提前期 {} 天，预计 {} 到货，晚于交期 {}".format(
                     code, sup["lead"], sched.isoformat(), due.isoformat()))
         rows.append({"item_code": code, "name": F.ITEMS[code][0], "kind": F.ITEMS[code][1],
                      "uom": F.ITEMS[code][2], "gross": round(g, 3), "committed": round(cm, 3),
                      "stock": st, "on_order": oo, "safety": safety, "net": round(max(0.0, net), 3),
                      "action": action})
-    # 自制件：本轮只下达 SH-301
+    # 自制件：演示产品 WQR-105 本轮只下达 SH-301；登记的新产品（本仓库 ADR-0061）下达全部自制件和产品本身
     wos, deferred = [], []
-    for code, q in explode_make(item, qty).items():
-        if code in RELEASED_THIS_ROUND:
+    whole = products.is_product(item)
+    makes = explode_make(item, qty)
+    if whole:
+        makes[item] = qty
+    for code, q in makes.items():
+        if code in RELEASED_THIS_ROUND or whole:
             mins = expected_minutes(code, int(q))
             days = max(1, math.ceil(mins / 480))
             end = add_working_days(start, days - 1) if days > 1 else start
-            wos.append({"production_item": code, "qty": int(q), "bom_no": None, "planned_start_date": start.isoformat(),
-                        "expected_delivery_date": end.isoformat(), "est_minutes": mins,
-                        "routing": [op for op, _ in routing_for(code)]})
+            w = {"production_item": code, "qty": int(q), "bom_no": None, "planned_start_date": start.isoformat(),
+                 "expected_delivery_date": end.isoformat(), "est_minutes": mins,
+                 "routing": [op for op, _ in routing_for(code)]}
+            if whole:   # 成品进成品库、自制件进半成品库；成品领料：自制件从半成品库，其余从原材料库
+                w["warehouse"] = "fg" if code == item else "semi"
+                w["sources"] = {c: ("semi" if F.ITEMS[c][1] in ("make", "sub") else "raw") for c, _ in F.BOMS[code][1]}
+            wos.append(w)
         else:
             deferred.append({"item_code": code, "qty": q, "name": F.ITEMS[code][0]})
     mat, ops = std_unit_cost("SH-301")
     preview = {
         "sales_order": {"customer": customer, "company": COMPANY, "item_code": item, "qty": qty,
-                        "rate": F.FG_SELLING_PRICE if item == "WQR-105" else None,
-                        "amount": F.FG_SELLING_PRICE * qty if item == "WQR-105" else None,
+                        "rate": F.FG_SELLING_PRICE if item == "WQR-105" else F.ITEMS[item][3],
+                        "amount": F.FG_SELLING_PRICE * qty if item == "WQR-105" else (
+                            F.ITEMS[item][3] * qty if F.ITEMS[item][3] else None),
                         "delivery_date": due.isoformat(), "transaction_date": today.isoformat()},
         "mrp": rows,
         "work_orders": wos,

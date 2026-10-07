@@ -96,6 +96,8 @@ class Hub:
 
     def start(self):
         self.db.init()
+        from hub import products                   # 工厂接收新产品（本仓库 ADR-0061）：登记过的产品并入主数据
+        products.init(self.db)
         self.bus = Bus("wq-hub-" + secrets.token_hex(3))
         self.ai = Assistant(self.db, self.publish)
         from hub.ont.agent import Agent               # AI 代理（第 17 轮 D 期）：问答走代理，工具是本体、异常、推演、动作
@@ -943,6 +945,46 @@ def cad_release(body: dict = Body(...), u=Depends(user_of)):
         return cad_link.release(H.db, _emit_as(u, source="freecad"), u["mode"], who(u), body)
     except cad_link.CadError as e:
         raise HTTPException(422, str(e)) from None
+
+
+@app.post("/api/cad/designs/{code}/production")
+def cad_production(code: str, body: dict = Body(default={}), u=Depends(user_of)):
+    """转为生产物料（本仓库 ADR-0061）：预览要在 ERPNext 建的供应商、物料、BOM，生成一条需确认的提议"""
+    from hub import cad_link, products
+    d = cad_link.design(H.db, u["mode"], code)
+    if d is None:
+        raise HTTPException(404, "没有这个方案")
+    try:
+        spec = products.build(d, body)
+    except (products.ProductError, KeyError, TypeError, ValueError) as e:
+        raise HTTPException(400, str(e))
+    title = "转为生产物料：{} {}（{} 种物料）".format(spec["code"], spec["name"], len(spec["items"]))
+    pid = H.ai.propose("cad_to_erp", spec, u["mode"], u["name"], title, source="workbench/" + who(u), role=u["role"])
+    return {"proposal_id": pid, "preview": spec, "title": title}
+
+
+@app.get("/api/products")
+def registered_products(u=Depends(user_of)):
+    from hub import products
+    return products.products(H.db)
+
+
+@app.post("/api/purchase/receive")
+def purchase_receive(body: dict = Body(...), u=Depends(user_of)):
+    """采购到货入库（演示用：供应商送货到原材料库，ERPNext 物料收货单），走需确认的提议"""
+    from factory import data as F
+    rows = []
+    for r in body.get("items") or []:
+        code, qty = str(r.get("item_code") or ""), float(r.get("qty") or 0)
+        if code not in F.ITEMS or qty <= 0:
+            raise HTTPException(400, "物料 {} 不存在或数量不对".format(code))
+        rows.append({"item_code": code, "qty": qty, "uom": F.ITEMS[code][2]})
+    if not rows:
+        raise HTTPException(400, "没有到货物料")
+    title = "到货入库：" + "、".join("{} {:g}".format(r["item_code"], r["qty"]) for r in rows)
+    pid = H.ai.propose("material_receipt", {"items": rows}, u["mode"], u["name"], title, source="workbench/" + who(u),
+                       role=u["role"])
+    return {"proposal_id": pid, "preview": {"items": rows}, "title": title}
 
 
 @app.get("/api/cad/designs")

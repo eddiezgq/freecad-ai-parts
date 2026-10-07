@@ -213,6 +213,10 @@ class Assistant:
         elif d.get("proposal_done"):
             self.db.x("update ai_proposal set status='executed', result=%s where proposal_id=%s and status<>'failed'",
                       (json.dumps({"created": d.get("created", [])}, ensure_ascii=False), pid))
+            p = self.db.one("select action, preview, mode from ai_proposal where proposal_id=%s", (pid,))
+            if p and p["action"] == "cad_to_erp":       # 建好物料与 BOM 后登记进工厂主数据（本仓库 ADR-0061）
+                from hub import products
+                products.register(self.db, p["preview"], p["mode"])
 
     # ================================================================ 问答
     def chat(self, messages, mode="teach", role="manager", user="user"):
