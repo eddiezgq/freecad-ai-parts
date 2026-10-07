@@ -24,7 +24,10 @@ class FactoryError(RuntimeError):
 
 def payload(layout: Mapping, lookup: Callable[[str], dict | None], *, code: str, name: str,
             origin: Callable[[str], str | None] | None = None, requirement: Mapping | None = None,
-            checks: Mapping | None = None, note: str = "", files: list[dict] | None = None) -> dict:
+            checks: Mapping | None = None, note: str = "", files: list[dict] | None = None,
+            made_parts: list[dict] | None = None, assembly_routing: list | None = None) -> dict:
+    """made_parts：自制件（定制件）清单 [{code, name, qty, material, raw: {item_code, …}, raw_qty, routing: [[工序, 分钟]]}]；
+    assembly_routing：总装工艺 [[工序, 分钟]]。两者是工厂“转为生产物料”要用的（ADR-0061），工序须是工厂现有的。"""
     b = bom_view.bom(layout, lookup)
     if not b["rows"]:
         raise FactoryError("场景里没有零件，先放入方案")
@@ -37,6 +40,10 @@ def payload(layout: Mapping, lookup: Callable[[str], dict | None], *, code: str,
     out = {"code": code.strip(), "name": name.strip(), "bom": rows, "note": note.strip(), "tool": "FreeCAD AI Parts",
            "layout": {"instances": len(layout.get("instances", [])), "connections": len(layout.get("connections", []))},
            "files": list(files or [])}
+    if made_parts:
+        out["made_parts"] = [dict(m) for m in made_parts]
+    if assembly_routing:
+        out["assembly_routing"] = [list(r) for r in assembly_routing]
     if requirement:
         out["requirement"] = dict(requirement)
     if checks:

@@ -42,7 +42,13 @@ def validate(body):
         if not isinstance(f, dict) or not str(f.get("url", "")).startswith("/api/files/"):
             raise CadError("附件须先经 /api/files 上传")
         files.append({k: f.get(k) for k in ("kind", "name", "url", "sha256", "size")})
-    return {"code": code, "name": name[:120], "bom": rows, "files": files,
+    made = body.get("made_parts") or []
+    if not isinstance(made, list) or not all(isinstance(m, dict) and m.get("code") for m in made):
+        raise CadError("自制件清单须为 [{code, name, qty, material, raw, raw_qty, routing}]")
+    assy = body.get("assembly_routing") or []
+    if not isinstance(assy, list):
+        raise CadError("总装工艺须为 [[工序, 分钟], ...]")
+    return {"code": code, "name": name[:120], "bom": rows, "files": files, "made_parts": made, "assembly_routing": assy,
             "requirement": body.get("requirement"), "checks": body.get("checks"), "layout": body.get("layout"),
             "note": str(body.get("note") or "")[:500], "tool": str(body.get("tool") or "FreeCAD AI Parts")[:80]}
 
@@ -51,12 +57,13 @@ def release(db, emit, mode, author, body):
     d = validate(body)
     cur = db.one("select max(revision) as r from cad_design where mode=%s and code=%s", (mode, d["code"]))
     rev = ((cur or {}).get("r") or 0) + 1
-    data = {k: d[k] for k in ("bom", "files", "requirement", "checks", "layout", "note", "tool")}
+    data = {k: d[k] for k in ("bom", "files", "requirement", "checks", "layout", "note", "tool", "made_parts",
+                              "assembly_routing")}
     import json
     db.x("insert into cad_design (mode, code, revision, name, author, data) values (%s,%s,%s,%s,%s,%s)",
          (mode, d["code"], rev, d["name"], author, json.dumps(data, ensure_ascii=False)))
     msg = {"code": d["code"], "revision": rev, "name": d["name"], "author": author, "bom": d["bom"], "files": d["files"],
-           "note": d["note"], "checks_overall": (d["checks"] or {}).get("overall") if isinstance(d["checks"], dict) else None}
+           "note": d["note"], "made_parts": [m.get("code") for m in d["made_parts"]], "checks_overall": (d["checks"] or {}).get("overall") if isinstance(d["checks"], dict) else None}
     emit("wq/gearbox/design/cad-{}/release".format(d["code"].lower()), "cad.release", msg)
     return {"code": d["code"], "revision": rev, "name": d["name"]}
 
