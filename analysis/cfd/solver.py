@@ -39,8 +39,9 @@ def run_solver(case, app, timeout=LIMIT_S):
 
 
 # ---------------------------------------------------------------- 几何
-def stl_by_face(step_path, size_mm=None):
-    """STEP → ASCII STL（米），每个 CAD 面一个 solid（名 f<编号>，编号与有限元的面编号相同）。返回 (stl 文本, 包围盒 m, 面编号列表)"""
+def stl_by_face(step_path, size_mm=None, with_surface=False):
+    """STEP → ASCII STL（米），每个 CAD 面一个 solid（名 f<编号>，编号与有限元的面编号相同）。返回 (stl 文本, 包围盒 m, 面编号列表)；
+    with_surface=True 时再返回表面三角形 {"pos" m, "tri", "face"}（工厂网页画云图用）"""
     from analysis.fea import geometry as G
     with G._LOCK, tempfile.TemporaryDirectory() as tmp:
         gmsh = G._gmsh()
@@ -50,7 +51,8 @@ def stl_by_face(step_path, size_mm=None):
         gmsh.option.setNumber("Mesh.MeshSizeMax", size_mm or diag / 60)
         gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 24)
         gmsh.model.mesh.generate(2)
-        parts, ids = [], []
+        parts, ids, surf = [], [], {"pos": [], "tri": [], "face": []}
+        nv = 0
         for _, tag in gmsh.model.getEntities(2):
             ntags, xyz, _ = gmsh.model.mesh.getNodes(2, tag, includeBoundary=True)
             etypes, _, enodes = gmsh.model.mesh.getElements(2, tag)
@@ -70,8 +72,15 @@ def stl_by_face(step_path, size_mm=None):
             lines.append(f"endsolid f{tag}")
             parts.append("\n".join(lines))
             ids.append(int(tag))
+            surf["pos"].append(p)
+            surf["tri"].append(tri + nv)
+            surf["face"].append(np.full(len(tri), tag))
+            nv += len(p)
         box = np.array(bb, float) / 1000.0
-    return "\n".join(parts) + "\n", box, ids
+    stl = "\n".join(parts) + "\n"
+    if with_surface:
+        return stl, box, ids, {k: np.concatenate(v) for k, v in surf.items()}
+    return stl, box, ids
 
 
 # ---------------------------------------------------------------- 风洞
@@ -288,6 +297,17 @@ def plan(box, setup):
 
 def solve(step_path, setup, workdir, progress=None):
     """返回 (stats, faces)：整体结果与每个 CAD 面的面积、平均压力、受力（与散热）"""
+    stats, faces, _, _ = _solve(step_path, setup, workdir, progress, extras=False)
+    return stats, faces
+
+
+def solve_full(step_path, setup, workdir, progress=None):
+    """工厂网页用：返回 (stats, surface, aux)。surface：零件表面三角形和每个顶点的 p、h；aux：速度截面、流线、各面结果"""
+    stats, faces, surface, aux = _solve(step_path, setup, workdir, progress, extras=True)
+    return stats, surface, {**aux, "faces": faces}
+
+
+def _solve(step_path, setup, workdir, progress, extras):
     import time
 
     from analysis.cfd import heat as CH
@@ -298,7 +318,10 @@ def solve(step_path, setup, workdir, progress=None):
     heat = setup.get("heat")
     if not 0.01 <= Umag <= 60:
         raise ValueError("风速要在 0.01–60 m/s 之间（不可压，马赫数 < 0.2）")
-    stl, box, _ids = stl_by_face(step_path)
+    if extras:
+        stl, box, _ids, surf = stl_by_face(step_path, with_surface=True)
+    else:
+        stl, box, _ids = stl_by_face(step_path)
     a, b, Lc, cell, level, direction, ground = plan(box, setup)
     nu = AIR["mu"] / AIR["rho"]
     Re = Umag * Lc / nu
@@ -383,8 +406,22 @@ def solve(step_path, setup, workdir, progress=None):
             At += w["A"].sum()
         stats.update(wall_t_c=tw, heat_w=Qt, h_mean=Qt / (At * (tw - t_air)), area_m2=At,
                      T_out_max_c=float(T.max() - 273.15))
+    surface = aux = None
+    if extras:
+        from scipy.spatial import cKDTree
+
+        fc, vp, vh = [], [], []
+        for pn in parts:
+            sl = mesh.patch(pn)
+            fc.append(mesh.Cf[sl])
+            vp.append(p[mesh.owner[sl]] * rho)
+            vh.append(hface[pn] if hface else np.zeros(mesh.boundary[pn]["nFaces"]))
+        _, k = cKDTree(np.concatenate(fc)).query(surf["pos"])
+        surface = {"positions": surf["pos"] * 1000.0, "p": np.concatenate(vp)[k], "h": np.concatenate(vh)[k],
+                   "triangles": surf["tri"], "face_of_triangle": surf["face"]}
+        aux = {"slice": velocity_slice(mesh, Uf, box, ax, a, b), "streamlines": streamlines(mesh, Uf, box, ax, sg, a, b)}
     stats["seconds"] = round(time.time() - t0, 1)
-    return stats, [face[k] for k in sorted(face)]
+    return stats, [face[k] for k in sorted(face)], surface, aux
 
 
 def _last_residuals(log):
@@ -393,3 +430,62 @@ def _last_residuals(log):
     for fld, val in re.findall(r"Solving for (\w+), Initial residual = ([0-9.eE+-]+)", log[-6000:]):
         out[fld] = float(val)
     return out
+
+
+# ---------------------------------------------------------------- 工厂网页用的输出（ADR-0060）
+def velocity_slice(mesh, U, box, ax, a, b, n=(160, 80)):
+    """过零件中心、和地面平行的截面（法向取既不是来流方向、又尽量是竖直的轴）上的速度大小（网格中心最近点取值）"""
+    from scipy.spatial import cKDTree
+    up = 2 if ax != 2 else 1
+    lat = next(k for k in range(3) if k not in (ax, up))
+    c = (box[:3] + box[3:]) / 2
+    xs = np.linspace(a[ax], b[ax], n[0])
+    ys = np.linspace(a[lat], b[lat], n[1])
+    P = np.zeros((n[1], n[0], 3))
+    P[..., ax] = xs[None, :]
+    P[..., lat] = ys[:, None]
+    P[..., up] = c[up]
+    tree = cKDTree(mesh.C)
+    dist, k = tree.query(P.reshape(-1, 3))
+    V = np.linalg.norm(U[k], axis=1).reshape(n[1], n[0])
+    # 落在零件里面的点：离最近单元中心太远就当成实体
+    hmax = np.cbrt(np.median(mesh.V)) * 1.5
+    V[dist.reshape(n[1], n[0]) > hmax] = np.nan
+    return {"axis": "xyz"[ax], "lateral": "xyz"[lat], "normal": "xyz"[up], "at_mm": float(c[up] * 1000),
+            "x0_mm": float(xs[0] * 1000), "x1_mm": float(xs[-1] * 1000), "y0_mm": float(ys[0] * 1000), "y1_mm": float(ys[-1] * 1000),
+            "nx": n[0], "ny": n[1], "speed": np.nan_to_num(V, nan=-1.0).round(4).tolist(),
+            "vmax": float(np.nanmax(V)) if np.isfinite(V).any() else 0.0}
+
+
+def streamlines(mesh, U, box, ax, sg, a, b, n_seed=40, steps=400):
+    """从零件上游一个平面撒点，按网格中心最近点的速度积分流线（毫米）"""
+    from scipy.spatial import cKDTree
+    tree = cKDTree(mesh.C)
+    lo, hi = box[:3], box[3:]
+    size = hi - lo
+    seeds = []
+    rng = np.random.default_rng(1)
+    for _ in range(n_seed):
+        s = lo + rng.uniform(-0.15, 1.15, 3) * size
+        s[ax] = (lo[ax] - 0.5 * size[ax]) if sg > 0 else (hi[ax] + 0.5 * size[ax])
+        seeds.append(s)
+    h = float(np.cbrt(np.median(mesh.V)))
+    lines = []
+    for s in seeds:
+        pts = [s.copy()]
+        x = s.copy()
+        for _ in range(steps):
+            _, k = tree.query(x)
+            v = U[k]
+            sp_ = np.linalg.norm(v)
+            if sp_ < 1e-6:
+                break
+            x = x + v / sp_ * h * 0.8
+            if np.any(x < a) or np.any(x > b):
+                break
+            pts.append(x.copy())
+        if len(pts) > 5:
+            arr = np.array(pts) * 1000.0
+            sp_all = np.linalg.norm(U[tree.query(np.array(pts))[1]], axis=1)
+            lines.append({"pts": arr[::2].round(2).tolist(), "speed": sp_all[::2].round(3).tolist()})
+    return lines
