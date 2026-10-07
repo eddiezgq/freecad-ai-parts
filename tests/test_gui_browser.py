@@ -882,6 +882,36 @@ def test_optimize_dialog_makes_shaft(gui):
 
 
 @pytest.mark.freecad
+def test_topo_dialog_makes_plate(gui):
+    """M11 第一步：拓扑优化对话框——悬臂算例 → 密度图 → 板件生成到 FreeCAD，体积与轮廓面积 × 板厚一致。"""
+    import FreeCAD
+
+    from freecad_addon.gui.topo_dialog import TopoDialog
+
+    dlg = TopoDialog()
+    dlg.preset.setCurrentIndex(dlg.preset.findData("cantilever"))
+    assert (dlg.nelx.value(), dlg.nely.value()) == (64, 32)
+    dlg.nelx.setValue(32)
+    dlg.nely.setValue(16)
+    dlg.length.setText("64")
+    dlg.thickness.setText("abc")
+    assert dlg.start() is False
+    dlg.thickness.setText("4")
+    assert dlg.start() is True
+    _pump_until(gui, lambda: not dlg.busy, timeout=120)
+    assert dlg.result and dlg.result["status"] == "ok", dlg.status.text()
+    assert dlg.image.pixmap() is not None and dlg.make_button.isEnabled()
+    doc = FreeCAD.newDocument("TopoTest")
+    try:
+        obj = dlg.make_plate()
+        assert obj is not None and obj.Shape.isValid()
+        assert abs(obj.Shape.Volume - dlg.result["data"]["volume_mm3"]) < 1e-3 * dlg.result["data"]["volume_mm3"]
+        assert abs(obj.Shape.BoundBox.ZLength - 4) < 1e-9
+    finally:
+        FreeCAD.closeDocument(doc.Name)
+
+
+@pytest.mark.freecad
 def test_twin_panel(gui, tmp_path):
     """M10 第五步：数字孪生窗口——布局中的减速器 + 运行记录 CSV → 已用寿命、剩余、假如；缺参数时待确认。"""
     import copy

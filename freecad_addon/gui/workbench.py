@@ -244,6 +244,26 @@ class OptimizeCommand:
         return True
 
 
+class TopoCommand:
+    """拓扑优化（ADR-0059）：平面件给定材料用量下刚度最大的构形，结果拉伸成板件放进 FreeCAD。"""
+
+    def GetResources(self):
+        return {"MenuText": "拓扑优化", "ToolTip": "平面件给定材料用量下刚度最大的构形（SIMP，本机计算），可生成板件做有限元校核"}
+
+    def Activated(self):
+        from freecad_addon.gui.topo_dialog import TopoDialog
+
+        dlg = _state.get("topo")
+        if dlg is None:
+            dlg = TopoDialog(_main_window())
+            _state["topo"] = dlg
+        dlg.show()
+        dlg.raise_()
+
+    def IsActive(self):
+        return True
+
+
 class TwinCommand:
     """数字孪生（ADR-0057）：当前布局的减速器、轴承 + 运行记录 → 已用寿命、剩余寿命、报警、假如。"""
 
@@ -420,6 +440,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         FreeCADGui.addCommand("FAP_Fea", FeaCommand())
         FreeCADGui.addCommand("FAP_Optimize", OptimizeCommand())
         FreeCADGui.addCommand("FAP_Twin", TwinCommand())
+        FreeCADGui.addCommand("FAP_Topo", TopoCommand())
         FreeCADGui.addCommand("FAP_Publish", PublishCommand())
         FreeCADGui.addCommand("FAP_Connect", ConnectPortsCommand())
         FreeCADGui.addCommand("FAP_Checks", CheckPanelCommand())
@@ -430,7 +451,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bom",
                  "FAP_Restore", "FAP_Bridge", "FAP_Record"]
         self.appendToolbar("AI Parts", tools)
-        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_Fea", "FAP_Optimize", "FAP_Twin", "FAP_Publish", "FAP_RecordVideo"])
+        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_Fea", "FAP_Optimize", "FAP_Topo", "FAP_Twin", "FAP_Publish", "FAP_RecordVideo"])
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"
