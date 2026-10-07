@@ -28,8 +28,8 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - name: 安装字体（模拟规格书 PDF 用）与 CalculiX（分析模块，ADR-0056）
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends fonts-dejavu-core fonts-wqy-zenhei calculix-ccx libglu1-mesa libxcursor1 libxft2 libxinerama1 libgomp1
+      - name: 安装字体（模拟规格书 PDF 用）、CalculiX（分析模块，ADR-0056）与 OpenFOAM（流体，ADR-0059）
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends fonts-dejavu-core fonts-wqy-zenhei calculix-ccx libglu1-mesa libxcursor1 libxft2 libxinerama1 libgomp1 openfoam openmpi-bin
       - name: 安装依赖
         run: pip install -e ".[dev,mbd,fea,optimize]"
       - name: 代码检查
