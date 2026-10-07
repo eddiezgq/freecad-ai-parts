@@ -47,7 +47,9 @@ def test_scara():
 def test_lockstitch():
     s = _steps("lockstitch", "--no-cfd")
     _no_crash(s)
-    sel = s["选型：主轴直驱电机"]
-    assert sel["status"] == "fail" and "C9" in sel["summary"]  # 驱动器电流不够：零件库缺大驱动器
+    assert "ΔE" in s["动力学：针杆机构"]["summary"]  # 惯性力矩一转做功为零，给盈亏功（ADR-0062）
+    hi, lo = s["选型（上限：刚性速度环）"], s["选型（下限：惯量吸收）"]
+    assert hi["status"] == "fail" and "C9" in hi["summary"]  # 速度环刚：库里驱动器电流不够
+    assert lo["status"] == "unknown" and "SGM7J-04A" in lo["summary"]  # 惯量吸收：400 W，缝制阻力待确认
     assert s["固有频率：上轴 LS-101"]["status"] == "ok"
     assert s["流体：控制箱散热器"]["status"] == "skip"
