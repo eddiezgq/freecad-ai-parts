@@ -33,6 +33,7 @@ def test_cobot_joint():
     _no_crash(s)
     assert "手算 Σm·g·r 92.5" in s["动力学"]["summary"]  # 重力矩与手算一致
     assert s["选型 j2"]["status"] == "unknown" and "CSF-32-100-2UH" in s["选型 j2"]["summary"]
+    assert "（手算 11.4）" in s["动力学：腕关节 j4"]["summary"] and "CSF-17" in s["选型 j4"]["summary"]  # 腕关节（ADR-0062）
     assert s["数字孪生：减速器"]["status"] == "unknown"  # 缺额定寿命：不编数据
     assert s["发布到工厂"]["status"] == "skip"
 
