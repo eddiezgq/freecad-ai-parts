@@ -20,7 +20,7 @@ DESIGN = {
             {"component_id": "drive.yaskawa-america-inc.sgd7s-2r8a", "vendor": "Yaskawa America Inc.", "model": "SGD7S-2R8A",
              "quantity": 1}],
     "made_parts": [{"code": "RJ-201", "name": "机器人关节空心轴", "qty": 1, "material": "45 钢调质",
-                    "raw": {"item_code": "RM-45-D50"}, "raw_qty": 1.2,
+                    "raw": {"item_code": "RM-45-D50"}, "raw_qty": 1.2, "datum": "Ø50 外圆（粗基准）", "clamping": "三爪卡盘",
                     "routing": [["下料 Sawing", 3], ["粗车 Rough turning", 15], ["精车 Finish turning", 12],
                                 ["零件检验 Part inspection", 5]]},
                    {"code": "J2-HSG", "name": "关节壳体", "qty": 1, "material": "6061-T6",
@@ -34,7 +34,7 @@ DESIGN = {
 def clean_f():
     from hub import products
     saved = {k: copy.deepcopy(getattr(F, k)) for k in ("ITEMS", "BOMS", "ROUTINGS", "SUPPLIERS")}
-    reg, raw = set(products._REGISTERED), dict(products._RAW)
+    reg, raw, proc = set(products._REGISTERED), dict(products._RAW), dict(products._PROCESS)
     yield
     for k, v in saved.items():
         getattr(F, k).clear()
@@ -43,6 +43,8 @@ def clean_f():
     products._REGISTERED.update(reg)
     products._RAW.clear()
     products._RAW.update(raw)
+    products._PROCESS.clear()
+    products._PROCESS.update(proc)
 
 
 def test_build_spec(clean_f):
@@ -69,6 +71,13 @@ def test_build_spec(clean_f):
     again = {i["item_code"]: i for i in products.build(dict(DESIGN, revision=2))["items"]}
     assert again["RM-6061-B120"]["kind"] == "raw" and again["RM-6061-B120"]["supplier"] == "steel"
     assert "RM-45-D50" not in again                                       # 工厂原有的原材料不发
+    # ADR-0062：方案给的粗基准与装夹写到工厂起草的工艺规程的第一道机加工工序上；没给的留空
+    from hub import process
+    ops = process.factory_plan("RJ-201")["operations"]
+    rough = next(o for o in ops if o["operation"] == "粗车 Rough turning")
+    assert rough["datum"] == "Ø50 外圆（粗基准）" and rough["clamping"] == "三爪卡盘" and "datum" not in ops[0]
+    assert not any("datum" in o for o in process.factory_plan("J2-HSG")["operations"])
+    assert not [f for f in process.review(dict(process.factory_plan("RJ-201"), item="RJ-201")) if f["rule"] == "基准"]
 
 
 def test_build_rejects(clean_f):

@@ -456,6 +456,12 @@ def active_routing(db, mode, item):
 def factory_plan(item):
     """工厂数据里的现行工艺（第 0 版），新建工艺规程时作为起点。"""
     rt = F.BOMS[item][0]
-    return {"item": item, "routing": rt, "operations": [
-        {"seq": 10 * (i + 1), "operation": op, "workstation": F.OPERATIONS[op], "minutes": m, "content": ""}
-        for i, (op, m) in enumerate(F.ROUTINGS[rt])]}
+    ops = [{"seq": 10 * (i + 1), "operation": op, "workstation": F.OPERATIONS[op], "minutes": m, "content": ""}
+           for i, (op, m) in enumerate(F.ROUTINGS[rt])]
+    # 本仓库 ADR-0062：FreeCAD 方案给了自制件的粗基准与装夹，写到第一道机加工工序上；没给的留给工艺员
+    from hub import products
+    hint = products.process_hint(item)
+    first = next((o for o in ops if STAGE.get(o["operation"]) in ("rough", "finish", "keyway", "gear", "grind")), None)
+    if hint and first:
+        first.update(hint)
+    return {"item": item, "routing": rt, "operations": ops}

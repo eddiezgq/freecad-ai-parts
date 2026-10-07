@@ -29,11 +29,13 @@ ASSUMPTIONS = [
 ]
 LS_SEGS = [(10, 22), (12, 10), (16, 215), (12, 10), (10, 40)]
 MADE = [
-    {"code": "LS-101", "name": "平缝机上轴", "qty": 1, "material": "45 钢调质", "raw": {"item_code": "RM-45-D50"}, "raw_qty": 0.6,
+    {"code": "LS-101", "name": "平缝机上轴", "qty": 1, "material": "45 钢调质", "raw": {"item_code": "RM-45-D50"}, "datum": "毛坯外圆（粗基准）",
+     "clamping": "三爪卡盘 + 尾座顶尖（细长轴）", "raw_qty": 0.6,
      "routing": [["下料 Sawing", 2], ["粗车 Rough turning", 10], ["调质 Quench & temper", 10], ["精车 Finish turning", 9],
                  ["磨外圆 Cylindrical grinding", 8], ["零件检验 Part inspection", 4]]},
     {"code": "LS-HS", "name": "控制箱散热器", "qty": 1, "material": "6061-T6",
-     "raw": {"item_code": "RM-6061-B125", "name": "6061-T6 方料 125×85×40", "uom": "Nos", "supplier": "steel"}, "raw_qty": 1,
+     "raw": {"item_code": "RM-6061-B125", "name": "6061-T6 方料 125×85×40", "uom": "Nos", "supplier": "steel"},
+     "datum": "毛坯底面（粗基准）", "clamping": "平口钳", "raw_qty": 1,
      "routing": [["铣结合面 Face milling", 25], ["钻攻螺纹孔 Drilling & tapping", 8], ["零件检验 Part inspection", 4]]},
 ]
 ASSEMBLY = [["总装 Final assembly", 50], ["跑合试验 Run-in test", 15], ["出厂检验 Final inspection", 10], ["清洗包装 Cleaning & packing", 8]]

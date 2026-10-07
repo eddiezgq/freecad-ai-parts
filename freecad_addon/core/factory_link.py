@@ -26,7 +26,8 @@ def payload(layout: Mapping, lookup: Callable[[str], dict | None], *, code: str,
             origin: Callable[[str], str | None] | None = None, requirement: Mapping | None = None,
             checks: Mapping | None = None, note: str = "", files: list[dict] | None = None,
             made_parts: list[dict] | None = None, assembly_routing: list | None = None) -> dict:
-    """made_parts：自制件（定制件）清单 [{code, name, qty, material, raw: {item_code, …}, raw_qty, routing: [[工序, 分钟]]}]；
+    """made_parts：自制件（定制件）清单 [{code, name, qty, material, raw: {item_code, …}, raw_qty, routing: [[工序, 分钟]],
+    datum?, clamping?}]（datum、clamping：第一道机加工工序的粗基准与装夹，可选，ADR-0062）；
     assembly_routing：总装工艺 [[工序, 分钟]]。两者是工厂“转为生产物料”要用的（ADR-0061），工序须是工厂现有的。"""
     b = bom_view.bom(layout, lookup)
     if not b["rows"]:

@@ -27,6 +27,7 @@ create table if not exists fap_product (
 """
 CODE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,39}$")
 _REGISTERED = set()
+_PROCESS = {}      # 登记产品的自制件给出的粗基准与装夹（ADR-0062）：工厂起草工艺规程时用
 _RAW = {}          # 登记产品带来的新原材料（物料编号 → 物料定义）：再次转为生产物料时一并发给 ERP，ERP 换过库也能补建
 
 
@@ -72,7 +73,7 @@ def build(design, extra=None):
     made = extra.get("made_parts", design.get("made_parts")) or []
     assy = _routing(extra.get("assembly_routing", design.get("assembly_routing")), "成品 {}".format(code))
     purchase = extra.get("purchase") or {}
-    suppliers, items, routings, boms = {}, {}, {}, []
+    suppliers, items, routings, boms, process = {}, {}, {}, [], {}
     children = []
     for r in design["bom"]:
         cid = r["component_id"]
@@ -113,6 +114,9 @@ def build(design, extra=None):
         items[mc] = {"item_code": mc, "item_name": str(m.get("name") or mc)[:140], "kind": "make", "uom": "Nos",
                      "price": None, "supplier": None, "description": str(m.get("material") or "")}
         boms.append({"item": mc, "routing": rt, "items": [[rc, rq]]})
+        hint = {k: str(m[k]).strip()[:120] for k in ("datum", "clamping") if m.get(k)}
+        if hint:
+            process[mc] = hint
         children.append([mc, int(m.get("qty") or 1)])
     rt = "RT-" + code
     routings[rt] = assy
@@ -123,7 +127,7 @@ def build(design, extra=None):
     return {"code": code, "design": design["code"], "revision": design.get("revision"), "name": design.get("name"),
             "suppliers": [{"key": k, "supplier_group": F.SUPPLIER_GROUP, **v} for k, v in suppliers.items()],
             "items": [{**it, "item_group": F.KIND_GROUP[it["kind"]]} for it in items.values()],
-            "routings": routings, "boms": boms,
+            "routings": routings, "boms": boms, "process": process,
             "operations": {op: F.OPERATIONS[op] for rows in routings.values() for op, _ in rows},
             "warnings": ["{} 交期待确认（没填采购提前期）".format(s["name"]) for s in suppliers.values() if s["lead"] is None]}
 
@@ -143,8 +147,14 @@ def merge(spec):
         F.ROUTINGS[rt] = [tuple(r) for r in rows]
     for b in spec["boms"]:
         F.BOMS[b["item"]] = (b["routing"], [tuple(c) for c in b["items"]])
+    _PROCESS.update(spec.get("process") or {})
     _REGISTERED.update(it["item_code"] for it in spec["items"] if it["kind"] in ("fg", "make"))
     _REGISTERED.add(spec["code"])
+
+
+def process_hint(item):
+    """登记产品的自制件给出的粗基准与装夹 {datum?, clamping?}（ADR-0062），没有时 {}。"""
+    return dict(_PROCESS.get(item) or {})
 
 
 def is_product(code):

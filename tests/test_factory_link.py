@@ -43,11 +43,15 @@ def test_payload_matches_factory_contract():
     ok = _cad_link().validate(data)  # 工厂枢纽接受
     assert ok["code"] == "JOINT-2" and len(ok["bom"]) == 2
     made = [{"code": "RJ-201", "name": "关节空心轴", "qty": 1, "material": "45 钢", "raw": {"item_code": "RM-45-D50"},
-             "raw_qty": 1.2, "routing": [["粗车 Rough turning", 15]]}]
+             "raw_qty": 1.2, "routing": [["粗车 Rough turning", 15]], "datum": "外圆（粗基准）"}]
     full = factory_link.payload(LAYOUT, LIB.get, code="JOINT-2", name="第 2 关节", made_parts=made,
                                 assembly_routing=[("总装 Final assembly", 40)])
     ok = _cad_link().validate(full)  # ADR-0061：自制件与总装工艺随方案发到工厂
     assert ok["made_parts"][0]["code"] == "RJ-201" and ok["assembly_routing"] == [["总装 Final assembly", 40]]
+    assert ok["made_parts"][0]["datum"] == "外圆（粗基准）"                     # ADR-0062：粗基准随方案走
+    cl = _cad_link()
+    with pytest.raises(cl.CadError, match="datum"):
+        cl.validate({**full, "made_parts": [{**made[0], "datum": 3}]})
     with pytest.raises(factory_link.FactoryError):
         factory_link.payload({"instances": []}, LIB.get, code="X", name="x")
 

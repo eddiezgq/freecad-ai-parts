@@ -45,6 +45,10 @@ def validate(body):
     made = body.get("made_parts") or []
     if not isinstance(made, list) or not all(isinstance(m, dict) and m.get("code") for m in made):
         raise CadError("自制件清单须为 [{code, name, qty, material, raw, raw_qty, routing}]")
+    for m in made:      # ADR-0062：可选的粗基准与装夹（第一道机加工工序），给了就须是文字
+        for k in ("datum", "clamping"):
+            if m.get(k) is not None and not (isinstance(m[k], str) and m[k].strip()):
+                raise CadError("自制件 {} 的 {} 须为文字".format(m["code"], k))
     assy = body.get("assembly_routing") or []
     if not isinstance(assy, list):
         raise CadError("总装工艺须为 [[工序, 分钟], ...]")
