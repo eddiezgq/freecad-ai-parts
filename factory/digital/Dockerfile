@@ -1,17 +1,17 @@
 # 问渠数字工厂：枢纽服务（历史库写入、看板指标、AI 助手、MES、工作台网页）与仿真车间共用这个镜像
-# 构建上下文是上一级目录（问渠仓库的 factory/，要用到其中的工厂数据 factory/factory/）
+# 构建上下文是本仓库根目录（ADR-0060：计算内核只留 analysis/ 一份，镜像要带上它）；放进哪些文件见 Dockerfile.dockerignore
 
 FROM node:22-slim AS web
 WORKDIR /web
-COPY digital/web/package.json digital/web/package-lock.json ./
+COPY factory/digital/web/package.json factory/digital/web/package-lock.json ./
 RUN npm ci --no-audit --no-fund
-COPY digital/web/ ./
+COPY factory/digital/web/ ./
 RUN npm run build
 
 # 动力学用的机器人模型（第 12 轮）：MuJoCo Menagerie 固定提交里的几台机械臂
 FROM alpine:3.20 AS menagerie
 RUN apk add --no-cache git
-COPY deploy/fetch_menagerie.sh /fetch_menagerie.sh
+COPY factory/deploy/fetch_menagerie.sh /fetch_menagerie.sh
 RUN sh /fetch_menagerie.sh /opt/menagerie
 
 # 固定 Debian 12（bookworm）：Debian 13 的 calculix-ccx 因 openmpi 升级装不上（Debian bug #1089784）
@@ -24,26 +24,31 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 libxrender1 libx11-6 libxext6 \
         calculix-ccx libglu1-mesa libxcursor1 libxft2 libxinerama1 libgomp1 openfoam openmpi-bin nodejs \
     && rm -rf /var/lib/apt/lists/*
-COPY digital/requirements.txt digital/requirements.txt
+COPY factory/digital/requirements.txt digital/requirements.txt
 RUN pip install -r digital/requirements.txt "requests>=2.31"
-COPY factory/ factory/
+# 计算内核（本仓库 ADR-0060）：analysis/ 与它校验结果用的 kb/、schema/
+COPY analysis/ /app/fap/analysis/
+COPY kb/ /app/fap/kb/
+COPY schema/ /app/fap/schema/
+ENV PYTHONPATH=/app/fap
+COPY factory/factory/ factory/
 # 服务器首次安装时用它把减速器厂数据导入 ERPNext（第 3 轮 D6）
-COPY seed.py seed.py
-COPY digital/wqbus/ digital/wqbus/
-COPY digital/sim/ digital/sim/
+COPY factory/seed.py seed.py
+COPY factory/digital/wqbus/ digital/wqbus/
+COPY factory/digital/sim/ digital/sim/
 # 虚拟 PLC（第 18 轮第 8 步）：班次在仿真车间里算、回放；PLC 引擎是学习平台实验台的同一份 JS（Debian 自带的 nodejs 运行）
-COPY digital/vplc/ digital/vplc/
-COPY digital/hub/ digital/hub/
+COPY factory/digital/vplc/ digital/vplc/
+COPY factory/digital/hub/ digital/hub/
 # 工厂本体定义（第 17 轮 A 期：15 个业务域的对象类型、属性、链接）
-COPY digital/ontology/ digital/ontology/
-COPY digital/twin/ digital/twin/
-COPY digital/freecad/ digital/freecad/
+COPY factory/digital/ontology/ digital/ontology/
+COPY factory/digital/twin/ digital/twin/
+COPY factory/digital/freecad/ digital/freecad/
 COPY --from=menagerie /opt/menagerie /opt/menagerie
-COPY digital/cae/ digital/cae/
+COPY factory/digital/cae/ digital/cae/
 # 工艺数据表与读表模块（第 13 轮：教材原件的副本，见 digital/std/sync.py）
-COPY digital/std/ digital/std/
-COPY ["digital/实验8_输出轴强度与疲劳校核.md", "digital/实验9_机械臂关节力矩与电机选型.md", "digital/实验10_输出轴数控车削与键槽铣削编程.md", "digital/实验11_减速器热平衡与输出轴轻量化.md", "digital/实验12_一根轴的数字化设计与两个典型案例.md", "digital/实验13_减速器数字孪生与预测性维护.md", "digital/实验14_减速器风扇冷却的流体与传热分析.md", "digital/"]
-COPY digital/mock_erpnext/ digital/mock_erpnext/
+COPY factory/digital/std/ digital/std/
+COPY ["factory/digital/实验8_输出轴强度与疲劳校核.md", "factory/digital/实验9_机械臂关节力矩与电机选型.md", "factory/digital/实验10_输出轴数控车削与键槽铣削编程.md", "factory/digital/实验11_减速器热平衡与输出轴轻量化.md", "factory/digital/实验12_一根轴的数字化设计与两个典型案例.md", "factory/digital/实验13_减速器数字孪生与预测性维护.md", "factory/digital/实验14_减速器风扇冷却的流体与传热分析.md", "digital/"]
+COPY factory/digital/mock_erpnext/ digital/mock_erpnext/
 COPY --from=web /web/dist digital/web/dist
 WORKDIR /app/digital
 EXPOSE 8100

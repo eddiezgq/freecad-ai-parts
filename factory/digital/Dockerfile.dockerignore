@@ -1,0 +1,13 @@
+# 工厂镜像的构建上下文是本仓库根目录（ADR-0060）：只放进用得到的目录
+*
+!factory/
+!analysis/
+!kb/
+!schema/
+**/node_modules
+**/.node-red
+**/__pycache__
+**/*.zip
+factory/digital/web/dist
+factory/digital/.env
+factory/library_ref/

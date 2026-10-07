@@ -105,6 +105,9 @@ jobs:
           python -c "import pygcode"
       - name: 总线、仿真、枢纽、计算服务
         working-directory: factory/digital
+        env:
+          # 计算内核只留 analysis/ 一份（ADR-0060），工厂的 cae/ 是转接层
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           set +e
           python -m pytest -q tests 2>&1 | tee /tmp/pytest.log
@@ -198,6 +201,22 @@ jobs:
                   time.sleep(10)
           assert rows and rows[0]["instance"] == "j2" and rows[0]["hours"] > 0, rows
           print("零件库：", len(r["items"]), "个减速器；孪生记录：", len(rows), "行，例", rows[0])
+          PY
+      - name: 计算服务用本仓库 analysis/ 的内核（M12，ADR-0060）
+        run: |
+          cd factory/digital
+          docker compose --profile mock exec -T cae python - <<'PY'
+          import urllib.request
+          import analysis
+          from analysis.cfd import foam
+          from cae import cfd, cfd_bench
+          assert analysis.__file__.startswith("/app/fap/"), analysis.__file__
+          assert foam.find_openfoam(), "镜像里没有 OpenFOAM"
+          assert cfd.solve.__module__ == "cae.cfd" and cfd.wall_forces.__module__ == "analysis.cfd.solver"
+          assert urllib.request.urlopen("http://localhost:8200/health", timeout=10).status == 200
+          r = cfd_bench.poiseuille("/tmp/poiseuille")
+          assert abs(r["error"]) < 0.03, r
+          print("计算服务：analysis 在", analysis.__file__, "；Poiseuille 误差", round(r["error"], 4))
           PY
       - name: 失败时的日志
         if: failure()

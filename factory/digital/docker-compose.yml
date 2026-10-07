@@ -7,8 +7,8 @@ name: wq-digital-factory
 
 x-app: &app
   build:
-    context: ..
-    dockerfile: digital/Dockerfile
+    context: ../..
+    dockerfile: factory/digital/Dockerfile
   image: wq-digital-factory:1.0
   restart: unless-stopped
   env_file: [{ path: .env, required: false }]
@@ -68,6 +68,19 @@ services:
       WQ_OPENPLC_CHECK_URL: http://openplc:8300
     depends_on: [bus]
 
+  # 计算服务（有限元、动力学、流体、数控、优化）：枢纽把任务转给它（WQ_CAE_URL 缺省 http://cae:8200）。
+  # 本地版原来缺这一项，计算页面用不了；计算内核在本仓库 analysis/（ADR-0060），cae/ 是转接层
+  cae:
+    <<: *app
+    command: ["uvicorn", "cae.service:app", "--host", "0.0.0.0", "--port", "8200"]
+    environment:
+      WQ_CAE_DATA: /data
+      WQ_CAE_TIME_LIMIT_S: ${WQ_CAE_TIME_LIMIT_S:-300}
+      WQ_CAE_MAX_ELEMENTS: ${WQ_CAE_MAX_ELEMENTS:-200000}
+      WQ_CAE_THREADS: "2"
+      TZ: ${WQ_TZ:-America/New_York}
+    volumes: [cae-data:/data]
+
   # OpenPLC 运行时（第 18 轮第 8 步）：虚拟 PLC 的程序在这里再编译、运行一次，检查是不是标准 IEC 61131-3
   openplc:
     build:
@@ -102,3 +115,4 @@ services:
 volumes:
   bus-data:
   db-data:
+  cae-data:
