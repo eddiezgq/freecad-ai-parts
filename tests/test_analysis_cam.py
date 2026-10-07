@@ -75,6 +75,10 @@ def test_milling_features_and_residuals():
     texts = [c["text"] for c in sharp["data"]["programs"][0]["checks"]]
     assert any(t.startswith("残留") for t in texts) and any("待确认" in t for t in texts)
     assert sharp["data"]["verdict"] == "warn"
+    # 外轮廓的圆角刀心路径用外切折线：不切进零件（内接折线会过切弦高 r·(1 − cos 5°)）
+    big = analysis.run("cam", {"mode": "mill", "machine": "EX-VMC", "stock": {"box": [-12, -62, 352, 62]},
+                               "features": [{"type": "contour", "rect": [-10, -60, 350, 60], "corner_r": 30, "depth": 20}]})
+    assert big["data"]["programs"][0]["sim"]["over_cells"] == 0
     bad = analysis.run("cam", {"mode": "mill", "machine": "EX-VMC", "stock": {"box": [0, 0, 60, 40]},
                                "features": [{"type": "slot", "a": [5, 5], "b": [30, 5], "width": 6, "depth": 2, "tool_d": 8}]})
     assert bad["status"] == "failed" and "槽宽" in bad["messages"][0]

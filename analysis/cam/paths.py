@@ -185,8 +185,10 @@ def turn_groove(z, d_bottom, width, d_from, f, tool_width):
 
 
 # ---------------------------------------------------------------- 2.5 轴铣削（矩形、长圆）
-def rounded_rect(x0, y0, x1, y1, r, ccw=True, seg_deg=10.0):
-    """圆角矩形的顶点（r = 0 为尖角矩形），逆时针或顺时针；首尾不重复。"""
+def rounded_rect(x0, y0, x1, y1, r, ccw=True, seg_deg=10.0, outside=False):
+    """圆角矩形的顶点（r = 0 为尖角矩形），逆时针或顺时针；首尾不重复。
+    圆角用折线近似：缺省内接（折线在圆弧内侧）；outside=True 时外切（折线在圆弧外侧）——外轮廓刀心路径要用外切，
+    否则刀具在圆角处切进零件（弦高 r·(1 − cos(Δθ/2))）。"""
     if x1 - x0 <= 0 or y1 - y0 <= 0:
         raise CamError("矩形尺寸要大于 0")
     r = max(0.0, min(r, (x1 - x0) / 2, (y1 - y0) / 2))
@@ -196,8 +198,13 @@ def rounded_rect(x0, y0, x1, y1, r, ccw=True, seg_deg=10.0):
         pts = []
         n = max(1, math.ceil(90 / seg_deg))
         for cx, cy, a0 in ((x1 - r, y0 + r, -90), (x1 - r, y1 - r, 0), (x0 + r, y1 - r, 90), (x0 + r, y0 + r, 180)):
-            pts += [(cx + r * math.cos(math.radians(a0 + 90 * k / n)), cy + r * math.sin(math.radians(a0 + 90 * k / n)))
-                    for k in range(n + 1)]
+            if outside:
+                step = 90 / n
+                ro = r / math.cos(math.radians(step / 2))
+                arc = [(r, a0)] + [(ro, a0 + step * (k + 0.5)) for k in range(n)] + [(r, a0 + 90)]
+            else:
+                arc = [(r, a0 + 90 * k / n) for k in range(n + 1)]
+            pts += [(cx + rr * math.cos(math.radians(t)), cy + rr * math.sin(math.radians(t))) for rr, t in arc]
     return pts if ccw else pts[::-1]
 
 
@@ -284,7 +291,7 @@ def mill_contour(rect, corner_r, depth, tool_d, step_down, f, safe=5.0):
     """矩形外轮廓（圆角 corner_r）：刀心在轮廓外偏一个刀具半径，顺铣（沿顺时针绕工件），分层；从下边中点外侧切入、切出。"""
     x0, y0, x1, y1 = rect
     rt = tool_d / 2
-    ring = rounded_rect(x0 - rt, y0 - rt, x1 + rt, y1 + rt, corner_r + rt, ccw=False)
+    ring = rounded_rect(x0 - rt, y0 - rt, x1 + rt, y1 + rt, corner_r + rt, ccw=False, outside=True)
     start = ((x0 + x1) / 2, y0 - rt)
     k = min(range(len(ring)), key=lambda i: math.dist(ring[i], start))
     seq = [start, *ring[k:], *ring[:k], start]

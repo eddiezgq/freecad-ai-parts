@@ -1,0 +1,982 @@
+{
+ "app": "scara",
+ "title": "SCARA 机器人（600 mm 臂展一类）",
+ "sources": [
+  {
+   "title": "Epson LS6-B SCARA Robot - 600mm 产品页",
+   "url": "https://epson.com/For-Work/Robots/SCARA/Epson-LS6-B-SCARA-Robot---600mm/p/RLS6B602ST9B5",
+   "note": "臂展 600 mm、负载额定 2 kg / 最大 6 kg、标准循环时间 0.40 s、自重 17 kg、许用惯量额定 0.01 / 最大 0.12 kg·m²"
+  }
+ ],
+ "assumptions": [
+  "臂长分配：大臂 325 mm、小臂 275 mm（产品页只给总臂展 600 mm）",
+  "质量：大臂 3.0 kg（铝板与 j3 模组座）、小臂 3.5 kg（含第 3、4 轴的丝杠花键与电机）、末端额定负载 2 kg",
+  "运动：大臂、小臂各转 90°。快：用时 0.30 s（按标准循环时间 0.40 s 的水平段粗估）；慢：用时 0.60 s。加减速各占 40%",
+  "水平面运动不计重力；供电 200 V 三相、EtherCAT"
+ ],
+ "steps": [
+  {
+   "step": "动力学（水平面，快）",
+   "status": "ok",
+   "summary": "90° 用时 0.3 s：大臂 j2 峰值 183.7 N·m、均方根 96.0、最高 83 rpm、最大等效惯量 1.602 kg·m²；小臂 j3 峰值 67.7 N·m",
+   "data": {
+    "j2": {
+     "joint": "j2",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 183.6675513391407,
+     "rms": 95.99660931048669,
+     "speed_max": 83.40340059766261,
+     "unit_speed": "rpm",
+     "power_peak_w": 1535.0377393488682,
+     "power_mean_w": -50.38370550966515,
+     "inertia_max_kgm2": 1.60194425221519
+    },
+    "j3": {
+     "joint": "j3",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 67.6873223267275,
+     "rms": 34.00983957340928,
+     "speed_max": 83.40197370961769,
+     "unit_speed": "rpm",
+     "power_peak_w": 566.5586587492193,
+     "power_mean_w": 54.16973475611532,
+     "inertia_max_kgm2": 0.24202393639240527
+    }
+   }
+  },
+  {
+   "step": "动力学（水平面，慢）",
+   "status": "ok",
+   "summary": "90° 用时 0.6 s：大臂 j2 峰值 46.8 N·m、均方根 27.0、最高 42 rpm、最大等效惯量 1.602 kg·m²；小臂 j3 峰值 17.1 N·m",
+   "data": {
+    "j2": {
+     "joint": "j2",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 46.78363371073526,
+     "rms": 27.023882363197533,
+     "speed_max": 41.68410734386093,
+     "unit_speed": "rpm",
+     "power_peak_w": 199.8172554000464,
+     "power_mean_w": -8.101502127774456,
+     "inertia_max_kgm2": 1.60194425221519
+    },
+    "j3": {
+     "joint": "j3",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 17.090124900244184,
+     "rms": 9.56269884532302,
+     "speed_max": 41.68392511043199,
+     "unit_speed": "rpm",
+     "power_peak_w": 73.04709784841783,
+     "power_mean_w": 8.402555932962633,
+     "inertia_max_kgm2": 0.24202393639240533
+    }
+   }
+  },
+  {
+   "step": "选型（快）",
+   "status": "unknown",
+   "summary": "大臂按标准循环的快动作：峰值 184 N·m、83 rpm——零件库里没有能满足的组合（100:1 时电机转速超限，50:1 的谐波减速器最大只到 CSF-20，扭矩不够）；要做到 0.40 s 节拍需补 32 号以上的 50:1 谐波减速器或换减速方式，以下按慢动作选型",
+   "data": {
+    "requirement": {
+     "safety_factor": 1.2,
+     "supply": {
+      "current_type": "ac",
+      "voltage_v": 200,
+      "phases": 3
+     },
+     "fieldbus_protocol": "ethercat",
+     "ambient_temp_c": 25,
+     "output_torque_cont_nm": 95.997,
+     "output_torque_peak_nm": 183.668,
+     "output_speed_rpm": 83.403,
+     "load_inertia_kgm2": 1.601944,
+     "statement": "动力学结果：关节 j2 峰值 183.7 N·m、均方根 96.0 N·m、最高 83.4 rpm"
+    }
+   }
+  },
+  {
+   "step": "选型 j2",
+   "status": "unknown",
+   "summary": "连续 27.0 / 峰值 46.8 N·m、42 rpm → SGM7J-02A-6、CSF-25-100-2UH、SGD7S-1R6A；总体 unknown（C3 unknown：缺少分度圆直径；C4 unknown：连续扭矩折算到电机侧：缺少减速比或效率；C5 unknown：峰值扭矩折算到电机侧：缺少减速比或效率；C6 unknown：过载保护：缺少电机峰值扭矩、减速比、效率或减速器瞬间最大扭矩；C8 unknown：惯量比：缺少减速器输入侧惯量）",
+   "data": {
+    "requirement": {
+     "safety_factor": 1.2,
+     "supply": {
+      "current_type": "ac",
+      "voltage_v": 200,
+      "phases": 3
+     },
+     "fieldbus_protocol": "ethercat",
+     "ambient_temp_c": 25,
+     "output_torque_cont_nm": 27.024,
+     "output_torque_peak_nm": 46.784,
+     "output_speed_rpm": 41.684,
+     "load_inertia_kgm2": 1.601944,
+     "statement": "动力学结果：关节 j2 峰值 46.8 N·m、均方根 27.0 N·m、最高 41.7 rpm",
+     "id": "scara-j2"
+    },
+    "system": {
+     "id": "candidate-1",
+     "requirement": {
+      "safety_factor": 1.2,
+      "supply": {
+       "current_type": "ac",
+       "voltage_v": 200,
+       "phases": 3
+      },
+      "fieldbus_protocol": "ethercat",
+      "ambient_temp_c": 25,
+      "output_torque_cont_nm": 27.024,
+      "output_torque_peak_nm": 46.784,
+      "output_speed_rpm": 41.684,
+      "load_inertia_kgm2": 1.601944,
+      "statement": "动力学结果：关节 j2 峰值 46.8 N·m、均方根 27.0 N·m、最高 41.7 rpm",
+      "id": "scara-j2"
+     },
+     "components": [
+      {
+       "instance": "motor",
+       "component": "servo_motor.yaskawa-electric-corporation.sgm7j-02a-6"
+      },
+      {
+       "instance": "reducer",
+       "component": "reducer.harmonic-drive-llc.csf-25-100-2uh"
+      },
+      {
+       "instance": "drive",
+       "component": "drive.yaskawa-america-inc.sgd7s-1r6a"
+      }
+     ],
+     "connections": [
+      {
+       "a": "motor.shaft",
+       "b": "reducer.input_bore"
+      },
+      {
+       "a": "motor.mount_flange",
+       "b": "reducer.motor_flange"
+      },
+      {
+       "a": "drive.motor_out",
+       "b": "motor.power_in"
+      },
+      {
+       "a": "motor.encoder",
+       "b": "drive.encoder_in"
+      }
+     ]
+    },
+    "report": {
+     "system": "candidate-1",
+     "overall": "unknown",
+     "checks": [
+      {
+       "check": "C1",
+       "status": "pass",
+       "message": "motor.shaft — reducer.input_bore：类型、方向、运动方式匹配",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ],
+       "findings": [
+        {
+         "status": "pass",
+         "message": "motor.shaft — reducer.input_bore：类型、方向、运动方式匹配",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "motor.mount_flange — reducer.motor_flange：类型、方向、运动方式匹配",
+         "ports": [
+          "motor.mount_flange",
+          "reducer.motor_flange"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "drive.motor_out — motor.power_in：类型、方向、运动方式匹配",
+         "ports": [
+          "drive.motor_out",
+          "motor.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "motor.encoder — drive.encoder_in：类型、方向、运动方式匹配",
+         "ports": [
+          "motor.encoder",
+          "drive.encoder_in"
+         ]
+        }
+       ]
+      },
+      {
+       "check": "C2",
+       "status": "pass",
+       "message": "直径 14 mm 相等",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ],
+       "findings": [
+        {
+         "status": "pass",
+         "message": "直径 14 mm 相等",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "H7/h6 为 clearance 配合（草稿规则表）",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "轴 keyed / 孔 keyed / 紧固 key：键宽须相等（另行检查）（草稿规则表）",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "键宽 5 mm 相等",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        }
+       ]
+      },
+      {
+       "check": "C3",
+       "status": "unknown",
+       "message": "缺少分度圆直径",
+       "ports": [
+        "motor.mount_flange",
+        "reducer.motor_flange"
+       ],
+       "findings": [
+        {
+         "status": "unknown",
+         "message": "缺少分度圆直径",
+         "ports": [
+          "motor.mount_flange",
+          "reducer.motor_flange"
+         ]
+        },
+        {
+         "status": "unknown",
+         "message": "缺少孔数",
+         "ports": [
+          "motor.mount_flange",
+          "reducer.motor_flange"
+         ]
+        },
+        {
+         "status": "unknown",
+         "message": "缺少孔的形式（通孔 / 螺纹孔）",
+         "ports": [
+          "motor.mount_flange",
+          "reducer.motor_flange"
+         ]
+        },
+        {
+         "status": "warn",
+         "message": "只有一侧有止口，无法止口定位",
+         "ports": [
+          "motor.mount_flange",
+          "reducer.motor_flange"
+         ]
+        }
+       ]
+      },
+      {
+       "check": "C4",
+       "status": "unknown",
+       "message": "连续扭矩折算到电机侧：缺少减速比或效率",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ],
+       "findings": [
+        {
+         "status": "unknown",
+         "message": "连续扭矩折算到电机侧：缺少减速比或效率",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "含安全系数的连续扭矩 32.43 ≤ 减速器额定扭矩 67 N·m",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ],
+         "measured": 32.4288,
+         "limit": 67.0,
+         "unit": "N*m",
+         "margin_ratio": 0.5159880597014925
+        }
+       ]
+      },
+      {
+       "check": "C5",
+       "status": "unknown",
+       "message": "峰值扭矩折算到电机侧：缺少减速比或效率",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ],
+       "findings": [
+        {
+         "status": "unknown",
+         "message": "峰值扭矩折算到电机侧：缺少减速比或效率",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "峰值扭矩 46.78 ≤ 减速器启停允许峰值扭矩 157 N·m",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ],
+         "measured": 46.784,
+         "limit": 157.0,
+         "unit": "N*m",
+         "margin_ratio": 0.7020127388535032
+        }
+       ]
+      },
+      {
+       "check": "C6",
+       "status": "unknown",
+       "message": "过载保护：缺少电机峰值扭矩、减速比、效率或减速器瞬间最大扭矩",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ]
+      },
+      {
+       "check": "C7",
+       "status": "pass",
+       "message": "所需电机转速 4168 ≤ 电机最高转速 6000 rpm",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ],
+       "measured": 4168.4,
+       "limit": 6000.0,
+       "unit": "rpm",
+       "margin_ratio": 0.30526666666666674,
+       "findings": [
+        {
+         "status": "pass",
+         "message": "所需电机转速 4168 ≤ 电机最高转速 6000 rpm",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ],
+         "measured": 4168.4,
+         "limit": 6000.0,
+         "unit": "rpm",
+         "margin_ratio": 0.30526666666666674
+        },
+        {
+         "status": "pass",
+         "message": "所需输入转速 4168 ≤ 减速器最高输入转速 5600 rpm",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ],
+         "measured": 4168.4,
+         "limit": 5600.0,
+         "unit": "rpm",
+         "margin_ratio": 0.2556428571428572
+        }
+       ]
+      },
+      {
+       "check": "C8",
+       "status": "unknown",
+       "message": "惯量比：缺少减速器输入侧惯量",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ]
+      },
+      {
+       "check": "C9",
+       "status": "pass",
+       "message": "供电类型 ac 一致",
+       "ports": [
+        "drive.power_in"
+       ],
+       "findings": [
+        {
+         "status": "pass",
+         "message": "供电类型 ac 一致",
+         "ports": [
+          "drive.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "供电 200 V 在驱动器输入范围 200–240 V 内",
+         "ports": [
+          "drive.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "相数 3 一致",
+         "ports": [
+          "drive.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "电压等级 200 V 一致",
+         "ports": [
+          "drive.motor_out",
+          "motor.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "驱动器额定电流 1.6 A ≥ 电机 1.6 A",
+         "ports": [
+          "drive.motor_out",
+          "motor.power_in"
+         ],
+         "measured": 1.6,
+         "limit": 1.6,
+         "unit": "A",
+         "margin_ratio": 0.0
+        },
+        {
+         "status": "pass",
+         "message": "驱动器峰值电流 5.9 A ≥ 电机 5.8 A",
+         "ports": [
+          "drive.motor_out",
+          "motor.power_in"
+         ],
+         "measured": 5.8,
+         "limit": 5.9,
+         "unit": "A",
+         "margin_ratio": 0.01694915254237297
+        }
+       ]
+      },
+      {
+       "check": "C10",
+       "status": "pass",
+       "message": "私有编码器协议，厂商一致（Yaskawa）",
+       "ports": [
+        "motor.encoder",
+        "drive.encoder_in"
+       ],
+       "findings": [
+        {
+         "status": "pass",
+         "message": "私有编码器协议，厂商一致（Yaskawa）",
+         "ports": [
+          "motor.encoder",
+          "drive.encoder_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "总线 ethercat 一致",
+         "ports": [
+          "drive.bus"
+         ]
+        }
+       ]
+      },
+      {
+       "check": "C11",
+       "status": "not_applicable",
+       "message": "系统中没有轴承，需求也未给包络外径限值"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "step": "选型 j3",
+   "status": "unknown",
+   "summary": "连续 9.6 / 峰值 17.1 N·m、42 rpm → SGM7J-02A-6、CSF-25-100-2UH、SGD7S-1R6A；总体 unknown（C3 unknown：缺少分度圆直径；C4 unknown：连续扭矩折算到电机侧：缺少减速比或效率；C5 unknown：峰值扭矩折算到电机侧：缺少减速比或效率；C6 unknown：过载保护：缺少电机峰值扭矩、减速比、效率或减速器瞬间最大扭矩；C8 unknown：惯量比：缺少减速器输入侧惯量）",
+   "data": {
+    "requirement": {
+     "safety_factor": 1.2,
+     "supply": {
+      "current_type": "ac",
+      "voltage_v": 200,
+      "phases": 3
+     },
+     "fieldbus_protocol": "ethercat",
+     "ambient_temp_c": 25,
+     "output_torque_cont_nm": 9.563,
+     "output_torque_peak_nm": 17.09,
+     "output_speed_rpm": 41.684,
+     "load_inertia_kgm2": 0.242024,
+     "statement": "动力学结果：关节 j3 峰值 17.1 N·m、均方根 9.6 N·m、最高 41.7 rpm",
+     "id": "scara-j3"
+    },
+    "system": {
+     "id": "candidate-1",
+     "requirement": {
+      "safety_factor": 1.2,
+      "supply": {
+       "current_type": "ac",
+       "voltage_v": 200,
+       "phases": 3
+      },
+      "fieldbus_protocol": "ethercat",
+      "ambient_temp_c": 25,
+      "output_torque_cont_nm": 9.563,
+      "output_torque_peak_nm": 17.09,
+      "output_speed_rpm": 41.684,
+      "load_inertia_kgm2": 0.242024,
+      "statement": "动力学结果：关节 j3 峰值 17.1 N·m、均方根 9.6 N·m、最高 41.7 rpm",
+      "id": "scara-j3"
+     },
+     "components": [
+      {
+       "instance": "motor",
+       "component": "servo_motor.yaskawa-electric-corporation.sgm7j-02a-6"
+      },
+      {
+       "instance": "reducer",
+       "component": "reducer.harmonic-drive-llc.csf-25-100-2uh"
+      },
+      {
+       "instance": "drive",
+       "component": "drive.yaskawa-america-inc.sgd7s-1r6a"
+      }
+     ],
+     "connections": [
+      {
+       "a": "motor.shaft",
+       "b": "reducer.input_bore"
+      },
+      {
+       "a": "motor.mount_flange",
+       "b": "reducer.motor_flange"
+      },
+      {
+       "a": "drive.motor_out",
+       "b": "motor.power_in"
+      },
+      {
+       "a": "motor.encoder",
+       "b": "drive.encoder_in"
+      }
+     ]
+    },
+    "report": {
+     "system": "candidate-1",
+     "overall": "unknown",
+     "checks": [
+      {
+       "check": "C1",
+       "status": "pass",
+       "message": "motor.shaft — reducer.input_bore：类型、方向、运动方式匹配",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ],
+       "findings": [
+        {
+         "status": "pass",
+         "message": "motor.shaft — reducer.input_bore：类型、方向、运动方式匹配",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "motor.mount_flange — reducer.motor_flange：类型、方向、运动方式匹配",
+         "ports": [
+          "motor.mount_flange",
+          "reducer.motor_flange"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "drive.motor_out — motor.power_in：类型、方向、运动方式匹配",
+         "ports": [
+          "drive.motor_out",
+          "motor.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "motor.encoder — drive.encoder_in：类型、方向、运动方式匹配",
+         "ports": [
+          "motor.encoder",
+          "drive.encoder_in"
+         ]
+        }
+       ]
+      },
+      {
+       "check": "C2",
+       "status": "pass",
+       "message": "直径 14 mm 相等",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ],
+       "findings": [
+        {
+         "status": "pass",
+         "message": "直径 14 mm 相等",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "H7/h6 为 clearance 配合（草稿规则表）",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "轴 keyed / 孔 keyed / 紧固 key：键宽须相等（另行检查）（草稿规则表）",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "键宽 5 mm 相等",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        }
+       ]
+      },
+      {
+       "check": "C3",
+       "status": "unknown",
+       "message": "缺少分度圆直径",
+       "ports": [
+        "motor.mount_flange",
+        "reducer.motor_flange"
+       ],
+       "findings": [
+        {
+         "status": "unknown",
+         "message": "缺少分度圆直径",
+         "ports": [
+          "motor.mount_flange",
+          "reducer.motor_flange"
+         ]
+        },
+        {
+         "status": "unknown",
+         "message": "缺少孔数",
+         "ports": [
+          "motor.mount_flange",
+          "reducer.motor_flange"
+         ]
+        },
+        {
+         "status": "unknown",
+         "message": "缺少孔的形式（通孔 / 螺纹孔）",
+         "ports": [
+          "motor.mount_flange",
+          "reducer.motor_flange"
+         ]
+        },
+        {
+         "status": "warn",
+         "message": "只有一侧有止口，无法止口定位",
+         "ports": [
+          "motor.mount_flange",
+          "reducer.motor_flange"
+         ]
+        }
+       ]
+      },
+      {
+       "check": "C4",
+       "status": "unknown",
+       "message": "连续扭矩折算到电机侧：缺少减速比或效率",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ],
+       "findings": [
+        {
+         "status": "unknown",
+         "message": "连续扭矩折算到电机侧：缺少减速比或效率",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "含安全系数的连续扭矩 11.48 ≤ 减速器额定扭矩 67 N·m",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ],
+         "measured": 11.4756,
+         "limit": 67.0,
+         "unit": "N*m",
+         "margin_ratio": 0.8287223880597014
+        }
+       ]
+      },
+      {
+       "check": "C5",
+       "status": "unknown",
+       "message": "峰值扭矩折算到电机侧：缺少减速比或效率",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ],
+       "findings": [
+        {
+         "status": "unknown",
+         "message": "峰值扭矩折算到电机侧：缺少减速比或效率",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "峰值扭矩 17.09 ≤ 减速器启停允许峰值扭矩 157 N·m",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ],
+         "measured": 17.09,
+         "limit": 157.0,
+         "unit": "N*m",
+         "margin_ratio": 0.8911464968152866
+        }
+       ]
+      },
+      {
+       "check": "C6",
+       "status": "unknown",
+       "message": "过载保护：缺少电机峰值扭矩、减速比、效率或减速器瞬间最大扭矩",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ]
+      },
+      {
+       "check": "C7",
+       "status": "pass",
+       "message": "所需电机转速 4168 ≤ 电机最高转速 6000 rpm",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ],
+       "measured": 4168.4,
+       "limit": 6000.0,
+       "unit": "rpm",
+       "margin_ratio": 0.30526666666666674,
+       "findings": [
+        {
+         "status": "pass",
+         "message": "所需电机转速 4168 ≤ 电机最高转速 6000 rpm",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ],
+         "measured": 4168.4,
+         "limit": 6000.0,
+         "unit": "rpm",
+         "margin_ratio": 0.30526666666666674
+        },
+        {
+         "status": "pass",
+         "message": "所需输入转速 4168 ≤ 减速器最高输入转速 5600 rpm",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ],
+         "measured": 4168.4,
+         "limit": 5600.0,
+         "unit": "rpm",
+         "margin_ratio": 0.2556428571428572
+        }
+       ]
+      },
+      {
+       "check": "C8",
+       "status": "unknown",
+       "message": "惯量比：缺少减速器输入侧惯量",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ]
+      },
+      {
+       "check": "C9",
+       "status": "pass",
+       "message": "供电类型 ac 一致",
+       "ports": [
+        "drive.power_in"
+       ],
+       "findings": [
+        {
+         "status": "pass",
+         "message": "供电类型 ac 一致",
+         "ports": [
+          "drive.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "供电 200 V 在驱动器输入范围 200–240 V 内",
+         "ports": [
+          "drive.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "相数 3 一致",
+         "ports": [
+          "drive.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "电压等级 200 V 一致",
+         "ports": [
+          "drive.motor_out",
+          "motor.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "驱动器额定电流 1.6 A ≥ 电机 1.6 A",
+         "ports": [
+          "drive.motor_out",
+          "motor.power_in"
+         ],
+         "measured": 1.6,
+         "limit": 1.6,
+         "unit": "A",
+         "margin_ratio": 0.0
+        },
+        {
+         "status": "pass",
+         "message": "驱动器峰值电流 5.9 A ≥ 电机 5.8 A",
+         "ports": [
+          "drive.motor_out",
+          "motor.power_in"
+         ],
+         "measured": 5.8,
+         "limit": 5.9,
+         "unit": "A",
+         "margin_ratio": 0.01694915254237297
+        }
+       ]
+      },
+      {
+       "check": "C10",
+       "status": "pass",
+       "message": "私有编码器协议，厂商一致（Yaskawa）",
+       "ports": [
+        "motor.encoder",
+        "drive.encoder_in"
+       ],
+       "findings": [
+        {
+         "status": "pass",
+         "message": "私有编码器协议，厂商一致（Yaskawa）",
+         "ports": [
+          "motor.encoder",
+          "drive.encoder_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "总线 ethercat 一致",
+         "ports": [
+          "drive.bus"
+         ]
+        }
+       ]
+      },
+      {
+       "check": "C11",
+       "status": "not_applicable",
+       "message": "系统中没有轴承，需求也未给包络外径限值"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "step": "布局与干涉",
+   "status": "ok",
+   "summary": "总体 unknown（C3 unknown：缺少分度圆直径；C4 unknown：连续扭矩折算到电机侧：缺少减速比或效率；C5 unknown：峰值扭矩折算到电机侧：缺少减速比或效率；C6 unknown：过载保护：缺少电机峰值扭矩、减速比、效率或减速器瞬间最大扭矩；C8 unknown：惯量比：缺少减速器输入侧惯量）"
+  },
+  {
+   "step": "BOM",
+   "status": "ok",
+   "summary": "两个关节外购件：Yaskawa Electric Corporation SGM7J-02A（轴端代码 6）、Harmonic Drive LLC CSF-25-100-2UH、Yaskawa America, Inc. SGD7S-1R6A、Yaskawa Electric Corporation SGM7J-02A（轴端代码 6）、Harmonic Drive LLC CSF-25-100-2UH、Yaskawa America, Inc. SGD7S-1R6A"
+  },
+  {
+   "step": "拓扑优化与有限元：大臂",
+   "status": "ok",
+   "summary": "悬臂构形、材料用量 50%，柔度 710 → 142；20 mm 铝板：末端 144 N 时最大应力 1.6 MPa、末端位移 0.014 mm；根部固定一阶固有频率 179 Hz（不含小臂与负载的附加质量）",
+   "data": {
+    "f1_hz": 178.68,
+    "vm": 1.553
+   }
+  },
+  {
+   "step": "数控编程：大臂",
+   "status": "ok",
+   "summary": "外轮廓、减重型腔、4 个安装孔：约 21.3 min；检查：没有发现问题"
+  },
+  {
+   "step": "热分析 / 流体 / 数字孪生",
+   "status": "na",
+   "summary": "与协作机器人关节相同的做法，这里不重复（数字孪生同样缺谐波减速器额定寿命）"
+  },
+  {
+   "step": "发布到工厂",
+   "status": "ok",
+   "summary": "方案 SCARA-600 第 1 版"
+  }
+ ],
+ "elapsed_s": 27.0
+}

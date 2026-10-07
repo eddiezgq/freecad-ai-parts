@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!-- 由 freecad-ai-parts 生成（ADR-0035）：长度单位 m，角度单位 rad；未写 inertial（无整件惯性数据） -->
+<robot name="candidate-1">
+  <link name="base"/>
+  <!-- motor: servo_motor.yaskawa-electric-corporation.sgm7j-02a-6（Yaskawa Electric Corporation SGM7J-02A（轴端代码 6））；质量 0.8 kg -->
+  <link name="motor">
+    <visual><origin xyz="0.0 0.0 -0.03475" rpy="0.0 0.0 0.0"/><geometry><box size="0.06 0.06 0.0695"/></geometry></visual>
+    <collision><origin xyz="0.0 0.0 -0.03475" rpy="0.0 0.0 0.0"/><geometry><box size="0.06 0.06 0.0695"/></geometry></collision>
+    <visual><origin xyz="0.0 0.0 0.015" rpy="0.0 0.0 0.0"/><geometry><cylinder radius="0.007" length="0.03"/></geometry></visual>
+    <collision><origin xyz="0.0 0.0 0.015" rpy="0.0 0.0 0.0"/><geometry><cylinder radius="0.007" length="0.03"/></geometry></collision>
+  </link>
+  <joint name="motor_mount" type="fixed"><parent link="base"/><child link="motor"/><origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/></joint>
+  <!-- reducer: reducer.harmonic-drive-llc.csf-25-100-2uh（Harmonic Drive LLC CSF-25-100-2UH）；质量 1.5 kg -->
+  <link name="reducer">
+    <visual><origin xyz="0.0 0.0 0.023" rpy="0.0 0.0 0.0"/><geometry><cylinder radius="0.0535" length="0.046"/></geometry></visual>
+    <collision><origin xyz="0.0 0.0 0.023" rpy="0.0 0.0 0.0"/><geometry><cylinder radius="0.0535" length="0.046"/></geometry></collision>
+  </link>
+  <joint name="reducer_mount" type="fixed"><parent link="base"/><child link="reducer"/><origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/></joint>
+  <link name="output"/>
+  <joint name="output_joint" type="continuous"><parent link="reducer"/><child link="output"/><origin xyz="0.0 0.0 0.046" rpy="0.0 0.0 0.0"/><axis xyz="0 0 1"/></joint>
+</robot>
