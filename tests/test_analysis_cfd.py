@@ -13,11 +13,14 @@ import pytest
 import analysis
 from analysis.cfd import foam
 
-if os.environ.get("CI"):
-    assert foam.find_openfoam(), "CI 中没有 OpenFOAM"
-    import gmsh  # noqa: F401
-else:
-    pytestmark = pytest.mark.skipif(foam.find_openfoam() is None, reason="本机没装 OpenFOAM")
+
+def _need_foam():
+    """CI 测试作业里必须有 OpenFOAM；本机没装时跳过。"""
+    if os.environ.get("CI"):
+        assert foam.find_openfoam(), "CI 中没有 OpenFOAM"
+        import gmsh  # noqa: F401
+    elif foam.find_openfoam() is None:
+        pytest.skip("本机没装 OpenFOAM")
 
 
 def test_unavailable_without_openfoam(monkeypatch, tmp_path):
@@ -37,6 +40,7 @@ def test_unavailable_without_openfoam(monkeypatch, tmp_path):
 
 
 def test_bench_laminar(tmp_path):
+    _need_foam()
     out = analysis.run("cfd", {"analysis": "bench"})
     assert out["status"] == "ok", out["messages"]
     err = {c["name"]: c["relative_error_ratio"] for c in out["checks"]}
@@ -44,6 +48,7 @@ def test_bench_laminar(tmp_path):
 
 
 def test_turbulent_channel_friction_and_heat(tmp_path):
+    _need_foam()
     from analysis.cfd import bench as B
 
     cf, nu = B.duct(str(tmp_path / "d"))
@@ -52,6 +57,7 @@ def test_turbulent_channel_friction_and_heat(tmp_path):
 
 
 def test_cylinder_re40_drag(tmp_path):
+    _need_foam()
     from analysis.cfd import bench as B
 
     r = B.cylinder(str(tmp_path / "c"))
@@ -74,6 +80,7 @@ def _box_step(path, dx, dy, dz):
 
 def test_wind_tunnel_box(tmp_path):
     """任意零件进虚拟风洞：100×40×20 mm 方块，侧吹 2 m/s、表面 60 ℃。"""
+    _need_foam()
     step = _box_step(tmp_path / "box.step", 100, 40, 20)
     out = analysis.run("cfd", {"step_path": step, "flow": {"velocity_ms": 2, "direction": "+x", "air_t_c": 25},
                                "heat": {"wall_t_c": 60}, "mesh": {"cells_target": 40000, "level": 2},
