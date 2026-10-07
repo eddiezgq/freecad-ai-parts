@@ -6,9 +6,10 @@
   铣削：平均切屑厚度 h_m（满槽 h_m ≈ 2·f_z/π，侧铣 h_m ≈ f_z·√(a_e/D)），k_c = k_c1.1 · h_m^(−m_c)，P_c = a_p · a_e · v_f · k_c / (60·10⁶)（kW）
   钻孔：h = f/2，P_c = f · D · k_c · v_c / 240 000（kW）
 机床主电机功率 ≥ P_c / η 才够；超过 80% 提醒。"""
-import math
 import os
 import sys
+
+from analysis.cam import power as KZ          # Kienzle 公式只留一份（本仓库 ADR-0060）
 
 MATERIAL = {"45": "C45E", "45 钢": "C45E", "40Cr": "MD07", "20CrMnTi": "C45E", "Q235": "S235JR", "6061": "MD22", "7075": "MD22",
             "HT200": "MD15", "304": "MD14"}
@@ -35,17 +36,11 @@ def check(kind, material, machine, items):
     out, detail = [], []
     for name, x in items:
         if x.get("type") == "drill":
-            h = max(x["f"] / 2, 1e-3)
-            kc = k11 * h ** (-mc)
-            P = x["f"] * x["D"] * kc * x["vc"] / 240000.0
+            P = KZ.drilling_kw(k11, mc, x["f"], x["D"], x["vc"])
         elif kind == "turn":
-            Fc = k11 * x["ap"] * x["f"] ** (1 - mc)
-            P = Fc * x["vc"] / 60000.0
+            P = KZ.turning_kw(k11, mc, x["ap"], x["f"], x["vc"])
         else:
-            ae, D = min(x["ae"], x["D"]), x["D"]
-            hm = 2 * x["fz"] / math.pi if ae >= D - 1e-9 else x["fz"] * math.sqrt(ae / D)
-            kc = k11 * max(hm, 1e-3) ** (-mc)
-            P = x["ap"] * ae * x["vf"] * kc / 60e6
+            P = KZ.milling_kw(k11, mc, x["fz"], x["ap"], x["ae"], x["D"], x["vf"])
         need = P / m["eff"]
         detail.append({"name": name, "P_kw": round(P, 3), "need_kw": round(need, 3)})
         if need > m["power_kw"]:

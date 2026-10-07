@@ -146,8 +146,9 @@ def _follow(prof, f, stock_d):
     return mv
 
 
-def turn_rough(profile, stock_d, ap, f, allow_r=0.3, allow_z=0.1):
-    """分层粗车（相当于 FANUC G71，展开成直线段）：每层直径减 2×ap，车到碰到留余量的轮廓为止；最后沿留余量的轮廓走一刀。"""
+def turn_rough(profile, stock_d, ap, f, allow_r=0.3, allow_z=0.1, profile_pass=True):
+    """分层粗车（相当于 FANUC G71，展开成直线段）：每层直径减 2×ap，车到碰到留余量的轮廓为止；
+    最后（profile_pass）沿留余量的轮廓走一刀，去掉分层留下的台阶。"""
     tgt = with_allowance(profile, allow_r, allow_z)
     dmin = min(d for _, d in tgt)
     mv = [{"t": "comment", "text": f"分层粗车（每层 ap={ap:g}，留余量 径向 {allow_r:g} 轴向 {allow_z:g}）"}]
@@ -159,6 +160,8 @@ def turn_rough(profile, stock_d, ap, f, allow_r=0.3, allow_z=0.1):
             mv += [{"t": "rapid", "x": d_new, "z": CLEAR}, {"t": "feed", "x": d_new, "z": zstop, "f": f},
                    {"t": "feed", "x": d_new + 1.0, "z": zstop + 0.5, "f": f}, {"t": "rapid", "x": d_new + 1.0, "z": CLEAR}]
         d = d_new
+    if not profile_pass:
+        return mv
     mv.append({"t": "comment", "text": "沿留余量的轮廓走一刀"})
     return mv + _follow(tgt, f, stock_d)
 
