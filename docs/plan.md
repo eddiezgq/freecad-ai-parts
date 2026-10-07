@@ -219,3 +219,17 @@ M10 开发完成后按计划继续（ADR-0059）：把数字工厂里还没搬�
 分项任务见 [实施细则](implementation-rules.md) 的“M11 分项任务”。
 
 进度（2026-10-07）：第 1–3 项开发完成（#275–#277）：拓扑优化（MBB 柔度与原文差 0.09%）、数控编程（车削 / 铣削生成、任意程序检查、Kienzle 功率）、流体（四道标准题均在门槛内，CI 装 OpenFOAM 跑）；第 4 项验收需在 Windows 上走一遍。
+
+## M12：工厂计算与 analysis/ 合并为一份（2026-10-07 起）
+
+M11 开发完成后按计划继续（ADR-0060，落实 ADR-0058 第 4 条）：求解内核只留 `analysis/` 一份，工厂 `cae/` 改为转接层。
+
+1. **镜像与测试接通 + 流体内核**：工厂镜像带上 `analysis/`；`cae/foam`、`cfd_heat`、`cfd` 改调 `analysis.cfd`（表面云图、截面、流线补进 `analysis`）
+2. **有限元与热分析内核**：`cae/geometry`、`solve`、`modal`、`thermal` 改调 `analysis.fea`、`analysis.thermal`
+3. **多体动力学内核**：`cae/mbd` 改调 `analysis.mbd.core`
+4. **数控编程内核**：`cae/cam_sim`、`cam_post`、`cam_power` 改调 `analysis.cam`
+5. **上层的计算核心**：拓扑优化 SIMP、疲劳的雨流与 S-N、优化的评估改调 `analysis`
+6. **M12 验收**：本地工厂各计算页面照常；FreeCAD 与工厂对同一题给出同样结果
+
+分项任务见 [实施细则](implementation-rules.md) 的“M12 分项任务”。
+
