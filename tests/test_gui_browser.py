@@ -912,6 +912,38 @@ def test_topo_dialog_makes_plate(gui):
 
 
 @pytest.mark.freecad
+def test_cam_dialog(gui, tmp_path):
+    """M11 第二步：数控编程对话框——车削生成两个程序并保存；铣削特征；打开程序文件检查。"""
+    from freecad_addon.gui.cam_dialog import CamDialog
+
+    dlg = CamDialog()
+    assert dlg.turn_machine.count() >= 1 and dlg.mill_machine.count() >= 1 and dlg.kienzle.count() > 10
+    dlg.tabs.setCurrentIndex(0)
+    dlg.segments.setText("一段")
+    assert dlg.start() is False
+    dlg.segments.setText("30x40, 40x60, 30x30")
+    dlg.kienzle.setCurrentIndex(dlg.kienzle.findData("C45E"))
+    assert dlg.start() is True
+    _pump_until(gui, lambda: not dlg.busy, timeout=120)
+    assert dlg.result and dlg.result["data"]["verdict"] == "ok", dlg.status.text()
+    assert "O1001" in dlg.gcode.toPlainText() and dlg.save_button.isEnabled()
+    saved = dlg.save(str(tmp_path))
+    assert [Path(p).name for p in saved] == ["O1001.nc", "O1002.nc"]
+    dlg.tabs.setCurrentIndex(1)
+    dlg.box.setText("0 0 60 40")
+    dlg.features.setPlainText("型腔 10 10 50 30 0 3")
+    assert dlg.start() is True
+    _pump_until(gui, lambda: not dlg.busy, timeout=120)
+    assert dlg.result["data"]["verdict"] == "warn"  # 尖角型腔转角留料
+    assert dlg.open_file(saved[0]) and dlg.tabs.currentIndex() == 2
+    dlg.check_machine.setCurrentIndex(dlg.check_machine.findData("EX-LATHE"))
+    assert dlg.start() is True
+    _pump_until(gui, lambda: not dlg.busy, timeout=120)
+    assert dlg.result["data"]["mode"] == "check" and dlg.result["data"]["total_time_s"] > 0
+    assert not dlg.save_button.isEnabled()
+
+
+@pytest.mark.freecad
 def test_twin_panel(gui, tmp_path):
     """M10 第五步：数字孪生窗口——布局中的减速器 + 运行记录 CSV → 已用寿命、剩余、假如；缺参数时待确认。"""
     import copy

@@ -1,0 +1,101 @@
+# 搬自问渠数字工厂 std/kienzle.yaml（第 13 轮），原样保留出处与读取说明；数控编程模块的切削功率检查用（ADR-0059）。
+# Kienzle 单位切削力常数 kc1.1 / mc（kc = kc1.1 · h^-mc，h 单位 mm，kc 单位 N/mm² = MPa）
+standard: {short: "Kienzle 单位切削力表，Westermann《Fertigen mit Werkzeugmaschinen》等", code: "无正式标准；Kienzle–Victor 公式（DIN 6584 术语）", title: "常用工件材料的单位切削力 kc1.1 与指数 mc（Kienzle 常数）—— 按出处分组，不同出处的参考条件不同，不可混用"}
+sources:
+  - {key: s1, title: "Westermann《Fertigen mit Werkzeugmaschinen》（ISBN 978-3-14-235025-7）第 143 页“Spezifische Schnittkraft”样章 PDF", url: "https://c.wgr.de/f/pdf/978-3-14-235025-7-1-l.pdf", note: "表头：Werkstoff | mc | 各 Spanungsdicke h=0.05…2.5 mm 下的 kc。本表 kc11_MPa 取 h=1.0 mm 一列（即 kc1.1），另录 h=0.1、0.4 两列；参考条件与切削速度修正系数 K 也出自本页。读了三遍（整表、按行全列、按 h=1.0/0.1/0.4 列），一致处才收"}
+  - {key: s2, title: "Gewerbeschule Lörrach（Ulrich Rapp）《Übungsaufgaben zu Schnittkraft und Schnittleistung》（数值注明取自 Europa《Tabellenbuch Metall》第 46 版）", url: "https://ulrich-rapp.de/stoff/fertigung/Schnittkraftberechnung_Ub.pdf", note: "只用来互核 s1：16MnCr5 2100/0.26、C60 2130/0.18、E295 1990/0.26，以及 C60 在 h=0.4 的 kc=2512；该文件写明“别的版本或书数值可能差很多”"}
+  - {key: s3, title: "Machining Doctor《Specific Cutting Force (KC & KC1)》材料组表（41 组，按 VDI 3323 式编号）", url: "https://www.machiningdoctor.com/glossary/specific-cutting-force-kc-kc1/", note: "组号、描述、KC1.1、MC；定义：h=1 mm、前角 0° 时的值；前角修正 (1 − 0.01·γ)。读两遍一致。网站未注明原始出处（只说“刀具厂技术手册中可查”）"}
+  - {key: s4, title: "English Wikipedia《Cutting force (machining)》specific cutting pressure 表（文中注明“collected from technical manuals by the manufacturer Sandvik Coromant”）", url: "https://en.wikipedia.org/wiki/Cutting_force_(machining)", note: "8 个粗分类的 kc1 与 mc，读两遍一致；表中没有写参考切屑厚度和前角的具体值，只作粗略参考"}
+  - {key: s5, title: "Deutsches Kupferinstitut《Richtwerte für die spanende Bearbeitung von Kupfer und Kupferlegierungen》(2010) 表 1、表 2", url: "https://kupfer.de/wp-content/uploads/2019/08/Richtwerte-f%C3%BCr-die-spanende-Bearbeitung-von-Kupfer-und-Kupferlegierungen-Endfassung-2010.pdf", note: "表 1（p.16）黄铜的 kc1.1 与 1−mc；表 2 试验条件。读三遍，kc1.1 与 1−mc 三遍一致"}
+columns:
+  - [material, 材料牌号（按出处原文）, work material (as printed), "-"]
+  - [material_cn, 中文名 / 国内近似牌号, Chinese name / nearest GB grade, "-"]
+  - [iso_group, ISO 513 材料组, ISO 513 group, "-"]
+  - [condition, 状态 / 说明（出处原文）, condition as printed, "-"]
+  - [kc11_MPa, 单位切削力 kc1.1（h=1 mm、b=1 mm）, specific cutting force kc1.1, N/mm²]
+  - [mc, Kienzle 指数 mc（kc = kc1.1·h^-mc）, Kienzle exponent mc, "-"]
+  - [one_minus_mc, 出处给出的 1−mc（只 s5 有）, slope 1−mc as printed, "-"]
+  - [kc_h01_MPa, h=0.1 mm 时的 kc（s1 原表列）, kc at h=0.1 mm, N/mm²]
+  - [kc_h04_MPa, h=0.4 mm 时的 kc（s1 原表列）, kc at h=0.4 mm, N/mm²]
+  - [ref, 参考条件代号（见 notes）, reference-condition key, "-"]
+rows:
+  # —— s1：Westermann 表（HM 刀具，vc=100–120 m/min，α0=5°，γ0=6° 长屑 / 2° 短屑，κr=60°）
+  - {key: S235JR, src: s1, material: "S 235 JR", material_cn: "碳素结构钢（≈Q235）", iso_group: P, kc11_MPa: 1780, mc: 0.17, kc_h04_MPa: 2080, ref: R1}
+  - {key: E295, src: s1+s2, material: "E 295", material_cn: "结构钢（≈旧 St50）", iso_group: P, kc11_MPa: 1990, mc: 0.26, kc_h01_MPa: 3620, kc_h04_MPa: 2530, ref: R1}
+  - {key: E335, src: s1, material: "E 335", material_cn: "结构钢（≈旧 St60）", iso_group: P, kc11_MPa: 2110, mc: 0.17, kc_h01_MPa: 3120, kc_h04_MPa: 2470, ref: R1}
+  - {key: C45E, src: s1, material: "C 45 E", material_cn: "45 钢（≈1045）", iso_group: P, condition: "出处未注明热处理状态", kc11_MPa: 2220, mc: 0.14, kc_h01_MPa: 3060, kc_h04_MPa: 2520, ref: R1}
+  - {key: C60E, src: s1+s2, material: "C 60 E", material_cn: "60 钢", iso_group: P, kc11_MPa: 2130, mc: 0.18, kc_h01_MPa: 3220, kc_h04_MPa: 2510, ref: R1}
+  - {key: 16MnCr5, src: s1+s2, material: "16 Mn Cr 6（s1 原文如此）/ 16MnCr5（s2）", material_cn: "16MnCr5 渗碳钢（国内常用 20CrMnTi 替代，但不是同一钢种）", iso_group: P, kc11_MPa: 2100, mc: 0.26, kc_h01_MPa: 3820, kc_h04_MPa: 2660, ref: R1}
+  - {key: 20MnCr5, src: s1, material: "20 Mn Cr5", material_cn: "20MnCr5 渗碳钢", iso_group: P, kc11_MPa: 2140, mc: 0.25, kc_h01_MPa: 3810, kc_h04_MPa: 2690, ref: R1}
+  - {key: 34CrMo4, src: s1, material: "34 Cr Mo 4", material_cn: "34CrMo4（≈35CrMo）", iso_group: P, kc11_MPa: 2240, mc: 0.21, kc_h01_MPa: 3630, kc_h04_MPa: 2720, ref: R1}
+  - {key: 42CrMo4, src: s1, material: "42 Cr Mo 4", material_cn: "42CrMo4（≈42CrMo）", iso_group: P, condition: "出处未注明热处理状态", kc11_MPa: 2500, mc: 0.26, kc_h01_MPa: 4550, kc_h04_MPa: 3170, ref: R1}
+  - {key: 50CrV4, src: s1, material: "50 Cr V 4", material_cn: "50CrV4（≈50CrVA）", iso_group: P, kc11_MPa: 2220, mc: 0.26, kc_h01_MPa: 4040, kc_h04_MPa: 2820, ref: R1}
+  - {key: stainless_s1, src: s1, material: "Nichtrostende Stähle", material_cn: "不锈钢（总类，未分奥氏体/铁素体）", iso_group: M, kc11_MPa: 2550, mc: 0.18, kc_h01_MPa: 3860, kc_h04_MPa: 3010, ref: R1}
+  - {key: GJL150, src: s1, material: "EN-GJL-150", material_cn: "灰铸铁 HT150（≈GG15）", iso_group: K, kc11_MPa: 950, mc: 0.21, kc_h01_MPa: 1540, kc_h04_MPa: 1150, ref: R1}
+  - {key: GJL250, src: s1, material: "EN-GJL-250", material_cn: "灰铸铁 HT250（≈GG25）", iso_group: K, kc11_MPa: 1160, mc: 0.26, kc_h01_MPa: 2110, kc_h04_MPa: 1470, ref: R1}
+  - {key: GJS400, src: s1, material: "EN-GJS-400", material_cn: "球墨铸铁 QT400（≈GGG40）", iso_group: K, kc11_MPa: 1005, mc: 0.25, kc_h01_MPa: 1794, kc_h04_MPa: 1272, ref: R1}
+  - {key: GJS600, src: s1, material: "EN-GJS-600", material_cn: "球墨铸铁 QT600（≈GGG60）", iso_group: K, kc11_MPa: 1050, mc: 0.48, kc_h01_MPa: 3171, kc_h04_MPa: 1630, ref: R1}
+  - {key: GJS800, src: s1, material: "EN-GJS-800", material_cn: "球墨铸铁 QT800（≈GGG80）", iso_group: K, kc11_MPa: 1132, mc: 0.44, kc_h01_MPa: 3118, kc_h04_MPa: 1694, ref: R1}
+  # —— s3：Machining Doctor 材料组表（h=1 mm、γ=0°）
+  - {key: MD02, src: s3, material: "Group 02 Non-alloyed steel", material_cn: "非合金钢（≈45 钢，退火）", iso_group: P, condition: "~0.45% C, Annealed", kc11_MPa: 1500, mc: 0.22, ref: R3}
+  - {key: MD03, src: s3, material: "Group 03 Non-alloyed steel", material_cn: "非合金钢（≈45 钢）", iso_group: P, condition: "~0.45% C, Annealed（与 02 组同文，原页如此；按 VDI 3323 编号习惯 03 组应为调质态，未能核实）", kc11_MPa: 1675, mc: 0.24, ref: R3}
+  - {key: MD05, src: s3, material: "Group 05 Non-alloyed steel", material_cn: "高碳非合金钢，调质", iso_group: P, condition: "~0.75% C, Quenched & Tempered", kc11_MPa: 1900, mc: 0.24, ref: R3}
+  - {key: MD06, src: s3, material: "Group 06 Low-alloyed steel", material_cn: "低合金钢（40Cr、42CrMo 类），退火", iso_group: P, condition: "Annealed", kc11_MPa: 1775, mc: 0.24, ref: R3}
+  - {key: MD07, src: s3, material: "Group 07 Low-alloyed steel", material_cn: "低合金钢（40Cr、42CrMo 类），调质", iso_group: P, condition: "Quenched & Tempered", kc11_MPa: 1675, mc: 0.24, ref: R3}
+  - {key: MD14, src: s3, material: "Group 14 Stainless steel", material_cn: "奥氏体不锈钢（304 / 06Cr19Ni10 属此组）", iso_group: M, condition: "Austenitic", kc11_MPa: 2150, mc: 0.20, ref: R3}
+  - {key: MD15, src: s3, material: "Group 15 Grey cast iron", material_cn: "灰铸铁（HT200 一类）", iso_group: K, condition: "Pearlitic/Ferritic", kc11_MPa: 1150, mc: 0.20, ref: R3}
+  - {key: MD16, src: s3, material: "Group 16 Grey cast iron", material_cn: "灰铸铁（珠光体，高强度牌号）", iso_group: K, condition: "Pearlitic (Martensitic)", kc11_MPa: 1350, mc: 0.28, ref: R3}
+  - {key: MD17, src: s3, material: "Group 17 Nodular cast iron", material_cn: "球墨铸铁，铁素体", iso_group: K, condition: "Ferritic", kc11_MPa: 1225, mc: 0.25, ref: R3}
+  - {key: MD18, src: s3, material: "Group 18 Nodular cast iron", material_cn: "球墨铸铁，珠光体", iso_group: K, condition: "Pearlitic", kc11_MPa: 1350, mc: 0.28, ref: R3}
+  - {key: MD21, src: s3, material: "Group 21 Aluminium wrought, alloyed", material_cn: "变形铝合金，不可热处理强化", iso_group: N, condition: "Not curable", kc11_MPa: 700, mc: 0.25, ref: R3}
+  - {key: MD22, src: s3, material: "Group 22 Aluminium wrought, alloyed", material_cn: "变形铝合金，时效硬化（6061-T6、7075 类）", iso_group: N, condition: "Curable, hardened", kc11_MPa: 800, mc: 0.25, ref: R3}
+  - {key: MD23, src: s3, material: "Group 23 Aluminium cast, alloyed", material_cn: "铸造铝合金 Si≤12%，不可热处理", iso_group: N, condition: "≤12% Si, Not curable", kc11_MPa: 700, mc: 0.25, ref: R3}
+  - {key: MD27, src: s3, material: "Group 27 Copper & Cu alloys", material_cn: "黄铜 CuZn、CuSnZn", iso_group: N, condition: "CuZn, CuSnZn (Brass)", kc11_MPa: 700, mc: 0.27, ref: R3}
+  - {key: MD36, src: s3, material: "Group 36 Titanium alloys", material_cn: "纯钛", iso_group: S, condition: "Pure Titanium", kc11_MPa: 1700, mc: 0.23, ref: R3}
+  - {key: MD37, src: s3, material: "Group 37 Titanium alloys", material_cn: "α+β 钛合金（Ti6Al4V / TC4 属此组）", iso_group: S, condition: "Alpha + Beta alloys, hardened", kc11_MPa: 2110, mc: 0.22, ref: R3}
+  # —— s4：Wikipedia（Sandvik 资料汇总，粗分类）
+  - {key: WP_unalloyed_low, src: s4, material: "Unalloyed steel", material_cn: "非合金钢 C<0.55%", iso_group: P, condition: "Low carbon content (<0.55%)", kc11_MPa: 1500, mc: 0.25, ref: R4}
+  - {key: WP_lowalloy, src: s4, material: "Low-alloy steel", material_cn: "低合金钢，未淬硬", iso_group: P, condition: "Not hardened", kc11_MPa: 1700, mc: 0.25, ref: R4}
+  - {key: WP_stainless, src: s4, material: "Stainless steel", material_cn: "不锈钢（总类）", iso_group: M, kc11_MPa: 2800, mc: 0.21, ref: R4}
+  - {key: WP_grey_ci, src: s4, material: "Grey cast iron", material_cn: "灰铸铁（总类）", iso_group: K, kc11_MPa: 1100, mc: 0.28, ref: R4}
+  # —— s5：德国铜业协会黄铜数据（kc1.1 与 1−mc；mc = 1 − (1−mc)）
+  - {key: CuZn39Pb3, src: s5, material: "CuZn39Pb3 (CW614N)", material_cn: "易切削铅黄铜（≈HPb59-3）", iso_group: N, kc11_MPa: 450, one_minus_mc: 0.68, mc: 0.32, ref: R5}
+  - {key: CuZn40Pb2, src: s5, material: "CuZn40Pb2 (CW617N)", material_cn: "铅黄铜（≈HPb59-1）", iso_group: N, kc11_MPa: 500, one_minus_mc: 0.68, mc: 0.32, ref: R5}
+  - {key: CuZn37, src: s5, material: "CuZn37 (CW508L)", material_cn: "无铅黄铜（≈H62/H63）", iso_group: N, kc11_MPa: 1180, one_minus_mc: 0.85, mc: 0.15, ref: R5}
+checked:
+  - {row: 16MnCr5, col: kc11_MPa, value: 2100, against: s2, where: "第 7、12 题解答 2100 N/mm²", ok: true}
+  - {row: 16MnCr5, col: mc, value: 0.26, against: s2, where: "第 7 题 0,25^0,26", ok: true}
+  - {row: E295, col: kc11_MPa, value: 1990, against: s2, where: "第 15 题", ok: true}
+  - {row: E295, col: mc, value: 0.26, against: s2, where: "第 15 题 0,13^0,26", ok: true}
+  - {row: C60E, col: kc11_MPa, value: 2130, against: s2, where: "第 4 题 2130/0,35^0,18", ok: true}
+  - {row: C60E, col: mc, value: 0.18, against: s2, where: "第 4 题", ok: true}
+  - {row: C60E, col: kc_h04_MPa, value: 2510, against: s2, where: "第 4 题“kc 0,4 = 2512 N/mm²”（与 s1 取整后一致）", ok: true}
+  - {row: C45E, col: kc_h01_MPa, value: 3060, against: s1, where: "第二遍读取（按行全列）与第三遍（按列）一致", ok: true}
+  - {row: 42CrMo4, col: kc_h01_MPa, value: 4550, against: s1, where: "第二遍与第三遍一致", ok: true}
+  - {row: 42CrMo4, col: kc11_MPa, value: 2500, against: s1, where: "公式自洽：2500·0.05^-0.26 ≈ 5448，原表 h=0.05 列 5450", ok: true}
+  - {row: GJL250, col: kc11_MPa, value: 1160, against: s1, where: "两遍读取一致；1160·0.1^-0.26 ≈ 2112，原表 h=0.1 列 2110", ok: true}
+  - {row: MD14, col: kc11_MPa, value: 2150, against: s3, where: "两遍读取一致", ok: true}
+  - {row: MD37, col: kc11_MPa, value: 2110, against: s3, where: "两遍读取一致", ok: true}
+  - {row: CuZn39Pb3, col: kc11_MPa, value: 450, against: s5, where: "表 1，三遍读取一致", ok: true}
+excluded:
+  - "EN-GJL-200（HT200 / GG20）：s1 的 h=1.0 mm 一格两遍都读成“120”（明显是抽取丢位）；由同行 mc=0.25 和 h=0.1 列 1810 反推约 1020，但属推算，不收。HT200 请暂用 GJL150/GJL250 两行或 s3 的 MD15。"
+  - "40Cr / 41Cr4、20CrMnTi：没找到可读的出处给出这两个牌号的 kc1.1；只能用 s3 的低合金钢组（MD06/MD07）或 s1 的 34CrMo4、20MnCr5 近似。"
+  - "Ti6Al4V、304 的牌号级数值：没找到牌号级出处，只收 s3 的材料组（MD37、MD14）和 s4 粗分类。"
+  - "s1 的 E 360 与 18 Cr Ni 6 两行：mc、kc 全列逐格相同（2260/0.30），疑为抽取串行，不收；55 Ni Cr Mo V 6 N 用不到，不收。"
+  - "s1 的 Al-Sn-Legierungen（与 S235JR 同为 1780/0.17，疑串行）、Al-Zn-Legierungen、Mg-Legierungen：可疑或用不到，不收；铝合金用 s3。"
+  - "s4 的 high-carbon unalloyed、high-alloy tool steel、Al>99%、Ti>99% 四行：只有一个粗略出处、条件不明，不收。"
+  - "S235JR 的 h=0.1 列：读数 2730，而 1780·0.1^-0.17 ≈ 2633（偏 3.6%），且 s1 的 Al-Sn 行同列读成 2630，疑两行串格，h=0.1 一格不收（kc1.1、mc、h=0.4 与公式一致，保留）。"
+  - "s5 的 CuZn35Pb2、CuTeP：只在一遍中出现完整条件，不收。"
+  - "Sandvik Coromant 官方 kc1 / mc 表（含 kc 0.4 口径）：官网页面靠 JavaScript 渲染、取不到正文；找到的两份 Sandvik 样本 PDF（2015 车削 I 章、铣削 D 章）里没有该表。所以本表没有 Sandvik 原始数据，s4 只是 Wikipedia 转述。"
+  - "Klocke《Manufacturing Processes 1: Cutting》/ König–Klocke、Tschätsch 原书表：在网上没有可读全文，未用。"
+  - "刀具磨损修正、刀具材料修正（如陶瓷 0.9）：s2 只在例题中提到“陶瓷刀具 C1=0.9”，没有成表，不收进数值列。"
+notes:
+  - "公式：Fc = b·h·kc，kc = kc1.1·h^-mc（h 为切削厚度 mm，b 为切削宽度 mm）。s2 写作 kc = kc1.1/h^mc·C1·C2；s1 写作 Fc = A·kc·K。"
+  - "参考条件 R1（s1 原文）：HM（硬质合金）刀具，vc = 100…120 m/min，α0 = 5°，γ0 = 6°（长屑材料）/ γ0 = 2°（短屑材料，如铸铁），κr = 60°。s1 的切削速度修正系数 K：vc >10…30 m/min 取 1.25，>30…80 取 1.1，>80 取 1.0。"
+  - "参考条件 R3（s3 原文）：h = 1 mm、b = 1 mm、前角 0°；前角修正 kc = kc1.1·h^-mc·(1 − 0.01·γ)，即每 1° 前角约 1%。注意 s1（γ=6°）与 s3（γ=0°）的口径不同，同一钢种 s1 的值普遍高于 s3，不要把两组混在一个计算里。"
+  - "参考条件 R4（s4）：只说明“参考刀具有一定前角、在一定切屑厚度下”，未给具体值，粗略参考。"
+  - "参考条件 R5（s5 表 2 条件 1）：车削，HM-K10，vc = 180 m/min，f = 0.05–0.315 mm，ap = 2.5 mm，前角 6°/8°/10°（按组）。CuZn37 的试验条件两遍读取不一致（一遍说 HSS/HM、vc=32 m/min，一遍说条件 1），数值本身一致，条件存疑。s5 给的是 1−mc，本表 mc = 1 − (1−mc)，只做这一步换算。"
+  - "s1 的 kc_h01、kc_h04 两列是原表直接读数，可用来检验 kc1.1·h^-mc 的计算；已逐行验算：除下面说的 S235JR 外，所有 s1 行 kc1.1·h^-mc 与原表 h=0.1、0.4 列偏差都在 0.7% 以内（最大 GJS400，h=0.4 偏 −0.65%）。"
+  - "s1 的 GJS600（mc=0.48）、GJS800（mc=0.44）mc 明显大于其他铸铁，但各 h 列与公式自洽，照录，使用时注意。"
+  - "s1 未给钢的热处理状态；45 钢正火与调质的区别 s1 没有，s3 只有 02/03/05 组（03 组状态描述存疑）。"
+  - "教材用法：例题算切削力时，固定用一个出处（建议 s1 配 R1 条件）；讲“不同手册数值差 20% 以上”时可拿 s1 与 s3、s4 对比。"

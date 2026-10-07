@@ -1,0 +1,9 @@
+# 示例机床（虚构）：搬自问渠数字工厂第 13 轮的教学示意值，不是某台真实机床的参数，只用于演示。
+# 企业的机床写在 ~/.freecad-ai-parts/machines.yaml（或环境变量 FAP_MACHINES 指定的文件），格式相同，同 id 覆盖示例。
+# 字段：kind lathe | mill；max_rpm；power_kw 主电机功率；eff 传动效率；行程 x、z（车床 X 为直径）或 x、y、z（mm，工件坐标系）；
+#       rapid 各轴快移速度 mm/min；home 车床换刀点 [X 直径, Z]；tool_change_s 换刀时间 s
+machines:
+  - {id: EX-LATHE, example: true, kind: lathe, name: 示例数控车床（虚构）, max_rpm: 4000, power_kw: 11.0, eff: 0.8,
+     x: [-2.0, 320.0], z: [-600.0, 250.0], rapid: {x: 12000.0, z: 15000.0}, home: [200.0, 150.0], tool_change_s: 1.5}
+  - {id: EX-VMC, example: true, kind: mill, name: 示例立式加工中心（虚构）, max_rpm: 8000, power_kw: 15.0, eff: 0.8,
+     x: [-400.0, 400.0], y: [-250.0, 250.0], z: [-400.0, 150.0], rapid: {x: 24000.0, y: 24000.0, z: 20000.0}, tool_change_s: 4.0}
