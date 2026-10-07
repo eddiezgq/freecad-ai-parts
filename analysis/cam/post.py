@@ -19,11 +19,12 @@ def comment(text):
 def _header(prog, machine, lines):
     h = prog.get("header", {})
     lines += ["%", f"O{int(prog.get('number', 1)):04d} {comment(prog.get('title', ''))}"]
-    for k, lab in (("item", "零件"), ("stock", "毛坯"), ("material", "材料")):
+    for k, lab in (("item", "零件"), ("revision", "版本"), ("operation", "工序"), ("stock", "毛坯"), ("material", "材料"),
+                   ("author", "编程")):
         if h.get(k):
             lines.append(comment(f"{lab} {h[k]}"))
     lines.append(comment("机床 " + machine["name"]))
-    lines.append(comment("FreeCAD AI Parts 数控编程"))
+    lines.append(comment(prog.get("generator") or "FreeCAD AI Parts 数控编程"))
     for op in prog["ops"]:
         t = op["tool"]
         lines.append(comment(f"T{t['n']:02d} {t.get('name', '')}" + (f" D{num(t['d'])}" if t.get("d") else "")))

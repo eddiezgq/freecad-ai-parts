@@ -1,5 +1,5 @@
 """G 代码读取、加工时间、仿真与检查（ADR-0059，M11 第二步）。搬自问渠数字工厂第 13 轮 cae/cam_sim.py，机床参数改为传入，
-铣削毛坯为矩形（不依赖 shapely）。
+铣削毛坯为矩形或多边形（不依赖 shapely）。
 
 读 FANUC 风格程序（本模块生成的、FreeCAD CAM 工作台等输出的）：G00/G01/G02/G03、G90/G91、G17/G18、G20/G21、G28、G50（限速）、
 G96/G97、G94/G95、G98/G99（车：每分 / 每转进给；铣：钻孔循环返回平面）、G80/G81/G83、T、M03/M04/M05/M06/M08/M09/M30、S、F。
@@ -396,11 +396,30 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01):
 
 
 # ---------------------------------------------------------------- 铣削仿真
+def _in_polygon(X, Y, poly):
+    """点是否在多边形内（射线法，向量化）。"""
+    inside = np.zeros(X.shape, bool)
+    n = len(poly)
+    for i in range(n):
+        x0, y0 = poly[i]
+        x1, y1 = poly[(i + 1) % n]
+        if y0 == y1:
+            continue
+        cross = ((y0 > Y) != (y1 > Y)) & (X < x0 + (Y - y0) * (x1 - x0) / (y1 - y0))
+        inside ^= cross
+    return inside
+
+
 def simulate_mill(parsed, stock, tools, target=None, h=None, tol=0.01):
-    """stock：{"box": (xmin, ymin, xmax, ymax), "top": 0}（矩形毛坯；轴上铣键槽另给 "cyl_r"）
+    """stock：{"box": (xmin, ymin, xmax, ymax), "top": 0} 或 {"polygon": [[x, y], ..], "top": 0}（轴上铣键槽另给 "cyl_r"）
     tools：{刀号: {"kind": "endmill" | "drill", "d": 直径}}
     target(x, y 网格) → 目标高度数组（None 表示不比对）。返回高度图、碰撞、过切 / 残留"""
-    bx0, by0, bx1, by1 = (float(v) for v in stock["box"])
+    poly = np.asarray(stock["polygon"], float) if stock.get("polygon") else None
+    if poly is not None:
+        bx0, by0 = poly.min(0)
+        bx1, by1 = poly.max(0)
+    else:
+        bx0, by0, bx1, by1 = (float(v) for v in stock["box"])
     xmin, ymin, xmax, ymax = bx0, by0, bx1, by1
     pad = max(t.get("d", 10) for t in tools.values()) if tools else 10.0
     xmin, ymin, xmax, ymax = xmin - pad, ymin - pad, xmax + pad, ymax + pad
@@ -409,7 +428,7 @@ def simulate_mill(parsed, stock, tools, target=None, h=None, tol=0.01):
     xs = xmin + (np.arange(nx) + 0.5) * h
     ys = ymin + (np.arange(ny) + 0.5) * h
     X, Y = np.meshgrid(xs, ys, indexing="ij")
-    inside = (X >= bx0) & (X <= bx1) & (Y >= by0) & (Y <= by1)
+    inside = _in_polygon(X, Y, poly) if poly is not None else (X >= bx0) & (X <= bx1) & (Y >= by0) & (Y <= by1)
     top = float(stock.get("top", 0.0))
     AIR = -1e6
     H = np.where(inside, top, AIR)
