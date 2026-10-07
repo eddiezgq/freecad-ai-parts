@@ -81,6 +81,22 @@ def sn_cycles(sa_eq: float, s_d: float, n_d: float, k: float, haibach: bool) -> 
     return n_d * (s_d / sa_eq) ** (2 * k - 1) if haibach else math.inf
 
 
+def sn_cycles_array(sa_eq, s_d: float, n_d: float, k: float, haibach: bool):
+    """sn_cycles 的数组版（逐点；工厂网页对每个表面点算寿命用）。"""
+    import numpy as np
+
+    sa = np.asarray(sa_eq, float)
+    out = np.full(sa.shape, np.inf)
+    pos = sa > 0
+    hi = pos & (sa >= s_d)
+    with np.errstate(divide="ignore"):
+        out[hi] = n_d * (s_d / sa[hi]) ** k
+        lo = pos & (sa < s_d)
+        if haibach:
+            out[lo] = n_d * (s_d / sa[lo]) ** (2 * k - 1)
+    return out
+
+
 def hand_check(sigma_a: float, sigma_m: float, mat: dict, surface_factor: float, size_factor: float, kf: float = 1.0,
                haibach: bool = False) -> float:
     """恒幅手算：Goodman + Basquin（测试与报告对照用）。返回循环次数。"""

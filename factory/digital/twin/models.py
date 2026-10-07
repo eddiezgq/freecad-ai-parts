@@ -138,14 +138,8 @@ def stress_per_nm(design=None):
 
 def sn_cycles(sa_eq, mat=SHAFT_MAT, haibach=True):
     """修正后的 S-N 曲线：S_D = σ₋₁·β·ε；高于 S_D 斜率 k，低于 S_D 按 Haibach 斜率 2k − 1"""
-    SD = mat["sigma_1"] * BETA_SURFACE * SIZE_FACTOR
-    if sa_eq <= 0:
-        return math.inf
-    if sa_eq >= SD:
-        return mat["N_D"] * (SD / sa_eq) ** mat["k"]
-    if not haibach:
-        return math.inf
-    return mat["N_D"] * (SD / sa_eq) ** (2 * mat["k"] - 1)
+    from analysis.fatigue import sn_cycles as _sn       # S-N 曲线只留一份（本仓库 ADR-0060）
+    return _sn(sa_eq, mat["sigma_1"] * BETA_SURFACE * SIZE_FACTOR, mat["N_D"], mat["k"], haibach)
 
 
 def shaft_damage(cycles, design=None, mat=SHAFT_MAT, haibach=True):

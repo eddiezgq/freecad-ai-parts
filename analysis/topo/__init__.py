@@ -118,7 +118,8 @@ def boundary(supports: list, loads: list, nelx: int, nely: int):
 
 
 def simp(nelx: int, nely: int, supports: list, loads: list, volfrac: float = 0.5, penal: float = 3.0,
-         rmin: float = 1.5, max_iter: int = 200, tol: float = 0.01) -> dict:
+         rmin: float = 1.5, max_iter: int = 200, tol: float = 0.01, frames: int = 0) -> dict:
+    """frames > 0 时另给迭代过程中均匀取的若干帧密度（0–255，工厂网页放动画用）。"""
     import numpy as np
     from scipy.sparse import coo_matrix
     from scipy.sparse.linalg import spsolve
@@ -154,7 +155,7 @@ def simp(nelx: int, nely: int, supports: list, loads: list, volfrac: float = 0.5
     fixed, F = boundary(supports, loads, nelx, nely)
     free = np.setdiff1d(np.arange(ndof), fixed)
     x = np.full(nel, float(volfrac))
-    hist = []
+    hist, snaps = [], []
     change, it = 1.0, 0
     U = np.zeros(ndof)
     while change > tol and it < max_iter:
@@ -182,7 +183,14 @@ def simp(nelx: int, nely: int, supports: list, loads: list, volfrac: float = 0.5
         change = float(np.abs(xn - x).max())
         x = xn
         hist.append([it, round(c, 4), round(float(x.mean()), 4), round(change, 4)])
-    return {"nelx": nelx, "nely": nely, "iterations": it, "converged": change <= tol, "compliance": hist[-1][1],
+        if frames:
+            snaps.append(x.copy())
+    extra = {}
+    if frames:
+        pick = sorted(set(np.linspace(0, len(snaps) - 1, min(frames, len(snaps))).round().astype(int)))
+        extra["frames"] = [{"it": int(k + 1), "density": (snaps[k].reshape(nelx, nely).T * 255).round().astype(np.uint8).tolist()}
+                           for k in pick]
+    return {**extra, "nelx": nelx, "nely": nely, "iterations": it, "converged": change <= tol, "compliance": hist[-1][1],
             "history": hist, "grey": round(float(((x > 0.1) & (x < 0.9)).mean()), 4),
             "density": x.reshape(nelx, nely).T.round(4).tolist()}
 

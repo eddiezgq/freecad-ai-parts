@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 """平面件拓扑优化（第 14 轮 H6）：SIMP 方法（固体各向同性材料惩罚），按 Andreassen 等 2011《Efficient topology optimization in
-MATLAB using 88 lines of code》的经典算法用 numpy / scipy 重写。目标：给定材料用量（体积比）下刚度最大（柔度最小）。
+MATLAB using 88 lines of code》的经典算法；迭代只留一份，在本仓库 analysis/topo（ADR-0060）。目标：给定材料用量（体积比）下刚度最大（柔度最小）。
 
 单元：平面应力四节点正方形单元，网格 nelx × nely；材料插值 E = Emin + x^p (E0 − Emin)；灵敏度过滤（半径 rmin）；
 更新：最优准则法（OC），每步变化不超过 0.2。结果：每个单元的密度 0–1（1 = 有材料），柔度随迭代的变化，以及按密度 0.5 取轮廓
 拉伸成板件的 STEP（可以送“仿真与分析”校核）。"""
-import math
-
 import numpy as np
 
 PRESETS = {
@@ -19,117 +17,18 @@ PRESETS = {
 MAX_ELEMENTS = 6000
 
 
-def _ke(nu=0.3):
-    k = np.array([1 / 2 - nu / 6, 1 / 8 + nu / 8, -1 / 4 - nu / 12, -1 / 8 + 3 * nu / 8,
-                  -1 / 4 + nu / 12, -1 / 8 - nu / 8, nu / 6, 1 / 8 - 3 * nu / 8])
-    return 1 / (1 - nu ** 2) * np.array([
-        [k[0], k[1], k[2], k[3], k[4], k[5], k[6], k[7]],
-        [k[1], k[0], k[7], k[6], k[5], k[4], k[3], k[2]],
-        [k[2], k[7], k[0], k[5], k[6], k[3], k[4], k[1]],
-        [k[3], k[6], k[5], k[0], k[7], k[2], k[1], k[4]],
-        [k[4], k[5], k[6], k[7], k[0], k[1], k[2], k[3]],
-        [k[5], k[4], k[3], k[2], k[1], k[0], k[7], k[6]],
-        [k[6], k[3], k[4], k[1], k[2], k[7], k[0], k[5]],
-        [k[7], k[2], k[1], k[4], k[3], k[6], k[5], k[0]]])
-
-
-def _bc(preset, nelx, nely):
-    """节点编号：列优先，节点 (i, j)（i 向右 0..nelx，j 向下 0..nely）号 = i·(nely+1) + j；自由度 2n（x）、2n+1（y）"""
-    n = lambda i, j: i * (nely + 1) + j  # noqa: E731
-    ndof = 2 * (nelx + 1) * (nely + 1)
-    F = np.zeros(ndof)
-    if preset == "mbb":
-        fixed = [2 * n(0, j) for j in range(nely + 1)] + [2 * n(nelx, nely) + 1]
-        F[2 * n(0, 0) + 1] = -1
-    elif preset == "cantilever":
-        fixed = [d for j in range(nely + 1) for d in (2 * n(0, j), 2 * n(0, j) + 1)]
-        F[2 * n(nelx, nely // 2) + 1] = -1
-    elif preset == "bridge":
-        fixed = [2 * n(0, nely), 2 * n(0, nely) + 1, 2 * n(nelx, nely) + 1]
-        F[2 * n(nelx // 2, nely) + 1] = -1
-    elif preset == "bracket":
-        fixed = [d for j in range(nely + 1) for d in (2 * n(0, j), 2 * n(0, j) + 1)]
-        F[2 * n(nelx, nely) + 1] = -1
-    else:
-        raise ValueError("不认识的算例 {}".format(preset))
-    return np.array(sorted(set(fixed))), F
-
-
 def run(preset="mbb", nelx=None, nely=None, volfrac=0.5, penal=3.0, rmin=1.5, max_iter=200, tol=0.01, frames=24):
-    from scipy.sparse import coo_matrix
-    from scipy.sparse.linalg import spsolve
+    """SIMP 迭代只留一份，在本仓库 analysis/topo（ADR-0060）；支承、载荷按预设（与 analysis 的预设相同）"""
+    from analysis import topo as _T
     if preset not in PRESETS:
         raise ValueError("不认识的算例 {}".format(preset))
     nelx = int(nelx or PRESETS[preset]["nelx"])
     nely = int(nely or PRESETS[preset]["nely"])
-    if nelx * nely > MAX_ELEMENTS or nelx < 8 or nely < 4:
-        raise ValueError("网格 {}×{} 不合适：单元数在 32–{} 之间".format(nelx, nely, MAX_ELEMENTS))
-    if not 0.1 <= volfrac <= 0.9:
-        raise ValueError("材料用量（体积比）要在 0.1–0.9 之间")
-    Emin, E0 = 1e-9, 1.0
-    KE = _ke()
-    nel = nelx * nely
-    ndof = 2 * (nelx + 1) * (nely + 1)
-    edof = np.zeros((nel, 8), dtype=int)
-    for elx in range(nelx):
-        for ely in range(nely):
-            el = ely + elx * nely
-            n1 = (nely + 1) * elx + ely
-            n2 = (nely + 1) * (elx + 1) + ely
-            edof[el] = [2 * n1 + 2, 2 * n1 + 3, 2 * n2 + 2, 2 * n2 + 3, 2 * n2, 2 * n2 + 1, 2 * n1, 2 * n1 + 1]
-    iK = np.kron(edof, np.ones((8, 1), dtype=int)).ravel()
-    jK = np.kron(edof, np.ones((1, 8), dtype=int)).ravel()
-    # 灵敏度过滤矩阵
-    rr = int(math.ceil(rmin)) - 1
-    ih, jh, sh = [], [], []
-    for i1 in range(nelx):
-        for j1 in range(nely):
-            e1 = i1 * nely + j1
-            for i2 in range(max(i1 - rr, 0), min(i1 + rr + 1, nelx)):
-                for j2 in range(max(j1 - rr, 0), min(j1 + rr + 1, nely)):
-                    e2 = i2 * nely + j2
-                    ih.append(e1)
-                    jh.append(e2)
-                    sh.append(max(0.0, rmin - math.hypot(i1 - i2, j1 - j2)))
-    Hf = coo_matrix((sh, (ih, jh)), shape=(nel, nel)).tocsc()
-    Hs = np.asarray(Hf.sum(1)).ravel()
-    fixed, F = _bc(preset, nelx, nely)
-    free = np.setdiff1d(np.arange(ndof), fixed)
-    x = np.full(nel, volfrac)
-    hist, snaps = [], []
-    change, it = 1.0, 0
-    U = np.zeros(ndof)
-    while change > tol and it < max_iter:
-        it += 1
-        sK = (KE.ravel()[None, :] * (Emin + x ** penal * (E0 - Emin))[:, None]).ravel()
-        K = coo_matrix((sK, (iK, jK)), shape=(ndof, ndof)).tocsc()
-        K = (K + K.T) / 2
-        U[:] = 0
-        U[free] = spsolve(K[free][:, free], F[free])
-        ue = U[edof]
-        ce = np.einsum("ij,jk,ik->i", ue, KE, ue)
-        c = float(((Emin + x ** penal * (E0 - Emin)) * ce).sum())
-        dc = -penal * x ** (penal - 1) * (E0 - Emin) * ce
-        dc = np.asarray(Hf @ (x * dc)).ravel() / Hs / np.maximum(1e-3, x)
-        # 最优准则法（二分找拉格朗日乘子）
-        l1, l2, move = 0.0, 1e9, 0.2
-        while (l2 - l1) / (l1 + l2) > 1e-3:
-            lm = (l1 + l2) / 2
-            xn = np.clip(x * np.sqrt(np.maximum(-dc, 0) / lm), np.maximum(0, x - move), np.minimum(1, x + move))
-            if xn.mean() > volfrac:
-                l1 = lm
-            else:
-                l2 = lm
-        change = float(np.abs(xn - x).max())
-        x = xn
-        hist.append([it, round(c, 4), round(float(x.mean()), 4), round(change, 4)])
-        snaps.append(x.copy())
-    pick = sorted(set(np.linspace(0, len(snaps) - 1, min(frames, len(snaps))).round().astype(int)))
-    grey = float(((x > 0.1) & (x < 0.9)).mean())
+    spec = _T.PRESETS[preset]
+    r = _T.simp(nelx, nely, spec["supports"], spec["loads"], volfrac, penal, rmin, max_iter, tol, frames=frames)
     return {"preset": preset, "label": PRESETS[preset]["label"], "nelx": nelx, "nely": nely, "volfrac": volfrac, "penal": penal,
-            "rmin": rmin, "iterations": it, "converged": change <= tol, "compliance": hist[-1][1], "history": hist, "grey": round(grey, 4),
-            "density": x.reshape(nelx, nely).T.round(4).tolist(),          # [行（向下）][列（向右）]
-            "frames": [{"it": int(k + 1), "density": (snaps[k].reshape(nelx, nely).T * 255).round().astype(np.uint8).tolist()} for k in pick]}
+            "rmin": rmin, "iterations": r["iterations"], "converged": r["converged"], "compliance": r["compliance"],
+            "history": r["history"], "grey": r["grey"], "density": r["density"], "frames": r.get("frames", [])}
 
 
 def layout(preset, density, length_mm):
