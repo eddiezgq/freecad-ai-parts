@@ -1,0 +1,119 @@
+{
+  "custom_requirements": [
+    {
+      "component_id": "reducer.harmonic-drive-llc.csf-32-100-2uh",
+      "instance": "reducer",
+      "items": [
+        {
+          "field": "pcd_mm",
+          "name": "分度圆直径",
+          "source": "src-yaskawa-sgm7-rotary-manual 第 65 页",
+          "value": "70"
+        },
+        {
+          "field": "hole_count",
+          "name": "孔数",
+          "source": "src-yaskawa-sgm7-rotary-manual 第 65 页",
+          "value": "4"
+        },
+        {
+          "field": "hole_kind",
+          "name": "孔的形式",
+          "source": "src-yaskawa-sgm7-rotary-manual 第 65 页",
+          "value": "通孔"
+        },
+        {
+          "field": "hole_diameter_mm",
+          "name": "通孔直径",
+          "source": "src-yaskawa-sgm7-rotary-manual 第 65 页",
+          "value": "5.5"
+        },
+        {
+          "field": "pilot_diameter_mm",
+          "name": "止口直径",
+          "source": "src-yaskawa-sgm7-rotary-manual 第 65 页",
+          "value": "50（+0 / -0.025）"
+        },
+        {
+          "field": "pilot_kind",
+          "name": "止口形式",
+          "source": "src-yaskawa-sgm7-rotary-manual 第 65 页",
+          "value": "凸"
+        }
+      ],
+      "mate": {
+        "component_id": "servo_motor.yaskawa-electric-corporation.sgm7j-04a-6",
+        "model": "Yaskawa Electric Corporation SGM7J-04A（轴端代码 6）",
+        "port": "mount_flange"
+      },
+      "missing": [],
+      "model": "Harmonic Drive LLC CSF-32-100-2UH",
+      "port": "motor_flange",
+      "text": "Harmonic Drive LLC CSF-32-100-2UH 的 motor_flange 须按 Yaskawa Electric Corporation SGM7J-04A（轴端代码 6） 的 mount_flange 定制\n· 分度圆直径：70（src-yaskawa-sgm7-rotary-manual 第 65 页）\n· 孔数：4（src-yaskawa-sgm7-rotary-manual 第 65 页）\n· 孔的形式：通孔（src-yaskawa-sgm7-rotary-manual 第 65 页）\n· 通孔直径：5.5（src-yaskawa-sgm7-rotary-manual 第 65 页）\n· 止口直径：50（+0 / -0.025）（src-yaskawa-sgm7-rotary-manual 第 65 页）\n· 止口形式：凸（src-yaskawa-sgm7-rotary-manual 第 65 页）"
+    }
+  ],
+  "format": "fap-export/1",
+  "kind": "bom",
+  "note": "质量缺失时总质量为空；source_docs 为该组件数据引用的来源文档（data/sources.yaml）；custom_requirements 为按配套件定制的端口应照录的对方规格（ADR-0053）",
+  "rows": [
+    {
+      "all_params_reviewed": true,
+      "category": "servo_motor",
+      "component_id": "servo_motor.yaskawa-electric-corporation.sgm7j-04a-6",
+      "instances": [
+        "motor"
+      ],
+      "item": 1,
+      "license": "params-only",
+      "model": "SGM7J-04A（轴端代码 6）",
+      "quantity": 1,
+      "source_docs": [
+        "src-yaskawa-sgm7-rotary-manual"
+      ],
+      "total_mass_kg": 1.1,
+      "unit_mass_kg": 1.1,
+      "vendor": "Yaskawa Electric Corporation",
+      "vendor_cad_url": null
+    },
+    {
+      "all_params_reviewed": true,
+      "category": "reducer",
+      "component_id": "reducer.harmonic-drive-llc.csf-32-100-2uh",
+      "instances": [
+        "reducer"
+      ],
+      "item": 2,
+      "license": "params-only",
+      "model": "CSF-32-100-2UH",
+      "quantity": 1,
+      "source_docs": [
+        "src-hd-csg-csf-gear-units"
+      ],
+      "total_mass_kg": 3.2,
+      "unit_mass_kg": 3.2,
+      "vendor": "Harmonic Drive LLC",
+      "vendor_cad_url": null
+    },
+    {
+      "all_params_reviewed": true,
+      "category": "drive",
+      "component_id": "drive.yaskawa-america-inc.sgd7s-2r8a",
+      "instances": [
+        "drive"
+      ],
+      "item": 3,
+      "license": "params-only",
+      "model": "SGD7S-2R8A",
+      "quantity": 1,
+      "source_docs": [
+        "src-yaskawa-sgd7s-ethercat-manual"
+      ],
+      "total_mass_kg": 1.1,
+      "unit_mass_kg": 1.1,
+      "vendor": "Yaskawa America, Inc.",
+      "vendor_cad_url": null
+    }
+  ],
+  "system": "candidate-1",
+  "total_mass_kg": 5.4
+}

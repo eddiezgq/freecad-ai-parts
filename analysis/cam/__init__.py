@@ -236,7 +236,8 @@ def _mill(setup, mach):
     under = int(s["under_mask"].sum()) if "under_mask" in s else 0
     if under:
         checks.append({"line": None, "level": "warn",
-                       "text": f"残留：{under} 格比目标高，最多 {s['dev_max']:.3f} mm（型腔转角圆角小于刀具半径时转角会留料）"})
+                       "text": f"残留：{under} 格比目标高，最多 {s['dev_max']:.3f} mm"
+                               "（型腔转角圆角小于刀具半径时转角留料；外轮廓离毛坯角太远时一圈铣不到）"})
     pw, pdet = power.check(setup.get("kienzle"), mach, items)
     checks += pw
     return [{"title": "铣削", "number": 5001, "gcode": g, "time": tm, "checks": checks, "power": pdet,

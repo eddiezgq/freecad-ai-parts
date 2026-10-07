@@ -1,0 +1,397 @@
+{
+ "app": "lockstitch",
+ "title": "工业直驱平缝机（JUKI DDL-9000C 一类）",
+ "sources": [
+  {
+   "title": "JUKI DDL-9000C 系列样本（经销商发布的 PDF）",
+   "url": "https://www.sewingmachinesplus.com/media/products/juki/juki-9000c/brochure.pdf",
+   "note": "最高缝速 5000 针/分（半干式）；针杆行程 35.0 mm（厚料）/ 30.7 mm（薄料）；400 W 小型交流伺服电机直联主轴（直驱）"
+  },
+  {
+   "title": "问渠《机械设计》第 33.11 节案例：平缝机上轴 LS-101",
+   "url": "https://github.com/eddiezgq/freecad-ai-parts/blob/main/factory/digital/hub/case_parts.py",
+   "note": "上轴各段直径、长度：Ø10×22（针杆曲柄座）、Ø12×10、Ø16×215、Ø12×10、Ø10×40"
+  }
+ ],
+ "assumptions": [
+  "针杆机构按曲柄滑块：曲柄半径 17.5 mm（行程 35 mm）、连杆 60 mm、杆宽 8 mm、厚 5 mm、45 钢；不计挑线、旋梭、送布机构，未加平衡块",
+  "主轴恒速 5000 rpm；缝制阻力、摩擦零件库与样本都没有，未计（实际扭矩会更大）",
+  "供电按缝纫车间 200 V 三相（零件库的 SGD7S 驱动器要求三相；只有单相 220 V 时要换驱动器）",
+  "上轴两个轴承位按径向支承；表面系数 β = 0.92、尺寸系数 ε = 0.85（问渠数字工厂实验 8 的示例值）",
+  "控制箱散热器：铝底板 120×80×6 mm、8 片直翅高 30 mm；风扇风速 2 m/s、空气 35 °C、散热器 60 °C"
+ ],
+ "steps": [
+  {
+   "step": "动力学：针杆机构",
+   "status": "ok",
+   "summary": "主轴 5000 rpm：驱动扭矩峰值 2.50 N·m、均方根 1.58 N·m（主要是针杆往复惯性力，未加平衡块）；最大等效惯量 4.89e-05 kg·m²",
+   "data": {
+    "drive": {
+     "joint": "crank",
+     "kind": "speed",
+     "unit_force": "N·m",
+     "peak": 2.5023145268452645,
+     "rms": 1.5782693295869388,
+     "speed_max": 5060.387795974949,
+     "unit_speed": "rpm",
+     "power_peak_w": 1294.5004489133387,
+     "power_mean_w": -29.46139061696148,
+     "inertia_max_kgm2": 4.885048458333333e-05
+    }
+   }
+  },
+  {
+   "step": "选型：主轴直驱电机",
+   "status": "fail",
+   "summary": "直驱（无减速器）：引擎逐对校验 28 组电机 + 驱动器，没有全部通过的。电机扭矩、转速够的有 SGM7J-06A、SGM7J-08A；但零件库里最大的驱动器 SGD7S-2R8A 额定电流 2.8 A，带不动这些电机（C9）——要补更大驱动器的数据。另：针杆机构未加平衡块、扭矩偏大；JUKI 实机用 400 W，差距可能来自平衡块等这里没建模的因素",
+   "data": {
+    "requirement": {
+     "id": "lockstitch",
+     "statement": "平缝机主轴直驱：5000 rpm，扭矩按针杆机构动力学",
+     "output_torque_cont_nm": 1.578,
+     "output_torque_peak_nm": 2.502,
+     "output_speed_rpm": 5000,
+     "safety_factor": 1.2,
+     "supply": {
+      "current_type": "ac",
+      "voltage_v": 200,
+      "phases": 3
+     },
+     "ambient_temp_c": 25
+    },
+    "tried": [
+     [
+      "SGM7J-A5A",
+      "SGD7S-2R8A",
+      "fail",
+      [
+       "C4",
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-A5A",
+      "SGD7S-1R6A",
+      "fail",
+      [
+       "C4",
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-A5A",
+      "SGD7S-R90A",
+      "fail",
+      [
+       "C4",
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-A5A",
+      "SGD7S-R70A",
+      "fail",
+      [
+       "C4",
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-01A",
+      "SGD7S-2R8A",
+      "fail",
+      [
+       "C4",
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-01A",
+      "SGD7S-1R6A",
+      "fail",
+      [
+       "C4",
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-01A",
+      "SGD7S-R90A",
+      "fail",
+      [
+       "C4",
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-01A",
+      "SGD7S-R70A",
+      "fail",
+      [
+       "C4",
+       "C5",
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-C2A",
+      "SGD7S-2R8A",
+      "fail",
+      [
+       "C4",
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-C2A",
+      "SGD7S-1R6A",
+      "fail",
+      [
+       "C4",
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-C2A",
+      "SGD7S-R90A",
+      "fail",
+      [
+       "C4",
+       "C5",
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-C2A",
+      "SGD7S-R70A",
+      "fail",
+      [
+       "C4",
+       "C5",
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-02A",
+      "SGD7S-2R8A",
+      "fail",
+      [
+       "C4",
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-02A",
+      "SGD7S-1R6A",
+      "fail",
+      [
+       "C4",
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-02A",
+      "SGD7S-R90A",
+      "fail",
+      [
+       "C4",
+       "C5",
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-02A",
+      "SGD7S-R70A",
+      "fail",
+      [
+       "C4",
+       "C5",
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-04A",
+      "SGD7S-2R8A",
+      "fail",
+      [
+       "C4"
+      ]
+     ],
+     [
+      "SGM7J-04A",
+      "SGD7S-1R6A",
+      "fail",
+      [
+       "C4",
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-04A",
+      "SGD7S-R90A",
+      "fail",
+      [
+       "C4",
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-04A",
+      "SGD7S-R70A",
+      "fail",
+      [
+       "C4",
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-06A",
+      "SGD7S-2R8A",
+      "fail",
+      [
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-06A",
+      "SGD7S-1R6A",
+      "fail",
+      [
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-06A",
+      "SGD7S-R90A",
+      "fail",
+      [
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-06A",
+      "SGD7S-R70A",
+      "fail",
+      [
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-08A",
+      "SGD7S-2R8A",
+      "fail",
+      [
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-08A",
+      "SGD7S-1R6A",
+      "fail",
+      [
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-08A",
+      "SGD7S-R90A",
+      "fail",
+      [
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-08A",
+      "SGD7S-R70A",
+      "fail",
+      [
+       "C9"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "step": "BOM",
+   "status": "ok",
+   "summary": "（按最接近的组合，驱动器待换）外购件：Yaskawa Electric Corporation SGM7J-06A、Yaskawa America, Inc. SGD7S-2R8A；总质量 2.7 kg"
+  },
+  {
+   "step": "布局与干涉",
+   "status": "na",
+   "summary": "直驱电机直接装在机头上，没有电机—减速器的端口配合要摆（V1 的布局针对关节模组）"
+  },
+  {
+   "step": "固有频率：上轴 LS-101",
+   "status": "ok",
+   "summary": "两轴承位径向支承、电机端固定：一阶 1184.69 Hz（71081.0 rpm），工作 5000 rpm = 83.3 Hz，比值 14.2——远离共振（不计装在轴上的曲柄、带轮、转子的质量）",
+   "data": {
+    "freqs": [
+     {
+      "mode": 1,
+      "hz": 1184.69,
+      "rpm": 71081.0
+     },
+     {
+      "mode": 2,
+      "hz": 1185.34,
+      "rpm": 71121.0
+     },
+     {
+      "mode": 3,
+      "hz": 1761.4,
+      "rpm": 105684.0
+     },
+     {
+      "mode": 4,
+      "hz": 3359.83,
+      "rpm": 201590.0
+     }
+    ]
+   }
+  },
+  {
+   "step": "有限元：上轴扭转",
+   "status": "ok",
+   "summary": "针杆端加峰值扭矩 2.50 N·m：最大 Von Mises 33.4 MPa、安全系数 10.6；Ø10 段手算 τ = 16T/πd³ = 12.7 MPa（等效 22.1）",
+   "data": {
+    "vm": 33.381
+   }
+  },
+  {
+   "step": "疲劳：上轴",
+   "status": "ok",
+   "summary": "5000 rpm 下每转一个扭矩循环（0.3 s 记录 10 个循环）：无限寿命"
+  },
+  {
+   "step": "数控编程：上轴",
+   "status": "ok",
+   "summary": "Ø20 棒料、两次装夹 2 个程序、约 1.5 min；检查：没有发现问题（细长轴 L/d ≈ 30，实际要顶尖、跟刀架，仿真不计让刀）"
+  },
+  {
+   "step": "流体：控制箱散热器",
+   "status": "ok",
+   "summary": "风速 2 m/s、散热器比空气高 25 K：散热 23.2 W、平均散热系数 13.6 W/(m²·K)、压降对应阻力 0.003 N；驱动器损耗零件库无数据，待确认够不够",
+   "data": {
+    "heat_w": 23.164181864475633,
+    "h": 13.642082251081364
+   }
+  },
+  {
+   "step": "拓扑优化：电机支架",
+   "status": "ok",
+   "summary": "支架构形（左边固定、右下角受力）、材料用量 40%：柔度 403 → 50，45 次迭代；板面积 2124 mm²"
+  },
+  {
+   "step": "热分析 / 数字孪生",
+   "status": "na",
+   "summary": "直驱没有减速器、零件库也没有轴承，孪生无可算的零件；电机温升需要电机损耗数据"
+  },
+  {
+   "step": "发布到工厂",
+   "status": "ok",
+   "summary": "方案 LOCKSTITCH-DD 第 1 版，带自制件 LS-101、LS-HS；校验结论 fail 随方案一起发出"
+  }
+ ],
+ "elapsed_s": 163.0
+}

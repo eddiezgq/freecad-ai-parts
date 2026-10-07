@@ -1,0 +1,18 @@
+{
+  "requirement": {
+    "ambient_temp_c": 25,
+    "fieldbus_protocol": "ethercat",
+    "id": "scara-j2",
+    "load_inertia_kgm2": 1.601944,
+    "output_speed_rpm": 41.684,
+    "output_torque_cont_nm": 27.024,
+    "output_torque_peak_nm": 46.784,
+    "safety_factor": 1.2,
+    "statement": "动力学结果：关节 j2 峰值 46.8 N·m、均方根 27.0 N·m、最高 41.7 rpm",
+    "supply": {
+      "current_type": "ac",
+      "phases": 3,
+      "voltage_v": 200
+    }
+  }
+}

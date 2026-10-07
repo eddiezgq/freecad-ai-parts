@@ -1,0 +1,18 @@
+{
+  "requirement": {
+    "ambient_temp_c": 25,
+    "fieldbus_protocol": "ethercat",
+    "id": "cobot-j2",
+    "load_inertia_kgm2": 6.523441,
+    "output_speed_rpm": 20.008,
+    "output_torque_cont_nm": 70.048,
+    "output_torque_peak_nm": 92.504,
+    "safety_factor": 1.2,
+    "statement": "动力学结果：关节 j2 峰值 92.5 N·m、均方根 70.0 N·m、最高 20.0 rpm",
+    "supply": {
+      "current_type": "ac",
+      "phases": 3,
+      "voltage_v": 200
+    }
+  }
+}
