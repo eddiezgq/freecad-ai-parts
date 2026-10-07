@@ -292,9 +292,7 @@ def solve(step_path, setup, ccx, workdir=None):
         stats.update(vm_max_mpa=round(float(vv[ie]), 3), vm_max_at=[round(float(x), 3) for x in P[int(vid[ie])]],
                      vm_peak_all_mpa=round(float(vv.max()), 3), u_max_mm=round(float(umag.max()), 6),
                      u_max_at=[round(float(x), 3) for x in pos[int(umag.argmax())]])
-        strength, skind = materials.strength_mpa(mat)
-        stats["strength_mpa"], stats["strength_kind"] = strength, skind
-        stats["safety_factor"] = round(strength / max(stats["vm_max_mpa"], 1e-9), 3)
+        materials.safety(stats, mat, optional=bool(setup.get("strength_optional")))
     aux = {"T": T, "nodes": P}
     if kind == "thermo_mech":
         aux.update(U=disp, vm=vm_all)

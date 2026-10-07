@@ -49,6 +49,15 @@ def require(m: dict, fields: list[str], purpose: str) -> None:
         raise MissingData(f"{m['name']} 缺少{purpose}需要的性能：{'、'.join(miss)}（材料库只收有出处的值）")
 
 
+def safety(stats: dict, m: dict, optional: bool = False) -> None:
+    """按材料强度给 stats 加 strength_mpa、strength_kind、safety_factor；optional=True 时材料没有强度就不加（工厂教学材料表用）。"""
+    if optional and not (m.get("yield_strength_mpa") if not m.get("brittle") else m.get("ultimate_strength_mpa")):
+        return
+    strength, kind = strength_mpa(m)
+    stats["strength_mpa"], stats["strength_kind"] = strength, kind
+    stats["safety_factor"] = round(strength / max(stats["vm_max_mpa"], 1e-9), 3)
+
+
 def strength_mpa(m: dict) -> tuple[float, str]:
     """安全系数按屈服强度；脆性材料按抗拉强度。"""
     if m.get("brittle"):

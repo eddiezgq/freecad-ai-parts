@@ -88,8 +88,8 @@ def _axis_fit(gmsh, tag, info):
         pass
 
 
-def faces(step_path, size_hint=None) -> tuple[list[dict], dict]:
-    """返回（面清单, 实体信息）。"""
+def faces(step_path, size_hint=None, with_mesh=False):
+    """返回（面清单, 实体信息）；with_mesh=True 时再返回每个面的表面三角形 {面编号: (节点坐标 mm, 三角形)}（工厂网页画模型用）。"""
     with _LOCK, tempfile.TemporaryDirectory() as tmp:
         gmsh = _gmsh()
         load_step(gmsh, step_path, tmp)
@@ -99,7 +99,17 @@ def faces(step_path, size_hint=None) -> tuple[list[dict], dict]:
         gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 24)
         gmsh.model.mesh.generate(2)
         out = [_face_info(gmsh, tag) for _, tag in gmsh.model.getEntities(2)]
+        meshes = {}
+        if with_mesh:
+            for _, tag in gmsh.model.getEntities(2):
+                ntags, xyz, _ = gmsh.model.mesh.getNodes(2, tag, includeBoundary=True)
+                etypes, _, enodes = gmsh.model.mesh.getElements(2, tag)
+                if not len(ntags) or not etypes:
+                    continue
+                idx = {int(t): i for i, t in enumerate(ntags)}
+                meshes[int(tag)] = (np.asarray(xyz, float).reshape(-1, 3),
+                                    np.array([idx[int(n)] for n in enodes[0]], int).reshape(-1, 3))
         vol = sum(gmsh.model.occ.getMass(3, t) for _, t in gmsh.model.getEntities(3))
         solid = {"bbox_mm": [round(x, 3) for x in bb], "volume_mm3": round(vol, 1), "faces": len(out),
                  "solids": len(gmsh.model.getEntities(3))}
-    return out, solid
+    return (out, solid, meshes) if with_mesh else (out, solid)
