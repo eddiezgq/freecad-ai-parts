@@ -196,7 +196,7 @@ class ERP {
           created.push(['Material Request', mr.name]);
         }
       } else if (d.action === 'cad_to_erp') {
-        // 本仓库 ADR-0061：FreeCAD 方案转为生产物料——建供应商、物料、BOM（自下而上）；已有的不重建
+        // 本仓库 ADR-0061：FreeCAD 方案转为生产物料——建供应商、物料、BOM（自下而上）；已有的不重建（BOM 按方案版本，ADR-0062）
         const pv = d.preview;
         const company = await this.getCompany();
         for (const sp of pv.suppliers || []) {
@@ -214,11 +214,14 @@ class ERP {
           out.push(this.doc('Item', doc, 'created', opt));
           created.push(['Item', doc.name]);
         }
+        // ADR-0062：BOM 按“产品 + 方案版本”识别（写在说明里）——同一版本不重建；新版本设为默认，ERPNext 自动撤下旧的默认
+        const tag = `FreeCAD AI Parts 方案 ${pv.design} 第 ${pv.revision} 版`;
         for (const b of pv.boms || []) {
+          if ((await this.list('BOM', [['item', '=', b.item], ['description', '=', tag], ['docstatus', '=', 1]], ['name'])).length) continue;
           const ops = (pv.routings[b.routing] || []).map(([op, mins], i) => ({ operation: op, workstation: pv.operations[op],
             time_in_mins: Number(mins), sequence_id: i + 1 }));
           const doc = await this.insert('BOM', { item: b.item, quantity: 1, company, is_active: 1, is_default: 1,
-            with_operations: 1, inspection_required: 0, docstatus: 1,
+            description: tag, with_operations: 1, inspection_required: 0, docstatus: 1,
             items: b.items.map(([c, q]) => ({ item_code: c, qty: Number(q) })), operations: ops });
           out.push(this.doc('BOM', doc, 'submitted', opt));
           created.push(['BOM', doc.name]);

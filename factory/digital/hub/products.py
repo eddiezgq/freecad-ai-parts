@@ -27,6 +27,7 @@ create table if not exists fap_product (
 """
 CODE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,39}$")
 _REGISTERED = set()
+_RAW = {}          # 登记产品带来的新原材料（物料编号 → 物料定义）：再次转为生产物料时一并发给 ERP，ERP 换过库也能补建
 
 
 class ProductError(ValueError):
@@ -102,6 +103,8 @@ def build(design, extra=None):
                 raise ProductError("新原材料 {} 要写名称与工厂现有的供应商（{}）".format(rc, "、".join(F.SUPPLIERS)))
             items[rc] = {"item_code": rc, "item_name": raw["name"], "kind": "raw", "uom": raw.get("uom") or "Kg",
                          "price": raw.get("price"), "supplier": raw["supplier"], "description": raw.get("note") or ""}
+        elif rc in _RAW:
+            items[rc] = dict(_RAW[rc])
         rq = float(m.get("raw_qty") or 0)
         if rq <= 0:
             raise ProductError("自制件 {} 的毛坯用量须大于 0".format(mc))
@@ -130,8 +133,10 @@ def merge(spec):
     for s in spec["suppliers"]:
         F.SUPPLIERS[s["key"]] = {"name": s["name"], "lead": s["lead"]}
     for it in spec["items"]:
-        if it["kind"] == "raw" and it["item_code"] in F.ITEMS:
-            continue
+        if it["kind"] == "raw":
+            _RAW.setdefault(it["item_code"], {k: v for k, v in it.items() if k != "item_group"})
+            if it["item_code"] in F.ITEMS:
+                continue
         F.ITEMS[it["item_code"]] = (it["item_name"], it["kind"], it["uom"], it.get("price"), it.get("supplier"), None,
                                     it.get("description") or "")
     for rt, rows in spec["routings"].items():

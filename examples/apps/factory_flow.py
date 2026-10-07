@@ -142,6 +142,16 @@ def main(argv=None):
                     f"提议“{pv['title']}”经厂长确认后由桥接在 ERPNext 建 {len(sp['suppliers'])} 个供应商、{len(sp['items'])} 种物料、"
                     f"{len(sp['boms'])} 张 BOM（含工序）：{p['status']}；提醒：{'；'.join(sp['warnings']) or '无'}",
                     result=p.get("result"))
+            if a.erp and p["status"] == "executed":
+                # ADR-0062：再执行一次，同一版本不重复建 BOM，默认 BOM 只有一张（核对演示用的假 ERPNext）
+                h.proposal(h.post(f"/api/cad/designs/{urllib.parse.quote(code)}/production", {}, "engineer")["proposal_id"])
+                bs = [b for b in h.call("GET", "/api/mock/db/BOM", base=a.erp, role=None) if b["item"] == code]
+                tag = f"第 {sp['revision']} 版"
+                same = [b for b in bs if tag in (b.get("description") or "")]
+                ok = len(same) == 1 and sum(1 for b in bs if b.get("is_default")) == 1 and same[0].get("is_default")
+                run.add(f"{code}：改版与重复执行", "ok" if ok else "fail",
+                        f"同一版本再执行一次：ERP 里第 {sp['revision']} 版 BOM {len(same)} 张、默认 BOM "
+                        f"{sum(1 for b in bs if b.get('is_default'))} 张（共 {len(bs)} 张）")
         run.guard(f"{code}：转为生产物料（ERP）", erp)
 
         for mp in d.get("made_parts") or []:
