@@ -944,6 +944,45 @@ def test_cam_dialog(gui, tmp_path):
 
 
 @pytest.mark.freecad
+def test_cfd_dialog(gui):
+    """M11 第三步：流体分析窗口——没装 OpenFOAM 时说明安装方法；装了时方块进虚拟风洞，按散热系数着色。"""
+    pytest.importorskip("gmsh")
+    import FreeCAD
+    import Part
+
+    import analysis
+    from freecad_addon.gui.cfd_dialog import CfdDialog
+
+    dlg = CfdDialog()
+    st = next(m for m in analysis.modules() if m["id"] == "cfd")
+    if not st["available"]:
+        assert not dlg.run_button.isEnabled() and "OpenFOAM" in dlg.status.text() and dlg.compute() is False
+        return
+    doc = FreeCAD.newDocument("CfdTest")
+    try:
+        obj = doc.addObject("Part::Feature", "Block")
+        obj.Shape = Part.makeBox(100, 40, 20)
+        doc.recompute()
+        assert dlg.compute() is False  # 没选零件
+        assert dlg.set_part(obj) and len(dlg.faces) == 6
+        dlg.velocity.setText("2")
+        dlg.heat.setChecked(True)
+        dlg.wall_t.setText("60")
+        dlg.cells.setValue(20000)
+        dlg.level.setValue(1)
+        dlg.iterations.setValue(300)
+        assert dlg.compute() is True
+        _pump_until(gui, lambda: not dlg.busy, timeout=600)
+        assert dlg.result and dlg.result["status"] == "ok", dlg.status.text()
+        assert dlg.result["data"]["heat_w"] > 0 and dlg.table.rowCount() == 6
+        vals = dlg.face_values("h_w_m2k")
+        assert len(vals) == 6 and all(v is not None for v in vals)
+        assert len(obj.ViewObject.DiffuseColor) == 6
+    finally:
+        FreeCAD.closeDocument(doc.Name)
+
+
+@pytest.mark.freecad
 def test_twin_panel(gui, tmp_path):
     """M10 第五步：数字孪生窗口——布局中的减速器 + 运行记录 CSV → 已用寿命、剩余、假如；缺参数时待确认。"""
     import copy

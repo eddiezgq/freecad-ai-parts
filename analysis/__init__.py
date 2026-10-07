@@ -16,7 +16,8 @@ from analysis.common.solvers import find_ccx, missing_python
 
 # 已实现的模块（按 M10 顺序逐个加入）
 MODULE_PATHS: tuple[str, ...] = ("analysis.mbd", "analysis.fea", "analysis.fatigue", "analysis.thermal",
-                                    "analysis.optimize", "analysis.twin", "analysis.topo", "analysis.cam")
+                                    "analysis.optimize", "analysis.twin", "analysis.topo", "analysis.cam",
+                                    "analysis.cfd")
 
 
 class UnknownModule(LookupError):
@@ -37,6 +38,11 @@ def status(mod: ModuleType) -> dict:
     missing = [f"Python 包 {m}" for m in missing_python(info.get("python", []))]
     if "ccx" in info.get("solvers", []) and find_ccx() is None:
         missing.append("CalculiX 求解器 ccx（FreeCAD 自带；或设置环境变量 FAP_CCX）")
+    if "openfoam" in info.get("solvers", []):
+        from analysis.cfd.foam import find_openfoam
+
+        if find_openfoam() is None:
+            missing.append("OpenFOAM（blockMesh、snappyHexMesh、simpleFoam；或设置环境变量 FAP_OPENFOAM_BIN）")
     return {"id": info["id"], "name": info["name"], "description": info.get("description", ""),
             "available": not missing, "missing": missing, "install": info.get("install", "")}
 

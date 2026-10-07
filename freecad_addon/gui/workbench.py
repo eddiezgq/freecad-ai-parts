@@ -284,6 +284,26 @@ class CamCommand:
         return True
 
 
+class CfdCommand:
+    """流体分析（ADR-0059）：选中零件进虚拟风洞，算阻力与散热（本机 OpenFOAM）。"""
+
+    def GetResources(self):
+        return {"MenuText": "流体分析", "ToolTip": "虚拟风洞：阻力、各面压力，强制对流散热量与散热系数（需本机装 OpenFOAM）"}
+
+    def Activated(self):
+        from freecad_addon.gui.cfd_dialog import CfdDialog
+
+        dlg = _state.get("cfd")
+        if dlg is None:
+            dlg = CfdDialog(_main_window())
+            _state["cfd"] = dlg
+        dlg.show()
+        dlg.raise_()
+
+    def IsActive(self):
+        return True
+
+
 class TwinCommand:
     """数字孪生（ADR-0057）：当前布局的减速器、轴承 + 运行记录 → 已用寿命、剩余寿命、报警、假如。"""
 
@@ -462,6 +482,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         FreeCADGui.addCommand("FAP_Twin", TwinCommand())
         FreeCADGui.addCommand("FAP_Topo", TopoCommand())
         FreeCADGui.addCommand("FAP_Cam", CamCommand())
+        FreeCADGui.addCommand("FAP_Cfd", CfdCommand())
         FreeCADGui.addCommand("FAP_Publish", PublishCommand())
         FreeCADGui.addCommand("FAP_Connect", ConnectPortsCommand())
         FreeCADGui.addCommand("FAP_Checks", CheckPanelCommand())
@@ -472,7 +493,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bom",
                  "FAP_Restore", "FAP_Bridge", "FAP_Record"]
         self.appendToolbar("AI Parts", tools)
-        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_Fea", "FAP_Optimize", "FAP_Topo", "FAP_Cam", "FAP_Twin", "FAP_Publish", "FAP_RecordVideo"])
+        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_Fea", "FAP_Optimize", "FAP_Topo", "FAP_Cam", "FAP_Cfd", "FAP_Twin", "FAP_Publish", "FAP_RecordVideo"])
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"
