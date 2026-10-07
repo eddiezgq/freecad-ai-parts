@@ -313,9 +313,7 @@ def solve(step_path, setup, ccx, workdir=None):
              "vm_peak_all_mpa": round(float(allvm[ia]), 3), "vm_peak_all_at": [round(float(x), 3) for x in allp[ia]],
              "u_max_mm": round(float(umag.max()), 6), "u_max_at": [round(float(x), 3) for x in pos[jmax]],
              "applied_force_n": [round(float(x), 3) for x in sum(forces.values(), np.zeros(3))]}
-    strength, kind = materials.strength_mpa(mat)
-    stats["strength_mpa"], stats["strength_kind"] = strength, kind
-    stats["safety_factor"] = round(strength / max(stats["vm_max_mpa"], 1e-9), 3)
+    materials.safety(stats, mat, optional=bool(setup.get("strength_optional")))
     surface = {"positions": np.round(pos, 4), "triangles": tri_idx.astype(np.int32),
                "face_of_triangle": face_of.astype(np.int32), "vm": np.round(VM, 4), "u": np.round(U, 7)}
     return stats, surface, {"vm": vm_all, "nodes": P}
