@@ -20,10 +20,12 @@ function labelSprite(text, color = '#17212B') {
 }
 
 // layout：/api/layout 的返回；host：放画布的元素。返回 { update(machines, agvs), pick(event), focus(unit), render hook, dispose() }
-export function createWorkshop(host, L, { onFrame } = {}) {
+// night：深色车间（帮助首页用，ADR-0065）；autoRotate：镜头缓慢环绕
+export function createWorkshop(host, L, { onFrame, night = false, autoRotate = false } = {}) {
   const [FW, FD] = L.floor;
+  const C = night ? { bg: '#17212B', floor: '#22303C', aisle: '#34485A' } : { bg: '#EEF0EC', floor: '#D9DDD6', aisle: '#F2EDD7' };
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#EEF0EC');
+  scene.background = new THREE.Color(C.bg);
   const camera = new THREE.PerspectiveCamera(45, host.clientWidth / Math.max(1, host.clientHeight), 0.1, 500);
   camera.position.set(FW / 2, 40, FD + 34);
   const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -33,22 +35,24 @@ export function createWorkshop(host, L, { onFrame } = {}) {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.target.set(FW / 2, 0, FD / 2);
   controls.maxPolarAngle = Math.PI / 2.1;
+  controls.autoRotate = autoRotate;
+  controls.autoRotateSpeed = 0.35;
   controls.update();
   scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8f86, 1.6));
   const sun = new THREE.DirectionalLight(0xffffff, 1.4);
   sun.position.set(20, 40, 10);
   scene.add(sun);
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(FW, FD), new THREE.MeshLambertMaterial({ color: '#D9DDD6' }));
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(FW, FD), new THREE.MeshLambertMaterial({ color: C.floor }));
   floor.rotation.x = -Math.PI / 2;
   floor.position.set(FW / 2, 0, FD / 2);
   scene.add(floor);
   for (const a of L.aisles) {
-    const s = new THREE.Mesh(new THREE.PlaneGeometry(FW - 4, 2.2), new THREE.MeshLambertMaterial({ color: '#F2EDD7' }));
+    const s = new THREE.Mesh(new THREE.PlaneGeometry(FW - 4, 2.2), new THREE.MeshLambertMaterial({ color: C.aisle }));
     s.rotation.x = -Math.PI / 2; s.position.set(FW / 2 + 1, 0.01, a); scene.add(s);
   }
   if (L.aisles.length > 1) {           // 只有一条主通道的车间没有纵向连接通道
     const lo = Math.min(...L.aisles), hi = Math.max(...L.aisles);
-    const cross = new THREE.Mesh(new THREE.PlaneGeometry(2.2, hi - lo), new THREE.MeshLambertMaterial({ color: '#F2EDD7' }));
+    const cross = new THREE.Mesh(new THREE.PlaneGeometry(2.2, hi - lo), new THREE.MeshLambertMaterial({ color: C.aisle }));
     cross.rotation.x = -Math.PI / 2; cross.position.set(L.cross_x, 0.01, (lo + hi) / 2); scene.add(cross);
   }
 

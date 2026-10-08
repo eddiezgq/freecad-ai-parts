@@ -36,3 +36,4 @@ Thumbs.db
 
 # 锁定版本的 FreeCAD（scripts/fetch_freecad.sh 下载解包，ADR-0032）
 .freecad/
+factory/digital/help-media/

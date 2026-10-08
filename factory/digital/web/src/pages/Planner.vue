@@ -4,15 +4,15 @@
     <div class="page-title"><h1>订单与计划</h1><span class="muted">计划员工作区 · 接单、算料（MRP）、下达车间</span></div>
 
     <div class="row">
-      <section class="card neworder">
+      <section class="card neworder" data-help="planner-neworder">
         <div class="card-head"><h2>新建订单</h2><span class="muted small">先算料，看清楚再提交；提交后要你确认才写入 ERPNext</span></div>
         <form class="form" @submit.prevent="calc">
-          <div class="field"><label>客户</label>
+          <div class="field" data-help="planner-customer"><label>客户</label>
             <select v-model="f.customer" required><option v-for="c in customers" :key="c" :value="c">{{ short(c) }}</option></select></div>
           <div class="field"><label>产品</label><select v-model="f.item"><option value="WQR-105">WQR-105 二级圆柱齿轮减速器</option></select></div>
-          <div class="field"><label>数量（台）</label><input v-model.number="f.qty" type="number" min="1" max="200" required></div>
+          <div class="field" data-help="planner-qty"><label>数量（台）</label><input v-model.number="f.qty" type="number" min="1" max="200" required></div>
           <div class="field"><label>交期</label><input v-model="f.delivery_date" type="date" required></div>
-          <button class="btn">算料</button>
+          <button class="btn" data-help="planner-calc">算料</button>
         </form>
         <div v-if="err" class="err">{{ err }}</div>
         <template v-if="pv">
@@ -34,7 +34,7 @@
         </template>
       </section>
 
-      <section class="card side">
+      <section class="card side" data-help="planner-proposals">
         <div class="card-head"><h2>提议</h2><span class="muted small">AI 起草或你提交的，确认后才执行</span></div>
         <div v-if="!props_.length" class="empty">暂无</div>
         <div v-for="p in props_" :key="p.proposal_id" class="prow" @click="pid = p.proposal_id">

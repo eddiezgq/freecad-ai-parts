@@ -13,6 +13,7 @@ import hmac
 import json
 import logging
 import os
+import re
 import secrets
 import sys
 import threading
@@ -1880,6 +1881,26 @@ _tasks.mount(app, H, user_of, who, _uid, _emit_as)
 
 
 # ---------------------------------------------------------------- 网页
+# ---------------------------------------------------------------- 帮助的操作视频（ADR-0065）
+HELP_MEDIA = os.environ.get("WQ_HELP_MEDIA", os.path.join(os.path.dirname(HERE), "help-media"))
+_MEDIA_NAME = re.compile(r"^[a-z0-9-]+\.(webm|mp4|vtt)$")
+
+
+@app.get("/api/help/media")
+def help_media():
+    """装在这台服务器上的帮助视频（不用登录：帮助页登录前也能看）。"""
+    files = sorted(f for f in os.listdir(HELP_MEDIA) if _MEDIA_NAME.match(f)) if os.path.isdir(HELP_MEDIA) else []
+    return {"files": files}
+
+
+@app.get("/help-media/{name}")
+def help_media_file(name: str):
+    f = os.path.join(HELP_MEDIA, name)
+    if not _MEDIA_NAME.match(name) or not os.path.isfile(f):
+        raise HTTPException(404, "没有这段视频")
+    return FileResponse(f, headers={"Cache-Control": "public, max-age=86400"})
+
+
 if os.path.isdir(WEB_DIST):
     app.mount("/assets", StaticFiles(directory=os.path.join(WEB_DIST, "assets")), name="assets")
 

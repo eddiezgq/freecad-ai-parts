@@ -1,0 +1,14 @@
+{
+  "teach-login": { "edition": "teach", "title": "登录、选角色、两种模式" },
+  "teach-order": { "edition": "teach", "title": "接单与 MRP" },
+  "teach-dispatch": { "edition": "teach", "title": "派工与报工" },
+  "teach-3d": { "edition": "teach", "title": "3D 车间" },
+  "teach-publish": { "edition": "teach", "title": "FreeCAD 方案发布到工厂" },
+  "teach-anomaly": { "edition": "teach", "title": "异常追因与推演" },
+  "teach-8d": { "edition": "teach", "title": "质量异常单（8D）" },
+  "teach-ai": { "edition": "teach", "title": "AI 工厂助手" },
+  "ent-plant-import": { "edition": "enterprise", "title": "Excel 工厂清单导入" },
+  "ent-accounts": { "edition": "enterprise", "title": "开账号、分角色" },
+  "ent-new-product": { "edition": "enterprise", "title": "新产品进工厂" },
+  "ent-ops": { "edition": "enterprise", "title": "备份、升级与状态" }
+}

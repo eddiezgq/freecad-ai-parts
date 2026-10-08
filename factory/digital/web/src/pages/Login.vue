@@ -46,6 +46,7 @@
         <button class="btn primary big" :disabled="busy">进入工厂</button>
       </template>
       <div v-if="err" class="err">{{ err }}</div>
+      <p class="helplink small"><router-link to="/help">第一次来？看帮助：动画、视频，一步步带你做</router-link></p>
     </form>
   </div>
 </template>
@@ -88,6 +89,7 @@ async function go() {
 </script>
 
 <style scoped>
+.helplink { margin: 14px 0 0; text-align: center; }
 .wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; background: var(--rail); }
 .box { width: min(560px, 100%); background: #fff; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 16px; }
 .brand { display: flex; align-items: center; gap: 12px; }

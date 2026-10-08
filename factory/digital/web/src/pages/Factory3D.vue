@@ -1,7 +1,7 @@
 <template>
   <div class="wrap3d">
-    <div ref="host" class="host" @pointerdown="down" @pointerup="up"></div>
-    <div class="legend small">
+    <div ref="host" class="host" data-help="3d-scene" @pointerdown="down" @pointerup="up"></div>
+    <div class="legend small" data-help="3d-legend">
       <span v-for="s in ['run', 'idle', 'setup', 'down']" :key="s"><i :style="{ background: HEX[s] }"></i>{{ STATE[s].label }}</span>
       <span class="muted">拖动旋转 · 滚轮缩放 · 点设备看详情</span>
     </div>
