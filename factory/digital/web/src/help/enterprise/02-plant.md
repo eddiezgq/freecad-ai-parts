@@ -23,11 +23,6 @@ $ python -m factory.plant check plant.yaml
 2. **照着改成你的车间**：哪里填错了，导入时会说清是哪张表、第几行、哪一列；
 3. **安装时带上**：`install.sh --plant plant.yaml`；已经装好的用 `upgrade.sh --plant plant.yaml` 换清单。
 
-```video
-name: ent-plant-import
-caption: 填 Excel、导入、改错、校验（约 60 秒）
-```
-
 ## 每张表填什么
 
 | 表 | 每行是 | 要点 |

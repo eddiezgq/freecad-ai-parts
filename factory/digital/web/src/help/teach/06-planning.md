@@ -31,7 +31,7 @@ label: 带我把工单下达车间
 
 ```video
 name: teach-order
-caption: 接单、算料、确认、下达（约 60 秒）
+caption: 接单、算料、确认、下达
 ```
 
 ```ask

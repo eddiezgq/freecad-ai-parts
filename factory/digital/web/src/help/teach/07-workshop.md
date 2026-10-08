@@ -19,7 +19,7 @@ label: 带我在车间终端开工
 
 ```video
 name: teach-dispatch
-caption: 派工、开工、报工（约 50 秒）
+caption: 选工位、开工
 ```
 
 ## 3D 车间
@@ -33,7 +33,7 @@ label: 打开 3D 车间
 
 ```video
 name: teach-3d
-caption: 3D 车间（约 40 秒）
+caption: 3D 车间
 ```
 
 ## 统一数据总线和虚拟 PLC

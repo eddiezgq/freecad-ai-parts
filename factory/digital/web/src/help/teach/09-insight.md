@@ -25,7 +25,7 @@ label: 带我追一个异常
 
 ```video
 name: teach-anomaly
-caption: 一个停机异常：追因、推演、处理（约 90 秒）
+caption: 追一个异常：原因、影响、推演
 ```
 
 ```ask

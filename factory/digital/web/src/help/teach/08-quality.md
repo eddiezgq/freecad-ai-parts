@@ -22,7 +22,7 @@ label: 带我看控制图、开质量异常单
 
 ```video
 name: teach-8d
-caption: 从控制图到关闭 8D（约 80 秒）
+caption: 控制图与质量异常单（8D）
 ```
 
 ```ask

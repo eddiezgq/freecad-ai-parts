@@ -125,6 +125,8 @@ jobs:
     # 本地版能一条命令启动（ADR-0058，M10 第 6b 项）：构建镜像、启动、枢纽健康、仿真车间有数据进总线
     runs-on: ubuntu-24.04
     needs: factory
+    permissions:
+      contents: write          # 合并到 main 后把帮助视频传到 Release（ADR-0065）
     steps:
       - uses: actions/checkout@v5
       - name: 启动本地工厂
@@ -230,10 +232,34 @@ jobs:
       - name: 停止
         if: always()
         run: factory/local/stop.sh --reset
+      - name: 录教学版帮助视频（ADR-0065）：脚本在演示工厂里操作并录下，字幕叠在画面上
+        run: |
+          pip install -q playwright==1.55.0 && python -m playwright install --with-deps chromium >/dev/null
+          set -o pipefail
+          python factory/digital/tools/help_videos.py --hub http://localhost:8100 --edition teach --out help-media 2>&1 \
+            | tee "$RUNNER_TEMP/videos.log"
+          tar czf help-videos-teach.tar.gz -C help-media . && ls -la help-media
+      - uses: actions/upload-artifact@v4
+        with:
+          name: help-videos-teach
+          path: help-videos-teach.tar.gz
+      - name: 合并到 main 后发布帮助视频（教学版）
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view help-videos >/dev/null 2>&1 || gh release create help-videos --title "帮助的操作视频" \
+            --notes "CI 自动录制（ADR-0065），工厂镜像构建时取用。" --prerelease
+          gh release upload help-videos help-videos-teach.tar.gz --clobber
+      - name: 视频没录成时的输出（写成注释）
+        if: failure()
+        run: '[ ! -f "$RUNNER_TEMP/videos.log" ] || python3 factory/deploy/ci_annotate.py 录视频 "$RUNNER_TEMP/videos.log" 60'
 
   enterprise:
     # 企业安装版（ADR-0063，M15）：干净机器上一条命令装好（自签证书、本机域名），企业账号登录，工作台与 ERPNext 经 HTTPS 可开
     # M16（ADR-0064）：装的是示例企业工厂（示例缝纫机厂，人民币、上海时区、自己的设备与平面），不是演示工厂
+    permissions:
+      contents: write          # 合并到 main 后把帮助视频传到 Release（ADR-0065）
     runs-on: ubuntu-24.04
     needs: factory
     steps:
@@ -330,6 +356,42 @@ jobs:
           python -m examples.apps.factory_flow --hub https://factory.localtest.me --products LOCKSTITCH-DD --speed 240 2>&1 \
             | tee -a "$RUNNER_TEMP/apps.log"
           grep -q "LOCKSTITCH-DD：设计方案：完成" "$RUNNER_TEMP/apps.log"     # 方案要真的到了工厂，不能“跳过”
+      - name: 录企业版帮助视频（ADR-0065）：示例缝纫机厂、企业账号
+        env:
+          FAP_DIR: ${{ runner.temp }}/fap
+          FAP_FACTORY_USER: admin
+          FAP_FACTORY_PASSWORD: Ci-admin-pass-2026
+        run: |
+          pip install -q playwright==1.55.0 && python -m playwright install --with-deps chromium >/dev/null
+          # 视频用生产模式录：先以生产模式发布一个方案，“CAD 方案”里才有东西
+          FAP_FACTORY_CAFILE="$RUNNER_TEMP/caddy-root.crt" python - <<'PY'
+          import os
+          from freecad_addon.core import factory_link as F
+          from kb.library import JsonLibrary
+          lib = JsonLibrary("data/library")
+          layout = {"instances": [{"instance": "motor", "component": "servo_motor.yaskawa-electric-corporation.sgm7j-02a-6"},
+                                  {"instance": "reducer", "component": "reducer.harmonic-drive-llc.csf-25-100-2uh"}],
+                    "connections": []}
+          data = F.payload(layout, lib.get, code="SEW-JOINT", name="缝纫机送料关节（示例）")
+          c = F.HubClient("https://factory.localtest.me", cafile=os.environ["FAP_FACTORY_CAFILE"])
+          print("生产模式发布：", F.publish(c, "admin", "prod", data, password=os.environ["FAP_FACTORY_PASSWORD"]))
+          PY
+          set -o pipefail
+          python factory/digital/tools/help_videos.py --hub https://factory.localtest.me --edition enterprise \
+            --cafile "$RUNNER_TEMP/caddy-root.crt" --out help-media 2>&1 | tee "$RUNNER_TEMP/videos.log"
+          tar czf help-videos-enterprise.tar.gz -C help-media . && ls -la help-media
+      - uses: actions/upload-artifact@v4
+        with:
+          name: help-videos-enterprise
+          path: help-videos-enterprise.tar.gz
+      - name: 合并到 main 后发布帮助视频（企业版）
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view help-videos >/dev/null 2>&1 || gh release create help-videos --title "帮助的操作视频" \
+            --notes "CI 自动录制（ADR-0065），工厂镜像构建时取用。" --prerelease || true
+          gh release upload help-videos help-videos-enterprise.tar.gz --clobber
       - name: 失败时的日志（写成注释，经 GitHub 接口能读到）
         if: failure()
         run: |
@@ -343,6 +405,7 @@ jobs:
           docker compose -p fap-gateway logs --no-color --tail 40 > "$RUNNER_TEMP/gw.log" 2>&1 || true
           python3 "$GITHUB_WORKSPACE/factory/deploy/ci_annotate.py" 网关日志 "$RUNNER_TEMP/gw.log" 40
           [ ! -f "$RUNNER_TEMP/apps.log" ] || python3 "$GITHUB_WORKSPACE/factory/deploy/ci_annotate.py" 演练输出 "$RUNNER_TEMP/apps.log" 80
+          [ ! -f "$RUNNER_TEMP/videos.log" ] || python3 "$GITHUB_WORKSPACE/factory/deploy/ci_annotate.py" 录视频 "$RUNNER_TEMP/videos.log" 60
           if [ -f "$RUNNER_TEMP/apps.log" ]; then
             grep -E "\[factory_flow\]|Traceback|Error" "$RUNNER_TEMP/apps.log" | cut -c1-300 > "$RUNNER_TEMP/flow.log" || true
             python3 "$GITHUB_WORKSPACE/factory/deploy/ci_annotate.py" 工厂流程 "$RUNNER_TEMP/flow.log" 60

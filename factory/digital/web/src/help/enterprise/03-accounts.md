@@ -32,7 +32,7 @@ label: 带我开一个账号
 
 ```video
 name: ent-accounts
-caption: 开账号、分角色、停用（约 40 秒）
+caption: 开账号、分角色
 ```
 
 ## 忘了管理员密码
