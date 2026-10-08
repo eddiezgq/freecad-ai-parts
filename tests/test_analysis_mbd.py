@@ -124,3 +124,37 @@ def test_setup_errors_are_reported():
     with pytest.raises(mbd.SetupError):
         mbd.requirement(res, "nut")
     assert analysis.modules()[0]["id"] == "mbd"
+
+
+def test_energy_swing_matches_kinetic_energy():
+    """标准题（ADR-0062）：不计重力、恒速驱动的曲柄滑块，一转内驱动力矩做功的起伏等于连杆、滑块动能的起伏。
+    动能按精确运动学（连杆质心平动 + 转动、滑块平动）与模型里的质量逐点计算，取最大值减最小值。"""
+    import numpy as np
+
+    from analysis import mbd
+    from analysis.mbd.mechanisms import RHO
+
+    r, l, w, t, rpm = 0.0175, 0.06, 0.008, 0.005, 3000
+    res = mbd.run({"model": {"kind": "mechanism", "id": "C-LNK-SLIDER",
+                             "params": {"crank_m": r, "rod_m": l, "link_width_m": w, "link_thickness_m": t}},
+                   "duration_s": 0.045, "gravity": False, "sample_hz": 5000,
+                   "drives": [{"joint": "crank", "kind": "speed", "value": rpm}]})
+    sw = mbd.energy_swing(res, "crank")
+    assert sw["points_per_rev"] >= 90 and abs(sw["mean_torque_nm"]) < 0.02
+    m_r, i_r = RHO * l * t * w, RHO * l * t * w * (l ** 2 + w ** 2) / 12          # 连杆：长 l、宽 w（运动平面内）、厚 t
+    m_s = RHO * (2.4 * w) * (3 * t) * (2 * w)                                      # 滑块：模型里的方块
+    om = rpm * 2 * np.pi / 60
+    th = np.linspace(0, 2 * np.pi, 4001)
+    ax, az = r * np.cos(th), r * np.sin(th)
+    xb = ax + np.sqrt(l ** 2 - az ** 2)
+    phi = np.arcsin(az / l)
+    d = lambda f: np.gradient(f, th) * om
+    ke = 0.5 * m_r * (d((ax + xb) / 2) ** 2 + d(az / 2) ** 2) + 0.5 * i_r * d(phi) ** 2 + 0.5 * m_s * d(xb) ** 2
+    exact = ke.max() - ke.min()
+    assert abs(sw["delta_e_j"] - exact) / exact < 0.03, (sw, exact)
+    sparse = mbd.run({"model": {"kind": "mechanism", "id": "C-LNK-SLIDER",
+                                "params": {"crank_m": r, "rod_m": l, "link_width_m": w, "link_thickness_m": t}},
+                      "duration_s": 0.045, "gravity": False, "sample_hz": 200,
+                      "drives": [{"joint": "crank", "kind": "speed", "value": rpm}]})
+    with pytest.raises(mbd.SetupError, match="太稀"):                             # 200 Hz 记 3000 rpm：每转 4 个点
+        mbd.energy_swing(sparse, "crank")

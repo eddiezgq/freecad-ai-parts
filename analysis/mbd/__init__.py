@@ -5,7 +5,7 @@
     {"kind": "mechanism", "id": "C-LNK-SLIDER", "params": {...}}   常用机构（参数为米，见 mechanisms.DEFAULTS）
     {"kind": "arm", "base_height_mm", "links": [{"length_mm", "mass_kg"}], "joint_masses_kg": [...], "payload_kg"}
     {"kind": "mjcf", "xml": "<mujoco>…</mujoco>"}                   自带模型（SI 单位）
-  duration_s（≤ 60）、gravity（缺省 true）、sample_hz（≤ 200）
+  duration_s（≤ 60）、gravity（缺省 true）、sample_hz（≤ 5000，记录点数 ≤ 20000；高速机构每转要几十个点）
   initial: {关节: 初值}（转动关节 °，移动关节 mm）
   drives: [{"joint", "kind": "move", "to", "t0_s", "t1_s", "accel_ratio"}    点到点（梯形速度，加减速各占 accel_ratio）
            {"joint", "kind": "speed", "value"}（转动 rpm，移动 mm/s）、{"joint", "kind": "sine", "amp", "freq_hz"}、
@@ -164,3 +164,29 @@ def requirement(res: Mapping, joint: str, *, base: Mapping | None = None) -> dic
     req.setdefault("statement", f"动力学结果：关节 {joint} 峰值 {d['peak']:.1f} N·m、均方根 {d['rms']:.1f} N·m、"
                                 f"最高 {d['speed_max']:.1f} rpm")
     return req
+
+
+def energy_swing(res: Mapping, joint: str) -> dict:
+    """转动驱动关节一转内的最大盈亏功（《机械原理》飞轮设计，ADR-0062）。
+
+    由记录的转角与驱动力矩积分 W(θ) = ∫T dθ，去掉平均力矩做的功后取最大值减最小值。取最后一整转；记录要足够密
+    （每转几十个点，见 sample_hz）。返回 {delta_e_j, mean_torque_nm, points_per_rev}；不满一转时抛 SetupError。
+    """
+    import numpy as np
+
+    s = res.get("data", {}).get("series", {}).get(joint)
+    if not s:
+        raise SetupError(f"结果中没有关节 {joint} 的记录")
+    q = np.radians(np.asarray(s["q"], float))
+    tau = np.asarray(s["drive"], float)
+    if len(q) < 3 or abs(q[-1] - q[0]) < 2 * np.pi:
+        raise SetupError("记录不满一整转，算不了盈亏功")
+    sign = 1.0 if q[-1] > q[0] else -1.0
+    i0 = int(np.searchsorted(sign * q, sign * q[-1] - 2 * np.pi))       # 最后一整转的起点
+    qq, tt = q[i0:], tau[i0:]
+    if len(qq) < 24:
+        raise SetupError(f"一转只记录了 {len(qq)} 个点，太稀：把 sample_hz 调高（每转至少 24 个点）")
+    w = np.concatenate([[0.0], np.cumsum((tt[1:] + tt[:-1]) / 2 * np.diff(qq))])
+    mean = w[-1] / (qq[-1] - qq[0])
+    dev = w - mean * (qq - qq[0])
+    return {"delta_e_j": float(dev.max() - dev.min()), "mean_torque_nm": float(mean), "points_per_rev": len(qq)}

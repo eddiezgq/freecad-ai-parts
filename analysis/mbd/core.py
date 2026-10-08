@@ -16,7 +16,7 @@
   forces: [{"body": "slider", "force": [-200, 0, 0], "pos": [0, 0, 0]}]          外力（世界坐标，作用点在构件上，恒定）
   friction: {关节名: {"damping": N·m·s/rad, "frictionloss": N·m}}
   points: [{"body": "coupler", "pos": [0.06, 0, 0], "name": "P"}]                要记录轨迹的点
-  sample_hz: 记录频率（≤ 200）
+  sample_hz: 记录频率（≤ 5000，且时长 × 频率 ≤ 20000 点；峰值、均方根按记录点算，高速机构要记得密）
 
 给定运动的驱动用单关节等式约束实现（每一步更新目标值），约束力就是所需的驱动力矩（与 ADAMS 的“运动副驱动”同义）。
 关节反力：每个构件从父构件受到的力和力矩（世界坐标，力矩对关节中心），由 MuJoCo 的 cfrc_int 换算。
@@ -26,7 +26,8 @@ import math
 import numpy as np
 
 MAX_DURATION_S = 60.0
-MAX_SAMPLE_HZ = 200
+MAX_SAMPLE_HZ = 5000          # 高速机构（如 5000 rpm 的缝纫机主轴）每转要几十个点，200 Hz 会混叠（ADR-0062）
+MAX_SAMPLES = 20000           # 记录点数上限：时长 × 记录频率
 ANIM_HZ = 50
 
 
@@ -300,7 +301,8 @@ def _run(model, setup, drives, record=True):
     for fdef in setup.get("forces") or []:
         fbody.append((_bid(model, fdef["body"]), np.asarray(fdef["force"], float), np.asarray(fdef.get("pos") or [0, 0, 0], float)))
     rec = Recorder(model, setup, ids) if record else None
-    every = max(1, round(1 / (min(float(setup.get("sample_hz", 100)), MAX_SAMPLE_HZ) * dt)))
+    hz = min(float(setup.get("sample_hz", 100)), MAX_SAMPLE_HZ, MAX_SAMPLES / max(nsteps * dt, 1e-9))
+    every = max(1, round(1 / (hz * dt)))
     anim_every = max(1, round(1 / (ANIM_HZ * dt)))
     err = 0.0
 
