@@ -1,6 +1,6 @@
 {
  "app": "cobot_joint",
- "title": "协作机器人肩关节（UR5e 一类）",
+ "title": "协作机器人肩、肘、腕关节（UR5e 一类）",
  "sources": [
   {
    "title": "Universal Robots UR5e 数据表",
@@ -13,6 +13,11 @@
    "note": "大臂 a2 = 425 mm、小臂 a3 = 392.25 mm；质量 3.70 / 8.393 / 2.275 / 1.219 / 1.219 / 0.1879 kg（外部测量，可能与实物不同）"
   },
   {
+   "title": "Universal Robots：DH Parameters for calculations of kinematics and dynamics（UR5e 表）",
+   "url": "https://www.universal-robots.com/articles/ur/application-installation/dh-parameters-for-calculations-of-kinematics-and-dynamics/",
+   "note": "腕部 d5 = 0.0997 m、d6 = 0.0996 m；第 5、6 节质量 1.3、0.365 kg（腕关节 j4 用）"
+  },
+  {
    "title": "问渠《机械设计》第 33.10 节案例：协作机器人肩关节空心轴 RJ-201",
    "url": "https://github.com/eddiezgq/freecad-ai-parts/blob/main/factory/digital/hub/case_parts.py",
    "note": "空心轴各段直径、长度与 Ø30 贯通内孔"
@@ -23,6 +28,7 @@
   "运动：肩、肘各转 90°，用时 1.0 s，加减速各占 25%（最高 120°/s，低于数据表的 180°/s）",
   "供电按控制柜 200 V 三相交流、EtherCAT 总线（零件库里的伺服是 200 V 交流；真实协作臂多用 48 V 直流关节）",
   "工作制：每天 16 小时，按动力学这一段动作重复（数字孪生的运行记录是仿真工况，不是现场数据）",
+  "腕关节 j4（wrist 1）最不利工况：d5、d6 沿同一方向水平伸出（力臂取上界 199.3 mm），第 5、6 节按均布杆、负载 5 kg 在末端；转 90° 用时 1.0 s",
   "表面系数 β = 0.92（磨削）、尺寸系数 ε = 0.85：取问渠数字工厂实验 8 的示例值，实际按教材图表查",
   "关节壳体自然对流散热系数 8 W/(m²·K)（自然对流常见范围 5–10），环境 25 °C"
  ],
@@ -62,6 +68,26 @@
      "j3": 33.721322206500005
     },
     "hand_gravity_j2": 92.49491916000001
+   }
+  },
+  {
+   "step": "动力学：腕关节 j4",
+   "status": "ok",
+   "summary": "峰值 11.4 N·m、均方根 7.7 N·m、最高 20.0 rpm；水平伸出重力矩 11.4 N·m（手算 11.4）",
+   "data": {
+    "j4": {
+     "joint": "j2",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 11.403396281886705,
+     "rms": 7.705333985681731,
+     "speed_max": 20.007997393799844,
+     "unit_speed": "rpm",
+     "power_peak_w": 22.934096409126866,
+     "power_mean_w": -8.081116639453935,
+     "inertia_max_kgm2": 0.22146071292272312
+    },
+    "hand_gravity_j4": 11.403313222500001
    }
   },
   {
@@ -509,7 +535,7 @@
   {
    "step": "选型 j3",
    "status": "unknown",
-   "summary": "需求 连续 34.2 / 峰值 42.4 N·m、20.0 rpm → SGM7J-02A-6、CSF-25-100-2UH、SGD7S-1R6A；总体 unknown（C3 unknown：缺少分度圆直径；C8 unknown：惯量比：缺少减速器输入侧惯量）；共 3 个候选",
+   "summary": "需求 连续 34.2 / 峰值 42.4 N·m、20.0 rpm → SGM7J-02A-6、CSF-25-100-2UH、SGD7S-1R6A；总体 unknown（C3 unknown：缺少分度圆直径；C8 unknown：惯量比：缺少减速器输入侧惯量）；共 4 个候选，外购件最轻的是 SGM7J-02A-6、CSF-25-100-2UH、SGD7S-1R6A（3.2 kg）",
    "data": {
     "requirement": {
      "safety_factor": 1.2,
@@ -949,6 +975,448 @@
    }
   },
   {
+   "step": "选型 j4",
+   "status": "unknown",
+   "summary": "需求 连续 7.7 / 峰值 11.4 N·m、20.0 rpm → SGM7J-02A-6、CSF-25-100-2UH、SGD7S-1R6A；总体 unknown（C3 unknown：缺少分度圆直径；C8 unknown：惯量比：缺少减速器输入侧惯量）；共 14 个候选，外购件最轻的是 SGM7J-A5A-6、CSF-17-100-2UH、SGD7S-1R6A（1.88 kg）",
+   "data": {
+    "requirement": {
+     "safety_factor": 1.2,
+     "supply": {
+      "current_type": "ac",
+      "voltage_v": 200,
+      "phases": 3
+     },
+     "fieldbus_protocol": "ethercat",
+     "ambient_temp_c": 25,
+     "output_torque_cont_nm": 7.705,
+     "output_torque_peak_nm": 11.403,
+     "output_speed_rpm": 20.008,
+     "load_inertia_kgm2": 0.221461,
+     "statement": "动力学结果：关节 j2 峰值 11.4 N·m、均方根 7.7 N·m、最高 20.0 rpm",
+     "id": "cobot-j4"
+    },
+    "system": {
+     "id": "candidate-1",
+     "requirement": {
+      "safety_factor": 1.2,
+      "supply": {
+       "current_type": "ac",
+       "voltage_v": 200,
+       "phases": 3
+      },
+      "fieldbus_protocol": "ethercat",
+      "ambient_temp_c": 25,
+      "output_torque_cont_nm": 7.705,
+      "output_torque_peak_nm": 11.403,
+      "output_speed_rpm": 20.008,
+      "load_inertia_kgm2": 0.221461,
+      "statement": "动力学结果：关节 j2 峰值 11.4 N·m、均方根 7.7 N·m、最高 20.0 rpm",
+      "id": "cobot-j4"
+     },
+     "components": [
+      {
+       "instance": "motor",
+       "component": "servo_motor.yaskawa-electric-corporation.sgm7j-02a-6"
+      },
+      {
+       "instance": "reducer",
+       "component": "reducer.harmonic-drive-llc.csf-25-100-2uh"
+      },
+      {
+       "instance": "drive",
+       "component": "drive.yaskawa-america-inc.sgd7s-1r6a"
+      }
+     ],
+     "connections": [
+      {
+       "a": "motor.shaft",
+       "b": "reducer.input_bore"
+      },
+      {
+       "a": "motor.mount_flange",
+       "b": "reducer.motor_flange"
+      },
+      {
+       "a": "drive.motor_out",
+       "b": "motor.power_in"
+      },
+      {
+       "a": "motor.encoder",
+       "b": "drive.encoder_in"
+      }
+     ]
+    },
+    "report": {
+     "system": "candidate-1",
+     "overall": "unknown",
+     "checks": [
+      {
+       "check": "C1",
+       "status": "pass",
+       "message": "motor.shaft — reducer.input_bore：类型、方向、运动方式匹配",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ],
+       "findings": [
+        {
+         "status": "pass",
+         "message": "motor.shaft — reducer.input_bore：类型、方向、运动方式匹配",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "motor.mount_flange — reducer.motor_flange：类型、方向、运动方式匹配",
+         "ports": [
+          "motor.mount_flange",
+          "reducer.motor_flange"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "drive.motor_out — motor.power_in：类型、方向、运动方式匹配",
+         "ports": [
+          "drive.motor_out",
+          "motor.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "motor.encoder — drive.encoder_in：类型、方向、运动方式匹配",
+         "ports": [
+          "motor.encoder",
+          "drive.encoder_in"
+         ]
+        }
+       ]
+      },
+      {
+       "check": "C2",
+       "status": "pass",
+       "message": "直径 14 mm 相等",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ],
+       "findings": [
+        {
+         "status": "pass",
+         "message": "直径 14 mm 相等",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "H7/h6 为 clearance 配合（草稿规则表）",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "轴 keyed / 孔 keyed / 紧固 key：键宽须相等（另行检查）（草稿规则表）",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "键宽 5 mm 相等",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ]
+        }
+       ]
+      },
+      {
+       "check": "C3",
+       "status": "unknown",
+       "message": "缺少分度圆直径",
+       "ports": [
+        "motor.mount_flange",
+        "reducer.motor_flange"
+       ],
+       "findings": [
+        {
+         "status": "unknown",
+         "message": "缺少分度圆直径",
+         "ports": [
+          "motor.mount_flange",
+          "reducer.motor_flange"
+         ]
+        },
+        {
+         "status": "unknown",
+         "message": "缺少孔数",
+         "ports": [
+          "motor.mount_flange",
+          "reducer.motor_flange"
+         ]
+        },
+        {
+         "status": "unknown",
+         "message": "缺少孔的形式（通孔 / 螺纹孔）",
+         "ports": [
+          "motor.mount_flange",
+          "reducer.motor_flange"
+         ]
+        },
+        {
+         "status": "warn",
+         "message": "只有一侧有止口，无法止口定位",
+         "ports": [
+          "motor.mount_flange",
+          "reducer.motor_flange"
+         ]
+        }
+       ]
+      },
+      {
+       "check": "C4",
+       "status": "pass",
+       "message": "连续扭矩折算到电机侧（效率按曲线取（ADR-0047）：3500 rpm 曲线，环境温度 25 °C，取 0.69；未计轻载效率补偿系数） 0.134 ≤ 电机额定扭矩 0.637 N·m",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ],
+       "measured": 0.134,
+       "limit": 0.637,
+       "unit": "N*m",
+       "margin_ratio": 0.7896389324960753,
+       "findings": [
+        {
+         "status": "pass",
+         "message": "连续扭矩折算到电机侧（效率按曲线取（ADR-0047）：3500 rpm 曲线，环境温度 25 °C，取 0.69；未计轻载效率补偿系数） 0.134 ≤ 电机额定扭矩 0.637 N·m",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ],
+         "measured": 0.134,
+         "limit": 0.637,
+         "unit": "N*m",
+         "margin_ratio": 0.7896389324960753
+        },
+        {
+         "status": "pass",
+         "message": "含安全系数的连续扭矩 9.246 ≤ 减速器额定扭矩 67 N·m",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ],
+         "measured": 9.246,
+         "limit": 67.0,
+         "unit": "N*m",
+         "margin_ratio": 0.862
+        }
+       ]
+      },
+      {
+       "check": "C5",
+       "status": "pass",
+       "message": "峰值扭矩折算到电机侧（效率按曲线取（ADR-0047）：3500 rpm 曲线，环境温度 25 °C，取 0.69；未计轻载效率补偿系数） 0.1653 ≤ 电机峰值扭矩 2.23 N·m",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ],
+       "measured": 0.1652608695652174,
+       "limit": 2.23,
+       "unit": "N*m",
+       "margin_ratio": 0.9258919867420549,
+       "findings": [
+        {
+         "status": "pass",
+         "message": "峰值扭矩折算到电机侧（效率按曲线取（ADR-0047）：3500 rpm 曲线，环境温度 25 °C，取 0.69；未计轻载效率补偿系数） 0.1653 ≤ 电机峰值扭矩 2.23 N·m",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ],
+         "measured": 0.1652608695652174,
+         "limit": 2.23,
+         "unit": "N*m",
+         "margin_ratio": 0.9258919867420549
+        },
+        {
+         "status": "pass",
+         "message": "峰值扭矩 11.4 ≤ 减速器启停允许峰值扭矩 157 N·m",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ],
+         "measured": 11.403,
+         "limit": 157.0,
+         "unit": "N*m",
+         "margin_ratio": 0.9273694267515924
+        }
+       ]
+      },
+      {
+       "check": "C6",
+       "status": "pass",
+       "message": "电机峰值扭矩经减速后 153.9 N·m ≤ 减速器瞬间允许最大 284 N·m（效率按曲线取（ADR-0047）：3500 rpm 曲线，环境温度 25 °C，取 0.69）",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ],
+       "measured": 153.86999999999998,
+       "limit": 284.0,
+       "unit": "N*m",
+       "margin_ratio": 0.45820422535211275
+      },
+      {
+       "check": "C7",
+       "status": "pass",
+       "message": "所需电机转速 2001 ≤ 电机最高转速 6000 rpm",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ],
+       "measured": 2000.8,
+       "limit": 6000.0,
+       "unit": "rpm",
+       "margin_ratio": 0.6665333333333333,
+       "findings": [
+        {
+         "status": "pass",
+         "message": "所需电机转速 2001 ≤ 电机最高转速 6000 rpm",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ],
+         "measured": 2000.8,
+         "limit": 6000.0,
+         "unit": "rpm",
+         "margin_ratio": 0.6665333333333333
+        },
+        {
+         "status": "pass",
+         "message": "所需输入转速 2001 ≤ 减速器最高输入转速 5600 rpm",
+         "ports": [
+          "motor.shaft",
+          "reducer.input_bore"
+         ],
+         "measured": 2000.8,
+         "limit": 5600.0,
+         "unit": "rpm",
+         "margin_ratio": 0.6427142857142857
+        }
+       ]
+      },
+      {
+       "check": "C8",
+       "status": "unknown",
+       "message": "惯量比：缺少减速器输入侧惯量",
+       "ports": [
+        "motor.shaft",
+        "reducer.input_bore"
+       ]
+      },
+      {
+       "check": "C9",
+       "status": "pass",
+       "message": "供电类型 ac 一致",
+       "ports": [
+        "drive.power_in"
+       ],
+       "findings": [
+        {
+         "status": "pass",
+         "message": "供电类型 ac 一致",
+         "ports": [
+          "drive.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "供电 200 V 在驱动器输入范围 200–240 V 内",
+         "ports": [
+          "drive.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "相数 3 一致",
+         "ports": [
+          "drive.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "电压等级 200 V 一致",
+         "ports": [
+          "drive.motor_out",
+          "motor.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "驱动器额定电流 1.6 A ≥ 电机 1.6 A",
+         "ports": [
+          "drive.motor_out",
+          "motor.power_in"
+         ],
+         "measured": 1.6,
+         "limit": 1.6,
+         "unit": "A",
+         "margin_ratio": 0.0
+        },
+        {
+         "status": "pass",
+         "message": "驱动器峰值电流 5.9 A ≥ 电机 5.8 A",
+         "ports": [
+          "drive.motor_out",
+          "motor.power_in"
+         ],
+         "measured": 5.8,
+         "limit": 5.9,
+         "unit": "A",
+         "margin_ratio": 0.01694915254237297
+        }
+       ]
+      },
+      {
+       "check": "C10",
+       "status": "pass",
+       "message": "私有编码器协议，厂商一致（Yaskawa）",
+       "ports": [
+        "motor.encoder",
+        "drive.encoder_in"
+       ],
+       "findings": [
+        {
+         "status": "pass",
+         "message": "私有编码器协议，厂商一致（Yaskawa）",
+         "ports": [
+          "motor.encoder",
+          "drive.encoder_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "总线 ethercat 一致",
+         "ports": [
+          "drive.bus"
+         ]
+        }
+       ]
+      },
+      {
+       "check": "C11",
+       "status": "not_applicable",
+       "message": "系统中没有轴承，需求也未给包络外径限值"
+      }
+     ]
+    }
+   }
+  },
+  {
    "step": "布局与干涉",
    "status": "ok",
    "summary": "FreeCAD 按端口摆放、检查干涉并按布局复核：总体 unknown（C3 unknown：缺少分度圆直径；C8 unknown：惯量比：缺少减速器输入侧惯量）；截图 有（layout-j2/）"
@@ -1080,5 +1548,5 @@
    "summary": "方案 COBOT-J2 第 1 版，带自制件 RJ-201、J2-HSG 与总装工艺"
   }
  ],
- "elapsed_s": 78.0
+ "elapsed_s": 138.6
 }
