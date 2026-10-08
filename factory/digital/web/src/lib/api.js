@@ -42,6 +42,15 @@ export async function login(name, role, mode) {
   return r.user;
 }
 
+// 企业版（本仓库 ADR-0063）：用户名 + 密码
+export async function loginAccount(username, password) {
+  const r = await post('/login', { username, password });
+  session.token = r.token;
+  session.user = r.user;
+  save();
+  return r.user;
+}
+
 export async function switchTo(patch) {
   const r = await post('/me/switch', patch);
   session.token = r.token;

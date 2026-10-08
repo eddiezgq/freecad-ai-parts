@@ -26,6 +26,7 @@ const routes = [
   { path: '/process/:sid', component: () => import('./pages/ProcessPlan.vue') },
   { path: '/design/:id', component: () => import('./pages/DesignReview.vue') },
   { path: '/members', component: () => import('./pages/Members.vue') },
+  { path: '/accounts', component: () => import('./pages/Accounts.vue') },
   { path: '/configurator', component: () => import('./pages/Configurator.vue') },
   { path: '/cae', component: () => import('./pages/Cae.vue') },
   { path: '/mbd', component: () => import('./pages/Mbd.vue') },
