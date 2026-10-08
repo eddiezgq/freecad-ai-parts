@@ -99,7 +99,8 @@ class HubClient:
         if self.auth() == "enterprise":
             if not password:
                 raise FactoryError("这座工厂用企业账号登录：请填用户名和密码")
-            body = json.dumps({"username": name, "password": password, "role": "engineer", "mode": "prod"}).encode()
+            # 按所选模式登录（发布对话框可选“演示 / 生产”）：方案按模式存，工厂一侧要在同一模式里才看得到
+            body = json.dumps({"username": name, "password": password, "role": "engineer", "mode": mode}).encode()
             self.token = self._req("/api/login", body, {"Content-Type": "application/json"})["token"]
             return self.token
         body = json.dumps({"name": name, "role": "engineer", "mode": mode}).encode()
