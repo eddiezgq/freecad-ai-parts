@@ -32,6 +32,7 @@ COPY kb/ /app/fap/kb/
 COPY schema/ /app/fap/schema/
 ENV PYTHONPATH=/app/fap
 COPY factory/factory/ factory/
+COPY factory/plants/ plants/
 # 服务器首次安装时用它把减速器厂数据导入 ERPNext（第 3 轮 D6）
 COPY factory/seed.py seed.py
 COPY factory/digital/wqbus/ digital/wqbus/

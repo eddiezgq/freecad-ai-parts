@@ -139,6 +139,14 @@ def validate(p):
     per = s.get("periods")
     need(isinstance(per, list) and per and all(isinstance(x, list) and len(x) == 2 for x in per), "shift.periods",
          "班次时段 [[开始, 结束], …]，如 [[\"08:00:00\", \"12:00:00\"]]")
+    if isinstance(per, list):
+        import re
+        ok = all(isinstance(x, list) and len(x) == 2 and all(isinstance(t, str) and re.fullmatch(r"\d{2}:\d{2}(:\d{2})?", t)
+                                                               for t in x) for x in per)
+        if need(ok, "shift.periods", "时间要写成带引号的 \"08:00:00\"（不加引号 YAML 会当成数字）"):
+            need(all(_minutes(a) < _minutes(b) for a, b in per) and all(_minutes(per[i][1]) <= _minutes(per[i + 1][0])
+                                                                      for i in range(len(per) - 1)),
+                 "shift.periods", "时段要从早到晚、不重叠")
     need(isinstance(s.get("workdays"), list) and s["workdays"] and all(d in range(7) for d in s["workdays"]),
          "shift.workdays", "工作日 0–6（0 是周一）")
     need(_num(s.get("max_overtime_min")) and 0 <= s["max_overtime_min"] <= 480, "shift.max_overtime_min", "每天加班上限 0–480 分钟")
@@ -264,7 +272,9 @@ def export_demo():
         ws.append(w)
     units = []
     for uid, (area, name, en, wsn) in T.UNITS.items():
-        u = {"id": uid, "area": area, "name": name, "name_en": en, "workstation": wsn}
+        u = {"id": uid, "area": area, "name": name, "name_en": en}
+        if wsn:
+            u["workstation"] = wsn
         if uid in L.LAYOUT:
             u["layout"] = list(L.LAYOUT[uid])
             u["dock"] = list(L.dock(uid))
@@ -323,7 +333,34 @@ def main(argv=None):
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("export-demo", help="把演示工厂导出成清单").add_argument("out")
     sub.add_parser("check", help="校验清单").add_argument("plant")
+    t = sub.add_parser("template", help="生成 Excel 模板（演示工厂填好作样例；给了 --from 就用那份清单填）")
+    t.add_argument("out")
+    t.add_argument("--from", dest="src")
+    i = sub.add_parser("import", help="Excel → 清单（并校验）")
+    i.add_argument("xlsx")
+    i.add_argument("out")
     a = ap.parse_args(argv)
+    if a.cmd == "template":
+        from . import plant_xlsx as X
+        src = None
+        if a.src:
+            import yaml
+            with open(a.src, encoding="utf-8") as fh:
+                src = yaml.safe_load(fh)
+        X.write_template(a.out, src)
+        print("已生成模板：" + a.out)
+        return 0
+    if a.cmd == "import":
+        from . import plant_xlsx as X
+        try:
+            p = X.import_workbook(a.xlsx)
+        except PlantError as e:
+            print(e)
+            return 1
+        _write_yaml(p, a.out)
+        print("已导入：{} → {}（{} 个工作站、{} 台设备、{} 道工序）".format(
+            a.xlsx, a.out, len(p["workstations"]), len(p["units"]), len(p["operations"])))
+        return 0
     if a.cmd == "export-demo":
         _write_yaml(export_demo(), a.out)
         print("已导出：" + a.out)

@@ -95,3 +95,90 @@ def test_validate_points_at_errors(tmp_path):
     p.write_text(yaml.safe_dump(bad, allow_unicode=True), encoding="utf-8")
     with pytest.raises(plant.PlantError, match="工厂清单有"):
         plant.load(str(p))
+
+
+def _approx(a, b):
+    """Excel 存 15 位有效数字：浮点按相对误差比，其余逐项相等。"""
+    if isinstance(a, dict) and isinstance(b, dict):
+        return a.keys() == b.keys() and all(_approx(a[k], b[k]) for k in a)
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(_approx(x, y) for x, y in zip(a, b))
+    if isinstance(a, float) or isinstance(b, float):
+        return isinstance(b, (int, float)) and abs(a - b) <= 1e-12 * max(1, abs(a))
+    return a == b
+
+
+def test_excel_template_round_trip(tmp_path):
+    """Excel 模板（演示工厂填好）导入回来，与演示清单一致。"""
+    sys.path[:0] = [FAC]
+    from factory import plant, plant_xlsx as X
+    x = tmp_path / "t.xlsx"
+    X.write_template(str(x))
+    assert _approx(plant.export_demo(), X.import_workbook(str(x)))
+
+
+def test_excel_errors_name_sheet_row_column(tmp_path):
+    """填错的地方说清是哪张表第几行哪一列。"""
+    from openpyxl import load_workbook
+    sys.path[:0] = [FAC]
+    from factory import plant, plant_xlsx as X
+    x = tmp_path / "t.xlsx"
+    X.write_template(str(x))
+    wb = load_workbook(str(x))
+    f = wb["工厂"]
+    for r in range(2, f.max_row + 1):
+        if f.cell(r, 1).value == "班次时段":
+            f.cell(r, 2).value = "08:00-12:00, 25:00-17:00"
+        if f.cell(r, 1).value == "时区":
+            f.cell(r, 2).value = "Mars/Base"
+    u = wb["设备"]
+    hdr = [c.value for c in u[1]]
+    u.cell(3, hdr.index("x（米）") + 1).value = "十"          # 第 3 行是第一台设备
+    u.cell(4, hdr.index("区域") + 1).value = "厨房"
+    u.cell(5, hdr.index("工作站") + 1).value = "没有的工作站"
+    u.cell(6, hdr.index("y（米）") + 1).value = None             # 平面位置缺一项
+    o = wb["工序"]
+    o.cell(3, [c.value for c in o[1]].index("可用设备") + 1).value = "saw-01, no-such"
+    wb.save(str(x))
+    with pytest.raises(plant.PlantError) as ei:
+        X.import_workbook(str(x))
+    text = "\n".join(ei.value.errors)
+    for frag in ("工厂表第", "“班次时段”：时间写成 08:00", "设备表第 3 行“x（米）”：要填数字", "设备表第 4 行“区域”：可选",
+                 "设备表第 6 行“x / y / 宽 / 深”：这一组要填全"):
+        assert frag in text, (frag, text)
+    # 逐格的错改掉后，剩下的是清单层面的错，同样换成表与行
+    wb = load_workbook(str(x))
+    for r in range(2, wb["工厂"].max_row + 1):
+        if wb["工厂"].cell(r, 1).value == "班次时段":
+            wb["工厂"].cell(r, 2).value = "08:00-12:00, 13:00-17:00"
+    u = wb["设备"]
+    u.cell(3, hdr.index("x（米）") + 1).value = 10
+    u.cell(4, hdr.index("区域") + 1).value = "机加工"
+    u.cell(6, hdr.index("y（米）") + 1).value = 4
+    wb.save(str(x))
+    with pytest.raises(plant.PlantError) as ei:
+        X.import_workbook(str(x))
+    text = "\n".join(ei.value.errors)
+    for frag in ("工厂表第 7 行“时区”：不认识的时区", "设备表第 5 行“工作站”：没有这个工作站", "工序表第 3 行“可用设备”：没有这台设备：no-such"):
+        assert frag in text, (frag, text)
+
+
+def test_unquoted_times_rejected():
+    """YAML 里不加引号的 8:00:00 会被读成数字，校验要拦下。"""
+    import yaml
+    sys.path[:0] = [FAC]
+    from factory import plant
+    with open(DEMO, encoding="utf-8") as f:
+        p = yaml.safe_load(f)
+    p["shift"]["periods"] = yaml.safe_load("[[8:00:00, '12:00:00']]")
+    assert any("带引号" in e for e in plant.validate(p))
+
+
+def test_cli(tmp_path):
+    env = {k: v for k, v in os.environ.items() if k != "WQ_PLANT_FILE"}
+    run = [sys.executable, "-m", "factory.plant"]
+    x, y = str(tmp_path / "t.xlsx"), str(tmp_path / "p.yaml")
+    for args in (["template", x], ["import", x, y], ["check", y]):
+        r = subprocess.run(run + args, capture_output=True, text=True, cwd=FAC, env=env, timeout=120)
+        assert r.returncode == 0, r.stdout + r.stderr
+    assert "清单无误" in r.stdout

@@ -308,7 +308,6 @@ units:
   area: logistics
   name: 物流小车 1
   name_en: AGV 1
-  workstation: null
   home:
   - 7
   - 9
@@ -316,7 +315,6 @@ units:
   area: logistics
   name: 物流小车 2
   name_en: AGV 2
-  workstation: null
   home:
   - 7
   - 18.5
@@ -324,7 +322,6 @@ units:
   area: warehouse
   name: 原料库
   name_en: Raw store
-  workstation: null
   layout:
   - 3
   - 4
@@ -338,7 +335,6 @@ units:
   area: warehouse
   name: 成品库
   name_en: Finished store
-  workstation: null
   layout:
   - 45
   - 22
@@ -352,13 +348,11 @@ units:
   area: machining
   name: 轴承压装工位
   name_en: Bearing press-fit station
-  workstation: null
   plc: press
 - id: sort-01
   area: warehouse
   name: 成品分拣线
   name_en: Finished-part sorting line
-  workstation: null
   plc: sorter
 dashboard:
 - saw-01
