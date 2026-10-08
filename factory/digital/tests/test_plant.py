@@ -271,3 +271,35 @@ def test_sim_runs_an_enterprise_plant():
     assert out["done"] == ["下料 Sawing", "粗车 Rough turning", "调质 Quench & temper", "精车 Finish turning",
                            "磨外圆 Cylindrical grinding", "零件检验 Part inspection"] and out["last"], out
     assert not any("cnc-l01" in u or "agv-01" in u for u in out["units"]), out["units"]
+
+
+MRP = r"""
+import json, sys
+sys.path[:0] = [{dig!r}, {fac!r}]
+from hub import mrp, products
+products.merge({{"code": "LS-T", "suppliers": [], "process": {{}},
+                "items": [{{"item_code": "LS-T", "item_name": "试件", "kind": "fg", "uom": "Nos", "price": None}}],
+                "routings": {{"RT-LS-T": [["下料 Sawing", 2], ["粗车 Rough turning", 10], ["零件检验 Part inspection", 4]]}},
+                "boms": [{{"item": "LS-T", "routing": "RT-LS-T", "items": [["RM-45-D50", 0.6]]}}]}})
+class O:
+    def __init__(self, db, now, mode):
+        import datetime as dt
+        self.now = dt.datetime(2026, 10, 8, 9, tzinfo=dt.timezone.utc)
+        self.pos = self.mrs = self.sos = self.wos = self.events = []
+    def stock(self):
+        return {{}}
+mrp.Overview = O
+pv = mrp.plan_order(None, "示例·华南服装设备经销", "LS-T", 2, "2026-11-30")
+print(json.dumps({{"wos": [w["production_item"] for w in pv["work_orders"]], "std": pv["std_cost_sh301"],
+                  "company": pv["sales_order"]["company"]}}, ensure_ascii=False))
+"""
+
+
+def test_mrp_plans_an_enterprise_product():
+    """企业工厂接单：MRP 不碰演示工厂的工艺（输出轴标准成本只在演示工厂算）。"""
+    env = dict(os.environ, WQ_PLANT_FILE=os.path.join(FAC, "plants", "example-sewing.yaml"))
+    r = subprocess.run([sys.executable, "-c", MRP.format(dig=DIG, fac=FAC)], capture_output=True, text=True, env=env,
+                       cwd=DIG, timeout=120)
+    assert r.returncode == 0, r.stderr[-3000:]
+    out = json.loads(r.stdout)
+    assert out == {"wos": ["LS-T"], "std": None, "company": "示例缝纫机厂"}, out
