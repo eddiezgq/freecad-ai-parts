@@ -60,6 +60,12 @@ class _Hub(BaseHTTPRequestHandler):
     received: ClassVar[list] = []
     logins: ClassVar[list] = []
     cad = None
+    auth = "local"
+
+    def do_GET(self):
+        if self.path == "/api/login/info":
+            return self._send(200, {"auth": _Hub.auth})
+        return self._send(404, {"detail": "no"})
 
     def log_message(self, *a):
         pass
@@ -77,6 +83,10 @@ class _Hub(BaseHTTPRequestHandler):
         if self.path == "/api/login":
             b = json.loads(raw)
             _Hub.logins.append(b)
+            if _Hub.auth == "enterprise":
+                if (b.get("username"), b.get("password")) != ("zhang", "Secret-pass-1"):
+                    return self._send(401, {"detail": "用户名或密码不对"})
+                return self._send(200, {"token": "tok-acct"})
             return self._send(200, {"token": f"tok-{b['mode']}"})
         if not self.headers.get("x-wq-token", "").startswith("tok-"):
             return self._send(401, {"detail": "请先登录"})
@@ -96,7 +106,7 @@ class _Hub(BaseHTTPRequestHandler):
 
 @pytest.fixture()
 def hub():
-    _Hub.received, _Hub.logins, _Hub.cad = [], [], _cad_link()
+    _Hub.received, _Hub.logins, _Hub.cad, _Hub.auth = [], [], _cad_link(), "local"
     srv = HTTPServer(("127.0.0.1", 0), _Hub)
     t = threading.Thread(target=srv.serve_forever, daemon=True)
     t.start()
@@ -117,6 +127,19 @@ def test_publish_flow(hub, tmp_path):
         factory_link.publish(factory_link.HubClient(hub), "张工", "prod", {**data, "code": "坏 编号"})
     with pytest.raises(factory_link.FactoryError, match="发布人"):
         factory_link.publish(factory_link.HubClient(hub), " ", "prod", data)
+
+
+def test_publish_to_enterprise_factory(hub):
+    """企业版工厂（ADR-0063）：用户名 + 密码登录；不给密码、密码错都不发布。"""
+    _Hub.auth = "enterprise"
+    data = factory_link.payload(LAYOUT, LIB.get, code="JOINT-2", name="第 2 关节")
+    with pytest.raises(factory_link.FactoryError, match="用户名和密码"):
+        factory_link.publish(factory_link.HubClient(hub), "zhang", "prod", data)
+    with pytest.raises(factory_link.FactoryError, match="401"):
+        factory_link.publish(factory_link.HubClient(hub), "zhang", "prod", data, password="wrong")
+    out = factory_link.publish(factory_link.HubClient(hub), "zhang", "prod", data, password="Secret-pass-1")
+    assert out["code"] == "JOINT-2" and _Hub.received[-1][0] == "tok-acct"
+    assert _Hub.logins[-1] == {"username": "zhang", "password": "Secret-pass-1", "role": "engineer", "mode": "prod"}
 
 
 def test_unreachable_factory():

@@ -54,11 +54,15 @@ class PublishDialog(QtWidgets.QDialog):
         self.note = QtWidgets.QLineEdit()
         self.note.setPlaceholderText("改动说明（可空）")
         self.author = QtWidgets.QLineEdit(settings.get("actor", ""))
-        self.author.setPlaceholderText("发布人")
+        self.author.setPlaceholderText("发布人（企业版工厂填用户名）")
+        self.password = QtWidgets.QLineEdit()           # 企业版工厂（ADR-0063）；不保存
+        self.password.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.password.setPlaceholderText("企业版工厂才要填")
         self.with_step = QtWidgets.QCheckBox("附上布局的 STEP 模型")
         self.with_step.setChecked(True)
         for label, w in (("工厂地址", self.url), ("模式", self.mode), ("方案编号", self.code), ("名称", self.name),
-                         ("说明", self.note), ("发布人", self.author), ("", self.with_step)):
+                         ("说明", self.note), ("发布人", self.author), ("密码", self.password),
+                         ("", self.with_step)):
             form.addRow(label, w)
         lay.addLayout(form)
         self.status = QtWidgets.QLabel("本地工厂用 factory/local/start 启动；发布后到工厂工作台“CAD 方案”页查看。")
@@ -94,7 +98,8 @@ class PublishDialog(QtWidgets.QDialog):
 
         def work() -> None:
             try:
-                out = factory_link.publish(factory_link.HubClient(url), author, mode, data, step)
+                out = factory_link.publish(factory_link.HubClient(url), author, mode, data, step,
+                                           password=self.password.text() or None)
             except factory_link.FactoryError as exc:
                 out = exc
             self.done.emit(out)

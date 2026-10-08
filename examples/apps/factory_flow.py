@@ -14,6 +14,9 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import os
+import secrets
+import ssl
 import time
 import urllib.error
 import urllib.parse
@@ -39,8 +42,20 @@ def _design_step(app, step):
 
 
 class Hub:
-    def __init__(self, base, erp=None):
+    """工厂枢纽的 HTTP 客户端。企业版工厂（ADR-0063）：厂长、审批人用管理员账号，其他岗位各开一个演练账号
+    （flow-<岗位>，没有就由管理员建、有就重置密码）；自签证书用 FAP_FACTORY_CAFILE 指定根证书。"""
+
+    def __init__(self, base, erp=None, user=None, password=None):
         self.base, self.erp, self.tok = base.rstrip("/"), (erp or "").rstrip("/"), {}
+        self.user, self.password = user, password
+        cafile = os.environ.get("FAP_FACTORY_CAFILE")
+        self.ctx = ssl.create_default_context(cafile=cafile) if cafile else None
+        self._auth = None
+
+    def auth(self):
+        if self._auth is None:
+            self._auth = self.call("GET", "/api/login/info", role=None).get("auth", "local")
+        return self._auth
 
     def call(self, method, path, body=None, role="manager", raw=None, ctype="application/json", base=None):
         data = raw if raw is not None else (None if body is None else json.dumps(body, ensure_ascii=False).encode())
@@ -49,18 +64,37 @@ class Hub:
             h["x-wq-token"] = self.login(role)
         req = urllib.request.Request((base or self.base) + path, data=data, headers=h, method=method)
         try:
-            with urllib.request.urlopen(req, timeout=300) as r:
+            with urllib.request.urlopen(req, timeout=300, context=self.ctx if req.full_url.startswith("https") else None) as r:
                 b = r.read()
                 return json.loads(b) if b[:1] in (b"{", b"[") else b
         except urllib.error.HTTPError as e:
             raise RuntimeError(f"{method} {path} → {e.code} {e.read().decode('utf-8', 'replace')[:400]}") from None
 
     def login(self, role):
+        if role not in self.tok and self.auth() == "enterprise":
+            if not (self.user and self.password):
+                raise RuntimeError("这座工厂用企业账号：给 --user、--password（管理员）")
+            if role in ("manager", "approver"):
+                self.tok[role] = self._acct(self.user, self.password, role)
+            else:
+                name, pw = f"flow-{role}", "Flow-" + secrets.token_hex(8)
+                body = {"username": name, "password": pw, "name": f"演练·{role}", "roles": [role]}
+                try:
+                    self.post("/api/accounts", body, "manager")
+                except RuntimeError as e:
+                    if "已存在" not in str(e):
+                        raise
+                    self.post(f"/api/accounts/{name}", {"password": pw, "active": True, "roles": [role]}, "manager")
+                self.tok[role] = self._acct(name, pw, role)
         if role not in self.tok:
             name = {"engineer": "演练·工艺员", "approver": "演练·技术负责人", "planner": "演练·计划员", "operator": "演练·操作工",
                     "manager": "演练·厂长", "quality": "演练·质检员"}[role]
             self.tok[role] = self.call("POST", "/api/login", {"name": name, "role": role, "mode": "teach"}, role=None)["token"]
         return self.tok[role]
+
+    def _acct(self, user, pw, role):
+        return self.call("POST", "/api/login", {"username": user, "password": pw, "role": role, "mode": "teach"},
+                         role=None)["token"]
 
     def get(self, path, role="manager"):
         return self.call("GET", path, role=role)
@@ -103,8 +137,10 @@ def main(argv=None):
     ap.add_argument("--qty", type=int, default=2)
     ap.add_argument("--speed", type=int, default=120, help="车间仿真倍速")
     ap.add_argument("--no-cae", action="store_true")
+    ap.add_argument("--user", default=os.environ.get("FAP_FACTORY_USER"), help="企业版工厂：管理员用户名")
+    ap.add_argument("--password", default=os.environ.get("FAP_FACTORY_PASSWORD"), help="企业版工厂：管理员密码")
     a = ap.parse_args(argv)
-    h = Hub(a.hub, a.erp)
+    h = Hub(a.hub, a.erp, a.user, a.password)
     due = (dt.datetime.now(dt.UTC).date() + dt.timedelta(days=45)).isoformat()
     run = C.Run("factory_flow", "典型应用的工厂一侧：ERP、MRP、MES、工厂计算、厂情中枢", [
         {"title": "问渠数字工厂（本仓库 factory/digital）", "url": a.hub, "note": "本机原生启动的整座工厂：枢纽、假 ERPNext、桥接、车间仿真、计算服务"}],
