@@ -57,6 +57,10 @@ STAGE = {
     "零件检验 Part inspection": "inspect",
     "出厂检验 Final inspection": "inspect",
 }
+from factory import plant as _plant  # noqa: E402  工厂清单（本仓库 ADR-0064）：阶段、主电机功率取自清单
+if _plant.active():
+    STAGE = dict(_plant.active()["STAGE"])
+    WORKCENTER_POWER = dict(_plant.active()["WORKCENTER_POWER"])
 ECON_METHOD = {"粗车 Rough turning": "od_rough_turn", "精车 Finish turning": "od_finish_turn"}
 MATERIAL_KIENZLE = {"45": "C45E", "45 钢": "C45E", "40Cr": "C45E", "20CrMnTi": "C45E"}
 

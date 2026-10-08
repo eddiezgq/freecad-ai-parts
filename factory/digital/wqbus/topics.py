@@ -28,10 +28,20 @@ UNITS = {
 }
 # 虚拟 PLC 控制的设备 → 虚拟设备模型（学习平台 labkit/plants.js 里的名字）
 PLC_UNITS = {"press-01": "press", "sort-01": "sorter"}
+try:                                   # 工厂清单（本仓库 ADR-0064）：有就用清单里的设备
+    from factory import plant as _plant
+    _P = _plant.active()
+except ImportError:                    # 单独用总线库时（没有 factory 包）
+    _P = None
+if _P:
+    UNITS = _P["UNITS"]
+    PLC_UNITS = _P["PLC_UNITS"]
 UNIT_AREA = {u: v[0] for u, v in UNITS.items()}
 # 看板“车间实况”里显示的 12 台加工与检验设备（顺序即显示顺序）
 MACHINES = ("saw-01", "cnc-l01-a", "cnc-l01-b", "vmc-01", "hmc-01", "key-01",
             "hob-01", "ht-01", "grd-01", "qc-01", "asm-01", "test-01")
+if _P:
+    MACHINES = _P["MACHINES"]
 
 CATEGORIES = ("status", "event", "cmd", "cmd/ack", "measurement", "ncr", "release", "gcode",
               "alert", "briefing", "proposal", "torque", "telemetry", "snapshot")

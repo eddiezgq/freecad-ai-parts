@@ -632,7 +632,8 @@ def health():
 @app.get("/api/layout")
 def get_layout():
     return {"floor": L.FLOOR, "units": {u: {"x": v[0], "y": v[1], "w": v[2], "d": v[3],
-                                           "name": wqbus.UNITS[u][1], "en": wqbus.UNITS[u][2]}
+                                           "name": wqbus.UNITS[u][1], "en": wqbus.UNITS[u][2],
+                                           **({"h": L.HEIGHT[u]} if L.HEIGHT and u in L.HEIGHT else {})}
                                        for u, v in L.LAYOUT.items()},
             "agv_home": L.AGV_HOME, "aisles": L.AISLES, "cross_x": L.CROSS_X}
 

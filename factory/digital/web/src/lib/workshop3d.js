@@ -46,12 +46,15 @@ export function createWorkshop(host, L, { onFrame } = {}) {
     const s = new THREE.Mesh(new THREE.PlaneGeometry(FW - 4, 2.2), new THREE.MeshLambertMaterial({ color: '#F2EDD7' }));
     s.rotation.x = -Math.PI / 2; s.position.set(FW / 2 + 1, 0.01, a); scene.add(s);
   }
-  const cross = new THREE.Mesh(new THREE.PlaneGeometry(2.2, L.aisles[1] - L.aisles[0]), new THREE.MeshLambertMaterial({ color: '#F2EDD7' }));
-  cross.rotation.x = -Math.PI / 2; cross.position.set(L.cross_x, 0.01, (L.aisles[0] + L.aisles[1]) / 2); scene.add(cross);
+  if (L.aisles.length > 1) {           // 只有一条主通道的车间没有纵向连接通道
+    const lo = Math.min(...L.aisles), hi = Math.max(...L.aisles);
+    const cross = new THREE.Mesh(new THREE.PlaneGeometry(2.2, hi - lo), new THREE.MeshLambertMaterial({ color: '#F2EDD7' }));
+    cross.rotation.x = -Math.PI / 2; cross.position.set(L.cross_x, 0.01, (lo + hi) / 2); scene.add(cross);
+  }
 
   const meshes = {};
   for (const [u, v] of Object.entries(L.units)) {
-    const hgt = HEIGHT[u] || 1.5;
+    const hgt = v.h || HEIGHT[u] || 1.5;     // 高度：工厂清单给的（ADR-0064），否则演示工厂的
     const store = u.startsWith('store');
     const body = new THREE.Mesh(new THREE.BoxGeometry(v.w, hgt, v.d),
       new THREE.MeshLambertMaterial({ color: store ? '#B8BEB5' : u === 'ht-01' ? '#6E7B85' : '#DCE2E6' }));

@@ -55,6 +55,14 @@ SPINDLE = {"saw-01": (60, 40), "cnc-l01-a": (900, 180), "cnc-l01-b": (1400, 90),
            "grd-01": (1800, 400), "hob-01": (300, 60), "vmc-01": (2500, 600), "hmc-01": (2000, 400)}
 TOOL_CHANGE_MIN = {"grd-01": 8}
 RATED_TORQUE_NM = {"WQR-105": 350.0}   # 额定输出转矩（与参数配置器一致）   # 磨床“换刀”即修整或更换砂轮
+try:                                   # 工厂清单（本仓库 ADR-0064）：工序可用设备与设备参数取自清单
+    from factory import plant as _plant
+    _P = _plant.active()
+except ImportError:
+    _P = None
+if _P:
+    OP_UNITS, CAPACITY, SETUP_MIN = _P["OP_UNITS"], _P["CAPACITY"], _P["SETUP_MIN"]
+    WEAR_PER_PART, SPINDLE, TOOL_CHANGE_MIN = _P["WEAR_PER_PART"], _P["SPINDLE"], _P["TOOL_CHANGE_MIN"]
 AGV_SPEED = 1.0                   # m/s（仿真）
 LOAD_UNLOAD_S = 30
 
