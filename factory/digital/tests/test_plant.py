@@ -36,7 +36,8 @@ out = {{
   "LAYOUT": L.LAYOUT, "FLOOR": L.FLOOR, "AGV_HOME": L.AGV_HOME, "AISLES": L.AISLES, "CROSS_X": L.CROSS_X,
   "DOCK": {{u: L.dock(u) for u in L.LAYOUT}},
   "OP_UNITS": E.OP_UNITS, "CAPACITY": E.CAPACITY, "SETUP_MIN": E.SETUP_MIN, "WEAR_PER_PART": E.WEAR_PER_PART,
-  "SPINDLE": E.SPINDLE, "TOOL_CHANGE_MIN": E.TOOL_CHANGE_MIN,
+  "SPINDLE": E.SPINDLE, "TOOL_CHANGE_MIN": E.TOOL_CHANGE_MIN, "STORES": [E.RAW_STORE, E.FG_STORE],
+  "SIM_MACHINES": E._MACHINE_UNITS,
   "CAL": [C.DEF_START, C.DEF_END, C.DEF_DAYS, C.MAX_OT_MIN],
   "SHIFT_MIN": K.SHIFT_MIN, "TARGET": K.TARGET, "STAGE": P.STAGE, "WORKCENTER_POWER": P.WORKCENTER_POWER,
 }}
@@ -221,3 +222,52 @@ def test_texts_follow_the_plant():
     for k in ("ai", "agent"):
         assert "“示例缝纫机厂”" in sew[k] and "WQR-105" not in sew[k] and "问渠减速器厂" not in sew[k], sew[k]
         assert "数控车床 CNC（2 台）" in sew[k] and "粗车 Rough turning" in sew[k]
+
+
+SIM = r"""
+import json, sys
+sys.path[:0] = [{dig!r}, {fac!r}]
+import wqbus
+from hub import products
+from sim.engine import Engine, OP_UNITS, routing_for
+spec = {{"code": "LS-T", "suppliers": [], "process": {{}}, "items": [
+            {{"item_code": "LS-T", "item_name": "试件", "kind": "make", "uom": "Nos"}}],
+        "routings": {{"RT-LS-T": [["下料 Sawing", 2], ["粗车 Rough turning", 10], ["调质 Quench & temper", 10],
+                                  ["精车 Finish turning", 9], ["磨外圆 Cylindrical grinding", 8], ["零件检验 Part inspection", 4]]}},
+        "boms": [{{"item": "LS-T", "routing": "RT-LS-T", "items": [["RM-45-D50", 0.6]]}}]}}
+products.merge(spec)
+out = []
+class Clock:
+    t = 0.0
+    def now(self):
+        return self.t
+clock = Clock()
+eng = Engine(lambda tp, ty, src, data, corr: out.append((tp, wqbus.make(ty, src, data, mode="teach", corr=corr))), clock,
+             mode="teach", auto_start=True, seed=1, status_every_s=1e9)
+ops = routing_for("LS-T")
+for op, _ in ops:
+    ok, why = eng.command(OP_UNITS[op][0], {{"command": "dispatch", "work_order": "WO-T", "operation": op, "qty": 3,
+                                            "item": "LS-T", "routing": ops}}, "WO-T")
+    assert ok, why
+while eng.q and clock.t < 3 * 86400:
+    clock.t = max(clock.t, eng.next_event_time())
+    eng.run_due()
+ev = [m["data"] for t, m in out if m["type"] == "machine.event"]
+print(json.dumps({{"machines": sorted(eng.machines), "agvs": sorted(eng.agvs),
+                  "done": [e["operation"] for e in ev if e.get("event") == "op_complete"],
+                  "last": any(e.get("last_op") for e in ev if e.get("event") == "op_complete"),
+                  "units": sorted({{m["source"] for t, m in out}})}}, ensure_ascii=False))
+"""
+
+
+def test_sim_runs_an_enterprise_plant():
+    """车间仿真按企业工厂的设备、物流小车、成品库跑完一张工单（ADR-0064 第 6 条）。"""
+    env = dict(os.environ, WQ_PLANT_FILE=os.path.join(FAC, "plants", "example-sewing.yaml"))
+    r = subprocess.run([sys.executable, "-c", SIM.format(dig=DIG, fac=FAC)], capture_output=True, text=True, env=env,
+                       cwd=DIG, timeout=300)
+    assert r.returncode == 0, r.stderr[-3000:]
+    out = json.loads(r.stdout)
+    assert out["agvs"] == ["agv-1"] and "lathe-1" in out["machines"] and "cnc-l01-a" not in out["machines"]
+    assert out["done"] == ["下料 Sawing", "粗车 Rough turning", "调质 Quench & temper", "精车 Finish turning",
+                           "磨外圆 Cylindrical grinding", "零件检验 Part inspection"] and out["last"], out
+    assert not any("cnc-l01" in u or "agv-01" in u for u in out["units"]), out["units"]

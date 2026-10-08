@@ -47,6 +47,7 @@ OP_UNITS = {
     "出厂检验 Final inspection": ["qc-01"],
     "清洗包装 Cleaning & packing": ["asm-01"],
 }
+RAW_STORE, FG_STORE = "store-01", "store-02"     # 物流小车取毛坯、送成品的地方
 CAPACITY = {"ht-01": 20}
 SETUP_MIN = {"cnc-l01-a": 10, "cnc-l01-b": 10, "grd-01": 8, "key-01": 6, "saw-01": 3, "ht-01": 5, "qc-01": 2}
 WEAR_PER_PART = {"saw-01": 1 / 200, "cnc-l01-a": 1 / 60, "cnc-l01-b": 1 / 60, "key-01": 1 / 40,
@@ -65,6 +66,7 @@ except ImportError:
 if _P:
     OP_UNITS, CAPACITY, SETUP_MIN = _P["OP_UNITS"], _P["CAPACITY"], _P["SETUP_MIN"]
     WEAR_PER_PART, SPINDLE, TOOL_CHANGE_MIN = _P["WEAR_PER_PART"], _P["SPINDLE"], _P["TOOL_CHANGE_MIN"]
+    RAW_STORE, FG_STORE = _P["STORES"]["raw"], _P["STORES"]["finished"]
 AGV_SPEED = 1.0                   # m/s（仿真）
 LOAD_UNLOAD_S = 30
 
@@ -161,7 +163,7 @@ class Engine:
         self.q = []               # 事件堆：(sim_t, seq, kind, payload)
         self.seq = itertools.count()
         self.machines = {u: Machine(u) for u in UNITS if u in _MACHINE_UNITS}
-        self.agvs = {u: AGV(u, layout.AGV_HOME[u]) for u in ("agv-01", "agv-02")}
+        self.agvs = {u: AGV(u, layout.AGV_HOME[u]) for u in layout.AGV_HOME}
         self.transfers = deque()  # 等 AGV 的搬运：(part, frm, to)
         self.wos = {}
         self.tokens = itertools.count(1)
@@ -411,7 +413,7 @@ class Engine:
         p = next(x for x in w.parts if x.serial == serial)
         p.op_index = op_index + 1
         nxt = w.jobs.get(p.op_index) if p.op_index < len(w.ops) else None
-        to = nxt.unit if nxt else ("store-02" if p.op_index >= len(w.ops) else OP_UNITS[w.ops[p.op_index][0]][0])
+        to = nxt.unit if nxt else (FG_STORE if p.op_index >= len(w.ops) else OP_UNITS[w.ops[p.op_index][0]][0])
         # 外协回厂不发 machine.event（桥接会把它当本厂报工）；最后一道就是外协的件，完工时刻记在这里给推演用
         if p.op_index >= len(w.ops):
             self.outsourced_done.append((t, wo, serial))
@@ -546,7 +548,7 @@ class Engine:
             self.transfers.append((p, unit, to))
             self._dispatch_agvs()
         else:
-            self.transfers.append((p, unit, "store-02"))
+            self.transfers.append((p, unit, FG_STORE))
             self._dispatch_agvs()
         # 换刀
         if unit in WEAR_PER_PART and m.tool_life < 0.08:
@@ -810,6 +812,8 @@ class Engine:
 
 _MACHINE_UNITS = {"saw-01", "cnc-l01-a", "cnc-l01-b", "vmc-01", "hmc-01", "key-01", "hob-01",
                   "ht-01", "grd-01", "qc-01", "asm-01", "test-01"}
+if _P:                                  # 工厂清单：看板上的设备就是仿真里的设备
+    _MACHINE_UNITS = set(_P["MACHINES"])
 
 
 def torque_record(serial, work_order, item):

@@ -4,6 +4,8 @@
 set -euo pipefail
 
 FD="${FAP_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+CALLER_PWD=$PWD                         # 选项里的相对路径（如 --plant）按运行脚本时所在的目录算
+abspath() { case "$1" in /*) printf '%s' "$1" ;; *) printf '%s/%s' "$CALLER_PWD" "$1" ;; esac; }
 cd "$FD"
 mkdir -p library backups
 

@@ -30,7 +30,7 @@ while [ $# -gt 0 ]; do
         --claude-key) CLAUDE_KEY=$2; shift 2 ;;
         --deepseek-key) DEEPSEEK_KEY=$2; shift 2 ;;
         --demo) DEMO=1; shift ;;
-        --plant) PLANT=$2; shift 2 ;;
+        --plant) PLANT=$(abspath "$2"); shift 2 ;;
         --images) TAG=$2; shift 2 ;;
         --no-pull) PULL=0; shift ;;
         --registry-token) REG_TOKEN=$2; shift 2 ;;
@@ -116,7 +116,9 @@ if [ -n "$PLANT" ]; then log "校验工厂清单 $PLANT ..."; plant_put "$PLANT"
 if [ -n "$(envval WQ_PLANT_FILE)" ]; then
     COMPANY_JSON=$(plant_company)
     [ -n "$COMPANY_JSON" ] || die "读不出工厂清单里的公司"
-    envset WQ_TZ "$(printf '%s' "$COMPANY_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["timezone"])')"
+    cj() { printf '%s' "$COMPANY_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)[sys.argv[1]])' "$1"; }
+    envset WQ_TZ "$(cj timezone)"
+    envset FAP_ERP_ABBR "$(cj abbr)"          # 桥接按它拼仓库名（“原材料库 Raw - 缩写”）
 fi
 tz=$(cat /etc/timezone 2>/dev/null || timedatectl show -p Timezone --value 2>/dev/null || echo UTC)
 [ -n "$(envval WQ_TZ)" ] || envset WQ_TZ "$tz"

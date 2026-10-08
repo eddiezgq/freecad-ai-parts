@@ -77,6 +77,9 @@ class Service:
             self.eng.clock.set_speed(sp)
             return True, "倍速已改为 {:g}".format(sp)
         if cmd == "load_scenario":
+            from factory import plant
+            if not plant.is_demo():
+                return False, "实验 7 情景只属于演示工厂，企业工厂没有"
             speed = float(data.get("speed", 1))
             self.eng = self._new_engine(speed)
             t = scenario.load(self.eng, self._publish, tz=self.tz)

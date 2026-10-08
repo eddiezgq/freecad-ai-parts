@@ -227,8 +227,9 @@ class Hub:
 
     def _first_run(self):
         """第一次启动（教学模式、历史库还是空的）：让仿真器载入实验 7 情景，首页一打开就有内容。"""
-        if DEFAULT_MODE != "teach" or os.environ.get("WQ_AUTO_SCENARIO", "1") != "1":
-            return
+        from factory import plant
+        if DEFAULT_MODE != "teach" or os.environ.get("WQ_AUTO_SCENARIO", "1") != "1" or not plant.is_demo():
+            return                              # 实验 7 情景是演示工厂的；企业工厂（ADR-0064）不载入
         for _ in range(6):
             if self.db.one("select 1 as x from bus_message where mode='teach' and type='erp.doc' limit 1"):
                 return
@@ -1804,6 +1805,9 @@ def teach_reset(body: dict = Body(default={}), u=Depends(user_of)):
     require_teacher(u)
     if u["role"] != "manager":
         raise HTTPException(403, "请用厂长（教师）角色重置")
+    from factory import plant
+    if not plant.is_demo():
+        raise HTTPException(400, "教学情景只属于演示工厂（ADR-0064）")
     H.db.x("delete from bus_message where mode='teach'")
     H.db.x("delete from machine_state_log where mode='teach'")
     H.db.x("delete from ncr where mode='teach' or mode is null")
