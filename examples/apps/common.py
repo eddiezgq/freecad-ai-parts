@@ -192,7 +192,10 @@ def publish(hub: str | None, *, code: str, name: str, system: dict, requirement:
     data = factory_link.payload(mech_layout(system), lib.get, code=code, name=name, requirement=requirement,
                                 checks=report, note=note, made_parts=made_parts, assembly_routing=assembly_routing)
     client = factory_link.HubClient(hub)
-    out = factory_link.publish(client, "典型应用演练", "teach", data, step_files[0] if step_files else None)
+    # 企业版工厂（ADR-0063）：用户名、密码从环境变量 FAP_FACTORY_USER、FAP_FACTORY_PASSWORD 读；自签证书给 FAP_FACTORY_CAFILE
+    user = os.environ.get("FAP_FACTORY_USER") or "典型应用演练"
+    out = factory_link.publish(client, user, "teach", data, step_files[0] if step_files else None,
+                               password=os.environ.get("FAP_FACTORY_PASSWORD") or None)
     return out
 
 

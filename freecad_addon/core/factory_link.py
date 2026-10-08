@@ -7,6 +7,8 @@
 from __future__ import annotations
 
 import json
+import os
+import ssl
 import urllib.error
 import urllib.request
 import uuid
@@ -56,10 +58,13 @@ def payload(layout: Mapping, lookup: Callable[[str], dict | None], *, code: str,
 
 
 class HubClient:
-    def __init__(self, url: str = DEFAULT_URL, timeout: float = 30):
+    def __init__(self, url: str = DEFAULT_URL, timeout: float = 30, cafile: str | None = None):
+        """cafile：企业内网用自签证书时，工厂的根证书（也可用环境变量 FAP_FACTORY_CAFILE）；公网证书不用给。"""
         self.url = url.rstrip("/")
         self.timeout = timeout
         self.token = ""
+        self.cafile = cafile or os.environ.get("FAP_FACTORY_CAFILE") or None
+        self._auth = None
 
     def _req(self, path: str, data: bytes | None = None, headers: dict | None = None) -> dict:
         h = dict(headers or {})
@@ -67,7 +72,8 @@ class HubClient:
             h["x-wq-token"] = self.token
         req = urllib.request.Request(self.url + path, data=data, headers=h, method="POST" if data is not None else "GET")
         try:
-            with urllib.request.urlopen(req, timeout=self.timeout) as r:  # 企业自己指定的工厂地址
+            ctx = ssl.create_default_context(cafile=self.cafile) if self.cafile and self.url.startswith("https") else None
+            with urllib.request.urlopen(req, timeout=self.timeout, context=ctx) as r:  # 企业自己指定的工厂地址
                 return json.loads(r.read())
         except urllib.error.HTTPError as exc:
             try:
@@ -78,7 +84,24 @@ class HubClient:
         except (urllib.error.URLError, OSError) as exc:
             raise FactoryError(f"连不上工厂 {self.url}（本地工厂启动了吗？factory/local/start）：{exc}") from exc
 
-    def login(self, name: str, mode: str = "teach") -> str:
+    def auth(self) -> str:
+        """工厂的登录方式：local（填名字）、wenquest（问渠账号）、enterprise（企业账号，ADR-0063）。"""
+        if self._auth is None:
+            try:
+                self._auth = self._req("/api/login/info").get("auth", "local")
+            except FactoryError as exc:
+                if "连不上" in str(exc):
+                    raise
+                self._auth = "local"                       # 旧版工厂没有这个接口
+        return self._auth
+
+    def login(self, name: str, mode: str = "teach", password: str | None = None) -> str:
+        if self.auth() == "enterprise":
+            if not password:
+                raise FactoryError("这座工厂用企业账号登录：请填用户名和密码")
+            body = json.dumps({"username": name, "password": password, "role": "engineer", "mode": "prod"}).encode()
+            self.token = self._req("/api/login", body, {"Content-Type": "application/json"})["token"]
+            return self.token
         body = json.dumps({"name": name, "role": "engineer", "mode": mode}).encode()
         self.token = self._req("/api/login", body, {"Content-Type": "application/json"})["token"]
         return self.token
@@ -96,11 +119,12 @@ class HubClient:
                          {"Content-Type": "application/json"})
 
 
-def publish(client: HubClient, author: str, mode: str, data: dict, step_path: str | Path | None = None) -> dict:
-    """登录 → 上传 STEP（有的话）→ 发布。返回 {code, revision, name}。"""
+def publish(client: HubClient, author: str, mode: str, data: dict, step_path: str | Path | None = None,
+            password: str | None = None) -> dict:
+    """登录 → 上传 STEP（有的话）→ 发布。返回 {code, revision, name}。企业版工厂：author 是用户名，要给 password。"""
     if not author.strip():
         raise FactoryError("请写发布人")
-    client.login(author.strip(), mode)
+    client.login(author.strip(), mode, password)
     if step_path:
         data = {**data, "files": [*data.get("files", []), client.upload(step_path)]}
     return client.release(data)

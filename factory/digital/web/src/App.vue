@@ -4,7 +4,7 @@
     <nav class="rail" aria-label="工作区">
       <router-link to="/" class="brand">
         <span class="logo">渠</span>
-        <span class="brand-text"><b>问渠数字工厂</b><small>WenQuest Digital Factory{{ cfg.edition === 'local' ? ' · 本地版' : '' }}</small></span>
+        <span class="brand-text"><b>问渠数字工厂</b><small>WenQuest Digital Factory{{ cfg.edition === 'local' ? ' · 本地版' : cfg.edition === 'enterprise' ? ' · 企业版' : '' }}</small></span>
       </router-link>
       <div class="group">
         <span class="group-title">工作区</span>
