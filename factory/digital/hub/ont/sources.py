@@ -26,7 +26,12 @@ def _ts(v):
 
 def master(B, mode):
     """工厂主数据（每次启动和重放时写一次；值不变就不产生写入）"""
-    B.obj(mode, "Plant", "wqr", {"name": "问渠减速器厂", "product_line": "WQR-105 二级圆柱齿轮减速器", "mode": mode})
+    from factory import plant
+    if plant.is_demo():
+        B.obj(mode, "Plant", "wqr", {"name": "问渠减速器厂", "product_line": "WQR-105 二级圆柱齿轮减速器", "mode": mode})
+    else:                                       # 企业工厂（ADR-0064）：工厂对象用清单里的公司
+        c = plant.company()
+        B.obj(mode, "Plant", "wqr", {"name": c["name"], "company": c["name"], "currency": c["currency"], "mode": mode})
     B.obj(mode, "Product", "WQR-105", {"name": "二级圆柱齿轮减速器", "price": F.FG_SELLING_PRICE, "rated_torque_nm": 350.0})
     B.link(mode, "Product", "WQR-105", "item", "WQR-105")
     sup_name = {k: v["name"] for k, v in F.SUPPLIERS.items()}

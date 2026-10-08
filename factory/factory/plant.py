@@ -245,6 +245,24 @@ def is_demo():
     return p is None or p["DEMO_DATA"]
 
 
+DEMO_SHORT = "问渠减速器厂"
+
+
+def display_name():
+    """页面、AI 提示词里的厂名：演示工厂用简称，企业工厂用清单里的公司名。"""
+    return DEMO_SHORT if is_demo() else company()["name"]
+
+
+def brief():
+    """企业工厂的概况（AI 提示词用）：工作站、工序、客户。演示工厂的提示词另有一段，不用它。"""
+    p = active() or {}
+    ws = "、".join("{}（{} 台）".format(k, v[0]) for k, v in (p.get("WORKSTATIONS") or {}).items())
+    ops = "、".join(p.get("OPERATIONS") or {})
+    cus = "、".join(p.get("CUSTOMERS") or []) or "（清单里没有登记）"
+    return ("工厂数据：工作站 {}；工序 {}。产品从设计经“转为生产物料”进来，物料、BOM、工艺路线以 ERPNext 为准。"
+            "客户：{}。").format(ws, ops, cus)
+
+
 DEMO_COMPANY = {"name": "问渠减速器厂 WenQuest Gearbox (Demo)", "abbr": "WQ", "country": "United States",
                 "currency": "USD", "timezone": "America/New_York"}
 
