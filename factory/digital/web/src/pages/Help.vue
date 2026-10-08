@@ -237,6 +237,8 @@ onUnmounted(() => { ws?.dispose(); off?.(); });
 .md :deep(.tablewrap) { overflow-x: auto; margin: 12px 0; }
 .md :deep(table) { border-collapse: collapse; font-size: 14px; min-width: 100%; }
 .md :deep(td:first-child), .md :deep(th:first-child) { white-space: nowrap; }
+.md :deep(th) { white-space: nowrap; }
+.md :deep(td) { min-width: 5em; }
 .md :deep(th), .md :deep(td) { border-bottom: 1px solid var(--line); padding: 7px 10px; text-align: left; vertical-align: top; }
 .md :deep(th) { background: var(--surface-2); font-weight: 600; }
 .md :deep(blockquote) { margin: 16px 0; padding: 8px 14px; border-left: 4px solid var(--accent); background: var(--accent-bg); border-radius: 0 8px 8px 0; }

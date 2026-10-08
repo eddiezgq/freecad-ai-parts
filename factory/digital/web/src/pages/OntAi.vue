@@ -14,7 +14,7 @@
         <select v-model="f.kind" @change="load"><option value="">全部种类</option><option value="chat">聊天</option>
           <option value="analyze">让 AI 分析</option><option value="report">报告</option><option value="eval">评测</option></select>
         <span class="muted">引擎：{{ engine === 'rules' ? '规则版（没配模型）' : engine }}</span>
-        <span v-if="boss && ai" class="small">模型
+        <span v-if="boss && ai" class="small" data-help="ai-model">模型
           <select v-model="ai.setting" @change="setAi">
             <option value="auto">自动（{{ ai.region === 'cn' ? '国内 → DeepSeek' : '国外 → Claude' }}）</option>
             <option value="claude">Claude{{ ai.configured.claude ? '' : '（没配密钥）' }}</option>

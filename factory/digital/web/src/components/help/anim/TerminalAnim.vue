@@ -19,7 +19,7 @@ const typing = ref(false);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let timer, gen = 0;
 
-function cls(l) { return l.startsWith('$ ') ? 'cmd' : /出错|失败|错误/.test(l) ? 'bad' : /完成|无误|已/.test(l) ? 'ok' : 'out'; }
+function cls(l) { return l.startsWith('$ ') ? 'cmd' : /出错|失败|错误|处错/.test(l) || /^\s+- /.test(l) ? 'bad' : /完成|无误|已/.test(l) ? 'ok' : 'out'; }
 function play() {
   const g = ++gen;
   clearTimeout(timer);
