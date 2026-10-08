@@ -555,3 +555,13 @@ M4b 开发部分完成后，验收只剩人工演示（#90），M5 先行。需�
 | 5 | 现场网关 | `factory/gateway/`：Mosquitto TLS 桥接、断网缓存 | CI：网关发的消息到达云端总线 |
 | 6 | 企业上线清单 | `docs/enterprise-onboarding.md` | 项目负责人看过 |
 | 7 | CI 验收与 M15 验收 | 企业安装后跑平缝机工厂一侧；AI 两家录制回答 | CI 通过；有云服务器时远程部署一次 |
+
+### M16 分项任务（2026-10-08，待确认）：企业车间布局与公司资料导入（ADR-0064）
+
+| 顺序 | issue | 内容 | 验收 |
+| --- | --- | --- | --- |
+| 1 | 工厂清单与加载 | `factory/plant.py`；演示工厂导出 `factory/plants/wenquest-gearbox.yaml`；data / topics / engine / layout / calendar / kpi 从清单取值 | 导出前后常量逐项相等；所有现有测试不改断言通过 |
+| 2 | 校验、Excel 模板与导入 | `python -m factory.plant template / import / check`；出错指明行与项 | 单元测试：模板往返得到同一份清单；各类错误都能报出 |
+| 3 | 企业安装用清单 | `install.sh --plant`；ERPNext 按清单建公司；seed 按清单建工作站、工序 | CI：用示例企业工厂装好 |
+| 4 | 随工厂变的文字 | AI 提示词、本体工厂对象、网页标题、`mrp.COMPANY`；教学页面在企业工厂里不显示 | 工厂测试 |
+| 5 | 示例企业工厂与验收 | `factory/plants/example-sewing.yaml`；CI 企业作业跑平缝机工厂一侧 | CI 通过；项目负责人看示例工厂 |
