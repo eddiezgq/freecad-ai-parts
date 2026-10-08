@@ -275,9 +275,12 @@ jobs:
                   bench --site frontend execute "$@"; }
           erp frappe.db.get_value --args "['Company', '示例缝纫机厂', 'default_currency']" | tail -n 1 | tee cur.txt
           grep -q CNY cur.txt
-          erp frappe.db.count --args "['Workstation']" | tail -n 1 | grep -qx 8
-          erp frappe.db.count --args "['Item']" | tail -n 1 | tee items.txt   # 不装演示物料
-          [ "$(cat items.txt)" -lt 20 ]
+          # bench execute 的输出末行是返回值（前面可能有警告）；取最后一个数
+          count() { erp frappe.db.count --args "['$1']" 2>/dev/null | python3 -c "
+          import re,sys; t=sys.stdin.read(); n=re.findall(r'\\d+', t); print(n[-1] if n else 'NA:' + t[-200:])"; }
+          ws=$(count Workstation); items=$(count Item); echo "工作站 $ws，物料 $items"
+          [ "$ws" = 8 ]
+          [ "$items" -lt 20 ]                      # 不装演示物料
           curl -fsk $R -H "x-wq-token: $tok" https://factory.localtest.me/api/config | python3 -c "
           import json,sys; p=json.load(sys.stdin)['plant']; assert p['name']=='示例缝纫机厂' and not p['demo'], p; print('工厂：', p)"
           curl -fsk $R -H "x-wq-token: $tok" https://factory.localtest.me/api/layout | python3 -c "
