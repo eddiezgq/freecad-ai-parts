@@ -8,6 +8,8 @@ const routes = [
   { path: '/login', component: () => import('./pages/Login.vue'), meta: { public: true } },
   { path: '/embed/workshop', component: () => import('./pages/EmbedWorkshop.vue'), meta: { public: true } },
   { path: '/', component: () => import('./pages/Home.vue') },
+  // 帮助（ADR-0065）：登录前也能看；登录后在工作台框架里
+  { path: '/help/:ed?/:ch?', component: () => import('./pages/Help.vue'), meta: { public: true, shell: true } },
   { path: '/work/planner', component: () => import('./pages/Planner.vue') },
   { path: '/work/engineer', component: () => import('./pages/Engineer.vue') },
   { path: '/work/operator', component: () => import('./pages/Operator.vue') },
