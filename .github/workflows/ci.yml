@@ -279,7 +279,7 @@ jobs:
           grep -q CNY cur.txt
           # bench execute 的输出末行是返回值（前面可能有警告）；取最后一个数
           count() { erp frappe.db.count --args "['$1']" 2>/dev/null | python3 -c "
-          import re,sys; t=sys.stdin.read(); n=re.findall(r'\\d+', t); print(n[-1] if n else 'NA:' + t[-200:])"; }
+          import re,sys; t=sys.stdin.read(); n=re.findall(r'\\d+', t); print(n[-1] if n else 0)"; }   # 返回 0 时 bench 什么也不打印
           ws=$(count Workstation); items=$(count Item); echo "工作站 $ws，物料 $items"
           [ "$ws" = 8 ]
           [ "$items" -lt 20 ]                      # 不装演示物料
