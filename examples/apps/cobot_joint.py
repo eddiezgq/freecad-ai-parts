@@ -20,6 +20,9 @@ SOURCES = [
     {"title": "UR 论坛：UR5e Plant Model for MPC（引 ROS-Industrial universal_robot 的 DH 与质量）",
      "url": "https://forum.universal-robots.com/t/ur5e-plant-model-for-mpc-matlab/19067",
      "note": "大臂 a2 = 425 mm、小臂 a3 = 392.25 mm；质量 3.70 / 8.393 / 2.275 / 1.219 / 1.219 / 0.1879 kg（外部测量，可能与实物不同）"},
+    {"title": "Universal Robots：DH Parameters for calculations of kinematics and dynamics（UR5e 表）",
+     "url": "https://www.universal-robots.com/articles/ur/application-installation/dh-parameters-for-calculations-of-kinematics-and-dynamics/",
+     "note": "腕部 d5 = 0.0997 m、d6 = 0.0996 m；第 5、6 节质量 1.3、0.365 kg（腕关节 j4 用）"},
     {"title": "问渠《机械设计》第 33.10 节案例：协作机器人肩关节空心轴 RJ-201",
      "url": "https://github.com/eddiezgq/freecad-ai-parts/blob/main/factory/digital/hub/case_parts.py",
      "note": "空心轴各段直径、长度与 Ø30 贯通内孔"},
@@ -29,6 +32,7 @@ ASSUMPTIONS = [
     "运动：肩、肘各转 90°，用时 1.0 s，加减速各占 25%（最高 120°/s，低于数据表的 180°/s）",
     "供电按控制柜 200 V 三相交流、EtherCAT 总线（零件库里的伺服是 200 V 交流；真实协作臂多用 48 V 直流关节）",
     "工作制：每天 16 小时，按动力学这一段动作重复（数字孪生的运行记录是仿真工况，不是现场数据）",
+    "腕关节 j4（wrist 1）最不利工况：d5、d6 沿同一方向水平伸出（力臂取上界 199.3 mm），第 5、6 节按均布杆、负载 5 kg 在末端；转 90° 用时 1.0 s",
     "表面系数 β = 0.92（磨削）、尺寸系数 ε = 0.85：取问渠数字工厂实验 8 的示例值，实际按教材图表查",
     "关节壳体自然对流散热系数 8 W/(m²·K)（自然对流常见范围 5–10），环境 25 °C",
 ]
@@ -46,12 +50,27 @@ MADE = [
 ASSEMBLY = [["总装 Final assembly", 40], ["跑合试验 Run-in test", 20], ["出厂检验 Final inspection", 10], ["清洗包装 Cleaning & packing", 5]]
 
 
+def _lightest(cands):
+    """候选里外购件总质量最轻的一组（引擎排序在前的不一定最轻；协作臂在意重量）。缺质量数据的不比。"""
+    from engine import export
+
+    rows = []
+    for c in cands:
+        m = export.bom_json(c.system, C.library().get)["total_mass_kg"]
+        if m is not None:
+            rows.append((m, "、".join(x["component"].split(".")[-1].upper() for x in c.system["components"])))
+    if len(rows) < 2:
+        return None
+    m, names = min(rows)
+    return f"{names}（{m:g} kg）"
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--hub")
     ap.add_argument("--quick", action="store_true", help="网格粗一些、跳过布局（测试用）")
     a = ap.parse_args(argv)
-    run = C.Run("cobot_joint", "协作机器人肩关节（UR5e 一类）", SOURCES, ASSUMPTIONS)
+    run = C.Run("cobot_joint", "协作机器人肩、肘、腕关节（UR5e 一类）", SOURCES, ASSUMPTIONS)
     out = {}
 
     # 1 需求 + 动力学
@@ -70,6 +89,16 @@ def main(argv=None):
                 f"肘 j3 峰值 {d['j3']['peak']:.1f} N·m；水平伸直重力矩 {g['j2']:.1f} N·m（手算 Σm·g·r {hand:.1f}）",
                 j2=d["j2"], j3=d["j3"], gravity=g, hand_gravity_j2=hand)
         out["mbd"] = r
+        # 腕关节 j4：单独一段“臂”——腕 2、腕 3 两节沿同一方向伸出（上界），末端带满载（ADR-0062）
+        w = analysis.run("mbd", {"model": {"kind": "arm", "base_height_mm": 0, "links": [{"length_mm": 199.3, "mass_kg": 1.665}],
+                                           "payload_kg": 5}, "duration_s": 1.4, "sample_hz": 100, "drives": [
+            {"joint": "j2", "kind": "move", "to": -90, "t0_s": 0.2, "t1_s": 1.2, "accel_ratio": 0.25}, {"joint": "j1", "kind": "hold"}]})
+        dw = next(x for x in w["data"]["drives"] if x["joint"] == "j2")
+        gw = w["data"]["static"]["gravity_torque_nm"]["j2"]
+        hand_w = 9.81 * (1.665 * 0.19930 / 2 + 5 * 0.1993)
+        run.add("动力学：腕关节 j4", "ok", f"峰值 {dw['peak']:.1f} N·m、均方根 {dw['rms']:.1f} N·m、最高 {dw['speed_max']:.1f} rpm；"
+                f"水平伸出重力矩 {gw:.1f} N·m（手算 {hand_w:.1f}）", j4=dw, hand_gravity_j4=hand_w)
+        out["mbd_w"] = w
     run.guard("动力学", dyn)
 
     # 2 选型
@@ -78,18 +107,21 @@ def main(argv=None):
 
     def select():
         from analysis import mbd
-        for j in ("j2", "j3"):
-            req = mbd.requirement(out["mbd"], j, base=base)
+        for j, res, jj in (("j2", out["mbd"], "j2"), ("j3", out["mbd"], "j3"), ("j4", out.get("mbd_w"), "j2")):
+            if res is None:
+                continue
+            req = mbd.requirement(res, jj, base=base)
             req["id"] = f"cobot-{j}"
-            cands = C.compose(req)
+            cands = C.compose(req, top=20)
             if not cands:
                 run.add(f"选型 {j}", "fail", "零件库里没有能满足的组合")
                 continue
             best = cands[0]
             names = "、".join(c["component"].split(".")[-1].upper() for c in best.system["components"])
+            light = _lightest(cands)
             run.add(f"选型 {j}", "ok" if best.report["overall"] == "pass" else "unknown",
                     f"需求 连续 {req['output_torque_cont_nm']:.1f} / 峰值 {req['output_torque_peak_nm']:.1f} N·m、{req['output_speed_rpm']:.1f} rpm → "
-                    f"{names}；{C.checks_text(best.report)}；共 {len(cands)} 个候选",
+                    f"{names}；{C.checks_text(best.report)}；共 {len(cands)} 个候选" + (f"，外购件最轻的是 {light}" if light else ""),
                     requirement=req, system=best.system, report=best.report)
             out[j] = {"req": req, "system": best.system, "report": best.report}
     run.guard("选型", select)
