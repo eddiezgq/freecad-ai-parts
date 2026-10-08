@@ -3,7 +3,7 @@
     <TaskBar v-if="teachStatus" :t="teachStatus" />
     <div class="page-title"><h1>质量</h1><span class="muted">质检员工作区 · 三坐标测量值、控制图、不合格品评审</span></div>
     <div class="row">
-      <section class="card grow">
+      <section class="card grow" data-help="q-chart">
         <div class="card-head">
           <h2>控制图</h2>
           <select v-model="ch" @change="load">
@@ -38,7 +38,7 @@
           </div>
           <div v-else class="small muted">由 {{ n.decided_by }} 评审</div>
         </div>
-        <div class="card-head" style="margin-top: 18px;"><h2>质量异常单（8D）</h2>
+        <div class="card-head" style="margin-top: 18px;" data-help="q-8d"><h2>质量异常单（8D）</h2>
           <router-link to="/quality/8d" class="small">全部</router-link></div>
         <p class="small muted">控制图上发现异常（超差、趋势、锥度……），开一张质量异常单，按 8D 找原因、定措施、用数据验证。</p>
         <div class="new8d">
@@ -50,7 +50,7 @@
           <span class="small muted">{{ STATUS8D[q.status] }} · {{ q.author }}</span>
         </div>
         <template v-if="isTeacher">
-          <div class="card-head" style="margin-top: 18px;"><h2>问题情景（老师）</h2></div>
+          <div class="card-head" style="margin-top: 18px;" data-help="q-problems"><h2>问题情景（老师）</h2></div>
           <p class="small muted">注入一个隐藏的加工问题，学生只能从数据里找原因。学生看不到这一栏。</p>
           <div v-for="a in problems" :key="a.id" class="small">● {{ a.name }}（量值 {{ a.magnitude }}，{{ timeOf(a.injected_at) }}）</div>
           <div class="new8d">

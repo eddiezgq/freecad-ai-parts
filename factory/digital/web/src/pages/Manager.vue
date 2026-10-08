@@ -3,7 +3,7 @@
     <TaskBar v-if="teachStatus" :t="teachStatus" />
     <div class="page-title"><h1>经营与成本</h1><span class="muted">厂长工作区 · 设备效率、工单成本、交付；教学模式下也是教师控制台</span></div>
 
-    <section v-if="teach" class="card teacher">
+    <section v-if="teach" class="card teacher" data-help="mgr-teacher">
       <div class="card-head"><h2>教师控制台</h2><span class="muted small">只在教学模式出现；指令经总线发给仿真车间（machining/sim/cmd）</span></div>
       <div class="ctl">
         <div class="field"><label>仿真倍速</label>

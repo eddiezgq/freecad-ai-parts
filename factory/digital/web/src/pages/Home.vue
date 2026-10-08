@@ -12,7 +12,7 @@
       </router-link>
 
       <!-- AI 今日简报 -->
-      <section class="card brief" aria-label="AI 今日简报">
+      <section class="card brief" aria-label="AI 今日简报" data-help="home-brief">
         <div class="brief-main">
           <div class="brief-head">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>
@@ -39,7 +39,7 @@
       </section>
 
       <!-- 关键指标 -->
-      <section class="kpis" aria-label="关键指标">
+      <section class="kpis" aria-label="关键指标" data-help="home-kpis">
         <div v-for="k in ov.kpis" :key="k.key" class="card kpi" :class="{ focus: focus.kpis.includes(k.key) }">
           <span class="muted small">{{ k.label }}</span>
           <span class="mono kv">{{ kpiValue(k) }}</span>
@@ -49,7 +49,7 @@
 
       <!-- 车间实况 + 订单与交期 -->
       <div class="row">
-        <section class="card shop" :class="{ focus: focus.shop }" aria-label="车间实况">
+        <section class="card shop" :class="{ focus: focus.shop }" aria-label="车间实况" data-help="home-shop">
           <div class="card-head">
             <h2>车间实况</h2>
             <div class="legend small muted">
@@ -80,7 +80,7 @@
           </div>
         </section>
 
-        <section class="card orders" :class="{ focus: focus.orders }" aria-label="订单与交期">
+        <section class="card orders" :class="{ focus: focus.orders }" aria-label="订单与交期" data-help="home-orders">
           <div class="card-head"><h2>订单与交期</h2><a :href="erpUrl" target="_blank" class="more">ERPNext →</a></div>
           <div v-if="!ov.orders.length" class="empty">没有在手订单</div>
           <div v-for="o in ov.orders" :key="o.name" class="order">
@@ -115,7 +115,7 @@
           </div>
         </section>
 
-        <section class="card" :class="{ focus: focus.quality }" aria-label="质量">
+        <section class="card" :class="{ focus: focus.quality }" aria-label="质量" data-help="home-quality">
           <div class="card-head"><h2>质量</h2><span class="muted small">{{ ov.quality.chart.title }} · 最近 {{ ov.quality.chart.points.length }} 件</span></div>
           <ControlChart v-if="ov.quality.chart.points.length" :chart="ov.quality.chart" />
           <div v-else class="empty">还没有测量数据</div>

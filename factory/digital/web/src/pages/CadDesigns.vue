@@ -3,7 +3,7 @@
     <div class="page-title"><h1>CAD 方案</h1>
       <span class="muted">在 FreeCAD 里选型、校验后“发布到工厂”的方案：BOM 里每个零件都来自零件库（公共库或企业库），带资料出处</span></div>
     <div class="row">
-      <section class="card side">
+      <section class="card side" data-help="cad-list">
         <div class="card-head"><h2>方案</h2></div>
         <div v-if="!rows.length" class="empty">还没有方案。在 FreeCAD 的 AI Parts 工作台点“发布到工厂”。</div>
         <table v-else class="t">
@@ -39,7 +39,7 @@
             </table>
           </template>
           <p v-if="cur.assembly_routing?.length" class="small">总装工艺：{{ cur.assembly_routing.map((r) => r[0].split(' ')[0] + ' ' + r[1] + ' 分').join(' → ') }}</p>
-          <div class="card-head"><h3 class="small">转为生产物料（在 ERPNext 建物料与 BOM，经确认后执行）</h3></div>
+          <div class="card-head" data-help="cad-production"><h3 class="small">转为生产物料（在 ERPNext 建物料与 BOM，经确认后执行）</h3></div>
           <table class="t">
             <thead><tr><th>外购件</th><th>采购提前期（天）</th><th>单价</th></tr></thead>
             <tbody><tr v-for="b in cur.bom" :key="'p' + b.component_id">

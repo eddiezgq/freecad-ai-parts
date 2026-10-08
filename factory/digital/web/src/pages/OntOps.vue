@@ -2,7 +2,7 @@
   <div class="page">
     <div class="page-title"><h1>厂情中枢 · 指挥台</h1>
       <span class="muted">全厂态势、异常、原因和影响 · 规则每 20 秒检查一次全厂</span>
-      <span class="tabs" role="tablist">
+      <span class="tabs" role="tablist" data-help="ont-tabs">
         <button type="button" role="tab" :class="{ on: view === 'situation' }" @click="go({ view: 'situation' })">全厂态势</button>
         <button type="button" role="tab" :class="{ on: view === 'anomalies' }" @click="go({ view: 'anomalies' })">异常处理
           <span v-if="openCount" class="cnt">{{ openCount }}</span></button>
@@ -67,7 +67,7 @@
 
     <!-- 第二屏：异常处理（三栏） -->
     <div v-else class="three">
-      <section class="card list">
+      <section class="card list" data-help="ont-list">
         <div class="filters">
           <select v-model="f.status" aria-label="状态" @change="loadList"><option value="open">开着的</option><option value="closed">已结束</option><option value="all">全部</option></select>
           <select v-model="f.domain" aria-label="领域" @change="loadList"><option value="">全部领域</option>
@@ -96,7 +96,7 @@
               · <button class="linkbtn" :disabled="ai.busy" @click="analyze(sel.id, sel.key)">让 AI 分析</button>
             </p>
           </div>
-          <ChainGraph :chain="sel.chain" @edge="(e) => (basis = e)" @node="(n) => (node = n)" />
+          <ChainGraph data-help="ont-chain" :chain="sel.chain" @edge="(e) => (basis = e)" @node="(n) => (node = n)" />
           <div v-if="basis" class="basis small">
             <b>依据</b>：{{ basis.label }} —— {{ basis.basis.how }}
             <template v-if="basis.basis.text">；{{ basis.basis.text }}</template>
@@ -112,7 +112,7 @@
         <div v-else class="empty">左边选一个异常，这里显示它的原因和影响。</div>
       </section>
 
-      <section class="card right">
+      <section class="card right" data-help="ont-actions">
         <template v-if="sel">
           <h2>处理</h2>
           <p class="small"><b>{{ sel.rule_info.id }} {{ sel.rule_info.name }}</b>：<span class="muted">{{ sel.rule_info.desc }}</span></p>

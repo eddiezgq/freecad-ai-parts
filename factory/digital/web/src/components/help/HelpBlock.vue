@@ -110,9 +110,10 @@ onMounted(async () => {
   border-left: 4px solid var(--brand); }
 .g-txt { display: flex; flex-direction: column; gap: 2px; flex: 1; }
 .video video { width: 100%; border-radius: 10px; background: #17212B; display: block; }
-.novid { border-radius: 10px; background: #17212B; color: #C9D3DA; padding: 28px 24px; aspect-ratio: 16 / 7;
-  display: flex; flex-direction: column; justify-content: center; background-image: repeating-linear-gradient(90deg, #22303C 0 14px, transparent 14px 28px);
-  background-size: 100% 10px; background-repeat: repeat-x; background-position: 0 6px, 0 100%; }
+.novid { border-radius: 10px; background: var(--surface-2); color: var(--ink); padding: 12px 16px 12px 52px; position: relative; border: 1px dashed var(--line); }
+.novid::before { content: ''; position: absolute; left: 18px; top: 50%; transform: translateY(-50%); border-left: 16px solid var(--idle);
+  border-top: 10px solid transparent; border-bottom: 10px solid transparent; }
+.novid .small { color: var(--muted); }
 .novid p { margin: 4px 0; }
 figcaption { margin-top: 6px; }
 .live { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--surface); }
