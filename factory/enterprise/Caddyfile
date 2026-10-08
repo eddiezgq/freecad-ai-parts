@@ -1,0 +1,19 @@
+# 问渠数字工厂 · 企业安装版入口（ADR-0063）：自动 HTTPS
+# FAP_TLS：证书申请邮箱（Let's Encrypt，需要域名解析到本机、80/443 开放）；填 internal 用 Caddy 自签证书（内网、测试）
+{$FAP_DOMAIN} {
+	tls {$FAP_TLS}
+	encode gzip
+	# 浏览器看实时数据：wss://<域名>/mqtt → 总线的只读 websockets
+	handle /mqtt* {
+		reverse_proxy bus:9001
+	}
+	handle {
+		reverse_proxy hub:8100
+	}
+}
+
+{$FAP_ERP_DOMAIN} {
+	tls {$FAP_TLS}
+	encode gzip
+	reverse_proxy erp-frontend:8080
+}
