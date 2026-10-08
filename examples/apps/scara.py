@@ -25,10 +25,12 @@ ASSUMPTIONS = [
 ]
 MADE = [
     {"code": "SC-ARM1", "name": "SCARA 大臂", "qty": 1, "material": "6061-T6",
-     "raw": {"item_code": "RM-6061-P380", "name": "6061-T6 板材 380×120×20", "uom": "Nos", "supplier": "steel"}, "raw_qty": 1,
+     "raw": {"item_code": "RM-6061-P380", "name": "6061-T6 板材 380×120×20", "uom": "Nos", "supplier": "steel"},
+     "datum": "毛坯底面（粗基准）", "clamping": "压板压紧（板件）", "raw_qty": 1,
      "routing": [["铣结合面 Face milling", 30], ["钻攻螺纹孔 Drilling & tapping", 18], ["零件检验 Part inspection", 6]]},
     {"code": "SC-ARM2", "name": "SCARA 小臂", "qty": 1, "material": "6061-T6",
-     "raw": {"item_code": "RM-6061-P330", "name": "6061-T6 板材 330×110×20", "uom": "Nos", "supplier": "steel"}, "raw_qty": 1,
+     "raw": {"item_code": "RM-6061-P330", "name": "6061-T6 板材 330×110×20", "uom": "Nos", "supplier": "steel"},
+     "datum": "毛坯底面（粗基准）", "clamping": "压板压紧（板件）", "raw_qty": 1,
      "routing": [["铣结合面 Face milling", 26], ["钻攻螺纹孔 Drilling & tapping", 16], ["零件检验 Part inspection", 6]]},
 ]
 ASSEMBLY = [["总装 Final assembly", 60], ["跑合试验 Run-in test", 30], ["出厂检验 Final inspection", 15]]

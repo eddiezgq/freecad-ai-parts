@@ -111,8 +111,7 @@ def main(argv=None):
         [f"订货客户“{CUSTOMER}”、每种产品 {a.qty} 台、交期 {due}：演练假设",
          "采购件交期、单价、成品售价零件库里没有，本脚本不填：工厂按“交期待确认”排程",
          f"车间仿真 {a.speed} 倍速；采购到货由脚本代替供应商送货",
-         ("自制件工艺规程以方案带来的工艺路线为起点，第一道机加工工序的粗基准与装夹（回转件外圆 / 三爪卡盘，板件毛坯底面 / 平口钳）"
-          "由脚本按工艺员的常规写法补上；工艺计算书没有，AI 评审会提醒")])
+         "自制件工艺规程由工厂按方案起草：工艺路线、粗基准与装夹都来自方案（ADR-0062）；工艺计算书没有，AI 评审会提醒"])
     st = {}
     err0 = len(h.call("GET", "/api/mock/errors", base=a.erp, role=None).get("errors", [])) if a.erp else 0
 
@@ -164,14 +163,9 @@ def main(argv=None):
                     return
                 plan = dict(cur["factory_plan"], version=1, material=mp.get("material"),
                             blank={"material_item": (mp.get("raw") or {}).get("item_code")})
-                turned = any("车" in o["operation"] for o in plan["operations"])
-                first = True
                 for o in plan["operations"]:
                     o["content"] = o["content"] or f"{o['operation'].split(' ')[0]}：按 {item} 图纸"
-                    if first and any(k in o["operation"] for k in ("车", "铣", "磨")):
-                        o["datum"] = "外圆（粗基准）" if turned else "毛坯底面（粗基准）"
-                        o["clamping"] = "三爪卡盘" if turned else "平口钳"
-                        first = False
+                hinted = next((o for o in plan["operations"] if o.get("datum")), None)
                 s = h.post("/api/process/submit", {"plan": plan, "note": "典型应用演练：按方案带来的工艺路线"}, "engineer")
                 f = s["review"]["findings"]
                 errs = [x for x in f if x["level"] == "error"]
@@ -182,7 +176,9 @@ def main(argv=None):
                 for c in s.get("comments") or []:
                     h.post(f"/api/process/submissions/{s['id']}/comments/{c['id']}", {"resolved": True}, "engineer")
                 r = h.post(f"/api/process/submissions/{s['id']}/decision", {"decision": "approve", "note": "演练：评审意见已看过"}, "approver")
-                run.add(f"{item}：工艺规程", "ok", f"工艺员提交 {len(plan['operations'])} 道工序，AI 工艺评审 {len(f)} 条意见（{txt}），"
+                run.add(f"{item}：工艺规程", "ok", f"工艺员提交 {len(plan['operations'])} 道工序"
+                        + (f"（粗基准“{hinted['datum']}”来自方案）" if hinted else "（方案没给粗基准）") + "，"
+                        f"AI 工艺评审 {len(f)} 条意见（{txt}），"
                         f"技术负责人批准为第 {r.get('revision')} 版")
             run.guard(f"{item}：工艺规程", proc)
 

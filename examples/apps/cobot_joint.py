@@ -35,11 +35,12 @@ ASSUMPTIONS = [
 RJ_SEGS = [(70, 10), (50, 16), (50, 24), (50, 16), (42.75, 20), (42, 10)]   # 第 33.10 节；内孔 Ø30
 RJ_BORE = 30.0
 MADE = [
-    {"code": "RJ-201", "name": "肩关节空心轴", "qty": 1, "material": "45 钢调质", "raw": {"item_code": "RM-45-D50"},
+    {"code": "RJ-201", "name": "肩关节空心轴", "qty": 1, "material": "45 钢调质", "raw": {"item_code": "RM-45-D50"}, "datum": "毛坯 Ø50 外圆（粗基准）", "clamping": "三爪卡盘",
      "raw_qty": 1.6, "routing": [["下料 Sawing", 3], ["粗车 Rough turning", 16], ["调质 Quench & temper", 12],
                                  ["精车 Finish turning", 14], ["磨外圆 Cylindrical grinding", 10], ["零件检验 Part inspection", 6]]},
     {"code": "J2-HSG", "name": "肩关节壳体", "qty": 1, "material": "6061-T6",
      "raw": {"item_code": "RM-6061-B140", "name": "6061-T6 方料 140×140×90", "uom": "Nos", "supplier": "steel"},
+     "datum": "毛坯底面（粗基准）", "clamping": "平口钳",
      "raw_qty": 1, "routing": [["铣结合面 Face milling", 22], ["钻攻螺纹孔 Drilling & tapping", 16], ["零件检验 Part inspection", 5]]},
 ]
 ASSEMBLY = [["总装 Final assembly", 40], ["跑合试验 Run-in test", 20], ["出厂检验 Final inspection", 10], ["清洗包装 Cleaning & packing", 5]]
