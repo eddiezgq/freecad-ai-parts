@@ -261,6 +261,8 @@ jobs:
         env:
           FAP_DIR: ${{ runner.temp }}/fap
         run: |
+          exec > >(tee "$RUNNER_TEMP/check.log") 2>&1     # 失败时写成注释
+          set -x
           R="--resolve factory.localtest.me:443:127.0.0.1 --resolve erp.factory.localtest.me:443:127.0.0.1"
           curl -fsk $R https://factory.localtest.me/api/login/info | python3 -c "import json,sys; assert json.load(sys.stdin)['auth']=='enterprise'"
           code=$(curl -sk $R -o /dev/null -w '%{http_code}' -H 'content-type: application/json' -d '{"name":"x","role":"manager"}' https://factory.localtest.me/api/login)
@@ -332,6 +334,7 @@ jobs:
         run: |
           cd "${{ runner.temp }}/fap" || exit 0
           python3 "$GITHUB_WORKSPACE/factory/deploy/ci_annotate.py" 安装输出 "$RUNNER_TEMP/install.log" 60
+          [ ! -f "$RUNNER_TEMP/check.log" ] || python3 "$GITHUB_WORKSPACE/factory/deploy/ci_annotate.py" 核对输出 "$RUNNER_TEMP/check.log" 60
           docker compose -p fap --env-file .env ps -a > "$RUNNER_TEMP/ps.log" 2>&1 || true
           docker compose -p fap --env-file .env logs --no-color --tail 30 hub caddy bus erp-backend > "$RUNNER_TEMP/svc.log" 2>&1 || true
           python3 "$GITHUB_WORKSPACE/factory/deploy/ci_annotate.py" 服务状态 "$RUNNER_TEMP/ps.log" 40
