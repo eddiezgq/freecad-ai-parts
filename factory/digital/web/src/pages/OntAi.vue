@@ -14,6 +14,14 @@
         <select v-model="f.kind" @change="load"><option value="">全部种类</option><option value="chat">聊天</option>
           <option value="analyze">让 AI 分析</option><option value="report">报告</option><option value="eval">评测</option></select>
         <span class="muted">引擎：{{ engine === 'rules' ? '规则版（没配模型）' : engine }}</span>
+        <span v-if="boss && ai" class="small">模型
+          <select v-model="ai.setting" @change="setAi">
+            <option value="auto">自动（{{ ai.region === 'cn' ? '国内 → DeepSeek' : '国外 → Claude' }}）</option>
+            <option value="claude">Claude{{ ai.configured.claude ? '' : '（没配密钥）' }}</option>
+            <option value="deepseek">DeepSeek{{ ai.configured.deepseek ? '' : '（没配密钥）' }}</option>
+          </select>
+          <span class="muted">现在用 {{ ai.name === 'rules' ? '规则版' : ai.name }}<template v-if="ai.last">；上次 {{ ai.last.provider }} {{ ai.last.ok ? '成功' : '出错' }}{{ ai.last.fallback_from ? '（' + ai.last.fallback_from + ' 出错后换的）' : '' }}</template></span>
+        </span>
       </div>
       <div class="grid">
         <div class="card list">
@@ -92,6 +100,12 @@ const engine = ref('rules');
 const err = ref('');
 const running = ref(false);
 const f = reactive({ mine: false, bad: false, kind: '' });
+const ai = ref(null);       // AI 模型选择（本仓库 ADR-0063）：Claude / DeepSeek / 按地区自动
+
+async function loadAi() { if (boss.value) { try { ai.value = await get('/admin/ai'); } catch { ai.value = null; } } }
+async function setAi() {
+  try { ai.value = await post('/admin/ai', { provider: ai.value.setting }); engine.value = ai.value.name; } catch (e) { alert(e.message); }
+}
 
 async function load() {
   try {
@@ -109,7 +123,7 @@ async function runEvals() {
     const t = setInterval(async () => { await loadEvals(); if (!ev.value.running) { clearInterval(t); running.value = false; } }, 4000);
   } catch (e) { alert(e.message); running.value = false; }
 }
-onMounted(load);
+onMounted(() => { load(); loadAi(); });
 </script>
 
 <style scoped>

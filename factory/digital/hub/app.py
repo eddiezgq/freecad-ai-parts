@@ -100,6 +100,7 @@ class Hub:
         products.init(self.db)
         self.bus = Bus("wq-hub-" + secrets.token_hex(3))
         self.ai = Assistant(self.db, self.publish)
+        ai_setting_load(self.db, self.ai.llm)          # 本仓库 ADR-0063：管理员选的模型（Claude / DeepSeek / 自动）
         from hub.ont.agent import Agent               # AI 代理（第 17 轮 D 期）：问答走代理，工具是本体、异常、推演、动作
         self.agent = Agent(self, self.ai.llm, locked=self.compare_locked)
         self.hist = Historian(self.db, self.on_message)
@@ -466,6 +467,46 @@ def caddy_ask(domain: str = ""):
     if len(parts) >= 4 and parts[1] in ("factory", "erp") and parts[0] in CLASS_IDS:
         return {"ok": True}
     raise HTTPException(404, "不是班级工厂")
+
+
+# ---------------------------------------------------------------- AI 模型选择（本仓库 ADR-0063）
+AI_SETTING_SQL = "create table if not exists app_setting (key text primary key, value jsonb, updated_by text, ts timestamptz default now())"
+
+
+def ai_setting_load(db, llm):
+    try:
+        db.x(AI_SETTING_SQL)
+        r = db.one("select value from app_setting where key='ai_provider'")
+        llm.override = r["value"] if r and r["value"] in ("claude", "deepseek", "auto") else None
+    except Exception as e:  # noqa: BLE001 —— 设置读不到时按环境变量
+        log.warning("读不到 AI 模型设置：%s", e)
+
+
+def _can_admin_ai(u):
+    if u.get("teacher") or u["role"] == "manager":
+        return
+    raise HTTPException(403, "AI 模型设置要用厂长或管理员账号")
+
+
+@app.get("/api/admin/ai")
+def ai_status(u=Depends(user_of)):
+    _can_admin_ai(u)
+    return H.ai.llm.status()
+
+
+@app.post("/api/admin/ai")
+def ai_set(body: dict = Body(...), u=Depends(user_of)):
+    """选模型：claude / deepseek / auto（按地区：国内 DeepSeek、其他 Claude）。存库，重启后照样生效。"""
+    _can_admin_ai(u)
+    v = body.get("provider")
+    if v not in ("claude", "deepseek", "auto"):
+        raise HTTPException(400, "provider 只能是 claude、deepseek 或 auto")
+    from psycopg.types.json import Jsonb
+    H.db.x(AI_SETTING_SQL)
+    H.db.x("insert into app_setting (key, value, updated_by) values ('ai_provider', %s, %s) on conflict (key) do update "
+           "set value=excluded.value, updated_by=excluded.updated_by, ts=now()", (Jsonb(v), who(u)))
+    H.ai.llm.override = v
+    return H.ai.llm.status()
 
 
 @app.get("/api/config")

@@ -1,6 +1,6 @@
 """对话面板的对话循环（ADR-0036）：LLM 工具调用循环，与界面、FreeCAD 无关，可单独测试。
 
-- LLM 只经 LLM 协议访问：真实调用用 AnthropicChat（密钥只从环境变量 ANTHROPIC_API_KEY 或本地 .env 读取），
+- LLM 只经 LLM 协议访问：真实调用经 AI 模型网关 default_chat（Claude / DeepSeek，ADR-0063；AnthropicChat 仍可直接用），
   测试用 ScriptedLLM 按脚本回放，不联网
 - 工具经 call_tool 回调执行（面板中为进程内 MCP 服务端），结果转换为 Anthropic 的 tool_result 内容
 - 每轮用户消息最多调用 max_tool_calls 次工具，超过时停止并说明
@@ -98,6 +98,13 @@ class AnthropicChat:
                                            tools=tools, messages=messages)
         return {"stop_reason": msg.stop_reason,
                 "content": [b.model_dump(exclude_none=True) for b in msg.content]}
+
+
+def default_chat():
+    """对话面板缺省用的模型：经 AI 模型网关（ADR-0063），国内 DeepSeek、其他 Claude，出错换另一家。"""
+    from llm_gateway import Gateway
+
+    return Gateway()
 
 
 # ---------------------------------------------------------------- 工具结果

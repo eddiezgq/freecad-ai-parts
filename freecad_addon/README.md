@@ -54,7 +54,11 @@ MCP 服务端通过 `freecad_addon.fc.client.HeadlessWorker` 用 FreeCAD 内带�
 python -m freecad_addon.install                          # 写入 FreeCAD 用户目录的 Mod/FreeCADAIParts/InitGui.py（1.1 起另有 v1-1/Mod 等，一并写入）
 <FreeCAD 的 python> -m pip install -e ".[llm]"           # 面板依赖（在本仓库目录下运行）
 export ANTHROPIC_API_KEY=...                             # 或写在本仓库的 .env 中（不入 git）
+export DEEPSEEK_API_KEY=...                              # 国内用 DeepSeek（ADR-0063），两家配一家即可
 ```
+
+对话面板与需求解析经 AI 模型网关：国内（`FAP_AI_REGION=cn`，或本机是中国时区与简体中文）自动用 DeepSeek，其他地方用 Claude；
+`FAP_AI_PROVIDER=claude|deepseek` 可指定；首选的一家出错时换另一家。规格书导入要让模型看页图，仍只用 Claude。
 
 重启 FreeCAD 后选择 “AI Parts” 工作台：
 

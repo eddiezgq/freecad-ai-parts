@@ -48,7 +48,7 @@ dev = [
 freecad-ai-parts-mcp = "mcp_server.server:main"
 
 [tool.setuptools.packages.find]
-include = ["kb*", "ingest*", "engine*", "mcp_server*", "freecad_addon*", "analysis*"]
+include = ["kb*", "ingest*", "engine*", "mcp_server*", "freecad_addon*", "analysis*", "llm_gateway*"]
 
 [tool.setuptools.package-data]
 analysis = ["common/*.yaml"]

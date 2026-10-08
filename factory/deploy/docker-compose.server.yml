@@ -96,6 +96,8 @@ services:
       WQ_CLAUDE_KEY: ${WQ_CLAUDE_KEY:-}
       WQ_CLAUDE_MODEL: ${WQ_CLAUDE_MODEL:-claude-sonnet-5}
       WQ_DEEPSEEK_KEY: ${WQ_DEEPSEEK_KEY:-}             # 国内部署用已备案的 DeepSeek（第 17 轮 D 期）
+      WQ_AI_PROVIDER: ${WQ_AI_PROVIDER:-auto}           # 本仓库 ADR-0063：auto 时国内 DeepSeek、其他 Claude
+      WQ_AI_REGION: ${WQ_AI_REGION:-}
       WQ_DEEPSEEK_MODEL: ${WQ_DEEPSEEK_MODEL:-deepseek-chat}
       WQ_SMTP_HOST: ${WQ_SMTP_HOST:-}                   # 厂情提醒的邮件（第 17 轮 D 期）；空 = 只发站内和群机器人
       WQ_SMTP_PORT: ${WQ_SMTP_PORT:-2525}
@@ -212,6 +214,8 @@ services:
       WQ_CLAUDE_KEY: ${WQ_CLAUDE_KEY:-}
       WQ_CLAUDE_MODEL: ${WQ_CLAUDE_MODEL:-claude-sonnet-5}
       WQ_DEEPSEEK_KEY: ${WQ_DEEPSEEK_KEY:-}             # 国内部署用已备案的 DeepSeek（第 17 轮 D 期）
+      WQ_AI_PROVIDER: ${WQ_AI_PROVIDER:-auto}           # 本仓库 ADR-0063：auto 时国内 DeepSeek、其他 Claude
+      WQ_AI_REGION: ${WQ_AI_REGION:-}
       WQ_DEEPSEEK_MODEL: ${WQ_DEEPSEEK_MODEL:-deepseek-chat}
       WQ_SMTP_HOST: ${WQ_SMTP_HOST:-}                   # 厂情提醒的邮件（第 17 轮 D 期）；空 = 只发站内和群机器人
       WQ_SMTP_PORT: ${WQ_SMTP_PORT:-2525}

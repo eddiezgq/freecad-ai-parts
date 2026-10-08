@@ -1,41 +1,101 @@
 # -*- coding: utf-8 -*-
-"""模型网关（精简版，与问渠网关同样的约定）：美国用 Claude，国内用 DeepSeek 等 OpenAI 兼容接口。
+"""模型网关（精简版，与问渠网关同样的约定）：Claude 与 DeepSeek 等 OpenAI 兼容接口，可切换（本仓库 ADR-0063）。
+
+选哪家：管理员在“系统设置”里选的（override）> WQ_AI_PROVIDER（claude / deepseek / auto，缺省 auto）；
+auto 时看 WQ_AI_REGION：cn 用 DeepSeek，其他用 Claude；没设 WQ_AI_REGION 时按 WQ_TZ（中国时区算 cn）。
+选中的一家没配密钥、调用出错或超时，换另一家；两家都不可用时 available() 为 False，AI 助手改用规则回答。
+每次调用记下实际用的哪家（last）。
 
 环境变量：WQ_CLAUDE_KEY（或 ANTHROPIC_API_KEY）、WQ_CLAUDE_MODEL（默认 claude-sonnet-5）；
-WQ_DEEPSEEK_KEY、WQ_DEEPSEEK_MODEL（默认 deepseek-chat）、WQ_DEEPSEEK_BASE。
-都没配时 available() 为 False，AI 助手改用规则回答（仍能简报、提醒、起草提议）。
+WQ_DEEPSEEK_KEY（或 DEEPSEEK_API_KEY）、WQ_DEEPSEEK_MODEL（默认 deepseek-chat）、WQ_DEEPSEEK_BASE。
 """
 import json
 import logging
 import os
+import time
 
 import httpx
 
 log = logging.getLogger("llm")
 
+PROVIDERS = ("claude", "deepseek")
+CN_TZ = ("Asia/Shanghai", "Asia/Chongqing", "Asia/Harbin", "Asia/Urumqi", "PRC")
+
+
+def region_of(env=None):
+    """部署地区：WQ_AI_REGION（cn / intl）；没设时按 WQ_TZ 推断。"""
+    env = os.environ if env is None else env
+    r = (env.get("WQ_AI_REGION") or "").strip().lower()
+    if r in ("cn", "intl"):
+        return r
+    return "cn" if (env.get("WQ_TZ") or env.get("TZ") or "") in CN_TZ else "intl"
+
 
 class LLM:
-    def __init__(self):
-        self.claude_key = os.environ.get("WQ_CLAUDE_KEY") or os.environ.get("ANTHROPIC_API_KEY", "")
-        self.claude_model = os.environ.get("WQ_CLAUDE_MODEL", "claude-sonnet-5")
-        self.ds_key = os.environ.get("WQ_DEEPSEEK_KEY", "")
-        self.ds_model = os.environ.get("WQ_DEEPSEEK_MODEL", "deepseek-chat")
-        self.ds_base = os.environ.get("WQ_DEEPSEEK_BASE", "https://api.deepseek.com")
-        self.timeout = float(os.environ.get("WQ_AI_TIMEOUT", "90"))
+    def __init__(self, env=None):
+        env = os.environ if env is None else env
+        self.claude_key = env.get("WQ_CLAUDE_KEY") or env.get("ANTHROPIC_API_KEY", "")
+        self.claude_model = env.get("WQ_CLAUDE_MODEL", "claude-sonnet-5")
+        self.ds_key = env.get("WQ_DEEPSEEK_KEY") or env.get("DEEPSEEK_API_KEY", "")
+        self.ds_model = env.get("WQ_DEEPSEEK_MODEL", "deepseek-chat")
+        self.ds_base = env.get("WQ_DEEPSEEK_BASE", "https://api.deepseek.com")
+        self.timeout = float(env.get("WQ_AI_TIMEOUT", "90"))
+        self.provider = (env.get("WQ_AI_PROVIDER") or "auto").strip().lower()
+        self.region = region_of(env)
+        self.override = None            # 管理员在系统设置里选的（claude / deepseek / auto），优先于环境变量
+        self.last = None                # 最近一次调用：{provider, ok, error?, fallback_from?, ts}
+
+    def configured(self, p):
+        return bool(self.claude_key if p == "claude" else self.ds_key)
+
+    def preferred(self):
+        """首选哪家：设置 > 环境变量 > 按地区。"""
+        p = self.override if self.override in PROVIDERS + ("auto",) else self.provider
+        if p in PROVIDERS:
+            return p
+        return "deepseek" if self.region == "cn" else "claude"
+
+    def order(self):
+        """依次尝试的顺序（只含配了密钥的）。"""
+        first = self.preferred()
+        return [p for p in (first, next(x for x in PROVIDERS if x != first)) if self.configured(p)]
 
     def available(self):
-        return bool(self.claude_key or self.ds_key)
+        return bool(self.order())
+
+    def label(self, p):
+        return "claude:" + self.claude_model if p == "claude" else "deepseek:" + self.ds_model
 
     @property
     def name(self):
-        return "claude:" + self.claude_model if self.claude_key else ("deepseek:" + self.ds_model if self.ds_key else "rules")
+        o = self.order()
+        return self.label(o[0]) if o else "rules"
+
+    def status(self):
+        """系统设置页要看的：选择、地区、两家是否配好、最近一次调用。不含密钥。"""
+        return {"setting": self.override or self.provider, "env_provider": self.provider, "region": self.region,
+                "preferred": self.preferred(), "order": self.order(), "name": self.name,
+                "configured": {p: self.configured(p) for p in PROVIDERS},
+                "models": {"claude": self.claude_model, "deepseek": self.ds_model}, "last": self.last}
 
     def run(self, system, messages, tools, call_tool, max_turns=6):
         """tools: [{name, description, input_schema}]；call_tool(name, args) → 可 JSON 化的结果。
-        返回 (最终文字, 调用记录)。"""
-        if self.claude_key:
-            return self._claude(system, messages, tools, call_tool, max_turns)
-        return self._openai(system, messages, tools, call_tool, max_turns)
+        返回 (最终文字, 调用记录)。首选的一家出错就换另一家；都出错时抛出最后一个错误。"""
+        err, tried = None, []
+        for p in self.order():
+            try:
+                fn = self._claude if p == "claude" else self._openai
+                out = fn(system, messages, tools, call_tool, max_turns)
+                self.last = {"provider": p, "ok": True, "ts": time.time(), **({"fallback_from": tried[0]} if tried else {})}
+                return out
+            except (httpx.HTTPError, KeyError, IndexError, ValueError) as e:
+                log.warning("%s 调用失败，换另一家：%s", p, e)
+                err = e
+                tried.append(p)
+                self.last = {"provider": p, "ok": False, "error": str(e)[:300], "ts": time.time()}
+        if err is None:
+            raise RuntimeError("没有可用的 AI 模型（两家都没配密钥）")
+        raise err
 
     def _claude(self, system, messages, tools, call_tool, max_turns):
         msgs = [{"role": m["role"], "content": m["content"]} for m in messages]
