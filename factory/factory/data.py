@@ -338,3 +338,19 @@ OPENING_STOCK = {
     "KEY-6x6x25": 10, "KEY-8x7x36": 10, "KEY-10x8x28": 20, "KEY-12x8x45": 10,
     "PLUG-M16": 10, "VENT-M16": 10, "GAUGE-M12": 10, "OIL-CKC220": 25, "SEALANT": 0.5,
 }
+
+
+# ---------------------------------------------------------------- 工厂清单（本仓库 ADR-0064）
+# WQ_PLANT_FILE 指定了企业的清单时，工作站、工序、班次、客户与供应商取自清单；没指定时就是上面的演示工厂
+from factory import plant as _plant  # noqa: E402
+
+_P = _plant.active()
+if _P:
+    WORKSTATIONS = _P["WORKSTATIONS"]
+    OPERATIONS = _P["OPERATIONS"]
+    INSPECTION_OPS = _P["INSPECTION_OPS"]
+    SHIFT = _P["SHIFT"]
+    if _P["SUPPLIERS"]:
+        SUPPLIERS = {k: {"name": v["name"], "lead": v.get("lead")} for k, v in _P["SUPPLIERS"].items()}
+    if _P["CUSTOMERS"]:
+        CUSTOMERS = list(_P["CUSTOMERS"])

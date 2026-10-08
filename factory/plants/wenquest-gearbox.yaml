@@ -1,0 +1,513 @@
+# 工厂清单（ADR-0064）。改完用 python -m factory.plant check 本文件 校验。
+# 字段说明见 docs/enterprise-onboarding.md。
+version: 1
+id: wenquest-gearbox
+demo_data: true
+company:
+  name: 问渠减速器厂 WenQuest Gearbox (Demo)
+  abbr: WQ
+  country: United States
+  currency: USD
+  timezone: America/New_York
+workstations:
+- name: 带锯床 SAW-01
+  count: 1
+  cost:
+  - 8
+  - 14
+  - 3
+- name: 数控车床 CNC-L01
+  count: 2
+  cost:
+  - 18
+  - 24
+  - 6
+  power:
+  - 11.0
+  - 0.8
+- name: 立式加工中心 VMC-01
+  count: 1
+  cost:
+  - 28
+  - 26
+  - 8
+  power:
+  - 15.0
+  - 0.8
+- name: 卧式加工中心 HMC-01
+  count: 1
+  cost:
+  - 38
+  - 30
+  - 10
+  power:
+  - 18.5
+  - 0.8
+- name: 键槽铣床 KEY-01
+  count: 1
+  cost:
+  - 10
+  - 22
+  - 4
+  power:
+  - 4.0
+  - 0.75
+- name: 滚齿机 HOB-01
+  count: 1
+  cost:
+  - 22
+  - 26
+  - 7
+  power:
+  - 7.5
+  - 0.75
+- name: 热处理炉 HT-01
+  count: 20
+  cost:
+  - 10
+  - 12
+  - 12
+- name: 外圆磨床 GRD-01
+  count: 1
+  cost:
+  - 20
+  - 26
+  - 6
+  power:
+  - 7.5
+  - 0.8
+- name: 检验站 QC-01
+  count: 1
+  cost:
+  - 8
+  - 30
+  - 2
+- name: 装配工位 ASM-01
+  count: 2
+  cost:
+  - 4
+  - 28
+  - 2
+- name: 跑合试验台 TEST-01
+  count: 1
+  cost:
+  - 8
+  - 16
+  - 6
+units:
+- id: saw-01
+  area: machining
+  name: 带锯床
+  name_en: Band saw
+  workstation: 带锯床 SAW-01
+  layout:
+  - 10
+  - 4
+  - 4
+  - 2.5
+  dock:
+  - 10
+  - 6.25
+  height_m: 1.2
+  setup_min: 3
+  wear_per_part: 0.005
+  spindle:
+  - 60
+  - 40
+- id: cnc-l01-a
+  area: machining
+  name: 数控车床 A
+  name_en: CNC lathe A
+  workstation: 数控车床 CNC-L01
+  layout:
+  - 17
+  - 4
+  - 4
+  - 2.2
+  dock:
+  - 17
+  - 6.1
+  height_m: 1.8
+  setup_min: 10
+  wear_per_part: 0.016666666666666666
+  spindle:
+  - 900
+  - 180
+- id: cnc-l01-b
+  area: machining
+  name: 数控车床 B
+  name_en: CNC lathe B
+  workstation: 数控车床 CNC-L01
+  layout:
+  - 24
+  - 4
+  - 4
+  - 2.2
+  dock:
+  - 24
+  - 6.1
+  height_m: 1.8
+  setup_min: 10
+  wear_per_part: 0.016666666666666666
+  spindle:
+  - 1400
+  - 90
+- id: vmc-01
+  area: machining
+  name: 立式加工中心
+  name_en: Vertical machining centre
+  workstation: 立式加工中心 VMC-01
+  layout:
+  - 10
+  - 22
+  - 3.5
+  - 3
+  dock:
+  - 10
+  - 19.5
+  height_m: 2.3
+  wear_per_part: 0.0125
+  spindle:
+  - 2500
+  - 600
+- id: hmc-01
+  area: machining
+  name: 卧式加工中心
+  name_en: Horizontal machining centre
+  workstation: 卧式加工中心 HMC-01
+  layout:
+  - 17
+  - 22
+  - 4.5
+  - 3.5
+  dock:
+  - 17
+  - 19.25
+  height_m: 2.4
+  wear_per_part: 0.0125
+  spindle:
+  - 2000
+  - 400
+- id: key-01
+  area: machining
+  name: 键槽铣床
+  name_en: Keyway miller
+  workstation: 键槽铣床 KEY-01
+  layout:
+  - 31
+  - 4
+  - 3
+  - 2.2
+  dock:
+  - 31
+  - 6.1
+  height_m: 1.6
+  setup_min: 6
+  wear_per_part: 0.025
+  spindle:
+  - 1200
+  - 80
+- id: hob-01
+  area: machining
+  name: 滚齿机
+  name_en: Gear hobber
+  workstation: 滚齿机 HOB-01
+  layout:
+  - 24
+  - 22
+  - 3.5
+  - 2.5
+  dock:
+  - 24
+  - 19.75
+  height_m: 2
+  wear_per_part: 0.025
+  spindle:
+  - 300
+  - 60
+- id: ht-01
+  area: machining
+  name: 热处理炉
+  name_en: Heat-treat furnace
+  workstation: 热处理炉 HT-01
+  layout:
+  - 17
+  - 13
+  - 5
+  - 4
+  dock:
+  - 17
+  - 16.0
+  height_m: 2.6
+  capacity: 20
+  setup_min: 5
+- id: grd-01
+  area: machining
+  name: 外圆磨床
+  name_en: Cylindrical grinder
+  workstation: 外圆磨床 GRD-01
+  layout:
+  - 31
+  - 13
+  - 4.5
+  - 2.2
+  dock:
+  - 31
+  - 15.1
+  height_m: 1.7
+  setup_min: 8
+  wear_per_part: 0.03333333333333333
+  tool_change_min: 8
+  spindle:
+  - 1800
+  - 400
+- id: asm-01
+  area: machining
+  name: 装配工位
+  name_en: Assembly station
+  workstation: 装配工位 ASM-01
+  layout:
+  - 31
+  - 22
+  - 5
+  - 3
+  dock:
+  - 31
+  - 19.5
+  height_m: 1.0
+- id: test-01
+  area: machining
+  name: 跑合试验台
+  name_en: Run-in test rig
+  workstation: 跑合试验台 TEST-01
+  layout:
+  - 38
+  - 22
+  - 3.5
+  - 2.5
+  dock:
+  - 38
+  - 19.75
+  height_m: 1.3
+- id: qc-01
+  area: quality
+  name: 检验站
+  name_en: Inspection station
+  workstation: 检验站 QC-01
+  layout:
+  - 38
+  - 13
+  - 4
+  - 3
+  dock:
+  - 38
+  - 15.5
+  height_m: 1.5
+  setup_min: 2
+- id: agv-01
+  area: logistics
+  name: 物流小车 1
+  name_en: AGV 1
+  workstation: null
+  home:
+  - 7
+  - 9
+- id: agv-02
+  area: logistics
+  name: 物流小车 2
+  name_en: AGV 2
+  workstation: null
+  home:
+  - 7
+  - 18.5
+- id: store-01
+  area: warehouse
+  name: 原料库
+  name_en: Raw store
+  workstation: null
+  layout:
+  - 3
+  - 4
+  - 4
+  - 5
+  dock:
+  - 3
+  - 7.5
+  height_m: 3
+- id: store-02
+  area: warehouse
+  name: 成品库
+  name_en: Finished store
+  workstation: null
+  layout:
+  - 45
+  - 22
+  - 4
+  - 5
+  dock:
+  - 45
+  - 18.5
+  height_m: 3
+- id: press-01
+  area: machining
+  name: 轴承压装工位
+  name_en: Bearing press-fit station
+  workstation: null
+  plc: press
+- id: sort-01
+  area: warehouse
+  name: 成品分拣线
+  name_en: Finished-part sorting line
+  workstation: null
+  plc: sorter
+dashboard:
+- saw-01
+- cnc-l01-a
+- cnc-l01-b
+- vmc-01
+- hmc-01
+- key-01
+- hob-01
+- ht-01
+- grd-01
+- qc-01
+- asm-01
+- test-01
+operations:
+- name: 下料 Sawing
+  workstation: 带锯床 SAW-01
+  units:
+  - saw-01
+  stage: blank
+- name: 粗车 Rough turning
+  workstation: 数控车床 CNC-L01
+  units:
+  - cnc-l01-a
+  - cnc-l01-b
+  stage: rough
+- name: 精车 Finish turning
+  workstation: 数控车床 CNC-L01
+  units:
+  - cnc-l01-b
+  - cnc-l01-a
+  stage: finish
+- name: 铣键槽 Keyway milling
+  workstation: 键槽铣床 KEY-01
+  units:
+  - key-01
+  stage: keyway
+- name: 滚齿 Gear hobbing
+  workstation: 滚齿机 HOB-01
+  units:
+  - hob-01
+  stage: gear
+- name: 调质 Quench & temper
+  workstation: 热处理炉 HT-01
+  units:
+  - ht-01
+  stage: qt
+- name: 渗碳淬火 Carburizing
+  workstation: 热处理炉 HT-01
+  units:
+  - ht-01
+  stage: harden
+- name: 磨外圆 Cylindrical grinding
+  workstation: 外圆磨床 GRD-01
+  units:
+  - grd-01
+  stage: grind
+- name: 铣结合面 Face milling
+  workstation: 立式加工中心 VMC-01
+  units:
+  - vmc-01
+  stage: rough
+- name: 钻攻螺纹孔 Drilling & tapping
+  workstation: 立式加工中心 VMC-01
+  units:
+  - vmc-01
+  stage: finish
+- name: 合箱钻铰销孔 Pin-hole reaming
+  workstation: 卧式加工中心 HMC-01
+  units:
+  - hmc-01
+  stage: finish
+- name: 镗轴承孔 Bearing-bore boring
+  workstation: 卧式加工中心 HMC-01
+  units:
+  - hmc-01
+  stage: finish
+- name: 零件检验 Part inspection
+  workstation: 检验站 QC-01
+  units:
+  - qc-01
+  stage: inspect
+  inspection: true
+- name: 部件装配 Sub-assembly
+  workstation: 装配工位 ASM-01
+  units:
+  - asm-01
+- name: 总装 Final assembly
+  workstation: 装配工位 ASM-01
+  units:
+  - asm-01
+- name: 跑合试验 Run-in test
+  workstation: 跑合试验台 TEST-01
+  units:
+  - test-01
+- name: 出厂检验 Final inspection
+  workstation: 检验站 QC-01
+  units:
+  - qc-01
+  stage: inspect
+  inspection: true
+- name: 清洗包装 Cleaning & packing
+  workstation: 装配工位 ASM-01
+  units:
+  - asm-01
+floor:
+  length_m: 50
+  width_m: 28
+  aisles_y:
+  - 9.0
+  - 18.5
+  cross_x: 7.0
+shift:
+  periods:
+  - - 08:00:00
+    - '12:00:00'
+  - - '13:00:00'
+    - '17:00:00'
+  workdays:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  max_overtime_min: 240
+kpi:
+  on_time: 0.95
+  oee: 0.75
+  fpy: 0.97
+suppliers:
+  castings:
+    name: 示例·东岳铸造 Dongyue Castings (Demo)
+    lead: 21
+  forgings:
+    name: 示例·基石锻造 Keystone Forging (Demo)
+    lead: 14
+  steel:
+    name: 示例·中西部钢材 Midwest Steel (Demo)
+    lead: 5
+  bearings:
+    name: 示例·五大湖轴承 Great Lakes Bearing (Demo)
+    lead: 7
+  hardware:
+    name: 示例·先锋工业品 Pioneer Industrial Supply (Demo)
+    lead: 3
+  lubricant:
+    name: 示例·海湾润滑油 Gulf Coast Lubricants (Demo)
+    lead: 3
+customers:
+- 示例·绿谷输送设备 GreenValley Conveyor (Demo)
+- 示例·峰顶搅拌机 Summit Mixer Works (Demo)
+- 示例·海港起重 Harbor Crane Systems (Demo)

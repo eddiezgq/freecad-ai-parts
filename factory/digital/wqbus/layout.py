@@ -24,9 +24,24 @@ AISLES = (9.0, 18.5)    # 两条横向主通道；左侧 x=7 有一条纵向通�
 CROSS_X = 7.0
 
 
+try:                                   # 工厂清单（本仓库 ADR-0064）
+    from factory import plant as _plant
+    _P = _plant.active()
+except ImportError:
+    _P = None
+if _P:
+    LAYOUT, FLOOR, AGV_HOME, AISLES, CROSS_X = _P["LAYOUT"], _P["FLOOR"], _P["AGV_HOME"], _P["AISLES"], _P["CROSS_X"]
+HEIGHT = _P["HEIGHT"] if _P else None   # 3D 车间的设备高度（米）；演示工厂用网页里的
+
+
 def dock(unit):
     """设备的上下料点：设备靠通道一侧。"""
     x, y, _, d = LAYOUT[unit]
+    if _P:                              # 清单里写了就用；没写朝最近的主通道那一侧
+        if unit in _P["DOCK"]:
+            return _P["DOCK"][unit]
+        a = min(AISLES, key=lambda v: abs(v - y))
+        return (x, y + d / 2 + 1.0) if a > y else (x, y - d / 2 - 1.0)
     return (x, y + d / 2 + 1.0) if y < AISLES[0] or AISLES[0] < y < AISLES[1] and y < 13.5 else (x, y - d / 2 - 1.0)
 
 
