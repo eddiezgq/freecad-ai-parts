@@ -1,0 +1,287 @@
+# 问渠数字工厂 · 企业安装版（本仓库 ADR-0063，M15）
+# 企业自己的服务器（云服务器或内网机器）上一套完整的数字工厂：与问渠学习平台无关。
+#   对外：Caddy 80/443（工作台 https://<FAP_DOMAIN>，ERPNext https://<FAP_ERP_DOMAIN>）；8883 现场网关的 MQTT（TLS + 账号）
+#   内部：总线、历史库、枢纽、计算服务、桥接（Node-RED）、ERPNext 一组；数据库与 Node-RED 编辑器不对外
+# 由 install.sh 生成 .env（密码、密钥）后启动；镜像从 GitHub 容器仓库拉取，不在现场构建。
+name: fap
+
+x-app: &app
+  image: ${FAP_FACTORY_IMAGE:-ghcr.io/eddiezgq/fap-factory:latest}
+  restart: unless-stopped
+  logging: &logging
+    driver: json-file
+    options: { max-size: "10m", max-file: "5" }
+
+x-app-env: &app-env
+  WQ_DB: postgresql://wq:${WQ_DB_PASSWORD:?}@db:5432/wq_factory
+  WQ_MQTT_HOST: bus
+  WQ_MQTT_PORT: "1883"
+  WQ_MODE: ${FAP_MODE:-prod}
+  WQ_TZ: ${WQ_TZ:-Asia/Shanghai}
+
+x-erpnext: &erpnext
+  image: frappe/erpnext:v16.34.1
+  restart: unless-stopped
+  networks: [erp]
+  logging: *logging
+  volumes:
+    - erp-sites:/home/frappe/frappe-bench/sites
+    - erp-logs:/home/frappe/frappe-bench/logs
+
+x-erp-redis-env: &erp-redis-env
+  FRAPPE_REDIS_CACHE: redis://erp-redis-cache:6379
+  FRAPPE_REDIS_QUEUE: redis://erp-redis-queue:6379
+
+services:
+  # ------------------------------------------------------------------ 入口：自动 HTTPS
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    logging: *logging
+    ports: ["80:80", "443:443"]
+    environment:
+      FAP_DOMAIN: ${FAP_DOMAIN:?}
+      FAP_ERP_DOMAIN: ${FAP_ERP_DOMAIN:?}
+      FAP_TLS: ${FAP_TLS:?}                 # 证书申请邮箱（Let's Encrypt）；内网或测试填 internal（自签）
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks: [default, erp]
+    depends_on: [hub]
+
+  # ------------------------------------------------------------------ 数字工厂
+  bus:
+    image: eclipse-mosquitto:2.0.20
+    restart: unless-stopped
+    logging: *logging
+    ports: ["8883:8883"]                    # 现场网关（TLS + 账号密码）
+    volumes:
+      - ./mosquitto:/mosquitto/config:ro
+      - bus-data:/mosquitto/data
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      POSTGRES_USER: wq
+      POSTGRES_PASSWORD: ${WQ_DB_PASSWORD:?}
+      POSTGRES_DB: wq_factory
+    volumes: [db-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wq -d wq_factory"]
+      interval: 5s
+      retries: 20
+
+  hub:
+    <<: *app
+    environment:
+      <<: *app-env
+      WQ_MQTT_USER: hub
+      WQ_MQTT_PASSWORD: ${WQ_MQTT_HUB_PASSWORD:?}
+      WQ_SECRET: ${WQ_SECRET:?}
+      WQ_AUTH: enterprise                   # 企业账号：用户名 + 密码（ADR-0063）
+      WQ_EDITION: enterprise
+      WQ_MQTT_WS: wss://${FAP_DOMAIN}/mqtt
+      WQ_ERPNEXT_URL: https://${FAP_ERP_DOMAIN}
+      WQ_ERPNEXT_API: http://erp-frontend:8080
+      WQ_ERP_API_KEY: ${WQ_ERP_API_KEY:-}
+      WQ_ERP_API_SECRET: ${WQ_ERP_API_SECRET:-}
+      WQ_NODERED_URL: ""
+      WQ_PUBLIC_URL: https://${FAP_DOMAIN}
+      WQ_HUB_PUBLIC_URL: https://${FAP_DOMAIN}
+      WQ_LIBRARY_DIR: /library
+      FAP_LIBRARY_DIR: /library
+      WQ_TWIN_DEVICE_KEY: ${WQ_TWIN_DEVICE_KEY:-}
+      WQ_CAE_URL: http://cae:8200
+      WQ_HISTORY_DAYS: ${WQ_HISTORY_DAYS:-365}
+      WQ_AI_PER_HOUR: ${WQ_AI_PER_HOUR:-0}
+      WQ_AI_PROVIDER: ${WQ_AI_PROVIDER:-auto}   # auto：国内 DeepSeek、其他 Claude；出错换另一家（ADR-0063）
+      WQ_AI_REGION: ${WQ_AI_REGION:-}
+      WQ_CLAUDE_KEY: ${WQ_CLAUDE_KEY:-}
+      WQ_CLAUDE_MODEL: ${WQ_CLAUDE_MODEL:-claude-sonnet-5}
+      WQ_DEEPSEEK_KEY: ${WQ_DEEPSEEK_KEY:-}
+      WQ_DEEPSEEK_MODEL: ${WQ_DEEPSEEK_MODEL:-deepseek-chat}
+      WQ_SMTP_HOST: ${WQ_SMTP_HOST:-}
+      WQ_SMTP_PORT: ${WQ_SMTP_PORT:-465}
+      WQ_SMTP_SECURE: ${WQ_SMTP_SECURE:-tls}
+      WQ_SMTP_USER: ${WQ_SMTP_USER:-}
+      WQ_SMTP_PASSWORD: ${WQ_SMTP_PASSWORD:-}
+      WQ_MAIL_FROM: ${WQ_MAIL_FROM:-}
+    volumes:
+      - ./library:/library:ro               # 零件库（公共库随安装包带来，企业库另放）
+    depends_on:
+      db: { condition: service_healthy }
+      bus: { condition: service_started }
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8100/api/health', timeout=5).status == 200 else 1)\""]
+      interval: 15s
+      timeout: 8s
+      retries: 5
+      start_period: 30s
+    networks: [default, erp]
+
+  # 仿真车间：演示与培训用（FAP_MODE=teach 或 --demo 时启动）；生产模式只显示接入的真实设备
+  sim:
+    <<: *app
+    profiles: [demo]
+    command: ["python", "sim/main.py"]
+    environment:
+      <<: *app-env
+      WQ_MQTT_USER: sim
+      WQ_MQTT_PASSWORD: ${WQ_MQTT_SIM_PASSWORD:?}
+      WQ_SIM_SPEED: ${WQ_SIM_SPEED:-20}
+    depends_on: [bus]
+
+  cae:
+    <<: *app
+    command: ["uvicorn", "cae.service:app", "--host", "0.0.0.0", "--port", "8200"]
+    environment:
+      WQ_CAE_DATA: /data
+      WQ_CAE_TIME_LIMIT_S: ${WQ_CAE_TIME_LIMIT_S:-600}
+      WQ_CAE_MAX_ELEMENTS: ${WQ_CAE_MAX_ELEMENTS:-400000}
+      WQ_CAE_THREADS: ${WQ_CAE_THREADS:-2}
+      TZ: ${WQ_TZ:-Asia/Shanghai}
+    mem_limit: ${WQ_CAE_MEM:-4g}
+    volumes: [cae-data:/data]
+
+  bridge:
+    image: ${FAP_BRIDGE_IMAGE:-ghcr.io/eddiezgq/fap-bridge:latest}
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      WQ_MQTT_HOST: bus
+      WQ_MQTT_PORT: "1883"
+      WQ_MQTT_USER: bridge
+      WQ_MQTT_PASSWORD: ${WQ_MQTT_BRIDGE_PASSWORD:?}
+      WQ_MODE: ${FAP_MODE:-prod}
+      WQ_TZ: ${WQ_TZ:-Asia/Shanghai}
+      WQ_ERPNEXT_API: http://erp-frontend:8080
+      WQ_ERP_API_KEY: ${WQ_ERP_API_KEY:-}
+      WQ_ERP_API_SECRET: ${WQ_ERP_API_SECRET:-}
+      WQ_ERP_ABBR: ${FAP_ERP_ABBR:-WQ}
+      WQ_HUB_PUBLIC_URL: https://${FAP_DOMAIN}
+    depends_on: [bus]
+    networks: [default, erp]
+
+  # 首次安装时把工厂主数据导入 ERPNext（install.sh 调用）
+  seed:
+    <<: *app
+    profiles: [tools]
+    restart: "no"
+    working_dir: /app
+    command: ["python", "seed.py", "--url", "http://erp-frontend:8080", "--user", "Administrator",
+              "--password", "${ERP_ADMIN_PASSWORD:?}", "--opening-stock", "--factory-url", "https://${FAP_DOMAIN}"]
+    networks: [erp]
+
+  # ------------------------------------------------------------------ ERPNext v16（与 factory/deploy 同一版本）
+  erp-configurator:
+    <<: *erpnext
+    restart: "no"
+    entrypoint: ["bash", "-c"]
+    command:
+      - >
+        ls -1 apps > sites/apps.txt;
+        bench set-config -g db_host erp-db;
+        bench set-config -gp db_port 3306;
+        bench set-config -g redis_cache "redis://erp-redis-cache:6379";
+        bench set-config -g redis_queue "redis://erp-redis-queue:6379";
+        bench set-config -g redis_socketio "redis://erp-redis-queue:6379";
+        bench set-config -gp socketio_port 9000;
+    depends_on:
+      erp-db: { condition: service_healthy }
+
+  erp-backend:
+    <<: *erpnext
+    depends_on:
+      erp-configurator: { condition: service_completed_successfully }
+
+  erp-frontend:
+    <<: *erpnext
+    command: ["nginx-entrypoint.sh"]
+    environment:
+      BACKEND: erp-backend:8000
+      FRAPPE_SITE_NAME_HEADER: frontend
+      SOCKETIO: erp-websocket:9000
+      UPSTREAM_REAL_IP_ADDRESS: 0.0.0.0/0
+      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
+      UPSTREAM_REAL_IP_RECURSIVE: "off"
+      PROXY_READ_TIMEOUT: 120
+      CLIENT_MAX_BODY_SIZE: 50m
+    depends_on: [erp-backend, erp-websocket]
+
+  erp-websocket:
+    <<: *erpnext
+    command: ["node", "/home/frappe/frappe-bench/apps/frappe/socketio.js"]
+    environment: *erp-redis-env
+    depends_on:
+      erp-configurator: { condition: service_completed_successfully }
+
+  erp-queue-short:
+    <<: *erpnext
+    command: ["bench", "worker", "--queue", "short,default"]
+    environment: *erp-redis-env
+    depends_on:
+      erp-configurator: { condition: service_completed_successfully }
+
+  erp-queue-long:
+    <<: *erpnext
+    command: ["bench", "worker", "--queue", "long,default,short"]
+    environment: *erp-redis-env
+    depends_on:
+      erp-configurator: { condition: service_completed_successfully }
+
+  erp-scheduler:
+    <<: *erpnext
+    command: ["bench", "schedule"]
+    depends_on:
+      erp-configurator: { condition: service_completed_successfully }
+
+  erp-db:
+    image: mariadb:11.8
+    restart: unless-stopped
+    logging: *logging
+    networks: [erp]
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --innodb-buffer-pool-size=512M
+    environment:
+      MARIADB_ROOT_PASSWORD: ${ERP_DB_ROOT_PASSWORD:?}
+    volumes: [erp-db-data:/var/lib/mysql]
+
+  erp-redis-queue:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+    logging: *logging
+    networks: [erp]
+    volumes: [erp-redis-queue-data:/data]
+
+  erp-redis-cache:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+    logging: *logging
+    networks: [erp]
+
+volumes:
+  caddy-data:
+  caddy-config:
+  bus-data:
+  db-data:
+  cae-data:
+  erp-sites:
+  erp-logs:
+  erp-db-data:
+  erp-redis-queue-data:
+
+networks:
+  default: {}
+  erp: {}

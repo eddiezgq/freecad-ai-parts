@@ -230,3 +230,41 @@ jobs:
       - name: 停止
         if: always()
         run: factory/local/stop.sh --reset
+
+  enterprise:
+    # 企业安装版（ADR-0063，M15）：干净机器上一条命令装好（自签证书、本机域名），企业账号登录，工作台与 ERPNext 经 HTTPS 可开
+    runs-on: ubuntu-24.04
+    needs: factory
+    steps:
+      - uses: actions/checkout@v5
+      - name: 构建镜像（与发布到 GHCR 的同一份 Dockerfile；这里不推送）
+        run: |
+          docker build -q -f factory/digital/Dockerfile -t fap-factory:ci .
+          docker build -q -t fap-bridge:ci factory/digital/bridge
+      - name: 一条命令安装
+        env:
+          FAP_DIR: ${{ runner.temp }}/fap
+          FAP_FACTORY_IMAGE: fap-factory:ci
+          FAP_BRIDGE_IMAGE: fap-bridge:ci
+          FAP_ADMIN_PASSWORD: Ci-admin-pass-2026
+        run: |
+          mkdir -p "$FAP_DIR" && cp -r factory/enterprise/. "$FAP_DIR/" && cp -r data/library "$FAP_DIR/library"
+          "$FAP_DIR/install.sh" --domain factory.localtest.me --tls-internal --admin admin --no-pull --demo --region cn
+      - name: HTTPS、企业账号登录、ERPNext、状态
+        env:
+          FAP_DIR: ${{ runner.temp }}/fap
+        run: |
+          R="--resolve factory.localtest.me:443:127.0.0.1 --resolve erp.factory.localtest.me:443:127.0.0.1"
+          curl -fsk $R https://factory.localtest.me/api/login/info | python3 -c "import json,sys; assert json.load(sys.stdin)['auth']=='enterprise'"
+          code=$(curl -sk $R -o /dev/null -w '%{http_code}' -H 'content-type: application/json' -d '{"name":"x","role":"manager"}' https://factory.localtest.me/api/login)
+          [ "$code" = 401 ] || { echo "填名字竟然能登录：$code"; exit 1; }
+          tok=$(curl -fsk $R -H 'content-type: application/json' -d '{"username":"admin","password":"Ci-admin-pass-2026"}' \
+                https://factory.localtest.me/api/login | python3 -c "import json,sys; print(json.load(sys.stdin)['token'])")
+          curl -fsk $R -H "x-wq-token: $tok" https://factory.localtest.me/api/admin/ai | python3 -c "
+          import json,sys; s=json.load(sys.stdin); assert s['region']=='cn' and s['preferred']=='deepseek', s; print('AI：', s)"
+          curl -fsk $R https://erp.factory.localtest.me/api/method/ping
+          "$FAP_DIR/status.sh"
+          ls "$FAP_DIR"/backups/fap-*.tar.gz && ls "$FAP_DIR"/gateway-bundle/
+      - name: 失败时的日志
+        if: failure()
+        run: cd "${{ runner.temp }}/fap" && docker compose -p fap --env-file .env ps && docker compose -p fap --env-file .env logs --no-color --tail 80

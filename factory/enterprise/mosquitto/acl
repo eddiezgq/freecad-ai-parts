@@ -1,0 +1,26 @@
+# 服务账号的主题授权：设备只写自己区域，桥接只写 ERP 单据，枢纽全权
+user hub
+topic readwrite wq/#
+
+user sim
+topic read wq/#
+topic write wq/gearbox/machining/#
+topic write wq/gearbox/quality/#
+topic write wq/gearbox/logistics/#
+topic write wq/gearbox/warehouse/#
+topic write wq/gearbox/office/erp/#
+
+user bridge
+topic read wq/#
+topic write wq/gearbox/office/#
+
+# 现场网关（ADR-0063）：只把车间设备的数据送上来，读下发给车间的指令
+user gateway
+topic write wq/gearbox/machining/#
+topic write wq/gearbox/quality/#
+topic write wq/gearbox/logistics/#
+topic write wq/gearbox/warehouse/#
+topic write wq/gearbox/field/#
+topic read wq/gearbox/+/+/cmd
+topic read wq/gearbox/+/+/gcode
+topic read wq/gearbox/+/+/release
