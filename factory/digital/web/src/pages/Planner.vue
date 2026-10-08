@@ -46,7 +46,7 @@
       </section>
     </div>
 
-    <section class="card">
+    <section class="card" data-help="planner-wos">
       <div class="card-head"><h2>工单</h2><span class="muted small">下达后按工艺路线逐道派给设备；操作工在车间终端开工</span>
         <button class="btn ghost more" @click="load">刷新</button></div>
       <table class="t">

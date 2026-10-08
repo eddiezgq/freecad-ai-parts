@@ -7,7 +7,7 @@
 
     <template v-if="!sid">
       <section class="card">
-        <div class="card-head"><h2>参照工艺规程</h2><span class="muted small">教材第 50 章的样例就是它；照着改，改完上传</span></div>
+        <div class="card-head" data-help="pp-reference"><h2>参照工艺规程</h2><span class="muted small">教材第 50 章的样例就是它；照着改，改完上传</span></div>
         <div class="line">
           <label class="small">零件 <select v-model="item"><option v-for="i in ITEMS" :key="i" :value="i">{{ i }}</option></select></label>
           <button class="btn" @click="cards('/process/cards/reference/' + item)">看全套工艺文件</button>
@@ -17,7 +17,7 @@
       </section>
 
       <section class="card">
-        <div class="card-head"><h2>上传工艺规程</h2><span class="muted small">YAML 文件，格式同参照工艺规程</span></div>
+        <div class="card-head" data-help="pp-upload"><h2>上传工艺规程</h2><span class="muted small">YAML 文件，格式同参照工艺规程</span></div>
         <div class="line">
           <label class="btn">选择文件<input type="file" accept=".yaml,.yml" hidden @change="pick"></label>
           <span class="small">{{ fileName || '未选文件' }}</span>

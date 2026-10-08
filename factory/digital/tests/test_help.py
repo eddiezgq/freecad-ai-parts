@@ -35,7 +35,7 @@ def _args(body):
 
 TOURS = json.loads(_read(HELP, "tours.json"))
 VIDEOS = json.loads(_read(HELP, "videos.json"))
-ANIMS = set(re.findall(r"^\s+(\w+): defineAsyncComponent", _read(WEB, "components", "help", "anim", "index.js"), re.M))
+ANIMS = set(re.findall(r"^\s+'?([\w-]+)'?: defineAsyncComponent", _read(WEB, "components", "help", "anim", "index.js"), re.M))
 ROUTES = dict(re.findall(r"path: '([^']+)', component: \(\) => import\('\./pages/(\w+)\.vue'\)", _read(WEB, "main.js")))
 
 

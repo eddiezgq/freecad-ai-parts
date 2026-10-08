@@ -3,7 +3,7 @@
     <TaskBar v-if="teachStatus" :t="teachStatus" />
     <div class="page-title"><h1>车间终端</h1><span class="muted">操作工工作区 · 选你的工位，开工、暂停、复位；数据实时来自统一数据总线</span></div>
     <BusNotice />
-    <div class="tabs" role="tablist">
+    <div class="tabs" role="tablist" data-help="op-units">
       <button v-for="m in machines" :key="m.unit" role="tab" :aria-selected="unit === m.unit" :class="{ on: unit === m.unit }"
         @click="pick(m.unit)">
         <i :style="{ background: STATE[m.state].color }"></i>{{ m.code }}
@@ -20,7 +20,7 @@
           <b>{{ cur.reason || '停机' }}</b>：已停 {{ Math.round((cur.down_for_s || 0) / 60) }} 分钟，预计还要 {{ Math.round((cur.down_until_s || 0) / 60) }} 分钟（仿真时间），排队 {{ cur.queue }} 件。
           <button class="btn danger" @click="cmd('reset')">处理完毕，复位</button>
         </div>
-        <div class="now">
+        <div class="now" data-help="op-now">
           <div><span class="muted small">当前工单</span><b class="mono"><ObjLink v-if="cur.work_order" type="WorkOrder" :k="cur.work_order" /><template v-else>—</template></b></div>
           <div><span class="muted small">工序</span><b>{{ cur.operation ? cur.operation.split(' ')[0] : '—' }}</b></div>
           <div><span class="muted small">零件</span><b class="mono"><ObjLink v-if="cur.part_serial && !/件在炉/.test(cur.part_serial)" type="PartSerial" :k="cur.part_serial" /><template v-else>{{ cur.part_serial || '—' }}</template></b></div>
@@ -33,7 +33,7 @@
         <div class="progress"><span class="muted small">刀具（砂轮）剩余寿命 {{ Math.round((cur.tool_life_left ?? 1) * 100) }}%</span>
           <div class="bar"><div :style="{ width: Math.round((cur.tool_life_left ?? 1) * 100) + '%', background: (cur.tool_life_left ?? 1) < 0.15 ? 'var(--bad)' : 'var(--good)' }"></div></div></div>
 
-        <h3>派到本工位的工序</h3>
+        <h3 data-help="op-jobs">派到本工位的工序</h3>
         <div v-if="!(cur.dispatched || []).length" class="empty">这台设备还没有派工，所以没有“开工”按钮。先到
           <router-link to="/work/planner">订单与计划</router-link> 下达工单（或请计划员下达），这里就会出现要做的工序。</div>
         <div v-for="j in cur.dispatched || []" :key="j.work_order + j.operation" class="job">

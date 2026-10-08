@@ -4,4 +4,8 @@ import { defineAsyncComponent } from 'vue';
 export const ANIMS = {
   flow: defineAsyncComponent(() => import('./FlowAnim.vue')),
   terminal: defineAsyncComponent(() => import('./TerminalAnim.vue')),
+  mrp: defineAsyncComponent(() => import('./MrpAnim.vue')),
+  workorder: defineAsyncComponent(() => import('./WorkOrderAnim.vue')),
+  causal: defineAsyncComponent(() => import('./CausalAnim.vue')),
+  'ai-draft': defineAsyncComponent(() => import('./AiDraftAnim.vue')),
 };

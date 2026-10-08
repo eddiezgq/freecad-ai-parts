@@ -15,6 +15,6 @@ export function chapterFiles(ed) {
 
 // 首页全流程动画的七站（设计、ERP、MRP、MES、车间、质量、厂情中枢）各跳到哪一章
 export const STAGE_CHAPTER = {
-  teach: ['start', 'start', 'start', 'start', 'start', 'start', 'start'],
+  teach: ['design-to-factory', 'design-to-factory', 'planning', 'workshop', 'workshop', 'quality', 'insight'],
   enterprise: ['deploy', 'deploy', 'deploy', 'deploy', 'deploy', 'deploy', 'deploy'],
 };
