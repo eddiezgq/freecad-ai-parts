@@ -226,12 +226,6 @@ jobs:
           pip install -q -e ".[mbd,fea]"
           python -m examples.apps.lockstitch --quick --no-cfd --hub http://localhost:8100
           python -m examples.apps.factory_flow --hub http://localhost:8100 --erp http://localhost:8091 --products LOCKSTITCH-DD --speed 240
-      - name: 失败时的日志
-        if: failure()
-        run: cd factory/digital && docker compose --profile mock ps && docker compose --profile mock logs --no-color --tail 80
-      - name: 停止
-        if: always()
-        run: factory/local/stop.sh --reset
       - name: 录教学版帮助视频（ADR-0065）：脚本在演示工厂里操作并录下，字幕叠在画面上
         run: |
           pip install -q playwright==1.55.0 && python -m playwright install --with-deps chromium >/dev/null
@@ -254,6 +248,12 @@ jobs:
       - name: 视频没录成时的输出（写成注释）
         if: failure()
         run: '[ ! -f "$RUNNER_TEMP/videos.log" ] || python3 factory/deploy/ci_annotate.py 录视频 "$RUNNER_TEMP/videos.log" 60'
+      - name: 失败时的日志
+        if: failure()
+        run: cd factory/digital && docker compose --profile mock ps && docker compose --profile mock logs --no-color --tail 80
+      - name: 停止
+        if: always()
+        run: factory/local/stop.sh --reset
 
   enterprise:
     # 企业安装版（ADR-0063，M15）：干净机器上一条命令装好（自签证书、本机域名），企业账号登录，工作台与 ERPNext 经 HTTPS 可开
