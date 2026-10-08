@@ -5,7 +5,7 @@
       <span class="muted">企业版用户名 + 密码登录；管理员有全部权限，普通账号只能用分给他的角色。停用或重置密码后，对方的登录立即失效</span></div>
     <div v-if="err" class="err">{{ err }}</div>
 
-    <section class="card">
+    <section class="card" data-help="acct-new">
       <h2>新开账号</h2>
       <form class="new" @submit.prevent="create">
         <input v-model="f.username" placeholder="用户名（字母数字）" required>
@@ -19,7 +19,7 @@
       </form>
     </section>
 
-    <section class="card">
+    <section class="card" data-help="acct-table">
       <table class="t">
         <thead><tr><th>用户名</th><th>姓名</th><th>最近登录</th><th>管理员</th><th v-for="r in ROLES" :key="r.key">{{ r.name }}</th><th>在用</th><th></th></tr></thead>
         <tbody><tr v-for="a in rows" :key="a.username" :class="{ off: !a.active }">
