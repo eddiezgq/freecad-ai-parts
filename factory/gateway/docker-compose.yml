@@ -1,0 +1,17 @@
+# 问渠数字工厂 · 现场网关（ADR-0063）：放在工厂里的一台小工控机上
+# 车间设备与采集器连本机 1883（工厂内网），网关经 TLS 把数据送到云上的数字工厂（8883），并把下发给车间的指令、程序带回来。
+# 断网时消息存在本机（持久队列），恢复后补发。start.sh 按 gateway.env 生成桥接配置后启动。
+name: fap-gateway
+services:
+  broker:
+    image: eclipse-mosquitto:2.0.20
+    restart: unless-stopped
+    ports: ["1883:1883"]
+    volumes:
+      - ./conf:/mosquitto/config:ro
+      - gateway-data:/mosquitto/data
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+volumes:
+  gateway-data:
