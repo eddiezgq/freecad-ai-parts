@@ -12,7 +12,7 @@ log "备份 ERPNext..."
 dc exec -T erp-backend bench --site frontend backup --with-files >/dev/null
 dc exec -T erp-backend bash -c 'cd sites/frontend/private/backups && tar -cf - $(ls -t | head -n 4)' > "$work/erpnext.tar"
 cp .env "$work/env"
-tar -cf "$work/config.tar" pki gateway-bundle Caddyfile docker-compose.yml 2>/dev/null || true
+tar -cf "$work/config.tar" pki gateway-bundle plant Caddyfile docker-compose.yml 2>/dev/null || true
 tar -czf "backups/fap-$ts.tar.gz" -C "$work" .
 chmod 600 "backups/fap-$ts.tar.gz"
 ls -1t backups/fap-*.tar.gz | tail -n +"$(( ${FAP_KEEP:-14} + 1 ))" | xargs -r rm -f

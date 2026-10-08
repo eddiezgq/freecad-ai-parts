@@ -33,6 +33,7 @@ factory/enterprise/deploy.sh ubuntu@203.0.113.10 --backup
 | `--region cn\|intl` | AI 模型地区：`cn` 用 DeepSeek，`intl` 用 Claude。不给时按服务器时区推断 |
 | `--claude-key`、`--deepseek-key` | AI 密钥，也可以以后写进 `.env` |
 | `--demo` | 演示模式：启动仿真车间 |
+| `--plant 清单.yaml` | 企业自己的工厂清单（ADR-0064，Excel 模板见 `docs/enterprise-onboarding.md` 第五节）。ERPNext 的公司、国家、币种、时区，工作站、工序，车间平面都按它建；不给时装演示工厂 |
 | `--images 标签`、`--no-pull`、`--registry-token` | 镜像版本、离线安装、拉取私有镜像用的令牌 |
 
 `install.sh` 可以重复运行，已经做过的步骤会跳过。它依次完成这些事：
@@ -40,7 +41,7 @@ factory/enterprise/deploy.sh ubuntu@203.0.113.10 --backup
 2. 生成密码与密钥，写入 `.env`（权限 600）。
 3. 建总线账号，生成现场网关用的证书。
 4. 拉取镜像。
-5. 建 ERPNext 站点，完成设置向导，生成桥接用的钥匙。
+5. 校验工厂清单（给了 `--plant` 时），建 ERPNext 站点，按清单的公司完成设置向导，生成桥接用的钥匙。
 6. 启动数字工厂，并把工厂主数据导入 ERPNext。
 7. 建第一个管理员。
 8. 生成现场网关的连接包（`gateway-bundle/`），并做首次备份。
@@ -54,7 +55,7 @@ Windows 本机：先装 Docker Desktop 和 WSL2，再运行 `.\factory\enterpris
 | `status.sh` | 各服务状态、工作台和 ERPNext 能否打开、磁盘剩余、最近一次备份 |
 | `backup.sh` | 备份历史库、ERPNext（数据库加附件）、配置与证书，存到 `backups/`。保留 14 份，`FAP_BACKUP_COPY_TO` 可再复制一份到别处。建议每天由 cron 运行 |
 | `restore.sh 备份包` | 恢复历史库与 ERPNext。配置只解压出来供核对，不覆盖现有的 |
-| `upgrade.sh [标签]` | 先备份，再拉新镜像、重启 |
+| `upgrade.sh [标签] [--plant 清单.yaml]` | 先备份，再拉新镜像、重启。给了 `--plant` 就换工厂清单：先校验，有错不换；补建新的工作站、工序后重启。公司不随之改 |
 
 ## 端口与安全
 

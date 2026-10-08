@@ -42,3 +42,22 @@ wait_http() {
         sleep 5
     done
 }
+
+# ---------------------------------------------------------------- 工厂清单（ADR-0064）
+# 清单放在安装目录的 plant/plant.yaml，只读挂进容器的 /plant；WQ_PLANT_FILE 指向它。没有清单时用演示工厂
+plant_check() { dc run --rm --no-deps -T seed python -m factory.plant check "/plant/${1:-plant.yaml}"; }
+plant_company() {
+    dc run --rm --no-deps -T seed python -c \
+        "import json; from factory import plant; print(json.dumps(plant.company(), ensure_ascii=False))" | tail -n 1
+}
+# 把清单放进来并校验（$1 = 企业给的清单文件）；有错不替换现有的
+plant_put() {
+    mkdir -p "$FD/plant"
+    cp "$1" "$FD/plant/plant.new.yaml" && chmod 644 "$FD/plant/plant.new.yaml"
+    if ! plant_check plant.new.yaml; then
+        rm -f "$FD/plant/plant.new.yaml"
+        die "工厂清单有错（见上），改好再来；本机校验：python -m factory.plant check 清单.yaml"
+    fi
+    mv "$FD/plant/plant.new.yaml" "$FD/plant/plant.yaml"
+    envset WQ_PLANT_FILE /plant/plant.yaml
+}

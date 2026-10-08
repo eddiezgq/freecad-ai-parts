@@ -18,6 +18,7 @@ x-app-env: &app-env
   WQ_MQTT_PORT: "1883"
   WQ_MODE: ${FAP_MODE:-prod}
   WQ_TZ: ${WQ_TZ:-Asia/Shanghai}
+  WQ_PLANT_FILE: ${WQ_PLANT_FILE:-}       # 企业的工厂清单（ADR-0064）；空 = 演示工厂
 
 x-erpnext: &erpnext
   image: frappe/erpnext:v16.34.1
@@ -111,6 +112,7 @@ services:
       WQ_MAIL_FROM: ${WQ_MAIL_FROM:-}
     volumes:
       - ./library:/library:ro               # 零件库（公共库随安装包带来，企业库另放）
+      - ./plant:/plant:ro                   # 工厂清单（install.sh --plant 放进来）
     depends_on:
       db: { condition: service_healthy }
       bus: { condition: service_started }
@@ -132,6 +134,7 @@ services:
       WQ_MQTT_USER: sim
       WQ_MQTT_PASSWORD: ${WQ_MQTT_SIM_PASSWORD:?}
       WQ_SIM_SPEED: ${WQ_SIM_SPEED:-20}
+    volumes: [./plant:/plant:ro]
     depends_on: [bus]
 
   cae:
@@ -173,6 +176,9 @@ services:
     working_dir: /app
     command: ["python", "seed.py", "--url", "http://erp-frontend:8080", "--user", "Administrator",
               "--password", "${ERP_ADMIN_PASSWORD:?}", "--opening-stock", "--factory-url", "https://${FAP_DOMAIN}"]
+    environment:
+      WQ_PLANT_FILE: ${WQ_PLANT_FILE:-}
+    volumes: [./plant:/plant:ro]
     networks: [erp]
 
   # ------------------------------------------------------------------ ERPNext v16（与 factory/deploy 同一版本）
