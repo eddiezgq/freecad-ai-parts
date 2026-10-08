@@ -26,7 +26,7 @@ label: 带我把一个方案转为生产物料
 
 ```video
 name: teach-publish
-caption: FreeCAD 方案发布到工厂，再转为生产物料（约 60 秒）
+caption: FreeCAD 方案发布到工厂，再转为生产物料
 ```
 
 方案每发一版，BOM 按版本记；同一版本不会重复建。

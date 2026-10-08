@@ -18,7 +18,7 @@ kind: plant
 
 ```video
 name: teach-login
-caption: 登录、选角色、两种模式（约 40 秒）
+caption: 登录、选角色、两种模式
 ```
 
 | 模式 | 用来做什么 | AI 工厂助手 |

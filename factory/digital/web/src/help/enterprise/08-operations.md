@@ -27,11 +27,6 @@ $ ./upgrade.sh --plant plant.yaml
 升级完成（latest）
 ```
 
-```video
-name: ent-ops
-caption: 看状态、备份、升级（约 50 秒）
-```
-
 ## 要注意的
 
 - 每天定时备份：`echo "30 2 * * * root /opt/fap/backup.sh" > /etc/cron.d/fap-backup`（远程部署时我们替你设好）；`FAP_BACKUP_COPY_TO` 可把备份包再复制一份到别的存储；

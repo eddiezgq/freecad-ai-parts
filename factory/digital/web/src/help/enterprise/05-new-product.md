@@ -24,7 +24,7 @@ label: 带我把一个方案转为生产物料
 
 ```video
 name: ent-new-product
-caption: 从 FreeCAD 发布到工厂接单（约 90 秒）
+caption: 从 FreeCAD 发布到工厂接单
 ```
 
 ```ask

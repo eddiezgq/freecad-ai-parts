@@ -67,3 +67,5 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+          build-args: |
+            HELP_VIDEOS_STAMP=${{ github.sha }}

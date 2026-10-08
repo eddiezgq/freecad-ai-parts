@@ -51,6 +51,14 @@ COPY factory/digital/std/ digital/std/
 COPY ["factory/digital/实验8_输出轴强度与疲劳校核.md", "factory/digital/实验9_机械臂关节力矩与电机选型.md", "factory/digital/实验10_输出轴数控车削与键槽铣削编程.md", "factory/digital/实验11_减速器热平衡与输出轴轻量化.md", "factory/digital/实验12_一根轴的数字化设计与两个典型案例.md", "factory/digital/实验13_减速器数字孪生与预测性维护.md", "factory/digital/实验14_减速器风扇冷却的流体与传热分析.md", "digital/"]
 COPY factory/digital/mock_erpnext/ digital/mock_erpnext/
 COPY --from=web /web/dist digital/web/dist
+# 帮助的操作视频（ADR-0065）：CI 录好发布在 Release help-videos，这里取最新的一份；取不到就不带（帮助照常可用）。
+# HELP_VIDEOS_STAMP 每次构建不同（镜像工作流传提交号），让这一步不走缓存
+ARG HELP_VIDEOS_STAMP=none
+RUN mkdir -p digital/help-media && for ed in teach enterprise; do \
+      python -c "import sys, urllib.request; urllib.request.urlretrieve(sys.argv[1], '/tmp/hv.tgz')" \
+        "https://github.com/eddiezgq/freecad-ai-parts/releases/download/help-videos/help-videos-$ed.tar.gz" \
+      && tar xzf /tmp/hv.tgz -C digital/help-media && rm -f /tmp/hv.tgz && echo "帮助视频（$ed）已带上 $HELP_VIDEOS_STAMP" \
+      || echo "没有取到 $ed 版帮助视频"; done
 WORKDIR /app/digital
 EXPOSE 8100
 CMD ["uvicorn", "hub.app:app", "--host", "0.0.0.0", "--port", "8100"]

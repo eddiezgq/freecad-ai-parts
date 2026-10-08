@@ -88,3 +88,15 @@ def test_front_page_stages_open_existing_chapters():
         assert len(slugs) == 7, ed
         for s in slugs:
             assert (ed, s) in have, (ed, s)
+
+
+def test_every_video_has_a_recording_script():
+    """视频清单里的每一段，录制脚本里都有剧本（反过来也一样）；企业版视频都在企业版的章节里用到。"""
+    import importlib.util
+    path = os.path.join(os.path.dirname(WEB), "..", "tools", "help_videos.py")
+    spec = importlib.util.spec_from_file_location("help_videos", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    assert set(mod.SCRIPTS) == set(VIDEOS), set(mod.SCRIPTS) ^ set(VIDEOS)
+    used = {_args(b).get("name") for _, _, _, src in _chapters() for k, b in FENCE.findall(src) if k == "video"}
+    assert used == set(VIDEOS), set(VIDEOS) ^ used
