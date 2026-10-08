@@ -28,6 +28,8 @@ try:                                   # 工厂清单（本仓库 ADR-0064）
     from factory import plant as _plant
     _P = _plant.active()
 except ImportError:
+    if __import__("os").environ.get("WQ_PLANT_FILE"):   # 指定了清单却找不到 factory 包：不能悄悄用演示工厂
+        raise
     _P = None
 if _P:
     LAYOUT, FLOOR, AGV_HOME, AISLES, CROSS_X = _P["LAYOUT"], _P["FLOOR"], _P["AGV_HOME"], _P["AISLES"], _P["CROSS_X"]

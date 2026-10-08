@@ -8,6 +8,9 @@
     py seed.py --url http://localhost:8090 --user Administrator --password admin
 
 可以重复运行：已经存在的记录会跳过，不会重复创建。
+
+企业工厂（WQ_PLANT_FILE 指定的清单，ADR-0064）：工作日历、工作站、工序按清单建；清单写了 demo_data: false 时
+不建演示工厂的物料、BOM、工艺路线和库存（企业产品经“转为生产物料”进来），供应商、客户只建清单里写的。
 """
 import argparse
 import datetime as dt
@@ -17,6 +20,7 @@ import sys
 import urllib.parse
 
 from factory import data as D
+from factory import plant as PLANT
 
 
 class ERPError(Exception):
@@ -138,12 +142,20 @@ class Seeder:
         for comp in D.COST_COMPONENTS:
             self.ensure("Workstation Operating Component", comp, {"component_name": comp})
 
-        hl = "WQ 工作日历 2026-2027"
+        if PLANT.is_demo():
+            y0, y1, hl, days = 2026, 2027, "WQ 工作日历 2026-2027", holidays(2026, 2027)
+        else:                       # 企业工厂：按清单的工作日；法定节假日由企业在 ERPNext 里补
+            y0 = dt.date.today().year
+            y1 = y0 + 1
+            hl = "{} 工作日历 {}-{}".format(self.abbr, y0, y1)
+            days = holidays(y0, y1, workdays=PLANT.active()["WORKDAYS"], fixed=False)
         if not self.c.get("Holiday List", hl):
             self.c.create("Holiday List", {
-                "holiday_list_name": hl, "from_date": "2026-01-01", "to_date": "2027-12-31",
-                "holidays": holidays(2026, 2027)})
+                "holiday_list_name": hl, "from_date": "{}-01-01".format(y0), "to_date": "{}-12-31".format(y1),
+                "holidays": days})
             self.created += 1
+            if not PLANT.is_demo():
+                self.log("提醒：工作日历 {} 只排了休息日，法定节假日请在 ERPNext 里补上".format(hl))
         comp = self.c.get("Company", self.company)
         if not comp.get("default_holiday_list"):
             self.c.update("Company", self.company, {"default_holiday_list": hl})
@@ -174,13 +186,16 @@ class Seeder:
     # ---- 2 往来单位
     def parties(self):
         self.log("供应商与客户")
-        for key, s in D.SUPPLIERS.items():
+        sups, cus = D.SUPPLIERS, D.CUSTOMERS
+        if not PLANT.is_demo():                 # 企业工厂只建清单里写的
+            sups, cus = PLANT.active()["SUPPLIERS"] or {}, PLANT.active()["CUSTOMERS"] or []
+        for key, s in sups.items():
             self.supplier_names[key] = self.ensure(
                 "Supplier", None,
                 {"supplier_name": s["name"], "supplier_type": "Company", "supplier_group": D.SUPPLIER_GROUP},
                 key=[["supplier_name", "=", s["name"]]])
         territory = self.root("Territory", "parent_territory")
-        for name in D.CUSTOMERS:
+        for name in cus:
             self.ensure("Customer", None,
                         {"customer_name": name, "customer_type": "Company",
                          "customer_group": D.CUSTOMER_GROUP, "territory": territory},
@@ -245,6 +260,8 @@ class Seeder:
             })
         for op, ws in D.OPERATIONS.items():
             self.ensure("Operation", op, {"name": op, "workstation": ws})
+        if not PLANT.is_demo():
+            return                              # 演示工厂的工艺路线不建；企业产品的工艺路线随产品进来
         for rname, ops in D.ROUTINGS.items():
             self.ensure("Routing", rname, {"routing_name": rname, "operations": operation_rows(ops)})
 
@@ -383,6 +400,11 @@ class Seeder:
         self.basics()
         self.parties()
         self.quality()
+        if not PLANT.is_demo():
+            self.routing()
+            self.log("企业工厂（{}）：不建演示物料、BOM 与库存".format(PLANT.active()["ID"]))
+            self.log("完成：新建 {} 条，已存在跳过 {} 条".format(self.created, self.skipped))
+            return
         self.items()
         self.case_items()
         self.routing()
@@ -396,8 +418,8 @@ class Seeder:
 
 
 # ---------------------------------------------------------------- 纯函数（可单独测试）
-def holidays(y0, y1):
-    fixed = {  # 美国主要节假日（教学用）
+def holidays(y0, y1, workdays=(0, 1, 2, 3, 4), fixed=True):
+    named = {  # 美国主要节假日（演示工厂教学用）
         "2026-11-26": "感恩节 Thanksgiving", "2026-12-25": "圣诞节 Christmas",
         "2027-01-01": "元旦 New Year", "2027-05-31": "阵亡将士纪念日 Memorial Day",
         "2027-07-05": "独立日（补休）Independence Day", "2027-09-06": "劳动节 Labor Day",
@@ -407,10 +429,10 @@ def holidays(y0, y1):
     d = dt.date(y0, 1, 1)
     while d <= dt.date(y1, 12, 31):
         iso = d.isoformat()
-        if d.weekday() >= 5:
+        if d.weekday() not in workdays:
             out.append({"holiday_date": iso, "description": "周末 Weekend", "weekly_off": 1})
-        elif iso in fixed:
-            out.append({"holiday_date": iso, "description": fixed[iso], "weekly_off": 0})
+        elif fixed and iso in named:
+            out.append({"holiday_date": iso, "description": named[iso], "weekly_off": 0})
         d += dt.timedelta(days=1)
     return out
 
@@ -479,7 +501,8 @@ def main(argv=None):
                 return 1
             sd.erp_sso(args.factory_url, args.sso_secret, args.hub_internal)
             try:
-                sd.case_items()                       # 第 11 轮：每次部署补建教材案例件（失败不影响单点登录）
+                if PLANT.is_demo():
+                    sd.case_items()                   # 第 11 轮：每次部署补建教材案例件（失败不影响单点登录）
             except ERPError as e:
                 print("教材案例件没有建成：{}".format(e), file=sys.stderr)
         elif args.library_refs_only:

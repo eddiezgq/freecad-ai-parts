@@ -183,3 +183,41 @@ def test_teach_stock_matches_the_scenario_and_allows_negative_stock():
         assert i["t_warehouse"] == "{} - WQ".format(D.KIND_WAREHOUSE[D.ITEMS[i["item_code"]][1]])
     seed.Seeder(client, log=lambda *a: None).run(teach_stock=True)       # 重复运行不重复入库
     assert len([e for e in client.db["Stock Entry"].values() if e["remarks"].startswith("WQ 教学情景库存")]) == 1
+
+
+# ---------- 企业工厂（ADR-0064）：按清单建工作日历、工作站、工序，不建演示物料
+SEWING = r"""
+import json, os, sys
+sys.path[:0] = [{root!r}, {tests!r}]
+import seed
+from mock_erpnext import MockERPNext
+mock = MockERPNext(company="示例缝纫机厂", abbr="SEW")
+client = seed.Client.__new__(seed.Client)
+client.base, client.s = "http://mock", mock
+s = seed.Seeder(client, log=lambda *a: None)
+s.run(opening_stock=True)
+n = s.created
+seed.Seeder(client, log=lambda *a: None).run(opening_stock=True)
+print(json.dumps({{"errors": mock.errors, "first": n, "db": {{k: sorted(v) for k, v in mock.db.items()}},
+                  "hl": {{k: v.get("holidays") for k, v in mock.db.get("Holiday List", {{}}).items()}}}}, ensure_ascii=False))
+"""
+
+
+def test_seed_enterprise_plant():
+    import json
+    import subprocess
+    root = os.path.join(os.path.dirname(__file__), "..")
+    env = dict(os.environ, WQ_PLANT_FILE=os.path.join(root, "plants", "example-sewing.yaml"))
+    r = subprocess.run([sys.executable, "-c", SEWING.format(root=root, tests=os.path.dirname(__file__))],
+                       capture_output=True, text=True, env=env, timeout=120)
+    assert r.returncode == 0, r.stderr[-2000:]
+    out = json.loads(r.stdout)
+    assert out["errors"] == [], out["errors"]
+    db = out["db"]
+    assert len(db["Workstation"]) == 8 and "数控车床 CNC" in db["Workstation"]
+    assert len(db["Operation"]) == 12 and "粗车 Rough turning" in db["Operation"]
+    assert not db.get("Item") and not db.get("BOM") and not db.get("Routing") and not db.get("Stock Entry")
+    assert sorted(db["Customer"]) and len(db["Supplier"]) == 2
+    assert all(w.endswith(" - SEW") for w in db["Warehouse"] if " - " in w)
+    (hl, days), = out["hl"].items()
+    assert hl.startswith("SEW 工作日历") and days and all(d["weekly_off"] == 1 for d in days)

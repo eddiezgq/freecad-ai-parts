@@ -20,6 +20,8 @@ try:                                   # 工厂清单（本仓库 ADR-0064）：
     from factory import plant as _plant
     _P = _plant.active()
 except ImportError:
+    if __import__("os").environ.get("WQ_PLANT_FILE"):   # 指定了清单却找不到 factory 包：不能悄悄用演示工厂
+        raise
     _P = None
 DEF_START, DEF_END, DEF_DAYS = ("08:00", "17:00", (0, 1, 2, 3, 4)) if not _P else (_P["CAL_START"], _P["CAL_END"], _P["WORKDAYS"])
 if _P:

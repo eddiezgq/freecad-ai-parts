@@ -11,12 +11,14 @@
 #   --region cn|intl      AI 模型地区：cn 用 DeepSeek，intl 用 Claude；不给时按本机时区推断（中国时区算 cn）
 #   --claude-key / --deepseek-key   AI 密钥（可以以后在 .env 里补）
 #   --demo                演示模式：启动仿真车间（生产模式只显示接入的真实设备）
+#   --plant 清单.yaml     企业自己的工厂清单（ADR-0064；Excel 用 python -m factory.plant import 转成）。
+#                         ERPNext 的公司、国家、币种、时区，工作站、工序、车间平面都按它建；不给时装演示工厂
 #   --images 标签         镜像标签（缺省 latest）；--no-pull 用本机已有镜像（离线安装、CI）
 #   --registry-token 令牌 拉取私有镜像用的 GitHub 只读令牌（也可用环境变量 FAP_REGISTRY_TOKEN）
 . "$(dirname "$0")/lib.sh"
 
 DOMAIN="" ERP_DOMAIN="" EMAIL="" TLS_INTERNAL=0 ADMIN="" REGION="" DEMO=0 TAG="latest" PULL=1
-CLAUDE_KEY="" DEEPSEEK_KEY="" REG_TOKEN="${FAP_REGISTRY_TOKEN:-}"
+CLAUDE_KEY="" DEEPSEEK_KEY="" REG_TOKEN="${FAP_REGISTRY_TOKEN:-}" PLANT=""
 while [ $# -gt 0 ]; do
     case "$1" in
         --domain) DOMAIN=$2; shift 2 ;;
@@ -28,16 +30,18 @@ while [ $# -gt 0 ]; do
         --claude-key) CLAUDE_KEY=$2; shift 2 ;;
         --deepseek-key) DEEPSEEK_KEY=$2; shift 2 ;;
         --demo) DEMO=1; shift ;;
+        --plant) PLANT=$2; shift 2 ;;
         --images) TAG=$2; shift 2 ;;
         --no-pull) PULL=0; shift ;;
         --registry-token) REG_TOKEN=$2; shift 2 ;;
-        -h|--help) sed -n '2,20p' "$0"; exit 0 ;;
+        -h|--help) sed -n '2,22p' "$0"; exit 0 ;;
         *) die "不认识的选项：$1（--help 看用法）" ;;
     esac
 done
 
 # ---------------------------------------------------------------- 1 检查环境
 log "检查环境..."
+[ -z "$PLANT" ] || [ -f "$PLANT" ] || die "找不到工厂清单 $PLANT"
 command -v docker >/dev/null || die "没有 Docker：Ubuntu 上运行 curl -fsSL https://get.docker.com | sh"
 docker compose version >/dev/null 2>&1 || die "没有 docker compose 插件"
 command -v openssl >/dev/null || die "没有 openssl"
@@ -59,12 +63,6 @@ if [ "$TLS_INTERNAL" = 1 ]; then envset FAP_TLS internal
 elif [ -n "$EMAIL" ]; then envset FAP_TLS "$EMAIL"
 elif [ -z "$(envval FAP_TLS)" ]; then die "要给 --email（申请 HTTPS 证书）或 --tls-internal（自签证书）"
 fi
-tz=$(cat /etc/timezone 2>/dev/null || timedatectl show -p Timezone --value 2>/dev/null || echo UTC)
-[ -n "$(envval WQ_TZ)" ] || envset WQ_TZ "$tz"
-if [ -n "$REGION" ]; then envset WQ_AI_REGION "$REGION"
-elif [ -z "$(envval WQ_AI_REGION)" ]; then
-    case "$(envval WQ_TZ)" in Asia/Shanghai|Asia/Chongqing|Asia/Harbin|Asia/Urumqi|PRC) envset WQ_AI_REGION cn ;; *) envset WQ_AI_REGION intl ;; esac
-fi
 [ -n "$(envval WQ_AI_PROVIDER)" ] || envset WQ_AI_PROVIDER auto
 [ -z "$CLAUDE_KEY" ] || envset WQ_CLAUDE_KEY "$CLAUDE_KEY"
 [ -z "$DEEPSEEK_KEY" ] || envset WQ_DEEPSEEK_KEY "$DEEPSEEK_KEY"
@@ -77,7 +75,6 @@ for k in WQ_DB_PASSWORD WQ_MQTT_HUB_PASSWORD WQ_MQTT_SIM_PASSWORD WQ_MQTT_BRIDGE
     [ -n "$(envval "$k")" ] || envset "$k" "$(rand 32)"
 done
 [ -n "$(envval ERP_ADMIN_PASSWORD)" ] || envset ERP_ADMIN_PASSWORD "$(rand 20)"
-log "域名 $DOMAIN、ERPNext $ERP_DOMAIN、证书 $(envval FAP_TLS)、AI 地区 $(envval WQ_AI_REGION)、模式 $(envval FAP_MODE)"
 
 # ---------------------------------------------------------------- 3 总线账号与现场网关证书
 log "总线账号..."
@@ -112,6 +109,23 @@ if [ "$PULL" = 1 ]; then
     dc pull --ignore-buildable --quiet
 fi
 
+# ---------------------------------------------------------------- 4b 工厂清单（ADR-0064）与时区、AI 地区
+mkdir -p plant
+COMPANY_JSON=""
+if [ -n "$PLANT" ]; then log "校验工厂清单 $PLANT ..."; plant_put "$PLANT"; fi
+if [ -n "$(envval WQ_PLANT_FILE)" ]; then
+    COMPANY_JSON=$(plant_company)
+    [ -n "$COMPANY_JSON" ] || die "读不出工厂清单里的公司"
+    envset WQ_TZ "$(printf '%s' "$COMPANY_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["timezone"])')"
+fi
+tz=$(cat /etc/timezone 2>/dev/null || timedatectl show -p Timezone --value 2>/dev/null || echo UTC)
+[ -n "$(envval WQ_TZ)" ] || envset WQ_TZ "$tz"
+if [ -n "$REGION" ]; then envset WQ_AI_REGION "$REGION"
+elif [ -z "$(envval WQ_AI_REGION)" ]; then
+    case "$(envval WQ_TZ)" in Asia/Shanghai|Asia/Chongqing|Asia/Harbin|Asia/Urumqi|PRC) envset WQ_AI_REGION cn ;; *) envset WQ_AI_REGION intl ;; esac
+fi
+log "域名 $DOMAIN、ERPNext $ERP_DOMAIN、证书 $(envval FAP_TLS)、AI 地区 $(envval WQ_AI_REGION)、模式 $(envval FAP_MODE)、工厂 ${COMPANY_JSON:-演示工厂}"
+
 # ---------------------------------------------------------------- 5 ERPNext
 log "启动 ERPNext..."
 dc up -d erp-db erp-redis-cache erp-redis-queue
@@ -128,13 +142,21 @@ fi
 setup=$(bench_exec frappe.is_setup_complete 2>/dev/null | tail -n 1 || true)
 if [ "$setup" != "true" ] && [ "$setup" != "True" ] && [ "$setup" != "1" ]; then
     log "完成 ERPNext 设置向导..."
-    year=$(date +%Y)
-    bench_exec frappe.desk.page.setup_wizard.setup_wizard.initialize_system_settings_and_user --kwargs \
-        "{'system_settings_data': {'language': 'en', 'country': 'United States', 'currency': 'USD', 'time_zone': '$(envval WQ_TZ)'}, 'user_data': {}}"
-    bench_exec frappe.desk.page.setup_wizard.setup_wizard.setup_complete --kwargs \
-        "{'args': {'language': 'English', 'country': 'United States', 'timezone': '$(envval WQ_TZ)', 'currency': 'USD',
-          'company_name': '问渠减速器厂 WenQuest Gearbox', 'company_abbr': 'WQ', 'chart_of_accounts': 'Standard',
-          'fy_start_date': '$year-01-01', 'fy_end_date': '$year-12-31', 'setup_demo': 0, 'enable_telemetry': 0}}"
+    # 公司按工厂清单（没有清单时是演示公司）；参数用 Python 字面量生成，公司名里有引号也不会出错
+    wiz=$(COMPANY_JSON="$COMPANY_JSON" TZV="$(envval WQ_TZ)" YEAR="$(date +%Y)" python3 - <<'PY'
+import json, os
+c = json.loads(os.environ["COMPANY_JSON"] or "null") or {
+    "name": "问渠减速器厂 WenQuest Gearbox", "abbr": "WQ", "country": "United States", "currency": "USD"}
+tz, y = os.environ["TZV"], os.environ["YEAR"]
+print(repr({"system_settings_data": {"language": "en", "country": c["country"], "currency": c["currency"], "time_zone": tz},
+            "user_data": {}}))
+print(repr({"args": {"language": "English", "country": c["country"], "timezone": tz, "currency": c["currency"],
+                     "company_name": c["name"], "company_abbr": c["abbr"], "chart_of_accounts": "Standard",
+                     "fy_start_date": y + "-01-01", "fy_end_date": y + "-12-31", "setup_demo": 0, "enable_telemetry": 0}}))
+PY
+)
+    bench_exec frappe.desk.page.setup_wizard.setup_wizard.initialize_system_settings_and_user --kwargs "$(printf '%s\n' "$wiz" | sed -n 1p)"
+    bench_exec frappe.desk.page.setup_wizard.setup_wizard.setup_complete --kwargs "$(printf '%s\n' "$wiz" | sed -n 2p)"
 fi
 dc exec -T erp-backend bench --site frontend set-config host_name "https://$ERP_DOMAIN" >/dev/null
 if [ -z "$(envval WQ_ERP_API_KEY)" ]; then

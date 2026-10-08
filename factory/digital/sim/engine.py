@@ -59,6 +59,8 @@ try:                                   # 工厂清单（本仓库 ADR-0064）：
     from factory import plant as _plant
     _P = _plant.active()
 except ImportError:
+    if __import__("os").environ.get("WQ_PLANT_FILE"):   # 指定了清单却找不到 factory 包：不能悄悄用演示工厂
+        raise
     _P = None
 if _P:
     OP_UNITS, CAPACITY, SETUP_MIN = _P["OP_UNITS"], _P["CAPACITY"], _P["SETUP_MIN"]

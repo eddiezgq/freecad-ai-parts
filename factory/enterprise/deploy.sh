@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # 远程部署到企业的服务器（ADR-0063）：在我们这边（仓库根目录）运行，经 SSH 把安装包传过去并安装。
 #   factory/enterprise/deploy.sh 用户@服务器 --domain factory.example.com --email it@example.com --admin admin [其他 install.sh 选项]
-#   factory/enterprise/deploy.sh 用户@服务器 --upgrade [镜像标签]      升级（先备份）
+#   factory/enterprise/deploy.sh 用户@服务器 --upgrade [镜像标签] [--plant 清单.yaml]   升级（先备份）；可同时换工厂清单
+#   --plant 给的是我们这边的文件：先传到服务器安装目录，再交给 install.sh / upgrade.sh（ADR-0064）
 #   factory/enterprise/deploy.sh 用户@服务器 --status                  看状态
 #   factory/enterprise/deploy.sh 用户@服务器 --backup                  立即备份
 # 需要：能用 SSH 密钥登录服务器，该用户能 sudo；服务器装好 Docker（install.sh 会检查）。安装目录 FAP_REMOTE_DIR（缺省 /opt/fap）。
@@ -14,8 +15,28 @@ shift
 dir=${FAP_REMOTE_DIR:-/opt/fap}
 ssh_t() { ssh -t -o ServerAliveInterval=30 "$host" "$@"; }
 
+q() { [ $# -eq 0 ] || printf ' %q' "$@"; }   # 引号转义；没有参数时什么也不输出
+
+# --plant 本地文件 → 传到服务器，参数换成服务器上的路径
+plant_args() {
+    out=()
+    while [ $# -gt 0 ]; do
+        if [ "$1" = --plant ]; then
+            [ -f "${2:-}" ] || { echo "找不到工厂清单 ${2:-}" >&2; exit 1; }
+            ssh "$host" "sudo mkdir -p $dir/plant-upload && sudo chown \$(id -u):\$(id -g) $dir/plant-upload"
+            scp -q "$2" "$host:$dir/plant-upload/plant.yaml"
+            out+=(--plant plant-upload/plant.yaml); shift 2
+        else
+            out+=("$1"); shift
+        fi
+    done
+}
+
 case "${1:-}" in
-    --upgrade) ssh_t "cd $dir && sudo ./upgrade.sh ${2:-latest}"; exit 0 ;;
+    --upgrade)
+        shift
+        plant_args "$@"
+        ssh_t "cd $dir && sudo ./upgrade.sh$(q ${out[@]+"${out[@]}"})"; exit 0 ;;
     --status) ssh_t "cd $dir && sudo ./status.sh"; exit 0 ;;
     --backup) ssh_t "cd $dir && sudo ./backup.sh"; exit 0 ;;
 esac
@@ -25,7 +46,9 @@ ssh "$host" "sudo mkdir -p $dir && sudo chown \$(id -u):\$(id -g) $dir"
 # 只传安装包与公共零件库；服务器上已有的 .env、证书、账号、备份不动
 rsync -az --delete \
     --exclude .env --exclude backups/ --exclude gateway-bundle/ --exclude mosquitto/certs/ --exclude mosquitto/passwd --exclude pki/ \
+    --exclude plant/ --exclude plant-upload/ \
     --exclude library/ "$here/" "$host:$dir/"
 rsync -az --delete "$root/data/library/" "$host:$dir/library/"
-args=$(printf ' %q' "$@")
+plant_args "$@"
+args=$(q ${out[@]+"${out[@]}"})
 ssh_t "cd $dir && sudo FAP_ADMIN_PASSWORD=${FAP_ADMIN_PASSWORD:+$(printf %q "$FAP_ADMIN_PASSWORD")} FAP_REGISTRY_TOKEN=${FAP_REGISTRY_TOKEN:-} ./install.sh$args"
