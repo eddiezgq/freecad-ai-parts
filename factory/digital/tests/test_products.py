@@ -34,13 +34,15 @@ DESIGN = {
 def clean_f():
     from hub import products
     saved = {k: copy.deepcopy(getattr(F, k)) for k in ("ITEMS", "BOMS", "ROUTINGS", "SUPPLIERS")}
-    reg = set(products._REGISTERED)
+    reg, raw = set(products._REGISTERED), dict(products._RAW)
     yield
     for k, v in saved.items():
         getattr(F, k).clear()
         getattr(F, k).update(v)
     products._REGISTERED.clear()
     products._REGISTERED.update(reg)
+    products._RAW.clear()
+    products._RAW.update(raw)
 
 
 def test_build_spec(clean_f):
@@ -63,6 +65,10 @@ def test_build_spec(clean_f):
     assert products.is_product("COBOT-J2") and F.BOMS["RJ-201"][1] == [("RM-45-D50", 1.2)]
     from sim.engine import routing_for
     assert [op for op, _ in routing_for("COBOT-J2")] == ["总装 Final assembly", "跑合试验 Run-in test", "出厂检验 Final inspection"]
+    # ADR-0062：再次转为生产物料（新版本、或 ERP 换过库）时，登记产品带来的新原材料照样发给 ERP
+    again = {i["item_code"]: i for i in products.build(dict(DESIGN, revision=2))["items"]}
+    assert again["RM-6061-B120"]["kind"] == "raw" and again["RM-6061-B120"]["supplier"] == "steel"
+    assert "RM-45-D50" not in again                                       # 工厂原有的原材料不发
 
 
 def test_build_rejects(clean_f):
