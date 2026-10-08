@@ -24,7 +24,7 @@ echo "传安装包到 $host:$dir ..."
 ssh "$host" "sudo mkdir -p $dir && sudo chown \$(id -u):\$(id -g) $dir"
 # 只传安装包与公共零件库；服务器上已有的 .env、证书、账号、备份不动
 rsync -az --delete \
-    --exclude .env --exclude backups/ --exclude gateway-bundle/ --exclude mosquitto/certs/ --exclude mosquitto/passwd \
+    --exclude .env --exclude backups/ --exclude gateway-bundle/ --exclude mosquitto/certs/ --exclude mosquitto/passwd --exclude pki/ \
     --exclude library/ "$here/" "$host:$dir/"
 rsync -az --delete "$root/data/library/" "$host:$dir/library/"
 args=$(printf ' %q' "$@")

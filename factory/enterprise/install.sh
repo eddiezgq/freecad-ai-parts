@@ -87,20 +87,21 @@ docker run --rm -v "$FD/mosquitto:/c" eclipse-mosquitto:2.0.20 sh -c "
     mosquitto_passwd -b /c/passwd sim '$(envval WQ_MQTT_SIM_PASSWORD)' &&
     mosquitto_passwd -b /c/passwd bridge '$(envval WQ_MQTT_BRIDGE_PASSWORD)' &&
     mosquitto_passwd -b /c/passwd gateway '$(envval WQ_MQTT_GATEWAY_PASSWORD)'"
-mkdir -p mosquitto/certs
+mkdir -p mosquitto/certs pki && chmod 700 pki
 if [ ! -f mosquitto/certs/server.crt ]; then
-    log "生成现场网关用的证书（工厂自有 CA，10 年）..."
+    log "生成现场网关用的证书（工厂自有 CA，10 年；CA 私钥只留在 pki/，不交给总线）..."
     openssl req -x509 -newkey rsa:3072 -nodes -days 3650 -subj "/CN=FAP Factory CA" \
-        -keyout mosquitto/certs/ca.key -out mosquitto/certs/ca.crt 2>/dev/null
-    openssl req -newkey rsa:2048 -nodes -subj "/CN=$DOMAIN" -keyout mosquitto/certs/server.key \
-        -out mosquitto/certs/server.csr 2>/dev/null
-    printf 'subjectAltName=DNS:%s\n' "$DOMAIN" > mosquitto/certs/san.ext
-    openssl x509 -req -in mosquitto/certs/server.csr -CA mosquitto/certs/ca.crt -CAkey mosquitto/certs/ca.key \
-        -CAcreateserial -days 3650 -extfile mosquitto/certs/san.ext -out mosquitto/certs/server.crt 2>/dev/null
-    rm -f mosquitto/certs/server.csr mosquitto/certs/san.ext
+        -keyout pki/ca.key -out pki/ca.crt 2>/dev/null
+    openssl req -newkey rsa:2048 -nodes -subj "/CN=$DOMAIN" -keyout pki/server.key -out pki/server.csr 2>/dev/null
+    printf 'subjectAltName=DNS:%s\n' "$DOMAIN" > pki/san.ext
+    openssl x509 -req -in pki/server.csr -CA pki/ca.crt -CAkey pki/ca.key -CAcreateserial -days 3650 \
+        -extfile pki/san.ext -out pki/server.crt 2>/dev/null
+    rm -f pki/server.csr pki/san.ext
+    chmod 600 pki/*.key
+    cp pki/ca.crt pki/server.crt pki/server.key mosquitto/certs/
 fi
 docker run --rm -v "$FD/mosquitto:/c" eclipse-mosquitto:2.0.20 sh -c \
-    "chown -R 1883:1883 /c/passwd /c/certs && chmod 0700 /c/passwd /c/certs && chmod 0600 /c/certs/*"
+    "chown -R 1883:1883 /c/passwd /c/certs && chmod 0700 /c/passwd && chmod 0755 /c/certs && chmod 0644 /c/certs/ca.crt /c/certs/server.crt && chmod 0600 /c/certs/server.key"
 
 # ---------------------------------------------------------------- 4 镜像
 if [ "$PULL" = 1 ]; then
@@ -184,7 +185,7 @@ fi
 
 # ---------------------------------------------------------------- 8 现场网关的连接包、首次备份
 mkdir -p gateway-bundle
-cp mosquitto/certs/ca.crt gateway-bundle/ca.crt
+cp pki/ca.crt gateway-bundle/ca.crt
 cat > gateway-bundle/gateway.env <<EOF
 # 现场网关连云端用（factory/gateway，ADR-0063）。这份文件里有密码，只交给工厂的网关管理员
 FAP_CLOUD_HOST=$DOMAIN
