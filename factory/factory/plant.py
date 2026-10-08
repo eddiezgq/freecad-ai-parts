@@ -105,6 +105,12 @@ def validate(p):
         need(any(isinstance(u, dict) and u.get("workstation") == w for u in us), "workstations：" + w, "没有设备属于这个工作站")
     for i, d in enumerate(p.get("dashboard") or []):
         need(d in uids, "dashboard[{}]".format(i), "没有这台设备：{}".format(d))
+    st = p.get("stores") or {}
+    with_layout = {u["id"] for u in us if isinstance(u, dict) and u.get("id") and u.get("layout")}
+    for k in ("raw", "finished"):
+        need(st.get(k) in with_layout, "stores." + k,
+             "{}要填一台有平面位置的设备编号（物流小车从这里取料或送达）".format("原材料库" if k == "raw" else "成品库"))
+    need(any(isinstance(u, dict) and u.get("area") == "logistics" for u in us), "units", "至少一台物流小车（区域：物流）")
 
     ops = p.get("operations") or []
     onames = set()
@@ -189,6 +195,7 @@ def derive(p):
         "HEIGHT": {u["id"]: u["height_m"] for u in units if u.get("height_m") is not None},
         "AGV_HOME": {u["id"]: tuple(u["home"]) for u in units if u.get("home")},
         "DOCK": {u["id"]: tuple(u["dock"]) for u in units if u.get("dock")},
+        "STORES": dict(p["stores"]),
         "FLOOR": (f["length_m"], f["width_m"]),
         "AISLES": tuple(f["aisles_y"]),
         "CROSS_X": f["cross_x"],
@@ -324,6 +331,7 @@ def export_demo():
         "version": SCHEMA_VERSION, "id": "wenquest-gearbox", "demo_data": True,
         "company": dict(DEMO_COMPANY),
         "workstations": ws, "units": units, "dashboard": list(T.MACHINES), "operations": ops,
+        "stores": {"raw": E.RAW_STORE, "finished": E.FG_STORE},
         "floor": {"length_m": L.FLOOR[0], "width_m": L.FLOOR[1], "aisles_y": list(L.AISLES), "cross_x": L.CROSS_X},
         "shift": {"periods": [list(x) for x in F.SHIFT], "workdays": list(cal.workdays), "max_overtime_min": CAL.MAX_OT_MIN},
         "kpi": dict(K.TARGET),

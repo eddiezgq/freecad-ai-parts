@@ -19,7 +19,7 @@ from factory import data as F
 from sim.engine import OP_UNITS, routing_for, torque_record
 from wqbus.topics import topic, unit_topic
 
-CUST = {"gv": F.CUSTOMERS[0], "summit": F.CUSTOMERS[1], "harbor": F.CUSTOMERS[2]}
+CUST = {"gv": F.DEMO_CUSTOMERS[0], "summit": F.DEMO_CUSTOMERS[1], "harbor": F.DEMO_CUSTOMERS[2]}   # 实验 7 情景只属于演示工厂
 
 
 class ScenarioClock:

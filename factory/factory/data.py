@@ -344,6 +344,7 @@ OPENING_STOCK = {
 # WQ_PLANT_FILE 指定了企业的清单时，工作站、工序、班次、客户与供应商取自清单；没指定时就是上面的演示工厂
 from factory import plant as _plant  # noqa: E402
 
+DEMO_CUSTOMERS = list(CUSTOMERS)        # 演示工厂的客户：教学情景（sim/scenario.py、实验 15）始终用它们
 _P = _plant.active()
 if _P:
     WORKSTATIONS = _P["WORKSTATIONS"]

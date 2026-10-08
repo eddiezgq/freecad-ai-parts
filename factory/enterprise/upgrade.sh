@@ -7,7 +7,7 @@
 tag=latest PLANT=""
 while [ $# -gt 0 ]; do
     case "$1" in
-        --plant) PLANT=$2; shift 2 ;;
+        --plant) PLANT=$(abspath "$2"); shift 2 ;;
         -h|--help) sed -n '2,5p' "$0"; exit 0 ;;
         *) tag=$1; shift ;;
     esac

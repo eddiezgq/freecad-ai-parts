@@ -25,6 +25,8 @@ FACTORY_ROWS = [
     ("company.currency", "币种", "如 CNY、USD"),
     ("company.timezone", "时区", "如 Asia/Shanghai、America/New_York"),
     ("demo_data", "装演示数据", "是：装演示工厂的物料、客户、订单（只用于试用）；否：只建工厂本身"),
+    ("stores.raw", "原材料库（设备编号）", "设备表里的仓库编号：物流小车从这里取毛坯"),
+    ("stores.finished", "成品库（设备编号）", "设备表里的仓库编号：完工的件送到这里"),
     ("floor.length_m", "车间长（米）", "x 方向"),
     ("floor.width_m", "车间宽（米）", "y 方向"),
     ("floor.aisles_y", "横向主通道 y（米）", "物流小车走的通道；多条用逗号分开，如 9, 18.5"),
@@ -332,7 +334,7 @@ def _factory(ws, errs):
             continue
         got[labels[name][0]] = row[1] if len(row) > 1 else None
         rows[labels[name][0]] = r
-    p = {"version": P.SCHEMA_VERSION, "company": {}, "floor": {}, "shift": {}, "kpi": {}}
+    p = {"version": P.SCHEMA_VERSION, "company": {}, "stores": {}, "floor": {}, "shift": {}, "kpi": {}}
     for path, label, _ in FACTORY_ROWS:
         cell = _Cell(errs, "工厂", rows.get(path, "?"), label)
         v = got.get(path)
@@ -345,7 +347,7 @@ def _factory(ws, errs):
             continue
         if path == "demo_data":
             val = _parse("yesno", v, cell)
-        elif path in ("id",) or path.startswith("company."):
+        elif path in ("id",) or path.startswith(("company.", "stores.")):
             val = _parse("str", v, cell)
         elif path == "floor.aisles_y":
             parts = [x for x in re.split(r"[,，、;；\s]+", str(v).strip()) if x]

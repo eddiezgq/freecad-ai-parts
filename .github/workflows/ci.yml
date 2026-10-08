@@ -233,6 +233,7 @@ jobs:
 
   enterprise:
     # 企业安装版（ADR-0063，M15）：干净机器上一条命令装好（自签证书、本机域名），企业账号登录，工作台与 ERPNext 经 HTTPS 可开
+    # M16（ADR-0064）：装的是示例企业工厂（示例缝纫机厂，人民币、上海时区、自己的设备与平面），不是演示工厂
     runs-on: ubuntu-24.04
     needs: factory
     steps:
@@ -253,12 +254,15 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p "$FAP_DIR" && cp -r factory/enterprise/. "$FAP_DIR/" && cp -r data/library "$FAP_DIR/library"
-          "$FAP_DIR/install.sh" --domain factory.localtest.me --tls-internal --admin admin --no-pull --demo --region cn 2>&1 \
+          "$FAP_DIR/install.sh" --domain factory.localtest.me --tls-internal --admin admin --no-pull --demo --region cn \
+            --plant factory/plants/example-sewing.yaml 2>&1 \
             | tee "$RUNNER_TEMP/install.log"
       - name: HTTPS、企业账号登录、ERPNext、状态
         env:
           FAP_DIR: ${{ runner.temp }}/fap
         run: |
+          exec > >(tee "$RUNNER_TEMP/check.log") 2>&1     # 失败时写成注释
+          set -x
           R="--resolve factory.localtest.me:443:127.0.0.1 --resolve erp.factory.localtest.me:443:127.0.0.1"
           curl -fsk $R https://factory.localtest.me/api/login/info | python3 -c "import json,sys; assert json.load(sys.stdin)['auth']=='enterprise'"
           code=$(curl -sk $R -o /dev/null -w '%{http_code}' -H 'content-type: application/json' -d '{"name":"x","role":"manager"}' https://factory.localtest.me/api/login)
@@ -268,6 +272,22 @@ jobs:
           curl -fsk $R -H "x-wq-token: $tok" https://factory.localtest.me/api/admin/ai | python3 -c "
           import json,sys; s=json.load(sys.stdin); assert s['region']=='cn' and s['preferred']=='deepseek', s; print('AI：', s)"
           curl -fsk $R https://erp.factory.localtest.me/api/method/ping
+          # 工厂清单（ADR-0064）：ERPNext 的公司与币种、工作台的厂名与车间设备都按示例缝纫机厂
+          erp() { docker compose -p fap --env-file "$FAP_DIR/.env" -f "$FAP_DIR/docker-compose.yml" exec -T erp-backend \
+                  bench --site frontend execute "$@"; }
+          erp frappe.db.get_value --args "['Company', '示例缝纫机厂', 'default_currency']" | tail -n 1 | tee cur.txt
+          grep -q CNY cur.txt
+          # bench execute 的输出末行是返回值（前面可能有警告）；取最后一个数
+          count() { erp frappe.db.count --args "['$1']" 2>/dev/null | python3 -c "
+          import re,sys; t=sys.stdin.read(); n=re.findall(r'\\d+', t); print(n[-1] if n else 0)"; }   # 返回 0 时 bench 什么也不打印
+          ws=$(count Workstation); items=$(count Item); echo "工作站 $ws，物料 $items"
+          [ "$ws" = 8 ]
+          [ "$items" -lt 20 ]                      # 不装演示物料
+          curl -fsk $R -H "x-wq-token: $tok" https://factory.localtest.me/api/config | python3 -c "
+          import json,sys; p=json.load(sys.stdin)['plant']; assert p['name']=='示例缝纫机厂' and not p['demo'], p; print('工厂：', p)"
+          curl -fsk $R -H "x-wq-token: $tok" https://factory.localtest.me/api/layout | python3 -c "
+          import json,sys; L=json.load(sys.stdin); ids=set(L['units'])
+          assert 'lathe-1' in ids and 'cnc-l01-a' not in ids, ids; print('设备：', sorted(ids))"
           "$FAP_DIR/status.sh"
           ls "$FAP_DIR"/backups/fap-*.tar.gz && ls "$FAP_DIR"/gateway-bundle/
       - name: 现场网关：上行数据到云端总线，下行指令到车间（ADR-0063）
@@ -294,7 +314,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - name: 典型应用发布到企业版工厂并走完工厂一侧（M15 验收，ADR-0063）
+      - name: 典型应用发布到企业版工厂（示例缝纫机厂）并走完工厂一侧（M15、M16 验收，ADR-0063、ADR-0064）
         env:
           FAP_DIR: ${{ runner.temp }}/fap
           FAP_FACTORY_USER: admin
@@ -309,11 +329,13 @@ jobs:
           python -m examples.apps.lockstitch --quick --no-cfd --hub https://factory.localtest.me 2>&1 | tee "$RUNNER_TEMP/apps.log"
           python -m examples.apps.factory_flow --hub https://factory.localtest.me --products LOCKSTITCH-DD --speed 240 2>&1 \
             | tee -a "$RUNNER_TEMP/apps.log"
+          grep -q "LOCKSTITCH-DD：设计方案：完成" "$RUNNER_TEMP/apps.log"     # 方案要真的到了工厂，不能“跳过”
       - name: 失败时的日志（写成注释，经 GitHub 接口能读到）
         if: failure()
         run: |
           cd "${{ runner.temp }}/fap" || exit 0
           python3 "$GITHUB_WORKSPACE/factory/deploy/ci_annotate.py" 安装输出 "$RUNNER_TEMP/install.log" 60
+          [ ! -f "$RUNNER_TEMP/check.log" ] || python3 "$GITHUB_WORKSPACE/factory/deploy/ci_annotate.py" 核对输出 "$RUNNER_TEMP/check.log" 60
           docker compose -p fap --env-file .env ps -a > "$RUNNER_TEMP/ps.log" 2>&1 || true
           docker compose -p fap --env-file .env logs --no-color --tail 30 hub caddy bus erp-backend > "$RUNNER_TEMP/svc.log" 2>&1 || true
           python3 "$GITHUB_WORKSPACE/factory/deploy/ci_annotate.py" 服务状态 "$RUNNER_TEMP/ps.log" 40
@@ -321,3 +343,7 @@ jobs:
           docker compose -p fap-gateway logs --no-color --tail 40 > "$RUNNER_TEMP/gw.log" 2>&1 || true
           python3 "$GITHUB_WORKSPACE/factory/deploy/ci_annotate.py" 网关日志 "$RUNNER_TEMP/gw.log" 40
           [ ! -f "$RUNNER_TEMP/apps.log" ] || python3 "$GITHUB_WORKSPACE/factory/deploy/ci_annotate.py" 演练输出 "$RUNNER_TEMP/apps.log" 80
+          if [ -f "$RUNNER_TEMP/apps.log" ]; then
+            grep -E "\[factory_flow\]|Traceback|Error" "$RUNNER_TEMP/apps.log" | cut -c1-300 > "$RUNNER_TEMP/flow.log" || true
+            python3 "$GITHUB_WORKSPACE/factory/deploy/ci_annotate.py" 工厂流程 "$RUNNER_TEMP/flow.log" 60
+          fi

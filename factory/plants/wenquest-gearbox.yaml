@@ -458,6 +458,9 @@ operations:
   workstation: 装配工位 ASM-01
   units:
   - asm-01
+stores:
+  raw: store-01
+  finished: store-02
 floor:
   length_m: 50
   width_m: 28

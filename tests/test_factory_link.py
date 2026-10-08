@@ -140,6 +140,8 @@ def test_publish_to_enterprise_factory(hub):
     out = factory_link.publish(factory_link.HubClient(hub), "zhang", "prod", data, password="Secret-pass-1")
     assert out["code"] == "JOINT-2" and _Hub.received[-1][0] == "tok-acct"
     assert _Hub.logins[-1] == {"username": "zhang", "password": "Secret-pass-1", "role": "engineer", "mode": "prod"}
+    factory_link.publish(factory_link.HubClient(hub), "zhang", "teach", data, password="Secret-pass-1")
+    assert _Hub.logins[-1]["mode"] == "teach"          # 按所选模式登录，不强制生产模式
 
 
 def test_unreachable_factory():

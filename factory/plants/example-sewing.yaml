@@ -222,6 +222,9 @@ dashboard:
 - qc-1
 - line-1
 - run-1
+stores:
+  raw: store-raw
+  finished: store-fg
 operations:
 - name: 下料 Sawing
   workstation: 下料锯床 SAW

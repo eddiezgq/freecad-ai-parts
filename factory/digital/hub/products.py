@@ -15,6 +15,7 @@ import json
 import re
 
 from factory import data as F
+from factory import plant as _plant
 
 SCHEMA = """
 create table if not exists fap_product (
@@ -106,6 +107,11 @@ def build(design, extra=None):
                          "price": raw.get("price"), "supplier": raw["supplier"], "description": raw.get("note") or ""}
         elif rc in _RAW:
             items[rc] = dict(_RAW[rc])
+        elif not _plant.is_demo() and F.ITEMS[rc][1] == "raw":
+            # 企业工厂（ADR-0064）的 ERPNext 没有演示物料：引用到的原材料一并建；单价是演示工厂的，不带过去
+            name, _kind, uom, _price, sup, _qit, note = F.ITEMS[rc]
+            items[rc] = {"item_code": rc, "item_name": name, "kind": "raw", "uom": uom, "price": None, "supplier": sup,
+                         "description": note or ""}
         rq = float(m.get("raw_qty") or 0)
         if rq <= 0:
             raise ProductError("自制件 {} 的毛坯用量须大于 0".format(mc))

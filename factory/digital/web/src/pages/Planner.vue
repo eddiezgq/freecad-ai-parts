@@ -27,7 +27,7 @@
             </tr></tbody>
           </table>
           <p class="small">工单：<b v-for="w in pv.work_orders" :key="w.production_item" class="mono">{{ w.production_item }} × {{ w.qty }}（{{ w.planned_start_date }} → {{ w.expected_delivery_date }}）</b>
-            · 请购 {{ pv.material_requests.length }} 项 · SH-301 标准成本 ${{ pv.std_cost_sh301.total }}/件</p>
+            · 请购 {{ pv.material_requests.length }} 项<template v-if="pv.std_cost_sh301"> · SH-301 标准成本 ${{ pv.std_cost_sh301.total }}/件</template></p>
           <p v-if="pv.warnings.length" class="warn small">{{ pv.warnings.join('；') }}</p>
           <p class="muted small">{{ pv.basis }}。净需求 = 毛需求 + 其他订单占用 + 安全库存 − 库存 − 在途。</p>
           <button class="btn primary" :disabled="busy" @click="submit">提交（生成待确认的提议）</button>

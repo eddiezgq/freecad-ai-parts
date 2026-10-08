@@ -129,6 +129,12 @@ class Hub:
         return self.until(f"/api/proposals/{pid}", role, ("executed", "failed"), seconds, 2) or {"status": "timeout"}
 
 
+def _fault_unit(st):
+    """注入停机的设备：演示工厂用数控车床；企业工厂（ADR-0064）用本次派过工的第一台设备。"""
+    units = [u for c in st.values() for u in c.get("units", [])]
+    return next((u for u in units if u.startswith("cnc")), units[0] if units else "cnc-l01-b")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--hub", required=True)
@@ -141,10 +147,11 @@ def main(argv=None):
     ap.add_argument("--password", default=os.environ.get("FAP_FACTORY_PASSWORD"), help="企业版工厂：管理员密码")
     a = ap.parse_args(argv)
     h = Hub(a.hub, a.erp, a.user, a.password)
+    cust = (h.get("/api/config").get("customers") or [CUSTOMER])[0]    # 企业工厂（ADR-0064）用它自己的客户
     due = (dt.datetime.now(dt.UTC).date() + dt.timedelta(days=45)).isoformat()
     run = C.Run("factory_flow", "典型应用的工厂一侧：ERP、MRP、MES、工厂计算、厂情中枢", [
         {"title": "问渠数字工厂（本仓库 factory/digital）", "url": a.hub, "note": "本机原生启动的整座工厂：枢纽、假 ERPNext、桥接、车间仿真、计算服务"}],
-        [f"订货客户“{CUSTOMER}”、每种产品 {a.qty} 台、交期 {due}：演练假设",
+        [f"订货客户“{cust}”、每种产品 {a.qty} 台、交期 {due}：演练假设",
          "采购件交期、单价、成品售价零件库里没有，本脚本不填：工厂按“交期待确认”排程",
          f"车间仿真 {a.speed} 倍速；采购到货由脚本代替供应商送货",
          "自制件工艺规程由工厂按方案起草：工艺路线、粗基准与装夹都来自方案（ADR-0062）；工艺计算书没有，AI 评审会提醒"])
@@ -219,8 +226,8 @@ def main(argv=None):
             run.guard(f"{item}：工艺规程", proc)
 
         def plan(code=code):
-            pv = h.post("/api/plan/order", {"customer": CUSTOMER, "item": code, "qty": a.qty, "delivery_date": due}, "planner")
-            p = h.proposal(h.post("/api/proposals", {"action": "create_order_and_plan", "customer": CUSTOMER, "item": code,
+            pv = h.post("/api/plan/order", {"customer": cust, "item": code, "qty": a.qty, "delivery_date": due}, "planner")
+            p = h.proposal(h.post("/api/proposals", {"action": "create_order_and_plan", "customer": cust, "item": code,
                                                      "qty": a.qty, "delivery_date": due}, "planner")["proposal_id"])
             st[code] = {"mr": pv["material_requests"], "wos": pv["work_orders"]}
             run.add(f"{code}：接单与计划（MRP）", "ok" if p["status"] == "executed" else "fail",
@@ -335,7 +342,7 @@ def main(argv=None):
 
     # ---------------------------------------------------------------- 厂情中枢
     def hub_side():
-        unit = next((u for c in st.values() for u in c.get("units", []) if u.startswith("cnc")), "cnc-l01-b")
+        unit = _fault_unit(st)
         t0 = time.time()
         h.post("/api/mes/cmd", {"unit": unit, "command": "inject_fault", "minutes": 240, "reason": "典型应用演练：主轴过热"}, "manager")
         an = h.wait(lambda: next((x for x in h.get("/api/ont/anomalies", "manager")["anomalies"]
@@ -366,7 +373,7 @@ def main(argv=None):
 
     def hub_reset():
         """不管上面成不成，演练注入的停机都要复位、异常关掉，免得影响后面。"""
-        unit = next((u for c in st.values() for u in c.get("units", []) if u.startswith("cnc")), "cnc-l01-b")
+        unit = _fault_unit(st)
         for x in h.get("/api/ont/anomalies", "manager")["anomalies"]:
             if (x["subject"] or {}).get("key") == unit and x["status"] != "closed":
                 h.post(f"/api/ont/anomalies/{x['id']}/close", {"text": "演练结束：复位"}, "manager")
