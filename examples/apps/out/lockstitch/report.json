@@ -14,8 +14,9 @@
   }
  ],
  "assumptions": [
-  "针杆机构按曲柄滑块：曲柄半径 17.5 mm（行程 35 mm）、连杆 60 mm、杆宽 8 mm、厚 5 mm、45 钢；不计挑线、旋梭、送布机构，未加平衡块",
-  "主轴恒速 5000 rpm；缝制阻力、摩擦零件库与样本都没有，未计（实际扭矩会更大）",
+  "针杆机构按曲柄滑块：曲柄半径 17.5 mm（行程 35 mm）、连杆 60 mm、杆宽 8 mm、厚 5 mm、45 钢；针杆（滑块）质量按模型方块取，是示意值；不计挑线、旋梭、送布机构。平衡块只平衡机座振动，恒速下不改变驱动扭矩，所以不建",
+  "缝制阻力、摩擦零件库与样本都没有：连续扭矩的下限不含它们，结论待确认",
+  "起停加速时间 0.05 / 0.1 / 0.2 s（样本没有，设计假设）；转速不均匀系数取 0.05 只为说明手轮大小，不是标准值",
   "供电按缝纫车间 200 V 三相（零件库的 SGD7S 驱动器要求三相；只有单相 220 V 时要换驱动器）",
   "上轴两个轴承位按径向支承；表面系数 β = 0.92、尺寸系数 ε = 0.85（问渠数字工厂实验 8 的示例值）",
   "控制箱散热器：铝底板 120×80×6 mm、8 片直翅高 30 mm；风扇风速 2 m/s、空气 35 °C、散热器 60 °C"
@@ -24,40 +25,47 @@
   {
    "step": "动力学：针杆机构",
    "status": "ok",
-   "summary": "主轴 5000 rpm：驱动扭矩峰值 2.50 N·m、均方根 1.58 N·m（主要是针杆往复惯性力，未加平衡块）；最大等效惯量 4.89e-05 kg·m²",
+   "summary": "主轴恒速 5000 rpm：惯性力矩峰值 2.82 N·m、均方根 1.60 N·m，一转平均 -0.060 N·m（往复质量的动能有增有减，一转做功约为零）；最大盈亏功 ΔE = 2.23 J，教材近似 ½·m·(rω)²·max(sinθ + λ/2·sin2θ)² = 2.07 J（往复质量取滑块 + 连杆一半）；机构最大等效惯量 4.89e-05 kg·m²。针杆质量按杆宽、杆厚取的示意值，不是实物数据",
    "data": {
     "drive": {
      "joint": "crank",
      "kind": "speed",
      "unit_force": "N·m",
-     "peak": 2.5023145268452645,
-     "rms": 1.5782693295869388,
-     "speed_max": 5060.387795974949,
+     "peak": 2.8223484408912296,
+     "rms": 1.6010950185548234,
+     "speed_max": 5354.080548882497,
      "unit_speed": "rpm",
-     "power_peak_w": 1294.5004489133387,
-     "power_mean_w": -29.46139061696148,
+     "power_peak_w": 1578.1311191434354,
+     "power_mean_w": -29.53766156489918,
      "inertia_max_kgm2": 4.885048458333333e-05
-    }
+    },
+    "swing": {
+     "delta_e_j": 2.2278889365531866,
+     "mean_torque_nm": -0.06027410541263839,
+     "points_per_rev": 61
+    },
+    "hand_swing_j": 2.065626946562741
    }
   },
   {
-   "step": "选型：主轴直驱电机",
+   "step": "选型（上限：刚性速度环）",
    "status": "fail",
-   "summary": "直驱（无减速器）：引擎逐对校验 28 组电机 + 驱动器，没有全部通过的。电机扭矩、转速够的有 SGM7J-06A、SGM7J-08A；但零件库里最大的驱动器 SGD7S-2R8A 额定电流 2.8 A，带不动这些电机（C9）——要补更大驱动器的数据。另：针杆机构未加平衡块、扭矩偏大；JUKI 实机用 400 W，差距可能来自平衡块等这里没建模的因素",
+   "summary": "连续 = 惯性力矩均方根 1.60 N·m、峰值 3.08 N·m（惯性力矩峰值 + 0.1 s 起停的机构加速 0.26）；引擎逐对校验 28 组：没有全部通过的：扭矩、转速够的电机有 SGM7J-08A，但库里最大的驱动器 SGD7S-2R8A（2.8 A）带不动（C9），要补更大驱动器的数据",
    "data": {
     "requirement": {
      "id": "lockstitch",
-     "statement": "平缝机主轴直驱：5000 rpm，扭矩按针杆机构动力学",
-     "output_torque_cont_nm": 1.578,
-     "output_torque_peak_nm": 2.502,
+     "output_torque_peak_nm": 3.078,
      "output_speed_rpm": 5000,
+     "load_inertia_kgm2": 4.89e-05,
      "safety_factor": 1.2,
      "supply": {
       "current_type": "ac",
       "voltage_v": 200,
       "phases": 3
      },
-     "ambient_temp_c": 25
+     "ambient_temp_c": 25,
+     "statement": "平缝机主轴直驱，上限：速度环刚、转速不变，惯性力矩全由电机承担",
+     "output_torque_cont_nm": 1.601
     },
     "tried": [
      [
@@ -249,6 +257,472 @@
       "SGD7S-2R8A",
       "fail",
       [
+       "C4",
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-06A",
+      "SGD7S-1R6A",
+      "fail",
+      [
+       "C4",
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-06A",
+      "SGD7S-R90A",
+      "fail",
+      [
+       "C4",
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-06A",
+      "SGD7S-R70A",
+      "fail",
+      [
+       "C4",
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-08A",
+      "SGD7S-2R8A",
+      "fail",
+      [
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-08A",
+      "SGD7S-1R6A",
+      "fail",
+      [
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-08A",
+      "SGD7S-R90A",
+      "fail",
+      [
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-08A",
+      "SGD7S-R70A",
+      "fail",
+      [
+       "C9"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "step": "选型（下限：惯量吸收）",
+   "status": "unknown",
+   "summary": "连续 = 机构一转平均扭矩 0.060 N·m（不含缝制阻力，零件库与样本都没有 → 待确认）、峰值同上；引擎逐对校验 28 组，取功率最小的 SGM7J-04A、SGD7S-2R8A（总体 pass）——与 JUKI 实机的 400 W 一致。转子惯量 4.86e-05 + 机构 4.89e-05 kg·m²：转速不均匀系数 δ = ΔE/(J·ω²) = 0.083；要降到 δ = 0.05（示例值）需再加约 6.5e-05 kg·m²（手轮）。起停加速 0 → 5000 rpm：转子本身要 0.05 s 时 0.51 N·m、0.1 s 时 0.25 N·m、0.2 s 时 0.13 N·m，机构 0.05 s 时 0.51 N·m、0.1 s 时 0.26 N·m、0.2 s 时 0.13 N·m（加速时间是假设）",
+   "data": {
+    "requirement": {
+     "id": "lockstitch",
+     "output_torque_peak_nm": 3.078,
+     "output_speed_rpm": 5000,
+     "load_inertia_kgm2": 4.89e-05,
+     "safety_factor": 1.2,
+     "supply": {
+      "current_type": "ac",
+      "voltage_v": 200,
+      "phases": 3
+     },
+     "ambient_temp_c": 25,
+     "statement": "平缝机主轴直驱，下限：转速允许波动，惯量吸收惯性力矩；不含缝制阻力",
+     "output_torque_cont_nm": 0.06
+    },
+    "system": {
+     "id": "lockstitch",
+     "requirement": {
+      "id": "lockstitch",
+      "output_torque_peak_nm": 3.078,
+      "output_speed_rpm": 5000,
+      "load_inertia_kgm2": 4.89e-05,
+      "safety_factor": 1.2,
+      "supply": {
+       "current_type": "ac",
+       "voltage_v": 200,
+       "phases": 3
+      },
+      "ambient_temp_c": 25,
+      "statement": "平缝机主轴直驱，下限：转速允许波动，惯量吸收惯性力矩；不含缝制阻力",
+      "output_torque_cont_nm": 0.06
+     },
+     "components": [
+      {
+       "instance": "motor",
+       "component": "servo_motor.yaskawa-electric-corporation.sgm7j-04a"
+      },
+      {
+       "instance": "drive",
+       "component": "drive.yaskawa-america-inc.sgd7s-2r8a"
+      }
+     ],
+     "connections": [
+      {
+       "a": "drive.motor_out",
+       "b": "motor.power_in"
+      },
+      {
+       "a": "motor.encoder",
+       "b": "drive.encoder_in"
+      }
+     ]
+    },
+    "report": {
+     "system": "lockstitch",
+     "overall": "pass",
+     "checks": [
+      {
+       "check": "C1",
+       "status": "pass",
+       "message": "drive.motor_out — motor.power_in：类型、方向、运动方式匹配",
+       "ports": [
+        "drive.motor_out",
+        "motor.power_in"
+       ],
+       "findings": [
+        {
+         "status": "pass",
+         "message": "drive.motor_out — motor.power_in：类型、方向、运动方式匹配",
+         "ports": [
+          "drive.motor_out",
+          "motor.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "motor.encoder — drive.encoder_in：类型、方向、运动方式匹配",
+         "ports": [
+          "motor.encoder",
+          "drive.encoder_in"
+         ]
+        }
+       ]
+      },
+      {
+       "check": "C2",
+       "status": "not_applicable",
+       "message": "系统中没有圆柱配合连接"
+      },
+      {
+       "check": "C3",
+       "status": "not_applicable",
+       "message": "系统中没有法兰连接"
+      },
+      {
+       "check": "C4",
+       "status": "pass",
+       "message": "连续扭矩折算到电机侧 0.072 ≤ 电机额定扭矩 1.27 N·m",
+       "ports": [
+        "motor.shaft"
+       ],
+       "measured": 0.072,
+       "limit": 1.27,
+       "unit": "N*m",
+       "margin_ratio": 0.9433070866141732
+      },
+      {
+       "check": "C5",
+       "status": "pass",
+       "message": "峰值扭矩折算到电机侧 3.078 ≤ 电机峰值扭矩 4.46 N·m",
+       "ports": [
+        "motor.shaft"
+       ],
+       "measured": 3.078,
+       "limit": 4.46,
+       "unit": "N*m",
+       "margin_ratio": 0.309865470852018
+      },
+      {
+       "check": "C6",
+       "status": "not_applicable",
+       "message": "系统中没有同时包含电机和减速器"
+      },
+      {
+       "check": "C7",
+       "status": "pass",
+       "message": "所需电机转速 5000 ≤ 电机最高转速 6000 rpm",
+       "ports": [
+        "motor.shaft"
+       ],
+       "measured": 5000.0,
+       "limit": 6000.0,
+       "unit": "rpm",
+       "margin_ratio": 0.16666666666666666
+      },
+      {
+       "check": "C8",
+       "status": "pass",
+       "message": "惯量比 1.006 ≤ 阈值 10",
+       "ports": [
+        "motor.shaft"
+       ],
+       "measured": 1.0061728395061729,
+       "limit": 10.0,
+       "unit": "1",
+       "margin_ratio": 0.8993827160493828
+      },
+      {
+       "check": "C9",
+       "status": "pass",
+       "message": "供电类型 ac 一致",
+       "ports": [
+        "drive.power_in"
+       ],
+       "findings": [
+        {
+         "status": "pass",
+         "message": "供电类型 ac 一致",
+         "ports": [
+          "drive.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "供电 200 V 在驱动器输入范围 200–240 V 内",
+         "ports": [
+          "drive.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "相数 3 一致",
+         "ports": [
+          "drive.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "电压等级 200 V 一致",
+         "ports": [
+          "drive.motor_out",
+          "motor.power_in"
+         ]
+        },
+        {
+         "status": "pass",
+         "message": "驱动器额定电流 2.8 A ≥ 电机 2.5 A",
+         "ports": [
+          "drive.motor_out",
+          "motor.power_in"
+         ],
+         "measured": 2.5,
+         "limit": 2.8,
+         "unit": "A",
+         "margin_ratio": 0.10714285714285708
+        },
+        {
+         "status": "pass",
+         "message": "驱动器峰值电流 9.3 A ≥ 电机 9.3 A",
+         "ports": [
+          "drive.motor_out",
+          "motor.power_in"
+         ],
+         "measured": 9.3,
+         "limit": 9.3,
+         "unit": "A",
+         "margin_ratio": 0.0
+        }
+       ]
+      },
+      {
+       "check": "C10",
+       "status": "pass",
+       "message": "私有编码器协议，厂商一致（Yaskawa）",
+       "ports": [
+        "motor.encoder",
+        "drive.encoder_in"
+       ]
+      },
+      {
+       "check": "C11",
+       "status": "not_applicable",
+       "message": "系统中没有轴承，需求也未给包络外径限值"
+      }
+     ]
+    },
+    "tried": [
+     [
+      "SGM7J-A5A",
+      "SGD7S-2R8A",
+      "fail",
+      [
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-A5A",
+      "SGD7S-1R6A",
+      "fail",
+      [
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-A5A",
+      "SGD7S-R90A",
+      "fail",
+      [
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-A5A",
+      "SGD7S-R70A",
+      "fail",
+      [
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-01A",
+      "SGD7S-2R8A",
+      "fail",
+      [
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-01A",
+      "SGD7S-1R6A",
+      "fail",
+      [
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-01A",
+      "SGD7S-R90A",
+      "fail",
+      [
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-01A",
+      "SGD7S-R70A",
+      "fail",
+      [
+       "C5",
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-C2A",
+      "SGD7S-2R8A",
+      "fail",
+      [
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-C2A",
+      "SGD7S-1R6A",
+      "fail",
+      [
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-C2A",
+      "SGD7S-R90A",
+      "fail",
+      [
+       "C5",
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-C2A",
+      "SGD7S-R70A",
+      "fail",
+      [
+       "C5",
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-02A",
+      "SGD7S-2R8A",
+      "fail",
+      [
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-02A",
+      "SGD7S-1R6A",
+      "fail",
+      [
+       "C5"
+      ]
+     ],
+     [
+      "SGM7J-02A",
+      "SGD7S-R90A",
+      "fail",
+      [
+       "C5",
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-02A",
+      "SGD7S-R70A",
+      "fail",
+      [
+       "C5",
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-04A",
+      "SGD7S-2R8A",
+      "pass",
+      []
+     ],
+     [
+      "SGM7J-04A",
+      "SGD7S-1R6A",
+      "fail",
+      [
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-04A",
+      "SGD7S-R90A",
+      "fail",
+      [
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-04A",
+      "SGD7S-R70A",
+      "fail",
+      [
+       "C9"
+      ]
+     ],
+     [
+      "SGM7J-06A",
+      "SGD7S-2R8A",
+      "fail",
+      [
        "C9"
       ]
      ],
@@ -314,7 +788,7 @@
   {
    "step": "BOM",
    "status": "ok",
-   "summary": "（按最接近的组合，驱动器待换）外购件：Yaskawa Electric Corporation SGM7J-06A、Yaskawa America, Inc. SGD7S-2R8A；总质量 2.7 kg"
+   "summary": "按下限选型：外购件：Yaskawa Electric Corporation SGM7J-04A、Yaskawa America, Inc. SGD7S-2R8A；总质量 2.2 kg"
   },
   {
    "step": "布局与干涉",
@@ -353,15 +827,15 @@
   {
    "step": "有限元：上轴扭转",
    "status": "ok",
-   "summary": "针杆端加峰值扭矩 2.50 N·m：最大 Von Mises 33.4 MPa、安全系数 10.6；Ø10 段手算 τ = 16T/πd³ = 12.7 MPa（等效 22.1）",
+   "summary": "针杆端加峰值扭矩 2.82 N·m：最大 Von Mises 37.6 MPa、安全系数 9.4；Ø10 段手算 τ = 16T/πd³ = 14.4 MPa（等效 24.9）",
    "data": {
-    "vm": 33.381
+    "vm": 37.65
    }
   },
   {
    "step": "疲劳：上轴",
    "status": "ok",
-   "summary": "5000 rpm 下每转一个扭矩循环（0.3 s 记录 10 个循环）：无限寿命"
+   "summary": "按 5000 rpm 的扭矩记录雨流计数（0.06 s 即 5 转，11 个循环）：无限寿命"
   },
   {
    "step": "数控编程：上轴",
@@ -390,8 +864,8 @@
   {
    "step": "发布到工厂",
    "status": "ok",
-   "summary": "方案 LOCKSTITCH-DD 第 1 版，带自制件 LS-101、LS-HS；校验结论 fail 随方案一起发出"
+   "summary": "方案 LOCKSTITCH-DD 第 1 版，带自制件 LS-101、LS-HS；校验结论 pass 随方案一起发出"
   }
  ],
- "elapsed_s": 163.2
+ "elapsed_s": 202.3
 }
