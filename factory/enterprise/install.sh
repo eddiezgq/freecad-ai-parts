@@ -46,7 +46,7 @@ mem_gb=$(awk '/MemTotal/ {printf "%d", $2/1024/1024}' /proc/meminfo 2>/dev/null 
 [ "$mem_gb" -ge "${FAP_MIN_MEM_GB:-7}" ] || die "内存 ${mem_gb} GB，至少要 8 GB（建议 16 GB）"
 [ "$mem_gb" -ge 15 ] || log "提醒：内存 ${mem_gb} GB，建议 16 GB（有限元、流体计算要内存）"
 disk_gb=$(df -Pk "$FD" | awk 'NR==2 {printf "%d", $4/1024/1024}')
-[ "$disk_gb" -ge 40 ] || die "磁盘剩余 ${disk_gb} GB，至少要 40 GB（建议 100 GB）"
+[ "$disk_gb" -ge "${FAP_MIN_DISK_GB:-40}" ] || die "磁盘剩余 ${disk_gb} GB，至少要 40 GB（建议 100 GB）"
 
 # ---------------------------------------------------------------- 2 配置与密码（只生成一次）
 [ -n "$DOMAIN" ] || DOMAIN=$(envval FAP_DOMAIN)
