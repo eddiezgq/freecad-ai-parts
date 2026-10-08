@@ -280,12 +280,17 @@ class Assistant:
     ]
 
     def _system(self, mode, role):
-        base = ("你是“问渠减速器厂”的 AI 工厂助手，是全厂员工的同事。你通过统一数据总线和历史库看到全厂实时状态。"
+        from factory import plant
+        if plant.is_demo():
+            facts = ("工厂数据：唯一成品 WQR-105 二级圆柱齿轮减速器，"
+                     "售价 ${}；本轮闭环零件是输出轴 SH-301（工艺 RT-轴：下料 3 → 粗车 18 → 调质 12 → 精车 15 → 铣键槽 10 → 磨外圆 12 → 零件检验 6 分钟）。"
+                     "客户：{}。").format(F.FG_SELLING_PRICE, "、".join(c.split(" ")[0] for c in F.CUSTOMERS))
+        else:                                   # 企业工厂（ADR-0064）：概况来自工厂清单
+            facts = plant.brief()
+        base = ("你是“{}”的 AI 工厂助手，是全厂员工的同事。你通过统一数据总线和历史库看到全厂实时状态。"
                 "回答用中文，简洁，先给结论再给依据；每个结论都要注明来源（主题、单号或消息编号），数据只来自工具结果，"
-                "不要编造。写操作只能起草提议，由人确认后执行。工厂数据：唯一成品 WQR-105 二级圆柱齿轮减速器，"
-                "售价 ${}；本轮闭环零件是输出轴 SH-301（工艺 RT-轴：下料 3 → 粗车 18 → 调质 12 → 精车 15 → 铣键槽 10 → 磨外圆 12 → 零件检验 6 分钟）。"
-                "客户：{}。今天是 {}。").format(F.FG_SELLING_PRICE, "、".join(c.split(" ")[0] for c in F.CUSTOMERS),
-                                          dt.datetime.now(kpi.TZ).strftime("%Y-%m-%d %A"))
+                "不要编造。写操作只能起草提议，由人确认后执行。{}今天是 {}。").format(
+                    plant.display_name(), facts, dt.datetime.now(kpi.TZ).strftime("%Y-%m-%d %A"))
         if mode == "teach":
             base += ("\n现在是教学模式，对方是扮演“{}”的学生。你是助教：引导他思考、指出去看板哪里找数据、解释概念，"
                      "但不要直接替他完成任务，不要直接给出实验题的答案，不起草订单。").format(ROLE_NAMES.get(role, role))

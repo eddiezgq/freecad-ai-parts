@@ -12,8 +12,8 @@
           {{ n.label }}<span v-if="n.role === session.user?.role" class="me">我的</span>
         </router-link>
         <a href="#" class="nav" @click.prevent="ai.open = true">AI 工厂助手</a>
-        <router-link v-if="session.user?.mode === 'teach'" to="/teach" class="nav">实验 7 · 任务</router-link>
-        <router-link v-if="session.user?.mode === 'teach'" to="/lab15" class="nav">实验 15 · 任务</router-link>
+        <router-link v-if="session.user?.mode === 'teach' && demoPlant" to="/teach" class="nav">实验 7 · 任务</router-link>
+        <router-link v-if="session.user?.mode === 'teach' && demoPlant" to="/lab15" class="nav">实验 15 · 任务</router-link>
       </div>
       <div class="group">
         <span class="group-title">资源</span>
@@ -38,8 +38,8 @@
     <main class="main">
       <header class="top">
         <div class="title">
-          <b>问渠减速器厂{{ cfg.factory_name ? "（" + cfg.factory_name + "）" : "" }} · {{ pageName }}</b>
-          <small>{{ clock }} · 第 1 班（08:00–17:00）· 数据实时刷新</small>
+          <b>{{ plantName }}{{ cfg.factory_name ? "（" + cfg.factory_name + "）" : "" }} · {{ pageName }}</b>
+          <small>{{ clock }} · 第 1 班（{{ cfg.plant?.shift || '08:00–17:00' }}）· 数据实时刷新</small>
         </div>
         <div class="modes" role="group" aria-label="模式">
           <button type="button" :class="{ on: session.user?.mode === 'teach' }" @click="setMode('teach')">教学模式</button>
@@ -89,6 +89,9 @@ const nav = [
 ];
 const navShown = computed(() => nav.filter((n) => !n.only || n.only(session.user)));
 const cfg = ref({});
+// 工厂清单（ADR-0064）：厂名随工厂；教学页面（实验 7、实验 15、虚拟 PLC 示例）只在演示工厂显示
+const plantName = computed(() => cfg.value.plant?.name || '问渠减速器厂');
+const demoPlant = computed(() => cfg.value.plant?.demo !== false);
 const apps = computed(() => [
   { name: 'ERPNext', role: 'ERP / MRP', href: cfg.value.erpnext_url || '#', ext: true },
   { name: '设计台', role: 'CAD', href: '/work/engineer', route: '/work/engineer' },
@@ -98,10 +101,10 @@ const apps = computed(() => [
   { name: '数控编程', role: 'CAM', href: '/cam', route: '/cam' },
   { name: '设计优化', role: 'OPT', href: '/opt', route: '/opt' },
   { name: '数字孪生', role: 'TWIN', href: '/twin', route: '/twin' },
-  { name: '虚拟 PLC', role: 'PLC', href: '/plc', route: '/plc' },
+  { name: '虚拟 PLC', role: 'PLC', href: '/plc', route: '/plc', demoOnly: true },
   { name: '车间终端', role: 'MES', href: '/work/operator', route: '/work/operator' },
   { name: 'Node-RED', role: '数据流', href: cfg.value.nodered_url || '#', ext: true },
-].filter((a) => a.name !== 'Node-RED' || cfg.value.nodered_url));   // 线上 Node-RED 不对外（第 3 轮 D8）
+].filter((a) => (a.name !== 'Node-RED' || cfg.value.nodered_url) && (!a.demoOnly || demoPlant.value)));   // 线上 Node-RED 不对外（第 3 轮 D8）
 const pageName = computed(() => ({
   '/': '运营总览', '/work/planner': '订单与计划', '/work/engineer': '设计与工艺', '/work/operator': '车间终端',
   '/work/quality': '质量', '/work/manager': '经营与成本', '/3d': '3D 车间', '/teach': '实验 7', '/bus': '统一数据总线', '/library': '零件与机器人库',
@@ -139,6 +142,7 @@ watch(() => session.token, (t) => { if (t) start(); });
 async function start() {
   try {
     cfg.value = await loadConfig();
+    document.title = plantName.value + ' · 问渠数字工厂';
     connectBus(cfg.value.mqtt_ws.replace('localhost', location.hostname), session.user.mode);
   } catch (e) { /* 首页会显示错误 */ }
 }

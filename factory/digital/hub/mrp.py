@@ -13,13 +13,14 @@ import math
 from collections import defaultdict
 
 from factory import data as F
+from factory import plant as _plant
 from sim.engine import OP_UNITS, SETUP_MIN, TOOL_CHANGE_MIN, expected_minutes, routing_for
 from hub import products
 from hub.kpi import TZ, add_working_days, explode, rate_per_hour, Overview
 
 RELEASED_THIS_ROUND = {"SH-301"}
 LOT = {"raw_kg": 50, "default": 10}
-COMPANY = "问渠减速器厂 WenQuest Gearbox (Demo)"
+COMPANY = _plant.company()["name"]       # 工厂清单的公司（ADR-0064）；演示工厂仍是“问渠减速器厂 WenQuest Gearbox (Demo)”
 
 
 def lot_size(code):

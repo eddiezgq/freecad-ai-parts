@@ -593,6 +593,15 @@ def ai_set(body: dict = Body(...), u=Depends(user_of)):
     return H.ai.llm.status()
 
 
+def _plant_cfg():
+    """页面上随工厂变的：厂名、是否演示工厂（教学页面只在演示工厂显示）、班次（ADR-0064）"""
+    from factory import plant
+    from sim import calendar as cal
+    c = plant.company()
+    return {"name": plant.display_name(), "company": c["name"], "currency": c["currency"], "demo": plant.is_demo(),
+            "shift": "{}–{}".format(cal.DEF_START, cal.DEF_END)}
+
+
 @app.get("/api/config")
 def config():
     return {
@@ -603,6 +612,7 @@ def config():
         "auth": AUTH, "login_url": LOGIN_URL,
         "edition": os.environ.get("WQ_EDITION", "server"),  # local：企业本地版（ADR-0058）
         "default_mode": DEFAULT_MODE, "roles": ROLE_NAMES, "factory_name": FACTORY_NAME, "ai_engine": H.ai.llm.name if H.ai else "rules",
+        "plant": _plant_cfg(),
         "tz": str(kpi.TZ), "customers": F.CUSTOMERS, "fg": [{"item_code": "WQR-105", "name": F.ITEMS["WQR-105"][0],
                                                                "price": F.FG_SELLING_PRICE}],
     }

@@ -569,13 +569,16 @@ class Agent:
 
     def _system(self, u):
         from hub.ai import ROLE_NAMES
-        base = ("你是“问渠减速器厂”的 AI 工厂代理，是全厂员工的同事。你通过工厂本体（设备、工单、订单、物料、零件、客户等对象和它们的关系）、"
+        from factory import plant
+        facts = ("工厂：唯一成品 WQR-105 二级圆柱齿轮减速器；本轮闭环零件是输出轴 SH-301（下料 → 粗车 → 调质 → 精车 → 铣键槽 → 磨外圆 → 检验）。"
+                 if plant.is_demo() else plant.brief())
+        base = ("你是“" + plant.display_name() + "”的 AI 工厂代理，是全厂员工的同事。你通过工厂本体（设备、工单、订单、物料、零件、客户等对象和它们的关系）、"
                 "异常与因果链、推演（快进副本）和历史库看到全厂。回答用中文，简洁，先给结论再给依据。\n"
                 "规矩：① 数据只来自工具结果，不编造；② 每个结论后面用 [n] 标出依据，n 是工具结果里对象、消息、异常、推演的 ref 编号；"
                 "③ 回答里的数字必须是工具结果里出现过的（可以四舍五入、换算成百分比或小时），不确定就再查；"
                 "④ 处理方案先用 compare_options 或 simulate 推演再说，不凭感觉；⑤ 写操作只能起草（draft_action 动作草稿、propose_order 提议），"
                 "起草前先问对方要不要，人提交、审批后才执行。\n"
-                "工厂：唯一成品 WQR-105 二级圆柱齿轮减速器；本轮闭环零件是输出轴 SH-301（下料 → 粗车 → 调质 → 精车 → 铣键槽 → 磨外圆 → 检验）。"
+                + facts.replace("{", "{{").replace("}", "}}") +
                 "设备编号：{}。今天是 {}。").format("、".join("{} {}".format(k, UNITS[k][1]) for k in MACHINES),
                                                dt.datetime.now(kpi.TZ).strftime("%Y-%m-%d %A"))
         if self.student(u):

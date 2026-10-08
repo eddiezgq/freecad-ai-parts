@@ -182,3 +182,42 @@ def test_cli(tmp_path):
         r = subprocess.run(run + args, capture_output=True, text=True, cwd=FAC, env=env, timeout=120)
         assert r.returncode == 0, r.stdout + r.stderr
     assert "清单无误" in r.stdout
+
+
+TEXTS = r"""
+import json, sys
+sys.path[:0] = [{dig!r}, {fac!r}]
+from factory import plant
+from hub import mrp
+from hub.ai import Assistant
+from hub.ont.agent import Agent
+a = Assistant.__new__(Assistant)
+g = Agent.__new__(Agent)
+g.student = lambda u: False
+print(json.dumps({{"name": plant.display_name(), "demo": plant.is_demo(), "company": mrp.COMPANY,
+                  "ai": a._system("prod", "planner"), "agent": g._system({{"mode": "prod", "role": "planner"}})}},
+                 ensure_ascii=False))
+"""
+
+
+def _texts(plant=None):
+    env = {k: v for k, v in os.environ.items() if k != "WQ_PLANT_FILE"}
+    if plant:
+        env["WQ_PLANT_FILE"] = plant
+    r = subprocess.run([sys.executable, "-c", TEXTS.format(dig=DIG, fac=FAC)], capture_output=True, text=True, env=env,
+                       cwd=DIG, timeout=120)
+    assert r.returncode == 0, r.stderr[-2000:]
+    return json.loads(r.stdout)
+
+
+def test_texts_follow_the_plant():
+    """厂名、公司、AI 提示词随工厂清单（ADR-0064）；演示工厂（不设清单或用演示清单）不变。"""
+    demo, demo_file = _texts(), _texts(DEMO)
+    assert demo["name"] == demo_file["name"] == "问渠减速器厂" and demo["demo"]
+    assert demo["company"] == "问渠减速器厂 WenQuest Gearbox (Demo)"
+    assert "WQR-105" in demo["ai"] and "SH-301" in demo["agent"]
+    sew = _texts(os.path.join(FAC, "plants", "example-sewing.yaml"))
+    assert sew["name"] == sew["company"] == "示例缝纫机厂" and not sew["demo"]
+    for k in ("ai", "agent"):
+        assert "“示例缝纫机厂”" in sew[k] and "WQR-105" not in sew[k] and "问渠减速器厂" not in sew[k], sew[k]
+        assert "数控车床 CNC（2 台）" in sew[k] and "粗车 Rough turning" in sew[k]
