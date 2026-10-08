@@ -104,9 +104,11 @@ class SelectionPanel(QtWidgets.QDockWidget):
             if self._client_factory is not None:
                 client = self._client_factory()
             else:
-                from ingest.llm_extract import AnthropicClient
+                from llm_gateway import (
+                    Gateway,  # ADR-0063：国内 DeepSeek、其他 Claude，出错换另一家
+                )
 
-                client = AnthropicClient()
+                client = Gateway()
         except Exception as exc:  # noqa: BLE001 — 缺密钥、缺依赖等
             self.parse_note.setText(f"不能解析：{exc}。可以直接在下表填数。")
             return False

@@ -1,7 +1,7 @@
 """内置 AI 对话面板（ADR-0036）：FreeCAD 中的停靠窗口，作为 MCP 客户端调用本项目的工具。
 
 - 工具：进程内创建 MCP 服务端，几何后端为本 FreeCAD（主线程执行器），布局实时显示在 FapLayout 文档中
-- LLM：AnthropicChat（密钥只从环境变量读取）；对话循环在后台线程运行，不阻塞界面
+- LLM：经 AI 模型网关（Claude / DeepSeek，ADR-0063；密钥只从环境变量读取）；对话循环在后台线程运行，不阻塞界面
 - 组件库与工具：共用工具宿主（gui/host.py，ADR-0048）；组件库按 FAP_LIBRARY、DATABASE_URL、仓库 data/library、
   虚构测试组件的顺序选择，并在面板中注明
 """
@@ -21,9 +21,9 @@ from freecad_addon.core import library_choice
 from freecad_addon.core.retrieval import default_hints
 from freecad_addon.gui.chat import (
     LLM,
-    AnthropicChat,
     ChatEngine,
     Event,
+    default_chat,
     mcp_tools_to_anthropic,
     summarize,
 )
@@ -60,7 +60,7 @@ class ChatPanel(QtWidgets.QDockWidget):
     event_posted = QtCore.Signal(object)
     turn_done = QtCore.Signal()
 
-    def __init__(self, llm_factory: Callable[[], LLM] = AnthropicChat, library_factory=None,
+    def __init__(self, llm_factory: Callable[[], LLM] = default_chat, library_factory=None,
                  parent: QtWidgets.QWidget | None = None, host: ToolsHost | None = None):
         super().__init__("AI Parts 对话", parent)
         self.setObjectName("FapChatPanel")

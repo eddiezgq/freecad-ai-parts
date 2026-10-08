@@ -32,7 +32,7 @@ REDACTED = "[已隐去]"
 MAX_TEXT = 200
 RATINGS = ("accepted", "modified", "rejected")
 KINDS = ("command", "doc_change", "selection", "chat", "snapshot", "note")
-SECRET_ENV = ("ANTHROPIC_API_KEY", "OPENAI_API_KEY", "FAP_BRIDGE_TOKEN", "DATABASE_URL")
+SECRET_ENV = ("ANTHROPIC_API_KEY", "DEEPSEEK_API_KEY", "OPENAI_API_KEY", "FAP_BRIDGE_TOKEN", "DATABASE_URL")
 _KEY_PATTERN = re.compile(r"sk-ant-[A-Za-z0-9_\-]{8,}|sk-[A-Za-z0-9]{20,}")
 
 
