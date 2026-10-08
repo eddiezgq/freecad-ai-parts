@@ -270,6 +270,27 @@ jobs:
           curl -fsk $R https://erp.factory.localtest.me/api/method/ping
           "$FAP_DIR/status.sh"
           ls "$FAP_DIR"/backups/fap-*.tar.gz && ls "$FAP_DIR"/gateway-bundle/
+      - name: 现场网关：上行数据到云端总线，下行指令到车间（ADR-0063）
+        env:
+          FAP_DIR: ${{ runner.temp }}/fap
+          GW: ${{ runner.temp }}/gw
+        run: |
+          mkdir -p "$GW" && cp -r factory/gateway/. "$GW/" && cp "$FAP_DIR"/gateway-bundle/* "$GW/"
+          (cd "$GW" && sudo FAP_CLOUD_IP=host-gateway ./start.sh)
+          hubpw=$(grep '^WQ_MQTT_HUB_PASSWORD=' "$FAP_DIR/.env" | cut -d= -f2-)
+          cloud() { docker compose -p fap --env-file "$FAP_DIR/.env" -f "$FAP_DIR/docker-compose.yml" exec -T bus "$@"; }
+          gw() { docker compose -p fap-gateway -f "$GW/docker-compose.yml" exec -T broker "$@"; }
+          for i in $(seq 1 30); do docker compose -p fap-gateway -f "$GW/docker-compose.yml" logs broker 2>&1 | grep -q "Connecting bridge" && break; sleep 2; done
+          sleep 5
+          cloud mosquitto_sub -u hub -P "$hubpw" -t wq/gearbox/machining/ci-gw/status -C 1 -W 40 > up.txt &
+          sub=$!; sleep 3
+          gw mosquitto_pub -t wq/gearbox/machining/ci-gw/status -m '{"state":"run","by":"gateway"}' -q 1
+          wait $sub; cat up.txt; grep -q gateway up.txt
+          gw mosquitto_sub -t wq/gearbox/machining/ci-gw/cmd -C 1 -W 40 > down.txt &
+          sub=$!; sleep 3
+          cloud mosquitto_pub -u hub -P "$hubpw" -t wq/gearbox/machining/ci-gw/cmd -m '{"command":"stop"}' -q 1
+          wait $sub; cat down.txt; grep -q stop down.txt
+          docker compose -p fap-gateway -f "$GW/docker-compose.yml" logs broker | tail -20
       - name: 失败时的日志（写成注释，经 GitHub 接口能读到）
         if: failure()
         run: |
@@ -279,3 +300,5 @@ jobs:
           docker compose -p fap --env-file .env logs --no-color --tail 30 hub caddy bus erp-backend > "$RUNNER_TEMP/svc.log" 2>&1 || true
           python3 "$GITHUB_WORKSPACE/factory/deploy/ci_annotate.py" 服务状态 "$RUNNER_TEMP/ps.log" 40
           python3 "$GITHUB_WORKSPACE/factory/deploy/ci_annotate.py" 服务日志 "$RUNNER_TEMP/svc.log" 160
+          docker compose -p fap-gateway logs --no-color --tail 40 > "$RUNNER_TEMP/gw.log" 2>&1 || true
+          python3 "$GITHUB_WORKSPACE/factory/deploy/ci_annotate.py" 网关日志 "$RUNNER_TEMP/gw.log" 40
