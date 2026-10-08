@@ -98,6 +98,9 @@ class Hub:
         self.db.init()
         from hub import products                   # 工厂接收新产品（本仓库 ADR-0061）：登记过的产品并入主数据
         products.init(self.db)
+        if AUTH == "enterprise":                      # 企业账号（本仓库 ADR-0063）
+            from hub import accounts
+            accounts.init(self.db)
         self.bus = Bus("wq-hub-" + secrets.token_hex(3))
         self.ai = Assistant(self.db, self.publish)
         ai_setting_load(self.db, self.ai.llm)          # 本仓库 ADR-0063：管理员选的模型（Claude / DeepSeek / 自动）
@@ -315,8 +318,15 @@ def user_of(x_wq_token: str = Header(default="")):
         if hmac.compare_digest(sig, hmac.new(SECRET, raw.encode(), hashlib.sha256).hexdigest()[:32]):
             u = json.loads(base64.urlsafe_b64decode(raw.encode()))
             if u.get("exp", float("inf")) > time.time():
+                if AUTH == "enterprise":           # 企业账号：账号在用、密码没改过，凭证才有效（本仓库 ADR-0063）
+                    from hub import accounts
+                    if not u.get("acct") or not accounts.still_valid(H.db, u["acct"], u.get("pw_ver")):
+                        raise HTTPException(401, "登录已失效，请重新登录")
+                    return u
                 u.setdefault("teacher", True)      # 本地版的旧凭证：人人可用全部角色
                 return u
+    except HTTPException:
+        raise
     except Exception:  # noqa: BLE001
         pass
     raise HTTPException(401, "请先登录")
@@ -399,6 +409,23 @@ def login_info(request: Request):
 @app.post("/api/login")
 def login(request: Request, body: dict = Body(...)):
     mode = body.get("mode", DEFAULT_MODE)
+    if AUTH == "enterprise":
+        from hub import accounts
+        try:
+            a = accounts.authenticate(H.db, body.get("username"), body.get("password"))
+        except accounts.AccountError as e:
+            raise HTTPException(401, str(e)) from None
+        member = None if a["admin"] else list(a["roles"])
+        mode = body.get("mode", "prod")
+        role = body.get("role") or ("manager" if a["admin"] else member[0])
+        if member and role not in member:
+            role = member[0]
+        check_allowed(a["admin"], role, mode, member)
+        u = {"name": a["name"], "uid": "acct:" + a["username"], "acct": a["username"], "pw_ver": a["pw_ver"],
+             "teacher": a["admin"], "role": role, "mode": mode, "exp": int(time.time() + TOKEN_DAYS * 86400)}
+        if member:
+            u["member"] = member
+        return {"token": _sign(u), "user": u}
     if AUTH == "wenquest":
         w = wenquest_user(request.cookies.get(SSO_COOKIE, ""))
         if not w:
@@ -432,7 +459,8 @@ def login(request: Request, body: dict = Body(...)):
 def switch(body: dict = Body(...), u=Depends(user_of)):
     role = body.get("role", u["role"])
     mode = body.get("mode", u["mode"])
-    member = None if u["teacher"] or AUTH != "wenquest" else _member_roles(u.get("uid"))   # 授权随时生效
+    member = None if u["teacher"] or AUTH not in ("wenquest", "enterprise") else (
+        _member_roles(u.get("uid")) if AUTH == "wenquest" else _acct_roles(u["acct"]))      # 授权随时生效
     check_allowed(u["teacher"], role, mode, member)
     nu = dict(u, role=role, mode=mode)
     if member:
@@ -440,6 +468,62 @@ def switch(body: dict = Body(...), u=Depends(user_of)):
     else:
         nu.pop("member", None)
     return {"token": _sign(nu), "user": nu}
+
+
+def _acct_roles(username):
+    from hub import accounts
+    a = accounts.get(H.db, username)
+    return list(a["roles"]) if a else None
+
+
+# ---------------------------------------------------------------- 企业账号管理（本仓库 ADR-0063）
+def _acct_admin(u):
+    if AUTH != "enterprise":
+        raise HTTPException(404, "只有企业版用账号管理")
+    if not u.get("teacher"):
+        raise HTTPException(403, "账号管理要用管理员账号")
+
+
+def _acct_call(fn, *a, **kw):
+    from hub import accounts
+    try:
+        return fn(H.db, *a, **kw)
+    except accounts.AccountError as e:
+        raise HTTPException(400, str(e)) from None
+
+
+@app.get("/api/accounts")
+def accounts_list(u=Depends(user_of)):
+    _acct_admin(u)
+    from hub import accounts
+    return {"accounts": accounts.listing(H.db), "roles": list(accounts.ROLES)}
+
+
+@app.post("/api/accounts")
+def accounts_create(body: dict = Body(...), u=Depends(user_of)):
+    _acct_admin(u)
+    from hub import accounts
+    return _acct_call(accounts.create, body.get("username"), body.get("password"), name=body.get("name"),
+                      roles=body.get("roles") or [], admin=bool(body.get("admin")), by=u["acct"])
+
+
+@app.post("/api/accounts/{username}")
+def accounts_update(username: str, body: dict = Body(...), u=Depends(user_of)):
+    _acct_admin(u)
+    from hub import accounts
+    if body.get("password"):
+        _acct_call(accounts.set_password, username, body["password"])
+    return _acct_call(accounts.update, username, name=body.get("name"), roles=body.get("roles"),
+                      admin=body.get("admin"), active=body.get("active"), by=u["acct"])
+
+
+@app.post("/api/me/password")
+def my_password(body: dict = Body(...), u=Depends(user_of)):
+    if AUTH != "enterprise":
+        raise HTTPException(404, "只有企业版有密码")
+    from hub import accounts
+    _acct_call(accounts.set_password, u["acct"], body.get("new") or "", old=body.get("old") or "")
+    return {"ok": True, "relogin": True}
 
 
 _ai_calls = {}

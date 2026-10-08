@@ -6,6 +6,14 @@
 
       <div v-if="!info" class="muted">正在检查登录状态…</div>
 
+      <!-- 企业版：用户名 + 密码（本仓库 ADR-0063） -->
+      <template v-else-if="enterprise">
+        <div class="field"><label for="u">用户名</label><input id="u" v-model="username" autocomplete="username" required></div>
+        <div class="field"><label for="p">密码</label><input id="p" v-model="password" type="password" autocomplete="current-password" required></div>
+        <button class="btn primary big" :disabled="busy">登录</button>
+        <small class="muted">账号由企业管理员在“账号与角色”里开；忘了密码请找管理员重置。</small>
+      </template>
+
       <!-- 线上：问渠账号（第 3 轮 D2） -->
       <template v-else-if="online && !info.account">
         <p>用问渠学习平台的账号登录。登录后会自动回到这里。</p>
@@ -45,7 +53,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { get, login, rolesFor } from '../lib/api';
+import { get, login, loginAccount, rolesFor } from '../lib/api';
 
 const route = useRoute();
 const router = useRouter();
@@ -57,6 +65,9 @@ const err = ref(null);
 const busy = ref(false);
 
 const online = computed(() => info.value?.auth === 'wenquest');
+const enterprise = computed(() => info.value?.auth === 'enterprise');
+const username = ref('');
+const password = ref('');
 const teacher = computed(() => !online.value || !!info.value?.account?.teacher);
 const roles = computed(() => rolesFor({ teacher: teacher.value }));
 const signInHref = computed(() => (info.value?.login_url || '/') + '?back=' + encodeURIComponent(location.href));
@@ -69,7 +80,8 @@ onMounted(async () => {
 async function go() {
   busy.value = true; err.value = null;
   try {
-    await login(online.value ? null : name.value.trim(), role.value, mode.value);
+    if (enterprise.value) await loginAccount(username.value.trim(), password.value);
+    else await login(online.value ? null : name.value.trim(), role.value, mode.value);
     router.push(route.query.next || '/');
   } catch (e) { err.value = e.message; } finally { busy.value = false; }
 }
