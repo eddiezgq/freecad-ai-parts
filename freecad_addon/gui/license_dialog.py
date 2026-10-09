@@ -89,6 +89,16 @@ class LicenseDialog(QtWidgets.QDialog):
         f.addRow(imp)
         lay.addWidget(box)
 
+        pack = QtWidgets.QGroupBox("零件库订阅包")
+        h = QtWidgets.QFormLayout(pack)
+        self.pack_state = QtWidgets.QLabel(library_choice.read_settings().get("parts_pack") or "未选择")
+        self.pack_state.setWordWrap(True)
+        choose_pack = QtWidgets.QPushButton("选择订阅包…")
+        choose_pack.clicked.connect(self._choose_pack)
+        h.addRow(choose_pack, self.pack_state)
+        h.addRow(QtWidgets.QLabel("授权里有“零件库订阅”时，重启 FreeCAD 后叠加在公共库之上。"))
+        lay.addWidget(pack)
+
         seat = QtWidgets.QGroupBox("浮动席位（企业数字工厂服务器）")
         g = QtWidgets.QFormLayout(seat)
         s = library_choice.read_settings()
@@ -126,6 +136,21 @@ class LicenseDialog(QtWidgets.QDialog):
         runtime.USER_LICENSE.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(path, runtime.USER_LICENSE)
         self._refresh()
+
+    def _choose_pack(self):
+        from licensing import keys
+        from licensing.parts_pack import PackError, verify_pack
+
+        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "选择零件库订阅包", "", "订阅包 (*.zip);;所有文件 (*)")
+        if not path:
+            return
+        try:
+            info = verify_pack(Path(path), keys.PUBLIC_KEYS)
+        except PackError as exc:
+            QtWidgets.QMessageBox.warning(self, "零件库订阅包", f"这个订阅包不能用：{exc}")
+            return
+        library_choice.write_setting("parts_pack", path)
+        self.pack_state.setText(f"{path}（{info['customer']}，版本 {info['version']}，{info['count']} 条）")
 
     def _lease(self):
         SeatKeeper.start(self.factory, library_choice.read_settings().get("factory_cafile"))

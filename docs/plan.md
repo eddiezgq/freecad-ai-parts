@@ -310,3 +310,6 @@ FreeCAD 工作台连同仿真分析做成 Windows 一键安装包；开源核心
 8. **闭源模块编译发布**：私有仓库、Nuitka 编译、随安装包可选安装
 
 分项任务见 [实施细则](implementation-rules.md) 的“M18 分项任务”。
+
+进展（2026-10-09）：第 1–7 项已完成，Windows 安装包由 CI 生成并验收（静默安装、加载工作台、golden、有限元标准题、卸载），
+发布在 Release `windows-installer`。第 8 项等项目负责人创建私有仓库；正式签名公钥等项目负责人生成后加入 `licensing/keys.py`。
