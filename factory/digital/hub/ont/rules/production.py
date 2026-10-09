@@ -16,7 +16,7 @@ def machine_down(c, p, r):
             mins = (m["down_until_s"] or 0) / 60
             out.append(Finding(
                 m["unit"], "{} {}：{}".format(m["code"], "故障" if m["state"] == "fault" else "停机", m["reason"] or ""),
-                "预计还要约 {:.0f} 分钟（仿真时间）；排队 {} 件{}".format(mins, m["queue"], "，是本周瓶颈" if m.get("bottleneck") else ""),
+                "预计还要约 {:.0f} 分钟（工厂时间）；排队 {} 件{}".format(mins, m["queue"], "，是本周瓶颈" if m.get("bottleneck") else ""),
                 severity="critical" if m["state"] == "fault" else "warn", subject=("Machine", m["unit"]),
                 evidence=[{"topic": unit_topic(m["unit"], "status"), "ts": m["ts"]}],
                 hint="查看受影响的订单；必要时安排加班或转移工序",

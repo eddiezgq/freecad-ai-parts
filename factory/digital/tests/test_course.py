@@ -128,6 +128,17 @@ def test_designs_cases_layout(client):
     l15 = next(x for x in c if x["id"] == "lab15")                 # 第 17 轮 D 期：实验 15
     assert l15["tool_url"].endswith("/lab15") and l15["guide_url"].endswith("/api/cae/lab15/guide.docx")
     assert l15["report_template_url"].endswith("/api/cae/lab15/report-template.docx") and l15["mode"] == "teach"
+    l16 = next(x for x in c if x["id"] == "lab16")                 # 第 18 轮 E1：实验 16
+    assert l16["tool_url"].endswith("/lab16") and l16["guide_url"].endswith("/api/cae/lab16/guide.docx")
+    assert l16["report_template_url"].endswith("/api/cae/lab16/report-template.docx") and l16["mode"] == "teach"
+    l17 = next(x for x in c if x["id"] == "lab17")                 # 第 18 轮 E2：实验 17
+    assert l17["tool_url"].endswith("/lab17") and l17["guide_url"].endswith("/api/cae/lab17/guide.docx")
+    l18 = next(x for x in c if x["id"] == "lab18")                 # 第 18 轮 E3：实验 18
+    assert l18["tool_url"].endswith("/lab18") and l18["report_template_url"].endswith("/api/cae/lab18/report-template.docx")
+    l19 = next(x for x in c if x["id"] == "lab19")                 # 第 18 轮 E4：实验 19
+    assert l19["tool_url"].endswith("/lab19") and l19["guide_url"].endswith("/api/cae/lab19/guide.docx")
+    l20 = next(x for x in c if x["id"] == "lab20")                 # 第 18 轮 E5：实验 20
+    assert l20["tool_url"].endswith("/lab20") and l20["guide_url"].endswith("/api/cae/lab20/guide.docx")
     lay = client.get("/api/course/layout", headers=AUTH).json()
     assert lay["floor"] == {"w_m": 50, "d_m": 28}
     grd = next(u for u in lay["units"] if u["unit"] == "grd-01")

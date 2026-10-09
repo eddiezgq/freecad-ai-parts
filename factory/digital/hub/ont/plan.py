@@ -50,13 +50,23 @@ CHANGE_TYPES = {
     "reassign": "改派", "reorder": "调序 / 插单", "insert_order": "插单", "overtime": "加班", "expedite": "维修加急",
     "urgent_purchase": "紧急采购", "outsource": "外协", "split_delivery": "分批交货",
     "breakdown": "假设停机",            # 第 17 轮 D 期：只用于推演（AI 代理、复盘），不能变成动作
+    "lockout": "停机挂牌整改",          # 第 18 轮 E2：重大隐患（可延后：先临时防护，delay_minutes 后停）
+    "pm_order": "保养（停机挂牌）",     # 第 18 轮 E3：和停机挂牌一样推演，费用按保养人工算
+    "staff": "排班（调人 / 学徒 / 加班顶班）",   # 第 18 轮 E4：改某天某班某台设备的人员等级（0 没人 / 1 学徒 / 2 熟练）
+    "material_arrival": "到料日",                # 第 18 轮 E5：来料不合格时按方案改到料日（费用另算）
+    "energy_setting": "节能设定（空闲自动待机）",  # 第 18 轮 E6：units、standby_min（0 = 取消）
+    "tou_rule": "错峰（峰时不开新炉）",           # 第 18 轮 E6：units（热处理炉）、on
 }
+ENERGY_WINDOW_H = 24              # 第 18 轮 E6：推演里电量、电费按快照起的 24 小时比较
+RECTIFY_RATE = 45.0               # 安全整改 / 保养人工（美元 / 小时）
+PM_MATERIAL = 80.0                # 一次保养的油、脂、滤芯（美元）
 OT_RATE = 1.5                     # 加班费倍数
+WAGE_RATE = 30.0                  # 操作工工时（美元 / 小时；加班按 1.5 倍）
 EXPEDITE_COST = 300.0             # 维修加急默认费用（美元，可在改动里改）
 URGENT_PCT = 0.15                 # 紧急采购加急费：货值的 15%
 OUTSOURCE_MARKUP = 1.3            # 外协单价：本厂工时成本 × 1.3 + 每批运费
 OUTSOURCE_FREIGHT = 50.0
-PENALTY_PER_DAY = {"SAL-ORD-2026-00019": 200.0}    # 教学数据里一张订单有违约条款（每晚一个工作日）
+# 违约金按客户合同的条款算（第 18 轮 E1-3，hub/crm.py）：context() 给每张订单带上 penalty_per_day；没有合同不算
 DOWNSTREAM_DAYS = {"WQR-105": 1}  # 输出轴做完后：装配、跑合、出厂检验（与看板估算一致）
 HORIZON_DAYS = 10
 LIMIT_S = 30.0
@@ -266,6 +276,14 @@ def _simulate(snap, changes, ctx, horizon_days, limit_s):
     releases = [dict(r) for r in ctx.get("releases") or []]
     # ---- 改动
     cal = Calendar.from_dict(eng.calendar.to_dict())
+    staff_changed = False
+    ectx = ctx.get("energy")
+    if ectx or any(c.get("type") in ("energy_setting", "tou_rule") for c in changes):
+        if not eng.energy.enabled:                # 第 18 轮 E6：近似快照没有计量，推演里打开（不改车间节拍）
+            eng.set_energy({"enabled": True})
+        eng._emark_all(t0)                        # 从快照时刻起算
+        eng.energy.tot = {}
+        eng.at(t0 + ENERGY_WINDOW_H * 3600, "energy_capture")
     for c in changes:
         typ = c.get("type")
         if typ not in CHANGE_TYPES:
@@ -282,6 +300,45 @@ def _simulate(snap, changes, ctx, horizon_days, limit_s):
             else:
                 eng._go_down(m, clock.now(), mins * 60, c.get("reason") or "假设停机", "down")
             applied.append(c)
+            continue
+        if typ in ("lockout", "pm_order"):
+            m = eng.machines.get(str(c.get("unit") or "").lower())
+            mins = float(c.get("minutes") or 0)
+            delay = float(c.get("delay_minutes") or 0)
+            if m is None or not 0 < mins <= 14 * 24 * 60:
+                checks.append({"ok": False, "text": "停机挂牌：设备或时长不对"})
+                continue
+            permit = c.get("permit") or "推演"
+            if delay > 0:
+                eng.at(clock.now() + delay * 60, "lockout_due", unit=m.unit, permit=permit, minutes=mins, reason="挂牌上锁（推演）")
+            else:
+                eng._lock(m, clock.now(), permit, mins, "挂牌上锁（推演）")
+            # 推演里整改按时做完：到时自动解锁
+            eng.at(clock.now() + (delay + mins) * 60 + 1, "unlock_due", unit=m.unit)
+            applied.append(c)
+            if typ == "pm_order":
+                costs.append({"what": "保养人工 {:.0f} 分钟、油脂滤芯".format(mins), "usd": round(mins / 60 * RECTIFY_RATE + PM_MATERIAL, 2)})
+            else:
+                costs.append({"what": "安全整改人工 {:.0f} 分钟".format(mins), "usd": round(mins / 60 * RECTIFY_RATE, 2)})
+            if delay > 0 and c.get("temp_cost"):
+                costs.append({"what": "临时防护、专人看守", "usd": float(c["temp_cost"])})
+            checks.append({"ok": True, "text": "{} {}停机挂牌，{} {:.0f} 分钟".format(m.unit.upper(), "{:.0f} 分钟后".format(delay) if delay else "立即",
+                                                                          "保养" if typ == "pm_order" else "整改", mins)})
+            continue
+        if typ == "staff":
+            lv = {str(k): int(v) for k, v in (c.get("levels") or {}).items() if int(v) in (0, 1, 2)}
+            if not lv:
+                checks.append({"ok": False, "text": "排班：没有要改的班"})
+                continue
+            eng.staffing.enabled = True
+            eng.staffing.levels.update(lv)
+            staff_changed = True
+            applied.append(c)
+            if c.get("overtime_min"):
+                costs.append({"what": "加班顶班 {}（{:.0f} 小时）".format(c.get("who") or "", float(c["overtime_min"]) / 60),
+                              "usd": round(float(c["overtime_min"]) / 60 * WAGE_RATE * OT_RATE, 2)})
+            if any(v == 1 for v in lv.values()):
+                checks.append({"ok": True, "text": "学徒开机：按 60% 速度，要班组长带着"})
             continue
         if typ == "overtime":
             if cal.mode != "shift":
@@ -341,10 +398,36 @@ def _simulate(snap, changes, ctx, horizon_days, limit_s):
             applied.append(c)
             price = (F.ITEMS.get(c["item"]) or [None, None, None, 0])[3] or 0
             costs.append({"what": "紧急采购 {} × {}".format(c["item"], c["qty"]), "usd": round(float(price) * float(c["qty"]) * URGENT_PCT, 2)})
+        elif typ == "material_arrival":
+            hit = [r for r in releases if c["item"] in (r.get("short") or [r.get("material")])]
+            for r in hit:
+                arr = dict(r.get("arrivals") or {r.get("material"): r.get("at")})
+                arr[c["item"]] = c["arrive"]
+                r["arrivals"] = arr
+                r["at"] = max(arr.values())
+            checks.append({"ok": True, "text": "{} {} 到料{}".format(c["item"], c["arrive"], "" if hit else "（现在没有在等这种料的工单）")})
+            applied.append(c)
         elif typ == "split_delivery":
             applied.append(c)                    # 不影响生产，只影响订单的判定
+        elif typ == "energy_setting":
+            sb = dict(eng.energy.standby)
+            m = float(c.get("standby_min") or 0)
+            for u in c.get("units") or []:
+                if m:
+                    sb[u] = m
+                else:
+                    sb.pop(u, None)
+            eng.set_energy({"standby": sb})
+            applied.append(c)
+        elif typ == "tou_rule":
+            tou = set(eng.energy.tou)
+            tou = tou | set(c.get("units") or []) if c.get("on", True) else tou - set(c.get("units") or [])
+            eng.set_energy({"tou": sorted(tou)})
+            applied.append(c)
     if cal.to_dict() != eng.calendar.to_dict():
         eng.set_calendar(cal)                     # 只有加班改了日历才重设（重设会让每台设备重新判断一次开工）
+    if staff_changed:
+        eng.set_staffing({})                      # 人员等级改了：每台设备重新判断能不能开工
     # 待下达的工单（等料、插单）：到时刻下达
     for r in releases:
         at = r.get("at")
@@ -363,9 +446,15 @@ def _simulate(snap, changes, ctx, horizon_days, limit_s):
         eng.run_due()
         if time.time() - wall > limit_s:
             raise PlanError("推演超过 {:.0f} 秒，方案太大".format(limit_s))
-        if _all_done(eng, watch):
-            break
-    return _result(eng, events, t0, start_dt, watch, ctx, applied, checks, costs, cal, changes)
+        if _all_done(eng, watch) and (not eng.energy.enabled or eng.energy_capture is not None):
+            break                                 # 第 18 轮 E6：算电量时至少推到 24 小时
+    r = _result(eng, events, t0, start_dt, watch, ctx, applied, checks, costs, cal, changes)
+    if eng.energy.enabled:
+        from sim import energy as EN
+        cap = eng.energy_capture if eng.energy_capture is not None else (eng._emark_all(), eng.energy.totals())[1]
+        e = ectx or {}
+        r["energy"] = dict(EN.summarize({}, cap, e.get("price"), e.get("factor", 0.5306)), hours=ENERGY_WINDOW_H)
+    return r
 
 
 def hypothesis(snap, unit, minutes, reason="假设停机"):
@@ -459,7 +548,7 @@ def _result(eng, events, t0, start_dt, watch, ctx, applied, checks, costs, cal, 
                 row["split"] = {"first_qty": k, "first_date": d1.isoformat(), "first_projected": p1.isoformat(),
                                 "first_late_days": kpi.working_days_between(d1, p1) if p1 > d1 else 0}
                 row["late_days"] = max(row["split"]["first_late_days"], kpi.working_days_between(due, proj) if proj > due else 0)
-        pen = PENALTY_PER_DAY.get(so["name"])
+        pen = so.get("penalty_per_day")
         if pen and row["late_days"] and row["late_days"] > 0:
             costs.append({"what": "{} 违约金（晚 {} 天）".format(so["name"], row["late_days"]), "usd": pen * row["late_days"]})
         sos.append(row)
@@ -535,4 +624,9 @@ def context(db, mode, now=None):
             else:
                 row["pending"] = {"short": [], "release_at": None, "note": "待排产（不缺料，计划员还没下达）"}
         sos.append(row)
+    from hub import crm
+    pens = crm.penalty_map(db, mode, sos, today)
+    for row in sos:
+        if row["name"] in pens:
+            row["penalty_per_day"] = pens[row["name"]]
     return {"sales_orders": sos, "releases": releases}

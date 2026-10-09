@@ -20,6 +20,9 @@ from hub.llm import LLM
 from hub.privacy import actor
 
 log = logging.getLogger("ai")
+# 扩展（第 30 轮 H-8）：提议在 ERP 里执行完以后要做的事 fn(db, action, preview, mode)。
+# freecad-ai-parts 的新产品登记（hub/products.py）挂在这里；问渠这边为空
+ON_PROPOSAL_DONE = []
 
 LEVEL_RANK = {"info": 0, "warn": 1, "critical": 2}
 
@@ -213,10 +216,10 @@ class Assistant:
         elif d.get("proposal_done"):
             self.db.x("update ai_proposal set status='executed', result=%s where proposal_id=%s and status<>'failed'",
                       (json.dumps({"created": d.get("created", [])}, ensure_ascii=False), pid))
-            p = self.db.one("select action, preview, mode from ai_proposal where proposal_id=%s", (pid,))
-            if p and p["action"] == "cad_to_erp":       # 建好物料与 BOM 后登记进工厂主数据（本仓库 ADR-0061）
-                from hub import products
-                products.register(self.db, p["preview"], p["mode"])
+            if ON_PROPOSAL_DONE:
+                p = self.db.one("select action, preview, mode from ai_proposal where proposal_id=%s", (pid,))
+                for fn in ON_PROPOSAL_DONE if p else ():
+                    fn(self.db, p["action"], p["preview"], p["mode"])
 
     # ================================================================ 问答
     def chat(self, messages, mode="teach", role="manager", user="user"):
@@ -285,7 +288,7 @@ class Assistant:
             facts = ("工厂数据：唯一成品 WQR-105 二级圆柱齿轮减速器，"
                      "售价 ${}；本轮闭环零件是输出轴 SH-301（工艺 RT-轴：下料 3 → 粗车 18 → 调质 12 → 精车 15 → 铣键槽 10 → 磨外圆 12 → 零件检验 6 分钟）。"
                      "客户：{}。").format(F.FG_SELLING_PRICE, "、".join(c.split(" ")[0] for c in F.CUSTOMERS))
-        else:                                   # 企业工厂（ADR-0064）：概况来自工厂清单
+        else:                                   # 企业工厂（第 30 轮；freecad-ai-parts ADR-0064）：概况来自工厂清单
             facts = plant.brief()
         base = ("你是“{}”的 AI 工厂助手，是全厂员工的同事。你通过统一数据总线和历史库看到全厂实时状态。"
                 "回答用中文，简洁，先给结论再给依据；每个结论都要注明来源（主题、单号或消息编号），数据只来自工具结果，"
@@ -383,7 +386,7 @@ class Assistant:
 
 
 ROLE_NAMES = {"planner": "计划员", "engineer": "工艺员", "operator": "操作工", "quality": "质检员", "manager": "厂长",
-              "approver": "审批人", "sales": "销售"}
+              "approver": "审批人", "service": "售后", "sales": "销售", "safety": "安全员", "maintenance": "维修工", "lead": "班组长"}
 
 
 def _cust_keys(c):

@@ -1,18 +1,10 @@
 <template>
   <div class="wrap">
     <form class="box" @submit.prevent="go">
-      <div class="brand"><span class="logo">渠</span><div><b>问渠数字工厂</b><small>WenQuest Digital Factory</small></div></div>
+      <div class="brand"><span class="logo">渠</span><div><b>问渠数字工厂<span v-if="info?.edition === 'local'" class="ed">本地版</span></b><small>WenQuest Digital Factory</small></div></div>
       <p class="muted">一个平台，两种用途：学生在这里扮演工厂的各个岗位完成生产任务；企业在这里接单、设计、排产、加工、检验。</p>
 
       <div v-if="!info" class="muted">正在检查登录状态…</div>
-
-      <!-- 企业版：用户名 + 密码（本仓库 ADR-0063） -->
-      <template v-else-if="enterprise">
-        <div class="field"><label for="u">用户名</label><input id="u" v-model="username" autocomplete="username" required></div>
-        <div class="field"><label for="p">密码</label><input id="p" v-model="password" type="password" autocomplete="current-password" required></div>
-        <button class="btn primary big" :disabled="busy">登录</button>
-        <small class="muted">账号由企业管理员在“账号与角色”里开；忘了密码请找管理员重置。</small>
-      </template>
 
       <!-- 线上：问渠账号（第 3 轮 D2） -->
       <template v-else-if="online && !info.account">
@@ -27,6 +19,12 @@
           <div><b>{{ info.account.fullname }}</b><small>{{ info.account.teacher ? '老师' : '学生' }} · 问渠账号</small></div>
         </div>
         <div v-else class="field"><label for="n">姓名</label><input id="n" v-model="name" autocomplete="name" required placeholder="例如：王小明"></div>
+        <!-- 本地版（第 30 轮 H-5）：学生选岗位；当老师要输老师密码（启动工厂时显示过，在 factory/digital/.env 的 WQ_TEACHER_PASSWORD） -->
+        <div v-if="localRoles" class="field">
+          <label class="check"><input id="t" v-model="asTeacher" type="checkbox"> 我是老师（可当厂长、用生产模式和教师控制台）</label>
+          <input v-if="asTeacher" id="tp" v-model="teacherPassword" type="password" autocomplete="current-password" required
+            placeholder="老师密码（启动工厂时显示过）" aria-label="老师密码">
+        </div>
         <div class="field">
           <label>角色</label>
           <div class="roles" :class="{ four: roles.length === 4 }">
@@ -46,7 +44,7 @@
         <button class="btn primary big" :disabled="busy">进入工厂</button>
       </template>
       <div v-if="err" class="err">{{ err }}</div>
-      <p class="helplink small"><router-link to="/help">第一次来？看帮助：动画、视频，一步步带你做</router-link></p>
+      <router-link to="/help" class="help-link">第一次用？看帮助（不用登录）→</router-link>
     </form>
   </div>
 </template>
@@ -54,7 +52,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { get, login, loginAccount, rolesFor } from '../lib/api';
+import { get, login, rolesFor } from '../lib/api';
 
 const route = useRoute();
 const router = useRouter();
@@ -65,14 +63,17 @@ const mode = ref('teach');
 const err = ref(null);
 const busy = ref(false);
 
+const asTeacher = ref(false);
+const teacherPassword = ref('');
+
 const online = computed(() => info.value?.auth === 'wenquest');
-const enterprise = computed(() => info.value?.auth === 'enterprise');
-const username = ref('');
-const password = ref('');
-const teacher = computed(() => !online.value || !!info.value?.account?.teacher);
+const localRoles = computed(() => !online.value && !!info.value?.teacher_password);   // 学校本地版
+const teacher = computed(() => (online.value ? !!info.value?.account?.teacher : (!localRoles.value || asTeacher.value)));
 const roles = computed(() => rolesFor({ teacher: teacher.value }));
 const signInHref = computed(() => (info.value?.login_url || '/') + '?back=' + encodeURIComponent(location.href));
-watch(teacher, (t) => { if (!t) { role.value = 'planner'; mode.value = 'teach'; } });
+watch(teacher, (t) => {
+  if (!t) { role.value = 'planner'; mode.value = 'teach'; } else if (localRoles.value) role.value = 'manager';
+});
 
 onMounted(async () => {
   try { info.value = await get('/login/info'); } catch (e) { err.value = e.message; info.value = { auth: 'local' }; }
@@ -81,15 +82,14 @@ onMounted(async () => {
 async function go() {
   busy.value = true; err.value = null;
   try {
-    if (enterprise.value) await loginAccount(username.value.trim(), password.value);
-    else await login(online.value ? null : name.value.trim(), role.value, mode.value);
+    await login(online.value ? null : name.value.trim(), role.value, mode.value,
+      localRoles.value && asTeacher.value ? { teacher_password: teacherPassword.value } : undefined);
     router.push(route.query.next || '/');
   } catch (e) { err.value = e.message; } finally { busy.value = false; }
 }
 </script>
 
 <style scoped>
-.helplink { margin: 14px 0 0; text-align: center; }
 .wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; background: var(--rail); }
 .box { width: min(560px, 100%); background: #fff; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 16px; }
 .brand { display: flex; align-items: center; gap: 12px; }
@@ -109,6 +109,10 @@ async function go() {
   cursor: pointer; display: flex; flex-direction: column; gap: 3px; text-align: left; }
 .roles button small, .modes button small { font-size: 11px; color: var(--muted); }
 .roles button.on, .modes button.on { border-color: var(--accent); background: var(--accent-bg); }
+.ed { font-size: 12px; font-weight: 600; margin-left: 8px; padding: 2px 8px; border-radius: 10px; background: var(--accent-bg); color: var(--accent); vertical-align: middle; }
+.check { display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer; }
+.check input { width: auto; }
 .modes button:disabled { cursor: not-allowed; opacity: .55; }
 @media (max-width: 560px) { .roles, .roles.four { grid-template-columns: repeat(2, 1fr); } .modes { grid-template-columns: 1fr; } }
+.help-link { display: block; margin-top: 14px; text-align: center; font-size: 13px; color: var(--muted, #6b7785); }
 </style>

@@ -4,7 +4,7 @@
     <div v-if="!ov && !error" class="muted">正在从历史库计算…</div>
     <template v-if="ov">
       <TaskBar v-if="ov.teach" :t="ov.teach" />
-      <div v-if="ov.demo" class="demo small">含“实验 7”教学情景的演示数据（订单、库存等由情景生成，不在 ERPNext 里）。教师可在“经营与成本”页重置或清空。</div>
+      <div v-if="ov.demo" class="demo small">含“实验 7”教学情景的演示数据（订单、库存等由情景生成，不在 ERPNext 里）。教师可在“情景导演”的教师控制台重置或清空。</div>
 
       <!-- 厂情中枢提醒条（第 17 轮 D 期 D6）：严重异常和带处理预案的异常；教学模式的学生不显示（实验 7 要自己从看板里找） -->
       <router-link v-for="b in banner" :key="b.id" :to="b.url" class="ont-banner" :class="b.severity">
@@ -12,7 +12,7 @@
       </router-link>
 
       <!-- AI 今日简报 -->
-      <section class="card brief" aria-label="AI 今日简报" data-help="home-brief">
+      <section class="card brief" data-help="home-brief" aria-label="AI 今日简报">
         <div class="brief-main">
           <div class="brief-head">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>
@@ -39,7 +39,7 @@
       </section>
 
       <!-- 关键指标 -->
-      <section class="kpis" aria-label="关键指标" data-help="home-kpis">
+      <section class="kpis" data-help="home-kpis" aria-label="关键指标">
         <div v-for="k in ov.kpis" :key="k.key" class="card kpi" :class="{ focus: focus.kpis.includes(k.key) }">
           <span class="muted small">{{ k.label }}</span>
           <span class="mono kv">{{ kpiValue(k) }}</span>
@@ -49,7 +49,7 @@
 
       <!-- 车间实况 + 订单与交期 -->
       <div class="row">
-        <section class="card shop" :class="{ focus: focus.shop }" aria-label="车间实况" data-help="home-shop">
+        <section class="card shop" data-help="home-shop" :class="{ focus: focus.shop }" aria-label="车间实况">
           <div class="card-head">
             <h2>车间实况</h2>
             <div class="legend small muted">
@@ -80,7 +80,7 @@
           </div>
         </section>
 
-        <section class="card orders" :class="{ focus: focus.orders }" aria-label="订单与交期" data-help="home-orders">
+        <section class="card orders" data-help="home-orders" :class="{ focus: focus.orders }" aria-label="订单与交期">
           <div class="card-head"><h2>订单与交期</h2><a :href="erpUrl" target="_blank" class="more">ERPNext →</a></div>
           <div v-if="!ov.orders.length" class="empty">没有在手订单</div>
           <div v-for="o in ov.orders" :key="o.name" class="order">
@@ -115,7 +115,7 @@
           </div>
         </section>
 
-        <section class="card" :class="{ focus: focus.quality }" aria-label="质量" data-help="home-quality">
+        <section class="card" data-help="home-quality" :class="{ focus: focus.quality }" aria-label="质量">
           <div class="card-head"><h2>质量</h2><span class="muted small">{{ ov.quality.chart.title }} · 最近 {{ ov.quality.chart.points.length }} 件</span></div>
           <ControlChart v-if="ov.quality.chart.points.length" :chart="ov.quality.chart" />
           <div v-else class="empty">还没有测量数据</div>
@@ -192,10 +192,11 @@ const toneColor = (t) => TONE[t] || 'var(--muted)';
 
 function jobText(m) {
   if (m.state === 'down' || m.state === 'fault') {
-    return `${m.reason || '停机'} · 已停 ${Math.round((m.down_for_s || 0) / 60)} 分钟 · 排队 ${m.queue || 0} 件`;
+    return `${m.locked ? '🔒 ' : ''}${m.reason || '停机'} · 已停 ${Math.round((m.down_for_s || 0) / 60)} 分钟 · 排队 ${m.queue || 0} 件`;
   }
+  if (m.no_staff) return `👤 这一班没人能开（缺人）· 排队 ${m.queue || 0} 件`;      // 第 18 轮 E4
   if (!m.work_order) return m.state === 'idle' ? '等待派工' : '';
-  return `${m.item || ''} ${opShort(m.operation)} · 第 ${Math.min(m.qty_done + (m.state === 'run' ? 1 : 0), m.qty)} / ${m.qty} 件${m.job_started ? '' : ' · 待开工'}`;
+  return `${m.item || ''} ${opShort(m.operation)} · 第 ${Math.min(m.qty_done + (m.state === 'run' ? 1 : 0), m.qty)} / ${m.qty} 件${m.job_started ? '' : ' · 待开工'}${m.staff_level === 1 ? ' · 学徒带着开' : ''}`;
 }
 function srcText(ev) {
   if (!ev || !ev.length) return '全厂汇总';

@@ -23,11 +23,10 @@ AGV_HOME = {"agv-01": (7, 9), "agv-02": (7, 18.5)}
 AISLES = (9.0, 18.5)    # 两条横向主通道；左侧 x=7 有一条纵向通道把它们连起来
 CROSS_X = 7.0
 
-
-try:                                   # 工厂清单（本仓库 ADR-0064）
+try:                                   # 工厂清单（第 30 轮；freecad-ai-parts ADR-0064）
     from factory import plant as _plant
     _P = _plant.active()
-except ImportError:
+except ImportError:                    # 单独用总线库时（没有 factory 包）
     if __import__("os").environ.get("WQ_PLANT_FILE"):   # 指定了清单却找不到 factory 包：不能悄悄用演示工厂
         raise
     _P = None

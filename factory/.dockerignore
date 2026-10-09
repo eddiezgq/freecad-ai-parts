@@ -3,3 +3,7 @@
 **/__pycache__
 digital/web/dist
 *.zip
+**/.pytest_cache
+**/.env
+digital/help-media
+local/

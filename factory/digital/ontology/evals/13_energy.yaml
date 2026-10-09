@@ -1,0 +1,28 @@
+domain: 能源与环境
+items:
+  - id: Y01
+    q: "昨天用了多少电、电费多少？峰时占多少？"
+    tools: [energy_overview]
+    contains: ["度", "电费", "峰时", "碳排放"]
+  - id: Y02
+    q: "磨床的单耗为什么升高了？"
+    tools: [unit_energy]
+    contains: ["GRD-01", "基线", "高"]
+  - id: Y03
+    q: "{idle_anomaly} 怎么处理？"
+    tools: [get_anomaly, compare_options]
+    contains: ["自动待机", "不处理", "省"]
+  - id: Y04
+    q: "这个月的碳排放是多少？每件输出轴多少？"
+    tools: [carbon_account]
+    contains: ["CO2e", "SH-301", "0.5306"]
+  - id: Y05
+    q: "空压机是不是漏气了？"
+    tools: [unit_energy]
+    contains: ["空压机", "可能漏气"]
+  - id: Y06
+    q: "昨天用了多少电、电费多少？峰时占多少？"
+    as: student
+    contains: ["提示"]
+    not_contains: ["电费 $"]
+    cite: false

@@ -7,12 +7,39 @@ FreeCAD 的“发布到工厂”把当前方案发来：方案编号与名称、
 """
 import re
 
+from wqbus import envelope
+
 CODE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,39}$")
 CATEGORIES = {"servo_motor": "伺服电机", "reducer": "减速器", "drive": "驱动器", "bearing": "轴承", "adapter": "转接件"}
 
 
+# 方案的各个版本（ADR-0058 第 4 条）。M19（ADR-0067）起表在这里建，共有的 hub/db.py 不再带它
+SCHEMA = """
+create table if not exists cad_design (
+    id          bigserial primary key,
+    mode        text not null,
+    code        text not null,
+    revision    integer not null,
+    name        text not null,
+    author      text not null,
+    ts          timestamptz not null default now(),
+    data        jsonb not null,             -- {bom: [...], requirement, checks, layout, library, files}
+    unique (mode, code, revision)
+);
+"""
+
+# 总线消息 cad.release（主题 wq/gearbox/design/cad-<编号>/release）。M19 起在这里登记，共有的 wqbus/envelope.py 不再带它
+envelope.register("cad.release", envelope._obj(
+    ["code", "revision", "name", "bom"], {"revision": {"type": "integer", "minimum": 1}, "bom": {"type": "array", "minItems": 1},
+                                          "files": {"type": "array"}}))
+
+
 class CadError(ValueError):
     pass
+
+
+def init(db):
+    db.x(SCHEMA)
 
 
 def validate(body):

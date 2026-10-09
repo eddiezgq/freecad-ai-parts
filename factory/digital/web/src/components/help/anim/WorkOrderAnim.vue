@@ -3,7 +3,7 @@
     <div class="ctl">
       <label class="small"><input v-model="twin" type="checkbox" @change="restart"> 粗车加一台车床</label>
       <button class="btn sm" @click="restart">重新开始</button>
-      <span class="small muted">工单 10 件 · 仿真时间 {{ Math.round(t) }} 分钟 · 完工 {{ done }} / 10</span>
+      <span class="small muted">工单 10 件 · 工厂时间 {{ Math.round(t) }} 分钟 · 完工 {{ done }} / 10</span>
     </div>
     <svg viewBox="0 0 760 196" role="img" :aria-label="`工单流转演示：完工 ${done} 件，粗车前排队最多 ${maxQ} 件`">
       <line x1="20" y1="104" x2="740" y2="104" class="belt" />
@@ -68,7 +68,7 @@ const finished = computed(() => done.value >= 10);
 function frame(ts) {
   raf = requestAnimationFrame(frame);
   if (!last) last = ts;
-  const dt = Math.min(0.2, (ts - last) / 1000) * 4;     // 1 秒真实时间 = 4 分钟仿真时间
+  const dt = Math.min(0.2, (ts - last) / 1000) * 4;     // 1 秒真实时间 = 4 分钟工厂时间
   last = ts;
   if (!finished.value) step(dt); else if (t.value > 0 && ts - (frame.doneAt || (frame.doneAt = ts)) > 2500) { frame.doneAt = 0; reset(); }
 }

@@ -1,4 +1,45 @@
 domain: customer
 rules:
-  C1: {name: 重要客户投诉, status: waiting, severity: critical, role: [manager], desc: 待数据：需要客户投诉（ERPNext Issue 或领域包）}
-  C2: {name: 满意度下降, status: waiting, severity: warn, role: [manager], desc: 待数据：需要满意度调查}
+  C1:
+    name: 客户投诉
+    fn: complaint_new
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn            # 紧急投诉、或合同有违约金的重点客户为 critical
+    role: [manager]
+    desc: 开着的客户投诉（“客户与服务”页登记，或教学模拟器生成）。有设备序列号的，因果链追到出厂数据和排查范围（第 18 轮 E1）
+    hint: 先回复客户、确认情况；看因果链里的排查范围，选处理方案
+  C2:
+    name: 满意度下降
+    fn: satisfaction_drop
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager]
+    params: {last_n: 3, threshold: 3.5}
+    desc: 某客户最近 last_n 次回访的平均满意度低于 threshold 分（1–5 分）
+    hint: 厂长或销售主动回访，问清楚哪里不满意
+  C3:
+    name: 投诉超时没响应
+    fn: complaint_overdue
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager]
+    desc: 投诉登记后超过合同约定的响应时限（没有合同按 24 小时）还没人回复
+    hint: 马上联系客户；没有工程师空着就先远程支持
+  C4:
+    name: 疑似批次问题（同批多台投诉）
+    fn: complaint_batch
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: critical
+    role: [manager, quality]
+    params: {min_units: 2}
+    desc: 开着的投诉里，至少 min_units 台设备的输出轴出自同一片砂轮或同一张工单
+    hint: 按排查范围决定：只修投诉的、加上高风险点检、还是整批排查；同时查这批轴的检验数据
+  C5:
+    name: 报价快到期没跟进
+    fn: quote_expiring
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: info
+    role: [manager]
+    params: {days: 3}
+    desc: ERPNext 里状态为 Open 的报价，days 天内到期
+    hint: 销售跟进客户：成交、延期报价，或标记丢单

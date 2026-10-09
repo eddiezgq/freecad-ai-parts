@@ -10,7 +10,7 @@
       <h2>{{ sel.toUpperCase() }} {{ layout?.units[sel]?.name }}</h2>
       <template v-if="bus.machines[sel]">
         <p><span class="pill" :style="{ color: STATE[m.state].color, background: STATE[m.state].bg }">{{ STATE[m.state].label }}</span>
-          <span v-if="m.reason" class="small"> {{ m.reason }}</span></p>
+          <span v-if="m.reason" class="small"> {{ m.locked ? '🔒 ' : '' }}{{ m.reason }}</span></p>
         <p class="small">工单 <b class="mono">{{ m.work_order || '—' }}</b> · {{ (m.operation || '').split(' ')[0] }} · {{ m.qty_done }}/{{ m.qty }} 件</p>
         <p class="small">待加工 {{ m.queue }} 件 · 刀具寿命 {{ Math.round((m.tool_life_left ?? 1) * 100) }}%</p>
         <router-link :to="{ path: '/work/operator', query: { unit: sel } }" class="small">打开车间终端 →</router-link>

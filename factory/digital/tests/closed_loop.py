@@ -26,6 +26,9 @@ P.add_argument("--erp-kind", choices=("mock", "real"), default="mock")
 P.add_argument("--erp-key", default="")
 P.add_argument("--erp-secret", default="")
 P.add_argument("--diag", default="", help="出错时把 ERPNext 错误日志写到这个文件（CI 用）")
+P.add_argument("--only", default="", help="只跑某一段（本地调试用）：story = 第 20 段全厂联调情景")
+P.add_argument("--upto", type=int, default=0, help="只跑前几段（本地版 CI 跑 1–3 段：--upto 3）")
+P.add_argument("--teacher-password", default="", help="本地版（WQ_EDITION=local）当老师要的密码：factory/digital/.env 的 WQ_TEACHER_PASSWORD")
 A = P.parse_args()
 
 FAILS = []
@@ -101,7 +104,10 @@ def check(cond, what):
 
 
 def login(name, role):
-    return hub("POST", "/api/login", {"name": name, "role": role, "mode": "teach"})["token"]
+    body = {"name": name, "role": role, "mode": "teach"}
+    if A.teacher_password:            # 本地版：带老师密码，和服务器演练一样人人是老师（第 30 轮 H-5）
+        body["teacher_password"] = A.teacher_password
+    return hub("POST", "/api/login", body)["token"]
 
 
 def wait(fn, what, timeout=None, every=2):
@@ -123,6 +129,9 @@ def wait(fn, what, timeout=None, every=2):
 
 
 def main():
+    if A.only == "story":
+        story(login("测试教师", "manager"))
+        return finish(login("测试教师", "manager"))
     student = "测试学生" + time.strftime("%H%M%S")
     teacher = login("测试教师", "manager")
     print("1. 教师重置实验 7 情景")
@@ -161,6 +170,8 @@ def main():
     st = hub("GET", "/api/teach", token=planner)
     check(st["tasks"][1]["score"] == 20, "任务 2 满分（{}）".format(st["tasks"][1]["score"]))
 
+    if A.upto and A.upto < 4:
+        return finish(mgr)
     print("4. 任务 3：工艺员发布新版设计（模拟 FreeCAD 宏）")
     sys.path[:0] = [__file__.rsplit("/tests/", 1)[0] + "/freecad"]
     import wq_publish  # noqa: E402
@@ -315,10 +326,11 @@ def main():
         check(r["status"] == "closed", "异常可以关闭并留记录")
     hub("POST", "/api/mes/cmd", {"unit": "cnc-l01-b", "command": "reset"}, teacher)
     sit = hub("GET", "/api/ont/situation", token=teacher)
-    check(len(sit["cards"]) == 15 and sum(1 for x in sit["cards"] if x["waiting"]) == 3, "全厂态势 15 块，3 块待接入")
+    wt = [x["domain"] for x in sit["cards"] if x["waiting"]]
+    check(len(sit["cards"]) == 15 and set(wt) <= {"energy"}, "全厂态势 15 块，待接入：{}（第 18 轮 E6 起能源有计量读数后也接上）".format("、".join(wt) or "没有"))
     rl = hub("GET", "/api/ont/rules", token=teacher)["rules"]
     live = [x for x in rl if not x["waiting"]]
-    check(len(live) == 20 and not [x["id"] for x in live if x["error"]], "规则 20 条在跑，没有出错（{}）".format([x["id"] for x in live if x["error"]]))
+    check(len(live) == 61 and not [x["id"] for x in live if x["error"]], "规则 61 条在跑，没有出错（{}）".format([x["id"] for x in live if x["error"]]))
 
     print("11. 厂情中枢：推演与动作（第 17 轮 C 期）")
     r = hub("POST", "/api/ont/shifts", {"mode": "shift"}, teacher)
@@ -331,7 +343,7 @@ def main():
         o = hub("GET", "/api/ont/anomalies/{}/options".format(an["id"]), token=teacher)
         kinds = [x["kind"] for x in o["options"]]
         check(kinds[:1] == ["none"] and "overtime" in kinds and "expedite" in kinds and o["recommended"],
-              "预案推演 {} 个方案，用时 {:.1f} 秒，{}快照；{}".format(len(kinds), time.time() - t0, "精确" if o["exact"] else "近似", o["reason"]))
+              "处理方案推演 {} 个，用时 {:.1f} 秒，{}快照；{}".format(len(kinds), time.time() - t0, "精确" if o["exact"] else "近似", o["reason"]))
         exp = next(x for x in o["options"] if x["kind"] == "expedite")
         a = hub("POST", "/api/ont/actions", {"changes": exp["changes"], "anomaly_id": an["id"], "snapshot_id": o["snapshot_id"]}, teacher)
         before = next(m for m in hub("GET", "/api/overview", token=teacher)["machines"] if m["unit"] == "cnc-l01-b")["down_until_s"] or 0
@@ -383,6 +395,18 @@ def main():
     st = hub("GET", "/api/lab15", token=teacher)
     check(st["of"] == 60 and len(st["tasks"]) == 5, "实验 15 页：5 个任务，自动评 60 分")
     hub("POST", "/api/mes/cmd", {"unit": "grd-01", "command": "reset"}, teacher)
+    customer_and_service(teacher)
+    safety(teacher)
+    maintenance(teacher)
+    people(teacher)
+    supply(teacher)
+    energy(teacher)
+    finance(teacher)
+    story(teacher)
+    finish(mgr)
+
+
+def finish(mgr):
     print()
     if FAILS:
         # 桥接写 ERPNext 出错时会把原因作为 erp.doc（action=failed）发到总线：列出来，便于定位
@@ -405,6 +429,554 @@ def main():
             print("  - " + f)
         sys.exit(1)
     print("完整闭环全部通过。")
+
+
+def customer_and_service(teacher):
+    """第 18 轮 E1：销售漏斗（线索 → 商机 → 报价 → 合同）写进 ERPNext；投诉 → 异常 → 服务方案 → 派工（Issue）、备件出库（Stock Entry）→ 完工"""
+    print("13. 客户与服务（第 18 轮 E1）")
+    sales = login("测试销售", "sales")
+    svc = login("测试售后", "service")
+    co = "闭环测试客户" + time.strftime("%H%M%S")
+
+    def card(stage, pred):
+        return next((x for x in hub("GET", "/api/crm/pipeline", token=sales)["cards"] if x["stage"] == stage and pred(x)), None)
+    hub("POST", "/api/crm/leads", {"company_name": co, "note": "闭环测试"}, sales)
+    lead = wait(lambda: card("lead", lambda x: x["title"] == co), "ERPNext 建好线索", 120, 3)
+    check(lead is not None, "线索写进 ERPNext：{}".format((lead or {}).get("name")))
+    if not lead:
+        return
+    hub("POST", "/api/crm/opportunities", {"from": "Lead", "party": lead["name"], "qty": 4}, sales)
+    opp = wait(lambda: card("opportunity", lambda x: x.get("lead") == lead["name"]), "ERPNext 建好商机", 120, 3)
+    check(opp is not None and opp["amount"], "商机：{}（${}）".format((opp or {}).get("name"), (opp or {}).get("amount")))
+    if not opp:
+        return
+    hub("POST", "/api/crm/quotations", {"quotation_to": "Lead", "party": lead["name"], "opportunity": opp["name"], "qty": 4}, sales)
+    q = wait(lambda: card("quotation", lambda x: x.get("opportunity") == opp["name"]), "ERPNext 建好报价（已提交）", 120, 3)
+    check(q is not None and abs(float(q["amount"] or 0) - 6600) < 1, "报价：{}，${}".format((q or {}).get("name"), (q or {}).get("amount")))
+    if q:
+        hub("POST", "/api/crm/contracts", {"customer": co, "quotation": q["name"], "amount": 6600, "penalty_per_day": 50, "response_h": 24,
+                                           "warranty_months": 12}, sales)
+        c = wait(lambda: next((x for x in hub("GET", "/api/crm/pipeline", token=sales)["contracts"] if x["customer"] == co and x["signed"]), None),
+                 "ERPNext 建好合同", 150, 3)
+        check(c is not None and c["penalty_per_day"] == 50, "合同：{}（违约金 $50/天，读回自定义字段）".format((c or {}).get("name")))
+    for dt_ in ("Lead", "Opportunity", "Quotation", "Contract"):
+        check(len(erp_docs(dt_)) >= 1, "ERPNext 里有 {}".format(dt_))
+
+    us = hub("GET", "/api/service/units", token=svc)["units"]
+    check(len(us) >= 6, "现场设备 {} 台".format(len(us)))
+    if not us:
+        return
+    # 不碰有轴承报警的那台：后面“数字孪生”演练（check_cae）要用它开维修单
+    s = next((u["serial"] for u in us if "bearing" not in (u.get("alert_kinds") or []) and u["health"] != "green"),
+             next(u["serial"] for u in us if "bearing" not in (u.get("alert_kinds") or [])))
+    cp = hub("POST", "/api/complaints", {"serial": s, "subject": "闭环测试：减速器异响", "severity": "serious", "channel": "电话"}, svc)
+    iss = wait(lambda: next((x for x in erp_docs("Issue") if cp["key"] in (x.get("subject") or "") or "闭环测试：减速器异响" in (x.get("subject") or "")), None),
+               "投诉进 ERPNext（Issue）", 120, 3)
+    check(iss is not None, "投诉 {} 进 ERPNext：{}".format(cp["key"], (iss or {}).get("name")))
+    an = wait(lambda: next((x for x in hub("GET", "/api/ont/anomalies", token=teacher)["anomalies"] if x["rule"] == "C1" and cp["key"] in x["title"]), None),
+              "投诉异常 C1", 90, 3)
+    check(an is not None, "投诉变成异常 C1：{}".format((an or {}).get("title")))
+    if not an:
+        return
+    d = hub("GET", "/api/ont/anomalies/{}".format(an["id"]), token=teacher)
+    check(d["chain"].get("kind") == "field" or any(n["type"] == "FieldUnit" for n in d["chain"]["nodes"]),
+          "追溯链：{}".format("；".join(d["chain"]["summary"])[:120]))
+    o = hub("GET", "/api/ont/anomalies/{}/options".format(an["id"]), token=teacher)
+    check(o.get("service") and o["options"] and o["recommended"], "服务方案 {} 个：{}".format(len(o["options"]), (o.get("reason") or "")[:100]))
+    # 只采纳“只修出问题的”（不动排查范围里的其他设备），备件出库单独发一张
+    best = next(x for x in o["options"] if x["kind"] == "repair_one")
+    best = dict(best, changes=[c for c in best["changes"] if c["type"] != "spare_ship"] +
+                [{"type": "spare_ship", "items": [{"item_code": "BRG-6206", "qty": 1}]}])
+    a = hub("POST", "/api/ont/actions", {"changes": best["changes"], "anomaly_id": an["id"]}, svc)
+    check(len(a["ids"]) == len(best["changes"]), "售后起草并提交 {} 个动作".format(len(a["ids"])))
+    for i in a["ids"]:
+        hub("POST", "/api/ont/actions/{}/approve".format(i), {}, teacher)
+    for i in a["ids"]:
+        x = wait(lambda: (lambda r: r if r["status"] in ("done", "failed") else None)(hub("GET", "/api/ont/actions/{}".format(i), token=teacher)),
+                 "动作执行", 150, 3)
+        check(x is not None and x["status"] == "done", "{}：{}".format((x or {}).get("title"), ((x or {}).get("result") or {}).get("text")))
+    jobs = wait(lambda: (lambda js: js if js and all(j["issue"] for j in js) else None)(
+        [j for j in hub("GET", "/api/service/jobs", token=svc)["jobs"] if j["anomaly_id"] == an["id"]]), "服务工单进 ERPNext", 150, 3)
+    check(bool(jobs), "服务工单 {} 张，ERPNext Issue：{}".format(len(jobs or []), "、".join(j["issue"] for j in jobs or [])))
+    if any(c["type"] == "spare_ship" for c in best["changes"]):
+        se = [x for x in erp_docs("Stock Entry") if x.get("stock_entry_type") == "Material Issue" or x.get("purpose") == "Material Issue"]
+        check(bool(se), "备件出库：ERPNext 出库单 {}".format("、".join(x["name"] for x in se[-2:])))
+    if jobs:
+        hub("POST", "/api/service/jobs/{}/done".format(jobs[0]["id"]), {"note": "闭环测试：已更换"}, svc)
+        r = wait(lambda: next((x for x in erp_docs("Issue") if x["name"] == jobs[0]["issue"] and x.get("status") in ("Resolved", "Closed")), None),
+                 "ERPNext 服务单改为已解决", 120, 3)
+        check(r is not None, "完工：ERPNext {} 已解决".format(jobs[0]["issue"]))
+        f = hub("GET", "/api/followups", token=svc)["followups"]
+        check(any(x["serial"] == jobs[0]["serial"] for x in f), "完工后生成回访")
+    st = hub("GET", "/api/lab16", token=teacher)
+    check(st["of"] == 60 and len(st["tasks"]) == 5, "实验 16 页：5 个任务，自动评 60 分")
+    k = hub("GET", "/api/service/kpis", token=teacher)
+    check("open_complaints" in k and "funnel_amount" in k, "客户与服务态势：开着的投诉 {}，漏斗 ${}".format(k.get("open_complaints"), k.get("funnel_amount")))
+
+
+def safety(teacher):
+    """第 18 轮 E2：隐患随手拍 → 异常 E1 → 停机挂牌（车间里设备真的停下、不能复位）→ 整改、验收解锁；许可缺资质；整改工单进 ERPNext"""
+    print("14. 安全环保（第 18 轮 E2）")
+    saf = login("测试安全员", "safety")
+    unit = "key-01"
+
+    def mach():
+        return next(m for m in hub("GET", "/api/overview", token=teacher)["machines"] if m["unit"] == unit)
+    r = hub("POST", "/api/ehs/issues", {"unit": unit, "kind": "guard", "level": "major", "subject": "闭环测试：键槽铣床防护罩缺失"}, saf)
+    an = wait(lambda: next((x for x in hub("GET", "/api/ont/anomalies", token=teacher)["anomalies"] if x["rule"] == "E1" and r["key"] in x["title"]), None),
+              "重大隐患异常 E1", 90, 3)
+    check(an is not None, "随手拍 {} → 异常 E1：{}".format(r["key"], (an or {}).get("title")))
+    if not an:
+        return
+    o = hub("GET", "/api/ont/anomalies/{}/options".format(an["id"]), token=teacher)
+    kinds = [x["kind"] for x in o["options"]]
+    check(o.get("ehs") and kinds[:3] == ["none", "lockout", "temp"], "处理方案：{}；{}".format("、".join(x["label"] for x in o["options"]), o.get("reason")))
+    lock = next(x for x in o["options"] if x["kind"] == "lockout")
+    a = hub("POST", "/api/ont/actions", {"changes": lock["changes"], "anomaly_id": an["id"], "snapshot_id": o["snapshot_id"]}, saf)
+    d = hub("POST", "/api/ont/actions/{}/approve".format(a["ids"][0]), {}, teacher)
+    check(d["status"] == "done", "停机挂牌：{}".format((d.get("result") or {}).get("text")))
+    m = wait(lambda: (lambda m: m if m.get("locked") and m["state"] == "down" else None)(mach()), "车间里设备挂牌上锁", 60, 2)
+    check(m is not None, "车间里 {} 停下，挂牌上锁 {}".format(unit.upper(), (m or {}).get("locked")))
+    hub("POST", "/api/mes/cmd", {"unit": unit, "command": "reset"}, teacher)
+    time.sleep(4)
+    check(bool(mach().get("locked")), "挂着锁时“复位”被车间拒绝")
+    hub("POST", "/api/ehs/issues/{}/fix".format(r["id"]), {"note": "闭环测试：装回防护罩"}, teacher)
+    try:
+        hub("POST", "/api/ehs/issues/{}/verify".format(r["id"]), token=teacher)
+        check(False, "整改人不能验收自己的整改")
+    except RuntimeError as e:
+        check("403" in str(e), "整改人不能验收自己的整改")
+    v = hub("POST", "/api/ehs/issues/{}/verify".format(r["id"]), token=saf)
+    check(v.get("unlock", {}).get("status") == "closed", "安全员验收关闭、许可关闭")
+    m = wait(lambda: (lambda m: m if not m.get("locked") and m["state"] != "down" else None)(mach()), "设备解锁恢复", 60, 2)
+    check(m is not None, "{} 解锁恢复（{}）".format(unit.upper(), (m or {}).get("state")))
+    p = hub("POST", "/api/ehs/permits", {"kind": "confined", "unit": "ht-01", "holder_id": "P07", "reason": "闭环测试：炉膛检修"}, saf)
+    check(p["status"] == "blocked", "受限空间许可缺资质被拦下：{}".format(p.get("why")))
+    e3 = wait(lambda: next((x for x in hub("GET", "/api/ont/anomalies", token=teacher)["anomalies"] if x["rule"] == "E3" and p["key"] in x["title"]), None),
+              "缺资质异常 E3", 90, 3)
+    check(e3 is not None, "异常 E3：{}".format((e3 or {}).get("title")))
+    a = hub("POST", "/api/ont/actions", {"changes": [{"type": "rectify_order", "unit": unit, "subject": "闭环测试：防护罩加固", "minutes": 60,
+                                                      "issue_id": r["id"]}]}, saf)
+    hub("POST", "/api/ont/actions/{}/approve".format(a["ids"][0]), {}, teacher)
+    x = wait(lambda: (lambda q: q if q["status"] in ("done", "failed") else None)(hub("GET", "/api/ont/actions/{}".format(a["ids"][0]), token=teacher)),
+             "整改工单进 ERPNext", 120, 3)
+    check(x is not None and x["status"] == "done", "整改工单：{}".format(((x or {}).get("result") or {}).get("erp")))
+    iss = [i for i in erp_docs("Issue") if "安全整改" in (i.get("subject") or "")]
+    check(bool(iss), "ERPNext 里有安全整改工单 {}".format("、".join(i["name"] for i in iss[-2:])))
+    st = hub("GET", "/api/lab17", token=teacher)
+    check(st["of"] == 60 and len(st["tasks"]) == 5, "实验 17 页：5 个任务，自动评 60 分")
+    k = hub("GET", "/api/ehs/kpis", token=teacher)
+    check(k["locked"] == 0 and "training_due" in k, "安全环保态势：开着的隐患 {}，挂锁 {} 台".format(k["open_issues"], k["locked"]))
+
+
+def maintenance(teacher):
+    """第 18 轮 E3：ERPNext 资产台账与维护计划；点检异常 → M3；保养逾期 → M2 → 保养工单（挂牌上锁）→ 做完 → 验收解锁 → 运行小时清零、
+    ERPNext 保养记录；维修单（挂牌上锁）→ ERPNext 资产维修 → 完成"""
+    print("15. 设备维护与资产（第 18 轮 E3）")
+    mnt = login("测试维修工", "maintenance")
+    unit, runit = "hob-01", "vmc-01"
+
+    def mach(u):
+        return next(m for m in hub("GET", "/api/overview", token=teacher)["machines"] if m["unit"] == u)
+    rows = wait(lambda: (lambda a: a if all(x["asset"] for x in a) else None)(hub("GET", "/api/maint/assets", token=teacher)["assets"]),
+                "ERPNext 资产台账", 480, 4)
+    check(rows is not None and len(rows) == 13, "ERPNext 资产台账 13 台（{}）".format("、".join(x["asset"] for x in (rows or [])[:3])))
+    if rows is None:                                    # 诊断：建台账的提议走到哪一步了
+        for p in hub("GET", "/api/proposals", token=teacher):
+            if p.get("action") == "maint_setup":
+                print("    提议 {} {}：{}".format(p.get("proposal_id"), p.get("status"), json.dumps(p.get("result"), ensure_ascii=False)[:600]))
+    mts = erp_docs("Asset Maintenance")
+    check(len(mts) >= 13, "ERPNext 维护计划 {} 条".format(len(mts)))
+    d = hub("GET", "/api/maint/assets/" + unit, token=teacher)
+    check(d["maintenance"] is not None and d["risk"]["beta"] > 1, "台账详情：维护计划 {}，β={}".format((d["maintenance"] or {}).get("name"), d["risk"]["beta"]))
+    # 点检
+    items = hub("GET", "/api/maint/checklist/" + unit, token=mnt)["items"]
+    ic = hub("POST", "/api/maint/inspections", {"unit": unit, "results": [{"item": items[0], "ok": False, "note": "闭环测试"}]}, mnt)
+    m3 = wait(lambda: next((x for x in hub("GET", "/api/ont/anomalies", token=teacher)["anomalies"] if x["rule"] == "M3" and unit.upper() in x["title"]), None), "点检异常 M3", 90, 3)
+    check(m3 is not None, "点检 {} 有异常 → 异常 M3：{}".format(ic["key"], (m3 or {}).get("title")))
+    hub("POST", "/api/maint/inspections/{}/watch".format(ic["id"]), {}, mnt)
+    # 保养逾期 → M2 → 保养工单
+    pm_h = d["risk"]["pm_h"]
+    hub("POST", "/api/lab18/inject", {"factor": 0, "unit": unit, "hours": pm_h + 200}, teacher)
+    m = wait(lambda: (lambda m: m if (m.get("run_h_pm") or 0) > pm_h else None)(mach(unit)), "车间运行小时拨到逾期", 60, 2)
+    check(m is not None, "车间里 {} 自上次保养运行 {} 小时（周期 {:g}）".format(unit.upper(), (m or {}).get("run_h_pm"), pm_h))
+    an = wait(lambda: next((x for x in hub("GET", "/api/ont/anomalies", token=teacher)["anomalies"] if x["rule"] == "M2" and unit.upper() in x["title"]), None),
+              "保养逾期异常 M2", 90, 3)
+    check(an is not None, "异常 M2：{}".format((an or {}).get("title")))
+    if not an:
+        return
+    o = hub("GET", "/api/ont/anomalies/{}/options".format(an["id"]), token=teacher)
+    kinds = [x["kind"] for x in o["options"]]
+    check(o.get("maint") and kinds == ["none", "pm_now", "pm_later"], "保养时机三方案：{}；{}".format("、".join(x["label"] for x in o["options"]), o.get("reason")))
+    now = next(x for x in o["options"] if x["kind"] == "pm_now")
+    a = hub("POST", "/api/ont/actions", {"changes": now["changes"], "anomaly_id": an["id"], "snapshot_id": o["snapshot_id"]}, mnt)
+    dd = hub("POST", "/api/ont/actions/{}/approve".format(a["ids"][0]), {}, teacher)
+    check(dd["status"] == "done", "保养工单：{}".format((dd.get("result") or {}).get("text")))
+    m = wait(lambda: (lambda m: m if m.get("locked") and m["state"] == "down" else None)(mach(unit)), "保养挂牌上锁", 60, 2)
+    check(m is not None, "车间里 {} 停下保养，挂牌上锁 {}".format(unit.upper(), (m or {}).get("locked")))
+    pm = next((x for x in hub("GET", "/api/maint/repairs", token=teacher)["pms"] if x["unit"] == unit and x["status"] == "doing"), None)
+    check(pm is not None, "保养单 {}".format((pm or {}).get("key")))
+    if not pm:
+        return
+    hub("POST", "/api/maint/pms/{}/done".format(pm["id"]), {"note": "闭环测试：换油、清洁"}, teacher)
+    try:
+        hub("POST", "/api/maint/pms/{}/verify".format(pm["id"]), token=teacher)
+        check(False, "保养人不能验收自己的保养")
+    except RuntimeError as e:
+        check("403" in str(e), "保养人不能验收自己的保养")
+    hub("POST", "/api/maint/pms/{}/verify".format(pm["id"]), token=mnt)
+    m = wait(lambda: (lambda m: m if not m.get("locked") and m["state"] != "down" and (m.get("run_h_pm") or 0) < 5 else None)(mach(unit)),
+             "保养后解锁、运行小时清零", 60, 2)
+    check(m is not None, "{} 验收解锁，自上次保养回到 {} 小时".format(unit.upper(), (m or {}).get("run_h_pm")))
+    lg = wait(lambda: [x for x in erp_docs("Asset Maintenance Log") if x.get("maintenance_status") == "Completed"], "ERPNext 保养记录", 120, 3)
+    check(bool(lg), "ERPNext 保养记录 {}".format("、".join(x["name"] for x in (lg or [])[-2:])))
+    # 维修单
+    r = hub("POST", "/api/maint/repairs", {"unit": runit, "title": "闭环测试：主轴异响"}, mnt)
+    m = wait(lambda: (lambda m: m if m.get("locked") else None)(mach(runit)), "维修挂牌上锁", 60, 2)
+    check(m is not None, "维修单 {}：{} 挂牌上锁".format(r["key"], runit.upper()))
+    ar = wait(lambda: [x for x in erp_docs("Asset Repair") if r["key"] in (x.get("description") or "")], "ERPNext 资产维修单", 120, 3)
+    check(bool(ar), "ERPNext 资产维修 {}".format("、".join(x["name"] for x in (ar or []))))
+    hub("POST", "/api/maint/repairs/{}/done".format(r["id"]), {"note": "闭环测试：换轴承"}, mnt)
+    hub("POST", "/api/maint/repairs/{}/verify".format(r["id"]), token=teacher)                  # 维修工开单、修好，厂长验收
+    m = wait(lambda: (lambda m: m if not m.get("locked") else None)(mach(runit)), "维修后解锁", 60, 2)
+    check(m is not None, "{} 维修验收解锁".format(runit.upper()))
+    done = wait(lambda: [x for x in erp_docs("Asset Repair") if r["key"] in (x.get("description") or "") and x.get("repair_status") == "Completed"],
+                "ERPNext 资产维修完成", 120, 3)
+    check(bool(done), "ERPNext 资产维修改为完成")
+    st = hub("GET", "/api/lab18", token=teacher)
+    check(st["of"] == 60 and len(st["tasks"]) == 5, "实验 18 页：5 个任务，自动评 60 分")
+    k = hub("GET", "/api/maint/kpis", token=teacher)
+    check("mtbf" in k and k["factor"] == 0, "设备维护态势：逾期 {} 台，未关维修单 {}".format(k["overdue"], k["open_repairs"]))
+
+
+def people(teacher):
+    """第 18 轮 E4：员工档案进 ERPNext；车间“要有人”（请假 → 这一班人员等级 0）；关键人请假 → 排班缺口 H2 → 四个方案 → 调班 → 有人了；
+    单点依赖 H1 → 技能培训 → 考核通过 → 单点依赖少一台"""
+    print("16. 人员与组织（第 18 轮 E4）")
+    lead = login("测试班组长", "lead")
+    hub("POST", "/api/mes/cmd", {"unit": "sim", "command": "set_speed", "speed": 1}, teacher)     # 排班按班次：车间回到正常速度，免得一个班两分钟就过去
+    time.sleep(5)                                                                                # 等车间发出带工厂时间的状态
+
+    def mach(u):
+        return next(m for m in hub("GET", "/api/overview", token=teacher)["machines"] if m["unit"] == u)
+    es = wait(lambda: (lambda e: e if all(x["erp_id"] for x in e) else None)(hub("GET", "/api/people/employees", token=teacher)["employees"]),
+              "ERPNext 员工档案", 480, 4)
+    check(es is not None and len(es) == 30, "ERPNext 员工档案 30 人（{}）".format("、".join("{} {}".format(x["id"], x["erp_id"]) for x in (es or [])[:2])))
+    if es is None:
+        for p in hub("GET", "/api/proposals", token=teacher):
+            if p.get("action") == "people_setup":
+                print("    提议 {} {}：{}".format(p.get("proposal_id"), p.get("status"), json.dumps(p.get("result"), ensure_ascii=False)[:600]))
+    deps = [d for d in erp_docs("Department") if d.get("department_name") in ("机加一班", "设备组")]
+    check(len(deps) == 2, "ERPNext 部门：{}".format("、".join(d["name"] for d in deps)))
+    hub("POST", "/api/people/staffing", {"enabled": True}, teacher)
+    td = hub("GET", "/api/people/today", token=teacher)
+    op = next((p for p in td["people"] if "saw-01" in p["units"]), None)
+    check(op is not None, "这一班锯床是 {}".format((op or {}).get("name")))
+    if op:
+        m = wait(lambda: (lambda m: m if m.get("staff_level") == 2 else None)(mach("saw-01")), "车间收到排班", 60, 2)
+        check(m is not None, "车间“要有人”打开，锯床这一班人员等级 2")
+        hub("POST", "/api/people/attendance", {"emp_id": op["id"], "status": "leave", "day": td["day"], "shift": td["shift"]}, lead)
+        m = wait(lambda: (lambda m: m if m.get("staff_level") == 0 else None)(mach("saw-01")), "请假后锯床没人", 60, 2)
+        check(m is not None, "{} 请假：锯床这一班没人能开（人员等级 0）".format(op["name"]))
+        hub("POST", "/api/people/attendance/clear", {"emp_id": op["id"], "day": td["day"], "shift": td["shift"]}, lead)
+        m = wait(lambda: (lambda m: m if m.get("staff_level") == 2 else None)(mach("saw-01")), "恢复在岗", 60, 2)
+        check(m is not None, "恢复在岗：锯床人员等级回到 2")
+    r = hub("POST", "/api/lab19/inject", {"enable": True, "emp_id": "P01"}, teacher)
+    check("请假" in r.get("text", ""), "老师注入：{}".format(r.get("text")))
+    an = wait(lambda: next((x for x in hub("GET", "/api/ont/anomalies", token=teacher)["anomalies"] if x["rule"] == "H2" and "GRD-01" in x["title"]), None),
+              "排班缺口异常 H2", 90, 3)
+    check(an is not None, "异常 H2：{}".format((an or {}).get("title")))
+    if an:
+        o = hub("GET", "/api/ont/anomalies/{}/options".format(an["id"]), token=teacher)
+        kinds = [x["kind"] for x in o["options"]]
+        check(o.get("people") and kinds[:2] == ["none", "swap"], "缺人四方案：{}；{}".format("、".join(x["label"] for x in o["options"]), o.get("reason")))
+        sw = next(x for x in o["options"] if x["kind"] == "swap")
+        a = hub("POST", "/api/ont/actions", {"changes": sw["changes"], "anomaly_id": an["id"], "snapshot_id": o["snapshot_id"]}, lead)
+        d = hub("POST", "/api/ont/actions/{}/approve".format(a["ids"][0]), {}, teacher)
+        check(d["status"] == "done", "调班：{}".format((d.get("result") or {}).get("text")))
+        ch = sw["changes"][0]
+        ro = hub("GET", "/api/people/roster?week=" + ch["day"], token=teacher)
+        cell = next(r for r in ro["rows"] if r["day"] == ch["day"] and r["shift"] == ch["shift"])["cells"]["grd-01"]
+        check(cell["level"] == 2 and cell["source"] == "swap", "排班里 {} {} 磨床由 {} 顶岗".format(ch["day"], ch["shift"], cell["name"]))
+    h1 = wait(lambda: next((x for x in hub("GET", "/api/ont/anomalies", token=teacher)["anomalies"] if x["rule"] == "H1" and "HOB-01" in x["title"]), None),
+              "单点依赖异常 H1", 60, 3)
+    check(h1 is not None, "异常 H1：{}".format((h1 or {}).get("title")))
+    if h1:
+        o = hub("GET", "/api/ont/anomalies/{}/options".format(h1["id"]), token=teacher)
+        t = next(x for x in o["options"] if x["kind"] == "training")
+        a = hub("POST", "/api/ont/actions", {"changes": t["changes"], "anomaly_id": h1["id"]}, lead)
+        d = hub("POST", "/api/ont/actions/{}/approve".format(a["ids"][0]), {}, teacher)
+        check(d["status"] == "done", "技能培训：{}".format((d.get("result") or {}).get("text")))
+        tr = next(x for x in hub("GET", "/api/people/trainings", token=teacher)["trainings"] if x["status"] == "doing" and x["unit"] == "hob-01")
+        hub("POST", "/api/people/trainings/{}/pass".format(tr["id"]), {}, lead)
+        sk = hub("GET", "/api/people/skills", token=teacher)
+        check("hob-01" not in [x["unit"] for x in sk["single_points"]], "考核通过：滚齿机不再是单点依赖（还剩 {} 台）".format(len(sk["single_points"])))
+    st = hub("GET", "/api/lab19", token=teacher)
+    check(st["of"] == 60 and len(st["tasks"]) == 5, "实验 19 页：5 个任务，自动评 60 分")
+    k = hub("GET", "/api/people/kpis", token=teacher)
+    check("attendance_rate" in k and k["enabled"], "人员态势：出勤率 {:.0%}，缺口 {}，单点依赖 {} 台".format(k["attendance_rate"], k["gaps"], k["single_points"]))
+    hub("POST", "/api/people/staffing", {"enabled": False}, teacher)
+    hub("POST", "/api/mes/cmd", {"unit": "sim", "command": "set_speed", "speed": A.speed}, teacher)   # 后面的虚拟 PLC 演练按原来的倍速
+
+
+def supply(teacher):
+    """第 18 轮 E5：备选供应商进 ERPNext；采购单 → 在途 → 到货 → 来料检验不合格（ERPNext 检验单、收货单草稿）→ W3 → 四个方案 →
+    退货 + 备选急单（ERPNext 采购单）→ 到货 → 检验合格 → 收货单提交入库、库存增加"""
+    print("17. 供应链（第 18 轮 E5）")
+    qa = login("测试质量", "quality")
+    pl = login("测试计划员", "planner")
+
+    def lot(lid):
+        return next((x for x in hub("GET", "/api/supply/lots", token=teacher)["lots"] if x["id"] == lid), None)
+
+    def stock(item):
+        return sum(float(b.get("actual_qty") or 0) for b in erp_docs("Bin") if b.get("item_code") == item)
+    sp = hub("GET", "/api/supply/suppliers", token=teacher)
+    check(len(sp["suppliers"]) == 10 and {x["cat"] for x in sp["single_source"]} == {"castings", "forgings", "hardware", "lubricant"},
+          "供应商 10 家（4 家备选），单一来源：{}".format("、".join(x["cat_name"] for x in sp["single_source"])))
+    r = hub("POST", "/api/lab20/inject", {"enable": True}, teacher)
+    lid = r.get("lot_id")
+    check(bool(lid), "老师注入：{}".format(r.get("text")))
+    if not lid:
+        return
+    x = wait(lambda: (lambda x: x if x and x["status"] == "transit" else None)(lot(lid)), "采购单进 ERPNext、供应商发货", 240, 4)
+    check(x is not None and x["po"], "采购单 {}，在途，承诺 {} 到货".format((x or {}).get("po"), (x or {}).get("promised")))
+    if not x:
+        for p in hub("GET", "/api/proposals", token=teacher):
+            if p.get("action") in ("purchase_order", "supply_setup"):
+                print("    提议 {} {} {}：{}".format(p.get("action"), p.get("proposal_id"), p.get("status"), json.dumps(p.get("result"), ensure_ascii=False)[:500]))
+        return
+    pos = [p for p in erp_docs("Purchase Order") if p["name"] == x["po"]]
+    check(bool(pos), "ERPNext 采购单 {}（{}）".format(x["po"], pos[0].get("supplier") if pos else "—"))
+    hub("POST", "/api/supply/lots/{}/arrive".format(lid), {}, pl)
+    sm = hub("GET", "/api/supply/lots/{}/sample".format(lid), token=qa)
+    bad = [1 for row in sm["rows"] for p in sm["params"] if p["numeric"] and not (p["min"] <= row[p["specification"]] <= p["max"])]
+    check(len(bad) >= 2, "抽样 {} 件，{} 处超差".format(sm["sample_size"], len(bad)))
+    r = hub("POST", "/api/supply/lots/{}/inspect".format(lid), {"accept": False, "note": "闭环测试：内径偏差超差"}, qa)
+    check(r["status"] == "rejected", "质量判不合格")
+    pr = wait(lambda: (lambda p: p if p and p["status"] == "executed" else None)(hub("GET", "/api/proposals/{}".format(r["proposal_id"]), token=teacher)),
+              "ERPNext 来料检验单", 120, 3)
+    check(pr is not None, "ERPNext：{}".format(((pr or {}).get("result") or {}).get("created")))
+    an = wait(lambda: next((a for a in hub("GET", "/api/ont/anomalies", token=teacher)["anomalies"] if a["rule"] == "W3" and x["lot"] in a["title"]), None),
+              "来料不合格异常 W3", 90, 3)
+    check(an is not None, "异常 W3：{}".format((an or {}).get("title")))
+    if not an:
+        return
+    o = hub("GET", "/api/ont/anomalies/{}/options".format(an["id"]), token=teacher)
+    kinds = [y["kind"] for y in o["options"]]
+    check(o.get("supply") and kinds == ["none", "return", "alt", "concession"], "来料不合格四方案：{}；{}".format("、".join(y["label"] for y in o["options"]), o.get("reason")))
+    alt = next(y for y in o["options"] if y["kind"] == "alt")
+    a = hub("POST", "/api/ont/actions", {"changes": alt["changes"], "anomaly_id": an["id"]}, pl)
+    for aid in a["ids"]:
+        d = hub("POST", "/api/ont/actions/{}/approve".format(aid), {}, teacher)
+        check(d["status"] in ("done", "executing"), "{}：{}".format(d["title"], (d.get("result") or {}).get("text")))
+    check(lot(lid)["status"] == "returned", "这一批退货")
+    nl = wait(lambda: next((y for y in hub("GET", "/api/supply/lots", token=teacher)["lots"] if y["supplier"].startswith("示例·北方") and y["status"] == "transit"), None),
+              "备选急单进 ERPNext", 240, 4)
+    check(nl is not None, "备选供应商急单 {}：{} × {:g}".format((nl or {}).get("po"), (nl or {}).get("item"), (nl or {}).get("qty", 0)))
+    if not nl:
+        return
+    s0 = stock("BRG-6207")
+    hub("POST", "/api/supply/lots/{}/arrive".format(nl["id"]), {}, pl)
+    sm = hub("GET", "/api/supply/lots/{}/sample".format(nl["id"]), token=qa)
+    ok = all(p["min"] <= row[p["specification"]] <= p["max"] for row in sm["rows"] for p in sm["params"] if p["numeric"])
+    r = hub("POST", "/api/supply/lots/{}/inspect".format(nl["id"]), {"accept": ok}, qa)
+    check(r["status"] == ("accepted" if ok else "rejected"), "备选这一批检验：{}".format("合格" if ok else "不合格（随机）"))
+    if ok:
+        prs = wait(lambda: [p for p in erp_docs("Purchase Receipt") if p.get("docstatus") == 1 and (p.get("wq_lot") == nl["lot"] or nl["lot"] in str(p.get("remarks") or ""))],
+                   "ERPNext 收货单提交", 120, 3)
+        check(bool(prs), "ERPNext 收货单 {} 提交入库".format("、".join(p["name"] for p in (prs or []))))
+        s1 = wait(lambda: (lambda v: v if v >= s0 + float(nl["qty"]) - 0.01 else None)(stock("BRG-6207")), "库存增加", 90, 3)
+        check(s1 is not None, "BRG-6207 库存 {:g} → {:g}".format(s0, s1 or 0))
+    st = hub("GET", "/api/lab20", token=teacher)
+    check(st["of"] == 60 and len(st["tasks"]) == 5, "实验 20 页：5 个任务，自动评 60 分")
+    k = hub("GET", "/api/supply/kpis", token=teacher)
+    check("pass_rate" in k, "供应链态势：在途 {}，合格率 {}".format(k["in_transit"], k["pass_rate"]))
+    hub("POST", "/api/supply/sim", {"enabled": False}, teacher)
+
+
+def energy(teacher):
+    """第 18 轮 E6：仿真车间每 15 分钟（工厂时间）发计量读数 → 平台入库 → 老师注入忘关 + 峰时开炉 → 空转异常 N2 → 四个方案 →
+    计划员采纳自动待机、厂长批准 → 车间按新设定待机；态势、碳核算、实验 21 页"""
+    print("18. 能源与环境（第 18 轮 E6）")
+    pl = login("测试计划员", "planner")
+    ov = wait(lambda: (lambda o: o if o["hours"] > 0 else None)(hub("GET", "/api/energy/overview", token=teacher)), "计量读数入库", 180, 3)
+    check(ov is not None, "计量读数：{} 用电 {} 度，电费 ${}，{} 个计量点".format((ov or {}).get("day"), (ov or {}).get("kwh"), (ov or {}).get("cost"),
+                                                                    len(hub("GET", "/api/energy/meters", token=teacher)["meters"])))
+    if not ov:
+        return
+    r = hub("POST", "/api/lab21/inject", {"enable": True}, teacher)
+    check("HMC-01" in r.get("text", ""), "老师注入：{}".format(r.get("text")))
+    an = wait(lambda: next((a for a in hub("GET", "/api/ont/anomalies", token=teacher)["anomalies"] if a["rule"] == "N2"), None), "空转异常 N2", 240, 4)
+    check(an is not None, "异常 N2：{}".format((an or {}).get("title")))
+    if not an:
+        return
+    o = hub("GET", "/api/ont/anomalies/{}/options".format(an["id"]), token=teacher)
+    kinds = [y["kind"] for y in o["options"]]
+    check(o.get("energy") == "N2" and kinds == ["none", "standby10", "standby30", "all10"], "空转四方案：{}；{}".format("、".join(y["label"] for y in o["options"]), o.get("reason")))
+    sb = next(y for y in o["options"] if y["kind"] == "standby10")
+    unit = sb["changes"][0]["units"][0]
+    check((sb.get("saving") or {}).get("kwh", 0) > 0, "{}：{}".format(sb["label"], sb["note"]))
+    a = hub("POST", "/api/ont/actions", {"changes": sb["changes"], "anomaly_id": an["id"]}, pl)
+    for aid in a["ids"]:
+        d = hub("POST", "/api/ont/actions/{}/approve".format(aid), {}, teacher)
+        check(d["status"] == "done", "{}：{}".format(d["title"], (d.get("result") or {}).get("text")))
+    on = wait(lambda: next((m for m in hub("GET", "/api/history?type=energy.reading&limit=5", token=teacher)
+                            if unit in (m["data"].get("standby") or {})), None), "车间按新设定运行", 120, 3)
+    check(on is not None, "车间读数里 {} 已设自动待机".format(unit.upper()))
+    k = hub("GET", "/api/energy/kpis", token=teacher)
+    check(k.get("kwh", 0) > 0, "能源态势：用电 {} 度，峰时 {}，空转 {}".format(k.get("kwh"), k.get("peak_share"), k.get("idle_share")))
+    c = hub("GET", "/api/energy/carbon", token=teacher)
+    check(c["t_co2e"] > 0, "碳核算 {}：{} 吨 CO2e".format(c["month"], c["t_co2e"]))
+    st = hub("GET", "/api/lab21", token=teacher)
+    check(st["of"] == 60 and len(st["tasks"]) == 5, "实验 21 页：5 个任务，自动评 60 分")
+    hub("POST", "/api/energy/sim", {"sim": False}, teacher)
+
+
+def finance(teacher):
+    """第 18 轮 E7：订单做完 → ERPNext 销售发票；来料合格 → 采购发票；登记收款 → 收款单；付款动作 → 付款单；
+    注入逾期 → 应收逾期 F2 → 三个方案 → 销售催款、厂长批准；毛利、指标树、预算、实验 22 页"""
+    print("19. 经营与财务（第 18 轮 E7）")
+    sa = login("测试销售", "sales")
+
+    def inv(pred, what, timeout=240):
+        return wait(lambda: next((x for x in hub("GET", "/api/finance/ar", token=teacher)["invoices"] if pred(x)), None), what, timeout, 4)
+    si = inv(lambda x: x["doc"] and x["status"] in ("open", "paying"), "订单做完开票（ERPNext 销售发票）")
+    check(si is not None, "销售发票 {}：{} ${:,.0f}，订单 {}".format((si or {}).get("doc"), str((si or {}).get("party") or "").split(" ")[0],
+                                                             (si or {}).get("amount", 0), (si or {}).get("ref")))
+    if si is None:                       # 诊断：开票提议、订单的工单状态
+        for p in hub("GET", "/api/proposals", token=teacher):
+            if p.get("action") == "sales_invoice":
+                check(False, "诊断 开票提议 {} {}：{}".format(p.get("proposal_id"), p.get("status"), json.dumps(p.get("result"), ensure_ascii=False)[:400]))
+        rows = hub("GET", "/api/finance/ar", token=teacher)["invoices"]
+        check(False, "诊断 应收：{}".format([(x["id"], x["ref"], x["status"], x["doc"]) for x in rows]))
+        wos = [(w["name"], w.get("status"), w.get("sales_order") or w.get("wq_sales_order"), w.get("produced_qty"), w.get("qty")) for w in erp_docs("Work Order")][-6:]
+        check(False, "诊断 工单：{}".format(wos))
+    if si:
+        sis = [d for d in erp_docs("Sales Invoice") if d["name"] == si["doc"]]
+        check(bool(sis) and sis[0].get("docstatus") == 1, "ERPNext 销售发票 {} 已提交，未付 ${}".format(si["doc"], sis[0].get("outstanding_amount") if sis else "—"))
+        r = hub("POST", "/api/finance/invoices/{}/receive".format(si["id"]), {}, sa)
+        check(r["status"] == "paying", "登记收款：{}".format(r.get("proposal_id")))
+        paid = wait(lambda: next((x for x in erp_docs("Sales Invoice") if x["name"] == si["doc"] and float(x.get("outstanding_amount") or 0) <= 0.005), None),
+                    "ERPNext 收款单冲销发票", 120, 3)
+        check(paid is not None, "ERPNext 收款后 {} 已付清（{}）".format(si["doc"], (paid or {}).get("status")))
+    ap = wait(lambda: next((x for x in hub("GET", "/api/finance/ap", token=teacher)["invoices"] if x["doc"]), None), "来料合格 → 采购发票", 240, 4)
+    check(ap is not None, "采购发票 {}：{} ${:,.0f}（收货单 {}）".format((ap or {}).get("doc"), str((ap or {}).get("party") or "").split(" ")[0],
+                                                                  (ap or {}).get("amount", 0), (ap or {}).get("ref")))
+    if ap:
+        a = hub("POST", "/api/ont/actions", {"changes": [{"type": "payment", "invoice_id": ap["id"]}]}, sa)
+        for aid in a["ids"]:
+            d = hub("POST", "/api/ont/actions/{}/approve".format(aid), {}, teacher)
+            check(d["status"] in ("done", "executing"), "{}：{}".format(d["title"], (d.get("result") or {}).get("text")))
+        pe = wait(lambda: next((x for x in erp_docs("Purchase Invoice") if x["name"] == ap["doc"] and float(x.get("outstanding_amount") or 0) <= 0.005), None),
+                  "ERPNext 付款单", 120, 3)
+        check(pe is not None, "ERPNext 付款后 {} 已付清".format(ap["doc"]))
+    r = hub("POST", "/api/lab22/inject", {"enable": True}, teacher)
+    check("海港" in r.get("text", ""), "老师注入：{}".format(r.get("text")))
+    an = wait(lambda: next((x for x in hub("GET", "/api/ont/anomalies", token=teacher)["anomalies"] if x["rule"] == "F2" and "海港" in x["title"]), None),
+              "应收逾期异常 F2", 90, 3)
+    check(an is not None, "异常 F2：{}".format((an or {}).get("title")))
+    if an:
+        o = hub("GET", "/api/ont/anomalies/{}/options".format(an["id"]), token=teacher)
+        kinds = [y["kind"] for y in o["options"]]
+        check(o.get("finance") == "F2" and kinds == ["none", "dunning", "hold"], "应收逾期三方案：{}；{}".format("、".join(y["label"] for y in o["options"]), o.get("reason")))
+        dn = next(y for y in o["options"] if y["kind"] == "dunning")
+        a = hub("POST", "/api/ont/actions", {"changes": dn["changes"], "anomaly_id": an["id"]}, sa)
+        for aid in a["ids"]:
+            d = hub("POST", "/api/ont/actions/{}/approve".format(aid), {}, teacher)
+            check(d["status"] == "done", "{}：{}".format(d["title"], (d.get("result") or {}).get("text")))
+    m = hub("GET", "/api/finance/margins", token=teacher)
+    check(bool(m["margins"]), "订单毛利：{} 张，毛利率 {}".format(len(m["margins"]), m["gross_margin"]))
+    ob = hub("GET", "/api/finance/objectives", token=teacher)
+    check(len(ob["objectives"]) == 7, "经营目标 7 个，达标 {} 个".format(sum(1 for x in ob["objectives"] if x["tone"] == "good")))
+    b = hub("GET", "/api/finance/budget", token=teacher)
+    check(len(b["rows"]) == 7, "{} 预算 7 个成本中心，已用 ${:,.0f} / ${:,.0f}".format(b["month"], b["total_actual"], b["total_budget"]))
+    st = hub("GET", "/api/lab22", token=teacher)
+    check(st["of"] == 60 and len(st["tasks"]) == 5, "实验 22 页：5 个任务，自动评 60 分")
+    hub("POST", "/api/finance/sim", {"sim": False}, teacher)
+
+
+def story(teacher):
+    """第 19 轮：全厂体检——两周情景八幕在真 ERPNext 上跑一遍：每幕的异常出现；采纳方案、批准、执行；
+    订单做完开票、逾期、催款；复盘里这张订单的毛利包含各幕的钱，因果链从钱追回源头异常"""
+    print("20. 全厂联调：两周情景（第 19 轮）")
+    roles = {"W1": ("测试计划员", "planner"), "W3": ("测试计划员", "planner"), "H2": ("测试班组长", "lead"), "E1": ("测试安全员", "safety"),
+             "M2": ("测试维修工", "maintenance"), "N2": ("测试计划员", "planner"), "F2": ("测试销售", "sales")}
+    prefer = {"W1": ["urgent_purchase", "expedite"], "W3": ["alt"], "H2": ["overtime"], "E1": ["lockout"], "M2": ["pm_later", "pm_now"],
+              "N2": ["standby10"], "F2": ["dunning"]}
+
+    def st():
+        return hub("GET", "/api/story/state", token=teacher)
+
+    def beat(n):
+        return next(b for b in st()["beats"] if b["n"] == n)
+
+    r = hub("POST", "/api/story/start", {"speed": max(60, min(A.speed, 300))}, teacher)
+    check(r["run"] and len(r["beats"]) == 8, "开始两周情景：{} 幕，订单 {} × {}".format(len(r["beats"]), r["scenario"]["item"], r["scenario"]["qty"]))
+    ok = wait(lambda: (lambda x: x if x["run"]["status"] == "ready" else None)(st()), "车间载入实验 7 情景", 120, 3)
+    check(ok is not None, "情景载入，可以开演")
+    if not ok:
+        return
+    for n in range(1, 9):
+        if n == 8:
+            done = wait(lambda: (lambda x: x if x["next"]["ok"] else None)(st()), "车间做完这张订单", A.timeout, 5)
+            o = st()["order"]
+            check(done is not None, "订单 {} 做完（{} / {} 根）".format(st()["run"]["so"], o.get("parts"), o.get("qty")))
+            if not done:
+                return
+        res = wait(lambda: (lambda x: x if x["next"]["ok"] else None)(st()), "第 {} 幕可以演".format(n), 240, 3)
+        if res is None:
+            check(False, "第 {} 幕：{}".format(n, st()["next"]["why"]))
+            return
+        try:
+            hub("POST", "/api/story/next", {}, teacher)
+        except RuntimeError as e:
+            if "还没进 ERPNext" in str(e):
+                time.sleep(15)
+                hub("POST", "/api/story/next", {}, teacher)
+            else:
+                raise
+        b = wait(lambda: (lambda b: b if b["status"] == "ok" else None)(beat(n)), "第 {} 幕的异常".format(n), 240, 4)
+        bb = beat(n)
+        check(b is not None, "第 {} 幕“{}”：{}{}".format(n, bb["title"], (bb.get("note") or "")[:90],
+                                                     "；" + "、".join(x["title"][:30] for x in bb["seen"]) if bb.get("seen") else ""))
+        if not b:
+            return
+        for x in b["seen"]:
+            if not x.get("id") or x["rule"] not in roles:
+                continue
+            o = hub("GET", "/api/ont/anomalies/{}/options".format(x["id"]), token=teacher)
+            opts = [y for y in o["options"] if y.get("changes")]
+            pick = next((y for k in prefer.get(x["rule"], []) for y in opts if y["kind"] == k), None) or \
+                next((y for y in opts if y.get("recommended")), None) or (opts[0] if opts else None)
+            if pick is None:                  # 例如缺料：第 2 幕已下的采购单在途、够用，推演只剩“不处理”——这也是一个结果，不算失败
+                check(bool(o["options"]), "第 {} 幕 {} 只有“{}”，不用采纳".format(n, x["rule"], "、".join(y["label"] for y in o["options"])))
+                continue
+            who_ = login(*roles[x["rule"]])
+            a = hub("POST", "/api/ont/actions", {"changes": pick["changes"], "anomaly_id": x["id"], "snapshot_id": o.get("snapshot_id")}, who_)
+            for aid in a["ids"]:
+                d = hub("POST", "/api/ont/actions/{}/approve".format(aid), {}, teacher)
+                check(d["status"] in ("done", "executing"), "  {} → {}：{}".format(x["rule"], pick["label"], (d.get("result") or {}).get("text", d["status"])))
+    rv = hub("GET", "/api/story/review?report=1", token=teacher)
+    m = rv["margin"] or {}
+    lines = {x["key"]: x for x in m.get("lines", [])}
+    check(m and abs(sum(x["usd"] for x in m["lines"]) - m["cost"]) < 0.05, "复盘：{} 毛利率 {}（按标准 {}）".format(rv["sales_order"], m.get("margin_pct"), m.get("std_margin_pct")))
+    acts = (lines.get("actions") or {}).get("actions") or []
+    check(len(acts) >= 2 and lines["actions"]["usd"] > 0, "订单上记了 {} 笔动作费用 ${}（{}）".format(len(acts), (lines.get("actions") or {}).get("usd"),
+                                                                                "、".join(a["title"][:16] for a in acts[:4])))
+    check("idle" in lines, "空转电分摊：${}（{}）".format(lines.get("idle", {}).get("usd"), lines.get("idle", {}).get("how")))
+    check(rv["invoice"] and rv["invoice"]["doc"], "逾期的是这张订单自己的发票 {}（{}，催过 {} 次）".format((rv["invoice"] or {}).get("doc"),
+                                                                                    (rv["invoice"] or {}).get("status_name"), (rv["invoice"] or {}).get("dunned_n")))
+    an = [n for n in rv["chain"]["nodes"] if n["type"] == "Anomaly"]
+    check(len({n["domain"] for n in an}) >= 3, "复盘因果链：{} 个异常、{} 个领域；{}".format(len(an), len({n["domain"] for n in an}), "；".join(rv["chain"]["summary"])[:120]))
+    f2 = next((x for b in rv["beats"] if b["n"] == 8 for x in b["anomalies"] if x.get("id")), None)
+    if f2:
+        d = hub("GET", "/api/ont/anomalies/{}".format(f2["id"]), token=teacher)
+        srcs = [n for n in d["chain"]["nodes"] if n["type"] == "Anomaly" and n["key"] != "A-{:05d}".format(f2["id"])]
+        check(any(n["values"].get("规则") in ("W1", "W3") for n in srcs), "应收逾期的因果链从发票 → 订单 → 动作，追回到缺料 / 来料不合格（{}）".format(
+            "、".join(n["values"].get("规则") or "" for n in srcs)))
+    check(rv.get("report") and "周报" in (rv["report"]["text"] or "") or bool(rv.get("report")), "两周的周报已生成")
+    hub("POST", "/api/story/end", {}, teacher)
 
 
 if __name__ == "__main__":

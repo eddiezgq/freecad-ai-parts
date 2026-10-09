@@ -340,12 +340,17 @@ OPENING_STOCK = {
 }
 
 
-# ---------------------------------------------------------------- 工厂清单（本仓库 ADR-0064）
+# ---------------------------------------------------------------- 工厂清单（第 30 轮；freecad-ai-parts ADR-0064）
 # WQ_PLANT_FILE 指定了企业的清单时，工作站、工序、班次、客户与供应商取自清单；没指定时就是上面的演示工厂
-from factory import plant as _plant  # noqa: E402
+try:
+    from factory import plant as _plant
+    _P = _plant.active()
+except ImportError:                    # 按文件路径单独载入本文件时（课程的 calc 程序）：没有 factory 包
+    if __import__("os").environ.get("WQ_PLANT_FILE"):   # 指定了清单却找不到 factory 包：不能悄悄用演示工厂
+        raise
+    _P = None
 
-DEMO_CUSTOMERS = list(CUSTOMERS)        # 演示工厂的客户：教学情景（sim/scenario.py、实验 15）始终用它们
-_P = _plant.active()
+DEMO_CUSTOMERS = list(CUSTOMERS)        # 演示工厂的客户：教学情景（sim/scenario.py、实验 15–23、E1–E7 的演示数据）始终用它们
 if _P:
     WORKSTATIONS = _P["WORKSTATIONS"]
     OPERATIONS = _P["OPERATIONS"]

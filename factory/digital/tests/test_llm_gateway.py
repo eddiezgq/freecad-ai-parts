@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-"""模型网关（本仓库 ADR-0063）：Claude / DeepSeek 按地区自动选、手动覆盖、出错换另一家、都不可用走规则。
+"""模型网关（第 30 轮 H-6，搬自 freecad-ai-parts 的 ADR-0063 测试）：Claude / DeepSeek 按地区自动选、手动覆盖、
+出错换另一家、都不可用走规则。
+与那边的不同（合规：国内部署只用已备案模型）：地区 cn 时只用 DeepSeek——环境变量或管理员选 Claude 也不用，
+DeepSeek 出错也不换 Claude。那边“国内首选出错 → 换 Claude”的断言改成国外的同样情形，另加国内不换的断言。
 不联网：httpx 换成本地假传输，两家的回答是录好的样子。"""
 import httpx
 import pytest
@@ -36,7 +39,8 @@ def _ask(g):
     ({**KEYS, "WQ_AI_REGION": "intl"}, "claude"),
     ({**KEYS, "WQ_TZ": "Asia/Shanghai"}, "deepseek"),          # 没设地区：按时区推断
     ({**KEYS, "WQ_TZ": "America/New_York"}, "claude"),
-    ({**KEYS, "WQ_AI_REGION": "cn", "WQ_AI_PROVIDER": "claude"}, "claude"),   # 环境变量指定
+    ({**KEYS, "WQ_AI_REGION": "intl", "WQ_AI_PROVIDER": "deepseek"}, "deepseek"),   # 环境变量指定
+    ({**KEYS, "WQ_AI_REGION": "cn", "WQ_AI_PROVIDER": "claude"}, "deepseek"),     # 国内：指定 Claude 也只用 DeepSeek
     ({"WQ_DEEPSEEK_KEY": "d", "WQ_AI_REGION": "intl"}, "deepseek"),        # 只配了一家
 ])
 def test_auto_by_region(monkeypatch, env, first):
@@ -49,12 +53,25 @@ def test_auto_by_region(monkeypatch, env, first):
 
 def test_override_and_fallback(monkeypatch):
     calls = _fake(monkeypatch, fail=("deepseek",))
-    g = L.LLM({**KEYS, "WQ_AI_REGION": "cn"})
-    assert _ask(g) == "Claude 答" and calls == ["deepseek", "claude"]          # 国内首选出错 → 换 Claude
+    g = L.LLM({**KEYS, "WQ_AI_REGION": "intl", "WQ_AI_PROVIDER": "deepseek"})
+    assert _ask(g) == "Claude 答" and calls == ["deepseek", "claude"]          # 国外：首选出错 → 换另一家
     assert g.last == {**g.last, "provider": "claude", "ok": True, "fallback_from": "deepseek"}
-    g.override = "claude"                                                       # 管理员选 Claude，优先于地区
+    g.override = "claude"                                                       # 管理员选 Claude，优先于环境变量
     assert g.order() == ["claude", "deepseek"] and g.status()["setting"] == "claude"
     assert g.status()["configured"] == {"claude": True, "deepseek": True}
+
+
+def test_cn_uses_deepseek_only(monkeypatch):
+    """国内部署（WQ_AI_REGION=cn）只用 DeepSeek：管理员选 Claude 也不用；DeepSeek 出错不换 Claude；只配了 Claude 等于没有模型。"""
+    calls = _fake(monkeypatch, fail=("deepseek",))
+    g = L.LLM({**KEYS, "WQ_AI_REGION": "cn"})
+    g.override = "claude"
+    assert g.order() == ["deepseek"] and g.status()["allowed"] == ["deepseek"]
+    with pytest.raises(httpx.HTTPError):
+        _ask(g)
+    assert calls == ["deepseek"] and g.last["provider"] == "deepseek" and g.last["ok"] is False
+    only_claude = L.LLM({"WQ_CLAUDE_KEY": "c", "WQ_TZ": "Asia/Shanghai"})          # 没设地区：按中国时区算国内
+    assert not only_claude.available() and only_claude.name == "rules"
 
 
 def test_all_fail_and_none(monkeypatch):

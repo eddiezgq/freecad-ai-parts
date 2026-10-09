@@ -269,10 +269,10 @@ def test_anomaly_api_flow_and_permissions(client, lab7):
     g = c.get("/api/ont/impact/Machine/grd-01", headers=stu_op).json()
     assert g["nodes"] and g["summary"]
     sit = c.get("/api/ont/situation", headers=stu_op).json()
-    assert len(sit["cards"]) == 15 and sum(1 for x in sit["cards"] if x["waiting"]) == 3
+    assert len(sit["cards"]) == 15 and sum(1 for x in sit["cards"] if x["waiting"]) == 1           # 第 18 轮 E4 后只剩能源
     assert any(m["trend"] for x in sit["cards"] for m in x["metrics"])          # 每天记一次，趋势从今天开始有点
     rules = c.get("/api/ont/rules", headers=tea).json()
-    assert len(rules["rules"]) == 32 and rules["can_edit"]
+    assert len(rules["rules"]) == 61 and rules["can_edit"]
     assert c.post("/api/ont/rules/P5", json={"params": {"above": 4}}, headers=stu_op).status_code == 403
     assert c.post("/api/ont/rules/P5", json={"params": {"above": 4}}, headers=tea).status_code == 200
     c.post("/api/ont/rules/P5", json={"params": {"above": 6}}, headers=tea)

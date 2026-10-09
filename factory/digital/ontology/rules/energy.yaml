@@ -1,4 +1,56 @@
 domain: energy
 rules:
-  N1: {name: 单耗突增, status: waiting, severity: warn, role: [manager], desc: 待数据：需要电表计量点（能源领域包）}
-  N2: {name: 空转能耗, status: waiting, severity: info, role: [manager], desc: 待数据：同上}
+  N1:
+    name: 单耗突增
+    fn: unit_energy_jump
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager, engineer]
+    params: {pct: 0.25, parts: 3, recent_h: 24, min_parts: 2}
+    desc: 某台设备某物料最近 parts 件（recent_h 小时内，至少 min_parts 件）的单件运行电量比之前近 7 天的基线（不到 5 件就用标准工时 × 运行功率 × 1.08）高 pct 以上（第 18 轮 E6）；多半是设备在劣化
+    hint: 看右栏：开维修工单（查主轴轴承、刀具 / 砂轮）/ 暂不处理
+  N2:
+    name: 空转能耗高
+    fn: idle_energy
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: info
+    role: [manager, planner]
+    params: {hours: 12, share: 0.3, min_h: 1, min_kwh: 10, top: 3}
+    desc: 近 hours 小时某台设备空转（开着没活）的电量占它总电量 share 以上（至少 min_h 小时、min_kwh 度）；只报空转最多的 top 台；热处理炉保温不算
+    hint: 看右栏：空闲 10 / 30 分钟自动待机（这台、全部机加设备）/ 不处理，用车间推演算省多少电、交期变不变
+  N3:
+    name: 峰时用电占比高
+    fn: peak_share_high
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager, planner]
+    params: {share: 0.3, min_h: 20}
+    desc: 近 24 小时峰时（8–11、18–21 点）电量占比超过 share；热处理炉在峰时开炉是主要原因
+    hint: 看右栏：热处理错峰（峰时不开新炉）/ 不处理，推演算电费和交期
+  N4:
+    name: 压缩空气基荷高（可能漏气）
+    fn: air_base_high
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager, engineer]
+    params: {hours: 4, min_h: 2, kw: 3}
+    desc: 近 hours 小时空压机平均功率比按开着的用气设备该用的多 kw 以上；常见原因是管路、接头漏气
+    hint: 看右栏：整改工单（管路查漏）/ 暂不处理
+  N5:
+    name: 需量接近合同需量
+    fn: demand_near
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager]
+    params: {ratio: 0.9}
+    desc: 本月最大 15 分钟平均功率超过合同需量的 ratio（超过合同需量为严重）
+    hint: 看右栏：热处理错峰，避开设备集中开动的时段
+  N6:
+    name: 车间环境指标超限
+    fn: env_over
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager]
+    params: {hours: 1}
+    desc: 近 hours 小时机加区油雾（限值 5 mg/m³）或车间噪声（限值 85 dB(A)）平均超限；限值可在能源与环境页改
+    hint: 看右栏：整改工单（油雾收集器检修 / 加隔声罩），沿用安全环保的整改

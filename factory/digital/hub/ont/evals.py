@@ -70,6 +70,45 @@ def slots(db, mode="teach"):
     r = db.one("select corr from bus_message where type='machine.event' and mode=%s and corr like 'MFG-WO-%%' "
                "and payload->'data'->>'event'='op_complete' order by ts desc limit 1", (mode,))
     s["wo"] = r["corr"] if r else "—"
+    # 第 18 轮 E1：投诉、它的异常、投诉的设备和客户（简称）
+    try:
+        c = db.one("select id, serial, customer from complaint where mode=%s order by id limit 1", (mode,))
+    except Exception:  # noqa: BLE001  （老库没有投诉表）
+        c = None
+    s["complaint"] = "CP-{:05d}".format(c["id"]) if c else "CP-?????"
+    s["complaint_serial"] = (c or {}).get("serial") or "—"
+    s["complaint_customer"] = ((c or {}).get("customer") or "—").split(" ")[0]
+    a = db.one("select id from anomaly where mode=%s and rule='C1' and detail->'values'->>'complaint'=%s order by id desc limit 1",
+               (mode, s["complaint"]))
+    s["complaint_anomaly"] = "A-{:05d}".format(a["id"]) if a else "A-?????"
+    # 第 18 轮 E2：重大隐患和它的异常
+    try:
+        si = db.one("select id from safety_issue where mode=%s and level='major' order by id limit 1", (mode,))
+    except Exception:  # noqa: BLE001
+        si = None
+    s["si_major"] = "SI-{:05d}".format(si["id"]) if si else "SI-?????"
+    a = db.one("select id from anomaly where mode=%s and rule='E1' and fkey=%s order by id desc limit 1", (mode, s["si_major"]))
+    s["si_anomaly"] = "A-{:05d}".format(a["id"]) if a else "A-?????"
+    a = db.one("select id from anomaly where mode=%s and rule='M2' and subject_key='grd-01' order by id desc limit 1", (mode,))
+    s["pm_anomaly"] = "A-{:05d}".format(a["id"]) if a else "A-?????"
+    a = db.one("select id from anomaly where mode=%s and rule='H2' and status in ('open','ack','doing') order by id limit 1", (mode,))
+    s["gap_anomaly"] = "A-{:05d}".format(a["id"]) if a else "A-?????"
+    try:
+        x = db.one("select lot from lot where mode=%s and status='rejected' order by id limit 1", (mode,))
+    except Exception:  # noqa: BLE001
+        x = None
+    s["bad_lot"] = x["lot"] if x else "L??????-????"
+    a = db.one("select id from anomaly where mode=%s and rule='W3' and status in ('open','ack','doing') order by id limit 1", (mode,))
+    s["lot_anomaly"] = "A-{:05d}".format(a["id"]) if a else "A-?????"
+    a = db.one("select id from anomaly where mode=%s and rule='N2' and status in ('open','ack','doing') order by id limit 1", (mode,))
+    s["idle_anomaly"] = "A-{:05d}".format(a["id"]) if a else "A-?????"
+    a = db.one("select id from anomaly where mode=%s and rule='F2' and status in ('open','ack','doing') order by id limit 1", (mode,))
+    s["overdue_anomaly"] = "A-{:05d}".format(a["id"]) if a else "A-?????"
+    try:
+        x = db.one("select sales_order from order_margin where mode=%s order by sales_order limit 1", (mode,))
+    except Exception:  # noqa: BLE001
+        x = None
+    s["margin_so"] = x["sales_order"] if x else "SAL-ORD-2026-?????"
     return s
 
 
@@ -193,8 +232,65 @@ def sandbox(dsn, name="wq_eval_sandbox", llm=None, now=None):
     s.init()
     s.replay()
     ai = Assistant(db, lambda *a: None, llm)
+    H = types.SimpleNamespace(db=db, ai=ai, plan_snaps=EngineSnaps(db, eng), mes=None)
+    H.twin = field_scene(H, h)
+    ehs_scene(H)
+    from hub import maint as MT                 # 第 18 轮 E3：点检表（磨床保养逾期来自情景里的运行小时）
+    MT.seed(db, "teach")
+    from hub import people as PE                 # 第 18 轮 E4：30 人、技能矩阵、固定岗位
+    PE.seed(db, "teach")
+    PE.leave_next_shift(H, "teach", "P01", "评测·情景")    # 王强下一个班请假：磨床那一班没人（H2）
+    supply_scene(H)                              # 第 18 轮 E5：一批不合格的轴承（W3）
+    from hub import energy as EG                 # 第 18 轮 E6：过去 24 小时的计量读数（忘关、峰时开炉、磨床劣化、漏气）
+    EG.energy_scene(H, eng)
+    from hub import finance as FN                # 第 18 轮 E7：目标、预算、信用、期初应收（峰顶搅拌机那笔逾期 5 天）
+    FN.seed(db, "teach", now)
+    s.reconcile()
     ai.detector().run("teach", now)
-    return types.SimpleNamespace(db=db, ai=ai, plan_snaps=EngineSnaps(db, eng), mes=None), eng
+    return H, eng
+
+
+def supply_scene(H, mode="teach"):
+    """第 18 轮 E5：向五大湖轴承下一批 BRG-6207 × 40，到货抽检不合格（沙盘里没有桥接：采购单号直接填）"""
+    from factory import data as F
+    from hub import supply as SP
+    SP.seed(H.db, mode)
+    if H.db.one("select 1 as x from lot where mode=%s limit 1", (mode,)):
+        return
+    r = SP.place_po(H, mode, F.SUPPLIERS["bearings"]["name"], [{"item_code": "BRG-6207", "qty": 40}], "评测·情景")
+    lid = r["lots"][0]
+    H.db.x("update lot set po='PUR-ORD-EVAL-0001', lot=%s, status='transit', truth_bad=true, due_at=now() where id=%s", ("L261001-{:04d}".format(lid), lid))
+    SP.arrive(H.db, mode, lid, "评测·情景")
+    SP.inspect(H, mode, lid, False, "评测·情景")
+
+
+def ehs_scene(H, mode="teach"):
+    """第 18 轮 E2：员工、培训、危险源；磨床一条重大隐患；孙磊（受限空间培训已过期）申请热处理炉受限空间作业"""
+    from hub import ehs as EH
+    EH.seed(H.db, mode)
+    if not H.db.one("select 1 as x from safety_issue where mode=%s limit 1", (mode,)):
+        EH.inject_major(H, mode, "grd-01", "guard", "评测·情景")
+        EH.request_permit(H.db, mode, {"kind": "confined", "unit": "ht-01", "holder_id": "P07", "reason": "炉膛检修"}, "评测·情景")
+
+
+def field_scene(H, hist, mode="teach"):
+    """第 18 轮 E1：客户现场的 12 台情景设备，加一条投诉（轴承报警那台），客户与服务的评测题用"""
+    import wqbus
+    from hub import service as SV
+    from hub import twin as TW
+    tw = TW.TwinService(H.db, lambda tp, ty, src, data, corr=None, mode=None: hist.handle(tp, wqbus.make(ty, src, data, mode=mode or "teach", corr=corr)))
+    tw.init()
+    tw.seed(mode)
+    SV.init(H.db)
+    SV.seed_engineers(H.db, mode)
+    us = SV.units(H.db, mode)
+    bad = sorted(us.values(), key=lambda x: (-x["risk"], x["serial"]))
+    bad = next((x for x in bad if "bearing" in (x.get("alert_kinds") or [])), bad[0] if bad else None)
+    if bad and not H.db.one("select 1 as x from complaint where mode=%s limit 1", (mode,)):
+        SV.create_complaint(H, mode, {"serial": bad["serial"], "subject": "运转时有异响，轴承位置发热", "severity": "serious", "channel": "电话"},
+                            "评测·情景")
+    return tw
+
 
 
 def history(db, limit=20):

@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
-"""模型网关（精简版，与问渠网关同样的约定）：Claude 与 DeepSeek 等 OpenAI 兼容接口，可切换（本仓库 ADR-0063）。
+"""模型网关（精简版，与问渠网关同样的约定）：Claude 与 DeepSeek 等 OpenAI 兼容接口，可切换
+（第 30 轮 H-6；freecad-ai-parts ADR-0063）。
 
 选哪家：管理员在“系统设置”里选的（override）> WQ_AI_PROVIDER（claude / deepseek / auto，缺省 auto）；
 auto 时看 WQ_AI_REGION：cn 用 DeepSeek，其他用 Claude；没设 WQ_AI_REGION 时按 WQ_TZ（中国时区算 cn）。
-选中的一家没配密钥、调用出错或超时，换另一家；两家都不可用时 available() 为 False，AI 助手改用规则回答。
+**国内部署（地区 cn）只用 DeepSeek**（合规：国内只用已备案模型）：不论设置、环境变量怎么选，都不调用 Claude，
+DeepSeek 出错也不换到 Claude，而是报错、AI 助手改用规则回答。
+其他地区：选中的一家没配密钥、调用出错或超时，换另一家；两家都不可用时 available() 为 False，AI 助手改用规则回答。
 每次调用记下实际用的哪家（last）。
 
 环境变量：WQ_CLAUDE_KEY（或 ANTHROPIC_API_KEY）、WQ_CLAUDE_MODEL（默认 claude-sonnet-5）；
@@ -48,17 +51,24 @@ class LLM:
     def configured(self, p):
         return bool(self.claude_key if p == "claude" else self.ds_key)
 
+    def allowed(self):
+        """这个地区能用哪几家：国内只用 DeepSeek（已备案）。"""
+        return ("deepseek",) if self.region == "cn" else PROVIDERS
+
     def preferred(self):
-        """首选哪家：设置 > 环境变量 > 按地区。"""
+        """首选哪家：设置 > 环境变量 > 按地区；国内一律 DeepSeek。"""
+        if self.region == "cn":
+            return "deepseek"
         p = self.override if self.override in PROVIDERS + ("auto",) else self.provider
         if p in PROVIDERS:
             return p
         return "deepseek" if self.region == "cn" else "claude"
 
     def order(self):
-        """依次尝试的顺序（只含配了密钥的）。"""
+        """依次尝试的顺序（只含配了密钥、本地区允许的）。"""
         first = self.preferred()
-        return [p for p in (first, next(x for x in PROVIDERS if x != first)) if self.configured(p)]
+        ok = self.allowed()
+        return [p for p in (first, next(x for x in PROVIDERS if x != first)) if p in ok and self.configured(p)]
 
     def available(self):
         return bool(self.order())
@@ -74,7 +84,7 @@ class LLM:
     def status(self):
         """系统设置页要看的：选择、地区、两家是否配好、最近一次调用。不含密钥。"""
         return {"setting": self.override or self.provider, "env_provider": self.provider, "region": self.region,
-                "preferred": self.preferred(), "order": self.order(), "name": self.name,
+                "preferred": self.preferred(), "order": self.order(), "name": self.name, "allowed": list(self.allowed()),
                 "configured": {p: self.configured(p) for p in PROVIDERS},
                 "models": {"claude": self.claude_model, "deepseek": self.ds_model}, "last": self.last}
 

@@ -130,7 +130,7 @@ def build(db, anomaly, actions, now=None):
     # 多花的钱：执行了的动作的费用（与推演同一口径）+ 按实际交付算的违约金
     act_costs = [c for c in pred["costs"] if "违约金" not in c["what"]]
     for s in act_so:
-        pen = P.PENALTY_PER_DAY.get(s["name"])
+        pen = next((x.get("penalty_per_day") for x in ctx["sales_orders"] if x["name"] == s["name"]), None)
         if pen and s["late_days"] and s["late_days"] > 0:
             act_costs.append({"what": "{} 违约金（晚 {} 天）".format(s["name"], s["late_days"]), "usd": pen * s["late_days"]})
     predicted = {"factory_now": f0.isoformat(), "changes": changes, "work_orders": {w: r["predicted"] for w, r in zip(watch, wo_rows)},

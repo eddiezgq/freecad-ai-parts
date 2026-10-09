@@ -489,7 +489,63 @@ def mount(app, H):
                        "比较交期、成本和加班，选一个并说明理由；提交后再看厂情中枢的建议和 AI 分析（比对模式）；采纳、批准、执行，最后看推演与实际的自动复盘。",
             "mode": "teach", "products": ["WQR-105", "SH-301"], "tool_url": public_base(request) + "/lab15",
             "guide_url": public_base(request) + "/api/cae/lab15/guide.docx",
-            "report_template_url": public_base(request) + "/api/cae/lab15/report-template.docx"}])
+            "report_template_url": public_base(request) + "/api/cae/lab15/report-template.docx"}, {
+            "id": "lab16", "name": {"zh": "实验 16：客户投诉的追溯、召回与服务决策", "en": "Lab 16: complaint traceability, recall and service decisions"},
+            "summary": "老师注入批次投诉：同一片砂轮磨的几根输出轴装在不同客户的现场，陆续出轴承问题。学生从投诉的设备往回追到输出轴、砂轮，"
+                       "再往前找出同批次的设备、列排查范围，用数字孪生标出高风险的；比较“只修 / 修 + 高风险点检 / 整批排查”三个方案的客户数、费用、天数和遗漏风险，"
+                       "选一个并说明理由（比对模式）；起草派工、备件出库和客户通知，批准、执行，最后看工程师上门和客户回访。",
+            "mode": "teach", "products": ["WQR-105", "SH-301"], "tool_url": public_base(request) + "/lab16",
+            "guide_url": public_base(request) + "/api/cae/lab16/guide.docx",
+            "report_template_url": public_base(request) + "/api/cae/lab16/report-template.docx"}, {
+            "id": "lab17", "name": {"zh": "实验 17：安全隐患的识别、评估与停机决策", "en": "Lab 17: hazard identification, risk assessment and lockout decisions"},
+            "summary": "老师注入重大隐患（磨床防护罩缺失等）。学生先做风险评估（危险源、可能性 × 严重度），再自己追“停这台设备影响哪些工单、订单”；"
+                       "在指挥台比较“立即停机挂牌 / 限时整改 / 停机 + 改派加班”的交期和花费，选一个并说明理由（比对模式）；"
+                       "起草停机挂牌整改，批准后车间里设备真的停下，维修工整改后验收解锁，最后看订单的实际影响。",
+            "mode": "teach", "products": ["WQR-105", "SH-301"], "tool_url": public_base(request) + "/lab17",
+            "guide_url": public_base(request) + "/api/cae/lab17/guide.docx",
+            "report_template_url": public_base(request) + "/api/cae/lab17/report-template.docx"}, {
+            "id": "lab18", "name": {"zh": "实验 18：设备维护策略——保养时机的决策", "en": "Lab 18: maintenance strategy and preventive-maintenance timing"},
+            "summary": "车间设备按威布尔失效率随机损坏，保养后复位。学生看设备台账和失效率曲线，手算保养逾期设备未来 80 运行小时坏掉的概率和预期损失；"
+                       "在指挥台比较“现在保养 / 下班后保养 / 不做”（比对模式）；起草保养工单，到时间挂牌上锁、维修工保养、验收解锁；"
+                       "运行一段时间后对比保养过与没保养的设备的故障记录，用故障记录估平均故障间隔。",
+            "mode": "teach", "products": ["WQR-105", "SH-301"], "tool_url": public_base(request) + "/lab18",
+            "guide_url": public_base(request) + "/api/cae/lab18/guide.docx",
+            "report_template_url": public_base(request) + "/api/cae/lab18/report-template.docx"}, {
+            "id": "lab19", "name": {"zh": "实验 19：排班与技能——缺人时的决策", "en": "Lab 19: staffing and skills — deciding when someone is missing"},
+            "summary": "车间设备要有人才能开：按排班和技能矩阵，没人停、学徒按 60% 速度。学生先在技能矩阵里找单点依赖；老师让一位关键操作工请假，"
+                       "学生手算瓶颈设备停一个班少做多少件，在指挥台比较“调人顶岗 / 学徒带教 / 加班顶班 / 不处理”（比对模式）；"
+                       "起草调班或加班动作，批准后车间按新排班开；最后设计技能培训计划，把单点依赖降到 0。",
+            "mode": "teach", "products": ["WQR-105", "SH-301"], "tool_url": public_base(request) + "/lab19",
+            "guide_url": public_base(request) + "/api/cae/lab19/guide.docx",
+            "report_template_url": public_base(request) + "/api/cae/lab19/report-template.docx"}, {
+            "id": "lab20", "name": {"zh": "实验 20：供应链——来料不合格与供应商选择", "en": "Lab 20: supply chain — rejected incoming material and supplier selection"},
+            "summary": "料从下单到用掉都在平台和 ERPNext 里：采购单、到货、来料检验、批次、用到哪些零件。学生先看供应商评分卡、找出单一来源；"
+                       "老师注入一批不合格的轴承，学生按检验模板看抽样数据判定；在指挥台比较“退货等补发 / 备选急单 / 让步接收 / 不处理”（比对模式）并执行；"
+                       "最后算两家供应商的总拥有成本，写供应商建议。",
+            "mode": "teach", "products": ["WQR-105", "SH-301"], "tool_url": public_base(request) + "/lab20",
+            "guide_url": public_base(request) + "/api/cae/lab20/guide.docx",
+            "report_template_url": public_base(request) + "/api/cae/lab20/report-template.docx"}, {
+            "id": "lab21", "name": {"zh": "实验 21：能源——空转、错峰与单件碳足迹", "en": "Lab 21: energy — idling, peak shifting and the carbon footprint of a part"},
+            "summary": "车间 16 个计量点每 15 分钟一个读数：每台设备的运行、空转、待机电量，峰平谷电费，碳排放。学生先找空转最多的设备，"
+                       "按运行功率和工时算输出轴每件的电量和碳足迹；老师注入“卧加下班忘关、热处理峰时开炉”，学生在指挥台比较几种自动待机方案（比对模式）"
+                       "并执行；最后算错峰和待机一个月各省多少钱、少排多少碳，区分“省钱”和“省电”。",
+            "mode": "teach", "products": ["WQR-105", "SH-301"], "tool_url": public_base(request) + "/lab21",
+            "guide_url": public_base(request) + "/api/cae/lab21/guide.docx",
+            "report_template_url": public_base(request) + "/api/cae/lab21/report-template.docx"}, {
+            "id": "lab22", "name": {"zh": "实验 22：经营——订单毛利、应收与现金", "en": "Lab 22: business — order margin, receivables and cash"},
+            "summary": "钱在工厂里走两条路：订单 → 开票 → 收款，采购 → 收货 → 发票 → 付款，都在 ERPNext 里。学生先在指挥台的指标树里找没达标的经营指标，"
+                       "按分解表算一张订单的毛利（料、工、电、废品、急单加班、保修）；老师注入一笔客户逾期不付的发票，学生比较“催款 / 信用冻结 / 不处理”"
+                       "（比对模式，看现金流预测）并执行；最后算应收周转天数，找现金最紧的一周，体会“赚钱”和“有钱”的区别。",
+            "mode": "teach", "products": ["WQR-105", "SH-301"], "tool_url": public_base(request) + "/lab22",
+            "guide_url": public_base(request) + "/api/cae/lab22/guide.docx",
+            "report_template_url": public_base(request) + "/api/cae/lab22/report-template.docx"}, {
+            "id": "lab23", "name": {"zh": "实验 23：两周情景——一张急单的全厂决策", "en": "Lab 23: two-week scenario — whole-plant decisions on one rush order"},
+            "summary": "两周课程设计，4–6 人一组、每人一个角色。老师在“情景导演”里一幕一幕地放：客户下急单 → 缺料 → 来料不合格 → 缺人 → "
+                       "赶工时的安全隐患 → 设备保养逾期 → 空转与峰时 → 交付后应收逾期。每一幕由该负责的角色代表小组看推演、选方案、写理由"
+                       "（比对模式）并发起动作；最后复盘：这张订单的毛利里能看到每一幕花的钱，从钱一路追回源头。",
+            "mode": "teach", "products": ["WQR-105", "SH-301"], "tool_url": public_base(request) + "/lab23",
+            "guide_url": public_base(request) + "/api/cae/lab23/guide.docx",
+            "report_template_url": public_base(request) + "/api/cae/lab23/report-template.docx"}])
 
     @app.get("/api/course/layout", dependencies=[K])
     def course_layout():

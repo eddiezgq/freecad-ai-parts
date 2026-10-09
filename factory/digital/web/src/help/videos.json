@@ -15,10 +15,6 @@
     "edition": "teach",
     "title": "3D 车间"
   },
-  "teach-publish": {
-    "edition": "teach",
-    "title": "FreeCAD 方案发布到工厂"
-  },
   "teach-anomaly": {
     "edition": "teach",
     "title": "异常追因与推演"
@@ -31,13 +27,17 @@
     "edition": "teach",
     "title": "AI 工厂助手"
   },
-  "ent-accounts": {
-    "edition": "enterprise",
-    "title": "开账号、分角色"
+  "teach-labs": {
+    "edition": "teach",
+    "title": "实验与任务"
   },
-  "ent-new-product": {
-    "edition": "enterprise",
-    "title": "新产品进工厂"
+  "teach-director": {
+    "edition": "teach",
+    "title": "情景导演"
+  },
+  "teach-maint": {
+    "edition": "teach",
+    "title": "设备维护：保养工单、挂牌上锁"
   },
   "ent-ai": {
     "edition": "enterprise",

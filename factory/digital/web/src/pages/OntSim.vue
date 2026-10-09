@@ -41,7 +41,7 @@
             <div class="field"><label>设备（空 = 全厂）</label><select v-model="form.unit"><option value="*">全厂</option>
               <option v-for="u in units" :key="u" :value="u">{{ u.toUpperCase() }}</option></select></div>
             <div class="field"><label>分钟（最多 240）</label><input v-model.number="form.minutes" type="number" min="30" max="240" step="30"></div>
-            <p v-if="shift.mode !== 'shift'" class="small err">车间是 24 小时连续运转，加班没有意义；老师可以在“经营与成本”的教师控制台切到按班次。</p>
+            <p v-if="shift.mode !== 'shift'" class="small err">车间是 24 小时连续运转，加班没有意义；老师可以在“情景导演”的教师控制台切到按班次。</p>
           </template>
           <template v-if="form.type === 'expedite'">
             <div class="field"><label>停机的设备</label><select v-model="form.unit"><option v-for="u in downUnits" :key="u" :value="u">{{ u.toUpperCase() }}</option></select></div>
@@ -154,6 +154,7 @@ function describe(c) {
   if (c.type === 'split_delivery') return `${c.sales_order} 先交 ${c.first_qty} 台（${c.first_date}）`;
   if (c.type === 'insert_order') return `${c.work_order} SH-301 × ${c.qty}，${c.at} 下达`;
   if (c.type === 'breakdown') return `假设 ${c.unit.toUpperCase()} 再停 ${Math.round(c.minutes)} 分钟（只推演）`;
+  if (c.type === 'lockout') return `${c.unit.toUpperCase()} ${c.delay_minutes ? c.delay_minutes + ' 分钟后' : '立即'}停机挂牌整改 ${Math.round(c.minutes)} 分钟`;
   return JSON.stringify(c);
 }
 function otText(r) { return r?.overtime_min ? `${r.overtime_min} 分钟 × ${r.overtime_units} 台` : '0'; }

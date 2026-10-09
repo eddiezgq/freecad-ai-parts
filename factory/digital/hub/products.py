@@ -16,6 +16,8 @@ import re
 
 from factory import data as F
 from factory import plant as _plant
+from hub import ai as _ai
+from hub import process as _process
 
 SCHEMA = """
 create table if not exists fap_product (
@@ -188,3 +190,16 @@ def products(db):
     return [{"code": r["code"], "mode": r["mode"], "revision": r["revision"], "name": r["spec"].get("name"),
              "registered_at": r["registered_at"].isoformat(), "items": len(r["spec"]["items"])}
             for r in db.q("select * from fap_product order by registered_at desc")]
+
+
+def _on_proposal_done(db, action, preview, mode):
+    """“转为生产物料”的提议在 ERPNext 建好物料与 BOM 后，登记进工厂主数据（ADR-0061）。"""
+    if action == "cad_to_erp":
+        register(db, preview, mode)
+
+
+# 挂到共有代码留的口子上（ADR-0067）：提议执行完 → 登记产品；起草工艺规程 → 自制件的粗基准与装夹
+if _on_proposal_done not in _ai.ON_PROPOSAL_DONE:
+    _ai.ON_PROPOSAL_DONE.append(_on_proposal_done)
+if process_hint not in _process.PLAN_HINTS:
+    _process.PLAN_HINTS.append(process_hint)

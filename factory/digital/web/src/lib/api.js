@@ -34,17 +34,9 @@ export const get = (p) => api('GET', p);
 export const post = (p, b) => api('POST', p, b ?? {});
 
 // 本地版填名字；线上版（问渠账号）不传名字，枢纽凭全站登录凭证认人
-export async function login(name, role, mode) {
-  const r = await post('/login', name ? { name, role, mode } : { role, mode });
-  session.token = r.token;
-  session.user = r.user;
-  save();
-  return r.user;
-}
-
-// 企业版（本仓库 ADR-0063）：用户名 + 密码
-export async function loginAccount(username, password) {
-  const r = await post('/login', { username, password });
+// extra：本地版的老师密码 { teacher_password }（第 30 轮 H-5）
+export async function login(name, role, mode, extra) {
+  const r = await post('/login', { ...(name ? { name } : {}), role, mode, ...(extra || {}) });
   session.token = r.token;
   session.user = r.user;
   save();
@@ -77,6 +69,10 @@ export const ROLES = [
   { key: 'quality', name: '质检员', en: 'Quality inspector' },
   { key: 'approver', name: '审批人', en: 'Approver', prod: true },
   { key: 'sales', name: '销售', en: 'Sales', prod: true },
+  { key: 'service', name: '售后', en: 'Customer service' },
+  { key: 'safety', name: '安全员', en: 'Safety officer' },
+  { key: 'maintenance', name: '维修工', en: 'Maintenance technician' },
+  { key: 'lead', name: '班组长', en: 'Shift lead' },
 ];
 // 学生可选的岗位（厂长只给老师，第 3 轮 D3）
 // 企业版（第 8 轮）：审批人、销售只在生产模式；企业成员在生产模式只能用授权给他的角色

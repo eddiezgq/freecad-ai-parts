@@ -15,16 +15,15 @@ from collections import defaultdict
 from factory import data as F
 from factory import plant as _plant
 from sim.engine import OP_UNITS, SETUP_MIN, TOOL_CHANGE_MIN, expected_minutes, routing_for
-from hub import products
 from hub.kpi import TZ, add_working_days, explode, rate_per_hour, Overview
 
 RELEASED_THIS_ROUND = {"SH-301"}
 LOT = {"raw_kg": 50, "default": 10}
-COMPANY = _plant.company()["name"]       # 工厂清单的公司（ADR-0064）；演示工厂仍是“问渠减速器厂 WenQuest Gearbox (Demo)”
+COMPANY = _plant.company()["name"]       # 工厂清单的公司（第 30 轮）；演示工厂仍是“问渠减速器厂 WenQuest Gearbox (Demo)”
 
 
 def lot_size(code):
-    if str(F.ITEMS[code][4] or "").startswith("lib:"):   # 零件库来的外购件（本仓库 ADR-0061）按需采购，不凑批量
+    if str(F.ITEMS[code][4] or "").startswith("lib:"):   # 选型零件库来的外购件（freecad-ai-parts）按需采购，不凑批量
         return 1
     return LOT["raw_kg"] if F.ITEMS[code][2] == "Kg" else LOT["default"]
 
@@ -88,7 +87,7 @@ def plan_order(db, customer, item, qty, delivery_date, mode="teach", now=None):
         if net > 1e-6:
             q = math.ceil(net / lot_size(code)) * lot_size(code)
             sup = F.SUPPLIERS[F.ITEMS[code][4]]
-            if sup["lead"] is None:          # 登记产品的采购件没填交期（本仓库 ADR-0061）：不估，标待确认
+            if sup.get("lead") is None:      # 清单或登记的产品里供应商没填交期：不估，标待确认
                 sched = start
                 warnings.append("{} 的采购交期待确认（{} 没有登记提前期），请购单需求日暂按 {}".format(
                     code, sup["name"], start.isoformat()))
@@ -97,16 +96,16 @@ def plan_order(db, customer, item, qty, delivery_date, mode="teach", now=None):
             mrs.append({"item_code": code, "qty": q, "uom": F.ITEMS[code][2], "schedule_date": sched.isoformat(),
                         "supplier": sup["name"], "reason": "净需求 {:g}，按批量 {} 取整".format(round(net, 2), lot_size(code))})
             action = "请购 {:g}".format(q)
-            if sup["lead"] is not None and sched > due:
+            if sup.get("lead") is not None and sched > due:
                 warnings.append("{} 采购提前期 {} 天，预计 {} 到货，晚于交期 {}".format(
                     code, sup["lead"], sched.isoformat(), due.isoformat()))
         rows.append({"item_code": code, "name": F.ITEMS[code][0], "kind": F.ITEMS[code][1],
                      "uom": F.ITEMS[code][2], "gross": round(g, 3), "committed": round(cm, 3),
                      "stock": st, "on_order": oo, "safety": safety, "net": round(max(0.0, net), 3),
                      "action": action})
-    # 自制件：演示产品 WQR-105 本轮只下达 SH-301；登记的新产品（本仓库 ADR-0061）下达全部自制件和产品本身
+    # 自制件：演示产品 WQR-105 按教学只下达 SH-301；其他产品（企业登记的新产品等）下达全部自制件和产品本身
     wos, deferred = [], []
-    whole = products.is_product(item)
+    whole = item != "WQR-105" and item in F.BOMS
     makes = explode_make(item, qty)
     if whole:
         makes[item] = qty
@@ -125,14 +124,14 @@ def plan_order(db, customer, item, qty, delivery_date, mode="teach", now=None):
         else:
             deferred.append({"item_code": code, "qty": q, "name": F.ITEMS[code][0]})
     std = None
-    if _plant.is_demo():                # 演示工厂的输出轴标准成本；企业工厂（ADR-0064）没有这道工艺
+    if _plant.is_demo():                # 演示工厂的输出轴标准成本；企业工厂没有这道工艺
         mat, ops = std_unit_cost("SH-301")
         std = {"material": mat, "operations": ops, "total": round(mat + ops, 2)}
+    price = (F.ITEMS.get(item) or (None,) * 4)[3]       # 其他产品的售价取物料主数据（没有就不填）
     preview = {
         "sales_order": {"customer": customer, "company": COMPANY, "item_code": item, "qty": qty,
-                        "rate": F.FG_SELLING_PRICE if item == "WQR-105" else F.ITEMS[item][3],
-                        "amount": F.FG_SELLING_PRICE * qty if item == "WQR-105" else (
-                            F.ITEMS[item][3] * qty if F.ITEMS[item][3] else None),
+                        "rate": F.FG_SELLING_PRICE if item == "WQR-105" else price,
+                        "amount": F.FG_SELLING_PRICE * qty if item == "WQR-105" else (price * qty if price else None),
                         "delivery_date": due.isoformat(), "transaction_date": today.isoformat()},
         "mrp": rows,
         "work_orders": wos,

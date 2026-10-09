@@ -7,16 +7,18 @@ types:
   Department:
     label: 部门
     label_en: Department
-    maturity: capture
-    key: 部门代号
+    maturity: have
+    sources: [ERPNext 部门（第 18 轮 E4）]
+    key: 部门名
     title: "{name}"
     props:
       name: {t: str, l: 名称}
   Position:
     label: 岗位
     label_en: Position
-    maturity: capture
-    key: 岗位代号
+    maturity: have
+    sources: [ERPNext 岗位（Designation，第 18 轮 E4）]
+    key: 岗位名
     title: "{name}"
     props:
       name: {t: str, l: 名称}
@@ -25,25 +27,34 @@ types:
   Employee:
     label: 员工
     label_en: Employee
-    maturity: capture
+    maturity: have
+    sources: [员工档案（平台 + ERPNext Employee，第 18 轮 E4；E2 的 12 人工号不变）]
     sensitivity: 2
     key: 工号
     title: "{key} {name}"
     props:
       name: {t: str, l: 姓名}
       status: {t: str, l: 在岗状态}
+      post: {t: str, l: 岗位}
+      team: {t: str, l: 班组}
+      dept: {t: str, l: 部门}
+      shift: {t: str, l: 班次}
+      erp_id: {t: str, l: ERPNext 员工号}
     links:
       position: {to: Position, l: 岗位, inv: 员工}
+      department: {to: Department, l: 部门, inv: 员工}
   Qualification:
     label: 技能与资质
     label_en: Qualification
-    maturity: capture
+    maturity: have
+    sources: [技能矩阵（员工 × 设备：学徒 / 熟练 / 可带徒，第 18 轮 E4）]
     sensitivity: 2
-    key: 工号/资质代号
+    key: 工号/设备
     title: "{employee} {name}"
     props:
       employee: {t: str, l: 员工}
       name: {t: str, l: 资质}
+      level: {t: num, l: 等级}
       valid_until: {t: date, l: 有效期}
     links:
       employee: {to: Employee, l: 员工, inv: 资质}
@@ -51,26 +62,31 @@ types:
   TrainingRecord:
     label: 培训记录
     label_en: Training record
-    maturity: capture
+    maturity: have
+    sources: [技能培训（带教，第 18 轮 E4）；安全培训见安全环保]
     sensitivity: 2
-    key: 工号/培训编号
+    key: 培训编号
     title: "{key}"
     props:
       date: {t: date, l: 日期}
       passed: {t: bool, l: 通过}
+      topic: {t: str, l: 内容}
     links:
       employee: {to: Employee, l: 员工, inv: 培训}
       training: {to: SafetyTraining, l: 培训, inv: 参加人员}
   Roster:
     label: 排班
     label_en: Roster
-    maturity: capture
+    maturity: have
+    sources: [排班（固定岗位 + 调班、顶班），出勤（第 18 轮 E4）]
     sensitivity: 2
     key: 日期/班次/工号
     title: "{key}"
     props:
       shift: {t: str, l: 班次}
       attended: {t: bool, l: 出勤}
+      unit: {t: str, l: 设备}
+      source: {t: str, l: 来源}
     links:
       employee: {to: Employee, l: 员工, inv: 排班}
       machine: {to: Machine, l: 设备, inv: 排班}

@@ -20,7 +20,7 @@ function labelSprite(text, color = '#17212B') {
 }
 
 // layout：/api/layout 的返回；host：放画布的元素。返回 { update(machines, agvs), pick(event), focus(unit), render hook, dispose() }
-// night：深色车间（帮助首页用，ADR-0065）；autoRotate：镜头缓慢环绕
+// night：深色车间（帮助首页用）；autoRotate：镜头缓慢环绕
 export function createWorkshop(host, L, { onFrame, night = false, autoRotate = false } = {}) {
   const [FW, FD] = L.floor;
   const C = night ? { bg: '#17212B', floor: '#22303C', aisle: '#34485A' } : { bg: '#EEF0EC', floor: '#D9DDD6', aisle: '#F2EDD7' };
@@ -58,7 +58,7 @@ export function createWorkshop(host, L, { onFrame, night = false, autoRotate = f
 
   const meshes = {};
   for (const [u, v] of Object.entries(L.units)) {
-    const hgt = v.h || HEIGHT[u] || 1.5;     // 高度：工厂清单给的（ADR-0064），否则演示工厂的
+    const hgt = v.h || HEIGHT[u] || 1.5;     // 高度：工厂清单给的（第 30 轮），否则演示工厂的
     const store = u.startsWith('store');
     const body = new THREE.Mesh(new THREE.BoxGeometry(v.w, hgt, v.d),
       new THREE.MeshLambertMaterial({ color: store ? '#B8BEB5' : u === 'ht-01' ? '#6E7B85' : '#DCE2E6' }));

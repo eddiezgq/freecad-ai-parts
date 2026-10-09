@@ -1,0 +1,30 @@
+domain: 安全环保
+items:
+  - id: S01
+    q: "现在有哪些安全隐患？"
+    tools: [ehs_overview]
+    contains: ["{si_major}", "重大"]
+  - id: S02
+    q: "外圆磨床有什么安全风险？"
+    tools: [machine_safety]
+    contains: ["砂轮破裂飞出", "{si_major}"]
+  - id: S03
+    q: "{si_anomaly} 怎么处理？"
+    tools: [get_anomaly, compare_options]
+    contains: ["立即停机挂牌整改", "限时整改", "多花"]
+  - id: S04
+    q: "可能性 3、严重度 5 的风险有多大？"
+    tools: [risk_assess]
+    contains: ["15", "重大"]
+    cite: false
+  - id: S05
+    q: "起草 {si_anomaly} 的方案 B"
+    tools: [compare_options, draft_action]
+    contains: ["草稿", "提交"]
+    drafts: true
+  - id: S06
+    q: "现在有哪些安全隐患？"
+    as: student
+    contains: ["提示"]
+    not_contains: ["{si_major}"]
+    cite: false

@@ -18,13 +18,16 @@ types:
   Objective:
     label: 经营目标
     label_en: Objective
-    maturity: capture
+    maturity: have
     key: 年度-序号
     title: "{name}"
     props:
       name: {t: str, l: 目标}
       period: {t: str, l: 期间}
       owner: {t: str, l: 负责部门}
+      target: {t: num, l: 目标值}
+      value: {t: num, l: 当前值}
+      status: {t: str, l: 状态}
     links:
       plant: {to: Plant, l: 属于, inv: 目标}
   Metric:
@@ -44,13 +47,14 @@ types:
   Budget:
     label: 预算
     label_en: Budget
-    maturity: capture
+    maturity: have
     key: 年度-成本中心
     title: "{name}"
     sensitivity: 2
     props:
       name: {t: str, l: 名称}
       amount: {t: num, l: 金额, u: $}
+      actual: {t: num, l: 本月实际, u: $}
     links:
       cost_center: {to: CostCenter, l: 成本中心, inv: 预算}
   CostCenter:

@@ -6,7 +6,7 @@
     </header>
 
     <!-- 首页：实时 3D 车间 + 全流程 -->
-    <template v-if="!chapter">
+    <template v-if="!chapter && !isDocs">
       <section class="hero">
         <div class="stage">
         <div ref="host" class="scene" aria-hidden="true"></div>
@@ -47,7 +47,38 @@
           </router-link>
         </div>
       </section>
+
+      <!-- 资料：仓库 docs/帮助、docs/演示 里较长的说明（服务器 /api/help/docs 列出、转成网页） -->
+      <section class="index docs-index" aria-label="资料">
+        <div class="index-head"><h2>资料</h2><span class="small muted">较长的说明文件：领域说明、术语表、演示脚本、企业版与课程接口</span></div>
+        <p v-if="!session.token" class="small muted">登录后可以看。</p>
+        <p v-else-if="docsErr" class="small muted">{{ docsErr }}</p>
+        <div v-else class="dgroups">
+          <div v-for="g in docGroups" :key="g.group" class="dg">
+            <span class="small muted">{{ g.group }}</span>
+            <router-link v-for="i in g.items" :key="i.name" :to="'/help/docs/' + i.name">{{ i.title }}</router-link>
+          </div>
+        </div>
+      </section>
     </template>
+
+    <!-- 资料里的一份说明 -->
+    <div v-else-if="isDocs" class="read">
+      <nav class="toc" aria-label="资料目录">
+        <router-link :to="`/help/${defaultEd}`" class="back small">← 帮助首页</router-link>
+        <div v-for="g in docGroups" :key="g.group" class="dg">
+          <span class="small muted">{{ g.group }}</span>
+          <router-link v-for="i in g.items" :key="i.name" :to="'/help/docs/' + i.name" :class="{ on: i.name === docName }">{{ i.title }}</router-link>
+        </div>
+      </nav>
+      <article class="doc" @click="onLink">
+        <p class="kicker small muted">资料</p>
+        <p v-if="!session.token" class="muted">资料要登录后看。<router-link :to="{ path: '/login', query: { next: $route.fullPath } }">登录</router-link></p>
+        <p v-else-if="docErr" class="muted">{{ docErr }}</p>
+        <!-- 正文来自仓库里的 Markdown（服务器转 HTML），不是用户输入 -->
+        <div v-if="doc" class="md docmd" v-html="doc.html"></div>
+      </article>
+    </div>
 
     <!-- 一章 -->
     <div v-else class="read">
@@ -82,7 +113,7 @@
 </template>
 
 <script setup>
-// 帮助（ADR-0065）：教学版、企业版。首页是实时 3D 车间和全流程动画；正文是 Markdown 加自定义块（带我去做、动画、视频、实时数据、问 AI）。
+// 帮助（第 30 轮 H-3，搬自 freecad-ai-parts ADR-0065）：教学版、企业版，另有“资料”（以前的帮助文件）。首页是实时 3D 车间和全流程动画；正文是 Markdown 加自定义块（带我去做、动画、视频、实时数据、问 AI）。
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { EDITIONS, STAGE_CHAPTER, chapterFiles } from '../help';
@@ -102,8 +133,10 @@ const host = ref(null);
 let ws = null;
 let off = null;
 
-const ed = computed(() => (EDITIONS.some((e) => e.key === route.params.ed) ? route.params.ed
-  : cfg.value?.plant?.demo === false ? 'enterprise' : 'teach'));
+// 缺省版本：演示工厂打开教学版，企业工厂（工厂清单 demo_data: false）打开企业版
+const defaultEd = computed(() => (cfg.value?.plant?.demo === false ? 'enterprise' : 'teach'));
+const ed = computed(() => (EDITIONS.some((e) => e.key === route.params.ed) ? route.params.ed : defaultEd.value));
+const isDocs = computed(() => route.params.ed === 'docs');
 const edName = computed(() => EDITIONS.find((e) => e.key === ed.value)?.name);
 const plantName = computed(() => cfg.value?.plant?.name || '问渠减速器厂');
 const vars = computed(() => ({ 厂名: plantName.value, 公司: cfg.value?.plant?.company || '', 币种: cfg.value?.plant?.currency || '',
@@ -127,6 +160,31 @@ const hits = computed(() => {
     return { slug: c.slug, title: c.title, snip: esc(raw).replace(esc(w), `<mark>${esc(w)}</mark>`) };
   });
 });
+
+// 资料（第 30 轮 H-3）：以前的帮助（/api/help/docs），较长的说明文件
+const docGroups = ref([]);
+const docsErr = ref('');
+const doc = ref(null);
+const docErr = ref('');
+const docName = computed(() => (isDocs.value ? route.params.ch || '使用说明' : ''));
+async function loadDocList() {
+  if (!session.token || docGroups.value.length) return;
+  try { docGroups.value = (await get('/help/docs')).groups.filter((g) => g.items.length); docsErr.value = ''; } catch (e) { docsErr.value = e.message; }
+}
+async function loadDoc() {
+  doc.value = null; docErr.value = '';
+  if (!isDocs.value || !session.token) return;
+  loadDocList();
+  try { doc.value = await get('/help/docs/' + encodeURIComponent(docName.value)); window.scrollTo(0, 0); } catch (e) { docErr.value = e.message; }
+}
+watch(docName, loadDoc);
+watch(() => session.token, () => { loadDocList(); loadDoc(); });
+// 以前的地址 /help/<文件名>（书签、旧链接）转到资料
+function legacy() {
+  const e = route.params.ed;
+  if (e && e !== 'docs' && !EDITIONS.some((x) => x.key === e)) router.replace('/help/docs/' + e);
+}
+watch(() => route.params.ed, legacy);
 
 function setEd(k) { router.push(`/help/${k}`); }
 function pickStage(i) {
@@ -153,8 +211,11 @@ async function mount3d() {
   } catch { /* 没有 3D 也不影响帮助 */ }
 }
 
-watch(() => route.params.ch, (ch) => { if (!ch) mount3d(); else { ws?.dispose(); ws = null; window.scrollTo(0, 0); } });
+watch(() => [route.params.ed, route.params.ch], () => {
+  if (!route.params.ch && !isDocs.value) mount3d(); else { ws?.dispose(); ws = null; window.scrollTo(0, 0); }
+});
 onMounted(async () => {
+  legacy();
   try { cfg.value = await loadConfig(); } catch { /* 用缺省 */ }
   // 没登录时工作台框架不连总线；帮助首页自己只读连上（与可嵌入 3D 车间一样，总线匿名只读）
   if (!session.token && cfg.value && !bus.connected) {
@@ -162,7 +223,9 @@ onMounted(async () => {
   }
   try { media.value = (await get('/help/media')).files || []; } catch { /* 没有视频 */ }
   off = onBus(() => ws?.update(bus.machines, bus.agvs));
-  if (!route.params.ch) mount3d();
+  if (!route.params.ch && !isDocs.value) mount3d();
+  loadDocList();
+  loadDoc();
 });
 onUnmounted(() => { ws?.dispose(); off?.(); });
 </script>
@@ -246,6 +309,18 @@ onUnmounted(() => { ws?.dispose(); off?.(); });
 .pn { display: flex; justify-content: space-between; gap: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); }
 .pn a { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 8px; background: var(--surface); text-decoration: none; color: var(--ink); max-width: 48%; }
 .pn .next { margin-left: auto; text-align: right; }
+
+/* 资料 */
+.docs-index { margin-top: 36px; }
+.read .toc .back + .dg { margin-top: 14px; }
+.dgroups { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px 24px; }
+.dg { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
+.dg > span { padding: 0 6px 4px; }
+.dg a { padding: 3px 6px; border-radius: 5px; color: var(--ink); text-decoration: none; font-size: 13px; }
+.dg a:hover { color: var(--accent); }
+.dg a.on { background: var(--surface); font-weight: 600; }
+.docmd :deep(table) { display: block; overflow-x: auto; }
+.docmd :deep(h1) { font-size: clamp(22px, 3vw, 30px); line-height: 1.25; }
 
 @media (max-width: 860px) {
   .read { grid-template-columns: 1fr; gap: 16px; }
