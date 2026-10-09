@@ -1,0 +1,63 @@
+name: Windows 安装包
+
+# 企业单机安装版（ADR-0066）：在 GitHub 的 Windows 机器上取 FreeCAD 1.0.2 便携版、装依赖与工作台、打 Inno Setup 安装包。
+# 合并到 main 后把安装包传到 Release windows-installer。
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - "installer/**"
+      - "freecad_addon/**"
+      - "engine/**"
+      - "kb/**"
+      - "analysis/**"
+      - "mcp_server/**"
+      - "llm_gateway/**"
+      - "pyproject.toml"
+      - ".github/workflows/windows.yml"
+  workflow_dispatch:
+
+jobs:
+  windows-installer:
+    runs-on: windows-2022
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: 缓存 FreeCAD 便携版
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}\fap-win\FreeCAD_1.0.2-conda-Windows-x86_64-py311.7z
+          key: freecad-win-1.0.2
+      - name: 生成安装包
+        # 用 Windows PowerShell 5.1（企业电脑上默认的那个）跑，确认脚本在它上面能用
+        shell: cmd
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File installer\windows\build.ps1 -Work "%RUNNER_TEMP%\fap-win" -Out dist > "%RUNNER_TEMP%\build.log" 2>&1
+          set rc=%ERRORLEVEL%
+          type "%RUNNER_TEMP%\build.log"
+          exit /b %rc%
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: dist\*.exe
+          retention-days: 7
+      - name: 合并到 main 后发布安装包
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view windows-installer >/dev/null 2>&1 || gh release create windows-installer \
+            --title "Windows 单机安装版" --notes "CI 自动生成（ADR-0066）：FreeCAD 1.0.2 + AI Parts 工作台 + 分析模块。" --prerelease
+          gh release upload windows-installer dist/*.exe --clobber
+      - name: 失败时的输出（写成注释）
+        if: failure()
+        shell: bash
+        run: |
+          [ -f "$RUNNER_TEMP/build.log" ] || exit 0
+          # 一个步骤最多显示 10 条注释，所以把尾部 40 行并成一条
+          echo "::error::$(tail -n 40 "$RUNNER_TEMP/build.log" | tr -d '\r' | sed ':a;N;$!ba;s/\n/%0A/g')"

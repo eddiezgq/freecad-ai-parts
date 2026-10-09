@@ -23,7 +23,8 @@ MODULE = {
     "id": "cfd", "name": "流体分析", "version": "1",
     "description": "虚拟风洞：阻力、各面压力与受力，强制对流散热量与散热系数（OpenFOAM，本机计算）",
     "python": ["gmsh", "numpy", "scipy"], "solvers": ["openfoam"],
-    "install": ("需另装 OpenFOAM：Linux 装发行版的 openfoam 包（Ubuntu / Debian：apt install openfoam）；Windows 在 WSL 中装，"
+    "install": ("单机安装版不带 OpenFOAM：可在企业数字工厂网页的“流体分析”（/cfd）上传零件 STEP 计算（ADR-0066）；"
+                "本机计算需另装 OpenFOAM：Linux 装发行版的 openfoam 包（Ubuntu / Debian：apt install openfoam）；Windows 在 WSL 中装，"
                 "或装 blueCFD-Core 并把放 simpleFoam 的目录设到环境变量 FAP_OPENFOAM_BIN。Python 包：pip install -e \".[fea]\""),
 }
 LIMITS = ["不可压定常（马赫数 < 0.2）；湍流按 k-ω SST + 壁面函数，层流 / 湍流按雷诺数 2000 自动选",

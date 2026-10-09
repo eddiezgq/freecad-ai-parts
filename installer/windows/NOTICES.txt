@@ -1,0 +1,22 @@
+﻿FreeCAD AI Parts 单机安装版 —— 许可证与源码获取说明
+
+本安装包由以下软件组成。各部分按各自的许可证分发，安装即表示你同意这些许可证。
+
+1. FreeCAD AI Parts 工作台、选型校验引擎、分析模块与公开零件库
+   著作权 © Guoqing Zhang
+   许可证：Apache License 2.0（全文见安装目录 Mod\FreeCADAIParts\lib\LICENSE 与 NOTICE）
+   源码：https://github.com/eddiezgq/freecad-ai-parts
+   公开零件库中的厂商参数只摘自公开产品目录，仅供选型参考；以厂商正式资料为准。
+
+2. FreeCAD 1.0.2（含其自带的 Python、Qt、OpenCASCADE、CalculiX、Gmsh 等）
+   许可证：FreeCAD 为 GNU LGPL 2.1 或更新版本；CalculiX、Gmsh 为 GNU GPL；其余组件见各自许可证。
+   源码：https://github.com/FreeCAD/FreeCAD/releases/tag/1.0.2
+   这些组件未经修改；你可以按其许可证自由使用、复制和再分发它们。
+
+3. 安装到 FreeCAD 自带 Python 中的第三方 Python 包（anthropic、numpy、scipy、gmsh、mujoco、optuna、pint、
+   jsonschema、pyyaml、httpx、fastmcp、psycopg、pdfplumber、openpyxl 及其依赖）
+   各包许可证见安装目录 bin\Lib\site-packages 下各包的 dist-info 目录。
+
+流体分析（CFD）所需的 OpenFOAM 不在本安装包内：可在企业数字工厂网页的“流体分析”中计算，或自行安装 OpenFOAM。
+
+本软件按“现状”提供，不附带任何明示或暗示的担保。
