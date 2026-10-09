@@ -4,6 +4,7 @@
 !analysis/
 !kb/
 !schema/
+!licensing/
 **/node_modules
 **/.node-red
 **/__pycache__
