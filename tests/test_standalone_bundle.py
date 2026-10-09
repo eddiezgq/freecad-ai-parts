@@ -149,3 +149,16 @@ def test_freecad_gui_loads_standalone_workbench(tmp_path):
     out = subprocess.run(cmd, cwd=tmp_path, capture_output=True, text=True, timeout=240, env=env, check=False)
     line = next((ln for ln in out.stdout.splitlines() if ln.startswith("WB ")), "")
     assert line.startswith("WB True") and str(data) in line, out.stdout + out.stderr
+
+
+def test_init_gui_without_file_uses_sys_path(tmp_path, monkeypatch):
+    """Windows 上 FreeCAD 执行 InitGui.py 时没有 __file__，且 globals / locals 分开：按 sys.path 里的 Mod 目录找 lib/。"""
+    target = install.install(tmp_path / "a", standalone=True)
+    moved = tmp_path / "Mod" / install.MOD_NAME
+    moved.parent.mkdir()
+    target.rename(moved)
+    monkeypatch.setattr(sys, "path", [*sys.path, str(moved)])
+    code = (moved / "InitGui.py").read_text(encoding="utf-8").split("from freecad_addon.gui")[0]
+    loc: dict = {}
+    exec(compile(code, "InitGui.py", "exec"), {}, loc)  # noqa: S102 — 只执行本程序生成的 InitGui 前半段
+    assert Path(loc["LIB"]) == moved / "lib"

@@ -40,6 +40,14 @@ jobs:
           set rc=%ERRORLEVEL%
           type "%RUNNER_TEMP%\build.log"
           exit /b %rc%
+      - name: 静默安装、验收、卸载（ADR-0066 第 4 项）
+        # 脚本放在带 BOM 的 .ps1 里：Windows PowerShell 5.1 读 Actions 生成的无 BOM 临时脚本时中文会乱码
+        shell: cmd
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File installer\windows\accept.ps1 -Dist dist -Dir C:\fap-test > "%RUNNER_TEMP%\build.log" 2>&1
+          set rc=%ERRORLEVEL%
+          type "%RUNNER_TEMP%\build.log"
+          exit /b %rc%
       - uses: actions/upload-artifact@v4
         with:
           name: windows-installer
