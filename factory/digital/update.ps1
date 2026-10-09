@@ -1,4 +1,4 @@
-# 问渠数字工厂：从 GitHub 拉取最新版本并重启（在 digital 目录里运行：.\update.ps1）
+﻿# 问渠数字工厂：从 GitHub 拉取最新版本并重启（在 digital 目录里运行：.\update.ps1）
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 git pull --ff-only
