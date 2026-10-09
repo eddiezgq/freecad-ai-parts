@@ -19,6 +19,7 @@ dependencies = [
     "pdfplumber>=0.11",
     "openpyxl>=3.1",
     "httpx>=0.27",                 # AI 模型网关调 DeepSeek（ADR-0063）
+    "cryptography>=42",            # 授权文件的 Ed25519 签名（ADR-0066）
 ]
 
 [project.optional-dependencies]
@@ -49,7 +50,7 @@ dev = [
 freecad-ai-parts-mcp = "mcp_server.server:main"
 
 [tool.setuptools.packages.find]
-include = ["kb*", "ingest*", "engine*", "mcp_server*", "freecad_addon*", "analysis*", "llm_gateway*"]
+include = ["kb*", "ingest*", "engine*", "mcp_server*", "freecad_addon*", "analysis*", "llm_gateway*", "licensing*"]
 
 [tool.setuptools.package-data]
 analysis = ["common/*.yaml"]
