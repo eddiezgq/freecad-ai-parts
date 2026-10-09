@@ -20,7 +20,7 @@ def test_requirements_cover_runtime_extras():
 
 
 def test_files_are_utf8_with_bom():
-    for name in ("fap.iss", "NOTICES.txt", "build.ps1"):
+    for name in ("fap.iss", "NOTICES.txt", "build.ps1", "accept.ps1"):
         raw = (WIN / name).read_bytes()
         assert raw.startswith(b"\xef\xbb\xbf"), name
         raw[3:].decode("utf-8")
