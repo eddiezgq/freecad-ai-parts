@@ -12,13 +12,14 @@
 #   --claude-key / --deepseek-key   AI 密钥（可以以后在 .env 里补）
 #   --demo                演示模式：启动仿真车间（生产模式只显示接入的真实设备）
 #   --plant 清单.yaml     企业自己的工厂清单（ADR-0064；Excel 用 python -m factory.plant import 转成）。
+#   --license 授权.json   FreeCAD 单机安装版的浮动席位授权（ADR-0066；可以以后用 upgrade.sh --license 装）。
 #                         ERPNext 的公司、国家、币种、时区，工作站、工序、车间平面都按它建；不给时装演示工厂
 #   --images 标签         镜像标签（缺省 latest）；--no-pull 用本机已有镜像（离线安装、CI）
 #   --registry-token 令牌 拉取私有镜像用的 GitHub 只读令牌（也可用环境变量 FAP_REGISTRY_TOKEN）
 . "$(dirname "$0")/lib.sh"
 
 DOMAIN="" ERP_DOMAIN="" EMAIL="" TLS_INTERNAL=0 ADMIN="" REGION="" DEMO=0 TAG="latest" PULL=1
-CLAUDE_KEY="" DEEPSEEK_KEY="" REG_TOKEN="${FAP_REGISTRY_TOKEN:-}" PLANT=""
+CLAUDE_KEY="" DEEPSEEK_KEY="" REG_TOKEN="${FAP_REGISTRY_TOKEN:-}" PLANT="" LICENSE=""
 while [ $# -gt 0 ]; do
     case "$1" in
         --domain) DOMAIN=$2; shift 2 ;;
@@ -31,6 +32,7 @@ while [ $# -gt 0 ]; do
         --deepseek-key) DEEPSEEK_KEY=$2; shift 2 ;;
         --demo) DEMO=1; shift ;;
         --plant) PLANT=$(abspath "$2"); shift 2 ;;
+        --license) LICENSE=$(abspath "$2"); shift 2 ;;
         --images) TAG=$2; shift 2 ;;
         --no-pull) PULL=0; shift ;;
         --registry-token) REG_TOKEN=$2; shift 2 ;;
@@ -42,6 +44,7 @@ done
 # ---------------------------------------------------------------- 1 检查环境
 log "检查环境..."
 [ -z "$PLANT" ] || [ -f "$PLANT" ] || die "找不到工厂清单 $PLANT"
+[ -z "$LICENSE" ] || [ -f "$LICENSE" ] || die "找不到授权文件 $LICENSE"
 command -v docker >/dev/null || die "没有 Docker：Ubuntu 上运行 curl -fsSL https://get.docker.com | sh"
 docker compose version >/dev/null 2>&1 || die "没有 docker compose 插件"
 command -v openssl >/dev/null || die "没有 openssl"
@@ -113,6 +116,7 @@ fi
 mkdir -p plant
 COMPANY_JSON=""
 if [ -n "$PLANT" ]; then log "校验工厂清单 $PLANT ..."; plant_put "$PLANT"; fi
+if [ -n "$LICENSE" ]; then license_put "$LICENSE"; fi
 if [ -n "$(envval WQ_PLANT_FILE)" ]; then
     COMPANY_JSON=$(plant_company)
     [ -n "$COMPANY_JSON" ] || die "读不出工厂清单里的公司"

@@ -59,3 +59,21 @@ def fingerprint(parts: list[str] | None = None) -> str:
         raise RuntimeError("取不到这台电脑的任何标识，不能做单机授权")
     h = hashlib.sha256("\n".join(parts).encode()).hexdigest()[:24].upper()
     return "-".join(h[i:i + 4] for i in range(0, 24, 4))
+
+
+def activation_code(fp: str | None = None) -> str:
+    """离线激活码：客户把它发给我们，我们按它签发单机授权。末尾 4 位校验，抄错能发现。"""
+    fp = fp or fingerprint()
+    check = hashlib.sha256(("FAP1" + fp).encode()).hexdigest()[:4].upper()
+    return f"FAP1-{fp}-{check}"
+
+
+def parse_activation(code: str) -> str:
+    """激活码 → 机器指纹；格式或校验不对时抛 ValueError。"""
+    parts = code.strip().upper().split("-")
+    if len(parts) != 8 or parts[0] != "FAP1":
+        raise ValueError("激活码格式不对（应为 FAP1- 开头、8 段）")
+    fp = "-".join(parts[1:7])
+    if activation_code(fp) != "-".join(parts):
+        raise ValueError("激活码校验不对：可能抄错了")
+    return fp

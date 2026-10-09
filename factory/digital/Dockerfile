@@ -30,6 +30,7 @@ RUN pip install -r digital/requirements.txt "requests>=2.31"
 COPY analysis/ /app/fap/analysis/
 COPY kb/ /app/fap/kb/
 COPY schema/ /app/fap/schema/
+COPY licensing/ /app/fap/licensing/
 ENV PYTHONPATH=/app/fap
 COPY factory/factory/ factory/
 COPY factory/plants/ plants/

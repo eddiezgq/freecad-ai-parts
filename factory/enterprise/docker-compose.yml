@@ -19,6 +19,7 @@ x-app-env: &app-env
   WQ_MODE: ${FAP_MODE:-prod}
   WQ_TZ: ${WQ_TZ:-Asia/Shanghai}
   WQ_PLANT_FILE: ${WQ_PLANT_FILE:-}       # 企业的工厂清单（ADR-0064）；空 = 演示工厂
+  WQ_LICENSE_FILE: ${WQ_LICENSE_FILE:-}   # FreeCAD 单机安装版的浮动席位授权（ADR-0066）；空 = 不提供席位
 
 x-erpnext: &erpnext
   image: frappe/erpnext:v16.34.1

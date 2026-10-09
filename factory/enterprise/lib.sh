@@ -53,6 +53,14 @@ plant_company() {
         "import json; from factory import plant; print(json.dumps(plant.company(), ensure_ascii=False))" | tail -n 1
 }
 # 把清单放进来并校验（$1 = 企业给的清单文件）；有错不替换现有的
+license_put() {     # 浮动席位授权（ADR-0066）：放进 plant/（工厂服务以只读挂载），服务端改了文件会自己重读
+    mkdir -p "$FD/plant"
+    grep -q '"signature"' "$1" || die "$1 不像授权文件（没有 signature）"
+    cp "$1" "$FD/plant/license.json" && chmod 644 "$FD/plant/license.json"
+    envset WQ_LICENSE_FILE /plant/license.json
+    log "已装上授权文件；FreeCAD 工作台可以向本工厂租席位"
+}
+
 plant_put() {
     mkdir -p "$FD/plant"
     cp "$1" "$FD/plant/plant.new.yaml" && chmod 644 "$FD/plant/plant.new.yaml"

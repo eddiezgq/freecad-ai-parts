@@ -1833,6 +1833,10 @@ def teach_reset(body: dict = Body(default={}), u=Depends(user_of)):
 from hub import library as _library  # noqa: E402
 _library.mount(app)
 
+# ---------------------------------------------------------------- 浮动席位（ADR-0066）：FreeCAD 单机安装版来租席位
+from hub import seats_api as _seats  # noqa: E402
+_seats.mount(app)
+
 # ---------------------------------------------------------------- 课程接口（第 4 轮）
 from hub import course as _course  # noqa: E402
 _course.mount(app, H)

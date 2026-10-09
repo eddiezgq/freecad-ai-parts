@@ -479,6 +479,21 @@ class FirstRunCommand:
         first_run.show(_main_window())
 
 
+class LicenseCommand:
+    """授权与席位（ADR-0066）。"""
+
+    def GetResources(self):
+        return {"MenuText": "授权与席位", "ToolTip": "本机授权、激活码、导入授权文件、向企业数字工厂租浮动席位"}
+
+    def IsActive(self):
+        return True
+
+    def Activated(self):
+        from freecad_addon.gui import license_dialog
+
+        license_dialog.show(_main_window())
+
+
 class AiPartsWorkbench(FreeCADGui.Workbench):
     MenuText = "AI Parts"
     ToolTip = "AI 原生零件选型、校验与布局"
@@ -506,10 +521,11 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         FreeCADGui.addCommand("FAP_Record", RecordCommand())
         FreeCADGui.addCommand("FAP_RecordVideo", RecordVideoCommand())
         FreeCADGui.addCommand("FAP_FirstRun", FirstRunCommand())
+        FreeCADGui.addCommand("FAP_License", LicenseCommand())
         tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bom",
                  "FAP_Restore", "FAP_Bridge", "FAP_Record"]
         self.appendToolbar("AI Parts", tools)
-        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_Fea", "FAP_Optimize", "FAP_Topo", "FAP_Cam", "FAP_Cfd", "FAP_Twin", "FAP_Publish", "FAP_RecordVideo", "FAP_FirstRun"])
+        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_Fea", "FAP_Optimize", "FAP_Topo", "FAP_Cam", "FAP_Cfd", "FAP_Twin", "FAP_Publish", "FAP_RecordVideo", "FAP_FirstRun", "FAP_License"])
 
     def Activated(self):
         """第一次打开工作台时弹出首次设置（ADR-0066）；以后从菜单再打开。"""
@@ -518,6 +534,9 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         from freecad_addon.gui import first_run
 
         QtCore.QTimer.singleShot(300, lambda: first_run.show_if_needed(_main_window()))
+        from freecad_addon.gui import license_dialog
+
+        license_dialog.start_seat_if_configured()
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"

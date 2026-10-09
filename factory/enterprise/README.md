@@ -34,6 +34,7 @@ factory/enterprise/deploy.sh ubuntu@203.0.113.10 --backup
 | `--claude-key`、`--deepseek-key` | AI 密钥，也可以以后写进 `.env` |
 | `--demo` | 演示模式：启动仿真车间 |
 | `--plant 清单.yaml` | 企业自己的工厂清单（ADR-0064，Excel 模板见 `docs/enterprise-onboarding.md` 第五节）。ERPNext 的公司、国家、币种、时区，工作站、工序，车间平面都按它建；不给时装演示工厂 |
+| `--license 授权.json` | FreeCAD 单机安装版的浮动席位授权（ADR-0066）：放进 `plant/license.json`，工作台向本工厂租席位（`/api/seats`）；不给时不提供席位，工厂自身功能不受影响 |
 | `--images 标签`、`--no-pull`、`--registry-token` | 镜像版本、离线安装、拉取私有镜像用的令牌 |
 
 `install.sh` 可以重复运行，已经做过的步骤会跳过。它依次完成这些事：
@@ -55,7 +56,7 @@ Windows 本机：先装 Docker Desktop 和 WSL2，再运行 `.\factory\enterpris
 | `status.sh` | 各服务状态、工作台和 ERPNext 能否打开、磁盘剩余、最近一次备份 |
 | `backup.sh` | 备份历史库、ERPNext（数据库加附件）、配置与证书，存到 `backups/`。保留 14 份，`FAP_BACKUP_COPY_TO` 可再复制一份到别处。建议每天由 cron 运行 |
 | `restore.sh 备份包` | 恢复历史库与 ERPNext。配置只解压出来供核对，不覆盖现有的 |
-| `upgrade.sh [标签] [--plant 清单.yaml]` | 先备份，再拉新镜像、重启。给了 `--plant` 就换工厂清单：先校验，有错不换；补建新的工作站、工序后重启。公司不随之改 |
+| `upgrade.sh [标签] [--plant 清单.yaml] [--license 授权.json]` | 先备份，再拉新镜像、重启。给了 `--plant` 就换工厂清单：先校验，有错不换；补建新的工作站、工序后重启。公司不随之改；给了 `--license` 就换授权文件，工厂服务自己重读 |
 
 ## 端口与安全
 
