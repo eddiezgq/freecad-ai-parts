@@ -92,4 +92,6 @@ $appVersion = (& $py -c "import tomllib;print(tomllib.load(open(r'$Repo\pyprojec
 $outAbs = (Resolve-Path $Out).Path
 & $iscc "/DAppVersion=$appVersion" "/DSourceDir=$app" "/DOutputDir=$outAbs" "$PSScriptRoot\fap.iss"
 if ($LASTEXITCODE -ne 0) { throw "Inno Setup 打包失败" }
+# 删掉打包用的目录：安装后的工作台不能依赖打包机上的路径（验收时这个路径不存在）
+Remove-Item -Recurse -Force $unpack -ErrorAction SilentlyContinue
 Get-ChildItem $outAbs -Filter "FreeCAD-AI-Parts-Setup-*.exe" | ForEach-Object { Write-Host ("安装包：{0}（{1:N0} MB）" -f $_.FullName, ($_.Length / 1MB)) }

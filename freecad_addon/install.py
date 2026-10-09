@@ -58,18 +58,29 @@ def init_gui_source(repo: Path = REPO_ROOT) -> str:
 
 
 def standalone_init_gui_source(lib: Path) -> str:
-    """自包含安装的 InitGui.py：优先按自身位置找 lib/（整个目录被挪动也能用），找不到再用安装时的绝对路径。"""
+    """自包含安装的 InitGui.py：按实际位置找 lib/，不依赖安装（打包）时的路径。
+
+    依次试：本文件旁的 lib/（有 __file__ 时）；FreeCAD 放进 sys.path 的 Mod/FreeCADAIParts 目录旁的 lib/
+    （Windows 上执行 InitGui.py 时没有 __file__，2026-10-09 CI 验收发现）；最后才用安装时写下的绝对路径。
+    """
     return (
         f"{MARKER} --standalone（AI Parts 工作台，ADR-0066）\n"
+        "# 只用顶层语句（不写函数、推导式）：FreeCAD 可能用分开的 globals / locals 执行本文件\n"
         "import os\n"
         "import sys\n\n"
-        f"LIB = {str(lib)!r}\n"
+        f"_cands = [{str(lib)!r}]\n"
         "try:\n"
-        "    _here = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lib')\n"
-        "    if os.path.isdir(_here):\n"
-        "        LIB = _here\n"
-        "except NameError:  # FreeCAD 执行 InitGui.py 时可能没有 __file__\n"
+        "    _cands.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lib'))\n"
+        "except NameError:\n"
         "    pass\n"
+        "for _p in list(sys.path):\n"
+        f"    if os.path.basename(str(_p).rstrip('/\\\\')) == {MOD_NAME!r}:\n"
+        "        _cands.insert(len(_cands) - 1, os.path.join(str(_p), 'lib'))\n"
+        "LIB = _cands[-1]\n"
+        "for _c in _cands:\n"
+        "    if os.path.isfile(os.path.join(_c, 'BUNDLE.json')):\n"
+        "        LIB = _c\n"
+        "        break\n"
         "if LIB not in sys.path:\n"
         "    sys.path.insert(0, LIB)\n\n"
         "from freecad_addon.gui.workbench import register\n\n"
