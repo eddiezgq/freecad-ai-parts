@@ -13,6 +13,22 @@ from freecad_addon.core import library_choice
 from freecad_addon.gui.tools_client import InProcessTools
 
 
+def _pack_allowed() -> bool:
+    """零件库订阅包要授权（ADR-0066）：本机授权，或从工厂服务器租到的席位里有这项功能。"""
+    try:
+        from licensing import runtime
+        from licensing.parts_pack import FEATURE
+
+        if runtime.allows(FEATURE):
+            return True
+        from freecad_addon.gui.license_dialog import SeatKeeper
+
+        k = SeatKeeper._instance
+        return bool(k and k.state.get("ok") and FEATURE in k.state.get("features", []))
+    except Exception:  # noqa: BLE001 — 授权检查出错时按未授权处理，公开功能照常
+        return False
+
+
 class ToolsHost:
     def __init__(self, library_factory: Callable | None = None, note: str | None = None):
         from freecad_addon.fc.inprocess import InProcessBackend
@@ -20,7 +36,7 @@ class ToolsHost:
         from mcp_server.server import create_server
 
         if library_factory is None:
-            choice = library_choice.choose(os.environ)
+            choice = library_choice.choose(os.environ, pack_allowed=_pack_allowed())
             library_factory, note = (lambda: library_choice.load(choice)), choice.note
         self.note = note or "组件库：由调用方指定（未按 FAP_LIBRARY 查找）"
         self._lib = None

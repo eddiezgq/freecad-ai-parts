@@ -27,17 +27,17 @@ from freecad_addon.gui.chat import (
     mcp_tools_to_anthropic,
     summarize,
 )
-from freecad_addon.gui.host import ToolsHost, get_host
+from freecad_addon.gui.host import ToolsHost, _pack_allowed, get_host
 
 GOLDEN_FIXTURES = Path(__file__).resolve().parents[2] / "tests" / "golden" / "fixtures"
 
 
 def panel_library():
-    return library_choice.load(library_choice.choose(os.environ))
+    return library_choice.load(library_choice.choose(os.environ, pack_allowed=_pack_allowed()))
 
 
 def library_note() -> str:
-    return library_choice.choose(os.environ).note
+    return library_choice.choose(os.environ, pack_allowed=_pack_allowed()).note
 
 
 def key_note() -> str:
