@@ -19,7 +19,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 # 运行时要的全部内容（相对仓库根）。data/raw、数据库、数字工厂、开发脚本不进包。
-PACKAGES = ("freecad_addon", "engine", "kb", "analysis", "mcp_server", "llm_gateway", "ingest")
+PACKAGES = ("freecad_addon", "engine", "kb", "analysis", "mcp_server", "llm_gateway", "ingest", "licensing")
 DATA = ("schema", "data/library", "data/sources.yaml", "tests/golden", "tests/recordings/requirement",
         "LICENSE", "NOTICE")
 MANIFEST = "BUNDLE.json"
