@@ -66,7 +66,10 @@ jobs:
           PYTHONPATH="$FC/usr/lib" xvfb-run -a -s "-screen 0 1280x1024x24" "$FC/usr/bin/python" -m pytest -m freecad -v -rf 2>&1 | tee freecad-tests.log
       - name: 失败摘要写成注解（便于在检查结果中直接看到原因）
         if: failure()
-        run: grep -E "^(FAILED|ERROR) |^E  " freecad-tests.log | head -40 | sed 's/^/::error::/' || true
+        run: |
+          grep -E "^(FAILED|ERROR) |^E  " freecad-tests.log | head -40 | sed 's/^/::error::/' || true
+          # 进程崩溃时没有 FAILED 行：把日志尾部并成一条注释（一个步骤最多显示 10 条）
+          echo "::error::日志尾部%0A$(tail -n 30 freecad-tests.log | tr -d '\r' | sed ':a;N;$!ba;s/\n/%0A/g')"
 
   factory:
     # 搬入的数字工厂（ADR-0058）：独立子项目，沿用问渠仓库 factory 工作流的测试作业
