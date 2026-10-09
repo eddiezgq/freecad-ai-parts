@@ -1,4 +1,4 @@
-# 问渠数字工厂 · 企业安装版（Windows 本机，ADR-0063）
+﻿# 问渠数字工厂 · 企业安装版（Windows 本机，ADR-0063）
 # Windows 上经 WSL2 运行同一个 install.sh：先装 Docker Desktop（开启 WSL2 集成）和一个 Ubuntu 发行版。
 #   .\factory\enterprise\install.ps1 -Domain factory.local -Admin admin            # 本机 / 内网：自签证书
 # 其他选项与 install.sh 相同，原样传过去，例如 -Extra "--demo --region cn"
