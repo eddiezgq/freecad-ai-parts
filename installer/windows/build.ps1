@@ -10,6 +10,8 @@ param(
 # 所以这里不用 Stop，每一步按退出码或结果自己判断；PowerShell 自己的命令加 -ErrorAction Stop。
 $ErrorActionPreference = "Continue"
 $ProgressPreference = "SilentlyContinue"
+$env:PYTHONUTF8 = "1"              # Python 输出中文时不受本机代码页影响
+$env:PYTHONIOENCODING = "utf-8"
 $Repo = (Resolve-Path "$PSScriptRoot\..\..").Path
 $Version = "1.0.2"
 $AssetName = "FreeCAD_$Version-conda-Windows-x86_64-py311.7z"
