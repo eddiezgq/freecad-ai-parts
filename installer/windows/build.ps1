@@ -6,19 +6,21 @@ param(
   [string]$Work = "$env:RUNNER_TEMP\fap-win",
   [string]$Out = "dist"
 )
-$ErrorActionPreference = "Stop"
+# 外部程序（pip、7z、ISCC）往 stderr 写进度；Windows PowerShell 5.1 在输出被重定向时会把它当成错误。
+# 所以这里不用 Stop，每一步按退出码或结果自己判断；PowerShell 自己的命令加 -ErrorAction Stop。
+$ErrorActionPreference = "Continue"
 $ProgressPreference = "SilentlyContinue"
 $Repo = (Resolve-Path "$PSScriptRoot\..\..").Path
 $Version = "1.0.2"
 $AssetName = "FreeCAD_$Version-conda-Windows-x86_64-py311.7z"
 if (-not $Work -or $Work -eq "\fap-win") { $Work = Join-Path $env:TEMP "fap-win" }
-New-Item -ItemType Directory -Force -Path $Work, $Out | Out-Null
+New-Item -ItemType Directory -Force -Path $Work, $Out -ErrorAction Stop | Out-Null
 
 # 1. FreeCAD 便携版
 $archive = Join-Path $Work $AssetName
 $headers = @{ "User-Agent" = "fap-installer" }
 if ($env:GITHUB_TOKEN) { $headers["Authorization"] = "Bearer $env:GITHUB_TOKEN" }
-$release = Invoke-RestMethod -Headers $headers "https://api.github.com/repos/FreeCAD/FreeCAD/releases/tags/$Version"
+$release = Invoke-RestMethod -ErrorAction Stop -Headers $headers "https://api.github.com/repos/FreeCAD/FreeCAD/releases/tags/$Version"
 $asset = $release.assets | Where-Object { $_.name -eq $AssetName }
 if (-not $asset) { throw "FreeCAD $Version 的发布里没有 $AssetName" }
 $expected = $null
@@ -26,18 +28,18 @@ if ($asset.digest -and $asset.digest.StartsWith("sha256:")) { $expected = $asset
 else {
   $shaAsset = $release.assets | Where-Object { $_.name -like "$AssetName*SHA256*" } | Select-Object -First 1
   if (-not $shaAsset) { throw "找不到 $AssetName 的 SHA-256" }
-  $expected = ((Invoke-WebRequest -UseBasicParsing $shaAsset.browser_download_url).Content -split "\s+")[0]
+  $expected = ((Invoke-WebRequest -ErrorAction Stop -UseBasicParsing $shaAsset.browser_download_url).Content -split "\s+")[0]
 }
 if (-not (Test-Path $archive) -or (Get-FileHash $archive -Algorithm SHA256).Hash -ne $expected.ToUpper()) {
   Write-Host "下载 $AssetName ..."
-  Invoke-WebRequest -UseBasicParsing $asset.browser_download_url -OutFile $archive
+  Invoke-WebRequest -ErrorAction Stop -UseBasicParsing $asset.browser_download_url -OutFile $archive
 }
 $actual = (Get-FileHash $archive -Algorithm SHA256).Hash
 if ($actual -ne $expected.ToUpper()) { throw "SHA-256 不符：期望 $expected，实际 $actual" }
 Write-Host "FreeCAD $Version 核对通过：$actual"
 
 $unpack = Join-Path $Work "unpack"
-if (Test-Path $unpack) { Remove-Item -Recurse -Force $unpack }
+if (Test-Path $unpack) { Remove-Item -Recurse -Force -ErrorAction Stop $unpack }
 & 7z x $archive "-o$unpack" -y | Out-Null
 if ($LASTEXITCODE -ne 0) { throw "解压失败" }
 $app = Get-ChildItem $unpack -Directory | Where-Object { Test-Path (Join-Path $_.FullName "bin\FreeCAD.exe") } | Select-Object -First 1
@@ -48,7 +50,7 @@ $py = Join-Path $app "bin\python.exe"
 # 2. 依赖装进 FreeCAD 自带的 Python
 $reqs = Join-Path $Work "requirements.txt"
 & $py "$Repo\installer\windows\deps.py" | Set-Content -Encoding ascii $reqs
-& $py -m pip install --no-warn-script-location --disable-pip-version-check -r $reqs
+& $py -m pip install --no-warn-script-location --disable-pip-version-check --progress-bar off -r $reqs 2>&1 | Write-Host
 if ($LASTEXITCODE -ne 0) { throw "依赖安装失败" }
 
 # 3. 工作台自包含装进 FreeCAD 的 Mod
