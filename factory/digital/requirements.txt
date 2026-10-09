@@ -19,3 +19,4 @@ pyyaml>=6.0
 openpyxl==3.1.5           # 工厂清单的 Excel 模板与导入（ADR-0064）
 mujoco==3.14.0
 pypdf==6.19.0
+cryptography>=42          # 浮动席位的授权文件签名校验（ADR-0066）

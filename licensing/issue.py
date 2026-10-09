@@ -3,9 +3,9 @@
     python -m licensing.issue keygen                         # 生成一对密钥：私钥自己保管，公钥加到 licensing/keys.py
     python -m licensing.issue sign --key-id k2026 --licensee "某某机械" --expires 2027-12-31 \\
         --kind floating --seats 5 --features parts-subscription,seats --out 某某机械.license.json
-    python -m licensing.issue sign ... --kind node --node XXXX-XXXX-...   # 单机授权，node 为客户的机器指纹
+    python -m licensing.issue sign ... --kind node --activation FAP1-...  # 单机授权，按客户发来的激活码
     python -m licensing.issue check 某某机械.license.json [--node 指纹]   # 用 keys.py 里的公钥校验
-    python -m licensing.issue fingerprint                    # 本机指纹
+    python -m licensing.issue fingerprint                    # 本机指纹与激活码
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ import uuid
 from pathlib import Path
 
 from licensing import keys
-from licensing.fingerprint import fingerprint
+from licensing.fingerprint import activation_code, fingerprint, parse_activation
 from licensing.license import LicenseError, sign, verify
 
 
@@ -46,6 +46,7 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--seats", type=int, default=1)
     s.add_argument("--features", required=True, help="逗号分隔")
     s.add_argument("--node", default=None)
+    s.add_argument("--activation", default=None, help="客户的激活码（单机授权）")
     s.add_argument("--out", type=Path, required=True)
     c = sub.add_parser("check")
     c.add_argument("file", type=Path)
@@ -60,7 +61,7 @@ def main(argv: list[str] | None = None) -> int:
         print(pub)
         return 0
     if a.cmd == "fingerprint":
-        print(fingerprint())
+        print(f"机器指纹：{fingerprint()}\n激活码：{activation_code()}")
         return 0
     if a.cmd == "check":
         v = verify(json.loads(a.file.read_text(encoding="utf-8")), keys.PUBLIC_KEYS, dt.datetime.now().astimezone().date(), a.node)
@@ -73,6 +74,12 @@ def main(argv: list[str] | None = None) -> int:
     lic = {"id": str(uuid.uuid4()), "key_id": a.key_id, "licensee": a.licensee, "issued": dt.datetime.now().astimezone().date().isoformat(),
            "expires": a.expires, "kind": a.kind, "seats": a.seats,
            "features": [f.strip() for f in a.features.split(",") if f.strip()]}
+    if a.activation:
+        try:
+            a.node = parse_activation(a.activation)
+        except ValueError as exc:
+            print(f"不能签发：{exc}", file=sys.stderr)
+            return 2
     if a.node:
         lic["node"] = a.node
     try:
