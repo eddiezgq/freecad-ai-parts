@@ -25,7 +25,9 @@ def main(app: Path) -> int:
 
     lib = app / "Mod" / "FreeCADAIParts" / "lib"
     results["workbench"] = "AiPartsWorkbench" in FreeCADGui.listWorkbenches()
-    results["from_install_dir"] = Path(freecad_addon.__file__).resolve().is_relative_to(lib.resolve())
+    addon = Path(freecad_addon.__file__).resolve()
+    results["addon_file"] = str(addon)
+    results["from_install_dir"] = str(addon).lower().startswith(str(lib.resolve()).lower())
     results["freecad"] = ".".join(FreeCAD.Version()[:3])
 
     from engine import golden
