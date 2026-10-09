@@ -45,10 +45,10 @@ def key_note() -> str:
     from freecad_addon.gui.chat import _load_dotenv
 
     _load_dotenv()
-    if os.environ.get("ANTHROPIC_API_KEY"):
+    if os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("DEEPSEEK_API_KEY"):
         return ""
-    return ("未设置 ANTHROPIC_API_KEY，AI 对话不能用：在本仓库目录的 .env 文件中写一行 ANTHROPIC_API_KEY=你的密钥，"
-            "重启 FreeCAD。不用对话也可以用“选型”“零件库”“校验”“BOM”。")
+    return ("未设置 AI 密钥（ANTHROPIC_API_KEY 或 DEEPSEEK_API_KEY），AI 对话不能用：在 AI Parts 菜单的“首次设置”里填写。"
+            "不用对话也可以用“选型”“零件库”“校验”“BOM”。")
 
 
 def _short(data, limit: int = 160) -> str:

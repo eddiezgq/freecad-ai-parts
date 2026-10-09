@@ -61,20 +61,10 @@ class ScriptedLLM:
 
 
 def _load_dotenv() -> None:
-    from pathlib import Path
+    """仓库 .env 与本机用户目录的密钥（ADR-0066 首次设置写的）。"""
+    from llm_gateway import load_dotenv
 
-    path = Path(__file__).resolve().parents[2] / ".env"
-    if not path.is_file():
-        return
-    for line in path.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        name, value = line.split("=", 1)
-        name, value = name.removeprefix("export ").strip(), value.strip()
-        if len(value) >= 2 and value[0] in "'\"" and value[-1] == value[0]:
-            value = value[1:-1]
-        os.environ.setdefault(name, value)
+    load_dotenv()
 
 
 class AnthropicChat:
@@ -83,7 +73,7 @@ class AnthropicChat:
     def __init__(self, model: str | None = None, max_tokens: int = 4096):
         _load_dotenv()
         if not os.environ.get("ANTHROPIC_API_KEY"):
-            raise RuntimeError("未设置 ANTHROPIC_API_KEY：请在启动 FreeCAD 前设置环境变量，或写在本仓库的 .env 中")
+            raise RuntimeError("未设置 ANTHROPIC_API_KEY：在 AI Parts 菜单的“首次设置”里填写，或在启动 FreeCAD 前设置环境变量")
         try:
             import anthropic
         except ImportError as exc:
