@@ -6,7 +6,7 @@ FreeCAD 一侧的对话面板与需求解析用它；工厂一侧在 `factory/di
 
 选择：FAP_AI_PROVIDER = auto（缺省）| claude | deepseek；auto 时看 FAP_AI_REGION（cn / intl），没设时按时区推断
 （TZ 是中国时区，或本机 UTC+8 且语言是简体中文，算 cn）。
-密钥：ANTHROPIC_API_KEY、DEEPSEEK_API_KEY（只从环境变量或本仓库 .env 读，不写入任何文件）。
+密钥：ANTHROPIC_API_KEY、DEEPSEEK_API_KEY（从环境变量、本仓库 .env 或本机用户目录 ~/.freecad-ai-parts/.env 读；后者由单机安装版的首次设置写入，ADR-0066）。
 模型：FAP_CLAUDE_MODEL（缺省 claude-sonnet-5-5）、FAP_DEEPSEEK_MODEL（缺省 deepseek-chat）、FAP_DEEPSEEK_BASE。
 """
 
@@ -18,6 +18,7 @@ import locale
 import os
 import time
 from collections.abc import Mapping
+from pathlib import Path
 from typing import Any
 
 PROVIDERS = ("claude", "deepseek")
@@ -30,14 +31,13 @@ class GatewayError(RuntimeError):
     """两家都不可用（没配密钥或都出错）。"""
 
 
-def load_dotenv() -> None:
-    """本仓库根目录的 .env（只补没设的变量）。"""
-    from pathlib import Path
+USER_ENV = Path.home() / ".freecad-ai-parts" / ".env"   # 单机安装版首次设置写的密钥（ADR-0066），只在本机用户目录
+KEYS = ("ANTHROPIC_API_KEY", "DEEPSEEK_API_KEY")
 
-    path = Path(__file__).resolve().parents[1] / ".env"
-    if not path.is_file():
-        return
-    for line in path.read_text(encoding="utf-8").splitlines():
+
+def parse_env(text: str) -> dict[str, str]:
+    out = {}
+    for line in text.splitlines():
         line = line.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
@@ -45,7 +45,35 @@ def load_dotenv() -> None:
         name, value = name.removeprefix("export ").strip(), value.strip()
         if len(value) >= 2 and value[0] in "'\"" and value[-1] == value[0]:
             value = value[1:-1]
-        os.environ.setdefault(name, value)
+        out[name] = value
+    return out
+
+
+def load_dotenv(user_env: Path | None = None) -> None:
+    """本仓库根目录的 .env，再加本机用户目录的 ~/.freecad-ai-parts/.env（只补没设的变量；环境变量优先）。"""
+    for path in (Path(__file__).resolve().parents[1] / ".env", user_env or USER_ENV):
+        if path.is_file():
+            for name, value in parse_env(path.read_text(encoding="utf-8")).items():
+                os.environ.setdefault(name, value)
+
+
+def save_user_env(values: Mapping[str, str], path: Path | None = None) -> Path:
+    """把密钥写进本机用户目录（不进仓库、不进安装目录）；值为空就删掉这一项。文件只有本人可读。"""
+    path = path or USER_ENV
+    data = parse_env(path.read_text(encoding="utf-8")) if path.is_file() else {}
+    for k, v in values.items():
+        if v and v.strip():
+            data[k] = v.strip()
+        else:
+            data.pop(k, None)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("# FreeCAD AI Parts 的 AI 密钥（首次设置写入，ADR-0066）\n"
+                    + "".join(f"{k}={v}\n" for k, v in data.items()), encoding="utf-8")
+    try:
+        path.chmod(0o600)
+    except OSError:
+        pass
+    return path
 
 
 def region_of(env: Mapping[str, str] | None = None) -> str:
