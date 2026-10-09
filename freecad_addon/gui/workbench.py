@@ -464,6 +464,21 @@ class RecordVideoCommand(RecordCommand):
         return True
 
 
+class FirstRunCommand:
+    """首次设置（ADR-0066）：AI 密钥、企业数字工厂地址。"""
+
+    def GetResources(self):
+        return {"MenuText": "首次设置", "ToolTip": "填 AI 密钥（只存本机用户目录）、企业数字工厂地址并测试连接"}
+
+    def IsActive(self):
+        return True
+
+    def Activated(self):
+        from freecad_addon.gui import first_run
+
+        first_run.show(_main_window())
+
+
 class AiPartsWorkbench(FreeCADGui.Workbench):
     MenuText = "AI Parts"
     ToolTip = "AI 原生零件选型、校验与布局"
@@ -490,10 +505,19 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         FreeCADGui.addCommand("FAP_Bridge", BridgeCommand())
         FreeCADGui.addCommand("FAP_Record", RecordCommand())
         FreeCADGui.addCommand("FAP_RecordVideo", RecordVideoCommand())
+        FreeCADGui.addCommand("FAP_FirstRun", FirstRunCommand())
         tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bom",
                  "FAP_Restore", "FAP_Bridge", "FAP_Record"]
         self.appendToolbar("AI Parts", tools)
-        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_Fea", "FAP_Optimize", "FAP_Topo", "FAP_Cam", "FAP_Cfd", "FAP_Twin", "FAP_Publish", "FAP_RecordVideo"])
+        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_Fea", "FAP_Optimize", "FAP_Topo", "FAP_Cam", "FAP_Cfd", "FAP_Twin", "FAP_Publish", "FAP_RecordVideo", "FAP_FirstRun"])
+
+    def Activated(self):
+        """第一次打开工作台时弹出首次设置（ADR-0066）；以后从菜单再打开。"""
+        from PySide import QtCore
+
+        from freecad_addon.gui import first_run
+
+        QtCore.QTimer.singleShot(300, lambda: first_run.show_if_needed(_main_window()))
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"

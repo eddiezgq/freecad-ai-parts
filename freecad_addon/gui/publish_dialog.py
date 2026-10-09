@@ -98,7 +98,7 @@ class PublishDialog(QtWidgets.QDialog):
 
         def work() -> None:
             try:
-                out = factory_link.publish(factory_link.HubClient(url), author, mode, data, step,
+                out = factory_link.publish(factory_link.HubClient(url, cafile=library_choice.read_settings().get("factory_cafile")), author, mode, data, step,
                                            password=self.password.text() or None)
             except factory_link.FactoryError as exc:
                 out = exc
