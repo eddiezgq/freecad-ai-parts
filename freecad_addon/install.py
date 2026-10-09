@@ -2,8 +2,11 @@
 
     python -m freecad_addon.install [--mod-dir 目录] [--uninstall]
 
-InitGui.py 只记录本仓库路径并调用 freecad_addon.gui.workbench.register()，代码仍在本仓库中，更新仓库即更新插件。
-对话面板还需要在 FreeCAD 的 Python 中安装依赖：<FreeCAD 的 python> -m pip install -e ".[llm]"
+缺省（开发用）：InitGui.py 只记录本仓库路径并调用 freecad_addon.gui.workbench.register()，代码仍在本仓库中，
+更新仓库即更新插件。对话面板还需要在 FreeCAD 的 Python 中安装依赖：<FreeCAD 的 python> -m pip install -e ".[llm]"
+
+--standalone（ADR-0066）：把运行时代码与数据（freecad_addon.bundle）复制到 Mod/FreeCADAIParts/lib/，
+InitGui.py 指向这个 lib，装完可以删掉仓库。--from-bundle 目录：用已生成的包（安装包用这个）。
 """
 
 from __future__ import annotations
@@ -54,10 +57,49 @@ def init_gui_source(repo: Path = REPO_ROOT) -> str:
     )
 
 
-def install(mod_dir: Path) -> Path:
+def standalone_init_gui_source(lib: Path) -> str:
+    """自包含安装的 InitGui.py：优先按自身位置找 lib/（整个目录被挪动也能用），找不到再用安装时的绝对路径。"""
+    return (
+        f"{MARKER} --standalone（AI Parts 工作台，ADR-0066）\n"
+        "import os\n"
+        "import sys\n\n"
+        f"LIB = {str(lib)!r}\n"
+        "try:\n"
+        "    _here = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lib')\n"
+        "    if os.path.isdir(_here):\n"
+        "        LIB = _here\n"
+        "except NameError:  # FreeCAD 执行 InitGui.py 时可能没有 __file__\n"
+        "    pass\n"
+        "if LIB not in sys.path:\n"
+        "    sys.path.insert(0, LIB)\n\n"
+        "from freecad_addon.gui.workbench import register\n\n"
+        "register()\n"
+    )
+
+
+def install(mod_dir: Path, standalone: bool = False, bundle: Path | None = None) -> Path:
     target = mod_dir / MOD_NAME
-    target.mkdir(parents=True, exist_ok=True)
-    (target / "InitGui.py").write_text(init_gui_source(), encoding="utf-8")
+    if target.is_dir():
+        init = target / "InitGui.py"
+        if init.is_file() and MARKER not in init.read_text(encoding="utf-8"):
+            raise RuntimeError(f"{target} 不是本安装程序生成的，未覆盖")
+        shutil.rmtree(target)
+    target.mkdir(parents=True)
+    if not (standalone or bundle):
+        (target / "InitGui.py").write_text(init_gui_source(), encoding="utf-8")
+        return target
+    lib = target / "lib"
+    if bundle:
+        from freecad_addon.bundle import MANIFEST
+
+        if not (Path(bundle) / MANIFEST).is_file():
+            raise RuntimeError(f"{bundle} 不是工作台包（缺 {MANIFEST}）")
+        shutil.copytree(bundle, lib)
+    else:
+        from freecad_addon.bundle import build
+
+        build(lib)
+    (target / "InitGui.py").write_text(standalone_init_gui_source(lib), encoding="utf-8")
     return target
 
 
@@ -76,13 +118,20 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="安装或卸载 FreeCAD 的 AI Parts 工作台")
     parser.add_argument("--mod-dir", type=Path, default=None, help="FreeCAD 用户 Mod 目录（缺省按系统推断）")
     parser.add_argument("--uninstall", action="store_true")
+    parser.add_argument("--standalone", action="store_true", help="复制代码与数据进 Mod，不依赖仓库（ADR-0066）")
+    parser.add_argument("--from-bundle", type=Path, default=None, help="用已生成的工作台包目录（隐含 --standalone）")
     args = parser.parse_args(argv)
     mod_dirs = [args.mod_dir] if args.mod_dir else default_mod_dirs()
     if args.uninstall:
         for mod_dir in mod_dirs:
             print(f"已卸载：{mod_dir / MOD_NAME}" if uninstall(mod_dir) else f"未安装：{mod_dir / MOD_NAME}")
         return 0
-    targets = [install(mod_dir) for mod_dir in mod_dirs]
+    targets = [install(mod_dir, args.standalone, args.from_bundle) for mod_dir in mod_dirs]
+    if args.standalone or args.from_bundle:
+        print("已安装（自包含）到：\n" + "\n".join(f"  {t}" for t in targets) + "\n"
+              "重启 FreeCAD 后，在工作台列表中选择 “AI Parts”。\n"
+              "依赖装进 FreeCAD 的 Python：<FreeCAD 的 python> -m pip install pyyaml jsonschema pint httpx anthropic")
+        return 0
     print("已安装到：\n" + "\n".join(f"  {t}" for t in targets) + "\n"
           "重启 FreeCAD 后，在工作台列表中选择 “AI Parts”。\n"
           "列表中没有时，在 FreeCAD 的 Python 控制台运行 FreeCAD.getUserAppDataDir() 查看用户目录，"

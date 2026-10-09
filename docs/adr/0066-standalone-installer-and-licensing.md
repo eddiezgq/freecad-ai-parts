@@ -49,3 +49,10 @@ FEA 依赖 gmsh、numpy、scipy，CalculiX、OpenFOAM 要自己装。企业设�
 - 要维护一个私有仓库和签发流程；授权私钥丢了要换公钥重发所有授权
 - 收费零件库在拿到厂商授权前只能放我们自己有权发布的数据，这一项先做机制，数据随授权补
 - 需要项目负责人做的事：创建私有仓库、生成并保管签名私钥、与厂商谈授权、拟许可协议
+
+## 补充（2026-10-09，M18 第 1 项实施时）
+
+- 工作台不打成 wheel，改为**按仓库布局复制**到 `Mod/FreeCADAIParts/lib/`（`python -m freecad_addon.bundle`、
+  `python -m freecad_addon.install --standalone`）。原因：校验规则、端口类型、来源登记、golden 示例都按“包的上一级目录”
+  找（`engine/rules.py` 等），保持布局就不用改 `engine/` 的路径；wheel 要把这些数据搬进包里并改路径，收益不大。
+  第三方依赖照计划装进 FreeCAD 自带的 Python。
