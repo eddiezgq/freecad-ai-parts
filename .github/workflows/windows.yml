@@ -40,6 +40,26 @@ jobs:
           set rc=%ERRORLEVEL%
           type "%RUNNER_TEMP%\build.log"
           exit /b %rc%
+      - name: 静默安装、验收、卸载（ADR-0066 第 4 项）
+        shell: powershell
+        env:
+          PYTHONUTF8: "1"
+          PYTHONIOENCODING: utf-8
+        run: |
+          $setup = (Get-ChildItem dist -Filter "FreeCAD-AI-Parts-Setup-*.exe" | Select-Object -First 1).FullName
+          $dir = "C:\fap-test"
+          $p = Start-Process -FilePath $setup -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/DIR=$dir", "/LOG=$env:RUNNER_TEMP\setup.log" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { Get-Content "$env:RUNNER_TEMP\setup.log" -Tail 30; throw "安装失败：$($p.ExitCode)" }
+          if (-not (Test-Path "$dir\Mod\FreeCADAIParts\InitGui.py")) { throw "安装目录里没有工作台" }
+          $env:HOME = "$env:RUNNER_TEMP\home"
+          Set-Location $env:RUNNER_TEMP
+          $ErrorActionPreference = "Continue"
+          & "$dir\bin\python.exe" "$env:GITHUB_WORKSPACE\installer\windows\acceptance.py" $dir 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\build.log"
+          if ($LASTEXITCODE -ne 0) { throw "验收不通过" }
+          $u = Start-Process -FilePath "$dir\unins000.exe" -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -Wait -PassThru
+          Start-Sleep -Seconds 5
+          if ($u.ExitCode -ne 0 -or (Test-Path "$dir\bin\FreeCAD.exe")) { throw "卸载没有清干净" }
+          Write-Host "静默安装、验收、卸载都通过"
       - uses: actions/upload-artifact@v4
         with:
           name: windows-installer
