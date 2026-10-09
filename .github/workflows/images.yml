@@ -11,6 +11,7 @@ on:
       - "analysis/**"
       - "kb/**"
       - "schema/**"
+      - "licensing/**"
       - ".github/workflows/images.yml"
   workflow_dispatch:
 
@@ -69,3 +70,19 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
           build-args: |
             HELP_VIDEOS_STAMP=${{ github.sha }}
+
+  cleanup:
+    # 私有镜像按存储计费（ADR-0067）：每个镜像只留最近 10 个版本（latest 与版本号标签不删）
+    needs: build
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        name: [fap-factory, fap-bridge, fap-openplc]
+    steps:
+      - uses: actions/delete-package-versions@v5
+        continue-on-error: true        # 清理失败不影响镜像发布
+        with:
+          package-name: ${{ matrix.name }}
+          package-type: container
+          min-versions-to-keep: 10
+          ignore-versions: '^(latest|v?\d+\.\d+\.\d+)$'
