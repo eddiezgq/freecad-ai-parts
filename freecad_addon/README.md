@@ -152,3 +152,13 @@ python -m freecad_addon.sessions export ds.jsonl --rated-only   # 导出数据�
 - **参考内容**：只有历史需求、评价与说明、用户对 AI 的修改、最后的结论；“未采纳”的会话也会列出，作为反例
 - 能不能用仍以本次工具的校验结果为准
 - 设 `FAP_SESSION_HINTS=0` 可关闭
+
+## 自包含安装（ADR-0066）
+
+不依赖仓库目录：代码与数据（规则、端口类型、公开零件库、golden 示例）复制到 `Mod/FreeCADAIParts/lib/`。
+
+```bash
+python -m freecad_addon.install --standalone            # 从本仓库生成并安装
+python -m freecad_addon.bundle build/fap-lib            # 只生成包（安装包用）
+python -m freecad_addon.install --from-bundle build/fap-lib --mod-dir <FreeCAD>/Mod
+```
