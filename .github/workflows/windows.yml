@@ -1,0 +1,58 @@
+name: Windows 安装包
+
+# 企业单机安装版（ADR-0066）：在 GitHub 的 Windows 机器上取 FreeCAD 1.0.2 便携版、装依赖与工作台、打 Inno Setup 安装包。
+# 合并到 main 后把安装包传到 Release windows-installer。
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - "installer/**"
+      - "freecad_addon/**"
+      - "engine/**"
+      - "kb/**"
+      - "analysis/**"
+      - "mcp_server/**"
+      - "llm_gateway/**"
+      - "pyproject.toml"
+      - ".github/workflows/windows.yml"
+  workflow_dispatch:
+
+jobs:
+  windows-installer:
+    runs-on: windows-2022
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: 缓存 FreeCAD 便携版
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}\fap-win\FreeCAD_1.0.2-conda-Windows-x86_64-py311.7z
+          key: freecad-win-1.0.2
+      - name: 生成安装包
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          powershell -ExecutionPolicy Bypass -File installer\windows\build.ps1 -Work "$env:RUNNER_TEMP\fap-win" -Out dist *>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\build.log"
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: dist\*.exe
+          retention-days: 7
+      - name: 合并到 main 后发布安装包
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view windows-installer >/dev/null 2>&1 || gh release create windows-installer \
+            --title "Windows 单机安装版" --notes "CI 自动生成（ADR-0066）：FreeCAD 1.0.2 + AI Parts 工作台 + 分析模块。" --prerelease
+          gh release upload windows-installer dist/*.exe --clobber
+      - name: 失败时的输出（写成注释）
+        if: failure()
+        shell: bash
+        run: '[ ! -f "$RUNNER_TEMP/build.log" ] || tail -n 60 "$RUNNER_TEMP/build.log" | iconv -f UTF-16 -t UTF-8 2>/dev/null | sed "s/^/::error::/" || tail -n 60 "$RUNNER_TEMP/build.log" | sed "s/^/::error::/"'
