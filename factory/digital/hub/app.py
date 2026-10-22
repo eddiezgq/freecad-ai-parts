@@ -1709,8 +1709,9 @@ def freecad_pack(request: Request, x_wq_token: str = Header(default=""), u=Depen
         sw = open(os.path.join(design_web.FREECAD_DIR, "wq_submit_solidworks.swb"), encoding="ascii").read()     # 第 10 轮 S1
         z.writestr("wenquest-freecad/SolidWorks/wq_submit_solidworks.swb",
                    sw.replace("__WQ_HUB__", base).replace("__WQ_TOKEN__", x_wq_token).replace("\r\n", "\n").replace("\n", "\r\n"))   # VBA 宏用 CRLF
-        z.writestr("wenquest-freecad/Mod/WenQuest/InitGui.py",
-                   open(os.path.join(design_web.FREECAD_DIR, "Mod", "WenQuest", "InitGui.py"), encoding="utf-8").read())
+        for name in ("InitGui.py", "wq_workbench.py"):    # 工作台（第 39 轮第 5 步：InitGui 只找文件夹，代码在 wq_workbench.py）
+            z.writestr("wenquest-freecad/Mod/WenQuest/" + name,
+                       open(os.path.join(design_web.FREECAD_DIR, "Mod", "WenQuest", name), encoding="utf-8").read())
         z.writestr("wenquest-freecad/使用说明.txt", FREECAD_README.format(base=base, mode="教学" if u["mode"] == "teach" else "生产"))
     return Response(buf.getvalue(), media_type="application/zip",
                     headers={"Content-Disposition": "attachment; filename=wenquest-freecad.zip"})

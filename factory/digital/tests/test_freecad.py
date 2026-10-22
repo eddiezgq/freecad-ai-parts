@@ -48,3 +48,39 @@ def test_drawing_is_valid_svg_with_title_block():
     text = s
     assert doc.documentElement.tagName == "svg"
     assert "rev 3" in text and "王小明" in text and "总长 167" in text
+
+
+def test_workbench_loads_the_way_freecad_runs_initgui(tmp_path, monkeypatch):
+    """FreeCAD 执行 InitGui.py 时可能用分开的 globals / locals，Windows 上还没有 __file__（第 39 轮第 5 步复现）：
+    照这样执行一遍，命令和工作台要注册上，按钮按文件夹里有的宏出现，点按钮能调到宏的 run_dialog()。"""
+    import shutil
+    import types
+    mod = tmp_path / "Mod" / "WenQuest"
+    mod.mkdir(parents=True)
+    src = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "freecad", "Mod", "WenQuest")
+    for f in ("InitGui.py", "wq_workbench.py"):
+        shutil.copy(os.path.join(src, f), mod / f)
+    (mod / "wq_cam.py").write_text("CALLED = []\ndef run_dialog():\n    CALLED.append(1)\n", encoding="utf-8")
+    reg = {"cmds": {}, "wb": []}
+
+    class Workbench:
+        def appendToolbar(self, name, cmds):
+            reg["toolbar"] = list(cmds)
+
+        def appendMenu(self, name, cmds):
+            reg["menu"] = list(cmds)
+
+    gui = types.SimpleNamespace(Workbench=Workbench, addCommand=lambda n, c: reg["cmds"].__setitem__(n, c),
+                                addWorkbench=lambda w: reg["wb"].append(w))
+    monkeypatch.setitem(sys.modules, "FreeCADGui", gui)
+    monkeypatch.setitem(sys.modules, "FreeCAD", types.SimpleNamespace())
+    for m in ("wq_workbench", "wq_cam"):
+        monkeypatch.delitem(sys.modules, m, raising=False)
+    monkeypatch.setattr(sys, "path", [str(mod)] + [p for p in sys.path])
+    code = compile((mod / "InitGui.py").read_text(encoding="utf-8"), "InitGui.py", "exec")
+    exec(code, {"__builtins__": __builtins__}, {})          # 分开的 globals / locals，没有 __file__
+    assert list(reg["cmds"]) == ["WQ_Cam"] and len(reg["wb"]) == 1
+    reg["wb"][0].Initialize()
+    assert reg["toolbar"] == ["WQ_Cam"]
+    reg["cmds"]["WQ_Cam"].Activated()
+    assert sys.modules["wq_cam"].CALLED == [1]
