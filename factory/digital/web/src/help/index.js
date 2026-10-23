@@ -13,8 +13,9 @@ export function chapterFiles(ed) {
     .map(([p, src]) => ({ slug: p.split('/').pop().replace(/^\d+-/, '').replace(/\.md$/, ''), src }));
 }
 
-// 首页全流程动画的七站（设计、ERP、MRP、MES、车间、质量、厂情中枢）各跳到哪一章
+// 首页全流程动画的七站（设计、ERP、MRP、MES、车间、质量、厂情中枢）各跳到哪一章。
+// “a|b”：有 a 章跳 a，没有跳 b（企业版的章节两个仓库各自写：freecad-ai-parts 有“新产品进工厂”“模型网关”，问渠这边没有）
 export const STAGE_CHAPTER = {
   teach: ['design-to-factory', 'design-to-factory', 'planning', 'workshop', 'workshop', 'quality', 'insight'],
-  enterprise: ['plant', 'plant', 'daily-work', 'daily-work', 'daily-work', 'daily-work', 'insight'],
+  enterprise: ['new-product|plant', 'new-product|plant', 'daily-work', 'daily-work', 'gateway|daily-work', 'daily-work', 'insight'],
 };

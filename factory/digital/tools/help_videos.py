@@ -390,6 +390,152 @@ async def teach_director_after(r):
         await r.pg.wait_for_timeout(1500)
 
 
+# ---------------------------------------------------------------- 第 30 轮 §八 8-4：首页和六个领域（客户、供应、人员、安全、能源、经营）
+# 每段 30–60 秒；要先“出事”的，用帮助里“当场动手”同一个接口（/api/help/try/<动作>，老师 5 秒一次）
+async def _try(r, name):
+    try:
+        return await r.api("/help/try/" + name, {})
+    except Exception as e:  # noqa: BLE001 —— 没做成（比如没有未收的发票）就照常录，字幕说明
+        print("当场动手没做成：{}：{}".format(name, e), file=sys.stderr, flush=True)
+        return None
+
+
+async def _anomaly(r, text, seconds=60):
+    """到厂情中枢等这条异常出来、点开它、指一下推演与建议"""
+    await r.go("/ont?view=anomalies", 2000)
+    item = "[data-help=ont-list] li:has-text('{}')".format(text)
+    if not await _wait_for(r, item, seconds):
+        await r.cap("厂情中枢几十秒内会报出来（这次没等到，换个时间再看）", 3000)
+        return False
+    await r.click(item, 2500)
+    await r.point("[data-help=ont-chain]")
+    await r.cap("因果链：往前是原因，往后是影响；每一环都有依据", 3500)
+    if await r.has("[data-help=ont-options]", 8000):
+        await r.point("[data-help=ont-options]")
+        await r.cap("推演与建议：每个方案算好交期和花费，第一个标“建议”", 3500)
+    return True
+
+
+async def teach_home(r):
+    await r.go("/", 2500)
+    await r.title("首页：一眼看全厂", "简报、指标、车间实况、订单、质量")
+    await r.point("[data-help=home-brief]")
+    await r.cap("AI 今日简报：现在最该关注的几件事，每条写着数据来源", 3500)
+    await r.point("[data-help=home-kpis]")
+    await r.cap("关键指标：准时交付、在制品、设备综合效率、一次合格率", 3500)
+    await r.point("[data-help=home-shop]")
+    await r.cap("车间实况：每台设备此刻的状态", 2500)
+    await _try(r, "stop-grinder")
+    await r.cap("现在让磨床停机 2 小时（帮助里“当场动手”同一个按钮）……", 5000)
+    await r.point("[data-help=home-shop]")
+    await r.cap("GRD-01 变红：停机。点设备卡片，弹出状态和对应的帮助", 3500)
+    await r.point("[data-help=home-orders]")
+    await r.cap("订单与交期：磨床是瓶颈，排在它上面的订单延期风险会变高", 4000)
+
+
+async def teach_service(r):
+    await r.go("/service?tab=complaints", 2000)
+    await r.title("客户与服务", "投诉 → 追溯 → 召回范围 → 派工决定")
+    await r.point("[data-help=svc-kpis]")
+    await r.cap("上方：满意度、开着的投诉、待上门的服务、保修成本、漏斗金额", 3500)
+    if await r.has("[data-help=svc-complaint] input[list=serials]"):
+        await r.point("[data-help=svc-complaint]")
+        await r.cap("客户来电：填设备序列号（会带出客户）、现象、严重度", 2000)
+        await r.pg.locator("[data-help=svc-complaint] input[list=serials]").focus()
+        opt = await r.pg.evaluate("() => (document.querySelector('#serials option') || {}).value || ''")
+        if opt:
+            await r.fill("[data-help=svc-complaint] input[list=serials]", opt)
+            await r.fill("[data-help=svc-complaint] input[placeholder^='例如：异响']", "减速器异响，振动比以前大")
+            await r.click("[data-help=svc-complaint] button:has-text('登记')", 2500)
+            await r.cap("登记：同时在 ERPNext 开投诉单；20 秒内厂情中枢开异常", 3500)
+    if await _anomaly(r, "客户投诉"):
+        await r.cap("有序列号就能追到出厂数据：输出轴是哪片砂轮磨的，同一片砂轮还磨了哪些", 4000)
+        await r.cap("方案 A 只修这一台、B 加高风险点检、C 整批排查——推荐不漏高风险里最便宜的", 4500)
+
+
+async def teach_supply(r):
+    await r.go("/supply?tab=inspect", 2000)
+    await r.title("采购与来料", "来料检验 → 不合格 → 退货还是换供应商")
+    await r.point("[data-help=sup-kpis]")
+    await r.cap("上方：在途、到货待检、不合格待处理、准时率和合格率", 3500)
+    await r.point("[data-help=sup-inspect]")
+    await r.cap("每次到货是一个批次。点“检验”看抽样数据", 3000)
+    btn = "[data-help=sup-inspect] button:has-text('检验')"
+    if not await r.has(btn):
+        btn = "[data-help=sup-inspect] button:has-text('看检验')"
+    if await r.has(btn):
+        await r.click(btn, 2000)
+        await r.cap("抽 5 件，逐件对照上下限：任何一件、任何一项超差，整批不合格", 4500)
+    await r.go("/supply?tab=suppliers", 2000)
+    await r.cap("供应商评分卡：价格、提前期、准时率、合格率；便宜的不一定便宜", 4000)
+    await r.cap("一批判不合格，厂情中枢给方案：退货等补发、向备选供应商下急单、让步接收全检", 4500)
+
+
+async def teach_people(r):
+    await r.go("/people?tab=roster", 2000)
+    await r.title("人员与排班", "请假 → 缺人 → 调班或加班")
+    await r.point("[data-help=people-kpis]")
+    await r.cap("上方：出勤率、排班缺口、只有一个人会开的设备、本周加班", 3500)
+    await r.point("[data-help=people-roster]")
+    await r.cap("排班：每一格是这一班谁开这台设备。红没人能开，黄学徒带着开", 4000)
+    cell = "[data-help=people-roster] td.c"
+    if await r.has(cell):
+        await r.click(cell + " >> nth=3", 1500)
+        if await r.has("select[aria-label='谁来顶']"):
+            await r.point("select[aria-label='谁来顶']")
+            await r.cap("点一个格子换人：列出会开这台设备的人，熟练程度、本来在哪一班", 4000)
+            await r.point("label:has-text('加班顶班')")
+            await r.cap("调人会让他原来的格子空出来；加班顶班不动别的格子，要付加班费", 4500)
+            await r.click("button:has-text('取消')", 800)
+    await r.go("/people?tab=skills", 2000)
+    await r.cap("技能矩阵：标红的列只有一个人会开——他一请假这台就停，要安排培训", 4500)
+
+
+async def teach_ehs(r):
+    await r.go("/ehs", 2000)
+    await r.title("安全环保", "隐患上报 → 评估 → 停机挂牌整改 → 验收解锁")
+    await r.point("[data-help=ehs-kpis]")
+    await r.cap("上方：开着的隐患、整改按期率、挂牌上锁的设备、培训到期、未遂", 3500)
+    await r.point("[data-help=ehs-report]")
+    await r.cap("随手拍：谁都能报。选设备、种类、等级，写一句话，拍照", 3500)
+    await _try(r, "major-hazard")
+    await r.cap("刚报了一条：磨床防护门联锁被短接——重大隐患", 3000)
+    if await _anomaly(r, "重大隐患"):
+        await r.cap("带着重大隐患生产，校验不通过；先停机挂牌上锁，整改后由另一个人验收解锁", 5000)
+
+
+async def teach_energy(r):
+    await r.go("/energy", 2500)
+    await r.title("能源与环境", "空转报警 → 自动待机，峰时开炉 → 错峰")
+    await r.point("[data-help=energy-kpis]")
+    await r.cap("上方：用电、电费、峰时占比、空转电量、碳排放、需量", 3500)
+    await r.point("[data-help=energy-curve]")
+    await r.cap("车间总表：每 15 分钟一个读数；红峰、黄平、蓝谷，虚线是合同需量", 4000)
+    await _try(r, "idle-saw")
+    await r.point("[data-help=energy-units]")
+    await r.cap("让带锯床下班忘关：开着没活，电量条的灰色（空转）会涨上来", 4000)
+    if await _anomaly(r, "空转", 90):
+        await r.cap("方案：这台空闲 10 分钟自动待机、30 分钟、全部机加设备——推演未来 24 小时省多少电和钱", 5000)
+
+
+async def teach_finance(r):
+    await r.go("/finance?tab=arap", 2000)
+    await r.title("经营与财务", "应收逾期 → 催款 → 现金")
+    await r.point("[data-help=fin-kpis]")
+    await r.cap("上方：毛利率、应收与逾期、应收周转天数、现金、本月预算已用", 3500)
+    res = await _try(r, "overdue-invoice")
+    await r.pg.reload(wait_until="networkidle")
+    await r.pg.wait_for_timeout(1500)
+    if res:
+        await r.cap("刚让一张应收发票逾期 15 天：客户不催不付", 3000)
+    await r.point("[data-help=fin-tabs]")
+    await r.cap("应收应付：每张发票的到期日、逾期天数", 3000)
+    if res and await _anomaly(r, "应收逾期"):
+        await r.cap("方案：不催、催款、暂停发货——推演未来 8 周的现金", 4500)
+    await r.go("/finance?tab=margins", 2000)
+    await r.cap("订单毛利：收入减材料、人工、设备、能源，再减违约金、加急费，一张瀑布图看清", 4500)
+
+
 # ---------------------------------------------------------------- 剧本：企业版（这边只有 AI 设置；账号、新产品进工厂是那边的企业功能）
 async def ent_ai(r):
     await r.go("/ont/ai", 2500)
@@ -405,11 +551,36 @@ SCRIPTS = {
     "teach-login": teach_login, "teach-order": teach_order, "teach-dispatch": teach_dispatch, "teach-3d": teach_3d,
     "teach-anomaly": teach_anomaly, "teach-8d": teach_8d, "teach-ai": teach_ai,
     "teach-labs": teach_labs, "teach-director": teach_director, "teach-maint": teach_maint,
+    "teach-home": teach_home, "teach-service": teach_service, "teach-supply": teach_supply, "teach-people": teach_people,
+    "teach-ehs": teach_ehs, "teach-energy": teach_energy, "teach-finance": teach_finance,
     "ent-ai": ent_ai,
 }
 AFTER = {"teach-maint": teach_maint_after, "teach-director": teach_director_after}   # 录完的收尾（录失败也做）
 ROLE = {"teach-order": "planner", "teach-dispatch": "operator", "teach-8d": "quality"}   # 学生岗位；其余用厂长（老师）
+# （第 30 轮 8-4 的几段用老师：要按“当场动手”、要能登记投诉、检验来料）
 ORDER_LAST = ("teach-director",)       # 会重置情景，放最后
+
+# 只在 freecad-ai-parts 的企业功能视频（企业账号、新产品进工厂）：剧本在它独有的 tools/help_videos_enterprise.py，
+# 清单在各自的 web/src/help/extra.json（factory/SYNC.md）；问渠这边两样都是空的
+_ENT = os.path.join(HERE, "help_videos_enterprise.py")
+if os.path.exists(_ENT):
+    import importlib.util  # noqa: E402
+    _spec = importlib.util.spec_from_file_location("help_videos_enterprise", _ENT)
+    _ent = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(_ent)
+    SCRIPTS.update(_ent.SCRIPTS)                           # 剧本只用传进来的录制助手 r（Rec）
+    ROLE.update(getattr(_ent, "ROLE", {}))
+EXTRA = os.path.join(os.path.dirname(HERE), "web", "src", "help", "extra.json")
+
+
+def manifest():
+    """视频清单：共有的 videos.json 加上本仓库 extra.json 里的 videos"""
+    with open(MANIFEST, encoding="utf-8") as f:
+        out = json.load(f)
+    if os.path.exists(EXTRA):
+        with open(EXTRA, encoding="utf-8") as f:
+            out.update(json.load(f).get("videos") or {})
+    return out
 
 
 def _api(hub, path, body, ctx, token=None):
@@ -435,9 +606,7 @@ def order(names):
 async def record(args):
     from playwright.async_api import async_playwright
 
-    with open(MANIFEST, encoding="utf-8") as f:
-        manifest = json.load(f)
-    names = order([n for n, v in manifest.items() if v["edition"] == args.edition and (not args.only or n in args.only)])
+    names = order([n for n, v in manifest().items() if v["edition"] == args.edition and (not args.only or n in args.only)])
     missing = [n for n in names if n not in SCRIPTS]
     if missing:
         raise SystemExit("清单里这些视频没有剧本：" + "、".join(missing))

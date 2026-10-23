@@ -35,6 +35,15 @@ export const post = (p, b) => api('POST', p, b ?? {});
 
 // 本地版填名字；线上版（问渠账号）不传名字，枢纽凭全站登录凭证认人
 // extra：本地版的老师密码 { teacher_password }（第 30 轮 H-5）
+// 企业版（freecad-ai-parts ADR-0063）：用户名 + 密码
+export async function loginAccount(username, password) {
+  const r = await post('/login', { username, password });
+  session.token = r.token;
+  session.user = r.user;
+  save();
+  return r.user;
+}
+
 export async function login(name, role, mode, extra) {
   const r = await post('/login', { ...(name ? { name } : {}), role, mode, ...(extra || {}) });
   session.token = r.token;

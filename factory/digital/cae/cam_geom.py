@@ -229,8 +229,24 @@ def mill_features(step_bytes):
                 continue
             pockets.append({"z_floor": zf, "depth": round(top - zf, 4), "polygon": mapping(g.simplify(0.002)),
                             "area_mm2": round(g.area, 2)})
+    # 通透的开口（不是圆孔：减重孔、窗口）：中间截面外轮廓里的“洞”，去掉圆孔；当作铣穿的型腔，多铣 0.3 mm（同钻孔多钻出一点）
+    # （学习平台第 41 轮：拓扑优化减重后的零件；原来只认有平底的型腔，铣穿的开口不出刀路）
+    narrow = 0
+    if not mid.is_empty:
+        for ring in big.interiors:
+            g = Polygon(ring)
+            for hd in hole_disks:
+                g = g.difference(hd)
+            for q in getattr(g, "geoms", [g]):
+                if q.area < 1.0:
+                    continue
+                if q.buffer(-1.55).is_empty:                  # 最小立铣刀 Ø3 放不进：不出刀路，记下来
+                    narrow += 1
+                    continue
+                pockets.append({"z_floor": round(bottom - 0.3, 4), "depth": round(H + 0.3, 4), "polygon": mapping(q.simplify(0.002)),
+                                "area_mm2": round(q.area, 2), "through": True})
     return {"top": top, "bottom": bottom, "bbox": bb, "outline": mapping(outline) if outline is not None else None,
-            "pockets": pockets, "holes": holes}
+            "pockets": pockets, "holes": holes, "narrow_openings": narrow}
 
 
 def target_fn(feat):

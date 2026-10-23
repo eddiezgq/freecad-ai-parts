@@ -758,5 +758,7 @@ def kpis(db, mode, days=30):
     return {"in_transit": db.one("select count(*) as n from lot where mode=%s and status in ('ordered','transit')", (mode,))["n"],
             "waiting_inspection": db.one("select count(*) as n from lot where mode=%s and status='arrived'", (mode,))["n"],
             "rejected_open": db.one("select count(*) as n from lot where mode=%s and status='rejected'", (mode,))["n"],
+            # 检验过的批次累计（帮助“带我检验一批来料”的做完打勾看它变多）
+            "inspected_n": db.one("select count(*) as n from lot where mode=%s and inspected_by is not null", (mode,))["n"],
             "on_time": round(on_time / arrived, 3) if arrived else None, "pass_rate": round(ok / insp, 3) if insp else None,
             "single_source": len(single_source(db, mode)), "enabled": enabled(db, mode)}

@@ -51,9 +51,17 @@ def idle_energy(c, p, r):
     hits = [x for x in EN.idle_by_unit(c.db, c.mode, float(p.get("hours", 12)), end)
             if x["idle_share"] > float(p.get("share", 0.3)) and x["idle_h"] >= float(p.get("min_h", 1)) and x["idle_kwh"] >= float(p.get("min_kwh", 10))]
     hits.sort(key=lambda x: -x["idle_kwh"])
+    # 老师 / 情景注入的“下班忘关”那台：够条件就一定报，不被功率大的设备挤出前几台（带锯床空转 2 kW，数控车床 5–6 kW；
+    # 2026-10-18 两周情景第 7 幕因此等不到）
+    try:
+        forgot = {k.partition(":")[2] for k in (EN._state(c.db, c.mode).get("faults") or {}) if k.startswith("forgot:")}
+    except Exception:  # noqa: BLE001
+        forgot = set()
+    top = int(p.get("top", 3))
+    pick = hits[:top] + [x for x in hits[top:] if x["unit"] in forgot]
     price = float(EN.params(c.db, c.mode)["price"]["flat"])
     out = []
-    for x in hits[:int(p.get("top", 3))]:
+    for x in pick:
         out.append(Finding(x["unit"], "{} 空转 {:g} 小时，空转电量占 {:.0%}".format(x["unit"].upper(), x["idle_h"], x["idle_share"]),
                            "近 {:g} 小时空转 {:.1f} 度（约 ${:,.2f}）：开着没活".format(float(p.get("hours", 12)), x["idle_kwh"], x["idle_kwh"] * price),
                            severity="info", subject=("Machine", x["unit"]), about=[("Machine", x["unit"]), ("Meter", "E-" + x["unit"].upper())],

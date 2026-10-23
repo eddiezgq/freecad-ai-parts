@@ -63,7 +63,7 @@ def mount(app, H, user_of, who, reset_teach):
     @app.post("/api/story/end")
     def end(u=Depends(user_of)):
         teacher(u)
-        return wrap(ST.end, H.db, who(u))
+        return wrap(ST.end, H.db, who(u), getattr(H, "mes", None))
 
     @app.get("/api/story/review")
     def review(report: int = 0, u=Depends(user_of)):

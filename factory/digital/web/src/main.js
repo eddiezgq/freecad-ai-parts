@@ -68,6 +68,11 @@ const routes = [
   { path: '/tasks/:tid', component: () => import('./pages/TaskPage.vue') },
   { path: '/:p(.*)*', redirect: '/' },
 ];
+// 企业页面（CAD 方案、选型零件库、账号与角色）只在 freecad-ai-parts 有（factory/SYNC.md）：有这几个页面文件才加路由；问渠这边没有
+export const ENTERPRISE_PAGES = { './pages/CadDesigns.vue': '/cad', './pages/FapLibrary.vue': '/fap', './pages/Accounts.vue': '/accounts' };
+for (const [f, load] of Object.entries(import.meta.glob(['./pages/CadDesigns.vue', './pages/FapLibrary.vue', './pages/Accounts.vue']))) {
+  routes.splice(routes.length - 1, 0, { path: ENTERPRISE_PAGES[f], component: load });
+}
 
 const router = createRouter({ history: createWebHistory(), routes });
 router.beforeEach((to) => {

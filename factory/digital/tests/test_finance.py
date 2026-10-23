@@ -75,7 +75,9 @@ def test_standard_cost_and_margin_breakdown(env):
     std = FN._std("WQR-105")
     assert 1100 < std["material"] + std["labor"] + std["energy"] < 1300                       # 标准毛利率约 28%
     ms = FN.margins(H.db, "teach")
-    assert ms and all(m["pseudo"] for m in ms)                                                 # 情景里早先的订单按工单估
+    sos = FN.sales_orders(H.db, "teach")
+    assert ms and all(m["pseudo"] or (sos.get(m["sales_order"]) or {}).get("data", {}).get("demo") for m in ms)   # 情景里早先的订单按工单估，或是情景自带的示例订单
+    assert any(m["pseudo"] for m in ms)
     m = ms[0]
     assert abs(sum(x["usd"] for x in m["lines"]) - m["cost"]) < 0.05 and abs(m["revenue"] - m["cost"] - m["margin"]) < 0.05
     assert m["revenue"] == m["qty"] * F.FG_SELLING_PRICE and 0.2 < m["margin_pct"] < 0.35

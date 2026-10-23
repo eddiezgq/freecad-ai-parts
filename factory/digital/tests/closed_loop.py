@@ -502,7 +502,13 @@ def customer_and_service(teacher):
         se = [x for x in erp_docs("Stock Entry") if x.get("stock_entry_type") == "Material Issue" or x.get("purpose") == "Material Issue"]
         check(bool(se), "备件出库：ERPNext 出库单 {}".format("、".join(x["name"] for x in se[-2:])))
     if jobs:
-        hub("POST", "/api/service/jobs/{}/done".format(jobs[0]["id"]), {"note": "闭环测试：已更换"}, svc)
+        try:
+            hub("POST", "/api/service/jobs/{}/done".format(jobs[0]["id"]), {"note": "闭环测试：已更换"}, svc)
+        except RuntimeError as e:
+            # 加速运行时现场工程师（模拟）可能先一步完工：同一个完工流程，下面照样查 ERPNext 服务单已解决
+            if "已经完成" not in str(e):
+                raise
+            print("  （服务工单已由现场工程师完工）")
         r = wait(lambda: next((x for x in erp_docs("Issue") if x["name"] == jobs[0]["issue"] and x.get("status") in ("Resolved", "Closed")), None),
                  "ERPNext 服务单改为已解决", 120, 3)
         check(r is not None, "完工：ERPNext {} 已解决".format(jobs[0]["issue"]))

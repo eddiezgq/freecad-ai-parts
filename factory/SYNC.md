@@ -34,6 +34,8 @@ python3 tools/factory_sync.py --diff digital/hub/app.py         # 只看某几�
 ```sync-a-only
 digital/help/                 # 服务器端的说明文件（docs/帮助 经 help/sync.py 同步来的）
 digital/docs/                 # 各轮截图
+digital/hub/design_sw_api.py  # 设计软件提交 CAE（第 39 轮第 4 步 / 第 41 轮）：学习平台上的问渠凸轮、缝纫机设计软件
+digital/tests/test_design_sw.py
 ```
 
 ## 只在那边（企业）
@@ -47,6 +49,9 @@ digital/hub/accounts.py       # 企业账号（ADR-0063）
 digital/hub/cad_link.py       # FreeCAD 方案发布到工厂（ADR-0058）
 digital/hub/fap_library.py    # 选型零件库（ADR-0058）
 digital/hub/products.py       # 新产品进工厂（ADR-0061）
+digital/hub/enterprise_api.py # 上面这些企业功能挂到枢纽上的唯一入口（共有的 hub/app.py 有它就调用 mount）
+digital/hub/seats_api.py      # 浮动席位（ADR-0066），由 enterprise_api 挂上
+digital/bridge/lib/erp_enterprise.js   # 桥接里企业独有的提议（CAD 方案转生产物料、到货入库），共有的 erp.js 有它就加载
 digital/cae/_fap.py           # 计算转接到 analysis/（ADR-0060）
 digital/web/src/pages/Accounts.vue
 digital/web/src/pages/CadDesigns.vue
@@ -55,6 +60,8 @@ digital/tests/test_accounts.py
 digital/tests/test_cad_link.py
 digital/tests/test_fap_library.py
 digital/tests/test_products.py
+digital/tests/test_seats_hub.py
+digital/tools/help_videos_enterprise.py   # 企业功能的帮助视频剧本（共有的 help_videos.py 有它就并进去）
 ```
 
 ## 两边都有、各自实现（同名文件，故意不同）
@@ -67,6 +74,8 @@ digital/docker-compose.yml    # 那边挂选型零件库、多一个计算服务
 digital/实施细则_*.md          # 各轮细则存档（这边继续写，那边是分叉时的副本）
 digital/twin/models.py        # 那边 S-N 曲线取 analysis/fatigue
 digital/tests/test_mbd.py     # 那边互核文件在 library_ref/
+digital/tests/test_local_edition.py   # 跟着本地版脚本走，两边各测各的
+digital/web/src/help/extra.json   # 本仓库独有的引导（tours）与帮助视频清单（videos）：问渠这边空，那边是企业功能的
 local/                        # 本地版：这边给学校机房（老师密码、局域网地址、离线导入）；那边给企业（挂 FreeCAD 零件库）
 digital/web/src/help/enterprise/   # 企业版帮助：这边只留本仓库有的功能（6 章），那边全套
 # 那边计算内核并入 analysis/（ADR-0060），cae/ 里这些只剩转接层；这边保持完整实现（第 30 轮 H-7）

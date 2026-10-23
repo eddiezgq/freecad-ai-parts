@@ -17,7 +17,7 @@
         <div v-if="err" class="err">{{ err }}</div>
         <template v-if="pv">
           <h3>算料结果</h3>
-          <table class="t">
+          <table class="t" data-help="planner-mrp">
             <thead><tr><th>物料</th><th class="num">毛需求</th><th class="num">占用</th><th class="num">库存</th><th class="num">在途</th>
               <th class="num">安全</th><th class="num">净需求</th><th>动作</th></tr></thead>
             <tbody><tr v-for="r in pv.mrp" :key="r.item_code" :class="{ need: r.net > 0 }">

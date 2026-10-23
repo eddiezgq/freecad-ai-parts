@@ -79,7 +79,7 @@ WEB_DIST = os.environ.get("WQ_WEB_DIST", os.path.join(os.path.dirname(HERE), "we
 # 企业工厂（WQ_PLANT_FILE 指定、demo_data: false）里这些接口一律 404，网页按 /api/config 的 plant.hidden 不显示入口
 DEMO_PLANT = PLANT.is_demo()
 TEACH_ONLY_API = tuple("/api/lab{}".format(n) for n in range(15, 24)) + (
-    "/api/labs", "/api/story", "/api/scenario", "/api/teach/batch-complaint",
+    "/api/labs", "/api/story", "/api/scenario", "/api/teach/batch-complaint", "/api/help/try",       # 帮助里的“当场动手”（第 30 轮 §八）
     "/api/complaints", "/api/crm", "/api/followups", "/api/ont/customer360", "/api/service",     # E1 客户与服务
     "/api/ehs", "/api/maint", "/api/people", "/api/supply", "/api/energy", "/api/finance")      # E2–E7
 TEACH_ONLY_NAV = ("/service", "/supply", "/finance", "/maint", "/people", "/ehs", "/energy", "/director", "/labs", "/teach",
@@ -600,7 +600,7 @@ def config(request: Request):
         "erpnext_url": ((os.environ.get("WQ_PUBLIC_URL", "").rstrip("/") + "/api/erp/sso") if AUTH == "wenquest" and erp_sso.enabled()
                         else lan(os.environ.get("WQ_ERPNEXT_URL", "http://localhost:8090"))),   # 线上：经单点登录入口（第 7 轮）
         "nodered_url": lan(os.environ.get("WQ_NODERED_URL", "http://localhost:1880")),   # 线上设为空：不对外（D8）
-        "auth": AUTH, "login_url": LOGIN_URL, "edition": EDITION,
+        "auth": AUTH, "login_url": LOGIN_URL, "edition": os.environ.get("WQ_EDITION", EDITION),   # 每次现读（测试、企业版改环境变量后不用重载）
         "default_mode": DEFAULT_MODE, "roles": ROLE_NAMES, "factory_name": FACTORY_NAME, "ai_engine": H.ai.llm.name if H.ai else "rules",
         "tz": str(kpi.TZ), "customers": F.CUSTOMERS, "fg": [{"item_code": "WQR-105", "name": F.ITEMS["WQR-105"][0],
                                                                "price": F.FG_SELLING_PRICE}],
@@ -686,11 +686,19 @@ def health():
             "ai": (H.ai.llm.name.split(":")[0] if H.ai else "rules")}       # 第 17 轮 D 期：AI 代理用的引擎种类（claude / deepseek / rules），不含密钥
 
 
+def _pm_h(u):
+    """标准保养周期（运行小时）：3D 车间、首页点设备时和状态里的 run_h_pm 比，显示“保养逾期”（第 30 轮 §八 8-1）"""
+    from sim import reliability as REL
+    rp = REL.params(u)
+    return {"pm_h": rp["pm_h"]} if rp else {}
+
+
 @app.get("/api/layout")
 def get_layout():
     return {"floor": L.FLOOR, "units": {u: {"x": v[0], "y": v[1], "w": v[2], "d": v[3],
                                            "name": wqbus.UNITS[u][1], "en": wqbus.UNITS[u][2],
-                                           **({"h": L.HEIGHT[u]} if L.HEIGHT and u in L.HEIGHT else {})}
+                                           **({"h": L.HEIGHT[u]} if L.HEIGHT and u in L.HEIGHT else {}),
+                                           **_pm_h(u)}
                                        for u, v in L.LAYOUT.items()},
             "agv_home": L.AGV_HOME, "aisles": L.AISLES, "cross_x": L.CROSS_X}
 
@@ -1675,8 +1683,9 @@ def freecad_pack(request: Request, x_wq_token: str = Header(default=""), u=Depen
         sw = open(os.path.join(design_web.FREECAD_DIR, "wq_submit_solidworks.swb"), encoding="ascii").read()     # 第 10 轮 S1
         z.writestr("wenquest-freecad/SolidWorks/wq_submit_solidworks.swb",
                    sw.replace("__WQ_HUB__", base).replace("__WQ_TOKEN__", x_wq_token).replace("\r\n", "\n").replace("\n", "\r\n"))   # VBA 宏用 CRLF
-        z.writestr("wenquest-freecad/Mod/WenQuest/InitGui.py",
-                   open(os.path.join(design_web.FREECAD_DIR, "Mod", "WenQuest", "InitGui.py"), encoding="utf-8").read())
+        for name in ("InitGui.py", "wq_workbench.py"):    # 工作台（第 39 轮第 5 步：InitGui 只找文件夹，代码在 wq_workbench.py）
+            z.writestr("wenquest-freecad/Mod/WenQuest/" + name,
+                       open(os.path.join(design_web.FREECAD_DIR, "Mod", "WenQuest", name), encoding="utf-8").read())
         z.writestr("wenquest-freecad/使用说明.txt", FREECAD_README.format(base=base, mode="教学" if u["mode"] == "teach" else "生产"))
     return Response(buf.getvalue(), media_type="application/zip",
                     headers={"Content-Disposition": "attachment; filename=wenquest-freecad.zip"})
@@ -2156,6 +2165,8 @@ from hub import story_api as _story_api  # noqa: E402
 _story_api.mount(app, H, user_of, who, reset_teach)   # 第 19 轮：情景导演（两周情景）
 from hub import help_api as _help_api  # noqa: E402
 _help_api.mount(app, user_of)                          # 第 19 轮：帮助在网页里读；第 30 轮：/api/help/docs、帮助视频 /api/help/media、/help-media/
+from hub import help_try as _help_try  # noqa: E402
+_help_try.mount(app, H, user_of, who)                  # 第 30 轮 §八 8-1：帮助里的“当场动手”（只在演示工厂、教学模式）
 from hub import labs_api as _labs_api  # noqa: E402
 _labs_api.mount(app, H, user_of)                       # 第 19 轮：“实验与任务”一个入口
 from hub.ont import agent_api as _agent_api  # noqa: E402
@@ -2173,6 +2184,14 @@ _vplc.mount(app, H, user_of, who, _uid, lambda u: bool(u.get("teacher")))
 # ---------------------------------------------------------------- 工程任务单（第 11 轮《机械设计》2.7（5））
 from hub import tasks as _tasks  # noqa: E402
 _tasks.mount(app, H, user_of, who, _uid, _emit_as)
+
+
+# ---------------------------------------------------------------- 设计软件接口（学习平台第 41 轮缝纫机设计软件、第 39 轮问渠凸轮提交 CAE 计算）
+try:                                       # 只在问渠这边（见 SYNC.md），另一边没有这个文件
+    from hub import design_sw_api as _design_sw  # noqa: E402
+    _design_sw.mount(app)
+except ImportError:
+    pass
 
 
 # ---------------------------------------------------------------- 企业功能（第 30 轮 H-8）：freecad-ai-parts 独有的 hub/enterprise_api.py

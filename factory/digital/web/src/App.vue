@@ -5,7 +5,7 @@
     <nav class="rail" aria-label="工作区">
       <router-link to="/" class="brand">
         <span class="logo">渠</span>
-        <span class="brand-text"><b>问渠数字工厂</b><small>WenQuest Digital Factory{{ cfg.edition === 'local' ? ' · 本地版' : '' }}</small></span>
+        <span class="brand-text"><b>问渠数字工厂</b><small>WenQuest Digital Factory{{ cfg.edition === 'local' ? ' · 本地版' : cfg.edition === 'enterprise' ? ' · 企业版' : '' }}</small></span>
       </router-link>
       <!-- 第 19 轮 J-8：按工厂的价值链分组（总览 / 从订单到回款 / 保障 / 设计与工艺 / 教学 / 资源） -->
       <div v-for="g in navGroups" :key="g.title" class="group">
@@ -71,6 +71,7 @@ import { ai } from './lib/ai';
 
 const route = useRoute();
 const router = useRouter();
+const hasRoute = (p) => router.getRoutes().some((r) => r.path === p);
 const teachOnly = (u) => u?.mode === 'teach';
 const cfg = ref({});
 const NAV = [
@@ -99,6 +100,8 @@ const NAV = [
     { to: '/work/engineer', label: '设计与工艺', role: 'engineer' },
     { to: '/process', label: '工艺规程与 AI 评审' },
     { to: '/design', label: '设计发布与审批' },
+    { to: '/cad', label: 'CAD 方案', only: () => hasRoute('/cad') },        // 企业页面：只在 freecad-ai-parts 有（main.js）
+    { to: '/fap', label: '选型零件库', only: () => hasRoute('/fap') },
     { to: '/configurator', label: '参数配置器', role: 'sales' },
     { to: '/3d', label: '3D 车间' },
   ] },
@@ -108,7 +111,8 @@ const NAV = [
   ] },
   { title: '资源', items: [
     { to: '/library', label: '零件与机器人库' },
-    { to: '/members', label: '企业成员', only: (u) => u?.teacher !== false },
+    { to: '/members', label: '企业成员', only: (u) => u?.teacher !== false && !u?.acct },
+    { to: '/accounts', label: '账号与角色', only: (u) => !!u?.acct && !!u?.teacher && hasRoute('/accounts') },   // 企业账号（freecad-ai-parts）
     { to: '/help', label: '帮助', help: 'nav-help' },
   ] },
 ];

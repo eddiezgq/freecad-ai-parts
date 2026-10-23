@@ -201,7 +201,7 @@ def fast_forward(H, on=True, speed=None):
     return state(db)
 
 
-def end(db, who):
+def end(db, who, mes=None):
     r = run(db)
     if r is None:
         raise ValueError("还没有开始情景")
@@ -358,24 +358,26 @@ def _step_arrive_reject(H, r, sc, st, who):
 
 
 def _step_leave(H, r, sc, st, who):
-    """第 4 幕：这台设备下个班的人请假（打开“要有人”）"""
+    """第 4 幕：这台设备下个班的人请假（打开“要有人”）。
+    从下一个班开始找（不用现在这一班）：情景里车间倍速运行，现在这一班可能真实时间几秒后就结束，
+    厂情中枢每 20 秒才检测一次，缺口还没被看到就过去了，这一幕就等不到（2026-10-18 部署演练夜里跑时卡在这里）"""
     from hub import people as PE
+    from sim import staffing as STF
     db = H.db
     unit = st.get("unit") or "grd-01"
     PE.set_enabled(H, MODE, True, who)
     d, sh = PE.now_shift(db=db, mode=MODE)
     emp = None
     for _ in range(3):
+        d, sh = STF.shift_of(STF.next_change(STF.shift_start(d, sh, PE.tz())))
         ro = PE.roster_for(db, MODE, d, sh)
         emp = (ro.get(unit) or {}).get("emp_id")
         if emp:
             break
-        from sim import staffing as STF
-        d, sh = STF.shift_of(STF.next_change(STF.shift_start(d, sh, PE.tz())))
     if not emp:
         raise ValueError("{} 最近没有排班".format(unit.upper()))
     p = PE.person(db, MODE, emp)
-    d, sh, units = PE.leave_next_shift(H, MODE, emp, who)
+    d, sh, units = PE.leave_next_shift(H, MODE, emp, who, now=STF.shift_start(d, sh, PE.tz()) + dt.timedelta(minutes=1))
     return {"emp_id": emp, "text": "{} {} {} 请假（{} 这一班没人）".format(p["name"], d.isoformat(), PE.SHIFT_NAME[sh], "、".join(u.upper() for u in units))}
 
 
@@ -455,17 +457,21 @@ def _match(a, about, sc):
 
 
 def _seen(db, r, sc, b, row):
-    """这一幕预计的异常：情景开始以后出现过的（开着或已处理的都算）"""
+    """这一幕预计的异常：情景开始以后出现过的（开着或已处理的都算）。
+    同一件事（同一规则、同一键，例如“10-18 晚班 GRD-01 没人”）情景开始前就开着、或 24 小时内关过又被重新打开时，
+    first_seen 是以前的；只要情景开始后规则又看到了它（last_seen 在情景开始后）也算——不然这一幕会一直等不到
+    （2026-10-18 数字工厂部署演练：前面的“人员与排班”实验刚让同一个人同一班请过假，第 4 幕随钟点时过时不过）"""
     out = []
     since = r["started_at"]
     for e in b.get("expect") or []:
         if e.get("rule"):
-            cands = db.q("select id, rule, fkey, subject_key, title, detail, status, first_seen, severity from anomaly where mode=%s and rule=%s "
-                         "and first_seen >= %s order by id", (MODE, e["rule"], since))
+            cands = db.q("select id, rule, fkey, subject_key, title, detail, status, first_seen, last_seen, severity from anomaly "
+                         "where mode=%s and rule=%s and (first_seen >= %s or last_seen >= %s) order by id", (MODE, e["rule"], since, since))
             hit = next((a for a in cands if _match(a, e.get("about"), sc)), None)
             if hit:
+                t = hit["first_seen"] if hit["first_seen"] >= since else hit["last_seen"]
                 out.append({"id": hit["id"], "rule": hit["rule"], "title": hit["title"], "status": hit["status"], "severity": hit["severity"],
-                            "first_seen": hit["first_seen"].isoformat(), "after_s": round((hit["first_seen"] - row["executed_at"]).total_seconds())})
+                            "first_seen": t.isoformat(), "after_s": round((t - row["executed_at"]).total_seconds())})
         elif e.get("check") == "order_released":
             if r["so"] and (r["state"] or {}).get("wo"):
                 out.append({"check": "order_released", "title": "订单 {} 已写进 ERPNext，工单 {} 已下达车间".format(r["so"], r["state"]["wo"])})

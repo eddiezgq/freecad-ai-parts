@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>保养周期怎样定</title>
+<style>
+/* 实验 6-2（第 29 轮）：按龄保养的长期平均花费 C(T)，找最优周期；“播放”同时跑两台设备（按周期 T 保养 / 坏了再修），看累计花费 */
+:root{--bg:#eef2f3;--sheet:#fafbfb;--ink:#1b2430;--muted:#5a6570;--rule:#d3dadd;--accent:#1d6b86;--amber:#c27a12;--red:#c0392b;--green:#1f8a4c;
+  --f-display:"Noto Serif SC","Songti SC",serif;--f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;--f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#11161b;--sheet:#182029;--ink:#e2e7ec;--muted:#9aa6b2;--rule:#2b3540;--accent:#6cc3dd;--amber:#f0b45a;--red:#ff7b6b;--green:#5fd08f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#11161b;--sheet:#182029;--ink:#e2e7ec;--muted:#9aa6b2;--rule:#2b3540;--accent:#6cc3dd;--amber:#f0b45a;--red:#ff7b6b;--green:#5fd08f;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:1240px;margin:0 auto;padding:18px 16px 36px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;margin-bottom:12px}
+h1{font-family:var(--f-display);font-size:1.5rem;margin:0}
+.sub{color:var(--muted);font-size:.9rem}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:16px}
+@media (max-width:880px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:12px;min-width:0}
+.panel h3{margin:0 0 8px;font-size:.8rem;letter-spacing:.1em;color:var(--muted);font-weight:600}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--f-body);fill:var(--muted);font-size:12px}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.ctl{display:grid;grid-template-columns:auto minmax(0,1fr) 5.2em;gap:6px 10px;align-items:center}
+.ctl label{font-size:.88rem;color:var(--muted)}
+.ctl b{font-family:var(--f-mono);font-size:.9rem;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+button{font:inherit;font-size:.86rem;border:1px solid var(--rule);background:var(--bg);color:var(--ink);border-radius:5px;padding:4px 10px;cursor:pointer}
+button:hover{border-color:var(--accent)} button.primary{background:var(--accent);color:var(--sheet);border-color:var(--accent)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.kpi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.kpi div{border-top:1px solid var(--rule);padding-top:4px}
+.kpi b{display:block;font-family:var(--f-mono);font-size:1.05rem;font-variant-numeric:tabular-nums}
+.kpi small{color:var(--muted);font-size:.76rem;line-height:1.3;display:block}
+.kpi .hot b{color:var(--amber)}
+.note{font-size:.8rem;color:var(--muted);margin:8px 0 0}
+.tasks{margin:0;padding-left:1.3em;font-size:.9rem} .tasks li{margin:.25em 0}
+.formula{font-family:var(--f-mono);font-size:.84rem;background:var(--bg);border-radius:6px;padding:6px 8px;overflow-x:auto;white-space:nowrap}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:5px;border-radius:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1 data-t="h1"></h1><span class="sub" data-t="sub"></span></header>
+<div class="grid">
+  <div class="col">
+    <div class="panel" id="plotPanel">
+      <h3 data-t="plotTitle"></h3>
+      <svg id="plot" viewBox="0 0 760 340" role="img"></svg>
+      <div class="legend"><span><i style="background:var(--accent)"></i><span data-t="lgC"></span></span><span><i style="background:var(--red)"></i><span data-t="lgRun"></span></span><span><i style="background:var(--green)"></i><span data-t="lgT"></span></span></div>
+    </div>
+    <div class="panel" id="race">
+      <h3 data-t="simTitle"></h3>
+      <svg id="sim" viewBox="0 0 760 210" role="img"></svg>
+      <div class="row"><button class="primary" id="play" data-t="play"></button><button id="again" data-t="again"></button><span class="note" id="simNote"></span></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel">
+      <h3 data-t="params"></h3>
+      <div class="row" style="margin:0 0 10px"><span class="note" style="margin:0" data-t="presets"></span><button data-p="after" data-t="pAfter"></button><button data-p="during" data-t="pDuring"></button><button data-p="exp" data-t="pExp"></button></div>
+      <div class="ctl">
+        <label for="beta">β</label><input id="beta" type="range" min="0.5" max="5" step="0.1" value="3"><b id="betav"></b>
+        <label for="eta">η（h）</label><input id="eta" type="range" min="200" max="2400" step="10" value="900"><b id="etav"></b>
+        <label for="cp" data-t="lCp"></label><input id="cp" type="range" min="20" max="2000" step="5" value="215"><b id="cpv"></b>
+        <label for="cf" data-t="lCf"></label><input id="cf" type="range" min="200" max="8000" step="50" value="2800"><b id="cfv"></b>
+        <label for="T" data-t="lT"></label><input id="T" type="range" min="50" max="1600" step="5" value="500"><b id="Tv"></b>
+      </div>
+      <p class="formula">C(T) = [C<sub>p</sub>·R(T) + C<sub>f</sub>·F(T)] ÷ ∫<sub>0</sub><sup>T</sup> R(t) dt</p>
+    </div>
+    <div class="panel">
+      <h3 data-t="results"></h3>
+      <div class="kpi">
+        <div class="hot"><b id="kTo"></b><small data-t="kTo"></small></div>
+        <div class="hot"><b id="kCo"></b><small data-t="kCo"></small></div>
+        <div><b id="kCT"></b><small data-t="kCT"></small></div>
+        <div><b id="kRun"></b><small data-t="kRun"></small></div>
+        <div><b id="kSave"></b><small data-t="kSave"></small></div>
+        <div><b id="kR"></b><small data-t="kR"></small></div>
+      </div>
+      <p class="note" id="verdict"></p>
+    </div>
+    <div class="panel">
+      <h3 data-t="tasksTitle"></h3>
+      <ol class="tasks" id="tasks"></ol>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+(function () {
+  var zh = (document.documentElement.lang || '').indexOf('zh') === 0;
+  var TX = {
+    h1: ['实验 6-2　保养周期怎样定', 'Lab 6-2  Choosing the service interval'],
+    sub: ['保养太勤白花钱，太懒常停机：拖动周期 T，找长期平均花费最低的点；播放看两台同样的设备一台按周期保养、一台坏了再修', 'Service too often and you waste money; too rarely and you keep breaking down. Drag T to find the lowest long-run cost; press Play to race two identical machines, one serviced every T hours, one repaired only when it fails'],
+    plotTitle: ['每运行小时的长期平均花费 C(T)', 'Long-run average cost per operating hour C(T)'],
+    lgC: ['按龄保养 C(T)', 'age-based service C(T)'], lgRun: ['不保养、坏了再修 C_f ÷ MTTF', 'run to failure C_f ÷ MTTF'], lgT: ['你选的周期 T', 'your interval T'],
+    simTitle: ['两台同样的设备跑同一段时间（零件寿命是同一串随机数）：累计花费', 'Two identical machines over the same hours (the same random part lifetimes): cumulative cost'],
+    play: ['▶ 播放', '▶ Play'], pause: ['❚❚ 暂停', '❚❚ Pause'], again: ['换一串随机数', 'New random numbers'],
+    params: ['参数', 'Parameters'], presets: ['GRD-01：', 'GRD-01:'], pAfter: ['下班后保养', 'service after shift'], pDuring: ['生产时间停机保养', 'stop during production'], pExp: ['β = 1 对照', 'β = 1 check'],
+    lCp: ['一次保养 C_p（$）', 'Service cost C_p ($)'], lCf: ['一次故障 C_f（$）', 'Failure cost C_f ($)'], lT: ['保养周期 T（h）', 'Interval T (h)'],
+    results: ['结果', 'Results'],
+    kTo: ['最优周期 T*', 'Optimal interval T*'], kCo: ['最优时每运行小时花费', 'Cost per hour at T*'], kCT: ['你的周期 T 时每运行小时花费', 'Cost per hour at your T'],
+    kRun: ['不保养、坏了再修', 'Run to failure'], kSave: ['最优比坏了再修省', 'Saving at T* vs run to failure'], kR: ['周期内不坏的概率 R(T)', 'Chance of reaching T without failing R(T)'],
+    tasksTitle: ['实验任务', 'Tasks'],
+    tasks: [['点“下班后保养”，读出 T*、C(T*) 和现行 500 h 时的花费，与教材 6.6 节核对。', 'Press “service after shift”; read T*, C(T*) and the cost at the current 500 h; check against Section 6.6.'],
+            ['点“生产时间停机保养”（每次保养再加少挣的 $600），T* 移到哪里？为什么保养越贵、周期越长？', 'Press “stop during production” (each service also loses $600 of margin). Where does T* move? Why does a dearer service mean a longer interval?'],
+            ['点“β = 1 对照”：曲线还有最低点吗？结论是什么？', 'Press “β = 1 check”: does the curve still have a minimum? What do you conclude?'],
+            ['把 T 放在 T* 附近，播放到 20000 h，比较两台设备的累计花费和平均每小时花费，与 C(T) 曲线核对。', 'Set T near T*, play to 20,000 h and compare the two machines’ cumulative and hourly costs with the C(T) curve.']],
+    vMin: ['曲线在 T* 处最低：再勤，保养费占大头；再懒，故障损失占大头', 'The curve bottoms out at T*: shorter and service costs dominate; longer and failures dominate'],
+    vNone: ['β ≤ 1：C(T) 一路下降，没有最低点——定期保养不划算，坏了再修（或改做状态监测）', 'β ≤ 1: C(T) keeps falling with no minimum; scheduled service does not pay, so repair on failure (or monitor condition)'],
+    vCheap: ['C_p 接近 C_f：保养省不下多少，最优周期很长', 'C_p is close to C_f: servicing saves little, so the optimal interval is long'],
+    xT: ['保养周期 T（运行小时）', 'service interval T (operating hours)'], yC: ['$ / 运行小时', '$ per operating hour'],
+    sA: ['按周期 T 保养', 'service every T'], sB: ['坏了再修', 'run to failure'],
+    simNote: ['已运行 {t} h · 蓝线（按周期保养）：保养 {p} 次、故障 {f} 次 · 红线（坏了再修）：故障 {g} 次', 'run {t} h · blue (serviced every T): {p} services, {f} failures · red (run to failure): {g} failures'],
+    ph: ['每小时 ${v}', '${v}/h']
+  };
+  function T_(k) { var v = TX[k]; return v ? v[zh ? 0 : 1] : k; }
+  document.querySelectorAll('[data-t]').forEach(function (e) { e.textContent = T_(e.dataset.t); });
+  document.getElementById('tasks').innerHTML = TX.tasks.map(function (x) { return '<li>' + x[zh ? 0 : 1] + '</li>'; }).join('');
+  var $ = function (id) { return document.getElementById(id); };
+  var PRE = { after: [3, 900, 215, 2800, 500], during: [3, 900, 815, 2800, 500], exp: [1, 900, 215, 2800, 500] };
+  var fmt = function (x, d) { return x.toLocaleString(zh ? 'zh-CN' : 'en-US', { minimumFractionDigits: d, maximumFractionDigits: d }); };
+  function gamma(z) {
+    var c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+    if (z < 0.5) return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z));
+    z -= 1; var x = c[0]; for (var i = 1; i < 9; i++) x += c[i] / (z + i);
+    var t = z + 7.5; return Math.sqrt(2 * Math.PI) * Math.pow(t, z + 0.5) * Math.exp(-t) * x;
+  }
+  function v() { return { b: +$('beta').value, e: +$('eta').value, cp: +$('cp').value, cf: +$('cf').value, T: +$('T').value }; }
+  var R = function (t, b, e) { return Math.exp(-Math.pow(Math.max(t, 0) / e, b)); };
+  function C(T, p) {   // 中点法求 ∫R
+    var n = 400, s = 0; for (var i = 0; i < n; i++) s += R(T * (i + 0.5) / n, p.b, p.e);
+    s *= T / n; var r = R(T, p.b, p.e); return (p.cp * r + p.cf * (1 - r)) / s;
+  }
+  function best(p) { var o = [Infinity, 0]; for (var T = 20; T <= 3000; T += 1) { var c = C(T, p); if (c < o[0]) o = [c, T]; } return o; }
+
+  var X0 = 60, X1 = 720, Y0 = 290, Y1 = 18, TMAX = 1600;
+  function draw() {
+    var p = v(), mttf = p.e * gamma(1 + 1 / p.b), run = p.cf / mttf, bo = best(p), i, s = '';
+    var top = Math.max(run * 1.7, 1); var nice = [1, 2, 4, 5, 6, 8, 10, 15, 20, 30, 40, 60, 80, 100]; for (i = 0; i < nice.length && nice[i] < top; i++); top = nice[Math.min(i, nice.length - 1)];
+    var sx = function (t) { return X0 + (X1 - X0) * t / TMAX; }, sy = function (c) { return Y0 - (Y0 - Y1) * Math.min(c, top * 1.02) / top; };
+    for (i = 0; i <= 4; i++) { var y = sy(top * i / 4); s += '<line x1="' + X0 + '" x2="' + X1 + '" y1="' + y + '" y2="' + y + '" stroke="var(--rule)"/><text x="' + (X0 - 8) + '" y="' + (y + 4) + '" text-anchor="end">' + fmt(top * i / 4, (top / 4) % 1 ? (top / 4 * 10) % 1 ? 2 : 1 : 0) + '</text>'; }
+    for (i = 0; i <= 8; i++) s += '<text x="' + sx(i * 200) + '" y="' + (Y0 + 18) + '" text-anchor="middle">' + i * 200 + '</text>';
+    s += '<text x="' + ((X0 + X1) / 2) + '" y="' + (Y0 + 38) + '" text-anchor="middle">' + T_('xT') + '</text><text x="' + X0 + '" y="' + (Y1 - 4) + '">' + T_('yC') + '</text>';
+    s += '<line x1="' + X0 + '" x2="' + X1 + '" y1="' + sy(run) + '" y2="' + sy(run) + '" stroke="var(--red)" stroke-dasharray="6 5" stroke-width="1.6"/>';
+    var d = ''; for (i = 0; i <= 160; i++) { var T = 20 + i * 9.875; d += (i ? 'L' : 'M') + sx(T).toFixed(1) + ' ' + sy(C(T, p)).toFixed(1); }
+    s += '<path d="' + d + '" fill="none" stroke="var(--accent)" stroke-width="2.6"/>';
+    var cT = C(p.T, p);
+    s += '<line x1="' + sx(p.T) + '" x2="' + sx(p.T) + '" y1="' + Y1 + '" y2="' + Y0 + '" stroke="var(--green)" stroke-dasharray="4 4" stroke-width="1.5"/><circle cx="' + sx(p.T) + '" cy="' + sy(cT) + '" r="5.5" fill="var(--green)"/>';
+    var hasMin = p.b > 1.02 && bo[1] < 2990;
+    if (hasMin && bo[1] <= TMAX) s += '<circle cx="' + sx(bo[1]) + '" cy="' + sy(bo[0]) + '" r="6" fill="var(--amber)"/><text x="' + (sx(bo[1]) + 8) + '" y="' + (sy(bo[0]) + 22) + '" style="fill:var(--amber);font-weight:600">T* = ' + bo[1] + ' h</text>';
+    $('plot').innerHTML = s;
+    $('kTo').textContent = hasMin ? bo[1] + ' h' : '—';
+    $('kCo').textContent = hasMin ? '$' + fmt(bo[0], 2) : '—';
+    $('kCT').textContent = '$' + fmt(cT, 2);
+    $('kRun').textContent = '$' + fmt(run, 2);
+    $('kSave').textContent = hasMin ? fmt((1 - bo[0] / run) * 100, 0) + '%' : '0%';
+    $('kR').textContent = fmt(R(p.T, p.b, p.e) * 100, 1) + '%';
+    $('verdict').textContent = !hasMin ? T_('vNone') : p.cp > 0.6 * p.cf ? T_('vCheap') : T_('vMin');
+    ['beta', 'eta', 'cp', 'cf', 'T'].forEach(function (k) { var e = $(k); $(k + 'v').textContent = k === 'beta' ? fmt(+e.value, 1) : (k === 'cp' || k === 'cf' ? '$' : '') + fmt(+e.value, 0); });
+    return { run: run };
+  }
+
+  // ---------------- race: same random lifetimes for both machines
+  var SPAN = 20000, sim;
+  // 共同随机数：两台设备各有一个随机数流，种子相同，所以第 k 次装上的“零件”寿命完全一样，只有策略不同
+  function newSim(seed) { seed = seed || 11; sim = { seed: seed, h: 0, a: { s: seed, age: 0, life: 0, cost: 0, p: 0, f: 0, pts: [[0, 0]] }, b: { s: seed, age: 0, life: 0, cost: 0, f: 0, pts: [[0, 0]] } }; sim.a.life = draw1(sim.a); sim.b.life = draw1(sim.b); }
+  function rnd(m) { m.s = (m.s * 16807) % 2147483647; return (m.s - 1) / 2147483646; }
+  function draw1(m) { var p = v(); return p.e * Math.pow(-Math.log(1 - rnd(m)), 1 / p.b); }   // 威布尔寿命抽样（逆变换）
+  newSim();
+  function step(dh) {
+    var p = v();
+    for (var k = 0; k < dh && sim.h < SPAN; k++) {
+      sim.h++;
+      var A = sim.a, B = sim.b;
+      A.age++; B.age++;
+      if (A.age >= A.life) { A.cost += p.cf; A.f++; A.age = 0; A.life = draw1(A); }
+      else if (A.age >= p.T) { A.cost += p.cp; A.p++; A.age = 0; A.life = draw1(A); }
+      if (B.age >= B.life) { B.cost += p.cf; B.f++; B.age = 0; B.life = draw1(B); }
+      if (sim.h % 100 === 0) { A.pts.push([sim.h, A.cost]); B.pts.push([sim.h, B.cost]); }
+    }
+  }
+  function drawSim() {
+    var p = v(), L = 60, Rr = 740, Y0s = 180, Y1s = 16;
+    var mttf = p.e * gamma(1 + 1 / p.b), top = Math.max(1000, p.cf / mttf * SPAN * 1.1);
+    var qx = function (h) { return L + (Rr - L) * h / SPAN; }, qy = function (c) { return Y0s - (Y0s - Y1s) * c / top; };
+    var s = '<line x1="' + L + '" x2="' + Rr + '" y1="' + Y0s + '" y2="' + Y0s + '" stroke="var(--rule)"/>';
+    s += '<text x="' + L + '" y="' + (Y0s + 18) + '">0</text><text x="' + Rr + '" y="' + (Y0s + 18) + '" text-anchor="end">' + fmt(SPAN, 0) + ' h</text>';
+    s += '<text x="' + (L - 6) + '" y="' + (Y1s + 4) + '" text-anchor="end">$' + fmt(top / 1000, 0) + 'k</text>';
+    [['a', 'var(--accent)', 'sA'], ['b', 'var(--red)', 'sB']].forEach(function (q) {
+      var m = sim[q[0]], d = ''; m.pts.concat([[sim.h, m.cost]]).forEach(function (pt, i) { d += (i ? 'L' : 'M') + qx(pt[0]).toFixed(1) + ' ' + qy(pt[1]).toFixed(1); });
+      s += '<path d="' + d + '" fill="none" stroke="' + q[1] + '" stroke-width="2.4"/>';
+      var per = sim.h ? m.cost / sim.h : 0;
+      s += '<text x="' + Math.min(qx(sim.h) + 6, Rr - 150) + '" y="' + (qy(m.cost) + (q[0] === 'a' ? 16 : -6)) + '" style="fill:' + q[1] + ';font-weight:600">' + T_(q[2]) + (zh ? '：' : ': ') + T_('ph').replace('{v}', fmt(per, 2)) + '</text>';
+    });
+    $('sim').innerHTML = s;
+    $('simNote').textContent = T_('simNote').replace('{t}', fmt(sim.h, 0)).replace('{p}', sim.a.p).replace('{f}', sim.a.f).replace('{g}', sim.b.f);
+  }
+  var playing = false, last = 0, hold = 0;
+  function loop(now) {
+    if (!playing) return;
+    var dt = Math.min(0.1, (now - (last || now)) / 1000); last = now;
+    if (sim.h >= SPAN) { hold += dt; if (hold > 2.5) { hold = 0; newSim(sim.seed); } }
+    else step(Math.max(1, Math.round(dt * 1600)));   // 每秒约 1600 运行小时，12 秒跑完一轮
+    drawSim();
+    requestAnimationFrame(loop);
+  }
+  function setPlay(on) { playing = on; $('play').textContent = T_(on ? 'pause' : 'play'); last = 0; if (on) requestAnimationFrame(loop); }
+  $('play').onclick = function () { setPlay(!playing); };
+  $('again').onclick = function () { newSim(Math.floor(Math.random() * 1e6) + 1); drawSim(); };
+  document.querySelectorAll('[data-p]').forEach(function (b) {
+    b.onclick = function () { var q = PRE[b.dataset.p]; ['beta', 'eta', 'cp', 'cf', 'T'].forEach(function (k, i) { $(k).value = q[i]; }); newSim(); draw(); drawSim(); };
+  });
+  ['beta', 'eta', 'cp', 'cf', 'T'].forEach(function (k) { $(k).addEventListener('input', function () { newSim(); draw(); drawSim(); }); });
+  draw(); drawSim();
+  window.__lab = { play: setPlay, draw: function () { draw(); drawSim(); } };   // 课件片段用：暂停/播放
+  if (location.protocol === 'about:' || /[?&]auto/.test(location.search)) setPlay(true);
+})();
+</script>
+</body>
+</html>

@@ -58,8 +58,10 @@
             <router-link to="/3d" class="more">进入 3D 车间 →</router-link>
           </div>
           <div class="machines">
-            <router-link v-for="m in machines" :key="m.unit" :to="{ path: '/work/operator', query: { unit: m.unit } }"
-              class="mcard" :class="{ down: ['down', 'fault'].includes(m.state) }">
+            <!-- 点哪看哪（第 30 轮 §八）：点设备弹出此刻状态、对应帮助；车间终端在弹窗里 -->
+            <div v-for="m in machines" :key="m.unit" role="button" tabindex="0" :aria-expanded="picked === m.unit"
+              class="mcard" :class="{ down: ['down', 'fault'].includes(m.state), on: picked === m.unit }"
+              @click="pickM(m.unit)" @keydown.enter.self.prevent="pickM(m.unit)" @keydown.space.self.prevent="pickM(m.unit)">
               <div class="mtop">
                 <span class="mono b">{{ m.code }}</span>
                 <span class="pill" :style="{ color: STATE[m.state].color, background: STATE[m.state].bg }">{{ STATE[m.state].label }}</span>
@@ -72,7 +74,16 @@
                   {{ d.work_order.slice(-5) }} {{ opShort(d.operation) }} {{ d.done }}/{{ d.qty }} {{ d.started ? '已开工' : '待开工' }}
                 </div>
               </div>
-            </router-link>
+              <div v-if="picked === m.unit" class="pop small" role="dialog" :aria-label="m.code + ' ' + m.name" @click.stop>
+                <b>{{ m.code }} {{ m.name }}</b>
+                <span><span class="pill" :style="{ color: pinfo.color, background: pinfo.bg }">{{ pinfo.label }}</span>
+                  <span v-if="pinfo.reason" class="muted"> {{ pinfo.reason }}</span></span>
+                <span v-if="pinfo.tags.length" class="ptags"><span v-for="t in pinfo.tags" :key="t.text" :class="t.tone">{{ t.text }}</span></span>
+                <span v-if="pinfo.help.domain" class="muted">领域：{{ pinfo.help.domain }}</span>
+                <router-link :to="{ path: '/work/operator', query: { unit: m.unit } }">打开车间终端 →</router-link>
+                <router-link :to="pinfo.help.to">{{ pinfo.help.label }} →</router-link>
+              </div>
+            </div>
           </div>
           <div class="agv small muted">
             <span v-for="a in agvs" :key="a.unit"><ObjLink type="Agv" :k="a.unit">{{ a.unit.toUpperCase() }}</ObjLink>：<template v-if="a.task">运送 <ObjLink type="PartSerial" :k="a.load" mono />（{{ a.task }}）</template><template v-else>待命 · 电量 {{ Math.round((a.battery || 0) * 100) }}%</template></span>
@@ -160,6 +171,7 @@ import { bus } from '../lib/bus';
 import { useOverview } from '../lib/overview';
 import { ask as aiAsk } from '../lib/ai';
 import { kpiValue, opShort, pct, short, STATE, TONE, timeOf } from '../lib/fmt';
+import { machineInfo } from '../lib/machinfo';
 import ControlChart from '../components/ControlChart.vue';
 import ProposalModal from '../components/ProposalModal.vue';
 import TaskBar from '../components/TaskBar.vue';
@@ -212,6 +224,27 @@ async function loadBanner() {
 let bannerTimer = null;
 onMounted(() => { loadBanner(); bannerTimer = setInterval(loadBanner, 30000); });
 onUnmounted(() => clearInterval(bannerTimer));
+
+// 点哪看哪（第 30 轮 §八 8-1）：设备的此刻状态 + 对应帮助章节；标准保养周期取自 /api/layout（第一次点时取）
+const picked = ref(null);
+const units = ref(null);
+const prisk = ref(null);
+const isDemo = () => session.config?.plant?.demo !== false;
+const pinfo = computed(() => {
+  const m = machines.value.find((x) => x.unit === picked.value);
+  return machineInfo(m, units.value?.[picked.value], isDemo(), prisk.value?.unit === picked.value ? prisk.value : null);
+});
+async function pickM(unit) {
+  picked.value = picked.value === unit ? null : unit;
+  prisk.value = null;
+  if (!picked.value) return;
+  if (!units.value) units.value = await get('/layout').then((L) => L.units).catch(() => ({}));
+  if (isDemo() && units.value?.[unit]?.pm_h) get('/maint/risk/' + unit).then((r) => { if (picked.value === unit) prisk.value = r; }).catch(() => {});
+}
+// 点卡片外面、按 Esc 收起弹窗
+const closePick = (e) => { if (picked.value && (e.key === 'Escape' || (e.type === 'click' && !e.target.closest?.('.mcard')))) picked.value = null; };
+onMounted(() => { document.addEventListener('click', closePick); document.addEventListener('keydown', closePick); });
+onUnmounted(() => { document.removeEventListener('click', closePick); document.removeEventListener('keydown', closePick); });
 function ask(t) { aiAsk(t); }
 function askAi() { const t = q.value; q.value = ''; aiAsk(t); }
 async function refreshBrief() { await post('/ai/briefing/refresh'); load(); }
@@ -253,6 +286,14 @@ function act(t) {
   background: #FBFBF9; color: inherit; text-decoration: none; }
 .mcard:hover { border-color: var(--accent); text-decoration: none; }
 .mcard.down { border-color: #E7A39B; background: #FFF8F7; }
+.mcard { position: relative; cursor: pointer; }
+.mcard.on { border-color: var(--accent); }
+.pop { position: absolute; left: 8px; right: 8px; top: calc(100% - 6px); z-index: 20; display: flex; flex-direction: column; gap: 5px;
+  padding: 10px 12px; border-radius: 8px; background: #fff; border: 1px solid var(--line); box-shadow: 0 10px 24px rgba(23, 33, 43, 0.18);
+  cursor: default; min-width: 200px; }
+.ptags { display: flex; gap: 4px; flex-wrap: wrap; }
+.ptags span { padding: 0 6px; border-radius: 999px; background: var(--surface-2); }
+.ptags .bad { color: var(--bad); background: var(--bad-bg); } .ptags .warn { color: var(--warn-ink); background: var(--warn-bg); }
 .mtop { display: flex; justify-content: space-between; align-items: center; }
 .b { font-weight: 600; }
 .bn { margin-left: 6px; font-size: 10px; color: var(--task-ink); background: #F9E7A8; border-radius: 6px; padding: 0 5px; }

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""企业功能挂到工作台枢纽上（本仓库 ADR-0067，M19）。
+"""企业功能挂到工作台枢纽上（本仓库 ADR-0068，M19）。
 
 数字工厂的代码与问渠仓库共有（factory/SYNC.md）；本仓库独有的企业功能都从这里挂上，共有的 hub/app.py 只留一处口子：
 有 hub/enterprise_api.py 就调用 mount(app, H, 枢纽模块)。问渠那边没有这个文件，什么也不挂。
@@ -96,7 +96,7 @@ def mount(app, H, A):
                 u["member"] = member
             return {"token": A._sign(u), "user": u}
 
-        @first.post("/api/switch")
+        @first.post("/api/me/switch")
         def switch(body: dict = Body(...), u=Depends(user_of)):
             role = body.get("role", u["role"])
             mode = body.get("mode", u["mode"])

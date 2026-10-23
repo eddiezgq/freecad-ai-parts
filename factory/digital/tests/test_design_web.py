@@ -99,7 +99,8 @@ def test_freecad_pack(monkeypatch):
     assert "'https://factory.example.com'" in pub and repr(tok) in pub and "'teach'" in pub
     assert "https://factory.example.com" in z.read("wenquest-freecad/wq_library.py").decode("utf-8")
     assert "7 天内有效" in z.read("wenquest-freecad/使用说明.txt").decode("utf-8")
-    assert "addWorkbench" in z.read("wenquest-freecad/Mod/WenQuest/InitGui.py").decode("utf-8")       # 第 8 轮工作台
+    assert "wq_workbench.register()" in z.read("wenquest-freecad/Mod/WenQuest/InitGui.py").decode("utf-8")  # 第 8 轮工作台
+    assert "addWorkbench" in z.read("wenquest-freecad/Mod/WenQuest/wq_workbench.py").decode("utf-8")     # （第 39 轮拆出）
     assert repr(tok) in z.read("wenquest-freecad/Mod/WenQuest/wq_publish.py").decode("utf-8")
     assert "def submit" in z.read("wenquest-freecad/wq_submit.py").decode("utf-8")
     swb = z.read("wenquest-freecad/SolidWorks/wq_submit_solidworks.swb").decode("ascii")             # 第 10 轮

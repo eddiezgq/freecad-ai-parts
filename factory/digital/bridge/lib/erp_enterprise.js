@@ -1,4 +1,4 @@
-// 企业功能的提议在 ERPNext 里怎么执行（本仓库 ADR-0067，M19）。共有的 lib/erp.js 有这个文件就把这里的动作登记上；
+// 企业功能的提议在 ERPNext 里怎么执行（本仓库 ADR-0068，M19）。共有的 lib/erp.js 有这个文件就把这里的动作登记上；
 // 问渠仓库没有它。每个动作以 ERP 实例为 this 调用：(preview, { out, created, opt })，往 out 放发回总线的 erp.doc、
 // 往 created 记建了什么。
 'use strict';

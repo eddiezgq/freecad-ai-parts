@@ -13,7 +13,7 @@ CODE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,39}$")
 CATEGORIES = {"servo_motor": "伺服电机", "reducer": "减速器", "drive": "驱动器", "bearing": "轴承", "adapter": "转接件"}
 
 
-# 方案的各个版本（ADR-0058 第 4 条）。M19（ADR-0067）起表在这里建，共有的 hub/db.py 不再带它
+# 方案的各个版本（ADR-0058 第 4 条）。M19（ADR-0068）起表在这里建，共有的 hub/db.py 不再带它
 SCHEMA = """
 create table if not exists cad_design (
     id          bigserial primary key,

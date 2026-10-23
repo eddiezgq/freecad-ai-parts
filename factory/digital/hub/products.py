@@ -198,7 +198,7 @@ def _on_proposal_done(db, action, preview, mode):
         register(db, preview, mode)
 
 
-# 挂到共有代码留的口子上（ADR-0067）：提议执行完 → 登记产品；起草工艺规程 → 自制件的粗基准与装夹
+# 挂到共有代码留的口子上（ADR-0068）：提议执行完 → 登记产品；起草工艺规程 → 自制件的粗基准与装夹
 if _on_proposal_done not in _ai.ON_PROPOSAL_DONE:
     _ai.ON_PROPOSAL_DONE.append(_on_proposal_done)
 if process_hint not in _process.PLAN_HINTS:

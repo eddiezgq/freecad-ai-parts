@@ -818,7 +818,7 @@ def demo_readings(snap, hours=24, plan=None, staffing=None):
 
 
 def energy_scene(H, eng, mode="teach"):
-    """评测沙盒：过去 24 小时的计量读数——卧加晚班下班忘关、热处理峰时开炉、磨床从第 2 小时起劣化、空压机最后 6 小时漏气"""
+    """评测沙盒：过去 24 小时的计量读数——卧加晚班下班忘关、热处理峰时开炉、磨床一开始就劣化、空压机最后 6 小时漏气"""
     import json
     from hub import people as PE
     seed(H.db, mode)
@@ -826,8 +826,10 @@ def energy_scene(H, eng, mode="teach"):
         return 0
     snap = json.loads(json.dumps(eng.snapshot()))
     lv = PE.levels(H.db, mode, PE.window_days(None, H.db, mode)) if PE.enabled(H.db, mode) else {}
-    rs = demo_readings(snap, 24, plan=[(0, [{"kind": "forgot", "unit": "hmc-01", "hours": 24}, {"kind": "ht_peak"}]),
-                                       (2, [{"kind": "degrade", "unit": "grd-01", "pct": 0.4}]), (18, [{"kind": "leak"}])],
+    # 磨床一开始就劣化：情景里磨床一天只磨几件，而且只在某个时段磨；第 2 小时才劣化时，那几件落在劣化前还是后要看是几点开跑，
+    # 测试随钟点时过时不过（2026-10-18 数字工厂部署卡在这里）。基线件不够 5 件时本来就用“标准值 × 1.08”当基线
+    rs = demo_readings(snap, 24, plan=[(0, [{"kind": "forgot", "unit": "hmc-01", "hours": 24}, {"kind": "ht_peak"},
+                                            {"kind": "degrade", "unit": "grd-01", "pct": 0.4}]), (18, [{"kind": "leak"}])],
                        staffing={"levels": lv} if lv else None)
     for d in rs:
         ingest(H.db, mode, d)

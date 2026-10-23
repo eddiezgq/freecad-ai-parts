@@ -5,7 +5,7 @@
       <span v-for="s in ['run', 'idle', 'setup', 'down']" :key="s"><i :style="{ background: HEX[s] }"></i>{{ STATE[s].label }}</span>
       <span class="muted">拖动旋转 · 滚轮缩放 · 点设备看详情</span>
     </div>
-    <aside v-if="sel" class="panel">
+    <aside v-if="sel" class="panel" data-help="3d-panel">
       <button class="x" aria-label="关闭" @click="sel = null">×</button>
       <h2>{{ sel.toUpperCase() }} {{ layout?.units[sel]?.name }}</h2>
       <template v-if="bus.machines[sel]">
@@ -13,9 +13,14 @@
           <span v-if="m.reason" class="small"> {{ m.locked ? '🔒 ' : '' }}{{ m.reason }}</span></p>
         <p class="small">工单 <b class="mono">{{ m.work_order || '—' }}</b> · {{ (m.operation || '').split(' ')[0] }} · {{ m.qty_done }}/{{ m.qty }} 件</p>
         <p class="small">待加工 {{ m.queue }} 件 · 刀具寿命 {{ Math.round((m.tool_life_left ?? 1) * 100) }}%</p>
+        <p v-if="info.tags.length" class="tags"><span v-for="t in info.tags" :key="t.text" class="tag small" :class="t.tone">{{ t.text }}</span></p>
+        <p v-if="info.pmH" class="small muted">自上次保养运行 {{ info.runH }} 小时 · 保养周期 {{ info.pmH }} 小时</p>
         <router-link :to="{ path: '/work/operator', query: { unit: sel } }" class="small">打开车间终端 →</router-link>
       </template>
       <p v-else class="small muted">这个单元没有状态消息。</p>
+      <!-- 点哪看哪（第 30 轮 §八）：对应的帮助章节 -->
+      <p class="helpto small"><span v-if="info.help.domain" class="muted">领域：{{ info.help.domain }} · </span>
+        <router-link :to="info.help.to">{{ info.help.label }} →</router-link></p>
       <template v-if="sel === 'key-01' || isLathe">
         <hr>
         <h3>{{ sel === 'key-01' ? '键槽刀路回放' : '车削刀路回放' }}<span v-if="gcInfo" class="small muted"> {{ gcInfo }}</span></h3>
@@ -33,10 +38,11 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import * as THREE from 'three';
 import { createWorkshop, HEX } from '../lib/workshop3d';
-import { get } from '../lib/api';
+import { get, loadConfig } from '../lib/api';
 import { bus } from '../lib/bus';
 import { STATE } from '../lib/fmt';
 import { parseGcode } from '../lib/gcode';
+import { machineInfo } from '../lib/machinfo';
 
 const route = useRoute();
 const host = ref(null);
@@ -47,6 +53,14 @@ const err = ref('');
 const gcode = ref('');
 const gcPlaying = ref(false);
 const m = computed(() => bus.machines[sel.value] || {});
+const demo = ref(true);
+const risk = ref(null);
+const info = computed(() => machineInfo(bus.machines[sel.value], layout.value?.units[sel.value], demo.value, risk.value?.unit === sel.value ? risk.value : null));
+// 点哪看哪：演示工厂取设备维护算的保养逾期（设备有保养计划才有；取不到就按 /api/layout 的标准周期）
+watch(sel, (u) => {
+  risk.value = null;
+  if (u && demo.value && layout.value?.units[u]?.pm_h) get('/maint/risk/' + u).then((r) => { if (sel.value === u) risk.value = r; }).catch(() => {});
+});
 const isLathe = computed(() => (sel.value || '').startsWith('cnc-l01'));
 let ws, downAt;
 let gc = null;             // 刀路小窗
@@ -174,6 +188,7 @@ watch(sel, async (u) => {
 
 let off;
 onMounted(async () => {
+  loadConfig().then((c) => { demo.value = c?.plant?.demo !== false; }).catch(() => {});
   try {
     layout.value = await get('/layout');
     ws = createWorkshop(host.value, layout.value, { onFrame: () => { if (gc) gc.render(); } });
@@ -199,6 +214,10 @@ onUnmounted(() => {
 .panel { position: absolute; right: 16px; top: 16px; width: 340px; background: #fff; border-radius: 10px; border: 1px solid var(--line);
   padding: 14px 16px; max-height: calc(100% - 32px); overflow-y: auto; }
 .panel h3 { font-size: 14px; margin: 6px 0; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+.tag { padding: 1px 8px; border-radius: 999px; background: var(--surface-2); }
+.tag.bad { color: var(--bad); background: var(--bad-bg); } .tag.warn { color: var(--warn-ink); background: var(--warn-bg); }
+.helpto { margin: 10px 0 0; padding-top: 8px; border-top: 1px solid var(--line); }
 .x { position: absolute; right: 10px; top: 6px; border: 0; background: none; font-size: 20px; cursor: pointer; color: var(--muted); }
 .gchost { width: 100%; height: 200px; margin-bottom: 8px; border-radius: 8px; overflow: hidden; }
 .errbox { position: absolute; left: 16px; top: 16px; background: #fff; padding: 10px; border-radius: 8px; }

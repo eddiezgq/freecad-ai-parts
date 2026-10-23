@@ -122,6 +122,8 @@ def test_leak_degrade_and_ht_peak_with_tou():
     for name, setting, inj in (("base", {}, []), ("leak", {}, [{"kind": "leak"}]), ("degrade", {}, [{"kind": "degrade", "unit": "grd-01", "pct": 0.4}]),
                                ("peak", {}, [{"kind": "ht_peak"}]), ("peak_tou", {"tou": ["ht-01"]}, [{"kind": "ht_peak"}])):
         eng, clock, out = make_engine(auto=True)
+        # 固定从周一 10:00 开始（工厂时间原来取真实时间：在不同时刻跑，错峰前后的电量对比会落在不同的电价时段，测试时过时不过）
+        eng.epoch = dt.datetime(2026, 10, 5, 10, 0, tzinfo=eng.calendar.tzi).astimezone(dt.timezone.utc)
         eng.set_energy(dict({"enabled": True}, **setting))
         eng.set_energy({"inject": inj})
         eng.at(0, "release", work_order="WO-T", item="SH-301", qty=8)
@@ -420,3 +422,21 @@ def test_lab21_documents_and_course():
     assert "空转" in text and "0.5306" in text
     tt = docx.Document(io.BytesIO(t))
     assert "实验 21" in tt.paragraphs[0].text
+
+
+def test_idle_rule_always_reports_the_forgotten_machine(monkeypatch):
+    """N2 只报空转最多的 3 台；老师 / 情景注入“下班忘关”的那台够条件就一定报（带锯床功率小，会被数控车床挤掉）"""
+    from types import SimpleNamespace
+    from hub import energy as EN
+    from hub.ont.rules import energy as R
+    rows = [dict(unit=u, name=u, kwh=k / 0.9, idle_kwh=k, idle_h=12.0, idle_share=0.9) for u, k in
+            (("hmc-01", 72), ("cnc-l01-a", 66), ("vmc-01", 60), ("cnc-l01-b", 54), ("saw-01", 24))]
+    monkeypatch.setattr(R, "_end", lambda c: dt.datetime.now(dt.timezone.utc))
+    monkeypatch.setattr(EN, "idle_by_unit", lambda db, mode, hours, end: [dict(x) for x in rows])
+    monkeypatch.setattr(EN, "params", lambda db, mode: {"price": {"flat": 0.1}})
+    c = SimpleNamespace(db=None, mode="teach")
+    p = {"hours": 12, "share": 0.3, "min_h": 1, "min_kwh": 10, "top": 3}
+    monkeypatch.setattr(EN, "_state", lambda db, mode: {"faults": {}})
+    assert [f.fkey for f in R.idle_energy(c, p, {})] == ["hmc-01", "cnc-l01-a", "vmc-01"]
+    monkeypatch.setattr(EN, "_state", lambda db, mode: {"faults": {"forgot:saw-01": {"lab": True}}})
+    assert [f.fkey for f in R.idle_energy(c, p, {})] == ["hmc-01", "cnc-l01-a", "vmc-01", "saw-01"]

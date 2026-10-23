@@ -39,6 +39,34 @@
     "edition": "teach",
     "title": "设备维护：保养工单、挂牌上锁"
   },
+  "teach-home": {
+    "edition": "teach",
+    "title": "首页：一眼看全厂"
+  },
+  "teach-service": {
+    "edition": "teach",
+    "title": "客户与服务：投诉、追溯、召回"
+  },
+  "teach-supply": {
+    "edition": "teach",
+    "title": "采购与来料：来料检验、换供应商"
+  },
+  "teach-people": {
+    "edition": "teach",
+    "title": "人员与排班：请假、缺人、调班"
+  },
+  "teach-ehs": {
+    "edition": "teach",
+    "title": "安全环保：隐患、停机挂牌整改"
+  },
+  "teach-energy": {
+    "edition": "teach",
+    "title": "能源：空转、自动待机、错峰"
+  },
+  "teach-finance": {
+    "edition": "teach",
+    "title": "经营与财务：应收逾期、催款、毛利"
+  },
   "ent-ai": {
     "edition": "enterprise",
     "title": "AI 设置与运行记录"

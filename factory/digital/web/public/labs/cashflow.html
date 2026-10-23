@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>未来 8 周的现金：客户哪天付</title>
+<style>
+/* 实验 10-2（第 29 轮）：未来 8 周现金流预测随客户付款日起伏；催款 / 信用冻结 / 不处理；应收账龄、DSO、信用占用（口径同数字工厂 hub/finance.py 的 cashflow()、dso()、options()） */
+:root{--bg:#eef2f3;--sheet:#fafbfb;--ink:#1b2430;--muted:#5a6570;--rule:#d3dadd;--accent:#1d6b86;--amber:#c27a12;--red:#c0392b;--green:#1f8a4c;--violet:#7444b4;
+  --f-display:"Noto Serif SC","Songti SC",serif;--f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;--f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#11161b;--sheet:#182029;--ink:#e2e7ec;--muted:#9aa6b2;--rule:#2b3540;--accent:#6cc3dd;--amber:#f0b45a;--red:#ff7b6b;--green:#5fd08f;--violet:#b49af0;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#11161b;--sheet:#182029;--ink:#e2e7ec;--muted:#9aa6b2;--rule:#2b3540;--accent:#6cc3dd;--amber:#f0b45a;--red:#ff7b6b;--green:#5fd08f;--violet:#b49af0;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:1240px;margin:0 auto;padding:18px 16px 36px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;margin-bottom:12px}
+h1{font-family:var(--f-display);font-size:1.5rem;margin:0}
+.sub{color:var(--muted);font-size:.9rem}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:16px}
+@media (max-width:880px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:12px;min-width:0}
+.panel h3{margin:0 0 8px;font-size:.8rem;letter-spacing:.1em;color:var(--muted);font-weight:600}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--f-body);fill:var(--muted);font-size:12px}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.ctl{display:grid;grid-template-columns:auto minmax(0,1fr) 5.8em;gap:6px 10px;align-items:center}
+.ctl label{font-size:.88rem;color:var(--muted)}
+.ctl b{font-family:var(--f-mono);font-size:.9rem;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+button{font:inherit;font-size:.86rem;border:1px solid var(--rule);background:var(--bg);color:var(--ink);border-radius:5px;padding:4px 10px;cursor:pointer}
+button:hover{border-color:var(--accent)} button.primary{background:var(--accent);color:var(--sheet);border-color:var(--accent)}
+button.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);font-weight:600}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.kpi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.kpi div{border-top:1px solid var(--rule);padding-top:4px}
+.kpi b{display:block;font-family:var(--f-mono);font-size:1.05rem;font-variant-numeric:tabular-nums}
+.kpi small{color:var(--muted);font-size:.76rem;line-height:1.3;display:block}
+.kpi .hot b{color:var(--amber)}
+.kpi .bad b{color:var(--red)}
+.note{font-size:.8rem;color:var(--muted);margin:8px 0 0}
+.tasks{margin:0;padding-left:1.3em;font-size:.9rem} .tasks li{margin:.25em 0}
+.formula{font-family:var(--f-mono);font-size:.84rem;background:var(--bg);border-radius:6px;padding:6px 8px;overflow-x:auto;white-space:normal}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:5px;border-radius:2px}
+.legend i.sq{width:12px;height:12px;vertical-align:-1px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1 data-t="h1"></h1><span class="sub" data-t="sub"></span></header>
+<div class="grid">
+  <div class="col">
+    <div class="panel" id="plotPanel">
+      <h3 data-t="plotTitle"></h3>
+      <svg id="plot" viewBox="0 0 760 340" role="img"></svg>
+      <div class="legend"><span><i style="background:var(--accent)"></i><span data-t="lgNow"></span></span><span><i style="background:var(--red);opacity:.6"></i><span data-t="lgNone"></span></span><span><i class="sq" style="background:var(--green);opacity:.35"></i><span data-t="lgIn"></span></span><span><i class="sq" style="background:var(--red);opacity:.3"></i><span data-t="lgOut"></span></span></div>
+      <div class="row"><button class="primary" id="play" data-t="play"></button><span class="note" style="margin:0" id="weekNote"></span></div>
+    </div>
+    <div class="panel" id="agePanel">
+      <h3 data-t="ageTitle"></h3>
+      <svg id="age" viewBox="0 0 760 190" role="img"></svg>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel">
+      <h3 data-t="params"></h3>
+      <div class="row" style="margin:0 0 10px"><span class="note" style="margin:0" data-t="options"></span><button data-p="none" data-t="pNone"></button><button data-p="dun" data-t="pDun"></button><button data-p="hold" data-t="pHold"></button></div>
+      <div class="ctl">
+        <label for="pay" data-t="lPay"></label><input id="pay" type="range" min="0" max="60" step="1" value="60"><b id="payv"></b>
+        <label for="amt" data-t="lAmt"></label><input id="amt" type="range" min="5000" max="60000" step="100" value="33000"><b id="amtv"></b>
+        <label for="od" data-t="lOd"></label><input id="od" type="range" min="0" max="90" step="1" value="15"><b id="odv"></b>
+        <label for="cash" data-t="lCash"></label><input id="cash" type="range" min="10000" max="120000" step="1000" value="60000"><b id="cashv"></b>
+        <label for="wk" data-t="lWk"></label><input id="wk" type="range" min="2000" max="16000" step="500" value="8000"><b id="wkv"></b>
+      </div>
+      <p class="formula" data-t="formula"></p>
+    </div>
+    <div class="panel">
+      <h3 data-t="results"></h3>
+      <div class="kpi">
+        <div class="hot" id="cLow"><b id="kLow"></b><small data-t="kLow"></small></div>
+        <div><b id="kDays"></b><small data-t="kDays"></small></div>
+        <div id="cNeg"><b id="kNeg"></b><small data-t="kNeg"></small></div>
+        <div id="cSafe"><b id="kSafe"></b><small data-t="kSafe"></small></div>
+        <div><b id="kDso"></b><small data-t="kDso"></small></div>
+        <div><b id="kDso2"></b><small data-t="kDso2"></small></div>
+        <div><b id="kCredit"></b><small data-t="kCredit"></small></div>
+        <div><b id="kRec"></b><small data-t="kRec"></small></div>
+      </div>
+      <p class="note" id="verdict"></p>
+    </div>
+    <div class="panel">
+      <h3 data-t="tasksTitle"></h3>
+      <ol class="tasks" id="tasks"></ol>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+(function () {
+  var zh = (document.documentElement.lang || '').indexOf('zh') === 0;
+  var TX = {
+    h1: ['实验 10-2　未来 8 周的现金：客户哪天付', 'Lab 10-2  Cash over the next 8 weeks: when will the customer pay?'],
+    sub: ['机器人厂 $33,000 的发票逾期了。拖动它的付款日，或者选催款、信用冻结、不处理，看未来 8 周现金哪周最紧、会不会见底', 'The robot plant’s $33,000 invoice is overdue. Drag its payment day, or choose dunning, a credit freeze or doing nothing, and see which of the next 8 weeks is tightest and whether cash runs out'],
+    plotTitle: ['未来 8 周每周末的现金（美元）', 'Cash at the end of each of the next 8 weeks (US dollars)'],
+    lgNow: ['现在的方案', 'current choice'], lgNone: ['不处理（对照）', 'do nothing (control)'], lgIn: ['收款', 'cash in'], lgOut: ['付款（供应商 + 固定开支）', 'cash out (suppliers + fixed costs)'],
+    play: ['▶ 播放', '▶ Play'], pause: ['❚❚ 暂停', '❚❚ Pause'],
+    week: ['第 {w} 周：现金 {v}', 'week {w}: cash {v}'],
+    ageTitle: ['应收账龄（现在）：每档的金额，按客户分色', 'Receivables ageing now: amount in each band, coloured by customer'],
+    params: ['参数', 'Parameters'], options: ['方案：', 'Option:'], pNone: ['不处理', 'do nothing'], pDun: ['催款', 'dun'], pHold: ['信用冻结', 'freeze credit'],
+    lPay: ['机器人厂哪天付（第几天）', 'Robot plant pays on day'], lAmt: ['这笔发票（$）', 'Invoice amount ($)'], lOd: ['已逾期（天）', 'Days overdue'],
+    lCash: ['现在的现金（$）', 'Cash now ($)'], lWk: ['每周固定开支（$）', 'Fixed costs per week ($)'],
+    never: ['8 周后', 'after wk 8'], day: ['第 {d} 天', 'day {d}'],
+    formula: ['第 k 周现金 = 上周现金 + 收款 − 付款 − 固定开支', 'cash in week k = last week + cash in − cash out − fixed costs'],
+    results: ['结果', 'Results'],
+    kLow: ['8 周内现金最低的一周', 'Lowest cash in the 8 weeks'], kDays: ['机器人厂这笔几天收到', 'Days until the robot plant pays'],
+    kNeg: ['现金跌破零', 'Cash falls below zero'], kSafe: ['跌破安全线（一周开支）', 'Below the safety line (one week of costs)'],
+    kDso: ['应收周转天数 DSO（目标 ≤ 45）', 'DSO now (target ≤ 45)'], kDso2: ['这笔收回以后的 DSO', 'DSO once this invoice is paid'],
+    kCredit: ['信用占用（应收 + 下一批 ÷ 额度 $30,000）', 'Credit used ((owed + next batch) ÷ $30,000 limit)'], kRec: ['“应收逾期”这条的建议（只看逾期天数）', 'The overdue rule recommends (days overdue only)'],
+    lowFmt: ['第 {w} 周 {v}', 'wk {w}: {v}'], lowest: ['最低 ◯ ', 'lowest ◯ '], no: ['不会', 'no'], wkN: ['第 {w} 周', 'week {w}'], notIn: ['8 周内收不到', 'not within 8 weeks'], days: ['约 {d} 天', 'about {d} days'],
+    recDun: ['发催款函', 'send a dunning letter'], recHold: ['冻结信用', 'freeze credit'],
+    vNone: ['不处理：钱压在客户手里，现金一周周往下走。赚钱和有钱是两回事。', 'Do nothing: the money stays with the customer and cash falls week by week. Profit is not cash.'],
+    vDun: ['催款：通常 3 天内付，现金曲线整体抬高；关系基本不受影响。', 'Dunning: usually paid within 3 days, lifting the whole cash curve; the relationship is hardly affected.'],
+    vHold: ['信用冻结：对逾期这一笔，现金和催款一样；冻结还会推迟下一批 $16,500 的开票和回款（放行后账期重新算），8 周预测里没有计入，因为它还没开票。欠款不再变多；代价是关系，他的生产线可能等料。', 'Credit freeze: for the overdue invoice, cash is the same as dunning; a freeze also delays invoicing and collecting the next $16,500 batch (terms restart on release), which the 8-week forecast leaves out because it is not invoiced yet. The debt stops growing; the price is the relationship, and its line may wait for parts.'],
+    vCustom: ['拖动付款日：钱晚一周到，曲线就有一段要往下沉。', 'Drag the payment day: every week the money is late, part of the curve sinks.'],
+    vNeg: ['第 {w} 周现金为负：付不出工资和货款，要借钱或拖欠供应商。', 'Cash is negative in week {w}: wages and suppliers cannot be paid without borrowing or delaying suppliers.'],
+    buckets: [['未到期', 'not due'], ['逾期 1–30 天', '1–30 days'], ['逾期 31–60 天', '31–60 days'], ['逾期 60 天以上', 'over 60 days']],
+    cust: [['绿谷输送', 'GreenValley'], ['峰顶搅拌', 'Summit'], ['海港起重', 'Harbor Crane'], ['机器人厂', 'Robot plant']],
+    tasksTitle: ['实验任务', 'Tasks'],
+    tasks: [['点“不处理”，读出现金最低的一周和金额、哪周跌破安全线和零，与教材表 10-4 核对。', 'Press “do nothing”; read the lowest week and amount and when cash falls below the safety line and zero; check against Table 10-4.'],
+            ['点“催款”和“信用冻结”：对逾期这一笔现金一样，冻结还推迟了哪笔钱？为什么“应收逾期”只在逾期超过 30 天时建议冻结，而“信用超限”现在就建议冻结？', 'Press “dun” and “freeze credit”: cash is the same for the overdue invoice, but what other money does a freeze delay? Why does the overdue rule recommend a freeze only after 30 days, while the credit-limit rule recommends one now?'],
+            ['把付款日从第 3 天拖到第 50 天、第 60 天，每次记下最低的一周和金额，画出“晚几天付 → 最低现金”的关系。', 'Drag the payment day from day 3 to day 50 and day 60, recording the lowest week and amount each time; sketch how the payment delay affects the lowest cash.'],
+            ['读出 DSO 和这笔收回以后的 DSO；把这笔发票从 $33,000 拖到 $10,000，DSO 怎么变？', 'Read the DSO now and once this invoice is paid; drag the invoice from $33,000 to $10,000: how does DSO change?'],
+            ['把“已逾期”拖过 30 天，看账龄换档、中枢的建议变成什么。', 'Drag the days overdue past 30 and watch the ageing band and the hub’s recommendation change.']]
+  };
+  function T_(k) { var v = TX[k]; return v ? v[zh ? 0 : 1] : k; }
+  document.querySelectorAll('[data-t]').forEach(function (e) { e.textContent = T_(e.dataset.t); });
+  document.getElementById('tasks').innerHTML = TX.tasks.map(function (x) { return '<li>' + x[zh ? 0 : 1] + '</li>'; }).join('');
+  var $ = function (id) { return document.getElementById(id); };
+  // 数字工厂的口径（hub/finance.py）：期初应收三笔（opening()）、各客户平时晚付天数的中值、付款条件 30 天、催款后 3 天内付、默认信用额度
+  var OTHERS = [{ c: 0, amt: 9900, due: 20, late: 1.5, issued: -10 }, { c: 1, amt: 6600, due: -5, late: 7.5, issued: -35 }, { c: 2, amt: 13200, due: 10, late: 20, issued: -20 }];
+  var AP = [[14, 10774.8], [28, 10774.8], [42, 10774.8]];   // 示意：后面三批各 20 台的料
+  var DUN = 3, LIMIT = 30000, NEXT = 16500, WEEKS = 8;
+  var COLS = ['var(--accent)', 'var(--amber)', 'var(--violet)', 'var(--red)'];
+  var mode = 'none';
+  var fmt = function (x, d) { return x.toLocaleString(zh ? 'zh-CN' : 'en-US', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); };
+  var usd = function (x) { return (x < 0 ? '−$' : '$') + fmt(Math.abs(x)); };
+  function v() { return { pay: +$('pay').value, amt: +$('amt').value, od: +$('od').value, cash: +$('cash').value, wk: +$('wk').value }; }
+  function forecast(p, payDay) {   // payDay ≥ 56 或 null：8 周内收不到（finance.cashflow：第 k 周 = (哪天 − 今天) ÷ 7 取整，逾期的算第 1 周）
+    var inf = [], out = [], i, rows = [], bal = p.cash;
+    for (i = 0; i < WEEKS; i++) { inf.push(0); out.push(p.wk); }
+    OTHERS.forEach(function (x) { var k = Math.max(0, Math.floor((x.due + x.late) / 7)); if (k < WEEKS) inf[k] += x.amt; });
+    if (payDay !== null) { var k = Math.max(0, Math.floor(payDay / 7)); if (k < WEEKS) inf[k] += p.amt; }
+    AP.forEach(function (a) { var k = Math.floor(a[0] / 7); if (k < WEEKS) out[k] += a[1]; });
+    for (i = 0; i < WEEKS; i++) { bal += inf[i] - out[i]; rows.push({ w: i + 1, inn: inf[i], out: out[i], bal: bal }); }
+    var low = rows.reduce(function (a, b) { return b.bal < a.bal ? b : a; }, rows[0]);
+    var neg = rows.filter(function (r) { return r.bal < 0; })[0], safe = rows.filter(function (r) { return r.bal < p.wk; })[0];
+    return { rows: rows, low: low, neg: neg ? neg.w : null, safe: safe ? safe.w : null };
+  }
+  var X0 = 74, X1 = 740, Y0 = 300, Y1 = 22;
+  var prog = 99;   // 动画进度（周）：曲线画到第 prog 周
+  function draw() {
+    var p = v(), i, s = '';
+    var cur = forecast(p, p.pay >= 56 ? null : p.pay), base = forecast(p, null);
+    var all = [p.cash].concat(cur.rows.map(function (r) { return r.bal; }), base.rows.map(function (r) { return r.bal; }), cur.rows.map(function (r) { return r.inn; }), cur.rows.map(function (r) { return -r.out; }));
+    var lo = Math.min(0, Math.min.apply(null, all)), hi = Math.max.apply(null, all);
+    var st = [5000, 10000, 20000, 25000, 50000].filter(function (x) { return (hi - lo) / x <= 7; })[0] || 50000;
+    lo = Math.floor(lo / st) * st - (lo < 0 ? 0 : 0); hi = Math.ceil(hi * 1.06 / st) * st;
+    var sx = function (w) { return X0 + (X1 - X0) * w / WEEKS; }, sy = function (y) { return Y0 - (Y0 - Y1) * (y - lo) / (hi - lo); };
+    for (var g = lo; g <= hi + 1; g += st) s += '<line x1="' + X0 + '" x2="' + X1 + '" y1="' + sy(g).toFixed(1) + '" y2="' + sy(g).toFixed(1) + '" stroke="var(--rule)"/><text x="' + (X0 - 8) + '" y="' + (sy(g) + 4).toFixed(1) + '" text-anchor="end">' + fmt(g) + '</text>';
+    for (i = 0; i <= WEEKS; i++) s += '<text x="' + sx(i).toFixed(1) + '" y="' + (Y0 + 18) + '" text-anchor="middle">' + i + '</text>';
+    s += '<line x1="' + X0 + '" x2="' + X1 + '" y1="' + sy(0).toFixed(1) + '" y2="' + sy(0).toFixed(1) + '" stroke="var(--ink)" stroke-width="1.2"/>';
+    s += '<line x1="' + X0 + '" x2="' + X1 + '" y1="' + sy(p.wk).toFixed(1) + '" y2="' + sy(p.wk).toFixed(1) + '" stroke="var(--muted)" stroke-dasharray="6 5"/>';
+    s += '<text x="' + (X0 + 6) + '" y="' + (sy(p.wk) - 5).toFixed(1) + '">' + (zh ? '安全线 ' : 'safety line ') + usd(p.wk) + '</text>';
+    var bw = (X1 - X0) / WEEKS * 0.22;
+    cur.rows.forEach(function (r) {
+      if (r.w > Math.ceil(prog)) return;
+      if (r.inn > 0) s += '<rect x="' + (sx(r.w) - bw - 1).toFixed(1) + '" y="' + sy(r.inn).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + (sy(0) - sy(r.inn)).toFixed(1) + '" fill="var(--green)" opacity=".35"/>';
+      s += '<rect x="' + (sx(r.w) + 1).toFixed(1) + '" y="' + sy(0).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + (sy(-r.out) - sy(0)).toFixed(1) + '" fill="var(--red)" opacity=".3"/>';
+    });
+    function path(rows, upto) {
+      var d = 'M' + sx(0).toFixed(1) + ' ' + sy(p.cash).toFixed(1), prev = p.cash;
+      for (var j = 0; j < rows.length; j++) {
+        var w = j + 1;
+        if (upto >= w) { d += 'L' + sx(w).toFixed(1) + ' ' + sy(rows[j].bal).toFixed(1); prev = rows[j].bal; }
+        else if (upto > w - 1) { var f = upto - (w - 1); d += 'L' + sx(w - 1 + f).toFixed(1) + ' ' + sy(prev + (rows[j].bal - prev) * f).toFixed(1); break; }
+        else break;
+      }
+      return d;
+    }
+    if (mode !== 'none' || p.pay < 56) s += '<path d="' + path(base.rows, prog) + '" fill="none" stroke="var(--red)" stroke-width="2" stroke-dasharray="6 4" opacity=".7"/>';
+    s += '<path d="' + path(cur.rows, prog) + '" fill="none" stroke="' + (p.pay >= 56 ? 'var(--red)' : 'var(--accent)') + '" stroke-width="3"/>';
+    var shown = cur.rows.filter(function (r) { return r.w <= prog; });
+    shown.forEach(function (r) { s += '<circle cx="' + sx(r.w).toFixed(1) + '" cy="' + sy(r.bal).toFixed(1) + '" r="3.5" fill="' + (r.bal < 0 ? 'var(--red)' : 'var(--accent)') + '"/>'; });
+    if (prog >= WEEKS) {
+      var L = cur.low, lx = sx(L.w), ly = sy(L.bal);
+      s += '<circle cx="' + lx.toFixed(1) + '" cy="' + ly.toFixed(1) + '" r="7" fill="none" stroke="var(--amber)" stroke-width="2.5"/>';
+      s += '<text x="' + X1 + '" y="' + (Y1 + 2) + '" text-anchor="end" style="fill:var(--amber);font-weight:700;font-size:13px">' + T_('lowest') + T_('lowFmt').replace('{w}', L.w).replace('{v}', usd(L.bal)) + '</text>';
+    }
+    if (p.pay < 56 && p.pay / 7 <= prog) {
+      var pw = Math.max(0, Math.floor(p.pay / 7)) + 1;
+      s += '<text x="' + sx(pw - 0.5).toFixed(1) + '" y="' + (Y1 + 22) + '" text-anchor="middle" style="fill:var(--green);font-weight:600">+' + usd(p.amt) + '</text>';
+    }
+    s += '<text x="' + ((X0 + X1) / 2) + '" y="' + (Y0 + 36) + '" text-anchor="middle">' + (zh ? '第几周' : 'week') + '</text>';
+    $('plot').innerHTML = s;
+    var wNow = Math.min(WEEKS, Math.max(1, Math.ceil(prog)));
+    $('weekNote').textContent = T_('week').replace('{w}', wNow).replace('{v}', usd(cur.rows[wNow - 1].bal));
+    drawAge(p);
+    // 读数
+    var ar = OTHERS.reduce(function (a, x) { return a + x.amt; }, 0) + p.amt;
+    var s30 = OTHERS.filter(function (x) { return x.issued >= -30; }).reduce(function (a, x) { return a + x.amt; }, 0);
+    var dso = ar / (s30 / 30), dso2 = (ar - p.amt) / (s30 / 30);
+    $('kLow').textContent = T_('lowFmt').replace('{w}', cur.low.w).replace('{v}', usd(cur.low.bal));
+    $('cLow').className = cur.low.bal < 0 ? 'bad' : 'hot';
+    $('kDays').textContent = p.pay >= 56 ? T_('notIn') : T_('days').replace('{d}', p.pay);
+    $('kNeg').textContent = cur.neg ? T_('wkN').replace('{w}', cur.neg) : T_('no'); $('cNeg').className = cur.neg ? 'bad' : '';
+    $('kSafe').textContent = cur.safe ? T_('wkN').replace('{w}', cur.safe) : T_('no'); $('cSafe').className = cur.safe ? 'bad' : '';
+    $('kDso').textContent = fmt(dso, 1) + (zh ? ' 天' : ' d'); $('kDso2').textContent = fmt(dso2, 1) + (zh ? ' 天' : ' d');
+    $('kCredit').textContent = fmt((p.amt + NEXT) / LIMIT * 100, 0) + '%';
+    $('kRec').textContent = p.od > 30 ? T_('recHold') : T_('recDun');
+    var vt = mode === 'none' ? T_('vNone') : mode === 'dun' ? T_('vDun') : mode === 'hold' ? T_('vHold') : T_('vCustom');
+    if (cur.neg) vt += ' ' + T_('vNeg').replace('{w}', cur.neg);
+    $('verdict').textContent = vt;
+    $('payv').textContent = p.pay >= 56 ? T_('never') : T_('day').replace('{d}', p.pay);
+    $('amtv').textContent = usd(p.amt); $('odv').textContent = fmt(p.od) + (zh ? ' 天' : ' d'); $('cashv').textContent = usd(p.cash); $('wkv').textContent = usd(p.wk);
+    document.querySelectorAll('[data-p]').forEach(function (b) { b.classList.toggle('on', b.dataset.p === mode); });
+    return cur;
+  }
+  function bucket(d) { return d <= 0 ? 0 : d <= 30 ? 1 : d <= 60 ? 2 : 3; }
+  function drawAge(p) {
+    var items = OTHERS.map(function (x) { return { c: x.c, amt: x.amt, b: bucket(-x.due) }; }).concat([{ c: 3, amt: p.amt, b: bucket(p.od) }]);
+    var tot = [0, 0, 0, 0]; items.forEach(function (x) { tot[x.b] += x.amt; });
+    var max = Math.max(40000, Math.max.apply(null, tot)), L = 150, R = 650, s = '';
+    var sx = function (a) { return (R - L) * a / max; };
+    TX.buckets.forEach(function (bk, k) {
+      var y = 8 + k * 40, x = L;
+      s += '<text x="' + (L - 10) + '" y="' + (y + 19) + '" text-anchor="end">' + bk[zh ? 0 : 1] + '</text>';
+      s += '<rect x="' + L + '" y="' + y + '" width="' + (R - L) + '" height="28" fill="var(--rule)" opacity=".35" rx="3"/>';
+      items.filter(function (it) { return it.b === k; }).forEach(function (it) {
+        var w = sx(it.amt);
+        s += '<rect x="' + x.toFixed(1) + '" y="' + y + '" width="' + w.toFixed(1) + '" height="28" fill="' + COLS[it.c] + '" rx="3"/>';
+        if (w > 74) s += '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (y + 19) + '" text-anchor="middle" style="fill:var(--sheet);font-weight:600">' + TX.cust[it.c][zh ? 0 : 1] + '</text>';
+        x += w;
+      });
+      s += '<text x="' + (R + 8) + '" y="' + (y + 19) + '" style="fill:var(--ink);font-weight:600">' + usd(tot[k]) + '</text>';
+    });
+    var ov = tot[1] + tot[2] + tot[3], all = tot[0] + ov;
+    s += '<text x="' + L + '" y="184">' + (zh ? '应收合计 ' : 'total ') + usd(all) + (zh ? '，逾期 ' : ', overdue ') + usd(ov) + (zh ? '（' : ' (') + fmt(ov / all * 100) + (zh ? '%）' : '%)') + '</text>';
+    $('age').innerHTML = s;
+  }
+  var playing = false, last = 0, HOLD = 2.5;
+  function loop(now) {
+    if (!playing) return;
+    var dt = Math.min(0.1, (now - (last || now)) / 1000); last = now;
+    prog += dt / 0.7;              // 每周约 0.7 秒，画完停一会儿再从头画
+    if (prog > WEEKS + HOLD / 0.7) prog = 0;
+    draw();
+    requestAnimationFrame(loop);
+  }
+  function setPlay(on) { playing = on; $('play').textContent = T_(on ? 'pause' : 'play'); last = 0; if (on) { prog = 0; requestAnimationFrame(loop); } else { prog = 99; draw(); } }
+  $('play').onclick = function () { setPlay(!playing); };
+  document.querySelectorAll('[data-p]').forEach(function (b) {
+    b.onclick = function () { mode = b.dataset.p; $('pay').value = mode === 'none' ? 60 : DUN; draw(); };
+  });
+  $('pay').addEventListener('input', function () { mode = 'custom'; draw(); });
+  ['amt', 'od', 'cash', 'wk'].forEach(function (k) { $(k).addEventListener('input', function () { draw(); }); });
+  draw();
+  window.__lab = { play: setPlay, draw: draw };   // 课件片段用：暂停/播放
+  if (location.protocol === 'about:' || /[?&]auto/.test(location.search)) setPlay(true);
+})();
+</script>
+</body>
+</html>
