@@ -4,9 +4,42 @@ on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
+  schedule:
+    - cron: "17 7 * * *"          # 每晚一次全量（ADR-0067）；main 没有新提交时不跑
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  scope:
+    # 这次跑哪些作业（ADR-0067）：私有仓库按分钟计费，重作业只在相关目录有改动、每晚或手动时跑
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read          # 查上次成功的定时运行
+    outputs:
+      light: ${{ steps.s.outputs.light }}
+      factory: ${{ steps.s.outputs.factory }}
+      deploy: ${{ steps.s.outputs.deploy }}
+      windows: ${{ steps.s.outputs.windows }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - id: s
+        env:
+          WF: ci.yml
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          GH_TOKEN: ${{ github.token }}
+        run: .github/scripts/ci_scope.sh
+
   test:
+    needs: scope
+    if: needs.scope.outputs.light == 'true'
     runs-on: ubuntu-24.04
     services:
       postgres:
@@ -44,6 +77,8 @@ jobs:
 
   freecad:
     # FreeCAD 相关测试（ADR-0032）：锁定 FreeCAD 1.0.2 AppImage，用其内带 Python 运行 pytest -m freecad
+    needs: scope
+    if: needs.scope.outputs.light == 'true'
     runs-on: ubuntu-24.04
     env:
       FAP_REQUIRE_FREECAD: "1"
@@ -66,10 +101,15 @@ jobs:
           PYTHONPATH="$FC/usr/lib" xvfb-run -a -s "-screen 0 1280x1024x24" "$FC/usr/bin/python" -m pytest -m freecad -v -rf 2>&1 | tee freecad-tests.log
       - name: 失败摘要写成注解（便于在检查结果中直接看到原因）
         if: failure()
-        run: grep -E "^(FAILED|ERROR) |^E  " freecad-tests.log | head -40 | sed 's/^/::error::/' || true
+        run: |
+          grep -E "^(FAILED|ERROR) |^E  " freecad-tests.log | head -40 | sed 's/^/::error::/' || true
+          # 进程崩溃时没有 FAILED 行：把日志尾部并成一条注释（一个步骤最多显示 10 条）
+          echo "::error::日志尾部%0A$(tail -n 30 freecad-tests.log | tr -d '\r' | sed ':a;N;$!ba;s/\n/%0A/g')"
 
   factory:
     # 搬入的数字工厂（ADR-0058）：独立子项目，沿用问渠仓库 factory 工作流的测试作业
+    needs: scope
+    if: needs.scope.outputs.factory == 'true'
     runs-on: ubuntu-24.04
     defaults:
       run:
@@ -124,7 +164,8 @@ jobs:
   factory-local:
     # 本地版能一条命令启动（ADR-0058，M10 第 6b 项）：构建镜像、启动、枢纽健康、仿真车间有数据进总线
     runs-on: ubuntu-24.04
-    needs: factory
+    needs: [scope, factory]
+    if: needs.scope.outputs.deploy == 'true'
     permissions:
       contents: write          # 合并到 main 后把帮助视频传到 Release（ADR-0065）
     steps:
@@ -238,7 +279,7 @@ jobs:
           name: help-videos-teach
           path: help-videos-teach.tar.gz
       - name: 合并到 main 后发布帮助视频（教学版）
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -261,7 +302,8 @@ jobs:
     permissions:
       contents: write          # 合并到 main 后把帮助视频传到 Release（ADR-0065）
     runs-on: ubuntu-24.04
-    needs: factory
+    needs: [scope, factory]
+    if: needs.scope.outputs.deploy == 'true'
     steps:
       - uses: actions/checkout@v5
       - name: 腾出磁盘（ERPNext 与工厂镜像要十几 GB）
@@ -385,7 +427,7 @@ jobs:
           name: help-videos-enterprise
           path: help-videos-enterprise.tar.gz
       - name: 合并到 main 后发布帮助视频（企业版）
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

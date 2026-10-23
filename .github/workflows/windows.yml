@@ -1,25 +1,47 @@
 name: Windows 安装包
 
 # 企业单机安装版（ADR-0066）：在 GitHub 的 Windows 机器上取 FreeCAD 1.0.2 便携版、装依赖与工作台、打 Inno Setup 安装包。
-# 合并到 main 后把安装包传到 Release windows-installer。
+# 只在安装包相关文件有改动的 PR、每晚（main 有新提交时）或手动时跑（ADR-0067）；main 上把安装包传到 Release windows-installer。
 on:
   push:
     branches: [main]
   pull_request:
-    paths:
-      - "installer/**"
-      - "freecad_addon/**"
-      - "engine/**"
-      - "kb/**"
-      - "analysis/**"
-      - "mcp_server/**"
-      - "llm_gateway/**"
-      - "pyproject.toml"
-      - ".github/workflows/windows.yml"
+    types: [opened, synchronize, reopened, labeled]
+  schedule:
+    - cron: "47 7 * * *"          # 每晚一次全量（ADR-0067）；main 没有新提交时不跑
   workflow_dispatch:
 
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
+  scope:
+    # 这次跑哪些作业（ADR-0067）：私有仓库按分钟计费，重作业只在相关目录有改动、每晚或手动时跑
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read          # 查上次成功的定时运行
+    outputs:
+      light: ${{ steps.s.outputs.light }}
+      factory: ${{ steps.s.outputs.factory }}
+      deploy: ${{ steps.s.outputs.deploy }}
+      windows: ${{ steps.s.outputs.windows }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - id: s
+        env:
+          WF: windows.yml
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          GH_TOKEN: ${{ github.token }}
+        run: .github/scripts/ci_scope.sh
+
   windows-installer:
+    needs: scope
+    if: needs.scope.outputs.windows == 'true'
     runs-on: windows-2022
     permissions:
       contents: write
@@ -54,7 +76,7 @@ jobs:
           path: dist\*.exe
           retention-days: 7
       - name: 合并到 main 后发布安装包
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
