@@ -138,6 +138,11 @@ class Mock:
         self.put("Department", {"name": "All Departments", "department_name": "All Departments", "is_group": 1})
         # 第 18 轮 E3：资产要用的科目、角色（真 ERPNext 的标准科目表里有）
         self.put("Account", {"name": "Plants and Machineries - " + ABBR, "account_type": "Fixed Asset", "is_group": 0, "company": COMPANY})
+        # 第 18 轮 E7 开票、收付款用的标准科目与成本中心（真 ERPNext 建公司时自带；下面 make_*_invoice 带出的就是这几个）
+        for name, typ in (("Debtors", "Receivable"), ("Creditors", "Payable"), ("Sales", "Income Account"), ("Cash", "Cash"),
+                          ("Stock Received But Not Billed", "Stock Received But Not Billed")):
+            self.put("Account", {"name": "{} - {}".format(name, ABBR), "account_type": typ, "is_group": 0, "company": COMPANY})
+        self.put("Cost Center", {"name": "Main - " + ABBR, "is_group": 0, "company": COMPANY})
         for r in ("Maintenance Manager", "Maintenance User", "System Manager"):
             self.put("Role", {"name": r})
         self.put("Item Group", {"name": "Products", "is_group": 0})
