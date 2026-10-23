@@ -3,10 +3,10 @@
   <div class="page">
     <div class="page-title"><h1>实验 15 · 车间异常的追因、推演与决策</h1>
       <span class="muted">平台自动评 {{ s?.of || 60 }} 分（按平台里的事实），报告 {{ s?.report_points || 40 }} 分由老师在课程里批改</span>
-      <span class="r small"><a href="/api/cae/lab15/guide.docx">指导书</a> · <a href="/api/cae/lab15/report-template.docx">报告模板</a></span></div>
+      <span class="r small" data-help="lab-links"><a href="/api/cae/lab15/guide.docx">指导书</a> · <a href="/api/cae/lab15/report-template.docx">报告模板</a></span></div>
     <div v-if="err" class="err">{{ err }}</div>
     <template v-if="s">
-      <div class="card sum">
+      <div class="card sum" data-help="lab-sum">
         <b class="big">{{ s.score }} / {{ s.of }}</b>
         <span v-if="!s.teacher" class="pill" :class="s.locked ? 'warn' : 'good'">{{ s.locked ? '比对模式：提交任务 3 之前，指挥台和 AI 不显示建议' : '已提交选择：可以看中枢的建议，和你的对比' }}</span>
         <router-link v-if="s.anomaly_id" class="small" :to="{ path: '/ont', query: { view: 'anomalies', a: s.anomaly_id } }">打开你选的异常</router-link>
@@ -26,13 +26,13 @@
           </template>
           <button class="btn danger" @click="inject">注入</button><span class="small ok">{{ injMsg }}</span>
         </div>
-        <p class="small muted">建议：停机选 GRD-01、1200–2400 分钟，并在“经营与成本”切到“按班次”。注入后看指挥台右栏：“不处理”会晚、维修加急能按时，方案差别才明显；否则把停机加长再注入一次。</p>
+        <p class="small muted">建议：停机选 GRD-01、1200–2400 分钟，并在“情景导演”的教师控制台切到“按班次”。注入后看指挥台右栏：“不处理”会晚、维修加急能按时，方案差别才明显；否则把停机加长再注入一次。</p>
         <table v-if="s.class?.length" class="tbl small"><thead><tr><th>学生</th><th v-for="t in s.tasks" :key="t.id" class="num">{{ t.title }}</th><th class="num">合计</th></tr></thead>
           <tbody><tr v-for="c in s.class" :key="c.user"><td>{{ c.user }}</td><td v-for="t in s.tasks" :key="t.id" class="num">{{ c.scores[t.id] ?? '—' }}</td>
             <td class="num"><b>{{ c.total }}</b></td></tr></tbody></table>
       </section>
 
-      <section v-for="(t, i) in s.tasks" :key="t.id" class="card task" :class="{ done: t.done }">
+      <section v-for="(t, i) in s.tasks" :key="t.id" class="card task" data-help="lab-task" :class="{ done: t.done }">
         <div class="card-head"><h2>任务 {{ i + 1 }}　{{ t.title }}</h2><span class="pts">{{ t.score }} / {{ t.points }}</span></div>
         <p>{{ t.desc }}</p>
         <p class="small muted">提示：{{ t.hint }}</p>

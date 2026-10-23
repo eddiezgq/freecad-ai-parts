@@ -1,4 +1,46 @@
 domain: people
 rules:
-  H1: {name: 关键资质人员单点依赖, status: waiting, severity: warn, role: [manager], desc: 待数据：需要员工、技能与资质}
-  H2: {name: 排班缺口, status: waiting, severity: warn, role: [manager, planner], desc: 待数据：需要排班}
+  H1:
+    name: 关键资质单点依赖
+    fn: single_point
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager, lead]
+    desc: 某台设备熟练以上只有 1 个人（技能矩阵，第 18 轮 E4）；这个人请假这台设备就停，也只能开一个班
+    hint: 看右栏：安排技能培训（带教 40 小时），把单点依赖降到 0
+  H2:
+    name: 排班缺口
+    fn: roster_gap
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager, planner, lead]
+    params: {hours: 24}
+    desc: 未来 hours 小时内，有岗位的设备在某一班没人能开（请假、缺勤、调走、不会开）；瓶颈设备为严重
+    hint: 看右栏四个方案：调人顶岗 / 学徒带教 / 加班顶班 / 不处理（对照），用车间推演算交期和花费
+  H3:
+    name: 技能资质到期
+    fn: skill_expiring
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: info
+    role: [manager, lead]
+    params: {days: 30}
+    desc: 设备操作资质（如热处理炉年审）days 天内到期为提示，已过期为警告（过期后按学徒排班）
+    hint: 安排复审；过期前排好替班
+  H4:
+    name: 加班超限
+    fn: overtime_over
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager, lead]
+    params: {hours: 12}
+    desc: 某人本周加班超过 hours 小时
+    hint: 下一次加班换本周加班少的熟练工；人太少就安排技能培训
+  H5:
+    name: 出勤异常
+    fn: absence_high
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager, lead]
+    params: {days: 7, rate: 0.1, min_scheduled: 10}
+    desc: 近 days 天某班组缺勤率（请假 + 缺勤 ÷ 排班人次）超过 rate（至少 min_scheduled 人次）
+    hint: 和班组长谈谈原因（平台不记原因）；临时调人补位

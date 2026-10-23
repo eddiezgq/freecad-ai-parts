@@ -39,11 +39,13 @@ types:
   Warranty:
     label: 保修
     label_en: Warranty
-    maturity: erp
+    maturity: have
+    sources: [合同保修期 + 投运日（第 18 轮 E1）]
     key: 序列号
     title: "{key} 保修"
     props:
       until: {t: date, l: 保修到期}
+      in_warranty: {t: bool, l: 在保}
     links:
       unit: {to: FieldUnit, l: 设备, inv: 保修}
   ServiceOrder:
@@ -58,13 +60,16 @@ types:
       status: {t: str, l: 状态}
       action: {t: str, l: 维修动作}
       opened: {t: date, l: 开单（现场日）}
+      engineer: {t: str, l: 服务工程师}
+      visit_day: {t: date, l: 计划上门日}
     links:
       unit: {to: FieldUnit, l: 设备, inv: 服务工单}
       engineer: {to: ServiceEngineer, l: 工程师, inv: 服务工单}
   ServiceEngineer:
     label: 服务工程师
     label_en: Service engineer
-    maturity: capture
+    maturity: have
+    sources: [虚拟服务工程师（engineer 表，第 18 轮 E1；人员领域包上线后并入）]
     key: 工号
     title: "{name}"
     sensitivity: 2
@@ -76,10 +81,12 @@ types:
   FollowUp:
     label: 回访
     label_en: Follow-up
-    maturity: capture
+    maturity: have
+    sources: [回访（follow_up 表，第 18 轮 E1）]
     key: 回访号
     title: "{key}"
     props:
       score: {t: num, l: 满意度}
+      due: {t: date, l: 应回访日（现场日）}
     links:
       order: {to: ServiceOrder, l: 服务工单, inv: 回访}

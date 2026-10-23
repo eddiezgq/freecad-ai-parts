@@ -1,0 +1,37 @@
+domain: 客户与服务
+items:
+  - id: K01
+    q: "{complaint_customer}最近怎么了？"
+    tools: [customer_360]
+    contains: ["{complaint}", "合同"]
+  - id: K02
+    q: "港口客户最近怎么了？"
+    tools: [customer_360]
+    contains: ["东港码头", "现场设备"]
+  - id: K03
+    q: "{complaint} 这批轴还装在谁家？"
+    tools: [complaint_scope]
+    contains: ["同批次", "{complaint_serial}"]
+  - id: K04
+    q: "{complaint_anomaly} 怎么处理？"
+    tools: [get_anomaly, compare_options]
+    contains: ["整批排查", "保修内", "天做完"]
+  - id: K05
+    q: "派工程师上门点检 {complaint_serial} 要几天？"
+    tools: [service_estimate]
+    contains: ["天做完", "人天"]
+  - id: K06
+    q: "起草 {complaint_anomaly} 的方案 B"
+    tools: [compare_options, draft_action]
+    contains: ["草稿", "提交"]
+    drafts: true
+  - id: K07
+    q: "{complaint} 这批轴还装在谁家？"
+    as: student
+    contains: ["提示"]
+    not_contains: ["{complaint_serial}"]
+    cite: false
+  - id: K08
+    q: "Summit 的合同违约金是多少？"
+    tools: [customer_360]
+    contains: ["$200/天"]

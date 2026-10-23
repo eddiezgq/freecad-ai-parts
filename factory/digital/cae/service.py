@@ -956,6 +956,18 @@ TOPO_LIMIT_S = 180
 def _topo_spec(body):
     from cae import topo as T
     s = body.get("spec") or {}
+    if s.get("preset") == "plate":                 # 两孔平板（学习平台第 41 轮：设计软件的零件减重）
+        try:
+            ps = T.plate_spec(s.get("plate") or {})
+        except (KeyError, TypeError, IndexError, ValueError) as e:
+            raise HTTPException(400, "平板说明不对：{}".format(e)) from None
+        out = {"preset": "plate", "plate": ps, "volfrac": float(s.get("volfrac") or 0.5), "penal": float(s.get("penal") or 3.0),
+               "rmin": float(s.get("rmin") or 1.5), "material_id": s.get("material_id") or "45-QT"}
+        if not 0.1 <= out["volfrac"] <= 0.9:
+            raise HTTPException(400, "材料用量（体积比）要在 0.1–0.9 之间")
+        if not 1.0 <= out["penal"] <= 5.0 or not 1.0 <= out["rmin"] <= 4.0:
+            raise HTTPException(400, "惩罚指数要在 1–5、过滤半径要在 1–4 格之间")
+        return out
     pre = s.get("preset") if s.get("preset") in T.PRESETS else "mbb"
     out = {"preset": pre, "nelx": int(s.get("nelx") or T.PRESETS[pre]["nelx"]), "nely": int(s.get("nely") or T.PRESETS[pre]["nely"]),
            "volfrac": float(s.get("volfrac") or 0.5), "penal": float(s.get("penal") or 3.0), "rmin": float(s.get("rmin") or 1.5),
@@ -980,7 +992,10 @@ def _topo_child(spec, outdir, q):
     try:
         from cae import topo as T
         t0 = time.time()
-        r = T.run(spec["preset"], spec["nelx"], spec["nely"], spec["volfrac"], spec["penal"], spec["rmin"])
+        if spec["preset"] == "plate":
+            r = T.run_plate(spec["plate"], spec["volfrac"], spec["penal"], spec["rmin"])
+        else:
+            r = T.run(spec["preset"], spec["nelx"], spec["nely"], spec["volfrac"], spec["penal"], spec["rmin"])
         r["seconds"] = round(time.time() - t0, 1)
         _write_json(os.path.join(outdir, "result.json"), r)
         q.put((True, {k: r[k] for k in ("iterations", "converged", "compliance", "grey", "seconds")}))
@@ -1002,7 +1017,7 @@ def topo_submit(body: dict = Body(...)):
     os.makedirs(_job_path(jid))
     j = {"id": jid, "kind": "topo", "status": "queued", "created": time.time(), "spec": spec,
          "owner": body.get("owner"), "owner_name": body.get("owner_name"), "factory": body.get("factory"),
-         "title": body.get("title") or "拓扑优化：" + T.PRESETS[spec["preset"]]["label"].split("（")[0]}
+         "title": body.get("title") or "拓扑优化：" + (T.PRESETS[spec["preset"]]["label"].split("（")[0] if spec["preset"] in T.PRESETS else "两孔平板")}
     _write_json(_job_path(jid, "job.json"), j)
     _Q.put(jid)
     return _public(j)
@@ -1014,6 +1029,33 @@ def topo_result(jid: str):
     if not os.path.exists(p):
         raise HTTPException(404, "还没算完")
     return _read_json(p)
+
+
+@app.post("/topo/jobs/{jid}/to-step")
+def topo_to_step(jid: str):
+    """两孔平板的结果 → 减重后的零件（STEP，登记成几何，同 /geometry）和轮廓（零件平面坐标，mm：外轮廓、孔）"""
+    from cae import topo as T
+    jid = jid.replace("/", "")
+    j = _read_json(_job_path(jid, "job.json"))
+    if j.get("kind") != "topo" or j["status"] != "done" or j["spec"].get("preset") != "plate":
+        raise HTTPException(400, "不是算完的两孔平板拓扑优化")
+    r = _read_json(_job_path(jid, "result.json"))
+    try:
+        step, g = T.plate_step(r["plate"], r["density"])
+    except ValueError as e:
+        raise HTTPException(422, str(e)) from None
+    sha = hashlib.sha256(step).hexdigest()
+    d = _p("geo", sha)
+    if not os.path.exists(os.path.join(d, "faces.json")):
+        os.makedirs(d, exist_ok=True)
+        open(os.path.join(d, "part.step"), "wb").write(step)
+        ok, err = _isolated(_geo_child, (os.path.join(d, "part.step"), d), GEO_LIMIT_S)
+        if not ok:
+            raise HTTPException(422, "板件模型生成失败：{}".format(err))
+    geo = dict(_read_json(os.path.join(d, "faces.json")), sha=sha)
+    ring = lambda c: [[round(x, 4), round(y, 4)] for x, y in list(c.coords)[:-1]]  # noqa: E731
+    return {"geometry": geo, "outline": ring(g.exterior), "inner": [ring(h) for h in g.interiors], "area_mm2": round(g.area, 2),
+            "thickness_mm": r["plate"]["thickness_mm"], "mass_ratio": r.get("mass_ratio")}
 
 
 @app.post("/topo/jobs/{jid}/to-fea")

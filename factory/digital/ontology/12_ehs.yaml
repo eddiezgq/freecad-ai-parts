@@ -7,13 +7,16 @@ types:
   Hazard:
     label: 危险源
     label_en: Hazard
-    maturity: capture
+    maturity: have
+    sources: [平台危险源清单（第 18 轮 E2）]
     key: 危险源编号
     title: "{key} {name}"
     props:
       name: {t: str, l: 名称}
       level: {t: str, l: 风险等级}
       area: {t: str, l: 区域}
+      score: {t: num, l: 风险值（可能性 × 严重度）}
+      controls: {t: json, l: 控制措施}
     links:
       machine: {to: Machine, l: 设备, inv: 危险源}
   RiskAssessment:
@@ -31,7 +34,8 @@ types:
   SafetyIssue:
     label: 隐患
     label_en: Safety issue
-    maturity: capture
+    maturity: have
+    sources: [“安全环保”页隐患随手拍（第 18 轮 E2）]
     key: 隐患单号
     title: "{key} {subject}"
     props:
@@ -39,13 +43,17 @@ types:
       level: {t: str, l: 等级（一般 / 重大）}
       status: {t: str, l: 状态}
       due: {t: date, l: 整改期限}
+      owner: {t: str, l: 整改人}
+      found_by: {t: str, l: 发现人}
     links:
       machine: {to: Machine, l: 设备, inv: 隐患}
       lockout: {to: WorkPermit, l: 挂牌上锁, inv: 因隐患}
+      hazard: {to: Hazard, l: 危险源, inv: 隐患}
   Incident:
     label: 事故 / 未遂
     label_en: Incident / near miss
-    maturity: capture
+    maturity: have
+    sources: [“安全环保”页事故与未遂（第 18 轮 E2）]
     sensitivity: 3
     key: 事件号
     title: "{key} {kind}"
@@ -59,7 +67,8 @@ types:
   WorkPermit:
     label: 作业许可
     label_en: Work permit
-    maturity: capture
+    maturity: have
+    sources: [“安全环保”页作业许可（第 18 轮 E2）]
     key: 许可证号
     title: "{key} {kind}"
     props:
@@ -73,13 +82,17 @@ types:
   SafetyTraining:
     label: 安全培训
     label_en: Safety training
-    maturity: capture
+    maturity: have
+    sources: [平台培训记录（第 18 轮 E2；人员领域包上线后并入）]
     key: 培训编号
     title: "{key} {topic}"
     props:
       topic: {t: str, l: 主题}
       date: {t: date, l: 日期}
       valid_months: {t: int, l: 有效期, u: 月}
+      valid_until: {t: date, l: 有效期到}
+    links:
+      employee: {to: Employee, l: 员工, inv: 安全培训}
   PpeIssue:
     label: 劳保发放
     label_en: PPE issue
@@ -94,7 +107,8 @@ types:
   Chemical:
     label: 化学品
     label_en: Chemical
-    maturity: capture
+    maturity: have
+    sources: [平台化学品台账（第 18 轮 E2）]
     key: 化学品编号
     title: "{name}"
     props:
@@ -104,7 +118,8 @@ types:
   Waste:
     label: 废弃物
     label_en: Waste
-    maturity: capture
+    maturity: have
+    sources: [平台废弃物台账（第 18 轮 E2）]
     key: 记录号
     title: "{key} {kind}"
     props:

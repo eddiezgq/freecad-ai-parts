@@ -4,7 +4,7 @@
     <div v-if="!ov && !error" class="muted">正在从历史库计算…</div>
     <template v-if="ov">
       <TaskBar v-if="ov.teach" :t="ov.teach" />
-      <div v-if="ov.demo" class="demo small">含“实验 7”教学情景的演示数据（订单、库存等由情景生成，不在 ERPNext 里）。教师可在“经营与成本”页重置或清空。</div>
+      <div v-if="ov.demo" class="demo small">含“实验 7”教学情景的演示数据（订单、库存等由情景生成，不在 ERPNext 里）。教师可在“情景导演”的教师控制台重置或清空。</div>
 
       <!-- 厂情中枢提醒条（第 17 轮 D 期 D6）：严重异常和带处理预案的异常；教学模式的学生不显示（实验 7 要自己从看板里找） -->
       <router-link v-for="b in banner" :key="b.id" :to="b.url" class="ont-banner" :class="b.severity">
@@ -12,7 +12,7 @@
       </router-link>
 
       <!-- AI 今日简报 -->
-      <section class="card brief" aria-label="AI 今日简报" data-help="home-brief">
+      <section class="card brief" data-help="home-brief" aria-label="AI 今日简报">
         <div class="brief-main">
           <div class="brief-head">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>
@@ -39,7 +39,7 @@
       </section>
 
       <!-- 关键指标 -->
-      <section class="kpis" aria-label="关键指标" data-help="home-kpis">
+      <section class="kpis" data-help="home-kpis" aria-label="关键指标">
         <div v-for="k in ov.kpis" :key="k.key" class="card kpi" :class="{ focus: focus.kpis.includes(k.key) }">
           <span class="muted small">{{ k.label }}</span>
           <span class="mono kv">{{ kpiValue(k) }}</span>
@@ -49,7 +49,7 @@
 
       <!-- 车间实况 + 订单与交期 -->
       <div class="row">
-        <section class="card shop" :class="{ focus: focus.shop }" aria-label="车间实况" data-help="home-shop">
+        <section class="card shop" data-help="home-shop" :class="{ focus: focus.shop }" aria-label="车间实况">
           <div class="card-head">
             <h2>车间实况</h2>
             <div class="legend small muted">
@@ -58,8 +58,10 @@
             <router-link to="/3d" class="more">进入 3D 车间 →</router-link>
           </div>
           <div class="machines">
-            <router-link v-for="m in machines" :key="m.unit" :to="{ path: '/work/operator', query: { unit: m.unit } }"
-              class="mcard" :class="{ down: ['down', 'fault'].includes(m.state) }">
+            <!-- 点哪看哪（第 30 轮 §八）：点设备弹出此刻状态、对应帮助；车间终端在弹窗里 -->
+            <div v-for="m in machines" :key="m.unit" role="button" tabindex="0" :aria-expanded="picked === m.unit"
+              class="mcard" :class="{ down: ['down', 'fault'].includes(m.state), on: picked === m.unit }"
+              @click="pickM(m.unit)" @keydown.enter.self.prevent="pickM(m.unit)" @keydown.space.self.prevent="pickM(m.unit)">
               <div class="mtop">
                 <span class="mono b">{{ m.code }}</span>
                 <span class="pill" :style="{ color: STATE[m.state].color, background: STATE[m.state].bg }">{{ STATE[m.state].label }}</span>
@@ -72,7 +74,16 @@
                   {{ d.work_order.slice(-5) }} {{ opShort(d.operation) }} {{ d.done }}/{{ d.qty }} {{ d.started ? '已开工' : '待开工' }}
                 </div>
               </div>
-            </router-link>
+              <div v-if="picked === m.unit" class="pop small" role="dialog" :aria-label="m.code + ' ' + m.name" @click.stop>
+                <b>{{ m.code }} {{ m.name }}</b>
+                <span><span class="pill" :style="{ color: pinfo.color, background: pinfo.bg }">{{ pinfo.label }}</span>
+                  <span v-if="pinfo.reason" class="muted"> {{ pinfo.reason }}</span></span>
+                <span v-if="pinfo.tags.length" class="ptags"><span v-for="t in pinfo.tags" :key="t.text" :class="t.tone">{{ t.text }}</span></span>
+                <span v-if="pinfo.help.domain" class="muted">领域：{{ pinfo.help.domain }}</span>
+                <router-link :to="{ path: '/work/operator', query: { unit: m.unit } }">打开车间终端 →</router-link>
+                <router-link :to="pinfo.help.to">{{ pinfo.help.label }} →</router-link>
+              </div>
+            </div>
           </div>
           <div class="agv small muted">
             <span v-for="a in agvs" :key="a.unit"><ObjLink type="Agv" :k="a.unit">{{ a.unit.toUpperCase() }}</ObjLink>：<template v-if="a.task">运送 <ObjLink type="PartSerial" :k="a.load" mono />（{{ a.task }}）</template><template v-else>待命 · 电量 {{ Math.round((a.battery || 0) * 100) }}%</template></span>
@@ -80,7 +91,7 @@
           </div>
         </section>
 
-        <section class="card orders" :class="{ focus: focus.orders }" aria-label="订单与交期" data-help="home-orders">
+        <section class="card orders" data-help="home-orders" :class="{ focus: focus.orders }" aria-label="订单与交期">
           <div class="card-head"><h2>订单与交期</h2><a :href="erpUrl" target="_blank" class="more">ERPNext →</a></div>
           <div v-if="!ov.orders.length" class="empty">没有在手订单</div>
           <div v-for="o in ov.orders" :key="o.name" class="order">
@@ -115,7 +126,7 @@
           </div>
         </section>
 
-        <section class="card" :class="{ focus: focus.quality }" aria-label="质量" data-help="home-quality">
+        <section class="card" data-help="home-quality" :class="{ focus: focus.quality }" aria-label="质量">
           <div class="card-head"><h2>质量</h2><span class="muted small">{{ ov.quality.chart.title }} · 最近 {{ ov.quality.chart.points.length }} 件</span></div>
           <ControlChart v-if="ov.quality.chart.points.length" :chart="ov.quality.chart" />
           <div v-else class="empty">还没有测量数据</div>
@@ -160,6 +171,7 @@ import { bus } from '../lib/bus';
 import { useOverview } from '../lib/overview';
 import { ask as aiAsk } from '../lib/ai';
 import { kpiValue, opShort, pct, short, STATE, TONE, timeOf } from '../lib/fmt';
+import { machineInfo } from '../lib/machinfo';
 import ControlChart from '../components/ControlChart.vue';
 import ProposalModal from '../components/ProposalModal.vue';
 import TaskBar from '../components/TaskBar.vue';
@@ -192,10 +204,11 @@ const toneColor = (t) => TONE[t] || 'var(--muted)';
 
 function jobText(m) {
   if (m.state === 'down' || m.state === 'fault') {
-    return `${m.reason || '停机'} · 已停 ${Math.round((m.down_for_s || 0) / 60)} 分钟 · 排队 ${m.queue || 0} 件`;
+    return `${m.locked ? '🔒 ' : ''}${m.reason || '停机'} · 已停 ${Math.round((m.down_for_s || 0) / 60)} 分钟 · 排队 ${m.queue || 0} 件`;
   }
+  if (m.no_staff) return `👤 这一班没人能开（缺人）· 排队 ${m.queue || 0} 件`;      // 第 18 轮 E4
   if (!m.work_order) return m.state === 'idle' ? '等待派工' : '';
-  return `${m.item || ''} ${opShort(m.operation)} · 第 ${Math.min(m.qty_done + (m.state === 'run' ? 1 : 0), m.qty)} / ${m.qty} 件${m.job_started ? '' : ' · 待开工'}`;
+  return `${m.item || ''} ${opShort(m.operation)} · 第 ${Math.min(m.qty_done + (m.state === 'run' ? 1 : 0), m.qty)} / ${m.qty} 件${m.job_started ? '' : ' · 待开工'}${m.staff_level === 1 ? ' · 学徒带着开' : ''}`;
 }
 function srcText(ev) {
   if (!ev || !ev.length) return '全厂汇总';
@@ -211,6 +224,27 @@ async function loadBanner() {
 let bannerTimer = null;
 onMounted(() => { loadBanner(); bannerTimer = setInterval(loadBanner, 30000); });
 onUnmounted(() => clearInterval(bannerTimer));
+
+// 点哪看哪（第 30 轮 §八 8-1）：设备的此刻状态 + 对应帮助章节；标准保养周期取自 /api/layout（第一次点时取）
+const picked = ref(null);
+const units = ref(null);
+const prisk = ref(null);
+const isDemo = () => session.config?.plant?.demo !== false;
+const pinfo = computed(() => {
+  const m = machines.value.find((x) => x.unit === picked.value);
+  return machineInfo(m, units.value?.[picked.value], isDemo(), prisk.value?.unit === picked.value ? prisk.value : null);
+});
+async function pickM(unit) {
+  picked.value = picked.value === unit ? null : unit;
+  prisk.value = null;
+  if (!picked.value) return;
+  if (!units.value) units.value = await get('/layout').then((L) => L.units).catch(() => ({}));
+  if (isDemo() && units.value?.[unit]?.pm_h) get('/maint/risk/' + unit).then((r) => { if (picked.value === unit) prisk.value = r; }).catch(() => {});
+}
+// 点卡片外面、按 Esc 收起弹窗
+const closePick = (e) => { if (picked.value && (e.key === 'Escape' || (e.type === 'click' && !e.target.closest?.('.mcard')))) picked.value = null; };
+onMounted(() => { document.addEventListener('click', closePick); document.addEventListener('keydown', closePick); });
+onUnmounted(() => { document.removeEventListener('click', closePick); document.removeEventListener('keydown', closePick); });
 function ask(t) { aiAsk(t); }
 function askAi() { const t = q.value; q.value = ''; aiAsk(t); }
 async function refreshBrief() { await post('/ai/briefing/refresh'); load(); }
@@ -252,6 +286,14 @@ function act(t) {
   background: #FBFBF9; color: inherit; text-decoration: none; }
 .mcard:hover { border-color: var(--accent); text-decoration: none; }
 .mcard.down { border-color: #E7A39B; background: #FFF8F7; }
+.mcard { position: relative; cursor: pointer; }
+.mcard.on { border-color: var(--accent); }
+.pop { position: absolute; left: 8px; right: 8px; top: calc(100% - 6px); z-index: 20; display: flex; flex-direction: column; gap: 5px;
+  padding: 10px 12px; border-radius: 8px; background: #fff; border: 1px solid var(--line); box-shadow: 0 10px 24px rgba(23, 33, 43, 0.18);
+  cursor: default; min-width: 200px; }
+.ptags { display: flex; gap: 4px; flex-wrap: wrap; }
+.ptags span { padding: 0 6px; border-radius: 999px; background: var(--surface-2); }
+.ptags .bad { color: var(--bad); background: var(--bad-bg); } .ptags .warn { color: var(--warn-ink); background: var(--warn-bg); }
 .mtop { display: flex; justify-content: space-between; align-items: center; }
 .b { font-weight: 600; }
 .bn { margin-left: 6px; font-size: 10px; color: var(--task-ink); background: #F9E7A8; border-radius: 6px; padding: 0 5px; }

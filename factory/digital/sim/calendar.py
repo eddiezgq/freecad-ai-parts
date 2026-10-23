@@ -10,13 +10,7 @@ from zoneinfo import ZoneInfo
 
 MAX_OT_MIN = 240
 
-
-def _hm(s):
-    h, m = s.split(":")
-    return int(h) * 60 + int(m)
-
-
-try:                                   # 工厂清单（本仓库 ADR-0064）：上下班时间、工作日、加班上限
+try:                                   # 工厂清单（第 30 轮；freecad-ai-parts ADR-0064）：上下班时间、工作日、加班上限
     from factory import plant as _plant
     _P = _plant.active()
 except ImportError:
@@ -26,6 +20,11 @@ except ImportError:
 DEF_START, DEF_END, DEF_DAYS = ("08:00", "17:00", (0, 1, 2, 3, 4)) if not _P else (_P["CAL_START"], _P["CAL_END"], _P["WORKDAYS"])
 if _P:
     MAX_OT_MIN = _P["MAX_OT_MIN"]
+
+
+def _hm(s):
+    h, m = s.split(":")
+    return int(h) * 60 + int(m)
 
 
 class Calendar:

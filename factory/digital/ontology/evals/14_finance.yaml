@@ -1,0 +1,29 @@
+domain: 经营与财务
+items:
+  - id: Z01
+    q: "现在有多少应收逾期了？现金够不够？"
+    tools: [ar_ap_cash]
+    contains: ["逾期", "峰顶", "现金", "周"]
+  - id: Z02
+    q: "{margin_so} 的毛利是多少？"
+    tools: [order_margin]
+    contains: ["{margin_so}", "毛利", "料", "工"]
+  - id: Z03
+    q: "{overdue_anomaly} 怎么处理？"
+    tools: [get_anomaly, compare_options]
+    contains: ["催款", "信用冻结", "现金流"]
+  - id: Z04
+    q: "经营目标完成得怎么样？预算超了吗？"
+    tools: [objectives_budget]
+    contains: ["准时交付", "毛利率", "预算"]
+  - id: Z05
+    q: "起草 {overdue_anomaly} 的方案 B"
+    tools: [compare_options, draft_action]
+    contains: ["草稿", "提交"]
+    drafts: true
+  - id: Z06
+    q: "现在有多少应收逾期了？现金够不够？"
+    as: student
+    contains: ["提示"]
+    not_contains: ["峰顶"]
+    cite: false

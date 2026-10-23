@@ -24,6 +24,13 @@ const QI_PARAM = {
 };
 const QI_TEMPLATE = { 'SH-301': '零件检验-输出轴' };
 const MAKE_WH = { 'SH-301': WH.semi };
+// 扩展（第 30 轮 H-8）：freecad-ai-parts 独有的提议（CAD 方案转为生产物料、到货入库）在它的 lib/erp_enterprise.js；问渠这边没有这个文件
+const EXTRA_ACTIONS = {};
+try {
+  Object.assign(EXTRA_ACTIONS, require('./erp_enterprise')({ WH }));
+} catch (e) {
+  if (e.code !== 'MODULE_NOT_FOUND' || !String(e.message).includes('erp_enterprise')) throw e;
+}
 
 // ERPNext 的日期时间：站点时区的 "YYYY-MM-DD HH:MM:SS"
 function erpDatetime(iso) {
@@ -164,6 +171,10 @@ class ERP {
         });
         out.push(this.doc('Sales Order', soDoc, 'submitted', opt));
         created.push(['Sales Order', soDoc.name]);
+        if (pv.contract) {        // 第 18 轮 E1：合同转订单，订单号回填到合同
+          await this.ensureCrmFields();
+          out.push(this.doc('Contract', await this.update('Contract', pv.contract, { wq_sales_order: soDoc.name }), 'updated', opt));
+        }
         for (const w of pv.work_orders || []) {
           const bom = await this.defaultBom(w.production_item);
           // ERPNext 只允许生产“订单上那个物料”的工单填 sales_order；零件工单（如 SH-301）把订单号记在
@@ -182,7 +193,7 @@ class ERP {
             fg_warehouse: MAKE_WH[w.production_item] || (w.warehouse === 'fg' ? WH.fg : WH.semi),
             use_multi_level_bom: 0,
           });
-          if (w.sources) {     // 本仓库 ADR-0061：成品领料——自制件从半成品库，其余从原材料库
+          if (w.sources) {     // 成品工单领料：自制件从半成品库，其余从原材料库（算料给出 sources）
             wo.required_items = (wo.required_items || []).map((r) => ({ ...r,
               source_warehouse: w.sources[r.item_code] === 'semi' ? WH.semi : WH.raw }));
           }
@@ -195,46 +206,6 @@ class ERP {
           out.push(this.doc('Material Request', mr, 'submitted', opt));
           created.push(['Material Request', mr.name]);
         }
-      } else if (d.action === 'cad_to_erp') {
-        // 本仓库 ADR-0061：FreeCAD 方案转为生产物料——建供应商、物料、BOM（自下而上）；已有的不重建（BOM 按方案版本，ADR-0062）
-        const pv = d.preview;
-        const company = await this.getCompany();
-        for (const sp of pv.suppliers || []) {
-          if (!(await this.list('Supplier', [['name', '=', sp.name]], ['name'])).length) {
-            const doc = await this.insert('Supplier', { supplier_name: sp.name, supplier_group: sp.supplier_group,
-              supplier_type: 'Company' });
-            created.push(['Supplier', doc.name]);
-          }
-        }
-        for (const it of pv.items || []) {
-          if ((await this.list('Item', [['name', '=', it.item_code]], ['name'])).length) continue;
-          const doc = await this.insert('Item', { item_code: it.item_code, item_name: it.item_name, item_group: it.item_group,
-            stock_uom: it.uom, is_stock_item: 1, include_item_in_manufacturing: 1, description: it.description || it.item_name,
-            ...(it.price != null ? { standard_rate: it.price } : {}) });
-          out.push(this.doc('Item', doc, 'created', opt));
-          created.push(['Item', doc.name]);
-        }
-        // ADR-0062：BOM 按“产品 + 方案版本”识别（写在说明里）——同一版本不重建；新版本设为默认，ERPNext 自动撤下旧的默认
-        const tag = `FreeCAD AI Parts 方案 ${pv.design} 第 ${pv.revision} 版`;
-        for (const b of pv.boms || []) {
-          if ((await this.list('BOM', [['item', '=', b.item], ['description', '=', tag], ['docstatus', '=', 1]], ['name'])).length) continue;
-          const ops = (pv.routings[b.routing] || []).map(([op, mins], i) => ({ operation: op, workstation: pv.operations[op],
-            time_in_mins: Number(mins), sequence_id: i + 1 }));
-          const doc = await this.insert('BOM', { item: b.item, quantity: 1, company, is_active: 1, is_default: 1,
-            description: tag, with_operations: 1, inspection_required: 0, docstatus: 1,
-            items: b.items.map(([c, q]) => ({ item_code: c, qty: Number(q) })), operations: ops });
-          out.push(this.doc('BOM', doc, 'submitted', opt));
-          created.push(['BOM', doc.name]);
-        }
-        if (!out.length) out.push(this.doc('Item', { name: pv.code, item_code: pv.code }, 'snapshot', opt));
-      } else if (d.action === 'material_receipt') {
-        // 演示：供应商送货到原材料库（ERPNext 物料收货单）
-        const company = await this.getCompany();
-        const se = await this.insert('Stock Entry', { stock_entry_type: 'Material Receipt', purpose: 'Material Receipt', company,
-          docstatus: 1, items: d.preview.items.map((r) => ({ item_code: r.item_code, qty: r.qty, uom: r.uom, stock_uom: r.uom,
-            conversion_factor: 1, t_warehouse: WH.raw })) });
-        out.push(this.doc('Stock Entry', se, 'submitted', opt));
-        created.push(['Stock Entry', se.name]);
       } else if (d.action === 'purchase_request') {
         const company = await this.getCompany();
         const mr = await this.materialRequest(company, d.preview.material_requests, erpDate(new Date().toISOString()));
@@ -261,6 +232,41 @@ class ERP {
           resolution_details: `已完成：${pv.what}${pv.note ? '。' + pv.note : ''}（问渠数字工厂 · 数字孪生）` });
         out.push(this.doc('Issue', iss, 'updated', opt));
         created.push(['Issue', iss.name]);
+      } else if (['maint_setup', 'maint_log', 'asset_repair', 'asset_repair_done', 'maint_interval'].includes(d.action)) {
+        // 第 18 轮 E3：设备台账、保养计划、保养记录、维修单
+        for (const r of await this.maintService(d.action, d.preview)) {
+          out.push(this.doc(r[0], r[1], r[2], opt));
+          created.push([r[0], r[1].name]);
+        }
+      } else if (['supply_setup', 'purchase_order', 'incoming_receipt'].includes(d.action)) {
+        // 第 18 轮 E5：备选供应商、采购单、收货 + 来料检验
+        const at = out.length;
+        for (const r of await this.supplyService(d.action, d.preview)) {
+          out.push(this.doc(r[0], r[1], r[2], opt));
+          created.push([r[0], r[1].name]);
+        }
+        // 入库后库存马上更新（放在前面：最后一条要带“提议完成”的标记）
+        if (d.action === 'incoming_receipt') out.splice(at, 0, ...await this.bins());
+      } else if (['sales_invoice', 'purchase_invoice', 'payment', 'dunning_note'].includes(d.action)) {
+        // 第 18 轮 E7：销售发票、采购发票、收付款、催款记录
+        for (const r of await this.financeService(d.action, d.preview)) {
+          out.push(this.doc(r[0], r[1], r[2], opt));
+          created.push([r[0], r[1].name]);
+        }
+      } else if (d.action === 'people_setup') {
+        // 第 18 轮 E4：部门、岗位、员工档案
+        for (const r of await this.peopleService(d.action, d.preview)) {
+          out.push(this.doc(r[0], r[1], r[2], opt));
+          created.push([r[0], r[1].name]);
+        }
+      } else if (d.action.startsWith('crm_') || ['complaint_issue', 'service_orders', 'service_order_done', 'spare_ship'].includes(d.action)) {
+        // 第 18 轮 E1：客户与服务（线索、商机、报价、合同、投诉、服务工单、备件出库）
+        for (const r of await this.crmService(d.action, d.preview)) {
+          out.push(this.doc(r[0], r[1], r[2], opt));
+          created.push([r[0], r[1].name]);
+        }
+      } else if (EXTRA_ACTIONS[d.action]) {
+        await EXTRA_ACTIONS[d.action].call(this, d.preview, { out, created, opt });
       } else {
         return [];      // 其他提议（如下达工单）由工作台的 MES 执行
       }
@@ -272,6 +278,329 @@ class ERP {
     const last = out[out.length - 1].payload.data;
     last.proposal_done = true;
     last.created = created;
+    return out;
+  }
+
+  // ------------------------------------------------------------ 第 18 轮 E1：客户与服务
+  async ensureCrmFields() {
+    const F = [
+      ['Lead', 'wq_note', { label: '备注 Note', fieldtype: 'Small Text', insert_after: 'company_name' }],
+      ['Contract', 'wq_penalty_per_day', { label: '延期违约金 $/天 Penalty per day', fieldtype: 'Currency', insert_after: 'end_date' }],
+      ['Contract', 'wq_response_h', { label: '投诉响应时限（小时）Response hours', fieldtype: 'Float', insert_after: 'wq_penalty_per_day' }],
+      ['Contract', 'wq_warranty_months', { label: '保修期（月）Warranty months', fieldtype: 'Int', insert_after: 'wq_response_h' }],
+      ['Contract', 'wq_amount', { label: '合同金额 Amount', fieldtype: 'Currency', insert_after: 'wq_warranty_months' }],
+      ['Contract', 'wq_quotation', { label: '报价单 Quotation', fieldtype: 'Data', insert_after: 'wq_amount' }],
+      ['Contract', 'wq_sales_order', { label: '销售订单 Sales order', fieldtype: 'Data', insert_after: 'wq_quotation', allow_on_submit: 1 }],
+      ['Issue', 'wq_serial', { label: '设备序列号 Serial', fieldtype: 'Data', insert_after: 'subject' }],
+      ['Issue', 'wq_kind', { label: '类别 Kind', fieldtype: 'Data', insert_after: 'wq_serial' }],
+      ['Issue', 'wq_engineer', { label: '服务工程师 Engineer', fieldtype: 'Data', insert_after: 'wq_kind' }],
+      ['Issue', 'wq_day', { label: '计划上门日 Visit day', fieldtype: 'Date', insert_after: 'wq_engineer' }],
+    ];
+    for (const [dt, f, spec] of F) await this.ensureCustomField(dt, f, spec);
+  }
+
+  async customerFor(name) {
+    const rows = await this.list('Customer', [['name', '=', name]], ['name']);
+    if (rows.length) return name;
+    const terr = await this.list('Territory', [['is_group', '=', 1], ['parent_territory', 'in', ['', null]]], ['name']);
+    const doc = await this.insert('Customer', { customer_name: name, customer_type: 'Company', customer_group: '减速器客户 Gearbox Customers',
+      ...(terr.length ? { territory: terr[0].name } : {}) });
+    return doc.name;
+  }
+
+  async crmService(action, pv) {
+    await this.ensureCrmFields();
+    const company = await this.getCompany();
+    const today = erpDate(new Date().toISOString());
+    const out = [];
+    if (action === 'crm_lead') {
+      const lead = await this.insert('Lead', { lead_name: pv.lead_name, company_name: pv.company_name, status: 'Lead', wq_note: pv.note || '' });
+      out.push(['Lead', lead, 'created']);
+    } else if (action === 'crm_opportunity') {
+      const opp = await this.insert('Opportunity', { opportunity_from: pv.from, party_name: pv.party, status: 'Open', company,
+        transaction_date: today, currency: 'USD', opportunity_amount: pv.amount || 0, expected_closing: pv.expected_closing || null });
+      out.push(['Opportunity', opp, 'created']);
+      if (pv.from === 'Lead') out.push(['Lead', await this.update('Lead', pv.party, { status: 'Opportunity' }), 'updated']);
+    } else if (action === 'crm_quotation') {
+      let to = pv.quotation_to || 'Customer';
+      let party = pv.party;
+      if (to === 'Customer') party = await this.customerFor(party);
+      const q = await this.insert('Quotation', { quotation_to: to, party_name: party, company, transaction_date: today,
+        valid_till: pv.valid_till, order_type: 'Sales', ...(pv.opportunity ? { opportunity: pv.opportunity } : {}),
+        items: pv.items.map((i) => ({ item_code: i.item_code, qty: i.qty, rate: i.rate })), docstatus: 1 });
+      out.push(['Quotation', q, 'submitted']);
+      if (pv.opportunity) out.push(['Opportunity', await this.get('Opportunity', pv.opportunity), 'updated']);
+    } else if (action === 'crm_contract') {
+      const cust = await this.customerFor(pv.customer);
+      const c = await this.insert('Contract', { party_type: 'Customer', party_name: cust, contract_terms: pv.text,
+        start_date: pv.start, end_date: pv.end, is_signed: 1, signee: pv.signee || cust,
+        ...(pv.quotation ? { document_type: 'Quotation', document_name: pv.quotation } : {}),
+        wq_penalty_per_day: pv.penalty_per_day || 0, wq_response_h: pv.response_h || 24, wq_warranty_months: pv.warranty_months || 12,
+        wq_amount: pv.amount || 0, wq_quotation: pv.quotation || '', docstatus: 1 });
+      out.push(['Contract', c, 'submitted']);
+    } else if (action === 'crm_contract_order') {
+      out.push(['Contract', await this.update('Contract', pv.contract, { wq_sales_order: pv.sales_order }), 'updated']);
+    } else if (action === 'complaint_issue') {
+      const iss = await this.insert('Issue', { subject: pv.subject, description: `${pv.customer || ''}\n${pv.description || ''}`.trim(),
+        status: 'Open', wq_serial: pv.serial || '', wq_kind: '投诉 complaint' });
+      out.push(['Issue', iss, 'created']);
+    } else if (action === 'service_orders') {
+      for (const o of pv.orders) {
+        const iss = await this.insert('Issue', { subject: o.subject, description: `${o.customer || ''}\n${o.description || ''}`.trim(),
+          status: 'Open', wq_serial: o.serial || '', wq_kind: o.kind || '服务 service', wq_engineer: o.engineer || '', wq_day: o.day || null });
+        out.push(['Issue', iss, 'created']);
+      }
+    } else if (action === 'service_order_done') {
+      out.push(['Issue', await this.update('Issue', pv.issue, { status: 'Resolved', resolution_details: pv.text || '已完成' }), 'updated']);
+    } else if (action === 'spare_ship') {
+      const se = await this.insert('Stock Entry', { stock_entry_type: 'Material Issue', purpose: 'Material Issue', company,
+        remarks: pv.note || '', items: pv.items.map((i) => ({ item_code: i.item_code, qty: i.qty, s_warehouse: WH.purchased })), docstatus: 1 });
+      out.push(['Stock Entry', se, 'submitted']);
+    }
+    return out;
+  }
+
+  // ------------------------------------------------------------ 第 18 轮 E3：设备维护与资产
+  async ensureAssetSetup() {
+    if (this.assetSetup) return this.assetSetup;
+    const company = await this.getCompany();
+    const loc = '问渠车间 Workshop';
+    if (!(await this.list('Location', [['name', '=', loc]])).length) await this.insert('Location', { location_name: loc });
+    const cat = '生产设备 Production machinery';
+    if (!(await this.list('Asset Category', [['name', '=', cat]])).length) {
+      const acc = await this.list('Account', [['account_type', '=', 'Fixed Asset'], ['is_group', '=', 0], ['company', '=', company]], ['name']);
+      if (!acc.length) throw new Error('ERPNext 里找不到“固定资产”类型的科目，建不了资产分类');
+      await this.insert('Asset Category', { asset_category_name: cat, accounts: [{ company_name: company, fixed_asset_account: acc[0].name }] });
+    }
+    const item = 'AST-MACHINE';
+    if (!(await this.list('Item', [['name', '=', item]])).length) {
+      const grp = (await this.list('Item Group', [['is_group', '=', 0]], ['name'], { limit: 1 }))[0];
+      await this.insert('Item', { item_code: item, item_name: '生产设备 Production machine', stock_uom: 'Nos', is_stock_item: 0,
+        is_fixed_asset: 1, asset_category: cat, ...(grp ? { item_group: grp.name } : {}) });
+    }
+    // 保养任务要指派给一个用户：ERPNext 按“用户的邮箱”找人建待办，Administrator 的邮箱不是用户名，所以建一个设备组的用户
+    const user = 'maint@wenquest.local';
+    const roles = await this.list('Role', [['name', 'in', ['Maintenance User', 'Maintenance Manager', 'System Manager']]], ['name']);
+    const role = roles.length ? roles[0].name : 'System Manager';
+    if (!(await this.list('User', [['name', '=', user]])).length) {
+      try {
+        await this.insert('User', { email: user, first_name: '设备组', last_name: 'Maintenance', send_welcome_email: 0, enabled: 1,
+          user_type: 'System User', roles: [{ role }] });
+      } catch (e) {
+        if (!(await this.list('User', [['name', '=', user]])).length) throw e;
+      }
+    }
+    const team = '设备组 Maintenance team';
+    const members = [{ team_member: 'Administrator', maintenance_role: role }, { team_member: user, maintenance_role: role }];
+    if (!(await this.list('Asset Maintenance Team', [['name', '=', team]])).length) {
+      await this.insert('Asset Maintenance Team', { maintenance_team_name: team, company, maintenance_manager: user, maintenance_team_members: members });
+    } else {
+      const t = await this.get('Asset Maintenance Team', team);
+      if (!(t.maintenance_team_members || []).some((m) => m.team_member === user)) {
+        await this.update('Asset Maintenance Team', team, { maintenance_team_members: [...(t.maintenance_team_members || []), members[1]] });
+      }
+    }
+    await this.ensureCustomField('Asset Maintenance Task', 'wq_interval_h', { label: '周期（运行小时）Interval (run hours)', fieldtype: 'Float',
+      insert_after: 'periodicity' });
+    this.assetSetup = { company, loc, cat, item, team, user };
+    return this.assetSetup;
+  }
+
+  // ------------------------------------------------------------ 第 18 轮 E5：供应链
+  async supplyService(action, pv) {
+    const company = await this.getCompany();
+    const out = [];
+    const wh = (code) => (code.startsWith('RM-') ? WH.raw : WH.purchased);
+    if (action === 'supply_setup') {
+      // 备选供应商（可以重发：按名称跳过已建的）
+      for (const sp of pv.suppliers || []) {
+        const had = (await this.list('Supplier', [['name', '=', sp.name]], ['name']))[0];
+        const doc = had ? await this.get('Supplier', had.name) : await this.insert('Supplier', { supplier_name: sp.name, supplier_type: 'Company',
+          ...(sp.group ? { supplier_group: sp.group } : {}) });
+        out.push(['Supplier', doc, had ? 'updated' : 'created']);
+      }
+    } else if (action === 'purchase_order') {
+      const date = erpDate(new Date().toISOString());
+      const po = await this.insert('Purchase Order', { supplier: pv.supplier, company, transaction_date: date, schedule_date: pv.schedule_date,
+        set_warehouse: wh(pv.items[0].item_code), docstatus: 1,
+        items: pv.items.map((i) => ({ item_code: i.item_code, qty: i.qty, rate: i.rate, schedule_date: pv.schedule_date, warehouse: wh(i.item_code),
+          ...(i.material_request ? { material_request: i.material_request, material_request_item: i.material_request_item } : {}) })) });
+      out.push(['Purchase Order', po, 'submitted']);
+    } else if (action === 'incoming_receipt') {
+      // 按采购单生成收货单（批号记在自定义字段）；要检验的物料先建来料检验单；合格（或让步接收）才提交收货单入库
+      await this.ensureCustomField('Purchase Receipt', 'wq_lot', { label: '批号 Lot', fieldtype: 'Data', insert_after: 'supplier' });
+      const made = await this.method('erpnext.buying.doctype.purchase_order.purchase_order.make_purchase_receipt', { source_name: pv.purchase_order });
+      const pr0 = { ...made };
+      delete pr0.name;
+      delete pr0.__islocal;
+      const row = (pr0.items || []).find((i) => i.item_code === pv.item_code);
+      if (!row) throw new Error(`采购单 ${pv.purchase_order} 里没有待收的 ${pv.item_code}`);
+      const qty = pv.accept ? pv.accept_qty : pv.qty;
+      const clean = { ...row };
+      for (const k of ['name', '__islocal', '__unsaved', 'parent', 'parenttype', 'parentfield', 'idx', 'docstatus']) delete clean[k];
+      pr0.items = [{ ...clean, qty, received_qty: qty, rejected_qty: 0 }];
+      pr0.posting_date = erpDate(new Date().toISOString());
+      pr0.wq_lot = pv.lot;
+      pr0.remarks = `批号 ${pv.lot}${pv.remarks ? '；' + pv.remarks : ''}`;
+      const pr = await this.insert('Purchase Receipt', pr0);
+      out.push(['Purchase Receipt', pr, 'created']);
+      let qi = null;
+      if (pv.inspect) {
+        qi = await this.insert('Quality Inspection', { report_date: pr0.posting_date, inspection_type: 'Incoming', reference_type: 'Purchase Receipt',
+          reference_name: pr.name, item_code: pv.item_code, sample_size: pv.sample_size || 1, inspected_by: 'Administrator', status: pv.status,
+          manual_inspection: 1, remarks: `批号 ${pv.lot}：${pv.remarks || ''}`.slice(0, 500),
+          ...(pv.template ? { quality_inspection_template: pv.template } : {}),
+          readings: (pv.readings || []).map((r) => (r.numeric ? { specification: r.specification, numeric: 1, manual_inspection: 1, min_value: r.min,
+            max_value: r.max, reading_1: String(r.value), status: r.ok ? 'Accepted' : 'Rejected' }
+            : { specification: r.specification, numeric: 0, manual_inspection: 1, value: r.value, reading_value: r.value, status: r.ok ? 'Accepted' : 'Rejected' })),
+          docstatus: 1 });
+        out.push(['Quality Inspection', qi, 'submitted']);
+      }
+      if (pv.accept) {
+        const cur = await this.get('Purchase Receipt', pr.name);
+        const items = (cur.items || []).map((i) => (i.item_code === pv.item_code && qi ? { ...i, quality_inspection: qi.name } : i));
+        const done = await this.update('Purchase Receipt', pr.name, { items, docstatus: 1 });
+        out.push(['Purchase Receipt', done, 'submitted']);
+      }
+    }
+    return out;
+  }
+
+  // ------------------------------------------------------------ 第 18 轮 E7：经营与财务
+  async financeService(action, pv) {
+    const out = [];
+    const strip = (x) => {
+      const r = { ...x };
+      for (const k of ['name', '__islocal', '__unsaved', 'parent', 'parenttype', 'parentfield', 'idx', 'docstatus']) delete r[k];
+      return r;
+    };
+    const clean = (doc) => {
+      const d = strip(doc);
+      if (Array.isArray(d.items)) d.items = d.items.map(strip);
+      return d;
+    };
+    if (action === 'sales_invoice') {
+      // 按销售订单开票（可以重发：这张订单已有提交的发票就不再开）
+      const had = (await this.list('Sales Invoice', [['Sales Invoice Item', 'sales_order', '=', pv.sales_order], ['docstatus', '=', 1]], ['name']))[0];
+      if (had) return [['Sales Invoice', await this.get('Sales Invoice', had.name), 'updated']];
+      const made = clean(await this.method('erpnext.selling.doctype.sales_order.sales_order.make_sales_invoice', { source_name: pv.sales_order }));
+      if (!(made.items || []).length) throw new Error(`销售订单 ${pv.sales_order} 已经全部开票`);
+      const today = erpDate(new Date().toISOString());
+      made.posting_date = today;
+      made.set_posting_time = 1;
+      made.due_date = pv.due_date && pv.due_date >= today ? pv.due_date : today;
+      made.payment_terms_template = null;
+      made.payment_schedule = [];
+      made.remarks = `问渠数字工厂：订单 ${pv.sales_order} 做完开票${pv.remarks ? '；' + pv.remarks : ''}`;
+      made.docstatus = 1;
+      out.push(['Sales Invoice', await this.insert('Sales Invoice', made), 'submitted']);
+    } else if (action === 'purchase_invoice') {
+      const had = (await this.list('Purchase Invoice', [['Purchase Invoice Item', 'purchase_receipt', '=', pv.purchase_receipt], ['docstatus', '=', 1]], ['name']))[0];
+      if (had) return [['Purchase Invoice', await this.get('Purchase Invoice', had.name), 'updated']];
+      const made = clean(await this.method('erpnext.stock.doctype.purchase_receipt.purchase_receipt.make_purchase_invoice', { source_name: pv.purchase_receipt }));
+      const today = erpDate(new Date().toISOString());
+      made.posting_date = today;
+      made.set_posting_time = 1;
+      made.due_date = pv.due_date && pv.due_date >= today ? pv.due_date : today;
+      made.bill_no = pv.bill_no || `WQ-${pv.purchase_receipt}`;
+      made.bill_date = today;
+      made.payment_terms_template = null;
+      made.payment_schedule = [];
+      made.remarks = `问渠数字工厂：收货单 ${pv.purchase_receipt}（批号 ${pv.lot || '—'}）的供应商发票`;
+      made.docstatus = 1;
+      out.push(['Purchase Invoice', await this.insert('Purchase Invoice', made), 'submitted']);
+    } else if (action === 'payment') {
+      // 按发票收款 / 付款（可以重发：发票已经付清就不再建）
+      const inv = await this.get(pv.doctype, pv.invoice);
+      if (Number(inv.outstanding_amount || 0) <= 0.005) return [[pv.doctype, inv, 'updated']];
+      const made = await this.method('erpnext.accounts.doctype.payment_entry.payment_entry.get_payment_entry', { dt: pv.doctype, dn: pv.invoice });
+      const pe = { ...made };
+      for (const k of ['name', '__islocal', '__unsaved', 'docstatus']) delete pe[k];
+      pe.references = (pe.references || []).map(strip);
+      const today = erpDate(new Date().toISOString());
+      pe.posting_date = today;
+      pe.reference_no = pv.reference_no || `WQ-${pv.invoice}`;
+      pe.reference_date = today;
+      pe.remarks = pv.remarks || `问渠数字工厂：${pv.doctype === 'Sales Invoice' ? '收款' : '付款'} ${pv.invoice}`;
+      pe.docstatus = 1;
+      out.push(['Payment Entry', await this.insert('Payment Entry', pe), 'submitted']);
+      out.push([pv.doctype, await this.get(pv.doctype, pv.invoice), 'updated']);
+    } else if (action === 'dunning_note') {
+      const c = await this.insert('Comment', { comment_type: 'Comment', reference_doctype: 'Sales Invoice', reference_name: pv.invoice,
+        content: pv.content });
+      out.push(['Sales Invoice', await this.get('Sales Invoice', pv.invoice), 'updated']);
+      void c;
+    }
+    return out;
+  }
+
+  // ------------------------------------------------------------ 第 18 轮 E4：人员与组织
+  async peopleService(action, pv) {
+    const company = await this.getCompany();
+    const out = [];
+    const deptName = {};
+    for (const dpt of pv.departments || []) {
+      const had = (await this.list('Department', [['department_name', '=', dpt.name], ['company', '=', company]], ['name']))[0];
+      const doc = had ? await this.get('Department', had.name) : await this.insert('Department', { department_name: dpt.name, company });
+      deptName[dpt.name] = doc.name;
+      out.push(['Department', doc, had ? 'updated' : 'created']);
+    }
+    for (const g of pv.designations || []) {
+      const had = (await this.list('Designation', [['name', '=', g.name]], ['name']))[0];
+      const doc = had ? await this.get('Designation', had.name) : await this.insert('Designation', { designation_name: g.name, description: g.en });
+      out.push(['Designation', doc, had ? 'updated' : 'created']);
+    }
+    for (const e of pv.employees || []) {
+      // 可以重发：工号（employee_number）已有的不再建
+      const had = (await this.list('Employee', [['employee_number', '=', e.id]], ['name']))[0];
+      const doc = had ? await this.get('Employee', had.name) : await this.insert('Employee', { naming_series: 'HR-EMP-', first_name: e.name,
+        employee_number: e.id, company, status: 'Active', gender: e.gender, date_of_birth: e.born, date_of_joining: e.hired,
+        ...(deptName[e.dept] ? { department: deptName[e.dept] } : {}), designation: e.post, cell_number: e.phone });
+      out.push(['Employee', doc, had ? 'updated' : 'created']);
+    }
+    return out;
+  }
+
+  async maintService(action, pv) {
+    const S = await this.ensureAssetSetup();
+    const today = erpDate(new Date().toISOString());
+    const out = [];
+    if (action === 'maint_setup') {
+      for (const a of pv.assets) {
+        // 可以重发：已经建过的资产、维护计划不再建（上一次提议可能在 ERPNext 还没就绪时丢了、或执行到一半）
+        const had = (await this.list('Asset', [['asset_name', '=', a.asset_name], ['docstatus', '!=', 2]], ['name']))[0];
+        const asset = had ? await this.get('Asset', had.name) : await this.insert('Asset', { asset_name: a.asset_name, item_code: S.item,
+          asset_category: S.cat, company: S.company, location: S.loc, asset_type: 'Existing Asset', purchase_date: a.purchase_date,
+          available_for_use_date: a.purchase_date, net_purchase_amount: a.value, calculate_depreciation: 0, maintenance_required: 1, docstatus: 1 });
+        out.push(['Asset', asset, had ? 'updated' : 'submitted']);
+        const hadMt = (await this.list('Asset Maintenance', [['asset_name', '=', asset.name]], ['name']))[0];
+        if (hadMt) {
+          out.push(['Asset Maintenance', await this.get('Asset Maintenance', hadMt.name), 'updated']);
+          continue;
+        }
+        const mt = await this.insert('Asset Maintenance', { asset_name: asset.name, company: S.company, maintenance_team: S.team,
+          asset_maintenance_tasks: [{ maintenance_task: a.task.slice(0, 140), maintenance_type: 'Preventive Maintenance', maintenance_status: 'Planned',
+            start_date: today, periodicity: 'Monthly', assign_to: S.user, description: a.task, wq_interval_h: a.interval_h }] });
+        out.push(['Asset Maintenance', mt, 'created']);
+      }
+    } else if (action === 'maint_log') {
+      const lg = await this.insert('Asset Maintenance Log', { asset_maintenance: pv.asset_maintenance, task: pv.task, task_name: pv.task_name,
+        periodicity: pv.periodicity || 'Monthly', due_date: pv.date, description: pv.description || pv.task_name, task_assignee_email: S.user,
+        maintenance_status: 'Completed', completion_date: pv.date, actions_performed: pv.actions || '', docstatus: 1 });
+      out.push(['Asset Maintenance Log', lg, 'submitted']);
+    } else if (action === 'asset_repair') {
+      const r = await this.insert('Asset Repair', { asset: pv.asset, company: S.company, failure_date: pv.failure_date, repair_status: 'Pending',
+        description: pv.description || '' });
+      out.push(['Asset Repair', r, 'created']);
+    } else if (action === 'asset_repair_done') {
+      const r = await this.update('Asset Repair', pv.repair, { repair_status: 'Completed', completion_date: pv.completion_date,
+        actions_performed: pv.actions || '' });
+      out.push(['Asset Repair', r, 'updated']);
+    } else if (action === 'maint_interval') {
+      const mt = await this.get('Asset Maintenance', pv.asset_maintenance);
+      const tasks = (mt.asset_maintenance_tasks || []).map((t, i) => (i === 0 ? { ...t, wq_interval_h: pv.interval_h } : t));
+      out.push(['Asset Maintenance', await this.update('Asset Maintenance', pv.asset_maintenance, { asset_maintenance_tasks: tasks }), 'updated']);
+    }
     return out;
   }
 
@@ -443,7 +772,15 @@ class ERP {
     const key = `${dt}.${fieldname}`;
     if (this.fieldsOk && this.fieldsOk.has(key)) return;
     const rows = await this.list('Custom Field', [['dt', '=', dt], ['fieldname', '=', fieldname]], ['name']);
-    if (!rows.length) await this.insert('Custom Field', { dt, fieldname, ...spec });
+    if (!rows.length) {
+      try {
+        await this.insert('Custom Field', { dt, fieldname, ...spec });
+      } catch (e) {
+        // 两张提议同时第一次用到这个字段时会并发建：另一张已经建好就不算错
+        const again = await this.list('Custom Field', [['dt', '=', dt], ['fieldname', '=', fieldname]], ['name']);
+        if (!again.length) throw e;
+      }
+    }
     (this.fieldsOk = this.fieldsOk || new Set()).add(key);
   }
 
@@ -519,7 +856,9 @@ class ERP {
   // ------------------------------------------------------------ 5. ERPNext → 总线（轮询）
   async poll() {
     const out = [];
-    for (const dt of ['Sales Order', 'Work Order', 'Material Request', 'Purchase Order']) {
+    for (const dt of ['Sales Order', 'Work Order', 'Material Request', 'Purchase Order', 'Lead', 'Opportunity', 'Quotation', 'Contract', 'Issue',
+      'Asset', 'Asset Maintenance', 'Asset Repair', 'Asset Maintenance Log', 'Employee', 'Department', 'Designation', 'Purchase Receipt',
+      'Sales Invoice', 'Purchase Invoice', 'Payment Entry']) {
       const since = this.lastModified[dt];
       const filters = since ? [['modified', '>', since]] : [];
       const rows = await this.list(dt, filters, ['name', 'modified'], { order_by: 'modified asc', limit: 200 });
@@ -554,7 +893,7 @@ function summarize(doctype, d) {
   switch (doctype) {
     case 'Sales Order':
       return { ...pick(['customer', 'delivery_date', 'transaction_date', 'status', 'docstatus', 'per_delivered']),
-        items: (d.items || []).map((i) => ({ item_code: i.item_code, qty: i.qty, delivered_qty: i.delivered_qty || 0 })) };
+        items: (d.items || []).map((i) => ({ item_code: i.item_code, qty: i.qty, delivered_qty: i.delivered_qty || 0, rate: i.rate })), ...pick(['per_billed']) };
     case 'Work Order':
       return { ...pick(['production_item', 'qty', 'produced_qty', 'status', 'docstatus', 'bom_no',
         'expected_delivery_date']), planned_start_date: String(d.planned_start_date || '').slice(0, 10),
@@ -583,6 +922,47 @@ function summarize(doctype, d) {
       return pick(['item_code', 'warehouse', 'actual_qty', 'ordered_qty', 'reserved_qty', 'projected_qty', 'stock_uom']);
     case 'File':
       return pick(['file_name', 'file_url', 'attached_to_doctype', 'attached_to_name']);
+    case 'Lead':
+      return pick(['lead_name', 'company_name', 'status', 'wq_note', 'creation']);
+    case 'Opportunity':
+      return pick(['opportunity_from', 'party_name', 'status', 'opportunity_amount', 'expected_closing', 'transaction_date']);
+    case 'Quotation':
+      return { ...pick(['quotation_to', 'party_name', 'status', 'docstatus', 'valid_till', 'grand_total', 'total', 'opportunity', 'transaction_date']),
+        items: (d.items || []).map((i) => ({ item_code: i.item_code, qty: i.qty, rate: i.rate })) };
+    case 'Contract':
+      return pick(['party_type', 'party_name', 'status', 'docstatus', 'is_signed', 'start_date', 'end_date', 'wq_penalty_per_day',
+        'wq_response_h', 'wq_warranty_months', 'wq_amount', 'wq_quotation', 'wq_sales_order']);
+    case 'Issue':
+      return pick(['subject', 'status', 'customer', 'opening_date', 'resolution_date', 'wq_serial', 'wq_kind', 'wq_engineer', 'wq_day']);
+    case 'Purchase Receipt':            // 第 18 轮 E5
+      return { ...pick(['supplier', 'status', 'docstatus', 'posting_date', 'wq_lot']),
+        items: (d.items || []).map((i) => ({ item_code: i.item_code, qty: i.qty, purchase_order: i.purchase_order, quality_inspection: i.quality_inspection })) };
+    case 'Sales Invoice':               // 第 18 轮 E7
+      return { ...pick(['customer', 'status', 'docstatus', 'posting_date', 'due_date', 'grand_total', 'outstanding_amount']),
+        sales_orders: [...new Set((d.items || []).map((i) => i.sales_order).filter(Boolean))] };
+    case 'Purchase Invoice':
+      return { ...pick(['supplier', 'status', 'docstatus', 'posting_date', 'due_date', 'grand_total', 'outstanding_amount', 'bill_no']),
+        purchase_receipts: [...new Set((d.items || []).map((i) => i.purchase_receipt).filter(Boolean))] };
+    case 'Payment Entry':
+      return { ...pick(['payment_type', 'party_type', 'party', 'paid_amount', 'posting_date', 'docstatus']),
+        references: (d.references || []).map((r) => ({ reference_doctype: r.reference_doctype, reference_name: r.reference_name, allocated_amount: r.allocated_amount })) };
+    case 'Employee':                    // 第 18 轮 E4（只带工作上的字段：不带生日、电话）
+      return pick(['employee_name', 'first_name', 'employee_number', 'department', 'designation', 'status', 'date_of_joining', 'company']);
+    case 'Department':
+      return pick(['department_name', 'company', 'parent_department', 'is_group']);
+    case 'Designation':
+      return pick(['designation_name']);
+    case 'Asset':                       // 第 18 轮 E3
+      return pick(['asset_name', 'status', 'location', 'net_purchase_amount', 'purchase_date', 'asset_category', 'docstatus']);
+    case 'Asset Maintenance':
+      return { ...pick(['asset_name', 'maintenance_team']),
+        asset_maintenance_tasks: (d.asset_maintenance_tasks || []).map((t) => ({ name: t.name, maintenance_task: t.maintenance_task,
+          periodicity: t.periodicity, description: t.description, next_due_date: t.next_due_date, last_completion_date: t.last_completion_date,
+          wq_interval_h: t.wq_interval_h })) };
+    case 'Asset Repair':
+      return pick(['asset', 'repair_status', 'failure_date', 'completion_date', 'description', 'docstatus']);
+    case 'Asset Maintenance Log':
+      return pick(['asset_maintenance', 'task_name', 'maintenance_status', 'completion_date', 'docstatus']);
     default:
       return {};
   }

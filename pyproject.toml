@@ -28,7 +28,7 @@ llm = [
 ]
 # 分析模块（ADR-0056）：按需安装
 mbd = [
-    "mujoco>=3.2",
+    "mujoco==3.14.0",          # 3.17 改了 equality 的 data 长度，analysis/mbd 的约束写法不兼容；与 factory/digital/requirements.txt 同版本
 ]
 fea = [
     "gmsh>=4.13",

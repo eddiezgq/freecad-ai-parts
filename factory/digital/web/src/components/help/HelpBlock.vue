@@ -5,6 +5,7 @@
       <b>{{ args.label || def?.title || '带我去做' }}</b>
       <span class="small muted">{{ def ? `打开“${pageName}”，分 ${def.steps.length} 步指给你看` : '' }}</span>
     </div>
+    <span v-if="checks" class="chk small" :title="'这个引导会检测你是不是真做了'">{{ doneBefore ? '✓ 做过了' : '做完打勾' }}</span>
     <button v-if="loggedIn" class="btn primary" :disabled="!def" @click="go">带我去做</button>
     <router-link v-else class="btn" :to="{ path: '/login', query: { next: $route.fullPath } }">登录后可以跟着做</router-link>
   </div>
@@ -36,7 +37,16 @@
         <div v-if="layout"><dt>车间</dt><dd>{{ layout.floor[0] }} × {{ layout.floor[1] }} 米，{{ Object.keys(layout.units).length }} 台设备</dd></div>
       </dl>
     </template>
-    <p v-else-if="!loggedIn" class="small muted">登录后这里显示本厂此刻的{{ args.kind === 'kpi' ? '指标' : '设备状态' }}。</p>
+    <p v-else-if="!loggedIn" class="small muted">登录后这里显示本厂此刻的{{ args.kind === 'kpi' ? '指标' : args.kind === 'domain' ? (DOMAINS[args.domain]?.name || '') + '数据' : '设备状态' }}。</p>
+    <template v-else-if="args.kind === 'domain'">
+      <div v-if="dom" class="kgrid">
+        <div v-for="[k, label, f] in DOMAINS[args.domain].items" :key="k" class="k" :class="{ warn: warnOf(k, dom[k]) }">
+          <span class="small muted">{{ label }}</span><b>{{ fmtItem(dom[k], f, cfg?.plant?.currency) }}</b>
+        </div>
+      </div>
+      <p v-else class="small muted">{{ domErr || '正在取数……' }}</p>
+      <router-link v-if="dom" class="small" :to="DOMAINS[args.domain].page">去“{{ DOMAINS[args.domain].name }}”页看全部 →</router-link>
+    </template>
     <template v-else-if="args.kind === 'machines'">
       <div v-if="machineList.length" class="mgrid">
         <div v-for="m in machineList" :key="m.unit" class="m" :title="m.reason || ''">
@@ -59,6 +69,11 @@
     </template>
   </div>
 
+  <!-- 第 30 轮 §八：拖着玩（嵌虚拟实验）、当场动手、你来选 -->
+  <LabBlock v-else-if="kind === 'lab'" :args="args" />
+  <TryBlock v-else-if="kind === 'try'" :args="args" />
+  <QuizBlock v-else-if="kind === 'quiz'" :args="args" />
+
   <!-- 问 AI -->
   <div v-else-if="kind === 'ask'" class="hb ask">
     <span class="small muted">还不清楚？</span>
@@ -67,7 +82,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ANIMS } from './anim';
 import { get, loadConfig, session } from '../../lib/api';
@@ -75,18 +90,27 @@ import { bus } from '../../lib/bus';
 import { ask } from '../../lib/ai';
 import { HEX } from '../../lib/workshop3d';
 import { STATE } from '../../lib/fmt';
-import { startTour, tourDef } from '../../lib/tour';
+import { hasDone, startTour, tourDef, tourDoneBefore } from '../../lib/tour';
+import LabBlock from './LabBlock.vue';
+import TryBlock from './TryBlock.vue';
+import QuizBlock from './QuizBlock.vue';
 import { pageTitle } from '../../help/pages';
+import { DOMAINS, fmtItem, warnOf } from '../../lib/domainlive';
 
 const props = defineProps({ kind: String, args: { type: Object, default: () => ({}) }, media: { type: Array, default: () => [] } });
 const router = useRouter();
 const loggedIn = computed(() => !!session.token);
 const def = computed(() => (props.kind === 'goto' ? tourDef(props.args.tour) : null));
 const pageName = computed(() => (def.value ? pageTitle(def.value.path) : ''));
+const checks = computed(() => hasDone(def.value));
+const doneBefore = computed(() => props.kind === 'goto' && tourDoneBefore(props.args.tour));
 const hasVideo = computed(() => props.media.includes(props.args.name + '.webm'));
 const cfg = ref(null);
 const layout = ref(null);
 const kpis = ref([]);
+const dom = ref(null);
+const domErr = ref('');
+let domTimer;
 const machineList = computed(() => Object.entries(bus.machines).map(([unit, m]) => ({ unit, ...m })).sort((a, b) => a.unit.localeCompare(b.unit)));
 
 function go() { startTour(router, props.args.tour); }
@@ -101,7 +125,17 @@ onMounted(async () => {
   try { cfg.value = await loadConfig(); } catch { /* 没连上就不显示 */ }
   if (props.args.kind === 'plant') { try { layout.value = await get('/layout'); } catch { /* 同上 */ } }
   if (props.args.kind === 'kpi' && loggedIn.value) { try { kpis.value = (await get('/overview')).kpis || []; } catch { /* 同上 */ } }
+  if (props.args.kind === 'domain' && loggedIn.value && DOMAINS[props.args.domain]) {
+    // 每 10 秒刷新一次：上面“当场动手”按下去，这里跟着变
+    const pull = async () => {
+      try { dom.value = await get(DOMAINS[props.args.domain].api); domErr.value = ''; }
+      catch (e) { domErr.value = /403|404/.test(String(e?.message || e)) ? '这一块只在教学模式的演示工厂里有。' : '暂时取不到数据。'; }
+    };
+    await pull();
+    domTimer = setInterval(pull, 10000);
+  }
 });
+onUnmounted(() => clearInterval(domTimer));
 </script>
 
 <style scoped>
@@ -109,6 +143,7 @@ onMounted(async () => {
 .goto { display: flex; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 10px; background: var(--task-bg);
   border-left: 4px solid var(--brand); }
 .g-txt { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.chk { padding: 2px 8px; border-radius: 999px; background: var(--good-bg); color: var(--good); white-space: nowrap; }
 .video video { width: 100%; border-radius: 10px; background: #17212B; display: block; }
 .novid { border-radius: 10px; background: var(--surface-2); color: var(--ink); padding: 12px 16px 12px 52px; position: relative; border: 1px dashed var(--line); }
 .novid::before { content: ''; position: absolute; left: 18px; top: 50%; transform: translateY(-50%); border-left: 16px solid var(--idle);

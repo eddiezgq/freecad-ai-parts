@@ -461,6 +461,19 @@ def _seed_shaft(serial, start):
             "how": "情景数据"}
 
 
+def seed_batch(serial):
+    """情景设备的输出轴批次（第 18 轮 E1）：12 台按出厂时间分 4 批，每批 3 台、分在三类客户，同批的轴由同一片砂轮磨削。
+    用来演示“一张投诉 → 同一片砂轮 → 同批还装在谁家”。返回 (砂轮号, 工单号, 磨削时砂轮剩余寿命 %) 或 None"""
+    try:
+        nn = int(str(serial).rsplit("-", 1)[1])
+    except (IndexError, ValueError):
+        return None
+    if not 1 <= nn <= len(SEED):
+        return None
+    g = (nn - 1) % 4 + 1
+    return "grd-01/S{}".format(g), "MFG-WO-S{}".format(g), [62, 35, 18, 74][g - 1]
+
+
 def fleet(db, mode):
     out = []
     events = {}

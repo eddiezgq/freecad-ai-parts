@@ -4,7 +4,7 @@
     <div class="page-title"><h1>设计与工艺</h1><span class="muted">工艺员工作区 · 输出轴 SH-301 的设计版本、工艺路线与键槽 G 代码</span></div>
 
     <!-- 第 6 轮 W2：网页设计台，不用装软件 -->
-    <section id="design" class="card">
+    <section id="design" class="card" data-help="eng-design">
       <div class="card-head"><h2>在线设计 · 输出轴 SH-301</h2>
         <span class="muted small">改参数 → 看三维与校核 → 发布。服务器生成 STEP、零件图、键槽 G 代码，与 FreeCAD 发布效果相同</span></div>
       <div v-if="suggestNote" class="sugg small">已按“{{ suggestNote }}”填好参数（还没发布）：看三维和校核，满意就发布新版本，再回“仿真与分析”重新计算对比。
@@ -43,7 +43,7 @@
           </div>
           <div class="line">
             <input v-model="note" class="note" maxlength="200" placeholder="改动说明，例如：键槽长 45 → 42">
-            <button class="btn primary" :disabled="!chk?.ok || busy" @click="publish">{{ busy ? '正在生成…' : (session.user?.mode === 'prod' ? '提交审批' : '发布新版本') }}</button>
+            <button class="btn primary" data-help="eng-publish" :disabled="!chk?.ok || busy" @click="publish">{{ busy ? '正在生成…' : (session.user?.mode === 'prod' ? '提交审批' : '发布新版本') }}</button>
             <button class="btn ghost" :disabled="busy" @click="loadParams">恢复现行版</button>
           </div>
           <div v-if="pubMsg" :class="pubOk ? 'ok' : 'err'">{{ pubMsg }}</div>
@@ -53,7 +53,7 @@
     </section>
 
     <div class="row">
-      <section class="card grow">
+      <section class="card grow" data-help="eng-versions">
         <div class="card-head"><h2>设计版本</h2><span class="muted small">由上面的在线设计或 FreeCAD 发布宏经总线发来（design/sh-301/release）</span></div>
         <div v-if="!d.releases.length" class="empty">还没有发布过新版本。现行为工厂数据里的第 1 版。</div>
         <table v-else class="t">
@@ -66,7 +66,7 @@
         </table>
         <div v-if="drawing" class="drawing"><img :src="drawing" alt="最新版零件图"></div>
       </section>
-      <section class="card side">
+      <section class="card side" data-help="eng-cad">
         <div class="card-head"><h2>进阶：用桌面 CAD 发布（选做）</h2></div>
         <p class="small muted">上面的“在线设计”不用装任何软件。想学真 CAD 的同学，可以用 FreeCAD 1.1 或 SolidWorks 的宏发布，效果相同（SolidWorks 步骤见宏包里的使用说明）：</p>
         <ol class="small steps">

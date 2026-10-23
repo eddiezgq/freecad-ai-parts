@@ -7,10 +7,57 @@ rules:
     role: [manager]
     params: {above_pct: 10}
     desc: 工单加工实际成本比标准高 above_pct% 以上
-    hint: 在“经营与成本”页看分解：调整、换刀工时还是废品
+    hint: 在“经营与财务 → 生产与成本”看分解：调整、换刀工时还是废品
   F2:
     name: 应收逾期
-    status: waiting
+    fn: ar_overdue
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager, sales]
+    params: {days: 0, critical_days: 30}
+    desc: 客户的发票过了到期日还没付（逾期超过 critical_days 天为严重）（第 18 轮 E7）；账期按“账期日”，教学模式 1 天 = 真实 2 分钟
+    hint: 看右栏：发催款函 / 信用冻结 / 不处理（对照），比较现金流预测
+  F3:
+    name: 客户信用超限
+    fn: credit_over
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager, sales]
+    desc: 客户的应收余额 + 在做、还没开票的订单金额超过信用额度
+    hint: 看右栏：信用冻结 / 临时提额 / 不处理
+  F4:
+    name: 现金不够付到期的账
+    fn: cash_short
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
     severity: warn
     role: [manager]
-    desc: 待数据：需要 ERPNext 应收（销售发票、收款）
+    params: {weeks: 2, min_cash: 0}
+    desc: 未来 weeks 周（账期周）现金预测低于 min_cash：应付到期、固定开支多于预计收款（降到负数为严重）
+    hint: 看右栏：加快催收 / 和供应商商量推迟付款 / 不处理
+  F5:
+    name: 订单毛利低于目标
+    fn: margin_low
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager, sales]
+    params: {below_pp: 0.05}
+    desc: 做完的订单毛利率比经营目标低 below_pp 以上；毛利 = 收入 − 料 − 工 − 电 − 废品 − 急单加班外协 − 保修
+    hint: 看分解：哪一项比标准多；下次报价、工艺、供应商对症改
+  F6:
+    name: 预算超支
+    fn: budget_over
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager]
+    params: {ratio: 1.1, min_progress: 0.05, min_usd: 100}
+    desc: 某成本中心本月实际超过“预算 × 时间进度 × ratio”（管理费用按进度计，不判）
+    hint: 看右栏：调整预算 / 不处理；同时去对应领域找超支的原因
+  F7:
+    name: 经营指标偏离目标
+    fn: objective_off
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager]
+    params: {red_days: 5}
+    desc: 指标树里的某个指标现在是红的，并且近 7 天里至少 red_days 天是红的
+    hint: 打开对应领域的异常和推演找原因

@@ -7,7 +7,7 @@ types:
   Receivable:
     label: 应收
     label_en: Receivable
-    maturity: erp
+    maturity: have
     sensitivity: 2
     key: ERPNext 销售发票号
     title: "{key}"
@@ -15,20 +15,26 @@ types:
       amount: {t: num, l: 金额, u: $}
       due: {t: date, l: 到期}
       status: {t: str, l: 状态}
+      outstanding: {t: num, l: 未付, u: $}
+      overdue_days: {t: num, l: 逾期天数}
     links:
       sales_order: {to: SalesOrder, l: 订单, inv: 应收}
+      customer: {to: Customer, l: 客户, inv: 应收}
   Payable:
     label: 应付
     label_en: Payable
-    maturity: erp
+    maturity: have
     sensitivity: 2
     key: ERPNext 采购发票号
     title: "{key}"
     props:
       amount: {t: num, l: 金额, u: $}
       due: {t: date, l: 到期}
+      status: {t: str, l: 状态}
+      outstanding: {t: num, l: 未付, u: $}
     links:
       purchase_order: {to: PurchaseOrder, l: 采购单, inv: 应付}
+      supplier: {to: Supplier, l: 供应商, inv: 应付}
   CostRecord:
     label: 工单成本
     label_en: Work order cost

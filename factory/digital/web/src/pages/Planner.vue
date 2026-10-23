@@ -9,9 +9,7 @@
         <form class="form" @submit.prevent="calc">
           <div class="field" data-help="planner-customer"><label>客户</label>
             <select v-model="f.customer" required><option v-for="c in customers" :key="c" :value="c">{{ short(c) }}</option></select></div>
-          <div class="field" data-help="planner-item"><label>产品</label><select v-model="f.item" required>
-            <option v-for="p in productList" :key="p.code" :value="p.code">{{ p.code }} {{ p.name }}</option></select>
-            <span v-if="!productList.length" class="small muted">还没有产品：先在“CAD 方案”里把方案转为生产物料</span></div>
+          <div class="field" data-help="planner-item"><label>产品</label><select v-model="f.item"><option value="WQR-105">WQR-105 二级圆柱齿轮减速器</option></select></div>
           <div class="field" data-help="planner-qty"><label>数量（台）</label><input v-model.number="f.qty" type="number" min="1" max="200" required></div>
           <div class="field"><label>交期</label><input v-model="f.delivery_date" type="date" required></div>
           <button class="btn" data-help="planner-calc">算料</button>
@@ -19,7 +17,7 @@
         <div v-if="err" class="err">{{ err }}</div>
         <template v-if="pv">
           <h3>算料结果</h3>
-          <table class="t">
+          <table class="t" data-help="planner-mrp">
             <thead><tr><th>物料</th><th class="num">毛需求</th><th class="num">占用</th><th class="num">库存</th><th class="num">在途</th>
               <th class="num">安全</th><th class="num">净需求</th><th>动作</th></tr></thead>
             <tbody><tr v-for="r in pv.mrp" :key="r.item_code" :class="{ need: r.net > 0 }">
@@ -77,10 +75,7 @@ import TaskBar from '../components/TaskBar.vue';
 import ObjLink from '../components/ObjLink.vue';
 
 const customers = ref([]);
-const inDays = (d) => new Date(Date.now() + d * 86400000).toISOString().slice(0, 10);
-const f = ref({ customer: '', item: '', qty: 10, delivery_date: inDays(30) });
-// 可接单的产品：演示工厂的减速器（只在演示工厂）+ 从 FreeCAD 方案转为生产物料登记的产品（ADR-0061、ADR-0064）
-const productList = ref([]);
+const f = ref({ customer: '', item: 'WQR-105', qty: 10, delivery_date: '2026-10-15' });
 const pv = ref(null);
 const err = ref(null);
 const busy = ref(false);
@@ -95,11 +90,8 @@ const stTone = (s) => ({ pending: 'warn', confirmed: 'info', executed: 'good', r
 const woStatus = (w) => (w.status === 'Completed' ? '已完工' : w.started ? '加工中' : w.released ? '已下达' : '未下达');
 
 async function load() {
-  const [c, p, w, reg] = await Promise.all([get('/config'), get('/proposals'), get('/work_orders'), get('/products').catch(() => [])]);
+  const [c, p, w] = await Promise.all([get('/config'), get('/proposals'), get('/work_orders')]);
   customers.value = c.customers;
-  const demoFg = c.plant?.demo === false ? [] : (c.fg || []).map((x) => ({ code: x.item_code, name: x.name }));
-  productList.value = [...demoFg, ...reg.filter((r) => !demoFg.some((d) => d.code === r.code)).map((r) => ({ code: r.code, name: r.name || '' }))];
-  if (!f.value.item && productList.value.length) f.value.item = productList.value[0].code;
   if (!f.value.customer) f.value.customer = c.customers[0];
   props_.value = p;
   wos.value = w;
@@ -132,8 +124,7 @@ onMounted(load);
 <style scoped>
 .neworder { flex-grow: 1; min-width: 0; }
 .side { width: 340px; flex-shrink: 0; }
-.form { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 1fr) minmax(140px, 1.3fr) auto; gap: 10px; align-items: end; }
-.form select, .form input { width: 100%; min-width: 0; }   /* 产品名长时不把“算料”挤到右边卡片底下 */
+.form { display: grid; grid-template-columns: 2fr 2fr 1fr 1.3fr auto; gap: 10px; align-items: end; }
 h3 { font-size: 14px; margin: 16px 0 8px; }
 tr.need td { background: #FFF8EC; }
 .warn { color: var(--warn-ink); }

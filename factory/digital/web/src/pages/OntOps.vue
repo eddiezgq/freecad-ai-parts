@@ -2,7 +2,7 @@
   <div class="page">
     <div class="page-title"><h1>厂情中枢 · 指挥台</h1>
       <span class="muted">全厂态势、异常、原因和影响 · 规则每 20 秒检查一次全厂</span>
-      <span class="tabs" role="tablist" data-help="ont-tabs">
+      <span class="tabs" data-help="ont-tabs" role="tablist">
         <button type="button" role="tab" :class="{ on: view === 'situation' }" @click="go({ view: 'situation' })">全厂态势</button>
         <button type="button" role="tab" :class="{ on: view === 'anomalies' }" @click="go({ view: 'anomalies' })">异常处理
           <span v-if="openCount" class="cnt">{{ openCount }}</span></button>
@@ -18,7 +18,7 @@
 
     <!-- 第一屏：全厂态势 -->
     <template v-if="view === 'situation'">
-      <div class="timebar card">
+      <div class="timebar card" data-help="ont-timebar">
         <span class="small"><b>时间</b></span>
         <input v-model="atLocal" type="datetime-local" :max="maxLocal" :min="minLocal" aria-label="回看时刻" @change="loadHist">
         <button class="btn sm ghost" @click="shift(-1)">往前 1 小时</button>
@@ -29,7 +29,7 @@
       </div>
       <div v-if="!sit" class="empty">读取中…</div>
       <template v-else>
-        <div v-for="row in rows" :key="row.key" class="maprow">
+        <div v-for="row in rows" :key="row.key" class="maprow" data-help="ont-cards">
           <div class="rowlabel">{{ row.label }}</div>
           <div class="cards" :class="row.key">
             <button v-for="c in row.cards" :key="c.domain" type="button" class="sc" :style="{ '--c': DOMAIN_COLOR[c.domain] }"
@@ -144,7 +144,7 @@
               <button v-if="e.seq" class="linkbtn" @click="showSource(e.seq)">#{{ e.seq }}</button>
               <span v-else class="muted"> {{ e.name || e.item || e.id || e.ts || '' }}</span></li>
           </ul>
-          <OptionsPanel v-if="isOpen" :anomaly-id="sel.id" @adopted="loadSel" />
+          <OptionsPanel v-if="isOpen" data-help="ont-options" :anomaly-id="sel.id" @adopted="loadSel" />
           <RetroPanel v-else :anomaly-id="sel.id" />
         </template>
       </section>
@@ -227,6 +227,8 @@ function fmt(v, f) {
   if (v === null || v === undefined) return '—';
   if (f === 'pct') return (v * 100).toFixed(1) + '%';
   if (f === 'pct_signed') return (v > 0 ? '+' : '') + (v * 100).toFixed(1) + '%';
+  if (f === 'usd') return '$' + Math.round(v).toLocaleString();
+  if (f === 'num') return Number(v).toLocaleString(undefined, { maximumFractionDigits: 1 });
   return String(v);
 }
 function spark(tr) {
@@ -245,9 +247,9 @@ function ago(s) {
 const links = computed(() => {
   const a = sel.value;
   if (!a) return [];
-  const L = { production: [['/work/operator', '车间终端'], ['/work/manager', '经营与成本']], quality: [['/work/quality', '质量'], ['/quality/8d', '开 8D']],
+  const L = { production: [['/work/operator', '车间终端'], ['/finance?tab=production', '生产与成本']], quality: [['/work/quality', '质量'], ['/quality/8d', '开 8D']],
     sales: [['/work/planner', '订单与计划']], planning: [['/work/planner', '订单与计划']], supply: [['/work/planner', '订单与计划（请购）']],
-    service: [['/twin', '数字孪生']], maintenance: [['/work/manager', '经营与成本']], finance: [['/work/manager', '经营与成本']], product: [['/design', '设计发布与审批']] };
+    service: [['/twin', '数字孪生']], maintenance: [['/maint', '设备维护']], finance: [['/finance', '经营与财务']], product: [['/design', '设计发布与审批']] };
   const out = (L[a.domain] || []).map(([to, label]) => ({ to, label }));
   if (a.subject) out.unshift({ to: `/ont/${a.subject.type}/${encodeURIComponent(a.subject.key)}`, label: '对象页' });
   return out;

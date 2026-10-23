@@ -1,0 +1,29 @@
+domain: 设备维护
+items:
+  - id: T01
+    q: "哪些设备该保养了？"
+    tools: [maint_overview]
+    contains: ["GRD-01", "逾期"]
+  - id: T02
+    q: "外圆磨床未来两周坏掉的概率多大？"
+    tools: [failure_risk]
+    contains: ["预期损失", "保养后"]
+  - id: T03
+    q: "{pm_anomaly} 怎么处理？"
+    tools: [get_anomaly, compare_options]
+    contains: ["现在保养", "不做", "预期故障损失"]
+  - id: T04
+    q: "维修单和备件情况怎么样？"
+    tools: [repairs_spares]
+    contains: ["BRG-6207", "最低"]
+  - id: T05
+    q: "起草 {pm_anomaly} 的方案 B"
+    tools: [compare_options, draft_action]
+    contains: ["草稿", "提交"]
+    drafts: true
+  - id: T06
+    q: "哪些设备该保养了？"
+    as: student
+    contains: ["提示"]
+    not_contains: ["GRD-01"]
+    cite: false

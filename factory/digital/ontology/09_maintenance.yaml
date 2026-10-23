@@ -7,7 +7,8 @@ types:
   Asset:
     label: 资产
     label_en: Asset
-    maturity: erp
+    maturity: have
+    sources: [ERPNext 资产（第 18 轮 E3）]
     key: 资产编号
     title: "{key} {name}"
     props:
@@ -19,56 +20,70 @@ types:
   MaintenancePlan:
     label: 维护计划
     label_en: Maintenance plan
-    maturity: erp
+    maturity: have
+    sources: [ERPNext 资产维护计划（运行小时周期在自定义字段，第 18 轮 E3）]
     key: 计划编号
     title: "{key}"
     props:
       interval_h: {t: num, l: 周期, u: h}
       next_due: {t: date, l: 下次到期}
+      task: {t: str, l: 保养项目}
+      run_h: {t: num, l: 自上次保养运行, u: h}
     links:
       machine: {to: Machine, l: 设备, inv: 维护计划}
   Inspection:
     label: 点检
     label_en: Routine check
-    maturity: capture
+    maturity: have
+    sources: [“设备维护”页扫码点检（第 18 轮 E3）]
     key: 点检记录号
     title: "{key}"
     props:
       result: {t: str, l: 结论}
       at: {t: time, l: 时间}
+      by: {t: str, l: 点检人}
     links:
       machine: {to: Machine, l: 设备, inv: 点检}
   RepairOrder:
     label: 维修工单
     label_en: Repair order
-    maturity: erp
+    maturity: have
+    sources: [平台维修单 + ERPNext 资产维修（第 18 轮 E3）]
     key: 维修单号
     title: "{key}"
     props:
       status: {t: str, l: 状态}
       cost: {t: num, l: 费用, u: $}
+      description: {t: str, l: 内容}
     links:
       machine: {to: Machine, l: 设备, inv: 维修}
+      asset: {to: Asset, l: 资产, inv: 维修}
   FailureRecord:
     label: 故障记录
     label_en: Failure record
-    maturity: capture
+    maturity: have
+    sources: [仿真车间 / 设备的故障事件（第 18 轮 E3）]
     key: 故障号
     title: "{key}"
     props:
       mode: {t: str, l: 故障模式}
       cause: {t: str, l: 原因}
+      down_min: {t: num, l: 停机, u: 分钟}
+      run_h: {t: num, l: 故障时运行, u: h}
     links:
       machine: {to: Machine, l: 设备, inv: 故障}
   SparePart:
     label: 备件
     label_en: Spare part
-    maturity: erp
+    maturity: have
+    sources: [维修用件（ERPNext 物料与库存，第 18 轮 E3）]
     key: 物料号
     title: "{key}"
     props:
       stock: {t: num, l: 库存}
       min_stock: {t: num, l: 最低库存}
+    links:
+      item: {to: Item, l: 物料, inv: 备件}
   Downtime:
     label: 停机记录
     label_en: Downtime

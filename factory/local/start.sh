@@ -30,6 +30,7 @@ set_env() {  # 改写或追加一行 KEY=VALUE
 }
 set_env WQ_MODE "$mode"
 set_env WQ_EDITION local
+set_env WQ_LOCAL_ROLES 0          # 企业工程师自己的电脑：不分老师学生（问渠那边学校机房的本地版才分，ADR-0068）
 # 企业库（ADR-0055 / 0058）：与 FreeCAD 同一个文件夹——环境变量 FAP_ENTERPRISE_LIBRARY，或 FreeCAD 设置里选的
 ent="${FAP_ENTERPRISE_LIBRARY:-}"
 settings="$HOME/.freecad-ai-parts/settings.json"

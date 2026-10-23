@@ -23,7 +23,7 @@ rules:
     role: [manager]
     params: {below: 0.6, min_load_h: 2}
     desc: 负荷时间超过 min_load_h 小时后，OEE 低于 below；说明里给出损失最大的一项
-    hint: 看“经营与成本”页的 OEE 分解，针对最大损失
+    hint: 看“经营与财务 → 生产与成本”的 OEE 分解，针对最大损失
   P4:
     name: 换刀频率异常
     fn: tool_change_rate

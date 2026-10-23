@@ -2,11 +2,11 @@
   <div class="page">
     <div class="page-title"><h1><router-link to="/ont" class="back">厂情中枢</router-link> / 动作收件箱</h1>
       <span class="muted">处理方案变成动作：先试运行，再审批，批准后由执行器真的去做（车间、班次表、ERPNext），全程留记录</span>
-      <span class="tabs"><button v-for="(l, k) in BOX" :key="k" :class="{ on: box === k }" @click="box = k; load()">{{ l }}</button></span></div>
+      <span class="tabs" data-help="act-boxes"><button v-for="(l, k) in BOX" :key="k" :class="{ on: box === k }" @click="box = k; load()">{{ l }}</button></span></div>
     <div v-if="err" class="err">{{ err }}</div>
-    <p class="small muted">花钱的动作（加班、紧急采购、外协、维修加急）要厂长批准；改派、调序、分批交货计划员或厂长都能批。生产模式下不能批准自己发起的动作。</p>
+    <p class="small muted" data-help="act-rules">花钱的动作（加班、紧急采购、外协、维修加急）要厂长批准；改派、调序、分批交货计划员或厂长都能批。生产模式下不能批准自己发起的动作。</p>
     <div v-if="!list.length" class="empty">{{ box === 'todo' ? '没有等你批准的动作。' : '还没有动作。' }}</div>
-    <section v-for="a in list" :key="a.id" class="card act" :class="a.status">
+    <section v-for="a in list" :key="a.id" class="card act" data-help="act-list" :class="a.status">
       <div class="a-h">
         <span class="mono small">{{ a.key }}</span>
         <b>{{ a.title }}</b>

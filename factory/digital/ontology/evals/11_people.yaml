@@ -1,0 +1,29 @@
+domain: 人员与排班
+items:
+  - id: U01
+    q: "哪些设备只有一个人会开？"
+    tools: [people_skills]
+    contains: ["HOB-01", "单点"]
+  - id: U02
+    q: "这两天排班有没有缺人？"
+    tools: [roster_gaps]
+    contains: ["GRD-01", "王强 请假"]
+  - id: U03
+    q: "{gap_anomaly} 怎么处理？"
+    tools: [get_anomaly, compare_options]
+    contains: ["顶岗", "学徒", "加班顶班"]
+  - id: U04
+    q: "本周加班和出勤率怎么样？"
+    tools: [overtime_load]
+    contains: ["加班上限", "缺勤率"]
+  - id: U05
+    q: "起草 {gap_anomaly} 的方案 B"
+    tools: [compare_options, draft_action]
+    contains: ["草稿", "提交"]
+    drafts: true
+  - id: U06
+    q: "这两天排班有没有缺人？"
+    as: student
+    contains: ["提示"]
+    not_contains: ["王强"]
+    cite: false

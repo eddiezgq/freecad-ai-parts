@@ -29,7 +29,7 @@ def master(B, mode):
     from factory import plant
     if plant.is_demo():
         B.obj(mode, "Plant", "wqr", {"name": "问渠减速器厂", "product_line": "WQR-105 二级圆柱齿轮减速器", "mode": mode})
-    else:                                       # 企业工厂（ADR-0064）：工厂对象用清单里的公司
+    else:                                       # 企业工厂（第 30 轮；freecad-ai-parts ADR-0064）：工厂对象用清单里的公司
         c = plant.company()
         B.obj(mode, "Plant", "wqr", {"name": c["name"], "mode": mode})
     B.obj(mode, "Product", "WQR-105", {"name": "二级圆柱齿轮减速器", "price": F.FG_SELLING_PRICE, "rated_torque_nm": 350.0})
@@ -115,6 +115,13 @@ def tables(B, db, mode):
     anomalies(B, db, mode)
     plans(B, db, mode)
     agent_objs(B, db, mode)
+    service_objs(B, db, mode)
+    ehs_objs(B, db, mode)
+    maint_objs(B, db, mode)
+    people_objs(B, db, mode)
+    supply_objs(B, db, mode)
+    energy_objs(B, db, mode)
+    finance_objs(B, db, mode)
     try:
         for r in db.q("select id, unit, created_by, summary, alarms, status from plc_run where mode=%s", (mode,)):
             sm = r["summary"] or {}
@@ -220,6 +227,239 @@ def agent_objs(B, db, mode):
                 B.link(mode, "Retro", key, "action", "ACT-{:05d}".format(r["action_id"]))
 
 
+def service_objs(B, db, mode):
+    """客户与服务（第 18 轮 E1）：投诉、服务工程师、服务工单的派工、回访与满意度、保修"""
+    if not db.one("select to_regclass('complaint') is not null as ok")["ok"]:
+        return
+    from hub import service as SV
+    for r in db.q("select * from complaint where mode=%s and created_at > now() - interval '180 days'", (mode,)):
+        key = "CP-{:05d}".format(r["id"])
+        B.obj(mode, "Complaint", key, {"subject": r["subject"], "severity": SV.SEVERITY.get(r["severity"]), "status": SV.STATUS.get(r["status"]),
+                                       "date": _ts(r["created_at"])[:10] if r["created_at"] else None, "channel": r["channel"], "issue": r["issue"]},
+              ts=_ts(r["created_at"]), upd_ts=_now(), text="登记：" + r["subject"])
+        if r["customer"]:
+            B.obj(mode, "Customer", r["customer"], {"name": r["customer"]})
+            B.link(mode, "Complaint", key, "customer", r["customer"])
+        if r["serial"]:
+            B.link(mode, "Complaint", key, "field_unit", r["serial"])
+    for e in db.q("select * from engineer where mode=%s", (mode,)):
+        B.obj(mode, "ServiceEngineer", e["id"], {"name": e["name"], "region": e["region"]})
+    for j in db.q("select * from service_job where mode=%s and created_at > now() - interval '180 days'", (mode,)):
+        if j["issue"]:
+            B.obj(mode, "ServiceOrder", j["issue"], {"engineer": j["engineer"], "visit_day": str(j["day"]) if j["day"] else None,
+                                                     "action": SV.kind_label(j["kind"]), "opened": _ts(j["created_at"])[:10]})
+            if j["engineer"]:
+                B.link(mode, "ServiceOrder", j["issue"], "engineer", j["engineer"])
+            B.link(mode, "ServiceOrder", j["issue"], "unit", j["serial"])
+    for f in db.q("select * from follow_up where mode=%s and created_at > now() - interval '180 days'", (mode,)):
+        key = "FU-{:05d}".format(f["id"])
+        B.obj(mode, "FollowUp", key, {"score": float(f["score"]) if f["score"] is not None else None, "due": str(f["due_day"]) if f["due_day"] else None},
+              ts=_ts(f["created_at"]), upd_ts=_now(), text="回访")
+        j = db.one("select issue from service_job where id=%s", (f["job_id"],)) if f["job_id"] else None
+        if j and j["issue"]:
+            B.link(mode, "FollowUp", key, "order", j["issue"])
+        if f["score"] is not None:
+            sk = "SV-{:05d}".format(f["id"])
+            B.obj(mode, "SatisfactionSurvey", sk, {"score": float(f["score"]), "date": _ts(f["done_at"])[:10] if f["done_at"] else None,
+                                                   "comment": f["comment"]}, ts=_ts(f["done_at"]), upd_ts=_now(), text="打分")
+            if f["customer"]:
+                B.link(mode, "SatisfactionSurvey", sk, "customer", f["customer"])
+            if j and j["issue"]:
+                B.link(mode, "SatisfactionSurvey", sk, "job", j["issue"])
+    try:
+        for s_, u in SV.units(db, mode).items():
+            B.obj(mode, "Warranty", s_, {"until": u["warranty_until"], "in_warranty": u["in_warranty"]})
+            B.link(mode, "Warranty", s_, "unit", s_)
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def ehs_objs(B, db, mode):
+    """安全环保（第 18 轮 E2）：危险源、隐患、作业许可、事故（3 级敏感）、员工与培训、化学品、废弃物"""
+    if not db.one("select to_regclass('safety_issue') is not null as ok")["ok"]:
+        return
+    from hub import ehs as EH
+    for h in db.q("select * from hazard where mode=%s", (mode,)):
+        rk = EH.risk(h["likelihood"], h["severity"])
+        B.obj(mode, "Hazard", h["id"], {"name": h["name"], "level": rk["level"], "area": h["area"], "score": rk["score"], "controls": h["controls"]})
+        if h["unit"] in UNITS:
+            B.link(mode, "Hazard", h["id"], "machine", h["unit"])
+    for r in db.q("select * from safety_issue where mode=%s and found_at > now() - interval '365 days'", (mode,)):
+        k = "SI-{:05d}".format(r["id"])
+        B.obj(mode, "SafetyIssue", k, {"subject": r["subject"], "level": EH.LEVEL[r["level"]], "status": EH.STATUS[r["status"]],
+                                        "due": str(r["due_day"]) if r["due_day"] else None, "owner": r["owner"], "found_by": r["found_by"]},
+              ts=_ts(r["found_at"]), upd_ts=_now(), text="随手拍：" + r["subject"])
+        if r["unit"] in UNITS:
+            B.link(mode, "SafetyIssue", k, "machine", r["unit"])
+        if r["hazard_id"]:
+            B.link(mode, "SafetyIssue", k, "hazard", r["hazard_id"])
+        if r["permit_id"]:
+            B.link(mode, "SafetyIssue", k, "lockout", "PTW-{:05d}".format(r["permit_id"]))
+    for p in db.q("select * from ehs_person where mode=%s", (mode,)):
+        B.obj(mode, "Employee", p["id"], {"name": p["name"], "status": "在岗" if p["active"] else "离岗", "post": p["post"], "team": p["team"]})
+    for t in EH.trainings(db, mode):
+        k = "{}:{}".format(t["person_id"], t["kind"])
+        B.obj(mode, "SafetyTraining", k, {"topic": t["label"], "date": t["done_day"], "valid_months": EH.TRAININGS.get(t["kind"], ("", 0))[1],
+                                          "valid_until": t["valid_until"]})
+        B.link(mode, "SafetyTraining", k, "employee", t["person_id"])
+    for r in db.q("select * from work_permit where mode=%s and created_at > now() - interval '180 days'", (mode,)):
+        k = "PTW-{:05d}".format(r["id"])
+        B.obj(mode, "WorkPermit", k, {"kind": EH.PERMITS[r["kind"]], "status": EH.PERMIT_STATUS[r["status"]], "valid_from": _ts(r["valid_from"]) if r["valid_from"] else None,
+                                      "valid_to": _ts(r["valid_to"]) if r["valid_to"] else None}, ts=_ts(r["created_at"]), upd_ts=_now(), text="作业许可")
+        if r["unit"] in UNITS:
+            B.link(mode, "WorkPermit", k, "machine", r["unit"])
+        if r["holder_id"]:
+            B.link(mode, "WorkPermit", k, "holder", r["holder_id"])
+    for r in db.q("select * from incident where mode=%s and day > now() - interval '365 days'", (mode,)):
+        k = "IN-{:05d}".format(r["id"])
+        B.obj(mode, "Incident", k, {"kind": EH.INCIDENT_KINDS.get(r["kind"]), "severity": r["severity"], "date": str(r["day"]), "root_cause": r["root_cause"]})
+        if r["unit"] in UNITS:
+            B.link(mode, "Incident", k, "machine", r["unit"])
+    for r in db.q("select * from chemical where mode=%s", (mode,)):
+        B.obj(mode, "Chemical", r["code"], {"name": r["name"], "stock_kg": float(r["stock_kg"]), "sds": r["sds"]})
+    for r in db.q("select * from waste where mode=%s and produced_day > now() - interval '365 days'", (mode,)):
+        B.obj(mode, "Waste", "W-{:05d}".format(r["id"]), {"kind": EH.WASTES.get(r["kind"], (r["kind"],))[0], "qty_kg": float(r["qty_kg"]),
+                                                          "disposed_by": r["disposed_by"]})
+
+
+def maint_objs(B, db, mode):
+    """设备维护（第 18 轮 E3）：点检、故障记录、平台维修单、备件、保养计划的运行小时"""
+    if not db.one("select to_regclass('maint_repair') is not null as ok")["ok"]:
+        return
+    from hub import maint as MT
+    for r in db.q("select * from maint_inspection where mode=%s and at > now() - interval '90 days'", (mode,)):
+        k = "IC-{:05d}".format(r["id"])
+        B.obj(mode, "Inspection", k, {"result": "异常：" + "、".join(x["item"] for x in r["abnormal"]) if r["abnormal"] else "正常",
+                                      "at": _ts(r["at"]), "by": r["by_name"]}, ts=_ts(r["at"]), upd_ts=_now(), text="点检")
+        B.link(mode, "Inspection", k, "machine", r["unit"])
+    for r in db.q("select * from maint_failure where mode=%s and at > now() - interval '365 days'", (mode,)):
+        k = "FL-{:05d}".format(r["id"])
+        B.obj(mode, "FailureRecord", k, {"mode": r["name"], "cause": r["code"], "down_min": float(r["down_min"] or 0),
+                                         "run_h": float(r["run_h"]) if r["run_h"] is not None else None}, ts=_ts(r["at"]), upd_ts=_now(), text="故障")
+        B.link(mode, "FailureRecord", k, "machine", r["unit"])
+    for r in db.q("select * from maint_repair where mode=%s and created_at > now() - interval '365 days'", (mode,)):
+        k = "MR-{:05d}".format(r["id"])
+        B.obj(mode, "RepairOrder", k, {"status": MT.STATUS.get(r["status"]), "description": r["title"],
+                                       "cost": sum((r["cost"] or {}).values()) if r["cost"] else None}, ts=_ts(r["created_at"]), upd_ts=_now(), text="维修单")
+        B.link(mode, "RepairOrder", k, "machine", r["unit"])
+    for code, lo in MT.SPARE_MIN.items():
+        B.obj(mode, "SparePart", code, {"stock": MT.stock_of(db, mode, code), "min_stock": lo})
+        B.link(mode, "SparePart", code, "item", code)
+
+
+def supply_objs(B, db, mode):
+    """供应链（第 18 轮 E5）：批次、来料检验、供应商评价"""
+    if not db.one("select to_regclass('lot') is not null as ok")["ok"]:
+        return
+    from hub import supply as SP
+    for x in db.q("select * from lot where mode=%s and lot is not null and ordered_at > now() - interval '180 days'", (mode,)):
+        n = db.one("select count(distinct part_serial) as n from batch_use where mode=%s and lot=%s", (mode, x["lot"]))["n"]
+        B.obj(mode, "Batch", x["lot"], {"qty": float(x["qty"]), "qty_left": float(x["qty_left"] or 0), "status": SP.STATUS.get(x["status"]),
+                                        "po": x["po"], "parts": n}, ts=_ts(x["ordered_at"]), upd_ts=_now(), text="批次")
+        B.link(mode, "Batch", x["lot"], "item", x["item"])
+        B.link(mode, "Batch", x["lot"], "supplier", x["supplier"])
+        ins = x["inspection"] or {}
+        if ins:
+            k = "IQ-{}".format(x["lot"])
+            B.obj(mode, "IncomingInspection", k, {"result": "合格" if ins.get("status") == "Accepted" else "不合格"}, ts=_ts(x["ordered_at"]), upd_ts=_now(),
+                  text="来料检验")
+    for s_ in SP.scorecard(db, mode):
+        k = "{}-30d".format(s_["supplier"])
+        B.obj(mode, "SupplierRating", k, {"on_time": round(s_["on_time"] * 100, 1) if s_["on_time"] is not None else None,
+                                          "quality": round(s_["pass_rate"] * 100, 1) if s_["pass_rate"] is not None else None,
+                                          "price_index": s_["price_index"], "role": "默认" if s_["role"] == "default" else "备选"})
+        B.link(mode, "SupplierRating", k, "supplier", s_["supplier"])
+        B.obj(mode, "Supplier", s_["supplier"], {"name": s_["supplier"], "lead_days": s_["lead_days"], "category": s_["cat_name"]})
+
+
+def finance_objs(B, db, mode):
+    """经营与财务（第 18 轮 E7）：应收、应付（ERPNext 发票）、经营目标、本月预算"""
+    if not db.one("select to_regclass('invoice') is not null as ok")["ok"]:
+        return
+    from hub import finance as FN
+    for x in db.q("select * from invoice where mode=%s and doc is not null and issued_at > now() - interval '365 days'", (mode,)):
+        t = "Receivable" if x["kind"] == "ar" else "Payable"
+        props = {"amount": x["amount"], "due": x["due_at"].date().isoformat(), "status": FN.STATUS.get(x["status"]), "outstanding": x["outstanding"]}
+        if x["kind"] == "ar":
+            props["overdue_days"] = round(FN.overdue_days(mode, x), 1) if x["status"] == "open" else 0
+        B.obj(mode, t, x["doc"], props)
+        if x["kind"] == "ar":
+            if x["ref"] and x["ref"] != "期初":
+                B.link(mode, t, x["doc"], "sales_order", x["ref"])
+            B.link(mode, t, x["doc"], "customer", x["party"])
+        else:
+            B.link(mode, t, x["doc"], "supplier", x["party"])
+    for o in FN.objectives(db, mode):
+        B.obj(mode, "Objective", o["code"], {"name": o["name"], "period": "本年", "owner": o["owner"], "target": o["target"], "value": o["value"],
+                                              "status": {"good": "达标", "warn": "接近", "bad": "偏离", "mute": "没有数"}[o["tone"]]})
+    bv = FN.budget_view(db, mode)
+    for x in bv["rows"]:
+        B.obj(mode, "Budget", "{}/{}".format(bv["month"], x["center"]), {"name": x["name"], "amount": x["budget"], "actual": x["actual"]})
+
+
+def energy_objs(B, db, mode):
+    """能源与环境（第 18 轮 E6）：计量点、近 7 天每天每个计量点的用量、本月碳核算"""
+    if not db.one("select to_regclass('energy_read') is not null as ok")["ok"]:
+        return
+    from hub import energy as EN
+    from hub import kpi
+    if not db.one("select 1 as x from energy_read where mode=%s limit 1", (mode,)):
+        return
+    for m in EN.meters(db, mode):
+        B.obj(mode, "Meter", m["code"], {"medium": m["medium"], "unit": m["unit"], "name": m["label"]})
+        if m["machine"]:
+            B.link(mode, "Meter", m["code"], "machine", m["machine"])
+    end = EN._end(db, mode)
+    for r in db.q("select meter, (ts at time zone %s)::date as d, sum(value) as v from energy_read where mode=%s and ts >= %s "
+                  "group by 1, 2", (str(kpi.TZ), mode, end - dt.timedelta(days=7))):
+        k = "{}/{}".format(r["meter"], r["d"])
+        B.obj(mode, "EnergyUse", k, {"value": round(float(r["v"]), 3)})
+        B.link(mode, "EnergyUse", k, "meter", r["meter"])
+    c = EN.carbon(db, mode)
+    B.obj(mode, "CarbonAccount", c["month"], {"t_co2e": c["t_co2e"]})
+
+
+def people_objs(B, db, mode):
+    """人员与组织（第 18 轮 E4）：部门、岗位、员工（补部门、班次）、技能资质、今明两天的排班、技能培训"""
+    if not db.one("select to_regclass('roster_post') is not null as ok")["ok"]:
+        return
+    from hub import people as PE
+    erp = {str(m["data"].get("employee_number") or ""): m["data"].get("name") for m in db.erp_docs("Employee", mode)}
+    for d, en in PE.DEPTS:
+        B.obj(mode, "Department", d, {"name": d})
+    for k in PE.POSTS:
+        B.obj(mode, "Position", k, {"name": k})
+    for p in db.q("select * from ehs_person where mode=%s", (mode,)):
+        B.obj(mode, "Employee", p["id"], {"name": p["name"], "status": "在岗" if p["active"] else "离岗", "post": p["post"], "team": p["team"],
+                                         "dept": p.get("dept"), "shift": PE.SHIFT_NAME.get(p.get("shift")), "erp_id": erp.get(p["id"])})
+        if p.get("dept"):
+            B.link(mode, "Employee", p["id"], "department", p["dept"])
+        B.link(mode, "Employee", p["id"], "position", p["post"])
+    for r in db.q("select * from skill where mode=%s", (mode,)):
+        k = "{}/{}".format(r["emp_id"], r["unit"])
+        B.obj(mode, "Qualification", k, {"employee": r["emp_id"], "name": "{} {}".format(r["unit"].upper(), PE.LEVELS.get(r["level"], r["level"])),
+                                          "level": r["level"], "valid_until": str(r["valid_until"]) if r["valid_until"] else None})
+        B.link(mode, "Qualification", k, "employee", r["emp_id"])
+        if r["unit"] in UNITS:
+            B.link(mode, "Qualification", k, "machine", r["unit"])
+    d0, _ = PE.now_shift(None, db, mode)
+    for d in (d0, d0 + dt.timedelta(days=1)):
+        for sh in ("day", "night"):
+            for u, r in PE.roster_for(db, mode, d, sh).items():
+                if not r["emp_id"]:
+                    continue
+                k = "{}/{}/{}".format(d.isoformat(), PE.SHIFT_NAME[sh], r["emp_id"])
+                ab = PE.absences(db, mode, d, sh).get(r["emp_id"])
+                B.obj(mode, "Roster", k, {"shift": PE.SHIFT_NAME[sh], "attended": not (ab and ab["status"] in ("leave", "absent")),
+                                          "unit": u, "source": r["source"]})
+                B.link(mode, "Roster", k, "employee", r["emp_id"])
+                B.link(mode, "Roster", k, "machine", u)
+    for t in PE.trainings(db, mode):
+        B.obj(mode, "TrainingRecord", t["key"], {"date": t["started_at"][:10], "passed": t["status"] == "passed",
+                                                 "topic": "{} 带教 {:g} 小时".format(t["unit"].upper(), float(t["hours"]))})
+        B.link(mode, "TrainingRecord", t["key"], "employee", t["emp_id"])
+
+
 def twin(B, db, mode):
     from hub import twin as TW
     try:
@@ -246,8 +486,14 @@ def twin(B, db, mode):
         B.link(mode, "PartSerial", s, "became", s)
         sh = (ab.get("shaft") or {}).get("serial")
         if sh:
-            B.obj(mode, "PartSerial", sh, {"item": "SH-301", "work_order": (ab.get("shaft") or {}).get("work_order")})
+            sb = TW.seed_batch(s) if (ab.get("shaft") or {}).get("how") == "情景数据" else None
+            B.obj(mode, "PartSerial", sh, {"item": "SH-301", "work_order": sb[1] if sb else (ab.get("shaft") or {}).get("work_order")})
             B.link(mode, "PartSerial", sh, "installed_in", s)
+            if sb:                 # 情景设备：出厂前的磨削记录（同批的轴同一片砂轮，第 18 轮 E1）
+                op = "{}/5".format(sb[1])
+                B.obj(mode, "OperationTask", op, {"work_order": sb[1], "op_index": 5, "operation": "磨外圆 Cylindrical grinding"})
+                B.link(mode, "PartSerial", sh, "processed", op, {"machine": "grd-01", "tool": sb[0], "operation": "磨外圆 Cylindrical grinding",
+                                                                  "tool_life_pct": sb[2], "seed": True})
     for e in db.q("select id, serial, ts, day, title, status, detail from twin_event where mode=%s and kind='order'", (mode,)):
         key = (e["detail"] or {}).get("issue") or "TW-{}".format(e["id"])
         B.obj(mode, "ServiceOrder", key, {"subject": e["title"], "status": e["status"], "action": (e["detail"] or {}).get("action"),

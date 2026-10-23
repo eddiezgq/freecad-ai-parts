@@ -3,7 +3,7 @@
     <TaskBar v-if="teachStatus" :t="teachStatus" />
     <div class="page-title"><h1>车间终端</h1><span class="muted">操作工工作区 · 选你的工位，开工、暂停、复位；数据实时来自统一数据总线</span></div>
     <BusNotice />
-    <div class="tabs" role="tablist" data-help="op-units">
+    <div class="tabs" data-help="op-units" role="tablist">
       <button v-for="m in machines" :key="m.unit" role="tab" :aria-selected="unit === m.unit" :class="{ on: unit === m.unit }"
         @click="pick(m.unit)">
         <i :style="{ background: STATE[m.state].color }"></i>{{ m.code }}
@@ -17,7 +17,7 @@
           <span class="state" :style="{ color: STATE[cur.state].color, background: STATE[cur.state].bg }">{{ STATE[cur.state].label }}</span>
         </div>
         <div v-if="['down', 'fault'].includes(cur.state)" class="downbox">
-          <b>{{ cur.reason || '停机' }}</b>：已停 {{ Math.round((cur.down_for_s || 0) / 60) }} 分钟，预计还要 {{ Math.round((cur.down_until_s || 0) / 60) }} 分钟（仿真时间），排队 {{ cur.queue }} 件。
+          <b>{{ cur.locked ? '🔒 ' : '' }}{{ cur.reason || '停机' }}</b>：已停 {{ Math.round((cur.down_for_s || 0) / 60) }} 分钟，预计还要 {{ Math.round((cur.down_until_s || 0) / 60) }} 分钟（工厂时间），排队 {{ cur.queue }} 件。
           <button class="btn danger" @click="cmd('reset')">处理完毕，复位</button>
         </div>
         <div class="now" data-help="op-now">
