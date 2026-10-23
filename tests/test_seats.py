@@ -124,7 +124,7 @@ def test_activation_code_roundtrip(tmp_path, monkeypatch):
     assert issue.main(["sign", "--key-id", "t", "--licensee", "小厂", "--expires", "2099-12-31", "--kind", "node",
                        "--features", "parts-subscription", "--activation", code, "--out", str(out)]) == 0
     doc = json.loads(out.read_text(encoding="utf-8"))
-    assert verify(doc, {"t": pub}, dt.date(2026, 10, 9), node=me).valid
+    assert verify(doc, {"t": pub}, dt.date.today(), node=me).valid
     assert issue.main(["sign", "--key-id", "t", "--licensee", "小厂", "--expires", "2099-12-31", "--kind", "node",
                        "--features", "x", "--activation", bad, "--out", str(out)]) == 2
 
