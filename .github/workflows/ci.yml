@@ -265,8 +265,10 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y --no-install-recommends calculix-ccx libglu1-mesa libxcursor1 libxft2 libxinerama1 libgomp1
           pip install -q -e ".[mbd,fea]"
-          python -m examples.apps.lockstitch --quick --no-cfd --hub http://localhost:8100
-          python -m examples.apps.factory_flow --hub http://localhost:8100 --erp http://localhost:8091 --products LOCKSTITCH-DD --speed 240
+          set -o pipefail
+          { python -m examples.apps.lockstitch --quick --no-cfd --hub http://localhost:8100 &&
+            python -m examples.apps.factory_flow --hub http://localhost:8100 --erp http://localhost:8091 --products LOCKSTITCH-DD --speed 240; } 2>&1 \
+            | tee "$RUNNER_TEMP/apps.log"
       - name: 录教学版帮助视频（ADR-0065）：脚本在演示工厂里操作并录下，字幕叠在画面上
         run: |
           pip install -q playwright==1.55.0 && python -m playwright install --with-deps chromium >/dev/null
@@ -291,7 +293,10 @@ jobs:
         run: '[ ! -f "$RUNNER_TEMP/videos.log" ] || python3 factory/deploy/ci_annotate.py 录视频 "$RUNNER_TEMP/videos.log" 60'
       - name: 失败时的日志
         if: failure()
-        run: cd factory/digital && docker compose --profile mock ps && docker compose --profile mock logs --no-color --tail 80
+        run: |
+          [ ! -f "$RUNNER_TEMP/apps.log" ] || python3 factory/deploy/ci_annotate.py 演练输出 "$RUNNER_TEMP/apps.log" 80
+          cd factory/digital && docker compose --profile mock ps && docker compose --profile mock logs --no-color --tail 80 2>&1 | tee "$RUNNER_TEMP/svc.log"
+          python3 ../deploy/ci_annotate.py 服务日志 "$RUNNER_TEMP/svc.log" 120
       - name: 停止
         if: always()
         run: factory/local/stop.sh --reset
