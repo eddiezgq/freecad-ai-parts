@@ -41,6 +41,8 @@ def mount(app, H, A):
     from factory import data as F
     from hub import cad_link, fap_library, products
 
+    cad_link.register_bus()
+
     enterprise = A.AUTH == "enterprise"
     orig_user_of = A.user_of
 
