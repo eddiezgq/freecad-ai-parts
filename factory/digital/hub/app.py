@@ -61,8 +61,9 @@ AUTH = os.environ.get("WQ_AUTH", "local")
 # 版本（第 30 轮 H-5）：local = 学校机房的本地版（factory/local/start.sh 设）；server = 线上服务器或开发机
 EDITION = os.environ.get("WQ_EDITION", "server")
 # 本地版填名字登录时：学生只能选学生岗位；当老师（厂长、生产模式、教师控制台）要输老师密码（.env 的 WQ_TEACHER_PASSWORD）。
-# 不是本地版时照旧：填名字的人都按老师（开发机、CI 演练）
-LOCAL_ROLES = AUTH == "local" and EDITION == "local"
+# 不是本地版时照旧：填名字的人都按老师（开发机、CI 演练）。
+# WQ_LOCAL_ROLES=0：本地版也不分老师学生（freecad-ai-parts 的本地版给企业工程师自己的电脑用，factory/SYNC.md 里各自实现的 local/ 设）
+LOCAL_ROLES = AUTH == "local" and EDITION == "local" and os.environ.get("WQ_LOCAL_ROLES", "1") != "0"
 TEACHER_PASSWORD = os.environ.get("WQ_TEACHER_PASSWORD", "")
 SSO_URL = os.environ.get("WQ_SSO_URL", "")          # 学习平台核对登录的接口，如 https://learn.<域名>/api/v1/auth/sso
 LOGIN_URL = os.environ.get("WQ_LOGIN_URL", "")      # 学习平台登录页，如 https://learn.<域名>/pages/login/login
