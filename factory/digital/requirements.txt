@@ -18,6 +18,7 @@ python-docx==1.2.0
 pyyaml>=6.0
 mujoco==3.14.0
 pypdf==6.19.0
+cryptography>=42          # freecad-ai-parts 浮动席位的授权文件签名校验（那边 ADR-0066；共有的依赖表两边一样）
 openpyxl==3.1.5           # 工厂清单的 Excel 模板与导入（第 30 轮，那边 ADR-0064）
 segno==1.6.6             # 设备点检二维码（第 18 轮 E3，BSD）
 markdown==3.10.2         # 帮助在网页里读（第 19 轮，BSD）
