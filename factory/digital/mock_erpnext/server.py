@@ -141,6 +141,8 @@ class Mock:
         for r in ("Maintenance Manager", "Maintenance User", "System Manager"):
             self.put("Role", {"name": r})
         self.put("Item Group", {"name": "Products", "is_group": 0})
+        for g in F.ITEM_GROUPS:                          # 导入脚本在真 ERPNext 里建的物料组（新物料按它们挂：freecad-ai-parts 的新产品）
+            self.put("Item Group", {"name": g, "is_group": 0})
         self.put("UOM", {"name": "Nos"})
         for u in ("Kg", "Litre"):
             self.put("UOM", {"name": u})
