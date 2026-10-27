@@ -35,6 +35,20 @@ def _answer_values(answer: dict) -> dict:
     return out
 
 
+def _close(got, want) -> bool:
+    """数值按相对误差 1e-3 比，其余（文字、端口元组等）逐项相等；字典、列表逐层比。
+    pytest 9.2 起 approx 不再接受文字和嵌套结构，所以自己逐层展开（判据与原来相同）。"""
+    if isinstance(want, bool) or isinstance(got, bool):
+        return got == want
+    if isinstance(want, (int, float)) and isinstance(got, (int, float)):
+        return got == pytest.approx(want, rel=1e-3)
+    if isinstance(want, dict) and isinstance(got, dict):
+        return got.keys() == want.keys() and all(_close(got[k], want[k]) for k in want)
+    if isinstance(want, list) and isinstance(got, list):
+        return len(got) == len(want) and all(_close(a, b) for a, b in zip(got, want))
+    return got == want
+
+
 def _norm(comp: dict) -> dict:
     """组件的可比内容：值、端口类型与坐标系、包络尺寸（忽略来源与推导依据的写法）。"""
     out = {}
@@ -205,7 +219,7 @@ def test_end_to_end(db, results, category):
     got, want = _norm(comp), _norm(answer["component"])
     assert got.keys() == want.keys()
     for k in want:
-        assert got[k] == pytest.approx(want[k], rel=1e-3) if not isinstance(want[k], tuple) else got[k] == want[k], k
+        assert _close(got[k], want[k]), (k, got[k], want[k])
     reviewed = {f"params/{k}": v["reviewed"] for k, v in comp["params"].items()}
     for t in key_targets & set(reviewed):
         assert reviewed[t] is True
