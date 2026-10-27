@@ -129,7 +129,8 @@ onMounted(load);
 <style scoped>
 .neworder { flex-grow: 1; min-width: 0; }
 .side { width: 340px; flex-shrink: 0; }
-.form { display: grid; grid-template-columns: 2fr 2fr 1fr 1.3fr auto; gap: 10px; align-items: end; }
+.form { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1.3fr) auto; gap: 10px; align-items: end; }
+.form select, .form input { width: 100%; min-width: 0; }   /* 产品名长时（多产品的厂）不把“算料”挤到右栏下面 */
 h3 { font-size: 14px; margin: 16px 0 8px; }
 tr.need td { background: #FFF8EC; }
 .warn { color: var(--warn-ink); }
