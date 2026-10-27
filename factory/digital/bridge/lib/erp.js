@@ -33,13 +33,36 @@ try {
 }
 
 // ERPNext 的日期时间：站点时区的 "YYYY-MM-DD HH:MM:SS"
+const TZ_FMT = new Intl.DateTimeFormat('en-CA', {
+  timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit',
+  second: '2-digit', hourCycle: 'h23',
+});
+// 某一时刻在工厂时区的“墙上时间”，按 UTC 毫秒数表示（即 时刻 + 时区偏移）
+function wallMs(ms) {
+  const p = Object.fromEntries(TZ_FMT.formatToParts(new Date(ms)).map((x) => [x.type, x.value]));
+  return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second);
+}
+// ERPNext 存的是不带时区的本地时间。夏令时结束那天（美东 11 月第一个周日）本地 1:00–2:00 会走两遍，
+// 两个不同时刻写成同一个本地时间，ERPNext 就判作业卡工时“重叠”（第 47 轮后 CI 发现：倍速仿真几十分钟就跨过这一天）。
+// 这里让本地时间始终往前走：回拨前后各一个偏移差的那段时间，线性压进那一段本地时间里（两小时记成一小时，前后衔接）。
+function erpWallMs(ms) {
+  const H = 2 * 3600e3;
+  const off = (t) => wallMs(t) - Math.floor(t / 1000) * 1000;
+  const o1 = off(ms - H);
+  const o2 = off(ms + H);
+  if (o2 >= o1) return wallMs(ms);             // 附近没有回拨（春季拨快只是跳过一小时，本来就单调）
+  let a = ms - H; let b = ms + H;              // 二分找回拨的时刻 T
+  while (b - a > 1000) {
+    const c = Math.floor((a + b) / 2);
+    if (off(c) === o1) a = c; else b = c;
+  }
+  const T = b; const D = o1 - o2;
+  if (Math.abs(ms - T) >= D) return wallMs(ms);
+  return T + o2 + (ms - (T - D)) / 2;
+}
 function erpDatetime(iso) {
-  const d = new Date(iso);
-  const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
-    timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit',
-    second: '2-digit', hourCycle: 'h23',
-  }).formatToParts(d).map((x) => [x.type, x.value]));
-  return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}:${p.second}`;
+  const w = new Date(Math.floor(erpWallMs(Date.parse(iso)) / 1000) * 1000).toISOString();
+  return `${w.slice(0, 10)} ${w.slice(11, 19)}`;
 }
 const erpDate = (iso) => erpDatetime(iso).slice(0, 10);
 
