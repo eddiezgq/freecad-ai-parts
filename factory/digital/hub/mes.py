@@ -9,6 +9,7 @@ from wqbus.topics import topic, unit_topic
 class MES:
     def __init__(self, db, publish):
         self.db, self.publish = db, publish
+        self._rr = {}             # 按清单起的厂：同一道工序有几台设备时轮流派（第 47 轮：两个关节装配工位都用上）
 
     def work_order(self, name, mode):
         for w in self.db.erp_docs("Work Order", mode):
@@ -28,13 +29,23 @@ class MES:
         ops = process.active_routing(self.db, item=item, mode=mode) or routing_for(item)   # 生效的工艺规程优先（第 13 轮）
         sent = []
         for op, mins in ops:
-            unit = (units or {}).get(op) or OP_UNITS[op][0]
+            unit = (units or {}).get(op) or self._default_unit(op)
             self.publish(unit_topic(unit, "cmd"), "machine.cmd", "mes/" + user,
                          {"command": "dispatch", "work_order": name, "operation": op, "qty": int(float(wo["qty"])),
                           "item": item, "routing": [list(x) for x in ops], "std_min": mins,
                           "gcode_ref": self.gcode_ref(item, op), **self._more_programs(item, op)}, name, mode)
             sent.append({"operation": op, "unit": unit, "name": UNITS[unit][1]})
         return sent
+
+    def _default_unit(self, op):
+        """缺省派给第一台；按清单起的厂（不是演示工厂）几台轮流派。演示工厂不变（实验 7、15 的数据按第一台写的）"""
+        from factory import plant as PLANT
+        cands = OP_UNITS[op]
+        if PLANT.is_demo() or len(cands) < 2:
+            return cands[0]
+        k = self._rr.get(op, 0)
+        self._rr[op] = k + 1
+        return cands[k % len(cands)]
 
     def gcode_ref(self, item, op):
         """这道工序的数控程序：数控编程随工艺规程下发的（第 13 轮，按工序名找；一道工序两次装夹就有两个程序），

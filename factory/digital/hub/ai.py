@@ -252,12 +252,12 @@ class Assistant:
         if name == "work_order_cost":
             return mrp.wo_cost(self.db, args["work_order"], mode) or {"error": "该工单还没有加工记录"}
         if name == "plan_order":
-            return mrp.plan_order(self.db, args.get("customer") or F.CUSTOMERS[0], args.get("item", "WQR-105"),
+            return mrp.plan_order(self.db, args.get("customer") or F.CUSTOMERS[0], args.get("item") or next(iter(F.PRODUCTS)),
                                   int(args["qty"]), args["delivery_date"], mode)
         if name == "propose_order":
             if mode == "teach":
                 return {"error": "教学模式下 AI 不代做：请学生在计划员工作区自己录入订单"}
-            pv = mrp.plan_order(self.db, args.get("customer") or F.CUSTOMERS[0], args.get("item", "WQR-105"),
+            pv = mrp.plan_order(self.db, args.get("customer") or F.CUSTOMERS[0], args.get("item") or next(iter(F.PRODUCTS)),
                                 int(args["qty"]), args["delivery_date"], mode)
             pid = self.propose("create_order_and_plan", pv, mode, user, _order_title(pv))
             return {"proposal_id": pid, "status": "pending", "preview": pv}
@@ -319,13 +319,13 @@ class Assistant:
             due = dt.date(year, mon, day)
             cust = next((c for c in F.CUSTOMERS if any(k in q for k in _cust_keys(c))), F.CUSTOMERS[0])
             if teach:
-                pv = mrp.plan_order(self.db, cust, "WQR-105", qty, due.isoformat(), mode)
+                pv = mrp.plan_order(self.db, cust, next(iter(F.PRODUCTS)), qty, due.isoformat(), mode)
                 return {"answer": ("这是计划员的任务，我不替你录入。提示：① 在“计划员”工作区点“新建订单”；"
                                    "② 看算料结果里 SH-301 要几根、45 钢够不够——现在库存 {:g} kg，每根用 2.8 kg；"
                                    "③ 想想安全库存为什么也要算进去。").format(
                     next((r["stock"] for r in pv["mrp"] if r["item_code"] == "RM-45-D50"), 0)),
                     "proposals": [], "engine": "rules"}
-            pv = mrp.plan_order(self.db, cust, "WQR-105", qty, due.isoformat(), mode)
+            pv = mrp.plan_order(self.db, cust, next(iter(F.PRODUCTS)), qty, due.isoformat(), mode)
             pid = self.propose("create_order_and_plan", pv, mode, user, _order_title(pv))
             wo = pv["work_orders"][0] if pv["work_orders"] else None
             mr = "、".join("{} {:g}{}".format(x["item_code"], x["qty"], kpi.unit_label(x["uom"])) for x in pv["material_requests"])

@@ -1,6 +1,6 @@
 # 工厂清单（ADR-0064）。改完用 python -m factory.plant check 本文件 校验。
 # 字段说明见 docs/enterprise-onboarding.md。
-version: 1
+version: 2
 id: wenquest-gearbox
 demo_data: true
 company:
@@ -508,3 +508,559 @@ customers:
 - 示例·绿谷输送设备 GreenValley Conveyor (Demo)
 - 示例·峰顶搅拌机 Summit Mixer Works (Demo)
 - 示例·海港起重 Harbor Crane Systems (Demo)
+items:
+- code: RM-45-D50
+  name: 45钢圆棒 Ø50 Steel bar 1045 Ø50
+  kind: raw
+  uom: Kg
+  price: 1.6
+  supplier: steel
+  note: 中间轴、输出轴用料
+- code: RM-20CR-D60
+  name: 20CrMnTi圆钢 Ø60 Steel bar 20CrMnTi Ø60
+  kind: raw
+  uom: Kg
+  price: 2.4
+  supplier: steel
+  note: 输入齿轮轴用料，渗碳钢
+- code: RM-20CR-D70
+  name: 20CrMnTi圆钢 Ø70 Steel bar 20CrMnTi Ø70
+  kind: raw
+  uom: Kg
+  price: 2.4
+  supplier: steel
+  note: 第二级小齿轮用料
+- code: RM-40CR-F155
+  name: 40Cr锻坯 Ø155×32 Forging blank 40Cr
+  kind: raw
+  uom: Nos
+  price: 28.0
+  supplier: forgings
+  inspection: 进货检验-锻坯
+  note: 第一级大齿轮毛坯
+- code: RM-40CR-F225
+  name: 40Cr锻坯 Ø225×45 Forging blank 40Cr
+  kind: raw
+  uom: Nos
+  price: 62.0
+  supplier: forgings
+  inspection: 进货检验-锻坯
+  note: 第二级大齿轮毛坯
+- code: RM-HT200-BASE
+  name: 箱座铸件 HT200 Housing base casting
+  kind: raw
+  uom: Nos
+  price: 180.0
+  supplier: castings
+  inspection: 进货检验-铸件
+  note: 灰铸铁
+- code: RM-HT200-COVER
+  name: 箱盖铸件 HT200 Housing cover casting
+  kind: raw
+  uom: Nos
+  price: 120.0
+  supplier: castings
+  inspection: 进货检验-铸件
+  note: 灰铸铁
+- code: BRG-6205
+  name: 深沟球轴承 6205-2RS Ball bearing 25×52×15
+  kind: buy
+  uom: Nos
+  price: 5.2
+  supplier: bearings
+  inspection: 进货检验-轴承
+  note: 输入轴
+  library: A-BRG-DG/6205
+- code: BRG-6206
+  name: 深沟球轴承 6206-2RS Ball bearing 30×62×16
+  kind: buy
+  uom: Nos
+  price: 6.5
+  supplier: bearings
+  inspection: 进货检验-轴承
+  note: 中间轴
+  library: A-BRG-DG/6206
+- code: BRG-6207
+  name: 深沟球轴承 6207-2RS Ball bearing 35×72×17
+  kind: buy
+  uom: Nos
+  price: 8.0
+  supplier: bearings
+  inspection: 进货检验-轴承
+  note: 输出轴
+  library: A-BRG-DG/6207
+- code: SEAL-20
+  name: 骨架油封 20×35×7 Oil seal
+  kind: buy
+  uom: Nos
+  price: 1.8
+  supplier: hardware
+  note: 输入轴伸
+  library: A-SEL-LIP/20x35x7
+- code: SEAL-30
+  name: 骨架油封 30×47×7 Oil seal
+  kind: buy
+  uom: Nos
+  price: 2.2
+  supplier: hardware
+  note: 输出轴伸
+  library: A-SEL-LIP/30x47x7
+- code: KEY-6x6x25
+  name: 平键 6×6×25 Parallel key
+  kind: buy
+  uom: Nos
+  price: 0.2
+  supplier: hardware
+  note: 输入轴伸，GB/T 1096
+  library: A-KEY-FLAT/6x6x25
+- code: KEY-8x7x36
+  name: 平键 8×7×36 Parallel key
+  kind: buy
+  uom: Nos
+  price: 0.3
+  supplier: hardware
+  note: 输出轴伸
+  library: A-KEY-FLAT/8x7x36
+- code: KEY-10x8x28
+  name: 平键 10×8×28 Parallel key
+  kind: buy
+  uom: Nos
+  price: 0.4
+  supplier: hardware
+  note: 中间轴齿轮
+  library: A-KEY-FLAT/10x8x28
+- code: KEY-12x8x45
+  name: 平键 12×8×45 Parallel key
+  kind: buy
+  uom: Nos
+  price: 0.6
+  supplier: hardware
+  note: 输出轴齿轮
+  library: A-KEY-FLAT/12x8x45
+- code: CAP-52-T
+  name: 轴承透盖 Ø52 Through cap
+  kind: buy
+  uom: Nos
+  price: 7.5
+  supplier: hardware
+  note: 输入轴，带油封孔
+- code: CAP-52-B
+  name: 轴承闷盖 Ø52 Blind cap
+  kind: buy
+  uom: Nos
+  price: 6.0
+  supplier: hardware
+  note: 输入轴
+- code: CAP-62-B
+  name: 轴承闷盖 Ø62 Blind cap
+  kind: buy
+  uom: Nos
+  price: 6.5
+  supplier: hardware
+  note: 中间轴两端
+- code: CAP-72-T
+  name: 轴承透盖 Ø72 Through cap
+  kind: buy
+  uom: Nos
+  price: 9.0
+  supplier: hardware
+  note: 输出轴，带油封孔
+- code: CAP-72-B
+  name: 轴承闷盖 Ø72 Blind cap
+  kind: buy
+  uom: Nos
+  price: 7.5
+  supplier: hardware
+  note: 输出轴
+- code: BOLT-M12x110
+  name: 六角头螺栓 M12×110 Hex bolt 8.8
+  kind: buy
+  uom: Nos
+  price: 0.8
+  supplier: hardware
+  note: 箱体联接
+  library: A-BLT-HEX/M12x110
+- code: NUT-M12
+  name: 六角螺母 M12 Hex nut
+  kind: buy
+  uom: Nos
+  price: 0.1
+  supplier: hardware
+  library: A-NUT-HEX/M12
+- code: WASHER-12
+  name: 弹簧垫圈 12 Spring washer
+  kind: buy
+  uom: Nos
+  price: 0.05
+  supplier: hardware
+  library: A-WSH-SPR/12
+- code: BOLT-M8x25
+  name: 内六角螺钉 M8×25 Socket screw
+  kind: buy
+  uom: Nos
+  price: 0.12
+  supplier: hardware
+  note: 端盖紧固
+  library: A-SCR-SHC/M8x25
+- code: PIN-8x35
+  name: 圆锥销 8×35 Taper pin
+  kind: buy
+  uom: Nos
+  price: 0.3
+  supplier: hardware
+  note: 箱体定位
+  library: A-PIN-TAPER/8x35
+- code: PLUG-M16
+  name: 放油螺塞 M16×1.5 Drain plug
+  kind: buy
+  uom: Nos
+  price: 1.2
+  supplier: hardware
+  library: A-PLG-HEX/M16x1.5
+- code: VENT-M16
+  name: 通气器 M16×1.5 Breather
+  kind: buy
+  uom: Nos
+  price: 2.5
+  supplier: hardware
+- code: GAUGE-M12
+  name: 杆式油标 M12 Oil dipstick
+  kind: buy
+  uom: Nos
+  price: 3.0
+  supplier: hardware
+- code: OIL-CKC220
+  name: 工业齿轮油 L-CKC 220 Gear oil
+  kind: buy
+  uom: Litre
+  price: 6.0
+  supplier: lubricant
+- code: SEALANT
+  name: 平面密封胶 Flange sealant
+  kind: buy
+  uom: Kg
+  price: 60.0
+  supplier: lubricant
+  note: 箱体结合面
+- code: SH-101
+  name: 输入齿轮轴 m2 z24 Input pinion shaft
+  kind: make
+  uom: Nos
+  inspection: 零件检验-输入齿轮轴
+  note: 20CrMnTi 渗碳淬火
+- code: SH-201
+  name: 中间轴 Intermediate shaft
+  kind: make
+  uom: Nos
+  inspection: 零件检验-中间轴
+  note: 45钢 调质
+- code: SH-301
+  name: 输出轴 Output shaft
+  kind: make
+  uom: Nos
+  inspection: 零件检验-输出轴
+  note: 45钢 调质；即 FreeCAD 宏 wq_shaft.py 的默认轴
+- code: GR-202
+  name: 大齿轮 m2 z72 Gear
+  kind: make
+  uom: Nos
+  inspection: 零件检验-大齿轮z72
+  note: 40Cr 调质
+- code: GR-203
+  name: 小齿轮 m3 z20 Pinion
+  kind: make
+  uom: Nos
+  inspection: 零件检验-小齿轮z20
+  note: 20CrMnTi 渗碳淬火
+- code: GR-302
+  name: 大齿轮 m3 z70 Gear
+  kind: make
+  uom: Nos
+  inspection: 零件检验-大齿轮z70
+  note: 40Cr 调质
+- code: HSG-001
+  name: 箱座 Housing base
+  kind: make
+  uom: Nos
+- code: HSG-002
+  name: 箱盖 Housing cover
+  kind: make
+  uom: Nos
+- code: SA-000
+  name: 箱体组件（合镗） Housing assembly
+  kind: sub
+  uom: Nos
+  inspection: 零件检验-箱体
+  note: 箱座箱盖合箱后镗轴承孔
+- code: SA-100
+  name: 输入轴组件 Input shaft assembly
+  kind: sub
+  uom: Nos
+- code: SA-200
+  name: 中间轴组件 Intermediate shaft assembly
+  kind: sub
+  uom: Nos
+- code: SA-300
+  name: 输出轴组件 Output shaft assembly
+  kind: sub
+  uom: Nos
+- code: WQR-105
+  name: 二级圆柱齿轮减速器 i=10.5 Two-stage gear reducer
+  kind: fg
+  uom: Nos
+  inspection: 出厂检验-减速器
+  note: 输入 1450 r/min，输出约 138 r/min
+  library: C-RED-WQR105/default
+routings:
+- name: RT-轴 Shaft (45 steel)
+  steps:
+  - - 下料 Sawing
+    - 3
+  - - 粗车 Rough turning
+    - 18
+  - - 调质 Quench & temper
+    - 12
+  - - 精车 Finish turning
+    - 15
+  - - 铣键槽 Keyway milling
+    - 10
+  - - 磨外圆 Cylindrical grinding
+    - 12
+  - - 零件检验 Part inspection
+    - 6
+- name: RT-齿轮轴 Pinion shaft
+  steps:
+  - - 下料 Sawing
+    - 3
+  - - 粗车 Rough turning
+    - 20
+  - - 精车 Finish turning
+    - 15
+  - - 滚齿 Gear hobbing
+    - 25
+  - - 渗碳淬火 Carburizing
+    - 20
+  - - 磨外圆 Cylindrical grinding
+    - 15
+  - - 零件检验 Part inspection
+    - 8
+- name: RT-锻坯齿轮 Forged gear
+  steps:
+  - - 粗车 Rough turning
+    - 20
+  - - 调质 Quench & temper
+    - 15
+  - - 精车 Finish turning
+    - 18
+  - - 铣键槽 Keyway milling
+    - 12
+  - - 滚齿 Gear hobbing
+    - 35
+  - - 零件检验 Part inspection
+    - 8
+- name: RT-棒料齿轮 Bar-stock pinion
+  steps:
+  - - 下料 Sawing
+    - 3
+  - - 粗车 Rough turning
+    - 12
+  - - 精车 Finish turning
+    - 10
+  - - 铣键槽 Keyway milling
+    - 10
+  - - 滚齿 Gear hobbing
+    - 20
+  - - 渗碳淬火 Carburizing
+    - 15
+  - - 零件检验 Part inspection
+    - 6
+- name: RT-箱体零件 Housing part
+  steps:
+  - - 铣结合面 Face milling
+    - 25
+  - - 钻攻螺纹孔 Drilling & tapping
+    - 20
+  - - 零件检验 Part inspection
+    - 5
+- name: RT-箱体合镗 Housing line-boring
+  steps:
+  - - 合箱钻铰销孔 Pin-hole reaming
+    - 15
+  - - 镗轴承孔 Bearing-bore boring
+    - 45
+  - - 零件检验 Part inspection
+    - 20
+- name: RT-部件装配 Shaft sub-assembly
+  steps:
+  - - 部件装配 Sub-assembly
+    - 15
+  - - 零件检验 Part inspection
+    - 5
+- name: RT-总装 Final assembly
+  steps:
+  - - 总装 Final assembly
+    - 45
+  - - 跑合试验 Run-in test
+    - 30
+  - - 出厂检验 Final inspection
+    - 10
+  - - 清洗包装 Cleaning & packing
+    - 10
+boms:
+- item: SH-101
+  routing: RT-齿轮轴 Pinion shaft
+  components:
+  - - RM-20CR-D60
+    - 5.2
+- item: SH-201
+  routing: RT-轴 Shaft (45 steel)
+  components:
+  - - RM-45-D50
+    - 3.3
+- item: SH-301
+  routing: RT-轴 Shaft (45 steel)
+  components:
+  - - RM-45-D50
+    - 2.8
+- item: GR-202
+  routing: RT-锻坯齿轮 Forged gear
+  components:
+  - - RM-40CR-F155
+    - 1
+- item: GR-203
+  routing: RT-棒料齿轮 Bar-stock pinion
+  components:
+  - - RM-20CR-D70
+    - 1.8
+- item: GR-302
+  routing: RT-锻坯齿轮 Forged gear
+  components:
+  - - RM-40CR-F225
+    - 1
+- item: HSG-001
+  routing: RT-箱体零件 Housing part
+  components:
+  - - RM-HT200-BASE
+    - 1
+- item: HSG-002
+  routing: RT-箱体零件 Housing part
+  components:
+  - - RM-HT200-COVER
+    - 1
+- item: SA-000
+  routing: RT-箱体合镗 Housing line-boring
+  components:
+  - - HSG-001
+    - 1
+  - - HSG-002
+    - 1
+  - - PIN-8x35
+    - 2
+  - - BOLT-M12x110
+    - 6
+  - - NUT-M12
+    - 6
+  - - WASHER-12
+    - 6
+- item: SA-100
+  routing: RT-部件装配 Shaft sub-assembly
+  components:
+  - - SH-101
+    - 1
+  - - BRG-6205
+    - 2
+  - - KEY-6x6x25
+    - 1
+- item: SA-200
+  routing: RT-部件装配 Shaft sub-assembly
+  components:
+  - - SH-201
+    - 1
+  - - GR-202
+    - 1
+  - - GR-203
+    - 1
+  - - KEY-10x8x28
+    - 2
+  - - BRG-6206
+    - 2
+- item: SA-300
+  routing: RT-部件装配 Shaft sub-assembly
+  components:
+  - - SH-301
+    - 1
+  - - GR-302
+    - 1
+  - - KEY-12x8x45
+    - 1
+  - - KEY-8x7x36
+    - 1
+  - - BRG-6207
+    - 2
+- item: WQR-105
+  routing: RT-总装 Final assembly
+  components:
+  - - SA-000
+    - 1
+  - - SA-100
+    - 1
+  - - SA-200
+    - 1
+  - - SA-300
+    - 1
+  - - CAP-52-T
+    - 1
+  - - CAP-52-B
+    - 1
+  - - CAP-62-B
+    - 2
+  - - CAP-72-T
+    - 1
+  - - CAP-72-B
+    - 1
+  - - SEAL-20
+    - 1
+  - - SEAL-30
+    - 1
+  - - BOLT-M8x25
+    - 24
+  - - SEALANT
+    - 0.05
+  - - OIL-CKC220
+    - 2.5
+  - - PLUG-M16
+    - 1
+  - - VENT-M16
+    - 1
+  - - GAUGE-M12
+    - 1
+products:
+- item: WQR-105
+  price: 1650.0
+stock:
+  opening:
+    BOLT-M12x110: 60
+    NUT-M12: 60
+    WASHER-12: 60
+    BOLT-M8x25: 240
+    PIN-8x35: 20
+    KEY-6x6x25: 10
+    KEY-8x7x36: 10
+    KEY-10x8x28: 20
+    KEY-12x8x45: 10
+    PLUG-M16: 10
+    VENT-M16: 10
+    GAUGE-M12: 10
+    OIL-CKC220: 25
+    SEALANT: 0.5
+  safety:
+    BRG-6205: 10
+    BRG-6206: 10
+    BRG-6207: 10
+    SEAL-20: 10
+    SEAL-30: 10
+key_materials:
+- BRG-6207
+- RM-45-D50
+- RM-40CR-F225
+- OIL-CKC220

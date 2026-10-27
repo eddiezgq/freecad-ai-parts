@@ -122,6 +122,18 @@ def test_excel_template_round_trip(tmp_path):
     assert _approx(plant.export_demo(), X.import_workbook(str(x)))
 
 
+@pytest.mark.parametrize("name", ["wenquest-robot", "example-sewing"])
+def test_plant_yaml_excel_round_trip(tmp_path, name):
+    """第 45 轮：机器人厂、示例缝纫机厂的清单（含产品六张表）写成 Excel 再导入，逐项一致。"""
+    import yaml
+    sys.path[:0] = [FAC]
+    from factory import plant_xlsx as X
+    raw = yaml.safe_load(open(os.path.join(FAC, "plants", name + ".yaml"), encoding="utf-8"))
+    x = tmp_path / "t.xlsx"
+    X.write_template(str(x), raw)
+    assert _approx(raw, X.import_workbook(str(x)))
+
+
 def test_excel_errors_name_sheet_row_column(tmp_path):
     """填错的地方说清是哪张表第几行哪一列。"""
     from openpyxl import load_workbook
@@ -289,9 +301,10 @@ class O:
     def stock(self):
         return {{}}
 mrp.Overview = O
-pv = mrp.plan_order(None, "示例·华南服装设备经销", "SH-301", 2, "2026-11-30")
+pv = mrp.plan_order(None, "示例·华南服装设备经销", "SEW-DDL", 2, "2026-11-30")
 print(json.dumps({{"wos": [w["production_item"] for w in pv["work_orders"]], "std": pv["std_cost_sh301"],
-                  "company": pv["sales_order"]["company"]}}, ensure_ascii=False))
+                  "company": pv["sales_order"]["company"], "rate": pv["sales_order"]["rate"],
+                  "mr": sorted(m["item_code"] for m in pv["material_requests"])}}, ensure_ascii=False))
 """
 
 
@@ -303,6 +316,49 @@ def test_mrp_plans_an_enterprise_product():
     assert r.returncode == 0, r.stderr[-3000:]
     out = json.loads(r.stdout)
     assert out["std"] is None and out["company"] == "示例缝纫机厂", out
+    # 第 45 轮（清单第 2 版）：接的是清单里的成品，按清单的物料清单多层展开，下达全部自制件和成品本身，售价取清单
+    assert sorted(out["wos"]) == ["HSG-HEAD", "LS-101", "LS-102", "SEW-DDL"] and out["rate"] == 2800, out
+    assert {"BUY-MOTOR-DD", "RM-HT200-HEAD", "RM-45-D30"} <= set(out["mr"]), out     # 这里的库存快照是空的：外购件、原材料都要请购
+
+
+MEAS = r"""
+import json, sys
+sys.path[:0] = [{dig!r}, {fac!r}]
+import wqbus
+from sim.engine import Engine, OP_UNITS, routing_for
+out = []
+class Clock:
+    t = 0.0
+    def now(self):
+        return self.t
+clock = Clock()
+eng = Engine(lambda tp, ty, src, data, corr: out.append((tp, wqbus.make(ty, src, data, mode="teach", corr=corr))), clock,
+             mode="teach", auto_start=True, seed=3, status_every_s=1e9)
+ops = routing_for("LS-101")
+for op, _ in ops:
+    ok, why = eng.command(OP_UNITS[op][0], {{"command": "dispatch", "work_order": "WO-M", "operation": op, "qty": 4,
+                                            "item": "LS-101", "routing": ops}}, "WO-M")
+    assert ok, why
+while eng.q and clock.t < 3 * 86400:
+    clock.t = max(clock.t, eng.next_event_time())
+    eng.run_due()
+ms = [(t, m["data"]) for t, m in out if m["type"] == "quality.measurement"]
+print(json.dumps([{{"topic": t, "char": d["characteristic"], "unit": d["unit"], "v": d["value_mm"], "lo": d["lower_tol_mm"],
+                   "hi": d["upper_tol_mm"], "item": d["item"]}} for t, d in ms], ensure_ascii=False))
+"""
+
+
+def test_plant_measurements_are_synthesised():
+    """第 45 轮：清单里写的测量特性，在那道工序做完每一件时由仿真车间合成测量值（名义 + 散布），发 quality.measurement"""
+    env = dict(os.environ, WQ_PLANT_FILE=os.path.join(FAC, "plants", "example-sewing.yaml"))
+    r = subprocess.run([sys.executable, "-c", MEAS.format(dig=DIG, fac=FAC)], capture_output=True, text=True, env=env,
+                       cwd=DIG, timeout=300)
+    assert r.returncode == 0, r.stderr[-3000:]
+    ms = json.loads(r.stdout)
+    assert len(ms) == 8 and {m["char"] for m in ms} == {"ls_bearing_d12", "ls_runout"}, ms   # 4 件 × 2 项
+    assert all(m["item"] == "LS-101" and m["unit"] == "mm" and "/qc-1/measurement" in m["topic"] for m in ms), ms
+    d = [m["v"] for m in ms if m["char"] == "ls_bearing_d12"]
+    assert all(11.99 < v < 12.02 for v in d) and len(set(d)) > 1, d
 
 
 TEACH = r"""

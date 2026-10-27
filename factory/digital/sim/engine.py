@@ -876,11 +876,14 @@ class Engine:
         job.time_s += ct
         m.tool_life = max(0.0, m.tool_life - WEAR_PER_PART.get(unit, 0))
         corr = job.wo.corr
+        spec = _measure_spec(job.wo.item, job.op)     # 清单第 2 版的测量特性（第 45 轮：关节测试、整机标定……）
         if unit == "qc-01" and job.wo.item == "SH-301":
             p.result = self._measure(p, corr)
+        elif spec:
+            p.result = self._measure_chars(p, unit, job, spec, corr)
         if unit == "test-01":
             self._torque_log(p, job, corr)
-        good = p.result != "fail" if unit == "qc-01" else True
+        good = p.result != "fail" if (unit == "qc-01" or spec) else True
         if good:
             job.good += 1
         self.pub(unit_topic(unit, "event"), "machine.event", "sim/" + unit,
@@ -962,6 +965,31 @@ class Engine:
                       "characteristic": code, "name": name, "nominal_mm": nom,
                       "lower_tol_mm": lo, "upper_tol_mm": hi, "value_mm": v, "result": r,
                       "n_chars": len(vals), "factory_ts": self.factory_ts()}, corr)
+        return result
+
+    def _measure_chars(self, p, unit, job, spec, corr):
+        """清单里写的测量特性（第 45 轮）：名义值 + 慢漂移 + 正态散布 σ（σ 是清单里的示例值），逐项发 quality.measurement"""
+        from factory import data
+        result = "pass"
+        drift = self.__dict__.setdefault("_meas_drift", {})
+        tmpl = (data.ITEMS.get(job.wo.item) or (None,) * 6)[5]      # ERPNext 检验模板（桥接建检验单用）
+        st = getattr(p, "err", None) or {}
+        trace = {k: v for k, v in (("assembled_on", st.get("_ja")), ("lot", getattr(p, "hd_lot", None))) if v}   # 分层用（第 47 轮）
+        for c in spec:
+            key = (job.wo.item, c["code"])
+            d = drift.get(key, 0.0) * 0.95 + self.rng.gauss(0, c["sigma"] * 0.1)    # 均值慢慢游走、有回复（稳态约 0.3σ，第 47 轮从 0.75σ 调小）
+            drift[key] = d
+            v = round(c["nominal"] + d + self.rng.gauss(0, c["sigma"]) + self.errors.plant_offset(p, c["code"]), 4)
+            r = "pass" if c["lo"] <= v <= c["hi"] else "fail"
+            if r == "fail":
+                result = "fail"
+            self.pub(unit_topic(unit, "measurement"), "quality.measurement", "sim/" + unit,
+                     {"part_serial": p.serial, "item": job.wo.item, "work_order": job.wo.name, "operation": job.op,
+                      "characteristic": c["code"], "name": c["name"], "unit": c.get("unit") or "mm",
+                      "nominal_mm": c["nominal"], "lower_tol_mm": c["lo"], "upper_tol_mm": c["hi"], "value_mm": v, "result": r,
+                      "n_chars": len(spec), "factory_ts": self.factory_ts(),
+                      **({"template": tmpl, "spec": "{} ({})".format(c["name"], c.get("unit") or "mm")} if tmpl else {}),
+                      **trace}, corr)
         return result
 
     # ------------------------------------------------------------ 停机
@@ -1267,6 +1295,12 @@ def torque_record(serial, work_order, item):
             out.append(round(v, 1))
     return {"item": item, "part_serial": serial, "work_order": work_order, "rate_hz": rate, "samples_nm": out,
             "duration_s": len(out) / rate, "rated_nm": tr, "program": "工况模拟：带式输送机 启动—运行—停机 × 3"}
+
+
+def _measure_spec(item, op):
+    """某物料在某道工序上要测的特性（factory/data.py 的 MEASURE，来自清单第 2 版）；演示工厂没有"""
+    from factory import data
+    return data.MEASURE.get((item, op))
 
 
 def routing_for(item):

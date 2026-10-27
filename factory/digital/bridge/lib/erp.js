@@ -58,6 +58,7 @@ class ERP {
     this.mode = mode || process.env.WQ_MODE || 'teach';
     this.log = log || ((...a) => console.log('[bridge]', ...a));
     this.company = process.env.WQ_ERP_COMPANY || null;
+    this.qiOps = new Set();        // 工单|工序：这道工序有检验单（按测量特性建，第 45 轮）
     this.qiBuffer = new Map();     // 零件序列号 → 已收到的测量
     this.qiInFlight = 0;
     this.locks = new Map();        // 同一张作业卡的更新排队进行
@@ -193,9 +194,9 @@ class ERP {
             fg_warehouse: MAKE_WH[w.production_item] || (w.warehouse === 'fg' ? WH.fg : WH.semi),
             use_multi_level_bom: 0,
           });
-          if (w.sources) {     // 成品工单领料：自制件从半成品库，其余从原材料库（算料给出 sources）
+          if (w.sources) {     // 领料仓库按算料给出的 sources：semi 半成品库、purchased 外购件库、raw 原材料库（第 45 轮加外购件库）
             wo.required_items = (wo.required_items || []).map((r) => ({ ...r,
-              source_warehouse: w.sources[r.item_code] === 'semi' ? WH.semi : WH.raw }));
+              source_warehouse: WH[w.sources[r.item_code]] || WH.raw }));
           }
           const woDoc = await this.insert('Work Order', { ...wo, docstatus: 1 });
           out.push(this.doc('Work Order', woDoc, 'submitted', opt));
@@ -674,7 +675,9 @@ class ERP {
   async onOpComplete(m) {
     const d = m.data;
     const out = [];
-    if (d.operation === INSPECTION_OP) {
+    // 有检验单的工序（演示工厂的零件检验；清单里写了测量特性的工序，第 45 轮）
+    const gated = d.operation === INSPECTION_OP || this.qiOps.has(`${d.work_order}|${d.operation}`);
+    if (gated) {
       // 检验工序：先等这张工单的检验单都建好（在锁外等，建检验单也要用同一把锁）
       for (let i = 0; i < 160 && this.qiPending(d.work_order); i++) await new Promise((r) => setTimeout(r, 250));
     }
@@ -684,7 +687,7 @@ class ERP {
       const doc = await this.get('Job Card', name);
       if (doc.docstatus !== 0) return name;
       const patch = { docstatus: 1 };
-      if (d.operation === INSPECTION_OP) {
+      if (gated) {
         // 作业卡只能关联一张检验单；ERPNext 默认“检验单判不合格就不许提交”，所以关联最近一张合格的
         //（不合格的零件已在总线上走不合格品处置，完工入库只按合格数）
         const qi = await this.list('Quality Inspection', [['reference_type', '=', 'Job Card'], ['reference_name', '=', name],
@@ -729,6 +732,7 @@ class ERP {
   // ------------------------------------------------------------ 3. 测量值 → 质量检验单
   async onMeasurement(m) {
     const d = m.data;
+    if (d.template && d.operation) this.qiOps.add(`${d.work_order}|${d.operation}`);
     const buf = this.qiBuffer.get(d.part_serial) || [];
     buf.push(d);
     this.qiBuffer.set(d.part_serial, buf);
@@ -745,20 +749,23 @@ class ERP {
   async createQi(d, buf, m) {
     if (!d.work_order) return [];
     // 建检验单时 ERPNext 会回写检验工序的作业卡：与该作业卡的报工排队进行，避免数据库冲突（第 3 轮演练发现）
-    return this.withLock(`${d.work_order}|${INSPECTION_OP}`, () => this.createQi1(d, buf, m));
+    return this.withLock(`${d.work_order}|${d.operation || INSPECTION_OP}`, () => this.createQi1(d, buf, m));
   }
 
   async createQi1(d, buf, m) {
-    const jc = await this.jobCard(d.work_order, INSPECTION_OP);
+    // 演示工厂在“零件检验”工序测；清单第 2 版的工厂按测量特性写的工序（关节测试、整机标定…，第 45 轮）
+    const jc = await this.jobCard(d.work_order, d.template ? d.operation : INSPECTION_OP);
     if (!jc) return [];
+    const tmpl = QI_TEMPLATE[d.item] || d.template;
+    const spec = (x) => QI_PARAM[x.characteristic] || x.spec;
     const ok = buf.every((x) => x.result === 'pass');
     const doc = await this.insert('Quality Inspection', {
       report_date: erpDate(d.factory_ts || m.ts), inspection_type: 'In Process', reference_type: 'Job Card',
       reference_name: jc, item_code: d.item, sample_size: 1, inspected_by: 'Administrator',
-      status: ok ? 'Accepted' : 'Rejected', manual_inspection: 1, remarks: `零件 ${d.part_serial}（三坐标自动测量，经统一数据总线）`,
-      ...(QI_TEMPLATE[d.item] ? { quality_inspection_template: QI_TEMPLATE[d.item] } : {}),
-      readings: buf.filter((x) => QI_PARAM[x.characteristic]).map((x) => ({
-        specification: QI_PARAM[x.characteristic], numeric: 1, manual_inspection: 1,
+      status: ok ? 'Accepted' : 'Rejected', manual_inspection: 1, remarks: `零件 ${d.part_serial}（${d.template ? d.operation + '自动测量' : '三坐标自动测量'}，经统一数据总线）`,
+      ...(tmpl ? { quality_inspection_template: tmpl } : {}),
+      readings: buf.filter((x) => spec(x)).map((x) => ({
+        specification: spec(x), numeric: 1, manual_inspection: 1,
         min_value: x.lower_tol_mm, max_value: x.upper_tol_mm, reading_1: String(x.value_mm),
         status: x.result === 'pass' ? 'Accepted' : 'Rejected',
       })),

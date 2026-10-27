@@ -547,6 +547,44 @@ async def ent_ai(r):
     await r.cap("每次 AI 回答都记在这里：问了什么、查了哪些数据、用的哪家模型", 4000)
 
 
+# ---------------------------------------------------------------- 机器人厂（第 45 轮）：在按 wenquest-robot 清单起的厂里录
+async def robot_plant(r):
+    await r.go("/3d", 4000)
+    await r.title("机器人厂", "问渠数字工业园第二座厂：协作机器人、搬运 AGV、关节模组")
+    await r.cap("车间按工厂清单摆好：下料、数控车、加工中心、外圆磨、三坐标在前段", 3500)
+    await r.cap("后段是关节装配、关节测试台、整机装配、整机标定、负载跑合、AGV 装配和调试场地", 4000)
+    await r.cap("两台物流小车在仓库和各工位之间送料，灯的颜色是设备此刻的状态", 3500)
+    await r.go("/", 2500)
+    await r.cap("首页的指标、关键物料、订单都是这座厂自己的：问渠减速器厂的 WQR-105 是这里的外购件", 4000)
+
+
+async def robot_order(r):
+    await r.go("/work/planner")
+    await r.title("接一台协作机器人的单", "多层物料清单展开、按层下达、做完开票")
+    await r.cap("产品选 WQ-CR5（六轴协作机器人），填数量和交期", 2500)
+    await r.fill("[data-help=planner-qty] input", 1)
+    await r.click("[data-help=planner-calc]", 2500)
+    await r.scroll("text=算料结果")
+    await r.cap("一台整机展开成三种关节模组、壳体、空心轴、臂管、底座：自制件、部件都要下工单", 4000)
+    await r.scroll("[data-help=planner-wos]")
+    await r.cap("先下达最底层的自制件，入库后再下关节模组，最后整机装配", 4000)
+    await r.cap("整机做完、入库后，系统自动开销售发票（ERPNext 里能看到）", 3500)
+
+
+async def robot_joint(r):
+    await r.go("/work/quality", 2500)
+    await r.title("关节测试与整机标定", "测试台的数据进控制图，异常开 8D")
+    await r.point("[data-help=q-chart]")
+    sel = r.pg.locator("select[aria-label='测量特性']")
+    if await sel.count():
+        await sel.select_option("WQJ-S|joint_backlash")
+        await r.pg.wait_for_timeout(1500)
+    await r.cap("特性里选“WQJ-S · 背隙”：每个点是一台小关节在测试台上量出的回差", 4000)
+    await r.cap("还有空载摩擦力矩、编码器零位标定残差，整机的位置重复精度和标定后绝对定位误差", 4000)
+    await r.point("[data-help=q-8d]")
+    await r.cap("点子一路偏向公差线，就为这个特性开一张质量异常单（8D）", 3500)
+
+
 SCRIPTS = {
     "teach-login": teach_login, "teach-order": teach_order, "teach-dispatch": teach_dispatch, "teach-3d": teach_3d,
     "teach-anomaly": teach_anomaly, "teach-8d": teach_8d, "teach-ai": teach_ai,
@@ -554,9 +592,10 @@ SCRIPTS = {
     "teach-home": teach_home, "teach-service": teach_service, "teach-supply": teach_supply, "teach-people": teach_people,
     "teach-ehs": teach_ehs, "teach-energy": teach_energy, "teach-finance": teach_finance,
     "ent-ai": ent_ai,
+    "robot-plant": robot_plant, "robot-order": robot_order, "robot-joint": robot_joint,
 }
 AFTER = {"teach-maint": teach_maint_after, "teach-director": teach_director_after}   # 录完的收尾（录失败也做）
-ROLE = {"teach-order": "planner", "teach-dispatch": "operator", "teach-8d": "quality"}   # 学生岗位；其余用厂长（老师）
+ROLE = {"teach-order": "planner", "teach-dispatch": "operator", "teach-8d": "quality", "robot-order": "planner", "robot-joint": "quality"}   # 学生岗位；其余用厂长（老师）
 # （第 30 轮 8-4 的几段用老师：要按“当场动手”、要能登记投诉、检验来料）
 ORDER_LAST = ("teach-director",)       # 会重置情景，放最后
 
@@ -665,7 +704,8 @@ async def record(args):
 def main(argv=None):
     ap = argparse.ArgumentParser(description="录帮助的操作视频（第 30 轮 H-4）")
     ap.add_argument("--hub", required=True)
-    ap.add_argument("--edition", choices=("teach", "enterprise"), required=True)
+    ap.add_argument("--edition", choices=("teach", "enterprise", "robot"), required=True,
+                    help="robot：机器人厂一册，要在按 wenquest-robot 清单起的厂里录（第 45 轮）")
     ap.add_argument("--out", required=True)
     ap.add_argument("--teacher-password", default=os.environ.get("WQ_TEACHER_PASSWORD"),
                     help="本地版的老师密码（factory/digital/.env 的 WQ_TEACHER_PASSWORD）")

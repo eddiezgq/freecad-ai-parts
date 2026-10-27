@@ -203,15 +203,46 @@ print(json.dumps({{"errors": mock.errors, "first": n, "db": {{k: sorted(v) for k
 """
 
 
-def test_seed_enterprise_plant():
+def _seed_sewing(path):
     import json
     import subprocess
     root = os.path.join(os.path.dirname(__file__), "..")
-    env = dict(os.environ, WQ_PLANT_FILE=os.path.join(root, "plants", "example-sewing.yaml"))
+    env = dict(os.environ, WQ_PLANT_FILE=str(path))
     r = subprocess.run([sys.executable, "-c", SEWING.format(root=root, tests=os.path.dirname(__file__))],
                        capture_output=True, text=True, env=env, timeout=120)
     assert r.returncode == 0, r.stderr[-2000:]
-    out = json.loads(r.stdout)
+    return json.loads(r.stdout)
+
+
+PRODUCT_KEYS = ("items", "routings", "boms", "products", "stock", "measurements", "key_materials")
+
+
+def test_seed_plant_with_products():
+    """第 45 轮：清单第 2 版写了产品，导入脚本照建物料、工艺路线、BOM、期初库存（示例缝纫机厂补了产品）"""
+    import yaml
+    path = os.path.join(os.path.dirname(__file__), "..", "plants", "example-sewing.yaml")
+    raw = yaml.safe_load(open(path, encoding="utf-8"))
+    out = _seed_sewing(path)
+    assert out["errors"] == [], out["errors"]
+    db = out["db"]
+    assert sorted(db["Item"]) == sorted(i["code"] for i in raw["items"])
+    assert len(db["BOM"]) == len(raw["boms"]) and len(db["Routing"]) == len(raw["routings"])
+    assert len(db["Stock Entry"]) == 1                     # 期初库存一张，第二次运行不重复
+    assert len(db["Supplier"]) == len(raw["suppliers"])
+
+
+def test_seed_enterprise_plant(tmp_path):
+    """没写产品的清单（第 1 版那样）：只建工厂本身，不建物料、BOM、库存"""
+    import yaml
+    src = os.path.join(os.path.dirname(__file__), "..", "plants", "example-sewing.yaml")
+    raw = yaml.safe_load(open(src, encoding="utf-8"))
+    for k in PRODUCT_KEYS:
+        raw.pop(k, None)
+    raw["version"] = 1
+    raw["suppliers"] = dict(list(raw["suppliers"].items())[:2])          # 第 30 轮时的两家
+    path = tmp_path / "sewing-v1.yaml"
+    path.write_text(yaml.safe_dump(raw, allow_unicode=True, sort_keys=False), encoding="utf-8")
+    out = _seed_sewing(path)
     assert out["errors"] == [], out["errors"]
     db = out["db"]
     assert len(db["Workstation"]) == 8 and "数控车床 CNC" in db["Workstation"]
@@ -221,3 +252,40 @@ def test_seed_enterprise_plant():
     assert all(w.endswith(" - SEW") for w in db["Warehouse"] if " - " in w)
     (hl, days), = out["hl"].items()
     assert hl.startswith("SEW 工作日历") and days and all(d["weekly_off"] == 1 for d in days)
+
+
+ROBOT = r"""
+import json, os, sys
+sys.path[:0] = [{root!r}, {tests!r}]
+import seed
+from mock_erpnext import MockERPNext
+mock = MockERPNext(company="问渠机器人厂 WenQuest Robotics (Demo)", abbr="WQRB")
+client = seed.Client.__new__(seed.Client)
+client.base, client.s = "http://mock", mock
+seed.Seeder(client, log=lambda *a: None).run(opening_stock=True, teach_stock=True)
+boms = {{b["item"]: b for b in mock.db["BOM"].values()}}
+se = list(mock.db.get("Stock Entry", {{}}).values())
+print(json.dumps({{"errors": mock.errors, "items": sorted(mock.db["Item"]),
+                  "gates": {{k: [o["operation"] for o in b["operations"] if o.get("quality_inspection_required")] for k, b in boms.items()}},
+                  "inspect": {{k: b.get("inspection_required", 0) for k, b in boms.items()}},
+                  "wh": {{i["item_code"]: i["t_warehouse"] for e in se for i in e["items"]}}}}, ensure_ascii=False))
+"""
+
+
+def test_seed_robot_plant():
+    """第 45 轮：机器人厂清单导进 ERPNext：质检门只在写了测量特性的工序；期初库存按类别进库"""
+    import json
+    import subprocess
+    root = os.path.join(os.path.dirname(__file__), "..")
+    env = dict(os.environ, WQ_PLANT_FILE=os.path.join(root, "plants", "wenquest-robot.yaml"))
+    r = subprocess.run([sys.executable, "-c", ROBOT.format(root=root, tests=os.path.dirname(__file__))],
+                       capture_output=True, text=True, env=env, timeout=120)
+    assert r.returncode == 0, r.stderr[-2000:]
+    out = json.loads(r.stdout)
+    assert out["errors"] == [], out["errors"]
+    assert "WQR-105" in out["items"] and "WQ-CR5" in out["items"]
+    assert out["gates"]["WQJ-L"] == ["关节测试 Joint test"] and out["gates"]["WQ-CR5"] == ["整机标定 Robot calibration"]
+    assert out["gates"]["JH-L"] == [] and not out["inspect"]["JH-L"]        # 没有测量特性：不设质检门
+    assert out["gates"]["JS-L"] == ["零件检验 Part inspection"] and out["inspect"]["JS-L"]
+    assert out["wh"]["WQR-105"].startswith("外购件库") and out["wh"]["RM-40CR-D60"].startswith("原材料库")
+    assert out["wh"]["WQR-105"].endswith(" - WQRB")

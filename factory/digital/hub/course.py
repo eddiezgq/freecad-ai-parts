@@ -438,6 +438,20 @@ def mount(app, H):
 
     @app.get("/api/course/cases", dependencies=[K])
     def course_cases(request: Request):
+        from hub import labs_api
+        if labs_api.plant_id() == "wenquest-robot":          # 机器人厂（第 47 轮）只有实验 24、25
+            base = public_base(request)
+            return head(["factory-data"], items=[{
+                "id": "lab24", "name": {"zh": "实验 24：一台协作机器人从订单到交付", "en": "Lab 24: one collaborative robot from order to delivery"},
+                "summary": "机器人厂接 1 台六轴协作机器人 WQ-CR5：多层物料清单展开、按层下达十几张工单、关节测试判定、整机标定入库开票、"
+                           "算整台的成本差异。平台按学生自己的订单自动评 60 分。",
+                "mode": "teach", "products": ["WQ-CR5"], "tool_url": base + "/lab24",
+                "guide_url": base + "/api/cae/lab24/guide.docx", "report_template_url": base + "/api/cae/lab24/report-template.docx"}, {
+                "id": "lab25", "name": {"zh": "实验 25：关节背隙异常的追因与 8D", "en": "Lab 25: tracing a joint backlash problem with stratification and 8D"},
+                "summary": "老师注入隐藏问题（装配工位扭矩、减速器批次、测试台零位三选一），学生在控制图上发现判异，按工位、批次、测试顺序分层找原因，"
+                           "开 8D、选对症措施、用措施后的数据验证（全部合格且 Cpk ≥ 1.33）。",
+                "mode": "teach", "products": ["WQJ-L", "WQJ-M", "WQJ-S"], "tool_url": base + "/lab25",
+                "guide_url": base + "/api/cae/lab25/guide.docx", "report_template_url": base + "/api/cae/lab25/report-template.docx"}])
         return head(["factory-data"], items=[{
             "id": "lab7", "name": {"zh": "实验 7：数字工厂闭环", "en": "Lab 7: the closed loop in a digital factory"},
             "summary": "WQR-105 减速器厂的一周：接单、算料排产、设计发布、车间加工、在线检测与不合格品处置、看板与 AI 提醒。",

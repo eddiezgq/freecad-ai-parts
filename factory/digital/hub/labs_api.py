@@ -16,13 +16,34 @@ LABS = [
     {"no": 22, "title": "经营：订单毛利、应收与现金", "path": "/lab22", "module": "lab22", "domain": "经营与财务", "hours": 4},
     {"no": 23, "title": "两周情景：一张急单的全厂决策", "path": "/lab23", "module": "lab23", "domain": "全厂（七个领域）", "hours": "2 周课程设计",
      "team": True},
+    # 第 47 轮：机器人厂（清单 wenquest-robot）的实验；上面的只在演示工厂（减速器厂）
+    {"no": 24, "title": "一台协作机器人从订单到交付", "path": "/lab24", "module": "lab24", "domain": "订单到交付（多层 BOM）", "hours": 4,
+     "plant": "wenquest-robot"},
+    {"no": 25, "title": "关节背隙异常的追因与 8D", "path": "/lab25", "module": "lab25", "domain": "质量（分层、8D）", "hours": 4,
+     "plant": "wenquest-robot"},
 ]
+
+
+def plant_id():
+    from factory import plant as PLANT
+    act = PLANT.active()
+    return act["ID"] if act else None
+
+
+def labs_here():
+    """本厂的实验：演示工厂是实验 7、15–23；按清单起的厂只有写了 plant 的那几个"""
+    pid = plant_id()
+    return [lab for lab in LABS if lab.get("plant") == (pid if pid != "wenquest-gearbox" else None)]
+
+
+def has_labs():
+    return bool(labs_here())
 
 
 def catalogue(db, user):
     rows = {r["task_id"]: r["score"] for r in db.q("select task_id, score from task_result where user_name=%s", (user,))}
     out = []
-    for lab in LABS:
+    for lab in labs_here():
         try:
             m = importlib.import_module("hub." + lab["module"])
             tasks = m.TASKS
@@ -34,7 +55,8 @@ def catalogue(db, user):
         out.append(dict(lab, tasks=len(tasks), of=sum(t["points"] for t in tasks), report_points=report,
                         score=sum(got), started=bool(got) or ("l{}_start".format(lab["no"]) in rows),
                         done=sum(1 for t in tasks if rows.get(t["id"], 0) >= t["points"]),
-                        guide="/api/cae/lab{}/guide.docx".format(lab["no"]) if lab["no"] >= 15 else None))
+                        guide="/api/cae/lab{}/guide.docx".format(lab["no"]) if lab["no"] >= 15 else None,
+                        template="/api/cae/lab{}/report-template.docx".format(lab["no"]) if lab["no"] >= 15 else None))
     return out
 
 

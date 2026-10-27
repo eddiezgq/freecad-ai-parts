@@ -20,7 +20,7 @@ TARGET = {"on_time": 0.95, "oee": 0.75, "fpy": 0.97}
 from factory import plant as _plant  # noqa: E402  工厂清单（第 30 轮；freecad-ai-parts ADR-0064）
 if _plant.active():
     SHIFT_MIN, TARGET = _plant.active()["SHIFT_MIN"], dict(_plant.active()["TARGET"])
-KEY_MATERIALS = ["BRG-6207", "RM-45-D50", "RM-40CR-F225", "OIL-CKC220"]
+KEY_MATERIALS = F.KEY_MATERIALS        # 首页“关键物料”（第 45 轮：工厂清单第 2 版可写 key_materials）
 CHARTS = {"bearing_seat_d35": "SH-301 轴承位 Ø35k6"}
 
 

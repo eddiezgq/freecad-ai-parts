@@ -70,5 +70,17 @@
   "ent-ai": {
     "edition": "enterprise",
     "title": "AI 设置与运行记录"
+  },
+  "robot-plant": {
+    "edition": "robot",
+    "title": "机器人厂：车间与产品"
+  },
+  "robot-order": {
+    "edition": "robot",
+    "title": "接一台协作机器人的单"
+  },
+  "robot-joint": {
+    "edition": "robot",
+    "title": "关节测试与整机标定"
   }
 }

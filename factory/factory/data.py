@@ -142,6 +142,11 @@ CASE_ITEMS = {
     "LS-101": ("平缝机上轴 Lockstitch machine upper shaft", "make", "Nos", None, None, None, "教材案例件：工业平缝机 WQ-LS 主轴（伺服直驱）"),
 }
 FG_SELLING_PRICE = 1650.00
+# 可接单的成品与售价（第 45 轮清单第 2 版的 products）：演示工厂只有 WQR-105
+PRODUCTS = {"WQR-105": FG_SELLING_PRICE}
+# 测试、检验工序上仿真车间合成的测量特性：(物料, 工序) → [{code, name, unit, nominal, lo, hi, sigma}]（清单第 2 版的 measurements）。
+# 演示工厂的三坐标测量用自己的误差模型（sim/errors.py），这里空着
+MEASURE = {}
 
 # 标准外购件（及成品 WQR-105）在问渠零件库里的编号（第 5 轮 P10②）；与零件库各条目的 factory.erp_items 一致（library/tests 核对）
 LIBRARY_REFS = {
@@ -157,6 +162,7 @@ KIND_GROUP = {"raw": ITEM_GROUPS[0], "buy": ITEM_GROUPS[1], "make": ITEM_GROUPS[
               "sub": ITEM_GROUPS[3], "fg": ITEM_GROUPS[4]}
 KIND_WAREHOUSE = {"raw": WAREHOUSES[0], "buy": WAREHOUSES[1], "make": WAREHOUSES[2],
                   "sub": WAREHOUSES[2], "fg": WAREHOUSES[4]}
+KEY_MATERIALS = ["BRG-6207", "RM-45-D50", "RM-40CR-F225", "OIL-CKC220"]     # 首页“关键物料”
 SAFETY_STOCK = {"BRG-6205": 10, "BRG-6206": 10, "BRG-6207": 10, "SEAL-20": 10, "SEAL-30": 10}
 
 # ---------------------------------------------------------------- 工作中心（工位）
@@ -267,6 +273,8 @@ def _text(name, value):
 
 
 def inspection_templates():
+    if _PLANT_TEMPLATES is not None:          # 清单第 2 版的工厂：检验模板由测量特性生成
+        return dict(_PLANT_TEMPLATES)
     k1, w1lo, w1hi = gear_w("SH-101", -0.05, -0.10)
     k2, w2lo, w2hi = gear_w("GR-202", -0.05, -0.12)
     k3, w3lo, w3hi = gear_w("GR-203", -0.05, -0.12)
@@ -351,6 +359,21 @@ except ImportError:                    # 按文件路径单独载入本文件时
     _P = None
 
 DEMO_CUSTOMERS = list(CUSTOMERS)        # 演示工厂的客户：教学情景（sim/scenario.py、实验 15–23、E1–E7 的演示数据）始终用它们
+_PLANT_TEMPLATES = None
+if _P and _P.get("ITEMS"):                # 清单第 2 版：产品、物料、物料清单、工艺路线、库存都取自清单（第 45 轮）
+    ITEMS = _P["ITEMS"]
+    ROUTINGS = _P["ROUTINGS"]
+    BOMS = _P["BOMS"]
+    PRODUCTS = _P["PRODUCTS"]
+    OPENING_STOCK = _P["OPENING_STOCK"]
+    SAFETY_STOCK = _P["SAFETY_STOCK"]
+    LIBRARY_REFS = _P["LIBRARY_REFS"]
+    MEASURE = _P["MEASURE"]
+    KEY_MATERIALS = _P["KEY_MATERIALS"]
+    if not _P["DEMO_DATA"]:                 # 企业工厂：没有演示的教学库存、教材案例件；检验模板来自清单
+        TEACH_STOCK = {}
+        CASE_ITEMS = {}
+        _PLANT_TEMPLATES = _P["INSPECTION_TEMPLATES"]
 if _P:
     WORKSTATIONS = _P["WORKSTATIONS"]
     OPERATIONS = _P["OPERATIONS"]

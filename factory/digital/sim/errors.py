@@ -42,6 +42,19 @@ PROBLEMS = {
     "center_hole": {"name": "中心孔质量差（圆跳动超差）", "unit": "grd-01", "fix": "lap_center_holes", "default": 0.006},
 }
 
+# 机器人厂（清单 wenquest-robot，第 47 轮实验 25）：关节测试台的数据。“plant” 标出属于哪座厂，质量页、8D 只列本厂的
+# 偏差量、批次大小都是示例值
+ROBOT = "wenquest-robot"
+PROBLEMS.update({
+    "ja_torque": {"name": "关节装配工位 JA-2 预紧扭矩偏低（这个工位装的关节背隙偏大）", "unit": "ja-2", "fix": "recalibrate_torque",
+                  "default": 0.35, "plant": ROBOT},
+    "hd_lot": {"name": "谐波减速器来料批次背隙偏大（从注入时的批次起）", "unit": "ja-*", "fix": "quarantine_lot",
+               "default": 0.40, "plant": ROBOT},
+    "bench_zero": {"name": "关节测试台零位标定程序漂移（零位残差逐台偏移）", "unit": "jt-1", "fix": "recalibrate_bench",
+                   "default": 1.5, "plant": ROBOT},
+})
+LOT_SIZE = 8                 # 谐波减速器每批 8 台（示例）：关节按装配顺序依次用掉
+
 # 8D 第 5 步可选的纠正措施（含几项“看起来有道理但不对症”的措施）
 FIXES = {
     "align_tailstock": "校正磨床尾座，使两顶尖连线与导轨平行（用标准检验棒和千分表）",
@@ -53,13 +66,33 @@ FIXES = {
     "reduce_feed": "减小磨削横向进给量",
     "retrain": "培训操作工，加强自检",
     "change_gauge": "更换并重新校准检验量具",
+    # 机器人厂（第 47 轮）
+    "recalibrate_torque": "校准关节装配工位 JA-2 的电动扭力扳手，按工艺文件复核预紧扭矩",
+    "quarantine_lot": "隔离问题批次的谐波减速器、退回供应商，改用复检合格的批次",
+    "recalibrate_bench": "用标准关节重新标定测试台的零位基准，修正标定程序",
+    "add_grease": "关节加注润滑脂",
+    "tighten_test": "出厂检验收紧，关节 100% 复测",
 }
+ROBOT_FIXES = ("recalibrate_torque", "quarantine_lot", "recalibrate_bench", "add_grease", "tighten_test", "retrain", "change_gauge")
+
+
+def problems_for(plant_id):
+    """这座厂能注入的问题情景：演示工厂（plant_id 为空或 wenquest-gearbox）是输出轴的五种，机器人厂是关节的三种"""
+    robot = plant_id == ROBOT
+    return {k: v for k, v in PROBLEMS.items() if (v.get("plant") == ROBOT) == robot}
+
+
+def fixes_for(plant_id):
+    if plant_id == ROBOT:
+        return {k: FIXES[k] for k in ROBOT_FIXES}
+    return {k: v for k, v in FIXES.items() if k not in ROBOT_FIXES or k in ("retrain", "change_gauge")}
 
 
 class ErrorModel:
     def __init__(self, seed=None):
         self.rng = random.Random(None if seed is None else seed + 7919)   # 与引擎主随机数分开：不改变原有加工节拍的随机序列
         self.active = {}          # 问题 → {"magnitude": x, "since_part": n, "count": 0}
+        self.lot_used = {}        # 机器人厂：每种关节已装了几台（按顺序用谐波减速器，每 LOT_SIZE 台一批）
         self.history = []         # (事件, 问题或措施, 结果)
 
     # -------------------------------------------------------------- 老师注入、措施下发
@@ -67,6 +100,8 @@ class ErrorModel:
         if problem not in PROBLEMS:
             raise KeyError(problem)
         self.active[problem] = {"magnitude": float(magnitude if magnitude is not None else PROBLEMS[problem]["default"]), "count": 0}
+        if problem == "hd_lot":             # 从注入时正在用的批次起（每种规格各自的批次）都是问题批次，直到隔离
+            self.active[problem]["from_lot"] = {k: n // LOT_SIZE + 1 for k, n in self.lot_used.items()}
         self.history.append(("inject", problem, True))
 
     def clear(self):
@@ -80,6 +115,8 @@ class ErrorModel:
         gone = [p for p in list(self.active) if PROBLEMS[p]["fix"] == fix]
         for p in gone:
             del self.active[p]
+        if fix == "quarantine_lot":         # 隔离问题批次：剩下的这批不用了，下一台起换新批次
+            self.lot_used = {k: -(-n // LOT_SIZE) * LOT_SIZE for k, n in self.lot_used.items()}
         self.history.append(("fix", fix, bool(gone)))
         return gone
 
@@ -89,12 +126,37 @@ class ErrorModel:
         if st is None:
             st = {}
             part.err = st
+        if unit.startswith("ja-") and "_ja" not in st:      # 机器人厂关节装配：记下工位和谐波减速器批次（第 47 轮）
+            size = str(getattr(getattr(part, "wo", None), "item", "") or "")[-1:] or "X"
+            n = self.lot_used.get(size, 0)
+            self.lot_used[size] = n + 1
+            st["_ja"] = unit
+            st["_lot_no"] = (size, n // LOT_SIZE + 1)
+            part.hd_lot = "HD-{}-{:03d}".format(size, n // LOT_SIZE + 1)
         for p, a in self.active.items():
-            if PROBLEMS[p]["unit"] == unit:
+            u = PROBLEMS[p]["unit"]
+            if u == unit or (u == "ja-*" and unit.startswith("ja-")):
+                if p == "hd_lot":
+                    size, no = st.get("_lot_no", (None, 0))
+                    if no < a["from_lot"].get(size, 1):
+                        continue
                 a["count"] += 1
                 st[p] = (a["magnitude"], a["count"])
         if unit == "grd-01":
             st["_wear"] = wear
+
+    def plant_offset(self, part, code: str) -> float:
+        """机器人厂的关节测量值上叠加的偏差（第 47 轮实验 25）：只在装配工位、批次、测试台对上的那几台上出现"""
+        st = getattr(part, "err", None) or {}
+        off = 0.0
+        if code == "joint_backlash":
+            for p in ("ja_torque", "hd_lot"):
+                if p in st:
+                    off += st[p][0]
+        if code == "joint_zero" and "bench_zero" in st:
+            mag, k = st["bench_zero"]
+            off += min(mag * k, 30.0)
+        return off
 
     # -------------------------------------------------------------- 测量
     def measure(self, part, main_rng) -> list[tuple]:
