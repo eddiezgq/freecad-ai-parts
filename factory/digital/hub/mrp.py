@@ -50,6 +50,15 @@ def std_unit_cost(item):
 SOURCE_OF = {"make": "semi", "sub": "semi", "buy": "purchased", "raw": "raw"}   # 物料类别 → 领料仓库（桥接按它填工单）
 
 
+def _source(code):
+    """领料仓库：清单第 2 版写的物料按类别（期初库存按类别进库，第 45 轮）；新产品进工厂的外购件到货进原材料库，照旧从原材料库领"""
+    kind = F.ITEMS[code][1]
+    act = _plant.active() or {}
+    if kind == "buy" and code not in (act.get("ITEMS") or {}):
+        return "raw"
+    return SOURCE_OF.get(kind, "raw")
+
+
 def plan_order(db, customer, item, qty, delivery_date, mode="teach", now=None):
     o = Overview(db, now, mode)
     today = o.now.astimezone(TZ).date()
@@ -131,7 +140,7 @@ def plan_order(db, customer, item, qty, delivery_date, mode="teach", now=None):
                  "routing": [op for op, _ in routing_for(code)]}
             if whole:   # 成品进成品库、自制件进半成品库；领料：自制件、部件从半成品库，外购件从外购件库，原材料从原材料库
                 w["warehouse"] = "fg" if code == item else "semi"
-                w["sources"] = {c: SOURCE_OF.get(F.ITEMS[c][1], "raw") for c, _ in F.BOMS[code][1]}
+                w["sources"] = {c: _source(c) for c, _ in F.BOMS[code][1]}
             wos.append(w)
         else:
             deferred.append({"item_code": code, "qty": q, "name": F.ITEMS[code][0]})
