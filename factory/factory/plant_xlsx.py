@@ -2,7 +2,8 @@
 """工厂清单的 Excel 模板与导入（freecad-ai-parts ADR-0064 第 3 条）。
 
 模板 = 演示工厂填好的样例；企业照着改，导入时逐格读取，出错说明“哪张表第几行哪一列”。
-表：说明、工厂、工作站、设备、工序、供应商、客户。区域、阶段在表里写中文（也认英文代号）。
+表：说明、工厂、工作站、设备、工序、供应商、客户；第 2 版（第 45 轮）加物料、工艺路线、物料清单、成品、库存、测量特性。
+区域、阶段、物料类别在表里写中文（也认英文代号）。
 """
 import datetime as _dt
 import re
@@ -13,6 +14,7 @@ AREA_ZH = {"office": "办公", "design": "设计", "machining": "机加工", "qu
            "logistics": "物流", "ai": "AI", "field": "现场"}
 STAGE_ZH = {"blank": "下料", "rough": "粗加工", "qt": "调质", "finish": "精加工", "keyway": "键槽", "gear": "齿形",
             "harden": "淬火", "grind": "磨削", "inspect": "检验", "assembly": "装配", "other": "其他"}
+KIND_ZH = {"raw": "原材料", "buy": "外购件", "make": "自制件", "sub": "部件", "fg": "成品"}
 WEEK = ("周一", "周二", "周三", "周四", "周五", "周六", "周日")
 YES, NO = "是", "否"
 
@@ -87,6 +89,32 @@ SUP_COLS = [
 ]
 CUS_COLS = [("名称", "_name", "str", "")]
 
+# 第 2 版：产品几节（一行一条；工艺路线、物料清单按名称、父件连续几行成一组）
+ITEM_COLS = [
+    ("编号", "code", "str", "物料编号，物料清单、库存、测量特性按它引用"),
+    ("名称", "name", "str", "中英文名"),
+    ("类别", "kind", "kind", "/".join(KIND_ZH.values())),
+    ("单位", "uom", "str", "Nos、Kg、Litre……"),
+    ("单价", "price", "num", "原材料、外购件；不知道就空着（不估）"),
+    ("供应商", "supplier", "str", "供应商表的代号；原材料、外购件必填"),
+    ("检验模板", "inspection", "str", "可空"),
+    ("零件库编号", "library", "str", "可空"),
+    ("备注", "note", "str", "可空"),
+]
+ROUTE_COLS = [("工艺路线", "name", "str", "同一条路线的几道工序连续写，名称相同"),
+              ("工序", "op", "str", "工序表里的工序名"), ("每件分钟", "min", "num", "")]
+BOM_COLS = [("父件", "item", "str", "同一父件的几个子件连续写"), ("工艺路线", "routing", "str", "父件的工艺路线（同组写一次即可）"),
+            ("子件", "child", "str", "物料编号"), ("用量", "qty", "num", "每个父件用多少")]
+PROD_COLS = [("成品", "item", "str", "可接单的成品（物料编号）"), ("售价", "price", "num", "可空")]
+STOCK_COLS = [("物料", "item", "str", ""), ("期初库存", "opening", "num", "可空"), ("安全库存", "safety", "num", "可空"),
+              ("关键物料顺序", "key", "int", "看板“关键物料”显示的物料填 1、2、3…（按数字排序），其余空着")]
+MEAS_COLS = [("物料", "item", "str", "测哪个物料"), ("工序", "operation", "str", "在哪道工序测"),
+             ("代号", "code", "str", "特性代号，如 backlash"), ("名称", "name", "str", ""), ("单位", "unit", "str", "如 mm、arcmin、N·m"),
+             ("名义", "nominal", "num", ""), ("下限", "lo", "num", ""), ("上限", "hi", "num", ""),
+             ("散布σ", "sigma", "num", "仿真车间合成测量值的散布（示例值）")]
+PRODUCT_SHEETS = (("物料", ITEM_COLS), ("工艺路线", ROUTE_COLS), ("物料清单", BOM_COLS), ("成品", PROD_COLS),
+                  ("库存", STOCK_COLS), ("测量特性", MEAS_COLS))
+
 GROUP = {"cost": "费率", "power": "主电机功率 / 传动效率", "layout": "x / y / 宽 / 深", "dock": "上下料点 x / y",
          "home": "停靠点 x / y", "spindle": "主轴转速 / 进给"}
 LIST_SHEETS = (("工作站", "workstations", WS_COLS), ("设备", "units", UNIT_COLS), ("工序", "operations", OP_COLS),
@@ -121,6 +149,8 @@ def _cell_out(kind, v):
         return YES if v else NO
     if kind == "ids":
         return ", ".join(v)
+    if kind == "kind":
+        return KIND_ZH.get(v, v)
     return v
 
 
@@ -128,6 +158,8 @@ def _factory_value(p, path):
     v = _get(p, path)
     if path == "demo_data":
         return YES if v else NO
+    if v is None:
+        return None
     if path == "floor.aisles_y":
         return ", ".join(_num_text(x) for x in v)
     if path == "shift.periods":
@@ -156,6 +188,25 @@ def rows_of(p):
             it = dict(it, _board=board.get(it.get("id"))) if key == "units" else it
             rows.append([_cell_out(kind, _get(it, k)) for _, k, kind, _ in cols])
         out[sheet] = rows
+    if p.get("items"):
+        out.update(_product_rows(p))
+    return out
+
+
+def _product_rows(p):
+    """第 2 版：产品几节 → 表格行"""
+    out = {"物料": [[_cell_out(kind, it.get(k)) for _, k, kind, _ in ITEM_COLS] for it in p.get("items") or []]}
+    out["工艺路线"] = [[r["name"], op, m] for r in p.get("routings") or [] for op, m in r["steps"]]
+    out["物料清单"] = [[b["item"], b["routing"] if i == 0 else None, c, q] for b in p.get("boms") or []
+                    for i, (c, q) in enumerate(b["components"])]
+    out["成品"] = [[x["item"], x.get("price")] for x in p.get("products") or []]
+    st = p.get("stock") or {}
+    keys = list(p.get("key_materials") or [])
+    codes = list(dict.fromkeys(list((st.get("opening") or {}).keys()) + list((st.get("safety") or {}).keys()) + keys))
+    out["库存"] = [[c, (st.get("opening") or {}).get(c), (st.get("safety") or {}).get(c), keys.index(c) + 1 if c in keys else None]
+                 for c in codes]
+    out["测量特性"] = [[m["item"], m["operation"], c["code"], c["name"], c.get("unit"), c["nominal"], c["lo"], c["hi"], c["sigma"]]
+                    for m in p.get("measurements") or [] for c in m["chars"]]
     return out
 
 
@@ -170,6 +221,8 @@ README = [
     "   物流小车（区域填“物流”）要填停靠点。看板顺序决定“车间实况”里显示哪些设备。",
     "4. 工序：工序名与工艺路线一致；“可用设备”填设备编号，多台用逗号分开。",
     "5. 供应商、客户：可空（只在装演示数据时用）。",
+    "6. 产品（第 2 版，可整组不填）：物料、工艺路线、物料清单、成品、库存、测量特性六张表。",
+    "   工艺路线、物料清单按名称、父件连续几行成一组；外购件的单价、交期不知道就空着，系统标“待确认”，不替你估。",
     "",
     "填好后转成清单并校验：",
     "    python -m factory.plant import 填好的.xlsx plant.yaml",
@@ -233,6 +286,26 @@ def write_template(path, p=None):
                 col = ws.cell(1, i + 1).column_letter
                 dv.add("{0}3:{0}500".format(col))
         ws.freeze_panes = "B3"
+    for sheet, cols in PRODUCT_SHEETS:
+        if sheet not in rows:
+            continue
+        ws = wb.create_sheet(sheet)
+        ws.append([c[0] for c in cols])
+        ws.append([c[3] for c in cols])
+        for c in ws[1]:
+            c.font, c.fill = head, fill
+        for c in ws[2]:
+            c.font = note
+            c.alignment = Alignment(wrap_text=True, vertical="top")
+        for r in rows[sheet]:
+            ws.append(r)
+        for i, c in enumerate(cols):
+            ws.column_dimensions[ws.cell(1, i + 1).column_letter].width = max(10, min(40, len(c[0]) * 2 + 6))
+            if c[2] == "kind":
+                dv = DataValidation(type="list", formula1='"{}"'.format(",".join(KIND_ZH.values())), allow_blank=True)
+                ws.add_data_validation(dv)
+                dv.add("{0}3:{0}2000".format(ws.cell(1, i + 1).column_letter))
+        ws.freeze_panes = "B3"
     wb.save(path)
 
 
@@ -275,8 +348,8 @@ def _parse(kind, v, cell):
         if t in ("否", "n", "no", "false", "0"):
             return False
         return cell.bad("填“是”或“否”")
-    if kind in ("area", "stage"):
-        table = AREA_ZH if kind == "area" else STAGE_ZH
+    if kind in ("area", "stage", "kind"):
+        table = {"area": AREA_ZH, "stage": STAGE_ZH, "kind": KIND_ZH}[kind]
         t = str(v).strip()
         for code, zh in table.items():
             if t in (code, zh) or t.lower() == code:
@@ -334,7 +407,7 @@ def _factory(ws, errs):
             continue
         got[labels[name][0]] = row[1] if len(row) > 1 else None
         rows[labels[name][0]] = r
-    p = {"version": P.SCHEMA_VERSION, "company": {}, "stores": {}, "floor": {}, "shift": {}, "kpi": {}}
+    p = {"version": 1, "company": {}, "stores": {}, "floor": {}, "shift": {}, "kpi": {}}
     for path, label, _ in FACTORY_ROWS:
         cell = _Cell(errs, "工厂", rows.get(path, "?"), label)
         v = got.get(path)
@@ -455,7 +528,77 @@ def read_workbook(path):
                     if not o["inspection"]:
                         o.pop("inspection")
             p[key] = items
+    if "物料" in wb.sheetnames:
+        _read_products(wb, p, errs)
+    if p.get("items") or any(p.get(k) for k in ("routings", "boms", "products")):
+        p["version"] = 2
+    else:
+        p["version"] = 1 if "物料" not in wb.sheetnames else 2
     return p, errs, rows
+
+
+def _sheet_rows(wb, sheet, cols, errs):
+    """一张产品表 → [(行号, {键: 值})]（跳过表头、说明行和空行）"""
+    if sheet not in wb.sheetnames:
+        return []
+    ws = wb[sheet]
+    hdr = [(_blank(c) and "" or str(c).strip()) for c in next(ws.iter_rows(min_row=1, max_row=1, values_only=True), ())]
+    idx = {}
+    for name, k, kind, _ in cols:
+        if name in hdr:
+            idx[k] = (hdr.index(name), kind, name)
+        else:
+            errs.append("{}表：缺少列“{}”".format(sheet, name))
+    out = []
+    for r, row in enumerate(ws.iter_rows(min_row=3, values_only=True), start=3):
+        if not row or all(_blank(v) for v in row):
+            continue
+        d = {}
+        for k, (ci, kind, name) in idx.items():
+            v = _parse(kind, row[ci] if ci < len(row) else None, _Cell(errs, sheet, r, name))
+            if v is not None:
+                d[k] = v
+        out.append((r, d))
+    return out
+
+
+def _read_products(wb, p, errs):
+    p["items"] = [d for _, d in _sheet_rows(wb, "物料", ITEM_COLS, errs)]
+    routes = {}
+    for r, d in _sheet_rows(wb, "工艺路线", ROUTE_COLS, errs):
+        if not d.get("name") or not d.get("op") or d.get("min") is None:
+            errs.append("工艺路线表第 {} 行：工艺路线、工序、每件分钟都要填".format(r))
+            continue
+        routes.setdefault(d["name"], []).append([d["op"], d["min"]])
+    p["routings"] = [{"name": k, "steps": v} for k, v in routes.items()]
+    boms = {}
+    for r, d in _sheet_rows(wb, "物料清单", BOM_COLS, errs):
+        if not d.get("item") or not d.get("child") or d.get("qty") is None:
+            errs.append("物料清单表第 {} 行：父件、子件、用量都要填".format(r))
+            continue
+        b = boms.setdefault(d["item"], {"item": d["item"], "routing": None, "components": []})
+        if d.get("routing"):
+            b["routing"] = d["routing"]
+        b["components"].append([d["child"], d["qty"]])
+    p["boms"] = list(boms.values())
+    p["products"] = [dict({"item": d["item"]}, **({"price": d["price"]} if d.get("price") is not None else {}))
+                     for _, d in _sheet_rows(wb, "成品", PROD_COLS, errs) if d.get("item")]
+    st, keys = {"opening": {}, "safety": {}}, []
+    for _, d in _sheet_rows(wb, "库存", STOCK_COLS, errs):
+        for k in ("opening", "safety"):
+            if d.get("item") and d.get(k) is not None:
+                st[k][d["item"]] = d[k]
+        if d.get("item") and d.get("key") is not None:
+            keys.append((d["key"], d["item"]))
+    p["stock"] = st
+    if keys:
+        p["key_materials"] = [i for _, i in sorted(keys)]
+    meas = {}
+    for _, d in _sheet_rows(wb, "测量特性", MEAS_COLS, errs):
+        m = meas.setdefault((d.get("item"), d.get("operation")), {"item": d.get("item"), "operation": d.get("operation"), "chars": []})
+        m["chars"].append({k: d[k] for k in ("code", "name", "unit", "nominal", "lo", "hi", "sigma") if k in d})
+    if meas:
+        p["measurements"] = list(meas.values())
 
 
 def _where(err, rows):

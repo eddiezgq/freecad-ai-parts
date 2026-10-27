@@ -25,13 +25,18 @@ from fastapi.responses import JSONResponse  # noqa: E402
 
 from factory import data as F  # noqa: E402
 
-COMPANY = "问渠减速器厂 WenQuest Gearbox (Demo)"
-ABBR = "WQ"
+try:                                    # 公司名随工厂清单（第 45 轮：机器人厂、示例缝纫机厂的销售订单记在它们自己的公司下）
+    from factory import plant as _plant
+    COMPANY = _plant.company()["name"]
+except ImportError:
+    _plant = None
+    COMPANY = "问渠减速器厂 WenQuest Gearbox (Demo)"
+ABBR = os.environ.get("WQ_ERP_ABBR", "WQ")     # 仓库、科目后缀：与桥接同一个环境变量
 META = {"name", "doctype", "docstatus", "modified", "creation", "owner", "idx", "parent", "parenttype", "parentfield",
         "modified_by", "__islocal", "__unsaved"}
 NO_VALUE = {"Section Break", "Column Break", "Tab Break", "HTML", "Button", "Heading", "Fold"}
 INSPECTION_OP = "零件检验 Part inspection"
-SCENARIO_STOCK = dict(F.TEACH_STOCK)
+SCENARIO_STOCK = dict(F.TEACH_STOCK) if F.TEACH_STOCK else dict(F.OPENING_STOCK)   # 企业工厂：清单第 2 版的期初库存（第 45 轮）
 REQUIRED = {
     "Sales Order": ["customer", "company", "transaction_date", "delivery_date", "items"],
     "Sales Order Item": ["item_code", "qty", "delivery_date"],
@@ -152,11 +157,15 @@ class Mock:
         for u in ("Kg", "Litre"):
             self.put("UOM", {"name": u})
         for parent, (rt, comps) in F.BOMS.items():
-            ops = [{"operation": op, "workstation": F.OPERATIONS[op], "time_in_mins": m, "idx": i + 1}
+            # 质检门：演示工厂在“零件检验”（与原来一样）；清单第 2 版的工厂在写了测量特性的工序（第 45 轮）
+            gate = {INSPECTION_OP} if _plant is None or _plant.is_demo() else {op for (it, op) in F.MEASURE if it == parent}
+            qit = F.ITEMS[parent][5] if gate else None
+            ops = [{"operation": op, "workstation": F.OPERATIONS[op], "time_in_mins": m, "idx": i + 1,
+                    "quality_inspection_required": 1 if qit and op in gate else 0}
                    for i, (op, m) in enumerate(F.ROUTINGS[rt])]
             self.put("BOM", {"name": "BOM-{}-001".format(parent), "item": parent, "quantity": 1, "is_default": 1,
                              "is_active": 1, "with_operations": 1, "docstatus": 1, "company": COMPANY,
-                             "inspection_required": 1 if F.ITEMS[parent][5] else 0,
+                             "inspection_required": 1 if qit else 0,
                              "items": [{"item_code": c, "qty": q, "stock_uom": F.ITEMS[c][2]} for c, q in comps],
                              "operations": ops})
         for code, qty in SCENARIO_STOCK.items():
@@ -282,7 +291,8 @@ class Mock:
                 raise Err(417, "ValidationError", "作业卡 {} 完成数量为 0，不能提交".format(doc["name"]))
             wo = self.db["Work Order"][doc["work_order"]]
             bom = self.db["BOM"][wo["bom_no"]]
-            if doc["operation"] == INSPECTION_OP and bom.get("inspection_required") and not doc.get("quality_inspection"):
+            gated = any(o["operation"] == doc["operation"] and o.get("quality_inspection_required") for o in bom.get("operations") or [])
+            if gated and bom.get("inspection_required") and not doc.get("quality_inspection"):
                 raise Err(417, "ValidationError", "作业卡 {} 需要先关联质量检验单".format(doc["name"]))
             qi = self.db.get("Quality Inspection", {}).get(doc.get("quality_inspection") or "")
             if qi and qi.get("status") == "Rejected":     # ERPNext 默认：检验单不合格时停止（Stock Settings）

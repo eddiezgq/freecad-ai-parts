@@ -235,10 +235,12 @@ class Seeder:
                 self.ensure("Item Price", None,
                             {"item_code": code, "uom": uom, "price_list": buying, "price_list_rate": price},
                             key=[["item_code", "=", code], ["price_list", "=", buying]])
-        self.ensure("Item Price", None,
-                    {"item_code": "WQR-105", "uom": "Nos", "price_list": selling,
-                     "price_list_rate": D.FG_SELLING_PRICE},
-                    key=[["item_code", "=", "WQR-105"], ["price_list", "=", selling]])
+        for code, price in D.PRODUCTS.items():           # 可接单的成品（第 45 轮：清单第 2 版的 products；演示工厂只有 WQR-105）
+            if price is None:
+                continue
+            self.ensure("Item Price", None,
+                        {"item_code": code, "uom": D.ITEMS[code][2], "price_list": selling, "price_list_rate": price},
+                        key=[["item_code", "=", code], ["price_list", "=", selling]])
 
     # ---- 4′ 教材案例件（第 11 轮）：可单独重复运行，每次部署都补建
     def case_items(self):
@@ -260,7 +262,7 @@ class Seeder:
             })
         for op, ws in D.OPERATIONS.items():
             self.ensure("Operation", op, {"name": op, "workstation": ws})
-        if not PLANT.is_demo():
+        if not PLANT.is_demo() and not has_products():
             return                              # 演示工厂的工艺路线不建；企业产品的工艺路线随产品进来
         for rname, ops in D.ROUTINGS.items():
             self.ensure("Routing", rname, {"routing_name": rname, "operations": operation_rows(ops)})
@@ -287,10 +289,15 @@ class Seeder:
                     row["bom_no"] = self.bom_names[code]
                 items.append(row)
             qit = D.ITEMS[parent][5]
+            # 质检门放在哪道工序：演示工厂是检验工序；清单第 2 版的工厂是写了测量特性的工序（关节测试、整机标定…，
+            # 检验单由那道工序的测量值生成，第 45 轮）。没有测量特性的物料不设门（没有检验单，作业卡就提交不了）
+            gate = set(D.INSPECTION_OPS) if PLANT.is_demo() else {op for (it, op) in D.MEASURE if it == parent}
+            if not gate:
+                qit = None
             doc = {"item": parent, "quantity": 1, "company": self.company, "currency": self.currency,
                    "conversion_rate": 1, "is_active": 1, "is_default": 1, "with_operations": 1,
                    "rm_cost_as_per": "Valuation Rate", "routing": routing,
-                   "operations": operation_rows(D.ROUTINGS[routing], quality_gate=bool(qit)), "items": items}
+                   "operations": operation_rows(D.ROUTINGS[routing], quality_gate=gate if qit else ()), "items": items}
             if qit:
                 # 质检门：BOM 要求检验，且检验工序标记为必检，工序卡才会要求先提交质量检验单
                 doc["inspection_required"] = 1
@@ -312,7 +319,8 @@ class Seeder:
             raise ERPError("找不到“物料入库”类型的库存凭证")
         items = [{"item_code": code, "qty": qty, "uom": D.ITEMS[code][2], "stock_uom": D.ITEMS[code][2],
                   "conversion_factor": 1, "transfer_qty": qty,
-                  "t_warehouse": self.wh(D.WAREHOUSES[1]), "basic_rate": D.ITEMS[code][3]}
+                  "t_warehouse": self.wh(D.WAREHOUSES[1] if PLANT.is_demo() else D.KIND_WAREHOUSE[D.ITEMS[code][1]]),
+                  "basic_rate": D.ITEMS[code][3] or 0}
                  for code, qty in D.OPENING_STOCK.items()]
         res = self.c.create("Stock Entry", {"stock_entry_type": types[0]["name"], "purpose": "Material Receipt",
                                             "company": self.company, "remarks": tag, "items": items})
@@ -324,6 +332,8 @@ class Seeder:
         """放入实验 7 开始时的关键物料库存，并允许负库存：公共工厂里很多学生反复做实验，扣料不能卡住。"""
         self.log("教学情景库存：关键物料 + 允许负库存")
         self.c.update("Stock Settings", "Stock Settings", {"allow_negative_stock": 1})
+        if not D.TEACH_STOCK:                   # 清单第 2 版的工厂（第 45 轮）：只允许负库存，情景库存就是期初库存
+            return
         tag = "WQ 教学情景库存 teaching scenario stock"
         if self.c.find("Stock Entry", [["remarks", "=", tag], ["docstatus", "=", 1]]):
             self.skipped += 1
@@ -400,7 +410,7 @@ class Seeder:
         self.basics()
         self.parties()
         self.quality()
-        if not PLANT.is_demo():
+        if not PLANT.is_demo() and not has_products():
             self.routing()
             self.log("企业工厂（{}）：不建演示物料、BOM 与库存".format(PLANT.active()["ID"]))
             self.log("完成：新建 {} 条，已存在跳过 {} 条".format(self.created, self.skipped))
@@ -437,13 +447,19 @@ def holidays(y0, y1, workdays=(0, 1, 2, 3, 4), fixed=True):
     return out
 
 
+def has_products():
+    """清单第 2 版写了产品（物料、BOM、工艺路线、期初库存）：照样建（第 45 轮：机器人厂、示例缝纫机厂）"""
+    p = PLANT.active()
+    return bool(p and p.get("ITEMS"))
+
+
 def operation_rows(ops, quality_gate=False):
     rows = []
     for seq, (op, minutes) in enumerate(ops, start=1):
         ws = D.OPERATIONS[op]
         row = {"operation": op, "workstation": ws, "time_in_mins": minutes, "sequence_id": seq,
                "hour_rate": sum(D.WORKSTATIONS[ws][1])}
-        if quality_gate and op in D.INSPECTION_OPS:
+        if op in (D.INSPECTION_OPS if quality_gate is True else (quality_gate or ())):
             row["quality_inspection_required"] = 1
         rows.append(row)
     return rows
@@ -473,7 +489,7 @@ def item_doc(code, name, kind, uom, price, qit, note, company, warehouse, suppli
             doc["inspection_required_before_purchase"] = 1
         if kind == "fg":
             doc["inspection_required_before_delivery"] = 1
-    if kind == "fg":
+    if kind == "fg" and PLANT.is_demo():          # 序列号追溯是减速器厂的（E1 客户与服务）；清单里的成品不设，免得完工入库要序列号（第 45 轮）
         doc["has_serial_no"] = 1
         doc["serial_no_series"] = "WQR105-.#####"
     return doc

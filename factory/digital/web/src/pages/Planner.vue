@@ -9,7 +9,7 @@
         <form class="form" @submit.prevent="calc">
           <div class="field" data-help="planner-customer"><label>客户</label>
             <select v-model="f.customer" required><option v-for="c in customers" :key="c" :value="c">{{ short(c) }}</option></select></div>
-          <div class="field" data-help="planner-item"><label>产品</label><select v-model="f.item"><option value="WQR-105">WQR-105 二级圆柱齿轮减速器</option></select></div>
+          <div class="field" data-help="planner-item"><label>产品</label><select v-model="f.item"><option v-for="p in products" :key="p.item_code" :value="p.item_code">{{ p.item_code }} {{ p.name.split(' ')[0] }}</option></select></div>
           <div class="field" data-help="planner-qty"><label>数量（台）</label><input v-model.number="f.qty" type="number" min="1" max="200" required></div>
           <div class="field"><label>交期</label><input v-model="f.delivery_date" type="date" required></div>
           <button class="btn" data-help="planner-calc">算料</button>
@@ -75,6 +75,7 @@ import TaskBar from '../components/TaskBar.vue';
 import ObjLink from '../components/ObjLink.vue';
 
 const customers = ref([]);
+const products = ref([{ item_code: 'WQR-105', name: '二级圆柱齿轮减速器' }]);   // 可接单的成品：/api/config 的 fg（第 45 轮：清单第 2 版）
 const f = ref({ customer: '', item: 'WQR-105', qty: 10, delivery_date: '2026-10-15' });
 const pv = ref(null);
 const err = ref(null);
@@ -92,6 +93,10 @@ const woStatus = (w) => (w.status === 'Completed' ? '已完工' : w.started ? '�
 async function load() {
   const [c, p, w] = await Promise.all([get('/config'), get('/proposals'), get('/work_orders')]);
   customers.value = c.customers;
+  if (c.fg?.length) {
+    products.value = c.fg;
+    if (!c.fg.some((p) => p.item_code === f.value.item)) f.value.item = c.fg[0].item_code;
+  }
   if (!f.value.customer) f.value.customer = c.customers[0];
   props_.value = p;
   wos.value = w;
@@ -124,7 +129,8 @@ onMounted(load);
 <style scoped>
 .neworder { flex-grow: 1; min-width: 0; }
 .side { width: 340px; flex-shrink: 0; }
-.form { display: grid; grid-template-columns: 2fr 2fr 1fr 1.3fr auto; gap: 10px; align-items: end; }
+.form { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1.3fr) auto; gap: 10px; align-items: end; }
+.form select, .form input { width: 100%; min-width: 0; }   /* 产品名长时（多产品的厂）不把“算料”挤到右栏下面 */
 h3 { font-size: 14px; margin: 16px 0 8px; }
 tr.need td { background: #FFF8EC; }
 .warn { color: var(--warn-ink); }

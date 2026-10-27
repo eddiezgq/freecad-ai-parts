@@ -28,7 +28,7 @@ SECTION_NAMES = {"d1": "D1 成立小组", "d2": "D2 描述问题", "d3": "D3 临
 def inject(db, send, mode, user, problem, magnitude=None):
     if mode != "teach":
         raise PermissionError("只有教学模式能注入问题情景")
-    if problem not in ERR.PROBLEMS:
+    if problem not in ERR.problems_for(_plant_id()):
         raise KeyError(problem)
     send("set_problem", problem=problem, **({"magnitude": float(magnitude)} if magnitude is not None else {}))
     mag = float(magnitude) if magnitude is not None else ERR.PROBLEMS[problem]["default"]
@@ -49,9 +49,17 @@ def active(db, mode):
     return [dict(r, name=ERR.PROBLEMS[r["problem"]]["name"]) for r in rows]
 
 
+def _plant_id():
+    from factory import plant as PLANT
+    act = PLANT.active()
+    return act["ID"] if act else None
+
+
 def catalog():
-    return {"problems": {k: {"name": v["name"], "default": v["default"]} for k, v in ERR.PROBLEMS.items()},
-            "fixes": ERR.FIXES, "sections": SECTION_NAMES}
+    """本厂的问题情景与措施（第 47 轮：机器人厂是关节的三种，减速器厂是输出轴的五种）"""
+    pid = _plant_id()
+    return {"problems": {k: {"name": v["name"], "default": v["default"]} for k, v in ERR.problems_for(pid).items()},
+            "fixes": ERR.fixes_for(pid), "sections": SECTION_NAMES}
 
 
 # ---------------------------------------------------------------- 8D

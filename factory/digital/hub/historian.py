@@ -51,7 +51,8 @@ class Historian:
                       ("NCR-{:04d}".format(n), msg["ts"], d["part_serial"], d["item"], d.get("work_order"),
                        json.dumps({"characteristic": d["characteristic"], "name": d.get("name"),
                                    "value_mm": d["value_mm"], "lower_tol_mm": d["lower_tol_mm"],
-                                   "upper_tol_mm": d["upper_tol_mm"], "message_id": msg["id"]}, ensure_ascii=False),
+                                   "upper_tol_mm": d["upper_tol_mm"], "message_id": msg["id"],
+                                   **({"unit": d["unit"]} if d.get("unit") else {})}, ensure_ascii=False),
                        msg["mode"]))
         if self.on_message:
             try:

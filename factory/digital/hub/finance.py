@@ -219,7 +219,7 @@ def reset(db, mode):
 
 # ---------------------------------------------------------------- 订单、工单
 def _so_amount(d):
-    return round(sum(float(i.get("qty") or 0) * float(i.get("rate") or (F.FG_SELLING_PRICE if i.get("item_code") == "WQR-105" else 0))
+    return round(sum(float(i.get("qty") or 0) * float(i.get("rate") or F.PRODUCTS.get(i.get("item_code"), 0))
                      for i in d.get("items") or []), 2)
 
 
@@ -426,6 +426,27 @@ def sync(db, mode, now=None):
                 ref = (d.get("sales_orders") or d.get("purchase_receipts") or [None])[0]
                 db.x("insert into invoice (mode, kind, doc, party, ref, amount, outstanding, issued_at, due_at, status) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                      (mode, kind, d["name"], d.get(party), ref, float(d.get("grand_total") or 0), out, _ts(m), due, "paid" if out <= 0.005 else "open"))
+
+
+def bill_orders(H, mode, now=None):
+    """演示工厂以外的工厂教学版（第 45 轮）：只做“订单做完开票”和同步 ERPNext 发票。
+    期初应收、客户付款与出纳模拟器、预算、信用额度都不做（经营与财务领域仍只在演示工厂）"""
+    db = H.db
+    now = now or now_utc()
+    init(db)
+    st = _state(db, mode)
+    if "since" not in st:
+        _patch(db, mode, {"since": now.isoformat()})
+        return []
+    since = dt.datetime.fromisoformat(st["since"])
+    out = []
+    for so, done_at in ready_orders(db, mode, real_only=True):
+        if done_at and done_at >= since:
+            r = make_sales_invoice(H, mode, so, "开票员（教学模拟器）", random.Random(), now)
+            if r:
+                out.append(r)
+    sync(db, mode, now)
+    return out
 
 
 def tick(H, mode, now=None, rng=None):

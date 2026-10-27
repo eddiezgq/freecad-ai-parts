@@ -36,6 +36,7 @@ digital/help/                 # 服务器端的说明文件（docs/帮助 经 he
 digital/docs/                 # 各轮截图
 digital/hub/design_sw_api.py  # 设计软件提交 CAE（第 39 轮第 4 步 / 第 41 轮）：学习平台上的问渠凸轮、缝纫机设计软件
 digital/tests/test_design_sw.py
+digital/tests/test_classes_deploy.py   # 班级工厂的“清单”字段（第 45 轮）：测的是问渠这边的 deploy/classes.py
 ```
 
 ## 只在那边（企业）

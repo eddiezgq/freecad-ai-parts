@@ -22,7 +22,7 @@ DIGITAL = os.path.dirname(HERE)
 REPO = os.path.dirname(os.path.dirname(DIGITAL))
 WEB = os.path.join(DIGITAL, "web", "src")
 HELP = os.path.join(WEB, "help")
-EDITIONS = ("teach", "enterprise")
+EDITIONS = ("teach", "enterprise", "robot")          # robot：机器人厂一册（第 45 轮）
 FENCE = re.compile(r"^```(\w+)[ \t]*\n(.*?)^```[ \t]*$", re.M | re.S)
 BLOCKS = {"goto", "anim", "video", "live", "ask", "lab", "try", "quiz"}
 LIVE = {"plant", "machines", "kpi", "domain"}
@@ -403,7 +403,7 @@ def test_page_help_button_targets_exist():
 
 
 def test_old_help_links_moved():
-    """以前的 /help/<文件名> 链接都改成了 /help/teach/<章>、/help/docs/<名字>"""
+    """以前的 /help/<文件名> 链接都改成了 /help/teach/<章>、/help/docs/<名字>（第 45 轮加机器人厂一册 /help/robot）"""
     bad = []
     for root, _, files in os.walk(WEB):
         for fn in files:
@@ -412,7 +412,7 @@ def test_old_help_links_moved():
                 for m in re.findall(r"""['"`](/help/[^'"`]*)""", t):
                     if fn == "main.js" or (fn == "Help.vue" and m == "/help/media") or (fn == "TryBlock.vue" and m.startswith("/help/try")):     # 路由定义；视频清单、当场动手接口
                         continue
-                    if not re.match(r"^/help/(teach|enterprise|docs)(/|$)", m) and "${" not in m and m != "/help/":
+                    if not re.match(r"^/help/(teach|enterprise|robot|docs)(/|$)", m) and "${" not in m and m != "/help/":
                         bad.append("{}：{}".format(fn, m))
     assert not bad, bad
     assert "'/api/help'" not in _read(WEB, "pages", "Help.vue")
@@ -543,10 +543,10 @@ def test_domain_live_fields_are_real():
 
 
 def test_every_chapter_covered():
-    """教学版每章：动画、视频或做完打勾、两种互动（其一在真工厂动手）、实时数据。第 30 轮 §八 8-3 逐章改写完，起强制（少一样不通过）"""
+    """教学版、机器人厂每章：动画、视频或做完打勾、两种互动（其一在真工厂动手）、实时数据。第 30 轮 §八 8-3 逐章改写完，起强制（少一样不通过）"""
     report = {}
     for ed, slug, fn, src in _chapters():
-        if ed != "teach" or (ed, slug) in COVER_EXEMPT:
+        if ed not in ("teach", "robot") or (ed, slug) in COVER_EXEMPT:
             continue
         gaps = coverage_gaps(coverage(src))
         if gaps:

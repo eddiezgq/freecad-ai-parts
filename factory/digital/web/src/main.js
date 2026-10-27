@@ -47,6 +47,8 @@ const routes = [
   { path: '/finance', component: () => import('./pages/Finance.vue') },
   { path: '/lab22', component: () => import('./pages/Lab22.vue') },
   { path: '/lab23', component: () => import('./pages/Lab23.vue') },
+  { path: '/lab24', component: () => import('./pages/Lab24.vue') },              // 第 47 轮：机器人厂的实验
+  { path: '/lab25', component: () => import('./pages/Lab25.vue') },
   { path: '/labs', component: () => import('./pages/Labs.vue') },              // 第 19 轮：实验与任务（一个入口）
   { path: '/director', component: () => import('./pages/Director.vue') },      // 第 19 轮：情景导演
   // 帮助（第 30 轮 H-3，搬自 freecad-ai-parts ADR-0065）：教学版、企业版、资料；登录前也能看，登录后在工作台框架里

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """工厂清单（第 30 轮；freecad-ai-parts ADR-0064）：一份 plant.yaml 描述一座工厂——公司、工作站、设备单元、工序、车间平面、班次、指标。
+第 2 版（第 45 轮）加产品：物料 items、工艺路线 routings、物料清单 boms、可接单的成品 products、期初与安全库存 stock、
+测试与检验的测量特性 measurements。没有这几节的清单（第 1 版）照旧：产品沿用代码里的演示数据。
 
 环境变量 WQ_PLANT_FILE 指定清单时，factory/data.py、wqbus/topics.py、wqbus/layout.py、sim/engine.py、sim/calendar.py、
 hub/kpi.py、hub/process.py 在导入时从清单取值；没指定时用代码里的演示工厂（问渠减速器厂），行为与以前完全一样。
@@ -9,7 +11,9 @@ hub/kpi.py、hub/process.py 在导入时从清单取值；没指定时用代码�
 """
 import os
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
+VERSIONS = (1, 2)                       # 第 1 版清单（没有产品几节）照样能读
+KINDS = ("raw", "buy", "make", "sub", "fg")   # 原材料、外购件、自制件、部件、成品
 AREAS = ("office", "design", "machining", "quality", "warehouse", "logistics", "ai", "field")
 STAGES = ("blank", "rough", "qt", "finish", "keyway", "gear", "harden", "grind", "inspect", "assembly", "other")
 ID_CHARS = set("abcdefghijklmnopqrstuvwxyz0123456789-")
@@ -38,7 +42,7 @@ def validate(p):
 
     if not isinstance(p, dict):
         return ["清单：不是一个对象"]
-    need(p.get("version") == SCHEMA_VERSION, "version", "要写 {}".format(SCHEMA_VERSION))
+    need(p.get("version") in VERSIONS, "version", "要写 {}".format(SCHEMA_VERSION))
     c = p.get("company") or {}
     for k in ("name", "abbr", "country", "currency", "timezone"):
         need(isinstance(c.get(k), str) and c.get(k).strip(), "company.{}".format(k), "必填")
@@ -164,6 +168,110 @@ def validate(p):
              "suppliers", "{代号: {name, lead}}")
     if p.get("customers") is not None:
         need(isinstance(p["customers"], list) and all(isinstance(x, str) and x for x in p["customers"]), "customers", "客户名称的列表")
+    errs += _validate_products(p, onames, uids)
+    return errs
+
+
+def _validate_products(p, onames, uids):
+    """第 2 版的产品几节：物料、工艺路线、物料清单、成品、库存、测量特性"""
+    errs = []
+
+    def need(cond, where, msg):
+        if not cond:
+            errs.append("{}：{}".format(where, msg))
+        return cond
+
+    keys = [k for k in ("items", "routings", "boms", "products", "stock", "measurements", "key_materials") if p.get(k) is not None]
+    if not keys:
+        return errs
+    if not need(p.get("version") == 2, "version", "有产品几节（{}）的清单要写 version: 2".format("、".join(keys))):
+        return errs
+    for k in ("items", "routings", "boms", "products"):
+        need(p.get(k), k, "有产品几节时，物料、工艺路线、物料清单、成品四节都要有")
+    sups = set((p.get("suppliers") or {}).keys())
+    items = {}
+    for i, it in enumerate(p.get("items") or []):
+        at = "items[{}]".format(i)
+        if not need(isinstance(it, dict) and isinstance(it.get("code"), str) and it["code"].strip(), at, "要有物料编号 code"):
+            continue
+        code = it["code"]
+        need(code not in items, at, "物料编号重复：{}".format(code))
+        items[code] = it
+        need(isinstance(it.get("name"), str) and it["name"], at + ".name", "要有名称")
+        need(it.get("kind") in KINDS, at + ".kind", "类别是 raw 原材料 / buy 外购件 / make 自制件 / sub 部件 / fg 成品")
+        need(isinstance(it.get("uom"), str) and it["uom"], at + ".uom", "要有单位（如 Nos、Kg、Litre）")
+        if it.get("price") is not None:
+            need(_num(it["price"]) and it["price"] >= 0, at + ".price", "单价是非负数；不知道就不写")
+        if it.get("kind") in ("raw", "buy"):
+            need(it.get("supplier") in sups, at + ".supplier", "原材料、外购件要写供应商（供应商一节里的代号）：{}".format(it.get("supplier")))
+    rnames = set()
+    for i, r in enumerate(p.get("routings") or []):
+        at = "routings[{}]".format(i)
+        if not need(isinstance(r, dict) and r.get("name"), at, "要有工艺路线名"):
+            continue
+        need(r["name"] not in rnames, at, "工艺路线重名：{}".format(r["name"]))
+        rnames.add(r["name"])
+        steps = r.get("steps") or []
+        if need(steps, at + ".steps", "至少一道工序 [工序名, 每件分钟]"):
+            for k, st in enumerate(steps):
+                ok = isinstance(st, list) and len(st) == 2 and st[0] in onames and _num(st[1]) and st[1] > 0
+                need(ok, "{}.steps[{}]".format(at, k), "[工序名（工序一节里有的）, 每件分钟 > 0]：{}".format(st))
+    parents = {}
+    for i, b in enumerate(p.get("boms") or []):
+        at = "boms[{}]".format(i)
+        if not need(isinstance(b, dict) and b.get("item") in items, at + ".item", "父件要是物料一节里的编号：{}".format(
+                b.get("item") if isinstance(b, dict) else b)):
+            continue
+        need(b["item"] not in parents, at, "一个父件只能有一张物料清单：{}".format(b["item"]))
+        need(items[b["item"]].get("kind") in ("make", "sub", "fg"), at + ".item", "只有自制件、部件、成品有物料清单")
+        need(b.get("routing") in rnames, at + ".routing", "没有这条工艺路线：{}".format(b.get("routing")))
+        comps = b.get("components") or []
+        if need(comps, at + ".components", "至少一个子件 [编号, 用量]"):
+            for k, c in enumerate(comps):
+                ok = isinstance(c, list) and len(c) == 2 and c[0] in items and _num(c[1]) and c[1] > 0
+                need(ok, "{}.components[{}]".format(at, k), "[物料编号, 用量 > 0]：{}".format(c))
+        parents[b["item"]] = [c[0] for c in comps if isinstance(c, list) and c]
+    for code, it in items.items():
+        if it.get("kind") in ("make", "sub", "fg"):
+            need(code in parents, "items：" + code, "自制件、部件、成品要有物料清单")
+    # 不能循环（A 用 B、B 又用 A）
+    state = {}
+
+    def visit(x, path):
+        if state.get(x) == 1:
+            errs.append("boms：物料清单循环引用：{}".format(" → ".join(path + [x])))
+            return
+        if state.get(x) == 2:
+            return
+        state[x] = 1
+        for c in parents.get(x, []):
+            visit(c, path + [x])
+        state[x] = 2
+    for x in parents:
+        visit(x, [])
+    for i, pr in enumerate(p.get("products") or []):
+        at = "products[{}]".format(i)
+        if need(isinstance(pr, dict) and pr.get("item") in items, at + ".item", "成品要是物料一节里的编号"):
+            need(pr["item"] in parents, at + ".item", "可接单的成品要有物料清单")
+            if pr.get("price") is not None:
+                need(_num(pr["price"]) and pr["price"] > 0, at + ".price", "售价是正数")
+    stock = p.get("stock") or {}
+    for k in ("opening", "safety"):
+        for code, q in (stock.get(k) or {}).items():
+            need(code in items and _num(q) and q >= 0, "stock.{}.{}".format(k, code), "物料一节里的编号、非负数量")
+    for code in p.get("key_materials") or []:
+        need(code in items, "key_materials", "物料一节里没有：{}".format(code))
+    for i, m in enumerate(p.get("measurements") or []):
+        at = "measurements[{}]".format(i)
+        if not need(isinstance(m, dict) and m.get("item") in items, at + ".item", "物料一节里的编号"):
+            continue
+        need(m.get("operation") in onames, at + ".operation", "在哪道工序测（工序一节里有的）：{}".format(m.get("operation")))
+        for k, c in enumerate(m.get("chars") or []):
+            a2 = "{}.chars[{}]".format(at, k)
+            ok = isinstance(c, dict) and c.get("code") and c.get("name") and all(_num(c.get(x)) for x in ("nominal", "lo", "hi", "sigma"))
+            if need(ok, a2, "{code, name, unit, nominal, lo, hi, sigma}（sigma 是仿真的散布，示例值）"):
+                need(c["lo"] <= c["nominal"] <= c["hi"] and c["sigma"] >= 0, a2, "要 下限 ≤ 名义 ≤ 上限、sigma ≥ 0")
+        need(m.get("chars"), at + ".chars", "至少一个测量特性")
     return errs
 
 
@@ -211,6 +319,53 @@ def derive(p):
         "TARGET": {k: p["kpi"][k] for k in ("on_time", "oee", "fpy")},
         "SUPPLIERS": p.get("suppliers"),
         "CUSTOMERS": p.get("customers"),
+        **derive_products(p),
+    }
+
+
+def _bottom_up(boms):
+    """物料清单按从下到上排（子件的清单在前），与代码里 BOMS 的顺序约定一致"""
+    by = {b["item"]: b for b in boms}
+    out, seen = [], set()
+
+    def visit(x):
+        if x in seen or x not in by:
+            return
+        seen.add(x)
+        for c, _ in by[x]["components"]:
+            visit(c)
+        out.append(x)
+    for b in boms:
+        visit(b["item"])
+    return [by[x] for x in out]
+
+
+def derive_products(p):
+    """第 2 版的产品几节 → 与 factory/data.py 同形状的常量；第 1 版清单返回空 {}（沿用代码里的演示产品）"""
+    if not p.get("items"):
+        return {}
+    meas = p.get("measurements") or []
+    tmpl_of = {m["item"]: "检验-" + m["item"] for m in meas}
+    items = {}
+    for it in p["items"]:
+        items[it["code"]] = (it["name"], it["kind"], it["uom"], it.get("price"), it.get("supplier"),
+                             it.get("inspection") or tmpl_of.get(it["code"]), it.get("note") or "")
+    stock = p.get("stock") or {}
+    return {
+        "ITEMS": items,
+        "ROUTINGS": {r["name"]: [tuple(x) for x in r["steps"]] for r in p["routings"]},
+        "BOMS": {b["item"]: (b["routing"], [tuple(x) for x in b["components"]]) for b in _bottom_up(p["boms"])},
+        "PRODUCTS": {pr["item"]: pr.get("price") for pr in p["products"]},
+        "OPENING_STOCK": dict(stock.get("opening") or {}),
+        "SAFETY_STOCK": dict(stock.get("safety") or {}),
+        "LIBRARY_REFS": {it["code"]: it["library"] for it in p["items"] if it.get("library")},
+        "INSPECTION_TEMPLATES": {tmpl_of[m["item"]]: [
+            {"parameter": "{} ({})".format(c["name"], c.get("unit") or "mm"), "numeric": 1, "min": c["lo"], "max": c["hi"]}
+            for c in m["chars"]] for m in meas},
+        "MEASURE": {(m["item"], m["operation"]): [dict(c) for c in m["chars"]] for m in meas},
+        # 首页“关键物料”：清单写了 key_materials 就用；没写取有安全库存的，再不够取前几种原材料、外购件
+        "KEY_MATERIALS": list(p.get("key_materials") or (list(stock.get("safety") or {}) + [
+            it["code"] for it in p["items"] if it["kind"] in ("raw", "buy") and it["code"] not in (stock.get("safety") or {})])[:4]),
     }
 
 
@@ -266,6 +421,11 @@ def brief():
     ws = "、".join("{}（{} 台）".format(k, v[0]) for k, v in (p.get("WORKSTATIONS") or {}).items())
     ops = "、".join(p.get("OPERATIONS") or {})
     cus = "、".join(p.get("CUSTOMERS") or []) or "（清单里没有登记）"
+    if p.get("PRODUCTS"):                  # 清单第 2 版：可接单的成品与物料清单都在清单里
+        items = p["ITEMS"]
+        prods = "、".join("{} {}".format(c, items[c][0]) for c in p["PRODUCTS"])
+        return ("工厂数据：可接单的成品 {}；工作站 {}；工序 {}。物料、BOM、工艺路线以 ERPNext 为准（从工厂清单导入）。"
+                "客户：{}。").format(prods, ws, ops, cus)
     return ("工厂数据：工作站 {}；工序 {}。产品从设计经“转为生产物料”进来，物料、BOM、工艺路线以 ERPNext 为准。"
             "客户：{}。").format(ws, ops, cus)
 
@@ -327,6 +487,20 @@ def export_demo():
             o["inspection"] = True
         ops.append(o)
     cal = CAL.Calendar()
+    items = []
+    for code, (name, kind, uom, price, sup, insp, note) in F.ITEMS.items():
+        it = {"code": code, "name": name, "kind": kind, "uom": uom}
+        if price is not None:
+            it["price"] = price
+        if sup:
+            it["supplier"] = sup
+        if insp:
+            it["inspection"] = insp
+        if note:
+            it["note"] = note
+        if code in F.LIBRARY_REFS:
+            it["library"] = F.LIBRARY_REFS[code]
+        items.append(it)
     return {
         "version": SCHEMA_VERSION, "id": "wenquest-gearbox", "demo_data": True,
         "company": dict(DEMO_COMPANY),
@@ -337,6 +511,13 @@ def export_demo():
         "kpi": dict(K.TARGET),
         "suppliers": {k: dict(v) for k, v in F.SUPPLIERS.items()},
         "customers": list(F.CUSTOMERS),
+        # 第 2 版：产品（演示减速器厂的三坐标测量用自己的误差模型 sim/errors.py，不写 measurements）
+        "items": items,
+        "routings": [{"name": k, "steps": [list(x) for x in v]} for k, v in F.ROUTINGS.items()],
+        "boms": [{"item": k, "routing": rt, "components": [list(x) for x in comps]} for k, (rt, comps) in F.BOMS.items()],
+        "products": [{"item": k, "price": v} for k, v in F.PRODUCTS.items()],
+        "stock": {"opening": dict(F.OPENING_STOCK), "safety": dict(F.SAFETY_STOCK)},
+        "key_materials": list(F.KEY_MATERIALS),
     }
 
 
@@ -396,8 +577,9 @@ def main(argv=None):
     except PlantError as e:
         print(e)
         return 1
-    print("清单无误：{}，{} 个工作站、{} 台设备、{} 道工序".format(
-        p["COMPANY"]["name"], len(p["WORKSTATIONS"]), len(p["UNITS"]), len(p["OPERATIONS"])))
+    print("清单无误：{}，{} 个工作站、{} 台设备、{} 道工序{}".format(
+        p["COMPANY"]["name"], len(p["WORKSTATIONS"]), len(p["UNITS"]), len(p["OPERATIONS"]),
+        "，{} 种物料、{} 张物料清单、{} 种可接单的成品".format(len(p["ITEMS"]), len(p["BOMS"]), len(p["PRODUCTS"])) if p.get("ITEMS") else ""))
     return 0
 
 

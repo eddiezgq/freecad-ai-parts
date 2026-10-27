@@ -20,7 +20,9 @@ GUIDES = {"lab8": GUIDE_MD, "lab9": os.path.join(HERE, "实验9_机械臂关节�
           "lab20": os.path.join(HERE, "实验20_供应链来料不合格与供应商选择.md"),
           "lab21": os.path.join(HERE, "实验21_能源空转错峰与单件碳足迹.md"),
           "lab22": os.path.join(HERE, "实验22_经营订单毛利应收与现金.md"),
-          "lab23": os.path.join(HERE, "实验23_两周情景一张急单的全厂决策.md")}
+          "lab23": os.path.join(HERE, "实验23_两周情景一张急单的全厂决策.md"),
+          "lab24": os.path.join(HERE, "实验24_一台协作机器人从订单到交付.md"),
+          "lab25": os.path.join(HERE, "实验25_关节背隙异常的追因与8D.md")}
 
 
 def _doc():
@@ -132,6 +134,8 @@ def report_template_docx(lab="lab8"):
         return lab22_template()
     if lab == "lab23":
         return lab23_template()
+    if lab in ("lab24", "lab25"):
+        return robot_template(lab)
     from docx.shared import Pt
     d = _doc()
     d.add_heading("实验 8　输出轴强度与疲劳校核　实验报告", 0)
@@ -933,6 +937,65 @@ def lab23_template():
     d.add_heading("六、讨论", 1)
     hint("哪个决定对毛利影响最大；交期、成本、安全冲突时怎么排先后；真实工厂里哪些钱追不到源头")
     d.add_paragraph("")
+    buf = io.BytesIO()
+    d.save(buf)
+    return buf.getvalue()
+
+
+def robot_template(lab):
+    """实验 24、25 报告模板（第 47 轮，机器人厂）"""
+    from docx.shared import Pt
+    d = _doc()
+
+    def table(rows, head=True):
+        t = d.add_table(rows=len(rows), cols=len(rows[0]))
+        t.style = "Table Grid"
+        for r, row in enumerate(rows):
+            for c, v in enumerate(row):
+                t.cell(r, c).text = v
+                if head and r == 0:
+                    for run in t.cell(r, c).paragraphs[0].runs:
+                        run.bold = True
+        d.add_paragraph()
+
+    def hint(text):
+        p = d.add_paragraph(text)
+        p.runs[0].italic = True
+        p.runs[0].font.size = Pt(9)
+
+    if lab == "lab24":
+        d.add_heading("实验 24　一台协作机器人从订单到交付　实验报告", 0)
+        table([["班级", "", "组号", ""], ["姓名 / 学号", "", "日期", ""]], head=False)
+        d.add_heading("一、订单与算料（任务 1）", 1)
+        table([["项目", "记录"], ["销售订单号、客户、交期", ""], ["工单张数，分别是哪些物料", ""], ["关节模组：大 / 中 / 小各几台", ""],
+               ["请购了什么（没有请购的说明为什么库存够）", ""]])
+        d.add_heading("二、物料清单与下达顺序（任务 2）", 1)
+        hint("画出 WQ-CR5 的多层物料清单（至少到关节壳体、空心轴这一层），在每个自制件、部件旁写工单号和下达时刻。")
+        table([["层", "物料", "工单号", "下达时刻", "它用到的下一层完工入库时刻"], ["", "", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""]])
+        d.add_heading("三、关节测试与整机标定（任务 3、4）", 1)
+        table([["关节序列号", "背隙（′）", "空载摩擦力矩（N·m）", "零位残差（″）", "判定与理由"], ["", "", "", "", ""], ["", "", "", "", ""]])
+        table([["整机", "位置重复精度（mm）", "绝对定位误差（mm）", "入库时间", "销售发票号、金额"], ["WQ-CR5", "", "", "", ""]])
+        d.add_heading("四、成本（任务 5）", 1)
+        table([["工单（物料）", "标准成本", "实际成本", "差额", "差在哪里（调整、换刀、超时）"], ["", "", "", "", ""], ["", "", "", "", ""],
+               ["整台（含材料）", "", "", "", ""]])
+        d.add_heading("五、复盘与讨论（任务 6）", 1)
+        hint("和实验 7（减速器厂的一根输出轴）比，造一台机器人多了哪些环节、哪些风险？如果整机交期提前一周，你会先动哪一层？")
+    else:
+        d.add_heading("实验 25　关节背隙异常的追因与 8D　实验报告", 0)
+        table([["班级", "", "组号", ""], ["姓名 / 学号", "", "日期", ""]], head=False)
+        d.add_heading("一、发现（任务 1）", 1)
+        table([["项目", "记录"], ["出问题的特性（物料 · 特性）", ""], ["触发的判异规则、从第几台开始", ""], ["当时的超差台数", ""]])
+        hint("贴控制图截图，标出触发判异的那几点。")
+        d.add_heading("二、分层（任务 2）", 1)
+        table([["分组方式", "组", "台数", "均值", "超差台数"], ["装配工位", "ja-1", "", "", ""], ["", "ja-2", "", "", ""],
+               ["谐波减速器批次", "", "", "", ""], ["", "", "", "", ""], ["测试顺序（前一半 / 后一半）", "", "", "", ""]])
+        table([["项目", "记录"], ["结论：问题出在哪一组", ""], ["依据（哪两组的差多少，远大于随机散布吗）", ""]])
+        d.add_heading("三、8D（任务 3–5）", 1)
+        table([["步骤", "内容"], ["D1 小组", ""], ["D2 问题描述（5W2H，带数据）", ""], ["D3 临时措施（已做的关节怎么办）", ""],
+               ["D4 根本原因（5 Why）", ""], ["D5 纠正措施（选了哪一项，为什么别的不对症）", ""],
+               ["D6 验证：措施前后台数、均值、超差、Cpk", ""], ["D7 预防再发生（改了哪些文件、加了什么防错）", ""], ["D8 总结", ""]])
+        d.add_heading("四、讨论", 1)
+        hint("如果三种原因同时存在，分层表会是什么样子？出厂检验 100% 复测能代替纠正措施吗？")
     buf = io.BytesIO()
     d.save(buf)
     return buf.getvalue()

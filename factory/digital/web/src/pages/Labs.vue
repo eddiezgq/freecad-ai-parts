@@ -3,7 +3,7 @@
   <div class="page">
     <div class="page-title"><h1>实验与任务</h1>
       <span class="muted">每个实验平台自动评一部分分数，报告由老师在课程里批改</span>
-      <span class="r small"><router-link to="/help/teach/labs">帮助</router-link><template v-if="d?.teacher"> · <router-link to="/director">情景导演</router-link></template></span></div>
+      <span class="r small"><router-link :to="robot ? '/help/robot/labs' : '/help/teach/labs'">帮助</router-link><template v-if="d?.teacher && !robot"> · <router-link to="/director">情景导演</router-link></template></span></div>
     <div v-if="err" class="err">{{ err }}</div>
     <p v-if="d && d.mode !== 'teach'" class="card empty">实验只在教学模式出现。右上角切到“教学模式”。</p>
     <div v-if="d && d.mode === 'teach'" class="grid" data-help="labs-grid">
@@ -13,18 +13,19 @@
         <p class="small muted">{{ typeof l.hours === 'number' ? l.hours + ' 学时' : l.hours }} · {{ l.tasks }} 个任务{{ l.team ? ' · 4–6 人一组' : '' }}</p>
         <p class="sc"><b>{{ l.score }}</b> / {{ l.of }}<span class="small muted">（自动评）+ 报告 {{ l.report_points || '—' }}</span>
           <span class="small st">{{ l.done === l.tasks ? '✓ 全部完成' : (l.started ? '做到第 ' + (l.done + 1) + ' 个任务' : '还没开始') }}</span></p>
-        <a v-if="l.guide" class="small" :href="l.guide" @click.stop>指导书</a>
+        <span class="small"><a v-if="l.guide" :href="l.guide" @click.stop>指导书</a><template v-if="l.template"> · <a :href="l.template" @click.stop>报告模板</a></template></span>
       </router-link>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { get } from '../lib/api';
 
 const d = ref(null);
 const err = ref('');
+const robot = computed(() => !!d.value?.labs?.some((l) => l.plant));          // 机器人厂的实验 24、25（第 47 轮）
 onMounted(async () => { try { d.value = await get('/labs'); } catch (e) { err.value = e.message; } });
 </script>
 

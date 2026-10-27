@@ -32,7 +32,9 @@ const span = computed(() => {
 const y = (v) => 8 + (1 - (v - span.value[0]) / (span.value[1] - span.value[0])) * (H - 16);
 const x = (i) => L + 6 + (i * (W - L - 18)) / Math.max(1, pts.value.length - 1);
 const line = computed(() => pts.value.map((p, i) => `${x(i).toFixed(1)},${y(p.value).toFixed(1)}`).join(' '));
-const tick = (v) => '.' + String(Math.round((v % 1) * 1000)).padStart(3, '0');
+// 三条线同一个整数部分（如 Ø35 的 35.009/35.018）只标小数，省地方；否则（清单里的背隙、零位残差等，第 45 轮）标完整数值
+const sameInt = computed(() => [props.chart.upper, props.chart.lower].every((v) => Math.trunc(v) === Math.trunc(props.chart.center)) && props.chart.center > 0);
+const tick = (v) => (sameInt.value ? '.' + String(Math.round((v % 1) * 1000)).padStart(3, '0') : String(Number(v.toFixed(3))));
 const label = computed(() => `控制图：最近 ${pts.value.length} 件，上限 ${props.chart.upper}，下限 ${props.chart.lower}`);
 </script>
 

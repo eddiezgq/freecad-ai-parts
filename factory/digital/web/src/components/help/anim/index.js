@@ -15,4 +15,7 @@ export const ANIMS = {
   risk: defineAsyncComponent(() => import('./RiskAnim.vue')),
   'energy-day': defineAsyncComponent(() => import('./EnergyDayAnim.vue')),
   spc: defineAsyncComponent(() => import('./SpcAnim.vue')),
+  // 第 45 轮：机器人厂
+  'bom-tree': defineAsyncComponent(() => import('./BomTreeAnim.vue')),
+  'joint-test': defineAsyncComponent(() => import('./JointTestAnim.vue')),
 };

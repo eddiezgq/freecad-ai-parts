@@ -12,13 +12,11 @@
         <div ref="host" class="scene" aria-hidden="true"></div>
         <div class="hero-txt">
           <div class="eds" role="tablist" aria-label="帮助版本">
-            <button v-for="e in EDITIONS" :key="e.key" role="tab" :aria-selected="e.key === ed" :class="{ on: e.key === ed }"
+            <button v-for="e in eds" :key="e.key" role="tab" :aria-selected="e.key === ed" :class="{ on: e.key === ed }"
               @click="setEd(e.key)">{{ e.name }}<span>{{ e.who }}</span></button>
           </div>
-          <h1>{{ ed === 'teach' ? '从一张图纸，到一台出厂的产品' : '把你的车间搬进数字工厂' }}</h1>
-          <p class="lead">{{ ed === 'teach'
-            ? `${plantName}在你眼前运转：设计、ERP、MRP、MES、车间、质量、厂情中枢连成一条线。点下面任一站，看它怎么做。`
-            : `${plantName}的数字工厂：交一份 Excel 建好车间，产品从 FreeCAD 进来，计划、生产、质量、经营在一个工作台上。` }}</p>
+          <h1>{{ HERO[ed]?.[0] || HERO.enterprise[0] }}</h1>
+          <p class="lead">{{ (HERO[ed] || HERO.enterprise)[1].replace('{厂名}', plantName) }}</p>
         </div>
         </div>
         <div class="hero-flow">
@@ -123,7 +121,7 @@
 // 帮助（第 30 轮 H-3，搬自 freecad-ai-parts ADR-0065）：教学版、企业版，另有“资料”（以前的帮助文件）。首页是实时 3D 车间和全流程动画；正文是 Markdown 加自定义块（带我去做、动画、视频、实时数据、问 AI）。
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { EDITIONS, STAGE_CHAPTER, chapterFiles } from '../help';
+import { EDITIONS, STAGE_CHAPTER, chapterFiles, editionsFor } from '../help';
 import { parse } from '../lib/helpdoc';
 import { get, loadConfig, session } from '../lib/api';
 import { bus, connectBus, onBus } from '../lib/bus';
@@ -140,8 +138,14 @@ const host = ref(null);
 let ws = null;
 let off = null;
 
-// 缺省版本：演示工厂打开教学版，企业工厂（工厂清单 demo_data: false）打开企业版
-const defaultEd = computed(() => (cfg.value?.plant?.demo === false ? 'enterprise' : 'teach'));
+// 缺省版本：演示工厂打开教学版，企业工厂（工厂清单 demo_data: false）打开企业版；有自己一册的厂（机器人厂，第 45 轮）打开那一册
+const eds = computed(() => editionsFor(cfg.value?.plant?.id));
+const defaultEd = computed(() => eds.value.find((e) => e.plant)?.key || (cfg.value?.plant?.demo === false ? 'enterprise' : 'teach'));
+const HERO = {
+  teach: ['从一张图纸，到一台出厂的产品', '{厂名}在你眼前运转：设计、ERP、MRP、MES、车间、质量、厂情中枢连成一条线。点下面任一站，看它怎么做。'],
+  enterprise: ['把你的车间搬进数字工厂', '{厂名}的数字工厂：交一份 Excel 建好车间，产品从 FreeCAD 进来，计划、生产、质量、经营在一个工作台上。'],
+  robot: ['一张订单，造出一台机器人', '问渠数字工业园 · {厂名}造协作机器人、搬运 AGV 和关节模组：一张订单按多层物料清单展开，关节逐台测试、整机标定，做完开票。点下面任一站，看它怎么做。'],
+};
 const ed = computed(() => (EDITIONS.some((e) => e.key === route.params.ed) ? route.params.ed : defaultEd.value));
 const isDocs = computed(() => route.params.ed === 'docs');
 const edName = computed(() => EDITIONS.find((e) => e.key === ed.value)?.name);

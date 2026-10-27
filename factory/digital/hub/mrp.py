@@ -28,14 +28,35 @@ def lot_size(code):
     return LOT["raw_kg"] if F.ITEMS[code][2] == "Kg" else LOT["default"]
 
 
+def std_rollup(item):
+    """多层标准成本（第 47 轮）：材料按物料清单逐层累加到外购件、原材料；工序分本层和含下层的合计"""
+    if item not in F.BOMS:
+        return {"material": float(F.ITEMS[item][3] or 0), "operations_own": 0.0, "operations": 0.0}
+    mat = below = 0.0
+    for c, q in F.BOMS[item][1]:
+        r = std_rollup(c)
+        mat += q * r["material"]
+        below += q * r["operations"]
+    own = sum(mins / 60 * rate_per_hour(OP_UNITS[op][0]) for op, mins in routing_for(item))
+    return {"material": mat, "operations_own": own, "operations": own + below}
+
+
 def std_unit_cost(item):
-    """标准成本：材料 + 各工序（工时 × 工位小时费率）。"""
-    mat = sum(q * (F.ITEMS[c][3] or 0) for c, q in F.BOMS[item][1])
-    ops = 0.0
-    for op, mins in routing_for(item):
-        unit = OP_UNITS[op][0]
-        ops += mins / 60 * rate_per_hour(unit)
-    return round(mat, 2), round(ops, 2)
+    """标准成本：材料（逐层累加）+ 本层各工序（工时 × 工位小时费率）。输出轴这类只有原材料的件与原来一样。"""
+    r = std_rollup(item)
+    return round(r["material"], 2), round(r["operations_own"], 2)
+
+
+SOURCE_OF = {"make": "semi", "sub": "semi", "buy": "purchased", "raw": "raw"}   # 物料类别 → 领料仓库（桥接按它填工单）
+
+
+def _source(code):
+    """领料仓库：清单第 2 版写的物料按类别（期初库存按类别进库，第 45 轮）；新产品进工厂的外购件到货进原材料库，照旧从原材料库领"""
+    kind = F.ITEMS[code][1]
+    act = _plant.active() or {}
+    if kind == "buy" and code not in (act.get("ITEMS") or {}):
+        return "raw"
+    return SOURCE_OF.get(kind, "raw")
 
 
 def plan_order(db, customer, item, qty, delivery_date, mode="teach", now=None):
@@ -117,9 +138,9 @@ def plan_order(db, customer, item, qty, delivery_date, mode="teach", now=None):
             w = {"production_item": code, "qty": int(q), "bom_no": None, "planned_start_date": start.isoformat(),
                  "expected_delivery_date": end.isoformat(), "est_minutes": mins,
                  "routing": [op for op, _ in routing_for(code)]}
-            if whole:   # 成品进成品库、自制件进半成品库；成品领料：自制件从半成品库，其余从原材料库
+            if whole:   # 成品进成品库、自制件进半成品库；领料：自制件、部件从半成品库，外购件从外购件库，原材料从原材料库
                 w["warehouse"] = "fg" if code == item else "semi"
-                w["sources"] = {c: ("semi" if F.ITEMS[c][1] in ("make", "sub") else "raw") for c, _ in F.BOMS[code][1]}
+                w["sources"] = {c: _source(c) for c, _ in F.BOMS[code][1]}
             wos.append(w)
         else:
             deferred.append({"item_code": code, "qty": q, "name": F.ITEMS[code][0]})
@@ -127,11 +148,11 @@ def plan_order(db, customer, item, qty, delivery_date, mode="teach", now=None):
     if _plant.is_demo():                # 演示工厂的输出轴标准成本；企业工厂没有这道工艺
         mat, ops = std_unit_cost("SH-301")
         std = {"material": mat, "operations": ops, "total": round(mat + ops, 2)}
-    price = (F.ITEMS.get(item) or (None,) * 4)[3]       # 其他产品的售价取物料主数据（没有就不填）
+    # 售价：可接单成品的售价（清单 products；演示工厂 WQR-105 = FG_SELLING_PRICE），没有再取物料主数据（都没有就不填）
+    price = F.PRODUCTS.get(item) if F.PRODUCTS.get(item) is not None else (F.ITEMS.get(item) or (None,) * 4)[3]
     preview = {
         "sales_order": {"customer": customer, "company": COMPANY, "item_code": item, "qty": qty,
-                        "rate": F.FG_SELLING_PRICE if item == "WQR-105" else price,
-                        "amount": F.FG_SELLING_PRICE * qty if item == "WQR-105" else (price * qty if price else None),
+                        "rate": price, "amount": price * qty if price is not None else None,
                         "delivery_date": due.isoformat(), "transaction_date": today.isoformat()},
         "mrp": rows,
         "work_orders": wos,

@@ -1,0 +1,230 @@
+# 工厂清单（ADR-0064；第 2 版见问渠第 45 轮）。改完用 python -m factory.plant check 本文件 校验。
+# 问渠数字工业园 · 机器人厂（第 45 轮）：六轴协作机器人 WQ-CR5、搬运 AGV WQ-AGV300、关节模组 WQJ-L / M / S。
+# 外购件型号：谐波减速器 CSF、深沟球轴承、激光扫描仪取自问渠零件库（library: 那一行是零件库编号）；
+# 零件库里没有的（伺服电机、编码器、驱动、电池、控制器……）名称里写“型号待确认”，不编型号。
+# 单价、交货期、工时、设备费率、车间尺寸、测量公差与散布都是示例值，不是哪家真实工厂的数据。
+version: 2
+id: wenquest-robot
+demo_data: false
+company:
+  name: 问渠机器人厂 WenQuest Robotics (Demo)
+  abbr: WQRB
+  country: United States
+  currency: USD
+  timezone: America/New_York
+workstations:
+- {name: 带锯床 SAW-R, count: 1, cost: [8, 14, 3]}
+- {name: 数控车床 CNC-R, count: 2, cost: [18, 24, 6], power: [11, 0.85]}
+- {name: 立式加工中心 VMC-R, count: 2, cost: [28, 26, 8], power: [15, 0.85]}
+- {name: 外圆磨床 GRD-R, count: 1, cost: [20, 26, 6]}
+- {name: 三坐标 CMM-R, count: 1, cost: [12, 30, 2]}
+- {name: 关节装配工位 JA, count: 2, cost: [4, 28, 2]}
+- {name: 关节测试台 JT, count: 1, cost: [10, 30, 4]}
+- {name: 整机装配单元 RA, count: 1, cost: [6, 30, 2]}
+- {name: 整机标定工位 CAL, count: 1, cost: [15, 32, 3]}
+- {name: 负载跑合台 RUN-R, count: 1, cost: [8, 16, 6]}
+- {name: AGV 装配工位 AA, count: 1, cost: [4, 28, 2]}
+- {name: AGV 调试场地 AT, count: 1, cost: [6, 28, 3]}
+units:
+- {id: saw-r1, area: machining, name: 带锯床, name_en: Band saw, workstation: 带锯床 SAW-R, layout: [6, 5, 3, 2], height_m: 1.2, setup_min: 3}
+- {id: cnc-r1, area: machining, name: 数控车床 1 号, name_en: CNC lathe 1, workstation: 数控车床 CNC-R, layout: [12, 5, 3.5, 2], height_m: 1.8,
+   setup_min: 10, wear_per_part: 0.0167, spindle: [1200, 150]}
+- {id: cnc-r2, area: machining, name: 数控车床 2 号, name_en: CNC lathe 2, workstation: 数控车床 CNC-R, layout: [17.5, 5, 3.5, 2], height_m: 1.8,
+   setup_min: 10, wear_per_part: 0.0167, spindle: [1600, 90]}
+- {id: vmc-r1, area: machining, name: 立式加工中心 1 号, name_en: VMC 1, workstation: 立式加工中心 VMC-R, layout: [23.5, 5, 3.5, 3], height_m: 2.3,
+   setup_min: 12}
+- {id: vmc-r2, area: machining, name: 立式加工中心 2 号, name_en: VMC 2, workstation: 立式加工中心 VMC-R, layout: [29.5, 5, 3.5, 3], height_m: 2.3,
+   setup_min: 12}
+- {id: grd-r1, area: machining, name: 外圆磨床, name_en: Cylindrical grinder, workstation: 外圆磨床 GRD-R, layout: [35.5, 5, 3.5, 2], height_m: 1.7,
+   setup_min: 8, wear_per_part: 0.02, tool_change_min: 8}
+- {id: cmm-r1, area: quality, name: 三坐标测量室, name_en: CMM room, workstation: 三坐标 CMM-R, layout: [41.5, 5, 4, 3], height_m: 1.5, setup_min: 2}
+- {id: ja-1, area: machining, name: 关节装配工位 1 号, name_en: Joint assembly 1, workstation: 关节装配工位 JA, layout: [8, 15, 3, 2], height_m: 1.0}
+- {id: ja-2, area: machining, name: 关节装配工位 2 号, name_en: Joint assembly 2, workstation: 关节装配工位 JA, layout: [13, 15, 3, 2], height_m: 1.0}
+- {id: jt-1, area: quality, name: 关节测试台, name_en: Joint test bench, workstation: 关节测试台 JT, layout: [19, 15, 3, 2], height_m: 1.3}
+- {id: ra-1, area: machining, name: 整机装配单元, name_en: Robot assembly cell, workstation: 整机装配单元 RA, layout: [26, 15, 5, 4], height_m: 1.6}
+- {id: cal-1, area: quality, name: 整机标定工位, name_en: Robot calibration cell, workstation: 整机标定工位 CAL, layout: [33, 15, 4, 4], height_m: 2.0}
+- {id: run-r1, area: quality, name: 负载跑合台, name_en: Load run-in stand, workstation: 负载跑合台 RUN-R, layout: [40, 15, 4, 4], height_m: 1.6}
+- {id: aa-1, area: machining, name: AGV 装配工位, name_en: AGV assembly, workstation: AGV 装配工位 AA, layout: [15, 25, 5, 4], height_m: 1.0}
+- {id: at-1, area: quality, name: AGV 调试场地, name_en: AGV test area, workstation: AGV 调试场地 AT, layout: [24, 25, 7, 5], height_m: 0.3}
+- {id: store-r1, area: warehouse, name: 原材料与外购件库, name_en: Raw & purchased store, layout: [6, 25, 5, 4], height_m: 3}
+- {id: store-r2, area: warehouse, name: 成品库, name_en: Finished goods store, layout: [40, 25, 5, 4], height_m: 3}
+- {id: agv-r1, area: logistics, name: 物流小车 1 号, name_en: AGV 1, home: [3, 10]}
+- {id: agv-r2, area: logistics, name: 物流小车 2 号, name_en: AGV 2, home: [3, 20]}
+dashboard: [saw-r1, cnc-r1, cnc-r2, vmc-r1, vmc-r2, grd-r1, cmm-r1, ja-1, ja-2, jt-1, ra-1, cal-1, run-r1, aa-1, at-1]
+stores: {raw: store-r1, finished: store-r2}
+operations:
+- {name: 下料 Sawing, workstation: 带锯床 SAW-R, units: [saw-r1], stage: blank}
+- {name: 粗车 Rough turning, workstation: 数控车床 CNC-R, units: [cnc-r1, cnc-r2], stage: rough}
+- {name: 精车 Finish turning, workstation: 数控车床 CNC-R, units: [cnc-r2, cnc-r1], stage: finish}
+- {name: 铣削 Milling, workstation: 立式加工中心 VMC-R, units: [vmc-r1, vmc-r2], stage: rough}
+- {name: 精铣钻孔 Finish milling & drilling, workstation: 立式加工中心 VMC-R, units: [vmc-r2, vmc-r1], stage: finish}
+- {name: 磨外圆 Cylindrical grinding, workstation: 外圆磨床 GRD-R, units: [grd-r1], stage: grind}
+- {name: 零件检验 Part inspection, workstation: 三坐标 CMM-R, units: [cmm-r1], stage: inspect, inspection: true}
+- {name: 关节装配 Joint assembly, workstation: 关节装配工位 JA, units: [ja-1, ja-2], stage: assembly}
+- {name: 关节测试 Joint test, workstation: 关节测试台 JT, units: [jt-1], stage: inspect, inspection: true}
+- {name: 整机装配 Robot assembly, workstation: 整机装配单元 RA, units: [ra-1], stage: assembly}
+- {name: 整机标定 Robot calibration, workstation: 整机标定工位 CAL, units: [cal-1], stage: other}
+- {name: 负载跑合 Load run-in, workstation: 负载跑合台 RUN-R, units: [run-r1], stage: other}
+- {name: 出厂检验 Final inspection, workstation: 整机标定工位 CAL, units: [cal-1], stage: inspect, inspection: true}
+- {name: AGV 装配 AGV assembly, workstation: AGV 装配工位 AA, units: [aa-1], stage: assembly}
+- {name: AGV 调试 AGV test, workstation: AGV 调试场地 AT, units: [at-1], stage: inspect, inspection: true}
+- {name: 包装 Packing, workstation: 整机装配单元 RA, units: [ra-1], stage: other}
+floor: {length_m: 46, width_m: 30, aisles_y: [10, 20], cross_x: 3}
+shift:
+  periods: [['08:00:00', '12:00:00'], ['13:00:00', '17:00:00']]
+  workdays: [0, 1, 2, 3, 4]
+  max_overtime_min: 180
+kpi: {on_time: 0.95, oee: 0.7, fpy: 0.97}
+suppliers:
+  metals: {name: 示例·华东铝业 East China Aluminium (Demo), lead: 5}
+  harmonic: {name: 示例·谐波减速器代理商 Strain-wave Gear Distributor (Demo), lead: 20}
+  servo: {name: 示例·伺服电机供应商 Servo Supplier (Demo), lead: 14}
+  electronics: {name: 示例·电子元件商 Electronics Supplier (Demo), lead: 7}
+  hardware: {name: 示例·标准件商 Fastener Supplier (Demo), lead: 3}
+  gearbox: {name: 问渠减速器厂 WenQuest Gearbox (Demo), lead: 10}
+  agvparts: {name: 示例·AGV 配件商 AGV Parts Supplier (Demo), lead: 10}
+customers:
+- 示例·汽车零部件厂 Auto Parts Plant (Demo)
+- 示例·电子装配厂 Electronics Assembly (Demo)
+- 示例·物流仓储中心 Logistics Center (Demo)
+items:
+# 原材料
+- {code: RM-AL6061-D120, name: 6061 铝合金棒 Ø120 Aluminium bar 6061 Ø120, kind: raw, uom: Kg, price: 4.2, supplier: metals, note: 关节壳体用料}
+- {code: RM-AL6061-P20, name: 6061 铝合金板 20 mm Aluminium plate 6061, kind: raw, uom: Kg, price: 4.0, supplier: metals, note: 底座用料}
+- {code: RM-AL-TUBE-D90, name: 6061 铝合金管 Ø90×5 Aluminium tube, kind: raw, uom: Kg, price: 4.6, supplier: metals, note: 大臂、小臂用料}
+- {code: RM-40CR-D60, name: 40Cr 圆钢 Ø60 Steel bar 40Cr Ø60, kind: raw, uom: Kg, price: 2.2, supplier: metals, note: 空心输出轴用料}
+# 外购件：零件库里有的
+- {code: HD-CSF-32-100, name: 谐波减速器 CSF-32-100 Strain wave gear, kind: buy, uom: Nos, price: 900, supplier: harmonic, library: D-RDC-HD-CSF/32-100}
+- {code: HD-CSF-25-100, name: 谐波减速器 CSF-25-100 Strain wave gear, kind: buy, uom: Nos, price: 700, supplier: harmonic, library: D-RDC-HD-CSF/25-100}
+- {code: HD-CSF-17-100, name: 谐波减速器 CSF-17-100 Strain wave gear, kind: buy, uom: Nos, price: 500, supplier: harmonic, library: D-RDC-HD-CSF/17-100}
+- {code: BRG-6010, name: 深沟球轴承 6010 Ball bearing 50×80×16, kind: buy, uom: Nos, price: 9, supplier: hardware, library: A-BRG-DG/6010}
+- {code: BRG-6007, name: 深沟球轴承 6007 Ball bearing 35×62×14, kind: buy, uom: Nos, price: 7, supplier: hardware, library: A-BRG-DG/6007}
+- {code: BRG-6004, name: 深沟球轴承 6004 Ball bearing 20×42×12, kind: buy, uom: Nos, price: 4, supplier: hardware, library: A-BRG-DG/6004}
+- {code: LDR-TIM781, name: 激光扫描仪 SICK TiM781 Laser scanner, kind: buy, uom: Nos, price: 1500, supplier: electronics, library: D-LDR-SICK-TIM/TiM781-2174101}
+- {code: WQR-105, name: 二级圆柱齿轮减速器 WQR-105 Two-stage gear reducer, kind: buy, uom: Nos, price: 1650, supplier: gearbox, library: C-RED-WQR105/default,
+   note: 问渠减速器厂的成品，AGV 驱动轮用}
+# 外购件：零件库里还没有，型号待确认
+- {code: MTR-SV-400, name: 伺服电机 400 W（型号待确认） Servo motor 400 W, kind: buy, uom: Nos, price: 320, supplier: servo}
+- {code: MTR-SV-200, name: 伺服电机 200 W（型号待确认） Servo motor 200 W, kind: buy, uom: Nos, price: 240, supplier: servo}
+- {code: MTR-SV-100, name: 伺服电机 100 W（型号待确认） Servo motor 100 W, kind: buy, uom: Nos, price: 190, supplier: servo}
+- {code: ENC-ABS, name: 绝对值编码器（型号待确认） Absolute encoder, kind: buy, uom: Nos, price: 85, supplier: electronics}
+- {code: DRV-JOINT, name: 关节伺服驱动板（型号待确认） Joint servo drive board, kind: buy, uom: Nos, price: 160, supplier: electronics}
+- {code: CTRL-CAB, name: 机器人控制柜（型号待确认） Robot controller cabinet, kind: buy, uom: Nos, price: 2200, supplier: electronics}
+- {code: CABLE-ARM, name: 臂内线束 Arm cable harness, kind: buy, uom: Nos, price: 120, supplier: electronics}
+- {code: SCR-M5x16, name: 内六角螺钉 M5×16 Socket screw, kind: buy, uom: Nos, price: 0.15, supplier: hardware}
+- {code: MTR-AGV-750, name: AGV 驱动电机 750 W（型号待确认） AGV drive motor, kind: buy, uom: Nos, price: 380, supplier: servo}
+- {code: WHL-PU-200, name: 聚氨酯驱动轮 Ø200 PU drive wheel, kind: buy, uom: Nos, price: 60, supplier: agvparts}
+- {code: CASTER-100, name: 万向轮 Ø100 Caster, kind: buy, uom: Nos, price: 18, supplier: agvparts}
+- {code: FRAME-AGV300, name: AGV 车架（外协焊接） AGV frame, kind: buy, uom: Nos, price: 650, supplier: agvparts}
+- {code: BAT-48V, name: 锂电池包 48 V（型号待确认） Li-ion battery pack, kind: buy, uom: Nos, price: 900, supplier: agvparts}
+- {code: CTRL-AGV, name: AGV 控制器（型号待确认） AGV controller, kind: buy, uom: Nos, price: 700, supplier: electronics}
+# 自制件
+- {code: JH-L, name: 关节壳体（大） Joint housing L, kind: make, uom: Nos, note: 6061 铝合金}
+- {code: JH-M, name: 关节壳体（中） Joint housing M, kind: make, uom: Nos, note: 6061 铝合金}
+- {code: JH-S, name: 关节壳体（小） Joint housing S, kind: make, uom: Nos, note: 6061 铝合金}
+- {code: JS-L, name: 空心输出轴（大） Hollow output shaft L, kind: make, uom: Nos, note: 40Cr 调质；同教材案例件 RJ-201 一类}
+- {code: JS-M, name: 空心输出轴（中） Hollow output shaft M, kind: make, uom: Nos, note: 40Cr 调质}
+- {code: JS-S, name: 空心输出轴（小） Hollow output shaft S, kind: make, uom: Nos, note: 40Cr 调质}
+- {code: ARM-UP, name: 大臂 Upper arm, kind: make, uom: Nos}
+- {code: ARM-FO, name: 小臂 Forearm, kind: make, uom: Nos}
+- {code: BASE-CR5, name: 底座 Robot base, kind: make, uom: Nos}
+# 部件与成品
+- {code: WQJ-L, name: 关节模组（大） Joint module L, kind: sub, uom: Nos, note: CSF-32 + 400 W；协作臂 J1、J2}
+- {code: WQJ-M, name: 关节模组（中） Joint module M, kind: sub, uom: Nos, note: CSF-25 + 200 W；协作臂 J3}
+- {code: WQJ-S, name: 关节模组（小） Joint module S, kind: sub, uom: Nos, note: CSF-17 + 100 W；协作臂 J4–J6}
+- {code: DU-AGV, name: AGV 驱动单元 AGV drive unit, kind: sub, uom: Nos, note: 电机 + 减速器厂 WQR-105 + 驱动轮}
+- {code: WQ-CR5, name: 六轴协作机器人 WQ-CR5（示例：负载 5 kg 一类） 6-axis cobot, kind: fg, uom: Nos}
+- {code: WQ-AGV300, name: 搬运 AGV WQ-AGV300（示例：载重 300 kg 一类） Material-handling AGV, kind: fg, uom: Nos}
+routings:
+- name: RT-关节壳体 Joint housing
+  steps: [[下料 Sawing, 3], [粗车 Rough turning, 20], [精车 Finish turning, 15], [精铣钻孔 Finish milling & drilling, 18], [零件检验 Part inspection, 6]]
+- name: RT-空心轴 Hollow shaft
+  steps: [[下料 Sawing, 3], [粗车 Rough turning, 16], [精车 Finish turning, 12], [磨外圆 Cylindrical grinding, 10], [零件检验 Part inspection, 5]]
+- name: RT-臂管 Arm tube
+  steps: [[下料 Sawing, 4], [铣削 Milling, 25], [精铣钻孔 Finish milling & drilling, 20], [零件检验 Part inspection, 6]]
+- name: RT-底座 Base
+  steps: [[铣削 Milling, 30], [精铣钻孔 Finish milling & drilling, 25], [零件检验 Part inspection, 6]]
+- name: RT-关节模组 Joint module
+  steps: [[关节装配 Joint assembly, 40], [关节测试 Joint test, 20]]
+- name: RT-驱动单元 Drive unit
+  steps: [[AGV 装配 AGV assembly, 15]]
+- name: RT-协作机器人 Cobot
+  steps: [[整机装配 Robot assembly, 90], [整机标定 Robot calibration, 40], [负载跑合 Load run-in, 60], [出厂检验 Final inspection, 20], [包装 Packing, 15]]
+- name: RT-AGV
+  steps: [[AGV 装配 AGV assembly, 120], [AGV 调试 AGV test, 45], [包装 Packing, 15]]
+boms:
+- {item: JH-L, routing: RT-关节壳体 Joint housing, components: [[RM-AL6061-D120, 3.0]]}
+- {item: JH-M, routing: RT-关节壳体 Joint housing, components: [[RM-AL6061-D120, 2.0]]}
+- {item: JH-S, routing: RT-关节壳体 Joint housing, components: [[RM-AL6061-D120, 1.1]]}
+- {item: JS-L, routing: RT-空心轴 Hollow shaft, components: [[RM-40CR-D60, 2.4]]}
+- {item: JS-M, routing: RT-空心轴 Hollow shaft, components: [[RM-40CR-D60, 1.6]]}
+- {item: JS-S, routing: RT-空心轴 Hollow shaft, components: [[RM-40CR-D60, 0.9]]}
+- {item: ARM-UP, routing: RT-臂管 Arm tube, components: [[RM-AL-TUBE-D90, 3.2]]}
+- {item: ARM-FO, routing: RT-臂管 Arm tube, components: [[RM-AL-TUBE-D90, 2.6]]}
+- {item: BASE-CR5, routing: RT-底座 Base, components: [[RM-AL6061-P20, 6.5]]}
+- item: WQJ-L
+  routing: RT-关节模组 Joint module
+  components: [[JH-L, 1], [JS-L, 1], [HD-CSF-32-100, 1], [MTR-SV-400, 1], [ENC-ABS, 1], [DRV-JOINT, 1], [BRG-6010, 2], [SCR-M5x16, 16]]
+- item: WQJ-M
+  routing: RT-关节模组 Joint module
+  components: [[JH-M, 1], [JS-M, 1], [HD-CSF-25-100, 1], [MTR-SV-200, 1], [ENC-ABS, 1], [DRV-JOINT, 1], [BRG-6007, 2], [SCR-M5x16, 12]]
+- item: WQJ-S
+  routing: RT-关节模组 Joint module
+  components: [[JH-S, 1], [JS-S, 1], [HD-CSF-17-100, 1], [MTR-SV-100, 1], [ENC-ABS, 1], [DRV-JOINT, 1], [BRG-6004, 2], [SCR-M5x16, 8]]
+- {item: DU-AGV, routing: RT-驱动单元 Drive unit, components: [[WQR-105, 1], [MTR-AGV-750, 1], [WHL-PU-200, 1]]}
+- item: WQ-CR5
+  routing: RT-协作机器人 Cobot
+  components: [[WQJ-L, 2], [WQJ-M, 1], [WQJ-S, 3], [ARM-UP, 1], [ARM-FO, 1], [BASE-CR5, 1], [CTRL-CAB, 1], [CABLE-ARM, 1], [SCR-M5x16, 24]]
+- item: WQ-AGV300
+  routing: RT-AGV
+  components: [[FRAME-AGV300, 1], [DU-AGV, 2], [CASTER-100, 4], [BAT-48V, 1], [LDR-TIM781, 1], [CTRL-AGV, 1], [SCR-M5x16, 20]]
+products:
+- {item: WQ-CR5, price: 18000}
+- {item: WQ-AGV300, price: 9500}
+- {item: WQJ-L, price: 1800}
+- {item: WQJ-M, price: 1300}
+- {item: WQJ-S, price: 900}
+stock:
+  # 期初库存（示例值）：大约够做整机、AGV、三种关节各 5 台。采购到货属于供应链领域，这一期只在减速器厂有（第 45 轮 R-6），
+  # 机器人厂的请购单只是记录，用完了由老师在 ERPNext 里做“物料入库”补上
+  opening: {RM-AL6061-D120: 90, RM-AL6061-P20: 35, RM-AL-TUBE-D90: 30, RM-40CR-D60: 80,
+            HD-CSF-32-100: 15, HD-CSF-25-100: 10, HD-CSF-17-100: 20, MTR-SV-400: 15, MTR-SV-200: 10, MTR-SV-100: 20,
+            ENC-ABS: 45, DRV-JOINT: 45, BRG-6010: 30, BRG-6007: 20, BRG-6004: 40, SCR-M5x16: 800, CABLE-ARM: 6, CTRL-CAB: 6,
+            FRAME-AGV300: 6, MTR-AGV-750: 10, WHL-PU-200: 10, CASTER-100: 20, BAT-48V: 6, LDR-TIM781: 6, CTRL-AGV: 6,
+            WQR-105: 10}
+  # 安全库存（示例值）：WQR-105 定在期初库存上，每接一单 AGV 就要向问渠减速器厂请购
+  safety: {WQR-105: 10, HD-CSF-32-100: 4, ENC-ABS: 10, BRG-6010: 8, SCR-M5x16: 200}
+key_materials: [HD-CSF-32-100, MTR-SV-400, WQR-105, RM-AL6061-D120]
+measurements:
+- item: JS-L
+  operation: 零件检验 Part inspection
+  chars:
+  - {code: js_bearing_d50, name: 轴承位直径 Ø50 k5, unit: mm, nominal: 50.007, lo: 50.002, hi: 50.013, sigma: 0.0015}
+  - {code: js_runout, name: 轴承位径向圆跳动, unit: mm, nominal: 0.004, lo: 0.0, hi: 0.01, sigma: 0.0015}
+- item: WQJ-L
+  operation: 关节测试 Joint test
+  chars:
+  - {code: joint_backlash, name: 背隙, unit: arcmin, nominal: 0.6, lo: 0.0, hi: 1.0, sigma: 0.06}
+  - {code: joint_friction, name: 空载摩擦力矩, unit: N·m, nominal: 1.2, lo: 0.0, hi: 2.0, sigma: 0.15}
+  - {code: joint_zero, name: 编码器零位标定残差, unit: arcsec, nominal: 0, lo: -20, hi: 20, sigma: 4}
+- item: WQJ-M
+  operation: 关节测试 Joint test
+  chars:
+  - {code: joint_backlash, name: 背隙, unit: arcmin, nominal: 0.6, lo: 0.0, hi: 1.0, sigma: 0.06}
+  - {code: joint_friction, name: 空载摩擦力矩, unit: N·m, nominal: 0.8, lo: 0.0, hi: 1.4, sigma: 0.1}
+  - {code: joint_zero, name: 编码器零位标定残差, unit: arcsec, nominal: 0, lo: -20, hi: 20, sigma: 4}
+- item: WQJ-S
+  operation: 关节测试 Joint test
+  chars:
+  - {code: joint_backlash, name: 背隙, unit: arcmin, nominal: 0.7, lo: 0.0, hi: 1.2, sigma: 0.07}
+  - {code: joint_friction, name: 空载摩擦力矩, unit: N·m, nominal: 0.4, lo: 0.0, hi: 0.8, sigma: 0.08}
+  - {code: joint_zero, name: 编码器零位标定残差, unit: arcsec, nominal: 0, lo: -25, hi: 25, sigma: 5}
+- item: WQ-CR5
+  operation: 整机标定 Robot calibration
+  chars:
+  - {code: cr_repeat, name: 位置重复精度, unit: mm, nominal: 0.018, lo: 0.0, hi: 0.03, sigma: 0.004}
+  - {code: cr_abs, name: 标定后绝对定位误差, unit: mm, nominal: 0.30, lo: 0.0, hi: 0.5, sigma: 0.06}
+- item: WQ-AGV300
+  operation: AGV 调试 AGV test
+  chars:
+  - {code: agv_dock, name: 停靠定位误差, unit: mm, nominal: 4, lo: 0, hi: 10, sigma: 1.0}
