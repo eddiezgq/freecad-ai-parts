@@ -122,7 +122,7 @@ def test_excel_template_round_trip(tmp_path):
     assert _approx(plant.export_demo(), X.import_workbook(str(x)))
 
 
-@pytest.mark.parametrize("name", ["wenquest-robot", "example-sewing"])
+@pytest.mark.parametrize("name", ["wenquest-robot", "example-sewing-products"])
 def test_plant_yaml_excel_round_trip(tmp_path, name):
     """第 45 轮：机器人厂、示例缝纫机厂的清单（含产品六张表）写成 Excel 再导入，逐项一致。"""
     import yaml
@@ -310,7 +310,7 @@ print(json.dumps({{"wos": [w["production_item"] for w in pv["work_orders"]], "st
 
 def test_mrp_plans_an_enterprise_product():
     """企业工厂接单：MRP 不碰演示工厂的工艺（输出轴标准成本只在演示工厂算），销售订单记在清单的公司名下。"""
-    env = dict(os.environ, WQ_PLANT_FILE=os.path.join(FAC, "plants", "example-sewing.yaml"))
+    env = dict(os.environ, WQ_PLANT_FILE=os.path.join(FAC, "plants", "example-sewing-products.yaml"))
     r = subprocess.run([sys.executable, "-c", MRP.format(dig=DIG, fac=FAC)], capture_output=True, text=True, env=env,
                        cwd=DIG, timeout=120)
     assert r.returncode == 0, r.stderr[-3000:]
@@ -350,7 +350,7 @@ print(json.dumps([{{"topic": t, "char": d["characteristic"], "unit": d["unit"], 
 
 def test_plant_measurements_are_synthesised():
     """第 45 轮：清单里写的测量特性，在那道工序做完每一件时由仿真车间合成测量值（名义 + 散布），发 quality.measurement"""
-    env = dict(os.environ, WQ_PLANT_FILE=os.path.join(FAC, "plants", "example-sewing.yaml"))
+    env = dict(os.environ, WQ_PLANT_FILE=os.path.join(FAC, "plants", "example-sewing-products.yaml"))
     r = subprocess.run([sys.executable, "-c", MEAS.format(dig=DIG, fac=FAC)], capture_output=True, text=True, env=env,
                        cwd=DIG, timeout=300)
     assert r.returncode == 0, r.stderr[-3000:]

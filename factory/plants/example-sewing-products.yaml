@@ -1,0 +1,372 @@
+# 工厂清单（ADR-0064）。改完用 python -m factory.plant check 本文件 校验。
+# 字段说明见 docs/enterprise-onboarding.md。
+# 示例企业工厂（ADR-0064 验收用）：名称、费率、尺寸都是示例值，不是哪家真实工厂的数据。
+# 第 2 版（问渠第 45 轮）：示例缝纫机厂（example-sewing.yaml，企业版演示用，产品从设计经“转为生产物料”进来）的同一座车间，在清单里直接写上产品（平缝机机头）、物料、物料清单、工艺路线、期初库存、测量特性——单价、工时、公差、散布都是示例值。
+version: 2
+id: example-sewing-products
+demo_data: false
+company:
+  name: 示例缝纫机厂
+  abbr: SEW
+  country: China
+  currency: CNY
+  timezone: Asia/Shanghai
+workstations:
+- name: 下料锯床 SAW
+  count: 1
+  cost:
+  - 12
+  - 40
+  - 4
+- name: 数控车床 CNC
+  count: 2
+  cost:
+  - 45
+  - 60
+  - 10
+  power:
+  - 7.5
+  - 0.8
+- name: 热处理炉 HT
+  count: 1
+  cost:
+  - 30
+  - 40
+  - 25
+- name: 外圆磨床 GRD
+  count: 1
+  cost:
+  - 40
+  - 55
+  - 8
+  power:
+  - 5.5
+  - 0.8
+- name: 立式加工中心 VMC
+  count: 2
+  cost:
+  - 60
+  - 60
+  - 12
+  power:
+  - 11.0
+  - 0.8
+- name: 检验室 QC
+  count: 1
+  cost:
+  - 10
+  - 55
+  - 1
+- name: 总装线 ASM
+  count: 1
+  cost:
+  - 8
+  - 50
+  - 2
+- name: 跑合试验台 RUN
+  count: 1
+  cost:
+  - 10
+  - 50
+  - 4
+units:
+- id: saw-a
+  area: machining
+  name: 下料锯床
+  name_en: Band saw
+  workstation: 下料锯床 SAW
+  layout:
+  - 6
+  - 6
+  - 3
+  - 2
+  height_m: 1.2
+  setup_min: 3
+- id: lathe-1
+  area: machining
+  name: 数控车床 1 号
+  name_en: CNC lathe 1
+  workstation: 数控车床 CNC
+  layout:
+  - 11
+  - 6
+  - 3.5
+  - 2
+  height_m: 1.8
+  setup_min: 10
+- id: lathe-2
+  area: machining
+  name: 数控车床 2 号
+  name_en: CNC lathe 2
+  workstation: 数控车床 CNC
+  layout:
+  - 16
+  - 6
+  - 3.5
+  - 2
+  height_m: 1.8
+  setup_min: 10
+- id: ht-1
+  area: machining
+  name: 调质炉
+  name_en: Heat-treat furnace
+  workstation: 热处理炉 HT
+  layout:
+  - 22
+  - 6
+  - 4
+  - 3
+  height_m: 2.4
+  capacity: 30
+- id: grind-1
+  area: machining
+  name: 外圆磨床
+  name_en: Cylindrical grinder
+  workstation: 外圆磨床 GRD
+  layout:
+  - 28
+  - 6
+  - 4
+  - 2.2
+  height_m: 1.7
+  setup_min: 8
+- id: vmc-1
+  area: machining
+  name: 立式加工中心 1 号
+  name_en: VMC 1
+  workstation: 立式加工中心 VMC
+  layout:
+  - 8
+  - 18
+  - 3
+  - 2.6
+  height_m: 2.3
+- id: vmc-2
+  area: machining
+  name: 立式加工中心 2 号
+  name_en: VMC 2
+  workstation: 立式加工中心 VMC
+  layout:
+  - 13
+  - 18
+  - 3
+  - 2.6
+  height_m: 2.3
+- id: qc-1
+  area: quality
+  name: 检验室
+  name_en: Inspection room
+  workstation: 检验室 QC
+  layout:
+  - 19
+  - 18
+  - 3.5
+  - 3
+  height_m: 1.5
+- id: line-1
+  area: machining
+  name: 总装线
+  name_en: Assembly line
+  workstation: 总装线 ASM
+  layout:
+  - 26
+  - 18
+  - 7
+  - 2.5
+  height_m: 1.0
+- id: run-1
+  area: machining
+  name: 跑合试验台
+  name_en: Run-in bench
+  workstation: 跑合试验台 RUN
+  layout:
+  - 33
+  - 18
+  - 3
+  - 2.2
+  height_m: 1.3
+- id: agv-1
+  area: logistics
+  name: 物流小车
+  name_en: AGV
+  home:
+  - 3
+  - 12
+- id: store-raw
+  area: warehouse
+  name: 原材料库
+  name_en: Raw store
+  layout:
+  - 2
+  - 5
+  - 3
+  - 4
+  height_m: 3
+- id: store-fg
+  area: warehouse
+  name: 成品库
+  name_en: Finished-goods store
+  layout:
+  - 38
+  - 18
+  - 3
+  - 4
+  height_m: 3
+dashboard:
+- saw-a
+- lathe-1
+- lathe-2
+- ht-1
+- grind-1
+- vmc-1
+- vmc-2
+- qc-1
+- line-1
+- run-1
+stores:
+  raw: store-raw
+  finished: store-fg
+operations:
+- name: 下料 Sawing
+  workstation: 下料锯床 SAW
+  units:
+  - saw-a
+  stage: blank
+- name: 粗车 Rough turning
+  workstation: 数控车床 CNC
+  units:
+  - lathe-1
+  - lathe-2
+  stage: rough
+- name: 精车 Finish turning
+  workstation: 数控车床 CNC
+  units:
+  - lathe-2
+  - lathe-1
+  stage: finish
+- name: 调质 Quench & temper
+  workstation: 热处理炉 HT
+  units:
+  - ht-1
+  stage: qt
+- name: 磨外圆 Cylindrical grinding
+  workstation: 外圆磨床 GRD
+  units:
+  - grind-1
+  stage: grind
+- name: 铣结合面 Face milling
+  workstation: 立式加工中心 VMC
+  units:
+  - vmc-1
+  - vmc-2
+  stage: rough
+- name: 钻攻螺纹孔 Drilling & tapping
+  workstation: 立式加工中心 VMC
+  units:
+  - vmc-2
+  - vmc-1
+  stage: finish
+- name: 零件检验 Part inspection
+  workstation: 检验室 QC
+  units:
+  - qc-1
+  stage: inspect
+  inspection: true
+- name: 总装 Final assembly
+  workstation: 总装线 ASM
+  units:
+  - line-1
+  stage: assembly
+- name: 跑合试验 Run-in test
+  workstation: 跑合试验台 RUN
+  units:
+  - run-1
+- name: 出厂检验 Final inspection
+  workstation: 检验室 QC
+  units:
+  - qc-1
+  stage: inspect
+  inspection: true
+- name: 清洗包装 Cleaning & packing
+  workstation: 总装线 ASM
+  units:
+  - line-1
+floor:
+  length_m: 42
+  width_m: 24
+  aisles_y:
+  - 12
+  cross_x: 3
+shift:
+  periods:
+  - - 08:00:00
+    - '12:00:00'
+  - - '13:30:00'
+    - '17:30:00'
+  workdays:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  max_overtime_min: 180
+kpi:
+  on_time: 0.95
+  oee: 0.7
+  fpy: 0.98
+suppliers:
+  steel:
+    name: 示例·华东钢材
+    lead: 5
+  hardware:
+    name: 示例·永康五金
+    lead: 3
+  castings:
+    name: 示例·泊头铸造
+    lead: 15
+  parts:
+    name: 示例·缝纫机配件商
+    lead: 7
+customers:
+- 示例·华南服装设备经销
+items:
+- {code: RM-45-D30, name: 45钢圆棒 Ø30 Steel bar 1045 Ø30, kind: raw, uom: Kg, price: 6.5, supplier: steel, note: 上轴、下轴用料}
+- {code: RM-HT200-HEAD, name: 机壳铸件 HT200 Head casting, kind: raw, uom: Nos, price: 260, supplier: castings}
+- {code: BUY-MOTOR-DD, name: 直驱伺服电机 Direct-drive servo motor, kind: buy, uom: Nos, price: 480, supplier: parts, note: 型号由设计选定（示例）}
+- {code: BUY-HOOK, name: 旋梭 Rotary hook, kind: buy, uom: Nos, price: 45, supplier: parts}
+- {code: BUY-NEEDLEBAR, name: 针杆组件 Needle bar set, kind: buy, uom: Nos, price: 30, supplier: parts}
+- {code: BUY-BRG-6000, name: 深沟球轴承 6000 Ball bearing 10×26×8, kind: buy, uom: Nos, price: 3.2, supplier: hardware}
+- {code: BUY-SCREW-M5, name: 内六角螺钉 M5×12 Socket screw, kind: buy, uom: Nos, price: 0.15, supplier: hardware}
+- {code: LS-101, name: 上轴 Upper shaft, kind: make, uom: Nos, note: 45钢 调质}
+- {code: LS-102, name: 下轴 Lower shaft, kind: make, uom: Nos, note: 45钢 调质}
+- {code: HSG-HEAD, name: 机壳 Machine head housing, kind: make, uom: Nos}
+- {code: SEW-DDL, name: 示例·工业直驱平缝机机头 Direct-drive lockstitch head, kind: fg, uom: Nos}
+routings:
+- name: RT-轴 Shaft
+  steps: [[下料 Sawing, 2], [粗车 Rough turning, 8], [调质 Quench & temper, 10], [精车 Finish turning, 7], [磨外圆 Cylindrical grinding, 6], [零件检验 Part inspection, 3]]
+- name: RT-机壳 Housing
+  steps: [[铣结合面 Face milling, 18], [钻攻螺纹孔 Drilling & tapping, 14], [零件检验 Part inspection, 4]]
+- name: RT-总装 Final assembly
+  steps: [[总装 Final assembly, 35], [跑合试验 Run-in test, 20], [出厂检验 Final inspection, 6], [清洗包装 Cleaning & packing, 5]]
+boms:
+- {item: LS-101, routing: RT-轴 Shaft, components: [[RM-45-D30, 1.2]]}
+- {item: LS-102, routing: RT-轴 Shaft, components: [[RM-45-D30, 1.0]]}
+- {item: HSG-HEAD, routing: RT-机壳 Housing, components: [[RM-HT200-HEAD, 1]]}
+- item: SEW-DDL
+  routing: RT-总装 Final assembly
+  components: [[HSG-HEAD, 1], [LS-101, 1], [LS-102, 1], [BUY-MOTOR-DD, 1], [BUY-HOOK, 1], [BUY-NEEDLEBAR, 1], [BUY-BRG-6000, 4], [BUY-SCREW-M5, 16]]
+products:
+- {item: SEW-DDL, price: 2800}
+stock:
+  opening: {RM-45-D30: 40, RM-HT200-HEAD: 10, BUY-BRG-6000: 60, BUY-SCREW-M5: 300, BUY-HOOK: 10, BUY-NEEDLEBAR: 10, BUY-MOTOR-DD: 10}
+  safety: {BUY-BRG-6000: 20, BUY-SCREW-M5: 100}
+measurements:
+- item: LS-101
+  operation: 零件检验 Part inspection
+  chars:
+  - {code: ls_bearing_d12, name: 轴承位直径 Ø12 k5, unit: mm, nominal: 12.005, lo: 12.001, hi: 12.009, sigma: 0.0012}
+  - {code: ls_runout, name: 轴承位径向圆跳动, unit: mm, nominal: 0.004, lo: 0.0, hi: 0.01, sigma: 0.0015}
+- item: SEW-DDL
+  operation: 出厂检验 Final inspection
+  chars:
+  - {code: head_noise, name: 空载噪声（5000 rpm）, unit: dB(A), nominal: 78, lo: 60, hi: 83, sigma: 1.5}

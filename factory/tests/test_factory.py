@@ -220,7 +220,7 @@ PRODUCT_KEYS = ("items", "routings", "boms", "products", "stock", "measurements"
 def test_seed_plant_with_products():
     """第 45 轮：清单第 2 版写了产品，导入脚本照建物料、工艺路线、BOM、期初库存（示例缝纫机厂补了产品）"""
     import yaml
-    path = os.path.join(os.path.dirname(__file__), "..", "plants", "example-sewing.yaml")
+    path = os.path.join(os.path.dirname(__file__), "..", "plants", "example-sewing-products.yaml")
     raw = yaml.safe_load(open(path, encoding="utf-8"))
     out = _seed_sewing(path)
     assert out["errors"] == [], out["errors"]

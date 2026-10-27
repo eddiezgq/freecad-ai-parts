@@ -1,8 +1,7 @@
 # 工厂清单（ADR-0064）。改完用 python -m factory.plant check 本文件 校验。
 # 字段说明见 docs/enterprise-onboarding.md。
 # 示例企业工厂（ADR-0064 验收用）：名称、费率、尺寸都是示例值，不是哪家真实工厂的数据。
-# 第 2 版（问渠第 45 轮）：补上产品（平缝机机头）、物料、物料清单、工艺路线、期初库存、测量特性——单价、工时、公差、散布都是示例值。
-version: 2
+version: 1
 id: example-sewing
 demo_data: false
 company:
@@ -321,52 +320,5 @@ suppliers:
   hardware:
     name: 示例·永康五金
     lead: 3
-  castings:
-    name: 示例·泊头铸造
-    lead: 15
-  parts:
-    name: 示例·缝纫机配件商
-    lead: 7
 customers:
 - 示例·华南服装设备经销
-items:
-- {code: RM-45-D30, name: 45钢圆棒 Ø30 Steel bar 1045 Ø30, kind: raw, uom: Kg, price: 6.5, supplier: steel, note: 上轴、下轴用料}
-- {code: RM-HT200-HEAD, name: 机壳铸件 HT200 Head casting, kind: raw, uom: Nos, price: 260, supplier: castings}
-- {code: BUY-MOTOR-DD, name: 直驱伺服电机 Direct-drive servo motor, kind: buy, uom: Nos, price: 480, supplier: parts, note: 型号由设计选定（示例）}
-- {code: BUY-HOOK, name: 旋梭 Rotary hook, kind: buy, uom: Nos, price: 45, supplier: parts}
-- {code: BUY-NEEDLEBAR, name: 针杆组件 Needle bar set, kind: buy, uom: Nos, price: 30, supplier: parts}
-- {code: BUY-BRG-6000, name: 深沟球轴承 6000 Ball bearing 10×26×8, kind: buy, uom: Nos, price: 3.2, supplier: hardware}
-- {code: BUY-SCREW-M5, name: 内六角螺钉 M5×12 Socket screw, kind: buy, uom: Nos, price: 0.15, supplier: hardware}
-- {code: LS-101, name: 上轴 Upper shaft, kind: make, uom: Nos, note: 45钢 调质}
-- {code: LS-102, name: 下轴 Lower shaft, kind: make, uom: Nos, note: 45钢 调质}
-- {code: HSG-HEAD, name: 机壳 Machine head housing, kind: make, uom: Nos}
-- {code: SEW-DDL, name: 示例·工业直驱平缝机机头 Direct-drive lockstitch head, kind: fg, uom: Nos}
-routings:
-- name: RT-轴 Shaft
-  steps: [[下料 Sawing, 2], [粗车 Rough turning, 8], [调质 Quench & temper, 10], [精车 Finish turning, 7], [磨外圆 Cylindrical grinding, 6], [零件检验 Part inspection, 3]]
-- name: RT-机壳 Housing
-  steps: [[铣结合面 Face milling, 18], [钻攻螺纹孔 Drilling & tapping, 14], [零件检验 Part inspection, 4]]
-- name: RT-总装 Final assembly
-  steps: [[总装 Final assembly, 35], [跑合试验 Run-in test, 20], [出厂检验 Final inspection, 6], [清洗包装 Cleaning & packing, 5]]
-boms:
-- {item: LS-101, routing: RT-轴 Shaft, components: [[RM-45-D30, 1.2]]}
-- {item: LS-102, routing: RT-轴 Shaft, components: [[RM-45-D30, 1.0]]}
-- {item: HSG-HEAD, routing: RT-机壳 Housing, components: [[RM-HT200-HEAD, 1]]}
-- item: SEW-DDL
-  routing: RT-总装 Final assembly
-  components: [[HSG-HEAD, 1], [LS-101, 1], [LS-102, 1], [BUY-MOTOR-DD, 1], [BUY-HOOK, 1], [BUY-NEEDLEBAR, 1], [BUY-BRG-6000, 4], [BUY-SCREW-M5, 16]]
-products:
-- {item: SEW-DDL, price: 2800}
-stock:
-  opening: {RM-45-D30: 40, RM-HT200-HEAD: 10, BUY-BRG-6000: 60, BUY-SCREW-M5: 300, BUY-HOOK: 10, BUY-NEEDLEBAR: 10, BUY-MOTOR-DD: 10}
-  safety: {BUY-BRG-6000: 20, BUY-SCREW-M5: 100}
-measurements:
-- item: LS-101
-  operation: 零件检验 Part inspection
-  chars:
-  - {code: ls_bearing_d12, name: 轴承位直径 Ø12 k5, unit: mm, nominal: 12.005, lo: 12.001, hi: 12.009, sigma: 0.0012}
-  - {code: ls_runout, name: 轴承位径向圆跳动, unit: mm, nominal: 0.004, lo: 0.0, hi: 0.01, sigma: 0.0015}
-- item: SEW-DDL
-  operation: 出厂检验 Final inspection
-  chars:
-  - {code: head_noise, name: 空载噪声（5000 rpm）, unit: dB(A), nominal: 78, lo: 60, hi: 83, sigma: 1.5}
