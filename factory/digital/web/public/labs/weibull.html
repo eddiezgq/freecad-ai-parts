@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>威布尔可靠性：设备还能撑多久</title>
+<style>
+/* 实验 6-1（第 29 轮）：拖参数看 F(t)、h(t) 和“未来 H 小时坏掉的概率”；“播放”让设备一直运转、到周期保养、偶尔坏掉，循环 */
+:root{--bg:#eef2f3;--sheet:#fafbfb;--ink:#1b2430;--muted:#5a6570;--rule:#d3dadd;--accent:#1d6b86;--amber:#c27a12;--red:#c0392b;--green:#1f8a4c;
+  --f-display:"Noto Serif SC","Songti SC",serif;--f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;--f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#11161b;--sheet:#182029;--ink:#e2e7ec;--muted:#9aa6b2;--rule:#2b3540;--accent:#6cc3dd;--amber:#f0b45a;--red:#ff7b6b;--green:#5fd08f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#11161b;--sheet:#182029;--ink:#e2e7ec;--muted:#9aa6b2;--rule:#2b3540;--accent:#6cc3dd;--amber:#f0b45a;--red:#ff7b6b;--green:#5fd08f;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:1240px;margin:0 auto;padding:18px 16px 36px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;margin-bottom:12px}
+h1{font-family:var(--f-display);font-size:1.5rem;margin:0}
+.sub{color:var(--muted);font-size:.9rem}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:16px}
+@media (max-width:880px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:12px;min-width:0}
+.panel h3{margin:0 0 8px;font-size:.8rem;letter-spacing:.1em;color:var(--muted);font-weight:600}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--f-body);fill:var(--muted);font-size:12px}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.ctl{display:grid;grid-template-columns:auto minmax(0,1fr) 5.2em;gap:6px 10px;align-items:center}
+.ctl label{font-size:.88rem;color:var(--muted)}
+.ctl b{font-family:var(--f-mono);font-size:.9rem;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+button{font:inherit;font-size:.86rem;border:1px solid var(--rule);background:var(--bg);color:var(--ink);border-radius:5px;padding:4px 10px;cursor:pointer}
+button:hover{border-color:var(--accent)} button.primary{background:var(--accent);color:var(--sheet);border-color:var(--accent)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.kpi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.kpi div{border-top:1px solid var(--rule);padding-top:4px}
+.kpi b{display:block;font-family:var(--f-mono);font-size:1.05rem;font-variant-numeric:tabular-nums}
+.kpi small{color:var(--muted);font-size:.76rem;line-height:1.3;display:block}
+.kpi .hot b{color:var(--amber)}
+.note{font-size:.8rem;color:var(--muted);margin:8px 0 0}
+.tasks{margin:0;padding-left:1.3em;font-size:.9rem} .tasks li{margin:.25em 0}
+.formula{font-family:var(--f-mono);font-size:.84rem;background:var(--bg);border-radius:6px;padding:6px 8px;overflow-x:auto;white-space:nowrap}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:5px;border-radius:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1 data-t="h1"></h1><span class="sub" data-t="sub"></span></header>
+<div class="grid">
+  <div class="col">
+    <div class="panel" id="plotPanel">
+      <h3 data-t="plotTitle"></h3>
+      <svg id="plot" viewBox="0 0 760 360" role="img"></svg>
+      <div class="legend"><span><i style="background:var(--accent)"></i><span data-t="lgF"></span></span><span><i style="background:var(--red)"></i><span data-t="lgH"></span></span><span><i style="background:var(--amber);opacity:.5;height:9px"></i><span data-t="lgWin"></span></span><span><i style="background:var(--green)"></i><span data-t="lgPm"></span></span></div>
+    </div>
+    <div class="panel" id="machine">
+      <h3 data-t="simTitle"></h3>
+      <svg id="sim" viewBox="0 0 760 170" role="img"></svg>
+      <div class="row"><button class="primary" id="play" data-t="play"></button><button id="pmBtn" data-t="pmNow"></button><span class="note" id="simNote"></span></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel">
+      <h3 data-t="params"></h3>
+      <div class="row" style="margin:0 0 10px"><span class="note" style="margin:0" data-t="presets"></span><button data-p="grd">GRD-01</button><button data-p="cnc">CNC-L01-A</button><button data-p="ht">HT-01</button><button data-p="exp" data-t="pExp"></button></div>
+      <div class="ctl">
+        <label for="beta">β</label><input id="beta" type="range" min="0.5" max="5" step="0.1" value="3"><b id="betav"></b>
+        <label for="eta">η（h）</label><input id="eta" type="range" min="200" max="2400" step="10" value="900"><b id="etav"></b>
+        <label for="t" data-t="lT"></label><input id="t" type="range" min="0" max="1600" step="5" value="620"><b id="tv"></b>
+        <label for="H" data-t="lH"></label><input id="H" type="range" min="5" max="300" step="5" value="80"><b id="Hv"></b>
+        <label for="pm" data-t="lPm"></label><input id="pm" type="range" min="100" max="1500" step="10" value="500"><b id="pmv"></b>
+        <label for="cf" data-t="lCf"></label><input id="cf" type="range" min="200" max="6000" step="50" value="2800"><b id="cfv"></b>
+      </div>
+      <p class="formula">P = 1 − exp(−[((t+H)/η)<sup>β</sup> − (t/η)<sup>β</sup>])</p>
+    </div>
+    <div class="panel">
+      <h3 data-t="results"></h3>
+      <div class="kpi">
+        <div><b id="kF"></b><small data-t="kF"></small></div>
+        <div><b id="kh"></b><small data-t="kh"></small></div>
+        <div class="hot"><b id="kP"></b><small data-t="kP"></small></div>
+        <div><b id="kP0"></b><small data-t="kP0"></small></div>
+        <div class="hot"><b id="kEL"></b><small data-t="kEL"></small></div>
+        <div><b id="kMT"></b><small data-t="kMT"></small></div>
+      </div>
+      <p class="note" id="verdict"></p>
+    </div>
+    <div class="panel">
+      <h3 data-t="tasksTitle"></h3>
+      <ol class="tasks" id="tasks"></ol>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+(function () {
+  var zh = (document.documentElement.lang || '').indexOf('zh') === 0;
+  var TX = {
+    h1: ['实验 6-1　威布尔可靠性：设备还能撑多久', 'Lab 6-1  Weibull reliability: how long will the machine last?'],
+    sub: ['拖动参数看累计故障概率、失效率和“未来 H 小时坏掉的概率”；播放看一台设备按周期保养、偶尔坏掉', 'Drag the parameters to see the failure probability, the failure rate and the chance of failing in the next H hours; press Play to watch a machine being serviced on schedule and failing now and then'],
+    plotTitle: ['累计故障概率 F(t) 与失效率 h(t)', 'Failure probability F(t) and failure rate h(t)'],
+    lgF: ['F(t)（左轴，%）', 'F(t) (left axis, %)'], lgH: ['h(t)（右轴，次/千小时）', 'h(t) (right axis, per 1000 h)'],
+    lgWin: ['未来 H 小时', 'next H hours'], lgPm: ['保养周期', 'service interval'],
+    simTitle: ['一台设备的运行时钟：到周期就保养，时钟拨回零；坏了修好，时钟也归零', "One machine's clock: a service at the interval resets it to zero, and so does a repair after a failure"],
+    play: ['▶ 播放', '▶ Play'], pause: ['❚❚ 暂停', '❚❚ Pause'], pmNow: ['现在保养（t → 0）', 'Service now (t → 0)'],
+    params: ['参数', 'Parameters'], presets: ['设备：', 'Machine:'], pExp: ['β = 1 对照（η = 800）', 'β = 1 check (η = 800)'],
+    lT: ['已运行 t（h）', 'Run so far t (h)'], lH: ['未来 H（h）', 'Next H (h)'], lPm: ['保养周期（h）', 'Interval (h)'], lCf: ['一次故障损失（$）', 'Loss per failure ($)'],
+    results: ['结果', 'Results'],
+    kF: ['F(t)：运行到 t 已经坏过的概率', 'F(t): chance it would have failed by t'], kh: ['h(t)：此刻的失效率（次/千小时）', 'h(t): failure rate now (per 1000 h)'],
+    kP: ['未来 H 小时坏掉的概率（条件概率）', 'Chance of failing in the next H hours (conditional)'], kP0: ['刚保养完，未来 H 小时坏掉的概率', 'Same, right after a service'],
+    kEL: ['不保养的预期损失 = P × 损失', 'Expected loss if not serviced = P × loss'], kMT: ['平均寿命 MTTF = η·Γ(1+1/β)', 'Mean life MTTF = η·Γ(1+1/β)'],
+    tasksTitle: ['实验任务', 'Tasks'],
+    tasks: [['选 GRD-01，读出 t = 620 h、H = 80 h 时的 P 和预期损失，与教材 6.4 节手算核对。', 'Choose GRD-01 and read P and the expected loss at t = 620 h, H = 80 h; check against your hand calculation in Section 6.4.'],
+            ['把 t 从 0 拖到 1600 h，看 P 怎样变；点“现在保养”，P 降到多少？算出降了多少倍。', 'Drag t from 0 to 1600 h and watch P; press “Service now”: how far does P drop? Work out the ratio.'],
+            ['点“β = 1 对照”，再拖 t：P 还变吗？为什么这时定期保养没有用？', 'Press “β = 1 check” and drag t again: does P change? Why is scheduled service useless then?'],
+            ['播放 30 秒，数一数保养了几次、坏了几次；把保养周期改成 300 h、800 h 各播一次，比较。', 'Play for 30 seconds and count services and failures; repeat with intervals of 300 h and 800 h and compare.']],
+    eff: ['h(t) 随 t 上升：越用越容易坏（磨损期），保养有用', 'h(t) rises with t: wear-out, so servicing helps'],
+    flat: ['h(t) 不随 t 变：坏不坏和用了多久无关，保养没有用', 'h(t) is constant: failure does not depend on age, so servicing does not help'],
+    early: ['h(t) 随 t 下降：早期失效，越保养（拆装）越容易出问题', 'h(t) falls with t: infant mortality; taking the machine apart can make things worse'],
+    simNote: ['已运行 {t} h · 保养 {p} 次 · 故障 {f} 次', 'run {t} h · services {p} · failures {f}'],
+    sPm: ['保养', 'service'], sFail: ['故障', 'failure'], sClock: ['自上次保养以来的运行小时', 'hours since last service'], xh: ['运行小时 t', 'operating hours t']
+  };
+  function T(k) { var v = TX[k]; return v ? v[zh ? 0 : 1] : k; }
+  document.querySelectorAll('[data-t]').forEach(function (e) { e.textContent = T(e.dataset.t); });
+  document.getElementById('tasks').innerHTML = TX.tasks.map(function (x) { return '<li>' + x[zh ? 0 : 1] + '</li>'; }).join('');
+
+  var $ = function (id) { return document.getElementById(id); };
+  var P = { grd: [3, 900, 620, 500, 2800], cnc: [2.5, 1400, 380, 600, 940], ht: [2, 2400, 640, 1000, 1160], exp: [1, 800, 620, 500, 2800] };
+  function gamma(z) { // Lanczos
+    var g = 7, c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+    if (z < 0.5) return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z));
+    z -= 1; var x = c[0]; for (var i = 1; i < g + 2; i++) x += c[i] / (z + i);
+    var t = z + g + 0.5; return Math.sqrt(2 * Math.PI) * Math.pow(t, z + 0.5) * Math.exp(-t) * x;
+  }
+  function v() { return { b: +$('beta').value, e: +$('eta').value, t: +$('t').value, H: +$('H').value, pm: +$('pm').value, cf: +$('cf').value }; }
+  var F = function (t, b, e) { return 1 - Math.exp(-Math.pow(Math.max(t, 0) / e, b)); };
+  var hz = function (t, b, e) { return b / e * Math.pow(Math.max(t, 1e-6) / e, b - 1); };
+  var cond = function (t, H, b, e) { return 1 - Math.exp(-(Math.pow((t + H) / e, b) - Math.pow(t / e, b))); };
+  var fmt = function (x, d) { return x.toLocaleString(zh ? 'zh-CN' : 'en-US', { minimumFractionDigits: d, maximumFractionDigits: d }); };
+
+  // ---------------- curves
+  var X0 = 56, X1 = 716, Y0 = 318, Y1 = 22, TMAX = 1600;
+  function sx(t) { return X0 + (X1 - X0) * t / TMAX; }
+  function draw() {
+    var p = v(), s = '', i, hmax = 0;
+    for (i = 0; i <= 160; i++) hmax = Math.max(hmax, hz(i * 10, p.b, p.e) * 1000);
+    var hTop = Math.min(20, Math.max(2, Math.ceil(hmax * 1.1)));
+    if (p.b < 1) hTop = Math.max(hTop, 4);
+    var sy = function (f) { return Y0 - (Y0 - Y1) * f; };
+    for (i = 0; i <= 4; i++) { var y = sy(i / 4); s += '<line x1="' + X0 + '" x2="' + X1 + '" y1="' + y + '" y2="' + y + '" stroke="var(--rule)"/><text x="' + (X0 - 8) + '" y="' + (y + 4) + '" text-anchor="end">' + (i * 25) + '</text><text x="' + (X1 + 8) + '" y="' + (y + 4) + '">' + fmt(hTop * i / 4, hTop < 4 ? 1 : 0) + '</text>'; }
+    for (i = 0; i <= 8; i++) { var x = sx(i * 200); s += '<text x="' + x + '" y="' + (Y0 + 18) + '" text-anchor="middle">' + i * 200 + '</text>'; }
+    s += '<text x="' + ((X0 + X1) / 2) + '" y="' + (Y0 + 38) + '" text-anchor="middle">' + T('xh') + '</text>';
+    // window
+    var a = sx(p.t), b = sx(Math.min(TMAX, p.t + p.H));
+    s += '<rect x="' + a + '" y="' + Y1 + '" width="' + Math.max(1, b - a) + '" height="' + (Y0 - Y1) + '" fill="var(--amber)" opacity=".18"/>';
+    s += '<line x1="' + sx(p.pm) + '" x2="' + sx(p.pm) + '" y1="' + Y1 + '" y2="' + Y0 + '" stroke="var(--green)" stroke-dasharray="4 4" stroke-width="1.5"/>';
+    var dF = '', dH = '';
+    for (i = 0; i <= 320; i++) {
+      var tt = i * 5; dF += (i ? 'L' : 'M') + sx(tt).toFixed(1) + ' ' + sy(F(tt, p.b, p.e)).toFixed(1);
+      var hv = Math.min(hTop * 1.05, hz(tt, p.b, p.e) * 1000); dH += (i ? 'L' : 'M') + sx(tt).toFixed(1) + ' ' + sy(hv / hTop).toFixed(1);
+    }
+    s += '<path d="' + dH + '" fill="none" stroke="var(--red)" stroke-width="2.2"/><path d="' + dF + '" fill="none" stroke="var(--accent)" stroke-width="2.6"/>';
+    var f0 = F(p.t, p.b, p.e), f1 = F(Math.min(TMAX, p.t + p.H), p.b, p.e);
+    s += '<line x1="' + a + '" x2="' + a + '" y1="' + Y0 + '" y2="' + sy(f0) + '" stroke="var(--amber)" stroke-width="1.5"/><circle cx="' + a + '" cy="' + sy(f0) + '" r="5" fill="var(--amber)"/>';
+    s += '<circle cx="' + sx(p.e) + '" cy="' + sy(0.632) + '" r="3.5" fill="var(--ink)"/><text x="' + (sx(p.e) + 7) + '" y="' + (sy(0.632) + 14) + '" style="fill:var(--ink)">η</text>';
+    var lab = (zh ? '未来 ' : 'next ') + p.H + ' h: ' + fmt(cond(p.t, p.H, p.b, p.e) * 100, 1) + '%';
+    s += '<text x="' + Math.min(b + 6, X1 - 120) + '" y="' + (sy((f0 + f1) / 2) + 26) + '" style="fill:var(--amber);font-weight:600">' + lab + '</text>';
+    $('plot').innerHTML = s;
+    // results
+    var Pc = cond(p.t, p.H, p.b, p.e), P0 = cond(0, p.H, p.b, p.e);
+    $('kF').textContent = fmt(f0 * 100, 1) + '%';
+    $('kh').textContent = fmt(hz(p.t, p.b, p.e) * 1000, 2);
+    $('kP').textContent = fmt(Pc * 100, 1) + '%';
+    $('kP0').textContent = fmt(P0 * 100, P0 < 0.01 ? 2 : 1) + '%';
+    $('kEL').textContent = '$' + fmt(Pc * p.cf, 0);
+    $('kMT').textContent = fmt(p.e * gamma(1 + 1 / p.b), 0) + ' h';
+    $('verdict').textContent = p.b > 1.05 ? T('eff') : p.b < 0.95 ? T('early') : T('flat');
+    ['beta', 'eta', 't', 'H', 'pm', 'cf'].forEach(function (k) { var e = $(k); $(k + 'v').textContent = k === 'beta' ? fmt(+e.value, 1) : (k === 'cf' ? '$' : '') + fmt(+e.value, 0); });
+  }
+
+  // ---------------- one machine running (loops)
+  var sim = { run: 0, age: 0, down: 0, pms: 0, fails: 0, ev: [], seed: 7 };
+  function rnd() { sim.seed = (sim.seed * 16807) % 2147483647; return (sim.seed - 1) / 2147483646; }
+  function resetSim() { sim.run = 0; sim.age = 0; sim.down = 0; sim.pms = 0; sim.fails = 0; sim.ev = []; sim.trace = [[0, 0]]; sim.seed = 7; }
+  resetSim();
+  var SPAN = 4000;   // 画 4000 运行小时，满了从头再来
+  function step(dh) {
+    var p = v();
+    for (var k = 0; k < dh; k++) {
+      if (sim.run >= SPAN) { resetSim(); }
+      if (cond(sim.age, 1, p.b, p.e) > rnd()) {   // 这一小时里坏了
+        sim.fails++; sim.ev.push([sim.run, 'f', sim.age]); sim.trace.push([sim.run, sim.age]); sim.age = 0; sim.trace.push([sim.run, 0]);
+      } else if (sim.age + 1 >= p.pm) {
+        sim.pms++; sim.ev.push([sim.run, 'p', sim.age + 1]); sim.run++; sim.trace.push([sim.run, sim.age + 1]); sim.age = 0; sim.trace.push([sim.run, 0]); continue;
+      }
+      sim.run++; sim.age++;
+    }
+    sim.trace.push([sim.run, sim.age]);
+    $('t').value = Math.min(1600, sim.age);
+  }
+  function drawSim() {
+    var p = v(), L = 40, R = 740, Y0s = 140, Y1s = 14, AMAX = Math.max(p.pm * 1.15, 400);
+    var qx = function (r) { return L + (R - L) * r / SPAN; }, qy = function (a) { return Y0s - (Y0s - Y1s) * Math.min(a, AMAX) / AMAX; };
+    var s = '<line x1="' + L + '" x2="' + R + '" y1="' + Y0s + '" y2="' + Y0s + '" stroke="var(--rule)"/>';
+    s += '<line x1="' + L + '" x2="' + R + '" y1="' + qy(p.pm) + '" y2="' + qy(p.pm) + '" stroke="var(--green)" stroke-dasharray="4 4"/>';
+    s += '<text x="' + L + '" y="' + (Y0s + 18) + '">0</text><text x="' + R + '" y="' + (Y0s + 18) + '" text-anchor="end">' + SPAN + ' h</text>';
+    s += '<text x="' + (L + 4) + '" y="' + (Y1s + 8) + '">' + T('sClock') + '</text>';
+    var d = ''; sim.trace.forEach(function (q, i) { d += (i ? 'L' : 'M') + qx(q[0]).toFixed(1) + ' ' + qy(q[1]).toFixed(1); });
+    s += '<path d="' + d + '" fill="none" stroke="var(--accent)" stroke-width="2"/>';
+    sim.ev.forEach(function (e) {
+      if (e[1] === 'f') s += '<circle cx="' + qx(e[0]) + '" cy="' + qy(e[2]) + '" r="5" fill="var(--red)"/>';
+      else s += '<rect x="' + (qx(e[0]) - 3) + '" y="' + (qy(e[2]) - 3) + '" width="6" height="6" fill="var(--green)"/>';
+    });
+    s += '<circle cx="' + qx(sim.run) + '" cy="' + qy(sim.age) + '" r="4" fill="var(--amber)"/>';
+    s += '<g transform="translate(' + (R - 170) + ',' + (Y0s + 14) + ')"><rect width="8" height="8" y="-4" fill="var(--green)"/><text x="12" y="4">' + T('sPm') + '</text><circle cx="74" cy="0" r="4.5" fill="var(--red)"/><text x="84" y="4">' + T('sFail') + '</text></g>';
+    $('sim').innerHTML = s;
+    $('simNote').textContent = T('simNote').replace('{t}', sim.run).replace('{p}', sim.pms).replace('{f}', sim.fails);
+  }
+
+  var playing = false, last = 0;
+  function loop(now) {
+    if (!playing) return;
+    var dt = Math.min(0.1, (now - (last || now)) / 1000); last = now;
+    step(Math.max(1, Math.round(dt * 160)));   // 每秒约 160 运行小时
+    draw(); drawSim();
+    requestAnimationFrame(loop);
+  }
+  function setPlay(on) { playing = on; $('play').textContent = T(on ? 'pause' : 'play'); last = 0; if (on) requestAnimationFrame(loop); }
+  $('play').onclick = function () { setPlay(!playing); };
+  $('pmBtn').onclick = function () { $('t').value = 0; if (playing) { sim.pms++; sim.ev.push([sim.run, 'p', sim.age]); sim.trace.push([sim.run, 0]); sim.age = 0; } draw(); drawSim(); };
+  document.querySelectorAll('[data-p]').forEach(function (b) {
+    b.onclick = function () { var q = P[b.dataset.p]; ['beta', 'eta', 't', 'pm', 'cf'].forEach(function (k, i) { $(k).value = q[i]; }); $('H').value = 80; resetSim(); draw(); drawSim(); };
+  });
+  ['beta', 'eta', 't', 'H', 'pm', 'cf'].forEach(function (k) { $(k).addEventListener('input', function () { if (k !== 't' && k !== 'H') resetSim(); draw(); drawSim(); }); });
+  draw(); drawSim();
+  window.__lab = { play: setPlay, draw: function () { draw(); drawSim(); } };   // 课件片段用：暂停/播放
+  // 嵌在网页课件里（srcdoc）或带 ?auto 时自动播放、一直循环；教材里和单独打开时等学生点“播放”
+  if (location.protocol === 'about:' || /[?&]auto/.test(location.search)) setPlay(true);
+})();
+</script>
+</body>
+</html>

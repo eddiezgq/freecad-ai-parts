@@ -10,7 +10,52 @@ rules:
     hint: 安排维修人员查根因；考虑预防性维护
   M2:
     name: 预防性维护逾期
-    status: waiting
+    fn: pm_overdue
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
     severity: warn
     role: [manager]
-    desc: 待数据：需要维护计划（ERPNext 资产维护模块或设备维护领域包）
+    desc: 自上次保养以来的运行小时超过保养周期（ERPNext 维护计划；运行小时来自车间，第 18 轮 E3）
+    hint: 看右栏三个方案：现在保养 / 下班后保养 / 不做（对照：按失效率算预期损失）
+  M3:
+    name: 点检异常未处理
+    fn: inspection_abnormal
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager]
+    desc: 扫码点检有不合格项，还没开维修单或决定观察
+    hint: 开维修单停机检修，或先观察、下次点检复查
+  M4:
+    name: 故障风险高
+    fn: failure_risk
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager]
+    params: {threshold: 0.2}
+    desc: 按失效率模型，未来 80 运行小时（单班约两周）坏掉的概率超过 threshold；超过两倍为严重
+    hint: 安排保养：比较现在保养和下班后保养
+  M5:
+    name: 维修等备件
+    fn: repair_parts_short
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: critical
+    role: [manager]
+    desc: 开着的维修单要用的备件库存不够
+    hint: 紧急采购备件（动作“紧急采购”），或从别的设备调拨
+  M6:
+    name: 维修超时
+    fn: repair_overdue
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager]
+    params: {times: 2, teach_scale: 30}
+    desc: 维修单超过平均修复时间的 times 倍还没修好（教学模式按车间倍速折算）
+    hint: 查卡在哪里：等备件、等人、还是没找到原因
+  M7:
+    name: 平均故障间隔下降
+    fn: mtbf_drop
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager]
+    params: {drop: 0.3, min_failures: 3}
+    desc: 近 30 天的平均故障间隔比之前 30 天低 drop 以上（至少 min_failures 次故障）
+    hint: 检查保养周期是否太长、保养质量；考虑缩短周期（动作“调整保养周期”）

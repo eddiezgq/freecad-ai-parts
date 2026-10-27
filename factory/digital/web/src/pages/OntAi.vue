@@ -17,7 +17,7 @@
         <span v-if="boss && ai" class="small" data-help="ai-model">模型
           <select v-model="ai.setting" @change="setAi">
             <option value="auto">自动（{{ ai.region === 'cn' ? '国内 → DeepSeek' : '国外 → Claude' }}）</option>
-            <option value="claude">Claude{{ ai.configured.claude ? '' : '（没配密钥）' }}</option>
+            <option value="claude" :disabled="ai.region === 'cn'">Claude{{ ai.region === 'cn' ? '（国内部署不用）' : ai.configured.claude ? '' : '（没配密钥）' }}</option>
             <option value="deepseek">DeepSeek{{ ai.configured.deepseek ? '' : '（没配密钥）' }}</option>
           </select>
           <span class="muted">现在用 {{ ai.name === 'rules' ? '规则版' : ai.name }}<template v-if="ai.last">；上次 {{ ai.last.provider }} {{ ai.last.ok ? '成功' : '出错' }}{{ ai.last.fallback_from ? '（' + ai.last.fallback_from + ' 出错后换的）' : '' }}</template></span>
@@ -100,7 +100,7 @@ const engine = ref('rules');
 const err = ref('');
 const running = ref(false);
 const f = reactive({ mine: false, bad: false, kind: '' });
-const ai = ref(null);       // AI 模型选择（本仓库 ADR-0063）：Claude / DeepSeek / 按地区自动
+const ai = ref(null);       // AI 模型选择（第 30 轮 H-6）：Claude / DeepSeek / 按地区自动
 
 async function loadAi() { if (boss.value) { try { ai.value = await get('/admin/ai'); } catch { ai.value = null; } } }
 async function setAi() {

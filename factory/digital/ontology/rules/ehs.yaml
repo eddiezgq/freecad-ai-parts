@@ -1,6 +1,60 @@
 domain: ehs
 rules:
-  E1: {name: 重大隐患未关闭, status: waiting, severity: critical, role: [manager], desc: 待数据：需要“隐患随手拍”采集应用（领域包）}
-  E2: {name: 隐患整改逾期, status: waiting, severity: warn, role: [manager], desc: 待数据：同上}
-  E3: {name: 作业许可缺资质, status: waiting, severity: critical, role: [manager], desc: 待数据：需要作业许可与人员资质}
-  E4: {name: 安全培训到期, status: waiting, severity: warn, role: [manager], desc: 待数据：需要培训记录}
+  E1:
+    name: 重大隐患未关闭
+    fn: major_issue_open
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: critical
+    role: [manager]
+    desc: “安全环保”页登记的重大隐患还没验收关闭（第 18 轮 E2）。关联设备的，因果链连到排在它上面的工单、订单
+    hint: 重大隐患先保安全：看右栏三个方案（立即停机挂牌 / 限时整改 / 停机整改 + 改派或加班），推演里比较交期和花费
+  E2:
+    name: 隐患整改逾期
+    fn: issue_overdue
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager]
+    desc: 一般隐患 7 天、重大隐患 1 天内要整改完；过了整改期限还没整改完的
+    hint: 催办整改人，或改派；确实做不完的写明理由延期
+  E3:
+    name: 作业许可缺资质
+    fn: permit_unqualified
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: critical
+    role: [manager]
+    desc: 作业许可申请人的相关培训（动火 / 高处 / 受限空间 / 挂牌上锁）没有或已过期，许可被拦下
+    hint: 换有资质的人，或先安排复训
+  E4:
+    name: 安全培训到期
+    fn: training_due
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager]
+    params: {days: 30}
+    desc: 员工的安全培训 days 天内到期，或已经过期
+    hint: 安全员安排复训（动作“安排培训”）
+  E5:
+    name: 挂牌上锁期间设备在运转
+    fn: lockout_violation
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: critical
+    role: [manager]
+    desc: 挂牌上锁许可还开着，车间里这台设备却在运转——可能有人没走许可就拆了锁
+    hint: 马上停机，查是谁拆的锁；整改验收后走“验收解锁”
+  E6:
+    name: 化学品存量异常
+    fn: chemical_stock
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager]
+    desc: 切削液、淬火油、润滑油的存量低于安全库存，或超过现场存放限额
+    hint: 低了就请购；超了就移到化学品库
+  E7:
+    name: 危险废物暂存超期
+    fn: waste_overdue
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn
+    role: [manager]
+    params: {days: 90}
+    desc: 危险废物（废切削液、废油、含油抹布）产生后超过 days 天还没交有资质的单位处置
+    hint: 联系危废处置单位转运，在台账里记处置单位

@@ -7,6 +7,8 @@
 import datetime as dt
 import re
 
+from wqbus import UNITS
+
 
 def _date(v):
     return str(v)[:10] if v else None
@@ -118,11 +120,65 @@ def erp_doc(B, mode, seq, ts, msg, ctx):
         B.obj(mode, "Warehouse", wh, {}, seq, ts)
         B.alias(mode, d.get("warehouse"), "Warehouse", wh)
         B.link(mode, "StockLevel", key, "warehouse", wh, seq=seq, ts=ts)
+    elif dt_ == "Issue" and "complaint" in str(d.get("wq_kind") or ""):
+        pass                       # 投诉在 ERPNext 里的副本：本体里的“客户投诉”对象来自平台的投诉表（sources.service_objs）
+    elif dt_ == "Lead":                                 # 第 18 轮 E1：客户与销售
+        B.obj(mode, "Lead", name, {"name": d.get("company_name") or d.get("lead_name"), "source": d.get("wq_note"), "status": d.get("status")},
+              seq, ts, ev, txt)
+    elif dt_ == "Opportunity":
+        B.obj(mode, "Opportunity", name, {"amount": d.get("opportunity_amount"), "stage": d.get("status"),
+                                          "expected_close": _date(d.get("expected_closing"))}, seq, ts, ev, txt)
+        if d.get("opportunity_from") == "Lead" and d.get("party_name"):
+            B.link(mode, "Opportunity", name, "lead", d["party_name"], seq=seq, ts=ts)
+        elif d.get("party_name"):
+            B.obj(mode, "Customer", d["party_name"], {"name": d["party_name"]}, seq, ts)
+            B.link(mode, "Opportunity", name, "customer", d["party_name"], seq=seq, ts=ts)
+    elif dt_ == "Quotation":
+        B.obj(mode, "Quotation", name, {"amount": d.get("grand_total") or d.get("total"), "valid_till": _date(d.get("valid_till")),
+                                        "status": d.get("status")}, seq, ts, ev, txt)
+        if d.get("quotation_to", "Customer") == "Customer" and d.get("party_name"):
+            B.obj(mode, "Customer", d["party_name"], {"name": d["party_name"]}, seq, ts)
+            B.link(mode, "Quotation", name, "customer", d["party_name"], seq=seq, ts=ts)
+        if d.get("opportunity"):
+            B.link(mode, "Quotation", name, "opportunity", d["opportunity"], seq=seq, ts=ts)
+    elif dt_ == "Contract":
+        B.obj(mode, "Contract", name, {"warranty_months": d.get("wq_warranty_months"), "penalty_per_day": d.get("wq_penalty_per_day"),
+                                       "response_h": d.get("wq_response_h"), "start": _date(d.get("start_date")), "end": _date(d.get("end_date")),
+                                       "status": d.get("status"), "demo": True if d.get("demo") else None}, seq, ts, ev, txt)
+        if d.get("party_name"):
+            B.obj(mode, "Customer", d["party_name"], {"name": d["party_name"]}, seq, ts)
+            B.link(mode, "Contract", name, "customer", d["party_name"], seq=seq, ts=ts)
+        if d.get("wq_sales_order"):
+            B.link(mode, "Contract", name, "sales_order", d["wq_sales_order"], seq=seq, ts=ts)
     elif dt_ == "Issue":
-        B.obj(mode, "ServiceOrder", name, {"subject": d.get("subject"), "status": d.get("status")}, seq, ts, ev, txt)
+        B.obj(mode, "ServiceOrder", name, {"subject": d.get("subject"), "status": d.get("status"), "engineer": d.get("wq_engineer"),
+                                           "visit_day": _date(d.get("wq_day"))}, seq, ts, ev, txt)
         serial = d.get("wq_serial") or d.get("serial")
         if serial:
             B.link(mode, "ServiceOrder", name, "unit", serial, seq=seq, ts=ts)
+    elif dt_ == "Asset":                                  # 第 18 轮 E3：资产维护模块
+        B.obj(mode, "Asset", name, {"name": d.get("asset_name"), "purchase_date": _date(d.get("purchase_date")),
+                                    "value": d.get("net_purchase_amount")}, seq, ts, ev, txt)
+        unit = str(d.get("asset_name") or "").split(" ")[0].lower()
+        if unit in UNITS:
+            B.link(mode, "Asset", name, "machine", unit, seq=seq, ts=ts)
+    elif dt_ == "Asset Maintenance":
+        t = (d.get("asset_maintenance_tasks") or [{}])[0]
+        B.obj(mode, "MaintenancePlan", name, {"interval_h": t.get("wq_interval_h"), "next_due": _date(t.get("next_due_date")),
+                                              "task": t.get("maintenance_task")}, seq, ts, ev, txt)
+        unit = str(name).split(" ")[0].lower()
+        if unit in UNITS:
+            B.link(mode, "MaintenancePlan", name, "machine", unit, seq=seq, ts=ts)
+    elif dt_ == "Asset Maintenance Log":
+        mt = d.get("asset_maintenance") or ""
+        unit = str(mt).split(" ")[0].lower()
+        if unit in UNITS and d.get("maintenance_status") == "Completed":
+            B.event(mode, "Machine", unit, ts, "maint.pm", "保养完成：{}（ERPNext {}）".format(d.get("task_name") or "", name), seq)
+    elif dt_ == "Asset Repair":
+        B.obj(mode, "RepairOrder", name, {"status": d.get("repair_status"), "description": d.get("description")}, seq, ts, ev, txt)
+        a = next((x for x in [d.get("asset")] if x), None)
+        if a:
+            B.link(mode, "RepairOrder", name, "asset", a, seq=seq, ts=ts)
     elif dt_ == "Customer":
         B.obj(mode, "Customer", name, {"name": name}, seq, ts, ev, txt)
     elif dt_ == "Supplier":

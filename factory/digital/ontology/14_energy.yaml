@@ -7,18 +7,19 @@ types:
   Meter:
     label: 计量点
     label_en: Meter
-    maturity: sim
+    maturity: have
     key: 计量点编号
     title: "{key} {medium}"
     props:
       medium: {t: str, l: 介质（电 / 气 / 水 / 压缩空气）}
       unit: {t: str, l: 单位}
+      name: {t: str, l: 名称}
     links:
       machine: {to: Machine, l: 设备, inv: 计量点}
   EnergyUse:
     label: 能耗
     label_en: Energy use
-    maturity: sim
+    maturity: have
     key: 计量点/日期
     title: "{key}"
     props:
@@ -29,7 +30,7 @@ types:
   CarbonAccount:
     label: 碳排放核算
     label_en: Carbon account
-    maturity: capture
+    maturity: have
     key: 期间
     title: "{key}"
     props:

@@ -27,7 +27,7 @@ import { onMounted, onUnmounted, ref } from 'vue';
 const props = defineProps({ dark: Boolean, clickable: Boolean, caption: String });
 const emit = defineEmits(['pick']);
 const STAGES = [
-  { name: '设计', role: '工程师 · FreeCAD', doc: '方案 第 1 版' },
+  { name: '设计', role: '工程师 · 设计台', doc: '设计 第 1 版' },
   { name: 'ERP', role: '物料与 BOM', doc: '物料 · BOM' },
   { name: 'MRP', role: '计划员', doc: '订单 → 工单' },
   { name: 'MES', role: '派工', doc: '派工单' },

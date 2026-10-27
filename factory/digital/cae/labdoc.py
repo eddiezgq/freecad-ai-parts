@@ -12,7 +12,15 @@ GUIDES = {"lab8": GUIDE_MD, "lab9": os.path.join(HERE, "实验9_机械臂关节�
           "lab12": os.path.join(HERE, "实验12_一根轴的数字化设计与两个典型案例.md"),
           "lab13": os.path.join(HERE, "实验13_减速器数字孪生与预测性维护.md"),
           "lab14": os.path.join(HERE, "实验14_减速器风扇冷却的流体与传热分析.md"),
-          "lab15": os.path.join(HERE, "实验15_车间异常的追因推演与决策.md")}
+          "lab15": os.path.join(HERE, "实验15_车间异常的追因推演与决策.md"),
+          "lab16": os.path.join(HERE, "实验16_客户投诉的追溯召回与服务决策.md"),
+          "lab17": os.path.join(HERE, "实验17_安全隐患的识别评估与停机决策.md"),
+          "lab18": os.path.join(HERE, "实验18_设备维护策略保养时机的决策.md"),
+          "lab19": os.path.join(HERE, "实验19_排班与技能缺人时的决策.md"),
+          "lab20": os.path.join(HERE, "实验20_供应链来料不合格与供应商选择.md"),
+          "lab21": os.path.join(HERE, "实验21_能源空转错峰与单件碳足迹.md"),
+          "lab22": os.path.join(HERE, "实验22_经营订单毛利应收与现金.md"),
+          "lab23": os.path.join(HERE, "实验23_两周情景一张急单的全厂决策.md")}
 
 
 def _doc():
@@ -108,6 +116,22 @@ def report_template_docx(lab="lab8"):
         return lab14_template()
     if lab == "lab15":
         return lab15_template()
+    if lab == "lab16":
+        return lab16_template()
+    if lab == "lab17":
+        return lab17_template()
+    if lab == "lab18":
+        return lab18_template()
+    if lab == "lab19":
+        return lab19_template()
+    if lab == "lab20":
+        return lab20_template()
+    if lab == "lab21":
+        return lab21_template()
+    if lab == "lab22":
+        return lab22_template()
+    if lab == "lab23":
+        return lab23_template()
     from docx.shared import Pt
     d = _doc()
     d.add_heading("实验 8　输出轴强度与疲劳校核　实验报告", 0)
@@ -537,6 +561,377 @@ def lab15_template():
            ["复盘找到的原因", ""], ["“如果当时选别的”：哪个更好", ""]])
     d.add_heading("七、结论与讨论", 1)
     hint("推演靠得住吗？什么情况下推演会偏？人和 AI 在决策里各该做什么？")
+    d.add_paragraph("")
+    buf = io.BytesIO()
+    d.save(buf)
+    return buf.getvalue()
+
+
+def lab16_template():
+    """实验 16 报告模板（第 18 轮 E1-12）"""
+    from docx.shared import Pt
+    d = _doc()
+    d.add_heading("实验 16　客户投诉的追溯、召回与服务决策　实验报告", 0)
+
+    def table(rows, head=True):
+        t = d.add_table(rows=len(rows), cols=len(rows[0]))
+        t.style = "Table Grid"
+        for r, row in enumerate(rows):
+            for c, v in enumerate(row):
+                t.cell(r, c).text = v
+                if head and r == 0:
+                    for run in t.cell(r, c).paragraphs[0].runs:
+                        run.bold = True
+        d.add_paragraph()
+
+    def hint(text):
+        p = d.add_paragraph(text)
+        p.runs[0].italic = True
+        p.runs[0].font.size = Pt(9)
+
+    table([["班级", "", "组号", ""], ["姓名 / 学号", "", "日期", ""]], head=False)
+    d.add_heading("一、投诉（任务 1）", 1)
+    table([["项目", "记录"], ["投诉编号、客户、现象", ""], ["设备序列号、投运日期、是否在保修期内", ""], ["合同响应时限 / 实际首次响应时间", ""]])
+    d.add_heading("二、追溯链：我追的与系统的", 1)
+    table([["环节", "我手工追的", "系统的因果链", "一致吗？不一致的原因"], ["设备 → 出厂总成 → 输出轴", "", "", ""], ["输出轴 → 工单、磨削砂轮", "", "", ""],
+           ["同一片砂轮磨的其他轴", "", "", ""], ["装在哪些设备、哪些客户（排查范围）", "", "", ""]])
+    hint("每一环写依据：哪一页、哪个对象卡、哪条链接。")
+    table([["排查范围里的设备", "客户", "健康度", "最先到期的轴承已用", "保修内？", "高风险？（任务 2）"], ["", "", "", "", "", ""], ["", "", "", "", "", ""],
+           ["", "", "", "", "", ""]])
+    d.add_heading("三、三个服务方案（任务 3）", 1)
+    table([["方案", "设备 / 客户数", "工程师", "几天做完", "备件", "费用（保修内 / 向客户收）", "漏掉的高风险设备"], ["A 只修出问题的", "", "", "", "", "", ""],
+           ["B 修 + 高风险点检", "", "", "", "", "", ""], ["C 整批排查", "", "", "", "", "", ""]])
+    d.add_heading("四、我的选择与中枢的建议", 1)
+    table([["项目", "记录"], ["选的方案", ""], ["理由（费用、风险、客户）", ""], ["代价", ""], ["中枢建议的方案与理由", ""],
+           ["一样吗？不一样时谁更合理", ""], ["AI 助手怎么回答的，哪句有依据、哪句没有", ""]])
+    d.add_heading("五、执行与回访（任务 4、5）", 1)
+    table([["项目", "记录"], ["动作编号、批准人、执行结果", ""], ["ERPNext 服务单（Issue）、备件出库单编号", ""], ["客户通知（发给谁、内容要点）", ""],
+           ["计划上门日 / 实际完成日", ""], ["回访分数与扣分原因", ""], ["保修内工厂实际承担的费用", ""]])
+    d.add_heading("六、结论与讨论", 1)
+    hint("召回范围怎么定？什么时候值得整批排查？保修费用算在哪里、怎样从源头减少？")
+    d.add_paragraph("")
+    buf = io.BytesIO()
+    d.save(buf)
+    return buf.getvalue()
+
+
+def lab17_template():
+    """实验 17 报告模板（第 18 轮 E2-9）"""
+    from docx.shared import Pt
+    d = _doc()
+    d.add_heading("实验 17　安全隐患的识别、评估与停机决策　实验报告", 0)
+
+    def table(rows, head=True):
+        t = d.add_table(rows=len(rows), cols=len(rows[0]))
+        t.style = "Table Grid"
+        for r, row in enumerate(rows):
+            for c, v in enumerate(row):
+                t.cell(r, c).text = v
+                if head and r == 0:
+                    for run in t.cell(r, c).paragraphs[0].runs:
+                        run.bold = True
+        d.add_paragraph()
+
+    def hint(text):
+        p = d.add_paragraph(text)
+        p.runs[0].italic = True
+        p.runs[0].font.size = Pt(9)
+
+    table([["班级", "", "组号", ""], ["姓名 / 学号", "", "日期", ""]], head=False)
+    d.add_heading("一、风险评估（任务 1）", 1)
+    table([["项目", "记录"], ["隐患编号、设备、描述", ""], ["对应的危险源（编号、名称）", ""], ["原来的可能性 × 严重度", ""],
+           ["防护缺失后的可能性 × 严重度、风险值、等级", ""], ["为什么改的是可能性而不是严重度", ""]])
+    d.add_heading("二、影响链：我追的与系统的（任务 2）", 1)
+    table([["环节", "我手工追的", "系统的因果链", "一致吗？不一致的原因"], ["设备 → 派工队列里的工序", "", "", ""], ["工序 → 工单", "", "", ""],
+           ["工单 → 订单、客户、交期", "", "", ""], ["整改需要多久（分钟）", "", "", ""]])
+    d.add_heading("三、处理方案（任务 3）", 1)
+    table([["方案", "什么时候停、停多久", "订单预计交付 / 晚几天", "多花的钱（整改、临时措施、加班）", "安全上的问题"], ["A 不处理（对照）", "", "", "", ""],
+           ["B 立即停机挂牌", "", "", "", ""], ["C 限时整改", "", "", "", ""], ["D 停机 + 改派 / 加班（如有）", "", "", "", ""]])
+    d.add_heading("四、我的选择与中枢的建议", 1)
+    table([["项目", "记录"], ["选的方案", ""], ["理由（安全、交期、成本）", ""], ["代价", ""], ["中枢建议的方案与理由", ""],
+           ["一样吗？不一样时谁更合理", ""], ["AI 助手怎么回答的，哪句有依据、哪句没有", ""]])
+    d.add_heading("五、挂牌上锁全过程（任务 4、5）", 1)
+    table([["步骤", "时间（工厂时间）", "谁", "记录"], ["起草、提交停机挂牌动作", "", "", "动作编号："], ["批准", "", "", ""],
+           ["车间停机（许可证号）", "", "", "PTW-"], ["整改完成", "", "", ""], ["验收关闭、解锁", "", "", ""], ["订单的实际影响", "", "", ""]])
+    d.add_heading("六、结论与讨论", 1)
+    hint("限时整改什么时候可以接受？安全为什么不和交期、成本放在同一个天平上？挂牌上锁为什么要“两个人”？")
+    d.add_paragraph("")
+    buf = io.BytesIO()
+    d.save(buf)
+    return buf.getvalue()
+
+
+def lab18_template():
+    """实验 18 报告模板（第 18 轮 E3-9）"""
+    from docx.shared import Pt
+    d = _doc()
+    d.add_heading("实验 18　设备维护策略：保养时机的决策　实验报告", 0)
+
+    def table(rows, head=True):
+        t = d.add_table(rows=len(rows), cols=len(rows[0]))
+        t.style = "Table Grid"
+        for r, row in enumerate(rows):
+            for c, v in enumerate(row):
+                t.cell(r, c).text = v
+                if head and r == 0:
+                    for run in t.cell(r, c).paragraphs[0].runs:
+                        run.bold = True
+        d.add_paragraph()
+
+    def hint(text):
+        p = d.add_paragraph(text)
+        p.runs[0].italic = True
+        p.runs[0].font.size = Pt(9)
+
+    table([["班级", "", "组号", ""], ["姓名 / 学号", "", "日期", ""]], head=False)
+    d.add_heading("一、手算故障概率（任务 1）", 1)
+    table([["项目", "记录"], ["设备、保养周期", ""], ["β、η、可靠性系数 k", ""], ["自上次保养运行 t（小时）", ""],
+           ["((t+80)k/η)^β − (tk/η)^β", ""], ["未来 80 运行小时坏掉的概率 P", ""], ["修理费 + 停机损失", ""], ["预期损失 = P × 损失", ""],
+           ["一次保养的花费", ""]])
+    hint("写出每一步的数，和平台算的比较。")
+    d.add_heading("二、三个方案（任务 2）", 1)
+    table([["方案", "什么时候停、停多久", "订单预计交付 / 晚几天", "确定的花费", "预期故障损失", "合计"], ["A 不做（对照）", "", "", "", "", ""],
+           ["B 现在保养", "", "", "", "", ""], ["C 下班后保养", "", "", "", "", ""]])
+    d.add_heading("三、我的选择与中枢的建议", 1)
+    table([["项目", "记录"], ["选的方案", ""], ["理由（概率、损失、花费、交期）", ""], ["中枢建议的方案与理由", ""], ["一样吗？不一样时谁更合理", ""],
+           ["AI 助手怎么回答的，哪句有依据、哪句没有", ""]])
+    d.add_heading("四、保养全过程（任务 3）", 1)
+    table([["步骤", "时间（工厂时间）", "谁", "记录"], ["起草、提交保养工单", "", "", "动作编号："], ["批准", "", "", ""], ["挂牌上锁停机", "", "", "PTW-"],
+           ["保养完成", "", "", "PM-"], ["验收解锁", "", "", ""], ["ERPNext 保养记录", "", "", ""]])
+    d.add_heading("五、对比与平均故障间隔（任务 4、5）", 1)
+    table([["项目", "记录"], ["我保养的设备，保养后故障次数", ""], ["逾期最多的另一台，同期故障次数", ""], ["近 30 天全厂故障次数", ""],
+           ["MTBF 估计（运行小时）", ""], ["这一次的结果和概率预测一致吗？为什么可能不一致", ""]])
+    d.add_heading("六、结论与讨论", 1)
+    hint("β = 1 时定期保养还有意义吗？只看预期损失什么时候不够？保养周期太短、太长各有什么代价？")
+    d.add_paragraph("")
+    buf = io.BytesIO()
+    d.save(buf)
+    return buf.getvalue()
+
+
+def lab19_template():
+    """实验 19 报告模板（第 18 轮 E4-10）"""
+    from docx.shared import Pt
+    d = _doc()
+    d.add_heading("实验 19　排班与技能：缺人时的决策　实验报告", 0)
+
+    def table(rows, head=True):
+        t = d.add_table(rows=len(rows), cols=len(rows[0]))
+        t.style = "Table Grid"
+        for r, row in enumerate(rows):
+            for c, v in enumerate(row):
+                t.cell(r, c).text = v
+                if head and r == 0:
+                    for run in t.cell(r, c).paragraphs[0].runs:
+                        run.bold = True
+        d.add_paragraph()
+
+    def hint(text):
+        p = d.add_paragraph(text)
+        p.runs[0].italic = True
+        p.runs[0].font.size = Pt(9)
+
+    table([["班级", "", "组号", ""], ["姓名 / 学号", "", "日期", ""]], head=False)
+    d.add_heading("一、单点依赖（任务 1）", 1)
+    table([["设备", "唯一熟练的人", "他在哪个班", "这台设备现在开几个班"], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""]])
+    d.add_heading("二、缺人一班的影响（任务 2）", 1)
+    table([["项目", "记录"], ["哪天、哪个班、哪台设备、谁请假", ""], ["停多少小时", ""], ["每件分钟", ""], ["少做多少件（写算式）", ""],
+           ["影响的工单、订单（因果链）", ""]])
+    d.add_heading("三、四个方案（任务 3）", 1)
+    table([["方案", "谁来、怎么排", "对别的班的影响", "订单预计交付 / 晚几天", "花费"], ["A 不处理（对照）", "", "", "", ""],
+           ["B 调人顶岗", "", "", "", ""], ["C 学徒带教", "", "", "", ""], ["D 加班顶班", "", "", "", ""]])
+    table([["项目", "记录"], ["选的方案", ""], ["理由", ""], ["中枢建议的方案与理由", ""], ["一样吗？不一样时谁更合理", ""]])
+    d.add_heading("四、执行（任务 4）", 1)
+    table([["步骤", "时间", "谁", "记录"], ["起草、提交", "", "", "动作编号："], ["批准", "", "", ""], ["排班表里这一格", "", "", ""],
+           ["车间实况里这台设备", "", "", ""]])
+    d.add_heading("五、技能培训计划（任务 5）", 1)
+    table([["设备", "谁来学", "为什么选他", "带教小时", "花费", "多久见效", "培训期间排班"], ["", "", "", "", "", "", ""], ["", "", "", "", "", "", ""],
+           ["", "", "", "", "", "", ""], ["", "", "", "", "", "", ""]])
+    hint("花费 = 带教小时 × 工时 $30 ×（1 + 师傅分出去的 25%）。")
+    d.add_heading("六、结论与讨论", 1)
+    hint("调人顶岗为什么不总是最好？加班顶班看不见的代价？健康的技能矩阵每台设备至少几个熟练的人？")
+    d.add_paragraph("")
+    buf = io.BytesIO()
+    d.save(buf)
+    return buf.getvalue()
+
+
+def lab20_template():
+    """实验 20 报告模板（第 18 轮 E5-8）"""
+    from docx.shared import Pt
+    d = _doc()
+    d.add_heading("实验 20　供应链：来料不合格与供应商选择　实验报告", 0)
+
+    def table(rows, head=True):
+        t = d.add_table(rows=len(rows), cols=len(rows[0]))
+        t.style = "Table Grid"
+        for r, row in enumerate(rows):
+            for c, v in enumerate(row):
+                t.cell(r, c).text = v
+                if head and r == 0:
+                    for run in t.cell(r, c).paragraphs[0].runs:
+                        run.bold = True
+        d.add_paragraph()
+
+    def hint(text):
+        p = d.add_paragraph(text)
+        p.runs[0].italic = True
+        p.runs[0].font.size = Pt(9)
+
+    table([["班级", "", "组号", ""], ["姓名 / 学号", "", "日期", ""]], head=False)
+    d.add_heading("一、单一来源（任务 1）", 1)
+    table([["物料类别", "唯一的供应商", "有没有可开发的备选", "风险"], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""]])
+    d.add_heading("二、来料检验（任务 2）", 1)
+    table([["项目", "记录"], ["批号、物料、数量、供应商", ""], ["检验模板与上下限", ""], ["抽样件数", ""], ["超差的件和读数", ""], ["判定", ""],
+           ["ERPNext 检验单号、收货单号", ""]])
+    d.add_heading("三、四个方案（任务 3）", 1)
+    table([["方案", "到料日", "订单预计交付 / 晚几天", "花费", "质量风险"], ["A 不处理（对照）", "", "", "", ""], ["B 退货等补发", "", "", "", ""],
+           ["C 备选急单", "", "", "", ""], ["D 让步接收全检", "", "", "", ""]])
+    table([["项目", "记录"], ["选的方案", ""], ["理由", ""], ["中枢建议的方案与理由", ""], ["一样吗？不一样时谁更合理", ""]])
+    d.add_heading("四、执行（任务 4）", 1)
+    table([["步骤", "时间", "谁", "记录"], ["起草、提交", "", "", "动作编号："], ["批准", "", "", ""], ["ERPNext 单据", "", "", ""], ["这一批的状态", "", "", ""]])
+    d.add_heading("五、总拥有成本（任务 5）", 1)
+    table([["供应商", "单价 × 价格指数", "(1 − 合格率) × $4", "(1 − 准时率) × $3", "每件总拥有成本"], ["默认", "", "", "", ""], ["备选", "", "", "", ""]])
+    hint("以后默认向哪家下单？为什么还要保留另一家？")
+    d.add_heading("六、结论与讨论", 1)
+    hint("抽样的风险；让步接收什么时候可以接受；单一来源一定不好吗？")
+    d.add_paragraph("")
+    buf = io.BytesIO()
+    d.save(buf)
+    return buf.getvalue()
+
+
+def lab21_template():
+    """实验 21 报告模板（第 18 轮 E6-10）"""
+    from docx.shared import Pt
+    d = _doc()
+    d.add_heading("实验 21　能源：空转、错峰与单件碳足迹　实验报告", 0)
+
+    def table(rows, head=True):
+        t = d.add_table(rows=len(rows), cols=len(rows[0]))
+        t.style = "Table Grid"
+        for r, row in enumerate(rows):
+            for c, v in enumerate(row):
+                t.cell(r, c).text = v
+                if head and r == 0:
+                    for run in t.cell(r, c).paragraphs[0].runs:
+                        run.bold = True
+        d.add_paragraph()
+
+    def hint(text):
+        p = d.add_paragraph(text)
+        p.runs[0].italic = True
+        p.runs[0].font.size = Pt(9)
+
+    table([["班级", "", "组号", ""], ["姓名 / 学号", "", "日期", ""]], head=False)
+    d.add_heading("一、空转（任务 1）", 1)
+    table([["设备", "近 12 小时电量（度）", "其中空转（度）", "空转占比", "原因"], ["", "", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""]])
+    d.add_heading("二、单件电量与碳足迹（任务 2）", 1)
+    table([["工序", "设备", "运行功率 kW", "每件工时（分钟）", "每件电量（度）"], ["下料", "", "", "", ""], ["粗车", "", "", "", ""], ["精车", "", "", "", ""],
+           ["铣键槽", "", "", "", ""], ["磨外圆", "", "", "", ""], ["检验", "", "", "", ""], ["合计", "", "", "", ""]])
+    table([["项目", "记录"], ["排放因子（kg CO2 / 度）", ""], ["每件碳排放（kg）", ""], ["平台实测的单件电量（对照）", ""], ["差别的原因", ""]])
+    d.add_heading("三、四个方案（任务 3）", 1)
+    table([["方案", "未来 24 小时电量（度）", "电费", "碳排放", "订单交期"], ["A 不处理（对照）", "", "", "", ""], ["B 10 分钟待机", "", "", "", ""],
+           ["C 30 分钟待机", "", "", "", ""], ["D 全部机加设备 10 分钟", "", "", "", ""]])
+    table([["项目", "记录"], ["选的方案", ""], ["理由", ""], ["中枢建议的方案与理由", ""], ["一样吗？不一样时谁更合理", ""]])
+    d.add_heading("四、执行（任务 4）", 1)
+    table([["步骤", "时间", "谁", "记录"], ["起草、提交", "", "", "动作编号："], ["批准", "", "", ""], ["批准后 HMC-01 的电量条", "", "", ""]])
+    d.add_heading("五、一个月省多少（任务 5）", 1)
+    table([["项目", "算式", "结果"], ["错峰一个月省的电费", "", ""], ["错峰一个月少排的碳", "", ""], ["HMC-01 每晚待机一个月少排的碳", "", ""]])
+    hint("错峰和待机，哪个是“省钱”，哪个是“省电”？")
+    d.add_heading("六、结论与讨论", 1)
+    hint("自动待机设多长合适；错峰对碳排放有没有用；开工率低时每件分摊的电为什么多")
+    d.add_paragraph("")
+    buf = io.BytesIO()
+    d.save(buf)
+    return buf.getvalue()
+
+
+def lab22_template():
+    """实验 22 报告模板（第 18 轮 E7-10）"""
+    from docx.shared import Pt
+    d = _doc()
+    d.add_heading("实验 22　经营：订单毛利、应收与现金　实验报告", 0)
+
+    def table(rows, head=True):
+        t = d.add_table(rows=len(rows), cols=len(rows[0]))
+        t.style = "Table Grid"
+        for r, row in enumerate(rows):
+            for c, v in enumerate(row):
+                t.cell(r, c).text = v
+                if head and r == 0:
+                    for run in t.cell(r, c).paragraphs[0].runs:
+                        run.bold = True
+        d.add_paragraph()
+
+    def hint(text):
+        p = d.add_paragraph(text)
+        p.runs[0].italic = True
+        p.runs[0].font.size = Pt(9)
+
+    table([["班级", "", "组号", ""], ["姓名 / 学号", "", "日期", ""]], head=False)
+    d.add_heading("一、没达标的经营指标（任务 1）", 1)
+    table([["指标", "现在的值", "目标", "数从哪个领域来", "该去哪里找原因"], ["", "", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""]])
+    d.add_heading("二、订单毛利（任务 2）", 1)
+    table([["项目", "金额 $", "来源（实测 / 标准）"], ["收入", "", ""], ["料", "", ""], ["工（折旧 + 人工）", "", ""], ["电", "", ""], ["废品返工", "", ""],
+           ["急单、加班、外协、加急", "", ""], ["保修", "", ""], ["毛利 / 毛利率", "", ""], ["按标准的毛利率", "", ""]])
+    hint("和按标准比差在哪？报价、工艺、供应商各能改什么？")
+    d.add_heading("三、三个方案（任务 3）", 1)
+    table([["方案", "预计几天收到钱", "现金最低的周与金额", "对客户关系的影响"], ["A 不处理（对照）", "", "", ""], ["B 发催款函", "", "", ""], ["C 信用冻结", "", "", ""]])
+    table([["项目", "记录"], ["选的方案", ""], ["理由", ""], ["中枢建议的方案与理由", ""], ["一样吗？不一样时谁更合理", ""]])
+    d.add_heading("四、执行（任务 4）", 1)
+    table([["步骤", "时间", "谁", "记录"], ["起草、提交", "", "", "动作编号："], ["批准", "", "", ""], ["客户付款（收款单）", "", "", ""]])
+    d.add_heading("五、应收周转与现金（任务 5）", 1)
+    table([["项目", "数值"], ["应收余额", ""], ["近 30 天开票额", ""], ["DSO", ""], ["现金最紧的周与金额", ""], ["DSO 降到 30 天能多出的现金", ""]])
+    d.add_heading("六、结论与讨论", 1)
+    hint("毛利低的原因该找谁改；什么时候不催款、不冻结；为什么赚钱的工厂也会倒闭")
+    d.add_paragraph("")
+    buf = io.BytesIO()
+    d.save(buf)
+    return buf.getvalue()
+
+
+def lab23_template():
+    """实验 23 报告模板（第 19 轮 J-7）：一组一份"""
+    from docx.shared import Pt
+    d = _doc()
+    d.add_heading("实验 23　两周情景：一张急单的全厂决策　课程设计报告", 0)
+
+    def table(rows, head=True):
+        t = d.add_table(rows=len(rows), cols=len(rows[0]))
+        t.style = "Table Grid"
+        for r, row in enumerate(rows):
+            for c, v in enumerate(row):
+                t.cell(r, c).text = v
+                if head and r == 0:
+                    for run in t.cell(r, c).paragraphs[0].runs:
+                        run.bold = True
+        d.add_paragraph()
+
+    def hint(text):
+        p = d.add_paragraph(text)
+        p.runs[0].italic = True
+        p.runs[0].font.size = Pt(9)
+
+    table([["班级", "", "小组", ""], ["日期", "", "订单号", ""]], head=False)
+    d.add_heading("一、小组分工（任务 1）", 1)
+    table([["姓名 / 学号", "角色", "负责的幕"], ["", "", ""], ["", "", ""], ["", "", ""], ["", "", ""], ["", "", ""], ["", "", ""]])
+    d.add_heading("二、八幕的决定（任务 2）", 1)
+    rows = [["幕", "发生什么", "厂情中枢报", "各方案多花 / 交期 / 风险", "我们选", "理由", "中枢推荐", "一样吗"]]
+    for n, t in ((1, "客户下急单"), (2, "缺料"), (3, "来料不合格"), (4, "缺人"), (5, "安全隐患"), (6, "保养逾期"), (7, "空转与峰时"), (8, "应收逾期")):
+        rows.append([str(n), t, "", "", "", "", "", ""])
+    table(rows)
+    d.add_heading("三、执行与单据（任务 3）", 1)
+    table([["幕", "动作编号", "发起人", "批准", "ERPNext 里的单据"], ["", "", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""]])
+    d.add_heading("四、复盘：这张订单赚了多少（任务 4）", 1)
+    table([["项目", "金额 $", "来自哪一幕"], ["收入", "", ""], ["料", "", ""], ["工（折旧 + 人工）", "", ""], ["电", "", ""], ["空转电（分摊）", "", ""],
+           ["废品返工", "", ""], ["急单、加班、外协、加急", "", ""], ["保修", "", ""], ["毛利 / 毛利率", "", ""], ["按标准的毛利率", "", ""]])
+    hint("把因果链截图贴在这里：从“应收逾期”或订单毛利一路追回到哪几个源头异常。")
+    d.add_heading("五、如果重来", 1)
+    hint("会改哪一幕的决定？估一估毛利、交期会怎么变。")
+    d.add_paragraph("")
+    d.add_heading("六、讨论", 1)
+    hint("哪个决定对毛利影响最大；交期、成本、安全冲突时怎么排先后；真实工厂里哪些钱追不到源头")
     d.add_paragraph("")
     buf = io.BytesIO()
     d.save(buf)

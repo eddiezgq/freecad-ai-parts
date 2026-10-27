@@ -24,7 +24,7 @@ import { get, post } from '../lib/api';
 import { timeOf } from '../lib/fmt';
 
 const ROLES = [
-  { key: 'engineer', name: '设计/工艺' }, { key: 'approver', name: '审批人' }, { key: 'sales', name: '销售' },
+  { key: 'engineer', name: '设计/工艺' }, { key: 'approver', name: '审批人' }, { key: 'sales', name: '销售' }, { key: 'service', name: '售后' }, { key: 'safety', name: '安全员' }, { key: 'maintenance', name: '维修工' }, { key: 'lead', name: '班组长' },
   { key: 'planner', name: '计划员' }, { key: 'operator', name: '操作工' }, { key: 'quality', name: '质检员' },
 ];
 const rows = ref([]);

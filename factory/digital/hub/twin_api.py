@@ -50,25 +50,6 @@ def mount(app, H, user_of, who, uid_of, is_teacher, ai_quota=None):
             raise HTTPException(404, "没有这台设备的孪生")
         return TW.json_safe(r)
 
-    @app.get("/api/twin/units/{serial}/records.csv")
-    def twin_records_csv(serial: str, instance: str = "reducer", days: int = 365, u=Depends(user_of)):
-        """现场运行记录导出为 FreeCAD 数字孪生（analysis/twin）的运行记录 CSV（本仓库 ADR-0058 第 4 条）：
-        每天一行：运行小时、输出平均 / 最大扭矩、输入转速。instance 为 FreeCAD 布局里这台减速器的实例名。"""
-        from fastapi.responses import Response
-        rows = H.db.q("select day, data from twin_log where serial=%s and mode=%s order by day desc limit %s",
-                      (serial, u["mode"], max(1, min(int(days), 3650))))
-        if not rows:
-            raise HTTPException(404, "没有这台设备的运行记录")
-        lines = ["day,instance,hours,output_torque_avg_nm,output_torque_max_nm,input_speed_rpm"]
-        for r in reversed(rows):
-            d = r["data"]
-            if not d.get("run_h"):
-                continue
-            lines.append("{},{},{},{},{},{}".format(r["day"], instance, d["run_h"], d.get("torque_mean_nm") or "",
-                                                    d.get("torque_max_nm") or "", d.get("n_in_rpm") or ""))
-        return Response("\n".join(lines) + "\n", media_type="text/csv; charset=utf-8",
-                        headers={"Content-Disposition": 'attachment; filename="{}-records.csv"'.format(serial)})
-
     @app.post("/api/twin/units/{serial}/whatif")
     def twin_whatif(serial: str, body: dict = Body(default={}), u=Depends(user_of)):
         """假如：降载、加风扇、换输出轴材料 → 剩余寿命、换油间隔、油温"""
@@ -216,7 +197,7 @@ def mount(app, H, user_of, who, uid_of, is_teacher, ai_quota=None):
     @app.post("/api/twin/units/{serial}/fault")
     def twin_fault(serial: str, body: dict = Body(...), u=Depends(user_of)):
         if not is_teacher(u):
-            raise HTTPException(403, "只有老师能制造故障")
+            raise HTTPException(403, "只有老师能注入故障")
         if u["mode"] not in TW.FIELD_MODES:
             raise HTTPException(409, "这个模式下没有客户现场模拟器")
         try:

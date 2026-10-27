@@ -92,6 +92,16 @@ def load(engine, publish, now=None, tz="America/New_York", fault_left_min=90):
                         torque_record(serial, wo, "WQR-105"), wo,
                         _iso(at_local(day - dt.timedelta(days=1), 13) + dt.timedelta(minutes=40 * k)))
 
+    # ---- 合同（第 18 轮 E1-3）：违约金、投诉响应时限、保修期写在合同上；推演和服务都读这里。
+    # 峰顶搅拌机的订单有延期违约金 $200/天（第 17 轮 C 期起的教学数据）；三家现场客户（数字孪生）有保修条款
+    y0 = today.replace(month=1, day=1)
+    terms = [(CUST["summit"], 200, 24, 18), (CUST["gv"], 0, 48, 12), (CUST["harbor"], 0, 24, 24),
+             ("北方矿业 · 2 号主运皮带", 0, 24, 12), ("东港码头 · 散货输送线", 0, 12, 24), ("鲜丰食品 · 包装线", 0, 48, 12)]
+    for i, (cust, pen, resp, wm) in enumerate(terms):
+        erp("Contract", "CON-DEMO-{:03d}".format(i + 1), at_local(y0, 9), "submitted", docstatus=1, party_type="Customer",
+            party_name=cust, start_date=_wd_add(y0, -260).isoformat(), end_date=(y0.replace(year=y0.year + 2) - dt.timedelta(days=1)).isoformat(),
+            is_signed=1, status="Active", wq_penalty_per_day=pen, wq_response_h=resp, wq_warranty_months=wm)
+
     # ---- 在手订单
     due19 = _wd_add(today, 2)
     erp("Sales Order", "SAL-ORD-2026-00019", at_local(d2, 9), "submitted", status="To Deliver and Bill", docstatus=1,

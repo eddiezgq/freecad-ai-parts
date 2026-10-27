@@ -552,3 +552,16 @@ def test_lab10_documents():
     t = docx.Document(io.BytesIO(labdoc.report_template_docx("lab10")))
     cells = " ".join(c.text for tb in t.tables for r in tb.rows for c in r.cells)
     assert "编程直径" in cells and "槽深" in cells and "P_c" in cells
+
+
+def test_pocket_curved_narrow_slot_stays_inside():
+    """第 42 轮（学习平台花样模板）：弯的窄槽，斜线下刀到深度后要沿原路退回起点，不能直线连回去切到槽外"""
+    from shapely.geometry import LineString, Point
+    from cae import cam
+    arc = LineString([(25 * math.cos(math.radians(a)), 25 * math.sin(math.radians(a))) for a in range(200, 341, 4)])
+    slot = arc.buffer(2.5)
+    mv = cam.mill_pocket(slot, 3.3, 4.0, 0.45, 2.0, 1000, 300)
+    ok = slot.buffer(-2.0 + 0.02)
+    pts = [(m["x"], m["y"]) for m in mv if m.get("t") == "feed" and m["z"] < 0]
+    for a, b in zip(pts, pts[1:]):
+        assert LineString([a, b]).within(ok.buffer(1e-3)) or Point(a).distance(Point(b)) < 1e-9, (a, b)

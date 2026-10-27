@@ -1,0 +1,29 @@
+domain: 采购与来料
+items:
+  - id: X01
+    q: "各家供应商的准时率和合格率怎么样？"
+    tools: [supplier_scorecard]
+    contains: ["东岳铸造", "单一来源", "总拥有成本"]
+  - id: X02
+    q: "批次 {bad_lot} 用到哪里去了？"
+    tools: [batch_trace]
+    contains: ["{bad_lot}", "BRG-6207", "不合格"]
+  - id: X03
+    q: "{lot_anomaly} 怎么处理？"
+    tools: [get_anomaly, compare_options]
+    contains: ["退货", "备选", "让步接收"]
+  - id: X04
+    q: "现在有哪些采购在途、到货待检？"
+    tools: [purchasing_status]
+    contains: ["在途", "不合格"]
+  - id: X05
+    q: "起草 {lot_anomaly} 的方案 B"
+    tools: [compare_options, draft_action]
+    contains: ["草稿", "提交"]
+    drafts: true
+  - id: X06
+    q: "各家供应商的准时率和合格率怎么样？"
+    as: student
+    contains: ["提示"]
+    not_contains: ["东岳铸造"]
+    cite: false

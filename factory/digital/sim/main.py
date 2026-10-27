@@ -12,6 +12,7 @@ WQ_SIM_AUTOSTART（1 = 派工即开工，不等终端点“开工”）、WQ_TZ�
   apply_fix      下发 8D 的纠正措施（data.fix）：对症的问题消失
   snapshot       发出全部内存状态（sim.snapshot，推演用；两种模式都可）
   set_calendar   换班次日历（data.calendar：24 小时连续 / 按班次与加班；两种模式都可）
+  set_energy     能源计量开关、功率表、自动待机、错峰（两种模式）；inject / clear 教学问题（仅教学模式）
 """
 import logging
 import os
@@ -47,9 +48,13 @@ class Service:
     def _publish(self, tp, type_, source, data, corr, ts=None):
         self.bus.publish(tp, type_, source, data, corr=corr, ts=ts)
 
-    def _new_engine(self, speed=None):
-        return Engine(lambda tp, ty, src, d, corr: self._publish(tp, ty, src, d, corr), Clock(speed or self.speed),
-                      mode=self.mode, auto_start=self.auto)
+    def _new_engine(self, speed=None, reliability=None):
+        eng = Engine(lambda tp, ty, src, d, corr: self._publish(tp, ty, src, d, corr), Clock(speed or self.speed),
+                     mode=self.mode, auto_start=self.auto)
+        # 第 18 轮 E3：教学模式默认“会坏”（可靠性 1，老师可调）；生产模式不模拟故障；载入情景时关闭
+        if self.mode == "teach":
+            eng.set_reliability(float(os.environ.get("WQ_SIM_RELIABILITY", "1")) if reliability is None else reliability)
+        return eng
 
     def sim_command(self, data, corr):
         cmd = data.get("command")
@@ -67,21 +72,34 @@ class Service:
             self.calendar = cal
             self.eng.set_calendar(cal)
             return True, "班次：{}".format("按班次" if cal.mode == "shift" else "24 小时连续")
+        if cmd == "set_staffing":               # 第 18 轮 E4：排班算出的人员等级（两种模式都接受：生产模式按工厂自己的排班）
+            self.eng.set_staffing(data)
+            return True, "人员等级 {} 条（{}）".format(len(data.get("levels") or {}), "开" if self.eng.staffing.enabled else "关")
+        if cmd == "set_energy":                 # 第 18 轮 E6：能源计量的开关与设定（两种模式）；注入问题只在教学模式
+            if self.mode != "teach" and (data.get("inject") or data.get("clear")):
+                return False, "生产模式不模拟能源问题"
+            self.eng.set_energy(data)
+            e = self.eng.energy
+            return True, "能源计量{}；自动待机 {} 台，错峰 {} 台".format("开" if e.enabled else "关", len(e.standby), len(e.tou))
         if self.mode != "teach":
             return False, "生产模式下不能控制仿真器"
+        if cmd == "set_reliability":            # 第 18 轮 E3：老师调可靠性（0 关、1 正常、5 加速）
+            self.eng.set_reliability(data.get("factor", 1))
+            return True, "可靠性系数 {:g}".format(self.eng.rel_factor)
         if cmd == "set_speed":
             sp = float(data.get("speed", 20))
             if not 0.1 <= sp <= 600:
                 return False, "倍速应在 0.1–600 之间"
             self.speed = sp
             self.eng.clock.set_speed(sp)
+            self.eng.publish_all_status()          # 第 18 轮 E4：状态里带工厂时间，平台据此重新对时
             return True, "倍速已改为 {:g}".format(sp)
         if cmd == "load_scenario":
             from factory import plant
             if not plant.is_demo():
-                return False, "实验 7 情景只属于演示工厂，企业工厂没有"
+                return False, "实验 7 情景只属于演示工厂，本厂没有"
             speed = float(data.get("speed", 1))
-            self.eng = self._new_engine(speed)
+            self.eng = self._new_engine(speed, reliability=0)
             t = scenario.load(self.eng, self._publish, tz=self.tz)
             self.eng.clock = Clock(speed)
             self.eng.clock.t0_sim = t
@@ -125,8 +143,8 @@ class Service:
                             log.info("虚拟 PLC：%s 收到程序（班次 %s）", unit, m["data"].get("run_id"))
                             continue
                         if unit == "sim":
-                            if m.get("mode") and m["mode"] != self.mode and m["data"].get("command") in ("set_calendar", "snapshot"):
-                                continue          # 另一个模式的班次 / 快照（教学、生产各有一套），不是发给这台仿真车间的
+                            if m.get("mode") and m["mode"] != self.mode and m["data"].get("command") in ("set_calendar", "snapshot", "set_staffing", "set_energy"):
+                                continue          # 另一个模式的班次 / 快照 / 人员等级 / 能源设定（教学、生产各有一套），不是发给这台仿真车间的
                             ok, reason = self.sim_command(m["data"], m.get("corr"))
                             self.bus.publish(topic("machining", "sim", "cmd/ack"), "machine.ack", "sim",
                                              {"accepted": ok, "reason": reason, "command": m["data"].get("command")},

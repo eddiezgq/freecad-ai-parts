@@ -8,4 +8,11 @@ export const ANIMS = {
   workorder: defineAsyncComponent(() => import('./WorkOrderAnim.vue')),
   causal: defineAsyncComponent(() => import('./CausalAnim.vue')),
   'ai-draft': defineAsyncComponent(() => import('./AiDraftAnim.vue')),
+  // 第 30 轮 §八 8-2：各领域的机制动画
+  recall: defineAsyncComponent(() => import('./RecallAnim.vue')),
+  inspect: defineAsyncComponent(() => import('./InspectAnim.vue')),
+  shift: defineAsyncComponent(() => import('./ShiftAnim.vue')),
+  risk: defineAsyncComponent(() => import('./RiskAnim.vue')),
+  'energy-day': defineAsyncComponent(() => import('./EnergyDayAnim.vue')),
+  spc: defineAsyncComponent(() => import('./SpcAnim.vue')),
 };

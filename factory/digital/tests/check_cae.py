@@ -207,5 +207,8 @@ assert len(res["surface"]["triangles"]) > 100 and res["aux"]["streamlines"] and 
 tt = call("POST", "/api/cfd/jobs/{}/to-thermal".format(j["id"]), {}, token=tok)
 assert tt["thermal"][0]["type"] == "heat_flux" and any(r.get("source") == "cfd" for r in tt["thermal"])
 assert call("GET", "/api/cae/lab14/guide.docx", raw=True)[:2] == b"PK"
+for lab in ("lab15", "lab16", "lab17", "lab18", "lab19", "lab20", "lab21", "lab22", "lab23"):                 # 第 17、18 轮的实验指导书和报告模板也要在镜像里
+    for kind in ("guide", "report-template"):
+        assert call("GET", "/api/cae/{}/{}.docx".format(lab, kind), raw=True)[:2] == b"PK", (lab, kind)
 print("流体分析演练通过：{} 个单元，{} 秒，阻力 {:.4f} N，平均 h {:.1f} W/(m²·K)，送温度场 {} 行".format(
     st["cells"], st["seconds"], st["drag_n"], st["h_mean"], len(tt["thermal"])))

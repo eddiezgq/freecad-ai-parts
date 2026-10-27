@@ -28,7 +28,7 @@ UNITS = {
 }
 # 虚拟 PLC 控制的设备 → 虚拟设备模型（学习平台 labkit/plants.js 里的名字）
 PLC_UNITS = {"press-01": "press", "sort-01": "sorter"}
-try:                                   # 工厂清单（本仓库 ADR-0064）：有就用清单里的设备
+try:                                   # 工厂清单（第 30 轮；freecad-ai-parts ADR-0064）：有就用清单里的设备
     from factory import plant as _plant
     _P = _plant.active()
 except ImportError:                    # 单独用总线库时（没有 factory 包）
@@ -46,7 +46,7 @@ if _P:
     MACHINES = _P["MACHINES"]
 
 CATEGORIES = ("status", "event", "cmd", "cmd/ack", "measurement", "ncr", "release", "gcode",
-              "alert", "briefing", "proposal", "torque", "telemetry", "snapshot")
+              "alert", "briefing", "proposal", "torque", "telemetry", "snapshot", "energy")
 RETAINED = ("status", "briefing")
 
 

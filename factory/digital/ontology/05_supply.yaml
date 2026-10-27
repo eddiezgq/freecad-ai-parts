@@ -18,12 +18,15 @@ types:
   SupplierRating:
     label: 供应商评价
     label_en: Supplier rating
-    maturity: capture
+    maturity: have
+    sources: [供应商评分卡（近 30 天到货、检验的批次，第 18 轮 E5）]
     key: 供应商-期间
     title: "{key}"
     props:
       on_time: {t: num, l: 准时率, u: "%"}
       quality: {t: num, l: 合格率, u: "%"}
+      price_index: {t: num, l: 价格指数}
+      role: {t: str, l: 默认 / 备选}
     links:
       supplier: {to: Supplier, l: 供应商, inv: 评价}
   MaterialRequest:
@@ -66,7 +69,8 @@ types:
   IncomingInspection:
     label: 来料检验
     label_en: Incoming inspection
-    maturity: erp
+    maturity: have
+    sources: [ERPNext 质量检验单（Incoming，第 18 轮 E5）]
     key: ERPNext 质量检验单号
     title: "{key}"
     props:
@@ -76,11 +80,16 @@ types:
   Batch:
     label: 批次
     label_en: Batch
-    maturity: erp
+    maturity: have
+    sources: [平台批次（每次到货一批；批号记在 ERPNext 收货单上，第 18 轮 E5）]
     key: 批次号
     title: "{key}"
     props:
       qty: {t: num, l: 数量}
+      qty_left: {t: num, l: 剩余}
+      status: {t: str, l: 状态}
+      po: {t: str, l: 采购单}
+      parts: {t: int, l: 用到的零件数}
     links:
       item: {to: Item, l: 物料, inv: 批次}
       supplier: {to: Supplier, l: 供应商, inv: 批次}

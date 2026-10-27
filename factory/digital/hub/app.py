@@ -3,7 +3,8 @@
 
 运行：uvicorn hub.app:app --port 8100
 环境变量：WQ_DB、WQ_MQTT_HOST/PORT/USER/PASSWORD、WQ_MQTT_WS（浏览器连总线的地址）、WQ_ERPNEXT_URL、
-WQ_NODERED_URL、WQ_TZ、WQ_SECRET、WQ_CLAUDE_KEY / WQ_DEEPSEEK_KEY（可选）；
+WQ_NODERED_URL、WQ_TZ、WQ_SECRET、WQ_CLAUDE_KEY / WQ_DEEPSEEK_KEY（可选）、WQ_AI_PROVIDER / WQ_AI_REGION（第 30 轮，见 hub/llm.py）、
+WQ_PLANT_FILE（工厂清单，第 30 轮；不设 = 演示工厂）；WQ_EDITION=local、WQ_TEACHER_PASSWORD（学校本地版，第 30 轮 H-5）；
 线上另有 WQ_AUTH=wenquest、WQ_SSO_URL、WQ_LOGIN_URL、WQ_AI_PER_HOUR、WQ_HISTORY_DAYS（见第 3 轮细则）。
 """
 import base64
@@ -13,7 +14,6 @@ import hmac
 import json
 import logging
 import os
-import re
 import secrets
 import sys
 import threading
@@ -32,6 +32,7 @@ from wqbus import layout as L  # noqa: E402
 from wqbus.client import Bus  # noqa: E402
 from wqbus.topics import topic, unit_topic  # noqa: E402
 from factory import data as F  # noqa: E402
+from factory import plant as PLANT  # noqa: E402
 from hub import kpi, mrp  # noqa: E402
 from hub import select as lib_select  # noqa: E402
 from hub import design as design_web  # noqa: E402
@@ -53,10 +54,17 @@ log = logging.getLogger("hub")
 logging.basicConfig(level=os.environ.get("WQ_LOG", "INFO"), format="%(asctime)s hub %(levelname)s %(message)s")
 
 SECRET = (os.environ.get("WQ_SECRET") or secrets.token_hex(16)).encode()
-ROLES = ("planner", "engineer", "operator", "quality", "manager", "approver", "sales")   # 后两个：企业版（第 8 轮）
-STUDENT_ROLES = ("planner", "engineer", "operator", "quality")
+ROLES = ("planner", "engineer", "operator", "quality", "manager", "approver", "sales", "service", "safety", "maintenance", "lead")   # approver、sales：企业版（第 8 轮）
+STUDENT_ROLES = ("planner", "engineer", "operator", "quality", "service", "safety", "maintenance", "lead")   # lead 班组长：第 18 轮 E4（实验 19）     # safety 安全员：第 18 轮 E2（实验 17）     # service 售后：第 18 轮 E1（实验 16）
 # 登录方式（第 3 轮 D2）：local = 填名字进入（自己电脑上用）；wenquest = 问渠账号（线上）
 AUTH = os.environ.get("WQ_AUTH", "local")
+# 版本（第 30 轮 H-5）：local = 学校机房的本地版（factory/local/start.sh 设）；server = 线上服务器或开发机
+EDITION = os.environ.get("WQ_EDITION", "server")
+# 本地版填名字登录时：学生只能选学生岗位；当老师（厂长、生产模式、教师控制台）要输老师密码（.env 的 WQ_TEACHER_PASSWORD）。
+# 不是本地版时照旧：填名字的人都按老师（开发机、CI 演练）。
+# WQ_LOCAL_ROLES=0：本地版也不分老师学生（freecad-ai-parts 的本地版给企业工程师自己的电脑用，factory/SYNC.md 里各自实现的 local/ 设）
+LOCAL_ROLES = AUTH == "local" and EDITION == "local" and os.environ.get("WQ_LOCAL_ROLES", "1") != "0"
+TEACHER_PASSWORD = os.environ.get("WQ_TEACHER_PASSWORD", "")
 SSO_URL = os.environ.get("WQ_SSO_URL", "")          # 学习平台核对登录的接口，如 https://learn.<域名>/api/v1/auth/sso
 LOGIN_URL = os.environ.get("WQ_LOGIN_URL", "")      # 学习平台登录页，如 https://learn.<域名>/pages/login/login
 SSO_COOKIE = "wq_sso"                               # 全站登录凭证（学习平台设置，整个域名共用）
@@ -68,6 +76,15 @@ FACTORY_NAME = os.environ.get("WQ_FACTORY_NAME", "")                       # 班
 CLASS_TEACHERS = {x for x in os.environ.get("WQ_CLASS_TEACHERS", "").split(",") if x}
 CLASS_IDS = set(os.environ.get("WQ_CLASS_IDS", "").split())                # 公共工厂：有哪些班级工厂（给 Caddy 按需发证书）
 WEB_DIST = os.environ.get("WQ_WEB_DIST", os.path.join(os.path.dirname(HERE), "web", "dist"))
+# 工厂清单（第 30 轮 H-2；freecad-ai-parts ADR-0064）：E1–E7 领域、实验 15–23、情景导演、教学模拟器只在演示工厂开。
+# 企业工厂（WQ_PLANT_FILE 指定、demo_data: false）里这些接口一律 404，网页按 /api/config 的 plant.hidden 不显示入口
+DEMO_PLANT = PLANT.is_demo()
+TEACH_ONLY_API = tuple("/api/lab{}".format(n) for n in range(15, 24)) + (
+    "/api/labs", "/api/story", "/api/scenario", "/api/teach/batch-complaint", "/api/help/try",       # 帮助里的“当场动手”（第 30 轮 §八）
+    "/api/complaints", "/api/crm", "/api/followups", "/api/ont/customer360", "/api/service",     # E1 客户与服务
+    "/api/ehs", "/api/maint", "/api/people", "/api/supply", "/api/energy", "/api/finance")      # E2–E7
+TEACH_ONLY_NAV = ("/service", "/supply", "/finance", "/maint", "/people", "/ehs", "/energy", "/director", "/labs", "/teach",
+                  "/plc") + tuple("/lab{}".format(n) for n in range(15, 24))
 PUBLISH_ALLOW = ("wq/gearbox/design/",)       # HTTP → 总线网关只放行这些主题（FreeCAD 宏用）
 
 
@@ -97,14 +114,9 @@ class Hub:
 
     def start(self):
         self.db.init()
-        from hub import products                   # 工厂接收新产品（本仓库 ADR-0061）：登记过的产品并入主数据
-        products.init(self.db)
-        if AUTH == "enterprise":                      # 企业账号（本仓库 ADR-0063）
-            from hub import accounts
-            accounts.init(self.db)
         self.bus = Bus("wq-hub-" + secrets.token_hex(3))
         self.ai = Assistant(self.db, self.publish)
-        ai_setting_load(self.db, self.ai.llm)          # 本仓库 ADR-0063：管理员选的模型（Claude / DeepSeek / 自动）
+        ai_setting_load(self.db, self.ai.llm)          # 第 30 轮 H-6：管理员选的模型（Claude / DeepSeek / 自动）
         from hub.ont.agent import Agent               # AI 代理（第 17 轮 D 期）：问答走代理，工具是本体、异常、推演、动作
         self.agent = Agent(self, self.ai.llm, locked=self.compare_locked)
         self.hist = Historian(self.db, self.on_message)
@@ -157,6 +169,24 @@ class Hub:
             from hub.ont import notify as NT
             from hub.ont import report as RP
             from hub.ont import retro as RT
+            from hub import service as SV
+            SV.init(self.db)
+            from hub import ehs as EH
+            EH.init(self.db)
+            from hub import maint as MT
+            MT.init(self.db)
+            from hub import people as PE
+            PE.init(self.db)
+            from hub import supply as SP
+            SP.init(self.db)
+            from hub import energy as EG
+            EG.init(self.db)
+            from hub import finance as FN
+            FN.init(self.db)
+            from hub import story as ST
+            ST.init(self.db)
+            from hub import lab23 as L23
+            L23.init(self.db)
             NT.init(self.db)
             RP.init(self.db)
             RT.init(self.db)
@@ -191,8 +221,8 @@ class Hub:
     def compare_locked(self, u, anomaly_id=None):
         """实验 15 的比对模式：学生提交自己的分析之前看不到建议和推荐理由（第 17 轮 D 期 D9）"""
         try:
-            from hub import lab15
-            return lab15.locked(self.db, u, anomaly_id)
+            from hub import lab15, lab16, lab17, lab18, lab19, lab20, lab21, lab22, lab23   # 实验 16–23 沿用同一个比对模式
+            return any(m.locked(self.db, u, anomaly_id) for m in (lab15, lab16, lab17, lab18, lab19, lab20, lab21, lab22, lab23))
         except ImportError:
             return False
 
@@ -208,6 +238,12 @@ class Hub:
                 self.vplc.on_message(tp, msg)
             except Exception:  # noqa: BLE001
                 log.exception("虚拟 PLC 处理消息出错")
+        if t == "energy.reading":                 # 第 18 轮 E6：计量读数入库
+            try:
+                from hub import energy as EG
+                EG.ingest(self.db, msg["mode"], msg["data"])
+            except Exception:  # noqa: BLE001
+                log.exception("能源读数入库出错")
         if t == "sim.snapshot" and self.plan_snaps is not None:
             try:
                 self.plan_snaps.deliver(msg)
@@ -228,9 +264,8 @@ class Hub:
 
     def _first_run(self):
         """第一次启动（教学模式、历史库还是空的）：让仿真器载入实验 7 情景，首页一打开就有内容。"""
-        from factory import plant
-        if DEFAULT_MODE != "teach" or os.environ.get("WQ_AUTO_SCENARIO", "1") != "1" or not plant.is_demo():
-            return                              # 实验 7 情景是演示工厂的；企业工厂（ADR-0064）不载入
+        if DEFAULT_MODE != "teach" or os.environ.get("WQ_AUTO_SCENARIO", "1") != "1" or not DEMO_PLANT:
+            return                              # 实验 7 情景是演示工厂的；企业工厂不载入
         for _ in range(6):
             if self.db.one("select 1 as x from bus_message where mode='teach' and type='erp.doc' limit 1"):
                 return
@@ -260,8 +295,51 @@ class Hub:
                             RP.generate(self.db, mode, kind, llm=self.ai.llm)
                         from hub.ont import retro as RT        # 自动复盘：异常解决、动作执行完、受影响的工单做完
                         RT.due(self.db, mode)
+                        if DEMO_PLANT:                         # E1–E7 只在演示工厂（第 30 轮 H-2）
+                            from hub import service as SV          # 客户与服务的教学模拟器（第 18 轮 E1）：投诉、上门、回访、线索
+                            SV.tick(self, mode)
+                            from hub import ehs as EH              # 安全环保的教学模拟器（第 18 轮 E2）：一般隐患、未遂、化学品与废物
+                            EH.tick(self, mode)
                     except Exception:  # noqa: BLE001
                         log.exception("通知 / 报告出错")
+                    if DEMO_PLANT:                    # E1–E7 与情景导演只在演示工厂（第 30 轮 H-2）
+                        try:                              # 设备维护单独一段：前面的模拟器出错不影响台账和故障单
+                            from hub import maint as MT            # 设备维护（第 18 轮 E3）：台账进 ERPNext、故障 → 维修单、模拟器
+                            MT.ensure_setup(self, mode)
+                            if mode == "teach":
+                                MT.tick(self, mode)
+                            else:
+                                MT.scan_failures(self, mode)
+                        except Exception:  # noqa: BLE001
+                            log.exception("设备维护出错")
+                        try:                              # 人员与组织（第 18 轮 E4）：员工档案进 ERPNext、出勤模拟、人员等级下发车间
+                            from hub import people as PE
+                            PE.ensure_setup(self, mode)
+                            PE.tick(self, mode)
+                        except Exception:  # noqa: BLE001
+                            log.exception("人员出错")
+                        try:                              # 供应链（第 18 轮 E5）：备选供应商进 ERPNext、发货到货、批次用料、模拟器
+                            from hub import supply as SP
+                            SP.ensure_setup(self, mode)
+                            SP.tick(self, mode)
+                        except Exception:  # noqa: BLE001
+                            log.exception("供应链出错")
+                        try:                              # 能源与环境（第 18 轮 E6）：计量开关与节能设定下发车间、模拟器出问题、修好了清掉
+                            from hub import energy as EG
+                            EG.tick(self, mode)
+                        except Exception:  # noqa: BLE001
+                            log.exception("能源出错")
+                        try:                              # 经营与财务（第 18 轮 E7）：订单做完开票、收货开采购发票、客户付款模拟器
+                            from hub import finance as FN
+                            FN.tick(self, mode)
+                        except Exception:  # noqa: BLE001
+                            log.exception("财务出错")
+                        try:                              # 第 19 轮：情景导演——推进等 ERPNext 的步骤、核对异常、自动演示
+                            if mode == "teach":
+                                from hub import story as ST
+                                ST.tick(self, mode)
+                        except Exception:  # noqa: BLE001
+                            log.exception("情景出错")
                     last = self.last_brief.get(mode, 0)
                     if new or time.time() - last > 600:
                         self.ai.briefing(mode)
@@ -294,6 +372,18 @@ H = Hub()
 app = FastAPI(title="问渠数字工厂枢纽 WenQuest Digital Factory Hub", version="1.0.0")
 
 
+def teach_only(path):
+    """只属于演示工厂的接口（E1–E7、实验 15–23、情景）"""
+    return any(path == p or path.startswith(p + "/") for p in TEACH_ONLY_API)
+
+
+@app.middleware("http")
+async def _demo_plant_only(request: Request, call_next):
+    if not DEMO_PLANT and teach_only(request.url.path):
+        return JSONResponse({"detail": "这项功能只属于演示工厂（问渠减速器厂），本厂没有"}, 404)
+    return await call_next(request)
+
+
 @app.on_event("startup")
 def _startup():
     if os.environ.get("WQ_HUB_NO_START") != "1":
@@ -320,15 +410,8 @@ def user_of(x_wq_token: str = Header(default="")):
         if hmac.compare_digest(sig, hmac.new(SECRET, raw.encode(), hashlib.sha256).hexdigest()[:32]):
             u = json.loads(base64.urlsafe_b64decode(raw.encode()))
             if u.get("exp", float("inf")) > time.time():
-                if AUTH == "enterprise":           # 企业账号：账号在用、密码没改过，凭证才有效（本仓库 ADR-0063）
-                    from hub import accounts
-                    if not u.get("acct") or not accounts.still_valid(H.db, u["acct"], u.get("pw_ver")):
-                        raise HTTPException(401, "登录已失效，请重新登录")
-                    return u
-                u.setdefault("teacher", True)      # 本地版的旧凭证：人人可用全部角色
+                u.setdefault("teacher", not LOCAL_ROLES)      # 填名字登录的旧凭证：人人可用全部角色（学校本地版除外）
                 return u
-    except HTTPException:
-        raise
     except Exception:  # noqa: BLE001
         pass
     raise HTTPException(401, "请先登录")
@@ -345,6 +428,8 @@ def check_allowed(teacher, role, mode, member=None):
         return
     if mode == "prod" and member and role in member:
         return
+    if LOCAL_ROLES:
+        raise HTTPException(403, "学生只能选学生岗位、用教学模式；老师请勾“我是老师”并输老师密码")
     raise HTTPException(403, "这个角色或生产模式没有授权给你（请老师或企业管理员在“企业成员”里授权）")
 
 
@@ -401,33 +486,38 @@ def _display_name(w):
 @app.get("/api/login/info")
 def login_info(request: Request):
     """登录页用：登录方式、学习平台登录页地址，以及（线上）此人是否已在学习平台登录。"""
-    out = {"auth": AUTH, "login_url": LOGIN_URL, "student_roles": STUDENT_ROLES}
+    out = {"auth": AUTH, "login_url": LOGIN_URL, "student_roles": STUDENT_ROLES,
+           "edition": EDITION, "teacher_password": LOCAL_ROLES}      # 本地版：当老师要输老师密码（第 30 轮 H-5）
     if AUTH == "wenquest":
         w = wenquest_user(request.cookies.get(SSO_COOKIE, ""))
         out["account"] = {"fullname": w["fullname"], "teacher": w["teacher"]} if w else None
     return out
 
 
+_pw_fails = {}
+
+
+def _local_teacher(request, pw):
+    """本地版的老师密码：不填 = 学生；填错报错（同一台电脑 10 分钟内错 5 次就先锁 10 分钟）。"""
+    if not pw:
+        return False
+    ip, now = (request.client.host if request.client else "?"), time.time()
+    with _ai_lock:
+        fails = [t for t in _pw_fails.get(ip, []) if now - t < 600]
+        _pw_fails[ip] = fails
+        if len(fails) >= 5:
+            raise HTTPException(429, "老师密码错得太多，请 10 分钟后再试")
+    if TEACHER_PASSWORD and hmac.compare_digest(pw.encode(), TEACHER_PASSWORD.encode()):
+        return True
+    with _ai_lock:
+        _pw_fails.setdefault(ip, []).append(now)
+    raise HTTPException(403, "老师密码不对（在启动工厂那台电脑的 factory/digital/.env 里，WQ_TEACHER_PASSWORD）"
+                        if TEACHER_PASSWORD else "这台工厂没有设老师密码（factory/digital/.env 的 WQ_TEACHER_PASSWORD）")
+
+
 @app.post("/api/login")
 def login(request: Request, body: dict = Body(...)):
     mode = body.get("mode", DEFAULT_MODE)
-    if AUTH == "enterprise":
-        from hub import accounts
-        try:
-            a = accounts.authenticate(H.db, body.get("username"), body.get("password"))
-        except accounts.AccountError as e:
-            raise HTTPException(401, str(e)) from None
-        member = None if a["admin"] else list(a["roles"])
-        mode = body.get("mode", "prod")
-        role = body.get("role") or ("manager" if a["admin"] else member[0])
-        if member and role not in member:
-            role = member[0]
-        check_allowed(a["admin"], role, mode, member)
-        u = {"name": a["name"], "uid": "acct:" + a["username"], "acct": a["username"], "pw_ver": a["pw_ver"],
-             "teacher": a["admin"], "role": role, "mode": mode, "exp": int(time.time() + TOKEN_DAYS * 86400)}
-        if member:
-            u["member"] = member
-        return {"token": _sign(u), "user": u}
     if AUTH == "wenquest":
         w = wenquest_user(request.cookies.get(SSO_COOKIE, ""))
         if not w:
@@ -447,11 +537,16 @@ def login(request: Request, body: dict = Body(...)):
         _seen(w["id"], _display_name(w), teacher)
     else:
         name = str(body.get("name", "")).strip()[:40]
-        role = body.get("role", "manager")
         if not name:
             raise HTTPException(400, "请填写姓名")
-        check_allowed(True, role, mode)
-        u = {"name": name, "role": role, "mode": mode, "teacher": True}
+        teacher = True
+        if LOCAL_ROLES:                       # 学校本地版（第 30 轮 H-5）：输对老师密码才是老师，否则是学生
+            teacher = _local_teacher(request, str(body.get("teacher_password") or ""))
+            if not teacher:
+                mode = "teach"
+        role = body.get("role") or ("manager" if teacher else "planner")
+        check_allowed(teacher, role, mode)
+        u = {"name": name, "role": role, "mode": mode, "teacher": teacher}
     if u["mode"] == "teach":
         H.teach.start(u["name"])
     return {"token": _sign(u), "user": u}
@@ -461,8 +556,7 @@ def login(request: Request, body: dict = Body(...)):
 def switch(body: dict = Body(...), u=Depends(user_of)):
     role = body.get("role", u["role"])
     mode = body.get("mode", u["mode"])
-    member = None if u["teacher"] or AUTH not in ("wenquest", "enterprise") else (
-        _member_roles(u.get("uid")) if AUTH == "wenquest" else _acct_roles(u["acct"]))      # 授权随时生效
+    member = None if u["teacher"] or AUTH != "wenquest" else _member_roles(u.get("uid"))   # 授权随时生效
     check_allowed(u["teacher"], role, mode, member)
     nu = dict(u, role=role, mode=mode)
     if member:
@@ -470,62 +564,6 @@ def switch(body: dict = Body(...), u=Depends(user_of)):
     else:
         nu.pop("member", None)
     return {"token": _sign(nu), "user": nu}
-
-
-def _acct_roles(username):
-    from hub import accounts
-    a = accounts.get(H.db, username)
-    return list(a["roles"]) if a else None
-
-
-# ---------------------------------------------------------------- 企业账号管理（本仓库 ADR-0063）
-def _acct_admin(u):
-    if AUTH != "enterprise":
-        raise HTTPException(404, "只有企业版用账号管理")
-    if not u.get("teacher"):
-        raise HTTPException(403, "账号管理要用管理员账号")
-
-
-def _acct_call(fn, *a, **kw):
-    from hub import accounts
-    try:
-        return fn(H.db, *a, **kw)
-    except accounts.AccountError as e:
-        raise HTTPException(400, str(e)) from None
-
-
-@app.get("/api/accounts")
-def accounts_list(u=Depends(user_of)):
-    _acct_admin(u)
-    from hub import accounts
-    return {"accounts": accounts.listing(H.db), "roles": list(accounts.ROLES)}
-
-
-@app.post("/api/accounts")
-def accounts_create(body: dict = Body(...), u=Depends(user_of)):
-    _acct_admin(u)
-    from hub import accounts
-    return _acct_call(accounts.create, body.get("username"), body.get("password"), name=body.get("name"),
-                      roles=body.get("roles") or [], admin=bool(body.get("admin")), by=u["acct"])
-
-
-@app.post("/api/accounts/{username}")
-def accounts_update(username: str, body: dict = Body(...), u=Depends(user_of)):
-    _acct_admin(u)
-    from hub import accounts
-    if body.get("password"):
-        _acct_call(accounts.set_password, username, body["password"])
-    return _acct_call(accounts.update, username, name=body.get("name"), roles=body.get("roles"),
-                      admin=body.get("admin"), active=body.get("active"), by=u["acct"])
-
-
-@app.post("/api/me/password")
-def my_password(body: dict = Body(...), u=Depends(user_of)):
-    if AUTH != "enterprise":
-        raise HTTPException(404, "只有企业版有密码")
-    from hub import accounts
-    _acct_call(accounts.set_password, u["acct"], body.get("new") or "", old=body.get("old") or "")
-    return {"ok": True, "relogin": True}
 
 
 _ai_calls = {}
@@ -555,7 +593,39 @@ def caddy_ask(domain: str = ""):
     raise HTTPException(404, "不是班级工厂")
 
 
-# ---------------------------------------------------------------- AI 模型选择（本仓库 ADR-0063）
+@app.get("/api/config")
+def config(request: Request):
+    lan = _lan_host(request)
+    return {
+        "mqtt_ws": lan(os.environ.get("WQ_MQTT_WS", "ws://localhost:9001")),
+        "erpnext_url": ((os.environ.get("WQ_PUBLIC_URL", "").rstrip("/") + "/api/erp/sso") if AUTH == "wenquest" and erp_sso.enabled()
+                        else lan(os.environ.get("WQ_ERPNEXT_URL", "http://localhost:8090"))),   # 线上：经单点登录入口（第 7 轮）
+        "nodered_url": lan(os.environ.get("WQ_NODERED_URL", "http://localhost:1880")),   # 线上设为空：不对外（D8）
+        "auth": AUTH, "login_url": LOGIN_URL, "edition": os.environ.get("WQ_EDITION", EDITION),   # 每次现读（测试、企业版改环境变量后不用重载）
+        "default_mode": DEFAULT_MODE, "roles": ROLE_NAMES, "factory_name": FACTORY_NAME, "ai_engine": H.ai.llm.name if H.ai else "rules",
+        "tz": str(kpi.TZ), "customers": F.CUSTOMERS, "fg": [{"item_code": "WQR-105", "name": F.ITEMS["WQR-105"][0],
+                                                               "price": F.FG_SELLING_PRICE}],
+        "plant": _plant_cfg(),
+    }
+
+
+def _lan_host(request):
+    """本地版（第 30 轮 H-5）：机房里学生用 http://老师电脑IP:8100 打开，总线、ERPNext 的地址里的 localhost 换成同一个 IP。"""
+    host = request.url.hostname or "localhost"
+    if EDITION != "local" or host in ("localhost", "127.0.0.1"):
+        return lambda url: url
+    return lambda url: url.replace("//localhost:", "//" + host + ":").replace("//127.0.0.1:", "//" + host + ":")
+
+
+def _plant_cfg():
+    """页面上随工厂变的：厂名、是否演示工厂、班次；hidden 是企业工厂里不显示的页面入口（第 30 轮 H-2）"""
+    from sim import calendar as cal
+    c = PLANT.company()
+    return {"name": PLANT.display_name(), "company": c["name"], "currency": c["currency"], "demo": DEMO_PLANT,
+            "shift": "{}–{}".format(cal.DEF_START, cal.DEF_END), "hidden": [] if DEMO_PLANT else list(TEACH_ONLY_NAV)}
+
+
+# ---------------------------------------------------------------- AI 模型选择（第 30 轮 H-6；freecad-ai-parts ADR-0063）
 AI_SETTING_SQL = "create table if not exists app_setting (key text primary key, value jsonb, updated_by text, ts timestamptz default now())"
 
 
@@ -582,7 +652,8 @@ def ai_status(u=Depends(user_of)):
 
 @app.post("/api/admin/ai")
 def ai_set(body: dict = Body(...), u=Depends(user_of)):
-    """选模型：claude / deepseek / auto（按地区：国内 DeepSeek、其他 Claude）。存库，重启后照样生效。"""
+    """选模型：claude / deepseek / auto（按地区：国内 DeepSeek、其他 Claude）。存库，重启后照样生效。
+    部署在国内（WQ_AI_REGION=cn）时只用 DeepSeek，选 claude 也不会调用 Claude（合规：国内只用已备案模型）。"""
     _can_admin_ai(u)
     v = body.get("provider")
     if v not in ("claude", "deepseek", "auto"):
@@ -593,31 +664,6 @@ def ai_set(body: dict = Body(...), u=Depends(user_of)):
            "set value=excluded.value, updated_by=excluded.updated_by, ts=now()", (Jsonb(v), who(u)))
     H.ai.llm.override = v
     return H.ai.llm.status()
-
-
-def _plant_cfg():
-    """页面上随工厂变的：厂名、是否演示工厂（教学页面只在演示工厂显示）、班次（ADR-0064）"""
-    from factory import plant
-    from sim import calendar as cal
-    c = plant.company()
-    return {"name": plant.display_name(), "company": c["name"], "currency": c["currency"], "demo": plant.is_demo(),
-            "shift": "{}–{}".format(cal.DEF_START, cal.DEF_END)}
-
-
-@app.get("/api/config")
-def config():
-    return {
-        "mqtt_ws": os.environ.get("WQ_MQTT_WS", "ws://localhost:9001"),
-        "erpnext_url": ((os.environ.get("WQ_PUBLIC_URL", "").rstrip("/") + "/api/erp/sso") if AUTH == "wenquest" and erp_sso.enabled()
-                        else os.environ.get("WQ_ERPNEXT_URL", "http://localhost:8090")),   # 线上：经单点登录入口（第 7 轮）
-        "nodered_url": os.environ.get("WQ_NODERED_URL", "http://localhost:1880"),   # 线上设为空：不对外（D8）
-        "auth": AUTH, "login_url": LOGIN_URL,
-        "edition": os.environ.get("WQ_EDITION", "server"),  # local：企业本地版（ADR-0058）
-        "default_mode": DEFAULT_MODE, "roles": ROLE_NAMES, "factory_name": FACTORY_NAME, "ai_engine": H.ai.llm.name if H.ai else "rules",
-        "plant": _plant_cfg(),
-        "tz": str(kpi.TZ), "customers": F.CUSTOMERS, "fg": [{"item_code": "WQR-105", "name": F.ITEMS["WQR-105"][0],
-                                                               "price": F.FG_SELLING_PRICE}],
-    }
 
 
 @app.get("/api/routing/{item}")
@@ -641,11 +687,19 @@ def health():
             "ai": (H.ai.llm.name.split(":")[0] if H.ai else "rules")}       # 第 17 轮 D 期：AI 代理用的引擎种类（claude / deepseek / rules），不含密钥
 
 
+def _pm_h(u):
+    """标准保养周期（运行小时）：3D 车间、首页点设备时和状态里的 run_h_pm 比，显示“保养逾期”（第 30 轮 §八 8-1）"""
+    from sim import reliability as REL
+    rp = REL.params(u)
+    return {"pm_h": rp["pm_h"]} if rp else {}
+
+
 @app.get("/api/layout")
 def get_layout():
     return {"floor": L.FLOOR, "units": {u: {"x": v[0], "y": v[1], "w": v[2], "d": v[3],
                                            "name": wqbus.UNITS[u][1], "en": wqbus.UNITS[u][2],
-                                           **({"h": L.HEIGHT[u]} if L.HEIGHT and u in L.HEIGHT else {})}
+                                           **({"h": L.HEIGHT[u]} if L.HEIGHT and u in L.HEIGHT else {}),
+                                           **_pm_h(u)}
                                        for u, v in L.LAYOUT.items()},
             "agv_home": L.AGV_HOME, "aisles": L.AISLES, "cross_x": L.CROSS_X}
 
@@ -899,6 +953,8 @@ def mes_cmd(body: dict = Body(...), u=Depends(user_of)):
         raise HTTPException(403, "不允许的指令 {}".format(cmd))
     if cmd in ("inject_fault", "set_speed", "load_scenario"):
         require_teacher(u)                 # 教师控制台（D3）
+    if cmd == "load_scenario" and not DEMO_PLANT:
+        raise HTTPException(400, "实验 7 情景只属于演示工厂，本厂没有")
     extra = {k: v for k, v in body.items() if k in ("minutes", "reason", "kind", "speed")}
     try:
         H.mes.command(unit, cmd, u["mode"], who(u), body.get("work_order"), body.get("operation"), **extra)
@@ -1057,87 +1113,6 @@ def http_publish(body: dict = Body(...), u=Depends(user_of)):
     H.bus.publish_msg(tp, msg)
     H.hist.handle(tp, msg)
     return {"id": msg["id"]}
-
-
-@app.get("/api/fap/components")
-def fap_components(category: str = "", q: str = "", u=Depends(user_of)):
-    """选型零件库（本仓库 ADR-0058）：公共库叠加企业库，与 FreeCAD 选型同一份数据"""
-    from hub import fap_library
-    return {"categories": fap_library.CATEGORIES, "items": fap_library.search(category, q)}
-
-
-@app.get("/api/fap/components/{cid}")
-def fap_component(cid: str, u=Depends(user_of)):
-    from hub import fap_library
-    c = fap_library.get(cid)
-    if c is None:
-        raise HTTPException(404, "零件库里没有这个组件")
-    return c
-
-
-@app.post("/api/cad/release")
-def cad_release(body: dict = Body(...), u=Depends(user_of)):
-    """FreeCAD 选型方案发布到工厂（本仓库 ADR-0058）：存新版本，发 cad.release 到总线"""
-    from hub import cad_link
-    try:
-        return cad_link.release(H.db, _emit_as(u, source="freecad"), u["mode"], who(u), body)
-    except cad_link.CadError as e:
-        raise HTTPException(422, str(e)) from None
-
-
-@app.post("/api/cad/designs/{code}/production")
-def cad_production(code: str, body: dict = Body(default={}), u=Depends(user_of)):
-    """转为生产物料（本仓库 ADR-0061）：预览要在 ERPNext 建的供应商、物料、BOM，生成一条需确认的提议"""
-    from hub import cad_link, products
-    d = cad_link.design(H.db, u["mode"], code)
-    if d is None:
-        raise HTTPException(404, "没有这个方案")
-    try:
-        spec = products.build(d, body)
-    except (products.ProductError, KeyError, TypeError, ValueError) as e:
-        raise HTTPException(400, str(e))
-    title = "转为生产物料：{} {}（{} 种物料）".format(spec["code"], spec["name"], len(spec["items"]))
-    pid = H.ai.propose("cad_to_erp", spec, u["mode"], u["name"], title, source="workbench/" + who(u), role=u["role"])
-    return {"proposal_id": pid, "preview": spec, "title": title}
-
-
-@app.get("/api/products")
-def registered_products(u=Depends(user_of)):
-    from hub import products
-    return products.products(H.db)
-
-
-@app.post("/api/purchase/receive")
-def purchase_receive(body: dict = Body(...), u=Depends(user_of)):
-    """采购到货入库（演示用：供应商送货到原材料库，ERPNext 物料收货单），走需确认的提议"""
-    from factory import data as F
-    rows = []
-    for r in body.get("items") or []:
-        code, qty = str(r.get("item_code") or ""), float(r.get("qty") or 0)
-        if code not in F.ITEMS or qty <= 0:
-            raise HTTPException(400, "物料 {} 不存在或数量不对".format(code))
-        rows.append({"item_code": code, "qty": qty, "uom": F.ITEMS[code][2]})
-    if not rows:
-        raise HTTPException(400, "没有到货物料")
-    title = "到货入库：" + "、".join("{} {:g}".format(r["item_code"], r["qty"]) for r in rows)
-    pid = H.ai.propose("material_receipt", {"items": rows}, u["mode"], u["name"], title, source="workbench/" + who(u),
-                       role=u["role"])
-    return {"proposal_id": pid, "preview": {"items": rows}, "title": title}
-
-
-@app.get("/api/cad/designs")
-def cad_designs(u=Depends(user_of)):
-    from hub import cad_link
-    return cad_link.designs(H.db, u["mode"])
-
-
-@app.get("/api/cad/designs/{code}")
-def cad_design(code: str, u=Depends(user_of)):
-    from hub import cad_link
-    d = cad_link.design(H.db, u["mode"], code)
-    if d is None:
-        raise HTTPException(404, "没有这个方案")
-    return d
 
 
 @app.get("/api/design/{item}")
@@ -1709,8 +1684,9 @@ def freecad_pack(request: Request, x_wq_token: str = Header(default=""), u=Depen
         sw = open(os.path.join(design_web.FREECAD_DIR, "wq_submit_solidworks.swb"), encoding="ascii").read()     # 第 10 轮 S1
         z.writestr("wenquest-freecad/SolidWorks/wq_submit_solidworks.swb",
                    sw.replace("__WQ_HUB__", base).replace("__WQ_TOKEN__", x_wq_token).replace("\r\n", "\n").replace("\n", "\r\n"))   # VBA 宏用 CRLF
-        z.writestr("wenquest-freecad/Mod/WenQuest/InitGui.py",
-                   open(os.path.join(design_web.FREECAD_DIR, "Mod", "WenQuest", "InitGui.py"), encoding="utf-8").read())
+        for name in ("InitGui.py", "wq_workbench.py"):    # 工作台（第 39 轮第 5 步：InitGui 只找文件夹，代码在 wq_workbench.py）
+            z.writestr("wenquest-freecad/Mod/WenQuest/" + name,
+                       open(os.path.join(design_web.FREECAD_DIR, "Mod", "WenQuest", name), encoding="utf-8").read())
         z.writestr("wenquest-freecad/使用说明.txt", FREECAD_README.format(base=base, mode="教学" if u["mode"] == "teach" else "生产"))
     return Response(buf.getvalue(), media_type="application/zip",
                     headers={"Content-Disposition": "attachment; filename=wenquest-freecad.zip"})
@@ -1800,20 +1776,316 @@ def lab15_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
         raise HTTPException(404, "这个任务不用提交答案，系统会自动检查")
 
 
+# ---------------------------------------------------------------- 实验 16（第 18 轮 E1-12）
+@app.get("/api/lab16")
+def lab16_status(u=Depends(user_of)):
+    from hub import lab16
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    out = lab16.check(H.db, u["name"])
+    out["teacher"] = bool(u.get("teacher"))
+    if u.get("teacher"):
+        out["class"] = lab16.class_view(H.db)
+    return out
+
+
+@app.post("/api/lab16/inject")
+def lab16_inject(body: dict = Body(default={}), u=Depends(user_of)):
+    from hub import lab16
+    try:
+        return lab16.inject(H, u, body)
+    except PermissionError as e:
+        raise HTTPException(403, str(e))
+    except (ValueError, KeyError) as e:
+        raise HTTPException(400, str(e))
+
+
+@app.post("/api/lab16/{tid}")
+def lab16_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
+    from hub import lab16
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    try:
+        return lab16.answer(H.db, u["name"], tid, body)
+    except KeyError:
+        raise HTTPException(404, "这个任务不用提交答案，系统会自动检查")
+
+
+# ---------------------------------------------------------------- 实验 17（第 18 轮 E2-9）
+@app.get("/api/lab17")
+def lab17_status(u=Depends(user_of)):
+    from hub import lab17
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    out = lab17.check(H.db, u["name"])
+    out["teacher"] = bool(u.get("teacher"))
+    if u.get("teacher"):
+        out["class"] = lab17.class_view(H.db)
+    return out
+
+
+@app.post("/api/lab17/inject")
+def lab17_inject(body: dict = Body(default={}), u=Depends(user_of)):
+    from hub import lab17
+    try:
+        return lab17.inject(H, u, body)
+    except PermissionError as e:
+        raise HTTPException(403, str(e))
+    except (ValueError, KeyError) as e:
+        raise HTTPException(400, str(e))
+
+
+@app.post("/api/lab17/{tid}")
+def lab17_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
+    from hub import lab17
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    try:
+        return lab17.answer(H.db, u["name"], tid, body)
+    except KeyError:
+        raise HTTPException(404, "这个任务不用提交答案，系统会自动检查")
+
+
+# ---------------------------------------------------------------- 实验 18（第 18 轮 E3-9）
+@app.get("/api/lab18")
+def lab18_status(u=Depends(user_of)):
+    from hub import lab18
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    out = lab18.check(H.db, u["name"])
+    out["teacher"] = bool(u.get("teacher"))
+    if u.get("teacher"):
+        out["class"] = lab18.class_view(H.db)
+    return out
+
+
+@app.post("/api/lab18/inject")
+def lab18_inject(body: dict = Body(default={}), u=Depends(user_of)):
+    from hub import lab18
+    try:
+        return lab18.inject(H, u, body)
+    except PermissionError as e:
+        raise HTTPException(403, str(e))
+    except (ValueError, KeyError) as e:
+        raise HTTPException(400, str(e))
+
+
+@app.post("/api/lab18/{tid}")
+def lab18_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
+    from hub import lab18
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    try:
+        return lab18.answer(H.db, u["name"], tid, body)
+    except KeyError:
+        raise HTTPException(404, "这个任务不用提交答案，系统会自动检查")
+
+
+# ---------------------------------------------------------------- 实验 22（第 18 轮 E7-10）
+# ---------------------------------------------------------------- 实验 23（第 19 轮 J-7）：两周情景，分组、分角色
+@app.get("/api/lab23")
+def lab23_status(u=Depends(user_of)):
+    from hub import lab23
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    out = lab23.check(H.db, u["name"])
+    out["teacher"] = bool(u.get("teacher"))
+    if u.get("teacher"):
+        out["class"] = lab23.class_view(H.db)
+    return out
+
+
+@app.post("/api/lab23/register")
+def lab23_register(body: dict = Body(...), u=Depends(user_of)):
+    from hub import lab23
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    try:
+        return lab23.register(H.db, u["name"], body.get("team"), body.get("role"))
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+
+
+@app.post("/api/lab23/decide/{n}")
+def lab23_decide(n: int, body: dict = Body(...), u=Depends(user_of)):
+    from hub import lab23
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    try:
+        return lab23.decide(H, u, n, body.get("option"), body.get("reason"))
+    except PermissionError as e:
+        raise HTTPException(403, str(e))
+    except (ValueError, KeyError) as e:
+        raise HTTPException(400, str(e))
+
+
+@app.post("/api/lab23/{tid}")
+def lab23_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
+    from hub import lab23
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    try:
+        return lab23.answer(H, u["name"], tid, body)
+    except KeyError:
+        raise HTTPException(404, "这个任务不用提交答案，系统会自动检查")
+
+
+@app.get("/api/lab22")
+def lab22_status(u=Depends(user_of)):
+    from hub import lab22
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    out = lab22.check(H.db, u["name"])
+    out["teacher"] = bool(u.get("teacher"))
+    if u.get("teacher"):
+        out["class"] = lab22.class_view(H.db)
+    return out
+
+
+@app.post("/api/lab22/inject")
+def lab22_inject(body: dict = Body(default={}), u=Depends(user_of)):
+    from hub import lab22
+    try:
+        return lab22.inject(H, u, body)
+    except PermissionError as e:
+        raise HTTPException(403, str(e))
+    except (ValueError, KeyError) as e:
+        raise HTTPException(400, str(e))
+
+
+@app.post("/api/lab22/{tid}")
+def lab22_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
+    from hub import lab22
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    try:
+        return lab22.answer(H.db, u["name"], tid, body)
+    except KeyError:
+        raise HTTPException(404, "这个任务不用提交答案，系统会自动检查")
+
+
+# ---------------------------------------------------------------- 实验 21（第 18 轮 E6-10）
+@app.get("/api/lab21")
+def lab21_status(u=Depends(user_of)):
+    from hub import lab21
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    out = lab21.check(H.db, u["name"])
+    out["teacher"] = bool(u.get("teacher"))
+    if u.get("teacher"):
+        out["class"] = lab21.class_view(H.db)
+    return out
+
+
+@app.post("/api/lab21/inject")
+def lab21_inject(body: dict = Body(default={}), u=Depends(user_of)):
+    from hub import lab21
+    try:
+        return lab21.inject(H, u, body)
+    except PermissionError as e:
+        raise HTTPException(403, str(e))
+    except (ValueError, KeyError) as e:
+        raise HTTPException(400, str(e))
+
+
+@app.post("/api/lab21/{tid}")
+def lab21_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
+    from hub import lab21
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    try:
+        return lab21.answer(H.db, u["name"], tid, body)
+    except KeyError:
+        raise HTTPException(404, "这个任务不用提交答案，系统会自动检查")
+
+
+# ---------------------------------------------------------------- 实验 20（第 18 轮 E5-8）
+@app.get("/api/lab20")
+def lab20_status(u=Depends(user_of)):
+    from hub import lab20
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    out = lab20.check(H.db, u["name"])
+    out["teacher"] = bool(u.get("teacher"))
+    if u.get("teacher"):
+        out["class"] = lab20.class_view(H.db)
+    return out
+
+
+@app.post("/api/lab20/inject")
+def lab20_inject(body: dict = Body(default={}), u=Depends(user_of)):
+    from hub import lab20
+    try:
+        return lab20.inject(H, u, body)
+    except PermissionError as e:
+        raise HTTPException(403, str(e))
+    except (ValueError, KeyError) as e:
+        raise HTTPException(400, str(e))
+
+
+@app.post("/api/lab20/{tid}")
+def lab20_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
+    from hub import lab20
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    try:
+        return lab20.answer(H.db, u["name"], tid, body)
+    except KeyError:
+        raise HTTPException(404, "这个任务不用提交答案，系统会自动检查")
+
+
+# ---------------------------------------------------------------- 实验 19（第 18 轮 E4-10）
+@app.get("/api/lab19")
+def lab19_status(u=Depends(user_of)):
+    from hub import lab19
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    out = lab19.check(H.db, u["name"])
+    out["teacher"] = bool(u.get("teacher"))
+    if u.get("teacher"):
+        out["class"] = lab19.class_view(H.db)
+    return out
+
+
+@app.post("/api/lab19/inject")
+def lab19_inject(body: dict = Body(default={}), u=Depends(user_of)):
+    from hub import lab19
+    try:
+        return lab19.inject(H, u, body)
+    except PermissionError as e:
+        raise HTTPException(403, str(e))
+    except (ValueError, KeyError) as e:
+        raise HTTPException(400, str(e))
+
+
+@app.post("/api/lab19/{tid}")
+def lab19_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
+    from hub import lab19
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    try:
+        return lab19.answer(H.db, u["name"], tid, body)
+    except KeyError:
+        raise HTTPException(404, "这个任务不用提交答案，系统会自动检查")
+
+
 @app.post("/api/scenario/reset")
 def teach_reset(body: dict = Body(default={}), u=Depends(user_of)):
     """重置教学情景：清空教学模式的历史，让仿真器重新载入实验 7 情景。只有“厂长”角色（教师）能做。"""
     require_teacher(u)
     if u["role"] != "manager":
         raise HTTPException(403, "请用厂长（教师）角色重置")
-    from factory import plant
-    if not plant.is_demo():
-        raise HTTPException(400, "教学情景只属于演示工厂（ADR-0064）")
+    reset_teach(who(u), float(body.get("speed", 1)), bool(body.get("scores")))
+    return {"reset": True}
+
+
+def reset_teach(by, speed=1.0, scores=False):
+    """清空教学模式的历史和各领域状态，让仿真器重新载入实验 7 情景（第 19 轮：情景导演“开始两周情景”也用它）"""
     H.db.x("delete from bus_message where mode='teach'")
     H.db.x("delete from machine_state_log where mode='teach'")
     H.db.x("delete from ncr where mode='teach' or mode is null")
     H.db.x("delete from ai_proposal where mode='teach'")
-    if body.get("scores"):
+    if scores:
         H.db.x("delete from task_result")
     H.hist._last_state = {k: v for k, v in H.hist._last_state.items() if k[1] != "teach"}
     H.hist._failed_parts.clear()
@@ -1823,19 +2095,28 @@ def teach_reset(body: dict = Body(default={}), u=Depends(user_of)):
     H.db.x("delete from anomaly where mode='teach'")
     H.db.x("update quality_problem set cleared_at=now(), cleared_how='scenario' where mode='teach' and cleared_at is null")
     H.twin.reset("teach")
+    from hub import service as _SV                        # 第 18 轮 E1：投诉、服务、回访、模拟器状态一起清空
+    _SV.reset(H.db, "teach")
+    from hub import ehs as _EH                            # 第 18 轮 E2：隐患、许可、事故、培训、化学品、废物回到情景初始
+    _EH.reset(H.db, "teach")
+    from hub import maint as _MT                          # 第 18 轮 E3：点检、故障、维修、保养单清空（车间重载情景时可靠性回到关闭）
+    _MT.reset(H.db, "teach")
+    from hub import people as _PE                         # 第 18 轮 E4：出勤、调班、加班、培训清空，技能回到初始，“要有人”关闭
+    _PE.reset(H.db, "teach")
+    from hub import supply as _SP                         # 第 18 轮 E5：批次清空，备选供应商回到初始，供应商模拟器关闭
+    _SP.reset(H.db, "teach")
+    from hub import energy as _EG                         # 第 18 轮 E6：读数清空，节能设定、错峰回到初始，模拟器关闭（计量照开）
+    _EG.reset(H.db, "teach")
+    from hub import finance as _FN                        # 第 18 轮 E7：发票、毛利清空，期初应收重建，预算目标信用回默认，模拟器关闭
+    _FN.reset(H.db, "teach")
     if H.ont is not None:
         H.ont.reset_mode("teach")
-    H.mes.command("sim", "load_scenario", "teach", who(u), speed=float(body.get("speed", 1)))
-    return {"reset": True}
+    H.mes.command("sim", "load_scenario", "teach", by, speed=float(speed))
 
 
 # ---------------------------------------------------------------- 零件库文件（第 2 轮 L14）
 from hub import library as _library  # noqa: E402
 _library.mount(app)
-
-# ---------------------------------------------------------------- 浮动席位（ADR-0066）：FreeCAD 单机安装版来租席位
-from hub import seats_api as _seats  # noqa: E402
-_seats.mount(app)
 
 # ---------------------------------------------------------------- 课程接口（第 4 轮）
 from hub import course as _course  # noqa: E402
@@ -1867,6 +2148,28 @@ _twin.mount(app, H, user_of, who, _uid, lambda u: bool(u.get("teacher")), ai_quo
 # ---------------------------------------------------------------- 厂情中枢：工厂本体（第 17 轮 A 期）
 from hub.ont import api as _ont  # noqa: E402
 _ont.mount(app, H, user_of)
+from hub import service_api as _service_api  # noqa: E402
+_service_api.mount(app, H, user_of, who)          # 第 18 轮 E1：客户与服务
+from hub import ehs_api as _ehs_api  # noqa: E402
+_ehs_api.mount(app, H, user_of, who)              # 第 18 轮 E2：安全环保
+from hub import maint_api as _maint_api  # noqa: E402
+_maint_api.mount(app, H, user_of, who)            # 第 18 轮 E3：设备维护
+from hub import people_api as _people_api  # noqa: E402
+_people_api.mount(app, H, user_of, who)           # 第 18 轮 E4：人员与排班
+from hub import supply_api as _supply_api  # noqa: E402
+_supply_api.mount(app, H, user_of, who)           # 第 18 轮 E5：采购与来料
+from hub import energy_api as _energy_api  # noqa: E402
+_energy_api.mount(app, H, user_of, who)           # 第 18 轮 E6：能源与环境
+from hub import finance_api as _finance_api  # noqa: E402
+_finance_api.mount(app, H, user_of, who)          # 第 18 轮 E7：经营与财务
+from hub import story_api as _story_api  # noqa: E402
+_story_api.mount(app, H, user_of, who, reset_teach)   # 第 19 轮：情景导演（两周情景）
+from hub import help_api as _help_api  # noqa: E402
+_help_api.mount(app, user_of)                          # 第 19 轮：帮助在网页里读；第 30 轮：/api/help/docs、帮助视频 /api/help/media、/help-media/
+from hub import help_try as _help_try  # noqa: E402
+_help_try.mount(app, H, user_of, who)                  # 第 30 轮 §八 8-1：帮助里的“当场动手”（只在演示工厂、教学模式）
+from hub import labs_api as _labs_api  # noqa: E402
+_labs_api.mount(app, H, user_of)                       # 第 19 轮：“实验与任务”一个入口
 from hub.ont import agent_api as _agent_api  # noqa: E402
 _agent_api.mount(app, H, user_of, who, ai_quota)  # 第 17 轮 D 期：AI 代理（要在 mount_anomaly 之前）
 _ont.mount_anomaly(app, H, user_of, who)          # 第 17 轮 B 期：异常、追因、态势、规则
@@ -1884,27 +2187,23 @@ from hub import tasks as _tasks  # noqa: E402
 _tasks.mount(app, H, user_of, who, _uid, _emit_as)
 
 
+# ---------------------------------------------------------------- 设计软件接口（学习平台第 41 轮缝纫机设计软件、第 39 轮问渠凸轮提交 CAE 计算）
+try:                                       # 只在问渠这边（见 SYNC.md），另一边没有这个文件
+    from hub import design_sw_api as _design_sw  # noqa: E402
+    _design_sw.mount(app)
+except ImportError:
+    pass
+
+
+# ---------------------------------------------------------------- 企业功能（第 30 轮 H-8）：freecad-ai-parts 独有的 hub/enterprise_api.py
+# （企业账号、CAD 方案、选型零件库、新产品进工厂、浮动席位）有就挂上；问渠这边没有这个文件
+import importlib.util  # noqa: E402
+if importlib.util.find_spec("hub.enterprise_api"):
+    from hub import enterprise_api as _enterprise  # noqa: E402
+    _enterprise.mount(app, H, sys.modules[__name__])
+
+
 # ---------------------------------------------------------------- 网页
-# ---------------------------------------------------------------- 帮助的操作视频（ADR-0065）
-HELP_MEDIA = os.environ.get("WQ_HELP_MEDIA", os.path.join(os.path.dirname(HERE), "help-media"))
-_MEDIA_NAME = re.compile(r"^[a-z0-9-]+\.(webm|mp4|vtt)$")
-
-
-@app.get("/api/help/media")
-def help_media():
-    """装在这台服务器上的帮助视频（不用登录：帮助页登录前也能看）。"""
-    files = sorted(f for f in os.listdir(HELP_MEDIA) if _MEDIA_NAME.match(f)) if os.path.isdir(HELP_MEDIA) else []
-    return {"files": files}
-
-
-@app.get("/help-media/{name}")
-def help_media_file(name: str):
-    f = os.path.join(HELP_MEDIA, name)
-    if not _MEDIA_NAME.match(name) or not os.path.isfile(f):
-        raise HTTPException(404, "没有这段视频")
-    return FileResponse(f, headers={"Cache-Control": "public, max-age=86400"})
-
-
 if os.path.isdir(WEB_DIST):
     app.mount("/assets", StaticFiles(directory=os.path.join(WEB_DIST, "assets")), name="assets")
 

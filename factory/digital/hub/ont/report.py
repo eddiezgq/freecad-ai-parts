@@ -105,6 +105,89 @@ def build(db, mode, kind, start, end):
         if _has(db, "retro") else []
     data["retros"] = [{"key": "RT-{:05d}".format(r["id"]), "title": r["title"], "finish_pct": (r["deviation"] or {}).get("finish_pct"),
                        "cost_diff": (r["deviation"] or {}).get("cost_diff")} for r in rts]
+    # ---- 客户与服务（第 18 轮 E1）
+    try:
+        from hub import service as SV
+        SV.init(db)
+        sk = SV.kpis(db, mode)
+        nc = db.one("select count(*) as n from complaint where mode=%s and created_at >= %s and created_at < %s", (mode, start, end))["n"]
+        jd = db.one("select count(*) as n from service_job where mode=%s and status='done' and done_day is not null and created_at < %s "
+                    "and id in (select job_id from follow_up where mode=%s and created_at >= %s and created_at < %s)", (mode, end, mode, start, end))["n"]
+        data["service"] = {"new_complaints": nc, "jobs_done": jd, "open_complaints": sk["open_complaints"], "open_jobs": sk["open_jobs"],
+                           "satisfaction": sk["satisfaction"], "response_h": sk["response_h"], "warranty_cost": sk["warranty_cost"]}
+    except Exception:  # noqa: BLE001
+        data["service"] = None
+    # ---- 安全环保（第 18 轮 E2）
+    try:
+        from hub import ehs as EH
+        ek = EH.kpis(db, mode)
+        ni = db.one("select count(*) as n, count(*) filter (where level='major') as m from safety_issue where mode=%s and found_at >= %s and found_at < %s",
+                    (mode, start, end))
+        cl = db.one("select count(*) as n from safety_issue where mode=%s and closed_at >= %s and closed_at < %s", (mode, start, end))["n"]
+        data["ehs"] = {"new_issues": ni["n"], "new_major": ni["m"], "closed": cl, "open_issues": ek["open_issues"], "major_open": ek["major_open"],
+                       "overdue": ek["overdue"], "locked": ek["locked"], "training_due": ek["training_due"], "near_miss_30d": ek["near_miss_30d"]}
+    except Exception:  # noqa: BLE001
+        data["ehs"] = None
+    # ---- 设备维护（第 18 轮 E3）
+    try:
+        from hub import maint as MT
+        mk = MT.kpis(db, mode)
+        nf = db.one("select count(*) as n, coalesce(sum(down_min),0) as m from maint_failure where mode=%s and at >= %s and at < %s", (mode, start, end))
+        pm = db.one("select count(*) as n from maint_pm where mode=%s and fixed_at >= %s and fixed_at < %s", (mode, start, end))["n"]
+        data["maint"] = {"failures": nf["n"], "failure_down_min": float(nf["m"] or 0), "pms_done": pm, "overdue": mk["overdue"],
+                         "overdue_units": mk["overdue_units"], "open_repairs": mk["open_repairs"], "mtbf": mk["mtbf"]}
+    except Exception:  # noqa: BLE001
+        data["maint"] = None
+    # ---- 采购与来料（第 18 轮 E5）
+    try:
+        from hub import supply as SP
+        k5 = SP.kpis(db, mode)
+        arr = db.one("select count(*) as n from lot where mode=%s and arrived_at >= %s and arrived_at < %s", (mode, start, end))["n"]
+        rej = db.one("select count(*) as n from lot where mode=%s and inspection->>'status'='Rejected' and arrived_at >= %s and arrived_at < %s",
+                     (mode, start, end))["n"]
+        data["supply"] = {"arrived": arr, "rejected": rej, "in_transit": k5["in_transit"], "on_time": k5["on_time"], "pass_rate": k5["pass_rate"],
+                          "rejected_open": k5["rejected_open"]}
+    except Exception:  # noqa: BLE001
+        data["supply"] = None
+    # ---- 能源与环境（第 18 轮 E6）：最近一个完整的工厂日
+    try:
+        from hub import energy as EG
+        ek = EG.kpis(db, mode)
+        if ek:
+            ov = EG.overview(db, mode)
+            env = EG.env_now(db, mode, hours=24)
+            data["energy"] = {"day": ov["day"], "kwh": ov["kwh"], "cost": ov["cost"], "peak_share": ov["peak_share"], "idle_kwh": ov["idle_kwh"],
+                              "idle_share": ov["idle_share"], "co2_kg": ov["co2_kg"], "demand_ratio": ov["demand_ratio"],
+                              "top_idle": [x["unit"] for x in sorted(ov["units"], key=lambda x: -x["by_state"].get("idle", 0)) if x["unit"] != "ht-01"][:2],
+                              "env_over": [v["label"] for v in env.values() if v["max"] is not None and v["max"] > v["limit"]]}
+        else:
+            data["energy"] = None
+    except Exception:  # noqa: BLE001
+        data["energy"] = None
+    # ---- 经营与财务（第 18 轮 E7）
+    try:
+        from hub import finance as FN
+        fk = FN.kpis(db, mode)
+        rec = db.one("select coalesce(sum(amount),0) as s, count(*) as n from invoice where mode=%s and kind='ar' and issued_at >= %s and issued_at < %s "
+                     "and status <> 'failed' and not opening", (mode, start, end))
+        got = db.one("select coalesce(sum(amount),0) as s from invoice where mode=%s and kind='ar' and status='paid' and paid_at >= %s and paid_at < %s",
+                     (mode, start, end))["s"]
+        off = [o["name"] for o in FN.objectives(db, mode) if o["tone"] == "bad"]
+        data["finance"] = {"revenue": float(rec["s"]), "invoices": rec["n"], "received": float(got), "gross_margin": fk["gross_margin"], "overdue": fk["ar_overdue"],
+                           "dso": fk["dso"], "budget_used": fk["budget_used"], "progress": fk["progress"], "over_centers": [FN.CENTERS[c] for c in fk["over_centers"]],
+                           "cash": fk["cash"], "objectives_off": off}
+    except Exception:  # noqa: BLE001
+        data["finance"] = None
+    # ---- 人员（第 18 轮 E4）
+    try:
+        from hub import people as PE
+        pk = PE.kpis(db, mode)
+        na = db.one("select count(*) as n from attendance where mode=%s and status in ('leave','absent') and at >= %s and at < %s", (mode, start, end))["n"]
+        sp = PE.single_points(db, mode)
+        data["people"] = {"absences": na, "gaps": pk["gaps"], "single_points": [x["unit"] for x in sp], "overtime_h_week": pk["overtime_h_week"],
+                          "attendance_rate": pk["attendance_rate"], "trainings": pk["trainings"]}
+    except Exception:  # noqa: BLE001
+        data["people"] = None
     # ---- 今天（本周）要关注的 3 件
     focus = []
     for a in still:
@@ -175,6 +258,45 @@ def text_of(kind, data):
     ac = data["actions"]
     if ac["total"]:
         lines.append("动作：{} 个（{}）。".format(ac["total"], "、".join("{} {}".format(_ST.get(s, s), n) for s, n in ac["by_status"].items())))
+    sv = data.get("service")
+    if sv and (sv["new_complaints"] or sv["open_complaints"] or sv["jobs_done"] or sv["open_jobs"]):
+        lines.append("客户与服务：新投诉 {} 张、开着 {} 张；完成服务 {} 单、待上门 {} 单；满意度 {}。".format(
+            sv["new_complaints"], sv["open_complaints"], sv["jobs_done"], sv["open_jobs"], "{:g} 分".format(sv["satisfaction"]) if sv["satisfaction"] is not None else "—"))
+    eh = data.get("ehs")
+    if eh and (eh["new_issues"] or eh["open_issues"] or eh["locked"]):
+        lines.append("安全环保：新隐患 {} 条（重大 {}）、整改关闭 {} 条，还开着 {} 条（重大 {}、逾期 {}）；挂牌上锁 {} 台。".format(
+            eh["new_issues"], eh["new_major"], eh["closed"], eh["open_issues"], eh["major_open"], eh["overdue"], eh["locked"]))
+    mt = data.get("maint")
+    if mt and (mt["failures"] or mt["overdue"] or mt["open_repairs"] or mt["pms_done"]):
+        lines.append("设备维护：故障 {} 次（停机 {:g} 分钟），完成保养 {} 次；保养逾期 {} 台{}，开着的维修单 {} 张。".format(
+            mt["failures"], mt["failure_down_min"], mt["pms_done"], mt["overdue"],
+            "（{}）".format("、".join(u.upper() for u in mt["overdue_units"])) if mt["overdue_units"] else "", mt["open_repairs"]))
+    sp = data.get("supply")
+    if sp and (sp["arrived"] or sp["rejected_open"] or sp["in_transit"]):
+        lines.append("采购与来料：到货 {} 批（不合格 {} 批），在途 {} 批，待处理的不合格 {} 批；近 30 天准时率 {}、来料合格率 {}。".format(
+            sp["arrived"], sp["rejected"], sp["in_transit"], sp["rejected_open"], "{:.0%}".format(sp["on_time"]) if sp["on_time"] is not None else "—",
+            "{:.0%}".format(sp["pass_rate"]) if sp["pass_rate"] is not None else "—"))
+    fi = data.get("finance")
+    if fi:
+        if kind == "weekly":
+            lines.append("经营与财务：开票 {} 张 ${:,.0f}，收款 ${:,.0f}；毛利率 {}；逾期应收 ${:,.0f}，应收周转 {} 天；预算用了 {}（月度进度 {:.0%}）{}；{}。".format(
+                fi["invoices"], fi["revenue"], fi["received"], "{:.1%}".format(fi["gross_margin"]) if fi["gross_margin"] is not None else "—", fi["overdue"],
+                fi["dso"] if fi["dso"] is not None else "—", "{:.0%}".format(fi["budget_used"]) if fi["budget_used"] is not None else "—", fi["progress"],
+                "，超支：" + "、".join(fi["over_centers"]) if fi["over_centers"] else "",
+                "偏离目标的指标：" + "、".join(fi["objectives_off"]) if fi["objectives_off"] else "经营指标都在目标附近"))
+        elif fi["overdue"] or fi["revenue"]:
+            lines.append("现金与应收：现金 ${:,.0f}，逾期应收 ${:,.0f}{}。".format(fi["cash"], fi["overdue"], "；今天开票 ${:,.0f}".format(fi["revenue"]) if fi["revenue"] else ""))
+    en = data.get("energy")
+    if en and en["kwh"]:
+        lines.append("能源与环境（{}）：用电 {:,.0f} 度、电费 ${:,.2f}，峰时占 {:.0%}，空转 {:,.0f} 度（{:.0%}{}），碳排放 {:,.0f} kg；需量到合同的 {:.0%}{}。".format(
+            en["day"][5:], en["kwh"], en["cost"], en["peak_share"], en["idle_kwh"], en["idle_share"],
+            "，最多的是 " + "、".join(u.upper() for u in en["top_idle"]) if en["top_idle"] else "", en["co2_kg"], en["demand_ratio"],
+            "；" + "、".join(en["env_over"]) + "曾超限" if en["env_over"] else ""))
+    pe = data.get("people")
+    if pe and (pe["absences"] or pe["gaps"] or pe["single_points"] or pe["overtime_h_week"]):
+        lines.append("人员：请假缺勤 {} 人次，24 小时内排班缺口 {} 个；{} 台设备只有一个人会开{}；本周加班 {:g} 小时{}。".format(
+            pe["absences"], pe["gaps"], len(pe["single_points"]), "（{}）".format("、".join(u.upper() for u in pe["single_points"])) if pe["single_points"] else "",
+            pe["overtime_h_week"], "，{} 人在带教".format(pe["trainings"]) if pe["trainings"] else ""))
     if data["risk_orders"]:
         lines.append("交付风险：" + "；".join("{} {}".format(o["name"], o["risk"]) for o in data["risk_orders"]) + "。")
     if data["retros"]:

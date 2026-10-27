@@ -20,7 +20,7 @@
         <button v-for="v in [0, 1, 3, 10, 30]" :key="v" type="button" class="btn small-btn" :class="{ primary: fleet.clock.days_per_min === v && !(v && fleet.clock.paused) }" @click="setClock(v)">{{ v ? `1 分钟 = ${v} 天` : '停住' }}</button>
       </div>
       <table v-if="faults" class="t">
-        <thead><tr><th>序列号</th><th>客户</th><th>现在的故障</th><th>制造故障</th></tr></thead>
+        <thead><tr><th>序列号</th><th>客户</th><th>现在的故障</th><th>注入故障</th></tr></thead>
         <tbody><tr v-for="u in faults.units" :key="u.serial">
           <td class="mono">{{ u.serial }}</td><td>{{ fleet.sites[u.site]?.label }}</td>
           <td class="small">{{ u.faults.map((f) => (FAULT_NAME[f.kind] || f.kind) + '（' + f.start + ' 起）').join('；') || '—' }}</td>

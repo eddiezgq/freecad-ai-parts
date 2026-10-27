@@ -33,7 +33,7 @@ def test_start_scripts_use_mock_erp_and_local_edition():
     sh = (LOCAL / "start.sh").read_text(encoding="utf-8")
     ps = (LOCAL / "start.ps1").read_text(encoding="utf-8")
     for s in (sh, ps):
-        assert "WQ_EDITION" in s and "mock-erpnext:8091" in s and "--profile" in s and "/api/health" in s
+        assert "WQ_EDITION" in s and "WQ_LOCAL_ROLES" in s and "mock-erpnext:8091" in s and "--profile" in s and "/api/health" in s
     assert "WQ_SECRET" in sh and "urandom" in sh  # 登录签名密钥随机生成，不用示例值
     web = (Path(__file__).resolve().parents[1] / "web" / "src" / "App.vue").read_text(encoding="utf-8")
     assert "cfg.edition === 'local'" in web and "本地版" in web

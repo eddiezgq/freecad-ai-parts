@@ -17,7 +17,7 @@ from wqbus.topics import unit_topic
 TZ = ZoneInfo(os.environ.get("WQ_TZ", "America/New_York"))
 SHIFT_MIN = 480
 TARGET = {"on_time": 0.95, "oee": 0.75, "fpy": 0.97}
-from factory import plant as _plant  # noqa: E402  工厂清单（本仓库 ADR-0064）
+from factory import plant as _plant  # noqa: E402  工厂清单（第 30 轮；freecad-ai-parts ADR-0064）
 if _plant.active():
     SHIFT_MIN, TARGET = _plant.active()["SHIFT_MIN"], dict(_plant.active()["TARGET"])
 KEY_MATERIALS = ["BRG-6207", "RM-45-D50", "RM-40CR-F225", "OIL-CKC220"]
@@ -423,7 +423,8 @@ class Overview:
                         "item": d.get("item"), "part_serial": d.get("part_serial"),
                         "progress": d.get("progress", 0), "qty_done": d.get("qty_done", 0),
                         "qty": d.get("qty", 0), "queue": d.get("queue", 0),
-                        "tool_life_left": d.get("tool_life_left"), "reason": d.get("reason"),
+                        "tool_life_left": d.get("tool_life_left"), "reason": d.get("reason"), "locked": d.get("locked"), "run_h_pm": d.get("run_h_pm"),
+                        "no_staff": d.get("no_staff"), "staff_level": d.get("staff_level"),
                         "down_until_s": d.get("down_until_s"), "down_for_s": d.get("down_for_s"), "dispatched": d.get("dispatched", []),
                         "ts": m["ts"] if m else None})
         return out

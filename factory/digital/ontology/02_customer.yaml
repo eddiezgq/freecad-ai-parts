@@ -31,7 +31,8 @@ types:
   Lead:
     label: 线索
     label_en: Lead
-    maturity: erp
+    maturity: have
+    sources: [ERPNext 线索（第 18 轮 E1）]
     key: ERPNext 线索号
     title: "{name}"
     props:
@@ -41,7 +42,8 @@ types:
   Opportunity:
     label: 商机
     label_en: Opportunity
-    maturity: erp
+    maturity: have
+    sources: [ERPNext 商机（第 18 轮 E1）]
     key: ERPNext 商机号
     title: "{key}"
     props:
@@ -54,7 +56,7 @@ types:
   Quotation:
     label: 报价
     label_en: Quotation
-    maturity: erp
+    maturity: have
     key: ERPNext 报价单号
     title: "{key}"
     sources: [参数配置器（报价）]
@@ -68,31 +70,41 @@ types:
   Contract:
     label: 合同
     label_en: Contract
-    maturity: capture
+    maturity: have
+    sources: [ERPNext 合同（自定义字段：违约金、响应时限、保修期，第 18 轮 E1）]
     key: 合同号
     title: "{key}"
     sensitivity: 2
     props:
       warranty_months: {t: int, l: 保修期, u: 月}
       penalty_per_day: {t: num, l: 延期违约金, u: $/天}
+      response_h: {t: num, l: 投诉响应时限, u: h}
       start: {t: date, l: 生效}
+      end: {t: date, l: 到期}
+      status: {t: str, l: 状态}
+      demo: {t: bool, l: 演示数据}
     links:
       customer: {to: Customer, l: 客户, inv: 合同}
+      sales_order: {to: SalesOrder, l: 转成订单, inv: 合同}
   SatisfactionSurvey:
     label: 满意度调查
     label_en: Satisfaction survey
-    maturity: capture
+    maturity: have
+    sources: [回访打分（follow_up 表，第 18 轮 E1）]
     key: 调查号
     title: "{key}"
     props:
       score: {t: num, l: 得分}
       date: {t: date, l: 日期}
+      comment: {t: str, l: 意见}
     links:
       customer: {to: Customer, l: 客户, inv: 满意度}
+      job: {to: ServiceOrder, l: 回访的服务, inv: 回访打分}
   Complaint:
     label: 客户投诉
     label_en: Customer complaint
-    maturity: capture
+    maturity: have
+    sources: [平台投诉表（complaint，第 18 轮 E1；同时在 ERPNext 开 Issue）]
     key: 投诉号
     title: "{key} {subject}"
     props:
@@ -100,6 +112,8 @@ types:
       severity: {t: str, l: 严重度}
       status: {t: str, l: 状态}
       date: {t: date, l: 日期}
+      channel: {t: str, l: 渠道}
+      issue: {t: str, l: ERPNext 单号}
     links:
       customer: {to: Customer, l: 客户, inv: 投诉}
       field_unit: {to: FieldUnit, l: 涉及设备, inv: 投诉}

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""工厂清单（本仓库 ADR-0064）：一份 plant.yaml 描述一座工厂——公司、工作站、设备单元、工序、车间平面、班次、指标。
+"""工厂清单（第 30 轮；freecad-ai-parts ADR-0064）：一份 plant.yaml 描述一座工厂——公司、工作站、设备单元、工序、车间平面、班次、指标。
 
 环境变量 WQ_PLANT_FILE 指定清单时，factory/data.py、wqbus/topics.py、wqbus/layout.py、sim/engine.py、sim/calendar.py、
 hub/kpi.py、hub/process.py 在导入时从清单取值；没指定时用代码里的演示工厂（问渠减速器厂），行为与以前完全一样。

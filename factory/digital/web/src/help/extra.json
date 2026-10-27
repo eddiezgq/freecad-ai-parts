@@ -1,0 +1,42 @@
+{
+  "tours": {
+    "accounts": {
+      "title": "开账号、分角色",
+      "path": "/accounts",
+      "steps": [
+        {
+          "help": "acct-new",
+          "text": "填用户名、姓名、初始密码（至少 10 位，字母加数字），勾选他能用的角色；勾“管理员”就有全部权限。"
+        },
+        {
+          "help": "acct-table",
+          "text": "已有账号都在这里：随时改角色、停用、重置密码。停用或重置密码后，对方已登录的地方立即失效。输错密码 5 次会锁 10 分钟。"
+        }
+      ]
+    },
+    "cad-to-production": {
+      "title": "把 FreeCAD 方案转为生产物料",
+      "path": "/cad",
+      "steps": [
+        {
+          "help": "cad-list",
+          "text": "从 FreeCAD 的 AI Parts 工作台“发布到工厂”的方案都在这里，带校验结论和版本。点一个方案看 BOM。"
+        },
+        {
+          "help": "cad-production",
+          "text": "填外购件的采购提前期和单价（不知道就空着，系统标“交期待确认”，不会估），点“转为生产物料”：生成一条提议，确认后在 ERPNext 建物料、工艺路线和 BOM。"
+        }
+      ]
+    }
+  },
+  "videos": {
+    "ent-accounts": {
+      "edition": "enterprise",
+      "title": "开账号、分角色"
+    },
+    "ent-new-product": {
+      "edition": "enterprise",
+      "title": "新产品进工厂"
+    }
+  }
+}

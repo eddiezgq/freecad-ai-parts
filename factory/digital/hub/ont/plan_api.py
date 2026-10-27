@@ -10,6 +10,15 @@ from hub.ont import plan as P
 from hub.ont import playbook as PB
 
 
+SERVICE_RULES = ("C1", "C3", "C4", "V1", "V2")
+EHS_RULES = ("E1", "E3")
+MAINT_RULES = ("M2", "M3", "M4", "M5")
+PEOPLE_RULES = ("H1", "H2")
+SUPPLY_RULES = ("W3", "W4", "W6")
+ENERGY_RULES = ("N1", "N2", "N3", "N4", "N5", "N6")
+FINANCE_RULES = ("F2", "F3", "F4", "F5", "F6", "F7")
+
+
 def mount(app, H, user_of, who):
     def snaps():
         return H.plan_snaps
@@ -104,16 +113,96 @@ def mount(app, H, user_of, who):
         return dict(r, created_at=r["created_at"].isoformat())
 
     # ---------------------------------------------------------------- 异常的候选方案（预案推演）
-    @app.get("/api/ont/anomalies/{aid}/options")
-    def options(aid: int, snapshot_id: int = 0, u=Depends(user_of)):
+    def compute_options(u, aid, snapshot_id=0):
+        """异常的候选方案与推荐（第 19 轮：抽成函数，实验 23 评“和中枢推荐比”也用它）→ (结果, 快照号, 快照, 是否精确)"""
         a = H.db.one("select * from anomaly where id=%s and mode=%s", (aid, u["mode"]))
         if a is None:
             raise HTTPException(404, "没有这个异常")
-        sid, st, exact = snap_of(u, snapshot_id or None)
-        try:
-            r = PB.evaluate(a, st, ctx_for(u, st))
-        except P.PlanError as e:
-            raise HTTPException(400, str(e))
+        if a["rule"] in SERVICE_RULES:          # 第 18 轮 E1：投诉、现场报警的处理方案按派工排班估算，不进车间仿真
+            from hub import service as SV
+            r = SV.anomaly_options(H.db, u["mode"], a)
+            sid, st, exact = None, {"factory_now": SV.field_today(H.db, u["mode"]).isoformat(), "calendar": {}}, True
+        elif a["rule"] in MAINT_RULES:         # 第 18 轮 E3：保养时机（车间推演 + 失效风险）、点检异常、等备件
+            from hub import maint as MT
+            if a["rule"] == "M3":
+                sid, st, exact = None, {"factory_now": dt.datetime.now(dt.timezone.utc).isoformat(), "calendar": {}}, True
+                r = MT.inspection_options(H.db, u["mode"], a)
+            elif a["rule"] == "M5":
+                sid, st, exact = None, {"factory_now": dt.datetime.now(dt.timezone.utc).isoformat(), "calendar": {}}, True
+                r = MT.parts_options(H.db, u["mode"], a)
+            else:
+                sid, st, exact = snap_of(u, snapshot_id or None)
+                try:
+                    r = MT.options(H.db, u["mode"], a, st, ctx_for(u, st))
+                except P.PlanError as e:
+                    raise HTTPException(400, str(e))
+            r["maint"] = True
+        elif a["rule"] in SUPPLY_RULES:       # 第 18 轮 E5：来料不合格（推演到料日）、准时率低 / 单一来源（开发备选）
+            from hub import supply as SP
+            if a["rule"] == "W3":
+                sid, st, exact = snap_of(u, snapshot_id or None)
+                try:
+                    r = SP.options(H.db, u["mode"], a, st, ctx_for(u, st))
+                except P.PlanError as e:
+                    raise HTTPException(400, str(e))
+            else:
+                sid, st, exact = None, {"factory_now": dt.datetime.now(dt.timezone.utc).isoformat(), "calendar": {}}, True
+                r = SP.alt_options(H.db, u["mode"], a)
+            r["supply"] = True
+        elif a["rule"] in FINANCE_RULES:      # 第 18 轮 E7：应收逾期、信用、现金、预算（不进车间推演，看现金流）；毛利、指标给分解
+            from hub import finance as FN
+            sid, st, exact = None, {"factory_now": dt.datetime.now(dt.timezone.utc).isoformat(), "calendar": {}}, True
+            r = FN.options(H.db, u["mode"], a)
+            r["finance"] = a["rule"]
+        elif a["rule"] in ENERGY_RULES:       # 第 18 轮 E6：空转（自动待机）、峰时 / 需量（错峰）用车间推演；单耗突增、漏气、环境超限给整改
+            from hub import energy as EN
+            if a["rule"] in ("N2", "N3", "N5"):
+                sid, st, exact = snap_of(u, snapshot_id or None)
+                try:
+                    r = EN.options(H.db, u["mode"], a, st, ctx_for(u, st))
+                except P.PlanError as e:
+                    raise HTTPException(400, str(e))
+            else:
+                sid, st, exact = None, {"factory_now": dt.datetime.now(dt.timezone.utc).isoformat(), "calendar": {}}, True
+                r = EN.fix_options(H.db, u["mode"], a)
+            r["energy"] = a["rule"]
+        elif a["rule"] in PEOPLE_RULES:       # 第 18 轮 E4：排班缺口（车间推演）、单点依赖（技能培训）
+            from hub import people as PE
+            if a["rule"] == "H1":
+                sid, st, exact = None, {"factory_now": dt.datetime.now(dt.timezone.utc).isoformat(), "calendar": {}}, True
+                r = PE.training_options(H.db, u["mode"], a)
+            else:
+                sid, st, exact = snap_of(u, snapshot_id or None)
+                try:
+                    r = PE.options(H.db, u["mode"], a, st, ctx_for(u, st))
+                except P.PlanError as e:
+                    raise HTTPException(400, str(e))
+            r["people"] = True
+        elif a["rule"] in EHS_RULES:          # 第 18 轮 E2：重大隐患（车间推演）、作业许可缺资质（复训 / 换人）
+            from hub import ehs as EH
+            if a["rule"] == "E3":
+                sid, st, exact = None, {"factory_now": dt.datetime.now(dt.timezone.utc).isoformat(), "calendar": {}}, True
+                r = EH.permit_options(H.db, u["mode"], a)
+            else:
+                sid, st, exact = snap_of(u, snapshot_id or None)
+                try:
+                    r = EH.options(H.db, u["mode"], a, st, ctx_for(u, st))
+                except P.PlanError as e:
+                    raise HTTPException(400, str(e))
+            r["ehs"] = True
+        else:
+            sid, st, exact = snap_of(u, snapshot_id or None)
+            try:
+                r = PB.evaluate(a, st, ctx_for(u, st))
+            except P.PlanError as e:
+                raise HTTPException(400, str(e))
+        return r, sid, st, exact
+
+    H.anomaly_options = compute_options
+
+    @app.get("/api/ont/anomalies/{aid}/options")
+    def options(aid: int, snapshot_id: int = 0, u=Depends(user_of)):
+        r, sid, st, exact = compute_options(u, aid, snapshot_id)
         locked = H.compare_locked(u, aid) if hasattr(H, "compare_locked") else False
         if locked:                          # 实验 15 比对模式：学生提交自己的分析前，不显示建议和推荐理由
             r = dict(r, reason=None, recommended=None, options=[dict(o, recommended=False) for o in r["options"]], locked=True)
@@ -124,7 +213,10 @@ def mount(app, H, user_of, who):
             p = NR.polish(H.ai.llm, r["reason"], facts, "把推荐理由改写成给厂长看的两三句话：推荐哪个、为什么、代价是什么")
             r = dict(r, reason=p["text"], reason_by=p["by"])
         return dict(r, snapshot_id=sid, exact=exact, factory_now=st["factory_now"], shift_mode=(st.get("calendar") or {}).get("mode"),
-                    can_initiate=AC.can_initiate(u))
+                    can_initiate=AC.can_initiate(u, "dunning") if r.get("finance") else
+                    AC.can_initiate(u, {"N1": "repair_order", "N4": "rectify_order", "N6": "rectify_order"}.get(r.get("energy"), "energy_setting")) if r.get("energy") else
+                    AC.can_initiate(u, "service_batch" if r.get("service") else ("lockout" if r.get("ehs") else ("pm_order" if r.get("maint") else
+                                                                                                                       ("shift_swap" if r.get("people") else ("purchase_order" if r.get("supply") else "reassign"))))))
 
     # ---------------------------------------------------------------- 动作
     @app.get("/api/ont/actions")
@@ -160,10 +252,15 @@ def mount(app, H, user_of, who):
             raise HTTPException(400, "没有要做的动作")
         ids = []
         try:
-            sid, st, exact = snap_of(u, body.get("snapshot_id"))
-            if H.db.one("select 1 as x from sim_snapshot where id=%s and ts < now() - interval '2 hours'", (sid,)):
-                raise AC.ActionError("这是过去的快照，只能做复盘推演，不能变成动作；请用最新快照")
-            tr = dict(AC.trial(H.db, snaps(), u["mode"], changes, st), snapshot_id=sid)
+            if all(AC.TYPES.get(c.get("type"), {}).get("service") for c in changes):
+                tr = AC.service_trial(H.db, u["mode"], changes)           # 服务类：按排班估算，不用车间快照
+            elif all(AC.no_sim(c.get("type")) for c in changes):
+                tr = AC.plain_trial(changes)                               # 整改工单、解锁、培训：不用推演
+            else:
+                sid, st, exact = snap_of(u, body.get("snapshot_id"))
+                if H.db.one("select 1 as x from sim_snapshot where id=%s and ts < now() - interval '2 hours'", (sid,)):
+                    raise AC.ActionError("这是过去的快照，只能做复盘推演，不能变成动作；请用最新快照")
+                tr = dict(AC.trial(H.db, snaps(), u["mode"], changes, st), snapshot_id=sid)
             for c in changes:
                 t = c.get("type")
                 if t in ("insert_order", "breakdown"):

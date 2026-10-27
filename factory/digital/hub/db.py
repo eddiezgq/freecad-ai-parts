@@ -209,17 +209,6 @@ create table if not exists enterprise_member (
     roles       text[] not null,
     added_by    text,
     added_at    timestamptz not null default now()
-);-- FreeCAD 选型方案发布到工厂（本仓库 ADR-0058 第 4 条）
-create table if not exists cad_design (
-    id          bigserial primary key,
-    mode        text not null,
-    code        text not null,
-    revision    integer not null,
-    name        text not null,
-    author      text not null,
-    ts          timestamptz not null default now(),
-    data        jsonb not null,             -- {bom: [...], requirement, checks, layout, library, files}
-    unique (mode, code, revision)
 );
 """
 

@@ -1,0 +1,199 @@
+# 两周情景：一张急单的全厂决策（第 19 轮 J-1、J-3）
+# 剧本是数据：hub/story.py 读它，按幕执行注入（复用各领域现成的注入），核对厂情中枢该出的异常有没有出来。
+# “第几天”只是剧本日（J-2）：点“下一幕”就立即发生，车间照常按设定的倍速跑。
+#
+# 每一幕：
+#   day      剧本日（第几天）
+#   domain   主要领域（总览地图的领域代号）
+#   title    标题；story：一句话旁白（讲给观众听）
+#   do       要做的注入：step 是 hub/story.py 里的步骤名，其余是参数
+#   expect   预计出现的异常：rule 规则编号；about 用来认出是不是这一幕的（物料、设备、客户……）
+#   roles    该谁处理（实验 23 按这个记分；学生能用的岗位角色：计划员、质量、班组长、安全员、维修……销售、厂长只给老师）
+#   look     “去看”的页面
+#   talk     讲解要点
+#   link     这一幕和前后怎么连上
+code: two_weeks
+name: 两周情景：一张急单的全厂决策
+short: 一张急单串起七个领域
+customer: 示例·海港起重 Harbor Crane Systems (Demo)
+item: WQR-105
+qty: 20
+due_days: 12
+speed: 30            # 演示用的车间倍速（工厂时间 / 真实时间）
+dwell_s: 90          # 自动演示：这一幕的异常出来后停多少秒再进下一幕
+timeout_s: 240       # 等异常超过这么久还没出来，时间线上标“超时”
+
+beats:
+  - n: 1
+    day: 1
+    domain: customer
+    title: 客户下急单
+    story: 海港起重的新港口起重机项目追加 20 台 WQR-105 减速器，12 天交货。销售接单，计划员算料、下达车间。
+    do:
+      - step: order
+    expect:
+      - check: order_released
+    roles: [planner]
+    look:
+      - {to: /service, label: 客户与服务 · 销售漏斗}
+      - {to: /work/planner, label: 订单与计划}
+      - {to: /work/operator, label: 车间执行}
+    talk:
+      - 订单经平台写进 ERPNext：销售订单、输出轴工单、请购单，都是真单据。
+      - 算料一眼看出：这 20 台要 40 个轴承 BRG-6207，库里只有 8 个。
+      - 输出轴工单马上下达车间，七道工序开始排队。
+    link: 这张订单是两周的主线，后面每一幕花的钱、拖的时间，最后都落在它的毛利和回款上。
+
+  - n: 2
+    day: 2
+    domain: supply
+    title: 缺料：轴承不够
+    story: 轴承 BRG-6207 只剩 8 个，这张单要 40 个。采购向常用的五大湖轴承下单，7 天到货——比交期还紧。
+    do:
+      - step: purchase
+        item: BRG-6207
+        qty: 50
+        supplier: bearings
+        bad: true            # 这一批到货时不合格（第 3 幕揭晓），观众此刻还不知道
+    expect:
+      - rule: W1
+        about: BRG-6207
+    roles: [planner]
+    look:
+      - {to: /ont, label: 厂情中枢 · 指挥台}
+      - {to: /supply, label: 采购与来料}
+    talk:
+      - 厂情中枢报“缺料”，因果链：轴承 → 要用它的订单 → 客户。
+      - 右栏比较“紧急采购 / 等常规到货”：加急要多花钱，不加急要晚交。
+      - 采纳的加急费用，会记到这张订单的毛利上。
+    link: 采购单发出去了；它到货时会出事（第 3 幕）。
+
+  - n: 3
+    day: 4
+    domain: supply
+    title: 来料不合格
+    story: 五大湖轴承的这一批到了。来料检验抽 8 件，内径超差两件——整批判不合格，进不了库。
+    do:
+      - step: arrive_reject
+    expect:
+      - rule: W3
+        about: BRG-6207
+    roles: [quality, planner]
+    look:
+      - {to: /supply, label: 采购与来料 · 来料检验}
+      - {to: /ont, label: 厂情中枢 · 指挥台}
+    talk:
+      - ERPNext 里有检验单（不合格）和收货单草稿，账和实物对得上。
+      - 四个方案：退货等补发 / 备选供应商急单 / 让步接收全检 / 不处理；推演算出各自什么时候到料、多花多少。
+      - 一个供应商出问题，钱和交期一起受影响。
+    link: 换供应商的加价、全检的工时，同样记到这张订单上。
+
+  - n: 4
+    day: 6
+    domain: people
+    title: 缺人：磨床的熟练工请假
+    story: 磨床的熟练工下个班请假两天，这一班没人会开外圆磨床——而这张单的 20 根输出轴都要过磨床。
+    do:
+      - step: leave
+        unit: grd-01
+    expect:
+      - rule: H2
+        about: grd-01
+    roles: [lead]
+    look:
+      - {to: /people, label: 人员 · 排班}
+      - {to: /ont, label: 厂情中枢 · 指挥台}
+    talk:
+      - 技能矩阵一眼看出：会开磨床的只有两三个人，这是“单点依赖”。
+      - 方案：调班 / 加班 / 借调；推演算出每个方案对交期的影响。
+      - 加班费记到这张订单的“急单、加班、外协”里。
+    link: 人手紧了就容易赶工——下一幕的安全隐患就是这么来的。
+
+  - n: 5
+    day: 7
+    domain: ehs
+    title: 赶工时的安全隐患
+    story: 为了赶产量，有人把磨床的防护门联锁短接了。巡检发现，报了重大隐患。
+    do:
+      - step: hazard
+        unit: grd-01
+        kind: guard
+    expect:
+      - rule: E1
+        about: grd-01
+    roles: [safety]
+    look:
+      - {to: /ehs, label: 安全环保 · 隐患}
+      - {to: /ont, label: 厂情中枢 · 指挥台}
+    talk:
+      - 重大隐患没有“不处理”这个选项：要么马上停机整改，要么等这一件做完再停。
+      - 推演给出停机多久、哪张订单要晚几小时。
+      - 安全和交期打架时，平台把代价摆出来，但不替人做这个决定。
+    link: 停机整改又吃掉磨床的时间；磨床本身也该保养了（第 6 幕）。
+
+  - n: 6
+    day: 9
+    domain: maintenance
+    title: 设备劣化：磨床保养逾期
+    story: 外圆磨床连着加班，运行小时已经超过保养周期，坏掉的概率在往上走。
+    do:
+      - step: overdue
+        unit: grd-01
+        over: 1.4            # 运行小时 = 保养周期 × 1.4
+    expect:
+      - rule: M2
+        about: grd-01
+    roles: [maintenance]
+    look:
+      - {to: /maint, label: 设备维护}
+      - {to: /ont, label: 厂情中枢 · 指挥台}
+    talk:
+      - 方案：现在停下来保养 / 这张单做完再保养；推演按故障概率算两种做法的期望损失。
+      - ERPNext 里生成维护单，保养完运行小时清零。
+      - 这是“现在花小钱”还是“赌一把”的经典取舍。
+    link: 设备一停一开、加班到夜里，就有了空转（第 7 幕）。
+
+  - n: 7
+    day: 11
+    domain: energy
+    title: 空转与峰时
+    story: 带锯床早早下完了这张单的料，却一直开着没关，夜里也空转；热处理炉又排在了电价最贵的峰时段开炉。
+    do:
+      - step: energy
+        unit: saw-01
+        hours: 24
+        peak: true
+    expect:
+      - rule: N2
+        about: saw-01
+    roles: [planner]
+    look:
+      - {to: /energy, label: 能源与环境}
+      - {to: /ont, label: 厂情中枢 · 指挥台}
+    talk:
+      - 电表每 15 分钟一条读数，空转电量一目了然。
+      - 方案：自动待机（10 分钟 / 30 分钟）/ 全厂待机；推演算出省多少度电、多少钱、多少碳。
+      - 订单在做期间，加工过它的设备（带锯床、车床、磨床……）的空转电按件数分摊到这张订单的毛利上。
+    link: 车间做完这张单，就该交货开票了（第 8 幕）。
+
+  - n: 8
+    day: 14
+    domain: finance
+    title: 交付开票，应收逾期
+    story: 20 根输出轴做完，订单交付、ERPNext 开出销售发票。可海港起重付款一向慢，这笔发票过了到期日还没付。
+    wait: order_done        # 这张订单做完才能演这一幕
+    do:
+      - step: overdue_invoice
+        days: 15
+    expect:
+      - rule: F2
+        about: customer
+    roles: [planner]
+    look:
+      - {to: /finance, label: 经营与财务 · 应收应付}
+      - {to: /ont, label: 厂情中枢 · 指挥台}
+    talk:
+      - 发票是这张订单的，不是另造的一笔：从下单到回款是一条线。
+      - 方案：发催款函 / 信用冻结 / 不处理；看未来 8 周现金哪周最紧。
+      - 毛利是“赚不赚钱”，回款是“有没有钱”。
+    link: 最后复盘：这张订单的毛利里，能看到前面每一幕花的钱。

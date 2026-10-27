@@ -91,7 +91,10 @@ def mill_pocket(polygon, depth, tool_d, stepover, step_down, f, f_plunge, safe=5
         first = rings[0]
         x0, y0 = first[0]
         mv += [{"t": "rapid", "x": x0, "y": y0, "z": safe}, {"t": "rapid", "x": x0, "y": y0, "z": z0 + 0.5}]
-        mv += _ramp(first, z0 + 0.5, z1, max(3 * tool_d, 1.0), f_plunge)
+        rp = _ramp(first, z0 + 0.5, z1, max(3 * tool_d, 1.0), f_plunge)
+        mv += rp
+        # 到深度后沿原路退回环的起点（直线连回去在弯的窄槽里会切进槽外的材料：问渠第 42 轮花样模板的圆弧槽）
+        mv += [{"t": "feed", "x": q["x"], "y": q["y"], "z": z1, "f": f} for q in rp[-2::-1]]
         mv.append({"t": "feed", "x": x0, "y": y0, "z": z1, "f": f})
         for ring in rings:
             px, py = mv[-1]["x"], mv[-1]["y"]

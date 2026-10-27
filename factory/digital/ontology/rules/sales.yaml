@@ -8,3 +8,12 @@ rules:
     params: {critical_days: 2}
     desc: 看板“订单与交期”预测为红色。原 AI 提醒迁来
     hint: 考虑加班、调整优先级或与客户沟通交期
+  R3:
+    name: 延期会触发合同违约金
+    fn: order_penalty
+    demo_only: true      # 第 30 轮 H-2：E1–E7 的规则，只在演示工厂跑（企业工厂按“待数据”）
+    severity: warn            # 违约金达到 critical_usd 为 critical
+    role: [planner, manager]
+    params: {critical_usd: 500}
+    desc: 看板预测会晚的订单，客户合同里有延期违约金（第 18 轮 E1-3）；写出预计金额
+    hint: 在指挥台推演加班、调序或外协；或与客户协商交期

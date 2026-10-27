@@ -1,4 +1,4 @@
-// 帮助的章节（ADR-0065）：help/<版本>/<序号>-<名字>.md，一章一个文件，按文件名排序
+// 帮助的章节（第 30 轮 H-3，搬自 freecad-ai-parts ADR-0065）：help/<版本>/<序号>-<名字>.md，一章一个文件，按文件名排序
 const RAW = import.meta.glob('./*/*.md', { query: '?raw', import: 'default', eager: true });
 
 export const EDITIONS = [
@@ -13,8 +13,9 @@ export function chapterFiles(ed) {
     .map(([p, src]) => ({ slug: p.split('/').pop().replace(/^\d+-/, '').replace(/\.md$/, ''), src }));
 }
 
-// 首页全流程动画的七站（设计、ERP、MRP、MES、车间、质量、厂情中枢）各跳到哪一章
+// 首页全流程动画的七站（设计、ERP、MRP、MES、车间、质量、厂情中枢）各跳到哪一章。
+// “a|b”：有 a 章跳 a，没有跳 b（企业版的章节两个仓库各自写：freecad-ai-parts 有“新产品进工厂”“模型网关”，问渠这边没有）
 export const STAGE_CHAPTER = {
   teach: ['design-to-factory', 'design-to-factory', 'planning', 'workshop', 'workshop', 'quality', 'insight'],
-  enterprise: ['new-product', 'new-product', 'daily-work', 'daily-work', 'gateway', 'daily-work', 'insight'],
+  enterprise: ['new-product|plant', 'new-product|plant', 'daily-work', 'daily-work', 'gateway|daily-work', 'daily-work', 'insight'],
 };
