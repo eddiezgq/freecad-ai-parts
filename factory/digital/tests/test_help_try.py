@@ -123,7 +123,7 @@ def test_only_on_demo_plant():
     ns = {}
     exec(head, ns)                                                          # 只是一个元组表达式
     teach_only = lambda p: any(p == x or p.startswith(x + "/") for x in ns["TEACH_ONLY_API"])   # noqa: E731 —— 与 app.teach_only 同一写法
-    assert "return any(path == p or path.startswith(p + \"/\") for p in TEACH_ONLY_API)" in app
+    assert "return any(path == p or path.startswith(p + \"/\") for p in TEACH_ONLY_API)" in app      # 第 51 轮：后面多一句“有产品的厂放行采购与来料”
     assert teach_only("/api/help/try") and teach_only("/api/help/try/stop-grinder")
     assert not teach_only("/api/help/docs") and not teach_only("/api/help/media")    # 帮助正文、视频企业工厂照样能看
     assert "_help_try.mount(app, H, user_of, who)" in app

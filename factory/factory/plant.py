@@ -164,11 +164,57 @@ def validate(p):
     for key in ("on_time", "oee", "fpy"):
         need(_num(k.get(key)) and 0 < k[key] <= 1, "kpi." + key, "目标是 0–1 的小数")
     if p.get("suppliers") is not None:
-        need(isinstance(p["suppliers"], dict) and all(isinstance(v, dict) and v.get("name") for v in p["suppliers"].values()),
-             "suppliers", "{代号: {name, lead}}")
+        if need(isinstance(p["suppliers"], dict) and all(isinstance(v, dict) and v.get("name") for v in p["suppliers"].values()),
+                "suppliers", "{代号: {name, lead}}"):
+            for code, s in p["suppliers"].items():
+                errs += _validate_supplier("suppliers." + str(code), s)
     if p.get("customers") is not None:
         need(isinstance(p["customers"], list) and all(isinstance(x, str) and x for x in p["customers"]), "customers", "客户名称的列表")
     errs += _validate_products(p, onames, uids)
+    return errs
+
+
+def _validate_supplier(at, s):
+    """供应商一行（第 51 轮）：教学模拟器的准时率、合格率，类别名，备选供应商，来料检验项，工业园里的兄弟厂。全部可不写"""
+    errs = []
+
+    def need(cond, where, msg):
+        if not cond:
+            errs.append("{}：{}".format(where, msg))
+        return cond
+
+    if s.get("lead") is not None:
+        need(_num(s["lead"]) and s["lead"] >= 0, at + ".lead", "交货期是非负的天数；不知道就不写")
+    for k in ("on_time", "pass"):
+        if s.get(k) is not None:
+            need(_num(s[k]) and 0 <= s[k] <= 1, "{}.{}".format(at, k), "准时率、合格率是 0–1 的小数（教学模拟器用，示例值）")
+    if s.get("cat_name") is not None:
+        need(isinstance(s["cat_name"], str) and s["cat_name"], at + ".cat_name", "物料类别的中文名，如“谐波减速器”")
+    if s.get("park") is not None:
+        need(isinstance(s["park"], str) and set(s["park"]) <= ID_CHARS, at + ".park",
+             "工业园里供货的兄弟厂（清单 id，如 wenquest-gearbox）")
+    a = s.get("alt")
+    if a is not None:
+        if need(isinstance(a, dict) and isinstance(a.get("name"), str) and a["name"], at + ".alt", "备选供应商 {name, price_index, lead}"):
+            need(_num(a.get("price_index")) and a["price_index"] > 0, at + ".alt.price_index", "价格指数（默认供应商 = 1，贵 15% 写 1.15）")
+            need(_num(a.get("lead")) and a["lead"] >= 0, at + ".alt.lead", "备选的交货期（天）")
+            if a.get("active") is not None:
+                need(isinstance(a["active"], bool), at + ".alt.active", "是否已启用：true / false")
+            for k in ("on_time", "pass"):
+                if a.get(k) is not None:
+                    need(_num(a[k]) and 0 <= a[k] <= 1, "{}.alt.{}".format(at, k), "0–1 的小数")
+    inc = s.get("incoming")
+    if inc is not None:
+        if need(isinstance(inc, list) and inc, at + ".incoming", "来料检验项的列表 [{name, unit, lo, hi} 或 {name, text}]"):
+            for i, c in enumerate(inc):
+                w = "{}.incoming[{}]".format(at, i)
+                if not need(isinstance(c, dict) and isinstance(c.get("name"), str) and c["name"], w, "要有检验项名称"):
+                    continue
+                if c.get("text") is not None:
+                    need(isinstance(c["text"], str) and c["text"] and c.get("lo") is None and c.get("hi") is None, w,
+                         "文字要求（如“无锈蚀”）和数值上下限只写一种")
+                else:
+                    need(_num(c.get("lo")) and _num(c.get("hi")) and c["lo"] < c["hi"], w, "数值项要有下限 lo < 上限 hi")
     return errs
 
 
@@ -340,16 +386,31 @@ def _bottom_up(boms):
     return [by[x] for x in out]
 
 
+def incoming_template(sup):
+    """来料检验模板名（第 51 轮）：按供应商代号（= 物料类别）一份，ERPNext 里同名"""
+    return "进货检验-{}".format(sup) if sup else None
+
+
+def _incoming_param(c):
+    if c.get("text") is not None:
+        return {"parameter": c["name"], "numeric": 0, "value": c["text"]}
+    return {"parameter": "{} ({})".format(c["name"], c["unit"]) if c.get("unit") else c["name"], "numeric": 1, "min": c["lo"], "max": c["hi"]}
+
+
 def derive_products(p):
     """第 2 版的产品几节 → 与 factory/data.py 同形状的常量；第 1 版清单返回空 {}（沿用代码里的演示产品）"""
     if not p.get("items"):
         return {}
     meas = p.get("measurements") or []
     tmpl_of = {m["item"]: "检验-" + m["item"] for m in meas}
+    sups = p.get("suppliers") or {}
+    incoming = {incoming_template(k): [_incoming_param(c) for c in s["incoming"]] for k, s in sups.items() if s.get("incoming")}
     items = {}
     for it in p["items"]:
-        items[it["code"]] = (it["name"], it["kind"], it["uom"], it.get("price"), it.get("supplier"),
-                             it.get("inspection") or tmpl_of.get(it["code"]), it.get("note") or "")
+        sup = it.get("supplier")
+        auto = incoming_template(sup) if it["kind"] in ("raw", "buy") and incoming_template(sup) in incoming else None
+        items[it["code"]] = (it["name"], it["kind"], it["uom"], it.get("price"), sup,
+                             it.get("inspection") or tmpl_of.get(it["code"]) or auto, it.get("note") or "")
     stock = p.get("stock") or {}
     return {
         "ITEMS": items,
@@ -359,9 +420,9 @@ def derive_products(p):
         "OPENING_STOCK": dict(stock.get("opening") or {}),
         "SAFETY_STOCK": dict(stock.get("safety") or {}),
         "LIBRARY_REFS": {it["code"]: it["library"] for it in p["items"] if it.get("library")},
-        "INSPECTION_TEMPLATES": {tmpl_of[m["item"]]: [
+        "INSPECTION_TEMPLATES": dict({tmpl_of[m["item"]]: [
             {"parameter": "{} ({})".format(c["name"], c.get("unit") or "mm"), "numeric": 1, "min": c["lo"], "max": c["hi"]}
-            for c in m["chars"]] for m in meas},
+            for c in m["chars"]] for m in meas}, **incoming),
         "MEASURE": {(m["item"], m["operation"]): [dict(c) for c in m["chars"]] for m in meas},
         # 首页“关键物料”：清单写了 key_materials 就用；没写取有安全库存的，再不够取前几种原材料、外购件
         "KEY_MATERIALS": list(p.get("key_materials") or (list(stock.get("safety") or {}) + [
@@ -405,6 +466,17 @@ def company():
 def is_demo():
     p = active()
     return p is None or p["DEMO_DATA"]
+
+
+def has_supply():
+    """“采购与来料”（第 18 轮 E5）在哪些厂开：演示工厂，和清单写了产品的厂（第 51 轮：机器人厂等）"""
+    p = active()
+    return p is None or p["DEMO_DATA"] or bool(p.get("ITEMS"))
+
+
+def plant_id():
+    p = active()
+    return p["ID"] if p else "wenquest-gearbox"
 
 
 DEMO_SHORT = "问渠减速器厂"

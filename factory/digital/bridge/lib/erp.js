@@ -187,8 +187,10 @@ class ERP {
         const company = await this.getCompany();
         const pv = d.preview;
         const so = pv.sales_order;
+        // 第 51 轮：工业园兄弟厂（机器人厂）来的订单，客户第一次出现时先建客户
+        const customer = so.new_customer ? await this.customerFor(so.customer) : so.customer;
         const soDoc = await this.insert('Sales Order', {
-          customer: so.customer, company, transaction_date: so.transaction_date, delivery_date: so.delivery_date,
+          customer, company, transaction_date: so.transaction_date, delivery_date: so.delivery_date,
           order_type: 'Sales', docstatus: 1,
           items: [{ item_code: so.item_code, qty: so.qty, delivery_date: so.delivery_date,
             ...(so.rate ? { rate: so.rate } : {}), warehouse: WH.fg }],
@@ -442,6 +444,21 @@ class ERP {
         const doc = had ? await this.get('Supplier', had.name) : await this.insert('Supplier', { supplier_name: sp.name, supplier_type: 'Company',
           ...(sp.group ? { supplier_group: sp.group } : {}) });
         out.push(['Supplier', doc, had ? 'updated' : 'created']);
+      }
+      // 第 51 轮：来料检验模板（按清单起的厂；已经装好的厂导数据时还没有）。可以重发：已有的跳过
+      for (const t of pv.templates || []) {
+        for (const p of t.params || []) {
+          if (!(await this.list('Quality Inspection Parameter', [['name', '=', p.parameter]], ['name'])).length) {
+            await this.insert('Quality Inspection Parameter', { parameter: p.parameter });
+          }
+        }
+        const had = (await this.list('Quality Inspection Template', [['name', '=', t.name]], ['name']))[0];
+        const doc = had ? await this.get('Quality Inspection Template', had.name) : await this.insert('Quality Inspection Template', {
+          quality_inspection_template_name: t.name,
+          item_quality_inspection_parameter: (t.params || []).map((p) => (p.numeric
+            ? { specification: p.parameter, numeric: 1, min_value: p.min, max_value: p.max }
+            : { specification: p.parameter, numeric: 0, value: p.value })) });
+        out.push(['Quality Inspection Template', doc, had ? 'updated' : 'created']);
       }
     } else if (action === 'purchase_order') {
       const date = erpDate(new Date().toISOString());

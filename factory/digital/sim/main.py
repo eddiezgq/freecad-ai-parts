@@ -117,6 +117,11 @@ class Service:
         if cmd == "clear_problems":
             self.eng.errors.clear()
             return True, "已清除全部问题情景"
+        if cmd == "add_lot":                # 第 51 轮：仓库收下一批来料（检验合格），装配时先进先出用掉
+            if not data.get("item") or not data.get("lot"):
+                return False, "add_lot 要有 item、lot"
+            self.eng.errors.add_lot(data["item"], data["lot"], float(data.get("qty") or 0))
+            return True, "已记下批次 {}".format(data["lot"])
         if cmd == "apply_fix":              # 8D 的纠正措施经老师批准后下发
             try:
                 gone = self.eng.errors.apply_fix(data.get("fix"))

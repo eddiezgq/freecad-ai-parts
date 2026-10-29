@@ -76,13 +76,21 @@ shift:
   max_overtime_min: 180
 kpi: {on_time: 0.95, oee: 0.7, fpy: 0.97}
 suppliers:
-  metals: {name: 示例·华东铝业 East China Aluminium (Demo), lead: 5}
-  harmonic: {name: 示例·谐波减速器代理商 Strain-wave Gear Distributor (Demo), lead: 20}
-  servo: {name: 示例·伺服电机供应商 Servo Supplier (Demo), lead: 14}
-  electronics: {name: 示例·电子元件商 Electronics Supplier (Demo), lead: 7}
-  hardware: {name: 示例·标准件商 Fastener Supplier (Demo), lead: 3}
-  gearbox: {name: 问渠减速器厂 WenQuest Gearbox (Demo), lead: 10}
-  agvparts: {name: 示例·AGV 配件商 AGV Parts Supplier (Demo), lead: 10}
+  # 第 51 轮：准时率、合格率（教学模拟器）、类别名、备选供应商、来料检验项都是示例值；gearbox 是工业园里的兄弟厂（问渠减速器厂），
+  # 采购单送到那边成为销售订单（连不上时按外部供应商处理）
+  metals: {name: 示例·华东铝业 East China Aluminium (Demo), lead: 5, on_time: 0.95, pass: 0.99, cat_name: 铝材,
+           alt: {name: 示例·北方铝业 Northern Aluminium (Demo), price_index: 1.1, lead: 3, active: true},
+           incoming: [{name: 材质证明 Mill certificate, text: 牌号、炉批号与采购单一致}, {name: 硬度 Hardness, unit: HBW, lo: 95, hi: 120}]}
+  harmonic: {name: 示例·谐波减速器代理商 Strain-wave Gear Distributor (Demo), lead: 20, on_time: 0.85, pass: 0.9, cat_name: 谐波减速器,
+             alt: {name: 示例·精密传动 Precision Drive (Demo), price_index: 1.15, lead: 12, active: false},
+             incoming: [{name: 外观与转动 Appearance, text: 无锈蚀、转动灵活无卡滞}, {name: 背隙 Backlash, unit: arcmin, lo: 0, hi: 1.0}]}
+  servo: {name: 示例·伺服电机供应商 Servo Supplier (Demo), lead: 14, on_time: 0.9, pass: 0.97, cat_name: 伺服电机,
+          incoming: [{name: 空载电流 No-load current, unit: A, lo: 0.2, hi: 0.8}, {name: 绝缘电阻 Insulation resistance, unit: MΩ, lo: 100, hi: 2000}]}
+  electronics: {name: 示例·电子元件商 Electronics Supplier (Demo), lead: 7, on_time: 0.95, pass: 0.99, cat_name: 电子元件}
+  hardware: {name: 示例·标准件商 Fastener Supplier (Demo), lead: 3, on_time: 0.95, pass: 0.99, cat_name: 标准件}
+  gearbox: {name: 问渠减速器厂 WenQuest Gearbox (Demo), lead: 10, on_time: 0.95, pass: 0.99, cat_name: 减速器, park: wenquest-gearbox,
+            incoming: [{name: 空载噪声 Noise, unit: dB(A), lo: 0, hi: 75}, {name: 渗漏检查 Leak check, text: 各结合面及油封无渗漏}]}
+  agvparts: {name: 示例·AGV 配件商 AGV Parts Supplier (Demo), lead: 10, on_time: 0.9, pass: 0.98, cat_name: AGV 配件}
 customers:
 - 示例·汽车零部件厂 Auto Parts Plant (Demo)
 - 示例·电子装配厂 Electronics Assembly (Demo)

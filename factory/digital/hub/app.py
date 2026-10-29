@@ -80,6 +80,7 @@ WEB_DIST = os.environ.get("WQ_WEB_DIST", os.path.join(os.path.dirname(HERE), "we
 # 工厂清单（第 30 轮 H-2；freecad-ai-parts ADR-0064）：E1–E7 领域、实验 15–23、情景导演、教学模拟器只在演示工厂开。
 # 企业工厂（WQ_PLANT_FILE 指定、demo_data: false）里这些接口一律 404，网页按 /api/config 的 plant.hidden 不显示入口
 DEMO_PLANT = PLANT.is_demo()
+SUPPLY_ON = PLANT.has_supply()            # 第 51 轮：采购与来料（E5）也在清单写了产品的厂开（机器人厂）
 TEACH_ONLY_API = tuple("/api/lab{}".format(n) for n in range(15, 24)) + (
     "/api/story", "/api/scenario", "/api/teach/batch-complaint", "/api/help/try",       # 帮助里的“当场动手”（第 30 轮 §八）
     "/api/complaints", "/api/crm", "/api/followups", "/api/ont/customer360", "/api/service",     # E1 客户与服务
@@ -347,6 +348,19 @@ class Hub:
                             FN.bill_orders(self, mode)
                         except Exception:  # noqa: BLE001
                             log.exception("开票出错")
+                        if SUPPLY_ON:                 # 第 51 轮：采购到货、来料检验；向工业园兄弟厂下单、收货
+                            try:
+                                from hub import supply as SP
+                                SP.ensure_setup(self, mode)
+                                SP.tick(self, mode)
+                            except Exception:  # noqa: BLE001
+                                log.exception("供应链出错")
+                    if mode == "teach":
+                        try:                          # 第 51 轮：工业园（两厂互发订单）——接兄弟厂的订单、下达、发货回传
+                            from hub import park as PK
+                            PK.tick(self, mode)
+                        except Exception:  # noqa: BLE001
+                            log.exception("工业园出错")
                     last = self.last_brief.get(mode, 0)
                     if new or time.time() - last > 600:
                         self.ai.briefing(mode)
@@ -381,7 +395,7 @@ app = FastAPI(title="问渠数字工厂枢纽 WenQuest Digital Factory Hub", ver
 
 def teach_only(path):
     """只属于演示工厂的接口（E1–E7、实验 15–23、情景）"""
-    return any(path == p or path.startswith(p + "/") for p in TEACH_ONLY_API)
+    return any(path == p or path.startswith(p + "/") for p in TEACH_ONLY_API) and not (SUPPLY_ON and path.startswith("/api/supply"))
 
 
 @app.middleware("http")
@@ -633,7 +647,7 @@ def _plant_cfg():
             "id": act["ID"] if act else "wenquest-gearbox",          # 第 45 轮：帮助按它显示“机器人厂”一册
             "shift": "{}–{}".format(cal.DEF_START, cal.DEF_END),
             # “实验与任务”：本厂有自己的实验（机器人厂的实验 24、25，第 47 轮）就显示
-            "hidden": [] if DEMO_PLANT else [p for p in TEACH_ONLY_NAV if not (p == "/labs" and _labs_api.has_labs())]}
+            "hidden": [] if DEMO_PLANT else [p for p in TEACH_ONLY_NAV if not (p == "/labs" and _labs_api.has_labs()) and not (p == "/supply" and SUPPLY_ON)]}
 
 
 # ---------------------------------------------------------------- AI 模型选择（第 30 轮 H-6；freecad-ai-parts ADR-0063）
@@ -2183,6 +2197,8 @@ from hub import people_api as _people_api  # noqa: E402
 _people_api.mount(app, H, user_of, who)           # 第 18 轮 E4：人员与排班
 from hub import supply_api as _supply_api  # noqa: E402
 _supply_api.mount(app, H, user_of, who)           # 第 18 轮 E5：采购与来料
+from hub import park as _park  # noqa: E402
+_park.mount(app, H, user_of, who)                 # 第 51 轮：工业园两厂互发订单
 from hub import energy_api as _energy_api  # noqa: E402
 _energy_api.mount(app, H, user_of, who)           # 第 18 轮 E6：能源与环境
 from hub import finance_api as _finance_api  # noqa: E402
