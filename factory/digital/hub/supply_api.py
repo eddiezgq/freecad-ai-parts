@@ -37,7 +37,7 @@ def mount(app, H, user_of, who):
         out = []
         for m in db.erp_docs("Material Request", mode):
             d = m["data"]
-            if d.get("docstatus") != 1 or d.get("status") not in ("Pending", "Partially Ordered", None) or d["name"] in done or d["name"] in ordered:
+            if not SP.mr_open(d) or d["name"] in done or d["name"] in ordered:
                 continue
             for it in d.get("items") or []:
                 ps = [p for p in SP.profiles(db, mode, SP.cat_of(it["item_code"])) if p["active"]]

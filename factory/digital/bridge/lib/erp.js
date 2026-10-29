@@ -146,6 +146,24 @@ class ERP {
     return (await this.req('POST', `/api/method/${name}`, body)).message;
   }
 
+  // 关掉 ERPNext 的产能计划（第 51 轮 CI 查明）：开着时，工单提交后每张作业卡带“计划时段”（Job Card Scheduled Time），
+  // ERPNext 判作业卡工时重叠时把别的、还没开工的作业卡的计划时段也算进工位台数（job_card.py get_overlap_for）。
+  // 仿真车间按真实节拍报工，实际时段一碰上别的工单的计划时段就报“工时重叠”、拒收工时，工单做不完。
+  // 排产由数字工厂的车间和厂情中枢负责，ERPNext 只记实际工时。每个桥接进程查一次，已经关了就不再写
+  async ensureNoCapacityPlanning() {
+    if (this.capacityOff) return;
+    try {
+      const ms = await this.get('Manufacturing Settings', 'Manufacturing Settings');
+      if (!Number(ms.disable_capacity_planning)) {
+        await this.update('Manufacturing Settings', 'Manufacturing Settings', { disable_capacity_planning: 1 });
+        this.log('已关闭 ERPNext 产能计划（作业卡不再带计划时段）');
+      }
+      this.capacityOff = true;
+    } catch (e) {
+      this.log('关闭产能计划没成功（下次再试）', e.message);
+    }
+  }
+
   async getCompany() {
     if (!this.company) {
       const rows = await this.list('Company', [], ['name']);
@@ -184,6 +202,7 @@ class ERP {
     const created = [];
     try {
       if (d.action === 'create_order_and_plan') {
+        await this.ensureNoCapacityPlanning();
         const company = await this.getCompany();
         const pv = d.preview;
         const so = pv.sales_order;
