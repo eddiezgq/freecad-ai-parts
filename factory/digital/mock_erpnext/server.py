@@ -117,6 +117,7 @@ class Mock:
         self.db, self.errors, self.counters, self.log = {}, [], {}, []
         wh = lambda w: "{} - {}".format(w, ABBR)  # noqa: E731
         self.put("Company", {"name": COMPANY, "company_name": COMPANY, "abbr": ABBR, "default_currency": "USD"})
+        self.put("Manufacturing Settings", {"name": "Manufacturing Settings", "disable_capacity_planning": 0})   # 桥接会关掉（第 51 轮）
         for w in F.WAREHOUSES:
             self.put("Warehouse", {"name": wh(w), "warehouse_name": w, "company": COMPANY})
         for c in F.CUSTOMERS:

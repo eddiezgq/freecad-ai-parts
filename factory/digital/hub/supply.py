@@ -645,7 +645,7 @@ def tick(H, mode, now=None, rng=None):
         done = set(st.get("mr_done") or [])
         for m in mrs:
             d = m["data"]
-            if d["name"] in done or d.get("docstatus") != 1 or d.get("status") not in ("Pending", "Partially Ordered", None):
+            if d["name"] in done or not mr_open(d):
                 continue
             age = (now - dt.datetime.fromisoformat(str(m["ts"]).replace("Z", "+00:00"))).total_seconds() if m.get("ts") else 1e9
             if age < MR_AUTO_S:
@@ -677,6 +677,15 @@ def tick(H, mode, now=None, rng=None):
             return_lot(H, mode, x["id"], "采购员（教学模拟器）")
             out["returned"].append(x["id"])
     return out
+
+
+MR_CLOSED = ("Ordered", "Stopped", "Cancelled", "Transferred", "Issued", "Received")
+
+
+def mr_open(d):
+    """已提交、还没转完采购单的请购单。真 ERPNext 提交时返回的状态可能还是 Draft / Submitted（Pending 要等它重算），
+    所以按“没关闭”判断（第 51 轮 CI 查明：之前只认 Pending，真 ERPNext 上请购单永远不转）"""
+    return d.get("docstatus") == 1 and d.get("status") not in MR_CLOSED
 
 
 def _lots_to_shop(H, db, mode):
