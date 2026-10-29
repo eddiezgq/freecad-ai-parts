@@ -66,13 +66,20 @@ WAREHOUSES = ["原材料库 Raw", "外购件库 Purchased", "半成品库 Semi-f
 SUPPLIER_GROUP = "减速器供应商 Gearbox Suppliers"
 CUSTOMER_GROUP = "减速器客户 Gearbox Customers"
 
+# 第 51 轮：教学模拟器的准时率、合格率（on_time、pass），物料类别中文名（cat_name），备选供应商（alt：贵 10–25%、提前期短；
+# active = 已启用）也写在这里（原在 hub/supply.py），清单的供应商一节同样能写。东岳铸造老是晚；五大湖轴承偶尔有一批不合格。示例值
 SUPPLIERS = {
-    "castings":  {"name": "示例·东岳铸造 Dongyue Castings (Demo)", "lead": 21},
-    "forgings":  {"name": "示例·基石锻造 Keystone Forging (Demo)", "lead": 14},
-    "steel":     {"name": "示例·中西部钢材 Midwest Steel (Demo)", "lead": 5},
-    "bearings":  {"name": "示例·五大湖轴承 Great Lakes Bearing (Demo)", "lead": 7},
-    "hardware":  {"name": "示例·先锋工业品 Pioneer Industrial Supply (Demo)", "lead": 3},
-    "lubricant": {"name": "示例·海湾润滑油 Gulf Coast Lubricants (Demo)", "lead": 3},
+    "castings":  {"name": "示例·东岳铸造 Dongyue Castings (Demo)", "lead": 21, "on_time": 0.45, "pass": 0.97, "cat_name": "铸件",
+                  "alt": {"name": "示例·华美铸业 Huamei Foundry (Demo)", "price_index": 1.25, "lead": 10, "active": False}},
+    "forgings":  {"name": "示例·基石锻造 Keystone Forging (Demo)", "lead": 14, "on_time": 0.85, "pass": 0.97, "cat_name": "锻坯",
+                  "alt": {"name": "示例·长河锻压 Changhe Forging (Demo)", "price_index": 1.15, "lead": 7, "active": False}},
+    "steel":     {"name": "示例·中西部钢材 Midwest Steel (Demo)", "lead": 5, "on_time": 0.95, "pass": 1.0, "cat_name": "钢材",
+                  "alt": {"name": "示例·湖畔特钢 Lakeside Special Steel (Demo)", "price_index": 1.10, "lead": 3, "active": True}},
+    "bearings":  {"name": "示例·五大湖轴承 Great Lakes Bearing (Demo)", "lead": 7, "on_time": 0.9, "pass": 0.85, "cat_name": "轴承",
+                  "alt": {"name": "示例·北方精密轴承 Northern Precision Bearing (Demo)", "price_index": 1.20, "lead": 3, "active": True}},
+    "hardware":  {"name": "示例·先锋工业品 Pioneer Industrial Supply (Demo)", "lead": 3, "on_time": 0.95, "pass": 0.99,
+                  "cat_name": "标准件与油封"},
+    "lubricant": {"name": "示例·海湾润滑油 Gulf Coast Lubricants (Demo)", "lead": 3, "on_time": 0.95, "pass": 1.0, "cat_name": "润滑油"},
 }
 CUSTOMERS = [
     "示例·绿谷输送设备 GreenValley Conveyor (Demo)",
@@ -380,6 +387,6 @@ if _P:
     INSPECTION_OPS = _P["INSPECTION_OPS"]
     SHIFT = _P["SHIFT"]
     if _P["SUPPLIERS"]:
-        SUPPLIERS = {k: {"name": v["name"], "lead": v.get("lead")} for k, v in _P["SUPPLIERS"].items()}
+        SUPPLIERS = {k: dict(v, lead=v.get("lead")) for k, v in _P["SUPPLIERS"].items()}
     if _P["CUSTOMERS"]:
         CUSTOMERS = list(_P["CUSTOMERS"])

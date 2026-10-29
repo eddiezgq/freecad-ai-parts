@@ -850,7 +850,8 @@ class Engine:
             self.pub(unit_topic(m.unit, "event"), "machine.event", "sim/" + m.unit,
                      {"event": "cycle_start", "work_order": job.wo.name, "operation": job.op,
                       "op_index": job.op_index, "n_ops": len(job.wo.ops), "item": job.wo.item,
-                      "part_serial": p.serial, "std_time_s": std, "factory_ts": self.factory_ts(t)}, job.wo.corr)
+                      "part_serial": p.serial, "std_time_s": std, "factory_ts": self.factory_ts(t),
+                      **({"lots": p.lots} if getattr(p, "lots", None) else {})}, job.wo.corr)   # 第 51 轮：这一件用的到货批次
         if not m.active and m.state not in ("down", "fault") and not (m.setup_until and m.setup_until > t):
             m.state = "idle"
         self._status(m)
@@ -1192,7 +1193,7 @@ class Engine:
         return {"v": 1, "t": t, "epoch": self.epoch.isoformat(), "factory_now": self.factory_dt(t).isoformat(), "mode": self.mode,
                 "auto_start": self.auto_start, "status_every_s": self.status_every_s,
                 "rng": [rs[0], list(rs[1]), rs[2]], "err_rng": [es[0], list(es[1]), es[2]],
-                "err_active": self.errors.active, "tokens": tok, "rel_factor": self.rel_factor, "seq": sq, "calendar": self.calendar.to_dict(),
+                "err_active": self.errors.active, "err_lots": self.errors.lot_state(), "tokens": tok, "rel_factor": self.rel_factor, "seq": sq, "calendar": self.calendar.to_dict(),
                 "staffing": self.staffing.to_dict(), "staff_wait": self._staff_wait, "energy": self.energy.to_dict(),
                 "shift_wait": self._shift_wait, "wos": wos, "machines": machines, "agvs": agvs,
                 "transfers": [[p.wo.name, p.serial, f, to] for p, f, to in self.transfers],
@@ -1206,6 +1207,7 @@ class Engine:
         e.rng.setstate((s["rng"][0], tuple(s["rng"][1]), s["rng"][2]))
         e.errors.rng.setstate((s["err_rng"][0], tuple(s["err_rng"][1]), s["err_rng"][2]))
         e.errors.active = {k: dict(v) for k, v in (s.get("err_active") or {}).items()}
+        e.errors.load_lot_state(s.get("err_lots"))
         e.calendar = Calendar.from_dict(s.get("calendar"))
         e._shift_wait = {k: v for k, v in (s.get("shift_wait") or {}).items()}
         e.staffing = Staffing.from_dict(s.get("staffing"))

@@ -86,7 +86,20 @@ SUP_COLS = [
     ("代号", "_code", "str", "物料类别代号，如 castings、steel"),
     ("名称", "name", "str", ""),
     ("交货期（天）", "lead", "int", ""),
+    # 第 51 轮：以下各列可空（旧模板没有这几列也能导入）
+    ("类别名称", "cat_name", "str", "物料类别的中文名，如“轴承”；可空"),
+    ("准时率", "on_time", "num", "0–1，教学模拟器用（示例值）；可空 = 0.95"),
+    ("合格率", "pass", "num", "0–1，教学模拟器用（示例值）；可空 = 0.99"),
+    ("工业园兄弟厂", "park", "str", "这家供应商是工业园里的另一座厂时填它的清单 id，如 wenquest-gearbox；可空"),
+    ("备选供应商", "alt.name", "str", "可空"),
+    ("备选价格指数", "alt.price_index", "num", "默认供应商 = 1，贵 15% 写 1.15"),
+    ("备选交货期（天）", "alt.lead", "int", ""),
+    ("备选已启用", "alt.active", "yesno", "是 / 否"),
 ]
+SUP_OPTIONAL = ("cat_name", "on_time", "pass", "park", "alt.name", "alt.price_index", "alt.lead", "alt.active")
+INC_COLS = [("供应商", "supplier", "str", "供应商表的代号；同一家的几项连续写"), ("检验项", "name", "str", ""),
+            ("单位", "unit", "str", "数值项的单位，如 HBW、arcmin；可空"), ("下限", "lo", "num", "数值项"), ("上限", "hi", "num", "数值项"),
+            ("文字要求", "text", "str", "外观、证明这类不用数值的项，如“无锈蚀”；与上下限只填一种")]
 CUS_COLS = [("名称", "_name", "str", "")]
 
 # 第 2 版：产品几节（一行一条；工艺路线、物料清单按名称、父件连续几行成一组）
@@ -113,7 +126,7 @@ MEAS_COLS = [("物料", "item", "str", "测哪个物料"), ("工序", "operation
              ("名义", "nominal", "num", ""), ("下限", "lo", "num", ""), ("上限", "hi", "num", ""),
              ("散布σ", "sigma", "num", "仿真车间合成测量值的散布（示例值）")]
 PRODUCT_SHEETS = (("物料", ITEM_COLS), ("工艺路线", ROUTE_COLS), ("物料清单", BOM_COLS), ("成品", PROD_COLS),
-                  ("库存", STOCK_COLS), ("测量特性", MEAS_COLS))
+                  ("库存", STOCK_COLS), ("测量特性", MEAS_COLS), ("来料检验", INC_COLS))
 
 GROUP = {"cost": "费率", "power": "主电机功率 / 传动效率", "layout": "x / y / 宽 / 深", "dock": "上下料点 x / y",
          "home": "停靠点 x / y", "spindle": "主轴转速 / 进给"}
@@ -180,7 +193,7 @@ def rows_of(p):
     for sheet, key, cols in LIST_SHEETS:
         items = p.get(key) or ([] if key != "suppliers" else {})
         if key == "suppliers":
-            items = [{"_code": c, **v} for c, v in items.items()]
+            items = [{"_code": c, **{k: x for k, x in v.items() if k != "incoming"}} for c, v in items.items()]
         if key == "customers":
             items = [{"_name": c} for c in items]
         rows = []
@@ -190,6 +203,10 @@ def rows_of(p):
         out[sheet] = rows
     if p.get("items"):
         out.update(_product_rows(p))
+    inc = [[c, x["name"], x.get("unit"), x.get("lo"), x.get("hi"), x.get("text")]
+           for c, v in (p.get("suppliers") or {}).items() for x in v.get("incoming") or []]
+    if inc:
+        out["来料检验"] = inc
     return out
 
 
@@ -366,7 +383,7 @@ def _put(d, key, val):
         d[key] = val
         return
     k, i = key.split(".")
-    d.setdefault(k, {})[int(i)] = val
+    d.setdefault(k, {})[int(i) if i.isdigit() else i] = val
 
 
 def _pack(d, sizes, cell_of):
@@ -468,7 +485,7 @@ def _list_sheet(ws, sheet, key, cols, errs):
     for name, k, kind, _ in cols:
         if name in hdr:
             idx[k] = (hdr.index(name), kind, name)
-        elif not k.startswith(("dock", "home", "power", "spindle")) and k not in ("height_m", "plc", "_board"):
+        elif not k.startswith(("dock", "home", "power", "spindle")) and k not in ("height_m", "plc", "_board") + SUP_OPTIONAL:
             errs.append("{}表：缺少列“{}”".format(sheet, name))
     items, rownum = [], []
     for r, row in enumerate(ws.iter_rows(min_row=3, values_only=True), start=3):
@@ -518,6 +535,15 @@ def read_workbook(path):
         elif key == "suppliers":
             if items:
                 p["suppliers"] = {it.pop("_code", ""): it for it in items}
+                for it in p["suppliers"].values():
+                    if "alt" in it and not it["alt"].get("name"):
+                        it.pop("alt")
+            for r, d in _sheet_rows(wb, "来料检验", INC_COLS, errs):
+                s = (p.get("suppliers") or {}).get(d.get("supplier"))
+                if s is None:
+                    errs.append("来料检验表第 {} 行：供应商表里没有代号“{}”".format(r, d.get("supplier")))
+                    continue
+                s.setdefault("incoming", []).append({k: d[k] for k in ("name", "unit", "lo", "hi", "text") if d.get(k) is not None})
         elif key == "customers":
             if items:
                 p["customers"] = [it["_name"] for it in items if it.get("_name")]

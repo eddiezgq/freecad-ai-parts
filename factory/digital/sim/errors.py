@@ -53,7 +53,7 @@ PROBLEMS.update({
     "bench_zero": {"name": "关节测试台零位标定程序漂移（零位残差逐台偏移）", "unit": "jt-1", "fix": "recalibrate_bench",
                    "default": 1.5, "plant": ROBOT},
 })
-LOT_SIZE = 8                 # 谐波减速器每批 8 台（示例）：关节按装配顺序依次用掉
+LOT_SIZE = 8                 # 谐波减速器每批 8 台（示例）：关节按装配顺序依次用掉。第 51 轮：仓库有真实到货批次时用到货批次（add_lot）
 
 # 8D 第 5 步可选的纠正措施（含几项“看起来有道理但不对症”的措施）
 FIXES = {
@@ -88,12 +88,43 @@ def fixes_for(plant_id):
     return {k: v for k, v in FIXES.items() if k not in ROBOT_FIXES or k in ("retrain", "change_gauge")}
 
 
+def _harmonic_of(item):
+    """关节模组用的谐波减速器（物料清单里 HD- 开头的子件）；不是关节或没有清单时 None"""
+    try:
+        from factory import data as F
+    except ImportError:
+        return None
+    return next((c for c, _ in (F.BOMS.get(item) or ("", []))[1] if str(c).startswith("HD-")), None)
+
+
 class ErrorModel:
     def __init__(self, seed=None):
         self.rng = random.Random(None if seed is None else seed + 7919)   # 与引擎主随机数分开：不改变原有加工节拍的随机序列
         self.active = {}          # 问题 → {"magnitude": x, "since_part": n, "count": 0}
-        self.lot_used = {}        # 机器人厂：每种关节已装了几台（按顺序用谐波减速器，每 LOT_SIZE 台一批）
+        self.lot_used = {}        # 机器人厂：每种关节已装了几台（没有到货批次时按顺序用谐波减速器，每 LOT_SIZE 台一批）
+        self.lots = {}            # 第 51 轮：仓库里来料检验合格的谐波减速器批次 {物料: [[批号, 剩余数量], …]}，先进先出
+        self.lot_order = {}       # 每种规格按开始使用的先后排的批号（判断“从注入时的批次起”）
         self.history = []         # (事件, 问题或措施, 结果)
+
+    def add_lot(self, item: str, lot: str, qty: float):
+        """仓库收下一批（来料检验合格）：装关节时先进先出用掉。同一批号只记一次"""
+        q = self.lots.setdefault(str(item), [])
+        if not any(x[0] == lot for x in q) and not any(lot in v for v in self.lot_order.values()):
+            q.append([str(lot), float(qty)])
+
+    def lot_state(self):
+        return {"lot_used": dict(self.lot_used), "lots": {k: [list(x) for x in v] for k, v in self.lots.items()},
+                "lot_order": {k: list(v) for k, v in self.lot_order.items()}}
+
+    def load_lot_state(self, s):
+        s = s or {}
+        self.lot_used = dict(s.get("lot_used") or {})
+        self.lots = {k: [list(x) for x in v] for k, v in (s.get("lots") or {}).items()}
+        self.lot_order = {k: list(v) for k, v in (s.get("lot_order") or {}).items()}
+
+    def _current(self, size):
+        o = self.lot_order.get(size) or []
+        return len(o) - 1 if o else 0
 
     # -------------------------------------------------------------- 老师注入、措施下发
     def inject(self, problem: str, magnitude=None):
@@ -101,7 +132,7 @@ class ErrorModel:
             raise KeyError(problem)
         self.active[problem] = {"magnitude": float(magnitude if magnitude is not None else PROBLEMS[problem]["default"]), "count": 0}
         if problem == "hd_lot":             # 从注入时正在用的批次起（每种规格各自的批次）都是问题批次，直到隔离
-            self.active[problem]["from_lot"] = {k: n // LOT_SIZE + 1 for k, n in self.lot_used.items()}
+            self.active[problem]["from_lot"] = {k: self._current(k) for k in set(self.lot_order) | set(self.lot_used)}
         self.history.append(("inject", problem, True))
 
     def clear(self):
@@ -115,8 +146,13 @@ class ErrorModel:
         gone = [p for p in list(self.active) if PROBLEMS[p]["fix"] == fix]
         for p in gone:
             del self.active[p]
-        if fix == "quarantine_lot":         # 隔离问题批次：剩下的这批不用了，下一台起换新批次
+        if fix == "quarantine_lot":         # 隔离问题批次：剩下的这批不用了（到货批次退回供应商），下一台起换新批次
             self.lot_used = {k: -(-n // LOT_SIZE) * LOT_SIZE for k, n in self.lot_used.items()}
+            for size, order in self.lot_order.items():
+                cur = order[-1] if order else None
+                for q in self.lots.values():
+                    if q and q[0][0] == cur:
+                        q.pop(0)
         self.history.append(("fix", fix, bool(gone)))
         return gone
 
@@ -127,18 +163,32 @@ class ErrorModel:
             st = {}
             part.err = st
         if unit.startswith("ja-") and "_ja" not in st:      # 机器人厂关节装配：记下工位和谐波减速器批次（第 47 轮）
-            size = str(getattr(getattr(part, "wo", None), "item", "") or "")[-1:] or "X"
-            n = self.lot_used.get(size, 0)
-            self.lot_used[size] = n + 1
+            item = str(getattr(getattr(part, "wo", None), "item", "") or "")
+            size = item[-1:] or "X"
+            hd = _harmonic_of(item)
+            q = self.lots.get(hd) if hd else None
+            if q:                           # 第 51 轮：仓库里有到货批次，先进先出
+                lot = q[0][0]
+                q[0][1] -= 1
+                if q[0][1] <= 0:
+                    q.pop(0)
+                part.lots = {hd: lot}
+            else:
+                n = self.lot_used.get(size, 0)
+                self.lot_used[size] = n + 1
+                lot = "HD-{}-{:03d}".format(size, n // LOT_SIZE + 1)
+            order = self.lot_order.setdefault(size, [])
+            if lot not in order:
+                order.append(lot)
             st["_ja"] = unit
-            st["_lot_no"] = (size, n // LOT_SIZE + 1)
-            part.hd_lot = "HD-{}-{:03d}".format(size, n // LOT_SIZE + 1)
+            st["_lot_no"] = (size, order.index(lot))
+            part.hd_lot = lot
         for p, a in self.active.items():
             u = PROBLEMS[p]["unit"]
             if u == unit or (u == "ja-*" and unit.startswith("ja-")):
                 if p == "hd_lot":
-                    size, no = st.get("_lot_no", (None, 0))
-                    if no < a["from_lot"].get(size, 1):
+                    size, no = st.get("_lot_no", (None, -1))
+                    if no < a["from_lot"].get(size, 0):
                         continue
                 a["count"] += 1
                 st[p] = (a["magnitude"], a["count"])

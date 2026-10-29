@@ -489,21 +489,59 @@ suppliers:
   castings:
     name: 示例·东岳铸造 Dongyue Castings (Demo)
     lead: 21
+    on_time: 0.45
+    pass: 0.97
+    cat_name: 铸件
+    alt:
+      name: 示例·华美铸业 Huamei Foundry (Demo)
+      price_index: 1.25
+      lead: 10
+      active: false
   forgings:
     name: 示例·基石锻造 Keystone Forging (Demo)
     lead: 14
+    on_time: 0.85
+    pass: 0.97
+    cat_name: 锻坯
+    alt:
+      name: 示例·长河锻压 Changhe Forging (Demo)
+      price_index: 1.15
+      lead: 7
+      active: false
   steel:
     name: 示例·中西部钢材 Midwest Steel (Demo)
     lead: 5
+    on_time: 0.95
+    pass: 1.0
+    cat_name: 钢材
+    alt:
+      name: 示例·湖畔特钢 Lakeside Special Steel (Demo)
+      price_index: 1.1
+      lead: 3
+      active: true
   bearings:
     name: 示例·五大湖轴承 Great Lakes Bearing (Demo)
     lead: 7
+    on_time: 0.9
+    pass: 0.85
+    cat_name: 轴承
+    alt:
+      name: 示例·北方精密轴承 Northern Precision Bearing (Demo)
+      price_index: 1.2
+      lead: 3
+      active: true
   hardware:
     name: 示例·先锋工业品 Pioneer Industrial Supply (Demo)
     lead: 3
+    on_time: 0.95
+    pass: 0.99
+    cat_name: 标准件与油封
   lubricant:
     name: 示例·海湾润滑油 Gulf Coast Lubricants (Demo)
     lead: 3
+    on_time: 0.95
+    pass: 1.0
+    cat_name: 润滑油
 customers:
 - 示例·绿谷输送设备 GreenValley Conveyor (Demo)
 - 示例·峰顶搅拌机 Summit Mixer Works (Demo)

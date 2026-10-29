@@ -77,21 +77,23 @@ create table if not exists supply_sim (
 );
 """
 
-# 备选供应商（E5-3）：贵 10–25%、提前期短；油封、润滑油等留单一来源
-ALT = {"bearings": ("示例·北方精密轴承 Northern Precision Bearing (Demo)", 1.20, 3),
-       "castings": ("示例·华美铸业 Huamei Foundry (Demo)", 1.25, 10),
-       "forgings": ("示例·长河锻压 Changhe Forging (Demo)", 1.15, 7),
-       "steel": ("示例·湖畔特钢 Lakeside Special Steel (Demo)", 1.10, 3)}
-# 教学模拟器：各家默认供应商的准时率、合格率（东岳铸造老是晚；五大湖轴承偶尔有一批不合格）
-SIM_P = {"castings": (0.45, 0.97), "forgings": (0.85, 0.97), "steel": (0.95, 1.0), "bearings": (0.9, 0.85), "hardware": (0.95, 0.99),
-         "lubricant": (0.95, 1.0)}
-ALT_P = (0.95, 0.98)
-ALT_ACTIVE = ("bearings", "steel")
-CAT_NAME = {"castings": "铸件", "forgings": "锻坯", "steel": "钢材", "bearings": "轴承", "hardware": "标准件与油封", "lubricant": "润滑油"}
+# 第 51 轮：供应商的准时率、合格率、类别名、备选供应商取自工厂数据（factory/data.py 的 SUPPLIERS；按清单起的厂取清单的供应商一节）。
+# 下面几个名字保留原来的形状，实验 20、推演、测试照用
+ALT_P = (0.95, 0.98)       # 备选供应商没写准时率、合格率时
+
+
+def _alts():
+    return {k: (v["alt"]["name"], float(v["alt"]["price_index"]), int(v["alt"]["lead"])) for k, v in F.SUPPLIERS.items() if v.get("alt")}
+
+
+ALT = _alts()                                                     # 备选供应商（E5-3）：贵 10–25%、提前期短；油封、润滑油等留单一来源
+SIM_P = {k: (float(v.get("on_time", 0.95)), float(v.get("pass", 0.99))) for k, v in F.SUPPLIERS.items()}   # 教学模拟器：默认供应商的准时率、合格率
+ALT_ACTIVE = tuple(k for k, v in F.SUPPLIERS.items() if (v.get("alt") or {}).get("active"))
+CAT_NAME = {k: v.get("cat_name") or k for k, v in F.SUPPLIERS.items()}
 DAY_S = 120                # 教学模式：供应商的 1 天 = 真实 2 分钟
-ARRIVE_AUTO_S = 180        # 到货 3 分钟没人检验，质检员（模拟器）检验
+ARRIVE_AUTO_S = int(__import__("os").environ.get("WQ_SUPPLY_AUTO_S", "180"))   # 到货 3 分钟没人检验，质检员（模拟器）检验（CI 演练调短）
 RETURN_AUTO_S = 600        # 不合格 10 分钟没人处理，采购员（模拟器）退货
-MR_AUTO_S = 180            # 请购单 3 分钟没人转，采购员（模拟器）转采购单
+MR_AUTO_S = ARRIVE_AUTO_S  # 请购单 3 分钟没人转，采购员（模拟器）转采购单
 CONCESSION_H = 0.05        # 让步接收全检：每件 3 分钟
 INSPECT_RATE = 40.0        # 检验工时 $/小时
 REJECT_COST = 4.0          # 总拥有成本：每件不合格的处理成本（退货运费、检验、等料）$
@@ -109,6 +111,7 @@ def init(db):
     if getattr(db, "_supply_ready", False):
         return
     db.x(SCHEMA)
+    db.x("alter table lot add column if not exists park jsonb")       # 第 51 轮：工业园兄弟厂的单（送到哪、对方订单、发货）
     try:
         db._supply_ready = True
     except AttributeError:
@@ -134,10 +137,11 @@ def seed(db, mode):
     for k, s in F.SUPPLIERS.items():
         ot, pp = SIM_P.get(k, (0.95, 0.99))
         db.x("insert into supplier_profile (mode, supplier, cat, role, active, price_index, lead_days, on_time_p, pass_p) values (%s,%s,%s,'default',true,1,%s,%s,%s) "
-             "on conflict do nothing", (mode, s["name"], k, s["lead"], ot, pp))
+             "on conflict do nothing", (mode, s["name"], k, s["lead"] if s.get("lead") is not None else 7, ot, pp))
     for k, (name, pi, lead) in ALT.items():                        # 轴承、钢材的备选已经在用；铸件、锻坯的备选还要“开发”
+        a = F.SUPPLIERS[k]["alt"]
         db.x("insert into supplier_profile (mode, supplier, cat, role, active, price_index, lead_days, on_time_p, pass_p) values (%s,%s,%s,'alt',%s,%s,%s,%s,%s) "
-             "on conflict do nothing", (mode, name, k, k in ALT_ACTIVE, pi, lead, ALT_P[0], ALT_P[1]))
+             "on conflict do nothing", (mode, name, k, k in ALT_ACTIVE, pi, lead, a.get("on_time", ALT_P[0]), a.get("pass", ALT_P[1])))
     return True
 
 
@@ -481,8 +485,16 @@ def ensure_setup(H, mode, who="系统"):
         age = _t.time() - float(st.get("setup_at") or 0)
         if p and (p["status"] == "executed" or age < 180 or (p["status"] == "failed" and age < 3600)):
             return pid
-    pid = H.ai.propose("supply_setup", {"suppliers": [{"name": v[0], "group": F.SUPPLIER_GROUP} for v in ALT.values()]}, mode, who,
-                       "备选供应商 {} 家".format(len(ALT)), source="supply")
+    pv = {"suppliers": [{"name": v[0], "group": F.SUPPLIER_GROUP} for v in ALT.values()]}
+    from factory import plant as PL
+    if not PL.is_demo():          # 第 51 轮：按清单起的厂，来料检验模板在 ERPNext 里补建（已经装好的厂导数据时还没有这些模板）
+        tpl = F.inspection_templates()
+        pv["templates"] = [{"name": t, "params": tpl[t]} for t in sorted({x[5] for x in F.ITEMS.values() if x[5] and x[5].startswith("进货检验-")})
+                           if t in tpl]
+    if not (pv["suppliers"] or pv.get("templates")):
+        return None
+    pid = H.ai.propose("supply_setup", pv, mode, who, "备选供应商 {} 家{}".format(len(ALT), "、来料检验模板 {} 份".format(len(pv["templates"]))
+                                                                        if pv.get("templates") else ""), source="supply")
     H.ai.decide(pid, who, True)
     st = _state(db, mode)
     st["setup_pid"], st["setup_at"] = pid, _t.time()
@@ -507,8 +519,15 @@ def scan_use(db, mode):
         for code, q in (F.BOMS.get(item) or ("", []))[1]:
             if (F.ITEMS.get(code) or [None, None])[1] not in ("raw", "buy"):
                 continue
-            x = db.one("select id, lot from lot where mode=%s and item=%s and status in ('accepted','suspect') and qty_left >= %s order by received_at, id limit 1",
+            used = (d.get("lots") or {}).get(code)            # 第 51 轮：仿真车间记下的这一件用的到货批次（关节的谐波减速器）
+            x = db.one("select id, lot from lot where mode=%s and item=%s and lot=%s", (mode, code, used)) if used else \
+                db.one("select id, lot from lot where mode=%s and item=%s and status in ('accepted','suspect') and qty_left >= %s order by received_at, id limit 1",
                        (mode, code, q))
+            if used and x is None:
+                db.x("insert into batch_use (mode, lot, item, part_serial, work_order, unit, qty, at) values (%s,%s,%s,%s,%s,%s,%s,%s)",
+                     (mode, used, code, d.get("part_serial"), d.get("work_order"), unit, q, r["ts"]))
+                n += 1
+                continue
             if x:
                 db.x("update lot set qty_left = qty_left - %s where id=%s", (q, x["id"]))
                 name = x["lot"]
@@ -567,7 +586,8 @@ def _lot_row(x):
             "status_label": STATUS.get(x["status"], x["status"]), "promised": str(x["promised"]) if x["promised"] else None,
             "due_at": x["due_at"].isoformat() if x["due_at"] else None, "arrived_at": x["arrived_at"].isoformat() if x["arrived_at"] else None,
             "received_at": x["received_at"].isoformat() if x["received_at"] else None, "late_days": float(x["late_days"] or 0),
-            "inspection": x["inspection"], "concession": x["concession"], "note": x["note"], "ordered_at": x["ordered_at"].isoformat()}
+            "inspection": x["inspection"], "concession": x["concession"], "note": x["note"], "ordered_at": x["ordered_at"].isoformat(),
+            "park": x.get("park")}
 
 
 def lots(db, mode, status=None, limit=200):
@@ -595,12 +615,16 @@ def tick(H, mode, now=None, rng=None):
         if po and not x["po"]:
             db.x("update lot set po=%s where id=%s", (po, x["id"]))
         if mode == "teach":
+            from hub import park as PK                   # 第 51 轮：工业园兄弟厂的单送过去，等对方发货回传
+            if PK.ship_or_send(H, mode, dict(x, po=x["po"] or po), now, rng, sim):
+                continue
             _ship(db, mode, x, now, rng, sim)
             out["shipped"].append(x["id"])
         else:
             db.x("update lot set status='transit', lot=coalesce(lot, %s) where id=%s", ("L{}-{:04d}".format(now.strftime("%y%m%d"), x["id"]), x["id"]))
     if mode != "teach":
         return out
+    _lots_to_shop(H, db, mode)
     # 到时间到货
     for x in db.q("select * from lot where mode=%s and status='transit' and due_at <= %s", (mode, now)):
         short = float(x["qty"]) * 0.9 if sim and rng.random() < 0.05 else None
@@ -611,8 +635,13 @@ def tick(H, mode, now=None, rng=None):
     if sim:
         # 请购单 3 分钟没人转：采购员（模拟器）按默认供应商下单
         mrs = db.erp_docs("Material Request", mode)
-        if "mr_done" not in st:                                     # 第一次打开：以前的请购单不补下单
-            st["mr_done"] = [m["data"]["name"] for m in mrs]
+        if "mr_done" not in st:                                     # 第一次打开：以前（一小时前）的请购单不补下单
+            def _age(m):                                            # 第 51 轮：刚起的厂马上接单（CI 演练、新开的班级工厂），那几张照常转
+                try:
+                    return (now - dt.datetime.fromisoformat(str(m["ts"]).replace("Z", "+00:00"))).total_seconds()
+                except (KeyError, TypeError, ValueError):
+                    return 1e9
+            st["mr_done"] = [m["data"]["name"] for m in mrs if _age(m) > 3600]
         done = set(st.get("mr_done") or [])
         for m in mrs:
             d = m["data"]
@@ -648,6 +677,22 @@ def tick(H, mode, now=None, rng=None):
             return_lot(H, mode, x["id"], "采购员（教学模拟器）")
             out["returned"].append(x["id"])
     return out
+
+
+def _lots_to_shop(H, db, mode):
+    """第 51 轮：按清单起的厂，检验合格入库的谐波减速器批次告诉仿真车间，装关节时先进先出用（实验 25 的批次就是真实到货批号）"""
+    from factory import plant as PL
+    if PL.is_demo() or getattr(H, "mes", None) is None:
+        return
+    st = _state(db, mode)
+    sent = set(st.get("shop_lots") or [])
+    rows = db.q("select * from lot where mode=%s and status='accepted' and item like 'HD-%%' and qty_ok > 0 order by received_at, id", (mode,))
+    new = [x for x in rows if x["id"] not in sent]
+    for x in new:
+        H.mes.command("sim", "add_lot", mode, "仓管员", item=x["item"], lot=x["lot"], qty=float(x["qty_ok"]))
+        sent.add(x["id"])
+    if new:
+        _save_state(db, mode, dict(_state(db, mode), shop_lots=sorted(sent)))
 
 
 def inject(H, mode, supplier, who, late_days=None, bad=None, item=None, qty=None):

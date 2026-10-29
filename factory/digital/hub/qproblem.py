@@ -131,12 +131,41 @@ def decide_fix(db, send, sid, user, approve: bool, note=""):
         db.x("update quality_8d set status='rejected', d=%s, updated_at=now() where id=%s", (Jsonb(d), sid))
         return get(db, sid)
     send("apply_fix", fix=s["fix"])
+    if s["fix"] == "quarantine_lot":
+        try:
+            _return_lots(db, s["mode"], user)
+        except Exception:  # noqa: BLE001
+            import logging
+            logging.getLogger("qproblem").exception("隔离批次：退货没做成")
     gone = [p for p in ERR.PROBLEMS if ERR.PROBLEMS[p]["fix"] == s["fix"]]
     if gone:
         db.x("update quality_problem set cleared_at=now(), cleared_how=%s where mode=%s and cleared_at is null and problem = any(%s)",
              ("8d:" + sid, s["mode"], gone))
     db.x("update quality_8d set status='approved', fix_by=%s, fix_at=now(), updated_at=now() where id=%s", (user, sid))
     return get(db, sid)
+
+
+def _return_lots(db, mode, user):
+    """第 51 轮：隔离的是真实到货批次时，把在用的那几批（每种关节最近测到的批号）判不合格、退回供应商，供应商补发"""
+    from hub import supply as SP
+    latest = {}
+    for m in db.messages(["quality.measurement"], mode=mode, order="desc", limit=400):
+        d = m["data"]
+        if str(d.get("item", "")).startswith("WQJ-") and d.get("lot") and d["item"] not in latest:
+            latest[d["item"]] = d["lot"]
+    out = []
+    for lot in set(latest.values()):
+        x = db.one("select * from lot where mode=%s and lot=%s and status in ('accepted','suspect')", (mode, lot))
+        if x is None:
+            continue                              # 期初库存或示例批号（HD-L-001 这样）：只在仿真车间里停用
+        db.x("update lot set status='rejected', note=coalesce(note,'') || %s where id=%s", ("；8D 隔离（{}）".format(user), x["id"]))
+
+        class _H:                                 # return_lot 只用到 H.db
+            pass
+        h = _H()
+        h.db = db
+        out.append(SP.return_lot(h, mode, x["id"], user)["text"])
+    return out
 
 
 def verify(db, sid):

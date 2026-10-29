@@ -31,6 +31,8 @@ P.add_argument("--speed", type=float, default=300)
 P.add_argument("--timeout", type=float, default=900)
 P.add_argument("--teacher-password", default="", help="本地版（WQ_EDITION=local）当厂长要的老师密码")
 P.add_argument("--lab24", action="store_true", help="接 WQ-CR5 后按实验 24 的六个任务答题，核对拿满 60 分（第 47 轮）")
+P.add_argument("--park-hub", default="", help="工业园兄弟厂（问渠减速器厂）的枢纽：核对 WQR-105 的采购单送过去、那边接单生产发货、"
+                                              "这边到货检验入库（第 51 轮）")
 A = P.parse_args()
 REAL = A.erp_kind == "real"
 FAILS = []
@@ -255,6 +257,38 @@ def item_needs(item, buy, cfg):
 NEEDS = {}
 
 
+def park(mgr):
+    """第 51 轮：AGV 订单的 WQR-105 请购 → 采购单 → 送到减速器厂成为销售订单 → 那边自动接单、下达、做完发货 → 这边到货、来料检验入库"""
+    print("工业园：机器人厂向问渠减速器厂采购 WQR-105")
+    lot = wait(lambda: next((x for x in hub("GET", "/api/supply/lots", token=mgr)["lots"]
+                             if x["item"] == "WQR-105" and (x.get("park") or {}).get("state") in ("sent", "shipped", "fallback")), None),
+               "WQR-105 的采购单送到减速器厂", 600, 5)
+    if not check(bool(lot), "WQR-105 请购转成采购单（采购员模拟器）"):
+        return
+    check(lot["park"]["state"] != "fallback", "采购单送到减速器厂：{}".format(lot.get("note") or ""))
+    def gb(m, p, b=None, token=None):
+        return call(m, A.park_hub + p, b, token)
+    gtok = gb("POST", "/api/login", dict({"name": "工业园演练", "role": "manager", "mode": "teach"},
+                                         **({"teacher_password": A.teacher_password} if A.teacher_password else {})))["token"]
+    gb("POST", "/api/mes/cmd", {"unit": "sim", "command": "set_speed", "speed": A.speed}, token=gtok)
+    o = wait(lambda: next((x for x in gb("GET", "/api/park", token=gtok)["orders"] if x["po"] == lot["po"] and x["status"] in ("released", "shipped")),
+                          None), "减速器厂接单、订单和工单写进 ERPNext", 600, 5)
+    if not check(bool(o), "减速器厂自动接单：{}".format(o and "订单 {}，工单 {}".format(o["so"], "、".join(o["work_orders"])))):
+        print("    工业园订单：{}".format(json.dumps(gb("GET", "/api/park", token=gtok)["orders"][:3], ensure_ascii=False)[:600]))
+        return
+    o = wait(lambda: next((x for x in gb("GET", "/api/park", token=gtok)["orders"] if x["po"] == lot["po"] and x["status"] == "shipped"), None),
+             "减速器厂做完发货", A.timeout, 5)
+    if not check(bool(o), "减速器厂做完发货：批 {}".format(o and o["shipment"]["lot"])):
+        print("    工业园订单：{}".format(json.dumps(gb("GET", "/api/park", token=gtok)["orders"][:3], ensure_ascii=False)[:600]))
+        return
+    got = wait(lambda: next((x for x in hub("GET", "/api/supply/lots", token=mgr)["lots"] if x["id"] == lot["id"] and x["status"] == "accepted"), None),
+               "机器人厂到货、来料检验入库", 900, 5)
+    check(bool(got) and got["lot"] == o["shipment"]["lot"], "机器人厂收货：批 {}，{}".format(got and got["lot"], got and got["status_label"]))
+    if got and REAL:
+        prs = [p for p in erp_docs("Purchase Receipt") if p.get("docstatus") == 1 and (p.get("wq_lot") == got["lot"] or got["lot"] in (p.get("remarks") or ""))]
+        check(bool(prs), "机器人厂 ERPNext 收货单（批号 {}）：{}".format(got["lot"], "、".join(p["name"] for p in prs)))
+
+
 def main():
     h = wait(lambda: (lambda x: x if x.get("ok") else None)(hub("GET", "/api/health")), "枢纽起来", 120, 3)
     check(bool(h), "枢纽健康")
@@ -273,6 +307,8 @@ def main():
             b, "、".join(it for it in items if item_needs(it, b, cfg)) or "没有产品用到"))
     for it in items:
         one(it, mgr)
+    if A.park_hub:
+        park(mgr)
     if not REAL:
         errs = call("GET", A.erp + "/api/mock/errors")["errors"]
         check(not errs, "ERPNext 字段校验无错误" + ("：" + "；".join(errs[:5]) if errs else ""))

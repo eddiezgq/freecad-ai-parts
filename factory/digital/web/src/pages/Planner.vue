@@ -44,6 +44,28 @@
       </section>
     </div>
 
+    <section v-if="park && (park.orders.length || park.peers.length)" class="card" data-help="planner-park">
+      <div class="card-head"><h2>工业园订单</h2>
+        <span class="muted small">问渠数字工业园里兄弟厂的采购单，到这里成为本厂的销售订单：接单 → 算料、写进 ERPNext → 下达生产 → 做完自动发货回传</span>
+        <label v-if="park.teacher" class="auto small"><input type="checkbox" :checked="park.auto" @change="setAuto($event.target.checked)"> 自动接单（没人接时 3 分钟后平台代接、下达）</label>
+        <span v-else class="muted small">自动接单：{{ park.auto ? '开' : '关' }}</span></div>
+      <div v-if="!park.orders.length" class="empty">还没有兄弟厂的订单</div>
+      <table v-else class="t">
+        <thead><tr><th>来自</th><th>采购单</th><th>物料</th><th class="num">数量</th><th>要货日</th><th>本厂订单</th><th>状态</th><th></th></tr></thead>
+        <tbody>
+          <tr v-for="o in park.orders" :key="o.id">
+            <td class="small">{{ short(o.from_name) }}</td><td class="mono small">{{ o.po || '—' }}</td>
+            <td class="mono"><ObjLink type="Item" :k="o.item" /></td><td class="num">{{ o.qty }}</td><td class="mono small">{{ o.need_by || '—' }}</td>
+            <td class="mono small"><ObjLink v-if="o.so" type="SalesOrder" :k="o.so" /><span v-else>—</span></td>
+            <td><span class="pill" :class="{ pending: 'warn', accepted: 'info', released: 'info', shipped: 'good', failed: 'bad' }[o.status]">{{ o.status_label }}</span>
+              <span v-if="o.shipment" class="muted small"> 批 {{ o.shipment.lot }}</span><span v-if="o.note" class="muted small"> {{ o.note }}</span></td>
+            <td><button v-if="o.status === 'pending' && park.can_accept" class="btn primary" :disabled="busy" @click="acceptPark(o.id)">接单</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div v-if="parkMsg" class="ok">{{ parkMsg }}</div>
+    </section>
+
     <section class="card" data-help="planner-wos">
       <div class="card-head"><h2>工单</h2><span class="muted small">下达后按工艺路线逐道派给设备；操作工在车间终端开工</span>
         <button class="btn ghost more" @click="load">刷新</button></div>
@@ -85,6 +107,8 @@ const props_ = ref([]);
 const wos = ref([]);
 const relMsg = ref('');
 const teachStatus = ref(null);
+const park = ref(null);          // 第 51 轮：工业园订单（兄弟厂的采购单）
+const parkMsg = ref('');
 const n = (v) => (v === null || v === undefined ? '—' : Number(v).toLocaleString(undefined, { maximumFractionDigits: 2 }));
 const stText = (s) => ({ pending: '待确认', confirmed: '执行中', executed: '已执行', rejected: '已否决', failed: '失败' }[s]);
 const stTone = (s) => ({ pending: 'warn', confirmed: 'info', executed: 'good', rejected: 'mute', failed: 'bad' }[s]);
@@ -101,6 +125,19 @@ async function load() {
   props_.value = p;
   wos.value = w;
   if (session.user.mode === 'teach') teachStatus.value = await get('/teach');
+  try { park.value = await get('/park'); } catch { park.value = null; }
+}
+async function acceptPark(id) {
+  busy.value = true; parkMsg.value = '';
+  try {
+    const r = await post(`/park/orders/${id}/accept`, {});
+    parkMsg.value = `已接单：订单、${r.work_orders} 张工单、${r.material_requests} 张请购单写进 ERPNext 后，在下面“工单”里下达车间`;
+    await load();
+  } catch (e) { parkMsg.value = e.message; } finally { busy.value = false; }
+}
+async function setAuto(on) {
+  await post('/park/auto', { on });
+  await load();
 }
 async function calc() {
   err.value = null;
@@ -137,5 +174,6 @@ tr.need td { background: #FFF8EC; }
 .prow { display: flex; gap: 8px; align-items: baseline; padding: 8px 0; border-top: 1px solid var(--line-soft); cursor: pointer; }
 .prow:hover { background: var(--surface-2); }
 .pill.mute { margin-left: 6px; }
+.auto { margin-left: auto; display: flex; gap: 6px; align-items: center; }
 @media (max-width: 1100px) { .form { grid-template-columns: 1fr 1fr; } .side { width: auto; } }
 </style>

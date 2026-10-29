@@ -28,6 +28,8 @@ for k, v in setup.get("lot_used", {{}}).items():
     eng.errors.lot_used[k] = v
 for p in setup.get("inject", []):
     eng.errors.inject(p)
+for it, lot, q in setup.get("add_lots", []):        # 第 51 轮：仓库里的到货批次
+    eng.errors.add_lot(it, lot, q)
 
 def run(wo, ja, qty):
     ops = routing_for("WQJ-L")
@@ -41,10 +43,16 @@ def run(wo, ja, qty):
         eng.run_due()
 
 for i, (ja, qty) in enumerate(setup["batches"]):
+    if setup.get("inject_before") == i:
+        eng.errors.inject(setup["inject_late"])
     if setup.get("fix_before") == i:
         eng.errors.apply_fix(setup["fix"])
     run("WO-{{}}".format(i), ja, qty)
+starts = [m["data"] for t, m in out if m["type"] == "machine.event" and m["data"]["event"] == "cycle_start" and m["data"]["op_index"] == 0]
 ms = [m["data"] for t, m in out if m["type"] == "quality.measurement"]
+if setup.get("lots_in_events"):
+    print(json.dumps([(d.get("lots") or {{}}).get("HD-CSF-32-100") for d in starts]))
+    sys.exit(0)
 print(json.dumps([{{"wo": d["work_order"], "char": d["characteristic"], "v": d["value_mm"], "ja": d.get("assembled_on"),
                    "lot": d.get("lot"), "serial": d["part_serial"], "result": d["result"]}} for d in ms], ensure_ascii=False))
 """
@@ -91,6 +99,24 @@ def test_lot_problem_only_from_injected_lot_and_quarantine_works():
     fixed = _run({"lot_used": {"L": 3}, "inject": ["hd_lot"], "fix": "quarantine_lot", "fix_before": 0, "batches": [("ja-1", 8)]})
     assert {m["lot"] for m in fixed} == {"HD-L-002"}                            # 隔离后剩下的第 1 批不用了，换第 2 批
     assert _mean(fixed, "joint_backlash") < 0.8
+
+
+def test_real_lots_fifo_and_lot_problem():
+    """第 51 轮 S-7：仓库有到货批次时，关节按先进先出用到货批次（批号就是来料的批号），开工事件带上批次；
+    “一批减速器背隙偏大”从注入时在用的那一批起；隔离后那一批剩下的不用了，换下一批"""
+    lots = [["HD-CSF-32-100", "L261028-0001", 5], ["HD-CSF-32-100", "L261028-0002", 10]]
+    ev = _run({"add_lots": lots, "batches": [("ja-1", 4), ("ja-2", 6)], "lots_in_events": True})
+    assert ev == ["L261028-0001"] * 5 + ["L261028-0002"] * 5
+    ms = _run({"add_lots": lots, "batches": [("ja-1", 4), ("ja-1", 6)], "inject_before": 1, "inject_late": "hd_lot"})
+    bl = [m for m in ms if m["char"] == "joint_backlash"]
+    assert [m["lot"] for m in bl] == ["L261028-0001"] * 5 + ["L261028-0002"] * 5
+    assert sum(m["v"] for m in bl[:4]) / 4 < 0.8 and sum(m["v"] for m in bl[4:]) / 6 > 0.85     # 注入时在用第 1 批：从它起都偏大
+    fixed = _run({"add_lots": lots, "inject": ["hd_lot"], "fix": "quarantine_lot", "fix_before": 1, "batches": [("ja-1", 4), ("ja-1", 6)]})
+    bl = [m for m in fixed if m["char"] == "joint_backlash"]
+    assert [m["lot"] for m in bl] == ["L261028-0001"] * 4 + ["L261028-0002"] * 6      # 第 1 批剩下的 1 台不用了
+    assert sum(m["v"] for m in bl[4:]) / 6 < 0.8
+    mixed = _run({"add_lots": [["HD-CSF-32-100", "L261028-0003", 2]], "batches": [("ja-1", 4)]})
+    assert [m["lot"] for m in mixed if m["char"] == "joint_backlash"] == ["L261028-0003"] * 2 + ["HD-L-001"] * 2   # 到货批次用完再用库里的
 
 
 def test_bench_zero_drifts_for_all_joints_and_fix_works():

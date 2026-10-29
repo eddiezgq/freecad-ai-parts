@@ -32,7 +32,8 @@
         <table class="tbl small"><thead><tr><th>批号</th><th>采购单</th><th>物料</th><th class="num">数量</th><th>供应商</th><th>承诺到货</th><th>状态</th><th></th></tr></thead>
           <tbody><tr v-for="x in lt.lots" :key="x.id"><td>{{ x.lot || '#' + x.id }}</td><td>{{ x.po || '—' }}</td><td>{{ x.item }}</td><td class="num">{{ x.qty }}</td>
             <td>{{ x.supplier.split(' ')[0] }}</td><td>{{ x.promised || '—' }}<span v-if="x.late_days > 0 && x.arrived_at" class="bad"> 晚 {{ x.late_days }} 天</span></td>
-            <td :class="TONE[x.status]">{{ x.status_label }}{{ x.concession ? '（让步接收）' : '' }}</td>
+            <td :class="TONE[x.status]">{{ x.status_label }}{{ x.concession ? '（让步接收）' : '' }}
+              <span v-if="x.park" class="small muted">{{ parkText(x.park) }}</span></td>
             <td><button v-if="lt.can_receive && x.status === 'transit' && !kp?.enabled" class="linkbtn" @click="arrive(x)">登记到货</button></td></tr></tbody></table>
       </div>
     </template>
@@ -111,6 +112,9 @@ import { get, post, session } from '../lib/api';
 
 const TABS = { lots: '采购单与在途', inspect: '到货与检验', batches: '批次', suppliers: '供应商' };
 const STATUS = { ordered: '已下单', transit: '在途', arrived: '到货待检', accepted: '合格入库', rejected: '不合格', returned: '已退货', suspect: '可疑' };
+// 第 51 轮：工业园兄弟厂的单（如问渠减速器厂）：送过去等对方发货；连不上时按外部供应商
+const parkText = (p) => ({ sent: ' · 已送到兄弟厂，生产中', shipped: ' · 兄弟厂已发货' + (p.so ? '（订单 ' + p.so + '）' : ''),
+  fallback: ' · 兄弟厂未连通，按外部供应商' }[p.state] || '');
 const TONE = { arrived: 'warn', rejected: 'bad', suspect: 'bad', accepted: 'ok' };
 const route = useRoute();
 const router = useRouter();
