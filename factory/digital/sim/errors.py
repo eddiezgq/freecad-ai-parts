@@ -104,6 +104,7 @@ class ErrorModel:
         self.lot_used = {}        # 机器人厂：每种关节已装了几台（没有到货批次时按顺序用谐波减速器，每 LOT_SIZE 台一批）
         self.lots = {}            # 第 51 轮：仓库里来料检验合格的谐波减速器批次 {物料: [[批号, 剩余数量], …]}，先进先出
         self.lot_order = {}       # 每种规格按开始使用的先后排的批号（判断“从注入时的批次起”）
+        self.zero_fifo = {}       # 第 55 轮：关节测试台测得的零位残差（角秒），按规格先进先出装进整机（整机标定的零位偏差从这里来）
         self.history = []         # (事件, 问题或措施, 结果)
 
     def add_lot(self, item: str, lot: str, qty: float):
@@ -114,13 +115,29 @@ class ErrorModel:
 
     def lot_state(self):
         return {"lot_used": dict(self.lot_used), "lots": {k: [list(x) for x in v] for k, v in self.lots.items()},
-                "lot_order": {k: list(v) for k, v in self.lot_order.items()}}
+                "lot_order": {k: list(v) for k, v in self.lot_order.items()}, "zero_fifo": {k: list(v) for k, v in self.zero_fifo.items()}}
 
     def load_lot_state(self, s):
         s = s or {}
         self.lot_used = dict(s.get("lot_used") or {})
         self.lots = {k: [list(x) for x in v] for k, v in (s.get("lots") or {}).items()}
         self.lot_order = {k: list(v) for k, v in (s.get("lot_order") or {}).items()}
+        self.zero_fifo = {k: list(v) for k, v in (s.get("zero_fifo") or {}).items()}
+
+    def note_joint_zero(self, item: str, value: float):
+        """关节测试台测完一台关节的零位残差：记下，装整机时按规格先进先出取用（第 55 轮）"""
+        q = self.zero_fifo.setdefault(str(item)[-1:], [])
+        q.append(float(value))
+        del q[:-200]
+
+    def robot_zeros(self, part):
+        """装一台协作机器人：按 J1–J6 用的关节规格从先进先出队列里取零位残差；队列空了的那一个记 None（标定时随机补）"""
+        from sim import calib
+        st = part.err if getattr(part, "err", None) is not None else {}
+        if "_zero" not in st:
+            st["_zero"] = [(self.zero_fifo.get(sz) or [None]).pop(0) if self.zero_fifo.get(sz) else None for sz in calib.JOINT_SIZE]
+            part.err = st
+        return st["_zero"]
 
     def _current(self, size):
         o = self.lot_order.get(size) or []
@@ -194,6 +211,8 @@ class ErrorModel:
                 st[p] = (a["magnitude"], a["count"])
         if unit == "grd-01":
             st["_wear"] = wear
+        if str(getattr(getattr(part, "wo", None), "item", "")) == "WQ-CR5" and "_zero" not in st:   # 整机装配：记下装进去的 6 台关节的零位（第 55 轮）
+            self.robot_zeros(part)
 
     def plant_offset(self, part, code: str) -> float:
         """机器人厂的关节测量值上叠加的偏差（第 47 轮实验 25）：只在装配工位、批次、测试台对上的那几台上出现"""

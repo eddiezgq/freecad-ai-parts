@@ -439,7 +439,7 @@ def mount(app, H):
     @app.get("/api/course/cases", dependencies=[K])
     def course_cases(request: Request):
         from hub import labs_api
-        if labs_api.plant_id() == "wenquest-robot":          # 机器人厂（第 47 轮）只有实验 24、25
+        if labs_api.plant_id() == "wenquest-robot":          # 机器人厂（第 47 轮）只有实验 24、25（第 55 轮加 26）
             base = public_base(request)
             return head(["factory-data"], items=[{
                 "id": "lab24", "name": {"zh": "实验 24：一台协作机器人从订单到交付", "en": "Lab 24: one collaborative robot from order to delivery"},
@@ -451,7 +451,12 @@ def mount(app, H):
                 "summary": "老师注入隐藏问题（装配工位扭矩、减速器批次、测试台零位三选一），学生在控制图上发现判异，按工位、批次、测试顺序分层找原因，"
                            "开 8D、选对症措施、用措施后的数据验证（全部合格且 Cpk ≥ 1.33）。",
                 "mode": "teach", "products": ["WQJ-L", "WQJ-M", "WQJ-S"], "tool_url": base + "/lab25",
-                "guide_url": base + "/api/cae/lab25/guide.docx", "report_template_url": base + "/api/cae/lab25/report-template.docx"}])
+                "guide_url": base + "/api/cae/lab25/guide.docx", "report_template_url": base + "/api/cae/lab25/report-template.docx"}, {
+                "id": "lab26", "name": {"zh": "实验 26：一台协作机器人的运动学标定", "en": "Lab 26: kinematic calibration of a collaborative robot"},
+                "summary": "用名义 DH 参数算正运动学；激光跟踪仪测 30 个位姿，最小二乘辨识 24 个参数偏差、补偿、另取 20 个位姿验证；"
+                           "比较铺满与集中、30 个与 8 个位姿的条件数和标定效果；零位偏差追到关节测试台。《机器人学》第 13 章、26.3 节的课后实验。",
+                "mode": "teach", "products": ["WQ-CR5"], "tool_url": base + "/lab26",
+                "guide_url": base + "/api/cae/lab26/guide.docx", "report_template_url": base + "/api/cae/lab26/report-template.docx"}])
         return head(["factory-data"], items=[{
             "id": "lab7", "name": {"zh": "实验 7：数字工厂闭环", "en": "Lab 7: the closed loop in a digital factory"},
             "summary": "WQR-105 减速器厂的一周：接单、算料排产、设计发布、车间加工、在线检测与不合格品处置、看板与 AI 提醒。",

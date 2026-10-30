@@ -87,6 +87,7 @@ const NAV = [
     { to: '/supply', label: '采购与来料', role: 'planner' },          // 第 18 轮 E5
     { to: '/work/operator', label: '车间执行', role: 'operator' },
     { to: '/work/quality', label: '质量', role: 'quality' },
+    { to: '/calib', label: '整机标定', role: 'quality', only: () => cfg.value.plant?.id === 'wenquest-robot' },   // 第 55 轮：机器人厂
     { to: '/finance', label: '经营与财务', role: 'manager' },         // 第 18 轮 E7；第 19 轮并入原“经营与成本”
     { to: '/cost', label: '生产成本', role: 'manager', only: () => !demoPlant.value },   // 第 30 轮：企业工厂没有“经营与财务”，厂长看这里
   ] },

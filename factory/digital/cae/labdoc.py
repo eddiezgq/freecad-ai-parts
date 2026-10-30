@@ -22,7 +22,8 @@ GUIDES = {"lab8": GUIDE_MD, "lab9": os.path.join(HERE, "实验9_机械臂关节�
           "lab22": os.path.join(HERE, "实验22_经营订单毛利应收与现金.md"),
           "lab23": os.path.join(HERE, "实验23_两周情景一张急单的全厂决策.md"),
           "lab24": os.path.join(HERE, "实验24_一台协作机器人从订单到交付.md"),
-          "lab25": os.path.join(HERE, "实验25_关节背隙异常的追因与8D.md")}
+          "lab25": os.path.join(HERE, "实验25_关节背隙异常的追因与8D.md"),
+          "lab26": os.path.join(HERE, "实验26_一台协作机器人的运动学标定.md")}
 
 
 def _doc():
@@ -134,7 +135,7 @@ def report_template_docx(lab="lab8"):
         return lab22_template()
     if lab == "lab23":
         return lab23_template()
-    if lab in ("lab24", "lab25"):
+    if lab in ("lab24", "lab25", "lab26"):
         return robot_template(lab)
     from docx.shared import Pt
     d = _doc()
@@ -943,7 +944,7 @@ def lab23_template():
 
 
 def robot_template(lab):
-    """实验 24、25 报告模板（第 47 轮，机器人厂）"""
+    """实验 24、25、26 报告模板（第 47、55 轮，机器人厂）"""
     from docx.shared import Pt
     d = _doc()
 
@@ -980,6 +981,23 @@ def robot_template(lab):
                ["整台（含材料）", "", "", "", ""]])
         d.add_heading("五、复盘与讨论（任务 6）", 1)
         hint("和实验 7（减速器厂的一根输出轴）比，造一台机器人多了哪些环节、哪些风险？如果整机交期提前一周，你会先动哪一层？")
+    elif lab == "lab26":
+        d.add_heading("实验 26　一台协作机器人的运动学标定　实验报告 · Lab 26 Report: Kinematic Calibration of a Cobot", 0)
+        table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)
+        table([["机器人出厂编号 Robot serial", ""], ["6 台关节的零位残差（″）Joint zero residuals", ""]], head=False)
+        d.add_heading("一、正运动学（任务 1）· Forward kinematics", 1)
+        hint("写出每个关节的变换矩阵和相乘过程（可以附程序），给出工具点位置，与平台核对。")
+        table([["关节角 q（°）", "我算的 x, y, z（mm）", "平台的 x, y, z（mm）", "差（mm）"], ["", "", "", ""]])
+        d.add_heading("二、位姿选法与条件数（任务 2、5）· Pose selection", 1)
+        table([["位姿选法 Poses", "条件数 Cond.", "验证：标定后平均误差（mm）", "验证：标定后最大误差（mm）"],
+               ["30 个，铺满 full", "", "", ""], ["30 个，集中 cluster", "", "", ""], ["8 个，铺满 full", "", "", ""]])
+        hint("为什么集中的位姿条件数大、标定后反而更差？为什么 24 个参数只有 21 个分得开（相邻平行轴）？")
+        d.add_heading("三、辨识结果（任务 3）· Identified errors", 1)
+        table([["关节 Joint", "Δθ（°）", "Δd（mm）", "Δa（mm）", "Δα（°）"]] + [[j, "", "", "", ""] for j in ("J1", "J2", "J3", "J4", "J5", "J6")])
+        d.add_heading("四、验证与判定（任务 4）· Verification", 1)
+        table([["项目 Item", "标定前 Before", "标定后 After"], ["平均绝对定位误差（mm）", "", ""], ["最大（mm）", "", ""], ["判定（≤ 0.5 mm）", "", ""]])
+        d.add_heading("五、讨论（任务 6）· Discussion", 1)
+        hint("零位偏差从哪里来？标定补不了的误差有哪些（柔度、齿隙、温度）？如果测试台零位漂了 30″，辨识结果会怎样？")
     else:
         d.add_heading("实验 25　关节背隙异常的追因与 8D　实验报告", 0)
         table([["班级", "", "组号", ""], ["姓名 / 学号", "", "日期", ""]], head=False)
