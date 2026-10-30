@@ -31,6 +31,7 @@ P.add_argument("--speed", type=float, default=300)
 P.add_argument("--timeout", type=float, default=900)
 P.add_argument("--teacher-password", default="", help="本地版（WQ_EDITION=local）当厂长要的老师密码")
 P.add_argument("--lab24", action="store_true", help="接 WQ-CR5 后按实验 24 的六个任务答题，核对拿满 60 分（第 47 轮）")
+P.add_argument("--lab26", action="store_true", help="WQ-CR5 做到整机标定后，看标定页、按实验 26 的六个任务答题，核对拿满 60 分（第 55 轮）")
 P.add_argument("--park-hub", default="", help="工业园兄弟厂（问渠减速器厂）的枢纽：核对 WQR-105 的采购单送过去、那边接单生产发货、"
                                               "这边到货检验入库（第 51 轮）")
 A = P.parse_args()
@@ -249,6 +250,40 @@ def lab24(mgr, made):
         st["score"], "、".join("{} {}".format(t["title"], t["score"]) for t in st["tasks"])))
 
 
+def lab26(mgr):
+    """实验 26：整机标定页（铺满 / 集中、30 / 8 个位姿）+ 六个任务，满分 60；标定前后误差的量级"""
+    import math
+    sys.path.insert(0, __import__("os").path.dirname(__import__("os").path.dirname(__import__("os").path.abspath(__file__))))
+    from sim import calib as C
+    print("— 实验 26（整机标定）")
+    lst = wait(lambda: (lambda x: x if x["robots"] else None)(hub("GET", "/api/calib", token=mgr)), "整机标定出数", 300, 5)
+    if not check(bool(lst), "整机标定页有机器人"):
+        return
+    r0 = lst["robots"][0]
+    check(r0["before_mm"] and 0.3 < r0["before_mm"] < 3 and r0["after_mm"] < 0.5 and r0["pass"],
+          "{} 标定前 {} mm、标定后 {} mm（条件数 {}），合格".format(r0["serial"], r0["before_mm"], r0["after_mm"], r0["cond"]))
+    q = urllib.parse.quote(r0["serial"])
+    full = hub("GET", "/api/calib/{}?n=30&spread=full".format(q), token=mgr)
+    clus = hub("GET", "/api/calib/{}?n=30&spread=cluster".format(q), token=mgr)
+    few = hub("GET", "/api/calib/{}?n=8&spread=full".format(q), token=mgr)
+    check(clus["cond"] > full["cond"] and clus["after_mean_mm"] > full["after_mean_mm"],
+          "位姿集中：条件数 {} → {}，标定后 {} → {} mm".format(full["cond"], clus["cond"], full["after_mean_mm"], clus["after_mean_mm"]))
+    st = hub("GET", "/api/lab26", token=mgr)
+    hub("POST", "/api/lab26/pick", {"serial": r0["serial"]}, mgr)
+    st = hub("GET", "/api/lab26", token=mgr)
+    x, y, z = (C.fk([math.radians(v) for v in st["fk_q_deg"]]) * 1000).tolist()
+    hub("POST", "/api/lab26/l26_t1", {"x": x, "y": y, "z": z}, mgr)
+    hub("POST", "/api/lab26/l26_t2", {"larger": "cluster" if clus["cond"] > full["cond"] else "full"}, mgr)
+    top = [p["joint"] for p in sorted(full["identified"], key=lambda p: -abs(p["dtheta_deg"]))[:2]]
+    hub("POST", "/api/lab26/l26_t3", {"joints": top}, mgr)
+    hub("POST", "/api/lab26/l26_t4", {"after_mm": full["after_mean_mm"], "pass": full["pass"]}, mgr)
+    hub("POST", "/api/lab26/l26_t5", {"choice": "worse_ill"}, mgr)
+    hub("POST", "/api/lab26/l26_t6", {"choice": "bench"}, mgr)
+    st = hub("GET", "/api/lab26", token=mgr)
+    check(st["score"] == 60, "实验 26 自动评分 {} / 60（{}）；8 个位姿：标定后 {} mm".format(
+        st["score"], "、".join("{} {}".format(t["title"], t["score"]) for t in st["tasks"]), few["after_mean_mm"]))
+
+
 def item_needs(item, buy, cfg):
     """--expect-buy 只核对用得到它的产品：按算料预览判断"""
     return any(buy == m["item_code"] for m in NEEDS.get(item, []))
@@ -339,6 +374,8 @@ def main():
             b, "、".join(it for it in items if item_needs(it, b, cfg)) or "没有产品用到"))
     for it in items:
         one(it, mgr)
+    if A.lab26:
+        lab26(mgr)
     if A.park_hub:
         park(mgr)
     if not REAL:

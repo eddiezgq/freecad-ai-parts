@@ -981,6 +981,18 @@ class Engine:
             d = drift.get(key, 0.0) * 0.95 + self.rng.gauss(0, c["sigma"] * 0.1)    # 均值慢慢游走、有回复（稳态约 0.3σ，第 47 轮从 0.75σ 调小）
             drift[key] = d
             v = round(c["nominal"] + d + self.rng.gauss(0, c["sigma"]) + self.errors.plant_offset(p, c["code"]), 4)
+            extra = {}
+            if c["code"] == "joint_zero":                    # 第 55 轮：零位残差记下，装整机时用
+                self.errors.note_joint_zero(job.wo.item, v)
+            if c["code"] == "cr_abs":                        # 第 55 轮：整机标定真的算（sim/calib.py）：标定前、后的绝对定位误差
+                from sim import calib
+                zeros = self.errors.robot_zeros(p)
+                st = p.err
+                cal = st.get("_calib") or calib.case(p.serial, zeros)
+                st["_calib"] = cal
+                v = round(cal["after_mean_mm"], 4)
+                extra = {"calib": {"zero_arcsec": zeros, "before_mm": cal["before_mean_mm"], "after_max_mm": cal["after_max_mm"],
+                                   "cond": cal["cond"], "n": cal["n"]}}
             r = "pass" if c["lo"] <= v <= c["hi"] else "fail"
             if r == "fail":
                 result = "fail"
@@ -990,7 +1002,7 @@ class Engine:
                       "nominal_mm": c["nominal"], "lower_tol_mm": c["lo"], "upper_tol_mm": c["hi"], "value_mm": v, "result": r,
                       "n_chars": len(spec), "factory_ts": self.factory_ts(),
                       **({"template": tmpl, "spec": "{} ({})".format(c["name"], c.get("unit") or "mm")} if tmpl else {}),
-                      **trace}, corr)
+                      **trace, **extra}, corr)
         return result
 
     # ------------------------------------------------------------ 停机

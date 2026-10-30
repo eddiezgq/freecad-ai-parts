@@ -231,7 +231,8 @@ measurements:
   operation: 整机标定 Robot calibration
   chars:
   - {code: cr_repeat, name: 位置重复精度, unit: mm, nominal: 0.018, lo: 0.0, hi: 0.03, sigma: 0.004}
-  - {code: cr_abs, name: 标定后绝对定位误差, unit: mm, nominal: 0.30, lo: 0.0, hi: 0.5, sigma: 0.06}
+  # 标定后绝对定位误差由整机标定算出（第 55 轮 sim/calib.py：测量 → 最小二乘辨识 → 补偿 → 验证），名义、σ 只用来画控制图
+  - {code: cr_abs, name: 标定后绝对定位误差, unit: mm, nominal: 0.12, lo: 0.0, hi: 0.5, sigma: 0.015}
 - item: WQ-AGV300
   operation: AGV 调试 AGV test
   chars:

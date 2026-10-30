@@ -21,6 +21,9 @@ LABS = [
      "plant": "wenquest-robot"},
     {"no": 25, "title": "关节背隙异常的追因与 8D", "path": "/lab25", "module": "lab25", "domain": "质量（分层、8D）", "hours": 4,
      "plant": "wenquest-robot"},
+    # 第 55 轮：整机运动学标定（《机器人学》第 13 章 DH、26.3 节最小二乘辨识）
+    {"no": 26, "title": "一台协作机器人的运动学标定", "path": "/lab26", "module": "lab26", "domain": "质量（整机标定）", "hours": 4,
+     "plant": "wenquest-robot"},
 ]
 
 

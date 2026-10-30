@@ -2273,6 +2273,65 @@ def lab25_inject(body: dict = Body(default={}), u=Depends(user_of)):
         raise HTTPException(400, str(e))
 
 
+# ---------------------------------------------------------------- 整机标定、实验 26（第 55 轮，机器人厂）
+def _calib():
+    from hub import lab26
+    if _labs_api.plant_id() != "wenquest-robot":
+        raise HTTPException(404, "整机标定只在机器人厂")
+    return lab26
+
+
+@app.get("/api/calib")
+def calib_list(u=Depends(user_of)):
+    m = _calib()
+    return {"robots": m.robots(H.db, u["mode"]), "nominal": m.nominal()}
+
+
+@app.get("/api/calib/{serial}")
+def calib_case(serial: str, n: int = 30, spread: str = "full", u=Depends(user_of)):
+    m = _calib()
+    try:
+        out = m.case(H.db, u["mode"], serial, n, spread, teacher=bool(u.get("teacher")))
+    except KeyError:
+        raise HTTPException(404, "没有这台机器人的标定：{}".format(serial))
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    if u["mode"] == "teach":
+        m.note_try(H.db, u["name"], serial, out["n"], out["spread"], out)
+    return out
+
+
+@app.get("/api/lab26")
+def lab26_status(u=Depends(user_of)):
+    m = _calib()
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    out = m.status(H.db, u["name"], teacher=bool(u.get("teacher")))
+    out["teacher"] = bool(u.get("teacher"))
+    if u.get("teacher"):
+        out["class"] = m.class_view(H.db)
+    return out
+
+
+@app.post("/api/lab26/pick")
+def lab26_pick(body: dict = Body(...), u=Depends(user_of)):
+    try:
+        return _calib().pick(H.db, u["name"], str(body.get("serial") or ""), u["mode"])
+    except KeyError:
+        raise HTTPException(404, "没有这台机器人的标定")
+
+
+@app.post("/api/lab26/{tid}")
+def lab26_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
+    m = _calib()
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    try:
+        return m.answer(H.db, u["name"], tid, body, u["mode"])
+    except KeyError:
+        raise HTTPException(404, "没有这个任务")
+
+
 @app.post("/api/lab25/{tid}")
 def lab25_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
     m = _robot_lab(25)
