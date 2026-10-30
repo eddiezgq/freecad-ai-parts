@@ -24,6 +24,9 @@ LABS = [
     # 第 55 轮：整机运动学标定（《机器人学》第 13 章 DH、26.3 节最小二乘辨识）
     {"no": 26, "title": "一台协作机器人的运动学标定", "path": "/lab26", "module": "lab26", "domain": "质量（整机标定）", "hours": 4,
      "plant": "wenquest-robot"},
+    # 第 57 轮：两厂之间的一张订单（工业园：机器人厂向问渠减速器厂采购 WQR-105）
+    {"no": 27, "title": "两厂之间的一张订单", "path": "/lab27", "module": "lab27", "domain": "采购与来料（跨厂供应链）", "hours": 4,
+     "plant": "wenquest-robot"},
 ]
 
 

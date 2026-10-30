@@ -23,7 +23,7 @@ P.add_argument("--erp", default="http://localhost:8091")
 P.add_argument("--erp-kind", choices=("mock", "real"), default="mock")
 P.add_argument("--erp-key", default="")
 P.add_argument("--erp-secret", default="")
-P.add_argument("--item", action="append", default=[], help="要接单的产品（可写多次）；不写 = 清单里第一种成品")
+P.add_argument("--item", action="append", default=[], help="要接单的产品（可写多次，“产品:数量”可单独定数量）；不写 = 清单里第一种成品")
 P.add_argument("--qty", type=int, default=1)
 P.add_argument("--expect-buy", action="append", default=[], help="算料的请购里必须有的物料")
 P.add_argument("--expect-products", default="", help="“订单与计划”里必须有的产品，逗号分隔")
@@ -32,6 +32,7 @@ P.add_argument("--timeout", type=float, default=900)
 P.add_argument("--teacher-password", default="", help="本地版（WQ_EDITION=local）当厂长要的老师密码")
 P.add_argument("--lab24", action="store_true", help="接 WQ-CR5 后按实验 24 的六个任务答题，核对拿满 60 分（第 47 轮）")
 P.add_argument("--lab26", action="store_true", help="WQ-CR5 做到整机标定后，看标定页、按实验 26 的六个任务答题，核对拿满 60 分（第 55 轮）")
+P.add_argument("--lab27", action="store_true", help="工业园那一段走完后，按实验 27 的六个任务答题（AGV 订单要 2 台：--item WQ-AGV300:2），核对 60 分（第 57 轮）")
 P.add_argument("--park-hub", default="", help="工业园兄弟厂（问渠减速器厂）的枢纽：核对 WQR-105 的采购单送过去、那边接单生产发货、"
                                               "这边到货检验入库（第 51 轮）")
 A = P.parse_args()
@@ -139,15 +140,22 @@ def shop_done(wo, tok):
     return any(e["data"].get("event") == "op_complete" and e["data"].get("last_op") for e in evs)
 
 
+QTYS = {}
+
+
+def qty_of(item):
+    return QTYS.get(item, A.qty)
+
+
 def one(item, mgr):
     cfg = hub("GET", "/api/config", token=mgr)
     customer = cfg["customers"][0]
-    print("— 接单：{} × {}（客户 {}）".format(item, A.qty, customer.split(" ")[0]))
-    pv = hub("POST", "/api/plan/order", {"customer": customer, "item": item, "qty": A.qty, "delivery_date": delivery_date()}, mgr)
+    print("— 接单：{} × {}（客户 {}）".format(item, qty_of(item), customer.split(" ")[0]))
+    pv = hub("POST", "/api/plan/order", {"customer": customer, "item": item, "qty": qty_of(item), "delivery_date": delivery_date()}, mgr)
     made = [w["production_item"] for w in pv["work_orders"]]
     buys = {m["item_code"] for m in pv["material_requests"]}
     check(item in made, "算料：{} 的工单 {} 张（{}）".format(item, len(made), "、".join(made)))
-    p = hub("POST", "/api/proposals", {"action": "create_order_and_plan", "customer": customer, "item": item, "qty": A.qty,
+    p = hub("POST", "/api/proposals", {"action": "create_order_and_plan", "customer": customer, "item": item, "qty": qty_of(item),
                                        "delivery_date": delivery_date()}, mgr)
     pid = p["proposal_id"]
     hub("POST", "/api/proposals/{}/confirm".format(pid), token=mgr)
@@ -220,7 +228,7 @@ def one(item, mgr):
                              so in json.dumps(erp_doc("Sales Invoice", d["name"]), ensure_ascii=False)), None),
                "订单做完开票", 300, 5)
     price = next((f.get("price") for f in cfg["fg"] if f["item_code"] == item), None)
-    check(inv is not None, "开票 {}：${}（售价 {} × {}）".format((inv or {}).get("name"), (inv or {}).get("grand_total"), price, A.qty))
+    check(inv is not None, "开票 {}：${}（售价 {} × {}）".format((inv or {}).get("name"), (inv or {}).get("grand_total"), price, qty_of(item)))
     if A.lab24 and item == "WQ-CR5":
         lab24(mgr, made)
 
@@ -282,6 +290,30 @@ def lab26(mgr):
     st = hub("GET", "/api/lab26", token=mgr)
     check(st["score"] == 60, "实验 26 自动评分 {} / 60（{}）；8 个位姿：标定后 {} mm".format(
         st["score"], "、".join("{} {}".format(t["title"], t["score"]) for t in st["tasks"]), few["after_mean_mm"]))
+
+
+def lab27(mgr):
+    """实验 27：用接 AGV 的同一个账号答题（AGV 那一单要 2 台），WQR-105 那一批到货检验入库后满分 60"""
+    import math
+    print("— 实验 27（两厂之间的一张订单）")
+    st = hub("GET", "/api/lab27", token=mgr)
+    if not check(bool(st.get("order")), "实验 27 找到你的 AGV 订单：{}".format(st.get("order"))):
+        return
+    hub("POST", "/api/lab27/l27_t1", {"qty": st["order"]["wqr_request"]}, mgr)
+    st = wait(lambda: (lambda x: x if x["lot"] and (x["lot"].get("park") or {}).get("order") else None)(hub("GET", "/api/lab27", token=mgr)),
+              "WQR-105 的采购单送到减速器厂", 600, 5) or st
+    if st.get("lot") and (st["lot"].get("park") or {}).get("order"):
+        hub("POST", "/api/lab27/l27_t2", {"order": str(st["lot"]["park"]["order"])}, mgr)
+    st = wait(lambda: (lambda x: x if x["lot"] and x["lot"]["status"] == "accepted" else None)(hub("GET", "/api/lab27", token=mgr)),
+              "WQR-105 到货检验入库", max(A.timeout, 1200), 5) or hub("GET", "/api/lab27", token=mgr)
+    if st.get("lot_days") is not None:
+        hub("POST", "/api/lab27/l27_t4", {"days": st["lot_days"], "on_time": st["lot_days"] <= 10}, mgr)
+    dm = st["demand"]
+    ss = dm["z"] * dm["sigma_d"] * math.sqrt(dm["lead_days"])
+    hub("POST", "/api/lab27/l27_t5", {"ss": round(ss, 2), "rop": round(dm["d"] * dm["lead_days"] + ss, 2)}, mgr)
+    hub("POST", "/api/lab27/l27_t6", {"choice": "bullwhip"}, mgr)
+    st = hub("GET", "/api/lab27", token=mgr)
+    check(st["score"] == 60, "实验 27 自动评分 {} / 60（{}）".format(st["score"], "、".join("{} {}".format(t["title"], t["score"]) for t in st["tasks"])))
 
 
 def item_needs(item, buy, cfg):
@@ -365,9 +397,14 @@ def main():
     print("工厂：{}；产品：{}".format((cfg.get("plant") or {}).get("company") or cfg.get("factory_name") or "", "、".join(prods)))
     for p in [x for x in A.expect_products.split(",") if x]:
         check(p in prods, "“订单与计划”能接 {}".format(p))
-    items = A.item or prods[:1]
+    items = []
+    for x in A.item or prods[:1]:
+        it, _, q = x.partition(":")
+        items.append(it)
+        if q:
+            QTYS[it] = int(q)
     for it in items:
-        NEEDS[it] = hub("POST", "/api/plan/order", {"customer": cfg["customers"][0], "item": it, "qty": A.qty,
+        NEEDS[it] = hub("POST", "/api/plan/order", {"customer": cfg["customers"][0], "item": it, "qty": qty_of(it),
                                                     "delivery_date": delivery_date()}, mgr)["material_requests"]
     for b in A.expect_buy:
         check(any(item_needs(it, b, cfg) for it in items), "算料：{} 要请购（{}）".format(
@@ -378,6 +415,8 @@ def main():
         lab26(mgr)
     if A.park_hub:
         park(mgr)
+    if A.lab27:
+        lab27(mgr)
     if not REAL:
         errs = call("GET", A.erp + "/api/mock/errors")["errors"]
         check(not errs, "ERPNext 字段校验无错误" + ("：" + "；".join(errs[:5]) if errs else ""))

@@ -456,7 +456,12 @@ def mount(app, H):
                 "summary": "用名义 DH 参数算正运动学；激光跟踪仪测 30 个位姿，最小二乘辨识 24 个参数偏差、补偿、另取 20 个位姿验证；"
                            "比较铺满与集中、30 个与 8 个位姿的条件数和标定效果；零位偏差追到关节测试台。《机器人学》第 13 章、26.3 节的课后实验。",
                 "mode": "teach", "products": ["WQ-CR5"], "tool_url": base + "/lab26",
-                "guide_url": base + "/api/cae/lab26/guide.docx", "report_template_url": base + "/api/cae/lab26/report-template.docx"}])
+                "guide_url": base + "/api/cae/lab26/guide.docx", "report_template_url": base + "/api/cae/lab26/report-template.docx"}, {
+                "id": "lab27", "name": {"zh": "实验 27：两厂之间的一张订单", "en": "Lab 27: one order between two plants"},
+                "summary": "机器人厂接 2 台 AGV，WQR-105 的请购转成采购单送到问渠减速器厂，那边接单生产、发货；到货检验入库后算交期；"
+                           "再算安全库存与订货点，讨论两厂共享需求信息（牛鞭效应）。",
+                "mode": "teach", "products": ["WQ-AGV300", "WQR-105"], "tool_url": base + "/lab27",
+                "guide_url": base + "/api/cae/lab27/guide.docx", "report_template_url": base + "/api/cae/lab27/report-template.docx"}])
         return head(["factory-data"], items=[{
             "id": "lab7", "name": {"zh": "实验 7：数字工厂闭环", "en": "Lab 7: the closed loop in a digital factory"},
             "summary": "WQR-105 减速器厂的一周：接单、算料排产、设计发布、车间加工、在线检测与不合格品处置、看板与 AI 提醒。",

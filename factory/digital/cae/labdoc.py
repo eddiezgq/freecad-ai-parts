@@ -23,7 +23,8 @@ GUIDES = {"lab8": GUIDE_MD, "lab9": os.path.join(HERE, "实验9_机械臂关节�
           "lab23": os.path.join(HERE, "实验23_两周情景一张急单的全厂决策.md"),
           "lab24": os.path.join(HERE, "实验24_一台协作机器人从订单到交付.md"),
           "lab25": os.path.join(HERE, "实验25_关节背隙异常的追因与8D.md"),
-          "lab26": os.path.join(HERE, "实验26_一台协作机器人的运动学标定.md")}
+          "lab26": os.path.join(HERE, "实验26_一台协作机器人的运动学标定.md"),
+          "lab27": os.path.join(HERE, "实验27_两厂之间的一张订单.md")}
 
 
 def _doc():
@@ -135,7 +136,7 @@ def report_template_docx(lab="lab8"):
         return lab22_template()
     if lab == "lab23":
         return lab23_template()
-    if lab in ("lab24", "lab25", "lab26"):
+    if lab in ("lab24", "lab25", "lab26", "lab27"):
         return robot_template(lab)
     from docx.shared import Pt
     d = _doc()
@@ -981,6 +982,19 @@ def robot_template(lab):
                ["整台（含材料）", "", "", "", ""]])
         d.add_heading("五、复盘与讨论（任务 6）", 1)
         hint("和实验 7（减速器厂的一根输出轴）比，造一台机器人多了哪些环节、哪些风险？如果整机交期提前一周，你会先动哪一层？")
+    elif lab == "lab27":
+        d.add_heading("实验 27　两厂之间的一张订单　实验报告 · Lab 27 Report: One Order Between Two Plants", 0)
+        table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)
+        d.add_heading("一、接单与算料（任务 1）· Order and MRP", 1)
+        table([["项目 Item", "记录 Record"], ["销售订单号、交期", ""], ["WQR-105：毛需求、库存、安全库存、在途、净需求", ""], ["请购台数（按批量 10 取整）", ""]])
+        d.add_heading("二、两厂之间（任务 2–4）· Between the two plants", 1)
+        table([["步骤 Step", "单号 / 时间 Doc / time", "说明 Note"], ["请购单", "", ""], ["采购单（机器人厂 ERPNext）", "", ""],
+               ["工业园订单（减速器厂）", "", ""], ["减速器厂发货：批号、出厂编号", "", ""], ["到货、来料检验、入库", "", ""]])
+        table([["交期 Lead time", "天数（教学时间）", "承诺 10 天：早 / 晚"], ["下单 → 到货", "", ""]])
+        d.add_heading("三、安全库存与订货点（任务 5）· Safety stock and reorder point", 1)
+        table([["d（台/天）", "σ_d（台/天）", "L（天）", "z", "SS = z·σ_d·√L", "ROP = d·L + SS"], ["", "", "", "1.65", "", ""]])
+        d.add_heading("四、讨论（任务 6）· Discussion", 1)
+        hint("两厂共享需求信息的好处；如果减速器厂的提前期从 10 天变成 20 天，安全库存要变成多少？批量从 10 台改成 1 台，有什么得失？")
     elif lab == "lab26":
         d.add_heading("实验 26　一台协作机器人的运动学标定　实验报告 · Lab 26 Report: Kinematic Calibration of a Cobot", 0)
         table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)
