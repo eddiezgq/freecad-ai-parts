@@ -188,7 +188,7 @@ def test_robot_labs_listed_only_in_robot_plant():
         r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, env=env, cwd=DIG, timeout=60)
         assert r.returncode == 0, r.stderr[-2000:]
         got[name] = json.loads(r.stdout)
-    assert got["robot"] == [24, 25, 26] and got["gear"] == [7, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+    assert got["robot"] == [24, 25, 26, 27] and got["gear"] == [7, 15, 16, 17, 18, 19, 20, 21, 22, 23]
 
 
 LAB25 = r"""

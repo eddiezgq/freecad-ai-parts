@@ -43,6 +43,7 @@ const routes = [
   { path: '/supply', component: () => import('./pages/Supply.vue') },
   { path: '/calib', component: () => import('./pages/Calib.vue') },          // 第 55 轮：整机标定（机器人厂）
   { path: '/lab26', component: () => import('./pages/Lab26.vue') },
+  { path: '/lab27', component: () => import('./pages/Lab27.vue') },        // 第 57 轮
   { path: '/lab20', component: () => import('./pages/Lab20.vue') },
   { path: '/energy', component: () => import('./pages/Energy.vue') },
   { path: '/lab21', component: () => import('./pages/Lab21.vue') },

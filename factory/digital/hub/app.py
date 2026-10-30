@@ -2215,10 +2215,10 @@ _labs_api.mount(app, H, user_of)                       # 第 19 轮：“实验�
 
 # ---------------------------------------------------------------- 实验 24、25（第 47 轮，机器人厂）
 def _robot_lab(n):
-    from hub import lab24, lab25
+    from hub import lab24, lab25, lab27
     if _labs_api.plant_id() != "wenquest-robot":
         raise HTTPException(404, "实验 {} 只在机器人厂".format(n))
-    return lab24 if n == 24 else lab25
+    return {24: lab24, 25: lab25, 27: lab27}[n]
 
 
 @app.get("/api/lab24")
@@ -2330,6 +2330,30 @@ def lab26_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
         return m.answer(H.db, u["name"], tid, body, u["mode"])
     except KeyError:
         raise HTTPException(404, "没有这个任务")
+
+
+# ---------------------------------------------------------------- 实验 27（第 57 轮，机器人厂）
+@app.get("/api/lab27")
+def lab27_status(u=Depends(user_of)):
+    m = _robot_lab(27)
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    out = m.status(H.db, u["name"])
+    out["teacher"] = bool(u.get("teacher"))
+    if u.get("teacher"):
+        out["class"] = m.class_view(H.db)
+    return out
+
+
+@app.post("/api/lab27/{tid}")
+def lab27_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
+    m = _robot_lab(27)
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    try:
+        return m.answer(H.db, u["name"], tid, body)
+    except KeyError:
+        raise HTTPException(404, "这个任务不用提交答案，系统会自动检查")
 
 
 @app.post("/api/lab25/{tid}")
