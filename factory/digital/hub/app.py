@@ -82,8 +82,8 @@ WEB_DIST = os.environ.get("WQ_WEB_DIST", os.path.join(os.path.dirname(HERE), "we
 DEMO_PLANT = PLANT.is_demo()
 SUPPLY_ON = PLANT.has_supply()            # 第 51 轮：采购与来料（E5）也在清单写了产品的厂开（机器人厂）
 DOMAINS_ON = PLANT.has_domains()          # 第 59 轮：设备维护（E3）、能源（E6）、经营财务（E7）也在清单写了产品的厂开（教学模式）
-DOMAIN_API = ("/api/maint", "/api/energy", "/api/finance")
-DOMAIN_NAV = ("/maint", "/energy", "/finance")
+DOMAIN_API = ("/api/maint", "/api/energy", "/api/finance", "/api/ehs", "/api/people")      # 第 61 轮：加安全环保（E2）、人员排班（E4）
+DOMAIN_NAV = ("/maint", "/energy", "/finance", "/ehs", "/people")
 TEACH_ONLY_API = tuple("/api/lab{}".format(n) for n in range(15, 24)) + (
     "/api/story", "/api/scenario", "/api/teach/batch-complaint", "/api/help/try",       # 帮助里的“当场动手”（第 30 轮 §八）
     "/api/complaints", "/api/crm", "/api/followups", "/api/ont/customer360", "/api/service",     # E1 客户与服务
@@ -347,6 +347,17 @@ class Hub:
                             log.exception("情景出错")
                     elif mode == "teach":             # 其他工厂的教学版（第 45 轮）：订单做完开票；第 59 轮起设备维护、能源、经营财务也开
                         if DOMAINS_ON:
+                            try:                      # 第 61 轮：安全环保的模拟器（一般隐患、未遂、化学品与废物）；人员档案进 ERPNext、出勤
+                                from hub import ehs as EH
+                                EH.tick(self, mode)
+                            except Exception:  # noqa: BLE001
+                                log.exception("安全环保出错")
+                            try:
+                                from hub import people as PE
+                                PE.ensure_setup(self, mode)
+                                PE.tick(self, mode)
+                            except Exception:  # noqa: BLE001
+                                log.exception("人员出错")
                             try:
                                 from hub import maint as MT
                                 MT.ensure_setup(self, mode)

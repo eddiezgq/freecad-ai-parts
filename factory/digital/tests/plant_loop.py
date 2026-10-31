@@ -34,7 +34,8 @@ P.add_argument("--lab24", action="store_true", help="接 WQ-CR5 后按实验 24 
 P.add_argument("--lab26", action="store_true", help="WQ-CR5 做到整机标定后，看标定页、按实验 26 的六个任务答题，核对拿满 60 分（第 55 轮）")
 P.add_argument("--lab28", action="store_true", help="WQ-CR5 做到整机标定后，看负载跑合页、按实验 28 的六个任务答题，核对拿满 60 分（第 58 轮）")
 P.add_argument("--reliability", type=float, default=None, help="开始前把设备可靠性系数设成这个数（0 = 演练时设备不随机坏，第 59 轮）")
-P.add_argument("--domains", action="store_true", help="设备维护、能源、经营财务三个页面按本厂设备出数（设备台账进 ERPNext），第 59 轮")
+P.add_argument("--domains", action="store_true", help="设备维护、能源、经营财务（第 59 轮）、安全环保、人员排班（第 61 轮）按本厂设备出数、台账和员工进 ERPNext")
+P.add_argument("--staffing", type=float, default=None, help="1 / 0：开始前打开 / 关掉车间“要有人”（0 = 演练时不因请假缺人停机，第 61 轮）")
 P.add_argument("--lab27", action="store_true", help="工业园那一段走完后，按实验 27 的六个任务答题（AGV 订单要 2 台：--item WQ-AGV300:2），核对 60 分（第 57 轮）")
 P.add_argument("--park-hub", default="", help="工业园兄弟厂（问渠减速器厂）的枢纽：核对 WQR-105 的采购单送过去、那边接单生产发货、"
                                               "这边到货检验入库（第 51 轮）")
@@ -321,7 +322,7 @@ def lab28(mgr):
 
 def domains(mgr):
     """第 59 轮：设备维护、能源、经营财务在本厂打开——台账是本厂的设备并进了 ERPNext、能源有读数、财务出应收和指标"""
-    print("— 设备维护、能源、经营财务（第 59 轮）")
+    print("— 设备维护、能源、经营财务（第 59 轮）、安全环保、人员排班（第 61 轮）")
     cfg = hub("GET", "/api/config", token=mgr)
     hidden = (cfg.get("plant") or {}).get("hidden") or []
     check(not any(p in hidden for p in ("/maint", "/energy", "/finance")), "三个页面入口没有隐藏（隐藏的：{}）".format(hidden))
@@ -337,6 +338,17 @@ def domains(mgr):
           "能源：{} kWh，{} 台设备分表".format(ov.get("kwh"), len(ov.get("units") or [])))
     k = hub("GET", "/api/finance/kpis", token=mgr)
     check(isinstance(k, dict) and k, "经营财务指标：{}".format("、".join(sorted(k)[:5])))
+    # 第 61 轮：安全环保、人员排班
+    check(not any(p in hidden for p in ("/ehs", "/people")), "安全环保、人员排班入口没有隐藏")
+    hz = hub("GET", "/api/ehs/hazards", token=mgr)
+    hz = hz.get("hazards", hz) if isinstance(hz, dict) else hz
+    check(hz and all((h.get("unit") in names or h.get("unit", "").startswith("agv")) for h in hz),
+          "危险源 {} 个，都挂在本厂设备上".format(len(hz or [])))
+    em = wait(lambda: (lambda x: x if x["employees"] and all(e.get("erp_id") for e in x["employees"]) else None)(
+        hub("GET", "/api/people/employees", token=mgr)), "员工档案写进 ERPNext", 600, 10) or hub("GET", "/api/people/employees", token=mgr)
+    check(em["employees"] and all(e.get("erp_id") for e in em["employees"]), "员工档案 {} 人进了 ERPNext".format(len(em["employees"])))
+    ro = hub("GET", "/api/people/roster", token=mgr)
+    check(set(ro.get("units") or []) <= set(names) and ro.get("rows"), "排班表按本厂设备排（{} 台要有人）".format(len(ro.get("units") or [])))
 
 
 def lab27(mgr):
@@ -445,6 +457,12 @@ def main():
             print("设备可靠性系数设为 {:g}".format(A.reliability))
         except Exception as e:  # noqa: BLE001
             print("（本厂没有设备维护，不设可靠性：{}）".format(e))
+    if A.staffing is not None:
+        try:
+            hub("POST", "/api/people/staffing", {"enabled": bool(A.staffing)}, mgr)
+            print("车间“要有人”：{}".format("开" if A.staffing else "关"))
+        except Exception as e:  # noqa: BLE001
+            print("（本厂没有人员排班：{}）".format(e))
     cfg = hub("GET", "/api/config", token=mgr)
     prods = [f["item_code"] for f in cfg["fg"]]
     print("工厂：{}；产品：{}".format((cfg.get("plant") or {}).get("company") or cfg.get("factory_name") or "", "、".join(prods)))

@@ -121,9 +121,28 @@ POSTS_TEMPLATE = {
     ("night", "saw-01"): "P17", ("night", "cnc-l01-a"): "P16", ("night", "cnc-l01-b"): "P16", ("night", "ht-01"): "P19",
     ("night", "grd-01"): "P03", ("night", "vmc-01"): "P18", ("night", "asm-01"): "P21",
 }
+try:                                    # 第 61 轮：清单写了产品的厂（机器人厂等）：按车间设备生成的示例人员，只排白班（factory/staff.py）
+    from factory import staff as _ST
+    _S = _ST.active()
+except ImportError:
+    _S = None
+if _S:
+    from hub import ehs as _EH
+    _ehs_ids = {p[0] for p in _EH.PEOPLE}
+    NEW_PEOPLE = [p for p in _S["people"] if p[0] not in _ehs_ids]
+    DEPTS = list(_S["depts"])
+    DEPT_OF = {}
+    NIGHT = set()
+    FEMALE = set(_S["female"])
+    SKILLS = {k: dict(v) for k, v in _S["skills"].items()}
+    POSTS_TEMPLATE = dict(_S["posts"])
+SHIFTS_USED = ("day",) if _S else ("day", "night")                # 第 61 轮：只排白班的厂，夜间不下发人员等级（车间照工厂日历）
+N_EHS = 12 if not _S else len(_S["people"]) - len(NEW_PEOPLE)        # 安全环保那边已经建的人数
 LEVELS = {1: "学徒", 2: "熟练", 3: "可带徒"}
 ATT = {"leave": "请假", "late": "迟到", "absent": "缺勤"}
 SHIFT_NAME = {"day": "早班", "night": "晚班"}
+if _S:
+    SHIFT_NAME = {"day": "白班", "night": "夜间（不排班）"}
 WAGE = 30.0                 # 操作工工时 $/小时（加班 1.5 倍）
 OT_RATE = 1.5
 TRAIN_HOURS = 40            # 技能培训（带教）标准小时
@@ -189,7 +208,7 @@ def seed(db, mode):
     EH.seed(db, mode)
     has_post = bool(db.one("select 1 as x from roster_post where mode=%s limit 1", (mode,)))
     if has_post and not db.one("select 1 as x from ehs_person where mode=%s and dept is null limit 1", (mode,)) and \
-            db.one("select count(*) as n from ehs_person where mode=%s", (mode,))["n"] >= 12 + len(NEW_PEOPLE):
+            db.one("select count(*) as n from ehs_person where mode=%s", (mode,))["n"] >= N_EHS + len(NEW_PEOPLE):
         return False
     d0 = today()
     have = {r["id"] for r in db.q("select id from ehs_person where mode=%s", (mode,))}
@@ -344,7 +363,7 @@ def levels(db, mode, days):
     sk = skills(db, mode)
     out = {}
     for d in days:
-        for sh in ("day", "night"):
+        for sh in SHIFTS_USED:
             ro = roster_for(db, mode, d, sh)
             ab = {k for k, v in absences(db, mode, d, sh).items() if v["status"] in ("leave", "absent")}
             for u in STF.NEEDS:
@@ -384,7 +403,7 @@ def week(db, mode, day=None):
     names = {p["id"]: p["name"] for p in db.q("select id, name from ehs_person where mode=%s", (mode,))}
     out = []
     for d in week_days(day):
-        for sh in ("day", "night"):
+        for sh in SHIFTS_USED:
             ro = roster_for(db, mode, d, sh)
             ab = absences(db, mode, d, sh)
             cells = {}
@@ -794,7 +813,7 @@ def kpis(db, mode, now=None):
     ot = overtime_week(db, mode)
     return {"attendance_rate": round(1 - miss / len(on), 3) if on else 1.0, "on_shift": len(on), "absent": miss,
             "gaps": len(gaps(db, mode, now)), "single_points": len(single_points(db, mode)), "overtime_h_week": round(sum(ot.values()), 1),
-            "enabled": enabled(db, mode), "shift": sh, "day": d.isoformat(),
+            "enabled": enabled(db, mode), "shift": sh, "day": d.isoformat(), "shift_names": SHIFT_NAME,
             "trainings": db.one("select count(*) as n from skill_training where mode=%s and status='doing'", (mode,))["n"]}
 
 

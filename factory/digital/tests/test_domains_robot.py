@@ -28,6 +28,11 @@ out["credit"] = FN.CREDIT
 out["price"] = FN.PRICE
 out["contract"] = EG.PARAMS["contract_kw"]
 out["demo"] = A.DEMO_PLANT
+from hub import ehs as _EH
+from sim import staffing as _STF
+out["people_demo"] = len(_EH.PEOPLE) if A.DEMO_PLANT else None
+out["hazard_demo"] = _EH.HAZARDS[0][:3] if A.DEMO_PLANT else None
+out["needs_demo"] = list(_STF.NEEDS)
 out["open"] = [p for p in ("/api/maint/assets", "/api/energy/overview", "/api/finance/kpis", "/api/ehs", "/api/people") if not A.teach_only(p)]
 if {db!r}:
     from hub.db import DB
@@ -40,6 +45,16 @@ if {db!r}:
     FN.seed(db, "teach")
     out["ar"] = [(r["party"], float(r["amount"])) for r in db.q("select party, amount from invoice where mode='teach' and opening order by id")]
     out["kpis"] = sorted(FN.kpis(db, "teach"))
+    from hub import ehs as EH, people as PE                     # 第 61 轮
+    from sim import staffing as STF
+    PE.seed(db, "teach")
+    out["hazards"] = [(r["unit"], r["name"]) for r in db.q("select unit, name from hazard where mode='teach' order by id")]
+    out["people_n"] = db.one("select count(*) as n from ehs_person where mode='teach'")["n"]
+    out["single"] = [x["unit"] for x in PE.single_points(db, "teach")]
+    out["needs"] = list(STF.NEEDS)
+    out["posts"] = sorted(r["unit"] for r in db.q("select unit from roster_post where mode='teach' and shift='day'"))
+    out["night_levels"] = [k for k in PE.levels(db, "teach", [PE.today()]) if "|night|" in k]
+    out["loto_ok"] = [p["id"] for p in EH.people(db, "teach") if p["post"] == "维修工"]
 print(json.dumps(out, ensure_ascii=False, default=str))
 """
 
@@ -71,7 +86,8 @@ def test_demo_plant_unchanged():
     assert o["assets"]["grd-01"] == 120000 and o["assets"]["ht-01"] == 95000
     assert o["power"]["ht-01"] == [110.0, 35.0, 35.0] and o["power"]["cnc-l01-a"] == [15.0, 5.5, 0.6]
     assert "grd-01" in o["rel"] and o["contract"] == 220.0 and o["price"] == 1650.0
-    assert o["demo"] is True                     # 演示工厂不走 404 的门（中间件只管企业工厂）
+    assert o["demo"] is True
+    assert o["people_demo"] == 12 and o["hazard_demo"][0] == "HZ-01" and "grd-01" in o["needs_demo"]       # 第 61 轮：减速器厂不变                     # 演示工厂不走 404 的门（中间件只管企业工厂）
 
 
 def test_robot_plant_equipment_and_gating():
@@ -82,7 +98,7 @@ def test_robot_plant_equipment_and_gating():
     assert o["custs"][0].startswith("示例·汽车零部件厂") and o["price"] == 18000.0
     assert list(o["credit"].values()) == [72000.0, 54000.0, 45000.0]
     assert 50 <= o["contract"] < 220
-    assert o["open"] == ["/api/maint/assets", "/api/energy/overview", "/api/finance/kpis"]       # 安全环保、人员下一轮
+    assert o["open"] == ["/api/maint/assets", "/api/energy/overview", "/api/finance/kpis", "/api/ehs", "/api/people"]   # 第 61 轮起五个都开
 
 
 def test_robot_plant_pages_with_db():
@@ -93,6 +109,13 @@ def test_robot_plant_pages_with_db():
     assert meters["E-RUN-R1"] == [12.0, 1.5, 0.3] and meters["E-TOTAL"] is None
     assert [p for p, _ in o["ar"]][0].startswith("示例·汽车零部件厂") and o["ar"][0][1] == 18000.0
     assert o["kpis"]
+    units = {u for u, _ in o["hazards"]}                                           # 第 61 轮：危险源挂在机器人厂设备上
+    assert {"grd-r1", "cal-1", "run-r1", "at-1"} <= units and not any(u.endswith("-01") for u in units)
+    assert ["cal-1", "激光照射眼睛（2 类激光跟踪仪）"] in o["hazards"]
+    assert o["people_n"] == 23 and o["single"] == ["cal-1"]                         # 标定工位只有一个人会（H-4）
+    assert "jt-1" not in o["needs"] and "run-r1" not in o["needs"] and "cal-1" in o["needs"]
+    assert o["posts"] == sorted(o["needs"]) and o["night_levels"] == []              # 只排白班
+    assert len(o["loto_ok"]) == 2
 
 
 def test_manifest_equipment_fields_validated():

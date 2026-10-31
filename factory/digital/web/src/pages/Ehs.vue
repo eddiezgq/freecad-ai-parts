@@ -150,8 +150,7 @@ import { get, post, session } from '../lib/api';
 import { fmtTs } from '../lib/ont';
 
 const TABS = { issues: '隐患', permits: '作业许可', incidents: '事故与未遂', people: '培训与资质', chem: '化学品与废弃物' };
-const UNITS = { 'saw-01': '带锯床', 'cnc-l01-a': '数控车床 A', 'cnc-l01-b': '数控车床 B', 'ht-01': '热处理炉', 'key-01': '键槽铣床', 'grd-01': '外圆磨床',
-  'hob-01': '滚齿机', 'vmc-01': '立式加工中心', 'press-01': '轴承压装工位', 'asm-01': '装配工位', 'test-01': '跑合试验台', 'qc-01': '检验站', 'agv-01': '物流小车 1' };
+const UNITS = ref({});           // 第 61 轮：设备清单随工厂变（/api/ehs/units）
 const route = useRoute();
 const router = useRouter();
 const tab = ref(TABS[route.query.tab] ? route.query.tab : 'issues');
@@ -170,7 +169,7 @@ const isOpen = ref(true);
 const own = reactive({});
 const disp = reactive({});
 const ni = reactive({ unit: '', kind: 'guard', level: 'major', subject: '', photo_ids: [] });
-const np = reactive({ kind: 'loto', unit: '', holder_id: 'P06', minutes: 120, reason: '' });
+const np = reactive({ kind: 'loto', unit: '', holder_id: '', minutes: 120, reason: '' });
 const nn = reactive({ kind: 'near_miss', unit: '', day: new Date().toISOString().slice(0, 10), description: '', root_cause: '' });
 const nt = reactive({ kind: 'confined', day: new Date().toISOString().slice(0, 10), people: [] });
 const pmMsg = ref('');
@@ -180,7 +179,10 @@ function go(k) { tab.value = k; router.replace({ query: { ...route.query, tab: k
 async function wrap(fn) { err.value = ''; try { await fn(); } catch (e) { err.value = e.message; } }
 const loadKp = () => wrap(async () => { kp.value = await get('/ehs/kpis'); });
 const loadIs = () => wrap(async () => { is.value = await get('/ehs/issues' + (isOpen.value ? '' : '?status=all')); });
-const loadPm = () => wrap(async () => { pm.value = await get('/ehs/permits'); });
+const loadPm = () => wrap(async () => {
+  pm.value = await get('/ehs/permits');
+  if (!np.holder_id) np.holder_id = (pm.value.people.find((p) => p.id === 'P06') || pm.value.people.find((p) => p.post === '维修工') || pm.value.people[0] || {}).id || '';
+});
 const loadIc = () => wrap(async () => { ic.value = await get('/ehs/incidents'); });
 const loadPp = () => wrap(async () => { pp.value = await get('/ehs/people'); });
 const loadCh = () => wrap(async () => { ch.value = await get('/ehs/chemicals'); });
@@ -227,7 +229,7 @@ const cell = (p, k) => { const t = tr(p, k); return t ? t.valid_until.slice(2) :
 const tip = (p, k) => { const t = tr(p, k); return t ? `${t.label}：${t.done_day} 培训，有效期到 ${t.valid_until}` : '没有这项培训'; };
 const cls = (p, k) => { const t = tr(p, k); return !t ? '' : t.days_left < 0 ? 'exp' : t.days_left <= 30 ? 'soon' : 'okc'; };
 watch(() => route.query.tab, (t) => { if (t && TABS[t] && t !== tab.value) { tab.value = t; load(); } });
-onMounted(load);
+onMounted(async () => { try { UNITS.value = (await get('/ehs/units')).units; } catch (e) { /* 旧接口 */ } load(); });
 </script>
 
 <style scoped>

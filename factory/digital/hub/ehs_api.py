@@ -67,6 +67,12 @@ def mount(app, H, user_of, who):
         return wrap(EH.verify, H, u["mode"], iid, who(u))
 
     # ---------------------------------------------------------------- 作业许可
+    @app.get("/api/ehs/units")
+    def units(u=Depends(user_of)):
+        """第 61 轮：页面上“设备”下拉框的清单随工厂变（车间里的设备和物流小车）"""
+        from wqbus import UNITS
+        return {"units": {k: v[1] for k, v in UNITS.items() if v[0] in ("machining", "quality", "logistics")}}
+
     @app.get("/api/ehs/permits")
     def permits(u=Depends(user_of)):
         EH.seed(H.db, u["mode"])
