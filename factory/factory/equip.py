@@ -17,42 +17,43 @@ PREFIX = (("saw", "saw"), ("cnc", "lathe"), ("vmc", "mc"), ("hmc", "mc"), ("grd"
 # 威布尔 β、η 运行小时、平均修复分钟、保养周期 运行小时、开始时已运行小时、故障模式 [(代码, 名称)]、功率 (运行, 空转, 待机) kW、
 # 用压缩空气、湿式加工（出油雾）、噪声 dB(A)、自动设备（不按班次关机）
 KIND = {
-    "saw": dict(name="锯床", value=18000, bought=2021, pm_text="换液压油、查锯条张紧", pm_min=120, repair_usd=400, lost_per_h=60,
+    "saw": dict(hazards=[('锯条断裂', 2, 3, ['锯条张紧检查', '防护罩'])], name="锯床", value=18000, bought=2021, pm_text="换液压油、查锯条张紧", pm_min=120, repair_usd=400, lost_per_h=60,
                 beta=2.0, eta_h=1600, mttr_min=120, pm_h=800, init_h=300, modes=[("blade", "锯条断裂"), ("hyd", "液压进给漏油")],
                 power=(7.5, 2.0, 0.3), air=False, wet=False, noise=80, auto=False, check=["锯条张紧适当"]),
-    "lathe": dict(name="数控车床", value=65000, bought=2022, pm_text="换主轴润滑脂、查刀塔定位、清冷却箱", pm_min=120, repair_usd=700,
+    "lathe": dict(hazards=[('卡盘夹伤', 2, 4, ['防护门联锁', '装夹时停主轴']), ('切屑飞溅', 3, 3, ['防护门', '戴防护眼镜'])], name="数控车床", value=65000, bought=2022, pm_text="换主轴润滑脂、查刀塔定位、清冷却箱", pm_min=120, repair_usd=700,
                   lost_per_h=80, beta=2.5, eta_h=1400, mttr_min=240, pm_h=600, init_h=380,
                   modes=[("spindle", "主轴轴承异响"), ("turret", "刀塔定位失准")], power=(15.0, 5.0, 0.6), air=True, wet=True, noise=74,
                   auto=False, check=["卡盘夹紧可靠"]),
-    "mc": dict(name="加工中心", value=110000, bought=2023, pm_text="换主轴润滑脂、查导轨", pm_min=120, repair_usd=800, lost_per_h=100,
+    "mc": dict(hazards=[('切屑飞溅', 3, 3, ['防护门', '戴防护眼镜']), ('换刀时刀具伤手', 2, 3, ['换刀前停主轴', '戴防割手套'])], name="加工中心", value=110000, bought=2023, pm_text="换主轴润滑脂、查导轨", pm_min=120, repair_usd=800, lost_per_h=100,
                beta=2.5, eta_h=1500, mttr_min=240, pm_h=600, init_h=250, modes=[("spindle", "主轴轴承异响"), ("atc", "换刀机构卡刀")],
                power=(15.0, 5.0, 0.6), air=True, wet=True, noise=74, auto=False, check=["刀库、换刀动作正常"]),
-    "grinder": dict(name="磨床", value=120000, bought=2021, pm_text="换液压油、查主轴轴承、校砂轮平衡", pm_min=180, repair_usd=1200,
+    "grinder": dict(hazards=[('砂轮破裂飞出', 2, 5, ['砂轮防护罩', '开机前空转 1 分钟', '核对砂轮线速度']), ('磨削粉尘', 3, 2, ['吸尘装置', '戴防尘口罩'])], name="磨床", value=120000, bought=2021, pm_text="换液压油、查主轴轴承、校砂轮平衡", pm_min=180, repair_usd=1200,
                     lost_per_h=150, beta=3.0, eta_h=900, mttr_min=480, pm_h=500, init_h=420,
                     modes=[("spindle", "主轴轴承异响"), ("hyd", "液压系统漏油"), ("balance", "砂轮不平衡、振纹")],
                     power=(11.0, 4.0, 0.5), air=True, wet=True, noise=78, auto=False, check=["砂轮无裂纹、防护罩紧固", "液压油位、油温正常"]),
-    "cmm": dict(name="测量设备", value=90000, bought=2023, pm_text="校测头、查气浮导轨", pm_min=120, repair_usd=600, lost_per_h=60,
+    "cmm": dict(hazards=[('测头与工件碰撞', 2, 2, ['手动移动时降速'])], name="测量设备", value=90000, bought=2023, pm_text="校测头、查气浮导轨", pm_min=120, repair_usd=600, lost_per_h=60,
                 beta=2.0, eta_h=3000, mttr_min=120, pm_h=1000, init_h=350, modes=[("probe", "测头失准")],
                 power=(2.0, 1.0, 0.2), air=True, wet=False, noise=60, auto=True, check=["测头标定在有效期内", "室温 20 ± 1 ℃"]),
-    "assembly": dict(name="装配工位", value=25000, bought=2023, pm_text="校电动扳手扭矩、查压装机", pm_min=90, repair_usd=400, lost_per_h=80,
+    "assembly": dict(hazards=[('压装挤压', 2, 4, ['双手按钮', '光幕']), ('电动工具伤手', 2, 2, ['扭矩扳手反作用臂', '戴手套'])], name="装配工位", value=25000, bought=2023, pm_text="校电动扳手扭矩、查压装机", pm_min=90, repair_usd=400, lost_per_h=80,
                      beta=2.0, eta_h=3000, mttr_min=90, pm_h=1000, init_h=400, modes=[("tool", "电动扳手扭矩超差")],
                      power=(3.0, 1.0, 0.2), air=True, wet=False, noise=68, auto=False, check=["扭矩扳手校准在有效期内"]),
-    "bench": dict(name="测试台", value=60000, bought=2023, pm_text="校扭矩、编码器和电流传感器", pm_min=120, repair_usd=600, lost_per_h=80,
+    "bench": dict(hazards=[('关节意外转动（带电调试）', 2, 4, ['防护罩联锁', '急停按钮在手边', '调试时只用低速'])], name="测试台", value=60000, bought=2023, pm_text="校扭矩、编码器和电流传感器", pm_min=120, repair_usd=600, lost_per_h=80,
                   beta=2.0, eta_h=2500, mttr_min=150, pm_h=1000, init_h=500, modes=[("sensor", "扭矩传感器漂移")],
                   power=(8.0, 1.5, 0.3), air=False, wet=False, noise=70, auto=True, check=["传感器校准在有效期内"]),
-    "calib": dict(name="标定工位", value=150000, bought=2024, pm_text="激光跟踪仪自检、校靶球", pm_min=120, repair_usd=900, lost_per_h=100,
+    "calib": dict(hazards=[('机器人意外运动（带电标定）', 2, 4, ['围栏与门联锁', '示教器使能开关', '标定时降速 250 mm/s']), ('激光照射眼睛（2 类激光跟踪仪）', 2, 2, ['不直视光束', '激光警示牌'])], name="标定工位", value=150000, bought=2024, pm_text="激光跟踪仪自检、校靶球", pm_min=120, repair_usd=900, lost_per_h=100,
                   beta=2.0, eta_h=3000, mttr_min=180, pm_h=1000, init_h=300, modes=[("tracker", "激光跟踪仪测距超差")],
                   power=(2.5, 1.0, 0.2), air=False, wet=False, noise=62, auto=True, check=["跟踪仪自检通过", "靶球清洁"]),
-    "runin": dict(name="跑合台", value=50000, bought=2023, pm_text="查负载加载机构、校电流采集", pm_min=120, repair_usd=600, lost_per_h=80,
+    "runin": dict(hazards=[('机器人带负载运动撞人', 2, 5, ['围栏与门联锁', '负载夹具点检', '区域内无人才能启动'])], name="跑合台", value=50000, bought=2023, pm_text="查负载加载机构、校电流采集", pm_min=120, repair_usd=600, lost_per_h=80,
                   beta=2.0, eta_h=2500, mttr_min=150, pm_h=1000, init_h=450, modes=[("load", "负载加载机构卡滞")],
                   power=(12.0, 1.5, 0.3), air=False, wet=False, noise=72, auto=True, check=["负载夹具紧固"]),
-    "agvtest": dict(name="调试场地", value=20000, bought=2023, pm_text="查充电桩、校定位标签", pm_min=60, repair_usd=300, lost_per_h=50,
+    "agvtest": dict(hazards=[('AGV 碰撞', 2, 3, ['激光避障', '地面通道标线', '调试时限速'])], name="调试场地", value=20000, bought=2023, pm_text="查充电桩、校定位标签", pm_min=60, repair_usd=300, lost_per_h=50,
                     beta=2.0, eta_h=3000, mttr_min=90, pm_h=1000, init_h=300, modes=[("charger", "充电桩故障")],
                     power=(4.0, 0.8, 0.2), air=False, wet=False, noise=62, auto=True, check=["场地标签完好"]),
-    "general": dict(name="通用设备", value=20000, bought=2022, pm_text="例行保养", pm_min=120, repair_usd=400, lost_per_h=60,
+    "general": dict(hazards=[('机械伤害', 2, 3, ['防护罩', '急停按钮'])], name="通用设备", value=20000, bought=2022, pm_text="例行保养", pm_min=120, repair_usd=400, lost_per_h=60,
                     beta=2.0, eta_h=2000, mttr_min=120, pm_h=800, init_h=300, modes=[("general", "设备故障")],
                     power=(5.0, 1.5, 0.3), air=False, wet=False, noise=70, auto=False, check=[]),
 }
+STAFFED_EXCEPT = ("bench", "runin")        # 第 61 轮：自动测试台、跑合台不用人看着开（其余设备“要有人”）
 MAINT_KEYS = ("value", "bought", "pm_text", "pm_min", "repair_usd", "lost_per_h", "beta", "eta_h", "mttr_min", "pm_h", "init_h")
 
 
@@ -97,6 +98,7 @@ def profiles(units):
             d["power"] = tuple(u["power_kw"])
         d["modes"] = [tuple(x) for x in d["modes"]]
         d["check"] = list(d["check"])
+        d["hazards"] = [tuple(x) for x in d["hazards"]]
         out[u["id"]] = d
     return out
 

@@ -11,6 +11,13 @@ import datetime as dt
 NEEDS = ("saw-01", "cnc-l01-a", "cnc-l01-b", "ht-01", "key-01", "grd-01", "hob-01", "vmc-01", "hmc-01", "press-01", "asm-01")
 SHIFTS = {"day": ("早班", 6 * 60, 18 * 60), "night": ("晚班", 18 * 60, 30 * 60)}
 APPRENTICE_RATE = 0.6
+try:                                    # 第 61 轮：清单写了产品的厂（机器人厂等）：要有人的设备取自 factory/staff.py（自动测试台、跑合台不用人）
+    from factory import staff as _ST
+    _S = _ST.active()
+except ImportError:
+    _S = None
+if _S:
+    NEEDS = tuple(_S["needs"])
 
 
 def shift_of(local):

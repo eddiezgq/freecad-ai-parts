@@ -69,7 +69,8 @@ def mount(app, H, user_of, who):
             rows = [dict(r, cells={k: dict(c, attendance=None) for k, c in r["cells"].items()}) for r in rows]
         d, sh = PE.now_shift(None, H.db, u["mode"])
         return {"rows": rows, "now": {"day": d.isoformat(), "shift": sh}, "enabled": PE.enabled(H.db, u["mode"]),
-                "gaps": PE.gaps(H.db, u["mode"]), "can_manage": can(u)}
+                "gaps": PE.gaps(H.db, u["mode"]), "can_manage": can(u),
+                "units": list(PE.STF.NEEDS), "shift_names": PE.SHIFT_NAME}            # 第 61 轮：随工厂变
 
     @app.get("/api/people/today")
     def today(u=Depends(user_of)):

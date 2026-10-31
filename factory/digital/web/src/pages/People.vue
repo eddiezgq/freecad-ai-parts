@@ -9,7 +9,7 @@
 
     <section v-if="kp" class="kpis" data-help="people-kpis">
       <div class="card k"><span class="small muted">这一班出勤率</span><b>{{ Math.round(kp.attendance_rate * 100) }}%</b>
-        <span class="small muted">{{ kp.day }} {{ kp.shift === 'day' ? '早班' : '晚班' }}，在岗 {{ kp.on_shift - kp.absent }} / {{ kp.on_shift }}</span></div>
+        <span class="small muted">{{ kp.day }} {{ kp.shift === 'day' ? (ro?.shift_names?.day || kp?.shift_names?.day || '早班') : '晚班' }}，在岗 {{ kp.on_shift - kp.absent }} / {{ kp.on_shift }}</span></div>
       <div class="card k"><span class="small muted">24 小时内排班缺口</span><b :class="{ bad: kp.gaps }">{{ kp.gaps }}</b></div>
       <div class="card k"><span class="small muted">单点依赖的设备</span><b :class="{ warn: kp.single_points }">{{ kp.single_points }}</b><span class="small muted">只有一个人会开</span></div>
       <div class="card k"><span class="small muted">本周加班</span><b>{{ kp.overtime_h_week }}</b><span class="small muted">小时</span></div>
@@ -54,7 +54,7 @@
     <template v-if="tab === 'roster' && ro">
       <div class="card" data-help="people-roster">
         <div class="row small"><button class="btn sm" @click="shiftWeek(-7)">上一周</button><button class="btn sm" @click="shiftWeek(7)">下一周</button>
-          <span class="muted">现在：{{ ro.now.day }} {{ ro.now.shift === 'day' ? '早班' : '晚班' }}</span>
+          <span class="muted">现在：{{ ro.now.day }} {{ ro.now.shift === 'day' ? (ro?.shift_names?.day || kp?.shift_names?.day || '早班') : '晚班' }}</span>
           <span v-if="!ro.enabled" class="pill warn">车间“要有人”没打开：缺人不会让设备停下</span></div>
         <table class="tbl small mx"><thead><tr><th>日期 / 班</th><th v-for="u in UNITS" :key="u">{{ u.toUpperCase() }}</th></tr></thead>
           <tbody><tr v-for="r in ro.rows" :key="r.day + r.shift" :class="{ now: r.day === ro.now.day && r.shift === ro.now.shift }">
@@ -66,10 +66,10 @@
         <p class="small muted">红：这一班没人能开（请假、调走、不会开）；黄：学徒带着开（60%）。点一个格子可以换人（生成“调班”动作，班组长或厂长批准后生效）。</p>
       </div>
       <div v-if="cell" class="card">
-        <h3>{{ cell.day }} {{ cell.shift === 'day' ? '早班' : '晚班' }} {{ cell.unit.toUpperCase() }}：换人</h3>
+        <h3>{{ cell.day }} {{ cell.shift === 'day' ? (ro?.shift_names?.day || kp?.shift_names?.day || '早班') : '晚班' }} {{ cell.unit.toUpperCase() }}：换人</h3>
         <div class="row">
           <select v-model="cell.emp" aria-label="谁来顶"><option value="">选人</option>
-            <option v-for="c in cands" :key="c.id" :value="c.id">{{ c.id }} {{ c.name }}（{{ LVN[c.level] }}，{{ c.shift === 'day' ? '早班' : '晚班' }}）</option></select>
+            <option v-for="c in cands" :key="c.id" :value="c.id">{{ c.id }} {{ c.name }}（{{ LVN[c.level] }}，{{ c.shift === 'day' ? (ro?.shift_names?.day || kp?.shift_names?.day || '早班') : '晚班' }}）</option></select>
           <label class="small"><input v-model="cell.ot" type="checkbox"> 加班顶班（原岗位不动，要厂长批）</label>
           <button class="btn primary sm" :disabled="!cell.emp" @click="swap">生成动作</button>
           <button class="btn sm" @click="cell = null">取消</button></div>
@@ -112,7 +112,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { get, post, session } from '../lib/api';
 
 const TABS = { org: '组织与员工', skills: '技能矩阵', roster: '排班', attendance: '出勤与加班' };
-const UNITS = ['saw-01', 'cnc-l01-a', 'cnc-l01-b', 'ht-01', 'key-01', 'grd-01', 'hob-01', 'vmc-01', 'hmc-01', 'press-01', 'asm-01'];
+const UNITS_DEMO = ['saw-01', 'cnc-l01-a', 'cnc-l01-b', 'ht-01', 'key-01', 'grd-01', 'hob-01', 'vmc-01', 'hmc-01', 'press-01', 'asm-01'];
+const UNITS = computed(() => ro.value?.units || UNITS_DEMO);      // 第 61 轮：要有人的设备随工厂变
 const LV = { 1: '学', 2: '熟', 3: '师' };
 const LVN = { 1: '学徒', 2: '熟练', 3: '可带徒' };
 const SRC = { swap: '调班', overtime: '加班', apprentice: '学徒' };
@@ -156,7 +157,7 @@ function cellClass(c) {
   return { gap: c.gap, appr: c.level === 1, mine: c.source !== 'post' };
 }
 function pick(r, u) {
-  if (!r.cells[u] && !UNITS.includes(u)) return;
+  if (!r.cells[u] && !UNITS.value.includes(u)) return;
   cell.value = { day: r.day, shift: r.shift, unit: u, emp: '', ot: false };
 }
 const cands = computed(() => {

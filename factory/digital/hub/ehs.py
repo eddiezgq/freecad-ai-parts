@@ -158,6 +158,27 @@ CHEMICALS = [("CL-01", "乳化切削液", 180, 50, 400, "SDS-CL-01：避免长�
              ("QO-01", "淬火油", 600, 200, 1000, "SDS-QO-01：闪点 > 200 ℃；远离明火"),
              ("LO-01", "导轨润滑油", 90, 40, 200, "SDS-LO-01：一般化学品")]
 WASTES = {"coolant": ("废切削液", True), "oil": ("废油", True), "rags": ("含油抹布、手套", True), "chips": ("钢屑", False)}
+GENERAL_UNITS = ["grd-01", "cnc-l01-a", "cnc-l01-b", "saw-01", "key-01", "ht-01", "hob-01", "press-01"]
+NEAR_MISS_UNITS = GENERAL_UNITS
+MAJOR_UNIT = "grd-01"                    # 老师注入重大隐患的缺省设备
+try:                                    # 第 61 轮：清单写了产品的厂（机器人厂等）：人员、危险源、化学品按设备类别生成（示例值）
+    from factory import equip as _EQ
+    from factory import staff as _ST
+    _E, _S = _EQ.active(), _ST.active()
+except ImportError:
+    _E = _S = None
+if _E:
+    PEOPLE = [p for p in _S["people"] if p[2] in ("操作工", "维修工", "安全员", "班组长")]
+    HAZARDS = [("HZ-{:02d}".format(i + 1), n, u, li, se, list(c)) for i, (u, n, li, se, c) in
+               enumerate([(u, *h) for u, d in _E.items() for h in d["hazards"]])]
+    _wet = any(d["wet"] for d in _E.values())
+    CHEMICALS = ([("CL-01", "乳化切削液", 120, 40, 300, "SDS-CL-01：避免长期皮肤接触；废液按危险废物处置")] if _wet else []) + [
+        ("LO-01", "导轨润滑油", 60, 20, 150, "SDS-LO-01：一般化学品"),
+        ("GR-01", "谐波减速器润滑脂", 25, 10, 60, "SDS-GR-01：避免入眼；含油废物按危险废物处置")]
+    WASTES = dict(WASTES, chips=("金属屑（铝、钢）", False))
+    GENERAL_UNITS = list(_E)
+    NEAR_MISS_UNITS = [u for u, d in _E.items() if d["kind"] in ("saw", "lathe", "mc", "grinder")] or GENERAL_UNITS
+    MAJOR_UNIT = next((u for u, d in _E.items() if d["kind"] == "grinder"), GENERAL_UNITS[0])
 LEVEL = {"general": "一般", "major": "重大"}
 STATUS = {"open": "待指派", "assigned": "整改中", "fixed": "待验收", "closed": "已关闭"}
 PERMIT_STATUS = {"requested": "待批准", "blocked": "缺资质", "active": "作业中", "closed": "已关闭", "rejected": "已驳回", "planned": "已批准，待开始"}
@@ -637,9 +658,6 @@ def _save_state(db, mode, st):
     db.x("insert into ehs_sim (mode, state) values (%s,%s) on conflict (mode) do update set state=excluded.state", (mode, Jsonb(st)))
 
 
-GENERAL_UNITS = ["grd-01", "cnc-l01-a", "cnc-l01-b", "saw-01", "key-01", "ht-01", "hob-01", "press-01"]
-
-
 def tick(H, mode, now=None, rng=None):
     """教学模式每轮（约 20 秒）跑一次：偶尔来一条一般隐患、很少来一条未遂、按车间运转消耗化学品和产生废物"""
     if mode != "teach":
@@ -662,7 +680,7 @@ def tick(H, mode, now=None, rng=None):
         iid = create_issue(H, mode, {"unit": unit, "kind": kind, "subject": "{}（{}）".format(ISSUE_KINDS[kind][0], UNITS[unit][1])}, "教学模拟器")
         done["issues"].append(iid)
     if rng.random() < 0.015:
-        unit = rng.choice(GENERAL_UNITS)
+        unit = rng.choice(NEAR_MISS_UNITS)
         iid = create_incident(db, mode, {"kind": "near_miss", "unit": unit, "description": "{} 附近切屑飞溅，擦过操作工的工作服，没有受伤".format(UNITS[unit][1])},
                               "教学模拟器")
         done["incidents"].append(iid)
@@ -693,7 +711,8 @@ def tick(H, mode, now=None, rng=None):
     return done
 
 
-def inject_major(H, mode, unit="grd-01", kind="guard", who="老师"):
+def inject_major(H, mode, unit=None, kind="guard", who="老师"):
+    unit = unit or MAJOR_UNIT
     if unit not in UNITS:
         raise ValueError("没有这台设备：" + unit)
     if ISSUE_KINDS.get(kind, ("", ""))[1] != "major":
