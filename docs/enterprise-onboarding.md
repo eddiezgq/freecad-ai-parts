@@ -74,3 +74,20 @@ python -m factory.plant check plant.yaml              # 只校验
 - 工序用到的工作站、设备必须在表里；每个工作站至少一台设备；设备编号不重复；位置在车间内；至少一台物流小车
 - 总线主题根（`wq/gearbox`）与五类仓库（原材料、外购件、半成品、在制品、成品）固定，不在清单里配；仓库名后缀是公司缩写
 - 演示工厂的清单在 `factory/plants/wenquest-gearbox.yaml`
+
+### 设备的维护、能耗与经营财务（ADR-0073，可选）
+
+清单写了产品的厂（第 2 版）打开“设备维护、能源、经营财务”三页。每台设备按编号前缀认类别（`saw` 锯床、`cnc` 车床、`vmc`/`hmc` 加工中心、
+`grd` 磨床、`cmm`/`qc` 测量、`ja`/`asm`/`ra`/`aa` 装配、`jt`/`test` 测试台、`cal` 标定、`run` 跑合台、`at` 调试场地，其余通用），
+取一组**示例缺省值**（`factory/factory/equip.py`）。要用企业自己的数，在 YAML 清单里给这台设备写：
+
+```yaml
+- id: cnc-r1
+  ...
+  maint: {value: 65000, bought: 2022, pm_text: 换主轴润滑脂, pm_min: 120, repair_usd: 700, lost_per_h: 80,
+          beta: 2.5, eta_h: 1400, mttr_min: 240, pm_h: 600, init_h: 0}   # 不知道的不写
+  power_kw: [15, 5, 0.6]                                               # 运行、空转、待机
+```
+
+客户的信用额度、付款习惯、月度预算、期初现金写在顶层 `finance`（`credit`、`late_days`、`budget`、`opening_cash`、`weekly_expense`），不写按缺省。
+Excel 版清单暂不带这几项。
