@@ -141,7 +141,7 @@ items:
 - {code: WQJ-M, name: 关节模组（中） Joint module M, kind: sub, uom: Nos, note: CSF-25 + 200 W；协作臂 J3}
 - {code: WQJ-S, name: 关节模组（小） Joint module S, kind: sub, uom: Nos, note: CSF-17 + 100 W；协作臂 J4–J6}
 - {code: DU-AGV, name: AGV 驱动单元 AGV drive unit, kind: sub, uom: Nos, note: 电机 + 减速器厂 WQR-105 + 驱动轮}
-- {code: WQ-CR5, name: 六轴协作机器人 WQ-CR5（示例：负载 5 kg 一类） 6-axis cobot, kind: fg, uom: Nos}
+- {code: WQ-CR5, name: 六轴协作机器人 WQ-CR5（示例：负载 5 kg 一类） 6-axis cobot, kind: fg, uom: Nos, library: B-ARM-WQCR5/default}
 - {code: WQ-AGV300, name: 搬运 AGV WQ-AGV300（示例：载重 300 kg 一类） Material-handling AGV, kind: fg, uom: Nos}
 routings:
 - name: RT-关节壳体 Joint housing

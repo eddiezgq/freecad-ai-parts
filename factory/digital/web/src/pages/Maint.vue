@@ -82,7 +82,7 @@
 
     <!-- ③ 点检 -->
     <template v-if="tab === 'inspect'">
-      <div class="card">
+      <div class="card" data-help="maint-inspect">
         <h3>点检</h3>
         <div class="row"><label>设备 <select v-model="iu" @change="loadCl"><option v-for="u in UNITS" :key="u" :value="u">{{ u.toUpperCase() }}</option></select></label>
           <span class="small muted">扫设备上的二维码会直接打开这台设备的点检表</span></div>
@@ -127,7 +127,7 @@ import { get, post, session } from '../lib/api';
 import { fmtTs } from '../lib/ont';
 
 const TABS = { assets: '设备台账', pm: '保养', inspect: '点检', repairs: '维修与备件' };
-const UNITS = ['grd-01', 'cnc-l01-a', 'cnc-l01-b', 'ht-01', 'key-01', 'saw-01', 'hob-01', 'vmc-01', 'hmc-01', 'press-01', 'asm-01', 'test-01', 'qc-01'];
+const UNITS = ref([]);            // 第 59 轮：设备清单取自台账（随工厂变）
 const route = useRoute();
 const router = useRouter();
 const tab = ref(TABS[route.query.tab] ? route.query.tab : 'assets');
@@ -140,7 +140,7 @@ const sel = ref('');
 const rp = ref(null);
 const ins = ref(null);
 const cl = ref(null);
-const iu = ref(route.query.unit || 'grd-01');
+const iu = ref(route.query.unit || '');
 const res = reactive([]);
 const W = 360;
 const Hh = 170;
@@ -150,7 +150,10 @@ async function wrap(fn) { err.value = ''; try { await fn(); } catch (e) { err.va
 const loadAs = () => wrap(async () => { as.value = await get('/maint/assets'); kp.value = as.value.kpis; });
 const loadRp = () => wrap(async () => { rp.value = await get('/maint/repairs'); });
 const loadIns = () => wrap(async () => { ins.value = await get('/maint/inspections'); });
-const loadCl = () => wrap(async () => { cl.value = await get('/maint/checklist/' + iu.value); res.splice(0, res.length, ...cl.value.items.map(() => ({ ok: true, note: '' }))); });
+const loadCl = () => wrap(async () => {
+  if (!UNITS.value.length) UNITS.value = (await get('/maint/assets')).assets.map((a) => a.unit);
+  if (!iu.value) iu.value = UNITS.value.includes('grd-01') ? 'grd-01' : UNITS.value[0];
+  cl.value = await get('/maint/checklist/' + iu.value); res.splice(0, res.length, ...cl.value.items.map(() => ({ ok: true, note: '' }))); });
 function load() {
   wrap(async () => { kp.value = await get('/maint/kpis'); });
   ({ assets: loadAs, pm: loadRp, inspect: () => { loadCl(); loadIns(); }, repairs: loadRp })[tab.value]();

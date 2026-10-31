@@ -439,7 +439,7 @@ def mount(app, H):
     @app.get("/api/course/cases", dependencies=[K])
     def course_cases(request: Request):
         from hub import labs_api
-        if labs_api.plant_id() == "wenquest-robot":          # 机器人厂（第 47 轮）只有实验 24、25（第 55 轮加 26）
+        if labs_api.plant_id() == "wenquest-robot":          # 机器人厂（第 47 轮）只有实验 24、25（第 55 轮加 26，第 57 轮 27，第 58 轮 28）
             base = public_base(request)
             return head(["factory-data"], items=[{
                 "id": "lab24", "name": {"zh": "实验 24：一台协作机器人从订单到交付", "en": "Lab 24: one collaborative robot from order to delivery"},
@@ -461,7 +461,12 @@ def mount(app, H):
                 "summary": "机器人厂接 2 台 AGV，WQR-105 的请购转成采购单送到问渠减速器厂，那边接单生产、发货；到货检验入库后算交期；"
                            "再算安全库存与订货点，讨论两厂共享需求信息（牛鞭效应）。",
                 "mode": "teach", "products": ["WQ-AGV300", "WQR-105"], "tool_url": base + "/lab27",
-                "guide_url": base + "/api/cae/lab27/guide.docx", "report_template_url": base + "/api/cae/lab27/report-template.docx"}])
+                "guide_url": base + "/api/cae/lab27/guide.docx", "report_template_url": base + "/api/cae/lab27/report-template.docx"}, {
+                "id": "lab28", "name": {"zh": "实验 28：负载跑合台上的仿真与实测对比", "en": "Lab 28: simulation versus measurement on the load run-in stand"},
+                "summary": "一台 WQ-CR5 带标准负载做跑合的标准动作，比较零件库模型（名义摩擦）算出的关节力矩与驱动器记下的实测力矩；"
+                           "最小二乘辨识这台机器人的库仑、黏性摩擦，对照关节测试台的数据；判力矩裕量；把辨识结果写回模型。《机器人学》29.4 节、26.4 节的课后实验。",
+                "mode": "teach", "products": ["WQ-CR5", "B-ARM-WQCR5"], "tool_url": base + "/lab28",
+                "guide_url": base + "/api/cae/lab28/guide.docx", "report_template_url": base + "/api/cae/lab28/report-template.docx"}])
         return head(["factory-data"], items=[{
             "id": "lab7", "name": {"zh": "实验 7：数字工厂闭环", "en": "Lab 7: the closed loop in a digital factory"},
             "summary": "WQR-105 减速器厂的一周：接单、算料排产、设计发布、车间加工、在线检测与不合格品处置、看板与 AI 提醒。",

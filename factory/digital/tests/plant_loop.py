@@ -32,6 +32,9 @@ P.add_argument("--timeout", type=float, default=900)
 P.add_argument("--teacher-password", default="", help="本地版（WQ_EDITION=local）当厂长要的老师密码")
 P.add_argument("--lab24", action="store_true", help="接 WQ-CR5 后按实验 24 的六个任务答题，核对拿满 60 分（第 47 轮）")
 P.add_argument("--lab26", action="store_true", help="WQ-CR5 做到整机标定后，看标定页、按实验 26 的六个任务答题，核对拿满 60 分（第 55 轮）")
+P.add_argument("--lab28", action="store_true", help="WQ-CR5 做到整机标定后，看负载跑合页、按实验 28 的六个任务答题，核对拿满 60 分（第 58 轮）")
+P.add_argument("--reliability", type=float, default=None, help="开始前把设备可靠性系数设成这个数（0 = 演练时设备不随机坏，第 59 轮）")
+P.add_argument("--domains", action="store_true", help="设备维护、能源、经营财务三个页面按本厂设备出数（设备台账进 ERPNext），第 59 轮")
 P.add_argument("--lab27", action="store_true", help="工业园那一段走完后，按实验 27 的六个任务答题（AGV 订单要 2 台：--item WQ-AGV300:2），核对 60 分（第 57 轮）")
 P.add_argument("--park-hub", default="", help="工业园兄弟厂（问渠减速器厂）的枢纽：核对 WQR-105 的采购单送过去、那边接单生产发货、"
                                               "这边到货检验入库（第 51 轮）")
@@ -292,6 +295,50 @@ def lab26(mgr):
         st["score"], "、".join("{} {}".format(t["title"], t["score"]) for t in st["tasks"]), few["after_mean_mm"]))
 
 
+def lab28(mgr):
+    """实验 28：负载跑合页（实测与仿真、辨识、力矩裕量）+ 六个任务，满分 60；辨识出的 f_c 与关节测试台的值一致"""
+    print("— 实验 28（负载跑合）")
+    lst = wait(lambda: (lambda x: x if x["robots"] else None)(hub("GET", "/api/runin", token=mgr)), "负载跑合有机器人", 300, 5)
+    if not check(bool(lst), "负载跑合页有机器人"):
+        return
+    r0 = lst["robots"][0]
+    check(r0["bench"], "{} 带着关节测试台的空载摩擦力矩".format(r0["serial"]))
+    c = hub("GET", "/api/runin/{}".format(urllib.parse.quote(r0["serial"])), token=mgr)
+    J = {j["joint"]: j for j in c["joints"]}
+    worst = max(abs(j["fc_hat"] - j["fc_bench"]) for j in c["joints"])
+    check(worst < 0.1 and all(j["rms_diff_updated"] < 2 * j["noise_sigma"] for j in c["joints"]),
+          "辨识 f_c 与测试台最多差 {:.3f} N·m；写回模型后均方根差 ≈ 噪声（{}）".format(worst, "、".join(str(j["rms_diff_updated"]) for j in c["joints"])))
+    hub("POST", "/api/lab28/pick", {"serial": r0["serial"]}, mgr)
+    hub("POST", "/api/lab28/l28_t1", {"peak": J["J2"]["peak_meas"]}, mgr)
+    hub("POST", "/api/lab28/l28_t2", {"joint": max(c["joints"], key=lambda j: j["rms_diff"])["joint"]}, mgr)
+    hub("POST", "/api/lab28/l28_t3", {"fc": J["J1"]["fc_hat"], "fv": J["J1"]["fv_hat"]}, mgr)
+    hub("POST", "/api/lab28/l28_t4", {"choice": "viscous"}, mgr)
+    hub("POST", "/api/lab28/l28_t5", {"rms": J["J2"]["rms_meas"], "pass": c["pass"]}, mgr)
+    hub("POST", "/api/lab28/l28_t6", {"choice": "noise"}, mgr)
+    st = hub("GET", "/api/lab28", token=mgr)
+    check(st["score"] == 60, "实验 28 自动评分 {} / 60（{}）".format(st["score"], "、".join("{} {}".format(t["title"], t["score"]) for t in st["tasks"])))
+
+
+def domains(mgr):
+    """第 59 轮：设备维护、能源、经营财务在本厂打开——台账是本厂的设备并进了 ERPNext、能源有读数、财务出应收和指标"""
+    print("— 设备维护、能源、经营财务（第 59 轮）")
+    cfg = hub("GET", "/api/config", token=mgr)
+    hidden = (cfg.get("plant") or {}).get("hidden") or []
+    check(not any(p in hidden for p in ("/maint", "/energy", "/finance")), "三个页面入口没有隐藏（隐藏的：{}）".format(hidden))
+    units = set((cfg.get("plant") or {}).get("units") or [])
+    a = wait(lambda: (lambda x: x if x["assets"] and all(r["asset"] for r in x["assets"]) else None)(hub("GET", "/api/maint/assets", token=mgr)),
+             "设备台账写进 ERPNext（资产、保养计划）", 600, 10) or hub("GET", "/api/maint/assets", token=mgr)
+    names = [r["unit"] for r in a["assets"]]
+    check(names and all(r.get("asset") for r in a["assets"]), "设备台账 {} 台：{}".format(len(names), "、".join(n.upper() for n in names[:6])))
+    check(not units or set(names) <= units, "台账里都是本厂的设备")
+    ov = wait(lambda: (lambda x: x if x.get("kwh") else None)(hub("GET", "/api/energy/overview", token=mgr)), "能源有读数", 600, 10) \
+        or hub("GET", "/api/energy/overview", token=mgr)
+    check(bool(ov.get("kwh")) and {u["unit"] for u in ov["units"]} == set(names),
+          "能源：{} kWh，{} 台设备分表".format(ov.get("kwh"), len(ov.get("units") or [])))
+    k = hub("GET", "/api/finance/kpis", token=mgr)
+    check(isinstance(k, dict) and k, "经营财务指标：{}".format("、".join(sorted(k)[:5])))
+
+
 def lab27(mgr):
     """实验 27：用接 AGV 的同一个账号答题（AGV 那一单要 2 台），WQR-105 那一批到货检验入库后满分 60"""
     import math
@@ -392,6 +439,12 @@ def main():
     h = wait(lambda: (lambda x: x if x.get("ok") else None)(hub("GET", "/api/health")), "枢纽起来", 120, 3)
     check(bool(h), "枢纽健康")
     mgr = login("manager")
+    if A.reliability is not None:
+        try:
+            hub("POST", "/api/maint/reliability", {"factor": A.reliability}, mgr)
+            print("设备可靠性系数设为 {:g}".format(A.reliability))
+        except Exception as e:  # noqa: BLE001
+            print("（本厂没有设备维护，不设可靠性：{}）".format(e))
     cfg = hub("GET", "/api/config", token=mgr)
     prods = [f["item_code"] for f in cfg["fg"]]
     print("工厂：{}；产品：{}".format((cfg.get("plant") or {}).get("company") or cfg.get("factory_name") or "", "、".join(prods)))
@@ -413,10 +466,14 @@ def main():
         one(it, mgr)
     if A.lab26:
         lab26(mgr)
+    if A.lab28:
+        lab28(mgr)
     if A.park_hub:
         park(mgr)
     if A.lab27:
         lab27(mgr)
+    if A.domains:
+        domains(mgr)
     if not REAL:
         errs = call("GET", A.erp + "/api/mock/errors")["errors"]
         check(not errs, "ERPNext 字段校验无错误" + ("：" + "；".join(errs[:5]) if errs else ""))

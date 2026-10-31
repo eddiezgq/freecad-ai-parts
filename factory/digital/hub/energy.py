@@ -62,6 +62,18 @@ create table if not exists energy_sim (
 UNIT_NAME = {"saw-01": "带锯床", "cnc-l01-a": "数控车床 A", "cnc-l01-b": "数控车床 B", "vmc-01": "立式加工中心", "hmc-01": "卧式加工中心",
              "key-01": "键槽铣床", "hob-01": "滚齿机", "ht-01": "热处理炉", "grd-01": "外圆磨床", "qc-01": "检验站", "asm-01": "装配工位",
              "test-01": "跑合试验台"}
+try:                                    # 第 59 轮：清单写了产品的厂（机器人厂等）：设备名取清单
+    from factory import equip as _EQ
+    _E = _EQ.active()
+except ImportError:
+    _E = None
+if _E:
+    UNIT_NAME = {u: d["name"] for u, d in _E.items()}
+# 教学模拟器挑哪几台出问题：下班忘关（晚班没岗位的设备）、劣化（主力加工设备）
+FORGOT_UNITS = [u for u in (["hmc-01", "hob-01", "key-01", "vmc-01"] if not _E else [u for u, d in _E.items() if not d["auto"]]) if u in EN.POWER]
+DEGRADE_UNITS = [u for u in (["grd-01", "cnc-l01-a", "vmc-01"] if not _E else [u for u, d in _E.items() if d["kind"] in ("lathe", "mc", "grinder")])
+                 if u in EN.POWER] or list(EN.POWER)[:1]
+NOISY_UNITS = sorted(EN.NOISE, key=lambda u: -EN.NOISE[u])[:2] if _E else ["saw-01", "grd-01"]
 METERS = [(EN.meter_of(u), "电", "kWh", u, "{} 电表".format(UNIT_NAME[u])) for u in EN.POWER] + [
     ("E-AIR", "电", "kWh", None, "空压机电表"), ("E-TOTAL", "电", "kWh", None, "车间总表"),
     ("F-AIR", "压缩空气", "m³", None, "压缩空气流量计"), ("W-MAIN", "水", "m³", None, "自来水总表"),
@@ -74,6 +86,8 @@ PARAMS = {
     "mist_limit": 5.0,                                         # 油雾 mg/m³
     "noise_limit": 85.0,                                       # 噪声 dB(A)
 }
+if _E:                                  # 第 59 轮：合同需量按这座厂设备的运行功率估（示例值）
+    PARAMS["contract_kw"] = float(round(sum(v[0] for v in EN.POWER.values()) * 0.7 + 20, -1))
 BUCKET_NAME = {"peak": "峰", "flat": "平", "valley": "谷"}
 STATE_NAME = {"run": "运行", "idle": "空转", "setup": "调整", "standby": "待机", "off": "关机", "down": "停机"}
 FAULT_NAME = {"forgot": "下班忘关", "leak": "压缩空气泄漏", "degrade": "设备劣化（单耗上升）", "ht_peak": "峰时开炉", "mist": "油雾收集器故障"}
@@ -128,7 +142,8 @@ def seed(db, mode):
 
 def meters(db, mode):
     seed(db, mode)
-    return db.q("select * from meter where mode=%s order by code", (mode,))
+    return [dict(r, power=list(EN.POWER[r["machine"]]) if r.get("machine") in EN.POWER else None)       # 第 59 轮：功率随工厂变，页面不再写死
+            for r in db.q("select * from meter where mode=%s order by code", (mode,))]
 
 
 def params(db, mode):
@@ -465,7 +480,7 @@ def carbon(db, mode, month=None):
     per_unit = {u: agg.get(EN.meter_of(u), (0.0, 0.0))[0] / parts[u] for u in EN.POWER if parts.get(u)}
     shared_pp = shared / n_all if n_all else 0.0
     products = []
-    for item in ("SH-301", "WQR-105"):
+    for item in (("SH-301", "WQR-105") if not _E else tuple(F.PRODUCTS)):
         try:
             ops = F.ROUTINGS[F.BOMS[item][0]]
         except (KeyError, IndexError):
@@ -617,8 +632,8 @@ def fix_options(db, mode, a):
             ch = {"type": "rectify_order", "unit": "mist", "subject": "机加区油雾收集器检修、换滤芯", "minutes": 120, "energy_fix": "mist"}
             note = "油雾 {:.1f} mg/m³（限值 {:g}）；检修约 2 小时".format(float(v.get("value") or 0), float(v.get("limit") or 5))
         else:
-            ch = {"type": "rectify_order", "unit": "saw-01", "subject": "带锯床、外圆磨床加隔声罩；高噪声区发耳塞", "minutes": 240, "energy_fix": "noise",
-                  "units": ["saw-01", "grd-01"]}
+            ch = {"type": "rectify_order", "unit": NOISY_UNITS[0], "subject": "{}加隔声罩；高噪声区发耳塞".format("、".join(UNIT_NAME.get(u, u) for u in NOISY_UNITS)),
+                  "minutes": 240, "energy_fix": "noise", "units": list(NOISY_UNITS)}
             note = "噪声 {:.1f} dB(A)（限值 {:g}）；加隔声罩后这两台低约 6 dB".format(float(v.get("value") or 0), float(v.get("limit") or 85))
         cost = round(ch["minutes"] / 60 * REPAIR_RATE, 2)
         out = [{"key": "A", "kind": "fix", "label": "整改工单：" + ch["subject"], "note": note, "changes": [ch],
@@ -756,12 +771,12 @@ def tick(H, mode, now=None, rng=None):
     kinds = {k.partition(":")[0] for k in st.get("faults") or {}}
     x = rng.random()
     if x < 0.45:
-        u = rng.choice(["hmc-01", "hob-01", "key-01", "vmc-01"])         # 晚班没岗位的设备：下班的人忘了关
+        u = rng.choice(FORGOT_UNITS)         # 晚班没岗位的设备：下班的人忘了关
         if "forgot" not in kinds:
             out["injected"].append(inject(H, mode, "forgot", "教学模拟器", unit=u, hours=12))
     elif x < 0.65:
         if "degrade" not in kinds:
-            out["injected"].append(inject(H, mode, "degrade", "教学模拟器", unit=rng.choice(["grd-01", "cnc-l01-a", "vmc-01"]), pct=0.3))
+            out["injected"].append(inject(H, mode, "degrade", "教学模拟器", unit=rng.choice(DEGRADE_UNITS), pct=0.3))
     elif x < 0.85:
         if "leak" not in kinds:
             out["injected"].append(inject(H, mode, "leak", "教学模拟器"))

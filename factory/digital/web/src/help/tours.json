@@ -546,5 +546,50 @@
         }
       }
     ]
+  },
+  "runin-page": {
+    "title": "看一台机器人的负载跑合",
+    "path": "/lab28",
+    "steps": [
+      {
+        "help": "lab-sum",
+        "text": "选你的机器人（做过整机标定的 WQ-CR5）。可以下载这台的跑合数据（CSV），自己做辨识。"
+      },
+      {
+        "help": "runin-case",
+        "text": "切关节看实测（橙）与仿真（蓝）的力矩曲线；表里有峰值、均方根、均方根差、辨识出的摩擦和力矩裕量。"
+      },
+      {
+        "help": "lab-task",
+        "text": "答实验 28 的任务。答完一个任务，这一步自动打勾。",
+        "done": {
+          "api": "/lab28",
+          "path": "score",
+          "grew": true
+        }
+      }
+    ]
+  },
+  "maint-inspect": {
+    "title": "点检一台设备",
+    "path": "/maint",
+    "query": {
+      "tab": "inspect"
+    },
+    "steps": [
+      {
+        "help": "maint-tabs",
+        "text": "四个标签：设备台账、保养、点检、维修与备件。"
+      },
+      {
+        "help": "maint-inspect",
+        "text": "选一台设备，逐项勾“正常”或“异常”（异常写一句），提交。有异常的会开维修单。（提交一次，这一步自动打勾。）",
+        "done": {
+          "api": "/maint/kpis",
+          "path": "inspections_7d",
+          "grew": true
+        }
+      }
+    ]
   }
 }

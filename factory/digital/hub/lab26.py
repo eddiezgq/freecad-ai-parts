@@ -57,7 +57,7 @@ def robots(db, mode, limit=200):
         c = d.get("calib") or {}
         out.append({"serial": d["part_serial"], "work_order": d.get("work_order"), "ts": m.get("ts"), "after_mm": d["value_mm"],
                     "before_mm": c.get("before_mm"), "cond": c.get("cond"), "pass": d.get("result") == "pass",
-                    "zero_arcsec": c.get("zero_arcsec")})
+                    "zero_arcsec": c.get("zero_arcsec"), "friction_nm": c.get("friction_nm")})
         if len(out) >= limit:
             break
     return out

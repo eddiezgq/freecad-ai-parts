@@ -984,6 +984,8 @@ class Engine:
             extra = {}
             if c["code"] == "joint_zero":                    # 第 55 轮：零位残差记下，装整机时用
                 self.errors.note_joint_zero(job.wo.item, v)
+            if c["code"] == "joint_friction":                # 第 58 轮：空载摩擦力矩记下，装整机时用（负载跑合台的实测力矩）
+                self.errors.note_joint_friction(job.wo.item, v)
             if c["code"] == "cr_abs":                        # 第 55 轮：整机标定真的算（sim/calib.py）：标定前、后的绝对定位误差
                 from sim import calib
                 zeros = self.errors.robot_zeros(p)
@@ -992,7 +994,7 @@ class Engine:
                 st["_calib"] = cal
                 v = round(cal["after_mean_mm"], 4)
                 extra = {"calib": {"zero_arcsec": zeros, "before_mm": cal["before_mean_mm"], "after_max_mm": cal["after_max_mm"],
-                                   "cond": cal["cond"], "n": cal["n"]}}
+                                   "cond": cal["cond"], "n": cal["n"], "friction_nm": self.errors.robot_friction(p)}}
             r = "pass" if c["lo"] <= v <= c["hi"] else "fail"
             if r == "fail":
                 result = "fail"

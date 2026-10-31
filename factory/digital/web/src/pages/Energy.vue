@@ -50,7 +50,7 @@
         <h3>老师：能源模拟器 <span class="small" :class="ov.sim ? 'ok' : 'muted'">{{ ov.sim ? '开（会出问题）' : '关' }}</span></h3>
         <div class="row small">
           <button class="btn sm" @click="sim({ sim: !ov.sim })">{{ ov.sim ? '关闭' : '打开' }}</button>
-          <select v-model="inj.kind" aria-label="问题"><option v-for="(l, k) in FAULTS" :key="k" :value="k">{{ l }}</option></select>
+          <select v-model="inj.kind" aria-label="问题"><option v-for="(l, k) in FAULTS" v-show="k !== 'ht_peak' || ov.units.some((x) => x.unit === 'ht-01')" :key="k" :value="k">{{ l }}</option></select>
           <select v-if="['forgot', 'degrade'].includes(inj.kind)" v-model="inj.unit" aria-label="设备"><option v-for="u in ov.units.filter((x) => x.unit !== 'ht-01')" :key="u.unit" :value="u.unit">{{ u.unit.toUpperCase() }}</option></select>
           <button class="btn sm danger" @click="sim({ inject: { ...inj } })">注入</button>
         </div>
@@ -73,7 +73,7 @@
       </div>
       <div class="card"><table class="tbl small"><thead><tr><th>编号</th><th>名称</th><th>介质</th><th>单位</th><th>设备</th><th class="num">运行 / 空转 / 待机 kW</th></tr></thead>
         <tbody><tr v-for="m in meters" :key="m.code"><td>{{ m.code }}</td><td>{{ m.label }}</td><td>{{ m.medium }}</td><td>{{ m.unit }}</td><td>{{ m.machine || '—' }}</td>
-          <td class="num">{{ POWER[m.machine]?.join(' / ') || '—' }}</td></tr></tbody></table></div>
+          <td class="num">{{ m.power?.join(' / ') || '—' }}</td></tr></tbody></table></div>
     </template>
 
     <!-- ③ 单耗 -->
@@ -151,8 +151,6 @@ import { get, post } from '../lib/api';
 const TABS = { overview: '总览', meters: '计量点', unit: '单耗', carbon: '碳与环境' };
 const ORDER = ['run', 'setup', 'idle', 'standby', 'down', 'off'];
 const FAULTS = { forgot: '下班忘关', degrade: '设备劣化（单耗上升）', leak: '压缩空气泄漏', ht_peak: '峰时开炉', mist: '油雾收集器故障' };
-const POWER = { 'saw-01': [7.5, 2, 0.3], 'cnc-l01-a': [15, 5.5, 0.6], 'cnc-l01-b': [11, 4.5, 0.5], 'vmc-01': [15, 5, 0.6], 'hmc-01': [18, 6, 0.7],
-  'key-01': [5.5, 2, 0.3], 'hob-01': [7.5, 2.5, 0.4], 'ht-01': [110, 35, 35], 'grd-01': [11, 4, 0.5], 'qc-01': [1.5, 0.8, 0.2], 'asm-01': [3, 1, 0.2], 'test-01': [15, 1.5, 0.3] };
 const route = useRoute();
 const router = useRouter();
 const tab = ref(TABS[route.query.tab] ? route.query.tab : 'overview');
@@ -168,7 +166,7 @@ const hours = ref(24);
 const ser = ref([]);
 const day = ref('');
 const pm = reactive({ price: { peak: 0, flat: 0, valley: 0 }, co2_factor: 0, contract_kw: 0, mist_limit: 0, noise_limit: 0, can_edit: false });
-const inj = reactive({ kind: 'forgot', unit: 'hmc-01' });
+const inj = reactive({ kind: 'forgot', unit: '' });
 const num = (v) => (v === null || v === undefined ? '—' : Math.round(v).toLocaleString());
 const money = (v) => (v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const pct = (v) => (v === null || v === undefined ? '—' : Math.round(v * 100) + '%');
@@ -187,7 +185,10 @@ function w(v) { const m = Math.max(...(ov.value?.units || []).map((u) => u.kwh),
 function go(k) { tab.value = k; router.replace({ query: { ...route.query, tab: k } }); load(); }
 async function wrap(fn) { err.value = ''; try { await fn(); } catch (e) { err.value = e.message; } }
 function load() {
-  wrap(async () => { ov.value = await get('/energy/overview' + (day.value ? '?day=' + day.value : '')); });
+  wrap(async () => {
+    ov.value = await get('/energy/overview' + (day.value ? '?day=' + day.value : ''));
+    if (!inj.unit) inj.unit = (ov.value.units.find((x) => x.unit === 'hmc-01') || ov.value.units[0] || {}).unit || '';
+  });
   if (tab.value === 'meters') wrap(async () => { meters.value = (await get('/energy/meters')).meters; loadSeries(); });
   if (tab.value === 'unit') wrap(async () => { un.value = await get('/energy/unit'); });
   if (tab.value === 'carbon') {

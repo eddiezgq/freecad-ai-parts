@@ -95,8 +95,22 @@ create table if not exists finance_sim (
 
 TERMS_DAYS = 30                  # 客户付款条件、供应商付款条件（天）
 DAY_S_TEACH = 120                # 教学模式：账期的 1 天 = 真实 2 分钟
-LATE = {F.DEMO_CUSTOMERS[0]: (0, 3), F.DEMO_CUSTOMERS[1]: (3, 12), F.DEMO_CUSTOMERS[2]: (10, 30)}      # 客户付款习惯：晚付天数范围（教学模拟器）
-CREDIT = {F.DEMO_CUSTOMERS[0]: 40000.0, F.DEMO_CUSTOMERS[1]: 30000.0, F.DEMO_CUSTOMERS[2]: 25000.0}
+try:                                    # 第 59 轮：清单写了产品的厂（机器人厂等）用自己的客户、产品；付款习惯、额度、预算可在清单 finance 一节改
+    from factory import equip as _EQ
+    from factory import plant as _PL
+    _E = _EQ.active()
+    _FIN = (_PL.active() or {}).get("FINANCE") or {} if _E else {}
+except ImportError:
+    _E, _FIN = None, {}
+CUSTS = list(F.CUSTOMERS) if _E else list(F.DEMO_CUSTOMERS)
+MAIN_ITEM = next(iter(F.PRODUCTS)) if _E else "WQR-105"          # 情景里早先订单、老师注入的发票按它算
+PRICE = float(F.PRODUCTS[MAIN_ITEM]) if _E else F.FG_SELLING_PRICE
+_LATE0, _CREDIT0 = [(0, 3), (3, 12), (10, 30)], [40000.0, 30000.0, 25000.0]
+if _E:                                  # 额度按主产品售价（示例值：4、3、2.5 台的货款）
+    _CREDIT0 = [PRICE * k for k in (4, 3, 2.5)]
+LATE = {c: tuple((_FIN.get("late_days") or {}).get(c) or _LATE0[min(i, 2)]) for i, c in enumerate(CUSTS)}      # 客户付款习惯：晚付天数范围（教学模拟器）
+CREDIT = {c: float((_FIN.get("credit") or {}).get(c) or _CREDIT0[min(i, 2)]) for i, c in enumerate(CUSTS)}
+OPENING_QTY = (6, 4, 8) if not _E else (1, 1, 1)                 # 期初应收：三个客户各一笔（件数）
 DEFAULT_CREDIT = 30000.0
 DUN_PAY_DAYS = 3                 # 催款后几天内付
 OBJECTIVES = [
@@ -113,6 +127,9 @@ CENTERS = {"labor": "生产人工与折旧", "material": "采购料", "energy": 
            "admin": "管理费用"}
 BUDGET = {"labor": 30000.0, "material": 60000.0, "energy": 6000.0, "maintenance": 3000.0, "quality": 2000.0, "service": 4000.0, "admin": 8000.0}
 PARAMS = {"opening_cash": 60000.0, "weekly_expense": 8000.0}
+if _E:                                  # 第 59 轮：其他厂的预算、期初现金（示例值：演示工厂的 3 倍），清单 finance 一节可改
+    BUDGET = {k: float((_FIN.get("budget") or {}).get(k) or v * 3) for k, v in BUDGET.items()}
+    PARAMS = {"opening_cash": float(_FIN.get("opening_cash") or 180000.0), "weekly_expense": float(_FIN.get("weekly_expense") or 24000.0)}
 STATUS = {"draft": "待开票", "open": "未付", "paying": "付款中", "paid": "已付", "failed": "开票失败", "held": "冻结待放行"}
 ACT_TYPES = ("overtime", "expedite", "outsource", "urgent_purchase", "overtime_assign", "purchase_order", "alt_supplier")
 
@@ -185,7 +202,7 @@ def seed(db, mode, now=None):
         for c, a in BUDGET.items():
             db.x("insert into budget (mode, month, center, amount, set_by) values (%s,%s,%s,%s,'系统') on conflict do nothing", (mode, m, c, a))
     if not db.one("select 1 as x from credit where mode=%s limit 1", (mode,)):
-        for c in F.DEMO_CUSTOMERS:
+        for c in CUSTS:
             db.x("insert into credit (mode, customer, limit_amt) values (%s,%s,%s) on conflict do nothing", (mode, c, CREDIT.get(c, DEFAULT_CREDIT)))
     st = _state(db, mode)
     if "since" not in st:
@@ -200,9 +217,9 @@ def opening(db, mode, now=None):
     now = now or now_utc()
     if db.one("select 1 as x from invoice where mode=%s and opening limit 1", (mode,)):
         return
-    for c, qty, age in ((F.DEMO_CUSTOMERS[0], 6, 10), (F.DEMO_CUSTOMERS[1], 4, TERMS_DAYS + 5), (F.DEMO_CUSTOMERS[2], 8, 20)):
+    for c, qty, age in zip(CUSTS, OPENING_QTY, (10, TERMS_DAYS + 5, 20)):
         issued = now - dt.timedelta(seconds=age * day_s(mode))
-        amt = qty * F.FG_SELLING_PRICE
+        amt = qty * PRICE
         db.x("insert into invoice (mode, kind, party, ref, amount, outstanding, issued_at, due_at, status, opening, note) "
              "values (%s,'ar',%s,'期初',%s,%s,%s,%s,'open',true,'期初应收（教学情景）')",
              (mode, c, amt, amt, issued, issued + dt.timedelta(seconds=TERMS_DAYS * day_s(mode))))
@@ -246,7 +263,7 @@ def _ts(m):
 def _pseudo_so(name, ws):
     """订单本身不在 ERPNext 快照里（情景里早先的订单）：按它的工单估一张（成品 WQR-105，件数 = 工单件数，标准售价）"""
     qty = sum(float(w["data"].get("qty") or 0) for w in ws)
-    return {"data": {"name": name, "customer": None, "items": [{"item_code": "WQR-105", "qty": qty, "rate": F.FG_SELLING_PRICE}], "pseudo": True},
+    return {"data": {"name": name, "customer": None, "items": [{"item_code": MAIN_ITEM, "qty": qty, "rate": PRICE}], "pseudo": True},
             "ts": max(_ts(w) for w in ws)}
 
 
@@ -656,6 +673,14 @@ def _std(item, memo=None):
     return out
 
 
+def _scrap_ref():
+    """一件不合格品按多少标准成本算：演示工厂是输出轴 SH-301；其他厂取售价最低的那种产品（第 59 轮，近似）"""
+    if "SH-301" in F.ITEMS:
+        return _std("SH-301")
+    item = min(F.PRODUCTS, key=lambda k: float(F.PRODUCTS[k]))
+    return _std(item)
+
+
 def _wo_actual(db, mode, wo):
     """输出轴工单的实测：工时 × 折旧和人工费率（含调整、换刀）、运行时间 × 运行功率 × 平价电费；做坏的件数"""
     from hub import mrp
@@ -686,10 +711,10 @@ def margin(db, mode, so_name, store=True):
         raise KeyError(so_name)
     d = so["data"]
     qty = sum(float(i.get("qty") or 0) for i in d.get("items") or [])
-    item = (d.get("items") or [{}])[0].get("item_code") or "WQR-105"
+    item = (d.get("items") or [{}])[0].get("item_code") or MAIN_ITEM
     revenue = _so_amount(d)
     std = _std(item)
-    sh = _std("SH-301")
+    sh = _scrap_ref()
     wos = [w["data"]["name"] for w in wo_by_so(db, mode).get(so_name, [])]
     act = [x for x in (_wo_actual(db, mode, w) for w in wos) if x]
     n_act = sum(x["parts"] for x in act)
@@ -853,7 +878,7 @@ def actuals(db, mode):
                    "and type = any(%s)", (mode, list(types)))
         out[kind] = float(r["s"] or 0)
     try:
-        sh = _std("SH-301")
+        sh = _scrap_ref()
         n = db.one("select count(*) as n from ncr where mode=%s", (mode,))["n"]
         out["quality"] = n * (sh["material"] + sh["labor"] + sh["energy"])
     except Exception:  # noqa: BLE001
@@ -1078,10 +1103,10 @@ def inject(H, mode, customer=None, who="老师", days=15, qty=8):
         raise PermissionError("生产模式不模拟")
     db = H.db
     seed(db, mode)
-    customer = customer or F.DEMO_CUSTOMERS[2]
+    customer = customer or CUSTS[min(2, len(CUSTS) - 1)]
     now = now_utc()
     issued = now - dt.timedelta(seconds=(TERMS_DAYS + float(days)) * day_s(mode))
-    amt = int(qty) * F.FG_SELLING_PRICE
+    amt = int(qty) * PRICE
     r = db.one("insert into invoice (mode, kind, party, ref, amount, outstanding, issued_at, due_at, status, opening, no_pay, note) "
                "values (%s,'ar',%s,'期初',%s,%s,%s,%s,'open',true,true,%s) returning id",
                (mode, customer, amt, amt, issued, issued + dt.timedelta(seconds=TERMS_DAYS * day_s(mode)), "老师注入：这笔客户压着不付"))
