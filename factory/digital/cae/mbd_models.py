@@ -21,9 +21,33 @@ ROBOTS = {
     "B-ARM-FR3": ("franka_fr3/fr3.xml", "Franka FR3 机械臂（3 kg 负载）", "fr3_link7"),
 }
 MENAGERIE_DIRS = sorted({v[0].split("/")[0] for v in ROBOTS.values()})
+# 问渠自建、带动力学的机器人（第 58 轮）：零件库编号 → (生成 MJCF 的函数所在模块, 中文名, 末端构件)
+OWN = {
+    "B-ARM-WQCR5": ("cae.wqcr5", "问渠 WQ-CR5 协作机器人（5 kg 负载，机器人厂的产品）", "link6"),
+}
+
+
+def robots():
+    """动力学能选的零件库机器人：自建的排前面"""
+    return {**{k: (None, v[1], v[2]) for k, v in OWN.items()}, **ROBOTS}
+
+
+def robot_name(rid):
+    return robots().get(rid, ("", ""))[1]
 
 
 def robot_path(rid):
+    if rid in OWN:                                # 自建：按原件生成 MJCF（与零件库发布的一致），缓存到临时目录
+        import importlib
+        import tempfile
+        xml = importlib.import_module(OWN[rid][0]).mjcf()
+        d = os.path.join(tempfile.gettempdir(), "wq-own-robots")
+        os.makedirs(d, exist_ok=True)
+        p = os.path.join(d, rid + ".xml")
+        if not os.path.exists(p) or open(p, encoding="utf-8").read() != xml:
+            with open(p, "w", encoding="utf-8") as f:
+                f.write(xml)
+        return p
     if rid not in ROBOTS:
         raise ValueError("零件库里没有可做动力学的机器人“{}”".format(rid))
     p = os.path.join(MENAGERIE, ROBOTS[rid][0])

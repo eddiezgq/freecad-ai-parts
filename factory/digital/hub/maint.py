@@ -113,6 +113,19 @@ REPAIR_USD = {"grd-01": 1200, "cnc-l01-a": 700, "cnc-l01-b": 700, "hob-01": 900,
 LOST_PER_H = {"grd-01": 200, "hob-01": 120}                     # 停机每小时少挣的毛利（瓶颈设备高），其余 60
 PM_MATERIAL = 80.0                                               # 一次保养的油、脂、滤芯
 PART_PRICE = {"BRG-6205": 5.2, "BRG-6206": 6.5, "BRG-6207": 8.0}
+try:                                    # 第 59 轮：清单写了产品的厂（机器人厂等）按 factory/equip.py 的设备数据（类别缺省值是示例值）
+    from factory import equip as _EQ
+    _E = _EQ.active()
+except ImportError:
+    _E = None
+if _E:
+    ASSETS = {u: d["value"] for u, d in _E.items()}
+    BOUGHT = {u: d["bought"] for u, d in _E.items()}
+    PM_TEXT = {u: d["pm_text"] for u, d in _E.items()}
+    PM_MIN = {u: d["pm_min"] for u, d in _E.items()}
+    CHECK = {"*": CHECK["*"], **{u: d["check"] for u, d in _E.items()}}
+    REPAIR_USD = {u: d["repair_usd"] for u, d in _E.items()}
+    LOST_PER_H = {u: d["lost_per_h"] for u, d in _E.items()}
 STATUS = {"open": "待处理", "doing": "维修中", "waiting_parts": "等备件", "fixed": "待验收", "closed": "已关闭"}
 PM_STATUS = {"planned": "已排定", "doing": "保养中", "fixed": "待验收", "closed": "已完成"}
 
@@ -653,7 +666,8 @@ def kpis(db, mode):
     rep = db.one("select count(*) as n from maint_repair where mode=%s and status<>'closed'", (mode,))["n"]
     down = db.one("select coalesce(sum(down_min),0) as m from maint_failure where mode=%s and at > now() - interval '7 days'", (mode,))["m"]
     insp = db.one("select count(*) as n from maint_inspection where mode=%s and status='open'", (mode,))["n"]
-    return {"overdue": len(over), "overdue_units": over, "open_repairs": rep, "failure_down_7d": float(down or 0), "mtbf": mtbf(db, mode),
+    done7 = db.one("select count(*) as n from maint_inspection where mode=%s and at > now() - interval '7 days'", (mode,))["n"]
+    return {"inspections_7d": done7, "overdue": len(over), "overdue_units": over, "open_repairs": rep, "failure_down_7d": float(down or 0), "mtbf": mtbf(db, mode),
             "open_inspections": insp, "factor": factor(db, mode)}
 
 

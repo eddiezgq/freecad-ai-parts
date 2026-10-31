@@ -105,6 +105,8 @@ def validate(p):
         if u.get("spindle") is not None:
             sp = u["spindle"]
             need(isinstance(sp, list) and len(sp) == 2 and all(_num(x) and x > 0 for x in sp), at + ".spindle", "[转速, 负载]")
+        from factory import equip as _equip        # 第 59 轮：设备的维护、功率数据（可选）
+        errs += _equip.validate_unit(at, u)
     for w in wnames:
         need(any(isinstance(u, dict) and u.get("workstation") == w for u in us), "workstations：" + w, "没有设备属于这个工作站")
     for i, d in enumerate(p.get("dashboard") or []):
@@ -363,6 +365,8 @@ def derive(p):
         "CAL_START": str(per[0][0])[:5], "CAL_END": str(per[-1][1])[:5],
         "WORKDAYS": tuple(s["workdays"]), "MAX_OT_MIN": int(s["max_overtime_min"]),
         "TARGET": {k: p["kpi"][k] for k in ("on_time", "oee", "fpy")},
+        "EQUIP": __import__("factory.equip", fromlist=["profiles"]).profiles(units),     # 第 59 轮
+        "FINANCE": p.get("finance") or {},
         "SUPPLIERS": p.get("suppliers"),
         "CUSTOMERS": p.get("customers"),
         **derive_products(p),
@@ -466,6 +470,11 @@ def company():
 def is_demo():
     p = active()
     return p is None or p["DEMO_DATA"]
+
+
+def has_domains():
+    """“设备维护、能源、经营财务”（第 18 轮 E3、E6、E7）在哪些厂开：演示工厂，和清单写了产品的厂（第 59 轮：机器人厂等）"""
+    return has_supply()
 
 
 def has_supply():

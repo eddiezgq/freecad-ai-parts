@@ -25,6 +25,14 @@ PARAMS = {
     "qc-01": (2.0, 3000, 90, 1000, 350, [("probe", "测头失准", None)]),
 }
 
+try:                                    # 第 59 轮：清单写了产品的厂（机器人厂等）按 factory/equip.py 的设备数据
+    from factory import equip as _EQ
+    _E = _EQ.active()
+except ImportError:
+    _E = None
+if _E:
+    PARAMS = {u: (d["beta"], d["eta_h"], d["mttr_min"], d["pm_h"], d["init_h"], [(c, n, None) for c, n in d["modes"]]) for u, d in _E.items()}
+
 
 def params(unit):
     p = PARAMS.get(unit)

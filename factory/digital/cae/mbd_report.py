@@ -14,7 +14,7 @@ def _model_name(job):
         return "零件库机构 {} {}".format(m.get("id"), MC.NAMES.get(m.get("id"), ""))
     if m.get("source") == "library":
         from cae import mbd_models as MM
-        return "零件库机械臂 {} {}".format(m.get("id"), MM.ROBOTS.get(m.get("id"), ("", ""))[1])
+        return "零件库机械臂 {} {}".format(m.get("id"), MM.robot_name(m.get("id")))
     return "上传的模型"
 
 

@@ -27,6 +27,9 @@ LABS = [
     # 第 57 轮：两厂之间的一张订单（工业园：机器人厂向问渠减速器厂采购 WQR-105）
     {"no": 27, "title": "两厂之间的一张订单", "path": "/lab27", "module": "lab27", "domain": "采购与来料（跨厂供应链）", "hours": 4,
      "plant": "wenquest-robot"},
+    # 第 58 轮：负载跑合台上的仿真与实测对比（《机器人学》29.4 节仿真与现实、26.4 节摩擦辨识）
+    {"no": 28, "title": "负载跑合台上的仿真与实测对比", "path": "/lab28", "module": "lab28", "domain": "质量（负载跑合）", "hours": 4,
+     "plant": "wenquest-robot"},
 ]
 
 

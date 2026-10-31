@@ -399,7 +399,7 @@ def mbd_mechs():
 @app.get("/mbd/robots")
 def mbd_robots():
     from cae import mbd_models as MM
-    return {"robots": [{"id": k, "name": v[1], "end_body": v[2]} for k, v in MM.ROBOTS.items()]}
+    return {"robots": [{"id": k, "name": v[1], "end_body": v[2], "own": k in MM.OWN} for k, v in MM.robots().items()]}
 
 
 def _model_ready(ref):

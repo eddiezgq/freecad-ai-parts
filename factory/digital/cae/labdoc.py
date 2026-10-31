@@ -24,7 +24,8 @@ GUIDES = {"lab8": GUIDE_MD, "lab9": os.path.join(HERE, "实验9_机械臂关节�
           "lab24": os.path.join(HERE, "实验24_一台协作机器人从订单到交付.md"),
           "lab25": os.path.join(HERE, "实验25_关节背隙异常的追因与8D.md"),
           "lab26": os.path.join(HERE, "实验26_一台协作机器人的运动学标定.md"),
-          "lab27": os.path.join(HERE, "实验27_两厂之间的一张订单.md")}
+          "lab27": os.path.join(HERE, "实验27_两厂之间的一张订单.md"),
+          "lab28": os.path.join(HERE, "实验28_负载跑合台上的仿真与实测对比.md")}
 
 
 def _doc():
@@ -136,7 +137,7 @@ def report_template_docx(lab="lab8"):
         return lab22_template()
     if lab == "lab23":
         return lab23_template()
-    if lab in ("lab24", "lab25", "lab26", "lab27"):
+    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28"):
         return robot_template(lab)
     from docx.shared import Pt
     d = _doc()
@@ -995,6 +996,23 @@ def robot_template(lab):
         table([["d（台/天）", "σ_d（台/天）", "L（天）", "z", "SS = z·σ_d·√L", "ROP = d·L + SS"], ["", "", "", "1.65", "", ""]])
         d.add_heading("四、讨论（任务 6）· Discussion", 1)
         hint("两厂共享需求信息的好处；如果减速器厂的提前期从 10 天变成 20 天，安全库存要变成多少？批量从 10 台改成 1 台，有什么得失？")
+    elif lab == "lab28":
+        d.add_heading("实验 28　负载跑合台上的仿真与实测对比　实验报告 · Lab 28 Report: Simulation versus Measurement on the Run-in Stand", 0)
+        table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)
+        table([["机器人出厂编号 Robot serial", ""], ["6 台关节测试台的空载摩擦力矩（N·m）Bench friction", ""]], head=False)
+        d.add_heading("一、实测与仿真（任务 1、2）· Measurement and simulation", 1)
+        hint("贴 J2 的实测与仿真力矩曲线截图，标出峰值。")
+        table([["关节 Joint", "实测峰值 Peak (N·m)", "实测均方根 RMS (N·m)", "仿真均方根 Sim. RMS (N·m)", "均方根差 RMS diff. (N·m)"]] +
+              [[j, "", "", "", ""] for j in ("J1", "J2", "J3", "J4", "J5", "J6")])
+        d.add_heading("二、摩擦辨识（任务 3、4）· Friction identification", 1)
+        hint("写出回归方程和最小二乘的计算过程（附程序或表格），给出 J1 的结果与平台核对；再填其余关节。")
+        table([["关节 Joint", "f_c 辨识 (N·m)", "f_c 测试台 (N·m)", "f_v 辨识 (N·m·s/rad)", "f_v 名义 (N·m·s/rad)"]] +
+              [[j, "", "", "", ""] for j in ("J1", "J2", "J3", "J4", "J5", "J6")])
+        d.add_heading("三、力矩裕量（任务 5）· Torque margin", 1)
+        table([["关节 Joint", "均方根 / 额定 (N·m)", "峰值 / 上限 (N·m)", "合格？"]] + [[j, "", "", ""] for j in ("J1", "J2", "J3", "J4", "J5", "J6")])
+        d.add_heading("四、写回模型（任务 6）与讨论 · Updating the model and discussion", 1)
+        table([["关节 Joint", "更新前均方根差 (N·m)", "更新后均方根差 (N·m)", "测量噪声 σ (N·m)"]] + [[j, "", "", ""] for j in ("J1", "J2", "J3", "J4", "J5", "J6")])
+        hint("仿真与现实的差还有哪些本实验没有包括（带载摩擦、柔度、温度、电流环）？在《机器人学》29.4 节的域随机化里，你会怎样用这批数据？")
     elif lab == "lab26":
         d.add_heading("实验 26　一台协作机器人的运动学标定　实验报告 · Lab 26 Report: Kinematic Calibration of a Cobot", 0)
         table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)

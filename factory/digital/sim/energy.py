@@ -36,6 +36,19 @@ DEGRADE_RAMP_S = 7200                        # 劣化：2 小时内升到设定�
 PEAK = ((8, 11), (18, 21))                   # 峰时（本地时间，时）
 VALLEY = ((23, 24), (0, 7))                  # 谷时
 
+try:                                    # 第 59 轮：清单写了产品的厂（机器人厂等）按 factory/equip.py 的设备功率
+    from factory import equip as _EQ
+    _E = _EQ.active()
+except ImportError:
+    _E = None
+if _E:
+    POWER = {u: tuple(d["power"]) for u, d in _E.items()}
+    NO_STANDBY = ()
+    AUTO = tuple(u for u, d in _E.items() if d["auto"])
+    AIR_USERS = tuple(u for u, d in _E.items() if d["air"])
+    WET = tuple(u for u, d in _E.items() if d["wet"])
+    NOISE = {u: d["noise"] for u, d in _E.items()}
+
 
 def meter_of(unit):
     return "E-" + unit.upper()
