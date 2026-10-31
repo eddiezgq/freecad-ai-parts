@@ -16,6 +16,8 @@ REPO = Path(__file__).resolve().parents[3]
 
 
 def test_copies_are_in_sync():
+    if not (REPO / "library").is_dir():         # freecad-ai-parts 没有问渠的零件库和教材，只比对问渠这边（第 59 轮）
+        pytest.skip("本仓库没有 library/、textbook/（只在问渠仓库比对副本）")
     assert (REPO / "library" / "generators" / "wqcr5.py").read_bytes() == Path(W.__file__).read_bytes(), \
         "改原件后运行 python3 factory/digital/cae/wqcr5.py --sync"
     assert (REPO / "textbook" / "robotics" / "models" / "mjcf" / "wqcr5.xml").read_text(encoding="utf-8") == W.mjcf()
