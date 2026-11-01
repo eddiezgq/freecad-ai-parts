@@ -99,7 +99,8 @@ items:
 # 原材料
 - {code: RM-AL6061-D120, name: 6061 铝合金棒 Ø120 Aluminium bar 6061 Ø120, kind: raw, uom: Kg, price: 4.2, supplier: metals, note: 关节壳体用料}
 - {code: RM-AL6061-P20, name: 6061 铝合金板 20 mm Aluminium plate 6061, kind: raw, uom: Kg, price: 4.0, supplier: metals, note: 底座用料}
-- {code: RM-AL-TUBE-D90, name: 6061 铝合金管 Ø90×5 Aluminium tube, kind: raw, uom: Kg, price: 4.6, supplier: metals, note: 大臂、小臂用料}
+- {code: RM-AL-TUBE-D90, name: 6061 铝合金管 Ø90×3 Aluminium tube Ø90×3, kind: raw, uom: Kg, price: 4.6, supplier: metals, note: 大臂用料（与 wqcr5.py 的 TUBES 一致，第 66 轮）}
+- {code: RM-AL-TUBE-D75, name: 6061 铝合金管 Ø75×3 Aluminium tube Ø75×3, kind: raw, uom: Kg, price: 4.6, supplier: metals, note: 小臂用料（与 wqcr5.py 的 TUBES 一致，第 66 轮）}
 - {code: RM-40CR-D60, name: 40Cr 圆钢 Ø60 Steel bar 40Cr Ø60, kind: raw, uom: Kg, price: 2.2, supplier: metals, note: 空心输出轴用料}
 # 外购件：零件库里有的
 - {code: HD-CSF-32-100, name: 谐波减速器 CSF-32-100 Strain wave gear, kind: buy, uom: Nos, price: 900, supplier: harmonic, library: D-RDC-HD-CSF/32-100}
@@ -167,8 +168,9 @@ boms:
 - {item: JS-L, routing: RT-空心轴 Hollow shaft, components: [[RM-40CR-D60, 2.4]]}
 - {item: JS-M, routing: RT-空心轴 Hollow shaft, components: [[RM-40CR-D60, 1.6]]}
 - {item: JS-S, routing: RT-空心轴 Hollow shaft, components: [[RM-40CR-D60, 0.9]]}
-- {item: ARM-UP, routing: RT-臂管 Arm tube, components: [[RM-AL-TUBE-D90, 3.2]]}
-- {item: ARM-FO, routing: RT-臂管 Arm tube, components: [[RM-AL-TUBE-D90, 2.6]]}
+# 臂管耗料 = 模型里铝管的质量（长 = 关节间距）+ 两端各留 25 mm 夹持、锯口（第 66 轮按模型统一，测试核对）
+- {item: ARM-UP, routing: RT-臂管 Arm tube, components: [[RM-AL-TUBE-D90, 1.0]]}
+- {item: ARM-FO, routing: RT-臂管 Arm tube, components: [[RM-AL-TUBE-D75, 0.76]]}
 - {item: BASE-CR5, routing: RT-底座 Base, components: [[RM-AL6061-P20, 6.5]]}
 - item: WQJ-L
   routing: RT-关节模组 Joint module
@@ -195,7 +197,7 @@ products:
 stock:
   # 期初库存（示例值）：大约够做整机、AGV、三种关节各 5 台。采购到货属于供应链领域，这一期只在减速器厂有（第 45 轮 R-6），
   # 机器人厂的请购单只是记录，用完了由老师在 ERPNext 里做“物料入库”补上
-  opening: {RM-AL6061-D120: 90, RM-AL6061-P20: 35, RM-AL-TUBE-D90: 30, RM-40CR-D60: 80,
+  opening: {RM-AL6061-D120: 90, RM-AL6061-P20: 35, RM-AL-TUBE-D90: 6, RM-AL-TUBE-D75: 5, RM-40CR-D60: 80,
             HD-CSF-32-100: 15, HD-CSF-25-100: 10, HD-CSF-17-100: 20, MTR-SV-400: 15, MTR-SV-200: 10, MTR-SV-100: 20,
             ENC-ABS: 45, DRV-JOINT: 45, BRG-6010: 30, BRG-6007: 20, BRG-6004: 40, SCR-M5x16: 800, CABLE-ARM: 6, CTRL-CAB: 6,
             FRAME-AGV300: 6, MTR-AGV-750: 10, WHL-PU-200: 10, CASTER-100: 20, BAT-48V: 6, LDR-TIM781: 6, CTRL-AGV: 6,

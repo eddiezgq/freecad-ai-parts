@@ -69,7 +69,7 @@ def mount(app, H, user_of, who, uid_of, is_teacher, ai_quota=None):
                   "lab22": "实验22-经营订单毛利应收与现金", "lab23": "实验23-两周情景一张急单的全厂决策",
                   "lab24": "实验24-一台协作机器人从订单到交付", "lab25": "实验25-关节背隙异常的追因与8D",
                   "lab26": "实验26-一台协作机器人的运动学标定", "lab27": "实验27-两厂之间的一张订单",
-                  "lab28": "实验28-负载跑合台上的仿真与实测对比"}
+                  "lab28": "实验28-负载跑合台上的仿真与实测对比", "lab29": "实验29-一台机器人的售后追溯"}
         if lab not in titles or kind not in ("guide", "report-template"):
             raise HTTPException(404, "没有这个文件")
         data = labdoc.guide_docx(lab) if kind == "guide" else labdoc.report_template_docx(lab)
@@ -89,22 +89,27 @@ def mount(app, H, user_of, who, uid_of, is_teacher, ai_quota=None):
     @app.get("/api/cae/parts")
     def cae_parts(u=Depends(user_of)):
         """可以直接分析的零件：有现行 STEP 的物料（SH-301 总有）；另外可以上传 STEP"""
-        from cae import thermal_parts as TP
+        from cae import struct_parts as SP, thermal_parts as TP
         return {"items": [dict(plm.item_info(i) or {"item": i}, item=i) for i in plm.items_with_step(H.db, u["mode"])],
-                "examples": [{"key": k, "label": TP.LABELS[k], "params": TP.DEFAULTS[k], "names": TP.PARAM_NAMES[k]} for k in TP.DEFAULTS]}
+                "examples": [{"key": k, "label": TP.LABELS[k], "params": TP.DEFAULTS[k], "names": TP.PARAM_NAMES[k], "analysis": "thermal"}
+                             for k in TP.DEFAULTS]
+                + [{"key": k, "label": SP.LABELS[k], "params": SP.DEFAULTS[k], "names": SP.PARAM_NAMES[k], "analysis": SP.ANALYSIS[k]}
+                   for k in SP.DEFAULTS]}
 
     @app.post("/api/cae/geometry/example/{key}")
     def cae_geometry_example(key: str, body: dict = Body(default={}), u=Depends(user_of)):
-        """热分析的参数化示例（第 14 轮）：按参数现做 STEP，读入，并给出自动填好的热载荷和教材公式估算"""
-        from cae import thermal_parts as TP
-        if key not in TP.DEFAULTS:
+        """参数化示例（第 14 轮热分析；第 66 轮加强度与模态：WQ-CR5 大臂）：按参数现做 STEP，读入，
+        并给出自动填好的载荷（热载荷，或约束与力、力矩）和教材公式估算"""
+        from cae import struct_parts as SP, thermal_parts as TP
+        M = TP if key in TP.DEFAULTS else SP if key in SP.DEFAULTS else None
+        if M is None:
             raise HTTPException(404, "没有这个示例")
         try:
-            p = TP.params_of(key, body.get("params"))
+            p = M.params_of(key, body.get("params"))
         except ValueError as e:
             raise HTTPException(400, str(e)) from None
-        g = _geo(TP.build(key, p), name=TP.LABELS[key])
-        g["example"] = dict(TP.example(key, p, g["faces"]), key=key, params=p)
+        g = _geo(M.build(key, p), name=M.LABELS[key])
+        g["example"] = dict(M.example(key, p, g["faces"]), key=key, params=p)
         return g
 
     def _geo(step, item=None, name=None):

@@ -36,6 +36,7 @@ P.add_argument("--lab28", action="store_true", help="WQ-CR5 做到整机标定�
 P.add_argument("--reliability", type=float, default=None, help="开始前把设备可靠性系数设成这个数（0 = 演练时设备不随机坏，第 59 轮）")
 P.add_argument("--domains", action="store_true", help="设备维护、能源、经营财务（第 59 轮）、安全环保、人员排班（第 61 轮）按本厂设备出数、台账和员工进 ERPNext")
 P.add_argument("--staffing", type=float, default=None, help="1 / 0：开始前打开 / 关掉车间“要有人”（0 = 演练时不因请假缺人停机，第 61 轮）")
+P.add_argument("--lab29", action="store_true", help="实验 29（一台机器人的售后追溯）按六个任务答题，核对 60 分（第 68 轮）")
 P.add_argument("--lab27", action="store_true", help="工业园那一段走完后，按实验 27 的六个任务答题（AGV 订单要 2 台：--item WQ-AGV300:2），核对 60 分（第 57 轮）")
 P.add_argument("--park-hub", default="", help="工业园兄弟厂（问渠减速器厂）的枢纽：核对 WQR-105 的采购单送过去、那边接单生产发货、"
                                               "这边到货检验入库（第 51 轮）")
@@ -386,6 +387,34 @@ def domains(mgr):
     check(bool(c), "投诉 RC-{:05d} 进了 ERPNext：{}".format(cid, (c or {}).get("issue")))
 
 
+def lab29(mgr):
+    """实验 29：种场景 → 找报警的那台 → 出厂档案 → 原因 → 召回范围 → 派工做完 → 算账，满分 60"""
+    print("— 实验 29（一台机器人的售后追溯）")
+    st = hub("GET", "/api/lab29", token=mgr)
+    ss = [r["serial"] for r in st["case"]["robots"]]
+    worst = None
+    for s_ in ss:
+        d = hub("GET", "/api/rfield/robots/" + s_, token=mgr)
+        for j in (d["series"][-1]["joints"] if d["series"] else []):
+            if worst is None or j["backlash"] / j["limit"] > worst[2]:
+                worst = (s_, j["joint"], j["backlash"] / j["limit"], d)
+    if not check(bool(worst), "实验 29 的场景：{}".format("、".join(ss))):
+        return
+    s1, joint, _, d = worst
+    hub("POST", "/api/lab29/l29_t1", {"serial": s1, "joint": joint}, mgr)
+    jd = next(j for j in d["as_built"]["joints"] if j["joint"] == joint)
+    hub("POST", "/api/lab29/l29_t2", {"lot": jd["lot"], "backlash0": round(jd["backlash0"], 2)}, mgr)
+    hub("POST", "/api/lab29/l29_t3", {"choice": "bad_lot"}, mgr)
+    others = [x for x in ss if x != s1]
+    hub("POST", "/api/lab29/l29_t4", {"serials": ",".join(others)}, mgr)
+    jid = hub("POST", "/api/rfield/jobs", {"serial": s1, "kind": "swap", "joint": joint}, mgr)["id"]
+    job = hub("POST", "/api/rfield/jobs/{}/done".format(jid), {}, mgr)
+    one = float(job["cost_usd"])
+    hub("POST", "/api/lab29/l29_t6", {"A": 3 * one, "B": 3 * (one + float(st["loss_per_complaint"]))}, mgr)
+    st = hub("GET", "/api/lab29", token=mgr)
+    check(st["score"] == 60, "实验 29 自动评分 {} / 60（{}）".format(st["score"], "、".join("{} {}".format(t["title"], t["score"]) for t in st["tasks"])))
+
+
 def lab27(mgr):
     """实验 27：用接 AGV 的同一个账号答题（AGV 那一单要 2 台），WQR-105 那一批到货检验入库后满分 60"""
     import math
@@ -527,6 +556,8 @@ def main():
         lab27(mgr)
     if A.domains:
         domains(mgr)
+    if A.lab29:
+        lab29(mgr)
     if not REAL:
         errs = call("GET", A.erp + "/api/mock/errors")["errors"]
         check(not errs, "ERPNext 字段校验无错误" + ("：" + "；".join(errs[:5]) if errs else ""))

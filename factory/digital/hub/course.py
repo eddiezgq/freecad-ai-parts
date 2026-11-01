@@ -466,7 +466,12 @@ def mount(app, H):
                 "summary": "一台 WQ-CR5 带标准负载做跑合的标准动作，比较零件库模型（名义摩擦）算出的关节力矩与驱动器记下的实测力矩；"
                            "最小二乘辨识这台机器人的库仑、黏性摩擦，对照关节测试台的数据；判力矩裕量；把辨识结果写回模型。《机器人学》29.4 节、26.4 节的课后实验。",
                 "mode": "teach", "products": ["WQ-CR5", "B-ARM-WQCR5"], "tool_url": base + "/lab28",
-                "guide_url": base + "/api/cae/lab28/guide.docx", "report_template_url": base + "/api/cae/lab28/report-template.docx"}])
+                "guide_url": base + "/api/cae/lab28/guide.docx", "report_template_url": base + "/api/cae/lab28/report-template.docx"}, {
+                "id": "lab29", "name": {"zh": "实验 29：一台机器人的售后追溯", "en": "Lab 29: tracing one robot after sale"},
+                "summary": "客户现场一台 WQ-CR5 的关节背隙超限：从现场数据追到出厂档案、谐波减速器批次，判原因，找出同批还装在哪几台（召回范围），"
+                           "派对症的服务工单并做完，再比较同批全部预防性更换与等报警了再换的花费。",
+                "mode": "teach", "products": ["WQ-CR5", "WQJ-L"], "tool_url": base + "/lab29",
+                "guide_url": base + "/api/cae/lab29/guide.docx", "report_template_url": base + "/api/cae/lab29/report-template.docx"}])
         return head(["factory-data"], items=[{
             "id": "lab7", "name": {"zh": "实验 7：数字工厂闭环", "en": "Lab 7: the closed loop in a digital factory"},
             "summary": "WQR-105 减速器厂的一周：接单、算料排产、设计发布、车间加工、在线检测与不合格品处置、看板与 AI 提醒。",

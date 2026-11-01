@@ -484,6 +484,101 @@ def design(payload_kg=PAYLOAD_KG, reach_mm=None, speed="standard"):
             "a2": a2, "a3": a3, "dead_zone_m": round(abs(a2 - a3), 4), "modules": mods if ok else None, "joints": rows,
             "mass_kg": round(mass, 2), "standard": ok and abs(a2 - 0.4) < 1e-9 and abs(a3 - 0.36) < 1e-9 and tuple(mods) == ("L", "L", "M", "S", "S", "S")}
 
+
+# ---------------------------------------------------------------- 第 66 轮：结构的受力（教材第 31 章；问渠 CAE“WQ-CR5 大臂”示例零件）
+# 静力学：任一截面上的内力 = 截面外侧（远离底座的一侧）所有零件的重力对截面形心的合力、合力矩。臂管、罩壳沿管长均布（切成小段），
+# 其余零件按各自的质心，负载是 TCP 上的质点（与 mjcf(payload_kg) 相同）。重力沿底座坐标系的 −z。
+E_AL, NU_AL, YIELD_AL = 68.9e9, 0.33, 276e6       # 6061-T6：Pa、—、Pa（与 materials.py 相同，测试核对）
+G0 = 9.81
+OUTSTRETCHED_DEG = (0, 0, 0, -90, -90, 0)         # 手臂水平伸直（沿底座 −x）、工具竖直朝下：结构的代表工况（J2 的重力矩接近最大）
+
+
+def _A(i, q):
+    r = DH[i]
+    c, s, ca, sa = math.cos(q), math.sin(q), math.cos(r["alpha"]), math.sin(r["alpha"])
+    return np.array([[c, -s * ca, s * sa, r["a"] * c], [s, c * ca, -c * sa, r["a"] * s], [0, sa, ca, r["d"]], [0, 0, 0, 1.0]])
+
+
+def link_world(q):
+    """6 个构件坐标系在底座坐标系里的齐次变换：构件 i = DH 坐标系 i 绕 z 转 θ_(i+1)（与 MJCF 相同）"""
+    out, F = [], np.eye(4)
+    for i in range(6):
+        c, s = math.cos(q[i]), math.sin(q[i])
+        out.append(F @ np.array([[c, -s, 0, 0], [s, c, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1.0]]))
+        F = F @ _A(i, q[i])
+    return out
+
+
+def tcp_local():
+    """负载（质点）在构件 6 坐标系里的位置：MJCF 的 tcp 点"""
+    return np.array([0.05, 0.0, DH[5]["d"] + 0.10])
+
+
+def gravity_points(q, payload_kg=PAYLOAD_KG, n=40):
+    """重力的作用点 [(构件号 0–5，负载记 6；质量 kg；底座坐标 m；名称)]：臂管、罩壳沿管长切成 n 段"""
+    Tw = link_world(q)
+    out = []
+    for i in range(6):
+        R, o = Tw[i][:3, :3], Tw[i][:3, 3]
+        for name, p, _ in link_parts(i):
+            if i in (1, 2) and ("铝管" in name or "罩壳" in name):
+                end = _child_pos(i)
+                for k in range(n):
+                    out.append((i, p["mass"] / n, o + R @ (end * (k + 0.5) / n), name))
+            else:
+                out.append((i, p["mass"], o + R @ p["com"], name))
+    if payload_kg > 0:
+        out.append((6, payload_kg, (Tw[5] @ np.append(tcp_local(), 1.0))[:3], "负载"))
+    return out
+
+
+def _resultant(pts, c):
+    F, M = np.zeros(3), np.zeros(3)
+    for _, m, r, _ in pts:
+        f = np.array([0.0, 0.0, -m * G0])
+        F += f
+        M += np.cross(r - c, f)
+    return F, M
+
+
+def section(q, i, s, payload_kg=PAYLOAD_KG, n=40):
+    """构件 i（1 大臂、2 小臂）铝管上离起点 s（0…1）处截面的内力：外侧对内侧的合力 F、对截面形心的合力矩 M（底座坐标），
+    管轴方向 u；轴力 N = F·u，剪力 V，扭矩 T = M·u，弯矩 Mb（都取大小，N、T 带符号）"""
+    Tw = link_world(q)
+    p0 = Tw[i][:3, 3]
+    p1 = (Tw[i] @ np.append(_child_pos(i), 1.0))[:3]
+    u = (p1 - p0) / np.linalg.norm(p1 - p0)
+    c = p0 + s * (p1 - p0)
+    pts = [x for x in gravity_points(q, payload_kg, n)
+           if x[0] > i or (x[0] == i and ((x[2] - c) @ u > 0 if ("铝管" in x[3] or "罩壳" in x[3]) else (x[2] - c) @ u > -1e-9))]
+    F, M = _resultant(pts, c)
+    N, T = F @ u, M @ u
+    return {"c": c, "u": u, "F": F, "M": M, "N": N, "V": float(np.linalg.norm(F - N * u)), "T": T,
+            "Mb": float(np.linalg.norm(M - T * u))}
+
+
+def joint_loads(q, j, payload_kg=PAYLOAD_KG):
+    """关节 j（0–5）承受的重力载荷：构件 j 及以外的重力对关节坐标系原点的合力 F、合力矩 M；
+    驱动力矩 τ = M·z（电机、减速器承担），倾覆力矩 = M 垂直于轴的部分（关节模组里的交叉滚子轴承承担）"""
+    Tw = link_world(q)
+    o, z = Tw[j][:3, 3], Tw[j][:3, 2]
+    F, M = _resultant([x for x in gravity_points(q, payload_kg) if x[0] >= j], o)
+    tau = M @ z
+    return {"F": F, "M": M, "tau": tau, "tilt": float(np.linalg.norm(M - tau * z)), "axial": float(F @ z),
+            "radial": float(np.linalg.norm(F - (F @ z) * z))}
+
+
+def upper_arm_end_loads(payload_kg=PAYLOAD_KG):
+    """问渠 CAE“WQ-CR5 大臂”示例零件的预设工况：手臂水平伸直时，J3 端以外的部分（J3 模组、小臂、手腕、负载）压在大臂 J3 端
+    （管端法兰面中心）上的力 N、力矩 N·m，写在零件坐标里：z 沿管轴（J2 → J3），x 沿 J2 的轴，y = z × x"""
+    q = np.radians(OUTSTRETCHED_DEG)
+    sec = section(q, 1, 1.0, payload_kg)
+    ez = sec["u"]
+    ex = link_world(q)[1][:3, 2]
+    ey = np.cross(ez, ex)
+    R = np.array([ex, ey, ez])
+    return {"force_n": R @ sec["F"], "moment_nm": R @ sec["M"], "shear_n": sec["V"], "moment_root_nm": section(q, 1, 0.0, payload_kg)["Mb"]}
+
 if __name__ == "__main__":
     import sys
     if "--sync" in sys.argv:
