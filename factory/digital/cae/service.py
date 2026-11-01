@@ -240,7 +240,9 @@ def _worker():
             elif j.get("kind") == "opt":
                 ok, res = _isolated(_opt_child, (j["spec"], _job_path(jid)), OPT_LIMIT_S + 120)
             elif j.get("kind") == "cfd":
-                ok, res = _isolated(_cfd_child, (_p("geo", j["step_sha"], "part.step"), j["setup"], _job_path(jid)), CFD_LIMIT_S)
+                natural = ((j.get("setup") or {}).get("flow") or {}).get("mode") == "natural"
+                ok, res = _isolated(_cfd_child, (_p("geo", j["step_sha"], "part.step"), j["setup"], _job_path(jid)),
+                                    CFD_LIMIT_S + (900 if natural else 0))
             elif j.get("kind") == "cfd_bench":
                 ok, res = _isolated(_cfd_bench_child, (_job_path(jid),), CFD_LIMIT_S)
             elif j.get("kind") == "topo":
@@ -1139,14 +1141,22 @@ def cfd_submit(body: dict = Body(...)):
             raise HTTPException(404, "先读入零件")
         setup = body.get("setup") or {}
         fl = setup.get("flow") or {}
+        natural = fl.get("mode") == "natural"            # 第 62 轮：自然对流（静止空气），不用风速、方向
         try:
             v = float(fl.get("velocity_ms", 5))
         except (TypeError, ValueError):
             raise HTTPException(400, "风速不对") from None
-        if not 0.01 <= v <= 60:
+        if not natural and not 0.01 <= v <= 60:
             raise HTTPException(400, "风速要在 0.01–60 m/s 之间")
-        if fl.get("direction", "+x") not in CF.DIRS:
+        if not natural and fl.get("direction", "+x") not in CF.DIRS:
             raise HTTPException(400, "来流方向只能是 ±x、±y、±z")
+        if natural:
+            try:
+                dT = float((setup.get("heat") or {}).get("wall_t_c", 0)) - float(fl.get("air_t_c", 25))
+            except (TypeError, ValueError):
+                raise HTTPException(400, "温度不对") from None
+            if not 1 <= dT <= 150:
+                raise HTTPException(400, "自然对流：表面要比空气热 1–150 ℃")
         tgt = int((setup.get("mesh") or {}).get("cells_target", 120000))
         if not 10000 <= tgt <= CF.MAX_CELLS:
             raise HTTPException(400, "网格目标单元数要在 1 万–{} 之间".format(CF.MAX_CELLS))

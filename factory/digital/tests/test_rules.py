@@ -215,6 +215,33 @@ def test_V3_service_overdue():
     assert [x.fkey for x in f] == ["ISS-1"]
 
 
+def _robot(serial, health, why):
+    return {"serial": serial, "health": health, "customer": "示例·汽车零部件厂 Auto Parts Plant (Demo)", "status": "field", "why": why}
+
+
+def test_RS1_robot_field_alarm(monkeypatch):
+    """第 64 轮：现场机器人报警（读 hub/rfield 的台账）"""
+    from hub import rfield as RF
+    monkeypatch.setattr(RF, "enabled", lambda: True)
+    bl = {"joint": "J2", "kind": "backlash", "text": "J2 背隙 1.05′ 超过上限 1′", "lot": "HD-L-7"}
+    monkeypatch.setattr(RF, "fleet", lambda db, mode: [_robot("R1", "red", [bl]), _robot("R2", "yellow", [dict(bl, kind="temp")]),
+                                                        _robot("R3", "green", [])])
+    f = run("RS1")
+    assert {x.fkey: x.severity for x in f} == {"R1": "critical", "R2": "warn"}
+    monkeypatch.setattr(RF, "enabled", lambda: False)
+    assert run("RS1") == []                                          # 演示工厂没有现场的机器人
+
+
+def test_RS2_robot_same_lot(monkeypatch):
+    from hub import rfield as RF
+    monkeypatch.setattr(RF, "enabled", lambda: True)
+    bl = lambda lot: {"joint": "J2", "kind": "backlash", "text": "J2 背隙超限", "lot": lot}   # noqa: E731
+    monkeypatch.setattr(RF, "fleet", lambda db, mode: [_robot("R1", "red", [bl("HD-L-7")]), _robot("R2", "yellow", [bl("HD-L-7")]),
+                                                        _robot("R3", "red", [bl("HD-L-8")])])
+    f = run("RS2")
+    assert [(x.fkey, x.values["serials"]) for x in f] == [("HD-L-7", ["R1", "R2"])]
+
+
 # ---------------------------------------------------------------- 维护、财务、研发
 def test_M1_repeat_down():
     ev = lambda u, h, e="alarm": msg("machine.event", "wq/gearbox/machining/{}/event".format(u), {"event": e, "message": "卡料"},

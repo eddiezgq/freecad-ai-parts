@@ -330,7 +330,7 @@ def main():
     check(len(sit["cards"]) == 15 and set(wt) <= {"energy"}, "全厂态势 15 块，待接入：{}（第 18 轮 E6 起能源有计量读数后也接上）".format("、".join(wt) or "没有"))
     rl = hub("GET", "/api/ont/rules", token=teacher)["rules"]
     live = [x for x in rl if not x["waiting"]]
-    check(len(live) == 61 and not [x["id"] for x in live if x["error"]], "规则 61 条在跑，没有出错（{}）".format([x["id"] for x in live if x["error"]]))
+    check(len(live) == 63 and not [x["id"] for x in live if x["error"]], "规则 63 条在跑（第 64 轮加 RS1、RS2），没有出错（{}）".format([x["id"] for x in live if x["error"]]))
 
     print("11. 厂情中枢：推演与动作（第 17 轮 C 期）")
     r = hub("POST", "/api/ont/shifts", {"mode": "shift"}, teacher)

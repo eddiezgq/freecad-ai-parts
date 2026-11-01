@@ -843,8 +843,11 @@ def energy_scene(H, eng, mode="teach"):
     lv = PE.levels(H.db, mode, PE.window_days(None, H.db, mode)) if PE.enabled(H.db, mode) else {}
     # 磨床一开始就劣化：情景里磨床一天只磨几件，而且只在某个时段磨；第 2 小时才劣化时，那几件落在劣化前还是后要看是几点开跑，
     # 测试随钟点时过时不过（2026-10-18 数字工厂部署卡在这里）。基线件不够 5 件时本来就用“标准值 × 1.08”当基线
+    # 峰时开炉在第 0、12 小时各安排一次（下一个完整的峰时段）：只安排一次时，情景从晚上起跑的那几个钟点峰时占比不到 30%，
+    # 规则 N3 不触发（2026-10-31 北京时间晚上 CI 卡在这里）。两次落在同一个峰时段时就只算一次
     rs = demo_readings(snap, 24, plan=[(0, [{"kind": "forgot", "unit": "hmc-01", "hours": 24}, {"kind": "ht_peak"},
-                                            {"kind": "degrade", "unit": "grd-01", "pct": 0.4}]), (18, [{"kind": "leak"}])],
+                                            {"kind": "degrade", "unit": "grd-01", "pct": 0.4}]),
+                                       (12, [{"kind": "ht_peak"}]), (18, [{"kind": "leak"}])],
                        staffing={"levels": lv} if lv else None)
     for d in rs:
         ingest(H.db, mode, d)

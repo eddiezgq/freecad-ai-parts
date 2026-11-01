@@ -13,18 +13,25 @@ DEFAULTS = {
     "housing": {"L": 410.0, "W": 150.0, "H": 300.0, "wall": 10.0, "fins": 0, "fin_h": 25.0, "fin_t": 6.0, "load_pct": 100.0},
     "heatsink": {"base": 60.0, "base_t": 6.0, "fins": 9, "fin_h": 30.0, "fin_t": 1.5, "pad": 30.0, "power_w": 65.0},
     "agv_box": {"L": 400.0, "W": 300.0, "H": 220.0, "wall": 6.0, "vent_w": 180.0, "vent_h": 50.0, "layout": 1, "p_drive": 60.0, "p_pc": 30.0},
+    # 第 62 轮：缝纫机伺服电控箱（教材《缝纫机设计与制造》第 18 章那只 550 W 的）：铝外壳兼作散热器，功率模块贴在顶板里面，顶面可加翅片
+    "sew_ebox": {"L": 260.0, "W": 160.0, "H": 90.0, "wall": 3.0, "fins": 0, "fin_h": 20.0, "fin_t": 2.0, "p_ipm": 18.0, "p_aux": 8.0,
+                 "h_out": 10.0, "t_air": 40.0},
 }
 LABELS = {"housing": "WQR-105 简化箱体（减速器热平衡）", "heatsink": "电脑 CPU 散热片（生活例子）",
-          "agv_box": "AGV 小车电控箱通风（机器人例子）"}
+          "agv_box": "AGV 小车电控箱通风（机器人例子）", "sew_ebox": "缝纫机伺服电控箱（铝外壳散热）"}
 AGV_LAYOUTS = {1: "前下进、后上出", 2: "前上进、后上出", 3: "前下进、后下出"}
 PARAM_NAMES = {
     "housing": {"L": "外形长 mm", "W": "外形宽 mm", "H": "外形高 mm", "wall": "壁厚 mm", "fins": "每个长侧面的散热筋数",
                 "fin_h": "散热筋高 mm", "fin_t": "散热筋厚 mm", "load_pct": "负载率 %（额定 350 N·m = 100）"},
     "heatsink": {"base": "底板边长 mm", "base_t": "底板厚 mm", "fins": "散热片数", "fin_h": "片高 mm", "fin_t": "片厚 mm",
                  "pad": "CPU 接触面边长 mm", "power_w": "CPU 发热功率 W"},
+    "sew_ebox": {"L": "外形长 mm", "W": "外形宽 mm", "H": "外形高 mm", "wall": "壁厚 mm", "fins": "顶面翅片数", "fin_h": "翅片高 mm",
+                 "fin_t": "翅片厚 mm", "p_ipm": "功率模块平均发热 W", "p_aux": "其他电路发热 W", "h_out": "外表面散热系数 W/(m²·K)",
+                 "t_air": "车间空气 ℃"},
     "agv_box": {"L": "箱长 mm（沿行驶方向）", "W": "箱宽 mm", "H": "箱高 mm", "wall": "壁厚 mm", "vent_w": "风口宽 mm", "vent_h": "风口高 mm",
                 "layout": "风口布置：1 前下进后上出 / 2 前上进后上出 / 3 前下进后下出", "p_drive": "电机驱动器发热 W", "p_pc": "工控机发热 W"},
 }
+SEW_IPM = (60.0, 45.0, 12.0)            # 功率模块（IPM）简化成实心块：长、宽、高 mm，贴在顶板里面正中
 AGV_PARTS = {"drive": (150.0, 100.0, 70.0, -0.18, -0.12), "pc": (120.0, 110.0, 45.0, 0.20, 0.12)}   # 长、宽、高，箱内位置（占内长 / 内宽的比例）
 
 
@@ -37,6 +44,14 @@ def params_of(key, p=None):
         if out["wall"] < 4 or out["wall"] > min(out["W"], out["H"]) / 4:
             raise ValueError("壁厚要在 4 mm 到外形的 1/4 之间")
         out["fins"] = int(max(0, min(out["fins"], 20)))
+    elif key == "sew_ebox":
+        out["fins"] = int(max(0, min(out["fins"], 30)))
+        if not 1.5 <= out["wall"] <= 10:
+            raise ValueError("壁厚要在 1.5–10 mm")
+        if out["L"] < 120 or out["W"] < 80 or out["H"] < 40:
+            raise ValueError("箱子太小（至少 120 × 80 × 40 mm）")
+        if out["fins"] and (out["L"] - out["fins"] * out["fin_t"]) / out["fins"] < 4:
+            raise ValueError("翅片太密：片间距不到 4 mm")
     elif key == "agv_box":
         out["layout"] = int(out["layout"]) if int(out["layout"]) in AGV_LAYOUTS else 1
         if not 4 <= out["wall"] <= 12:
@@ -92,6 +107,8 @@ def build(key, p):
         shape = part.part
     elif key == "agv_box":
         shape = _agv_box(p)
+    elif key == "sew_ebox":
+        shape = _sew_ebox(p)
     else:
         b, bt, n, fh, ft, pad = p["base"], p["base_t"], int(p["fins"]), p["fin_h"], p["fin_t"], p["pad"]
         with bd.BuildPart() as part:
@@ -136,6 +153,25 @@ def _agv_box(p):
     return part.part
 
 
+def _sew_ebox(p):
+    """缝纫机电控箱：封闭的铝盒（外壳兼散热器），顶面沿宽度方向的翅片，功率模块是贴在顶板里面的实心块"""
+    import build123d as bd
+    L, W, H, t = p["L"], p["W"], p["H"], p["wall"]
+    n, fh, ft = int(p["fins"]), p["fin_h"], p["fin_t"]
+    il, iw, ih = SEW_IPM
+    with bd.BuildPart() as part:
+        bd.Box(L, W, H, align=(bd.Align.CENTER, bd.Align.CENTER, bd.Align.MIN))
+        with bd.Locations((0, 0, t)):
+            bd.Box(L - 2 * t, W - 2 * t, H - 2 * t, align=(bd.Align.CENTER, bd.Align.CENTER, bd.Align.MIN), mode=bd.Mode.SUBTRACT)
+        with bd.Locations((0, 0, H - t)):
+            bd.Box(il, iw, ih, align=(bd.Align.CENTER, bd.Align.CENTER, bd.Align.MAX))
+        if n:
+            pitch = L / n
+            with bd.Locations(*[(-L / 2 + pitch * (i + 0.5), 0, H + fh / 2) for i in range(n)]):
+                bd.Box(ft, W, fh)
+    return part.part
+
+
 def groups(key, p, faces):
     """按位置把面分组：返回 {组名: [面号]}"""
     out = {}
@@ -151,6 +187,22 @@ def groups(key, p, faces):
             else:
                 outer.append(f["id"])
         out = {"inner": inner, "outer": outer, "bottom": bottom}
+    elif key == "sew_ebox":
+        L, W, H, t = p["L"], p["W"], p["H"], p["wall"]
+        il, iw, ih = SEW_IPM
+        out = {"ipm": [], "inner_bottom": [], "inner": [], "outer": [], "fins": []}
+        for f in faces:
+            c = f["center"]
+            if abs(c[0]) <= il / 2 + 1e-3 and abs(c[1]) <= iw / 2 + 1e-3 and H - t - ih - 1e-3 <= c[2] < H - t - 1e-3:
+                out["ipm"].append(f["id"])
+            elif f["kind"] == "plane" and abs(c[2] - t) < 1e-3:
+                out["inner_bottom"].append(f["id"])
+            elif abs(c[0]) < L / 2 - t + 1e-3 and abs(c[1]) < W / 2 - t + 1e-3 and t - 1e-3 <= c[2] <= H - t + 1e-3:
+                out["inner"].append(f["id"])
+            else:
+                out["outer"].append(f["id"])
+                if c[2] > H + 1e-3:                      # 顶面以上的面就是翅片（侧面、顶端）：翅片之间互相辐射，算对流不算辐射
+                    out["fins"].append(f["id"])
     elif key == "agv_box":
         L, W, H, t = p["L"], p["W"], p["H"], p["wall"]
         out = {"drive": [], "pc": [], "inner": [], "outer": [], "bottom": []}
@@ -194,6 +246,19 @@ def example(key, p, faces):
         return {"material_id": "HT200", "thermal": thermal, "groups": g, "formula": formula,
                 "title": "WQR-105 箱体热平衡（{}）".format("{} 条散热筋 / 侧".format(n) if n else "无散热筋"),
                 "mesh_mm": round(max(6.0, 1.2 * p["wall"]), 1)}
+    if key == "sew_ebox":
+        P = p["p_ipm"] + p["p_aux"]
+        thermal = [{"type": "heat_flux", "faces": g["ipm"], "power_w": p["p_ipm"]},
+                   {"type": "heat_flux", "faces": g["inner_bottom"], "power_w": p["p_aux"]},
+                   {"type": "convection", "faces": g["outer"], "h_w_m2k": p["h_out"], "t_inf_c": p["t_air"]}]
+        A = (2 * p["L"] * p["W"] + 2 * (p["L"] + p["W"]) * p["H"]) * 1e-6
+        formula = {"name": "外壳散热：t_壳 = t_空气 + P/(h·A)（箱内空气不计，热从功率模块、底板直接进外壳）",
+                   "loss_w": round(P, 2), "h": p["h_out"], "A_m2": round(A, 4), "t0_c": p["t_air"],
+                   "t_est_c": round(p["t_air"] + P / (p["h_out"] * A), 1), "limit_c": 100,
+                   "note": "h 默认 10 W/(m²·K) 是自然对流加辐射的量级；流体分析（自然对流或风扇）算出每个面的 h 后换上；"
+                           "缝纫机设计软件“电控箱”从这里取外壳的平均温度，反算箱子到车间的热阻"}
+        return {"material_id": "6061-T6", "thermal": thermal, "groups": g, "formula": formula,
+                "title": "缝纫机电控箱 {:g}×{:g}×{:g}（{:g} W）".format(p["L"], p["W"], p["H"], P), "mesh_mm": round(max(3.0, 1.5 * p["wall"]), 1)}
     if key == "agv_box":
         P = p["p_drive"] + p["p_pc"]
         A_v = p["vent_w"] * p["vent_h"] * 1e-6

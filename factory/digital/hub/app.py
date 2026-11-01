@@ -347,6 +347,11 @@ class Hub:
                             log.exception("情景出错")
                     elif mode == "teach":             # 其他工厂的教学版（第 45 轮）：订单做完开票；第 59 轮起设备维护、能源、经营财务也开
                         if DOMAINS_ON:
+                            try:                      # 第 64 轮：机器人厂的客户与服务——现场的机器人（建档、发出、现场模拟、投诉、上门）
+                                from hub import rfield as RF
+                                RF.tick(self, mode)
+                            except Exception:  # noqa: BLE001
+                                log.exception("现场机器人出错")
                             try:                      # 第 61 轮：安全环保的模拟器（一般隐患、未遂、化学品与废物）；人员档案进 ERPNext、出勤
                                 from hub import ehs as EH
                                 EH.tick(self, mode)
@@ -2229,6 +2234,8 @@ from hub import park as _park  # noqa: E402
 _park.mount(app, H, user_of, who)                 # 第 51 轮：工业园两厂互发订单
 from hub import energy_api as _energy_api  # noqa: E402
 _energy_api.mount(app, H, user_of, who)           # 第 18 轮 E6：能源与环境
+from hub import rfield_api as _rfield_api  # noqa: E402
+_rfield_api.mount(app, H, user_of, who)           # 第 64 轮：机器人厂的客户与服务（现场的机器人）
 from hub import finance_api as _finance_api  # noqa: E402
 _finance_api.mount(app, H, user_of, who)          # 第 18 轮 E7：经营与财务
 from hub import story_api as _story_api  # noqa: E402

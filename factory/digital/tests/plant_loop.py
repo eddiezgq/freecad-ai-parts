@@ -349,6 +349,28 @@ def domains(mgr):
     check(em["employees"] and all(e.get("erp_id") for e in em["employees"]), "员工档案 {} 人进了 ERPNext".format(len(em["employees"])))
     ro = hub("GET", "/api/people/roster", token=mgr)
     check(set(ro.get("units") or []) <= set(names) and ro.get("rows"), "排班表按本厂设备排（{} 台要有人）".format(len(ro.get("units") or [])))
+    # 第 64 轮：客户与服务——现场的机器人（只在有关节模组产品的厂：机器人厂）
+    try:
+        hub("GET", "/api/rfield/kpis", token=mgr)
+    except Exception:  # noqa: BLE001
+        print("（本厂没有现场的机器人）")
+        return
+    fl = wait(lambda: (lambda x: x if any(r["status"] == "field" and not r["seeded"] for r in x["robots"]) else None)(
+        hub("GET", "/api/rfield/fleet", token=mgr)), "接的 WQ-CR5 建档、开票后发到客户现场", 600, 10) or hub("GET", "/api/rfield/fleet", token=mgr)
+    mine = [r for r in fl["robots"] if not r["seeded"]]
+    check(any(r["status"] == "field" for r in mine), "现场的机器人：情景里的 {} 台 + 本次发出 {} 台".format(
+        sum(1 for r in fl["robots"] if r["seeded"]), sum(1 for r in mine if r["status"] == "field")))
+    r0 = next((r for r in mine if r["status"] == "field"), None)
+    if not r0:
+        return
+    d = wait(lambda: (lambda x: x if x["series"] else None)(hub("GET", "/api/rfield/robots/" + r0["serial"], token=mgr)),
+             "现场回传运行摘要", 300, 10) or {"series": [], "as_built": {"joints": []}}
+    check(bool(d["series"]) and len(d["as_built"]["joints"]) == 6, "{}：{} 天现场摘要，6 个关节的出厂档案（批次 {}）".format(
+        r0["serial"], len(d["series"]), "、".join(sorted({j.get("lot") or "—" for j in d["as_built"]["joints"]}))))
+    cid = hub("POST", "/api/rfield/complaints", {"serial": r0["serial"], "subject": "演练：J2 有异响", "joint": "J2"}, mgr)["id"]
+    c = wait(lambda: next((x for x in hub("GET", "/api/rfield/complaints", token=mgr)["complaints"] if x["id"] == cid and x["issue"]), None),
+             "投诉进 ERPNext（Issue）", 300, 5)
+    check(bool(c), "投诉 RC-{:05d} 进了 ERPNext：{}".format(cid, (c or {}).get("issue")))
 
 
 def lab27(mgr):

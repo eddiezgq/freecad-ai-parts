@@ -94,3 +94,41 @@ def service_overdue(c, p, r):
                                subject=("ServiceOrder", key), about=[("ServiceOrder", key), ("FieldUnit", e["serial"])],
                                values={"days": d, "serial": e["serial"]}))
     return out
+
+
+# ---------------------------------------------------------------- 第 64 轮：机器人厂的现场机器人
+def _rfleet(c):
+    from hub import rfield as RF
+    if not RF.enabled():
+        return []
+    return c.get("rfleet", lambda: [x for x in RF.fleet(c.db, c.mode) if x["status"] == "field"])
+
+
+@rule("robot_field_alarm")
+def robot_field_alarm(c, p, r):
+    """RS1：现场机器人报警（背隙接近 / 超过上限、关节过热、碰撞突增、撞后定位不准）"""
+    out = []
+    for x in _rfleet(c):
+        if x["health"] not in LEVEL:
+            continue
+        texts = [w["text"] for w in x["why"]]
+        out.append(Finding(x["serial"], "现场机器人 {}（{}）报警：{}".format(x["serial"], (x["customer"] or "").split(" ")[0], texts[0]),
+                           "；".join(texts), severity=LEVEL[x["health"]], subject=("FieldUnit", x["serial"]),
+                           hint="在“客户与服务”页看这台的趋势和出厂档案；背隙超限上门换关节模组，过热补润滑脂，撞过远程重新标定",
+                           values={"health": x["health"], "customer": x["customer"], "why": texts}))
+    return out
+
+
+@rule("robot_field_batch")
+def robot_field_batch(c, p, r):
+    """RS2：报警（背隙）的机器人里，至少 min_units 台的关节用了同一批谐波减速器"""
+    lots = {}
+    for x in _rfleet(c):
+        for w in x["why"]:
+            if w["kind"] == "backlash" and w.get("lot"):
+                lots.setdefault(w["lot"], set()).add(x["serial"])
+    n = int(p.get("min_units", 2))
+    return [Finding(lot, "同一批谐波减速器 {} 有 {} 台现场机器人背隙报警".format(lot, len(ss)), "、".join(sorted(ss)),
+                    subject=("Batch", lot), hint="查这批减速器的来料检验和关节测试数据；同批装出去的机器人安排预防性更换",
+                    values={"lot": lot, "serials": sorted(ss)})
+            for lot, ss in sorted(lots.items()) if len(ss) >= n]

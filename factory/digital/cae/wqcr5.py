@@ -20,6 +20,7 @@
 from __future__ import annotations
 
 import math
+from contextlib import contextmanager
 
 import numpy as np
 
@@ -340,6 +341,148 @@ def sync():
     (repo / "textbook" / "robotics" / "models" / "mjcf" / "wqcr5.xml").write_text(mjcf(), encoding="utf-8")
     return [repo / "library" / "generators" / "wqcr5.py", repo / "textbook" / "robotics" / "models" / "mjcf" / "wqcr5.xml"]
 
+
+
+# ---------------------------------------------------------------- 第 63 轮：尺寸综合与模组选择（教材 30.3 节；配置器“协作臂定制”）
+# 设计规则（示例）：
+#   臂展 = 大臂 a2 + 小臂 a3 + 腕部偏距 d5；a2 − a3 = DEAD_ZONE：手腕中心到不了肩关节附近半径 |a2 − a3| 的圆，
+#   取 4 cm，小于 J1 模组的半径 5.5 cm，这块死区落在机器人自己身上；再长的大臂只减一点 J3 的力矩，死区却露到身外。
+#   关节最高速度 DESIGN_SPEED；最不利姿态的力矩需求 = 1.2 × (最大重力矩 + 最大惯量 × 设计角加速度)，与模组的峰值能力比；
+#   连续需求 = 1.2 × 标准动作（按加速度缩放时间）的均方根，与模组的额定能力比。每个关节取够用的最小模组（小 → 中 → 大），
+#   再按两条“通用”规则：J1 与 J2 用同一种（底座模组承受整条手臂的倾覆力矩，大轴承；少一种零件），J4–J6 用同一种（腕部一种模组）。
+DEAD_ZONE = 0.04
+DESIGN_SPEED = math.radians(180.0)
+DESIGN_ACCEL = {"standard": math.radians(360.0), "fast": math.radians(540.0)}
+SAFETY = 1.2
+MOTOR_RATED = {"伺服 100 W": 0.318, "伺服 200 W": 0.637, "伺服 400 W": 1.27}     # 额定力矩 N·m，取自 motors.MOTORS（测试核对）
+ORDER = ("S", "M", "L")
+
+
+@contextmanager
+def geometry(a2=None, a3=None, modules=None):
+    """临时改大臂、小臂长度（m）和各关节的模组（6 个 "S"/"M"/"L"）；离开时恢复标准 WQ-CR5"""
+    global JOINT_MODULE
+    saved = ([dict(p) for p in DH], JOINT_MODULE)
+    try:
+        if a2 is not None:
+            DH[1]["a"] = -float(a2)
+        if a3 is not None:
+            DH[2]["a"] = -float(a3)
+        if modules is not None:
+            JOINT_MODULE = tuple(modules)
+        yield
+    finally:
+        for p, q in zip(DH, saved[0]):
+            p.update(q)
+        JOINT_MODULE = saved[1]
+
+
+def capacity(s):
+    """一种模组在关节侧的能力（减速比 GEAR_RATIO、效率 ETA）：峰值 = min(电机峰值 × i × η，减速器重复峰值)，
+    额定 = min(电机额定 × i × η，减速器额定)"""
+    mod = MODULES[s]
+    k = GEAR_RATIO * ETA
+    return {"peak": min(mod["motor"][1] * k, mod["gear"][2]), "rated": min(MOTOR_RATED[mod["motor"][0]] * k, mod["gear"][1])}
+
+
+def split(reach_m):
+    """由臂展定大臂、小臂：a2 + a3 = 臂展 − d5，a2 − a3 = DEAD_ZONE，取整到 5 mm"""
+    s = reach_m - DH[4]["d"]
+    a2 = round((s + DEAD_ZONE) / 2 / 0.005) * 0.005
+    return round(a2, 4), round(s - a2, 4)
+
+
+def _model(payload_kg):
+    import mujoco
+    m = mujoco.MjModel.from_xml_string(mjcf(friction=False, payload_kg=payload_kg))
+    m.opt.disableflags |= int(mujoco.mjtDisableBit.mjDSBL_CONTACT) | int(mujoco.mjtDisableBit.mjDSBL_LIMIT)
+    return mujoco, m, mujoco.MjData(m)
+
+
+def worst_case(payload_kg, step_deg=30.0):
+    """各关节的最大重力矩 |g_i| 和最大连杆惯量 M_ii（不含转子）：J2–J5 的角度按网格取遍（J1、J6 不影响）"""
+    mujoco, m, d = _model(payload_kg)
+    arm = np.array(armature())
+    grid = np.radians(np.arange(-180.0, 180.0, step_deg))
+    gmax, Mmax = np.zeros(6), np.zeros(6)
+    M = np.zeros((m.nv, m.nv))
+    for q2 in grid:
+        for q3 in grid:
+            for q4 in grid:
+                for q5 in grid[::2]:
+                    d.qpos[:6] = (0.0, q2, q3, q4, q5, 0.0)
+                    d.qvel[:] = 0
+                    d.qacc[:] = 0
+                    mujoco.mj_inverse(m, d)
+                    gmax = np.maximum(gmax, np.abs(d.qfrc_inverse[:6]))
+                    mujoco.mj_fullM(m, d, M)
+                    Mmax = np.maximum(Mmax, np.diag(M)[:6] - arm)
+    return gmax, Mmax
+
+
+def duty_rms(payload_kg, accel):
+    """连续需求：负载跑合台的标准动作（时间按设计角加速度缩放）各关节力矩的均方根，含转子惯量"""
+    mujoco, m, d = _model(payload_kg)
+    k = math.sqrt(DESIGN_ACCEL["standard"] / accel)          # 加速度大 → 动作快：时间缩短
+    t = np.arange(0.0, runin_duration(), 0.01)
+    tau = []
+    for x in t:
+        q, qd, qdd = runin_ref(x)
+        d.qpos[:6], d.qvel[:6], d.qacc[:6] = q, qd / k, qdd / k ** 2
+        mujoco.mj_inverse(m, d)
+        tau.append(d.qfrc_inverse[:6].copy())
+    return np.sqrt(np.mean(np.array(tau) ** 2, axis=0))
+
+
+def design(payload_kg=PAYLOAD_KG, reach_mm=None, speed="standard"):
+    """按负载、臂展设计一台 WQ-CR5 式协作臂：大臂、小臂长度，每个关节的模组，力矩需求与利用率（教材 30.3 节的方法）"""
+    reach = (reach_mm / 1000.0) if reach_mm else abs(DH[1]["a"]) + abs(DH[2]["a"]) + DH[4]["d"]
+    accel = DESIGN_ACCEL[speed]
+    a2, a3 = split(reach)
+    mods = ["S"] * 6
+    for _ in range(6):                                       # 模组的质量又改变力矩：迭代到不变
+        with geometry(a2, a3, mods):
+            gmax, Mmax = worst_case(payload_kg)
+            rms = duty_rms(payload_kg, accel)
+            arm = np.array(armature())
+            need_peak = SAFETY * (gmax + Mmax * accel)
+            need_rms = SAFETY * rms
+            new = []
+            for j in range(6):
+                pick = None
+                for s in ORDER:
+                    cap = capacity(s)
+                    arm_s = MODULES[s]["motor"][2] * GEAR_RATIO ** 2
+                    motor_peak = need_peak[j] + SAFETY * arm_s * accel * ETA          # 电机还要带转子加速（折到关节侧）
+                    if max(need_peak[j], motor_peak) <= cap["peak"] and need_rms[j] <= cap["rated"]:
+                        pick = s
+                        break
+                new.append(pick)
+            if None in new:
+                break
+            own = list(new)
+            new[0] = max(new[0], new[1], key=ORDER.index)      # J1 与 J2 同一种
+            w = max(new[3:], key=ORDER.index)                  # 腕部一种
+            new[3:] = [w, w, w]
+            if new == mods:
+                break
+            mods = new
+    ok = None not in new
+    rows = []
+    with geometry(a2, a3, mods if ok else ["L"] * 6):
+        mass = total_mass()
+        for j in range(6):
+            s = mods[j] if ok else None
+            cap = capacity(s) if s else None
+            rows.append({"joint": JOINTS[j], "module": MODULES[s]["code"] if s else None, "own": MODULES[own[j]]["code"] if ok and own[j] else None,
+                         "g_max": round(float(gmax[j]), 2), "M_max": round(float(Mmax[j]), 4),
+                         "need_peak": round(float(need_peak[j]), 1), "need_rms": round(float(need_rms[j]), 1),
+                         "cap_peak": round(cap["peak"], 1) if cap else None, "cap_rated": round(cap["rated"], 1) if cap else None,
+                         "use_peak": round(float(need_peak[j]) / cap["peak"], 3) if cap else None,
+                         "use_rms": round(float(need_rms[j]) / cap["rated"], 3) if cap else None})
+    return {"ok": ok, "payload_kg": payload_kg, "reach_m": round(reach, 4), "speed": speed, "accel_deg_s2": round(math.degrees(accel)),
+            "a2": a2, "a3": a3, "dead_zone_m": round(abs(a2 - a3), 4), "modules": mods if ok else None, "joints": rows,
+            "mass_kg": round(mass, 2), "standard": ok and abs(a2 - 0.4) < 1e-9 and abs(a3 - 0.36) < 1e-9 and tuple(mods) == ("L", "L", "M", "S", "S", "S")}
 
 if __name__ == "__main__":
     import sys

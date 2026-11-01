@@ -93,13 +93,14 @@ def test_catalog_loads_33_live_rules_and_waiting_ones():
     from hub.ont import anomaly as A
     c = A.load_catalog()
     live = [r for r in c.values() if not r["waiting"]]
-    assert len(live) == 61 == len(c)                                  # 第 18 轮 E1：C1–C5、R3；E2：E1–E7；E3：M2–M7；E4：H1–H5；E5：W3–W7；E6：N1–N6；E7：F2–F7
+    assert len(live) == 63 == len(c)                                  # 第 64 轮：加 RS1、RS2（现场的机器人）；第 18 轮 E1：C1–C5、R3；E2：E1–E7；E3：M2–M7；E4：H1–H5；E5：W3–W7；E6：N1–N6；E7：F2–F7
     assert {k for k, r in c.items() if not r["waiting"]} >= {"C1", "C2", "C3", "C4", "C5", "R3"}
     assert {k for k, r in c.items() if not r["waiting"]} >= {"E1", "E2", "E3", "E4", "E5", "E6", "E7"}
     assert not [k for k, r in c.items() if r["waiting"]]                                       # 第 18 轮 E7：财务上线，没有“待数据”的规则了
     assert {k for k, r in c.items() if not r["waiting"]} >= {"F1", "F2", "F3", "F4", "F5", "F6", "F7"}
     assert {k for k, r in c.items() if not r["waiting"]} >= {"N1", "N2", "N3", "N4", "N5", "N6"}
     assert {k for k, r in c.items() if not r["waiting"]} >= {"H1", "H2", "H3", "H4", "H5"}       # 第 18 轮 E4：人员领域上线
+    assert {"RS1", "RS2"} <= set(c)
 
 
 def test_catalog_rejects_missing_function(tmp_path):
