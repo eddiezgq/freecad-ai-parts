@@ -125,6 +125,8 @@ def source_numbers(texts):
             except ValueError:
                 continue
             nums.add(_norm(s))
+        for m in re.findall(r"\d{4}-(\d{1,2})-(\d{1,2})", t):    # 日期里的月、日：回答写成“11-01 00:57”时月份也要核得到（第 67 轮，11 月 1 日评测卡在这里）
+            nums |= {_norm(x) for x in m}
     return nums
 
 

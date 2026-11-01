@@ -271,10 +271,10 @@ operations:
     accuracy:
       - char: C1
         items:
-          - {name: 调整误差（首件试磨后按测量值调整，G04 分度值 0.002）, range: 0.002, kind: sys}
+          - {name: 调整误差（试磨 5 件、按均值调整，±3σ/√5；横进给最小补偿量 0.002；每次调整不同，按随机误差合成）, range: 0.0038, kind: rand}
           - {name: 砂轮尺寸磨损（每 10 件修整一次，修整间隔内直径逐件增大）, range: 0.0042, kind: sys}
           - {name: 砂轮架热伸长的残余（开机预热以后）, range: 0.001, kind: sys}
-          - {name: 两顶尖连线与工作台运动方向不平行（轴承位 12 mm 长度内的锥度）, range: 0.0005, kind: sys}
+          - {name: 两顶尖连线与工作台运动方向不平行（轴承位长度内的锥度，按较长的右轴承位 25 mm 计）, range: 0.001, kind: sys}
           - {name: 加工重复性（±3σ，σ = 0.0012）, range: 0.0072, kind: rand}
           - {name: 测量误差（杠杆千分尺 G04，±0.001）, range: 0.002, kind: rand}
       - char: C7

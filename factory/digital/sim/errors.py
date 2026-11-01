@@ -36,7 +36,7 @@ Z_LEFT, Z_GEAR, Z_RIGHT, LENGTH = 46.0, 82.0, 124.5, 167.0
 
 PROBLEMS = {
     "tailstock_offset": {"name": "磨床尾座偏移（锥度）", "unit": "grd-01", "fix": "align_tailstock", "default": 0.008},
-    "dressing_interval": {"name": "砂轮修整间隔过长（尺寸漂移加快）", "unit": "grd-01", "fix": "shorten_dressing", "default": 2.5},
+    "dressing_interval": {"name": "砂轮磨损加快（砂轮偏软或修整不良，尺寸漂移加快）", "unit": "grd-01", "fix": "shorten_dressing", "default": 2.5},
     "thermal_warmup": {"name": "磨床未预热（开机后尺寸逐件变小）", "unit": "grd-01", "fix": "warm_up", "default": 0.010},
     "locator_worn": {"name": "键槽夹具定位元件磨损（对称度超差）", "unit": "key-01", "fix": "replace_locator", "default": 0.012},
     "center_hole": {"name": "中心孔质量差（圆跳动超差）", "unit": "grd-01", "fix": "lap_center_holes", "default": 0.006},
@@ -274,10 +274,11 @@ class ErrorModel:
         out = []
         base_d35 = 35.0065 + slope * wear + thermal
         # 原有三项：随机数顺序与原模型相同
-        v1 = main_rng.gauss(base_d35, 0.0012 * ch_sd)
-        v2 = main_rng.gauss(40.010 + thermal + taper * (Z_GEAR - Z_LEFT), (40.018 - 40.002) / 10 * ch_sd)
+        # 尾座偏移：工件绕头架顶尖偏斜，直径变化与到头架的距离成正比（第 54 章式 (54.3.2)，头架端为零）
+        v1 = main_rng.gauss(base_d35 + taper * Z_LEFT, 0.0012 * ch_sd)
+        v2 = main_rng.gauss(40.010 + thermal + taper * Z_GEAR, (40.018 - 40.002) / 10 * ch_sd)
         v3 = main_rng.gauss(11.9785, (12.000 - 11.957) / 10)
-        v4 = self.rng.gauss(base_d35 + taper * (Z_RIGHT - Z_LEFT), 0.0012 * ch_sd)
+        v4 = self.rng.gauss(base_d35 + taper * Z_RIGHT, 0.0012 * ch_sd)
         v5 = abs(self.rng.gauss(runout_mean, runout_sd))
         v6 = abs(self.rng.gauss(sym_mean, sym_sd))
         for (code, name, nom, lo, hi), v in zip(CHARS, (v1, v2, v3, v4, v5, v6)):

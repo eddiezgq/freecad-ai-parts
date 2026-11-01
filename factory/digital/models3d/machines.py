@@ -161,7 +161,7 @@ def cylindrical_grinder(L=167.0, wheel_x=82.0, D_wheel=400.0, B_wheel=50.0, r_wo
                         dog_at=19.0, table_x=0.0):
     """外圆磨床（第 54 章，简化整机）：床身、工作台、头架（拨盘、前顶尖）、尾座（套筒、后顶尖）、砂轮架（横进给拖板、砂轮、罩壳）。
     工件轴线沿 x、过原点，左端中心孔顶点在 x = 0、右端在 x = L；砂轮在 +y 一侧（误差敏感方向是 y），宽 B_wheel，中心在 x = wheel_x，
-    外圆离工件外圆 gap（r_work 为磨削处的工件半径）。tail_offset：尾座顶尖沿 y 的偏移（> 0 离开砂轮），教学时放大画以看出锥度；
+    外圆离工件外圆 gap（r_work 为磨削处的工件半径）。tail_offset：尾座顶尖沿 y 的偏移（砂轮在 +y 一侧，> 0 靠近砂轮、< 0 离开砂轮），教学时放大画以看出锥度；
     table_x：工作台（连同头架、尾座、工件）沿 x 的位置（纵向往复磨削）。返回 Assembly，anchors 里有砂轮中心、两顶尖顶点。"""
     from . import elements as E
     a = Assembly("外圆磨床")
