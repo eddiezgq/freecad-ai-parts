@@ -266,6 +266,23 @@ operations:
       - {char: "齿轮位 Ø40 k6（C2）★", gauge: G04, freq: 每件}
       - {char: "轴承位径向圆跳动 0.012（C7）★、齿轮位 0.015（C8）", gauge: G05, freq: 首件、每 5 件}
       - {char: "Ra 0.8（C10）", gauge: G09, freq: 首件、每班 2 件}
+    # 加工精度预算（第 54 章，hub/accuracy.py budget）：系统误差直接相加，随机误差（±3σ）平方和开方，合计与公差比较。
+    # 数值与仿真车间的误差模型（sim/errors.py）一致：重复性 σ = 0.0012，砂轮磨损使直径每件约增大 0.0125/30 mm，每 10 件修整一次。
+    accuracy:
+      - char: C1
+        items:
+          - {name: 调整误差（首件试磨后按测量值调整，G04 分度值 0.002）, range: 0.002, kind: sys}
+          - {name: 砂轮尺寸磨损（每 10 件修整一次，修整间隔内直径逐件增大）, range: 0.0042, kind: sys}
+          - {name: 砂轮架热伸长的残余（开机预热以后）, range: 0.001, kind: sys}
+          - {name: 两顶尖连线与工作台运动方向不平行（轴承位 12 mm 长度内的锥度）, range: 0.0005, kind: sys}
+          - {name: 加工重复性（±3σ，σ = 0.0012）, range: 0.0072, kind: rand}
+          - {name: 测量误差（杠杆千分尺 G04，±0.001）, range: 0.002, kind: rand}
+      - char: C7
+        T: 0.012
+        items:
+          - {name: 中心孔圆度与顶尖磨损引起的回转误差（修研中心孔以后）, range: 0.004, kind: sys}
+          - {name: 磨削的随机跳动（±3σ，σ = 0.0012）, range: 0.0072, kind: rand}
+          - {name: 测量误差（偏摆检查仪 G05 与千分表，±0.001）, range: 0.002, kind: rand}
   - seq: 70
     operation: 零件检验 Part inspection
     workstation: 检验站 QC-01

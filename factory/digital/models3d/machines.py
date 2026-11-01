@@ -155,3 +155,47 @@ def mill_spindle(x, y, z_tip, cutter_d=12.0, cutter_L=26.0):
     a.add(Part("夹头", S.cyl("z", (x, y), 20, z_tip + cutter_L + 20, z_tip + cutter_L + 60), "steel"))
     a.add(Part("主轴头", S.cyl("z", (x, y), 45, z_tip + cutter_L + 60, z_tip + cutter_L + 150), "cast"))
     return a
+
+
+def cylindrical_grinder(L=167.0, wheel_x=82.0, D_wheel=400.0, B_wheel=50.0, r_work=20.0, gap=0.0, tail_offset=0.0,
+                        dog_at=19.0, table_x=0.0):
+    """外圆磨床（第 54 章，简化整机）：床身、工作台、头架（拨盘、前顶尖）、尾座（套筒、后顶尖）、砂轮架（横进给拖板、砂轮、罩壳）。
+    工件轴线沿 x、过原点，左端中心孔顶点在 x = 0、右端在 x = L；砂轮在 +y 一侧（误差敏感方向是 y），宽 B_wheel，中心在 x = wheel_x，
+    外圆离工件外圆 gap（r_work 为磨削处的工件半径）。tail_offset：尾座顶尖沿 y 的偏移（> 0 离开砂轮），教学时放大画以看出锥度；
+    table_x：工作台（连同头架、尾座、工件）沿 x 的位置（纵向往复磨削）。返回 Assembly，anchors 里有砂轮中心、两顶尖顶点。"""
+    from . import elements as E
+    a = Assembly("外圆磨床")
+    R = D_wheel / 2
+    tx = table_x
+    a.add(Part("床身", S.box(-320, L + 340, -260, R + 420, -380, -250), "cast", 1))
+    a.add(Part("工作台", S.box(-280 + tx, L + 290 + tx, -95, 95, -250, -205), "steel", 2))
+    hs = S.box(-230 + tx, -70 + tx, -85, 85, -205, 30) + S.cyl("x", (0, 0), 62, -100 + tx, -70 + tx)
+    a.add(Part("头架", hs, "cast", 3))
+    plate = S.cyl("x", (0, 0), 58, -70 + tx, -55 + tx) + S.box(-55 + tx, -42 + tx, 38, 52, -8, 8)
+    a.add(Part("拨盘", plate, "steel_dark", 4))
+    a.add(Part("前顶尖", S.move(E.center(at=(0, 0, 0), toward=1), tx), "hardened", 5))
+    ty = tail_offset
+    ts = S.box(L + 70 + tx, L + 200 + tx, -75 + ty, 75 + ty, -205, 25) + S.cyl("x", (ty, 0), 24, L + 18 + tx, L + 70 + tx)
+    a.add(Part("尾座", ts, "cast", 6))
+    a.add(Part("后顶尖", S.move(E.center(at=(L, ty, 0), toward=-1), tx), "hardened", 7))
+    if dog_at is not None:
+        # 弯尾鸡心夹头：尾部伸到拨盘的拨杆旁，贴住拨杆的侧面（z = 8）
+        dog = S.tube("x", (0, 0), 24, 15, dog_at - 6 + tx, dog_at + 6 + tx) + S.box(dog_at - 6 + tx, dog_at + 6 + tx, 14, 50, 8, 20) \
+            + S.box(-50 + tx, dog_at + 6 + tx, 40, 50, 8, 20)
+        a.add(Part("鸡心夹头", dog, "steel_dark", 8))
+    yc = r_work + gap + R                  # 砂轮中心
+    a.add(Part("砂轮", S.tube("x", (yc, 0), R, 63.5, wheel_x - B_wheel / 2, wheel_x + B_wheel / 2), "#9aa3ab", 9))
+    # 罩壳：罩住砂轮的后半圈和上方，朝工件的一侧（−y）敞开
+    w0, w1 = wheel_x - B_wheel / 2 - 12, wheel_x + B_wheel / 2 + 12
+    guard = S.tube("x", (yc, 0), R + 18, R + 6, w0, w1) - S.box(w0 - 1, w1 + 1, yc - R - 30, yc - 0.25 * R, -R - 30, R + 30) \
+        - S.box(w0 - 1, w1 + 1, yc - R - 30, yc + R + 30, -R - 30, -0.35 * R)
+    for xw in (w0, w1 - 6):                # 两侧挡板（后半圈）
+        guard = guard + (S.cyl("x", (yc, 0), R + 18, xw, xw + 6) - S.box(xw - 1, xw + 7, yc - R - 30, yc - 0.25 * R, -R - 30, R + 30)
+                         - S.box(xw - 1, xw + 7, yc - R - 30, yc + R + 30, -R - 30, -0.35 * R) - S.cyl("x", (yc, 0), 70, xw - 1, xw + 7))
+    a.add(Part("砂轮罩", guard, "steel", 10, tags=("nocut",)))
+    head = S.cyl("x", (yc, 0), 70, wheel_x + B_wheel / 2 + 12, wheel_x + B_wheel / 2 + 230) + \
+        S.box(wheel_x + B_wheel / 2 + 12, wheel_x + B_wheel / 2 + 260, yc - 90, yc + 160, -205, 90)
+    a.add(Part("砂轮架", head, "cast", 11))
+    a.add(Part("横进给拖板", S.box(wheel_x - 160, wheel_x + B_wheel / 2 + 280, yc - 120, yc + 200, -250, -205), "steel", 12))
+    a.anchors.update({"wheel": (wheel_x, yc, 0.0), "center_head": (tx, 0.0, 0.0), "center_tail": (L + tx, ty, 0.0)})
+    return a

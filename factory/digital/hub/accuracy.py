@@ -359,6 +359,12 @@ def sequence(values, resets=(), sigma=None, baseline=None) -> dict:
     for s0, e0 in [(cuts[k], cuts[k + 1]) for k in range(len(cuts) - 1)]:
         for i in range(s0, e0):
             pos[i] = i - s0
+    step = None                                # 一次跳变（两段常数）的最好拟合，供与漂移、预热比较
+    for c in range(3, n - 3):
+        m1, m2 = st.fmean(v[:c]), st.fmean(v[c:])
+        sse = sum((y - m1) ** 2 for y in v[:c]) + sum((y - m2) ** 2 for y in v[c:])
+        if step is None or sse < step[0]:
+            step = (sse, c)
     if len(segs) >= 2:
         xs = [i - s0 - (e0 - s0 - 1) / 2 for s0, e0 in segs for i in range(s0, e0)]
         ys = [v[i] - st.fmean(v[s0:e0]) for s0, e0 in segs for i in range(s0, e0)]
@@ -368,8 +374,13 @@ def sequence(values, resets=(), sigma=None, baseline=None) -> dict:
         if abs(b) * 20 > 3 * ref:
             found.append(("drift_saw", abs(b) * 20 / ref))
     else:
-        _, b = _linfit(idx, v)
+        a0, b = _linfit(idx, v)
         res["slope"] = b
+        # 先比较“线性漂移”和“一次跳变”哪个更像：台阶也能拟合出一个斜率，不先比较就会把跳变当成漂移、减掉以后再也找不到
+        sse_lin = sum((y - a0 - b * i) ** 2 for i, y in enumerate(v))
+        if step and sse_lin > 0 and step[0] < 0.7 * sse_lin:
+            b = 0.0                                # 是跳变，不按漂移处理
+            res["slope"] = 0.0
         w = [v[i] - b * i for i in idx]
         if abs(b) * min(n, 20) > 3 * ref:
             found.append(("drift_linear", abs(b) * min(n, 20) / ref))
@@ -389,7 +400,8 @@ def sequence(values, resets=(), sigma=None, baseline=None) -> dict:
                 best_w = (sse, tau, c)
         sse_w, tau, c = best_w
         res["warmup"] = {"tau": tau, "delta_inf": c[2], "slope": c[1], "sse": sse_w, "sse_const": sse0}
-        if sse0 > 0 and sse_w < 0.7 * sse0 and abs(c[2]) > 3 * ref and tau < n / 3:
+        step_better = len(segs) < 2 and step is not None and step[0] < 0.8 * sse_w     # 台阶比指数段更像：是跳变，不是预热
+        if sse0 > 0 and sse_w < 0.7 * sse0 and abs(c[2]) > 3 * ref and tau < n / 3 and not step_better:
             found.append(("warmup", abs(c[2]) / ref))
             if len(segs) >= 2:
                 res["saw_slope"] = c[1]
