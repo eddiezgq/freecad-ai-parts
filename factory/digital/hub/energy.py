@@ -467,6 +467,15 @@ def carbon(db, mode, month=None):
         d0 = dt.date(y, m, 1)
     else:
         d0 = (end - dt.timedelta(seconds=1)).astimezone(kpi.TZ).date().replace(day=1)
+        # 月初头一天（本月数据不到 12 小时）：默认看上个月（第 67 轮：11 月 1 日评测“这个月的碳排放”只有 0.2 小时的数据，单件碳足迹算不出）
+        h0 = db.one("select coalesce(sum(seconds),0)/3600.0 as h from energy_read where mode=%s and meter='E-TOTAL' and ts >= %s",
+                    (mode, dt.datetime(d0.year, d0.month, 1, tzinfo=kpi.TZ)))["h"]
+        if float(h0 or 0) < 12:
+            prev = (d0 - dt.timedelta(days=1)).replace(day=1)
+            hp = db.one("select coalesce(sum(seconds),0)/3600.0 as h from energy_read where mode=%s and meter='E-TOTAL' and ts >= %s and ts < %s",
+                        (mode, dt.datetime(prev.year, prev.month, 1, tzinfo=kpi.TZ), dt.datetime(d0.year, d0.month, 1, tzinfo=kpi.TZ)))["h"]
+            if float(hp or 0) > float(h0 or 0):
+                d0 = prev
     d1 = (d0 + dt.timedelta(days=32)).replace(day=1)
     t0, t1 = day_bounds(d0)[0], day_bounds(d1)[0]
     agg = {r["meter"]: (float(r["v"]), float(r["h"])) for r in db.q(
