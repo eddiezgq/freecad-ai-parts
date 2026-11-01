@@ -119,12 +119,14 @@ def test_submit_review_approve_release_and_dispatch(db):
     p["attachments"] = []                          # 没附计算书：AI 提一条建议
     s = process.submit(db, emit, "teach", "学生甲", "u1", p, "精车工时优化")
     assert s["status"] == "pending"                # 教学模式也进待审
-    assert [c["author"] for c in s["comments"]] == [process.AI_REVIEWER]
+    # 没附计算书的那条建议一定有；2026-10-31 起（476e25a）精度预算也会对这份样例提“裕量不足”的建议，都是 AI 工艺评审员写的
+    assert {c["author"] for c in s["comments"]} == {process.AI_REVIEWER} and any("计算书" in c["body"] for c in s["comments"])
     with pytest.raises(PermissionError):
         process.approve(db, emit, s["id"], "学生甲", approver_uid="u1")
     with pytest.raises(ValueError):                # 评审意见没处理不能批准
         process.approve(db, emit, s["id"], "老师", approver_uid="t1")
-    process.resolve(db, s["id"], s["comments"][0]["id"])
+    for c in s["comments"]:
+        process.resolve(db, s["id"], c["id"])
     a = process.approve(db, emit, s["id"], "老师", "同意", approver_uid="t1")
     assert a["status"] == "approved" and a["revision"] == 1
     rel = [m for _, m in out if m["type"] == "process.release"][0]
