@@ -24,3 +24,18 @@ rules:
     params: {days: 5}
     desc: 维修单开出超过 days 个现场日仍未完成
     hint: 联系服务工程师，确认备件和上门时间
+  RS1:
+    name: 现场机器人报警
+    fn: robot_field_alarm
+    severity: warn            # 背隙超限为 critical
+    role: [manager]
+    desc: 机器人厂发到客户现场的机器人：关节背隙接近（90%）或超过上限、关节温度峰值超过 70 ℃、近 7 天碰撞 3 次以上、撞后定位不准（第 64 轮）
+    hint: 在“客户与服务”页看这台的趋势和出厂档案；背隙超限上门换关节模组，过热补润滑脂，撞过远程重新标定
+  RS2:
+    name: 同批减速器多台机器人报警
+    fn: robot_field_batch
+    severity: critical
+    role: [manager, quality]
+    params: {min_units: 2}
+    desc: 背隙报警的现场机器人里，至少 min_units 台的关节用了同一批谐波减速器（第 64 轮）
+    hint: 查这批减速器的来料检验和关节测试数据；同批装出去的机器人安排预防性更换

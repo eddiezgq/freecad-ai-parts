@@ -83,6 +83,7 @@ const NAV = [
   ] },
   { title: '从订单到回款', items: [
     { to: '/service', label: '客户与服务', role: 'service' },          // 第 18 轮 E1
+    { to: '/rservice', label: '客户与服务', role: 'service', only: () => cfg.value.plant?.id === 'wenquest-robot' },   // 第 64 轮：现场的机器人
     { to: '/work/planner', label: '订单与计划', role: 'planner' },
     { to: '/supply', label: '采购与来料', role: 'planner' },          // 第 18 轮 E5
     { to: '/work/operator', label: '车间执行', role: 'operator' },

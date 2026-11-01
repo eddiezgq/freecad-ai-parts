@@ -116,6 +116,7 @@ async function order() {
 onMounted(async () => {
   const [t, c] = await Promise.all([get('/configurator'), loadConfig()]);
   tpls.value = t;
+  if (!t.some((x) => x.id === tid.value) && t.length) tid.value = t[0].id;   // 机器人厂只有协作臂模板（第 63 轮）
   customers.value = c.customers || [];
   customer.value = customers.value[0] || '';
   reset();

@@ -129,6 +129,11 @@ def repair_overdue(c, p, r):
     return out
 
 
+def _bottleneck():
+    from factory import equip
+    return equip.bottleneck() or "grd-01"
+
+
 @rule("mtbf_drop")
 def mtbf_drop(c, p, r):
     from hub import maint as MT
@@ -141,5 +146,5 @@ def mtbf_drop(c, p, r):
     if now is None or before is None or now >= before * (1 - float(p["drop"])):
         return []
     return [Finding("plant", "全厂平均故障间隔下降：近 30 天 {:g} 小时，之前 {:g} 小时".format(now, before),
-                    "近 30 天故障 {} 次".format(n), severity="warn", subject=("Machine", "grd-01"), hint=r.get("hint"),
+                    "近 30 天故障 {} 次".format(n), severity="warn", subject=("Machine", _bottleneck()), hint=r.get("hint"),
                     values={"mtbf": now, "before": before, "failures": n})]

@@ -4,7 +4,11 @@
 from hub.ont.anomaly import Finding
 from hub.ont.rules import rule
 
-BOTTLENECK = ("grd-01",)
+try:                                    # 第 67 轮：瓶颈设备按本厂找（演示工厂 grd-01）
+    from factory import equip as _EQ
+    BOTTLENECK = tuple(x for x in (_EQ.bottleneck(),) if x)
+except ImportError:
+    BOTTLENECK = ("grd-01",)
 
 
 def _has(c, t):

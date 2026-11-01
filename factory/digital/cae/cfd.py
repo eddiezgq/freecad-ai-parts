@@ -7,7 +7,7 @@ import tempfile
 from analysis.cfd import solver as _S
 from analysis.cfd.solver import (  # noqa: F401
     AIR, DIRS, LIMIT_S, MAX_CELLS, NPROC, _bf, _common, _fields, _last_residuals, _names, estimate_cells, flow_case, plan,
-    run_solver, streamlines, tunnel, velocity_slice, wall_forces, write_mesh_dicts,
+    run_solver, streamlines, tunnel, velocity_slice, wall_forces, wall_heat, write_mesh_dicts,
 )
 
 

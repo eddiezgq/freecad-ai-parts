@@ -591,5 +591,28 @@
         }
       }
     ]
+  },
+  "rservice-complaint": {
+    "title": "登记一条现场机器人的投诉",
+    "path": "/rservice",
+    "steps": [
+      {
+        "help": "rs-kpis",
+        "text": "上方：在现场的机器人、报警（红 / 黄）、投诉、未完成的服务工单、满意度。"
+      },
+      {
+        "help": "rs-tabs",
+        "text": "两个标签：现场的机器人（台账、趋势、出厂档案）、投诉与工单。点“投诉与工单”。"
+      },
+      {
+        "help": "rs-new",
+        "text": "选一台机器人，写一句现象（如“J2 有异响，抓取位置偏了”），点“登记”。同时在 ERPNext 开一张问题单。（登记一条，这一步自动打勾。）",
+        "done": {
+          "api": "/rfield/kpis",
+          "path": "complaints",
+          "grew": true
+        }
+      }
+    ]
   }
 }

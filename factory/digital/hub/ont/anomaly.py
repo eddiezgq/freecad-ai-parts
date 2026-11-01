@@ -89,6 +89,9 @@ class RuleError(ValueError):
     pass
 
 
+GEARBOX_FIELD_RULES = ("C1", "C2", "C3", "C4")       # 第 67 轮：读演示工厂客户投诉表的规则（机器人厂用 RS1、RS2）
+
+
 # ------------------------------------------------------------------ 规则目录
 def load_catalog(path=RULE_DIR):
     """读规则目录，校验：编号唯一、领域存在、检测函数存在（待数据的规则可以没有函数）、严重度和角色合法"""
@@ -97,6 +100,7 @@ def load_catalog(path=RULE_DIR):
     doms = {d["domain"] for d in onto.domains}
     from factory import plant
     demo = plant.is_demo()
+    opened = plant.has_domains()
     out = {}
     for f in sorted(glob.glob(os.path.join(path, "*.yaml"))):
         name = os.path.basename(f)
@@ -119,7 +123,8 @@ def load_catalog(path=RULE_DIR):
             if any(x not in ROLES for x in roles):
                 raise RuleError("{}：role 只能是 {}".format(where, "、".join(ROLES)))
             # 第 30 轮 H-2：E1–E7 的规则（demo_only）只在演示工厂跑；企业工厂没有这些领域的数据，按“待数据”处理
-            waiting = r.get("status") == "waiting" or bool(r.get("demo_only")) and not demo
+            # 第 67 轮：清单写了产品的厂（机器人厂等）打开了这些领域——规则跟着跑；客户投诉 C1–C4 读减速器厂“现场的减速器”的投诉表，仍只在演示工厂
+            waiting = r.get("status") == "waiting" or bool(r.get("demo_only")) and not demo and not (opened and rid not in GEARBOX_FIELD_RULES)
             fn = r.get("fn")
             if not waiting and fn not in R.REG:
                 raise RuleError("{}：检测函数 {} 不存在（hub/ont/rules/）".format(where, fn))

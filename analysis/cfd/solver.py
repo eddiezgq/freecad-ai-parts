@@ -256,6 +256,20 @@ def _fields(case, U, parts, lam, inlet, outlet, walls, slips, symm, compressible
 
 
 # ---------------------------------------------------------------- 后处理
+def wall_heat(mesh, T, patch, t_wall_K, alphat_w=None, cp=AIR["cp"], mu=AIR["mu"], Pr=AIR["Pr"]):
+    """壁面散热量（W，正 = 从壁面传给空气）与每个面元的热流 q（W/m²）：q = cp·(μ/Pr + α_t,w)·(T_w − T_c)/d（问渠第 62 轮自然对流用）"""
+    sl = mesh.patch(patch)
+    Sf, Cf = mesh.Sf[sl], mesh.Cf[sl]
+    own = mesh.owner[sl]
+    A = np.linalg.norm(Sf, axis=1)
+    n = Sf / A[:, None]
+    d = np.abs(((mesh.C[own] - Cf) * n).sum(1))
+    a_eff = mu / Pr + (alphat_w if alphat_w is not None else 0.0)
+    tw = t_wall_K if np.ndim(t_wall_K) else np.full(len(A), t_wall_K)
+    q = cp * a_eff * (tw - T[own]) / np.maximum(d, 1e-12)
+    return float((q * A).sum()), q, A
+
+
 def wall_forces(mesh, p, U, nu, rho, patch, nut_w=None, compressible=False, p_ref=0.0):
     """一个壁面边界上的压力力和摩擦力（N）。不可压时 p 是运动压力（÷ρ），乘 ρ；摩擦按壁面第一层单元的速度梯度
     （湍流壁面函数时用 ν + ν_t,w）"""

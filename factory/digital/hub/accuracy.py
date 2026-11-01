@@ -254,7 +254,7 @@ SHAPES = {
                                        "导轨在水平面内与主轴轴线不平行", "长走刀中刀具磨损（车削）", "头架、尾座刚度相差较大"]},
     "drum": {"name": "鼓形（中间大、两头小）", "causes": ["工件刚度低（细长轴）：中间让刀多", "切削中工件热伸长被两顶尖顶住而弯曲"]},
     "saddle": {"name": "鞍形（中间小、两头大）", "causes": ["头架、尾座（顶尖）刚度低于工件：两头让刀多",
-                                                         "导轨在垂直面或水平面内中凸（磨损后中间低常表现为相反形状）"]},
+                                                         "导轨在水平面内向工件一侧中凸（垂直面内的直线度是非敏感方向，影响很小）"]},
     "ellipse": {"name": "椭圆（二阶）", "causes": ["车削时主轴颈不圆（滑动轴承）", "中心孔不圆或两中心孔不同轴", "两点或对置夹紧变形",
                                                  "镗削时轴承孔不圆"]},
     "lobe3": {"name": "三棱形（三阶）", "causes": ["三爪卡盘夹紧薄壁件后松开回弹", "无心磨削的棱圆", "三点支承的夹具夹紧变形"]},
@@ -359,6 +359,12 @@ def sequence(values, resets=(), sigma=None, baseline=None) -> dict:
     for s0, e0 in [(cuts[k], cuts[k + 1]) for k in range(len(cuts) - 1)]:
         for i in range(s0, e0):
             pos[i] = i - s0
+    step = None                                # 一次跳变（两段常数）的最好拟合，供与漂移、预热比较
+    for c in range(3, n - 3):
+        m1, m2 = st.fmean(v[:c]), st.fmean(v[c:])
+        sse = sum((y - m1) ** 2 for y in v[:c]) + sum((y - m2) ** 2 for y in v[c:])
+        if step is None or sse < step[0]:
+            step = (sse, c)
     if len(segs) >= 2:
         xs = [i - s0 - (e0 - s0 - 1) / 2 for s0, e0 in segs for i in range(s0, e0)]
         ys = [v[i] - st.fmean(v[s0:e0]) for s0, e0 in segs for i in range(s0, e0)]
@@ -368,8 +374,13 @@ def sequence(values, resets=(), sigma=None, baseline=None) -> dict:
         if abs(b) * 20 > 3 * ref:
             found.append(("drift_saw", abs(b) * 20 / ref))
     else:
-        _, b = _linfit(idx, v)
+        a0, b = _linfit(idx, v)
         res["slope"] = b
+        # 先比较“线性漂移”和“一次跳变”哪个更像：台阶也能拟合出一个斜率，不先比较就会把跳变当成漂移、减掉以后再也找不到
+        sse_lin = sum((y - a0 - b * i) ** 2 for i, y in enumerate(v))
+        if step and sse_lin > 0 and step[0] < 0.7 * sse_lin:
+            b = 0.0                                # 是跳变，不按漂移处理
+            res["slope"] = 0.0
         w = [v[i] - b * i for i in idx]
         if abs(b) * min(n, 20) > 3 * ref:
             found.append(("drift_linear", abs(b) * min(n, 20) / ref))
@@ -389,7 +400,8 @@ def sequence(values, resets=(), sigma=None, baseline=None) -> dict:
                 best_w = (sse, tau, c)
         sse_w, tau, c = best_w
         res["warmup"] = {"tau": tau, "delta_inf": c[2], "slope": c[1], "sse": sse_w, "sse_const": sse0}
-        if sse0 > 0 and sse_w < 0.7 * sse0 and abs(c[2]) > 3 * ref and tau < n / 3:
+        step_better = len(segs) < 2 and step is not None and step[0] < 0.8 * sse_w     # 台阶比指数段更像：是跳变，不是预热
+        if sse0 > 0 and sse_w < 0.7 * sse0 and abs(c[2]) > 3 * ref and tau < n / 3 and not step_better:
             found.append(("warmup", abs(c[2]) / ref))
             if len(segs) >= 2:
                 res["saw_slope"] = c[1]

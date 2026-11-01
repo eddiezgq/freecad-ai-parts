@@ -35,3 +35,45 @@ def test_shaft_and_models():
         glb, svg = C.model(t, {})
         assert glb[:4] == b"glTF" and svg.startswith(b"<svg")
     assert C.model_key("SH-301", {}) == C.model_key("SH-301", {"d1": 30}) != C.model_key("SH-301", {"d1": 32})
+
+
+ROBOT = r"""
+import json, sys
+sys.path[:0] = [{dig!r}, {fac!r}]
+from hub import configurator as C
+out = {{"ids": [t["id"] for t in C.templates()]}}
+std = C.evaluate("WQ-CR5", {{}}, 2)
+out["std"] = [std["ok"], std["design"], std["quote"]["unit_price"], std["quote"]["total"], std["warnings"]]
+six = C.evaluate("WQ-CR5", {{"payload_kg": 6}})
+out["six"] = [six["ok"], six["design"]["modules"], six["quote"]["unit_price"]]
+out["ten"] = C.evaluate("WQ-CR5", {{"payload_kg": 10}})["ok"]
+try:
+    C.evaluate("WQR-105", {{}})
+    out["wqr"] = "available"
+except KeyError:
+    out["wqr"] = "hidden"
+glb, svg = C.model("WQ-CR5", {{"reach_mm": 1000}})
+out["model"] = [glb[:4].decode(), svg.startswith(b"<svg")]
+print(json.dumps(out, ensure_ascii=False))
+"""
+
+
+def test_robot_plant_cobot_template():
+    """第 63 轮：机器人厂的配置器只有“协作臂定制”；默认参数就是标准 WQ-CR5（18000）；6 kg 时 J3 换大模组、加差价和非标费；
+    10 kg 时没有够用的模组；减速器厂的模板在机器人厂不出现；三维和简图能生成"""
+    import json
+    import os
+    import subprocess
+    import sys
+    dig = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    fac = os.path.dirname(dig)
+    env = dict(os.environ, WQ_PLANT_FILE=os.path.join(fac, "plants", "wenquest-robot.yaml"))
+    r = subprocess.run([sys.executable, "-c", ROBOT.format(dig=dig, fac=fac)], capture_output=True, text=True, env=env, cwd=dig, timeout=300)
+    assert r.returncode == 0, r.stderr[-3000:]
+    out = json.loads(r.stdout)
+    assert out["ids"] == ["WQ-CR5"] and out["wqr"] == "hidden"
+    ok, design, price, total, warn = out["std"]
+    assert ok and design == {"a2": 0.4, "a3": 0.36, "modules": ["L", "L", "M", "S", "S", "S"], "standard": True}
+    assert price == 18000 and total == 36000 and any("J3" in w for w in warn)
+    assert out["six"][0] and out["six"][1] == ["L", "L", "L", "S", "S", "S"] and out["six"][2] == round((18000 + 500) * 1.08, 2)
+    assert out["ten"] is False and out["model"] == ["glTF", True]

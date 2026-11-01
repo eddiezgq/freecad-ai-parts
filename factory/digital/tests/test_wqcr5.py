@@ -77,3 +77,31 @@ def test_position_servo_variant():
     kp, kv = [2000, 2000, 1000, 300, 300, 300], [200, 200, 100, 30, 30, 30]
     m = mujoco.MjModel.from_xml_string(W.mjcf(actuator="position", kp=kp, kv=kv))
     assert m.nu == 6 and m.actuator_gainprm[0, 0] == 2000
+
+
+def test_design_reproduces_the_standard_wqcr5():
+    """第 63 轮：按 5 kg、臂展 860 mm 用教材 30.3 节的方法设计，得到的就是标准 WQ-CR5（大臂 0.40、小臂 0.36，模组 L L M S S S）"""
+    r = W.design()
+    assert r["ok"] and r["standard"] and r["a2"] == 0.4 and r["a3"] == 0.36 and r["modules"] == ["L", "L", "M", "S", "S", "S"]
+    assert r["mass_kg"] == round(W.total_mass(), 2)
+    j1 = r["joints"][0]
+    assert j1["own"] == "WQJ-M" and j1["module"] == "WQJ-L"          # J1 自己中关节就够，按“与 J2 同一种”用大关节
+    assert all(j["use_peak"] <= 1 and j["use_rms"] <= 1 for j in r["joints"])
+
+
+def test_geometry_context_restores_and_rated_torques_match_motor_table():
+    dh0 = [dict(p) for p in W.DH]
+    with W.geometry(0.5, 0.45, ["L"] * 6):
+        assert W.DH[1]["a"] == -0.5 and W.JOINT_MODULE == ("L",) * 6
+        heavy = W.total_mass()
+    assert W.DH == dh0 and W.JOINT_MODULE == ("L", "L", "M", "S", "S", "S") and heavy > W.total_mass()
+    motor = {m[0]: m for m in motors.MOTORS}
+    assert all(motor[k][2] == v for k, v in W.MOTOR_RATED.items())
+
+
+def test_design_grows_with_payload_and_reports_infeasible():
+    small, big, too_big = W.design(3, 700), W.design(7, 860), W.design(10, 860)
+    order = W.ORDER.index
+    assert small["ok"] and big["ok"] and not too_big["ok"]
+    assert all(order(a) <= order(b) for a, b in zip(small["modules"], big["modules"]))
+    assert small["a2"] - small["a3"] == pytest.approx(W.DEAD_ZONE) and small["a2"] + small["a3"] == pytest.approx(0.6)
