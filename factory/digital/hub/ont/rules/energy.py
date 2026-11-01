@@ -22,6 +22,12 @@ def _end(c):
     return end
 
 
+def _ht():
+    """第 67 轮：有热处理炉的厂才把它挂上（演示工厂）"""
+    from sim import energy as SE
+    return [("Machine", "ht-01")] if "ht-01" in SE.POWER else []
+
+
 @rule("unit_energy_jump")
 def unit_energy_jump(c, p, r):
     from hub import energy as EN
@@ -81,7 +87,7 @@ def peak_share_high(c, p, r):
     day = end.strftime("%Y-%m-%d")
     return [Finding(day, "峰时用电占 {:.0%}（目标 {:.0%} 以下）".format(x["share"], float(p.get("share", 0.3))),
                     "近 24 小时 {:.0f} 度，峰时 {:.0f} 度，其中热处理炉 {:.0f} 度".format(x["kwh"], x["peak_kwh"], x["ht_peak_kwh"]),
-                    severity="warn", subject=("Meter", "E-TOTAL"), about=[("Meter", "E-TOTAL"), ("Machine", "ht-01")], hint=r.get("hint"), values=dict(x))]
+                    severity="warn", subject=("Meter", "E-TOTAL"), about=[("Meter", "E-TOTAL")] + _ht(), hint=r.get("hint"), values=dict(x))]
 
 
 @rule("air_base_high")
@@ -109,7 +115,7 @@ def demand_near(c, p, r):
         return []
     return [Finding((x["at"] or "")[:7], "本月最大需量 {:.0f} kW，到合同需量的 {:.0%}".format(x["kw"], x["ratio"]),
                     "合同需量 {:.0f} kW；{}超了要按超出部分加价".format(x["contract_kw"], "已经" if x["ratio"] > 1 else "再高一点就"),
-                    severity="critical" if x["ratio"] > 1 else "warn", subject=("Meter", "E-TOTAL"), about=[("Meter", "E-TOTAL"), ("Machine", "ht-01")],
+                    severity="critical" if x["ratio"] > 1 else "warn", subject=("Meter", "E-TOTAL"), about=[("Meter", "E-TOTAL")] + _ht(),
                     hint=r.get("hint"), values=dict(x))]
 
 

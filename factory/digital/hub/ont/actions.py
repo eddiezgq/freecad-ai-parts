@@ -55,6 +55,7 @@ TYPES = {
     "service_batch": {"label": "服务派工", "costly": True, "service": True},
     "spare_ship": {"label": "备件出库", "costly": True, "service": True},
     "customer_notice": {"label": "客户通知", "costly": False, "service": True},
+    "robot_service": {"label": "现场机器人服务派工", "costly": True, "service": True},       # 第 67 轮：机器人厂（hub/rfield.py）
     # 第 18 轮 E2：安全环保（发起：安全员、厂长；停机挂牌、整改工单花钱要厂长批；解锁、培训安全员批，不能自批）
     "lockout": {"label": "停机挂牌整改", "costly": True, "ehs": True},
     "rectify_order": {"label": "整改工单", "costly": True, "ehs": True, "nosim": True},
@@ -127,6 +128,10 @@ def title_of(t, p):
         jobs = p.get("jobs") or []
         rep = sum(1 for j in jobs if j["kind"] != "inspect")
         return "服务派工：{} 台（维修 {}、点检 {}）{}".format(len(jobs), rep, len(jobs) - rep, "：" + jobs[0]["serial"] if len(jobs) == 1 else "")
+    if t == "robot_service":
+        jobs = p.get("jobs") or []
+        return "现场机器人服务派工：{} 台 {}".format(len(jobs), "、".join("{} {}{}".format(j["serial"], {"swap": "换关节模组", "lube": "补润滑脂", "recalib": "远程重新标定"}
+                                                                             .get(j["kind"], j["kind"]), " " + j["joint"] if j.get("joint") else "") for j in jobs[:3]))
     if t == "spare_ship":
         return "备件出库：" + "、".join("{} × {}".format(i["item_code"], i["qty"]) for i in p.get("items") or [])
     if t == "customer_notice":
@@ -376,6 +381,10 @@ def execute(H, a, u, who):
         names = sorted({x["engineer_name"] for x in r["plan"] if x.get("engineer_name")})
         return {"text": "已派 {} 张服务工单（工程师 {}），交 ERPNext 开服务工单（提议 {}）".format(len(r["jobs"]), "、".join(names) or "待定", r["proposal_id"]),
                 "proposal_id": r["proposal_id"], "jobs": r["jobs"], "batch_id": r["batch_id"]}, "executing" if r["proposal_id"] else "done"
+    if t == "robot_service":
+        from hub import rfield as RF
+        ids = [RF.plan_job(H, mode, j["serial"], j["kind"], u.get("name"), j.get("joint"), j.get("complaint_id")) for j in p.get("jobs") or []]
+        return {"text": "已派 {} 张现场机器人服务工单：{}".format(len(ids), "、".join("RS-{:05d}".format(i) for i in ids)), "jobs": ids}, "done"
     if t == "spare_ship":
         from hub import service as SV
         pid = SV.ship_spares(H, mode, p.get("items") or [], u.get("name"), "服务备件（动作 ACT-{:05d}）".format(a["id"]))
@@ -499,6 +508,10 @@ def service_trial(db, mode, changes):
                 checks.append({"ok": False, "text": "{} 台 21 天内排不进".format(len(est["unplanned"]))})
             else:
                 checks.append({"ok": True, "text": "{} 天做完（到 {}），工程师 {}".format(est["days"], est["finish"], "、".join(est["engineers"]))})
+        elif c["type"] == "robot_service":
+            jobs = c.get("jobs") or []
+            costs += [{"what": "现场机器人服务 {} 台".format(len(jobs)), "usd": round(sum(float(j.get("cost_usd") or 0) for j in jobs), 2)}]
+            checks.append({"ok": True, "text": "派工 " + "、".join("{} {}".format(j["serial"], j["kind"]) for j in jobs[:5])})
         elif c["type"] == "spare_ship":
             checks.append({"ok": True, "text": "出库 " + "、".join("{} × {}".format(i["item_code"], i["qty"]) for i in c.get("items") or [])})
     total = round(sum(x["usd"] for x in costs), 2)

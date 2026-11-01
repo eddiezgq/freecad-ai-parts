@@ -50,6 +50,13 @@ def _has(c, t):
     return c.get("has_" + t, lambda: bool(c.db.one("select to_regclass(%s) is not null as ok", (t,))["ok"]))
 
 
+def _key(item):
+    """第 67 轮：关键物料——演示工厂是轴承，其他厂取清单的 key_materials"""
+    from factory import equip
+    k = equip.key_items()
+    return item.startswith("BRG-") if k is None else item in k
+
+
 @rule("incoming_rejected")
 def incoming_rejected(c, p, r):
     if not _has(c, "lot"):
@@ -59,7 +66,7 @@ def incoming_rejected(c, p, r):
         bad = (x["inspection"] or {}).get("bad") or []
         out.append(Finding(x["lot"] or "LOT-{}".format(x["id"]), "来料不合格：{} 批 {}（{:g} 件，{}）".format(x["item"], x["lot"], float(x["qty"]), x["supplier"].split(" ")[0]),
                            "抽检 {} 件，{} 处超差；这批料进不了库".format((x["inspection"] or {}).get("sample_size", "—"), len(bad)),
-                           severity="critical" if x["item"].startswith("BRG-") else "warn", subject=("Item", x["item"]),
+                           severity="critical" if _key(x["item"]) else "warn", subject=("Item", x["item"]),
                            about=[("Batch", x["lot"]), ("Supplier", x["supplier"]), ("Item", x["item"])], hint=r.get("hint"),
                            values={"lot_id": x["id"], "lot": x["lot"], "item": x["item"], "supplier": x["supplier"], "qty": float(x["qty"])}))
     return out

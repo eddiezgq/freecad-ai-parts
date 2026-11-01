@@ -349,6 +349,19 @@ def domains(mgr):
     check(em["employees"] and all(e.get("erp_id") for e in em["employees"]), "员工档案 {} 人进了 ERPNext".format(len(em["employees"])))
     ro = hub("GET", "/api/people/roster", token=mgr)
     check(set(ro.get("units") or []) <= set(names) and ro.get("rows"), "排班表按本厂设备排（{} 台要有人）".format(len(ro.get("units") or [])))
+    # 第 67 轮：AI 巡检规则在本厂跑、没有出错；助手答得出打开了的领域
+    rl = hub("GET", "/api/ont/rules", token=mgr)["rules"]
+    live = [x for x in rl if not x["waiting"]]
+    bad = [x["id"] for x in live if x.get("error")]
+    check(len(live) >= 50 and not bad, "AI 巡检规则 {} 条在跑（待数据 {}），出错的：{}".format(len(live), "、".join(x["id"] for x in rl if x["waiting"]) or "无",
+                                                                       "、".join(bad) or "无"))
+    for q in ("哪台设备保养逾期？", "哪个客户应收逾期？", "现场哪台机器人在报警？"):
+        try:
+            r = hub("POST", "/api/ai/chat", {"messages": [{"role": "user", "content": q}]}, mgr)
+            a = r.get("answer") or r.get("text") or r.get("reply") or ""
+        except Exception as e:  # noqa: BLE001
+            a = "（出错：{}）".format(e)
+        check(bool(a.strip()) and "本厂没有这个领域" not in a, "问助手“{}”：{}".format(q, a.strip().split("\n")[0][:80]))
     # 第 64 轮：客户与服务——现场的机器人（只在有关节模组产品的厂：机器人厂）
     try:
         hub("GET", "/api/rfield/kpis", token=mgr)

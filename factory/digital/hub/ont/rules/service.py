@@ -125,7 +125,7 @@ def robot_field_batch(c, p, r):
     lots = {}
     for x in _rfleet(c):
         for w in x["why"]:
-            if w["kind"] == "backlash" and w.get("lot"):
+            if w["kind"] == "backlash" and w.get("over") and w.get("lot"):      # 只算超了上限的（接近上限的多半是用得久）
                 lots.setdefault(w["lot"], set()).add(x["serial"])
     n = int(p.get("min_units", 2))
     return [Finding(lot, "同一批谐波减速器 {} 有 {} 台现场机器人背隙报警".format(lot, len(ss)), "、".join(sorted(ss)),

@@ -113,3 +113,30 @@ def active():
     if not p or p["DEMO_DATA"] or not p.get("ITEMS"):
         return None
     return p.get("EQUIP")
+
+
+def bottleneck():
+    """第 67 轮：本厂的瓶颈设备（AI 巡检用）。演示工厂是外圆磨床 grd-01；其他厂按工艺路线：各工作站的标准工时之和 ÷ 台数，最大的那个工作站的第一台"""
+    if active() is None:
+        return "grd-01"
+    from factory import data as F
+    load = {}
+    for ops in F.ROUTINGS.values():
+        for op, mins in ops:
+            ws = F.OPERATIONS.get(op)
+            if ws:
+                load[ws] = load.get(ws, 0.0) + float(mins) / max(1, F.WORKSTATIONS.get(ws, (1,))[0])
+    if not load:
+        return None
+    ws = max(load, key=load.get)
+    from factory import plant
+    units = plant.active()["UNITS"]
+    return next((u for u, v in units.items() if v[3] == ws), None)
+
+
+def key_items():
+    """第 67 轮：来料不合格判“严重”的物料——演示工厂是轴承（BRG- 开头），其他厂取清单的关键物料（key_materials）"""
+    if active() is None:
+        return None
+    from factory import data as F
+    return set(getattr(F, "KEY_MATERIALS", None) or ())

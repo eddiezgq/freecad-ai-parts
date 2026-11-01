@@ -118,7 +118,11 @@ def mount(app, H, user_of, who):
         a = H.db.one("select * from anomaly where id=%s and mode=%s", (aid, u["mode"]))
         if a is None:
             raise HTTPException(404, "没有这个异常")
-        if a["rule"] in SERVICE_RULES:          # 第 18 轮 E1：投诉、现场报警的处理方案按派工排班估算，不进车间仿真
+        if a["rule"] in ("RS1", "RS2"):         # 第 67 轮：机器人厂现场的机器人（hub/rfield.py）
+            from hub import rfield as RF
+            r = RF.anomaly_options(H.db, u["mode"], a)
+            sid, st, exact = None, {"factory_now": RF.field_today(H.db, u["mode"]).isoformat(), "calendar": {}}, True
+        elif a["rule"] in SERVICE_RULES:          # 第 18 轮 E1：投诉、现场报警的处理方案按派工排班估算，不进车间仿真
             from hub import service as SV
             r = SV.anomaly_options(H.db, u["mode"], a)
             sid, st, exact = None, {"factory_now": SV.field_today(H.db, u["mode"]).isoformat(), "calendar": {}}, True

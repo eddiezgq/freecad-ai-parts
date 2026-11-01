@@ -235,7 +235,7 @@ def test_RS1_robot_field_alarm(monkeypatch):
 def test_RS2_robot_same_lot(monkeypatch):
     from hub import rfield as RF
     monkeypatch.setattr(RF, "enabled", lambda: True)
-    bl = lambda lot: {"joint": "J2", "kind": "backlash", "text": "J2 背隙超限", "lot": lot}   # noqa: E731
+    bl = lambda lot: {"joint": "J2", "kind": "backlash", "text": "J2 背隙超限", "lot": lot, "over": True}   # noqa: E731
     monkeypatch.setattr(RF, "fleet", lambda db, mode: [_robot("R1", "red", [bl("HD-L-7")]), _robot("R2", "yellow", [bl("HD-L-7")]),
                                                         _robot("R3", "red", [bl("HD-L-8")])])
     f = run("RS2")

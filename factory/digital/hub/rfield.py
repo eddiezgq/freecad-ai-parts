@@ -297,7 +297,7 @@ def day_summary(serial, ab, st, site, day):
     st["lube_day"] = st.get("lube_day", 0) + 1
     hit = 1 if rng.random() < site["collide"] else 0
     st["collisions"] = st.get("collisions", 0) + hit
-    if hit and rng.random() < 0.3:
+    if hit and rng.random() < 0.05:
         st["recalib_needed"] = True                 # 撞得重的一下：零位偏了，定位不准，要重新标定
     lube_over = max(0, st["lube_day"] - LUBE_DAYS)
     joints = []
@@ -357,7 +357,7 @@ def health(ab, last, collisions_7d=0):
     for j, jd in zip(last["joints"], ab["joints"]):
         if j["backlash"] > j["limit"]:
             why.append({"joint": j["joint"], "kind": "backlash", "text": "{} 背隙 {:.2f}′ 超过上限 {:g}′".format(j["joint"], j["backlash"], j["limit"]),
-                        "lot": jd.get("lot"), "bad_lot": jd.get("bad")})
+                        "lot": jd.get("lot"), "bad_lot": jd.get("bad"), "over": True})
             level = "red"
         elif j["backlash"] > WARN_FRAC * j["limit"]:
             why.append({"joint": j["joint"], "kind": "backlash", "text": "{} 背隙 {:.2f}′ 接近上限 {:g}′".format(j["joint"], j["backlash"], j["limit"]),
@@ -548,6 +548,53 @@ def complete_job(H, mode, jid, who, note=""):
     if j["complaint_id"]:
         db.x("update rf_complaint set status='closed' where id=%s and mode=%s", (j["complaint_id"], mode))
     return job_row(db.one("select * from rf_job where id=%s", (jid,)))
+
+
+def _job(serial, kind, joint=None):
+    c = dict(COST[kind])
+    if kind == "swap":
+        c["parts"] = float(F.PRODUCTS.get(JOINT_ITEM[JOINT_SIZE[JOINTS.index(joint)]]) or 0)
+    return {"serial": serial, "kind": kind, "joint": joint, "cost_usd": round(sum(c.values()), 2)}
+
+
+def _opt(key, label, note, jobs, rec):
+    cost = round(sum(j["cost_usd"] for j in jobs), 2)
+    ch = [{"type": "robot_service", "jobs": jobs}] if jobs else []
+    return {"key": key, "kind": "robot_service" if jobs else "none", "label": label, "note": note, "changes": ch, "recommended": rec,
+            "result": {"sales_orders": [], "cost_total": cost, "costs": [{"what": "服务费用（人工、差旅、备件）", "usd": cost}] if cost else [],
+                       "overtime_min": 0, "checks": [], "ok": True}}
+
+
+def anomaly_options(db, mode, a):
+    """第 67 轮：RS1（一台报警）、RS2（同批多台报警）的处理方案——派工三种，或暂不处理"""
+    init(db)
+    v = ((a.get("detail") or {}).get("values") or {})
+    if a["rule"] == "RS2":
+        lot = v.get("lot") or a.get("subject_key")
+        rows = [r for r in db.q("select serial, as_built from rf_robot where mode=%s and status='field'", (mode,))
+                if any(j.get("lot") == lot for j in r["as_built"]["joints"])]
+        al = set(v.get("serials") or [])
+        hit = [(r["serial"], next(j["joint"] for j in r["as_built"]["joints"] if j.get("lot") == lot)) for r in rows]
+        all_jobs = [_job(s, "swap", j) for s, j in hit]
+        only = [_job(s, "swap", j) for s, j in hit if s in al]
+        out = [_opt("A", "同批全部换（预防性）：{} 台".format(len(all_jobs)), "用了 {} 的关节都换，报警的和还没报警的一起".format(lot), all_jobs, True),
+               _opt("B", "只换报警的 {} 台".format(len(only)), "其余同批的等报警了再说（会陆续出问题）", only, False),
+               _opt("C", "暂不处理", "客户会陆续投诉", [], False)]
+        return {"options": out, "affected": [], "recommended": "A", "reason": "建议 A：同一批磨得快，没报警的迟早也会到上限；一次排工比一台台被投诉划算", "service": True}
+    serial = a.get("subject_key")
+    r = db.one("select * from rf_robot where mode=%s and serial=%s", (mode, serial))
+    if not r:
+        raise KeyError(serial)
+    lv, why = health(r["as_built"], latest(db, mode, serial), _coll_7d(db, mode, serial))
+    kind, joint = suggest(why)
+    label = {"swap": "上门换关节模组 {}".format(joint), "lube": "上门补润滑脂", "recalib": "远程重新标定"}
+    out = [_opt("A", label[kind], "；".join(w["text"] for w in why) or "按报警原因", [_job(serial, kind, joint)], True)]
+    for k in ("recalib", "lube", "swap"):
+        if k != kind and len(out) < 3:
+            j = joint or ("J1" if k == "swap" else None)
+            out.append(_opt(chr(ord("A") + len(out)), label[k] if k != "swap" else "上门换关节模组 {}".format(j), "不对症时只是花钱", [_job(serial, k, j)], False))
+    out.append(_opt(chr(ord("A") + len(out)), "暂不处理", "继续观察", [], False))
+    return {"options": out, "affected": [], "recommended": "A", "reason": "建议 A：对症（{}）".format(why[0]["text"] if why else "报警原因"), "service": True}
 
 
 def job_row(j):

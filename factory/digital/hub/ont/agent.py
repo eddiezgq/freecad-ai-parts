@@ -716,7 +716,8 @@ class Tools:
             rows = [x for x in rows if x["unit"] == u]
             idle = [x for x in idle if x["unit"] == u]
         return {"unit_energy": [dict(x, ref=self.run.obj("Machine", x["unit"], x["name"])) for x in rows],
-                "idle": sorted(idle, key=lambda x: -x["idle_kwh"]), "air": EG.air_excess(self.db, self.mode), "peak": EG.peak_share(self.db, self.mode),
+                "idle": sorted(idle, key=lambda x: -x["idle_kwh"]), "idle_hours": 12,       # 回答里写“近 12 小时空转”：数字要在工具输出里核得到（第 67 轮）
+                "air": EG.air_excess(self.db, self.mode), "peak": EG.peak_share(self.db, self.mode),
                 "page": self.run.page("energy-unit", "能源与环境 · 单耗", "/energy?tab=unit")}
 
     # ---- ㉗ 碳核算
@@ -848,7 +849,7 @@ class Tools:
         fn = getattr(self, name, None) if name in TOOL_NAMES else None
         t = time.time()
         try:
-            if name in DEMO_ONLY_TOOLS and not _demo_plant():
+            if _tool_blocked(name):
                 out = {"error": DEMO_ONLY_NOTE}
             else:
                 out = fn(**(args or {})) if fn else {"error": "未知工具 " + str(name)}
@@ -948,6 +949,31 @@ def _demo_plant():
     return plant.is_demo()
 
 
+# 第 67 轮：清单写了产品的厂（机器人厂等）打开了 E2–E7——这些工具、问法放开；只有读减速器厂“现场的减速器”的几样仍不给，
+# 投诉 / 服务 / 客户的问法改答“现场的机器人”（第 64 轮）
+GEARBOX_FIELD_TOOLS = frozenset(("customer_360", "complaint_scope", "service_estimate"))
+ROBOT_FIELD_INTENTS = frozenset(("complaint", "service", "customer"))
+
+
+def _domains_open():
+    from factory import plant
+    return plant.has_domains()
+
+
+def _robot_field():
+    try:
+        from hub import rfield as RF
+        return RF.enabled()
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def _tool_blocked(name):
+    if name not in DEMO_ONLY_TOOLS or _demo_plant():
+        return False
+    return not _domains_open() or name in GEARBOX_FIELD_TOOLS
+
+
 TOOLS = [
     {"name": "search_objects", "description": "在工厂本体里按编号、名称、别名搜索对象（设备、工单、订单、物料、零件、客户……）",
      "input_schema": dict(_S(q={"type": "string"}, type={"type": "string", "description": "可选：限定类型，如 Machine、SalesOrder"}), required=["q"])},
@@ -1033,7 +1059,7 @@ class Agent:
         return u["mode"] == "teach" and not u.get("teacher")
 
     def tools_for(self, u):
-        drop = set() if _demo_plant() else set(DEMO_ONLY_TOOLS)     # 第 30 轮 H-2：企业工厂不给 E1–E7 的工具
+        drop = {t for t in DEMO_ONLY_TOOLS if _tool_blocked(t)}     # 第 30 轮 H-2：企业工厂不给 E1–E7 的工具；第 67 轮：打开了的领域给
         if u["mode"] == "teach":
             drop.add("propose_order")
         if self.student(u):
@@ -1189,7 +1215,10 @@ class Rules:
     def answer(self, q, messages=None):
         intent = self.intent(q)
         if intent in DEMO_ONLY_INTENTS and not _demo_plant():       # 第 30 轮 H-2：企业工厂没有 E1–E7 的数据
-            return DEMO_ONLY_NOTE, intent
+            if not _domains_open():
+                return DEMO_ONLY_NOTE, intent
+            if intent in ROBOT_FIELD_INTENTS:                          # 第 67 轮：机器人厂答“现场的机器人”
+                return self.a_robot_field(q), intent
         fn = getattr(self, "a_" + intent)
         try:
             return fn(q), intent
@@ -1200,6 +1229,8 @@ class Rules:
     def intent(self, q):
         if re.search(r"起草", q) and re.search(r"A-\d{5}|方案\s*[A-H]", q):
             return "draft"
+        if re.search(r"RC-\d{5}|RS-\d{5}|WQ-CR5-|现场.{0,4}机器人|机器人.{0,6}(报警|现场|投诉|售后|背隙)", q) and _robot_field():   # 第 67 轮
+            return "service"
         if re.search(r"(\d+)\s*台.*?(\d{1,2})\s*月\s*(\d{1,2})\s*日", q) and re.search(r"订单|安排|接单|生产|交货|WQR", q):
             return "order"
         if re.search(r"毛利|应收|应付|欠款|欠钱|催款|回款|收款|账龄|现金流|现金|预算|超支|信用额度|信用冻结|经营目标|指标树|发票|DSO|周转天数", q) \
@@ -1397,6 +1428,38 @@ class Rules:
         return "\n".join(out)
 
     # ---- 客户与服务（第 18 轮 E1）
+    def a_robot_field(self, q):
+        """第 67 轮：机器人厂的投诉、服务、客户——读“客户与服务（现场的机器人）”的数据"""
+        if self.student:
+            return self._hint("service")
+        from hub import rfield as RF
+        if not RF.enabled():
+            return DEMO_ONLY_NOTE
+        db, mode = self.t.db, self.t.mode
+        k = RF.kpis(db, mode)
+        al = RF.alarms(db, mode)
+        lines = ["现场的机器人 {} 台（现场日 {}）：报警 红 {}、黄 {}；投诉未关闭 {}，服务工单未完成 {}，满意度 {}。".format(
+            k["in_field"], k["field_day"], k["red"], k["yellow"], k["open_complaints"], k["open_jobs"], k["satisfaction"] if k["satisfaction"] is not None else "—")]
+        for x in sorted(al, key=lambda y: y["health"] != "red")[:6]:
+            lines.append("· {} {}（{}）：{}".format("红" if x["health"] == "red" else "黄", x["serial"], (x["customer"] or "").split(" ")[0],
+                                                  "；".join(w["text"] for w in x["why"])))
+        lots = {}
+        for x in al:
+            for w in x["why"]:
+                if w["kind"] == "backlash" and w.get("over") and w.get("lot"):
+                    lots.setdefault(w["lot"], []).append(x["serial"])
+        for lot, ss in lots.items():
+            if len(ss) >= 2:
+                lines.append("同一批谐波减速器 {} 有 {} 台在报警（{}）：查这批的来料检验，同批装出去的安排预防性更换。".format(lot, len(ss), "、".join(ss)))
+        js = [j for j in RF.jobs(db, mode) if j["status"] != "done"][:4]
+        if js:
+            lines.append("派了的服务工单：" + "；".join("{} {} {}{}（{}，{}）".format(j["key"], j["serial"], j["kind_label"], " " + j["joint"] if j["joint"] else "",
+                                                                         j["engineer"], j["plan_day"]) for j in js))
+        if not al:
+            lines.append("现场的机器人都正常。")
+        lines.append("详见“客户与服务”页（现场的机器人）。")
+        return "\n".join(lines)
+
     def a_customer(self, q):
         if self.student:
             return self._hint("customer")
