@@ -25,7 +25,8 @@ GUIDES = {"lab8": GUIDE_MD, "lab9": os.path.join(HERE, "实验9_机械臂关节�
           "lab25": os.path.join(HERE, "实验25_关节背隙异常的追因与8D.md"),
           "lab26": os.path.join(HERE, "实验26_一台协作机器人的运动学标定.md"),
           "lab27": os.path.join(HERE, "实验27_两厂之间的一张订单.md"),
-          "lab28": os.path.join(HERE, "实验28_负载跑合台上的仿真与实测对比.md")}
+          "lab28": os.path.join(HERE, "实验28_负载跑合台上的仿真与实测对比.md"),
+          "lab29": os.path.join(HERE, "实验29_一台机器人的售后追溯.md")}
 
 
 def _doc():
@@ -137,7 +138,7 @@ def report_template_docx(lab="lab8"):
         return lab22_template()
     if lab == "lab23":
         return lab23_template()
-    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28"):
+    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28", "lab29"):
         return robot_template(lab)
     from docx.shared import Pt
     d = _doc()
@@ -996,6 +997,20 @@ def robot_template(lab):
         table([["d（台/天）", "σ_d（台/天）", "L（天）", "z", "SS = z·σ_d·√L", "ROP = d·L + SS"], ["", "", "", "1.65", "", ""]])
         d.add_heading("四、讨论（任务 6）· Discussion", 1)
         hint("两厂共享需求信息的好处；如果减速器厂的提前期从 10 天变成 20 天，安全库存要变成多少？批量从 10 台改成 1 台，有什么得失？")
+    elif lab == "lab29":
+        d.add_heading("实验 29　一台机器人的售后追溯　实验报告 · Lab 29 Report: Tracing One Robot After Sale", 0)
+        table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)
+        d.add_heading("一、现场报警（任务 1）· The field alarm", 1)
+        table([["项目 Item", "记录 Record"], ["机器人序列号 Serial", ""], ["客户 Customer", ""], ["关节 Joint", ""], ["现在背隙 / 上限 Backlash / limit", ""]])
+        hint("贴这台机器人背隙趋势图的截图，标出超限的那一天。")
+        d.add_heading("二、出厂档案与原因（任务 2、3）· As-built record and cause", 1)
+        table([["关节序列号 Joint serial", "减速器批号 Lot", "出厂背隙 As-built backlash", "出厂多久 Days in field", "每天涨多少 Rise per day"], ["", "", "", "", ""]])
+        hint("和正常批次的关节比：同样运行小时，背隙涨了多少？为什么判断是批次问题，而不是正常磨损、润滑或碰撞？")
+        d.add_heading("三、召回范围（任务 4）· Recall scope", 1)
+        table([["同批的机器人 Robots with the same lot", "客户 Customer", "现在背隙 Backlash now", "处理 Action"], ["", "", "", ""], ["", "", "", ""]])
+        d.add_heading("四、派工与算账（任务 5、6）· Service order and the cost", 1)
+        table([["方案 Option", "台数 Units", "每台 Per unit ($)", "合计 Total ($)"], ["A 全部预防性更换", "3", "", ""], ["B 等报警了再换（含停线损失）", "3", "", ""]])
+        hint("除了钱，还要考虑什么（客户信任、备件库存、工程师排班）？这批减速器在来料检验时为什么没被拦下？下一步对供应商怎么办？")
     elif lab == "lab28":
         d.add_heading("实验 28　负载跑合台上的仿真与实测对比　实验报告 · Lab 28 Report: Simulation versus Measurement on the Run-in Stand", 0)
         table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)

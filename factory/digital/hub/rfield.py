@@ -531,7 +531,8 @@ def complete_job(H, mode, jid, who, note=""):
             new = _joint(j["joint"], size, p["serial"], p["lot"], float(p["backlash"]), p["lot"] in _bad_lots(db, mode))
         else:
             new = _joint(j["joint"], size, "SP-{}-{}".format(j["serial"], jid), "备件库存", BACKLASH_NOM[size], False)
-        new["replaced"] = {"serial": ab["joints"][i]["serial"], "lot": ab["joints"][i]["lot"], "day": field_today(db, mode).isoformat()}
+        new["replaced"] = {"serial": ab["joints"][i]["serial"], "lot": ab["joints"][i]["lot"], "backlash0": ab["joints"][i]["backlash0"],
+                           "day": field_today(db, mode).isoformat()}
         ab["joints"][i] = new
         st["joints"][i] = {"joint": j["joint"], "wear": 0.0, "backlash": new["backlash0"]}
         if getattr(H, "ai", None) is not None:

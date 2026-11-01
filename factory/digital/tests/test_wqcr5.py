@@ -105,3 +105,22 @@ def test_design_grows_with_payload_and_reports_infeasible():
     assert small["ok"] and big["ok"] and not too_big["ok"]
     assert all(order(a) <= order(b) for a, b in zip(small["modules"], big["modules"]))
     assert small["a2"] - small["a3"] == pytest.approx(W.DEAD_ZONE) and small["a2"] + small["a3"] == pytest.approx(0.6)
+
+
+def test_plant_bom_tubes_match_the_model():
+    """第 66 轮 Q2：机器人厂清单里大臂、小臂的管材与模型的 TUBES 一致；耗料 = 模型铝管质量 + 两端各 25 mm 夹持、锯口"""
+    import re
+    import yaml
+    f = REPO / "factory" / "plants" / "wenquest-robot.yaml"
+    if not f.is_file():
+        pytest.skip("没有机器人厂清单")
+    P = yaml.safe_load(f.read_text(encoding="utf-8"))
+    names = {it["code"]: it["name"] for it in P["items"]}
+    boms = {b["item"]: b["components"] for b in P["boms"]}
+    for item, key, a in (("ARM-UP", "upper", W.DH[1]["a"]), ("ARM-FO", "fore", W.DH[2]["a"])):
+        (code, kg), = boms[item]
+        r, t = W.TUBES[key]
+        m = re.search(r"Ø(\d+)×(\d+)", names[code])
+        assert (int(m.group(1)), int(m.group(2))) == (round(2000 * r), round(1000 * t)), (item, names[code])
+        m_tube = W.RHO_AL * math.pi * (r ** 2 - (r - t) ** 2)
+        assert m_tube * abs(a) < m_tube * (abs(a) + 0.05) <= kg < m_tube * (abs(a) + 0.05) * 1.05, (item, kg)

@@ -119,6 +119,9 @@
               <template v-if="r.kind === 'force'">
                 <label>Fx <input v-model.number="r.fx" type="number"></label><label>Fy <input v-model.number="r.fy" type="number"></label><label>Fz <input v-model.number="r.fz" type="number"></label><span>N</span>
               </template>
+              <template v-if="r.kind === 'moment'">
+                <label>Mx <input v-model.number="r.mx" type="number"></label><label>My <input v-model.number="r.my" type="number"></label><label>Mz <input v-model.number="r.mz" type="number"></label><span>N·m</span>
+              </template>
               <template v-if="r.kind === 'pressure'"><label>压力 <input v-model.number="r.value" type="number" step="0.1"></label><span>MPa</span></template>
               <template v-if="r.kind === 'torque'"><label>扭矩 <input v-model.number="r.value" type="number"></label><span>N·m</span></template>
               <template v-if="['torque', 'bearing', 'coupling'].includes(r.kind)">
@@ -191,6 +194,10 @@
           <b>和教材公式比</b> {{ job.setup.formula.name }}
           <div v-if="job.setup.formula.t_oil_c != null">发热 P(1−η) = {{ job.setup.formula.loss_w }} W（输入 {{ job.setup.formula.P_in_kw }} kW，η = {{ job.setup.formula.eta }}），K_s = {{ job.setup.formula.K_s }}，A = {{ job.setup.formula.A_m2 }} m² →
             公式油温 <b>{{ job.setup.formula.t_oil_c }} ℃</b>；有限元外表面平均 <b>{{ (st.film_groups?.[0]?.mean_c ?? st.t_surface_mean_c).toFixed(1) }} ℃</b>、最高 {{ st.t_max_c.toFixed(1) }} ℃（限值约 {{ job.setup.formula.limit_c }} ℃）。</div>
+          <div v-else-if="job.setup.formula.sigma_mpa != null">梁理论：根部弯矩 {{ job.setup.formula.M_root_nm }} N·m、扭矩 {{ job.setup.formula.T_nm }} N·m →
+            根部外表面 Von Mises 约 <b>{{ job.setup.formula.vm_mpa }} MPa</b>（屈服 {{ job.setup.formula.yield_mpa }} MPa，安全系数约 {{ job.setup.formula.sf }}），
+            端部下沉 <b>{{ job.setup.formula.delta_mm }} mm</b>，这根管一端固定时的一阶固有频率约 <b>{{ job.setup.formula.f1_tip_hz }} Hz</b>（不计法兰质量 {{ job.setup.formula.f1_hz }} Hz）。
+            有限元：最大 Von Mises <b>{{ st.vm_max_mpa.toFixed(2) }} MPa</b>（多在法兰与管的内角，是应力集中），最大位移 <b>{{ st.u_max_mm.toPrecision(3) }} mm</b>；固有频率点下面的“计算固有频率”。</div>
           <div v-else-if="job.setup.formula.dt_air_c != null">发热 {{ job.setup.formula.loss_w }} W，风口 {{ job.setup.formula.A_vent_m2 }} m²，估算通风量 {{ job.setup.formula.Q_m3s }} m³/s →
             出风温升约 <b>{{ job.setup.formula.dt_air_c }} ℃</b>；有限元最高 <b>{{ st.t_max_c.toFixed(1) }} ℃</b>（元件限值约 {{ job.setup.formula.limit_c }} ℃）。</div>
           <div v-else>粗估 {{ job.setup.formula.t_est_c }} ℃；有限元最高 <b>{{ st.t_max_c.toFixed(1) }} ℃</b>（限值约 {{ job.setup.formula.limit_c }} ℃）。</div>
@@ -431,6 +438,7 @@ function rowErr(r) {
   if (KINDS[r.kind].cyl && r.faces.some((f) => faceById.value[f]?.kind !== 'cylinder')) return '轴承支承、限制转动只能选圆柱面';
   if (['torque', 'bearing', 'coupling'].includes(r.kind) && !axes.value.length) return '这个零件没有圆柱面，找不到轴线';
   if (r.kind === 'force' && !(+r.fx || +r.fy || +r.fz)) return '力的大小是 0';
+  if (r.kind === 'moment' && !(+r.mx || +r.my || +r.mz)) return '力矩的大小是 0';
   if (['pressure', 'torque'].includes(r.kind) && !+r.value) return '大小是 0';
   return '';
 }
@@ -452,10 +460,11 @@ const notReady = computed(() => {
 const ready = computed(() => geo.value && mat.value && (analysis.value !== 'static' ? thRows.value.length : rows.value.length) && !notReady.value);
 
 function addRow(kind) {
-  const r = { key: ++keyN, kind, faces: [], fx: 0, fy: 0, fz: 0, value: 0, axis: axes.value[0]?.key, thrust: false };
+  const r = { key: ++keyN, kind, faces: [], fx: 0, fy: 0, fz: 0, mx: 0, my: 0, mz: 0, value: 0, axis: axes.value[0]?.key, thrust: false };
   if (kind === 'force') r.fy = -1000;
   if (kind === 'pressure') r.value = 1;
   if (kind === 'torque') r.value = 100;
+  if (kind === 'moment') r.mx = 10;
   rows.value.push(r);
   active.value = rows.value.length - 1;
 }
@@ -495,6 +504,13 @@ function fillExample() {
   matId.value = ex.material_id; title.value = ex.title; meshOverride.value = ex.mesh_mm; active.value = -1;
 }
 
+// 第 66 轮：强度示例零件（WQ-CR5 大臂）：预设的约束、力、力矩
+function fillStaticExample() {
+  const ex = geo.value.example;
+  rows.value = ex.rows.map((x) => ({ key: ++keyN, fx: 0, fy: 0, fz: 0, mx: 0, my: 0, mz: 0, value: 0, thrust: false, axis: null, ...x, faces: [...x.faces] }));
+  matId.value = ex.material_id; title.value = ex.title; meshOverride.value = ex.mesh_mm; active.value = -1;
+}
+
 // 示范题：两处轴承（Ø35）、输出端（Ø30，离键槽远的一端）限制转动、键槽一侧受 350 N·m
 function example() {
   const F = geo.value.faces;
@@ -517,7 +533,9 @@ function example() {
 async function loadItem() {
   if (exSel.value) {
     await withBusy(() => post('/cae/geometry/example/' + exSel.value.key, { params: exParams.value }));
-    if (geo.value?.example) { analysis.value = 'thermal'; fillExample(); }
+    if (geo.value?.example) {
+      if (geo.value.example.analysis === 'static') { analysis.value = 'static'; fillStaticExample(); } else { analysis.value = 'thermal'; fillExample(); }
+    }
     return;
   }
   await withBusy(() => post('/cae/geometry/item/' + encodeURIComponent(partSel.value)));
@@ -552,7 +570,9 @@ async function submit() {
       setup.thermal = thRows.value.map(toThermal);
       if (analysis.value === 'thermal' && transient.value) setup.transient = { duration_s: +trDur.value, steps: 50, t0_c: +trT0.value };
       if (analysis.value === 'thermo_mech') setup.ref_temp_c = +refT.value;
-      if (geo.value.example) { setup.formula = geo.value.example.formula; setup.example = { key: geo.value.example.key, params: geo.value.example.params }; }
+    }
+    if (geo.value.example && (geo.value.example.analysis || 'thermal') === (analysis.value === 'static' ? 'static' : 'thermal')) {
+      setup.formula = geo.value.example.formula; setup.example = { key: geo.value.example.key, params: geo.value.example.params };
     }
     if (mbdSource.value && geo.value?.sha === mbdSource.value.sha) setup.source = { job: mbdSource.value.job, member: mbdSource.value.member };
     job.value = await post('/cae/jobs', { step_sha: geo.value.sha, setup, item: geo.value.item, title: title.value || geo.value.name });

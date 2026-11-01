@@ -42,6 +42,7 @@ export const KINDS = {
   force: { label: '力', hint: '总力（N），均匀分布在所选面上', color: '#D64541' },
   pressure: { label: '压力', hint: '垂直压在面上（MPa = N/mm²）', color: '#E08A00' },
   torque: { label: '扭矩', hint: '绕轴线的扭矩（N·m），按到轴线的距离分布', color: '#1F8A5B' },
+  moment: { label: '力矩', hint: '绕所选面形心、任意方向的力矩（N·m，三个分量）：可以是弯矩、扭矩或两者合成，按到力矩轴的距离线性分布', color: '#0E7C86' },
 };
 
 export function toLoad(row, axes) {
@@ -56,6 +57,7 @@ export function toLoad(row, axes) {
     case 'force': return { type: 'force', faces: row.faces, vector_n: [+row.fx || 0, +row.fy || 0, +row.fz || 0] };
     case 'pressure': return { type: 'pressure', faces: row.faces, value_mpa: +row.value || 0 };
     case 'torque': return { type: 'torque', faces: row.faces, axis: ax(row.axis), value_nmm: (+row.value || 0) * 1000 };
+    case 'moment': return { type: 'moment', faces: row.faces, vector_nmm: [(+row.mx || 0) * 1000, (+row.my || 0) * 1000, (+row.mz || 0) * 1000] };
     default: return null;
   }
 }

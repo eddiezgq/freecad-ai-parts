@@ -26,6 +26,8 @@ def describe_load(l):
         return "压力", f, "{:g} MPa".format(l["value_mpa"])
     if t == "torque":
         return "扭矩", f, "{:g} N·m，绕轴线 {}".format(l["value_nmm"] / 1000, _vec(l["axis"]["dir"]))
+    if t == "moment":
+        return "力矩", f, "Mx {:g}，My {:g}，Mz {:g} N·m（绕所选面的形心）".format(*[x / 1000 for x in l["vector_nmm"]])
     return t, f, ""
 
 
