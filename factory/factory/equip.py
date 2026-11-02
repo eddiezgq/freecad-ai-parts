@@ -10,7 +10,7 @@
 
 # 类别：编号前缀 → 类别名（先长后短，按顺序认）
 PREFIX = (("saw", "saw"), ("cnc", "lathe"), ("vmc", "mc"), ("hmc", "mc"), ("grd", "grinder"), ("cmm", "cmm"), ("qc", "cmm"),
-          ("ja", "assembly"), ("asm", "assembly"), ("ra", "assembly"), ("aa", "assembly"), ("jt", "bench"), ("test", "bench"),
+          ("ja", "assembly"), ("asm", "assembly"), ("ra", "assembly"), ("aa", "assembly"), ("ha", "assembly"), ("jt", "bench"), ("test", "bench"),
           ("cal", "calib"), ("run", "runin"), ("at", "agvtest"))
 
 # 类别缺省（示例值）：原值 $、购入年、保养内容、保养分钟、一次修理费 $、停机每小时损失 $、
