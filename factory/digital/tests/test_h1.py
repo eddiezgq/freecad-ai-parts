@@ -28,6 +28,9 @@ def explode(item, q=1.0, out=None):
 ex = explode("WQ-H1")
 o = {{"joints": {{k: ex.get(k, 0) for k in ("WQJ-L", "WQJ-M", "WQJ-S")}}, "hd": {{k: ex.get(k, 0) for k in ("HD-CSF-32-100", "HD-CSF-25-100", "HD-CSF-17-100")}},
      "agv": ex.get("WQ-AGV300"), "wqr": ex.get("WQR-105"), "price": F.PRODUCTS.get("WQ-H1"), "robot_items": RF.robot_items()}}
+from hub import mrp
+mk = mrp.explode_make("WQ-H1", 1)
+o["make_agv"] = [mk.get("WQ-AGV300"), mk.get("DU-AGV"), mrp._source("WQ-AGV300"), mrp._source("WQJ-L")]
 msgs = []
 class Clock:
     t = 0.0
@@ -64,4 +67,5 @@ def test_h1_bom_and_shop():
     assert o["price"] == 68000 and o["robot_items"] == ["WQ-CR5"]
     assert o["ops"][:3] == ["人形总装 Humanoid assembly", "双臂与手眼标定 Dual-arm & hand-eye calibration", "人形联调 Humanoid integration test"]
     assert o["chars"] == [["h1_cycle", "人形联调"], ["h1_dual", "人形联调"], ["h1_handeye", "人形联调"]]      # 一种物料一张检验模板：写在一处
+    assert o["make_agv"] == [1, 2, "semi", "semi"]             # 底盘这一单自己做（不从成品库拿已卖出的 AGV），进半成品库再领用
     assert o["n"] == 6 and o["done"] == 2
