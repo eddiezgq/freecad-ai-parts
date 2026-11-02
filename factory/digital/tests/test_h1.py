@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """第 71 轮：机器人厂的第三种整机——轮式人形 WQ-H1。物料清单展开到 16 个关节模组、一台 WQ-AGV300（整机里套整机）；
-仿真车间里一台 WQ-H1 走完人形总装 → 双臂与手眼标定 → 人形联调 → 包装，出三项检验数据；现场售后先只管 WQ-CR5。"""
+仿真车间里一台 WQ-H1 走完人形总装 → 双臂与手眼标定 → 人形联调 → 包装，人形联调时记三项检验数据；现场售后先只管 WQ-CR5。"""
 import json
 import os
 import subprocess
@@ -63,5 +63,5 @@ def test_h1_bom_and_shop():
     assert o["agv"] == 1 and o["wqr"] == 2                     # 整机里套整机：底盘的两个驱动单元各一台 WQR-105
     assert o["price"] == 68000 and o["robot_items"] == ["WQ-CR5"]
     assert o["ops"][:3] == ["人形总装 Humanoid assembly", "双臂与手眼标定 Dual-arm & hand-eye calibration", "人形联调 Humanoid integration test"]
-    assert o["chars"] == [["h1_cycle", "人形联调"], ["h1_dual", "双臂与手眼标定"], ["h1_handeye", "双臂与手眼标定"]]
+    assert o["chars"] == [["h1_cycle", "人形联调"], ["h1_dual", "人形联调"], ["h1_handeye", "人形联调"]]      # 一种物料一张检验模板：写在一处
     assert o["n"] == 6 and o["done"] == 2

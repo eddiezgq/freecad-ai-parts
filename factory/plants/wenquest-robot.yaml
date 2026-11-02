@@ -260,14 +260,13 @@ measurements:
   - {code: cr_repeat, name: 位置重复精度, unit: mm, nominal: 0.018, lo: 0.0, hi: 0.03, sigma: 0.004}
   # 标定后绝对定位误差由整机标定算出（第 55 轮 sim/calib.py：测量 → 最小二乘辨识 → 补偿 → 验证），名义、σ 只用来画控制图
   - {code: cr_abs, name: 标定后绝对定位误差, unit: mm, nominal: 0.12, lo: 0.0, hi: 0.5, sigma: 0.015}
-- item: WQ-H1                                                   # 第 71 轮（名义值、散布都是示例值）
-  operation: 双臂与手眼标定 Dual-arm & hand-eye calibration
-  chars:
-  - {code: h1_dual, name: 双臂相对位姿误差, unit: mm, nominal: 0.35, lo: 0.0, hi: 1.0, sigma: 0.08}
-  - {code: h1_handeye, name: 手眼标定误差, unit: mm, nominal: 1.2, lo: 0.0, hi: 3.0, sigma: 0.3}
+# 第 71 轮（名义值、散布都是示例值）。一种物料的检验特性只能写在一处（ERPNext 一种物料一张检验模板）：
+# 双臂与手眼标定的结果在人形联调时一起复核、记录
 - item: WQ-H1
   operation: 人形联调 Humanoid integration test
   chars:
+  - {code: h1_dual, name: 双臂相对位姿误差, unit: mm, nominal: 0.35, lo: 0.0, hi: 1.0, sigma: 0.08}
+  - {code: h1_handeye, name: 手眼标定误差, unit: mm, nominal: 1.2, lo: 0.0, hi: 3.0, sigma: 0.3}
   - {code: h1_cycle, name: 走到桌前双手抓箱的节拍, unit: s, nominal: 28, lo: 0, hi: 40, sigma: 2.5}
 - item: WQ-AGV300
   operation: AGV 调试 AGV test
