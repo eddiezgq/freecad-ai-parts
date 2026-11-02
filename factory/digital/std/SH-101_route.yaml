@@ -1,0 +1,99 @@
+# SH-101 输入齿轮轴的工艺路线（大批的下沿，年产 6000 件、每批 100 件，棒料毛坯）——《机械制造技术》第 56 章 56.9、56.10 节的例子，也是 tests/test_route.py 的参照。
+# 只到“工艺路线”这一层（工序、工作中心、基准、各道的工序尺寸与粗糙度、热处理与辅助工序），工序设计（切削用量、工步、
+# 工序简图、检验卡）是第 57 章的事，所以没有写；AI 预检对它的“路线”规则没有意见。图纸要求见 SH-101_part.yaml。
+# 工时、准备与终结时间是教学设计值（与 factory/data.py 的 RT-齿轮轴 量级相同）。
+item: SH-101
+material: 20CrMnTi
+batch: 100
+blank: {kind: 热轧圆钢, spec: Ø60, length_mm: 142, material_item: RM-20CR-D60}
+attachments:
+  - {kind: calc, name: SH-101 工艺路线论证书.docx, missing: []}
+operations:
+  - seq: 10
+    operation: 下料 Sawing
+    workstation: 带锯床 SAW-01
+    content: 锯 Ø60×142
+    datum: 外圆
+    minutes: 2
+    setup_min: 10
+  - seq: 20
+    operation: 粗车 Rough turning
+    workstation: 数控车床 CNC-L01
+    content: 夹一端车端面、钻中心孔，调头车端面至总长 137、钻中心孔；一夹一顶粗车各外圆，单边留 0.5–0.8
+    datum: 外圆（粗基准）；两端中心孔
+    clamping: 三爪卡盘，后顶尖
+    features:
+      - {name: 轴伸, size_mm: 21.5, es_mm: 0, ei_mm: -0.2, Ra_um: 12.5}
+      - {name: 密封轴颈, size_mm: 25.5, es_mm: 0, ei_mm: -0.2, Ra_um: 12.5}
+      - {name: 轴承位, size_mm: 26.5, es_mm: 0, ei_mm: -0.2, Ra_um: 12.5}
+      - {name: 齿顶圆, size_mm: 53.5, es_mm: 0, ei_mm: -0.3, Ra_um: 12.5}
+    minutes: 14
+    setup_min: 30
+  - seq: 30
+    operation: 精车 Finish turning
+    workstation: 数控车床 CNC-L01
+    content: 两顶尖装夹，半精车轴承位、密封轴颈、轴伸（留磨量），车齿顶圆、端面和倒角到尺寸，车总长 136
+    datum: 两端中心孔（精基准）
+    clamping: 两顶尖，鸡心夹头
+    features:
+      - {name: 轴伸, size_mm: 20.4, es_mm: 0, ei_mm: -0.05, Ra_um: 3.2}
+      - {name: 密封轴颈, size_mm: 24.4, es_mm: 0, ei_mm: -0.05, Ra_um: 3.2}
+      - {name: 轴承位, size_mm: 25.4, es_mm: 0, ei_mm: -0.05, Ra_um: 3.2}
+      - {name: 齿顶圆, size_mm: 52, es_mm: 0, ei_mm: -0.19, Ra_um: 3.2}
+    minutes: 12
+    setup_min: 20
+  - seq: 40
+    operation: 滚齿 Gear hobbing
+    workstation: 滚齿机 HOB-01
+    content: 以两端中心孔（心轴架）定位，滚齿 m2 z24，按 7 级加工（渗碳淬火后约降一级，达到图纸 8 级），公法线 W₃ 留磨前余量 0
+    datum: 两端中心孔（精基准）
+    minutes: 22
+    setup_min: 40
+    aux: [去毛刺（齿端倒棱）]
+  - seq: 50
+    operation: 铣键槽 Keyway milling
+    workstation: 键槽铣床 KEY-01
+    content: 以轴伸外圆在 V 形块上定位（与键槽对称度的基准一致），轴承位外圆辅助支承，铣轴伸键槽 6 N9，槽深按渗碳淬火、磨削后的 d − t₁ 换算
+    datum: 外圆（V 形块）
+    minutes: 8
+    setup_min: 20
+    aux: [去毛刺]
+  - seq: 60
+    operation: 渗碳淬火 Carburizing
+    workstation: 热处理炉 HT-01
+    content: 920 ℃ 渗碳，层深 1.1–1.3 mm（磨前）；直接淬火，180 ℃ 回火 2 h；表面 58–62 HRC，心部 30–45 HRC
+    minutes: 20
+    setup_min: 60
+    aux: [清洗（淬火前后）, 喷丸清理氧化皮]
+  - seq: 70
+    operation: 磨外圆 Cylindrical grinding
+    workstation: 外圆磨床 GRD-01
+    content: 修研两端中心孔；两顶尖装夹，粗磨、精磨两处轴承位、密封轴颈和轴伸
+    datum: 两端中心孔（精基准）
+    clamping: 两顶尖，鸡心夹头
+    features:
+      - {name: 轴伸, size_mm: 20, es_mm: 0.009, ei_mm: -0.004, Ra_um: 0.8}
+      - {name: 密封轴颈, size_mm: 24, es_mm: 0, ei_mm: -0.033, Ra_um: 0.8}
+      - {name: 轴承位, size_mm: 25, es_mm: 0.015, ei_mm: 0.002, Ra_um: 0.8}
+    grinding:
+      mat: 20CrMnTi-CQ
+      dw: 25
+      ds: 400
+      vs: 35
+      mesh: 60
+      wear_flat_pct: 1.5
+      passes:
+        - {name: 粗磨, vw_m_min: 15, ap: 0.002, sparkout: 0}
+        - {name: 精磨, vw_m_min: 15, ap: 0.0015, sparkout: 2}
+    inspect:
+      - {char: 磨削烧伤, gauge: 酸洗检查, freq: 每批首件、修整砂轮后首件}
+    minutes: 16
+    setup_min: 20
+    aux: [清洗]
+  - seq: 80
+    operation: 零件检验 Part inspection
+    workstation: 检验站 QC-01
+    content: 按检验卡检验尺寸、跳动、齿轮公法线、硬度与有效硬化层（每批抽 1 件解剖）
+    minutes: 8
+    setup_min: 5
+    aux: [清洗, 防锈]

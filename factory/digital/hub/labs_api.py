@@ -33,6 +33,9 @@ LABS = [
     # 第 68 轮：一台机器人的售后追溯（现场报警 → 出厂档案 → 减速器批次 → 召回范围 → 派工 → 算账）
     {"no": 29, "title": "一台机器人的售后追溯", "path": "/lab29", "module": "lab29", "domain": "客户与服务（质量追溯）", "hours": 4,
      "plant": "wenquest-robot"},
+    # 第 74 轮：一台轮式人形从订单到交付（整机里套整机、两种整机抢一个标定工位）
+    {"no": 30, "title": "一台轮式人形从订单到交付", "path": "/lab30", "module": "lab30", "domain": "订单与计划（多层计划、产能）", "hours": 4,
+     "plant": "wenquest-robot"},
 ]
 
 

@@ -61,14 +61,14 @@ def expected_counts(product=PRODUCT):
 
 
 # ---------------------------------------------------------------- 学生的订单
-def my_order(db, user):
-    """学生最近一张已执行的 WQ-CR5 接单提议：销售订单、各工单（物料 → 工单号）"""
-    rows = db.q("select proposal_id, preview, result from ai_proposal where mode='teach' and action='create_order_and_plan' "
+def my_order(db, user, product=PRODUCT):
+    """学生最近一张已执行的 WQ-CR5 接单提议：销售订单、各工单（物料 → 工单号）；实验 30 用同一个函数找 WQ-H1"""
+    rows = db.q("select proposal_id, created_at, preview, result from ai_proposal where mode='teach' and action='create_order_and_plan' "
                 "and status='executed' and requested_by=%s order by created_at desc limit 20", (user,))
     for r in rows:
         pv = r["preview"] if isinstance(r["preview"], dict) else json.loads(r["preview"] or "{}")
         item = (pv.get("sales_order") or {}).get("item_code") or pv.get("item")
-        if item != PRODUCT:
+        if item != product:
             continue
         res = r["result"] if isinstance(r["result"], dict) else json.loads(r["result"] or "{}")
         created = res.get("created") or []
@@ -81,7 +81,7 @@ def my_order(db, user):
             if d:
                 wos[d.get("production_item")] = n
         if so:
-            return {"proposal_id": r["proposal_id"], "sales_order": so, "work_orders": wos, "erp": {n: docs.get(n) or {} for n in wo_names}}
+            return {"proposal_id": r["proposal_id"], "created_at": r["created_at"], "sales_order": so, "work_orders": wos, "erp": {n: docs.get(n) or {} for n in wo_names}}
     return None
 
 
@@ -111,9 +111,9 @@ def layers(db, order):
     return rows, bad
 
 
-def joints(db, order):
-    """这张单的关节在测试台上的测量值：{序列号: {物料, 各特性 [值, 下限, 上限, 判定]}}"""
-    names = {wo for item, wo in order["work_orders"].items() if item.startswith("WQJ-")}
+def joints(db, order, items=None):
+    """这张单的关节在测试台上的测量值：{序列号: {物料, 各特性 [值, 下限, 上限, 判定]}}；items 给了就只看这些物料的工单（实验 30 看整机）"""
+    names = {wo for item, wo in order["work_orders"].items() if (item in items if items else item.startswith("WQJ-"))}
     out = {}
     for m in db.messages(["quality.measurement"], mode="teach", order="asc", limit=20000):
         d = m["data"]
@@ -124,14 +124,14 @@ def joints(db, order):
     return out
 
 
-def order_cost(db, order):
+def order_cost(db, order, product=PRODUCT):
     from hub import mrp
     lines = []
     for item, wo in order["work_orders"].items():
         c = mrp.wo_cost(db, wo, "teach")
         if c:
             lines.append({"item": item, "work_order": wo, "std": c["std_cost"], "actual": c["actual_cost"], "variance": c["variance"]})
-    tree = mrp.std_rollup(PRODUCT)
+    tree = mrp.std_rollup(product)
     mat = tree["material"]
     std = mat + sum(x["std"] for x in lines)
     act = mat + sum(x["actual"] for x in lines)

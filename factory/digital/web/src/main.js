@@ -46,6 +46,7 @@ const routes = [
   { path: '/lab27', component: () => import('./pages/Lab27.vue') },        // 第 57 轮
   { path: '/lab28', component: () => import('./pages/Lab28.vue') },        // 第 58 轮：负载跑合台
   { path: '/lab29', component: () => import('./pages/Lab29.vue') },        // 第 68 轮：一台机器人的售后追溯
+  { path: '/lab30', component: () => import('./pages/Lab30.vue') },        // 第 74 轮：一台轮式人形从订单到交付
   { path: '/rservice', component: () => import('./pages/RobotService.vue') }, // 第 64 轮：机器人厂的客户与服务（现场的机器人）
   { path: '/lab20', component: () => import('./pages/Lab20.vue') },
   { path: '/energy', component: () => import('./pages/Energy.vue') },

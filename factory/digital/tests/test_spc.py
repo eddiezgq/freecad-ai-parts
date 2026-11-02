@@ -75,3 +75,11 @@ def test_for_characteristic_reads_the_inspection_records():
     r = spc.for_characteristic(FakeDB(), "teach", "SH-301", "bearing_seat_d35")
     assert r["count"] == 40 and r["chart"]["k"] == 8 and 0.8 < r["capability"]["Cpk"] < 2.0
     assert "note" in spc.for_characteristic(FakeDB(), "teach", "SH-301", "gear_seat_d40")
+
+
+def test_attribute_characteristic_with_no_spread():
+    """第 55 章：计数型特性“有无烧伤”（0/1，上下限都是 0）全为 0 时，分散为 0 不报错，过程能力记无穷大。"""
+    from hub import spc
+    c = spc.capability([0.0] * 12, 0.0, 0.0)
+    assert c["Cpk"] == float("inf") and c["Pp"] == float("inf")
+    assert spc.capability([0.0] * 11 + [1.0], 0.0, 0.0)["Cpk"] == 0.0 or spc.capability([0.0] * 11 + [1.0], 0.0, 0.0)["Cpk"] < 0

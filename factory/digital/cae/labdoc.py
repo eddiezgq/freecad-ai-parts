@@ -26,7 +26,8 @@ GUIDES = {"lab8": GUIDE_MD, "lab9": os.path.join(HERE, "实验9_机械臂关节�
           "lab26": os.path.join(HERE, "实验26_一台协作机器人的运动学标定.md"),
           "lab27": os.path.join(HERE, "实验27_两厂之间的一张订单.md"),
           "lab28": os.path.join(HERE, "实验28_负载跑合台上的仿真与实测对比.md"),
-          "lab29": os.path.join(HERE, "实验29_一台机器人的售后追溯.md")}
+          "lab29": os.path.join(HERE, "实验29_一台机器人的售后追溯.md"),
+          "lab30": os.path.join(HERE, "实验30_一台轮式人形从订单到交付.md")}
 
 
 def _doc():
@@ -138,7 +139,7 @@ def report_template_docx(lab="lab8"):
         return lab22_template()
     if lab == "lab23":
         return lab23_template()
-    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28", "lab29"):
+    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28", "lab29", "lab30"):
         return robot_template(lab)
     from docx.shared import Pt
     d = _doc()
@@ -997,6 +998,23 @@ def robot_template(lab):
         table([["d（台/天）", "σ_d（台/天）", "L（天）", "z", "SS = z·σ_d·√L", "ROP = d·L + SS"], ["", "", "", "1.65", "", ""]])
         d.add_heading("四、讨论（任务 6）· Discussion", 1)
         hint("两厂共享需求信息的好处；如果减速器厂的提前期从 10 天变成 20 天，安全库存要变成多少？批量从 10 台改成 1 台，有什么得失？")
+    elif lab == "lab30":
+        d.add_heading("实验 30　一台轮式人形从订单到交付　实验报告 · Lab 30 Report: One Wheeled Humanoid from Order to Delivery", 0)
+        table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)
+        d.add_heading("一、物料清单树与算料（任务 1）· BOM tree and MRP", 1)
+        hint("画出 WQ-H1 的物料清单树，至少三层：WQ-H1 → 关节模组 / WQ-AGV300 / 躯干等 → 驱动单元、谐波减速器 → WQR-105。标出哪些是自制、哪些外购。")
+        table([["项目 Item", "记录 Record"], ["工单张数 Work orders", ""], ["关节模组 大 / 中 / 小 Joints L / M / S", ""], ["底盘从哪来 Where the chassis comes from", ""]])
+        hint("为什么底盘要在这张单里造，而不是从成品库拿一台？")
+        d.add_heading("二、按层下达（任务 2）· Releasing layer by layer", 1)
+        table([["层 Layer", "工单 Work orders", "下达时刻 Released", "下一层做完时刻 Children done"], ["1", "", "", ""], ["2", "", "", ""], ["3", "", "", ""], ["4", "", "", ""]])
+        d.add_heading("三、两种整机抢一个工位（任务 3）· Two robots, one cell", 1)
+        table([["项目 Item", "WQ-H1", "WQ-CR5", "合计 Total"], ["在 CAL-1 上的分钟 Minutes on CAL-1", "", "", ""], ["会这个工位的人 Qualified people", "", "", ""]])
+        hint("CAL-1 为什么是瓶颈？你选的对策这一周怎么排（贴“订单与计划”产能、“人员与排班”技能矩阵的截图）？长远看还要做什么？")
+        d.add_heading("四、检验、交付与成本（任务 4–6）· Inspection, delivery and cost", 1)
+        table([["检验项 Characteristic", "测量值 Value", "公差 Tolerance", "判定 Verdict"], ["双臂相对位姿误差 Dual-arm pose (mm)", "", "", ""],
+               ["手眼标定误差 Hand-eye (mm)", "", "", ""], ["抓箱节拍 Pick cycle (s)", "", "", ""]])
+        table([["标准成本 Standard ($)", "实际成本 Actual ($)", "差异 Variance (%)", "差得最多的工单 Worst work order"], ["", "", "", ""]])
+        hint("和实验 24 的协作臂比：人形多了什么？成本差异主要来自哪一层？")
     elif lab == "lab29":
         d.add_heading("实验 29　一台机器人的售后追溯　实验报告 · Lab 29 Report: Tracing One Robot After Sale", 0)
         table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)

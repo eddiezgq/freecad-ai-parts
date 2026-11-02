@@ -11,6 +11,7 @@
   | 磨床未预热 | 砂轮架热伸长，开机后数十分钟内向工件方向移动 | 开机后直径逐件变小，约 15 件后稳定在偏小处 |
   | 键槽夹具定位元件磨损 | V 形块与轴向挡板磨损，工件轴线偏离铣刀中心 | 键槽对称度均值上升、分散变大，部分超 0.02 |
   | 中心孔质量差 | 中心孔有毛刺、圆度差，磨削时回转中心跳动 | 轴承位径向圆跳动增大，部分超 0.012；直径分散略增 |
+  | 砂轮修整不锋利（第 55 章） | 金刚石笔磨钝，砂轮磨粒磨平面积大，比磨削能与磨削温度升高 | 每个修整周期的后几件轴承位烧伤（酸洗检出）；Ra 略增但仍合格 |
 
 学生在质量异常单上做 8D：原因分析后选择纠正措施；措施经老师批准下发后（apply_fix），只有对症的措施能让问题消失，
 后续零件的数据随之恢复——这就是 8D 第 6 步“验证措施有效”的数据来源。
@@ -29,7 +30,12 @@ CHARS = [
     ("bearing_seat_d35_r", "轴承位直径 Ø35 k6（右）", 35.010, 35.002, 35.018),
     ("runout_bearing", "轴承位径向圆跳动（A–B）", 0.004, 0.0, 0.012),
     ("keyway_sym", "键槽对称度", 0.006, 0.0, 0.020),
+    # 第 13 轮十一（第 55 章）：工序 60 的表面质量——粗糙度（µm，检验卡 C10）和酸洗检查磨削烧伤（0 无、1 有）
+    ("ra_bearing", "轴承位表面粗糙度 Ra（µm）", 0.5, 0.0, 0.8),
+    ("burn_bearing", "轴承位磨削烧伤（酸洗：0 无、1 有）", 0.0, 0.0, 0.0),
 ]
+# 工序 60 精磨的参数（工艺规程第 263 行：砂轮 35 m/s、工件 20 m/min、横进给 0.005 mm/行程、光磨 2 次；工件 Ø35、砂轮 Ø400）
+GRIND = {"vs": 35.0, "vw": 20 / 60, "ap": 0.005, "sparkout": 2, "dw": 35.0, "ds": 400.0, "mat": "45-QT"}
 
 # 轴向位置（mm，从左端面）：左轴承位中点、齿轮位中点、右轴承位中点；总长 L
 Z_LEFT, Z_GEAR, Z_RIGHT, LENGTH = 46.0, 82.0, 124.5, 167.0
@@ -40,6 +46,8 @@ PROBLEMS = {
     "thermal_warmup": {"name": "磨床未预热（开机后尺寸逐件变小）", "unit": "grd-01", "fix": "warm_up", "default": 0.010},
     "locator_worn": {"name": "键槽夹具定位元件磨损（对称度超差）", "unit": "key-01", "fix": "replace_locator", "default": 0.012},
     "center_hole": {"name": "中心孔质量差（圆跳动超差）", "unit": "grd-01", "fix": "lap_center_holes", "default": 0.006},
+    # 第 55 章：金刚石笔磨钝，修整后砂轮仍不锋利、磨粒磨平面积大（hub/surface.py：比磨削能和磨削温度升高）
+    "wheel_dull": {"name": "砂轮修整不锋利（金刚石笔磨钝：磨削温度升高，轴承位烧伤）", "unit": "grd-01", "fix": "sharp_dressing", "default": 2.5},
 }
 
 # 机器人厂（清单 wenquest-robot，第 47 轮实验 25）：关节测试台的数据。“plant” 标出属于哪座厂，质量页、8D 只列本厂的
@@ -62,6 +70,7 @@ FIXES = {
     "warm_up": "开机空运转预热 20 min，首件合格后再批量磨削",
     "replace_locator": "更换键槽铣夹具的 V 形块与轴向挡板，并重新对刀",
     "lap_center_holes": "磨前修研中心孔、检查并更换磨损的顶尖",
+    "sharp_dressing": "更换磨钝的金刚石笔，按工艺卡的修整用量锋利修整砂轮",
     "change_wheel": "更换砂轮牌号（改用更软的砂轮）",
     "reduce_feed": "减小磨削横向进给量",
     "retrain": "培训操作工，加强自检",
@@ -281,9 +290,28 @@ class ErrorModel:
         v4 = self.rng.gauss(base_d35 + taper * Z_RIGHT, 0.0012 * ch_sd)
         v5 = abs(self.rng.gauss(runout_mean, runout_sd))
         v6 = abs(self.rng.gauss(sym_mean, sym_sd))
-        for (code, name, nom, lo, hi), v in zip(CHARS, (v1, v2, v3, v4, v5, v6)):
+        v7, v8 = self.surface(wear, st)
+        for (code, name, nom, lo, hi), v in zip(CHARS, (v1, v2, v3, v4, v5, v6, v7, v8)):
             out.append((code, name, nom, lo, hi, round(v, 4)))
         return out
+
+    def surface(self, wear: float, st: dict) -> tuple[float, int]:
+        """轴承位的粗糙度 Ra（µm）与是否烧伤（第 55 章，hub/surface.py）：砂轮磨粒的磨平面积 A（%）刚修整约 0.5，
+        随砂轮磨损 wear（0–1）增大（A = 0.5 + 3·wear）；“修整不锋利”时修整后也只恢复到 0.5 + m，且长得快（A = 0.5 + m(1 + 3·wear)）。"""
+        from hub import surface as S
+        g = GRIND
+        if "wheel_dull" in st:
+            m = st["wheel_dull"][0]
+            A = 0.5 + m * (1 + 3 * wear)
+        else:
+            A = 0.5 + 3 * wear
+        mat = S.STEELS[g["mat"]]
+        de = S.equivalent_diameter(g["dw"], g["ds"])
+        h = S.heq(g["vw"], g["ap"], g["vs"])
+        ra = S.grinding_ra(h, g["sparkout"], wear_flat_pct=A) * self.rng.lognormvariate(0, 0.06)
+        t = S.grinding_temperature(mat, g["vs"], g["vw"], g["ap"], de, A)
+        burn = S.burn_state(mat, t["theta"], t["t_ms"])["kind"] != "none"
+        return ra, int(burn)
 
     def state(self, teacher=False) -> dict:
         d = {"fixes": FIXES, "problems_catalog": {k: v["name"] for k, v in PROBLEMS.items()} if teacher else None}

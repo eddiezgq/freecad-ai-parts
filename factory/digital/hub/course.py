@@ -471,7 +471,12 @@ def mount(app, H):
                 "summary": "客户现场一台 WQ-CR5 的关节背隙超限：从现场数据追到出厂档案、谐波减速器批次，判原因，找出同批还装在哪几台（召回范围），"
                            "派对症的服务工单并做完，再比较同批全部预防性更换与等报警了再换的花费。",
                 "mode": "teach", "products": ["WQ-CR5", "WQJ-L"], "tool_url": base + "/lab29",
-                "guide_url": base + "/api/cae/lab29/guide.docx", "report_template_url": base + "/api/cae/lab29/report-template.docx"}])
+                "guide_url": base + "/api/cae/lab29/guide.docx", "report_template_url": base + "/api/cae/lab29/report-template.docx"}, {
+                "id": "lab30", "name": {"zh": "实验 30：一台轮式人形从订单到交付", "en": "Lab 30: one wheeled humanoid from order to delivery"},
+                "summary": "接一台轮式人形 WQ-H1：16 个关节模组、底盘是一台在这张单里先造出来的 WQ-AGV300（整机里套整机）；按层下达，"
+                           "同一周再接一台协作臂，处理两种整机抢同一个、只有一个人会的标定工位 CAL-1；判联调检验，入库开票，算整台成本。",
+                "mode": "teach", "products": ["WQ-H1", "WQ-AGV300", "WQ-CR5"], "tool_url": base + "/lab30",
+                "guide_url": base + "/api/cae/lab30/guide.docx", "report_template_url": base + "/api/cae/lab30/report-template.docx"}])
         return head(["factory-data"], items=[{
             "id": "lab7", "name": {"zh": "实验 7：数字工厂闭环", "en": "Lab 7: the closed loop in a digital factory"},
             "summary": "WQR-105 减速器厂的一周：接单、算料排产、设计发布、车间加工、在线检测与不合格品处置、看板与 AI 提醒。",

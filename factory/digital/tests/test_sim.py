@@ -53,8 +53,9 @@ def test_ten_shafts_flow_through_all_seven_operations():
     ends = events(out, "cycle_end")
     assert len(ends) == 70
     meas = [m for t, m in out if m["type"] == "quality.measurement"]
-    assert len(meas) == 60 and {m["data"]["characteristic"] for m in meas} == {        # 第 13 轮：每件 6 项
-        "bearing_seat_d35", "gear_seat_d40", "keyway_width_12", "bearing_seat_d35_r", "runout_bearing", "keyway_sym"}
+    assert len(meas) == 80 and {m["data"]["characteristic"] for m in meas} == {        # 第 13 轮：每件 8 项（第 55 章加粗糙度、烧伤）
+        "bearing_seat_d35", "gear_seat_d40", "keyway_width_12", "bearing_seat_d35_r", "runout_bearing", "keyway_sym",
+        "ra_bearing", "burn_bearing"}
     # 每件零件的工序顺序正确
     by_part = {}
     for e in ends:

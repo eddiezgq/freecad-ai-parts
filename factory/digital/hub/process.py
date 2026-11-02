@@ -116,6 +116,11 @@ def review(plan):
     if not ops:
         say("完整", "error", "工序表是空的。")
         return out
+    part = part_spec(plan.get("item"))
+    if part:                      # 第 13 轮十二：有零件图要求文件的零件（SH-101），图纸以它为准，工艺规程里写的不算
+        plan = dict(plan, drawing=part["drawing"])
+        if plan.get("characteristics"):
+            plan["characteristics"] = part["characteristics"]
     seqs = [o.get("seq") for o in ops]
     if seqs != sorted(seqs) or len(set(seqs)) != len(seqs):
         say("完整", "error", "工序号要从小到大、不重复（常用 10、20、30……，便于以后插工序）。")
@@ -252,6 +257,9 @@ def review(plan):
     if plan.get("characteristics"):
         _review_v2(plan, say)
 
+    if part:
+        _review_route(plan, part, say)
+
     # 计算书
     calc = [a for a in plan.get("attachments") or [] if a.get("kind") == "calc"]
     if not calc:
@@ -260,6 +268,142 @@ def review(plan):
         if a.get("missing"):
             say("完整", "warning", "工艺计算书缺项：{}。".format("、".join(a["missing"])))
     return out
+
+
+def part_spec(item):
+    """零件图要求（std/<零件>_part.yaml，第 13 轮十二）：没有这个文件的零件返回 None。"""
+    if not item:
+        return None
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "std", "{}_part.yaml".format(item))
+    if not os.path.exists(p):
+        return None
+    import yaml
+    with open(p, encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+# 工序 → 方案链里的加工方法（hub/route.py 的 route_methods 表）：精车、磨削按这一道的公差等级分半精/精、粗/精
+def _method_of(op, it):
+    """一道工序在某个表面上用的加工方法（方案链的一环或几环）。磨削工序登记了粗磨、精磨两个行程（grinding.passes），
+    或工序内容写了“粗磨”“精磨”的，算两环。"""
+    st = STAGE.get(op.get("operation"))
+    if st == "rough":
+        return ["od_rough_turn"]
+    if st == "finish":
+        return ["od_finish_turn" if it is not None and it <= 8 else "od_semi_turn"]
+    if st == "grind":
+        g = op.get("grinding") if isinstance(op.get("grinding"), dict) else {}
+        two = len(g.get("passes") or []) >= 2 or ("粗磨" in str(op.get("content", "")) and "精磨" in str(op.get("content", "")))
+        fine = "od_finish_grind" if it is not None and it <= 7 else "od_rough_grind"
+        return ["od_rough_grind", fine] if two and fine == "od_finish_grind" else [fine]
+    return []
+
+
+def _review_route(plan, part, say):
+    """工艺路线的检查（第 13 轮十二（2），《机械制造技术》第 56 章）：毛坯、热处理前后的工序、加工方案链、加工阶段、辅助工序。"""
+    from . import route as RT
+    ops = plan.get("operations") or []
+    st = [STAGE.get(o.get("operation")) for o in ops]
+    segs = (part.get("part") or {}).get("segments") or []
+    dmax = max((d for d, _, _ in segs), default=0)
+    # 毛坯
+    b = plan.get("blank") or {}
+    kind = str(b.get("kind", ""))
+    if not kind:
+        say("路线", "error", "没写毛坯（种类、规格）。")
+    if "圆钢" in kind or "棒料" in kind:
+        import re
+        m = re.search(r"(\d+(?:\.\d+)?)", str(b.get("spec", "")))
+        if m and float(m.group(1)) < dmax + 3:
+            say("路线", "error", "棒料 {} 比零件最大直径 Ø{:g} 大不到 3 mm，粗车留不出余量（还要切掉轧制表面的缺陷层）。".format(b.get("spec"), dmax))
+    if "锻" in kind and "正火" not in (str(b.get("heat", "")) + str(b.get("note", ""))):
+        say("路线", "warning", "锻件毛坯没写正火：锻后组织粗大、硬度不匀，切削性差，渗碳淬火后变形也大；锻件一般正火后交货（写在 blank 的 heat 里）。")
+    # 热处理前后
+    ht = part.get("heat_treatment") or {}
+    hd = next((i for i, x in enumerate(st) if x == "harden"), None)
+    if ht.get("kind") == "carburize" and hd is None:
+        say("路线", "error", "图纸要求渗碳淬火（{}），工艺路线里没有渗碳淬火工序。".format(ht.get("spec", "")))
+    if hd is not None:
+        first_cut = next((i for i, x in enumerate(st) if x in ("rough", "finish", "gear", "keyway")), None)
+        if first_cut is not None and hd < first_cut:
+            say("路线", "error", "渗碳淬火排在切削加工之前：淬硬后车、铣、滚都切不动，热处理应在半精加工之后、磨削之前。", ops[hd]["seq"])
+        for i in range(hd + 1, len(ops)):
+            if st[i] in ("rough", "finish", "gear", "keyway"):
+                say("路线", "error", "{}排在渗碳淬火之后：表面 58–62 HRC，{}不动；这一道要移到热处理之前（淬硬后只能磨）。"
+                    .format(ops[i]["operation"].split(" ")[0], "车" if st[i] in ("rough", "finish") else "铣、滚"), ops[i]["seq"])
+        gr_after = [i for i in range(hd + 1, len(ops)) if st[i] == "grind"]
+        if ht.get("ground_after") and not gr_after:
+            say("路线", "error", "{}要在渗碳淬火后磨削（尺寸 IT6、Ra 0.8，热处理变形要磨掉），路线里热处理之后没有磨削。".format("、".join(ht["ground_after"])))
+        for i in gr_after[:1]:
+            txt = str(ops[i].get("content", "")) + " ".join(str(a) for a in ops[i].get("aux") or [])
+            if "中心孔" not in txt:
+                say("路线", "warning", "热处理后磨削之前没有修研中心孔：渗碳淬火后中心孔氧化、变形，以它定位磨出的轴承位跳动保不住"
+                    "（写在磨削工序的内容或辅助工步 aux 里）。", ops[i]["seq"])
+        for o in ops[hd + 1:]:
+            if STAGE.get(o.get("operation")) != "grind":
+                continue
+            for f in o.get("features") or []:
+                z = f.get("_z")
+                if z and z[0] < 0.15:
+                    say("路线", "warning", "“{}”渗碳淬火后的磨削余量（直径上）最小只有 {:.3f} mm：渗碳淬火的变形大，一般留 0.3–0.5 mm，"
+                        "否则磨不圆、磨不掉跳动。".format(f["name"], z[0]), o["seq"])
+    # 加工方案链：图纸上每个有公差的外圆
+    for d in plan.get("drawing") or []:
+        T = d.get("es_mm", 0) - d.get("ei_mm", 0)
+        it = it_grade(d["size_mm"], T) if T > 0 else None
+        keys, hf, grades = [], None, []
+        for i, o in enumerate(ops):
+            f = next((x for x in o.get("features") or [] if x.get("name") == d["name"]), None)
+            if not f:
+                continue
+            Tf = f.get("es_mm", 0) - f.get("ei_mm", 0)
+            gf = it_grade(f["size_mm"], Tf) if Tf > 0 else None
+            m = _method_of(o, gf)
+            if not m:
+                continue
+            if hd is not None and i > hd and hf is None:
+                hf = len(keys)
+            keys += m
+            grades += [None] * (len(m) - 1) + [gf]        # 两环（粗磨、精磨）时，规定的公差是最后一环的
+        if not keys or it is None:
+            continue
+        if hd is not None and hf is None and any(i < hd for i, o in enumerate(ops)
+                                                 if any(x.get("name") == d["name"] for x in o.get("features") or [])):
+            hf = len(keys)
+        for prob in RT.check_chain(keys, it, d.get("Ra_um"), hf, kind or "热轧圆钢", grades):
+            say("路线", "warning" if ("跳级" in prob or "不接在" in prob or ("经济精度 IT" in prob and "规定到" in prob)) else "error", "“{}”（IT{}{}）的加工方案链 {}：{}。".format(
+                d["name"], it, "、Ra {}".format(d["Ra_um"]) if d.get("Ra_um") else "",
+                " → ".join(RT.METHODS[k]["method_zh"] for k in keys), prob))
+    gear = (part.get("part") or {}).get("gear")
+    if gear:
+        gi = [i for i, x in enumerate(st) if x == "gear"]
+        if not gi:
+            say("路线", "error", "零件有齿轮（m{} z{}），路线里没有切齿工序。".format(gear["m"], gear["z"]))
+        else:
+            import re
+            g = int(re.match(r"\d+", str(gear.get("grade", "8"))).group(0))
+            hfg = 1 if hd is not None and gi[-1] < hd else None
+            for prob in RT.check_chain(["gear_hob"], g, None, hfg, kind or "热轧圆钢"):
+                say("路线", "error", "齿轮（{} 级）：{}。".format(g, prob), ops[gi[0]]["seq"])
+    if (part.get("part") or {}).get("keyway") and "keyway" not in st:
+        k = part["part"]["keyway"]
+        say("路线", "error", "零件图上有键槽（{} N9 × {}），路线里没有铣键槽工序。".format(k.get("b"), k.get("L")))
+    # 加工阶段：粗加工不应夹在精加工中间
+    fz = next((i for i, x in enumerate(st) if x in ("finish", "grind")), None)
+    if fz is not None:
+        for i in range(fz + 1, len(ops)):
+            if st[i] == "rough":
+                say("路线", "warning", "粗车排在精加工之后：粗加工的切削力和热变形会破坏已加工好的表面；粗、精加工要分开，先全部粗加工。", ops[i]["seq"])
+    # 辅助工序（aux：去毛刺、清洗、退磁、防锈……写在工序里）
+    aux_after = lambda i, word: any(word in str(a) for o in ops[i:] for a in (o.get("aux") or []))  # noqa: E731
+    kw = [i for i, x in enumerate(st) if x in ("keyway", "gear")]
+    if kw and not aux_after(kw[0], "去毛刺"):
+        say("路线", "warning", "铣键槽、滚齿后没有安排去毛刺：毛刺会划伤定位面和轴承，渗碳时尖角也易过热开裂（写在工序的辅助工步 aux 里）。", ops[kw[0]]["seq"])
+    ins = [i for i, x in enumerate(st) if x == "inspect"]
+    if ins and not any("清洗" in str(a) for o in ops[:ins[-1] + 1] for a in (o.get("aux") or [])):
+        say("路线", "warning", "终检之前没有清洗：磨屑、切削液残留会影响测量，也会带进减速器。", ops[ins[-1]]["seq"])
+    if ins and not aux_after(ins[-1], "防锈"):
+        say("路线", "info", "最后没有写防锈（检验合格后涂防锈油入库）。", ops[ins[-1]]["seq"])
 
 
 def _review_v2(plan, say):
@@ -317,6 +461,42 @@ def _review_v2(plan, say):
             elif r["tight"]:
                 say("精度", "warning", "“{}”的精度预算合计 {:.4f} mm，占公差 {:g} 的 {:.0%}，裕量不足（工序能力偏低）；最大的一项是“{}”。"
                     .format(c["name"] if c else ab.get("char"), r["total"], T, r["total"] / T, big["name"]), o["seq"])
+    # 2d 磨削的表面完整性（第 55 章，hub/surface.py）：工序登记了磨削参数（grinding）时，按修整前砂轮最钝的状态
+    #    （wear_flat_pct）核算每一行程的磨削温度：超过回火软化温度或 Ac1 会烧伤（必须改），离得很近要提醒；
+    #    最后一次（ra_char）的粗糙度要达到图纸；淬硬件（低温回火）精磨没有烧伤检验要提醒
+    from hub import surface as SF
+    import re as _re
+    for o in plan.get("operations") or []:
+        g = o.get("grinding")
+        if not isinstance(g, dict):
+            continue
+        mat = SF.STEELS.get(g.get("mat"))
+        if not mat:
+            say("表面", "warning", "磨削参数的材料“{}”不在表面完整性库里，没有核算烧伤。".format(g.get("mat")), o["seq"])
+            continue
+        de = SF.equivalent_diameter(g["dw"], g["ds"], g.get("internal", False))
+        A = g.get("wear_flat_pct", 0.5)
+        for ps in g.get("passes") or []:
+            vw = ps["vw_m_min"] / 60
+            t = SF.grinding_temperature(mat, g["vs"], vw, ps["ap"], de, A)
+            b = SF.burn_state(mat, t["theta"], t["t_ms"], g.get("coolant", True))
+            lim = min(b["onset"], b["Ac1"])
+            if b["kind"] != "none":
+                say("表面", "error", "{}（工件 {:g} m/min、切深 {:g} mm）：砂轮修整前磨削区最高温度约 {:.0f} ℃，超过{} {:.0f} ℃，会{}；"
+                    "允许的最大切深约 {:.4f} mm。".format(ps.get("name", "磨削"), ps["vw_m_min"], ps["ap"], t["theta"],
+                                                    "回火软化温度" if b["onset"] <= b["Ac1"] else " Ac1", lim, b["name"],
+                                                    SF.max_infeed(mat, g["vs"], vw, de, A)), o["seq"])
+            elif b["margin"] < 50:
+                say("表面", "warning", "{}：磨削区最高温度约 {:.0f} ℃，离烧伤只差 {:.0f} ℃，砂轮稍钝就会烧伤；减小切深或缩短修整间隔。"
+                    .format(ps.get("name", "磨削"), t["theta"], b["margin"]), o["seq"])
+            c = chars.get(ps.get("ra_char")) if ps.get("ra_char") else None
+            if c:
+                m = _re.search(r"Ra\s*([\d.]+)", str(c.get("spec", "")))
+                ra = SF.grinding_ra(t["heq"], ps.get("sparkout", 0), g.get("mesh", 60), A)
+                if m and ra > float(m.group(1)):
+                    say("表面", "error", "{}后粗糙度约 Ra {:.2f} μm，达不到 {}；增加光磨次数或减小切深。".format(ps.get("name", "精磨"), ra, c.get("spec")), o["seq"])
+        if mat["temper_c"] < 300 and not any("烧伤" in str(i.get("char", "")) or "酸洗" in str(i.get("gauge", "")) for i in o.get("inspect") or []):
+            say("表面", "warning", "淬硬件（低温回火）磨削后没有烧伤检验（酸洗、显微硬度或巴克豪森噪声）：烧伤从尺寸和粗糙度上看不出来。", o["seq"])
     # 3 尺寸链：工艺规程里登记的尺寸链，按极值法算出的封闭环要落在图纸特性之内
     for ch in plan.get("chains") or []:
         links = [TL.Link(l["name"], l["nominal"], l.get("es", 0), l.get("ei", 0), l.get("sense", 1)) for l in ch["links"]]
