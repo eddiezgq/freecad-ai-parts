@@ -180,7 +180,7 @@ def one(item, mgr):
     mr_items = {i["item_code"] for n in mrs for i in (erp_doc("Material Request", n) or {}).get("items", [])}
     check(bool(mr_items) or not buys, "ERPNext 请购单 {} 张，{} 种物料".format(len(mrs), len(mr_items)))
     for b in A.expect_buy:
-        if item_needs(item, b, cfg):
+        if b in buys:          # 按这一单的算料结果：前一单的批量已经够了就不请购（第 71 轮）
             check(b in mr_items, "请购单里有 {}".format(b))
 
     op = login("operator")

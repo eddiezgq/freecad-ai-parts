@@ -309,10 +309,14 @@ def _validate_products(p, onames, uids):
             need(code in items and _num(q) and q >= 0, "stock.{}.{}".format(k, code), "物料一节里的编号、非负数量")
     for code in p.get("key_materials") or []:
         need(code in items, "key_materials", "物料一节里没有：{}".format(code))
+    seen_meas = set()
     for i, m in enumerate(p.get("measurements") or []):
         at = "measurements[{}]".format(i)
         if not need(isinstance(m, dict) and m.get("item") in items, at + ".item", "物料一节里的编号"):
             continue
+        # 第 71 轮：ERPNext 一种物料一张检验模板——同一物料写两处，后一处会盖掉前一处的检验参数（作业卡交不了）
+        need(m["item"] not in seen_meas, at + ".item", "{} 的测量特性已经写过一处，合并到同一处（一种物料一张检验模板）".format(m["item"]))
+        seen_meas.add(m["item"])
         need(m.get("operation") in onames, at + ".operation", "在哪道工序测（工序一节里有的）：{}".format(m.get("operation")))
         for k, c in enumerate(m.get("chars") or []):
             a2 = "{}.chars[{}]".format(at, k)
