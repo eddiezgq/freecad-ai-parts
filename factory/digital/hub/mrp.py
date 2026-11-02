@@ -50,9 +50,16 @@ def std_unit_cost(item):
 SOURCE_OF = {"make": "semi", "sub": "semi", "buy": "purchased", "raw": "raw"}   # 物料类别 → 领料仓库（桥接按它填工单）
 
 
+def _sub_product(code):
+    """有物料清单的成品当子件用：和部件一样在这一单里自己做（不从库存的成品里拿）"""
+    return F.ITEMS[code][1] == "fg" and code in F.BOMS
+
+
 def _source(code):
     """领料仓库：清单第 2 版写的物料按类别（期初库存按类别进库，第 45 轮）；新产品进工厂的外购件到货进原材料库，照旧从原材料库领"""
     kind = F.ITEMS[code][1]
+    if _sub_product(code):          # 整机里套整机（第 71 轮：WQ-H1 的底盘是一台 WQ-AGV300）：这一单自己做，进半成品库
+        return "semi"
     act = _plant.active() or {}
     if kind == "buy" and code not in (act.get("ITEMS") or {}):
         return "raw"
@@ -171,7 +178,7 @@ def explode_make(item, qty):
     if item not in F.BOMS:
         return out
     for c, q in F.BOMS[item][1]:
-        if F.ITEMS[c][1] in ("make", "sub"):
+        if F.ITEMS[c][1] in ("make", "sub") or _sub_product(c):
             out[c] += q * qty
             for k, v in explode_make(c, q * qty).items():
                 out[k] += v
