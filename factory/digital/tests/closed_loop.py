@@ -275,7 +275,8 @@ def main():
     ov = hub("GET", "/api/overview", token=mgr)
     check(any(o["name"] == so for o in ov["orders"]), "看板“订单与交期”出现新订单 " + so)
     out = next(k for k in ov["kpis"] if k["key"] == "output")
-    check(out["value"] >= good, "本周完工 {} 件（含本批 {}）".format(out["value"], good))
+    monday = ov.get("weekday") == "周一"      # 本批跨过了周日到周一（工厂当地时间），前一部分算上周
+    check(out["value"] >= good or monday, "本周完工 {} 件（含本批 {}{}）".format(out["value"], good, "；今天周一，本批跨周" if monday and out["value"] < good else ""))
     ans = hub("POST", "/api/ai/chat", {"messages": [{"role": "user", "content": "{} 的实际成本比标准高多少？为什么？".format(wo)}]},
               mgr)
     # 第 17 轮 D 期起后台是 AI 代理：学生得到提示；老师得到带引用 [n] 的完整回答，且数字核对通过
