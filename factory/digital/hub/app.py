@@ -1131,8 +1131,10 @@ def characteristics(u=Depends(user_of)):
                      "operation": op} for c in chars]
         return out
     from sim import errors as ERR
-    return [{"item": "SH-301", "key": code, "name": name, "unit": "mm", "operation": "零件检验 Part inspection"}
-            for code, name, *_ in ERR.CHARS]
+    # 单位按特性名称里写的（如“Ra（µm）”）；公差上下限相同（0–0）的是计数型特性（第 13 轮 11.4：磨削烧伤“有/无”）
+    return [{"item": "SH-301", "key": code, "name": name, "unit": "" if hi - lo <= 0 else ("µm" if "（µm）" in name else "mm"),
+             "attribute": hi - lo <= 0, "operation": "零件检验 Part inspection"}
+            for code, name, nom, lo, hi in ERR.CHARS]
 
 
 @app.get("/api/quality/measurements")
@@ -1449,6 +1451,17 @@ def process_reference(item: str, u=Depends(user_of)):
         raise HTTPException(404, "这个零件没有参照工艺规程")
     with open(path, encoding="utf-8") as f:
         return {"item": item, "yaml": f.read()}
+
+
+@app.get("/api/process/part/{item}")
+def process_part(item: str, u=Depends(user_of)):
+    """零件图要求（std/<零件>_part.yaml，第 13 轮十二）：给零件拟定工艺路线时以它为准，AI 预检也按它核对。"""
+    spec = process.part_spec(item) if item in F.ITEMS else None
+    if not spec:
+        raise HTTPException(404, "这个零件没有登记零件图要求")
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "std", f"{item}_part.yaml")
+    with open(path, encoding="utf-8") as f:
+        return {"item": item, "yaml": f.read(), "part": spec}
 
 
 @app.post("/api/process/submit")
@@ -2250,10 +2263,10 @@ _labs_api.mount(app, H, user_of)                       # 第 19 轮：“实验�
 
 # ---------------------------------------------------------------- 实验 24、25（第 47 轮，机器人厂）
 def _robot_lab(n):
-    from hub import lab24, lab25, lab27, lab29
+    from hub import lab24, lab25, lab27, lab29, lab30
     if _labs_api.plant_id() != "wenquest-robot":
         raise HTTPException(404, "实验 {} 只在机器人厂".format(n))
-    return {24: lab24, 25: lab25, 27: lab27, 29: lab29}[n]
+    return {24: lab24, 25: lab25, 27: lab27, 29: lab29, 30: lab30}[n]
 
 
 @app.get("/api/lab24")
@@ -2434,6 +2447,30 @@ def lab28_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
 
 
 # ---------------------------------------------------------------- 实验 27（第 57 轮，机器人厂）
+@app.get("/api/lab30")
+def lab30_status(u=Depends(user_of)):
+    """第 74 轮：实验 30 一台轮式人形从订单到交付"""
+    m = _robot_lab(30)
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    out = m.check(H.db, u["name"])
+    out["teacher"] = bool(u.get("teacher"))
+    if u.get("teacher"):
+        out["class"] = m.class_view(H.db)
+    return out
+
+
+@app.post("/api/lab30/{tid}")
+def lab30_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
+    m = _robot_lab(30)
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    try:
+        return m.answer(H.db, u["name"], tid, body)
+    except KeyError:
+        raise HTTPException(404, "这个任务不用提交答案，系统会自动检查")
+
+
 @app.get("/api/lab29")
 def lab29_status(u=Depends(user_of)):
     """第 68 轮：实验 29 一台机器人的售后追溯"""

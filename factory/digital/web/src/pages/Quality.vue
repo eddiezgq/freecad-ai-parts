@@ -11,9 +11,11 @@
           </select>
           <span class="muted small">{{ demo ? 'quality/qc-01/measurement · ' : '' }}最近 {{ rows.length }} 件</span>
         </div>
-        <ControlChart v-if="chart.points.length" :chart="chart" :height="220" />
-        <div v-else class="empty">还没有这个特性的测量值。</div>
-        <p v-if="chart.points.length && unit === 'mm'" class="small">最近 5 件均值 <b class="mono">{{ mean5.toFixed(4) }}</b> mm，偏离公差中值
+        <ControlChart v-if="chart.points.length && !attr" :chart="chart" :height="220" />
+        <div v-else-if="!chart.points.length" class="empty">还没有这个特性的测量值。</div>
+        <p v-if="chart.points.length && attr" class="small attr">计数型检验项目（有或无），不画控制图、不算过程能力，只统计不合格件数：
+          最近 <b class="mono">{{ chart.points.length }}</b> 件里不合格 <b class="mono">{{ attrFails }}</b> 件。</p>
+        <p v-else-if="chart.points.length && unit === 'mm'" class="small">最近 5 件均值 <b class="mono">{{ mean5.toFixed(4) }}</b> mm，偏离公差中值
           <b class="mono">{{ ((mean5 - chart.center) * 1000).toFixed(1) }}</b> µm，距上限 <b class="mono">{{ ((chart.upper - max5) * 1000).toFixed(1) }}</b> µm。</p>
         <p v-else-if="chart.points.length" class="small">最近 5 件均值 <b class="mono">{{ mean5.toFixed(3) }}</b> {{ unit }}，偏离公差中值
           <b class="mono">{{ (mean5 - chart.center).toFixed(3) }}</b> {{ unit }}，距上限 <b class="mono">{{ (chart.upper - max5).toFixed(3) }}</b> {{ unit }}。</p>
@@ -24,11 +26,11 @@
                 <td class="num">{{ x.fails }}</td></tr></tbody></table></div>
         </div>
         <table class="t">
-          <thead><tr><th>时间</th><th>零件</th><th>工单</th><th class="num">实测 {{ unit }}</th><th class="num">公差</th><th>判定</th></tr></thead>
+          <thead><tr><th>时间</th><th>零件</th><th>工单</th><th class="num">{{ attr ? '检验结果' : '实测 ' + unit }}</th><th class="num">{{ attr ? '' : '公差' }}</th><th>判定</th></tr></thead>
           <tbody><tr v-for="r in rows.slice().reverse().slice(0, 30)" :key="r.id">
             <td class="small">{{ timeOf(r.ts) }}</td><td class="mono small"><ObjLink type="PartSerial" :k="r.part_serial" /></td><td class="mono small"><ObjLink v-if="r.work_order" type="WorkOrder" :k="r.work_order" /></td>
-            <td class="num">{{ r.value_mm.toFixed(unit === 'mm' ? 4 : 3) }}</td><td class="num small">{{ r.lower_tol_mm }}–{{ r.upper_tol_mm }}</td>
-            <td><span class="pill" :class="r.result === 'pass' ? 'good' : 'bad'">{{ r.result === 'pass' ? '合格' : '超差' }}</span></td>
+            <td class="num">{{ attr ? (r.value_mm > 0 ? '有' : '无') : r.value_mm.toFixed(unit === 'mm' ? 4 : 3) }}</td><td class="num small">{{ attr ? '' : r.lower_tol_mm + '–' + r.upper_tol_mm }}</td>
+            <td><span class="pill" :class="r.result === 'pass' ? 'good' : 'bad'">{{ r.result === 'pass' ? '合格' : (attr ? '不合格' : '超差') }}</span></td>
           </tr></tbody>
         </table>
       </section>
@@ -38,7 +40,8 @@
         <div v-for="n in ncr" :key="n.ncr_id" class="ncr">
           <div><b class="mono"><ObjLink type="Ncr" :k="n.ncr_id" /></b> <span class="mono small"><ObjLink type="PartSerial" :k="n.part_serial" /></span>
             <span class="pill" :class="n.status === 'open' ? 'bad' : 'good'">{{ DISP[n.status] }}</span></div>
-          <div class="small muted">{{ n.detail.name }} 实测 {{ n.detail.value_mm }} {{ n.detail.unit || 'mm' }}（{{ n.detail.lower_tol_mm }}–{{ n.detail.upper_tol_mm }}）</div>
+          <div v-if="n.detail.upper_tol_mm - n.detail.lower_tol_mm <= 0" class="small muted">{{ n.detail.name }}：{{ n.detail.value_mm > 0 ? '有' : '无' }}，不合格</div>
+          <div v-else class="small muted">{{ n.detail.name }} 实测 {{ n.detail.value_mm }} {{ n.detail.unit || unitOf(n.detail.characteristic) }}（{{ n.detail.lower_tol_mm }}–{{ n.detail.upper_tol_mm }}）</div>
           <div v-if="n.status === 'open'" class="acts">
             <button class="btn" @click="decide(n, 'rework')">返修</button>
             <button class="btn danger" @click="decide(n, 'scrap')">报废</button>
@@ -98,7 +101,9 @@ import ObjLink from '../components/ObjLink.vue';
 const chars = ref([{ item: 'SH-301', key: 'bearing_seat_d35', name: '轴承位直径 Ø35 k6（左）', unit: 'mm' }]);
 const sel = ref('SH-301|bearing_seat_d35');
 const cur = computed(() => chars.value.find((c) => c.item + '|' + c.key === sel.value) || chars.value[0]);
-const unit = computed(() => cur.value?.unit || 'mm');
+const unit = computed(() => cur.value?.unit ?? 'mm');
+const attr = computed(() => !!cur.value?.attribute);
+const unitOf = (key) => (chars.value.find((c) => c.key === key) || {}).unit || 'mm';
 const DISP = { open: '待评审', rework: '返修', scrap: '报废', use_as_is: '让步接收' };
 const STATUS8D = { open: '填写中', submitted: '措施待批准', approved: '措施已实施', rejected: '措施退回', closed: '已关闭' };
 const ch = computed(() => cur.value?.key || 'bearing_seat_d35');
@@ -125,6 +130,7 @@ const chart = computed(() => {
 const last5 = computed(() => rows.value.slice(-5).map((r) => r.value_mm));
 const mean5 = computed(() => last5.value.reduce((a, b) => a + b, 0) / Math.max(1, last5.value.length));
 const max5 = computed(() => Math.max(...last5.value));
+const attrFails = computed(() => chart.value.points.filter((p) => p.result !== 'pass').length);
 const grdLife = computed(() => {
   const g = bus.machines['grd-01'];
   return g ? Math.round(g.tool_life_left * 100) + '%' : '—';

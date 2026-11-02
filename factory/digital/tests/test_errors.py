@@ -78,3 +78,17 @@ def test_original_three_characteristics_are_unchanged_without_problems():
     with pytest.raises(KeyError):
         ERR.ErrorModel().inject("no_such_problem")
     assert random  # noqa
+
+
+def test_wheel_dull_burns_late_in_each_dressing_cycle_and_sharp_dressing_cures_it():
+    """第 55 章：砂轮修整不锋利——每个修整周期后几件烧伤（酸洗检出），粗糙度仍合格；对症的措施是换金刚石笔、锋利修整。"""
+    ok = ERR.simulate(40, dress_every=10)["values"]
+    assert sum(ok["burn_bearing"]) == 0 and max(ok["ra_bearing"]) < 0.8
+    bad = ERR.simulate(40, "wheel_dull", dress_every=10)["values"]
+    burns = bad["burn_bearing"]
+    assert sum(burns) >= 8 and all(burns[i] == 0 for i in range(0, 40, 10))      # 刚修整的第一件不烧，周期后段烧
+    assert max(bad["ra_bearing"]) < 0.8 < 1.0                                    # 只看粗糙度发现不了
+    assert sum(bad["ra_bearing"]) / 40 > sum(ok["ra_bearing"]) / 40
+    m = ERR.ErrorModel(1)
+    m.inject("wheel_dull")
+    assert m.apply_fix("shorten_dressing") == [] and m.apply_fix("sharp_dressing") == ["wheel_dull"]

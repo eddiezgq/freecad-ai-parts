@@ -85,8 +85,12 @@ def capability(values, lsl, usl, sigma_within=None):
     mu, s = st.fmean(v), st.stdev(v)
     sw = sigma_within if sigma_within else i_mr(v)["sigma_within"]
     tol = usl - lsl
-    return {"mean": mu, "s": s, "sigma_within": sw, "Cp": tol / (6 * sw), "Cpk": min(usl - mu, mu - lsl) / (3 * sw),
-            "Pp": tol / (6 * s), "Ppk": min(usl - mu, mu - lsl) / (3 * s), "n": len(v), "LSL": lsl, "USL": usl}
+    inside = lsl <= mu <= usl and all(lsl <= x <= usl for x in v)
+
+    def ratio(a, b):        # 分散为 0（全都一样，如计数型特性“有无烧伤”全为 0）：都在界限内记无穷大，否则 0
+        return a / b if b > 0 else (math.inf if inside else 0.0)
+    return {"mean": mu, "s": s, "sigma_within": sw, "Cp": ratio(tol, 6 * sw), "Cpk": ratio(min(usl - mu, mu - lsl), 3 * sw),
+            "Pp": ratio(tol, 6 * s), "Ppk": ratio(min(usl - mu, mu - lsl), 3 * s), "n": len(v), "LSL": lsl, "USL": usl}
 
 
 def grr_anova(data, tol=None):
@@ -136,6 +140,9 @@ def for_characteristic(db, mode, item, characteristic, n=5, limit=200):
                 "note": "测量值不足 {} 个，还不能画均值–极差图".format(2 * n)}
     v = [r["data"]["value_mm"] for r in rows]
     lo, hi = rows[-1]["data"]["lower_tol_mm"], rows[-1]["data"]["upper_tol_mm"]
+    if hi - lo <= 0:            # 计数型特性（第 55 章：有无烧伤，0/1）：不画均值–极差图，只数不合格
+        return {"item": item, "characteristic": characteristic, "count": len(v), "defects": sum(x > hi for x in v),
+                "note": "计数型特性（有或无），不画均值–极差图；不合格 {} 件".format(sum(x > hi for x in v))}
     ch = xbar_r(v, n)
     sig = ch["sigma_within"] / math.sqrt(n)
     out = {"item": item, "characteristic": characteristic, "count": len(v), "chart": ch,

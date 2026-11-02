@@ -46,3 +46,23 @@ def test_bad_uploads(client):
     r = client.post("/api/process/check", json={"yaml": "x: 1"})
     assert r.status_code == 400 and "工艺规程" in r.json()["detail"]
     assert client.get("/api/process/reference/NOPE").status_code == 404
+
+
+def test_sh101_part_and_route_precheck(client):
+    """第 13 轮十二：SH-101 有零件图要求、没有参照工艺规程；按第 56 章的路线预检没有“路线”意见，把键槽排到淬火后就有"""
+    import os
+    r = client.get("/api/process/part/SH-101")
+    assert r.status_code == 200 and r.json()["part"]["material"] == "20CrMnTi"
+    assert client.get("/api/process/part/SH-301").status_code == 404
+    assert client.get("/api/process/reference/SH-101").status_code == 404
+    text = open(os.path.join(os.path.dirname(__file__), "..", "std", "SH-101_route.yaml"), encoding="utf-8").read()
+    ok = client.post("/api/process/check", json={"yaml": text}).json()
+    assert not [f for f in ok["findings"] if f["rule"] == "路线" and f["level"] != "info"]
+    plan = yaml.safe_load(text)
+    kw = next(o for o in plan["operations"] if o["operation"].startswith("铣键槽"))
+    plan["operations"].remove(kw)
+    plan["operations"].insert(-1, kw)
+    for i, o in enumerate(plan["operations"]):
+        o["seq"] = 10 * (i + 1)
+    bad = client.post("/api/process/check", json={"yaml": yaml.safe_dump(plan, allow_unicode=True)}).json()
+    assert any(f["rule"] == "路线" and f["level"] == "error" for f in bad["findings"])

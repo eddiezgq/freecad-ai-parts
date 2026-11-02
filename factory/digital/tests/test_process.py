@@ -184,3 +184,25 @@ def test_v2_checks_inspection_locating_chains_and_sketch():
     p = plan()
     op(p, "精车")["features"][0]["size_mm"] = 35.4
     assert ("工序简图", 40) in rules(process.review(p), "warning")
+
+
+def test_grinding_burn_and_roughness_rules():
+    """第 55 章：工序 60 登记的磨削参数——参照方案不烧伤、Ra 达到 C10；加大切深会烧伤，不光磨达不到 Ra 0.8；淬硬件要有烧伤检验。"""
+    from hub import process
+    assert not [f for f in process.review(plan()) if f["rule"] == "表面"]
+    p = plan()
+    g = op(p, "磨外圆")["grinding"]
+    g["passes"][0]["ap"] = 0.04
+    g["passes"][1]["sparkout"] = 0
+    g["passes"][1]["ap"] = 0.02
+    f = [x for x in process.review(p) if x["rule"] == "表面"]
+    assert [x["level"] for x in f] == ["error", "error", "error"]
+    assert "二次淬火烧伤" in f[0]["text"] and "Ra" in f[2]["text"]
+    # 换成渗碳淬火、低温回火的 20CrMnTi：同样的精磨 0.005 已经回火烧伤，且没有烧伤检验要提醒
+    p = plan()
+    g = next(o for o in p["operations"] if o.get("grinding"))["grinding"]
+    g["mat"] = "20CrMnTi-CQ"
+    g["dw"] = 25
+    f = [x for x in process.review(p) if x["rule"] == "表面"]
+    assert any(x["level"] == "error" and "回火烧伤" in x["text"] for x in f)
+    assert any(x["level"] == "warning" and "烧伤检验" in x["text"] for x in f)

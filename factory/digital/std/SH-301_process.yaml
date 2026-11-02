@@ -266,6 +266,18 @@ operations:
       - {char: "齿轮位 Ø40 k6（C2）★", gauge: G04, freq: 每件}
       - {char: "轴承位径向圆跳动 0.012（C7）★、齿轮位 0.015（C8）", gauge: G05, freq: 首件、每 5 件}
       - {char: "Ra 0.8（C10）", gauge: G09, freq: 首件、每班 2 件}
+    # 磨削参数与表面完整性（第 55 章，hub/surface.py）：评审员按修整前最钝的砂轮（每 10 件修整，磨粒磨平面积约 1.5%）
+    # 核算每一行程的磨削温度（不得烧伤）和精磨后的粗糙度（C10）。数值与上面的工步、仿真车间（sim/errors.py GRIND）一致
+    grinding:
+      mat: 45-QT
+      dw: 35
+      ds: 400
+      vs: 35
+      mesh: 60
+      wear_flat_pct: 1.5
+      passes:
+        - {name: 粗磨, vw_m_min: 20, ap: 0.01, sparkout: 0}
+        - {name: 精磨, vw_m_min: 20, ap: 0.005, sparkout: 2, ra_char: C10}
     # 加工精度预算（第 54 章，hub/accuracy.py budget）：系统误差直接相加，随机误差（±3σ）平方和开方，合计与公差比较。
     # 数值与仿真车间的误差模型（sim/errors.py）一致：重复性 σ = 0.0012，砂轮磨损使直径每件约增大 0.0125/30 mm，每 10 件修整一次。
     accuracy:

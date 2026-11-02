@@ -36,6 +36,7 @@ P.add_argument("--lab28", action="store_true", help="WQ-CR5 做到整机标定�
 P.add_argument("--reliability", type=float, default=None, help="开始前把设备可靠性系数设成这个数（0 = 演练时设备不随机坏，第 59 轮）")
 P.add_argument("--domains", action="store_true", help="设备维护、能源、经营财务（第 59 轮）、安全环保、人员排班（第 61 轮）按本厂设备出数、台账和员工进 ERPNext")
 P.add_argument("--staffing", type=float, default=None, help="1 / 0：开始前打开 / 关掉车间“要有人”（0 = 演练时不因请假缺人停机，第 61 轮）")
+P.add_argument("--lab30", action="store_true", help="接 WQ-H1（同一账号前面接过 WQ-CR5）后按实验 30 的六个任务答题，核对 60 分（第 74 轮）")
 P.add_argument("--lab29", action="store_true", help="实验 29（一台机器人的售后追溯）按六个任务答题，核对 60 分（第 68 轮）")
 P.add_argument("--lab27", action="store_true", help="工业园那一段走完后，按实验 27 的六个任务答题（AGV 订单要 2 台：--item WQ-AGV300:2），核对 60 分（第 57 轮）")
 P.add_argument("--park-hub", default="", help="工业园兄弟厂（问渠减速器厂）的枢纽：核对 WQR-105 的采购单送过去、那边接单生产发货、"
@@ -236,6 +237,8 @@ def one(item, mgr):
     check(inv is not None, "开票 {}：${}（售价 {} × {}）".format((inv or {}).get("name"), (inv or {}).get("grand_total"), price, qty_of(item)))
     if A.lab24 and item == "WQ-CR5":
         lab24(mgr, made)
+    if A.lab30 and item == "WQ-H1":
+        lab30(mgr, made)
 
 
 def lab24(mgr, made):
@@ -260,6 +263,29 @@ def lab24(mgr, made):
     st = wait(lambda: (lambda x: x if x["score"] >= 60 else None)(hub("GET", "/api/lab24", token=mgr)), "实验 24 满分", 120, 5) \
         or hub("GET", "/api/lab24", token=mgr)
     check(st["score"] == 60, "实验 24 自动评分 {} / 60（{}）".format(
+        st["score"], "、".join("{} {}".format(t["title"], t["score"]) for t in st["tasks"])))
+
+
+def lab30(mgr, made):
+    """实验 30：同一个账号前面接过 WQ-CR5（同一周），再按六个任务答题，满分 60"""
+    print("— 实验 30")
+    hub("POST", "/api/lab30/l30_t1", {"work_orders": len(made), "joints": 16, "chassis": "make"}, mgr)
+    hub("POST", "/api/lab30/l30_t3", {"unit": "CAL-1", "choices": ["stagger", "train"]}, mgr)
+    us = wait(lambda: (lambda x: x["units"] or None)(hub("GET", "/api/lab30", token=mgr)), "人形联调测量值", 60, 3) or []
+    u = us[0]
+    bad = [k for k, c in u["chars"].items() if not (c["lo"] <= c["value"] <= c["hi"])]
+    hub("POST", "/api/lab30/l30_t4", {"serial": u["serial"], "verdict": "fail" if bad else "pass", "char": bad[0] if bad else ""}, mgr)
+    st = hub("GET", "/api/lab30", token=mgr)
+    mat = st["std"]["material"]
+    lines = [dict(hub("GET", "/api/work_orders/{}/cost".format(urllib.parse.quote(wo)), token=mgr), item=it)
+             for it, wo in st["order"]["work_orders"].items()]
+    std = mat + sum(x["std_cost"] for x in lines)
+    act = mat + sum(x["actual_cost"] for x in lines)
+    worst = max(lines, key=lambda x: x["variance"])["item"]
+    hub("POST", "/api/lab30/l30_t6", {"variance_pct": round((act - std) / std * 100, 1), "worst": worst}, mgr)
+    st = wait(lambda: (lambda x: x if x["score"] >= 60 else None)(hub("GET", "/api/lab30", token=mgr)), "实验 30 满分", 120, 5) \
+        or hub("GET", "/api/lab30", token=mgr)
+    check(st["score"] == 60, "实验 30 自动评分 {} / 60（{}）".format(
         st["score"], "、".join("{} {}".format(t["title"], t["score"]) for t in st["tasks"])))
 
 

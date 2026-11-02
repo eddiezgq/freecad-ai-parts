@@ -1,0 +1,51 @@
+# 问渠数字工厂的“企业工艺标准”：拟定加工方案链用的加工方法表（第 13 轮十二，配《机械制造技术》第 56 章 56.6 节；
+# hub/route.py 与 AI 工艺评审员共用）。这是工厂的工艺标准（与 SH-301_process.yaml 的余量一样是教学设计值），不是书中的标准表：
+# 车削、孔加工各行的 IT 与 Ra 与书中 econ_accuracy 表（两处一致才收，textbook/mfgtech/std）相同；磨削、齿面加工、平面铣削在
+# econ_accuracy 里没有两处一致的读数，这里按国内教材常用的“加工方案表”（econ_accuracy 的 s3，单一出处）和教学设计值补上，
+# 每行 src 写明来处。econ_accuracy 补齐这些行以后，以它为准。
+standard: {short: "加工方法与加工方案链（问渠数字工厂工艺标准）", code: "问渠数字工厂工艺标准：外圆、孔、平面、齿面加工方法的经济精度、可达粗糙度与适用条件（车削、孔加工各行同 econ_accuracy；磨削、齿面、平面为单一出处或教学设计值，待复核）", title: "拟定加工方案链用的加工方法表"}
+sources:
+  - {key: econ, title: "《机械制造技术》econ_accuracy 表（textbook/mfgtech/std/econ_accuracy.yaml，两处网上转载一致的读数）", url: "", note: "车削、孔加工各行 IT 与 Ra 与之相同"}
+  - {key: s3, title: "搜搜钢百科（mysteel）《外圆表面常用加工方法》中的“外圆表面加工方案”表", url: "https://baike.mysteel.com/doc/view/58025.html", note: "磨削、超精加工的行：单一出处（econ_accuracy 的 excluded 里记着），作待核数据使用"}
+  - {key: s4, title: "搜狐《【机械加工】内孔表面加工常用方法大汇总，又要收藏了》", url: "https://www.sohu.com/a/517523920_121124370", note: "镗孔、铰孔、磨孔的行：单一出处（econ_accuracy 的 excluded 里记着），作待核数据使用"}
+  - {key: wq, title: "问渠数字工厂工艺标准（教学设计值）", url: "", note: "齿面加工、平面铣削按国内教材的常见范围取整，不是标准，正式出版前复核"}
+columns:
+  - [key, 代号, key, "-"]
+  - [feature, 表面类型（外圆/孔/平面/齿面）, surface type, "-"]
+  - [method_zh, 加工方法, machining method (Chinese), "-"]
+  - [method_en, 英文名, machining method (English), "-"]
+  - [operation, 数字工厂的工序（没有对应工序的为空）, factory operation, "-"]
+  - [IT_min, 经济精度最高等级（数字小者；齿面为精度等级）, best economic grade, IT]
+  - [IT_max, 经济精度最低等级（数字大者）, worst economic grade, IT]
+  - [Ra_min_um, 表面粗糙度下限, Ra lower bound, μm]
+  - [Ra_max_um, 表面粗糙度上限, Ra upper bound, μm]
+  - [hard_ok, 淬硬（> 45 HRC）后能否加工, works on hardened steel, "-"]
+  - [prev_IT, 上一道的经济精度不应粗于（等级）, coarsest grade of the previous step, IT]
+  - [follows, 可以接在哪些方法之后（空表示可以是第一道）, may follow, "-"]
+rows:
+  - {key: od_rough_turn, src: econ, feature: 外圆, method_zh: 粗车, method_en: rough turning, operation: 粗车 Rough turning, IT_min: 11, IT_max: 13, Ra_min_um: 12.5, Ra_max_um: 50, hard_ok: false, prev_IT: 16, follows: []}
+  - {key: od_semi_turn, src: econ, feature: 外圆, method_zh: 半精车, method_en: semi-finish turning, operation: 精车 Finish turning, IT_min: 8, IT_max: 10, Ra_min_um: 3.2, Ra_max_um: 6.3, hard_ok: false, prev_IT: 13, follows: [od_rough_turn]}
+  - {key: od_finish_turn, src: econ, feature: 外圆, method_zh: 精车, method_en: finish turning, operation: 精车 Finish turning, IT_min: 7, IT_max: 8, Ra_min_um: 0.8, Ra_max_um: 1.6, hard_ok: false, prev_IT: 11, follows: [od_rough_turn, od_semi_turn]}
+  - {key: od_rough_grind, src: wq, feature: 外圆, method_zh: 粗磨, method_en: rough grinding, operation: 磨外圆 Cylindrical grinding, IT_min: 7, IT_max: 8, Ra_min_um: 0.8, Ra_max_um: 1.6, hard_ok: true, prev_IT: 10, follows: [od_semi_turn, od_finish_turn]}
+  - {key: od_finish_grind, src: s3, feature: 外圆, method_zh: 精磨, method_en: finish grinding, operation: 磨外圆 Cylindrical grinding, IT_min: 6, IT_max: 7, Ra_min_um: 0.1, Ra_max_um: 0.8, hard_ok: true, prev_IT: 9, follows: [od_semi_turn, od_finish_turn, od_rough_grind]}
+  - {key: od_superfinish, src: s3, feature: 外圆, method_zh: 超精加工, method_en: superfinishing, operation: "", IT_min: 5, IT_max: 5, Ra_min_um: 0.012, Ra_max_um: 0.1, hard_ok: true, prev_IT: 7, follows: [od_finish_grind]}
+  - {key: hole_drill, src: econ, feature: 孔, method_zh: 钻, method_en: drilling, operation: "", IT_min: 11, IT_max: 13, Ra_min_um: 12.5, Ra_max_um: 50, hard_ok: false, prev_IT: 16, follows: []}
+  - {key: hole_core_drill, src: econ, feature: 孔, method_zh: 扩, method_en: core drilling, operation: "", IT_min: 10, IT_max: 11, Ra_min_um: 6.3, Ra_max_um: 12.5, hard_ok: false, prev_IT: 13, follows: [hole_drill]}
+  - {key: hole_rough_bore, src: s4, feature: 孔, method_zh: 粗镗, method_en: rough boring, operation: "", IT_min: 12, IT_max: 13, Ra_min_um: 6.3, Ra_max_um: 12.5, hard_ok: false, prev_IT: 16, follows: []}
+  - {key: hole_semi_bore, src: s4, feature: 孔, method_zh: 半精镗, method_en: semi-finish boring, operation: "", IT_min: 9, IT_max: 10, Ra_min_um: 3.2, Ra_max_um: 6.3, hard_ok: false, prev_IT: 13, follows: [hole_rough_bore, hole_core_drill]}
+  - {key: hole_ream, src: wq, feature: 孔, method_zh: 铰, method_en: reaming, operation: "", IT_min: 7, IT_max: 9, Ra_min_um: 0.8, Ra_max_um: 3.2, hard_ok: false, prev_IT: 11, follows: [hole_drill, hole_core_drill, hole_semi_bore]}
+  - {key: hole_finish_bore, src: s4, feature: 孔, method_zh: 精镗, method_en: finish boring, operation: 镗轴承孔 Bearing-bore boring, IT_min: 7, IT_max: 8, Ra_min_um: 0.8, Ra_max_um: 1.6, hard_ok: false, prev_IT: 10, follows: [hole_semi_bore]}
+  - {key: hole_grind, src: s4, feature: 孔, method_zh: 磨孔, method_en: internal grinding, operation: "", IT_min: 6, IT_max: 8, Ra_min_um: 0.4, Ra_max_um: 0.8, hard_ok: true, prev_IT: 9, follows: [hole_semi_bore, hole_ream, hole_finish_bore]}
+  - {key: hole_fine_bore, src: econ, feature: 孔, method_zh: 精细镗（金刚镗）, method_en: fine boring, operation: "", IT_min: 6, IT_max: 7, Ra_min_um: 0.05, Ra_max_um: 0.4, hard_ok: false, prev_IT: 9, follows: [hole_semi_bore, hole_finish_bore]}
+  - {key: plane_rough_mill, src: wq, feature: 平面, method_zh: 粗铣, method_en: rough milling, operation: 铣结合面 Face milling, IT_min: 11, IT_max: 13, Ra_min_um: 6.3, Ra_max_um: 25, hard_ok: false, prev_IT: 16, follows: []}
+  - {key: plane_finish_mill, src: wq, feature: 平面, method_zh: 精铣, method_en: finish milling, operation: 铣结合面 Face milling, IT_min: 8, IT_max: 10, Ra_min_um: 1.6, Ra_max_um: 3.2, hard_ok: false, prev_IT: 13, follows: [plane_rough_mill]}
+  - {key: key_mill, src: wq, feature: 键槽, method_zh: 铣键槽, method_en: keyway milling, operation: 铣键槽 Keyway milling, IT_min: 8, IT_max: 9, Ra_min_um: 3.2, Ra_max_um: 6.3, hard_ok: false, prev_IT: 16, follows: []}
+  - {key: gear_hob, src: wq, feature: 齿面, method_zh: 滚齿, method_en: hobbing, operation: 滚齿 Gear hobbing, IT_min: 7, IT_max: 8, Ra_min_um: 1.6, Ra_max_um: 3.2, hard_ok: false, prev_IT: 16, follows: []}
+  - {key: gear_shave, src: wq, feature: 齿面, method_zh: 剃齿, method_en: shaving, operation: "", IT_min: 6, IT_max: 7, Ra_min_um: 0.4, Ra_max_um: 0.8, hard_ok: false, prev_IT: 8, follows: [gear_hob]}
+  - {key: gear_grind, src: wq, feature: 齿面, method_zh: 磨齿, method_en: gear grinding, operation: "", IT_min: 3, IT_max: 6, Ra_min_um: 0.2, Ra_max_um: 0.8, hard_ok: true, prev_IT: 8, follows: [gear_hob, gear_shave]}
+  - {key: gear_hone, src: wq, feature: 齿面, method_zh: 珩齿, method_en: gear honing, operation: "", IT_min: 6, IT_max: 7, Ra_min_um: 0.2, Ra_max_um: 0.8, hard_ok: true, prev_IT: 8, follows: [gear_hob, gear_shave, gear_grind]}
+notes:
+  - "IT_min~IT_max 是经济精度（正常生产条件下能经济达到的范围），不是极限精度；齿面一行的“IT”是齿轮精度等级（GB/T 10095.1）。"
+  - "prev_IT：这一种方法要求上一道达到的精度不应粗于多少级（余量和误差复映的经验要求），用来检查方案链有没有“跳级”，如粗车后直接精磨。"
+  - "渗碳淬火、淬火后（> 45 HRC）只能用 hard_ok 为 true 的方法（磨削、磨齿、珩齿、超精加工）；用 CBN 刀具硬车的情况本表不收。"
+  - "精细车（金刚石车）主要用于有色金属，本表不作钢件外圆的方案链用。"

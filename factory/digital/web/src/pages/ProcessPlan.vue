@@ -2,17 +2,26 @@
   <!-- 工艺规程与 AI 评审（第 13 轮 8.8（3a））：下载参照工艺规程，上传自己改过的，AI 预检或提交审批，看意见、处理意见 -->
   <div class="page">
     <div class="page-title"><h1>工艺规程与 AI 评审</h1>
-      <span class="muted">工艺员工作区 · {{ item }} 的工艺规程：AI 工艺评审员逐道工序检查基准、余量、切削用量、定位误差、夹具、精度、尺寸链</span></div>
+      <span class="muted">工艺员工作区 · {{ (sid && sub && sub.item) || item }} 的工艺规程：AI 工艺评审员逐道工序检查基准、余量、切削用量、定位误差、夹具、精度、尺寸链</span></div>
     <div v-if="err" class="err">{{ err }}</div>
 
     <template v-if="!sid">
-      <section class="card">
+      <section v-if="HAS_REF[item]" class="card">
         <div class="card-head" data-help="pp-reference"><h2>参照工艺规程</h2><span class="muted small">教材第 50 章的样例就是它；照着改，改完上传</span></div>
         <div class="line">
           <label class="small">零件 <select v-model="item"><option v-for="i in ITEMS" :key="i" :value="i">{{ i }}</option></select></label>
           <button class="btn" @click="cards('/process/cards/reference/' + item)">看全套工艺文件</button>
           <button class="btn ghost" @click="downloadRef">下载 YAML</button>
           <span class="small muted">当前生效：{{ info?.revision ? '第 ' + info.revision + ' 版' : '参照工艺规程（还没有批准过学生的版本）' }}</span>
+        </div>
+      </section>
+      <section v-else class="card">
+        <div class="card-head" data-help="pp-part"><h2>零件图要求</h2><span class="muted small">这个零件没有参照工艺规程：按图纸要求自己拟定工艺路线（教材第 56 章），AI 预检按图纸核对</span></div>
+        <div class="line">
+          <label class="small">零件 <select v-model="item"><option v-for="i in ITEMS" :key="i" :value="i">{{ i }}</option></select></label>
+          <button class="btn ghost" @click="downloadPart">下载零件图要求（YAML）</button>
+          <button class="btn ghost" @click="downloadStart">下载工厂现行工序（起点）</button>
+          <span class="small muted">当前生效：{{ info?.revision ? '第 ' + info.revision + ' 版' : '工厂现行工艺（还没有批准过学生的版本）' }}</span>
         </div>
       </section>
 
@@ -85,7 +94,8 @@ import { computed, defineComponent, h, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { get, post, session } from '../lib/api';
 
-const ITEMS = ['SH-301'];
+const ITEMS = ['SH-301', 'SH-101'];
+const HAS_REF = { 'SH-301': true };   // SH-101 只有零件图要求（第 13 轮十二），路线由学生拟定
 const STATUS = { pending: '待审', approved: '已批准', rejected: '已退回' };
 const TONE = { pending: 'warn', approved: 'ok', rejected: 'bad' };
 const LEVEL = { error: '必须改', warning: '建议', info: '说明' };
@@ -149,6 +159,25 @@ async function downloadRef() {
     a.href = URL.createObjectURL(new Blob([r.yaml], { type: 'text/yaml' }));
     a.download = item.value + '_process.yaml'; a.click();
   } catch (e) { err.value = e.message; }
+}
+function save(name, body) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([body], { type: 'text/yaml' }));
+  a.download = name; a.click();
+}
+async function downloadPart() {
+  try { save(item.value + '_part.yaml', (await get('/process/part/' + item.value)).yaml); } catch (e) { err.value = e.message; }
+}
+function downloadStart() {
+  const p = info.value?.factory_plan;
+  if (!p) { err.value = '这个零件没有工厂现行工艺'; return; }
+  const lines = ['# ' + item.value + ' 的工厂现行工序（起点）：补毛坯、基准、各道的工序尺寸与粗糙度、热处理与辅助工序（aux），见教材第 56 章',
+    'item: ' + p.item, 'blank: {kind: "", spec: ""}', 'operations:'];
+  for (const o of p.operations) {
+    lines.push('  - seq: ' + o.seq, '    operation: ' + o.operation, '    workstation: ' + o.workstation, '    content: ""', '    datum: ""',
+      '    minutes: ' + o.minutes, '    setup_min: 0', '    features: []');
+  }
+  save(item.value + '_process.yaml', lines.join('\n') + '\n');
 }
 async function cards(path) {
   try {
