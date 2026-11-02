@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """强度、模态的参数化示例零件（第 66 轮 D-2）：WQ-CR5 大臂（铝管 + 两端的端部法兰）。教材《机器人学》第 31 章的算例在这里再算一遍。
 
-build123d 现做 STEP（单位 mm）：管轴沿 z，z = 0 的端面装在 J2 模组上（固定），z = L 的端面接 J3 模组（受力）。
+gmsh（OpenCASCADE）现做 STEP（单位 mm）：管轴沿 z，z = 0 的端面装在 J2 模组上（固定），z = L 的端面接 J3 模组（受力）。
 预设工况取机器人厂原件 wqcr5.py 的 upper_arm_end_loads()：手臂水平伸直、工具朝下、带 5 kg 负载时，J3 端以外的部分
 （J3 模组、小臂、手腕、负载）压在大臂端面上的力和力矩；零件坐标 x 沿 J2 的轴，y 朝上，z 沿管轴。
 同时给出梁理论的估算（教材式 (31.1.x)、(31.2.x)），让学生把云图和手算对上。
@@ -38,18 +38,23 @@ def params_of(key, p=None):
 
 
 def build(key, p):
-    """铝管两端各一块端部法兰（外径同管、中间开线缆孔），整体一块：J2、J3 模组用螺钉装在法兰的端面上（螺孔省略）"""
-    import build123d as bd
+    """铝管两端各一块端部法兰（外径同管、中间开线缆孔），整体一块：J2、J3 模组用螺钉装在法兰的端面上（螺孔省略）。
+    用 gmsh 的 OpenCASCADE 内核建模、写 STEP（问渠 CAE、教材的构建环境都有 gmsh，不必再装 build123d）"""
+    from cae.geometry import _LOCK, _gmsh
     L, D, t, ft, b = p["L"], p["D"], p["t"], p["flange_t"], p["bore"]
-    MIN = (bd.Align.CENTER, bd.Align.CENTER, bd.Align.MIN)
-    with bd.BuildPart() as part:
-        bd.Cylinder(D / 2, L, align=MIN)
-        with bd.Locations((0, 0, ft)):
-            bd.Cylinder(D / 2 - t, L - 2 * ft, align=MIN, mode=bd.Mode.SUBTRACT)
-        bd.Cylinder(b / 2, L, align=MIN, mode=bd.Mode.SUBTRACT)
-    with tempfile.TemporaryDirectory() as tmp:
+    with _LOCK, tempfile.TemporaryDirectory() as tmp:
+        gmsh = _gmsh()
+        gmsh.clear()
+        gmsh.model.add("wqcr5_upper")
+        occ = gmsh.model.occ
+        outer = occ.addCylinder(0, 0, 0, 0, 0, L, D / 2)
+        cav = occ.addCylinder(0, 0, ft, 0, 0, L - 2 * ft, D / 2 - t)
+        bore = occ.addCylinder(0, 0, 0, 0, 0, L, b / 2)
+        occ.cut([(3, outer)], [(3, cav), (3, bore)])
+        occ.synchronize()
         f = os.path.join(tmp, key + ".step")
-        bd.export_step(part.part, f)
+        gmsh.write(f)
+        gmsh.clear()
         return open(f, "rb").read()
 
 

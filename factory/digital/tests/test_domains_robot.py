@@ -92,7 +92,7 @@ def test_demo_plant_unchanged():
 
 def test_robot_plant_equipment_and_gating():
     o = _run(ROBOT)
-    units = {"saw-r1", "cnc-r1", "cnc-r2", "vmc-r1", "vmc-r2", "grd-r1", "cmm-r1", "ja-1", "ja-2", "jt-1", "ra-1", "cal-1", "run-r1", "aa-1", "at-1"}
+    units = {"saw-r1", "cnc-r1", "cnc-r2", "vmc-r1", "vmc-r2", "grd-r1", "cmm-r1", "ja-1", "ja-2", "jt-1", "ra-1", "cal-1", "run-r1", "aa-1", "at-1", "ha-1"}     # 第 71 轮加人形总装工位
     assert set(o["rel"]) == units and set(o["power"]) == units and set(o["assets"]) == units
     assert o["power"]["grd-r1"] == [11.0, 4.0, 0.5] and o["assets"]["cal-1"] == 150000
     assert o["custs"][0].startswith("示例·汽车零部件厂") and o["price"] == 18000.0
@@ -112,7 +112,7 @@ def test_robot_plant_pages_with_db():
     units = {u for u, _ in o["hazards"]}                                           # 第 61 轮：危险源挂在机器人厂设备上
     assert {"grd-r1", "cal-1", "run-r1", "at-1"} <= units and not any(u.endswith("-01") for u in units)
     assert ["cal-1", "激光照射眼睛（2 类激光跟踪仪）"] in o["hazards"]
-    assert o["people_n"] == 23 and o["single"] == ["cal-1"]                         # 标定工位只有一个人会（H-4）
+    assert o["people_n"] == 24 and o["single"] == ["cal-1"]                         # 第 71 轮：人形总装工位多一名主操                         # 标定工位只有一个人会（H-4）
     assert "jt-1" not in o["needs"] and "run-r1" not in o["needs"] and "cal-1" in o["needs"]
     assert o["posts"] == sorted(o["needs"]) and o["night_levels"] == []              # 只排白班
     assert len(o["loto_ok"]) == 2

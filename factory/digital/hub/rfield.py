@@ -127,7 +127,8 @@ JOB_STATUS = {"planned": "已派工", "done": "已完成"}
 
 def robot_items():
     """有关节模组的成品（物料清单里有 WQJ- 开头的子件）"""
-    return [k for k in F.PRODUCTS if any(str(c).startswith("WQJ-") for c, _ in (F.BOMS.get(k) or ("", []))[1])]
+    # 第 71 轮：只管 6 个关节的协作臂（WQ-CR5）；轮式人形 WQ-H1 有 16 个关节，现场售后下一轮再做
+    return [k for k in F.PRODUCTS if sum(q for c, q in (F.BOMS.get(k) or ("", []))[1] if str(c).startswith("WQJ-")) == 6]
 
 
 def enabled():
