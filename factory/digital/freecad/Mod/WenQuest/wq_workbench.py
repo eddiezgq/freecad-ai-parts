@@ -2,7 +2,8 @@
 """问渠工作台的命令和工作台本身（InitGui.py 只负责找到本文件夹并调 register()）。
 
 按钮按文件夹里有哪些宏出现：数字工厂宏包带“提交到问渠工厂”“插入零件库标准件”（wq_submit.py、wq_library.py）；
-问渠凸轮的 FreeCAD 包带“凸轮”（wq_cam.py，学习平台第 39 轮第 5 步）。两个包可以解压到同一个文件夹。
+问渠凸轮的 FreeCAD 包带“凸轮”（wq_cam.py，学习平台第 39 轮第 5 步）；问渠轴承的 FreeCAD 包带“轴承”
+（wq_bearing.py，学习平台第 64 轮第 6 步）。几个包可以解压到同一个文件夹。
 """
 import importlib
 import os
@@ -12,7 +13,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 CMDS = [("WQ_Submit", "wq_submit", "提交到问渠工厂", "把选中的零件（STEP + 图纸）提交到问渠数字工厂：企业模式进审批"),
         ("WQ_Library", "wq_library", "插入零件库标准件", "从问渠零件与机器人库搜索并插入标准件"),
-        ("WQ_Cam", "wq_cam", "凸轮", "打开问渠凸轮的项目：重算校核，建实体（含弧面凸轮精确实体），凸轮系统装配，出工作图")]
+        ("WQ_Cam", "wq_cam", "凸轮", "打开问渠凸轮的项目：重算校核，建实体（含弧面凸轮精确实体），凸轮系统装配，出工作图"),
+        ("WQ_Bearing", "wq_bearing", "轴承", "问渠轴承：参数表单与校核，精确实体与整套装配，干涉检查，零件工作图，工序简图")]
 
 
 def available():
@@ -45,7 +47,7 @@ def register():
 
     class WenQuestWorkbench(FreeCADGui.Workbench):
         MenuText = "问渠"
-        ToolTip = "问渠：提交设计、插入零件库标准件、凸轮设计"
+        ToolTip = "问渠：提交设计、插入零件库标准件、凸轮设计、轴承设计"
 
         def Initialize(self):
             self.appendToolbar("问渠", names)
