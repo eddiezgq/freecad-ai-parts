@@ -157,7 +157,7 @@ items:
 - {code: DU-AGV, name: AGV 驱动单元 AGV drive unit, kind: sub, uom: Nos, note: 电机 + 减速器厂 WQR-105 + 驱动轮}
 - {code: WQ-CR5, name: 六轴协作机器人 WQ-CR5（示例：负载 5 kg 一类） 6-axis cobot, kind: fg, uom: Nos, library: B-ARM-WQCR5/default}
 - {code: WQ-AGV300, name: 搬运 AGV WQ-AGV300（示例：载重 300 kg 一类） Material-handling AGV, kind: fg, uom: Nos}
-- {code: WQ-H1, name: 轮式人形 WQ-H1（示例：双臂 + 腰 + 头 16 个关节，AGV 底盘） Wheeled humanoid, kind: fg, uom: Nos,
+- {code: WQ-H1, library: B-HUM-WQH1/default, name: 轮式人形 WQ-H1（示例：双臂 + 腰 + 头 16 个关节，AGV 底盘） Wheeled humanoid, kind: fg, uom: Nos,
    note: 第 71 轮；每臂 中关节 × 2 + 小关节 × 4，腰 大关节 × 2，头 小关节 × 2；下半身一台 WQ-AGV300}
 routings:
 - name: RT-关节壳体 Joint housing
