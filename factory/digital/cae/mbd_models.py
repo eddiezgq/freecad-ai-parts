@@ -24,6 +24,7 @@ MENAGERIE_DIRS = sorted({v[0].split("/")[0] for v in ROBOTS.values()})
 # 问渠自建、带动力学的机器人（第 58 轮）：零件库编号 → (生成 MJCF 的函数所在模块, 中文名, 末端构件)
 OWN = {
     "B-ARM-WQCR5": ("cae.wqcr5", "问渠 WQ-CR5 协作机器人（5 kg 负载，机器人厂的产品）", "link6"),
+    "B-HUM-WQH1": ("cae.wqh1", "问渠 WQ-H1 轮式人形（16 个关节，底盘固定；机器人厂的产品）", "l_wrist"),   # 第 75 轮
 }
 
 
