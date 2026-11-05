@@ -41,6 +41,8 @@ P.add_argument("--lab29", action="store_true", help="实验 29（一台机器人
 P.add_argument("--lab27", action="store_true", help="工业园那一段走完后，按实验 27 的六个任务答题（AGV 订单要 2 台：--item WQ-AGV300:2），核对 60 分（第 57 轮）")
 P.add_argument("--park-hub", default="", help="工业园兄弟厂（问渠减速器厂）的枢纽：核对 WQR-105 的采购单送过去、那边接单生产发货、"
                                               "这边到货检验入库（第 51 轮）")
+P.add_argument("--park-buy", action="append", default=[], help="第 85 轮：再核对一种向工业园兄弟厂买的物料，“物料=对方枢纽”，"
+                                                                "如 DRV-JOINT=http://localhost:8104（向问渠电路板厂买驱动板）")
 A = P.parse_args()
 REAL = A.erp_kind == "real"
 FAILS = []
@@ -473,13 +475,15 @@ def item_needs(item, buy, cfg):
 NEEDS = {}
 
 
-def park(mgr):
-    """第 51 轮：AGV 订单的 WQR-105 请购 → 采购单 → 送到减速器厂成为销售订单 → 那边自动接单、下达、做完发货 → 这边到货、来料检验入库"""
-    print("工业园：机器人厂向问渠减速器厂采购 WQR-105")
+def park(mgr, item="WQR-105", peer=None, who="减速器厂"):
+    """第 51 轮：AGV 订单的 WQR-105 请购 → 采购单 → 送到减速器厂成为销售订单 → 那边自动接单、下达、做完发货 → 这边到货、来料检验入库。
+    第 85 轮：同一套核对向电路板厂买的驱动板（item、peer、who）"""
+    peer = peer or A.park_hub
+    print("工业园：机器人厂向问渠{}采购 {}".format(who, item))
     lot = wait(lambda: next((x for x in hub("GET", "/api/supply/lots", token=mgr)["lots"]
-                             if x["item"] == "WQR-105" and (x.get("park") or {}).get("state") in ("sent", "shipped", "fallback")), None),
-               "WQR-105 的采购单送到减速器厂", 600, 5)
-    if not check(bool(lot), "WQR-105 请购转成采购单（采购员模拟器）"):
+                             if x["item"] == item and (x.get("park") or {}).get("state") in ("sent", "shipped", "fallback")), None),
+               "{} 的采购单送到{}".format(item, who), 600, 5)
+    if not check(bool(lot), "{} 请购转成采购单（采购员模拟器）".format(item)):
         try:                                  # 诊断：批次、还没转的请购、供应链相关的提议
             lt = hub("GET", "/api/supply/lots", token=mgr)
             print("    诊断 批次：{}".format([(x["item"], x["status"], x.get("park")) for x in lt["lots"][:12]]))
@@ -494,9 +498,10 @@ def park(mgr):
         except Exception as e:  # noqa: BLE001
             print("    诊断失败：{}".format(e))
         return
-    check(lot["park"]["state"] != "fallback", "采购单送到减速器厂：{}".format(lot.get("note") or ""))
+    check(lot["park"]["state"] != "fallback", "采购单送到{}：{}".format(who, lot.get("note") or ""))
+
     def gb(m, p, b=None, token=None):
-        return call(m, A.park_hub + p, b, token)
+        return call(m, peer + p, b, token)
     gtok = gb("POST", "/api/login", dict({"name": "工业园演练", "role": "manager", "mode": "teach"},
                                          **({"teacher_password": A.teacher_password} if A.teacher_password else {})))["token"]
     gb("POST", "/api/mes/cmd", {"unit": "sim", "command": "set_speed", "speed": A.speed}, token=gtok)
@@ -504,18 +509,18 @@ def park(mgr):
         for p in gb("GET", "/api/ehs/permits", token=gtok)["permits"]:
             if p.get("kind") == "loto" and p.get("status") in ("active", "planned"):
                 gb("POST", "/api/ehs/permits/{}/close".format(p["id"]), {}, token=gtok)
-                print("  （减速器厂：关闭挂牌上锁许可 {}，{} 解锁）".format(p.get("key"), p.get("unit")))
+                print("  （{}：关闭挂牌上锁许可 {}，{} 解锁）".format(who, p.get("key"), p.get("unit")))
     except RuntimeError as e:
-        print("  （减速器厂：没能检查挂牌上锁：{}）".format(str(e)[:120]))
+        print("  （{}：没能检查挂牌上锁：{}）".format(who, str(e)[:120]))
     o = wait(lambda: next((x for x in gb("GET", "/api/park", token=gtok)["orders"] if x["po"] == lot["po"] and x["status"] in ("released", "shipped")),
-                          None), "减速器厂接单、订单和工单写进 ERPNext", 600, 5)
-    if not check(bool(o), "减速器厂自动接单：{}".format(o and "订单 {}，工单 {}".format(o["so"], "、".join(o["work_orders"])))):
+                          None), "{}接单、订单和工单写进 ERPNext".format(who), 600, 5)
+    if not check(bool(o), "{}自动接单：{}".format(who, o and "订单 {}，工单 {}".format(o["so"], "、".join(o["work_orders"])))):
         print("    工业园订单：{}".format(json.dumps(gb("GET", "/api/park", token=gtok)["orders"][:3], ensure_ascii=False)[:600]))
         return
     wos = o["work_orders"]
     o = wait(lambda: next((x for x in gb("GET", "/api/park", token=gtok)["orders"] if x["po"] == lot["po"] and x["status"] == "shipped"), None),
-             "减速器厂做完发货", max(A.timeout, 1200), 5)
-    if not check(bool(o), "减速器厂做完发货：批 {}".format(o and o["shipment"]["lot"])):
+             "{}做完发货".format(who), max(A.timeout, 1200), 5)
+    if not check(bool(o), "{}做完发货：批 {}".format(who, o and o["shipment"]["lot"])):
         print("    工业园订单：{}".format(json.dumps(gb("GET", "/api/park", token=gtok)["orders"][:3], ensure_ascii=False)[:600]))
         try:                                  # 诊断：减速器厂车间里这张工单走到哪一步、设备状态
             for w in wos:
@@ -524,7 +529,7 @@ def park(mgr):
                 ends = sum(1 for e in evs if e["data"].get("event") == "cycle_end")
                 print("    诊断 {}：完工工序 {}；加工完成 {} 件次".format(w, done, ends))
             ov = gb("GET", "/api/overview", token=gtok)
-            print("    诊断 减速器厂设备：{}".format([(m.get("unit"), m.get("state"), m.get("down_until_s"), m.get("queue") or m.get("inbox"))
+            print("    诊断 {}设备：{}".format(who, [(m.get("unit"), m.get("state"), m.get("down_until_s"), m.get("queue") or m.get("inbox"))
                                                  for m in ov.get("machines", [])]))
         except Exception as e:  # noqa: BLE001
             print("    诊断失败：{}".format(e))
@@ -578,6 +583,9 @@ def main():
         lab28(mgr)
     if A.park_hub:
         park(mgr)
+    for x in A.park_buy:                       # 第 85 轮：向电路板厂买驱动板
+        it, _, url = x.partition("=")
+        park(mgr, it, url, "电路板厂")
     if A.lab27:
         lab27(mgr)
     if A.domains:

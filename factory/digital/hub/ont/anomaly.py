@@ -112,6 +112,8 @@ def load_catalog(path=RULE_DIR):
             raise RuleError("{}：领域 {} 不在本体里".format(name, dom))
         for rid, r in (doc.get("rules") or {}).items():
             where = "{} 的 {}".format(name, rid)
+            if r.get("plant") and r["plant"] != plant.plant_id():      # 第 85 轮：只属于某座厂的规则（电路板厂的 QE1–QE5）
+                continue
             if rid in out:
                 raise RuleError("{}：规则编号重复".format(where))
             for k in ("name", "severity", "role"):
