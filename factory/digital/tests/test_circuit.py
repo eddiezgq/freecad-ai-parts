@@ -103,9 +103,10 @@ def test_browser_engine_matches_server():
 
 
 @needs_ngspice
-def test_service_endpoints_and_report():
+def test_service_endpoints_and_report(tmp_path, monkeypatch):
     from fastapi.testclient import TestClient
     from cae import service
+    monkeypatch.setattr(service, "DATA", str(tmp_path))          # 服务启动时要写数据目录（CI 上 /data 不可写）
     with TestClient(service.app) as c:
         ex = c.get("/circuit/examples").json()
         assert len(ex["examples"]) == 6 and ex["server_ngspice"]
