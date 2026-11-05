@@ -2380,6 +2380,52 @@ def lab26_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
         raise HTTPException(404, "没有这个任务")
 
 
+# ---------------------------------------------------------------- 功能测试台（第 88 轮，电路板厂）
+def _fct():
+    from hub import fct
+    if _labs_api.plant_id() != "wenquest-pcb":
+        raise HTTPException(404, "功能测试台只在电路板厂")
+    return fct
+
+
+@app.get("/api/fct")
+def fct_list(u=Depends(user_of)):
+    m = _fct()
+    return {"boards": m.boards(H.db, u["mode"]), "steps": m.STEPS}
+
+
+@app.get("/api/fct/{serial}")
+def fct_case(serial: str, u=Depends(user_of)):
+    m = _fct()
+    try:
+        return m.case(H.db, u["mode"], serial)
+    except KeyError:
+        raise HTTPException(404, "没有这块板的功能测试记录：{}".format(serial))
+
+
+@app.post("/api/fct/{serial}/retest")
+def fct_retest(serial: str, body: dict = Body(...), u=Depends(user_of)):
+    m = _fct()
+    try:
+        return m.retest(H.db, u["mode"], u["name"], serial, body.get("readings") or {}, body.get("verdict"))
+    except KeyError:
+        raise HTTPException(404, "没有这块板的功能测试记录：{}".format(serial))
+
+
+# ---------------------------------------------------------------- 电路板设计的产物（第 88 轮）：KiCad 生成的原理图、PCB、三维、BOM、检查结果
+_DESIGNS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "designs")
+
+
+@app.get("/api/designs/{name}/{path:path}")
+def design_file(name: str, path: str):
+    base = os.path.realpath(os.path.join(_DESIGNS, name, "out"))
+    f = os.path.realpath(os.path.join(base, path))
+    if not f.startswith(base + os.sep) or not os.path.isfile(f):
+        raise HTTPException(404, "没有这个文件")
+    from fastapi.responses import FileResponse
+    return FileResponse(f)
+
+
 # ---------------------------------------------------------------- 负载跑合：仿真与实测、实验 28（第 58 轮，机器人厂）
 def _runin():
     from hub import lab28

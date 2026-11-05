@@ -1,0 +1,1985 @@
+(kicad_sch
+  (version 20230121)
+  (generator eeschema)
+  (uuid "154705fe-d3dc-5a9e-996c-37c4d808e65b")
+  (paper "A3")
+  (title_block
+    (title "DRV-JOINT · 辅助电源 12 / 5 / 3.3 V Auxiliary supplies")
+    (date "2026-11-05")
+    (rev "示例 A")
+    (company "问渠数字工业园 · 电路板厂（示例设计，未经硬件验证，不能直接投产）")
+    (comment 1 "U1 LMR16006Y 把 48 V 降到 12 V（栅极驱动用），U2、U3 线性稳压出 5 V（编码器、CAN）和 3.3 V（MCU、采样放大）。L1 22 μH、反馈 147 k / 10 k 的算法见设计说明。"))
+  (lib_symbols
+    (symbol "Regulator_Switching:LMR16006YQ"
+      (pin_names
+        (offset 1.016))
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U"
+        (at -10.16 11.43 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Value" "LMR16006YQ"
+        (at -10.16 8.89 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Footprint" "Package_TO_SOT_SMD:SOT-23-6"
+        (at 0 -12.7 0)
+        (effects
+          (font
+            (size 1.27 1.27) italic) hide))
+      (property "Datasheet" "http://www.ti.com/lit/ds/symlink/lmr16006y-q1.pdf"
+        (at -10.16 11.43 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "simple-switcher buck step-down voltage-regulator"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Simple Switcher Buck Regulator, Vin=4-40V, Iout=600mA, Adjustable output voltage, SOT-23-6 package"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "SOT?23*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "LMR16006YQ_0_1"
+        (rectangle
+          (start -10.16 7.62)
+          (end 10.16 -7.62)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type background))))
+      (symbol "LMR16006YQ_1_1"
+        (pin input line
+          (at 12.7 5.08 180)
+          (length 2.54)
+          (name "CB"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin power_in line
+          (at 0 -10.16 90)
+          (length 2.54)
+          (name "GND"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin input line
+          (at 12.7 -5.08 180)
+          (length 2.54)
+          (name "FB"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin input line
+          (at -12.7 0 0)
+          (length 2.54)
+          (name "~{SHDN}"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "4"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin power_in line
+          (at -12.7 5.08 0)
+          (length 2.54)
+          (name "VIN"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "5"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin output line
+          (at 12.7 0 180)
+          (length 2.54)
+          (name "SW"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "6"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Device:C"
+      (pin_numbers hide)
+      (pin_names
+        (offset 0.254))
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "C"
+        (at 0.635 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Value" "C"
+        (at 0.635 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Footprint" ""
+        (at 0.9652 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "cap capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Unpolarized capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "C_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "C_0_1"
+        (polyline
+          (pts
+            (xy -2.032 -0.762)
+            (xy 2.032 -0.762))
+          (stroke
+            (width 0.508)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy -2.032 0.762)
+            (xy 2.032 0.762))
+          (stroke
+            (width 0.508)
+            (type default))
+          (fill
+            (type none))))
+      (symbol "C_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Device:R"
+      (pin_numbers hide)
+      (pin_names
+        (offset 0))
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "R"
+        (at 2.032 0 90)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "R"
+        (at 0 0 90)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" ""
+        (at -1.778 0 90)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "R res resistor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Resistor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "R_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "R_0_1"
+        (rectangle
+          (start -1.016 -2.54)
+          (end 1.016 2.54)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none))))
+      (symbol "R_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Device:D_Schottky"
+      (pin_numbers hide)
+      (pin_names
+        (offset 1.016) hide)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "D"
+        (at 0 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "D_Schottky"
+        (at 0 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "diode Schottky"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Schottky diode"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "D_Schottky_0_1"
+        (polyline
+          (pts
+            (xy 1.27 0)
+            (xy -1.27 0))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 1.27 1.27)
+            (xy 1.27 -1.27)
+            (xy -1.27 0)
+            (xy 1.27 1.27))
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy -1.905 0.635)
+            (xy -1.905 1.27)
+            (xy -1.27 1.27)
+            (xy -1.27 -1.27)
+            (xy -0.635 -1.27)
+            (xy -0.635 -0.635))
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none))))
+      (symbol "D_Schottky_1_1"
+        (pin passive line
+          (at -3.81 0 0)
+          (length 2.54)
+          (name "K"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 3.81 0 180)
+          (length 2.54)
+          (name "A"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Device:L"
+      (pin_numbers hide)
+      (pin_names
+        (offset 1.016) hide)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "L"
+        (at -1.27 0 90)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "L"
+        (at 1.905 0 90)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "inductor choke coil reactor magnetic"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Inductor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "Choke_* *Coil* Inductor_* L_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "L_0_1"
+        (arc
+          (start 0 -2.54)
+          (mid 0.6323 -1.905)
+          (end 0 -1.27)
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (arc
+          (start 0 -1.27)
+          (mid 0.6323 -0.635)
+          (end 0 0)
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (arc
+          (start 0 0)
+          (mid 0.6323 0.635)
+          (end 0 1.27)
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (arc
+          (start 0 1.27)
+          (mid 0.6323 1.905)
+          (end 0 2.54)
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none))))
+      (symbol "L_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 1.27)
+          (name "1"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 1.27)
+          (name "2"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Regulator_Linear:AMS1117-5.0"
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U"
+        (at -3.81 3.175 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "AMS1117-5.0"
+        (at 0 3.175 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Footprint" "Package_TO_SOT_SMD:SOT-223-3_TabPin2"
+        (at 0 5.08 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "http://www.advanced-monolithic.com/pdf/ds1117.pdf"
+        (at 2.54 -6.35 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "linear regulator ldo fixed positive"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "1A Low Dropout regulator, positive, 5.0V fixed output, SOT-223"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "SOT?223*TabPin2*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "AMS1117-5.0_0_1"
+        (rectangle
+          (start -5.08 -5.08)
+          (end 5.08 1.905)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type background))))
+      (symbol "AMS1117-5.0_1_1"
+        (pin power_in line
+          (at 0 -7.62 90)
+          (length 2.54)
+          (name "GND"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin power_out line
+          (at 7.62 0 180)
+          (length 2.54)
+          (name "VO"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin power_in line
+          (at -7.62 0 0)
+          (length 2.54)
+          (name "VI"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Regulator_Linear:AMS1117-3.3"
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U"
+        (at -3.81 3.175 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "AMS1117-3.3"
+        (at 0 3.175 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Footprint" "Package_TO_SOT_SMD:SOT-223-3_TabPin2"
+        (at 0 5.08 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "http://www.advanced-monolithic.com/pdf/ds1117.pdf"
+        (at 2.54 -6.35 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "linear regulator ldo fixed positive"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "1A Low Dropout regulator, positive, 3.3V fixed output, SOT-223"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "SOT?223*TabPin2*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "AMS1117-3.3_0_1"
+        (rectangle
+          (start -5.08 -5.08)
+          (end 5.08 1.905)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type background))))
+      (symbol "AMS1117-3.3_1_1"
+        (pin power_in line
+          (at 0 -7.62 90)
+          (length 2.54)
+          (name "GND"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin power_out line
+          (at 7.62 0 180)
+          (length 2.54)
+          (name "VO"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin power_in line
+          (at -7.62 0 0)
+          (length 2.54)
+          (name "VI"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27))))))))
+  (symbol
+    (lib_id "Regulator_Switching:LMR16006YQ")
+    (at 73.66 58.42 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "c7b101fc-2434-58dd-9801-a1e94d5b4675")
+    (property "Reference" "U1"
+      (at 73.66 50.8 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "LMR16006YQ"
+      (at 73.66 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:SOT-23-6"
+      (at 73.66 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 73.66 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "IC-BUCK"
+      (at 73.66 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "48 V → 12 V 降压（示例选型）"
+      (at 73.66 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "a133c9bf-9c1c-5351-a929-bdf36ddec6ea"))
+    (pin "2"
+      (uuid "4f37f395-e5fa-5dd7-8831-9978cc1cc076"))
+    (pin "3"
+      (uuid "99067609-7850-555d-84f2-f13c90445e1e"))
+    (pin "4"
+      (uuid "504f5d53-8911-53e3-985b-d7f8e581c727"))
+    (pin "5"
+      (uuid "754a88f3-8035-5ccb-a816-8ba7b5a6adc5"))
+    (pin "6"
+      (uuid "a7cc9350-bb93-500e-8794-32c7edf96189"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/89fed11e-d13b-5169-a4fd-9b6b8ae5b8f7"
+          (reference "U1")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 86.36 53.34)
+      (xy 88.9 53.34))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "0af5576f-5513-5010-8371-c322ccfad4f6"))
+  (global_label "SW_CB"
+    (shape passive)
+    (at 88.9 53.34 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "554fd0e1-abee-59fc-a421-3911cdbcd15d")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 88.9 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 73.66 68.58)
+      (xy 73.66 71.12))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "c74acfe8-dca8-56aa-b7d4-04ecd4d15f58"))
+  (global_label "GND"
+    (shape passive)
+    (at 73.66 71.12 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "999c41f4-3b94-5be5-84c6-a008676a8c49")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 73.66 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 86.36 63.5)
+      (xy 88.9 63.5))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "4c654c71-3135-5ad1-84d7-3cd97aaf44d9"))
+  (global_label "FB12"
+    (shape passive)
+    (at 88.9 63.5 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "14b6a8b2-16c5-574d-b5a1-565cd102fed9")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 88.9 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 60.96 58.42)
+      (xy 58.42 58.42))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "6a01b265-7a49-5aaf-ac2b-12bbd2eb1375"))
+  (global_label "EN12"
+    (shape passive)
+    (at 58.42 58.42 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "94e47018-2151-5825-8142-4e610992cdc1")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 58.42 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 60.96 53.34)
+      (xy 58.42 53.34))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "cd2b5074-10e1-5ffe-8777-0cb29a1d4206"))
+  (global_label "VBUS_AUX"
+    (shape passive)
+    (at 58.42 53.34 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "02c3da2e-6d3c-589f-a2e9-2d53c1808af6")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 58.42 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 86.36 58.42)
+      (xy 88.9 58.42))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "ec273441-5913-5978-95e9-2ec5da4a8ee0"))
+  (global_label "SW12"
+    (shape passive)
+    (at 88.9 58.42 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "87365820-852d-5b35-a5d0-ac1a47b4f939")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 88.9 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C")
+    (at 144.78 58.42 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "8af009d5-a404-50c6-9180-55ddc3412fcb")
+    (property "Reference" "C3"
+      (at 144.78 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "2.2u/100V"
+      (at 144.78 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+      (at 144.78 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 144.78 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-1206"
+      (at 144.78 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" ""
+      (at 144.78 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "99f50cfa-1b24-57b7-8009-0b7995f8680b"))
+    (pin "2"
+      (uuid "1052edbd-b4d2-52fa-bfe7-179a0b4a2c67"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/89fed11e-d13b-5169-a4fd-9b6b8ae5b8f7"
+          (reference "C3")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 144.78 54.61)
+      (xy 144.78 52.07))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "9cdef857-a974-5ed0-9ff0-835dd691b8b3"))
+  (global_label "VBUS_AUX"
+    (shape passive)
+    (at 144.78 52.07 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "9b96fa78-2b5a-50a4-a676-a1d631124f5f")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 144.78 52.07 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 144.78 62.23)
+      (xy 144.78 64.77))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "128d550a-0204-5e98-b355-aa958b7e820d"))
+  (global_label "GND"
+    (shape passive)
+    (at 144.78 64.77 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "838262b5-5f9b-5a20-9cfc-d8dad1871bc8")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 144.78 64.77 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:R")
+    (at 205.74 58.42 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "ac43fa20-0f35-5b64-921d-76b415dfa0a7")
+    (property "Reference" "R4"
+      (at 205.74 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "100k"
+      (at 205.74 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+      (at 205.74 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 205.74 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "RES-0402"
+      (at 205.74 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "使能上拉"
+      (at 205.74 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "86a75a68-df19-516d-b9b9-e483151b3971"))
+    (pin "2"
+      (uuid "1356de08-1aaf-5af4-8b74-d4a2cc9d1bb4"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/89fed11e-d13b-5169-a4fd-9b6b8ae5b8f7"
+          (reference "R4")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 205.74 54.61)
+      (xy 205.74 52.07))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "97ee6011-d079-513a-a2a1-dab0de673747"))
+  (global_label "VBUS_AUX"
+    (shape passive)
+    (at 205.74 52.07 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "fd349c09-c6a9-57c9-a2eb-1cb8401a3746")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 205.74 52.07 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 205.74 62.23)
+      (xy 205.74 64.77))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "8964e737-7b77-568c-984d-e169560f63ca"))
+  (global_label "EN12"
+    (shape passive)
+    (at 205.74 64.77 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "a3cc8ff4-1e50-5536-8be6-0ed15b6b380e")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 205.74 64.77 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C")
+    (at 264.16 58.42 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "5c714c10-f927-508e-928e-9a7bd894ff9f")
+    (property "Reference" "C4"
+      (at 264.16 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "100n"
+      (at 264.16 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+      (at 264.16 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 264.16 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-0402"
+      (at 264.16 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "自举电容"
+      (at 264.16 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "f1833045-9629-5e66-901b-14b6a4ff8ece"))
+    (pin "2"
+      (uuid "10d15209-22eb-528b-9a93-a8137519245d"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/89fed11e-d13b-5169-a4fd-9b6b8ae5b8f7"
+          (reference "C4")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 264.16 54.61)
+      (xy 264.16 52.07))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "d5f6a29e-58fb-5507-abeb-34ef2053179e"))
+  (global_label "SW_CB"
+    (shape passive)
+    (at 264.16 52.07 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "44e00c50-59fa-5653-8ab8-351f1b56da2d")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 264.16 52.07 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 264.16 62.23)
+      (xy 264.16 64.77))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "3ffeb9f3-f5e6-56b0-9f32-4cf850bc0449"))
+  (global_label "SW12"
+    (shape passive)
+    (at 264.16 64.77 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "e6116809-791f-549b-b746-1f479d1d226b")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 264.16 64.77 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:D_Schottky")
+    (at 330.2 53.34 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "14e83c9f-5035-51ea-a955-9d66ca1056a6")
+    (property "Reference" "D1"
+      (at 330.2 50.8 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "60V 1A"
+      (at 330.2 55.88 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Diode_SMD:D_SMA"
+      (at 330.2 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 330.2 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "DIO-SMD"
+      (at 330.2 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "续流二极管"
+      (at 330.2 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "fe231a9a-d9f2-511f-a14f-db9257cecf2f"))
+    (pin "2"
+      (uuid "8b368379-af9b-58b0-bd56-508fa0ff853b"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/89fed11e-d13b-5169-a4fd-9b6b8ae5b8f7"
+          (reference "D1")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 326.39 53.34)
+      (xy 323.85 53.34))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "faa014c7-4b52-5359-b196-84b744137a88"))
+  (global_label "SW12"
+    (shape passive)
+    (at 323.85 53.34 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "5c664be3-58bb-5d09-9189-deb7726d2a9a")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 323.85 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 334.01 53.34)
+      (xy 336.55 53.34))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "92d37dc1-b010-5879-966f-1aa90da9e8fe"))
+  (global_label "GND"
+    (shape passive)
+    (at 336.55 53.34 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "743172bc-ec49-5d36-97d3-bb161c4405dd")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 336.55 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:L")
+    (at 60.96 101.6 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "232b2069-ec49-5cbd-bfc8-f383882dbb3c")
+    (property "Reference" "L1"
+      (at 60.96 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "22u"
+      (at 60.96 109.22 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Inductor_SMD:L_Bourns_SRN6045TA"
+      (at 60.96 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 60.96 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "IND-PWR"
+      (at 60.96 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" ""
+      (at 60.96 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "d6fdbbd7-f457-5032-a64f-51bc8166d710"))
+    (pin "2"
+      (uuid "81b9a99c-ee23-5c6c-bc8b-4a9e42a9fcc8"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/89fed11e-d13b-5169-a4fd-9b6b8ae5b8f7"
+          (reference "L1")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 60.96 97.79)
+      (xy 60.96 95.25))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "14438dd0-b558-5ab9-9b53-f6498c0332b1"))
+  (global_label "SW12"
+    (shape passive)
+    (at 60.96 95.25 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "25d81cd1-d8a1-58be-a14b-bd80709dfd55")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 60.96 105.41)
+      (xy 60.96 107.95))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "90f72e3e-84b4-5e48-92be-2597986ea744"))
+  (global_label "+12V"
+    (shape passive)
+    (at 60.96 107.95 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "70ab9eb4-3b51-5f88-9d92-0ab8482f1355")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:R")
+    (at 119.38 101.6 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "a587cb3e-f6f0-5e63-b595-d1ac8eb370c1")
+    (property "Reference" "R5"
+      (at 119.38 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "147k"
+      (at 119.38 109.22 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+      (at 119.38 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 119.38 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "RES-0402"
+      (at 119.38 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "反馈上电阻"
+      (at 119.38 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "dcd22de7-5089-5a98-acb1-22943cf0696f"))
+    (pin "2"
+      (uuid "30f89148-945a-5b5d-987f-fc37e6d8e923"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/89fed11e-d13b-5169-a4fd-9b6b8ae5b8f7"
+          (reference "R5")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 119.38 97.79)
+      (xy 119.38 95.25))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "4abe81d6-f38b-5a5d-a5af-c2bdb0fb4fab"))
+  (global_label "+12V"
+    (shape passive)
+    (at 119.38 95.25 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "07a3a780-4d4c-5687-846c-8676fa3a8d22")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 119.38 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 119.38 105.41)
+      (xy 119.38 107.95))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "ee779c66-ed46-54f7-b816-dc2f30992491"))
+  (global_label "FB12"
+    (shape passive)
+    (at 119.38 107.95 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "f25e5ae3-02aa-569d-99e6-e3dfb3fea305")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 119.38 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:R")
+    (at 180.34 101.6 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "40e81e23-af2c-52a0-9e3e-a57f7c7210c5")
+    (property "Reference" "R6"
+      (at 180.34 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "10k"
+      (at 180.34 109.22 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+      (at 180.34 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 180.34 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "RES-0402"
+      (at 180.34 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "反馈下电阻"
+      (at 180.34 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "6019869b-9cd7-5d44-8553-1307ac3ff981"))
+    (pin "2"
+      (uuid "eb4f96a6-450c-5505-9a48-8b08e2385730"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/89fed11e-d13b-5169-a4fd-9b6b8ae5b8f7"
+          (reference "R6")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 180.34 97.79)
+      (xy 180.34 95.25))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "991e890b-0742-5de7-b291-7fe4bd26c77f"))
+  (global_label "FB12"
+    (shape passive)
+    (at 180.34 95.25 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "1103448a-730e-5a3b-8f55-001bc220f4f3")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 180.34 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 180.34 105.41)
+      (xy 180.34 107.95))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "538890a1-f089-50e0-8dd0-5c84137758a9"))
+  (global_label "GND"
+    (shape passive)
+    (at 180.34 107.95 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "58448061-649b-5f44-88b3-a55a4ba5ef28")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 180.34 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C")
+    (at 238.76 101.6 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "3804f0c9-c81f-5f15-929a-1ee59da1dbae")
+    (property "Reference" "C5"
+      (at 238.76 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "22u/25V"
+      (at 238.76 109.22 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+      (at 238.76 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 238.76 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-1206"
+      (at 238.76 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" ""
+      (at 238.76 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "18016d1a-3393-5ef8-871b-ba4b82cbf1a3"))
+    (pin "2"
+      (uuid "96892cd7-f128-56ac-a4a2-e3c8ab98eaea"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/89fed11e-d13b-5169-a4fd-9b6b8ae5b8f7"
+          (reference "C5")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 238.76 97.79)
+      (xy 238.76 95.25))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "31b22360-2626-5cfd-9281-d013da6ef465"))
+  (global_label "+12V"
+    (shape passive)
+    (at 238.76 95.25 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "ec1e3c48-927b-52d1-b7aa-949e7f3c6330")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 238.76 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 238.76 105.41)
+      (xy 238.76 107.95))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "a039cec3-4110-57ba-b4f0-8dce4c10bf2a"))
+  (global_label "GND"
+    (shape passive)
+    (at 238.76 107.95 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "339ce06f-1cde-530b-9d1e-c0633d47bd73")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 238.76 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Regulator_Linear:AMS1117-5.0")
+    (at 307.34 96.52 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "3f2c93ec-1381-5677-bb73-6560728faaad")
+    (property "Reference" "U2"
+      (at 307.34 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "AMS1117-5.0"
+      (at 307.34 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:SOT-223-3_TabPin2"
+      (at 307.34 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 307.34 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "IC-LDO"
+      (at 307.34 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" ""
+      (at 307.34 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "1a2121fc-740d-5700-809e-f5b552332b9b"))
+    (pin "2"
+      (uuid "d9609885-c248-5662-94e3-737975734832"))
+    (pin "3"
+      (uuid "f3b247c2-4084-542d-8d3f-146f5c6c1f0c"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/89fed11e-d13b-5169-a4fd-9b6b8ae5b8f7"
+          (reference "U2")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 307.34 104.14)
+      (xy 307.34 106.68))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "e0279221-a7be-579d-aa24-9c41e399599f"))
+  (global_label "GND"
+    (shape passive)
+    (at 307.34 106.68 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "a9abd2a2-7162-58fd-892a-076a67b92128")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 307.34 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 314.96 96.52)
+      (xy 317.5 96.52))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "7ebb91ca-9d76-5890-bcb2-1a6dd08cd155"))
+  (global_label "+5V"
+    (shape passive)
+    (at 317.5 96.52 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "d3561e74-672d-5e56-8aa3-fd2661bcf88b")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 317.5 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 299.72 96.52)
+      (xy 297.18 96.52))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "8034c36b-8b78-5c54-b6ee-1352ad91461e"))
+  (global_label "+12V"
+    (shape passive)
+    (at 297.18 96.52 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "935e1c3d-a745-5f85-b0e4-7668082f77ee")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 297.18 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C")
+    (at 375.92 101.6 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "317084f6-54be-56ea-af70-b3da68a74256")
+    (property "Reference" "C6"
+      (at 375.92 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "10u/25V"
+      (at 375.92 109.22 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+      (at 375.92 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 375.92 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-1206"
+      (at 375.92 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" ""
+      (at 375.92 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "8450cbc3-3caf-5c1f-b48c-9a94fa16bd5e"))
+    (pin "2"
+      (uuid "7354c63f-29ab-582a-9f53-6a199e949540"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/89fed11e-d13b-5169-a4fd-9b6b8ae5b8f7"
+          (reference "C6")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 375.92 97.79)
+      (xy 375.92 95.25))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "e43e661e-9547-59e9-8dd2-bbf7cd84d604"))
+  (global_label "+5V"
+    (shape passive)
+    (at 375.92 95.25 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "30ed6b2b-599a-5601-8651-3097e34ac30a")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 375.92 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 375.92 105.41)
+      (xy 375.92 107.95))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "87dca3c3-d022-5297-82e0-b99535de34f9"))
+  (global_label "GND"
+    (shape passive)
+    (at 375.92 107.95 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "6df859b6-53e7-5e69-93be-f562cda69887")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 375.92 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Regulator_Linear:AMS1117-3.3")
+    (at 68.58 132.08 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "018eccc0-24c3-5487-99db-69bee0ec3f16")
+    (property "Reference" "U3"
+      (at 68.58 129.54 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "AMS1117-3.3"
+      (at 68.58 142.24 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:SOT-223-3_TabPin2"
+      (at 68.58 132.08 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 68.58 132.08 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "IC-LDO"
+      (at 68.58 132.08 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" ""
+      (at 68.58 132.08 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "808e004e-a506-5ebf-a3f9-3d43ccedc0cc"))
+    (pin "2"
+      (uuid "283eb6b2-b2b9-5e1c-96ff-b98690099410"))
+    (pin "3"
+      (uuid "e1a11ae8-de85-53dd-8b1e-3354da2ac4a6"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/89fed11e-d13b-5169-a4fd-9b6b8ae5b8f7"
+          (reference "U3")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 68.58 139.7)
+      (xy 68.58 142.24))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "a0cacd54-57d3-58b9-ab1e-2b6d0a99dd31"))
+  (global_label "GND"
+    (shape passive)
+    (at 68.58 142.24 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "be668032-676b-5a35-92c9-c238a758a946")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 68.58 142.24 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 76.2 132.08)
+      (xy 78.74 132.08))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "e5c9ab0b-6ea6-56d7-961d-4d9be58410f4"))
+  (global_label "+3V3"
+    (shape passive)
+    (at 78.74 132.08 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "1b6fa400-cd1d-5c57-ae90-f90df08772c2")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 78.74 132.08 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 60.96 132.08)
+      (xy 58.42 132.08))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "ee7282cf-1abc-52c6-bf1e-ca0e70eb6425"))
+  (global_label "+5V"
+    (shape passive)
+    (at 58.42 132.08 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "525804a9-e2d3-5c95-9db4-cef55fefe314")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 58.42 132.08 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C")
+    (at 134.62 137.16 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "5822c540-08f3-59af-a4db-be38314eb830")
+    (property "Reference" "C7"
+      (at 134.62 129.54 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "10u/25V"
+      (at 134.62 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+      (at 134.62 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 134.62 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-1206"
+      (at 134.62 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" ""
+      (at 134.62 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "3921976b-ddff-5a35-8818-bcfebd3eab62"))
+    (pin "2"
+      (uuid "5ddbb023-899c-5d68-8f91-b1ce5259a513"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/89fed11e-d13b-5169-a4fd-9b6b8ae5b8f7"
+          (reference "C7")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 134.62 133.35)
+      (xy 134.62 130.81))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "2275c431-3fad-5afa-989b-ee18af879d27"))
+  (global_label "+3V3"
+    (shape passive)
+    (at 134.62 130.81 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "f0ed8f3f-d89b-50db-8f28-872b51011bce")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 134.62 130.81 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 134.62 140.97)
+      (xy 134.62 143.51))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "f4b688b1-1108-5519-bcf9-0f1869655d58"))
+  (global_label "GND"
+    (shape passive)
+    (at 134.62 143.51 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "642a8154-6d98-5956-852e-c762f1993492")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 134.62 143.51 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (text "U1 LMR16006Y 把 48 V 降到 12 V（栅极驱动用），U2、U3 线性稳压出 5 V（编码器、CAN）和 3.3 V（MCU、采样放大）。L1 22 μH、反馈 147 k / 10 k 的算法见设计说明。"
+    (at 30 22 0)
+    (effects
+      (font
+        (size 2 2))
+      (justify left))
+    (uuid "f6ed1d2a-3a2a-5837-8fa1-adf793e83948")))

@@ -1,0 +1,203 @@
+(kicad_sch
+  (version 20230121)
+  (generator eeschema)
+  (uuid "0b6efc3d-4074-58b1-95cc-644f877ce531")
+  (paper "A3")
+  (title_block
+    (title "关节伺服驱动板 DRV-JOINT Joint servo drive board")
+    (date "2026-11-05")
+    (rev "示例 A")
+    (company "问渠数字工业园 · 电路板厂（示例设计，未经硬件验证，不能直接投产）"))
+  (lib_symbols)
+  (sheet
+    (at 40 60)
+    (size 70 30)
+    (fields_autoplaced)
+    (stroke
+      (width 0.1524)
+      (type solid))
+    (fill
+      (color 0 0 0 0))
+    (uuid "8aa37fc0-1932-5e41-984c-0861967f4b67")
+    (property "Sheetname" "1 48 V 输入与母线"
+      (at 40 59.3 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left bottom)))
+    (property "Sheetfile" "power.kicad_sch"
+      (at 40 90.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left top)))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531"
+          (page "2")))))
+  (sheet
+    (at 130 60)
+    (size 70 30)
+    (fields_autoplaced)
+    (stroke
+      (width 0.1524)
+      (type solid))
+    (fill
+      (color 0 0 0 0))
+    (uuid "89fed11e-d13b-5169-a4fd-9b6b8ae5b8f7")
+    (property "Sheetname" "2 辅助电源 12 / 5 / 3.3 V"
+      (at 130 59.3 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left bottom)))
+    (property "Sheetfile" "aux.kicad_sch"
+      (at 130 90.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left top)))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531"
+          (page "3")))))
+  (sheet
+    (at 220 60)
+    (size 70 30)
+    (fields_autoplaced)
+    (stroke
+      (width 0.1524)
+      (type solid))
+    (fill
+      (color 0 0 0 0))
+    (uuid "a80fc131-4186-5f49-b8ab-b718c917e0d8")
+    (property "Sheetname" "3 三相桥"
+      (at 220 59.3 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left bottom)))
+    (property "Sheetfile" "bridge.kicad_sch"
+      (at 220 90.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left top)))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531"
+          (page "4")))))
+  (sheet
+    (at 310 60)
+    (size 70 30)
+    (fields_autoplaced)
+    (stroke
+      (width 0.1524)
+      (type solid))
+    (fill
+      (color 0 0 0 0))
+    (uuid "806d8cda-9c63-5ecc-90d6-bfc15f98d702")
+    (property "Sheetname" "4 栅极驱动"
+      (at 310 59.3 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left bottom)))
+    (property "Sheetfile" "gate.kicad_sch"
+      (at 310 90.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left top)))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531"
+          (page "5")))))
+  (sheet
+    (at 40 120)
+    (size 70 30)
+    (fields_autoplaced)
+    (stroke
+      (width 0.1524)
+      (type solid))
+    (fill
+      (color 0 0 0 0))
+    (uuid "669e2dc0-d357-50aa-9921-f3e01822ccd8")
+    (property "Sheetname" "5 相电流采样与电机输出"
+      (at 40 119.3 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left bottom)))
+    (property "Sheetfile" "sense.kicad_sch"
+      (at 40 150.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left top)))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531"
+          (page "6")))))
+  (sheet
+    (at 130 120)
+    (size 70 30)
+    (fields_autoplaced)
+    (stroke
+      (width 0.1524)
+      (type solid))
+    (fill
+      (color 0 0 0 0))
+    (uuid "08e3282e-87cb-5cc0-8516-ff832689873e")
+    (property "Sheetname" "6 MCU 与烧录口"
+      (at 130 119.3 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left bottom)))
+    (property "Sheetfile" "mcu.kicad_sch"
+      (at 130 150.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left top)))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531"
+          (page "7")))))
+  (sheet
+    (at 220 120)
+    (size 70 30)
+    (fields_autoplaced)
+    (stroke
+      (width 0.1524)
+      (type solid))
+    (fill
+      (color 0 0 0 0))
+    (uuid "8f2cb4e6-873d-5c28-a482-5f31c095cad9")
+    (property "Sheetname" "7 编码器接口与 CAN"
+      (at 220 119.3 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left bottom)))
+    (property "Sheetfile" "io.kicad_sch"
+      (at 220 150.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left top)))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531"
+          (page "8")))))
+  (text "关节伺服驱动板 DRV-JOINT：48 V、三相、相电流采样 + 编码器接口 + CAN。示例设计，未经硬件验证。"
+    (at 40 35 0)
+    (effects
+      (font
+        (size 2.5 2.5))
+      (justify left))
+    (uuid "159129b8-7265-5de3-a5e1-730e64e1b1b8"))
+  (sheet_instances
+    (path "/"
+      (page "1"))))

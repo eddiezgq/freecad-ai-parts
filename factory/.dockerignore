@@ -7,3 +7,5 @@ digital/web/dist
 **/.env
 digital/help-media
 local/
+# 第 88 轮：电路板设计的下载包要进镜像
+!designs/drv-joint/out/*.zip

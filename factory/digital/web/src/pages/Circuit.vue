@@ -14,6 +14,7 @@
       <section class="card">
         <p class="q"><b>问题</b>　{{ ex.question }}</p>
         <SchematicView :items="SCHEMATICS[key] || []" :params="params" @pick="focusParam" />
+        <div v-if="SHEET[key]" class="small"><router-link :to="'/pcb-design?tab=sch&sheet=' + SHEET[key]">打开驱动板原理图里的这一页 →</router-link>（KiCad 设计用的是同一组数）</div>
         <div class="params">
           <label v-for="p in ex.params" :key="p.key" :class="{ hl: hl === p.key }">{{ p.label }}
             <input :ref="(el) => (inputs[p.key] = el)" v-model.number="params[p.key]" type="number" step="any" :min="p.min" :max="p.max"></label>
@@ -83,13 +84,16 @@
 
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { get, post, session } from '../lib/api';
 import { SCHEMATICS } from '../lib/schematics';
 import SchematicView from '../components/SchematicView.vue';
 import SpiceChart from '../components/SpiceChart.vue';
 
 const router = useRouter();
+const route = useRoute();
+// 第 88 轮：例题 ↔ 驱动板 KiCad 原理图的那一页
+const SHEET = { sense: 'sense', gate: 'gate', bus: 'power', encoder: 'io' };
 const ANALYSIS = { dc: '直流扫描', ac: '交流（波特图）', tran: '瞬态', open: '开环（电压阶跃）', qgd: '量 Q_gd' };
 const DERIVED = {
   i_peak_A: '峰值相电流 A', i_rated_A: '额定相电流 A', shunt_mV_at_peak: '峰值时采样电压 mV', p_shunt_W_rated: '额定电流下采样电阻功耗 W',
@@ -100,7 +104,7 @@ const DERIVED = {
   vbus_V: '母线电压 V', saturated: '电压饱和',
 };
 const examples = ref([]);
-const key = ref('sense');
+const key = ref(String(route.query.ex || 'sense'));
 const mode = ref('ex');
 const params = reactive({});
 const built = ref(null);
