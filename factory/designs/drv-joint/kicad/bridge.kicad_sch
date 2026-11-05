@@ -1,0 +1,1323 @@
+(kicad_sch
+  (version 20230121)
+  (generator eeschema)
+  (uuid "5789b549-2f65-567a-a852-83b804e327d2")
+  (paper "A3")
+  (title_block
+    (title "DRV-JOINT · 三相桥 Three-phase bridge")
+    (date "2026-11-05")
+    (rev "示例 A")
+    (company "问渠数字工业园 · 电路板厂（示例设计，未经硬件验证，不能直接投产）")
+    (comment 1 "三个半桥，每相上下两个 MOSFET（示例选型 BSC040N08NS5，80 V）；C11–C13 每相就近吸收开关电流。"))
+  (lib_symbols
+    (symbol "Transistor_FET:BSC040N08NS5"
+      (pin_names hide)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "Q"
+        (at 5.08 1.905 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Value" "BSC040N08NS5"
+        (at 5.08 0 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Footprint" "Package_TO_SOT_SMD:TDSON-8-1"
+        (at 5.08 -1.905 0)
+        (effects
+          (font
+            (size 1.27 1.27) italic)
+          (justify left) hide))
+      (property "Datasheet" "http://www.infineon.com/dgdl/Infineon-BSC040N08NS5-DS-v02_00-EN.pdf?fileId=5546d4624ad04ef9014ae3065a7e2a05"
+        (at 5.08 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left) hide))
+      (property "ki_keywords" "OptiMOS Power MOSFET N-MOS"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "100A Id, 80V Vds, OptiMOS N-Channel Power MOSFET, 4.0mOhm Ron, Qg (typ) 43.0nC, PG-TDSON-8"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "TDSON*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "BSC040N08NS5_0_1"
+        (polyline
+          (pts
+            (xy 0.254 0)
+            (xy -2.54 0))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 0.254 1.905)
+            (xy 0.254 -1.905))
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 0.762 -1.27)
+            (xy 0.762 -2.286))
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 0.762 0.508)
+            (xy 0.762 -0.508))
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 0.762 2.286)
+            (xy 0.762 1.27))
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 2.54 2.54)
+            (xy 2.54 1.778))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 2.54 -2.54)
+            (xy 2.54 0)
+            (xy 0.762 0))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 0.762 -1.778)
+            (xy 3.302 -1.778)
+            (xy 3.302 1.778)
+            (xy 0.762 1.778))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 1.016 0)
+            (xy 2.032 0.381)
+            (xy 2.032 -0.381)
+            (xy 1.016 0))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type outline)))
+        (polyline
+          (pts
+            (xy 2.794 0.508)
+            (xy 2.921 0.381)
+            (xy 3.683 0.381)
+            (xy 3.81 0.254))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 3.302 0.381)
+            (xy 2.921 -0.254)
+            (xy 3.683 -0.254)
+            (xy 3.302 0.381))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (circle
+          (center 1.651 0)
+          (radius 2.794)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none)))
+        (circle
+          (center 2.54 -1.778)
+          (radius 0.254)
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type outline)))
+        (circle
+          (center 2.54 1.778)
+          (radius 0.254)
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type outline))))
+      (symbol "BSC040N08NS5_1_1"
+        (pin passive line
+          (at 2.54 -5.08 90)
+          (length 2.54)
+          (name "S"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 2.54 -5.08 90)
+          (length 2.54) hide
+          (name "S"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 2.54 -5.08 90)
+          (length 2.54) hide
+          (name "S"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 0 0)
+          (length 2.54)
+          (name "G"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "4"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 2.54 5.08 270)
+          (length 2.54)
+          (name "D"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "5"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Device:C"
+      (pin_numbers hide)
+      (pin_names
+        (offset 0.254))
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "C"
+        (at 0.635 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Value" "C"
+        (at 0.635 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Footprint" ""
+        (at 0.9652 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "cap capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Unpolarized capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "C_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "C_0_1"
+        (polyline
+          (pts
+            (xy -2.032 -0.762)
+            (xy 2.032 -0.762))
+          (stroke
+            (width 0.508)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy -2.032 0.762)
+            (xy 2.032 0.762))
+          (stroke
+            (width 0.508)
+            (type default))
+          (fill
+            (type none))))
+      (symbol "C_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27))))))))
+  (symbol
+    (lib_id "Transistor_FET:BSC040N08NS5")
+    (at 66.04 58.42 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "b5b4e1ee-2001-5a2d-9a7b-01c2dd258009")
+    (property "Reference" "Q1"
+      (at 66.04 50.8 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "BSC040N08NS5"
+      (at 66.04 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:TDSON-8-1"
+      (at 66.04 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 66.04 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "MOS-80V"
+      (at 66.04 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "A 相上管（示例选型）"
+      (at 66.04 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "db33b46f-df20-5765-bedf-06c4f8475a75"))
+    (pin "2"
+      (uuid "2326eb42-8999-57d1-b2bf-acb46d3f604a"))
+    (pin "3"
+      (uuid "661dde6c-1dea-5151-9365-9062d4db4440"))
+    (pin "4"
+      (uuid "f8d9f183-d048-52cf-abaf-553b2e06b70f"))
+    (pin "5"
+      (uuid "b03ba366-687f-5e09-8559-2ed84176539b"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/a80fc131-4186-5f49-b8ab-b718c917e0d8"
+          (reference "Q1")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 68.58 63.5)
+      (xy 68.58 66.04))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "5ff74c46-b55d-5b98-90df-f74378584fa2"))
+  (global_label "SW_A"
+    (shape passive)
+    (at 68.58 66.04 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "d64451d6-c2e0-506f-b76b-ba1e013e2037")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 68.58 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 60.96 58.42)
+      (xy 58.42 58.42))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "0d64bdd9-1f3c-561a-b05f-d597a7855811"))
+  (global_label "GH_A"
+    (shape passive)
+    (at 58.42 58.42 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "f2fa9261-1050-5d8e-8bc3-e96911866809")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 58.42 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 68.58 53.34)
+      (xy 68.58 50.8))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "485725c4-e145-5948-9261-bf0d005239c0"))
+  (global_label "VBUS"
+    (shape passive)
+    (at 68.58 50.8 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "fb08ac45-104f-57bc-b74c-db97405549d3")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 68.58 50.8 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Transistor_FET:BSC040N08NS5")
+    (at 132.08 58.42 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "b4794826-1494-59d2-9c6e-c739a6e68921")
+    (property "Reference" "Q2"
+      (at 132.08 50.8 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "BSC040N08NS5"
+      (at 132.08 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:TDSON-8-1"
+      (at 132.08 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 132.08 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "MOS-80V"
+      (at 132.08 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "A 相下管"
+      (at 132.08 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "bfd9fbf1-37ac-5e6a-95a2-967d7a8c4efd"))
+    (pin "2"
+      (uuid "8b393da8-4258-5d0c-9aaf-28d53b0897ab"))
+    (pin "3"
+      (uuid "cb19a64c-6254-553e-9ed0-dcc0e7967f3f"))
+    (pin "4"
+      (uuid "6d4dae9f-38b3-531f-a6b5-85aa8ad6fc4d"))
+    (pin "5"
+      (uuid "62d681c8-6f1c-5294-bab7-dcb249b4c61f"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/a80fc131-4186-5f49-b8ab-b718c917e0d8"
+          (reference "Q2")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 134.62 63.5)
+      (xy 134.62 66.04))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "97f9139d-a6dd-5178-8e40-33107b17a00b"))
+  (global_label "GND"
+    (shape passive)
+    (at 134.62 66.04 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "f25f17d1-8155-520f-a09d-672bf1f8ae05")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 134.62 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 127 58.42)
+      (xy 124.46 58.42))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "95b3cba0-f72b-56f8-9c65-6b73979d782f"))
+  (global_label "GL_A"
+    (shape passive)
+    (at 124.46 58.42 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "444e3035-db1d-51e1-84f9-84d9a57162ae")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 124.46 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 134.62 53.34)
+      (xy 134.62 50.8))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "cdd3e8ae-f991-5d52-97fe-f8393779d851"))
+  (global_label "SW_A"
+    (shape passive)
+    (at 134.62 50.8 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "77a44048-3ce3-5279-81e3-626101c7d46c")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 134.62 50.8 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C")
+    (at 195.58 58.42 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "499805ea-ca16-5cd0-90dd-c4e7ff96fed4")
+    (property "Reference" "C11"
+      (at 195.58 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "2.2u/100V"
+      (at 195.58 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+      (at 195.58 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 195.58 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-1206"
+      (at 195.58 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "A 相半桥就近吸收"
+      (at 195.58 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "8fdf81fb-7b88-5d74-a301-88f692b676ea"))
+    (pin "2"
+      (uuid "57a6cff5-a3cf-5ed8-825f-be3ea58fc2c8"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/a80fc131-4186-5f49-b8ab-b718c917e0d8"
+          (reference "C11")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 195.58 54.61)
+      (xy 195.58 52.07))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "8121dba8-f6e7-5f90-a073-1790d4d3a4c6"))
+  (global_label "VBUS"
+    (shape passive)
+    (at 195.58 52.07 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "981093de-c8ce-50e0-90f9-31b67c8ab48e")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 195.58 52.07 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 195.58 62.23)
+      (xy 195.58 64.77))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "d13023b3-bd2b-5092-a501-6b63641a4975"))
+  (global_label "GND"
+    (shape passive)
+    (at 195.58 64.77 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "50ef19a4-bb1b-5c20-8813-a087d1309a6c")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 195.58 64.77 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Transistor_FET:BSC040N08NS5")
+    (at 259.08 58.42 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "9ce70177-16d3-5655-b265-8a05c79cdfb1")
+    (property "Reference" "Q3"
+      (at 259.08 50.8 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "BSC040N08NS5"
+      (at 259.08 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:TDSON-8-1"
+      (at 259.08 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 259.08 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "MOS-80V"
+      (at 259.08 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "B 相上管（示例选型）"
+      (at 259.08 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "3267030c-3ed5-55c5-97da-4c06876d1bea"))
+    (pin "2"
+      (uuid "f8a14e18-8499-5fa7-9efb-5735ce626b41"))
+    (pin "3"
+      (uuid "1f8152fb-4e74-5e84-a9d1-25053e988050"))
+    (pin "4"
+      (uuid "084835d5-f0fd-508f-b62e-d083bab2778a"))
+    (pin "5"
+      (uuid "f2c6cf0f-3ead-50c6-aa0f-cf50a4d284ee"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/a80fc131-4186-5f49-b8ab-b718c917e0d8"
+          (reference "Q3")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 261.62 63.5)
+      (xy 261.62 66.04))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "ff1c6137-2762-5da1-9c13-67d98153b6ba"))
+  (global_label "SW_B"
+    (shape passive)
+    (at 261.62 66.04 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "bfd4f702-2d97-5811-95b4-9aabca87ea2f")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 261.62 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 254 58.42)
+      (xy 251.46 58.42))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "6b713c3b-4a01-5ca5-b8d0-99003f0465b1"))
+  (global_label "GH_B"
+    (shape passive)
+    (at 251.46 58.42 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "064d9f96-ec22-53f1-b5ba-de3af99eac64")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 251.46 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 261.62 53.34)
+      (xy 261.62 50.8))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "78b56bef-cff7-52e3-bd9f-6f666196b672"))
+  (global_label "VBUS"
+    (shape passive)
+    (at 261.62 50.8 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "5843907b-d08d-56a6-bc15-9af22fe79eb4")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 261.62 50.8 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Transistor_FET:BSC040N08NS5")
+    (at 327.66 58.42 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "c272eb3e-bbe1-5918-9680-2618ea92f065")
+    (property "Reference" "Q4"
+      (at 327.66 50.8 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "BSC040N08NS5"
+      (at 327.66 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:TDSON-8-1"
+      (at 327.66 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 327.66 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "MOS-80V"
+      (at 327.66 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "B 相下管"
+      (at 327.66 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "a2e1f2ef-c69f-5c6b-a7d3-e215712b9812"))
+    (pin "2"
+      (uuid "9e5375c8-4f66-52ba-aa78-bd1b308325d9"))
+    (pin "3"
+      (uuid "85a7bd3c-728d-5db6-8b6a-76d40b0dc6e6"))
+    (pin "4"
+      (uuid "78d38112-9831-55f5-8765-2f462564505b"))
+    (pin "5"
+      (uuid "4a0568da-df8d-5e16-830f-7cecb15fed7a"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/a80fc131-4186-5f49-b8ab-b718c917e0d8"
+          (reference "Q4")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 330.2 63.5)
+      (xy 330.2 66.04))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "3504d18c-5ecb-5f19-ae51-ced2f920baea"))
+  (global_label "GND"
+    (shape passive)
+    (at 330.2 66.04 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "17a97637-9f07-5d87-b3ca-dd6a77411b59")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 330.2 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 322.58 58.42)
+      (xy 320.04 58.42))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "5de69d76-0d7e-597d-8b39-40270eb18878"))
+  (global_label "GL_B"
+    (shape passive)
+    (at 320.04 58.42 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "b20e5235-cbc2-59fb-9a6c-ea7040698556")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 320.04 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 330.2 53.34)
+      (xy 330.2 50.8))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "39e7d471-e971-5923-bfff-ec82fe3a7221"))
+  (global_label "SW_B"
+    (shape passive)
+    (at 330.2 50.8 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "32e207b8-b6fb-5fba-816c-97b4746997f2")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 330.2 50.8 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C")
+    (at 60.96 96.52 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "784848b8-e283-511e-8700-8b6375f09fc6")
+    (property "Reference" "C12"
+      (at 60.96 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "2.2u/100V"
+      (at 60.96 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+      (at 60.96 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 60.96 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-1206"
+      (at 60.96 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "B 相半桥就近吸收"
+      (at 60.96 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "5de45a04-c50c-544e-9728-074760dcf3c7"))
+    (pin "2"
+      (uuid "9e639cb2-f492-5b4a-b1cf-8ec096dce7fc"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/a80fc131-4186-5f49-b8ab-b718c917e0d8"
+          (reference "C12")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 60.96 92.71)
+      (xy 60.96 90.17))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "aff1696a-48bb-5fb4-88ee-4c86c57d23d1"))
+  (global_label "VBUS"
+    (shape passive)
+    (at 60.96 90.17 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "03c5bccd-c6e4-5362-8139-79575e401194")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 90.17 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 60.96 100.33)
+      (xy 60.96 102.87))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "52aec3ee-c05b-5b82-8f98-7c4e6da204af"))
+  (global_label "GND"
+    (shape passive)
+    (at 60.96 102.87 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "a0a50808-dbfa-5d8f-8b2c-67146117e8f4")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Transistor_FET:BSC040N08NS5")
+    (at 124.46 96.52 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "930a52cd-a43d-5c02-8506-a2d2684307a4")
+    (property "Reference" "Q5"
+      (at 124.46 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "BSC040N08NS5"
+      (at 124.46 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:TDSON-8-1"
+      (at 124.46 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 124.46 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "MOS-80V"
+      (at 124.46 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "C 相上管（示例选型）"
+      (at 124.46 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "b52344e5-24ce-5c3a-9fee-f59388cac39b"))
+    (pin "2"
+      (uuid "7d5d79b5-9c77-5901-94bd-c74a00d77c13"))
+    (pin "3"
+      (uuid "9252186a-90dd-53be-b47c-dc707be4ed6e"))
+    (pin "4"
+      (uuid "638a0a28-a097-5cce-b15b-95d497592ced"))
+    (pin "5"
+      (uuid "e9619f69-fed1-5355-aa57-79def21d0777"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/a80fc131-4186-5f49-b8ab-b718c917e0d8"
+          (reference "Q5")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 127 101.6)
+      (xy 127 104.14))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "b65c55df-024b-5793-8796-eaa477ca2928"))
+  (global_label "SW_C"
+    (shape passive)
+    (at 127 104.14 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "32be06fa-7acf-575b-8a75-0da6d395c1d9")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 127 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 119.38 96.52)
+      (xy 116.84 96.52))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "490a35f9-ae3b-52c9-b8a9-c2f2103bfcba"))
+  (global_label "GH_C"
+    (shape passive)
+    (at 116.84 96.52 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "09a39f92-7c58-52e3-99b0-6c586a68aa2c")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 116.84 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 127 91.44)
+      (xy 127 88.9))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "d0dd3fbd-6fc0-5f78-8477-ccbac3552c91"))
+  (global_label "VBUS"
+    (shape passive)
+    (at 127 88.9 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "c6b7e2cf-ea23-5886-bc54-c07817c41fca")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 127 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Transistor_FET:BSC040N08NS5")
+    (at 193.04 96.52 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "238c4c72-f42e-58a9-baf7-cded6cc9d36d")
+    (property "Reference" "Q6"
+      (at 193.04 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "BSC040N08NS5"
+      (at 193.04 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:TDSON-8-1"
+      (at 193.04 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 193.04 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "MOS-80V"
+      (at 193.04 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "C 相下管"
+      (at 193.04 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "d62b524a-17a8-5d57-8656-33a93e21705a"))
+    (pin "2"
+      (uuid "1695f2df-c168-5c79-94fa-f92302ac8a3c"))
+    (pin "3"
+      (uuid "a379091c-808c-513d-91b6-6059482e8e03"))
+    (pin "4"
+      (uuid "01e7df89-5398-5037-9b2f-edff3c3031bb"))
+    (pin "5"
+      (uuid "e271ae78-26ff-59c8-ab64-4ad3b836b2ce"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/a80fc131-4186-5f49-b8ab-b718c917e0d8"
+          (reference "Q6")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 195.58 101.6)
+      (xy 195.58 104.14))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "9971dae1-f44e-5a5f-afe1-fbaab53207dc"))
+  (global_label "GND"
+    (shape passive)
+    (at 195.58 104.14 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "85612b90-0f55-53c2-a511-bec3d286d00c")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 195.58 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 187.96 96.52)
+      (xy 185.42 96.52))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "8ada6cb4-7e23-5f43-b21c-bb0b410649ad"))
+  (global_label "GL_C"
+    (shape passive)
+    (at 185.42 96.52 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "e21991cb-5b77-5abf-ab6e-9cfaa28b7ad6")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 185.42 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 195.58 91.44)
+      (xy 195.58 88.9))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "a40fca9d-666c-5f4a-a475-5e0a04518909"))
+  (global_label "SW_C"
+    (shape passive)
+    (at 195.58 88.9 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "ae2731cb-e137-5bf4-8dad-3086f17196b3")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 195.58 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C")
+    (at 254 96.52 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "f8c301ec-749e-526f-9467-839444313e51")
+    (property "Reference" "C13"
+      (at 254 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "2.2u/100V"
+      (at 254 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+      (at 254 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 254 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-1206"
+      (at 254 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "C 相半桥就近吸收"
+      (at 254 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "76a653d5-fbbb-5c85-91cf-a542fe0cfaac"))
+    (pin "2"
+      (uuid "368ad27d-e55b-5504-a981-a1ce23c0c218"))
+    (instances
+      (project "drv-joint"
+        (path "/0b6efc3d-4074-58b1-95cc-644f877ce531/a80fc131-4186-5f49-b8ab-b718c917e0d8"
+          (reference "C13")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 254 92.71)
+      (xy 254 90.17))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "97161a63-3beb-546d-9cba-be8685420988"))
+  (global_label "VBUS"
+    (shape passive)
+    (at 254 90.17 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "682908e4-ba20-5fe8-85fb-c9d871b13d31")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 254 90.17 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 254 100.33)
+      (xy 254 102.87))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "fc5bc2b8-5c8b-5529-a6cb-df2d0299664c"))
+  (global_label "GND"
+    (shape passive)
+    (at 254 102.87 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "e17cb57d-2f0d-575d-8ca1-72027577cc2b")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 254 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (text "三个半桥，每相上下两个 MOSFET（示例选型 BSC040N08NS5，80 V）；C11–C13 每相就近吸收开关电流。"
+    (at 30 22 0)
+    (effects
+      (font
+        (size 2 2))
+      (justify left))
+    (uuid "59d4ac22-c4c3-55ea-a0b4-a1738c2b0353")))

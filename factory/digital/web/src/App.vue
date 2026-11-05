@@ -90,6 +90,7 @@ const NAV = [
     { to: '/work/quality', label: '质量', role: 'quality' },
     { to: '/calib', label: '整机标定', role: 'quality', only: () => cfg.value.plant?.id === 'wenquest-robot' },   // 第 55 轮：机器人厂
     { to: '/lab28', label: '负载跑合', role: 'quality', only: () => cfg.value.plant?.id === 'wenquest-robot' },   // 第 58 轮：机器人厂
+    { to: '/fct', label: '功能测试台', role: 'quality', only: () => cfg.value.plant?.id === 'wenquest-pcb' },   // 第 88 轮：电路板厂
     { to: '/finance', label: '经营与财务', role: 'manager' },         // 第 18 轮 E7；第 19 轮并入原“经营与成本”
     { to: '/cost', label: '生产成本', role: 'manager', only: () => !demoPlant.value },   // 第 30 轮：企业工厂没有“经营与财务”，厂长看这里
   ] },
@@ -137,6 +138,7 @@ const apps = computed(() => [
   { name: '运动与动力', role: 'MBD', href: '/mbd', route: '/mbd' },
   { name: '电路分析', role: 'SPICE', href: '/circuit', route: '/circuit' },
   { name: '虚拟仪器', role: 'DAQ', href: '/instruments', route: '/instruments' },
+  { name: '电路板设计', role: 'EDA', href: '/pcb-design', route: '/pcb-design' },
   { name: '数控编程', role: 'CAM', href: '/cam', route: '/cam' },
   { name: '设计优化', role: 'OPT', href: '/opt', route: '/opt' },
   { name: '数字孪生', role: 'TWIN', href: '/twin', route: '/twin' },

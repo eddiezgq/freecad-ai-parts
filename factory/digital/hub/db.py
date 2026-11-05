@@ -73,6 +73,19 @@ create table if not exists task_result (
     evidence   jsonb,
     primary key (user_name, task_id)
 );
+-- 第 88 轮：电路板厂功能测试台的复测记录（写进这块板的单件档案，不改车间原始测量值）
+create table if not exists fct_retest (
+    id         bigserial primary key,
+    ts         timestamptz not null default now(),
+    mode       text not null,
+    user_name  text not null,
+    serial     text not null,
+    item       text,
+    readings   jsonb not null,
+    verdict    text not null,
+    check_rows jsonb
+);
+create index if not exists fct_retest_serial on fct_retest (serial);
 
 create table if not exists stored_file (
     sha256     text primary key,

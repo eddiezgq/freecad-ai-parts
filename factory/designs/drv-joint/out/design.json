@@ -1,0 +1,2336 @@
+{
+ "board_mm": [
+  100.0,
+  70.0
+ ],
+ "bom_by_item": {
+  "CAP-0402": 30,
+  "CAP-1206": 7,
+  "CAP-BULK": 1,
+  "CONN-PWR": 2,
+  "CONN-SIG": 3,
+  "DIO-SMD": 4,
+  "IC-AMP": 3,
+  "IC-BUCK": 1,
+  "IC-CAN": 1,
+  "IC-GDRV": 3,
+  "IC-LDO": 2,
+  "IC-MCU-MC": 1,
+  "IC-RS485": 2,
+  "IND-PWR": 1,
+  "MOS-80V": 6,
+  "RES-0402": 18,
+  "RES-SHUNT": 3,
+  "XTAL": 1
+ },
+ "date": "2026-11-05",
+ "dfm": {
+  "n": 10,
+  "pass": true
+ },
+ "disclaimer": "示例设计，未经硬件验证，不能直接投产",
+ "drc": {
+  "errors": 0,
+  "unconnected": 0,
+  "warnings": 76
+ },
+ "files": {
+  "bom.csv": "1752b94e1f401608",
+  "dfm.json": "b659fe44276de774",
+  "drc.json": "2fca3699ba58c188",
+  "gerber.zip": "0a9b2758f47e15f5",
+  "kicad-project.zip": "916c0e84aff9e308",
+  "pcb/B_Cu.svg": "f729b0ee983d76bb",
+  "pcb/B_Silk.svg": "bc34a0e15977ebad",
+  "pcb/F_Cu.svg": "bee88487b1bef9ef",
+  "pcb/F_Silk.svg": "158d1480ed0b86cd",
+  "pcb/In1_Cu.svg": "56e562707a223e8b",
+  "pcb/In2_Cu.svg": "a872dbe8350a4bd7",
+  "pos.csv": "97d12e540d8c960c",
+  "schematic/drv-joint-1 48 V 输入与母线.svg": "52a8c23596d379fb",
+  "schematic/drv-joint-2 辅助电源 12 _ 5 _ 3.3 V.svg": "5d2ab41a857785d3",
+  "schematic/drv-joint-3 三相桥.svg": "e3dc887396b594b3",
+  "schematic/drv-joint-4 栅极驱动.svg": "c17d5126af0181f8",
+  "schematic/drv-joint-5 相电流采样与电机输出.svg": "93a4566b9adaea71",
+  "schematic/drv-joint-6 MCU 与烧录口.svg": "ab14a0de0e28433e",
+  "schematic/drv-joint-7 编码器接口与 CAN.svg": "c2af64f2e9d45447",
+  "schematic/drv-joint.svg": "96aff9efa09f021e"
+ },
+ "item": "DRV-JOINT",
+ "layers": 4,
+ "name": "关节伺服驱动板 DRV-JOINT",
+ "nets": 73,
+ "parts": [
+  {
+   "fp": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2_1x02_P5.00mm_Horizontal",
+   "item": "CONN-PWR",
+   "lib": "Connector:Screw_Terminal_01x02",
+   "note": "",
+   "ref": "J1",
+   "sheet": "power",
+   "side": "F",
+   "value": "48V IN",
+   "xy": [
+    6,
+    6
+   ]
+  },
+  {
+   "fp": "NetTie:NetTie-2_SMD_Pad0.5mm",
+   "item": null,
+   "lib": "Device:NetTie_2",
+   "note": "辅助电源从母线单独引出",
+   "ref": "NT10",
+   "sheet": "power",
+   "side": "F",
+   "value": "NetTie",
+   "xy": [
+    17.75,
+    16.45
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:CP_Elec_16x17.5",
+   "item": "CAP-BULK",
+   "lib": "Device:C_Polarized",
+   "note": "母线电容（例题 3）",
+   "ref": "C1",
+   "sheet": "power",
+   "side": "F",
+   "value": "470u/63V",
+   "xy": [
+    24,
+    11
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "母线电压分压",
+   "ref": "R1",
+   "sheet": "power",
+   "side": "F",
+   "value": "51k",
+   "xy": [
+    21,
+    24
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R2",
+   "sheet": "power",
+   "side": "F",
+   "value": "51k",
+   "xy": [
+    24,
+    24
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R3",
+   "sheet": "power",
+   "side": "F",
+   "value": "6.8k",
+   "xy": [
+    27,
+    24
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C2",
+   "sheet": "power",
+   "side": "F",
+   "value": "10n",
+   "xy": [
+    27,
+    26
+   ]
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:SOT-23-6",
+   "item": "IC-BUCK",
+   "lib": "Regulator_Switching:LMR16006YQ",
+   "note": "48 V → 12 V 降压（示例选型）",
+   "ref": "U1",
+   "sheet": "aux",
+   "side": "F",
+   "value": "LMR16006YQ",
+   "xy": [
+    9,
+    30
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C3",
+   "sheet": "aux",
+   "side": "F",
+   "value": "2.2u/100V",
+   "xy": [
+    4,
+    30
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "使能上拉",
+   "ref": "R4",
+   "sheet": "aux",
+   "side": "F",
+   "value": "100k",
+   "xy": [
+    9,
+    26
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "自举电容",
+   "ref": "C4",
+   "sheet": "aux",
+   "side": "F",
+   "value": "100n",
+   "xy": [
+    12.5,
+    27
+   ]
+  },
+  {
+   "fp": "Diode_SMD:D_SMA",
+   "item": "DIO-SMD",
+   "lib": "Device:D_Schottky",
+   "note": "续流二极管",
+   "ref": "D1",
+   "sheet": "aux",
+   "side": "F",
+   "value": "60V 1A",
+   "xy": [
+    9,
+    36
+   ]
+  },
+  {
+   "fp": "Inductor_SMD:L_Bourns_SRN6045TA",
+   "item": "IND-PWR",
+   "lib": "Device:L",
+   "note": "",
+   "ref": "L1",
+   "sheet": "aux",
+   "side": "F",
+   "value": "22u",
+   "xy": [
+    18,
+    31
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "反馈上电阻",
+   "ref": "R5",
+   "sheet": "aux",
+   "side": "F",
+   "value": "147k",
+   "xy": [
+    14,
+    37
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "反馈下电阻",
+   "ref": "R6",
+   "sheet": "aux",
+   "side": "F",
+   "value": "10k",
+   "xy": [
+    16,
+    37
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C5",
+   "sheet": "aux",
+   "side": "F",
+   "value": "22u/25V",
+   "xy": [
+    23.5,
+    32
+   ]
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:SOT-223-3_TabPin2",
+   "item": "IC-LDO",
+   "lib": "Regulator_Linear:AMS1117-5.0",
+   "note": "",
+   "ref": "U2",
+   "sheet": "aux",
+   "side": "F",
+   "value": "AMS1117-5.0",
+   "xy": [
+    9,
+    46
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C6",
+   "sheet": "aux",
+   "side": "F",
+   "value": "10u/25V",
+   "xy": [
+    16,
+    46
+   ]
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:SOT-223-3_TabPin2",
+   "item": "IC-LDO",
+   "lib": "Regulator_Linear:AMS1117-3.3",
+   "note": "",
+   "ref": "U3",
+   "sheet": "aux",
+   "side": "F",
+   "value": "AMS1117-3.3",
+   "xy": [
+    9,
+    57
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C7",
+   "sheet": "aux",
+   "side": "F",
+   "value": "10u/25V",
+   "xy": [
+    16,
+    57
+   ]
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:TDSON-8-1",
+   "item": "MOS-80V",
+   "lib": "Transistor_FET:BSC040N08NS5",
+   "note": "A 相上管（示例选型）",
+   "ref": "Q1",
+   "sheet": "bridge",
+   "side": "F",
+   "value": "BSC040N08NS5",
+   "xy": [
+    44.0,
+    7
+   ]
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:TDSON-8-1",
+   "item": "MOS-80V",
+   "lib": "Transistor_FET:BSC040N08NS5",
+   "note": "A 相下管",
+   "ref": "Q2",
+   "sheet": "bridge",
+   "side": "F",
+   "value": "BSC040N08NS5",
+   "xy": [
+    44.0,
+    15.5
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206",
+   "lib": "Device:C",
+   "note": "A 相半桥就近吸收",
+   "ref": "C11",
+   "sheet": "bridge",
+   "side": "F",
+   "value": "2.2u/100V",
+   "xy": [
+    37.7,
+    9.5
+   ]
+  },
+  {
+   "fp": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+   "item": "IC-GDRV",
+   "lib": "Driver_FET:IR2101",
+   "note": "A 相半桥驱动（示例选型）",
+   "ref": "U4",
+   "sheet": "gate",
+   "side": "F",
+   "value": "IR2101S",
+   "xy": [
+    44.0,
+    31
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "栅极电阻（例题 2）",
+   "ref": "R10",
+   "sheet": "gate",
+   "side": "F",
+   "value": "10",
+   "xy": [
+    41.0,
+    36.5
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R11",
+   "sheet": "gate",
+   "side": "F",
+   "value": "10",
+   "xy": [
+    42.5,
+    36.5
+   ]
+  },
+  {
+   "fp": "Diode_SMD:D_SOD-123",
+   "item": "DIO-SMD",
+   "lib": "Device:D_Schottky",
+   "note": "自举二极管",
+   "ref": "D2",
+   "sheet": "gate",
+   "side": "F",
+   "value": "100V 1A",
+   "xy": [
+    46.0,
+    37
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "自举电容",
+   "ref": "C21",
+   "sheet": "gate",
+   "side": "F",
+   "value": "1u/25V",
+   "xy": [
+    48.5,
+    37
+   ]
+  },
+  {
+   "fp": "NetTie:NetTie-2_SMD_Pad0.5mm",
+   "item": null,
+   "lib": "Device:NetTie_2",
+   "note": "A 相驱动参考点 VS 从采样电阻焊盘单独引出",
+   "ref": "NT7",
+   "sheet": "gate",
+   "side": "F",
+   "value": "NetTie",
+   "xy": [
+    39.88,
+    24.95
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C24",
+   "sheet": "gate",
+   "side": "F",
+   "value": "1u/25V",
+   "xy": [
+    38.5,
+    31
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_2512_6332Metric",
+   "item": "RES-SHUNT",
+   "lib": "Device:R",
+   "note": "A 相采样电阻（例题 1），两端开尔文引线到 INA240",
+   "ref": "R21",
+   "sheet": "sense",
+   "side": "F",
+   "value": "2m 1%",
+   "xy": [
+    44.0,
+    23.5
+   ]
+  },
+  {
+   "fp": "NetTie:NetTie-2_SMD_Pad0.5mm",
+   "item": null,
+   "lib": "Device:NetTie_2",
+   "note": "开尔文引线（采样电阻电源端）",
+   "ref": "NT1",
+   "sheet": "sense",
+   "side": "F",
+   "value": "NetTie",
+   "xy": [
+    41.04,
+    25.85
+   ]
+  },
+  {
+   "fp": "NetTie:NetTie-2_SMD_Pad0.5mm",
+   "item": null,
+   "lib": "Device:NetTie_2",
+   "note": "开尔文引线（采样电阻电机端）",
+   "ref": "NT2",
+   "sheet": "sense",
+   "side": "F",
+   "value": "NetTie",
+   "xy": [
+    46.96,
+    25.85
+   ]
+  },
+  {
+   "fp": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+   "item": "IC-AMP",
+   "lib": "Amplifier_Current:INA240A1D",
+   "note": "A 相电流采样放大 20 倍（示例选型）",
+   "ref": "U7",
+   "sheet": "sense",
+   "side": "F",
+   "value": "INA240A1D",
+   "xy": [
+    44.0,
+    44
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C27",
+   "sheet": "sense",
+   "side": "F",
+   "value": "100n",
+   "xy": [
+    38.5,
+    44
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "ADC 抗混叠",
+   "ref": "C30",
+   "sheet": "sense",
+   "side": "F",
+   "value": "1n",
+   "xy": [
+    49.5,
+    44
+   ]
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:TDSON-8-1",
+   "item": "MOS-80V",
+   "lib": "Transistor_FET:BSC040N08NS5",
+   "note": "B 相上管（示例选型）",
+   "ref": "Q3",
+   "sheet": "bridge",
+   "side": "F",
+   "value": "BSC040N08NS5",
+   "xy": [
+    60.0,
+    7
+   ]
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:TDSON-8-1",
+   "item": "MOS-80V",
+   "lib": "Transistor_FET:BSC040N08NS5",
+   "note": "B 相下管",
+   "ref": "Q4",
+   "sheet": "bridge",
+   "side": "F",
+   "value": "BSC040N08NS5",
+   "xy": [
+    60.0,
+    15.5
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206",
+   "lib": "Device:C",
+   "note": "B 相半桥就近吸收",
+   "ref": "C12",
+   "sheet": "bridge",
+   "side": "F",
+   "value": "2.2u/100V",
+   "xy": [
+    53.7,
+    9.5
+   ]
+  },
+  {
+   "fp": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+   "item": "IC-GDRV",
+   "lib": "Driver_FET:IR2101",
+   "note": "B 相半桥驱动（示例选型）",
+   "ref": "U5",
+   "sheet": "gate",
+   "side": "F",
+   "value": "IR2101S",
+   "xy": [
+    60.0,
+    31
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "栅极电阻（例题 2）",
+   "ref": "R12",
+   "sheet": "gate",
+   "side": "F",
+   "value": "10",
+   "xy": [
+    57.0,
+    36.5
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R13",
+   "sheet": "gate",
+   "side": "F",
+   "value": "10",
+   "xy": [
+    58.5,
+    36.5
+   ]
+  },
+  {
+   "fp": "Diode_SMD:D_SOD-123",
+   "item": "DIO-SMD",
+   "lib": "Device:D_Schottky",
+   "note": "自举二极管",
+   "ref": "D3",
+   "sheet": "gate",
+   "side": "F",
+   "value": "100V 1A",
+   "xy": [
+    62.0,
+    37
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "自举电容",
+   "ref": "C22",
+   "sheet": "gate",
+   "side": "F",
+   "value": "1u/25V",
+   "xy": [
+    64.5,
+    37
+   ]
+  },
+  {
+   "fp": "NetTie:NetTie-2_SMD_Pad0.5mm",
+   "item": null,
+   "lib": "Device:NetTie_2",
+   "note": "B 相驱动参考点 VS 从采样电阻焊盘单独引出",
+   "ref": "NT8",
+   "sheet": "gate",
+   "side": "F",
+   "value": "NetTie",
+   "xy": [
+    55.88,
+    24.95
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C25",
+   "sheet": "gate",
+   "side": "F",
+   "value": "1u/25V",
+   "xy": [
+    54.5,
+    31
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_2512_6332Metric",
+   "item": "RES-SHUNT",
+   "lib": "Device:R",
+   "note": "B 相采样电阻（例题 1），两端开尔文引线到 INA240",
+   "ref": "R22",
+   "sheet": "sense",
+   "side": "F",
+   "value": "2m 1%",
+   "xy": [
+    60.0,
+    23.5
+   ]
+  },
+  {
+   "fp": "NetTie:NetTie-2_SMD_Pad0.5mm",
+   "item": null,
+   "lib": "Device:NetTie_2",
+   "note": "开尔文引线（采样电阻电源端）",
+   "ref": "NT3",
+   "sheet": "sense",
+   "side": "F",
+   "value": "NetTie",
+   "xy": [
+    57.04,
+    25.85
+   ]
+  },
+  {
+   "fp": "NetTie:NetTie-2_SMD_Pad0.5mm",
+   "item": null,
+   "lib": "Device:NetTie_2",
+   "note": "开尔文引线（采样电阻电机端）",
+   "ref": "NT4",
+   "sheet": "sense",
+   "side": "F",
+   "value": "NetTie",
+   "xy": [
+    62.96,
+    25.85
+   ]
+  },
+  {
+   "fp": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+   "item": "IC-AMP",
+   "lib": "Amplifier_Current:INA240A1D",
+   "note": "B 相电流采样放大 20 倍（示例选型）",
+   "ref": "U8",
+   "sheet": "sense",
+   "side": "F",
+   "value": "INA240A1D",
+   "xy": [
+    60.0,
+    44
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C28",
+   "sheet": "sense",
+   "side": "F",
+   "value": "100n",
+   "xy": [
+    54.5,
+    44
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "ADC 抗混叠",
+   "ref": "C31",
+   "sheet": "sense",
+   "side": "F",
+   "value": "1n",
+   "xy": [
+    65.5,
+    44
+   ]
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:TDSON-8-1",
+   "item": "MOS-80V",
+   "lib": "Transistor_FET:BSC040N08NS5",
+   "note": "C 相上管（示例选型）",
+   "ref": "Q5",
+   "sheet": "bridge",
+   "side": "F",
+   "value": "BSC040N08NS5",
+   "xy": [
+    76.0,
+    7
+   ]
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:TDSON-8-1",
+   "item": "MOS-80V",
+   "lib": "Transistor_FET:BSC040N08NS5",
+   "note": "C 相下管",
+   "ref": "Q6",
+   "sheet": "bridge",
+   "side": "F",
+   "value": "BSC040N08NS5",
+   "xy": [
+    76.0,
+    15.5
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206",
+   "lib": "Device:C",
+   "note": "C 相半桥就近吸收",
+   "ref": "C13",
+   "sheet": "bridge",
+   "side": "F",
+   "value": "2.2u/100V",
+   "xy": [
+    69.7,
+    9.5
+   ]
+  },
+  {
+   "fp": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+   "item": "IC-GDRV",
+   "lib": "Driver_FET:IR2101",
+   "note": "C 相半桥驱动（示例选型）",
+   "ref": "U6",
+   "sheet": "gate",
+   "side": "F",
+   "value": "IR2101S",
+   "xy": [
+    76.0,
+    31
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "栅极电阻（例题 2）",
+   "ref": "R14",
+   "sheet": "gate",
+   "side": "F",
+   "value": "10",
+   "xy": [
+    73.0,
+    36.5
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R15",
+   "sheet": "gate",
+   "side": "F",
+   "value": "10",
+   "xy": [
+    74.5,
+    36.5
+   ]
+  },
+  {
+   "fp": "Diode_SMD:D_SOD-123",
+   "item": "DIO-SMD",
+   "lib": "Device:D_Schottky",
+   "note": "自举二极管",
+   "ref": "D4",
+   "sheet": "gate",
+   "side": "F",
+   "value": "100V 1A",
+   "xy": [
+    78.0,
+    37
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "自举电容",
+   "ref": "C23",
+   "sheet": "gate",
+   "side": "F",
+   "value": "1u/25V",
+   "xy": [
+    80.5,
+    37
+   ]
+  },
+  {
+   "fp": "NetTie:NetTie-2_SMD_Pad0.5mm",
+   "item": null,
+   "lib": "Device:NetTie_2",
+   "note": "C 相驱动参考点 VS 从采样电阻焊盘单独引出",
+   "ref": "NT9",
+   "sheet": "gate",
+   "side": "F",
+   "value": "NetTie",
+   "xy": [
+    71.88,
+    24.95
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C26",
+   "sheet": "gate",
+   "side": "F",
+   "value": "1u/25V",
+   "xy": [
+    70.5,
+    31
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_2512_6332Metric",
+   "item": "RES-SHUNT",
+   "lib": "Device:R",
+   "note": "C 相采样电阻（例题 1），两端开尔文引线到 INA240",
+   "ref": "R23",
+   "sheet": "sense",
+   "side": "F",
+   "value": "2m 1%",
+   "xy": [
+    76.0,
+    23.5
+   ]
+  },
+  {
+   "fp": "NetTie:NetTie-2_SMD_Pad0.5mm",
+   "item": null,
+   "lib": "Device:NetTie_2",
+   "note": "开尔文引线（采样电阻电源端）",
+   "ref": "NT5",
+   "sheet": "sense",
+   "side": "F",
+   "value": "NetTie",
+   "xy": [
+    73.04,
+    25.85
+   ]
+  },
+  {
+   "fp": "NetTie:NetTie-2_SMD_Pad0.5mm",
+   "item": null,
+   "lib": "Device:NetTie_2",
+   "note": "开尔文引线（采样电阻电机端）",
+   "ref": "NT6",
+   "sheet": "sense",
+   "side": "F",
+   "value": "NetTie",
+   "xy": [
+    78.96,
+    25.85
+   ]
+  },
+  {
+   "fp": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+   "item": "IC-AMP",
+   "lib": "Amplifier_Current:INA240A1D",
+   "note": "C 相电流采样放大 20 倍（示例选型）",
+   "ref": "U9",
+   "sheet": "sense",
+   "side": "F",
+   "value": "INA240A1D",
+   "xy": [
+    76.0,
+    44
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C29",
+   "sheet": "sense",
+   "side": "F",
+   "value": "100n",
+   "xy": [
+    70.5,
+    44
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "ADC 抗混叠",
+   "ref": "C32",
+   "sheet": "sense",
+   "side": "F",
+   "value": "1n",
+   "xy": [
+    81.5,
+    44
+   ]
+  },
+  {
+   "fp": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-3_1x03_P5.00mm_Horizontal",
+   "item": "CONN-PWR",
+   "lib": "Connector:Screw_Terminal_01x03",
+   "note": "",
+   "ref": "J2",
+   "sheet": "sense",
+   "side": "F",
+   "value": "MOTOR UVW",
+   "xy": [
+    93.5,
+    7
+   ]
+  },
+  {
+   "fp": "Package_QFP:LQFP-48_7x7mm_P0.5mm",
+   "item": "IC-MCU-MC",
+   "lib": "MCU_ST_STM32G4:STM32G431CBTx",
+   "note": "电机控制 MCU（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线、TIM3 编码器、SPI1 读 SSI、FDCAN1",
+   "ref": "U10",
+   "sheet": "mcu",
+   "side": "F",
+   "value": "STM32G431CBT6",
+   "xy": [
+    40,
+    58
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C40",
+   "sheet": "mcu",
+   "side": "F",
+   "value": "100n",
+   "xy": [
+    33.3,
+    54
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C41",
+   "sheet": "mcu",
+   "side": "F",
+   "value": "100n",
+   "xy": [
+    46.7,
+    54
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C42",
+   "sheet": "mcu",
+   "side": "F",
+   "value": "100n",
+   "xy": [
+    46.7,
+    62
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C43",
+   "sheet": "mcu",
+   "side": "F",
+   "value": "100n",
+   "xy": [
+    33.3,
+    58
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C44",
+   "sheet": "mcu",
+   "side": "F",
+   "value": "4.7u",
+   "xy": [
+    40,
+    65.5
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "VDDA",
+   "ref": "C45",
+   "sheet": "mcu",
+   "side": "F",
+   "value": "1u",
+   "xy": [
+    40,
+    50.5
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C46",
+   "sheet": "mcu",
+   "side": "F",
+   "value": "100n",
+   "xy": [
+    36,
+    66
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "BOOT0 下拉",
+   "ref": "R30",
+   "sheet": "mcu",
+   "side": "F",
+   "value": "10k",
+   "xy": [
+    44,
+    66
+   ]
+  },
+  {
+   "fp": "Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm",
+   "item": "XTAL",
+   "lib": "Device:Crystal_GND24",
+   "note": "",
+   "ref": "Y1",
+   "sheet": "mcu",
+   "side": "F",
+   "value": "8MHz",
+   "xy": [
+    31,
+    63
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C47",
+   "sheet": "mcu",
+   "side": "F",
+   "value": "10p",
+   "xy": [
+    28,
+    60
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C48",
+   "sheet": "mcu",
+   "side": "F",
+   "value": "10p",
+   "xy": [
+    28,
+    66
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "烧录口（烧录工位 PG-1 的弹簧针夹具）",
+   "ref": "TP1",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "SWDIO",
+   "xy": [
+    8.0,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "烧录口",
+   "ref": "TP2",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "SWCLK",
+   "xy": [
+    10.8,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "烧录口",
+   "ref": "TP3",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "NRST",
+   "xy": [
+    13.6,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "烧录口供电",
+   "ref": "TP4",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "+3V3",
+   "xy": [
+    16.4,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "烧录口地",
+   "ref": "TP5",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "GND",
+   "xy": [
+    19.2,
+    41.0
+   ]
+  },
+  {
+   "fp": "Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical",
+   "item": "CONN-SIG",
+   "lib": "Connector_Generic:Conn_01x05",
+   "note": "A/B/Z（2500 线，示例）",
+   "ref": "J3",
+   "sheet": "io",
+   "side": "F",
+   "value": "ENC ABZ",
+   "xy": [
+    52,
+    64.5
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "编码器滤波（例题 4）",
+   "ref": "R31",
+   "sheet": "io",
+   "side": "F",
+   "value": "1k",
+   "xy": [
+    50,
+    53
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C50",
+   "sheet": "io",
+   "side": "F",
+   "value": "220p",
+   "xy": [
+    53,
+    53
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "编码器滤波（例题 4）",
+   "ref": "R32",
+   "sheet": "io",
+   "side": "F",
+   "value": "1k",
+   "xy": [
+    50,
+    55
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C51",
+   "sheet": "io",
+   "side": "F",
+   "value": "220p",
+   "xy": [
+    53,
+    55
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "编码器滤波（例题 4）",
+   "ref": "R33",
+   "sheet": "io",
+   "side": "F",
+   "value": "1k",
+   "xy": [
+    50,
+    57
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C52",
+   "sheet": "io",
+   "side": "F",
+   "value": "220p",
+   "xy": [
+    53,
+    57
+   ]
+  },
+  {
+   "fp": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+   "item": "IC-RS485",
+   "lib": "Interface_UART:MAX3485",
+   "note": "SSI 时钟发送（示例选型）",
+   "ref": "U11",
+   "sheet": "io",
+   "side": "F",
+   "value": "MAX3485",
+   "xy": [
+    62,
+    54
+   ]
+  },
+  {
+   "fp": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+   "item": "IC-RS485",
+   "lib": "Interface_UART:MAX3485",
+   "note": "SSI 数据接收",
+   "ref": "U12",
+   "sheet": "io",
+   "side": "F",
+   "value": "MAX3485",
+   "xy": [
+    73,
+    54
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C53",
+   "sheet": "io",
+   "side": "F",
+   "value": "100n",
+   "xy": [
+    66.5,
+    50.5
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C54",
+   "sheet": "io",
+   "side": "F",
+   "value": "100n",
+   "xy": [
+    77.5,
+    50.5
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "终端电阻",
+   "ref": "R34",
+   "sheet": "io",
+   "side": "F",
+   "value": "120",
+   "xy": [
+    77.5,
+    57.5
+   ]
+  },
+  {
+   "fp": "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical",
+   "item": "CONN-SIG",
+   "lib": "Connector_Generic:Conn_01x06",
+   "note": "输出端绝对值编码器",
+   "ref": "J4",
+   "sheet": "io",
+   "side": "F",
+   "value": "ENC SSI",
+   "xy": [
+    70,
+    64.5
+   ]
+  },
+  {
+   "fp": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+   "item": "IC-CAN",
+   "lib": "Interface_CAN_LIN:MCP2562-E-SN",
+   "note": "CAN 收发（示例选型）",
+   "ref": "U13",
+   "sheet": "io",
+   "side": "F",
+   "value": "MCP2562-E/SN",
+   "xy": [
+    85,
+    54
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C55",
+   "sheet": "io",
+   "side": "F",
+   "value": "100n",
+   "xy": [
+    89,
+    50.5
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C56",
+   "sheet": "io",
+   "side": "F",
+   "value": "100n",
+   "xy": [
+    89,
+    57.5
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "CAN 终端电阻",
+   "ref": "R35",
+   "sheet": "io",
+   "side": "F",
+   "value": "120",
+   "xy": [
+    85,
+    58.5
+   ]
+  },
+  {
+   "fp": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+   "item": "CONN-SIG",
+   "lib": "Connector_Generic:Conn_01x04",
+   "note": "",
+   "ref": "J5",
+   "sheet": "io",
+   "side": "F",
+   "value": "CAN",
+   "xy": [
+    95,
+    40
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP10",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "+12V",
+   "xy": [
+    22.0,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP11",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "BOOT0",
+   "xy": [
+    24.8,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP12",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "CAN_RXD",
+   "xy": [
+    27.6,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP13",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "CAN_TXD",
+   "xy": [
+    30.4,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP14",
+   "sheet": "power",
+   "side": "B",
+   "value": "EN12",
+   "xy": [
+    33.2,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP15",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "ENC_A_F",
+   "xy": [
+    36.0,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP16",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "ENC_B_F",
+   "xy": [
+    38.8,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP17",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "ENC_Z_F",
+   "xy": [
+    41.6,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP18",
+   "sheet": "power",
+   "side": "B",
+   "value": "FB12",
+   "xy": [
+    44.4,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP19",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "GH_A",
+   "xy": [
+    47.2,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP20",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "GH_B",
+   "xy": [
+    50.0,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP21",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "GH_C",
+   "xy": [
+    52.8,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP22",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "GL_A",
+   "xy": [
+    55.6,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP23",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "GL_B",
+   "xy": [
+    58.4,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP24",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "GL_C",
+   "xy": [
+    61.2,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP25",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "HO_A",
+   "xy": [
+    64.0,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP26",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "HO_B",
+   "xy": [
+    66.8,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP27",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "HO_C",
+   "xy": [
+    69.6,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP28",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "ISNS_A",
+   "xy": [
+    72.4,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP29",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "ISNS_B",
+   "xy": [
+    75.2,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP30",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "ISNS_C",
+   "xy": [
+    78.0,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP31",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "LO_A",
+   "xy": [
+    80.8,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP32",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "LO_B",
+   "xy": [
+    83.6,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP33",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "LO_C",
+   "xy": [
+    86.4,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP34",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "OSC_IN",
+   "xy": [
+    89.2,
+    41.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP35",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "OSC_OUT",
+   "xy": [
+    8.0,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP36",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "PWM_AH",
+   "xy": [
+    10.8,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP37",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "PWM_AL",
+   "xy": [
+    13.6,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP38",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "PWM_BH",
+   "xy": [
+    16.4,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP39",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "PWM_BL",
+   "xy": [
+    19.2,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP40",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "PWM_CH",
+   "xy": [
+    22.0,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP41",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "PWM_CL",
+   "xy": [
+    24.8,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP42",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "SNSN_A",
+   "xy": [
+    27.6,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP43",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "SNSN_B",
+   "xy": [
+    30.4,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP44",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "SNSN_C",
+   "xy": [
+    33.2,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP45",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "SNSP_A",
+   "xy": [
+    36.0,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP46",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "SNSP_B",
+   "xy": [
+    38.8,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP47",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "SNSP_C",
+   "xy": [
+    41.6,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP48",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "SSI_CLK",
+   "xy": [
+    44.4,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP49",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "SSI_DATA",
+   "xy": [
+    47.2,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP50",
+   "sheet": "power",
+   "side": "B",
+   "value": "SW12",
+   "xy": [
+    50.0,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP51",
+   "sheet": "power",
+   "side": "B",
+   "value": "SW_CB",
+   "xy": [
+    52.8,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP52",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "VBUS_AUX",
+   "xy": [
+    55.6,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP53",
+   "sheet": "power",
+   "side": "B",
+   "value": "VBUS_SNS",
+   "xy": [
+    58.4,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP54",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "VB_A",
+   "xy": [
+    61.2,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP55",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "VB_B",
+   "xy": [
+    64.0,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP56",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "VB_C",
+   "xy": [
+    66.8,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP57",
+   "sheet": "power",
+   "side": "B",
+   "value": "VB_MID",
+   "xy": [
+    69.6,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP58",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "VS_A",
+   "xy": [
+    72.4,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP59",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "VS_B",
+   "xy": [
+    75.2,
+    44.5
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP60",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "VS_C",
+   "xy": [
+    78.0,
+    44.5
+   ]
+  }
+ ],
+ "pcb_layers": [
+  {
+   "key": "F_Cu",
+   "name": "顶层铜",
+   "svg": "F_Cu.svg"
+  },
+  {
+   "key": "In1_Cu",
+   "name": "内层 1（地平面）",
+   "svg": "In1_Cu.svg"
+  },
+  {
+   "key": "In2_Cu",
+   "name": "内层 2",
+   "svg": "In2_Cu.svg"
+  },
+  {
+   "key": "B_Cu",
+   "name": "底层铜",
+   "svg": "B_Cu.svg"
+  },
+  {
+   "key": "F_Silk",
+   "name": "顶面丝印与装配",
+   "svg": "F_Silk.svg"
+  },
+  {
+   "key": "B_Silk",
+   "name": "底面丝印与装配",
+   "svg": "B_Silk.svg"
+  }
+ ],
+ "rev": "示例 A",
+ "root_svg": "drv-joint.svg",
+ "sheets": [
+  {
+   "key": "power",
+   "name": "48 V 输入与母线",
+   "name_en": "48 V input and DC bus",
+   "note": "48 V 从 J1 进；母线电容 C1 470 μF / 63 V（例题 3）；R1、R2、R3 分压给 MCU 测母线电压（48 V → 3.0 V）。示例设计，未经硬件验证。",
+   "svg": "drv-joint-1 48 V 输入与母线.svg"
+  },
+  {
+   "key": "aux",
+   "name": "辅助电源 12 / 5 / 3.3 V",
+   "name_en": "Auxiliary supplies",
+   "note": "U1 LMR16006Y 把 48 V 降到 12 V（栅极驱动用），U2、U3 线性稳压出 5 V（编码器、CAN）和 3.3 V（MCU、采样放大）。L1 22 μH、反馈 147 k / 10 k 的算法见设计说明。",
+   "svg": "drv-joint-2 辅助电源 12 _ 5 _ 3.3 V.svg"
+  },
+  {
+   "key": "bridge",
+   "name": "三相桥",
+   "name_en": "Three-phase bridge",
+   "note": "三个半桥，每相上下两个 MOSFET（示例选型 BSC040N08NS5，80 V）；C11–C13 每相就近吸收开关电流。",
+   "svg": "drv-joint-3 三相桥.svg"
+  },
+  {
+   "key": "gate",
+   "name": "栅极驱动",
+   "name_en": "Gate drivers",
+   "note": "每相一片半桥驱动 IR2101S：上管靠自举（D、C 1 μF）供电；栅极电阻 10 Ω（例题 2）；死区由 MCU 定时器给。",
+   "svg": "drv-joint-4 栅极驱动.svg"
+  },
+  {
+   "key": "sense",
+   "name": "相电流采样与电机输出",
+   "name_en": "Phase current sensing",
+   "note": "相线上串 2 mΩ 采样电阻（R21–R23），INA240A1 放大 20 倍：40 mV/A，零点 1.65 V，量程 ±41 A（例题 1）。J2 接电机三相。",
+   "svg": "drv-joint-5 相电流采样与电机输出.svg"
+  },
+  {
+   "key": "mcu",
+   "name": "MCU 与烧录口",
+   "name_en": "MCU and programming",
+   "note": "STM32G431（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线电压、TIM3 编码器、SPI1 读 SSI、FDCAN1；8 MHz 晶振；TP1–TP5 是烧录口和电源测试点。",
+   "svg": "drv-joint-6 MCU 与烧录口.svg"
+  },
+  {
+   "key": "io",
+   "name": "编码器接口与 CAN",
+   "name_en": "Encoder and CAN",
+   "note": "J3 增量编码器 A/B/Z 经 1 kΩ / 220 pF 滤波（例题 4）进 MCU；J4 输出端绝对值编码器 SSI（两片 RS-485 收发）；J5 CAN（MCP2562，120 Ω 终端）。",
+   "svg": "drv-joint-7 编码器接口与 CAN.svg"
+  }
+ ],
+ "stats": {
+  "parts": 155,
+  "track_mm": 3454.5,
+  "tracks": 1274,
+  "vias": 208
+ },
+ "tool": "KiCad 7.0.11 + Freerouting 1.9.0（自动布线）",
+ "values": {
+  "c_bus_uf": 470.0,
+  "enc_c_pf": 220.0,
+  "enc_r_ohm": 1000.0,
+  "gain": 20.0,
+  "rg_ohm": 10.0,
+  "rs_mohm": 2.0,
+  "vdrv": 12.0
+ }
+}

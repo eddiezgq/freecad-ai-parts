@@ -96,22 +96,27 @@ items:
 - {code: PCB-AGV, name: AGV 控制板光板 6 层（外协） AGV controller bare PCB, kind: buy, uom: Nos, price: 9.0, supplier: pcbfab}
 - {code: PCB-ENC, name: 编码器读头板光板 4 层（外协） Encoder head bare PCB, kind: buy, uom: Nos, price: 2.0, supplier: pcbfab}
 # 芯片（型号待确认）
-- {code: IC-MCU-MC, name: 电机控制 MCU（型号待确认） Motor-control MCU, kind: buy, uom: Nos, price: 4.2, supplier: ic, note: 湿敏元件}
+- {code: IC-MCU-MC, name: 电机控制 MCU（示例选型 STM32G431CBT6，未经硬件验证） Motor-control MCU, kind: buy, uom: Nos, price: 4.2, supplier: ic, note: 湿敏元件}
 - {code: IC-MCU-HP, name: 高性能 MCU（型号待确认） High-performance MCU, kind: buy, uom: Nos, price: 9.5, supplier: ic, note: 湿敏元件}
-- {code: IC-GDRV, name: 三相栅极驱动（型号待确认） 3-phase gate driver, kind: buy, uom: Nos, price: 2.8, supplier: ic}
+- {code: IC-GDRV, name: 半桥栅极驱动（示例选型 IR2101S，未经硬件验证） Half-bridge gate driver, kind: buy, uom: Nos, price: 2.8, supplier: ic}
 - {code: IC-ISO, name: 数字隔离器（型号待确认） Digital isolator, kind: buy, uom: Nos, price: 1.6, supplier: ic}
-- {code: IC-CAN, name: CAN 收发器（型号待确认） CAN transceiver, kind: buy, uom: Nos, price: 0.8, supplier: ic}
-- {code: IC-BUCK, name: 降压稳压芯片（型号待确认） Buck regulator, kind: buy, uom: Nos, price: 1.2, supplier: ic}
-- {code: IC-AMP, name: 电流采样放大器（型号待确认） Current-sense amplifier, kind: buy, uom: Nos, price: 1.1, supplier: ic}
+- {code: IC-CAN, name: CAN 收发器（示例选型 MCP2562-E/SN，未经硬件验证） CAN transceiver, kind: buy, uom: Nos, price: 0.8, supplier: ic}
+- {code: IC-BUCK, name: 降压稳压芯片（示例选型 LMR16006YQ，未经硬件验证） Buck regulator, kind: buy, uom: Nos, price: 1.2, supplier: ic}
+- {code: IC-AMP, name: 电流采样放大器（示例选型 INA240A1D，未经硬件验证） Current-sense amplifier, kind: buy, uom: Nos, price: 1.1, supplier: ic}
 - {code: IC-ENC-AFE, name: 编码器信号调理芯片（型号待确认） Encoder AFE, kind: buy, uom: Nos, price: 3.5, supplier: ic}
 - {code: SNS-OPT, name: 光电读头传感器（型号待确认） Optical encoder sensor, kind: buy, uom: Nos, price: 6.0, supplier: ic, note: 湿敏元件}
-- {code: MOS-60V, name: 功率 MOSFET 60 V（型号待确认） Power MOSFET 60 V, kind: buy, uom: Nos, price: 0.9, supplier: ic}
+- {code: MOS-80V, name: 功率 MOSFET 80 V（示例选型 BSC040N08NS5，未经硬件验证） Power MOSFET 80 V, kind: buy, uom: Nos, price: 0.9, supplier: ic}
+- {code: IC-LDO, name: 线性稳压芯片（示例选型 AMS1117，未经硬件验证） LDO regulator, kind: buy, uom: Nos, price: 0.15, supplier: ic}
+- {code: IC-RS485, name: RS-485 收发器（示例选型 MAX3485，未经硬件验证） RS-485 transceiver, kind: buy, uom: Nos, price: 0.9, supplier: ic}
 # 阻容与连接器
 - {code: RES-SHUNT, name: 采样电阻 2 mΩ 1%（型号待确认） Current shunt 2 mΩ 1%, kind: buy, uom: Nos, price: 0.25, supplier: passive,
    note: 相电流采样；FCT 采样误差的来源之一}
 - {code: RES-0402, name: 贴片电阻 0402 Chip resistor 0402, kind: buy, uom: Nos, price: 0.003, supplier: passive}
 - {code: CAP-0402, name: 贴片电容 0402 Chip capacitor 0402, kind: buy, uom: Nos, price: 0.004, supplier: passive}
-- {code: CAP-BULK, name: 母线电容（型号待确认） Bulk capacitor, kind: buy, uom: Nos, price: 0.6, supplier: passive}
+- {code: CAP-BULK, name: 母线电解电容 470 μF / 63 V（型号待确认） Bulk capacitor, kind: buy, uom: Nos, price: 0.6, supplier: passive}
+- {code: CAP-1206, name: 贴片陶瓷电容 1206（100 V / 25 V） Chip capacitor 1206, kind: buy, uom: Nos, price: 0.03, supplier: passive}
+- {code: DIO-SMD, name: 贴片肖特基二极管（型号待确认） Schottky diode, kind: buy, uom: Nos, price: 0.05, supplier: passive}
+- {code: XTAL, name: 晶振 8 MHz 3225（型号待确认） Crystal 8 MHz, kind: buy, uom: Nos, price: 0.12, supplier: passive}
 - {code: IND-PWR, name: 功率电感（型号待确认） Power inductor, kind: buy, uom: Nos, price: 0.4, supplier: passive}
 - {code: CONN-PWR, name: 功率端子（型号待确认） Power terminal, kind: buy, uom: Nos, price: 0.8, supplier: passive}
 - {code: CONN-SIG, name: 信号连接器（型号待确认） Signal connector, kind: buy, uom: Nos, price: 0.5, supplier: passive}
@@ -138,18 +143,19 @@ routings:
 boms:
 - item: SMT-DRV
   routing: RT-SMT 贴片线 SMT line
-  components: [[PCB-DRV, 1], [IC-MCU-MC, 1], [IC-GDRV, 1], [IC-ISO, 1], [IC-CAN, 1], [IC-BUCK, 1], [IC-AMP, 3], [MOS-60V, 6], [RES-SHUNT, 3],
-               [RES-0402, 60], [CAP-0402, 70], [CAP-BULK, 4], [IND-PWR, 1], [PASTE-SAC305, 0.003]]
+  # 数量与 KiCad 设计（factory/designs/drv-joint）的 BOM 一致（第 88 轮，测试核对）
+  components: [[PCB-DRV, 1], [IC-MCU-MC, 1], [IC-GDRV, 3], [IC-CAN, 1], [IC-BUCK, 1], [IC-LDO, 2], [IC-AMP, 3], [IC-RS485, 2], [MOS-80V, 6], [RES-SHUNT, 3],
+               [RES-0402, 18], [CAP-0402, 30], [CAP-1206, 7], [CAP-BULK, 1], [DIO-SMD, 4], [IND-PWR, 1], [XTAL, 1], [PASTE-SAC305, 0.003]]
 - item: SMT-AGV
   routing: RT-SMT 贴片线 SMT line
-  components: [[PCB-AGV, 1], [IC-MCU-HP, 1], [IC-GDRV, 2], [IC-ISO, 2], [IC-CAN, 2], [IC-BUCK, 2], [IC-AMP, 4], [MOS-60V, 12], [RES-SHUNT, 4],
+  components: [[PCB-AGV, 1], [IC-MCU-HP, 1], [IC-GDRV, 6], [IC-ISO, 2], [IC-CAN, 2], [IC-BUCK, 2], [IC-AMP, 4], [MOS-80V, 12], [RES-SHUNT, 4],
                [RES-0402, 120], [CAP-0402, 140], [CAP-BULK, 6], [IND-PWR, 2], [PASTE-SAC305, 0.005]]
 - item: SMT-ENC
   routing: RT-SMT 贴片线 SMT line
   components: [[PCB-ENC, 1], [SNS-OPT, 1], [IC-ENC-AFE, 1], [IC-BUCK, 1], [RES-0402, 20], [CAP-0402, 25], [PASTE-SAC305, 0.001]]
 - item: DRV-JOINT
   routing: RT-后段 Back end
-  components: [[SMT-DRV, 1], [CONN-PWR, 2], [CONN-SIG, 2], [COAT-AR, 0.003], [BAG-ESD, 1]]
+  components: [[SMT-DRV, 1], [CONN-PWR, 2], [CONN-SIG, 3], [COAT-AR, 0.003], [BAG-ESD, 1]]
 - item: CTRL-AGV
   routing: RT-后段 Back end
   components: [[SMT-AGV, 1], [CONN-PWR, 3], [CONN-SIG, 4], [COAT-AR, 0.005], [BAG-ESD, 1]]
@@ -162,11 +168,11 @@ products:
 - {item: ENC-RD, price: 60}
 stock:
   # 期初库存（示例值）：大约够做驱动板 150 块、AGV 控制板 40 块、读头板 100 块
-  opening: {PCB-DRV: 150, PCB-AGV: 40, PCB-ENC: 100, IC-MCU-MC: 150, IC-MCU-HP: 40, IC-GDRV: 240, IC-ISO: 240, IC-CAN: 240, IC-BUCK: 330,
-            IC-AMP: 620, IC-ENC-AFE: 100, SNS-OPT: 100, MOS-60V: 1400, RES-SHUNT: 620, RES-0402: 16000, CAP-0402: 19000, CAP-BULK: 850,
+  opening: {PCB-DRV: 150, PCB-AGV: 40, PCB-ENC: 100, IC-MCU-MC: 150, IC-MCU-HP: 40, IC-GDRV: 700, IC-LDO: 320, IC-RS485: 320, CAP-1206: 1100, DIO-SMD: 620, XTAL: 160, IC-ISO: 240, IC-CAN: 240, IC-BUCK: 330,
+            IC-AMP: 620, IC-ENC-AFE: 100, SNS-OPT: 100, MOS-80V: 1400, RES-SHUNT: 620, RES-0402: 16000, CAP-0402: 19000, CAP-BULK: 850,
             IND-PWR: 240, CONN-PWR: 450, CONN-SIG: 560, PASTE-SAC305: 1.2, COAT-AR: 1.0, BAG-ESD: 300}
-  safety: {IC-MCU-MC: 30, MOS-60V: 200, RES-SHUNT: 100, PCB-DRV: 30}
-key_materials: [IC-MCU-MC, MOS-60V, RES-SHUNT, PCB-DRV]
+  safety: {IC-MCU-MC: 30, MOS-80V: 200, RES-SHUNT: 100, PCB-DRV: 30}
+key_materials: [IC-MCU-MC, MOS-80V, RES-SHUNT, PCB-DRV]
 measurements:
 # 贴片板：在 AOI 工位按板记下这块板的 SPI、炉温记录和 AOI 结果（名义值、散布是示例值）
 - item: SMT-DRV
