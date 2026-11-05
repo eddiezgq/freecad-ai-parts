@@ -174,6 +174,19 @@ def mount(app, H, user_of, who, uid_of, is_teacher, ai_quota=None):
             raise HTTPException(404, "没有这个操作")
         return call("POST", "/circuit/" + action, json={"netlist": str(body.get("netlist") or "")[:200_000]}).json()
 
+    # ------------------------------------------------------------ 虚拟仪器（第 82 轮，电子 E2）：种子按登录的人算，网页不能自己指定
+    @app.post("/api/instruments/{action}")
+    def instruments(action: str, body: dict = Body(default={}), u=Depends(user_of)):
+        if action not in ("params", "check", "record"):
+            raise HTTPException(404, "没有这个操作")
+        payload = {"user": uid_of(u), "task": body.get("task"), "answers": body.get("answers") or {},
+                   "rows": (body.get("rows") or [])[:500], "columns": (body.get("columns") or [])[:12], "who": who(u)}
+        r = call("POST", "/instruments/" + action, json=payload)
+        if action == "record":
+            return Response(r.content, media_type=r.headers.get("content-type"),
+                            headers={"Content-Disposition": r.headers.get("content-disposition", "attachment")})
+        return r.json()
+
     # ------------------------------------------------------------ 运动与动力分析（第 12 轮）
     @app.get("/api/mbd/robots")
     def mbd_robots(u=Depends(user_of)):

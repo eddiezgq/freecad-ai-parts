@@ -1278,3 +1278,33 @@ def circuit_report(key: str, body: dict = Body(default={})):
     name = "电路分析计算书-{}.docx".format(b["title"])
     return Response(data, media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                     headers={"Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(name)})
+
+
+# ---------------------------------------------------------------- 虚拟仪器（第 82 轮，电子 E2）：学生的种子、核对、实验记录（仪器与传感器在浏览器里算）
+@app.post("/instruments/params")
+def instruments_params(body: dict = Body(default={})):
+    from cae import instruments as IN
+    return {"seed": IN.seed_of(body.get("user") or ""), "tasks": [{"key": k, "title": IN.TITLES[k]} for k in IN.TASKS],
+            "labels": {k: {"label": v[0], "unit": v[1]} for k, v in IN.LABELS.items()}}
+
+
+@app.post("/instruments/check")
+def instruments_check(body: dict = Body(...)):
+    from cae import instruments as IN
+    task = body.get("task")
+    if task not in IN.TASKS:
+        raise HTTPException(404, "没有这个任务")
+    return IN.check(task, IN.seed_of(body.get("user") or ""), body.get("answers") or {})
+
+
+@app.post("/instruments/record")
+def instruments_record(body: dict = Body(...)):
+    from cae import instruments as IN
+    task = body.get("task")
+    if task not in IN.TASKS:
+        raise HTTPException(404, "没有这个任务")
+    data = IN.record_docx(task, IN.seed_of(body.get("user") or ""), body.get("answers") or {}, body.get("rows") or [],
+                          body.get("columns") or [], body.get("who") or "")
+    name = "虚拟仪器实验记录-{}.docx".format(IN.TITLES[task])
+    return Response(data, media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    headers={"Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(name)})
