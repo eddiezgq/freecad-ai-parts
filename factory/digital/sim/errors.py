@@ -61,6 +61,19 @@ PROBLEMS.update({
     "bench_zero": {"name": "关节测试台零位标定程序漂移（零位残差逐台偏移）", "unit": "jt-1", "fix": "recalibrate_bench",
                    "default": 1.5, "plant": ROBOT},
 })
+# 电路板厂（清单 wenquest-pcb，第 85 轮）：SMT 线和功能测试的数据。机理与表现（偏差量、批次大小都是示例值）：
+#   钢网堵孔：印刷次数多了开孔被锡膏糊住 → 锡膏体积逐块下降（约 20 块后接近下限）→ AOI 少锡缺陷增多
+#   回流炉温漂：加热器老化、热电偶漂移 → 峰值温度、液相线以上时间逐渐下降 → 冷焊风险（峰值低于 235 ℃）
+#   多功能贴片机 PP-2 吸嘴磨损：吸取偏心 → 只有 PP-2 贴的 IC 与 MOSFET 偏移变大（片式元件正常）→ AOI 偏移缺陷
+#   采样电阻来料批次超差：从注入时正在用的那一卷起阻值偏大 → ICT 阻值、FCT 相电流采样误差偏大（只在驱动板上）
+PCB = "wenquest-pcb"
+PROBLEMS.update({
+    "stencil_clog": {"name": "钢网堵孔（锡膏体积逐块下降、少锡）", "unit": "sp-1", "fix": "wipe_stencil", "default": 35.0, "plant": PCB},
+    "reflow_drift": {"name": "回流炉温漂（峰值温度逐渐下降、冷焊风险）", "unit": "rf-1", "fix": "profile_oven", "default": 14.0, "plant": PCB},
+    "nozzle_wear": {"name": "多功能贴片机 PP-2 吸嘴磨损（只有它贴的 IC 偏移变大）", "unit": "pp-2", "fix": "replace_nozzle", "default": 40.0, "plant": PCB},
+    "shunt_lot": {"name": "采样电阻来料批次阻值偏大（从注入时的那一卷起）", "unit": "ict-1", "fix": "quarantine_shunt", "default": 2.5, "plant": PCB},
+})
+SHUNT_LOT = 30               # 采样电阻每卷用于 30 块驱动板（示例）：按测试顺序依次用掉；仓库有到货批次时用到货批次
 LOT_SIZE = 8                 # 谐波减速器每批 8 台（示例）：关节按装配顺序依次用掉。第 51 轮：仓库有真实到货批次时用到货批次（add_lot）
 
 # 8D 第 5 步可选的纠正措施（含几项“看起来有道理但不对症”的措施）
@@ -82,19 +95,68 @@ FIXES = {
     "add_grease": "关节加注润滑脂",
     "tighten_test": "出厂检验收紧，关节 100% 复测",
 }
+FIXES.update({                # 电路板厂（第 85 轮）
+    "wipe_stencil": "清洗钢网、把自动擦网改为每印 5 块擦一次（干擦 + 真空擦）",
+    "profile_oven": "用炉温测试板测炉温曲线，校正回流炉各温区设定与热电偶",
+    "replace_nozzle": "更换多功能贴片机 PP-2 磨损的吸嘴，做吸嘴中心校正",
+    "quarantine_shunt": "隔离这一卷采样电阻、退回供应商，换复检合格的一卷",
+    "raise_peak": "把回流炉峰值温度设定提高 5 ℃",
+    "replace_squeegee": "更换印刷刮刀、加大刮刀压力",
+    "tighten_aoi": "AOI 判定加严，偏移门限收紧",
+})
 ROBOT_FIXES = ("recalibrate_torque", "quarantine_lot", "recalibrate_bench", "add_grease", "tighten_test", "retrain", "change_gauge")
+PCB_FIXES = ("wipe_stencil", "profile_oven", "replace_nozzle", "quarantine_shunt", "raise_peak", "replace_squeegee", "tighten_aoi",
+             "retrain", "change_gauge")
+PLANT_FIXES = {ROBOT: ROBOT_FIXES, PCB: PCB_FIXES}
 
 
 def problems_for(plant_id):
-    """这座厂能注入的问题情景：演示工厂（plant_id 为空或 wenquest-gearbox）是输出轴的五种，机器人厂是关节的三种"""
-    robot = plant_id == ROBOT
-    return {k: v for k, v in PROBLEMS.items() if (v.get("plant") == ROBOT) == robot}
+    """这座厂能注入的问题情景：演示工厂（plant_id 为空或 wenquest-gearbox）是输出轴的五种，机器人厂是关节的三种，电路板厂是 SMT 与测试的四种"""
+    mine = plant_id if plant_id in PLANT_FIXES else None
+    return {k: v for k, v in PROBLEMS.items() if v.get("plant") == mine}
 
 
 def fixes_for(plant_id):
-    if plant_id == ROBOT:
-        return {k: FIXES[k] for k in ROBOT_FIXES}
-    return {k: v for k, v in FIXES.items() if k not in ROBOT_FIXES or k in ("retrain", "change_gauge")}
+    if plant_id in PLANT_FIXES:
+        return {k: FIXES[k] for k in PLANT_FIXES[plant_id]}
+    special = {k for v in PLANT_FIXES.values() for k in v} - {"retrain", "change_gauge"}
+    return {k: v for k, v in FIXES.items() if k not in special}
+
+
+SHUNT_ITEM = "RES-SHUNT"
+PCB_CODES = ("spi_volume", "spi_height", "reflow_peak", "reflow_tal", "offset_ic", "aoi_defects", "ict_shunt", "fct_isense")
+
+
+def _bom_qty(item, code):
+    """item 的物料清单里（含下一层的贴片板）用多少 code；没有清单时 0"""
+    try:
+        from factory import data as F
+    except ImportError:
+        return 0
+    total = 0.0
+    for c, q in (F.BOMS.get(item) or ("", []))[1]:
+        if c == code:
+            total += float(q)
+        elif c in F.BOMS:
+            total += float(q) * sum(float(q2) for c2, q2 in F.BOMS[c][1] if c2 == code)
+    return total
+
+
+def _uses_shunt(item):
+    return _bom_qty(item, SHUNT_ITEM) > 0
+
+
+def _shunt_per_board(item):
+    return _bom_qty(item, SHUNT_ITEM) or 1
+
+
+def _poisson(rng, lam):
+    k, p, L = 0, 1.0, math.exp(-lam)
+    while True:
+        p *= rng.random()
+        if p <= L:
+            return k
+        k += 1
 
 
 def _harmonic_of(item):
@@ -175,6 +237,9 @@ class ErrorModel:
         if problem not in PROBLEMS:
             raise KeyError(problem)
         self.active[problem] = {"magnitude": float(magnitude if magnitude is not None else PROBLEMS[problem]["default"]), "count": 0}
+        if problem == "shunt_lot":          # 从注入时正在用的那一卷采样电阻起
+            o = self.lot_order.get("SH") or []
+            self.active[problem]["from_lot"] = {"SH": len(o) - 1 if o else 0}
         if problem == "hd_lot":             # 从注入时正在用的批次起（每种规格各自的批次）都是问题批次，直到隔离
             self.active[problem]["from_lot"] = {k: self._current(k) for k in set(self.lot_order) | set(self.lot_used)}
         self.history.append(("inject", problem, True))
@@ -197,6 +262,12 @@ class ErrorModel:
                 for q in self.lots.values():
                     if q and q[0][0] == cur:
                         q.pop(0)
+        if fix == "quarantine_shunt":       # 隔离这一卷：剩下的不用了，下一块起换新的一卷
+            self.lot_used["SH"] = -(-self.lot_used.get("SH", 0) // SHUNT_LOT) * SHUNT_LOT
+            o = self.lot_order.get("SH") or []
+            q = self.lots.get(SHUNT_ITEM)
+            if q and o and q[0][0] == o[-1]:
+                q.pop(0)
         self.history.append(("fix", fix, bool(gone)))
         return gone
 
@@ -227,12 +298,17 @@ class ErrorModel:
             st["_ja"] = unit
             st["_lot_no"] = (size, order.index(lot))
             part.hd_lot = lot
+        if unit == "ict-1" and "_shunt" not in st and _uses_shunt(str(getattr(getattr(part, "wo", None), "item", "") or "")):
+            self._take_shunt(part, st)       # 电路板厂（第 85 轮）：在线测试时认出这块驱动板用的是哪一卷采样电阻
         for p, a in self.active.items():
             u = PROBLEMS[p]["unit"]
             if u == unit or (u == "ja-*" and unit.startswith("ja-")):
                 if p == "hd_lot":
                     size, no = st.get("_lot_no", (None, -1))
                     if no < a["from_lot"].get(size, 0):
+                        continue
+                if p == "shunt_lot":
+                    if "_shunt" not in st or st["_shunt"][1] < a["from_lot"].get("SH", 0):
                         continue
                 a["count"] += 1
                 st[p] = (a["magnitude"], a["count"])
@@ -242,9 +318,60 @@ class ErrorModel:
             self.robot_zeros(part)
             self.robot_friction(part)                                       # 和空载摩擦力矩（第 58 轮）
 
+    def _take_shunt(self, part, st):
+        """这块驱动板用的采样电阻卷号：仓库里有到货批次时先进先出，没有时按测试顺序每 SHUNT_LOT 块一卷"""
+        q = self.lots.get(SHUNT_ITEM)
+        if q:
+            lot = q[0][0]
+            q[0][1] -= _shunt_per_board(str(getattr(getattr(part, "wo", None), "item", "") or ""))
+            if q[0][1] <= 0:
+                q.pop(0)
+        else:
+            n = self.lot_used.get("SH", 0)
+            self.lot_used["SH"] = n + 1
+            lot = "SH-{:03d}".format(n // SHUNT_LOT + 1)
+        order = self.lot_order.setdefault("SH", [])
+        if lot not in order:
+            order.append(lot)
+        st["_shunt"] = (lot, order.index(lot))
+        part.hd_lot = lot                   # 测量记录的“批次”（分层用，与机器人厂的谐波减速器批次同一个字段）
+        part.lots = {SHUNT_ITEM: lot}
+
+    def _pcb_offset(self, st, code):
+        """电路板厂（第 85 轮）：贴片板、成品板的测量值上叠加的偏差"""
+        def ramp(p, tau):
+            mag, k = st[p]
+            return mag * (1 - math.exp(-k / tau))
+        if code == "spi_volume" and "stencil_clog" in st:
+            return -ramp("stencil_clog", 15.0)
+        if code == "spi_height" and "stencil_clog" in st:
+            return -0.4 * ramp("stencil_clog", 15.0)
+        if code == "reflow_peak" and "reflow_drift" in st:
+            return -ramp("reflow_drift", 20.0)
+        if code == "reflow_tal" and "reflow_drift" in st:
+            return -1.6 * ramp("reflow_drift", 20.0)
+        if code == "offset_ic" and "nozzle_wear" in st:
+            return st["nozzle_wear"][0] * (1 if self.rng.random() < 0.85 else -1) * self.rng.uniform(0.7, 1.15)
+        if code == "aoi_defects":           # 计数型：每块板的缺陷数（泊松），正常约 2%；少锡、偏移随问题增多
+            lam = 0.02
+            if "stencil_clog" in st:
+                lam += 0.6 * max(0.0, ramp("stencil_clog", 15.0) - 15.0) / 15.0
+            if "nozzle_wear" in st:
+                lam += 0.25 * st["nozzle_wear"][0] / 40.0
+            if "reflow_drift" in st:
+                lam += 0.05 * ramp("reflow_drift", 20.0) / 14.0
+            return float(_poisson(self.rng, lam))
+        if code in ("ict_shunt", "fct_isense") and "shunt_lot" in st:
+            pct = st["shunt_lot"][0]
+            return 2.0 * pct / 100 if code == "ict_shunt" else pct
+        return 0.0
+
     def plant_offset(self, part, code: str) -> float:
-        """机器人厂的关节测量值上叠加的偏差（第 47 轮实验 25）：只在装配工位、批次、测试台对上的那几台上出现"""
+        """机器人厂的关节测量值上叠加的偏差（第 47 轮实验 25）：只在装配工位、批次、测试台对上的那几台上出现；
+        电路板厂（第 85 轮）见 _pcb_offset"""
         st = getattr(part, "err", None) or {}
+        if code in PCB_CODES:
+            return self._pcb_offset(st, code)
         off = 0.0
         if code == "joint_backlash":
             for p in ("ja_torque", "hd_lot"):

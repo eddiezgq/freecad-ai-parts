@@ -1,0 +1,47 @@
+# 第 85 轮（电子 E3）：电路板厂的质量规则。plant 写了厂的清单 id：只在那座厂的规则目录里出现（别的厂看不到）
+domain: quality
+rules:
+  QE1:
+    name: AOI 缺陷率突升
+    fn: pcb_aoi_spike
+    plant: wenquest-pcb
+    severity: warn
+    role: [quality, engineer]
+    params: {recent: 20, base: 60, min_defects: 3, factor: 3, floor: 0.1}
+    desc: 最近 recent 块贴片板的 AOI 缺陷率是之前 base 块的 factor 倍以上（且不低于 floor），缺陷至少 min_defects 个
+    hint: 先分清是少锡还是偏移：少锡看 SPI 锡膏体积（钢网），偏移看是哪台贴片机贴的元件（片式元件 PP-1、IC PP-2）
+  QE2:
+    name: 回流炉温越界
+    fn: pcb_reflow_window
+    plant: wenquest-pcb
+    severity: warn            # 已超出工艺窗口为 critical
+    role: [quality, engineer]
+    params: {last: 5, margin: 3}
+    desc: 最近 last 块板的炉温记录：峰值温度或液相线以上时间超出工艺窗口（严重），或均值离窗口下限不到 margin（警告）
+    hint: 用炉温测试板测一次炉温曲线；峰值偏低有冷焊风险，已焊的板要加严检验
+  QE3:
+    name: 锡膏体积偏低
+    fn: pcb_spi_low
+    plant: wenquest-pcb
+    severity: warn
+    role: [quality, operator]
+    params: {last: 10, below: 85}
+    desc: 最近 last 块板 SPI 锡膏体积均值低于 below %（名义 100 %）
+    hint: 钢网是否堵孔、擦网频次够不够；锡膏回温和有效期
+  QE4:
+    name: 电流采样误差按批次偏大
+    fn: pcb_isense_lot
+    plant: wenquest-pcb
+    severity: warn
+    role: [quality]
+    params: {last: 10, above: 1.0}
+    desc: 最近 last 块驱动板的相电流采样误差均值超过 above %，按采样电阻卷号分层找出是哪一卷
+    hint: 查 ICT 的采样电阻阻值；同一卷都偏大就隔离这一卷、通知供应商
+  QE5:
+    name: 湿敏元件开封超时未烘烤
+    plant: wenquest-pcb
+    status: waiting           # 等元器件库记录开封时间（E4）
+    severity: warn
+    role: [quality, operator]
+    desc: MCU、读头传感器等湿敏元件开封后超过车间寿命还没上线或没烘烤
+    hint: 按湿敏等级烘烤后再上线

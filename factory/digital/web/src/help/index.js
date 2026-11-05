@@ -6,6 +6,8 @@ export const EDITIONS = [
   { key: 'enterprise', name: '企业版', who: '企业管理员与各岗位' },
   // 第 45 轮：问渠数字工业园的机器人厂（plant：只在按这份清单起的厂里显示，并且是那里的缺省一册）
   { key: 'robot', name: '机器人厂', who: '问渠数字工业园 · 机器人厂', plant: 'wenquest-robot' },
+  // 第 85 轮：第三座厂，电路板厂
+  { key: 'pcb', name: '电路板厂', who: '问渠数字工业园 · 电路板厂', plant: 'wenquest-pcb' },
 ];
 
 // 这座厂能看到哪几册：带 plant 的只在那座厂显示
@@ -26,4 +28,5 @@ export const STAGE_CHAPTER = {
   teach: ['design-to-factory', 'design-to-factory', 'planning', 'workshop', 'workshop', 'quality', 'insight'],
   enterprise: ['new-product|plant', 'new-product|plant', 'daily-work', 'daily-work', 'gateway|daily-work', 'daily-work', 'insight'],
   robot: ['plant', 'products-bom', 'order-to-invoice', 'order-to-invoice', 'plant', 'joint-test', 'plant'],
+  pcb: ['plant', 'products-bom', 'order-park', 'order-park', 'plant', 'smt-inspection', 'equip-ai'],
 };

@@ -689,13 +689,14 @@ def mr_open(d):
 
 
 def _lots_to_shop(H, db, mode):
-    """第 51 轮：按清单起的厂，检验合格入库的谐波减速器批次告诉仿真车间，装关节时先进先出用（实验 25 的批次就是真实到货批号）"""
+    """第 51 轮：按清单起的厂，检验合格入库的谐波减速器批次告诉仿真车间，装关节时先进先出用（实验 25 的批次就是真实到货批号）；
+    第 85 轮：电路板厂的采样电阻卷也一样（驱动板在线测试时认卷号）"""
     from factory import plant as PL
     if PL.is_demo() or getattr(H, "mes", None) is None:
         return
     st = _state(db, mode)
     sent = set(st.get("shop_lots") or [])
-    rows = db.q("select * from lot where mode=%s and status='accepted' and item like 'HD-%%' and qty_ok > 0 order by received_at, id", (mode,))
+    rows = db.q("select * from lot where mode=%s and status='accepted' and (item like 'HD-%%' or item = 'RES-SHUNT') and qty_ok > 0 order by received_at, id", (mode,))
     new = [x for x in rows if x["id"] not in sent]
     for x in new:
         H.mes.command("sim", "add_lot", mode, "仓管员", item=x["item"], lot=x["lot"], qty=float(x["qty_ok"]))
