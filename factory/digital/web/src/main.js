@@ -30,6 +30,7 @@ const routes = [
   { path: '/cam', component: () => import('./pages/Cam.vue') },
   { path: '/opt', component: () => import('./pages/Opt.vue') },
   { path: '/cfd', component: () => import('./pages/Cfd.vue') },
+  { path: '/circuit', component: () => import('./pages/Circuit.vue') },   // 第 79 轮：电路分析（电子 E1）
   { path: '/twin', component: () => import('./pages/Twin.vue') },
   { path: '/plc', component: () => import('./pages/VirtualPlc.vue') },
   { path: '/lab15', component: () => import('./pages/Lab15.vue') },

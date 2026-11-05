@@ -51,6 +51,6 @@ characteristics:
   - {id: C11, name: 齿面与轴承位硬度, spec: "58–62 HRC", kind: hard, key: true, qms: 齿面硬度 Tooth hardness (HRC)}
   - {id: C12, name: 有效硬化层深度（磨后）, spec: "0.8–1.2 mm", kind: hard, key: true}
   - {id: C13, name: 心部硬度, spec: "30–45 HRC", kind: hard}
-  - {id: C14, name: 总长与各段长度, spec: "136；未注公差按 GB/T 1804-m", nominal: 136, es: 0.5, ei: -0.5, kind: dim}
+  - {id: C14, name: 总长与各段长度, spec: "136；齿轮左端面到左轴承定位轴肩 8 ± 0.1；其余未注公差按 GB/T 1804-m", nominal: 136, es: 0.5, ei: -0.5, kind: dim}
   - {id: C15, name: 倒角与中心孔, spec: "未注倒角 C1；两端中心孔 B2.5（GB/T 145）保留", kind: other}
   - {id: C16, name: 表面缺陷, spec: "磨削表面不得有烧伤、裂纹（酸洗检查）", kind: other}

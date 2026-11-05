@@ -1,0 +1,395 @@
+# SH-101 输入齿轮轴机械加工工艺规程（第 13 轮十三：《机械制造技术》第 57 章的主线；数字工厂测试与 AI 工艺评审员的参照）
+# 由第 56 章的工艺路线 std/SH-101_route.yaml 往下做出工序设计这一层：余量与工序尺寸、切削用量、工步、工时、工序简图、
+# 定位夹紧、检验与刀具、工艺尺寸链和轴向跟踪图。数据格式 v2（同 SH-301_process.yaml），hub/cards.py 由它生成全套卡片。
+# 图纸要求取自 SH-101_part.yaml（A 版），本文件的 characteristics、drawing 与它一致。余量、切削用量、辅助时间为教学设计值
+# （按常用工艺手册的量级取，书中注明），工时由程序 57.6.1（ex57_6.py）按时间定额的组成核算，与这里的 minutes 一致。
+version: 2
+item: SH-101
+material: 20CrMnTi
+batch: 100
+doc:
+  number: GY-SH101
+  revision: A
+  product_model: WQR-105
+  product_name: 二级圆柱齿轮减速器
+  drawing_no: WQR105-101
+  part_name: 输入齿轮轴
+  per_unit: 1
+  per_blank: 1
+  batch: 100
+  factory: 问渠数字工厂
+  signatures:
+    prepared: {by: 工艺员, date: "2026-11-02"}
+    checked: {by: 工艺主管, date: "2026-11-02"}
+    standardized: {by: 标准化员, date: "2026-11-02"}
+    approved: {by: 技术负责人, date: "2026-11-02"}
+  changes: []
+part:
+  kind: shaft
+  profile_source: factory/digital/std/SH-101_part.yaml（A 版）
+  segments:
+    - [20, 36, 轴伸]
+    - [24, 20, 密封轴颈]
+    - [25, 17, 左轴承位]
+    - [30, 8, 左轴肩]
+    - [52, 30, 齿轮]
+    - [30, 8, 右轴肩]
+    - [25, 17, 右轴承位]
+  chamfer_mm: 1.0
+  keyway: {segment: 0, b: 6, t: 3.5, L: 25, offset_mm: 5.5}
+  center_hole: B2.5/8（GB/T 145）
+  mass_kg: 0.80
+blank: {kind: 热轧圆钢, spec: Ø60, length_mm: 142, material_item: RM-20CR-D60}
+drawing:
+  - {name: 轴承位, size_mm: 25, es_mm: 0.015, ei_mm: 0.002, Ra_um: 0.8}
+  - {name: 轴伸, size_mm: 20, es_mm: 0.009, ei_mm: -0.004, Ra_um: 1.6}
+  - {name: 密封轴颈, size_mm: 24, es_mm: 0, ei_mm: -0.033, Ra_um: 0.8}
+  - {name: 齿顶圆, size_mm: 52, es_mm: 0, ei_mm: -0.19, Ra_um: 3.2}
+characteristics:
+  - {id: C1, name: 轴承位直径（两处）, spec: "Ø25 k6（+0.015/+0.002）", nominal: 25, es: 0.015, ei: 0.002, kind: dim, key: true, qms: 轴承位直径 Bearing seat Ø25 k6 (mm)}
+  - {id: C2, name: 轴伸直径, spec: "Ø20 j6（+0.009/−0.004）", nominal: 20, es: 0.009, ei: -0.004, kind: dim, key: true}
+  - {id: C3, name: 密封轴颈直径, spec: "Ø24 h8（0/−0.033），Ra 0.8 μm（油封唇口接触面）", nominal: 24, es: 0, ei: -0.033, kind: dim}
+  - {id: C4, name: 键槽宽, spec: "6 N9（−0.004/−0.034）", nominal: 6, es: -0.004, ei: -0.034, kind: dim}
+  - {id: C5, name: 键槽深（d − t₁）, spec: "16.5（0/−0.1）", nominal: 16.5, es: 0, ei: -0.1, kind: dim}
+  - {id: C6, name: 键槽对称度, spec: "0.015（对轴伸轴线）", kind: geo}
+  - {id: C7, name: 轴承位径向圆跳动, spec: "0.010（对 A–B 公共轴线）", kind: geo, key: true}
+  - {id: C8, name: 齿顶圆径向圆跳动, spec: "0.03（对 A–B 公共轴线）", kind: geo}
+  - {id: C9, name: 齿轮精度, spec: "8 级（GB/T 10095.1）；公法线长度 W₃ = 15.433（−0.050/−0.100）", nominal: 15.433, es: -0.05, ei: -0.10, kind: gear, key: true, qms: 公法线长度 W3 Span measurement (mm)}
+  - {id: C10, name: 表面粗糙度, spec: "轴承位、密封轴颈 Ra 0.8 μm；齿面、轴伸 Ra 1.6 μm；其余 Ra 3.2 μm", kind: rough}
+  - {id: C11, name: 齿面与轴承位硬度, spec: "58–62 HRC", kind: hard, key: true, qms: 齿面硬度 Tooth hardness (HRC)}
+  - {id: C12, name: 有效硬化层深度（磨后）, spec: "0.8–1.2 mm", kind: hard, key: true}
+  - {id: C13, name: 心部硬度, spec: "30–45 HRC", kind: hard}
+  - {id: C14, name: 总长与各段长度, spec: "136；8 ± 0.1（左轴承定位轴肩到齿轮左端面）；未注公差按 GB/T 1804-m", nominal: 136, es: 0.5, ei: -0.5, kind: dim}
+  - {id: C15, name: 倒角与中心孔, spec: "未注倒角 C1；两端中心孔 B2.5（GB/T 145）保留", kind: other}
+  - {id: C16, name: 表面缺陷, spec: "磨削表面不得有烧伤、裂纹（酸洗检查）", kind: other}
+tool_list:
+  - {id: T01, name: 外圆粗车刀, spec: "PCLNR 2525M12 刀杆 + CNMG 120408 刀片（涂层硬质合金 P25）", ops: [20], life: "刀刃寿命 15 min"}
+  - {id: T02, name: 外圆精车刀, spec: "PDJNR 2525M11 刀杆 + DNMG 110404 刀片（涂层硬质合金 P15）", ops: [30], life: "刀刃寿命 20 min"}
+  - {id: T03, name: 中心钻, spec: "B2.5 中心钻（高速钢，GB/T 6078）", ops: [20], life: "刃磨后 200 孔"}
+  - {id: T04, name: 齿轮滚刀, spec: "m2 α20° 单头 AA 级滚刀 Ø63（高速钢 W6Mo5Cr4V2，TiN 涂层）", ops: [40], life: "刃磨后约 300 件"}
+  - {id: T05, name: 键槽铣刀, spec: "Ø6 两刃键槽铣刀（高速钢 HSS-Co）", ops: [50], life: "刃磨后 80 件"}
+  - {id: T06, name: 砂轮, spec: "WA60KV 1-400×40×203（白刚玉，陶瓷结合剂）", ops: [70], life: "每 10 件修整一次"}
+  - {id: T07, name: 带锯条, spec: "双金属带锯条 27×0.9，4/6 齿", ops: [10], life: "约 600 次锯切"}
+  - {id: T08, name: 齿端倒棱刀, spec: "滚齿机附带的倒棱去毛刺刀（硬质合金）", ops: [40], life: "刃磨后 500 件"}
+gauges:
+  - {id: G01, name: 钢直尺 0–300 mm}
+  - {id: G02, name: 游标卡尺 0–200 mm（0.02）}
+  - {id: G03, name: 外径千分尺 0–25 mm（0.01）}
+  - {id: G04, name: 外径千分尺 25–50 mm（0.01）}
+  - {id: G05, name: 杠杆千分尺 0–25 mm（0.002）}
+  - {id: G16, name: 外径千分尺 50–75 mm（0.01）}
+  - {id: G17, name: 杠杆千分尺 25–50 mm（0.002）}
+  - {id: G06, name: 偏摆检查仪 + 千分表（0.001）}
+  - {id: G07, name: 公法线千分尺 0–25 mm（0.01）}
+  - {id: G08, name: 键槽宽塞规 6 N9（通端/止端）}
+  - {id: G09, name: 键槽深度专用量规 H 16.7}
+  - {id: G10, name: 键槽对称度检具}
+  - {id: G11, name: 表面粗糙度仪}
+  - {id: G12, name: 洛氏硬度计}
+  - {id: G13, name: 显微硬度计（有效硬化层，随炉试样或抽件解剖）}
+  - {id: G14, name: 酸洗检查（磨削烧伤，ISO 14104）}
+  - {id: G15, name: 深度千分尺 0–25 mm（以键槽两侧外圆母线为基准测 t₁）}
+operations:
+  - seq: 10
+    operation: 下料 Sawing
+    workstation: 带锯床 SAW-01
+    shop: 下料
+    content: 锯 Ø60×142
+    datum: 外圆
+    clamping: 锯床虎钳
+    minutes: 3.5
+    setup_min: 10
+    locate: [{surface: 外圆, symbol: v, dof: 4}]
+    clamp: [{surface: 外圆, kind: hydraulic}]
+    sketch:
+      stock: [[60, 142]]
+      machined: [end_R]
+      dims: [{kind: length, from: 0, to: 142, text: "142±1"}, {kind: dia, seg: 0, text: Ø60}]
+    steps:
+      - {step: 1, content: 棒料靠定位挡块，锯断，保证长度 142±1, tool: T07, gauge: G01, ta_min: 1.0, tb_min: 1.6}
+    inspect:
+      - {char: 长度 142±1, gauge: G01, freq: 首件、每 20 件}
+  - seq: 20
+    operation: 粗车 Rough turning
+    workstation: 数控车床 CNC-L01
+    shop: 机加
+    content: 夹一端车端面、钻中心孔，调头车端面至总长 137、钻中心孔；一夹一顶粗车各外圆，直径留 1.0–1.5，轴肩留轴向余量 0.8
+    datum: 外圆（粗基准）；两端中心孔
+    clamping: 三爪卡盘，后顶尖
+    tools: 外圆车刀 CNMG 120408（涂层硬质合金），B2.5 中心钻
+    cut: {vc_m_min: 120, f_mm_r: 0.3, ap_mm: 2.5, d_mm: 60, length_mm: 84, passes: 15}
+    features:
+      - {name: 轴伸, size_mm: 21.5, es_mm: 0, ei_mm: -0.2, Ra_um: 12.5}
+      - {name: 密封轴颈, size_mm: 25.5, es_mm: 0, ei_mm: -0.2, Ra_um: 12.5}
+      - {name: 轴承位, size_mm: 26.5, es_mm: 0, ei_mm: -0.2, Ra_um: 12.5}
+      - {name: 齿顶圆, size_mm: 53.5, es_mm: 0, ei_mm: -0.3, Ra_um: 12.5}
+    minutes: 8.5
+    setup_min: 30
+    coolant: 乳化液
+    fixture: 三爪自定心卡盘，回转顶尖
+    locate: [{surface: 左端外圆, symbol: chuck, dof: 3}, {surface: 右端中心孔, symbol: center_live, dof: 2}]
+    clamp: [{surface: 左端外圆, kind: manual}]
+    sketch:
+      stock: [[21.5, 35.7], [25.5, 20], [26.5, 17], [31.5, 8], [53.5, 31.6], [31.5, 8], [26.5, 16.7]]
+      machined: [0, 1, 2, 3, 4, 5, 6, end_L, end_R]
+      dims:
+        - {kind: dia, seg: 0, text: "Ø21.5 0/−0.2"}
+        - {kind: dia, seg: 1, text: "Ø25.5 0/−0.2"}
+        - {kind: dia, seg: 2, text: "Ø26.5 0/−0.2"}
+        - {kind: dia, seg: 4, text: "Ø53.5 0/−0.3"}
+        - {kind: dia, seg: 6, text: "Ø26.5 0/−0.2"}
+        - {kind: length, from: 0, to: 137, text: "137±0.2"}
+      ra: {all: 12.5}
+    steps:
+      - {step: 1, content: 安装 1：三爪卡盘短夹持毛坯左端外圆（夹持长约 15），车右端面，车去约 2.5（分 2 刀）, tool: T01, op: face, d: 60, vc: 120, f: 0.2, ap: 1.25, passes: 2, gauge: G02}
+      - {step: 2, content: 钻右端中心孔 B2.5, tool: T03, op: drill, d: 2.5, vc: 20, f: 0.04, depth: 6, gauge: G02}
+      - {step: 3, content: 回转顶尖顶右端中心孔，粗车齿顶圆至 Ø53.5（车到齿轮左端面），右轴肩至 Ø31.5、右轴承位至 Ø26.5；右侧两轴肩按跟踪图留轴向余量 0.8, tool: T01, op: turn,
+         passes_detail: [[60, 1.625, 57], [56.75, 1.625, 57], [53.5, 2.5, 27], [48.5, 2.5, 27], [43.5, 2.5, 27], [38.5, 2.5, 27], [33.5, 1.0, 27], [31.5, 2.5, 19]], vc: 120, f: 0.3, gauge: G16}
+      - {step: 4, content: 安装 2：调头，三爪卡盘短夹持 Ø53.5 齿顶圆（垫铜皮），车左端面（分 2 刀），保证总长 137±0.2, tool: T01, op: face, d: 60, vc: 120, f: 0.2, ap: 1.25, passes: 2, gauge: G02}
+      - {step: 5, content: 钻左端中心孔 B2.5, tool: T03, op: drill, d: 2.5, vc: 20, f: 0.04, depth: 6}
+      - {step: 6, content: 回转顶尖顶左端中心孔，粗车左轴肩至 Ø31.5、左轴承位至 Ø26.5、密封轴颈至 Ø25.5、轴伸至 Ø21.5；左侧各轴肩留轴向余量 0.8, tool: T01, op: turn,
+         passes_detail: [[60, 2.5, 82], [55, 2.5, 82], [50, 2.5, 82], [45, 2.5, 82], [40, 2.5, 82], [35, 1.75, 82], [31.5, 2.5, 74], [26.5, 0.5, 57], [25.5, 2.0, 37]], vc: 120, f: 0.3, gauge: G04}
+    inspect:
+      - {char: 总长 137±0.2, gauge: G02, freq: 首件、每 10 件}
+      - {char: "轴伸 Ø21.5（0/−0.2）", gauge: G03, freq: 首件、每 10 件}
+      - {char: "Ø25.5、Ø26.5、Ø31.5（0/−0.2）", gauge: G04, freq: 首件、每 10 件}
+      - {char: "齿顶圆 Ø53.5（0/−0.3）", gauge: G16, freq: 首件、每 10 件}
+      - {char: 中心孔 B2.5 完整、无毛刺, gauge: 目测, freq: 每件}
+  - seq: 30
+    operation: 精车 Finish turning
+    workstation: 数控车床 CNC-L01
+    shop: 机加
+    content: 两顶尖装夹，半精车轴承位、密封轴颈、轴伸至磨前尺寸，车齿顶圆、轴肩、端面和倒角到尺寸；两端面用半缺顶尖车至总长 136，左轴承定位轴肩到齿轮左端面 8 直接控制
+    datum: 两端中心孔（精基准）
+    clamping: 两顶尖，鸡心夹头
+    tools: 外圆车刀 DNMG 110404（涂层硬质合金）
+    cut: {vc_m_min: 150, f_mm_r: 0.15, ap_mm: 0.75, d_mm: 53.5, length_mm: 32, passes: 8}
+    features:
+      - {name: 轴伸, size_mm: 20.4, es_mm: 0, ei_mm: -0.05, Ra_um: 3.2}
+      - {name: 密封轴颈, size_mm: 24.4, es_mm: 0, ei_mm: -0.05, Ra_um: 3.2}
+      - {name: 轴承位, size_mm: 25.4, es_mm: 0, ei_mm: -0.05, Ra_um: 3.2}
+      - {name: 齿顶圆, size_mm: 52, es_mm: 0, ei_mm: -0.19, Ra_um: 3.2}
+    minutes: 5
+    setup_min: 20
+    coolant: 乳化液
+    fixture: 前顶尖（固定）、后顶尖（回转），鸡心夹头
+    locate: [{surface: 左端中心孔, symbol: center_fixed, dof: 3}, {surface: 右端中心孔, symbol: center_live, dof: 2}]
+    clamp: [{surface: 轴伸（鸡心夹头）, kind: manual}]
+    sketch:
+      stock: [[20.4, 36], [24.4, 20], [25.4, 17], [30, 8], [52, 30], [30, 8], [25.4, 17]]
+      machined: [0, 1, 2, 3, 4, 5, 6, end_L, end_R]
+      dims:
+        - {kind: dia, seg: 0, text: "Ø20.4 0/−0.05"}
+        - {kind: dia, seg: 1, text: "Ø24.4 0/−0.05"}
+        - {kind: dia, seg: 2, text: "Ø25.4 0/−0.05"}
+        - {kind: dia, seg: 4, text: "Ø52 h11（0/−0.19）"}
+        - {kind: dia, seg: 6, text: "Ø25.4 0/−0.05"}
+        - {kind: length, from: 0, to: 136, text: "136±0.05"}
+        - {kind: length, from: 73, to: 81, text: "8±0.05"}
+        - {kind: length, from: 0, to: 73, text: "73±0.05"}
+        - {kind: length, from: 111, to: 136, text: "25±0.05"}
+      ra: {all: 3.2}
+    steps:
+      - {step: 1, content: 两顶尖装夹（鸡心夹头夹轴伸 Ø21.5，垫铜皮），换半缺顶尖车右端面，以左端面为测量基准保证 136.5±0.1；精车齿顶圆至 Ø52 h11、右轴肩至 Ø30、右轴承位至 Ø25.4，以右端面为基准车齿轮右端面（25±0.05）和右轴肩（17±0.05），倒角 C1, tool: T02, op: turn,
+         passes_detail: [[53.5, 0.75, 32], [31.5, 0.75, 10], [26.5, 0.55, 19]], vc: 150, f: 0.15, gauge: G16}
+      - {step: 2, content: 调头（鸡心夹头夹右轴承位，垫铜皮），精车左轴肩至 Ø30、左轴承位至 Ø25.4、密封轴颈至 Ø24.4、轴伸至 Ø20.4；换半缺顶尖车左端面保证总长 136±0.05；以左端面为基准车左轴承定位轴肩（73±0.05）、密封轴颈与轴伸的轴肩（36、56），以轴承定位轴肩为基准车齿轮左端面（8±0.05），倒角 C1, tool: T02, op: turn,
+         passes_detail: [[31.5, 0.75, 10], [26.5, 0.55, 19], [25.5, 0.55, 22], [21.5, 0.55, 38]], vc: 150, f: 0.15, gauge: G03}
+    inspect:
+      - {char: "Ø20.4、Ø24.4（0/−0.05）", gauge: G03, freq: 首件、每 5 件}
+      - {char: "Ø25.4（0/−0.05）", gauge: G04, freq: 首件、每 5 件}
+      - {char: "齿顶圆 Ø52 h11", gauge: G16, freq: 首件、每 10 件}
+      - {char: "总长 136±0.05、8±0.05、各段长度", gauge: G02, freq: 首件、每 10 件}
+      - {char: "齿顶圆径向圆跳动 ≤ 0.02（对两中心孔连线）", tir: 0.02, gauge: G06, freq: 首件、每 10 件}
+  - seq: 40
+    operation: 滚齿 Gear hobbing
+    workstation: 滚齿机 HOB-01
+    shop: 机加
+    content: 以两端中心孔（心轴架）定位，滚齿 m2 z24，按 7 级加工（渗碳淬火后约降一级，达到图纸 8 级）；齿端倒棱去毛刺
+    datum: 两端中心孔（精基准）
+    clamping: 上下顶尖，拨盘
+    tools: m2 单头滚刀 Ø63
+    minutes: 8
+    setup_min: 40
+    coolant: 切削油
+    aux: [去毛刺（齿端倒棱）]
+    fixture: 滚齿心轴架（上下顶尖）、拨盘
+    locate: [{surface: 下端中心孔, symbol: center_fixed, dof: 3}, {surface: 上端中心孔, symbol: center_live, dof: 2}]
+    clamp: [{surface: 轴伸（拨盘）, kind: manual}]
+    sketch:
+      stock: [[20.4, 36], [24.4, 20], [25.4, 17], [30, 8], [52, 30], [30, 8], [25.4, 17]]
+      machined: [4]
+      dims:
+        - {kind: dia, seg: 4, text: "m2 z24，W₃ 15.433（−0.050/−0.090）"}
+      ra: {seg: {4: 1.6}}
+    steps:
+      - {step: 1, content: 两顶尖装夹在心轴架上，拨盘带动，找正齿顶圆跳动 ≤ 0.02, ta_min: 1.2, gauge: G06}
+      - {step: 2, content: "一次滚到全齿深（m2 小模数），滚刀 vc 40 m/min（n ≈ 202 r/min，工件 n ≈ 202/24 ≈ 8.4 r/min），轴向进给 1.25 mm/工件转；行程 = 齿宽 30 + 切入 16 + 切出 3 = 49 mm，tb = 49/(1.25 × 8.4) ≈ 4.7 min", tool: T04, tb_min: 4.7, gauge: G07}
+      - {step: 3, content: 齿端倒棱、去毛刺, tool: T08, ta_min: 0.8}
+    inspect:
+      - {char: "公法线 W₃ 15.433（−0.050/−0.090）", gauge: G07, freq: 首件、每 10 件}
+      - {char: "齿圈径向跳动（按 7 级）", gauge: G06, freq: 首件、每 20 件}
+  - seq: 50
+    operation: 铣键槽 Keyway milling
+    workstation: 键槽铣床 KEY-01
+    shop: 机加
+    content: 以轴伸外圆在 V 形块上定位（与键槽对称度的基准一致），轴承位外圆辅助支承，铣轴伸键槽 6 N9×25，控制槽底到精车外圆下母线的尺寸 H = 16.7（−0.04/−0.085），渗碳淬火、磨削后得 d − t₁ = 16.5（0/−0.1）；去毛刺
+    datum: 轴伸外圆（V 形块）
+    clamping: V 形块，压板
+    tools: 键槽铣刀 Ø6
+    minutes: 5.5
+    setup_min: 20
+    coolant: 乳化液
+    fixture: 键槽铣夹具（两个短 V 形块、轴向挡板、压板）
+    aux: [去毛刺]
+    locate_check: {method: v_block, Td: 0.05, alpha: 90, measure: bottom, tol: 0.06, what: 槽底尺寸 H（以轴伸外圆下母线为工序基准）}
+    locate: [{surface: 轴伸外圆, symbol: v, dof: 4}, {surface: 密封轴颈轴肩, symbol: plane, dof: 1}]
+    clamp: [{surface: 轴伸、轴承位（压板）, kind: manual}]
+    sketch:
+      stock: [[20.4, 36], [24.4, 20], [25.4, 17], [30, 8], [52, 30], [30, 8], [25.4, 17]]
+      machined: [keyway]
+      dims:
+        - {kind: keyway_width, text: "6 N9（−0.004/−0.034）"}
+        - {kind: keyway_length, text: "25"}
+        - {kind: keyway_depth, text: "H 16.7（−0.04/−0.085）"}
+        - {kind: keyway_pos, text: "5.5"}
+      ra: {keyway: 3.2}
+    steps:
+      - {step: 1, content: 轴伸外圆放入 V 形块，密封轴颈轴肩靠挡板，压板压紧, ta_min: 1.0}
+      - {step: 2, content: 对刀（对中心、对槽底）；首件试切后用对称度检具测量并微调, ta_min: 0.8, gauge: G10}
+      - {step: 3, content: 分 5 层铣键槽（每层约 0.74 mm）至 H 16.7, tool: T05, op: keyway, d: 6, vc: 20, fz: 0.02, z: 2, layers: 5, ap_layer: 0.74, travel: 21}
+      - {step: 4, content: 去毛刺, ta_min: 0.4}
+    inspect:
+      - {char: "键槽宽 6 N9（C4）", gauge: G08, freq: 每件}
+      - {char: "槽底尺寸 H 16.7（−0.04/−0.085）", gauge: G09, freq: 首件、每 5 件}
+      - {char: "键槽对称度 0.015（C6）", gauge: G10, freq: 首件、每 10 件}
+  - seq: 60
+    operation: 渗碳淬火 Carburizing
+    workstation: 热处理炉 HT-01
+    shop: 热处理
+    content: 清洗；920 ℃ 渗碳，有效硬化层深度 1.1–1.3 mm（磨前，按 GB/T 9450 测到 550 HV 处）；直接淬火，180 ℃ 回火 2 h；表面 58–62 HRC，心部 30–45 HRC；清洗、喷丸清理氧化皮
+    minutes: 20
+    setup_min: 60
+    card: 热处理工艺卡 RCL-SH101（另编）
+    aux: [清洗（淬火前后）, 喷丸清理氧化皮]
+    inspect:
+      - {char: "表面硬度 58–62 HRC（C11）", gauge: G12, freq: 每炉抽 3 件}
+      - {char: "有效硬化层深度（随炉试样）1.1–1.3 mm（磨前）", gauge: G13, freq: 每炉}
+      - {char: "径向跳动（两中心孔间，轴承位、齿轮处）≤ 0.20，即弯曲 ρ ≤ 0.10（磨削余量按此计算）", gauge: G06, freq: 每炉抽 5 件；超差件隔离评审（淬硬件不做冷校直）}
+      - {char: "轴伸处径向跳动 ≤ 0.02（键槽深尺寸链的同轴度环）", gauge: G06, freq: 每炉抽 5 件}
+  - seq: 70
+    operation: 磨外圆 Cylindrical grinding
+    workstation: 外圆磨床 GRD-01
+    shop: 机加
+    content: 修研两端中心孔；两顶尖装夹，粗磨、精磨两处轴承位、密封轴颈和轴伸至图纸尺寸；酸洗检查烧伤
+    datum: 两端中心孔（精基准）
+    clamping: 两顶尖，端面拨动顶尖带动
+    tools: 白刚玉砂轮 WA60KV
+    features:
+      - {name: 轴伸, size_mm: 20, es_mm: 0.009, ei_mm: -0.004, Ra_um: 1.6}
+      - {name: 密封轴颈, size_mm: 24, es_mm: 0, ei_mm: -0.033, Ra_um: 0.8}
+      - {name: 轴承位, size_mm: 25, es_mm: 0.015, ei_mm: 0.002, Ra_um: 0.8}
+    minutes: 16
+    setup_min: 20
+    coolant: 乳化液（磨削液）
+    fixture: 头架端面拨动顶尖（拨爪咬左端面）、尾架固定顶尖
+    locate: [{surface: 左端中心孔, symbol: center_fixed, dof: 3}, {surface: 右端中心孔, symbol: center_fixed, dof: 2}]
+    clamp: [{surface: 左端面（端面拨动顶尖的拨爪）, kind: manual}]
+    sketch:
+      stock: [[20, 36], [24, 20], [25, 17], [30, 8], [52, 30], [30, 8], [25, 17]]
+      machined: [0, 1, 2, 6]
+      dims:
+        - {kind: dia, seg: 0, text: "Ø20 j6（+0.009/−0.004）"}
+        - {kind: dia, seg: 1, text: "Ø24 h8（0/−0.033）"}
+        - {kind: dia, seg: 2, text: "Ø25 k6（+0.015/+0.002）"}
+        - {kind: dia, seg: 6, text: "Ø25 k6（+0.015/+0.002）"}
+        - {kind: runout, seg: 2, text: "↗ 0.010 A–B"}
+      ra: {seg: {0: 1.6, 1: 0.8, 2: 0.8, 6: 0.8}}
+    steps:
+      - {step: 1, content: 修研两端中心孔（渗碳淬火后氧化、变形）, tool: 中心孔修研顶尖, ta_min: 1.5}
+      - {step: 2, content: 粗磨两处轴承位、密封轴颈、轴伸，直径留精磨量 0.04, tool: T06, op: grind, note: "砂轮 35 m/s，工件 15 m/min，横进给 0.002 mm/行程", tb_min: 6.5}
+      - {step: 3, content: 修整砂轮（每 10 件）, tool: 金刚石笔, ta_min: 0.3}
+      - {step: 4, content: 精磨至 Ø25 k6、Ø24 h8、Ø20 j6，Ra 0.8（轴伸 Ra 1.6），光磨 2 次, tool: T06, op: grind, note: "横进给 0.0015 mm/行程", gauge: G05, tb_min: 3.8}
+      - {step: 5, content: 抽件酸洗检查烧伤, ta_min: 0.5, gauge: G14}
+    inspect:
+      - {char: "轴承位 Ø25 k6（C1）★", gauge: G17, freq: 每件}
+      - {char: "轴伸 Ø20 j6（C2）★、密封轴颈 Ø24 h8（C3）", gauge: G05, freq: 每件}
+      - {char: "轴承位径向圆跳动 0.010（C7）★", gauge: G06, freq: 首件、每 5 件}
+      - {char: "轴承位、密封轴颈 Ra 0.8，轴伸 Ra 1.6（C10）", gauge: G11, freq: 首件、每班 2 件}
+      - {char: 磨削烧伤, gauge: G14, freq: 每批首件、修整砂轮后首件}
+    grinding:
+      mat: 20CrMnTi-CQ
+      dw: 25
+      ds: 400
+      vs: 35
+      mesh: 60
+      wear_flat_pct: 1.5
+      passes:
+        - {name: 粗磨, vw_m_min: 15, ap: 0.002, sparkout: 0}
+        - {name: 精磨, vw_m_min: 15, ap: 0.0015, sparkout: 2}
+    aux: [清洗]
+  - seq: 80
+    operation: 零件检验 Part inspection
+    workstation: 检验站 QC-01
+    shop: 检验
+    content: 按检验卡检验尺寸、跳动、齿轮公法线、硬度与有效硬化层（每批抽 1 件解剖）
+    minutes: 8
+    setup_min: 5
+    final_inspection: true
+    aux: [清洗, 防锈]
+    inspect:
+      - {char: C1, gauge: G17, freq: 每件, record: QMS}
+      - {char: C2, gauge: G05, freq: 每件}
+      - {char: C3, gauge: G05, freq: 抽检 5 件/批}
+      - {char: C4, gauge: G08, freq: 抽检 5 件/批}
+      - {char: C5, gauge: G15, freq: 抽检 5 件/批}
+      - {char: C6, gauge: G10, freq: 抽检 5 件/批}
+      - {char: C7, gauge: G06, freq: 每件}
+      - {char: C8, gauge: G06, freq: 抽检 5 件/批}
+      - {char: C9, gauge: G07, freq: 每件, record: QMS}
+      - {char: C10, gauge: G11, freq: 抽检 2 件/批}
+      - {char: C11, gauge: G12, freq: 抽检 3 件/批, record: QMS}
+      - {char: C12, gauge: G13, freq: 每批抽 1 件解剖（或随炉试样）}
+      - {char: C13, gauge: G12, freq: 每批抽 1 件解剖}
+      - {char: C14, gauge: G02, freq: 抽检 5 件/批}
+      - {char: C15, gauge: 目测, freq: 每件}
+      - {char: C16, gauge: G14, freq: 每批首件、修整砂轮后首件（查工序 70 记录）}
+chains:
+  - name: 键槽深度 d − t₁（铣键槽后渗碳淬火、再磨轴伸）
+    char: C5
+    links:
+      - {name: 槽底尺寸 H（工序 50）, nominal: 16.7, es: -0.04, ei: -0.085, sense: 1}
+      - {name: 精车轴伸半径（工序 30）, nominal: 10.2, es: 0, ei: -0.025, sense: -1}
+      - {name: 磨削轴伸半径（工序 70）, nominal: 10, es: 0.0045, ei: -0.002, sense: 1}
+      - {name: 磨后轴伸轴线对精车轴线的偏移（同轴度 0.02，渗碳淬火变形）, nominal: 0, es: 0.01, ei: -0.01, sense: 1}
+tolerance_chart:
+  surfaces: {L: 左端面, S1: 轴伸—密封轴颈轴肩, S2: 密封轴颈—左轴承位轴肩, S3: 左轴承定位轴肩, S4: 齿轮左端面, S5: 齿轮右端面, S6: 右轴承定位轴肩, R: 右端面}
+  blank: [[L, R, 142, 1.0, -1.0]]
+  min_allowance: 0.1
+  cut_dir: {L: 1, S1: 1, S2: 1, S3: 1, S4: 1, S5: -1, S6: -1, R: -1}
+  cuts:
+    - {seq: 20.1, ref: L, surf: R, nominal: 139.5, es: 0.2, ei: -0.2, label: 工序 20 安装 1 车右端面（毛坯左端靠卡盘挡块）}
+    - {seq: 20.3, ref: R, surf: S5, nominal: -24.7, es: 0.1, ei: -0.1, label: 工序 20 粗车齿轮右端面（留 0.8）}
+    - {seq: 20.31, ref: R, surf: S6, nominal: -16.7, es: 0.1, ei: -0.1, label: 工序 20 粗车右轴承定位轴肩（留 0.8）}
+    - {seq: 20.4, ref: R, surf: L, nominal: -137, es: 0.2, ei: -0.2, label: 工序 20 安装 2 车左端面，总长 137}
+    - {seq: 20.6, ref: L, surf: S4, nominal: 80.7, es: 0.1, ei: -0.1, label: 工序 20 粗车齿轮左端面（留 0.8）}
+    - {seq: 20.61, ref: L, surf: S3, nominal: 72.7, es: 0.1, ei: -0.1, label: 工序 20 粗车左轴承定位轴肩（留 0.8）}
+    - {seq: 20.62, ref: L, surf: S2, nominal: 55.7, es: 0.1, ei: -0.1, label: 工序 20 粗车密封轴颈轴肩（留 0.8）}
+    - {seq: 20.63, ref: L, surf: S1, nominal: 35.7, es: 0.1, ei: -0.1, label: 工序 20 粗车轴伸轴肩（留 0.8）}
+    - {seq: 30.1, ref: L, surf: R, nominal: 136.5, es: 0.1, ei: -0.1, label: 工序 30 车右端面（半缺顶尖）}
+    - {seq: 30.11, ref: R, surf: S5, nominal: -25, es: 0.05, ei: -0.05, label: 工序 30 精车齿轮右端面}
+    - {seq: 30.12, ref: R, surf: S6, nominal: -17, es: 0.05, ei: -0.05, label: 工序 30 精车右轴承定位轴肩}
+    - {seq: 30.2, ref: R, surf: L, nominal: -136, es: 0.05, ei: -0.05, label: 工序 30 调头车左端面（总长）}
+    - {seq: 30.21, ref: L, surf: S1, nominal: 36, es: 0.1, ei: -0.1, label: 工序 30 精车轴伸轴肩}
+    - {seq: 30.22, ref: L, surf: S2, nominal: 56, es: 0.1, ei: -0.1, label: 工序 30 精车密封轴颈轴肩}
+    - {seq: 30.23, ref: L, surf: S3, nominal: 73, es: 0.05, ei: -0.05, label: 工序 30 精车左轴承定位轴肩}
+    - {seq: 30.24, ref: S3, surf: S4, nominal: 8, es: 0.05, ei: -0.05, label: 工序 30 以轴承定位轴肩为基准车齿轮左端面（基准重合）}
+  drawing:
+    - {a: L, b: S1, nominal: 36, tol: 0.3}
+    - {a: S1, b: S2, nominal: 20, tol: 0.2}
+    - {a: S2, b: S3, nominal: 17, tol: 0.2}
+    - {a: S3, b: S4, nominal: 8, tol: 0.1}
+    - {a: S4, b: S5, nominal: 30, tol: 0.2}
+    - {a: S5, b: S6, nominal: 8, tol: 0.2}
+    - {a: L, b: R, nominal: 136, tol: 0.5}
+attachments:
+  - {kind: calc, name: SH-101 工艺计算书.docx, missing: []}

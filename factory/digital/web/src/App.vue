@@ -135,6 +135,7 @@ const apps = computed(() => [
   { name: '仿真与分析', role: 'CAE', href: '/cae', route: '/cae' },
   { name: '流体分析', role: 'CFD', href: '/cfd', route: '/cfd' },
   { name: '运动与动力', role: 'MBD', href: '/mbd', route: '/mbd' },
+  { name: '电路分析', role: 'SPICE', href: '/circuit', route: '/circuit' },
   { name: '数控编程', role: 'CAM', href: '/cam', route: '/cam' },
   { name: '设计优化', role: 'OPT', href: '/opt', route: '/opt' },
   { name: '数字孪生', role: 'TWIN', href: '/twin', route: '/twin' },

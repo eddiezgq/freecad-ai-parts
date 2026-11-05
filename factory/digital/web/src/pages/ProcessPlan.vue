@@ -16,7 +16,7 @@
         </div>
       </section>
       <section v-else class="card">
-        <div class="card-head" data-help="pp-part"><h2>零件图要求</h2><span class="muted small">这个零件没有参照工艺规程：按图纸要求自己拟定工艺路线（教材第 56 章），AI 预检按图纸核对</span></div>
+        <div class="card-head" data-help="pp-part"><h2>零件图要求</h2><span class="muted small">按图纸要求自己拟定工艺路线（教材第 56 章；全套工艺规程的写法见第 57 章），AI 预检按图纸核对</span></div>
         <div class="line">
           <label class="small">零件 <select v-model="item"><option v-for="i in ITEMS" :key="i" :value="i">{{ i }}</option></select></label>
           <button class="btn ghost" @click="downloadPart">下载零件图要求（YAML）</button>
@@ -95,7 +95,7 @@ import { useRoute } from 'vue-router';
 import { get, post, session } from '../lib/api';
 
 const ITEMS = ['SH-301', 'SH-101'];
-const HAS_REF = { 'SH-301': true };   // SH-101 只有零件图要求（第 13 轮十二），路线由学生拟定
+const HAS_REF = { 'SH-301': true };   // SH-101 网页上只给零件图要求（第 13 轮十二），路线由学生拟定；std/SH-101_process.yaml（第 57 章）可经接口下载
 const STATUS = { pending: '待审', approved: '已批准', rejected: '已退回' };
 const TONE = { pending: 'warn', approved: 'ok', rejected: 'bad' };
 const LEVEL = { error: '必须改', warning: '建议', info: '说明' };
