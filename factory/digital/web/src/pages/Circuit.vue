@@ -43,6 +43,7 @@
         </div>
         <div v-for="(names, an) in built.plots" :key="an">
           <SpiceChart v-if="plots[an]" :ref="(c) => (charts[an] = c)" :title="ANALYSIS[an] || an" :plot="plots[an]" :show="names" :kind="kindOf(an)" />
+          <button v-if="plots[an] && kindOf(an) === 'tran'" class="btn sm" @click="toScope(an, names)">送到示波器（虚拟仪器）</button>
         </div>
         <div class="line">
           <button v-if="built.mc" class="btn" :disabled="busy" @click="runMc">容差分析（蒙特卡洛 200 次，服务器）</button>
@@ -82,11 +83,13 @@
 
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { get, post, session } from '../lib/api';
 import { SCHEMATICS } from '../lib/schematics';
 import SchematicView from '../components/SchematicView.vue';
 import SpiceChart from '../components/SpiceChart.vue';
 
+const router = useRouter();
 const ANALYSIS = { dc: '直流扫描', ac: '交流（波特图）', tran: '瞬态', open: '开环（电压阶跃）', qgd: '量 Q_gd' };
 const DERIVED = {
   i_peak_A: '峰值相电流 A', i_rated_A: '额定相电流 A', shunt_mV_at_peak: '峰值时采样电压 mV', p_shunt_W_rated: '额定电流下采样电阻功耗 W',
@@ -199,6 +202,16 @@ async function report() {
     a.download = `电路分析计算书-${ex.value.title}.docx`;
     document.body.appendChild(a); a.click(); a.remove();
   } catch (e) { err.value = e.message; } finally { busy.value = false; }
+}
+// 第 82 轮：瞬态曲线送到虚拟仪器的示波器（带示波器自己的带宽、量化和噪声）
+function toScope(an, names) {
+  const p = plots[an];
+  const t = p.data[p.names[0]];
+  const keep = names.filter((n) => p.data[n]).slice(0, 4);
+  try {
+    sessionStorage.setItem('wq-scope-import', JSON.stringify({ title: `例题 ${ex.value.no} ${ex.value.title} · ${ANALYSIS[an] || an}`, names: keep, t, series: keep.map((n) => p.data[n]) }));
+  } catch (e) { err.value = '浏览器不让存临时数据（无痕窗口？）'; return; }
+  router.push({ path: '/instruments', query: { task: 'import' } });
 }
 async function checkNet() {
   err.value = '';
