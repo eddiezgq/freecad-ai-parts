@@ -128,7 +128,7 @@ jobs:
           python-version: "3.12"
       - name: 有限元、流体求解器（CalculiX、gmsh 所需系统库、OpenFOAM）
         run: |
-          sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends calculix-ccx libglu1-mesa libxcursor1 libxft2 libxinerama1 openfoam openmpi-bin
+          sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends calculix-ccx libglu1-mesa libxcursor1 libxft2 libxinerama1 openfoam openmpi-bin ngspice
           (ccx -v || true) | grep -q Version
           which simpleFoam snappyHexMesh mpirun
       - name: 动力学用的机器人模型（Menagerie 固定提交）

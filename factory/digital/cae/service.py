@@ -1185,3 +1185,96 @@ def cfd_result(jid: str):
     if not out:
         raise HTTPException(404, "还没有结果")
     return out
+
+
+# ---------------------------------------------------------------- 电路分析（第 79 轮，电子 E1）：驱动板 6 道例题、网表模式、蒙特卡洛、计算书
+def _circuit():
+    from cae import circuit as CI
+    return CI
+
+
+def _circuit_key(key):
+    CI = _circuit()
+    if key not in CI.EXAMPLES:
+        raise HTTPException(404, "没有这道例题")
+    return CI
+
+
+def _plain_build(b):
+    """例题 → 可以发给网页的字典（公式里依赖读数的那几项先空着，对照时再算）"""
+    out = {k: v for k, v in b.items() if k not in ("formulas",)}
+    out["formulas"] = {k: (None if callable(v) else v) for k, v in b["formulas"].items()}
+    out["readings"] = {k: {"label": v[0], "unit": v[1]} for k, v in _circuit().READING_NAMES.items()}
+    return out
+
+
+@app.get("/circuit/examples")
+def circuit_examples():
+    CI = _circuit()
+    return {"examples": CI.catalog(), "board": CI.BOARD, "motor": CI.MOTOR, "i_peak": CI.i_peak(), "i_rated": CI.i_rated(),
+            "server_ngspice": bool(CI.ngspice_bin())}
+
+
+@app.post("/circuit/examples/{key}/build")
+def circuit_build(key: str, body: dict = Body(default={})):
+    return _plain_build(_circuit_key(key).build(key, body.get("params")))
+
+
+@app.post("/circuit/examples/{key}/compare")
+def circuit_compare(key: str, body: dict = Body(...)):
+    CI = _circuit_key(key)
+    meas = {str(k).lower(): float(v) for k, v in (body.get("meas") or {}).items() if isinstance(v, (int, float))}
+    return {"compare": CI.compare(key, body.get("params"), meas)}
+
+
+@app.post("/circuit/examples/{key}/simulate")
+def circuit_simulate(key: str, body: dict = Body(default={})):
+    CI = _circuit_key(key)
+    try:
+        return CI.simulate(key, body.get("params"))
+    except RuntimeError as e:
+        raise HTTPException(422, str(e)) from None
+
+
+@app.post("/circuit/examples/{key}/montecarlo")
+def circuit_mc(key: str, body: dict = Body(default={})):
+    CI = _circuit_key(key)
+    try:
+        return CI.montecarlo(key, body.get("params"), n=body.get("n") or 200, seed=body.get("seed") or 1)
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from None
+
+
+@app.post("/circuit/check")
+def circuit_check(body: dict = Body(...)):
+    errs, nodes = _circuit().check_netlist(body.get("netlist") or "")
+    return {"errors": errs, "nodes": nodes}
+
+
+@app.post("/circuit/run")
+def circuit_run(body: dict = Body(...)):
+    CI = _circuit()
+    net = body.get("netlist") or ""
+    if len(net) > 200_000:
+        raise HTTPException(413, "网表太大")
+    errs, _ = CI.check_netlist(net)
+    if errs:
+        raise HTTPException(400, "；".join(errs[:5]))
+    try:
+        return CI.run(net)
+    except RuntimeError as e:
+        raise HTTPException(422, str(e)) from None
+
+
+@app.post("/circuit/examples/{key}/report")
+def circuit_report(key: str, body: dict = Body(default={})):
+    CI = _circuit_key(key)
+    from cae import circuit_report as CR
+    b = CI.build(key, body.get("params"))
+    meas = {str(k).lower(): float(v) for k, v in (body.get("meas") or {}).items() if isinstance(v, (int, float))}
+    if not meas:                                  # 网页没带读数：服务器算一遍
+        meas = CI.simulate(key, b["params"])["meas"]
+    data = CR.build(b, CI.compare(key, b["params"], meas), meas, (body.get("images") or [])[:4], body.get("mc"), body.get("who") or "")
+    name = "电路分析计算书-{}.docx".format(b["title"])
+    return Response(data, media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    headers={"Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(name)})

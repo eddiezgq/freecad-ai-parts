@@ -151,6 +151,29 @@ def mount(app, H, user_of, who, uid_of, is_teacher, ai_quota=None):
             params["owner"] = uid_of(u)
         return call("GET", "/jobs", params=params).json()
 
+    # ------------------------------------------------------------ 电路分析（第 79 轮，电子 E1）
+    @app.get("/api/circuit/examples")
+    def circuit_examples(u=Depends(user_of)):
+        return call("GET", "/circuit/examples").json()
+
+    @app.post("/api/circuit/examples/{key}/{action}")
+    def circuit_example(key: str, action: str, body: dict = Body(default={}), u=Depends(user_of)):
+        if action not in ("build", "compare", "simulate", "montecarlo", "report"):
+            raise HTTPException(404, "没有这个操作")
+        if action == "report":
+            body = dict(body, who=who(u))
+        r = call("POST", "/circuit/examples/{}/{}".format(urllib.parse.quote(key), action), json=body)
+        if action == "report":
+            return Response(r.content, media_type=r.headers.get("content-type"),
+                            headers={"Content-Disposition": r.headers.get("content-disposition", "attachment")})
+        return r.json()
+
+    @app.post("/api/circuit/{action}")
+    def circuit_netlist(action: str, body: dict = Body(...), u=Depends(user_of)):
+        if action not in ("check", "run"):
+            raise HTTPException(404, "没有这个操作")
+        return call("POST", "/circuit/" + action, json={"netlist": str(body.get("netlist") or "")[:200_000]}).json()
+
     # ------------------------------------------------------------ 运动与动力分析（第 12 轮）
     @app.get("/api/mbd/robots")
     def mbd_robots(u=Depends(user_of)):

@@ -22,7 +22,7 @@ WORKDIR /app
 # 有限元（第 11 轮）：CalculiX 求解器 ccx，gmsh 需要 libGLU 等
 # 流体分析（第 16 轮）：OpenFOAM（Debian 自带的软件包）与并行用的 Open MPI；虚拟 PLC（第 18 轮）：nodejs
 RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 libxrender1 libx11-6 libxext6 \
-        calculix-ccx libglu1-mesa libxcursor1 libxft2 libxinerama1 libgomp1 openfoam openmpi-bin nodejs \
+        calculix-ccx libglu1-mesa libxcursor1 libxft2 libxinerama1 libgomp1 openfoam openmpi-bin nodejs ngspice \
     && rm -rf /var/lib/apt/lists/*
 COPY factory/digital/requirements.txt digital/requirements.txt
 RUN pip install -r digital/requirements.txt "requests>=2.31"

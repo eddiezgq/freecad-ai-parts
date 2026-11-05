@@ -259,6 +259,7 @@ def review(plan):
 
     if part:
         _review_route(plan, part, say)
+    _review_opdesign(plan, part, say)
 
     # 计算书
     calc = [a for a in plan.get("attachments") or [] if a.get("kind") == "calc"]
@@ -297,6 +298,48 @@ def _method_of(op, it):
         fine = "od_finish_grind" if it is not None and it <= 7 else "od_rough_grind"
         return ["od_rough_grind", fine] if two and fine == "od_finish_grind" else [fine]
     return []
+
+
+FE_MIN = 250 * 2 * 480 * 0.85     # 一年的有效工作时间（min）：250 天、两班、每班 480 min、设备综合效率 0.85（第 56.8 节）
+
+
+def _review_opdesign(plan, part, say):
+    """“工序设计”规则（第 13 轮十三，配《机械制造技术》第 57 章）：中间工序尺寸按入体原则标注；各工步的机动时间与辅助时间
+    之和不超过单件工时；零件图给了年产量时，按工作中心的台数核算瓶颈能否跟上需求节拍。"""
+    ops = plan.get("operations") or []
+    last = {}
+    for o in ops:
+        for f in o.get("features") or []:
+            last[f["name"]] = o["seq"]
+    for o in ops:
+        for f in o.get("features") or []:
+            if last.get(f["name"]) != o["seq"] and abs(f.get("es_mm", 0)) > 1e-9:
+                say("工序设计", "warning", "“{}”的中间工序尺寸 Ø{:g}（{:+g}/{:+g}）没有按入体原则标注：外圆的工序尺寸取上偏差为 0、"
+                    "公差向体内，下一道的余量才好算、也不会把余量做没。".format(f["name"], f["size_mm"], f.get("es_mm", 0), f.get("ei_mm", 0)),
+                    o["seq"])
+        st = o.get("steps") or []
+        if st and o.get("minutes"):
+            try:
+                from . import cards as CD
+                tb = sum((CD.step_values(x)["tb"] or 0) for x in st)
+            except Exception:  # noqa: BLE001
+                tb = 0
+            ta = sum(x.get("ta_min") or 0 for x in st)
+            if tb + ta > o["minutes"] + 1e-9:
+                say("工时", "warning", "各工步的机动时间 {:.1f} min 与辅助时间 {:.1f} min 合计 {:.1f} min，超过单件工时 {:g} min"
+                    "（单件时间还要加上布置工作地、休息与生理需要的时间）。".format(tb, ta, tb + ta, o["minutes"]), o["seq"])
+    N = (part or {}).get("annual_volume") or plan.get("annual_volume")
+    batch = plan.get("batch") or (part or {}).get("batch") or 1
+    if N and all(o.get("workstation") and o.get("minutes") for o in ops):
+        try:
+            from . import route as RT
+            r = RT.route_cost(ops, batch)
+        except Exception:  # noqa: BLE001
+            return
+        need = FE_MIN / N
+        if r["takt"] > need + 1e-9:
+            say("工时", "warning", "年产 {:g} 件的需求节拍约 {:.1f} min/件，瓶颈 {} 每件占用 {:.1f} min，跟不上；加设备、加班或改工艺"
+                "（第 56.8、57.6 节）。".format(N, need, r["bottleneck"], r["takt"]))
 
 
 def _review_route(plan, part, say):

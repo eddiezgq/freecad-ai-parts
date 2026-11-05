@@ -2,6 +2,7 @@
 """工艺路线的检查与计算（第 13 轮十二；《机械制造技术》第 56 章）：SH-101 的参照路线没有“路线”意见，
 各种排错的路线被找出来；加工方案链与临界批量。"""
 import copy
+from pathlib import Path
 import os
 
 import yaml
@@ -128,3 +129,46 @@ def test_sh101_models():
     assert all(a > b for a, b in zip(v, v[1:-1]))
     assert v[-1] < v[3]
     assert len(X.involute_gear()) == 24 * (2 * 9 + 2)
+
+
+def test_sh101_full_process_plan():
+    """第 57 章的 SH-101 全套工艺规程（std/SH-101_process.yaml）：AI 预检没有意见，能生成全套卡片；跟踪图、尺寸链改坏了能查出。"""
+    import copy
+    import yaml
+    from hub import cards as CD
+    from hub import process as PR
+    p = yaml.safe_load((Path(__file__).resolve().parents[1] / "std" / "SH-101_process.yaml").read_text(encoding="utf-8"))
+    f = PR.review(p)
+    assert [x for x in f if x["level"] in ("error", "warning")] == []
+    assert PR.suggested_score(f) == 100
+    assert CD.check(p) == []
+    q = copy.deepcopy(p)
+    c = next(c for c in q["tolerance_chart"]["cuts"] if c["seq"] == 30.24)
+    c["es"], c["ei"] = 0.2, -0.2
+    assert any(x["level"] == "error" and "8 ± 0.1" in x["text"] for x in PR.review(q))
+    q = copy.deepcopy(p)
+    q["chains"][0]["links"][0]["ei"] = -0.2
+    assert any(x["level"] == "error" and x["rule"] == "尺寸链" for x in PR.review(q))
+
+
+def test_opdesign_rules():
+    """“工序设计”规则（第 57 章）：入体标注、工步时间超过工时、瓶颈跟不上需求节拍。"""
+    import yaml
+    from hub import process as PR
+    p = yaml.safe_load((Path(__file__).resolve().parents[1] / "std" / "SH-101_process.yaml").read_text(encoding="utf-8"))
+    q = copy.deepcopy(p)
+    q["operations"][1]["features"][0]["es_mm"] = 0.1
+    assert any(x["rule"] == "工序设计" for x in PR.review(q))
+    q = copy.deepcopy(p)
+    next(o for o in q["operations"] if o["seq"] == 50)["minutes"] = 4      # 机动 2.5 + 辅助 2.2
+    assert any(x["rule"] == "工时" and "辅助时间" in x["text"] for x in PR.review(q))
+    q = copy.deepcopy(p)
+    q["annual_volume"] = 30000            # 零件图 6000 件；工艺规程里写的年产量只在零件图没有时才用
+    r = yaml.safe_load((Path(__file__).resolve().parents[1] / "std" / "SH-101_route.yaml").read_text(encoding="utf-8"))
+    PR_part = PR.part_spec
+    try:
+        PR.part_spec = lambda item: dict(PR_part(item), annual_volume=12000)
+        assert any(x["rule"] == "工时" and "需求节拍" in x["text"] for x in PR.review(r))       # 第 56 章路线的滚齿 22 min 跟不上 1.2 万件（需求节拍 17 min）
+        assert not any("需求节拍" in x["text"] for x in PR.review(p))                          # 本章定额后滚齿 9 min，瓶颈变成磨削 16 min，跟得上
+    finally:
+        PR.part_spec = PR_part
