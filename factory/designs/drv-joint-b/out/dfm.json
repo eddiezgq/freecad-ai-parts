@@ -1,0 +1,134 @@
+{
+ "capability": {
+  "annular_min": 0.15,
+  "courtyard_gap": 0.0,
+  "drill_min": 0.3,
+  "dt_c": 20.0,
+  "edge_min": 0.5,
+  "ict_coverage_min": 0.9,
+  "inner_oz": 1.0,
+  "mask_bridge_min": 0.1,
+  "outer_oz": 2.0,
+  "space_min": 0.127,
+  "track_min": 0.127
+ },
+ "checks": [
+  {
+   "at": [
+    [
+     17.91,
+     35.12,
+     "+12V"
+    ]
+   ],
+   "detail": "",
+   "key": "track_width",
+   "limit": 0.127,
+   "name": "最细线宽",
+   "pass": true,
+   "unit": "mm",
+   "value": 0.25,
+   "why": "板厂蚀刻能做到的最细线宽、最小线距；再细就会断线或短路"
+  },
+  {
+   "at": [],
+   "detail": "",
+   "key": "track_space",
+   "limit": 0.127,
+   "name": "最小线距（铜到铜）",
+   "pass": true,
+   "unit": "mm",
+   "value": 0.127,
+   "why": "板厂蚀刻能做到的最细线宽、最小线距；再细就会断线或短路"
+  },
+  {
+   "at": [],
+   "detail": "",
+   "key": "drill",
+   "limit": 0.3,
+   "name": "最小孔径",
+   "pass": true,
+   "unit": "mm",
+   "value": 0.3,
+   "why": "钻头越细越容易断、孔壁镀铜越难；孔环太窄，钻偏一点就破环"
+  },
+  {
+   "at": [],
+   "detail": "",
+   "key": "annular",
+   "limit": 0.15,
+   "name": "最小孔环",
+   "pass": true,
+   "unit": "mm",
+   "value": 0.15,
+   "why": "钻头越细越容易断、孔壁镀铜越难；孔环太窄，钻偏一点就破环"
+  },
+  {
+   "at": [],
+   "detail": "",
+   "key": "mask_bridge",
+   "limit": 0.1,
+   "name": "最小阻焊桥",
+   "pass": true,
+   "unit": "mm",
+   "value": 0.175,
+   "why": "相邻焊盘之间要留一条阻焊（阻焊桥），否则回流焊时锡会连成桥"
+  },
+  {
+   "at": [],
+   "detail": "",
+   "key": "edge",
+   "limit": 0.5,
+   "name": "元件到板边",
+   "pass": true,
+   "unit": "mm",
+   "value": 0.79,
+   "why": "板边要铣外形、过轨道夹持；元件离边太近会被铣到或卡轨道"
+  },
+  {
+   "at": [],
+   "detail": "",
+   "key": "spacing",
+   "limit": 0,
+   "name": "元件外框不重叠",
+   "pass": true,
+   "unit": "处",
+   "value": 0,
+   "why": "贴片机吸嘴、AOI 视角、返修烙铁都要空间；器件外框（courtyard）不能重叠"
+  },
+  {
+   "at": [],
+   "detail": "二极管、电解电容 5 个",
+   "key": "polarity",
+   "limit": 5,
+   "name": "极性元件方向统一",
+   "pass": true,
+   "unit": "个",
+   "value": 5,
+   "why": "极性元件（二极管、电解电容、芯片第 1 脚）方向统一，贴片编程和 AOI 判反向都简单，人工目检也不容易看错"
+  },
+  {
+   "at": [],
+   "detail": "扎不到的网络：SW_A、SW_B、SW_C",
+   "key": "ict",
+   "limit": 0.9,
+   "name": "ICT 测试点覆盖率",
+   "pass": true,
+   "unit": "",
+   "value": 0.963,
+   "why": "在线测试（ICT）用针床扎测试点；网络上没有能扎的点，这个网络就测不到"
+  },
+  {
+   "at": [],
+   "detail": "VBUS 9 A：外层要 ≥ 2.04 mm（内层 10.63 mm），功率路径连通；SW_A 8.5 A：外层要 ≥ 1.89 mm（内层 9.82 mm），功率路径连通；SW_B 8.5 A：外层要 ≥ 1.89 mm（内层 9.82 mm），功率路径连通；SW_C 8.5 A：外层要 ≥ 1.89 mm（内层 9.82 mm），功率路径连通；MOT_A 8.5 A：外层要 ≥ 1.89 mm（内层 9.82 mm），功率路径连通；MOT_B 8.5 A：外层要 ≥ 1.89 mm（内层 9.82 mm），功率路径连通；MOT_C 8.5 A：外层要 ≥ 1.89 mm（内层 9.82 mm），功率路径连通",
+   "key": "current",
+   "limit": 7,
+   "name": "大电流走线宽度",
+   "pass": true,
+   "unit": "条网络",
+   "value": 7,
+   "why": "按 IPC-2221 由电流算线宽：线太窄会过热；外层 2 oz、内层 1 oz 铜，温升 20 ℃（示例）"
+  }
+ ],
+ "pass": true
+}

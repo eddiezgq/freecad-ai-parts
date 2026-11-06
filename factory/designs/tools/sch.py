@@ -131,7 +131,7 @@ def write(design, outdir, project="drv-joint"):
     os.makedirs(outdir, exist_ok=True)
     root_uuid = uid(project, "root")
     notes = getattr(design, "SHEET_NOTES", {})
-    files = {project + ".kicad_sch": root_file(design, project, root_uuid, "关节伺服驱动板 DRV-JOINT Joint servo drive board")}
+    files = {project + ".kicad_sch": root_file(design, project, root_uuid, getattr(design, "TITLE", "关节伺服驱动板 DRV-JOINT Joint servo drive board"))}
     for i, (key, name, name_en) in enumerate(design.SHEETS):
         files[key + ".kicad_sch"] = sheet_file(design, project, key, name, name_en, i + 2, root_uuid, design.NC_NETS, notes.get(key, name))
     for fn, txt in files.items():

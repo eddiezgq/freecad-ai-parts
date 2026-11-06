@@ -1789,8 +1789,11 @@ FREECAD_README = """问渠数字工厂 · 我的 CAD 宏包（FreeCAD、SolidWor
 6. 插入零件库标准件：执行 wq_library.py，搜索 6207 等编号。
 
 任何零件提交到工厂（企业版）：
-7. 把压缩包里的 Mod\\WenQuest 文件夹复制到 FreeCAD 的用户 Mod 目录
-   （Windows：%APPDATA%\\FreeCAD\\Mod；macOS：~/Library/Application Support/FreeCAD/Mod；Linux：~/.local/share/FreeCAD/Mod），重启 FreeCAD。
+7. 把压缩包里的 Mod\\WenQuest 文件夹复制到 FreeCAD 的用户 Mod 目录，重启 FreeCAD。
+   用户 Mod 目录在哪：在 FreeCAD 的 Python 控制台（菜单“视图 → 面板 → Python 控制台”）
+   输入 App.getUserAppDataDir() 回车，显示的文件夹里的 Mod（没有就新建一个）。
+   FreeCAD 1.1 一般是 Windows：%APPDATA%\\FreeCAD\\v1-1\\Mod；
+   macOS：~/Library/Application Support/FreeCAD/v1-1/Mod；Linux：~/.local/share/FreeCAD/v1-1/Mod（以控制台显示的为准）。
 8. 工作台列表里选“问渠”，工具栏出现“提交到问渠工厂”“插入零件库标准件”两个按钮。
 9. 在模型树里选中零件 → 点“提交到问渠工厂” → 填物料编号和改动说明 → 提交。文档里有 TechDraw 图纸页的会一并导出 PDF。
    企业（生产）模式进“设计发布与审批”待审，审批人批准后才进 ERPNext 和车间。

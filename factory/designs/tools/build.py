@@ -64,6 +64,10 @@ def run(cmd, **kw):
 def schematic():
     os.makedirs(KDIR, exist_ok=True)
     D.SHEET_NOTES = SHEET_NOTES
+    if any(p["lib"].startswith("wq:") for p in D.PARTS):          # 工程自带符号库（B 版的 WQ-ENCIF）随工程走
+        shutil.copy(os.path.join(ROOT, "libs", "wq.kicad_sym"), os.path.join(KDIR, "wq.kicad_sym"))
+        with open(os.path.join(KDIR, "sym-lib-table"), "w", encoding="utf-8") as f:
+            f.write('(sym_lib_table\n  (lib (name "wq")(type "KiCad")(uri "${KIPRJMOD}/wq.kicad_sym")(options "")(descr "问渠：编码器接口芯片 WQ-ENCIF"))\n)\n')
     return sch.write(D, KDIR, NAME)
 
 
@@ -205,7 +209,7 @@ def exports():
     # 三维：STEP（FreeCAD）→ GLB（网页）
     step = os.path.join(OUT, NAME + ".step")
     run(["kicad-cli", "pcb", "export", "step", "--subst-models", "--force", "-o", step, pcbf])
-    _norm_text(step, [(r"FILE_NAME\('[^']*','[^']*'", "FILE_NAME('drv-joint.step','{}T00:00:00'".format(DATE))])
+    _norm_text(step, [(r"FILE_NAME\('[^']*','[^']*'", "FILE_NAME('{}.step','{}T00:00:00'".format(NAME, DATE))])
     glb(step, os.path.join(OUT, NAME + ".glb"))
     # BOM
     bom(os.path.join(OUT, "bom.csv"))
@@ -310,6 +314,20 @@ def summary(drc_res, dfm_res, route_stats, sch_net):
         "dfm": {"pass": dfm_res["pass"], "n": len(dfm_res["checks"])},
         "files": {}
     }
+    if getattr(D, "REV", "A") == "B":          # 第 98 轮：B 版带“A→B 改了什么”（A 版的 design.json 不变）
+        import drv_joint as A
+        a_items, b_items = A.bom_by_item(), D.bom_by_item()
+        mcu_a = next(p for p in A.PARTS if p["ref"] == "U10")["pins"]
+        mcu_b = next(p for p in D.PARTS if p["ref"] == "U10")["pins"]
+        d["rev"] = "示例 B（设计对照）"
+        d["changes"] = [{"ref": r, "what": w} for r, w in D.B_CHANGES]
+        d["bom_delta"] = {k: b_items.get(k, 0) - a_items.get(k, 0) for k in sorted(set(a_items) | set(b_items)) if b_items.get(k, 0) != a_items.get(k, 0)}
+        d["mcu_pins"] = [{"pin": k, "a": mcu_a.get(k), "b": mcu_b.get(k)} for k in sorted(set(mcu_a) | set(mcu_b), key=int) if mcu_a.get(k) != mcu_b.get(k)]
+        d["nets_added"] = sorted(set(D.nets()) - set(A.nets()))
+        d["firmware"] = ["SPI1：PA4 NSS / PA5 SCK / PA6 MISO / PA7 MOSI（AF5），模式 0，≤ 5 MHz（芯片要求 SCLK ≤ 时钟 / 10）",
+                         "SSI：PB3 / PB4 改用 SPI3（AF6），引脚不变", "PB1 推挽输出，接芯片复位（低有效）；TIM3 编码器模式不再用",
+                         "上电：拉低复位 ≥ 4 个芯片时钟后放开，读 ID（地址 0x00）应为 0x454E4331，再写 CTRL 设滤波长度"]
+        d["disclaimer"] = "B 版：设计对照，不投产；编码器接口芯片 WQ-ENCIF 未流片。示例设计，未经硬件验证"
     for root, _, fs in os.walk(OUT):
         for fn in sorted(fs):
             if fn == "design.json" or fn.endswith((".glb", ".step")):    # 三维随 OpenCASCADE 版本略有不同，不记摘要
@@ -323,10 +341,29 @@ def summary(drc_res, dfm_res, route_stats, sch_net):
     return d
 
 
+def use_rev_b():
+    """第 98 轮：B 版——同一套流程，换设计描述（drv_joint_b：A 版打补丁）、工程名和产物目录；A 版的东西一律不碰"""
+    global D, PROJ, KDIR, OUT, NAME
+    import drv_joint_b
+    D = drv_joint_b
+    NAME = "drv-joint-b"
+    PROJ = os.path.join(ROOT, NAME)
+    KDIR = os.path.join(PROJ, "kicad")
+    OUT = os.path.join(PROJ, "out")
+    CLASSES["Supply"][2].append("+1V8")
+    SHEET_NOTES["mcu"] = ("STM32G431（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线电压、SPI1 读编码器接口芯片 U14（模式 0，≤ 5 MHz）、"
+                          "SPI3 读 SSI、FDCAN1；8 MHz 晶振；TP1–TP5 是烧录口和电源测试点。B 版：设计对照，不投产。")
+    SHEET_NOTES["io"] = ("B 版：J3 增量编码器 A/B/Z 经 1 kΩ / 220 pF 滤波进编码器接口芯片 U14 WQ-ENCIF（第 92 轮设计，未流片），"
+                         "Y2 给它 50 MHz 时钟，U15 给 1.8 V 核心电源；MCU 用 SPI1 读计数。J4 绝对值编码器 SSI、J5 CAN 同 A 版。")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-route", action="store_true", help="不重新布线，沿用已有 PCB")
+    ap.add_argument("--rev", default="A", choices=["A", "B"], help="A 版（投产）或 B 版（第 98 轮：放上 WQ-ENCIF，设计对照）")
     a = ap.parse_args()
+    if a.rev == "B":
+        use_rev_b()
     import dfm
     schematic()
     stats = None
@@ -334,7 +371,7 @@ def main():
         jar = os.environ.get("FREEROUTING_JAR") or os.path.join(HERE, "freerouting-1.9.0.jar")
         stats = pcb_build(jar)
         # 导出和检查换一个新进程做：KiCad 的工程设置在同一进程里会沿用布线前读到的旧值
-        return subprocess.call([sys.executable, os.path.abspath(__file__), "--no-route"])
+        return subprocess.call([sys.executable, os.path.abspath(__file__), "--no-route", "--rev", a.rev])
     _project_settings()
     net = exports()
     dr = drc()
