@@ -1,12 +1,13 @@
 // STM32G431CB 仿真平台（Renode）——只描述本轮固件用到的部分。地址按 RM0440《STM32G4 参考手册》的存储器映射。
-// 第 100 轮：驱动板 B 版固件仿真。示例，非 ST 官方平台文件。
+// 第 100 轮：驱动板 B 版固件仿真；第 102 轮加 TIM1、ADC1、FDCAN1（自写外设，见 WqDrive.cs）、PLL 170 MHz。
+// 地址与中断号对照 ST 官方 CMSIS 头文件 stm32g431xx.h 核对。示例，非 ST 官方平台文件。
 cpu: CPU.CortexM @ sysbus
     cpuType: "cortex-m4f"
     nvic: nvic
 
-// NVIC 与 SysTick；上电后系统时钟为 HSI16（RM0440 RCC 章），SysTick 按 16 MHz 计
+// NVIC 与 SysTick；固件把系统时钟从 HSI16 切到 PLL 170 MHz（RM0440 RCC 章）
 nvic: IRQControllers.NVIC @ sysbus 0xE000E000
-    systickFrequency: 16000000
+    systickFrequency: 170000000
     -> cpu@0
 
 // 128 KB Flash（RM0440 存储器映射：0x0800 0000），SRAM1 16 KB + SRAM2 6 KB 连续（0x2000 0000，共 22 KB）
@@ -24,6 +25,28 @@ gpioPortB: GPIOPort.STM32_GPIOPort @ sysbus <0x48000400, +0x400>
 // SPI1（APB2，RM0440 存储器映射：0x4001 3000）
 spi1: SPI.STM32SPI @ sysbus 0x40013000
 
-// RCC（0x4002 1000）只占位成一块可读写的存储：固件只写时钟使能位，不等就绪标志
-rcc: Memory.MappedMemory @ sysbus 0x40021000
+// RCC（0x4002 1000）：只做固件等待的就绪位（HSIRDY、PLLRDY、SWS），见 WqDrive.cs 的 WqRcc
+rcc: Miscellaneous.WqRcc @ sysbus 0x40021000
+
+// FLASH 接口（0x4002 2000，等待周期）、PWR（0x4000 7000，主电压调节器提升模式）只占位
+flashif: Memory.MappedMemory @ sysbus 0x40022000
+    size: 0x400
+
+pwr: Memory.MappedMemory @ sysbus 0x40007000
+    size: 0x400
+
+// TIM1（APB2 0x4001 2C00）+ 逆变桥 + 电机 + 减速器 + 负载
+tim1: Miscellaneous.WqTim1Motor @ sysbus 0x40012C00
+    IRQ -> nvic@25
+
+// ADC1（AHB2 0x5000 0000）注入组，中断 ADC1_2 = 18
+adc1: Miscellaneous.WqAdc1 @ sysbus 0x50000000
+    motor: tim1
+    IRQ -> nvic@18
+
+// FDCAN1（APB1 0x4000 6400，中断 FDCAN1_IT0 = 21）与消息 RAM（SRAMCAN 0x4000 A400）
+fdcan1: Miscellaneous.WqFdcan1 @ sysbus 0x40006400
+    IRQ -> nvic@21
+
+sramcan: Memory.MappedMemory @ sysbus 0x4000A400
     size: 0x400
