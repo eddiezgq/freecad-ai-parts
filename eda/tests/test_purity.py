@@ -1,14 +1,29 @@
 # -*- coding: utf-8 -*-
 """判定代码（格式校验、板子模型、检查）只做计算：不 import 网络库、AI 库，也不碰数据库。"""
+
 import ast
 import os
 
 from conftest import EDA
 
-PURE = ["wqeda/checks", "wqeda/schema", "wqeda/model.py"]
-FORBIDDEN = {"socket", "http", "urllib", "requests", "httpx", "aiohttp", "websocket", "websockets",
-             "anthropic", "openai",
-             "sqlite3", "psycopg", "psycopg2", "sqlalchemy", "subprocess"}
+PURE = ["wqeda/checks", "wqeda/schema", "wqeda/model.py", "wqeda/blocks", "wqeda/parts.py"]
+FORBIDDEN = {
+    "socket",
+    "http",
+    "urllib",
+    "requests",
+    "httpx",
+    "aiohttp",
+    "websocket",
+    "websockets",
+    "anthropic",
+    "openai",
+    "sqlite3",
+    "psycopg",
+    "psycopg2",
+    "sqlalchemy",
+    "subprocess",
+}
 
 
 def _files():

@@ -982,6 +982,9 @@ class Engine:
             drift[key] = d
             v = round(c["nominal"] + d + self.rng.gauss(0, c["sigma"]) + self.errors.plant_offset(p, c["code"]), 4)
             extra = {}
+            ov = self.errors.override(p, c["code"])           # 第 103 轮：芯片厂 CP 良率、接触电阻由晶圆图算出（晶圆图参数随测量记录带走）
+            if ov is not None:
+                v, extra = round(float(ov[0]), 4), dict(ov[1] or {})
             if c["code"] == "joint_zero":                    # 第 55 轮：零位残差记下，装整机时用
                 self.errors.note_joint_zero(job.wo.item, v)
             if c["code"] == "joint_friction":                # 第 58 轮：空载摩擦力矩记下，装整机时用（负载跑合台的实测力矩）

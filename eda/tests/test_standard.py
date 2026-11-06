@@ -5,6 +5,7 @@
 （铜到板边 0.05）；物料清单 R1 R2（写 2）、C1（写 2，只有 1 个位号）；坐标 R1、R3，R3 写在底面而附近焊盘只在顶面。
 好板：0.2 mm 的线、0.3 mm 的孔配 0.7 mm 焊盘（孔环 0.2）；离板边最近的铜是 y = 1 那条 0.2 mm 的线，
 铜到板边 1 − 0.1 = 0.9 mm；位号、数量、面都对。"""
+
 import os
 
 import pytest
@@ -37,14 +38,24 @@ def gbr(func, apertures, draws):
 def write_board(dirpath, track_w, drill, pad, edge_pad):
     os.makedirs(dirpath, exist_ok=True)
     outline = gbr("Profile,NP", {10: 0.1}, [(10, [(0, 0, 2), (20, 0, 1), (20, 10, 1), (0, 10, 1), (0, 0, 1)])])
-    top = gbr("Copper,L1,Top", {10: track_w, 11: pad, 12: 0.2},
-              [(10, [(1, 1, 2), (5, 1, 1)]), (11, [(8, 5, 3)]), (12, [(edge_pad, 5, 3)])])
+    top = gbr(
+        "Copper,L1,Top",
+        {10: track_w, 11: pad, 12: 0.2},
+        [(10, [(1, 1, 2), (5, 1, 1)]), (11, [(8, 5, 3)]), (12, [(edge_pad, 5, 3)])],
+    )
     bot = gbr("Copper,L2,Bot", {11: pad}, [(11, [(8, 5, 3)])])
     drl = "M48\nMETRIC\nT1C{:.3f}\n%\nG90\nG05\nT1\nX8.0Y5.0\nM30\n".format(drill)
-    files = {"t-Edge_Cuts.gm1": outline, "t-F_Cu.gtl": top, "t-B_Cu.gbl": bot, "t-PTH.drl": drl,
-             # 阻焊、丝印层（空）：资料包通常都有，读光绘时按文件名认层要用到
-             "t-F_Mask.gts": gbr("Soldermask,Top", {}, []), "t-B_Mask.gbs": gbr("Soldermask,Bot", {}, []),
-             "t-F_Silkscreen.gto": gbr("Legend,Top", {}, []), "t-B_Silkscreen.gbo": gbr("Legend,Bot", {}, [])}
+    files = {
+        "t-Edge_Cuts.gm1": outline,
+        "t-F_Cu.gtl": top,
+        "t-B_Cu.gbl": bot,
+        "t-PTH.drl": drl,
+        # 阻焊、丝印层（空）：资料包通常都有，读光绘时按文件名认层要用到
+        "t-F_Mask.gts": gbr("Soldermask,Top", {}, []),
+        "t-B_Mask.gbs": gbr("Soldermask,Bot", {}, []),
+        "t-F_Silkscreen.gto": gbr("Legend,Top", {}, []),
+        "t-B_Silkscreen.gbo": gbr("Legend,Bot", {}, []),
+    }
     for name, text in files.items():
         with open(os.path.join(dirpath, name), "w") as f:
             f.write(text)
@@ -66,10 +77,13 @@ def by_key(res):
 
 def test_bad_board(tmp_path, cap):
     write_board(tmp_path / "g", track_w=0.1, drill=0.2, pad=0.45, edge_pad=19.85)
-    write_csv(tmp_path / "bom.csv", [BOM_HEAD, ["RES", "1k", "R_0402", "2", "R1 R2"],
-                                     ["CAP", "1u", "C_0402", "2", "C1"]])
-    write_csv(tmp_path / "pos.csv", [POS_HEAD, ["R1", "1k", "R_0402", "8", "5", "0", "top"],
-                                     ["R3", "1k", "R_0402", "19.85", "5", "0", "bottom"]])
+    write_csv(
+        tmp_path / "bom.csv", [BOM_HEAD, ["RES", "1k", "R_0402", "2", "R1 R2"], ["CAP", "1u", "C_0402", "2", "C1"]]
+    )
+    write_csv(
+        tmp_path / "pos.csv",
+        [POS_HEAD, ["R1", "1k", "R_0402", "8", "5", "0", "top"], ["R3", "1k", "R_0402", "19.85", "5", "0", "bottom"]],
+    )
     b = gerber.read(str(tmp_path / "g"), str(tmp_path / "bom.csv"), str(tmp_path / "pos.csv"))
     assert b.outline == (0, 0, 20, 10) and b.copper_layers == 2
     r = by_key(basic.run(b, cap))
@@ -87,8 +101,10 @@ def test_bad_board(tmp_path, cap):
 def test_good_board(tmp_path, cap):
     write_board(tmp_path / "g", track_w=0.2, drill=0.3, pad=0.7, edge_pad=15.0)
     write_csv(tmp_path / "bom.csv", [BOM_HEAD, ["RES", "1k", "R_0402", "2", "R1 R2"]])
-    write_csv(tmp_path / "pos.csv", [POS_HEAD, ["R1", "1k", "R_0402", "8", "5", "0", "top"],
-                                     ["R2", "1k", "R_0402", "15", "5", "0", "top"]])
+    write_csv(
+        tmp_path / "pos.csv",
+        [POS_HEAD, ["R1", "1k", "R_0402", "8", "5", "0", "top"], ["R2", "1k", "R_0402", "15", "5", "0", "top"]],
+    )
     b = gerber.read(str(tmp_path / "g"), str(tmp_path / "bom.csv"), str(tmp_path / "pos.csv"))
     res = basic.run(b, cap)
     r = by_key(res)
@@ -101,6 +117,7 @@ def test_missing_capability_is_unknown_not_pass(tmp_path):
     write_board(tmp_path / "g", track_w=0.2, drill=0.3, pad=0.7, edge_pad=15.0)
     b = gerber.read(str(tmp_path / "g"))
     res = basic.run(b, {"format": capability.FORMAT, "factory": "空表", "pcb": {}})
-    assert {c["key"]: c["status"] for c in res["checks"]} == {k: "unknown" for k in
-                                                             ("D1", "D2", "D4", "F1", "F3-drill", "F3-ring", "F5")}
+    assert {c["key"]: c["status"] for c in res["checks"]} == {
+        k: "unknown" for k in ("D1", "D2", "D4", "F1", "F3-drill", "F3-ring", "F5")
+    }
     assert res["status"] == "unknown" and "没有物料清单" in res["notes"]

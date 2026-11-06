@@ -1,0 +1,12 @@
+# 电流采样放大器 INA240A1。数值摘自厂家规格书（TI 官方日文版，对应英文 SBOS662C）；checked: false = 待核对。
+format: wqeda.part/1
+part: INA240A1D
+maker: Texas Instruments
+datasheet:
+  title: INA240 (JAJSCL0C, TI 官方日文版，对应 SBOS662C)
+  revision: Rev. C, 2021-12
+  url: https://ti.com/jp/lit/gpn/ina240
+params:
+  vcm_max: {value: 80, unit: V, kind: recommended, condition: "common-mode input voltage −4 V to 80 V", where: p.4 §7.3, checked: false}
+  vs_range: {min: 2.7, max: 5.5, unit: V, kind: recommended, condition: operating supply voltage, where: p.4 §7.3, checked: false}
+  gain: {value: 20, unit: V/V, kind: spec, condition: "G, INA240A1", where: p.5 §7.5, checked: false}

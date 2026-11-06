@@ -1,0 +1,13 @@
+# 降压芯片 LMR16006（Y 版 2.1 MHz）。数值摘自厂家规格书网页版（无页码，按章节）；checked: false = 待核对。
+format: wqeda.part/1
+part: LMR16006YQ
+maker: Texas Instruments
+datasheet:
+  title: LMR16006 datasheet (SNVSA24)
+  revision: 2014-10（网页版未显示修订字母）
+  url: https://www.ti.com/document-viewer/LMR16006/datasheet/specifications
+params:
+  vin_max: {value: 60, unit: V, kind: recommended, condition: "VIN 4 V min, 60 V max", where: §7.3, checked: false}
+  vin_abs_max: {value: 65, unit: V, kind: abs_max, condition: VIN to GND, where: §7.1, checked: false}
+  vfb: {value: 0.765, min: 0.747, max: 0.782, unit: V, kind: spec, condition: "feedback voltage, T_J −40 to 125 °C", where: §7.5, checked: false}
+  fsw: {value: 2.1e6, min: 1.785e6, max: 2.415e6, unit: Hz, kind: spec, condition: "f_SW, LMR16006Y", where: §7.6, checked: false}

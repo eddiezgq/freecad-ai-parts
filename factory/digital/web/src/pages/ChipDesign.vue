@@ -187,7 +187,8 @@
       </svg>
       <p class="small muted">{{ bwinText }}</p>
       <div class="line"><router-link class="btn" to="/instruments?task=encoder">去虚拟仪器量一台真编码器 →</router-link>
-        <router-link class="btn" to="/pcb-design?rev=B&tab=diff">驱动板 B 版：这颗芯片上板后改了什么 →</router-link></div>
+        <router-link class="btn" to="/pcb-design?rev=B&tab=diff">驱动板 B 版：这颗芯片上板后改了什么 →</router-link>
+        <a class="btn" href="https://chip.factory.wenquestrobotics.com" target="_blank" rel="noopener">芯片厂：流片回来的晶圆怎么封装测试 →</a></div>
     </section>
 
     <section v-if="d && tab === 'dl'" class="card">

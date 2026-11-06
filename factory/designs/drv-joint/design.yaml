@@ -1,4 +1,4 @@
-# 关节伺服驱动板 DRV-JOINT 的设计描述（问渠电子 wqeda.design/1；第 102 轮由 drv_joint.py 迁来，内容一字不改）
+# 关节伺服驱动板 DRV-JOINT 的设计描述（问渠电子 wqeda.design/1；第 102 轮由 drv_joint.py 迁来，第 104 轮改成功能块单元 + 生成器）
 # 四层：spec 规格 → blocks 功能块 → circuit 电路 → board 板子。KiCad 工程和全部产物由 factory/designs/tools/build.py 从这里生成。
 # 改设计改这个文件，然后本机跑 build.py 重新生成再提交（CI 核对产物一致）。示例设计，未经硬件验证，不能直接投产。
 format: wqeda.design/1
@@ -13,12 +13,30 @@ spec:
   motor_power_w: 400.0
   target_factory: null
   acceptance_class: null
-  notes: [数值与数字工厂电路分析 cae/circuit.py 的例题同一组数，测试核对, 目标工厂、验收等级（IPC-A-610 第几级）未定]
+  notes:
+  - 数值与数字工厂电路分析 cae/circuit.py 的例题同一组数，测试核对
+  - 目标工厂、验收等级（IPC-A-610 第几级）未定
+  - derating 是降额与余量规则，示例值；企业按自己的设计规范填
+  phase_current_peak_a: 29.73
+  current_source: cae/motors.py 伺服 400 W：额定 1.27 N·m、峰值 4.46 N·m ÷ 力矩常数 0.15 N·m/A（示例）
+  derating:
+    capacitor: 1.25
+    diode: 1.25
+    mosfet: 1.25
+    sense_headroom: 1.05
 blocks:
 - key: power
   name: 48 V 输入与母线
   name_en: 48 V input and DC bus
-  params: {C_BUS_UF: 470.0}
+  units:
+  - type: bus_input
+    params:
+      C_BUS_UF: 470.0
+      c_bus_v: 63
+      r_div_bottom: 6.8k
+      v_adc_target: 3.0
+      v_adc_fs: 3.3
+      c_filter: 10n
   notes:
   - 母线 48 V（示例）
   - 母线电容 470 μF / 63 V（电路分析例题 3）；每个半桥旁 2.2 μF / 100 V 陶瓷电容就近吸收开关电流
@@ -26,878 +44,142 @@ blocks:
 - key: aux
   name: 辅助电源 12 / 5 / 3.3 V
   name_en: Auxiliary supplies
+  units:
+  - type: aux_supply
+    params:
+      v_out: 12.0
+      f_sw_mhz: 2.1
+      ripple_ratio: 0.3
+      i_out_a: 0.6
+      v_ref: 0.765
+      v_ref_source: LMR16006 规格书 V_FB 典型值（eda/parts/LMR16006YQ.yaml，待核对）
+      r_fb_bottom: 10k
+      c_in: 2.2u/100V
+      d_freewheel: 60V 1A
+      c_out: 22u/25V
   notes:
   - 12 V：LMR16006Y 降压，L = (Vin−Vo)·Vo/(Vin·f·ΔI)，f = 2.1 MHz、ΔI = 0.3 × 0.6 A → 23.8 μH，取 22 μH
   - 反馈 Vo = Vref·(1 + Rt/Rb)，Vref 0.765 V（按器件手册，选型时核对）、Rb 10 kΩ → Rt = 147 kΩ
 - key: bridge
   name: 三相桥
   name_en: Three-phase bridge
+  units:
+  - type: half_bridge
+    params:
+      phases: [A, B, C]
+      fet: BSC040N08NS5
+      fet_lib: Transistor_FET:BSC040N08NS5
+      fet_fp: Package_TO_SOT_SMD:TDSON-8-1
+      fet_item: MOS-80V
+      c_snub: 2.2u/100V
   notes: [MOSFET BSC040N08NS5 × 6（示例选型）]
 - key: gate
   name: 栅极驱动
   name_en: Gate drivers
-  params: {RG_OHM: 10.0, VDRV: 12.0}
+  units:
+  - type: gate_drive
+    params:
+      RG_OHM: 10.0
+      VDRV: 12.0
+      driver: IR2101S
+      d_boot: 100V 1A
+      c_boot: 1u/25V
+      c_vcc: 1u/25V
   notes: [驱动 12 V，栅极电阻 10 Ω（电路分析例题 2）；死区由 MCU 定时器给（约 200 ns，示例）]
 - key: sense
   name: 相电流采样与电机输出
   name_en: Phase current sensing
-  params: {RS_MOHM: 2.0, GAIN: 20.0}
+  units:
+  - type: current_sense
+    params:
+      RS_MOHM: 2.0
+      GAIN: 20.0
+      shunt_tol: 1%
+      amp: INA240A1D
+      c_aa: 1n
+      v_adc_fs: 3.3
+      gbw_mhz: 10.0
   notes:
   - 额定相电流 ≈ 8.5 A（400 W 伺服电机额定力矩 1.27 N·m ÷ 力矩常数 0.15 N·m/A，示例）
   - 采样电阻 2 mΩ × 放大 20 倍（INA240A1 的固定增益）= 40 mV/A，零点 1.65 V，量程 ±41 A（电路分析例题 1）
 - key: mcu
   name: MCU 与烧录口
   name_en: MCU and programming
+  units:
+  - type: mcu_core
+    params:
+      mcu: STM32G431CBT6
+      mcu_note: 电机控制 MCU（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线、TIM3 编码器、SPI1 读 SSI、FDCAN1
+      pin_map:
+        '1': +3V3
+        '5': OSC_IN
+        '6': OSC_OUT
+        '7': NRST
+        '8': ISNS_A
+        '9': ISNS_B
+        '10': ISNS_C
+        '11': VBUS_SNS
+        '14': ENC_A_F
+        '15': ENC_B_F
+        '16': ENC_Z_F
+        '19': GND
+        '20': +3V3
+        '21': +3V3
+        '23': GND
+        '24': +3V3
+        '27': PWM_AL
+        '28': PWM_BL
+        '29': PWM_CL
+        '30': PWM_AH
+        '31': PWM_BH
+        '32': PWM_CH
+        '33': CAN_RXD
+        '34': CAN_TXD
+        '35': GND
+        '36': +3V3
+        '37': SWDIO
+        '38': SWCLK
+        '40': SSI_CLK
+        '41': SSI_DATA
+        '45': BOOT0
+        '47': GND
+        '48': +3V3
+      xtal: 8MHz
+      c_load: 10p
   notes: [STM32G431CBT6（示例选型）]
 - key: io
   name: 编码器接口与 CAN
   name_en: Encoder and CAN
-  params: {ENC_R_OHM: 1000.0, ENC_C_PF: 220.0}
+  units:
+  - type: encoder
+    params:
+      ENC_R_OHM: 1000.0
+      ENC_C_PF: 220.0
+      lines: 2500
+      rpm_max: 6000
+      fc_margin: 2.0
+  - type: ssi_rs485
+    params:
+      xcvr: MAX3485
+      r_term: 120
+      z_cable: 120
+  - type: can
+    params:
+      xcvr: MCP2562-E/SN
+      r_term: 120
+      z_cable: 120
   notes:
   - 编码器 A/B/Z 进 MCU 前 RC 滤波 1 kΩ / 220 pF（电路分析例题 4，截止 ≈ 723 kHz）
   - CAN 收发 MCP2562-E/SN、RS-485 收发 MAX3485 × 2（示例选型）
 circuit:
+  generate: [bus_input, aux_supply, phase_legs, mcu_core, encoder, ssi_rs485, can]
+  parts: []
   footprints:
     FP_R: Resistor_SMD:R_0402_1005Metric
     FP_C: Capacitor_SMD:C_0402_1005Metric
     FP_C1206: Capacitor_SMD:C_1206_3216Metric
     FP_SOIC8: Package_SO:SOIC-8_3.9x4.9mm_P1.27mm
     FP_TP: TestPoint:TestPoint_Pad_D1.0mm
-  parts:
-  - ref: J1
-    lib: Connector:Screw_Terminal_01x02
-    value: 48V IN
-    fp: TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2_1x02_P5.00mm_Horizontal
-    block: power
-    pins: {'1': VBUS, '2': GND}
-    item: CONN-PWR
-    note: ''
-  - ref: NT10
-    lib: Device:NetTie_2
-    value: NetTie
-    fp: NetTie:NetTie-2_SMD_Pad0.5mm
-    block: power
-    pins: {'1': VBUS, '2': VBUS_AUX}
-    item: null
-    note: 辅助电源从母线单独引出
-  - ref: C1
-    lib: Device:C_Polarized
-    value: 470u/63V
-    fp: Capacitor_SMD:CP_Elec_16x17.5
-    block: power
-    pins: {'1': VBUS, '2': GND}
-    item: CAP-BULK
-    note: 母线电容（例题 3）
-  - ref: R1
-    lib: Device:R
-    value: 51k
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: power
-    pins: {'1': VBUS_AUX, '2': VB_MID}
-    item: RES-0402
-    note: 母线电压分压
-  - ref: R2
-    lib: Device:R
-    value: 51k
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: power
-    pins: {'1': VB_MID, '2': VBUS_SNS}
-    item: RES-0402
-    note: ''
-  - ref: R3
-    lib: Device:R
-    value: 6.8k
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: power
-    pins: {'1': VBUS_SNS, '2': GND}
-    item: RES-0402
-    note: ''
-  - ref: C2
-    lib: Device:C
-    value: 10n
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: power
-    pins: {'1': VBUS_SNS, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: U1
-    lib: Regulator_Switching:LMR16006YQ
-    value: LMR16006YQ
-    fp: Package_TO_SOT_SMD:SOT-23-6
-    block: aux
-    pins: {'1': SW_CB, '2': GND, '3': FB12, '4': EN12, '5': VBUS_AUX, '6': SW12}
-    item: IC-BUCK
-    note: 48 V → 12 V 降压（示例选型）
-  - ref: C3
-    lib: Device:C
-    value: 2.2u/100V
-    fp: Capacitor_SMD:C_1206_3216Metric
-    block: aux
-    pins: {'1': VBUS_AUX, '2': GND}
-    item: CAP-1206
-    note: ''
-  - ref: R4
-    lib: Device:R
-    value: 100k
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: aux
-    pins: {'1': VBUS_AUX, '2': EN12}
-    item: RES-0402
-    note: 使能上拉
-  - ref: C4
-    lib: Device:C
-    value: 100n
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: aux
-    pins: {'1': SW_CB, '2': SW12}
-    item: CAP-0402
-    note: 自举电容
-  - ref: D1
-    lib: Device:D_Schottky
-    value: 60V 1A
-    fp: Diode_SMD:D_SMA
-    block: aux
-    pins: {'1': SW12, '2': GND}
-    item: DIO-SMD
-    note: 续流二极管
-  - ref: L1
-    lib: Device:L
-    value: 22u
-    fp: Inductor_SMD:L_Bourns_SRN6045TA
-    block: aux
-    pins: {'1': SW12, '2': +12V}
-    item: IND-PWR
-    note: ''
-  - ref: R5
-    lib: Device:R
-    value: 147k
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: aux
-    pins: {'1': +12V, '2': FB12}
-    item: RES-0402
-    note: 反馈上电阻
-  - ref: R6
-    lib: Device:R
-    value: 10k
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: aux
-    pins: {'1': FB12, '2': GND}
-    item: RES-0402
-    note: 反馈下电阻
-  - ref: C5
-    lib: Device:C
-    value: 22u/25V
-    fp: Capacitor_SMD:C_1206_3216Metric
-    block: aux
-    pins: {'1': +12V, '2': GND}
-    item: CAP-1206
-    note: ''
-  - ref: U2
-    lib: Regulator_Linear:AMS1117-5.0
-    value: AMS1117-5.0
-    fp: Package_TO_SOT_SMD:SOT-223-3_TabPin2
-    block: aux
-    pins: {'1': GND, '2': +5V, '3': +12V}
-    item: IC-LDO
-    note: ''
-  - ref: C6
-    lib: Device:C
-    value: 10u/25V
-    fp: Capacitor_SMD:C_1206_3216Metric
-    block: aux
-    pins: {'1': +5V, '2': GND}
-    item: CAP-1206
-    note: ''
-  - ref: U3
-    lib: Regulator_Linear:AMS1117-3.3
-    value: AMS1117-3.3
-    fp: Package_TO_SOT_SMD:SOT-223-3_TabPin2
-    block: aux
-    pins: {'1': GND, '2': +3V3, '3': +5V}
-    item: IC-LDO
-    note: ''
-  - ref: C7
-    lib: Device:C
-    value: 10u/25V
-    fp: Capacitor_SMD:C_1206_3216Metric
-    block: aux
-    pins: {'1': +3V3, '2': GND}
-    item: CAP-1206
-    note: ''
-  - ref: Q1
-    lib: Transistor_FET:BSC040N08NS5
-    value: BSC040N08NS5
-    fp: Package_TO_SOT_SMD:TDSON-8-1
-    block: bridge
-    pins: {'1': SW_A, '2': SW_A, '3': SW_A, '4': GH_A, '5': VBUS}
-    item: MOS-80V
-    note: A 相上管（示例选型）
-  - ref: Q2
-    lib: Transistor_FET:BSC040N08NS5
-    value: BSC040N08NS5
-    fp: Package_TO_SOT_SMD:TDSON-8-1
-    block: bridge
-    pins: {'1': GND, '2': GND, '3': GND, '4': GL_A, '5': SW_A}
-    item: MOS-80V
-    note: A 相下管
-  - ref: C11
-    lib: Device:C
-    value: 2.2u/100V
-    fp: Capacitor_SMD:C_1206_3216Metric
-    block: bridge
-    pins: {'1': VBUS, '2': GND}
-    item: CAP-1206
-    note: A 相半桥就近吸收
-  - ref: U4
-    lib: Driver_FET:IR2101
-    value: IR2101S
-    fp: Package_SO:SOIC-8_3.9x4.9mm_P1.27mm
-    block: gate
-    pins: {'1': +12V, '2': PWM_AH, '3': PWM_AL, '4': GND, '5': LO_A, '6': VS_A, '7': HO_A, '8': VB_A}
-    item: IC-GDRV
-    note: A 相半桥驱动（示例选型）
-  - ref: R10
-    lib: Device:R
-    value: '10'
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: gate
-    pins: {'1': HO_A, '2': GH_A}
-    item: RES-0402
-    note: 栅极电阻（例题 2）
-  - ref: R11
-    lib: Device:R
-    value: '10'
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: gate
-    pins: {'1': LO_A, '2': GL_A}
-    item: RES-0402
-    note: ''
-  - ref: D2
-    lib: Device:D_Schottky
-    value: 100V 1A
-    fp: Diode_SMD:D_SOD-123
-    block: gate
-    pins: {'1': VB_A, '2': +12V}
-    item: DIO-SMD
-    note: 自举二极管
-  - ref: C21
-    lib: Device:C
-    value: 1u/25V
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: gate
-    pins: {'1': VB_A, '2': VS_A}
-    item: CAP-0402
-    note: 自举电容
-  - ref: NT7
-    lib: Device:NetTie_2
-    value: NetTie
-    fp: NetTie:NetTie-2_SMD_Pad0.5mm
-    block: gate
-    pins: {'1': SW_A, '2': VS_A}
-    item: null
-    note: A 相驱动参考点 VS 从采样电阻焊盘单独引出
-  - ref: C24
-    lib: Device:C
-    value: 1u/25V
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: gate
-    pins: {'1': +12V, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: R21
-    lib: Device:R
-    value: 2m 1%
-    fp: Resistor_SMD:R_2512_6332Metric
-    block: sense
-    pins: {'1': SW_A, '2': MOT_A}
-    item: RES-SHUNT
-    note: A 相采样电阻（例题 1），两端开尔文引线到 INA240
-  - ref: NT1
-    lib: Device:NetTie_2
-    value: NetTie
-    fp: NetTie:NetTie-2_SMD_Pad0.5mm
-    block: sense
-    pins: {'1': SW_A, '2': SNSP_A}
-    item: null
-    note: 开尔文引线（采样电阻电源端）
-  - ref: NT2
-    lib: Device:NetTie_2
-    value: NetTie
-    fp: NetTie:NetTie-2_SMD_Pad0.5mm
-    block: sense
-    pins: {'1': MOT_A, '2': SNSN_A}
-    item: null
-    note: 开尔文引线（采样电阻电机端）
-  - ref: U7
-    lib: Amplifier_Current:INA240A1D
-    value: INA240A1D
-    fp: Package_SO:SOIC-8_3.9x4.9mm_P1.27mm
-    block: sense
-    pins: {'1': SNSN_A, '2': GND, '3': GND, '4': GND, '5': ISNS_A, '6': +3V3, '7': +3V3, '8': SNSP_A}
-    item: IC-AMP
-    note: A 相电流采样放大 20 倍（示例选型）
-  - ref: C27
-    lib: Device:C
-    value: 100n
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: sense
-    pins: {'1': +3V3, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: C30
-    lib: Device:C
-    value: 1n
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: sense
-    pins: {'1': ISNS_A, '2': GND}
-    item: CAP-0402
-    note: ADC 抗混叠
-  - ref: Q3
-    lib: Transistor_FET:BSC040N08NS5
-    value: BSC040N08NS5
-    fp: Package_TO_SOT_SMD:TDSON-8-1
-    block: bridge
-    pins: {'1': SW_B, '2': SW_B, '3': SW_B, '4': GH_B, '5': VBUS}
-    item: MOS-80V
-    note: B 相上管（示例选型）
-  - ref: Q4
-    lib: Transistor_FET:BSC040N08NS5
-    value: BSC040N08NS5
-    fp: Package_TO_SOT_SMD:TDSON-8-1
-    block: bridge
-    pins: {'1': GND, '2': GND, '3': GND, '4': GL_B, '5': SW_B}
-    item: MOS-80V
-    note: B 相下管
-  - ref: C12
-    lib: Device:C
-    value: 2.2u/100V
-    fp: Capacitor_SMD:C_1206_3216Metric
-    block: bridge
-    pins: {'1': VBUS, '2': GND}
-    item: CAP-1206
-    note: B 相半桥就近吸收
-  - ref: U5
-    lib: Driver_FET:IR2101
-    value: IR2101S
-    fp: Package_SO:SOIC-8_3.9x4.9mm_P1.27mm
-    block: gate
-    pins: {'1': +12V, '2': PWM_BH, '3': PWM_BL, '4': GND, '5': LO_B, '6': VS_B, '7': HO_B, '8': VB_B}
-    item: IC-GDRV
-    note: B 相半桥驱动（示例选型）
-  - ref: R12
-    lib: Device:R
-    value: '10'
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: gate
-    pins: {'1': HO_B, '2': GH_B}
-    item: RES-0402
-    note: 栅极电阻（例题 2）
-  - ref: R13
-    lib: Device:R
-    value: '10'
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: gate
-    pins: {'1': LO_B, '2': GL_B}
-    item: RES-0402
-    note: ''
-  - ref: D3
-    lib: Device:D_Schottky
-    value: 100V 1A
-    fp: Diode_SMD:D_SOD-123
-    block: gate
-    pins: {'1': VB_B, '2': +12V}
-    item: DIO-SMD
-    note: 自举二极管
-  - ref: C22
-    lib: Device:C
-    value: 1u/25V
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: gate
-    pins: {'1': VB_B, '2': VS_B}
-    item: CAP-0402
-    note: 自举电容
-  - ref: NT8
-    lib: Device:NetTie_2
-    value: NetTie
-    fp: NetTie:NetTie-2_SMD_Pad0.5mm
-    block: gate
-    pins: {'1': SW_B, '2': VS_B}
-    item: null
-    note: B 相驱动参考点 VS 从采样电阻焊盘单独引出
-  - ref: C25
-    lib: Device:C
-    value: 1u/25V
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: gate
-    pins: {'1': +12V, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: R22
-    lib: Device:R
-    value: 2m 1%
-    fp: Resistor_SMD:R_2512_6332Metric
-    block: sense
-    pins: {'1': SW_B, '2': MOT_B}
-    item: RES-SHUNT
-    note: B 相采样电阻（例题 1），两端开尔文引线到 INA240
-  - ref: NT3
-    lib: Device:NetTie_2
-    value: NetTie
-    fp: NetTie:NetTie-2_SMD_Pad0.5mm
-    block: sense
-    pins: {'1': SW_B, '2': SNSP_B}
-    item: null
-    note: 开尔文引线（采样电阻电源端）
-  - ref: NT4
-    lib: Device:NetTie_2
-    value: NetTie
-    fp: NetTie:NetTie-2_SMD_Pad0.5mm
-    block: sense
-    pins: {'1': MOT_B, '2': SNSN_B}
-    item: null
-    note: 开尔文引线（采样电阻电机端）
-  - ref: U8
-    lib: Amplifier_Current:INA240A1D
-    value: INA240A1D
-    fp: Package_SO:SOIC-8_3.9x4.9mm_P1.27mm
-    block: sense
-    pins: {'1': SNSN_B, '2': GND, '3': GND, '4': GND, '5': ISNS_B, '6': +3V3, '7': +3V3, '8': SNSP_B}
-    item: IC-AMP
-    note: B 相电流采样放大 20 倍（示例选型）
-  - ref: C28
-    lib: Device:C
-    value: 100n
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: sense
-    pins: {'1': +3V3, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: C31
-    lib: Device:C
-    value: 1n
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: sense
-    pins: {'1': ISNS_B, '2': GND}
-    item: CAP-0402
-    note: ADC 抗混叠
-  - ref: Q5
-    lib: Transistor_FET:BSC040N08NS5
-    value: BSC040N08NS5
-    fp: Package_TO_SOT_SMD:TDSON-8-1
-    block: bridge
-    pins: {'1': SW_C, '2': SW_C, '3': SW_C, '4': GH_C, '5': VBUS}
-    item: MOS-80V
-    note: C 相上管（示例选型）
-  - ref: Q6
-    lib: Transistor_FET:BSC040N08NS5
-    value: BSC040N08NS5
-    fp: Package_TO_SOT_SMD:TDSON-8-1
-    block: bridge
-    pins: {'1': GND, '2': GND, '3': GND, '4': GL_C, '5': SW_C}
-    item: MOS-80V
-    note: C 相下管
-  - ref: C13
-    lib: Device:C
-    value: 2.2u/100V
-    fp: Capacitor_SMD:C_1206_3216Metric
-    block: bridge
-    pins: {'1': VBUS, '2': GND}
-    item: CAP-1206
-    note: C 相半桥就近吸收
-  - ref: U6
-    lib: Driver_FET:IR2101
-    value: IR2101S
-    fp: Package_SO:SOIC-8_3.9x4.9mm_P1.27mm
-    block: gate
-    pins: {'1': +12V, '2': PWM_CH, '3': PWM_CL, '4': GND, '5': LO_C, '6': VS_C, '7': HO_C, '8': VB_C}
-    item: IC-GDRV
-    note: C 相半桥驱动（示例选型）
-  - ref: R14
-    lib: Device:R
-    value: '10'
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: gate
-    pins: {'1': HO_C, '2': GH_C}
-    item: RES-0402
-    note: 栅极电阻（例题 2）
-  - ref: R15
-    lib: Device:R
-    value: '10'
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: gate
-    pins: {'1': LO_C, '2': GL_C}
-    item: RES-0402
-    note: ''
-  - ref: D4
-    lib: Device:D_Schottky
-    value: 100V 1A
-    fp: Diode_SMD:D_SOD-123
-    block: gate
-    pins: {'1': VB_C, '2': +12V}
-    item: DIO-SMD
-    note: 自举二极管
-  - ref: C23
-    lib: Device:C
-    value: 1u/25V
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: gate
-    pins: {'1': VB_C, '2': VS_C}
-    item: CAP-0402
-    note: 自举电容
-  - ref: NT9
-    lib: Device:NetTie_2
-    value: NetTie
-    fp: NetTie:NetTie-2_SMD_Pad0.5mm
-    block: gate
-    pins: {'1': SW_C, '2': VS_C}
-    item: null
-    note: C 相驱动参考点 VS 从采样电阻焊盘单独引出
-  - ref: C26
-    lib: Device:C
-    value: 1u/25V
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: gate
-    pins: {'1': +12V, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: R23
-    lib: Device:R
-    value: 2m 1%
-    fp: Resistor_SMD:R_2512_6332Metric
-    block: sense
-    pins: {'1': SW_C, '2': MOT_C}
-    item: RES-SHUNT
-    note: C 相采样电阻（例题 1），两端开尔文引线到 INA240
-  - ref: NT5
-    lib: Device:NetTie_2
-    value: NetTie
-    fp: NetTie:NetTie-2_SMD_Pad0.5mm
-    block: sense
-    pins: {'1': SW_C, '2': SNSP_C}
-    item: null
-    note: 开尔文引线（采样电阻电源端）
-  - ref: NT6
-    lib: Device:NetTie_2
-    value: NetTie
-    fp: NetTie:NetTie-2_SMD_Pad0.5mm
-    block: sense
-    pins: {'1': MOT_C, '2': SNSN_C}
-    item: null
-    note: 开尔文引线（采样电阻电机端）
-  - ref: U9
-    lib: Amplifier_Current:INA240A1D
-    value: INA240A1D
-    fp: Package_SO:SOIC-8_3.9x4.9mm_P1.27mm
-    block: sense
-    pins: {'1': SNSN_C, '2': GND, '3': GND, '4': GND, '5': ISNS_C, '6': +3V3, '7': +3V3, '8': SNSP_C}
-    item: IC-AMP
-    note: C 相电流采样放大 20 倍（示例选型）
-  - ref: C29
-    lib: Device:C
-    value: 100n
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: sense
-    pins: {'1': +3V3, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: C32
-    lib: Device:C
-    value: 1n
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: sense
-    pins: {'1': ISNS_C, '2': GND}
-    item: CAP-0402
-    note: ADC 抗混叠
-  - ref: J2
-    lib: Connector:Screw_Terminal_01x03
-    value: MOTOR UVW
-    fp: TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-3_1x03_P5.00mm_Horizontal
-    block: sense
-    pins: {'1': MOT_A, '2': MOT_B, '3': MOT_C}
-    item: CONN-PWR
-    note: ''
-  - ref: U10
-    lib: MCU_ST_STM32G4:STM32G431CBTx
-    value: STM32G431CBT6
-    fp: Package_QFP:LQFP-48_7x7mm_P0.5mm
-    block: mcu
-    pins: {'1': +3V3, '5': OSC_IN, '6': OSC_OUT, '7': NRST, '8': ISNS_A, '9': ISNS_B, '10': ISNS_C, '11': VBUS_SNS, '14': ENC_A_F, '15': ENC_B_F, '16': ENC_Z_F, '19': GND, '20': +3V3, '21': +3V3, '23': GND,
-      '24': +3V3, '27': PWM_AL, '28': PWM_BL, '29': PWM_CL, '30': PWM_AH, '31': PWM_BH, '32': PWM_CH, '33': CAN_RXD, '34': CAN_TXD, '35': GND, '36': +3V3, '37': SWDIO, '38': SWCLK, '40': SSI_CLK, '41': SSI_DATA,
-      '45': BOOT0, '47': GND, '48': +3V3}
-    item: IC-MCU-MC
-    note: 电机控制 MCU（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线、TIM3 编码器、SPI1 读 SSI、FDCAN1
-  - ref: C40
-    lib: Device:C
-    value: 100n
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: mcu
-    pins: {'1': +3V3, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: C41
-    lib: Device:C
-    value: 100n
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: mcu
-    pins: {'1': +3V3, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: C42
-    lib: Device:C
-    value: 100n
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: mcu
-    pins: {'1': +3V3, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: C43
-    lib: Device:C
-    value: 100n
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: mcu
-    pins: {'1': +3V3, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: C44
-    lib: Device:C
-    value: 4.7u
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: mcu
-    pins: {'1': +3V3, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: C45
-    lib: Device:C
-    value: 1u
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: mcu
-    pins: {'1': +3V3, '2': GND}
-    item: CAP-0402
-    note: VDDA
-  - ref: C46
-    lib: Device:C
-    value: 100n
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: mcu
-    pins: {'1': NRST, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: R30
-    lib: Device:R
-    value: 10k
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: mcu
-    pins: {'1': BOOT0, '2': GND}
-    item: RES-0402
-    note: BOOT0 下拉
-  - ref: Y1
-    lib: Device:Crystal_GND24
-    value: 8MHz
-    fp: Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm
-    block: mcu
-    pins: {'1': OSC_IN, '2': GND, '3': OSC_OUT, '4': GND}
-    item: XTAL
-    note: ''
-  - ref: C47
-    lib: Device:C
-    value: 10p
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: mcu
-    pins: {'1': OSC_IN, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: C48
-    lib: Device:C
-    value: 10p
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: mcu
-    pins: {'1': OSC_OUT, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: TP1
-    lib: Connector:TestPoint
-    value: SWDIO
-    fp: TestPoint:TestPoint_Pad_D1.0mm
-    block: mcu
-    pins: {'1': SWDIO}
-    item: null
-    note: 烧录口（烧录工位 PG-1 的弹簧针夹具）
-  - ref: TP2
-    lib: Connector:TestPoint
-    value: SWCLK
-    fp: TestPoint:TestPoint_Pad_D1.0mm
-    block: mcu
-    pins: {'1': SWCLK}
-    item: null
-    note: 烧录口
-  - ref: TP3
-    lib: Connector:TestPoint
-    value: NRST
-    fp: TestPoint:TestPoint_Pad_D1.0mm
-    block: mcu
-    pins: {'1': NRST}
-    item: null
-    note: 烧录口
-  - ref: TP4
-    lib: Connector:TestPoint
-    value: +3V3
-    fp: TestPoint:TestPoint_Pad_D1.0mm
-    block: mcu
-    pins: {'1': +3V3}
-    item: null
-    note: 烧录口供电
-  - ref: TP5
-    lib: Connector:TestPoint
-    value: GND
-    fp: TestPoint:TestPoint_Pad_D1.0mm
-    block: mcu
-    pins: {'1': GND}
-    item: null
-    note: 烧录口地
-  - ref: J3
-    lib: Connector_Generic:Conn_01x05
-    value: ENC ABZ
-    fp: Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical
-    block: io
-    pins: {'1': +5V, '2': GND, '3': ENC_A, '4': ENC_B, '5': ENC_Z}
-    item: CONN-SIG
-    note: A/B/Z（2500 线，示例）
-  - ref: R31
-    lib: Device:R
-    value: 1k
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: io
-    pins: {'1': ENC_A, '2': ENC_A_F}
-    item: RES-0402
-    note: 编码器滤波（例题 4）
-  - ref: C50
-    lib: Device:C
-    value: 220p
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: io
-    pins: {'1': ENC_A_F, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: R32
-    lib: Device:R
-    value: 1k
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: io
-    pins: {'1': ENC_B, '2': ENC_B_F}
-    item: RES-0402
-    note: 编码器滤波（例题 4）
-  - ref: C51
-    lib: Device:C
-    value: 220p
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: io
-    pins: {'1': ENC_B_F, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: R33
-    lib: Device:R
-    value: 1k
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: io
-    pins: {'1': ENC_Z, '2': ENC_Z_F}
-    item: RES-0402
-    note: 编码器滤波（例题 4）
-  - ref: C52
-    lib: Device:C
-    value: 220p
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: io
-    pins: {'1': ENC_Z_F, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: U11
-    lib: Interface_UART:MAX3485
-    value: MAX3485
-    fp: Package_SO:SOIC-8_3.9x4.9mm_P1.27mm
-    block: io
-    pins: {'1': NC_U11, '2': +3V3, '3': +3V3, '4': SSI_CLK, '5': GND, '6': SSIC_P, '7': SSIC_N, '8': +3V3}
-    item: IC-RS485
-    note: SSI 时钟发送（示例选型）
-  - ref: U12
-    lib: Interface_UART:MAX3485
-    value: MAX3485
-    fp: Package_SO:SOIC-8_3.9x4.9mm_P1.27mm
-    block: io
-    pins: {'1': SSI_DATA, '2': GND, '3': GND, '4': GND, '5': GND, '6': SSID_P, '7': SSID_N, '8': +3V3}
-    item: IC-RS485
-    note: SSI 数据接收
-  - ref: C53
-    lib: Device:C
-    value: 100n
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: io
-    pins: {'1': +3V3, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: C54
-    lib: Device:C
-    value: 100n
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: io
-    pins: {'1': +3V3, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: R34
-    lib: Device:R
-    value: '120'
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: io
-    pins: {'1': SSID_P, '2': SSID_N}
-    item: RES-0402
-    note: 终端电阻
-  - ref: J4
-    lib: Connector_Generic:Conn_01x06
-    value: ENC SSI
-    fp: Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical
-    block: io
-    pins: {'1': +5V, '2': GND, '3': SSIC_P, '4': SSIC_N, '5': SSID_P, '6': SSID_N}
-    item: CONN-SIG
-    note: 输出端绝对值编码器
-  - ref: U13
-    lib: Interface_CAN_LIN:MCP2562-E-SN
-    value: MCP2562-E/SN
-    fp: Package_SO:SOIC-8_3.9x4.9mm_P1.27mm
-    block: io
-    pins: {'1': CAN_TXD, '2': GND, '3': +5V, '4': CAN_RXD, '5': +3V3, '6': CANL, '7': CANH, '8': GND}
-    item: IC-CAN
-    note: CAN 收发（示例选型）
-  - ref: C55
-    lib: Device:C
-    value: 100n
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: io
-    pins: {'1': +5V, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: C56
-    lib: Device:C
-    value: 100n
-    fp: Capacitor_SMD:C_0402_1005Metric
-    block: io
-    pins: {'1': +3V3, '2': GND}
-    item: CAP-0402
-    note: ''
-  - ref: R35
-    lib: Device:R
-    value: '120'
-    fp: Resistor_SMD:R_0402_1005Metric
-    block: io
-    pins: {'1': CANH, '2': CANL}
-    item: RES-0402
-    note: CAN 终端电阻
-  - ref: J5
-    lib: Connector_Generic:Conn_01x04
-    value: CAN
-    fp: Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical
-    block: io
-    pins: {'1': CANH, '2': CANL, '3': GND, '4': +5V}
-    item: CONN-SIG
-    note: ''
   nets:
     nc: [NC_U11]
     power: [+12V, +3V3, +5V, GND, VBUS]

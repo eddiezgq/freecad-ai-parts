@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """入口一：KiCad 板子文件 → 板子模型。用 KiCad 自带的 pcbnew 模块（KiCad 7；只作工具调用，不改它）。"""
+
 from __future__ import annotations
 
 from ..model import Board, BomRow, Component, Copper, Hole, Pad, Track
 
 
 def _layer_name(board, lay):
-    n = board.GetLayerName(lay)              # F.Cu、B.Cu、In1.Cu……
+    n = board.GetLayerName(lay)  # F.Cu、B.Cu、In1.Cu……
     return n[:-3] if n.endswith(".Cu") else n
 
 

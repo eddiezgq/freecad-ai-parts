@@ -1,0 +1,180 @@
+# 工厂清单（ADR-0064；第 2 版见问渠第 45 轮）。改完用 python -m factory.plant check 本文件 校验。
+# 问渠数字工业园 · 芯片厂（第 103 轮，电子 E9）：封装测试厂，做编码器接口芯片 WQ-ENCIF（第 92、93 轮设计）。
+# 设计自己做（第 92/93 轮）、晶圆交代工厂流片（外协，SKY130 工艺），本厂做封装测试：
+#   晶圆段：来料检验 → 晶圆测试 CP（探针台 + 测试机，8 个测试位）→ 减薄，出“已测晶圆”（带晶圆图）
+#   封装段：划片 → 装片 → 等离子清洗 → 引线键合（2 台）→ 塑封 → 后固化 → 激光打标 → 电镀 → 切筋成型 → 成品测试 FT → 编带包装
+# 一个单位 = 一片晶圆的批次（封测厂按晶圆批流转；CP 良率、晶圆图本来就按片统计）：
+#   200 mm 晶圆、芯片 0.80 × 0.80 mm（示例：内核 0.15 × 0.16 mm 来自第 92 轮版图，加 16 个焊盘的焊盘环按示例估），划片道 80 µm
+#   → 有效芯片每片约 37 700 颗（边缘去除 3 mm，按 sim/wafermap.py 的网格数）；CP 良率约 92 %、FT 良率约 98 % → 每片约 34 000 只成品、
+#   编带 12 盘（每盘 3000 只，最后一盘不满）。都是示例值。
+# 外购件写通用名称 +“型号待确认”；单价、交货期、工时、设备费率、车间尺寸、测量名义值与散布都是示例值。
+# 测量名义值里施密特阈值（1.254 V / 0.607 V、回差 0.648 V）取第 93 轮晶体管级仿真、工作电流（约 0.67 mA）取第 92 轮版图功耗 1.21 mW ÷ 1.8 V；散布是示例值。
+# 一种物料只有一处测量特性：已测晶圆在 CP 工位记（按片），成品在 FT 工位把键合、塑封、划片抽检和 FT 结果一起记（按批追溯）。
+version: 2
+id: wenquest-chip
+demo_data: false
+company:
+  name: 问渠芯片封测厂 WenQuest Semiconductor (Demo)
+  abbr: WQSC
+  country: United States
+  currency: USD
+  timezone: America/New_York
+workstations:
+- {name: 晶圆来料检验台 WI, count: 1, cost: [3, 26, 0.5]}
+- {name: 探针台与测试机 CP, count: 1, cost: [40, 28, 3]}
+- {name: 减薄机 BG, count: 1, cost: [15, 26, 8]}
+- {name: 划片机 DC, count: 1, cost: [15, 26, 4]}
+- {name: 装片机 DA, count: 1, cost: [12, 26, 2]}
+- {name: 等离子清洗机 PL, count: 1, cost: [4, 0, 3]}
+- {name: 引线键合机 WB, count: 2, cost: [10, 26, 1.5]}
+- {name: 塑封机 MLD, count: 1, cost: [14, 26, 10]}
+- {name: 固化炉 CUR, count: 1, cost: [3, 0, 8]}
+- {name: 激光打标机 LM, count: 1, cost: [6, 26, 2]}
+- {name: 电镀线 PLT, count: 1, cost: [10, 26, 15]}
+- {name: 切筋成型机 TF, count: 1, cost: [8, 26, 3]}
+- {name: 测试分选机 FT, count: 1, cost: [35, 28, 3]}
+- {name: 老化房 BI, count: 1, cost: [3, 0, 6]}
+- {name: 编带机 TR, count: 1, cost: [4, 24, 1]}
+units:
+# 晶圆段（洁净区）
+- {id: wi-1, area: quality, name: 晶圆来料检验台, name_en: Wafer incoming inspection, workstation: 晶圆来料检验台 WI, layout: [4, 4, 2, 1.4], height_m: 1.2,
+   setup_min: 5}
+- {id: prb-1, area: quality, name: 探针台 + 测试机（8 个测试位）, name_en: Prober + tester (CP), workstation: 探针台与测试机 CP, layout: [8, 4, 3, 2],
+   height_m: 1.8, setup_min: 30}
+- {id: bg-1, area: machining, name: 晶圆减薄机, name_en: Back grinder, workstation: 减薄机 BG, layout: [13, 4, 3, 2], height_m: 1.8, setup_min: 20}
+- {id: dc-1, area: machining, name: 划片机, name_en: Dicing saw, workstation: 划片机 DC, layout: [18, 4, 2.5, 2], height_m: 1.8, setup_min: 20}
+# 封装段
+- {id: da-1, area: machining, name: 装片机, name_en: Die bonder, workstation: 装片机 DA, layout: [4, 13, 2.5, 1.8], height_m: 1.7, setup_min: 20}
+- {id: pl-1, area: machining, name: 等离子清洗机, name_en: Plasma cleaner, workstation: 等离子清洗机 PL, layout: [8, 13, 1.6, 1.4], height_m: 1.6,
+   capacity: 4, setup_min: 5}
+- {id: wb-1, area: machining, name: 引线键合机 1 号, name_en: Wire bonder 1, workstation: 引线键合机 WB, layout: [11.5, 13, 1.6, 1.4], height_m: 1.6,
+   setup_min: 15}
+- {id: wb-2, area: machining, name: 引线键合机 2 号, name_en: Wire bonder 2, workstation: 引线键合机 WB, layout: [14, 13, 1.6, 1.4], height_m: 1.6,
+   setup_min: 15}
+- {id: mld-1, area: machining, name: 塑封机, name_en: Transfer molding press, workstation: 塑封机 MLD, layout: [17.5, 13, 2.5, 2], height_m: 2.0,
+   setup_min: 30}
+- {id: cur-1, area: machining, name: 后固化烘箱, name_en: Post-mold cure oven, workstation: 固化炉 CUR, layout: [21.5, 13, 2, 1.6], height_m: 1.9,
+   capacity: 6, setup_min: 5}
+- {id: lm-1, area: machining, name: 激光打标机, name_en: Laser marker, workstation: 激光打标机 LM, layout: [25, 13, 1.6, 1.4], height_m: 1.6, setup_min: 10}
+- {id: plt-1, area: machining, name: 电镀线（雾锡）, name_en: Plating line, workstation: 电镀线 PLT, layout: [28, 12.5, 4.5, 2], height_m: 2.0,
+   setup_min: 20}
+- {id: tf-1, area: machining, name: 切筋成型机, name_en: Trim & form / singulation, workstation: 切筋成型机 TF, layout: [4, 22, 2.5, 1.8], height_m: 1.8,
+   setup_min: 20}
+- {id: ft-1, area: quality, name: 测试分选机 + 测试机（4 个测试位）, name_en: Final test handler, workstation: 测试分选机 FT, layout: [9, 22, 3, 2],
+   height_m: 1.9, setup_min: 30}
+- {id: bi-1, area: quality, name: 老化房（工程样片）, name_en: Burn-in room, workstation: 老化房 BI, layout: [14, 21.5, 3.5, 3], height_m: 2.4, capacity: 10,
+   setup_min: 2}
+- {id: tr-1, area: warehouse, name: 编带机, name_en: Tape & reel, workstation: 编带机 TR, layout: [19.5, 22, 2.5, 1.6], height_m: 1.5, setup_min: 10}
+- {id: store-c1, area: warehouse, name: 原材料与晶圆库（氮气柜、温湿度受控）, name_en: Wafer & material store, layout: [25, 22, 4, 3.5], height_m: 2.2}
+- {id: store-c2, area: warehouse, name: 成品库（防潮）, name_en: Finished goods store, layout: [30, 22, 3.5, 3.5], height_m: 2.2}
+- {id: agv-c1, area: logistics, name: 物流小车 1 号, name_en: AGV 1, home: [2, 9]}
+- {id: agv-c2, area: logistics, name: 物流小车 2 号, name_en: AGV 2, home: [2, 18]}
+dashboard: [wi-1, prb-1, bg-1, dc-1, da-1, pl-1, wb-1, wb-2, mld-1, cur-1, lm-1, plt-1, tf-1, ft-1, bi-1, tr-1]
+stores: {raw: store-c1, finished: store-c2}
+operations:
+- {name: 晶圆来料检验 Wafer incoming, workstation: 晶圆来料检验台 WI, units: [wi-1], stage: inspect, inspection: true}
+- {name: 晶圆测试 CP Wafer probe, workstation: 探针台与测试机 CP, units: [prb-1], stage: inspect, inspection: true}
+- {name: 减薄 Back grinding, workstation: 减薄机 BG, units: [bg-1], stage: other}
+- {name: 划片 Dicing, workstation: 划片机 DC, units: [dc-1], stage: other}
+- {name: 装片 Die attach, workstation: 装片机 DA, units: [da-1], stage: assembly}
+- {name: 等离子清洗 Plasma clean, workstation: 等离子清洗机 PL, units: [pl-1], stage: other}
+- {name: 引线键合 Wire bonding, workstation: 引线键合机 WB, units: [wb-1, wb-2], stage: assembly}
+- {name: 塑封 Molding, workstation: 塑封机 MLD, units: [mld-1], stage: other}
+- {name: 后固化 Post-mold cure, workstation: 固化炉 CUR, units: [cur-1], stage: other}
+- {name: 激光打标 Laser marking, workstation: 激光打标机 LM, units: [lm-1], stage: other}
+- {name: 电镀 Plating, workstation: 电镀线 PLT, units: [plt-1], stage: other}
+- {name: 切筋成型 Trim & form, workstation: 切筋成型机 TF, units: [tf-1], stage: other}
+- {name: 老化 Burn-in, workstation: 老化房 BI, units: [bi-1], stage: other}
+- {name: 成品测试 FT Final test, workstation: 测试分选机 FT, units: [ft-1], stage: inspect, inspection: true}
+- {name: 编带包装 Tape & reel, workstation: 编带机 TR, units: [tr-1], stage: other}
+floor: {length_m: 36, width_m: 28, aisles_y: [9, 18], cross_x: 2}
+shift:
+  periods: [['08:00:00', '12:00:00'], ['13:00:00', '17:00:00']]
+  workdays: [0, 1, 2, 3, 4]
+  max_overtime_min: 180
+kpi: {on_time: 0.95, oee: 0.7, fpy: 0.95}
+suppliers:
+  # 准时率、合格率（教学模拟器）、交货期、来料检验项都是示例值
+  foundry: {name: 示例·晶圆代工厂 Wafer Foundry (Demo), lead: 60, on_time: 0.9, pass: 0.99, cat_name: 晶圆代工,
+            incoming: [{name: 晶圆片号与数量 Wafer IDs, text: 片号与流片单一致、无缺片}, {name: 外观 Visual, text: 无划伤、无裂片、晶舟密封完好}]}
+  frame: {name: 示例·引线框架商 Leadframe Supplier (Demo), lead: 14, on_time: 0.93, pass: 0.99, cat_name: 引线框架,
+          incoming: [{name: 镀银层 Ag plating, text: 键合区镀银完整、无氧化变色}]}
+  wire: {name: 示例·键合丝商 Bonding Wire Supplier (Demo), lead: 10, on_time: 0.95, pass: 0.995, cat_name: 键合丝,
+         incoming: [{name: 线径 Wire diameter, unit: µm, lo: 24.5, hi: 25.9}]}
+  emc: {name: 示例·塑封料与银浆商 Mold Compound & Adhesive (Demo), lead: 14, on_time: 0.92, pass: 0.99, cat_name: 封装材料,
+        incoming: [{name: 有效期与冷藏 Shelf life, text: 在有效期内、到货温度 ≤ 5 ℃、包装密封完好}]}
+  packing: {name: 示例·编带与防潮包装商 Tape & Dry-pack (Demo), lead: 5, on_time: 0.95, pass: 0.99, cat_name: 包装材料}
+customers:
+- 示例·伺服驱动器厂 Servo Drive Maker (Demo)
+- 示例·编码器厂 Encoder Maker (Demo)
+- 示例·电子分销商 Electronics Distributor (Demo)
+items:
+- {code: WAF-ENCIF, name: 已流片晶圆 WQ-ENCIF（200 mm、SKY130，外协代工） Processed wafer, kind: buy, uom: Nos, price: 1800, supplier: foundry,
+   note: 每片约 37 700 颗（示例）；氮气柜存放}
+- {code: LF-QFN16, name: QFN-16 3×3 mm 引线框架条（每条 256 位，型号待确认） QFN-16 leadframe strip, kind: buy, uom: Nos, price: 1.6, supplier: frame}
+- {code: WIRE-AU, name: 键合金线 1.0 mil（25 µm，型号待确认） Gold bonding wire 25 µm, kind: raw, uom: Meter, price: 0.9, supplier: wire}
+- {code: EPOXY-AG, name: 导电银浆（装片胶，型号待确认） Die-attach epoxy, kind: raw, uom: Kg, price: 900, supplier: emc, note: 冷藏 −40 ℃}
+- {code: EMC, name: 环氧塑封料（型号待确认） Epoxy mold compound, kind: raw, uom: Kg, price: 22, supplier: emc, note: 冷藏 ≤ 5 ℃，开封后限时用完（吸潮）}
+- {code: TAPE-WAFER, name: 划片膜与晶圆框（型号待确认） Dicing tape & frame, kind: buy, uom: Nos, price: 3.0, supplier: packing}
+- {code: REEL-KIT, name: 编带材料（一盘：载带、盖带、13 吋卷盘） Tape & reel kit, kind: buy, uom: Nos, price: 2.5, supplier: packing}
+- {code: MBB-KIT, name: 防潮包装（一盘：防潮袋、干燥剂、湿度卡） Dry-pack kit, kind: buy, uom: Nos, price: 1.2, supplier: packing}
+- {code: TRAY-QFN, name: QFN 托盘（工程样片用） QFN tray, kind: buy, uom: Nos, price: 1.5, supplier: packing}
+# 已测晶圆（CP 做完、减薄后）
+- {code: WAF-ENCIF-CP, name: 已测晶圆 WQ-ENCIF（CP 完成、减薄，带晶圆图） Probed wafer, kind: sub, uom: Nos}
+# 成品：一个单位 = 一片晶圆的批次
+- {code: WQ-ENCIF, name: 编码器接口芯片 WQ-ENCIF QFN-16（一片晶圆的批次，约 34 000 只，编带 12 盘） Encoder interface IC, lot per wafer,
+   kind: fg, uom: Nos, note: 第 92/93 轮设计；未流片的示例芯片}
+- {code: WQ-ENCIF-ES, name: WQ-ENCIF 工程样片（一片晶圆的批次，老化后全测、托盘装） Engineering samples, lot per wafer, kind: fg, uom: Nos,
+   note: 给客户评估用}
+routings:
+- name: RT-晶圆测试 Wafer probe
+  steps: [[晶圆来料检验 Wafer incoming, 20], [晶圆测试 CP Wafer probe, 90], [减薄 Back grinding, 30]]
+- name: RT-封装测试 Assembly & test
+  steps: [[划片 Dicing, 45], [装片 Die attach, 120], [等离子清洗 Plasma clean, 20], [引线键合 Wire bonding, 600], [塑封 Molding, 60],
+          [后固化 Post-mold cure, 240], [激光打标 Laser marking, 60], [电镀 Plating, 120], [切筋成型 Trim & form, 60], [成品测试 FT Final test, 90],
+          [编带包装 Tape & reel, 60]]
+- name: RT-样片 Engineering samples
+  steps: [[划片 Dicing, 45], [装片 Die attach, 120], [等离子清洗 Plasma clean, 20], [引线键合 Wire bonding, 600], [塑封 Molding, 60],
+          [后固化 Post-mold cure, 240], [激光打标 Laser marking, 60], [电镀 Plating, 120], [切筋成型 Trim & form, 60], [老化 Burn-in, 480],
+          [成品测试 FT Final test, 90], [编带包装 Tape & reel, 30]]
+boms:
+- item: WAF-ENCIF-CP
+  routing: RT-晶圆测试 Wafer probe
+  components: [[WAF-ENCIF, 1]]
+- item: WQ-ENCIF
+  routing: RT-封装测试 Assembly & test
+  # 一片约 34 700 颗 CP 合格芯片：引线框架 144 条（256 位/条）、金线约 17 mm/只、银浆、塑封料（含流道损耗）、12 盘编带与防潮包装（示例用量）
+  components: [[WAF-ENCIF-CP, 1], [TAPE-WAFER, 1], [LF-QFN16, 144], [WIRE-AU, 630], [EPOXY-AG, 0.002], [EMC, 1.5], [REEL-KIT, 12], [MBB-KIT, 12]]
+- item: WQ-ENCIF-ES
+  routing: RT-样片 Engineering samples
+  components: [[WAF-ENCIF-CP, 1], [TAPE-WAFER, 1], [LF-QFN16, 144], [WIRE-AU, 630], [EPOXY-AG, 0.002], [EMC, 1.5], [TRAY-QFN, 40], [MBB-KIT, 4]]
+products:
+- {item: WQ-ENCIF, price: 11500}
+- {item: WQ-ENCIF-ES, price: 16000}
+stock:
+  # 期初库存（示例值）：大约够做 20 片晶圆
+  opening: {WAF-ENCIF: 20, LF-QFN16: 3000, WIRE-AU: 13000, EPOXY-AG: 0.05, EMC: 32, TAPE-WAFER: 25, REEL-KIT: 260, MBB-KIT: 260, TRAY-QFN: 200}
+  safety: {WAF-ENCIF: 4, LF-QFN16: 600, WIRE-AU: 2500, EMC: 6}
+key_materials: [WAF-ENCIF, WIRE-AU, EMC, LF-QFN16]
+measurements:
+# 已测晶圆：在 CP 工位按片记（CP 良率由晶圆图算出；晶圆图见“晶圆图”页）
+- item: WAF-ENCIF-CP
+  operation: 晶圆测试 CP Wafer probe
+  chars:
+  - {code: cp_yield, name: CP 良率（按晶圆图）, unit: '%', nominal: 92, lo: 85, hi: 100, sigma: 1.2}
+  - {code: cp_contact, name: 探针接触电阻（各测试位平均）, unit: Ω, nominal: 1.0, lo: 0, hi: 3.0, sigma: 0.08}
+  - {code: cp_iddq, name: 静态电流 IDDQ（中位数）, unit: µA, nominal: 1.0, lo: 0, hi: 10, sigma: 0.12}
+  - {code: cp_vtp, name: 施密特上阈值 VT+（中位数，第 93 轮仿真 1.254 V）, unit: V, nominal: 1.254, lo: 1.10, hi: 1.40, sigma: 0.015}
+  - {code: cp_vtm, name: 施密特下阈值 VT−（中位数，第 93 轮仿真 0.607 V）, unit: V, nominal: 0.607, lo: 0.45, hi: 0.75, sigma: 0.015}
+# 成品：在 FT 工位把这一批的键合、塑封、划片抽检和 FT 结果一起记
+- item: WQ-ENCIF
+  operation: 成品测试 FT Final test
+  chars: &ft
+  - {code: chipping, name: 划片崩边（抽检最大值）, unit: µm, nominal: 10, lo: 0, hi: 25, sigma: 1.5}
+  - {code: bond_pull, name: 键合拉力（抽检最小值）, unit: gf, nominal: 6.0, lo: 3.0, hi: 12, sigma: 0.3}
+  - {code: ball_shear, name: 焊球推力（抽检平均）, unit: gf, nominal: 25, lo: 15, hi: 40, sigma: 1.2}
+  - {code: mold_void, name: 塑封空洞率（X 光抽检）, unit: '%', nominal: 1.0, lo: 0, hi: 3.0, sigma: 0.15}
+  - {code: ft_yield, name: FT 良率, unit: '%', nominal: 98, lo: 95, hi: 100, sigma: 0.35}
+  - {code: ft_idd, name: 工作电流（50 MHz，中位数；第 92 轮版图约 0.67 mA）, unit: mA, nominal: 0.67, lo: 0.4, hi: 1.0, sigma: 0.02}
+  - {code: ft_hyst, name: 施密特回差（中位数；第 93 轮仿真 0.648 V）, unit: V, nominal: 0.648, lo: 0.45, hi: 0.85, sigma: 0.012}
+- {item: WQ-ENCIF-ES, operation: 成品测试 FT Final test, chars: *ft}

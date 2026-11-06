@@ -35,6 +35,7 @@ const routes = [
   { path: '/pcb-design', component: () => import('./pages/PcbDesign.vue') },   // 第 88 轮：电路板设计（电子 E4）
   { path: '/chip-design', component: () => import('./pages/ChipDesign.vue') },   // 第 92 轮：芯片设计（电子 E5）
   { path: '/fct', component: () => import('./pages/Fct.vue') },   // 第 88 轮：电路板厂功能测试台
+  { path: '/wafer-map', component: () => import('./pages/WaferMap.vue') },   // 第 103 轮：芯片封测厂晶圆图
   { path: '/twin', component: () => import('./pages/Twin.vue') },
   { path: '/plc', component: () => import('./pages/VirtualPlc.vue') },
   { path: '/lab15', component: () => import('./pages/Lab15.vue') },

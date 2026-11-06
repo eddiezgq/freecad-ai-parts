@@ -1,0 +1,13 @@
+# 功率 MOSFET。数值摘自厂家规格书；checked: false = 待核对（录入时经网页工具读取，未逐页对照 PDF），判定显示“待核对”，不算通过。
+format: wqeda.part/1
+part: BSC040N08NS5
+maker: Infineon
+datasheet:
+  title: BSC040N08NS5 OptiMOS 5 Power-Transistor, 80 V, Final Data Sheet
+  revision: Rev. 2.2, 2020-05-15
+  url: https://www.infineon.com/assets/row/public/documents/24/49/infineon-bsc040n08ns5-datasheet-en.pdf
+params:
+  vds: {value: 80, unit: V, kind: key_parameter, condition: V_DS, where: p.1 Table 1, checked: false}
+  id_25c: {value: 121, unit: A, kind: abs_max, condition: "continuous drain current, V_GS = 10 V, T_C = 25 °C", where: p.3 Table 2, checked: false}
+  rds_on_max: {value: 0.004, unit: Ω, kind: max, condition: "V_GS = 10 V, I_D = 50 A", where: p.4 Table 4, checked: false}
+  vgs_abs: {min: -20, max: 20, unit: V, kind: abs_max, condition: gate source voltage, where: p.3 Table 2, checked: false}
