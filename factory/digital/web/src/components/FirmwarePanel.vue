@@ -1,9 +1,16 @@
 <!-- 第 100 轮（电子 E7）：驱动板 B 版示例固件——MCU 经 SPI1 读编码器接口芯片 WQ-ENCIF，在 Renode 里跑。
+     第 102 轮（电子 E8）：上面加“编码器 / 电机控制与 CAN”切换，电机控制部分见 MotorPanel.vue；源码与下载两部分共用。
      整条链示意、六个场景（设定 vs 固件读到的转速和位置、逐项判据）、源码逐文件、下载。产物在 factory/designs/drv-joint-b/fw/out。 -->
 <template>
   <div>
     <div v-if="err" class="err">{{ err }}</div>
+    <div class="line">
+      <button class="chip" :class="{ on: part === 'motor' }" @click="part = 'motor'">电机控制与 CAN（第 102 轮）</button>
+      <button class="chip" :class="{ on: part === 'enc' }" @click="part = 'enc'">编码器（第 100 轮）</button>
+    </div>
+    <MotorPanel v-if="part === 'motor'" />
     <template v-if="sim && fw">
+      <template v-if="part === 'enc'">
       <div class="chain">
         <div class="box">虚拟电机<small>转速曲线 → 编码器 A/B/Z</small></div><span class="arr">→</span>
         <div class="box chip">WQ-ENCIF<small>计数、Z 锁存、报错</small></div><span class="arr">⇄ SPI1 4 MHz ⇄</span>
@@ -52,6 +59,7 @@
           <table class="tbl"><tbody><tr v-for="(v, k) in sc.final" :key="k"><td class="mono">{{ k }}</td><td class="mono">{{ show(k, v) }}</td></tr></tbody></table>
         </details>
       </div>
+      </template>
 
       <h3>源码</h3>
       <div class="line">
@@ -60,9 +68,10 @@
       <p v-if="file" class="small muted">{{ file.note }}（{{ file.lines }} 行）</p>
       <pre v-if="file" class="code"><span v-for="(l, i) in file.text.split('\n')" :key="i"><i>{{ i + 1 }}</i>{{ l }}
 </span></pre>
-      <p><a class="btn" :href="base + fw.zip" download>下载固件包（源码 + fw.elf + Renode 平台与芯片模型 + 场景脚本）</a></p>
-      <p class="small muted">自己跑：装 arm-none-eabi-gcc 和 Renode 1.15，<span class="mono">make</span> 后 <span class="mono">python3 run.py --renode &lt;Renode 目录&gt;/renode</span>（见包里的 README）。
-        本轮只做编码器这一路；电机控制（PWM、电流环）和 CAN 以后再做。</p>
+      <p><a class="btn" :href="base + fw.zip" download>下载固件包（源码 + fw.elf + Renode 平台、芯片与电机模型 + 场景脚本）</a></p>
+      <p class="small muted">自己跑：装 arm-none-eabi-gcc 和 Renode 1.15，<span class="mono">make</span> 后 <span class="mono">python3 run.py --renode &lt;Renode 目录&gt;/renode</span>、
+        <span class="mono">python3 run_motor.py --renode …</span>（见包里的 README）。
+        编码器（第 100 轮）与电机控制、CAN（第 102 轮）在同一份固件里。</p>
     </template>
     <p v-else-if="!err" class="muted">读取中…</p>
   </div>
@@ -70,6 +79,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue';
+import MotorPanel from './MotorPanel.vue';
 
 const base = '/api/designs/drv-joint-b/fw/';
 const sim = ref(null);
@@ -77,6 +87,7 @@ const fw = ref(null);
 const sc = ref(null);
 const file = ref(null);
 const err = ref('');
+const part = ref('motor');
 const W = 420; const H = 170; const PL = 46; const PT = 8; const PB = 18;
 
 function pick(id) { sc.value = sim.value.scenarios.find((s) => s.id === id); }

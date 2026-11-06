@@ -1,0 +1,96 @@
+# 关节伺服驱动板 DRV-JOINT B 版：A 版设计描述上的改动清单（问渠电子 wqeda.variant/1；第 102 轮由 drv_joint.py 的 B 版补丁迁来）
+# 放上编码器接口芯片 WQ-ENCIF（第 92 轮设计，未流片）；设计对照，不投产。“A→B 改了什么”由这里自动列出。
+format: wqeda.variant/1
+base: ../drv-joint/design.yaml
+rev: B
+title: 关节伺服驱动板 DRV-JOINT B 版（放上编码器接口芯片 WQ-ENCIF；设计对照，不投产）
+pin_changes:
+  U10:
+  - pin: '12'
+    net: ENC_CS_N
+  - pin: '13'
+    net: ENC_SCK
+  - pin: '14'
+    net: ENC_MISO
+  - pin: '15'
+    net: ENC_MOSI
+  - pin: '16'
+    net: null
+  - pin: '17'
+    net: ENC_RST_N
+note_changes:
+  U10: 电机控制 MCU（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线、SPI1 读编码器接口芯片 U14、SPI3 读 SSI、FDCAN1
+add_parts:
+- ref: U14
+  lib: wq:WQ-ENCIF
+  value: WQ-ENCIF
+  fp: Package_DFN_QFN:QFN-16-1EP_3x3mm_P0.5mm_EP1.7x1.7mm
+  block: io
+  pins: {'1': ENC_A_F, '2': ENC_B_F, '3': ENC_Z_F, '4': GND, '5': ENC_CLK, '6': ENC_RST_N, '7': +1V8, '8': GND, '9': ENC_CS_N, '10': ENC_SCK, '11': ENC_MOSI, '12': ENC_MISO, '13': +3V3, '14': GND, '17': GND}
+  item: IC-ENCIF
+  note: 编码器接口芯片 WQ-ENCIF（第 92 轮设计，未流片）：滤波、4 倍频计数、SPI 从机
+- ref: Y2
+  lib: Oscillator:ASE-xxxMHz
+  value: 50MHz
+  fp: Oscillator:Oscillator_SMD_Abracon_ASE-4Pin_3.2x2.5mm
+  block: io
+  pins: {'1': +3V3, '2': GND, '3': ENC_CLK, '4': +3V3}
+  item: OSC-50M
+  note: 芯片时钟 50 MHz 有源晶振（示例选型）
+- ref: U15
+  lib: Regulator_Linear:AP2112K-1.8
+  value: AP2112K-1.8
+  fp: Package_TO_SOT_SMD:SOT-23-5
+  block: io
+  pins: {'1': +3V3, '2': GND, '3': +3V3, '5': +1V8}
+  item: IC-LDO18
+  note: 芯片核心电源 1.8 V（示例选型）
+- ref: C57
+  lib: Device:C
+  value: 100n
+  fp: Capacitor_SMD:C_0402_1005Metric
+  block: io
+  pins: {'1': +3V3, '2': GND}
+  item: CAP-0402
+  note: U14 VDDIO 去耦
+- ref: C58
+  lib: Device:C
+  value: 100n
+  fp: Capacitor_SMD:C_0402_1005Metric
+  block: io
+  pins: {'1': +1V8, '2': GND}
+  item: CAP-0402
+  note: U14 VCCD 去耦
+- ref: C59
+  lib: Device:C
+  value: 1u
+  fp: Capacitor_SMD:C_0402_1005Metric
+  block: io
+  pins: {'1': +3V3, '2': GND}
+  item: CAP-0402
+  note: U15 输入
+- ref: C60
+  lib: Device:C
+  value: 1u
+  fp: Capacitor_SMD:C_0402_1005Metric
+  block: io
+  pins: {'1': +1V8, '2': GND}
+  item: CAP-0402
+  note: U15 输出
+- ref: C61
+  lib: Device:C
+  value: 100n
+  fp: Capacitor_SMD:C_0402_1005Metric
+  block: io
+  pins: {'1': +3V3, '2': GND}
+  item: CAP-0402
+  note: Y2 去耦
+add_placement:
+  U14: [58, 54, 0, B]
+  C57: [58, 50.5, 0, B]
+  C58: [61.5, 54, 90, B]
+  Y2: [64.5, 58, 0, B]
+  C61: [64.5, 54.5, 0, B]
+  U15: [70, 53, 0, B]
+  C59: [67, 53, 90, B]
+  C60: [73, 53, 90, B]

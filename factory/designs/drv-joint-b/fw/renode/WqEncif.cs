@@ -7,11 +7,13 @@
 //
 // 虚拟电机：转速曲线（时刻 s : 转速 rpm，分段线性）积分成位置（计数，2500 线 ×4 = 10000 计数/转）；
 // Z 在绝对位置为 10000 的整数倍处；芯片计数 = 复位释放后走过的计数。
+// 第 102 轮：UseMotor "tim1" 后位置改从电机仿真外设（WqDrive.cs 的 WqTim1Motor）取，转速曲线不再用。
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Antmicro.Renode.Core;
 using Antmicro.Renode.Logging;
+using Antmicro.Renode.Peripherals;
 using Antmicro.Renode.Peripherals.SPI;
 
 namespace Antmicro.Renode.Peripherals.SPI
@@ -39,6 +41,16 @@ namespace Antmicro.Renode.Peripherals.SPI
                 l.Add(new double[] { double.Parse(kv[0], CultureInfo.InvariantCulture), double.Parse(kv[1], CultureInfo.InvariantCulture) });
             }
             prof = l;
+        }
+
+        public void UseMotor(string name)
+        {
+            IPeripheral p;
+            if(!machine.TryGetByName("sysbus." + name, out p)) throw new ArgumentException("找不到 " + name);
+            motor = p;
+            motorPos = p.GetType().GetMethod("EncoderCounts");
+            plast = Floor(PosAt(Now()));
+            relBase = plast;
         }
 
         public void StartPos(int counts) { pos0 = counts; plast = Floor(PosAt(Now())); }
@@ -214,9 +226,13 @@ namespace Antmicro.Renode.Peripherals.SPI
             return prof[prof.Count - 1][1];
         }
 
-        // 绝对位置（计数）= 起始位置 + ∫ rpm/60·CPR dt（分段线性，梯形精确积分）
+        // 绝对位置（计数）= 起始位置 + ∫ rpm/60·CPR dt（分段线性，梯形精确积分）；接了电机则取电机轴位置
         private double PosAt(double t)
         {
+            if(motor != null)
+            {
+                return pos0 + (double)motorPos.Invoke(motor, new object[] { t });
+            }
             double acc = 0, k = CPR / 60.0;
             double t0 = 0, r0 = RpmAt(0);
             var pts = new List<double>();
@@ -235,6 +251,8 @@ namespace Antmicro.Renode.Peripherals.SPI
         private static long FloorDiv(long a, long b) { return (long)Math.Floor((double)a / b); }
 
         private readonly IMachine machine;
+        private IPeripheral motor;
+        private System.Reflection.MethodInfo motorPos;
         private List<double[]> prof;
         private double pos0;
         private long plast, relBase;

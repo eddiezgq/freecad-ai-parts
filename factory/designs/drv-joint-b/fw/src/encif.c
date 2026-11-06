@@ -22,8 +22,8 @@ void encif_init_bus(void)
     GPIO_BSRR(GPIOB_BASE) = 1u << (16 + 1);
     GPIO_MODER(GPIOB_BASE) = (GPIO_MODER(GPIOB_BASE) & ~(3u << 2)) | (1u << 2);
 
-    /* SPI1：主机、模式 0（CPOL=0 CPHA=0）、16 MHz/4 = 4 MHz（芯片要求 SCLK ≤ 50 MHz/10）、软件片选、8 位 */
-    SPI1_CR1 = SPI_CR1_MSTR | SPI_CR1_BR_DIV4 | SPI_CR1_SSM | SPI_CR1_SSI;
+    /* SPI1：主机、模式 0（CPOL=0 CPHA=0）、170 MHz/64 = 2.66 MHz（芯片要求 SCLK ≤ 50 MHz/10）、软件片选、8 位 */
+    SPI1_CR1 = SPI_CR1_MSTR | SPI_CR1_BR_DIV64 | SPI_CR1_SSM | SPI_CR1_SSI;
     SPI1_CR2 = SPI_CR2_DS_8BIT | SPI_CR2_FRXTH;
     SPI1_CR1 |= SPI_CR1_SPE;
 }
@@ -31,9 +31,9 @@ void encif_init_bus(void)
 void encif_reset(void)
 {
     GPIO_BSRR(GPIOB_BASE) = 1u << (16 + 1);
-    delay_cycles(100);
+    delay_cycles(1000);
     GPIO_BSRR(GPIOB_BASE) = 1u << 1;
-    delay_cycles(100);  /* 芯片同步器与上电对齐要几拍（50 MHz 下 < 1 µs） */
+    delay_cycles(1000);  /* 芯片同步器与上电对齐要几拍（50 MHz 下 < 1 µs） */
 }
 
 static uint8_t xfer(uint8_t b)

@@ -75,11 +75,11 @@ def pos_at(prof, t):
 def resc(sc, tlm_addr):
     fw = HERE.replace("\\", "/")
     L = ["using sysbus", 'emulation SetGlobalQuantum "0.00001"', 'mach create "drv-joint-b"',
-         "include @{}/renode/WqEncif.cs".format(fw),
+         "include @{}/renode/WqEncif.cs".format(fw), "include @{}/renode/WqDrive.cs".format(fw),
          "machine LoadPlatformDescription @{}/renode/stm32g431.repl".format(fw),
          'machine LoadPlatformDescriptionFromString "encif: SPI.WqEncif @ spi1"',
          'machine LoadPlatformDescriptionFromString "gpioPortA: { 4 -> encif@0 }"',
-         'machine LoadPlatformDescriptionFromString "gpioPortB: { 1 -> encif@1 }"',
+         'machine LoadPlatformDescriptionFromString "gpioPortB: { 1 -> encif@1 }"', "cpu PerformanceInMips 170",
          'spi1.encif Profile "{}"'.format(",".join("{}:{}".format(t, r) for t, r in sc["profile"])),
          "logLevel 3"]
     if sc.get("start"):
@@ -194,11 +194,13 @@ def check(sc, rows):
         for r in rows:
             tl = r["tl"]
             if tl["idx_valid"]:
-                tk = tl["tick_ms"]
-                ta = math.floor(start + pos_at(prof, tk / 1000.0) + 1e-9) % CPR
-                d = abs(tl["abs_cnt"] - ta)
-                worst = max(worst, min(d, CPR - d) - tol(tk))
-        add("绝对角度（相对 Z）与真值一致", worst <= 0, "超出 {:.1f} 计数".format(max(worst, 0)))
+                t = r["t"]                # 同位置跟随：等于最近 1.1 ms 内某一时刻的真实绝对角度（±1 计数）
+                w = [math.floor(start + pos_at(prof, t - 0.0011 * i / 20) + 1e-9) for i in range(21)]
+                lo, hi = min(w) - 1, max(w) + 1
+                mid = (lo + hi) / 2
+                x = tl["abs_cnt"] + CPR * round((mid - tl["abs_cnt"]) / CPR)   # 绝对角度展开到真值附近那一圈
+                worst = max(worst, 0 if lo <= x <= hi else min(abs(x - lo), abs(x - hi)))
+        add("绝对角度（相对 Z）等于最近 1 ms 内的真实角度（±1 计数）", worst <= 0, "超出 {:.1f} 计数".format(max(worst, 0)))
         pre = [r["tl"]["abs_cnt"] for r in run if not r["tl"]["idx_valid"]]
         add("没见到 Z 之前不给绝对角度（−1）", pre and all(x == -1 for x in pre), "{} 个采样".format(len(pre)))
     if sid == "err":
