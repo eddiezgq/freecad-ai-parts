@@ -1,0 +1,16 @@
+# 演示工厂的工艺能力表（问渠电子 wqeda.capability/1）。
+# 工厂是虚构的；数值都是示例值，不是任何标准或真实工厂的值。真实工厂请按自己的能力填，不知道的项留空（检查判“未知”）。
+format: wqeda.capability/1
+factory: 示例贴片厂（Example SMT Co.，虚构）
+fictional: true
+example_values: true
+pcb:
+  track_min_mm: 0.127          # 与第 88 轮 dfm.py 的示例板厂工艺能力相同
+  space_min_mm: 0.127
+  drill_min_mm: 0.3
+  annular_min_mm: 0.15
+  mask_bridge_min_mm: 0.1
+  component_edge_min_mm: 0.5
+  copper_edge_min_mm: 0.3      # 示例值
+  board_max_mm: null           # 没填：板子尺寸检查判“未知”
+  board_min_mm: null
