@@ -91,3 +91,16 @@ def test_bom_csv_items():
     for r in rows:
         tot[r["物料编号"]] = tot.get(r["物料编号"], 0) + int(r["数量"])
     assert tot == D.bom_by_item()
+
+
+def test_firmware_files_served():
+    """第 100 轮：/api/designs/<板>/fw/... 取固件产物（在 <板>/fw/out，不在板的 out 里）；不能借 fw/ 越出目录。"""
+    from fastapi.testclient import TestClient
+    import hub.app as app_mod
+    c = TestClient(app_mod.app)
+    r = c.get("/api/designs/drv-joint-b/fw/sim.json")
+    assert r.status_code == 200 and r.json()["all_pass"]
+    assert c.get("/api/designs/drv-joint-b/fw/wq-drv-b-fw.zip").status_code == 200
+    assert c.get("/api/designs/drv-joint-b/design.json").status_code == 200
+    assert c.get("/api/designs/drv-joint-b/fw/../../out/design.json").status_code == 404
+    assert c.get("/api/designs/drv-joint-b/fw/%2e%2e/src/main.c").status_code == 404
