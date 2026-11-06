@@ -1,4 +1,5 @@
-/* 关节驱动板 DRV-JOINT B 版 示例固件。第 100 轮：经 SPI1 读编码器接口芯片 WQ-ENCIF；第 102 轮：电机控制（FOC）与 CAN。
+/* 关节驱动板 DRV-JOINT B 版 示例固件。第 100 轮：经 SPI1 读编码器接口芯片 WQ-ENCIF；第 102 轮：电机控制（FOC）与 CAN；
+ * 第 107 轮：输出端绝对值编码器（SSI，SPI3）——开机取绝对角度、双编码器互检、受控停车。
  *
  * 时间基准是 20 kHz 电流环中断（motor.c）；它每 1 ms 调一次 motor_ms_hook()：
  *   第 100 轮那套编码器管理（状态、Z 相、错误计数、芯片缺失每 100 ms 重试）、状态机、指令、保护、排 CAN 发送。
@@ -12,6 +13,7 @@
 #include "encif.h"
 #include "motor.h"
 #include "regs.h"
+#include "ssi.h"
 
 #define CPR 10000          /* 2500 线编码器 ×4（第 88 轮的示例编码器） */
 #define WIN_MS 10          /* 转速取 10 ms 窗口 */
@@ -44,7 +46,45 @@ static int32_t hist[WIN_MS];
 /* CAN 收到的指令（FDCAN 中断写，1 kHz 节拍读） */
 static volatile uint32_t cmd_mode, cmd_new;
 static volatile int32_t cmd_target;
-static uint32_t last_cmd_ms, uv_ms, prev_state;
+static uint32_t last_cmd_ms, uv_ms, prev_state, mis_ms;
+
+#define ABS_ZERO_MDEG 0      /* 输出端编码器的安装零点（编码器读 0 时关节在 0°；示例） */
+#define MISMATCH_MDEG 500    /* 两个编码器差超过 0.5°（示例）…… */
+#define MISMATCH_MS 10       /* ……连续 10 ms 判“减速器 / 编码器不一致” */
+#define SSI_BAD_MAX 5        /* 连续 5 帧读坏判“输出端编码器”故障 */
+
+/* 第 107 轮：读输出端绝对值编码器（1 kHz）；开机回原点；电机侧换算的关节角与它互检 */
+static void abs_encoder(void)
+{
+    uint32_t pos;
+    if (!ssi_read(&pos)) {
+        if (++mc.ssi_bad >= SSI_BAD_MAX && mc.state != STATE_FAULT) {
+            motor_fault(FAULT_ABS, 0);
+        }
+        return;
+    }
+    mc.ssi_bad = 0;
+    int32_t a = (int32_t)((uint64_t)pos * 360000u / SSI_COUNTS) - ABS_ZERO_MDEG;
+    if (a > 180000) {
+        a -= 360000;
+    }
+    mc.abs_mdeg = a;
+    if (!mc.homed && motor_aligned() && mc.state == STATE_READY) {
+        motor_set_home(a);                       /* 对零做完：这时的电机计数对应输出端编码器读到的角度 */
+    }
+    if (mc.homed) {
+        int32_t d = motor_joint_mdeg(mc.pos_cnt) - a;
+        d = d > 180000 ? d - 360000 : (d < -180000 ? d + 360000 : d);
+        mc.mismatch_mdeg = d;
+        if ((d > MISMATCH_MDEG || d < -MISMATCH_MDEG) && (mc.state == STATE_RUN || mc.state == STATE_READY || mc.hold)) {
+            if (++mis_ms >= MISMATCH_MS) {
+                motor_fault(FAULT_SLIP, (float)d / 1000.0f);
+            }
+        } else {
+            mis_ms = 0;
+        }
+    }
+}
 /* 待发的 CAN 帧（1 kHz 节拍排，主循环发） */
 static volatile uint32_t due_status, due_heart, due_emcy;
 
@@ -142,6 +182,8 @@ void motor_ms_hook(uint32_t now)
     if (tlm.state != ST_RUN && (mc.state == STATE_RUN || mc.state == STATE_INIT) && mc.moe) {
         motor_fault(FAULT_ENC, 0);
     }
+    abs_encoder();
+
     /* 对零：编码器正常、电流零点量好（开机 64 个周期）之后 */
     if (mc.state == STATE_INIT && !mc.moe && !motor_aligned() && tlm.state == ST_RUN && mc.isr > 64u) {
         motor_start_align();
@@ -153,12 +195,15 @@ void motor_ms_hook(uint32_t now)
         last_cmd_ms = now;
         uint32_t m = cmd_mode;
         if (m == MODE_CLEAR) {
-            if (mc.state == STATE_FAULT && tlm.state == ST_RUN) {
+            if (mc.state == STATE_FAULT && mc.hold) {   /* 受控停车保持中：接着运行，保持在当前位置 */
+                motor_resume_hold();
+            } else if (mc.state == STATE_FAULT && tlm.state == ST_RUN && mc.ssi_bad < SSI_BAD_MAX) {
                 uint32_t f = mc.fault;
                 mc.fault = FAULT_NONE;
                 mc.fault_val = 0;
-                if (f == FAULT_ENC) {                 /* 编码器芯片可能复位过，计数基准变了：重新对零 */
+                if (f == FAULT_ENC || f == FAULT_SLIP) {   /* 编码器芯片可能复位过 / 两个编码器对不上：重新对零、回原点 */
                     mc.state = STATE_INIT;
+                    mc.homed = 0;
                     motor_start_align();
                 } else {
                     mc.state = STATE_READY;
@@ -182,13 +227,22 @@ void motor_ms_hook(uint32_t now)
         }
     }
 
-    /* 保护：通信超时、欠压（连续 5 ms） */
+    /* 保护：通信超时、欠压（连续 5 ms）——第 107 轮起受控停车：通信超时减速停住、保持位置不断电；欠压减速停住后关输出 */
     if (mc.state == STATE_RUN && now - last_cmd_ms > 100u) {
-        motor_fault(FAULT_COMM, 0);
+        motor_quickstop(FAULT_COMM, 0, 1);
     }
-    if ((mc.state == STATE_READY || mc.state == STATE_RUN) && mc.vbus < VBUS_MIN) {
+    if ((mc.state == STATE_READY || mc.state == STATE_RUN || mc.hold) && mc.vbus < VBUS_MIN) {
         if (++uv_ms >= 5u) {
-            motor_fault(FAULT_UV, mc.vbus);
+            if (mc.hold && mc.hold_keep) {            /* 保持中又欠压：保持不住，停住后关输出；故障改记欠压，再报一次警 */
+                mc.hold_keep = 0;
+                mc.fault = FAULT_UV;
+                mc.fault_val = mc.vbus;
+                due_emcy = 1;
+            } else if (mc.hold) {
+                /* 已经在“停住后关输出”的受控停车里：不用再做什么 */
+            } else {
+                motor_quickstop(FAULT_UV, mc.vbus, 0);
+            }
         }
     } else {
         uv_ms = 0;
@@ -230,6 +284,7 @@ int main(void)
 
     encif_init_bus();
     tlm.state = chip_start() ? ST_RUN : ST_MISSING;
+    ssi_init();
     motor_init();
     can_init();
 
@@ -245,8 +300,8 @@ int main(void)
         }
         if (due_status) {
             due_status = 0;
-            /* 关节角 = 电机计数 / 每转计数 / 减速比 × 360°（开机位置当 0°；输出端绝对值编码器 SSI 本轮不接） */
-            float joint = (float)mc.pos_cnt * (360.0f / CNT_PER_REV / GEAR);
+            /* 关节角：回原点后按输出端绝对值编码器的原点换算电机计数（第 107 轮；原来开机位置当 0°） */
+            float joint = (float)motor_joint_mdeg(mc.pos_cnt) / 1000.0f;
             d[0] = (uint8_t)mc.state;
             d[1] = (uint8_t)mc.fault;
             put16(d + 2, rnd(joint * 100.0f));

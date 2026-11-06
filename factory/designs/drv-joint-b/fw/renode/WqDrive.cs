@@ -1,6 +1,7 @@
 // 关节驱动板 B 版的“功率级 + 被控对象”仿真外设（Renode，运行时编译）。第 102 轮。
 //   WqTim1Motor：TIM1 子集（三相中心对齐 PWM）+ 逆变桥平均模型 + 三相永磁同步电机 d/q 模型 + 减速器 + 摆臂负载
 //   WqAdc1    ：ADC1 注入组子集（TIM1 更新时刻采三相电流和母线电压，INA240 40 mV/A、零点 1.65 V；分压 6.8/108.8）
+//   WqSsiEncoder：输出端绝对值编码器（SSI，挂在 SPI3；第 107 轮）：17 位单圈，从电机模型取输出轴角度（含注入的“减速器打滑”）
 //   WqFdcan1  ：FDCAN1 子集（经典 CAN；消息 RAM 按 G4 布局：Rx FIFO0 0xB0 起、Tx 缓冲 0x278 起，每个元素 18 字）+ 仿真 CAN 主站
 // 寄存器地址、偏移、位、中断号对照 ST 官方 CMSIS 头文件 stm32g431xx.h 与 HAL stm32g4xx_hal_fdcan.c 核对（见 test_drv_b_motor.py）。
 // 电机参数：力矩常数 0.15 N·m/A、额定 1.27 N·m 取第 88 轮示例电机；减速比 100 取零件库 Harmonic Drive CSF-17-100；
@@ -52,13 +53,21 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
         public void SetVbus(double v) { Advance(); vbus = v; }
         public void ShortAB(bool v) { Advance(); shortOn = v; if(!v) isc = 0; }
         public void StartJoint(double deg) { th = deg / 180 * Math.PI * N; }
+        // 第 107 轮：减速器打滑——输出轴相对电机轴突然错开 deg 度（输出端编码器看得到，电机侧编码器看不到）
+        public void Slip(double deg) { Advance(); slip += deg / 180 * Math.PI; }
+
+        // 输出轴角度（rad，含打滑）：给输出端绝对值编码器
+        public double OutputAngle(double t)
+        {
+            return (th + w * Math.Max(0, t - tLast)) / N + slip;
+        }
         public string Truth()
         {
             Advance();
             var ia = Ia(); var ib = Ib();
             // 时刻 s、id A、iq A、电机转速 rpm、关节角 °、ia、ib、MOE、母线 V、电机轴计数、最近一次关管时刻、电角度 °、∫iq dt（A·s）
             return string.Format(CultureInfo.InvariantCulture, "M {0:F6} {1:F5} {2:F5} {3:F4} {4:F6} {5:F4} {6:F4} {7} {8:F4} {9:F2} {10:F7} {11:F3} {12:F9}",
-                Now(), id, iq, w * 60 / (2 * Math.PI), th / N * 180 / Math.PI, ia, ib, moe ? 1 : 0, vbus,
+                Now(), id, iq, w * 60 / (2 * Math.PI), (th / N + slip) * 180 / Math.PI, ia, ib, moe ? 1 : 0, vbus,
                 th / (2 * Math.PI) * 10000.0, offTime, ((P * th) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) * 180 / Math.PI, iqInt);
         }
 
@@ -124,7 +133,7 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
             arr = 0xFFFF;
             ccrP = new uint[3]; ccrA = new uint[3];
             moe = false; locked = false; shortOn = false;
-            id = iq = w = th = isc = iqInt = 0; extra = 0; vbus = Vbus0;
+            id = iq = w = th = isc = iqInt = slip = 0; extra = 0; vbus = Vbus0;
             tLast = 0; offTime = -1;
             pwm.Enabled = false;
         }
@@ -209,7 +218,7 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
             }
             // 机械：J·dω/dt = Te − 负载（重力经减速器折算 + 摩擦）
             double teM = 1.5 * P * Psi * iq;
-            double thJ = th / N;
+            double thJ = th / N + slip;
             double tg = (Mass + extra) * G * Arm * Math.Sin(thJ) / N;
             double jl = Jm + (Mass + extra) * Arm * Arm / (N * N);
             double tf = Bv * w + Tc * Math.Tanh(w / 0.5);
@@ -227,7 +236,7 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
         private uint cr1, cr2, dier, sr, ccmr1, ccmr2, ccer, psc, arr, rcr, bdtr;
         private uint[] ccrP, ccrA;
         private bool moe, locked, shortOn;
-        private double id, iq, w, th, isc, extra, vbus, tLast, offTime, iqInt;
+        private double id, iq, w, th, isc, extra, vbus, tLast, offTime, iqInt, slip;
     }
 
     // ==================================================================== ADC1 注入组
@@ -292,6 +301,50 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
         private readonly WqTim1Motor motor;
         private uint isr, ier, cr, jsqr;
         private uint[] jdr;
+    }
+
+    // ==================================================================== 输出端绝对值编码器（SSI，第 107 轮）
+    // 帧（示例格式）：24 个时钟，第 1 位起始位恒 1，接着 17 位单圈位置（二进制、高位先出，131 072 计数/圈），再 1 位错误位（0 正常），其余补 0。
+    // 两帧之间时钟停 ≥ 15 µs（SSI 的单稳态时间）编码器重新锁存位置；“线断”时 RS-485 接收端读回全 1。
+    public class WqSsiEncoder : Antmicro.Renode.Peripherals.SPI.ISPIPeripheral
+    {
+        public const int BITS = 17;
+
+        public WqSsiEncoder(IMachine machine, WqTim1Motor motor)
+        {
+            this.machine = machine;
+            this.motor = motor;
+            Reset();
+        }
+
+        public void Broken(bool v) { broken = v; }
+
+        public byte Transmit(byte b)
+        {
+            double t = machine.LocalTimeSource.ElapsedVirtualTime.TotalSeconds;
+            if(t - last > 15e-6 || nbyte >= 3)
+            {
+                double a = motor.OutputAngle(t) % (2 * Math.PI);
+                if(a < 0) a += 2 * Math.PI;
+                uint pos = (uint)Math.Floor(a / (2 * Math.PI) * (1 << BITS)) & ((1u << BITS) - 1);
+                frame = (1u << 23) | (pos << 6);          // 起始位、17 位位置、错误位 0
+                nbyte = 0;
+            }
+            last = t;
+            byte r = broken ? (byte)0xFF : (byte)(frame >> (8 * (2 - nbyte)));
+            nbyte++;
+            return r;
+        }
+
+        public void FinishTransmission() { }
+        public void Reset() { nbyte = 3; last = -1; frame = 0; }
+
+        private readonly IMachine machine;
+        private readonly WqTim1Motor motor;
+        private bool broken;
+        private int nbyte;
+        private double last;
+        private uint frame;
     }
 
     // ==================================================================== FDCAN1 + 仿真主站

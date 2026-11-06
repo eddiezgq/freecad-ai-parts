@@ -25,9 +25,12 @@ CPR, P, GEAR = 10000, 5, 100
 
 MCF = [("magic", "I"), ("state", "I"), ("mode", "I"), ("fault", "I"), ("align_off", "i"), ("isr", "I"), ("id", "f"), ("iq", "f"),
        ("id_ref", "f"), ("iq_ref", "f"), ("vd", "f"), ("vq", "f"), ("speed_rpm", "f"), ("speed_ref", "f"), ("pos_cnt", "i"),
-       ("pos_ref_cnt", "i"), ("vbus", "f"), ("imax", "f"), ("moe", "I"), ("can_rx", "I"), ("can_tx", "I"), ("fault_val", "f")]
+       ("pos_ref_cnt", "i"), ("vbus", "f"), ("imax", "f"), ("moe", "I"), ("can_rx", "I"), ("can_tx", "I"), ("fault_val", "f"),
+       # 第 107 轮
+       ("abs_mdeg", "i"), ("home_cnt", "i"), ("home_mdeg", "i"), ("homed", "I"), ("mismatch_mdeg", "i"), ("ssi_bad", "I"),
+       ("hold", "I"), ("hold_keep", "I")]
 STATE = {0: "初始化（对零）", 1: "就绪", 2: "运行", 3: "故障"}
-FAULT = {0: "无", 1: "过流", 2: "欠压", 3: "编码器", 4: "通信超时"}
+FAULT = {0: "无", 1: "过流", 2: "欠压", 3: "编码器", 4: "通信超时", 5: "输出端编码器", 6: "减速器 / 编码器不一致"}
 MODE = {0: "停", 1: "速度", 2: "位置", 3: "清故障", 4: "力矩"}
 
 # 参数表：来源“零件库”“第 88 轮”“示例”
@@ -52,6 +55,8 @@ PARAMS = [
     ("速度环带宽", "100 Hz（Kp = J·ωs/Kt，Ki = Kp·ωs/4）", "", "本轮固件"),
     ("位置环", "Kp = ωs/4 ≈ 157 /s，梯形轨迹 1500 rpm、3000 rad/s²", "", "本轮固件"),
     ("过流 / 欠压阈值", "25 A / 36 V", "", "本轮固件"),
+    ("输出端绝对值编码器", "SSI 17 位单圈（131 072 计数/圈）、1.33 MHz、1 kHz 读", "", "示例（第 107 轮；电路是第 88 轮的 J4 + RS-485）"),
+    ("双编码器互检阈值", "0.5°、连续 10 ms", "", "示例（第 107 轮）"),
 ]
 
 
@@ -81,13 +86,30 @@ SCENARIOS = [
          events=[(0.45, ("cmd", 2, 90000, True)), (1.9, "tim1 ExtraMass 0.5")]),
     dict(id="prot", name="⑥ 保护", en="Protection",
          desc="600 rpm 运行中依次注入：A–B 相间短路 → 过流；清故障再转；编码器芯片不响应 → 编码器故障；芯片恢复、清故障、重新对零；"
-              "只发一次指令后不再发 → 通信超时；清故障后母线掉到 30 V → 欠压。",
+              "只发一次指令后不再发 → 通信超时（第 107 轮起减速停住、保持不断电）；清故障后母线掉到 30 V → 欠压（停住后关输出）。",
          pre=[], dur=1.85, sample=[(0.4, 1.85, 0.005)],
          events=[(0.45, ("cmd", 1, 600, True)), (0.6, "tim1 ShortAB true"), (0.62, "tim1 ShortAB false"),
                  (0.62, ("cmd", 0, 0, False)), (0.65, ("cmd", 3, 0, False)), (0.7, ("cmd", 1, 600, True)),
                  (0.85, "spi1.encif Absent true"), (0.9, "spi1.encif Absent false"), (0.9, ("cmd", 0, 0, False)),
                  (1.05, ("cmd", 3, 0, False)), (1.45, ("cmd", 1, 600, False)), (1.65, ("cmd", 3, 0, False)),
                  (1.7, "tim1 SetVbus 30")]),
+    # 第 107 轮：输出端绝对值编码器、互检、受控停车
+    dict(id="abs", name="⑦ 开机读绝对位置", en="Absolute position at power-up",
+         desc="这个关节在水平面里转（像 SCARA 机器人第一轴，没有重力矩），开机时停在 37.5°。固件对零后读输出端绝对值编码器回原点，"
+              "CAN 直接报 37.5°；指令 90° 只走 52.5°。（第 102 轮的固件会把这里当 0°、走 90° 到 127.5°。）",
+         pre=["tim1 StartJoint 37.5", "tim1 ExtraMass -1"], dur=1.3, sample=[(0.3, 1.3, 0.01)], events=[(0.45, ("cmd", 2, 90000, True))]),
+    dict(id="ssi", name="⑧ 输出端编码器线断", en="Absolute encoder cable broken",
+         desc="300 rpm 运行中 0.6 s 输出端编码器的线断了（读回全 1）：连续 5 帧读坏 → 故障 5、立即关输出。",
+         pre=[], dur=0.75, sample=[(0.4, 0.75, 0.002)], events=[(0.45, ("cmd", 1, 300, True)), (0.6, "spi3.ssi Broken true")]),
+    dict(id="slip", name="⑨ 减速器打滑", en="Gearbox slip",
+         desc="关节转到 20° 停住后，0.9 s 时减速器打滑：输出轴相对电机轴突然错开 2°（电机侧编码器看不到，输出端编码器看得到）"
+              "→ 两个编码器差 2° 超过 0.5°、连续 10 ms → 故障 6、立即关输出。",
+         pre=[], dur=1.05, sample=[(0.4, 1.05, 0.002)], events=[(0.45, ("cmd", 2, 20000, True)), (0.9, "tim1 Slip 2")]),
+    dict(id="stop", name="⑩ 受控停车", en="Controlled stop",
+         desc="摆臂停在 90°（水平）后，1.6 s 起主站不再发指令：约 100 ms 后报通信超时，固件减速停住、保持位置不断电，摆臂不落；"
+              "2.6 s 母线掉到 30 V：保持不住，停住后关输出——板上没有抱闸，摆臂落下（真关节要抱闸）。",
+         pre=[], dur=3.0, sample=[(0.4, 3.0, 0.01)], events=[(0.45, ("cmd", 2, 90000, True)), (1.6, ("cmd", 2, 90000, False)),
+                                                             (2.6, "tim1 SetVbus 30")]),
 ]
 
 
@@ -184,7 +206,7 @@ def run_one(renode, sc, addr):
         p = os.path.join(td, "s.resc")
         open(p, "w", encoding="utf-8").write(resc(sc, addr))
         r = subprocess.run([renode, "--disable-xwt", "--plain", "--console", "-e", "include @" + p],
-                           capture_output=True, text=True, timeout=1800)
+                           capture_output=True, text=True, timeout=900)
     rows, frames = parse(r.stdout)
     if not rows or abs(rows[-1]["t"] - sc["dur"]) > 1e-6:
         sys.stderr.write(r.stdout[-3000:] + r.stderr[-2000:])
@@ -317,6 +339,40 @@ def check(sc, rows, frames):
         add("母线掉到 30 V：10 ms 内报欠压（故障码 2）", e2 is not None and e2["t"] - 1.7 <= 0.01,
             decode(e2) if e2 else "")
         add("结束时停在故障、关管", last["mc"]["state"] == 3 and last["moe"] == 0, FAULT[last["mc"]["fault"]])
+        add("通信超时后受控停车：输出没关（第 107 轮）", at(1.6)["moe"] == 1 and at(1.6)["mc"]["hold"] == 1,
+            "1.6 s：输出 {}，保持 {}".format(at(1.6)["moe"], at(1.6)["mc"]["hold"]))
+    if sid == "abs":
+        r = at(0.44)
+        fw = struct.unpack_from("<h", bytes.fromhex([f for f in st if f["t"] <= 0.44][-1]["data"]), 2)[0] / 100
+        add("对零后 CAN 报的关节角 = 真实角度（≤ 0.01°；开机 37.5°，对零时转子被拉动不到 0.4°）",
+            abs(fw - r["joint"]) <= 0.011 and abs(r["joint"] - 37.5) < 0.4, "报 {:.2f}°，真实 {:.4f}°".format(fw, r["joint"]))
+        add("回原点了", r["mc"]["homed"] == 1, "原点 {:.3f}°".format(r["mc"]["home_mdeg"] / 1000))
+        add("指令 90°：到位误差 ≤ 0.05°", abs(last["joint"] - 90) <= 0.05, "{:.4f}°".format(last["joint"] - 90))
+        mx = max(r["joint"] for r in rows)
+        add("没有按 0° 去走 90°（最大 < 92°）", mx < 92, "最大 {:.3f}°".format(mx))
+    if sid == "ssi":
+        e5 = next((f for f in em if bytes.fromhex(f["data"])[0] == 5), None)
+        add("线断后 10 ms 内报故障 5（输出端编码器）", e5 is not None and e5["t"] - 0.6 <= 0.010,
+            "{:.1f} ms".format((e5["t"] - 0.6) * 1000) if e5 else "没报")
+        add("立即关输出", at(0.62)["moe"] == 0, "")
+    if sid == "slip":
+        b = at(0.89)
+        add("打滑前停在 20°、两编码器一致（≤ 0.05°）", abs(b["joint"] - 20) <= 0.05 and abs(b["mc"]["mismatch_mdeg"]) <= 50,
+            "{:.4f}°，差 {:.3f}°".format(b["joint"], b["mc"]["mismatch_mdeg"] / 1000))
+        e6 = next((f for f in em if bytes.fromhex(f["data"])[0] == 6), None)
+        v = struct.unpack_from("<h", bytes.fromhex(e6["data"]), 1)[0] / 100 if e6 else 0
+        add("打滑 2° 后 15 ms 内报故障 6、报的差 ≈ −2°", e6 is not None and e6["t"] - 0.9 <= 0.015 and abs(v + 2) <= 0.1,
+            "{:.1f} ms，差 {:.2f}°".format((e6["t"] - 0.9) * 1000, v) if e6 else "没报")
+        add("立即关输出", at(0.93)["moe"] == 0, "")
+    if sid == "stop":
+        e4 = next((f for f in em if bytes.fromhex(f["data"])[0] == 4), None)
+        add("约 100 ms 后报通信超时（故障 4）", e4 is not None and 0.09 <= e4["t"] - 1.6 <= 0.12, "{:.0f} ms".format((e4["t"] - 1.6) * 1000) if e4 else "")
+        w = [r for r in rows if 1.75 <= r["t"] <= 2.59]
+        dev = max(abs(r["joint"] - 90) for r in w)
+        add("通信超时后保持在 90°、输出不断（偏差 ≤ 0.05°）", dev <= 0.05 and all(r["moe"] == 1 for r in w), "最大偏差 {:.4f}°".format(dev))
+        e2 = next((f for f in em if f["t"] >= 2.6), None)
+        add("欠压：报警、停住后关输出", e2 is not None and at(2.65)["moe"] == 0, decode(e2) if e2 else "没报")
+        add("关输出后没有抱闸，摆臂落下（< 80°）", last["joint"] < 80, "3.0 s 时 {:.1f}°".format(last["joint"]))
     return C
 
 

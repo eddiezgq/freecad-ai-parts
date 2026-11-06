@@ -365,6 +365,8 @@ except ImportError:                    # 按文件路径单独载入本文件时
         raise
     _P = None
 
+PACK = {}                               # 第 106 轮：按包装买（清单 items[].pack）
+PARK_ITEM = {}                          # 第 106 轮：向工业园兄弟厂下单时的对方物料号（清单 items[].park_item）
 DEMO_CUSTOMERS = list(CUSTOMERS)        # 演示工厂的客户：教学情景（sim/scenario.py、实验 15–23、E1–E7 的演示数据）始终用它们
 _PLANT_TEMPLATES = None
 if _P and _P.get("ITEMS"):                # 清单第 2 版：产品、物料、物料清单、工艺路线、库存都取自清单（第 45 轮）
@@ -375,6 +377,8 @@ if _P and _P.get("ITEMS"):                # 清单第 2 版：产品、物料、
     OPENING_STOCK = _P["OPENING_STOCK"]
     SAFETY_STOCK = _P["SAFETY_STOCK"]
     LIBRARY_REFS = _P["LIBRARY_REFS"]
+    PACK = _P.get("PACK") or {}
+    PARK_ITEM = _P.get("PARK_ITEM") or {}
     MEASURE = _P["MEASURE"]
     KEY_MATERIALS = _P["KEY_MATERIALS"]
     if not _P["DEMO_DATA"]:                 # 企业工厂：没有演示的教学库存、教材案例件；检验模板来自清单

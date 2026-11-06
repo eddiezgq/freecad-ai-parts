@@ -1,4 +1,4 @@
-/* 电机控制（第 102 轮）。一次 ADC 注入组转换完成中断 = 一个 20 kHz 电流环周期：
+/* 电机控制（第 102 轮；第 107 轮加原点、受控停车）。一次 ADC 注入组转换完成中断 = 一个 20 kHz 电流环周期：
  *   读三相电流与母线 → 过流保护 → 读编码器（SPI1 → WQ-ENCIF）→ 电角度 → Clarke / Park → d、q 两个 PI → 反 Park → SVPWM → 写比较值
  *   每 10 次（2 kHz）速度环，每 20 次（1 kHz）位置环与轨迹、编码器状态、主程序节拍。
  * PWM：TIM1 中心对齐 20 kHz，CH1–3 PA8–PA10、CH1N–3N PB13–PB15（AF6，第 88 轮原理图第 27–32 脚）；死区 200 ns。
@@ -143,16 +143,62 @@ void motor_enable(int on)
 void motor_fault(uint32_t code, float val)
 {
     motor_enable(0);
-    if (mc.state != STATE_FAULT) {
+    if (mc.state != STATE_FAULT || mc.hold) {        /* 受控停车中又来危险故障：改记这一个，立即关输出 */
         mc.fault = code;
         mc.fault_val = val;
     }
+    mc.hold = 0;
     mc.state = STATE_FAULT;
     mc.mode = MODE_STOP;
     mc.id_ref = mc.iq_ref = 0;
 }
 
 int motor_aligned(void) { return aligned; }
+
+/* ---------------------------------------------------------------- 第 107 轮：原点、受控停车 */
+void motor_set_home(int32_t abs_mdeg)
+{
+    mc.home_cnt = mc.pos_cnt;
+    mc.home_mdeg = abs_mdeg;
+    mc.homed = 1;
+}
+
+int32_t motor_joint_mdeg(int32_t cnt)
+{
+    return mc.home_mdeg + (int32_t)((float)(cnt - mc.home_cnt) * (360000.0f / ((float)CNT_PER_REV * GEAR)));
+}
+
+void motor_quickstop(uint32_t code, float val, int keep)
+{
+    if (mc.state == STATE_FAULT) {
+        return;
+    }
+    mc.fault = code;
+    mc.fault_val = val;
+    mc.state = STATE_FAULT;
+    if (!mc.moe) {                                   /* 输出本来就关着：没什么可停的 */
+        mc.hold = 0;
+        mc.mode = MODE_STOP;
+        return;
+    }
+    const float amax = A_MAX / TWO_PI * CNT_PER_REV;
+    trj_pos = (float)mc.pos_cnt;
+    trj_vel = mc.speed_rpm / 60.0f * CNT_PER_REV;
+    trj_goal = trj_pos + (trj_vel >= 0 ? 1.0f : -1.0f) * trj_vel * trj_vel / (2.0f * amax);   /* 按最大减速度停下的位置 */
+    mc.mode = MODE_POS;
+    mc.hold = 1;
+    mc.hold_keep = keep ? 1u : 0u;
+}
+
+void motor_resume_hold(void)
+{
+    mc.hold = 0;
+    mc.fault = FAULT_NONE;
+    mc.fault_val = 0;
+    mc.state = STATE_RUN;
+    mc.mode = MODE_POS;
+    trj_goal = trj_pos;
+}
 
 void motor_start_align(void)
 {
@@ -168,8 +214,8 @@ void motor_set(uint32_t mode, int32_t target)
     if (mode == MODE_SPEED) {
         mc.speed_ref = (float)target;
     } else if (mode == MODE_POS) {
-        /* 关节角 0.001° → 电机计数：× 减速比 × 每转计数 / 360000 */
-        trj_goal = (float)target * (float)GEAR * (float)CNT_PER_REV / 360000.0f;
+        /* 关节角 0.001° → 电机计数：按原点换算，× 减速比 × 每转计数 / 360000（第 107 轮起按输出端编码器的原点） */
+        trj_goal = (float)mc.home_cnt + (float)(target - mc.home_mdeg) * (float)GEAR * (float)CNT_PER_REV / 360000.0f;
         if (mc.mode != MODE_POS) {
             trj_pos = (float)mc.pos_cnt;
             trj_vel = mc.speed_rpm / 60.0f * CNT_PER_REV;
@@ -266,7 +312,7 @@ void ADC1_2_IRQHandler(void)
     if (mc.state == STATE_INIT && mc.moe) {
         mc.id_ref = ALIGN_A;
         mc.iq_ref = 0;
-    } else if (mc.state == STATE_RUN) {
+    } else if (mc.state == STATE_RUN || mc.hold) {
         if (k % 10u == 0 && (mc.mode == MODE_SPEED || mc.mode == MODE_POS)) {
             /* 2 kHz 速度环 */
             float w = mc.speed_rpm / 60.0f * TWO_PI, wr = mc.speed_ref / 60.0f * TWO_PI;
@@ -319,8 +365,13 @@ void ADC1_2_IRQHandler(void)
             motor_enable(0);
             mc.state = STATE_READY;
         }
-        if (mc.state == STATE_RUN && mc.mode == MODE_POS) {
+        if ((mc.state == STATE_RUN || mc.hold) && mc.mode == MODE_POS) {
             trajectory();
+            if (mc.hold && !mc.hold_keep && trj_vel == 0.0f && trj_pos == trj_goal) {   /* 受控停车（关输出类）：停住了再关 */
+                mc.hold = 0;
+                motor_enable(0);
+                mc.mode = MODE_STOP;
+            }
             float ep = (trj_pos - (float)cnt) * (TWO_PI / CNT_PER_REV);           /* rad */
             float wff = trj_vel / CNT_PER_REV * 60.0f;                            /* 前馈 rpm */
             mc.speed_ref = wff + KP_P * ep / TWO_PI * 60.0f;

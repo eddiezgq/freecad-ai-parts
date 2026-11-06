@@ -15,7 +15,8 @@ def _t(p):
 
 def test_six_motor_scenarios_pass():
     s = json.load(open(os.path.join(FW, "out", "sim_motor.json"), encoding="utf-8"))
-    assert s["all_pass"] and [x["id"] for x in s["scenarios"]] == ["boot", "cur", "spd", "pos", "hold", "prot"]
+    assert s["all_pass"] and [x["id"] for x in s["scenarios"]] == ["boot", "cur", "spd", "pos", "hold", "prot",
+                                                                   "abs", "ssi", "slip", "stop"]     # 第 107 轮加后四个
     for sc in s["scenarios"]:
         assert sc["checks"] and all(c["ok"] for c in sc["checks"]), sc["id"]
         assert len(sc["series"]["t"]) == len(sc["series"]["iq"]) == len(sc["series"]["joint"])
@@ -32,7 +33,7 @@ def test_six_motor_scenarios_pass():
 # 对照 ST 官方 CMSIS 头文件 stm32g431xx.h（cmsis_device_g4）与 HAL stm32g4xx_hal_fdcan.c 核对过的数（2026-11-06）
 CMSIS = {
     "TIM1_BASE": 0x40012C00, "ADC1_BASE": 0x50000000, "FDCAN1_BASE": 0x40006400, "SRAMCAN_BASE": 0x4000A400,
-    "SPI1_BASE": 0x40013000, "RCC_BASE": 0x40021000, "GPIOA_BASE": 0x48000000, "GPIOB_BASE": 0x48000400,
+    "SPI1_BASE": 0x40013000, "SPI3_BASE": 0x40003C00, "RCC_BASE": 0x40021000, "GPIOA_BASE": 0x48000000, "GPIOB_BASE": 0x48000400,
     "SRAMCAN_RF0SA": 0x0B0, "SRAMCAN_TFQSA": 0x278, "SRAMCAN_ESIZE": 72,
     "IRQ_ADC1_2": 18, "IRQ_FDCAN1_IT0": 21,
 }
@@ -59,6 +60,7 @@ def test_registers_match_cmsis():
     for frag in ("WqTim1Motor @ sysbus 0x40012C00", "WqAdc1 @ sysbus 0x50000000", "WqFdcan1 @ sysbus 0x40006400",
                  "sramcan: Memory.MappedMemory @ sysbus 0x4000A400", "IRQ -> nvic@18", "IRQ -> nvic@21"):
         assert frag in repl, frag
+    assert "spi3: SPI.STM32SPI @ sysbus 0x40003C00" in repl and "#define RCC_SPI3EN (1u << 15)" in regs   # 第 107 轮：SPI3 读 SSI
     # 向量表：ADC1_2 在 16 + 18、FDCAN1_IT0 在 16 + 21
     st = _t("src/startup.c")
     assert "ADC1_2_IRQHandler, D, D, FDCAN1_IT0_IRQHandler" in st
@@ -74,5 +76,5 @@ def test_controller_matches_plant_and_board():
     mc = _t("src/motor.c")
     assert "0.04f" in mc and "108.8f / 6.8f" in mc and "1.65 + 0.04 * ia" in cs and "6.8 / 108.8" in cs
     proto = _t("src/can_proto.h")
-    for frag in ("0x201", "0x181", "0x081", "0x701", "过流", "欠压", "编码器", "通信超时"):
+    for frag in ("0x201", "0x181", "0x081", "0x701", "过流", "欠压", "编码器", "通信超时", "输出端编码器", "不一致", "受控停车"):
         assert frag in proto

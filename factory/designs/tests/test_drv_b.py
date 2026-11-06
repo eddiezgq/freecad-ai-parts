@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """第 98 轮：关节驱动板 B 版（放上编码器接口芯片 WQ-ENCIF，设计对照，不投产）。
-B 版比 A 版只多细则 B-2 那几项、MCU 只改那几只引脚；A 版一字不动；B 版产物 DRC / DFM 干净；电路板厂不生产 B 版。"""
+B 版比 A 版只多细则 B-2 那几项、MCU 只改那几只引脚；A 版一字不动；B 版产物 DRC / DFM 干净；
+第 106 轮起电路板厂在工业园（仿真）里试产 B 版：物料清单与设计的物料差一致。"""
 import json
 import os
 import sys
@@ -49,9 +50,19 @@ def test_b_outputs_clean():
     assert os.path.exists(os.path.join(kp, "wq.kicad_sym")) and os.path.exists(os.path.join(kp, "sym-lib-table"))
 
 
-def test_a_untouched_and_b_not_produced():
+def test_a_untouched_and_b_bom_matches_design():
+    """第 106 轮改：电路板厂在工业园（仿真）里试产 B 版。原来核对“清单里没有 B 版物料”（第 98 轮“不投产”的决定），
+    现在核对 B 版贴片板的物料清单 = A 版 + B 版设计的物料差。"""
     a = json.load(open(os.path.join(DES, "drv-joint", "out", "design.json"), encoding="utf-8"))
     assert "changes" not in a and a["rev"] == "示例 A"
     plant = yaml.safe_load(open(os.path.join(os.path.dirname(DES), "plants", "wenquest-pcb.yaml"), encoding="utf-8"))
-    text = json.dumps(plant, ensure_ascii=False)
-    assert "IC-ENCIF" not in text and "OSC-50M" not in text and "IC-LDO18" not in text
+    boms = {x["item"]: dict((c, q) for c, q in x["components"]) for x in plant["boms"]}
+    ga, gb = boms["SMT-DRV"], boms["SMT-DRV-B"]
+    delta = {k: gb.get(k, 0) - ga.get(k, 0) for k in set(ga) | set(gb) if gb.get(k, 0) != ga.get(k, 0)}
+    d = json.load(open(os.path.join(DES, "drv-joint-b", "out", "design.json"), encoding="utf-8"))
+    names = {"CAP-0402": "CAP-0402", "IC-ENCIF": "IC-ENCIF", "IC-LDO18": "IC-LDO18", "OSC-50M": "OSC-50M"}
+    assert delta == {names[k]: v for k, v in d["bom_delta"].items()}
+    items = {x["code"]: x for x in plant["items"]}
+    assert items["IC-ENCIF"]["park_item"] == "WQ-ENCIF" and items["IC-ENCIF"]["pack"] == 34000
+    assert plant["suppliers"][items["IC-ENCIF"]["supplier"]]["park"] == "wenquest-chip"
+    assert boms["DRV-JOINT-B"]["SMT-DRV-B"] == 1

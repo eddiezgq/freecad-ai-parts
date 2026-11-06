@@ -23,6 +23,8 @@ COMPANY = _plant.company()["name"]       # 工厂清单的公司（第 30 轮）
 
 
 def lot_size(code):
+    if getattr(F, "PACK", {}).get(code):                 # 第 106 轮：清单写了包装数（整包买，如芯片厂一批 34 000 只）
+        return F.PACK[code]
     if str(F.ITEMS[code][4] or "").startswith("lib:"):   # 选型零件库来的外购件（freecad-ai-parts）按需采购，不凑批量
         return 1
     return LOT["raw_kg"] if F.ITEMS[code][2] == "Kg" else LOT["default"]

@@ -38,6 +38,15 @@ typedef struct {
     uint32_t moe;
     uint32_t can_rx, can_tx;
     float fault_val;
+    /* 第 107 轮：输出端绝对值编码器、互检、受控停车（结构体只在后面加，前面的位置不变） */
+    int32_t abs_mdeg;        /* 输出端编码器读到的关节角 0.001°（−180°～180°） */
+    int32_t home_cnt;        /* 回原点时的电机计数 */
+    int32_t home_mdeg;       /* 回原点时的关节角 0.001° */
+    uint32_t homed;
+    int32_t mismatch_mdeg;   /* 电机侧换算的关节角 − 输出端编码器角度 */
+    uint32_t ssi_bad;        /* 连续读坏的帧数 */
+    uint32_t hold;           /* 受控停车中（输出开着，按轨迹减速后保持） */
+    uint32_t hold_keep;      /* 停住后继续保持（1）还是关输出（0） */
 } mc_t;
 
 extern volatile mc_t mc;
@@ -49,5 +58,9 @@ void motor_fault(uint32_t code, float val);
 int motor_aligned(void);
 void motor_start_align(void);
 void motor_ms_hook(uint32_t ms);                 /* main.c 实现：1 kHz（在电流环中断里调） */
+void motor_quickstop(uint32_t code, float val, int keep);   /* 受控停车：减速停住；keep = 1 保持位置不断电，0 停住后关输出 */
+void motor_resume_hold(void);                               /* 清故障：从保持接着运行（位置模式，目标 = 当前） */
+void motor_set_home(int32_t abs_mdeg);                      /* 回原点：当前电机计数对应输出端编码器的角度 */
+int32_t motor_joint_mdeg(int32_t cnt);                      /* 电机计数 → 关节角 0.001°（按原点） */
 
 #endif

@@ -73,7 +73,7 @@ def _mean(ms, char, wo=None):
 def test_manifest_checks():
     r = subprocess.run([sys.executable, "-m", "factory.plant", "check", PCB], capture_output=True, text=True, cwd=FAC)
     assert r.returncode == 0, r.stdout + r.stderr
-    assert "13 道工序" in r.stdout and "3 种可接单的成品" in r.stdout
+    assert "13 道工序" in r.stdout and "4 种可接单的成品" in r.stdout      # 第 106 轮：加了驱动板 B 版
 
 
 def test_smt_and_fct_measurements_normal():
