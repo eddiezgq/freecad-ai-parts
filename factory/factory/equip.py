@@ -14,7 +14,11 @@ PREFIX = (("saw", "saw"), ("cnc", "lathe"), ("vmc", "mc"), ("hmc", "mc"), ("grd"
           ("cal", "calib"), ("run", "runin"), ("at", "agvtest"),
           # 第 85 轮：电路板厂的 SMT 线与后段
           ("sp", "printer"), ("spi", "spi"), ("pp", "placer"), ("rf", "reflow"), ("aoi", "aoi"), ("sw", "selsolder"), ("ict", "ict"),
-          ("pg", "program"), ("cc", "coater"), ("bi", "burnin"), ("fct", "fct"), ("pk", "pack"))
+          ("pg", "program"), ("cc", "coater"), ("bi", "burnin"), ("fct", "fct"), ("pk", "pack"),
+          # 第 103 轮：芯片封测厂
+          ("wi", "waferqc"), ("prb", "prober"), ("bg", "grindwafer"), ("dc", "dicer"), ("da", "diebond"), ("pl", "plasma"),
+          ("wb", "wirebond"), ("mld", "mold"), ("cur", "cure"), ("lm", "laser"), ("plt", "plating"), ("tf", "trimform"),
+          ("ft", "handler"), ("tr", "taping"))
 
 # 类别缺省（示例值）：原值 $、购入年、保养内容、保养分钟、一次修理费 $、停机每小时损失 $、
 # 威布尔 β、η 运行小时、平均修复分钟、保养周期 运行小时、开始时已运行小时、故障模式 [(代码, 名称)]、功率 (运行, 空转, 待机) kW、
@@ -95,11 +99,65 @@ KIND = {
     "pack": dict(hazards=[('封口机烫伤', 1, 2, ['不碰封口条'])], name="包装台", value=3000, bought=2023, pm_text="查封口机与防静电台垫", pm_min=30,
                  repair_usd=100, lost_per_h=30, beta=2.0, eta_h=8000, mttr_min=30, pm_h=2000, init_h=200, modes=[("sealer", "封口机故障")],
                  power=(0.5, 0.1, 0.02), air=False, wet=False, noise=55, auto=False, check=["防静电台垫接地良好"]),
+    # 第 103 轮：芯片封测厂（示例值）
+    "waferqc": dict(hazards=[('晶圆碎裂划手', 1, 2, ['戴洁净手套', '用真空吸笔取片'])], name="晶圆来料检验台", value=30000, bought=2023,
+                    pm_text="校显微镜与片号读码器、清洁台面", pm_min=30, repair_usd=200, lost_per_h=60, beta=2.0, eta_h=6000, mttr_min=60, pm_h=1500,
+                    init_h=300, modes=[("reader", "片号读码失败")], power=(0.5, 0.2, 0.05), air=False, wet=False, noise=50, auto=False,
+                    check=["洁净度在规定等级内", "防静电接地良好"]),
+    "prober": dict(hazards=[('探针台承片台运动夹手', 2, 2, ['安全盖联锁']), ('静电损坏晶圆', 3, 2, ['戴防静电腕带'])], name="探针台与测试机",
+                   value=900000, bought=2022, pm_text="清洁探针、量探针平面度与接触电阻、校承片台", pm_min=120, repair_usd=5000, lost_per_h=600,
+                   beta=2.0, eta_h=2000, mttr_min=240, pm_h=400, init_h=600, modes=[("probe", "探针磨损、接触电阻升高"), ("chuck", "承片台吸附不良")],
+                   power=(6.0, 3.0, 0.8), air=True, wet=False, noise=60, auto=True, check=["探针卡触点次数在寿命内", "标准片（金片）复测通过"]),
+    "grindwafer": dict(hazards=[('砂轮高速旋转', 2, 4, ['防护罩联锁']), ('研磨废水', 3, 2, ['按规程排放'])], name="晶圆减薄机", value=600000, bought=2022,
+                       pm_text="修整砂轮、量厚度、查冷却水", pm_min=120, repair_usd=3000, lost_per_h=300, beta=2.2, eta_h=2500, mttr_min=180, pm_h=600,
+                       init_h=500, modes=[("wheel", "砂轮磨损、厚度超差"), ("chuck", "吸盘漏气")], power=(18.0, 6.0, 1.0), air=True, wet=True, noise=75,
+                       auto=False, check=["减薄后厚度在规格内", "冷却水流量正常"]),
+    "dicer": dict(hazards=[('划片刀高速旋转（3 万转）', 2, 4, ['防护罩联锁', '换刀时断电']), ('切割水溅出', 2, 1, ['防护罩'])], name="划片机",
+                  value=400000, bought=2022, pm_text="换划片刀、修刀、校刀高与对位相机", pm_min=90, repair_usd=2500, lost_per_h=300, beta=2.0,
+                  eta_h=2500, mttr_min=150, pm_h=500, init_h=400, modes=[("blade", "划片刀磨损、崩边增多"), ("spindle", "主轴振动")],
+                  power=(5.0, 2.0, 0.5), air=True, wet=True, noise=72, auto=False, check=["刀片寿命在规定米数内", "切割道对位核对"]),
+    "diebond": dict(hazards=[('装片头运动夹手', 2, 2, ['安全门联锁']), ('银浆接触皮肤', 2, 2, ['戴手套'])], name="装片机", value=350000, bought=2023,
+                    pm_text="清洁点胶头、校吸嘴与相机", pm_min=90, repair_usd=2000, lost_per_h=250, beta=2.0, eta_h=2500, mttr_min=150, pm_h=500,
+                    init_h=300, modes=[("dispense", "点胶量不稳"), ("pick", "吸取失败")], power=(3.0, 1.5, 0.3), air=True, wet=False, noise=62,
+                    auto=False, check=["银浆回温时间够、在有效期内", "装片偏移抽检合格"]),
+    "plasma": dict(hazards=[('射频辐射', 1, 3, ['门联锁']), ('工艺气体（氩、氧）', 2, 2, ['气体检测报警'])], name="等离子清洗机", value=80000, bought=2023,
+                   pm_text="清腔体、查真空泵与气体流量", pm_min=60, repair_usd=800, lost_per_h=80, beta=2.0, eta_h=4000, mttr_min=120, pm_h=1000,
+                   init_h=300, modes=[("pump", "真空泵抽速下降")], power=(3.0, 1.0, 0.3), air=False, wet=False, noise=60, auto=True,
+                   check=["水滴角测试合格"]),
+    "wirebond": dict(hazards=[('键合头运动夹手', 2, 2, ['安全盖联锁']), ('显微镜长时间用眼', 3, 1, ['定时休息'])], name="引线键合机", value=280000,
+                     bought=2022, pm_text="换劈刀、校超声功率与焊线压力、清洁送线路径", pm_min=60, repair_usd=1500, lost_per_h=200, beta=2.0,
+                     eta_h=2000, mttr_min=120, pm_h=400, init_h=400, modes=[("capillary", "劈刀磨损、拉力下降"), ("ultrasonic", "超声换能器漂移")],
+                     power=(1.5, 0.8, 0.2), air=True, wet=False, noise=58, auto=False, check=["劈刀焊点数在寿命内", "首件拉力与推力合格"]),
+    "mold": dict(hazards=[('模具高温烫伤（约 175 ℃）', 3, 3, ['戴隔热手套']), ('合模压力夹手', 2, 4, ['双手按钮', '光栅'])], name="塑封机",
+                 value=500000, bought=2022, pm_text="清模具、查顶针与排气槽、校合模压力与温度", pm_min=180, repair_usd=3000, lost_per_h=400,
+                 beta=2.2, eta_h=2500, mttr_min=240, pm_h=500, init_h=600, modes=[("vent", "排气槽堵、空洞增多"), ("heater", "模温不均")],
+                 power=(25.0, 15.0, 2.0), air=True, wet=False, noise=70, auto=False, check=["塑封料回温 ≥ 16 h、开封后限时用完", "模温 175 ± 5 ℃"]),
+    "cure": dict(hazards=[('高温烫伤（175 ℃）', 2, 3, ['戴隔热手套', '降温后取料'])], name="后固化烘箱", value=40000, bought=2022,
+                 pm_text="校温度、查风机与门封", pm_min=60, repair_usd=400, lost_per_h=60, beta=2.0, eta_h=5000, mttr_min=120, pm_h=1500, init_h=600,
+                 modes=[("thermo", "温控失准")], power=(12.0, 6.0, 0.5), air=False, wet=False, noise=55, auto=True, check=["炉温记录完整"]),
+    "laser": dict(hazards=[('激光伤眼（4 类）', 2, 4, ['防护罩联锁', '戴激光护目镜']), ('烟尘', 2, 2, ['抽烟尘开启'])], name="激光打标机", value=60000,
+                  bought=2023, pm_text="清镜片、校功率与字符位置", pm_min=60, repair_usd=800, lost_per_h=80, beta=2.0, eta_h=4000, mttr_min=120,
+                  pm_h=1000, init_h=300, modes=[("lens", "镜片污染、字迹浅")], power=(2.0, 0.8, 0.2), air=False, wet=False, noise=60, auto=False,
+                  check=["首件字符清晰、位置正确"]),
+    "plating": dict(hazards=[('酸液灼伤', 3, 4, ['戴耐酸手套与面罩', '洗眼器在手边']), ('含锡废水', 3, 3, ['按规程处理排放'])], name="电镀线",
+                    value=300000, bought=2021, pm_text="分析槽液、补加药剂、清阳极袋", pm_min=180, repair_usd=2000, lost_per_h=250, beta=2.0,
+                    eta_h=3000, mttr_min=240, pm_h=500, init_h=900, modes=[("bath", "槽液浓度失调、镀层偏薄"), ("rectifier", "整流器故障")],
+                    power=(30.0, 10.0, 2.0), air=True, wet=True, noise=65, auto=False, check=["槽液分析在规格内", "镀层厚度抽检合格"]),
+    "trimform": dict(hazards=[('冲切模具夹手', 2, 4, ['双手按钮', '光栅'])], name="切筋成型机", value=150000, bought=2022, pm_text="磨冲头、清模具、校成型高度",
+                     pm_min=120, repair_usd=1200, lost_per_h=200, beta=2.0, eta_h=3000, mttr_min=150, pm_h=600, init_h=400,
+                     modes=[("punch", "冲头磨损、毛刺")], power=(5.0, 2.0, 0.3), air=True, wet=False, noise=80, auto=False, check=["切口无毛刺"]),
+    "handler": dict(hazards=[('分选机运动夹手', 2, 2, ['安全门联锁'])], name="测试分选机与测试机", value=700000, bought=2022,
+                    pm_text="清洁测试座、换磨损的测试针、标准件校验", pm_min=120, repair_usd=4000, lost_per_h=500, beta=2.0, eta_h=2500, mttr_min=180,
+                    pm_h=500, init_h=500, modes=[("socket", "测试座接触不良"), ("jam", "分选机卡料")], power=(8.0, 3.0, 0.8), air=True, wet=False,
+                    noise=68, auto=True, check=["标准件（金样）复测通过", "测试程序版本与工艺文件一致"]),
+    "taping": dict(hazards=[('封带热压头烫伤', 1, 2, ['不碰热压头'])], name="编带机", value=50000, bought=2023, pm_text="校封带温度与剥离力、清洁视觉",
+                   pm_min=60, repair_usd=400, lost_per_h=60, beta=2.0, eta_h=5000, mttr_min=60, pm_h=1500, init_h=300, modes=[("seal", "封带剥离力超差")],
+                   power=(1.0, 0.4, 0.1), air=True, wet=False, noise=60, auto=False, check=["盖带剥离力在规格内", "方向与数量核对"]),
     "general": dict(hazards=[('机械伤害', 2, 3, ['防护罩', '急停按钮'])], name="通用设备", value=20000, bought=2022, pm_text="例行保养", pm_min=120, repair_usd=400, lost_per_h=60,
                     beta=2.0, eta_h=2000, mttr_min=120, pm_h=800, init_h=300, modes=[("general", "设备故障")],
                     power=(5.0, 1.5, 0.3), air=False, wet=False, noise=70, auto=False, check=[]),
 }
-STAFFED_EXCEPT = ("bench", "runin", "reflow", "burnin")   # 第 61 轮：自动测试台、跑合台不用人看着开（其余设备“要有人”）；第 85 轮：回流炉、老化房
+STAFFED_EXCEPT = ("bench", "runin", "reflow", "burnin", "cure", "plasma")   # 第 61 轮：自动测试台、跑合台不用人看着开（其余设备“要有人”）；第 85 轮：回流炉、老化房；第 103 轮：固化烘箱、等离子清洗
 MAINT_KEYS = ("value", "bought", "pm_text", "pm_min", "repair_usd", "lost_per_h", "beta", "eta_h", "mttr_min", "pm_h", "init_h")
 
 

@@ -8,6 +8,7 @@
 
 变体（variant）：在一份设计描述上打补丁（改引脚、改说明、加器件、加摆放），改了什么自动记成改动清单。
 本模块只做读、校验和确定性展开：不联网、不调 AI。"""
+
 from __future__ import annotations
 
 import copy
@@ -15,9 +16,19 @@ import os
 
 import yaml
 
+from .. import blocks
+
 DESIGN_FORMAT = "wqeda.design/1"
 VARIANT_FORMAT = "wqeda.variant/1"
 SIDES = ("F", "B")
+SPEC_NAMES = {
+    "bus_voltage_v": "母线电压（V）",
+    "phase_current_a": "额定相电流（A）",
+    "phase_current_peak_a": "峰值相电流（A）",
+    "motor_power_w": "电机功率（W）",
+    "target_factory": "目标工厂",
+    "acceptance_class": "验收等级",
+}
 PART_KEYS = ("ref", "lib", "value", "fp", "block", "pins", "item", "note")
 
 
@@ -72,11 +83,17 @@ def validate_design(doc):
                 p.append("功能块 {} 的参数 {} 不是数".format(b.get("key"), name))
     c = doc["circuit"]
     parts = c.get("parts") or []
-    refs = [q.get("ref") for q in parts]
+    gen = []
+    if c.get("generate"):
+        try:
+            gen = all_parts(doc)[: -len(parts) or None]
+        except (ValueError, KeyError, TypeError) as e:
+            p.append("功能块展开失败：{}".format(e))
+    refs = [q.get("ref") for q in gen + parts]
     dup = sorted({r for r in refs if refs.count(r) > 1})
     if dup:
         p.append("位号重复：{}".format(", ".join(map(str, dup))))
-    for q in parts:
+    for q in gen + parts:
         p += _check_part(q, set(keys))
     nets = c.get("nets") or {}
     for name in ("nc", "power"):
@@ -106,9 +123,13 @@ def validate_design(doc):
         if not _check_xy(h):
             p.append("安装孔应是 [x, y]")
     for pour in bd.get("pours") or []:
-        if not (isinstance(pour.get("net"), str) and isinstance(pour.get("layer"), str)
-                and isinstance(pour.get("points"), list) and len(pour["points"]) >= 3
-                and all(_check_xy(xy) for xy in pour["points"])):
+        if not (
+            isinstance(pour.get("net"), str)
+            and isinstance(pour.get("layer"), str)
+            and isinstance(pour.get("points"), list)
+            and len(pour["points"]) >= 3
+            and all(_check_xy(xy) for xy in pour["points"])
+        ):
             p.append("铺铜 {} 应有 net、layer 和至少三个 [x, y] 顶点".format(pour.get("net")))
     for net, pads in (bd.get("power_pads") or {}).items():
         for pad in pads:
@@ -145,9 +166,12 @@ def validate_variant(doc, base):
         return ["format 应为 {}".format(VARIANT_FORMAT)]
     if not isinstance(doc.get("rev"), str):
         p.append("变体缺 rev")
-    refs = {q["ref"] for q in base["circuit"]["parts"]}
+    refs = {q["ref"] for q in all_parts(base)}
     new = [q.get("ref") for q in doc.get("add_parts") or []]
     blocks = {b["key"] for b in base["blocks"]}
+    for k in doc.get("spec_changes") or {}:
+        if k not in base["spec"]:
+            p.append("改规格的 {} 不在原设计的 spec 里".format(k))
     for ref in doc.get("pin_changes") or {}:
         if ref not in refs:
             p.append("改引脚的 {} 不在原设计里".format(ref))
@@ -191,12 +215,32 @@ def load_variant(path):
 # ------------------------------------------------------------------------------------------------- 展开
 
 
+def all_parts(doc):
+    """电路的全部手写器件：先按 circuit.generate 由功能块展开，再接手写的 circuit.parts（深拷贝，可以改）"""
+    c = doc["circuit"]
+    gen = blocks.generate(doc) if c.get("generate") else []
+    return copy.deepcopy(gen) + copy.deepcopy(c.get("parts") or [])
+
+
 def apply_variant(doc, var):
     """在底稿上打补丁，返回 (新设计描述, 改动清单 [(位号, 改了什么)])；底稿不动"""
     out = copy.deepcopy(doc)
-    parts = out["circuit"]["parts"]
+    changes_spec = []
+    for k, v in (var.get("spec_changes") or {}).items():  # 改规格（例如母线电压）：功能块按新规格重新展开
+        changes_spec.append(
+            (
+                "规格",
+                "{}：{:g} → {:g}".format(SPEC_NAMES.get(k, k), out["spec"].get(k), v)
+                if isinstance(v, (int, float))
+                else "{}：{} → {}".format(SPEC_NAMES.get(k, k), out["spec"].get(k), v),
+            )
+        )
+        out["spec"][k] = copy.deepcopy(v)
+    parts = all_parts(out)  # 功能块先展开成器件，补丁打在展开后的器件上
+    out["circuit"]["parts"] = parts
+    out["circuit"]["generate"] = []
     by_ref = {q["ref"]: q for q in parts}
-    changes = []
+    changes = changes_spec
     if var.get("title"):
         out["title"] = var["title"]
     for ref, edits in (var.get("pin_changes") or {}).items():
@@ -231,9 +275,18 @@ def test_point_parts(parts, rule):
     power = set(rule.get("power_block_nets") or [])
     out = []
     for k, net in enumerate(ict_nets(parts, rule)):
-        out.append({"ref": "TP{}".format(rule["ref_start"] + k), "lib": rule["lib"], "value": net, "fp": rule["fp"],
-                    "block": rule["power_block"] if net in power else rule["block"], "pins": {"1": net}, "item": None,
-                    "note": rule["note"]})
+        out.append(
+            {
+                "ref": "TP{}".format(rule["ref_start"] + k),
+                "lib": rule["lib"],
+                "value": net,
+                "fp": rule["fp"],
+                "block": rule["power_block"] if net in power else rule["block"],
+                "pins": {"1": net},
+                "item": None,
+                "note": rule["note"],
+            }
+        )
     return out
 
 
@@ -251,7 +304,7 @@ def expand(doc, var=None):
     if var is not None:
         doc, changes = apply_variant(doc, var)
     c, bd = doc["circuit"], doc["board"]
-    parts = copy.deepcopy(c["parts"])
+    parts = all_parts(doc)
     rule = c.get("ict_test_points")
     ict = ict_nets(parts, rule) if rule else []
     tps = test_point_parts(parts, rule) if rule else []
@@ -263,11 +316,13 @@ def expand(doc, var=None):
         spots = test_point_spots(grid)
         if len(refs) > len(spots):
             raise DesignError(["测试点 {} 个，网格只有 {} 个位置".format(len(refs), len(spots))])
-        for ref, (x, y) in zip(refs, spots[:len(refs)], strict=True):
+        for ref, (x, y) in zip(refs, spots[: len(refs)], strict=True):
             placement[ref] = (x, y, 0, grid.get("side", "B"))
     params = {}
     for b in doc["blocks"]:
         params.update(b.get("params") or {})
+    if any(b.get("units") for b in doc["blocks"]):
+        params.update(blocks.exported_params(doc))
     nets = c.get("nets") or {}
     return {
         "name": doc["name"],

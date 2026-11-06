@@ -3,6 +3,7 @@
 工厂收到的客户资料包是这三样；不需要原设计软件。读光绘用 gerbonara（Apache-2.0）。
 
 物料清单和坐标的列名各家不一样，用“列映射”对一次；默认映射是 KiCad 导出和问渠物料清单的列名。"""
+
 from __future__ import annotations
 
 import csv
@@ -14,7 +15,7 @@ from ..model import Board, BomRow, Component, Copper, Hole, Pad, Track
 BOM_MAP = {"refs": "位号", "qty": "数量", "value": "数值", "package": "封装", "item": "物料编号"}
 CPL_MAP = {"ref": "Ref", "x": "PosX", "y": "PosY", "rot": "Rot", "side": "Side"}
 SIDES = {"top": "F", "bottom": "B", "t": "F", "b": "B", "f": "F", "front": "F", "back": "B"}
-SAME = 0.005            # 钻孔与焊盘“同一位置”的容差 mm
+SAME = 0.005  # 钻孔与焊盘“同一位置”的容差 mm
 
 
 def _layer_names(stack):
@@ -42,7 +43,7 @@ def read_gerbers(path):
     from gerbonara.apertures import CircleAperture
     from gerbonara.graphic_objects import Arc, Flash, Line
 
-    with warnings.catch_warnings():          # 钻孔文件“表头之后又出现 G90”之类的格式提示，不影响读数
+    with warnings.catch_warnings():  # 钻孔文件“表头之后又出现 G90”之类的格式提示，不影响读数
         warnings.simplefilter("ignore", SyntaxWarning)
         stack = LayerStack.open(path)
     xs, ys = [], []
@@ -94,8 +95,15 @@ def read_bom(path, mapping=None):
     for r in _rows(path):
         refs = tuple(x for x in re.split(r"[\s,;]+", r.get(m["refs"], "") or "") if x)
         q = (r.get(m["qty"]) or "").strip()
-        out.append(BomRow(refs, int(q) if q.isdigit() else None, r.get(m["value"], "") or "",
-                          r.get(m["package"], "") or "", r.get(m["item"], "") or ""))
+        out.append(
+            BomRow(
+                refs,
+                int(q) if q.isdigit() else None,
+                r.get(m["value"], "") or "",
+                r.get(m["package"], "") or "",
+                r.get(m["item"], "") or "",
+            )
+        )
     return out
 
 
@@ -105,8 +113,9 @@ def read_cpl(path, mapping=None, sides=None):
     out = []
     for r in _rows(path):
         side = sd.get((r.get(m["side"]) or "").strip().lower(), "")
-        out.append(Component(r[m["ref"]].strip(), float(r[m["x"]]), float(r[m["y"]]),
-                             float(r.get(m["rot"]) or 0), side))
+        out.append(
+            Component(r[m["ref"]].strip(), float(r[m["x"]]), float(r[m["y"]]), float(r.get(m["rot"]) or 0), side)
+        )
     return out
 
 

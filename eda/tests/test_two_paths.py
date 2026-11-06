@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """同一块驱动板，从 KiCad 板子文件、从光绘 + 物料清单 + 坐标两条路读，六项检查结论和数值一致；
 线宽、孔径、孔环和第 88 轮 dfm.py 的结果（out/dfm.json）一致。读 KiCad 文件要 KiCad 7 的 pcbnew，没有就跳过。"""
+
 import json
 import os
 
@@ -39,6 +40,7 @@ def test_gerber_path_matches_dfm(proj, name):
 def test_two_paths_agree(proj, name):
     pytest.importorskip("pcbnew")
     from wqeda.readers import kicad
+
     cap = capability.load(EXAMPLE_CAP)
     k = kicad.read(os.path.join(DESIGNS, proj, "kicad", name + ".kicad_pcb"))
     g = _gerber_path(proj)

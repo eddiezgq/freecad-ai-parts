@@ -1,0 +1,8 @@
+# 24 V 示例（第 104 轮）：驱动板 A 版只改母线电压 48 V → 24 V，其余不动，看计算器和生成器怎么跟着变。
+# 只出计算书和差异表，不出板子、不投产。示例设计，数值为示例值。
+format: wqeda.variant/1
+base: ../../../factory/designs/drv-joint/design.yaml
+rev: 24V
+title: 关节伺服驱动板 DRV-JOINT 24 V 示例（只改母线电压；不出板子、不投产）
+spec_changes:
+  bus_voltage_v: 24.0

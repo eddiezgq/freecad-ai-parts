@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import math
+import zlib
 import random
 
 # 输出轴 SH-301 的三坐标检验特性：(代号, 名称, 名义, 下限, 上限)
@@ -73,6 +74,20 @@ PROBLEMS.update({
     "nozzle_wear": {"name": "多功能贴片机 PP-2 吸嘴磨损（只有它贴的 IC 偏移变大）", "unit": "pp-2", "fix": "replace_nozzle", "default": 40.0, "plant": PCB},
     "shunt_lot": {"name": "采样电阻来料批次阻值偏大（从注入时的那一卷起）", "unit": "ict-1", "fix": "quarantine_shunt", "default": 2.5, "plant": PCB},
 })
+# 芯片封测厂（清单 wenquest-chip，第 103 轮）：机理与表现（偏差量都是示例值，按“晶圆批”计数）：
+#   探针卡磨损：探针台 prb-1 的 8 个测试位里第 6 位（示例）的探针接触电阻逐片升高 → 这个测试位扎到的芯片被误判开路（晶圆图上一格一格规律地红）
+#     → CP 良率下降；芯片本身是好的，FT 不受影响（误判的好芯片在 CP 就被打掉了，白白损失）
+#   划片刀磨损：划片机 dc-1 崩边逐批增大 → 抽检崩边超 25 µm、FT 良率略降
+#   劈刀磨损：只有键合机 wb-2 键合的批次拉力、推力逐批下降（wb-1 正常）→ 拉力低于 3 gf
+#   塑封料受潮：从注入起塑封机 mld-1 用的塑封料吸潮 → 塑封空洞率升高
+CHIP = "wenquest-chip"
+PROBLEMS.update({
+    "probe_wear": {"name": "探针卡磨损（第 6 个测试位接触电阻逐片升高、误判开路）", "unit": "prb-1", "fix": "clean_probe", "default": 2.5, "plant": CHIP},
+    "blade_wear": {"name": "划片刀磨损（崩边逐批增大）", "unit": "dc-1", "fix": "replace_blade", "default": 18.0, "plant": CHIP},
+    "capillary_wear": {"name": "键合机 wb-2 劈刀磨损（只有它键合的批次拉力下降）", "unit": "wb-2", "fix": "replace_capillary", "default": 3.5, "plant": CHIP},
+    "emc_moisture": {"name": "塑封料受潮（空洞率升高）", "unit": "mld-1", "fix": "emc_handling", "default": 3.0, "plant": CHIP},
+})
+PROBE_SITE = 5               # 磨损的测试位（0 起数，页面上显示第 6 位；示例）
 SHUNT_LOT = 30               # 采样电阻每卷用于 30 块驱动板（示例）：按测试顺序依次用掉；仓库有到货批次时用到货批次
 LOT_SIZE = 8                 # 谐波减速器每批 8 台（示例）：关节按装配顺序依次用掉。第 51 轮：仓库有真实到货批次时用到货批次（add_lot）
 
@@ -104,14 +119,26 @@ FIXES.update({                # 电路板厂（第 85 轮）
     "replace_squeegee": "更换印刷刮刀、加大刮刀压力",
     "tighten_aoi": "AOI 判定加严，偏移门限收紧",
 })
+FIXES.update({                # 芯片封测厂（第 103 轮）
+    "clean_probe": "清洁探针、量各测试位接触电阻，超出寿命的探针卡换新",
+    "replace_blade": "更换划片刀、修刀后首件检查崩边",
+    "replace_capillary": "更换键合机 wb-2 的劈刀，首件做拉力、推力试验",
+    "emc_handling": "隔离受潮的塑封料批次；按规程回温 ≥ 16 h、开封后 24 h 内用完",
+    "retest_cp": "CP 失效的芯片全部复测一遍",
+    "raise_bond_power": "加大键合超声功率和压力",
+    "tighten_ft": "FT 判定加严",
+})
 ROBOT_FIXES = ("recalibrate_torque", "quarantine_lot", "recalibrate_bench", "add_grease", "tighten_test", "retrain", "change_gauge")
 PCB_FIXES = ("wipe_stencil", "profile_oven", "replace_nozzle", "quarantine_shunt", "raise_peak", "replace_squeegee", "tighten_aoi",
              "retrain", "change_gauge")
-PLANT_FIXES = {ROBOT: ROBOT_FIXES, PCB: PCB_FIXES}
+CHIP_FIXES = ("clean_probe", "replace_blade", "replace_capillary", "emc_handling", "retest_cp", "raise_bond_power", "tighten_ft",
+              "retrain", "change_gauge")
+PLANT_FIXES = {ROBOT: ROBOT_FIXES, PCB: PCB_FIXES, CHIP: CHIP_FIXES}
 
 
 def problems_for(plant_id):
-    """这座厂能注入的问题情景：演示工厂（plant_id 为空或 wenquest-gearbox）是输出轴的五种，机器人厂是关节的三种，电路板厂是 SMT 与测试的四种"""
+    """这座厂能注入的问题情景：演示工厂（plant_id 为空或 wenquest-gearbox）是输出轴的五种，机器人厂是关节的三种，电路板厂是 SMT 与测试的四种，
+    芯片厂是封测的四种"""
     mine = plant_id if plant_id in PLANT_FIXES else None
     return {k: v for k, v in PROBLEMS.items() if v.get("plant") == mine}
 
@@ -124,6 +151,7 @@ def fixes_for(plant_id):
 
 
 SHUNT_ITEM = "RES-SHUNT"
+CHIP_CODES = ("cp_yield", "cp_contact", "chipping", "bond_pull", "ball_shear", "mold_void", "ft_yield")
 PCB_CODES = ("spi_volume", "spi_height", "reflow_peak", "reflow_tal", "offset_ic", "aoi_defects", "ict_shunt", "fct_isense")
 
 
@@ -298,6 +326,8 @@ class ErrorModel:
             st["_ja"] = unit
             st["_lot_no"] = (size, order.index(lot))
             part.hd_lot = lot
+        if unit.startswith("wb-"):                          # 芯片封测厂（第 103 轮）：记下这一批是哪台键合机键合的（分层用）
+            st["_ja"] = unit
         if unit == "ict-1" and "_shunt" not in st and _uses_shunt(str(getattr(getattr(part, "wo", None), "item", "") or "")):
             self._take_shunt(part, st)       # 电路板厂（第 85 轮）：在线测试时认出这块驱动板用的是哪一卷采样电阻
         for p, a in self.active.items():
@@ -366,12 +396,60 @@ class ErrorModel:
             return 2.0 * pct / 100 if code == "ict_shunt" else pct
         return 0.0
 
+    def _chip_offset(self, st, code):
+        """芯片封测厂（第 103 轮）：成品批测量值上叠加的偏差（CP 良率、接触电阻由晶圆图给，见 override）"""
+        def ramp(p, tau):
+            mag, k = st[p]
+            return mag * (1 - math.exp(-k / tau))
+        if code == "chipping" and "blade_wear" in st:
+            return ramp("blade_wear", 5.0)
+        if code == "ft_yield" and "blade_wear" in st:
+            return -0.08 * max(0.0, ramp("blade_wear", 5.0) - 5.0)
+        if code == "bond_pull" and "capillary_wear" in st:
+            return -ramp("capillary_wear", 3.0)
+        if code == "ball_shear" and "capillary_wear" in st:
+            return -2.5 * ramp("capillary_wear", 3.0)
+        if code == "mold_void" and "emc_moisture" in st:
+            return ramp("emc_moisture", 2.5)
+        return 0.0
+
+    def _cp(self, part):
+        """这片晶圆的 CP 结果（算一次记在零件上）：各测试位接触电阻 → 晶圆图 → 良率"""
+        from sim import wafermap
+        st = getattr(part, "err", None)
+        if st is None:
+            st = {}
+            part.err = st
+        if "_cp" not in st:
+            rc = [round(1.0 + self.rng.gauss(0, 0.08), 3) for _ in range(wafermap.SITES)]
+            if "probe_wear" in st:
+                mag, k = st["probe_wear"]
+                w = mag * (1 - math.exp(-k / 4.0))
+                rc = [round(x + (w if i == PROBE_SITE else 0.08 * w), 3) for i, x in enumerate(rc)]
+            seed = zlib.crc32(str(getattr(part, "serial", "")).encode()) ^ self.rng.getrandbits(16)
+            desc = {"seed": seed, "site_rc": rc, "d0": round(0.07 * self.rng.lognormvariate(0, 0.15), 4), "edge": 0.03, "clusters": 3.0}
+            g = wafermap.generate(desc["seed"], rc, desc["d0"], desc["edge"], desc["clusters"])
+            st["_cp"] = {"desc": desc, "yield": g["yield_pct"], "contact": round(sum(rc) / len(rc), 4), "site_fail_pct": g["site_fail_pct"],
+                         "by_bin": g["by_bin"], "total": g["total"]}
+        return st["_cp"]
+
+    def override(self, part, code: str):
+        """有些测量值不是“名义 + 散布”而是算出来的：芯片厂 CP 良率与接触电阻由晶圆图给，返回 (值, 附加数据) 或 None"""
+        if code not in ("cp_yield", "cp_contact"):
+            return None
+        cp = self._cp(part)
+        if code == "cp_yield":
+            return cp["yield"], {"wafer": {**cp["desc"], "total": cp["total"], "by_bin": cp["by_bin"], "site_fail_pct": cp["site_fail_pct"]}}
+        return cp["contact"], {}
+
     def plant_offset(self, part, code: str) -> float:
         """机器人厂的关节测量值上叠加的偏差（第 47 轮实验 25）：只在装配工位、批次、测试台对上的那几台上出现；
         电路板厂（第 85 轮）见 _pcb_offset"""
         st = getattr(part, "err", None) or {}
         if code in PCB_CODES:
             return self._pcb_offset(st, code)
+        if code in CHIP_CODES:
+            return self._chip_offset(st, code)
         off = 0.0
         if code == "joint_backlash":
             for p in ("ja_torque", "hd_lot"):

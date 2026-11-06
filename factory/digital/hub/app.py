@@ -2415,6 +2415,22 @@ def fct_retest(serial: str, body: dict = Body(...), u=Depends(user_of)):
         raise HTTPException(404, "没有这块板的功能测试记录：{}".format(serial))
 
 
+# ---------------------------------------------------------------- 晶圆图（第 103 轮，芯片封测厂）
+@app.get("/api/chip/wafers")
+def chip_wafers(u=Depends(user_of)):
+    from hub import wafer
+    return {"wafers": wafer.wafers(H.db, u["mode"])}
+
+
+@app.get("/api/chip/wafer/{serial}")
+def chip_wafer(serial: str, u=Depends(user_of)):
+    from hub import wafer
+    try:
+        return wafer.wafer(H.db, u["mode"], serial)
+    except KeyError:
+        raise HTTPException(404, "没有这片晶圆的 CP 记录：{}".format(serial))
+
+
 # ---------------------------------------------------------------- 电路板设计的产物（第 88 轮）：KiCad 生成的原理图、PCB、三维、BOM、检查结果
 _DESIGNS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "designs")
 

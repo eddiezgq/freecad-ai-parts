@@ -1,0 +1,56 @@
+# 第 103 轮（电子 E9）：芯片封测厂的质量规则。plant 写了厂的清单 id：只在那座厂的规则目录里出现（别的厂看不到）
+domain: quality
+rules:
+  QS1:
+    name: CP 良率突降
+    fn: chip_cp_drop
+    plant: wenquest-chip
+    severity: warn
+    role: [quality, engineer]
+    params: {last: 4, base: 12, drop: 2.5}
+    desc: 最近 last 片晶圆的 CP 良率均值比之前 base 片低 drop 个百分点以上
+    hint: 先看晶圆图：散点成簇是工艺缺陷（找代工厂），某个测试位规律地红是探针卡（清洁、量接触电阻），边缘一圈是 IDDQ
+  QS2:
+    name: 某个测试位失效集中
+    fn: chip_site_cluster
+    plant: wenquest-chip
+    severity: critical
+    role: [quality, engineer, operator]
+    params: {last: 3, factor: 2.5, floor: 12}
+    desc: 最近 last 片晶圆里，某个测试位的平均失效率是其余测试位中位数的 factor 倍以上且不低于 floor %
+    hint: 芯片不会按测试位坏——这是测试的问题：清洁探针、量各测试位接触电阻，超寿命的探针卡换新；误判的晶圆可复测找回好芯片
+  QS3:
+    name: 键合拉力下降（按键合机）
+    fn: chip_bond_pull
+    plant: wenquest-chip
+    severity: warn
+    role: [quality, engineer]
+    params: {last: 8, below: 4.5, gap: 1.0}
+    desc: 最近 last 批成品的键合拉力（抽检最小值）按键合机分开：某台均值低于 below gf，或比另一台低 gap gf 以上
+    hint: 只有一台低就查那台的劈刀寿命和超声参数；两台一起低查金线批次和框架镀银
+  QS4:
+    name: 塑封空洞率升高
+    fn: chip_mold_void
+    plant: wenquest-chip
+    severity: warn            # 有批次超出上限为 critical
+    role: [quality, operator]
+    params: {last: 5, above: 2.0}
+    desc: 最近 last 批成品的塑封空洞率均值超过 above %
+    hint: 塑封料是否受潮（回温时间、开封后用了多久），模具排气槽是否堵
+  QS5:
+    name: 划片崩边增大
+    fn: chip_chipping
+    plant: wenquest-chip
+    severity: warn
+    role: [quality, operator]
+    params: {last: 5, above: 17}
+    desc: 最近 last 批成品的划片崩边（抽检最大值）均值超过 above µm（上限 25 µm）
+    hint: 查划片刀已切米数、修刀记录；崩边大的芯片可靠性差
+  QS6:
+    name: 塑封料开封超时
+    plant: wenquest-chip
+    status: waiting           # 等原材料库记录塑封料开封时间
+    severity: warn
+    role: [quality, operator]
+    desc: 塑封料开封后超过车间寿命还在用
+    hint: 超时的塑封料隔离，不再上机

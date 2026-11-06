@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """工厂工艺能力表（第 102 轮 P1）：每家工厂一份，由工厂自己填，存成 YAML。检查的门槛全部从这里取，代码里不写数值。
 没填的项是“未知”：用到它的检查判 unknown，不判通过。"""
+
 from __future__ import annotations
 
 from .design import DesignError, read_yaml

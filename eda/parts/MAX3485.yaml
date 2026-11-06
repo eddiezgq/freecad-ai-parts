@@ -1,0 +1,11 @@
+# RS-485 收发器 MAX3485。数值摘自厂家规格书；checked: false = 待核对。
+format: wqeda.part/1
+part: MAX3485
+maker: Analog Devices (Maxim)
+datasheet:
+  title: MAX3483–MAX3491
+  revision: 19-0333 Rev 2, 2024-05
+  url: https://www.analog.com/media/en/technical-documentation/data-sheets/MAX3483-MAX3491.pdf
+params:
+  vcc_range: {min: 3.0, max: 3.6, unit: V, kind: operating, condition: "V_CC = 3.3 V ±0.3 V", where: "p.7 引脚说明；p.3 电气特性表头", checked: false}
+  vcc_abs_max: {value: 7, unit: V, kind: abs_max, condition: supply voltage, where: p.2, checked: false}
