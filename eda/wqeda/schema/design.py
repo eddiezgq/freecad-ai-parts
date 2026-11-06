@@ -40,6 +40,10 @@ class DesignError(ValueError):
         super().__init__("; ".join(self.problems))
 
 
+def read_yaml_text(text):
+    return yaml.safe_load(text)
+
+
 def read_yaml(path):
     with open(path, encoding="utf-8") as f:
         return yaml.safe_load(f)

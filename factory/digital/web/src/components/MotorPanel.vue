@@ -15,12 +15,14 @@
         </div>
         <div class="row fb">
           <span>反馈：</span><div class="b chip">编码器 → WQ-ENCIF → SPI1<small>角度、转速</small></div>
+          <div class="b chip">输出端绝对值编码器 → SSI → SPI3<small>开机原点、双编码器互检（第 107 轮）</small></div>
           <div class="b">三相电流 → INA240 → ADC1<small>40 mV/A，过流 25 A 立即关管</small></div>
         </div>
       </div>
       <p class="small">编译出来的真固件（{{ d.firmware.flash }} 字节 Flash、{{ d.firmware.ram }} 字节 RAM，170 MHz、硬件浮点）在 Renode 里跑；
         电机、减速器、摆臂、逆变桥、电流采样和 CAN 主站都是仿真的（参数见下表，零件库没有的标“示例”）。判据都对仿真里的物理真值。</p>
       <p class="small muted">⚠ {{ d.disclaimer }}</p>
+      <p class="small muted">⚠ 板上没有抱闸电路：关输出后（就绪、出故障）摆臂会在重力下落下；真关节要抱闸，留给以后的电路改版（第 107 轮细则）。</p>
 
       <h3>场景（{{ d.scenarios.filter((s) => s.passed).length }} / {{ d.scenarios.length }} 通过）</h3>
       <div class="line">
@@ -55,7 +57,8 @@
         <tbody>
           <tr><td class="mono">0x201</td><td>主站→板</td><td>指令：[0] 模式（0 停、1 速度、2 位置、3 清故障、4 力矩）[1..4] 目标（速度 rpm；位置 关节 0.001°；力矩 q 轴 mA）。运行中至少 10 Hz 发</td></tr>
           <tr><td class="mono">0x181</td><td>板→主站</td><td>状态 100 Hz：状态、故障码、关节角 0.01°、电机转速 rpm、q 轴电流 0.01 A</td></tr>
-          <tr><td class="mono">0x081</td><td>板→主站</td><td>报警（出故障立即发）：故障码 1 过流、2 欠压、3 编码器、4 通信超时；相关值</td></tr>
+          <tr><td class="mono">0x081</td><td>板→主站</td><td>报警（出故障立即发）：故障码 1 过流、2 欠压、3 编码器、4 通信超时、5 输出端编码器、6 减速器 / 编码器不一致（第 107 轮）；相关值。
+            1、3、5、6 立即关输出；4 减速停住、保持位置不断电；2 停住后关输出</td></tr>
           <tr><td class="mono">0x701</td><td>板→主站</td><td>心跳 10 Hz：状态、母线电压 0.1 V</td></tr>
         </tbody>
       </table>
@@ -110,6 +113,18 @@ const charts = computed(() => {
     const w = sub(1.7, 2.45);
     return [{ title: '关节角偏差 0.001°（1.9 s 加 0.5 kg）', t: w.t, series: [{ name: '实际 − 90°', data: w.f('joint').map((v) => (v - 90) * 1000), cls: 'truth' }], zero: true },
       { title: 'q 轴电流 A', t: w.t, series: [{ name: '实际', data: w.f('iq'), cls: 'truth' }], zero: true }];
+  }
+  if (id === 'abs') {
+    return [{ title: '关节角 °（开机在 37.5°，指令 90°）', series: [{ name: '实际', data: s.joint, cls: 'truth' }, { name: '轨迹', data: s.joint_ref, cls: 'ref' }] }];
+  }
+  if (id === 'ssi' || id === 'slip') {
+    return [{ title: id === 'ssi' ? '电机转速 rpm（0.6 s 线断）' : '关节角 °（0.9 s 打滑 2°）',
+      series: [{ name: '实际', data: id === 'ssi' ? s.rpm : s.joint, cls: 'truth' }], zero: id === 'ssi' },
+    { title: '状态（2 运行、3 故障）与输出', series: [{ name: '状态', data: s.state, cls: 'c2' }, { name: '输出开（MOE）', data: s.moe, cls: 'ref' }], zero: true }];
+  }
+  if (id === 'stop') {
+    return [{ title: '关节角 °（1.6 s 起不再发指令；2.6 s 欠压）', series: [{ name: '实际', data: s.joint, cls: 'truth' }], zero: true },
+      { title: '状态与输出', series: [{ name: '状态', data: s.state, cls: 'c2' }, { name: '输出开（MOE）', data: s.moe, cls: 'ref' }], zero: true }];
   }
   return [{ title: '电机转速 rpm', series: [{ name: '实际', data: s.rpm, cls: 'truth' }], zero: true },
     { title: '相电流 A（0.6 s 短路）', series: [{ name: 'A 相', data: s.ia, cls: 'c3' }, { name: 'B 相', data: s.ib, cls: 'fwk' }], zero: true },

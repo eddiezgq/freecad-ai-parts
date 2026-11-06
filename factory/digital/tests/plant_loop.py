@@ -41,8 +41,9 @@ P.add_argument("--lab29", action="store_true", help="实验 29（一台机器人
 P.add_argument("--lab27", action="store_true", help="工业园那一段走完后，按实验 27 的六个任务答题（AGV 订单要 2 台：--item WQ-AGV300:2），核对 60 分（第 57 轮）")
 P.add_argument("--park-hub", default="", help="工业园兄弟厂（问渠减速器厂）的枢纽：核对 WQR-105 的采购单送过去、那边接单生产发货、"
                                               "这边到货检验入库（第 51 轮）")
-P.add_argument("--park-buy", action="append", default=[], help="第 85 轮：再核对一种向工业园兄弟厂买的物料，“物料=对方枢纽”，"
-                                                                "如 DRV-JOINT=http://localhost:8104（向问渠电路板厂买驱动板）")
+P.add_argument("--park-buy", action="append", default=[], help="第 85 轮：再核对一种向工业园兄弟厂买的物料，“物料=对方枢纽[=对方厂名]”，"
+                                                                "如 DRV-JOINT=http://localhost:8104（向问渠电路板厂买驱动板）、"
+                                                                "IC-ENCIF=http://localhost:8105=芯片厂（第 106 轮）")
 A = P.parse_args()
 REAL = A.erp_kind == "real"
 FAILS = []
@@ -482,7 +483,7 @@ def park(mgr, item="WQR-105", peer=None, who="减速器厂"):
     """第 51 轮：AGV 订单的 WQR-105 请购 → 采购单 → 送到减速器厂成为销售订单 → 那边自动接单、下达、做完发货 → 这边到货、来料检验入库。
     第 85 轮：同一套核对向电路板厂买的驱动板（item、peer、who）"""
     peer = peer or A.park_hub
-    print("工业园：机器人厂向问渠{}采购 {}".format(who, item))
+    print("工业园：本厂向问渠{}采购 {}".format(who, item))
     lot = wait(lambda: next((x for x in hub("GET", "/api/supply/lots", token=mgr)["lots"]
                              if x["item"] == item and (x.get("park") or {}).get("state") in ("sent", "shipped", "fallback")), None),
                "{} 的采购单送到{}".format(item, who), 600, 5)
@@ -538,11 +539,11 @@ def park(mgr, item="WQR-105", peer=None, who="减速器厂"):
             print("    诊断失败：{}".format(e))
         return
     got = wait(lambda: next((x for x in hub("GET", "/api/supply/lots", token=mgr)["lots"] if x["id"] == lot["id"] and x["status"] == "accepted"), None),
-               "机器人厂到货、来料检验入库", 900, 5)
-    check(bool(got) and got["lot"] == o["shipment"]["lot"], "机器人厂收货：批 {}，{}".format(got and got["lot"], got and got["status_label"]))
+               "本厂到货、来料检验入库", 900, 5)
+    check(bool(got) and got["lot"] == o["shipment"]["lot"], "本厂收货：批 {}，{}".format(got and got["lot"], got and got["status_label"]))
     if got and REAL:
         prs = [p for p in erp_docs("Purchase Receipt") if p.get("docstatus") == 1 and (p.get("wq_lot") == got["lot"] or got["lot"] in (p.get("remarks") or ""))]
-        check(bool(prs), "机器人厂 ERPNext 收货单（批号 {}）：{}".format(got["lot"], "、".join(p["name"] for p in prs)))
+        check(bool(prs), "本厂 ERPNext 收货单（批号 {}）：{}".format(got["lot"], "、".join(p["name"] for p in prs)))
 
 
 def main():
@@ -586,9 +587,9 @@ def main():
         lab28(mgr)
     if A.park_hub:
         park(mgr)
-    for x in A.park_buy:                       # 第 85 轮：向电路板厂买驱动板
-        it, _, url = x.partition("=")
-        park(mgr, it, url, "电路板厂")
+    for x in A.park_buy:                       # 第 85 轮：向电路板厂买驱动板；第 106 轮：可写第三段对方厂名（如 IC-ENCIF=…=芯片厂）
+        it, url, *who = x.split("=")
+        park(mgr, it, url, who[0] if who else "电路板厂")
     if A.lab27:
         lab27(mgr)
     if A.domains:

@@ -6,7 +6,8 @@ import os
 
 from conftest import EDA
 
-PURE = ["wqeda/checks", "wqeda/schema", "wqeda/model.py", "wqeda/blocks", "wqeda/parts.py"]
+PURE = ["wqeda/checks", "wqeda/schema", "wqeda/model.py", "wqeda/blocks", "wqeda/parts.py", "wqeda/ai/check.py",
+        "wqeda/ai/catalog.py"]
 FORBIDDEN = {
     "socket",
     "http",

@@ -15,6 +15,8 @@ SRC = [("src/main.c", "c", "主程序：编码器管理、状态机、指令、�
        ("src/can.h", "c", "CAN 接口"),
        ("src/clock.c", "c", "时钟：HSI16 → PLL 170 MHz（第 102 轮）"),
        ("src/clock.h", "c", "时钟接口"),
+       ("src/ssi.c", "c", "输出端绝对值编码器 SSI 驱动：SPI3、帧解析（第 107 轮）"),
+       ("src/ssi.h", "c", "SSI 接口"),
        ("src/encif.c", "c", "WQ-ENCIF 驱动：SPI1、片选、复位、40 位帧（第 100 轮）"),
        ("src/encif.h", "c", "驱动接口与寄存器号"),
        ("src/regs.h", "c", "用到的 STM32G431 寄存器（对照 ST 官方 CMSIS 头文件核对）"),
@@ -23,7 +25,7 @@ SRC = [("src/main.c", "c", "主程序：编码器管理、状态机、指令、�
        ("Makefile", "make", "编译"),
        ("renode/stm32g431.repl", "repl", "Renode 平台描述"),
        ("renode/WqEncif.cs", "cs", "WQ-ENCIF 寄存器级模型 + 虚拟电机（第 100 轮）"),
-       ("renode/WqDrive.cs", "cs", "TIM1 + 逆变桥 + 电机 + 减速器 + 负载、ADC1、FDCAN1 与仿真主站（第 102 轮）"),
+       ("renode/WqDrive.cs", "cs", "TIM1 + 逆变桥 + 电机 + 减速器 + 负载、ADC1、FDCAN1 与仿真主站（第 102 轮）、SSI 编码器（第 107 轮）"),
        ("run.py", "py", "编码器六个场景与判据（第 100 轮）"),
        ("run_motor.py", "py", "电机控制与 CAN 六个场景与判据（第 102 轮）"),
        ("README.md", "md", "说明")]

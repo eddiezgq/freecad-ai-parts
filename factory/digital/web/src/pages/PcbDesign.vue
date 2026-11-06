@@ -7,6 +7,7 @@
     <div class="line"><button class="chip" :class="{ on: rev === 'A' }" @click="setRev('A')">A 版（投产）</button>
       <button class="chip" :class="{ on: rev === 'B' }" @click="setRev('B')">B 版：放上编码器接口芯片（设计对照）</button></div>
     <div v-if="d" class="warn small">⚠ {{ d.disclaimer }}。芯片是 KiCad 官方库里有的器件做的示例选型；数值由电路公式算（与“电路分析”的例题同一组数）。</div>
+    <div v-if="d && rev === 'B'" class="small muted">第 106 轮起：数字工业园（仿真）里电路板厂按 B 版试产（产品 DRV-JOINT-B），编码器接口芯片向工业园的芯片厂买；现实里照旧不投产。</div>
     <div v-if="err" class="err">{{ err }}</div>
     <div class="tabs">
       <button v-for="t in TABS.filter((x) => !x.b || rev === 'B')" :key="t.k" class="tab" :class="{ on: tab === t.k }" @click="go(t.k)">{{ t.label }}</button>

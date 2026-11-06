@@ -22,6 +22,7 @@
 #define RCC_ADC12EN (1u << 13)
 #define RCC_FDCANEN (1u << 25)
 #define RCC_PWREN (1u << 28)
+#define RCC_SPI3EN (1u << 15)                /* RCC_APB1ENR1：位 15 SPI3EN（第 107 轮） */
 #define RCC_TIM1EN (1u << 11)
 #define RCC_SPI1EN (1u << 12)
 
@@ -51,6 +52,13 @@
 #define SPI_CR1_SPE (1u << 6)
 #define SPI_CR1_SSI (1u << 8)
 #define SPI_CR1_SSM (1u << 9)
+/* SPI3，基址 0x4000 3C00（APB1；第 107 轮读输出端绝对值编码器 SSI），寄存器偏移同 SPI1 */
+#define SPI3_BASE 0x40003C00u
+#define SPI3_CR1 REG(SPI3_BASE + 0x00)
+#define SPI3_CR2 REG(SPI3_BASE + 0x04)
+#define SPI3_SR REG(SPI3_BASE + 0x08)
+#define SPI3_DR8 REG8(SPI3_BASE + 0x0C)
+#define SPI_CR1_BR_DIV128 (6u << 3)          /* BR[2:0] = 110：fPCLK/128（170 MHz / 128 ≈ 1.33 MHz） */
 #define SPI_CR2_DS_8BIT (7u << 8)            /* DS[3:0] = 0111：8 位 */
 #define SPI_CR2_FRXTH (1u << 12)             /* 收满 8 位即 RXNE */
 #define SPI_SR_RXNE (1u << 0)

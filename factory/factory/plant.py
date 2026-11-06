@@ -252,6 +252,14 @@ def _validate_products(p, onames, uids):
             need(_num(it["price"]) and it["price"] >= 0, at + ".price", "单价是非负数；不知道就不写")
         if it.get("kind") in ("raw", "buy"):
             need(it.get("supplier") in sups, at + ".supplier", "原材料、外购件要写供应商（供应商一节里的代号）：{}".format(it.get("supplier")))
+        # 第 106 轮：按包装买（pack：每次采购按它的整数倍）；向工业园兄弟厂下单时的对方物料号（park_item，数量按 pack 换成对方的件数）
+        if it.get("pack") is not None:
+            need(isinstance(it["pack"], int) and not isinstance(it["pack"], bool) and it["pack"] > 0, at + ".pack", "包装数是正整数")
+        if it.get("park_item") is not None:
+            sup = (p.get("suppliers") or {}).get(it.get("supplier")) or {}
+            need(isinstance(it["park_item"], str) and it["park_item"], at + ".park_item", "对方物料号要写文字")
+            need(bool(sup.get("park")), at + ".park_item", "写了对方物料号，供应商要是工业园的厂（供应商一节写 park）")
+            need(it.get("pack") is not None, at + ".park_item", "写了对方物料号要同时写 pack（对方一件 = 这边多少件）")
     rnames = set()
     for i, r in enumerate(p.get("routings") or []):
         at = "routings[{}]".format(i)
@@ -428,6 +436,8 @@ def derive_products(p):
         "OPENING_STOCK": dict(stock.get("opening") or {}),
         "SAFETY_STOCK": dict(stock.get("safety") or {}),
         "LIBRARY_REFS": {it["code"]: it["library"] for it in p["items"] if it.get("library")},
+        "PACK": {it["code"]: it["pack"] for it in p["items"] if it.get("pack")},                 # 第 106 轮
+        "PARK_ITEM": {it["code"]: it["park_item"] for it in p["items"] if it.get("park_item")},
         "INSPECTION_TEMPLATES": dict({tmpl_of[m["item"]]: [
             {"parameter": "{} ({})".format(c["name"], c.get("unit") or "mm"), "numeric": 1, "min": c["lo"], "max": c["hi"]}
             for c in m["chars"]] for m in meas}, **incoming),

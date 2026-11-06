@@ -151,9 +151,19 @@ def send_order(db, mode, x, plant):
     from hub import kpi
     lead = int((F.SUPPLIERS.get(_cat_of(x["item"])) or {}).get("lead") or 10)
     need = x["promised"] or kpi.add_working_days(dt.datetime.now(kpi.TZ).date(), lead)
+    item, qty = to_peer(x["item"], float(x["qty"]))
     r = _post(plant, "/api/park/orders", {"from_plant": me(), "from_name": my_name(), "ref": str(x["id"]), "po": x["po"],
-                                          "item": x["item"], "qty": float(x["qty"]), "need_by": str(need), "mode": mode})
+                                          "item": item, "qty": qty, "need_by": str(need), "mode": mode})
     return r
+
+
+def to_peer(item, qty):
+    """第 106 轮：这边的物料号、数量 → 对方的（清单写了 park_item：数量按 pack 换成对方的件数、向上取整）；没写的原样"""
+    other = getattr(F, "PARK_ITEM", {}).get(item)
+    if not other:
+        return item, qty
+    pack = getattr(F, "PACK", {}).get(item) or 1
+    return other, float(-(-int(round(qty)) // pack))
 
 
 def _cat_of(item):

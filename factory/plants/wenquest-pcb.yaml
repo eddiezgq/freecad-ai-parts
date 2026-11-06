@@ -2,6 +2,8 @@
 # 问渠数字工业园 · 电路板厂（第 85 轮，电子 E3）：关节伺服驱动板 DRV-JOINT、AGV 控制板 CTRL-AGV、编码器读头板 ENC-RD。
 # 一条 SMT 线（印刷 → 锡膏检测 → 高速贴片 → 多功能贴片 → 回流焊 → 自动光学检测）做“贴片板”，
 # 后段（选择焊 → 在线测试 → 烧录 → 三防涂覆 → 老化 → 功能测试 → 包装）做成品板。机器人厂的驱动板、AGV 控制板向这里买（park）。
+# 第 106 轮：试产驱动板 B 版 DRV-JOINT-B（放上编码器接口芯片 WQ-ENCIF，第 98 轮设计）：芯片向工业园的问渠芯片厂买，一次一整批
+#   （34 000 只，pack；对方物料号 WQ-ENCIF 1 批，park_item）。现实里芯片未流片、B 版不投产——这里是工业园（仿真）里试产。
 # 外购件一律写通用名称 +“型号待确认”，不编厂商型号。
 # 单价、交货期、工时、设备费率、车间尺寸、测量名义值与散布都是示例值，不是哪家真实工厂的数据。
 # 一种物料只有一处测量特性（ERPNext 一种物料一张检验模板）：贴片板在 AOI 工位把 SPI、炉温记录、AOI 结果一起记（按板追溯）；
@@ -86,6 +88,9 @@ suppliers:
   chem: {name: 示例·焊接材料商 Solder & Chemicals (Demo), lead: 5, on_time: 0.95, pass: 0.99, cat_name: 焊接材料,
          incoming: [{name: 有效期与冷藏 Shelf life, text: 锡膏在有效期内、到货温度 2–10 ℃}]}
   packing: {name: 示例·包装材料商 Packaging Supplier (Demo), lead: 3, on_time: 0.95, pass: 0.99, cat_name: 包装材料}
+  # 第 106 轮：工业园的问渠芯片厂（WQ-ENCIF 按晶圆批卖；交期示例）
+  chipfab: {name: 问渠芯片厂 WenQuest Semiconductor, park: wenquest-chip, lead: 10, on_time: 0.95, pass: 0.995, cat_name: 自研芯片,
+            incoming: [{name: 防潮包装 Dry pack, text: 防潮袋密封完好、湿度卡未变色、盘标批号与发货单一致}]}
 customers:
 - 示例·工业机器人集成商 Robot Integrator (Demo)
 - 示例·物流设备厂 Logistics Equipment Maker (Demo)
@@ -108,6 +113,11 @@ items:
 - {code: MOS-80V, name: 功率 MOSFET 80 V（示例选型 BSC040N08NS5，未经硬件验证） Power MOSFET 80 V, kind: buy, uom: Nos, price: 0.9, supplier: ic}
 - {code: IC-LDO, name: 线性稳压芯片（示例选型 AMS1117，未经硬件验证） LDO regulator, kind: buy, uom: Nos, price: 0.15, supplier: ic}
 - {code: IC-RS485, name: RS-485 收发器（示例选型 MAX3485，未经硬件验证） RS-485 transceiver, kind: buy, uom: Nos, price: 0.9, supplier: ic}
+# 第 106 轮：驱动板 B 版多出的器件（第 98 轮 B 版设计：U14、Y2、U15、C57–C61）
+- {code: IC-ENCIF, name: 编码器接口芯片 WQ-ENCIF QFN-16（问渠芯片厂，第 92 轮设计；示例芯片） Encoder interface IC, kind: buy, uom: Nos,
+   price: 0.34, supplier: chipfab, pack: 34000, park_item: WQ-ENCIF, note: 湿敏元件；芯片厂按晶圆批卖，一批约 34 000 只}
+- {code: OSC-50M, name: 有源晶振 50 MHz 3.3 V（型号待确认） Oscillator 50 MHz, kind: buy, uom: Nos, price: 0.45, supplier: passive}
+- {code: IC-LDO18, name: 1.8 V 低压差稳压芯片（示例选型 AP2112K-1.8，未经硬件验证） 1.8 V LDO, kind: buy, uom: Nos, price: 0.12, supplier: ic}
 # 阻容与连接器
 - {code: RES-SHUNT, name: 采样电阻 2 mΩ 1%（型号待确认） Current shunt 2 mΩ 1%, kind: buy, uom: Nos, price: 0.25, supplier: passive,
    note: 相电流采样；FCT 采样误差的来源之一}
@@ -128,11 +138,14 @@ items:
 - {code: SMT-DRV, name: 驱动板贴片板 Drive board SMT assembly, kind: sub, uom: Nos}
 - {code: SMT-AGV, name: AGV 控制板贴片板 AGV controller SMT assembly, kind: sub, uom: Nos}
 - {code: SMT-ENC, name: 编码器读头板贴片板 Encoder head SMT assembly, kind: sub, uom: Nos}
+- {code: SMT-DRV-B, name: 驱动板 B 版贴片板（试产） Drive board rev B SMT assembly, kind: sub, uom: Nos}
 # 成品板
 - {code: DRV-JOINT, name: 关节伺服驱动板（示例：48 V、三相、电流采样 + 编码器接口） Joint servo drive board, kind: fg, uom: Nos,
    note: 卖给机器人厂（关节模组）；E4 做它的 KiCad 设计}
 - {code: CTRL-AGV, name: AGV 控制板（示例：双路电机控制 + CAN + 安全 IO） AGV controller board, kind: fg, uom: Nos, note: 卖给机器人厂（AGV）}
 - {code: ENC-RD, name: 编码器读头板（示例：正余弦输出） Encoder read-head board, kind: fg, uom: Nos, note: 以后卖给传感器厂}
+- {code: DRV-JOINT-B, name: 关节伺服驱动板 B 版（试产：编码器接口芯片 WQ-ENCIF 计数、SPI 读） Joint servo drive board rev B, kind: fg, uom: Nos,
+   note: 第 98 轮设计、第 100/102 轮固件；工业园里试产，现实不投产}
 routings:
 - name: RT-SMT 贴片线 SMT line
   steps: [[锡膏印刷 Stencil printing, 1.0], [锡膏检测 SPI, 0.5], [高速贴片 Chip placement, 2.0], [多功能贴片 IC placement, 1.5],
@@ -146,6 +159,12 @@ boms:
   # 数量与 KiCad 设计（factory/designs/drv-joint）的 BOM 一致（第 88 轮，测试核对）
   components: [[PCB-DRV, 1], [IC-MCU-MC, 1], [IC-GDRV, 3], [IC-CAN, 1], [IC-BUCK, 1], [IC-LDO, 2], [IC-AMP, 3], [IC-RS485, 2], [MOS-80V, 6], [RES-SHUNT, 3],
                [RES-0402, 18], [CAP-0402, 30], [CAP-1206, 7], [CAP-BULK, 1], [DIO-SMD, 4], [IND-PWR, 1], [XTAL, 1], [PASTE-SAC305, 0.003]]
+- item: SMT-DRV-B
+  routing: RT-SMT 贴片线 SMT line
+  # A 版 + 第 98 轮 B 版多出的：WQ-ENCIF 1、50 MHz 有源晶振 1、1.8 V 稳压 1、0402 电容 5（测试与 B 版 KiCad 的物料差核对）
+  components: [[PCB-DRV, 1], [IC-MCU-MC, 1], [IC-GDRV, 3], [IC-CAN, 1], [IC-BUCK, 1], [IC-LDO, 2], [IC-AMP, 3], [IC-RS485, 2], [MOS-80V, 6], [RES-SHUNT, 3],
+               [RES-0402, 18], [CAP-0402, 35], [CAP-1206, 7], [CAP-BULK, 1], [DIO-SMD, 4], [IND-PWR, 1], [XTAL, 1], [IC-ENCIF, 1], [OSC-50M, 1],
+               [IC-LDO18, 1], [PASTE-SAC305, 0.003]]
 - item: SMT-AGV
   routing: RT-SMT 贴片线 SMT line
   components: [[PCB-AGV, 1], [IC-MCU-HP, 1], [IC-GDRV, 6], [IC-ISO, 2], [IC-CAN, 2], [IC-BUCK, 2], [IC-AMP, 4], [MOS-80V, 12], [RES-SHUNT, 4],
@@ -159,6 +178,9 @@ boms:
 - item: CTRL-AGV
   routing: RT-后段 Back end
   components: [[SMT-AGV, 1], [CONN-PWR, 3], [CONN-SIG, 4], [COAT-AR, 0.005], [BAG-ESD, 1]]
+- item: DRV-JOINT-B
+  routing: RT-后段 Back end
+  components: [[SMT-DRV-B, 1], [CONN-PWR, 2], [CONN-SIG, 3], [COAT-AR, 0.003], [BAG-ESD, 1]]
 - item: ENC-RD
   routing: RT-后段 Back end
   components: [[SMT-ENC, 1], [CONN-SIG, 1], [COAT-AR, 0.001], [BAG-ESD, 1]]
@@ -166,11 +188,13 @@ products:
 - {item: DRV-JOINT, price: 160}
 - {item: CTRL-AGV, price: 700}
 - {item: ENC-RD, price: 60}
+- {item: DRV-JOINT-B, price: 165}
 stock:
   # 期初库存（示例值）：大约够做驱动板 150 块、AGV 控制板 40 块、读头板 100 块
   opening: {PCB-DRV: 150, PCB-AGV: 40, PCB-ENC: 100, IC-MCU-MC: 150, IC-MCU-HP: 40, IC-GDRV: 700, IC-LDO: 320, IC-RS485: 320, CAP-1206: 1100, DIO-SMD: 620, XTAL: 160, IC-ISO: 240, IC-CAN: 240, IC-BUCK: 330,
             IC-AMP: 620, IC-ENC-AFE: 100, SNS-OPT: 100, MOS-80V: 1400, RES-SHUNT: 620, RES-0402: 16000, CAP-0402: 19000, CAP-BULK: 850,
-            IND-PWR: 240, CONN-PWR: 450, CONN-SIG: 560, PASTE-SAC305: 1.2, COAT-AR: 1.0, BAG-ESD: 300}
+            IND-PWR: 240, CONN-PWR: 450, CONN-SIG: 560, PASTE-SAC305: 1.2, COAT-AR: 1.0, BAG-ESD: 300,
+            OSC-50M: 50, IC-LDO18: 50}     # 第 106 轮：WQ-ENCIF 不备期初库存，第一次做 B 版就向芯片厂买
   safety: {IC-MCU-MC: 30, MOS-80V: 200, RES-SHUNT: 100, PCB-DRV: 30}
 key_materials: [IC-MCU-MC, MOS-80V, RES-SHUNT, PCB-DRV]
 measurements:
@@ -187,6 +211,7 @@ measurements:
   - {code: aoi_defects, name: AOI 缺陷数（立碑、桥连、少锡、偏移、错件、反向）, unit: 个, nominal: 0, lo: 0, hi: 0, sigma: 0}
 - {item: SMT-AGV, operation: 自动光学检测 AOI, chars: *smt}
 - {item: SMT-ENC, operation: 自动光学检测 AOI, chars: *smt}
+- {item: SMT-DRV-B, operation: 自动光学检测 AOI, chars: *smt}
 # 成品板：在功能测试工位记下 ICT 的采样电阻阻值和功能测试结果（老化之后测）
 - item: DRV-JOINT
   operation: 功能测试 FCT
@@ -196,6 +221,15 @@ measurements:
   - {code: fct_isense, name: 相电流采样误差, unit: '%', nominal: 0, lo: -2, hi: 2, sigma: 0.35}
   - {code: fct_deadtime, name: 栅极死区时间, unit: ns, nominal: 200, lo: 160, hi: 240, sigma: 6}
   - {code: fct_enc, name: 编码器接口读数误差, unit: count, nominal: 0, lo: -2, hi: 2, sigma: 0.4}
+  - {code: fct_drift, name: 老化后电流零点漂移, unit: mA, nominal: 0, lo: -50, hi: 50, sigma: 10}
+- item: DRV-JOINT-B                 # 第 106 轮：同 A 版（编码器接口读数改经 WQ-ENCIF）
+  operation: 功能测试 FCT
+  chars:
+  - {code: ict_shunt, name: 采样电阻阻值（ICT）, unit: mΩ, nominal: 2.0, lo: 1.98, hi: 2.02, sigma: 0.004}
+  - {code: fct_vbus, name: 母线电压读数误差, unit: '%', nominal: 0, lo: -1, hi: 1, sigma: 0.2}
+  - {code: fct_isense, name: 相电流采样误差, unit: '%', nominal: 0, lo: -2, hi: 2, sigma: 0.35}
+  - {code: fct_deadtime, name: 栅极死区时间, unit: ns, nominal: 200, lo: 160, hi: 240, sigma: 6}
+  - {code: fct_enc, name: 编码器接口读数误差（经 WQ-ENCIF）, unit: count, nominal: 0, lo: -2, hi: 2, sigma: 0.4}
   - {code: fct_drift, name: 老化后电流零点漂移, unit: mA, nominal: 0, lo: -50, hi: 50, sigma: 10}
 - item: CTRL-AGV
   operation: 功能测试 FCT
