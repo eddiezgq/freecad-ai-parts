@@ -11,3 +11,4 @@ local/
 !designs/drv-joint/out/*.zip
 !designs/wq-encif/out/*.zip
 !designs/drv-joint-b/out/*.zip
+!designs/drv-joint-b/fw/out/*.zip

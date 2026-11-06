@@ -1,0 +1,29 @@
+// STM32G431CB 仿真平台（Renode）——只描述本轮固件用到的部分。地址按 RM0440《STM32G4 参考手册》的存储器映射。
+// 第 100 轮：驱动板 B 版固件仿真。示例，非 ST 官方平台文件。
+cpu: CPU.CortexM @ sysbus
+    cpuType: "cortex-m4f"
+    nvic: nvic
+
+// NVIC 与 SysTick；上电后系统时钟为 HSI16（RM0440 RCC 章），SysTick 按 16 MHz 计
+nvic: IRQControllers.NVIC @ sysbus 0xE000E000
+    systickFrequency: 16000000
+    -> cpu@0
+
+// 128 KB Flash（RM0440 存储器映射：0x0800 0000），SRAM1 16 KB + SRAM2 6 KB 连续（0x2000 0000，共 22 KB）
+flash: Memory.MappedMemory @ sysbus 0x08000000
+    size: 0x20000
+
+sram: Memory.MappedMemory @ sysbus 0x20000000
+    size: 0x5800
+
+// GPIOA/GPIOB（AHB2，RM0440 存储器映射：0x4800 0000 / 0x4800 0400）
+gpioPortA: GPIOPort.STM32_GPIOPort @ sysbus <0x48000000, +0x400>
+
+gpioPortB: GPIOPort.STM32_GPIOPort @ sysbus <0x48000400, +0x400>
+
+// SPI1（APB2，RM0440 存储器映射：0x4001 3000）
+spi1: SPI.STM32SPI @ sysbus 0x40013000
+
+// RCC（0x4002 1000）只占位成一块可读写的存储：固件只写时钟使能位，不等就绪标志
+rcc: Memory.MappedMemory @ sysbus 0x40021000
+    size: 0x400

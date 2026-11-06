@@ -9,8 +9,10 @@ digital/.env
 !designs/drv-joint/out/*.zip
 !designs/wq-encif/out/*.zip
 !designs/drv-joint-b/out/*.zip
+!designs/drv-joint-b/fw/out/*.zip
 designs/drv-joint/.route/
 designs/drv-joint-b/.route/
+designs/drv-joint-b/fw/build/
 designs/tools/freerouting-*.jar
 designs/**/*.kicad_prl
 designs/**/*-backups/

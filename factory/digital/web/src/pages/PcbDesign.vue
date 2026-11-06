@@ -1,4 +1,4 @@
-<!-- 第 88 轮（电子 E4）：电路板设计。关节驱动板 DRV-JOINT 的 KiCad 设计产物（CI 里用 KiCad 生成，随仓库发布）：
+<!-- 第 88 轮（电子 E4）：电路板设计（第 98 轮加 B 版，第 100 轮加 B 版固件）。关节驱动板 DRV-JOINT 的 KiCad 设计产物（CI 里用 KiCad 生成，随仓库发布）：
      原理图逐页、PCB 各层、三维、BOM（与电路板厂物料对照）、可制造性检查（点一项在 PCB 图上标位置）、下载。示例设计，未经硬件验证。 -->
 <template>
   <div class="page">
@@ -85,8 +85,13 @@
       <p class="small mono">{{ d.nets_added.join('、') }}</p>
       <h3>固件要改的配置</h3>
       <ul class="small"><li v-for="(f, i) in d.firmware" :key="i">{{ f }}</li></ul>
+      <p class="small"><a href="#" @click.prevent="go('fw')">这段固件已经写好，在 Renode 里跑过 →</a></p>
       <p class="small muted">新增器件放在底面（顶面这一带已满，底面原来只有测试点）；布线、设计规则检查、可制造性检查都按 A 版同一套流程重跑：
         错误 {{ d.drc.errors }}、未连接 {{ d.drc.unconnected }}，可制造性 {{ d.dfm.pass ? '全部通过' : '有不通过' }}。</p>
+    </section>
+
+    <section v-if="d && tab === 'fw' && rev === 'B'" class="card">
+      <FirmwarePanel />
     </section>
 
     <section v-if="d && tab === 'dl'" class="card">
@@ -106,10 +111,12 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import ModelViewer from '../components/ModelViewer.vue';
+import FirmwarePanel from '../components/FirmwarePanel.vue';
 
 const STEM = { A: 'drv-joint', B: 'drv-joint-b' };
 const TABS = [{ k: 'sch', label: '原理图' }, { k: 'pcb', label: 'PCB' }, { k: '3d', label: '三维' }, { k: 'bom', label: 'BOM' },
-  { k: 'dfm', label: '可制造性检查' }, { k: 'diff', label: 'A→B 改了什么', b: true }, { k: 'dl', label: '下载' }];
+  { k: 'dfm', label: '可制造性检查' }, { k: 'diff', label: 'A→B 改了什么', b: true },
+  { k: 'fw', label: '固件（Renode 仿真）', b: true }, { k: 'dl', label: '下载' }];
 // 原理图这一页 ↔ 电路分析的例题（同一组数）
 const EXAMPLE = { sense: 'sense', gate: 'gate', power: 'bus', io: 'encoder' };
 const route = useRoute();
@@ -130,7 +137,7 @@ const stem = computed(() => STEM[rev.value]);
 const url = (p) => '/api/designs/' + stem.value + '/' + p;
 function setRev(r) {
   rev.value = r; marks.value = [];
-  if (r === 'A' && tab.value === 'diff') tab.value = 'sch';
+  if (r === 'A' && TABS.find((t) => t.k === tab.value)?.b) tab.value = 'sch';
   router.replace({ query: { ...route.query, rev: r, tab: tab.value } });
   load();
 }
