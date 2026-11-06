@@ -1,0 +1,59 @@
+{
+ "die_um": [
+  151.37,
+  162.09
+ ],
+ "px": [
+  1600,
+  1713
+ ],
+ "layers": [
+  {
+   "key": "devices",
+   "name": "器件层（阱、有源区、多晶硅、局部互连）",
+   "png": "layout-devices.png",
+   "present": true
+  },
+  {
+   "key": "met1",
+   "name": "金属 1",
+   "png": "layout-met1.png",
+   "present": true
+  },
+  {
+   "key": "met2",
+   "name": "金属 2",
+   "png": "layout-met2.png",
+   "present": true
+  },
+  {
+   "key": "met3",
+   "name": "金属 3",
+   "png": "layout-met3.png",
+   "present": true
+  },
+  {
+   "key": "met4",
+   "name": "金属 4",
+   "png": "layout-met4.png",
+   "present": true
+  },
+  {
+   "key": "met5",
+   "name": "金属 5",
+   "png": "layout-met5.png",
+   "present": false
+  }
+ ],
+ "detail": {
+  "png": "layout-detail.png",
+  "box_um": [
+   60.68,
+   66.04,
+   90.68,
+   96.04
+  ]
+ },
+ "all": "layout-all.png",
+ "top": "wq_encif"
+}

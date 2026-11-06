@@ -1,0 +1,12 @@
+{
+  "DESIGN_NAME": "wq_encif",
+  "VERILOG_FILES": "dir::../rtl/wq_encif.v",
+  "CLOCK_PORT": "clk",
+  "CLOCK_PERIOD": 20,
+  "FP_SIZING": "relative",
+  "FP_CORE_UTIL": 40,
+  "PL_TARGET_DENSITY_PCT": 55,
+  "FP_PDN_MULTILAYER": false,
+  "RT_MAX_LAYER": "met4",
+  "SYNTH_STRATEGY": "DELAY 1"
+}

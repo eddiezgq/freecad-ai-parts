@@ -1,0 +1,319 @@
+{
+ "tool": "Icarus Verilog version 12.0",
+ "cases": [
+  {
+   "name": "正反转",
+   "cycles": 446,
+   "match": true,
+   "first_mismatch": null,
+   "final": {
+    "count": 25,
+    "index": 0,
+    "status": 8
+   },
+   "reads": [],
+   "wave": "01.json"
+  },
+  {
+   "name": "高速",
+   "cycles": 682,
+   "match": true,
+   "first_mismatch": null,
+   "final": {
+    "count": 64,
+    "index": 0,
+    "status": 1
+   },
+   "reads": [],
+   "wave": "02.json"
+  },
+  {
+   "name": "毛刺",
+   "cycles": 933,
+   "match": true,
+   "first_mismatch": null,
+   "final": {
+    "count": 7,
+    "index": 0,
+    "status": 17
+   },
+   "reads": [],
+   "wave": "03.json"
+  },
+  {
+   "name": "丢步",
+   "cycles": 1350,
+   "match": true,
+   "first_mismatch": null,
+   "final": {
+    "count": 8,
+    "index": 0,
+    "status": 25
+   },
+   "reads": [
+    {
+     "at": 95,
+     "addr": 2,
+     "value": 27
+    },
+    {
+     "at": 935,
+     "addr": 2,
+     "value": 25
+    }
+   ],
+   "wave": "04.json"
+  },
+  {
+   "name": "Z相",
+   "cycles": 1474,
+   "match": true,
+   "first_mismatch": null,
+   "final": {
+    "count": -3,
+    "index": 17,
+    "status": 28
+   },
+   "reads": [
+    {
+     "at": 639,
+     "addr": 4,
+     "value": 17
+    },
+    {
+     "at": 1059,
+     "addr": 2,
+     "value": 28
+    }
+   ],
+   "wave": "05.json"
+  },
+  {
+   "name": "溢出",
+   "cycles": 1742,
+   "match": true,
+   "first_mismatch": null,
+   "final": {
+    "count": -2,
+    "index": 0,
+    "status": 8
+   },
+   "reads": [
+    {
+     "at": 463,
+     "addr": 3,
+     "value": 2147483650
+    },
+    {
+     "at": 1327,
+     "addr": 3,
+     "value": 4294967294
+    }
+   ],
+   "wave": "06.json"
+  },
+  {
+   "name": "SPI读写",
+   "cycles": 5942,
+   "match": true,
+   "first_mismatch": null,
+   "final": {
+    "count": 305419896,
+    "index": 0,
+    "status": 17
+   },
+   "reads": [
+    {
+     "at": 11,
+     "addr": 0,
+     "value": 1162756913
+    },
+    {
+     "at": 431,
+     "addr": 1,
+     "value": 49
+    },
+    {
+     "at": 1271,
+     "addr": 1,
+     "value": 82
+    },
+    {
+     "at": 2111,
+     "addr": 3,
+     "value": 305419896
+    },
+    {
+     "at": 2547,
+     "addr": 3,
+     "value": 305419896
+    },
+    {
+     "at": 2967,
+     "addr": 2,
+     "value": 25
+    },
+    {
+     "at": 3387,
+     "addr": 4,
+     "value": 0
+    },
+    {
+     "at": 3807,
+     "addr": 85,
+     "value": 0
+    },
+    {
+     "at": 4647,
+     "addr": 1,
+     "value": 51
+    },
+    {
+     "at": 5527,
+     "addr": 3,
+     "value": 305419896
+    }
+   ],
+   "wave": "07.json"
+  },
+  {
+   "name": "复位",
+   "cycles": 1740,
+   "match": true,
+   "first_mismatch": null,
+   "final": {
+    "count": 0,
+    "index": 0,
+    "status": 25
+   },
+   "reads": [
+    {
+     "at": 905,
+     "addr": 1,
+     "value": 49
+    },
+    {
+     "at": 1325,
+     "addr": 3,
+     "value": 0
+    }
+   ],
+   "wave": "08.json"
+  },
+  {
+   "name": "随机",
+   "cycles": 15591,
+   "match": true,
+   "first_mismatch": null,
+   "final": {
+    "count": 14,
+    "index": 14,
+    "status": 29
+   },
+   "reads": [
+    {
+     "at": 728,
+     "addr": 3,
+     "value": 6
+    },
+    {
+     "at": 1509,
+     "addr": 3,
+     "value": 6
+    },
+    {
+     "at": 2296,
+     "addr": 2,
+     "value": 29
+    },
+    {
+     "at": 2776,
+     "addr": 2,
+     "value": 5
+    },
+    {
+     "at": 4192,
+     "addr": 4,
+     "value": 19
+    },
+    {
+     "at": 4822,
+     "addr": 3,
+     "value": 11
+    },
+    {
+     "at": 6087,
+     "addr": 2,
+     "value": 12
+    },
+    {
+     "at": 6507,
+     "addr": 2,
+     "value": 12
+    },
+    {
+     "at": 7317,
+     "addr": 3,
+     "value": 8
+    },
+    {
+     "at": 8051,
+     "addr": 2,
+     "value": 21
+    },
+    {
+     "at": 8686,
+     "addr": 2,
+     "value": 13
+    },
+    {
+     "at": 9792,
+     "addr": 2,
+     "value": 28
+    },
+    {
+     "at": 10403,
+     "addr": 4,
+     "value": 4294967279
+    },
+    {
+     "at": 10916,
+     "addr": 2,
+     "value": 4
+    },
+    {
+     "at": 11374,
+     "addr": 4,
+     "value": 4294967260
+    },
+    {
+     "at": 11866,
+     "addr": 2,
+     "value": 4
+    },
+    {
+     "at": 12695,
+     "addr": 4,
+     "value": 4294967266
+    },
+    {
+     "at": 13942,
+     "addr": 3,
+     "value": 9
+    },
+    {
+     "at": 14455,
+     "addr": 4,
+     "value": 7
+    },
+    {
+     "at": 14888,
+     "addr": 4,
+     "value": 16
+    }
+   ],
+   "wave": "09.json"
+  }
+ ],
+ "pass": true
+}

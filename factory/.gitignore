@@ -7,6 +7,7 @@ digital/.env
 *.zip
 # 第 88 轮：电路板设计——下载包要入库；布线中间文件、Freerouting 程序、KiCad 本机缓存不入库
 !designs/drv-joint/out/*.zip
+!designs/wq-encif/out/*.zip
 designs/drv-joint/.route/
 designs/tools/freerouting-*.jar
 designs/**/*.kicad_prl

@@ -18,6 +18,7 @@
       <p v-if="cur" class="small">{{ cur.note }}</p>
       <div v-if="cur" class="canvas"><img :src="url('schematic/' + cur.svg)" :style="{ width: zoom * 100 + '%' }" :alt="cur.name"></div>
       <div v-if="cur" class="small muted">这一页的器件：{{ partsOn(cur.key).map((p) => p.ref + ' ' + p.value).join('、') }}</div>
+      <div v-if="cur && cur.key === 'io'" class="line"><router-link class="btn" to="/chip-design?tab=bench">板上编码器接口芯片的设计（WQ-ENCIF，Verilog 到版图）→</router-link></div>
       <div v-if="cur && EXAMPLE[cur.key]" class="line"><router-link class="btn" :to="'/circuit?ex=' + EXAMPLE[cur.key]">在“电路分析”里算这一页的电路 →</router-link></div>
     </section>
 

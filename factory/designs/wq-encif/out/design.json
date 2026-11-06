@@ -1,0 +1,680 @@
+{
+ "name": "WQ-ENCIF 编码器接口芯片",
+ "name_en": "WQ-ENCIF incremental encoder interface",
+ "rev": "示例 A",
+ "disclaimer": "示例设计，未流片，未经硅验证",
+ "clock_mhz": 50,
+ "pdk": "SKY130（开源工艺库，130 nm）",
+ "pins": [
+  {
+   "name": "clk",
+   "dir": "输入",
+   "desc": "时钟 50 MHz"
+  },
+  {
+   "name": "rst_n",
+   "dir": "输入",
+   "desc": "复位，低有效"
+  },
+  {
+   "name": "enc_a",
+   "dir": "输入",
+   "desc": "编码器 A 相"
+  },
+  {
+   "name": "enc_b",
+   "dir": "输入",
+   "desc": "编码器 B 相"
+  },
+  {
+   "name": "enc_z",
+   "dir": "输入",
+   "desc": "编码器 Z 相（每转一个）"
+  },
+  {
+   "name": "sclk",
+   "dir": "输入",
+   "desc": "SPI 时钟（≤ 5 MHz，即时钟的 1/10）"
+  },
+  {
+   "name": "cs_n",
+   "dir": "输入",
+   "desc": "SPI 片选，低有效"
+  },
+  {
+   "name": "mosi",
+   "dir": "输入",
+   "desc": "SPI 主机发、芯片收"
+  },
+  {
+   "name": "miso",
+   "dir": "输出",
+   "desc": "SPI 芯片发、主机收"
+  }
+ ],
+ "regs": [
+  {
+   "addr": "0x00",
+   "name": "ID",
+   "access": "只读",
+   "reset": "0x454E4331",
+   "bits": [
+    [
+     "31:0",
+     "芯片标识 “ENC1”"
+    ]
+   ]
+  },
+  {
+   "addr": "0x01",
+   "name": "CTRL",
+   "access": "读写",
+   "reset": "0x00000031",
+   "bits": [
+    [
+     "0",
+     "计数使能"
+    ],
+    [
+     "1",
+     "方向取反"
+    ],
+    [
+     "2",
+     "Z 相上升沿清零计数"
+    ],
+    [
+     "7:4",
+     "滤波长度 N（0–15）：输入要连续 N+1 拍与当前不同才认"
+    ]
+   ]
+  },
+  {
+   "addr": "0x02",
+   "name": "STATUS",
+   "access": "读 / 写 1 清除",
+   "reset": "0x00000001",
+   "bits": [
+    [
+     "0",
+     "最近方向（1 = 正转）"
+    ],
+    [
+     "1",
+     "丢步：A、B 同时跳变（粘住，写 1 清除）"
+    ],
+    [
+     "2",
+     "已锁存 Z 位置（粘住，写 1 清除）"
+    ],
+    [
+     "3",
+     "A（滤波后）"
+    ],
+    [
+     "4",
+     "B（滤波后）"
+    ],
+    [
+     "5",
+     "Z（滤波后）"
+    ]
+   ]
+  },
+  {
+   "addr": "0x03",
+   "name": "COUNT",
+   "access": "读写",
+   "reset": "0x00000000",
+   "bits": [
+    [
+     "31:0",
+     "32 位有符号计数（4 倍频：每个边沿 ±1）；写入 = 置数"
+    ]
+   ]
+  },
+  {
+   "addr": "0x04",
+   "name": "INDEX",
+   "access": "只读",
+   "reset": "0x00000000",
+   "bits": [
+    [
+     "31:0",
+     "Z 相上升沿那一拍的计数"
+    ]
+   ]
+  }
+ ],
+ "blocks": [
+  {
+   "key": "sync",
+   "name": "同步器",
+   "desc": "每路输入过两级触发器，避免外部信号和芯片时钟不同步造成亚稳态"
+  },
+  {
+   "key": "filter",
+   "name": "数字滤波",
+   "desc": "输入与当前值不同、并且连续 N+1 拍都不同才改：短于 N+1 拍（N=3 时 80 ns）的毛刺被滤掉"
+  },
+  {
+   "key": "decode",
+   "name": "4 倍频解码",
+   "desc": "A、B 每个边沿都计一步：A 超前 B 为正转 +1；A、B 同时跳变说明漏了边沿，报“丢步”"
+  },
+  {
+   "key": "count",
+   "name": "计数与 Z 锁存",
+   "desc": "32 位计数；Z 相上升沿把当时的计数存进 INDEX（可选同时清零），用来找零位"
+  },
+  {
+   "key": "spi",
+   "name": "SPI 从机",
+   "desc": "模式 0：8 位命令（最高位 1 = 写，低 7 位地址）+ 32 位数据，高位先出；读的值在命令收齐那一拍取快照，读计数不会读到一半变了的数"
+  }
+ ],
+ "rtl": "// WQ-ENCIF 编码器接口芯片（问渠数字工业园 · 第 92 轮 电子 E5）\n// Incremental encoder interface: A/B/Z filter -> x4 quadrature decode -> 32-bit counter -> SPI slave (mode 0)\n// 示例设计，未流片，未经硅验证 / Teaching example: not taped out, not silicon-verified.\n//\n// 时钟 clk 50 MHz；所有输入先过两级同步器；SPI 的 SCLK 由 clk 过采样，要求 SCLK <= clk/10。\n// 寄存器（地址 7 位，数据 32 位）：\n//   0x00 ID      只读  0x454E4331（\"ENC1\"）\n//   0x01 CTRL    读写  [0] 计数使能（复位 1）[1] 方向取反 [2] Z 相清零 [7:4] 滤波长度 N（复位 3）\n//   0x02 STATUS  读 / 写 1 清除  [0] 最近方向（1 = 正转）[1] 丢步（A、B 同时跳变，粘住）[2] 已锁存 Z 位置（粘住）\n//                [3] A [4] B [5] Z（滤波后）\n//   0x03 COUNT   读写  32 位有符号计数（写入 = 置数）\n//   0x04 INDEX   只读  Z 相上升沿时的计数\n// 上电 / 复位后先“对齐”：同步器填满、滤波后的 A、B 等于输入之后才开始解码（不会因为编码器停在非 00 位置误报丢步或多计一步）。\n// SPI 帧：CS 拉低 → 8 位命令（[7] 1 = 写，[6:0] 地址）→ 32 位数据，高位先出；读的数据在命令收齐时取快照。\n`timescale 1ns/1ps\n`default_nettype none\n\nmodule wq_encif (\n    input  wire clk,\n    input  wire rst_n,\n    input  wire enc_a,\n    input  wire enc_b,\n    input  wire enc_z,\n    input  wire sclk,\n    input  wire cs_n,\n    input  wire mosi,\n    output wire miso\n);\n    localparam [31:0] ID = 32'h454E4331;\n\n    // ---------------------------------------------------------------- 同步器\n    reg [1:0] sa, sb, sz, ssck, scs, smo;\n    always @(posedge clk or negedge rst_n)\n        if (!rst_n) begin\n            sa <= 2'b00; sb <= 2'b00; sz <= 2'b00; ssck <= 2'b00; scs <= 2'b11; smo <= 2'b00;\n        end else begin\n            sa <= {sa[0], enc_a}; sb <= {sb[0], enc_b}; sz <= {sz[0], enc_z};\n            ssck <= {ssck[0], sclk}; scs <= {scs[0], cs_n}; smo <= {smo[0], mosi};\n        end\n\n    // ---------------------------------------------------------------- 寄存器\n    reg        en, inv, zclr;\n    reg [3:0]  flen;\n    reg        dir, err, ivld;\n    reg [31:0] cnt, idx;\n\n    // ---------------------------------------------------------------- 一致性滤波：输入与输出不同且已连续 N+1 拍，输出才跟过去\n    reg       fa, fb, fz;\n    reg [3:0] ca, cb, cz;\n    always @(posedge clk or negedge rst_n)\n        if (!rst_n) begin\n            fa <= 1'b0; fb <= 1'b0; fz <= 1'b0; ca <= 4'd0; cb <= 4'd0; cz <= 4'd0;\n        end else begin\n            if (sa[1] != fa) begin if (ca >= flen) begin fa <= sa[1]; ca <= 4'd0; end else ca <= ca + 4'd1; end else ca <= 4'd0;\n            if (sb[1] != fb) begin if (cb >= flen) begin fb <= sb[1]; cb <= 4'd0; end else cb <= cb + 4'd1; end else cb <= 4'd0;\n            if (sz[1] != fz) begin if (cz >= flen) begin fz <= sz[1]; cz <= 4'd0; end else cz <= cz + 4'd1; end else cz <= 4'd0;\n        end\n\n    // ---------------------------------------------------------------- 4 倍频正交解码（A 超前 B 为正：00→10→11→01→00）\n    reg pa, pb, pz;\n    reg [1:0] boot;                             // 复位后的同步器填充拍数\n    reg armed;                                  // 已对齐，开始解码\n    wire da = armed & (fa ^ pa), db = armed & (fb ^ pb);\n    wire step = da ^ db;                        // 恰好一相跳变：走一步\n    wire fwd0 = step & ((da & (fa ^ fb)) | (db & ~(fa ^ fb)));\n    wire fwd = fwd0 ^ inv;\n    wire zrise = armed & fz & ~pz;\n\n    // ---------------------------------------------------------------- SPI 从机\n    reg [5:0]  bits;                            // 已收到的 SCLK 上升沿个数（0–40）\n    reg [7:0]  cmd;\n    reg [31:0] sh;                              // 读：移出；写：移入\n    wire sck_r = ~ssck[1] & ssck[0];            // 同步后 SCLK 上升沿（下一拍 ssck[1] 才变）\n    wire sck_f = ssck[1] & ~ssck[0];\n    wire sel = ~scs[1];\n    wire [7:0] cmd_n = {cmd[6:0], smo[1]};\n    wire wr_done = sel & sck_r & (bits == 6'd39) & cmd[7];\n    wire [31:0] wdata = {sh[30:0], smo[1]};\n\n    function [31:0] rd;\n        input [6:0] a;\n        case (a)\n            7'h00: rd = ID;\n            7'h01: rd = {24'd0, flen, 1'b0, zclr, inv, en};\n            7'h02: rd = {26'd0, fz, fb, fa, ivld, err, dir};\n            7'h03: rd = cnt;\n            7'h04: rd = idx;\n            default: rd = 32'd0;\n        endcase\n    endfunction\n\n    always @(posedge clk or negedge rst_n)\n        if (!rst_n) begin\n            bits <= 6'd0; cmd <= 8'd0; sh <= 32'd0;\n        end else if (!sel) begin\n            bits <= 6'd0; cmd <= 8'd0; sh <= 32'd0;\n        end else begin\n            if (sck_r && bits < 6'd40) begin\n                bits <= bits + 6'd1;\n                if (bits < 6'd8) begin\n                    cmd <= cmd_n;\n                    if (bits == 6'd7) sh <= cmd_n[7] ? 32'd0 : rd(cmd_n[6:0]);\n                end else if (cmd[7]) sh <= wdata;\n            end\n            if (sck_f && !cmd[7] && bits > 6'd8 && bits < 6'd40) sh <= {sh[30:0], 1'b0};\n        end\n    assign miso = sel & (bits >= 6'd8) & ~cmd[7] & sh[31];\n\n    // ---------------------------------------------------------------- 计数、状态（SPI 写入优先于计数）\n    always @(posedge clk or negedge rst_n)\n        if (!rst_n) begin\n            en <= 1'b1; inv <= 1'b0; zclr <= 1'b0; flen <= 4'd3;\n            dir <= 1'b1; err <= 1'b0; ivld <= 1'b0; cnt <= 32'd0; idx <= 32'd0;\n            pa <= 1'b0; pb <= 1'b0; pz <= 1'b0; boot <= 2'd0; armed <= 1'b0;\n        end else begin\n            pa <= fa; pb <= fb; pz <= fz;\n            if (boot != 2'd3) boot <= boot + 2'd1;\n            else if (!armed && fa == sa[1] && fb == sb[1] && fz == sz[1]) armed <= 1'b1;\n            if (en && step) begin\n                cnt <= cnt + (fwd ? 32'd1 : 32'hFFFFFFFF);   // 一个加法器加 ±1（比“加一、减一再选”路径短）\n                dir <= fwd;\n            end\n            if (en && da && db) err <= 1'b1;\n            if (zrise) begin\n                idx <= cnt; ivld <= 1'b1;\n                if (zclr && en) cnt <= 32'd0;\n            end\n            if (wr_done) case (cmd[6:0])\n                7'h01: begin en <= wdata[0]; inv <= wdata[1]; zclr <= wdata[2]; flen <= wdata[7:4]; end\n                7'h02: begin if (wdata[1]) err <= 1'b0; if (wdata[2]) ivld <= 1'b0; end\n                7'h03: cnt <= wdata;\n                default: ;\n            endcase\n        end\nendmodule\n\n`default_nettype wire\n",
+ "rtl_lines": 137,
+ "sim": {
+  "tool": "Icarus Verilog version 12.0",
+  "cases": [
+   {
+    "name": "正反转",
+    "cycles": 446,
+    "match": true,
+    "first_mismatch": null,
+    "final": {
+     "count": 25,
+     "index": 0,
+     "status": 8
+    },
+    "reads": [],
+    "wave": "01.json"
+   },
+   {
+    "name": "高速",
+    "cycles": 682,
+    "match": true,
+    "first_mismatch": null,
+    "final": {
+     "count": 64,
+     "index": 0,
+     "status": 1
+    },
+    "reads": [],
+    "wave": "02.json"
+   },
+   {
+    "name": "毛刺",
+    "cycles": 933,
+    "match": true,
+    "first_mismatch": null,
+    "final": {
+     "count": 7,
+     "index": 0,
+     "status": 17
+    },
+    "reads": [],
+    "wave": "03.json"
+   },
+   {
+    "name": "丢步",
+    "cycles": 1350,
+    "match": true,
+    "first_mismatch": null,
+    "final": {
+     "count": 8,
+     "index": 0,
+     "status": 25
+    },
+    "reads": [
+     {
+      "at": 95,
+      "addr": 2,
+      "value": 27
+     },
+     {
+      "at": 935,
+      "addr": 2,
+      "value": 25
+     }
+    ],
+    "wave": "04.json"
+   },
+   {
+    "name": "Z相",
+    "cycles": 1474,
+    "match": true,
+    "first_mismatch": null,
+    "final": {
+     "count": -3,
+     "index": 17,
+     "status": 28
+    },
+    "reads": [
+     {
+      "at": 639,
+      "addr": 4,
+      "value": 17
+     },
+     {
+      "at": 1059,
+      "addr": 2,
+      "value": 28
+     }
+    ],
+    "wave": "05.json"
+   },
+   {
+    "name": "溢出",
+    "cycles": 1742,
+    "match": true,
+    "first_mismatch": null,
+    "final": {
+     "count": -2,
+     "index": 0,
+     "status": 8
+    },
+    "reads": [
+     {
+      "at": 463,
+      "addr": 3,
+      "value": 2147483650
+     },
+     {
+      "at": 1327,
+      "addr": 3,
+      "value": 4294967294
+     }
+    ],
+    "wave": "06.json"
+   },
+   {
+    "name": "SPI读写",
+    "cycles": 5942,
+    "match": true,
+    "first_mismatch": null,
+    "final": {
+     "count": 305419896,
+     "index": 0,
+     "status": 17
+    },
+    "reads": [
+     {
+      "at": 11,
+      "addr": 0,
+      "value": 1162756913
+     },
+     {
+      "at": 431,
+      "addr": 1,
+      "value": 49
+     },
+     {
+      "at": 1271,
+      "addr": 1,
+      "value": 82
+     },
+     {
+      "at": 2111,
+      "addr": 3,
+      "value": 305419896
+     },
+     {
+      "at": 2547,
+      "addr": 3,
+      "value": 305419896
+     },
+     {
+      "at": 2967,
+      "addr": 2,
+      "value": 25
+     },
+     {
+      "at": 3387,
+      "addr": 4,
+      "value": 0
+     },
+     {
+      "at": 3807,
+      "addr": 85,
+      "value": 0
+     },
+     {
+      "at": 4647,
+      "addr": 1,
+      "value": 51
+     },
+     {
+      "at": 5527,
+      "addr": 3,
+      "value": 305419896
+     }
+    ],
+    "wave": "07.json"
+   },
+   {
+    "name": "复位",
+    "cycles": 1740,
+    "match": true,
+    "first_mismatch": null,
+    "final": {
+     "count": 0,
+     "index": 0,
+     "status": 25
+    },
+    "reads": [
+     {
+      "at": 905,
+      "addr": 1,
+      "value": 49
+     },
+     {
+      "at": 1325,
+      "addr": 3,
+      "value": 0
+     }
+    ],
+    "wave": "08.json"
+   },
+   {
+    "name": "随机",
+    "cycles": 15591,
+    "match": true,
+    "first_mismatch": null,
+    "final": {
+     "count": 14,
+     "index": 14,
+     "status": 29
+    },
+    "reads": [
+     {
+      "at": 728,
+      "addr": 3,
+      "value": 6
+     },
+     {
+      "at": 1509,
+      "addr": 3,
+      "value": 6
+     },
+     {
+      "at": 2296,
+      "addr": 2,
+      "value": 29
+     },
+     {
+      "at": 2776,
+      "addr": 2,
+      "value": 5
+     },
+     {
+      "at": 4192,
+      "addr": 4,
+      "value": 19
+     },
+     {
+      "at": 4822,
+      "addr": 3,
+      "value": 11
+     },
+     {
+      "at": 6087,
+      "addr": 2,
+      "value": 12
+     },
+     {
+      "at": 6507,
+      "addr": 2,
+      "value": 12
+     },
+     {
+      "at": 7317,
+      "addr": 3,
+      "value": 8
+     },
+     {
+      "at": 8051,
+      "addr": 2,
+      "value": 21
+     },
+     {
+      "at": 8686,
+      "addr": 2,
+      "value": 13
+     },
+     {
+      "at": 9792,
+      "addr": 2,
+      "value": 28
+     },
+     {
+      "at": 10403,
+      "addr": 4,
+      "value": 4294967279
+     },
+     {
+      "at": 10916,
+      "addr": 2,
+      "value": 4
+     },
+     {
+      "at": 11374,
+      "addr": 4,
+      "value": 4294967260
+     },
+     {
+      "at": 11866,
+      "addr": 2,
+      "value": 4
+     },
+     {
+      "at": 12695,
+      "addr": 4,
+      "value": 4294967266
+     },
+     {
+      "at": 13942,
+      "addr": 3,
+      "value": 9
+     },
+     {
+      "at": 14455,
+      "addr": 4,
+      "value": 7
+     },
+     {
+      "at": 14888,
+      "addr": 4,
+      "value": 16
+     }
+    ],
+    "wave": "09.json"
+   }
+  ],
+  "pass": true
+ },
+ "layout": {
+  "setup_ws_ns": 5.056360806505996,
+  "hold_ws_ns": 0.11562795492805256,
+  "setup_tns_ns": 0,
+  "route_drc_errors": 0,
+  "magic_drc_errors": 0,
+  "klayout_drc_errors": 0,
+  "lvs_errors": 0,
+  "antenna_violations": 0,
+  "max_slew_violations": 204,
+  "max_cap_violations": 0,
+  "instances": 2473,
+  "stdcells": 1316,
+  "die_area_um2": 24534,
+  "core_area_um2": 19462.4,
+  "stdcell_area_um2": 12097.9,
+  "utilization": 0.621601,
+  "power_total_w": 0.001209066598676145,
+  "power_internal_w": 0.00093268440105021,
+  "power_switching_w": 0.00027636627783067524,
+  "power_leakage_w": 1.5903420802487744e-08,
+  "wire_length_um": 26533,
+  "vias": 7849,
+  "cells_by_kind": {
+   "去耦电容": 747,
+   "与或门": 479,
+   "填充": 410,
+   "衬底接触": 265,
+   "缓冲器": 249,
+   "触发器": 153,
+   "其他": 87,
+   "选择器": 35,
+   "异或": 33,
+   "反相器": 10,
+   "加法器单元": 5
+  },
+  "cells_top": [
+   [
+    "fill_1",
+    270
+   ],
+   [
+    "tapvpwrvgnd_1",
+    265
+   ],
+   [
+    "decap_12",
+    258
+   ],
+   [
+    "decap_3",
+    208
+   ],
+   [
+    "dlygate4sd3_1",
+    149
+   ],
+   [
+    "dfrtp_1",
+    147
+   ],
+   [
+    "fill_2",
+    140
+   ],
+   [
+    "decap_4",
+    118
+   ],
+   [
+    "decap_8",
+    83
+   ],
+   [
+    "clkdlybuf4s50_1",
+    81
+   ],
+   [
+    "decap_6",
+    80
+   ],
+   [
+    "clkbuf_16",
+    49
+   ],
+   [
+    "o21ai_0",
+    44
+   ],
+   [
+    "a21oi_1",
+    43
+   ],
+   [
+    "a221o_1",
+    42
+   ]
+  ],
+  "flipflops": 153,
+  "logic_cells": 1051,
+  "clean": {
+   "drc": true,
+   "lvs": true,
+   "setup": true,
+   "hold": true,
+   "antenna": true
+  },
+  "pass": true,
+  "clock_mhz": 50,
+  "pdk": "sky130A / sky130_fd_sc_hd",
+  "image": "hpretl/iic-osic-tools:2026.08@sha256:3c371645b19c6f6564dc8c7b21e39ad1c1833d274fe5b85639afe1ba9d7987e7",
+  "librelane": "3.1.0.dev3"
+ },
+ "images": {
+  "die_um": [
+   151.37,
+   162.09
+  ],
+  "px": [
+   1600,
+   1713
+  ],
+  "layers": [
+   {
+    "key": "devices",
+    "name": "器件层（阱、有源区、多晶硅、局部互连）",
+    "png": "layout-devices.png",
+    "present": true
+   },
+   {
+    "key": "met1",
+    "name": "金属 1",
+    "png": "layout-met1.png",
+    "present": true
+   },
+   {
+    "key": "met2",
+    "name": "金属 2",
+    "png": "layout-met2.png",
+    "present": true
+   },
+   {
+    "key": "met3",
+    "name": "金属 3",
+    "png": "layout-met3.png",
+    "present": true
+   },
+   {
+    "key": "met4",
+    "name": "金属 4",
+    "png": "layout-met4.png",
+    "present": true
+   },
+   {
+    "key": "met5",
+    "name": "金属 5",
+    "png": "layout-met5.png",
+    "present": false
+   }
+  ],
+  "detail": {
+   "png": "layout-detail.png",
+   "box_um": [
+    60.68,
+    66.04,
+    90.68,
+    96.04
+   ]
+  },
+  "all": "layout-all.png",
+  "top": "wq_encif"
+ },
+ "files": {
+  "rtl/wq_encif.v": "da974c8e9a8c2878",
+  "tb/tb.v": "7eb361d027b3bc0a",
+  "tb/run.py": "34a035f726a1af4b",
+  "model/encif.py": "0098b3a741a4aae2",
+  "flow/config.json": "d6c2ab0baefa0a06",
+  "flow/run.sh": "7b7ee3be05c4b321",
+  "flow/collect.py": "d94d76b622a09538",
+  "flow/render.py": "073dfe88eb409c43",
+  "tools/pack.py": "eda20c9bb9088bd1"
+ }
+}

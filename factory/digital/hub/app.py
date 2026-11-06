@@ -782,7 +782,7 @@ def get_overview(u=Depends(user_of)):
         "select * from ai_proposal where mode=%s and (status='pending' or decided_at > now() - interval '1 day') "
         "order by created_at desc limit 20", (u["mode"],))]
     ov["todos"] = todos_for(u, ov)
-    if u["mode"] == "teach":
+    if u["mode"] == "teach" and DEMO_PLANT:
         ov["teach"] = H.teach.check(u["name"])
     return ov
 
@@ -795,7 +795,7 @@ def todos_for(u, ov):
     """提醒与待办：按角色取不同的东西。"""
     role = u["role"]
     out = []
-    if u["mode"] == "teach":
+    if u["mode"] == "teach" and DEMO_PLANT:             # 实验 7 的任务只属于演示工厂（减速器厂）；机器人厂等没有这些物料，调了会 500
         t = ov.get("teach") or H.teach.status(u["name"])
         for task in t["tasks"]:
             if task["done"]:
