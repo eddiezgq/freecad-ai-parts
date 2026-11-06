@@ -4,7 +4,7 @@
   <div class="page">
     <div class="page-title"><h1>芯片设计</h1>
       <span class="muted">{{ d ? d.name + '（' + d.rev + '，' + d.pdk + '，' + d.clock_mhz + ' MHz）' : '读取中…' }}</span></div>
-    <div v-if="d" class="warn small">⚠ {{ d.disclaimer }}。这颗芯片接在关节驱动板的编码器上，把 A/B/Z 脉冲变成计数，MCU 用 SPI 来读（驱动板这一版仍由 MCU 直接读编码器）。</div>
+    <div v-if="d" class="warn small">⚠ {{ d.disclaimer }}。这颗芯片接在关节驱动板的编码器上，把 A/B/Z 脉冲变成计数，MCU 用 SPI 来读（驱动板 A 版由 MCU 直接读编码器；B 版放上了这颗芯片，见“电路板设计”的 B 版）。</div>
     <div v-if="err" class="err">{{ err }}</div>
     <div class="tabs">
       <button v-for="t in TABS" :key="t.k" class="tab" :class="{ on: tab === t.k }" @click="go(t.k)">{{ t.label }}</button>
@@ -187,7 +187,7 @@
       </svg>
       <p class="small muted">{{ bwinText }}</p>
       <div class="line"><router-link class="btn" to="/instruments?task=encoder">去虚拟仪器量一台真编码器 →</router-link>
-        <router-link class="btn" to="/pcb-design?tab=sch&sheet=io">驱动板的编码器接口这一页 →</router-link></div>
+        <router-link class="btn" to="/pcb-design?rev=B&tab=diff">驱动板 B 版：这颗芯片上板后改了什么 →</router-link></div>
     </section>
 
     <section v-if="d && tab === 'dl'" class="card">

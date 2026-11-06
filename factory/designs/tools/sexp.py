@@ -6,6 +6,7 @@ import os
 import re
 
 SYMDIR = os.environ.get("KICAD7_SYMBOL_DIR", "/usr/share/kicad/symbols")
+LOCALDIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "libs")
 FPDIR = os.environ.get("KICAD7_FOOTPRINT_DIR", "/usr/share/kicad/footprints")
 
 
@@ -97,7 +98,8 @@ _LIBS = {}
 
 def library(lib):
     if lib not in _LIBS:
-        with open(os.path.join(SYMDIR, lib + ".kicad_sym"), encoding="utf-8") as f:
+        local = os.path.join(LOCALDIR, lib + ".kicad_sym")          # 工程自带库（第 98 轮：芯片 WQ-ENCIF 的符号）优先
+        with open(local if os.path.exists(local) else os.path.join(SYMDIR, lib + ".kicad_sym"), encoding="utf-8") as f:
             doc = parse(f.read())
         _LIBS[lib] = {e[1]: e for e in find(doc, "symbol")}
     return _LIBS[lib]

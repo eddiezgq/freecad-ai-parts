@@ -4,10 +4,12 @@
   <div class="page">
     <div class="page-title"><h1>电路板设计</h1>
       <span class="muted">{{ d ? d.name + '（' + d.rev + '，' + d.tool + '）' : '读取中…' }}</span></div>
+    <div class="line"><button class="chip" :class="{ on: rev === 'A' }" @click="setRev('A')">A 版（投产）</button>
+      <button class="chip" :class="{ on: rev === 'B' }" @click="setRev('B')">B 版：放上编码器接口芯片（设计对照）</button></div>
     <div v-if="d" class="warn small">⚠ {{ d.disclaimer }}。芯片是 KiCad 官方库里有的器件做的示例选型；数值由电路公式算（与“电路分析”的例题同一组数）。</div>
     <div v-if="err" class="err">{{ err }}</div>
     <div class="tabs">
-      <button v-for="t in TABS" :key="t.k" class="tab" :class="{ on: tab === t.k }" @click="go(t.k)">{{ t.label }}</button>
+      <button v-for="t in TABS.filter((x) => !x.b || rev === 'B')" :key="t.k" class="tab" :class="{ on: tab === t.k }" @click="go(t.k)">{{ t.label }}</button>
     </div>
 
     <section v-if="d && tab === 'sch'" class="card">
@@ -39,12 +41,13 @@
     </section>
 
     <section v-if="d && tab === '3d'" class="card">
-      <ModelViewer :url="url('drv-joint.glb')" />
+      <ModelViewer :key="rev" :url="url(stem + '.glb')" />
       <p class="small muted">三维由 KiCad 导出 STEP（器件外形取自 KiCad 官方三维模型库，CC-BY-SA 4.0 附例外），再转成网页用的 GLB。STEP 可以下载到 FreeCAD 里装进关节模组。</p>
     </section>
 
     <section v-if="d && tab === 'bom'" class="card">
-      <p class="small">同一物料编号、同一数值和封装合为一行；“物料编号”就是电路板厂清单里的编号（贴片板 SMT-DRV 与成品板 DRV-JOINT 的物料清单按这份设计的数量写，测试核对）。</p>
+      <p v-if="rev === 'A'" class="small">同一物料编号、同一数值和封装合为一行；“物料编号”就是电路板厂清单里的编号（贴片板 SMT-DRV 与成品板 DRV-JOINT 的物料清单按这份设计的数量写，测试核对）。</p>
+      <p v-else class="small">B 版不投产：IC-ENCIF、OSC-50M、IC-LDO18 这几个编号不在电路板厂的清单里（芯片未流片，买不到）。比 A 版多出的见“A→B 改了什么”。</p>
       <table class="tbl">
         <thead><tr><th>物料编号</th><th>数值</th><th>封装</th><th>数量</th><th>位号</th><th>说明</th></tr></thead>
         <tbody><tr v-for="(r, i) in bom" :key="i"><td class="mono">{{ r[0] }}</td><td>{{ r[1] }}</td><td class="small">{{ r[2] }}</td><td>{{ r[3] }}</td>
@@ -67,12 +70,31 @@
       </table>
     </section>
 
+    <section v-if="d && tab === 'diff' && d.changes" class="card">
+      <p class="small">B 版 = A 版 + 编码器接口芯片 WQ-ENCIF（<router-link to="/chip-design">芯片设计</router-link>，第 92 轮）：编码器 A/B/Z 经原来的 RC 滤波进芯片，芯片计数，MCU 用 SPI 读。
+        同一份设计描述打补丁生成（factory/designs/tools/drv_joint.py 里的 REV = "B" 一段），其余电路一字不动。</p>
+      <h3>器件</h3>
+      <table class="tbl"><thead><tr><th>位号</th><th>改了什么</th></tr></thead>
+        <tbody><tr v-for="(c, i) in d.changes" :key="i"><td class="mono">{{ c.ref }}</td><td class="small">{{ c.what }}</td></tr></tbody></table>
+      <h3>MCU 引脚（STM32G431，LQFP-48）</h3>
+      <table class="tbl"><thead><tr><th>引脚</th><th>A 版</th><th>B 版</th></tr></thead>
+        <tbody><tr v-for="m in d.mcu_pins" :key="m.pin"><td class="mono">{{ m.pin }}</td><td class="mono">{{ m.a || '未用' }}</td><td class="mono">{{ m.b || '未用' }}</td></tr></tbody></table>
+      <h3>物料（比 A 版多）</h3>
+      <p class="small mono">{{ Object.entries(d.bom_delta).map(([k, n]) => k + ' ' + (n > 0 ? '+' : '') + n).join('、') }}</p>
+      <h3>新网络</h3>
+      <p class="small mono">{{ d.nets_added.join('、') }}</p>
+      <h3>固件要改的配置</h3>
+      <ul class="small"><li v-for="(f, i) in d.firmware" :key="i">{{ f }}</li></ul>
+      <p class="small muted">新增器件放在底面（顶面这一带已满，底面原来只有测试点）；布线、设计规则检查、可制造性检查都按 A 版同一套流程重跑：
+        错误 {{ d.drc.errors }}、未连接 {{ d.drc.unconnected }}，可制造性 {{ d.dfm.pass ? '全部通过' : '有不通过' }}。</p>
+    </section>
+
     <section v-if="d && tab === 'dl'" class="card">
       <ul class="dl">
         <li><a :href="url('kicad-project.zip')" download>KiCad 工程（原理图 + PCB，KiCad 7 能打开）</a></li>
         <li><a :href="url('gerber.zip')" download>Gerber 与钻孔文件（给板厂）</a></li>
         <li><a :href="url('bom.csv')" download>BOM（CSV）</a>　<a :href="url('pos.csv')" download>贴片坐标（CSV，给贴片机编程）</a></li>
-        <li><a :href="url('drv-joint.step')" download>三维 STEP（FreeCAD）</a></li>
+        <li><a :href="url(stem + '.step')" download>三维 STEP（FreeCAD）</a></li>
         <li><a :href="url('drc.json')" target="_blank">设计规则检查结果</a>　<a :href="url('dfm.json')" target="_blank">可制造性检查结果</a></li>
       </ul>
       <p class="small muted">生成方式：设计描述（器件、数值、引脚接哪个网络）→ 脚本写 KiCad 原理图与 PCB → Freerouting 自动布线 → KiCad 设计规则检查与导出（仓库 factory/designs/tools/build.py）。</p>
@@ -85,9 +107,9 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import ModelViewer from '../components/ModelViewer.vue';
 
-const BASE = '/api/designs/drv-joint/';
+const STEM = { A: 'drv-joint', B: 'drv-joint-b' };
 const TABS = [{ k: 'sch', label: '原理图' }, { k: 'pcb', label: 'PCB' }, { k: '3d', label: '三维' }, { k: 'bom', label: 'BOM' },
-  { k: 'dfm', label: '可制造性检查' }, { k: 'dl', label: '下载' }];
+  { k: 'dfm', label: '可制造性检查' }, { k: 'diff', label: 'A→B 改了什么', b: true }, { k: 'dl', label: '下载' }];
 // 原理图这一页 ↔ 电路分析的例题（同一组数）
 const EXAMPLE = { sense: 'sense', gate: 'gate', power: 'bus', io: 'encoder' };
 const route = useRoute();
@@ -103,7 +125,15 @@ const layers = ref(['F_Cu', 'F_Silk']);
 const marks = ref([]);
 const markTitle = ref('');
 
-const url = (p) => BASE + p;
+const rev = ref(route.query.rev === 'B' ? 'B' : 'A');
+const stem = computed(() => STEM[rev.value]);
+const url = (p) => '/api/designs/' + stem.value + '/' + p;
+function setRev(r) {
+  rev.value = r; marks.value = [];
+  if (r === 'A' && tab.value === 'diff') tab.value = 'sch';
+  router.replace({ query: { ...route.query, rev: r, tab: tab.value } });
+  load();
+}
 const cur = computed(() => d.value?.sheets.find((s) => s.key === sheet.value));
 const shownLayers = computed(() => (d.value?.pcb_layers || []).filter((l) => layers.value.includes(l.key)));
 function partsOn(key) { return (d.value?.parts || []).filter((p) => p.sheet === key && !p.ref.startsWith('TP') && !p.ref.startsWith('NT')); }
@@ -121,7 +151,8 @@ function parseCsv(t) {
     return out;
   });
 }
-onMounted(async () => {
+async function load() {
+  err.value = ''; d.value = null;
   try {
     const r = await fetch(url('design.json'));
     if (!r.ok) throw new Error('读不到设计产物（' + r.status + '）');
@@ -129,7 +160,8 @@ onMounted(async () => {
     dfm.value = await (await fetch(url('dfm.json'))).json();
     bom.value = parseCsv(await (await fetch(url('bom.csv'))).text());
   } catch (e) { err.value = e.message || String(e); }
-});
+}
+onMounted(load);
 </script>
 
 <style scoped>

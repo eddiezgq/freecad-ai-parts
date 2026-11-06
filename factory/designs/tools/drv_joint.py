@@ -17,6 +17,10 @@ MOSFET BSC040N08NS5 × 6、电流采样放大 INA240A1D × 3、CAN 收发 MCP256
 """
 from __future__ import annotations
 
+# 第 98 轮：B 版（设计对照，不投产）在 A 版上打补丁——编码器经 WQ-ENCIF 计数，MCU 用 SPI1 读。
+# drv_joint_b.py 以 REV = "B" 执行本文件；直接 import 本模块就是 A 版（A 版一字不动）。
+REV = globals().get("REV", "A")
+
 RS_MOHM = 2.0            # 采样电阻 mΩ
 GAIN = 20.0              # INA240A1 增益
 RG_OHM = 10.0            # 栅极电阻 Ω
@@ -176,6 +180,36 @@ R("R35", "120", "CANH", "CANL", "io", "CAN 终端电阻")
 part("J5", "Connector_Generic:Conn_01x04", "CAN", "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical", "io",
      {"1": "CANH", "2": "CANL", "3": "GND", "4": "+5V"}, "CONN-SIG")
 
+# ------------------------------------------------------------------ B 版补丁（第 98 轮）
+B_CHANGES = []          # (位号, 改了什么) —— 页面“A→B 改了什么”用
+if REV == "B":
+    TITLE = "关节伺服驱动板 DRV-JOINT B 版（放上编码器接口芯片 WQ-ENCIF；设计对照，不投产）"
+    _mcu = next(p for p in PARTS if p["ref"] == "U10")
+    # PA4–PA7 = SPI1（NSS / SCK / MISO / MOSI，AF5）接芯片；PB1 接芯片复位；PB0 空出。SSI 仍在 PB3 / PB4（改用 SPI3，AF6，引脚不变）
+    for pin, (old, new) in {"12": (None, "ENC_CS_N"), "13": (None, "ENC_SCK"), "14": ("ENC_A_F", "ENC_MISO"),
+                            "15": ("ENC_B_F", "ENC_MOSI"), "16": ("ENC_Z_F", None), "17": (None, "ENC_RST_N")}.items():
+        if new is None:
+            _mcu["pins"].pop(pin, None)
+        else:
+            _mcu["pins"][pin] = new
+        B_CHANGES.append(("U10", "引脚 {}：{} → {}".format(pin, old or "未用", new or "未用")))
+    _mcu["note"] = "电机控制 MCU（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线、SPI1 读编码器接口芯片 U14、SPI3 读 SSI、FDCAN1"
+    part("U14", "wq:WQ-ENCIF", "WQ-ENCIF", "Package_DFN_QFN:QFN-16-1EP_3x3mm_P0.5mm_EP1.7x1.7mm", "io",
+         {"1": "ENC_A_F", "2": "ENC_B_F", "3": "ENC_Z_F", "4": "GND", "5": "ENC_CLK", "6": "ENC_RST_N", "7": "+1V8", "8": "GND",
+          "9": "ENC_CS_N", "10": "ENC_SCK", "11": "ENC_MOSI", "12": "ENC_MISO", "13": "+3V3", "14": "GND", "17": "GND"},
+         "IC-ENCIF", "编码器接口芯片 WQ-ENCIF（第 92 轮设计，未流片）：滤波、4 倍频计数、SPI 从机")
+    part("Y2", "Oscillator:ASE-xxxMHz", "50MHz", "Oscillator:Oscillator_SMD_Abracon_ASE-4Pin_3.2x2.5mm", "io",
+         {"1": "+3V3", "2": "GND", "3": "ENC_CLK", "4": "+3V3"}, "OSC-50M", "芯片时钟 50 MHz 有源晶振（示例选型）")
+    part("U15", "Regulator_Linear:AP2112K-1.8", "AP2112K-1.8", "Package_TO_SOT_SMD:SOT-23-5", "io",
+         {"1": "+3V3", "2": "GND", "3": "+3V3", "5": "+1V8"}, "IC-LDO18", "芯片核心电源 1.8 V（示例选型）")
+    C("C57", "100n", "+3V3", "GND", "io", note="U14 VDDIO 去耦")
+    C("C58", "100n", "+1V8", "GND", "io", note="U14 VCCD 去耦")
+    C("C59", "1u", "+3V3", "GND", "io", note="U15 输入")
+    C("C60", "1u", "+1V8", "GND", "io", note="U15 输出")
+    C("C61", "100n", "+3V3", "GND", "io", note="Y2 去耦")
+    for _r in ("U14", "Y2", "U15", "C57", "C58", "C59", "C60", "C61"):
+        B_CHANGES.append((_r, "新增：" + next(p["note"] for p in PARTS if p["ref"] == _r)))
+
 # ICT 测试点：没有通孔焊盘可扎的网络，每个在底面放一个测试点（针床从底面扎；间距 ≥ 2.5 mm）
 _THT_NETS = {n for p in PARTS if p["ref"].startswith("J") for n in p["pins"].values()}
 _HAS_TP = {p["pins"]["1"] for p in PARTS if p["ref"].startswith("TP")}
@@ -239,6 +273,10 @@ for _i, _ph in enumerate(PH):          # 开尔文连接点 NT：一端压在采
         "U{}".format(7 + _i): (_x, 44, 0, "F"), "NT{}".format(1 + 2 * _i): (_x - 2.96, 25.85, 270, "F"), "NT{}".format(7 + _i): (_x - 4.12, 24.95, 180, "F"), "NT{}".format(2 + 2 * _i): (_x + 2.96, 25.85, 270, "F"), "C{}".format(27 + _i): (_x - 5.5, 44, 90, "F"), "C{}".format(30 + _i): (_x + 5.5, 44, 90, "F"),
     })
 HOLES = [(4, 66), (96, 66), (96, 27), (4, 21)]          # M3 安装孔，焊盘接地
+if REV == "B":          # B 版新增器件放底面（顶面这一带已满；底面只有测试点）
+    PLACEMENT.update({"U14": (58, 54, 0, "B"), "C57": (58, 50.5, 0, "B"), "C58": (61.5, 54, 90, "B"),
+                      "Y2": (64.5, 58, 0, "B"), "C61": (64.5, 54.5, 0, "B"),
+                      "U15": (70, 53, 0, "B"), "C59": (67, 53, 90, "B"), "C60": (73, 53, 90, "B")})
 
 # 底面测试点的位置：三排，间距 2.8 mm（避开通孔焊盘和安装孔；底面没有别的器件）
 _TP_ALL = ["TP{}".format(k) for k in range(1, 6)] + ["TP{}".format(10 + k) for k in range(len(ICT_NETS))]
