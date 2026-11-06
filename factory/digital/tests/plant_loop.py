@@ -384,6 +384,9 @@ def domains(mgr):
     bad = [x["id"] for x in live if x.get("error")]
     check(len(live) >= 50 and not bad, "AI 巡检规则 {} 条在跑（待数据 {}），出错的：{}".format(len(live), "、".join(x["id"] for x in rl if x["waiting"]) or "无",
                                                                        "、".join(bad) or "无"))
+    for x in live:                       # 出错时把错误原文打出来（CI 诊断；第 98 轮上线时 Q3 出过一次错，日志里看不到原因）
+        if x.get("error"):
+            print("    规则 {} 出错：{}".format(x["id"], x["error"]))
     for q in ("哪台设备保养逾期？", "哪个客户应收逾期？", "现场哪台机器人在报警？"):
         try:
             r = hub("POST", "/api/ai/chat", {"messages": [{"role": "user", "content": q}]}, mgr)
