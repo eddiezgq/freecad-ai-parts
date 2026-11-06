@@ -114,3 +114,13 @@ sources:
       2026-11-05 核实（Debian 软件包 kicad-footprints / kicad-packages3d 7.0.11 的 copyright 全文）：CC-BY-SA 4.0 附例外——
       用这些库做的电路板设计及其生成文件不受相同方式共享约束；模型文件本身原样再分发时保留署名与许可说明（factory/designs/3dmodels/LICENSE.md）。
       只取驱动板用到的 19 个 STEP，原样未改；不入零件参数库。
+  - id: skywater-pdk
+    vendor: SkyWater Technology / Google（SkyWater Open Source PDK）
+    url: https://github.com/google/skywater-pdk
+    terms_url: https://foss-eda-tools.googlesource.com/skywater-pdk/+/refs/heads/main/README.src.rst
+    categories: [electronic]
+    license: open
+    terms_checked: true
+    terms_note: >-
+      2026-11-05 核实：项目说明写明 “The SkyWater Open Source PDK is released under the Apache 2.0 license”，
+      标准单元文件头 SPDX-License-Identifier: Apache-2.0。编码器接口芯片 WQ-ENCIF 的 GDS 含 sky130_fd_sc_hd 标准单元版图；不入零件参数库。
