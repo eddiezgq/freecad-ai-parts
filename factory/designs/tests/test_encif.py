@@ -73,3 +73,19 @@ def test_waves_for_web(sim):
     assert names[:7] == ["A", "B", "Z", "SCLK", "CS_N", "MOSI", "MISO"] and "计数" in names
     cnt = next(x for x in w["signals"] if x["name"] == "计数")
     assert cnt["pts"][-1][1] == "25"
+
+
+def test_schmitt_transistor_level():
+    """第 93 轮：输入端施密特触发器（SKY130 模型，CI 跑出、提交的结果）：回差够、各工艺角都有回差、带干扰边沿只翻一上一下"""
+    p = os.path.join(ROOT, "out", "transistor", "schmitt.json")
+    if not os.path.exists(p):
+        pytest.skip("晶体管级结果还没由 CI 提交")
+    r = json.load(open(p, encoding="utf-8"))
+    assert not r["generic"] and "SKY130" in r["models"] and r["pass"]
+    n = r["nominal"]
+    assert n["vt_plus"] > n["vt_minus"] and n["hyst"] >= r["target_hyst"] >= 0.6
+    assert all(c["hyst"] > 0 and c["vt_plus"] > c["vt_minus"] for c in r["corners"])
+    assert {(c["corner"], c["temp"]) for c in r["corners"]} >= {("tt", 27), ("ss", 27), ("ff", 27), ("tt", -40), ("tt", 125)}
+    assert r["noise"]["schmitt_toggles"] == 2 and r["noise"]["inv_toggles"] > 2
+    picked = [s for s in r["sweep"] if s["k"] == r["design"]["k"]][0]
+    assert picked["hyst"] >= 0.6 and all(s["hyst"] is None or s["hyst"] < 0.6 for s in r["sweep"] if s["k"] < picked["k"])   # 选的是够用的最小一档

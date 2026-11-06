@@ -29,7 +29,8 @@ BLOCKS = [
     {"key": "count", "name": "计数与 Z 锁存", "desc": "32 位计数；Z 相上升沿把当时的计数存进 INDEX（可选同时清零），用来找零位"},
     {"key": "spi", "name": "SPI 从机", "desc": "模式 0：8 位命令（最高位 1 = 写，低 7 位地址）+ 32 位数据，高位先出；读的值在命令收齐那一拍取快照，读计数不会读到一半变了的数"},
 ]
-FILES = ["rtl/wq_encif.v", "tb/tb.v", "tb/run.py", "model/encif.py", "flow/config.json", "flow/run.sh", "flow/collect.py", "flow/render.py", "tools/pack.py"]
+FILES = ["rtl/wq_encif.v", "tb/tb.v", "tb/run.py", "model/encif.py", "flow/config.json", "flow/run.sh", "flow/collect.py", "flow/render.py",
+         "flow/schmitt.py", "tools/pack.py"]
 LAYOUT = ["wq_encif.gds", "wq_encif.nl.v", "wq_encif.def", "wq_encif.sdc", "metrics.json", "result.json", "layout.json"]
 
 
@@ -42,11 +43,14 @@ def main():
     sim = j(os.path.join(OUT, "sim", "summary.json"))
     lay = j(os.path.join(OUT, "layout", "result.json"))
     img = j(os.path.join(OUT, "layout", "layout.json"))
+    sch = j(os.path.join(OUT, "transistor", "schmitt.json"))
     d = {"name": "WQ-ENCIF 编码器接口芯片", "name_en": "WQ-ENCIF incremental encoder interface", "rev": "示例 A",
          "disclaimer": "示例设计，未流片，未经硅验证", "clock_mhz": 50, "pdk": "SKY130（开源工艺库，130 nm）",
          "pins": [{"name": a, "dir": b, "desc": c} for a, b, c in PINS], "regs": REGS, "blocks": BLOCKS,
          "rtl": rtl, "rtl_lines": rtl.count("\n"),
          "sim": sim, "layout": lay, "images": img,
+         "transistor": None if not sch else {"pass": sch["pass"], "design": sch["design"], "hyst": sch["nominal"]["hyst"],
+                                             "generic": sch["generic"], "file": "transistor/schmitt.json"},
          "files": {f: hashlib.sha256(open(os.path.join(ROOT, f), "rb").read()).hexdigest()[:16] for f in FILES}}
     with open(os.path.join(OUT, "design.json"), "w", encoding="utf-8") as f:
         json.dump(d, f, ensure_ascii=False, indent=1)
@@ -63,6 +67,9 @@ def main():
             p = os.path.join(OUT, "layout", f)
             if os.path.exists(p):
                 add(p, "wq-encif/out/layout/" + f)
+        p = os.path.join(OUT, "transistor", "schmitt.json")
+        if os.path.exists(p):
+            add(p, "wq-encif/out/transistor/schmitt.json")
     print("design.json，下载包", os.path.getsize(zp), "字节")
 
 
