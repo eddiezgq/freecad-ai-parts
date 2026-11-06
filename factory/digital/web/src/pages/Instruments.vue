@@ -29,6 +29,7 @@
     <!-- ② 编码器 -->
     <section v-if="task === 'encoder'" class="card">
       <p class="small">{{ P.encoder.note }}。电机以某个转速转（不告诉你多快、往哪转），A、B、Z 接示波器 CH1–CH3 和逻辑分析仪。</p>
+      <p class="small">板上用专用芯片做这件事：<router-link to="/chip-design?tab=bench">编码器接口芯片 WQ-ENCIF——接上编码器，看它怎么滤毛刺、计数、用 SPI 交给 MCU →</router-link></p>
       <div class="bench">
         <div><ScopeScreen :traces="sc.traces" :vdiv="sc.vdiv" :off="sc.off" :tdiv="sc.tdiv" />
           <div class="line small">时基 <select v-model.number="sc.tdiv" @change="acquire"><option v-for="t in TDIVS" :key="t" :value="t">{{ si(t) }}s/格</option></select>

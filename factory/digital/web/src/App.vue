@@ -139,6 +139,7 @@ const apps = computed(() => [
   { name: '电路分析', role: 'SPICE', href: '/circuit', route: '/circuit' },
   { name: '虚拟仪器', role: 'DAQ', href: '/instruments', route: '/instruments' },
   { name: '电路板设计', role: 'EDA', href: '/pcb-design', route: '/pcb-design' },
+  { name: '芯片设计', role: 'EDA', href: '/chip-design', route: '/chip-design' },
   { name: '数控编程', role: 'CAM', href: '/cam', route: '/cam' },
   { name: '设计优化', role: 'OPT', href: '/opt', route: '/opt' },
   { name: '数字孪生', role: 'TWIN', href: '/twin', route: '/twin' },

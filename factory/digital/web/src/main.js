@@ -33,6 +33,7 @@ const routes = [
   { path: '/circuit', component: () => import('./pages/Circuit.vue') },   // 第 79 轮：电路分析（电子 E1）
   { path: '/instruments', component: () => import('./pages/Instruments.vue') },   // 第 82 轮：虚拟仪器（电子 E2）
   { path: '/pcb-design', component: () => import('./pages/PcbDesign.vue') },   // 第 88 轮：电路板设计（电子 E4）
+  { path: '/chip-design', component: () => import('./pages/ChipDesign.vue') },   // 第 92 轮：芯片设计（电子 E5）
   { path: '/fct', component: () => import('./pages/Fct.vue') },   // 第 88 轮：电路板厂功能测试台
   { path: '/twin', component: () => import('./pages/Twin.vue') },
   { path: '/plc', component: () => import('./pages/VirtualPlc.vue') },
