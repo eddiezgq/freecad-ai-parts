@@ -666,15 +666,37 @@
   "all": "layout-all.png",
   "top": "wq_encif"
  },
+ "transistor": {
+  "pass": true,
+  "design": {
+   "wn": 0.42,
+   "wp": 0.97,
+   "k": 1.5,
+   "wfn": 0.63,
+   "wfp": 1.455,
+   "out_inv": [
+    0.42,
+    0.97
+   ],
+   "plain_inv": [
+    0.42,
+    0.97
+   ]
+  },
+  "hyst": 0.6476,
+  "generic": false,
+  "file": "transistor/schmitt.json"
+ },
  "files": {
   "rtl/wq_encif.v": "da974c8e9a8c2878",
   "tb/tb.v": "7eb361d027b3bc0a",
   "tb/run.py": "34a035f726a1af4b",
   "model/encif.py": "0098b3a741a4aae2",
   "flow/config.json": "d6c2ab0baefa0a06",
-  "flow/run.sh": "7b7ee3be05c4b321",
+  "flow/run.sh": "60279b592b06bbb4",
   "flow/collect.py": "d94d76b622a09538",
   "flow/render.py": "073dfe88eb409c43",
-  "tools/pack.py": "eda20c9bb9088bd1"
+  "flow/schmitt.py": "eb3600195cccc5e8",
+  "tools/pack.py": "b6140331f1ce6524"
  }
 }

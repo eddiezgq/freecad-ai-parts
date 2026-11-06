@@ -97,6 +97,71 @@
       <p v-else class="muted">版图还没生成。</p>
     </section>
 
+    <section v-if="d && tab === 'tr'" class="card">
+      <template v-if="T">
+        <p class="small">编码器经 2 m 电缆进芯片，叠着约 ±{{ T.noise.noise_v }} V 干扰（《数字集成电路设计》第 1 章实验的同一个场景）。普通反相器在门限附近会来回翻；
+          <b>施密特触发器</b>有两个门限——上升时过 VT+ 才翻高，下降时过 VT− 才翻低，中间这段“回差”里的干扰不起作用。
+          晶体管级仿真：ngspice + {{ T.models }}，VDD {{ T.vdd }} V，L = {{ T.l_um }} μm。</p>
+        <p v-if="T.generic" class="warn small">⚠ 这份结果是本机用通用模型冒烟跑的，数不能当真；CI 用 SKY130 模型重跑后替换。</p>
+        <div class="kpis">
+          <div class="kpi"><b>{{ fmt(T.nominal.vt_plus, 3) }} V</b><span>上门限 VT+</span></div><div class="kpi"><b>{{ fmt(T.nominal.vt_minus, 3) }} V</b><span>下门限 VT−</span></div>
+          <div class="kpi"><b :class="T.nominal.hyst >= T.target_hyst ? 'ok' : 'bad'">{{ fmt(T.nominal.hyst, 3) }} V</b><span>回差（目标 ≥ {{ T.target_hyst }} V）</span></div>
+          <div class="kpi"><b>{{ fmt(T.nominal.inv_vm, 3) }} V</b><span>普通反相器的门限</span></div>
+          <div class="kpi"><b class="bad">{{ T.noise.inv_toggles }}</b><span>带干扰边沿：普通反相器翻转次数</span></div>
+          <div class="kpi"><b class="ok">{{ T.noise.schmitt_toggles }}</b><span>施密特触发器翻转次数（一上一下）</span></div></div>
+        <div class="trgrid">
+          <div><h3>电路（6 管 + 输出反相器）</h3>
+            <svg viewBox="0 0 360 300" class="sch">
+              <g class="rail"><line x1="20" y1="20" x2="340" y2="20" /><text x="24" y="14">VDD</text><line x1="20" y1="280" x2="340" y2="280" /><text x="24" y="296">VSS</text></g>
+              <g class="dev">
+                <rect x="110" y="34" width="40" height="22" /><text x="155" y="49">MP1 {{ T.design.wp }}</text>
+                <rect x="110" y="78" width="40" height="22" /><text x="155" y="93">MP2 {{ T.design.wp }}</text>
+                <rect x="110" y="180" width="40" height="22" /><text x="155" y="195">MN2 {{ T.design.wn }}</text>
+                <rect x="110" y="224" width="40" height="22" /><text x="155" y="239">MN1 {{ T.design.wn }}</text>
+                <rect class="fb" x="40" y="62" width="40" height="22" /><text x="4" y="110" class="fbt">MP3 {{ T.design.wfp }}（反馈，接地）</text>
+                <rect class="fb" x="40" y="196" width="40" height="22" /><text x="4" y="176" class="fbt">MN3 {{ T.design.wfn }}（反馈，接 VDD）</text>
+                <rect x="250" y="120" width="44" height="40" /><text x="252" y="176">输出反相器</text>
+              </g>
+              <g class="wire"><line x1="130" y1="20" x2="130" y2="34" /><line x1="130" y1="56" x2="130" y2="78" /><line x1="130" y1="100" x2="130" y2="180" />
+                <line x1="130" y1="202" x2="130" y2="224" /><line x1="130" y1="246" x2="130" y2="280" /><line x1="80" y1="67" x2="130" y2="67" /><line x1="80" y1="213" x2="130" y2="213" />
+                <line x1="130" y1="140" x2="250" y2="140" /><line x1="294" y1="140" x2="340" y2="140" /></g>
+              <text x="134" y="72" class="nd">Y</text><text x="134" y="216" class="nd">X</text><text x="200" y="134" class="nd">OB</text><text x="310" y="134" class="nd">OUT</text>
+              <text x="136" y="168" class="nd">IN → 四只主管的栅</text>
+            </svg>
+            <p class="small muted">尺寸是沟道宽度 W（μm），长度都是 {{ T.l_um }} μm。反馈管 MN3 在输出为高时把 X 往上拉，要更高的输入才能拉下 OB——上门限被推高；MP3 对称地压低下门限。
+              反馈管越宽回差越大（右表），取回差 ≥ {{ T.target_hyst }} V 的最小一档：{{ T.design.k }} × 主管宽度。</p></div>
+          <div><h3>转移曲线（慢三角波输入：上升 / 下降）</h3>
+            <svg viewBox="0 0 360 260" class="plot">
+              <rect x="40" y="10" width="300" height="220" class="pbox" />
+              <line v-for="v in [0.45, 0.9, 1.35]" :key="'g' + v" :x1="px(v)" y1="10" :x2="px(v)" y2="230" class="grid" />
+              <polyline :points="pl(T.nominal.curve_inv)" class="cinv" /><polyline :points="pl(T.nominal.curve_up)" class="cup" /><polyline :points="pl(T.nominal.curve_dn)" class="cdn" />
+              <line :x1="px(T.nominal.vt_plus)" y1="10" :x2="px(T.nominal.vt_plus)" y2="230" class="mup" /><line :x1="px(T.nominal.vt_minus)" y1="10" :x2="px(T.nominal.vt_minus)" y2="230" class="mdn" />
+              <text :x="px(T.nominal.vt_plus) + 3" y="24" class="lup">VT+</text><text :x="px(T.nominal.vt_minus) - 26" y="24" class="ldn">VT−</text>
+              <text x="40" y="248" class="ax">0</text><text x="330" y="248" class="ax">1.8 V</text><text x="150" y="258" class="ax">输入电压</text><text x="2" y="16" class="ax">输出</text>
+            </svg>
+            <p class="small"><span class="sw up"></span> 输入上升 <span class="sw dn"></span> 输入下降 <span class="sw iv"></span> 普通反相器（反相，画的是它的输出）</p></div>
+        </div>
+        <h3>带干扰的慢边沿（上升、下降各 {{ T.noise.edge_us }} μs，干扰 ±{{ T.noise.noise_v }} V）</h3>
+        <svg viewBox="0 0 1000 250" preserveAspectRatio="none" class="wave tw">
+          <text x="4" y="20" class="wn">输入</text><polyline :points="tw(1, 10, 70)" class="tin" />
+          <text x="4" y="105" class="wn">普通反相器</text><polyline :points="tw(3, 95, 60)" class="tinv" />
+          <text x="4" y="185" class="wn">施密特</text><polyline :points="tw(2, 175, 60)" class="tsch" />
+        </svg>
+        <h3>反馈管宽度扫描（tt，27 °C）</h3>
+        <table class="tbl"><thead><tr><th>反馈管 = 主管 ×</th><th>MN3 / MP3 宽 μm</th><th>VT+</th><th>VT−</th><th>回差</th></tr></thead>
+          <tbody><tr v-for="r in T.sweep" :key="r.k" :class="{ pick: r.k === T.design.k }"><td>{{ r.k }}{{ r.k === T.design.k ? '（选用）' : '' }}</td><td class="mono">{{ r.wfn }} / {{ r.wfp }}</td>
+            <td class="mono">{{ fmt(r.vt_plus, 3) }}</td><td class="mono">{{ fmt(r.vt_minus, 3) }}</td><td class="mono">{{ fmt(r.hyst, 3) }}</td></tr></tbody></table>
+        <h3>工艺角与温度</h3>
+        <table class="tbl"><thead><tr><th>工艺角</th><th>温度</th><th>VT+</th><th>VT−</th><th>回差</th><th>上升延迟</th><th>下降延迟</th></tr></thead>
+          <tbody><tr v-for="c in T.corners" :key="c.corner + c.temp"><td>{{ CORNER[c.corner] || c.corner }}</td><td>{{ c.temp }} °C</td>
+            <td class="mono">{{ fmt(c.vt_plus, 3) }} V</td><td class="mono">{{ fmt(c.vt_minus, 3) }} V</td><td class="mono" :class="c.hyst > 0 ? '' : 'bad'">{{ fmt(c.hyst, 3) }} V</td>
+            <td class="mono">{{ c.tplh ?? '—' }} ps</td><td class="mono">{{ c.tphl ?? '—' }} ps</td></tr></tbody></table>
+        <p class="small muted">延迟：干净的阶跃输入，输出接 10 fF。这一级只做了晶体管级仿真，没做版图：芯片真正上片时输入引脚用 IO 单元（SKY130 的 GPIO 单元本身带施密特输入）。
+          数字部分（第 92 轮）在它后面还有同步器和数字滤波，两道防线。</p>
+      </template>
+      <p v-else class="muted">晶体管级结果还没生成。</p>
+    </section>
+
     <section v-if="d && tab === 'bench'" class="card">
       <p class="small">把芯片接到电机编码器上（{{ B.lines }} 线），用<b>逻辑分析仪</b>看：原始 A/B（带干扰毛刺）、芯片滤波后的 A/B、计数，以及最后 MCU 用 SPI 读计数的那一帧。芯片用的是与 RTL 逐拍一致的行为模型。</p>
       <div class="line">
@@ -144,7 +209,7 @@ import { bench } from '../lib/encif.js';
 
 const BASE = '/api/designs/wq-encif/';
 const TABS = [{ k: 'spec', label: '规格' }, { k: 'rtl', label: 'Verilog' }, { k: 'sim', label: '仿真' }, { k: 'syn', label: '综合' },
-  { k: 'lay', label: '版图' }, { k: 'chk', label: '检查' }, { k: 'bench', label: '接上编码器' }, { k: 'dl', label: '下载' }];
+  { k: 'lay', label: '版图' }, { k: 'chk', label: '检查' }, { k: 'tr', label: '晶体管级' }, { k: 'bench', label: '接上编码器' }, { k: 'dl', label: '下载' }];
 const REGNAME = { 0: 'ID', 1: 'CTRL', 2: 'STATUS', 3: 'COUNT', 4: 'INDEX' };
 const CHECKS = [
   { k: 'drc', name: '设计规则（DRC）', v: (l) => l.magic_drc_errors + (l.klayout_drc_errors != null ? ' / ' + l.klayout_drc_errors : ''), why: '线宽、间距、包围这些工艺规则（Magic 与 KLayout 各查一遍）：不满足就造不出来' },
@@ -169,6 +234,21 @@ const B = reactive({ rpm: 3000, dir: 1, flen: 3, glitch: 0.04, gmax: 3, lines: 1
 const bres = ref(null);
 const bclean = ref(null);
 const bwin = ref('spi');
+const T = ref(null);
+const CORNER = { tt: '典型 tt', ss: '慢 ss', ff: '快 ff', sf: '慢 N 快 P sf', fs: '快 N 慢 P fs' };
+const px = (v) => 40 + (300 * v) / 1.8;
+const py = (v) => 230 - (220 * v) / 1.8;
+function pl(c) { return (c || []).map((p) => px(p[0]) + ',' + py(p[1])).join(' '); }
+function tw(col, y0, h) {
+  const w = T.value?.noise.wave || []; if (!w.length) return '';
+  const t1 = w[w.length - 1][0];
+  return w.map((r) => (90 + (900 * r[0]) / t1).toFixed(1) + ',' + (y0 + h - (h * Math.max(-0.4, Math.min(2.2, r[col])) + 0.4 * h) / 2.6).toFixed(1)).join(' ');
+}
+async function loadT() {
+  if (T.value || !d.value?.transistor) return;
+  T.value = await (await fetch(url(d.value.transistor.file))).json();
+}
+watch(tab, (k) => { if (k === 'tr') loadT(); });
 
 const url = (p) => BASE + p;
 const L = computed(() => d.value?.layout || null);
@@ -254,6 +334,7 @@ onMounted(async () => {
     if (!r.ok) throw new Error('读不到芯片设计产物（' + r.status + '）');
     d.value = await r.json();
     if (d.value.sim?.cases?.length) loadWave(d.value.sim.cases[0].wave);
+    if (tab.value === 'tr') loadT();
     runBench();
   } catch (e) { err.value = e.message || String(e); }
 });
@@ -288,6 +369,17 @@ onMounted(async () => {
 .chip { border: 1px solid #ccd; background: #fff; border-radius: 14px; padding: 3px 10px; cursor: pointer; font-size: 13px; }
 .chip.on { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
 .ok { color: #15803d; } .bad { color: #b91c1c; }
+.trgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.sch, .plot { width: 100%; max-width: 420px; background: #fff; border: 1px solid #e3e6ee; border-radius: 8px; }
+.sch .rail line { stroke: #334155; stroke-width: 2; } .sch text { font-size: 10px; fill: #334155; }
+.sch .dev rect { fill: #e0e7ff; stroke: #4338ca; } .sch .dev rect.fb { fill: #fef3c7; stroke: #b45309; } .sch .fbt { fill: #b45309; }
+.sch .wire line { stroke: #475569; stroke-width: 1.2; } .sch .nd { fill: #1d4ed8; font-weight: 600; }
+.plot .pbox { fill: none; stroke: #cbd5e1; } .plot .grid { stroke: #eef2f7; } .plot .ax { font-size: 10px; fill: #64748b; }
+.plot polyline { fill: none; stroke-width: 2; } .cup { stroke: #2563eb; } .cdn { stroke: #ea580c; } .cinv { stroke: #94a3b8; stroke-dasharray: 4 3; }
+.mup { stroke: #2563eb; stroke-dasharray: 2 2; } .mdn { stroke: #ea580c; stroke-dasharray: 2 2; } .lup { fill: #2563eb; font-size: 10px; } .ldn { fill: #ea580c; font-size: 10px; }
+.sw { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin: 0 4px 0 10px; } .sw.up { background: #2563eb; } .sw.dn { background: #ea580c; } .sw.iv { background: #94a3b8; }
+.tw polyline { fill: none; stroke-width: 1; vector-effect: non-scaling-stroke; } .tin { stroke: #93c5fd; } .tinv { stroke: #f87171; } .tsch { stroke: #4ade80; }
+tr.pick td { background: #eff6ff; font-weight: 600; }
 .dl li { margin: 6px 0; }
 .btn.sm { padding: 1px 8px; font-size: 12px; } .btn.on { background: #1d4ed8; color: #fff; }
 </style>

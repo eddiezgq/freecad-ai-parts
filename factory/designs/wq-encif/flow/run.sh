@@ -29,5 +29,9 @@ cp "$R"/final/metrics.json "$OUT/layout/metrics.json"
 LYP=$(ls "${PDK_ROOT:-/foss/pdks}"/sky130A/libs.tech/klayout/tech/*.lyp 2>/dev/null | head -1)
 python3 -c "import klayout.lay" 2>/dev/null || pip install -q --user klayout > /dev/null 2>&1
 python3 "$W/flow/render.py" "$OUT/layout/wq_encif.gds" "$LYP" "$OUT/layout" > /dev/null || { echo "::error::版图图片没出来"; crc=3; }
-echo "rc=$rc collect=$crc"
-[ $rc = 0 ] && [ $crc = 0 ]
+# 第 93 轮：输入端施密特触发器的晶体管级仿真（ngspice + SKY130 模型）
+LIBSP=$(ls "${PDK_ROOT:-/foss/pdks}"/sky130A/libs.tech/combined/sky130.lib.spice "${PDK_ROOT:-/foss/pdks}"/sky130A/libs.tech/ngspice/sky130.lib.spice 2>/dev/null | head -1)
+mkdir -p "$OUT/transistor"
+python3 "$W/flow/schmitt.py" --lib "$LIBSP" --out "$OUT/transistor"; src=$?
+echo "rc=$rc collect=$crc schmitt=$src"
+[ $rc = 0 ] && [ $crc = 0 ] && [ $src = 0 ]
