@@ -21,6 +21,8 @@ outreach:
     status: sent
     drafted: 2026-10-05
     sent: 2026-10-05
+    followed_up: 2026-11-06
+    note: 2026-11-06 项目负责人本人在原线程回复（告知国内站 wenquestech.online 上线、请注册试用），非本任务所发；截至 2026-11-07 对方未回信
   - vendor: 深圳市雷赛智能控制股份有限公司 (Leadshine)
     email: marketing@leisai.com
     email_source: https://www.leisai.com/category/contact.html
