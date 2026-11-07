@@ -2,6 +2,7 @@
 //   WqTim1Motor：TIM1 子集（三相中心对齐 PWM）+ 逆变桥平均模型 + 三相永磁同步电机 d/q 模型 + 减速器 + 摆臂负载
 //   WqAdc1    ：ADC1 注入组子集（TIM1 更新时刻采三相电流和母线电压，INA240 40 mV/A、零点 1.65 V；分压 6.8/108.8）
 //   WqSsiEncoder：输出端绝对值编码器（SSI，挂在 SPI3；第 107 轮）：17 位单圈，从电机模型取输出轴角度（含注入的“减速器打滑”）
+//   WqTim4Brake：TIM4 子集（CH1 PWM，第 110 轮）+ 抱闸线圈：占空比 × 母线 = 线圈平均电压，电流一阶滞后；吸合 / 释放带回差；抱住时给电机轴摩擦力矩
 //   WqFdcan1  ：FDCAN1 子集（经典 CAN；消息 RAM 按 G4 布局：Rx FIFO0 0xB0 起、Tx 缓冲 0x278 起，每个元素 18 字）+ 仿真 CAN 主站
 // 寄存器地址、偏移、位、中断号对照 ST 官方 CMSIS 头文件 stm32g431xx.h 与 HAL stm32g4xx_hal_fdcan.c 核对（见 test_drv_b_motor.py）。
 // 电机参数：力矩常数 0.15 N·m/A、额定 1.27 N·m 取第 88 轮示例电机；减速比 100 取零件库 Harmonic Drive CSF-17-100；
@@ -34,6 +35,10 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
         public const double Dead = 200e-9;           // 死区 s（第 88 轮：约 200 ns）
         public const double G = 9.80665;
         public const double Rshort = 0.02, Lshort = 2e-6;   // 注入的 A–B 相间短路（示例）
+        // 第 110 轮：抱闸（失电制动，装在电机轴上；示例）——线圈 24 V、0.42 A，时间常数 25 ms；吸合 ≥ 70%、释放 ≤ 30% 额定电流；
+        // 抱住时静摩擦 2.0 N·m、打滑后动摩擦 1.6 N·m（电机侧）
+        public const double BrkV = 24.0, BrkI = 0.42, BrkTau = 0.025, BrkTs = 2.0, BrkTk = 1.6;
+        public const double BrkR = BrkV / BrkI, BrkL = BrkTau * BrkR;
 
         public WqTim1Motor(IMachine machine)
         {
@@ -46,6 +51,7 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
         public long Size => 0x400;
         public GPIO IRQ { get; } = new GPIO();      // TIM1_UP（中断 25），本固件不用
         public WqAdc1 Adc { get; set; }
+        public WqTim4Brake Brake { get; set; }      // 第 110 轮：没挂抱闸时当一直松开
 
         // ---------------------------------------------------------------- 监视器命令
         public void LockRotor(bool v) { Advance(); locked = v; if(v) w = 0; }
@@ -55,6 +61,8 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
         public void StartJoint(double deg) { th = deg / 180 * Math.PI * N; }
         // 第 107 轮：减速器打滑——输出轴相对电机轴突然错开 deg 度（输出端编码器看得到，电机侧编码器看不到）
         public void Slip(double deg) { Advance(); slip += deg / 180 * Math.PI; }
+        // 第 110 轮：抱闸线圈断线（线圈电流恒为 0 → 一直抱着）
+        public void BrakeBroken(bool v) { Advance(); brkBroken = v; }
 
         // 输出轴角度（rad，含打滑）：给输出端绝对值编码器
         public double OutputAngle(double t)
@@ -65,10 +73,12 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
         {
             Advance();
             var ia = Ia(); var ib = Ib();
-            // 时刻 s、id A、iq A、电机转速 rpm、关节角 °、ia、ib、MOE、母线 V、电机轴计数、最近一次关管时刻、电角度 °、∫iq dt（A·s）
-            return string.Format(CultureInfo.InvariantCulture, "M {0:F6} {1:F5} {2:F5} {3:F4} {4:F6} {5:F4} {6:F4} {7} {8:F4} {9:F2} {10:F7} {11:F3} {12:F9}",
+            // 时刻 s、id A、iq A、电机转速 rpm、关节角 °、ia、ib、MOE、母线 V、电机轴计数、最近一次关管时刻、电角度 °、∫iq dt（A·s）、
+            // 抱闸线圈电流 A、抱闸松开（1）/ 抱住（0）（第 110 轮）
+            return string.Format(CultureInfo.InvariantCulture, "M {0:F6} {1:F5} {2:F5} {3:F4} {4:F6} {5:F4} {6:F4} {7} {8:F4} {9:F2} {10:F7} {11:F3} {12:F9} {13:F4} {14}",
                 Now(), id, iq, w * 60 / (2 * Math.PI), (th / N + slip) * 180 / Math.PI, ia, ib, moe ? 1 : 0, vbus,
-                th / (2 * Math.PI) * 10000.0, offTime, ((P * th) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) * 180 / Math.PI, iqInt);
+                th / (2 * Math.PI) * 10000.0, offTime, ((P * th) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) * 180 / Math.PI, iqInt,
+                brkI, brkOpen ? 1 : 0);
         }
 
         // 编码器（WQ-ENCIF 经反射取）：电机轴走过的计数，2500 线 ×4
@@ -134,11 +144,13 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
             ccrP = new uint[3]; ccrA = new uint[3];
             moe = false; locked = false; shortOn = false;
             id = iq = w = th = isc = iqInt = slip = 0; extra = 0; vbus = Vbus0;
+            brkI = 0; brkOpen = false; brkBroken = false;      // 上电：线圈没电，抱着
             tLast = 0; offTime = -1;
             pwm.Enabled = false;
         }
 
         public double MoeOffTime => offTime;
+        public void Sync() { Advance(); }           // 第 110 轮：抱闸占空比变化前先把物理积分到现在
 
         // ---------------------------------------------------------------- PWM 与更新事件
         // 中心对齐、RCR = 1：每个 PWM 周期一次更新事件，周期 = ARR·(PSC+1)·(RCR+1) / 170 MHz
@@ -222,8 +234,28 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
             double tg = (Mass + extra) * G * Arm * Math.Sin(thJ) / N;
             double jl = Jm + (Mass + extra) * Arm * Arm / (N * N);
             double tf = Bv * w + Tc * Math.Tanh(w / 0.5);
+            // 第 110 轮：抱闸线圈（平均模型：PWM 占空比 × 母线 = 线圈平均电压；撤电后经续流二极管按时间常数衰减）
+            double dutyB = Brake == null ? -1 : Brake.Duty();
+            if(dutyB < 0) { brkOpen = true; }
+            else
+            {
+                brkI += (dutyB * vbus - BrkR * brkI) / BrkL * h;
+                if(brkI < 0 || brkBroken) brkI = 0;
+                if(!brkOpen && brkI >= 0.7 * BrkI) brkOpen = true;
+                else if(brkOpen && brkI <= 0.3 * BrkI) brkOpen = false;
+            }
             if(locked) { w = 0; return; }
-            w += (teM - tg - tf) / jl * h;
+            double tnet = teM - tg - tf;
+            if(!brkOpen)
+            {
+                if(Math.Abs(w) < 1e-6 && Math.Abs(tnet) <= BrkTs) { w = 0; return; }   // 静摩擦：抱住不动
+                double w2 = w + (tnet - BrkTk * Math.Sign(w)) / jl * h;            // 打滑：动摩擦减速
+                if(w != 0 && Math.Sign(w2) != Math.Sign(w)) { w = 0; return; }
+                w = w2;
+                th += w * h;
+                return;
+            }
+            w += tnet / jl * h;
             th += w * h;
         }
 
@@ -236,7 +268,63 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
         private uint cr1, cr2, dier, sr, ccmr1, ccmr2, ccer, psc, arr, rcr, bdtr;
         private uint[] ccrP, ccrA;
         private bool moe, locked, shortOn;
-        private double id, iq, w, th, isc, extra, vbus, tLast, offTime, iqInt, slip;
+        private double id, iq, w, th, isc, extra, vbus, tLast, offTime, iqInt, slip, brkI;
+        private bool brkOpen, brkBroken;
+    }
+
+    // ==================================================================== TIM4（抱闸 PWM，第 110 轮）
+    // 只做 CH1 PWM 模式 1 向上计数：占空比 = CCR1 / (ARR + 1)（CCR1 > ARR 时恒高）；CEN、CC1E、OC1M 不对时输出低（线圈没电）。
+    // 偏移、位对照 ST 官方 CMSIS 头文件（TIM_TypeDef；OC1M 位 6:4 + 位 16，CC1E 位 0，CEN 位 0）。20 kHz 的开关纹波不模拟（线圈时间常数 25 ms）。
+    public class WqTim4Brake : IDoubleWordPeripheral, IKnownSize
+    {
+        public WqTim4Brake(IMachine machine, WqTim1Motor motor)
+        {
+            this.motor = motor;
+            motor.Brake = this;
+            Reset();
+        }
+
+        public long Size => 0x400;
+
+        public double Duty()
+        {
+            uint oc1m = ((ccmr1 >> 4) & 7) | (((ccmr1 >> 16) & 1) << 3);
+            if((cr1 & 1) == 0 || (ccer & 1) == 0 || oc1m != 6) return 0;
+            return Math.Min(1.0, (double)ccr1 / (arr + 1.0));
+        }
+
+        public uint ReadDoubleWord(long off)
+        {
+            switch(off)
+            {
+            case 0x00: return cr1;
+            case 0x18: return ccmr1;
+            case 0x20: return ccer;
+            case 0x28: return psc;
+            case 0x2C: return arr;
+            case 0x34: return ccr1;
+            default: return 0;
+            }
+        }
+
+        public void WriteDoubleWord(long off, uint v)
+        {
+            motor.Sync();
+            switch(off)
+            {
+            case 0x00: cr1 = v; break;
+            case 0x18: ccmr1 = v; break;
+            case 0x20: ccer = v; break;
+            case 0x28: psc = v & 0xFFFF; break;
+            case 0x2C: arr = v & 0xFFFF; break;
+            case 0x34: ccr1 = v & 0xFFFF; break;
+            }
+        }
+
+        public void Reset() { cr1 = ccmr1 = ccer = psc = ccr1 = 0; arr = 0xFFFF; }
+
+        private readonly WqTim1Motor motor;
+        private uint cr1, ccmr1, ccer, psc, arr, ccr1;
     }
 
     // ==================================================================== ADC1 注入组

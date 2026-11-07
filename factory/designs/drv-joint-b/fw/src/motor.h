@@ -1,4 +1,4 @@
-/* 电机控制（第 102 轮）：磁场定向控制 FOC，电流环 20 kHz、速度环 2 kHz、位置环 1 kHz。 */
+/* 电机控制（第 102 轮）：磁场定向控制 FOC，电流环 20 kHz、速度环 2 kHz、位置环 1 kHz。第 110 轮加抱闸时序。 */
 #ifndef MOTOR_H
 #define MOTOR_H
 #include <stdint.h>
@@ -47,6 +47,10 @@ typedef struct {
     uint32_t ssi_bad;        /* 连续读坏的帧数 */
     uint32_t hold;           /* 受控停车中（输出开着，按轨迹减速后保持） */
     uint32_t hold_keep;      /* 停住后继续保持（1）还是关输出（0） */
+    /* 第 110 轮：抱闸 */
+    uint32_t brake_cmd;      /* 抱闸指令：1 松闸、0 抱闸 */
+    uint32_t brake_ok;       /* 指令状态已到位（松开或抱住的时间已过） */
+    uint32_t pend;           /* 运动指令在等松闸 */
 } mc_t;
 
 extern volatile mc_t mc;
@@ -62,5 +66,7 @@ void motor_quickstop(uint32_t code, float val, int keep);   /* 受控停车：�
 void motor_resume_hold(void);                               /* 清故障：从保持接着运行（位置模式，目标 = 当前） */
 void motor_set_home(int32_t abs_mdeg);                      /* 回原点：当前电机计数对应输出端编码器的角度 */
 int32_t motor_joint_mdeg(int32_t cnt);                      /* 电机计数 → 关节角 0.001°（按原点） */
+void motor_hold_here(void);                                 /* 第 110 轮：开输出、位置环停在当前位置、松闸（运动指令前） */
+void motor_park(void);                                      /* 第 110 轮：“停”指令：减速停住 → 抱闸 → 抱住后关输出，回就绪 */
 
 #endif

@@ -4,33 +4,40 @@
   70.0
  ],
  "bom_by_item": {
-  "CAP-0402": 35,
+  "CAP-0402": 36,
   "CAP-1206": 7,
   "CAP-BULK": 1,
   "CONN-PWR": 2,
-  "CONN-SIG": 3,
+  "CONN-SIG": 4,
   "DIO-SMD": 4,
+  "DIO-SMD-100": 1,
   "IC-AMP": 3,
   "IC-BUCK": 1,
   "IC-CAN": 1,
   "IC-ENCIF": 1,
   "IC-GDRV": 3,
+  "IC-GDRV-LS": 1,
   "IC-LDO": 2,
   "IC-LDO18": 1,
   "IC-MCU-MC": 1,
   "IC-RS485": 2,
   "IND-PWR": 1,
-  "MOS-80V": 6,
+  "MOS-80V": 7,
   "OSC-50M": 1,
-  "RES-0402": 18,
+  "RES-0402": 21,
   "RES-SHUNT": 3,
   "XTAL": 1
  },
  "bom_delta": {
-  "CAP-0402": 5,
+  "CAP-0402": 6,
+  "CONN-SIG": 1,
+  "DIO-SMD-100": 1,
   "IC-ENCIF": 1,
+  "IC-GDRV-LS": 1,
   "IC-LDO18": 1,
-  "OSC-50M": 1
+  "MOS-80V": 1,
+  "OSC-50M": 1,
+  "RES-0402": 3
  },
  "changes": [
   {
@@ -56,6 +63,10 @@
   {
    "ref": "U10",
    "what": "引脚 17：未用 → ENC_RST_N"
+  },
+  {
+   "ref": "U10",
+   "what": "引脚 43：未用 → BRK_PWM"
   },
   {
    "ref": "U14",
@@ -88,6 +99,42 @@
   {
    "ref": "C61",
    "what": "新增：Y2 去耦"
+  },
+  {
+   "ref": "U16",
+   "what": "新增：抱闸栅极驱动（示例选型，第 110 轮）：12 V 供电，输入兼容 3.3 V"
+  },
+  {
+   "ref": "Q7",
+   "what": "新增：抱闸低边开关（同三相桥的 MOSFET）：PWM 20 kHz，松闸先 100% 50 ms，再保持平均 24 V（示例）"
+  },
+  {
+   "ref": "D5",
+   "what": "新增：抱闸线圈续流"
+  },
+  {
+   "ref": "R36",
+   "what": "新增：抱闸 MOSFET 栅极电阻"
+  },
+  {
+   "ref": "R37",
+   "what": "新增：栅源下拉：驱动没电时 MOSFET 关断"
+  },
+  {
+   "ref": "R38",
+   "what": "新增：抱闸输入下拉：MCU 复位、没输出时线圈断电 → 抱住（失效安全）"
+  },
+  {
+   "ref": "C62",
+   "what": "新增：U16 去耦"
+  },
+  {
+   "ref": "J6",
+   "what": "新增：抱闸线圈（失电制动，24 V 0.42 A，示例）：1 = 母线 +、2 = 线圈 −"
+  },
+  {
+   "ref": "铺铜",
+   "what": "新增 VBUS 铺铜（F.Cu）"
   }
  ],
  "date": "2026-11-05",
@@ -99,35 +146,36 @@
  "drc": {
   "errors": 0,
   "unconnected": 0,
-  "warnings": 86
+  "warnings": 95
  },
  "files": {
-  "bom.csv": "9a697a0449f9250f",
-  "dfm.json": "2d8cc2637d99982c",
-  "drc.json": "2aa3858e0e23e608",
-  "gerber.zip": "f463764be2a345ed",
-  "kicad-project.zip": "4fd7d0779dc40d91",
-  "pcb/B_Cu.svg": "aafe3da41c0e2601",
-  "pcb/B_Silk.svg": "242d5b63995edf3d",
-  "pcb/F_Cu.svg": "af80ffa50f4a0cc0",
-  "pcb/F_Silk.svg": "e6223699393e518e",
-  "pcb/In1_Cu.svg": "a7c37fe8ce4bea61",
-  "pcb/In2_Cu.svg": "a58eb56eb3601e89",
-  "pos.csv": "844f4a24104f3f53",
-  "schematic/drv-joint-b-1 48 V 输入与母线.svg": "610f0e078323bcde",
+  "bom.csv": "c8eaabb57a880c1a",
+  "dfm.json": "9961ae573b0af989",
+  "drc.json": "30935f38649a0b8d",
+  "gerber.zip": "a409c867ba8f590d",
+  "kicad-project.zip": "a06bed6439a76b65",
+  "pcb/B_Cu.svg": "a2e5152e761ebe46",
+  "pcb/B_Silk.svg": "af30add859f5f2b5",
+  "pcb/F_Cu.svg": "d9ddab8bc6fc8c73",
+  "pcb/F_Silk.svg": "3cc783d041bcd412",
+  "pcb/In1_Cu.svg": "862e168f446fbfa3",
+  "pcb/In2_Cu.svg": "c56b2fa5a007e7f7",
+  "pos.csv": "a00c16de3cbd3180",
+  "schematic/drv-joint-b-1 48 V 输入与母线.svg": "5a361245ddbae527",
   "schematic/drv-joint-b-2 辅助电源 12 _ 5 _ 3.3 V.svg": "9327382841555faa",
   "schematic/drv-joint-b-3 三相桥.svg": "019ead73e323a86d",
   "schematic/drv-joint-b-4 栅极驱动.svg": "468494d00c600e91",
   "schematic/drv-joint-b-5 相电流采样与电机输出.svg": "74f535bd42656ba9",
-  "schematic/drv-joint-b-6 MCU 与烧录口.svg": "d35268a03e15603a",
-  "schematic/drv-joint-b-7 编码器接口与 CAN.svg": "6acad8de93a42784",
-  "schematic/drv-joint-b.svg": "7a3237e5881a14f7"
+  "schematic/drv-joint-b-6 MCU 与烧录口.svg": "4b8b82a4750172b8",
+  "schematic/drv-joint-b-7 编码器接口与 CAN.svg": "11ae67ed57a54a2a",
+  "schematic/drv-joint-b.svg": "221d86f9d627c0ef"
  },
  "firmware": [
   "SPI1：PA4 NSS / PA5 SCK / PA6 MISO / PA7 MOSI（AF5），模式 0，≤ 5 MHz（芯片要求 SCLK ≤ 时钟 / 10）",
   "SSI：PB3 / PB4 改用 SPI3（AF6），引脚不变",
   "PB1 推挽输出，接芯片复位（低有效）；TIM3 编码器模式不再用",
-  "上电：拉低复位 ≥ 4 个芯片时钟后放开，读 ID（地址 0x00）应为 0x454E4331，再写 CTRL 设滤波长度"
+  "上电：拉低复位 ≥ 4 个芯片时钟后放开，读 ID（地址 0x00）应为 0x454E4331，再写 CTRL 设滤波长度",
+  "抱闸（第 110 轮）：PB6 = TIM4_CH1（AF2）PWM 20 kHz；松闸先 100% 50 ms，再保持占空比 = 24 V ÷ 母线电压；不输出 = 抱住"
  ],
  "item": "DRV-JOINT",
  "layers": 4,
@@ -161,12 +209,21 @@
    "a": null,
    "b": "ENC_RST_N",
    "pin": "17"
+  },
+  {
+   "a": null,
+   "b": "BRK_PWM",
+   "pin": "43"
   }
  ],
  "name": "关节伺服驱动板 DRV-JOINT",
- "nets": 80,
+ "nets": 84,
  "nets_added": [
   "+1V8",
+  "BRK_G",
+  "BRK_GD",
+  "BRK_N",
+  "BRK_PWM",
   "ENC_CLK",
   "ENC_CS_N",
   "ENC_MISO",
@@ -1145,7 +1202,7 @@
    "fp": "Package_QFP:LQFP-48_7x7mm_P0.5mm",
    "item": "IC-MCU-MC",
    "lib": "MCU_ST_STM32G4:STM32G431CBTx",
-   "note": "电机控制 MCU（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线、SPI1 读编码器接口芯片 U14、SPI3 读 SSI、FDCAN1",
+   "note": "电机控制 MCU（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线、SPI1 读编码器接口芯片 U14、SPI3 读 SSI、TIM4_CH1（PB6）抱闸 PWM、FDCAN1",
    "ref": "U10",
    "sheet": "mcu",
    "side": "F",
@@ -1744,6 +1801,118 @@
    ]
   },
   {
+   "fp": "Package_TO_SOT_SMD:SOT-23-6",
+   "item": "IC-GDRV-LS",
+   "lib": "Driver_FET:UCC27511ADBV",
+   "note": "抱闸栅极驱动（示例选型，第 110 轮）：12 V 供电，输入兼容 3.3 V",
+   "ref": "U16",
+   "sheet": "power",
+   "side": "F",
+   "value": "UCC27511ADBV",
+   "xy": [
+    86,
+    35.5
+   ]
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:TDSON-8-1",
+   "item": "MOS-80V",
+   "lib": "Transistor_FET:BSC040N08NS5",
+   "note": "抱闸低边开关（同三相桥的 MOSFET）：PWM 20 kHz，松闸先 100% 50 ms，再保持平均 24 V（示例）",
+   "ref": "Q7",
+   "sheet": "power",
+   "side": "F",
+   "value": "BSC040N08NS5",
+   "xy": [
+    86.5,
+    25
+   ]
+  },
+  {
+   "fp": "Diode_SMD:D_SMA",
+   "item": "DIO-SMD-100",
+   "lib": "Device:D_Schottky",
+   "note": "抱闸线圈续流",
+   "ref": "D5",
+   "sheet": "power",
+   "side": "F",
+   "value": "100V 1A",
+   "xy": [
+    84.5,
+    12.0
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "抱闸 MOSFET 栅极电阻",
+   "ref": "R36",
+   "sheet": "power",
+   "side": "F",
+   "value": "10",
+   "xy": [
+    82,
+    35.5
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "栅源下拉：驱动没电时 MOSFET 关断",
+   "ref": "R37",
+   "sheet": "power",
+   "side": "F",
+   "value": "10k",
+   "xy": [
+    81.5,
+    25
+   ]
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "抱闸输入下拉：MCU 复位、没输出时线圈断电 → 抱住（失效安全）",
+   "ref": "R38",
+   "sheet": "power",
+   "side": "F",
+   "value": "100k",
+   "xy": [
+    86,
+    38.5
+   ]
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "U16 去耦",
+   "ref": "C62",
+   "sheet": "power",
+   "side": "F",
+   "value": "1u",
+   "xy": [
+    89.5,
+    35.5
+   ]
+  },
+  {
+   "fp": "Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical",
+   "item": "CONN-SIG",
+   "lib": "Connector_Generic:Conn_01x02",
+   "note": "抱闸线圈（失电制动，24 V 0.42 A，示例）：1 = 母线 +、2 = 线圈 −",
+   "ref": "J6",
+   "sheet": "power",
+   "side": "F",
+   "value": "BRAKE",
+   "xy": [
+    82.5,
+    5
+   ]
+  },
+  {
    "fp": "TestPoint:TestPoint_Pad_D1.0mm",
    "item": null,
    "lib": "Connector:TestPoint",
@@ -1793,7 +1962,7 @@
    "ref": "TP13",
    "sheet": "mcu",
    "side": "B",
-   "value": "CAN_RXD",
+   "value": "BRK_G",
    "xy": [
     30.4,
     41.0
@@ -1807,7 +1976,7 @@
    "ref": "TP14",
    "sheet": "mcu",
    "side": "B",
-   "value": "CAN_TXD",
+   "value": "BRK_GD",
    "xy": [
     33.2,
     41.0
@@ -1819,9 +1988,9 @@
    "lib": "Connector:TestPoint",
    "note": "ICT 测试点",
    "ref": "TP15",
-   "sheet": "power",
+   "sheet": "mcu",
    "side": "B",
-   "value": "EN12",
+   "value": "BRK_PWM",
    "xy": [
     36.0,
     41.0
@@ -1835,7 +2004,7 @@
    "ref": "TP16",
    "sheet": "mcu",
    "side": "B",
-   "value": "ENC_A_F",
+   "value": "CAN_RXD",
    "xy": [
     38.8,
     41.0
@@ -1849,7 +2018,7 @@
    "ref": "TP17",
    "sheet": "mcu",
    "side": "B",
-   "value": "ENC_B_F",
+   "value": "CAN_TXD",
    "xy": [
     41.6,
     41.0
@@ -1861,9 +2030,9 @@
    "lib": "Connector:TestPoint",
    "note": "ICT 测试点",
    "ref": "TP18",
-   "sheet": "mcu",
+   "sheet": "power",
    "side": "B",
-   "value": "ENC_CLK",
+   "value": "EN12",
    "xy": [
     44.4,
     41.0
@@ -1877,7 +2046,7 @@
    "ref": "TP19",
    "sheet": "mcu",
    "side": "B",
-   "value": "ENC_CS_N",
+   "value": "ENC_A_F",
    "xy": [
     47.2,
     41.0
@@ -1891,7 +2060,7 @@
    "ref": "TP20",
    "sheet": "mcu",
    "side": "B",
-   "value": "ENC_MISO",
+   "value": "ENC_B_F",
    "xy": [
     50.0,
     41.0
@@ -1905,7 +2074,7 @@
    "ref": "TP21",
    "sheet": "mcu",
    "side": "B",
-   "value": "ENC_MOSI",
+   "value": "ENC_CLK",
    "xy": [
     52.8,
     41.0
@@ -1919,7 +2088,7 @@
    "ref": "TP22",
    "sheet": "mcu",
    "side": "B",
-   "value": "ENC_RST_N",
+   "value": "ENC_CS_N",
    "xy": [
     55.6,
     41.0
@@ -1933,7 +2102,7 @@
    "ref": "TP23",
    "sheet": "mcu",
    "side": "B",
-   "value": "ENC_SCK",
+   "value": "ENC_MISO",
    "xy": [
     58.4,
     41.0
@@ -1947,7 +2116,7 @@
    "ref": "TP24",
    "sheet": "mcu",
    "side": "B",
-   "value": "ENC_Z_F",
+   "value": "ENC_MOSI",
    "xy": [
     61.2,
     41.0
@@ -1959,9 +2128,9 @@
    "lib": "Connector:TestPoint",
    "note": "ICT 测试点",
    "ref": "TP25",
-   "sheet": "power",
+   "sheet": "mcu",
    "side": "B",
-   "value": "FB12",
+   "value": "ENC_RST_N",
    "xy": [
     64.0,
     41.0
@@ -1975,7 +2144,7 @@
    "ref": "TP26",
    "sheet": "mcu",
    "side": "B",
-   "value": "GH_A",
+   "value": "ENC_SCK",
    "xy": [
     66.8,
     41.0
@@ -1989,7 +2158,7 @@
    "ref": "TP27",
    "sheet": "mcu",
    "side": "B",
-   "value": "GH_B",
+   "value": "ENC_Z_F",
    "xy": [
     69.6,
     41.0
@@ -2001,9 +2170,9 @@
    "lib": "Connector:TestPoint",
    "note": "ICT 测试点",
    "ref": "TP28",
-   "sheet": "mcu",
+   "sheet": "power",
    "side": "B",
-   "value": "GH_C",
+   "value": "FB12",
    "xy": [
     72.4,
     41.0
@@ -2017,7 +2186,7 @@
    "ref": "TP29",
    "sheet": "mcu",
    "side": "B",
-   "value": "GL_A",
+   "value": "GH_A",
    "xy": [
     75.2,
     41.0
@@ -2031,7 +2200,7 @@
    "ref": "TP30",
    "sheet": "mcu",
    "side": "B",
-   "value": "GL_B",
+   "value": "GH_B",
    "xy": [
     78.0,
     41.0
@@ -2045,7 +2214,7 @@
    "ref": "TP31",
    "sheet": "mcu",
    "side": "B",
-   "value": "GL_C",
+   "value": "GH_C",
    "xy": [
     80.8,
     41.0
@@ -2059,7 +2228,7 @@
    "ref": "TP32",
    "sheet": "mcu",
    "side": "B",
-   "value": "HO_A",
+   "value": "GL_A",
    "xy": [
     83.6,
     41.0
@@ -2073,7 +2242,7 @@
    "ref": "TP33",
    "sheet": "mcu",
    "side": "B",
-   "value": "HO_B",
+   "value": "GL_B",
    "xy": [
     86.4,
     41.0
@@ -2087,7 +2256,7 @@
    "ref": "TP34",
    "sheet": "mcu",
    "side": "B",
-   "value": "HO_C",
+   "value": "GL_C",
    "xy": [
     89.2,
     41.0
@@ -2101,7 +2270,7 @@
    "ref": "TP35",
    "sheet": "mcu",
    "side": "B",
-   "value": "ISNS_A",
+   "value": "HO_A",
    "xy": [
     8.0,
     44.5
@@ -2115,7 +2284,7 @@
    "ref": "TP36",
    "sheet": "mcu",
    "side": "B",
-   "value": "ISNS_B",
+   "value": "HO_B",
    "xy": [
     10.8,
     44.5
@@ -2129,7 +2298,7 @@
    "ref": "TP37",
    "sheet": "mcu",
    "side": "B",
-   "value": "ISNS_C",
+   "value": "HO_C",
    "xy": [
     13.6,
     44.5
@@ -2143,7 +2312,7 @@
    "ref": "TP38",
    "sheet": "mcu",
    "side": "B",
-   "value": "LO_A",
+   "value": "ISNS_A",
    "xy": [
     16.4,
     44.5
@@ -2157,7 +2326,7 @@
    "ref": "TP39",
    "sheet": "mcu",
    "side": "B",
-   "value": "LO_B",
+   "value": "ISNS_B",
    "xy": [
     19.2,
     44.5
@@ -2171,7 +2340,7 @@
    "ref": "TP40",
    "sheet": "mcu",
    "side": "B",
-   "value": "LO_C",
+   "value": "ISNS_C",
    "xy": [
     22.0,
     44.5
@@ -2185,7 +2354,7 @@
    "ref": "TP41",
    "sheet": "mcu",
    "side": "B",
-   "value": "OSC_IN",
+   "value": "LO_A",
    "xy": [
     24.8,
     44.5
@@ -2199,7 +2368,7 @@
    "ref": "TP42",
    "sheet": "mcu",
    "side": "B",
-   "value": "OSC_OUT",
+   "value": "LO_B",
    "xy": [
     27.6,
     44.5
@@ -2213,7 +2382,7 @@
    "ref": "TP43",
    "sheet": "mcu",
    "side": "B",
-   "value": "PWM_AH",
+   "value": "LO_C",
    "xy": [
     30.4,
     44.5
@@ -2227,7 +2396,7 @@
    "ref": "TP44",
    "sheet": "mcu",
    "side": "B",
-   "value": "PWM_AL",
+   "value": "OSC_IN",
    "xy": [
     33.2,
     44.5
@@ -2241,7 +2410,7 @@
    "ref": "TP45",
    "sheet": "mcu",
    "side": "B",
-   "value": "PWM_BH",
+   "value": "OSC_OUT",
    "xy": [
     36.0,
     44.5
@@ -2255,7 +2424,7 @@
    "ref": "TP46",
    "sheet": "mcu",
    "side": "B",
-   "value": "PWM_BL",
+   "value": "PWM_AH",
    "xy": [
     38.8,
     44.5
@@ -2269,7 +2438,7 @@
    "ref": "TP47",
    "sheet": "mcu",
    "side": "B",
-   "value": "PWM_CH",
+   "value": "PWM_AL",
    "xy": [
     41.6,
     44.5
@@ -2283,7 +2452,7 @@
    "ref": "TP48",
    "sheet": "mcu",
    "side": "B",
-   "value": "PWM_CL",
+   "value": "PWM_BH",
    "xy": [
     44.4,
     44.5
@@ -2297,7 +2466,7 @@
    "ref": "TP49",
    "sheet": "mcu",
    "side": "B",
-   "value": "SNSN_A",
+   "value": "PWM_BL",
    "xy": [
     47.2,
     44.5
@@ -2311,7 +2480,7 @@
    "ref": "TP50",
    "sheet": "mcu",
    "side": "B",
-   "value": "SNSN_B",
+   "value": "PWM_CH",
    "xy": [
     50.0,
     44.5
@@ -2325,7 +2494,7 @@
    "ref": "TP51",
    "sheet": "mcu",
    "side": "B",
-   "value": "SNSN_C",
+   "value": "PWM_CL",
    "xy": [
     52.8,
     44.5
@@ -2339,7 +2508,7 @@
    "ref": "TP52",
    "sheet": "mcu",
    "side": "B",
-   "value": "SNSP_A",
+   "value": "SNSN_A",
    "xy": [
     55.6,
     44.5
@@ -2353,7 +2522,7 @@
    "ref": "TP53",
    "sheet": "mcu",
    "side": "B",
-   "value": "SNSP_B",
+   "value": "SNSN_B",
    "xy": [
     58.4,
     44.5
@@ -2367,7 +2536,7 @@
    "ref": "TP54",
    "sheet": "mcu",
    "side": "B",
-   "value": "SNSP_C",
+   "value": "SNSN_C",
    "xy": [
     61.2,
     44.5
@@ -2381,7 +2550,7 @@
    "ref": "TP55",
    "sheet": "mcu",
    "side": "B",
-   "value": "SSI_CLK",
+   "value": "SNSP_A",
    "xy": [
     64.0,
     44.5
@@ -2395,7 +2564,7 @@
    "ref": "TP56",
    "sheet": "mcu",
    "side": "B",
-   "value": "SSI_DATA",
+   "value": "SNSP_B",
    "xy": [
     66.8,
     44.5
@@ -2407,9 +2576,9 @@
    "lib": "Connector:TestPoint",
    "note": "ICT 测试点",
    "ref": "TP57",
-   "sheet": "power",
+   "sheet": "mcu",
    "side": "B",
-   "value": "SW12",
+   "value": "SNSP_C",
    "xy": [
     69.6,
     44.5
@@ -2421,9 +2590,9 @@
    "lib": "Connector:TestPoint",
    "note": "ICT 测试点",
    "ref": "TP58",
-   "sheet": "power",
+   "sheet": "mcu",
    "side": "B",
-   "value": "SW_CB",
+   "value": "SSI_CLK",
    "xy": [
     72.4,
     44.5
@@ -2437,7 +2606,7 @@
    "ref": "TP59",
    "sheet": "mcu",
    "side": "B",
-   "value": "VBUS_AUX",
+   "value": "SSI_DATA",
    "xy": [
     75.2,
     44.5
@@ -2451,7 +2620,7 @@
    "ref": "TP60",
    "sheet": "power",
    "side": "B",
-   "value": "VBUS_SNS",
+   "value": "SW12",
    "xy": [
     78.0,
     44.5
@@ -2463,9 +2632,9 @@
    "lib": "Connector:TestPoint",
    "note": "ICT 测试点",
    "ref": "TP61",
-   "sheet": "mcu",
+   "sheet": "power",
    "side": "B",
-   "value": "VB_A",
+   "value": "SW_CB",
    "xy": [
     80.8,
     44.5
@@ -2479,7 +2648,7 @@
    "ref": "TP62",
    "sheet": "mcu",
    "side": "B",
-   "value": "VB_B",
+   "value": "VBUS_AUX",
    "xy": [
     83.6,
     44.5
@@ -2491,9 +2660,9 @@
    "lib": "Connector:TestPoint",
    "note": "ICT 测试点",
    "ref": "TP63",
-   "sheet": "mcu",
+   "sheet": "power",
    "side": "B",
-   "value": "VB_C",
+   "value": "VBUS_SNS",
    "xy": [
     86.4,
     44.5
@@ -2505,9 +2674,9 @@
    "lib": "Connector:TestPoint",
    "note": "ICT 测试点",
    "ref": "TP64",
-   "sheet": "power",
+   "sheet": "mcu",
    "side": "B",
-   "value": "VB_MID",
+   "value": "VB_A",
    "xy": [
     89.2,
     44.5
@@ -2521,7 +2690,7 @@
    "ref": "TP65",
    "sheet": "mcu",
    "side": "B",
-   "value": "VS_A",
+   "value": "VB_B",
    "xy": [
     8.0,
     48.0
@@ -2535,7 +2704,7 @@
    "ref": "TP66",
    "sheet": "mcu",
    "side": "B",
-   "value": "VS_B",
+   "value": "VB_C",
    "xy": [
     10.8,
     48.0
@@ -2547,11 +2716,53 @@
    "lib": "Connector:TestPoint",
    "note": "ICT 测试点",
    "ref": "TP67",
+   "sheet": "power",
+   "side": "B",
+   "value": "VB_MID",
+   "xy": [
+    13.6,
+    48.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP68",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "VS_A",
+   "xy": [
+    16.4,
+    48.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP69",
+   "sheet": "mcu",
+   "side": "B",
+   "value": "VS_B",
+   "xy": [
+    19.2,
+    48.0
+   ]
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP70",
    "sheet": "mcu",
    "side": "B",
    "value": "VS_C",
    "xy": [
-    13.6,
+    22.0,
     48.0
    ]
   }
@@ -2595,7 +2806,7 @@
    "key": "power",
    "name": "48 V 输入与母线",
    "name_en": "48 V input and DC bus",
-   "note": "48 V 从 J1 进；母线电容 C1 470 μF / 63 V（例题 3）；R1、R2、R3 分压给 MCU 测母线电压（48 V → 3.0 V）。示例设计，未经硬件验证。",
+   "note": "48 V 从 J1 进；C1 母线电容；R1–R3 分压测母线电压。B 版加抱闸（第 110 轮）：J6 接抱闸线圈，U16 + Q7 从母线 PWM 供电，D5 续流，R38 下拉（MCU 没输出就抱住）。示例设计，未经硬件验证。",
    "svg": "drv-joint-b-1 48 V 输入与母线.svg"
   },
   {
@@ -2630,22 +2841,22 @@
    "key": "mcu",
    "name": "MCU 与烧录口",
    "name_en": "MCU and programming",
-   "note": "STM32G431（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线电压、SPI1 读编码器接口芯片 U14（模式 0，≤ 5 MHz）、SPI3 读 SSI、FDCAN1；8 MHz 晶振；TP1–TP5 是烧录口和电源测试点。B 版：设计对照，不投产。",
+   "note": "STM32G431（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线电压、SPI1 读编码器接口芯片 U14（模式 0，≤ 5 MHz）、SPI3 读 SSI、TIM4_CH1（PB6）抱闸 PWM、FDCAN1；8 MHz 晶振；TP1–TP5 是烧录口和电源测试点。B 版：设计对照，不投产。",
    "svg": "drv-joint-b-6 MCU 与烧录口.svg"
   },
   {
    "key": "io",
    "name": "编码器接口与 CAN",
    "name_en": "Encoder and CAN",
-   "note": "B 版：J3 增量编码器 A/B/Z 经 1 kΩ / 220 pF 滤波进编码器接口芯片 U14 WQ-ENCIF（第 92 轮设计，未流片），Y2 给它 50 MHz 时钟，U15 给 1.8 V 核心电源；MCU 用 SPI1 读计数。J4 绝对值编码器 SSI、J5 CAN 同 A 版。",
+   "note": "J3 增量编码器 A/B/Z 经 1 kΩ / 220 pF 滤波（例题 4）进 MCU；J4 输出端绝对值编码器 SSI（两片 RS-485 收发）；J5 CAN（MCP2562，120 Ω 终端）。",
    "svg": "drv-joint-b-7 编码器接口与 CAN.svg"
   }
  ],
  "stats": {
-  "parts": 170,
-  "track_mm": 4030.9,
-  "tracks": 1405,
-  "vias": 233
+  "parts": 181,
+  "track_mm": 4405.5,
+  "tracks": 1525,
+  "vias": 244
  },
  "tool": "KiCad 7.0.11 + Freerouting 1.9.0（自动布线）",
  "values": {

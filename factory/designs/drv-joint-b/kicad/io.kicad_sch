@@ -8,7 +8,7 @@
     (date "2026-11-05")
     (rev "示例 A")
     (company "问渠数字工业园 · 电路板厂（示例设计，未经硬件验证，不能直接投产）")
-    (comment 1 "B 版：J3 增量编码器 A/B/Z 经 1 kΩ / 220 pF 滤波进编码器接口芯片 U14 WQ-ENCIF（第 92 轮设计，未流片），Y2 给它 50 MHz 时钟，U15 给 1.8 V 核心电源；MCU 用 SPI1 读计数"))
+    (comment 1 "J3 增量编码器 A/B/Z 经 1 kΩ / 220 pF 滤波（例题 4）进 MCU；J4 输出端绝对值编码器 SSI（两片 RS-485 收发）；J5 CAN（MCP2562，120 Ω 终端）。"))
   (lib_symbols
     (symbol "Connector_Generic:Conn_01x05"
       (pin_names
@@ -4883,7 +4883,7 @@
       (effects
         (font
           (size 1.27 1.27)) hide)))
-  (text "B 版：J3 增量编码器 A/B/Z 经 1 kΩ / 220 pF 滤波进编码器接口芯片 U14 WQ-ENCIF（第 92 轮设计，未流片），Y2 给它 50 MHz 时钟，U15 给 1.8 V 核心电源；MCU 用 SPI1 读计数。J4 绝对值编码器 SSI、J5 CAN 同 A 版。"
+  (text "J3 增量编码器 A/B/Z 经 1 kΩ / 220 pF 滤波（例题 4）进 MCU；J4 输出端绝对值编码器 SSI（两片 RS-485 收发）；J5 CAN（MCP2562，120 Ω 终端）。"
     (at 30 22 0)
     (effects
       (font

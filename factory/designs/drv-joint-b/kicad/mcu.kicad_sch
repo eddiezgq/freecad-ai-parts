@@ -8,7 +8,7 @@
     (date "2026-11-05")
     (rev "示例 A")
     (company "问渠数字工业园 · 电路板厂（示例设计，未经硬件验证，不能直接投产）")
-    (comment 1 "STM32G431（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线电压、SPI1 读编码器接口芯片 U14（模式 0，≤ 5 MHz）、SPI3 读 SSI、FDCAN1；8 MHz 晶振；TP1–TP5 是烧录口和电源测"))
+    (comment 1 "STM32G431（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线电压、SPI1 读编码器接口芯片 U14（模式 0，≤ 5 MHz）、SPI3 读 SSI、TIM4_CH1（PB6）抱闸 PWM、FDCAN1；8 MHz"))
   (lib_symbols
     (symbol "MCU_ST_STM32G4:STM32G431CBTx"
       (in_bom yes)
@@ -1376,7 +1376,7 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "电机控制 MCU（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线、SPI1 读编码器接口芯片 U14、SPI3 读 SSI、FDCAN1"
+    (property "说明" "电机控制 MCU（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线、SPI1 读编码器接口芯片 U14、SPI3 读 SSI、TIM4_CH1（PB6）抱闸 PWM、FDCAN1"
       (at 76.2 93.98 0)
       (effects
         (font
@@ -2084,9 +2084,28 @@
   (no_connect
     (at 60.96 99.06)
     (uuid "a82eaff2-e34d-53ee-a70c-c5f8446725f4"))
-  (no_connect
-    (at 60.96 101.6)
-    (uuid "7b83c9a0-f2f7-5d44-9b08-00a0dccbd713"))
+  (wire
+    (pts
+      (xy 60.96 101.6)
+      (xy 58.42 101.6))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "1c68d26b-f369-5457-96da-268175292a39"))
+  (global_label "BRK_PWM"
+    (shape passive)
+    (at 58.42 101.6 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "cf895211-6c07-586c-bcd1-fe38cce51051")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 58.42 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
   (no_connect
     (at 60.96 104.14)
     (uuid "2d9fc3f4-df3b-5f90-8f28-aa7bb2f96d98"))
@@ -3845,7 +3864,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "CAN_RXD"
+    (property "Value" "BRK_G"
       (at 238.76 236.22 0)
       (effects
         (font
@@ -3885,7 +3904,7 @@
       (width 0)
       (type default))
     (uuid "de0ba123-59c9-53c5-8a0e-ad7e1da29abd"))
-  (global_label "CAN_RXD"
+  (global_label "BRK_G"
     (shape passive)
     (at 238.76 236.22 270)
     (fields_autoplaced)
@@ -3912,7 +3931,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "CAN_TXD"
+    (property "Value" "BRK_GD"
       (at 299.72 236.22 0)
       (effects
         (font
@@ -3952,7 +3971,7 @@
       (width 0)
       (type default))
     (uuid "a1842eca-62c5-558c-b27b-ac53a0c775aa"))
-  (global_label "CAN_TXD"
+  (global_label "BRK_GD"
     (shape passive)
     (at 299.72 236.22 270)
     (fields_autoplaced)
@@ -3973,13 +3992,13 @@
     (in_bom no)
     (on_board yes)
     (dnp no)
-    (uuid "17143309-9771-5252-b57b-542ca6b61eec")
-    (property "Reference" "TP16"
+    (uuid "301572f3-1b80-5eae-bc12-a2684da7846c")
+    (property "Reference" "TP15"
       (at 360.68 231.14 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "ENC_A_F"
+    (property "Value" "BRK_PWM"
       (at 360.68 236.22 0)
       (effects
         (font
@@ -4005,11 +4024,11 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "c8f4dd3d-1faa-5724-b062-21f7dcf5cbf9"))
+      (uuid "7bed5596-2803-5dc6-b0de-14c02cc933ef"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/5533e7da-1464-5e06-82c2-4cdc19ce317b"
-          (reference "TP16")
+          (reference "TP15")
           (unit 1)))))
   (wire
     (pts
@@ -4018,8 +4037,8 @@
     (stroke
       (width 0)
       (type default))
-    (uuid "75f9c3dd-aa47-5be4-9799-84c7b18ffb2d"))
-  (global_label "ENC_A_F"
+    (uuid "a0b6e658-93de-5b7a-be0a-8207b532787c"))
+  (global_label "BRK_PWM"
     (shape passive)
     (at 360.68 236.22 270)
     (fields_autoplaced)
@@ -4027,7 +4046,7 @@
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "e5712f7c-26d1-5d51-a936-78a5b0ff3951")
+    (uuid "d70aa93b-b4a3-579b-b43e-cf2944c0c198")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 360.68 236.22 0)
       (effects
@@ -4040,13 +4059,13 @@
     (in_bom no)
     (on_board yes)
     (dnp no)
-    (uuid "4b751fb4-3168-5645-af08-c8b80254ed54")
-    (property "Reference" "TP17"
+    (uuid "17143309-9771-5252-b57b-542ca6b61eec")
+    (property "Reference" "TP16"
       (at 60.96 259.08 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "ENC_B_F"
+    (property "Value" "CAN_RXD"
       (at 60.96 264.16 0)
       (effects
         (font
@@ -4072,11 +4091,11 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "1e13da9d-00b7-58c2-aad8-4e1011426ee1"))
+      (uuid "c8f4dd3d-1faa-5724-b062-21f7dcf5cbf9"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/5533e7da-1464-5e06-82c2-4cdc19ce317b"
-          (reference "TP17")
+          (reference "TP16")
           (unit 1)))))
   (wire
     (pts
@@ -4085,8 +4104,8 @@
     (stroke
       (width 0)
       (type default))
-    (uuid "614c2c85-f23f-52e1-aa1e-3b23fd91cab6"))
-  (global_label "ENC_B_F"
+    (uuid "b019d1ca-7869-5a54-be28-3abac2f776c4"))
+  (global_label "CAN_RXD"
     (shape passive)
     (at 60.96 264.16 270)
     (fields_autoplaced)
@@ -4094,7 +4113,7 @@
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "082a0540-436c-51c9-ab43-62e9d64eff1d")
+    (uuid "c2bb229f-bbd2-525d-8e35-88ccced01e26")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 60.96 264.16 0)
       (effects
@@ -4107,13 +4126,13 @@
     (in_bom no)
     (on_board yes)
     (dnp no)
-    (uuid "e32422ef-a05d-526e-8e77-f720000ce33e")
-    (property "Reference" "TP18"
+    (uuid "4b751fb4-3168-5645-af08-c8b80254ed54")
+    (property "Reference" "TP17"
       (at 119.38 259.08 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "ENC_CLK"
+    (property "Value" "CAN_TXD"
       (at 119.38 264.16 0)
       (effects
         (font
@@ -4139,11 +4158,11 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "e7107c8a-6590-5427-9c5d-c153277f73e0"))
+      (uuid "1e13da9d-00b7-58c2-aad8-4e1011426ee1"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/5533e7da-1464-5e06-82c2-4cdc19ce317b"
-          (reference "TP18")
+          (reference "TP17")
           (unit 1)))))
   (wire
     (pts
@@ -4152,8 +4171,8 @@
     (stroke
       (width 0)
       (type default))
-    (uuid "c05e23bd-7114-57c1-8996-4baba82a8746"))
-  (global_label "ENC_CLK"
+    (uuid "081703db-a7ce-55fc-995e-21c4e2544590"))
+  (global_label "CAN_TXD"
     (shape passive)
     (at 119.38 264.16 270)
     (fields_autoplaced)
@@ -4161,7 +4180,7 @@
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "7622aa8a-f4c3-5777-a77b-466d034dd1fa")
+    (uuid "b9f57331-4d1d-5ff5-9e2c-1d03062db58c")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 119.38 264.16 0)
       (effects
@@ -4180,7 +4199,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "ENC_CS_N"
+    (property "Value" "ENC_A_F"
       (at 180.34 264.16 0)
       (effects
         (font
@@ -4220,7 +4239,7 @@
       (width 0)
       (type default))
     (uuid "9dae51ab-4013-5799-a2bc-4d6dd4f5a162"))
-  (global_label "ENC_CS_N"
+  (global_label "ENC_A_F"
     (shape passive)
     (at 180.34 264.16 270)
     (fields_autoplaced)
@@ -4247,7 +4266,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "ENC_MISO"
+    (property "Value" "ENC_B_F"
       (at 238.76 264.16 0)
       (effects
         (font
@@ -4287,7 +4306,7 @@
       (width 0)
       (type default))
     (uuid "9788e306-db2c-5101-88b7-84578a16f6fa"))
-  (global_label "ENC_MISO"
+  (global_label "ENC_B_F"
     (shape passive)
     (at 238.76 264.16 270)
     (fields_autoplaced)
@@ -4314,7 +4333,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "ENC_MOSI"
+    (property "Value" "ENC_CLK"
       (at 299.72 264.16 0)
       (effects
         (font
@@ -4354,7 +4373,7 @@
       (width 0)
       (type default))
     (uuid "0ccee70a-7b1e-5643-8063-b715cdab2fe8"))
-  (global_label "ENC_MOSI"
+  (global_label "ENC_CLK"
     (shape passive)
     (at 299.72 264.16 270)
     (fields_autoplaced)
@@ -4381,7 +4400,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "ENC_RST_N"
+    (property "Value" "ENC_CS_N"
       (at 360.68 264.16 0)
       (effects
         (font
@@ -4421,7 +4440,7 @@
       (width 0)
       (type default))
     (uuid "f3aa9f44-a4c6-53de-a682-5f3f08b82282"))
-  (global_label "ENC_RST_N"
+  (global_label "ENC_CS_N"
     (shape passive)
     (at 360.68 264.16 270)
     (fields_autoplaced)
@@ -4448,7 +4467,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "ENC_SCK"
+    (property "Value" "ENC_MISO"
       (at 60.96 292.1 0)
       (effects
         (font
@@ -4488,7 +4507,7 @@
       (width 0)
       (type default))
     (uuid "b7c9e632-9783-53d1-9aef-61f1c9d043cf"))
-  (global_label "ENC_SCK"
+  (global_label "ENC_MISO"
     (shape passive)
     (at 60.96 292.1 270)
     (fields_autoplaced)
@@ -4515,7 +4534,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "ENC_Z_F"
+    (property "Value" "ENC_MOSI"
       (at 119.38 292.1 0)
       (effects
         (font
@@ -4555,7 +4574,7 @@
       (width 0)
       (type default))
     (uuid "3d6f27ba-50cf-500c-9072-b9846e64515c"))
-  (global_label "ENC_Z_F"
+  (global_label "ENC_MOSI"
     (shape passive)
     (at 119.38 292.1 270)
     (fields_autoplaced)
@@ -4576,13 +4595,13 @@
     (in_bom no)
     (on_board yes)
     (dnp no)
-    (uuid "91cf5b8a-336a-5b7e-9819-f2f16be72979")
-    (property "Reference" "TP26"
+    (uuid "062d5355-b1cd-54bc-89bc-4ec398a67689")
+    (property "Reference" "TP25"
       (at 180.34 287.02 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "GH_A"
+    (property "Value" "ENC_RST_N"
       (at 180.34 292.1 0)
       (effects
         (font
@@ -4608,11 +4627,11 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "0949b437-95e3-571b-8528-6de53fa645c5"))
+      (uuid "0008867d-ed6f-55b0-9d2e-5ab71d84b50a"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/5533e7da-1464-5e06-82c2-4cdc19ce317b"
-          (reference "TP26")
+          (reference "TP25")
           (unit 1)))))
   (wire
     (pts
@@ -4621,8 +4640,8 @@
     (stroke
       (width 0)
       (type default))
-    (uuid "b660f615-90fd-58fb-8a56-89bdf2ed5189"))
-  (global_label "GH_A"
+    (uuid "708ce9f0-ef4a-55be-8c53-18a9bfaed8af"))
+  (global_label "ENC_RST_N"
     (shape passive)
     (at 180.34 292.1 270)
     (fields_autoplaced)
@@ -4630,7 +4649,7 @@
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "6daffd2a-3bfe-5274-94f2-779f8cd8edf1")
+    (uuid "dce2a22b-a20c-55f7-a2e9-8e337e158dce")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 180.34 292.1 0)
       (effects
@@ -4643,13 +4662,13 @@
     (in_bom no)
     (on_board yes)
     (dnp no)
-    (uuid "3386946a-5202-5f9b-8f16-1641d5287128")
-    (property "Reference" "TP27"
+    (uuid "91cf5b8a-336a-5b7e-9819-f2f16be72979")
+    (property "Reference" "TP26"
       (at 238.76 287.02 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "GH_B"
+    (property "Value" "ENC_SCK"
       (at 238.76 292.1 0)
       (effects
         (font
@@ -4675,11 +4694,11 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "2975ed11-da6d-5453-843e-08ef1ec7402f"))
+      (uuid "0949b437-95e3-571b-8528-6de53fa645c5"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/5533e7da-1464-5e06-82c2-4cdc19ce317b"
-          (reference "TP27")
+          (reference "TP26")
           (unit 1)))))
   (wire
     (pts
@@ -4688,8 +4707,8 @@
     (stroke
       (width 0)
       (type default))
-    (uuid "30b888e8-f1a6-5be3-8d0e-3a547dc826c9"))
-  (global_label "GH_B"
+    (uuid "cd2146f4-1e81-50ab-b978-283131918725"))
+  (global_label "ENC_SCK"
     (shape passive)
     (at 238.76 292.1 270)
     (fields_autoplaced)
@@ -4697,7 +4716,7 @@
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "f2542cd5-b4d1-5885-8b47-bd4444be6a24")
+    (uuid "f8312ee6-1b00-5f9b-bb68-f3e7c8891f21")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 238.76 292.1 0)
       (effects
@@ -4710,13 +4729,13 @@
     (in_bom no)
     (on_board yes)
     (dnp no)
-    (uuid "5049e52f-6c29-5a4e-b592-a3e1d17c4f26")
-    (property "Reference" "TP28"
+    (uuid "3386946a-5202-5f9b-8f16-1641d5287128")
+    (property "Reference" "TP27"
       (at 299.72 287.02 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "GH_C"
+    (property "Value" "ENC_Z_F"
       (at 299.72 292.1 0)
       (effects
         (font
@@ -4742,11 +4761,11 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "4490a79f-4691-585b-a1dd-d5a20de15591"))
+      (uuid "2975ed11-da6d-5453-843e-08ef1ec7402f"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/5533e7da-1464-5e06-82c2-4cdc19ce317b"
-          (reference "TP28")
+          (reference "TP27")
           (unit 1)))))
   (wire
     (pts
@@ -4755,8 +4774,8 @@
     (stroke
       (width 0)
       (type default))
-    (uuid "73ab7a89-3969-577c-bcf2-b1e6740d7ab9"))
-  (global_label "GH_C"
+    (uuid "7c530f3c-b878-5729-a88b-499dd159d0db"))
+  (global_label "ENC_Z_F"
     (shape passive)
     (at 299.72 292.1 270)
     (fields_autoplaced)
@@ -4764,7 +4783,7 @@
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "e90e0af7-dc9e-5674-94a9-bdcf38c6cea5")
+    (uuid "7852c430-a287-5df5-a755-8f0073179fa8")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 299.72 292.1 0)
       (effects
@@ -4783,7 +4802,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "GL_A"
+    (property "Value" "GH_A"
       (at 360.68 292.1 0)
       (effects
         (font
@@ -4823,7 +4842,7 @@
       (width 0)
       (type default))
     (uuid "0c9c7525-7b12-5a0e-b441-09414a3316b0"))
-  (global_label "GL_A"
+  (global_label "GH_A"
     (shape passive)
     (at 360.68 292.1 270)
     (fields_autoplaced)
@@ -4850,7 +4869,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "GL_B"
+    (property "Value" "GH_B"
       (at 60.96 320.04 0)
       (effects
         (font
@@ -4890,7 +4909,7 @@
       (width 0)
       (type default))
     (uuid "98dbef1b-380a-5205-b7b6-59fdd69a03c2"))
-  (global_label "GL_B"
+  (global_label "GH_B"
     (shape passive)
     (at 60.96 320.04 270)
     (fields_autoplaced)
@@ -4917,7 +4936,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "GL_C"
+    (property "Value" "GH_C"
       (at 119.38 320.04 0)
       (effects
         (font
@@ -4957,7 +4976,7 @@
       (width 0)
       (type default))
     (uuid "33dc63ae-bd89-5de9-8d44-d492ad61ce94"))
-  (global_label "GL_C"
+  (global_label "GH_C"
     (shape passive)
     (at 119.38 320.04 270)
     (fields_autoplaced)
@@ -4984,7 +5003,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "HO_A"
+    (property "Value" "GL_A"
       (at 180.34 320.04 0)
       (effects
         (font
@@ -5024,7 +5043,7 @@
       (width 0)
       (type default))
     (uuid "83f9a4d7-eb5b-5012-85e9-bb58a3710744"))
-  (global_label "HO_A"
+  (global_label "GL_A"
     (shape passive)
     (at 180.34 320.04 270)
     (fields_autoplaced)
@@ -5051,7 +5070,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "HO_B"
+    (property "Value" "GL_B"
       (at 238.76 320.04 0)
       (effects
         (font
@@ -5091,7 +5110,7 @@
       (width 0)
       (type default))
     (uuid "c72bf03d-6899-5bf5-923c-b09c4fb543b9"))
-  (global_label "HO_B"
+  (global_label "GL_B"
     (shape passive)
     (at 238.76 320.04 270)
     (fields_autoplaced)
@@ -5118,7 +5137,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "HO_C"
+    (property "Value" "GL_C"
       (at 299.72 320.04 0)
       (effects
         (font
@@ -5158,7 +5177,7 @@
       (width 0)
       (type default))
     (uuid "94880fea-0bdc-5c38-a846-321e0e87c490"))
-  (global_label "HO_C"
+  (global_label "GL_C"
     (shape passive)
     (at 299.72 320.04 270)
     (fields_autoplaced)
@@ -5185,7 +5204,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "ISNS_A"
+    (property "Value" "HO_A"
       (at 360.68 320.04 0)
       (effects
         (font
@@ -5225,7 +5244,7 @@
       (width 0)
       (type default))
     (uuid "84545bf0-37fa-5f69-9eac-63fd115386f4"))
-  (global_label "ISNS_A"
+  (global_label "HO_A"
     (shape passive)
     (at 360.68 320.04 270)
     (fields_autoplaced)
@@ -5252,7 +5271,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "ISNS_B"
+    (property "Value" "HO_B"
       (at 60.96 347.98 0)
       (effects
         (font
@@ -5292,7 +5311,7 @@
       (width 0)
       (type default))
     (uuid "9728a91c-85f3-5cd9-b0a3-58d49fc2fc20"))
-  (global_label "ISNS_B"
+  (global_label "HO_B"
     (shape passive)
     (at 60.96 347.98 270)
     (fields_autoplaced)
@@ -5319,7 +5338,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "ISNS_C"
+    (property "Value" "HO_C"
       (at 119.38 347.98 0)
       (effects
         (font
@@ -5359,7 +5378,7 @@
       (width 0)
       (type default))
     (uuid "00ada2ed-c4c7-560d-b8e9-2638faeb73a4"))
-  (global_label "ISNS_C"
+  (global_label "HO_C"
     (shape passive)
     (at 119.38 347.98 270)
     (fields_autoplaced)
@@ -5386,7 +5405,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "LO_A"
+    (property "Value" "ISNS_A"
       (at 180.34 347.98 0)
       (effects
         (font
@@ -5426,7 +5445,7 @@
       (width 0)
       (type default))
     (uuid "5039ab66-e669-5d9b-9c3a-eae2d301ef7c"))
-  (global_label "LO_A"
+  (global_label "ISNS_A"
     (shape passive)
     (at 180.34 347.98 270)
     (fields_autoplaced)
@@ -5453,7 +5472,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "LO_B"
+    (property "Value" "ISNS_B"
       (at 238.76 347.98 0)
       (effects
         (font
@@ -5493,7 +5512,7 @@
       (width 0)
       (type default))
     (uuid "05f8a293-4df2-58ef-b2ac-97fe8feea238"))
-  (global_label "LO_B"
+  (global_label "ISNS_B"
     (shape passive)
     (at 238.76 347.98 270)
     (fields_autoplaced)
@@ -5520,7 +5539,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "LO_C"
+    (property "Value" "ISNS_C"
       (at 299.72 347.98 0)
       (effects
         (font
@@ -5560,7 +5579,7 @@
       (width 0)
       (type default))
     (uuid "b93b98a2-fd0a-522c-9706-8d6684f639d4"))
-  (global_label "LO_C"
+  (global_label "ISNS_C"
     (shape passive)
     (at 299.72 347.98 270)
     (fields_autoplaced)
@@ -5587,7 +5606,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "OSC_IN"
+    (property "Value" "LO_A"
       (at 360.68 347.98 0)
       (effects
         (font
@@ -5627,7 +5646,7 @@
       (width 0)
       (type default))
     (uuid "9d2fa9ad-1d52-5382-9065-a9f14d32f692"))
-  (global_label "OSC_IN"
+  (global_label "LO_A"
     (shape passive)
     (at 360.68 347.98 270)
     (fields_autoplaced)
@@ -5654,7 +5673,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "OSC_OUT"
+    (property "Value" "LO_B"
       (at 60.96 375.92 0)
       (effects
         (font
@@ -5694,7 +5713,7 @@
       (width 0)
       (type default))
     (uuid "7a78a859-33a8-594e-8b97-3b176a2dbcdd"))
-  (global_label "OSC_OUT"
+  (global_label "LO_B"
     (shape passive)
     (at 60.96 375.92 270)
     (fields_autoplaced)
@@ -5721,7 +5740,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "PWM_AH"
+    (property "Value" "LO_C"
       (at 119.38 375.92 0)
       (effects
         (font
@@ -5761,7 +5780,7 @@
       (width 0)
       (type default))
     (uuid "550d88fd-4979-5f13-91a9-b01d0eb065dd"))
-  (global_label "PWM_AH"
+  (global_label "LO_C"
     (shape passive)
     (at 119.38 375.92 270)
     (fields_autoplaced)
@@ -5788,7 +5807,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "PWM_AL"
+    (property "Value" "OSC_IN"
       (at 180.34 375.92 0)
       (effects
         (font
@@ -5828,7 +5847,7 @@
       (width 0)
       (type default))
     (uuid "02638f84-14de-56fd-aa69-2012d161d22b"))
-  (global_label "PWM_AL"
+  (global_label "OSC_IN"
     (shape passive)
     (at 180.34 375.92 270)
     (fields_autoplaced)
@@ -5855,7 +5874,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "PWM_BH"
+    (property "Value" "OSC_OUT"
       (at 238.76 375.92 0)
       (effects
         (font
@@ -5895,7 +5914,7 @@
       (width 0)
       (type default))
     (uuid "8d55cf9f-df9a-5275-9697-0ab5680957f3"))
-  (global_label "PWM_BH"
+  (global_label "OSC_OUT"
     (shape passive)
     (at 238.76 375.92 270)
     (fields_autoplaced)
@@ -5922,7 +5941,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "PWM_BL"
+    (property "Value" "PWM_AH"
       (at 299.72 375.92 0)
       (effects
         (font
@@ -5962,7 +5981,7 @@
       (width 0)
       (type default))
     (uuid "ee27d84d-7869-57d1-af63-b3156e137a23"))
-  (global_label "PWM_BL"
+  (global_label "PWM_AH"
     (shape passive)
     (at 299.72 375.92 270)
     (fields_autoplaced)
@@ -5989,7 +6008,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "PWM_CH"
+    (property "Value" "PWM_AL"
       (at 360.68 375.92 0)
       (effects
         (font
@@ -6029,7 +6048,7 @@
       (width 0)
       (type default))
     (uuid "dbba5a15-f817-517c-8e4c-2448036a7b8b"))
-  (global_label "PWM_CH"
+  (global_label "PWM_AL"
     (shape passive)
     (at 360.68 375.92 270)
     (fields_autoplaced)
@@ -6056,7 +6075,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "PWM_CL"
+    (property "Value" "PWM_BH"
       (at 60.96 403.86 0)
       (effects
         (font
@@ -6096,7 +6115,7 @@
       (width 0)
       (type default))
     (uuid "ac88ccbb-ecc2-5529-ac9e-e7a5064a4391"))
-  (global_label "PWM_CL"
+  (global_label "PWM_BH"
     (shape passive)
     (at 60.96 403.86 270)
     (fields_autoplaced)
@@ -6123,7 +6142,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "SNSN_A"
+    (property "Value" "PWM_BL"
       (at 119.38 403.86 0)
       (effects
         (font
@@ -6163,7 +6182,7 @@
       (width 0)
       (type default))
     (uuid "dc5117fe-3bcd-5f5e-8301-23a513655121"))
-  (global_label "SNSN_A"
+  (global_label "PWM_BL"
     (shape passive)
     (at 119.38 403.86 270)
     (fields_autoplaced)
@@ -6190,7 +6209,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "SNSN_B"
+    (property "Value" "PWM_CH"
       (at 180.34 403.86 0)
       (effects
         (font
@@ -6230,7 +6249,7 @@
       (width 0)
       (type default))
     (uuid "6ccac27f-6385-5f8b-a9e3-6f3ee8e0d81e"))
-  (global_label "SNSN_B"
+  (global_label "PWM_CH"
     (shape passive)
     (at 180.34 403.86 270)
     (fields_autoplaced)
@@ -6257,7 +6276,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "SNSN_C"
+    (property "Value" "PWM_CL"
       (at 238.76 403.86 0)
       (effects
         (font
@@ -6297,7 +6316,7 @@
       (width 0)
       (type default))
     (uuid "10163fd1-ad72-565b-9e9c-a8bb470c69ee"))
-  (global_label "SNSN_C"
+  (global_label "PWM_CL"
     (shape passive)
     (at 238.76 403.86 270)
     (fields_autoplaced)
@@ -6324,7 +6343,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "SNSP_A"
+    (property "Value" "SNSN_A"
       (at 299.72 403.86 0)
       (effects
         (font
@@ -6364,7 +6383,7 @@
       (width 0)
       (type default))
     (uuid "23c25af8-9924-559e-8ed4-b43f9aeba624"))
-  (global_label "SNSP_A"
+  (global_label "SNSN_A"
     (shape passive)
     (at 299.72 403.86 270)
     (fields_autoplaced)
@@ -6391,7 +6410,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "SNSP_B"
+    (property "Value" "SNSN_B"
       (at 360.68 403.86 0)
       (effects
         (font
@@ -6431,7 +6450,7 @@
       (width 0)
       (type default))
     (uuid "ea187869-e89f-593f-ac5b-2e5c56fec732"))
-  (global_label "SNSP_B"
+  (global_label "SNSN_B"
     (shape passive)
     (at 360.68 403.86 270)
     (fields_autoplaced)
@@ -6458,7 +6477,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "SNSP_C"
+    (property "Value" "SNSN_C"
       (at 60.96 431.8 0)
       (effects
         (font
@@ -6498,7 +6517,7 @@
       (width 0)
       (type default))
     (uuid "e2a72e32-f54f-5039-b4d2-887a3c5a891c"))
-  (global_label "SNSP_C"
+  (global_label "SNSN_C"
     (shape passive)
     (at 60.96 431.8 270)
     (fields_autoplaced)
@@ -6525,7 +6544,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "SSI_CLK"
+    (property "Value" "SNSP_A"
       (at 119.38 431.8 0)
       (effects
         (font
@@ -6565,7 +6584,7 @@
       (width 0)
       (type default))
     (uuid "1dd349c0-cdc8-5283-ab8c-bc5a423d571c"))
-  (global_label "SSI_CLK"
+  (global_label "SNSP_A"
     (shape passive)
     (at 119.38 431.8 270)
     (fields_autoplaced)
@@ -6592,7 +6611,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "SSI_DATA"
+    (property "Value" "SNSP_B"
       (at 180.34 431.8 0)
       (effects
         (font
@@ -6632,7 +6651,7 @@
       (width 0)
       (type default))
     (uuid "407eac74-dfd6-5032-99cf-3117c18f2737"))
-  (global_label "SSI_DATA"
+  (global_label "SNSP_B"
     (shape passive)
     (at 180.34 431.8 270)
     (fields_autoplaced)
@@ -6653,13 +6672,13 @@
     (in_bom no)
     (on_board yes)
     (dnp no)
-    (uuid "5acda677-62ec-51c6-8999-7b9bb35d4c91")
-    (property "Reference" "TP59"
+    (uuid "0e52f92c-570b-5390-8046-e6de99eea37b")
+    (property "Reference" "TP57"
       (at 238.76 426.72 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "VBUS_AUX"
+    (property "Value" "SNSP_C"
       (at 238.76 431.8 0)
       (effects
         (font
@@ -6685,11 +6704,11 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "07b918ee-a3a8-5282-b799-0911027e7a97"))
+      (uuid "2d9ca46f-066d-5df1-9458-d5e4e05d52eb"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/5533e7da-1464-5e06-82c2-4cdc19ce317b"
-          (reference "TP59")
+          (reference "TP57")
           (unit 1)))))
   (wire
     (pts
@@ -6698,8 +6717,8 @@
     (stroke
       (width 0)
       (type default))
-    (uuid "43e439e0-465d-5bfb-970d-061c2edd831c"))
-  (global_label "VBUS_AUX"
+    (uuid "3185d4f2-3d80-5e25-a578-ec25db651967"))
+  (global_label "SNSP_C"
     (shape passive)
     (at 238.76 431.8 270)
     (fields_autoplaced)
@@ -6707,7 +6726,7 @@
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "873a88d5-7e34-5855-9756-714ab7297d0d")
+    (uuid "32ce011b-2830-5e8e-ae23-701347bc6ef3")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 238.76 431.8 0)
       (effects
@@ -6720,13 +6739,13 @@
     (in_bom no)
     (on_board yes)
     (dnp no)
-    (uuid "4e7c0627-0e8e-5d2c-9ce4-f3b8148b4488")
-    (property "Reference" "TP61"
+    (uuid "66af9aa3-f046-5748-82a1-eb316fc25460")
+    (property "Reference" "TP58"
       (at 299.72 426.72 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "VB_A"
+    (property "Value" "SSI_CLK"
       (at 299.72 431.8 0)
       (effects
         (font
@@ -6752,11 +6771,11 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "be9c2ab3-e40f-5c98-9503-e8cf106df458"))
+      (uuid "552e24e6-a325-5bd0-afcc-4a8a363c1b48"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/5533e7da-1464-5e06-82c2-4cdc19ce317b"
-          (reference "TP61")
+          (reference "TP58")
           (unit 1)))))
   (wire
     (pts
@@ -6765,8 +6784,8 @@
     (stroke
       (width 0)
       (type default))
-    (uuid "54a893d0-a09c-51af-b2b0-cb27fb2616c6"))
-  (global_label "VB_A"
+    (uuid "82b8d853-f2c5-588a-8eec-d883872e748f"))
+  (global_label "SSI_CLK"
     (shape passive)
     (at 299.72 431.8 270)
     (fields_autoplaced)
@@ -6774,7 +6793,7 @@
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "dac5d20b-37f7-5272-ba29-09c5680b54c8")
+    (uuid "dc4e0798-6e91-53ef-9113-bbfb71a0f22c")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 299.72 431.8 0)
       (effects
@@ -6787,13 +6806,13 @@
     (in_bom no)
     (on_board yes)
     (dnp no)
-    (uuid "8f495020-a05e-576a-af85-c397fe5e6ec8")
-    (property "Reference" "TP62"
+    (uuid "5acda677-62ec-51c6-8999-7b9bb35d4c91")
+    (property "Reference" "TP59"
       (at 360.68 426.72 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "VB_B"
+    (property "Value" "SSI_DATA"
       (at 360.68 431.8 0)
       (effects
         (font
@@ -6819,11 +6838,11 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "2b11aeb5-17a2-51e9-bef8-cd81c1c687ac"))
+      (uuid "07b918ee-a3a8-5282-b799-0911027e7a97"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/5533e7da-1464-5e06-82c2-4cdc19ce317b"
-          (reference "TP62")
+          (reference "TP59")
           (unit 1)))))
   (wire
     (pts
@@ -6832,8 +6851,8 @@
     (stroke
       (width 0)
       (type default))
-    (uuid "6317ee38-715d-5bc3-bb40-30d9636be6b3"))
-  (global_label "VB_B"
+    (uuid "f5e12af7-ee02-5832-a5f5-d9c22ef9bcd2"))
+  (global_label "SSI_DATA"
     (shape passive)
     (at 360.68 431.8 270)
     (fields_autoplaced)
@@ -6841,7 +6860,7 @@
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "b02e9295-bc3f-5f11-bf48-7df70602e476")
+    (uuid "946bdf93-dfbd-5f10-b573-585ff869f2a8")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 360.68 431.8 0)
       (effects
@@ -6854,13 +6873,13 @@
     (in_bom no)
     (on_board yes)
     (dnp no)
-    (uuid "b3b9847f-39a0-555b-9f0a-8a59d03fd0f0")
-    (property "Reference" "TP63"
+    (uuid "8f495020-a05e-576a-af85-c397fe5e6ec8")
+    (property "Reference" "TP62"
       (at 60.96 457.2 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "VB_C"
+    (property "Value" "VBUS_AUX"
       (at 60.96 462.28 0)
       (effects
         (font
@@ -6886,11 +6905,11 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "c653a81e-dcd4-567e-b1a4-bce1a09eb49d"))
+      (uuid "2b11aeb5-17a2-51e9-bef8-cd81c1c687ac"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/5533e7da-1464-5e06-82c2-4cdc19ce317b"
-          (reference "TP63")
+          (reference "TP62")
           (unit 1)))))
   (wire
     (pts
@@ -6899,8 +6918,8 @@
     (stroke
       (width 0)
       (type default))
-    (uuid "6ec09a43-092f-55cc-842a-37ea87dabcd0"))
-  (global_label "VB_C"
+    (uuid "2906e3e3-f3ee-59f7-8bf4-4c61cb2e3347"))
+  (global_label "VBUS_AUX"
     (shape passive)
     (at 60.96 462.28 270)
     (fields_autoplaced)
@@ -6908,7 +6927,7 @@
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "e9b7f552-9ee7-5009-979a-2c227f2b4ae3")
+    (uuid "97ef60ff-0a0a-544e-b434-da6021dc6c37")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 60.96 462.28 0)
       (effects
@@ -6921,13 +6940,13 @@
     (in_bom no)
     (on_board yes)
     (dnp no)
-    (uuid "ce991718-4cd4-57b4-a7cd-e1d08b346b81")
-    (property "Reference" "TP65"
+    (uuid "38fa7644-a579-5b30-b448-2b8e6f571d2a")
+    (property "Reference" "TP64"
       (at 119.38 457.2 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "VS_A"
+    (property "Value" "VB_A"
       (at 119.38 462.28 0)
       (effects
         (font
@@ -6953,11 +6972,11 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "f3ae38a8-85e0-50bb-85a5-d27e0d4ca1ce"))
+      (uuid "f9d607ee-2860-5a35-ae32-667a85830ac1"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/5533e7da-1464-5e06-82c2-4cdc19ce317b"
-          (reference "TP65")
+          (reference "TP64")
           (unit 1)))))
   (wire
     (pts
@@ -6966,8 +6985,8 @@
     (stroke
       (width 0)
       (type default))
-    (uuid "f6a8eeb7-9ced-50a3-bb3d-56da0d3ea64d"))
-  (global_label "VS_A"
+    (uuid "08a0f89f-cdca-5b84-a693-3a633ff057a5"))
+  (global_label "VB_A"
     (shape passive)
     (at 119.38 462.28 270)
     (fields_autoplaced)
@@ -6975,7 +6994,7 @@
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "8f1ec479-d4ab-5a02-bbe9-346d91a1afea")
+    (uuid "4848ab1f-a1ee-57d8-820c-c0f2a59afd53")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 119.38 462.28 0)
       (effects
@@ -6988,13 +7007,13 @@
     (in_bom no)
     (on_board yes)
     (dnp no)
-    (uuid "e224e53d-0532-52ac-9b3a-3a67ab24c069")
-    (property "Reference" "TP66"
+    (uuid "ce991718-4cd4-57b4-a7cd-e1d08b346b81")
+    (property "Reference" "TP65"
       (at 180.34 457.2 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "VS_B"
+    (property "Value" "VB_B"
       (at 180.34 462.28 0)
       (effects
         (font
@@ -7020,11 +7039,11 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "9405a043-8030-5349-90df-d85c20b18f6c"))
+      (uuid "f3ae38a8-85e0-50bb-85a5-d27e0d4ca1ce"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/5533e7da-1464-5e06-82c2-4cdc19ce317b"
-          (reference "TP66")
+          (reference "TP65")
           (unit 1)))))
   (wire
     (pts
@@ -7033,8 +7052,8 @@
     (stroke
       (width 0)
       (type default))
-    (uuid "21ed6930-0108-5d4d-bdad-e2d9d17bca62"))
-  (global_label "VS_B"
+    (uuid "38e55ba6-b3e6-55cc-828c-1f2a0717ba59"))
+  (global_label "VB_B"
     (shape passive)
     (at 180.34 462.28 270)
     (fields_autoplaced)
@@ -7042,7 +7061,7 @@
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "680b6db1-0f04-54a1-87eb-9a6c7c8e46b5")
+    (uuid "6cbb802c-da1c-5a5e-943d-1a70e576fd48")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 180.34 462.28 0)
       (effects
@@ -7055,13 +7074,13 @@
     (in_bom no)
     (on_board yes)
     (dnp no)
-    (uuid "43fd87b0-b4fe-5a97-a49c-c54debf96198")
-    (property "Reference" "TP67"
+    (uuid "e224e53d-0532-52ac-9b3a-3a67ab24c069")
+    (property "Reference" "TP66"
       (at 238.76 457.2 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "VS_C"
+    (property "Value" "VB_C"
       (at 238.76 462.28 0)
       (effects
         (font
@@ -7087,11 +7106,11 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "523fbb27-6025-5fec-860c-39868dea445d"))
+      (uuid "9405a043-8030-5349-90df-d85c20b18f6c"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/5533e7da-1464-5e06-82c2-4cdc19ce317b"
-          (reference "TP67")
+          (reference "TP66")
           (unit 1)))))
   (wire
     (pts
@@ -7100,8 +7119,8 @@
     (stroke
       (width 0)
       (type default))
-    (uuid "fd160add-b667-5bb8-a910-1c632f7234d5"))
-  (global_label "VS_C"
+    (uuid "ed3cf1bf-956b-5446-9a63-3aadb0cf3224"))
+  (global_label "VB_C"
     (shape passive)
     (at 238.76 462.28 270)
     (fields_autoplaced)
@@ -7109,13 +7128,214 @@
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "b382d016-6e9d-5434-8d3e-9896a6d1dae0")
+    (uuid "36852199-abe9-5fca-ab53-bbae830b4e07")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 238.76 462.28 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))
-  (text "STM32G431（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线电压、SPI1 读编码器接口芯片 U14（模式 0，≤ 5 MHz）、SPI3 读 SSI、FDCAN1；8 MHz 晶振；TP1–TP5 是烧录口和电源测试点。B 版：设计对照，不投产。"
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 299.72 459.74 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "8ddd61b1-0971-58b6-a498-9c7d84fe8446")
+    (property "Reference" "TP68"
+      (at 299.72 457.2 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "VS_A"
+      (at 299.72 462.28 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 299.72 459.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 299.72 459.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 299.72 459.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 299.72 459.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "ac2bc3f6-57ff-5459-b886-2b5fc3979b90"))
+    (instances
+      (project "drv-joint-b"
+        (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/5533e7da-1464-5e06-82c2-4cdc19ce317b"
+          (reference "TP68")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 299.72 459.74)
+      (xy 299.72 462.28))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "e3370d63-6680-5465-9693-dd74d5b3d1b6"))
+  (global_label "VS_A"
+    (shape passive)
+    (at 299.72 462.28 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "fc874d50-2276-5826-812d-f2c5d23d4010")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 299.72 462.28 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 360.68 459.74 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "67e73fca-f2f8-5a7f-a0ba-a102ba81f580")
+    (property "Reference" "TP69"
+      (at 360.68 457.2 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "VS_B"
+      (at 360.68 462.28 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 360.68 459.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 360.68 459.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 360.68 459.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 360.68 459.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "3b529535-570c-5ca1-a6e4-4884343b67d8"))
+    (instances
+      (project "drv-joint-b"
+        (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/5533e7da-1464-5e06-82c2-4cdc19ce317b"
+          (reference "TP69")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 360.68 459.74)
+      (xy 360.68 462.28))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "1e968d96-1a1a-59b2-a72c-c38a529a0242"))
+  (global_label "VS_B"
+    (shape passive)
+    (at 360.68 462.28 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "0d886294-c75d-55fc-a2b3-faddba204570")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 360.68 462.28 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 60.96 487.68 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "5882c59b-838f-5b2d-af80-849b74f15cf1")
+    (property "Reference" "TP70"
+      (at 60.96 485.14 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "VS_C"
+      (at 60.96 490.22 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 60.96 487.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 60.96 487.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 60.96 487.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 60.96 487.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "ffb484c8-c901-555e-8dd9-e26e7868ebc0"))
+    (instances
+      (project "drv-joint-b"
+        (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/5533e7da-1464-5e06-82c2-4cdc19ce317b"
+          (reference "TP70")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 60.96 487.68)
+      (xy 60.96 490.22))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "dc7547fa-1ae7-54e3-8eae-7170bc667cf2"))
+  (global_label "VS_C"
+    (shape passive)
+    (at 60.96 490.22 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "078b47ca-38af-5d62-90e8-4f086706e82e")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 490.22 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (text "STM32G431（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线电压、SPI1 读编码器接口芯片 U14（模式 0，≤ 5 MHz）、SPI3 读 SSI、TIM4_CH1（PB6）抱闸 PWM、FDCAN1；8 MHz 晶振；TP1–TP5 是烧录口和电源测试点。B 版：设计对照，不投产。"
     (at 30 22 0)
     (effects
       (font
