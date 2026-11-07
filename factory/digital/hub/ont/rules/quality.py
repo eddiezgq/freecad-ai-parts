@@ -8,6 +8,18 @@ from hub.ont.anomaly import Finding
 from hub.ont.rules import rule
 
 
+def _meas_topic(d=None):
+    """证据的测量主题：记录里带了就用；否则用演示工厂的检验站 qc-01——别的厂（机器人厂、电路板厂……）没有这台设备，
+    这时不给主题（原来直接 unit_topic("qc-01") 会 KeyError，Q3 在有不合格品时出错；2026-11-06 第 106 轮修）"""
+    t = (d or {}).get("_topic") or (d or {}).get("topic")
+    if t:
+        return t
+    try:
+        return unit_topic("qc-01", "measurement")
+    except KeyError:
+        return None
+
+
 @rule("spc_signal")
 def spc_signal(c, p, r):
     from hub import spc
@@ -26,7 +38,7 @@ def spc_signal(c, p, r):
             code, "{} 控制图判异（西电规则 {}）".format(name, "、".join(map(str, rules_hit))),
             "；".join(s["text"] for s in recent) + "。均值–极差图，每组 {} 件，共 {} 组".format(p.get("n", 5), ng),
             severity="critical" if 1 in rules_hit else "warn", subject=("InspectionPlan", p.get("item", "SH-301")),
-            evidence=[{"topic": unit_topic("qc-01", "measurement"), "id": i} for i in res.get("evidence", [])],
+            evidence=[{"topic": _meas_topic(), "id": i} for i in res.get("evidence", [])],
             hint="查看控制图；判异不等于超差，先找原因（刀具、热变形、夹具），再决定是否调整",
             values={"characteristic": code, "rules": rules_hit, "groups": ng, "cpk": (res.get("capability") or {}).get("cpk")}))
     return out
@@ -60,7 +72,7 @@ def ncr_open(c, p, r):
             n["ncr_id"], "不合格品 {}：{} 超差".format(n["ncr_id"], n["part_serial"]),
             "{} 实测 {} mm，公差 {}–{}".format(d.get("name"), d.get("value_mm"), d.get("lower_tol_mm"), d.get("upper_tol_mm")),
             severity="critical" if age_h > p["escalate_h"] else "warn", subject=("Ncr", n["ncr_id"]),
-            evidence=[{"topic": unit_topic("qc-01", "measurement"), "id": d.get("message_id")}],
+            evidence=[{"topic": _meas_topic(d), "id": d.get("message_id")}],
             hint="质检员评审：返修、报废或让步接收", about=[("Ncr", n["ncr_id"]), ("PartSerial", n["part_serial"])],
             values={"age_h": round(age_h, 1), "part": n["part_serial"], "characteristic": d.get("characteristic")},
             alert_key="ncr:" + n["ncr_id"]))
