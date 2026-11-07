@@ -139,13 +139,22 @@ def main():
         call("POST", A.erp + "/api/mock/reset")
     steel0 = None if not REAL else sum(b["actual_qty"] for b in erp_docs("Bin") if b["item_code"] == "RM-45-D50")
     hub("POST", "/api/scenario/reset", {"speed": 1, "scores": True}, teacher)
-    ov = wait(lambda: (lambda o: o if o["demo"] and any(m["state"] == "down" for m in o["machines"]) else None)(
-        hub("GET", "/api/overview", token=teacher)), "情景载入", 60)
+    # 等情景整批写完再答任务 1：只看“有演示数据、有停机”会在订单、库存还没写进来时就往下走（2026-11-07 CI 偶发 10/15 分）
+    def loaded(o):
+        return (o["demo"] and any(m["state"] == "down" for m in o["machines"])
+                and any(x["name"] == "SAL-ORD-2026-00019" for x in o["orders"])
+                and all(m.get("qty") is not None for m in o["materials"]))
+    ov = wait(lambda: (lambda o: o if loaded(o) else None)(hub("GET", "/api/overview", token=teacher)), "情景载入", 60)
     check(ov is not None, "情景载入：看板有演示数据，GRD-01 停机")
 
     mgr = login(student, "manager")
     print("2. 任务 1：读懂看板")
     r = hub("POST", "/api/teach/t1", {"machine": "grd-01", "order": "SAL-ORD-2026-00019", "material": "BRG-6207"}, mgr)
+    if r["score"] != 15:                                   # 失败时把看板上的答案打出来，便于查原因
+        o = hub("GET", "/api/overview", token=mgr)
+        r = dict(r, board={"down": [m["unit"] for m in o["machines"] if m["state"] in ("down", "fault")],
+                           "orders": [(x["name"], x["tone"]) for x in o["orders"]],
+                           "materials": [(m["code"], m["status"]) for m in o["materials"]]})
     check(r["score"] == 15, "任务 1 满分（{}）".format(r))
 
     print("3. 任务 2：接单与算料（计划员表单 → 提议 → 确认 → 桥接写入 ERPNext）")
