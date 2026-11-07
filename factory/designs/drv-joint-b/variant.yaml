@@ -1,9 +1,9 @@
 # 关节伺服驱动板 DRV-JOINT B 版：A 版设计描述上的改动清单（问渠电子 wqeda.variant/1；第 102 轮由 drv_joint.py 的 B 版补丁迁来）
-# 放上编码器接口芯片 WQ-ENCIF（第 92 轮设计，未流片）；设计对照，不投产。“A→B 改了什么”由这里自动列出。
+# 放上编码器接口芯片 WQ-ENCIF（第 92 轮设计，未流片）；第 110 轮加抱闸驱动（U16、Q7、D5、J6）。设计对照，不投产。“A→B 改了什么”由这里自动列出。
 format: wqeda.variant/1
 base: ../drv-joint/design.yaml
 rev: B
-title: 关节伺服驱动板 DRV-JOINT B 版（放上编码器接口芯片 WQ-ENCIF；设计对照，不投产）
+title: 关节伺服驱动板 DRV-JOINT B 版（放上编码器接口芯片 WQ-ENCIF、加抱闸驱动；设计对照，不投产）
 pin_changes:
   U10:
   - pin: '12'
@@ -18,8 +18,10 @@ pin_changes:
     net: null
   - pin: '17'
     net: ENC_RST_N
+  - pin: '43'
+    net: BRK_PWM
 note_changes:
-  U10: 电机控制 MCU（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线、SPI1 读编码器接口芯片 U14、SPI3 读 SSI、FDCAN1
+  U10: 电机控制 MCU（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线、SPI1 读编码器接口芯片 U14、SPI3 读 SSI、TIM4_CH1（PB6）抱闸 PWM、FDCAN1
 add_parts:
 - ref: U14
   lib: wq:WQ-ENCIF
@@ -85,6 +87,70 @@ add_parts:
   pins: {'1': +3V3, '2': GND}
   item: CAP-0402
   note: Y2 去耦
+- ref: U16
+  lib: Driver_FET:UCC27511ADBV
+  value: UCC27511ADBV
+  fp: Package_TO_SOT_SMD:SOT-23-6
+  block: power
+  pins: {'1': +12V, '2': BRK_GD, '3': BRK_GD, '4': GND, '5': GND, '6': BRK_PWM}
+  item: IC-GDRV-LS
+  note: 抱闸栅极驱动（示例选型，第 110 轮）：12 V 供电，输入兼容 3.3 V
+- ref: Q7
+  lib: Transistor_FET:BSC040N08NS5
+  value: BSC040N08NS5
+  fp: Package_TO_SOT_SMD:TDSON-8-1
+  block: power
+  pins: {'1': GND, '2': GND, '3': GND, '4': BRK_G, '5': BRK_N}
+  item: MOS-80V
+  note: 抱闸低边开关（同三相桥的 MOSFET）：PWM 20 kHz，松闸先 100% 50 ms，再保持平均 24 V（示例）
+- ref: D5
+  lib: Device:D_Schottky
+  value: 100V 1A
+  fp: Diode_SMD:D_SMA
+  block: power
+  pins: {'1': VBUS, '2': BRK_N}
+  item: DIO-SMD-100
+  note: 抱闸线圈续流
+- ref: R36
+  lib: Device:R
+  value: '10'
+  fp: Resistor_SMD:R_0402_1005Metric
+  block: power
+  pins: {'1': BRK_GD, '2': BRK_G}
+  item: RES-0402
+  note: 抱闸 MOSFET 栅极电阻
+- ref: R37
+  lib: Device:R
+  value: 10k
+  fp: Resistor_SMD:R_0402_1005Metric
+  block: power
+  pins: {'1': BRK_G, '2': GND}
+  item: RES-0402
+  note: 栅源下拉：驱动没电时 MOSFET 关断
+- ref: R38
+  lib: Device:R
+  value: 100k
+  fp: Resistor_SMD:R_0402_1005Metric
+  block: power
+  pins: {'1': BRK_PWM, '2': GND}
+  item: RES-0402
+  note: 抱闸输入下拉：MCU 复位、没输出时线圈断电 → 抱住（失效安全）
+- ref: C62
+  lib: Device:C
+  value: 1u
+  fp: Capacitor_SMD:C_0402_1005Metric
+  block: power
+  pins: {'1': +12V, '2': GND}
+  item: CAP-0402
+  note: U16 去耦
+- ref: J6
+  lib: Connector_Generic:Conn_01x02
+  value: BRAKE
+  fp: Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical
+  block: power
+  pins: {'1': VBUS, '2': BRK_N}
+  item: CONN-SIG
+  note: 抱闸线圈（失电制动，24 V 0.42 A，示例）：1 = 母线 +、2 = 线圈 −
 add_placement:
   U14: [58, 54, 0, B]
   C57: [58, 50.5, 0, B]
@@ -94,3 +160,21 @@ add_placement:
   U15: [70, 53, 0, B]
   C59: [67, 53, 90, B]
   C60: [73, 53, 90, B]
+  J6: [82.5, 5, 0, F]
+  Q7: [86.5, 25, 0, F]
+  R37: [81.5, 25, 90, F]
+  D5: [84.5, 12.0, 0, F]
+  U16: [86, 35.5, 0, F]
+  R36: [82, 35.5, 90, F]
+  C62: [89.5, 35.5, 90, F]
+  R38: [86, 38.5, 0, F]
+add_pours:                     # 第 110 轮：母线铺铜往右接出一条，连到抱闸接口 J6 的 1 脚和续流二极管 D5 的阴极
+- net: VBUS
+  layer: F.Cu
+  points:
+  - [77.0, 1.0]
+  - [83.4, 1.0]
+  - [83.4, 12.9]
+  - [81.2, 12.9]
+  - [81.2, 3.6]
+  - [77.0, 3.6]

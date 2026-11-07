@@ -5,7 +5,7 @@
     <div class="page-title"><h1>电路板设计</h1>
       <span class="muted">{{ d ? d.name + '（' + d.rev + '，' + d.tool + '）' : '读取中…' }}</span></div>
     <div class="line"><button class="chip" :class="{ on: rev === 'A' }" @click="setRev('A')">A 版（投产）</button>
-      <button class="chip" :class="{ on: rev === 'B' }" @click="setRev('B')">B 版：放上编码器接口芯片（设计对照）</button></div>
+      <button class="chip" :class="{ on: rev === 'B' }" @click="setRev('B')">B 版：编码器接口芯片 + 抱闸（设计对照）</button></div>
     <div v-if="d" class="warn small">⚠ {{ d.disclaimer }}。芯片是 KiCad 官方库里有的器件做的示例选型；数值由电路公式算（与“电路分析”的例题同一组数）。</div>
     <div v-if="d && rev === 'B'" class="small muted">第 106 轮起：数字工业园（仿真）里电路板厂按 B 版试产（产品 DRV-JOINT-B），编码器接口芯片向工业园的芯片厂买；现实里照旧不投产。</div>
     <div v-if="err" class="err">{{ err }}</div>
@@ -48,7 +48,7 @@
 
     <section v-if="d && tab === 'bom'" class="card">
       <p v-if="rev === 'A'" class="small">同一物料编号、同一数值和封装合为一行；“物料编号”就是电路板厂清单里的编号（贴片板 SMT-DRV 与成品板 DRV-JOINT 的物料清单按这份设计的数量写，测试核对）。</p>
-      <p v-else class="small">B 版不投产：IC-ENCIF、OSC-50M、IC-LDO18 这几个编号不在电路板厂的清单里（芯片未流片，买不到）。比 A 版多出的见“A→B 改了什么”。</p>
+      <p v-else class="small">B 版：现实里不投产（芯片未流片）；数字工业园里电路板厂试产，贴片板 SMT-DRV-B 与成品板 DRV-JOINT-B 的物料清单按这份设计的数量写（测试核对）。比 A 版多出的见“A→B 改了什么”。</p>
       <table class="tbl">
         <thead><tr><th>物料编号</th><th>数值</th><th>封装</th><th>数量</th><th>位号</th><th>说明</th></tr></thead>
         <tbody><tr v-for="(r, i) in bom" :key="i"><td class="mono">{{ r[0] }}</td><td>{{ r[1] }}</td><td class="small">{{ r[2] }}</td><td>{{ r[3] }}</td>
@@ -72,8 +72,9 @@
     </section>
 
     <section v-if="d && tab === 'diff' && d.changes" class="card">
-      <p class="small">B 版 = A 版 + 编码器接口芯片 WQ-ENCIF（<router-link to="/chip-design">芯片设计</router-link>，第 92 轮）：编码器 A/B/Z 经原来的 RC 滤波进芯片，芯片计数，MCU 用 SPI 读。
-        同一份设计描述打补丁生成（factory/designs/tools/drv_joint.py 里的 REV = "B" 一段），其余电路一字不动。</p>
+      <p class="small">B 版 = A 版 + 编码器接口芯片 WQ-ENCIF（<router-link to="/chip-design">芯片设计</router-link>，第 92 轮）：编码器 A/B/Z 经原来的 RC 滤波进芯片，芯片计数，MCU 用 SPI 读；
+        第 110 轮加抱闸驱动：J6 接电机轴上的失电制动抱闸，U16 栅极驱动 + Q7 从母线 PWM 供电，D5 续流，R38 下拉保证 MCU 没输出时抱住；母线铺铜往右接出一条供电。
+        同一份设计描述打补丁生成（factory/designs/drv-joint-b/variant.yaml），其余电路一字不动。</p>
       <h3>器件</h3>
       <table class="tbl"><thead><tr><th>位号</th><th>改了什么</th></tr></thead>
         <tbody><tr v-for="(c, i) in d.changes" :key="i"><td class="mono">{{ c.ref }}</td><td class="small">{{ c.what }}</td></tr></tbody></table>

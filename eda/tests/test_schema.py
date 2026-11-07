@@ -36,8 +36,13 @@ def test_expand_is_deterministic_and_complete():
     assert x1["changes"] == [] and x1["rev"] == "A"
     base, var = design.load_variant(B_PATH)
     xb = design.expand(base, var)
-    assert len(xb["parts"]) == 170 and set(xb["placement"]) == {q["ref"] for q in xb["parts"]}
-    assert len(xb["changes"]) == 14 and xb["changes"][0] == ("U10", "引脚 12：未用 → ENC_CS_N")
+    assert len(xb["parts"]) == 181 and set(xb["placement"]) == {
+        q["ref"] for q in xb["parts"]
+    }  # 第 110 轮加抱闸驱动 8 个 + 测试点 3 个
+    assert len(xb["changes"]) == 24 and xb["changes"][0] == ("U10", "引脚 12：未用 → ENC_CS_N")
+    assert (
+        xb["changes"][-1] == ("铺铜", "新增 VBUS 铺铜（F.Cu）") and len(xb["pours"]) == len(base["board"]["pours"]) + 1
+    )
     assert base == design.load_design(A_PATH)  # 打补丁不动底稿
 
 
@@ -77,6 +82,28 @@ def test_variant_errors_are_reported():
     }
     probs = design.validate_variant(var, base)
     assert any("U99" in p for p in probs) and any("位号重复" in p for p in probs)
+    # 第 110 轮（freecad-ai-parts ADR-0088）：新增铺铜
+    bad = {
+        "format": design.VARIANT_FORMAT,
+        "rev": "C",
+        "add_pours": [
+            {"net": "VBUS", "points": [[0, 0], [1, 0], [1, 1]]},
+            {"net": "VBUS", "layer": "F.Cu", "points": [[0, 0], [1, 0]]},
+            {"net": "VBUS", "layer": "F.Cu", "points": [[0, 0], [1, 0], [1, 1]], "width": 1},
+        ],
+    }
+    probs = design.validate_variant(bad, base)
+    assert (
+        any("第 1 块要写" in p for p in probs)
+        and any("第 2 块的 points" in p for p in probs)
+        and any("第 3 块有不认识的字段" in p for p in probs)
+    )
+    ok = {
+        "format": design.VARIANT_FORMAT,
+        "rev": "C",
+        "add_pours": [{"net": "VBUS", "layer": "F.Cu", "points": [[0, 0], [1, 0], [1, 1]]}],
+    }
+    assert design.validate_variant(ok, base) == []
 
 
 def test_capability_example_and_unknown():

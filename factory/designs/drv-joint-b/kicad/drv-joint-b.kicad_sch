@@ -4,7 +4,7 @@
   (uuid "faa6da33-d21f-542d-ab64-7b87ee2f997f")
   (paper "A3")
   (title_block
-    (title "关节伺服驱动板 DRV-JOINT B 版（放上编码器接口芯片 WQ-ENCIF；设计对照，不投产）")
+    (title "关节伺服驱动板 DRV-JOINT B 版（放上编码器接口芯片 WQ-ENCIF、加抱闸驱动；设计对照，不投产）")
     (date "2026-11-05")
     (rev "示例 A")
     (company "问渠数字工业园 · 电路板厂（示例设计，未经硬件验证，不能直接投产）"))

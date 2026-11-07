@@ -23,6 +23,7 @@
 #define RCC_FDCANEN (1u << 25)
 #define RCC_PWREN (1u << 28)
 #define RCC_SPI3EN (1u << 15)                /* RCC_APB1ENR1：位 15 SPI3EN（第 107 轮） */
+#define RCC_TIM4EN (1u << 2)                 /* RCC_APB1ENR1：位 2 TIM4EN（第 110 轮） */
 #define RCC_TIM1EN (1u << 11)
 #define RCC_SPI1EN (1u << 12)
 
@@ -123,5 +124,15 @@
 #define IRQ_FDCAN1_IT0 21
 
 #define SYSCLK_HZ 170000000u
+
+/* TIM4，基址 0x4000 0800（APB1；第 110 轮抱闸 PWM，CH1 = PB6 AF2）。偏移同 TIM_TypeDef；对照 ST 官方 CMSIS 头文件 */
+#define TIM4_BASE 0x40000800u
+#define TIM4_CR1 REG(TIM4_BASE + 0x00)       /* TIM_CR1：位 0 CEN、位 7 ARPE */
+#define TIM4_EGR REG(TIM4_BASE + 0x14)       /* TIM_EGR：位 0 UG */
+#define TIM4_CCMR1 REG(TIM4_BASE + 0x18)     /* TIM_CCMR1：位 3 OC1PE、OC1M 位 6:4 + 位 16（0110 = PWM 模式 1） */
+#define TIM4_CCER REG(TIM4_BASE + 0x20)      /* TIM_CCER：位 0 CC1E */
+#define TIM4_PSC REG(TIM4_BASE + 0x28)
+#define TIM4_ARR REG(TIM4_BASE + 0x2C)
+#define TIM4_CCR1 REG(TIM4_BASE + 0x34)
 
 #endif

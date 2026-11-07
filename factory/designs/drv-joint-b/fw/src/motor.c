@@ -1,9 +1,10 @@
-/* 电机控制（第 102 轮；第 107 轮加原点、受控停车）。一次 ADC 注入组转换完成中断 = 一个 20 kHz 电流环周期：
+/* 电机控制（第 102 轮；第 107 轮加原点、受控停车；第 110 轮加抱闸时序）。一次 ADC 注入组转换完成中断 = 一个 20 kHz 电流环周期：
  *   读三相电流与母线 → 过流保护 → 读编码器（SPI1 → WQ-ENCIF）→ 电角度 → Clarke / Park → d、q 两个 PI → 反 Park → SVPWM → 写比较值
  *   每 10 次（2 kHz）速度环，每 20 次（1 kHz）位置环与轨迹、编码器状态、主程序节拍。
  * PWM：TIM1 中心对齐 20 kHz，CH1–3 PA8–PA10、CH1N–3N PB13–PB15（AF6，第 88 轮原理图第 27–32 脚）；死区 200 ns。
  * 电流：PA0–PA2 = ADC1_IN1–IN3，40 mV/A、零点 1.65 V（开机时实测零点）；母线 PA3 = ADC1_IN4，分压 6.8 / 108.8。 */
 #include "motor.h"
+#include "brake.h"
 #include "can_proto.h"
 #include "encif.h"
 #include "regs.h"
@@ -37,6 +38,7 @@ static int32_t ring[20];            /* 最近 20 个周期（1 ms）的计数 */
 static uint32_t ms;
 static uint32_t align_t;
 static int aligned;
+static int32_t align_pending;      /* 对零记下的偏移，抱住以后才生效（第 110 轮） */
 /* 轨迹（电机侧，单位：计数，浮点） */
 static float trj_pos, trj_vel, trj_goal;
 
@@ -143,6 +145,7 @@ void motor_enable(int on)
 void motor_fault(uint32_t code, float val)
 {
     motor_enable(0);
+    brake_set(0);                                    /* 第 110 轮：立即关输出的同时抱闸（抱住要几十毫秒） */
     if (mc.state != STATE_FAULT || mc.hold) {        /* 受控停车中又来危险故障：改记这一个，立即关输出 */
         mc.fault = code;
         mc.fault_val = val;
@@ -192,6 +195,7 @@ void motor_quickstop(uint32_t code, float val, int keep)
 
 void motor_resume_hold(void)
 {
+    brake_set(1);                                    /* 第 110 轮：若已在抱闸（关输出类停车），重新松开 */
     mc.hold = 0;
     mc.fault = FAULT_NONE;
     mc.fault_val = 0;
@@ -207,6 +211,40 @@ void motor_start_align(void)
     mc.state = STATE_INIT;
     mc.mode = MODE_STOP;
     motor_enable(1);
+    brake_set(1);                                    /* 第 110 轮：对零要转子能动；d 轴电流把转子定住 */
+}
+
+/* ---------------------------------------------------------------- 第 110 轮：抱闸时序 */
+void motor_hold_here(void)
+{
+    trj_pos = trj_goal = (float)mc.pos_cnt;
+    trj_vel = 0;
+    mc.speed_ref = 0;
+    mc.iq_ref = 0;
+    mc.mode = MODE_POS;
+    motor_enable(1);                                 /* 先有力矩（位置环停在这里）…… */
+    brake_set(1);                                    /* ……再松闸 */
+}
+
+void motor_park(void)
+{
+    mc.state = STATE_READY;
+    if (!mc.moe) {
+        brake_set(0);
+        mc.hold = 0;
+        mc.mode = MODE_STOP;
+        return;
+    }
+    const float amax = A_MAX / TWO_PI * CNT_PER_REV;
+    trj_pos = (float)mc.pos_cnt;
+    trj_vel = mc.speed_rpm / 60.0f * CNT_PER_REV;
+    trj_goal = trj_pos + (trj_vel >= 0 ? 1.0f : -1.0f) * trj_vel * trj_vel / (2.0f * amax);
+    if (mc.mode != MODE_SPEED && mc.mode != MODE_POS) {
+        int_w = mc.iq_ref;                           /* 从力矩模式切过来：速度环积分接上当前电流，不跳 */
+    }
+    mc.mode = MODE_POS;
+    mc.hold = 1;                                     /* 借用受控停车的“停住后关输出”：停住 → 抱闸 → 抱住后关输出 */
+    mc.hold_keep = 0;
 }
 
 void motor_set(uint32_t mode, int32_t target)
@@ -235,6 +273,11 @@ static void trajectory(void)
     const float dt = 0.001f;
     const float vmax = V_MAX / TWO_PI * CNT_PER_REV, amax = A_MAX / TWO_PI * CNT_PER_REV;
     float e = trj_goal - trj_pos;
+    if (trj_vel == 0.0f && absf(e) < 0.5f) {           /* 停着、已到目标：不动（第 110 轮：原来会在 ±几个计数间来回） */
+        trj_pos = trj_goal;
+        mc.pos_ref_cnt = (int32_t)trj_pos;
+        return;
+    }
     float dir = e >= 0 ? 1.0f : -1.0f;
     float stop = trj_vel * trj_vel / (2.0f * amax);    /* 现在开始减速要走的距离 */
     float v;
@@ -358,9 +401,16 @@ void ADC1_2_IRQHandler(void)
     if (k == 0) {
         ms++;
 
-        if (mc.state == STATE_INIT && mc.moe && ++align_t == 300) {      /* 通电 300 ms 后记偏移 */
+        brake_tick(mc.vbus);
+        mc.brake_cmd = (uint32_t)brake_cmd();
+        mc.brake_ok = (uint32_t)(mc.brake_cmd ? brake_released() : brake_engaged());
+        if (mc.state == STATE_INIT && mc.moe && ++align_t == 300) {      /* 通电 300 ms 后记偏移；第 110 轮：先抱闸 */
             int32_t o = cnt % CNT_PER_EREV;
-            mc.align_off = o < 0 ? o + CNT_PER_EREV : o;
+            align_pending = o < 0 ? o + CNT_PER_EREV : o;
+            brake_set(0);
+        }
+        if (mc.state == STATE_INIT && mc.moe && align_t == 300u + BRK_ENGAGE_MS) {   /* 抱住了才撤对零电流、关输出 */
+            mc.align_off = align_pending;
             aligned = 1;
             motor_enable(0);
             mc.state = STATE_READY;
@@ -368,9 +418,12 @@ void ADC1_2_IRQHandler(void)
         if ((mc.state == STATE_RUN || mc.hold) && mc.mode == MODE_POS) {
             trajectory();
             if (mc.hold && !mc.hold_keep && trj_vel == 0.0f && trj_pos == trj_goal) {   /* 受控停车（关输出类）：停住了再关 */
-                mc.hold = 0;
-                motor_enable(0);
-                mc.mode = MODE_STOP;
+                brake_set(0);                                                         /* 第 110 轮：先抱闸，抱住了再关 */
+                if (brake_engaged()) {
+                    mc.hold = 0;
+                    motor_enable(0);
+                    mc.mode = MODE_STOP;
+                }
             }
             float ep = (trj_pos - (float)cnt) * (TWO_PI / CNT_PER_REV);           /* rad */
             float wff = trj_vel / CNT_PER_REV * 60.0f;                            /* 前馈 rpm */

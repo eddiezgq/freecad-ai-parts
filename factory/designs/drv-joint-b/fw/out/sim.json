@@ -6,13 +6,13 @@
  "cpr": 10000,
  "step_s": 0.01,
  "firmware": {
-  "text": 6060,
+  "text": 6968,
   "data": 12,
-  "bss": 396,
-  "flash": 6072,
-  "ram": 408
+  "bss": 428,
+  "flash": 6980,
+  "ram": 440
  },
- "tlm_addr": "0x20000158",
+ "tlm_addr": "0x20000178",
  "tlm_fields": [
   "magic",
   "state",

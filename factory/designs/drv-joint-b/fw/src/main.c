@@ -1,5 +1,6 @@
 /* 关节驱动板 DRV-JOINT B 版 示例固件。第 100 轮：经 SPI1 读编码器接口芯片 WQ-ENCIF；第 102 轮：电机控制（FOC）与 CAN；
  * 第 107 轮：输出端绝对值编码器（SSI，SPI3）——开机取绝对角度、双编码器互检、受控停车。
+ * 第 110 轮：抱闸（TIM4 CH1 = PB6）——上电抱住；运动前先稳住再松闸；停、欠压先抱住再关输出；危险故障关输出同时抱闸。
  *
  * 时间基准是 20 kHz 电流环中断（motor.c）；它每 1 ms 调一次 motor_ms_hook()：
  *   第 100 轮那套编码器管理（状态、Z 相、错误计数、芯片缺失每 100 ms 重试）、状态机、指令、保护、排 CAN 发送。
@@ -7,6 +8,7 @@
  * 板上没有调试串口：遥测区 tlm（编码器，第 100 轮）和 mc（电机控制，motor.h）给调试器经 SWD 看（仿真里由 Renode 读内存）。
  * 示例固件，仿真验证；芯片未流片、B 版不投产。 */
 #include <stdint.h>
+#include "brake.h"
 #include "can.h"
 #include "can_proto.h"
 #include "clock.h"
@@ -46,6 +48,8 @@ static int32_t hist[WIN_MS];
 /* CAN 收到的指令（FDCAN 中断写，1 kHz 节拍读） */
 static volatile uint32_t cmd_mode, cmd_new;
 static volatile int32_t cmd_target;
+static uint32_t pend_mode;          /* 第 110 轮：运动指令等松闸（mc.pend） */
+static int32_t pend_target;
 static uint32_t last_cmd_ms, uv_ms, prev_state, mis_ms;
 
 #define ABS_ZERO_MDEG 0      /* 输出端编码器的安装零点（编码器读 0 时关节在 0°；示例） */
@@ -210,21 +214,38 @@ void motor_ms_hook(uint32_t now)
                 }
             }
         } else if (m == MODE_STOP) {
-            if (mc.state == STATE_RUN) {
-                motor_enable(0);
-                mc.state = STATE_READY;
-                mc.mode = MODE_STOP;
+            if (mc.state == STATE_RUN) {               /* 第 110 轮：减速停住 → 抱闸 → 抱住后关输出（原来立即关输出） */
+                mc.pend = 0;
+                motor_park();
             }
         } else if ((m == MODE_SPEED || m == MODE_POS || m == MODE_TORQUE) &&
                    (mc.state == STATE_READY || mc.state == STATE_RUN)) {
-            if (mc.state == STATE_READY) {
-                motor_set(m, cmd_target);
-                motor_enable(1);
+            if (mc.state == STATE_READY) {             /* 第 110 轮：先在当前位置稳住、松闸，松开了再执行指令 */
+                if (mc.hold) {                         /* 正在“停”的抱闸过程中：不关输出了，重新松闸 */
+                    mc.hold = 0;
+                    brake_set(1);
+                } else {
+                    motor_hold_here();
+                }
                 mc.state = STATE_RUN;
+                mc.pend = 1;
+            }
+            if (mc.pend) {
+                pend_mode = m;
+                pend_target = cmd_target;
             } else {
                 motor_set(m, cmd_target);
             }
         }
+    }
+
+    /* 第 110 轮：松开了才执行等着的运动指令 */
+    if (mc.pend && mc.state != STATE_RUN) {
+        mc.pend = 0;
+    }
+    if (mc.pend && brake_released()) {
+        mc.pend = 0;
+        motor_set(pend_mode, pend_target);
     }
 
     /* 保护：通信超时、欠压（连续 5 ms）——第 107 轮起受控停车：通信超时减速停住、保持位置不断电；欠压减速停住后关输出 */
@@ -285,6 +306,7 @@ int main(void)
     encif_init_bus();
     tlm.state = chip_start() ? ST_RUN : ST_MISSING;
     ssi_init();
+    brake_init();
     motor_init();
     can_init();
 
@@ -314,7 +336,8 @@ int main(void)
             due_heart = 0;
             d[0] = (uint8_t)mc.state;
             put16(d + 1, rnd(mc.vbus * 10.0f));
-            can_send(CAN_ID_HEART, d, 3);
+            d[3] = (uint8_t)mc.brake_cmd;               /* 第 110 轮：抱闸 0 抱住、1 松开 */
+            can_send(CAN_ID_HEART, d, 4);
             mc.can_tx++;
         }
     }

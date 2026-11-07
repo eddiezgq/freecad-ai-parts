@@ -1,4 +1,4 @@
-<!-- 第 102 轮（电子 E8）：驱动板 B 版固件的电机控制与 CAN——控制框图、六个场景（曲线、判据、CAN 帧）、协议、参数表。
+<!-- 第 102 轮（电子 E8）：驱动板 B 版固件的电机控制与 CAN——控制框图、场景（曲线、判据、CAN 帧）、协议、参数表。第 107 轮输出端编码器、第 110 轮抱闸。
      产物 factory/designs/drv-joint-b/fw/out/sim_motor.json。 -->
 <template>
   <div>
@@ -14,6 +14,10 @@
           <div class="b pw">逆变桥 48 V → 电机 → 减速器 1:100 → 摆臂</div>
         </div>
         <div class="row fb">
+          <span>抱闸：</span><div class="b">TIM4 PWM（PB6）<small>松闸先 100% 50 ms，再保持平均 24 V</small></div><span class="ar">→</span>
+          <div class="b pw">U16 栅极驱动 → Q7 → 电机轴上的失电制动抱闸<small>没输出就抱住（第 110 轮）</small></div>
+        </div>
+        <div class="row fb">
           <span>反馈：</span><div class="b chip">编码器 → WQ-ENCIF → SPI1<small>角度、转速</small></div>
           <div class="b chip">输出端绝对值编码器 → SSI → SPI3<small>开机原点、双编码器互检（第 107 轮）</small></div>
           <div class="b">三相电流 → INA240 → ADC1<small>40 mV/A，过流 25 A 立即关管</small></div>
@@ -22,7 +26,8 @@
       <p class="small">编译出来的真固件（{{ d.firmware.flash }} 字节 Flash、{{ d.firmware.ram }} 字节 RAM，170 MHz、硬件浮点）在 Renode 里跑；
         电机、减速器、摆臂、逆变桥、电流采样和 CAN 主站都是仿真的（参数见下表，零件库没有的标“示例”）。判据都对仿真里的物理真值。</p>
       <p class="small muted">⚠ {{ d.disclaimer }}</p>
-      <p class="small muted">⚠ 板上没有抱闸电路：关输出后（就绪、出故障）摆臂会在重力下落下；真关节要抱闸，留给以后的电路改版（第 107 轮细则）。</p>
+      <p class="small">抱闸（第 110 轮，B 版电路加了抱闸驱动）：上电抱住；运动前先在原地稳住再松闸；“停”和欠压先停住、抱住，再关输出，摆臂不落；
+        过流、编码器类危险故障关输出的同时抱闸，摆臂落一点就被抱住。第 107 轮还没有抱闸时，关输出后摆臂会在重力下落下。</p>
 
       <h3>场景（{{ d.scenarios.filter((s) => s.passed).length }} / {{ d.scenarios.length }} 通过）</h3>
       <div class="line">
@@ -55,11 +60,12 @@
       <table class="tbl small">
         <thead><tr><th>ID</th><th>方向</th><th>内容</th></tr></thead>
         <tbody>
-          <tr><td class="mono">0x201</td><td>主站→板</td><td>指令：[0] 模式（0 停、1 速度、2 位置、3 清故障、4 力矩）[1..4] 目标（速度 rpm；位置 关节 0.001°；力矩 q 轴 mA）。运行中至少 10 Hz 发</td></tr>
+          <tr><td class="mono">0x201</td><td>主站→板</td><td>指令：[0] 模式（0 停、1 速度、2 位置、3 清故障、4 力矩）[1..4] 目标（速度 rpm；位置 关节 0.001°；力矩 q 轴 mA）。运行中至少 10 Hz 发。
+            从就绪开始运动：先稳住、松闸，60 ms 后执行；“停”：停住 → 抱闸 → 关输出（第 110 轮）</td></tr>
           <tr><td class="mono">0x181</td><td>板→主站</td><td>状态 100 Hz：状态、故障码、关节角 0.01°、电机转速 rpm、q 轴电流 0.01 A</td></tr>
           <tr><td class="mono">0x081</td><td>板→主站</td><td>报警（出故障立即发）：故障码 1 过流、2 欠压、3 编码器、4 通信超时、5 输出端编码器、6 减速器 / 编码器不一致（第 107 轮）；相关值。
-            1、3、5、6 立即关输出；4 减速停住、保持位置不断电；2 停住后关输出</td></tr>
-          <tr><td class="mono">0x701</td><td>板→主站</td><td>心跳 10 Hz：状态、母线电压 0.1 V</td></tr>
+            1、3、5、6 立即关输出（同时抱闸）；4 减速停住、保持位置不断电；2 停住、抱闸后关输出</td></tr>
+          <tr><td class="mono">0x701</td><td>板→主站</td><td>心跳 10 Hz：状态、母线电压 0.1 V、抱闸（0 抱住、1 松开，第 110 轮）</td></tr>
         </tbody>
       </table>
 
@@ -124,7 +130,23 @@ const charts = computed(() => {
   }
   if (id === 'stop') {
     return [{ title: '关节角 °（1.6 s 起不再发指令；2.6 s 欠压）', series: [{ name: '实际', data: s.joint, cls: 'truth' }], zero: true },
-      { title: '状态与输出', series: [{ name: '状态', data: s.state, cls: 'c2' }, { name: '输出开（MOE）', data: s.moe, cls: 'ref' }], zero: true }];
+      { title: '状态与输出', series: [{ name: '状态', data: s.state, cls: 'c2' }, { name: '输出开（MOE）', data: s.moe, cls: 'ref' },
+        { name: '抱闸松开', data: s.brake, cls: 'fwk' }], zero: true }];
+  }
+  if (id === 'brk_boot') {
+    const w = sub(0.38, 0.6);
+    return [{ title: '关节角 °（开机 60°，0.45 s 指令 90°）', series: [{ name: '实际', data: s.joint, cls: 'truth' }] },
+      { title: '0.38–0.6 s 放大：关节角偏差 0.001°（相对 0.45 s）', t: w.t,
+        series: [{ name: '实际', data: w.f('joint').map((v, i, a) => (v - a[w.t.findIndex((t) => t >= 0.45)]) * 1000), cls: 'truth' }], zero: true },
+      { title: '输出与抱闸', t: w.t, series: [{ name: '输出开（MOE）', data: w.f('moe'), cls: 'ref' }, { name: '抱闸松开', data: w.f('brake'), cls: 'fwk' },
+        { name: '线圈电流 A', data: w.f('brake_i'), cls: 'c3' }], zero: true }];
+  }
+  if (id === 'brk_uv' || id === 'brk_ssi' || id === 'brk_stop') {
+    const w = sub(1.65, 2.0);
+    const ev = { brk_uv: '1.7 s 欠压', brk_ssi: '1.7 s 输出端编码器线断', brk_stop: '1.7 s 发“停”' }[id];
+    return [{ title: '关节角偏差 0.001°（相对 90°，' + ev + '）', t: w.t, series: [{ name: '实际 − 90°', data: w.f('joint').map((v) => (v - 90) * 1000), cls: 'truth' }], zero: true },
+      { title: '输出与抱闸', t: w.t, series: [{ name: '输出开（MOE）', data: w.f('moe'), cls: 'ref' }, { name: '抱闸松开', data: w.f('brake'), cls: 'fwk' },
+        { name: '线圈电流 A', data: w.f('brake_i'), cls: 'c3' }], zero: true }];
   }
   return [{ title: '电机转速 rpm', series: [{ name: '实际', data: s.rpm, cls: 'truth' }], zero: true },
     { title: '相电流 A（0.6 s 短路）', series: [{ name: 'A 相', data: s.ia, cls: 'c3' }, { name: 'B 相', data: s.ib, cls: 'fwk' }], zero: true },

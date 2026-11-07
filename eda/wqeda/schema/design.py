@@ -6,7 +6,7 @@
     L3 circuit   电路：器件、引脚接哪个网络、物料编号；网络分类；按规则生成的 ICT 测试点
     L4 board     板子：外形、层数、摆放、安装孔、测试点网格、大电流焊盘路径、功率铺铜
 
-变体（variant）：在一份设计描述上打补丁（改引脚、改说明、加器件、加摆放），改了什么自动记成改动清单。
+变体（variant）：在一份设计描述上打补丁（改引脚、改说明、加器件、加摆放、加铺铜），改了什么自动记成改动清单。
 本模块只做读、校验和确定性展开：不联网、不调 AI。"""
 
 from __future__ import annotations
@@ -190,6 +190,14 @@ def validate_variant(doc, base):
     for ref in doc.get("add_placement") or {}:
         if ref not in refs and ref not in new:
             p.append("新增摆放的 {} 不在器件清单里".format(ref))
+    for i, pr in enumerate(doc.get("add_pours") or []):  # 新增铺铜（第 110 轮，freecad-ai-parts ADR-0088）
+        pts = pr.get("points") if isinstance(pr, dict) else None
+        if not isinstance(pr, dict) or not isinstance(pr.get("net"), str) or not isinstance(pr.get("layer"), str):
+            p.append("新增铺铜第 {} 块要写 net、layer、points".format(i + 1))
+        elif not isinstance(pts, list) or len(pts) < 3 or any(not isinstance(x, list) or len(x) != 2 for x in pts):
+            p.append("新增铺铜第 {} 块的 points 应是至少 3 个 [x, y]".format(i + 1))
+        elif set(pr) - {"net", "layer", "points"}:
+            p.append("新增铺铜第 {} 块有不认识的字段 {}".format(i + 1, sorted(set(pr) - {"net", "layer", "points"})))
     return p
 
 
@@ -263,6 +271,9 @@ def apply_variant(doc, var):
         parts.append(copy.deepcopy(q))
         changes.append((q["ref"], "新增：" + q.get("note", "")))
     out["board"].setdefault("placement", {}).update(copy.deepcopy(var.get("add_placement") or {}))
+    for pr in var.get("add_pours") or []:
+        out["board"].setdefault("pours", []).append(copy.deepcopy(pr))
+        changes.append(("铺铜", "新增 {} 铺铜（{}）".format(pr["net"], pr["layer"])))
     return out, changes
 
 

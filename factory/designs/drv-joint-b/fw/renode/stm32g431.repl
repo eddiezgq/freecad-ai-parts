@@ -1,5 +1,5 @@
 // STM32G431CB 仿真平台（Renode）——只描述本轮固件用到的部分。地址按 RM0440《STM32G4 参考手册》的存储器映射。
-// 第 100 轮：驱动板 B 版固件仿真；第 102 轮加 TIM1、ADC1、FDCAN1（自写外设，见 WqDrive.cs）、PLL 170 MHz。
+// 第 100 轮：驱动板 B 版固件仿真；第 102 轮加 TIM1、ADC1、FDCAN1（自写外设，见 WqDrive.cs）、PLL 170 MHz；第 107 轮 SPI3；第 110 轮 TIM4（抱闸）。
 // 地址与中断号对照 ST 官方 CMSIS 头文件 stm32g431xx.h 核对。示例，非 ST 官方平台文件。
 cpu: CPU.CortexM @ sysbus
     cpuType: "cortex-m4f"
@@ -44,6 +44,10 @@ pwr: Memory.MappedMemory @ sysbus 0x40007000
 // TIM1（APB2 0x4001 2C00）+ 逆变桥 + 电机 + 减速器 + 负载
 tim1: Miscellaneous.WqTim1Motor @ sysbus 0x40012C00
     IRQ -> nvic@25
+
+// TIM4（APB1 0x4000 0800）：抱闸 PWM（第 110 轮；地址对照 ST 官方 CMSIS 头文件），抱闸模型挂在电机上
+tim4: Miscellaneous.WqTim4Brake @ sysbus 0x40000800
+    motor: tim1
 
 // ADC1（AHB2 0x5000 0000）注入组，中断 ADC1_2 = 18
 adc1: Miscellaneous.WqAdc1 @ sysbus 0x50000000
