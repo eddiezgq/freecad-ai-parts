@@ -18,6 +18,9 @@ ITEMS = {
     "component_edge_min_mm": ("元件到板边最小距离", "mm"),
     "board_max_mm": ("能贴的最大板子 [长, 宽]", "mm"),
     "board_min_mm": ("能贴的最小板子 [长, 宽]", "mm"),
+    "pitch_min_mm": ("能贴的最小引脚间距", "mm"),  # 第 112 轮
+    "fine_pitch_mm": ("细间距门槛（小于它要特别注意钢网和检测）", "mm"),
+    "pad_min_mm": ("最小焊盘（短边）", "mm"),
 }
 
 

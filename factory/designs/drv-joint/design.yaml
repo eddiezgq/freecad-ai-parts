@@ -183,7 +183,9 @@ circuit:
   nets:
     nc: [NC_U11]
     power: [+12V, +3V3, +5V, GND, VBUS]
-    high_current: {VBUS: 9.0, GND: 9.0, SW_A: 8.5, SW_B: 8.5, SW_C: 8.5, MOT_A: 8.5, MOT_B: 8.5, MOT_C: 8.5}
+    # 相线电流跟着规格的额定相电流走（第 111 轮）；母线、地是示例值
+    high_current: {VBUS: 9.0, GND: 9.0, SW_A: spec.phase_current_a, SW_B: spec.phase_current_a, SW_C: spec.phase_current_a,
+                   MOT_A: spec.phase_current_a, MOT_B: spec.phase_current_a, MOT_C: spec.phase_current_a}
   ict_test_points:
     ref_start: 10
     lib: Connector:TestPoint
@@ -197,6 +199,58 @@ circuit:
 board:
   outline_mm: [100.0, 70.0]
   layers: 4
+  # 布线器的线宽 / 间距类别（第 111 轮由 build.py 迁来）：母线、电机线走宽线；半桥中点 SW 的大电流走铺铜，
+  # 布线器只给它连驱动、自举电容这些细支路。板子上没有的网络自动去掉（+1V8 只在 B 版有）
+  net_classes:
+  - {name: Power, track_mm: 2.5, clearance_mm: 0.3, nets: [VBUS, MOT_A, MOT_B, MOT_C], layers: [F.Cu, B.Cu]}
+  - {name: Branch, track_mm: 0.5, clearance_mm: 0.3, nets: [SW_A, SW_B, SW_C], layers: [F.Cu, B.Cu]}
+  - {name: Supply, track_mm: 0.25, clearance_mm: 0.15, nets: [+12V, +5V, +3V3, SW12, VB_A, VB_B, VB_C, +1V8],
+     layers: [F.Cu, In2.Cu, B.Cu]}
+  - {name: Ground, track_mm: 0.25, clearance_mm: 0.15, nets: [GND]}
+  stackup:
+    thickness_mm: 1.6
+    outer_oz: 2.0
+    inner_oz: 1.0
+    source: 示例值（与第 88 轮 dfm.py 按外层 2 oz、内层 1 oz 算大电流线宽一致；板厚 1.6 mm 是 KiCad 新板子的缺省值）
+  rules:
+    trace_dt_c: 20.0
+    ict_coverage_min: 0.9
+    source: 示例值（与第 88 轮 dfm.py 相同：走线允许温升 20 ℃，ICT 测试点覆盖率 ≥ 90%）；企业按自己的设计规范填
+  # 热分析条件（第 111 轮，eda/wqeda/thermal/board.py）：环境温度、换热系数是假设；开关频率取自驱动板固件
+  thermal:
+    ambient_c: 40.0
+    h_w_m2k: 10.0
+    f_pwm_hz: 20000
+    source: 环境温度 40 ℃、两面自然对流换热系数 10 W/(m²·K) 都是示例假设（电控箱里不通风时的量级）；PWM 20 kHz 取自 drv-joint-b/fw/src/motor.h
+    heat:
+    - {model: mosfet, refs: [Q1, Q2, Q3, Q4, Q5, Q6]}
+    - {model: shunt, refs: [R21, R22, R23]}
+  # 布局约束（第 111 轮）：检查程序 eda/wqeda/checks/layout.py 按板子上的焊盘和器件外框量。限值都是示例值：
+  # 规格书和应用笔记一般只写“尽量短”“尽量靠近”，不给数；企业按自己的设计规范填
+  constraints:
+  - {key: loop-A, kind: loop, name: A 相半桥换流回路, refs: [C11, Q1, Q2], nets: [VBUS, SW_A, GND], max_area_mm2: 80,
+     source: 示例值（本板三相各量得约 66 mm²，留了余量）}
+  - {key: loop-B, kind: loop, name: B 相半桥换流回路, refs: [C12, Q3, Q4], nets: [VBUS, SW_B, GND], max_area_mm2: 80,
+     source: 示例值（本板三相各量得约 66 mm²，留了余量）}
+  - {key: loop-C, kind: loop, name: C 相半桥换流回路, refs: [C13, Q5, Q6], nets: [VBUS, SW_C, GND], max_area_mm2: 80,
+     source: 示例值（本板三相各量得约 66 mm²，留了余量）}
+  - {key: kelvin-A, kind: kelvin, name: A 相采样电阻 R21, ref: R21, ties: [NT1, NT2], source: 第 88 轮设计：采样线经网络连接点从电阻焊盘引出}
+  - {key: kelvin-B, kind: kelvin, name: B 相采样电阻 R22, ref: R22, ties: [NT3, NT4], source: 第 88 轮设计：采样线经网络连接点从电阻焊盘引出}
+  - {key: kelvin-C, kind: kelvin, name: C 相采样电阻 R23, ref: R23, ties: [NT5, NT6], source: 第 88 轮设计：采样线经网络连接点从电阻焊盘引出}
+  - {key: near-C40, kind: near, name: C40 去耦 U10 第 1 脚, ref: C40, to: U10, pin: '1', max_mm: 3.0, source: 示例值}
+  - {key: near-C41, kind: near, name: C41 去耦 U10 第 36 脚, ref: C41, to: U10, pin: '36', max_mm: 3.0, source: 示例值}
+  - {key: near-C42, kind: near, name: C42 去耦 U10 第 24 脚, ref: C42, to: U10, pin: '24', max_mm: 3.0, source: 示例值}
+  - {key: near-C44, kind: near, name: C44 去耦 U10 第 20 脚, ref: C44, to: U10, pin: '20', max_mm: 3.0, source: 示例值}
+  - {key: near-C45, kind: near, name: C45 去耦 U10 第 48 脚, ref: C45, to: U10, pin: '48', max_mm: 3.0, source: 示例值}
+  - {key: near-C24, kind: near, name: C24 去耦 U4 第 1 脚, ref: C24, to: U4, pin: '1', max_mm: 3.0, source: 示例值}
+  - {key: near-C25, kind: near, name: C25 去耦 U5 第 1 脚, ref: C25, to: U5, pin: '1', max_mm: 3.0, source: 示例值}
+  - {key: near-C26, kind: near, name: C26 去耦 U6 第 1 脚, ref: C26, to: U6, pin: '1', max_mm: 3.0, source: 示例值}
+  - {key: near-C27, kind: near, name: C27 去耦 U7 第 6 脚, ref: C27, to: U7, pin: '6', max_mm: 3.0, source: 示例值}
+  - {key: near-C28, kind: near, name: C28 去耦 U8 第 6 脚, ref: C28, to: U8, pin: '6', max_mm: 3.0, source: 示例值}
+  - {key: near-C29, kind: near, name: C29 去耦 U9 第 6 脚, ref: C29, to: U9, pin: '6', max_mm: 3.0, source: 示例值}
+  - {key: apart-hot, kind: apart, name: 功率管和采样电阻远离电解电容、晶振、采样运放, hot: [Q1, Q2, Q3, Q4, Q5, Q6, R21, R22, R23],
+     cold: [C1, Y1, U7, U8, U9], min_mm: 5.0, source: 示例值}
+  - {key: edge-conn, kind: edge, name: 接插件在板边, refs: [J1, J2, J3, J4, J5], max_mm: 3.0, source: 示例值}
   placement:
     J1: [6, 6, 270, F]
     NT10: [17.75, 16.45, 270, F]

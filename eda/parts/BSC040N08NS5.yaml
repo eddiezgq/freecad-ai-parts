@@ -11,3 +11,9 @@ params:
   id_25c: {value: 121, unit: A, kind: abs_max, condition: "continuous drain current, V_GS = 10 V, T_C = 25 °C", where: p.3 Table 2, checked: false}
   rds_on_max: {value: 0.004, unit: Ω, kind: max, condition: "V_GS = 10 V, I_D = 50 A", where: p.4 Table 4, checked: false}
   vgs_abs: {min: -20, max: 20, unit: V, kind: abs_max, condition: gate source voltage, where: p.3 Table 2, checked: false}
+  # 第 111 轮补录（热分析用），同一份规格书
+  tj_max: {value: 150, unit: ℃, kind: abs_max, condition: "operating and storage temperature T_j, T_stg: -55 … 150 °C", where: p.3 Table 2, checked: false}
+  rth_jc_bottom: {value: 1.2, unit: K/W, kind: max, condition: "thermal resistance, junction - case, bottom (typ 0.7)", where: p.3 Table 3, checked: false}
+  qsw: {value: 15.0e-9, unit: C, kind: typ, condition: "switching charge Q_sw, V_DD = 40 V, I_D = 50 A, V_GS = 0 … 10 V", where: p.4 Table 6, checked: false}
+  v_plateau: {value: 4.8, unit: V, kind: typ, condition: "gate plateau voltage, V_DD = 40 V, I_D = 50 A", where: p.4 Table 6, checked: false}
+  rg_int: {value: 1.1, unit: Ω, kind: typ, condition: "gate resistance R_G (max 1.7)", where: p.4 Table 4, checked: false}

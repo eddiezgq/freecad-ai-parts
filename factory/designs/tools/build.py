@@ -37,11 +37,11 @@ import sch  # noqa: E402
 LAYERS_SVG = [("F_Cu", "F.Cu,Edge.Cuts", "顶层铜"), ("In1_Cu", "In1.Cu,Edge.Cuts", "内层 1（地平面）"), ("In2_Cu", "In2.Cu,Edge.Cuts", "内层 2"),
               ("B_Cu", "B.Cu,Edge.Cuts", "底层铜"), ("F_Silk", "F.SilkS,F.Fab,Edge.Cuts", "顶面丝印与装配"),
               ("B_Silk", "B.SilkS,B.Fab,Edge.Cuts", "底面丝印与装配")]
-# 母线、电机线走宽线；半桥中点 SW 的大电流走铺铜（drv_joint.POURS），布线器只给它连驱动、自举电容这些细支路
-CLASSES = {"Power": (2.5, 0.3, ["VBUS", "MOT_A", "MOT_B", "MOT_C"], ["F.Cu", "B.Cu"]),
-           "Branch": (0.5, 0.3, ["SW_A", "SW_B", "SW_C"], ["F.Cu", "B.Cu"]),
-           "Supply": (0.25, 0.15, ["+12V", "+5V", "+3V3", "SW12", "VB_A", "VB_B", "VB_C"], ["F.Cu", "In2.Cu", "B.Cu"]),
-           "Ground": (0.25, 0.15, ["GND"])}
+# 网络分类（线宽 / 间距类别）第 111 轮起写在设计描述的板子层（board.net_classes）
+CLASSES = D.NET_CLASSES
+# 第 111 轮：板子图框上的字（A、B 两版沿用第 88 轮的写法）
+TITLE = {"title": "关节伺服驱动板 DRV-JOINT（示例设计，未经硬件验证）", "company": "问渠数字工业园 · 电路板厂", "rev": "示例 A",
+         "date": "2026-11-05"}
 SEVERITY = {"silk_overlap": "warning", "silk_over_copper": "warning", "silk_edge_clearance": "warning", "text_height": "warning",
             "text_thickness": "warning", "lib_footprint_issues": "ignore", "lib_footprint_mismatch": "ignore", "footprint_type_mismatch": "ignore"}
 
@@ -84,44 +84,12 @@ SHEET_NOTES = {
 
 # ------------------------------------------------------------------ PCB
 def pcb_build(jar):
-    import pcbnew
-
-    import pcb
+    """第 111 轮起用问渠电子的通用板子生成器（eda/wqeda/gen/board.py）：摆放、地平面、功率铺铜、自动布线、填充"""
+    from wqeda.gen import board as gb
     path = os.path.join(KDIR, NAME + ".kicad_pcb")
-    board, nets = pcb.build(D, D.PLACEMENT, path, D.HOLES)
-    w, h = D.BOARD_MM
-    z = pcb.add_zone(board, nets["GND"], pcbnew.In1_Cu, w, h)
-    z.SetPadConnection(pcbnew.ZONE_CONNECTION_FULL)
-    for net, layer, pts in getattr(D, "POURS", []):
-        pcb.add_pour(board, nets[net], layer, pts)
-    work = os.path.join(PROJ, ".route")
-    os.makedirs(work, exist_ok=True)
-    keep = [(lay, pts) for _, lay, pts in getattr(D, "POURS", [])]
-    keep += _tie_keepouts(board)
-    ntr, nvia = pcb.autoroute(board, work, jar, CLASSES, passes=50, keepouts=keep)
-    board.BuildConnectivity()
-    pcb.fill_zones(board)
-    pcbnew.SaveBoard(path, board)
+    stats = gb.generate(D.X, path, os.path.join(PROJ, ".route"), jar, TITLE, passes=50)
     _project_settings()
-    return ntr, nvia
-
-
-def _tie_keepouts(board):
-    """网络连接点两个焊盘之间那段铜（不属于任何网络）：布线器不知道它，走线别压上去——在 DSN 里设成小禁布区"""
-    import pcbnew
-    out = []
-    for fp in board.GetFootprints():
-        if not fp.GetReference().startswith("NT"):
-            continue
-        a, b = [p.GetPosition() for p in sorted(fp.Pads(), key=lambda p: p.GetNumber())]
-        ax, ay, bx, by = (pcbnew.ToMM(v) - 100 for v in (a.x, a.y, b.x, b.y))
-        L = ((bx - ax) ** 2 + (by - ay) ** 2) ** 0.5
-        ux, uy = (bx - ax) / L, (by - ay) / L
-        sx, sy = ax + ux * 0.3, ay + uy * 0.3             # 两端各让出 0.3 mm 给焊盘接线
-        ex, ey = bx - ux * 0.3, by - uy * 0.3
-        nx, ny = -uy * 0.4, ux * 0.4                      # 宽 0.8 mm，不往里缩
-        out.append(("F.Cu", [(sx + nx, sy + ny), (ex + nx, ey + ny), (ex - nx, ey - ny), (sx - nx, sy - ny)], 0.0))
-    return out
+    return stats
 
 
 def _project_settings():
@@ -344,14 +312,14 @@ def summary(drc_res, dfm_res, route_stats, sch_net):
 
 def use_rev_b():
     """第 98 轮：B 版——同一套流程，换设计描述（drv_joint_b：A 版打补丁）、工程名和产物目录；A 版的东西一律不碰"""
-    global D, PROJ, KDIR, OUT, NAME
+    global D, PROJ, KDIR, OUT, NAME, CLASSES
     import drv_joint_b
     D = drv_joint_b
+    CLASSES = D.NET_CLASSES                    # 设计描述里的分类，B 版自动带上 +1V8
     NAME = "drv-joint-b"
     PROJ = os.path.join(ROOT, NAME)
     KDIR = os.path.join(PROJ, "kicad")
     OUT = os.path.join(PROJ, "out")
-    CLASSES["Supply"][2].append("+1V8")
     SHEET_NOTES["mcu"] = ("STM32G431（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线电压、SPI1 读编码器接口芯片 U14（模式 0，≤ 5 MHz）、"
                           "SPI3 读 SSI、TIM4_CH1（PB6）抱闸 PWM、FDCAN1；8 MHz 晶振；TP1–TP5 是烧录口和电源测试点。B 版：设计对照，不投产。")
     SHEET_NOTES["power"] = ("48 V 从 J1 进；C1 母线电容；R1–R3 分压测母线电压。B 版加抱闸（第 110 轮）：J6 接抱闸线圈，U16 + Q7 从母线 PWM 供电，"

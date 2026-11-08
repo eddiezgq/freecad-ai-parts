@@ -542,8 +542,13 @@ def park(mgr, item="WQR-105", peer=None, who="减速器厂"):
                "本厂到货、来料检验入库", 900, 5)
     check(bool(got) and got["lot"] == o["shipment"]["lot"], "本厂收货：批 {}，{}".format(got and got["lot"], got and got["status_label"]))
     if got and REAL:
-        prs = [p for p in erp_docs("Purchase Receipt") if p.get("docstatus") == 1 and (p.get("wq_lot") == got["lot"] or got["lot"] in (p.get("remarks") or ""))]
-        check(bool(prs), "本厂 ERPNext 收货单（批号 {}）：{}".format(got["lot"], "、".join(p["name"] for p in prs)))
+        # 收货单由桥接异步写进 ERPNext：等它（2026-11-07 第 110 轮部署时一次就查、没赶上）
+        prs = wait(lambda: [p for p in erp_docs("Purchase Receipt") if p.get("docstatus") == 1
+                            and (p.get("wq_lot") == got["lot"] or got["lot"] in (p.get("remarks") or ""))] or None,
+                   "本厂 ERPNext 收货单", 180, 5) or []
+        if not check(bool(prs), "本厂 ERPNext 收货单（批号 {}）：{}".format(got["lot"], "、".join(p["name"] for p in prs))):
+            print("    诊断：ERPNext 里的收货单 {}".format([(p.get("name"), p.get("docstatus"), p.get("wq_lot"), (p.get("remarks") or "")[:60])
+                                                     for p in erp_docs("Purchase Receipt")][-5:]))
 
 
 def main():

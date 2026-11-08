@@ -3,7 +3,10 @@
 
 from __future__ import annotations
 
-from ..model import Board, BomRow, Component, Copper, Hole, Pad, Track
+from .. import geom as G
+from ..model import Board, BomRow, Component, Copper, Feature, Hole, Pad, Track
+
+MAX_ERR_MM = 0.005  # 圆弧变多边形的误差
 
 
 def _layer_name(board, lay):
@@ -80,6 +83,8 @@ def read(path, board=None):
             if polys.OutlineCount():
                 out.copper.append(box(polys.BBox(), _layer_name(board, lay)))
 
+    _features(board, out)
+
     groups = {}
     for fp in board.GetFootprints():
         if fp.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_BOM:
@@ -89,3 +94,92 @@ def read(path, board=None):
     for (value, package), refs in sorted(groups.items()):
         out.bom.append(BomRow(tuple(sorted(refs)), len(refs), value, package))
     return out
+
+
+def _shapely(ps):
+    """KiCad 的 SHAPE_POLY_SET → shapely（y 取反）"""
+    import pcbnew
+    from shapely.geometry import MultiPolygon, Polygon
+
+    mm = pcbnew.ToMM
+    polys = []
+    for i in range(ps.OutlineCount()):
+
+        def ring(chain):
+            return [(mm(chain.CPoint(k).x), -mm(chain.CPoint(k).y)) for k in range(chain.PointCount())]
+
+        shell = ring(ps.Outline(i))
+        holes = [ring(ps.Hole(i, h)) for h in range(ps.HoleCount(i))]
+        if len(shell) >= 3:
+            g = Polygon(shell, [h for h in holes if len(h) >= 3])
+            polys.append(g if g.is_valid else g.buffer(0))
+    if not polys:
+        return None
+    return polys[0] if len(polys) == 1 else MultiPolygon(polys).buffer(0)
+
+
+def _features(board, out):
+    """第 111 轮：铜（走线、过孔、焊盘、铺铜）和阻焊开窗的真实形状、网络；器件外框；板框多边形"""
+    import pcbnew
+
+    mm = pcbnew.ToMM
+    err = pcbnew.FromMM(MAX_ERR_MM)
+    out.has_nets = True
+    cu = {lay: _layer_name(board, lay) for lay in board.GetEnabledLayers().CuStack()}
+    for t in board.GetTracks():
+        cls = t.GetClass()
+        if cls == "PCB_TRACK":
+            x1, y1, x2, y2 = mm(t.GetStart().x), -mm(t.GetStart().y), mm(t.GetEnd().x), -mm(t.GetEnd().y)
+            out.features.append(
+                Feature(
+                    cu[t.GetLayer()],
+                    G.segment(x1, y1, x2, y2, mm(t.GetWidth())),
+                    "track",
+                    t.GetNetname(),
+                    width=round(mm(t.GetWidth()), 4),
+                )
+            )
+        elif cls == "PCB_VIA":
+            x, y = mm(t.GetPosition().x), -mm(t.GetPosition().y)
+            g = G.circle(x, y, mm(t.GetWidth()))
+            vid = "via@{:.3f},{:.3f}".format(x, y)
+            for lay in cu.values():  # 通孔过孔：每层都有铜（KiCad 7 不去掉内层没连线的焊环）
+                out.features.append(Feature(lay, g, "via", t.GetNetname(), vid))
+    for fp in board.GetFootprints():
+        ref = fp.GetReference()
+        for pad in fp.Pads():
+            a = pad.GetAttribute()
+            if a == pcbnew.PAD_ATTRIB_NPTH:
+                continue
+            kind = "pth" if a == pcbnew.PAD_ATTRIB_PTH else "pad"
+            for lay, name in cu.items():
+                if not pad.IsOnLayer(lay):
+                    continue
+                ps = pcbnew.SHAPE_POLY_SET()
+                pad.TransformShapeToPolygon(ps, lay, 0, err)
+                g = _shapely(ps)
+                if g is not None:
+                    out.features.append(Feature(name, g, kind, pad.GetNetname(), ref, pad.GetNumber()))
+            for lay, name in ((pcbnew.F_Mask, "F.Mask"), (pcbnew.B_Mask, "B.Mask")):
+                if pad.IsOnLayer(lay):
+                    ps = pcbnew.SHAPE_POLY_SET()
+                    pad.TransformShapeToPolygon(ps, lay, pad.GetSolderMaskExpansion(), err)
+                    g = _shapely(ps)
+                    if g is not None:
+                        out.features.append(Feature(name, g, "opening", pad.GetNetname(), ref, pad.GetNumber()))
+        side = "B" if fp.GetLayer() == pcbnew.B_Cu else "F"
+        c = fp.GetCourtyard(pcbnew.B_CrtYd if side == "B" else pcbnew.F_CrtYd)
+        if c.OutlineCount():
+            g = _shapely(c)
+            if g is not None:
+                out.courtyards[ref] = (side, g)
+    for z in board.Zones():
+        for lay in z.GetLayerSet().Seq():
+            if lay not in cu or not z.IsFilled():
+                continue
+            g = _shapely(z.GetFilledPolysList(lay))
+            if g is not None:
+                out.features.append(Feature(cu[lay], g, "zone", z.GetNetname(), "zone:" + z.m_Uuid.AsString()))
+    ps = pcbnew.SHAPE_POLY_SET()
+    if board.GetBoardPolygonOutlines(ps):
+        out.outline_geom = _shapely(ps)

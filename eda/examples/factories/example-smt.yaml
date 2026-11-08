@@ -12,5 +12,8 @@ pcb:
   mask_bridge_min_mm: 0.1
   component_edge_min_mm: 0.5
   copper_edge_min_mm: 0.3      # 示例值
-  board_max_mm: null           # 没填：板子尺寸检查判“未知”
+  board_max_mm: null           # 没填：板子尺寸检查判“未知”（演示“没填 = 未知”，经济线那家填了）
   board_min_mm: null
+  pitch_min_mm: 0.4            # 第 112 轮补：示例值
+  fine_pitch_mm: 0.65
+  pad_min_mm: 0.2

@@ -47,6 +47,19 @@ class Pad:
 
 
 @dataclass(frozen=True)
+class Feature:
+    """第 111 轮：一块铜或一个阻焊开窗的真实形状（多边形），量间距、看连通用"""
+
+    layer: str  # 铜层 F、In1、In2、B；阻焊开窗 F.Mask、B.Mask
+    geom: object  # shapely 多边形，mm，y 向上
+    kind: str  # track / via / pad / pth（通孔焊盘）/ zone / opening
+    net: str = ""  # 网络名（光绘里没有，留空）
+    ref: str = ""  # 焊盘所属位号；过孔是 via@x,y
+    pad: str = ""  # 焊盘编号
+    width: float = 0.0  # 走线宽 mm（只有 track 有）
+
+
+@dataclass(frozen=True)
 class Component:
     ref: str
     x: float
@@ -76,3 +89,7 @@ class Board:
     components: list = field(default_factory=list)
     bom: list = field(default_factory=list)
     notes: list = field(default_factory=list)  # 读的时候发现的情况（例如没有物料清单），检查里显示
+    features: list = field(default_factory=list)  # 第 111 轮：铜和阻焊开窗的形状（Feature）
+    courtyards: dict = field(default_factory=dict)  # 位号 → (面, 器件外框多边形)；光绘里没有
+    has_nets: bool = False  # 有没有网络信息（KiCad 有；不带网表的光绘没有）
+    outline_geom: object = None  # 板框多边形（量到板边的距离用）
