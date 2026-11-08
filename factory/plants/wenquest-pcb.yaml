@@ -2,7 +2,7 @@
 # 问渠数字工业园 · 电路板厂（第 85 轮，电子 E3）：关节伺服驱动板 DRV-JOINT、AGV 控制板 CTRL-AGV、编码器读头板 ENC-RD。
 # 一条 SMT 线（印刷 → 锡膏检测 → 高速贴片 → 多功能贴片 → 回流焊 → 自动光学检测）做“贴片板”，
 # 后段（选择焊 → 在线测试 → 烧录 → 三防涂覆 → 老化 → 功能测试 → 包装）做成品板。机器人厂的驱动板、AGV 控制板向这里买（park）。
-# 第 106 轮：试产驱动板 B 版 DRV-JOINT-B（放上编码器接口芯片 WQ-ENCIF，第 98 轮设计）：芯片向工业园的问渠芯片厂买，一次一整批
+# 第 106 轮：试产驱动板 B 版 DRV-JOINT-B（第 118 轮起供机器人厂关节模组）（放上编码器接口芯片 WQ-ENCIF，第 98 轮设计）：芯片向工业园的问渠芯片厂买，一次一整批
 #   （34 000 只，pack；对方物料号 WQ-ENCIF 1 批，park_item）。现实里芯片未流片、B 版不投产——这里是工业园（仿真）里试产。
 # 外购件一律写通用名称 +“型号待确认”，不编厂商型号。
 # 单价、交货期、工时、设备费率、车间尺寸、测量名义值与散布都是示例值，不是哪家真实工厂的数据。
@@ -148,8 +148,8 @@ items:
    note: 卖给机器人厂（关节模组）；E4 做它的 KiCad 设计}
 - {code: CTRL-AGV, name: AGV 控制板（示例：双路电机控制 + CAN + 安全 IO） AGV controller board, kind: fg, uom: Nos, note: 卖给机器人厂（AGV）}
 - {code: ENC-RD, name: 编码器读头板（示例：正余弦输出） Encoder read-head board, kind: fg, uom: Nos, note: 以后卖给传感器厂}
-- {code: DRV-JOINT-B, name: 关节伺服驱动板 B 版（试产：编码器接口芯片 WQ-ENCIF 计数、SPI 读；抱闸驱动） Joint servo drive board rev B, kind: fg, uom: Nos,
-   note: 第 98 轮设计、第 100/102/107/110 轮固件，第 110 轮加抱闸驱动；工业园里试产，现实不投产}
+- {code: DRV-JOINT-B, name: 关节伺服驱动板 B 版（编码器接口芯片 WQ-ENCIF；抱闸驱动与线圈电流检测） Joint servo drive board rev B, kind: fg, uom: Nos,
+   note: 第 98 轮设计、第 100/102/107/110/114 轮固件；第 118 轮起供机器人厂三种关节模组（工业园里生产，现实不投产）}
 routings:
 - name: RT-SMT 贴片线 SMT line
   steps: [[锡膏印刷 Stencil printing, 1.0], [锡膏检测 SPI, 0.5], [高速贴片 Chip placement, 2.0], [多功能贴片 IC placement, 1.5],
@@ -200,7 +200,7 @@ stock:
   opening: {PCB-DRV: 150, PCB-AGV: 40, PCB-ENC: 100, IC-MCU-MC: 150, IC-MCU-HP: 40, IC-GDRV: 700, IC-LDO: 320, IC-RS485: 320, CAP-1206: 1100, DIO-SMD: 620, XTAL: 160, IC-ISO: 240, IC-CAN: 240, IC-BUCK: 330,
             IC-AMP: 620, IC-ENC-AFE: 100, SNS-OPT: 100, MOS-80V: 1400, RES-SHUNT: 620, RES-0402: 16000, CAP-0402: 19000, CAP-BULK: 850,
             IND-PWR: 240, CONN-PWR: 450, CONN-SIG: 560, PASTE-SAC305: 1.2, COAT-AR: 1.0, BAG-ESD: 300,
-            OSC-50M: 50, IC-LDO18: 50, IC-GDRV-LS: 50, DIO-SMD-100: 50, RES-0805: 100}     # 第 106 轮：WQ-ENCIF 不备期初库存，第一次做 B 版就向芯片厂买
+            OSC-50M: 120, IC-LDO18: 120, IC-GDRV-LS: 120, DIO-SMD-100: 120, RES-0805: 150}     # 第 106 轮：WQ-ENCIF 不备期初库存，第一次做 B 版就向芯片厂买
   safety: {IC-MCU-MC: 30, MOS-80V: 200, RES-SHUNT: 100, PCB-DRV: 30}
 key_materials: [IC-MCU-MC, MOS-80V, RES-SHUNT, PCB-DRV]
 measurements:

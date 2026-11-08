@@ -123,11 +123,13 @@ items:
 - {code: WQR-105, name: 二级圆柱齿轮减速器 WQR-105 Two-stage gear reducer, kind: buy, uom: Nos, price: 1650, supplier: gearbox, library: C-RED-WQR105/default,
    note: 问渠减速器厂的成品，AGV 驱动轮用}
 # 外购件：零件库里还没有，型号待确认
-- {code: MTR-SV-400, name: 伺服电机 400 W（型号待确认） Servo motor 400 W, kind: buy, uom: Nos, price: 320, supplier: servo}
-- {code: MTR-SV-200, name: 伺服电机 200 W（型号待确认） Servo motor 200 W, kind: buy, uom: Nos, price: 240, supplier: servo}
-- {code: MTR-SV-100, name: 伺服电机 100 W（型号待确认） Servo motor 100 W, kind: buy, uom: Nos, price: 190, supplier: servo}
+- {code: MTR-SV-400, name: 伺服电机 400 W（带失电制动抱闸，型号待确认） Servo motor 400 W with brake, kind: buy, uom: Nos, price: 320, supplier: servo}
+- {code: MTR-SV-200, name: 伺服电机 200 W（带失电制动抱闸，型号待确认） Servo motor 200 W with brake, kind: buy, uom: Nos, price: 240, supplier: servo}
+- {code: MTR-SV-100, name: 伺服电机 100 W（带失电制动抱闸，型号待确认） Servo motor 100 W with brake, kind: buy, uom: Nos, price: 190, supplier: servo}
 - {code: ENC-ABS, name: 绝对值编码器（型号待确认） Absolute encoder, kind: buy, uom: Nos, price: 85, supplier: electronics}
-- {code: DRV-JOINT, name: 关节伺服驱动板 Joint servo drive board, kind: buy, uom: Nos, price: 160, supplier: pcb, note: 问渠电路板厂的成品（第 85 轮）}
+- {code: DRV-JOINT, name: 关节伺服驱动板（A 版） Joint servo drive board rev A, kind: buy, uom: Nos, price: 160, supplier: pcb, note: 问渠电路板厂的成品（第 85 轮）；第 118 轮起关节模组改用 B 版}
+- {code: DRV-JOINT-B, name: 关节伺服驱动板 B 版（抱闸驱动、输出端编码器） Joint servo drive board rev B, kind: buy, uom: Nos, price: 165, supplier: pcb,
+   note: 问渠电路板厂的成品（第 98/110/114 轮设计）；第 118 轮起三种关节模组都用它}
 - {code: CTRL-CAB, name: 机器人控制柜（型号待确认） Robot controller cabinet, kind: buy, uom: Nos, price: 2200, supplier: electronics}
 - {code: CABLE-ARM, name: 臂内线束 Arm cable harness, kind: buy, uom: Nos, price: 120, supplier: electronics}
 - {code: SCR-M5x16, name: 内六角螺钉 M5×16 Socket screw, kind: buy, uom: Nos, price: 0.15, supplier: hardware}
@@ -197,13 +199,13 @@ boms:
 - {item: WAIST-H1, routing: RT-关节壳体 Joint housing, components: [[RM-AL6061-D120, 4.0]]}
 - item: WQJ-L
   routing: RT-关节模组 Joint module
-  components: [[JH-L, 1], [JS-L, 1], [HD-CSF-32-100, 1], [MTR-SV-400, 1], [ENC-ABS, 1], [DRV-JOINT, 1], [BRG-6010, 2], [SCR-M5x16, 16]]
+  components: [[JH-L, 1], [JS-L, 1], [HD-CSF-32-100, 1], [MTR-SV-400, 1], [ENC-ABS, 1], [DRV-JOINT-B, 1], [BRG-6010, 2], [SCR-M5x16, 16]]
 - item: WQJ-M
   routing: RT-关节模组 Joint module
-  components: [[JH-M, 1], [JS-M, 1], [HD-CSF-25-100, 1], [MTR-SV-200, 1], [ENC-ABS, 1], [DRV-JOINT, 1], [BRG-6007, 2], [SCR-M5x16, 12]]
+  components: [[JH-M, 1], [JS-M, 1], [HD-CSF-25-100, 1], [MTR-SV-200, 1], [ENC-ABS, 1], [DRV-JOINT-B, 1], [BRG-6007, 2], [SCR-M5x16, 12]]
 - item: WQJ-S
   routing: RT-关节模组 Joint module
-  components: [[JH-S, 1], [JS-S, 1], [HD-CSF-17-100, 1], [MTR-SV-100, 1], [ENC-ABS, 1], [DRV-JOINT, 1], [BRG-6004, 2], [SCR-M5x16, 8]]
+  components: [[JH-S, 1], [JS-S, 1], [HD-CSF-17-100, 1], [MTR-SV-100, 1], [ENC-ABS, 1], [DRV-JOINT-B, 1], [BRG-6004, 2], [SCR-M5x16, 8]]
 - {item: DU-AGV, routing: RT-驱动单元 Drive unit, components: [[WQR-105, 1], [MTR-AGV-750, 1], [WHL-PU-200, 1]]}
 - item: WQ-CR5
   routing: RT-协作机器人 Cobot
@@ -227,12 +229,12 @@ stock:
   # 机器人厂的请购单只是记录，用完了由老师在 ERPNext 里做“物料入库”补上
   opening: {RM-AL6061-D120: 90, RM-AL6061-P20: 35, RM-AL-TUBE-D90: 6, RM-AL-TUBE-D75: 5, RM-40CR-D60: 80,
             HD-CSF-32-100: 15, HD-CSF-25-100: 10, HD-CSF-17-100: 20, MTR-SV-400: 15, MTR-SV-200: 10, MTR-SV-100: 20,
-            ENC-ABS: 45, DRV-JOINT: 45, BRG-6010: 30, BRG-6007: 20, BRG-6004: 40, SCR-M5x16: 800, CABLE-ARM: 6, CTRL-CAB: 6,
+            ENC-ABS: 45, DRV-JOINT-B: 45, BRG-6010: 30, BRG-6007: 20, BRG-6004: 40, SCR-M5x16: 800, CABLE-ARM: 6, CTRL-CAB: 6,
             FRAME-AGV300: 6, MTR-AGV-750: 10, WHL-PU-200: 10, CASTER-100: 20, BAT-48V: 6, LDR-TIM781: 6, CTRL-AGV: 6,
             WQR-105: 10, GRIP-2F: 4, CAM-STEREO: 2, CTRL-H1: 2}
   # 安全库存（示例值）：WQR-105 定在期初库存上，每接一单 AGV 就要向问渠减速器厂请购；
-  # 第 85 轮：驱动板也定在期初库存上，每接一单要用关节的产品就向问渠电路板厂请购
-  safety: {WQR-105: 10, DRV-JOINT: 45, HD-CSF-32-100: 4, ENC-ABS: 10, BRG-6010: 8, SCR-M5x16: 200}
+  # 第 85 轮：驱动板也定在期初库存上，每接一单要用关节的产品就向问渠电路板厂请购（第 118 轮起是 B 版 DRV-JOINT-B）
+  safety: {WQR-105: 10, DRV-JOINT-B: 45, HD-CSF-32-100: 4, ENC-ABS: 10, BRG-6010: 8, SCR-M5x16: 200}
 key_materials: [HD-CSF-32-100, MTR-SV-400, WQR-105, RM-AL6061-D120]
 measurements:
 - item: JS-L
@@ -246,18 +248,24 @@ measurements:
   - {code: joint_backlash, name: 背隙, unit: arcmin, nominal: 0.6, lo: 0.0, hi: 1.0, sigma: 0.06}
   - {code: joint_friction, name: 空载摩擦力矩, unit: N·m, nominal: 1.2, lo: 0.0, hi: 2.0, sigma: 0.15}
   - {code: joint_zero, name: 编码器零位标定残差, unit: arcsec, nominal: 0, lo: -20, hi: 20, sigma: 4}
+  - {code: brake_hold, name: 抱闸保持力矩（输出端；第 118 轮，示例）, unit: N·m, nominal: 220, lo: 160, hi: 320, sigma: 10.0}
+  - {code: enc_cross, name: 双编码器互检差（电机侧换算 − 输出端；第 118 轮，示例）, unit: arcmin, nominal: 0, lo: -3, hi: 3, sigma: 0.6}
 - item: WQJ-M
   operation: 关节测试 Joint test
   chars:
   - {code: joint_backlash, name: 背隙, unit: arcmin, nominal: 0.6, lo: 0.0, hi: 1.0, sigma: 0.06}
   - {code: joint_friction, name: 空载摩擦力矩, unit: N·m, nominal: 0.8, lo: 0.0, hi: 1.4, sigma: 0.1}
   - {code: joint_zero, name: 编码器零位标定残差, unit: arcsec, nominal: 0, lo: -20, hi: 20, sigma: 4}
+  - {code: brake_hold, name: 抱闸保持力矩（输出端；第 118 轮，示例）, unit: N·m, nominal: 110, lo: 80, hi: 160, sigma: 5.0}
+  - {code: enc_cross, name: 双编码器互检差（电机侧换算 − 输出端；第 118 轮，示例）, unit: arcmin, nominal: 0, lo: -3, hi: 3, sigma: 0.6}
 - item: WQJ-S
   operation: 关节测试 Joint test
   chars:
   - {code: joint_backlash, name: 背隙, unit: arcmin, nominal: 0.7, lo: 0.0, hi: 1.2, sigma: 0.07}
   - {code: joint_friction, name: 空载摩擦力矩, unit: N·m, nominal: 0.4, lo: 0.0, hi: 0.8, sigma: 0.08}
   - {code: joint_zero, name: 编码器零位标定残差, unit: arcsec, nominal: 0, lo: -25, hi: 25, sigma: 5}
+  - {code: brake_hold, name: 抱闸保持力矩（输出端；第 118 轮，示例）, unit: N·m, nominal: 55, lo: 40, hi: 80, sigma: 2.5}
+  - {code: enc_cross, name: 双编码器互检差（电机侧换算 − 输出端；第 118 轮，示例）, unit: arcmin, nominal: 0, lo: -3, hi: 3, sigma: 0.6}
 - item: WQ-CR5
   operation: 整机标定 Robot calibration
   chars:

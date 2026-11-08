@@ -27,8 +27,9 @@ TASKS = [
      "hint": "8D 要验证有效、写了 D7 才能关闭。"},
 ]
 REPORT_POINTS = 40
-CHAR_OF = {"ja_torque": "joint_backlash", "hd_lot": "joint_backlash", "bench_zero": "joint_zero"}
-LAYER_OF = {"ja_torque": "station", "hd_lot": "lot", "bench_zero": "sequence"}
+CHAR_OF = {"ja_torque": "joint_backlash", "hd_lot": "joint_backlash", "bench_zero": "joint_zero",
+           "enc_mount": "enc_cross", "brake_bench": "brake_hold"}          # 第 120 轮加后两个
+LAYER_OF = {"ja_torque": "station", "hd_lot": "lot", "bench_zero": "sequence", "enc_mount": "station", "brake_bench": "sequence"}
 LAYERS = [("station", "只在某一个装配工位"), ("lot", "只在某一批谐波减速器"), ("sequence", "所有关节随测试顺序一起偏")]
 
 
@@ -128,7 +129,7 @@ def answer(db, user, tid, ans):
             s = 10
             val = str(ans.get("group") or "").strip()
             if exp == "station":
-                s += 5 if val == ERR.PROBLEMS["ja_torque"]["unit"] else 0
+                s += 5 if val == ERR.PROBLEMS[p["problem"]]["unit"] else 0
             elif exp == "lot":
                 bad = set()
                 for it in ("WQJ-L", "WQJ-M", "WQJ-S"):

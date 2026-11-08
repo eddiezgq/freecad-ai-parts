@@ -33,6 +33,9 @@ from sim import staffing as STF
 from sim import energy as EN
 from wqbus.topics import topic as _topic
 
+# 第 118 轮以后在清单里新加的测量特性：用单独的随机数流（_measure_chars），原有特性的随机数序列不变
+LATE_CHARS = frozenset({"brake_hold", "enc_cross"})
+
 # 工序 → 可用设备（第一个是默认设备）
 OP_UNITS = {
     "下料 Sawing": ["saw-01"],
@@ -185,6 +188,7 @@ class Engine:
         self.mode = mode
         self.auto_start = auto_start
         self.rng = random.Random(seed)
+        self._rng_late = random.Random("late-{}".format(seed))     # 第 118 轮以后加的测量特性用（不打乱原有序列）
         self.status_every_s = status_every_s
         self.q = []               # 事件堆：(sim_t, seq, kind, payload)
         self.seq = itertools.count()
@@ -978,9 +982,11 @@ class Engine:
         trace = {k: v for k, v in (("assembled_on", st.get("_ja")), ("lot", getattr(p, "hd_lot", None))) if v}   # 分层用（第 47 轮）
         for c in spec:
             key = (job.wo.item, c["code"])
-            d = drift.get(key, 0.0) * 0.95 + self.rng.gauss(0, c["sigma"] * 0.1)    # 均值慢慢游走、有回复（稳态约 0.3σ，第 47 轮从 0.75σ 调小）
+            # 第 118 轮以后加的特性用另一个随机数流，不打乱原有特性的随机数序列（原来的测量值、统计测试不变）
+            rng = self._rng_late if c["code"] in LATE_CHARS else self.rng
+            d = drift.get(key, 0.0) * 0.95 + rng.gauss(0, c["sigma"] * 0.1)    # 均值慢慢游走、有回复（稳态约 0.3σ，第 47 轮从 0.75σ 调小）
             drift[key] = d
-            v = round(c["nominal"] + d + self.rng.gauss(0, c["sigma"]) + self.errors.plant_offset(p, c["code"]), 4)
+            v = round(c["nominal"] + d + rng.gauss(0, c["sigma"]) + self.errors.plant_offset(p, c["code"]), 4)
             extra = {}
             ov = self.errors.override(p, c["code"])           # 第 103 轮：芯片厂 CP 良率、接触电阻由晶圆图算出（晶圆图参数随测量记录带走）
             if ov is not None:

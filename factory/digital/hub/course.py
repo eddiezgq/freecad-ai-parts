@@ -448,7 +448,7 @@ def mount(app, H):
                 "mode": "teach", "products": ["WQ-CR5"], "tool_url": base + "/lab24",
                 "guide_url": base + "/api/cae/lab24/guide.docx", "report_template_url": base + "/api/cae/lab24/report-template.docx"}, {
                 "id": "lab25", "name": {"zh": "实验 25：关节背隙异常的追因与 8D", "en": "Lab 25: tracing a joint backlash problem with stratification and 8D"},
-                "summary": "老师注入隐藏问题（装配工位扭矩、减速器批次、测试台零位三选一），学生在控制图上发现判异，按工位、批次、测试顺序分层找原因，"
+                "summary": "老师注入隐藏问题（装配工位扭矩、减速器批次、测试台零位、编码器装偏、抱闸测试台漂移五选一），学生在控制图上发现判异，按工位、批次、测试顺序分层找原因，"
                            "开 8D、选对症措施、用措施后的数据验证（全部合格且 Cpk ≥ 1.33）。",
                 "mode": "teach", "products": ["WQJ-L", "WQJ-M", "WQJ-S"], "tool_url": base + "/lab25",
                 "guide_url": base + "/api/cae/lab25/guide.docx", "report_template_url": base + "/api/cae/lab25/report-template.docx"}, {
