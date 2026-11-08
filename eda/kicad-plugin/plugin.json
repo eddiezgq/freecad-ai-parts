@@ -1,0 +1,22 @@
+{
+  "$schema": "https://go.kicad.org/api/schemas/v1",
+  "identifier": "com.wenquestrobotics.eda",
+  "name": "WenQuest Electronics checks",
+  "description": "Process, layout and thermal checks of the open board with the WenQuest Electronics engine; jump to each finding; read placement back into the design description; write a report. Deterministic code, no AI, works offline.",
+  "runtime": {
+    "type": "python",
+    "min_version": "3.10"
+  },
+  "actions": [
+    {
+      "identifier": "com.wenquestrobotics.eda.check",
+      "name": "WenQuest: check board",
+      "description": "Run the WenQuest checks on this board and open the results",
+      "show-button": true,
+      "scopes": ["pcb"],
+      "entrypoint": "check.py",
+      "icons-light": ["resources/icon-24.png", "resources/icon-48.png"],
+      "icons-dark": ["resources/icon-24.png", "resources/icon-48.png"]
+    }
+  ]
+}

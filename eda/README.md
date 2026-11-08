@@ -21,6 +21,8 @@ AI 原生电子设计与制造平台的本体（方案：`docs/方案/AI原生�
 | `wqeda/issues.py` | 问题单格式；`python3 -m wqeda.issues <问题单.yaml> <design.yaml> [--gerber … --bom … --cpl … --factory …]` 对到设计描述、判已解决 |
 | `wqeda/package.py` | 由设计描述导出物料清单和贴片坐标：`python3 -m wqeda.package <设计或变体> --out <目录>` |
 | `examples/pcba-demo/` | 工厂端演示资料包（故意漏了 C47 的物料编号，标明） |
+| `wqeda/readers/kicad_ipc.py` | 从 KiCad 9 的进程间接口（kicad-python）读编辑器里打开着的板子，出同样的板子模型（第 113 轮插件用） |
+| `kicad-plugin/` | KiCad 9 插件（第 113 轮）：`plugin.json`、`check.py`、本机结果页 `wq_kicad/`；`python3 eda/kicad-plugin/pack.py <zip>` 打包（服务里 `/eda/api/kicad-plugin.zip` 现场打包）；CI `.github/workflows/eda-plugin.yml` 装 KiCad 9 跑真插件 |
 | `examples/factories/` | 演示工厂的工艺能力表（虚构，数值为示例值） |
 | `tests/` | `python3 -m pytest -q eda/tests`（读 KiCad 文件的测试要 KiCad 7 的 pcbnew，没有就跳过） |
 
