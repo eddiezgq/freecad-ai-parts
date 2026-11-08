@@ -7,7 +7,9 @@ import os
 from conftest import EDA
 
 PURE = ["wqeda/checks", "wqeda/schema", "wqeda/model.py", "wqeda/blocks", "wqeda/parts.py", "wqeda/ai/check.py",
-        "wqeda/ai/catalog.py"]
+        "wqeda/ai/catalog.py", "wqeda/geom.py", "wqeda/thermal/plate.py", "wqeda/thermal/board.py",  # 第 111 轮加
+        "wqeda/factory.py", "wqeda/quantity.py", "wqeda/issues.py", "wqeda/ai/issues.py",  # 第 112 轮
+        "wqeda/package.py"]
 FORBIDDEN = {
     "socket",
     "http",

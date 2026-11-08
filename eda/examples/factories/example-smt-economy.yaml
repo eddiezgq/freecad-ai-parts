@@ -1,0 +1,19 @@
+# 第二家演示工厂（第 112 轮）：经济线，设备旧一些、只接常规件。问渠电子 wqeda.capability/1。
+# 工厂是虚构的；数值都是示例值，不是任何标准或真实工厂的值。用来演示同一份资料包在不同工厂查出不同问题。
+format: wqeda.capability/1
+factory: 示例贴片厂·经济线（Example SMT Economy Line，虚构）
+fictional: true
+example_values: true
+pcb:
+  track_min_mm: 0.15
+  space_min_mm: 0.15
+  drill_min_mm: 0.3
+  annular_min_mm: 0.15
+  mask_bridge_min_mm: 0.1
+  component_edge_min_mm: 1.0
+  copper_edge_min_mm: 0.3
+  board_max_mm: [90, 60]
+  board_min_mm: [50, 50]
+  pitch_min_mm: 0.65
+  fine_pitch_mm: 0.8
+  pad_min_mm: 0.35

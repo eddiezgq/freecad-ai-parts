@@ -1,0 +1,9 @@
+# 工厂端演示用的资料包（第 112 轮 P5）：**演示用，故意带错**。示例设计，不能投产。
+# 驱动板 A 版上只改一处：C47（晶振负载电容）的物料编号去掉了——设计时忘了填物料编号。
+# 由它导出的物料清单里就没有 C47，坐标里却有，工厂端 D1 会查出来；问题单回到设计端对上、把物料编号补回，再导出、再查，问题就解决了。
+format: wqeda.variant/1
+base: ../../../factory/designs/drv-joint/design.yaml
+rev: A-demo
+title: 关节伺服驱动板 DRV-JOINT（工厂端演示：故意漏了 C47 的物料编号）
+item_changes:
+  C47: null

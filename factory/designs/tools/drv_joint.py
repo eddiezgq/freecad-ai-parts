@@ -44,6 +44,10 @@ PLACEMENT = _X["placement"]                    # 板子左上角为原点，x �
 HOLES = _X["holes"]                            # M3 安装孔，焊盘接地
 POWER_PADS = _X["power_pads"]                  # 大电流路径上的焊盘（DFM 查这些焊盘之间有一条足够宽的铜路径）
 POURS = _X["pours"]                            # 功率铺铜（顶层）
+# 第 111 轮：板子层的网络分类给布线器（类名 → (线宽, 间距, [网络], [层]?)），展开后的整份数据给通用板子生成器
+NET_CLASSES = {c["name"]: (c["track_mm"], c["clearance_mm"], list(c["nets"])) + ((list(c["layers"]),) if c.get("layers") else ())
+               for c in _X["net_classes"]}
+X = _X
 
 
 def nets():

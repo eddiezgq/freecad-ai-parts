@@ -1,0 +1,1225 @@
+{
+ "board_file": "kicad/drv-joint.kicad_pcb",
+ "calc_link": "../calc/calc.html",
+ "count": {
+  "fail": 7,
+  "pass": 54,
+  "pending": 7,
+  "unknown": 10
+ },
+ "electrical": {
+  "count": {
+   "fail": 0,
+   "pass": 25,
+   "pending": 7,
+   "unknown": 6
+  },
+  "units": [
+   {
+    "block": "power",
+    "checks": [
+     {
+      "have": 52.8,
+      "name": "满量程高于母线（留余量）",
+      "need": 50.400000000000006,
+      "rule": "V_满量程 ≥ 1.05 × V_母线",
+      "status": "pass",
+      "unit": "V"
+     },
+     {
+      "have": 63,
+      "name": "母线电容耐压",
+      "need": 60.0,
+      "rule": "耐压 ≥ 1.25 × V_母线",
+      "status": "pass",
+      "unit": "V"
+     },
+     {
+      "have": 0.389584,
+      "name": "仿真：母线电压纹波（峰峰）",
+      "need": 0.35231595744680855,
+      "rule": "要求列是公式值、实有列是仿真值，相差 ≤ 15%",
+      "status": "pass",
+      "unit": "V"
+     },
+     {
+      "have": 2290.868,
+      "name": "仿真：LC 谐振频率",
+      "need": 2321.5134420947206,
+      "rule": "要求列是公式值、实有列是仿真值，相差 ≤ 5%",
+      "status": "pass",
+      "unit": "Hz"
+     },
+     {
+      "have": 15.37694,
+      "name": "仿真：谐振峰",
+      "need": 15.320221247202072,
+      "rule": "要求列是公式值、实有列是仿真值，相差 ≤ 15%",
+      "status": "pass",
+      "unit": "dB"
+     }
+    ],
+    "name": "母线输入与电压检测",
+    "type": "bus_input"
+   },
+   {
+    "block": "aux",
+    "checks": [
+     {
+      "have": 100.0,
+      "name": "降压输入电容耐压",
+      "need": 60.0,
+      "rule": "耐压 ≥ 1.25 × V_母线",
+      "status": "pass",
+      "unit": "V"
+     },
+     {
+      "have": 60.0,
+      "name": "续流二极管反向耐压",
+      "need": 60.0,
+      "rule": "耐压 ≥ 1.25 × V_母线",
+      "status": "pass",
+      "unit": "V"
+     },
+     {
+      "have": 60,
+      "name": "降压芯片最高输入电压",
+      "need": 48.0,
+      "rule": "V_in,max ≥ V_母线",
+      "status": "pending",
+      "unit": "V"
+     },
+     {
+      "have": null,
+      "name": "5 V 稳压器最高输入电压",
+      "need": 12.0,
+      "rule": "≥ 12 V 输入",
+      "status": "unknown",
+      "unit": "V"
+     }
+    ],
+    "name": "辅助电源",
+    "type": "aux_supply"
+   },
+   {
+    "block": "bridge",
+    "checks": [
+     {
+      "have": 80,
+      "name": "功率管耐压",
+      "need": 60.0,
+      "rule": "V_DS ≥ 1.25 × V_母线",
+      "status": "pending",
+      "unit": "V"
+     },
+     {
+      "have": 121,
+      "name": "功率管电流（25 ℃ 壳温额定）",
+      "need": 29.73,
+      "rule": "I_D ≥ 峰值相电流",
+      "status": "pending",
+      "unit": "A"
+     },
+     {
+      "have": 100.0,
+      "name": "吸收电容耐压",
+      "need": 60.0,
+      "rule": "耐压 ≥ 1.25 × V_母线",
+      "status": "pass",
+      "unit": "V"
+     }
+    ],
+    "name": "三相半桥",
+    "type": "half_bridge"
+   },
+   {
+    "block": "gate",
+    "checks": [
+     {
+      "have": 100.0,
+      "name": "自举二极管反向耐压",
+      "need": 60.0,
+      "rule": "耐压 ≥ 1.25 × V_母线",
+      "status": "pass",
+      "unit": "V"
+     },
+     {
+      "have": 25.0,
+      "name": "自举电容耐压",
+      "need": 15.0,
+      "rule": "耐压 ≥ 1.25 × V_驱动",
+      "status": "pass",
+      "unit": "V"
+     },
+     {
+      "have": null,
+      "name": "驱动器高边浮动电压",
+      "need": 48.0,
+      "rule": "V_S,max ≥ V_母线",
+      "status": "unknown",
+      "unit": "V"
+     },
+     {
+      "have": null,
+      "name": "驱动器供电在推荐范围内",
+      "need": 12.0,
+      "rule": "范围包含 12 V",
+      "status": "unknown",
+      "unit": "V"
+     },
+     {
+      "have": 4.484267,
+      "name": "仿真：米勒平台电压",
+      "need": 4.40978979649178,
+      "rule": "要求列是公式值、实有列是仿真值，相差 ≤ 5%",
+      "status": "pass",
+      "unit": "V"
+     },
+     {
+      "have": 5.948616e-09,
+      "name": "仿真：漏压下降时间（90%→10%）",
+      "need": 7.2895082634769186e-09,
+      "rule": "要求列是公式值、实有列是仿真值，相差 ≤ 25%",
+      "status": "pass",
+      "unit": "s"
+     },
+     {
+      "have": 1.716318e-08,
+      "name": "仿真：漏压上升时间（10%→90%）",
+      "need": 1.667095171782802e-08,
+      "rule": "要求列是公式值、实有列是仿真值，相差 ≤ 10%",
+      "status": "pass",
+      "unit": "s"
+     }
+    ],
+    "name": "栅极驱动与自举",
+    "type": "gate_drive"
+   },
+   {
+    "block": "sense",
+    "checks": [
+     {
+      "have": 41.25,
+      "name": "量程覆盖峰值电流",
+      "need": 29.73,
+      "rule": "量程 ≥ I_峰值",
+      "status": "pass",
+      "unit": "A"
+     },
+     {
+      "have": 80,
+      "name": "采样放大器共模电压上限",
+      "need": 48.0,
+      "rule": "V_CM,max ≥ V_母线",
+      "status": "pending",
+      "unit": "V"
+     },
+     {
+      "have": 20,
+      "name": "放大器固定增益与设计一致",
+      "need": 20.0,
+      "rule": "器件数据 = 设计值",
+      "status": "pending",
+      "unit": ""
+     },
+     {
+      "have": 0.4605703,
+      "name": "仿真：峰值电流时的输出",
+      "need": 0.46066666666666656,
+      "rule": "要求列是公式值、实有列是仿真值，相差 ≤ 0.5%",
+      "status": "pass",
+      "unit": "V"
+     },
+     {
+      "have": 1.64965,
+      "name": "仿真：零电流时的输出",
+      "need": 1.65,
+      "rule": "要求列是公式值、实有列是仿真值，相差 ≤ 0.5%",
+      "status": "pass",
+      "unit": "V"
+     },
+     {
+      "have": 473741.0,
+      "name": "仿真：−3 dB 带宽",
+      "need": 476190.4761904762,
+      "rule": "要求列是公式值、实有列是仿真值，相差 ≤ 3%",
+      "status": "pass",
+      "unit": "Hz"
+     }
+    ],
+    "name": "相电流采样",
+    "type": "current_sense"
+   },
+   {
+    "block": "mcu",
+    "checks": [
+     {
+      "have": 7,
+      "name": "电流、母线、烧录信号都接到 MCU",
+      "need": 7,
+      "rule": "全部接上",
+      "status": "pass",
+      "unit": "个"
+     },
+     {
+      "have": "1.71–3.6",
+      "name": "MCU 供电 3.3 V 在工作范围内",
+      "need": 3.3,
+      "rule": "范围包含 3.3 V",
+      "status": "pending",
+      "unit": "V"
+     },
+     {
+      "have": null,
+      "name": "晶振负载电容",
+      "need": null,
+      "rule": "要晶振的负载电容 C_L 数据才能算（C = 2·(C_L − C_杂散)）",
+      "status": "unknown",
+      "unit": ""
+     }
+    ],
+    "name": "MCU 最小系统与烧录口",
+    "type": "mcu_core"
+   },
+   {
+    "block": "io",
+    "checks": [
+     {
+      "have": 723431.5595086153,
+      "name": "截止频率高于脉冲频率（留余量）",
+      "need": 500000.0,
+      "rule": "f_c ≥ 2 × f_脉冲",
+      "status": "pass",
+      "unit": "Hz"
+     },
+     {
+      "have": 3.29962,
+      "name": "仿真：滤波后最高电压",
+      "need": 3.299628179483135,
+      "rule": "要求列是公式值、实有列是仿真值，相差 ≤ 1%",
+      "status": "pass",
+      "unit": "V"
+     },
+     {
+      "have": 0.0003797366,
+      "name": "仿真：滤波后最低电压",
+      "need": 0.00037182051686495456,
+      "rule": "要求列是公式值、实有列是仿真值，相差 ≤ 3%",
+      "status": "pass",
+      "unit": "V"
+     },
+     {
+      "have": 721715.0,
+      "name": "仿真：RC 截止频率",
+      "need": 723431.5595086153,
+      "rule": "要求列是公式值、实有列是仿真值，相差 ≤ 1%",
+      "status": "pass",
+      "unit": "Hz"
+     },
+     {
+      "have": 1.505664e-07,
+      "name": "仿真：比较器翻转延时",
+      "need": 1.5246759029215573e-07,
+      "rule": "要求列是公式值、实有列是仿真值，相差 ≤ 5%",
+      "status": "pass",
+      "unit": "s"
+     }
+    ],
+    "name": "编码器接口",
+    "type": "encoder"
+   },
+   {
+    "block": "io",
+    "checks": [
+     {
+      "have": 120,
+      "name": "终端电阻与电缆阻抗一致",
+      "need": 120,
+      "rule": "R_终端 = Z_电缆",
+      "status": "pass",
+      "unit": "Ω"
+     },
+     {
+      "have": "3–3.6",
+      "name": "收发器供电 3.3 V 在工作范围内",
+      "need": 3.3,
+      "rule": "范围包含 3.3 V",
+      "status": "pending",
+      "unit": "V"
+     }
+    ],
+    "name": "绝对值编码器 SSI（RS-485）",
+    "type": "ssi_rs485"
+   },
+   {
+    "block": "io",
+    "checks": [
+     {
+      "have": 120,
+      "name": "终端电阻与电缆阻抗一致",
+      "need": 120,
+      "rule": "R_终端 = Z_电缆",
+      "status": "pass",
+      "unit": "Ω"
+     },
+     {
+      "have": null,
+      "name": "CAN 收发器 VDD 5 V 在工作范围内",
+      "need": 5.0,
+      "rule": "范围包含 5 V",
+      "status": "unknown",
+      "unit": "V"
+     },
+     {
+      "have": null,
+      "name": "CAN 收发器 VIO 3.3 V 在工作范围内",
+      "need": 3.3,
+      "rule": "范围包含 3.3 V",
+      "status": "unknown",
+      "unit": "V"
+     }
+    ],
+    "name": "CAN 总线",
+    "type": "can"
+   }
+  ]
+ },
+ "factory": "示例贴片厂（Example SMT Co.，虚构）",
+ "fictional_factory": true,
+ "layout": [
+  {
+   "at": [],
+   "count": 0,
+   "detail": "C11、Q1、Q2 的 VBUS、SW_A、GND 焊盘中心围成的凸包",
+   "key": "L-loop-A",
+   "limit": 80,
+   "name": "功率回路面积：A 相半桥换流回路",
+   "source": "示例值（本板三相各量得约 66 mm²，留了余量）",
+   "status": "pass",
+   "unit": "mm²",
+   "value": 65.7,
+   "why": "开关电流走的回路面积越大，寄生电感越大，开关时的电压尖峰和电磁干扰越大"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "C12、Q3、Q4 的 VBUS、SW_B、GND 焊盘中心围成的凸包",
+   "key": "L-loop-B",
+   "limit": 80,
+   "name": "功率回路面积：B 相半桥换流回路",
+   "source": "示例值（本板三相各量得约 66 mm²，留了余量）",
+   "status": "pass",
+   "unit": "mm²",
+   "value": 65.7,
+   "why": "开关电流走的回路面积越大，寄生电感越大，开关时的电压尖峰和电磁干扰越大"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "C13、Q5、Q6 的 VBUS、SW_C、GND 焊盘中心围成的凸包",
+   "key": "L-loop-C",
+   "limit": 80,
+   "name": "功率回路面积：C 相半桥换流回路",
+   "source": "示例值（本板三相各量得约 66 mm²，留了余量）",
+   "status": "pass",
+   "unit": "mm²",
+   "value": 65.7,
+   "why": "开关电流走的回路面积越大，寄生电感越大，开关时的电压尖峰和电磁干扰越大"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "NT1 在 R21 第 1 脚上；NT2 在 R21 第 2 脚上",
+   "key": "L-kelvin-A",
+   "limit": 2,
+   "name": "开尔文采样：A 相采样电阻 R21",
+   "source": "第 88 轮设计：采样线经网络连接点从电阻焊盘引出",
+   "status": "pass",
+   "unit": "个",
+   "value": 2,
+   "why": "采样电阻只有毫欧级，功率电流在共用的那段铜上的压降会混进采样信号；采样线要从电阻焊盘上单独引出"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "NT3 在 R22 第 1 脚上；NT4 在 R22 第 2 脚上",
+   "key": "L-kelvin-B",
+   "limit": 2,
+   "name": "开尔文采样：B 相采样电阻 R22",
+   "source": "第 88 轮设计：采样线经网络连接点从电阻焊盘引出",
+   "status": "pass",
+   "unit": "个",
+   "value": 2,
+   "why": "采样电阻只有毫欧级，功率电流在共用的那段铜上的压降会混进采样信号；采样线要从电阻焊盘上单独引出"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "NT5 在 R23 第 1 脚上；NT6 在 R23 第 2 脚上",
+   "key": "L-kelvin-C",
+   "limit": 2,
+   "name": "开尔文采样：C 相采样电阻 R23",
+   "source": "第 88 轮设计：采样线经网络连接点从电阻焊盘引出",
+   "status": "pass",
+   "unit": "个",
+   "value": 2,
+   "why": "采样电阻只有毫欧级，功率电流在共用的那段铜上的压降会混进采样信号；采样线要从电阻焊盘上单独引出"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "C40 的 +3V3 焊盘到 U10 第 1 脚（焊盘边到边）",
+   "key": "L-near-C40",
+   "limit": 3.0,
+   "name": "靠近：C40 去耦 U10 第 1 脚",
+   "source": "示例值",
+   "status": "pass",
+   "unit": "mm",
+   "value": 1.58,
+   "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "C41 的 +3V3 焊盘到 U10 第 36 脚（焊盘边到边）",
+   "key": "L-near-C41",
+   "limit": 3.0,
+   "name": "靠近：C41 去耦 U10 第 36 脚",
+   "source": "示例值",
+   "status": "pass",
+   "unit": "mm",
+   "value": 1.58,
+   "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
+  },
+  {
+   "at": [
+    [
+     146.7,
+     -162.48,
+     "C42 离 U10 第 24 脚 3.5 mm"
+    ]
+   ],
+   "count": 1,
+   "detail": "C42 的 +3V3 焊盘到 U10 第 24 脚（焊盘边到边）",
+   "key": "L-near-C42",
+   "limit": 3.0,
+   "name": "靠近：C42 去耦 U10 第 24 脚",
+   "source": "示例值",
+   "status": "fail",
+   "unit": "mm",
+   "value": 3.49,
+   "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "C44 的 +3V3 焊盘到 U10 第 20 脚（焊盘边到边）",
+   "key": "L-near-C44",
+   "limit": 3.0,
+   "name": "靠近：C44 去耦 U10 第 20 脚",
+   "source": "示例值",
+   "status": "pass",
+   "unit": "mm",
+   "value": 2.49,
+   "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
+  },
+  {
+   "at": [
+    [
+     139.52,
+     -150.5,
+     "C45 离 U10 第 48 脚 3.0 mm"
+    ]
+   ],
+   "count": 1,
+   "detail": "C45 的 +3V3 焊盘到 U10 第 48 脚（焊盘边到边）",
+   "key": "L-near-C45",
+   "limit": 3.0,
+   "name": "靠近：C45 去耦 U10 第 48 脚",
+   "source": "示例值",
+   "status": "fail",
+   "unit": "mm",
+   "value": 3.03,
+   "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "C24 的 +12V 焊盘到 U4 第 1 脚（焊盘边到边）",
+   "key": "L-near-C24",
+   "limit": 3.0,
+   "name": "靠近：C24 去耦 U4 第 1 脚",
+   "source": "示例值",
+   "status": "pass",
+   "unit": "mm",
+   "value": 2.63,
+   "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "C25 的 +12V 焊盘到 U5 第 1 脚（焊盘边到边）",
+   "key": "L-near-C25",
+   "limit": 3.0,
+   "name": "靠近：C25 去耦 U5 第 1 脚",
+   "source": "示例值",
+   "status": "pass",
+   "unit": "mm",
+   "value": 2.63,
+   "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "C26 的 +12V 焊盘到 U6 第 1 脚（焊盘边到边）",
+   "key": "L-near-C26",
+   "limit": 3.0,
+   "name": "靠近：C26 去耦 U6 第 1 脚",
+   "source": "示例值",
+   "status": "pass",
+   "unit": "mm",
+   "value": 2.63,
+   "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
+  },
+  {
+   "at": [
+    [
+     138.5,
+     -144.48,
+     "C27 离 U7 第 6 脚 6.7 mm"
+    ]
+   ],
+   "count": 1,
+   "detail": "C27 的 +3V3 焊盘到 U7 第 6 脚（焊盘边到边）",
+   "key": "L-near-C27",
+   "limit": 3.0,
+   "name": "靠近：C27 去耦 U7 第 6 脚",
+   "source": "示例值",
+   "status": "fail",
+   "unit": "mm",
+   "value": 6.69,
+   "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
+  },
+  {
+   "at": [
+    [
+     154.5,
+     -144.48,
+     "C28 离 U8 第 6 脚 6.7 mm"
+    ]
+   ],
+   "count": 1,
+   "detail": "C28 的 +3V3 焊盘到 U8 第 6 脚（焊盘边到边）",
+   "key": "L-near-C28",
+   "limit": 3.0,
+   "name": "靠近：C28 去耦 U8 第 6 脚",
+   "source": "示例值",
+   "status": "fail",
+   "unit": "mm",
+   "value": 6.69,
+   "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
+  },
+  {
+   "at": [
+    [
+     170.5,
+     -144.48,
+     "C29 离 U9 第 6 脚 6.7 mm"
+    ]
+   ],
+   "count": 1,
+   "detail": "C29 的 +3V3 焊盘到 U9 第 6 脚（焊盘边到边）",
+   "key": "L-near-C29",
+   "limit": 3.0,
+   "name": "靠近：C29 去耦 U9 第 6 脚",
+   "source": "示例值",
+   "status": "fail",
+   "unit": "mm",
+   "value": 6.69,
+   "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "最近的一对：Q1 和 C1（器件外框边到边）",
+   "key": "L-apart-hot",
+   "limit": 5.0,
+   "name": "远离：功率管和采样电阻远离电解电容、晶振、采样运放",
+   "source": "示例值",
+   "status": "pass",
+   "unit": "mm",
+   "value": 6.02,
+   "why": "电解电容、晶振、采样运放怕热；靠近发热件，寿命变短、参数漂移"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "器件外框到板边，最远的一个",
+   "key": "L-edge-conn",
+   "limit": 3.0,
+   "name": "接插件在板边：接插件在板边",
+   "source": "示例值",
+   "status": "pass",
+   "unit": "mm",
+   "value": 2.15,
+   "why": "接插件要从板边插拔线缆；放在板子中间，线缆会压到别的器件"
+  }
+ ],
+ "name": "DRV-JOINT",
+ "notice": "示例设计，未经硬件验证，不能直接投产。器件为示例选型（KiCad 官方库里有的器件，引脚取自库）。",
+ "paths": [
+  {
+   "agree": true,
+   "consistent": true,
+   "gerber": "pass",
+   "gerber_value": 89,
+   "key": "D1",
+   "kicad": "pass",
+   "kicad_value": 89,
+   "name": "物料清单与坐标位号对上"
+  },
+  {
+   "agree": true,
+   "consistent": true,
+   "gerber": "pass",
+   "gerber_value": 39,
+   "key": "D2",
+   "kicad": "pass",
+   "kicad_value": 39,
+   "name": "数量等于位号个数"
+  },
+  {
+   "agree": true,
+   "consistent": true,
+   "gerber": "pass",
+   "gerber_value": 89,
+   "key": "D4",
+   "kicad": "pass",
+   "kicad_value": 89,
+   "name": "坐标正反面与焊盘一致"
+  },
+  {
+   "agree": true,
+   "consistent": true,
+   "gerber": "pass",
+   "gerber_value": 0.25,
+   "key": "F1",
+   "kicad": "pass",
+   "kicad_value": 0.25,
+   "name": "最小线宽"
+  },
+  {
+   "agree": true,
+   "consistent": true,
+   "gerber": "pass",
+   "gerber_value": 0.3,
+   "key": "F3-drill",
+   "kicad": "pass",
+   "kicad_value": 0.3,
+   "name": "最小孔径"
+  },
+  {
+   "agree": true,
+   "consistent": true,
+   "gerber": "pass",
+   "gerber_value": 0.15,
+   "key": "F3-ring",
+   "kicad": "pass",
+   "kicad_value": 0.15,
+   "name": "最小孔环"
+  },
+  {
+   "agree": true,
+   "consistent": true,
+   "gerber": "pass",
+   "gerber_value": 0.5,
+   "key": "F5",
+   "kicad": "pass",
+   "kicad_value": 0.5,
+   "name": "铜到板边"
+  },
+  {
+   "agree": true,
+   "consistent": true,
+   "gerber": "pass",
+   "gerber_value": 0.152,
+   "key": "F2",
+   "kicad": "pass",
+   "kicad_value": 0.152,
+   "name": "最小线距（铜到铜）"
+  },
+  {
+   "agree": true,
+   "consistent": true,
+   "gerber": "pass",
+   "gerber_value": 0.2,
+   "key": "F4",
+   "kicad": "pass",
+   "kicad_value": 0.2,
+   "name": "最小阻焊桥"
+  },
+  {
+   "agree": false,
+   "consistent": true,
+   "gerber": "unknown",
+   "gerber_value": null,
+   "key": "F6",
+   "kicad": "pass",
+   "kicad_value": 0,
+   "name": "器件外框不重叠"
+  },
+  {
+   "agree": true,
+   "consistent": true,
+   "gerber": "pass",
+   "gerber_value": 5,
+   "key": "F7",
+   "kicad": "pass",
+   "kicad_value": 5,
+   "name": "极性元件方向统一"
+  },
+  {
+   "agree": false,
+   "consistent": true,
+   "gerber": "unknown",
+   "gerber_value": null,
+   "key": "F8",
+   "kicad": "pass",
+   "kicad_value": 0.79,
+   "name": "器件到板边"
+  },
+  {
+   "agree": false,
+   "consistent": true,
+   "gerber": "unknown",
+   "gerber_value": null,
+   "key": "T1",
+   "kicad": "pass",
+   "kicad_value": 0.959,
+   "name": "ICT 测试点覆盖率"
+  },
+  {
+   "agree": false,
+   "consistent": true,
+   "gerber": "unknown",
+   "gerber_value": null,
+   "key": "C1",
+   "kicad": "pass",
+   "kicad_value": 7,
+   "name": "大电流走线宽度"
+  }
+ ],
+ "process": [
+  {
+   "at": [],
+   "count": 0,
+   "detail": "",
+   "key": "D1",
+   "limit": 89,
+   "name": "物料清单与坐标位号对上",
+   "status": "pass",
+   "unit": "个位号",
+   "value": 89,
+   "why": "物料清单和坐标文件是两份文件，位号对不上，贴片机就会漏贴、多贴或贴错料"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "",
+   "key": "D2",
+   "limit": 39,
+   "name": "数量等于位号个数",
+   "status": "pass",
+   "unit": "行",
+   "value": 39,
+   "why": "数量和位号个数不一致，备料、报价都会错"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "",
+   "key": "D4",
+   "limit": 89,
+   "name": "坐标正反面与焊盘一致",
+   "status": "pass",
+   "unit": "个",
+   "value": 89,
+   "why": "坐标写在顶面，焊盘却在底面（或反过来），贴片编程会放错面"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "",
+   "key": "F1",
+   "limit": 0.127,
+   "name": "最小线宽",
+   "status": "pass",
+   "unit": "mm",
+   "value": 0.25,
+   "why": "板厂蚀刻能做到的最细线宽；再细就会断线"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "",
+   "key": "F3-drill",
+   "limit": 0.3,
+   "name": "最小孔径",
+   "status": "pass",
+   "unit": "mm",
+   "value": 0.3,
+   "why": "钻头越细越容易断、孔壁镀铜越难；孔环太窄，钻偏一点就破环"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "",
+   "key": "F3-ring",
+   "limit": 0.15,
+   "name": "最小孔环",
+   "status": "pass",
+   "unit": "mm",
+   "value": 0.15,
+   "why": "钻头越细越容易断、孔壁镀铜越难；孔环太窄，钻偏一点就破环"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "",
+   "key": "F5",
+   "limit": 0.3,
+   "name": "铜到板边",
+   "status": "pass",
+   "unit": "mm",
+   "value": 0.5,
+   "why": "板边要铣外形、过轨道夹持；铜离边太近会被铣到、露铜"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "",
+   "key": "F2",
+   "limit": 0.127,
+   "name": "最小线距（铜到铜）",
+   "status": "pass",
+   "unit": "mm",
+   "value": 0.152,
+   "why": "板厂蚀刻能做到的最小线距；两块不相连的铜靠得比这还近，蚀刻不开就短路"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "相邻开窗之间的阻焊宽度；开窗连在一起的地方不算桥",
+   "key": "F4",
+   "limit": 0.1,
+   "name": "最小阻焊桥",
+   "status": "pass",
+   "unit": "mm",
+   "value": 0.2,
+   "why": "相邻焊盘之间要留一条阻焊（阻焊桥），否则回流焊时锡会连成桥"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "89 个器件",
+   "key": "F6",
+   "limit": 0,
+   "name": "器件外框不重叠",
+   "status": "pass",
+   "unit": "处",
+   "value": 0,
+   "why": "贴片机吸嘴、AOI 视角、返修烙铁都要空间；器件外框（courtyard）不能重叠"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "二极管、电解电容 5 个",
+   "key": "F7",
+   "limit": 5,
+   "name": "极性元件方向统一",
+   "status": "pass",
+   "unit": "个",
+   "value": 5,
+   "why": "极性元件（二极管、电解电容）方向统一，贴片编程和 AOI 判反向都简单，人工目检也不容易看错"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "",
+   "key": "F8",
+   "limit": 0.5,
+   "name": "器件到板边",
+   "status": "pass",
+   "unit": "mm",
+   "value": 0.79,
+   "why": "板边要铣外形、过轨道夹持；元件离边太近会被铣到或卡轨道"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "扎不到的网络：SW_A、SW_B、SW_C",
+   "key": "T1",
+   "limit": 0.9,
+   "name": "ICT 测试点覆盖率",
+   "status": "pass",
+   "unit": "",
+   "value": 0.959,
+   "why": "在线测试（ICT）用针床扎测试点；网络上没有能扎的点，这个网络就测不到"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "VBUS 9 A：外层 ≥ 2.04 mm、内层 ≥ 10.63 mm，功率路径连通；SW_A 8.5 A（跟着规格 phase_current_a）：外层 ≥ 1.89 mm、内层 ≥ 9.82 mm，功率路径连通；SW_B 8.5 A（跟着规格 phase_current_a）：外层 ≥ 1.89 mm、内层 ≥ 9.82 mm，功率路径连通；SW_C 8.5 A（跟着规格 phase_current_a）：外层 ≥ 1.89 mm、内层 ≥ 9.82 mm，功率路径连通；MOT_A 8.5 A（跟着规格 phase_current_a）：外层 ≥ 1.89 mm、内层 ≥ 9.82 mm，功率路径连通；MOT_B 8.5 A（跟着规格 phase_current_a）：外层 ≥ 1.89 mm、内层 ≥ 9.82 mm，功率路径连通；MOT_C 8.5 A（跟着规格 phase_current_a）：外层 ≥ 1.89 mm、内层 ≥ 9.82 mm，功率路径连通。IPC-2221，外层 2 oz、内层 1 oz，温升 20 ℃",
+   "key": "C1",
+   "limit": 7,
+   "name": "大电流走线宽度",
+   "status": "pass",
+   "unit": "条网络",
+   "value": 7,
+   "why": "按 IPC-2221 由电流算线宽：线太窄会过热"
+  },
+  {
+   "at": [],
+   "count": 0,
+   "detail": "警告是丝印类问题，不影响电气和制造（工程设置里降为警告）",
+   "key": "K1",
+   "limit": "错误 0、未连接 0",
+   "name": "KiCad 设计规则检查（DRC）",
+   "status": "pass",
+   "unit": "",
+   "value": "错误 0、未连接 0、警告 76",
+   "why": "KiCad 按工程里的线宽、间距、连通规则查一遍；有错误或没连上的焊盘，板子就不能做"
+  }
+ ],
+ "rev": "A",
+ "spec": {
+  "acceptance_class": null,
+  "bus_voltage_v": 48.0,
+  "current_source": "cae/motors.py 伺服 400 W：额定 1.27 N·m、峰值 4.46 N·m ÷ 力矩常数 0.15 N·m/A（示例）",
+  "derating": {
+   "capacitor": 1.25,
+   "diode": 1.25,
+   "mosfet": 1.25,
+   "sense_headroom": 1.05
+  },
+  "example_values": true,
+  "motor_power_w": 400.0,
+  "notes": [
+   "数值与数字工厂电路分析 cae/circuit.py 的例题同一组数，测试核对",
+   "目标工厂、验收等级（IPC-A-610 第几级）未定",
+   "derating 是降额与余量规则，示例值；企业按自己的设计规范填"
+  ],
+  "phase_current_a": 8.5,
+  "phase_current_peak_a": 29.73,
+  "target_factory": null
+ },
+ "status": "fail",
+ "thermal": {
+  "ambient_c": 40.0,
+  "detail": "简化模型：板子当一块平板，没算器件本体、外壳和过孔导热；只作布局阶段的估算，不替代样板实测",
+  "grid": "100 × 70 格，每格 1 mm",
+  "h_w_m2k": 10.0,
+  "k_source": "Electronics Cooling 1998-05 Calculation Corner：铜 390、FR-4 0.25 W/(m·K)",
+  "rows": [
+   {
+    "model": "mosfet",
+    "notes": [
+     "R_DS(on) 用 25 ℃ 的最大值；结温高时更大，导通损耗偏低",
+     "结温 144 ℃ 没超上限，但损耗偏低，判不了"
+    ],
+    "p_w": 0.9864358974358973,
+    "parts": [
+     [
+      "导通 I²·R_DS(on)",
+      0.289
+     ],
+     [
+      "开关 ½·V·I·(t_on+t_off)·f",
+      0.6974358974358974
+     ]
+    ],
+    "rds_cold": true,
+    "ref": "Q1",
+    "status": "unknown",
+    "t_board_c": 142.5,
+    "t_sw_ns": 170.9,
+    "tj_c": 143.7,
+    "tj_max_c": 150
+   },
+   {
+    "model": "mosfet",
+    "notes": [
+     "R_DS(on) 用 25 ℃ 的最大值；结温高时更大，导通损耗偏低",
+     "结温 141 ℃ 没超上限，但损耗偏低，判不了"
+    ],
+    "p_w": 0.9864358974358973,
+    "parts": [
+     [
+      "导通 I²·R_DS(on)",
+      0.289
+     ],
+     [
+      "开关 ½·V·I·(t_on+t_off)·f",
+      0.6974358974358974
+     ]
+    ],
+    "rds_cold": true,
+    "ref": "Q2",
+    "status": "unknown",
+    "t_board_c": 140.1,
+    "t_sw_ns": 170.9,
+    "tj_c": 141.3,
+    "tj_max_c": 150
+   },
+   {
+    "model": "mosfet",
+    "notes": [
+     "R_DS(on) 用 25 ℃ 的最大值；结温高时更大，导通损耗偏低"
+    ],
+    "p_w": 0.9864358974358973,
+    "parts": [
+     [
+      "导通 I²·R_DS(on)",
+      0.289
+     ],
+     [
+      "开关 ½·V·I·(t_on+t_off)·f",
+      0.6974358974358974
+     ]
+    ],
+    "rds_cold": true,
+    "ref": "Q3",
+    "status": "fail",
+    "t_board_c": 152.2,
+    "t_sw_ns": 170.9,
+    "tj_c": 153.4,
+    "tj_max_c": 150
+   },
+   {
+    "model": "mosfet",
+    "notes": [
+     "R_DS(on) 用 25 ℃ 的最大值；结温高时更大，导通损耗偏低"
+    ],
+    "p_w": 0.9864358974358973,
+    "parts": [
+     [
+      "导通 I²·R_DS(on)",
+      0.289
+     ],
+     [
+      "开关 ½·V·I·(t_on+t_off)·f",
+      0.6974358974358974
+     ]
+    ],
+    "rds_cold": true,
+    "ref": "Q4",
+    "status": "fail",
+    "t_board_c": 149.1,
+    "t_sw_ns": 170.9,
+    "tj_c": 150.3,
+    "tj_max_c": 150
+   },
+   {
+    "model": "mosfet",
+    "notes": [
+     "R_DS(on) 用 25 ℃ 的最大值；结温高时更大，导通损耗偏低",
+     "结温 150 ℃ 没超上限，但损耗偏低，判不了"
+    ],
+    "p_w": 0.9864358974358973,
+    "parts": [
+     [
+      "导通 I²·R_DS(on)",
+      0.289
+     ],
+     [
+      "开关 ½·V·I·(t_on+t_off)·f",
+      0.6974358974358974
+     ]
+    ],
+    "rds_cold": true,
+    "ref": "Q5",
+    "status": "unknown",
+    "t_board_c": 148.7,
+    "t_sw_ns": 170.9,
+    "tj_c": 149.9,
+    "tj_max_c": 150
+   },
+   {
+    "model": "mosfet",
+    "notes": [
+     "R_DS(on) 用 25 ℃ 的最大值；结温高时更大，导通损耗偏低",
+     "结温 145 ℃ 没超上限，但损耗偏低，判不了"
+    ],
+    "p_w": 0.9864358974358973,
+    "parts": [
+     [
+      "导通 I²·R_DS(on)",
+      0.289
+     ],
+     [
+      "开关 ½·V·I·(t_on+t_off)·f",
+      0.6974358974358974
+     ]
+    ],
+    "rds_cold": true,
+    "ref": "Q6",
+    "status": "unknown",
+    "t_board_c": 144.2,
+    "t_sw_ns": 170.9,
+    "tj_c": 145.4,
+    "tj_max_c": 150
+   },
+   {
+    "model": "shunt",
+    "notes": [],
+    "p_w": 0.1445,
+    "parts": [
+     [
+      "I²·R",
+      0.1445
+     ]
+    ],
+    "ref": "R21",
+    "status": "pass",
+    "t_board_c": 117.8
+   },
+   {
+    "model": "shunt",
+    "notes": [],
+    "p_w": 0.1445,
+    "parts": [
+     [
+      "I²·R",
+      0.1445
+     ]
+    ],
+    "ref": "R22",
+    "status": "pass",
+    "t_board_c": 124.3
+   },
+   {
+    "model": "shunt",
+    "notes": [],
+    "p_w": 0.1445,
+    "parts": [
+     [
+      "I²·R",
+      0.1445
+     ]
+    ],
+    "ref": "R23",
+    "status": "pass",
+    "t_board_c": 119.2
+   }
+  ],
+  "source": "环境温度 40 ℃、两面自然对流换热系数 10 W/(m²·K) 都是示例假设（电控箱里不通风时的量级）；PWM 20 kHz 取自 drv-joint-b/fw/src/motor.h",
+  "status": "fail",
+  "t_max_at": [
+   159.5,
+   -106.5
+  ],
+  "t_max_c": 152.2,
+  "total_w": 6.35
+ },
+ "title": null
+}

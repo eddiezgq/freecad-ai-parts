@@ -1,0 +1,13 @@
+# 半桥栅极驱动。数值摘自厂家规格书（International Rectifier，现属 Infineon）的副本；checked: false = 待核对。
+# 第 104 轮时官方网址打不开；第 111 轮用的是 CERN 网站存的同一份规格书（Data Sheet No. PD60043 Rev.O）。
+format: wqeda.part/1
+part: IR2101S
+maker: International Rectifier (Infineon)
+datasheet:
+  title: IR2101(S)/IR2102(S) & (PbF) High and Low Side Driver, Data Sheet No. PD60043
+  revision: Rev.O
+  url: https://sy-dep-epc-lpc.web.cern.ch/components/datasheets/epc-lpc%20(converters)/IR2101_High-Low-Side-Driver_(IRF).pdf
+params:
+  io_plus_min: {value: 0.13, unit: A, kind: min, condition: "output high short circuit pulsed current I_O+, V_O = 0 V, PW ≤ 10 µs (typ 0.21)", where: p.3 Static Electrical Characteristics, checked: false}
+  io_minus_min: {value: 0.27, unit: A, kind: min, condition: "output low short circuit pulsed current I_O-, V_O = 15 V, PW ≤ 10 µs (typ 0.36)", where: p.3 Static Electrical Characteristics, checked: false}
+  vb_abs_max: {value: 625, unit: V, kind: abs_max, condition: high side floating absolute voltage V_B, where: p.2 Absolute Maximum Ratings, checked: false}

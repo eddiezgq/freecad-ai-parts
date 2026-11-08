@@ -6,7 +6,7 @@
     L3 circuit   电路：器件、引脚接哪个网络、物料编号；网络分类；按规则生成的 ICT 测试点
     L4 board     板子：外形、层数、摆放、安装孔、测试点网格、大电流焊盘路径、功率铺铜
 
-变体（variant）：在一份设计描述上打补丁（改引脚、改说明、加器件、加摆放、加铺铜），改了什么自动记成改动清单。
+变体（variant）：在一份设计描述上打补丁（改引脚、改说明、改物料编号、加器件、加摆放、加铺铜），改了什么自动记成改动清单。
 本模块只做读、校验和确定性展开：不联网、不调 AI。"""
 
 from __future__ import annotations
@@ -17,6 +17,7 @@ import os
 import yaml
 
 from .. import blocks
+from . import board as _board
 
 DESIGN_FORMAT = "wqeda.design/1"
 VARIANT_FORMAT = "wqeda.variant/1"
@@ -104,7 +105,10 @@ def validate_design(doc):
         if not isinstance(nets.get(name, []), list):
             p.append("circuit.nets.{} 应是列表".format(name))
     for net, amps in (nets.get("high_current") or {}).items():
-        if not _is_num(amps) or amps <= 0:
+        if isinstance(amps, str):
+            if not (amps.startswith("spec.") and _is_num(doc["spec"].get(amps[5:]))):
+                p.append("大电流网络 {} 的电流 {} 应是正数或 spec.<规格字段>".format(net, amps))
+        elif not _is_num(amps) or amps <= 0:
             p.append("大电流网络 {} 的电流应是正数".format(net))
     ict = c.get("ict_test_points")
     if ict is not None:
@@ -139,6 +143,7 @@ def validate_design(doc):
         for pad in pads:
             if not (isinstance(pad, list) and len(pad) == 2 and pad[0] in known and isinstance(pad[1], str)):
                 p.append("大电流焊盘 {} 应是 [位号, 引脚]，位号要在器件清单里".format(net))
+    p += _board.validate(bd, known)
     return p
 
 
@@ -182,6 +187,11 @@ def validate_variant(doc, base):
     for ref in doc.get("note_changes") or {}:
         if ref not in refs:
             p.append("改说明的 {} 不在原设计里".format(ref))
+    for ref, item in (doc.get("item_changes") or {}).items():  # 第 112 轮：改物料编号（null = 去掉）
+        if ref not in refs:
+            p.append("改物料编号的 {} 不在原设计里".format(ref))
+        elif item is not None and not isinstance(item, str):
+            p.append("改物料编号的 {} 应是文字或 null".format(ref))
     for ref in new:
         if ref in refs:
             p.append("新增的 {} 与原设计位号重复".format(ref))
@@ -267,6 +277,9 @@ def apply_variant(doc, var):
             changes.append((ref, "引脚 {}：{} → {}".format(pin, old or "未用", new or "未用")))
     for ref, note in (var.get("note_changes") or {}).items():
         by_ref[ref]["note"] = note
+    for ref, item in (var.get("item_changes") or {}).items():
+        changes.append((ref, "物料编号：{} → {}".format(by_ref[ref].get("item") or "无", item or "无")))
+        by_ref[ref]["item"] = item
     for q in var.get("add_parts") or []:
         parts.append(copy.deepcopy(q))
         changes.append((q["ref"], "新增：" + q.get("note", "")))
@@ -351,7 +364,7 @@ def expand(doc, var=None):
         "ict_nets": ict,
         "nc_nets": set(nets.get("nc") or []),
         "power_nets": set(nets.get("power") or []),
-        "high_current": dict(nets.get("high_current") or {}),
+        "high_current": {net: _amps(a, doc["spec"]) for net, a in (nets.get("high_current") or {}).items()},
         "back_end_items": set(c.get("back_end_items") or []),
         "board_mm": tuple(bd["outline_mm"]),
         "layers": bd["layers"],
@@ -359,4 +372,26 @@ def expand(doc, var=None):
         "holes": [tuple(h) for h in bd.get("holes") or []],
         "power_pads": {net: [tuple(x) for x in pads] for net, pads in (bd.get("power_pads") or {}).items()},
         "pours": [(q["net"], q["layer"], [tuple(xy) for xy in q["points"]]) for q in bd.get("pours") or []],
+        "net_classes": _net_classes(bd, parts),
+        "stackup": dict(bd.get("stackup") or {}),
+        "rules": dict(bd.get("rules") or {}),
+        "thermal": copy.deepcopy(bd.get("thermal") or {}),
+        "constraints": copy.deepcopy(bd.get("constraints") or []),
+        "high_current_src": dict(nets.get("high_current") or {}),
     }
+
+
+def _amps(a, spec):
+    """大电流网络的电流：数，或 spec.<字段>（跟着规格变）"""
+    return float(spec[a[5:]]) if isinstance(a, str) else a
+
+
+def _net_classes(bd, parts):
+    """网络分类只留板子上真有的网络（同一份分类给 A、B 两版用：B 版多的网络在 A 版里自动去掉），顺序不变"""
+    have = {n for q in parts for n in q["pins"].values()}
+    out = []
+    for c in bd.get("net_classes") or []:
+        d = dict(c)
+        d["nets"] = [n for n in c["nets"] if n in have]
+        out.append(d)
+    return out
