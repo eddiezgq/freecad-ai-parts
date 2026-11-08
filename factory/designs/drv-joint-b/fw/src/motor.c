@@ -198,6 +198,7 @@ void motor_resume_hold(void)
     brake_set(1);                                    /* 第 110 轮：若已在抱闸（关输出类停车），重新松开 */
     mc.hold = 0;
     mc.fault = FAULT_NONE;
+    mc.fault_sub = 0;
     mc.fault_val = 0;
     mc.state = STATE_RUN;
     mc.mode = MODE_POS;
@@ -222,8 +223,7 @@ void motor_hold_here(void)
     mc.speed_ref = 0;
     mc.iq_ref = 0;
     mc.mode = MODE_POS;
-    motor_enable(1);                                 /* 先有力矩（位置环停在这里）…… */
-    brake_set(1);                                    /* ……再松闸 */
+    motor_enable(1);                                 /* 先有力矩（位置环停在这里），调用方再松闸 */
 }
 
 void motor_park(void)
@@ -403,13 +403,15 @@ void ADC1_2_IRQHandler(void)
 
         brake_tick(mc.vbus);
         mc.brake_cmd = (uint32_t)brake_cmd();
+        mc.brake_i = brake_current();
+        mc.brake_v = brake_sense_v();
         mc.brake_ok = (uint32_t)(mc.brake_cmd ? brake_released() : brake_engaged());
         if (mc.state == STATE_INIT && mc.moe && ++align_t == 300) {      /* 通电 300 ms 后记偏移；第 110 轮：先抱闸 */
             int32_t o = cnt % CNT_PER_EREV;
             align_pending = o < 0 ? o + CNT_PER_EREV : o;
             brake_set(0);
         }
-        if (mc.state == STATE_INIT && mc.moe && align_t == 300u + BRK_ENGAGE_MS) {   /* 抱住了才撤对零电流、关输出 */
+        if (mc.state == STATE_INIT && mc.moe && align_t >= 300u + BRK_ENGAGE_MS && brake_verified()) {   /* 抱住了才撤对零电流、关输出（第 114 轮：按测到的电流） */
             mc.align_off = align_pending;
             aligned = 1;
             motor_enable(0);
@@ -419,7 +421,7 @@ void ADC1_2_IRQHandler(void)
             trajectory();
             if (mc.hold && !mc.hold_keep && trj_vel == 0.0f && trj_pos == trj_goal) {   /* 受控停车（关输出类）：停住了再关 */
                 brake_set(0);                                                         /* 第 110 轮：先抱闸，抱住了再关 */
-                if (brake_engaged()) {
+                if (brake_verified()) {                                               /* 第 114 轮：时间到且测到线圈电流降下来 */
                     mc.hold = 0;
                     motor_enable(0);
                     mc.mode = MODE_STOP;

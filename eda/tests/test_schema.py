@@ -36,10 +36,10 @@ def test_expand_is_deterministic_and_complete():
     assert x1["changes"] == [] and x1["rev"] == "A"
     base, var = design.load_variant(B_PATH)
     xb = design.expand(base, var)
-    assert len(xb["parts"]) == 181 and set(xb["placement"]) == {
+    assert len(xb["parts"]) == 186 and set(xb["placement"]) == {
         q["ref"] for q in xb["parts"]
-    }  # 第 110 轮加抱闸驱动 8 个 + 测试点 3 个
-    assert len(xb["changes"]) == 24 and xb["changes"][0] == ("U10", "引脚 12：未用 → ENC_CS_N")
+    }  # 第 110 轮加抱闸驱动 8 个 + 测试点 3 个、第 114 轮电流采样 3 个 + 测试点 2 个
+    assert len(xb["changes"]) == 27 and xb["changes"][0] == ("U10", "引脚 12：未用 → ENC_CS_N")
     assert (
         xb["changes"][-1] == ("铺铜", "新增 VBUS 铺铜（F.Cu）") and len(xb["pours"]) == len(base["board"]["pours"]) + 1
     )

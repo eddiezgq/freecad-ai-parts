@@ -15,7 +15,8 @@ import drv_joint as A  # noqa: E402
 import drv_joint_b as B  # noqa: E402
 
 NEW = {"U14", "Y2", "U15", "C57", "C58", "C59", "C60", "C61",
-       "U16", "Q7", "D5", "R36", "R37", "R38", "C62", "J6"}     # 第 110 轮：抱闸驱动
+       "U16", "Q7", "D5", "R36", "R37", "R38", "C62", "J6",      # 第 110 轮：抱闸驱动
+       "R39", "R40", "C63"}                                      # 第 114 轮：抱闸电流采样
 
 
 def test_b_is_a_plus_chip():
@@ -28,7 +29,7 @@ def test_b_is_a_plus_chip():
     pa, pb = a["U10"]["pins"], b["U10"]["pins"]
     diff = {k: (pa.get(k), pb.get(k)) for k in set(pa) | set(pb) if pa.get(k) != pb.get(k)}
     assert diff == {"12": (None, "ENC_CS_N"), "13": (None, "ENC_SCK"), "14": ("ENC_A_F", "ENC_MISO"), "15": ("ENC_B_F", "ENC_MOSI"),
-                    "16": ("ENC_Z_F", None), "17": (None, "ENC_RST_N"), "43": (None, "BRK_PWM")}   # 第 110 轮：PB6 = TIM4_CH1
+                    "16": ("ENC_Z_F", "BRK_ISEN"), "17": (None, "ENC_RST_N"), "43": (None, "BRK_PWM")}   # 第 110 轮：PB6 = TIM4_CH1
     u14 = b["U14"]["pins"]
     assert [u14[k] for k in ("1", "2", "3")] == ["ENC_A_F", "ENC_B_F", "ENC_Z_F"]               # 滤波后的 A/B/Z 进芯片
     assert {u14[k] for k in ("9", "10", "11", "12")} == {"ENC_CS_N", "ENC_SCK", "ENC_MOSI", "ENC_MISO"}
@@ -40,6 +41,8 @@ def test_b_is_a_plus_chip():
     assert b["R38"]["pins"] == {"1": "BRK_PWM", "2": "GND"} and b["U16"]["pins"]["6"] == "BRK_PWM"
     assert b["J6"]["pins"] == {"1": "VBUS", "2": "BRK_N"} and b["Q7"]["pins"]["5"] == "BRK_N" and b["D5"]["pins"] == {"1": "VBUS", "2": "BRK_N"}
     assert {"BRK_PWM", "BRK_G", "BRK_GD"} <= tps        # BRK_N 在接插件 J6 的通孔焊盘上就能扎
+    # 第 114 轮：Q7 源极经 R39 0.5 Ω 接地，采样经 R40/C63 滤波进 PB0（16 脚）
+    assert b["Q7"]["pins"]["1"] == "BRK_S" and b["R39"]["pins"] == {"1": "BRK_S", "2": "GND"} and b["U10"]["pins"]["16"] == "BRK_ISEN"
 
 
 def test_b_outputs_clean():
@@ -48,8 +51,8 @@ def test_b_outputs_clean():
     df = json.load(open(os.path.join(out, "dfm.json"), encoding="utf-8"))
     d = json.load(open(os.path.join(out, "design.json"), encoding="utf-8"))
     assert dr["errors"] == 0 and dr["unconnected"] == 0 and df["pass"] and len(df["checks"]) == 10
-    assert d["bom_delta"] == {"CAP-0402": 6, "CONN-SIG": 1, "DIO-SMD-100": 1, "IC-ENCIF": 1, "IC-GDRV-LS": 1, "IC-LDO18": 1,
-                              "MOS-80V": 1, "OSC-50M": 1, "RES-0402": 3}       # 第 110 轮加抱闸驱动
+    assert d["bom_delta"] == {"CAP-0402": 7, "CONN-SIG": 1, "DIO-SMD-100": 1, "IC-ENCIF": 1, "IC-GDRV-LS": 1, "IC-LDO18": 1,
+                              "MOS-80V": 1, "OSC-50M": 1, "RES-0402": 4, "RES-0805": 1}   # 第 110 轮抱闸驱动、第 114 轮电流采样
     assert "不投产" in d["disclaimer"] and len(d["mcu_pins"]) == 7
     assert any(p["ref"] == "U14" and p["side"] == "B" for p in d["parts"])
     kp = os.path.join(DES, "drv-joint-b", "kicad")

@@ -1,14 +1,16 @@
 <!-- 第 100 轮（电子 E7）：驱动板 B 版示例固件——MCU 经 SPI1 读编码器接口芯片 WQ-ENCIF，在 Renode 里跑。
-     第 102 轮（电子 E8）：上面加“编码器 / 电机控制与 CAN”切换，电机控制部分见 MotorPanel.vue；源码与下载两部分共用。
+     第 102 轮（电子 E8）：上面加“编码器 / 电机控制与 CAN”切换，电机控制部分见 MotorPanel.vue；第 115 轮加“多关节主站”（MasterPanel.vue）；源码与下载两部分共用。
      整条链示意、六个场景（设定 vs 固件读到的转速和位置、逐项判据）、源码逐文件、下载。产物在 factory/designs/drv-joint-b/fw/out。 -->
 <template>
   <div>
     <div v-if="err" class="err">{{ err }}</div>
     <div class="line">
       <button class="chip" :class="{ on: part === 'motor' }" @click="part = 'motor'">电机控制与 CAN（第 102 轮）</button>
+      <button class="chip" :class="{ on: part === 'master' }" @click="part = 'master'">多关节主站（第 115 轮）</button>
       <button class="chip" :class="{ on: part === 'enc' }" @click="part = 'enc'">编码器（第 100 轮）</button>
     </div>
     <MotorPanel v-if="part === 'motor'" />
+    <MasterPanel v-if="part === 'master'" />
     <template v-if="sim && fw">
       <template v-if="part === 'enc'">
       <div class="chain">
@@ -80,6 +82,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import MotorPanel from './MotorPanel.vue';
+import MasterPanel from './MasterPanel.vue';
 
 const base = '/api/designs/drv-joint-b/fw/';
 const sim = ref(null);

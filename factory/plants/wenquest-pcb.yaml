@@ -120,6 +120,7 @@ items:
 - {code: IC-LDO18, name: 1.8 V 低压差稳压芯片（示例选型 AP2112K-1.8，未经硬件验证） 1.8 V LDO, kind: buy, uom: Nos, price: 0.12, supplier: ic}
 # 第 110 轮：B 版加抱闸驱动
 - {code: IC-GDRV-LS, name: 低边栅极驱动（示例选型 UCC27511A，未经硬件验证） Low-side gate driver, kind: buy, uom: Nos, price: 0.5, supplier: ic}
+- {code: RES-0805, name: 贴片电阻 0805（抱闸电流采样 0.5 Ω，第 114 轮） Chip resistor 0805, kind: buy, uom: Nos, price: 0.01, supplier: passive}
 - {code: DIO-SMD-100, name: 贴片肖特基二极管 100 V 1 A（型号待确认） Schottky diode 100 V, kind: buy, uom: Nos, price: 0.06, supplier: passive}
 # 阻容与连接器
 - {code: RES-SHUNT, name: 采样电阻 2 mΩ 1%（型号待确认） Current shunt 2 mΩ 1%, kind: buy, uom: Nos, price: 0.25, supplier: passive,
@@ -165,10 +166,11 @@ boms:
 - item: SMT-DRV-B
   routing: RT-SMT 贴片线 SMT line
   # A 版 + 第 98 轮 B 版多出的：WQ-ENCIF 1、50 MHz 有源晶振 1、1.8 V 稳压 1、0402 电容 5；
-  # 第 110 轮抱闸驱动：低边栅极驱动 1、MOSFET 1、100 V 肖特基 1、0402 电阻 3、0402 电容 1（测试与 B 版 KiCad 的物料差核对）
+  # 第 110 轮抱闸驱动：低边栅极驱动 1、MOSFET 1、100 V 肖特基 1、0402 电阻 3、0402 电容 1；
+  # 第 114 轮抱闸电流采样：0805 电阻 1、0402 电阻 1、0402 电容 1（测试与 B 版 KiCad 的物料差核对）
   components: [[PCB-DRV, 1], [IC-MCU-MC, 1], [IC-GDRV, 3], [IC-CAN, 1], [IC-BUCK, 1], [IC-LDO, 2], [IC-AMP, 3], [IC-RS485, 2], [MOS-80V, 7], [RES-SHUNT, 3],
-               [RES-0402, 21], [CAP-0402, 36], [CAP-1206, 7], [CAP-BULK, 1], [DIO-SMD, 4], [IND-PWR, 1], [XTAL, 1], [IC-ENCIF, 1], [OSC-50M, 1],
-               [IC-LDO18, 1], [IC-GDRV-LS, 1], [DIO-SMD-100, 1], [PASTE-SAC305, 0.003]]
+               [RES-0402, 22], [CAP-0402, 37], [CAP-1206, 7], [CAP-BULK, 1], [DIO-SMD, 4], [IND-PWR, 1], [XTAL, 1], [IC-ENCIF, 1], [OSC-50M, 1],
+               [IC-LDO18, 1], [IC-GDRV-LS, 1], [DIO-SMD-100, 1], [RES-0805, 1], [PASTE-SAC305, 0.003]]
 - item: SMT-AGV
   routing: RT-SMT 贴片线 SMT line
   components: [[PCB-AGV, 1], [IC-MCU-HP, 1], [IC-GDRV, 6], [IC-ISO, 2], [IC-CAN, 2], [IC-BUCK, 2], [IC-AMP, 4], [MOS-80V, 12], [RES-SHUNT, 4],
@@ -198,7 +200,7 @@ stock:
   opening: {PCB-DRV: 150, PCB-AGV: 40, PCB-ENC: 100, IC-MCU-MC: 150, IC-MCU-HP: 40, IC-GDRV: 700, IC-LDO: 320, IC-RS485: 320, CAP-1206: 1100, DIO-SMD: 620, XTAL: 160, IC-ISO: 240, IC-CAN: 240, IC-BUCK: 330,
             IC-AMP: 620, IC-ENC-AFE: 100, SNS-OPT: 100, MOS-80V: 1400, RES-SHUNT: 620, RES-0402: 16000, CAP-0402: 19000, CAP-BULK: 850,
             IND-PWR: 240, CONN-PWR: 450, CONN-SIG: 560, PASTE-SAC305: 1.2, COAT-AR: 1.0, BAG-ESD: 300,
-            OSC-50M: 50, IC-LDO18: 50, IC-GDRV-LS: 50, DIO-SMD-100: 50}     # 第 106 轮：WQ-ENCIF 不备期初库存，第一次做 B 版就向芯片厂买
+            OSC-50M: 50, IC-LDO18: 50, IC-GDRV-LS: 50, DIO-SMD-100: 50, RES-0805: 100}     # 第 106 轮：WQ-ENCIF 不备期初库存，第一次做 B 版就向芯片厂买
   safety: {IC-MCU-MC: 30, MOS-80V: 200, RES-SHUNT: 100, PCB-DRV: 30}
 key_materials: [IC-MCU-MC, MOS-80V, RES-SHUNT, PCB-DRV]
 measurements:

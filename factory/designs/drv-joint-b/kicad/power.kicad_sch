@@ -8,7 +8,7 @@
     (date "2026-11-05")
     (rev "示例 A")
     (company "问渠数字工业园 · 电路板厂（示例设计，未经硬件验证，不能直接投产）")
-    (comment 1 "48 V 从 J1 进；C1 母线电容；R1–R3 分压测母线电压。B 版加抱闸（第 110 轮）：J6 接抱闸线圈，U16 + Q7 从母线 PWM 供电，D5 续流，R38 下拉（MCU 没输出就抱住）。示例设计，未经硬件验证。"))
+    (comment 1 "48 V 从 J1 进；C1 母线电容；R1–R3 分压测母线电压。B 版加抱闸（第 110 轮）：J6 接抱闸线圈，U16 + Q7 从母线 PWM 供电，D5 续流，R38 下拉（MCU 没输出就抱住）；R39 采样线圈电流经 R40、"))
   (lib_symbols
     (symbol "Connector:Screw_Terminal_01x02"
       (pin_names
@@ -1944,7 +1944,7 @@
       (width 0)
       (type default))
     (uuid "a062eff7-b9ce-529f-b908-dc5165eab40f"))
-  (global_label "GND"
+  (global_label "BRK_S"
     (shape passive)
     (at 208.28 101.6 270)
     (fields_autoplaced)
@@ -2549,203 +2549,275 @@
         (font
           (size 1.27 1.27)) hide)))
   (symbol
-    (lib_id "Connector:TestPoint")
-    (at 299.72 132.08 0)
+    (lib_id "Device:R")
+    (at 299.72 137.16 0)
     (unit 1)
-    (in_bom no)
+    (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "e32422ef-a05d-526e-8e77-f720000ce33e")
-    (property "Reference" "TP18"
+    (uuid "f675a3ef-e825-599f-80ae-d241efd769b4")
+    (property "Reference" "R39"
       (at 299.72 129.54 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "EN12"
-      (at 299.72 134.62 0)
+    (property "Value" "0.5"
+      (at 299.72 144.78 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-      (at 299.72 132.08 0)
+    (property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+      (at 299.72 137.16 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 299.72 132.08 0)
+      (at 299.72 137.16 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "物料编号" ""
-      (at 299.72 132.08 0)
+    (property "物料编号" "RES-0805"
+      (at 299.72 137.16 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "ICT 测试点"
-      (at 299.72 132.08 0)
+    (property "说明" "抱闸线圈电流采样（第 114 轮）：0.5 Ω 在 Q7 源极，导通时电压 = 线圈电流 × 0.5 Ω（示例）"
+      (at 299.72 137.16 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "e7107c8a-6590-5427-9c5d-c153277f73e0"))
+      (uuid "1bc12e4b-a39b-5bed-b4c3-ad0f9eb9d39e"))
+    (pin "2"
+      (uuid "4682add4-2db9-57d4-bfac-1cb661b16a54"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/ac783a1a-28e3-5a26-ba5e-38263e2733ba"
-          (reference "TP18")
+          (reference "R39")
           (unit 1)))))
   (wire
     (pts
-      (xy 299.72 132.08)
-      (xy 299.72 134.62))
+      (xy 299.72 133.35)
+      (xy 299.72 130.81))
     (stroke
       (width 0)
       (type default))
-    (uuid "c69026d2-6f6b-5647-bda1-e16510ebaf4e"))
-  (global_label "EN12"
+    (uuid "67ba0199-5573-55d0-9a47-093a9b423b71"))
+  (global_label "BRK_S"
     (shape passive)
-    (at 299.72 134.62 270)
+    (at 299.72 130.81 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "7773c07f-50bb-54b4-9091-9843f9364d17")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 299.72 130.81 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 299.72 140.97)
+      (xy 299.72 143.51))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "2a37d2be-6b37-515a-b8b2-68f4857762ca"))
+  (global_label "GND"
+    (shape passive)
+    (at 299.72 143.51 270)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "fe3c5516-63b9-51e2-a326-81b7a5dba0cb")
+    (uuid "553687a7-197c-5039-8ff4-9b8dcd10cf6e")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 299.72 134.62 0)
+      (at 299.72 143.51 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))
   (symbol
-    (lib_id "Connector:TestPoint")
-    (at 360.68 132.08 0)
+    (lib_id "Device:R")
+    (at 360.68 137.16 0)
     (unit 1)
-    (in_bom no)
+    (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "5049e52f-6c29-5a4e-b592-a3e1d17c4f26")
-    (property "Reference" "TP28"
+    (uuid "5d717f73-dfdc-5524-966a-434335ce4259")
+    (property "Reference" "R40"
       (at 360.68 129.54 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "FB12"
-      (at 360.68 134.62 0)
+    (property "Value" "1k"
+      (at 360.68 144.78 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-      (at 360.68 132.08 0)
+    (property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+      (at 360.68 137.16 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 360.68 132.08 0)
+      (at 360.68 137.16 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "物料编号" ""
-      (at 360.68 132.08 0)
+    (property "物料编号" "RES-0402"
+      (at 360.68 137.16 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "ICT 测试点"
-      (at 360.68 132.08 0)
+    (property "说明" "采样滤波（与 C63 约 160 Hz）"
+      (at 360.68 137.16 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "4490a79f-4691-585b-a1dd-d5a20de15591"))
+      (uuid "7fc8d302-6aec-51c1-8a79-d24946850dd6"))
+    (pin "2"
+      (uuid "6970cc72-da05-546c-859c-c3f1b5a90f87"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/ac783a1a-28e3-5a26-ba5e-38263e2733ba"
-          (reference "TP28")
+          (reference "R40")
           (unit 1)))))
   (wire
     (pts
-      (xy 360.68 132.08)
-      (xy 360.68 134.62))
+      (xy 360.68 133.35)
+      (xy 360.68 130.81))
     (stroke
       (width 0)
       (type default))
-    (uuid "20ee05a5-2131-5e4e-bcd2-8c34bdd07a33"))
-  (global_label "FB12"
+    (uuid "ccb2a351-a0fe-565b-bb16-1fbf9d4565fe"))
+  (global_label "BRK_S"
     (shape passive)
-    (at 360.68 134.62 270)
+    (at 360.68 130.81 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "55d6bd19-10f4-5d37-99e6-398201a7fb07")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 360.68 130.81 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 360.68 140.97)
+      (xy 360.68 143.51))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "7e76e862-ea84-59d7-bf2b-40c3be5e997e"))
+  (global_label "BRK_ISEN"
+    (shape passive)
+    (at 360.68 143.51 270)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "09be7828-b324-514e-9ce1-07f20366d2ac")
+    (uuid "eb06971e-4d7a-52c8-a7be-43338662ec81")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 360.68 134.62 0)
+      (at 360.68 143.51 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))
   (symbol
-    (lib_id "Connector:TestPoint")
-    (at 60.96 167.64 0)
+    (lib_id "Device:C")
+    (at 60.96 172.72 0)
     (unit 1)
-    (in_bom no)
+    (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "a32ae5f7-5999-5bdf-a0b9-fcae23e2ac4f")
-    (property "Reference" "TP60"
+    (uuid "a5834d1f-4d38-53bb-bd36-6a8ea02d6aed")
+    (property "Reference" "C63"
       (at 60.96 165.1 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "SW12"
-      (at 60.96 170.18 0)
+    (property "Value" "1u"
+      (at 60.96 180.34 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-      (at 60.96 167.64 0)
+    (property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+      (at 60.96 172.72 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 60.96 167.64 0)
+      (at 60.96 172.72 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "物料编号" ""
-      (at 60.96 167.64 0)
+    (property "物料编号" "CAP-0402"
+      (at 60.96 172.72 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "ICT 测试点"
-      (at 60.96 167.64 0)
+    (property "说明" "采样滤波：读到的是“线圈电流 × 占空比 × 0.5 Ω”的平均值"
+      (at 60.96 172.72 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "44c7b450-aa04-5674-9ecf-2087599dfa9e"))
+      (uuid "27f581d3-d28f-5b1b-9a9b-11bf5cb2d5b3"))
+    (pin "2"
+      (uuid "e4ee75cd-e2f3-52ae-9518-34513935e46c"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/ac783a1a-28e3-5a26-ba5e-38263e2733ba"
-          (reference "TP60")
+          (reference "C63")
           (unit 1)))))
   (wire
     (pts
-      (xy 60.96 167.64)
-      (xy 60.96 170.18))
+      (xy 60.96 168.91)
+      (xy 60.96 166.37))
     (stroke
       (width 0)
       (type default))
-    (uuid "fbea56eb-cb7f-5e43-93c1-85ac838b8987"))
-  (global_label "SW12"
+    (uuid "947fa739-2fe9-53c4-bd63-ac476dc526ba"))
+  (global_label "BRK_ISEN"
     (shape passive)
-    (at 60.96 170.18 270)
+    (at 60.96 166.37 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "92f646c0-e2c0-587c-82e1-3a759694f466")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 166.37 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 60.96 176.53)
+      (xy 60.96 179.07))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "3ad4adb4-5aa4-5b8c-b1cb-bd31d0058c57"))
+  (global_label "GND"
+    (shape passive)
+    (at 60.96 179.07 270)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "ea964d87-40ca-540e-b3c2-39e5f6682a6c")
+    (uuid "993346b4-b3ea-50e4-b107-991afa49c295")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 60.96 170.18 0)
+      (at 60.96 179.07 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))
@@ -2756,13 +2828,13 @@
     (in_bom no)
     (on_board yes)
     (dnp no)
-    (uuid "4e7c0627-0e8e-5d2c-9ce4-f3b8148b4488")
-    (property "Reference" "TP61"
+    (uuid "9b851e9d-ef63-5106-be75-6485e934240c")
+    (property "Reference" "TP20"
       (at 119.38 165.1 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "SW_CB"
+    (property "Value" "EN12"
       (at 119.38 170.18 0)
       (effects
         (font
@@ -2788,11 +2860,11 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "be9c2ab3-e40f-5c98-9503-e8cf106df458"))
+      (uuid "38d4d231-7c0b-52d1-b37b-6cbf0d3b7b79"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/ac783a1a-28e3-5a26-ba5e-38263e2733ba"
-          (reference "TP61")
+          (reference "TP20")
           (unit 1)))))
   (wire
     (pts
@@ -2801,8 +2873,8 @@
     (stroke
       (width 0)
       (type default))
-    (uuid "02f2de83-0e0a-5c1d-b962-a406d9b22799"))
-  (global_label "SW_CB"
+    (uuid "f7a196a4-7f21-5ba0-8c73-4f4f0cffa663"))
+  (global_label "EN12"
     (shape passive)
     (at 119.38 170.18 270)
     (fields_autoplaced)
@@ -2810,7 +2882,7 @@
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "36c91370-58cb-5ba3-b25e-edffd06c4f45")
+    (uuid "f493eede-ce53-5757-9124-d0806f7f349f")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 119.38 170.18 0)
       (effects
@@ -2823,13 +2895,13 @@
     (in_bom no)
     (on_board yes)
     (dnp no)
-    (uuid "b3b9847f-39a0-555b-9f0a-8a59d03fd0f0")
-    (property "Reference" "TP63"
+    (uuid "9a6584f5-90d4-5014-a073-1115637081d1")
+    (property "Reference" "TP30"
       (at 180.34 165.1 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "VBUS_SNS"
+    (property "Value" "FB12"
       (at 180.34 170.18 0)
       (effects
         (font
@@ -2855,11 +2927,11 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "c653a81e-dcd4-567e-b1a4-bce1a09eb49d"))
+      (uuid "16d9f9f5-dcb7-5c2c-9fbb-39417a4e3171"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/ac783a1a-28e3-5a26-ba5e-38263e2733ba"
-          (reference "TP63")
+          (reference "TP30")
           (unit 1)))))
   (wire
     (pts
@@ -2868,8 +2940,8 @@
     (stroke
       (width 0)
       (type default))
-    (uuid "2500c9ab-716e-535c-82cd-0990445b9a4a"))
-  (global_label "VBUS_SNS"
+    (uuid "599b9f68-1caf-5f30-bfa8-c31537dea7e2"))
+  (global_label "FB12"
     (shape passive)
     (at 180.34 170.18 270)
     (fields_autoplaced)
@@ -2877,7 +2949,7 @@
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "744c6e03-9922-5d52-8bf9-957c6cbe4d99")
+    (uuid "0ed470fc-89b3-5ea2-a37e-ebcf3a79b4e7")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 180.34 170.18 0)
       (effects
@@ -2890,13 +2962,13 @@
     (in_bom no)
     (on_board yes)
     (dnp no)
-    (uuid "43fd87b0-b4fe-5a97-a49c-c54debf96198")
-    (property "Reference" "TP67"
+    (uuid "8f495020-a05e-576a-af85-c397fe5e6ec8")
+    (property "Reference" "TP62"
       (at 238.76 165.1 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "VB_MID"
+    (property "Value" "SW12"
       (at 238.76 170.18 0)
       (effects
         (font
@@ -2922,11 +2994,11 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "523fbb27-6025-5fec-860c-39868dea445d"))
+      (uuid "2b11aeb5-17a2-51e9-bef8-cd81c1c687ac"))
     (instances
       (project "drv-joint-b"
         (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/ac783a1a-28e3-5a26-ba5e-38263e2733ba"
-          (reference "TP67")
+          (reference "TP62")
           (unit 1)))))
   (wire
     (pts
@@ -2935,8 +3007,8 @@
     (stroke
       (width 0)
       (type default))
-    (uuid "c666371d-6cdb-5632-877e-a65a28486e1b"))
-  (global_label "VB_MID"
+    (uuid "300123fd-18e9-5d74-9493-f2bb625700ee"))
+  (global_label "SW12"
     (shape passive)
     (at 238.76 170.18 270)
     (fields_autoplaced)
@@ -2944,13 +3016,214 @@
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "6b7d3a3d-7c4b-5b54-8d5f-2f6dd78e8600")
+    (uuid "a6a687c9-e238-50f2-901c-d0d70faa13d3")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 238.76 170.18 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))
-  (text "48 V 从 J1 进；C1 母线电容；R1–R3 分压测母线电压。B 版加抱闸（第 110 轮）：J6 接抱闸线圈，U16 + Q7 从母线 PWM 供电，D5 续流，R38 下拉（MCU 没输出就抱住）。示例设计，未经硬件验证。"
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 299.72 167.64 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "b3b9847f-39a0-555b-9f0a-8a59d03fd0f0")
+    (property "Reference" "TP63"
+      (at 299.72 165.1 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "SW_CB"
+      (at 299.72 170.18 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 299.72 167.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 299.72 167.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 299.72 167.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 299.72 167.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "c653a81e-dcd4-567e-b1a4-bce1a09eb49d"))
+    (instances
+      (project "drv-joint-b"
+        (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/ac783a1a-28e3-5a26-ba5e-38263e2733ba"
+          (reference "TP63")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 299.72 167.64)
+      (xy 299.72 170.18))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "28516cfe-60fb-5e6f-a372-846347488014"))
+  (global_label "SW_CB"
+    (shape passive)
+    (at 299.72 170.18 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "c9a3f6ca-572f-57c0-9528-6ae820761407")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 299.72 170.18 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 360.68 167.64 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "ce991718-4cd4-57b4-a7cd-e1d08b346b81")
+    (property "Reference" "TP65"
+      (at 360.68 165.1 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "VBUS_SNS"
+      (at 360.68 170.18 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 360.68 167.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 360.68 167.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 360.68 167.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 360.68 167.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "f3ae38a8-85e0-50bb-85a5-d27e0d4ca1ce"))
+    (instances
+      (project "drv-joint-b"
+        (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/ac783a1a-28e3-5a26-ba5e-38263e2733ba"
+          (reference "TP65")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 360.68 167.64)
+      (xy 360.68 170.18))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "5295d191-596b-5fd4-a64b-7df72b134b19"))
+  (global_label "VBUS_SNS"
+    (shape passive)
+    (at 360.68 170.18 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "e4e1ed60-743d-5dd7-890f-a886bbac241c")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 360.68 170.18 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 60.96 203.2 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "67e73fca-f2f8-5a7f-a0ba-a102ba81f580")
+    (property "Reference" "TP69"
+      (at 60.96 200.66 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "VB_MID"
+      (at 60.96 205.74 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 60.96 203.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 60.96 203.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 60.96 203.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 60.96 203.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "3b529535-570c-5ca1-a6e4-4884343b67d8"))
+    (instances
+      (project "drv-joint-b"
+        (path "/faa6da33-d21f-542d-ab64-7b87ee2f997f/ac783a1a-28e3-5a26-ba5e-38263e2733ba"
+          (reference "TP69")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 60.96 203.2)
+      (xy 60.96 205.74))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "a77e10be-66c9-59b5-a7c9-161f8de0d05f"))
+  (global_label "VB_MID"
+    (shape passive)
+    (at 60.96 205.74 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "25a09791-6a65-559c-8e4b-08fe4e72b927")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 205.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (text "48 V 从 J1 进；C1 母线电容；R1–R3 分压测母线电压。B 版加抱闸（第 110 轮）：J6 接抱闸线圈，U16 + Q7 从母线 PWM 供电，D5 续流，R38 下拉（MCU 没输出就抱住）；R39 采样线圈电流经 R40、C63 滤波进 PB0（第 114 轮）。示例设计，未经硬件验证。"
     (at 30 22 0)
     (effects
       (font

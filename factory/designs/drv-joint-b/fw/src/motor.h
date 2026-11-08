@@ -51,6 +51,10 @@ typedef struct {
     uint32_t brake_cmd;      /* 抱闸指令：1 松闸、0 抱闸 */
     uint32_t brake_ok;       /* 指令状态已到位（松开或抱住的时间已过） */
     uint32_t pend;           /* 运动指令在等松闸 */
+    /* 第 114 轮：抱闸线圈电流 */
+    uint32_t fault_sub;      /* 故障 7 的细分：1 断线、2 过流、3 抱不住 */
+    float brake_i;           /* 估算的线圈电流 A（-1 = 占空比太小算不准） */
+    float brake_v;           /* 采样电阻平均电压 V */
 } mc_t;
 
 extern volatile mc_t mc;
@@ -66,7 +70,7 @@ void motor_quickstop(uint32_t code, float val, int keep);   /* 受控停车：�
 void motor_resume_hold(void);                               /* 清故障：从保持接着运行（位置模式，目标 = 当前） */
 void motor_set_home(int32_t abs_mdeg);                      /* 回原点：当前电机计数对应输出端编码器的角度 */
 int32_t motor_joint_mdeg(int32_t cnt);                      /* 电机计数 → 关节角 0.001°（按原点） */
-void motor_hold_here(void);                                 /* 第 110 轮：开输出、位置环停在当前位置、松闸（运动指令前） */
+void motor_hold_here(void);                                 /* 第 110 轮：开输出、位置环停在当前位置（第 114 轮起松闸由调用方做） */
 void motor_park(void);                                      /* 第 110 轮：“停”指令：减速停住 → 抱闸 → 抱住后关输出，回就绪 */
 
 #endif

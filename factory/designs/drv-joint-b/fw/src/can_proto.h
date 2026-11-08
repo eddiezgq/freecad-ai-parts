@@ -10,13 +10,17 @@
  *   故障码：1 过流（任一相 > 25 A）、2 欠压（母线 < 36 V）、3 编码器（芯片报错或不响应）、4 通信超时（运行中 100 ms 收不到指令）、
  *           5 输出端编码器（SSI 连续 5 帧读坏）、6 减速器 / 编码器不一致（两个编码器差 > 0.5° 连续 10 ms）（第 107 轮）
  *   立即关输出：1、3、5、6；受控停车：4 减速停住、保持位置不断电（清故障后接着运行），2 减速停住后关输出（第 107 轮）
+ *   7 抱闸故障（第 114 轮）：报警帧 [1..2] 测到的线圈电流 0.01 A，[3] 1 断线、2 过流、3 抱不住（开关管常通）；
+ *     先在原地保持，测到线圈电流降下来（确实抱住）才关输出，抱不住就一直保持
  *   抱闸（第 110 轮）：上电抱住；运动指令先在当前位置稳住、松闸，60 ms 后执行；“停”：减速停住 → 抱闸 → 60 ms 后关输出；
  *           立即关输出类故障同时抱闸；欠压：停住 → 抱闸 → 关输出；通信超时：保持、不抱闸
  *   运行中要持续发指令（≥ 10 Hz）；故障锁存，发“清故障”才回到就绪（编码器故障要重新对零）。 */
 #ifndef CAN_PROTO_H
 #define CAN_PROTO_H
 
-#define NODE 1
+#ifndef NODE
+#define NODE 1                       /* 第 115 轮：节点号编译时给（make NODE=2），默认 1 */
+#endif
 #define CAN_ID_CMD (0x200 + NODE)
 #define CAN_ID_STATUS (0x180 + NODE)
 #define CAN_ID_EMCY (0x080 + NODE)
@@ -24,6 +28,6 @@
 
 enum { MODE_STOP = 0, MODE_SPEED = 1, MODE_POS = 2, MODE_CLEAR = 3, MODE_TORQUE = 4 };
 enum { STATE_INIT = 0, STATE_READY = 1, STATE_RUN = 2, STATE_FAULT = 3 };
-enum { FAULT_NONE = 0, FAULT_OC = 1, FAULT_UV = 2, FAULT_ENC = 3, FAULT_COMM = 4, FAULT_ABS = 5, FAULT_SLIP = 6 };
+enum { FAULT_NONE = 0, FAULT_OC = 1, FAULT_UV = 2, FAULT_ENC = 3, FAULT_COMM = 4, FAULT_ABS = 5, FAULT_SLIP = 6, FAULT_BRAKE = 7 };
 
 #endif

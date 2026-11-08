@@ -63,6 +63,11 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
         public void Slip(double deg) { Advance(); slip += deg / 180 * Math.PI; }
         // 第 110 轮：抱闸线圈断线（线圈电流恒为 0 → 一直抱着）
         public void BrakeBroken(bool v) { Advance(); brkBroken = v; }
+        // 第 114 轮：抱闸线圈短路（电阻、电感都降到 1/10）、开关管 Q7 击穿常通（占空比当 100%）
+        public void BrakeShort(bool v) { Advance(); brkShort = v; }
+        public void BrakeFetShort(bool v) { Advance(); brkFet = v; }
+        // 第 114 轮：采样电阻 R39 0.5 Ω 上的电压经 R40 + C63（1 ms）滤波：= 线圈电流 × 有效占空比 × 0.5 Ω
+        public double BrakeSenseV() { Advance(); return brkSense; }
 
         // 输出轴角度（rad，含打滑）：给输出端绝对值编码器
         public double OutputAngle(double t)
@@ -144,7 +149,7 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
             ccrP = new uint[3]; ccrA = new uint[3];
             moe = false; locked = false; shortOn = false;
             id = iq = w = th = isc = iqInt = slip = 0; extra = 0; vbus = Vbus0;
-            brkI = 0; brkOpen = false; brkBroken = false;      // 上电：线圈没电，抱着
+            brkI = 0; brkOpen = false; brkBroken = false; brkShort = false; brkFet = false; brkSense = 0;   // 上电：线圈没电，抱着
             tLast = 0; offTime = -1;
             pwm.Enabled = false;
         }
@@ -239,8 +244,10 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
             if(dutyB < 0) { brkOpen = true; }
             else
             {
-                brkI += (dutyB * vbus - BrkR * brkI) / BrkL * h;
+                double de = brkFet ? 1.0 : dutyB, rc = brkShort ? BrkR / 10 : BrkR, lc = brkShort ? BrkL / 10 : BrkL;
+                brkI += (de * vbus - rc * brkI) / lc * h;
                 if(brkI < 0 || brkBroken) brkI = 0;
+                brkSense += (brkI * de * 0.5 - brkSense) * h / 1e-3;
                 if(!brkOpen && brkI >= 0.7 * BrkI) brkOpen = true;
                 else if(brkOpen && brkI <= 0.3 * BrkI) brkOpen = false;
             }
@@ -269,7 +276,8 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
         private uint[] ccrP, ccrA;
         private bool moe, locked, shortOn;
         private double id, iq, w, th, isc, extra, vbus, tLast, offTime, iqInt, slip, brkI;
-        private bool brkOpen, brkBroken;
+        private bool brkOpen, brkBroken, brkShort, brkFet;
+        private double brkSense;
     }
 
     // ==================================================================== TIM4（抱闸 PWM，第 110 轮）
@@ -359,6 +367,9 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
             case 0x04: return ier;
             case 0x08: return cr;
             case 0x4C: return jsqr;
+            case 0x18: return smpr2;
+            case 0x30: return sqr1;
+            case 0x40: isr &= ~(1u << 2); return dr;                  // 读 DR 清 EOC（第 114 轮）
             case 0x80: return jdr[0];
             case 0x84: return jdr[1];
             case 0x88: return jdr[2];
@@ -374,20 +385,28 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
             case 0x00: isr &= ~v; Update(); break;          // 写 1 清
             case 0x04: ier = v; Update(); break;
             case 0x08:
-                cr = v & ~(1u << 31);                        // ADCAL 立即完成
+                cr = v & ~(1u << 31) & ~(1u << 2);           // ADCAL 立即完成；ADSTART 立即转换完（第 114 轮）
                 if((v & 1) != 0) isr |= 1;                   // ADRDY
+                if((v & 1) != 0 && (v & (1u << 2)) != 0)
+                {
+                    // 规则组（第 114 轮）：只做 1 路，SQ1 = 15（PB0）时给抱闸采样电压，其余给 0
+                    dr = ((sqr1 >> 6) & 0x1F) == 15 ? Code(motor.BrakeSenseV()) : 0;
+                    isr |= (1u << 2) | (1u << 3);            // EOC、EOS
+                }
                 break;
+            case 0x18: smpr2 = v; break;
+            case 0x30: sqr1 = v; break;
             case 0x4C: jsqr = v; break;
             }
         }
 
-        public void Reset() { isr = ier = cr = jsqr = 0; jdr = new uint[4]; IRQ.Unset(); }
+        public void Reset() { isr = ier = cr = jsqr = smpr2 = sqr1 = dr = 0; jdr = new uint[4]; IRQ.Unset(); }
 
         private void Update() { IRQ.Set((isr & ier & (1u << 6)) != 0); }   // JEOS 中断
         private static uint Code(double v) { return (uint)Math.Max(0, Math.Min(4095, Math.Round(v / 3.3 * 4095))); }
 
         private readonly WqTim1Motor motor;
-        private uint isr, ier, cr, jsqr;
+        private uint isr, ier, cr, jsqr, smpr2, sqr1, dr;
         private uint[] jdr;
     }
 
@@ -455,6 +474,7 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
         {
             var data = new List<byte>();
             for(int i = 0; i + 1 < hex.Length; i += 2) data.Add(byte.Parse(hex.Substring(i, 2), NumberStyles.HexNumber));
+            if(muted) return;                            // 第 115 轮：掉线
             log.Add(Line("rx", id, data.ToArray()));
             if((cccr & 1) != 0) return;                  // 还在初始化，收不到
             int fill = (int)(rxf0s & 0xF);
@@ -474,6 +494,9 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
             ir |= 1;                                     // RF0N
             Update();
         }
+
+        // 第 115 轮：掉线（收发都断）
+        public void Mute(bool v) { muted = v; }
 
         // 取出记录（每行：时刻 方向 ID 数据）；取后清空
         public string HostLog()
@@ -528,7 +551,7 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
                     int dlc = (int)((t1 >> 16) & 0xF);
                     var d = new byte[Math.Min(8, dlc)];
                     for(int j = 0; j < d.Length; j++) d[j] = (byte)(Bus.ReadDoubleWord(a + 8 + (ulong)(j / 4 * 4)) >> (8 * (j % 4)));
-                    if((cccr & 1) == 0) log.Add(Line("tx", (int)((t0 >> 18) & 0x7FF), d));
+                    if((cccr & 1) == 0 && !muted) log.Add(Line("tx", (int)((t0 >> 18) & 0x7FF), d));
                     tPut = (k + 1) % 3;
                 }
                 break;
@@ -539,6 +562,7 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
         {
             cccr = 1; nbtp = ir = ie = ils = ile = rxgfc = rxf0s = 0;
             putIdx = getIdx = tPut = 0;
+            muted = false;
             log = new List<string>();
             IRQ.Unset();
         }
@@ -554,6 +578,7 @@ namespace Antmicro.Renode.Peripherals.Miscellaneous
         private readonly IMachine machine;
         private uint cccr, nbtp, ir, ie, ils, ile, rxgfc, rxf0s;
         private int putIdx, getIdx, tPut;
+        private bool muted;
         private List<string> log;
     }
 

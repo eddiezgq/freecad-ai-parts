@@ -1,5 +1,5 @@
 # 关节伺服驱动板 DRV-JOINT B 版：A 版设计描述上的改动清单（问渠电子 wqeda.variant/1；第 102 轮由 drv_joint.py 的 B 版补丁迁来）
-# 放上编码器接口芯片 WQ-ENCIF（第 92 轮设计，未流片）；第 110 轮加抱闸驱动（U16、Q7、D5、J6）。设计对照，不投产。“A→B 改了什么”由这里自动列出。
+# 放上编码器接口芯片 WQ-ENCIF（第 92 轮设计，未流片）；第 110 轮加抱闸驱动（U16、Q7、D5、J6）；第 114 轮加线圈电流采样（R39、R40、C63 → PB0）。设计对照，不投产。“A→B 改了什么”由这里自动列出。
 format: wqeda.variant/1
 base: ../drv-joint/design.yaml
 rev: B
@@ -15,7 +15,7 @@ pin_changes:
   - pin: '15'
     net: ENC_MOSI
   - pin: '16'
-    net: null
+    net: BRK_ISEN
   - pin: '17'
     net: ENC_RST_N
   - pin: '43'
@@ -100,7 +100,7 @@ add_parts:
   value: BSC040N08NS5
   fp: Package_TO_SOT_SMD:TDSON-8-1
   block: power
-  pins: {'1': GND, '2': GND, '3': GND, '4': BRK_G, '5': BRK_N}
+  pins: {'1': BRK_S, '2': BRK_S, '3': BRK_S, '4': BRK_G, '5': BRK_N}
   item: MOS-80V
   note: 抱闸低边开关（同三相桥的 MOSFET）：PWM 20 kHz，松闸先 100% 50 ms，再保持平均 24 V（示例）
 - ref: D5
@@ -151,6 +151,30 @@ add_parts:
   pins: {'1': VBUS, '2': BRK_N}
   item: CONN-SIG
   note: 抱闸线圈（失电制动，24 V 0.42 A，示例）：1 = 母线 +、2 = 线圈 −
+- ref: R39
+  lib: Device:R
+  value: '0.5'
+  fp: Resistor_SMD:R_0805_2012Metric
+  block: power
+  pins: {'1': BRK_S, '2': GND}
+  item: RES-0805
+  note: 抱闸线圈电流采样（第 114 轮）：0.5 Ω 在 Q7 源极，导通时电压 = 线圈电流 × 0.5 Ω（示例）
+- ref: R40
+  lib: Device:R
+  value: 1k
+  fp: Resistor_SMD:R_0402_1005Metric
+  block: power
+  pins: {'1': BRK_S, '2': BRK_ISEN}
+  item: RES-0402
+  note: 采样滤波（与 C63 约 160 Hz）
+- ref: C63
+  lib: Device:C
+  value: 1u
+  fp: Capacitor_SMD:C_0402_1005Metric
+  block: power
+  pins: {'1': BRK_ISEN, '2': GND}
+  item: CAP-0402
+  note: 采样滤波：读到的是“线圈电流 × 占空比 × 0.5 Ω”的平均值
 add_placement:
   U14: [58, 54, 0, B]
   C57: [58, 50.5, 0, B]
@@ -168,6 +192,9 @@ add_placement:
   R36: [82, 35.5, 90, F]
   C62: [89.5, 35.5, 90, F]
   R38: [86, 38.5, 0, F]
+  R39: [86.5, 29.6, 0, F]
+  R40: [83.0, 29.6, 0, F]
+  C63: [83.0, 31.4, 0, F]
 add_pours:                     # 第 110 轮：母线铺铜往右接出一条，连到抱闸接口 J6 的 1 脚和续流二极管 D5 的阴极
 - net: VBUS
   layer: F.Cu

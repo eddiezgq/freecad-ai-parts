@@ -30,9 +30,12 @@ MCF = [("magic", "I"), ("state", "I"), ("mode", "I"), ("fault", "I"), ("align_of
        ("abs_mdeg", "i"), ("home_cnt", "i"), ("home_mdeg", "i"), ("homed", "I"), ("mismatch_mdeg", "i"), ("ssi_bad", "I"),
        ("hold", "I"), ("hold_keep", "I"),
        # 第 110 轮
-       ("brake_cmd", "I"), ("brake_ok", "I"), ("pend", "I")]
+       ("brake_cmd", "I"), ("brake_ok", "I"), ("pend", "I"),
+       # 第 114 轮
+       ("fault_sub", "I"), ("brake_i", "f"), ("brake_v", "f")]
 STATE = {0: "初始化（对零）", 1: "就绪", 2: "运行", 3: "故障"}
-FAULT = {0: "无", 1: "过流", 2: "欠压", 3: "编码器", 4: "通信超时", 5: "输出端编码器", 6: "减速器 / 编码器不一致"}
+FAULT = {0: "无", 1: "过流", 2: "欠压", 3: "编码器", 4: "通信超时", 5: "输出端编码器", 6: "减速器 / 编码器不一致", 7: "抱闸"}
+BRK_SUB = {1: "断线", 2: "过流", 3: "抱不住"}   # 第 114 轮
 MODE = {0: "停", 1: "速度", 2: "位置", 3: "清故障", 4: "力矩"}
 
 # 参数表：来源“零件库”“第 88 轮”“示例”
@@ -61,6 +64,7 @@ PARAMS = [
     ("双编码器互检阈值", "0.5°、连续 10 ms", "", "示例（第 107 轮）"),
     ("抱闸", "失电制动，线圈 24 V / 0.42 A、时间常数 25 ms；静摩擦 2.0 N·m、动摩擦 1.6 N·m（电机侧）", "", "示例（第 110 轮）"),
     ("抱闸驱动", "母线 PWM 20 kHz：松闸先 100% 50 ms，再保持平均 24 V；松开、抱住各按 60 ms 算", "", "示例（第 110 轮）"),
+    ("抱闸电流检测", "R39 0.5 Ω 低边采样、1 ms 滤波；断线 < 30% 连续 20 ms、过流 > 200% 连续 5 ms、抱不住（抱闸指令下仍有电流）连续 20 ms", "", "示例（第 114 轮）"),
 ]
 
 
@@ -133,6 +137,21 @@ SCENARIOS = [
          desc="摆臂停在 90° 后，1.7 s 主站发“停”：固件停住、抱闸，抱住后关输出、回到就绪——摆臂不落（第 102 轮的固件收到“停”立即关输出）。",
          pre=[], dur=2.8, sample=[(0.4, 1.68, 0.01), (1.68, 1.9, 0.005), (1.9, 2.8, 0.02)],
          events=[(0.45, ("cmd", 2, 90000, True)), (1.7, ("cmd", 0, 0, False))]),
+    # 第 114 轮：抱闸线圈电流检测
+    dict(id="brk_open", name="⑮ 抱闸线断", en="Brake coil wire broken",
+         desc="摆臂在 60°（有重力），抱闸线圈的线断了。上电对零时松闸，测不到线圈电流 → 报故障 7（断线），关输出；抱闸弹簧本来就抱着，摆臂不动。"
+              "0.45 s 主站发指令也不执行（第 110 轮的固件测不到，会拖着抱闸转）。",
+         pre=["tim1 StartJoint 60", "tim1 BrakeBroken true"], dur=0.8, sample=[(0.0, 0.2, 0.002), (0.2, 0.8, 0.01)],
+         events=[(0.45, ("cmd", 2, 90000, True))]),
+    dict(id="brk_short", name="⑯ 抱闸线圈短路", en="Brake coil shorted",
+         desc="摆臂停在 90° 后，1.7 s 抱闸线圈短路：电流冲上去 → 报故障 7（过流），撤掉抱闸驱动保护开关管；电机先在原地顶住，测到线圈电流降下来（抱住了）才关输出——摆臂不落。",
+         pre=[], dur=2.4, sample=[(0.4, 1.68, 0.01), (1.68, 1.9, 0.001), (1.9, 2.4, 0.01)],
+         events=[(0.45, ("cmd", 2, 90000, True)), (1.7, "tim1 BrakeShort true")]),
+    dict(id="brk_fet", name="⑰ 开关管击穿：抱闸抱不住", en="Brake switch shorted: cannot engage",
+         desc="摆臂停在 90° 后，1.7 s 抱闸开关管 Q7 击穿常通：线圈上加满母线电压，先测到“过流”→ 故障 7，撤抱闸驱动；但采样电阻上一直有电流——抱闸没抱住，"
+              "改报“抱不住”。固件不关输出、电机在原地一直顶着（第 110 轮的固件按时间当抱住了，关输出后摆臂会落下）。1.75 s 主站发的“停”在故障中不执行。",
+         pre=[], dur=2.6, sample=[(0.4, 1.68, 0.01), (1.68, 2.0, 0.002), (2.0, 2.6, 0.01)],
+         events=[(0.45, ("cmd", 2, 90000, True)), (1.7, "tim1 BrakeFetShort true"), (1.75, ("cmd", 0, 0, False))]),
 ]
 
 
@@ -249,7 +268,8 @@ def decode(f):
     if f["id"] == 0x181 and len(b) == 8:
         return "状态：{}，故障 {}，关节 {:.2f}°，电机 {} rpm，iq {:.2f} A".format(STATE.get(b[0], b[0]), FAULT.get(b[1], b[1]), i16(2) / 100, i16(4), i16(6) / 100)
     if f["id"] == 0x081 and len(b) >= 3:
-        return "报警：{}（{:.2f}）".format(FAULT.get(b[0], b[0]), i16(1) / 100)
+        sub = "·" + BRK_SUB.get(b[3], str(b[3])) if b[0] == 7 and len(b) >= 4 else ""
+        return "报警：{}{}（{:.2f}）".format(FAULT.get(b[0], b[0]), sub, i16(1) / 100)
     if f["id"] == 0x701 and len(b) >= 3:
         return "心跳：{}，母线 {:.1f} V{}".format(STATE.get(b[0], b[0]), struct.unpack_from("<H", b, 1)[0] / 10,
                                              "，抱闸{}".format("松开" if b[3] else "抱住") if len(b) >= 4 else "")
@@ -449,6 +469,34 @@ def check(sc, rows, frames):
         dev = max(abs(r["joint"] - 90) for r in aft)
         add("摆臂不落：之后一直在 90° ± 0.1°", dev <= 0.1, "最大偏差 {:.4f}°".format(dev))
         add("回到就绪、没报故障", last["mc"]["state"] == 1 and last["mc"]["fault"] == 0 and last["moe"] == 0, STATE[last["mc"]["state"]])
+    if sid in ("brk_open", "brk_short", "brk_fet"):
+        e7 = next((f for f in em if bytes.fromhex(f["data"])[0] == 7), None)
+        sub = bytes.fromhex(e7["data"])[3] if e7 and len(bytes.fromhex(e7["data"])) >= 4 else 0
+    if sid == "brk_open":
+        rel = next((r["t"] for r in rows if r["mc"]["brake_cmd"] == 1), None)
+        add("报故障 7·断线：松闸后 ≤ 75 ms", e7 is not None and sub == 1 and rel is not None and e7["t"] - rel <= 0.075,
+            "{}，松闸后 {:.0f} ms".format(decode(e7), (e7["t"] - rel) * 1000) if e7 and rel else "没报")
+        add("关输出、抱闸弹簧抱着，摆臂不动（≤ 0.01°）", last["moe"] == 0 and max(abs(r["joint"] - 60) for r in rows) <= 0.01,
+            "最大偏差 {:.4f}°".format(max(abs(r["joint"] - 60) for r in rows)))
+        add("主站的运动指令不执行（一直是故障）", all(r["mc"]["state"] == 3 for r in rows if r["t"] >= 0.45), STATE[last["mc"]["state"]])
+    if sid == "brk_short":
+        add("报故障 7·过流：≤ 10 ms", e7 is not None and sub == 2 and e7["t"] - 1.7 <= 0.01,
+            "{}，{:.1f} ms".format(decode(e7), (e7["t"] - 1.7) * 1000) if e7 else "没报")
+        aft = [r for r in rows if r["t"] >= 1.7]
+        off_t = next((r["t"] for r in aft if r["moe"] == 0), None)
+        shut_t = next((r["t"] for r in aft if r["bopen"] == 0), None)
+        add("先抱住、后关输出", shut_t is not None and off_t is not None and shut_t < off_t,
+            "{:.0f} ms 抱住，{:.0f} ms 关输出".format((shut_t - 1.7) * 1000, (off_t - 1.7) * 1000) if shut_t and off_t else "")
+        dev = max(abs(r["joint"] - 90) for r in aft)
+        add("摆臂不落：之后一直在 90° ± 0.1°", dev <= 0.1, "最大偏差 {:.4f}°".format(dev))
+    if sid == "brk_fet":
+        e7s = [f for f in em if bytes.fromhex(f["data"])[0] == 7]
+        subs = [bytes.fromhex(f["data"])[3] for f in e7s if len(bytes.fromhex(f["data"])) >= 4]
+        add("先报故障 7·过流，撤驱动后电流还在，再报“抱不住”", subs[:1] == [2] and subs[-1:] == [3], "；".join(decode(f) for f in e7s))
+        aft = [r for r in rows if r["t"] >= 1.75]
+        add("抱闸确实没抱住（一直松着）", all(r["bopen"] == 1 for r in aft), "")
+        add("不关输出，电机在原地顶着：摆臂一直在 90° ± 0.05°", all(r["moe"] == 1 for r in aft) and max(abs(r["joint"] - 90) for r in aft) <= 0.05,
+            "最大偏差 {:.4f}°".format(max(abs(r["joint"] - 90) for r in aft)))
     return C
 
 
@@ -495,7 +543,7 @@ def main():
     if a.only:
         return 0
     size = subprocess.run(["arm-none-eabi-size", ELF], capture_output=True, text=True, check=True).stdout.splitlines()[1].split()
-    out = dict(round=110, title="驱动板 B 版示例固件：FOC 三环 + CAN + 保护 + 输出端编码器 + 抱闸，Renode 仿真",
+    out = dict(round=114, title="驱动板 B 版示例固件：FOC 三环 + CAN + 保护 + 输出端编码器 + 抱闸，Renode 仿真",
                firmware=dict(text=int(size[0]), data=int(size[1]), bss=int(size[2]), flash=int(size[0]) + int(size[1]),
                              ram=int(size[1]) + int(size[2])),
                mc_addr="0x{:08X}".format(addr), params=[dict(name=n, value=v, unit=u, source=s) for n, v, u, s in PARAMS],

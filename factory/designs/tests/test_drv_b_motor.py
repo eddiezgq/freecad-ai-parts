@@ -17,7 +17,8 @@ def test_six_motor_scenarios_pass():
     s = json.load(open(os.path.join(FW, "out", "sim_motor.json"), encoding="utf-8"))
     assert s["all_pass"] and [x["id"] for x in s["scenarios"]] == ["boot", "cur", "spd", "pos", "hold", "prot",
                                                                    "abs", "ssi", "slip", "stop",      # 第 107 轮加四个
-                                                                   "brk_boot", "brk_uv", "brk_ssi", "brk_stop"]   # 第 110 轮加四个
+                                                                   "brk_boot", "brk_uv", "brk_ssi", "brk_stop",   # 第 110 轮加四个
+                                                                   "brk_open", "brk_short", "brk_fet"]            # 第 114 轮加三个
     for sc in s["scenarios"]:
         assert sc["checks"] and all(c["ok"] for c in sc["checks"]), sc["id"]
         assert len(sc["series"]["t"]) == len(sc["series"]["iq"]) == len(sc["series"]["joint"])
@@ -44,6 +45,7 @@ OFFSETS = {  # 寄存器 → (基址名, 偏移)
     "ADC1_ISR": 0x00, "ADC1_IER": 0x04, "ADC1_CR": 0x08, "ADC1_JSQR": 0x4C,
     "FDCAN1_CCCR": 0x018, "FDCAN1_NBTP": 0x01C, "FDCAN1_IR": 0x050, "FDCAN1_IE": 0x054, "FDCAN1_ILE": 0x05C,
     "FDCAN1_RXGFC": 0x080, "FDCAN1_RXF0S": 0x090, "FDCAN1_RXF0A": 0x094, "FDCAN1_TXFQS": 0x0C4, "FDCAN1_TXBAR": 0x0CC,
+    "ADC1_SMPR2": 0x18, "ADC1_SQR1": 0x30, "ADC1_DR": 0x40,   # 第 114 轮
     "TIM4_CR1": 0x00, "TIM4_EGR": 0x14, "TIM4_CCMR1": 0x18, "TIM4_CCER": 0x20, "TIM4_PSC": 0x28, "TIM4_ARR": 0x2C, "TIM4_CCR1": 0x34,   # 第 110 轮
     "RCC_CR": 0x00, "RCC_CFGR": 0x08, "RCC_PLLCFGR": 0x0C, "RCC_AHB2ENR": 0x4C, "RCC_APB1ENR1": 0x58, "RCC_APB2ENR": 0x60, "RCC_CCIPR": 0x88,
 }

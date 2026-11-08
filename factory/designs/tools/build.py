@@ -295,7 +295,8 @@ def summary(drc_res, dfm_res, route_stats, sch_net):
         d["firmware"] = ["SPI1：PA4 NSS / PA5 SCK / PA6 MISO / PA7 MOSI（AF5），模式 0，≤ 5 MHz（芯片要求 SCLK ≤ 时钟 / 10）",
                          "SSI：PB3 / PB4 改用 SPI3（AF6），引脚不变", "PB1 推挽输出，接芯片复位（低有效）；TIM3 编码器模式不再用",
                          "上电：拉低复位 ≥ 4 个芯片时钟后放开，读 ID（地址 0x00）应为 0x454E4331，再写 CTRL 设滤波长度",
-                         "抱闸（第 110 轮）：PB6 = TIM4_CH1（AF2）PWM 20 kHz；松闸先 100% 50 ms，再保持占空比 = 24 V ÷ 母线电压；不输出 = 抱住"]
+                         "抱闸（第 110 轮）：PB6 = TIM4_CH1（AF2）PWM 20 kHz；松闸先 100% 50 ms，再保持占空比 = 24 V ÷ 母线电压；不输出 = 抱住",
+                         "抱闸电流（第 114 轮）：PB0 = ADC1_IN15，规则组软件触发 1 kHz；线圈电流 = 读数 ÷（0.5 Ω × 占空比）"]
         d["disclaimer"] = "B 版：设计对照，不投产；编码器接口芯片 WQ-ENCIF 未流片。示例设计，未经硬件验证"
     for root, _, fs in os.walk(OUT):
         for fn in sorted(fs):
@@ -321,9 +322,9 @@ def use_rev_b():
     KDIR = os.path.join(PROJ, "kicad")
     OUT = os.path.join(PROJ, "out")
     SHEET_NOTES["mcu"] = ("STM32G431（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线电压、SPI1 读编码器接口芯片 U14（模式 0，≤ 5 MHz）、"
-                          "SPI3 读 SSI、TIM4_CH1（PB6）抱闸 PWM、FDCAN1；8 MHz 晶振；TP1–TP5 是烧录口和电源测试点。B 版：设计对照，不投产。")
+                          "SPI3 读 SSI、TIM4_CH1（PB6）抱闸 PWM、ADC1_IN15（PB0）抱闸电流、FDCAN1；8 MHz 晶振；TP1–TP5 是烧录口和电源测试点。B 版：设计对照，不投产。")
     SHEET_NOTES["power"] = ("48 V 从 J1 进；C1 母线电容；R1–R3 分压测母线电压。B 版加抱闸（第 110 轮）：J6 接抱闸线圈，U16 + Q7 从母线 PWM 供电，"
-                            "D5 续流，R38 下拉（MCU 没输出就抱住）。示例设计，未经硬件验证。")
+                            "D5 续流，R38 下拉（MCU 没输出就抱住）；R39 采样线圈电流经 R40、C63 滤波进 PB0（第 114 轮）。示例设计，未经硬件验证。")
 
 
 def main():

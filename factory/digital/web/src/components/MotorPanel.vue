@@ -15,7 +15,8 @@
         </div>
         <div class="row fb">
           <span>抱闸：</span><div class="b">TIM4 PWM（PB6）<small>松闸先 100% 50 ms，再保持平均 24 V</small></div><span class="ar">→</span>
-          <div class="b pw">U16 栅极驱动 → Q7 → 电机轴上的失电制动抱闸<small>没输出就抱住（第 110 轮）</small></div>
+          <div class="b pw">U16 栅极驱动 → Q7 → 电机轴上的失电制动抱闸<small>没输出就抱住（第 110 轮）</small></div><span class="ar">→</span>
+          <div class="b">R39 采样 → PB0（ADC）<small>测线圈电流：断线、过流、抱不住（第 114 轮）</small></div>
         </div>
         <div class="row fb">
           <span>反馈：</span><div class="b chip">编码器 → WQ-ENCIF → SPI1<small>角度、转速</small></div>
@@ -64,7 +65,8 @@
             从就绪开始运动：先稳住、松闸，60 ms 后执行；“停”：停住 → 抱闸 → 关输出（第 110 轮）</td></tr>
           <tr><td class="mono">0x181</td><td>板→主站</td><td>状态 100 Hz：状态、故障码、关节角 0.01°、电机转速 rpm、q 轴电流 0.01 A</td></tr>
           <tr><td class="mono">0x081</td><td>板→主站</td><td>报警（出故障立即发）：故障码 1 过流、2 欠压、3 编码器、4 通信超时、5 输出端编码器、6 减速器 / 编码器不一致（第 107 轮）；相关值。
-            1、3、5、6 立即关输出（同时抱闸）；4 减速停住、保持位置不断电；2 停住、抱闸后关输出</td></tr>
+            1、3、5、6 立即关输出（同时抱闸）；4 减速停住、保持位置不断电；2 停住、抱闸后关输出；
+            7 抱闸故障（第 114 轮，[3] 1 断线、2 过流、3 抱不住）：先在原地保持，确实抱住才关输出，抱不住就一直保持</td></tr>
           <tr><td class="mono">0x701</td><td>板→主站</td><td>心跳 10 Hz：状态、母线电压 0.1 V、抱闸（0 抱住、1 松开，第 110 轮）</td></tr>
         </tbody>
       </table>
@@ -140,6 +142,20 @@ const charts = computed(() => {
         series: [{ name: '实际', data: w.f('joint').map((v, i, a) => (v - a[w.t.findIndex((t) => t >= 0.45)]) * 1000), cls: 'truth' }], zero: true },
       { title: '输出与抱闸', t: w.t, series: [{ name: '输出开（MOE）', data: w.f('moe'), cls: 'ref' }, { name: '抱闸松开', data: w.f('brake'), cls: 'fwk' },
         { name: '线圈电流 A', data: w.f('brake_i'), cls: 'c3' }], zero: true }];
+  }
+  if (id === 'brk_open') {
+    const w = sub(0.0, 0.2);
+    return [{ title: '0–0.2 s：抱闸线圈电流 A（线断了：一直是 0）与输出', t: w.t,
+      series: [{ name: '线圈电流 A', data: w.f('brake_i'), cls: 'c3' }, { name: '状态（3 = 故障）', data: w.f('state'), cls: 'c2' },
+        { name: '输出开（MOE）', data: w.f('moe'), cls: 'ref' }], zero: true },
+      { title: '关节角 °（一直在 60°）', series: [{ name: '实际', data: s.joint, cls: 'truth' }] }];
+  }
+  if (id === 'brk_short' || id === 'brk_fet') {
+    const w = sub(1.65, id === 'brk_fet' ? 2.1 : 2.0);
+    return [{ title: '线圈电流 A（' + (id === 'brk_short' ? '1.7 s 线圈短路' : '1.7 s 开关管击穿') + '）', t: w.t,
+      series: [{ name: '线圈电流 A', data: w.f('brake_i'), cls: 'c3' }, { name: '抱闸松开', data: w.f('brake'), cls: 'fwk' },
+        { name: '输出开（MOE）', data: w.f('moe'), cls: 'ref' }], zero: true },
+      { title: '关节角偏差 0.001°（相对 90°）', t: w.t, series: [{ name: '实际 − 90°', data: w.f('joint').map((v) => (v - 90) * 1000), cls: 'truth' }], zero: true }];
   }
   if (id === 'brk_uv' || id === 'brk_ssi' || id === 'brk_stop') {
     const w = sub(1.65, 2.0);
