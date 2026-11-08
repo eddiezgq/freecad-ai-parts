@@ -146,7 +146,7 @@ def test_problems_and_fixes_by_plant():
     from sim import errors as E
     pcb = E.problems_for("wenquest-pcb")
     assert set(pcb) == {"stencil_clog", "reflow_drift", "nozzle_wear", "shunt_lot"}
-    assert set(E.problems_for("wenquest-robot")) == {"ja_torque", "hd_lot", "bench_zero"}
+    assert set(E.problems_for("wenquest-robot")) == {"ja_torque", "hd_lot", "bench_zero", "enc_mount", "brake_bench"}
     demo = E.problems_for("wenquest-gearbox")
     assert "tailstock_offset" in demo and not set(demo) & set(pcb)
     f = E.fixes_for("wenquest-pcb")

@@ -128,9 +128,29 @@ def test_bench_zero_drifts_for_all_joints_and_fix_works():
     assert abs(_mean(fixed, "joint_zero")) < 6
 
 
+def test_enc_mount_only_on_ja1_and_fix_works():
+    """第 120 轮：JA-1 编码器定位工装磨损——只有 JA-1 装的关节双编码器互检差超差；换工装后恢复，不对症的措施没用"""
+    ms = _run({"inject": ["enc_mount"], "batches": [("ja-1", 8), ("ja-2", 8)]})
+    assert _mean(ms, "enc_cross", ja="ja-1") - _mean(ms, "enc_cross", ja="ja-2") > 3
+    assert all(m["result"] != "pass" for m in ms if m["char"] == "enc_cross" and m["ja"] == "ja-1" and m["v"] > 3)
+    fixed = _run({"inject": ["enc_mount"], "fix": "recenter_encoder", "fix_before": 0, "batches": [("ja-1", 8)]})
+    assert abs(_mean(fixed, "enc_cross", ja="ja-1")) < 1.5
+    wrong = _run({"inject": ["enc_mount"], "fix": "tighten_test", "fix_before": 0, "batches": [("ja-1", 8)]})
+    assert _mean(wrong, "enc_cross", ja="ja-1") > 3
+
+
+def test_brake_bench_drifts_by_sequence_and_fix_works():
+    """第 120 轮：测试台抱闸扭矩传感器漂移——保持力矩读数随测试顺序下降，两个工位都有；重新标定后恢复"""
+    ms = _run({"inject": ["brake_bench"], "batches": [("ja-1", 6), ("ja-2", 6)]})
+    b = [m["v"] for m in ms if m["char"] == "brake_hold"]
+    assert sum(b[:4]) / 4 - sum(b[-4:]) / 4 > 25                               # WQJ-L 名义 220：每台降 2%
+    fixed = _run({"inject": ["brake_bench"], "fix": "recalibrate_brake_bench", "fix_before": 0, "batches": [("ja-1", 8)]})
+    assert abs(_mean(fixed, "brake_hold") - 220) < 15
+
+
 def test_catalog_is_per_plant():
     from sim import errors as ERR
-    assert set(ERR.problems_for("wenquest-robot")) == {"ja_torque", "hd_lot", "bench_zero"}
+    assert set(ERR.problems_for("wenquest-robot")) == {"ja_torque", "hd_lot", "bench_zero", "enc_mount", "brake_bench"}
     assert set(ERR.problems_for(None)) == {"tailstock_offset", "dressing_interval", "thermal_warmup", "locator_worn", "center_hole", "wheel_dull"}
     assert "recalibrate_torque" not in ERR.fixes_for(None) and "align_tailstock" not in ERR.fixes_for("wenquest-robot")
     for p, v in ERR.problems_for("wenquest-robot").items():
@@ -295,5 +315,19 @@ def test_lab25_bench_problem_layer_is_sequence():
 
 def test_lab25_lot_problem():
     out = _lab25("hd_lot", "joint_backlash", {"by": "lot", "group": "HD-L-002"}, "quarantine_lot")
+    assert out["t1"] == 10 and out["t2"] == 15, out
+    assert out["verify"]["effective"] and out["score"] == 60, out
+
+
+def test_lab25_enc_mount_problem():
+    """第 120 轮：编码器装偏——特性 enc_cross、按装配工位分层（JA-1），换工装后验证有效"""
+    out = _lab25("enc_mount", "enc_cross", {"by": "station", "group": "ja-1"}, "recenter_encoder")
+    assert out["t1"] == 10 and out["t2"] == 15, out
+    assert out["verify"]["effective"] and out["score"] == 60, out
+
+
+def test_lab25_brake_bench_problem():
+    """第 120 轮：抱闸测试台扭矩传感器漂移——特性 brake_hold、按测试顺序分层，重新标定后验证有效"""
+    out = _lab25("brake_bench", "brake_hold", {"by": "sequence"}, "recalibrate_brake_bench")
     assert out["t1"] == 10 and out["t2"] == 15, out
     assert out["verify"]["effective"] and out["score"] == 60, out

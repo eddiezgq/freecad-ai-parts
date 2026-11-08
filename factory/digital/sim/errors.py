@@ -61,7 +61,13 @@ PROBLEMS.update({
                "default": 0.40, "plant": ROBOT},
     "bench_zero": {"name": "关节测试台零位标定程序漂移（零位残差逐台偏移）", "unit": "jt-1", "fix": "recalibrate_bench",
                    "default": 1.5, "plant": ROBOT},
+    # 第 120 轮：B 版驱动板带来的两项测量（抱闸保持力矩、双编码器互检差）各配一个问题（偏差量都是示例值）
+    "enc_mount": {"name": "关节装配工位 JA-1 编码器定位工装磨损（这个工位装的关节输出端编码器偏心，双编码器互检差偏大）", "unit": "ja-1",
+                  "fix": "recenter_encoder", "default": 4.0, "plant": ROBOT},
+    "brake_bench": {"name": "关节测试台抱闸扭矩传感器漂移（保持力矩读数一台比一台低，抱闸其实是好的）", "unit": "jt-1",
+                    "fix": "recalibrate_brake_bench", "default": 2.0, "plant": ROBOT},
 })
+BRAKE_NOMINAL = {"L": 220.0, "M": 110.0, "S": 55.0}      # 关节测试的抱闸保持力矩名义值 N·m（与清单一致，第 118 轮）
 # 电路板厂（清单 wenquest-pcb，第 85 轮）：SMT 线和功能测试的数据。机理与表现（偏差量、批次大小都是示例值）：
 #   钢网堵孔：印刷次数多了开孔被锡膏糊住 → 锡膏体积逐块下降（约 20 块后接近下限）→ AOI 少锡缺陷增多
 #   回流炉温漂：加热器老化、热电偶漂移 → 峰值温度、液相线以上时间逐渐下降 → 冷焊风险（峰值低于 235 ℃）
@@ -109,6 +115,9 @@ FIXES = {
     "recalibrate_bench": "用标准关节重新标定测试台的零位基准，修正标定程序",
     "add_grease": "关节加注润滑脂",
     "tighten_test": "出厂检验收紧，关节 100% 复测",
+    # 第 120 轮
+    "recenter_encoder": "更换关节装配工位 JA-1 磨损的编码器定位工装，按工艺复核输出端编码器同心度",
+    "recalibrate_brake_bench": "用标准扭矩扳手重新标定关节测试台的抱闸扭矩传感器，每班点检",
 }
 FIXES.update({                # 电路板厂（第 85 轮）
     "wipe_stencil": "清洗钢网、把自动擦网改为每印 5 块擦一次（干擦 + 真空擦）",
@@ -128,7 +137,8 @@ FIXES.update({                # 芯片封测厂（第 103 轮）
     "raise_bond_power": "加大键合超声功率和压力",
     "tighten_ft": "FT 判定加严",
 })
-ROBOT_FIXES = ("recalibrate_torque", "quarantine_lot", "recalibrate_bench", "add_grease", "tighten_test", "retrain", "change_gauge")
+ROBOT_FIXES = ("recalibrate_torque", "quarantine_lot", "recalibrate_bench", "add_grease", "tighten_test", "retrain", "change_gauge",
+               "recenter_encoder", "recalibrate_brake_bench")
 PCB_FIXES = ("wipe_stencil", "profile_oven", "replace_nozzle", "quarantine_shunt", "raise_peak", "replace_squeegee", "tighten_aoi",
              "retrain", "change_gauge")
 CHIP_FIXES = ("clean_probe", "replace_blade", "replace_capillary", "emc_handling", "retest_cp", "raise_bond_power", "tighten_ft",
@@ -458,6 +468,12 @@ class ErrorModel:
         if code == "joint_zero" and "bench_zero" in st:
             mag, k = st["bench_zero"]
             off += min(mag * k, 30.0)
+        if code == "enc_cross" and "enc_mount" in st:          # 第 120 轮
+            off += st["enc_mount"][0]
+        if code == "brake_hold" and "brake_bench" in st:       # 第 120 轮：读数按名义值的百分比逐台下降，最多 40%
+            mag, k = st["brake_bench"]
+            size = (st.get("_lot_no") or ("L", 0))[0]
+            off -= BRAKE_NOMINAL.get(size, 220.0) * min(mag * k, 40.0) / 100.0
         return off
 
     # -------------------------------------------------------------- 测量

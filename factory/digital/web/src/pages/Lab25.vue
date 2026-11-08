@@ -17,7 +17,7 @@
       <section v-if="s.teacher" class="card">
         <div class="card-head"><h2>老师：注入隐藏问题</h2><span class="small muted">学生看不到这里</span></div>
         <div class="row">
-          <select v-model="kind" aria-label="问题"><option value="random">随机三选一（学生不知道是哪种）</option>
+          <select v-model="kind" aria-label="问题"><option value="random">随机五选一（学生不知道是哪种）</option>
             <option v-for="k in s.inject_kinds" :key="k.value" :value="k.value">{{ k.label }}</option></select>
           <button class="btn danger" @click="inject">注入</button><span class="small ok">{{ injMsg }}</span>
         </div>
