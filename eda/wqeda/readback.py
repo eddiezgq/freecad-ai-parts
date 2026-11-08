@@ -79,6 +79,66 @@ def read_kicad(path):
     }
 
 
+def read_ipc(board):
+    """第 113 轮：KiCad 9 起编辑器里打开的板子（kipy 的 Board）→ 和 read_kicad 一样的字典。给 KiCad 插件用"""
+    from kipy.proto.board.board_types_pb2 import BoardLayer as BL
+
+    nm = 1e-6
+    place, holes, pins = {}, [], {}
+    for fp in board.get_footprints():
+        ref = fp.reference_field.text.value
+        x, y = fp.position.x * nm - ORIGIN[0], fp.position.y * nm - ORIGIN[1]
+        if re.fullmatch(r"H\d+", ref) and fp.definition.id.name.startswith("MountingHole"):
+            holes.append((int(ref[1:]), (_num(x), _num(y))))
+            continue
+        side = "B" if fp.layer == BL.BL_B_Cu else "F"
+        rot = fp.orientation.degrees
+        if side == "B":
+            rot = -rot
+        place[ref] = (_num(x), _num(y), _num(rot % 360), side)
+        pins[ref] = {p.number: p.net.name for p in fp.definition.pads if p.number}
+    pours = []
+    for z in board.get_zones():
+        if z.is_rule_area() or z.priority < 2:
+            continue
+        pts = [
+            (_num(n.point.x * nm - ORIGIN[0]), _num(n.point.y * nm - ORIGIN[1]))
+            for n in z.outline.outline.nodes
+            if n.has_point
+        ]
+        pours.append(
+            {
+                "net": z.net.name,
+                "layer": BL.Name(z.layers[0])[3:].replace("_", "."),  # BL_F_Cu → F.Cu
+                "points": pts,
+            }
+        )
+    h = hashlib.sha256()
+    tracks = list(board.get_tracks()) + list(board.get_vias())
+    for t in sorted(
+        repr(
+            (
+                type(t).__name__,
+                t.net.name,
+                getattr(t, "layer", ""),
+                getattr(t, "start", getattr(t, "position", None)),
+                getattr(t, "end", None),
+                getattr(t, "width", getattr(t, "diameter", None)),
+            )
+        )
+        for t in tracks
+    ):
+        h.update(t.encode())
+    return {
+        "placement": place,
+        "holes": [xy for _, xy in sorted(holes)],
+        "pours": pours,
+        "pins": pins,
+        "routing": h.hexdigest()[:16],
+        "tracks": len(tracks),
+    }
+
+
 def _same(a, b):
     return all(abs(float(p) - float(q)) <= TOL for p, q in zip(a[:3], b[:3], strict=True)) and a[3] == b[3]
 

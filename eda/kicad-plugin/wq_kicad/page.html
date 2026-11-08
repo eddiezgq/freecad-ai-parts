@@ -1,0 +1,22 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>问渠电子 · KiCad 插件</title><style>
+:root{--ink:#1c2925;--muted:#5a6863;--line:#d6dbd5;--mask:#1d6a46;--copper:#a65c22;--fail:#b3261e;--pend:#946200}
+body{margin:0;font:15px/1.6 "Noto Sans CJK SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:var(--ink);background:#f4f5f1}
+main{max-width:980px;margin:0 auto;padding:20px 16px}h1{font-size:22px;margin:0 0 4px}.sub{color:var(--muted);margin:0 0 12px}
+table{border-collapse:collapse;width:100%;background:#fff}th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.pass{color:var(--mask)}.fail{color:var(--fail)}.pending{color:var(--pend)}.unknown{color:var(--muted)}
+button{font:inherit;border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 12px;cursor:pointer}
+button.primary{background:var(--mask);color:#fff;border-color:var(--mask)}#msg{white-space:pre-wrap;color:var(--copper);min-height:1.5em}
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}</style></head><body><main>
+<h1>问渠电子 · 板子检查</h1><p class="sub">{sub}</p>
+<div class="bar"><button class="primary" data-a="recheck">重新检查</button><button data-a="readback">把摆放读回设计描述</button>
+<button data-a="report">出报告</button></div><p id="msg" role="status"></p>
+<table><tr><th>项</th><th>结论</th><th>量到 / 限值</th><th>说明</th><th></th></tr>{rows}</table>
+<p class="sub">点“定位”，KiCad 里会选中那个器件并放大。判定都由确定性代码做，不调 AI、不联网。</p></main>
+<script>
+const T={token};
+async function go(path){const r=await fetch(path+(path.includes('?')?'&':'?')+'t='+T,{method:'POST'});const j=await r.json();
+document.getElementById('msg').textContent=j.msg||'';if(j.reload)location.reload();}
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+if(b.dataset.i!==undefined)go('/jump?i='+b.dataset.i);else go('/'+b.dataset.a);});
+</script></body></html>
