@@ -93,11 +93,16 @@
 #define ADC1_ISR REG(ADC1_BASE + 0x00)       /* 位 0 ADRDY、位 5 JEOC、位 6 JEOS */
 #define ADC1_IER REG(ADC1_BASE + 0x04)       /* 位 6 JEOSIE */
 #define ADC1_CR REG(ADC1_BASE + 0x08)        /* 位 0 ADEN、位 3 JADSTART、位 28 ADVREGEN、位 29 DEEPPWD、位 31 ADCAL */
+#define ADC1_SMPR2 REG(ADC1_BASE + 0x18)     /* 第 114 轮：SMP15 位 17:15 */
+#define ADC1_SQR1 REG(ADC1_BASE + 0x30)      /* 第 114 轮：L 位 3:0、SQ1 位 10:6 */
+#define ADC1_DR REG(ADC1_BASE + 0x40)        /* 第 114 轮：规则组结果，读后清 EOC */
 #define ADC1_JSQR REG(ADC1_BASE + 0x4C)      /* JL 位 1:0、JEXTSEL 位 6:2（0 = TIM1_TRGO）、JEXTEN 位 8:7、JSQ1–4 位 9/15/21/27 起 */
 #define ADC1_JDR(n) REG(ADC1_BASE + 0x80 + 4 * (n))
 #define ADC12_CCR REG(0x50000300u + 0x08)    /* ADC_CCR：CKMODE 位 17:16 */
 #define ADC_ISR_ADRDY (1u << 0)
 #define ADC_ISR_JEOS (1u << 6)
+#define ADC_ISR_EOC (1u << 2)                /* 第 114 轮：规则组转换完成 */
+#define ADC_CR_ADSTART (1u << 2)             /* 第 114 轮：规则组软件启动 */
 
 /* FDCAN1，0x4000 6400（偏移按 FDCAN_GlobalTypeDef）；消息 RAM SRAMCAN 0x4000 A400（布局按 HAL stm32g4xx_hal_fdcan.c） */
 #define FDCAN1_BASE 0x40006400u

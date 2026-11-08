@@ -1,5 +1,6 @@
 /* 关节驱动板 DRV-JOINT B 版 示例固件。第 100 轮：经 SPI1 读编码器接口芯片 WQ-ENCIF；第 102 轮：电机控制（FOC）与 CAN；
  * 第 107 轮：输出端绝对值编码器（SSI，SPI3）——开机取绝对角度、双编码器互检、受控停车。
+ * 第 114 轮：抱闸线圈电流（PB0 = ADC1_IN15）——查断线、过流、抱不住（故障 7）。
  * 第 110 轮：抱闸（TIM4 CH1 = PB6）——上电抱住；运动前先稳住再松闸；停、欠压先抱住再关输出；危险故障关输出同时抱闸。
  *
  * 时间基准是 20 kHz 电流环中断（motor.c）；它每 1 ms 调一次 motor_ms_hook()：
@@ -204,6 +205,7 @@ void motor_ms_hook(uint32_t now)
             } else if (mc.state == STATE_FAULT && tlm.state == ST_RUN && mc.ssi_bad < SSI_BAD_MAX) {
                 uint32_t f = mc.fault;
                 mc.fault = FAULT_NONE;
+                mc.fault_sub = 0;
                 mc.fault_val = 0;
                 if (f == FAULT_ENC || f == FAULT_SLIP) {   /* 编码器芯片可能复位过 / 两个编码器对不上：重新对零、回原点 */
                     mc.state = STATE_INIT;
@@ -226,6 +228,7 @@ void motor_ms_hook(uint32_t now)
                     brake_set(1);
                 } else {
                     motor_hold_here();
+                    brake_set(1);
                 }
                 mc.state = STATE_RUN;
                 mc.pend = 1;
@@ -269,6 +272,36 @@ void motor_ms_hook(uint32_t now)
         uv_ms = 0;
     }
 
+    /* 第 114 轮：抱闸故障——先在原地保持、撤抱闸驱动；测到线圈电流降下来（确实抱住）才关输出；抱不住就一直保持 */
+    int bf = brake_fault();
+    if (bf && mc.fault != FAULT_BRAKE) {
+        float ia = mc.brake_i >= 0 ? mc.brake_i : mc.brake_v / 0.5f;
+        mc.pend = 0;
+        if (mc.state == STATE_INIT) {                    /* 对零中：还没换向角，不能保持；抱闸弹簧本来抱着 */
+            motor_fault(FAULT_BRAKE, ia);
+        } else {
+            if (!mc.moe) {
+                motor_hold_here();
+            }
+            if (mc.state == STATE_FAULT) {
+                mc.state = STATE_RUN;                    /* 让 motor_quickstop 接手（故障改记抱闸） */
+            }
+            motor_quickstop(FAULT_BRAKE, ia, 1);
+            brake_set(0);
+        }
+        mc.fault_sub = (uint32_t)bf;
+        due_emcy = 1;
+    }
+    if (mc.fault == FAULT_BRAKE && bf && (uint32_t)bf != mc.fault_sub) {   /* 细分变了（过流 → 抱不住）：再报一次 */
+        mc.fault_sub = (uint32_t)bf;
+        due_emcy = 1;
+    }
+    if (mc.fault == FAULT_BRAKE && mc.hold && mc.hold_keep && brake_verified()) {
+        mc.hold = 0;
+        motor_enable(0);
+        mc.mode = MODE_STOP;
+    }
+
     /* 排 CAN 发送 */
     if (mc.state == STATE_FAULT && prev_state != STATE_FAULT) {
         due_emcy = 1;
@@ -308,6 +341,7 @@ int main(void)
     ssi_init();
     brake_init();
     motor_init();
+    brake_adc_init();
     can_init();
 
     for (;;) {
@@ -317,7 +351,8 @@ int main(void)
             due_emcy = 0;
             d[0] = (uint8_t)mc.fault;
             put16(d + 1, rnd(mc.fault_val * 100.0f));
-            can_send(CAN_ID_EMCY, d, 3);
+            d[3] = (uint8_t)mc.fault_sub;              /* 第 114 轮：故障 7 的细分 */
+            can_send(CAN_ID_EMCY, d, mc.fault == FAULT_BRAKE ? 4 : 3);
             mc.can_tx++;
         }
         if (due_status) {
