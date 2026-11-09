@@ -36,6 +36,9 @@ LABS = [
     # 第 74 轮：一台轮式人形从订单到交付（整机里套整机、两种整机抢一个标定工位）
     {"no": 30, "title": "一台轮式人形从订单到交付", "path": "/lab30", "module": "lab30", "domain": "订单与计划（多层计划、产能）", "hours": 4,
      "plant": "wenquest-robot"},
+    # 第 123 轮：关节终检抱闸报警的排查（驱动板 B 版故障 7：报警帧 → 线圈电流 → 坏件 → 处置 → 复测）
+    {"no": 31, "title": "关节终检抱闸报警的排查", "path": "/lab31", "module": "lab31", "domain": "质量（终检与返修）", "hours": 4,
+     "plant": "wenquest-robot"},
 ]
 
 

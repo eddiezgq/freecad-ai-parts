@@ -11,6 +11,7 @@
 import argparse
 import datetime as dt
 import json
+import os
 import sys
 import time
 import urllib.error
@@ -38,6 +39,7 @@ P.add_argument("--domains", action="store_true", help="设备维护、能源、�
 P.add_argument("--staffing", type=float, default=None, help="1 / 0：开始前打开 / 关掉车间“要有人”（0 = 演练时不因请假缺人停机，第 61 轮）")
 P.add_argument("--lab30", action="store_true", help="接 WQ-H1（同一账号前面接过 WQ-CR5）后按实验 30 的六个任务答题，核对 60 分（第 74 轮）")
 P.add_argument("--lab29", action="store_true", help="实验 29（一台机器人的售后追溯）按六个任务答题，核对 60 分（第 68 轮）")
+P.add_argument("--lab31", action="store_true", help="实验 31（关节终检抱闸报警的排查）按页上的报文和波形答题，核对 60 分（第 123 轮）")
 P.add_argument("--lab27", action="store_true", help="工业园那一段走完后，按实验 27 的六个任务答题（AGV 订单要 2 台：--item WQ-AGV300:2），核对 60 分（第 57 轮）")
 P.add_argument("--park-hub", default="", help="工业园兄弟厂（问渠减速器厂）的枢纽：核对 WQR-105 的采购单送过去、那边接单生产发货、"
                                               "这边到货检验入库（第 51 轮）")
@@ -447,6 +449,33 @@ def lab29(mgr):
     check(st["score"] == 60, "实验 29 自动评分 {} / 60（{}）".format(st["score"], "、".join("{} {}".format(t["title"], t["score"]) for t in st["tasks"])))
 
 
+def lab31(mgr):
+    """实验 31：从接口给的原始报文解子码 → 判坏件、定处置 → 按提示的判据从波形读时间 → 安全逻辑 → 复测，满分 60"""
+    print("— 实验 31（关节终检抱闸报警的排查）")
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from hub import lab31 as L31
+    st = hub("GET", "/api/lab31", token=mgr)
+    if not check(not st["sim_missing"] and len(st["joints"]) == 3, "实验 31 的三台关节：{}".format("、".join(j["serial"] for j in st["joints"]))):
+        return
+    part = {1: "open", 2: "short", 3: "fet"}
+    action = {1: "harness", 2: "motor", 3: "board"}
+    a1, a2, a5, short = {}, {}, {}, None
+    for j in st["joints"]:
+        b = bytes.fromhex([f for f in j["record"]["frames"] if f["id"] == "0x081"][-1]["data"])
+        a1[j["serial"]] = {"code": b[0], "sub": b[3]}
+        a2[j["serial"]], a5[j["serial"]] = part[b[3]], action[b[3]]
+        if b[3] == 2:
+            short = j
+    hub("POST", "/api/lab31/l31_t1", a1, mgr)
+    hub("POST", "/api/lab31/l31_t2", a2, mgr)
+    hub("POST", "/api/lab31/l31_t3", L31.from_page(short["record"]), mgr)
+    hub("POST", "/api/lab31/l31_t4", {"choice": "cmd_vs_current"}, mgr)
+    hub("POST", "/api/lab31/l31_t5", a5, mgr)
+    hub("POST", "/api/lab31/l31_t6", {}, mgr)
+    st = hub("GET", "/api/lab31", token=mgr)
+    check(st["score"] == 60, "实验 31 自动评分 {} / 60（{}）".format(st["score"], "、".join("{} {}".format(t["title"], t["score"]) for t in st["tasks"])))
+
+
 def lab27(mgr):
     """实验 27：用接 AGV 的同一个账号答题（AGV 那一单要 2 台），WQR-105 那一批到货检验入库后满分 60"""
     import math
@@ -601,6 +630,8 @@ def main():
         domains(mgr)
     if A.lab29:
         lab29(mgr)
+    if A.lab31:
+        lab31(mgr)
     if not REAL:
         errs = call("GET", A.erp + "/api/mock/errors")["errors"]
         check(not errs, "ERPNext 字段校验无错误" + ("：" + "；".join(errs[:5]) if errs else ""))

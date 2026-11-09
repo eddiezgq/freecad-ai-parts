@@ -439,7 +439,7 @@ def mount(app, H):
     @app.get("/api/course/cases", dependencies=[K])
     def course_cases(request: Request):
         from hub import labs_api
-        if labs_api.plant_id() == "wenquest-robot":          # 机器人厂（第 47 轮）只有实验 24、25（第 55 轮加 26，第 57 轮 27，第 58 轮 28）
+        if labs_api.plant_id() == "wenquest-robot":          # 机器人厂（第 47 轮）只有实验 24、25（第 55 轮加 26，第 57 轮 27，第 58 轮 28；第 123 轮 31）
             base = public_base(request)
             return head(["factory-data"], items=[{
                 "id": "lab24", "name": {"zh": "实验 24：一台协作机器人从订单到交付", "en": "Lab 24: one collaborative robot from order to delivery"},
@@ -476,7 +476,12 @@ def mount(app, H):
                 "summary": "接一台轮式人形 WQ-H1：16 个关节模组、底盘是一台在这张单里先造出来的 WQ-AGV300（整机里套整机）；按层下达，"
                            "同一周再接一台协作臂，处理两种整机抢同一个、只有一个人会的标定工位 CAL-1；判联调检验，入库开票，算整台成本。",
                 "mode": "teach", "products": ["WQ-H1", "WQ-AGV300", "WQ-CR5"], "tool_url": base + "/lab30",
-                "guide_url": base + "/api/cae/lab30/guide.docx", "report_template_url": base + "/api/cae/lab30/report-template.docx"}])
+                "guide_url": base + "/api/cae/lab30/guide.docx", "report_template_url": base + "/api/cae/lab30/report-template.docx"}, {
+                "id": "lab31", "name": {"zh": "实验 31：关节终检抱闸报警的排查", "en": "Lab 31: troubleshooting brake alarms at joint final test"},
+                "summary": "三台关节模组在终检报故障 7（抱闸）：解驱动板的 CAN 报警帧，看抱闸线圈电流，判坏在电机里的抱闸还是驱动板上的开关管，"
+                           "定返修方式，复测合格才放行；测试记录取驱动板 B 版固件在 Renode 里仿真的真实输出。",
+                "mode": "teach", "products": ["WQJ-L", "WQJ-M", "WQJ-S", "DRV-JOINT-B"], "tool_url": base + "/lab31",
+                "guide_url": base + "/api/cae/lab31/guide.docx", "report_template_url": base + "/api/cae/lab31/report-template.docx"}])
         return head(["factory-data"], items=[{
             "id": "lab7", "name": {"zh": "实验 7：数字工厂闭环", "en": "Lab 7: the closed loop in a digital factory"},
             "summary": "WQR-105 减速器厂的一周：接单、算料排产、设计发布、车间加工、在线检测与不合格品处置、看板与 AI 提醒。",
