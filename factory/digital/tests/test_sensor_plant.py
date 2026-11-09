@@ -52,8 +52,8 @@ print(json.dumps([{{"wo": d["work_order"], "item": d["item"], "op": d["operation
 """
 
 
-def _run(setup):
-    env = dict(os.environ, WQ_PLANT_FILE=SENSOR)
+def _run(setup, plant=None):
+    env = dict(os.environ, WQ_PLANT_FILE=plant or SENSOR)
     r = subprocess.run([sys.executable, "-c", RUN.format(dig=DIG, fac=FAC, setup=repr(setup))], capture_output=True, text=True,
                        env=env, cwd=DIG, timeout=600)
     assert r.returncode == 0, r.stderr[-3000:]
@@ -174,3 +174,11 @@ def test_ai_rules_flag_injected_problems():
     assert hit == {"SN1", "SN2", "SN3", "SN4", "SN5"}, hit
     h1 = fns["SN2"][0](Ctx(rows(ms)), fns["SN2"][1], {})[0]
     assert h1.subject == ("Machine", "cb-2")
+
+
+def test_pcb_read_head_board_not_touched():
+    """电路板厂读头板 ENC-RD 的功能测试也有 enc_amp（Vpp）、enc_interp：不能套编码器曲线（11-09 演练里电路板厂 ENC-RD 卡在功能测试，就是这个）"""
+    ms = _run({"batches": [["ENC-RD", 3]]}, plant=os.path.join(FAC, "plants", "wenquest-pcb.yaml"))
+    amp = [m["v"] for m in ms if m["char"] == "enc_amp"]
+    assert len(amp) == 3 and all(0.8 < v < 1.2 for v in amp)
+    assert not any(m["enc"] for m in ms)
