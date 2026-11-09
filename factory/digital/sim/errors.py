@@ -185,6 +185,7 @@ def fixes_for(plant_id):
 
 SHUNT_ITEM = "RES-SHUNT"
 ENC_CODES = ("enc_acc", "enc_h1", "enc_interp", "enc_amp", "enc_amp_min")      # 第 125 轮：由整圈误差曲线算出
+ENC_ITEMS = ("WQ-ENC17",)    # 只对传感器厂的编码器算曲线：电路板厂读头板 ENC-RD 的功能测试也有 enc_amp、enc_interp（单位不同），不能套用
 TS_CODES = ("ts_nonlin", "ts_hyst", "ts_creep", "ts_tczero")
 CHIP_CODES = ("cp_yield", "cp_contact", "chipping", "bond_pull", "ball_shear", "mold_void", "ft_yield")
 PCB_CODES = ("spi_volume", "spi_height", "reflow_peak", "reflow_tal", "offset_ic", "aoi_defects", "ict_shunt", "fct_isense")
@@ -490,7 +491,7 @@ class ErrorModel:
     def override(self, part, code: str):
         """有些测量值不是“名义 + 散布”而是算出来的：芯片厂 CP 良率与接触电阻由晶圆图给，传感器厂编码器的精度等由整圈误差曲线给，
         返回 (值, 附加数据) 或 None"""
-        if code in ENC_CODES:
+        if code in ENC_CODES and str(getattr(getattr(part, "wo", None), "item", "") or "") in ENC_ITEMS:
             e = self._enc(part)
             key = code[4:]
             st = getattr(part, "err", None) or {}
