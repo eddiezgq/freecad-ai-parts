@@ -21,7 +21,10 @@ PREFIX = (("saw", "saw"), ("cnc", "lathe"), ("vmc", "mc"), ("hmc", "mc"), ("grd"
           ("ft", "handler"), ("tr", "taping"),
           # 第 125 轮：传感器厂（编码器线、扭矩传感器线）
           ("iqc", "incoming"), ("dcl", "diskclean"), ("cb", "centering"), ("hm", "headmount"), ("ecal", "enccal"), ("tcy", "thermcycle"),
-          ("eft", "enctest"), ("sg", "gauging"), ("tb", "bridgewire"), ("tcp", "thermcomp"), ("dwt", "deadweight"), ("tft", "torquetest"))
+          ("eft", "enctest"), ("sg", "gauging"), ("tb", "bridgewire"), ("tcp", "thermcomp"), ("dwt", "deadweight"), ("tft", "torquetest"),
+          # 第 131 轮：电机厂（定子线、转子线、总装线）
+          ("stk", "stackpress"), ("wd", "winder"), ("ins", "insertion"), ("vo", "varnish"), ("stt", "statortest"), ("mg", "magbond"),
+          ("mz", "magnetizer"), ("bal", "balancer"), ("bt", "braketest"), ("dyn", "dyno"))
 
 # 类别缺省（示例值）：原值 $、购入年、保养内容、保养分钟、一次修理费 $、停机每小时损失 $、
 # 威布尔 β、η 运行小时、平均修复分钟、保养周期 运行小时、开始时已运行小时、故障模式 [(代码, 名称)]、功率 (运行, 空转, 待机) kW、
@@ -200,11 +203,49 @@ KIND = {
     "torquetest": dict(hazards=[('加载装置夹手', 1, 2, ['防护罩'])], name="扭矩终检台", value=40000, bought=2022, pm_text="标准传感器比对、校采集",
                        pm_min=60, repair_usd=500, lost_per_h=60, beta=2.0, eta_h=5000, mttr_min=120, pm_h=1000, init_h=400, modes=[("daq", "采集通道漂移")],
                        power=(0.5, 0.2, 0.05), air=False, wet=False, noise=50, auto=False, check=["标准扭矩传感器比对通过"]),
+    # 第 131 轮：电机厂（示例值）
+    "stackpress": dict(hazards=[('压头夹手', 2, 3, ['双手按钮', '光幕']), ('冲片边缘划手', 2, 1, ['戴防割手套'])], name="铁芯叠压机", value=45000, bought=2022,
+                       pm_text="校压力与叠高、查液压油与光幕", pm_min=60, repair_usd=600, lost_per_h=60, beta=2.2, eta_h=5000, mttr_min=120, pm_h=1000,
+                       init_h=600, modes=[("hydraulic", "液压压力不稳"), ("die", "扣片模具磨损")], power=(4.0, 1.5, 0.2), air=False, wet=False, noise=72,
+                       auto=False, check=["光幕、双手按钮有效", "叠高抽检在规定内"]),
+    "winder": dict(hazards=[('绕线针头运动夹手', 2, 3, ['防护门联锁']), ('漆包线断线回弹', 1, 2, ['戴护目镜'])], name="绕线机", value=80000, bought=2022,
+                   pm_text="校张力器、换导针、查排线", pm_min=60, repair_usd=800, lost_per_h=90, beta=2.0, eta_h=4000, mttr_min=90, pm_h=800, init_h=500,
+                   modes=[("tension", "张力器不稳、线拉细或匝数漂"), ("needle", "导针磨损刮漆")], power=(2.5, 0.8, 0.1), air=True, wet=False, noise=68,
+                   auto=True, check=["张力器读数在规定内", "首件匝数与电阻核对"]),
+    "insertion": dict(hazards=[('槽楔锐边划手', 1, 2, ['戴手套'])], name="嵌线整形台", value=8000, bought=2023, pm_text="查整形模具、清台面", pm_min=30,
+                      repair_usd=150, lost_per_h=40, beta=2.0, eta_h=6000, mttr_min=45, pm_h=1500, init_h=300, modes=[("die", "整形模具变形")],
+                      power=(0.5, 0.1, 0.02), air=True, wet=False, noise=55, auto=False, check=["槽绝缘纸无破损", "端部高度在规定内"]),
+    "varnish": dict(hazards=[('绝缘漆挥发物', 2, 2, ['排风开启', '戴防护口罩']), ('烘箱高温烫伤', 2, 3, ['戴隔热手套', '降温后取料'])], name="浸漆烘箱",
+                    value=60000, bought=2021, pm_text="测炉温曲线、校温控、清漆槽、查真空泵", pm_min=90, repair_usd=800, lost_per_h=70, beta=2.0, eta_h=5000,
+                    mttr_min=150, pm_h=1000, init_h=900, modes=[("heater", "加热管老化、炉温偏低"), ("vacuum", "真空度不够、漆浸不透")],
+                    power=(18.0, 8.0, 0.5), air=False, wet=True, noise=60, auto=True, check=["炉温曲线记录完整", "漆的黏度在规定内"]),
+    "statortest": dict(hazards=[('耐压测试高压触电', 3, 4, ['测试罩联锁', '不碰测试夹'])], name="定子测试台", value=35000, bought=2022,
+                       pm_text="标准电阻、标准定子比对，查高压联锁", pm_min=45, repair_usd=400, lost_per_h=60, beta=2.0, eta_h=5000, mttr_min=90, pm_h=1000,
+                       init_h=400, modes=[("probe", "测试夹接触不良"), ("hv", "高压模块漂移")], power=(0.6, 0.2, 0.05), air=False, wet=False, noise=50,
+                       auto=True, check=["高压联锁有效", "标准定子复测通过"]),
+    "magbond": dict(hazards=[('磁钢胶接触皮肤', 2, 2, ['戴丁腈手套']), ('磁钢碎片', 1, 2, ['戴护目镜'])], name="磁钢粘贴台", value=15000, bought=2023,
+                    pm_text="校定位工装、清胶嘴", pm_min=30, repair_usd=200, lost_per_h=50, beta=2.0, eta_h=5000, mttr_min=60, pm_h=1000, init_h=300,
+                    modes=[("fixture", "定位工装磨损、磁钢贴歪"), ("glue", "点胶量不稳")], power=(0.3, 0.1, 0.02), air=True, wet=False, noise=50,
+                    auto=False, check=["定位工装用标准转子复核", "磁钢胶在有效期内"]),
+    "magnetizer": dict(hazards=[('强磁场吸附铁件夹手', 3, 3, ['周围不放铁件', '充磁时手离开']), ('高压电容触电', 2, 4, ['放电后再维修'])], name="充磁机",
+                       value=90000, bought=2021, pm_text="测充磁电压与磁通、查电容", pm_min=60, repair_usd=1500, lost_per_h=100, beta=2.0, eta_h=4000,
+                       mttr_min=180, pm_h=800, init_h=900, modes=[("cap", "电容老化、充磁电压偏低"), ("fixture", "充磁头线圈发热")],
+                       power=(8.0, 1.0, 0.2), air=False, wet=False, noise=65, auto=True, check=["充磁电压在规定内", "标准转子磁通复测"]),
+    "balancer": dict(hazards=[('转子高速旋转', 2, 3, ['防护罩闭合再启动'])], name="动平衡机", value=50000, bought=2022, pm_text="标准转子校准、查传感器",
+                     pm_min=45, repair_usd=600, lost_per_h=60, beta=2.0, eta_h=5000, mttr_min=120, pm_h=1000, init_h=500, modes=[("sensor", "振动传感器漂移")],
+                     power=(1.5, 0.3, 0.05), air=False, wet=False, noise=70, auto=False, check=["标准转子复测通过"]),
+    "braketest": dict(hazards=[('加载夹手', 1, 2, ['防护罩'])], name="抱闸测试台", value=25000, bought=2022, pm_text="标准扭矩扳手比对、校电源",
+                      pm_min=45, repair_usd=300, lost_per_h=50, beta=2.0, eta_h=5000, mttr_min=90, pm_h=1000, init_h=400, modes=[("sensor", "扭矩传感器漂移")],
+                      power=(0.5, 0.2, 0.05), air=False, wet=False, noise=52, auto=True, check=["标准件复测通过"]),
+    "dyno": dict(hazards=[('联轴器高速旋转', 2, 3, ['防护罩闭合再启动']), ('电机外壳发热', 1, 2, ['测完再拿'])], name="电机终检台（测功台）", value=150000,
+                 bought=2022, pm_text="标准电机比对、校扭矩传感器与功率分析仪、查联轴器对中", pm_min=90, repair_usd=2000, lost_per_h=150, beta=2.0, eta_h=4000,
+                 mttr_min=180, pm_h=800, init_h=600, modes=[("torque", "扭矩传感器漂移"), ("coupling", "联轴器不对中")], power=(5.0, 1.5, 0.2), air=False,
+                 wet=False, noise=72, auto=True, check=["标准电机（金样）复测通过", "联轴器对中"]),
     "general": dict(hazards=[('机械伤害', 2, 3, ['防护罩', '急停按钮'])], name="通用设备", value=20000, bought=2022, pm_text="例行保养", pm_min=120, repair_usd=400, lost_per_h=60,
                     beta=2.0, eta_h=2000, mttr_min=120, pm_h=800, init_h=300, modes=[("general", "设备故障")],
                     power=(5.0, 1.5, 0.3), air=False, wet=False, noise=70, auto=False, check=[]),
 }
-STAFFED_EXCEPT = ("bench", "runin", "reflow", "burnin", "cure", "plasma", "thermcycle", "thermcomp")   # 第 61 轮：自动测试台、跑合台不用人看着开（其余设备“要有人”）；第 85 轮：回流炉、老化房；第 103 轮：固化烘箱、等离子清洗；第 125 轮：温度循环箱、温度补偿箱
+STAFFED_EXCEPT = ("bench", "runin", "reflow", "burnin", "cure", "plasma", "thermcycle", "thermcomp", "varnish")   # 第 61 轮：自动测试台、跑合台不用人看着开（其余设备“要有人”）；第 85 轮：回流炉、老化房；第 103 轮：固化烘箱、等离子清洗；第 125 轮：温度循环箱、温度补偿箱；第 131 轮：浸漆烘箱
 MAINT_KEYS = ("value", "bought", "pm_text", "pm_min", "repair_usd", "lost_per_h", "beta", "eta_h", "mttr_min", "pm_h", "init_h")
 
 

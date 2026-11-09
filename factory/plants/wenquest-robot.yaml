@@ -103,6 +103,9 @@ suppliers:
   # 第 125 轮：工业园的问渠传感器厂（关节绝对值编码器）
   sensor: {name: 问渠传感器厂 WenQuest Sensors (Demo), lead: 7, on_time: 0.95, pass: 0.995, cat_name: 传感器, park: wenquest-sensor,
            incoming: [{name: 出厂精度记录 Accuracy record, text: 每台有终检整圈误差记录、序列号与发货单一致}]}
+  # 第 131 轮：工业园的问渠电机厂（伺服电机、AGV 驱动电机；原来向“示例·伺服电机供应商”买，那一行留着作备选）
+  motor: {name: 问渠电机厂 WenQuest Motors (Demo), lead: 7, on_time: 0.95, pass: 0.995, cat_name: 伺服电机, park: wenquest-motor,
+          incoming: [{name: 出厂终检记录 Final test record, text: 每台有反电势、齿槽转矩、耐压记录，序列号与发货单一致}, {name: 空载电流 No-load current, unit: A, lo: 0.1, hi: 2.0}]}
   agvparts: {name: 示例·AGV 配件商 AGV Parts Supplier (Demo), lead: 10, on_time: 0.9, pass: 0.98, cat_name: AGV 配件}
 customers:
 - 示例·汽车零部件厂 Auto Parts Plant (Demo)
@@ -125,10 +128,13 @@ items:
 - {code: LDR-TIM781, name: 激光扫描仪 SICK TiM781 Laser scanner, kind: buy, uom: Nos, price: 1500, supplier: electronics, library: D-LDR-SICK-TIM/TiM781-2174101}
 - {code: WQR-105, name: 二级圆柱齿轮减速器 WQR-105 Two-stage gear reducer, kind: buy, uom: Nos, price: 1650, supplier: gearbox, library: C-RED-WQR105/default,
    note: 问渠减速器厂的成品，AGV 驱动轮用}
-# 外购件：零件库里还没有，型号待确认
-- {code: MTR-SV-400, name: 伺服电机 400 W（带失电制动抱闸，型号待确认） Servo motor 400 W with brake, kind: buy, uom: Nos, price: 320, supplier: servo}
-- {code: MTR-SV-200, name: 伺服电机 200 W（带失电制动抱闸，型号待确认） Servo motor 200 W with brake, kind: buy, uom: Nos, price: 240, supplier: servo}
-- {code: MTR-SV-100, name: 伺服电机 100 W（带失电制动抱闸，型号待确认） Servo motor 100 W with brake, kind: buy, uom: Nos, price: 190, supplier: servo}
+# 外购件：零件库里还没有；电机、编码器、驱动板向工业园兄弟厂买，其余型号待确认
+- {code: MTR-SV-400, name: 伺服电机 400 W（带失电制动抱闸，问渠电机厂 WQ-SM400） Servo motor 400 W with brake, kind: buy, uom: Nos, price: 320, supplier: motor, pack: 1,
+   park_item: WQ-SM400, note: 第 131 轮起向工业园的问渠电机厂买（原来是示例伺服电机供应商）}
+- {code: MTR-SV-200, name: 伺服电机 200 W（带失电制动抱闸，问渠电机厂 WQ-SM200） Servo motor 200 W with brake, kind: buy, uom: Nos, price: 240, supplier: motor, pack: 1,
+   park_item: WQ-SM200, note: 第 131 轮起向工业园的问渠电机厂买（原来是示例伺服电机供应商）}
+- {code: MTR-SV-100, name: 伺服电机 100 W（带失电制动抱闸，问渠电机厂 WQ-SM100） Servo motor 100 W with brake, kind: buy, uom: Nos, price: 190, supplier: motor, pack: 1,
+   park_item: WQ-SM100, note: 第 131 轮起向工业园的问渠电机厂买（原来是示例伺服电机供应商）}
 - {code: ENC-ABS, name: 关节绝对值编码器（问渠传感器厂 WQ-ENC17） Absolute encoder, kind: buy, uom: Nos, price: 120, supplier: sensor, pack: 1,
    park_item: WQ-ENC17, note: 第 125 轮起向工业园的问渠传感器厂买（原来是示例电子元件商，85 美元）}
 - {code: DRV-JOINT, name: 关节伺服驱动板（A 版） Joint servo drive board rev A, kind: buy, uom: Nos, price: 160, supplier: pcb, note: 问渠电路板厂的成品（第 85 轮）；第 118 轮起关节模组改用 B 版}
@@ -137,7 +143,8 @@ items:
 - {code: CTRL-CAB, name: 机器人控制柜（型号待确认） Robot controller cabinet, kind: buy, uom: Nos, price: 2200, supplier: electronics}
 - {code: CABLE-ARM, name: 臂内线束 Arm cable harness, kind: buy, uom: Nos, price: 120, supplier: electronics}
 - {code: SCR-M5x16, name: 内六角螺钉 M5×16 Socket screw, kind: buy, uom: Nos, price: 0.15, supplier: hardware}
-- {code: MTR-AGV-750, name: AGV 驱动电机 750 W（型号待确认） AGV drive motor, kind: buy, uom: Nos, price: 380, supplier: servo}
+- {code: MTR-AGV-750, name: AGV 驱动电机 750 W（问渠电机厂 WQ-AM750） AGV drive motor, kind: buy, uom: Nos, price: 380, supplier: motor, pack: 1,
+   park_item: WQ-AM750, note: 第 131 轮起向工业园的问渠电机厂买}
 - {code: WHL-PU-200, name: 聚氨酯驱动轮 Ø200 PU drive wheel, kind: buy, uom: Nos, price: 60, supplier: agvparts}
 - {code: CASTER-100, name: 万向轮 Ø100 Caster, kind: buy, uom: Nos, price: 18, supplier: agvparts}
 - {code: FRAME-AGV300, name: AGV 车架（外协焊接） AGV frame, kind: buy, uom: Nos, price: 650, supplier: agvparts}
@@ -238,7 +245,7 @@ stock:
             WQR-105: 10, GRIP-2F: 4, CAM-STEREO: 2, CTRL-H1: 2}
   # 安全库存（示例值）：WQR-105 定在期初库存上，每接一单 AGV 就要向问渠减速器厂请购；
   # 第 85 轮：驱动板也定在期初库存上，每接一单要用关节的产品就向问渠电路板厂请购（第 118 轮起是 B 版 DRV-JOINT-B）
-  safety: {WQR-105: 10, DRV-JOINT-B: 45, HD-CSF-32-100: 4, ENC-ABS: 45, BRG-6010: 8, SCR-M5x16: 200}
+  safety: {WQR-105: 10, DRV-JOINT-B: 45, HD-CSF-32-100: 4, ENC-ABS: 45, MTR-SV-400: 15, BRG-6010: 8, SCR-M5x16: 200}
 key_materials: [HD-CSF-32-100, MTR-SV-400, WQR-105, RM-AL6061-D120]
 measurements:
 - item: JS-L

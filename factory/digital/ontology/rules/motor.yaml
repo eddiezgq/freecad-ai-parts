@@ -1,0 +1,39 @@
+# 第 131 轮：电机厂的质量规则。plant 写了厂的清单 id：只在那座厂的规则目录里出现（别的厂看不到）
+domain: quality
+rules:
+  MT1:
+    name: 齿槽转矩变大
+    fn: motor_cog
+    plant: wenquest-motor
+    severity: warn            # 有台超出上限为 critical
+    role: [quality, engineer]
+    params: {last: 6, above: 2.0}
+    desc: 最近 last 台电机的齿槽转矩峰峰值均值超过 above %（上限 2.5 %）
+    hint: 打开“电机终检波形”看齿槽转矩的谐波：每圈 60 次是设计本身的，每圈 12、24 次变大是磁钢贴歪或强弱不一——查磁钢粘贴定位工装；在驱动器里补偿只是掩盖，装到关节里低速照样抖
+  MT2:
+    name: 三相电阻不平衡偏大（按绕线机）
+    fn: motor_r_unbal
+    plant: wenquest-motor
+    severity: critical
+    role: [quality, engineer, operator]
+    params: {last: 8, above: 1.0, gap: 0.5}
+    desc: 最近 last 台定子的三相电阻不平衡按绕线机分开：某台均值超过 above %，或比另一台高 gap % 以上
+    hint: 只有一台绕线机高，查那台的张力器（张力不稳线被拉细、匝数漂）；匝间冲击面积差一起变大是同一个原因
+  MT3:
+    name: 反电势常数下降
+    fn: motor_ke
+    plant: wenquest-motor
+    severity: warn
+    role: [quality, engineer]
+    params: {last: 6, below: 97}
+    desc: 最近 last 台电机的反电势常数均值低于 below %（下限 95 %）
+    hint: 反电势常数整体低、空载电流跟着大，是磁钢没充饱：测充磁电压、查充磁机电容；已充的转子复充磁
+  MT4:
+    name: 耐压漏电流上升
+    fn: motor_leak
+    plant: wenquest-motor
+    severity: warn            # 有台超出上限为 critical
+    role: [quality, engineer]
+    params: {last: 6, above: 0.6}
+    desc: 最近 last 台定子的耐压漏电流均值超过 above mA（上限 1.0 mA）
+    hint: 漆没固化透，绝缘不够：测浸漆烘箱炉温曲线、查加热管；按原炉温再烘一遍没用

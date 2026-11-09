@@ -2447,6 +2447,22 @@ def sensor_encoder(serial: str, u=Depends(user_of)):
         raise HTTPException(404, "没有这台编码器的终检记录：{}".format(serial))
 
 
+# ---------------------------------------------------------------- 电机终检波形（第 131 轮，电机厂）
+@app.get("/api/motor/motors")
+def motor_motors(u=Depends(user_of)):
+    from hub import motorwave_api
+    return {"motors": motorwave_api.motors(H.db, u["mode"])}
+
+
+@app.get("/api/motor/motor/{serial}")
+def motor_motor(serial: str, u=Depends(user_of)):
+    from hub import motorwave_api
+    try:
+        return motorwave_api.motor(H.db, u["mode"], serial)
+    except KeyError:
+        raise HTTPException(404, "没有这台电机的终检记录：{}".format(serial))
+
+
 # ---------------------------------------------------------------- 电路板设计的产物（第 88 轮）：KiCad 生成的原理图、PCB、三维、BOM、检查结果
 _DESIGNS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "designs")
 

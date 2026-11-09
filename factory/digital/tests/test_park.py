@@ -220,7 +220,7 @@ def test_buyer_robot_plant_supply_and_park():
     assert out["profiles"]["metals/alt"][2] is True and out["cat_name"] == "谐波减速器"
     assert "示例·精密传动 Precision Drive (Demo)" in out["setup"]["suppliers"]
     assert set(out["setup"]["templates"]) == {"进货检验-metals", "进货检验-harmonic", "进货检验-servo", "进货检验-gearbox",
-                                              "进货检验-pcb", "进货检验-sensor"}   # 第 85 轮：驱动板、AGV 控制板向电路板厂买；第 125 轮：编码器向传感器厂买
+                                              "进货检验-pcb", "进货检验-sensor", "进货检验-motor"}   # 第 85 轮：驱动板、AGV 控制板向电路板厂买；第 125 轮：编码器向传感器厂买；第 131 轮：电机向电机厂买
     (plant, path, body), = out["sent"]
     assert plant == "wenquest-gearbox" and path == "/api/park/orders"
     assert body["item"] == "WQR-105" and body["qty"] == 10 and body["po"] == "PUR-ORD-0001" and body["from_name"].startswith("问渠机器人厂")
