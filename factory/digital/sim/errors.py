@@ -105,6 +105,18 @@ PROBLEMS.update({
     "ffu_clog": {"name": "洁净间过滤器堵塞（码盘落污点）", "unit": "dcl-1", "fix": "replace_ffu", "default": 3.0, "plant": SENSOR},
     "cure_low": {"name": "应变胶固化炉温度偏低（扭矩传感器蠕变、滞后变大）", "unit": "cur-1", "fix": "profile_cure", "default": 1.0, "plant": SENSOR},
 })
+# 电机厂（清单 wenquest-motor，第 131 轮）：机理与表现（偏差量都是示例值，按“台”计数）：
+#   磁钢定位工装磨损：磁钢粘贴台 mg-1 贴的磁钢位置误差逐台变大 → 齿槽转矩出现每圈 12、24 次的低次成分、峰峰值变大，反电势谐波畸变变大
+#   充磁电压偏低：充磁机 mz-1 电容老化 → 磁钢没充饱 → 反电势常数逐台下降、空载电流变大
+#   绕线机 wd-2 张力不稳：只有 wd-2 绕的定子三相电阻不平衡、匝间冲击面积差变大（wd-1 正常）
+#   浸漆烘箱炉温偏低：浸漆烘箱 vo-1 → 漆没固化透 → 耐压漏电流变大
+MOTOR = "wenquest-motor"
+PROBLEMS.update({
+    "mag_fixture": {"name": "磁钢粘贴台定位工装磨损（磁钢贴歪、齿槽转矩变大）", "unit": "mg-1", "fix": "replace_mag_fixture", "default": 2.4, "plant": MOTOR},
+    "magnetizer_low": {"name": "充磁机电容老化、充磁电压偏低（反电势常数下降）", "unit": "mz-1", "fix": "service_magnetizer", "default": 7.0, "plant": MOTOR},
+    "wind_tension": {"name": "绕线机 wd-2 张力不稳（只有它绕的定子三相电阻不平衡）", "unit": "wd-2", "fix": "fix_tensioner", "default": 1.6, "plant": MOTOR},
+    "varnish_low": {"name": "浸漆烘箱炉温偏低（绝缘漆没固化透、耐压漏电流变大）", "unit": "vo-1", "fix": "profile_varnish", "default": 1.2, "plant": MOTOR},
+})
 PROBE_SITE = 5               # 磨损的测试位（0 起数，页面上显示第 6 位；示例）
 SHUNT_LOT = 30               # 采样电阻每卷用于 30 块驱动板（示例）：按测试顺序依次用掉；仓库有到货批次时用到货批次
 LOT_SIZE = 8                 # 谐波减速器每批 8 台（示例）：关节按装配顺序依次用掉。第 51 轮：仓库有真实到货批次时用到货批次（add_lot）
@@ -158,6 +170,15 @@ FIXES.update({                # 传感器厂（第 125 轮）
     "raise_gain": "加大读头信号增益",
     "tighten_eft": "编码器终检判定加严",
 })
+FIXES.update({                # 电机厂（第 131 轮）
+    "replace_mag_fixture": "更换磁钢粘贴定位工装，用标准转子复核磁钢位置",
+    "service_magnetizer": "检修充磁机（换储能电容、校充磁电压），已充的转子复充磁",
+    "fix_tensioner": "检修绕线机 wd-2 张力器、校张力，复测这台绕的定子",
+    "profile_varnish": "测浸漆烘箱炉温曲线、换加热管、校温控，没固化透的定子按正常炉温补烘",
+    "widen_mft": "电机终检判定放宽",
+    "comp_drive": "在驱动器参数里补偿齿槽转矩",
+    "rebake": "定子按原炉温再烘一遍",
+})
 ROBOT_FIXES = ("recalibrate_torque", "quarantine_lot", "recalibrate_bench", "add_grease", "tighten_test", "retrain", "change_gauge",
                "recenter_encoder", "recalibrate_brake_bench")
 PCB_FIXES = ("wipe_stencil", "profile_oven", "replace_nozzle", "quarantine_shunt", "raise_peak", "replace_squeegee", "tighten_aoi",
@@ -166,7 +187,9 @@ CHIP_FIXES = ("clean_probe", "replace_blade", "replace_capillary", "emc_handling
               "retrain", "change_gauge")
 SENSOR_FIXES = ("replace_fixture", "replace_gap_gauge", "replace_ffu", "profile_cure", "redo_comp", "raise_gain", "tighten_eft",
                 "retrain", "change_gauge")
-PLANT_FIXES = {ROBOT: ROBOT_FIXES, PCB: PCB_FIXES, CHIP: CHIP_FIXES, SENSOR: SENSOR_FIXES}
+MOTOR_FIXES = ("replace_mag_fixture", "service_magnetizer", "fix_tensioner", "profile_varnish", "widen_mft", "comp_drive", "rebake",
+               "retrain", "change_gauge")
+PLANT_FIXES = {ROBOT: ROBOT_FIXES, PCB: PCB_FIXES, CHIP: CHIP_FIXES, SENSOR: SENSOR_FIXES, MOTOR: MOTOR_FIXES}
 
 
 def problems_for(plant_id):
@@ -187,6 +210,10 @@ SHUNT_ITEM = "RES-SHUNT"
 ENC_CODES = ("enc_acc", "enc_h1", "enc_interp", "enc_amp", "enc_amp_min")      # 第 125 轮：由整圈误差曲线算出
 ENC_ITEMS = ("WQ-ENC17",)    # 只对传感器厂的编码器算曲线：电路板厂读头板 ENC-RD 的功能测试也有 enc_amp、enc_interp（单位不同），不能套用
 TS_CODES = ("ts_nonlin", "ts_hyst", "ts_creep", "ts_tczero")
+MW_CODES = ("mt_ke", "mt_unbal", "mt_thd", "mt_cog")          # 第 131 轮：由电机终检波形算出
+MW_ITEMS = ("WQ-SM100", "WQ-SM200", "WQ-SM400", "WQ-AM750")
+MOTOR_CODES = ("st_r_unbal", "st_surge", "st_leak", "mt_i0")
+MOTOR_I0 = {"WQ-SM100": 0.25, "WQ-SM200": 0.40, "WQ-SM400": 0.70, "WQ-AM750": 1.20}   # 空载电流名义值（与清单一致，示例）
 CHIP_CODES = ("cp_yield", "cp_contact", "chipping", "bond_pull", "ball_shear", "mold_void", "ft_yield")
 PCB_CODES = ("spi_volume", "spi_height", "reflow_peak", "reflow_tal", "offset_ic", "aoi_defects", "ict_shunt", "fct_isense")
 
@@ -362,7 +389,7 @@ class ErrorModel:
             st["_ja"] = unit
             st["_lot_no"] = (size, order.index(lot))
             part.hd_lot = lot
-        if unit.startswith("wb-") or unit.startswith("cb-"):  # 芯片封测厂（第 103 轮）：哪台键合机；传感器厂（第 125 轮）：哪台粘接对心机（分层用）
+        if unit.startswith(("wb-", "cb-", "wd-")):  # 芯片封测厂（第 103 轮）：哪台键合机；传感器厂（第 125 轮）：哪台粘接对心机；电机厂（第 131 轮）：哪台绕线机（分层用）
             st["_ja"] = unit
         if unit == "ict-1" and "_shunt" not in st and _uses_shunt(str(getattr(getattr(part, "wo", None), "item", "") or "")):
             self._take_shunt(part, st)       # 电路板厂（第 85 轮）：在线测试时认出这块驱动板用的是哪一卷采样电阻
@@ -449,6 +476,21 @@ class ErrorModel:
             return ramp("emc_moisture", 2.5)
         return 0.0
 
+    def _motor_offset(self, st, code, item=""):
+        """电机厂（第 131 轮）：定子测试、空载电流上叠加的偏差（反电势、齿槽转矩由终检波形给，见 override）"""
+        def ramp(p, tau):
+            mag, k = st[p]
+            return mag * (1 - math.exp(-k / tau))
+        if code == "st_r_unbal" and "wind_tension" in st:
+            return ramp("wind_tension", 3.0) * self.rng.uniform(0.8, 1.2)
+        if code == "st_surge" and "wind_tension" in st:
+            return 2.5 * ramp("wind_tension", 3.0) * self.rng.uniform(0.7, 1.2)
+        if code == "st_leak" and "varnish_low" in st:
+            return ramp("varnish_low", 3.0) * self.rng.uniform(0.8, 1.2)
+        if code == "mt_i0" and "magnetizer_low" in st:      # 磁钢没充饱：同样输出要更大电流，空载电流按相对值上升（示例：每 1 % 反电势 +4 %）
+            return 0.04 * ramp("magnetizer_low", 3.0) * MOTOR_I0.get(item, 0.5)
+        return 0.0
+
     def _cp(self, part):
         """这片晶圆的 CP 结果（算一次记在零件上）：各测试位接触电阻 → 晶圆图 → 良率"""
         from sim import wafermap
@@ -488,6 +530,25 @@ class ErrorModel:
             st["_enc"] = {"desc": desc, **{k: g[k] for k in ("acc", "h1", "interp", "amp", "amp_min")}}
         return st["_enc"]
 
+    def _mw(self, part):
+        """电机厂（第 131 轮）：这台电机的终检波形（算一次记在零件上）"""
+        from sim import motorwave
+        st = getattr(part, "err", None)
+        if st is None:
+            st = {}
+            part.err = st
+        if "_mw" not in st:
+            def ramp(p, tau):
+                if p not in st:
+                    return 0.0
+                mag, k = st[p]
+                return mag * (1 - math.exp(-k / tau))
+            desc = motorwave.params(self.rng, str(getattr(part, "serial", "")), mag_extra=ramp("mag_fixture", 3.0),
+                                    ke_drop=ramp("magnetizer_low", 3.0))
+            g = motorwave.generate(desc)
+            st["_mw"] = {"desc": desc, **{k: g[k] for k in ("ke", "unbal", "thd", "cog")}}
+        return st["_mw"]
+
     def override(self, part, code: str):
         """有些测量值不是“名义 + 散布”而是算出来的：芯片厂 CP 良率与接触电阻由晶圆图给，传感器厂编码器的精度等由整圈误差曲线给，
         返回 (值, 附加数据) 或 None"""
@@ -496,6 +557,9 @@ class ErrorModel:
             key = code[4:]
             st = getattr(part, "err", None) or {}
             return e[key], ({"enc": {**e["desc"], "station": st.get("_ja")}} if code == "enc_acc" else {})
+        if code in MW_CODES and str(getattr(getattr(part, "wo", None), "item", "") or "") in MW_ITEMS:
+            e = self._mw(part)
+            return e[code[3:]], ({"mw": e["desc"]} if code == "mt_ke" else {})
         if code not in ("cp_yield", "cp_contact"):
             return None
         cp = self._cp(part)
@@ -511,6 +575,8 @@ class ErrorModel:
             return self._pcb_offset(st, code)
         if code in CHIP_CODES:
             return self._chip_offset(st, code)
+        if code in MOTOR_CODES:                              # 电机厂（第 131 轮）
+            return self._motor_offset(st, code, str(getattr(getattr(part, "wo", None), "item", "") or ""))
         if code in TS_CODES:                                 # 传感器厂（第 125 轮）：胶没固化透
             if "cure_low" not in st:
                 return 0.0

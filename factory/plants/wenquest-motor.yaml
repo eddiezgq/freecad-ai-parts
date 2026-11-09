@@ -1,0 +1,220 @@
+# 工厂清单（ADR-0064；第 2 版见问渠第 45 轮）。改完用 python -m factory.plant check 本文件 校验。
+# 问渠数字工业园 · 电机厂（第 131 轮）：做协作机器人关节和 AGV 驱动轮用的永磁同步伺服电机。
+#   伺服电机 WQ-SM100 / WQ-SM200 / WQ-SM400（带失电制动抱闸）、AGV 驱动电机 WQ-AM750：卖给工业园的机器人厂（它的 MTR-SV-100/200/400、MTR-AGV-750）
+# 定子线：来料检验 → 铁芯叠压 → 绕线（2 台）→ 嵌线整形 → 浸漆烘干 → 定子测试（相电阻、匝间冲击、耐压）
+# 转子线：磁钢粘贴 → 充磁 → 动平衡
+# 总装线：电机总装（压轴承、装抱闸、装端盖）→ 抱闸测试 → 电机终检（测功台：反电势波形、齿槽转矩、空载电流）→ 包装
+# 外购件写通用名称 +“型号待确认”；单价、交货期、工时、设备费率、车间尺寸、测量名义值与散布、极槽数（10 极 12 槽）都是示例值。
+# 反电势常数、三相不平衡、谐波畸变、齿槽转矩由终检波形算出（sim/motorwave.py；波形参数随测量记录带走，“电机终检波形”页还原）。
+version: 2
+id: wenquest-motor
+demo_data: false
+company:
+  name: 问渠电机厂 WenQuest Motors (Demo)
+  abbr: WQMT
+  country: United States
+  currency: USD
+  timezone: America/New_York
+workstations:
+- {name: 来料检验台 IQC, count: 1, cost: [2, 26, 0.3]}
+- {name: 铁芯叠压机 STK, count: 1, cost: [8, 26, 3]}
+- {name: 绕线机 WD, count: 2, cost: [10, 26, 2]}
+- {name: 嵌线整形台 INS, count: 1, cost: [3, 26, 0.5]}
+- {name: 浸漆烘箱 VO, count: 1, cost: [4, 0, 8]}
+- {name: 定子测试台 STT, count: 1, cost: [8, 26, 0.5]}
+- {name: 磁钢粘贴台 MG, count: 1, cost: [4, 26, 0.5]}
+- {name: 充磁机 MZ, count: 1, cost: [12, 26, 4]}
+- {name: 动平衡机 BAL, count: 1, cost: [10, 26, 1]}
+- {name: 电机总装台 ASM, count: 1, cost: [4, 26, 0.5]}
+- {name: 抱闸测试台 BT, count: 1, cost: [6, 26, 0.5]}
+- {name: 电机终检台 DYN, count: 1, cost: [15, 28, 2]}
+- {name: 包装台 PK, count: 1, cost: [1, 22, 0.2]}
+units:
+# 定子线
+- {id: iqc-1, area: quality, name: 来料检验台, name_en: Incoming inspection, workstation: 来料检验台 IQC, layout: [4, 4, 2, 1.4], height_m: 1.2, setup_min: 5}
+- {id: stk-1, area: machining, name: 铁芯叠压机（硅钢冲片叠压、扣片）, name_en: Lamination stacking press, workstation: 铁芯叠压机 STK, layout: [8, 4, 2.2, 1.8],
+   height_m: 2.2, setup_min: 15}
+- {id: wd-1, area: machining, name: 绕线机 1 号（针式绕线）, name_en: Needle winder 1, workstation: 绕线机 WD, layout: [12, 4, 2, 1.6], height_m: 1.9, setup_min: 20}
+- {id: wd-2, area: machining, name: 绕线机 2 号（针式绕线）, name_en: Needle winder 2, workstation: 绕线机 WD, layout: [15, 4, 2, 1.6], height_m: 1.9, setup_min: 20}
+- {id: ins-1, area: machining, name: 嵌线整形台（槽楔、绑扎、端部整形）, name_en: Insertion & lacing bench, workstation: 嵌线整形台 INS, layout: [18.5, 4, 2, 1.4],
+   height_m: 1.4, setup_min: 5}
+- {id: vo-1, area: machining, name: 浸漆烘箱（真空浸漆 + 烘干）, name_en: Varnish dip & bake oven, workstation: 浸漆烘箱 VO, layout: [22, 3.5, 2.6, 2.2], height_m: 2.3,
+   capacity: 24, setup_min: 10}
+- {id: stt-1, area: quality, name: 定子测试台（电阻、匝间冲击、耐压）, name_en: Stator tester, workstation: 定子测试台 STT, layout: [26.5, 4, 2.2, 1.4], height_m: 1.5,
+   setup_min: 5}
+# 转子线
+- {id: mg-1, area: machining, name: 磁钢粘贴台（定位工装 + 胶）, name_en: Magnet bonding bench, workstation: 磁钢粘贴台 MG, layout: [4, 13, 2.2, 1.4], height_m: 1.4,
+   setup_min: 10}
+- {id: mz-1, area: machining, name: 充磁机（电容放电式）, name_en: Magnetizer, workstation: 充磁机 MZ, layout: [8, 13, 2, 1.6], height_m: 1.8, setup_min: 10}
+- {id: bal-1, area: quality, name: 动平衡机, name_en: Rotor balancing machine, workstation: 动平衡机 BAL, layout: [12, 13, 2.2, 1.6], height_m: 1.5, setup_min: 10}
+# 总装线
+- {id: asm-1, area: machining, name: 电机总装台（压轴承、装抱闸、装端盖）, name_en: Motor assembly bench, workstation: 电机总装台 ASM, layout: [16.5, 13, 3, 1.6],
+   height_m: 1.6, setup_min: 10}
+- {id: bt-1, area: quality, name: 抱闸测试台（保持力矩、吸合电压）, name_en: Brake tester, workstation: 抱闸测试台 BT, layout: [21, 13, 2.2, 1.6], height_m: 1.5,
+   setup_min: 5}
+- {id: dyn-1, area: quality, name: 电机终检台（测功台：反电势、齿槽转矩、空载电流）, name_en: Motor final test dyno, workstation: 电机终检台 DYN,
+   layout: [25.5, 12.5, 3.2, 2], height_m: 1.6, setup_min: 10}
+- {id: pk-1, area: warehouse, name: 包装台, name_en: Packing bench, workstation: 包装台 PK, layout: [5, 22, 2.5, 1.6], height_m: 1.0}
+- {id: store-m1, area: warehouse, name: 原材料库（硅钢片、漆包线、磁钢单独存放）, name_en: Material store, layout: [12, 21.5, 4, 3.5], height_m: 2.4}
+- {id: store-m2, area: warehouse, name: 成品库, name_en: Finished goods store, layout: [18, 21.5, 3.5, 3.5], height_m: 2.4}
+- {id: agv-m1, area: logistics, name: 物流小车 1 号, name_en: AGV 1, home: [2, 9]}
+- {id: agv-m2, area: logistics, name: 物流小车 2 号, name_en: AGV 2, home: [2, 18]}
+dashboard: [iqc-1, stk-1, wd-1, wd-2, ins-1, vo-1, stt-1, mg-1, mz-1, bal-1, asm-1, bt-1, dyn-1, pk-1]
+stores: {raw: store-m1, finished: store-m2}
+operations:
+- {name: 来料检验 Incoming inspection, workstation: 来料检验台 IQC, units: [iqc-1], stage: inspect, inspection: true}
+- {name: 铁芯叠压 Lamination stacking, workstation: 铁芯叠压机 STK, units: [stk-1], stage: other}
+- {name: 绕线 Winding, workstation: 绕线机 WD, units: [wd-1, wd-2], stage: assembly}
+- {name: 嵌线整形 Insertion & lacing, workstation: 嵌线整形台 INS, units: [ins-1], stage: assembly}
+- {name: 浸漆烘干 Varnish & bake, workstation: 浸漆烘箱 VO, units: [vo-1], stage: other}
+- {name: 定子测试 Stator test, workstation: 定子测试台 STT, units: [stt-1], stage: inspect, inspection: true}
+- {name: 磁钢粘贴 Magnet bonding, workstation: 磁钢粘贴台 MG, units: [mg-1], stage: assembly}
+- {name: 充磁 Magnetizing, workstation: 充磁机 MZ, units: [mz-1], stage: other}
+- {name: 动平衡 Rotor balancing, workstation: 动平衡机 BAL, units: [bal-1], stage: other}
+- {name: 电机总装 Motor assembly, workstation: 电机总装台 ASM, units: [asm-1], stage: assembly}
+- {name: 抱闸测试 Brake test, workstation: 抱闸测试台 BT, units: [bt-1], stage: inspect, inspection: true}
+- {name: 电机终检 Motor final test, workstation: 电机终检台 DYN, units: [dyn-1], stage: inspect, inspection: true}
+- {name: 包装 Packing, workstation: 包装台 PK, units: [pk-1], stage: other}
+floor: {length_m: 36, width_m: 28, aisles_y: [9, 18], cross_x: 2}
+shift:
+  periods: [['08:00:00', '12:00:00'], ['13:00:00', '17:00:00']]
+  workdays: [0, 1, 2, 3, 4]
+  max_overtime_min: 180
+kpi: {on_time: 0.95, oee: 0.7, fpy: 0.96}
+suppliers:
+  # 准时率、合格率（教学模拟器）、交货期、来料检验项都是示例值
+  steel: {name: 示例·硅钢冲片厂 Lamination Supplier (Demo), lead: 14, on_time: 0.93, pass: 0.98, cat_name: 硅钢冲片,
+          incoming: [{name: 冲片毛刺 Burr, unit: mm, lo: 0, hi: 0.03}, {name: 绝缘涂层 Coating, text: 涂层完整、无锈}]}
+  wire: {name: 示例·漆包线与绝缘材料商 Magnet Wire Supplier (Demo), lead: 7, on_time: 0.95, pass: 0.99, cat_name: 漆包线与绝缘,
+         incoming: [{name: 线径 Wire diameter, unit: mm, lo: 0.495, hi: 0.505}, {name: 漆膜针孔 Pinholes, text: 针孔试验合格}]}
+  magnet: {name: 示例·钕铁硼磁钢厂 NdFeB Magnet Maker (Demo), lead: 21, on_time: 0.92, pass: 0.98, cat_name: 磁钢,
+           incoming: [{name: 磁钢尺寸 Magnet size, unit: mm, lo: 2.98, hi: 3.02}, {name: 镀层 Coating, text: 镀层无起皮、无锈点（未充磁到货）}]}
+  machining: {name: 示例·精密机加厂 Precision Machining (Demo), lead: 10, on_time: 0.93, pass: 0.98, cat_name: 机加件,
+              incoming: [{name: 轴承位直径 Bearing seat, unit: mm, lo: 8.001, hi: 8.010}]}
+  brake: {name: 示例·电磁制动器商 Brake Supplier (Demo), lead: 14, on_time: 0.94, pass: 0.99, cat_name: 制动器,
+          incoming: [{name: 线圈电阻 Coil resistance, text: 在规格书范围内}]}
+  hardware: {name: 示例·标准件商 Fastener Supplier (Demo), lead: 3, on_time: 0.95, pass: 0.99, cat_name: 标准件}
+  electronics: {name: 示例·电子元件商 Electronics Supplier (Demo), lead: 7, on_time: 0.95, pass: 0.99, cat_name: 线缆}
+  packing: {name: 示例·包装材料商 Packaging Supplier (Demo), lead: 3, on_time: 0.95, pass: 0.99, cat_name: 包装材料}
+customers:
+- 示例·协作机器人厂 Cobot Maker (Demo)
+- 示例·自动化设备厂 Automation Equipment Maker (Demo)
+- 示例·物流设备厂 Logistics Equipment Maker (Demo)
+items:
+# 定子
+- {code: LAM-60, name: 定子硅钢冲片 60 机座（一台份，型号待确认） Stator laminations frame 60, kind: buy, uom: Nos, price: 9.0, supplier: steel, note: 100 W、200 W 用}
+- {code: LAM-80, name: 定子硅钢冲片 80 机座（一台份，型号待确认） Stator laminations frame 80, kind: buy, uom: Nos, price: 14.0, supplier: steel, note: 400 W、750 W 用}
+- {code: WIRE-CU, name: 漆包线（聚酯亚胺，型号待确认） Magnet wire, kind: raw, uom: Kg, price: 14, supplier: wire}
+- {code: INS-KIT, name: 绝缘套件（槽绝缘纸、槽楔、绑扎带，型号待确认） Insulation kit, kind: buy, uom: Nos, price: 1.5, supplier: wire}
+- {code: VARNISH, name: 绝缘漆（无溶剂，型号待确认） Impregnating varnish, kind: raw, uom: Kg, price: 12, supplier: wire, note: 炉温不够就固化不透}
+# 转子
+- {code: MAG-60, name: 钕铁硼磁钢 60 机座（10 块一套，未充磁，型号待确认） NdFeB magnet set frame 60, kind: buy, uom: Nos, price: 16, supplier: magnet}
+- {code: MAG-80, name: 钕铁硼磁钢 80 机座（10 块一套，未充磁，型号待确认） NdFeB magnet set frame 80, kind: buy, uom: Nos, price: 30, supplier: magnet}
+- {code: ROT-60, name: 转子铁芯与轴 60 机座（外协机加） Rotor core & shaft frame 60, kind: buy, uom: Nos, price: 8, supplier: machining}
+- {code: ROT-80, name: 转子铁芯与轴 80 机座（外协机加） Rotor core & shaft frame 80, kind: buy, uom: Nos, price: 13, supplier: machining}
+- {code: GLUE-MAG, name: 磁钢胶（结构胶，型号待确认） Magnet adhesive, kind: raw, uom: Kg, price: 60, supplier: wire}
+# 总装
+- {code: BRG-M, name: 电机轴承（深沟球轴承，型号待确认） Motor bearing, kind: buy, uom: Nos, price: 1.8, supplier: hardware}
+- {code: BRK-60, name: 失电制动器 60 机座（24 V，型号待确认） Fail-safe brake frame 60, kind: buy, uom: Nos, price: 18, supplier: brake}
+- {code: BRK-80, name: 失电制动器 80 机座（24 V，型号待确认） Fail-safe brake frame 80, kind: buy, uom: Nos, price: 26, supplier: brake}
+- {code: HSG-60, name: 机壳与端盖 60 机座（铝，外协） Housing & end caps frame 60, kind: buy, uom: Nos, price: 12, supplier: machining}
+- {code: HSG-80, name: 机壳与端盖 80 机座（铝，外协） Housing & end caps frame 80, kind: buy, uom: Nos, price: 18, supplier: machining}
+- {code: CABLE-M, name: 电机动力线与抱闸线（带插头，型号待确认） Motor power & brake leads, kind: buy, uom: Nos, price: 4, supplier: electronics}
+- {code: SCR-M4, name: 内六角螺钉 M4×12 Socket screw M4×12, kind: buy, uom: Nos, price: 0.05, supplier: hardware}
+- {code: BOX-M, name: 电机包装盒（带内衬） Motor box, kind: buy, uom: Nos, price: 1.2, supplier: packing}
+# 成品（都是 10 极 12 槽，示例）
+- {code: WQ-SM100, name: 伺服电机 WQ-SM100（100 W，带抱闸，示例） Servo motor 100 W with brake, kind: fg, uom: Nos, note: 卖给问渠机器人厂（它的 MTR-SV-100）}
+- {code: WQ-SM200, name: 伺服电机 WQ-SM200（200 W，带抱闸，示例） Servo motor 200 W with brake, kind: fg, uom: Nos, note: 卖给问渠机器人厂（它的 MTR-SV-200）}
+- {code: WQ-SM400, name: 伺服电机 WQ-SM400（400 W，带抱闸，示例） Servo motor 400 W with brake, kind: fg, uom: Nos, note: 卖给问渠机器人厂（它的 MTR-SV-400）}
+- {code: WQ-AM750, name: AGV 驱动电机 WQ-AM750（750 W，示例） AGV drive motor 750 W, kind: fg, uom: Nos, note: 卖给问渠机器人厂（它的 MTR-AGV-750）}
+routings:
+- name: RT-伺服电机 Servo motor
+  steps: [[来料检验 Incoming inspection, 5], [铁芯叠压 Lamination stacking, 6], [绕线 Winding, 25], [嵌线整形 Insertion & lacing, 15], [浸漆烘干 Varnish & bake, 180],
+          [定子测试 Stator test, 8], [磁钢粘贴 Magnet bonding, 20], [充磁 Magnetizing, 3], [动平衡 Rotor balancing, 8], [电机总装 Motor assembly, 25],
+          [抱闸测试 Brake test, 6], [电机终检 Motor final test, 12], [包装 Packing, 4]]
+- name: RT-AGV电机 AGV motor
+  steps: [[来料检验 Incoming inspection, 5], [铁芯叠压 Lamination stacking, 8], [绕线 Winding, 35], [嵌线整形 Insertion & lacing, 20], [浸漆烘干 Varnish & bake, 180],
+          [定子测试 Stator test, 8], [磁钢粘贴 Magnet bonding, 25], [充磁 Magnetizing, 3], [动平衡 Rotor balancing, 10], [电机总装 Motor assembly, 25],
+          [电机终检 Motor final test, 12], [包装 Packing, 4]]
+boms:
+- item: WQ-SM100
+  routing: RT-伺服电机 Servo motor
+  components: [[LAM-60, 1], [WIRE-CU, 0.18], [INS-KIT, 1], [VARNISH, 0.05], [MAG-60, 1], [ROT-60, 1], [GLUE-MAG, 0.004], [BRG-M, 2], [BRK-60, 1], [HSG-60, 1],
+               [CABLE-M, 1], [SCR-M4, 8], [BOX-M, 1]]
+- item: WQ-SM200
+  routing: RT-伺服电机 Servo motor
+  components: [[LAM-60, 1], [WIRE-CU, 0.30], [INS-KIT, 1], [VARNISH, 0.07], [MAG-60, 1], [ROT-60, 1], [GLUE-MAG, 0.005], [BRG-M, 2], [BRK-60, 1], [HSG-60, 1],
+               [CABLE-M, 1], [SCR-M4, 8], [BOX-M, 1]]
+- item: WQ-SM400
+  routing: RT-伺服电机 Servo motor
+  components: [[LAM-80, 1], [WIRE-CU, 0.55], [INS-KIT, 1], [VARNISH, 0.10], [MAG-80, 1], [ROT-80, 1], [GLUE-MAG, 0.008], [BRG-M, 2], [BRK-80, 1], [HSG-80, 1],
+               [CABLE-M, 1], [SCR-M4, 8], [BOX-M, 1]]
+- item: WQ-AM750
+  routing: RT-AGV电机 AGV motor
+  components: [[LAM-80, 1], [WIRE-CU, 0.90], [INS-KIT, 1], [VARNISH, 0.14], [MAG-80, 1], [ROT-80, 1], [GLUE-MAG, 0.008], [BRG-M, 2], [HSG-80, 1],
+               [CABLE-M, 1], [SCR-M4, 8], [BOX-M, 1]]
+products:
+- {item: WQ-SM100, price: 190}
+- {item: WQ-SM200, price: 240}
+- {item: WQ-SM400, price: 320}
+- {item: WQ-AM750, price: 380}
+stock:
+  # 期初库存（示例值）：60 机座、80 机座各够做 40 台左右
+  opening: {LAM-60: 40, LAM-80: 40, WIRE-CU: 30, INS-KIT: 80, VARNISH: 8, MAG-60: 40, MAG-80: 40, ROT-60: 40, ROT-80: 40, GLUE-MAG: 0.5, BRG-M: 160,
+            BRK-60: 40, BRK-80: 30, HSG-60: 40, HSG-80: 40, CABLE-M: 80, SCR-M4: 700, BOX-M: 80}
+  safety: {LAM-60: 8, LAM-80: 8, MAG-60: 8, MAG-80: 8, BRK-60: 6, BRK-80: 6}
+key_materials: [LAM-60, LAM-80, MAG-60, MAG-80, BRK-60, BRK-80]
+# 测量（名义值、规格限、散布都是示例值）：ERPNext 一种物料一张检验模板，所以一台电机的全部测量记在“电机终检”这道工序上；
+# 定子测试台、动平衡机、抱闸测试台测的写在名称里。反电势常数、三相不平衡、THD、齿槽转矩由终检波形算出（见“电机终检波形”页）
+measurements:
+- item: WQ-SM100
+  operation: 电机终检 Motor final test
+  chars:
+  - {code: st_r_unbal, name: 三相电阻不平衡（定子测试台）, unit: '%', nominal: 0.4, lo: 0, hi: 1.5, sigma: 0.12}
+  - {code: st_surge, name: 匝间冲击波形面积差（定子测试台）, unit: '%', nominal: 2.0, lo: 0, hi: 5.0, sigma: 0.5}
+  - {code: st_leak, name: 耐压漏电流（定子测试台，1500 V 1 s）, unit: mA, nominal: 0.30, lo: 0, hi: 1.0, sigma: 0.06}
+  - {code: rb_unbal, name: 转子剩余不平衡量（动平衡机）, unit: g·mm, nominal: 8, lo: 0, hi: 20, sigma: 2}
+  - {code: brk_hold, name: 抱闸静态保持力矩（抱闸测试台）, unit: N·m, nominal: 0.45, lo: 0.32, hi: 0.7, sigma: 0.03}
+  - {code: mt_ke, name: 反电势常数（相对额定）, unit: '%', nominal: 100, lo: 95, hi: 105, sigma: 0.8}
+  - {code: mt_unbal, name: 反电势三相不平衡, unit: '%', nominal: 0.4, lo: 0, hi: 2.0, sigma: 0.15}
+  - {code: mt_thd, name: 线反电势谐波畸变 THD（含次谐波）, unit: '%', nominal: 2.4, lo: 0, hi: 5.0, sigma: 0.2}
+  - {code: mt_cog, name: 齿槽转矩峰峰值（相对额定转矩）, unit: '%', nominal: 1.3, lo: 0, hi: 2.5, sigma: 0.15}
+  - {code: mt_i0, name: 空载电流（3000 rpm）, unit: A, nominal: 0.25, lo: 0, hi: 0.4, sigma: 0.02}
+- item: WQ-SM200
+  operation: 电机终检 Motor final test
+  chars:
+  - {code: st_r_unbal, name: 三相电阻不平衡（定子测试台）, unit: '%', nominal: 0.4, lo: 0, hi: 1.5, sigma: 0.12}
+  - {code: st_surge, name: 匝间冲击波形面积差（定子测试台）, unit: '%', nominal: 2.0, lo: 0, hi: 5.0, sigma: 0.5}
+  - {code: st_leak, name: 耐压漏电流（定子测试台，1500 V 1 s）, unit: mA, nominal: 0.30, lo: 0, hi: 1.0, sigma: 0.06}
+  - {code: rb_unbal, name: 转子剩余不平衡量（动平衡机）, unit: g·mm, nominal: 8, lo: 0, hi: 20, sigma: 2}
+  - {code: brk_hold, name: 抱闸静态保持力矩（抱闸测试台）, unit: N·m, nominal: 0.9, lo: 0.64, hi: 1.4, sigma: 0.05}
+  - {code: mt_ke, name: 反电势常数（相对额定）, unit: '%', nominal: 100, lo: 95, hi: 105, sigma: 0.8}
+  - {code: mt_unbal, name: 反电势三相不平衡, unit: '%', nominal: 0.4, lo: 0, hi: 2.0, sigma: 0.15}
+  - {code: mt_thd, name: 线反电势谐波畸变 THD（含次谐波）, unit: '%', nominal: 2.4, lo: 0, hi: 5.0, sigma: 0.2}
+  - {code: mt_cog, name: 齿槽转矩峰峰值（相对额定转矩）, unit: '%', nominal: 1.3, lo: 0, hi: 2.5, sigma: 0.15}
+  - {code: mt_i0, name: 空载电流（3000 rpm）, unit: A, nominal: 0.4, lo: 0, hi: 0.64, sigma: 0.03}
+- item: WQ-SM400
+  operation: 电机终检 Motor final test
+  chars:
+  - {code: st_r_unbal, name: 三相电阻不平衡（定子测试台）, unit: '%', nominal: 0.4, lo: 0, hi: 1.5, sigma: 0.12}
+  - {code: st_surge, name: 匝间冲击波形面积差（定子测试台）, unit: '%', nominal: 2.0, lo: 0, hi: 5.0, sigma: 0.5}
+  - {code: st_leak, name: 耐压漏电流（定子测试台，1500 V 1 s）, unit: mA, nominal: 0.30, lo: 0, hi: 1.0, sigma: 0.06}
+  - {code: rb_unbal, name: 转子剩余不平衡量（动平衡机）, unit: g·mm, nominal: 8, lo: 0, hi: 20, sigma: 2}
+  - {code: brk_hold, name: 抱闸静态保持力矩（抱闸测试台）, unit: N·m, nominal: 1.8, lo: 1.27, hi: 2.6, sigma: 0.09}
+  - {code: mt_ke, name: 反电势常数（相对额定）, unit: '%', nominal: 100, lo: 95, hi: 105, sigma: 0.8}
+  - {code: mt_unbal, name: 反电势三相不平衡, unit: '%', nominal: 0.4, lo: 0, hi: 2.0, sigma: 0.15}
+  - {code: mt_thd, name: 线反电势谐波畸变 THD（含次谐波）, unit: '%', nominal: 2.4, lo: 0, hi: 5.0, sigma: 0.2}
+  - {code: mt_cog, name: 齿槽转矩峰峰值（相对额定转矩）, unit: '%', nominal: 1.3, lo: 0, hi: 2.5, sigma: 0.15}
+  - {code: mt_i0, name: 空载电流（3000 rpm）, unit: A, nominal: 0.7, lo: 0, hi: 1.1, sigma: 0.05}
+- item: WQ-AM750
+  operation: 电机终检 Motor final test
+  chars:
+  - {code: st_r_unbal, name: 三相电阻不平衡（定子测试台）, unit: '%', nominal: 0.4, lo: 0, hi: 1.5, sigma: 0.12}
+  - {code: st_surge, name: 匝间冲击波形面积差（定子测试台）, unit: '%', nominal: 2.0, lo: 0, hi: 5.0, sigma: 0.5}
+  - {code: st_leak, name: 耐压漏电流（定子测试台，1500 V 1 s）, unit: mA, nominal: 0.30, lo: 0, hi: 1.0, sigma: 0.06}
+  - {code: rb_unbal, name: 转子剩余不平衡量（动平衡机）, unit: g·mm, nominal: 8, lo: 0, hi: 20, sigma: 2}
+  - {code: mt_ke, name: 反电势常数（相对额定）, unit: '%', nominal: 100, lo: 95, hi: 105, sigma: 0.8}
+  - {code: mt_unbal, name: 反电势三相不平衡, unit: '%', nominal: 0.4, lo: 0, hi: 2.0, sigma: 0.15}
+  - {code: mt_thd, name: 线反电势谐波畸变 THD（含次谐波）, unit: '%', nominal: 2.4, lo: 0, hi: 5.0, sigma: 0.2}
+  - {code: mt_cog, name: 齿槽转矩峰峰值（相对额定转矩）, unit: '%', nominal: 1.3, lo: 0, hi: 2.5, sigma: 0.15}
+  - {code: mt_i0, name: 空载电流（3000 rpm）, unit: A, nominal: 1.2, lo: 0, hi: 1.9, sigma: 0.08}
