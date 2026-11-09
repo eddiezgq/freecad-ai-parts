@@ -100,6 +100,9 @@ suppliers:
   # 第 85 轮：驱动板、AGV 控制板向工业园第三座厂（问渠电路板厂）买
   pcb: {name: 问渠电路板厂 WenQuest Electronics (Demo), lead: 7, on_time: 0.95, pass: 0.995, cat_name: 电路板, park: wenquest-pcb,
         incoming: [{name: 出厂测试报告 Test report, text: 每块板有功能测试记录、序列号与发货单一致}, {name: 防静电包装 ESD packing, text: 防静电袋完好、无磕碰}]}
+  # 第 125 轮：工业园的问渠传感器厂（关节绝对值编码器）
+  sensor: {name: 问渠传感器厂 WenQuest Sensors (Demo), lead: 7, on_time: 0.95, pass: 0.995, cat_name: 传感器, park: wenquest-sensor,
+           incoming: [{name: 出厂精度记录 Accuracy record, text: 每台有终检整圈误差记录、序列号与发货单一致}]}
   agvparts: {name: 示例·AGV 配件商 AGV Parts Supplier (Demo), lead: 10, on_time: 0.9, pass: 0.98, cat_name: AGV 配件}
 customers:
 - 示例·汽车零部件厂 Auto Parts Plant (Demo)
@@ -126,7 +129,8 @@ items:
 - {code: MTR-SV-400, name: 伺服电机 400 W（带失电制动抱闸，型号待确认） Servo motor 400 W with brake, kind: buy, uom: Nos, price: 320, supplier: servo}
 - {code: MTR-SV-200, name: 伺服电机 200 W（带失电制动抱闸，型号待确认） Servo motor 200 W with brake, kind: buy, uom: Nos, price: 240, supplier: servo}
 - {code: MTR-SV-100, name: 伺服电机 100 W（带失电制动抱闸，型号待确认） Servo motor 100 W with brake, kind: buy, uom: Nos, price: 190, supplier: servo}
-- {code: ENC-ABS, name: 绝对值编码器（型号待确认） Absolute encoder, kind: buy, uom: Nos, price: 85, supplier: electronics}
+- {code: ENC-ABS, name: 关节绝对值编码器（问渠传感器厂 WQ-ENC17） Absolute encoder, kind: buy, uom: Nos, price: 120, supplier: sensor, pack: 1,
+   park_item: WQ-ENC17, note: 第 125 轮起向工业园的问渠传感器厂买（原来是示例电子元件商，85 美元）}
 - {code: DRV-JOINT, name: 关节伺服驱动板（A 版） Joint servo drive board rev A, kind: buy, uom: Nos, price: 160, supplier: pcb, note: 问渠电路板厂的成品（第 85 轮）；第 118 轮起关节模组改用 B 版}
 - {code: DRV-JOINT-B, name: 关节伺服驱动板 B 版（抱闸驱动、输出端编码器） Joint servo drive board rev B, kind: buy, uom: Nos, price: 165, supplier: pcb,
    note: 问渠电路板厂的成品（第 98/110/114 轮设计）；第 118 轮起三种关节模组都用它}
@@ -234,7 +238,7 @@ stock:
             WQR-105: 10, GRIP-2F: 4, CAM-STEREO: 2, CTRL-H1: 2}
   # 安全库存（示例值）：WQR-105 定在期初库存上，每接一单 AGV 就要向问渠减速器厂请购；
   # 第 85 轮：驱动板也定在期初库存上，每接一单要用关节的产品就向问渠电路板厂请购（第 118 轮起是 B 版 DRV-JOINT-B）
-  safety: {WQR-105: 10, DRV-JOINT-B: 45, HD-CSF-32-100: 4, ENC-ABS: 10, BRG-6010: 8, SCR-M5x16: 200}
+  safety: {WQR-105: 10, DRV-JOINT-B: 45, HD-CSF-32-100: 4, ENC-ABS: 45, BRG-6010: 8, SCR-M5x16: 200}
 key_materials: [HD-CSF-32-100, MTR-SV-400, WQR-105, RM-AL6061-D120]
 measurements:
 - item: JS-L

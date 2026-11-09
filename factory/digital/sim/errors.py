@@ -93,6 +93,18 @@ PROBLEMS.update({
     "capillary_wear": {"name": "键合机 wb-2 劈刀磨损（只有它键合的批次拉力下降）", "unit": "wb-2", "fix": "replace_capillary", "default": 3.5, "plant": CHIP},
     "emc_moisture": {"name": "塑封料受潮（空洞率升高）", "unit": "mld-1", "fix": "emc_handling", "default": 3.0, "plant": CHIP},
 })
+# 传感器厂（清单 wenquest-sensor，第 125 轮）：机理与表现（偏差量都是示例值，按“台”计数）：
+#   对心夹具磨损：只有粘接对心机 cb-2 粘的码盘偏心逐台变大 → 一次谐波（每圈一个起伏）变大、精度超差（cb-1 正常）
+#   间隙塞规磨损：读头装调台 hm-1 用磨薄的塞规调间隙 → 间隙偏大、信号幅值下降、细分误差变大
+#   洁净间过滤器堵塞：码盘清洗台 dcl-1 那一段洁净度下降 → 码盘上落污点 → 误差曲线某处尖峰、幅值掉坑
+#   固化炉温度偏低：固化炉 cur-1 → 应变胶没固化透 → 扭矩传感器蠕变、滞后、零点温漂变大
+SENSOR = "wenquest-sensor"
+PROBLEMS.update({
+    "fixture_wear": {"name": "粘接对心机 cb-2 对心夹具磨损（只有它粘的码盘偏心变大）", "unit": "cb-2", "fix": "replace_fixture", "default": 2.5, "plant": SENSOR},
+    "gap_gauge": {"name": "读头装调台间隙塞规磨损（间隙偏大、信号幅值下降）", "unit": "hm-1", "fix": "replace_gap_gauge", "default": 30.0, "plant": SENSOR},
+    "ffu_clog": {"name": "洁净间过滤器堵塞（码盘落污点）", "unit": "dcl-1", "fix": "replace_ffu", "default": 3.0, "plant": SENSOR},
+    "cure_low": {"name": "应变胶固化炉温度偏低（扭矩传感器蠕变、滞后变大）", "unit": "cur-1", "fix": "profile_cure", "default": 1.0, "plant": SENSOR},
+})
 PROBE_SITE = 5               # 磨损的测试位（0 起数，页面上显示第 6 位；示例）
 SHUNT_LOT = 30               # 采样电阻每卷用于 30 块驱动板（示例）：按测试顺序依次用掉；仓库有到货批次时用到货批次
 LOT_SIZE = 8                 # 谐波减速器每批 8 台（示例）：关节按装配顺序依次用掉。第 51 轮：仓库有真实到货批次时用到货批次（add_lot）
@@ -137,13 +149,24 @@ FIXES.update({                # 芯片封测厂（第 103 轮）
     "raise_bond_power": "加大键合超声功率和压力",
     "tighten_ft": "FT 判定加严",
 })
+FIXES.update({                # 传感器厂（第 125 轮）
+    "replace_fixture": "更换粘接对心机 cb-2 的对心夹具，用标准盘复测对心 ≤ 1 µm",
+    "replace_gap_gauge": "更换并校准读头间隙塞规，已装的按信号幅值复查",
+    "replace_ffu": "更换洁净间风机过滤单元、测粒子计数，码盘重新清洗",
+    "profile_cure": "测固化炉炉温曲线、校温控，没固化透的传感器补固化",
+    "redo_comp": "重做精度补偿表（把整圈误差补平）",
+    "raise_gain": "加大读头信号增益",
+    "tighten_eft": "编码器终检判定加严",
+})
 ROBOT_FIXES = ("recalibrate_torque", "quarantine_lot", "recalibrate_bench", "add_grease", "tighten_test", "retrain", "change_gauge",
                "recenter_encoder", "recalibrate_brake_bench")
 PCB_FIXES = ("wipe_stencil", "profile_oven", "replace_nozzle", "quarantine_shunt", "raise_peak", "replace_squeegee", "tighten_aoi",
              "retrain", "change_gauge")
 CHIP_FIXES = ("clean_probe", "replace_blade", "replace_capillary", "emc_handling", "retest_cp", "raise_bond_power", "tighten_ft",
               "retrain", "change_gauge")
-PLANT_FIXES = {ROBOT: ROBOT_FIXES, PCB: PCB_FIXES, CHIP: CHIP_FIXES}
+SENSOR_FIXES = ("replace_fixture", "replace_gap_gauge", "replace_ffu", "profile_cure", "redo_comp", "raise_gain", "tighten_eft",
+                "retrain", "change_gauge")
+PLANT_FIXES = {ROBOT: ROBOT_FIXES, PCB: PCB_FIXES, CHIP: CHIP_FIXES, SENSOR: SENSOR_FIXES}
 
 
 def problems_for(plant_id):
@@ -161,6 +184,8 @@ def fixes_for(plant_id):
 
 
 SHUNT_ITEM = "RES-SHUNT"
+ENC_CODES = ("enc_acc", "enc_h1", "enc_interp", "enc_amp", "enc_amp_min")      # 第 125 轮：由整圈误差曲线算出
+TS_CODES = ("ts_nonlin", "ts_hyst", "ts_creep", "ts_tczero")
 CHIP_CODES = ("cp_yield", "cp_contact", "chipping", "bond_pull", "ball_shear", "mold_void", "ft_yield")
 PCB_CODES = ("spi_volume", "spi_height", "reflow_peak", "reflow_tal", "offset_ic", "aoi_defects", "ict_shunt", "fct_isense")
 
@@ -336,7 +361,7 @@ class ErrorModel:
             st["_ja"] = unit
             st["_lot_no"] = (size, order.index(lot))
             part.hd_lot = lot
-        if unit.startswith("wb-"):                          # 芯片封测厂（第 103 轮）：记下这一批是哪台键合机键合的（分层用）
+        if unit.startswith("wb-") or unit.startswith("cb-"):  # 芯片封测厂（第 103 轮）：哪台键合机；传感器厂（第 125 轮）：哪台粘接对心机（分层用）
             st["_ja"] = unit
         if unit == "ict-1" and "_shunt" not in st and _uses_shunt(str(getattr(getattr(part, "wo", None), "item", "") or "")):
             self._take_shunt(part, st)       # 电路板厂（第 85 轮）：在线测试时认出这块驱动板用的是哪一卷采样电阻
@@ -443,8 +468,33 @@ class ErrorModel:
                          "by_bin": g["by_bin"], "total": g["total"]}
         return st["_cp"]
 
+    def _enc(self, part):
+        """传感器厂（第 125 轮）：这台编码器的整圈误差曲线（算一次记在零件上）"""
+        from sim import enccurve
+        st = getattr(part, "err", None)
+        if st is None:
+            st = {}
+            part.err = st
+        if "_enc" not in st:
+            def ramp(p, tau):
+                if p not in st:
+                    return 0.0
+                mag, k = st[p]
+                return mag * (1 - math.exp(-k / tau))
+            desc = enccurve.params(self.rng, str(getattr(part, "serial", "")), ecc_extra=ramp("fixture_wear", 4.0),
+                                   amp_drop=ramp("gap_gauge", 4.0), spots_lam=ramp("ffu_clog", 3.0))
+            g = enccurve.generate(desc)
+            st["_enc"] = {"desc": desc, **{k: g[k] for k in ("acc", "h1", "interp", "amp", "amp_min")}}
+        return st["_enc"]
+
     def override(self, part, code: str):
-        """有些测量值不是“名义 + 散布”而是算出来的：芯片厂 CP 良率与接触电阻由晶圆图给，返回 (值, 附加数据) 或 None"""
+        """有些测量值不是“名义 + 散布”而是算出来的：芯片厂 CP 良率与接触电阻由晶圆图给，传感器厂编码器的精度等由整圈误差曲线给，
+        返回 (值, 附加数据) 或 None"""
+        if code in ENC_CODES:
+            e = self._enc(part)
+            key = code[4:]
+            st = getattr(part, "err", None) or {}
+            return e[key], ({"enc": {**e["desc"], "station": st.get("_ja")}} if code == "enc_acc" else {})
         if code not in ("cp_yield", "cp_contact"):
             return None
         cp = self._cp(part)
@@ -460,6 +510,12 @@ class ErrorModel:
             return self._pcb_offset(st, code)
         if code in CHIP_CODES:
             return self._chip_offset(st, code)
+        if code in TS_CODES:                                 # 传感器厂（第 125 轮）：胶没固化透
+            if "cure_low" not in st:
+                return 0.0
+            mag, k = st["cure_low"]
+            r = mag * (1 - math.exp(-k / 4.0))
+            return r * {"ts_nonlin": 0.08, "ts_hyst": 0.20, "ts_creep": 0.12, "ts_tczero": 0.15}[code]
         off = 0.0
         if code == "joint_backlash":
             for p in ("ja_torque", "hd_lot"):

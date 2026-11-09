@@ -1,0 +1,48 @@
+# 第 125 轮（电子 E12）：传感器厂的质量规则。plant 写了厂的清单 id：只在那座厂的规则目录里出现（别的厂看不到）
+domain: quality
+rules:
+  SN1:
+    name: 编码器精度变差
+    fn: sensor_enc_acc
+    plant: wenquest-sensor
+    severity: warn            # 有台超出上限为 critical
+    role: [quality, engineer]
+    params: {last: 6, above: 70}
+    desc: 最近 last 台编码器的精度（整圈误差峰峰值）均值超过 above″（上限 100″）
+    hint: 打开“编码器误差曲线”看形状：每圈一个起伏是偏心（查粘接对心），某处尖峰是码盘脏（查洁净间），整体平但细分误差大是读头间隙
+  SN2:
+    name: 一次谐波偏大（按粘接对心机）
+    fn: sensor_enc_h1
+    plant: wenquest-sensor
+    severity: critical
+    role: [quality, engineer, operator]
+    params: {last: 8, above: 25, gap: 10}
+    desc: 最近 last 台编码器的一次谐波（偏心）按粘接对心机分开：某台均值超过 above″，或比另一台高 gap″ 以上
+    hint: 只有一台高就查那台的对心夹具和标准盘复测；补偿表能把一次谐波“补平”，但偏心还在——装到关节里换个安装状态误差就回来
+  SN3:
+    name: 读头信号幅值下降
+    fn: sensor_enc_amp
+    plant: wenquest-sensor
+    severity: warn
+    role: [quality, operator]
+    params: {last: 6, below: 88}
+    desc: 最近 last 台编码器的信号幅值（平均）均值低于 below %
+    hint: 幅值整体低、细分误差跟着大，查读头间隙（塞规是否磨损）；不要只加大增益——噪声也一起放大
+  SN4:
+    name: 码盘污点（幅值掉坑）
+    fn: sensor_enc_dirt
+    plant: wenquest-sensor
+    severity: warn
+    role: [quality, operator]
+    params: {last: 8, below: 75, count: 2}
+    desc: 最近 last 台编码器里，有 count 台以上整圈最低信号幅值低于 below %
+    hint: 某个角度幅值掉坑、误差曲线一处尖峰，是码盘上有污点：查洁净间压差与粒子计数、过滤器，码盘重新清洗
+  SN5:
+    name: 扭矩传感器蠕变升高
+    fn: sensor_ts_creep
+    plant: wenquest-sensor
+    severity: warn            # 有台超出上限为 critical
+    role: [quality, engineer]
+    params: {last: 5, above: 0.06}
+    desc: 最近 last 台扭矩传感器的蠕变均值超过 above %FS（上限 0.10）
+    hint: 蠕变、滞后、零点温漂一起变大，多半是应变胶没固化透：测固化炉炉温曲线，没固化透的补固化

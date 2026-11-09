@@ -2431,6 +2431,22 @@ def chip_wafer(serial: str, u=Depends(user_of)):
         raise HTTPException(404, "没有这片晶圆的 CP 记录：{}".format(serial))
 
 
+# ---------------------------------------------------------------- 编码器误差曲线（第 125 轮，传感器厂）
+@app.get("/api/sensor/encoders")
+def sensor_encoders(u=Depends(user_of)):
+    from hub import enccurve_api
+    return {"encoders": enccurve_api.encoders(H.db, u["mode"])}
+
+
+@app.get("/api/sensor/encoder/{serial}")
+def sensor_encoder(serial: str, u=Depends(user_of)):
+    from hub import enccurve_api
+    try:
+        return enccurve_api.encoder(H.db, u["mode"], serial)
+    except KeyError:
+        raise HTTPException(404, "没有这台编码器的终检记录：{}".format(serial))
+
+
 # ---------------------------------------------------------------- 电路板设计的产物（第 88 轮）：KiCad 生成的原理图、PCB、三维、BOM、检查结果
 _DESIGNS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "designs")
 
