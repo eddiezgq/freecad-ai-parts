@@ -27,7 +27,8 @@ GUIDES = {"lab8": GUIDE_MD, "lab9": os.path.join(HERE, "实验9_机械臂关节�
           "lab27": os.path.join(HERE, "实验27_两厂之间的一张订单.md"),
           "lab28": os.path.join(HERE, "实验28_负载跑合台上的仿真与实测对比.md"),
           "lab29": os.path.join(HERE, "实验29_一台机器人的售后追溯.md"),
-          "lab30": os.path.join(HERE, "实验30_一台轮式人形从订单到交付.md")}
+          "lab30": os.path.join(HERE, "实验30_一台轮式人形从订单到交付.md"),
+          "lab31": os.path.join(HERE, "实验31_关节终检抱闸报警的排查.md")}
 
 
 def _doc():
@@ -139,7 +140,7 @@ def report_template_docx(lab="lab8"):
         return lab22_template()
     if lab == "lab23":
         return lab23_template()
-    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28", "lab29", "lab30"):
+    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28", "lab29", "lab30", "lab31"):
         return robot_template(lab)
     from docx.shared import Pt
     d = _doc()
@@ -1029,6 +1030,22 @@ def robot_template(lab):
         d.add_heading("四、派工与算账（任务 5、6）· Service order and the cost", 1)
         table([["方案 Option", "台数 Units", "每台 Per unit ($)", "合计 Total ($)"], ["A 全部预防性更换", "3", "", ""], ["B 等报警了再换（含停线损失）", "3", "", ""]])
         hint("除了钱，还要考虑什么（客户信任、备件库存、工程师排班）？这批减速器在来料检验时为什么没被拦下？下一步对供应商怎么办？")
+    elif lab == "lab31":
+        d.add_heading("实验 31　关节终检抱闸报警的排查　实验报告 · Lab 31 Report: Troubleshooting Brake Alarms at Joint Final Test", 0)
+        table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)
+        d.add_heading("一、报警帧（任务 1）· Alarm frames", 1)
+        table([["关节序列号 Joint serial", "报警帧数据 Frame data (hex)", "故障码 Fault code", "子码 Sub-code", "线圈电流 Coil current (A)"], ["", "", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""]])
+        hint("写出解码过程（哪个字节、小端怎么拼）。有两条报警的那台，为什么先报过流、后报抱不住？")
+        d.add_heading("二、坏件与波形（任务 2、3）· Failed part and waveforms", 1)
+        table([["关节序列号 Joint serial", "线圈电流的样子 Coil current pattern", "坏件 Failed part"], ["", "", ""], ["", "", ""], ["", "", ""]])
+        table([["线圈短路那台 Shorted-coil joint", "报警时刻 Alarm (s)", "抱住 Engaged (ms)", "关输出 Output off (ms)"], ["", "", "", ""]])
+        hint("贴三台的线圈电流、关节角度、输出开关波形截图，标出报警、抱住、关输出的时刻。")
+        d.add_heading("三、安全逻辑（任务 4）· Safety logic", 1)
+        hint("开关管击穿那台：心跳 [3] 字节报什么、同一时刻线圈电流多少？如果固件按时间当它抱住了并关输出，摆臂会怎样？")
+        d.add_paragraph()
+        d.add_heading("四、处置与复测（任务 5、6）· Rework and retest", 1)
+        table([["关节序列号 Joint serial", "处置 Rework", "复测时序 Sequence", "保持力矩 Holding torque (N·m)", "规格 Spec (N·m)", "放行 Release"], ["", "", "", "", "", ""], ["", "", "", "", "", ""], ["", "", "", "", "", ""]])
+        hint("退回电路板厂的那块板子，你希望电路板厂查什么、回复什么（写成一份简短的退货分析请求）？")
     elif lab == "lab28":
         d.add_heading("实验 28　负载跑合台上的仿真与实测对比　实验报告 · Lab 28 Report: Simulation versus Measurement on the Run-in Stand", 0)
         table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)
