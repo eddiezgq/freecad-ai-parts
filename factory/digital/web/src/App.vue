@@ -92,6 +92,7 @@ const NAV = [
     { to: '/lab28', label: '负载跑合', role: 'quality', only: () => cfg.value.plant?.id === 'wenquest-robot' },   // 第 58 轮：机器人厂
     { to: '/fct', label: '功能测试台', role: 'quality', only: () => cfg.value.plant?.id === 'wenquest-pcb' },   // 第 88 轮：电路板厂
     { to: '/wafer-map', label: '晶圆图', role: 'quality', only: () => cfg.value.plant?.id === 'wenquest-chip' },   // 第 103 轮：芯片封测厂
+    { to: '/enc-curve', label: '编码器误差曲线', role: 'quality', only: () => cfg.value.plant?.id === 'wenquest-sensor' },   // 第 125 轮：传感器厂
     { to: '/finance', label: '经营与财务', role: 'manager' },         // 第 18 轮 E7；第 19 轮并入原“经营与成本”
     { to: '/cost', label: '生产成本', role: 'manager', only: () => !demoPlant.value },   // 第 30 轮：企业工厂没有“经营与财务”，厂长看这里
   ] },

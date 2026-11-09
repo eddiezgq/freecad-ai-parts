@@ -10,6 +10,8 @@ export const EDITIONS = [
   { key: 'pcb', name: '电路板厂', who: '问渠数字工业园 · 电路板厂', plant: 'wenquest-pcb' },
   // 第 103 轮：第四座厂，芯片厂（封装测试厂）
   { key: 'chip', name: '芯片厂', who: '问渠数字工业园 · 芯片厂', plant: 'wenquest-chip' },
+  // 第 125 轮：第五座厂，传感器厂（关节编码器与扭矩传感器）
+  { key: 'sensor', name: '传感器厂', who: '问渠数字工业园 · 传感器厂', plant: 'wenquest-sensor' },
 ];
 
 // 这座厂能看到哪几册：带 plant 的只在那座厂显示
@@ -32,4 +34,5 @@ export const STAGE_CHAPTER = {
   robot: ['plant', 'products-bom', 'order-to-invoice', 'order-to-invoice', 'plant', 'joint-test', 'plant'],
   pcb: ['plant', 'products-bom', 'order-park', 'order-park', 'plant', 'smt-inspection', 'equip-ai'],
   chip: ['plant', 'products-bom', 'products-bom', 'products-bom', 'plant', 'wafer-test', 'equip-ai'],
+  sensor: ['plant', 'products-bom', 'products-bom', 'products-bom', 'plant', 'encoder-line', 'equip-ai'],
 };

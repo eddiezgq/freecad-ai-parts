@@ -1,0 +1,173 @@
+# 工厂清单（ADR-0064；第 2 版见问渠第 45 轮）。改完用 python -m factory.plant check 本文件 校验。
+# 问渠数字工业园 · 传感器厂（第 125 轮，电子 E12）：做协作机器人关节里的两种传感器。
+#   关节绝对值编码器 WQ-ENC17（光电式、17 位单圈，示例）：卖给工业园的机器人厂（它的 ENC-ABS），读头板 ENC-RD 向工业园的电路板厂买
+#   关节扭矩传感器 WQ-TS（应变片式、全桥，示例）：卖给示例外部客户（机器人厂以后做力控关节时再买）
+# 编码器线（洁净间）：来料检验 → 码盘清洗 → 码盘粘接对心（2 台）→ 读头装调（调间隙）→ 精度标定（对照基准编码器，写补偿表）→ 温度循环 → 终检（复测整圈误差曲线）→ 包装
+# 扭矩传感器线：来料检验 → 应变片粘贴 → 胶固化 → 组桥焊线 → 温度补偿 → 砝码标定 → 终检 → 包装
+# 外购件写通用名称 +“型号待确认”；单价、交货期、工时、设备费率、车间尺寸、测量名义值与散布、码盘半径与线数都是示例值。
+# 编码器的精度、一次谐波、细分误差、信号幅值由整圈误差曲线算出（sim/enccurve.py；曲线参数随测量记录带走，“编码器误差曲线”页还原）。
+version: 2
+id: wenquest-sensor
+demo_data: false
+company:
+  name: 问渠传感器厂 WenQuest Sensors (Demo)
+  abbr: WQSN
+  country: United States
+  currency: USD
+  timezone: America/New_York
+workstations:
+- {name: 来料检验台 IQC, count: 1, cost: [2, 26, 0.3]}
+- {name: 码盘清洗台 DCL, count: 1, cost: [2, 24, 1]}
+- {name: 码盘粘接对心机 CB, count: 2, cost: [6, 26, 0.8]}
+- {name: 读头装调台 HM, count: 1, cost: [4, 26, 0.5]}
+- {name: 编码器标定台 ECAL, count: 1, cost: [12, 28, 0.8]}
+- {name: 温度循环箱 TCY, count: 1, cost: [3, 0, 5]}
+- {name: 编码器终检台 EFT, count: 1, cost: [8, 26, 0.5]}
+- {name: 应变片粘贴台 SG, count: 1, cost: [3, 28, 0.3]}
+- {name: 固化炉 CUR, count: 1, cost: [2, 0, 4]}
+- {name: 组桥焊线台 TB, count: 1, cost: [2, 26, 0.5]}
+- {name: 温度补偿箱 TCP, count: 1, cost: [4, 0, 4]}
+- {name: 砝码标定台 DWT, count: 1, cost: [6, 26, 0.3]}
+- {name: 扭矩终检台 TFT, count: 1, cost: [6, 26, 0.5]}
+- {name: 包装台 PK, count: 1, cost: [1, 22, 0.2]}
+units:
+# 编码器线（洁净间）
+- {id: iqc-1, area: quality, name: 来料检验台, name_en: Incoming inspection, workstation: 来料检验台 IQC, layout: [4, 4, 2, 1.4], height_m: 1.2, setup_min: 5}
+- {id: dcl-1, area: machining, name: 码盘清洗台（超声清洗 + 洁净风淋）, name_en: Disk cleaning station, workstation: 码盘清洗台 DCL, layout: [8, 4, 2, 1.4],
+   height_m: 1.5, setup_min: 5}
+- {id: cb-1, area: machining, name: 码盘粘接对心机 1 号, name_en: Disk bonding & centering 1, workstation: 码盘粘接对心机 CB, layout: [11.5, 4, 1.6, 1.4],
+   height_m: 1.6, setup_min: 10}
+- {id: cb-2, area: machining, name: 码盘粘接对心机 2 号, name_en: Disk bonding & centering 2, workstation: 码盘粘接对心机 CB, layout: [14, 4, 1.6, 1.4],
+   height_m: 1.6, setup_min: 10}
+- {id: hm-1, area: machining, name: 读头装调台（调间隙、看信号）, name_en: Read-head mounting & gap adjust, workstation: 读头装调台 HM, layout: [17.5, 4, 2, 1.4],
+   height_m: 1.5, setup_min: 10}
+- {id: ecal-1, area: quality, name: 编码器标定台（基准编码器对照）, name_en: Encoder calibration bench, workstation: 编码器标定台 ECAL, layout: [21.5, 4, 2.5, 1.6],
+   height_m: 1.5, setup_min: 15}
+- {id: tcy-1, area: quality, name: 温度循环箱（−20 ~ 85 ℃）, name_en: Thermal cycling chamber, workstation: 温度循环箱 TCY, layout: [25.5, 3.5, 2.5, 2.2],
+   height_m: 2.0, capacity: 20, setup_min: 5}
+- {id: eft-1, area: quality, name: 编码器终检台（复测整圈误差曲线）, name_en: Encoder final test, workstation: 编码器终检台 EFT, layout: [29.5, 4, 2.5, 1.6],
+   height_m: 1.5, setup_min: 10}
+# 扭矩传感器线
+- {id: sg-1, area: machining, name: 应变片粘贴台（显微镜、压块）, name_en: Strain-gauge bonding bench, workstation: 应变片粘贴台 SG, layout: [4, 13, 2.5, 1.6],
+   height_m: 1.4, setup_min: 10}
+- {id: cur-1, area: machining, name: 应变胶固化炉, name_en: Adhesive cure oven, workstation: 固化炉 CUR, layout: [8.5, 13, 2, 1.6], height_m: 1.9, capacity: 20,
+   setup_min: 5}
+- {id: tb-1, area: machining, name: 组桥焊线台, name_en: Bridge wiring bench, workstation: 组桥焊线台 TB, layout: [12.5, 13, 2, 1.4], height_m: 1.4, setup_min: 5}
+- {id: tcp-1, area: quality, name: 温度补偿箱（测零点温漂、配补偿电阻）, name_en: Temperature compensation chamber, workstation: 温度补偿箱 TCP,
+   layout: [16.5, 12.5, 2.5, 2.2], height_m: 2.0, capacity: 10, setup_min: 5}
+- {id: dwt-1, area: quality, name: 砝码标定台（杠杆加载）, name_en: Dead-weight calibration rig, workstation: 砝码标定台 DWT, layout: [21, 13, 3, 2], height_m: 2.2,
+   setup_min: 15}
+- {id: tft-1, area: quality, name: 扭矩终检台, name_en: Torque sensor final test, workstation: 扭矩终检台 TFT, layout: [26, 13, 2.5, 1.6], height_m: 1.5,
+   setup_min: 10}
+# 共用
+- {id: pk-1, area: warehouse, name: 包装台（防静电）, name_en: Packing bench, workstation: 包装台 PK, layout: [5, 22, 2.5, 1.6], height_m: 1.0}
+- {id: store-s1, area: warehouse, name: 原材料库（码盘、应变片防潮存放）, name_en: Material store, layout: [12, 21.5, 4, 3.5], height_m: 2.2}
+- {id: store-s2, area: warehouse, name: 成品库, name_en: Finished goods store, layout: [18, 21.5, 3.5, 3.5], height_m: 2.2}
+- {id: agv-s1, area: logistics, name: 物流小车 1 号, name_en: AGV 1, home: [2, 9]}
+- {id: agv-s2, area: logistics, name: 物流小车 2 号, name_en: AGV 2, home: [2, 18]}
+dashboard: [iqc-1, dcl-1, cb-1, cb-2, hm-1, ecal-1, tcy-1, eft-1, sg-1, cur-1, tb-1, tcp-1, dwt-1, tft-1, pk-1]
+stores: {raw: store-s1, finished: store-s2}
+operations:
+- {name: 来料检验 Incoming inspection, workstation: 来料检验台 IQC, units: [iqc-1], stage: inspect, inspection: true}
+- {name: 码盘清洗 Disk cleaning, workstation: 码盘清洗台 DCL, units: [dcl-1], stage: other}
+- {name: 码盘粘接对心 Disk bonding & centering, workstation: 码盘粘接对心机 CB, units: [cb-1, cb-2], stage: assembly}
+- {name: 读头装调 Read-head mounting, workstation: 读头装调台 HM, units: [hm-1], stage: assembly}
+- {name: 精度标定 Accuracy calibration, workstation: 编码器标定台 ECAL, units: [ecal-1], stage: other}
+- {name: 温度循环 Thermal cycling, workstation: 温度循环箱 TCY, units: [tcy-1], stage: other}
+- {name: 编码器终检 Encoder final test, workstation: 编码器终检台 EFT, units: [eft-1], stage: inspect, inspection: true}
+- {name: 应变片粘贴 Gauge bonding, workstation: 应变片粘贴台 SG, units: [sg-1], stage: assembly}
+- {name: 胶固化 Adhesive cure, workstation: 固化炉 CUR, units: [cur-1], stage: other}
+- {name: 组桥焊线 Bridge wiring, workstation: 组桥焊线台 TB, units: [tb-1], stage: assembly}
+- {name: 温度补偿 Temperature compensation, workstation: 温度补偿箱 TCP, units: [tcp-1], stage: other}
+- {name: 砝码标定 Dead-weight calibration, workstation: 砝码标定台 DWT, units: [dwt-1], stage: other}
+- {name: 扭矩终检 Torque final test, workstation: 扭矩终检台 TFT, units: [tft-1], stage: inspect, inspection: true}
+- {name: 包装 Packing, workstation: 包装台 PK, units: [pk-1], stage: other}
+floor: {length_m: 36, width_m: 28, aisles_y: [9, 18], cross_x: 2}
+shift:
+  periods: [['08:00:00', '12:00:00'], ['13:00:00', '17:00:00']]
+  workdays: [0, 1, 2, 3, 4]
+  max_overtime_min: 180
+kpi: {on_time: 0.95, oee: 0.7, fpy: 0.96}
+suppliers:
+  # 准时率、合格率（教学模拟器）、交货期、来料检验项都是示例值
+  disk: {name: 示例·光栅码盘厂 Code Disk Maker (Demo), lead: 21, on_time: 0.92, pass: 0.98, cat_name: 码盘,
+         incoming: [{name: 码道外观 Track visual, text: 码道无划伤、无缺线、无污点（显微镜抽检）}, {name: 码盘内孔 Bore, unit: mm, lo: 6.000, hi: 6.012}]}
+  machining: {name: 示例·精密机加厂 Precision Machining (Demo), lead: 10, on_time: 0.93, pass: 0.98, cat_name: 机加件,
+              incoming: [{name: 轴套外圆跳动 Hub runout, unit: µm, lo: 0, hi: 3}]}
+  gauge: {name: 示例·应变片商 Strain Gauge Supplier (Demo), lead: 14, on_time: 0.95, pass: 0.99, cat_name: 应变片与胶,
+          incoming: [{name: 应变片阻值 Gauge resistance, unit: Ω, lo: 349.5, hi: 350.5}, {name: 有效期与冷藏 Shelf life, text: 应变胶在有效期内、冷藏到货}]}
+  electronics: {name: 示例·电子元件商 Electronics Supplier (Demo), lead: 7, on_time: 0.95, pass: 0.99, cat_name: 电子元件}
+  hardware: {name: 示例·标准件商 Fastener Supplier (Demo), lead: 3, on_time: 0.95, pass: 0.99, cat_name: 标准件}
+  packing: {name: 示例·包装材料商 Packaging Supplier (Demo), lead: 3, on_time: 0.95, pass: 0.99, cat_name: 包装材料}
+  # 工业园的问渠电路板厂（编码器读头板 ENC-RD，第 85 轮起它就写着“以后卖给传感器厂”）
+  pcb: {name: 问渠电路板厂 WenQuest Electronics (Demo), lead: 7, on_time: 0.95, pass: 0.995, cat_name: 电路板, park: wenquest-pcb,
+        incoming: [{name: 出厂测试报告 Test report, text: 每块板有功能测试记录、序列号与发货单一致}, {name: 防静电包装 ESD packing, text: 防静电袋完好}]}
+customers:
+- 示例·伺服电机厂 Servo Motor Maker (Demo)
+- 示例·协作机器人厂 Cobot Maker (Demo)
+- 示例·自动化设备厂 Automation Equipment Maker (Demo)
+items:
+# 编码器
+- {code: DISK-17, name: 光电码盘 Ø32 mm（玻璃，绝对码道 + 增量码道，外协，型号待确认） Optical code disk, kind: buy, uom: Nos, price: 9.0, supplier: disk,
+   note: 怕划伤、怕脏，戴指套拿边缘}
+- {code: HUB-ENC, name: 码盘轴套（不锈钢，外协机加） Disk hub, kind: buy, uom: Nos, price: 2.5, supplier: machining}
+- {code: HSG-ENC, name: 编码器壳体与盖（铝，外协机加） Encoder housing & cover, kind: buy, uom: Nos, price: 4.0, supplier: machining}
+- {code: BRG-ENC, name: 编码器轴承（小型深沟球轴承，型号待确认） Encoder bearing, kind: buy, uom: Nos, price: 1.2, supplier: hardware}
+- {code: GLUE-UV, name: 码盘粘接胶（紫外固化，型号待确认） UV disk adhesive, kind: raw, uom: Kg, price: 400, supplier: gauge}
+- {code: ENC-RD, name: 编码器读头板（问渠电路板厂，正余弦输出） Encoder read-head board, kind: buy, uom: Nos, price: 60, supplier: pcb}
+- {code: CABLE-ENC, name: 编码器线缆（屏蔽，带插头，型号待确认） Encoder cable, kind: buy, uom: Nos, price: 2.5, supplier: electronics}
+# 扭矩传感器
+- {code: BODY-TS, name: 扭矩传感器弹性体（17-4PH 不锈钢，外协机加，型号待确认） Torque sensor flexure, kind: buy, uom: Nos, price: 45, supplier: machining}
+- {code: SG-350, name: 应变片 350 Ω（剪切型双栅，型号待确认） Strain gauge 350 Ω, kind: buy, uom: Nos, price: 3.0, supplier: gauge}
+- {code: GLUE-SG, name: 应变胶（热固化环氧，型号待确认） Gauge adhesive, kind: raw, uom: Kg, price: 900, supplier: gauge, note: 冷藏；固化温度要够}
+- {code: RES-COMP, name: 补偿电阻套件（零点、温漂，型号待确认） Compensation resistor kit, kind: buy, uom: Nos, price: 0.8, supplier: electronics}
+- {code: SIG-TS, name: 信号调理板（仪表放大 + ADC，型号待确认） Signal conditioning board, kind: buy, uom: Nos, price: 22, supplier: electronics}
+- {code: CABLE-TS, name: 扭矩传感器线缆（屏蔽，型号待确认） Torque sensor cable, kind: buy, uom: Nos, price: 4.0, supplier: electronics}
+- {code: SCR-M3, name: 内六角螺钉 M3×8 Socket screw M3×8, kind: buy, uom: Nos, price: 0.04, supplier: hardware}
+- {code: BOX-S, name: 防静电包装盒 ESD box, kind: buy, uom: Nos, price: 0.6, supplier: packing}
+# 成品
+- {code: WQ-ENC17, name: 关节绝对值编码器 WQ-ENC17（光电、17 位单圈，示例） Joint absolute encoder, kind: fg, uom: Nos,
+   note: 读头板来自问渠电路板厂；卖给问渠机器人厂（它的 ENC-ABS）}
+- {code: WQ-TS, name: 关节扭矩传感器 WQ-TS（应变片全桥，量程 ±200 N·m，示例） Joint torque sensor, kind: fg, uom: Nos}
+routings:
+- name: RT-编码器 Encoder
+  steps: [[来料检验 Incoming inspection, 5], [码盘清洗 Disk cleaning, 5], [码盘粘接对心 Disk bonding & centering, 30], [读头装调 Read-head mounting, 20],
+          [精度标定 Accuracy calibration, 30], [温度循环 Thermal cycling, 240], [编码器终检 Encoder final test, 15], [包装 Packing, 5]]
+- name: RT-扭矩传感器 Torque sensor
+  steps: [[来料检验 Incoming inspection, 5], [应变片粘贴 Gauge bonding, 45], [胶固化 Adhesive cure, 180], [组桥焊线 Bridge wiring, 40],
+          [温度补偿 Temperature compensation, 240], [砝码标定 Dead-weight calibration, 45], [扭矩终检 Torque final test, 15], [包装 Packing, 5]]
+boms:
+- item: WQ-ENC17
+  routing: RT-编码器 Encoder
+  components: [[DISK-17, 1], [HUB-ENC, 1], [HSG-ENC, 1], [BRG-ENC, 2], [GLUE-UV, 0.0005], [ENC-RD, 1], [CABLE-ENC, 1], [SCR-M3, 4], [BOX-S, 1]]
+- item: WQ-TS
+  routing: RT-扭矩传感器 Torque sensor
+  components: [[BODY-TS, 1], [SG-350, 4], [GLUE-SG, 0.0003], [RES-COMP, 1], [SIG-TS, 1], [CABLE-TS, 1], [SCR-M3, 6], [BOX-S, 1]]
+products:
+- {item: WQ-ENC17, price: 120}
+- {item: WQ-TS, price: 320}
+stock:
+  # 期初库存（示例值）：编码器大约够做 60 台、扭矩传感器 30 台；读头板期初等于安全库存，用掉就向电路板厂补（工业园买卖演练能走到）
+  opening: {DISK-17: 60, HUB-ENC: 60, HSG-ENC: 60, BRG-ENC: 120, GLUE-UV: 0.05, ENC-RD: 20, CABLE-ENC: 60, BODY-TS: 30, SG-350: 130, GLUE-SG: 0.02,
+            RES-COMP: 40, SIG-TS: 30, CABLE-TS: 30, SCR-M3: 600, BOX-S: 100}
+  safety: {DISK-17: 10, ENC-RD: 20, BODY-TS: 5, SG-350: 20, SIG-TS: 5}
+key_materials: [DISK-17, ENC-RD, BODY-TS, SG-350]
+measurements:
+# 编码器：终检时在基准编码器上复测整圈误差曲线（4096 点）、读头信号幅值；前四项由曲线算出（见“编码器误差曲线”页）
+- item: WQ-ENC17
+  operation: 编码器终检 Encoder final test
+  chars:
+  - {code: enc_acc, name: 精度（整圈误差峰峰值）, unit: '″', nominal: 50, lo: 0, hi: 100, sigma: 6}
+  - {code: enc_h1, name: 一次谐波（偏心）幅值, unit: '″', nominal: 12, lo: 0, hi: 30, sigma: 3}
+  - {code: enc_interp, name: 细分误差（峰峰值）, unit: '″', nominal: 8, lo: 0, hi: 20, sigma: 1}
+  - {code: enc_amp, name: 信号幅值（平均，额定 = 100 %）, unit: '%', nominal: 100, lo: 80, hi: 120, sigma: 3}
+  - {code: enc_amp_min, name: 信号幅值（整圈最低）, unit: '%', nominal: 95, lo: 70, hi: 120, sigma: 3}
+# 扭矩传感器：砝码标定（加载、卸载各 5 级）后在终检台复测；都按满量程（FS）的百分数
+- item: WQ-TS
+  operation: 扭矩终检 Torque final test
+  chars:
+  - {code: ts_nonlin, name: 非线性, unit: '%FS', nominal: 0.10, lo: 0, hi: 0.30, sigma: 0.02}
+  - {code: ts_hyst, name: 滞后, unit: '%FS', nominal: 0.08, lo: 0, hi: 0.25, sigma: 0.015}
+  - {code: ts_zero, name: 零点输出, unit: '%FS', nominal: 0, lo: -0.5, hi: 0.5, sigma: 0.1}
+  - {code: ts_creep, name: 蠕变（满量程保持 30 min）, unit: '%FS', nominal: 0.03, lo: 0, hi: 0.10, sigma: 0.008}
+  - {code: ts_tczero, name: 零点温漂（每 10 K）, unit: '%FS', nominal: 0.05, lo: 0, hi: 0.15, sigma: 0.012}
