@@ -1,0 +1,4194 @@
+# 工厂清单（ADR-0064；第 2 版见问渠第 45 轮）。改完用 python -m factory.plant check 本文件 校验。
+# 问渠缝纫机厂（第 134 轮）：按《缝纫机厂工艺方案》（docs/方案/缝纫机厂工艺方案.md）建的整机厂——
+#   ① 机壳铸造（熔炼、制芯、造型、浇注、冷却、落砂、清理、第一次时效、腻子底漆、铸件检验）
+#   ② 机壳加工（平缝机壳线、包缝机壳线：粗铣底面 → 粗加工 → 第二次时效 → 精铣底面铰销孔 → 钻攻 → 精镗孔系一次装夹 → 去毛刺 → 清洗 → 三坐标、终检 → 面漆烘干）
+#   ③ 关键零件（轴、针杆、旋梭、偏心）④ 平缝机装配（节拍 2.4 min）⑤ 包缝机装配（节拍 7.2 min）、计量室、库房
+# 产品：工业直驱平缝机 WQ-LS、四线包缝机 WQ-OL。外购件写通用名称 +“型号待确认”；单价、工时、费率、公差、名义值、散布、车间尺寸都是示例值。
+# 本文件由脚本生成后手工维护；ERPNext 一种物料一张检验模板，所以每种物料的测量都记在它最后一道检验工序上（名称里写了在哪台设备测的）。
+version: 2
+id: wenquest-sewing
+demo_data: false
+company:
+  name: 问渠缝纫机厂 WenQuest Sewing Machines (Demo)
+  abbr: WQSW
+  country: United States
+  currency: USD
+  timezone: America/New_York
+workstations:
+- name: 配料加料 CHG
+  count: 1
+  cost:
+  - 3
+  - 26
+  - 2
+- name: 中频感应电炉 IND
+  count: 2
+  cost:
+  - 30
+  - 52
+  - 160
+- name: 炉前分析室 LAB-M
+  count: 1
+  cost:
+  - 6
+  - 30
+  - 1
+- name: 砂处理 SAND
+  count: 2
+  cost:
+  - 14
+  - 26
+  - 18
+- name: 型砂实验室 LAB-S
+  count: 1
+  cost:
+  - 2
+  - 30
+  - 0.5
+- name: 射芯机 CORE
+  count: 3
+  cost:
+  - 8
+  - 26
+  - 6
+- name: 砂芯检验台 CQ
+  count: 1
+  cost:
+  - 1
+  - 26
+  - 0.2
+- name: 造型线 MOLD
+  count: 1
+  cost:
+  - 60
+  - 156
+  - 25
+- name: 自动浇注机 POUR
+  count: 1
+  cost:
+  - 16
+  - 52
+  - 4
+- name: 冷却线 COOL
+  count: 1
+  cost:
+  - 10
+  - 0
+  - 3
+- name: 落砂机 SO
+  count: 1
+  cost:
+  - 6
+  - 26
+  - 6
+- name: 去浇冒口 GATE
+  count: 1
+  cost:
+  - 1
+  - 26
+  - 0.5
+- name: 抛丸机 SHOT
+  count: 1
+  cost:
+  - 10
+  - 26
+  - 8
+- name: 振动清砂 VIB
+  count: 1
+  cost:
+  - 4
+  - 26
+  - 3
+- name: 打磨工位 FET
+  count: 3
+  cost:
+  - 1
+  - 26
+  - 1.5
+- name: 时效炉 AGE
+  count: 1
+  cost:
+  - 18
+  - 10
+  - 30
+- name: 刮腻子工位 PUT
+  count: 2
+  cost:
+  - 1
+  - 26
+  - 0.3
+- name: 底漆喷房 PRIME
+  count: 1
+  cost:
+  - 5
+  - 26
+  - 3
+- name: 理化室 LAB-P
+  count: 1
+  cost:
+  - 8
+  - 30
+  - 1
+- name: 铸件检验台 CI
+  count: 1
+  cost:
+  - 1
+  - 28
+  - 0.2
+- name: 毛坯检验台 IQC
+  count: 1
+  cost:
+  - 1
+  - 28
+  - 0.2
+- name: 立式加工中心 VMC-H
+  count: 4
+  cost:
+  - 20
+  - 30
+  - 6
+  power:
+  - 15.0
+  - 0.85
+- name: 卧式加工中心 HMC
+  count: 7
+  cost:
+  - 42
+  - 30
+  - 10
+  power:
+  - 22.0
+  - 0.85
+- name: 钻攻中心 TAP
+  count: 4
+  cost:
+  - 14
+  - 30
+  - 4
+  power:
+  - 7.5
+  - 0.85
+- name: 去毛刺工位 DEB
+  count: 3
+  cost:
+  - 1
+  - 26
+  - 0.5
+- name: 清洗机 WASH-H
+  count: 1
+  cost:
+  - 8
+  - 20
+  - 18
+- name: 渗漏试验台 LEAK
+  count: 1
+  cost:
+  - 2
+  - 28
+  - 0.3
+- name: 三坐标测量机 CMM
+  count: 1
+  cost:
+  - 12
+  - 34
+  - 1
+- name: 机壳终检站 QC-H
+  count: 1
+  cost:
+  - 2
+  - 30
+  - 0.3
+- name: 面漆喷房 PAINT
+  count: 1
+  cost:
+  - 6
+  - 26
+  - 4
+- name: 烘道 OVEN
+  count: 1
+  cost:
+  - 8
+  - 0
+  - 22
+- name: 计量室 CMM-R
+  count: 4
+  cost:
+  - 10
+  - 34
+  - 1
+- name: 带锯床 SAW
+  count: 2
+  cost:
+  - 3
+  - 26
+  - 2
+- name: 数控车床 CNC
+  count: 10
+  cost:
+  - 10
+  - 30
+  - 4
+  power:
+  - 11.0
+  - 0.85
+- name: 立式加工中心 VMC-P
+  count: 2
+  cost:
+  - 16
+  - 30
+  - 5
+  power:
+  - 11.0
+  - 0.85
+- name: 调质炉 QT
+  count: 1
+  cost:
+  - 10
+  - 10
+  - 25
+- name: 渗碳淬火线 CAR
+  count: 1
+  cost:
+  - 26
+  - 20
+  - 45
+- name: 高频淬火机 IHD
+  count: 1
+  cost:
+  - 10
+  - 28
+  - 20
+- name: 校直机 STR
+  count: 1
+  cost:
+  - 2
+  - 28
+  - 1
+- name: 外圆磨床 GRD-C
+  count: 4
+  cost:
+  - 16
+  - 30
+  - 5
+  power:
+  - 7.5
+  - 0.85
+- name: 无心磨床 GRD-L
+  count: 1
+  cost:
+  - 14
+  - 30
+  - 5
+  power:
+  - 11.0
+  - 0.85
+- name: 内圆磨床 GRD-I
+  count: 1
+  cost:
+  - 14
+  - 30
+  - 4
+  power:
+  - 5.5
+  - 0.85
+- name: 数控凸轮磨床 GRD-K
+  count: 2
+  cost:
+  - 30
+  - 30
+  - 6
+  power:
+  - 7.5
+  - 0.85
+- name: 梭道磨床 GRD-H
+  count: 2
+  cost:
+  - 26
+  - 30
+  - 5
+  power:
+  - 5.5
+  - 0.85
+- name: 梭尖研磨机 LAP
+  count: 2
+  cost:
+  - 8
+  - 30
+  - 1
+- name: 零件清洗机 WASH-P
+  count: 1
+  cost:
+  - 4
+  - 20
+  - 6
+- name: 零件检验站 QC-P
+  count: 1
+  cost:
+  - 2
+  - 30
+  - 0.3
+- name: 分装台 SUB-L
+  count: 4
+  cost:
+  - 1
+  - 26
+  - 0.3
+- name: 平缝机总装线 ASM-L
+  count: 12
+  cost:
+  - 3
+  - 26
+  - 0.5
+- name: 调试工位 ADJ-L
+  count: 5
+  cost:
+  - 1
+  - 28
+  - 0.2
+- name: 跑合台 RUN-L
+  count: 15
+  cost:
+  - 0.5
+  - 0
+  - 0.6
+- name: 出厂测试台 EOL-L
+  count: 3
+  cost:
+  - 3
+  - 28
+  - 0.5
+- name: 包装台 PK-L
+  count: 1
+  cost:
+  - 0.5
+  - 24
+  - 0.2
+- name: 分装台 SUB-O
+  count: 2
+  cost:
+  - 1
+  - 26
+  - 0.3
+- name: 包缝机总装线 ASM-O
+  count: 6
+  cost:
+  - 3
+  - 26
+  - 0.5
+- name: 调试工位 ADJ-O
+  count: 3
+  cost:
+  - 1
+  - 28
+  - 0.2
+- name: 跑合台 RUN-O
+  count: 6
+  cost:
+  - 0.5
+  - 0
+  - 0.6
+- name: 出厂测试台 EOL-O
+  count: 1
+  cost:
+  - 3
+  - 28
+  - 0.5
+- name: 包装台 PK-O
+  count: 1
+  cost:
+  - 0.5
+  - 24
+  - 0.2
+units:
+- id: chg-1
+  area: machining
+  name: 配料秤与加料车
+  name_en: Charge scale & feeder
+  workstation: 配料加料 CHG
+  layout:
+  - 4
+  - 4
+  - 4
+  - 3
+  height_m: 2.5
+- id: ind-1
+  area: machining
+  name: 1 t 中频感应电炉 1 号
+  name_en: Induction furnace 1 t no.1
+  workstation: 中频感应电炉 IND
+  layout:
+  - 10
+  - 4
+  - 4
+  - 4
+  height_m: 3.0
+  capacity: 4
+- id: ind-2
+  area: machining
+  name: 1 t 中频感应电炉 2 号
+  name_en: Induction furnace 1 t no.2
+  workstation: 中频感应电炉 IND
+  layout:
+  - 16
+  - 4
+  - 4
+  - 4
+  height_m: 3.0
+  capacity: 4
+- id: lab-1
+  area: quality
+  name: 炉前分析室（直读光谱仪、热分析仪）
+  name_en: Melt lab (spectrometer, thermal analysis)
+  workstation: 炉前分析室 LAB-M
+  layout:
+  - 22
+  - 4
+  - 4
+  - 3
+  height_m: 2.6
+- id: pour-1
+  area: machining
+  name: 自动浇注机（随流孕育）
+  name_en: Automatic pouring unit (stream inoculation)
+  workstation: 自动浇注机 POUR
+  layout:
+  - 28
+  - 4
+  - 4
+  - 3
+  height_m: 3.2
+- id: mold-1
+  area: machining
+  name: 水平分型脱箱射压造型线
+  name_en: Flaskless horizontal moulding line
+  workstation: 造型线 MOLD
+  layout:
+  - 34
+  - 4
+  - 16
+  - 5
+  height_m: 3.5
+- id: cool-1
+  area: machining
+  name: 铸型冷却线
+  name_en: Mould cooling line
+  workstation: 冷却线 COOL
+  layout:
+  - 52
+  - 4
+  - 18
+  - 4
+  height_m: 2.0
+  capacity: 80
+- id: core-1
+  area: machining
+  name: 覆膜砂射芯机 1 号
+  name_en: Shell core shooter no.1
+  workstation: 射芯机 CORE
+  layout:
+  - 4
+  - 12
+  - 3
+  - 3
+  height_m: 2.8
+- id: core-2
+  area: machining
+  name: 覆膜砂射芯机 2 号
+  name_en: Shell core shooter no.2
+  workstation: 射芯机 CORE
+  layout:
+  - 9
+  - 12
+  - 3
+  - 3
+  height_m: 2.8
+- id: core-3
+  area: machining
+  name: 覆膜砂射芯机 3 号
+  name_en: Shell core shooter no.3
+  workstation: 射芯机 CORE
+  layout:
+  - 14
+  - 12
+  - 3
+  - 3
+  height_m: 2.8
+- id: cq-1
+  area: quality
+  name: 砂芯修整检验台
+  name_en: Core finishing & check bench
+  workstation: 砂芯检验台 CQ
+  layout:
+  - 19
+  - 12
+  - 3
+  - 2
+  height_m: 1.0
+- id: mix-1
+  area: machining
+  name: 转子混砂机
+  name_en: Rotor sand mixer
+  workstation: 砂处理 SAND
+  layout:
+  - 24
+  - 12
+  - 4
+  - 4
+  height_m: 4.0
+- id: sand-1
+  area: machining
+  name: 旧砂处理（磁选、破碎、筛分、冷却）
+  name_en: Sand reclamation
+  workstation: 砂处理 SAND
+  layout:
+  - 30
+  - 12
+  - 8
+  - 4
+  height_m: 5.0
+- id: lab-2
+  area: quality
+  name: 型砂实验室
+  name_en: Sand lab
+  workstation: 型砂实验室 LAB-S
+  layout:
+  - 40
+  - 12
+  - 3
+  - 3
+  height_m: 2.6
+- id: so-1
+  area: machining
+  name: 振动落砂机
+  name_en: Vibrating shakeout
+  workstation: 落砂机 SO
+  layout:
+  - 45
+  - 12
+  - 4
+  - 3
+  height_m: 1.8
+- id: gate-1
+  area: machining
+  name: 去浇冒口工位
+  name_en: Degating station
+  workstation: 去浇冒口 GATE
+  layout:
+  - 4
+  - 19
+  - 3
+  - 3
+  height_m: 1.2
+- id: shot-1
+  area: machining
+  name: 吊钩式抛丸机
+  name_en: Hanger shot-blast machine
+  workstation: 抛丸机 SHOT
+  layout:
+  - 9
+  - 19
+  - 5
+  - 4
+  height_m: 5.0
+  capacity: 6
+- id: vib-1
+  area: machining
+  name: 振动清砂机（内腔芯砂）
+  name_en: Vibratory core knockout
+  workstation: 振动清砂 VIB
+  layout:
+  - 16
+  - 19
+  - 3
+  - 3
+  height_m: 2.0
+- id: fet-1
+  area: machining
+  name: 打磨工位 1 号
+  name_en: Fettling station 1
+  workstation: 打磨工位 FET
+  layout:
+  - 21
+  - 19
+  - 3
+  - 2
+  height_m: 1.5
+- id: fet-2
+  area: machining
+  name: 打磨工位 2 号
+  name_en: Fettling station 2
+  workstation: 打磨工位 FET
+  layout:
+  - 26
+  - 19
+  - 3
+  - 2
+  height_m: 1.5
+- id: fet-3
+  area: machining
+  name: 打磨工位 3 号
+  name_en: Fettling station 3
+  workstation: 打磨工位 FET
+  layout:
+  - 31
+  - 19
+  - 3
+  - 2
+  height_m: 1.5
+- id: age-1
+  area: machining
+  name: 台车式时效炉（铸件第一次、机壳第二次时效）
+  name_en: Bogie stress-relief furnace
+  workstation: 时效炉 AGE
+  layout:
+  - 36
+  - 19
+  - 6
+  - 5
+  height_m: 3.5
+  capacity: 100
+- id: put-1
+  area: machining
+  name: 刮腻子打磨工位 1 号
+  name_en: Putty station 1
+  workstation: 刮腻子工位 PUT
+  layout:
+  - 4
+  - 27
+  - 3
+  - 2
+  height_m: 1.5
+- id: put-2
+  area: machining
+  name: 刮腻子打磨工位 2 号
+  name_en: Putty station 2
+  workstation: 刮腻子工位 PUT
+  layout:
+  - 9
+  - 27
+  - 3
+  - 2
+  height_m: 1.5
+- id: prime-1
+  area: machining
+  name: 底漆喷房
+  name_en: Primer booth
+  workstation: 底漆喷房 PRIME
+  layout:
+  - 14
+  - 27
+  - 5
+  - 4
+  height_m: 3.5
+  capacity: 2
+- id: lab-3
+  area: quality
+  name: 理化室（拉伸试验机、硬度计、金相显微镜）
+  name_en: Test lab (tensile, hardness, metallography)
+  workstation: 理化室 LAB-P
+  layout:
+  - 21
+  - 27
+  - 4
+  - 3
+  height_m: 2.6
+- id: ci-1
+  area: quality
+  name: 铸件检验台
+  name_en: Casting inspection bench
+  workstation: 铸件检验台 CI
+  layout:
+  - 27
+  - 27
+  - 3
+  - 2
+  height_m: 1.0
+- id: iqc-1
+  area: quality
+  name: 毛坯检验台
+  name_en: Casting receiving inspection
+  workstation: 毛坯检验台 IQC
+  layout:
+  - 86
+  - 4
+  - 3
+  - 2
+  height_m: 1.0
+- id: vmc-1
+  area: machining
+  name: 立式加工中心 1 号（平缝机壳）
+  name_en: VMC 1 (LS housing)
+  workstation: 立式加工中心 VMC-H
+  layout:
+  - 91
+  - 4
+  - 3
+  - 2.6
+  height_m: 2.6
+- id: vmc-2
+  area: machining
+  name: 立式加工中心 2 号（平缝机壳）
+  name_en: VMC 2 (LS housing)
+  workstation: 立式加工中心 VMC-H
+  layout:
+  - 96
+  - 4
+  - 3
+  - 2.6
+  height_m: 2.6
+- id: vmc-3
+  area: machining
+  name: 立式加工中心 3 号（平缝机壳）
+  name_en: VMC 3 (LS housing)
+  workstation: 立式加工中心 VMC-H
+  layout:
+  - 101
+  - 4
+  - 3
+  - 2.6
+  height_m: 2.6
+- id: vmc-4
+  area: machining
+  name: 立式加工中心 4 号（包缝机壳）
+  name_en: VMC 4 (OL housing)
+  workstation: 立式加工中心 VMC-H
+  layout:
+  - 106
+  - 4
+  - 3
+  - 2.6
+  height_m: 2.6
+- id: hmc-1
+  area: machining
+  name: 卧式加工中心 1 号（平缝机壳）
+  name_en: HMC 1 (LS housing)
+  workstation: 卧式加工中心 HMC
+  layout:
+  - 86
+  - 9.6
+  - 4.5
+  - 4
+  height_m: 3.0
+- id: hmc-2
+  area: machining
+  name: 卧式加工中心 2 号（平缝机壳）
+  name_en: HMC 2 (LS housing)
+  workstation: 卧式加工中心 HMC
+  layout:
+  - 92.5
+  - 9.6
+  - 4.5
+  - 4
+  height_m: 3.0
+- id: hmc-3
+  area: machining
+  name: 卧式加工中心 3 号（平缝机壳）
+  name_en: HMC 3 (LS housing)
+  workstation: 卧式加工中心 HMC
+  layout:
+  - 99.0
+  - 9.6
+  - 4.5
+  - 4
+  height_m: 3.0
+- id: hmc-4
+  area: machining
+  name: 卧式加工中心 4 号（平缝机壳）
+  name_en: HMC 4 (LS housing)
+  workstation: 卧式加工中心 HMC
+  layout:
+  - 105.5
+  - 9.6
+  - 4.5
+  - 4
+  height_m: 3.0
+- id: hmc-5
+  area: machining
+  name: 卧式加工中心 5 号（平缝机壳）
+  name_en: HMC 5 (LS housing)
+  workstation: 卧式加工中心 HMC
+  layout:
+  - 112.0
+  - 9.6
+  - 4.5
+  - 4
+  height_m: 3.0
+- id: hmc-6
+  area: machining
+  name: 卧式加工中心 6 号（包缝机壳）
+  name_en: HMC 6 (OL housing)
+  workstation: 卧式加工中心 HMC
+  layout:
+  - 118.5
+  - 9.6
+  - 4.5
+  - 4
+  height_m: 3.0
+- id: hmc-7
+  area: machining
+  name: 卧式加工中心 7 号（包缝机壳）
+  name_en: HMC 7 (OL housing)
+  workstation: 卧式加工中心 HMC
+  layout:
+  - 125.0
+  - 9.6
+  - 4.5
+  - 4
+  height_m: 3.0
+- id: tap-1
+  area: machining
+  name: 钻攻中心 1 号（平缝机壳，四轴）
+  name_en: Tapping centre 1 (LS, 4-axis)
+  workstation: 钻攻中心 TAP
+  layout:
+  - 86
+  - 16.6
+  - 2.4
+  - 2.4
+  height_m: 2.4
+- id: tap-2
+  area: machining
+  name: 钻攻中心 2 号（平缝机壳，四轴）
+  name_en: Tapping centre 2 (LS, 4-axis)
+  workstation: 钻攻中心 TAP
+  layout:
+  - 90.4
+  - 16.6
+  - 2.4
+  - 2.4
+  height_m: 2.4
+- id: tap-3
+  area: machining
+  name: 钻攻中心 3 号（平缝机壳，四轴）
+  name_en: Tapping centre 3 (LS, 4-axis)
+  workstation: 钻攻中心 TAP
+  layout:
+  - 94.8
+  - 16.6
+  - 2.4
+  - 2.4
+  height_m: 2.4
+- id: tap-4
+  area: machining
+  name: 钻攻中心 4 号（包缝机壳，四轴）
+  name_en: Tapping centre 4 (OL, 4-axis)
+  workstation: 钻攻中心 TAP
+  layout:
+  - 99.2
+  - 16.6
+  - 2.4
+  - 2.4
+  height_m: 2.4
+- id: deb-1
+  area: machining
+  name: 去毛刺工位 1 号（平缝）
+  name_en: Deburring 1 (LS)
+  workstation: 去毛刺工位 DEB
+  layout:
+  - 103.6
+  - 16.6
+  - 2.5
+  - 2
+  height_m: 1.5
+- id: deb-2
+  area: machining
+  name: 去毛刺工位 2 号（平缝）
+  name_en: Deburring 2 (LS)
+  workstation: 去毛刺工位 DEB
+  layout:
+  - 108.1
+  - 16.6
+  - 2.5
+  - 2
+  height_m: 1.5
+- id: deb-3
+  area: machining
+  name: 去毛刺工位 3 号（包缝）
+  name_en: Deburring 3 (OL)
+  workstation: 去毛刺工位 DEB
+  layout:
+  - 112.6
+  - 16.6
+  - 2.5
+  - 2
+  height_m: 1.5
+- id: wash-1
+  area: machining
+  name: 通过式机壳清洗机（定点高压冲洗、热风吹干）
+  name_en: Through-feed housing washer
+  workstation: 清洗机 WASH-H
+  layout:
+  - 86
+  - 22.0
+  - 10
+  - 3
+  height_m: 2.6
+  capacity: 4
+- id: leak-1
+  area: quality
+  name: 渗漏试验台（包缝机壳油池）
+  name_en: Leak test bench (OL oil sump)
+  workstation: 渗漏试验台 LEAK
+  layout:
+  - 98
+  - 22.0
+  - 3
+  - 2
+  height_m: 1.6
+- id: qc-1
+  area: quality
+  name: 机壳终检站（气动量仪、综合检具）
+  name_en: Housing final inspection (air gauges, check fixture)
+  workstation: 机壳终检站 QC-H
+  layout:
+  - 103
+  - 22.0
+  - 4
+  - 3
+  height_m: 1.5
+- id: paint-1
+  area: machining
+  name: 面漆喷房（遮蔽后喷涂）
+  name_en: Top-coat booth
+  workstation: 面漆喷房 PAINT
+  layout:
+  - 109
+  - 22.0
+  - 6
+  - 4
+  height_m: 3.5
+  capacity: 2
+- id: oven-1
+  area: machining
+  name: 烘道（低温烘干 ≤ 80 ℃）
+  name_en: Low-temperature curing oven
+  workstation: 烘道 OVEN
+  layout:
+  - 117
+  - 22.0
+  - 16
+  - 3
+  height_m: 3.0
+  capacity: 30
+- id: cmm-1
+  area: quality
+  name: 三坐标测量机（计量室，恒温 20 ± 1 ℃）
+  name_en: CMM (metrology room)
+  workstation: 三坐标测量机 CMM
+  layout:
+  - 166
+  - 4
+  - 4
+  - 3
+  height_m: 3.0
+- id: cmm-2
+  area: quality
+  name: 凸轮 / 偏心测量仪
+  name_en: Cam & eccentric gauge
+  workstation: 计量室 CMM-R
+  layout:
+  - 172
+  - 4
+  - 3
+  - 2
+  height_m: 2.0
+- id: cmm-3
+  area: quality
+  name: 圆度仪
+  name_en: Roundness tester
+  workstation: 计量室 CMM-R
+  layout:
+  - 177
+  - 4
+  - 2
+  - 2
+  height_m: 2.0
+- id: cmm-4
+  area: quality
+  name: 粗糙度轮廓仪
+  name_en: Surface roughness & contour tester
+  workstation: 计量室 CMM-R
+  layout:
+  - 181
+  - 4
+  - 2
+  - 2
+  height_m: 1.6
+- id: cmm-5
+  area: quality
+  name: 清洁度分析（过滤称重 + 显微镜）
+  name_en: Cleanliness analysis
+  workstation: 计量室 CMM-R
+  layout:
+  - 185
+  - 4
+  - 2
+  - 2
+  height_m: 1.6
+- id: saw-1
+  area: machining
+  name: 带锯床 1 号
+  name_en: Band saw 1
+  workstation: 带锯床 SAW
+  layout:
+  - 86
+  - 58
+  - 3
+  - 1.5
+  height_m: 1.4
+- id: saw-2
+  area: machining
+  name: 带锯床 2 号
+  name_en: Band saw 2
+  workstation: 带锯床 SAW
+  layout:
+  - 91
+  - 58
+  - 3
+  - 1.5
+  height_m: 1.4
+- id: cnc-1
+  area: machining
+  name: 数控车床 1 号
+  name_en: CNC lathe 1
+  workstation: 数控车床 CNC
+  layout:
+  - 96
+  - 58
+  - 3
+  - 1.8
+  height_m: 1.9
+- id: cnc-2
+  area: machining
+  name: 数控车床 2 号
+  name_en: CNC lathe 2
+  workstation: 数控车床 CNC
+  layout:
+  - 101
+  - 58
+  - 3
+  - 1.8
+  height_m: 1.9
+- id: cnc-3
+  area: machining
+  name: 数控车床 3 号
+  name_en: CNC lathe 3
+  workstation: 数控车床 CNC
+  layout:
+  - 106
+  - 58
+  - 3
+  - 1.8
+  height_m: 1.9
+- id: cnc-4
+  area: machining
+  name: 数控车床 4 号
+  name_en: CNC lathe 4
+  workstation: 数控车床 CNC
+  layout:
+  - 111
+  - 58
+  - 3
+  - 1.8
+  height_m: 1.9
+- id: cnc-5
+  area: machining
+  name: 数控车床 5 号
+  name_en: CNC lathe 5
+  workstation: 数控车床 CNC
+  layout:
+  - 116
+  - 58
+  - 3
+  - 1.8
+  height_m: 1.9
+- id: cnc-6
+  area: machining
+  name: 数控车床 6 号
+  name_en: CNC lathe 6
+  workstation: 数控车床 CNC
+  layout:
+  - 121
+  - 58
+  - 3
+  - 1.8
+  height_m: 1.9
+- id: cnc-7
+  area: machining
+  name: 数控车床 7 号
+  name_en: CNC lathe 7
+  workstation: 数控车床 CNC
+  layout:
+  - 126
+  - 58
+  - 3
+  - 1.8
+  height_m: 1.9
+- id: cnc-8
+  area: machining
+  name: 数控车床 8 号
+  name_en: CNC lathe 8
+  workstation: 数控车床 CNC
+  layout:
+  - 131
+  - 58
+  - 3
+  - 1.8
+  height_m: 1.9
+- id: cnc-9
+  area: machining
+  name: 数控车床 9 号
+  name_en: CNC lathe 9
+  workstation: 数控车床 CNC
+  layout:
+  - 136
+  - 58
+  - 3
+  - 1.8
+  height_m: 1.9
+- id: cnc-10
+  area: machining
+  name: 数控车床 10 号
+  name_en: CNC lathe 10
+  workstation: 数控车床 CNC
+  layout:
+  - 141
+  - 58
+  - 3
+  - 1.8
+  height_m: 1.9
+- id: vmc-5
+  area: machining
+  name: 立式加工中心 5 号（零件：铣扁、键槽、梭道）
+  name_en: VMC 5 (parts)
+  workstation: 立式加工中心 VMC-P
+  layout:
+  - 86
+  - 62.8
+  - 3
+  - 2.6
+  height_m: 2.6
+- id: vmc-6
+  area: machining
+  name: 立式加工中心 6 号（零件）
+  name_en: VMC 6 (parts)
+  workstation: 立式加工中心 VMC-P
+  layout:
+  - 91
+  - 62.8
+  - 3
+  - 2.6
+  height_m: 2.6
+- id: qt-1
+  area: machining
+  name: 调质炉（淬火 + 高温回火）
+  name_en: Hardening & tempering furnace
+  workstation: 调质炉 QT
+  layout:
+  - 96
+  - 62.8
+  - 5
+  - 4
+  height_m: 3.5
+  capacity: 60
+- id: car-1
+  area: machining
+  name: 连续式网带渗碳淬火线（旋梭、偏心、针杆）
+  name_en: Continuous mesh-belt carburising line
+  workstation: 渗碳淬火线 CAR
+  layout:
+  - 103
+  - 62.8
+  - 16
+  - 3
+  height_m: 3.5
+  capacity: 80
+- id: ihd-1
+  area: machining
+  name: 高频淬火机（轴颈）
+  name_en: Induction hardening machine
+  workstation: 高频淬火机 IHD
+  layout:
+  - 121
+  - 62.8
+  - 3
+  - 2.5
+  height_m: 2.6
+- id: str-1
+  area: machining
+  name: 校直机
+  name_en: Straightening press
+  workstation: 校直机 STR
+  layout:
+  - 126
+  - 62.8
+  - 2.5
+  - 2
+  height_m: 2.0
+- id: grd-1
+  area: machining
+  name: 外圆磨床 1 号
+  name_en: Cylindrical grinder 1
+  workstation: 外圆磨床 GRD-C
+  layout:
+  - 86
+  - 69.8
+  - 4
+  - 2.2
+  height_m: 1.8
+- id: grd-2
+  area: machining
+  name: 外圆磨床 2 号
+  name_en: Cylindrical grinder 2
+  workstation: 外圆磨床 GRD-C
+  layout:
+  - 92
+  - 69.8
+  - 4
+  - 2.2
+  height_m: 1.8
+- id: grd-3
+  area: machining
+  name: 外圆磨床 3 号
+  name_en: Cylindrical grinder 3
+  workstation: 外圆磨床 GRD-C
+  layout:
+  - 98
+  - 69.8
+  - 4
+  - 2.2
+  height_m: 1.8
+- id: grd-4
+  area: machining
+  name: 外圆磨床 4 号
+  name_en: Cylindrical grinder 4
+  workstation: 外圆磨床 GRD-C
+  layout:
+  - 104
+  - 69.8
+  - 4
+  - 2.2
+  height_m: 1.8
+- id: grd-5
+  area: machining
+  name: 无心磨床（针杆）
+  name_en: Centreless grinder
+  workstation: 无心磨床 GRD-L
+  layout:
+  - 110
+  - 69.8
+  - 3.5
+  - 2.2
+  height_m: 1.8
+- id: grd-6
+  area: machining
+  name: 内圆磨床（偏心内孔、端面）
+  name_en: Internal grinder
+  workstation: 内圆磨床 GRD-I
+  layout:
+  - 115.5
+  - 69.8
+  - 3.5
+  - 2
+  height_m: 1.8
+- id: grd-7
+  area: machining
+  name: 数控凸轮磨床 1 号（偏心、凸轮）
+  name_en: CNC cam grinder 1
+  workstation: 数控凸轮磨床 GRD-K
+  layout:
+  - 121.0
+  - 69.8
+  - 4
+  - 2.4
+  height_m: 2.0
+- id: grd-8
+  area: machining
+  name: 数控凸轮磨床 2 号
+  name_en: CNC cam grinder 2
+  workstation: 数控凸轮磨床 GRD-K
+  layout:
+  - 127.0
+  - 69.8
+  - 4
+  - 2.4
+  height_m: 2.0
+- id: grd-9
+  area: machining
+  name: 梭道磨床 1 号（旋梭）
+  name_en: Hook raceway grinder 1
+  workstation: 梭道磨床 GRD-H
+  layout:
+  - 86
+  - 75.2
+  - 3
+  - 2
+  height_m: 1.8
+- id: grd-10
+  area: machining
+  name: 梭道磨床 2 号
+  name_en: Hook raceway grinder 2
+  workstation: 梭道磨床 GRD-H
+  layout:
+  - 91
+  - 75.2
+  - 3
+  - 2
+  height_m: 1.8
+- id: lap-1
+  area: machining
+  name: 梭尖研磨机 1 号
+  name_en: Hook point lapping 1
+  workstation: 梭尖研磨机 LAP
+  layout:
+  - 96
+  - 75.2
+  - 2
+  - 1.5
+  height_m: 1.6
+- id: lap-2
+  area: machining
+  name: 梭尖研磨机 2 号
+  name_en: Hook point lapping 2
+  workstation: 梭尖研磨机 LAP
+  layout:
+  - 100
+  - 75.2
+  - 2
+  - 1.5
+  height_m: 1.6
+- id: wash-2
+  area: machining
+  name: 零件清洗机
+  name_en: Parts washer
+  workstation: 零件清洗机 WASH-P
+  layout:
+  - 104
+  - 75.2
+  - 4
+  - 2
+  height_m: 2.0
+  capacity: 6
+- id: qc-2
+  area: quality
+  name: 零件检验站（电子测微仪、跳动检查仪）
+  name_en: Parts inspection (gauges, runout tester)
+  workstation: 零件检验站 QC-P
+  layout:
+  - 110
+  - 75.2
+  - 4
+  - 3
+  height_m: 1.5
+- id: asm-s1
+  area: machining
+  name: 分装台：上轴组件
+  name_en: 'Sub-assembly: upper shaft'
+  workstation: 分装台 SUB-L
+  layout:
+  - 166
+  - 26
+  - 2.5
+  - 1.5
+  height_m: 1.0
+- id: asm-s2
+  area: machining
+  name: 分装台：下轴组件
+  name_en: 'Sub-assembly: lower shaft'
+  workstation: 分装台 SUB-L
+  layout:
+  - 170.5
+  - 26
+  - 2.5
+  - 1.5
+  height_m: 1.0
+- id: asm-s3
+  area: machining
+  name: 分装台：送布抬牙组件
+  name_en: 'Sub-assembly: feed mechanism'
+  workstation: 分装台 SUB-L
+  layout:
+  - 175.0
+  - 26
+  - 2.5
+  - 1.5
+  height_m: 1.0
+- id: asm-s4
+  area: machining
+  name: 分装台：针杆挑线组件
+  name_en: 'Sub-assembly: needle bar & take-up'
+  workstation: 分装台 SUB-L
+  layout:
+  - 179.5
+  - 26
+  - 2.5
+  - 1.5
+  height_m: 1.0
+- id: asm-a01
+  area: machining
+  name: 总装线 A01：机壳上线、扫序列号
+  name_en: 'Line LS A01: Head loading & serial scan'
+  workstation: 平缝机总装线 ASM-L
+  layout:
+  - 166
+  - 30.5
+  - 2.2
+  - 2.0
+  height_m: 1.0
+- id: asm-a02
+  area: machining
+  name: 总装线 A02：压装轴承、轴套
+  name_en: 'Line LS A02: Press bearings & bushings'
+  workstation: 平缝机总装线 ASM-L
+  layout:
+  - 170.2
+  - 30.5
+  - 2.2
+  - 2.0
+  height_m: 1.0
+- id: asm-a03
+  area: machining
+  name: 总装线 A03：装上轴组件
+  name_en: 'Line LS A03: Fit upper shaft'
+  workstation: 平缝机总装线 ASM-L
+  layout:
+  - 174.4
+  - 30.5
+  - 2.2
+  - 2.0
+  height_m: 1.0
+- id: asm-a04
+  area: machining
+  name: 总装线 A04：装下轴、同步带张紧
+  name_en: 'Line LS A04: Fit lower shaft & belt'
+  workstation: 平缝机总装线 ASM-L
+  layout:
+  - 178.6
+  - 30.5
+  - 2.2
+  - 2.0
+  height_m: 1.0
+- id: asm-a05
+  area: machining
+  name: 总装线 A05：装送布抬牙
+  name_en: 'Line LS A05: Fit feed mechanism'
+  workstation: 平缝机总装线 ASM-L
+  layout:
+  - 182.8
+  - 30.5
+  - 2.2
+  - 2.0
+  height_m: 1.0
+- id: asm-a06
+  area: machining
+  name: 总装线 A06：装针距倒缝
+  name_en: 'Line LS A06: Fit stitch regulator'
+  workstation: 平缝机总装线 ASM-L
+  layout:
+  - 187.0
+  - 30.5
+  - 2.2
+  - 2.0
+  height_m: 1.0
+- id: asm-a07
+  area: machining
+  name: 总装线 A07：装针杆挑线压脚
+  name_en: 'Line LS A07: Fit needle bar, take-up, presser'
+  workstation: 平缝机总装线 ASM-L
+  layout:
+  - 191.2
+  - 30.5
+  - 2.2
+  - 2.0
+  height_m: 1.0
+- id: asm-a08
+  area: machining
+  name: 总装线 A08：装旋梭（扫批次）
+  name_en: 'Line LS A08: Fit rotary hook'
+  workstation: 平缝机总装线 ASM-L
+  layout:
+  - 195.4
+  - 30.5
+  - 2.2
+  - 2.0
+  height_m: 1.0
+- id: asm-a09
+  area: machining
+  name: 总装线 A09：装油泵、面板、盖板
+  name_en: 'Line LS A09: Fit oil pump & covers'
+  workstation: 平缝机总装线 ASM-L
+  layout:
+  - 199.6
+  - 30.5
+  - 2.2
+  - 2.0
+  height_m: 1.0
+- id: asm-a10
+  area: machining
+  name: 总装线 A10：装电机、接线
+  name_en: 'Line LS A10: Fit motor & wiring'
+  workstation: 平缝机总装线 ASM-L
+  layout:
+  - 203.8
+  - 30.5
+  - 2.2
+  - 2.0
+  height_m: 1.0
+- id: asm-a11
+  area: machining
+  name: 总装线 A11：通电检查
+  name_en: 'Line LS A11: Power-on check'
+  workstation: 平缝机总装线 ASM-L
+  layout:
+  - 208.0
+  - 30.5
+  - 2.2
+  - 2.0
+  height_m: 1.0
+- id: asm-a12
+  area: machining
+  name: 总装线 A12：下线
+  name_en: 'Line LS A12: Unload'
+  workstation: 平缝机总装线 ASM-L
+  layout:
+  - 212.2
+  - 30.5
+  - 2.2
+  - 2.0
+  height_m: 1.0
+- id: adj-1
+  area: machining
+  name: 平缝机调试工位 1 号
+  name_en: LS adjustment station 1
+  workstation: 调试工位 ADJ-L
+  layout:
+  - 166
+  - 35.5
+  - 2
+  - 1.6
+  height_m: 1.0
+- id: adj-2
+  area: machining
+  name: 平缝机调试工位 2 号
+  name_en: LS adjustment station 2
+  workstation: 调试工位 ADJ-L
+  layout:
+  - 170
+  - 35.5
+  - 2
+  - 1.6
+  height_m: 1.0
+- id: adj-3
+  area: machining
+  name: 平缝机调试工位 3 号
+  name_en: LS adjustment station 3
+  workstation: 调试工位 ADJ-L
+  layout:
+  - 174
+  - 35.5
+  - 2
+  - 1.6
+  height_m: 1.0
+- id: adj-4
+  area: machining
+  name: 平缝机调试工位 4 号
+  name_en: LS adjustment station 4
+  workstation: 调试工位 ADJ-L
+  layout:
+  - 178
+  - 35.5
+  - 2
+  - 1.6
+  height_m: 1.0
+- id: adj-5
+  area: machining
+  name: 平缝机调试工位 5 号
+  name_en: LS adjustment station 5
+  workstation: 调试工位 ADJ-L
+  layout:
+  - 182
+  - 35.5
+  - 2
+  - 1.6
+  height_m: 1.0
+- id: eol-1
+  area: quality
+  name: 平缝机出厂测试台 1 号
+  name_en: LS end-of-line tester 1
+  workstation: 出厂测试台 EOL-L
+  layout:
+  - 186
+  - 35.5
+  - 2.5
+  - 1.6
+  height_m: 1.2
+- id: eol-2
+  area: quality
+  name: 平缝机出厂测试台 2 号
+  name_en: LS end-of-line tester 2
+  workstation: 出厂测试台 EOL-L
+  layout:
+  - 190.5
+  - 35.5
+  - 2.5
+  - 1.6
+  height_m: 1.2
+- id: eol-3
+  area: quality
+  name: 平缝机出厂测试台 3 号
+  name_en: LS end-of-line tester 3
+  workstation: 出厂测试台 EOL-L
+  layout:
+  - 195.0
+  - 35.5
+  - 2.5
+  - 1.6
+  height_m: 1.2
+- id: pk-1
+  area: machining
+  name: 平缝机清洗包装台
+  name_en: LS cleaning & packing
+  workstation: 包装台 PK-L
+  layout:
+  - 199.5
+  - 35.5
+  - 3
+  - 2
+  height_m: 1.0
+- id: rin-1
+  area: machining
+  name: 平缝机跑合台 1 号
+  name_en: LS run-in stand 1
+  workstation: 跑合台 RUN-L
+  layout:
+  - 166
+  - 40.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-2
+  area: machining
+  name: 平缝机跑合台 2 号
+  name_en: LS run-in stand 2
+  workstation: 跑合台 RUN-L
+  layout:
+  - 169.4
+  - 40.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-3
+  area: machining
+  name: 平缝机跑合台 3 号
+  name_en: LS run-in stand 3
+  workstation: 跑合台 RUN-L
+  layout:
+  - 172.8
+  - 40.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-4
+  area: machining
+  name: 平缝机跑合台 4 号
+  name_en: LS run-in stand 4
+  workstation: 跑合台 RUN-L
+  layout:
+  - 176.2
+  - 40.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-5
+  area: machining
+  name: 平缝机跑合台 5 号
+  name_en: LS run-in stand 5
+  workstation: 跑合台 RUN-L
+  layout:
+  - 179.6
+  - 40.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-6
+  area: machining
+  name: 平缝机跑合台 6 号
+  name_en: LS run-in stand 6
+  workstation: 跑合台 RUN-L
+  layout:
+  - 183.0
+  - 40.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-7
+  area: machining
+  name: 平缝机跑合台 7 号
+  name_en: LS run-in stand 7
+  workstation: 跑合台 RUN-L
+  layout:
+  - 186.4
+  - 40.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-8
+  area: machining
+  name: 平缝机跑合台 8 号
+  name_en: LS run-in stand 8
+  workstation: 跑合台 RUN-L
+  layout:
+  - 189.8
+  - 40.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-9
+  area: machining
+  name: 平缝机跑合台 9 号
+  name_en: LS run-in stand 9
+  workstation: 跑合台 RUN-L
+  layout:
+  - 193.2
+  - 40.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-10
+  area: machining
+  name: 平缝机跑合台 10 号
+  name_en: LS run-in stand 10
+  workstation: 跑合台 RUN-L
+  layout:
+  - 196.6
+  - 40.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-11
+  area: machining
+  name: 平缝机跑合台 11 号
+  name_en: LS run-in stand 11
+  workstation: 跑合台 RUN-L
+  layout:
+  - 200.0
+  - 40.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-12
+  area: machining
+  name: 平缝机跑合台 12 号
+  name_en: LS run-in stand 12
+  workstation: 跑合台 RUN-L
+  layout:
+  - 203.4
+  - 40.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-13
+  area: machining
+  name: 平缝机跑合台 13 号
+  name_en: LS run-in stand 13
+  workstation: 跑合台 RUN-L
+  layout:
+  - 206.8
+  - 40.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-14
+  area: machining
+  name: 平缝机跑合台 14 号
+  name_en: LS run-in stand 14
+  workstation: 跑合台 RUN-L
+  layout:
+  - 210.2
+  - 40.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-15
+  area: machining
+  name: 平缝机跑合台 15 号
+  name_en: LS run-in stand 15
+  workstation: 跑合台 RUN-L
+  layout:
+  - 213.6
+  - 40.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: asm-t1
+  area: machining
+  name: 分装台：主轴组件
+  name_en: 'Sub-assembly: main shaft'
+  workstation: 分装台 SUB-O
+  layout:
+  - 166
+  - 66
+  - 2.5
+  - 1.5
+  height_m: 1.0
+- id: asm-t2
+  area: machining
+  name: 分装台：弯针机构
+  name_en: 'Sub-assembly: looper drive'
+  workstation: 分装台 SUB-O
+  layout:
+  - 170.5
+  - 66
+  - 2.5
+  - 1.5
+  height_m: 1.0
+- id: asm-b01
+  area: machining
+  name: 总装线 B01：机壳上线、装油泵油管
+  name_en: 'Line OL B01: Housing loading, oil pump'
+  workstation: 包缝机总装线 ASM-O
+  layout:
+  - 166
+  - 70.5
+  - 2.4
+  - 2.0
+  height_m: 1.0
+- id: asm-b02
+  area: machining
+  name: 总装线 B02：装主轴组件
+  name_en: 'Line OL B02: Fit main shaft'
+  workstation: 包缝机总装线 ASM-O
+  layout:
+  - 170.4
+  - 70.5
+  - 2.4
+  - 2.0
+  height_m: 1.0
+- id: asm-b03
+  area: machining
+  name: 总装线 B03：装上下弯针机构
+  name_en: 'Line OL B03: Fit loopers'
+  workstation: 包缝机总装线 ASM-O
+  layout:
+  - 174.8
+  - 70.5
+  - 2.4
+  - 2.0
+  height_m: 1.0
+- id: asm-b04
+  area: machining
+  name: 总装线 B04：装针杆、压脚
+  name_en: 'Line OL B04: Fit needle bar & presser'
+  workstation: 包缝机总装线 ASM-O
+  layout:
+  - 179.2
+  - 70.5
+  - 2.4
+  - 2.0
+  height_m: 1.0
+- id: asm-b05
+  area: machining
+  name: 总装线 B05：装送布、差动、刀片
+  name_en: 'Line OL B05: Fit feed, differential, knives'
+  workstation: 包缝机总装线 ASM-O
+  layout:
+  - 183.6
+  - 70.5
+  - 2.4
+  - 2.0
+  height_m: 1.0
+- id: asm-b06
+  area: machining
+  name: 总装线 B06：装油底壳、电机、外罩
+  name_en: 'Line OL B06: Fit oil sump, motor, covers'
+  workstation: 包缝机总装线 ASM-O
+  layout:
+  - 188.0
+  - 70.5
+  - 2.4
+  - 2.0
+  height_m: 1.0
+- id: adj-6
+  area: machining
+  name: 包缝机调试工位 1 号
+  name_en: OL adjustment station 1
+  workstation: 调试工位 ADJ-O
+  layout:
+  - 166
+  - 75.5
+  - 2
+  - 1.6
+  height_m: 1.0
+- id: adj-7
+  area: machining
+  name: 包缝机调试工位 2 号
+  name_en: OL adjustment station 2
+  workstation: 调试工位 ADJ-O
+  layout:
+  - 170
+  - 75.5
+  - 2
+  - 1.6
+  height_m: 1.0
+- id: adj-8
+  area: machining
+  name: 包缝机调试工位 3 号
+  name_en: OL adjustment station 3
+  workstation: 调试工位 ADJ-O
+  layout:
+  - 174
+  - 75.5
+  - 2
+  - 1.6
+  height_m: 1.0
+- id: eol-4
+  area: quality
+  name: 包缝机出厂测试台
+  name_en: OL end-of-line tester
+  workstation: 出厂测试台 EOL-O
+  layout:
+  - 178
+  - 75.5
+  - 2.5
+  - 1.6
+  height_m: 1.2
+- id: pk-2
+  area: machining
+  name: 包缝机包装台
+  name_en: OL packing
+  workstation: 包装台 PK-O
+  layout:
+  - 182.5
+  - 75.5
+  - 3
+  - 2
+  height_m: 1.0
+- id: rin-16
+  area: machining
+  name: 包缝机跑合台 1 号
+  name_en: OL run-in stand 1
+  workstation: 跑合台 RUN-O
+  layout:
+  - 166
+  - 80.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-17
+  area: machining
+  name: 包缝机跑合台 2 号
+  name_en: OL run-in stand 2
+  workstation: 跑合台 RUN-O
+  layout:
+  - 169.4
+  - 80.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-18
+  area: machining
+  name: 包缝机跑合台 3 号
+  name_en: OL run-in stand 3
+  workstation: 跑合台 RUN-O
+  layout:
+  - 172.8
+  - 80.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-19
+  area: machining
+  name: 包缝机跑合台 4 号
+  name_en: OL run-in stand 4
+  workstation: 跑合台 RUN-O
+  layout:
+  - 176.2
+  - 80.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-20
+  area: machining
+  name: 包缝机跑合台 5 号
+  name_en: OL run-in stand 5
+  workstation: 跑合台 RUN-O
+  layout:
+  - 179.6
+  - 80.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: rin-21
+  area: machining
+  name: 包缝机跑合台 6 号
+  name_en: OL run-in stand 6
+  workstation: 跑合台 RUN-O
+  layout:
+  - 183.0
+  - 80.5
+  - 1.4
+  - 1.2
+  height_m: 1.2
+- id: agv-1
+  area: logistics
+  name: 物流小车 1 号（铸件）
+  name_en: AGV 1 (castings)
+  home:
+  - 82
+  - 54
+- id: agv-2
+  area: logistics
+  name: 物流小车 2 号（零件）
+  name_en: AGV 2 (parts)
+  home:
+  - 163
+  - 54
+- id: agv-3
+  area: logistics
+  name: 物流小车 3 号（装配）
+  name_en: AGV 3 (assembly)
+  home:
+  - 163
+  - 104
+- id: store-raw
+  area: warehouse
+  name: 原材料库（炉料、型砂、钢材、油漆）
+  name_en: Raw materials store
+  layout:
+  - 4
+  - 58
+  - 20
+  - 12
+  height_m: 4
+- id: store-cast
+  area: warehouse
+  name: 铸件库
+  name_en: Castings store
+  layout:
+  - 30
+  - 58
+  - 16
+  - 10
+  height_m: 3
+- id: store-semi
+  area: warehouse
+  name: 半成品库（机壳、零件）
+  name_en: WIP store (housings, parts)
+  layout:
+  - 52
+  - 58
+  - 20
+  - 10
+  height_m: 4
+- id: store-buy
+  area: warehouse
+  name: 外购件库（电机、电控、轴承、机针）
+  name_en: Bought-out parts store
+  layout:
+  - 4
+  - 76
+  - 20
+  - 10
+  height_m: 4
+- id: store-fg
+  area: warehouse
+  name: 成品库
+  name_en: Finished-goods store
+  layout:
+  - 30
+  - 76
+  - 30
+  - 12
+  height_m: 4
+dashboard:
+- chg-1
+- ind-1
+- ind-2
+- lab-1
+- pour-1
+- mold-1
+- cool-1
+- core-1
+- core-2
+- core-3
+- cq-1
+- mix-1
+- sand-1
+- lab-2
+- so-1
+- gate-1
+- shot-1
+- vib-1
+- fet-1
+- fet-2
+- fet-3
+- age-1
+- put-1
+- put-2
+- prime-1
+- lab-3
+- ci-1
+- iqc-1
+- vmc-1
+- vmc-2
+- vmc-3
+- vmc-4
+- hmc-1
+- hmc-2
+- hmc-3
+- hmc-4
+- hmc-5
+- hmc-6
+- hmc-7
+- tap-1
+- tap-2
+- tap-3
+- tap-4
+- deb-1
+- deb-2
+- deb-3
+- wash-1
+- leak-1
+- qc-1
+- paint-1
+- oven-1
+- cmm-1
+- cmm-2
+- cmm-3
+- cmm-4
+- cmm-5
+- saw-1
+- saw-2
+- cnc-1
+- cnc-2
+- cnc-3
+- cnc-4
+- cnc-5
+- cnc-6
+- cnc-7
+- cnc-8
+- cnc-9
+- cnc-10
+- vmc-5
+- vmc-6
+- qt-1
+- car-1
+- ihd-1
+- str-1
+- grd-1
+- grd-2
+- grd-3
+- grd-4
+- grd-5
+- grd-6
+- grd-7
+- grd-8
+- grd-9
+- grd-10
+- lap-1
+- lap-2
+- wash-2
+- qc-2
+- asm-s1
+- asm-s2
+- asm-s3
+- asm-s4
+- asm-a01
+- asm-a02
+- asm-a03
+- asm-a04
+- asm-a05
+- asm-a06
+- asm-a07
+- asm-a08
+- asm-a09
+- asm-a10
+- asm-a11
+- asm-a12
+- adj-1
+- adj-2
+- adj-3
+- adj-4
+- adj-5
+- eol-1
+- eol-2
+- eol-3
+- pk-1
+- rin-1
+- rin-2
+- rin-3
+- rin-4
+- rin-5
+- rin-6
+- rin-7
+- rin-8
+- rin-9
+- rin-10
+- rin-11
+- rin-12
+- rin-13
+- rin-14
+- rin-15
+- asm-t1
+- asm-t2
+- asm-b01
+- asm-b02
+- asm-b03
+- asm-b04
+- asm-b05
+- asm-b06
+- adj-6
+- adj-7
+- adj-8
+- eol-4
+- pk-2
+- rin-16
+- rin-17
+- rin-18
+- rin-19
+- rin-20
+- rin-21
+stores:
+  raw: store-raw
+  finished: store-fg
+operations:
+- name: C10 配料 Charging
+  workstation: 配料加料 CHG
+  units:
+  - chg-1
+  stage: blank
+- name: C20 熔炼 Melting
+  workstation: 中频感应电炉 IND
+  units:
+  - ind-1
+  - ind-2
+  stage: blank
+- name: C30 炉前分析 Melt analysis
+  workstation: 炉前分析室 LAB-M
+  units:
+  - lab-1
+  stage: inspect
+- name: C40 混砂 Sand mixing
+  workstation: 砂处理 SAND
+  units:
+  - mix-1
+  stage: blank
+- name: C45 型砂检测 Sand testing
+  workstation: 型砂实验室 LAB-S
+  units:
+  - lab-2
+  stage: inspect
+- name: C50 制芯 Core making
+  workstation: 射芯机 CORE
+  units:
+  - core-1
+  - core-2
+  - core-3
+  stage: blank
+- name: C55 砂芯检验 Core check
+  workstation: 砂芯检验台 CQ
+  units:
+  - cq-1
+  stage: inspect
+- name: C60 造型下芯合型 Moulding & core setting
+  workstation: 造型线 MOLD
+  units:
+  - mold-1
+  stage: blank
+- name: C65 孕育浇注 Inoculation & pouring
+  workstation: 自动浇注机 POUR
+  units:
+  - pour-1
+  stage: blank
+- name: C70 冷却 Cooling
+  workstation: 冷却线 COOL
+  units:
+  - cool-1
+  stage: other
+- name: C80 落砂 Shakeout
+  workstation: 落砂机 SO
+  units:
+  - so-1
+  stage: other
+- name: C90 旧砂处理 Sand reclamation
+  workstation: 砂处理 SAND
+  units:
+  - sand-1
+  stage: other
+- name: C100 去浇冒口 Degating
+  workstation: 去浇冒口 GATE
+  units:
+  - gate-1
+  stage: other
+- name: C110 抛丸 Shot blasting
+  workstation: 抛丸机 SHOT
+  units:
+  - shot-1
+  stage: other
+- name: C120 清内腔芯砂 Core knockout
+  workstation: 振动清砂 VIB
+  units:
+  - vib-1
+  stage: other
+- name: C130 打磨 Fettling
+  workstation: 打磨工位 FET
+  units:
+  - fet-1
+  - fet-2
+  - fet-3
+  stage: other
+- name: C140 第一次人工时效 Stress relief
+  workstation: 时效炉 AGE
+  units:
+  - age-1
+  stage: qt
+- name: C150 刮腻子 Putty
+  workstation: 刮腻子工位 PUT
+  units:
+  - put-1
+  - put-2
+  stage: other
+- name: C155 喷底漆 Primer
+  workstation: 底漆喷房 PRIME
+  units:
+  - prime-1
+  stage: other
+- name: C158 理化检验 Lab tests
+  workstation: 理化室 LAB-P
+  units:
+  - lab-3
+  stage: inspect
+- name: C160 铸件检验 Casting inspection
+  workstation: 铸件检验台 CI
+  units:
+  - ci-1
+  stage: inspect
+  inspection: true
+- name: H10 毛坯检验 Casting receiving
+  workstation: 毛坯检验台 IQC
+  units:
+  - iqc-1
+  stage: inspect
+- name: LS20 粗铣底面 Rough mill base
+  workstation: 立式加工中心 VMC-H
+  units:
+  - vmc-1
+  - vmc-2
+  - vmc-3
+  stage: rough
+- name: LS30 粗加工各面、粗镗 Rough faces & bores
+  workstation: 卧式加工中心 HMC
+  units:
+  - hmc-1
+  - hmc-2
+  - hmc-3
+  - hmc-4
+  - hmc-5
+  stage: rough
+- name: H40 第二次人工时效 Second stress relief
+  workstation: 时效炉 AGE
+  units:
+  - age-1
+  stage: qt
+- name: LS50 精铣底面、铰销孔、打刻 Finish base, pin holes, ID mark
+  workstation: 立式加工中心 VMC-H
+  units:
+  - vmc-1
+  - vmc-2
+  - vmc-3
+  stage: finish
+- name: LS70 钻攻螺纹、油路孔 Drill & tap, oil holes
+  workstation: 钻攻中心 TAP
+  units:
+  - tap-1
+  - tap-2
+  - tap-3
+  stage: finish
+- name: LS80 精镗孔系（一次装夹）Finish bore line
+  workstation: 卧式加工中心 HMC
+  units:
+  - hmc-1
+  - hmc-2
+  - hmc-3
+  - hmc-4
+  - hmc-5
+  stage: finish
+- name: LS90 去毛刺 Deburring
+  workstation: 去毛刺工位 DEB
+  units:
+  - deb-1
+  - deb-2
+  stage: other
+- name: H100 清洗吹干 Washing & drying
+  workstation: 清洗机 WASH-H
+  units:
+  - wash-1
+  stage: other
+- name: H105 三坐标检测 CMM inspection
+  workstation: 三坐标测量机 CMM
+  units:
+  - cmm-1
+  stage: inspect
+- name: H110 机壳终检 Housing final inspection
+  workstation: 机壳终检站 QC-H
+  units:
+  - qc-1
+  stage: inspect
+  inspection: true
+- name: H115 面漆 Top coat
+  workstation: 面漆喷房 PAINT
+  units:
+  - paint-1
+  stage: other
+- name: H118 烘干 Curing
+  workstation: 烘道 OVEN
+  units:
+  - oven-1
+  stage: other
+- name: OL20 粗铣底面 Rough mill base
+  workstation: 立式加工中心 VMC-H
+  units:
+  - vmc-4
+  stage: rough
+- name: OL30 粗加工各面、粗镗 Rough faces & bores
+  workstation: 卧式加工中心 HMC
+  units:
+  - hmc-6
+  - hmc-7
+  stage: rough
+- name: OL50 精铣结合面、铰销孔、打刻 Finish base, pin holes, ID mark
+  workstation: 立式加工中心 VMC-H
+  units:
+  - vmc-4
+  stage: finish
+- name: OL70 钻攻螺纹、油路深孔 Drill & tap, oil galleries
+  workstation: 钻攻中心 TAP
+  units:
+  - tap-4
+  stage: finish
+- name: OL80 精镗孔系（一次装夹）Finish bore line
+  workstation: 卧式加工中心 HMC
+  units:
+  - hmc-6
+  - hmc-7
+  stage: finish
+- name: OL90 去毛刺 Deburring
+  workstation: 去毛刺工位 DEB
+  units:
+  - deb-3
+  stage: other
+- name: OL110 渗漏试验 Leak test
+  workstation: 渗漏试验台 LEAK
+  units:
+  - leak-1
+  stage: inspect
+- name: P10 下料 Sawing
+  workstation: 带锯床 SAW
+  units:
+  - saw-1
+  - saw-2
+  stage: blank
+- name: P20 粗车 Rough turning
+  workstation: 数控车床 CNC
+  units:
+  - cnc-1
+  - cnc-2
+  - cnc-3
+  - cnc-4
+  - cnc-5
+  - cnc-6
+  - cnc-7
+  - cnc-8
+  - cnc-9
+  - cnc-10
+  stage: rough
+- name: P30 调质 Quench & temper
+  workstation: 调质炉 QT
+  units:
+  - qt-1
+  stage: qt
+- name: P40 校直 Straightening
+  workstation: 校直机 STR
+  units:
+  - str-1
+  stage: other
+- name: P50 精车 Finish turning
+  workstation: 数控车床 CNC
+  units:
+  - cnc-1
+  - cnc-2
+  - cnc-3
+  - cnc-4
+  - cnc-5
+  - cnc-6
+  - cnc-7
+  - cnc-8
+  - cnc-9
+  - cnc-10
+  stage: finish
+- name: P60 铣扁、钻孔 Milling flats & holes
+  workstation: 立式加工中心 VMC-P
+  units:
+  - vmc-5
+  - vmc-6
+  stage: keyway
+- name: P70 轴颈高频淬火 Induction hardening
+  workstation: 高频淬火机 IHD
+  units:
+  - ihd-1
+  stage: harden
+- name: P80 淬火后校直 Straightening after hardening
+  workstation: 校直机 STR
+  units:
+  - str-1
+  stage: other
+- name: P90 磨外圆 Cylindrical grinding
+  workstation: 外圆磨床 GRD-C
+  units:
+  - grd-1
+  - grd-2
+  - grd-3
+  - grd-4
+  stage: grind
+- name: N20 无心粗磨 Centreless rough grinding
+  workstation: 无心磨床 GRD-L
+  units:
+  - grd-5
+  stage: grind
+- name: N30 车、钻针夹孔 Turning & needle clamp hole
+  workstation: 数控车床 CNC
+  units:
+  - cnc-1
+  - cnc-2
+  - cnc-3
+  - cnc-4
+  - cnc-5
+  - cnc-6
+  - cnc-7
+  - cnc-8
+  - cnc-9
+  - cnc-10
+  stage: finish
+- name: N40 淬火回火 Hardening & tempering
+  workstation: 渗碳淬火线 CAR
+  units:
+  - car-1
+  stage: harden
+- name: N60 无心精磨 Centreless finish grinding
+  workstation: 无心磨床 GRD-L
+  units:
+  - grd-5
+  stage: grind
+- name: K20 车削 Turning
+  workstation: 数控车床 CNC
+  units:
+  - cnc-1
+  - cnc-2
+  - cnc-3
+  - cnc-4
+  - cnc-5
+  - cnc-6
+  - cnc-7
+  - cnc-8
+  - cnc-9
+  - cnc-10
+  stage: rough
+- name: K30 铣梭尖、梭道 Milling hook point & raceway
+  workstation: 立式加工中心 VMC-P
+  units:
+  - vmc-5
+  - vmc-6
+  stage: finish
+- name: K40 渗碳淬火 Carburising & hardening
+  workstation: 渗碳淬火线 CAR
+  units:
+  - car-1
+  stage: harden
+- name: K50 磨梭道 Raceway grinding
+  workstation: 梭道磨床 GRD-H
+  units:
+  - grd-9
+  - grd-10
+  stage: grind
+- name: K60 研磨梭尖 Hook point lapping
+  workstation: 梭尖研磨机 LAP
+  units:
+  - lap-1
+  - lap-2
+  stage: grind
+- name: E30 铣键槽 Keyway milling
+  workstation: 立式加工中心 VMC-P
+  units:
+  - vmc-5
+  - vmc-6
+  stage: keyway
+- name: E50 磨内孔端面 Bore & face grinding
+  workstation: 内圆磨床 GRD-I
+  units:
+  - grd-6
+  stage: grind
+- name: E60 磨偏心外圆 Eccentric grinding
+  workstation: 数控凸轮磨床 GRD-K
+  units:
+  - grd-7
+  - grd-8
+  stage: grind
+- name: E70 偏心测量 Eccentric measurement
+  workstation: 计量室 CMM-R
+  units:
+  - cmm-2
+  stage: inspect
+- name: P100 零件清洗 Parts washing
+  workstation: 零件清洗机 WASH-P
+  units:
+  - wash-2
+  stage: other
+- name: P110 零件检验 Part inspection
+  workstation: 零件检验站 QC-P
+  units:
+  - qc-2
+  stage: inspect
+  inspection: true
+- name: LA-S1 分装上轴组件 Sub-assembly upper shaft
+  workstation: 分装台 SUB-L
+  units:
+  - asm-s1
+  stage: assembly
+- name: LA-S2 分装下轴组件 Sub-assembly lower shaft
+  workstation: 分装台 SUB-L
+  units:
+  - asm-s2
+  stage: assembly
+- name: LA-S3 分装送布抬牙组件 Sub-assembly feed mechanism
+  workstation: 分装台 SUB-L
+  units:
+  - asm-s3
+  stage: assembly
+- name: LA-S4 分装针杆挑线组件 Sub-assembly needle bar & take-up
+  workstation: 分装台 SUB-L
+  units:
+  - asm-s4
+  stage: assembly
+- name: LA-A01 机壳上线、扫序列号 Head loading & serial scan
+  workstation: 平缝机总装线 ASM-L
+  units:
+  - asm-a01
+  stage: assembly
+- name: LA-A02 压装轴承、轴套 Press bearings & bushings
+  workstation: 平缝机总装线 ASM-L
+  units:
+  - asm-a02
+  stage: assembly
+- name: LA-A03 装上轴组件 Fit upper shaft
+  workstation: 平缝机总装线 ASM-L
+  units:
+  - asm-a03
+  stage: assembly
+- name: LA-A04 装下轴、同步带张紧 Fit lower shaft & belt
+  workstation: 平缝机总装线 ASM-L
+  units:
+  - asm-a04
+  stage: assembly
+- name: LA-A05 装送布抬牙 Fit feed mechanism
+  workstation: 平缝机总装线 ASM-L
+  units:
+  - asm-a05
+  stage: assembly
+- name: LA-A06 装针距倒缝 Fit stitch regulator
+  workstation: 平缝机总装线 ASM-L
+  units:
+  - asm-a06
+  stage: assembly
+- name: LA-A07 装针杆挑线压脚 Fit needle bar, take-up, presser
+  workstation: 平缝机总装线 ASM-L
+  units:
+  - asm-a07
+  stage: assembly
+- name: LA-A08 装旋梭（扫批次） Fit rotary hook
+  workstation: 平缝机总装线 ASM-L
+  units:
+  - asm-a08
+  stage: assembly
+- name: LA-A09 装油泵、面板、盖板 Fit oil pump & covers
+  workstation: 平缝机总装线 ASM-L
+  units:
+  - asm-a09
+  stage: assembly
+- name: LA-A10 装电机、接线 Fit motor & wiring
+  workstation: 平缝机总装线 ASM-L
+  units:
+  - asm-a10
+  stage: assembly
+- name: LA-A11 通电检查 Power-on check
+  workstation: 平缝机总装线 ASM-L
+  units:
+  - asm-a11
+  stage: assembly
+- name: LA-A12 下线 Unload
+  workstation: 平缝机总装线 ASM-L
+  units:
+  - asm-a12
+  stage: assembly
+- name: LA-ADJ 调试 Adjustment
+  workstation: 调试工位 ADJ-L
+  units:
+  - adj-1
+  - adj-2
+  - adj-3
+  - adj-4
+  - adj-5
+  stage: assembly
+- name: LA-RUN 跑合 Run-in
+  workstation: 跑合台 RUN-L
+  units:
+  - rin-1
+  - rin-2
+  - rin-3
+  - rin-4
+  - rin-5
+  - rin-6
+  - rin-7
+  - rin-8
+  - rin-9
+  - rin-10
+  - rin-11
+  - rin-12
+  - rin-13
+  - rin-14
+  - rin-15
+  stage: other
+- name: LA-EOL 出厂测试 End-of-line test
+  workstation: 出厂测试台 EOL-L
+  units:
+  - eol-1
+  - eol-2
+  - eol-3
+  stage: inspect
+  inspection: true
+- name: LA-PK 清洗包装 Cleaning & packing
+  workstation: 包装台 PK-L
+  units:
+  - pk-1
+  stage: other
+- name: OA-S1 分装主轴组件 Sub-assembly main shaft
+  workstation: 分装台 SUB-O
+  units:
+  - asm-t1
+  stage: assembly
+- name: OA-S2 分装弯针机构 Sub-assembly looper drive
+  workstation: 分装台 SUB-O
+  units:
+  - asm-t2
+  stage: assembly
+- name: OA-B01 机壳上线、装油泵油管 Housing loading, oil pump
+  workstation: 包缝机总装线 ASM-O
+  units:
+  - asm-b01
+  stage: assembly
+- name: OA-B02 装主轴组件 Fit main shaft
+  workstation: 包缝机总装线 ASM-O
+  units:
+  - asm-b02
+  stage: assembly
+- name: OA-B03 装上下弯针机构 Fit loopers
+  workstation: 包缝机总装线 ASM-O
+  units:
+  - asm-b03
+  stage: assembly
+- name: OA-B04 装针杆、压脚 Fit needle bar & presser
+  workstation: 包缝机总装线 ASM-O
+  units:
+  - asm-b04
+  stage: assembly
+- name: OA-B05 装送布、差动、刀片 Fit feed, differential, knives
+  workstation: 包缝机总装线 ASM-O
+  units:
+  - asm-b05
+  stage: assembly
+- name: OA-B06 装油底壳、电机、外罩 Fit oil sump, motor, covers
+  workstation: 包缝机总装线 ASM-O
+  units:
+  - asm-b06
+  stage: assembly
+- name: OA-ADJ 调试 Adjustment
+  workstation: 调试工位 ADJ-O
+  units:
+  - adj-6
+  - adj-7
+  - adj-8
+  stage: assembly
+- name: OA-RUN 跑合 Run-in
+  workstation: 跑合台 RUN-O
+  units:
+  - rin-16
+  - rin-17
+  - rin-18
+  - rin-19
+  - rin-20
+  - rin-21
+  stage: other
+- name: OA-EOL 出厂测试 End-of-line test
+  workstation: 出厂测试台 EOL-O
+  units:
+  - eol-4
+  stage: inspect
+  inspection: true
+- name: OA-PK 包装 Packing
+  workstation: 包装台 PK-O
+  units:
+  - pk-2
+  stage: other
+floor:
+  length_m: 230
+  width_m: 110
+  aisles_y:
+  - 54
+  - 104
+  cross_x: 83
+shift:
+  periods:
+  - - 06:00:00
+    - '10:00:00'
+  - - '10:30:00'
+    - '14:30:00'
+  - - '14:30:00'
+    - '18:30:00'
+  - - '19:00:00'
+    - '23:00:00'
+  workdays:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  max_overtime_min: 120
+kpi:
+  on_time: 0.95
+  oee: 0.6
+  fpy: 0.96
+suppliers:
+  iron:
+    name: 示例·生铁废钢供应商 Pig Iron & Scrap Supplier (Demo)
+    lead: 7
+    on_time: 0.93
+    pass: 0.98
+    cat_name: 炉料
+    incoming:
+    - name: 成分 Chemistry
+      text: 按质保书核对 C、Si、Mn、P、S
+    - name: 清洁 Cleanliness
+      text: 无油污、无密闭容器、干燥
+  foundry:
+    name: 示例·造型材料商 Foundry Consumables (Demo)
+    lead: 5
+    on_time: 0.95
+    pass: 0.99
+    cat_name: 造型材料
+    incoming:
+    - name: 含水 Moisture
+      unit: '%'
+      lo: 0
+      hi: 0.5
+    - name: 包装 Packing
+      text: 包装完好、未受潮
+  paint:
+    name: 示例·涂料商 Paint Supplier (Demo)
+    lead: 5
+    on_time: 0.95
+    pass: 0.99
+    cat_name: 涂料
+    incoming:
+    - name: 黏度 Viscosity
+      text: 在质保书范围内
+  steel:
+    name: 示例·特钢棒材商 Special Steel Bars (Demo)
+    lead: 10
+    on_time: 0.93
+    pass: 0.98
+    cat_name: 钢棒
+    incoming:
+    - name: 直径 Diameter
+      text: 按规格公差
+    - name: 牌号 Grade
+      text: 按质保书核对炉号、牌号
+  drive:
+    name: 示例·缝纫机电控商 Sewing Drive Supplier (Demo)
+    lead: 14
+    on_time: 0.92
+    pass: 0.99
+    cat_name: 电机与电控
+    incoming:
+    - name: 绝缘电阻 Insulation
+      text: 抽检合格
+  sewparts:
+    name: 示例·缝纫机配件商 Sewing Parts Supplier (Demo)
+    lead: 10
+    on_time: 0.94
+    pass: 0.98
+    cat_name: 缝纫机配件
+    incoming:
+    - name: 机针直线度 Needle straightness
+      unit: mm
+      lo: 0
+      hi: 0.02
+  hardware:
+    name: 示例·轴承标准件商 Bearings & Fasteners (Demo)
+    lead: 3
+    on_time: 0.96
+    pass: 0.99
+    cat_name: 轴承与标准件
+  plastic:
+    name: 示例·钣金塑料件商 Covers Supplier (Demo)
+    lead: 7
+    on_time: 0.94
+    pass: 0.99
+    cat_name: 盖板与油盘
+  packing:
+    name: 示例·包装材料商 Packaging Supplier (Demo)
+    lead: 3
+    on_time: 0.95
+    pass: 0.99
+    cat_name: 包装材料
+customers:
+- 示例·服装厂 Garment Maker (Demo)
+- 示例·缝纫设备经销商 Sewing Equipment Dealer (Demo)
+- 示例·家纺厂 Home Textile Maker (Demo)
+items:
+- code: RM-PIG
+  name: 铸造生铁 Foundry pig iron
+  kind: raw
+  uom: Kg
+  price: 0.45
+  supplier: iron
+- code: RM-SCRAP
+  name: 废钢 Steel scrap
+  kind: raw
+  uom: Kg
+  price: 0.35
+  supplier: iron
+- code: RM-CARB
+  name: 增碳剂 Carburiser
+  kind: raw
+  uom: Kg
+  price: 0.9
+  supplier: foundry
+- code: RM-INOC
+  name: 硅钡孕育剂 Inoculant（型号待确认）
+  kind: raw
+  uom: Kg
+  price: 3.0
+  supplier: foundry
+  note: 受潮就孕育不良
+- code: RM-RCS
+  name: 覆膜砂 Resin-coated sand
+  kind: raw
+  uom: Kg
+  price: 0.6
+  supplier: foundry
+- code: RM-BENT
+  name: 膨润土与煤粉（型砂补充）Bentonite & coal dust
+  kind: raw
+  uom: Kg
+  price: 0.3
+  supplier: foundry
+- code: RM-PUTTY
+  name: 原子灰 Putty
+  kind: raw
+  uom: Kg
+  price: 4.0
+  supplier: paint
+- code: RM-PRIMER
+  name: 底漆 Primer
+  kind: raw
+  uom: Litre
+  price: 6.0
+  supplier: paint
+- code: RM-TOPCOAT
+  name: 面漆 Top coat
+  kind: raw
+  uom: Litre
+  price: 9.0
+  supplier: paint
+- code: RM-MASK
+  name: 遮蔽堵头与胶带（一台份）Masking set
+  kind: raw
+  uom: Nos
+  price: 0.8
+  supplier: paint
+- code: RM-RUSTOIL
+  name: 防锈油 Rust-preventive oil
+  kind: raw
+  uom: Litre
+  price: 3.0
+  supplier: paint
+- code: RM-45-D16
+  name: 45 钢圆棒 Ø16 Steel bar 1045 Ø16
+  kind: raw
+  uom: Kg
+  price: 1.1
+  supplier: steel
+- code: RM-40CR-D16
+  name: 40Cr 圆棒 Ø16 Steel bar 40Cr Ø16
+  kind: raw
+  uom: Kg
+  price: 1.4
+  supplier: steel
+- code: RM-GCR15-D9
+  name: 轴承钢冷拉棒 Ø9 Bearing steel bar Ø9
+  kind: raw
+  uom: Kg
+  price: 2.2
+  supplier: steel
+- code: RM-20CRMNTI-D40
+  name: 20CrMnTi 圆棒 Ø40 Steel bar 20CrMnTi Ø40
+  kind: raw
+  uom: Kg
+  price: 1.6
+  supplier: steel
+- code: RM-SEALANT
+  name: 平面密封胶 Flange sealant
+  kind: raw
+  uom: Kg
+  price: 30.0
+  supplier: paint
+- code: BUY-MOTOR-LS
+  name: 平缝机直驱伺服电机（型号待确认） Direct-drive servo motor (LS)
+  kind: buy
+  uom: Nos
+  price: 85
+  supplier: drive
+- code: BUY-CTRL-LS
+  name: 平缝机电控箱（出厂测试时烧录本厂固件）（型号待确认） Control box (LS)
+  kind: buy
+  uom: Nos
+  price: 60
+  supplier: drive
+- code: BUY-MOTOR-OL
+  name: 包缝机直驱伺服电机（型号待确认） Direct-drive servo motor (OL)
+  kind: buy
+  uom: Nos
+  price: 90
+  supplier: drive
+- code: BUY-CTRL-OL
+  name: 包缝机电控箱（型号待确认） Control box (OL)
+  kind: buy
+  uom: Nos
+  price: 62
+  supplier: drive
+- code: BUY-BRG-6000
+  name: 深沟球轴承 6000 Ball bearing 10×26×8
+  kind: buy
+  uom: Nos
+  price: 0.8
+  supplier: hardware
+- code: BUY-BUSH-20
+  name: 轴套 Ø20（型号待确认） Bushing Ø20
+  kind: buy
+  uom: Nos
+  price: 0.6
+  supplier: hardware
+- code: BUY-BELT-LS
+  name: 同步带（型号待确认） Timing belt
+  kind: buy
+  uom: Nos
+  price: 2.5
+  supplier: hardware
+- code: BUY-PULLEY
+  name: 同步带轮（型号待确认） Timing pulley
+  kind: buy
+  uom: Nos
+  price: 1.8
+  supplier: hardware
+- code: BUY-NEEDLE-DB
+  name: 平缝机针 DB×1（型号待确认） Needle DB×1
+  kind: buy
+  uom: Nos
+  price: 0.08
+  supplier: sewparts
+- code: BUY-NEEDLE-DC
+  name: 包缝机针 DC×27（型号待确认） Needle DC×27
+  kind: buy
+  uom: Nos
+  price: 0.09
+  supplier: sewparts
+- code: BUY-BOBCASE
+  name: 梭壳与梭芯（型号待确认） Bobbin case & bobbin
+  kind: buy
+  uom: Nos
+  price: 1.5
+  supplier: sewparts
+- code: BUY-FEED-LS
+  name: 送布牙、针板、压脚（型号待确认） Feed dog, throat plate, presser foot
+  kind: buy
+  uom: Nos
+  price: 4.0
+  supplier: sewparts
+- code: BUY-TENSION
+  name: 夹线器与挑线簧（型号待确认） Thread tension assembly
+  kind: buy
+  uom: Nos
+  price: 1.8
+  supplier: sewparts
+- code: BUY-LOOPER-U
+  name: 上弯针（型号待确认） Upper looper
+  kind: buy
+  uom: Nos
+  price: 3.5
+  supplier: sewparts
+- code: BUY-LOOPER-L
+  name: 下弯针（型号待确认） Lower looper
+  kind: buy
+  uom: Nos
+  price: 3.2
+  supplier: sewparts
+- code: BUY-KNIFE
+  name: 上刀、下刀（型号待确认） Upper & lower knives
+  kind: buy
+  uom: Nos
+  price: 3.0
+  supplier: sewparts
+- code: BUY-FEED-OL
+  name: 主送布牙、差动送布牙、针板（型号待确认） Main & differential feed dogs
+  kind: buy
+  uom: Nos
+  price: 4.5
+  supplier: sewparts
+- code: BUY-PUMP-OL
+  name: 包缝机油泵（型号待确认） Oil pump (OL)
+  kind: buy
+  uom: Nos
+  price: 3.0
+  supplier: sewparts
+- code: BUY-OILPAN-LS
+  name: 平缝机油盘（型号待确认） Oil pan (LS)
+  kind: buy
+  uom: Nos
+  price: 3.0
+  supplier: plastic
+- code: BUY-SUMP-OL
+  name: 包缝机油底壳（型号待确认） Oil sump (OL)
+  kind: buy
+  uom: Nos
+  price: 2.5
+  supplier: plastic
+- code: BUY-COVERS-LS
+  name: 平缝机面板、后盖、顶盖（型号待确认） Covers (LS)
+  kind: buy
+  uom: Nos
+  price: 3.5
+  supplier: plastic
+- code: BUY-COVERS-OL
+  name: 包缝机外罩与前盖（型号待确认） Covers (OL)
+  kind: buy
+  uom: Nos
+  price: 3.5
+  supplier: plastic
+- code: BUY-SCREW-M5
+  name: 内六角螺钉 M5×12 Socket screw
+  kind: buy
+  uom: Nos
+  price: 0.03
+  supplier: hardware
+- code: BUY-SCREW-M4
+  name: 螺钉 M4×8 Screw
+  kind: buy
+  uom: Nos
+  price: 0.02
+  supplier: hardware
+- code: BUY-BOX-LS
+  name: 平缝机包装箱与附件包 Box & accessory kit (LS)
+  kind: buy
+  uom: Nos
+  price: 4.0
+  supplier: packing
+- code: BUY-BOX-OL
+  name: 包缝机包装箱与附件包 Box & accessory kit (OL)
+  kind: buy
+  uom: Nos
+  price: 4.0
+  supplier: packing
+- code: CAST-LS
+  name: 平缝机壳铸件 HT250 Lockstitch housing casting
+  kind: make
+  uom: Nos
+  note: 炉号可追溯
+- code: CAST-OL
+  name: 包缝机壳铸件 HT250 Overlock housing casting
+  kind: make
+  uom: Nos
+  note: 一型两件
+- code: HSG-LS
+  name: 平缝机壳 Lockstitch housing
+  kind: make
+  uom: Nos
+  note: 第 50 工序起按序列号追溯
+- code: HSG-OL
+  name: 包缝机壳 Overlock housing
+  kind: make
+  uom: Nos
+- code: LS-101
+  name: 平缝机上轴 Upper shaft
+  kind: make
+  uom: Nos
+  note: 45 钢，调质 + 轴颈高频淬火
+- code: LS-102
+  name: 平缝机下轴 Lower (hook) shaft
+  kind: make
+  uom: Nos
+  note: 45 钢，调质 + 轴颈高频淬火
+- code: OL-101
+  name: 包缝机主轴 Main shaft
+  kind: make
+  uom: Nos
+  note: 40Cr，调质 + 轴颈高频淬火
+- code: LS-201
+  name: 平缝机针杆 Needle bar (LS)
+  kind: make
+  uom: Nos
+  note: 镀硬铬外协，示例里略去
+- code: OL-201
+  name: 包缝机针杆 Needle bar (OL)
+  kind: make
+  uom: Nos
+- code: LS-301
+  name: 旋梭 Rotary hook
+  kind: make
+  uom: Nos
+  note: 少油型另外协镀 DLC
+- code: LS-401
+  name: 送布 / 抬牙偏心 Feed eccentric
+  kind: make
+  uom: Nos
+- code: OL-401
+  name: 弯针 / 差动偏心 Looper eccentric
+  kind: make
+  uom: Nos
+- code: WQ-LS
+  name: 问渠工业直驱平缝机 WQ-LS（示例）Direct-drive lockstitch machine
+  kind: fg
+  uom: Nos
+- code: WQ-OL
+  name: 问渠工业直驱四线包缝机 WQ-OL（示例）Direct-drive 4-thread overlock
+  kind: fg
+  uom: Nos
+routings:
+- name: RT-铸件 平缝机壳 Casting LS
+  steps:
+  - - C10 配料 Charging
+    - 0.5
+  - - C20 熔炼 Melting
+    - 4.0
+  - - C30 炉前分析 Melt analysis
+    - 0.5
+  - - C40 混砂 Sand mixing
+    - 0.5
+  - - C45 型砂检测 Sand testing
+    - 0.2
+  - - C50 制芯 Core making
+    - 3.0
+  - - C55 砂芯检验 Core check
+    - 0.5
+  - - C60 造型下芯合型 Moulding & core setting
+    - 1.0
+  - - C65 孕育浇注 Inoculation & pouring
+    - 0.5
+  - - C70 冷却 Cooling
+    - 60
+  - - C80 落砂 Shakeout
+    - 0.5
+  - - C90 旧砂处理 Sand reclamation
+    - 0.5
+  - - C100 去浇冒口 Degating
+    - 1.0
+  - - C110 抛丸 Shot blasting
+    - 2.0
+  - - C120 清内腔芯砂 Core knockout
+    - 2.0
+  - - C130 打磨 Fettling
+    - 4.0
+  - - C140 第一次人工时效 Stress relief
+    - 480
+  - - C150 刮腻子 Putty
+    - 6.0
+  - - C155 喷底漆 Primer
+    - 3.0
+  - - C158 理化检验 Lab tests
+    - 1
+  - - C160 铸件检验 Casting inspection
+    - 2
+- name: RT-铸件 包缝机壳 Casting OL
+  steps:
+  - - C10 配料 Charging
+    - 0.25
+  - - C20 熔炼 Melting
+    - 2.0
+  - - C30 炉前分析 Melt analysis
+    - 0.5
+  - - C40 混砂 Sand mixing
+    - 0.25
+  - - C45 型砂检测 Sand testing
+    - 0.2
+  - - C50 制芯 Core making
+    - 1.5
+  - - C55 砂芯检验 Core check
+    - 0.5
+  - - C60 造型下芯合型 Moulding & core setting
+    - 1.0
+  - - C65 孕育浇注 Inoculation & pouring
+    - 0.5
+  - - C70 冷却 Cooling
+    - 60
+  - - C80 落砂 Shakeout
+    - 0.5
+  - - C90 旧砂处理 Sand reclamation
+    - 0.25
+  - - C100 去浇冒口 Degating
+    - 0.5
+  - - C110 抛丸 Shot blasting
+    - 1.0
+  - - C120 清内腔芯砂 Core knockout
+    - 1.0
+  - - C130 打磨 Fettling
+    - 2.0
+  - - C140 第一次人工时效 Stress relief
+    - 480
+  - - C150 刮腻子 Putty
+    - 3.0
+  - - C155 喷底漆 Primer
+    - 1.5
+  - - C158 理化检验 Lab tests
+    - 1
+  - - C160 铸件检验 Casting inspection
+    - 2
+- name: RT-机壳 平缝 Housing LS
+  steps:
+  - - H10 毛坯检验 Casting receiving
+    - 0.5
+  - - LS20 粗铣底面 Rough mill base
+    - 3
+  - - LS30 粗加工各面、粗镗 Rough faces & bores
+    - 6
+  - - H40 第二次人工时效 Second stress relief
+    - 480
+  - - LS50 精铣底面、铰销孔、打刻 Finish base, pin holes, ID mark
+    - 4
+  - - LS70 钻攻螺纹、油路孔 Drill & tap, oil holes
+    - 8
+  - - LS80 精镗孔系（一次装夹）Finish bore line
+    - 10
+  - - LS90 去毛刺 Deburring
+    - 3
+  - - H100 清洗吹干 Washing & drying
+    - 2
+  - - H105 三坐标检测 CMM inspection
+    - 3
+  - - H110 机壳终检 Housing final inspection
+    - 2
+  - - H115 面漆 Top coat
+    - 3
+  - - H118 烘干 Curing
+    - 40
+- name: RT-机壳 包缝 Housing OL
+  steps:
+  - - H10 毛坯检验 Casting receiving
+    - 0.5
+  - - OL20 粗铣底面 Rough mill base
+    - 3
+  - - OL30 粗加工各面、粗镗 Rough faces & bores
+    - 5
+  - - H40 第二次人工时效 Second stress relief
+    - 480
+  - - OL50 精铣结合面、铰销孔、打刻 Finish base, pin holes, ID mark
+    - 4
+  - - OL70 钻攻螺纹、油路深孔 Drill & tap, oil galleries
+    - 9
+  - - OL80 精镗孔系（一次装夹）Finish bore line
+    - 8
+  - - OL90 去毛刺 Deburring
+    - 4
+  - - H100 清洗吹干 Washing & drying
+    - 2
+  - - OL110 渗漏试验 Leak test
+    - 2
+  - - H105 三坐标检测 CMM inspection
+    - 3
+  - - H110 机壳终检 Housing final inspection
+    - 2
+  - - H115 面漆 Top coat
+    - 3
+  - - H118 烘干 Curing
+    - 40
+- name: RT-轴 Shaft
+  steps:
+  - - P10 下料 Sawing
+    - 1
+  - - P20 粗车 Rough turning
+    - 4
+  - - P30 调质 Quench & temper
+    - 90
+  - - P40 校直 Straightening
+    - 1
+  - - P50 精车 Finish turning
+    - 3
+  - - P60 铣扁、钻孔 Milling flats & holes
+    - 2
+  - - P70 轴颈高频淬火 Induction hardening
+    - 1
+  - - P80 淬火后校直 Straightening after hardening
+    - 1
+  - - P90 磨外圆 Cylindrical grinding
+    - 4
+  - - P100 零件清洗 Parts washing
+    - 1
+  - - P110 零件检验 Part inspection
+    - 1
+- name: RT-针杆 Needle bar
+  steps:
+  - - P10 下料 Sawing
+    - 0.5
+  - - N20 无心粗磨 Centreless rough grinding
+    - 1.5
+  - - N30 车、钻针夹孔 Turning & needle clamp hole
+    - 2
+  - - N40 淬火回火 Hardening & tempering
+    - 60
+  - - P40 校直 Straightening
+    - 1
+  - - N60 无心精磨 Centreless finish grinding
+    - 2
+  - - P100 零件清洗 Parts washing
+    - 1
+  - - P110 零件检验 Part inspection
+    - 1
+- name: RT-旋梭 Rotary hook
+  steps:
+  - - K20 车削 Turning
+    - 5
+  - - K30 铣梭尖、梭道 Milling hook point & raceway
+    - 6
+  - - K40 渗碳淬火 Carburising & hardening
+    - 90
+  - - K50 磨梭道 Raceway grinding
+    - 5
+  - - K60 研磨梭尖 Hook point lapping
+    - 4
+  - - P100 零件清洗 Parts washing
+    - 1
+  - - P110 零件检验 Part inspection
+    - 1
+- name: RT-偏心 Eccentric
+  steps:
+  - - P10 下料 Sawing
+    - 0.5
+  - - K20 车削 Turning
+    - 3
+  - - E30 铣键槽 Keyway milling
+    - 1.5
+  - - K40 渗碳淬火 Carburising & hardening
+    - 90
+  - - E50 磨内孔端面 Bore & face grinding
+    - 2
+  - - E60 磨偏心外圆 Eccentric grinding
+    - 3
+  - - E70 偏心测量 Eccentric measurement
+    - 2
+  - - P100 零件清洗 Parts washing
+    - 1
+  - - P110 零件检验 Part inspection
+    - 1
+- name: RT-平缝机总装 LS assembly
+  steps:
+  - - LA-S1 分装上轴组件 Sub-assembly upper shaft
+    - 3
+  - - LA-S2 分装下轴组件 Sub-assembly lower shaft
+    - 2.5
+  - - LA-S3 分装送布抬牙组件 Sub-assembly feed mechanism
+    - 2.5
+  - - LA-S4 分装针杆挑线组件 Sub-assembly needle bar & take-up
+    - 2.5
+  - - LA-A01 机壳上线、扫序列号 Head loading & serial scan
+    - 2.2
+  - - LA-A02 压装轴承、轴套 Press bearings & bushings
+    - 2.2
+  - - LA-A03 装上轴组件 Fit upper shaft
+    - 2.2
+  - - LA-A04 装下轴、同步带张紧 Fit lower shaft & belt
+    - 2.2
+  - - LA-A05 装送布抬牙 Fit feed mechanism
+    - 2.2
+  - - LA-A06 装针距倒缝 Fit stitch regulator
+    - 2.2
+  - - LA-A07 装针杆挑线压脚 Fit needle bar, take-up, presser
+    - 2.2
+  - - LA-A08 装旋梭（扫批次） Fit rotary hook
+    - 2.2
+  - - LA-A09 装油泵、面板、盖板 Fit oil pump & covers
+    - 2.2
+  - - LA-A10 装电机、接线 Fit motor & wiring
+    - 2.2
+  - - LA-A11 通电检查 Power-on check
+    - 2.2
+  - - LA-A12 下线 Unload
+    - 2.2
+  - - LA-ADJ 调试 Adjustment
+    - 9.6
+  - - LA-RUN 跑合 Run-in
+    - 30
+  - - LA-EOL 出厂测试 End-of-line test
+    - 4.8
+  - - LA-PK 清洗包装 Cleaning & packing
+    - 3
+- name: RT-包缝机总装 OL assembly
+  steps:
+  - - OA-S1 分装主轴组件 Sub-assembly main shaft
+    - 4
+  - - OA-S2 分装弯针机构 Sub-assembly looper drive
+    - 4
+  - - OA-B01 机壳上线、装油泵油管 Housing loading, oil pump
+    - 6.5
+  - - OA-B02 装主轴组件 Fit main shaft
+    - 6.5
+  - - OA-B03 装上下弯针机构 Fit loopers
+    - 6.5
+  - - OA-B04 装针杆、压脚 Fit needle bar & presser
+    - 6.5
+  - - OA-B05 装送布、差动、刀片 Fit feed, differential, knives
+    - 6.5
+  - - OA-B06 装油底壳、电机、外罩 Fit oil sump, motor, covers
+    - 6.5
+  - - OA-ADJ 调试 Adjustment
+    - 20
+  - - OA-RUN 跑合 Run-in
+    - 30
+  - - OA-EOL 出厂测试 End-of-line test
+    - 6
+  - - OA-PK 包装 Packing
+    - 3
+boms:
+- item: CAST-LS
+  routing: RT-铸件 平缝机壳 Casting LS
+  components:
+  - - RM-PIG
+    - 7
+  - - RM-SCRAP
+    - 7.5
+  - - RM-CARB
+    - 0.2
+  - - RM-INOC
+    - 0.08
+  - - RM-RCS
+    - 6
+  - - RM-BENT
+    - 1
+  - - RM-PUTTY
+    - 0.3
+  - - RM-PRIMER
+    - 0.3
+- item: CAST-OL
+  routing: RT-铸件 包缝机壳 Casting OL
+  components:
+  - - RM-PIG
+    - 3
+  - - RM-SCRAP
+    - 3.2
+  - - RM-CARB
+    - 0.08
+  - - RM-INOC
+    - 0.03
+  - - RM-RCS
+    - 2
+  - - RM-BENT
+    - 0.4
+  - - RM-PUTTY
+    - 0.15
+  - - RM-PRIMER
+    - 0.15
+- item: HSG-LS
+  routing: RT-机壳 平缝 Housing LS
+  components:
+  - - CAST-LS
+    - 1
+  - - RM-TOPCOAT
+    - 0.3
+  - - RM-MASK
+    - 1
+  - - RM-RUSTOIL
+    - 0.05
+- item: HSG-OL
+  routing: RT-机壳 包缝 Housing OL
+  components:
+  - - CAST-OL
+    - 1
+  - - RM-TOPCOAT
+    - 0.15
+  - - RM-MASK
+    - 1
+  - - RM-RUSTOIL
+    - 0.03
+- item: LS-101
+  routing: RT-轴 Shaft
+  components:
+  - - RM-45-D16
+    - 1.0
+- item: LS-102
+  routing: RT-轴 Shaft
+  components:
+  - - RM-45-D16
+    - 0.9
+- item: OL-101
+  routing: RT-轴 Shaft
+  components:
+  - - RM-40CR-D16
+    - 0.8
+- item: LS-201
+  routing: RT-针杆 Needle bar
+  components:
+  - - RM-GCR15-D9
+    - 0.3
+- item: OL-201
+  routing: RT-针杆 Needle bar
+  components:
+  - - RM-GCR15-D9
+    - 0.25
+- item: LS-301
+  routing: RT-旋梭 Rotary hook
+  components:
+  - - RM-20CRMNTI-D40
+    - 0.25
+- item: LS-401
+  routing: RT-偏心 Eccentric
+  components:
+  - - RM-20CRMNTI-D40
+    - 0.2
+- item: OL-401
+  routing: RT-偏心 Eccentric
+  components:
+  - - RM-20CRMNTI-D40
+    - 0.2
+- item: WQ-LS
+  routing: RT-平缝机总装 LS assembly
+  components:
+  - - HSG-LS
+    - 1
+  - - LS-101
+    - 1
+  - - LS-102
+    - 1
+  - - LS-201
+    - 1
+  - - LS-301
+    - 1
+  - - LS-401
+    - 2
+  - - BUY-MOTOR-LS
+    - 1
+  - - BUY-CTRL-LS
+    - 1
+  - - BUY-BRG-6000
+    - 4
+  - - BUY-BUSH-20
+    - 2
+  - - BUY-BELT-LS
+    - 1
+  - - BUY-PULLEY
+    - 2
+  - - BUY-NEEDLE-DB
+    - 1
+  - - BUY-BOBCASE
+    - 1
+  - - BUY-FEED-LS
+    - 1
+  - - BUY-TENSION
+    - 1
+  - - BUY-OILPAN-LS
+    - 1
+  - - BUY-COVERS-LS
+    - 1
+  - - BUY-SCREW-M5
+    - 40
+  - - BUY-SCREW-M4
+    - 20
+  - - BUY-BOX-LS
+    - 1
+- item: WQ-OL
+  routing: RT-包缝机总装 OL assembly
+  components:
+  - - HSG-OL
+    - 1
+  - - OL-101
+    - 1
+  - - OL-201
+    - 1
+  - - OL-401
+    - 3
+  - - BUY-MOTOR-OL
+    - 1
+  - - BUY-CTRL-OL
+    - 1
+  - - BUY-BRG-6000
+    - 3
+  - - BUY-LOOPER-U
+    - 1
+  - - BUY-LOOPER-L
+    - 1
+  - - BUY-NEEDLE-DC
+    - 2
+  - - BUY-KNIFE
+    - 1
+  - - BUY-FEED-OL
+    - 1
+  - - BUY-PUMP-OL
+    - 1
+  - - BUY-SUMP-OL
+    - 1
+  - - RM-SEALANT
+    - 0.02
+  - - BUY-COVERS-OL
+    - 1
+  - - BUY-SCREW-M5
+    - 30
+  - - BUY-SCREW-M4
+    - 16
+  - - BUY-BOX-OL
+    - 1
+products:
+- item: WQ-LS
+  price: 520
+- item: WQ-OL
+  price: 640
+stock:
+  opening:
+    BUY-BELT-LS: 20
+    BUY-BOBCASE: 20
+    BUY-BOX-LS: 20
+    BUY-BOX-OL: 20
+    BUY-BRG-6000: 140
+    BUY-BUSH-20: 40
+    BUY-COVERS-LS: 20
+    BUY-COVERS-OL: 20
+    BUY-CTRL-LS: 20
+    BUY-CTRL-OL: 20
+    BUY-FEED-LS: 20
+    BUY-FEED-OL: 20
+    BUY-KNIFE: 20
+    BUY-LOOPER-L: 20
+    BUY-LOOPER-U: 20
+    BUY-MOTOR-LS: 20
+    BUY-MOTOR-OL: 20
+    BUY-NEEDLE-DB: 20
+    BUY-NEEDLE-DC: 40
+    BUY-OILPAN-LS: 20
+    BUY-PULLEY: 40
+    BUY-PUMP-OL: 20
+    BUY-SCREW-M4: 720
+    BUY-SCREW-M5: 1400
+    BUY-SUMP-OL: 20
+    BUY-TENSION: 20
+    RM-20CRMNTI-D40: 25.0
+    RM-40CR-D16: 16.0
+    RM-45-D16: 38.0
+    RM-BENT: 28.0
+    RM-CARB: 5.6
+    RM-GCR15-D9: 11.0
+    RM-INOC: 2.2
+    RM-MASK: 40
+    RM-PIG: 200
+    RM-PRIMER: 9.0
+    RM-PUTTY: 9.0
+    RM-RCS: 160
+    RM-RUSTOIL: 1.6
+    RM-SCRAP: 210
+    RM-SEALANT: 0.4
+    RM-TOPCOAT: 9.0
+  safety:
+    BUY-BRG-6000: 40
+    BUY-SCREW-M5: 400
+    BUY-SCREW-M4: 200
+    RM-INOC: 5
+measurements:
+- item: CAST-LS
+  operation: C160 铸件检验 Casting inspection
+  chars:
+  - &id001
+    code: cast_hb
+    name: 铸件硬度（布氏，打磨过的凸台）
+    unit: HB
+    nominal: 210
+    lo: 180
+    hi: 240
+    sigma: 7
+  - &id002
+    code: cast_tensile
+    name: 单铸试棒抗拉强度（本炉）
+    unit: MPa
+    nominal: 285
+    lo: 250
+    hi: 340
+    sigma: 10
+  - code: cast_wall
+    name: 关键壁厚（超声测厚，机臂）
+    unit: mm
+    nominal: 7.0
+    lo: 6.0
+    hi: 8.5
+    sigma: 0.2
+  - &id003
+    code: cast_pores
+    name: 关键部位气孔、砂眼（个）
+    unit: 个
+    nominal: 0
+    lo: 0
+    hi: 0
+    sigma: 0
+  - &id004
+    code: cast_moist
+    name: 浇注该型时的型砂含水（型砂实验室）
+    unit: '%'
+    nominal: 3.4
+    lo: 3.0
+    hi: 3.8
+    sigma: 0.1
+- item: CAST-OL
+  operation: C160 铸件检验 Casting inspection
+  chars:
+  - *id001
+  - *id002
+  - code: cast_wall
+    name: 关键壁厚（超声测厚，机臂）
+    unit: mm
+    nominal: 6.0
+    lo: 5.0
+    hi: 7.5
+    sigma: 0.2
+  - *id003
+  - *id004
+- item: HSG-LS
+  operation: H110 机壳终检 Housing final inspection
+  chars:
+  - code: hs_bore_up
+    name: 上轴立柱孔 Ø26 J7（气动量仪）
+    unit: mm
+    nominal: 26.0015
+    lo: 25.991
+    hi: 26.012
+    sigma: 0.0022
+  - code: hs_coax_up
+    name: 上轴孔三处同轴度（三坐标）
+    unit: mm
+    nominal: 0.005
+    lo: 0
+    hi: 0.01
+    sigma: 0.0012
+  - code: hs_coax_lo
+    name: 下轴孔三处同轴度（三坐标）
+    unit: mm
+    nominal: 0.004
+    lo: 0
+    hi: 0.01
+    sigma: 0.001
+  - code: hs_par
+    name: 上下轴孔平行度（三坐标）
+    unit: mm
+    nominal: 0.006
+    lo: 0
+    hi: 0.015
+    sigma: 0.0018
+  - code: hs_ctr
+    name: 上下轴孔中心距偏差（三坐标）
+    unit: mm
+    nominal: 0
+    lo: -0.02
+    hi: 0.02
+    sigma: 0.005
+  - code: hs_perp
+    name: 针杆孔对上轴孔垂直度（三坐标）
+    unit: mm
+    nominal: 0.005
+    lo: 0
+    hi: 0.01
+    sigma: 0.0012
+  - code: hs_pos
+    name: 针杆孔到下轴孔位置度（三坐标）
+    unit: mm
+    nominal: 0.014
+    lo: 0
+    hi: 0.03
+    sigma: 0.0035
+  - code: hs_h32
+    name: 下轴孔轴线到底板上平面 32 ± 0.03（三坐标）
+    unit: mm
+    nominal: 32.0
+    lo: 31.97
+    hi: 32.03
+    sigma: 0.007
+  - code: hs_flat
+    name: 底面 A 平面度（三坐标）
+    unit: mm
+    nominal: 0.01
+    lo: 0
+    hi: 0.02
+    sigma: 0.0025
+  - code: hs_clean
+    name: 清洁度：残留颗粒（每班抽检）
+    unit: mg
+    nominal: 6
+    lo: 0
+    hi: 15
+    sigma: 1.8
+- item: HSG-OL
+  operation: H110 机壳终检 Housing final inspection
+  chars:
+  - code: ho_coax
+    name: 主轴孔三处同轴度（三坐标）
+    unit: mm
+    nominal: 0.005
+    lo: 0
+    hi: 0.01
+    sigma: 0.0012
+  - code: ho_par
+    name: 下弯针摆轴孔对主轴孔平行度（三坐标）
+    unit: mm
+    nominal: 0.006
+    lo: 0
+    hi: 0.015
+    sigma: 0.0018
+  - code: ho_perp
+    name: 针杆孔对主轴孔垂直度（三坐标）
+    unit: mm
+    nominal: 0.005
+    lo: 0
+    hi: 0.01
+    sigma: 0.0012
+  - code: ho_pos
+    name: 针杆孔到下弯针摆轴孔位置度（三坐标）
+    unit: mm
+    nominal: 0.014
+    lo: 0
+    hi: 0.03
+    sigma: 0.0035
+  - code: ho_flat
+    name: 油底壳结合面平面度（三坐标）
+    unit: mm
+    nominal: 0.012
+    lo: 0
+    hi: 0.03
+    sigma: 0.003
+  - code: ho_leak
+    name: 油池渗漏试验压降（渗漏试验台，50 kPa 保压 20 s）
+    unit: Pa
+    nominal: 20
+    lo: 0
+    hi: 60
+    sigma: 6
+  - code: ho_clean
+    name: 清洁度：残留颗粒（每班抽检）
+    unit: mg
+    nominal: 5
+    lo: 0
+    hi: 15
+    sigma: 1.6
+- item: LS-101
+  operation: P110 零件检验 Part inspection
+  chars: &id005
+  - code: ls_bearing_d12
+    name: 轴承位直径 Ø12 k5
+    unit: mm
+    nominal: 12.005
+    lo: 12.001
+    hi: 12.009
+    sigma: 0.0012
+  - code: ls_runout
+    name: 轴承位径向圆跳动
+    unit: mm
+    nominal: 0.004
+    lo: 0
+    hi: 0.01
+    sigma: 0.0015
+  - code: ls_hrc
+    name: 轴颈表面硬度（高频淬火）
+    unit: HRC
+    nominal: 52.5
+    lo: 50
+    hi: 55
+    sigma: 0.7
+  - code: ls_phase
+    name: 曲柄紧固平面相位偏差
+    unit: °
+    nominal: 0
+    lo: -0.5
+    hi: 0.5
+    sigma: 0.12
+- item: LS-102
+  operation: P110 零件检验 Part inspection
+  chars: *id005
+- item: OL-101
+  operation: P110 零件检验 Part inspection
+  chars: *id005
+- item: LS-201
+  operation: P110 零件检验 Part inspection
+  chars: &id006
+  - code: nb_d
+    name: 针杆外径 Ø8 h5
+    unit: mm
+    nominal: 7.997
+    lo: 7.994
+    hi: 8.0
+    sigma: 0.0009
+  - code: nb_str
+    name: 针杆直线度（每 100 mm）
+    unit: mm
+    nominal: 0.002
+    lo: 0
+    hi: 0.005
+    sigma: 0.0007
+  - code: nb_hrc
+    name: 针杆硬度
+    unit: HRC
+    nominal: 60
+    lo: 58
+    hi: 63
+    sigma: 0.8
+- item: OL-201
+  operation: P110 零件检验 Part inspection
+  chars: *id006
+- item: LS-301
+  operation: P110 零件检验 Part inspection
+  chars:
+  - code: hk_tip
+    name: 梭尖到安装基准偏差（逐件）
+    unit: mm
+    nominal: 0
+    lo: -0.01
+    hi: 0.01
+    sigma: 0.0028
+  - code: hk_hrc
+    name: 旋梭表面硬度
+    unit: HRC
+    nominal: 61
+    lo: 58
+    hi: 64
+    sigma: 0.8
+- item: LS-401
+  operation: P110 零件检验 Part inspection
+  chars: &id007
+  - code: ec_ecc
+    name: 偏心距偏差（偏心测量仪）
+    unit: mm
+    nominal: 0
+    lo: -0.01
+    hi: 0.01
+    sigma: 0.0028
+  - code: ec_phase
+    name: 偏心相位偏差（对键槽）
+    unit: °
+    nominal: 0
+    lo: -0.5
+    hi: 0.5
+    sigma: 0.12
+  - code: ec_hrc
+    name: 表面硬度（渗碳淬火）
+    unit: HRC
+    nominal: 60.5
+    lo: 58
+    hi: 63
+    sigma: 0.8
+- item: OL-401
+  operation: P110 零件检验 Part inspection
+  chars: *id007
+- item: WQ-LS
+  operation: LA-EOL 出厂测试 End-of-line test
+  chars:
+  - code: lsa_gap
+    name: 梭尖间隙（调试工位量仪）
+    unit: mm
+    nominal: 0.07
+    lo: 0.04
+    hi: 0.1
+    sigma: 0.006
+  - code: lsa_timing
+    name: 钩线定时偏差（调试工位量仪）
+    unit: °
+    nominal: 0
+    lo: -1.5
+    hi: 1.5
+    sigma: 0.4
+  - code: lsa_feed
+    name: 送布牙高度（调试工位）
+    unit: mm
+    nominal: 0.9
+    lo: 0.8
+    hi: 1.0
+    sigma: 0.03
+  - code: lsa_temp
+    name: 跑合轴承处温升（跑合台）
+    unit: K
+    nominal: 15
+    lo: 0
+    hi: 25
+    sigma: 2.5
+  - code: lsa_noise
+    name: 空载噪声（5000 r/min）
+    unit: dB(A)
+    nominal: 79
+    lo: 60
+    hi: 83
+    sigma: 1.2
+  - code: lsa_stop
+    name: 停针定位误差
+    unit: °
+    nominal: 0
+    lo: -1.0
+    hi: 1.0
+    sigma: 0.25
+  - code: lsa_skip
+    name: 试缝跳针（次）
+    unit: 次
+    nominal: 0
+    lo: 0
+    hi: 0
+    sigma: 0
+- item: WQ-OL
+  operation: OA-EOL 出厂测试 End-of-line test
+  chars:
+  - code: ola_gap
+    name: 针与下弯针间隙（调试工位）
+    unit: mm
+    nominal: 0.025
+    lo: 0
+    hi: 0.05
+    sigma: 0.006
+  - code: ola_knife
+    name: 上下刀重叠量（调试工位）
+    unit: mm
+    nominal: 0.75
+    lo: 0.5
+    hi: 1.0
+    sigma: 0.06
+  - code: ola_temp
+    name: 跑合温升（跑合台）
+    unit: K
+    nominal: 16
+    lo: 0
+    hi: 28
+    sigma: 2.5
+  - code: ola_noise
+    name: 空载噪声（6000 r/min）
+    unit: dB(A)
+    nominal: 80
+    lo: 60
+    hi: 85
+    sigma: 1.2
+  - code: ola_leak
+    name: 跑合后渗油点（吸油纸检查）
+    unit: 处
+    nominal: 0
+    lo: 0
+    hi: 0
+    sigma: 0
+  - code: ola_skip
+    name: 试缝跳针（次）
+    unit: 次
+    nominal: 0
+    lo: 0
+    hi: 0
+    sigma: 0

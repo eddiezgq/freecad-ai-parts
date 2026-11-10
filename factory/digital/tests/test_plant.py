@@ -122,7 +122,7 @@ def test_excel_template_round_trip(tmp_path):
     assert _approx(plant.export_demo(), X.import_workbook(str(x)))
 
 
-@pytest.mark.parametrize("name", ["wenquest-robot", "example-sewing-products"])
+@pytest.mark.parametrize("name", ["wenquest-robot", "example-sewing-products", "wenquest-sewing"])
 def test_plant_yaml_excel_round_trip(tmp_path, name):
     """第 45 轮：机器人厂、示例缝纫机厂的清单（含产品六张表）写成 Excel 再导入，逐项一致。"""
     import yaml

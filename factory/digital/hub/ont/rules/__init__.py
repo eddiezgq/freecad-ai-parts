@@ -15,4 +15,4 @@ def rule(name):
     return deco
 
 
-from hub.ont.rules import production, quality, sales, supply, service, maintenance, finance, product, customer, ehs, people, energy, electronics, chip, sensor, motor  # noqa: E402,F401
+from hub.ont.rules import production, quality, sales, supply, service, maintenance, finance, product, customer, ehs, people, energy, electronics, chip, sensor, motor, sewing  # noqa: E402,F401
