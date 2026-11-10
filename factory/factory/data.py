@@ -385,8 +385,10 @@ if _P and _P.get("ITEMS"):                # 清单第 2 版：产品、物料、
         TEACH_STOCK = {}
         CASE_ITEMS = {}
         _PLANT_TEMPLATES = _P["INSPECTION_TEMPLATES"]
+WORKSTATION_PARALLEL = {}                 # 演示工厂：同时开工数 = 台数
 if _P:
     WORKSTATIONS = _P["WORKSTATIONS"]
+    WORKSTATION_PARALLEL = _P.get("WORKSTATION_PARALLEL") or {}
     OPERATIONS = _P["OPERATIONS"]
     INSPECTION_OPS = _P["INSPECTION_OPS"]
     SHIFT = _P["SHIFT"]

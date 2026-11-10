@@ -351,6 +351,8 @@ def derive(p):
         "COMPANY": dict(p["company"]),
         "DEMO_DATA": bool(p.get("demo_data", False)),
         "WORKSTATIONS": {w["name"]: (w["count"], tuple(w["cost"])) for w in ws},
+        # ERPNext 工作中心的“同时开工数”：同一工作中心各台设备能同时加工的件数之和（热处理炉、烘箱一炉多件；第 133 轮）
+        "WORKSTATION_PARALLEL": {w["name"]: max(int(w["count"]), sum(int(u.get("capacity") or 1) for u in units if u.get("workstation") == w["name"])) for w in ws},
         "WORKCENTER_POWER": {w["name"]: tuple(w["power"]) for w in ws if w.get("power")},
         "OPERATIONS": {o["name"]: o["workstation"] for o in ops},
         "INSPECTION_OPS": {o["name"] for o in ops if o.get("inspection")},
