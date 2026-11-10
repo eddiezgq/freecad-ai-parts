@@ -775,6 +775,25 @@ class ERP {
   }
 
   async manufacture(workOrder, qty, m) {
+    // 第 134 轮 D-8：工序顺序号都设成 1，ERPNext 忙时，最后一道工序的“完工”可能先于前面某道工序作业卡的提交到达；
+    // 这时完工入库会被 ERPNext 拒（某道工序未完成），以前不重试，工单就一直“进行中”。
+    // 先等这张工单的作业卡都提交（最多约 10 分钟），提交入库仍被拒就稍等再试。
+    for (let i = 0; i < 120; i++) {
+      const open = await this.list('Job Card', [['work_order', '=', workOrder], ['docstatus', '=', 0]], ['name']);
+      if (!open.length) break;
+      await new Promise((r) => setTimeout(r, 5000));
+    }
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await this.manufacture1(workOrder, qty, m);
+      } catch (e) {
+        if (attempt >= 5 || !(e instanceof ErpError) || e.status < 400) throw e;
+        await new Promise((r) => setTimeout(r, 10000 * (attempt + 1)));
+      }
+    }
+  }
+
+  async manufacture1(workOrder, qty, m) {
     const se = await this.method('erpnext.manufacturing.doctype.work_order.work_order.make_stock_entry',
       { work_order_id: workOrder, purpose: 'Manufacture', qty });
     delete se.name;
