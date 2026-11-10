@@ -4192,3 +4192,114 @@ measurements:
     lo: 0
     hi: 0
     sigma: 0
+# 第 138 轮：计量室抽检（工艺方案 7.1 节）。每张工单首件必抽，以后每 every 件抽 1 件；不占工艺路线，零件照常往下走。
+# 名义值、上下限、散布、每次分钟都是示例值；方案只写了下限的（铸件余量 ≥ 2 mm）上限按示例定。
+# 机壳的三坐标全检在工艺路线 H105 里，清洁度在机壳终检记录，这里不重复。
+sampling:
+- item: CAST-LS
+  after: C160 铸件检验 Casting inspection
+  unit: cmm-1
+  every: 20
+  minutes: 25
+  chars:
+  - {code: smp_cast_stock, name: 加工面最小余量（三坐标扫描，与三维模型比对）, unit: mm, nominal: 2.8, lo: 2.0, hi: 4.0, sigma: 0.25}
+  - {code: smp_cast_core, name: 砂芯偏移（机臂内腔，三坐标扫描）, unit: mm, nominal: 0.3, lo: 0, hi: 1.0, sigma: 0.15}
+- item: CAST-OL
+  after: C160 铸件检验 Casting inspection
+  unit: cmm-1
+  every: 20
+  minutes: 20
+  chars:
+  - {code: smp_cast_stock, name: 加工面最小余量（三坐标扫描，与三维模型比对）, unit: mm, nominal: 2.8, lo: 2.0, hi: 4.0, sigma: 0.25}
+  - {code: smp_cast_core, name: 砂芯偏移（油池芯，三坐标扫描）, unit: mm, nominal: 0.3, lo: 0, hi: 1.0, sigma: 0.15}
+- item: HSG-LS
+  after: H105 三坐标检测 CMM inspection
+  unit: cmm-4
+  every: 30
+  minutes: 10
+  chars:
+  - {code: smp_hsg_ra, name: 上轴孔 Ra（粗糙度轮廓仪）, unit: µm, nominal: 0.5, lo: 0, hi: 0.8, sigma: 0.07}
+- item: HSG-OL
+  after: H105 三坐标检测 CMM inspection
+  unit: cmm-4
+  every: 30
+  minutes: 10
+  chars:
+  - {code: smp_hsg_ra, name: 主轴孔 Ra（粗糙度轮廓仪）, unit: µm, nominal: 0.5, lo: 0, hi: 0.8, sigma: 0.07}
+- item: LS-101
+  after: P110 零件检验 Part inspection
+  unit: cmm-3
+  every: 10
+  minutes: 6
+  chars:
+  - {code: smp_sh_round, name: 轴承位圆度（圆度仪）, unit: mm, nominal: 0.0015, lo: 0, hi: 0.003, sigma: 0.0004}
+- item: LS-101
+  after: P110 零件检验 Part inspection
+  unit: cmm-1
+  every: 30
+  minutes: 15
+  chars:
+  - {code: smp_sh_phase, name: 曲柄紧固平面相位（三坐标复核）, unit: °, nominal: 0, lo: -0.5, hi: 0.5, sigma: 0.12}
+- item: LS-201
+  after: P110 零件检验 Part inspection
+  unit: cmm-3
+  every: 30
+  minutes: 5
+  chars:
+  - {code: smp_nb_round, name: 针杆外圆圆度（圆度仪）, unit: mm, nominal: 0.0008, lo: 0, hi: 0.002, sigma: 0.0003}
+- item: LS-301
+  after: P110 零件检验 Part inspection
+  unit: cmm-1
+  every: 50
+  minutes: 20
+  chars:
+  - {code: smp_hook_tip, name: 梭尖到安装基准（三坐标复核检具）, unit: mm, nominal: 0, lo: -0.01, hi: 0.01, sigma: 0.003}
+- item: LS-401
+  after: P110 零件检验 Part inspection
+  unit: cmm-1
+  every: 30
+  minutes: 12
+  chars:
+  - {code: smp_ecc_key, name: 键槽对偏心相位（三坐标）, unit: °, nominal: 0, lo: -0.5, hi: 0.5, sigma: 0.12}
+- item: LS-102
+  after: P110 零件检验 Part inspection
+  unit: cmm-3
+  every: 10
+  minutes: 6
+  chars:
+  - {code: smp_sh_round, name: 轴承位圆度（圆度仪）, unit: mm, nominal: 0.0015, lo: 0, hi: 0.003, sigma: 0.0004}
+- item: LS-102
+  after: P110 零件检验 Part inspection
+  unit: cmm-1
+  every: 30
+  minutes: 15
+  chars:
+  - {code: smp_sh_phase, name: 曲柄紧固平面相位（三坐标复核）, unit: °, nominal: 0, lo: -0.5, hi: 0.5, sigma: 0.12}
+- item: OL-101
+  after: P110 零件检验 Part inspection
+  unit: cmm-3
+  every: 10
+  minutes: 6
+  chars:
+  - {code: smp_sh_round, name: 轴承位圆度（圆度仪）, unit: mm, nominal: 0.0015, lo: 0, hi: 0.003, sigma: 0.0004}
+- item: OL-101
+  after: P110 零件检验 Part inspection
+  unit: cmm-1
+  every: 30
+  minutes: 15
+  chars:
+  - {code: smp_sh_phase, name: 曲柄紧固平面相位（三坐标复核）, unit: °, nominal: 0, lo: -0.5, hi: 0.5, sigma: 0.12}
+- item: OL-201
+  after: P110 零件检验 Part inspection
+  unit: cmm-3
+  every: 30
+  minutes: 5
+  chars:
+  - {code: smp_nb_round, name: 针杆外圆圆度（圆度仪）, unit: mm, nominal: 0.0008, lo: 0, hi: 0.002, sigma: 0.0003}
+- item: OL-401
+  after: P110 零件检验 Part inspection
+  unit: cmm-1
+  every: 30
+  minutes: 12
+  chars:
+  - {code: smp_ecc_key, name: 键槽对偏心相位（三坐标）, unit: °, nominal: 0, lo: -0.5, hi: 0.5, sigma: 0.12}

@@ -47,7 +47,8 @@ for i, (item, qty, *rest) in enumerate(setup["batches"]):
 ms = [m["data"] for t, m in out if m["type"] == "quality.measurement"]
 print(json.dumps([{{"wo": d["work_order"], "item": d["item"], "op": d["operation"], "char": d["characteristic"], "v": d["value_mm"],
                    "serial": d["part_serial"], "on": d.get("assembled_on"), "hi": d.get("upper_tol_mm"), "lo": d.get("lower_tol_mm"),
-                   "result": d["result"]}} for d in ms], ensure_ascii=False))
+                   "result": d["result"], "sample": d.get("sample"), "fts": d.get("factory_ts"),
+                   "src": next((m["source"] for t, m in out if m["type"] == "quality.measurement" and m["data"] is d), None)}} for d in ms], ensure_ascii=False))
 """
 
 
@@ -183,3 +184,42 @@ def test_ai_rules_flag_injected_problems():
     hit = {k for k, (f, p) in fns.items() if f(bad, p, {})}
     assert hit == {"SW1", "SW2", "SW3", "SW4", "SW5"}, hit
     assert fns["SW3"][0](Ctx(rows(ms)), fns["SW3"][1], {})[0].subject == ("Machine", "hmc-3")
+
+
+def test_metrology_sampling_first_piece_and_every_n():
+    """第 138 轮：计量室抽检——每张工单首件必抽，以后每 N 件抽 1 件；记录来自指定的计量设备，晚规定的分钟数；
+    抽检不占工艺路线（零件检验的逐件测量照常）。"""
+    import datetime as dt
+    ms = _run({"batches": [["LS-101", 12], ["LS-101", 3]]})
+    smp = [m for m in ms if m["sample"]]
+    rnd = [m for m in smp if m["char"] == "smp_sh_round"]
+    ph = [m for m in smp if m["char"] == "smp_sh_phase"]
+    # 圆度仪每 10 件：第一张单抽第 1、10 件；第二张单首件（累计第 13 件）必抽
+    assert [m["wo"] for m in rnd] == ["WO-0", "WO-0", "WO-1"]
+    assert len({m["serial"] for m in rnd}) == 3                  # 首件 = 这张单最先做完零件检验的那件
+    assert {m["src"] for m in rnd} == {"sim/cmm-3"} and {m["src"] for m in ph} == {"sim/cmm-1"}
+    # 三坐标每 30 件：两张单各只有首件
+    assert [m["wo"] for m in ph] == ["WO-0", "WO-1"]
+    assert all(m["op"].startswith("计量室抽检") for m in smp)
+    # 晚 6 分钟（圆度仪每次 6 分钟）：与同一件在零件检验工序的测量比
+    t = lambda x: dt.datetime.fromisoformat(x.replace("Z", "+00:00"))
+    for m in rnd:
+        base = next(x for x in ms if x["serial"] == m["serial"] and not x["sample"] and x["op"].startswith("P110"))
+        assert abs((t(m["fts"]) - t(base["fts"])).total_seconds() - 360) < 1
+    # 逐件测量不变：15 件都有零件检验的测量
+    assert len({m["serial"] for m in ms if not m["sample"] and m["op"].startswith("P110")}) == 15
+
+
+def test_sampling_validation_errors():
+    sys.path[:0] = [FAC]
+    from factory import plant
+    p = yaml.safe_load(open(SEW, encoding="utf-8"))
+    p["sampling"] = [
+        {"item": "NOPE", "after": "P110 零件检验 Part inspection", "unit": "cmm-1", "every": 5, "minutes": 3, "chars": []},
+        {"item": "LS-101", "after": "K20 车削 Turning", "unit": "cmm-9", "every": 0, "minutes": 0,
+         "chars": [{"code": "ls_phase", "name": "x", "nominal": 1, "lo": 0, "hi": 2, "sigma": 0.1}, {"code": "y", "name": "y"}]},
+    ]
+    errs = "\n".join(plant.validate(p))
+    assert "sampling[0].item" in errs
+    assert "sampling[1].after" in errs and "sampling[1].unit" in errs and "sampling[1].every" in errs and "sampling[1].minutes" in errs
+    assert "sampling[1].chars[1]" in errs and "代号重复" in errs

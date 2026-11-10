@@ -189,6 +189,8 @@ class Engine:
         self.auto_start = auto_start
         self.rng = random.Random(seed)
         self._rng_late = random.Random("late-{}".format(seed))     # 第 118 轮以后加的测量特性用（不打乱原有序列）
+        self._rng_sample = random.Random("sample-{}".format(seed))  # 第 138 轮：计量室抽检用（不打乱原有序列）
+        self._sample_n = {}       # 第 138 轮：(物料, 工序, 设备) → 已做完的合格件数（每 N 件抽 1 件）
         self.status_every_s = status_every_s
         self.q = []               # 事件堆：(sim_t, seq, kind, payload)
         self.seq = itertools.count()
@@ -891,6 +893,7 @@ class Engine:
         good = p.result != "fail" if (unit == "qc-01" or spec) else True
         if good:
             job.good += 1
+            self._sample(p, job, t, corr)
         self.pub(unit_topic(unit, "event"), "machine.event", "sim/" + unit,
                  {"event": "cycle_end", "work_order": job.wo.name, "operation": job.op,
                   "op_index": job.op_index, "n_ops": len(job.wo.ops), "item": job.wo.item,
@@ -1015,6 +1018,32 @@ class Engine:
                       **({"template": tmpl, "spec": "{} ({})".format(c["name"], c.get("unit") or "mm")} if tmpl else {}),
                       **trace, **extra}, corr)
         return result
+
+    def _sample(self, p, job, t, corr):
+        """第 138 轮：计量室抽检。每张工单的首件必抽，以后每 N 件抽 1 件；被抽到的零件过规定分钟数后由计量设备出测量记录。
+        抽检不占工艺路线，零件照常往下走；测量值现在就算好（快照里的事件只能带数据），到时再发。"""
+        from factory import data
+        for rule in data.SAMPLING.get((job.wo.item, job.op)) or []:
+            key = "{}|{}|{}".format(job.wo.item, job.op, rule["unit"])
+            n = self._sample_n.get(key, 0) + 1
+            self._sample_n[key] = n
+            if job.good != 1 and n % rule["every"] != 0:
+                continue
+            rng = self._rng_sample
+            recs = []
+            for c in rule["chars"]:
+                v = round(c["nominal"] + rng.gauss(0, c["sigma"]) + self.errors.plant_offset(p, c["code"]), 4)
+                recs.append({"part_serial": p.serial, "item": job.wo.item, "work_order": job.wo.name,
+                             "operation": "计量室抽检（{}之后）".format(job.op.split(" ")[0]), "after_operation": job.op,
+                             "sample": True, "characteristic": c["code"], "name": c["name"], "unit": c.get("unit") or "mm",
+                             "nominal_mm": c["nominal"], "lower_tol_mm": c["lo"], "upper_tol_mm": c["hi"], "value_mm": v,
+                             "result": "pass" if c["lo"] <= v <= c["hi"] else "fail", "n_chars": len(rule["chars"])})
+            self.at(t + rule["minutes"] * 60, "sample_done", unit=rule["unit"], recs=recs, corr=corr)
+
+    def _ev_sample_done(self, t, unit, recs, corr):
+        for r in recs:
+            self.pub(unit_topic(unit, "measurement"), "quality.measurement", "sim/" + unit,
+                     dict(r, factory_ts=self.factory_ts(t)), corr)
 
     # ------------------------------------------------------------ 停机
     def _go_down(self, m, t, dur_s, reason, kind="down", extra=None):
@@ -1220,7 +1249,8 @@ class Engine:
                 "staffing": self.staffing.to_dict(), "staff_wait": self._staff_wait, "energy": self.energy.to_dict(),
                 "shift_wait": self._shift_wait, "wos": wos, "machines": machines, "agvs": agvs,
                 "transfers": [[p.wo.name, p.serial, f, to] for p, f, to in self.transfers],
-                "queue": [[qt, qs, k, pl] for qt, qs, k, pl in sorted(self.q)]}
+                "queue": [[qt, qs, k, pl] for qt, qs, k, pl in sorted(self.q)],
+                "sample_n": dict(self._sample_n)}
 
     @classmethod
     def from_snapshot(cls, s, publish, clock):
@@ -1281,6 +1311,7 @@ class Engine:
                 a.task["to_override"] = tk["to_override"]
         e.transfers = deque((parts[(wn, sn)], f, to) for wn, sn, f, to in s["transfers"])
         e.q = [(qt, qs, k, pl) for qt, qs, k, pl in s["queue"]]
+        e._sample_n = dict(s.get("sample_n") or {})
         heapq.heapify(e.q)
         e.seq = itertools.count(s["seq"])
         e.tokens = itertools.count(s["tokens"])

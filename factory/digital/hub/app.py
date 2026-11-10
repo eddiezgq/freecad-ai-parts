@@ -1129,6 +1129,10 @@ def characteristics(u=Depends(user_of)):
         for (item, op), chars in F.MEASURE.items():
             out += [{"item": item, "key": c["code"], "name": "{} · {}".format(item, c["name"]), "unit": c.get("unit") or "mm",
                      "operation": op} for c in chars]
+        for (item, op), rules in (getattr(F, "SAMPLING", None) or {}).items():      # 第 138 轮：计量室抽检
+            for r in rules:
+                out += [{"item": item, "key": c["code"], "name": "{} · {}（计量室抽检）".format(item, c["name"]), "unit": c.get("unit") or "mm",
+                         "operation": "计量室抽检（{}之后）".format(op.split(" ")[0]), "unit_id": r["unit"], "sample": True} for c in r["chars"]]
         return out
     from sim import errors as ERR
     # 单位按特性名称里写的（如“Ra（µm）”）；公差上下限相同（0–0）的是计数型特性（第 13 轮 11.4：磨削烧伤“有/无”）

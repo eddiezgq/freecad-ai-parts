@@ -154,6 +154,8 @@ PRODUCTS = {"WQR-105": FG_SELLING_PRICE}
 # 测试、检验工序上仿真车间合成的测量特性：(物料, 工序) → [{code, name, unit, nominal, lo, hi, sigma}]（清单第 2 版的 measurements）。
 # 演示工厂的三坐标测量用自己的误差模型（sim/errors.py），这里空着
 MEASURE = {}
+# 第 138 轮：计量室抽检（清单 sampling）：(物料, 之后的工序) → [{unit, every, minutes, chars}]；没有这一节的厂空着
+SAMPLING = {}
 
 # 标准外购件（及成品 WQR-105）在问渠零件库里的编号（第 5 轮 P10②）；与零件库各条目的 factory.erp_items 一致（library/tests 核对）
 LIBRARY_REFS = {
@@ -380,6 +382,7 @@ if _P and _P.get("ITEMS"):                # 清单第 2 版：产品、物料、
     PACK = _P.get("PACK") or {}
     PARK_ITEM = _P.get("PARK_ITEM") or {}
     MEASURE = _P["MEASURE"]
+    SAMPLING = _P.get("SAMPLING") or {}
     KEY_MATERIALS = _P["KEY_MATERIALS"]
     if not _P["DEMO_DATA"]:                 # 企业工厂：没有演示的教学库存、教材案例件；检验模板来自清单
         TEACH_STOCK = {}
