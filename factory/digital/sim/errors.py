@@ -117,6 +117,17 @@ PROBLEMS.update({
     "wind_tension": {"name": "绕线机 wd-2 张力不稳（只有它绕的定子三相电阻不平衡）", "unit": "wd-2", "fix": "fix_tensioner", "default": 1.6, "plant": MOTOR},
     "varnish_low": {"name": "浸漆烘箱炉温偏低（绝缘漆没固化透、耐压漏电流变大）", "unit": "vo-1", "fix": "profile_varnish", "default": 1.2, "plant": MOTOR},
 })
+SEWING = "wenquest-sewing"
+PROBLEMS.update({            # 第 134 轮：问渠缝纫机厂（铸造、机壳加工、关键零件）
+    "sand_moist": {"name": "混砂机加水控制失灵、型砂含水偏高（铸件气孔）", "unit": "mix-1", "fix": "control_sand_water", "default": 0.75, "plant": SEWING},
+    "inoc_fade": {"name": "孕育剂受潮、孕育衰退（铸件硬度偏高、加工崩刀）", "unit": "pour-1", "fix": "dry_inoculant", "default": 40.0, "plant": SEWING},
+    "hmc_pin": {"name": "3 号卧加精镗夹具定位销磨损（只有它镗的平缝机壳针杆孔位置度、中心距漂移）", "unit": "hmc-3", "fix": "replace_hmc_pins",
+                "default": 0.025, "plant": SEWING},
+    "age_tc": {"name": "时效炉热电偶漂移、实际炉温偏低（残余应力没去掉，机壳同轴度、平面度变差）", "unit": "age-1", "fix": "calibrate_age_tc",
+               "default": 0.008, "plant": SEWING},
+    "ind_coil": {"name": "高频淬火感应器老化、加热不足（轴颈硬度偏低）", "unit": "ihd-1", "fix": "replace_ind_coil", "default": 5.0, "plant": SEWING},
+})
+SEW_BORE = ("hmc-1", "hmc-2", "hmc-3", "hmc-4", "hmc-5", "hmc-6", "hmc-7")     # 缝纫机厂的卧加：记下精镗用的哪一台（分层用）
 PROBE_SITE = 5               # 磨损的测试位（0 起数，页面上显示第 6 位；示例）
 SHUNT_LOT = 30               # 采样电阻每卷用于 30 块驱动板（示例）：按测试顺序依次用掉；仓库有到货批次时用到货批次
 LOT_SIZE = 8                 # 谐波减速器每批 8 台（示例）：关节按装配顺序依次用掉。第 51 轮：仓库有真实到货批次时用到货批次（add_lot）
@@ -171,6 +182,14 @@ FIXES.update({                # 传感器厂（第 125 轮）
     "tighten_eft": "编码器终检判定加严",
 })
 FIXES.update({                # 电机厂（第 131 轮）
+    "control_sand_water": "修复混砂机在线水分控制、和型砂实验室比对校准，型砂含水回到 3.0–3.8 %",
+    "dry_inoculant": "孕育剂换新并烘干、密封保存，孕育后 8 min 内浇完",
+    "replace_hmc_pins": "更换 3 号卧加精镗夹具的两个定位销和衬套，首件上三坐标确认",
+    "calibrate_age_tc": "校准时效炉热电偶、测炉温均匀性，按工艺炉温重新时效",
+    "replace_ind_coil": "更换高频淬火感应器，调整加热参数，首件剖检硬化层",
+    "widen_tol_sew": "放宽机壳和轴的检验公差（不对症：问题还在，只是不报）",
+    "cmm_100": "三坐标改成全检（不对症：只是查得更多，不能消除原因）",
+    "rebore": "超差机壳返镗（不对症：返镗只救这一件，后面的照样超差）",
     "replace_mag_fixture": "更换磁钢粘贴定位工装，用标准转子复核磁钢位置",
     "service_magnetizer": "检修充磁机（换储能电容、校充磁电压），已充的转子复充磁",
     "fix_tensioner": "检修绕线机 wd-2 张力器、校张力，复测这台绕的定子",
@@ -189,7 +208,9 @@ SENSOR_FIXES = ("replace_fixture", "replace_gap_gauge", "replace_ffu", "profile_
                 "retrain", "change_gauge")
 MOTOR_FIXES = ("replace_mag_fixture", "service_magnetizer", "fix_tensioner", "profile_varnish", "widen_mft", "comp_drive", "rebake",
                "retrain", "change_gauge")
-PLANT_FIXES = {ROBOT: ROBOT_FIXES, PCB: PCB_FIXES, CHIP: CHIP_FIXES, SENSOR: SENSOR_FIXES, MOTOR: MOTOR_FIXES}
+SEWING_FIXES = ("control_sand_water", "dry_inoculant", "replace_hmc_pins", "calibrate_age_tc", "replace_ind_coil", "widen_tol_sew", "cmm_100",
+                "rebore", "retrain", "change_gauge")
+PLANT_FIXES = {ROBOT: ROBOT_FIXES, PCB: PCB_FIXES, CHIP: CHIP_FIXES, SENSOR: SENSOR_FIXES, MOTOR: MOTOR_FIXES, SEWING: SEWING_FIXES}
 
 
 def problems_for(plant_id):
@@ -213,6 +234,7 @@ TS_CODES = ("ts_nonlin", "ts_hyst", "ts_creep", "ts_tczero")
 MW_CODES = ("mt_ke", "mt_unbal", "mt_thd", "mt_cog")          # 第 131 轮：由电机终检波形算出
 MW_ITEMS = ("WQ-SM100", "WQ-SM200", "WQ-SM400", "WQ-AM750")
 MOTOR_CODES = ("st_r_unbal", "st_surge", "st_leak", "mt_i0")
+SEW_CODES = ("cast_hb", "cast_pores", "cast_moist", "hs_pos", "hs_ctr", "hs_coax_up", "hs_flat", "ls_hrc")     # 第 134 轮
 MOTOR_I0 = {"WQ-SM100": 0.25, "WQ-SM200": 0.40, "WQ-SM400": 0.70, "WQ-AM750": 1.20}   # 空载电流名义值（与清单一致，示例）
 CHIP_CODES = ("cp_yield", "cp_contact", "chipping", "bond_pull", "ball_shear", "mold_void", "ft_yield")
 PCB_CODES = ("spi_volume", "spi_height", "reflow_peak", "reflow_tal", "offset_ic", "aoi_defects", "ict_shunt", "fct_isense")
@@ -391,6 +413,8 @@ class ErrorModel:
             part.hd_lot = lot
         if unit.startswith(("wb-", "cb-", "wd-")):  # 芯片封测厂（第 103 轮）：哪台键合机；传感器厂（第 125 轮）：哪台粘接对心机；电机厂（第 131 轮）：哪台绕线机（分层用）
             st["_ja"] = unit
+        if unit in SEW_BORE:                 # 缝纫机厂（第 134 轮）：最后一次在哪台卧加上加工（= 精镗那台）
+            st["_ja"] = unit
         if unit == "ict-1" and "_shunt" not in st and _uses_shunt(str(getattr(getattr(part, "wo", None), "item", "") or "")):
             self._take_shunt(part, st)       # 电路板厂（第 85 轮）：在线测试时认出这块驱动板用的是哪一卷采样电阻
         for p, a in self.active.items():
@@ -491,6 +515,30 @@ class ErrorModel:
             return 0.04 * ramp("magnetizer_low", 3.0) * MOTOR_I0.get(item, 0.5)
         return 0.0
 
+    def _sew_offset(self, st, code):
+        """缝纫机厂（第 134 轮）：铸件、机壳、轴上叠加的偏差"""
+        def ramp(p, tau):
+            if p not in st:
+                return 0.0
+            mag, k = st[p]
+            return mag * (1 - math.exp(-k / tau))
+        if code == "cast_moist":
+            return ramp("sand_moist", 2.0) * self.rng.uniform(0.85, 1.15)
+        if code == "cast_pores":            # 计数型：关键部位气孔数（泊松），型砂含水每高 0.1 %，平均多 0.25 个
+            return float(_poisson(self.rng, 2.5 * ramp("sand_moist", 2.0))) if "sand_moist" in st else 0.0
+        if code == "cast_hb":
+            return ramp("inoc_fade", 1.5) * self.rng.uniform(0.85, 1.15)
+        if code in ("hs_pos", "hs_ctr") and st.get("_ja") == "hmc-3" and "hmc_pin" in st:
+            r = ramp("hmc_pin", 3.0) * self.rng.uniform(0.85, 1.15)
+            return r if code == "hs_pos" else 0.55 * r
+        if code == "hs_coax_up":
+            return ramp("age_tc", 2.0) * self.rng.uniform(0.8, 1.2)
+        if code == "hs_flat":
+            return 1.6 * ramp("age_tc", 2.0) * self.rng.uniform(0.8, 1.2)
+        if code == "ls_hrc":
+            return -ramp("ind_coil", 3.0) * self.rng.uniform(0.85, 1.15)
+        return 0.0
+
     def _cp(self, part):
         """这片晶圆的 CP 结果（算一次记在零件上）：各测试位接触电阻 → 晶圆图 → 良率"""
         from sim import wafermap
@@ -575,6 +623,8 @@ class ErrorModel:
             return self._pcb_offset(st, code)
         if code in CHIP_CODES:
             return self._chip_offset(st, code)
+        if code in SEW_CODES:                                # 缝纫机厂（第 134 轮）
+            return self._sew_offset(st, code)
         if code in MOTOR_CODES:                              # 电机厂（第 131 轮）
             return self._motor_offset(st, code, str(getattr(getattr(part, "wo", None), "item", "") or ""))
         if code in TS_CODES:                                 # 传感器厂（第 125 轮）：胶没固化透

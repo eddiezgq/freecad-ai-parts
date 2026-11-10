@@ -14,6 +14,8 @@ export const EDITIONS = [
   { key: 'sensor', name: '传感器厂', who: '问渠数字工业园 · 传感器厂', plant: 'wenquest-sensor' },
   // 第 131 轮：第六座厂，电机厂（伺服电机、AGV 驱动电机）
   { key: 'motor', name: '电机厂', who: '问渠数字工业园 · 电机厂', plant: 'wenquest-motor' },
+  // 第 134 轮：问渠缝纫机厂（按工艺方案建的整机厂，不在工业园的买卖链里）
+  { key: 'sewing', name: '缝纫机厂', who: '问渠缝纫机厂', plant: 'wenquest-sewing' },
 ];
 
 // 这座厂能看到哪几册：带 plant 的只在那座厂显示
@@ -38,4 +40,5 @@ export const STAGE_CHAPTER = {
   chip: ['plant', 'products-bom', 'products-bom', 'products-bom', 'plant', 'wafer-test', 'equip-ai'],
   sensor: ['plant', 'products-bom', 'products-bom', 'products-bom', 'plant', 'encoder-line', 'equip-ai'],
   motor: ['plant', 'products-bom', 'products-bom', 'products-bom', 'plant', 'final-test', 'equip-ai'],
+  sewing: ['plant', 'products-bom', 'products-bom', 'products-bom', 'foundry-housing', 'foundry-housing', 'equip-ai'],
 };

@@ -18,6 +18,25 @@ GROUP = {"saw": "机加班", "lathe": "机加班", "mc": "机加班", "grinder":
 GROUP_EN = {"机加班": "Machining crew", "装配班": "Assembly crew", "测试标定": "Test & calibration", "设备组": "Maintenance",
             "安环部": "EHS", "计划物流": "Planning & logistics"}
 OPERATOR_POST = {"机加班": "操作工", "装配班": "装配工", "测试标定": "操作工"}
+# 第 134 轮：缝纫机厂一百多台设备，28 个名字不够——用完后按“姓 + 名”组合往下排（虚构、确定性；前 28 个与以前完全一样）
+SURNAMES = "王李张刘陈杨黄赵周吴徐孙马朱胡郭何罗高梁宋郑谢韩唐冯于董萧曹袁邓许傅沈曾彭吕蒋蔡贾丁魏薛叶阎余潘杜戴夏钟汪田任姜范方石"
+GIVEN = ["建华", "晓明", "丽娟", "志强", "海燕", "国庆", "秀英", "春生", "玉兰", "德胜", "桂芳", "文博", "雅琴", "振宇", "淑贞", "立新"]
+GIVEN_FEMALE = {"丽娟", "海燕", "秀英", "玉兰", "桂芳", "雅琴", "淑贞"}
+
+
+def _names():
+    yield from NAMES
+    seen = set(NAMES)
+    for g in GIVEN:
+        for s in SURNAMES:
+            n = s + g
+            if n not in seen:
+                seen.add(n)
+                yield n
+
+
+def _female(name):
+    return name in FEMALE_NAMES or (len(name) == 3 and name[1:] in GIVEN_FEMALE)
 
 
 def plan(eq):
@@ -28,7 +47,7 @@ def plan(eq):
         groups.setdefault(GROUP.get(d["kind"], "机加班"), []).append(u)
     needs = tuple(u for u, d in eq.items() if d["kind"] not in equip.STAFFED_EXCEPT)
     people, skills, posts = [], {}, {}
-    names = iter(NAMES)
+    names = _names()
 
     def add(post, dept):
         pid = "R{:02d}".format(len(people) + 1)
@@ -61,7 +80,7 @@ def plan(eq):
     depts = [(g, GROUP_EN[g]) for g in order] + [(g, GROUP_EN[g]) for g in ("设备组", "安环部", "计划物流")]
     single = next((u for u in needs if eq[u]["kind"] == "calib"), None)
     return {"people": people, "skills": {k: v for k, v in skills.items() if v}, "posts": posts, "needs": needs, "depts": depts,
-            "female": {p[0] for p in people if p[1] in FEMALE_NAMES}, "single": single}
+            "female": {p[0] for p in people if _female(p[1])}, "single": single}
 
 
 def active():

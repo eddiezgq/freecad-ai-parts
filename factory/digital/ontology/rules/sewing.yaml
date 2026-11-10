@@ -1,0 +1,48 @@
+# 第 134 轮：问渠缝纫机厂的质量规则。plant 写了厂的清单 id：只在那座厂的规则目录里出现（别的厂看不到）
+domain: quality
+rules:
+  SW1:
+    name: 型砂含水偏高
+    fn: sew_sand_moist
+    plant: wenquest-sewing
+    severity: warn            # 有件超出上限为 critical
+    role: [quality, engineer, operator]
+    params: {last: 6, above: 3.7}
+    desc: 最近 last 件铸件浇注时的型砂含水均值超过 above %（上限 3.8 %）
+    hint: 型砂水分高，铸件就出气孔：查混砂机在线水分控制、和型砂实验室比对；关键部位的气孔加工后才露出来，铸件检验要看轴承座凸台
+  SW2:
+    name: 铸件硬度偏高
+    fn: sew_cast_hb
+    plant: wenquest-sewing
+    severity: warn
+    role: [quality, engineer]
+    params: {last: 6, above: 230}
+    desc: 最近 last 件铸件的布氏硬度均值超过 above HB（上限 240 HB）
+    hint: 硬度高、三角试片白口变宽，是孕育不够或孕育衰退：查孕育剂是否受潮、孕育后到浇完的时间；硬点会让加工中心崩刀
+  SW3:
+    name: 针杆孔位置度偏大（按精镗卧加）
+    fn: sew_bore_pos
+    plant: wenquest-sewing
+    severity: warn            # 均值超出上限为 critical
+    role: [quality, engineer, operator]
+    params: {last: 10, above: 0.022, gap: 0.008}
+    desc: 最近 last 件平缝机壳的针杆孔位置度按精镗卧加分开：某台均值超过 above mm，或比别的卧加高 gap mm 以上
+    hint: 只有一台卧加镗的机壳偏，查那台精镗夹具的定位销和衬套（一面两销定位，销磨了工件就偏）；返镗只能救这一件
+  SW4:
+    name: 机壳平面度变差
+    fn: sew_flatness
+    plant: wenquest-sewing
+    severity: warn
+    role: [quality, engineer]
+    params: {last: 6, above: 0.016}
+    desc: 最近 last 件平缝机壳底面平面度均值超过 above mm（上限 0.020 mm），同轴度一起变大
+    hint: 机壳加工后变形，多半是残余应力没去掉：测时效炉的炉温曲线、校热电偶；省了或做不到位的时效，装到用户那里几个月后会跳针
+  SW5:
+    name: 轴颈硬度偏低
+    fn: sew_shaft_hrc
+    plant: wenquest-sewing
+    severity: warn
+    role: [quality, engineer]
+    params: {last: 6, below: 51}
+    desc: 最近 last 根轴的轴颈表面硬度均值低于 below HRC（下限 50 HRC）
+    hint: 高频淬火加热不足：查感应器有没有烧蚀老化、加热功率和时间，剖一根看硬化层深
