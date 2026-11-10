@@ -17,6 +17,7 @@ import datetime as dt
 import json
 import os
 import sys
+import time
 import urllib.parse
 
 from factory import data as D
@@ -35,7 +36,13 @@ class Client:
         import requests
         self.base = url.rstrip("/")
         self.s = session or requests.Session()
-        r = self.s.post(self.base + "/api/method/login", data={"usr": user, "pwd": password}, timeout=30)
+        # 部署时各厂同时导入、仿真同时登录，数据库忙时 Frappe 登录偶尔报 500（11-10：SAVEPOINT does not exist），
+        # 稍等重试；401 之类的真错误不重试
+        for i in range(5):
+            r = self.s.post(self.base + "/api/method/login", data={"usr": user, "pwd": password}, timeout=30)
+            if r.status_code < 500:
+                break
+            time.sleep(5 * (i + 1))
         if r.status_code != 200:
             raise ERPError("登录失败（{}）：请检查地址、用户名和密码".format(r.status_code))
 

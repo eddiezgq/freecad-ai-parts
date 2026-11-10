@@ -74,6 +74,18 @@ def erp_docs(doctype):
                 headers={"Authorization": "token {}:{}".format(A.erp_key, A.erp_secret)})["data"]
 
 
+def bridge_failures(mgr):
+    """桥接写 ERPNext 失败的原文（总线上 action=failed 的 erp.doc），CI 诊断用"""
+    try:
+        errs = [e for e in hub("GET", "/api/history?type=erp.doc&limit=500", token=mgr) if e["data"].get("action") == "failed"]
+        for e in errs[:8]:
+            print("    诊断 桥接写 ERPNext 失败：{}".format(json.dumps(e["data"], ensure_ascii=False)[:400]))
+        if not errs:
+            print("    诊断 桥接写 ERPNext 没有失败记录")
+    except Exception as x:  # noqa: BLE001
+        print("    诊断失败：{}".format(x))
+
+
 def erp_doc(doctype, name):
     if not REAL:
         return next((d for d in erp_docs(doctype) if d["name"] == name), None)
@@ -213,8 +225,10 @@ def one(item, mgr):
                     600 if REAL else 120, 10 if REAL else 3):
             for i in ready:
                 jcs = [j for j in erp_docs("Job Card") if j.get("work_order") == wos[i]]
-                check(False, "诊断 {} 的作业卡：{}".format(i, "，".join("{} {}".format(j.get("operation"), j.get("docstatus")) for j in jcs)))
+                check(False, "诊断 {} 的作业卡（工序 提交状态 完成数/应做数）：{}".format(i, "，".join("{} {} {}/{}".format(
+                    j.get("operation"), j.get("docstatus"), j.get("total_completed_qty"), j.get("for_quantity")) for j in jcs)))
             erp_error_log()
+            bridge_failures(mgr)
             break
         check(True, "完工入库：{}".format("、".join(ready)))
         pending -= set(ready)
@@ -232,7 +246,14 @@ def one(item, mgr):
         ws = [erp_doc("Work Order", n) for n in wos.values()]
         print("   ERPNext 工单：{}".format(", ".join("{} {}".format(w["production_item"], w.get("status")) for w in ws)))
         return all(w.get("status") == "Completed" or float(w.get("produced_qty") or 0) > 0 for w in ws)
-    check(bool(wait(erp_done, "ERPNext 工单全部完成", 600 if REAL else 120, 15 if REAL else 4)), "ERPNext 工单全部完成、完工入库")
+    if not check(bool(wait(erp_done, "ERPNext 工单全部完成", 600 if REAL else 120, 15 if REAL else 4)), "ERPNext 工单全部完成、完工入库"):
+        for i, n in wos.items():                     # 第 134 轮：哪张工单没入库、哪道工序少记了件数、桥接写 ERPNext 时报了什么
+            w = erp_doc("Work Order", n) or {}
+            if w.get("status") != "Completed" and not float(w.get("produced_qty") or 0):
+                jcs = [j for j in erp_docs("Job Card") if j.get("work_order") == n]
+                print("    诊断 {}（{}）作业卡：{}".format(i, w.get("status"), "，".join("{} {} {}/{}".format(
+                    j.get("operation"), j.get("docstatus"), j.get("total_completed_qty"), j.get("for_quantity")) for j in jcs)))
+        bridge_failures(mgr)
     se = [s for s in erp_docs("Stock Entry") if s.get("work_order") in wos.values() and s.get("docstatus") == 1]
     check(len(se) >= len(wos), "完工入库 {} 张".format(len(se)))
     inv = wait(lambda: next((d for d in erp_docs("Sales Invoice") if d.get("docstatus") == 1 and
