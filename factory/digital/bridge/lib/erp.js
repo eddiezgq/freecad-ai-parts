@@ -813,6 +813,8 @@ class ERP {
   // ------------------------------------------------------------ 3. 测量值 → 质量检验单
   async onMeasurement(m) {
     const d = m.data;
+    // 第 138 轮：计量室抽检不是工单工序，不建检验单（ERPNext 一种物料一张检验模板，留给工序上的逐件检验）
+    if (d.sample) return [];
     if (d.template && d.operation) this.qiOps.add(`${d.work_order}|${d.operation}`);
     const buf = this.qiBuffer.get(d.part_serial) || [];
     buf.push(d);

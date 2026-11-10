@@ -128,8 +128,14 @@ MEAS_COLS = [("物料", "item", "str", "测哪个物料"), ("工序", "operation
              ("代号", "code", "str", "特性代号，如 backlash"), ("名称", "name", "str", ""), ("单位", "unit", "str", "如 mm、arcmin、N·m"),
              ("名义", "nominal", "num", ""), ("下限", "lo", "num", ""), ("上限", "hi", "num", ""),
              ("散布σ", "sigma", "num", "仿真车间合成测量值的散布（示例值）")]
+SAMPLE_COLS = [("物料", "item", "str", "抽哪个物料"), ("之后的工序", "after", "str", "这道工序做完以后抽（物料工艺路线里的工序）"),
+               ("计量设备", "unit", "str", "设备表的编号，如三坐标"), ("每几件抽 1 件", "every", "int", "每张工单首件必抽，以后每 N 件抽 1 件"),
+               ("每次分钟", "minutes", "num", "这台设备测一件多少分钟"),
+               ("代号", "code", "str", "特性代号，不与测量特性重复"), ("名称", "name", "str", ""), ("单位", "cu", "str", ""),
+               ("名义", "nominal", "num", ""), ("下限", "lo", "num", ""), ("上限", "hi", "num", ""),
+               ("散布σ", "sigma", "num", "仿真车间合成测量值的散布（示例值）")]
 PRODUCT_SHEETS = (("物料", ITEM_COLS), ("工艺路线", ROUTE_COLS), ("物料清单", BOM_COLS), ("成品", PROD_COLS),
-                  ("库存", STOCK_COLS), ("测量特性", MEAS_COLS), ("来料检验", INC_COLS))
+                  ("库存", STOCK_COLS), ("测量特性", MEAS_COLS), ("计量室抽检", SAMPLE_COLS), ("来料检验", INC_COLS))
 
 GROUP = {"cost": "费率", "power": "主电机功率 / 传动效率", "layout": "x / y / 宽 / 深", "dock": "上下料点 x / y",
          "home": "停靠点 x / y", "spindle": "主轴转速 / 进给"}
@@ -227,6 +233,9 @@ def _product_rows(p):
                  for c in codes]
     out["测量特性"] = [[m["item"], m["operation"], c["code"], c["name"], c.get("unit"), c["nominal"], c["lo"], c["hi"], c["sigma"]]
                     for m in p.get("measurements") or [] for c in m["chars"]]
+    if p.get("sampling"):                       # 第 138 轮
+        out["计量室抽检"] = [[x["item"], x["after"], x["unit"], x["every"], x["minutes"], c["code"], c["name"], c.get("unit"),
+                         c["nominal"], c["lo"], c["hi"], c["sigma"]] for x in p["sampling"] for c in x["chars"]]
     return out
 
 
@@ -241,7 +250,7 @@ README = [
     "   物流小车（区域填“物流”）要填停靠点。看板顺序决定“车间实况”里显示哪些设备。",
     "4. 工序：工序名与工艺路线一致；“可用设备”填设备编号，多台用逗号分开。",
     "5. 供应商、客户：可空（只在装演示数据时用）。",
-    "6. 产品（第 2 版，可整组不填）：物料、工艺路线、物料清单、成品、库存、测量特性六张表。",
+    "6. 产品（第 2 版，可整组不填）：物料、工艺路线、物料清单、成品、库存、测量特性六张表；计量室抽检表（第 138 轮）可空。",
     "   工艺路线、物料清单按名称、父件连续几行成一组；外购件的单价、交期不知道就空着，系统标“待确认”，不替你估。",
     "",
     "填好后转成清单并校验：",
@@ -628,6 +637,18 @@ def _read_products(wb, p, errs):
         m["chars"].append({k: d[k] for k in ("code", "name", "unit", "nominal", "lo", "hi", "sigma") if k in d})
     if meas:
         p["measurements"] = list(meas.values())
+    samp = {}
+    for _, d in _sheet_rows(wb, "计量室抽检", SAMPLE_COLS, errs):
+        k = (d.get("item"), d.get("after"), d.get("unit"))
+        x = samp.setdefault(k, {"item": d.get("item"), "after": d.get("after"), "unit": d.get("unit"),
+                                "every": d.get("every"), "minutes": d.get("minutes"), "chars": []})
+        c = {k2: d[k2] for k2 in ("code", "name") if k2 in d}
+        if d.get("cu") is not None:
+            c["unit"] = d["cu"]
+        c.update({k2: d[k2] for k2 in ("nominal", "lo", "hi", "sigma") if k2 in d})
+        x["chars"].append(c)
+    if samp:
+        p["sampling"] = list(samp.values())
 
 
 def _where(err, rows):

@@ -229,7 +229,7 @@ def _validate_products(p, onames, uids):
             errs.append("{}：{}".format(where, msg))
         return cond
 
-    keys = [k for k in ("items", "routings", "boms", "products", "stock", "measurements", "key_materials") if p.get(k) is not None]
+    keys = [k for k in ("items", "routings", "boms", "products", "stock", "measurements", "sampling", "key_materials") if p.get(k) is not None]
     if not keys:
         return errs
     if not need(p.get("version") == 2, "version", "有产品几节（{}）的清单要写 version: 2".format("、".join(keys))):
@@ -332,6 +332,29 @@ def _validate_products(p, onames, uids):
             if need(ok, a2, "{code, name, unit, nominal, lo, hi, sigma}（sigma 是仿真的散布，示例值）"):
                 need(c["lo"] <= c["nominal"] <= c["hi"] and c["sigma"] >= 0, a2, "要 下限 ≤ 名义 ≤ 上限、sigma ≥ 0")
         need(m.get("chars"), at + ".chars", "至少一个测量特性")
+    # 第 138 轮：计量室抽检（首件必抽，以后每 N 件抽 1 件；不占工艺路线）
+    route_ops = {r.get("name"): {s[0] for s in r.get("steps") or [] if isinstance(s, (list, tuple)) and s}
+                 for r in p.get("routings") or [] if isinstance(r, dict)}
+    item_route = {b.get("item"): b.get("routing") for b in p.get("boms") or [] if isinstance(b, dict)}
+    codes = {(m.get("item"), c.get("code")) for m in p.get("measurements") or [] if isinstance(m, dict)
+             for c in m.get("chars") or [] if isinstance(c, dict)}       # 同一物料内代号不重复（不同物料可以同名，如两种针杆）
+    for i, s in enumerate(p.get("sampling") or []):
+        at = "sampling[{}]".format(i)
+        if not need(isinstance(s, dict) and s.get("item") in items, at + ".item", "物料一节里的编号"):
+            continue
+        need(s.get("after") in route_ops.get(item_route.get(s["item"]), set()), at + ".after",
+             "在 {} 的工艺路线里哪道工序做完以后抽：{}".format(s["item"], s.get("after")))
+        need(s.get("unit") in uids, at + ".unit", "没有这台设备：{}".format(s.get("unit")))
+        need(isinstance(s.get("every"), int) and s["every"] >= 1, at + ".every", "每几件抽 1 件（≥ 1 的整数）")
+        need(_num(s.get("minutes")) and s["minutes"] > 0, at + ".minutes", "每次检测多少分钟（> 0）")
+        for k, c in enumerate(s.get("chars") or []):
+            a2 = "{}.chars[{}]".format(at, k)
+            ok = isinstance(c, dict) and c.get("code") and c.get("name") and all(_num(c.get(x)) for x in ("nominal", "lo", "hi", "sigma"))
+            if need(ok, a2, "{code, name, unit, nominal, lo, hi, sigma}（sigma 是仿真的散布，示例值）"):
+                need(c["lo"] <= c["nominal"] <= c["hi"] and c["sigma"] >= 0, a2, "要 下限 ≤ 名义 ≤ 上限、sigma ≥ 0")
+                need((s["item"], c["code"]) not in codes, a2, "{} 的特性代号重复：{}".format(s["item"], c["code"]))
+                codes.add((s["item"], c["code"]))
+        need(s.get("chars"), at + ".chars", "至少一个测量特性")
     return errs
 
 
@@ -415,6 +438,14 @@ def _incoming_param(c):
     return {"parameter": "{} ({})".format(c["name"], c["unit"]) if c.get("unit") else c["name"], "numeric": 1, "min": c["lo"], "max": c["hi"]}
 
 
+def _sampling(p):
+    out = {}
+    for s in p.get("sampling") or []:
+        out.setdefault((s["item"], s["after"]), []).append(
+            {"unit": s["unit"], "every": s["every"], "minutes": s["minutes"], "chars": [dict(c) for c in s["chars"]]})
+    return out
+
+
 def derive_products(p):
     """第 2 版的产品几节 → 与 factory/data.py 同形状的常量；第 1 版清单返回空 {}（沿用代码里的演示产品）"""
     if not p.get("items"):
@@ -444,6 +475,8 @@ def derive_products(p):
             {"parameter": "{} ({})".format(c["name"], c.get("unit") or "mm"), "numeric": 1, "min": c["lo"], "max": c["hi"]}
             for c in m["chars"]] for m in meas}, **incoming),
         "MEASURE": {(m["item"], m["operation"]): [dict(c) for c in m["chars"]] for m in meas},
+        # 第 138 轮：计量室抽检 (物料, 之后的工序) → [{unit, every, minutes, chars}]
+        "SAMPLING": _sampling(p),
         # 首页“关键物料”：清单写了 key_materials 就用；没写取有安全库存的，再不够取前几种原材料、外购件
         "KEY_MATERIALS": list(p.get("key_materials") or (list(stock.get("safety") or {}) + [
             it["code"] for it in p["items"] if it["kind"] in ("raw", "buy") and it["code"] not in (stock.get("safety") or {})])[:4]),
