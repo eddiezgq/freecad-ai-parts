@@ -156,9 +156,9 @@ def validate(p):
         ok = all(isinstance(x, list) and len(x) == 2 and all(isinstance(t, str) and re.fullmatch(r"\d{2}:\d{2}(:\d{2})?", t)
                                                                for t in x) for x in per)
         if need(ok, "shift.periods", "时间要写成带引号的 \"08:00:00\"（不加引号 YAML 会当成数字）"):
-            need(all(_minutes(a) < _minutes(b) for a, b in per) and all(_minutes(per[i][1]) <= _minutes(per[i + 1][0])
+            need(all(_minutes(a) < _minutes(b) for a, b in per) and all(_minutes(per[i][1]) < _minutes(per[i + 1][0])
                                                                       for i in range(len(per) - 1)),
-                 "shift.periods", "时段要从早到晚、不重叠")
+                 "shift.periods", "时段要从早到晚、不重叠，前后两段之间要留空（ERPNext 把首尾相接的时段也算冲突）")
     need(isinstance(s.get("workdays"), list) and s["workdays"] and all(d in range(7) for d in s["workdays"]),
          "shift.workdays", "工作日 0–6（0 是周一）")
     need(_num(s.get("max_overtime_min")) and 0 <= s["max_overtime_min"] <= 480, "shift.max_overtime_min", "每天加班上限 0–480 分钟")

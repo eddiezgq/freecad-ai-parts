@@ -97,7 +97,10 @@ class ERP {
     try {
       return await this.req1(method, path, body);
     } catch (e) {
-      const deadlock = e instanceof ErpError && e.status >= 500 && /Deadlock|Record has changed since last read/i.test(e.message);
+      // 第 134 轮：数据库忙时还会报 SAVEPOINT does not exist、Lock wait timeout，网关忙时 502–504——都是一时的，稍等重试
+      //（漏记一件的工时，作业卡完工数就少一件，工单永远入不了库）
+      const deadlock = e instanceof ErpError && ((e.status >= 500 && /Deadlock|Record has changed since last read|SAVEPOINT|Lock wait timeout|QueryTimeout/i.test(e.message))
+        || [502, 503, 504].includes(e.status));
       if (!deadlock || attempt >= 4) throw e;
       await new Promise((r) => setTimeout(r, 400 * (attempt + 1) + Math.random() * 400));
       return this.req(method, path, body, attempt + 1);

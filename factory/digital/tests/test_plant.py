@@ -191,6 +191,19 @@ def test_unquoted_times_rejected():
     assert any("带引号" in e for e in plant.validate(p))
 
 
+def test_touching_shift_periods_rejected():
+    """ERPNext 把首尾相接的班次时段（14:30 结束、14:30 开始）算冲突，工作中心建不起来（第 134 轮），校验要拦下。"""
+    import yaml
+    sys.path[:0] = [FAC]
+    from factory import plant
+    with open(DEMO, encoding="utf-8") as f:
+        p = yaml.safe_load(f)
+    p["shift"]["periods"] = [["06:00:00", "14:30:00"], ["14:30:00", "22:00:00"]]
+    assert any("留空" in e for e in plant.validate(p))
+    p["shift"]["periods"] = [["06:00:00", "14:30:00"], ["15:00:00", "22:00:00"]]
+    assert not any("shift" in e for e in plant.validate(p))
+
+
 def test_cli(tmp_path):
     env = {k: v for k, v in os.environ.items() if k != "WQ_PLANT_FILE"}
     run = [sys.executable, "-m", "factory.plant"]
