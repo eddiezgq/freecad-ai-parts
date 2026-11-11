@@ -212,8 +212,17 @@ module.exports = ({ WH }) => ({
       return;
     }
     const made = await this.method('erpnext.selling.doctype.sales_order.sales_order.make_sales_invoice', { source_name: pv.sales_order });
-    const row = (made.items || []).find((i) => i.item_code === pv.job.job_no);
-    if (!row) throw new Error(`销售订单 ${pv.sales_order} 已经全部开票`);
+    // ERPNext v16 按“已开票数量”算剩余：前两期各开 1 件后，订单这一行就不再带出来（金额其实还没开满）。
+    // 带不出来时直接按销售订单的那一行补上；超开仍由 ERPNext 按金额（billed_amt）挡住。
+    let row = (made.items || []).find((i) => i.item_code === pv.job.job_no);
+    if (!row) {
+      const so = await this.get('Sales Order', pv.sales_order);
+      const it = (so.items || []).find((i) => i.item_code === pv.job.job_no);
+      if (!it) throw new Error(`销售订单 ${pv.sales_order} 里没有作业 ${pv.job.job_no} 这一行`);
+      row = { item_code: it.item_code, item_name: it.item_name, uom: it.uom, stock_uom: it.stock_uom,
+        conversion_factor: it.conversion_factor, sales_order: so.name, so_detail: it.name,
+        ...(it.warehouse ? { warehouse: it.warehouse } : {}), ...(it.cost_center ? { cost_center: it.cost_center } : {}) };
+    }
     for (const k of ['name', '__islocal', '__unsaved', 'idx', 'docstatus']) delete made[k];
     for (const k of ['name', '__islocal', '__unsaved', 'parent', 'parenttype', 'parentfield', 'idx', 'docstatus', 'amount', 'base_amount']) delete row[k];
     made.items = [{ ...row, qty: 1, rate: pv.amount, price_list_rate: pv.amount, discount_percentage: 0,
