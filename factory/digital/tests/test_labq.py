@@ -182,7 +182,7 @@ def test_lab38_chip(kind, item, char, layer, unit, fix):
         assert st["wb-2"]["mean"] < st["wb-1"]["mean"], st
 
 
-@pytest.mark.parametrize("plant,nos", [("motor", [35]), ("sensor", [36]), ("pcb", [37]), ("chip", [38])])
+@pytest.mark.parametrize("plant,nos", [("motor", [35]), ("sensor", [36]), ("pcb", [37, 39]), ("chip", [38, 40])])
 def test_quality_labs_listed_per_plant(plant, nos):
     code = ("import sys, json; sys.path[:0] = [{!r}, {!r}]\nfrom hub import labs_api as L\n"
             "print(json.dumps([l['no'] for l in L.labs_here()]))").format(DIG, FAC)

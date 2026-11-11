@@ -40,6 +40,10 @@ options:
 more: #Two-level BOM
 ```
 
+## Lab 39: one drive board from order to delivery
+
+On the left, Labs & tasks → Lab 39: take an order for 1 DRV-JOINT yourself, run MRP, release by level (SMT assembly → drive board), judge whether one board passes functional test, receive and invoice, compare the order's standard and actual cost, and review. The platform grades 60 points automatically; the lab report is worth 40.
+
 ```ask
 q: Which components need to be requested for 20 driver boards?
 ```

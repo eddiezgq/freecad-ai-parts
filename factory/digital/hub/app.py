@@ -2489,6 +2489,43 @@ def lab25_inject(body: dict = Body(default={}), u=Depends(user_of)):
         raise HTTPException(400, str(e))
 
 
+# ---------------------------------------------------------------- 实验 39、40（第 149 轮）：通用“从订单到交付”实验 hub/labo.py，一座厂一份配置
+OLABS = {39: ("lab39", "wenquest-pcb"), 40: ("lab40", "wenquest-chip")}
+
+
+def _olab(no):
+    import importlib
+    if no not in OLABS:
+        raise HTTPException(404, "没有这个实验")
+    mod, plant = OLABS[no]
+    if _labs_api.plant_id() != plant:
+        raise HTTPException(404, "实验 {} 不在这座厂".format(no))
+    return importlib.import_module("hub." + mod)
+
+
+@app.get("/api/labo/{no}")
+def labo_status(no: int, u=Depends(user_of)):
+    m = _olab(no)
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    out = m.check(H.db, u["name"])
+    out["teacher"] = bool(u.get("teacher"))
+    if u.get("teacher"):
+        out["class"] = m.class_view(H.db)
+    return out
+
+
+@app.post("/api/labo/{no}/{tid}")
+def labo_answer(no: int, tid: str, body: dict = Body(...), u=Depends(user_of)):
+    m = _olab(no)
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    try:
+        return m.answer(H.db, u["name"], tid, body)
+    except KeyError:
+        raise HTTPException(404, "这个任务不用提交答案，系统会自动检查")
+
+
 # ---------------------------------------------------------------- 实验 35、36（第 147 轮）：通用质量追因实验 hub/labq.py，一座厂一份配置
 QLABS = {35: ("lab35", "wenquest-motor"), 36: ("lab36", "wenquest-sensor"), 37: ("lab37", "wenquest-pcb"), 38: ("lab38", "wenquest-chip")}   # 37、38：第 148 轮
 
