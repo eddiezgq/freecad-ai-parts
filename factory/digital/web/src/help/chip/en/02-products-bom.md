@@ -27,6 +27,10 @@ Incoming inspection: wafers — check wafer IDs and appearance; bonding wire —
 
 Take a WQ-ENCIF order in “Orders & planning”; after MRP the “tested wafer” work order is released first, and the finished-goods work order after it is done.
 
+## Lab 40: one chip lot from order to delivery
+
+On the left, Labs & tasks → Lab 40: take an order for 1 lot of WQ-ENCIF (one wafer) yourself, run MRP, release by level (wafer probe → assembly and test), judge whether one lot passes final test, receive and invoice, compare the order's standard and actual cost, and review. The platform grades 60 points automatically; the lab report is worth 40.
+
 ```ask
 q: How much material does one WQ-ENCIF lot use? How many lots can stock cover?
 ```

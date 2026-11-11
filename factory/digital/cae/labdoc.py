@@ -35,7 +35,9 @@ GUIDES = {"lab8": GUIDE_MD, "lab9": os.path.join(HERE, "实验9_机械臂关节�
           "lab35": os.path.join(HERE, "实验35_电机质量异常的追因与8D.md"),
           "lab36": os.path.join(HERE, "实验36_编码器与扭矩传感器质量异常的追因与8D.md"),
           "lab37": os.path.join(HERE, "实验37_驱动板质量异常的追因与8D.md"),
-          "lab38": os.path.join(HERE, "实验38_芯片封测质量异常的追因与8D.md")}
+          "lab38": os.path.join(HERE, "实验38_芯片封测质量异常的追因与8D.md"),
+          "lab39": os.path.join(HERE, "实验39_一块驱动板从订单到交付.md"),
+          "lab40": os.path.join(HERE, "实验40_一批芯片从订单到交付.md")}
 
 
 def _doc():
@@ -147,7 +149,7 @@ def report_template_docx(lab="lab8"):
         return lab22_template()
     if lab == "lab23":
         return lab23_template()
-    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28", "lab29", "lab30", "lab31", "lab32", "lab33", "lab34", "lab35", "lab36", "lab37", "lab38"):
+    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28", "lab29", "lab30", "lab31", "lab32", "lab33", "lab34", "lab35", "lab36", "lab37", "lab38", "lab39", "lab40"):
         return robot_template(lab)
     from docx.shared import Pt
     d = _doc()
@@ -1147,6 +1149,27 @@ def robot_template(lab):
                ["整台（含材料）", "", "", "", ""]])
         d.add_heading("五、复盘与讨论（任务 6）· Review", 1)
         hint("和实验 7（减速器厂的一根输出轴）比，造一台平缝机多了哪些环节、哪些风险？机壳从浇注到精镗要经过两次时效，交期上占多少？如果交期提前一周，你先动哪一层？")
+    elif lab in ("lab39", "lab40"):
+        name, unit, chars, tree = {
+            "lab39": ("一块驱动板从订单到交付 · One Drive Board from Order to Delivery", "驱动板序列号 Serial",
+                      ["采样电阻", "母线电压", "电流采样", "死区时间", "编码器接口", "零点漂移"], "贴片板 SMT-DRV → 驱动板 DRV-JOINT"),
+            "lab40": ("一批芯片从订单到交付 · One Chip Lot from Order to Delivery", "批号 Lot",
+                      ["崩边", "键合拉力", "焊球推力", "空洞率", "FT 良率", "工作电流", "施密特回差"], "晶圆 WAF-ENCIF → 已测晶圆 WAF-ENCIF-CP → 芯片批 WQ-ENCIF")}[lab]
+        d.add_heading("实验 {}　{}　实验报告".format(lab[3:], name), 0)
+        table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)
+        d.add_heading("一、订单与算料（任务 1）· Order and MRP", 1)
+        table([["项目 Item", "记录 Record"], ["销售订单号、客户、交期", ""], ["工单张数，分别是哪些物料", ""], ["任务 1 问的那种料要领多少，怎么算的", ""]])
+        d.add_heading("二、按层下达（任务 2）· Release by level", 1)
+        table([["层 Level", "物料 Item", "工单号 Work order", "下达时刻 Released", "它用到的下一层完工入库时刻"], ["", "", "", "", ""], ["", "", "", "", ""]])
+        hint("画出物料清单树（{}），标出每层工单的下达和完工时刻。".format(tree))
+        d.add_heading("三、出厂检验与交付（任务 3、4）· Final test and delivery", 1)
+        table([[unit] + chars + ["判定"], [""] * (len(chars) + 2)])
+        table([["入库时间 Received", "销售发票号、金额 Invoice"], ["", ""]])
+        d.add_heading("四、成本（任务 5）· Cost", 1)
+        table([["工单（物料）", "标准成本", "实际成本", "差额", "差在哪里（换线、超时、返修）"], ["", "", "", "", ""], ["", "", "", "", ""],
+               ["整张单（含材料）", "", "", "", ""]])
+        d.add_heading("五、复盘与讨论（任务 6）· Review", 1)
+        hint("和实验 7（减速器厂的一根输出轴）比，这座厂多了哪些环节、哪些风险？交期最长的是哪一步？如果交期提前一周，你先动哪一层？")
     elif lab == "lab32":
         d.add_heading("实验 32　机壳与关键零件质量异常的追因与 8D　实验报告 · Lab 32 Report: Tracing Housing and Key-Part Quality Problems", 0)
         table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)

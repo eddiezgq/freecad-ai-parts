@@ -72,7 +72,8 @@ def mount(app, H, user_of, who, uid_of, is_teacher, ai_quota=None):
                   "lab28": "实验28-负载跑合台上的仿真与实测对比", "lab29": "实验29-一台机器人的售后追溯", "lab31": "实验31-关节终检抱闸报警的排查",
                   "lab30": "实验30-一台轮式人形从订单到交付", "lab32": "实验32-机壳与关键零件质量异常的追因与8D", "lab33": "实验33-一张非标订单从询价到收款", "lab34": "实验34-一台平缝机从订单到交付", "lab35": "实验35-电机质量异常的追因与8D",
                   "lab36": "实验36-编码器与扭矩传感器质量异常的追因与8D",
-                  "lab37": "实验37-驱动板质量异常的追因与8D", "lab38": "实验38-芯片封测质量异常的追因与8D"}
+                  "lab37": "实验37-驱动板质量异常的追因与8D", "lab38": "实验38-芯片封测质量异常的追因与8D",
+                  "lab39": "实验39-一块驱动板从订单到交付", "lab40": "实验40-一批芯片从订单到交付"}
         if lab not in titles or kind not in ("guide", "report-template"):
             raise HTTPException(404, "没有这个文件")
         data = labdoc.guide_docx(lab) if kind == "guide" else labdoc.report_template_docx(lab)

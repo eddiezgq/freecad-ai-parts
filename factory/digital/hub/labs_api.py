@@ -54,6 +54,11 @@ LABS = [
      "plant": "wenquest-pcb"},
     {"no": 38, "title": "芯片封测质量异常的追因与 8D", "path": "/labq/38", "module": "lab38", "domain": "质量（分层、8D）", "hours": 4,
      "plant": "wenquest-chip"},
+    # 第 149 轮：电路板厂、芯片封测厂的“从订单到交付”（通用实现 hub/labo.py，照实验 24、34）
+    {"no": 39, "title": "一块驱动板从订单到交付", "path": "/labo/39", "module": "lab39", "domain": "订单到交付（多层 BOM）", "hours": 4,
+     "plant": "wenquest-pcb"},
+    {"no": 40, "title": "一批芯片从订单到交付", "path": "/labo/40", "module": "lab40", "domain": "订单到交付（多层 BOM）", "hours": 4,
+     "plant": "wenquest-chip"},
     # 第 145 轮：缝纫机厂一台平缝机从订单到交付，照实验 24
     {"no": 34, "title": "一台平缝机从订单到交付", "path": "/lab34", "module": "lab34", "domain": "订单到交付（多层 BOM）", "hours": 4,
      "plant": "wenquest-sewing"},
