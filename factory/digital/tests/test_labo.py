@@ -59,8 +59,8 @@ for op, _ in ops:
 while eng.q and clock.t < 365 * 86400:
     clock.t = max(clock.t, eng.next_event_time())
     eng.run_due()
-sub = [c for c in lab24.F.BOMS[P][1] if c[0] in lab24.F.BOMS][0][0]
-order = {{"sales_order": "SO-1", "work_orders": {{sub: "W1", P: "W2"}}}}
+subs = [c[0] for c in lab24.F.BOMS[P][1] if c[0] in lab24.F.BOMS]
+order = {{"sales_order": "SO-1", "work_orders": {{subs[0]: "W1", P: "W2"}} if subs else {{P: "W2"}}}}
 import hub.lab24 as L24
 L24.my_order = lambda db, user, product=None: order if user == "甲" else None
 us = lab.units(db, order)
@@ -74,6 +74,14 @@ ts = {{"W1": ("2026-01-02T00:00:00Z", "2026-01-05T00:00:00Z"), "W2": ("2026-01-0
 lab24._release_ts = lambda db, wo: ts[wo][0]
 lab24._done_ts = lambda db, wo: ts[wo][1]
 out["bad"] = lab24.layers(db, order)[1]
+if lab.status(db, "甲")["route"]:
+    rt = lab.routing()
+    top = max(rt, key=lambda o: o["minutes"])["operation"]
+    neck = max(rt, key=lambda o: o["per_unit"])["operation"]
+    out["route"] = {{"longest": top, "bottleneck": neck}}
+    out["t2_right"] = lab.answer(db, "甲", pre + "t2", {{"longest": top.split(" ")[0], "bottleneck": neck.split(" ")[0]}})["score"]
+    out["t2_naive"] = lab.answer(db, "乙", pre + "t2", {{"longest": top.split(" ")[0], "bottleneck": top.split(" ")[0]}})["score"]
+    out["t2_bad"] = lab.answer(db, "丙", pre + "t2", {{"longest": "包", "bottleneck": ""}})["score"]
 st = lab.status(db, "甲")
 out["score"] = st["score"]
 out["std"] = st["std"]
@@ -111,7 +119,24 @@ def test_labo(plant, mod, exp, sub):
     assert out["score"] == 10 + 5 + 10 and out["std"]["total"] > out["std"]["material"] > 0, out
 
 
-@pytest.mark.parametrize("lab", ["lab39", "lab40"])
+@pytest.mark.parametrize("plant,mod,exp,longest,necks", [
+    ("motor", "lab42", {"work_orders": 1, "count": 0.3}, "浸漆烘干", ("电机总装",)),
+    ("sensor", "lab43", {"work_orders": 1, "count": 4.0}, "温度补偿", ("应变片粘贴", "砝码标定")),
+])
+def test_labo_route(plant, mod, exp, longest, necks):
+    """第 153 轮：物料清单一层的厂——一张工单；任务 2 看工艺路线、找瓶颈（单件最长 ≠ 摊下来最长）"""
+    out = _run(plant, mod)
+    assert out["exp"] == exp, out
+    assert (out["t1_right"], out["t1_half"], out["t1_bad"]) == (10, 5, 0), out
+    assert (out["t6_right"], out["t6_part"], out["t6_wrong"]) == (5, 2, 0), out
+    assert out["n_units"] >= 1 and (out["t3_right"], out["t3_wrong"]) == (10, 0), out
+    assert out["bad"] == [], out
+    assert out["route"]["longest"].startswith(longest) and out["route"]["bottleneck"].split(" ")[0] in necks, out
+    assert (out["t2_right"], out["t2_naive"], out["t2_bad"]) == (15, 7, 0), out
+    assert out["score"] == 10 + 15 + 10 + 5, out
+
+
+@pytest.mark.parametrize("lab", ["lab39", "lab40", "lab42", "lab43"])
 def test_labo_docs(lab):
     sys.path[:0] = [DIG, FAC]
     from cae import labdoc

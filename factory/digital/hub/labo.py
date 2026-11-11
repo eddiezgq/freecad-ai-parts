@@ -7,7 +7,10 @@
     from hub import labo
     globals().update(labo.build(CFG))
 CFG 键：no、title、product（产品物料号）、unit（量词 + 名称，如“块驱动板”）、count_item（任务 1 问要领多少的那种料）、
-t1_desc、t1_hint、t2_desc、t3_desc、t3_hint、t6_desc、t6_hint、t6_options（[(代号, 文字, 对不对)]）、t6_feedback、worst_hint。"""
+t1_desc、t1_hint、t2_desc、t3_desc、t3_hint、t6_desc、t6_hint、t6_options（[(代号, 文字, 对不对)]）、t6_feedback、worst_hint。
+第 153 轮：route=True（物料清单只有一层、全是外购件的厂，如电机厂、传感器厂）——只有一张工单，“按层下达”没有意义，
+任务 2 改成“看工艺路线、找瓶颈”：页面列出工艺路线（单件工时、几台设备、一次装几件），学生答单件占时最长的工序（7 分）、
+真正卡产能的工序（每件摊下来的工时 = 单件工时 ÷（设备台数 × 一次装几件）最长的，8 分；并列的答哪一个都对）；再配 t2_hint。"""
 import json
 
 from factory import data as F
@@ -17,10 +20,11 @@ from hub import lab24 as L24
 def build(cfg):
     no, product = cfg["no"], cfg["product"]
     pre = "l{}_".format(no)
+    route = bool(cfg.get("route"))
     tasks = [
         {"id": pre + "t1", "points": 10, "title": "接单、算料", "desc": cfg["t1_desc"], "hint": cfg["t1_hint"]},
-        {"id": pre + "t2", "points": 15, "title": "按层下达", "desc": cfg["t2_desc"],
-         "hint": "上一层的工单比它用到的下一层先完工就下达了，每有一处扣 5 分。"},
+        {"id": pre + "t2", "points": 15, "title": "看工艺路线、找瓶颈" if route else "按层下达", "desc": cfg["t2_desc"],
+         "hint": cfg["t2_hint"] if route else "上一层的工单比它用到的下一层先完工就下达了，每有一处扣 5 分。"},
         {"id": pre + "t3", "points": 10, "title": "判出厂检验合不合格", "desc": cfg["t3_desc"], "hint": cfg["t3_hint"]},
         {"id": pre + "t4", "points": 10, "title": "入库、开票",
          "desc": "出厂检验后成品入库。订单的工单都做完，系统自动开销售发票。到了自动打勾。",
@@ -49,6 +53,17 @@ def build(cfg):
         need = mrp.explode(product, 1)
         return {"work_orders": len(mrp.explode_make(product, 1)) + 1, "count": round(float(need.get(cfg["count_item"], 0)), 3)}
 
+    def routing():
+        """[{operation, minutes, units, parallel, per_unit}]：parallel = 这道工序同时能做几件（设备台数 × 一次装几件）"""
+        from sim.engine import CAPACITY, OP_UNITS, routing_for
+        out = []
+        for op, m in routing_for(product):
+            us = OP_UNITS.get(op) or []
+            par = sum(CAPACITY.get(u, 1) for u in us) or 1
+            out.append({"operation": op, "minutes": m, "units": us, "batch": max([CAPACITY.get(u, 1) for u in us] or [1]),
+                        "parallel": par, "per_unit": round(m / par, 2)})
+        return out
+
     def _chars_needed():
         return sum(len(cs) for (it, _op), cs in F.MEASURE.items() if it == product)
 
@@ -74,6 +89,22 @@ def build(cfg):
             _save(db, user, tid, s, {"answer": ans, "expected": exp})
             return {"score": s, "of": 10, "feedback": "全部正确。" if s == 10 else
                     "得 {} / 10 分。对照算料结果数一数工单（每一种自制的半成品都算一张），再看物料清单逐层乘下来要领多少。".format(s)}
+        if tid == pre + "t2" and route:
+            ops = routing()
+            top = max(o["minutes"] for o in ops)
+            longest = [o["operation"] for o in ops if o["minutes"] == top]
+            worst = max(o["per_unit"] for o in ops)
+            neck = [o["operation"] for o in ops if o["per_unit"] == worst]
+
+            def hit(say, names):
+                say = str(say or "").strip()
+                return len(say) >= 2 and any(say in n or n.split(" ")[0] in say for n in names)
+            s = (7 if hit(ans.get("longest"), longest) else 0) + (8 if hit(ans.get("bottleneck"), neck) else 0)
+            _save(db, user, tid, s, {"answer": ans, "expected": {"longest": longest, "bottleneck": neck}})
+            zh = "、".join(n.split(" ")[0] for n in neck)
+            return {"score": s, "of": 15, "feedback": "全部正确。" if s == 15 else
+                    "得 {} / 15 分。单件占时最长的是“{}”（{} 分钟）；但每件摊下来最长的是“{}”（{} 分钟/件）——成批做、多台做的工序摊薄了。".format(
+                        s, longest[0].split(" ")[0], top, zh, worst)}
         if tid == pre + "t3":
             order = my_order(db, user)
             if not order:
@@ -121,7 +152,7 @@ def build(cfg):
         order = my_order(db, user)
         if order:
             rows, bad = L24.layers(db, order)
-            if all(r["released"] for r in rows):
+            if not route and all(r["released"] for r in rows):
                 _save(db, user, pre + "t2", max(0, 15 - 5 * len(bad)), {"layers": rows, "violations": bad})
             prod_wo = order["work_orders"].get(product)
             docs = {m["data"]["name"]: m["data"] for m in db.erp_docs("Work Order", "teach")}
@@ -145,6 +176,7 @@ def build(cfg):
         r = mrp.std_rollup(product)
         return {"user": user, "no": no, "title": cfg["title"], "product": product, "unit": cfg["unit"], "count_item": cfg["count_item"],
                 "tasks": out_tasks, "score": sum(t["score"] for t in out_tasks), "of": sum(t["points"] for t in tasks), "report_points": 40,
+                "route": route, "routing": routing() if route else [],
                 "order": order and {"sales_order": order["sales_order"], "work_orders": order["work_orders"]},
                 "layers": L24.layers(db, order)[0] if order else [],
                 "machines": [{"serial": k, "item": v["item"], "chars": {c: {kk: vv for kk, vv in x.items() if kk != "result"}
@@ -161,5 +193,5 @@ def build(cfg):
         return [{"user": k, "scores": v, "total": sum(v.values())} for k, v in sorted(out.items())]
 
     return {"TASKS": tasks, "REPORT_POINTS": 40, "PRODUCT": product, "T6_OPTIONS": t6,
-            "start": start, "locked": locked, "expected_counts": expected_counts, "my_order": my_order, "units": units,
+            "start": start, "locked": locked, "expected_counts": expected_counts, "my_order": my_order, "units": units, "routing": routing,
             "answer": answer, "check": check, "status": status, "class_view": class_view}
