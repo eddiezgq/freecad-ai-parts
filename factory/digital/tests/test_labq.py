@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""第 147 轮：通用质量追因实验（hub/labq.py）——电机厂实验 35、传感器厂实验 36，每种隐藏问题各走一遍：注入 → 判异 → 分层并说出设备 →
+"""第 147 轮：通用质量追因实验（hub/labq.py）——电机厂实验 35、传感器厂实验 36（第 148 轮加电路板厂实验 37、芯片封测厂实验 38），每种隐藏问题各走一遍：注入 → 判异 → 分层并说出设备 →
 8D、对症措施、验证有效、关闭，满分 60；分层答错扣分；实验列表按厂显示。仿真在子进程里按各厂清单跑。"""
 import json
 import os
@@ -18,15 +18,15 @@ sys.path[:0] = [{dig!r}, {fac!r}]
 import psycopg, wqbus
 BASE = {base!r}
 with psycopg.connect(BASE + "/postgres", autocommit=True) as c:
-    c.execute("drop database if exists wq_labq_test with (force)")
-    c.execute("create database wq_labq_test")
+    c.execute("drop database if exists {dbn} with (force)")
+    c.execute("create database {dbn}")
 from hub.db import DB
 from hub.historian import Historian
 from hub import qproblem
 import importlib
 lab = importlib.import_module("hub." + {mod!r})
 from sim.engine import Engine, routing_for, OP_UNITS
-db = DB(BASE + "/wq_labq_test")
+db = DB(BASE + "/" + {dbn!r})
 db.init()
 h = Historian(db)
 class Clock:
@@ -94,7 +94,7 @@ def _labq(plant, mod, kind, item, char, answer2, wrong2, fix, picks, qty=6, char
     except Exception:  # noqa: BLE001
         pytest.skip("没有可用的 PostgreSQL")
     env = dict(os.environ, WQ_PLANT_FILE=os.path.join(FAC, "plants", "wenquest-{}.yaml".format(plant)))
-    code = LABQ.format(dig=DIG, fac=FAC, base=BASE, mod=mod, pre=mod.replace("lab", "l") + "_", kind=kind, item=item, char=char, char8d=char8d or char,
+    code = LABQ.format(dbn="wq_labq_{}_{}".format(mod, kind), dig=DIG, fac=FAC, base=BASE, mod=mod, pre=mod.replace("lab", "l") + "_", kind=kind, item=item, char=char, char8d=char8d or char,
                        answer2=repr(answer2), wrong2=repr(wrong2), fix=fix, picks=picks, qty=qty)
     r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, env=env, cwd=DIG, timeout=1200)
     assert r.returncode == 0, r.stderr[-3000:]
@@ -141,7 +141,48 @@ def test_lab36_sensor(kind, item, char, layer, unit, fix):
     assert out["t2_wrong"] == 10, out
 
 
-@pytest.mark.parametrize("plant,nos", [("motor", [35]), ("sensor", [36])])
+@pytest.mark.parametrize("kind,item,char,fix,unit", [
+    ("stencil_clog", "SMT-DRV", "spi_volume", "wipe_stencil", "sp-1"),
+    ("reflow_drift", "SMT-DRV", "reflow_peak", "profile_oven", "rf-1"),
+    ("nozzle_wear", "SMT-DRV", "offset_ic", "replace_nozzle", "pp-2"),
+])
+def test_lab37_pcb_process(kind, item, char, fix, unit):
+    out = _labq("pcb", "lab37", kind, item, char, {"by": "shared", "group": unit}, {"by": "lot", "group": "SH-001"}, fix, [{}, {}])
+    _full(out)
+    assert out["t2_wrong"] == 0, out
+    assert out["strata"] == {"lot": {}}, out["strata"]       # 贴片板不带批次：分批表是空的、没有按设备的表
+
+
+def test_lab37_pcb_shunt_lot():
+    """第 148 轮：按来料批次分层——说出偏了的那一卷得满分，说一卷没偏的（措施后换上的新卷）只得 10 分"""
+    out = _labq("pcb", "lab37", "shunt_lot", "DRV-JOINT", "ict_shunt", {"by": "lot", "group": "SH-001"}, {"by": "lot", "group": "SH-999"},
+                "quarantine_shunt", [{}, {}])
+    _full(out)
+    assert out["t2_wrong"] == 10, out
+    lots = out["strata"]["lot"]
+    assert lots["SH-001"]["mean"] > 2.02 and any(k != "SH-001" and abs(v["mean"] - 2.0) < 0.01 for k, v in lots.items()), lots
+
+
+WB = [{"引线键合": "wb-1"}, {"引线键合": "wb-2"}]
+
+
+@pytest.mark.parametrize("kind,item,char,layer,unit,fix", [
+    ("capillary_wear", "WQ-ENCIF", "bond_pull", "station", "wb-2", "replace_capillary"),
+    ("blade_wear", "WQ-ENCIF", "chipping", "shared", "dc-1", "replace_blade"),
+    ("emc_moisture", "WQ-ENCIF", "mold_void", "shared", "mld-1", "emc_handling"),
+    ("probe_wear", "WAF-ENCIF-CP", "cp_contact", "shared", "prb-1", "clean_probe"),
+])
+def test_lab38_chip(kind, item, char, layer, unit, fix):
+    wrong = {"by": "shared" if layer == "station" else "station", "group": unit}
+    out = _labq("chip", "lab38", kind, item, char, {"by": layer, "group": unit}, wrong, fix, WB if item == "WQ-ENCIF" else [{}, {}])
+    _full(out)
+    assert out["t2_wrong"] == 0, out
+    if layer == "station":
+        st = out["strata"]["station"]
+        assert st["wb-2"]["mean"] < st["wb-1"]["mean"], st
+
+
+@pytest.mark.parametrize("plant,nos", [("motor", [35]), ("sensor", [36]), ("pcb", [37]), ("chip", [38])])
 def test_quality_labs_listed_per_plant(plant, nos):
     code = ("import sys, json; sys.path[:0] = [{!r}, {!r}]\nfrom hub import labs_api as L\n"
             "print(json.dumps([l['no'] for l in L.labs_here()]))").format(DIG, FAC)
@@ -151,7 +192,7 @@ def test_quality_labs_listed_per_plant(plant, nos):
     assert json.loads(r.stdout) == nos
 
 
-@pytest.mark.parametrize("lab", ["lab35", "lab36"])
+@pytest.mark.parametrize("lab", ["lab35", "lab36", "lab37", "lab38"])
 def test_quality_lab_docs(lab):
     sys.path[:0] = [DIG, FAC]
     from cae import labdoc

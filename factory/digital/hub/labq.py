@@ -8,7 +8,9 @@
     globals().update(labq.build(CFG))
 CFG 键：no（实验号）、items（物料编号前缀，元组）、problems（{问题: (特性代号, 分层 "station"/"shared")}）、
 station（分层表的说明，如“按绕线机”）、station_layer（“只在某一台……”的选项文字）、eight_d_on（可选，{问题: (特性, …)}）、
-t1_desc、t2_desc、t2_hint、t4_hint、t5_desc（任务文字，各厂自己写）。"""
+t1_desc、t2_desc、t2_hint、t4_hint、t5_desc（任务文字，各厂自己写）。
+第 148 轮：layers（可选，默认 ("station", "shared")）可以加 "lot"（来料批次：测量记录里的 lot 字段，如电路板厂的采样电阻卷号），
+配 lot（批次表的说明）、lot_layer（选项文字）；分层答“批次”时，说出的那一批均值偏离名义值超过 3σ 就算对。"""
 import json
 import random
 
@@ -37,7 +39,8 @@ def build(cfg):
          "hint": cfg["t4_hint"]},
         {"id": pre + "t5", "points": 10, "title": "写 D7、关闭", "desc": cfg["t5_desc"], "hint": "8D 要验证有效、写了 D7 才能关闭。"},
     ]
-    layers = [("station", cfg["station_layer"]), ("shared", SHARED_LAYER)]
+    layer_text = {"station": cfg.get("station_layer"), "shared": SHARED_LAYER, "lot": cfg.get("lot_layer")}
+    layers = [(k, layer_text[k]) for k in cfg.get("layers", ("station", "shared"))]
 
     def _save(db, user, tid, score, evidence):
         db.x("insert into task_result (user_name, task_id, score, evidence) values (%s,%s,%s,%s) "
@@ -77,13 +80,13 @@ def build(cfg):
             return []
         return spc.special_causes(v, c["nominal"], c["sigma"])
 
-    def groups(db, item, code):
-        """分层：按设备（测量里记的 assembled_on）分组的件数、均值、超差数"""
+    def groups(db, item, code, field="assembled_on"):
+        """分层：按设备（测量里记的 assembled_on）或来料批次（lot）分组的件数、均值、超差数"""
         out = {}
         for d in part_rows(db):
-            if d["item"] != item or d["characteristic"] != code or not d.get("assembled_on"):
+            if d["item"] != item or d["characteristic"] != code or not d.get(field):
                 continue
-            x = out.setdefault(d["assembled_on"], {"n": 0, "sum": 0.0, "fails": 0})
+            x = out.setdefault(d[field], {"n": 0, "sum": 0.0, "fails": 0})
             x["n"] += 1
             x["sum"] += d["value_mm"]
             x["fails"] += d["result"] == "fail"
@@ -112,11 +115,22 @@ def build(cfg):
                 return {"score": 0, "of": 15, "feedback": "老师还没注入问题"}
             s = 0
             if ans.get("by") == layer_of[p["problem"]]:
-                s = 10 + (5 if str(ans.get("group") or "").strip().lower() == ERR.PROBLEMS[p["problem"]]["unit"] else 0)
+                s = 10 + (5 if _group_ok(db, p["problem"], str(ans.get("group") or "").strip()) else 0)
             _save(db, user, tid, s, {"answer": ans, "expected": layer_of[p["problem"]]})
             return {"score": s, "of": 15, "feedback": "正确。" if s == 15 else
-                    ("分层的方向对了，具体是哪一台设备再核对一下。" if s == 10 else "再按设备分开比一比各组的均值：只有一台偏，还是大家一起偏？")}
+                    ("分层的方向对了，具体是哪一台设备（哪一批来料）再核对一下。" if s == 10 else "再按设备分开比一比各组的均值：只有一台偏，还是大家一起偏？")}
         raise KeyError(tid)
+
+    def _group_ok(db, problem, group):
+        if layer_of[problem] != "lot":
+            return group.lower() == ERR.PROBLEMS[problem]["unit"]
+        code = char_of[problem]       # 来料批次：说出的那一批（任一件物料上）均值偏离名义值超过 3σ
+        for (it, _op), cs in F.MEASURE.items():
+            c = next((c for c in cs if c["code"] == code), None) if it.startswith(items) else None
+            g = c and groups(db, it, code, "lot").get(group.upper())
+            if g and abs(g["mean"] - c["nominal"]) > 3 * c["sigma"]:
+                return True
+        return False
 
     def _my_8d(db, user, problem):
         from hub.privacy import is_me
@@ -155,7 +169,8 @@ def build(cfg):
         p = current_problem(db)
         out = {"user": user, "no": no, "title": cfg["title"], "tasks": out_tasks, "score": sum(t["score"] for t in out_tasks), "of": sum(t["points"] for t in tasks),
                "report_points": 40, "injected": bool(p), "characteristics": chars, "rules": [1, 2, 3, 4],
-               "layers": [{"value": k, "label": t} for k, t in layers], "station": cfg["station"]}
+               "layers": [{"value": k, "label": t} for k, t in layers], "station": cfg.get("station"), "lot": cfg.get("lot"),
+               "group_label": cfg.get("group_label")}
         if teacher:
             out["problem"] = p and {"problem": p["problem"], "name": ERR.PROBLEMS[p["problem"]]["name"], "injected_at": p["injected_at"],
                                     "cleared_at": p.get("cleared_at")}
@@ -164,7 +179,11 @@ def build(cfg):
 
     def strata(db, sel):
         item, _, code = str(sel).partition("|")
-        return {"station": groups(db, item, code)}
+        keys = [k for k, _ in layers]
+        out = {"station": groups(db, item, code)} if "station" in keys else {}
+        if "lot" in keys:
+            out["lot"] = groups(db, item, code, "lot")
+        return out
 
     def inject(db, send, u, kind):
         from hub import qproblem

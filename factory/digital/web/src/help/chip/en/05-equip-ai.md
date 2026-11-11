@@ -36,6 +36,18 @@ These rules appear only in the chip plant's rule catalog; other plants do not se
 - [Chip design](/chip-design) (rounds 92, 93): this chip's Verilog, layout, transistor level
 - [PCB design](/pcb-design): Rev B of the driver board puts this chip on the board; the firmware reads it in Renode and turns the motor (rounds 98, 100, 102)
 
+## Lab 38: tracing quality problems with 8D
+
+This plant's hidden problems have a graded lab: on the left, Labs & tasks → Lab 38.
+
+1. The instructor injects one problem on the lab page (it can be random; students can't see which).
+2. Students find the characteristic and the rule that fired on the control charts on the Quality page.
+3. On the lab page, compare means by wire bonder: is only one bonder off, or are all lots off together? Then name the machine (e.g. prb-1, dc-1, wb-2, mld-1).
+4. Open an 8D and choose an action; once the instructor approves, it goes to the shop. After another batch, it counts as effective only if every part is in tolerance and Cpk ≥ 1.33.
+5. Write D7 and close.
+
+The platform grades 60 points automatically; the lab report is worth 40. The guide and report template are at the top right of the lab page.
+
 ```ask
 q: What AI patrol alarms does the chip plant have now? Which comes first?
 ```

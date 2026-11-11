@@ -49,6 +49,11 @@ LABS = [
      "plant": "wenquest-motor"},
     {"no": 36, "title": "编码器与扭矩传感器质量异常的追因与 8D", "path": "/labq/36", "module": "lab36", "domain": "质量（分层、8D）", "hours": 4,
      "plant": "wenquest-sensor"},
+    # 第 148 轮：电路板厂、芯片封测厂的质量追因与 8D（同一个通用实现）
+    {"no": 37, "title": "驱动板质量异常的追因与 8D", "path": "/labq/37", "module": "lab37", "domain": "质量（分层、8D）", "hours": 4,
+     "plant": "wenquest-pcb"},
+    {"no": 38, "title": "芯片封测质量异常的追因与 8D", "path": "/labq/38", "module": "lab38", "domain": "质量（分层、8D）", "hours": 4,
+     "plant": "wenquest-chip"},
     # 第 145 轮：缝纫机厂一台平缝机从订单到交付，照实验 24
     {"no": 34, "title": "一台平缝机从订单到交付", "path": "/lab34", "module": "lab34", "domain": "订单到交付（多层 BOM）", "hours": 4,
      "plant": "wenquest-sewing"},

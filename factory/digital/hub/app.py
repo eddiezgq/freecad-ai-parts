@@ -2490,7 +2490,7 @@ def lab25_inject(body: dict = Body(default={}), u=Depends(user_of)):
 
 
 # ---------------------------------------------------------------- 实验 35、36（第 147 轮）：通用质量追因实验 hub/labq.py，一座厂一份配置
-QLABS = {35: ("lab35", "wenquest-motor"), 36: ("lab36", "wenquest-sensor")}
+QLABS = {35: ("lab35", "wenquest-motor"), 36: ("lab36", "wenquest-sensor"), 37: ("lab37", "wenquest-pcb"), 38: ("lab38", "wenquest-chip")}   # 37、38：第 148 轮
 
 
 def _qlab(no):

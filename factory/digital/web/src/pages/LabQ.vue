@@ -43,18 +43,26 @@
           <div class="lf f"><label>{{ $t('看哪个特性分层') }}</label><select v-model="sel" @change="loadStrata">
             <option v-for="c in s.characteristics" :key="c.value" :value="c.value">{{ $td(c.label) }}</option></select></div>
           <div v-if="strata" class="strata">
-            <div>
+            <div v-if="strata.station">
               <b class="small">{{ $td(s.station) }}</b>
               <table class="tbl small"><thead><tr><th>{{ $t('设备') }}</th><th class="num">{{ $t('件数') }}</th><th class="num">{{ $t('均值') }}</th><th class="num">{{ $t('超差') }}</th></tr></thead>
                 <tbody><tr v-for="(x, k) in strata.station" :key="k"><td class="mono">{{ k }}</td><td class="num">{{ $td(x.n) }}</td><td class="num">{{ $td(x.mean) }}</td>
                   <td class="num" :class="{ 'bad-t': x.fails }">{{ $td(x.fails) }}</td></tr></tbody></table>
               <p v-if="!Object.keys(strata.station).length" class="small muted">{{ $t('这个特性没有按设备分组的数据。') }}</p>
             </div>
+            <div v-if="strata.lot">
+              <b class="small">{{ $td(s.lot) }}</b>
+              <table class="tbl small"><thead><tr><th>{{ $t('批次') }}</th><th class="num">{{ $t('件数') }}</th><th class="num">{{ $t('均值') }}</th><th class="num">{{ $t('超差') }}</th></tr></thead>
+                <tbody><tr v-for="(x, k) in strata.lot" :key="k"><td class="mono">{{ k }}</td><td class="num">{{ $td(x.n) }}</td><td class="num">{{ $td(x.mean) }}</td>
+                  <td class="num" :class="{ 'bad-t': x.fails }">{{ $td(x.fails) }}</td></tr></tbody></table>
+              <p v-if="!Object.keys(strata.lot).length" class="small muted">{{ $t('这个特性没有按批次分组的数据。') }}</p>
+            </div>
+            <p v-if="!strata.station && !strata.lot" class="small muted">{{ $t('这座厂按工序和设备找原因：看哪道工序之后的数据偏了，对照“设备”页。') }}</p>
           </div>
           <form class="f" @submit.prevent="submit(t.id, a2)">
             <div class="lf"><label>{{ $t('问题出在') }}</label><span class="cks">
               <label v-for="l in s.layers" :key="l.value"><input v-model="a2.by" type="radio" :value="l.value" required> {{ $td(l.label) }}</label></span></div>
-            <div v-if="a2.by" class="lf"><label>{{ $t('哪台设备（编号）') }}</label><input v-model="a2.group" :placeholder="$t('设备编号，见“设备”页')" required></div>
+            <div v-if="a2.by" class="lf"><label>{{ a2.by === 'lot' ? $t('哪一批（批次号）') : $t('哪台设备（编号）') }}</label><input v-model="a2.group" :placeholder="a2.by === 'lot' ? $t('批次号，见上面的分批表') : $t('设备编号，见“设备”页')" required></div>
             <button class="btn primary" :disabled="!s.injected">{{ $t('提交') }}</button>
           </form>
         </template>

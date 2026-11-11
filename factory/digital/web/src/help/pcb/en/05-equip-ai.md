@@ -61,6 +61,18 @@ options:
 more: #AI patrol: the electronics plant's rules
 ```
 
+## Lab 37: tracing quality problems with 8D
+
+This plant's hidden problems have a graded lab: on the left, Labs & tasks → Lab 37.
+
+1. The instructor injects one problem on the lab page (it can be random; students can't see which).
+2. Students find the characteristic and the rule that fired on the control charts on the Quality page.
+3. On the lab page, compare means by shunt-resistor reel: if it is off only from one reel onward, it is the incoming lot, so write the reel number (e.g. SH-001); if every reel is off, it is one process step's machine, so write the machine ID (e.g. sp-1, pp-2, rf-1).
+4. Open an 8D and choose an action; once the instructor approves, it goes to the shop. After another batch, it counts as effective only if every part is in tolerance and Cpk ≥ 1.33.
+5. Write D7 and close.
+
+The platform grades 60 points automatically; the lab report is worth 40. The guide and report template are at the top right of the lab page.
+
 ```ask
 q: Which machine's PM is about to come due?
 ```
