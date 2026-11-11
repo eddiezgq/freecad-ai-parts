@@ -54,6 +54,7 @@ def work_orders(db, mode, job_no):
     proj = E.project_of(j)
     rel = ED.released(db, mode, job_no)
     fp = rel["fingerprint"] if rel else None
+    from hub import eto_change as EC
     o = Overview(db, None, mode)
     out = []
     for w in o.wos:
@@ -65,6 +66,7 @@ def work_orders(db, mode, job_no):
                     "status": d.get("status"), "bom_no": d.get("bom_no"), "planned_start_date": d.get("planned_start_date"),
                     "started": d["name"] in o.started_wos,
                     "current_design": (bfp == fp) if (bfp and fp) else None,
+                    "kept": EC.kept(db, mode, job_no, d["name"]) if (bfp and fp and bfp != fp) else False,
                     "own": str(d.get("production_item") or "").startswith(job_no)})
     out.sort(key=lambda x: (x["planned_start_date"] or "", x["name"]))
     return out
@@ -75,7 +77,8 @@ def release_check(db, mode, job_no, work_order):
     w = wos.get(work_order)
     if not w:
         raise E.EtoError("工单 {} 不是这个作业的".format(work_order))
-    if w["current_design"] is False:
+    from hub import eto_change as EC
+    if w["current_design"] is False and not EC.kept(db, mode, job_no, work_order):
         raise E.EtoError("工单 {} 用的是旧版物料清单（设计已改版），先在 ERPNext 里处理这张工单再下达".format(work_order))
     if w["status"] in ("Completed", "Stopped", "Closed"):
         raise E.EtoError("工单 {} 已经{}".format(work_order, w["status"]))
@@ -144,8 +147,12 @@ def cost(db, mode, job_no):
         est = {"material": b["material"], "operations": b["operations"], "outside": b["outside"], "engineering": b["engineering"],
                "cost": b["cost"], "price": b["price"], "rev": j["quoted_rev"]}
     wos = work_orders(db, mode, job_no)
+    rev_of = {r["fingerprint"]: r["rev"] for r in ED.revisions(db, mode, job_no) if r.get("fingerprint")}   # 第 150 轮：变更前后分开
     ops_act = ops_std = 0.0
     mat, mat_unknown, lines = 0.0, [], []
+    pl = purchase_lines(db, mode, j)                   # 第 150 轮 150b：本单专料按发票（没发票按采购单）
+    own = lambda c: str(c).startswith(job_no + "-")  # noqa: E731
+    no_invoice = set()
     for w in wos:
         c = mrp.wo_cost(db, w["name"], mode)
         if c:
@@ -158,6 +165,12 @@ def cost(db, mode, job_no):
                 if comp in F.BOMS:
                     continue                           # 自制的子件：它自己的工单里算材料
                 price = F.ITEMS[comp][3] if comp in F.ITEMS else None
+                if own(comp):
+                    bp, src = buy_price(pl, comp)
+                    if bp is not None:
+                        price = bp
+                        if src == "po" and done:
+                            no_invoice.add(comp)
                 if price in (None, ""):
                     if done:
                         mat_unknown.append(comp)
@@ -166,46 +179,107 @@ def cost(db, mode, job_no):
         mat += m
         lines.append({"work_order": w["name"], "item": w["item"], "done": done, "qty": w["qty"],
                       "operations_actual": round(c["actual_cost"], 2) if c else 0.0, "operations_std": round(c["std_cost"], 2) if c else 0.0,
-                      "material": round(m, 2), "worst_operation": (c or {}).get("worst_operation")})
+                      "material": round(m, 2), "worst_operation": (c or {}).get("worst_operation"),
+                      "design_rev": rev_of.get(_bom_fp(db, mode, w["bom_no"]))})
     hrs = sum(h["hours"] for h in hours(db, mode, job_no))
     rate = cfg.get("engineering_rate_per_h")
     eng = round(hrs * float(rate), 2) if rate is not None else None
-    out_amt, out_unknown = outside_actual(db, mode, j)
+    out_amt, out_unknown, out_po = outside_actual(db, mode, j, pl)
     actual = {"material": None if mat_unknown else round(mat, 2), "operations": round(ops_act, 2), "outside": out_amt,
               "engineering": eng, "engineering_hours": hrs}
     known = [v for k, v in actual.items() if k != "engineering_hours"]
     actual["total"] = None if any(v is None for v in known) else round(sum(known), 2)
+    from hub import eto_change as EC
+    by_rev = {}
+    for ln in lines:
+        k = ln["design_rev"]
+        by_rev.setdefault(k, {"design_rev": k, "operations_actual": 0.0, "material": 0.0})
+        by_rev[k]["operations_actual"] = round(by_rev[k]["operations_actual"] + ln["operations_actual"], 2)
+        by_rev[k]["material"] = round(by_rev[k]["material"] + ln["material"], 2)
     return {"estimate": est, "actual": actual, "operations_std": round(ops_std, 2), "work_orders": lines,
+            "by_design_rev": sorted(by_rev.values(), key=lambda x: (x["design_rev"] is None, x["design_rev"] or 0)),
+            "change_loss": EC.loss(db, mode, job_no),
+            "purchases": pl, "invoice_pending": sorted(no_invoice | set(out_po)),
             "unknown": (["材料单价缺：" + "、".join(sorted(set(mat_unknown)))] if mat_unknown else []) +
                        out_unknown + ([] if rate is not None else ["设计费率没有配置"]),
             "basis": "工序按总线上每件实际节拍 + 调整 + 换刀 × 工位费率；材料按已完工件数 × 标准用量 × 单价；"
-                     "外协按挂在作业上的采购单（数量 × 单价）；设计按登记工时 × 设计费率"}
+                     "外协和本单专料按供应商发票（发票没到的按采购单，标“发票未到”）；设计按登记工时 × 设计费率"}
 
 
-def outside_actual(db, mode, j):
-    """外协实际（第 139g 段）：已发布设计里的每项外协（作业号-OS序号），按挂在作业项目上、已提交的采购单的数量 × 单价合计；
-    哪一项还没下采购单或采购单没单价，外协实际就是未知"""
+def purchase_lines(db, mode, j):
+    """第 150 轮 150b：挂在作业上的采购单逐行，对上供应商发票（已提交的采购发票，按采购单 + 物料对行）。
+    每行：采购单数量、单价、金额；已开票数量与金额；差额 = 发票金额 − 采购单价 × 已开票数量（正数是多付）"""
+    proj = E.project_of(j)
+    inv = {}
+    for m in db.erp_docs("Purchase Invoice", mode):
+        d = m["data"]
+        if d.get("docstatus") != 1:
+            continue
+        for it in d.get("items") or []:
+            k = (it.get("purchase_order"), it.get("item_code"))
+            if not k[0]:
+                continue
+            r = inv.setdefault(k, {"qty": 0.0, "amount": 0.0, "names": []})
+            q = float(it.get("qty") or 0)
+            r["qty"] += q
+            r["amount"] += float(it["amount"]) if it.get("amount") is not None else q * float(it.get("rate") or 0)
+            if d["name"] not in r["names"]:
+                r["names"].append(d["name"])
+    out = []
+    for m in db.erp_docs("Purchase Order", mode):
+        d = m["data"]
+        if d.get("docstatus") != 1 or d.get("project") != proj:
+            continue
+        for it in d.get("items") or []:
+            q, rate = float(it.get("qty") or 0), it.get("rate")
+            v = inv.get((d["name"], it.get("item_code")), {"qty": 0.0, "amount": 0.0, "names": []})
+            iq = round(v["qty"], 4)
+            diff = round(v["amount"] - iq * float(rate), 2) if (rate is not None and iq) else None
+            out.append({"purchase_order": d["name"], "supplier": d.get("supplier"), "item_code": it.get("item_code"), "qty": q,
+                        "rate": rate, "po_amount": round(q * float(rate), 2) if rate is not None else None,
+                        "invoiced_qty": iq, "invoice_amount": round(v["amount"], 2), "invoices": v["names"],
+                        "invoice_rate": round(v["amount"] / iq, 4) if iq else None, "diff": diff,
+                        "status": "invoiced" if iq >= q - 1e-9 else ("partly" if iq else "pending")})
+    return out
+
+
+def buy_price(lines, code):
+    """一个物料的实际单价：有发票按发票（加权平均），没有按采购单；都没有为 (None, None)"""
+    rows = [r for r in lines if r["item_code"] == code]
+    iq = sum(r["invoiced_qty"] for r in rows)
+    if iq:
+        return round(sum(r["invoice_amount"] for r in rows) / iq, 4), "invoice"
+    po = [r for r in rows if r["rate"] is not None and r["qty"]]
+    if po:
+        return round(sum(r["qty"] * float(r["rate"]) for r in po) / sum(r["qty"] for r in po), 4), "po"
+    return None, None
+
+
+def outside_actual(db, mode, j, lines=None):
+    """外协实际：已发布设计里的每项外协（作业号-OS序号）。第 150 轮 150b 起按发票：开了票的按发票金额，没开票的部分按采购单（标“发票未到”）；
+    哪一项还没下采购单或采购单没单价，外协实际就是未知。返回 (金额, 未知原因, 发票未到的外协编号)"""
     rel = ED.released(db, mode, j["job_no"])
     n = len((rel or {}).get("spec", {}).get("outside") or [])
     if not n:
-        return 0.0, []
-    proj = E.project_of(j)
+        return 0.0, [], []
+    lines = purchase_lines(db, mode, j) if lines is None else lines
     codes = ["{}-OS{:02d}".format(j["job_no"], i) for i in range(1, n + 1)]
-    amt, seen, norate = 0.0, set(), set()
-    for m in db.erp_docs("Purchase Order", mode):
-        d = m["data"]
-        if d.get("docstatus") != 1 or d.get("project") not in (None, proj):
+    amt, seen, norate, pending = 0.0, set(), set(), []
+    for r in lines:
+        c = r["item_code"]
+        if c not in codes:
             continue
-        for it in d.get("items") or []:
-            if it.get("item_code") in codes:
-                seen.add(it["item_code"])
-                if it.get("rate") is None:
-                    norate.add(it["item_code"])
-                else:
-                    amt += float(it["qty"]) * float(it["rate"])
+        seen.add(c)
+        rest = max(0.0, r["qty"] - r["invoiced_qty"])
+        if rest > 1e-9 and r["rate"] is None:
+            norate.add(c)
+            continue
+        amt += r["invoice_amount"] + rest * float(r["rate"] or 0)
+        if rest > 1e-9 and c not in pending:
+            pending.append(c)
     miss = [c for c in codes if c not in seen]
     msgs = (["外协还没下采购单：" + "、".join(miss)] if miss else []) + (["外协采购单没有单价：" + "、".join(sorted(norate))] if norate else [])
-    return (None if msgs else round(amt, 2)), msgs
+    return (None if msgs else round(amt, 2)), msgs, pending
 
 
 def on_proposal_done(db, action, preview, mode):

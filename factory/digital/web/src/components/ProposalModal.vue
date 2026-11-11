@@ -87,6 +87,16 @@
               <td class="mono">{{ w.expected_delivery_date }}</td><td class="num">{{ t('{n} 分钟', { n: w.est_minutes }) }}</td></tr></tbody>
           </table>
         </template>
+        <template v-if="p.action === 'eto_change'">
+          <p>{{ t('作业 {j}：设计第 {a} 版 → 第 {b} 版，旧单据逐条处理。', { j: pv.job.job_no, a: pv.job.from_rev, b: pv.job.rev }) }}</p>
+          <table class="t">
+            <thead><tr><th>{{ t('单据') }}</th><th>{{ t('处理') }}</th><th class="num">{{ t('变更损失') }}</th></tr></thead>
+            <tbody><tr v-for="a in pv.actions" :key="a.doctype + a.name"><td class="mono">{{ a.name }}</td><td>{{ t(a.action_zh) }}
+              <span v-if="a.lines" class="muted small">{{ a.lines.map((l) => l.item_code + ' → ' + l.qty).join(', ') }}</span></td>
+              <td class="num mono">{{ a.loss === null || a.loss === undefined ? (a.action === 'keep' ? '' : t('未知')) : (a.loss ? money(a.loss) : '') }}</td></tr></tbody>
+          </table>
+          <p class="muted small">{{ t('确认后在 ERPNext 取消、停止、改量或关闭这些单据；“照用”只在平台记下。处理完再算料，按新版补工单和请购。') }}</p>
+        </template>
         <template v-if="p.action === 'eto_ship'">
           <p>{{ t('作业 {j}：按销售订单 {s} 发货 {n} 件给 {c}。首件、终检、不合格品处置都已核过。', { j: pv.job.job_no, s: pv.sales_order, n: pv.qty, c: bi(pv.job.customer) }) }}</p>
           <p class="muted small">{{ t('确认后在 ERPNext 建发货单（发货那一期到了，可以在“开票与毛利”开票）。') }}</p>

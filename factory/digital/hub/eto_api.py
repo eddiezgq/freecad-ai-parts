@@ -13,13 +13,15 @@ from hub import eto_plan as EP
 from hub import eto_exec as EX
 from hub import eto_quality as EQ
 from hub import eto_billing as EB
+from hub import eto_change as EC
 
 log = logging.getLogger("eto")
 ROLES = ("sales", "planner", "engineer", "manager", "approver")
 
 
 def mount(app, H, user_of, who, ai_quota=None):
-    for fn in (E.on_proposal_done, ED.on_proposal_done, EX.on_proposal_done, EQ.on_proposal_done, EB.on_proposal_done):
+    for fn in (E.on_proposal_done, ED.on_proposal_done, EX.on_proposal_done, EQ.on_proposal_done, EB.on_proposal_done,
+               EC.on_proposal_done):
         if fn not in _ai.ON_PROPOSAL_DONE:
             _ai.ON_PROPOSAL_DONE.append(fn)
 
@@ -165,6 +167,24 @@ def mount(app, H, user_of, who, ai_quota=None):
         pv = guard(lambda: ED.release_preview(H.db, u["mode"], job_no))
         return propose(u, "eto_release", pv, "设计发布 {} 第 {} 版（{} 个新物料、{} 组物料清单）".format(
             job_no, pv["job"]["rev"], len(pv["items"]), len(pv["boms"])))
+
+    # ------------------------------------------------------------ 第 150 轮 150a：设计变更处理
+    @app.get("/api/eto/jobs/{job_no}/change")
+    def eto_change_plan(job_no: str, u=Depends(user_of)):
+        """这一次设计变更：受影响的工单、请购单、采购单和建议"""
+        return guard(lambda: EC.plan(H.db, u["mode"], job_no))
+
+    @app.post("/api/eto/jobs/{job_no}/change")
+    def eto_change_propose(job_no: str, body: dict = Body(...), u=Depends(user_of)):
+        """逐条选好 → 提议；人确认后桥接在 ERPNext 里取消 / 停止 / 改量 / 关闭，“照用”只记下"""
+        if u.get("role") not in ("planner", "manager", "engineer") and not u.get("teacher"):
+            raise HTTPException(403, "设计变更由计划员、工艺员或厂长处理")
+        pv = guard(lambda: EC.preview(H.db, u["mode"], job_no, body.get("choices") or {}, who(u)))
+        n = {}
+        for a in pv["actions"]:
+            n[a["action_zh"]] = n.get(a["action_zh"], 0) + 1
+        return propose(u, "eto_change", pv, "设计变更处理 {} 第 {} 版：{}".format(
+            job_no, pv["job"]["rev"], "、".join("{} {}".format(k, v) for k, v in n.items())))
 
     # ------------------------------------------------------------ 139c：作业算料、长周期件提前采购
     @app.get("/api/eto/jobs/{job_no}/materials")
@@ -344,8 +364,10 @@ def mount(app, H, user_of, who, ai_quota=None):
             if not j:
                 raise KeyError(job_no)
             acc = H.db.one("select day, note, who from eto_accept where mode=%s and job_no=%s", (u["mode"], job_no))
+            c = EX.cost(H.db, u["mode"], job_no) if j.get("sales_order") else None
             return {"milestones": EB.milestones(H.db, u["mode"], job_no),
-                    "money": EB.money(H.db, u["mode"], job_no, EX.cost(H.db, u["mode"], job_no) if j.get("sales_order") else None),
+                    "money": EB.money(H.db, u["mode"], job_no, c),
+                    "purchases": (c or {}).get("purchases") or [], "invoice_pending": (c or {}).get("invoice_pending") or [],
                     "accepted": {"day": acc["day"].isoformat(), "note": acc["note"], "who": acc["who"]} if acc else None,
                     "sales_order": j.get("sales_order"), "delivery_note": j.get("delivery_note")}
         return guard(run)

@@ -13,7 +13,7 @@
           <td>{{ w.current_design === false ? $t('旧版，不能下达') : (w.current_design ? $t('当前版') : '—') }}</td>
           <td class="acts">
             <button class="btn ghost tiny" @click="showTraveler(w.name)">{{ $t('作业单') }}</button>
-            <button v-if="!w.started && w.current_design !== false && w.status !== 'Completed'" class="btn tiny" :disabled="busy" @click="release(w.name)">{{ $t('下达车间') }}</button>
+            <button v-if="!w.started && (w.current_design !== false || w.kept) && w.status !== 'Completed'" class="btn tiny" :disabled="busy" @click="release(w.name)">{{ $t('下达车间') }}</button>
           </td></tr></tbody>
       </table>
 
@@ -30,6 +30,17 @@
       <p class="small muted">{{ $t('工序的标准成本（按标准工时）：{a}', { a: money(s.cost.operations_std) }) }}</p>
       <div v-for="u in s.cost.unknown" :key="u" class="warnline small">{{ $t('未知：{a}', { a: $td(u) }) }}</div>
       <p class="small muted">{{ $td(s.cost.basis) }}</p>
+      <template v-if="(s.cost.by_design_rev || []).length > 1 || s.cost.change_loss?.rows?.length">
+        <h3>{{ $t('设计变更前后') }}</h3>
+        <table class="t">
+          <thead><tr><th>{{ $t('设计版本') }}</th><th class="num">{{ $t('工序（实际）') }}</th><th class="num">{{ $t('材料') }}</th></tr></thead>
+          <tbody><tr v-for="r in s.cost.by_design_rev" :key="String(r.design_rev)">
+            <td>{{ r.design_rev ? $t('第 {r} 版', { r: r.design_rev }) : $t('不是本单设计的件') }}</td>
+            <td class="num mono">{{ money(r.operations_actual) }}</td><td class="num mono">{{ money(r.material) }}</td></tr></tbody>
+        </table>
+        <p class="small">{{ $t('变更损失：{a}', { a: s.cost.change_loss.amount === null ? $t('未知') : money(s.cost.change_loss.amount) }) }}
+          <span class="muted">{{ $t('（停掉的工单已花的工序成本，已含在上面实际里；新版用不上的专料到货另计）') }}</span></p>
+      </template>
 
       <h3>{{ $t('设计工时') }}</h3>
       <div class="hrs">

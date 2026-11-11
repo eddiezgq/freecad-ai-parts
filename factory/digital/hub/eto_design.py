@@ -335,6 +335,10 @@ def release_preview(db, mode, job_no):
         raise E.EtoError("还没有设计")
     if d["status"] == "released":
         raise E.EtoError("第 {} 版设计已经发布；要改先改设计（会出新版本）".format(d["rev"]))
+    from hub import eto_change as EC                  # 第 150 轮：上一次变更没处理完，不能再发布
+    n = EC.open_count(db, mode, job_no)
+    if n:
+        raise E.EtoError("上一次设计变更还有 {} 张单据没处理，先在“处理设计变更”里处理完再发布".format(n))
     errs, warns = check(d["spec"], job_no)
     if errs:
         raise E.EtoError("设计没通过检查：" + "；".join(errs[:6]))

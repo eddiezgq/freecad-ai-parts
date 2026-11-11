@@ -49,6 +49,7 @@ export const BATCH2 = [
   'components/EtoShop.vue',
   'components/EtoQuality.vue',
   'components/EtoBilling.vue',
+  'components/EtoChange.vue',      // 第 150 轮
   'pages/WaferMap.vue',
   'pages/EncCurve.vue',
   'pages/MotorWave.vue',

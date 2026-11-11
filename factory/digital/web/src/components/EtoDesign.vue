@@ -67,6 +67,7 @@
     <div v-for="w in d?.warnings || []" :key="w" class="warnline small">{{ $t('！{a}', { a: $td(w) }) }}</div>
     <div v-if="d?.affected?.length" class="warnbox small">{{ $t('设计改版会影响这些单据，发布后请逐条处理：') }}
       <span v-for="a in d.affected" :key="a.name" class="mono">{{ a.doctype }} {{ a.name }} </span></div>
+    <EtoChange :key="'chg' + (d?.revisions?.length || 0)" :job="job" @changed="load(); $emit('changed')" />
 
     <h3>{{ $t('设计版本') }}</h3>
     <div v-for="r in d?.revisions || []" :key="r.rev" class="small">
@@ -84,6 +85,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { api, get, post } from '../lib/api';
 import { t as $t, td as $td, tk } from '../lib/i18n';
 import ProposalModal from './ProposalModal.vue';
+import EtoChange from './EtoChange.vue';
 
 const props = defineProps({ job: Object, ops: Array, items: Array, suppliers: Object });
 defineEmits(['changed']);

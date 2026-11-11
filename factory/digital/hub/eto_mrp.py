@@ -68,6 +68,10 @@ def plan(db, mode, job_no, now=None):
         raise E.EtoError("作业 {} 的设计还没发布，不能算料".format(job_no))
     if not j.get("sales_order"):
         raise E.EtoError("作业还没接单")
+    from hub import eto_change as EC                  # 第 150 轮：设计变更没处理完，旧单据还挂着，不能按新版算料
+    n = EC.open_count(db, mode, job_no)
+    if n:
+        raise E.EtoError("设计改了版，还有 {} 张旧单据没处理，先处理设计变更再算料".format(n))
     o = Overview(db, now, mode)
     today = o.now.astimezone(TZ).date()
     start = today if o.now.astimezone(TZ).hour < 12 and today.weekday() < 5 else add_working_days(today, 1)

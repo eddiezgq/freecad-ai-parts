@@ -82,15 +82,15 @@ def test_money_and_outside_actual(db):  # noqa: F811
     assert m["not_invoiced"] == 7000.0 and m["margin"] == 2800.0 and m["margin_pct"] == 28.0
     assert B.money(db, "teach", JN, {"actual": {"total": None}})["margin"] is None                  # 成本未知，毛利也未知
     j = E.job(db, "teach", JN)
-    assert X.outside_actual(db, "teach", j) == (0.0, [])                                           # 设计没发布：没有外协
+    assert X.outside_actual(db, "teach", j) == (0.0, [], [])                                         # 设计没发布：没有外协
     db.x("update eto_design set status='released' where job_no=%s", (JN,))
-    amt, why = X.outside_actual(db, "teach", j)
+    amt, why, _ = X.outside_actual(db, "teach", j)
     assert amt is None and "还没下采购单" in why[0]
     _erp(db, "Purchase Order", "PO-70", docstatus=1, project="PROJ-0070", items=[{"item_code": JN + "-OS01", "qty": 2}])
-    amt, why = X.outside_actual(db, "teach", j)
+    amt, why, _ = X.outside_actual(db, "teach", j)
     assert amt is None and "没有单价" in why[0]
     _erp(db, "Purchase Order", "PO-70", docstatus=1, project="PROJ-0070", items=[{"item_code": JN + "-OS01", "qty": 2, "rate": 80}])
-    assert X.outside_actual(db, "teach", j) == (160.0, [])
+    assert X.outside_actual(db, "teach", j) == (160.0, [], [JN + "-OS01"])            # 第 150 轮：发票没到，按采购单并标出来
 
 
 def test_finance_skips_eto_orders(db):  # noqa: F811
@@ -130,3 +130,33 @@ def test_bridge_invoices_installments(mock_erp):  # noqa: F811
     assert M.db["Sales Order"]["SO-B"]["per_billed"] == 100
     a, _ = run("extra", 1, 100)                                         # 订单已经开满：再开就是超开
     assert a[-1]["action"] == "failed"
+
+
+# ---------------------------------------------------------------- 第 150 轮 150b：采购发票对账
+def test_purchase_invoices_drive_actual_cost(db):  # noqa: F811
+    _job(db, outside=[{"desc": "喷涂", "unit_price": 85, "lead_days": 7}])
+    db.x("update eto_design set status='released' where job_no=%s", (JN,))
+    db.x("update eto_job set project='PROJ-0071' where job_no=%s", (JN,))          # 和上一条测试的采购单分开
+    j = E.job(db, "teach", JN)
+    _erp(db, "Purchase Order", "PO-71", docstatus=1, project="PROJ-0071", supplier="示例·喷涂厂",
+         items=[{"item_code": JN + "-OS01", "qty": 2, "rate": 80}, {"item_code": JN + "-PL", "qty": 4, "rate": 12.5}])
+    _erp(db, "Purchase Order", "PO-OTHER", docstatus=1, project="PROJ-9", items=[{"item_code": JN + "-PL", "qty": 9, "rate": 1}])  # 别的项目不算
+    lines = {r["item_code"]: r for r in X.purchase_lines(db, "teach", j)}
+    assert set(lines) == {JN + "-OS01", JN + "-PL"} and lines[JN + "-OS01"]["status"] == "pending"
+    assert X.buy_price(list(lines.values()), JN + "-PL") == (12.5, "po")
+    # 外协发票到了一件，单价 92（比采购单贵 12）：已开票的按发票、没开票的按采购单
+    _erp(db, "Purchase Invoice", "PINV-1", docstatus=1, items=[{"item_code": JN + "-OS01", "qty": 1, "rate": 92, "amount": 92, "purchase_order": "PO-71"}])
+    lines = {r["item_code"]: r for r in X.purchase_lines(db, "teach", j)}
+    os1 = lines[JN + "-OS01"]
+    assert os1["status"] == "partly" and os1["invoiced_qty"] == 1 and os1["invoice_amount"] == 92 and os1["diff"] == 12.0
+    assert X.outside_actual(db, "teach", j) == (172.0, [], [JN + "-OS01"])            # 92 + 1 × 80
+    # 第二张发票开齐；专料发票 4 × 13.0
+    _erp(db, "Purchase Invoice", "PINV-2", docstatus=1, items=[{"item_code": JN + "-OS01", "qty": 1, "rate": 92, "amount": 92, "purchase_order": "PO-71"},
+                                                               {"item_code": JN + "-PL", "qty": 4, "rate": 13, "amount": 52, "purchase_order": "PO-71"}])
+    _erp(db, "Purchase Invoice", "PINV-X", docstatus=0, items=[{"item_code": JN + "-PL", "qty": 4, "rate": 99, "amount": 396, "purchase_order": "PO-71"}])  # 草稿不算
+    lines = {r["item_code"]: r for r in X.purchase_lines(db, "teach", j)}
+    assert lines[JN + "-OS01"]["status"] == "invoiced" and lines[JN + "-OS01"]["diff"] == 24.0 and lines[JN + "-OS01"]["invoices"] == ["PINV-1", "PINV-2"]
+    assert lines[JN + "-PL"]["diff"] == 2.0 and X.buy_price(list(lines.values()), JN + "-PL") == (13.0, "invoice")
+    assert X.outside_actual(db, "teach", j) == (184.0, [], [])                         # 全按发票，没有“发票未到”
+    # 毛利跟着成本走
+    assert B.money(db, "teach", JN, {"actual": {"total": 184.0}})["actual_cost"] == 184.0
