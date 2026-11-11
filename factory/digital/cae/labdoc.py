@@ -31,7 +31,9 @@ GUIDES = {"lab8": GUIDE_MD, "lab9": os.path.join(HERE, "实验9_机械臂关节�
           "lab31": os.path.join(HERE, "实验31_关节终检抱闸报警的排查.md"),
           "lab32": os.path.join(HERE, "实验32_机壳与关键零件质量异常的追因与8D.md"),
           "lab33": os.path.join(HERE, "实验33_一张非标订单从询价到收款.md"),
-          "lab34": os.path.join(HERE, "实验34_一台平缝机从订单到交付.md")}
+          "lab34": os.path.join(HERE, "实验34_一台平缝机从订单到交付.md"),
+          "lab35": os.path.join(HERE, "实验35_电机质量异常的追因与8D.md"),
+          "lab36": os.path.join(HERE, "实验36_编码器与扭矩传感器质量异常的追因与8D.md")}
 
 
 def _doc():
@@ -143,7 +145,7 @@ def report_template_docx(lab="lab8"):
         return lab22_template()
     if lab == "lab23":
         return lab23_template()
-    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28", "lab29", "lab30", "lab31", "lab32", "lab33", "lab34"):
+    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28", "lab29", "lab30", "lab31", "lab32", "lab33", "lab34", "lab35", "lab36"):
         return robot_template(lab)
     from docx.shared import Pt
     d = _doc()
@@ -1102,6 +1104,25 @@ def robot_template(lab):
         table([["项目 Item", "标定前 Before", "标定后 After"], ["平均绝对定位误差（mm）", "", ""], ["最大（mm）", "", ""], ["判定（≤ 0.5 mm）", "", ""]])
         d.add_heading("五、讨论（任务 6）· Discussion", 1)
         hint("零位偏差从哪里来？标定补不了的误差有哪些（柔度、齿隙、温度）？如果测试台零位漂了 30″，辨识结果会怎样？")
+    elif lab in ("lab35", "lab36"):
+        name, by, units = {"lab35": ("电机质量异常的追因与 8D · Tracing Motor Quality Problems with 8D", "绕线机 Winding machine", ("wd-1", "wd-2")),
+                           "lab36": ("编码器与扭矩传感器质量异常的追因与 8D · Tracing Encoder and Torque-Sensor Quality Problems with 8D",
+                                     "粘接对心机 Disc bonding machine", ("cb-1", "cb-2"))}[lab]
+        d.add_heading("实验 {}　{}　实验报告".format(lab[3:], name), 0)
+        table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)
+        d.add_heading("一、发现（任务 1）· Detection", 1)
+        table([["项目 Item", "记录 Record"], ["出问题的特性（物料 · 特性）", ""], ["触发的判异规则、从第几件开始", ""], ["当时的超差件数", ""]])
+        hint("贴控制图截图，标出触发判异的那几点。")
+        d.add_heading("二、分层（任务 2）· Stratification", 1)
+        table([[by, "件数 n", "均值 Mean", "超差 Out of tol."]] + [[u, "", "", ""] for u in units])
+        table([["项目 Item", "记录 Record"], ["结论：只在一台设备，还是所有件一起偏", ""], ["是哪台设备（编号）", ""],
+               ["依据（差多少，远大于随机散布吗；别的特性怎样）", ""]])
+        d.add_heading("三、8D（任务 3–5）", 1)
+        table([["步骤 Step", "内容 Content"], ["D1 小组", ""], ["D2 问题描述（5W2H，带数据）", ""], ["D3 临时措施（已做的件怎么办）", ""],
+               ["D4 根本原因（5 Why）", ""], ["D5 纠正措施（选了哪一项，为什么别的不对症）", ""],
+               ["D6 验证：措施前后件数、均值、超差、Cpk", ""], ["D7 预防再发生（改了哪些工艺文件、加了什么防错）", ""], ["D8 总结", ""]])
+        d.add_heading("四、讨论 · Discussion", 1)
+        hint("只看总的控制图，几种原因能分得开吗？终检 100% 复测、放宽公差能代替纠正措施吗？这个问题在上游哪道工序就能拦住？")
     elif lab == "lab34":
         d.add_heading("实验 34　一台平缝机从订单到交付　实验报告 · Lab 34 Report: One Lockstitch Machine from Order to Delivery", 0)
         table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)
