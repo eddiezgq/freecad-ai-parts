@@ -2489,6 +2489,60 @@ def lab25_inject(body: dict = Body(default={}), u=Depends(user_of)):
         raise HTTPException(400, str(e))
 
 
+# ---------------------------------------------------------------- 实验 35、36（第 147 轮）：通用质量追因实验 hub/labq.py，一座厂一份配置
+QLABS = {35: ("lab35", "wenquest-motor"), 36: ("lab36", "wenquest-sensor")}
+
+
+def _qlab(no):
+    import importlib
+    if no not in QLABS:
+        raise HTTPException(404, "没有这个实验")
+    mod, plant = QLABS[no]
+    if _labs_api.plant_id() != plant:
+        raise HTTPException(404, "实验 {} 不在这座厂".format(no))
+    return importlib.import_module("hub." + mod)
+
+
+@app.get("/api/labq/{no}")
+def labq_status(no: int, u=Depends(user_of)):
+    m = _qlab(no)
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    m.check(H.db, u["name"])
+    out = m.status(H.db, u["name"], teacher=bool(u.get("teacher")))
+    out["teacher"] = bool(u.get("teacher"))
+    if u.get("teacher"):
+        out["class"] = m.class_view(H.db)
+    return out
+
+
+@app.get("/api/labq/{no}/strata")
+def labq_strata(no: int, sel: str, u=Depends(user_of)):
+    return _qlab(no).strata(H.db, sel)
+
+
+@app.post("/api/labq/{no}/inject")
+def labq_inject(no: int, body: dict = Body(default={}), u=Depends(user_of)):
+    m = _qlab(no)
+    try:
+        return m.inject(H.db, _sim_sender(u), u, body.get("kind"))
+    except PermissionError as e:
+        raise HTTPException(403, str(e))
+    except (ValueError, KeyError) as e:
+        raise HTTPException(400, str(e))
+
+
+@app.post("/api/labq/{no}/{tid}")
+def labq_answer(no: int, tid: str, body: dict = Body(...), u=Depends(user_of)):
+    m = _qlab(no)
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    try:
+        return m.answer(H.db, u["name"], tid, body)
+    except KeyError:
+        raise HTTPException(404, "这个任务不用提交答案，系统会自动检查")
+
+
 # ---------------------------------------------------------------- 实验 32（第 141 轮，缝纫机厂）：照实验 25
 def _sewing_lab(n=32):
     from hub import lab32, lab34

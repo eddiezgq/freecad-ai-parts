@@ -27,3 +27,15 @@ Several fixes look reasonable but miss the cause: redoing the compensation table
 | SN3 | Read-head signal amplitude dropping | Check the gap; do not just raise gain |
 | SN4 | Disc spots (amplitude dips) | Check the clean room |
 | SN5 | Torque sensor creep rising | Check the cure oven |
+
+## Lab 36: tracing quality problems with 8D
+
+This plant's hidden problems have a graded lab: on the left, Labs & tasks → Lab 36.
+
+1. The instructor injects one problem on the lab page (it can be random; students can't see which).
+2. Students find the characteristic and the rule that fired on the control charts on the Quality page.
+3. On the lab page, compare means by disc bonding machine: is only one machine off, or is everything off together? Then name the machine (e.g. cb-2, hm-1, dcl-1, cur-1).
+4. Open an 8D and choose an action; once the instructor approves, it goes to the shop. After another batch, it counts as effective only if every part is in tolerance and Cpk ≥ 1.33.
+5. Write D7 and close.
+
+The platform grades 60 points automatically; the lab report is worth 40. The guide and report template are at the top right of the lab page.
