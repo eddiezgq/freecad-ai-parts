@@ -28,12 +28,21 @@
       </table>
       <h3>{{ $t('工位负荷（本作业涉及的周）') }}</h3>
       <table class="t">
-        <thead><tr><th>{{ $t('工作站') }}</th><th>{{ $t('周') }}</th><th class="num">{{ $t('其他工单（分）') }}</th><th class="num">{{ $t('本作业（分）') }}</th>
+        <thead><tr><th>{{ $t('工作站') }}</th><th>{{ $t('周') }}</th><th class="num">{{ $t('其他工单与作业（分）') }}</th><th class="num">{{ $t('本作业（分）') }}</th>
           <th class="num">{{ $t('能力（分）') }}</th><th class="num">{{ $t('负荷') }}</th></tr></thead>
         <tbody><tr v-for="r in s.load.rows" :key="r.workstation + r.week" :class="{ late: r.over }">
           <td>{{ $td(r.workstation) }}</td><td class="mono">{{ r.week }}</td><td class="num">{{ r.others_min }}</td><td class="num">{{ r.job_min }}</td>
           <td class="num">{{ r.capacity_min }}</td><td class="num">{{ r.load_pct }}%</td></tr></tbody>
       </table>
+      <template v-if="conflicts.length">
+        <h3>{{ $t('工位冲突与建议') }}</h3>
+        <div v-for="r in conflicts" :key="'c' + r.workstation + r.week" class="conf small">
+          <b>{{ $td(r.workstation) }} · {{ $t('{w} 这一周', { w: r.week }) }}</b>
+          <div class="muted">{{ $t('占用：{a}', { a: occ(r) }) }}</div>
+          <div v-if="r.suggestion" :class="r.suggestion.action === 'delay' ? 'ok' : 'warnline'">{{ $td(r.suggestion.text) }}</div>
+        </div>
+        <p class="small muted">{{ $t('只是建议：推迟哪张、要不要加班外协，由计划员决定，平台不改任何作业的日期。') }}</p>
+      </template>
       <p class="small muted">{{ $td(s.basis) }}</p>
       <p class="small muted">{{ $td(s.load.basis) }}</p>
     </template>
@@ -41,13 +50,18 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { get } from '../lib/api';
 import { t as $t, td as $td } from '../lib/i18n';
 
 const props = defineProps({ job: Object });
 const s = ref(null);
 const err = ref('');
+function occ(r) {
+  return r.jobs.map((j) => (j.slack_days === null || j.slack_days === undefined)
+    ? $t('{j} {m} 分', { j: j.job_no, m: j.min }) : $t('{j} {m} 分（松紧 {n}）', { j: j.job_no, m: j.min, n: j.slack_days })).join('; ') || '—';
+}
+const conflicts = computed(() => (s.value?.load?.rows || []).filter((r) => r.over));
 async function load() {
   err.value = '';
   try { s.value = await get(`/eto/jobs/${encodeURIComponent(props.job.job_no)}/schedule`); } catch (e) { s.value = null; err.value = e.message; }
@@ -66,4 +80,6 @@ h3 { font-size: 14px; margin: 14px 0 6px; }
 tr.late td { background: #FDECEC; }
 tr.crit td:first-child { font-weight: 700; }
 .err { color: var(--bad); } .warnline { color: var(--warn-ink); }
+.conf { border-left: 3px solid var(--warn-ink); padding: 4px 10px; margin: 6px 0; }
+.ok { color: var(--good); } .warnline { color: var(--warn-ink); }
 </style>

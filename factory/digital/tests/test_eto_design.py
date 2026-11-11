@@ -155,12 +155,22 @@ def test_order_design_release_flow(db, keep_master):
          "boms": [{"item": jn, "routing": [["总装 Final assembly", 45]], "components": [["SA-100", 1], [jn + "-SH", 1]]},
                   {"item": jn + "-SH", "routing": [["粗车 Rough turning", 20]], "components": [["RM-45-D50", 4.4]]}]}
     assert ED.save(db, "teach", jn, s, "李设计") == 1                 # 没发布：同一版覆盖
+    # 第 150 轮 150d：本单新件要有批准的图纸才能发布；草稿里的新件“设计发布与审批”认得
+    with pytest.raises(E.EtoError, match="图纸"):
+        ED.release_preview(db, "teach", jn)
+    assert ED.draft_item(db, "teach", jn + "-SH") == "输出轴（加长）" and ED.draft_item(db, "teach", jn + "-ZZ") is None
+    from hub import plm
+    plm.submit(db, lambda *a: None, "teach", "李设计", "u-li", jn + "-SH", drawing=b"<svg xmlns='http://www.w3.org/2000/svg'/>",
+               drawing_name="SH.svg", note="加长 40 mm")                 # 教学模式提交即批准
+    dr, miss = ED.drawings(db, "teach", s)
+    assert not miss and dr[jn + "-SH"]["rev"] == 2 and dr[jn + "-SH"]["by"] == "李设计"
     rp = ED.release_preview(db, "teach", jn)
-    assert [b["item"] for b in rp["boms"]] == [jn + "-SH", jn] and rp["fingerprint"] == ED.fingerprint(s)
+    assert rp["drawings"] == dr and rp["fingerprint"] == ED.fingerprint(s, dr) != ED.fingerprint(s)     # 图纸版本算进指纹
+    assert [b["item"] for b in rp["boms"]] == [jn + "-SH", jn]
     assert rp["boms"][0]["operations"][0]["workstation"] == F.OPERATIONS["粗车 Rough turning"] and rp["boms"][1]["components"][1]["new"]
     _done(db, "eto_release", "P-R1", rp, [["Item", jn + "-SH"], ["BOM", "BOM-x"], ["BOM", "BOM-y"]])
     r = ED.released(db, "teach", jn)
-    assert r["rev"] == 1 and r["fingerprint"] == rp["fingerprint"] and r["released_by"] == "王厂长"
+    assert r["rev"] == 1 and r["fingerprint"] == rp["fingerprint"] and r["released_by"] == "王厂长" and r["drawings"] == dr
     assert F.BOMS[jn][1] == [("SA-100", 1.0), (jn + "-SH", 1.0)] and F.ITEMS[jn + "-SH"][1] == "make"
     with pytest.raises(E.EtoError):
         ED.release_preview(db, "teach", jn)                           # 同一版不重复发布
@@ -215,3 +225,14 @@ def test_bridge_order_and_release(mock_erp):  # noqa: F811
     top = M.db["BOM"][first[-1]["created"][2][1]]
     assert top["wq_fingerprint"] == "fp1" and top["items"][0]["bom_no"] == first[-1]["created"][1][1] and top["is_default"] == 1
     assert len([b for b in M.db["BOM"].values() if b["item"] == jn]) == 1          # 再执行一次：同一指纹不重建
+
+
+def test_require_drawing_switch(monkeypatch):
+    """第 150 轮 150d：清单 eto.require_drawing，没写为开；写 false 关掉；不是 true / false 报错"""
+    from factory import plant as P
+    monkeypatch.setattr(F, "ETO", {"prefix": "JOB-"}, raising=False)
+    assert ED.require_drawing() is True
+    monkeypatch.setattr(F, "ETO", {"prefix": "JOB-", "require_drawing": False}, raising=False)
+    assert ED.require_drawing() is False
+    assert P._validate_eto({"require_drawing": True}) == []
+    assert any("require_drawing" in e for e in P._validate_eto({"require_drawing": "yes"}))

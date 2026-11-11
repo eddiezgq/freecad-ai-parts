@@ -32,6 +32,7 @@ create table if not exists eto_design (
     released_at  timestamptz,
     primary key (mode, job_no, rev)
 );
+alter table eto_design add column if not exists drawings jsonb;     -- 第 150 轮 150d：发布时各本单新件批准的图纸版本
 """
 NEW_KINDS = ("make", "buy", "raw")
 ACCEPT_DAYS = 10            # 缺省验收期（天）：验收那一期的计划付款日 = 交期 + 它（清单 eto.accept_days 可改）
@@ -92,8 +93,10 @@ def pending(db, mode, action, job_no):
 
 
 # ---------------------------------------------------------------- 设计（纯函数）
-def fingerprint(spec):
+def fingerprint(spec, drawings=None):
     core = {"items": spec.get("items") or [], "boms": spec.get("boms") or []}
+    if drawings:                                     # 第 150 轮 150d：批准的图纸版本也算进指纹
+        core["drawings"] = {k: v["rev"] for k, v in sorted(drawings.items())}
     return hashlib.sha256(json.dumps(core, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
@@ -268,6 +271,43 @@ def copy_as_new(spec, job_no, parent, code, suffix):
     return spec
 
 
+# ---------------------------------------------------------------- 第 150 轮 150d：本单新件的图纸
+DRAWING_KINDS = ("make", "buy")            # 自制件、外购件要有图纸（原材料不要）
+
+
+def require_drawing():
+    """工厂清单 eto.require_drawing，没写为开"""
+    v = E.config().get("require_drawing")
+    return True if v is None else bool(v)
+
+
+def drawings(db, mode, spec):
+    """本单新件（自制件、外购件）在“设计发布与审批”里最近批准、带图纸的版本：({编号: {rev, by, at, submission}}, [还没有的编号])"""
+    out, missing = {}, []
+    for it in (spec or {}).get("items") or []:
+        if it.get("kind") not in DRAWING_KINDS:
+            continue
+        r = db.one("select id, revision, decided_by, decided_at, files from design_submission where mode=%s and item=%s "
+                   "and status='approved' and files @> '[{\"kind\": \"drawing\"}]'::jsonb order by decided_at desc limit 1",
+                   (mode, it["code"]))
+        if r:
+            out[it["code"]] = {"rev": r["revision"], "by": r["decided_by"], "at": r["decided_at"].date().isoformat(), "submission": r["id"]}
+        else:
+            missing.append(it["code"])
+    return out, missing
+
+
+def draft_item(db, mode, code):
+    """还没发布的本单新件（设计草稿里的）：给“设计发布与审批”认物料用。返回名称或 None"""
+    if not db.one("select to_regclass('eto_design') is not null as x")["x"]:
+        return None
+    r = db.one("select spec from eto_design where mode=%s and spec->'items' @> %s::jsonb order by rev desc limit 1",
+               (mode, json.dumps([{"code": code}])))
+    if not r:
+        return None
+    return next((i.get("name") for i in r["spec"].get("items") or [] if i.get("code") == code), None) or code
+
+
 # ---------------------------------------------------------------- 设计（数据库）
 def _row(r):
     if not r:
@@ -317,7 +357,9 @@ def detail(db, mode, job_no):
         return None
     d = latest(db, mode, job_no)
     errs, warns = check(d["spec"], job_no) if d else ([], [])
+    dr, miss = drawings(db, mode, d["spec"]) if d else ({}, [])
     return {"design": d, "revisions": revisions(db, mode, job_no), "errors": errs, "warnings": warns,
+            "drawings": dr, "drawings_missing": miss, "require_drawing": require_drawing(),
             "pending_proposal": pending(db, mode, "eto_release", job_no), "affected": affected(db, mode, job_no),
             "fingerprint_now": fingerprint(d["spec"]) if d else None}
 
@@ -343,7 +385,10 @@ def release_preview(db, mode, job_no):
     if errs:
         raise E.EtoError("设计没通过检查：" + "；".join(errs[:6]))
     spec = d["spec"]
-    fp = fingerprint(spec)
+    dr, miss = drawings(db, mode, spec)
+    if miss and require_drawing():
+        raise E.EtoError("本单新件还没有批准的图纸：{}（先到“设计发布与审批”提交图纸并批准）".format("、".join(miss)))
+    fp = fingerprint(spec, dr)
     items = []
     for it in spec["items"]:
         sup = it.get("supplier")
@@ -357,7 +402,8 @@ def release_preview(db, mode, job_no):
                      "operations": [{"operation": op, "workstation": F.OPERATIONS[op], "time_in_mins": float(m),
                                      "hour_rate": float(sum(F.WORKSTATIONS[F.OPERATIONS[op]][1]))} for op, m in b["routing"]]})
     return {"job": {"job_no": job_no, "title": j["title"], "rev": d["rev"], "project": E.project_of(j)}, "fingerprint": fp, "items": items, "boms": boms,
-            "warnings": warns, "affected": affected(db, mode, job_no), "outside": spec.get("outside") or []}
+            "warnings": warns + (["本单新件没有批准的图纸：" + "、".join(miss)] if miss else []), "affected": affected(db, mode, job_no),
+            "outside": spec.get("outside") or [], "drawings": dr}
 
 
 def affected(db, mode, job_no):
@@ -412,10 +458,11 @@ def on_proposal_done(db, action, preview, mode):
         db.x("update eto_job set status='ordered', sales_order=%s where mode=%s and job_no=%s", (so, mode, jn))
     elif action == "eto_release":
         jn, rev = pv["job"]["job_no"], pv["job"]["rev"]
-        row = db.one("update eto_design set status='released', fingerprint=%s, released_at=now(), "
+        row = db.one("update eto_design set status='released', fingerprint=%s, drawings=%s, released_at=now(), "
                      "released_by=(select confirmed_by from ai_proposal where action='eto_release' and mode=%s and status='executed' "
                      "and preview->'job'->>'job_no'=%s order by decided_at desc nulls last limit 1) "
-                     "where mode=%s and job_no=%s and rev=%s returning spec", (pv["fingerprint"], mode, jn, mode, jn, rev))
+                     "where mode=%s and job_no=%s and rev=%s returning spec",
+                     (pv["fingerprint"], json.dumps(pv.get("drawings") or {}), mode, jn, mode, jn, rev))
         j = E.job(db, mode, jn)
         if row and j:
             merge(jn, j["title"], row["spec"])

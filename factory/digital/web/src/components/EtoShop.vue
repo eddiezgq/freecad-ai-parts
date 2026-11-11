@@ -60,12 +60,14 @@
           <tr><td>{{ $t('物料') }}</td><td><span class="mono">{{ tr.item }}</span> {{ $td(tr.item_name) }}</td><td>{{ $t('数量') }}</td><td>{{ tr.qty }}</td></tr>
           <tr><td>{{ $t('设计版本') }}</td><td>{{ $t('第 {r} 版', { r: tr.design_rev }) }} · <span class="mono">{{ (tr.fingerprint || '').slice(0, 12) }}</span></td>
             <td>{{ $t('交期') }}</td><td class="mono">{{ tr.due_date }}</td></tr>
+          <tr><td>{{ $t('图纸') }}</td><td colspan="3">{{ tr.drawing ? $t('图号 {c} 第 {r} 版（{w} 批准，{d}）', { c: tr.item, r: tr.drawing.rev, w: tr.drawing.by, d: tr.drawing.at }) : $t('没有批准的图纸（按物料清单和工艺做）') }}</td></tr>
         </tbody></table>
         <h3>{{ $t('工序') }}</h3>
         <table class="t">
-          <thead><tr><th>#</th><th>{{ $t('工序') }}</th><th>{{ $t('工作站') }}</th><th class="num">{{ $t('每件分钟') }}</th><th class="num">{{ $t('合计分钟') }}</th><th></th></tr></thead>
+          <thead><tr><th>#</th><th>{{ $t('工序') }}</th><th>{{ $t('工作站') }}</th><th class="num">{{ $t('每件分钟') }}</th><th class="num">{{ $t('合计分钟') }}</th><th>{{ $t('图纸') }}</th><th></th></tr></thead>
           <tbody><tr v-for="o in tr.operations" :key="o.seq"><td>{{ o.seq }}</td><td>{{ $td(o.operation) }}</td><td>{{ $td(o.workstation) }}</td>
-            <td class="num">{{ o.std_min }}</td><td class="num">{{ o.total_min }}</td><td>{{ o.inspection ? $t('检验点') : '' }}</td></tr></tbody>
+            <td class="num">{{ o.std_min }}</td><td class="num">{{ o.total_min }}</td>
+            <td class="mono small">{{ tr.drawing ? tr.item + ' rev ' + tr.drawing.rev : '' }}</td><td>{{ o.inspection ? $t('检验点') : '' }}</td></tr></tbody>
         </table>
         <h3>{{ $t('子件') }}</h3>
         <table class="t">

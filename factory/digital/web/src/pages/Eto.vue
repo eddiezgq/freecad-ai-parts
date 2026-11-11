@@ -47,6 +47,7 @@
             b: d.feasibility.purchase_days, c: d.feasibility.manufacturing_days, s: d.feasibility.ship_days }) }}
           <template v-if="d.feasibility.due">{{ d.feasibility.slack_days >= 0 ? $t('，赶得上交期。') : $t('，比交期晚 {n} 个工作日。', { n: -d.feasibility.slack_days }) }}</template>
           <span v-if="d.feasibility.unknown.length">{{ $t('周期不明：{a}', { a: d.feasibility.unknown.join(', ') }) }}</span>
+          <div v-for="c in d.feasibility.capacity || []" :key="c.workstation + c.week">{{ $t('{w} 在 {k} 这一周不够：本单 {a} 分 + 其他 {o} 分 > 能力 {c} 分，缺 {s} 分', { w: $td(c.workstation), k: c.week, a: c.job_min, o: c.others_min, c: c.capacity_min, s: c.short_min }) }}</div>
         </div>
         <div v-if="res.errors.length || res.unknown.length" class="issues">
           <div v-for="e in res.errors" :key="e" class="err small">✗ {{ $td(e) }}</div>

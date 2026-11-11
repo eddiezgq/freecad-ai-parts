@@ -129,3 +129,12 @@ def test_bridge_summary_keeps_bom_fingerprint():
     assert r.returncode == 0, r.stderr[-1000:]
     d = json.loads(r.stdout)
     assert d["wq_fingerprint"] == "fp9" and d["project"] == "P" and d["items"] == [{"item_code": "A", "qty": 2}]
+
+
+def test_traveler_shows_approved_drawing(db, job):  # noqa: F811
+    """第 150 轮 150d：作业单写出按哪张批准的图做（发布时记下的图纸版本）"""
+    assert EX.traveler(db, "teach", job, "WO-E1")["drawing"] is None
+    db.x("update eto_design set drawings=%s where mode='teach' and job_no=%s and rev=1",
+         (json.dumps({job: {"rev": 3, "by": "王审批", "at": "2026-11-11", "submission": "s1"}}), job))
+    d = EX.traveler(db, "teach", job, "WO-E1")["drawing"]
+    assert d == {"rev": 3, "by": "王审批", "at": "2026-11-11", "submission": "s1"}

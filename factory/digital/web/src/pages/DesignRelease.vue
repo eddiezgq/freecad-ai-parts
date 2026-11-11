@@ -47,13 +47,14 @@
 <script setup>
 import { t as $t } from '../lib/i18n';
 import { computed, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { get, session } from '../lib/api';
 import { timeOf } from '../lib/fmt';
 
 const STATUS = { pending: $t('待审'), approved: $t('已生效'), rejected: $t('退回'), withdrawn: $t('撤回') };
 const TONE = { pending: 'warn', approved: 'good', rejected: 'bad', withdrawn: '' };
 const router = useRouter();
+const route = useRoute();
 const prod = computed(() => session.user?.mode === 'prod');
 const tabs = computed(() => (prod.value ? [{ k: 'pending', label: $t('待审') }, { k: '', label: $t('全部') }] : [{ k: '', label: $t('全部') }]));
 const tab = ref(prod.value ? 'pending' : '');
@@ -89,7 +90,10 @@ async function submit() {
     router.push('/design/' + d.id);
   } catch (e) { msgOk.value = false; msg.value = e.message; } finally { busy.value = false; }
 }
-onMounted(load);
+onMounted(() => {
+  load();
+  if (route.query.item) { item.value = String(route.query.item); lookup(); }   // 第 150 轮 150d：从按单设计页“去交图纸”带物料编号过来
+});
 </script>
 
 <style scoped>
