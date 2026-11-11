@@ -32,7 +32,15 @@
           <div class="lf"><label>{{ $t('要领多少 {a}', { a: s.count_item }) }}</label><input v-model.number="a1.count" type="number" min="0" step="any" required></div>
           <button class="btn primary">{{ $t('提交') }}</button>
         </form>
-        <div v-if="t.id === pre + 't2'" class="small">
+        <form v-if="t.id === pre + 't2' && s.route" class="f" @submit.prevent="submit(t.id, a2)">
+          <table class="tbl small"><thead><tr><th>{{ $t('工序') }}</th><th>{{ $t('单件工时（分钟）') }}</th><th>{{ $t('设备') }}</th><th>{{ $t('一次装几件') }}</th></tr></thead>
+            <tbody><tr v-for="o in s.routing" :key="o.operation"><td>{{ $td(o.operation) }}</td><td class="mono">{{ $td(o.minutes) }}</td>
+              <td class="mono">{{ o.units.join($t('、')) }}</td><td class="mono">{{ $td(o.batch) }}</td></tr></tbody></table>
+          <div class="lf"><label>{{ $t('单件占时最长的工序') }}</label><input v-model="a2.longest" :placeholder="$t('写工序名称')" required></div>
+          <div class="lf"><label>{{ $t('真正卡产能的工序') }}</label><input v-model="a2.bottleneck" :placeholder="$t('写工序名称')" required></div>
+          <button class="btn primary">{{ $t('提交') }}</button>
+        </form>
+        <div v-if="t.id === pre + 't2' && !s.route" class="small">
           <table v-if="s.layers.length" class="tbl"><thead><tr><th>{{ $t('物料') }}</th><th>{{ $t('工单') }}</th><th>{{ $t('下达') }}</th><th>{{ $t('用到的下一层') }}</th><th>{{ $t('核对') }}</th></tr></thead>
             <tbody><tr v-for="l in s.layers" :key="l.work_order">
               <td class="mono">{{ $td(l.item) }}</td><td class="mono">{{ $td(l.work_order) }}</td><td>{{ l.released ? timeOf(l.released) : $t('还没下达') }}</td>
@@ -85,6 +93,7 @@ const s = ref(null);
 const err = ref('');
 const fb = reactive({});
 const a1 = reactive({ work_orders: null, count: null });
+const a2 = reactive({ longest: '', bottleneck: '' });
 const a3 = reactive({ serial: '', verdict: '', char: '' });
 const a5 = reactive({ variance_pct: null, worst: '' });
 const a6 = reactive({ choices: [] });

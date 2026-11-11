@@ -32,3 +32,7 @@ ERPNext has one inspection template per item, so all measurements of a motor are
 | Brake static holding torque | Brake test bench | Per model |
 | Back-EMF constant, three-phase unbalance, harmonic distortion, cogging torque | Motor final test bench | See the next chapter |
 | No-load current | Motor final test bench | Per model |
+
+## Lab 42: one servo motor from order to delivery
+
+On the left, Labs & tasks → Lab 42: take an order for 1 WQ-SM200 yourself, run MRP (single-level BOM, so one work order), read the routing and find the bottleneck — varnish and bake is the longest per piece, but 24 stators share one oven load, so the real limit is an operation that takes one motor at a time; judge whether the motor passes final test, receive and invoice, compare the order's standard and actual cost, and review. The platform grades 60 points automatically; the lab report is worth 40.

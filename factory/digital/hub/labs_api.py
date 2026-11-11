@@ -61,6 +61,11 @@ LABS = [
      "plant": "wenquest-pcb"},
     {"no": 40, "title": "一批芯片从订单到交付", "path": "/labo/40", "module": "lab40", "domain": "订单到交付（多层 BOM）", "hours": 4,
      "plant": "wenquest-chip"},
+    # 第 153 轮：电机厂、传感器厂的“从订单到交付”（物料清单一层，任务 2 看工艺路线）
+    {"no": 42, "title": "一台伺服电机从订单到交付", "path": "/labo/42", "module": "lab42", "domain": "订单到交付（工艺路线）", "hours": 4,
+     "plant": "wenquest-motor"},
+    {"no": 43, "title": "一只扭矩传感器从订单到交付", "path": "/labo/43", "module": "lab43", "domain": "订单到交付（工艺路线）", "hours": 4,
+     "plant": "wenquest-sensor"},
     # 第 145 轮：缝纫机厂一台平缝机从订单到交付，照实验 24
     {"no": 34, "title": "一台平缝机从订单到交付", "path": "/lab34", "module": "lab34", "domain": "订单到交付（多层 BOM）", "hours": 4,
      "plant": "wenquest-sewing"},

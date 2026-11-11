@@ -2494,7 +2494,8 @@ def lab25_inject(body: dict = Body(default={}), u=Depends(user_of)):
 
 
 # ---------------------------------------------------------------- 实验 39、40（第 149 轮）：通用“从订单到交付”实验 hub/labo.py，一座厂一份配置
-OLABS = {39: ("lab39", "wenquest-pcb"), 40: ("lab40", "wenquest-chip")}
+OLABS = {39: ("lab39", "wenquest-pcb"), 40: ("lab40", "wenquest-chip"),
+         42: ("lab42", "wenquest-motor"), 43: ("lab43", "wenquest-sensor")}     # 42、43：第 153 轮
 
 
 def _olab(no):

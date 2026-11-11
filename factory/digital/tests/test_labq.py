@@ -211,7 +211,7 @@ def test_lab41_any_affected_char_counts():
     assert out["t2_wrong"] == 0, out
 
 
-@pytest.mark.parametrize("plant,nos", [("motor", [35]), ("sensor", [36]), ("pcb", [37, 39]), ("chip", [38, 40]),
+@pytest.mark.parametrize("plant,nos", [("motor", [35, 42]), ("sensor", [36, 43]), ("pcb", [37, 39]), ("chip", [38, 40]),
                                        ("gearbox", [7, 15, 16, 17, 18, 19, 20, 21, 22, 23, 33, 41])])
 def test_quality_labs_listed_per_plant(plant, nos):
     code = ("import sys, json; sys.path[:0] = [{!r}, {!r}]\nfrom hub import labs_api as L\n"
