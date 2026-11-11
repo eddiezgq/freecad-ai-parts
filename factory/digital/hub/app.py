@@ -2328,6 +2328,54 @@ def lab25_inject(body: dict = Body(default={}), u=Depends(user_of)):
         raise HTTPException(400, str(e))
 
 
+# ---------------------------------------------------------------- 实验 32（第 141 轮，缝纫机厂）：照实验 25
+def _sewing_lab():
+    from hub import lab32
+    if _labs_api.plant_id() != "wenquest-sewing":
+        raise HTTPException(404, "实验 32 只在缝纫机厂")
+    return lab32
+
+
+@app.get("/api/lab32")
+def lab32_status(u=Depends(user_of)):
+    m = _sewing_lab()
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    m.check(H.db, u["name"])
+    out = m.status(H.db, u["name"], teacher=bool(u.get("teacher")))
+    out["teacher"] = bool(u.get("teacher"))
+    if u.get("teacher"):
+        out["class"] = m.class_view(H.db)
+    return out
+
+
+@app.get("/api/lab32/strata")
+def lab32_strata(sel: str, u=Depends(user_of)):
+    return _sewing_lab().strata(H.db, sel)
+
+
+@app.post("/api/lab32/inject")
+def lab32_inject(body: dict = Body(default={}), u=Depends(user_of)):
+    m = _sewing_lab()
+    try:
+        return m.inject(H.db, _sim_sender(u), u, body.get("kind"))
+    except PermissionError as e:
+        raise HTTPException(403, str(e))
+    except (ValueError, KeyError) as e:
+        raise HTTPException(400, str(e))
+
+
+@app.post("/api/lab32/{tid}")
+def lab32_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
+    m = _sewing_lab()
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    try:
+        return m.answer(H.db, u["name"], tid, body)
+    except KeyError:
+        raise HTTPException(404, "这个任务不用提交答案，系统会自动检查")
+
+
 # ---------------------------------------------------------------- 整机标定、实验 26（第 55 轮，机器人厂）
 def _calib():
     from hub import lab26

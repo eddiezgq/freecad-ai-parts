@@ -3816,7 +3816,7 @@ measurements:
     nominal: 210
     lo: 180
     hi: 240
-    sigma: 7
+    sigma: 5.5
   - &id002
     code: cast_tensile
     name: 单铸试棒抗拉强度（本炉）
@@ -3878,7 +3878,7 @@ measurements:
     nominal: 0.005
     lo: 0
     hi: 0.01
-    sigma: 0.0012
+    sigma: 0.0009
   - code: hs_coax_lo
     name: 下轴孔三处同轴度（三坐标）
     unit: mm
@@ -3913,7 +3913,7 @@ measurements:
     nominal: 0.014
     lo: 0
     hi: 0.03
-    sigma: 0.0035
+    sigma: 0.0028
   - code: hs_h32
     name: 下轴孔轴线到底板上平面 32 ± 0.03（三坐标）
     unit: mm
@@ -4010,7 +4010,7 @@ measurements:
     nominal: 52.5
     lo: 50
     hi: 55
-    sigma: 0.7
+    sigma: 0.45
   - code: ls_phase
     name: 曲柄紧固平面相位偏差
     unit: °
