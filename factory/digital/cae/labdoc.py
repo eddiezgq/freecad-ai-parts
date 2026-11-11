@@ -29,7 +29,8 @@ GUIDES = {"lab8": GUIDE_MD, "lab9": os.path.join(HERE, "实验9_机械臂关节�
           "lab29": os.path.join(HERE, "实验29_一台机器人的售后追溯.md"),
           "lab30": os.path.join(HERE, "实验30_一台轮式人形从订单到交付.md"),
           "lab31": os.path.join(HERE, "实验31_关节终检抱闸报警的排查.md"),
-          "lab32": os.path.join(HERE, "实验32_机壳与关键零件质量异常的追因与8D.md")}
+          "lab32": os.path.join(HERE, "实验32_机壳与关键零件质量异常的追因与8D.md"),
+          "lab34": os.path.join(HERE, "实验34_一台平缝机从订单到交付.md")}
 
 
 def _doc():
@@ -141,7 +142,7 @@ def report_template_docx(lab="lab8"):
         return lab22_template()
     if lab == "lab23":
         return lab23_template()
-    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28", "lab29", "lab30", "lab31", "lab32"):
+    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28", "lab29", "lab30", "lab31", "lab32", "lab34"):
         return robot_template(lab)
     from docx.shared import Pt
     d = _doc()
@@ -1081,6 +1082,22 @@ def robot_template(lab):
         table([["项目 Item", "标定前 Before", "标定后 After"], ["平均绝对定位误差（mm）", "", ""], ["最大（mm）", "", ""], ["判定（≤ 0.5 mm）", "", ""]])
         d.add_heading("五、讨论（任务 6）· Discussion", 1)
         hint("零位偏差从哪里来？标定补不了的误差有哪些（柔度、齿隙、温度）？如果测试台零位漂了 30″，辨识结果会怎样？")
+    elif lab == "lab34":
+        d.add_heading("实验 34　一台平缝机从订单到交付　实验报告 · Lab 34 Report: One Lockstitch Machine from Order to Delivery", 0)
+        table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)
+        d.add_heading("一、订单与算料（任务 1）· Order and MRP", 1)
+        table([["项目 Item", "记录 Record"], ["销售订单号、客户、交期", ""], ["工单张数，分别是哪些物料", ""], ["自制关键零件几种，分别是什么", ""]])
+        d.add_heading("二、按层下达（任务 2）· Release by level", 1)
+        table([["层 Level", "物料 Item", "工单号 Work order", "下达时刻 Released", "它用到的下一层完工入库时刻"], ["", "", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""]])
+        hint("画出这台平缝机的物料清单树（铸件 → 机壳 → 整机；关键零件 → 整机），标出每层工单的下达和完工时刻。")
+        d.add_heading("三、出厂检验与交付（任务 3、4）· Final test and delivery", 1)
+        table([["整机序列号 Serial", "梭尖间隙", "钩线定时", "送布牙高度", "跑合温升", "空载噪声", "停针定位", "试缝跳针", "判定"], ["", "", "", "", "", "", "", "", ""]])
+        table([["入库时间 Received", "销售发票号、金额 Invoice"], ["", ""]])
+        d.add_heading("四、成本（任务 5）· Cost", 1)
+        table([["工单（物料）", "标准成本", "实际成本", "差额", "差在哪里（调整、换刀、超时）"], ["", "", "", "", ""], ["", "", "", "", ""],
+               ["整台（含材料）", "", "", "", ""]])
+        d.add_heading("五、复盘与讨论（任务 6）· Review", 1)
+        hint("和实验 7（减速器厂的一根输出轴）比，造一台平缝机多了哪些环节、哪些风险？机壳从浇注到精镗要经过两次时效，交期上占多少？如果交期提前一周，你先动哪一层？")
     elif lab == "lab32":
         d.add_heading("实验 32　机壳与关键零件质量异常的追因与 8D　实验报告 · Lab 32 Report: Tracing Housing and Key-Part Quality Problems", 0)
         table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)
