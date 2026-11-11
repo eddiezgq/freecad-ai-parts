@@ -88,12 +88,15 @@ print(json.dumps(out, ensure_ascii=False, default=str))
 
 
 def _labq(plant, mod, kind, item, char, answer2, wrong2, fix, picks, qty=6, char8d=None):
+    """plant 为 None：演示工厂（不指定清单）"""
     psycopg = pytest.importorskip("psycopg")
     try:
         psycopg.connect(BASE + "/postgres").close()
     except Exception:  # noqa: BLE001
         pytest.skip("没有可用的 PostgreSQL")
     env = dict(os.environ, WQ_PLANT_FILE=os.path.join(FAC, "plants", "wenquest-{}.yaml".format(plant)))
+    if plant is None:
+        env.pop("WQ_PLANT_FILE")
     code = LABQ.format(dbn="wq_labq_{}_{}".format(mod, kind), dig=DIG, fac=FAC, base=BASE, mod=mod, pre=mod.replace("lab", "l") + "_", kind=kind, item=item, char=char, char8d=char8d or char,
                        answer2=repr(answer2), wrong2=repr(wrong2), fix=fix, picks=picks, qty=qty)
     r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, env=env, cwd=DIG, timeout=1200)
@@ -182,7 +185,34 @@ def test_lab38_chip(kind, item, char, layer, unit, fix):
         assert st["wb-2"]["mean"] < st["wb-1"]["mean"], st
 
 
-@pytest.mark.parametrize("plant,nos", [("motor", [35]), ("sensor", [36]), ("pcb", [37, 39]), ("chip", [38, 40])])
+@pytest.mark.parametrize("kind,char,unit,fix,char8d", [
+    ("tailstock_offset", "bearing_seat_d35_r", "grd-01", "align_tailstock", "gear_seat_d40"),
+    ("dressing_interval", "bearing_seat_d35", "grd-01", "shorten_dressing", None),
+    ("thermal_warmup", "gear_seat_d40", "grd-01", "warm_up", None),
+    ("center_hole", "runout_bearing", "grd-01", "lap_center_holes", None),
+    ("wheel_dull", "ra_bearing", "grd-01", "sharp_dressing", None),
+    ("locator_worn", "keyway_sym", "key-01", "replace_locator", None),
+])
+def test_lab41_gearbox(kind, char, unit, fix, char8d):
+    """第 152 轮：演示工厂（减速器厂）输出轴——判异按均值–极差图；每道工序一台设备，分层答设备；说错设备只得 10 分"""
+    wrong = {"by": "shared", "group": "key-01" if unit == "grd-01" else "grd-01"}
+    out = _labq(None, "lab41", kind, "SH-301", char, {"by": "shared", "group": unit}, wrong, fix, [{}], qty=10, char8d=char8d)
+    _full(out)
+    assert out["t2_wrong"] == 10, out
+    assert out["strata"] == {}, out["strata"]
+    assert "SH-301|burn_bearing" not in out["chars"] and "SH-301|bearing_seat_d35_r" in out["chars"], out["chars"]
+
+
+def test_lab41_any_affected_char_counts():
+    """尾座偏移让左右轴承位、齿轮位一起偏：任务 1 答齿轮位也算对"""
+    out = _labq(None, "lab41", "tailstock_offset", "SH-301", "gear_seat_d40", {"by": "shared", "group": "grd-01"},
+                {"by": "station", "group": "grd-01"}, "align_tailstock", [{}], qty=10)
+    _full(out)
+    assert out["t2_wrong"] == 0, out
+
+
+@pytest.mark.parametrize("plant,nos", [("motor", [35]), ("sensor", [36]), ("pcb", [37, 39]), ("chip", [38, 40]),
+                                       ("gearbox", [7, 15, 16, 17, 18, 19, 20, 21, 22, 23, 33, 41])])
 def test_quality_labs_listed_per_plant(plant, nos):
     code = ("import sys, json; sys.path[:0] = [{!r}, {!r}]\nfrom hub import labs_api as L\n"
             "print(json.dumps([l['no'] for l in L.labs_here()]))").format(DIG, FAC)
@@ -192,7 +222,7 @@ def test_quality_labs_listed_per_plant(plant, nos):
     assert json.loads(r.stdout) == nos
 
 
-@pytest.mark.parametrize("lab", ["lab35", "lab36", "lab37", "lab38"])
+@pytest.mark.parametrize("lab", ["lab35", "lab36", "lab37", "lab38", "lab41"])
 def test_quality_lab_docs(lab):
     sys.path[:0] = [DIG, FAC]
     from cae import labdoc

@@ -291,6 +291,7 @@ class ErrorModel:
         self.zero_fifo = {}       # 第 55 轮：关节测试台测得的零位残差（角秒），按规格先进先出装进整机（整机标定的零位偏差从这里来）
         self.fric_fifo = {}       # 第 58 轮：关节测试台测得的空载摩擦力矩（N·m），同样先进先出装进整机（负载跑合台的“实测”力矩从这里来）
         self.history = []         # (事件, 问题或措施, 结果)
+        self.dress_parts = None   # 第 152 轮：措施“缩短砂轮修整间隔”下发后，磨床每磨这么多件修整一次（新注入问题时恢复原来的修整规则）
 
     def add_lot(self, item: str, lot: str, qty: float):
         """仓库收下一批（来料检验合格）：装关节时先进先出用掉。同一批号只记一次"""
@@ -350,6 +351,7 @@ class ErrorModel:
         if problem not in PROBLEMS:
             raise KeyError(problem)
         self.active[problem] = {"magnitude": float(magnitude if magnitude is not None else PROBLEMS[problem]["default"]), "count": 0}
+        self.dress_parts = None
         if problem == "shunt_lot":          # 从注入时正在用的那一卷采样电阻起
             o = self.lot_order.get("SH") or []
             self.active[problem]["from_lot"] = {"SH": len(o) - 1 if o else 0}
@@ -381,8 +383,16 @@ class ErrorModel:
             q = self.lots.get(SHUNT_ITEM)
             if q and o and q[0][0] == o[-1]:
                 q.pop(0)
+        if fix == "shorten_dressing":       # 第 152 轮：措施本身就是改修整间隔（每 5 件修整一次），之后砂轮磨损小、尺寸不再漂到上限
+            self.dress_parts = 5
         self.history.append(("fix", fix, bool(gone)))
         return gone
+
+    def dress_limit(self, unit: str, wear_per_part: float) -> float:
+        """剩余寿命低于这个值就换刀 / 修整砂轮：默认 0.08；缩短修整间隔后，磨床每 dress_parts 件修整一次"""
+        if unit == "grd-01" and self.dress_parts:
+            return 1.0 - self.dress_parts * wear_per_part + 1e-9
+        return 0.08
 
     # -------------------------------------------------------------- 零件经过某台设备时记下当时的状态
     def on_process(self, unit: str, part, wear: float):

@@ -81,6 +81,9 @@ The colored bar on the left: gray not started, yellow partly done, green all don
 | Lab 22 | Business: order margin, receivables and cash | Business & finance | [Lab 22](/lab22) |
 | Lab 23 | Two-week scenario: plant-wide decisions on a rush order (two-week course project, groups of 4–6) | All seven domains | [Lab 23](/lab23) |
 | Lab 33 | One engineer-to-order job from inquiry to payment (estimate, quotation, design, schedule, shop, quality, milestone billing) | Orders & planning | [Lab 33](/lab33) |
+| Lab 41 | Tracing output-shaft quality problems with 8D (the instructor injects a hidden grinder or keyway-mill problem; students detect it, locate the machine, tell the cause from the shape of the data and complete the 8D) | Quality (stratification, 8D) | [Lab 41](/labq/41) |
+
+What makes Lab 41 hard: each operation in this plant has one machine, so stratifying by machine only gets you to grinder grd-01, and the same grinder has five possible causes (tailstock offset, faster wheel wear, no warm-up, poor center holes, dull dressing). Tell them apart by the shape of the data: right bearing seat much larger than the left is taper (tailstock); size growing faster than usual within a dressing cycle is the dressing interval; everything getting smaller after start-up is warm-up; large runout is the center holes; rougher surface and burn is dull dressing. The bearing-seat diameter already sits near the upper limit because of normal wheel wear, so for tailstock and warm-up open the 8D on the Ø40 gear seat — its verification is cleaner.
 
 There are also labs 8–14 done on the computation desks (strength and fatigue, joint torque, CNC programming, heat balance and lightweighting, digital design of a shaft, digital twin, flow); see the computation desk table in “From design to factory”.
 
@@ -110,6 +113,7 @@ Teachers are not limited by compare mode. In the local version everyone who sign
 | Lab 7 | 100 points (6 tasks) | — |
 | Labs 15–22 | 60 points (5 tasks each) | 40 points, handed in to this lecture's assignment in the course, graded by the teacher |
 | Lab 23 | 60 points (4 tasks, by group) | 40 points, group report |
+| Lab 41 | 60 points (5 tasks) | 40 points |
 
 Automatic scoring counts only facts in the platform: records on the unified data bus, the answers you submit, and the actions you started that were executed. Nothing done means no score; guessing does not work.
 
