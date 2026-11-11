@@ -1,26 +1,27 @@
 <template>
   <!-- 你来选（第 30 轮 §八 H-11 第 4 种）：情景小题，选完显示对错和道理，选错链回讲这件事的那一段 -->
-  <div class="hb quiz" role="group" :aria-label="'你来选：' + args.q">
-    <p class="q"><span class="badge small">你来选</span>{{ args.q }}</p>
+  <div class="hb quiz" role="group" :aria-label="$t('你来选：') + args.q">
+    <p class="q"><span class="badge small">{{ $t('你来选') }}</span>{{ $td(args.q) }}</p>
     <div class="opts">
       <button v-for="(o, i) in opts" :key="i" class="opt" :class="cls(i)" :disabled="picked !== null" :aria-pressed="picked === i"
         @click="picked = i">
         <span class="mark" aria-hidden="true">{{ picked === null ? String.fromCharCode(65 + i) : o.right ? '✓' : picked === i ? '✗' : '' }}</span>
-        <span class="ot">{{ o.text }}<span v-if="picked !== null && o.why" class="why small">{{ o.why }}</span></span>
+        <span class="ot">{{ $td(o.text) }}<span v-if="picked !== null && o.why" class="why small">{{ $td(o.why) }}</span></span>
       </button>
     </div>
     <div v-if="picked !== null" class="verdict" role="status" aria-live="polite">
-      <b :class="opts[picked].right ? 'good' : 'bad'">{{ opts[picked].right ? '选对了。' : '再想想。' }}</b>
+      <b :class="opts[picked].right ? 'good' : 'bad'">{{ opts[picked].right ? $t('选对了。') : $t('再想想。') }}</b>
       <span class="acts small">
-        <router-link v-if="more && !opts[picked].right" :to="more">回到“{{ moreText }}”那一段看看 →</router-link>
-        <router-link v-else-if="more" :to="more">道理在“{{ moreText }}”那一段 →</router-link>
-        <button class="link" @click="picked = null">再选一次</button>
+        <router-link v-if="more && !opts[picked].right" :to="more">{{ $t('回到“{a}”那一段看看 →', { a: moreText }) }}</router-link>
+        <router-link v-else-if="more" :to="more">{{ $t('道理在“{a}”那一段 →', { a: moreText }) }}</router-link>
+        <button class="link" @click="picked = null">{{ $t('再选一次') }}</button>
       </span>
     </div>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../../lib/i18n';
 // 块的写法：options 每项“文字 | right 或 wrong | 道理”；more 写“章节文件名#小节标题”（如 11-maint#保养：从异常到验收解锁），
 // 同一章写“#小节标题”。纯前端，不记分。
 import { computed, ref } from 'vue';
@@ -32,7 +33,7 @@ const picked = ref(null);
 
 function parseOption(s) {
   const [text, verdict, ...why] = String(s).split('|').map((x) => x.trim());
-  return { text, right: /^(right|对|✓)$/i.test(verdict || ''), why: why.join(' | ') };
+  return { text, right: /^(right|对|✓)$/i.test(verdict || ''), why: why.join(' | ') };   // i18n-ok 数据比较
 }
 const opts = computed(() => (Array.isArray(props.args.options) ? props.args.options : []).map(parseOption));
 const moreText = computed(() => decodeURIComponent((props.args.more || '').split('#')[1] || ''));

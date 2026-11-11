@@ -49,6 +49,7 @@ from hub.historian import Historian  # noqa: E402
 from hub.privacy import actor  # noqa: E402
 from hub.mes import MES  # noqa: E402
 from hub.teach import Teach  # noqa: E402
+from hub import i18n  # noqa: E402  第 130 轮：英文版
 
 log = logging.getLogger("hub")
 logging.basicConfig(level=os.environ.get("WQ_LOG", "INFO"), format="%(asctime)s hub %(levelname)s %(message)s")
@@ -84,12 +85,12 @@ SUPPLY_ON = PLANT.has_supply()            # 第 51 轮：采购与来料（E5）
 DOMAINS_ON = PLANT.has_domains()          # 第 59 轮：设备维护（E3）、能源（E6）、经营财务（E7）也在清单写了产品的厂开（教学模式）
 DOMAIN_API = ("/api/maint", "/api/energy", "/api/finance", "/api/ehs", "/api/people")      # 第 61 轮：加安全环保（E2）、人员排班（E4）
 DOMAIN_NAV = ("/maint", "/energy", "/finance", "/ehs", "/people")
-TEACH_ONLY_API = tuple("/api/lab{}".format(n) for n in range(15, 24)) + (
+TEACH_ONLY_API = tuple("/api/lab{}".format(n) for n in (*range(15, 24), 33)) + (
     "/api/story", "/api/scenario", "/api/teach/batch-complaint", "/api/help/try",       # 帮助里的“当场动手”（第 30 轮 §八）
     "/api/complaints", "/api/crm", "/api/followups", "/api/ont/customer360", "/api/service",     # E1 客户与服务
     "/api/ehs", "/api/maint", "/api/people", "/api/supply", "/api/energy", "/api/finance")      # E2–E7
 TEACH_ONLY_NAV = ("/service", "/supply", "/finance", "/maint", "/people", "/ehs", "/energy", "/director", "/labs", "/teach",
-                  "/plc") + tuple("/lab{}".format(n) for n in range(15, 24))
+                  "/plc") + tuple("/lab{}".format(n) for n in (*range(15, 24), 33))
 PUBLISH_ALLOW = ("wq/gearbox/design/",)       # HTTP → 总线网关只放行这些主题（FreeCAD 宏用）
 
 
@@ -119,6 +120,17 @@ class Hub:
 
     def start(self):
         self.db.init()
+        from hub import eto as _ETO                   # 按单设计（第 139 轮）的作业、估算、设计表；已发布的设计并回主数据
+        from hub import eto_design as _ETOD
+        _ETO.init(self.db)
+        _ETOD.init(self.db)
+        from hub import eto_exec as _ETOX
+        _ETOX.init(self.db)
+        from hub import eto_quality as _ETOQ
+        _ETOQ.init(self.db)
+        from hub import eto_billing as _ETOB
+        _ETOB.init(self.db)
+        _ETOD.load_all(self.db)
         self.bus = Bus("wq-hub-" + secrets.token_hex(3))
         self.ai = Assistant(self.db, self.publish)
         ai_setting_load(self.db, self.ai.llm)          # 第 30 轮 H-6：管理员选的模型（Claude / DeepSeek / 自动）
@@ -433,8 +445,20 @@ def teach_only(path):
 @app.middleware("http")
 async def _demo_plant_only(request: Request, call_next):
     if not DEMO_PLANT and (teach_only(request.url.path) or (request.url.path == "/api/labs" and not _labs_api.has_labs())):
-        return JSONResponse({"detail": "这项功能只属于演示工厂（问渠减速器厂），本厂没有"}, 404)
+        return JSONResponse({"detail": i18n.tr("这项功能只属于演示工厂（问渠减速器厂），本厂没有", i18n.lang_of(request))}, 404)   # 第 130 轮第三批：按语言
     return await call_next(request)
+
+
+# 第 130 轮：报错文字按请求的语言（第一批页面会遇到的有英文，其余照旧中文）
+from fastapi.exception_handlers import http_exception_handler as _http_exc  # noqa: E402
+from starlette.exceptions import HTTPException as _StarletteHTTPException  # noqa: E402
+
+
+@app.exception_handler(_StarletteHTTPException)
+async def _localized_http_exc(request: Request, exc):
+    if i18n.lang_of(request) == "en" and isinstance(exc.detail, str):
+        exc = _StarletteHTTPException(exc.status_code, i18n.localize_detail(exc.detail, "en"), headers=getattr(exc, "headers", None))
+    return await _http_exc(request, exc)
 
 
 @app.on_event("startup")
@@ -675,7 +699,8 @@ def _plant_cfg():
     from sim import calendar as cal
     c = PLANT.company()
     act = PLANT.active()
-    return {"name": PLANT.display_name(), "company": c["name"], "currency": c["currency"], "demo": DEMO_PLANT,
+    return {"name": PLANT.display_name(), "name_en": "WenQuest Gearbox" if PLANT.is_demo() else i18n.en_part(c["name"]),   # 第 130 轮
+            "company": c["name"], "currency": c["currency"], "demo": DEMO_PLANT,
             "id": act["ID"] if act else "wenquest-gearbox",          # 第 45 轮：帮助按它显示“机器人厂”一册
             "shift": "{}–{}".format(cal.DEF_START, cal.DEF_END),
             # “实验与任务”：本厂有自己的实验（机器人厂的实验 24、25，第 47 轮）就显示
@@ -755,7 +780,7 @@ def _pm_h(u):
 @app.get("/api/layout")
 def get_layout():
     return {"floor": L.FLOOR, "units": {u: {"x": v[0], "y": v[1], "w": v[2], "d": v[3],
-                                           "name": wqbus.UNITS[u][1], "en": wqbus.UNITS[u][2],
+                                           "name": wqbus.UNITS[u][1], "en": wqbus.UNITS[u][2], "name_en": wqbus.UNITS[u][2],
                                            **({"h": L.HEIGHT[u]} if L.HEIGHT and u in L.HEIGHT else {}),
                                            **_pm_h(u)}
                                        for u, v in L.LAYOUT.items()},
@@ -764,8 +789,11 @@ def get_layout():
 
 # ---------------------------------------------------------------- 看板
 @app.get("/api/overview")
-def get_overview(u=Depends(user_of)):
+def get_overview(request: Request, u=Depends(user_of)):
     ov = kpi.overview(H.db, None, u["mode"])
+    for x in ov.get("materials", []):           # 第 130 轮：物料的英文名（清单里中英合写）
+        if x.get("code") in F.ITEMS:
+            x["name_en"] = i18n.en_part(F.ITEMS[x["code"]][0])
     b = H.db.one("select payload from bus_message where type='ai.briefing' and mode=%s order by ts desc limit 1",
                  (u["mode"],))
     ov["briefing"] = b["payload"] if b else None
@@ -784,7 +812,7 @@ def get_overview(u=Depends(user_of)):
     ov["todos"] = todos_for(u, ov)
     if u["mode"] == "teach" and DEMO_PLANT:
         ov["teach"] = H.teach.check(u["name"])
-    return ov
+    return i18n.localize_overview(ov, i18n.lang_of(request), wqbus.UNITS)
 
 
 def _prop(p):
@@ -955,14 +983,14 @@ def decide(pid: str, decision: str, u=Depends(user_of)):
 
 # ---------------------------------------------------------------- AI 助手
 @app.post("/api/ai/chat")
-def ai_chat(body: dict = Body(...), u=Depends(user_of)):
+def ai_chat(request: Request, body: dict = Body(...), u=Depends(user_of)):
     msgs = [m for m in body.get("messages", []) if m.get("role") in ("user", "assistant") and m.get("content")]
     if not msgs:
         raise HTTPException(400, "请输入问题")
     ai_quota(u)
     if H.agent is None:
         return H.ai.chat(msgs, u["mode"], u["role"], u["name"])
-    return H.agent.ask(u, msgs[-12:])
+    return H.agent.ask(dict(u, lang=i18n.lang_of(request)), msgs[-12:])   # 第 130 轮 D-10：英文界面让模型用英文答
 
 
 _catalog = lib_select.Catalog()
@@ -1483,22 +1511,108 @@ def process_get(sid: str, u=Depends(user_of)):
     return s
 
 
+def _cards_pdf(docx: bytes) -> bytes:
+    """第 128 轮（阶段 C1）：工艺卡的 PDF——把 Word 交给学习平台网关，网关用本服务器的在线文档服务（OnlyOffice）转换。
+    网关与枢纽同在 factory-edge 网络；认证用课程接口钥匙 WQ_FACTORY_READ_KEY（两边 .env 里是同一把）。"""
+    import httpx
+    url, key = os.environ.get("WQ_PDF_URL", ""), os.environ.get("WQ_FACTORY_READ_KEY", "")
+    if not url or not key:
+        raise HTTPException(503, "这台服务器没有配置 PDF 导出（WQ_PDF_URL），请先导出 Word")
+    try:
+        r = httpx.post(url, content=docx, headers={"Authorization": "Bearer " + key,
+                                                   "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
+                       timeout=180)
+    except httpx.HTTPError as e:
+        raise HTTPException(502, f"PDF 转换服务连不上：{type(e).__name__}")
+    if r.status_code != 200 or not r.content.startswith(b"%PDF"):
+        raise HTTPException(502, f"PDF 转换失败（{r.status_code}）")
+    return r.content
+
+
 def _cards_response(plan: dict, fmt: str):
-    """全套工艺文件（第 13 轮 N2）：HTML 直接看、用浏览器打印成 PDF；fmt=docx 下载可编辑的 Word。"""
+    """全套工艺文件（第 13 轮 N2）：HTML 直接看；fmt=docx 下载 Word；fmt=pdf（第 128 轮）由 Word 经在线文档服务转成 PDF。"""
     if not plan.get("operations") or not plan.get("doc"):
         raise HTTPException(400, "这份工艺规程还不是数据格式 v2（缺 doc 或 operations），生成不了卡片")
     try:
-        if fmt == "docx":
+        if fmt in ("docx", "pdf"):
             import tempfile
             with tempfile.TemporaryDirectory() as d:
                 path = proc_cards.docx(plan, os.path.join(d, "cards.docx"))
                 data = path.read_bytes()
+            if fmt == "pdf":
+                name = urllib.parse.quote(f"{plan.get('item', 'part')}_工艺文件.pdf")
+                return Response(_cards_pdf(data), media_type="application/pdf",
+                                headers={"Content-Disposition": f"attachment; filename*=UTF-8''{name}"})
             name = urllib.parse.quote(f"{plan.get('item', 'part')}_工艺文件.docx")
             return Response(data, media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                             headers={"Content-Disposition": f"attachment; filename*=UTF-8''{name}"})
         return Response(proc_cards.html(plan), media_type="text/html; charset=utf-8")
     except (KeyError, TypeError, ValueError, StopIteration) as e:
         raise HTTPException(400, f"工艺规程数据不完整，生成卡片失败：{e!r}")
+
+
+# ---------------------------------------------------------------- 第 128 轮（阶段 C1）：在页面上改工艺卡
+# 改的是工艺规程的数据（卡片照 JB/T 9165.2 版式重排）；每人每个零件一份草稿，随时核算与 AI 预检，改好照常“提交审批”。
+
+def _std_plan(item: str):
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "std", f"{item}_process.yaml")
+    return proc_cards.load(path) if os.path.exists(path) else None
+
+
+@app.get("/api/process/drafts/{item}")
+def process_draft_get(item: str, start: str = "", u=Depends(user_of)):
+    """我的草稿；没有草稿时按 start 给起点：reference（参照工艺规程）或某次提交的编号（在那一份上改）。"""
+    if item not in F.ITEMS:
+        raise HTTPException(404, "没有这个零件")
+    r = H.db.one("select plan, ts from process_draft where mode=%s and uid=%s and item=%s", (u["mode"], _uid(u), item))
+    if r and not start:
+        return {"item": item, "plan": r["plan"], "saved": r["ts"].isoformat(), "draft": True}
+    plan = None
+    if start == "reference":
+        plan = _std_plan(item)
+    elif start:
+        s = process.get(H.db, start)
+        if s and s["mode"] == u["mode"] and s["item"] == item:
+            plan = s["plan"]
+    elif r is None:
+        plan = _std_plan(item)
+    if plan is None:
+        raise HTTPException(404, "没有可以作起点的工艺规程（先下载零件图要求，按 YAML 写一份上传）")
+    return {"item": item, "plan": json.loads(json.dumps(plan, ensure_ascii=False, default=str)), "saved": None, "draft": False}
+
+
+@app.put("/api/process/drafts/{item}")
+def process_draft_put(item: str, body: dict = Body(...), u=Depends(user_of)):
+    from psycopg.types.json import Jsonb
+    plan = _plan_of(body)
+    if plan.get("item") != item:
+        raise HTTPException(400, "草稿的零件和网址不一致")
+    if len(json.dumps(plan, ensure_ascii=False)) > 1_000_000:
+        raise HTTPException(413, "工艺规程太大（超过 1 MB）")
+    H.db.x("insert into process_draft (mode, uid, item, plan, ts) values (%s,%s,%s,%s,now()) "
+           "on conflict (mode, uid, item) do update set plan=excluded.plan, ts=now()", (u["mode"], _uid(u), item, Jsonb(plan)))
+    return {"ok": True, "saved": dt.datetime.now(dt.timezone.utc).isoformat()}
+
+
+@app.delete("/api/process/drafts/{item}")
+def process_draft_delete(item: str, u=Depends(user_of)):
+    H.db.x("delete from process_draft where mode=%s and uid=%s and item=%s", (u["mode"], _uid(u), item))
+    return {"ok": True}
+
+
+@app.post("/api/process/live")
+def process_live(body: dict = Body(...), u=Depends(user_of)):
+    """边改边查：卡片能不能生成（cards.check）和 AI 工艺评审员的意见（process.review），都不记录。"""
+    plan = _plan_of(body)
+    try:
+        problems = proc_cards.check(plan) if plan.get("doc") else ["这份工艺规程还不是数据格式 v2（缺 doc），生成不了卡片。"]
+    except (KeyError, TypeError, ValueError, StopIteration) as e:
+        problems = [f"数据不完整：{e!r}"[:300]]
+    try:
+        f = process.review(plan)
+    except (KeyError, TypeError, ValueError) as e:
+        f = [{"level": "error", "rule": "数据", "seq": None, "text": f"工艺规程数据不完整，评审不了：{e!r}"[:300]}]
+    return {"problems": problems, "findings": f, "suggested_score": process.suggested_score(f)}
 
 
 @app.get("/api/process/cards/reference/{item}")
@@ -1815,10 +1929,17 @@ SolidWorks（第 10 轮）：
 
 
 # ---------------------------------------------------------------- 教学
+def _lab7_here():
+    """实验 7（输出轴 SH-301 闭环）只在减速器厂：别的厂没有 45 钢圆棒等物料，原来会 KeyError 报 500（第 130 轮第三批 D-12）"""
+    if "RM-45-D50" not in F.ITEMS:   # i18n-ok 物料编号
+        raise HTTPException(404, "实验 7 只在减速器厂")
+
+
 @app.get("/api/teach")
 def teach_status(u=Depends(user_of)):
     if u["mode"] != "teach":
         raise HTTPException(409, "生产模式没有实验任务")
+    _lab7_here()
     return H.teach.check(u["name"])
 
 
@@ -1826,6 +1947,7 @@ def teach_status(u=Depends(user_of)):
 def teach_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
     if u["mode"] != "teach":
         raise HTTPException(409, "生产模式没有实验任务")
+    _lab7_here()
     try:
         return H.teach.answer(u["name"], tid, body)
     except KeyError:
@@ -2056,6 +2178,30 @@ def lab22_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
         raise HTTPException(404, "这个任务不用提交答案，系统会自动检查")
 
 
+# ---------------------------------------------------------------- 实验 33（第 139 轮 139h：一张非标订单从询价到收款）
+@app.get("/api/lab33")
+def lab33_status(u=Depends(user_of)):
+    from hub import lab33
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    out = lab33.check(H.db, u["name"])
+    out["teacher"] = bool(u.get("teacher"))
+    if u.get("teacher"):
+        out["class"] = lab33.class_view(H.db)
+    return out
+
+
+@app.post("/api/lab33/{tid}")
+def lab33_answer(tid: str, body: dict = Body(...), u=Depends(user_of)):
+    from hub import lab33
+    if u["mode"] != "teach":
+        raise HTTPException(409, "生产模式没有实验任务")
+    try:
+        return lab33.answer(H.db, u["name"], tid, body)
+    except KeyError:
+        raise HTTPException(404, "这个任务不用提交答案，系统会自动检查")
+
+
 # ---------------------------------------------------------------- 实验 21（第 18 轮 E6-10）
 @app.get("/api/lab21")
 def lab21_status(u=Depends(user_of)):
@@ -2177,6 +2323,16 @@ def reset_teach(by, speed=1.0, scores=False):
     H.db.x("delete from machine_state_log where mode='teach'")
     H.db.x("delete from ncr where mode='teach' or mode is null")
     H.db.x("delete from ai_proposal where mode='teach'")
+    from hub import eto as _ETO                           # 第 139 轮：按单设计的作业、估算、设计随情景清空
+    from hub import eto_design as _ETOD
+    _ETOD.reset(H.db, "teach")
+    from hub import eto_exec as _ETOX
+    _ETOX.reset(H.db, "teach")
+    from hub import eto_quality as _ETOQ
+    _ETOQ.reset(H.db, "teach")
+    from hub import eto_billing as _ETOB
+    _ETOB.reset(H.db, "teach")
+    _ETO.reset(H.db, "teach")
     if scores:
         H.db.x("delete from task_result")
     H.hist._last_state = {k: v for k, v in H.hist._last_state.items() if k[1] != "teach"}
@@ -2235,6 +2391,11 @@ _cfd.mount(app, H, user_of, who, _uid, lambda u: bool(u.get("teacher")), ai_quot
 # ---------------------------------------------------------------- 数字孪生（第 15 轮）
 from hub import twin_api as _twin  # noqa: E402
 _twin.mount(app, H, user_of, who, _uid, lambda u: bool(u.get("teacher")), ai_quota)
+
+
+# ---------------------------------------------------------------- 按单设计（ETO，第 139 轮）
+from hub import eto_api as _eto  # noqa: E402
+_eto.mount(app, H, user_of, who, ai_quota)
 
 
 # ---------------------------------------------------------------- 厂情中枢：工厂本体（第 17 轮 A 期）

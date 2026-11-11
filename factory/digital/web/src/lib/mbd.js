@@ -1,16 +1,17 @@
 // 运动与动力分析（第 12 轮）：结果文件解析、通道名称与单位、CSV
+import { t as $t } from './i18n';
 import { session, ApiError } from './api';
 
 async function bin(path) {
   const r = await fetch(path, { headers: { 'x-wq-token': session.token } });
-  if (!r.ok) throw new ApiError(r.status, '结果读取失败');
+  if (!r.ok) throw new ApiError(r.status, $t('结果读取失败'));
   return r.arrayBuffer();
 }
 
 function head(buf, magic) {
   const dv = new DataView(buf);
   const m = String.fromCharCode(...new Uint8Array(buf, 0, 4));
-  if (m !== magic) throw new Error('结果文件格式不对');
+  if (m !== magic) throw new Error($t('结果文件格式不对'));
   const hl = dv.getUint32(4, true);
   return { h: JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 8, hl))), off: 8 + hl };
 }
@@ -39,7 +40,7 @@ const DEG = 180 / Math.PI;
 // 通道 → {组, 标签, 单位, 换算}；jtypes: {关节名: hinge|slide}
 export function describe(name, jtypes, labels = {}) {
   const [kind, a, b] = name.split('.');
-  const lab = (x) => (labels[x] ? `${labels[x]}（${x}）` : x);
+  const lab = (x) => (labels[x] ? `${labels[x]}（${x}）` : x);   // i18n-ok 只剩标点
   const hinge = jtypes[a] === 'hinge';
   switch (kind) {
     case 'q': return { group: 'q', label: lab(a), unit: hinge ? '°' : 'mm', k: hinge ? DEG : 1000 };
@@ -54,8 +55,8 @@ export function describe(name, jtypes, labels = {}) {
   }
 }
 export const GROUPS = {
-  drive: '驱动力矩 / 力', power: '驱动功率', q: '位置（转角 / 位移）', qd: '速度', qdd: '加速度',
-  rf: '关节反力（合力）', rm: '关节反力矩（合力矩）', pt: '点的坐标',
+  drive: $t('驱动力矩 / 力'), power: $t('驱动功率'), q: $t('位置（转角 / 位移）'), qd: $t('速度'), qdd: $t('加速度'),
+  rf: $t('关节反力（合力）'), rm: $t('关节反力矩（合力矩）'), pt: $t('点的坐标'),
 };
 
 export function toCSV(series, names) {

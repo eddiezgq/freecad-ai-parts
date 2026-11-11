@@ -1,4 +1,5 @@
 // 厂情中枢 · 工厂本体（第 17 轮 A 期）：接口、领域配色、对象摘要缓存
+import { t } from './i18n';
 import { reactive } from 'vue';
 import { get, post } from './api';
 
@@ -9,11 +10,11 @@ export const DOMAIN_COLOR = {
   maintenance: '#5E6B78', ehs: '#C98A12', people: '#6F5D99', energy: '#4E8C4A', finance: '#36506B', core: '#17212B',
 };
 export const MATURITY_STYLE = {
-  have: { label: '已有数据', cls: 'm-have' },
-  erp: { label: 'ERPNext 可启用', cls: 'm-erp' },
-  capture: { label: '待采集', cls: 'm-capture' },
-  sim: { label: '教学模拟', cls: 'm-sim' },
-  next: { label: '后续各期生成', cls: 'm-next' },
+  have: { get label() { return t('已有数据'); }, cls: 'm-have' },
+  erp: { get label() { return t('ERPNext 可启用'); }, cls: 'm-erp' },
+  capture: { get label() { return t('待采集'); }, cls: 'm-capture' },
+  sim: { get label() { return t('教学模拟'); }, cls: 'm-sim' },
+  next: { get label() { return t('后续各期生成'); }, cls: 'm-next' },
 };
 
 export const ont = reactive({ types: null, byName: {}, domains: {}, level: 1 });
@@ -54,8 +55,8 @@ export function summary(type, key) {
 
 export function fmtVal(v, unit) {
   if (v === null || v === undefined || v === '') return '—';
-  if (typeof v === 'boolean') return v ? '是' : '否';
-  if (Array.isArray(v)) return v.length ? v.map((x) => (typeof x === 'object' ? JSON.stringify(x) : x)).join('；') : '—';
+  if (typeof v === 'boolean') return v ? t('是') : t('否');
+  if (Array.isArray(v)) return v.length ? v.map((x) => (typeof x === 'object' ? JSON.stringify(x) : x)).join(t('；')) : '—';
   if (typeof v === 'object') return JSON.stringify(v);
   if (typeof v === 'string' && /^\d{4}-\d\d-\d\dT\d\d:\d\d/.test(v)) return fmtTs(v);
   if (typeof v === 'number') return (Number.isInteger(v) ? v : +v.toFixed(4)) + (unit ? ' ' + unit : '');
@@ -73,9 +74,9 @@ export function fmtTs(s) {
 export function stateTone(props) {
   const v = String(props?.status ?? props?.state ?? props?.result ?? props?.health ?? '').toLowerCase();
   if (!v) return '';
-  if (/fail|fault|down|bad|overdue|open|危险|故障|不合格|逾期|alarm|停/.test(v)) return 'bad';
-  if (/warn|setup|idle|draft|pending|注意|调整|待/.test(v)) return 'warn';
-  if (/pass|run|ok|good|complete|closed|done|正常|合格|完成|已/.test(v)) return 'good';
+  if (/fail|fault|down|bad|overdue|open|危险|故障|不合格|逾期|alarm|停/.test(v)) return 'bad';   // i18n-ok 数据值比较
+  if (/warn|setup|idle|draft|pending|注意|调整|待/.test(v)) return 'warn';   // i18n-ok 数据值比较
+  if (/pass|run|ok|good|complete|closed|done|正常|合格|完成|已/.test(v)) return 'good';   // i18n-ok 数据值比较
   return 'info';
 }
 

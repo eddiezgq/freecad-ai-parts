@@ -1,46 +1,46 @@
 <template>
   <figure class="sh">
     <div class="ctl">
-      <button v-for="(s, i) in STEPS" :key="i" class="btn sm" :class="{ primary: at === i }" :aria-pressed="at === i" @click="go(i)">{{ i + 1 }} {{ s.t }}</button>
+      <button v-for="(s, i) in STEPS" :key="i" class="btn sm" :class="{ primary: at === i }" :aria-pressed="at === i" @click="go(i)">{{ i + 1 }} {{ $td(s.t) }}</button>
     </div>
     <table class="roster" aria-live="polite">
       <thead><tr><th></th><th v-for="m in MACH" :key="m">{{ m }}</th></tr></thead>
       <tbody>
         <tr v-for="(row, r) in cells" :key="r">
-          <th>{{ SHIFTS[r] }}</th>
+          <th>{{ $td(SHIFTS[r]) }}</th>
           <td v-for="(c, k) in row" :key="k" :class="c.cls">
-            <span>{{ c.who || '没人能开' }}</span><small v-if="c.note">{{ c.note }}</small>
+            <span>{{ c.who || $t('没人能开') }}</span><small v-if="c.note">{{ $td(c.note) }}</small>
           </td>
         </tr>
       </tbody>
     </table>
-    <p class="say small"><b>{{ STEPS[at].t }}</b>：{{ STEPS[at].say }}</p>
-    <figcaption class="small muted">示例。排班表的每一格是谁开这台设备：红是没人能开，黄是学徒带着开。磨床是瓶颈，它那一格空了整条线都慢。
-      调人能补上，但他原来的格子会空出来——推演会把这一格一起算进去；加班顶班不动别的格子，要付加班费。</figcaption>
+    <p class="say small"><b>{{ $td(STEPS[at].t) }}</b>{{ $t('：{a}', { a: STEPS[at].say }) }}</p>
+    <figcaption class="small muted">{{ $t('示例。排班表的每一格是谁开这台设备：红是没人能开，黄是学徒带着开。磨床是瓶颈，它那一格空了整条线都慢。调人能补上，但他原来的格子会空出来——推演会把这一格一起算进去；加班顶班不动别的格子，要付加班费。') }}</figcaption>
   </figure>
 </template>
 
 <script setup>
+import { t as $t } from '../../../lib/i18n';
 // 排班缺口与调班（第 30 轮 §八 8-2，人员与排班）：请假 → 缺人变红 → 调人（另一格变红）→ 加班顶上。
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
-const MACH = ['锯床', '车床 1', '车床 2', '磨床 ⚑', '热处理'];
-const SHIFTS = ['早班', '晚班'];
-const BASE = [['周强', '李娜', '陈刚', '王磊', '赵敏'], ['孙浩', '刘洋', '吴静', '郑涛', '钱峰']];
+const MACH = [$t('锯床'), $t('车床 1'), $t('车床 2'), $t('磨床 ⚑'), $t('热处理')];
+const SHIFTS = [$t('早班'), $t('晚班')];
+const BASE = [[$t('周强'), $t('李娜'), $t('陈刚'), $t('王磊'), $t('赵敏')], [$t('孙浩'), $t('刘洋'), $t('吴静'), $t('郑涛'), $t('钱峰')]];
 const STEPS = [
-  { t: '照常', say: '每台设备每一班都有能开它的人。' },
-  { t: '王磊请假', say: '磨床早班的熟练工请假，磨床这一班没人能开；它是瓶颈，订单要晚。' },
-  { t: '调陈刚顶岗', say: '车床 2 的陈刚也会开磨床，调过去；可车床 2 早班又空了。' },
-  { t: '改成加班顶班', say: '晚班的郑涛早来加班顶磨床，陈刚回车床 2；没有空格，多付加班费。' },
+  { t: $t('照常'), say: $t('每台设备每一班都有能开它的人。') },
+  { t: $t('王磊请假'), say: $t('磨床早班的熟练工请假，磨床这一班没人能开；它是瓶颈，订单要晚。') },
+  { t: $t('调陈刚顶岗'), say: $t('车床 2 的陈刚也会开磨床，调过去；可车床 2 早班又空了。') },
+  { t: $t('改成加班顶班'), say: $t('晚班的郑涛早来加班顶磨床，陈刚回车床 2；没有空格，多付加班费。') },
 ];
 const at = ref(0);
 const cells = computed(() => BASE.map((row, r) => row.map((who, k) => {
   if (r === 0 && k === 3 && at.value >= 1) {
-    if (at.value === 1) return { who: '', cls: 'red', note: '王磊请假' };
-    if (at.value === 2) return { who: '陈刚', cls: 'moved', note: '调来顶岗' };
-    return { who: '郑涛', cls: 'ot', note: '加班顶班' };
+    if (at.value === 1) return { who: '', cls: 'red', note: $t('王磊请假') };
+    if (at.value === 2) return { who: $t('陈刚'), cls: 'moved', note: $t('调来顶岗') };
+    return { who: $t('郑涛'), cls: 'ot', note: $t('加班顶班') };
   }
-  if (r === 0 && k === 2 && at.value === 2) return { who: '', cls: 'red', note: '陈刚调走了' };
+  if (r === 0 && k === 2 && at.value === 2) return { who: '', cls: 'red', note: $t('陈刚调走了') };
   return { who, cls: '' };
 })));
 let timer;

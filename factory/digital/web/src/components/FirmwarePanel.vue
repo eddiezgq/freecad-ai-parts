@@ -5,45 +5,45 @@
   <div>
     <div v-if="err" class="err">{{ err }}</div>
     <div class="line">
-      <button class="chip" :class="{ on: part === 'motor' }" @click="part = 'motor'">电机控制与 CAN（第 102 轮）</button>
-      <button class="chip" :class="{ on: part === 'master' }" @click="part = 'master'">多关节主站（第 115 轮）</button>
-      <button class="chip" :class="{ on: part === 'enc' }" @click="part = 'enc'">编码器（第 100 轮）</button>
+      <button class="chip" :class="{ on: part === 'motor' }" @click="part = 'motor'">{{ t('电机控制与 CAN（第 102 轮）') }}</button>
+      <button class="chip" :class="{ on: part === 'master' }" @click="part = 'master'">{{ t('多关节主站（第 115 轮）') }}</button>
+      <button class="chip" :class="{ on: part === 'enc' }" @click="part = 'enc'">{{ t('编码器（第 100 轮）') }}</button>
     </div>
     <MotorPanel v-if="part === 'motor'" />
     <MasterPanel v-if="part === 'master'" />
     <template v-if="sim && fw">
       <template v-if="part === 'enc'">
       <div class="chain">
-        <div class="box">虚拟电机<small>转速曲线 → 编码器 A/B/Z</small></div><span class="arr">→</span>
-        <div class="box chip">WQ-ENCIF<small>计数、Z 锁存、报错</small></div><span class="arr">⇄ SPI1 4 MHz ⇄</span>
-        <div class="box mcu">STM32G431 固件<small>1 kHz 读数、算转速</small></div><span class="arr">→</span>
-        <div class="box">遥测区<small>调试器经 SWD 看</small></div>
+        <div class="box">{{ t('虚拟电机') }}<small>{{ t('转速曲线 → 编码器 A/B/Z') }}</small></div><span class="arr">→</span>
+        <div class="box chip">WQ-ENCIF<small>{{ t('计数、Z 锁存、报错') }}</small></div><span class="arr">⇄ SPI1 4 MHz ⇄</span>
+        <div class="box mcu">{{ t('STM32G431 固件') }}<small>{{ t('1 kHz 读数、算转速') }}</small></div><span class="arr">→</span>
+        <div class="box">{{ t('遥测区') }}<small>{{ t('调试器经 SWD 看') }}</small></div>
       </div>
-      <p class="small">编译出来的真固件（{{ fw.firmware.flash }} 字节 Flash、{{ fw.firmware.ram }} 字节 RAM）在 <b>Renode {{ sim.renode }}</b>（开源单片机仿真器）里跑；
-        芯片是按第 92 轮规格写的寄存器级模型（芯片 RTL 已在 <router-link to="/chip-design?tab=sim">芯片设计</router-link> 里与参考模型逐拍比对过）。
-        每 10 ms 读一次固件内存里的遥测区，与虚拟电机的真值比。编码器 2500 线 ×4 = {{ sim.cpr }} 计数/转。</p>
-      <p class="small muted">⚠ {{ sim.disclaimer }}</p>
+      <p class="small">{{ t('编译出来的真固件（{f} 字节 Flash、{r} 字节 RAM）在 Renode {v}（开源单片机仿真器）里跑；', { f: fw.firmware.flash, r: fw.firmware.ram, v: sim.renode }) }}
+        {{ t('芯片是按第 92 轮规格写的寄存器级模型（芯片 RTL 已在') }} <router-link to="/chip-design?tab=sim">{{ t('芯片设计') }}</router-link> {{ t('里与参考模型逐拍比对过）。') }}
+        {{ t('每 10 ms 读一次固件内存里的遥测区，与虚拟电机的真值比。编码器 2500 线 ×4 = {c} 计数/转。', { c: sim.cpr }) }}</p>
+      <p class="small muted">⚠ {{ td(sim.disclaimer) }}</p>
 
-      <h3>场景（{{ sim.scenarios.filter((s) => s.passed).length }} / {{ sim.scenarios.length }} 通过）</h3>
+      <h3>{{ t('场景（{p} / {n} 通过）', { p: sim.scenarios.filter((s) => s.passed).length, n: sim.scenarios.length }) }}</h3>
       <div class="line">
         <button v-for="s in sim.scenarios" :key="s.id" class="chip" :class="{ on: sc && sc.id === s.id }" @click="pick(s.id)">
-          {{ s.passed ? '✓' : '✗' }} {{ s.name }}</button>
+          {{ s.passed ? '✓' : '✗' }} {{ td(s.name) }}</button>
       </div>
       <div v-if="sc" class="card2">
-        <p class="small">{{ sc.desc }}</p>
+        <p class="small">{{ td(sc.desc) }}</p>
         <div class="charts">
           <div>
-            <div class="small"><b>转速 rpm</b>　<span class="k truth">— 设定（真值）</span>　<span class="k fwk">— 固件读到</span></div>
+            <div class="small"><b>{{ t('转速 rpm') }}</b> <span class="k truth">— {{ t('设定（真值）') }}</span> <span class="k fwk">— {{ t('固件读到') }}</span></div>
             <svg :viewBox="'0 0 ' + W + ' ' + H" class="ch">
               <g v-for="g in grid(rpmY)" :key="'r' + g.v"><line :x1="PL" :x2="W - 4" :y1="g.y" :y2="g.y" class="gl" /><text :x="PL - 4" :y="g.y + 3" class="ax" text-anchor="end">{{ g.v }}</text></g>
               <polyline :points="pts(sc.series.truth_rpm, rpmY)" class="pl truth" />
               <polyline :points="pts(sc.series.rpm, rpmY)" class="pl fwk" />
-              <text :x="W - 4" :y="H - 4" class="ax" text-anchor="end">时间 {{ tmax }} s</text>
+              <text :x="W - 4" :y="H - 4" class="ax" text-anchor="end">{{ t('时间 {s} s', { s: tmax }) }}</text>
             </svg>
           </div>
           <div>
-            <div class="small"><b>位置（计数）</b>　<span class="k truth">— 真值</span>　<span class="k fwk">— 固件读到</span>
-              <span v-if="sc.id === 'index'" class="k absk">— 绝对角度（相对 Z）</span></div>
+            <div class="small"><b>{{ t('位置（计数）') }}</b> <span class="k truth">— {{ t('真值') }}</span> <span class="k fwk">— {{ t('固件读到') }}</span>
+              <span v-if="sc.id === 'index'" class="k absk">— {{ t('绝对角度（相对 Z）') }}</span></div>
             <svg :viewBox="'0 0 ' + W + ' ' + H" class="ch">
               <g v-for="g in grid(cntY)" :key="'c' + g.v"><line :x1="PL" :x2="W - 4" :y1="g.y" :y2="g.y" class="gl" /><text :x="PL - 4" :y="g.y + 3" class="ax" text-anchor="end">{{ g.v }}</text></g>
               <polyline :points="pts(sc.series.truth_cnt, cntY)" class="pl truth" />
@@ -53,29 +53,29 @@
           </div>
         </div>
         <table class="tbl">
-          <thead><tr><th>判据</th><th>结果</th><th>读数</th></tr></thead>
-          <tbody><tr v-for="(c, i) in sc.checks" :key="i"><td class="small">{{ c.name }}</td>
-            <td :class="c.ok ? 'ok' : 'bad'">{{ c.ok ? '✓ 通过' : '✗ 不通过' }}</td><td class="small mono">{{ c.detail }}</td></tr></tbody>
+          <thead><tr><th>{{ t('判据') }}</th><th>{{ t('结果') }}</th><th>{{ t('读数') }}</th></tr></thead>
+          <tbody><tr v-for="(c, i) in sc.checks" :key="i"><td class="small">{{ td(c.name) }}</td>
+            <td :class="c.ok ? 'ok' : 'bad'">{{ c.ok ? t('✓ 通过') : t('✗ 不通过') }}</td><td class="small mono">{{ td(c.detail) }}</td></tr></tbody>
         </table>
-        <details class="small"><summary>结束时的遥测区（固件内存 {{ sim.tlm_addr }}）</summary>
+        <details class="small"><summary>{{ t('结束时的遥测区（固件内存 {a}）', { a: sim.tlm_addr }) }}</summary>
           <table class="tbl"><tbody><tr v-for="(v, k) in sc.final" :key="k"><td class="mono">{{ k }}</td><td class="mono">{{ show(k, v) }}</td></tr></tbody></table>
         </details>
       </div>
       </template>
 
-      <h3>源码</h3>
+      <h3>{{ t('源码') }}</h3>
       <div class="line">
         <button v-for="f in fw.files" :key="f.path" class="chip" :class="{ on: file && file.path === f.path }" @click="file = f">{{ f.path }}</button>
       </div>
-      <p v-if="file" class="small muted">{{ file.note }}（{{ file.lines }} 行）</p>
+      <p v-if="file" class="small muted">{{ td(file.note) }} {{ t('（{n} 行）', { n: file.lines }) }}</p>
       <pre v-if="file" class="code"><span v-for="(l, i) in file.text.split('\n')" :key="i"><i>{{ i + 1 }}</i>{{ l }}
 </span></pre>
-      <p><a class="btn" :href="base + fw.zip" download>下载固件包（源码 + fw.elf + Renode 平台、芯片与电机模型 + 场景脚本）</a></p>
-      <p class="small muted">自己跑：装 arm-none-eabi-gcc 和 Renode 1.15，<span class="mono">make</span> 后 <span class="mono">python3 run.py --renode &lt;Renode 目录&gt;/renode</span>、
-        <span class="mono">python3 run_motor.py --renode …</span>（见包里的 README）。
-        编码器（第 100 轮）与电机控制、CAN（第 102 轮）在同一份固件里。</p>
+      <p><a class="btn" :href="base + fw.zip" download>{{ t('下载固件包（源码 + fw.elf + Renode 平台、芯片与电机模型 + 场景脚本）') }}</a></p>
+      <p class="small muted">{{ t('自己跑：装 arm-none-eabi-gcc 和 Renode 1.15，') }}<span class="mono">make</span>{{ t(' 后 ') }}<span class="mono">python3 run.py --renode &lt;Renode dir&gt;/renode</span>,
+        <span class="mono">python3 run_motor.py --renode …</span> {{ t('（见包里的 README）。') }}
+        {{ t('编码器（第 100 轮）与电机控制、CAN（第 102 轮）在同一份固件里。') }}</p>
     </template>
-    <p v-else-if="!err" class="muted">读取中…</p>
+    <p v-else-if="!err" class="muted">{{ t('读取中…') }}</p>
   </div>
 </template>
 
@@ -83,6 +83,7 @@
 import { computed, onMounted, ref } from 'vue';
 import MotorPanel from './MotorPanel.vue';
 import MasterPanel from './MasterPanel.vue';
+import { t, td, tk } from '../lib/i18n';
 
 const base = '/api/designs/drv-joint-b/fw/';
 const sim = ref(null);
@@ -120,14 +121,14 @@ function grid(r) {
 }
 function show(k, v) {
   if (k === 'id' || k === 'ctrl' || k === 'status') return '0x' + (v >>> 0).toString(16).toUpperCase();
-  if (k === 'state') return ['启动', '运行', '芯片缺失'][v] || v;
+  if (k === 'state') return t([tk('启动'), tk('运行'), tk('芯片缺失')][v] || '') || v;
   if (k === 'rpm_x10') return (v / 10).toFixed(1) + ' rpm';
   return v;
 }
 onMounted(async () => {
   try {
     const [a, b] = await Promise.all([fetch(base + 'sim.json'), fetch(base + 'fw.json')]);
-    if (!a.ok || !b.ok) throw new Error('读不到固件产物（' + a.status + ' / ' + b.status + '）');
+    if (!a.ok || !b.ok) throw new Error(t('读不到固件产物（{a} / {b}）', { a: a.status, b: b.status }));
     sim.value = await a.json(); fw.value = await b.json();
     pick('fwd'); file.value = fw.value.files[0];
   } catch (e) { err.value = e.message || String(e); }

@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Order margin waterfall: where does the money go?</title>
+<style>
+/* 实验 10-1（第 29 轮）：一张订单的收入被料、工、电、废品、空转、加班换供应商一块块切掉，剩下毛利（口径同数字工厂 hub/finance.py 的 margin()） */
+:root{--bg:#eef2f3;--sheet:#fafbfb;--ink:#1b2430;--muted:#5a6570;--rule:#d3dadd;--accent:#1d6b86;--amber:#c27a12;--red:#c0392b;--green:#1f8a4c;
+  --f-display:"Noto Serif SC","Songti SC",serif;--f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;--f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#11161b;--sheet:#182029;--ink:#e2e7ec;--muted:#9aa6b2;--rule:#2b3540;--accent:#6cc3dd;--amber:#f0b45a;--red:#ff7b6b;--green:#5fd08f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#11161b;--sheet:#182029;--ink:#e2e7ec;--muted:#9aa6b2;--rule:#2b3540;--accent:#6cc3dd;--amber:#f0b45a;--red:#ff7b6b;--green:#5fd08f;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:1240px;margin:0 auto;padding:18px 16px 36px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;margin-bottom:12px}
+h1{font-family:var(--f-display);font-size:1.5rem;margin:0}
+.sub{color:var(--muted);font-size:.9rem}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:16px}
+@media (max-width:880px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:12px;min-width:0}
+.panel h3{margin:0 0 8px;font-size:.8rem;letter-spacing:.1em;color:var(--muted);font-weight:600}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--f-body);fill:var(--muted);font-size:12px}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.ctl{display:grid;grid-template-columns:auto minmax(0,1fr) 5.6em;gap:6px 10px;align-items:center}
+.ctl label{font-size:.88rem;color:var(--muted)}
+.ctl b{font-family:var(--f-mono);font-size:.9rem;text-align:right;font-variant-numeric:tabular-nums}
+.ctl .grp{grid-column:1/-1;font-size:.76rem;letter-spacing:.08em;color:var(--muted);border-top:1px solid var(--rule);padding-top:6px;margin-top:4px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+button{font:inherit;font-size:.86rem;border:1px solid var(--rule);background:var(--bg);color:var(--ink);border-radius:5px;padding:4px 10px;cursor:pointer}
+button:hover{border-color:var(--accent)} button.primary{background:var(--accent);color:var(--sheet);border-color:var(--accent)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.kpi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.kpi div{border-top:1px solid var(--rule);padding-top:4px}
+.kpi b{display:block;font-family:var(--f-mono);font-size:1.05rem;font-variant-numeric:tabular-nums}
+.kpi small{color:var(--muted);font-size:.76rem;line-height:1.3;display:block}
+.kpi .hot b{color:var(--amber)}
+.note{font-size:.8rem;color:var(--muted);margin:8px 0 0}
+.tasks{margin:0;padding-left:1.3em;font-size:.9rem} .tasks li{margin:.25em 0}
+.formula{font-family:var(--f-mono);font-size:.84rem;background:var(--bg);border-radius:6px;padding:6px 8px;overflow-x:auto;white-space:normal}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:12px;height:12px;vertical-align:-1px;margin-right:5px;border-radius:2px}
+table.bd{width:100%;border-collapse:collapse;font-size:.84rem}
+table.bd td{padding:3px 4px;border-bottom:1px solid var(--rule)}
+table.bd td.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.bd td.h{color:var(--muted);font-size:.78rem}
+table.bd tr.tot td{font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1 data-t="h1"></h1><span class="sub" data-t="sub"></span></header>
+<div class="grid">
+  <div class="col">
+    <div class="panel" id="plotPanel">
+      <h3 data-t="plotTitle"></h3>
+      <svg id="plot" viewBox="0 0 760 360" role="img"></svg>
+      <div class="legend"><span><i style="background:var(--accent)"></i><span data-t="lgRev"></span></span><span><i style="background:var(--red)"></i><span data-t="lgStd"></span></span><span><i style="background:var(--amber)"></i><span data-t="lgX"></span></span><span><i style="background:var(--green)"></i><span data-t="lgM"></span></span></div>
+      <div class="row"><button class="primary" id="play" data-t="play"></button><span class="note" style="margin:0" data-t="playNote"></span></div>
+    </div>
+    <div class="panel" id="table">
+      <h3 data-t="tblTitle"></h3>
+      <table class="bd" id="bd"></table>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel">
+      <h3 data-t="params"></h3>
+      <div class="row" style="margin:0 0 10px"><span class="note" style="margin:0" data-t="presets"></span><button data-p="robot" data-t="pRobot"></button><button data-p="std" data-t="pStd"></button><button data-p="cut" data-t="pCut"></button></div>
+      <div class="ctl">
+        <span class="grp" data-t="gOrder"></span>
+        <label for="price" data-t="lPrice"></label><input id="price" type="range" min="1200" max="2000" step="0.5" value="1650"><b id="pricev"></b>
+        <label for="qty" data-t="lQty"></label><input id="qty" type="range" min="5" max="60" step="1" value="20"><b id="qtyv"></b>
+        <label for="mat" data-t="lMat"></label><input id="mat" type="range" min="400" max="800" step="0.01" value="538.74"><b id="matv"></b>
+        <label for="hrs" data-t="lHrs"></label><input id="hrs" type="range" min="10" max="18" step="0.01" value="13.34"><b id="hrsv"></b>
+        <span class="grp" data-t="gExtra"></span>
+        <label for="adj" data-t="lAdj"></label><input id="adj" type="range" min="0" max="16" step="0.5" value="4"><b id="adjv"></b>
+        <label for="scrap" data-t="lScrap"></label><input id="scrap" type="range" min="0" max="10" step="1" value="2"><b id="scrapv"></b>
+        <label for="idle" data-t="lIdle"></label><input id="idle" type="range" min="0" max="72" step="1" value="24"><b id="idlev"></b>
+        <label for="ot" data-t="lOt"></label><input id="ot" type="range" min="0" max="48" step="1" value="12"><b id="otv"></b>
+        <label for="alt" data-t="lAlt"></label><input id="alt" type="range" min="0" max="40" step="1" value="20"><b id="altv"></b>
+      </div>
+      <p class="formula" data-t="formula"></p>
+    </div>
+    <div class="panel">
+      <h3 data-t="results"></h3>
+      <div class="kpi">
+        <div class="hot"><b id="kPct"></b><small data-t="kPct"></small></div>
+        <div class="hot"><b id="kMargin"></b><small data-t="kMargin"></small></div>
+        <div><b id="kRev"></b><small data-t="kRev"></small></div>
+        <div><b id="kCost"></b><small data-t="kCost"></small></div>
+        <div><b id="kStd"></b><small data-t="kStd"></small></div>
+        <div><b id="kGap"></b><small data-t="kGap"></small></div>
+        <div><b id="kTop"></b><small data-t="kTop"></small></div>
+        <div><b id="kBE"></b><small data-t="kBE"></small></div>
+      </div>
+      <p class="note" id="verdict"></p>
+    </div>
+    <div class="panel">
+      <h3 data-t="tasksTitle"></h3>
+      <ol class="tasks" id="tasks"></ol>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+(function () {
+  var zh = (document.documentElement.lang || '').indexOf('zh') === 0;
+  var TX = {
+    h1: ['实验 10-1　订单毛利瀑布：钱都去哪儿了', 'Lab 10-1  Order margin waterfall: where does the money go?'],
+    sub: ['一张订单的收入，被料、工、电和计划外的花费一块块切掉，剩下的才是毛利；拖动参数，看毛利率和目标线', 'An order’s revenue is cut block by block by material, labour, energy and unplanned costs; what is left is the gross margin. Drag the parameters and compare the margin with the target'],
+    plotTitle: ['订单毛利瀑布（美元）', 'Order margin waterfall (US dollars)'],
+    lgRev: ['收入', 'revenue'], lgStd: ['标准成本：料、工、电', 'standard cost: material, labour, energy'], lgX: ['计划外：废品、空转、加班、换供应商、调整', 'unplanned: scrap, idle, overtime, dearer supplier, re-setting'], lgM: ['毛利', 'margin'],
+    play: ['▶ 播放', '▶ Play'], pause: ['❚❚ 暂停', '❚❚ Pause'], playNote: ['一块块搭起瀑布，循环播放', 'builds the waterfall block by block, looping'],
+    tblTitle: ['毛利分解表（同数字工厂“订单毛利”）', 'Margin breakdown (as on the digital factory’s order-margin tab)'],
+    params: ['参数', 'Parameters'], presets: ['预置：', 'Presets:'], pRobot: ['机器人厂订单', 'robot plant order'], pStd: ['按标准成本', 'standard cost'], pCut: ['降价 5%', '5% price cut'],
+    gOrder: ['订单与标准', 'ORDER AND STANDARDS'], gExtra: ['计划外的花费', 'UNPLANNED COSTS'],
+    lPrice: ['单价（$）', 'Price ($)'], lQty: ['台数', 'Quantity'], lMat: ['每台料（$）', 'Material per unit ($)'], lHrs: ['每台工时（h）', 'Hours per unit (h)'],
+    lAdj: ['磨床重新调整（h）', 'Grinder re-setting (h)'], lScrap: ['废品输出轴（件）', 'Scrapped output shafts'], lIdle: ['带锯床空转（h）', 'Band saw idling (h)'],
+    lOt: ['加班（h）', 'Overtime (h)'], lAlt: ['轴承换供应商加价（%）', 'Dearer bearing supplier (%)'],
+    formula: ['毛利 = 收入 − 各项成本；毛利率 = 毛利 ÷ 收入', 'margin = revenue − all costs; margin % = margin ÷ revenue'],
+    results: ['结果', 'Results'],
+    kPct: ['毛利率（目标 ≥ 25%）', 'Gross margin % (target ≥ 25%)'], kMargin: ['毛利', 'Gross margin'], kRev: ['收入', 'Revenue'], kCost: ['成本合计', 'Total cost'],
+    kStd: ['按标准成本的毛利率', 'Margin % at standard cost'], kGap: ['比标准少（百分点）', 'Below standard (points)'], kTop: ['料以外花得最多的一项', 'Largest line apart from material'], kBE: ['保本单价', 'Break-even price'],
+    tasksTitle: ['实验任务', 'Tasks'],
+    tasks: [['点“机器人厂订单”，读出毛利和毛利率，逐行核对教材表 10-2。', 'Press “robot plant order”; read the margin and margin %, and check every line against Table 10-2.'],
+            ['点“按标准成本”，读标准毛利率；再回到机器人厂订单，计划外的钱让毛利率少了几个百分点？哪一项最多？', 'Press “standard cost” and read the standard margin; back on the robot plant order, how many points did the unplanned costs take off, and which line is largest?'],
+            ['点“降价 5%”：毛利率掉了几个百分点？为什么比 5 个百分点少，毛利额却少了整整 $1,650？要低到多少，厂情中枢才报“毛利低于目标”？', 'Press “5% price cut”: how many points does the margin drop? Why fewer than 5, while the margin itself loses a full $1,650? How low must it go before the hub raises “margin below target”?'],
+            ['把加班从 12 h 加到 24 h（多 $540），记下毛利率；再回到 12 h，把每台工时减少 0.5 h（20 台省约 $429，台数越多省得越多），比较哪个影响大。', 'Raise overtime from 12 h to 24 h ($540 more) and record the margin; back at 12 h, cut the hours per unit by 0.5 h (about $429 saved on 20 units, more with more units) and compare which matters more.'],
+            ['把带锯床空转从 0 拖到 72 h：毛利变了多少？说说“看钱要看数”。', 'Drag the band saw idling from 0 to 72 h: how much does the margin change? Explain “judge money by the numbers”.']],
+    names: [['收入', 'Revenue'], ['料', 'Material'], ['工', 'Labour'], ['电', 'Energy'], ['废品', 'Scrap'], ['空转电', 'Idle'], ['加班\n换供应商', 'Overtime,\nsupplier'], ['毛利', 'Margin']],
+    rows: [['收入', 'Revenue', '单价 × 台数', 'price × quantity'], ['料', 'Material', 'BOM 标准用量 × 单价', 'standard BOM quantities × prices'],
+           ['工（折旧 + 人工）', 'Labour (depreciation + wages)', '工时 × 平均费率 $42.86/h + 磨床重新调整 × $46/h', 'hours × average rate $42.86/h + re-setting × $46/h'],
+           ['电', 'Energy', '每台 $73.87（工位费率的能耗项；按标准，不随工时变）', '$73.87 per unit (energy part of the rates; at standard, not changed by the hours)'],
+           ['废品返工', 'Scrap and rework', '不合格输出轴 × 标准成本 $52.87', 'rejected shafts × standard cost $52.87'],
+           ['空转电（分摊）', 'Idle power (allocated)', '空转小时 × 2.0 kW × $0.10/度', 'idle hours × 2.0 kW × $0.10/kWh'],
+           ['急单、加班、外协、加急', 'Rush, overtime, outsourcing', '加班 × $30 × 1.5 + 每台 2 个轴承 × $8 × 加价', 'overtime × $30 × 1.5 + 2 bearings per unit × $8 × premium'],
+           ['毛利', 'Gross margin', '收入 − 各项成本', 'revenue − all costs']],
+    target: ['目标毛利 25%', 'target margin 25%'],
+    vOk: ['毛利率达到目标 25%。计划外的钱还是要看：它们是下次报价和改进的线索。', 'The margin meets the 25% target. Still look at the unplanned costs: they are clues for the next quote and for improvement.'],
+    vLow: ['低于目标 25%，但没有低 5 个百分点以上，厂情中枢还不报警。查最大的几项：报价找销售，料找采购，工时找工艺和车间。', 'Below the 25% target but not by more than 5 points, so the hub does not flag it yet. Check the largest lines: pricing goes to sales, material to purchasing, hours to process engineering.'],
+    vBad: ['低于 20%：厂情中枢会报“订单毛利低于目标”，并列出花得最多的几项。', 'Below 20%: the factory hub raises “order margin below target” and lists the largest lines.'],
+    vLoss: ['亏本：成本超过了收入，这张单做得越多亏得越多。', 'A loss: cost exceeds revenue; the more of this order you make, the more you lose.'],
+    pt: [' 个百分点', ' points'], unit: ['台', ''], h: [' h', ' h'], pcs: [' 件', ''],
+    topName: { labor: ['工', 'labour'], energy: ['电', 'energy'], scrap: ['废品', 'scrap'], idle: ['空转电', 'idle power'], act: ['加班换供应商', 'overtime, supplier'], adj: ['工', 'labour'] }
+  };
+  function T_(k) { var v = TX[k]; return v ? v[zh ? 0 : 1] : k; }
+  document.querySelectorAll('[data-t]').forEach(function (e) { e.textContent = T_(e.dataset.t); });
+  document.getElementById('tasks').innerHTML = TX.tasks.map(function (x) { return '<li>' + x[zh ? 0 : 1] + '</li>'; }).join('');
+  var $ = function (id) { return document.getElementById(id); };
+  // 数字工厂的口径（factory/data.py、hub/finance.py、people.py、supply.py、sim/energy.py）
+  var K = { u_hours: 13.3408333, lab_u: 571.7983333, en: 73.8733, sh: 52.87, grd: 46, kw: 2.0, flat: 0.10, wage: 30, otx: 1.5, brg: 8.0, target: 25, std_mat: 538.74, P: 1650 };
+  var IDS = ['price', 'qty', 'mat', 'hrs', 'adj', 'scrap', 'idle', 'ot', 'alt'];
+  var PRE = { robot: [1650, 20, 538.74, 13.34, 4, 2, 24, 12, 20], std: [1650, 20, 538.74, 13.34, 0, 0, 0, 0, 0], cut: [1567.5, 20, 538.74, 13.34, 4, 2, 24, 12, 20] };
+  var fmt = function (x, d) { return x.toLocaleString(zh ? 'zh-CN' : 'en-US', { minimumFractionDigits: d, maximumFractionDigits: d }); };
+  var usd = function (x, d) { return (x < 0 ? '−$' : '$') + fmt(Math.abs(x), d === undefined ? 0 : d); };
+  function v() { var o = {}; IDS.forEach(function (k) { o[k] = +$(k).value; }); return o; }
+  function calc() {
+    var p = v(), q = p.qty, hrs = p.hrs === 13.34 ? K.u_hours : p.hrs;
+    var c = {
+      rev: p.price * q, mat: p.mat * q, lab: hrs / K.u_hours * K.lab_u * q + p.adj * K.grd, en: K.en * q, scrap: p.scrap * K.sh, idle: p.idle * K.kw * K.flat,
+      act: p.ot * K.wage * K.otx + 2 * q * K.brg * p.alt / 100
+    };
+    c.cost = c.mat + c.lab + c.en + c.scrap + c.idle + c.act;
+    c.margin = c.rev - c.cost; c.pct = c.rev ? c.margin / c.rev * 100 : 0;
+    c.stdpct = (1 - (K.std_mat + K.lab_u + K.en) / p.price) * 100;
+    c.be = c.cost / q;
+    var lines = [['labor', c.lab], ['energy', c.en], ['scrap', c.scrap], ['idle', c.idle], ['act', c.act]];
+    lines.sort(function (a, b) { return b[1] - a[1]; }); c.top = lines[0][0];
+    return c;
+  }
+  var X0 = 70, X1 = 740, Y0 = 296, Y1 = 26;
+  var prog = 99;   // 动画进度：第 i 块在 prog ∈ [i, i+1] 时长出来
+  function draw() {
+    var p = v(), c = calc(), i, s = '';
+    var steps = [c.mat, c.lab, c.en, c.scrap, c.idle, c.act];
+    var lo = Math.min(0, c.margin), hi = c.rev * 1.1;
+    var span = hi - lo, nice = [1000, 2000, 5000, 10000, 20000, 25000, 50000], st = nice[0];
+    for (i = 0; i < nice.length; i++) { st = nice[i]; if (span / st <= 6) break; }
+    var sy = function (y) { return Y0 - (Y0 - Y1) * (y - lo) / span; };
+    for (var g = Math.ceil(lo / st) * st; g <= hi; g += st) {
+      s += '<line x1="' + X0 + '" x2="' + X1 + '" y1="' + sy(g).toFixed(1) + '" y2="' + sy(g).toFixed(1) + '" stroke="var(--rule)"/><text x="' + (X0 - 8) + '" y="' + (sy(g) + 4).toFixed(1) + '" text-anchor="end">' + fmt(g, 0) + '</text>';
+    }
+    var n = 8, slot = (X1 - X0) / n, bw = slot * 0.62, cx = function (k) { return X0 + slot * (k + 0.5); };
+    function bar(k, a, b, col, f, lab, below) {     // a 底、b 顶，f 长出的比例
+      if (f <= 0) return '';
+      var y0 = sy(a), y1 = sy(a + (b - a) * f), top = Math.min(y0, y1), h = Math.max(1.2, Math.abs(y1 - y0));
+      var o = '<rect x="' + (cx(k) - bw / 2).toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="2" fill="' + col + '"/>';
+      if (f >= 1) o += '<text x="' + cx(k).toFixed(1) + '" y="' + (below ? Math.max(y0, y1) + 15 : top - 6).toFixed(1) + '" text-anchor="middle" style="fill:' + col + ';font-weight:600">' + lab + '</text>';
+      return o;
+    }
+    var f = function (k) { return Math.max(0, Math.min(1, prog - k)); };
+    s += bar(0, 0, c.rev, 'var(--accent)', f(0), usd(c.rev));
+    var top = c.rev;
+    for (i = 0; i < steps.length; i++) {
+      var k = i + 1, small = steps[i] < c.rev * 0.06;
+      if (f(k) > 0) s += '<line x1="' + (cx(k - 1) + bw / 2).toFixed(1) + '" x2="' + (cx(k) - bw / 2).toFixed(1) + '" y1="' + sy(top).toFixed(1) + '" y2="' + sy(top).toFixed(1) + '" stroke="var(--muted)" stroke-dasharray="3 3"/>';
+      s += bar(k, top, top - steps[i], i < 3 ? 'var(--red)' : 'var(--amber)', f(k), '−' + usd(steps[i]), small);
+      top -= steps[i];
+    }
+    var mc = c.margin >= 0 ? 'var(--green)' : 'var(--red)';
+    if (f(7) > 0) s += '<line x1="' + (cx(6) + bw / 2).toFixed(1) + '" x2="' + (cx(7) - bw / 2).toFixed(1) + '" y1="' + sy(top).toFixed(1) + '" y2="' + sy(top).toFixed(1) + '" stroke="var(--muted)" stroke-dasharray="3 3"/>';
+    s += bar(7, 0, c.margin, mc, f(7), usd(c.margin), c.margin < 0);
+    if (f(7) >= 1 && Math.abs(sy(c.margin) - sy(0)) > 30) s += '<text x="' + cx(7).toFixed(1) + '" y="' + ((sy(c.margin) + sy(0)) / 2 + 5).toFixed(1) + '" text-anchor="middle" style="fill:var(--sheet);font-weight:700;font-size:14px">' + fmt(c.pct, 1) + '%</text>';
+    var ty = sy(c.rev * K.target / 100);
+    s += '<line x1="' + X0 + '" x2="' + X1 + '" y1="' + ty.toFixed(1) + '" y2="' + ty.toFixed(1) + '" stroke="var(--green)" stroke-dasharray="7 5" stroke-width="1.4"/>';
+    s += '<text x="' + (cx(1) - bw / 2).toFixed(1) + '" y="' + (ty - 6).toFixed(1) + '" style="fill:var(--green);paint-order:stroke;stroke:var(--sheet);stroke-width:4px">' + T_('target') + ' = ' + usd(c.rev * K.target / 100) + '</text>';
+    for (i = 0; i < n; i++) {
+      var nm = TX.names[i][zh ? 0 : 1].split('\n');
+      nm.forEach(function (w, j) { s += '<text x="' + cx(i).toFixed(1) + '" y="' + (Y0 + 18 + j * 14) + '" text-anchor="middle">' + w + '</text>'; });
+    }
+    if (lo < 0) s += '<line x1="' + X0 + '" x2="' + X1 + '" y1="' + sy(0).toFixed(1) + '" y2="' + sy(0).toFixed(1) + '" stroke="var(--ink)"/>';
+    $('plot').innerHTML = s;
+    // 表与读数
+    var vals = [c.rev, c.mat, c.lab, c.en, c.scrap, c.idle, c.act, c.margin], L = zh ? 0 : 1;
+    var html = '';
+    TX.rows.forEach(function (r, j) {
+      html += '<tr' + (j === 7 ? ' class="tot"' : '') + '><td>' + r[L] + '</td><td class="h">' + r[2 + L] + '</td><td class="n">' + (j > 0 && j < 7 ? '−' : '') + usd(Math.abs(vals[j]) * (j === 7 && vals[j] < 0 ? -1 : 1), 2) + '</td></tr>';
+    });
+    $('bd').innerHTML = html;
+    $('kPct').textContent = fmt(c.pct, 1) + '%';
+    $('kMargin').textContent = usd(c.margin, 2);
+    $('kRev').textContent = usd(c.rev, 2);
+    $('kCost').textContent = usd(c.cost, 2);
+    $('kStd').textContent = fmt(c.stdpct, 1) + '%';
+    $('kGap').textContent = fmt(c.stdpct - c.pct, 1) + T_('pt');
+    $('kTop').textContent = TX.topName[c.top][L];
+    $('kBE').textContent = usd(c.be, 2);
+    $('verdict').textContent = c.margin < 0 ? T_('vLoss') : c.pct >= K.target ? T_('vOk') : c.pct >= K.target - 5 ? T_('vLow') : T_('vBad');
+    $('pricev').textContent = '$' + fmt(p.price, 2); $('qtyv').textContent = fmt(p.qty, 0); $('matv').textContent = '$' + fmt(p.mat, 2);
+    $('hrsv').textContent = fmt(p.hrs, 2) + T_('h'); $('adjv').textContent = fmt(p.adj, 1) + T_('h'); $('scrapv').textContent = fmt(p.scrap, 0) + T_('pcs');
+    $('idlev').textContent = fmt(p.idle, 0) + T_('h'); $('otv').textContent = fmt(p.ot, 0) + T_('h'); $('altv').textContent = fmt(p.alt, 0) + '%';
+    return c;
+  }
+  var playing = false, last = 0;
+  var N = 8, HOLD = 3;    // 8 块，每块约 0.6 秒；搭完停 3 秒再重来
+  function loop(now) {
+    if (!playing) return;
+    var dt = Math.min(0.1, (now - (last || now)) / 1000); last = now;
+    prog += dt / 0.6;
+    if (prog > N + HOLD / 0.6) prog = 0;
+    draw();
+    requestAnimationFrame(loop);
+  }
+  function setPlay(on) { playing = on; $('play').textContent = T_(on ? 'pause' : 'play'); last = 0; if (on) { prog = 0; requestAnimationFrame(loop); } else { prog = 99; draw(); } }
+  $('play').onclick = function () { setPlay(!playing); };
+  document.querySelectorAll('[data-p]').forEach(function (b) {
+    b.onclick = function () { var q = PRE[b.dataset.p]; IDS.forEach(function (k, i) { $(k).value = q[i]; }); draw(); };
+  });
+  IDS.forEach(function (k) { $(k).addEventListener('input', function () { draw(); }); });
+  draw();
+  window.__lab = { play: setPlay, draw: draw };   // 课件片段用：暂停/播放
+  if (location.protocol === 'about:' || /[?&]auto/.test(location.search)) setPlay(true);
+})();
+</script>
+</body>
+</html>

@@ -9,13 +9,14 @@
     <polyline :points="line" fill="none" stroke="var(--accent)" stroke-width="2" />
     <circle v-for="(p, i) in pts" :key="p.id" :cx="x(i)" :cy="y(p.value)" :r="i === pts.length - 1 ? 4 : 2.5"
       :fill="p.result === 'fail' ? 'var(--bad)' : i === pts.length - 1 ? 'var(--warn)' : 'var(--accent)'">
-      <title>{{ p.serial }}：{{ p.value }} mm {{ p.result === 'fail' ? '超差' : '' }}</title>
+      <title>{{ p.serial }}: {{ p.value }} mm {{ p.result === 'fail' ? t('超差') : '' }}</title>
     </circle>
   </svg>
 </template>
 
 <script setup>
 import { computed } from 'vue';
+import { t } from '../lib/i18n';
 
 const props = defineProps({ chart: Object, height: { type: Number, default: 132 } });
 const W = 360;
@@ -35,7 +36,7 @@ const line = computed(() => pts.value.map((p, i) => `${x(i).toFixed(1)},${y(p.va
 // 三条线同一个整数部分（如 Ø35 的 35.009/35.018）只标小数，省地方；否则（清单里的背隙、零位残差等，第 45 轮）标完整数值
 const sameInt = computed(() => [props.chart.upper, props.chart.lower].every((v) => Math.trunc(v) === Math.trunc(props.chart.center)) && props.chart.center > 0);
 const tick = (v) => (sameInt.value ? '.' + String(Math.round((v % 1) * 1000)).padStart(3, '0') : String(Number(v.toFixed(3))));
-const label = computed(() => `控制图：最近 ${pts.value.length} 件，上限 ${props.chart.upper}，下限 ${props.chart.lower}`);
+const label = computed(() => t('控制图：最近 {n} 件，上限 {u}，下限 {l}', { n: pts.value.length, u: props.chart.upper, l: props.chart.lower }));
 </script>
 
 <style scoped>

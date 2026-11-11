@@ -15,6 +15,12 @@ SERVICE = ("service", "manager", "sales")
 
 
 def mount(app, H, user_of, who):
+    from hub import ai as _ai                      # 第 134 轮：派工提议执行完再补“已解决”
+    if not any(getattr(f, "_service_after", False) for f in _ai.ON_PROPOSAL_DONE):
+        def _after(db, action, preview, mode):
+            SV.after_orders(H, action, preview, mode)
+        _after._service_after = True
+        _ai.ON_PROPOSAL_DONE.append(_after)
     def can(u, roles):
         return bool(u.get("teacher")) or u.get("role") in roles
 

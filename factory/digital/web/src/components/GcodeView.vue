@@ -1,6 +1,6 @@
 <template>
   <div class="gv">
-    <svg :viewBox="`0 0 ${W} ${H}`" width="100%" :height="H" role="img" aria-label="键槽刀路（侧视，X 沿轴线，Z 竖直）">
+    <svg :viewBox="`0 0 ${W} ${H}`" width="100%" :height="H" role="img" :aria-label="$t('键槽刀路（侧视，X 沿轴线，Z 竖直）')">
       <rect :x="sx(slot.x_from - 20)" :y="sz(0)" :width="(slot.x_to - slot.x_from + 40) * k" :height="H - sz(0) - 8" fill="#E6E9E4" />
       <rect :x="sx(slot.x_from)" :y="sz(0)" :width="(slot.x_to - slot.x_from) * k" :height="slot.depth * k" fill="#fff" stroke="#8C96A0" stroke-dasharray="3 2" />
       <polyline v-for="(seg, i) in segs" :key="i" :points="seg.pts" fill="none" :stroke="seg.rapid ? '#9AA3AD' : 'var(--accent)'"
@@ -8,13 +8,14 @@
       <circle v-if="tool" :cx="sx(tool[0])" :cy="sz(tool[2])" r="5" fill="var(--warn)" />
     </svg>
     <div class="ctl small">
-      <button class="btn ghost" @click="play">{{ playing ? '暂停' : '回放刀路' }}</button>
-      <span class="muted">灰虚线：快移；实线：切削。共 {{ pts.length }} 个刀位点</span>
+      <button class="btn ghost" @click="play">{{ playing ? $t('暂停') : $t('回放刀路') }}</button>
+      <span class="muted">{{ $t('灰虚线：快移；实线：切削。共 {a} 个刀位点', { a: $td(pts.length) }) }}</span>
     </div>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { computed, onUnmounted, ref } from 'vue';
 import { parseGcode } from '../lib/gcode';
 

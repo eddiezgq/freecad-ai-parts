@@ -10,6 +10,7 @@ import datetime as dt
 import json
 
 from factory import data as F
+from hub import i18n
 
 TASKS = [
     {"id": "l15_t1", "points": 15, "title": "先自己追因",
@@ -119,7 +120,7 @@ def answer(db, user, tid, ans):
         if len(reason) < 15:
             return {"score": 0, "of": 10, "feedback": "理由写完整一点（至少 15 个字）：交期、成本、风险"}
         ok = bool((sc["result"] or {}).get("ok", True))
-        s = (6 if ok else 2) + (4 if any(k in reason for k in ("交期", "按时", "晚")) and any(k in reason for k in ("成本", "钱", "费")) else 2)
+        s = (6 if ok else 2) + (4 if i18n.has_kw(reason, ("交期", "按时", "晚")) and i18n.has_kw(reason, ("成本", "钱", "费")) else 2)
         _save(db, user, tid, s, {"submitted": True, "anomaly_id": aid or sc["anomaly_id"], "scenario_id": sc["id"], "reason": reason, "ok": ok})
         return {"score": s, "of": 10, "feedback": ("提交了。现在可以在指挥台看中枢的建议，和你的选择对比。" if s == 10 else
                                                     "提交了（得 {} 分）。理由里最好同时说到交期和成本。".format(s))}

@@ -1,24 +1,24 @@
 <!-- 第 79 轮：例题原理图（示意）。元件旁显示当前取值；点带参数的元件 → 发出 pick(参数键) -->
 <template>
-  <svg :viewBox="'0 0 640 250'" class="sch" role="img" aria-label="原理图">
+  <svg :viewBox="'0 0 640 250'" class="sch" role="img" :aria-label="t('原理图')">
     <g v-for="(e, i) in items" :key="i" :class="{ pick: e.p }" @click="e.p && emit('pick', e.p)">
       <template v-if="e.t === 'W'"><polyline :points="e.pts.map((q) => q.join(',')).join(' ')" class="w" /></template>
       <circle v-else-if="e.t === 'DOT'" :cx="e.at[0]" :cy="e.at[1]" r="3" class="dot" />
-      <text v-else-if="e.t === 'TXT'" :x="e.at[0]" :y="e.at[1]" class="txt">{{ e.s }}</text>
+      <text v-else-if="e.t === 'TXT'" :x="e.at[0]" :y="e.at[1]" class="txt">{{ t(e.s) }}</text>
       <text v-else-if="e.t === 'NODE'" :x="e.at[0]" :y="e.at[1]" class="node">{{ e.s }}</text>
       <g v-else-if="e.t === 'GND'" :transform="`translate(${e.at[0]},${e.at[1]})`" class="w">
         <line x1="-10" y1="0" x2="10" y2="0" /><line x1="-6" y1="4" x2="6" y2="4" /><line x1="-2" y1="8" x2="2" y2="8" /></g>
       <g v-else-if="e.t === 'OP'" :transform="`translate(${e.at[0]},${e.at[1]})`">
         <polygon points="0,0 60,30 0,60" class="body" /><text x="5" y="19" class="pm">−</text><text x="5" y="50" class="pm">+</text>
-        <text x="10" y="76" class="lab">运放 GBW {{ val('gbw_mhz', 'MHz') }}</text></g>
+        <text x="10" y="76" class="lab">{{ t('运放') }} GBW {{ val('gbw_mhz', 'MHz') }}</text></g>
       <g v-else-if="e.t === 'CMP'" :transform="`translate(${e.at[0]},${e.at[1]})`">
         <polygon points="0,0 60,30 0,60" class="body" /><text x="8" y="36" class="pm">⎍</text>
-        <line x1="-40" y1="30" x2="0" y2="30" class="w" /><text x="4" y="-6" class="lab">比较器</text></g>
+        <line x1="-40" y1="30" x2="0" y2="30" class="w" /><text x="4" y="-6" class="lab">{{ t('比较器') }}</text></g>
       <g v-else-if="e.t === 'NMOS'" :transform="`translate(${e.at[0]},${e.at[1]})`">
         <g class="w"><line x1="-25" y1="0" x2="8" y2="0" /><line x1="8" y1="-18" x2="8" y2="18" />
         <line x1="14" y1="-22" x2="14" y2="22" /><line x1="14" y1="-20" x2="20" y2="-20" /><line x1="14" y1="20" x2="20" y2="20" />
         <line x1="20" y1="-30" x2="20" y2="-20" /><line x1="20" y1="20" x2="20" y2="30" /></g>
-        <text x="28" y="4" class="lab">M1（功率 MOSFET）</text></g>
+        <text x="28" y="4" class="lab">{{ t('M1（功率 MOSFET）') }}</text></g>
       <g v-else-if="e.t === 'PI'" :transform="`translate(${e.at[0]},${e.at[1]})`">
         <rect :width="e.w" :height="e.h" rx="6" class="body" /><text :x="e.w / 2" :y="e.h / 2 + 5" text-anchor="middle" class="big">{{ e.text }}</text>
         <text :x="0" :y="-6" class="lab">{{ val(e.p, e.unit) }}</text></g>
@@ -35,7 +35,7 @@
           <g v-else-if="e.t === 'SW'" class="w"><circle cx="4" cy="0" r="2.5" /><line x1="6" y1="-1" x2="34" y2="-12" /><circle cx="36" cy="0" r="2.5" /></g>
         </g>
       </g>
-        <text :x="lx(e)" :y="ly(e)" :text-anchor="vertical(e) || e.lo ? 'start' : 'middle'" class="lab">{{ e.name }} {{ e.p ? val(e.p, e.unit) : e.v || '' }}</text>
+        <text :x="lx(e)" :y="ly(e)" :text-anchor="vertical(e) || e.lo ? 'start' : 'middle'" class="lab">{{ t(e.name) }} {{ e.p ? val(e.p, e.unit) : t(e.v || '') }}</text>
       </g>
     </g>
   </svg>
@@ -43,6 +43,7 @@
 
 <script setup>
 import { computed } from 'vue';
+import { t } from '../lib/i18n';
 
 const props = defineProps({ items: { type: Array, required: true }, params: { type: Object, default: () => ({}) } });
 const emit = defineEmits(['pick']);
@@ -61,7 +62,7 @@ function num(v) {
   const a = Math.abs(v);
   return a >= 1000 ? Math.round(v).toLocaleString() : a >= 10 ? (+v.toFixed(1)).toString() : (+v.toPrecision(3)).toString();
 }
-function val(k, unit) { return k && props.params[k] != null ? num(props.params[k]) + ' ' + (unit || '') : ''; }
+function val(k, unit) { return k && props.params[k] != null ? num(props.params[k]) + ' ' + t(unit || '') : ''; }
 </script>
 
 <style scoped>

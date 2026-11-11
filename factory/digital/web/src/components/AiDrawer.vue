@@ -1,16 +1,16 @@
 <template>
-  <aside v-if="ai.open" class="drawer" aria-label="AI 工厂助手">
+  <aside v-if="ai.open" class="drawer" :aria-label="t('AI 工厂助手')">
     <header>
-      <b>AI 工厂助手</b>
-      <span class="muted small">{{ session.user?.mode === 'teach' ? (session.user?.teacher ? '教学模式（老师）：完整分析' : '教学模式：只提示方向') : '生产模式：可代办，写操作只起草、要你确认' }}</span>
-      <button class="x" aria-label="关闭" @click="ai.open = false">×</button>
+      <b>{{ t('AI 工厂助手') }}</b>
+      <span class="muted small">{{ session.user?.mode === 'teach' ? (session.user?.teacher ? t('教学模式（老师）：完整分析') : t('教学模式：只提示方向')) : t('生产模式：可代办，写操作只起草、要你确认') }}</span>
+      <button class="x" :aria-label="t('关闭')" @click="ai.open = false">×</button>
     </header>
     <div ref="box" class="msgs">
       <p v-if="!ai.messages.length" class="muted small">
-        问我全厂的任何情况：我在工厂本体上查、追因、推演，每个结论后面的 [n] 点开就是依据。例如：
+        {{ t('问我全厂的任何情况：我在工厂本体上查、追因、推演，每个结论后面的 [n] 点开就是依据。例如：') }}
       </p>
       <div v-if="!ai.messages.length" class="chips">
-        <button v-for="q in samples" :key="q" class="chip" @click="ask(q)">{{ q }}</button>
+        <button v-for="q in samples" :key="q" class="chip" @click="ask(t(q))">{{ t(q) }}</button>
       </div>
       <div v-for="(m, i) in ai.messages" :key="i" class="msg" :class="m.role">
         <div v-if="m.role === 'user'" class="bubble">{{ m.content }}</div>
@@ -18,42 +18,42 @@
           <div v-for="(ln, k) in segments(m)" :key="k" :class="{ flag: ln.flagged }" class="ln">
             <template v-for="(p, j) in ln.parts" :key="j">
               <span v-if="p.text !== undefined">{{ p.text }}</span>
-              <button v-else class="ref" :class="{ missing: p.ref.missing }" :title="p.ref.label || '没有这个依据'" @click="openRef(p.ref)">{{ p.ref.n }}</button>
+              <button v-else class="ref" :class="{ missing: p.ref.missing }" :title="p.ref.label || t('没有这个依据')" @click="openRef(p.ref)">{{ p.ref.n }}</button>
             </template>
-            <span v-if="ln.flagged" class="flag-tag" title="这句里的数字没能在查到的数据里找到">未经核实</span>
+            <span v-if="ln.flagged" class="flag-tag" :title="t('这句里的数字没能在查到的数据里找到')">{{ t('未经核实') }}</span>
           </div>
         </div>
         <div v-if="src && src.from === m" class="src small">
           <template v-if="src.error">{{ src.error }}</template>
           <template v-else><b class="mono">#{{ src.seq }}</b> {{ src.type }} · {{ src.topic }} · {{ src.ts?.slice(0, 19).replace('T', ' ') }}
             <pre>{{ JSON.stringify(src.data, null, 1).slice(0, 600) }}</pre></template>
-          <button class="linkbtn" @click="src = null">收起</button>
+          <button class="linkbtn" @click="src = null">{{ t('收起') }}</button>
         </div>
         <div v-if="m.role === 'assistant'" class="meta small muted">
           <span>{{ engineLabel(m.engine) }}</span>
-          <span v-if="m.refs?.length">· 依据 {{ m.refs.length }} 条</span>
-          <span v-if="m.check && !m.check.ok" class="warn-t">· 有数字未经核实</span>
+          <span v-if="m.refs?.length">· {{ t('依据 {n} 条', { n: m.refs.length }) }}</span>
+          <span v-if="m.check && !m.check.ok" class="warn-t">· {{ t('有数字未经核实') }}</span>
           <template v-if="m.run_id">
-            <button class="fb" :class="{ on: m.feedback === 1 }" title="有用" @click="feedback(m, 1)">👍</button>
-            <button class="fb" :class="{ on: m.feedback === -1 }" title="不对 / 没用" @click="feedback(m, -1)">👎</button>
+            <button class="fb" :class="{ on: m.feedback === 1 }" :title="t('有用')" @click="feedback(m, 1)">👍</button>
+            <button class="fb" :class="{ on: m.feedback === -1 }" :title="t('不对 / 没用')" @click="feedback(m, -1)">👎</button>
           </template>
         </div>
         <div v-if="m.note" class="muted small">{{ m.note }}</div>
         <div v-if="m.actions?.length" class="prop">
-          <span>已起草动作（草稿）<b class="mono">{{ m.actions.map((a) => 'ACT-' + String(a).padStart(5, '0')).join('、') }}</b></span>
-          <router-link class="btn" :to="{ path: '/ont/actions', query: { box: 'mine' } }" @click="ai.open = false">去提交</router-link>
+          <span>{{ t('已起草动作（草稿）') }}<b class="mono">{{ m.actions.map((a) => 'ACT-' + String(a).padStart(5, '0')).join(', ') }}</b></span>
+          <router-link class="btn" :to="{ path: '/ont/actions', query: { box: 'mine' } }" @click="ai.open = false">{{ t('去提交') }}</router-link>
         </div>
         <div v-for="pid in m.proposals || []" :key="pid" class="prop">
-          <span>已起草提议 <b class="mono">{{ pid }}</b></span>
-          <button class="btn primary" @click="openProposal(pid)">预览并确认</button>
+          <span>{{ t('已起草提议') }} <b class="mono">{{ pid }}</b></span>
+          <button class="btn primary" @click="openProposal(pid)">{{ t('预览并确认') }}</button>
         </div>
       </div>
-      <div v-if="ai.busy" class="muted small">正在查本体、追因、推演…</div>
+      <div v-if="ai.busy" class="muted small">{{ t('正在查本体、追因、推演…') }}</div>
       <div v-if="ai.error" class="err">{{ ai.error }}</div>
     </div>
     <form class="ask" @submit.prevent="send">
-      <input v-model="text" placeholder="例如：SO 为什么会延期？本周瓶颈在哪？" aria-label="问 AI 工厂助手">
-      <button class="btn primary" :disabled="ai.busy">发送</button>
+      <input v-model="text" :placeholder="t('例如：SO 为什么会延期？本周瓶颈在哪？')" :aria-label="t('问 AI 工厂助手')">
+      <button class="btn primary" :disabled="ai.busy">{{ t('发送') }}</button>
     </form>
     <ProposalModal v-if="pid" :pid="pid" @close="pid = null" />
   </aside>
@@ -65,6 +65,7 @@ import { useRouter } from 'vue-router';
 import { get, session } from '../lib/api';
 import { ai, ask, feedback, segments } from '../lib/ai';
 import ProposalModal from './ProposalModal.vue';
+import { t, tk } from '../lib/i18n';
 
 const text = ref('');
 const box = ref(null);
@@ -72,9 +73,9 @@ const pid = ref(null);
 const router = useRouter();
 const src = ref(null);
 const samples = computed(() => (session.user?.mode === 'teach' && !session.user?.teacher
-  ? ['我下一步做什么？', 'MRP 是什么？', '本周瓶颈在哪？']
-  : ['现在有哪些异常？', '外圆磨床要是再停一天，哪张订单受影响？怎么办最划算？', '哪张订单可能延期？为什么？', '10 台 WQR-105，10 月 15 日交货']));
-function engineLabel(e) { return !e || e === 'rules' ? '规则版' : '模型：' + e.split(':').pop(); }
+  ? [tk('我下一步做什么？'), tk('MRP 是什么？'), tk('本周瓶颈在哪？')]
+  : [tk('现在有哪些异常？'), tk('外圆磨床要是再停一天，哪张订单受影响？怎么办最划算？'), tk('哪张订单可能延期？为什么？'), tk('10 台 WQR-105，10 月 15 日交货')]));
+function engineLabel(e) { return !e || e === 'rules' ? t('规则版') : t('模型：') + e.split(':').pop(); }
 async function openRef(r) {
   if (r.missing) return;
   if (r.kind === 'message') {

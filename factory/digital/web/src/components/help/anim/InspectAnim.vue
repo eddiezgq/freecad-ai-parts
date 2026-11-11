@@ -1,18 +1,18 @@
 <template>
   <figure class="ins">
     <div class="ctl">
-      <label class="small"><input v-model="cheap" type="checkbox" @change="restart"> 改从便宜的供应商进货</label>
-      <span class="small muted">到货 {{ arrived }} 批 · 合格入库 {{ ok }} · 不合格隔离 {{ ng }}</span>
+      <label class="small"><input v-model="cheap" type="checkbox" @change="restart"> {{ $t('改从便宜的供应商进货') }}</label>
+      <span class="small muted">{{ $t('到货 {a} 批 · 合格入库 {b} · 不合格隔离 {c}', { a: arrived, b: ok, c: ng }) }}</span>
     </div>
-    <svg viewBox="0 0 760 210" role="img" :aria-label="`来料检验演示：到货 ${arrived} 批，合格 ${ok}，不合格 ${ng}`">
+    <svg viewBox="0 0 760 210" role="img" :aria-label="`来料检验演示：到货 ${arrived} 批，合格 ${ok}，不合格 ${ng}`"><!-- i18n-ok 读屏标签 / 数据比较 -->
       <line x1="20" y1="70" x2="470" y2="70" class="belt" />
-      <text x="70" y="26" class="lb">供应商{{ cheap ? '（便宜）' : '' }}</text>
+      <text x="70" y="26" class="lb">{{ $t('供应商{a}', { a: cheap ? $t('（便宜）') : '' }) }}</text>
       <rect x="250" y="34" width="120" height="72" rx="8" class="station" />
-      <text x="310" y="26" class="lb">来料检验 · 抽 5 件</text>
+      <text x="310" y="26" class="lb">{{ $t('来料检验 · 抽 5 件') }}</text>
       <!-- 抽样的 5 件：量值对上下限 -->
       <g class="meas">
         <rect x="226" y="120" width="168" height="80" rx="6" />
-        <text x="232" y="138" class="lim-t">上限</text><text x="232" y="194" class="lim-t">下限</text>
+        <text x="232" y="138" class="lim-t">{{ $t('上限') }}</text><text x="232" y="194" class="lim-t">{{ $t('下限') }}</text>
         <line x1="262" y1="142" x2="388" y2="142" class="lim" /><line x1="262" y1="178" x2="388" y2="178" class="lim" />
         <template v-if="cur">
           <circle v-for="(v, k) in cur.sample.slice(0, shown)" :key="k" :cx="282 + k * 23" :cy="160 - v * 18" r="5" :class="Math.abs(v) > 1 ? 'out' : 'in'" />
@@ -21,20 +21,20 @@
       <!-- 在路上的批 -->
       <g v-for="b in moving" :key="b.id" :transform="`translate(${b.x},${b.y})`">
         <rect x="-18" y="-14" width="36" height="28" rx="4" :class="['box', b.state]" />
-        <text y="5" class="bid">{{ b.id }}</text>
+        <text y="5" class="bid">{{ $td(b.id) }}</text>
       </g>
       <!-- 去处 -->
-      <rect x="560" y="18" width="180" height="70" rx="8" class="good" /><text x="650" y="48" class="dst">合格 → 入库</text>
-      <text x="650" y="72" class="cnt">{{ ok }} 批</text>
-      <rect x="560" y="116" width="180" height="70" rx="8" class="bad" /><text x="650" y="146" class="dst">不合格 → 隔离</text>
-      <text x="650" y="170" class="cnt">{{ ng }} 批 · 装配等料</text>
+      <rect x="560" y="18" width="180" height="70" rx="8" class="good" /><text x="650" y="48" class="dst">{{ $t('合格 → 入库') }}</text>
+      <text x="650" y="72" class="cnt">{{ $t('{a} 批', { a: ok }) }}</text>
+      <rect x="560" y="116" width="180" height="70" rx="8" class="bad" /><text x="650" y="146" class="dst">{{ $t('不合格 → 隔离') }}</text>
+      <text x="650" y="170" class="cnt">{{ $t('{a} 批 · 装配等料', { a: ng }) }}</text>
     </svg>
-    <figcaption class="small muted">示例。每次到货是一个批次，抽 5 件量尺寸，对照上下限（两条线）：全在线内判合格入库，有一件出线就判不合格隔离，等退货、换供应商或让步接收。
-      勾上“便宜的供应商”看：单价低，但不合格的批多了，装配要等料——这就是要算<b>总拥有成本</b>的原因。</figcaption>
+    <figcaption class="small muted">{{ $t('示例。每次到货是一个批次，抽 5 件量尺寸，对照上下限（两条线）：全在线内判合格入库，有一件出线就判不合格隔离，等退货、换供应商或让步接收。勾上“便宜的供应商”看：单价低，但不合格的批多了，装配要等料——这就是要算') }}<b>{{ $t('总拥有成本') }}</b>{{ $t('的原因。') }}</figcaption>
   </figure>
 </template>
 
 <script setup>
+import { t as $t } from '../../../lib/i18n';
 // 来料一批批流过抽样检验（第 30 轮 §八 8-2，采购与来料）：合格的去入库，不合格的去隔离。
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 

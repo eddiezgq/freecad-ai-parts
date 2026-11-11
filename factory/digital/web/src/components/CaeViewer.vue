@@ -7,22 +7,23 @@
         <div class="cbar-max mono">{{ field === 'life' ? fmtH(lifeH(range[1])) : fmt(range[1]) }}</div>
         <div class="cbar-grad" :style="{ background: grad }"></div>
         <div class="cbar-min mono">{{ field === 'life' ? '≥ ' + fmtH(lifeH(range[0])) : fmt(range[0]) }}</div>
-        <div class="cbar-unit">{{ field === 'vm' ? 'MPa' : field === 'u' ? 'mm' : field === 'temp' ? '℃' : '疲劳寿命' }}</div>
+        <div class="cbar-unit">{{ field === 'vm' ? 'MPa' : field === 'u' ? 'mm' : field === 'temp' ? '℃' : $t('疲劳寿命') }}</div>
       </div>
       <slot />
     </div>
     <div class="tools small">
-      <label>剖切
-        <select v-model="clipAxis"><option value="">不剖</option><option value="x">X</option><option value="y">Y</option><option value="z">Z</option></select>
+      <label>{{ $t('剖切') }}
+        <select v-model="clipAxis"><option value="">{{ $t('不剖') }}</option><option value="x">X</option><option value="y">Y</option><option value="z">Z</option></select>
       </label>
-      <input v-if="clipAxis" v-model.number="clipPos" type="range" min="0" max="1" step="0.005" aria-label="剖切位置">
-      <button type="button" class="link" @click="fit">回到全景</button>
+      <input v-if="clipAxis" v-model.number="clipPos" type="range" min="0" max="1" step="0.005" :aria-label="$t('剖切位置')">
+      <button type="button" class="link" @click="fit">{{ $t('回到全景') }}</button>
       <span class="muted">{{ note }}</span>
     </div>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -45,7 +46,7 @@ const emit = defineEmits(['pick']);
 const box = ref(null);
 const clipAxis = ref('');
 const clipPos = ref(0.5);
-const note = ref('拖动旋转 · 滚轮缩放 · 右键平移');
+const note = ref($t('拖动旋转 · 滚轮缩放 · 右键平移'));
 const tip = ref(''), tipX = ref(0), tipY = ref(0);
 const grad = turboCss();
 // 疲劳（life）：按每块损伤的对数着色，红 = 损伤最大（寿命最短），显示 6 个数量级
@@ -80,7 +81,7 @@ function clearRoot() {
 function loadGlb() {
   if (!props.glbUrl || props.surface) return;
   const my = ++seq;
-  note.value = '正在读取模型…';
+  note.value = $t('正在读取模型…');
   loader.load(props.glbUrl, (g) => {
     if (my !== seq || props.surface) return;
     clearRoot();
@@ -101,7 +102,7 @@ function loadGlb() {
     root.add(m);
     paintFaces();
     fit();
-  }, undefined, () => { note.value = '模型读取失败'; });
+  }, undefined, () => { note.value = $t('模型读取失败'); });
 }
 function paintFaces() {
   for (const [id, mesh] of faceMeshes) {
@@ -171,7 +172,7 @@ function fit() {
   camera.position.copy(c).add(new THREE.Vector3(r * 0.9, r * 0.55, r * 0.9));
   controls.target.copy(c);
   const s = bbox.getSize(new THREE.Vector3());
-  note.value = `拖动旋转 · 滚轮缩放 · 右键平移 · 外形 ${s.x.toFixed(1)} × ${s.y.toFixed(1)} × ${s.z.toFixed(1)} mm`;
+  note.value = $t('拖动旋转 · 滚轮缩放 · 右键平移 · 外形 {a} × {b} × {c} mm', { a: s.x.toFixed(1), b: s.y.toFixed(1), c: s.z.toFixed(1) });
   applyClip();
 }
 function applyClip() {
@@ -227,13 +228,13 @@ function move(ev) {
   else if (resultMesh) {
     const i = nearestValue(h), s = props.surface;
     const fid = s.faceOf[h.faceIndex];
-    tip.value = `面 ${fid} · ` + (s.temp ? `温度 ${s.temp[i].toFixed(1)} ℃` + (s.thermoOnly ? '' : ' · ') : '')
-      + (s.thermoOnly ? '' : `应力 ${s.vm[i].toFixed(1)} MPa · 位移 ${s.umag[i].toPrecision(3)} mm`)
-      + (s.lgD && props.field === 'life' ? ` · 寿命 ${s.lgD[i] < -29 ? '无限' : fmtH(lifeH(s.lgD[i]))}` : '');
+    tip.value = $t('面 {a} · ', { a: fid }) + (s.temp ? $t('温度 {a} ℃', { a: s.temp[i].toFixed(1) }) + (s.thermoOnly ? '' : ' · ') : '')
+      + (s.thermoOnly ? '' : $t('应力 {a} MPa · 位移 {b} mm', { a: s.vm[i].toFixed(1), b: s.umag[i].toPrecision(3) }))
+      + (s.lgD && props.field === 'life' ? $t(' · 寿命 {a}', { a: s.lgD[i] < -29 ? $t('无限') : fmtH(lifeH(s.lgD[i])) }) : '');
   } else {
     id = h.object.userData.face;
     const f = faceById.value[id];
-    tip.value = f ? `面 ${f.id} · ${{ plane: '平面', cylinder: '圆柱面', cone: '圆锥面' }[f.kind] || '曲面'}${f.radius_mm ? ' Ø' + (2 * f.radius_mm).toFixed(1) : ''} · ${f.area_mm2.toFixed(1)} mm²${props.picking ? ' · 点击选中 / 取消' : ''}` : '';
+    tip.value = f ? $t('面 {a} · {b}{c} · {d} mm²{e}', { a: f.id, b: { plane: $t('平面'), cylinder: $t('圆柱面'), cone: $t('圆锥面') }[f.kind] || $t('曲面'), c: f.radius_mm ? ' Ø' + (2 * f.radius_mm).toFixed(1) : '', d: f.area_mm2.toFixed(1), e: props.picking ? $t(' · 点击选中 / 取消') : '' }) : '';
   }
   if (id !== hoverId) { hoverId = id; paintFaces(); }
 }

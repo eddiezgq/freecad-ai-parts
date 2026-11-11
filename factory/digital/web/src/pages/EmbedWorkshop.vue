@@ -2,9 +2,9 @@
   <div class="embed">
     <div ref="host" class="host"></div>
     <div class="cap small">
-      <b>问渠数字工厂</b>
-      <span v-if="mode === 'replay'"> · 回放 {{ clockText }}<template v-if="speed !== 1">（×{{ speed }}）</template></span>
-      <span v-else> · 实时<template v-if="!bus.connected">（连接中…）</template></span>
+      <b>{{ t('问渠数字工厂') }}</b>
+      <span v-if="mode === 'replay'"> · {{ t('回放') }} {{ clockText }}<template v-if="speed !== 1"> (×{{ speed }})</template></span>
+      <span v-else> · {{ t('实时') }}<template v-if="!bus.connected"> {{ t('（连接中…）') }}</template></span>
       <span v-if="focusName"> · {{ focusName }}</span>
     </div>
     <div class="legend small">
@@ -22,6 +22,7 @@ import { useRoute } from 'vue-router';
 import { createWorkshop, HEX } from '../lib/workshop3d';
 import { bus, connectBus } from '../lib/bus';
 import { STATE } from '../lib/fmt';
+import { isEn, loc, t } from '../lib/i18n';
 
 const route = useRoute();
 const host = ref(null);
@@ -34,8 +35,8 @@ let ws, off, timer;
 const layout = ref(null);
 
 const rp = reactive({ machines: {}, agvs: {}, rows: [], i: 0, start: 0, wall: 0, loadedTo: 0, loading: false, clock: 0 });
-const clockText = computed(() => (rp.clock ? new Date(rp.clock).toLocaleString('zh-CN', { hour12: false }) : '—'));
-const focusName = computed(() => (q.view === 'device' && layout.value?.units[q.device] ? `${q.device.toUpperCase()} ${layout.value.units[q.device].name}` : ''));
+const clockText = computed(() => (rp.clock ? new Date(rp.clock).toLocaleString(loc(), { hour12: false }) : '—'));
+const focusName = computed(() => (q.view === 'device' && layout.value?.units[q.device] ? `${q.device.toUpperCase()} ${isEn() ? layout.value.units[q.device].name_en || layout.value.units[q.device].en : layout.value.units[q.device].name}` : ''));
 
 async function loadChunk() {
   if (rp.loading) return;
@@ -43,14 +44,14 @@ async function loadChunk() {
   try {
     const from = new Date(rp.loadedTo).toISOString();
     const r = await fetch(`/api/embed/replay?token=${encodeURIComponent(q.token || '')}&t0=${encodeURIComponent(from)}&minutes=${CHUNK_MIN}`);
-    if (r.status === 401) { err.value = '回放凭证无效或已过期（30 分钟内有效），请刷新课件页面。'; return; }
+    if (r.status === 401) { err.value = t('回放凭证无效或已过期（30 分钟内有效），请刷新课件页面。'); return; }
     if (!r.ok) throw new Error(String(r.status));
     const j = await r.json();
     rp.rows = rp.rows.slice(rp.i).concat(j.rows.map((x) => ({ ...x, t: Date.parse(x.ts) })));
     rp.i = 0;
     rp.loadedTo = Date.parse(j.to);
   } catch (e) {
-    err.value = '回放数据读取失败：' + e.message;
+    err.value = t('回放数据读取失败：') + e.message;
   } finally {
     rp.loading = false;
   }
@@ -72,11 +73,11 @@ onMounted(async () => {
   try {
     layout.value = await (await fetch('/api/layout')).json();
     ws = createWorkshop(host.value, layout.value);
-    if (q.view === 'device' && q.device && !ws.focus(q.device)) err.value = '没有这台设备：' + q.device;
+    if (q.view === 'device' && q.device && !ws.focus(q.device)) err.value = t('没有这台设备：') + q.device;
     if (mode === 'replay') {
       const t0 = Date.parse(q.t0 || '');
-      if (!q.token) { err.value = '回放需要嵌入凭证（token）。'; return; }
-      if (Number.isNaN(t0)) { err.value = '回放需要开始时间 t0（ISO 时间）。'; return; }
+      if (!q.token) { err.value = t('回放需要嵌入凭证（token）。'); return; }
+      if (Number.isNaN(t0)) { err.value = t('回放需要开始时间 t0（ISO 时间）。'); return; }
       rp.start = t0; rp.loadedTo = t0; rp.wall = performance.now(); rp.clock = t0;
       await loadChunk();
       timer = setInterval(tick, 100);
@@ -88,7 +89,7 @@ onMounted(async () => {
       apply();
     }
   } catch (e) {
-    err.value = '3D 车间载入失败：' + e.message;
+    err.value = t('3D 车间载入失败：') + e.message;
   }
 });
 onUnmounted(() => { clearInterval(timer); if (off) off(); if (ws) ws.dispose(); });

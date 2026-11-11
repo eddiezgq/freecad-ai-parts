@@ -2,12 +2,12 @@
   <div class="topo">
     <div class="row">
       <section class="card side">
-        <div class="step"><b>1</b> 选一个板件</div>
-        <select v-model="preset" class="full" aria-label="拓扑优化算例">
-          <option v-for="p in presets" :key="p.key" :value="p.key">{{ p.label }}</option>
+        <div class="step"><b>1</b> {{ $t('选一个板件') }}</div>
+        <select v-model="preset" class="full" :aria-label="$t('拓扑优化算例')">
+          <option v-for="p in presets" :key="p.key" :value="p.key">{{ $td(p.label) }}</option>
         </select>
-        <div v-if="cur" class="small muted">{{ cur.note }}</div>
-        <svg class="bcfig" viewBox="0 0 240 125" aria-label="支承与载荷示意">
+        <div v-if="cur" class="small muted">{{ $td(cur.note) }}</div>
+        <svg class="bcfig" viewBox="0 0 240 125" :aria-label="$t('支承与载荷示意')">
           <rect :x="fig.x" :y="fig.y" :width="fig.w" :height="fig.h" fill="#E9ECE8" stroke="#8A948C" />
           <g v-for="(s, i) in fig.sup" :key="'s' + i">
             <polygon v-if="s.t === 'pin'" :points="`${s.x},${s.y} ${s.x - 7},${s.y + 11} ${s.x + 7},${s.y + 11}`" fill="#5B6670" />
@@ -15,7 +15,7 @@
               <circle :cx="s.x - 4" :cy="s.y + 12" r="2.5" fill="#5B6670" /><circle :cx="s.x + 4" :cy="s.y + 12" r="2.5" fill="#5B6670" /></g>
             <g v-else-if="s.t === 'wall'"><line :x1="s.x" :y1="fig.y - 4" :x2="s.x" :y2="fig.y + fig.h + 4" stroke="#5B6670" stroke-width="4" /></g>
             <g v-else-if="s.t === 'sym'"><line :x1="s.x" :y1="fig.y - 6" :x2="s.x" :y2="fig.y + fig.h + 6" stroke="#5B6670" stroke-dasharray="4 3" />
-              <text :x="s.x - 4" :y="fig.y + fig.h + 18" class="figt">对称面</text></g>
+              <text :x="s.x - 4" :y="fig.y + fig.h + 18" class="figt">{{ $t('对称面') }}</text></g>
           </g>
           <g :transform="`translate(${fig.load.x},${fig.load.y})`">
             <line x1="0" y1="-26" x2="0" y2="-3" stroke="#D64541" stroke-width="2.5" />
@@ -23,51 +23,49 @@
           </g>
         </svg>
 
-        <div class="step"><b>2</b> 材料用多少、网格多细</div>
-        <label class="line">材料用量（体积比）<input v-model.number="volfrac" type="range" min="0.2" max="0.7" step="0.05" /><b>{{ Math.round(volfrac * 100) }}%</b></label>
-        <div class="line">网格 <input v-model.number="nelx" type="number" min="8" max="120" /> × <input v-model.number="nely" type="number" min="4" max="80" />
-          <span class="small muted">共 {{ nelx * nely }} 格（上限 {{ maxEl }}）</span></div>
+        <div class="step"><b>2</b> {{ $t('材料用多少、网格多细') }}</div>
+        <label class="line">{{ $t('材料用量（体积比）') }}<input v-model.number="volfrac" type="range" min="0.2" max="0.7" step="0.05" /><b>{{ Math.round(volfrac * 100) }}%</b></label>
+        <div class="line">{{ $t('网格') }} <input v-model.number="nelx" type="number" min="8" max="120" /> × <input v-model.number="nely" type="number" min="4" max="80" />
+          <span class="small muted">{{ $t('共 {a} 格（上限 {b}）', { a: nelx * nely, b: maxEl }) }}</span></div>
         <details class="small">
-          <summary>算法参数（一般不用改）</summary>
-          <div class="line">惩罚指数 p <input v-model.number="penal" type="number" min="1" max="5" step="0.5" />
-            过滤半径 <input v-model.number="rmin" type="number" min="1" max="4" step="0.1" /> 格</div>
-          <div class="muted">p 越大图越黑白分明（p = 1 时全是灰色）；过滤半径决定最细的杆有多粗，太小会出现“棋盘格”。</div>
+          <summary>{{ $t('算法参数（一般不用改）') }}</summary>
+          <div class="line">{{ $t('惩罚指数 p') }} <input v-model.number="penal" type="number" min="1" max="5" step="0.5" />
+            {{ $t('过滤半径') }} <input v-model.number="rmin" type="number" min="1" max="4" step="0.1" /> {{ $t('格') }}</div>
+          <div class="muted">{{ $t('p 越大图越黑白分明（p = 1 时全是灰色）；过滤半径决定最细的杆有多粗，太小会出现“棋盘格”。') }}</div>
         </details>
 
-        <div class="step"><b>3</b> 实际尺寸（拉伸成板件做有限元校核用）</div>
-        <div class="line">{{ preset === 'mbb' ? '整根梁长' : '长' }} <input v-model.number="length" type="number" min="20" max="2000" /> mm
-          板厚 <input v-model.number="thick" type="number" min="1" max="200" /> mm</div>
-        <div class="line">载荷 <input v-model.number="force" type="number" min="1" /> N
-          材料 <select v-model="matId" aria-label="材料"><option v-for="m in materials" :key="m.id" :value="m.id">{{ m.name }}</option></select></div>
+        <div class="step"><b>3</b> {{ $t('实际尺寸（拉伸成板件做有限元校核用）') }}</div>
+        <div class="line">{{ preset === 'mbb' ? $t('整根梁长') : $t('长') }} <input v-model.number="length" type="number" min="20" max="2000" /> {{ $t('mm板厚') }} <input v-model.number="thick" type="number" min="1" max="200" /> mm</div>
+        <div class="line">{{ $t('载荷') }} <input v-model.number="force" type="number" min="1" /> {{ $t('N材料') }} <select v-model="matId" :aria-label="$t('材料')"><option v-for="m in materials" :key="m.id" :value="m.id">{{ $td(m.name) }}</option></select></div>
 
-        <button class="btn primary big-w" type="button" :disabled="submitting" @click="submit">{{ submitting ? '提交中…' : '开始拓扑优化' }}</button>
+        <button class="btn primary big-w" type="button" :disabled="submitting" @click="submit">{{ submitting ? $t('提交中…') : $t('开始拓扑优化') }}</button>
         <div v-if="err" class="small warnline">{{ err }}</div>
       </section>
 
       <section class="card grow">
-        <div class="card-head"><h2>{{ job ? job.title : '结果' }}</h2>
-          <span v-if="job" class="pill" :class="TONE[job.status]">{{ STATUS[job.status] }}</span></div>
-        <div v-if="!job" class="big-empty muted">左边选好板件、材料用量，点“开始拓扑优化”。<br />材料会从均匀的灰色慢慢“长”成桁架、拱这样的形状——几秒钟算完。</div>
-        <div v-else-if="job.status !== 'done'" class="jobbar" :class="job.status">{{ job.status === 'failed' ? '失败：' + job.error : '正在计算…（一般几秒到二十秒）' }}</div>
+        <div class="card-head"><h2>{{ job ? job.title : $t('结果') }}</h2>
+          <span v-if="job" class="pill" :class="TONE[job.status]">{{ $td(STATUS[job.status]) }}</span></div>
+        <div v-if="!job" class="big-empty muted">{{ $t('左边选好板件、材料用量，点“开始拓扑优化”。') }}<br />{{ $t('材料会从均匀的灰色慢慢“长”成桁架、拱这样的形状——几秒钟算完。') }}</div>
+        <div v-else-if="job.status !== 'done'" class="jobbar" :class="job.status">{{ job.status === 'failed' ? $t('失败：') + job.error : $t('正在计算…（一般几秒到二十秒）') }}</div>
         <template v-else-if="res">
           <div class="canvas-wrap">
             <canvas ref="cv" class="dens" />
           </div>
           <div class="line">
-            <button class="btn small-btn" type="button" @click="togglePlay">{{ playing ? '暂停' : '▶ 播放生长过程' }}</button>
-            <input v-model.number="frame" type="range" min="0" :max="res.frames.length - 1" step="1" class="grow-in" aria-label="迭代帧" />
-            <span class="small mono">第 {{ res.frames[frame]?.it }} / {{ res.iterations }} 次</span>
+            <button class="btn small-btn" type="button" @click="togglePlay">{{ playing ? $t('暂停') : $t('▶ 播放生长过程') }}</button>
+            <input v-model.number="frame" type="range" min="0" :max="res.frames.length - 1" step="1" class="grow-in" :aria-label="$t('迭代帧')" />
+            <span class="small mono">{{ $t('第 {a} / {b} 次', { a: res.frames[frame]?.it, b: res.iterations }) }}</span>
           </div>
           <div class="cards">
-            <div class="kpi"><span class="small muted">柔度（越小越刚）</span><span class="big">{{ res.history[0][1].toFixed(1) }} → {{ res.compliance.toFixed(1) }}</span>
-              <span class="small">下降 {{ ((1 - res.compliance / res.history[0][1]) * 100).toFixed(0) }}%</span></div>
-            <div class="kpi"><span class="small muted">迭代</span><span class="big">{{ res.iterations }} 次</span>
-              <span class="small">{{ res.converged ? '已收敛' : '到次数上限' }} · {{ res.seconds }} 秒</span></div>
-            <div class="kpi"><span class="small muted">灰色单元</span><span class="big">{{ (res.grey * 100).toFixed(0) }}%</span>
-              <span class="small">越少轮廓越清楚</span></div>
+            <div class="kpi"><span class="small muted">{{ $t('柔度（越小越刚）') }}</span><span class="big">{{ res.history[0][1].toFixed(1) }} → {{ res.compliance.toFixed(1) }}</span>
+              <span class="small">{{ $t('下降 {a}%', { a: ((1 - res.compliance / res.history[0][1]) * 100).toFixed(0) }) }}</span></div>
+            <div class="kpi"><span class="small muted">{{ $t('迭代') }}</span><span class="big">{{ $t('{a} 次', { a: res.iterations }) }}</span>
+              <span class="small">{{ $t('{a} · {b} 秒', { a: res.converged ? $t('已收敛') : $t('到次数上限'), b: res.seconds }) }}</span></div>
+            <div class="kpi"><span class="small muted">{{ $t('灰色单元') }}</span><span class="big">{{ (res.grey * 100).toFixed(0) }}%</span>
+              <span class="small">{{ $t('越少轮廓越清楚') }}</span></div>
           </div>
-          <svg class="chart" viewBox="0 0 640 200" aria-label="柔度随迭代的变化">
-            <text x="44" y="16" class="figt">柔度</text><text x="600" y="194" class="figt">迭代</text>
+          <svg class="chart" viewBox="0 0 640 200" :aria-label="$t('柔度随迭代的变化')">
+            <text x="44" y="16" class="figt">{{ $t('柔度') }}</text><text x="600" y="194" class="figt">{{ $t('迭代') }}</text>
             <line x1="40" y1="180" x2="630" y2="180" stroke="#8A948C" /><line x1="40" y1="20" x2="40" y2="180" stroke="#8A948C" />
             <polyline :points="histPts" fill="none" stroke="var(--accent)" stroke-width="2" />
             <line :x1="hx(res.frames[frame]?.it || 1)" y1="20" :x2="hx(res.frames[frame]?.it || 1)" y2="180" stroke="#D64541" stroke-dasharray="3 3" />
@@ -76,24 +74,24 @@
             <p v-for="(t, i) in (res.explain || '').split('\n')" :key="i" class="exp-p">{{ t }}</p>
           </div>
           <div class="line">
-            <button class="btn primary" type="button" @click="toFea">拉伸成板件，去有限元校核 →</button>
-            <span class="small muted">按密度 0.5 取轮廓、拉伸成 {{ job.spec.thickness_mm }} mm 厚的板，支承、载荷自动填好</span>
+            <button class="btn primary" type="button" @click="toFea">{{ $t('拉伸成板件，去有限元校核 →') }}</button>
+            <span class="small muted">{{ $t('按密度 0.5 取轮廓、拉伸成 {a} mm 厚的板，支承、载荷自动填好', { a: job.spec.thickness_mm }) }}</span>
           </div>
         </template>
       </section>
     </div>
 
     <section class="card">
-      <div class="card-head"><h2>{{ teacher ? '本厂的拓扑优化记录' : '我的拓扑优化记录' }}</h2></div>
-      <div v-if="!jobs.length" class="empty">还没有记录。</div>
+      <div class="card-head"><h2>{{ teacher ? $t('本厂的拓扑优化记录') : $t('我的拓扑优化记录') }}</h2></div>
+      <div v-if="!jobs.length" class="empty">{{ $t('还没有记录。') }}</div>
       <table v-else class="t">
-        <thead><tr><th>名称</th><th v-if="teacher">提交人</th><th>时间</th><th>状态</th><th class="num">体积比</th><th class="num">柔度</th><th></th></tr></thead>
+        <thead><tr><th>{{ $t('名称') }}</th><th v-if="teacher">{{ $t('提交人') }}</th><th>{{ $t('时间') }}</th><th>{{ $t('状态') }}</th><th class="num">{{ $t('体积比') }}</th><th class="num">{{ $t('柔度') }}</th><th></th></tr></thead>
         <tbody><tr v-for="j in jobs" :key="j.id">
-          <td>{{ j.title }}</td><td v-if="teacher">{{ j.owner_name }}</td>
+          <td>{{ $td(j.title) }}</td><td v-if="teacher">{{ $td(j.owner_name) }}</td>
           <td class="small">{{ new Date(j.created * 1000).toLocaleString('zh-CN', { hour12: false }) }}</td>
-          <td><span class="pill" :class="TONE[j.status]">{{ STATUS[j.status] }}</span></td>
-          <td class="num">{{ j.spec?.volfrac }}</td><td class="num">{{ j.stats?.compliance?.toFixed?.(1) ?? '' }}</td>
-          <td><a href="#" @click.prevent="openJob(j.id)">看 →</a></td>
+          <td><span class="pill" :class="TONE[j.status]">{{ $td(STATUS[j.status]) }}</span></td>
+          <td class="num">{{ $td(j.spec?.volfrac) }}</td><td class="num">{{ j.stats?.compliance?.toFixed?.(1) ?? '' }}</td>
+          <td><a href="#" @click.prevent="openJob(j.id)">{{ $t('看 →') }}</a></td>
         </tr></tbody>
       </table>
     </section>
@@ -101,12 +99,13 @@
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { get, post, session } from '../lib/api';
 
 const router = useRouter();
-const STATUS = { queued: '排队', running: '计算中', done: '完成', failed: '失败' };
+const STATUS = { queued: $t('排队'), running: $t('计算中'), done: $t('完成'), failed: $t('失败') };
 const TONE = { queued: 'mute', running: 'info', done: 'good', failed: 'bad' };
 const LENGTH = { mbb: 300, cantilever: 200, bridge: 400, bracket: 150 };
 const teacher = computed(() => !!session.user?.teacher);
@@ -210,7 +209,7 @@ onMounted(async () => {
   try {
     const [p, m] = await Promise.all([get('/opt/topo/presets'), get('/cae/materials')]);
     presets.value = p.presets; maxEl.value = p.max_elements; materials.value = m.materials;
-  } catch (e) { err.value = e.status === 503 ? '计算服务暂时连不上，请稍后再试' : e.message; }
+  } catch (e) { err.value = e.status === 503 ? $t('计算服务暂时连不上，请稍后再试') : e.message; }
   loadJobs();
 });
 onUnmounted(() => { clearTimeout(pollT); clearInterval(playT); });

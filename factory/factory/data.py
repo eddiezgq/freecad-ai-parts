@@ -156,6 +156,14 @@ PRODUCTS = {"WQR-105": FG_SELLING_PRICE}
 MEASURE = {}
 # 第 138 轮：计量室抽检（清单 sampling）：(物料, 之后的工序) → [{unit, every, minutes, chars}]；没有这一节的厂空着
 SAMPLING = {}
+# 第 139 轮：按单设计（清单 eto）：作业号前缀、风险预留、加价率（与参数配置器一样成本 × 1.3）、设计费率、报价有效期、
+# 分期开票里程碑。演示工厂的是示例值（虚构）；企业清单没写这一节为 None（估算算出来是“未知”）
+ETO = {
+    "prefix": "JOB-", "contingency_pct": 10, "markup_pct": 30, "engineering_rate_per_h": 65, "valid_days": 30,
+    "milestones": [{"key": "deposit", "name": "订金 Deposit", "pct": 30, "on": "order"},
+                   {"key": "ship", "name": "发货 Shipment", "pct": 60, "on": "ship"},
+                   {"key": "accept", "name": "验收 Acceptance", "pct": 10, "on": "accept"}],
+}
 
 # 标准外购件（及成品 WQR-105）在问渠零件库里的编号（第 5 轮 P10②）；与零件库各条目的 factory.erp_items 一致（library/tests 核对）
 LIBRARY_REFS = {
@@ -390,6 +398,7 @@ if _P and _P.get("ITEMS"):                # 清单第 2 版：产品、物料、
         _PLANT_TEMPLATES = _P["INSPECTION_TEMPLATES"]
 WORKSTATION_PARALLEL = {}                 # 演示工厂：同时开工数 = 台数
 if _P:
+    ETO = _P.get("ETO")
     WORKSTATIONS = _P["WORKSTATIONS"]
     WORKSTATION_PARALLEL = _P.get("WORKSTATION_PARALLEL") or {}
     OPERATIONS = _P["OPERATIONS"]

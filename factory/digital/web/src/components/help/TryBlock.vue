@@ -3,25 +3,25 @@
        只在教学模式的演示工厂显示；学生只能按自己岗位能做的（服务器 /api/help/try 判定） -->
   <div v-if="show" class="hb try" :class="{ done: res, bad: err }">
     <div class="t-head">
-      <span class="badge small">当场动手</span>
+      <span class="badge small">{{ $t('当场动手') }}</span>
       <b>{{ args.label || a?.label || args.action }}</b>
     </div>
-    <p v-if="args.note" class="small muted note">{{ args.note }}</p>
+    <p v-if="args.note" class="small muted note">{{ $td(args.note) }}</p>
     <div class="acts">
-      <router-link v-if="!loggedIn" class="btn" :to="{ path: '/login', query: { next: $route.fullPath } }">登录后可以当场动手</router-link>
+      <router-link v-if="!loggedIn" class="btn" :to="{ path: '/login', query: { next: $route.fullPath } }">{{ $t('登录后可以当场动手') }}</router-link>
       <template v-else-if="a">
         <button class="btn primary" :disabled="busy || !a.ok || left > 0" :aria-busy="busy" @click="go">
-          <span v-if="busy" class="spin" aria-hidden="true"></span>{{ busy ? '正在做…' : left > 0 ? `${left} 秒后可以再按` : '现在就做' }}</button>
-        <span v-if="!a.ok && !left" class="small muted">{{ a.why }}</span>
+          <span v-if="busy" class="spin" aria-hidden="true"></span>{{ busy ? $t('正在做…') : left > 0 ? $t('{a} 秒后可以再按', { a: left }) : $t('现在就做') }}</button>
+        <span v-if="!a.ok && !left" class="small muted">{{ $td(a.why) }}</span>
       </template>
       <span v-else-if="listErr" class="small muted">{{ listErr }}</span>
     </div>
     <div v-if="res || err" class="out" role="status" aria-live="polite">
       <p v-if="err" class="small errline">{{ err }}</p>
       <template v-else>
-        <p class="small"><span class="ok">✓</span> {{ res.text }}</p>
-        <p class="small muted">{{ at }} · <router-link :to="res.look">去{{ pageTitle(res.look) || '页面' }}看 →</router-link>
-          <span v-if="teacher"> · 想复原：情景导演里“重置实验 7 情景”</span></p>
+        <p class="small"><span class="ok">✓</span> {{ $td(res.text) }}</p>
+        <p class="small muted">{{ at }} · <router-link :to="res.look">{{ $t('去{a}看 →', { a: pageTitle(res.look) || $t('页面') }) }}</router-link>
+          <span v-if="teacher"> {{ $t('· 想复原：情景导演里“重置实验 7 情景”') }}</span></p>
       </template>
     </div>
   </div>
@@ -34,6 +34,7 @@ const shared = reactive({ list: null, err: '', p: null, t: 0 });
 </script>
 
 <script setup>
+import { t as $t } from '../../lib/i18n';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { api, get, loadConfig, session } from '../../lib/api';
 import { pageTitle } from '../../help/pages';

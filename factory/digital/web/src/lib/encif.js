@@ -137,7 +137,7 @@ export function bench({ rpm = 3000, dir = 1, lines = 1000, flen = 3, glitchPerUs
   for (let i = 0; i < 4; i++) { const e = cur(); add(e[0], e[1], e[2], 0, 1, 0, 0); }
   for (let i = 0; i < 4; i++) { const e = cur(); add(e[0], e[1], e[2], 0, 1, 0); }
   const ctrl = 0x01 | (zclr ? 4 : 0) | ((flen & 15) << 4);
-  marks.push({ at: words.length, label: '写 CTRL：滤波 N=' + flen });
+  marks.push({ at: words.length, label: '写 CTRL：滤波 N=' + flen });   // i18n-ok 页面不显示这个说明（纯模型文件，Node 测试也用）
   spi(0x81, ctrl);
   const until = cycles - 600;
   while (words.length < until) {
@@ -146,13 +146,13 @@ export function bench({ rpm = 3000, dir = 1, lines = 1000, flen = 3, glitchPerUs
     if (!gl.a && !gl.b && rnd() < glitchPerUs * dt * 1e6) {
       const w = 1 + Math.floor(rnd() * glitchMax);
       if (rnd() < 0.5) gl.a = w; else gl.b = w;
-      marks.push({ at: i, label: '毛刺 ' + w * 20 + ' ns', glitch: true, width: w });
+      marks.push({ at: i, label: '毛刺 ' + w * 20 + ' ns', glitch: true, width: w });   // i18n-ok 页面不显示这个说明（纯模型文件，Node 测试也用）
     }
     add(gl.a ? 1 - a : a, gl.b ? 1 - b : b, z, 0, 1, 0);
     if (gl.a) gl.a--; if (gl.b) gl.b--;
   }
   const readAt = spi(0x03, 0);
-  marks.push({ at: readAt, label: 'SPI 读 COUNT' });
+  marks.push({ at: readAt, label: 'SPI 读 COUNT' });   // i18n-ok 页面不显示这个说明（纯模型文件，Node 测试也用）
   while (words.length < cycles) { const e = enc(words.length); add(e[0], e[1], e[2], 0, 1, 0); }
   // 逐拍跑模型，记下信号
   const m = new Encif();

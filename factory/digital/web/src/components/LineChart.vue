@@ -1,8 +1,8 @@
 <!-- 简单折线图（第 102 轮）：t 为横轴（秒），series 为 [{ name, data, cls }]，不同 cls 不同颜色；可选 zero 把 0 包进纵轴范围。 -->
 <template>
   <div>
-    <div class="small"><b>{{ title }}</b>
-      <span v-for="s in series" :key="s.name" class="k" :class="s.cls">— {{ s.name }}</span></div>
+    <div class="small"><b>{{ tr(title) }}</b>
+      <span v-for="s in series" :key="s.name" class="k" :class="s.cls">— {{ tr(s.name) }}</span></div>
     <svg :viewBox="'0 0 ' + W + ' ' + H" class="ch">
       <g v-for="g in grid" :key="g.v"><line :x1="PL" :x2="W - 4" :y1="g.y" :y2="g.y" class="gl" />
         <text :x="PL - 4" :y="g.y + 3" class="ax" text-anchor="end">{{ g.v }}</text></g>
@@ -14,6 +14,7 @@
 </template>
 
 <script setup>
+import { t as tr } from '../lib/i18n';
 import { computed } from 'vue';
 
 const props = defineProps({ title: String, t: Array, series: Array, zero: { type: Boolean, default: false } });

@@ -1,8 +1,8 @@
 {
  "board_file": "kicad/drv-joint-b.kicad_pcb",
  "count": {
-  "fail": 6,
-  "pass": 54,
+  "fail": 1,
+  "pass": 59,
   "pending": 7,
   "unknown": 11
  },
@@ -491,22 +491,16 @@
    "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
   },
   {
-   "at": [
-    [
-     146.7,
-     -162.48,
-     "C42 离 U10 第 24 脚 3.5 mm"
-    ]
-   ],
-   "count": 1,
+   "at": [],
+   "count": 0,
    "detail": "C42 的 +3V3 焊盘到 U10 第 24 脚（焊盘边到边）",
    "key": "L-near-C42",
    "limit": 3.0,
    "name": "靠近：C42 去耦 U10 第 24 脚",
    "source": "示例值",
-   "status": "fail",
+   "status": "pass",
    "unit": "mm",
-   "value": 3.49,
+   "value": 1.19,
    "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
   },
   {
@@ -523,22 +517,16 @@
    "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
   },
   {
-   "at": [
-    [
-     139.52,
-     -150.5,
-     "C45 离 U10 第 48 脚 3.0 mm"
-    ]
-   ],
-   "count": 1,
+   "at": [],
+   "count": 0,
    "detail": "C45 的 +3V3 焊盘到 U10 第 48 脚（焊盘边到边）",
    "key": "L-near-C45",
    "limit": 3.0,
    "name": "靠近：C45 去耦 U10 第 48 脚",
    "source": "示例值",
-   "status": "fail",
+   "status": "pass",
    "unit": "mm",
-   "value": 3.03,
+   "value": 0.99,
    "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
   },
   {
@@ -581,60 +569,42 @@
    "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
   },
   {
-   "at": [
-    [
-     138.5,
-     -144.48,
-     "C27 离 U7 第 6 脚 6.7 mm"
-    ]
-   ],
-   "count": 1,
+   "at": [],
+   "count": 0,
    "detail": "C27 的 +3V3 焊盘到 U7 第 6 脚（焊盘边到边）",
    "key": "L-near-C27",
    "limit": 3.0,
    "name": "靠近：C27 去耦 U7 第 6 脚",
    "source": "示例值",
-   "status": "fail",
+   "status": "pass",
    "unit": "mm",
-   "value": 6.69,
+   "value": 0.78,
    "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
   },
   {
-   "at": [
-    [
-     154.5,
-     -144.48,
-     "C28 离 U8 第 6 脚 6.7 mm"
-    ]
-   ],
-   "count": 1,
+   "at": [],
+   "count": 0,
    "detail": "C28 的 +3V3 焊盘到 U8 第 6 脚（焊盘边到边）",
    "key": "L-near-C28",
    "limit": 3.0,
    "name": "靠近：C28 去耦 U8 第 6 脚",
    "source": "示例值",
-   "status": "fail",
+   "status": "pass",
    "unit": "mm",
-   "value": 6.69,
+   "value": 0.78,
    "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
   },
   {
-   "at": [
-    [
-     170.5,
-     -144.48,
-     "C29 离 U9 第 6 脚 6.7 mm"
-    ]
-   ],
-   "count": 1,
+   "at": [],
+   "count": 0,
    "detail": "C29 的 +3V3 焊盘到 U9 第 6 脚（焊盘边到边）",
    "key": "L-near-C29",
    "limit": 3.0,
    "name": "靠近：C29 去耦 U9 第 6 脚",
    "source": "示例值",
-   "status": "fail",
+   "status": "pass",
    "unit": "mm",
-   "value": 6.69,
+   "value": 0.78,
    "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
   },
   {
@@ -671,30 +641,30 @@
    "agree": true,
    "consistent": true,
    "gerber": "pass",
-   "gerber_value": 105,
+   "gerber_value": 108,
    "key": "D1",
    "kicad": "pass",
-   "kicad_value": 105,
+   "kicad_value": 108,
    "name": "物料清单与坐标位号对上"
   },
   {
    "agree": true,
    "consistent": true,
    "gerber": "pass",
-   "gerber_value": 45,
+   "gerber_value": 46,
    "key": "D2",
    "kicad": "pass",
-   "kicad_value": 45,
+   "kicad_value": 46,
    "name": "数量等于位号个数"
   },
   {
    "agree": true,
    "consistent": true,
    "gerber": "pass",
-   "gerber_value": 105,
+   "gerber_value": 108,
    "key": "D4",
    "kicad": "pass",
-   "kicad_value": 105,
+   "kicad_value": 108,
    "name": "坐标正反面与焊盘一致"
   },
   {
@@ -794,7 +764,7 @@
    "gerber_value": null,
    "key": "T1",
    "kicad": "pass",
-   "kicad_value": 0.964,
+   "kicad_value": 0.965,
    "name": "ICT 测试点覆盖率"
   },
   {
@@ -814,11 +784,11 @@
    "count": 0,
    "detail": "",
    "key": "D1",
-   "limit": 105,
+   "limit": 108,
    "name": "物料清单与坐标位号对上",
    "status": "pass",
    "unit": "个位号",
-   "value": 105,
+   "value": 108,
    "why": "物料清单和坐标文件是两份文件，位号对不上，贴片机就会漏贴、多贴或贴错料"
   },
   {
@@ -826,11 +796,11 @@
    "count": 0,
    "detail": "",
    "key": "D2",
-   "limit": 45,
+   "limit": 46,
    "name": "数量等于位号个数",
    "status": "pass",
    "unit": "行",
-   "value": 45,
+   "value": 46,
    "why": "数量和位号个数不一致，备料、报价都会错"
   },
   {
@@ -838,11 +808,11 @@
    "count": 0,
    "detail": "",
    "key": "D4",
-   "limit": 105,
+   "limit": 108,
    "name": "坐标正反面与焊盘一致",
    "status": "pass",
    "unit": "个",
-   "value": 105,
+   "value": 108,
    "why": "坐标写在顶面，焊盘却在底面（或反过来），贴片编程会放错面"
   },
   {
@@ -920,7 +890,7 @@
   {
    "at": [],
    "count": 0,
-   "detail": "105 个器件",
+   "detail": "108 个器件",
    "key": "F6",
    "limit": 0,
    "name": "器件外框不重叠",
@@ -962,7 +932,7 @@
    "name": "ICT 测试点覆盖率",
    "status": "pass",
    "unit": "",
-   "value": 0.964,
+   "value": 0.965,
    "why": "在线测试（ICT）用针床扎测试点；网络上没有能扎的点，这个网络就测不到"
   },
   {
@@ -986,7 +956,7 @@
    "name": "KiCad 设计规则检查（DRC）",
    "status": "pass",
    "unit": "",
-   "value": "错误 0、未连接 0、警告 95",
+   "value": "错误 0、未连接 0、警告 111",
    "why": "KiCad 按工程里的线宽、间距、连通规则查一遍；有错误或没连上的焊盘，板子就不能做"
   }
  ],
@@ -1040,9 +1010,9 @@
     "rds_cold": true,
     "ref": "Q1",
     "status": "unknown",
-    "t_board_c": 141.2,
+    "t_board_c": 140.9,
     "t_sw_ns": 170.9,
-    "tj_c": 142.4,
+    "tj_c": 142.1,
     "tj_max_c": 150
    },
    {
@@ -1065,9 +1035,9 @@
     "rds_cold": true,
     "ref": "Q2",
     "status": "unknown",
-    "t_board_c": 138.9,
+    "t_board_c": 138.4,
     "t_sw_ns": 170.9,
-    "tj_c": 140.1,
+    "tj_c": 139.6,
     "tj_max_c": 150
    },
    {
@@ -1089,9 +1059,9 @@
     "rds_cold": true,
     "ref": "Q3",
     "status": "fail",
-    "t_board_c": 151.6,
+    "t_board_c": 150.9,
     "t_sw_ns": 170.9,
-    "tj_c": 152.8,
+    "tj_c": 152.1,
     "tj_max_c": 150
    },
    {
@@ -1114,16 +1084,16 @@
     "rds_cold": true,
     "ref": "Q4",
     "status": "unknown",
-    "t_board_c": 145.3,
+    "t_board_c": 144.7,
     "t_sw_ns": 170.9,
-    "tj_c": 146.5,
+    "tj_c": 145.9,
     "tj_max_c": 150
    },
    {
     "model": "mosfet",
     "notes": [
      "R_DS(on) 用 25 ℃ 的最大值；结温高时更大，导通损耗偏低",
-     "结温 146 ℃ 没超上限，但损耗偏低，判不了"
+     "结温 145 ℃ 没超上限，但损耗偏低，判不了"
     ],
     "p_w": 0.9864358974358973,
     "parts": [
@@ -1139,16 +1109,16 @@
     "rds_cold": true,
     "ref": "Q5",
     "status": "unknown",
-    "t_board_c": 145.3,
+    "t_board_c": 144.2,
     "t_sw_ns": 170.9,
-    "tj_c": 146.5,
+    "tj_c": 145.4,
     "tj_max_c": 150
    },
    {
     "model": "mosfet",
     "notes": [
      "R_DS(on) 用 25 ℃ 的最大值；结温高时更大，导通损耗偏低",
-     "结温 142 ℃ 没超上限，但损耗偏低，判不了"
+     "结温 139 ℃ 没超上限，但损耗偏低，判不了"
     ],
     "p_w": 0.9864358974358973,
     "parts": [
@@ -1164,9 +1134,9 @@
     "rds_cold": true,
     "ref": "Q6",
     "status": "unknown",
-    "t_board_c": 141.1,
+    "t_board_c": 138.0,
     "t_sw_ns": 170.9,
-    "tj_c": 142.3,
+    "tj_c": 139.2,
     "tj_max_c": 150
    },
    {
@@ -1181,7 +1151,7 @@
     ],
     "ref": "R21",
     "status": "pass",
-    "t_board_c": 116.1
+    "t_board_c": 115.5
    },
    {
     "model": "shunt",
@@ -1195,7 +1165,7 @@
     ],
     "ref": "R22",
     "status": "pass",
-    "t_board_c": 121.4
+    "t_board_c": 120.8
    },
    {
     "model": "shunt",
@@ -1209,7 +1179,7 @@
     ],
     "ref": "R23",
     "status": "pass",
-    "t_board_c": 116.7
+    "t_board_c": 118.2
    }
   ],
   "source": "环境温度 40 ℃、两面自然对流换热系数 10 W/(m²·K) 都是示例假设（电控箱里不通风时的量级）；PWM 20 kHz 取自 drv-joint-b/fw/src/motor.h",
@@ -1218,7 +1188,7 @@
    159.5,
    -107.5
   ],
-  "t_max_c": 151.6,
+  "t_max_c": 150.9,
   "total_w": 6.35
  },
  "title": "关节伺服驱动板 DRV-JOINT B 版（放上编码器接口芯片 WQ-ENCIF、加抱闸驱动；设计对照，不投产）"

@@ -134,6 +134,18 @@ SAMPLE_COLS = [("物料", "item", "str", "抽哪个物料"), ("之后的工序",
                ("代号", "code", "str", "特性代号，不与测量特性重复"), ("名称", "name", "str", ""), ("单位", "cu", "str", ""),
                ("名义", "nominal", "num", ""), ("下限", "lo", "num", ""), ("上限", "hi", "num", ""),
                ("散布σ", "sigma", "num", "仿真车间合成测量值的散布（示例值）")]
+# 第 139 轮：按单设计（可整张不填；不填时估算的风险预留、加价率、设计费率是“未知”）
+ETO_ON_ZH = {"order": "订单确认", "design": "设计发布", "ship": "发货", "accept": "验收"}
+ETO_COLS = [("项目", "key", "str", "下面几项，不用的整行空着"), ("值", "value", "str", ""), ("说明", "note", "str", "")]
+ETO_ROWS = [("prefix", "作业号前缀", "str", "字母开头，不超过 10 位，如 JOB-"),
+            ("contingency_pct", "风险预留（%）", "num", "估算小计上加的预留，0–100"),
+            ("markup_pct", "加价率（%）", "num", "报价 = 成本 × (1 + 加价率)"),
+            ("engineering_rate_per_h", "设计费率（每小时）", "num", "设计、出图、编程每小时多少钱"),
+            ("valid_days", "报价有效天数", "int", "1–365"),
+            ("long_lead_days", "长周期件（天）", "int", "提前期达到多少天算长周期件，可在设计发布前先买；不填按 15 天"),
+            ("accept_days", "验收期（天）", "int", "交货后多少天验收（验收那一期的计划付款日）；不填按 10 天")]
+MS_COLS = [("代号", "key", "str", "英文小写，如 deposit"), ("名称", "name", "str", "如 订金"), ("比例（%）", "pct", "num", "各期加起来 100"),
+           ("开票时点", "on", "eto_on", "/".join(ETO_ON_ZH.values()))]
 PRODUCT_SHEETS = (("物料", ITEM_COLS), ("工艺路线", ROUTE_COLS), ("物料清单", BOM_COLS), ("成品", PROD_COLS),
                   ("库存", STOCK_COLS), ("测量特性", MEAS_COLS), ("计量室抽检", SAMPLE_COLS), ("来料检验", INC_COLS))
 
@@ -212,6 +224,10 @@ def rows_of(p):
         out[sheet] = rows
     if p.get("items"):
         out.update(_product_rows(p))
+    e = p.get("eto")
+    if e:                                       # 第 139 轮：按单设计
+        out["按单设计"] = [[label, e.get(k), note] for k, label, _, note in ETO_ROWS]
+        out["分期开票"] = [[m["key"], m["name"], m["pct"], ETO_ON_ZH.get(m["on"], m["on"])] for m in e.get("milestones") or []]
     inc = [[c, x["name"], x.get("unit"), x.get("lo"), x.get("hi"), x.get("text")]
            for c, v in (p.get("suppliers") or {}).items() for x in v.get("incoming") or []]
     if inc:
@@ -252,6 +268,7 @@ README = [
     "5. 供应商、客户：可空（只在装演示数据时用）。",
     "6. 产品（第 2 版，可整组不填）：物料、工艺路线、物料清单、成品、库存、测量特性六张表；计量室抽检表（第 138 轮）可空。",
     "   工艺路线、物料清单按名称、父件连续几行成一组；外购件的单价、交期不知道就空着，系统标“待确认”，不替你估。",
+    "7. 按单设计、分期开票（第 139 轮，可不填）：作业号前缀、风险预留、加价率、设计费率、报价有效期，各期开票比例。",
     "",
     "填好后转成清单并校验：",
     "    python -m factory.plant import 填好的.xlsx plant.yaml",
@@ -335,7 +352,53 @@ def write_template(path, p=None):
                 ws.add_data_validation(dv)
                 dv.add("{0}3:{0}2000".format(ws.cell(1, i + 1).column_letter))
         ws.freeze_panes = "B3"
+    if "按单设计" in rows:                        # 第 139 轮
+        ws = wb.create_sheet("按单设计")
+        ws.append([c[0] for c in ETO_COLS])
+        for r in rows["按单设计"]:
+            ws.append(r)
+        for c in ws[1]:
+            c.font, c.fill = head, fill
+        for r in range(2, ws.max_row + 1):
+            ws.cell(r, 3).font = note
+        ws.column_dimensions["A"].width, ws.column_dimensions["B"].width, ws.column_dimensions["C"].width = 22, 16, 50
+        ws = wb.create_sheet("分期开票")
+        ws.append([c[0] for c in MS_COLS])
+        ws.append([c[3] for c in MS_COLS])
+        for c in ws[1]:
+            c.font, c.fill = head, fill
+        for c in ws[2]:
+            c.font = note
+        for r in rows["分期开票"]:
+            ws.append(r)
+        dv = DataValidation(type="list", formula1='"{}"'.format(",".join(ETO_ON_ZH.values())), allow_blank=True)
+        ws.add_data_validation(dv)
+        dv.add("D3:D50")
     wb.save(path)
+
+
+def _read_eto(wb, errs):
+    """第 139 轮：按单设计、分期开票两张表 → 清单的 eto 一节（两张都没有返回 None）"""
+    if "按单设计" not in wb.sheetnames and "分期开票" not in wb.sheetnames:
+        return None
+    e = {}
+    if "按单设计" in wb.sheetnames:
+        by_label = {label: (k, kind) for k, label, kind, _ in ETO_ROWS}
+        for r, row in enumerate(wb["按单设计"].iter_rows(min_row=2, values_only=True), start=2):
+            if not row or _blank(row[0]):
+                continue
+            name = str(row[0]).strip()
+            if name not in by_label:
+                errs.append("按单设计表第 {} 行：不认识的项目“{}”".format(r, name))
+                continue
+            k, kind = by_label[name]
+            v = _parse(kind, row[1] if len(row) > 1 else None, _Cell(errs, "按单设计", r, name))
+            if v is not None:
+                e[k] = v
+    ms = [d for _, d in _sheet_rows(wb, "分期开票", MS_COLS, errs)]
+    if ms:
+        e["milestones"] = ms
+    return e or None
 
 
 # ---------------------------------------------------------------- 导入
@@ -377,8 +440,8 @@ def _parse(kind, v, cell):
         if t in ("否", "n", "no", "false", "0"):
             return False
         return cell.bad("填“是”或“否”")
-    if kind in ("area", "stage", "kind"):
-        table = {"area": AREA_ZH, "stage": STAGE_ZH, "kind": KIND_ZH}[kind]
+    if kind in ("area", "stage", "kind", "eto_on"):
+        table = {"area": AREA_ZH, "stage": STAGE_ZH, "kind": KIND_ZH, "eto_on": ETO_ON_ZH}[kind]
         t = str(v).strip()
         for code, zh in table.items():
             if t in (code, zh) or t.lower() == code:
@@ -568,6 +631,9 @@ def read_workbook(path):
             p[key] = items
     if "物料" in wb.sheetnames:
         _read_products(wb, p, errs)
+    eto = _read_eto(wb, errs)
+    if eto:
+        p["eto"] = eto
     if p.get("items") or any(p.get(k) for k in ("routings", "boms", "products")):
         p["version"] = 2
     else:

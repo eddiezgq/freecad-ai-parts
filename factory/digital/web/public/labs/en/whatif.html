@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Overtime, expediting or outsourcing?</title>
+<style>
+/* 虚拟实验 3-2（第 29 轮）：磨床停机后四个方案（不处理、恢复后加班、维修加急、外协）各推演一遍，比钱和交期，标出最划算又保交期的；
+   甘特图循环播放磨床在四个方案下的一周。模型与 course/calc/ch03.py 的 run()、option() 相同 */
+:root{--bg:#eef2f3;--sheet:#fafbfb;--ink:#1b2430;--muted:#5a6570;--rule:#d3dadd;--accent:#1d6b86;--amber:#c27a12;--red:#c0392b;--green:#1f8a4c;--violet:#7444b4;
+  --redsoft:#f7e1de;--greensoft:#ddefe4;--shift:#e6ecef;
+  --f-display:"Noto Serif SC","Songti SC",serif;--f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;--f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#11161b;--sheet:#182029;--ink:#e2e7ec;--muted:#9aa6b2;--rule:#2b3540;--accent:#6cc3dd;--amber:#f0b45a;--red:#ff7b6b;--green:#5fd08f;--violet:#b99af0;
+  --redsoft:#3a2224;--greensoft:#1d3328;--shift:#202a33;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#11161b;--sheet:#182029;--ink:#e2e7ec;--muted:#9aa6b2;--rule:#2b3540;--accent:#6cc3dd;--amber:#f0b45a;--red:#ff7b6b;--green:#5fd08f;--violet:#b99af0;
+  --redsoft:#3a2224;--greensoft:#1d3328;--shift:#202a33;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:1240px;margin:0 auto;padding:18px 16px 36px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;margin-bottom:12px}
+h1{font-family:var(--f-display);font-size:1.5rem;margin:0}
+.sub{color:var(--muted);font-size:.9rem}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:16px}
+@media (max-width:880px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:12px;min-width:0}
+.panel h3{margin:0 0 8px;font-size:.8rem;letter-spacing:.1em;color:var(--muted);font-weight:600}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--f-body);fill:var(--muted);font-size:12px}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.ctl{display:grid;grid-template-columns:minmax(0,10.5em) minmax(90px,1fr) 5.2em;gap:6px 10px;align-items:center}
+.ctl label{font-size:.86rem;color:var(--muted)}
+.ctl b{font-family:var(--f-mono);font-size:.88rem;text-align:right;font-variant-numeric:tabular-nums}
+.ctl .grp{grid-column:1/-1;font-size:.74rem;letter-spacing:.08em;color:var(--muted);border-top:1px solid var(--rule);padding-top:6px;margin-top:2px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+button{font:inherit;font-size:.86rem;border:1px solid var(--rule);background:var(--bg);color:var(--ink);border-radius:5px;padding:4px 10px;cursor:pointer}
+button:hover{border-color:var(--accent)} button.primary{background:var(--accent);color:var(--sheet);border-color:var(--accent)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.kpi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.kpi div{border-top:1px solid var(--rule);padding-top:4px}
+.kpi b{display:block;font-family:var(--f-mono);font-size:1.05rem;font-variant-numeric:tabular-nums}
+.kpi small{color:var(--muted);font-size:.76rem;line-height:1.3;display:block}
+.kpi .hot b{color:var(--amber)}
+.note{font-size:.8rem;color:var(--muted);margin:8px 0 0}
+.tasks{margin:0;padding-left:1.3em;font-size:.9rem} .tasks li{margin:.25em 0}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:14px;height:10px;vertical-align:middle;margin-right:5px;border-radius:2px}
+.tbl{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:.84rem;font-variant-numeric:tabular-nums}
+th,td{padding:4px 6px;border-bottom:1px solid var(--rule);text-align:right;white-space:nowrap}
+td.late,td.ok{white-space:normal;line-height:1.3}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--muted);font-weight:600;font-size:.76rem}
+tr.best td{background:var(--greensoft);font-weight:600}
+td.late{color:var(--red)} td.ok{color:var(--green)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1 data-t="h1"></h1><span class="sub" data-t="sub"></span></header>
+<div class="grid">
+  <div class="col">
+    <div class="panel" id="cmpPanel">
+      <h3 data-t="cmpTitle"></h3>
+      <svg id="cmp" viewBox="0 0 760 262" role="img"></svg>
+      <div class="legend"><span><i style="background:var(--accent)"></i><span data-t="lgExtra"></span></span><span><i style="background:var(--redsoft);border:1px solid var(--red)"></i><span data-t="lgPen"></span></span><span>★ <span data-t="lgBest"></span></span></div>
+      <div class="tbl"><table id="tbl"></table></div>
+    </div>
+    <div class="panel" id="ganttPanel">
+      <h3 data-t="gTitle"></h3>
+      <svg id="gantt" viewBox="0 0 760 260" role="img"></svg>
+      <div class="legend"><span><i style="background:var(--violet)"></i><span data-t="nF"></span></span><span><i style="background:var(--accent)"></i><span data-t="nR"></span></span><span><i style="background:var(--muted)"></i><span data-t="nH"></span></span><span><i style="background:var(--redsoft);border:1px solid var(--red)"></i><span data-t="lgDown"></span></span><span><i style="border:2px solid var(--amber)"></i><span data-t="lgOt"></span></span></div>
+      <div class="row"><button class="primary" id="play" data-t="play"></button><span class="note" id="clock" style="margin:0"></span></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel">
+      <h3 data-t="params"></h3>
+      <div class="row" style="margin:0 0 10px"><span class="note" style="margin:0" data-t="presets"></span><button data-p="book" data-t="pBook"></button><button data-p="d30" data-t="pD30"></button><button data-p="d40" data-t="pD40"></button><button data-p="dec" data-t="pDec"></button></div>
+      <div class="ctl">
+        <label for="D" data-t="lD"></label><input id="D" type="range" min="2" max="60" step="1" value="24"><b id="Dv"></b>
+        <span class="grp" data-t="gB"></span>
+        <label for="ot" data-t="lOt"></label><input id="ot" type="range" min="0" max="240" step="6" value="120"><b id="otv"></b>
+        <label for="otr" data-t="lOtr"></label><input id="otr" type="range" min="40" max="150" step="1" value="78"><b id="otrv"></b>
+        <span class="grp" data-t="gC"></span>
+        <label for="exp" data-t="lExp"></label><input id="exp" type="range" min="0" max="1500" step="10" value="300"><b id="expv"></b>
+        <label for="dec" data-t="lDec"></label><input id="dec" type="range" min="0" max="12" step="1" value="0"><b id="decv"></b>
+        <span class="grp" data-t="gD"></span>
+        <label for="outn" data-t="lOutn"></label><input id="outn" type="range" min="0" max="20" step="1" value="4"><b id="outnv"></b>
+        <label for="outp" data-t="lOutp"></label><input id="outp" type="range" min="20" max="120" step="0.01" value="43.94"><b id="outpv"></b>
+        <label for="outd" data-t="lOutd"></label><input id="outd" type="range" min="6" max="72" step="6" value="24"><b id="outdv"></b>
+        <span class="grp" data-t="gA"></span>
+        <label for="pen" data-t="lPen"></label><input id="pen" type="range" min="0" max="2000" step="50" value="200"><b id="penv"></b>
+      </div>
+    </div>
+    <div class="panel">
+      <h3 data-t="results"></h3>
+      <div class="kpi">
+        <div class="hot"><b id="kBest"></b><small data-t="kBest"></small></div>
+        <div class="hot"><b id="kCost"></b><small data-t="kCost"></small></div>
+        <div><b id="kL"></b><small data-t="kL"></small></div>
+        <div><b id="kShort"></b><small data-t="kShort"></small></div>
+        <div><b id="kOt"></b><small data-t="kOt"></small></div>
+        <div><b id="kOut"></b><small data-t="kOut"></small></div>
+      </div>
+      <p class="note" id="verdict"></p>
+    </div>
+    <div class="panel">
+      <h3 data-t="tasksTitle"></h3>
+      <ol class="tasks" id="tasks"></ol>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+(function () {
+  var zh = (document.documentElement.lang || '').indexOf('zh') === 0;
+  var TX = {
+    h1: ['虚拟实验 3-2　加班、加急还是外协', 'Virtual lab 3-2  Overtime, expediting or outsourcing?'],
+    sub: ['磨床 GRD-01 周一 10:00 停机：四个方案各推演一遍，比多花的钱和交期；先保交期，再比钱', 'Grinder GRD-01 stops at 10:00 Monday: simulate four options and compare extra cost and delivery; delivery first, then money'],
+    cmpTitle: ['四个方案：多花的钱（加班费、加急费、外协费 + 违约金）', 'Four options: extra cost (overtime, expediting, outsourcing + penalties)'],
+    lgExtra: ['方案本身的花费', 'cost of the remedy'], lgPen: ['违约金', 'penalties'], lgBest: ['先保交期、再比钱的第一名', 'first on delivery, then money'],
+    gTitle: ['磨床这一周（每天 08:00–21:00，含可能的加班）：四个方案', 'The grinder’s week (08:00–21:00 each day, including possible overtime): four options'],
+    play: ['▶ 播放', '▶ Play'], pause: ['❚❚ 暂停', '❚❚ Pause'],
+    params: ['参数', 'Parameters'], presets: ['情景：', 'Scenario:'],
+    pBook: ['本章：停 24 h', 'Chapter: 24 h'], pD30: ['停 30 h', '30 h down'], pD40: ['停 40 h', '40 h down'], pDec: ['晚 6 h 才加急', 'Expedite 6 h late'],
+    lD: ['停机时长（h）', 'Downtime (h)'],
+    gA: ['A 不处理', 'A Do nothing'], gB: ['B 恢复后加班（机器人订单磨完就停）', 'B Overtime after repair (stops when the robot order is done)'],
+    gC: ['C 维修加急（剩余停机减半）', 'C Expedite the repair (remaining downtime halved)'], gD: ['D 外协机器人订单的轴', 'D Outsource the robot order’s shafts'],
+    lOt: ['每天最多加班（分钟）', 'Max overtime a day (min)'], lOtr: ['加班费（$/h）', 'Overtime rate ($/h)'],
+    lExp: ['加急费（$）', 'Expediting fee ($)'], lDec: ['晚几小时才决定（h）', 'Decided how late (h)'],
+    lOutn: ['外协台数（每台 3 根轴）', 'Units outsourced (3 shafts each)'], lOutp: ['每台外协价（$）', 'Price per unit ($)'], lOutd: ['外协回厂（h）', 'Back after (h)'],
+    lPen: ['机器人订单违约金（$/工作日）', 'Robot order penalty ($/working day)'],
+    results: ['结果', 'Results'],
+    kBest: ['推荐方案（先交期、再钱、再加班）', 'Recommended (delivery, then money, then overtime)'], kCost: ['推荐方案多花的钱', 'Extra cost of the recommendation'],
+    kL: ['真正丢掉的生产时间 L', 'Production time really lost, L'], kShort: ['机器人订单还差（L − 余量）', 'Robot order short by (L − slack)'],
+    kOt: ['保交期最少要加班（每天上限 4 h）', 'Least overtime that keeps the date (cap 4 h a day)'], kOut: ['保交期最少要外协', 'Fewest units to outsource to keep the date'],
+    tasksTitle: ['实验任务', 'Tasks'],
+    tasks: [['点“本章：停 24 h”，读出四个方案的花费和交期，与教材表 3-3 核对；为什么维修加急花了钱还晚？', 'Press “Chapter: 24 h” and read the cost and delivery of the four options; check against Table 3-3. Why is expediting late despite the money?'],
+            ['把停机时长从 2 h 拖到 48 h，记下推荐方案在哪些时长变了，与教材图 3-3 对照。', 'Drag the downtime from 2 h to 48 h, note where the recommendation changes, and compare with Figure 3-3.'],
+            ['点“停 30 h”：手算说加班 8.2 h 就够，推演呢？把加班上限拉到 240 分钟再看。', 'Press “30 h down”: the hand calculation says 8.2 h of overtime is enough. What does the simulation say? Raise the cap to 240 minutes and look again.'],
+            ['把外协回厂时间拉到 48 h、外协价改成 $30，各方案怎样变？什么时候外协比加班划算？', 'Set the return time to 48 h and the price to $30. How do the options change? When does outsourcing beat overtime?'],
+            ['点“晚 6 h 才加急”：加急的效果变了吗？为什么？', 'Press “Expedite 6 h late”: does expediting do any worse? Why?']],
+    opt: [['A 不处理', 'A Do nothing'], ['B 加班', 'B Overtime'], ['C 维修加急', 'C Expedite'], ['D 外协', 'D Outsource']],
+    th: [['方案', 'Option'], ['机器人订单磨完', 'Robot order done'], ['交期', 'Delivery'], ['方案花费', 'Remedy'], ['违约金', 'Penalties'], ['合计', 'Total']],
+    onTime: ['按时', 'on time'], lateN: ['晚 {n} 天', '{n} days late'], lateN1: ['晚 1 天', '1 day late'], rOk: ['机器人按时', 'robot on time'], rL: ['机器人', 'robot '], fL: ['峰顶', 'Summit '],
+    nF: ['峰顶', 'Summit'], nR: ['机器人厂', 'Robot plant'], nH: ['海港', 'Harbor'], lgDown: ['停机', 'down'], lgOt: ['加班', 'overtime'],
+    dead: ['机器人订单最晚（周三当天）', 'robot order latest (Wednesday)'],
+    days: [['周一', '周二', '周三', '周四', '周五', '周六', '周日'], ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']],
+    none: ['做不到', 'not possible'], zero: ['不用', 'none needed'], units: ['{n} 台', '{n} units'],
+    vSave: ['不处理也按时：什么都不用做', 'On time even if nothing is done: no action needed'],
+    vBest: ['{b}：按时，多花 ${c}；比不处理{d}', '{b}: on time for ${c} extra; {d} than doing nothing'],
+    cheaper: ['省 ${v}', '${v} cheaper'], dearer: ['多花 ${v}（为保交期）', '${v} dearer (to keep the date)'],
+    vNoSave: ['没有一个方案能保住所有订单。按中枢的规则（先看最晚的订单晚几天，一样多时比钱），{b} 排第一，它让 {n} 张订单晚交。晚交的张数不在排序里：哪张先救，要人来权衡，也要和客户商量交期', 'No option saves every order. By the hub’s rule (first the delay of the latest order, then money when that is equal), {b} ranks first; it makes {n} order(s) late. The number of late orders is not part of the ranking: which order to save is for people to weigh, and the date is for talking over with the customer']
+  };
+  function T_(k) { var v = TX[k]; return v ? v[zh ? 0 : 1] : k; }
+  function P_(x) { return x[zh ? 0 : 1]; }
+  function ST(o, sep) {   // 交期状态：机器人订单 + 峰顶（晚了才写）
+    if (!o.worst) return T_('onTime');
+    var a = o.late.R ? (zh ? '机器人' : 'robot ') + LN(o.late.R) : T_('rOk');
+    return o.late.F ? a + (sep || ' · ') + (zh ? '峰顶' : 'Summit ') + LN(o.late.F) : a;
+  }
+  function LN(n) { return n === 1 ? T_('lateN1') : T_('lateN').replace('{n}', n); }
+  document.querySelectorAll('[data-t]').forEach(function (e) { e.textContent = T_(e.dataset.t); });
+  document.getElementById('tasks').innerHTML = TX.tasks.map(function (x) { return '<li>' + P_(x) + '</li>'; }).join('');
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt = function (x, d) { return x.toLocaleString(zh ? 'zh-CN' : 'en-US', { minimumFractionDigits: d, maximumFractionDigits: d }); };
+
+  // ---------------- 模型（与 course/calc/ch03.py 相同）
+  var SET = 39, SH0 = 480, SH1 = 1020, QTY = { F: 8, R: 20, H: 12 }, DUE = { F: 2, R: 3, H: 12 }, PEN_F = 200, DOWN = 1, FREIGHT = 50, EXP_F = 0.5, OT_MAX = 240;
+  var TB = 10 * 60, ORDER = ['F', 'R', 'H'];
+  function isWd(d) { return d % 7 < 5; }
+  function wdIndex(n) { var d = 0, k = 0; for (;;) { if (isWd(d)) { if (k === n) return d; k++; } d++; } }
+  function run(o) {   // o: {D, ot, factor, nOut, outH, dec}
+    var up = TB + o.D * 60;
+    if (o.factor < 1) { var td = TB + (o.dec || 0) * 60; if (td < up) up = td + (up - td) * o.factor; }
+    var items = ORDER.map(function (k) { return [k, QTY[k] * SET - (k === 'R' ? (o.nOut || 0) * SET : 0)]; }).filter(function (x) { return x[1] > 1e-9; });
+    var fin = {}, segs = [], ots = [], otUsed = 0, rDone = !items.some(function (x) { return x[0] === 'R'; }), upDay = Math.floor(up / 1440);
+    for (var d = 0; items.length && d < 60; d++) {
+      if (!isWd(d)) continue;
+      var s = d * 1440 + SH0, e = d * 1440 + SH1, t = Math.max(s, up, TB);
+      while (items.length) {
+        var lim = e + ((o.ot && d >= upDay && !rDone) ? o.ot : 0);
+        if (t >= lim) break;
+        var take = Math.min(items[0][1], lim - t);
+        segs.push([items[0][0], t, t + take]);
+        if (t + take > e) { otUsed += t + take - Math.max(t, e); ots.push([Math.max(t, e), t + take]); }
+        t += take; items[0][1] -= take;
+        if (items[0][1] <= 1e-9) { var k = items.shift()[0]; fin[k] = t; if (k === 'R') rDone = true; }
+      }
+    }
+    if (o.nOut) fin.R = Math.max(fin.R || TB, TB + o.outH * 60);
+    return { fin: fin, up: up, segs: segs, ots: ots, otMin: otUsed };
+  }
+  function delivery(fin) { var d = Math.floor(fin / 1440), k = DOWN; while (k) { d++; if (isWd(d)) k--; } return d; }
+  function late(fin, key) { var due = wdIndex(DUE[key]), p = delivery(fin), n = 0; for (var x = due + 1; x <= p; x++) if (isWd(x)) n++; return n; }
+  function lost(tb, up) { var tot = 0; for (var d = Math.floor(tb / 1440); d <= Math.floor(up / 1440); d++) if (isWd(d)) tot += Math.max(0, Math.min(d * 1440 + SH1, up) - Math.max(d * 1440 + SH0, tb)); return tot / 60; }
+  function hm(t) { var d = Math.floor(t / 1440), m = Math.round(t - d * 1440); if (m === 1440) { d++; m = 0; } return TX.days[zh ? 0 : 1][d % 7] + ' ' + String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); }
+
+  function v() { var o = {}; ['D', 'ot', 'otr', 'exp', 'dec', 'outn', 'outp', 'outd', 'pen'].forEach(function (k) { o[k] = +$(k).value; }); return o; }
+  function evalOpt(kind, p, extra) {
+    var r = run(extra), lt = {}, pen = 0;
+    ORDER.forEach(function (k) { lt[k] = late(r.fin[k], k); pen += lt[k] * (k === 'R' ? p.pen : k === 'F' ? PEN_F : 0); });
+    var cost = kind === 'B' ? r.otMin / 60 * p.otr : kind === 'C' ? p.exp : kind === 'D' ? (p.outn ? p.outn * p.outp + FREIGHT : 0) : 0;
+    return { kind: kind, r: r, late: lt, pen: pen, cost: cost, total: cost + pen, worst: Math.max(lt.F, lt.R, lt.H), ot: r.otMin };
+  }
+  function compute() {
+    var p = v();
+    var O = [evalOpt('A', p, { D: p.D }), evalOpt('B', p, { D: p.D, ot: p.ot }), evalOpt('C', p, { D: p.D, factor: EXP_F, dec: p.dec }),
+             evalOpt('D', p, { D: p.D, nOut: p.outn, outH: p.outd })];
+    var best = O.slice().sort(function (a, b) { return (a.worst - b.worst) || (a.total - b.total) || (a.ot - b.ot); })[0];
+    var base = run({ D: 0 }), L = lost(TB, TB + p.D * 60);
+    var dl = wdIndex(DUE.R - DOWN) * 1440 + SH1, slack = (dl - base.fin.R) / 60;      // 不停机时周三 10:12 磨完，同一天
+    var otNeed = null, m;
+    for (m = 0; m <= OT_MAX; m += 1) { var r = run({ D: p.D, ot: m }); if (!late(r.fin.R, 'R')) { otNeed = r.otMin / 60; break; } }
+    var outNeed = null;
+    for (m = 0; m <= 20; m++) { var r2 = run({ D: p.D, nOut: m, outH: p.outd }); if (!late(r2.fin.R, 'R')) { outNeed = m; break; } }
+    return { p: p, O: O, best: best, L: L, short: L - slack, otNeed: otNeed, outNeed: outNeed };
+  }
+
+  // ---------------- 柱状图 + 表
+  var COLS = ['var(--muted)', 'var(--amber)', 'var(--red)', 'var(--accent)'];
+  function drawCmp(c) {
+    var X0 = 70, Y0 = 200, Y1 = 30, top = Math.max(600, Math.max.apply(null, c.O.map(function (o) { return o.total; })) * 1.15), s = '', i;
+    var nice = [600, 800, 1000, 1200, 1500, 2000, 2500, 3000, 4000, 5000, 6000, 8000]; for (i = 0; i < nice.length && nice[i] < top; i++); top = nice[Math.min(i, nice.length - 1)];
+    var sy = function (vv) { return Y0 - (Y0 - Y1) * vv / top; };
+    for (i = 0; i <= 4; i++) { var y = sy(top * i / 4); s += '<line x1="' + X0 + '" x2="740" y1="' + y + '" y2="' + y + '" stroke="var(--rule)"/><text x="' + (X0 - 8) + '" y="' + (y + 4) + '" text-anchor="end">$' + fmt(top * i / 4, 0) + '</text>'; }
+    c.O.forEach(function (o, k) {
+      var x = X0 + 30 + k * 168, w = 100, isB = o === c.best;
+      s += '<rect x="' + x + '" y="' + sy(o.cost) + '" width="' + w + '" height="' + (Y0 - sy(o.cost)) + '" fill="' + COLS[k] + '" opacity=".85"/>';
+      if (o.pen) s += '<rect x="' + x + '" y="' + sy(o.total) + '" width="' + w + '" height="' + (sy(o.cost) - sy(o.total)) + '" fill="var(--redsoft)" stroke="var(--red)"/>';
+      if (isB) s += '<rect x="' + (x - 4) + '" y="' + (sy(o.total) - 4) + '" width="' + (w + 8) + '" height="' + (Y0 - sy(o.total) + 4) + '" fill="none" stroke="var(--green)" stroke-width="2.5"/>';
+      s += '<text x="' + (x + w / 2) + '" y="' + (sy(o.total) - 10) + '" text-anchor="middle" style="font-weight:700;fill:var(--ink);font-size:13px">' + (isB ? '★ ' : '') + '$' + fmt(o.total, 0) + '</text>';
+      s += '<text x="' + (x + w / 2) + '" y="' + (Y0 + 18) + '" text-anchor="middle" style="fill:var(--ink);font-weight:600">' + P_(TX.opt[k]) + '</text>';
+      ST(o, '|').split('|').forEach(function (ln, q) {
+        s += '<text x="' + (x + w / 2) + '" y="' + (Y0 + 36 + q * 16) + '" text-anchor="middle" style="fill:' + (o.worst ? 'var(--red)' : 'var(--green)') + '">' + ln + '</text>';
+      });
+    });
+    $('cmp').innerHTML = s;
+    var h = '<tr>' + TX.th.map(function (x) { return '<th>' + P_(x) + '</th>'; }).join('') + '</tr>';
+    c.O.forEach(function (o, k) {
+      h += '<tr' + (o === c.best ? ' class="best"' : '') + '><td>' + (o === c.best ? '★ ' : '') + P_(TX.opt[k]) + '</td><td>' + hm(o.r.fin.R) + '</td><td class="' + (o.worst ? 'late' : 'ok') + '">' +
+        ST(o, '<br>') + '</td><td>$' + fmt(o.cost, 2) + '</td><td>$' + fmt(o.pen, 0) + '</td><td>$' + fmt(o.total, 2) + '</td></tr>';
+    });
+    $('tbl').innerHTML = h;
+  }
+
+  // ---------------- 甘特图（每天只画 08:00–21:00），播放头循环扫过一周
+  var GL = 96, GR = 750, DAYW = (GR - GL) / 5, H0 = 480, H1 = 1260;
+  function gx(t) { var d = Math.floor(t / 1440), m = t - d * 1440; if (!isWd(d)) return GL + DAYW * Math.min(5, wdCount(d)); return GL + DAYW * (wdCount(d) + Math.max(0, Math.min(1, (m - H0) / (H1 - H0)))); }
+  function wdCount(d) { var k = 0; for (var i = 0; i < d; i++) if (isWd(i)) k++; return k; }
+  var head = 1e9;   // 播放头（分钟）；不播放时画全
+  function drawGantt(c) {
+    var s = '', i, colOf = { F: 'var(--violet)', R: 'var(--accent)', H: 'var(--muted)' }, END = 4 * 1440 + H1;
+    for (i = 0; i < 5; i++) {
+      var x0 = GL + DAYW * i;
+      s += '<rect x="' + x0 + '" y="20" width="' + (DAYW * (SH1 - H0) / (H1 - H0)) + '" height="208" fill="var(--shift)"/>';
+      s += '<text x="' + (x0 + DAYW / 2) + '" y="14" text-anchor="middle">' + TX.days[zh ? 0 : 1][i] + '</text>';
+      s += '<line x1="' + x0 + '" x2="' + x0 + '" y1="20" y2="228" stroke="var(--rule)"/>';
+    }
+    var hd = Math.min(head, END);
+    c.O.forEach(function (o, k) {
+      var y = 30 + k * 50;
+      s += '<text x="' + (GL - 8) + '" y="' + (y + 20) + '" text-anchor="end" style="fill:var(--ink)">' + P_(TX.opt[k]) + '</text>';
+      if (c.p.D > 0) {
+        var a = TB, b = Math.min(o.r.up, hd);
+        for (var d = 0; d < 5; d++) { var ds = Math.max(a, d * 1440 + H0), de = Math.min(b, d * 1440 + H1); if (de > ds) s += '<rect x="' + gx(ds).toFixed(1) + '" y="' + y + '" width="' + (gx(de) - gx(ds)).toFixed(1) + '" height="30" fill="var(--redsoft)" stroke="var(--red)"/>'; }
+      }
+      o.r.segs.forEach(function (g) { if (g[1] >= Math.min(hd, END)) return; var e = Math.min(g[2], hd, END); s += '<rect x="' + gx(g[1]).toFixed(1) + '" y="' + (y + 3) + '" width="' + Math.max(0.6, gx(e) - gx(g[1])).toFixed(1) + '" height="24" fill="' + colOf[g[0]] + '" opacity=".88"/>'; });
+      o.r.ots.forEach(function (g) { if (g[0] >= hd) return; var e = Math.min(g[1], hd); s += '<rect x="' + gx(g[0]).toFixed(1) + '" y="' + (y - 1) + '" width="' + Math.max(1.5, gx(e) - gx(g[0])).toFixed(1) + '" height="32" fill="none" stroke="var(--amber)" stroke-width="2"/>'; });
+      if (o.kind === 'D' && c.p.outn) { var back = TB + c.p.outd * 60; if (back <= hd && back < END) s += '<circle cx="' + gx(back).toFixed(1) + '" cy="' + (y + 15) + '" r="6" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="' + (gx(back) + 9).toFixed(1) + '" y="' + (y - 3) + '" style="fill:var(--accent);font-size:11px;font-weight:600">' + c.p.outn + (zh ? ' 台回厂' : ' back') + '</text>'; }
+      if (o.r.fin.R <= hd) { var fx = Math.min(gx(o.r.fin.R), GR); s += '<path d="M' + fx.toFixed(1) + ' ' + (y - 4) + ' l-5 -7 h10 z" fill="' + (o.late.R ? 'var(--red)' : 'var(--green)') + '"/>'; }
+    });
+    var dl = wdIndex(DUE.R - DOWN) * 1440 + H1;
+    s += '<line x1="' + gx(dl) + '" x2="' + gx(dl) + '" y1="20" y2="232" stroke="var(--ink)" stroke-dasharray="4 3"/><text x="' + (gx(dl) - 4) + '" y="246" text-anchor="end" style="fill:var(--ink)">' + T_('dead') + '</text>';
+    if (head < END) s += '<line x1="' + gx(hd) + '" x2="' + gx(hd) + '" y1="20" y2="228" stroke="var(--amber)" stroke-width="2"/>';
+    $('gantt').innerHTML = s;
+    $('clock').textContent = head < END ? hm(hd) : '';
+  }
+
+  function draw() {
+    var c = compute(), p = c.p;
+    drawCmp(c); drawGantt(c);
+    var bi = c.O.indexOf(c.best), A = c.O[0];
+    $('kBest').textContent = P_(TX.opt[bi]);
+    $('kCost').textContent = '$' + fmt(c.best.total, 2);
+    $('kL').textContent = fmt(c.L, 1) + ' h';
+    $('kShort').textContent = fmt(Math.max(0, c.short), 1) + ' h';
+    $('kOt').textContent = c.otNeed === null ? T_('none') : c.otNeed < 1e-6 ? T_('zero') : fmt(c.otNeed, 1) + ' h';
+    $('kOut').textContent = c.outNeed === null ? T_('none') : c.outNeed === 0 ? T_('zero') : T_('units').replace('{n}', c.outNeed);
+    var vt;
+    if (!A.worst) vt = T_('vSave');
+    else if (c.best.worst) vt = T_('vNoSave').replace('{b}', P_(TX.opt[bi])).replace('{n}', ['F', 'R', 'H'].filter(function (k) { return c.best.late[k]; }).length);
+    else { var dlt = c.best.total - A.total; vt = T_('vBest').replace('{b}', P_(TX.opt[bi])).replace('{c}', fmt(c.best.total, 2)).replace('{d}', dlt <= 0 ? T_('cheaper').replace('{v}', fmt(-dlt, 2)) : T_('dearer').replace('{v}', fmt(dlt, 2))); }
+    $('verdict').textContent = vt;
+    $('Dv').textContent = p.D + ' h'; $('otv').textContent = p.ot + (zh ? ' 分' : ' min'); $('otrv').textContent = '$' + p.otr;
+    $('expv').textContent = '$' + fmt(p.exp, 0); $('decv').textContent = p.dec + ' h'; $('outnv').textContent = p.outn;
+    $('outpv').textContent = '$' + fmt(p.outp, 2); $('outdv').textContent = p.outd + ' h'; $('penv').textContent = '$' + fmt(p.pen, 0);
+  }
+
+  var playing = false, last = 0, hold = 0, SPAN = 4 * 1440 + H1;
+  function loop(now) {
+    if (!playing) return;
+    var dt = Math.min(0.1, (now - (last || now)) / 1000); last = now;
+    if (head >= SPAN) { hold += dt; if (hold > 2.5) { hold = 0; head = TB; } }
+    else head += dt * 900;          // 每秒约 15 工厂小时，跑完一周约 7 秒
+    drawGantt(compute());
+    requestAnimationFrame(loop);
+  }
+  function setPlay(on) { playing = on; $('play').textContent = T_(on ? 'pause' : 'play'); last = 0; if (on) { if (head >= SPAN) head = TB; requestAnimationFrame(loop); } else { head = 1e9; draw(); } }
+  $('play').onclick = function () { setPlay(!playing); };
+  var PRE = { book: [24, 120, 78, 300, 0, 4, 43.94, 24, 200], d30: [30, 120, 78, 300, 0, 13, 43.94, 24, 200], d40: [40, 120, 78, 300, 0, 15, 43.94, 24, 200], dec: [24, 120, 78, 300, 6, 4, 43.94, 24, 200] };
+  var KEYS = ['D', 'ot', 'otr', 'exp', 'dec', 'outn', 'outp', 'outd', 'pen'];
+  document.querySelectorAll('[data-p]').forEach(function (b) {
+    b.onclick = function () { var q = PRE[b.dataset.p]; KEYS.forEach(function (k, i) { $(k).value = q[i]; }); draw(); };
+  });
+  KEYS.forEach(function (k) { $(k).addEventListener('input', draw); });
+  draw();
+  window.__lab = { play: setPlay, draw: draw };   // 课件片段用：暂停/播放
+  if (location.protocol === 'about:' || /[?&]auto/.test(location.search)) { head = TB; setPlay(true); }
+})();
+</script>
+</body>
+</html>

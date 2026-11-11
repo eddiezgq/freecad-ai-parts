@@ -228,6 +228,22 @@ def main():
         return evs if any(e["data"].get("last_op") for e in evs) else None
     done = wait(finished, "10 根轴全部完工", A.timeout, 3)
     print("   用时 {:.0f} 秒".format(time.time() - t0))
+    if not done:                         # 诊断（第 134 轮）：每道工序做了几件、每台设备最后的状态（缺人、下班、故障、排队）
+        evs = [e["data"] for e in hub("GET", "/api/history?type=machine.event&corr={}&limit=500".format(wo), token=op)]
+        cnt = {}
+        for e in evs:
+            if e.get("event") in ("cycle_end", "op_complete"):
+                cnt.setdefault(e.get("operation"), {}).setdefault(e["event"], 0)
+                cnt[e.get("operation")][e["event"]] += 1
+        check(False, "诊断 每道工序：{}".format(json.dumps(cnt, ensure_ascii=False)))
+        last = {}
+        for m in hub("GET", "/api/history?type=machine.status&limit=400", token=op):
+            u = m["data"].get("unit") or m.get("source", "").split("/")[-1]
+            if u in {d["unit"] for d in rel} and u not in last:
+                last[u] = m["data"]
+        for u, x in sorted(last.items()):
+            check(False, "诊断 {}：{}".format(u, json.dumps({k: x.get(k) for k in ("state", "work_order", "operation", "qty_done", "queue", "off_shift",
+                                                                                  "staff_level", "no_staff", "alarm", "factory_ts")}, ensure_ascii=False)))
     check(done and len(done) == 7, "7 道工序全部完工")
     if REAL:
         # 真 ERPNext 每记一次工时要一两秒，桥接按顺序补记：等作业卡全部提交、完工入库做完再核对
@@ -406,6 +422,7 @@ def main():
     check(st["of"] == 60 and len(st["tasks"]) == 5, "实验 15 页：5 个任务，自动评 60 分")
     hub("POST", "/api/mes/cmd", {"unit": "grd-01", "command": "reset"}, teacher)
     customer_and_service(teacher)
+    eto(teacher)
     safety(teacher)
     maintenance(teacher)
     people(teacher)
@@ -528,6 +545,159 @@ def customer_and_service(teacher):
     check(st["of"] == 60 and len(st["tasks"]) == 5, "实验 16 页：5 个任务，自动评 60 分")
     k = hub("GET", "/api/service/kpis", token=teacher)
     check("open_complaints" in k and "funnel_amount" in k, "客户与服务态势：开着的投诉 {}，漏斗 ${}".format(k.get("open_complaints"), k.get("funnel_amount")))
+
+
+def eto(teacher):
+    """第 139 轮 139a：按单设计——询价建作业、估算（手填，结果确定）、报价提议 → 确认 → ERPNext 建 Project、物料、报价单"""
+    print("13b. 按单设计：估算与报价（第 139 轮）")
+    sales = login("测试销售", "sales")
+    j = hub("POST", "/api/eto/jobs", {"customer": "示例·闭环测试客户 (Demo)", "title": "闭环测试非标轴", "requirement": "按图加长输出轴",
+                                      "qty": 2, "qty_breaks": [5], "due_date": delivery_date()}, sales)
+    jn = j["job_no"]
+    lines = [{"kind": "material", "item_code": "RM-45-D50", "qty_per": 4},
+             {"kind": "operation", "op": "粗车 Rough turning", "setup_min": 20, "run_min": 15},
+             {"kind": "outside", "desc": "发黑", "unit_price": 5},
+             {"kind": "engineering", "desc": "改图", "hours": 2}]
+    d = hub("PUT", "/api/eto/jobs/{}/estimate".format(jn), {"lines": lines}, sales)
+    b2 = next(b for b in d["result"]["breaks"] if b["qty"] == 2)
+    # 2 件：材料 4 × 1.6 × 2 = 12.8；粗车 (20 + 30) / 60 × 48 = 40；外协 10；设计 2 × 65 = 130 → 小计 192.8
+    check(d["result"]["can_quote"] and b2["subtotal"] == 192.8 and b2["price"] == round(192.8 * 1.1 * 1.3, 2),
+          "估算 {}：2 件报 ${}（手算一致）".format(jn, b2["price"]))
+    q = hub("POST", "/api/eto/jobs/{}/quote".format(jn), token=sales)
+    hub("POST", "/api/proposals/{}/confirm".format(q["proposal_id"]), token=sales)
+    prop = wait(lambda: (lambda x: x if x["status"] in ("executed", "failed") else None)(
+        hub("GET", "/api/proposals/" + q["proposal_id"], token=sales)), "桥接建项目、物料、报价单", 120, 2)
+    check(prop is not None and prop["status"] == "executed", "报价提议已执行：{}".format(prop and prop.get("result")))
+    j = hub("GET", "/api/eto/jobs/" + jn, token=sales)["job"]
+    check(j["status"] == "quoted" and j["quotation"] and j["project"], "作业已报价：报价单 {}，项目 {}".format(j["quotation"], j["project"]))
+    qt = [x for x in erp_docs("Quotation") if x.get("name") == j["quotation"]]
+    check(any(x.get("wq_job") == jn for x in qt), "ERPNext 里有报价单 {}（作业号 {}）".format(j["quotation"], jn))
+    check(any(x.get("name") == j["project"] for x in erp_docs("Project")), "ERPNext 里有项目 {}".format(j["project"]))
+
+    # 139b：客户接受 → 销售订单（付款计划）；照估算起草设计 → 发布 → ERPNext 建物料清单
+    def run(path, what):
+        q = hub("POST", "/api/eto/jobs/{}/{}".format(jn, path), token=sales)
+        hub("POST", "/api/proposals/{}/confirm".format(q["proposal_id"]), token=sales)
+        p = wait(lambda: (lambda x: x if x["status"] in ("executed", "failed") else None)(
+            hub("GET", "/api/proposals/" + q["proposal_id"], token=sales)), what, 120, 2)
+        check(p is not None and p["status"] == "executed", "{}：{}".format(what, p and p.get("result")))
+        return p
+    run("order", "接单提议执行（销售订单带付款计划）")
+    j = hub("GET", "/api/eto/jobs/" + jn, token=sales)["job"]
+    so = [x for x in erp_docs("Sales Order") if x.get("name") == j.get("sales_order")]
+    check(j["status"] == "ordered" and so and so[0].get("project") == j["project"], "作业已接单：销售订单 {}，挂项目 {}".format(j.get("sales_order"), j["project"]))
+    # 139g：订单确认那一期（订金）开票；发货那一期还没到，挡住
+    bl = hub("GET", "/api/eto/jobs/{}/billing".format(jn), token=sales)
+    due = [m for m in bl["milestones"] if m["state"] == "due"]
+    later = [m for m in bl["milestones"] if m["state"] == "waiting"]
+    check(due and later, "分期开票：到了的 {}，没到的 {}".format([m["key"] for m in due], [m["key"] for m in later]))
+    if later:
+        try:
+            hub("POST", "/api/eto/jobs/{}/invoice".format(jn), {"key": later[0]["key"]}, sales)
+            check(False, "里程碑没到的一期不能开票")
+        except RuntimeError as e:
+            check("409" in str(e), "里程碑没到的一期不能开票（{}）".format(str(e)[-60:]))
+    if due:
+        q = hub("POST", "/api/eto/jobs/{}/invoice".format(jn), {"key": due[0]["key"]}, sales)
+        hub("POST", "/api/proposals/{}/confirm".format(q["proposal_id"]), token=sales)
+        p = wait(lambda: (lambda x: x if x["status"] in ("executed", "failed") else None)(
+            hub("GET", "/api/proposals/" + q["proposal_id"], token=sales)), "分期发票", 120, 2)
+        check(p is not None and p["status"] == "executed", "第一期发票提议执行：{}".format(p and p.get("result")))
+        bl = wait(lambda: (lambda x: x if x["milestones"][0]["invoice"] else None)(
+            hub("GET", "/api/eto/jobs/{}/billing".format(jn), token=sales)), "分期发票记回作业", 60, 2)
+        si = [x for x in erp_docs("Sales Invoice") if bl and x.get("name") == bl["milestones"][0]["invoice"]]
+        check(si and abs(float(si[0]["grand_total"]) - float(due[0]["payment_amount"])) < 0.01,
+              "ERPNext 销售发票 {}：${}（本期 {}%）".format(si and si[0]["name"], si and si[0]["grand_total"], due[0]["invoice_portion"]))
+    spec = hub("POST", "/api/eto/jobs/{}/design/draft".format(jn), token=sales)
+    d = hub("PUT", "/api/eto/jobs/{}/design".format(jn), {"spec": spec}, sales)
+    check(not d["errors"], "照估算起草设计、检查通过（{}）".format(d["errors"][:2]))
+    run("design/release", "设计发布执行（物料清单）")
+    d = hub("GET", "/api/eto/jobs/{}/design".format(jn), token=sales)
+    fp = d["design"]["fingerprint"]
+    boms = [x for x in erp_docs("BOM") if x.get("item") == jn and x.get("docstatus") == 1]
+    check(d["design"]["status"] == "released" and any(b.get("wq_fingerprint") == fp for b in boms),
+          "设计第 {} 版已发布，ERPNext 物料清单带指纹 {}".format(d["design"]["rev"], (fp or "")[:12]))
+    # 139c：作业算料 → 工单（挂作业号）
+    run("materials", "作业算料提议执行（工单、请购挂作业号）")
+    wos = [x for x in erp_docs("Work Order") if x.get("project") == j["project"] and x.get("docstatus") == 1]
+    check(any(x.get("production_item") == jn for x in wos), "ERPNext 里有作业 {} 的工单（{}）".format(jn, "、".join(x["name"] for x in wos)))
+    sc = hub("GET", "/api/eto/jobs/{}/schedule".format(jn), token=sales)                     # 139d
+    check(sc["make"] and sc["earliest"] and "slack_days" in sc and sc["load"]["rows"], "倒排：最早 {} 能交，松紧 {} 个工作日".format(sc["earliest"], sc["slack_days"]))
+    # 139e：作业的工单下达车间 → 仿真车间报工 → 作业成本有实际工序
+    shop = hub("GET", "/api/eto/jobs/{}/shop".format(jn), token=sales)
+    top = next((w for w in shop["work_orders"] if w["item"] == jn), None)
+    check(top is not None and top["current_design"], "作业工单 {} 用的是发布的那一版物料清单".format((top or {}).get("name")))
+    if top:
+        planner = login("测试计划员", "planner")
+        q = hub("POST", "/api/eto/jobs/{}/release".format(jn), {"work_order": top["name"]}, planner)
+        hub("POST", "/api/proposals/{}/confirm".format(q["proposal_id"]), token=planner)
+        rp = hub("GET", "/api/proposals/" + q["proposal_id"], token=planner)
+        dis = (rp.get("result") or {}).get("dispatched") or []
+        check(rp["status"] == "executed" and dis, "作业工单下达车间：{} 道工序（{}）".format(len(dis), rp["status"]))
+        # 下达只是派工；和第 5 段一样，操作工逐道开工，车间才开始做
+        hub("POST", "/api/mes/cmd", {"unit": "sim", "command": "set_speed", "speed": A.speed}, teacher)
+        opr = login("测试操作工", "operator")
+        time.sleep(1)
+        for d in dis:
+            hub("POST", "/api/mes/cmd", {"unit": d["unit"], "command": "start", "work_order": top["name"], "operation": d["operation"]}, opr)
+        c = wait(lambda: (lambda x: x if x["cost"]["actual"]["operations"] > 0 else None)(
+            hub("GET", "/api/eto/jobs/{}/shop".format(jn), token=sales)), "车间报工计入作业成本", 600, 5)
+        check(c is not None, "作业成本：实际工序 ${}（估算 ${}）".format((c or {}).get("cost", {}).get("actual", {}).get("operations"),
+                                                               ((c or {}).get("cost", {}).get("estimate") or {}).get("operations")))
+    # 139f：检验计划（起草人和批准人不同）→ 终检记录 → ERPNext 质量检验单
+    qa, qb = login("测试质检甲", "quality"), login("测试质检乙", "quality")
+    hub("PUT", "/api/eto/jobs/{}/quality/plan".format(jn), {"chars": [{"code": "len", "name": "闭环测试总长", "item": jn, "kind": "final",
+                                                                     "nominal": 100, "lo": 99.8, "hi": 100.2, "unit": "mm"}]}, qa)
+    qd = hub("POST", "/api/eto/jobs/{}/quality/plan/approve".format(jn), token=qb)
+    check(qd["approved"] and qd["approved"]["approved_by"], "检验计划第 {} 版已批准".format((qd.get("approved") or {}).get("rev")))
+    if top:
+        r = hub("POST", "/api/eto/jobs/{}/quality/inspect".format(jn), {"kind": "final", "work_order": top["name"], "piece": 1,
+                                                                         "readings": {"len": 100.05}}, qa)
+        p = wait(lambda: (lambda x: x if x["status"] in ("executed", "failed") else None)(hub("GET", "/api/proposals/" + r["proposal_id"], token=qa)),
+                 "ERPNext 质量检验单", 120, 2)
+        check(r["result"] == "pass" and p is not None and p["status"] == "executed", "终检第 1 件合格，进 ERPNext 质量检验单：{}".format(p and p.get("result")))
+        qs = hub("GET", "/api/eto/jobs/{}/quality".format(jn), token=qa)
+        check(any("终检合格 1 / 2" in b for b in qs["ship_block"]), "发货关口：终检不够数时挡住（{}）".format(qs["ship_block"]))
+        # 139h：两件都做完、都终检 → 发货 → 客户验收 → 发货、验收两期开票 → ERPNext 销售订单全额开票
+        w = wait(lambda: (lambda x: x if x and x["produced"] >= 2 else None)(
+            next((x for x in hub("GET", "/api/eto/jobs/{}/shop".format(jn), token=sales)["work_orders"] if x["item"] == jn), None)),
+            "作业工单两件完工", 900, 5)
+        check(w is not None, "作业工单 {} 完工 {} / 2 件".format(top["name"], (w or {}).get("produced")))
+        if not w:
+            return
+        r = hub("POST", "/api/eto/jobs/{}/quality/inspect".format(jn), {"kind": "final", "work_order": top["name"], "piece": 2,
+                                                                         "readings": {"len": 99.97}}, qa)
+        p = wait(lambda: (lambda x: x if x["status"] in ("executed", "failed") else None)(hub("GET", "/api/proposals/" + r["proposal_id"], token=qa)),
+                 "第 2 件质量检验单", 120, 2)
+        check(r["result"] == "pass" and p is not None and p["status"] == "executed", "终检第 2 件合格")
+        qs = hub("GET", "/api/eto/jobs/{}/quality".format(jn), token=qa)
+        check(not qs["ship_block"], "发货关口全部通过（{}）".format(qs["ship_block"]))
+        if qs["ship_block"]:
+            return
+        run("ship", "发货提议执行（ERPNext 发货单）")
+        j = hub("GET", "/api/eto/jobs/" + jn, token=sales)["job"]
+        check(any(x.get("name") == j.get("delivery_note") and x.get("docstatus") == 1 for x in erp_docs("Delivery Note")),
+              "ERPNext 发货单 {}".format(j.get("delivery_note")))
+        hub("POST", "/api/eto/jobs/{}/accept".format(jn), {"note": "闭环测试：客户现场验收"}, sales)
+        for key in ("ship", "accept"):
+            q = hub("POST", "/api/eto/jobs/{}/invoice".format(jn), {"key": key}, sales)
+            hub("POST", "/api/proposals/{}/confirm".format(q["proposal_id"]), token=sales)
+            p = wait(lambda: (lambda x: x if x["status"] in ("executed", "failed") else None)(
+                hub("GET", "/api/proposals/" + q["proposal_id"], token=sales)), "分期发票 " + key, 120, 2)
+            check(p is not None and p["status"] == "executed", "{} 那一期开票：{}".format(key, p and p.get("result")))
+        bl = wait(lambda: (lambda x: x if all(m["invoice"] for m in x["milestones"]) else None)(
+            hub("GET", "/api/eto/jobs/{}/billing".format(jn), token=sales)), "三期发票都记回作业", 60, 2) \
+            or hub("GET", "/api/eto/jobs/{}/billing".format(jn), token=sales)
+        mon = bl["money"]
+        check(mon["order_amount"] is not None and abs(mon["invoiced"] - mon["order_amount"]) < 0.01 and mon["not_invoiced"] == 0,
+              "三期开完：订单 ${}，已开票 ${}".format(mon["order_amount"], mon["invoiced"]))
+        names = {m["invoice"] for m in bl["milestones"]}
+        tot = sum(float(x.get("grand_total") or 0) for x in erp_docs("Sales Invoice") if x.get("name") in names and x.get("docstatus") == 1)
+        check(abs(tot - (mon["order_amount"] or 0)) < 0.01, "ERPNext 三张销售发票合计 ${:,.2f} = 订单金额".format(tot))
+        if REAL:                                   # 真 ERPNext 按发票回写销售订单的开票比例
+            so = wait(lambda: next((x for x in erp_docs("Sales Order") if x.get("name") == j.get("sales_order") and
+                                    float(x.get("per_billed") or 0) >= 99.99), None), "ERPNext 销售订单全额开票", 60, 3)
+            check(so is not None, "ERPNext 销售订单 {} 已开票 100%".format(j.get("sales_order")))
 
 
 def safety(teacher):
@@ -782,6 +952,11 @@ def supply(teacher):
     kinds = [y["kind"] for y in o["options"]]
     check(o.get("supply") and kinds == ["none", "return", "alt", "concession"], "来料不合格四方案：{}；{}".format("、".join(y["label"] for y in o["options"]), o.get("reason")))
     alt = next(y for y in o["options"] if y["kind"] == "alt")
+    # 备选这一批定为合格（老师注入“下一批：正常”）：不注入时按合格率随机，偶尔不合格，后面“经营与财务”就等不到
+    # 来料合格 → 采购发票（11-07 运行 42344181422 就是这样超时，第 134 轮）
+    sup = next(c["supplier"] for c in alt["changes"] if c["type"] == "purchase_order")
+    r = hub("POST", "/api/supply/sim", {"supplier": sup, "bad": False}, teacher)
+    check("正常" in (r.get("text") or ""), "老师注入：{}".format(r.get("text")))
     a = hub("POST", "/api/ont/actions", {"changes": alt["changes"], "anomaly_id": an["id"]}, pl)
     for aid in a["ids"]:
         d = hub("POST", "/api/ont/actions/{}/approve".format(aid), {}, teacher)
@@ -797,7 +972,7 @@ def supply(teacher):
     sm = hub("GET", "/api/supply/lots/{}/sample".format(nl["id"]), token=qa)
     ok = all(p["min"] <= row[p["specification"]] <= p["max"] for row in sm["rows"] for p in sm["params"] if p["numeric"])
     r = hub("POST", "/api/supply/lots/{}/inspect".format(nl["id"]), {"accept": ok}, qa)
-    check(r["status"] == ("accepted" if ok else "rejected"), "备选这一批检验：{}".format("合格" if ok else "不合格（随机）"))
+    check(ok and r["status"] == "accepted", "备选这一批检验：{}".format("合格" if ok else "不合格（注入了正常，不该不合格）"))
     if ok:
         prs = wait(lambda: [p for p in erp_docs("Purchase Receipt") if p.get("docstatus") == 1 and (p.get("wq_lot") == nl["lot"] or nl["lot"] in str(p.get("remarks") or ""))],
                    "ERPNext 收货单提交", 120, 3)

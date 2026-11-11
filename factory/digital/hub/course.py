@@ -589,7 +589,14 @@ def mount(app, H):
                        "（比对模式）并发起动作；最后复盘：这张订单的毛利里能看到每一幕花的钱，从钱一路追回源头。",
             "mode": "teach", "products": ["WQR-105", "SH-301"], "tool_url": public_base(request) + "/lab23",
             "guide_url": public_base(request) + "/api/cae/lab23/guide.docx",
-            "report_template_url": public_base(request) + "/api/cae/lab23/report-template.docx"}])
+            "report_template_url": public_base(request) + "/api/cae/lab23/report-template.docx"}, {
+            "id": "lab33", "name": {"zh": "实验 33：一张非标订单——从询价到收款", "en": "Lab 33: one engineer-to-order job — from inquiry to payment"},
+            "summary": "客户要的东西没有现成图纸：学生在“按单设计（ETO）”页估算（AI 起草，补齐未知项）、报价、接单（带分期付款计划），"
+                       "把要改的件复制为新件并发布设计，看从交期倒排的计划，下达车间、做终检，对比估算与实际成本，最后按里程碑分期开票，"
+                       "体会“到了才能开”。每一步写进 ERPNext 前都由人确认。",
+            "mode": "teach", "products": ["WQR-105"], "tool_url": public_base(request) + "/lab33",
+            "guide_url": public_base(request) + "/api/cae/lab33/guide.docx",
+            "report_template_url": public_base(request) + "/api/cae/lab33/report-template.docx"}])
 
     @app.get("/api/course/layout", dependencies=[K])
     def course_layout():

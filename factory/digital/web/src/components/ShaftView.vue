@@ -1,9 +1,10 @@
 <template>
   <!-- 第 6 轮 W4：按参数在浏览器里生成阶梯轴（旋转体 + 键槽），改参数即时更新；可拖动旋转、滚轮缩放 -->
-  <div ref="box" class="shaft3d" aria-label="输出轴三维模型"></div>
+  <div ref="box" class="shaft3d" :aria-label="$t('输出轴三维模型')"></div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';

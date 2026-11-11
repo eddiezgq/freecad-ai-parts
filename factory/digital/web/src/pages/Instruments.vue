@@ -2,46 +2,46 @@
      服务器只给这位学生的随机种子、核对结果、出实验记录。“从电路分析送来”的波形也在这里用示波器看。 -->
 <template>
   <div class="page">
-    <div class="page-title"><h1>虚拟仪器</h1>
-      <span class="muted">示波器、万用表、信号源、电源、逻辑分析仪、数据记录仪 + 6 种传感器：照实验桌的样子测量，算出结果交平台核对（参数是示例值，每人的数不同）</span></div>
+    <div class="page-title"><h1>{{ t('虚拟仪器') }}</h1>
+      <span class="muted">{{ t('示波器、万用表、信号源、电源、逻辑分析仪、数据记录仪 + 6 种传感器：照实验桌的样子测量，算出结果交平台核对（参数是示例值，每人的数不同）') }}</span></div>
     <div class="tabs">
-      <button v-for="(t, i) in tasks" :key="t.key" class="tab" :class="{ on: task === t.key }" @click="go(t.key)">{{ i + 1 }} {{ t.title }}</button>
-      <button v-if="imported" class="tab" :class="{ on: task === 'import' }" @click="go('import')">从电路分析送来的波形</button>
+      <button v-for="(x, i) in tasks" :key="x.key" class="tab" :class="{ on: task === x.key }" @click="go(x.key)">{{ i + 1 }} {{ t(x.title) }}</button>
+      <button v-if="imported" class="tab" :class="{ on: task === 'import' }" @click="go('import')">{{ t('从电路分析送来的波形') }}</button>
     </div>
     <div v-if="err" class="err">{{ err }}</div>
 
     <!-- ① 力矩传感器标定 -->
     <section v-if="task === 'torque'" class="card">
-      <p class="small">{{ P.torque.note }}。按顺序加砝码（0→50→0 N·m），每一步用万用表读放大器输出，点“记录”。</p>
+      <p class="small">{{ td(P.torque.note) }}{{ t('。按顺序加砝码（0→50→0 N·m），每一步用万用表读放大器输出，点“记录”。') }}</p>
       <div class="bench">
         <div class="dut">
-          <div class="lab">砝码（力矩）</div>
+          <div class="lab">{{ t('砝码（力矩）') }}</div>
           <div class="steps"><button v-for="(T, i) in P.torque.points_nm" :key="i" class="stp" :class="{ on: tq.step === i }" @click="tq.step = i">
             {{ T }}<small>{{ i > 5 ? '↓' : i > 0 ? '↑' : '' }}</small></button></div>
-          <div class="small muted">现在：{{ tqT }} N·m（{{ tq.step > 5 ? '卸载' : '加载' }}）　供桥电源 {{ P.torque.vex.toFixed(3) }} V　放大器增益 {{ P.torque.gain }}</div>
+          <div class="small muted">{{ t('现在：{v} N·m', { v: tqT }) }} ({{ tq.step > 5 ? t('卸载') : t('加载') }}) · {{ t('供桥电源 {v} V', { v: P.torque.vex.toFixed(3) }) }} · {{ t('放大器增益 {g}', { g: P.torque.gain }) }}</div>
         </div>
         <DmmPanel :r="dmm" v-model:range="dmmRange" :hist="dmmHist" />
       </div>
-      <div class="line"><button class="btn" @click="rec([tq.step + 1, tqT, tq.step > 5 ? '卸载' : '加载', fmtV(dmmMean)])">记录这一步（取最近 10 次读数的平均）</button>
-        <button class="btn" @click="fitTorque">对加载段做最小二乘</button><span v-if="fitRes" class="small mono">{{ fitRes }}</span></div>
+      <div class="line"><button class="btn" @click="rec([tq.step + 1, tqT, tq.step > 5 ? t('卸载') : t('加载'), fmtV(dmmMean)])">{{ t('记录这一步（取最近 10 次读数的平均）') }}</button>
+        <button class="btn" @click="fitTorque">{{ t('对加载段做最小二乘') }}</button><span v-if="fitRes" class="small mono">{{ fitRes }}</span></div>
     </section>
 
     <!-- ② 编码器 -->
     <section v-if="task === 'encoder'" class="card">
-      <p class="small">{{ P.encoder.note }}。电机以某个转速转（不告诉你多快、往哪转），A、B、Z 接示波器 CH1–CH3 和逻辑分析仪。</p>
-      <p class="small">板上用专用芯片做这件事：<router-link to="/chip-design?tab=bench">编码器接口芯片 WQ-ENCIF——接上编码器，看它怎么滤毛刺、计数、用 SPI 交给 MCU →</router-link></p>
+      <p class="small">{{ td(P.encoder.note) }}{{ t('。电机以某个转速转（不告诉你多快、往哪转），A、B、Z 接示波器 CH1–CH3 和逻辑分析仪。') }}</p>
+      <p class="small">{{ t('板上用专用芯片做这件事：') }}<router-link to="/chip-design?tab=bench">{{ t('编码器接口芯片 WQ-ENCIF——接上编码器，看它怎么滤毛刺、计数、用 SPI 交给 MCU →') }}</router-link></p>
       <div class="bench">
         <div><ScopeScreen :traces="sc.traces" :vdiv="sc.vdiv" :off="sc.off" :tdiv="sc.tdiv" />
-          <div class="line small">时基 <select v-model.number="sc.tdiv" @change="acquire"><option v-for="t in TDIVS" :key="t" :value="t">{{ si(t) }}s/格</option></select>
-            <button class="btn sm" @click="acquire">单次触发</button>
-            <span class="mono">CH1 频率 {{ si(scM?.freq) }}Hz，峰峰值 {{ si(scM?.vpp) }}V</span></div></div>
+          <div class="line small">{{ t('时基') }} <select v-model.number="sc.tdiv" @change="acquire"><option v-for="x in TDIVS" :key="x" :value="x">{{ si(x) }}{{ t('s/格') }}</option></select>
+            <button class="btn sm" @click="acquire">{{ t('单次触发') }}</button>
+            <span class="mono">{{ t('CH1 频率 {f}Hz，峰峰值 {v}V', { f: si(scM?.freq), v: si(scM?.vpp) }) }}</span></div></div>
         <div class="la">
-          <div class="lab">逻辑分析仪（阈值 2.5 V，四倍频解码）</div>
-          <div class="line small">采集时长 <select v-model.number="la.span"><option v-for="s in [0.001, 0.01, 0.1, 0.5, 1]" :key="s" :value="s">{{ si(s) }}s</option></select>
-            <button class="btn sm" @click="capture">采集</button></div>
-          <div v-if="la.res" class="small mono">计数 {{ la.res.count }}（正向沿 {{ la.res.up }}，反向沿 {{ la.res.down }}）
-            <div v-for="(z, i) in la.res.zs.slice(0, 6)" :key="i">Z{{ i + 1 }}：t = {{ si(z.t) }}s，此时计数 {{ z.count }}</div>
-            <div v-if="!la.res.zs.length" class="muted">这段时间里没有 Z 脉冲，采集时间加长</div></div>
+          <div class="lab">{{ t('逻辑分析仪（阈值 2.5 V，四倍频解码）') }}</div>
+          <div class="line small">{{ t('采集时长') }} <select v-model.number="la.span"><option v-for="s in [0.001, 0.01, 0.1, 0.5, 1]" :key="s" :value="s">{{ si(s) }}s</option></select>
+            <button class="btn sm" @click="capture">{{ t('采集') }}</button></div>
+          <div v-if="la.res" class="small mono">{{ t('计数 {c}（正向沿 {u}，反向沿 {d}）', { c: la.res.count, u: la.res.up, d: la.res.down }) }}
+            <div v-for="(z, i) in la.res.zs.slice(0, 6)" :key="i">Z{{ i + 1 }}: t = {{ si(z.t) }}s, {{ t('此时计数 {c}', { c: z.count }) }}</div>
+            <div v-if="!la.res.zs.length" class="muted">{{ t('这段时间里没有 Z 脉冲，采集时间加长') }}</div></div>
           <svg v-if="la.res" viewBox="0 0 400 90" class="latr"><polyline v-for="(k, j) in [1, 2, 3]" :key="j" :points="laPts(k, j)" fill="none" stroke="#2563eb" />
             <text x="2" y="20" class="tl">A</text><text x="2" y="50" class="tl">B</text><text x="2" y="80" class="tl">Z</text></svg>
         </div>
@@ -50,91 +50,91 @@
 
     <!-- ③ IMU -->
     <section v-if="task === 'imu'" class="card">
-      <p class="small">{{ P.imu.note }}。数据记录仪记陀螺 Z 轴静置 2 小时（仿真瞬间完成），看平均值（零偏）和 Allan 偏差曲线：短 τ 段斜率 −1/2 读角度随机游走（ARW = σ(τ)·√τ，°/s·√s × 60 = °/√h），曲线最低点 ÷ 0.664 是零偏不稳定性。</p>
-      <div class="line"><button class="btn primary" :disabled="busy" @click="runImu">{{ busy ? '记录中…' : '记录 2 小时' }}</button>
-        <span v-if="imu.st" class="small mono">{{ imu.n.toLocaleString() }} 个点：平均 {{ imu.st.mean.toFixed(5) }} °/s，标准差 {{ imu.st.sd.toFixed(4) }} °/s</span></div>
+      <p class="small">{{ td(P.imu.note) }}{{ t('。数据记录仪记陀螺 Z 轴静置 2 小时（仿真瞬间完成），看平均值（零偏）和 Allan 偏差曲线：短 τ 段斜率 −1/2 读角度随机游走（ARW = σ(τ)·√τ，°/s·√s × 60 = °/√h），曲线最低点 ÷ 0.664 是零偏不稳定性。') }}</p>
+      <div class="line"><button class="btn primary" :disabled="busy" @click="runImu">{{ busy ? t('记录中…') : t('记录 2 小时') }}</button>
+        <span v-if="imu.st" class="small mono">{{ t('{n} 个点：平均 {m} °/s，标准差 {s} °/s', { n: imu.n.toLocaleString(loc()), m: imu.st.mean.toFixed(5), s: imu.st.sd.toFixed(4) }) }}</span></div>
       <svg v-if="imu.ad" viewBox="0 0 560 300" class="ll" @mousemove="llHover" @mouseleave="imu.h = null">
         <rect x="0" y="0" width="560" height="300" fill="#fff" />
         <g class="grid"><line v-for="x in llX" :key="'x' + x" :x1="lx(x)" :x2="lx(x)" y1="10" y2="270" /><line v-for="y in llY" :key="'y' + y" x1="60" x2="550" :y1="ly(y)" :y2="ly(y)" /></g>
         <g class="axt"><text v-for="x in llX" :key="'tx' + x" :x="lx(x)" y="288" text-anchor="middle">{{ si(x) }}</text>
           <text v-for="y in llY" :key="'ty' + y" x="56" :y="ly(y) + 4" text-anchor="end">{{ si(y) }}</text>
-          <text x="550" y="300" text-anchor="end">τ（s）</text><text x="62" y="10">Allan 偏差 σ(τ)（°/s）</text></g>
+          <text x="550" y="300" text-anchor="end">τ (s)</text><text x="62" y="10">{{ t('Allan 偏差 σ(τ)（°/s）') }}</text></g>
         <polyline :points="imu.ad.map((p) => lx(p.tau) + ',' + ly(p.adev)).join(' ')" fill="none" stroke="#2563eb" stroke-width="2" />
         <circle v-for="(p, i) in imu.ad" :key="'c' + i" :cx="lx(p.tau)" :cy="ly(p.adev)" r="3" :fill="imu.h === i ? '#dc2626' : '#2563eb'" />
       </svg>
-      <div v-if="imu.h != null" class="small mono">τ = {{ si(imu.ad[imu.h].tau) }}s，σ = {{ imu.ad[imu.h].adev.toExponential(3) }} °/s</div>
-      <button v-if="imu.ad" class="btn sm" @click="rows.imu = imu.ad.map((p) => [si(p.tau), p.adev.toExponential(4)])">把 Allan 表放进记录</button>
+      <div v-if="imu.h != null" class="small mono">τ = {{ si(imu.ad[imu.h].tau) }}s, σ = {{ imu.ad[imu.h].adev.toExponential(3) }} °/s</div>
+      <button v-if="imu.ad" class="btn sm" @click="rows.imu = imu.ad.map((p) => [si(p.tau), p.adev.toExponential(4)])">{{ t('把 Allan 表放进记录') }}</button>
     </section>
 
     <!-- ④ 霍尔电流传感器 -->
     <section v-if="task === 'hall'" class="card">
-      <p class="small">{{ P.hall.note }}。直流：可编程电流源给电流、万用表读输出；交流：信号源给 1 A 幅值的正弦电流，示波器看输出幅值随频率的变化。</p>
+      <p class="small">{{ td(P.hall.note) }}{{ t('。直流：可编程电流源给电流、万用表读输出；交流：信号源给 1 A 幅值的正弦电流，示波器看输出幅值随频率的变化。') }}</p>
       <div class="bench">
-        <div class="dut"><div class="lab">直流电流源</div>
-          <div class="line">电流 <input v-model.number="hl.I" type="number" step="1" min="-20" max="20" class="num"> A</div>
+        <div class="dut"><div class="lab">{{ t('直流电流源') }}</div>
+          <div class="line">{{ t('电流') }} <input v-model.number="hl.I" type="number" step="1" min="-20" max="20" class="num"> A</div>
           <DmmPanel :r="dmm" v-model:range="dmmRange" :hist="dmmHist" />
-          <button class="btn sm" @click="rec(['直流', hl.I, fmtV(dmmMean)])">记录（电流、输出平均）</button>
-          <button class="btn sm" @click="fitHall">对直流点做最小二乘</button><div v-if="fitRes" class="small mono">{{ fitRes }}</div></div>
-        <div><div class="lab">信号源 → 示波器</div>
-          <div class="line small">频率 <input v-model.number="hl.f" type="number" min="10" max="10000000" class="num"> Hz　幅值 1 A
-            伏/格 <select v-model.number="sc.vdiv[0]" @change="acquire"><option v-for="v in VDIVS" :key="v" :value="v">{{ si(v) }}V</option></select>
-            <button class="btn sm" @click="acquire">单次触发</button></div>
+          <button class="btn sm" @click="rec([t('直流'), hl.I, fmtV(dmmMean)])">{{ t('记录（电流、输出平均）') }}</button>
+          <button class="btn sm" @click="fitHall">{{ t('对直流点做最小二乘') }}</button><div v-if="fitRes" class="small mono">{{ fitRes }}</div></div>
+        <div><div class="lab">{{ t('信号源 → 示波器') }}</div>
+          <div class="line small">{{ t('频率') }} <input v-model.number="hl.f" type="number" min="10" max="10000000" class="num"> Hz · {{ t('幅值 1 A') }}
+            {{ t('伏/格') }} <select v-model.number="sc.vdiv[0]" @change="acquire"><option v-for="v in VDIVS" :key="v" :value="v">{{ si(v) }}V</option></select>
+            <button class="btn sm" @click="acquire">{{ t('单次触发') }}</button></div>
           <ScopeScreen :traces="sc.traces" :vdiv="sc.vdiv" :off="sc.off" :tdiv="sc.tdiv" />
-          <div class="small mono">CH1 峰峰值 {{ si(scM?.vpp) }}V，交流有效值 {{ si(scM?.acrms) }}V → 幅值 = 有效值 × √2 = {{ si(scM ? scM.acrms * Math.SQRT2 : null) }}V，频率 {{ si(scM?.freq) }}Hz</div>
-          <div class="small muted">用有效值算幅值比用峰峰值准：峰峰值会被噪声撑大，信号小的时候尤其明显。</div>
-          <button class="btn sm" @click="rec(['交流', hl.f, fmtV(scM ? scM.acrms * Math.SQRT2 : null)])">记录（频率、幅值）</button></div>
+          <div class="small mono">{{ t('CH1 峰峰值 {p}V，交流有效值 {r}V → 幅值 = 有效值 × √2 = {a}V，频率 {f}Hz', { p: si(scM?.vpp), r: si(scM?.acrms), a: si(scM ? scM.acrms * Math.SQRT2 : null), f: si(scM?.freq) }) }}</div>
+          <div class="small muted">{{ t('用有效值算幅值比用峰峰值准：峰峰值会被噪声撑大，信号小的时候尤其明显。') }}</div>
+          <button class="btn sm" @click="rec([t('交流'), hl.f, fmtV(scM ? scM.acrms * Math.SQRT2 : null)])">{{ t('记录（频率、幅值）') }}</button></div>
       </div>
     </section>
 
     <!-- ⑤ NTC -->
     <section v-if="task === 'ntc'" class="card">
-      <p class="small">{{ P.ntc.note }}。把 NTC 放进恒温槽，换几个温度，万用表读 NTC 两端电压；R = Rfix·V/(Vs − V)，再拟合 ln R 与 1/T 的直线：斜率 = B，截距 = ln R25。</p>
+      <p class="small">{{ td(P.ntc.note) }}{{ t('。把 NTC 放进恒温槽，换几个温度，万用表读 NTC 两端电压；R = Rfix·V/(Vs − V)，再拟合 ln R 与 1/T 的直线：斜率 = B，截距 = ln R25。') }}</p>
       <div class="bench">
-        <div class="dut"><div class="lab">恒温槽</div>
-          <div class="steps"><button v-for="t in P.ntc.temps_c" :key="t" class="stp" :class="{ on: nt.t === t }" @click="nt.t = t">{{ t }} ℃</button></div>
-          <div class="small muted">分压电源 {{ P.ntc.vs }} V，Rfix = {{ P.ntc.rfix }} Ω</div></div>
+        <div class="dut"><div class="lab">{{ t('恒温槽') }}</div>
+          <div class="steps"><button v-for="x in P.ntc.temps_c" :key="x" class="stp" :class="{ on: nt.t === x }" @click="nt.t = x">{{ x }} °C</button></div>
+          <div class="small muted">{{ t('分压电源 {v} V，Rfix = {r} Ω', { v: P.ntc.vs, r: P.ntc.rfix }) }}</div></div>
         <DmmPanel :r="dmm" v-model:range="dmmRange" :hist="dmmHist" />
       </div>
-      <div class="line"><button class="btn" @click="recNtc">记录（温度、电压、算出的电阻）</button>
-        <button class="btn" @click="fitNtc">拟合 ln R ～ (1/T − 1/298.15)</button><span v-if="fitRes" class="small mono">{{ fitRes }}</span></div>
+      <div class="line"><button class="btn" @click="recNtc">{{ t('记录（温度、电压、算出的电阻）') }}</button>
+        <button class="btn" @click="fitNtc">{{ t('拟合 ln R ～ (1/T − 1/298.15)') }}</button><span v-if="fitRes" class="small mono">{{ fitRes }}</span></div>
     </section>
 
     <!-- ⑥ 激光测距 -->
     <section v-if="task === 'tof'" class="card">
-      <p class="small">{{ P.tof.note }}。靶板放在几个距离，每处连续测 N 次看标准差；再看“每 16 次取平均”后的标准差（重复 100 组）。</p>
-      <div class="line">距离 <span class="steps"><button v-for="d in P.tof.dists_m" :key="d" class="stp" :class="{ on: tf.d === d }" @click="tf.d = d">{{ d }} m</button></span>
+      <p class="small">{{ td(P.tof.note) }}{{ t('。靶板放在几个距离，每处连续测 N 次看标准差；再看“每 16 次取平均”后的标准差（重复 100 组）。') }}</p>
+      <div class="line">{{ t('距离') }} <span class="steps"><button v-for="d in P.tof.dists_m" :key="d" class="stp" :class="{ on: tf.d === d }" @click="tf.d = d">{{ d }} m</button></span>
         N <input v-model.number="tf.n" type="number" min="10" max="5000" class="num">
-        <button class="btn" @click="tofSample">测 N 次</button><button class="btn" @click="tofAvg">16 次平均 × 100 组</button></div>
+        <button class="btn" @click="tofSample">{{ t('测 N 次') }}</button><button class="btn" @click="tofAvg">{{ t('16 次平均 × 100 组') }}</button></div>
       <div v-if="tf.last" class="small mono">{{ tf.last }}</div>
     </section>
 
     <!-- 从电路分析送来 -->
     <section v-if="task === 'import' && imported" class="card">
-      <p class="small">“{{ imported.title }}”的瞬态曲线，接到示波器上看：仿真给的是理想值，示波器有带宽、8 位量化和本底噪声。</p>
-      <div class="line small">时基 <select v-model.number="sc.tdiv" @change="acquire"><option v-for="t in TDIVS" :key="t" :value="t">{{ si(t) }}s/格</option></select>
-        <span v-for="(n, k) in imported.names" :key="n">CH{{ k + 1 }} {{ n }} 伏/格 <select v-model.number="sc.vdiv[k]" @change="acquire"><option v-for="v in VDIVS" :key="v" :value="v">{{ si(v) }}V</option></select>
-          偏置 <input v-model.number="sc.off[k]" type="number" step="any" class="num" @change="acquire"></span>
-        <button class="btn sm" @click="acquire">单次触发</button></div>
+      <p class="small">{{ t('“{x}”的瞬态曲线，接到示波器上看：仿真给的是理想值，示波器有带宽、8 位量化和本底噪声。', { x: imported.title }) }}</p>
+      <div class="line small">{{ t('时基') }} <select v-model.number="sc.tdiv" @change="acquire"><option v-for="x in TDIVS" :key="x" :value="x">{{ si(x) }}{{ t('s/格') }}</option></select>
+        <span v-for="(n, k) in imported.names" :key="n">CH{{ k + 1 }} {{ n }} {{ t('伏/格') }} <select v-model.number="sc.vdiv[k]" @change="acquire"><option v-for="v in VDIVS" :key="v" :value="v">{{ si(v) }}V</option></select>
+          {{ t('偏置') }} <input v-model.number="sc.off[k]" type="number" step="any" class="num" @change="acquire"></span>
+        <button class="btn sm" @click="acquire">{{ t('单次触发') }}</button></div>
       <ScopeScreen :traces="sc.traces" :vdiv="sc.vdiv" :off="sc.off" :tdiv="sc.tdiv" />
-      <div class="small mono">CH1 峰峰值 {{ si(scM?.vpp) }}V，平均 {{ si(scM?.mean) }}V，频率 {{ si(scM?.freq) }}Hz</div>
+      <div class="small mono">{{ t('CH1 峰峰值 {p}V，平均 {m}V，频率 {f}Hz', { p: si(scM?.vpp), m: si(scM?.mean), f: si(scM?.freq) }) }}</div>
     </section>
 
     <!-- 记录、结果、核对 -->
     <section v-if="TASKS.includes(task)" class="card">
-      <div class="card-head"><h2>记录</h2><span class="r small"><button class="btn sm" @click="csv">导出 CSV</button> <button class="btn sm" @click="rows[task] = []">清空</button></span></div>
-      <table v-if="(rows[task] || []).length" class="tbl small"><thead><tr><th v-for="c in COLS[task]" :key="c">{{ c }}</th><th></th></tr></thead>
-        <tbody><tr v-for="(r, i) in rows[task]" :key="i"><td v-for="(x, j) in r" :key="j" class="mono">{{ x }}</td><td><a href="#" @click.prevent="rows[task].splice(i, 1)">删</a></td></tr></tbody></table>
-      <p v-else class="small muted">还没有记录。</p>
-      <div class="card-head"><h2>结果</h2></div>
+      <div class="card-head"><h2>{{ t('记录') }}</h2><span class="r small"><button class="btn sm" @click="csv">{{ t('导出 CSV') }}</button> <button class="btn sm" @click="rows[task] = []">{{ t('清空') }}</button></span></div>
+      <table v-if="(rows[task] || []).length" class="tbl small"><thead><tr><th v-for="c in COLS[task]" :key="c">{{ t(c) }}</th><th></th></tr></thead>
+        <tbody><tr v-for="(r, i) in rows[task]" :key="i"><td v-for="(x, j) in r" :key="j" class="mono">{{ x }}</td><td><a href="#" @click.prevent="rows[task].splice(i, 1)">{{ t('删') }}</a></td></tr></tbody></table>
+      <p v-else class="small muted">{{ t('还没有记录。') }}</p>
+      <div class="card-head"><h2>{{ t('结果') }}</h2></div>
       <div class="ans">
-        <label v-for="k in ANS[task]" :key="k">{{ labels[k]?.label || k }}<span v-if="labels[k]?.unit" class="muted">（{{ labels[k].unit }}）</span>
-          <select v-if="k === 'dir'" v-model="ans[task][k]"><option value="">—</option><option value="cw">正转（A 超前 B）</option><option value="ccw">反转（B 超前 A）</option></select>
+        <label v-for="k in ANS[task]" :key="k">{{ labels[k]?.label ? t(labels[k].label) : k }}<span v-if="labels[k]?.unit" class="muted"> ({{ labels[k].unit }})</span>
+          <select v-if="k === 'dir'" v-model="ans[task][k]"><option value="">—</option><option value="cw">{{ t('正转（A 超前 B）') }}</option><option value="ccw">{{ t('反转（B 超前 A）') }}</option></select>
           <input v-else v-model="ans[task][k]" type="number" step="any">
           <span v-if="chk[task]" :class="chkRow(k)?.ok ? 'ok' : 'bad-t'">{{ chkRow(k)?.ok ? '✓' : '✗' }} <small class="muted">{{ chkRow(k)?.allow }}</small></span></label>
       </div>
-      <div class="line"><button class="btn primary" :disabled="busy" @click="check">交平台核对</button>
-        <button class="btn" :disabled="busy" @click="record">下载实验记录（Word）</button>
-        <span v-if="chk[task]" class="small" :class="chk[task].all_ok ? 'ok' : 'bad-t'">{{ chk[task].all_ok ? '全部正确' : '有不对的，看看哪一步' }}</span></div>
+      <div class="line"><button class="btn primary" :disabled="busy" @click="check">{{ t('交平台核对') }}</button>
+        <button class="btn" :disabled="busy" @click="record">{{ t('下载实验记录（Word）') }}</button>
+        <span v-if="chk[task]" class="small" :class="chk[task].all_ok ? 'ok' : 'bad-t'">{{ chk[task].all_ok ? t('全部正确') : t('有不对的，看看哪一步') }}</span></div>
     </section>
   </div>
 </template>
@@ -145,13 +145,14 @@ import { useRoute, useRouter } from 'vue-router';
 import { post, session } from '../lib/api';
 import * as I from '../lib/instruments';
 import ScopeScreen from '../components/ScopeScreen.vue';
+import { isEn, loc, t, td, tk } from '../lib/i18n';
 
 const P = I.PARAMS;
 const TASKS = I.TASKS;
 const ANS = { torque: ['s_mv_v', 'zero_mv', 'nl_pct', 'hys_pct'], encoder: ['dir', 'rpm', 'cpr', 'z_ms'], imu: ['bias', 'arw', 'bi'],
   hall: ['s_mv_a', 'vz', 'fb'], ntc: ['b', 'r25'], tof: ['sd1', 'sd5', 'sd5avg'] };
-const COLS = { torque: ['步', '力矩 N·m', '方向', '输出 V'], encoder: ['项目', '值'], imu: ['τ s', 'σ °/s'],
-  hall: ['类型', '电流 A / 频率 Hz', '输出 V / 幅值 V'], ntc: ['温度 ℃', '电压 V', '电阻 Ω'], tof: ['距离 m', '次数', '平均 mm', '标准差 mm'] };
+const COLS = { torque: [tk('步'), tk('力矩 N·m'), tk('方向'), tk('输出 V')], encoder: [tk('项目'), tk('值')], imu: ['τ s', 'σ °/s'],
+  hall: [tk('类型'), tk('电流 A / 频率 Hz'), tk('输出 V / 幅值 V')], ntc: [tk('温度 ℃'), tk('电压 V'), tk('电阻 Ω')], tof: [tk('距离 m'), tk('次数'), tk('平均 mm'), tk('标准差 mm')] };
 const TDIVS = [1e-7, 2e-7, 5e-7, 1e-6, 2e-6, 5e-6, 1e-5, 2e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3, 2e-3, 5e-3, 1e-2, 2e-2, 5e-2, 0.1];
 const VDIVS = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10];
 
@@ -169,13 +170,13 @@ const DmmPanel = defineComponent({
       const uc = Math.sqrt(ua * ua + (r.u_b || 0) ** 2);
       const dig = r.res ? Math.max(0, -Math.floor(Math.log10(r.res) + 1e-9)) : 4;
       return h('div', { class: 'dmm' }, [
-        h('div', { class: 'lab' }, '数字万用表 · 直流电压'),
+        h('div', { class: 'lab' }, t('数字万用表 · 直流电压')),
         h('div', { class: 'disp mono' }, r.over ? 'OL' : r.value == null ? '—' : r.value.toFixed(dig) + ' V'),
-        h('div', { class: 'small' }, ['量程 ', h('select', { value: p.range, onChange: (e) => emit('update:range', e.target.value === 'auto' ? 'auto' : +e.target.value) },
-          [h('option', { value: 'auto' }, '自动'), ...P.dmm.ranges_v.map((x) => h('option', { value: x }, x + ' V'))]),
-        `　分辨率 ${r.res ? r.res.toExponential(0) : '—'} V`]),
-        h('div', { class: 'small muted' }, `精度 ±(${P.dmm.dcv_pct}% 读数 + ${P.dmm.dcv_dig} 字) = ±${r.acc ? r.acc.toExponential(2) : '—'} V；B 类 u = ${r.u_b ? r.u_b.toExponential(2) : '—'} V`),
-        h('div', { class: 'small muted' }, n ? `最近 ${n} 次平均 ${m.toFixed(dig + 1)} V，A 类 u = ${ua.toExponential(2)} V，合成 u = ${uc.toExponential(2)} V` : ''),
+        h('div', { class: 'small' }, [t('量程') + ' ', h('select', { value: p.range, onChange: (e) => emit('update:range', e.target.value === 'auto' ? 'auto' : +e.target.value) },
+          [h('option', { value: 'auto' }, t('自动')), ...P.dmm.ranges_v.map((x) => h('option', { value: x }, x + ' V'))]),
+        ' · ' + t('分辨率 {r} V', { r: r.res ? r.res.toExponential(0) : '—' })]),
+        h('div', { class: 'small muted' }, t('精度 ±({p}% 读数 + {d} 字) = ±{a} V；B 类 u = {u} V', { p: P.dmm.dcv_pct, d: P.dmm.dcv_dig, a: r.acc ? r.acc.toExponential(2) : '—', u: r.u_b ? r.u_b.toExponential(2) : '—' })),
+        h('div', { class: 'small muted' }, n ? t('最近 {n} 次平均 {m} V，A 类 u = {a} V，合成 u = {c} V', { n, m: m.toFixed(dig + 1), a: ua.toExponential(2), c: uc.toExponential(2) }) : ''),
       ]);
     };
   },
@@ -237,7 +238,7 @@ function channels() {
   }
   if (task.value === 'hall' && v.value) {
     const a = I.hallAc(v.value, hl.f, 1);
-    return [{ name: '输出', fn: (t) => v.value.vz + a.amp * Math.sin(2 * Math.PI * hl.f * t + a.phase) + P.hall.noise_mv / 1000 * g() }];
+    return [{ name: tk('输出'), fn: (t) => v.value.vz + a.amp * Math.sin(2 * Math.PI * hl.f * t + a.phase) + P.hall.noise_mv / 1000 * g() }];
   }
   if (task.value === 'import' && imported.value) {
     const t = imported.value.t;
@@ -323,15 +324,15 @@ const tf = reactive({ d: 1, n: 200, last: '' });
 function tofSample() {
   const a = []; for (let i = 0; i < tf.n; i++) a.push(tf.d * 1000 + I.tofSigma(v.value, tf.d) * g());
   const s = I.stats(a);
-  tf.last = `${tf.d} m，${s.n} 次：平均 ${s.mean.toFixed(2)} mm，标准差 ${s.sd.toFixed(3)} mm`;
+  tf.last = t('{d} m，{n} 次：平均 {m} mm，标准差 {s} mm', { d: tf.d, n: s.n, m: s.mean.toFixed(2), s: s.sd.toFixed(3) });
   rec([tf.d, s.n, s.mean.toFixed(2), s.sd.toFixed(3)]);
 }
 function tofAvg() {
   const ms = [];
   for (let k = 0; k < 100; k++) { let s = 0; for (let i = 0; i < P.tof.n_avg; i++) s += tf.d * 1000 + I.tofSigma(v.value, tf.d) * g(); ms.push(s / P.tof.n_avg); }
   const s = I.stats(ms);
-  tf.last = `${tf.d} m，每 ${P.tof.n_avg} 次平均 × 100 组：平均 ${s.mean.toFixed(2)} mm，标准差 ${s.sd.toFixed(3)} mm`;
-  rec([tf.d, `${P.tof.n_avg} 次平均 ×100`, s.mean.toFixed(2), s.sd.toFixed(3)]);
+  tf.last = t('{d} m，每 {k} 次平均 × 100 组：平均 {m} mm，标准差 {s} mm', { d: tf.d, k: P.tof.n_avg, m: s.mean.toFixed(2), s: s.sd.toFixed(3) });
+  rec([tf.d, t('{k} 次平均 ×100', { k: P.tof.n_avg }), s.mean.toFixed(2), s.sd.toFixed(3)]);
 }
 
 // ---------------------------------------------------------------- 记录与拟合
@@ -343,28 +344,28 @@ function recNtc() {
   rec([nt.t, fmtV(V), (P.ntc.rfix * V / (P.ntc.vs - V)).toFixed(1)]);
 }
 function fitTorque() {
-  const pts = rows.torque.filter((r) => r[2] === '加载').map((r) => [+r[1], +r[3] * 1000]);
-  if (pts.length < 3) { fitRes.value = '加载段至少记录 3 步'; return; }
+  const pts = rows.torque.filter((r) => r[2] === t('加载')).map((r) => [+r[1], +r[3] * 1000]);
+  if (pts.length < 3) { fitRes.value = t('加载段至少记录 3 步'); return; }
   const f = I.linfit(pts.map((p) => p[0]), pts.map((p) => p[1]));
-  fitRes.value = `斜率 ${f.k.toFixed(4)} mV/(N·m)，截距 ${f.b.toFixed(3)} mV（满量程输出 ${(f.k * P.torque.fs_nm).toFixed(2)} mV）`;
+  fitRes.value = t('斜率 {k} mV/(N·m)，截距 {b} mV（满量程输出 {f} mV）', { k: f.k.toFixed(4), b: f.b.toFixed(3), f: (f.k * P.torque.fs_nm).toFixed(2) });
 }
 function fitHall() {
-  const pts = rows.hall.filter((r) => r[0] === '直流').map((r) => [+r[1], +r[2]]);
-  if (pts.length < 3) { fitRes.value = '直流至少记录 3 个点'; return; }
+  const pts = rows.hall.filter((r) => r[0] === t('直流')).map((r) => [+r[1], +r[2]]);
+  if (pts.length < 3) { fitRes.value = t('直流至少记录 3 个点'); return; }
   const f = I.linfit(pts.map((p) => p[0]), pts.map((p) => p[1]));
-  fitRes.value = `斜率 ${(1000 * f.k).toFixed(3)} mV/A，截距 ${f.b.toFixed(4)} V`;
+  fitRes.value = t('斜率 {k} mV/A，截距 {b} V', { k: (1000 * f.k).toFixed(3), b: f.b.toFixed(4) });
 }
 function fitNtc() {
   const pts = rows.ntc.map((r) => [1 / (+r[0] + 273.15) - 1 / 298.15, Math.log(+r[2])]);
-  if (pts.length < 3) { fitRes.value = '至少记录 3 个温度'; return; }
+  if (pts.length < 3) { fitRes.value = t('至少记录 3 个温度'); return; }
   const f = I.linfit(pts.map((p) => p[0]), pts.map((p) => p[1]));
-  fitRes.value = `斜率（B）${f.k.toFixed(1)} K，截距 ${f.b.toFixed(5)} → R25 = ${Math.exp(f.b).toFixed(1)} Ω`;
+  fitRes.value = t('斜率（B）{k} K，截距 {b} → R25 = {r} Ω', { k: f.k.toFixed(1), b: f.b.toFixed(5), r: Math.exp(f.b).toFixed(1) });
 }
 function csv() {
-  const L = [COLS[task.value].join(',')].concat(rows[task.value].map((r) => r.join(',')));
+  const L = [COLS[task.value].map((c) => t(c)).join(',')].concat(rows[task.value].map((r) => r.join(',')));
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob(['﻿' + L.join('\n')], { type: 'text/csv' }));
-  a.download = `虚拟仪器-${task.value}.csv`;
+  a.download = (isEn() ? 'instruments-' : '虚拟仪器-') + `${task.value}.csv`;   // i18n-ok 中文文件名
   document.body.appendChild(a); a.click(); a.remove();
 }
 function chkRow(k) { return chk[task.value]?.rows.find((r) => r.key === k); }
@@ -376,11 +377,11 @@ async function record() {
   busy.value = true; err.value = '';
   try {
     const r = await fetch('/api/instruments/record', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-wq-token': session.token },
-      body: JSON.stringify({ task: task.value, answers: { ...ans[task.value] }, rows: rows[task.value], columns: COLS[task.value] }) });
-    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail || '实验记录生成失败');
+      body: JSON.stringify({ task: task.value, answers: { ...ans[task.value] }, rows: rows[task.value], columns: COLS[task.value].map((c) => t(c)) }) });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail || t('实验记录生成失败'));
     const a = document.createElement('a');
     a.href = URL.createObjectURL(await r.blob());
-    a.download = `虚拟仪器实验记录-${task.value}.docx`;
+    a.download = (isEn() ? 'instruments-record-' : '虚拟仪器实验记录-') + `${task.value}.docx`;   // i18n-ok 中文文件名
     document.body.appendChild(a); a.click(); a.remove();
   } catch (e) { err.value = e.message; } finally { busy.value = false; }
 }

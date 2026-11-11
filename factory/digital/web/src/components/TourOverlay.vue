@@ -1,26 +1,26 @@
 <template>
-  <div v-if="tour.id" class="tour" role="dialog" aria-live="polite" :aria-label="'带我去做：' + tour.title">
+  <div v-if="tour.id" class="tour" role="dialog" aria-live="polite" :aria-label="t('带我去做：') + tour.title">
     <!-- 这一节完成（第 30 轮 §八：带“做完检测”的引导，每一步都真做了） -->
     <div v-if="tour.finished" class="bubble fin" style="left: 50%; top: 30%; transform: translateX(-50%)">
       <p class="t small">{{ tour.title }}</p>
-      <p class="big">这一节完成 ✓</p>
+      <p class="big">{{ t('这一节完成 ✓') }}</p>
       <ol class="ticks small"><li v-for="(s, k) in tour.steps" :key="k" :class="{ ok: tour.ok[k] }">{{ shortStep(s.text) }}</li></ol>
-      <div class="acts"><button class="btn primary" @click="stopTour">好的</button>
-        <router-link class="link small" to="/help" @click="stopTour">回帮助</router-link></div>
+      <div class="acts"><button class="btn primary" @click="stopTour">{{ t('好的') }}</button>
+        <router-link class="link small" to="/help" @click="stopTour">{{ t('回帮助') }}</router-link></div>
     </div>
     <template v-else>
     <div v-if="box" class="spot" :class="{ ok: tour.ok[tour.i] }" :style="spotStyle"></div>
     <div class="bubble" :style="bubbleStyle">
-      <p class="t small">{{ tour.title }} · 第 {{ tour.i + 1 }} / {{ tour.steps.length }} 步
+      <p class="t small">{{ tour.title }} · {{ t('第 {i} / {n} 步', { i: tour.i + 1, n: tour.steps.length }) }}
         <span v-if="anyDone" class="dots" aria-hidden="true"><i v-for="(s, k) in tour.steps" :key="k" :class="{ ok: tour.ok[k], cur: k === tour.i }"></i></span></p>
       <p class="body">{{ step.text }}</p>
-      <p v-if="step.done && tour.ok[tour.i]" class="okline">✓ 做到了</p>
-      <p v-else-if="step.done" class="small wait">请在页面上做这一步，做完会自动打勾。</p>
+      <p v-if="step.done && tour.ok[tour.i]" class="okline">{{ t('✓ 做到了') }}</p>
+      <p v-else-if="step.done" class="small wait">{{ t('请在页面上做这一步，做完会自动打勾。') }}</p>
       <p v-if="!box" class="small muted">{{ missing }}</p>
       <div class="acts">
-        <button class="btn" :disabled="tour.i === 0" @click="prevStep">上一步</button>
-        <button class="btn primary" @click="nextStep">{{ tour.i < tour.steps.length - 1 ? '下一步' : '完成' }}</button>
-        <button class="link small" @click="stopTour">退出引导</button>
+        <button class="btn" :disabled="tour.i === 0" @click="prevStep">{{ t('上一步') }}</button>
+        <button class="btn primary" @click="nextStep">{{ tour.i < tour.steps.length - 1 ? t('下一步') : t('完成') }}</button>
+        <button class="link small" @click="stopTour">{{ t('退出引导') }}</button>
       </div>
     </div>
     </template>
@@ -33,12 +33,13 @@ import { computed, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { get } from '../lib/api';
 import { tour, nextStep, prevStep, stopTour, markDone, met, pick } from '../lib/tour';
+import { t } from '../lib/i18n';
 
 const box = ref(null);
 const missing = ref('');
 const step = computed(() => tour.steps[tour.i] || {});
 // 完成页的步骤清单：每步取第一句（到“：”或“。”为止），太长截断
-const shortStep = (t) => { const x = String(t).split(/[：。（]/)[0]; return x.length > 24 ? x.slice(0, 23) + '…' : x; };
+const shortStep = (s) => { const x = String(s).split(/[：。（]/)[0]; return x.length > 24 ? x.slice(0, 23) + '…' : x; };   // i18n-ok 按中文标点切
 const anyDone = computed(() => tour.steps.some((s) => s.done));
 const route = useRoute();
 let timer = null;
@@ -86,7 +87,7 @@ function locate(tries = 0) {
     timer = setTimeout(() => locate(tries + 1), 250);
   } else {
     box.value = null;
-    missing.value = '这一步要找的地方现在不在页面上（可能要先换角色或先做上一步）。';
+    missing.value = t('这一步要找的地方现在不在页面上（可能要先换角色或先做上一步）。');
   }
 }
 

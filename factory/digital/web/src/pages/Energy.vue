@@ -1,156 +1,156 @@
 <!-- 能源与环境（第 18 轮 E6）：总览（峰平谷曲线、每台设备分档电量）、计量点曲线、单耗与空转、碳与环境。手机宽度可用 -->
 <template>
   <div class="page">
-    <div class="page-title"><h1>能源与环境</h1>
-      <span class="muted">设备状态 → 功率 → 计量读数（每 15 分钟）→ 单件能耗 → 电费（峰平谷）→ 碳排放</span>
+    <div class="page-title"><h1>{{ $t('能源与环境') }}</h1>
+      <span class="muted">{{ $t('设备状态 → 功率 → 计量读数（每 15 分钟）→ 单件能耗 → 电费（峰平谷）→ 碳排放') }}</span>
       <span class="tabs" role="tablist"><button v-for="(l, k) in TABS" :key="k" type="button" role="tab" :class="{ on: tab === k }" @click="go(k)">{{ l }}</button></span></div>
     <div v-if="err" class="err">{{ err }}</div>
     <div v-if="msg" class="ok small">{{ msg }}</div>
 
     <section v-if="ov" class="kpis" data-help="energy-kpis">
-      <div class="card k"><span class="small muted">用电（{{ ov.day.slice(5) }}）</span><b>{{ num(ov.kwh) }}</b><span class="small muted">度 · {{ ov.hours }} 小时的数据</span></div>
-      <div class="card k"><span class="small muted">电费</span><b>${{ money(ov.cost) }}</b><span class="small muted">峰 {{ num(ov.by_bucket.peak) }} / 平 {{ num(ov.by_bucket.flat) }} / 谷 {{ num(ov.by_bucket.valley) }} 度</span></div>
-      <div class="card k"><span class="small muted">峰时占比</span><b :class="{ warn: ov.peak_share > 0.3 }">{{ pct(ov.peak_share) }}</b><span class="small muted">目标 30% 以下</span></div>
-      <div class="card k"><span class="small muted">空转电量</span><b :class="{ warn: ov.idle_share > 0.2 }">{{ num(ov.idle_kwh) }}</b><span class="small muted">度（{{ pct(ov.idle_share) }}）</span></div>
-      <div class="card k"><span class="small muted">碳排放</span><b>{{ num(ov.co2_kg) }}</b><span class="small muted">kg CO2（× {{ ov.factor }}）</span></div>
-      <div class="card k"><span class="small muted">需量 / 合同（本月）</span><b :class="{ bad: ov.demand_ratio > 1, warn: ov.demand_ratio > 0.9 }">{{ num(ov.demand_kw) }} / {{ num(ov.contract_kw) }}</b><span class="small muted">kW（{{ pct(ov.demand_ratio) }}）</span></div>
+      <div class="card k"><span class="small muted">{{ $t('用电（{a}）', { a: ov.day.slice(5) }) }}</span><b>{{ num(ov.kwh) }}</b><span class="small muted">{{ $t('度 · {a} 小时的数据', { a: $td(ov.hours) }) }}</span></div>
+      <div class="card k"><span class="small muted">{{ $t('电费') }}</span><b>${{ money(ov.cost) }}</b><span class="small muted">{{ $t('峰 {a} / 平 {b} / 谷 {c} 度', { a: num(ov.by_bucket.peak), b: num(ov.by_bucket.flat), c: num(ov.by_bucket.valley) }) }}</span></div>
+      <div class="card k"><span class="small muted">{{ $t('峰时占比') }}</span><b :class="{ warn: ov.peak_share > 0.3 }">{{ pct(ov.peak_share) }}</b><span class="small muted">{{ $t('目标 30% 以下') }}</span></div>
+      <div class="card k"><span class="small muted">{{ $t('空转电量') }}</span><b :class="{ warn: ov.idle_share > 0.2 }">{{ num(ov.idle_kwh) }}</b><span class="small muted">{{ $t('度（{a}）', { a: pct(ov.idle_share) }) }}</span></div>
+      <div class="card k"><span class="small muted">{{ $t('碳排放') }}</span><b>{{ num(ov.co2_kg) }}</b><span class="small muted">{{ $t('kg CO2（× {a}）', { a: $td(ov.factor) }) }}</span></div>
+      <div class="card k"><span class="small muted">{{ $t('需量 / 合同（本月）') }}</span><b :class="{ bad: ov.demand_ratio > 1, warn: ov.demand_ratio > 0.9 }">{{ num(ov.demand_kw) }} / {{ num(ov.contract_kw) }}</b><span class="small muted">{{ $t('kW（{a}）', { a: pct(ov.demand_ratio) }) }}</span></div>
     </section>
-    <p v-if="ov && !ov.hours" class="card small muted">{{ ov.measuring ? '还没有计量读数：教学模式由仿真车间每 15 分钟（工厂时间）发一个，车间跑起来就有。' : '这个模式没有打开计量（生产模式要接电表网关或导入读数）。' }}</p>
+    <p v-if="ov && !ov.hours" class="card small muted">{{ ov.measuring ? $t('还没有计量读数：教学模式由仿真车间每 15 分钟（工厂时间）发一个，车间跑起来就有。') : $t('这个模式没有打开计量（生产模式要接电表网关或导入读数）。') }}</p>
 
     <!-- ① 总览 -->
     <template v-if="tab === 'overview' && ov">
       <div class="card" data-help="energy-curve">
-        <div class="ch"><h3>车间总表（{{ ov.day }}，15 分钟平均功率 kW）</h3>
-          <span class="small"><i class="sw peak"></i>峰 ${{ ov.price.peak }} <i class="sw flat"></i>平 ${{ ov.price.flat }} <i class="sw valley"></i>谷 ${{ ov.price.valley }} /度</span>
-          <span class="row small"><button class="linkbtn" @click="shift(-1)">前一天</button><button class="linkbtn" @click="shift(1)">后一天</button></span></div>
-        <svg v-if="ov.series.length" class="curve" viewBox="0 0 960 180" preserveAspectRatio="none" role="img" aria-label="总表功率曲线">
+        <div class="ch"><h3>{{ $t('车间总表（{a}，15 分钟平均功率 kW）', { a: $td(ov.day) }) }}</h3>
+          <span class="small"><i class="sw peak"></i>{{ $t('峰 ${a}', { a: $td(ov.price.peak) }) }} <i class="sw flat"></i>{{ $t('平 ${a}', { a: $td(ov.price.flat) }) }} <i class="sw valley"></i>{{ $t('谷 ${a} /度', { a: $td(ov.price.valley) }) }}</span>
+          <span class="row small"><button class="linkbtn" @click="shift(-1)">{{ $t('前一天') }}</button><button class="linkbtn" @click="shift(1)">{{ $t('后一天') }}</button></span></div>
+        <svg v-if="ov.series.length" class="curve" viewBox="0 0 960 180" preserveAspectRatio="none" role="img" :aria-label="$t('总表功率曲线')">
           <line v-if="ov.contract_kw" x1="0" x2="960" :y1="y(ov.contract_kw)" :y2="y(ov.contract_kw)" class="cl" />
           <rect v-for="(p, i) in ov.series" :key="i" :x="x(p.ts)" :width="9" :y="y(p.kw)" :height="170 - y(p.kw)" :class="p.bucket" />
         </svg>
-        <p class="small muted">虚线：合同需量 {{ ov.contract_kw }} kW。横轴 0–24 点。</p>
+        <p class="small muted">{{ $t('虚线：合同需量 {a} kW。横轴 0–24 点。', { a: $td(ov.contract_kw) }) }}</p>
       </div>
       <div class="card" data-help="energy-units">
-        <h3>每台设备的电量（度）</h3>
+        <h3>{{ $t('每台设备的电量（度）') }}</h3>
         <div v-for="u in ov.units" :key="u.unit" class="bar-row">
-          <span class="bn">{{ u.unit.toUpperCase() }} <span class="muted">{{ u.name }}</span></span>
-          <span class="bar"><span v-for="s in ORDER" :key="s" :class="'st-' + s" :style="{ width: w(u.by_state[s]) }" :title="(ov.state_names[s] || s) + ' ' + (u.by_state[s] || 0) + ' 度'"></span></span>
-          <span class="bv small">{{ num(u.kwh) }}<span v-if="u.by_state.idle && u.unit !== 'ht-01'" class="muted">（空转 {{ pct(u.idle_share) }}）</span></span>
+          <span class="bn">{{ u.unit.toUpperCase() }} <span class="muted">{{ $td(u.name) }}</span></span>
+          <span class="bar"><span v-for="s in ORDER" :key="s" :class="'st-' + s" :style="{ width: w(u.by_state[s]) }" :title="(ov.state_names[s] || s) + ' ' + (u.by_state[s] || 0) + $t(' 度')"></span></span>
+          <span class="bv small">{{ num(u.kwh) }}<span v-if="u.by_state.idle && u.unit !== 'ht-01'" class="muted">{{ $t('（空转 {a}）', { a: pct(u.idle_share) }) }}</span></span>
         </div>
-        <p class="small"><span v-for="s in ORDER" :key="s" class="lg"><i :class="'sw st-' + s"></i>{{ ov.state_names[s] }}</span>
-          <span class="muted">· 热处理炉空闲 = 保温</span></p>
+        <p class="small"><span v-for="s in ORDER" :key="s" class="lg"><i :class="'sw st-' + s"></i>{{ $td(ov.state_names[s]) }}</span>
+          <span class="muted">{{ $t('· 热处理炉空闲 = 保温') }}</span></p>
       </div>
       <div class="card">
-        <h3>节能设定（车间正在用）</h3>
-        <p class="small">空闲自动待机：<template v-if="Object.keys(ov.settings.standby).length">{{ Object.entries(ov.settings.standby).map(([u, m]) => u.toUpperCase() + ' ' + m + ' 分钟').join('、') }}</template><span v-else class="muted">没有</span>
-          · 错峰：<template v-if="ov.settings.tou.length">{{ ov.settings.tou.map((u) => u.toUpperCase()).join('、') }} 峰时不开新炉</template><span v-else class="muted">没有</span>
-          <template v-if="ov.settings.quiet.length"> · 隔声罩：{{ ov.settings.quiet.map((u) => u.toUpperCase()).join('、') }}</template></p>
-        <p class="small muted">改设定走厂情中枢的方案（“空转能耗高”“峰时用电占比高”异常的右栏），厂长批准后下发车间。</p>
+        <h3>{{ $t('节能设定（车间正在用）') }}</h3>
+        <p class="small">{{ $t('空闲自动待机：') }}<template v-if="Object.keys(ov.settings.standby).length">{{ Object.entries(ov.settings.standby).map(([u, m]) => u.toUpperCase() + ' ' + m + $t(' 分钟')).join($t('、')) }}</template><span v-else class="muted">{{ $t('没有') }}</span>
+          {{ $t('· 错峰：') }}<template v-if="ov.settings.tou.length">{{ $t('{a} 峰时不开新炉', { a: ov.settings.tou.map((u) => u.toUpperCase()).join($t('、')) }) }}</template><span v-else class="muted">{{ $t('没有') }}</span>
+          <template v-if="ov.settings.quiet.length"> {{ $t('· 隔声罩：{a}', { a: ov.settings.quiet.map((u) => u.toUpperCase()).join($t('、')) }) }}</template></p>
+        <p class="small muted">{{ $t('改设定走厂情中枢的方案（“空转能耗高”“峰时用电占比高”异常的右栏），厂长批准后下发车间。') }}</p>
       </div>
       <div v-if="ov.teacher" class="card">
-        <h3>老师：能源模拟器 <span class="small" :class="ov.sim ? 'ok' : 'muted'">{{ ov.sim ? '开（会出问题）' : '关' }}</span></h3>
+        <h3>{{ $t('老师：能源模拟器') }} <span class="small" :class="ov.sim ? 'ok' : 'muted'">{{ ov.sim ? $t('开（会出问题）') : $t('关') }}</span></h3>
         <div class="row small">
-          <button class="btn sm" @click="sim({ sim: !ov.sim })">{{ ov.sim ? '关闭' : '打开' }}</button>
-          <select v-model="inj.kind" aria-label="问题"><option v-for="(l, k) in FAULTS" v-show="k !== 'ht_peak' || ov.units.some((x) => x.unit === 'ht-01')" :key="k" :value="k">{{ l }}</option></select>
-          <select v-if="['forgot', 'degrade'].includes(inj.kind)" v-model="inj.unit" aria-label="设备"><option v-for="u in ov.units.filter((x) => x.unit !== 'ht-01')" :key="u.unit" :value="u.unit">{{ u.unit.toUpperCase() }}</option></select>
-          <button class="btn sm danger" @click="sim({ inject: { ...inj } })">注入</button>
+          <button class="btn sm" @click="sim({ sim: !ov.sim })">{{ ov.sim ? $t('关闭') : $t('打开') }}</button>
+          <select v-model="inj.kind" :aria-label="$t('问题')"><option v-for="(l, k) in FAULTS" v-show="k !== 'ht_peak' || ov.units.some((x) => x.unit === 'ht-01')" :key="k" :value="k">{{ $td(l) }}</option></select>
+          <select v-if="['forgot', 'degrade'].includes(inj.kind)" v-model="inj.unit" :aria-label="$t('设备')"><option v-for="u in ov.units.filter((x) => x.unit !== 'ht-01')" :key="u.unit" :value="u.unit">{{ u.unit.toUpperCase() }}</option></select>
+          <button class="btn sm danger" @click="sim({ inject: { ...inj } })">{{ $t('注入') }}</button>
         </div>
-        <ul v-if="ov.faults.length" class="small"><li v-for="f in ov.faults" :key="f.key">{{ f.name }}{{ f.unit ? '（' + f.unit.toUpperCase() + '）' : '' }} · {{ f.by }} · {{ f.at?.slice(11, 16) }}
-          <button class="linkbtn" @click="sim({ clear: f.key })">清除</button></li></ul>
-        <p class="small muted">计量一直开（只记数，不改车间）；模拟器打开时大约每 30 分钟可能出一个问题：下班忘关、漏气、劣化、油雾收集器故障。重载实验 7 情景后关闭。</p>
+        <ul v-if="ov.faults.length" class="small"><li v-for="f in ov.faults" :key="f.key">{{ $td(f.name) }}{{ f.unit ? $t('（') + f.unit.toUpperCase() + $t('）') : '' }} · {{ $td(f.by) }} · {{ f.at?.slice(11, 16) }}
+          <button class="linkbtn" @click="sim({ clear: f.key })">{{ $t('清除') }}</button></li></ul>
+        <p class="small muted">{{ $t('计量一直开（只记数，不改车间）；模拟器打开时大约每 30 分钟可能出一个问题：下班忘关、漏气、劣化、油雾收集器故障。重载实验 7 情景后关闭。') }}</p>
       </div>
     </template>
 
     <!-- ② 计量点 -->
     <template v-if="tab === 'meters'">
       <div class="card">
-        <div class="row"><select v-model="meter" aria-label="计量点" @change="loadSeries"><option v-for="m in meters" :key="m.code" :value="m.code">{{ m.code }} {{ m.label }}（{{ m.unit }}）</option></select>
-          <select v-model.number="hours" aria-label="时长" @change="loadSeries"><option :value="24">24 小时</option><option :value="72">3 天</option><option :value="168">7 天</option></select></div>
-        <svg v-if="ser.length" class="curve" viewBox="0 0 960 180" preserveAspectRatio="none" role="img" aria-label="计量点曲线">
+        <div class="row"><select v-model="meter" :aria-label="$t('计量点')" @change="loadSeries"><option v-for="m in meters" :key="m.code" :value="m.code">{{ $t('{a} {b}（{c}）', { a: $td(m.code), b: $td(m.label), c: $td(m.unit) }) }}</option></select>
+          <select v-model.number="hours" :aria-label="$t('时长')" @change="loadSeries"><option :value="24">{{ $t('24 小时') }}</option><option :value="72">{{ $t('3 天') }}</option><option :value="168">{{ $t('7 天') }}</option></select></div>
+        <svg v-if="ser.length" class="curve" viewBox="0 0 960 180" preserveAspectRatio="none" role="img" :aria-label="$t('计量点曲线')">
           <rect v-for="(p, i) in ser" :key="i" :x="i * 960 / ser.length" :width="Math.max(1, 960 / ser.length - 1)" :y="ys(p.value)" :height="170 - ys(p.value)" :class="p.bucket || 'flat'" />
         </svg>
-        <p v-else class="small muted">这段时间没有读数。</p>
-        <p v-if="ser.length" class="small muted">每格 15 分钟的{{ meter.startsWith('ENV') ? '平均值' : '用量' }}；合计 {{ num(ser.reduce((a, p) => a + p.value, 0)) }}{{ meters.find((m) => m.code === meter)?.unit }}{{ meter.startsWith('ENV') ? '（累加没有意义）' : '' }}</p>
+        <p v-else class="small muted">{{ $t('这段时间没有读数。') }}</p>
+        <p v-if="ser.length" class="small muted">{{ $t('每格 15 分钟的{a}；合计 {b}{c}{d}', { a: meter.startsWith('ENV') ? $t('平均值') : $t('用量'), b: num(ser.reduce((a, p) => a + p.value, 0)), c: meters.find((m) => m.code === meter)?.unit, d: meter.startsWith('ENV') ? $t('（累加没有意义）') : '' }) }}</p>
       </div>
-      <div class="card"><table class="tbl small"><thead><tr><th>编号</th><th>名称</th><th>介质</th><th>单位</th><th>设备</th><th class="num">运行 / 空转 / 待机 kW</th></tr></thead>
-        <tbody><tr v-for="m in meters" :key="m.code"><td>{{ m.code }}</td><td>{{ m.label }}</td><td>{{ m.medium }}</td><td>{{ m.unit }}</td><td>{{ m.machine || '—' }}</td>
+      <div class="card"><table class="tbl small"><thead><tr><th>{{ $t('编号') }}</th><th>{{ $t('名称') }}</th><th>{{ $t('介质') }}</th><th>{{ $t('单位') }}</th><th>{{ $t('设备') }}</th><th class="num">{{ $t('运行 / 空转 / 待机 kW') }}</th></tr></thead>
+        <tbody><tr v-for="m in meters" :key="m.code"><td>{{ $td(m.code) }}</td><td>{{ $td(m.label) }}</td><td>{{ $td(m.medium) }}</td><td>{{ $td(m.unit) }}</td><td>{{ m.machine || '—' }}</td>
           <td class="num">{{ m.power?.join(' / ') || '—' }}</td></tr></tbody></table></div>
     </template>
 
     <!-- ③ 单耗 -->
     <template v-if="tab === 'unit' && un">
       <div class="card">
-        <h3>单件运行电量（度 / 件）</h3>
-        <table class="tbl small"><thead><tr><th>设备</th><th>物料</th><th class="num">最近几件</th><th class="num">每件</th><th class="num">基线</th><th>基线来自</th><th class="num">变化</th></tr></thead>
-          <tbody><tr v-for="x in un.rows" :key="x.unit + x.item"><td>{{ x.unit.toUpperCase() }}</td><td>{{ x.item }}</td><td class="num">{{ x.recent_parts }}</td><td class="num">{{ x.recent ?? '—' }}</td>
-            <td class="num">{{ x.base ?? '—' }}</td><td>{{ x.base_from === 'history' ? '近 7 天' : '标准值 × 1.08' }}</td>
+        <h3>{{ $t('单件运行电量（度 / 件）') }}</h3>
+        <table class="tbl small"><thead><tr><th>{{ $t('设备') }}</th><th>{{ $t('物料') }}</th><th class="num">{{ $t('最近几件') }}</th><th class="num">{{ $t('每件') }}</th><th class="num">{{ $t('基线') }}</th><th>{{ $t('基线来自') }}</th><th class="num">{{ $t('变化') }}</th></tr></thead>
+          <tbody><tr v-for="x in un.rows" :key="x.unit + x.item"><td>{{ x.unit.toUpperCase() }}</td><td>{{ $td(x.item) }}</td><td class="num">{{ $td(x.recent_parts) }}</td><td class="num">{{ x.recent ?? '—' }}</td>
+            <td class="num">{{ x.base ?? '—' }}</td><td>{{ x.base_from === 'history' ? $t('近 7 天') : $t('标准值 × 1.08') }}</td>
             <td class="num" :class="{ bad: x.change > 0.25 }">{{ x.change === null ? '—' : (x.change > 0 ? '+' : '') + pct(x.change) }}</td></tr></tbody></table>
-        <p class="small muted">标准值 = 运行功率 × 这台设备上这道工序的标准工时。高 25% 以上厂情中枢报“单耗突增”：多半是主轴轴承、刀具 / 砂轮在劣化。</p>
+        <p class="small muted">{{ $t('标准值 = 运行功率 × 这台设备上这道工序的标准工时。高 25% 以上厂情中枢报“单耗突增”：多半是主轴轴承、刀具 / 砂轮在劣化。') }}</p>
       </div>
       <div class="card">
-        <h3>近 12 小时空转</h3>
-        <table class="tbl small"><thead><tr><th>设备</th><th class="num">电量</th><th class="num">空转电量</th><th class="num">空转小时</th><th class="num">占比</th></tr></thead>
-          <tbody><tr v-for="x in [...un.idle].sort((a, b) => b.idle_kwh - a.idle_kwh)" :key="x.unit"><td>{{ x.unit.toUpperCase() }} <span class="muted">{{ x.name }}</span></td>
-            <td class="num">{{ x.kwh }}</td><td class="num">{{ x.idle_kwh }}</td><td class="num">{{ x.idle_h }}</td><td class="num" :class="{ warn: x.idle_share > 0.3 }">{{ pct(x.idle_share) }}</td></tr></tbody></table>
+        <h3>{{ $t('近 12 小时空转') }}</h3>
+        <table class="tbl small"><thead><tr><th>{{ $t('设备') }}</th><th class="num">{{ $t('电量') }}</th><th class="num">{{ $t('空转电量') }}</th><th class="num">{{ $t('空转小时') }}</th><th class="num">{{ $t('占比') }}</th></tr></thead>
+          <tbody><tr v-for="x in [...un.idle].sort((a, b) => b.idle_kwh - a.idle_kwh)" :key="x.unit"><td>{{ x.unit.toUpperCase() }} <span class="muted">{{ $td(x.name) }}</span></td>
+            <td class="num">{{ $td(x.kwh) }}</td><td class="num">{{ $td(x.idle_kwh) }}</td><td class="num">{{ $td(x.idle_h) }}</td><td class="num" :class="{ warn: x.idle_share > 0.3 }">{{ pct(x.idle_share) }}</td></tr></tbody></table>
       </div>
       <div class="card small">
-        <h3>公用</h3>
-        <p>空压机近 {{ un.air.hours }} 小时平均 {{ un.air.actual_kw }} kW，按开着的用气设备应 {{ un.air.expected_kw }} kW，<b :class="{ bad: un.air.excess_kw > 3 }">多出 {{ un.air.excess_kw }} kW</b>{{ un.air.excess_kw > 3 ? '（可能漏气）' : '' }}。</p>
-        <p>近 24 小时峰时电量 {{ num(un.peak.peak_kwh) }} 度，占 {{ pct(un.peak.share) }}；其中热处理炉 {{ num(un.peak.ht_peak_kwh) }} 度。</p>
+        <h3>{{ $t('公用') }}</h3>
+        <p>{{ $t('空压机近 {a} 小时平均 {b} kW，按开着的用气设备应 {c} kW，', { a: $td(un.air.hours), b: $td(un.air.actual_kw), c: $td(un.air.expected_kw) }) }}<b :class="{ bad: un.air.excess_kw > 3 }">{{ $t('多出 {a} kW', { a: $td(un.air.excess_kw) }) }}</b>{{ $t('{a}。', { a: un.air.excess_kw > 3 ? $t('（可能漏气）') : '' }) }}</p>
+        <p>{{ $t('近 24 小时峰时电量 {a} 度，占 {b}；其中热处理炉 {c} 度。', { a: num(un.peak.peak_kwh), b: pct(un.peak.share), c: num(un.peak.ht_peak_kwh) }) }}</p>
       </div>
     </template>
 
     <!-- ④ 碳与环境 -->
     <template v-if="tab === 'carbon' && cb">
       <div class="card">
-        <h3>{{ cb.month }} 碳核算（{{ cb.scope }}）</h3>
-        <p class="small">用电 <b>{{ num(cb.kwh) }}</b> 度（{{ cb.hours }} 小时的数据）× 排放因子 {{ cb.factor }} kg/度 = <b>{{ cb.t_co2e }}</b> 吨 CO2e；
-          自来水 {{ cb.water_m3 }} m³，压缩空气 {{ num(cb.air_m3) }} m³。</p>
-        <table class="tbl small"><thead><tr><th>设备</th><th class="num">电量</th><th class="num">碳（kg）</th><th class="num">件数</th><th class="num">每件（全口径，度）</th></tr></thead>
-          <tbody><tr v-for="x in cb.units" :key="x.unit"><td>{{ x.unit.toUpperCase() }} <span class="muted">{{ x.name }}</span></td><td class="num">{{ num(x.kwh) }}</td><td class="num">{{ num(x.co2_kg) }}</td>
-            <td class="num">{{ x.parts }}</td><td class="num">{{ x.kwh_per_part ?? '—' }}</td></tr></tbody></table>
-        <h3>每件产品的碳足迹（全口径：各工序设备的电量 ÷ 件数，加上空压机、照明按件分摊）</h3>
-        <ul class="small"><li v-for="p in cb.products" :key="p.item">{{ p.item }}：每件约 {{ p.kwh }} 度、<b>{{ p.co2_kg }} kg CO2e</b>（{{ p.ops }} 道工序）
-          <span v-if="p.missing.length" class="muted">；{{ p.missing.map((u) => u.toUpperCase()).join('、') }} 这个月还没做过件，没算进去</span></li></ul>
-        <p class="small muted">开工率低时每件分摊的保温、空转很多，全口径会比“运行功率 × 工时”大得多。</p>
+        <h3>{{ $t('{a} 碳核算（{b}）', { a: $td(cb.month), b: $td(cb.scope) }) }}</h3>
+        <p class="small">{{ $t('用电') }} <b>{{ num(cb.kwh) }}</b> {{ $t('度（{a} 小时的数据）× 排放因子 {b} kg/度 =', { a: $td(cb.hours), b: $td(cb.factor) }) }} <b>{{ $td(cb.t_co2e) }}</b> {{ $t('吨 CO2e；自来水 {a} m³，压缩空气 {b} m³。', { a: $td(cb.water_m3), b: num(cb.air_m3) }) }}</p>
+        <table class="tbl small"><thead><tr><th>{{ $t('设备') }}</th><th class="num">{{ $t('电量') }}</th><th class="num">{{ $t('碳（kg）') }}</th><th class="num">{{ $t('件数') }}</th><th class="num">{{ $t('每件（全口径，度）') }}</th></tr></thead>
+          <tbody><tr v-for="x in cb.units" :key="x.unit"><td>{{ x.unit.toUpperCase() }} <span class="muted">{{ $td(x.name) }}</span></td><td class="num">{{ num(x.kwh) }}</td><td class="num">{{ num(x.co2_kg) }}</td>
+            <td class="num">{{ $td(x.parts) }}</td><td class="num">{{ x.kwh_per_part ?? '—' }}</td></tr></tbody></table>
+        <h3>{{ $t('每件产品的碳足迹（全口径：各工序设备的电量 ÷ 件数，加上空压机、照明按件分摊）') }}</h3>
+        <ul class="small"><li v-for="p in cb.products" :key="p.item">{{ $t('{a}：每件约 {b} 度、', { a: $td(p.item), b: $td(p.kwh) }) }}<b>{{ $td(p.co2_kg) }} kg CO2e</b>{{ $t('（{a} 道工序）', { a: $td(p.ops) }) }}
+          <span v-if="p.missing.length" class="muted">{{ $t('；{a} 这个月还没做过件，没算进去', { a: p.missing.map((u) => u.toUpperCase()).join($t('、')) }) }}</span></li></ul>
+        <p class="small muted">{{ $t('开工率低时每件分摊的保温、空转很多，全口径会比“运行功率 × 工时”大得多。') }}</p>
       </div>
       <div v-if="env" class="card">
-        <h3>车间环境（近 24 小时，15 分钟平均）</h3>
+        <h3>{{ $t('车间环境（近 24 小时，15 分钟平均）') }}</h3>
         <div v-for="(v, k) in env.now" :key="k" class="envr">
-          <span class="bn">{{ v.label }}</span>
+          <span class="bn">{{ $td(v.label) }}</span>
           <svg class="mini" viewBox="0 0 480 60" preserveAspectRatio="none" role="img" :aria-label="v.label">
             <line x1="0" x2="480" :y1="ye(v.limit, k)" :y2="ye(v.limit, k)" class="cl" />
             <polyline :points="(env.series[k] || []).map((p, i, a) => (i * 480 / Math.max(1, a.length - 1)).toFixed(1) + ',' + ye(p.value, k).toFixed(1)).join(' ')" class="pl" />
           </svg>
-          <span class="small" :class="{ bad: v.over }">{{ v.value ?? '—' }} {{ v.unit }}（限值 {{ v.limit }}）</span>
+          <span class="small" :class="{ bad: v.over }">{{ $t('{a} {b}（限值 {c}）', { a: v.value ?? '—', b: $td(v.unit), c: $td(v.limit) }) }}</span>
         </div>
-        <p class="small muted">油雾按开着的湿式加工设备数，噪声按运行设备声级叠加。超限厂情中枢报“车间环境指标超限”，整改走安全环保的整改工单。</p>
+        <p class="small muted">{{ $t('油雾按开着的湿式加工设备数，噪声按运行设备声级叠加。超限厂情中枢报“车间环境指标超限”，整改走安全环保的整改工单。') }}</p>
       </div>
       <div class="card">
-        <h3>参数</h3>
+        <h3>{{ $t('参数') }}</h3>
         <div class="row small">
-          <label>峰 $<input v-model.number="pm.price.peak" type="number" step="0.01" :disabled="!pm.can_edit"></label>
-          <label>平 $<input v-model.number="pm.price.flat" type="number" step="0.01" :disabled="!pm.can_edit"></label>
-          <label>谷 $<input v-model.number="pm.price.valley" type="number" step="0.01" :disabled="!pm.can_edit"></label>
-          <label>排放因子 <input v-model.number="pm.co2_factor" type="number" step="0.0001" :disabled="!pm.can_edit"> kg/度</label>
-          <label>合同需量 <input v-model.number="pm.contract_kw" type="number" step="1" :disabled="!pm.can_edit"> kW</label>
-          <label>油雾限值 <input v-model.number="pm.mist_limit" type="number" step="0.1" :disabled="!pm.can_edit"></label>
-          <label>噪声限值 <input v-model.number="pm.noise_limit" type="number" step="1" :disabled="!pm.can_edit"></label>
-          <button v-if="pm.can_edit" class="btn sm" @click="saveParams">保存</button>
+          <label>{{ $t('峰 $') }}<input v-model.number="pm.price.peak" type="number" step="0.01" :disabled="!pm.can_edit"></label>
+          <label>{{ $t('平 $') }}<input v-model.number="pm.price.flat" type="number" step="0.01" :disabled="!pm.can_edit"></label>
+          <label>{{ $t('谷 $') }}<input v-model.number="pm.price.valley" type="number" step="0.01" :disabled="!pm.can_edit"></label>
+          <label>{{ $t('排放因子') }} <input v-model.number="pm.co2_factor" type="number" step="0.0001" :disabled="!pm.can_edit"> {{ $t('kg/度') }}</label>
+          <label>{{ $t('合同需量') }} <input v-model.number="pm.contract_kw" type="number" step="1" :disabled="!pm.can_edit"> kW</label>
+          <label>{{ $t('油雾限值') }} <input v-model.number="pm.mist_limit" type="number" step="0.1" :disabled="!pm.can_edit"></label>
+          <label>{{ $t('噪声限值') }} <input v-model.number="pm.noise_limit" type="number" step="1" :disabled="!pm.can_edit"></label>
+          <button v-if="pm.can_edit" class="btn sm" @click="saveParams">{{ $t('保存') }}</button>
         </div>
-        <p class="small muted">峰 8–11、18–21 点；谷 23–7 点；其余平。排放因子默认用全国电网平均值，可按所在地区改。只有厂长能改。</p>
+        <p class="small muted">{{ $t('峰 8–11、18–21 点；谷 23–7 点；其余平。排放因子默认用全国电网平均值，可按所在地区改。只有厂长能改。') }}</p>
       </div>
     </template>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { get, post } from '../lib/api';
 
-const TABS = { overview: '总览', meters: '计量点', unit: '单耗', carbon: '碳与环境' };
+const TABS = { overview: $t('总览'), meters: $t('计量点'), unit: $t('单耗'), carbon: $t('碳与环境') };
 const ORDER = ['run', 'setup', 'idle', 'standby', 'down', 'off'];
-const FAULTS = { forgot: '下班忘关', degrade: '设备劣化（单耗上升）', leak: '压缩空气泄漏', ht_peak: '峰时开炉', mist: '油雾收集器故障' };
+const FAULTS = { forgot: $t('下班忘关'), degrade: $t('设备劣化（单耗上升）'), leak: $t('压缩空气泄漏'), ht_peak: $t('峰时开炉'), mist: $t('油雾收集器故障') };
 const route = useRoute();
 const router = useRouter();
 const tab = ref(TABS[route.query.tab] ? route.query.tab : 'overview');
@@ -207,10 +207,10 @@ async function loadSeries() { await wrap(async () => { ser.value = (await get(`/
 async function saveParams() {
   await wrap(async () => {
     await post('/energy/params', { price: pm.price, co2_factor: pm.co2_factor, contract_kw: pm.contract_kw, mist_limit: pm.mist_limit, noise_limit: pm.noise_limit });
-    msg.value = '参数已保存'; load();
+    msg.value = $t('参数已保存'); load();
   });
 }
-async function sim(body) { await wrap(async () => { const r = await post('/energy/sim', body); msg.value = r.text || ('模拟器' + (r.sim ? '已打开' : '已关闭')); load(); }); }
+async function sim(body) { await wrap(async () => { const r = await post('/energy/sim', body); msg.value = r.text || ($t('模拟器') + (r.sim ? $t('已打开') : $t('已关闭'))); load(); }); }
 load();
 </script>
 

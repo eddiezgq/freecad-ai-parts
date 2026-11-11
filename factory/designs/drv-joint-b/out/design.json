@@ -160,21 +160,21 @@
  "drc": {
   "errors": 0,
   "unconnected": 0,
-  "warnings": 100
+  "warnings": 111
  },
  "files": {
   "bom.csv": "7e560f9c50db1776",
-  "dfm.json": "67717ec9b8d4df86",
-  "drc.json": "d3715affd333ce72",
-  "gerber.zip": "d7d04dacf0fbda6e",
-  "kicad-project.zip": "11f4cf409c9cbb15",
-  "pcb/B_Cu.svg": "7a7ba9d1647fb50e",
-  "pcb/B_Silk.svg": "4bb482b433565b81",
-  "pcb/F_Cu.svg": "a1ec728b6f021ca6",
-  "pcb/F_Silk.svg": "bf6c910a7933060b",
-  "pcb/In1_Cu.svg": "83a49f508eb03972",
-  "pcb/In2_Cu.svg": "b65e7a58982fda99",
-  "pos.csv": "428eb359b0ae18be",
+  "dfm.json": "22646ada870cc179",
+  "drc.json": "f59ad1acc7a9dc7a",
+  "gerber.zip": "f085b34eb05f817c",
+  "kicad-project.zip": "f2778e0feaf8972b",
+  "pcb/B_Cu.svg": "a3811e06ba93058d",
+  "pcb/B_Silk.svg": "1735fcc79725d054",
+  "pcb/F_Cu.svg": "bc956c611c140977",
+  "pcb/F_Silk.svg": "14e7961b0f8d0008",
+  "pcb/In1_Cu.svg": "92e5333598f75e01",
+  "pcb/In2_Cu.svg": "5db20efcda44b05c",
+  "pos.csv": "bd9d673e84d15466",
   "schematic/drv-joint-b-1 48 V 输入与母线.svg": "901163b021e3aca7",
   "schematic/drv-joint-b-2 辅助电源 12 _ 5 _ 3.3 V.svg": "9327382841555faa",
   "schematic/drv-joint-b-3 三相桥.svg": "019ead73e323a86d",
@@ -735,8 +735,8 @@
    "side": "F",
    "value": "100n",
    "xy": [
-    38.5,
-    44
+    48.5,
+    43.6
    ]
   },
   {
@@ -749,8 +749,8 @@
    "side": "F",
    "value": "1n",
    "xy": [
-    49.5,
-    44
+    48.5,
+    46.6
    ]
   },
   {
@@ -959,8 +959,8 @@
    "side": "F",
    "value": "100n",
    "xy": [
-    54.5,
-    44
+    64.5,
+    43.6
    ]
   },
   {
@@ -973,8 +973,8 @@
    "side": "F",
    "value": "1n",
    "xy": [
-    65.5,
-    44
+    64.5,
+    46.6
    ]
   },
   {
@@ -1183,8 +1183,8 @@
    "side": "F",
    "value": "100n",
    "xy": [
-    70.5,
-    44
+    80.5,
+    43.6
    ]
   },
   {
@@ -1197,8 +1197,8 @@
    "side": "F",
    "value": "1n",
    "xy": [
-    81.5,
-    44
+    80.5,
+    46.6
    ]
   },
   {
@@ -1267,8 +1267,8 @@
    "side": "F",
    "value": "100n",
    "xy": [
-    46.7,
-    62
+    43.2,
+    64.2
    ]
   },
   {
@@ -1309,8 +1309,8 @@
    "side": "F",
    "value": "1u",
    "xy": [
-    40,
-    50.5
+    37.7,
+    51.8
    ]
   },
   {
@@ -2941,9 +2941,9 @@
  ],
  "stats": {
   "parts": 186,
-  "track_mm": 4590.6,
-  "tracks": 1644,
-  "vias": 255
+  "track_mm": 4567.4,
+  "tracks": 1634,
+  "vias": 258
  },
  "tool": "KiCad 7.0.11 + Freerouting 1.9.0（自动布线）",
  "values": {

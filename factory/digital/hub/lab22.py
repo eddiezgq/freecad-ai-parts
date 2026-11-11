@@ -5,6 +5,7 @@
 老师注入“某客户一笔发票逾期不付”→ 比较“发催款函 / 信用冻结 / 不处理”（比对模式，看现金流预测）→ 执行，客户付款 →
 算应收周转天数，找现金最紧的一周。任务编号前缀 l22_。"""
 import json
+from hub import i18n
 
 TASKS = [
     {"id": "l22_t1", "points": 10, "title": "找没达标的经营指标",
@@ -118,7 +119,7 @@ def answer(db, user, tid, ans):
             return {"score": 0, "of": 10, "feedback": "选一个方案"}
         best = (FN._state(db, "teach").get("recommended") or {}).get(str(t["anomaly_id"])) or "dunning"
         s = 6 if kind == best else (4 if kind != "none" else 2)
-        s += 4 if any(k in reason for k in ("现金", "收", "钱", "$", "款")) and any(k in reason for k in ("关系", "客户", "发货", "订单")) else 2
+        s += 4 if i18n.has_kw(reason, ("现金", "收", "钱", "$", "款")) and i18n.has_kw(reason, ("关系", "客户", "发货", "订单")) else 2
         _save(db, user, tid, s, {"submitted": True, "option": kind, "reason": reason, "system": best, "anomaly_id": t["anomaly_id"]})
         return {"score": s, "of": 10, "feedback": "提交了。现在可以在指挥台看中枢的建议，和你的选择对比。" if s == 10 else "提交了（得 {} 分）。".format(s)}
     if tid == "l22_t5":

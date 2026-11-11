@@ -12,15 +12,16 @@
       <line v-if="hx != null" class="cur" :x1="hx" :x2="hx" y1="0" y2="400" />
     </svg>
     <div class="info small">
-      <span v-for="(tr, k) in traces" :key="'i' + k" :style="{ color: COL[k] }">CH{{ k + 1 }} {{ tr.name }}　{{ si(vdiv[k]) }}V/格</span>
-      <span>{{ si(tdiv) }}s/格</span>
-      <span v-if="hx != null && traces.length">t = {{ si(curT) }}s　<b v-for="(tr, k) in traces" :key="'h' + k" :style="{ color: COL[k] }">{{ si(curV(tr)) }}V　</b></span>
+      <span v-for="(tr, k) in traces" :key="'i' + k" :style="{ color: COL[k] }">CH{{ k + 1 }} {{ t(tr.name) }}  {{ si(vdiv[k]) }}{{ t('V/格') }}</span>
+      <span>{{ si(tdiv) }}{{ t('s/格') }}</span>
+      <span v-if="hx != null && traces.length">t = {{ si(curT) }}s  <b v-for="(tr, k) in traces" :key="'h' + k" :style="{ color: COL[k] }">{{ si(curV(tr)) }}V  </b></span>
     </div>
   </div>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue';
+import { t } from '../lib/i18n';
 
 const props = defineProps({ traces: { type: Array, default: () => [] }, vdiv: { type: Array, default: () => [1, 1, 1, 1] },
   off: { type: Array, default: () => [0, 0, 0, 0] }, tdiv: { type: Number, default: 1e-3 } });

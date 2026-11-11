@@ -7,6 +7,7 @@
 
 评分全部依据平台里的事实：系统的追溯链、孪生的健康度、动作的执行状态、回访记录。任务成绩存在 task_result，编号加前缀 l16_。"""
 import json
+from hub import i18n
 
 TASKS = [
     {"id": "l16_t1", "points": 15, "title": "先自己追溯、列排查范围",
@@ -140,7 +141,7 @@ def answer(db, user, tid, ans):
         if o is None:
             return {"score": 0, "of": 10, "feedback": "选 A、B 或 C（现有方案：{}）".format("、".join(opts) or "无")}
         covered = not o["uncovered_high"]
-        s = (6 if covered else 2) + (4 if any(k in reason for k in ("成本", "钱", "费")) and any(k in reason for k in ("风险", "客户", "保修")) else 2)
+        s = (6 if covered else 2) + (4 if i18n.has_kw(reason, ("成本", "钱", "费")) and i18n.has_kw(reason, ("风险", "客户", "保修")) else 2)
         _save(db, user, tid, s, {"submitted": True, "complaint_id": c["id"], "option": key, "label": o["label"], "reason": reason,
                                  "uncovered_high": o["uncovered_high"], "cost": o["service"]["cost"]["total"], "days": o["service"]["days"]})
         return {"score": s, "of": 10, "feedback": ("提交了。现在可以在指挥台看中枢的建议，和你的选择对比。" if s == 10 else

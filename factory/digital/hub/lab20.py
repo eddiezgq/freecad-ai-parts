@@ -5,6 +5,7 @@
 学生（质量角色）看抽样数据，判定合格 / 不合格，数超差的件 → 在指挥台比较“退货等补发 / 备选急单 / 让步接收 / 不处理”（比对模式）→
 执行，批准后这一批不再卡着 → 算默认和备选两家轴承供应商的每件总拥有成本。评分依据平台里的事实。任务编号前缀 l20_。"""
 import json
+from hub import i18n
 
 TASKS = [
     {"id": "l20_t1", "points": 10, "title": "找单一来源",
@@ -105,7 +106,7 @@ def answer(db, user, tid, ans):
             return {"score": 0, "of": 10, "feedback": "选一个方案"}
         best = (SP._state(db, "teach").get("recommended") or {}).get(str(t["lot_id"])) or "return"
         s = 6 if kind == best else (4 if kind != "none" else 2)
-        s += 4 if any(k in reason for k in ("交期", "订单", "到料", "等")) and any(k in reason for k in ("钱", "费", "成本", "$", "贵", "质量", "风险")) else 2
+        s += 4 if i18n.has_kw(reason, ("交期", "订单", "到料", "等")) and i18n.has_kw(reason, ("钱", "费", "成本", "$", "贵", "质量", "风险")) else 2
         _save(db, user, tid, s, {"submitted": True, "option": kind, "reason": reason, "system": best})
         return {"score": s, "of": 10, "feedback": "提交了。现在可以在指挥台看中枢的建议，和你的选择对比。" if s == 10 else "提交了（得 {} 分）。".format(s)}
     if tid == "l20_t5":

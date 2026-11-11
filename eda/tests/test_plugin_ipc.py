@@ -68,11 +68,24 @@ def test_readback_and_jump(kb):
     assert ch["none"], R.describe(ch)
     s = Session(k, board, os.path.join(DESIGNS, "drv-joint", "kicad"), os.path.join(EDA, "kicad-plugin"))
     s.factory = EXAMPLE_CAP
-    s.check()
-    i = next(i for i, r in enumerate(s.result["rows"]) if r["key"] == "L-near-C27")
-    assert "C27" in s.jump(i)
-    picked = [x.reference_field.text.value for x in board.get_selection() if hasattr(x, "reference_field")]
-    assert "C27" in picked
+    # 第 129 轮以后 A 版布局约束全部通过：在 KiCad 里把 C27 挪远 10 mm 造一条“不通过”，测完挪回去
+    from kipy.geometry import Vector2
+
+    fp = next(f for f in board.get_footprints() if f.reference_field.text.value == "C27")
+    x0, y0 = fp.position.x, fp.position.y
+    fp.position = Vector2.from_xy(x0 - 10_000_000, y0)
+    board.update_items(fp)
+    try:
+        s.check()
+        row = next(r for r in s.result["rows"] if r["key"] == "L-near-C27")
+        assert row["status"] == "fail"
+        assert "C27" in s.jump(s.result["rows"].index(row))
+        picked = [x.reference_field.text.value for x in board.get_selection() if hasattr(x, "reference_field")]
+        assert "C27" in picked
+    finally:
+        fp.position = Vector2.from_xy(x0, y0)
+        board.update_items(fp)
+    assert R.compare(R.read_ipc(board), D.read_yaml(A))["none"]
 
 
 def test_move_then_readback(kb):

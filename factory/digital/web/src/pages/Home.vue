@@ -1,45 +1,45 @@
 <template>
   <div class="page">
-    <div v-if="error" class="card err">看板数据取不到：{{ error }}（检查枢纽服务与历史库是否在运行）</div>
-    <div v-if="!ov && !error" class="muted">正在从历史库计算…</div>
+    <div v-if="error" class="card err">{{ t('看板数据取不到：{e}（检查枢纽服务与历史库是否在运行）', { e: error }) }}</div>
+    <div v-if="!ov && !error" class="muted">{{ t('正在从历史库计算…') }}</div>
     <template v-if="ov">
       <TaskBar v-if="ov.teach" :t="ov.teach" />
-      <div v-if="ov.demo" class="demo small">含“实验 7”教学情景的演示数据（订单、库存等由情景生成，不在 ERPNext 里）。教师可在“情景导演”的教师控制台重置或清空。</div>
+      <div v-if="ov.demo" class="demo small">{{ t('含“实验 7”教学情景的演示数据（订单、库存等由情景生成，不在 ERPNext 里）。教师可在“情景导演”的教师控制台重置或清空。') }}</div>
 
       <!-- 厂情中枢提醒条（第 17 轮 D 期 D6）：严重异常和带处理预案的异常；教学模式的学生不显示（实验 7 要自己从看板里找） -->
       <router-link v-for="b in banner" :key="b.id" :to="b.url" class="ont-banner" :class="b.severity">
-        <b>{{ b.severity === 'critical' ? '严重' : '注意' }}</b><span>{{ b.text }}</span><span class="go">去处理 →</span>
+        <b>{{ b.severity === 'critical' ? t('严重') : t('注意') }}</b><span>{{ td(b.text) }}</span><span class="go">{{ t('去处理 →') }}</span>
       </router-link>
 
       <!-- AI 今日简报 -->
-      <section class="card brief" data-help="home-brief" aria-label="AI 今日简报">
+      <section class="card brief" data-help="home-brief" :aria-label="t('AI 今日简报')">
         <div class="brief-main">
           <div class="brief-head">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>
-            <h2>AI 今日简报{{ teach ? ' · 教学模式只提示方向' : '' }}</h2>
-            <span class="muted small">{{ briefTime }} 更新 · 依据统一数据总线</span>
-            <button class="link small" @click="refreshBrief">重新生成</button>
+            <h2>{{ t('AI 今日简报') }}{{ teach ? ' · ' + t('教学模式只提示方向') : '' }}</h2>
+            <span class="muted small">{{ t('{t} 更新 · 依据统一数据总线', { t: briefTime }) }}</span>
+            <button class="link small" @click="refreshBrief">{{ t('重新生成') }}</button>
           </div>
-          <div v-if="!brief" class="muted small">还没有简报：AI 每 20 秒巡检一次全厂，稍等片刻或点“重新生成”。</div>
+          <div v-if="!brief" class="muted small">{{ t('还没有简报：AI 每 20 秒巡检一次全厂，稍等片刻或点“重新生成”。') }}</div>
           <div v-for="(b, i) in brief?.items || []" :key="i" class="brief-item">
             <span class="dot" :style="{ background: toneColor(b.tone) }"></span>
             <div>
-              <div class="brief-text">{{ b.text }}</div>
-              <div class="src">来源：{{ srcText(b.evidence) }}</div>
+              <div class="brief-text">{{ td(b.text) }}</div>
+              <div class="src">{{ t('来源：') }}{{ srcText(b.evidence) }}</div>
             </div>
           </div>
         </div>
         <form class="brief-ask" @submit.prevent="askAi">
-          <label for="ask" class="muted small">问 AI 工厂助手</label>
-          <input id="ask" v-model="q" :placeholder="teach ? '例如：我下一步做什么？' : '例如：哪张订单会延期？为什么？'">
+          <label for="ask" class="muted small">{{ t('问 AI 工厂助手') }}</label>
+          <input id="ask" v-model="q" :placeholder="teach ? t('例如：我下一步做什么？') : t('例如：哪张订单会延期？为什么？')">
           <div class="chips">
-            <button v-for="c in chips" :key="c" type="button" class="chip" @click="ask(c)">{{ c }}</button>
+            <button v-for="c in chips" :key="c" type="button" class="chip" @click="ask(t(c))">{{ t(c) }}</button>
           </div>
         </form>
       </section>
 
       <!-- 关键指标 -->
-      <section class="kpis" data-help="home-kpis" aria-label="关键指标">
+      <section class="kpis" data-help="home-kpis" :aria-label="t('关键指标')">
         <div v-for="k in ov.kpis" :key="k.key" class="card kpi" :class="{ focus: focus.kpis.includes(k.key) }">
           <span class="muted small">{{ k.label }}</span>
           <span class="mono kv">{{ kpiValue(k) }}</span>
@@ -49,13 +49,13 @@
 
       <!-- 车间实况 + 订单与交期 -->
       <div class="row">
-        <section class="card shop" data-help="home-shop" :class="{ focus: focus.shop }" aria-label="车间实况">
+        <section class="card shop" data-help="home-shop" :class="{ focus: focus.shop }" :aria-label="t('车间实况')">
           <div class="card-head">
-            <h2>车间实况</h2>
+            <h2>{{ t('车间实况') }}</h2>
             <div class="legend small muted">
               <span v-for="s in ['run', 'idle', 'setup', 'down']" :key="s"><i :style="{ background: STATE[s].color }"></i>{{ STATE[s].label }} {{ counts[s] || 0 }}</span>
             </div>
-            <router-link to="/3d" class="more">进入 3D 车间 →</router-link>
+            <router-link to="/3d" class="more">{{ t('进入 3D 车间 →') }}</router-link>
           </div>
           <div class="machines">
             <!-- 点哪看哪（第 30 轮 §八）：点设备弹出此刻状态、对应帮助；车间终端在弹窗里 -->
@@ -66,41 +66,41 @@
                 <span class="mono b">{{ m.code }}</span>
                 <span class="pill" :style="{ color: STATE[m.state].color, background: STATE[m.state].bg }">{{ STATE[m.state].label }}</span>
               </div>
-              <span class="muted small">{{ m.name }}<span v-if="m.bottleneck" class="bn">瓶颈</span></span>
+              <span class="muted small">{{ nm(m) }}<span v-if="m.bottleneck" class="bn">{{ t('瓶颈') }}</span></span>
               <span class="job">{{ jobText(m) }}</span>
               <div class="bar"><div :style="{ width: Math.round((m.progress || 0) * 100) + '%', background: STATE[m.state].color }"></div></div>
               <div v-if="focus.dispatch && m.dispatched?.length" class="disp small">
                 <div v-for="d in m.dispatched" :key="d.work_order + d.operation">
-                  {{ d.work_order.slice(-5) }} {{ opShort(d.operation) }} {{ d.done }}/{{ d.qty }} {{ d.started ? '已开工' : '待开工' }}
+                  {{ d.work_order.slice(-5) }} {{ opText(d.operation) }} {{ d.done }}/{{ d.qty }} {{ d.started ? t('已开工') : t('待开工') }}
                 </div>
               </div>
-              <div v-if="picked === m.unit" class="pop small" role="dialog" :aria-label="m.code + ' ' + m.name" @click.stop>
-                <b>{{ m.code }} {{ m.name }}</b>
+              <div v-if="picked === m.unit" class="pop small" role="dialog" :aria-label="m.code + ' ' + nm(m)" @click.stop>
+                <b>{{ m.code }} {{ nm(m) }}</b>
                 <span><span class="pill" :style="{ color: pinfo.color, background: pinfo.bg }">{{ pinfo.label }}</span>
-                  <span v-if="pinfo.reason" class="muted"> {{ pinfo.reason }}</span></span>
+                  <span v-if="pinfo.reason" class="muted"> {{ td(pinfo.reason) }}</span></span>
                 <span v-if="pinfo.tags.length" class="ptags"><span v-for="t in pinfo.tags" :key="t.text" :class="t.tone">{{ t.text }}</span></span>
-                <span v-if="pinfo.help.domain" class="muted">领域：{{ pinfo.help.domain }}</span>
-                <router-link :to="{ path: '/work/operator', query: { unit: m.unit } }">打开车间终端 →</router-link>
+                <span v-if="pinfo.help.domain" class="muted">{{ t('领域：') }}{{ pinfo.help.domain }}</span>
+                <router-link :to="{ path: '/work/operator', query: { unit: m.unit } }">{{ t('打开车间终端 →') }}</router-link>
                 <router-link :to="pinfo.help.to">{{ pinfo.help.label }} →</router-link>
               </div>
             </div>
           </div>
           <div class="agv small muted">
-            <span v-for="a in agvs" :key="a.unit"><ObjLink type="Agv" :k="a.unit">{{ a.unit.toUpperCase() }}</ObjLink>：<template v-if="a.task">运送 <ObjLink type="PartSerial" :k="a.load" mono />（{{ a.task }}）</template><template v-else>待命 · 电量 {{ Math.round((a.battery || 0) * 100) }}%</template></span>
-            <span class="r">在制品 {{ ov.wip.now }} 件<template v-if="bott"> · {{ bott.code }} 前排队 {{ bott.queue }} 件</template></span>
+            <span v-for="a in agvs" :key="a.unit"><ObjLink type="Agv" :k="a.unit">{{ a.unit.toUpperCase() }}</ObjLink>: <template v-if="a.task">{{ t('运送') }} <ObjLink type="PartSerial" :k="a.load" mono /> ({{ td(a.task) }})</template><template v-else>{{ t('待命 · 电量 {p}%', { p: Math.round((a.battery || 0) * 100) }) }}</template></span>
+            <span class="r">{{ t('在制品 {n} 件', { n: ov.wip.now }) }}<template v-if="bott"> · {{ t('{c} 前排队 {n} 件', { c: bott.code, n: bott.queue }) }}</template></span>
           </div>
         </section>
 
-        <section class="card orders" data-help="home-orders" :class="{ focus: focus.orders }" aria-label="订单与交期">
-          <div class="card-head"><h2>订单与交期</h2><a :href="erpUrl" target="_blank" class="more">ERPNext →</a></div>
-          <div v-if="!ov.orders.length" class="empty">没有在手订单</div>
+        <section class="card orders" data-help="home-orders" :class="{ focus: focus.orders }" :aria-label="t('订单与交期')">
+          <div class="card-head"><h2>{{ t('订单与交期') }}</h2><a :href="erpUrl" target="_blank" class="more">ERPNext →</a></div>
+          <div v-if="!ov.orders.length" class="empty">{{ t('没有在手订单') }}</div>
           <div v-for="o in ov.orders" :key="o.name" class="order">
             <div class="otop">
               <ObjLink type="SalesOrder" :k="o.name" mono class="b" />
-              <ObjLink type="Customer" :k="o.customer">{{ short(o.customer) }}</ObjLink>
-              <span class="pill" :class="o.tone">{{ o.risk }}</span>
+              <ObjLink type="Customer" :k="o.customer">{{ isEn() ? bi(o.customer) : short(o.customer) }}</ObjLink>
+              <span class="pill" :class="o.tone" :title="o.risk">{{ o.risk }}</span>
             </div>
-            <span class="muted small">{{ o.item }} × {{ o.qty }} · 交期 {{ o.delivery_date.slice(5) }} · {{ o.work_orders }}</span>
+            <span class="muted small">{{ o.item }} × {{ o.qty }} · {{ t('交期 {d}', { d: o.delivery_date.slice(5) }) }} · {{ o.work_orders }}</span>
             <div class="bar"><div :style="{ width: Math.max(2, o.progress * 100) + '%', background: toneColor(o.tone) }"></div></div>
           </div>
         </section>
@@ -108,8 +108,8 @@
 
       <!-- 计划与实际 / 质量 / 物料 -->
       <div class="three">
-        <section class="card" aria-label="生产计划与实际">
-          <div class="card-head"><h2>本周计划与实际</h2><span class="muted small">{{ ov.week.item }} 完工件数</span></div>
+        <section class="card" :aria-label="t('生产计划与实际')">
+          <div class="card-head"><h2>{{ t('本周计划与实际') }}</h2><span class="muted small">{{ t('{i} 完工件数', { i: ov.week.item }) }}</span></div>
           <div class="bars">
             <div v-for="d in ov.week.days" :key="d.date" class="day">
               <span class="mono small muted">{{ d.actual === null ? '—' : d.actual }} / {{ d.plan }}</span>
@@ -121,26 +121,26 @@
           </div>
           <div class="days"><span v-for="d in ov.week.days" :key="d.date" class="small muted">{{ d.day }}</span></div>
           <div class="legend small muted">
-            <span><i class="lp"></i>计划</span><span><i :style="{ background: 'var(--accent)' }"></i>实际</span>
-            <span class="r">瓶颈工序：{{ ov.week.bottleneck ? ov.week.bottleneck_name + ' ' + ov.week.bottleneck.toUpperCase() : '—' }}</span>
+            <span><i class="lp"></i>{{ t('计划') }}</span><span><i :style="{ background: 'var(--accent)' }"></i>{{ t('实际') }}</span>
+            <span class="r">{{ t('瓶颈工序：') }}{{ ov.week.bottleneck ? nm(ov.week, 'bottleneck_name') + ' ' + ov.week.bottleneck.toUpperCase() : '—' }}</span>
           </div>
         </section>
 
-        <section class="card" data-help="home-quality" :class="{ focus: focus.quality }" aria-label="质量">
-          <div class="card-head"><h2>质量</h2><span class="muted small">{{ ov.quality.chart.title }} · 最近 {{ ov.quality.chart.points.length }} 件</span></div>
+        <section class="card" data-help="home-quality" :class="{ focus: focus.quality }" :aria-label="t('质量')">
+          <div class="card-head"><h2>{{ t('质量') }}</h2><span class="muted small">{{ td(ov.quality.chart.title) }} · {{ t('最近 {n} 件', { n: ov.quality.chart.points.length }) }}</span></div>
           <ControlChart v-if="ov.quality.chart.points.length" :chart="ov.quality.chart" />
-          <div v-else class="empty">还没有测量数据</div>
+          <div v-else class="empty">{{ t('还没有测量数据') }}</div>
           <div class="q3">
-            <div><span class="muted small">本周一次合格率</span><b class="mono">{{ pct(ov.quality.fpy_week.value, 1) }}</b></div>
-            <div><span class="muted small">待处理不合格品</span><b class="mono">{{ ov.quality.ncr_open }}</b></div>
-            <div><span class="muted small">今日检验</span><b class="mono">{{ ov.quality.inspected_today }} 件</b></div>
+            <div><span class="muted small">{{ t('本周一次合格率') }}</span><b class="mono">{{ pct(ov.quality.fpy_week.value, 1) }}</b></div>
+            <div><span class="muted small">{{ t('待处理不合格品') }}</span><b class="mono">{{ ov.quality.ncr_open }}</b></div>
+            <div><span class="muted small">{{ t('今日检验') }}</span><b class="mono">{{ t('{n} 件', { n: ov.quality.inspected_today }) }}</b></div>
           </div>
         </section>
 
-        <section class="card" :class="{ focus: focus.materials }" aria-label="物料">
-          <div class="card-head"><h2>关键物料</h2><span class="muted small">库存 · 在途 · 可用天数</span></div>
+        <section class="card" :class="{ focus: focus.materials }" :aria-label="t('物料')">
+          <div class="card-head"><h2>{{ t('关键物料') }}</h2><span class="muted small">{{ t('库存 · 在途 · 可用天数') }}</span></div>
           <div v-for="x in ov.materials" :key="x.code" class="mat">
-            <div class="mname"><span class="mono b small">{{ x.code }}</span><span class="muted small">{{ x.name }}</span></div>
+            <div class="mname"><span class="mono b small">{{ x.code }}</span><span class="muted small">{{ nm(x) }}</span></div>
             <span class="mono">{{ x.qty_text }}</span>
             <span class="pill" :class="x.tone">{{ x.status }}</span>
           </div>
@@ -148,14 +148,14 @@
       </div>
 
       <!-- 提醒与待办 -->
-      <section class="card" aria-label="提醒与待办">
-        <div class="card-head"><h2>提醒与待办</h2><span class="muted small">{{ roleName(session.user.role) }} · {{ teach ? '实验任务' : '按优先级' }}</span></div>
-        <div v-if="!ov.todos.length" class="empty">现在没有需要你处理的事。</div>
-        <div v-for="(t, i) in ov.todos" :key="i" class="todo">
-          <span class="pill" :class="t.tone">{{ t.kind }}</span>
-          <span class="ttext">{{ t.text }}<span v-if="t.hint" class="muted small">　建议：{{ t.hint }}</span></span>
-          <span class="src">{{ t.src }}</span>
-          <button class="btn" @click="act(t)">{{ t.act }}</button>
+      <section class="card" :aria-label="t('提醒与待办')">
+        <div class="card-head"><h2>{{ t('提醒与待办') }}</h2><span class="muted small">{{ roleName(session.user.role) }} · {{ teach ? t('实验任务') : t('按优先级') }}</span></div>
+        <div v-if="!ov.todos.length" class="empty">{{ t('现在没有需要你处理的事。') }}</div>
+        <div v-for="(x, i) in ov.todos" :key="i" class="todo">
+          <span class="pill" :class="x.tone">{{ td(x.kind) }}</span>
+          <span class="ttext">{{ td(x.text) }}<span v-if="x.hint" class="muted small"> · {{ t('建议：') }}{{ td(x.hint) }}</span></span>
+          <span class="src">{{ todoSrc(x.src) }}</span>
+          <button class="btn" @click="act(x)">{{ td(x.act) }}</button>
         </div>
       </section>
     </template>
@@ -176,6 +176,9 @@ import ControlChart from '../components/ControlChart.vue';
 import ProposalModal from '../components/ProposalModal.vue';
 import TaskBar from '../components/TaskBar.vue';
 import ObjLink from '../components/ObjLink.vue';
+import { bi, isEn, nm, t, td, tk } from '../lib/i18n';
+// 工序名“中文 English”：英文界面取英文部分
+const opText = (s) => (isEn() ? bi(s || '') : opShort(s));
 
 const router = useRouter();
 const { ov, error, load, machines } = useOverview();
@@ -184,8 +187,8 @@ const pid = ref(null);
 const teach = computed(() => session.user.mode === 'teach');
 const brief = computed(() => ov.value?.briefing?.data);
 const briefTime = computed(() => (ov.value?.briefing ? timeOf(ov.value.briefing.ts).slice(-5) : '—'));
-const chips = computed(() => (teach.value ? ['MRP 是什么？', '安全库存怎么定？', '我下一步做什么？']
-  : ['哪张订单会延期？', '本周瓶颈在哪？', '成本为什么超标？']));
+const chips = computed(() => (teach.value ? [tk('MRP 是什么？'), tk('安全库存怎么定？'), tk('我下一步做什么？')]
+  : [tk('哪张订单会延期？'), tk('本周瓶颈在哪？'), tk('成本为什么超标？')]));
 const counts = computed(() => machines.value.reduce((a, m) => { a[m.state] = (a[m.state] || 0) + 1; return a; }, {}));
 const bott = computed(() => machines.value.find((m) => m.bottleneck && m.queue));
 const agvs = computed(() => (ov.value?.agvs || []).map((a) => ({ ...a, ...(bus.agvs[a.unit] || {}) })));
@@ -204,17 +207,20 @@ const toneColor = (t) => TONE[t] || 'var(--muted)';
 
 function jobText(m) {
   if (m.state === 'down' || m.state === 'fault') {
-    return `${m.locked ? '🔒 ' : ''}${m.reason || '停机'} · 已停 ${Math.round((m.down_for_s || 0) / 60)} 分钟 · 排队 ${m.queue || 0} 件`;
+    return `${m.locked ? '🔒 ' : ''}${td(m.reason) || t('停机')} · ` + t('已停 {m} 分钟 · 排队 {q} 件', { m: Math.round((m.down_for_s || 0) / 60), q: m.queue || 0 });
   }
-  if (m.no_staff) return `👤 这一班没人能开（缺人）· 排队 ${m.queue || 0} 件`;      // 第 18 轮 E4
-  if (!m.work_order) return m.state === 'idle' ? '等待派工' : '';
-  return `${m.item || ''} ${opShort(m.operation)} · 第 ${Math.min(m.qty_done + (m.state === 'run' ? 1 : 0), m.qty)} / ${m.qty} 件${m.job_started ? '' : ' · 待开工'}${m.staff_level === 1 ? ' · 学徒带着开' : ''}`;
+  if (m.no_staff) return '👤 ' + t('这一班没人能开（缺人）· 排队 {q} 件', { q: m.queue || 0 });      // 第 18 轮 E4
+  if (!m.work_order) return m.state === 'idle' ? t('等待派工') : '';
+  return `${m.item || ''} ${opText(m.operation)} · ` + t('第 {i} / {n} 件', { i: Math.min(m.qty_done + (m.state === 'run' ? 1 : 0), m.qty), n: m.qty })
+    + (m.job_started ? '' : ' · ' + t('待开工')) + (m.staff_level === 1 ? ' · ' + t('学徒带着开') : '');
 }
+// 待办来源“Lab 7 · 任务名”（枢纽已把“实验 7”换成英文）：任务名按英文表译（第 130 轮第二批）
+const todoSrc = (s) => { const m = /^(Lab 7 · |实验 7 · )(.+)$/.exec(s || ''); return m ? (isEn() ? 'Lab 7 · ' : '实验 7 · ') + td(m[2]) : td(s); };   // i18n-ok 识别枢纽给的前缀
 function srcText(ev) {
-  if (!ev || !ev.length) return '全厂汇总';
+  if (!ev || !ev.length) return t('全厂汇总');
   const e = ev[0];
-  const t = (e.topic || '').replace('wq/gearbox/', '');
-  return t + (e.name ? ' · ' + e.name : e.item ? ' · ' + e.item : e.ts ? ' · ' + timeOf(e.ts) : '') + (ev.length > 1 ? `（等 ${ev.length} 条）` : '');
+  const tp = (e.topic || '').replace('wq/gearbox/', '');
+  return tp + (e.name ? ' · ' + bi(e.name) : e.item ? ' · ' + e.item : e.ts ? ' · ' + timeOf(e.ts) : '') + (ev.length > 1 ? ' ' + t('（等 {n} 条）', { n: ev.length }) : '');
 }
 const banner = ref([]);
 async function loadBanner() {
@@ -245,13 +251,13 @@ async function pickM(unit) {
 const closePick = (e) => { if (picked.value && (e.key === 'Escape' || (e.type === 'click' && !e.target.closest?.('.mcard')))) picked.value = null; };
 onMounted(() => { document.addEventListener('click', closePick); document.addEventListener('keydown', closePick); });
 onUnmounted(() => { document.removeEventListener('click', closePick); document.removeEventListener('keydown', closePick); });
-function ask(t) { aiAsk(t); }
-function askAi() { const t = q.value; q.value = ''; aiAsk(t); }
+function ask(s) { aiAsk(s); }
+function askAi() { const s = q.value; q.value = ''; aiAsk(s); }
 async function refreshBrief() { await post('/ai/briefing/refresh'); load(); }
-function act(t) {
-  if (t.proposal_id) pid.value = t.proposal_id;
-  else if (t.link) router.push(t.link);
-  else aiAsk('请解释这条提醒并告诉我怎么处理：' + t.text);
+function act(x) {
+  if (x.proposal_id) pid.value = x.proposal_id;
+  else if (x.link) router.push(x.link);
+  else aiAsk(t('请解释这条提醒并告诉我怎么处理：') + x.text);
 }
 </script>
 
@@ -305,7 +311,7 @@ function act(t) {
 .order { display: flex; flex-direction: column; gap: 6px; padding: 10px 0; border-top: 1px solid var(--line-soft); }
 .otop { display: flex; align-items: baseline; gap: 8px; white-space: nowrap; min-width: 0; }
 .otop > span:nth-child(2) { overflow: hidden; text-overflow: ellipsis; }
-.otop .pill { margin-left: auto; }
+.otop .pill { margin-left: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }   /* 第 130 轮：英文较长时截断，不撑出卡片 */
 .three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .bars { display: flex; gap: 16px; align-items: flex-end; height: 132px; padding: 0 6px; border-bottom: 1px solid #C8CEC7; }
 .day { flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }

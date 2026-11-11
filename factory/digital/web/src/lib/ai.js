@@ -1,6 +1,7 @@
 // AI 工厂助手的对话状态（全站共用一个抽屉）。第 17 轮 D 期起后台是 AI 代理：回答带引用 [n]、数字核对、运行记录
 import { reactive } from 'vue';
 import { post } from './api';
+import { t } from './i18n';
 
 export const ai = reactive({ open: false, busy: false, messages: [], error: null });
 
@@ -29,7 +30,7 @@ export async function analyze(aid, key) {
   if (ai.busy) return;
   ai.open = true;
   ai.error = null;
-  ai.messages.push({ role: 'user', content: `分析异常 ${key}：原因、影响，以及怎么处理最划算` });
+  ai.messages.push({ role: 'user', content: t('分析异常 {k}：原因、影响，以及怎么处理最划算', { k: key }) });
   ai.busy = true;
   try {
     push(await post(`/ont/anomalies/${aid}/analyze`, {}));

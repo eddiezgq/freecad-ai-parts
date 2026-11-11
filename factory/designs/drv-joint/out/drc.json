@@ -4,14 +4,14 @@
   {
    "at": [
     [
-     47.0,
-     39.36,
-     "Line on F.Silkscreen"
+     79.34,
+     37.0,
+     "Reference 'C23'"
     ],
     [
-     47.34,
-     37.0,
-     "Reference 'C21'"
+     79.0,
+     39.36,
+     "Line on F.Silkscreen"
     ]
    ],
    "code": "silk_overlap",
@@ -21,14 +21,14 @@
   {
    "at": [
     [
-     41.38,
+     73.38,
      36.65,
      "Line on F.Silkscreen"
     ],
     [
-     41.33,
+     73.33,
      36.5,
-     "Reference 'R11'"
+     "Reference 'R15'"
     ]
    ],
    "code": "silk_overlap",
@@ -38,13 +38,30 @@
   {
    "at": [
     [
-     53.0,
-     53.84,
-     "Reference 'C51'"
+     63.0,
+     39.36,
+     "Line on F.Silkscreen"
     ],
     [
-     52.89,
-     53.36,
+     63.34,
+     37.0,
+     "Reference 'C22'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     57.33,
+     36.5,
+     "Reference 'R13'"
+    ],
+    [
+     57.38,
+     36.65,
      "Line on F.Silkscreen"
     ]
    ],
@@ -72,30 +89,30 @@
   {
    "at": [
     [
-     49.85,
-     53.38,
-     "Line on F.Silkscreen"
+     53.0,
+     53.84,
+     "Reference 'C51'"
     ],
+    [
+     52.89,
+     53.36,
+     "Line on F.Silkscreen"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
     [
      50.0,
      53.83,
      "Reference 'R32'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     63.34,
-     37.0,
-     "Reference 'C22'"
     ],
     [
-     63.0,
-     39.36,
+     49.85,
+     53.38,
      "Line on F.Silkscreen"
     ]
    ],
@@ -106,14 +123,31 @@
   {
    "at": [
     [
-     57.33,
-     36.5,
-     "Reference 'R13'"
+     49.85,
+     55.38,
+     "Line on F.Silkscreen"
     ],
     [
-     57.38,
-     36.65,
+     50.0,
+     55.83,
+     "Reference 'R33'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     26.85,
+     24.38,
      "Line on F.Silkscreen"
+    ],
+    [
+     27.0,
+     24.84,
+     "Reference 'C2'"
     ]
    ],
    "code": "silk_overlap",
@@ -140,14 +174,14 @@
   {
    "at": [
     [
-     27.0,
-     24.84,
-     "Reference 'C2'"
+     44.0,
+     64.83,
+     "Reference 'R30'"
     ],
     [
-     26.85,
-     24.38,
-     "Line on F.Silkscreen"
+     43.2,
+     65.36,
+     "Reference 'C42'"
     ]
    ],
    "code": "silk_overlap",
@@ -157,14 +191,14 @@
   {
    "at": [
     [
-     50.0,
-     55.83,
-     "Reference 'R33'"
+     43.31,
+     64.56,
+     "Line on F.Silkscreen"
     ],
     [
-     49.85,
-     55.38,
-     "Line on F.Silkscreen"
+     44.0,
+     64.83,
+     "Reference 'R30'"
     ]
    ],
    "code": "silk_overlap",
@@ -174,14 +208,14 @@
   {
    "at": [
     [
-     79.34,
-     37.0,
-     "Reference 'C23'"
+     43.85,
+     65.62,
+     "Line on F.Silkscreen"
     ],
     [
-     79.0,
-     39.36,
-     "Line on F.Silkscreen"
+     43.2,
+     65.36,
+     "Reference 'C42'"
     ]
    ],
    "code": "silk_overlap",
@@ -191,14 +225,14 @@
   {
    "at": [
     [
-     73.33,
-     36.5,
-     "Reference 'R15'"
-    ],
-    [
-     73.38,
+     41.38,
      36.65,
      "Line on F.Silkscreen"
+    ],
+    [
+     41.33,
+     36.5,
+     "Reference 'R11'"
     ]
    ],
    "code": "silk_overlap",
@@ -208,99 +242,14 @@
   {
    "at": [
     [
-     61.2,
-     42.45,
-     "Reference 'TP24'"
+     47.34,
+     37.0,
+     "Reference 'C21'"
     ],
     [
-     64.0,
-     42.45,
-     "Reference 'TP25'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     61.2,
-     42.45,
-     "Reference 'TP24'"
-    ],
-    [
-     58.4,
-     42.45,
-     "Reference 'TP23'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     58.4,
-     45.95,
-     "Reference 'TP53'"
-    ],
-    [
-     61.2,
-     45.95,
-     "Reference 'TP54'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     64.0,
-     45.95,
-     "Reference 'TP55'"
-    ],
-    [
-     61.2,
-     45.95,
-     "Reference 'TP54'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     66.8,
-     42.45,
-     "Reference 'TP26'"
-    ],
-    [
-     69.6,
-     42.45,
-     "Reference 'TP27'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     72.4,
-     45.95,
-     "Reference 'TP58'"
-    ],
-    [
-     69.6,
-     45.95,
-     "Reference 'TP57'"
+     47.0,
+     39.36,
+     "Line on F.Silkscreen"
     ]
    ],
    "code": "silk_overlap",
@@ -327,6 +276,40 @@
   {
    "at": [
     [
+     66.8,
+     45.95,
+     "Reference 'TP56'"
+    ],
+    [
+     69.6,
+     45.95,
+     "Reference 'TP57'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     69.6,
+     42.45,
+     "Reference 'TP27'"
+    ],
+    [
+     66.8,
+     42.45,
+     "Reference 'TP26'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
      72.4,
      42.45,
      "Reference 'TP28'"
@@ -344,14 +327,14 @@
   {
    "at": [
     [
+     72.4,
+     45.95,
+     "Reference 'TP58'"
+    ],
+    [
      69.6,
      45.95,
      "Reference 'TP57'"
-    ],
-    [
-     66.8,
-     45.95,
-     "Reference 'TP56'"
     ]
    ],
    "code": "silk_overlap",
@@ -361,14 +344,14 @@
   {
    "at": [
     [
-     75.2,
-     42.45,
-     "Reference 'TP29'"
+     58.4,
+     45.95,
+     "Reference 'TP53'"
     ],
     [
-     72.4,
-     42.45,
-     "Reference 'TP28'"
+     55.6,
+     45.95,
+     "Reference 'TP52'"
     ]
    ],
    "code": "silk_overlap",
@@ -378,14 +361,14 @@
   {
    "at": [
     [
-     64.0,
-     42.45,
-     "Reference 'TP25'"
+     58.4,
+     45.95,
+     "Reference 'TP53'"
     ],
     [
-     66.8,
-     42.45,
-     "Reference 'TP26'"
+     61.2,
+     45.95,
+     "Reference 'TP54'"
     ]
    ],
    "code": "silk_overlap",
@@ -395,14 +378,31 @@
   {
    "at": [
     [
-     66.8,
-     45.95,
-     "Reference 'TP56'"
+     61.2,
+     42.45,
+     "Reference 'TP24'"
     ],
     [
-     64.0,
-     45.95,
-     "Reference 'TP55'"
+     58.4,
+     42.45,
+     "Reference 'TP23'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     55.6,
+     42.45,
+     "Reference 'TP22'"
+    ],
+    [
+     58.4,
+     42.45,
+     "Reference 'TP23'"
     ]
    ],
    "code": "silk_overlap",
@@ -429,14 +429,201 @@
   {
    "at": [
     [
+     80.8,
+     42.45,
+     "Reference 'TP31'"
+    ],
+    [
      78.0,
      42.45,
      "Reference 'TP30'"
-    ],
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
     [
      75.2,
      42.45,
      "Reference 'TP29'"
+    ],
+    [
+     72.4,
+     42.45,
+     "Reference 'TP28'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     75.2,
+     42.45,
+     "Reference 'TP29'"
+    ],
+    [
+     78.0,
+     42.45,
+     "Reference 'TP30'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     80.8,
+     42.45,
+     "Reference 'TP31'"
+    ],
+    [
+     83.6,
+     42.45,
+     "Reference 'TP32'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     86.4,
+     42.45,
+     "Reference 'TP33'"
+    ],
+    [
+     83.6,
+     42.45,
+     "Reference 'TP32'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     89.2,
+     42.45,
+     "Reference 'TP34'"
+    ],
+    [
+     86.4,
+     42.45,
+     "Reference 'TP33'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     64.0,
+     45.95,
+     "Reference 'TP55'"
+    ],
+    [
+     61.2,
+     45.95,
+     "Reference 'TP54'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     64.0,
+     45.95,
+     "Reference 'TP55'"
+    ],
+    [
+     66.8,
+     45.95,
+     "Reference 'TP56'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     64.0,
+     42.45,
+     "Reference 'TP25'"
+    ],
+    [
+     61.2,
+     42.45,
+     "Reference 'TP24'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     64.0,
+     42.45,
+     "Reference 'TP25'"
+    ],
+    [
+     66.8,
+     42.45,
+     "Reference 'TP26'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     52.8,
+     45.95,
+     "Reference 'TP51'"
+    ],
+    [
+     55.6,
+     45.95,
+     "Reference 'TP52'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     55.6,
+     42.45,
+     "Reference 'TP22'"
+    ],
+    [
+     52.8,
+     42.45,
+     "Reference 'TP21'"
     ]
    ],
    "code": "silk_overlap",
@@ -463,57 +650,6 @@
   {
    "at": [
     [
-     58.4,
-     45.95,
-     "Reference 'TP53'"
-    ],
-    [
-     55.6,
-     45.95,
-     "Reference 'TP52'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     58.4,
-     42.45,
-     "Reference 'TP23'"
-    ],
-    [
-     55.6,
-     42.45,
-     "Reference 'TP22'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     55.6,
-     42.45,
-     "Reference 'TP22'"
-    ],
-    [
-     52.8,
-     42.45,
-     "Reference 'TP21'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
      52.8,
      45.95,
      "Reference 'TP51'"
@@ -531,82 +667,14 @@
   {
    "at": [
     [
-     52.8,
+     47.2,
      45.95,
-     "Reference 'TP51'"
+     "Reference 'TP49'"
     ],
     [
-     55.6,
+     44.4,
      45.95,
-     "Reference 'TP52'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     80.8,
-     42.45,
-     "Reference 'TP31'"
-    ],
-    [
-     83.6,
-     42.45,
-     "Reference 'TP32'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     80.8,
-     42.45,
-     "Reference 'TP31'"
-    ],
-    [
-     78.0,
-     42.45,
-     "Reference 'TP30'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     86.4,
-     42.45,
-     "Reference 'TP33'"
-    ],
-    [
-     83.6,
-     42.45,
-     "Reference 'TP32'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     86.4,
-     42.45,
-     "Reference 'TP33'"
-    ],
-    [
-     89.2,
-     42.45,
-     "Reference 'TP34'"
+     "Reference 'TP48'"
     ]
    ],
    "code": "silk_overlap",
@@ -634,23 +702,6 @@
    "at": [
     [
      50.0,
-     45.95,
-     "Reference 'TP50'"
-    ],
-    [
-     47.2,
-     45.95,
-     "Reference 'TP49'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     50.0,
      42.45,
      "Reference 'TP20'"
     ],
@@ -667,31 +718,31 @@
   {
    "at": [
     [
-     44.4,
-     45.95,
-     "Reference 'TP48'"
-    ],
-    [
      47.2,
      45.95,
      "Reference 'TP49'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
+    ],
     [
-     33.2,
+     50.0,
      45.95,
-     "Reference 'TP44'"
-    ],
+     "Reference 'TP50'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
     [
-     30.4,
+     38.8,
      45.95,
-     "Reference 'TP43'"
+     "Reference 'TP46'"
+    ],
+    [
+     36.0,
+     45.95,
+     "Reference 'TP45'"
     ]
    ],
    "code": "silk_overlap",
@@ -700,83 +751,15 @@
   },
   {
    "at": [
-    [
-     33.2,
-     42.45,
-     "Reference 'TP14'"
-    ],
-    [
-     30.4,
-     42.45,
-     "Reference 'TP13'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     33.2,
-     42.45,
-     "Reference 'TP14'"
-    ],
     [
      36.0,
      42.45,
      "Reference 'TP15'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     24.8,
-     45.95,
-     "Reference 'TP41'"
     ],
     [
-     22.0,
-     45.95,
-     "Reference 'TP40'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     24.8,
-     45.95,
-     "Reference 'TP41'"
-    ],
-    [
-     27.6,
-     45.95,
-     "Reference 'TP42'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     30.4,
-     45.95,
-     "Reference 'TP43'"
-    ],
-    [
-     27.6,
-     45.95,
-     "Reference 'TP42'"
+     33.2,
+     42.45,
+     "Reference 'TP14'"
     ]
    ],
    "code": "silk_overlap",
@@ -803,6 +786,159 @@
   {
    "at": [
     [
+     30.4,
+     45.95,
+     "Reference 'TP43'"
+    ],
+    [
+     27.6,
+     45.95,
+     "Reference 'TP42'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     27.6,
+     42.45,
+     "Reference 'TP12'"
+    ],
+    [
+     30.4,
+     42.45,
+     "Reference 'TP13'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     30.4,
+     45.95,
+     "Reference 'TP43'"
+    ],
+    [
+     33.2,
+     45.95,
+     "Reference 'TP44'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     38.8,
+     42.45,
+     "Reference 'TP16'"
+    ],
+    [
+     36.0,
+     42.45,
+     "Reference 'TP15'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     30.4,
+     42.45,
+     "Reference 'TP13'"
+    ],
+    [
+     33.2,
+     42.45,
+     "Reference 'TP14'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     27.6,
+     45.95,
+     "Reference 'TP42'"
+    ],
+    [
+     24.8,
+     45.95,
+     "Reference 'TP41'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     24.8,
+     45.95,
+     "Reference 'TP41'"
+    ],
+    [
+     22.0,
+     45.95,
+     "Reference 'TP40'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     22.0,
+     45.95,
+     "Reference 'TP40'"
+    ],
+    [
+     19.2,
+     45.95,
+     "Reference 'TP39'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     24.8,
+     42.45,
+     "Reference 'TP11'"
+    ],
+    [
+     27.6,
+     42.45,
+     "Reference 'TP12'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
      24.8,
      42.45,
      "Reference 'TP11'"
@@ -820,14 +956,14 @@
   {
    "at": [
     [
-     24.8,
+     22.0,
      42.45,
-     "Reference 'TP11'"
+     "Reference 'TP10'"
     ],
     [
-     27.6,
+     19.2,
      42.45,
-     "Reference 'TP12'"
+     "Reference 'TP5'"
     ]
    ],
    "code": "silk_overlap",
@@ -837,14 +973,116 @@
   {
    "at": [
     [
-     30.4,
-     42.45,
-     "Reference 'TP13'"
+     13.6,
+     45.95,
+     "Reference 'TP37'"
     ],
     [
-     27.6,
+     16.4,
+     45.95,
+     "Reference 'TP38'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     16.4,
+     45.95,
+     "Reference 'TP38'"
+    ],
+    [
+     19.2,
+     45.95,
+     "Reference 'TP39'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     38.8,
+     45.95,
+     "Reference 'TP46'"
+    ],
+    [
+     41.6,
+     45.95,
+     "Reference 'TP47'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     41.6,
      42.45,
-     "Reference 'TP12'"
+     "Reference 'TP17'"
+    ],
+    [
+     38.8,
+     42.45,
+     "Reference 'TP16'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     44.4,
+     45.95,
+     "Reference 'TP48'"
+    ],
+    [
+     41.6,
+     45.95,
+     "Reference 'TP47'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     44.4,
+     42.45,
+     "Reference 'TP18'"
+    ],
+    [
+     41.6,
+     42.45,
+     "Reference 'TP17'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     13.6,
+     45.95,
+     "Reference 'TP37'"
+    ],
+    [
+     10.8,
+     45.95,
+     "Reference 'TP36'"
     ]
    ],
    "code": "silk_overlap",
@@ -867,289 +1105,6 @@
    "code": "silk_overlap",
    "severity": "warning",
    "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     16.4,
-     45.95,
-     "Reference 'TP38'"
-    ],
-    [
-     13.6,
-     45.95,
-     "Reference 'TP37'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     10.8,
-     45.95,
-     "Reference 'TP36'"
-    ],
-    [
-     13.6,
-     45.95,
-     "Reference 'TP37'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     19.2,
-     45.95,
-     "Reference 'TP39'"
-    ],
-    [
-     16.4,
-     45.95,
-     "Reference 'TP38'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     22.0,
-     45.95,
-     "Reference 'TP40'"
-    ],
-    [
-     19.2,
-     45.95,
-     "Reference 'TP39'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     19.2,
-     42.45,
-     "Reference 'TP5'"
-    ],
-    [
-     22.0,
-     42.45,
-     "Reference 'TP10'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     44.4,
-     42.45,
-     "Reference 'TP18'"
-    ],
-    [
-     41.6,
-     42.45,
-     "Reference 'TP17'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     41.6,
-     45.95,
-     "Reference 'TP47'"
-    ],
-    [
-     44.4,
-     45.95,
-     "Reference 'TP48'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     38.8,
-     42.45,
-     "Reference 'TP16'"
-    ],
-    [
-     36.0,
-     42.45,
-     "Reference 'TP15'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     38.8,
-     42.45,
-     "Reference 'TP16'"
-    ],
-    [
-     41.6,
-     42.45,
-     "Reference 'TP17'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     38.8,
-     45.95,
-     "Reference 'TP46'"
-    ],
-    [
-     41.6,
-     45.95,
-     "Reference 'TP47'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     38.8,
-     45.95,
-     "Reference 'TP46'"
-    ],
-    [
-     36.0,
-     45.95,
-     "Reference 'TP45'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     73.33,
-     36.5,
-     "Reference 'R15'"
-    ]
-   ],
-   "code": "silk_over_copper",
-   "severity": "warning",
-   "text": "Silkscreen clipped by solder mask"
-  },
-  {
-   "at": [
-    [
-     53.0,
-     53.84,
-     "Reference 'C51'"
-    ]
-   ],
-   "code": "silk_over_copper",
-   "severity": "warning",
-   "text": "Silkscreen clipped by solder mask"
-  },
-  {
-   "at": [
-    [
-     50.0,
-     55.83,
-     "Reference 'R33'"
-    ]
-   ],
-   "code": "silk_over_copper",
-   "severity": "warning",
-   "text": "Silkscreen clipped by solder mask"
-  },
-  {
-   "at": [
-    [
-     14.83,
-     37.0,
-     "Reference 'R6'"
-    ]
-   ],
-   "code": "silk_over_copper",
-   "severity": "warning",
-   "text": "Silkscreen clipped by solder mask"
-  },
-  {
-   "at": [
-    [
-     12.83,
-     37.0,
-     "Reference 'R5'"
-    ]
-   ],
-   "code": "silk_over_copper",
-   "severity": "warning",
-   "text": "Silkscreen clipped by solder mask"
-  },
-  {
-   "at": [
-    [
-     41.33,
-     36.5,
-     "Reference 'R11'"
-    ]
-   ],
-   "code": "silk_over_copper",
-   "severity": "warning",
-   "text": "Silkscreen clipped by solder mask"
-  },
-  {
-   "at": [
-    [
-     77.5,
-     56.33,
-     "Reference 'R34'"
-    ]
-   ],
-   "code": "silk_over_copper",
-   "severity": "warning",
-   "text": "Silkscreen clipped by solder mask"
-  },
-  {
-   "at": [
-    [
-     50.0,
-     53.83,
-     "Reference 'R32'"
-    ]
-   ],
-   "code": "silk_over_copper",
-   "severity": "warning",
-   "text": "Silkscreen clipped by solder mask"
   },
   {
    "at": [
@@ -1178,9 +1133,141 @@
   {
    "at": [
     [
-     89.0,
-     56.34,
-     "Reference 'C56'"
+     41.33,
+     36.5,
+     "Reference 'R11'"
+    ]
+   ],
+   "code": "silk_over_copper",
+   "severity": "warning",
+   "text": "Silkscreen clipped by solder mask"
+  },
+  {
+   "at": [
+    [
+     63.34,
+     43.6,
+     "Reference 'C28'"
+    ]
+   ],
+   "code": "silk_over_copper",
+   "severity": "warning",
+   "text": "Silkscreen clipped by solder mask"
+  },
+  {
+   "at": [
+    [
+     77.5,
+     56.33,
+     "Reference 'R34'"
+    ]
+   ],
+   "code": "silk_over_copper",
+   "severity": "warning",
+   "text": "Silkscreen clipped by solder mask"
+  },
+  {
+   "at": [
+    [
+     73.33,
+     36.5,
+     "Reference 'R15'"
+    ]
+   ],
+   "code": "silk_over_copper",
+   "severity": "warning",
+   "text": "Silkscreen clipped by solder mask"
+  },
+  {
+   "at": [
+    [
+     12.83,
+     37.0,
+     "Reference 'R5'"
+    ]
+   ],
+   "code": "silk_over_copper",
+   "severity": "warning",
+   "text": "Silkscreen clipped by solder mask"
+  },
+  {
+   "at": [
+    [
+     47.34,
+     46.6,
+     "Reference 'C30'"
+    ]
+   ],
+   "code": "silk_over_copper",
+   "severity": "warning",
+   "text": "Silkscreen clipped by solder mask"
+  },
+  {
+   "at": [
+    [
+     79.34,
+     43.6,
+     "Reference 'C29'"
+    ]
+   ],
+   "code": "silk_over_copper",
+   "severity": "warning",
+   "text": "Silkscreen clipped by solder mask"
+  },
+  {
+   "at": [
+    [
+     44.0,
+     64.83,
+     "Reference 'R30'"
+    ]
+   ],
+   "code": "silk_over_copper",
+   "severity": "warning",
+   "text": "Silkscreen clipped by solder mask"
+  },
+  {
+   "at": [
+    [
+     50.0,
+     53.83,
+     "Reference 'R32'"
+    ]
+   ],
+   "code": "silk_over_copper",
+   "severity": "warning",
+   "text": "Silkscreen clipped by solder mask"
+  },
+  {
+   "at": [
+    [
+     43.2,
+     65.36,
+     "Reference 'C42'"
+    ]
+   ],
+   "code": "silk_over_copper",
+   "severity": "warning",
+   "text": "Silkscreen clipped by solder mask"
+  },
+  {
+   "at": [
+    [
+     79.34,
+     46.6,
+     "Reference 'C32'"
+    ]
+   ],
+   "code": "silk_over_copper",
+   "severity": "warning",
+   "text": "Silkscreen clipped by solder mask"
+  },
+  {
+   "at": [
+    [
+     63.34,
+     46.6,
+     "Reference 'C31'"
     ]
    ],
    "code": "silk_over_copper",
@@ -1202,9 +1289,69 @@
   {
    "at": [
     [
+     53.0,
+     53.84,
+     "Reference 'C51'"
+    ]
+   ],
+   "code": "silk_over_copper",
+   "severity": "warning",
+   "text": "Silkscreen clipped by solder mask"
+  },
+  {
+   "at": [
+    [
+     14.83,
+     37.0,
+     "Reference 'R6'"
+    ]
+   ],
+   "code": "silk_over_copper",
+   "severity": "warning",
+   "text": "Silkscreen clipped by solder mask"
+  },
+  {
+   "at": [
+    [
+     89.0,
+     56.34,
+     "Reference 'C56'"
+    ]
+   ],
+   "code": "silk_over_copper",
+   "severity": "warning",
+   "text": "Silkscreen clipped by solder mask"
+  },
+  {
+   "at": [
+    [
+     50.0,
+     55.83,
+     "Reference 'R33'"
+    ]
+   ],
+   "code": "silk_over_copper",
+   "severity": "warning",
+   "text": "Silkscreen clipped by solder mask"
+  },
+  {
+   "at": [
+    [
      57.33,
      36.5,
      "Reference 'R13'"
+    ]
+   ],
+   "code": "silk_over_copper",
+   "severity": "warning",
+   "text": "Silkscreen clipped by solder mask"
+  },
+  {
+   "at": [
+    [
+     47.34,
+     43.6,
+     "Reference 'C27'"
     ]
    ],
    "code": "silk_over_copper",
@@ -1230,5 +1377,5 @@
   }
  ],
  "unconnected": 0,
- "warnings": 76
+ "warnings": 87
 }

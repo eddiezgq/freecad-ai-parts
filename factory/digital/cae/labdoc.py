@@ -30,6 +30,7 @@ GUIDES = {"lab8": GUIDE_MD, "lab9": os.path.join(HERE, "实验9_机械臂关节�
           "lab30": os.path.join(HERE, "实验30_一台轮式人形从订单到交付.md"),
           "lab31": os.path.join(HERE, "实验31_关节终检抱闸报警的排查.md"),
           "lab32": os.path.join(HERE, "实验32_机壳与关键零件质量异常的追因与8D.md"),
+          "lab33": os.path.join(HERE, "实验33_一张非标订单从询价到收款.md"),
           "lab34": os.path.join(HERE, "实验34_一台平缝机从订单到交付.md")}
 
 
@@ -142,7 +143,7 @@ def report_template_docx(lab="lab8"):
         return lab22_template()
     if lab == "lab23":
         return lab23_template()
-    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28", "lab29", "lab30", "lab31", "lab32", "lab34"):
+    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28", "lab29", "lab30", "lab31", "lab32", "lab33", "lab34"):
         return robot_template(lab)
     from docx.shared import Pt
     d = _doc()
@@ -1048,6 +1049,25 @@ def robot_template(lab):
         d.add_heading("四、处置与复测（任务 5、6）· Rework and retest", 1)
         table([["关节序列号 Joint serial", "处置 Rework", "复测时序 Sequence", "保持力矩 Holding torque (N·m)", "规格 Spec (N·m)", "放行 Release"], ["", "", "", "", "", ""], ["", "", "", "", "", ""], ["", "", "", "", "", ""]])
         hint("退回电路板厂的那块板子，你希望电路板厂查什么、回复什么（写成一份简短的退货分析请求）？")
+    elif lab == "lab33":
+        d.add_heading("实验 33　一张非标订单：从询价到收款　实验报告 · Lab 33 Report: One Engineer-to-Order Job from Inquiry to Payment", 0)
+        table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)
+        table([["作业号 Job no.", ""], ["客户与要求 Customer and requirement", ""]], head=False)
+        d.add_heading("一、估算与报价（任务 1、2）· Estimate and quotation", 1)
+        table([["项 Item", "估算 Estimate ($)", "说明 Note"], ["材料与外购件 Material", "", ""], ["工序 Operations", "", ""], ["外协 Outside", "", ""],
+               ["设计 Engineering", "", ""], ["风险预留 Contingency", "", ""], ["2 件报价 Price for 2", "", ""]])
+        hint("AI 起草时哪些行是“未知”？你补的数从哪里来？报价单、项目、销售订单在 ERPNext 里的编号各是什么？")
+        d.add_heading("二、估算与实际（任务 4）· Estimate versus actual", 1)
+        table([["项 Item", "估算 Estimate ($)", "实际 Actual ($)", "差 Difference ($)", "差在哪里 Why"], ["工序 Operations", "", "", "", ""],
+               ["材料 Material", "", "", "", ""], ["外协 Outside", "", "", "", ""], ["设计 Engineering", "", "", "", ""], ["合计 Total", "", "", "", ""]])
+        hint("哪一道工序比估算多（或少）得最多？下一张类似的作业，估算该怎么改？")
+        d.add_heading("三、交期余量（任务 3）· Schedule slack", 1)
+        table([["客户交期 Due", "最早交货 Earliest", "余量（工作日）Slack", "关键路径 Critical path"], ["", "", "", ""]])
+        hint("哪个件或哪道工序卡住了最早交货日？如果客户要求提前一周，你先动哪里（加班、提前买长周期件、外协）？")
+        d.add_heading("四、分期开票与现金（任务 5）· Milestone billing and cash", 1)
+        table([["期 Milestone", "比例 %", "金额 Amount ($)", "里程碑到的日期 Reached", "发票号 Invoice"], ["订金 Deposit", "", "", "", ""],
+               ["发货 Shipment", "", "", "", ""], ["验收 Acceptance", "", "", "", ""]])
+        hint("和“全部做完再一次开票”相比，分期开票让工厂的现金早到多少、早几天？订金比例定 30% 而不是 10%，对工厂和客户各有什么影响？")
     elif lab == "lab28":
         d.add_heading("实验 28　负载跑合台上的仿真与实测对比　实验报告 · Lab 28 Report: Simulation versus Measurement on the Run-in Stand", 0)
         table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)

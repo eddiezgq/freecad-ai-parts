@@ -1,27 +1,27 @@
 <template>
   <div class="page">
-    <div class="page-title"><h1><router-link to="/ont" class="back">厂情中枢</router-link> / 全貌地图</h1>
-      <span class="muted">工厂本体：15 个业务领域、{{ nTypes }} 类对象，人、机、料、法、环、客户、服务、安全……都在一张图里，每个数字都能追到原始记录</span></div>
+    <div class="page-title"><h1><router-link to="/ont" class="back">{{ $t('厂情中枢') }}</router-link> {{ $t('/ 全貌地图') }}</h1>
+      <span class="muted">{{ $t('工厂本体：15 个业务领域、{a} 类对象，人、机、料、法、环、客户、服务、安全……都在一张图里，每个数字都能追到原始记录', { a: nTypes }) }}</span></div>
 
     <section class="card search-card">
       <form class="search" role="search" @submit.prevent="doSearch">
-        <input v-model="q" placeholder="搜任何东西：订单号、工单、零件序列号、设备号、物料编码、客户名…（如 SH301、grd-01、6207）"
-          aria-label="搜索对象" autofocus @input="debounced">
-        <select v-model="qType" aria-label="对象类型" @change="doSearch">
-          <option value="">全部类型</option>
-          <option v-for="t in typeOptions" :key="t.name" :value="t.name">{{ t.label }}</option>
+        <input v-model="q" :placeholder="$t('搜任何东西：订单号、工单、零件序列号、设备号、物料编码、客户名…（如 SH301、grd-01、6207）')"
+          :aria-label="$t('搜索对象')" autofocus @input="debounced">
+        <select v-model="qType" :aria-label="$t('对象类型')" @change="doSearch">
+          <option value="">{{ $t('全部类型') }}</option>
+          <option v-for="t in typeOptions" :key="t.name" :value="t.name">{{ $td(t.label) }}</option>
         </select>
-        <button class="btn primary">搜索</button>
+        <button class="btn primary">{{ $t('搜索') }}</button>
       </form>
-      <div v-if="searching" class="muted small">搜索中…</div>
-      <div v-else-if="q && results && !results.length" class="empty">没有找到“{{ q }}”。可以换个写法，或去掉类型筛选。</div>
+      <div v-if="searching" class="muted small">{{ $t('搜索中…') }}</div>
+      <div v-else-if="q && results && !results.length" class="empty">{{ $t('没有找到“{a}”。可以换个写法，或去掉类型筛选。', { a: q }) }}</div>
       <ul v-if="results?.length" class="hits">
         <li v-for="r in results" :key="r.id">
           <router-link :to="objPath(r.type, r.key)">
             <i class="dot" :style="{ background: DOMAIN_COLOR[r.domain] }"></i>
-            <span class="pill mute">{{ r.label }}</span> <b>{{ r.display }}</b>
-            <span v-if="r.display !== r.key" class="mono muted small">{{ r.key }}</span>
-            <span class="muted small how">{{ r.how }}匹配</span>
+            <span class="pill mute">{{ $td(r.label) }}</span> <b>{{ $td(r.display) }}</b>
+            <span v-if="r.display !== r.key" class="mono muted small">{{ $td(r.key) }}</span>
+            <span class="muted small how">{{ $t('{a}匹配', { a: $td(r.how) }) }}</span>
           </router-link>
         </li>
       </ul>
@@ -30,50 +30,51 @@
     <div v-if="err" class="err">{{ err }}</div>
 
     <section v-if="ont.types" class="card">
-      <div class="card-head"><h2>全貌地图</h2>
-        <span class="muted small">上排是价值链（从经营到服务），下排是支撑面。色块深浅表示数据成熟度；数字：对象数 · 有数据的类型 / 全部类型 · 近 24 小时变化</span>
+      <div class="card-head"><h2>{{ $t('全貌地图') }}</h2>
+        <span class="muted small">{{ $t('上排是价值链（从经营到服务），下排是支撑面。色块深浅表示数据成熟度；数字：对象数 · 有数据的类型 / 全部类型 · 近 24 小时变化') }}</span>
         <span class="more legend">
-          <span v-for="(m, k) in MATURITY_STYLE" :key="k" class="lg" :class="m.cls">{{ m.label }}</span>
+          <span v-for="(m, k) in MATURITY_STYLE" :key="k" class="lg" :class="m.cls">{{ $td(m.label) }}</span>
         </span>
       </div>
       <div v-for="row in rows" :key="row.key" class="maprow">
-        <div class="rowlabel">{{ row.label }}</div>
+        <div class="rowlabel">{{ $td(row.label) }}</div>
         <div class="domains" :class="row.key">
           <button v-for="d in row.domains" :key="d.domain" type="button" class="dom" :class="{ open: open === d.domain }"
             :style="{ '--c': DOMAIN_COLOR[d.domain] }" @click="toggle(d.domain)">
-            <span class="dname">{{ d.label }}</span>
+            <span class="dname">{{ $td(d.label) }}</span>
             <span class="dnum mono">{{ d.count.toLocaleString() }}</span>
-            <span class="small dsub">{{ d.with_data }} / {{ d.types.length }} 类有数据 · 24h {{ sum(d, 'changes_24h') }}</span>
-            <span class="mbar"><i v-for="t in d.types" :key="t.name" :class="MATURITY_STYLE[t.maturity].cls" :title="t.label + '：' + t.maturity_label"></i></span>
+            <span class="small dsub">{{ $t('{a} / {b} 类有数据 · 24h {c}', { a: $td(d.with_data), b: $td(d.types.length), c: sum(d, 'changes_24h') }) }}</span>
+            <span class="mbar"><i v-for="t in d.types" :key="t.name" :class="MATURITY_STYLE[t.maturity].cls" :title="t.label + $t('：') + t.maturity_label"></i></span>
           </button>
         </div>
       </div>
     </section>
 
     <section v-if="openDomain" class="card">
-      <div class="card-head"><h2><i class="dot" :style="{ background: DOMAIN_COLOR[openDomain.domain] }"></i> {{ openDomain.label }}</h2>
-        <span class="muted small">{{ openDomain.label_en }} · 点对象类型看对象列表</span>
-        <button class="more btn ghost" @click="open = ''">收起</button></div>
+      <div class="card-head"><h2><i class="dot" :style="{ background: DOMAIN_COLOR[openDomain.domain] }"></i> {{ $td(openDomain.label) }}</h2>
+        <span class="muted small">{{ $t('{a} · 点对象类型看对象列表', { a: $td(openDomain.label_en) }) }}</span>
+        <button class="more btn ghost" @click="open = ''">{{ $t('收起') }}</button></div>
       <div class="types">
         <component :is="t.hidden ? 'div' : 'router-link'" v-for="t in openDomain.types" :key="t.name" class="type" :class="[MATURITY_STYLE[t.maturity].cls, { hidden: t.hidden }]"
           :to="t.hidden ? undefined : '/ont/' + t.name">
-          <b>{{ t.label }}</b> <span class="muted small">{{ t.label_en }}</span>
-          <span class="tcount mono">{{ t.hidden ? '无权限' : t.count.toLocaleString() }}</span>
-          <span class="small muted">{{ t.maturity_label }}<template v-if="t.changes_24h"> · 24h {{ t.changes_24h }} 次变化</template></span>
-          <span class="small muted src">{{ (t.sources || []).join('、') || '—' }}</span>
+          <b>{{ $td(t.label) }}</b> <span class="muted small">{{ $td(t.label_en) }}</span>
+          <span class="tcount mono">{{ t.hidden ? $t('无权限') : t.count.toLocaleString() }}</span>
+          <span class="small muted">{{ $td(t.maturity_label) }}<template v-if="t.changes_24h"> {{ $t('· 24h {a} 次变化', { a: $td(t.changes_24h) }) }}</template></span>
+          <span class="small muted src">{{ (t.sources || []).join($t('、')) || '—' }}</span>
         </component>
       </div>
     </section>
 
     <section class="card health small muted" v-if="health">
-      同步状态：已处理到第 {{ health.cursor?.toLocaleString() }} 条总线消息，落后 {{ health.behind }} 条，延迟 {{ health.lag_s }} 秒
-      <template v-if="health.errors"> · <span class="bad">跳过 {{ health.errors }} 条（{{ health.last_error }}）</span></template>
-      <button v-if="canReplay" class="btn ghost sm" :disabled="replaying" @click="replay">{{ replaying ? '重建中…' : '从头重建本体' }}</button>
+      {{ $t('同步状态：已处理到第 {a} 条总线消息，落后 {b} 条，延迟 {c} 秒', { a: health.cursor?.toLocaleString(), b: $td(health.behind), c: $td(health.lag_s) }) }}
+      <template v-if="health.errors"> · <span class="bad">{{ $t('跳过 {a} 条（{b}）', { a: $td(health.errors), b: $td(health.last_error) }) }}</span></template>
+      <button v-if="canReplay" class="btn ghost sm" :disabled="replaying" @click="replay">{{ replaying ? $t('重建中…') : $t('从头重建本体') }}</button>
     </section>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { computed, onMounted, ref } from 'vue';
 import { session, get, post } from '../lib/api';
 import { ont, loadTypes, search, objPath, DOMAIN_COLOR, MATURITY_STYLE } from '../lib/ont';
@@ -93,9 +94,9 @@ const typeOptions = computed(() => (ont.types || []).flatMap((d) => d.types.filt
 const rows = computed(() => {
   const ds = [...(ont.types || [])].sort((a, b) => a.order - b.order);
   return [
-    { key: 'chain', label: '价值链', domains: ds.filter((d) => d.row === 'chain') },
-    { key: 'support', label: '支撑面', domains: ds.filter((d) => d.row === 'support') },
-    { key: 'core', label: '中枢', domains: ds.filter((d) => d.row === 'core') },
+    { key: 'chain', label: $t('价值链'), domains: ds.filter((d) => d.row === 'chain') },
+    { key: 'support', label: $t('支撑面'), domains: ds.filter((d) => d.row === 'support') },
+    { key: 'core', label: $t('中枢'), domains: ds.filter((d) => d.row === 'core') },
   ];
 });
 const openDomain = computed(() => (ont.types || []).find((d) => d.domain === open.value));
@@ -111,7 +112,7 @@ async function doSearch() {
   try { results.value = (await search(q.value.trim(), qType.value)).results; } catch (e) { err.value = e.message; } finally { searching.value = false; }
 }
 async function replay() {
-  if (!confirm('清空当前模式的本体，从总线历史从头重建？数据量大时要几分钟。')) return;
+  if (!confirm($t('清空当前模式的本体，从总线历史从头重建？数据量大时要几分钟。'))) return;
   replaying.value = true;
   try { health.value = await post('/ont/replay'); await loadTypes(true); } catch (e) { err.value = e.message; } finally { replaying.value = false; }
 }

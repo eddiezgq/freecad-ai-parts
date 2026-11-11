@@ -1,0 +1,385 @@
+{
+"exact": {
+"作业还没接单": "The job has no sales order yet",
+"这一期已经开过票（或开票提议在等确认）": "This installment has already been invoiced (or its invoice proposal is awaiting confirmation)",
+"订单确认": "order confirmed",
+"设计发布": "design released",
+"客户验收": "customer acceptance",
+"发货": "shipment",
+"付款计划里没有这一期": "This installment is not in the payment schedule",
+"还没发货，不能登记验收": "Not shipped yet; customer acceptance cannot be recorded",
+"检验计划和检验记录由质量人员做": "Inspection plans and records are made by quality staff",
+"图纸超过 20 MB": "The drawing is larger than 20 MB",
+"下达车间由计划员或厂长做": "Releasing to the shop floor is done by the planner or the plant manager",
+"已经有一份算料提议在等确认": "A materials proposal is already awaiting confirmation",
+"都够用了：没有要下的工单和请购": "Everything is covered: no work orders or material requests to raise",
+"估算和报价由销售、计划、设计或厂长做": "Estimates and quotes are made by sales, planning, engineering or the plant manager",
+"这个角色或生产模式没有授权给你（请老师或企业管理员在“企业成员”里授权）": "This role or production mode is not granted to you (ask the teacher or company admin to grant it under “Members”)",
+"不是班级工厂": "Not a class factory",
+"AI 模型设置要用厂长或管理员账号": "AI model settings need the plant manager or an admin account",
+"不支持的操作": "Unsupported operation",
+"提交设计要用工艺员（设计工程师）或厂长角色": "Submitting a design needs the process engineer (design engineer) or plant manager role",
+"审批要用审批人或厂长角色": "Approval needs the approver or plant manager role",
+"decision 只能是 approve / reject / withdraw": "decision can only be approve / reject / withdraw",
+"批准工艺规程要用老师、审批人或厂长账号": "Approving a process plan needs a teacher, approver or plant manager account",
+"decision 只能是 approve / reject": "decision can only be approve / reject",
+"只有老师可以做这个操作": "Only the teacher can do this",
+"provider 只能是 claude、deepseek 或 auto": "provider can only be claude, deepseek or auto",
+"没有这个自制件": "No such made part",
+"没有这条消息": "No such message",
+"该工单还没有加工记录": "This work order has no machining records yet",
+"没有这个提议": "No such proposal",
+"请输入问题": "Please enter a question",
+"实验 7 情景只属于演示工厂，本厂没有": "The lab 7 scenario belongs only to the demo plant; this plant does not have it",
+"写一个简短的标题（现象）": "Write a short title (the symptom)",
+"没有这张 8D": "No such 8D",
+"处置只能是返修、报废或让步接收": "Disposition can only be rework, scrap or concession",
+"没有这张不合格品单": "No such nonconformance",
+"文件超过 50 MB": "File larger than 50 MB",
+"这个接口只能发布设计类主题": "This endpoint can only publish design topics",
+"至少要上传 STEP 模型或图纸": "Upload at least a STEP model or a drawing",
+"没有这次提交": "No such submission",
+"没有这个零件": "No such part",
+"这不是一份工艺规程（要有 item、operations 等，可先下载参照工艺规程照着改）": "This is not a process plan (it needs item, operations etc.; download the reference process plan and edit it)",
+"这个零件没有参照工艺规程": "This part has no reference process plan",
+"这个零件没有登记零件图要求": "This part has no registered drawing requirements",
+"这台服务器没有配置 PDF 导出（WQ_PDF_URL），请先导出 Word": "This server has no PDF export configured (WQ_PDF_URL); export Word first",
+"这份工艺规程还不是数据格式 v2（缺 doc 或 operations），生成不了卡片": "This process plan is not data format v2 yet (missing doc or operations); cards cannot be generated",
+"没有可以作起点的工艺规程（先下载零件图要求，按 YAML 写一份上传）": "No process plan to start from (download the drawing requirements first, write one in YAML and upload it)",
+"草稿的零件和网址不一致": "The draft's part does not match the URL",
+"工艺规程太大（超过 1 MB）": "Process plan too large (over 1 MB)",
+"子组容量 n 取 2–10": "Subgroup size n must be 2–10",
+"没有这个模板": "No such template",
+"下单要用销售、计划员或厂长角色": "Ordering needs the sales, planner or plant manager role",
+"登录请求不合规范": "Malformed sign-in request",
+"ERPNext 单点登录还没有配置": "ERPNext single sign-on is not configured yet",
+"实验 7 只在减速器厂": "Lab 7 is only in the reducer plant",
+"生产模式没有实验任务": "There are no lab tasks in production mode",
+"请用厂长（教师）角色重置": "Reset with the plant manager (teacher) role",
+"整机标定只在机器人厂": "Robot calibration is only in the robot plant",
+"负载跑合只在机器人厂": "Load run-in is only in the robot plant",
+"暂时连不上学习平台，请稍后再试": "Cannot reach the learning platform right now; try again later",
+"老师密码错得太多，请 10 分钟后再试": "Too many wrong teacher passwords; try again in 10 minutes",
+"请先用问渠账号登录": "Please sign in with your WenQuest account first",
+"请填写姓名": "Please enter your name",
+"只有提交人能撤回": "Only the submitter can withdraw",
+"本地版请带工作台登录凭证 wq_token": "The local version needs the workbench sign-in token wq_token",
+"这个任务不用提交答案，系统会自动检查": "This task needs no answer; the system checks it automatically",
+"没有这台机器人的标定": "No calibration for this robot",
+"没有这个任务": "No such task",
+"没有这台机器人": "No such robot",
+"这是别人的计算任务": "This is someone else's computation job",
+"计算服务暂时连不上，请稍后再试": "Cannot reach the computation service right now; try again later",
+"没有这个示例": "No such example",
+"STEP 文件超过 30 MB，教学版不支持": "STEP file larger than 30 MB, not supported in the teaching version",
+"模型来源不对": "Wrong model source",
+"文件超过 100 MB": "File larger than 100 MB",
+"请先读入模型": "Load a model first",
+"结果还没出来": "Results are not ready yet",
+"请先读入零件": "Load a part first",
+"没有这条转矩记录": "No such torque record",
+"这次有限元不是从动力学送来的，不能用动力学受力记录": "This FEA was not sent from dynamics, so dynamics load records cannot be used",
+"关节力矩记录只能用在有扭矩载荷的计算上": "Joint torque records can only be used in calculations with torque loads",
+"载荷记录要有 2～200000 个数，并写明这一段有多少秒": "A load record needs 2–200000 values and the duration of the segment in seconds",
+"转矩记录只能用在有扭矩载荷的计算上": "Torque records can only be used in calculations with torque loads",
+"最大、最小值不能相同，频率要大于 0": "Maximum and minimum cannot be equal, and frequency must be greater than 0",
+"载荷记录里有不是数字的值": "The load record contains non-numeric values",
+"恒幅载荷要填最大、最小值": "Constant-amplitude load needs maximum and minimum",
+"这是别人的编程记录": "This is someone else's programming record",
+"没有这个编程记录": "No such programming record",
+"没有这个程序": "No such program",
+"只能提交自己的程序": "You can only submit your own program",
+"程序没有生成成功": "The program was not generated successfully",
+"这次编程不是从工艺规程的工序出发的（示例或上传的零件），不能挂到工艺规程上": "This programming did not start from a process plan operation (sample or uploaded part), so it cannot be attached to the process plan",
+"键槽编程目前只支持 SH-301": "Keyway programming currently supports only SH-301",
+"没有这个流体分析任务": "No such flow analysis job",
+"说一句要怎么吹风": "Say in one sentence how the air should blow",
+"计算完成后才能解释": "It can be explained only after the computation finishes",
+"标准题核对没有报告": "Standard problem check has no report",
+"要先做一次带换热的流体分析": "Run a flow analysis with heat transfer first",
+"需要数字工厂只读钥匙（Authorization: Bearer …）": "Needs a digital factory read-only key (Authorization: Bearer …)",
+"to 要晚于 from": "to must be later than from",
+"kpi 一次最多取 62 天": "kpi can fetch at most 62 days at a time",
+"from、to 要用 ISO 时间，如 2026-10-01T00:00:00Z": "from and to must be ISO times, e.g. 2026-10-01T00:00:00Z",
+"没有这个产品": "No such product",
+"没有这个物料": "No such item",
+"没有这个教学情景（目前只有 lab7）": "No such teaching scenario (only lab7 for now)",
+"回放需要有效的嵌入凭证（30 分钟内有效）": "Replay needs a valid embed token (valid for 30 minutes)",
+"t0 要用 ISO 时间，如 2026-10-20T13:00:00Z": "t0 must be an ISO time, e.g. 2026-10-20T13:00:00Z",
+"不认识的设计软件": "Unknown design software",
+"需要设计软件钥匙（Authorization: Bearer …）": "Needs a design software key (Authorization: Bearer …)",
+"单位名称不对": "Wrong organization name",
+"不认识的计算类型": "Unknown computation type",
+"选整改人": "Choose the fixer",
+"选培训种类和参加的人": "Choose the training type and participants",
+"电价、碳排放因子、合同需量、环境限值由厂长改": "Electricity prices, emission factor, contract demand and environmental limits are changed by the plant manager",
+"只有教学模式的老师能开关、注入": "Only the teacher in teaching mode can switch and inject",
+"日期格式 YYYY-MM-DD": "Date format YYYY-MM-DD",
+"经营目标由厂长改": "Business objectives are changed by the plant manager",
+"收款由销售或厂长登记": "Receipts are recorded by sales or the plant manager",
+"没有这张发票": "No such invoice",
+"付给供应商走“付款”动作（厂长批）": "Payments to suppliers go through the “Payment” action (approved by the plant manager)",
+"预算由厂长改": "Budgets are changed by the plant manager",
+"没有这段视频": "No such video",
+"选设备": "Choose a machine",
+"只有老师在教学模式下能调": "Only the teacher can adjust this in teaching mode",
+"系数 0–10": "Factor 0–10",
+"AI 代理还没就绪": "The AI agent is not ready yet",
+"没有这个异常": "No such anomaly",
+"运行记录由厂长或老师查看；你可以看自己的": "Run logs are viewed by the plant manager or teacher; you can see your own",
+"没有这条运行记录": "No such run log",
+"只能给自己的提问反馈": "You can only give feedback on your own questions",
+"反馈只能是 👍（1）或 👎（-1）": "Feedback can only be 👍 (1) or 👎 (-1)",
+"评测由厂长或老师查看": "Evaluations are viewed by the plant manager or teacher",
+"评测由厂长或老师启动": "Evaluations are started by the plant manager or teacher",
+"评测正在跑，稍等": "An evaluation is running; please wait",
+"群机器人由厂长（或老师）设置": "Group bots are set up by the plant manager (or teacher)",
+"只支持企业微信、钉钉、飞书群机器人": "Only WeCom, DingTalk and Feishu group bots are supported",
+"群机器人地址要以 https:// 开头（在群设置 → 群机器人 → 复制 Webhook 地址）": "The group bot URL must start with https:// (group settings → group bots → copy the webhook URL)",
+"严重程度不对": "Wrong severity",
+"没有这份报告": "No such report",
+"生产模式的报告按时自动生成；厂长可以手动补生成": "Reports in production mode are generated automatically on schedule; the plant manager can regenerate manually",
+"复盘由厂长或老师发起": "Reviews are started by the plant manager or teacher",
+"这个异常还没有执行完的动作，没法复盘": "This anomaly has no finished actions yet, so it cannot be reviewed",
+"没有这类对象，或你没有权限查看": "No such object type, or you have no permission to view it",
+"这条原始消息已经不在历史库里（可能已按保留天数清理）": "This raw message is no longer in the historian (possibly purged by the retention period)",
+"不是当前模式的消息": "Not a message of the current mode",
+"只有厂长（教师）可以重建本体": "Only the plant manager (teacher) can rebuild the ontology",
+"只有厂长（教师）可以调整规则": "Only the plant manager (teacher) can adjust rules",
+"没有这条规则，或它还没有数据": "No such rule, or it has no data yet",
+"没有这条规则": "No such rule",
+"只有厂长（教师）可以改班次模式": "Only the plant manager (teacher) can change the shift mode",
+"模式只能是 shift（按班次）或 continuous（24 小时连续）": "Mode can only be shift (by shift) or continuous (24 hours)",
+"给场景起个名字": "Give the scenario a name",
+"没有这个场景": "No such scenario",
+"没有这个动作": "No such action",
+"没有要做的动作": "No actions to do",
+"只能回看过去 7 天内": "You can only look back within the last 7 days",
+"没有这张快照": "No such snapshot",
+"时刻格式不对": "Wrong time format",
+"这是别人的优化任务": "This is someone else's optimization job",
+"没有这个优化任务": "No such optimization job",
+"不认识的优化问题": "Unknown optimization problem",
+"优化还没做完": "Optimization not finished yet",
+"工业园密钥不对": "Wrong industrial park key",
+"工业园只连教学模式": "The industrial park connects to teaching mode only",
+"接单由计划员或厂长操作": "Orders are accepted by the planner or plant manager",
+"只有教学模式的老师能开关自动接单": "Only the teacher in teaching mode can switch auto-accept",
+"没有这张单": "No such order",
+"没有这个人": "No such person",
+"只有教学模式的老师能开关“要有人”": "Only the teacher in teaching mode can switch “someone must be present”",
+"本厂没有现场的机器人（只在机器人厂）": "This plant has no robots in the field (robot plant only)",
+"只有教学模式的老师能推进现场时钟": "Only the teacher in teaching mode can advance the site clock",
+"填公司名称": "Enter the company name",
+"商机要来自一条线索或一个客户": "An opportunity must come from a lead or a customer",
+"填数量": "Enter the quantity",
+"报价给哪个客户（或线索）": "Which customer (or lead) is the quote for",
+"填客户（报价给线索的，签合同时会建成 ERPNext 客户）": "Enter the customer (for a quote to a lead, an ERPNext customer is created when the contract is signed)",
+"违约金不能为负；响应时限 1–720 小时；保修 0–120 个月": "Late penalty cannot be negative; response time 1–720 hours; warranty 0–120 months",
+"没有这份合同": "No such contract",
+"填数量和交期": "Enter quantity and due date",
+"没有这张投诉": "No such complaint",
+"选要上门的设备": "Choose the units to visit",
+"没有这条回访": "No such follow-up",
+"只有老师在教学模式下能注入": "Only the teacher in teaching mode can inject",
+"没有这张服务工单": "No such service job",
+"情景导演只在教学模式": "The scenario director is only in teaching mode",
+"情景导演只给老师": "The scenario director is for teachers only",
+"请用厂长（教师）角色开始情景": "Start the scenario with the plant manager (teacher) role",
+"情景只在教学模式": "Scenarios are only in teaching mode",
+"到货登记由计划员、质量或厂长操作": "Receipts are registered by the planner, quality or plant manager",
+"来料检验由质量或厂长操作": "Incoming inspection is done by quality or the plant manager",
+"选合格或不合格": "Choose pass or fail",
+"判定可疑批次由质量或厂长操作": "Suspect lots are judged by quality or the plant manager",
+"给批号或序列号": "Give a lot number or serial number",
+"需要数字工厂任务单钥匙（Authorization: Bearer …）": "Needs a digital factory task sheet key (Authorization: Bearer …)",
+"这项交付物不是分析或工艺规程": "This deliverable is not an analysis or process plan",
+"没有这张任务单": "No such task sheet",
+"这项交付物不是上传文件": "This deliverable is not a file upload",
+"这项交付物不是设计发布": "This deliverable is not a design release",
+"要上传 STEP 模型（图纸可以一起传）": "Upload a STEP model (drawings can go with it)",
+"这项交付物不是更改单": "This deliverable is not a change request",
+"这是别人的提交": "This is someone else's submission",
+"只能选自己算的作业": "You can only choose assignments you computed",
+"没有你的这份工艺规程提交": "No process plan submission of yours",
+"设备钥匙不对（或服务器没设 WQ_TWIN_DEVICE_KEY）": "Wrong device key (or WQ_TWIN_DEVICE_KEY not set on the server)",
+"序列号不对": "Wrong serial number",
+"没有这台设备的孪生": "No twin for this unit",
+"负载倍数要在 0.3–1.5 之间": "Load factor must be between 0.3 and 1.5",
+"还没有现场数据": "No field data yet",
+"维修内容只能是换油、清洁散热、更换某个轴承": "Repair can only be oil change, cooling cleaning or replacing a bearing",
+"没有这张维修单": "No such repair order",
+"这张维修单已经完成": "This repair order is already completed",
+"每天运行 1–24 小时": "1–24 run hours per day",
+"没有这次动力学计算": "No such dynamics computation",
+"只有老师能看": "Teachers only",
+"只有老师能注入故障": "Only the teacher can inject faults",
+"这个模式下没有客户现场模拟器": "No customer site simulator in this mode",
+"只有老师能调现场时钟": "Only the teacher can adjust the site clock",
+"这个模式下没有客户现场模拟器（等真设备的数据）": "No customer site simulator in this mode (waiting for real equipment data)",
+"每分钟 0–30 个现场日": "0–30 site days per minute",
+"这台不在模拟的客户现场": "This unit is not at a simulated customer site",
+"只有老师可以下发程序试跑": "Only the teacher can send programs for a trial run",
+"没有这个班次": "No such shift",
+"请上传程序文件（.st 或 PLCopen XML），或选参考程序": "Upload a program file (.st or PLCopen XML), or choose a reference program",
+"这项功能只属于演示工厂（问渠减速器厂），本厂没有": "This feature belongs to the demo plant only (WenQuest Gearbox); this plant does not have it"
+},
+"templates": [
+[
+"没有作业 {a}",
+"No job {a}"
+],
+[
+"不允许的指令 {a}",
+"Command not allowed: {a}"
+],
+[
+"网页设计台目前只支持 {a}",
+"The web design desk currently supports only {a}"
+],
+[
+"物料 {a} 不存在（先在 ERPNext 里建物料）",
+"Item {a} does not exist (create the item in ERPNext first)"
+],
+[
+"PDF 转换失败（{a}）",
+"PDF conversion failed ({a})"
+],
+[
+"实验 {a} 只在机器人厂",
+"Lab {a} is only in the robot plant"
+],
+[
+"本小时已问了 {a} 次，请 {b} 分钟后再问",
+"You have asked {a} times this hour; ask again in {b} minutes"
+],
+[
+"订单信息不完整：{a}",
+"Incomplete order information: {a}"
+],
+[
+"没有：{a}",
+"Missing: {a}"
+],
+[
+"消息不合规范：{a}",
+"Malformed message: {a}"
+],
+[
+"PDF 转换服务连不上：{a}",
+"Cannot reach the PDF conversion service: {a}"
+],
+[
+"工艺规程数据不完整，生成卡片失败：{a}",
+"Incomplete process plan data, card generation failed: {a}"
+],
+[
+"数据格式不对：{a}",
+"Wrong data format: {a}"
+],
+[
+"ERPNext 暂时不能登录：{a}",
+"ERPNext sign-in not available right now: {a}"
+],
+[
+"没有这台机器人的标定：{a}",
+"No calibration for this robot: {a}"
+],
+[
+"没有这块板的功能测试记录：{a}",
+"No functional test record for this board: {a}"
+],
+[
+"没有这片晶圆的 CP 记录：{a}",
+"No CP record for this wafer: {a}"
+],
+[
+"没有这台编码器的终检记录：{a}",
+"No final test record for this encoder: {a}"
+],
+[
+"没有这台电机的终检记录：{a}",
+"No final test record for this motor: {a}"
+],
+[
+"没有这台机器人：{a}",
+"No such robot: {a}"
+],
+[
+"YAML 格式有错：{a}",
+"YAML format error: {a}"
+],
+[
+"三维生成失败：{a}",
+"3D generation failed: {a}"
+],
+[
+"{a} 还没有发布过三维模型（STEP）",
+"{a} has never released a 3D model (STEP)"
+],
+[
+"{a} 没有工艺规程",
+"{a} has no process plan"
+],
+[
+"没有工序 {a}",
+"No operation {a}"
+],
+[
+"检查还有 {a} 个错误（{b}），改好再提交",
+"The check still has {a} errors ({b}); fix them before submitting"
+],
+[
+"本单位今天的计算次数已用完（每天 {a} 个），明天再来或联系问渠调整",
+"Your organization has used up today's computations ({a} per day); come back tomorrow or contact WenQuest to adjust"
+],
+[
+"本单位今天的{a}次数已用完（每天 {b} 个），明天再来或联系问渠调整",
+"Your organization has used up today's {a} ({b} per day); come back tomorrow or contact WenQuest to adjust"
+],
+[
+"{a}由安全员或厂长操作",
+"{a} is done by the safety officer or plant manager"
+],
+[
+"没有这份帮助：{a}",
+"No such help page: {a}"
+],
+[
+"{a}由维修工或厂长操作",
+"{a} is done by the maintenance technician or plant manager"
+],
+[
+"没有这个对象：{a} {b}",
+"No such object: {a} {b}"
+],
+[
+"这个异常由{a}负责；你可以写备注",
+"This anomaly is handled by {a}; you can add a note"
+],
+[
+"{a} 没有属性 {b}",
+"{a} has no property {b}"
+],
+[
+"没有这一批：{a}",
+"No such lot: {a}"
+],
+[
+"{a}由班组长或厂长操作",
+"{a} is done by the shift lead or plant manager"
+],
+[
+"{a}由{b}操作",
+"{a} is done by {b}"
+],
+[
+"数据不合规范：{a}",
+"Malformed data: {a}"
+],
+[
+"这一期的里程碑（{a}）还没到，不能开票",
+"The milestone for this installment ({a}) has not been reached; it cannot be invoiced yet"
+]
+]
+}

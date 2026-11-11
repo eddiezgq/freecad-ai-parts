@@ -1,25 +1,26 @@
 <template>
-  <figure class="term" :aria-label="'命令行演示：' + title">
+  <figure class="term" :aria-label="$t('命令行演示：') + title">
     <div class="bar"><i></i><i></i><i></i><span>{{ title }}</span>
-      <button class="again" @click="play">重放</button></div>
-    <pre ref="pre"><template v-for="(l, i) in shown" :key="i"><span :class="l.cls">{{ l.text }}</span>
+      <button class="again" @click="play">{{ $t('重放') }}</button></div>
+    <pre ref="pre"><template v-for="(l, i) in shown" :key="i"><span :class="l.cls">{{ $td(l.text) }}</span>
 </template><span v-if="typing" class="cur">▍</span></pre>
   </figure>
 </template>
 
 <script setup>
+import { t as $t } from '../../../lib/i18n';
 // 终端动画（ADR-0065）：以 “$ ” 开头的行逐字打出来（命令），其余行一次出现（输出）。企业版的安装、升级、备份用它。
 import { onMounted, onUnmounted, ref } from 'vue';
 
 const props = defineProps({ args: { type: Object, default: () => ({}) } });
-const title = props.args.title || '服务器终端';
+const title = props.args.title || $t('服务器终端');
 const lines = (props.args._body || '').split('\n').filter((l) => !/^\s*(name|title|caption)\s*:/.test(l));
 const shown = ref([]);
 const typing = ref(false);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let timer, gen = 0;
 
-function cls(l) { return l.startsWith('$ ') ? 'cmd' : /出错|失败|错误|处错/.test(l) || /^\s+- /.test(l) ? 'bad' : /完成|无误|已/.test(l) ? 'ok' : 'out'; }
+function cls(l) { return l.startsWith('$ ') ? 'cmd' : /出错|失败|错误|处错/.test(l) || /^\s+- /.test(l) ? 'bad' : /完成|无误|已/.test(l) ? 'ok' : 'out'; }   // i18n-ok 数据比较
 function play() {
   const g = ++gen;
   clearTimeout(timer);

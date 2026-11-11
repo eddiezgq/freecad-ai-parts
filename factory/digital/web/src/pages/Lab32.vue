@@ -1,76 +1,77 @@
 <!-- 实验 32“机壳与关键零件质量异常的追因与 8D”（第 141 轮，缝纫机厂，照实验 25）：控制图判异 → 按精镗卧加分层 → 8D → 数据验证 -->
 <template>
   <div class="page">
-    <div class="page-title"><h1>实验 32 · 机壳与关键零件质量异常的追因与 8D</h1>
-      <span class="muted">平台自动评 {{ s?.of || 60 }} 分（按平台里的事实），报告 {{ s?.report_points || 40 }} 分由老师在课程里批改</span>
-      <span class="r small" data-help="lab-links"><a href="/api/cae/lab32/guide.docx">指导书</a> · <a href="/api/cae/lab32/report-template.docx">报告模板</a></span></div>
+    <div class="page-title"><h1>{{ $t('实验 32 · 机壳与关键零件质量异常的追因与 8D') }}</h1>
+      <span class="muted">{{ $t('平台自动评 {a} 分（按平台里的事实），报告 {b} 分由老师在课程里批改', { a: s?.of || 60, b: s?.report_points || 40 }) }}</span>
+      <span class="r small" data-help="lab-links"><a href="/api/cae/lab32/guide.docx">{{ $t('指导书') }}</a> · <a href="/api/cae/lab32/report-template.docx">{{ $t('报告模板') }}</a></span></div>
     <div v-if="err" class="err">{{ err }}</div>
     <template v-if="s">
       <div class="card sum" data-help="lab-sum">
-        <b class="big">{{ s.score }} / {{ s.of }}</b>
-        <span class="pill" :class="s.injected ? 'warn' : ''">{{ s.injected ? '老师已注入问题：从数据里找原因' : '等老师注入问题' }}</span>
-        <router-link class="small" to="/work/quality">质量（控制图）</router-link>
-        <router-link class="small" to="/quality/8d">质量异常单（8D）</router-link>
-        <button class="btn sm" @click="load">刷新</button>
+        <b class="big">{{ $td(s.score) }} / {{ $td(s.of) }}</b>
+        <span class="pill" :class="s.injected ? 'warn' : ''">{{ s.injected ? $t('老师已注入问题：从数据里找原因') : $t('等老师注入问题') }}</span>
+        <router-link class="small" to="/work/quality">{{ $t('质量（控制图）') }}</router-link>
+        <router-link class="small" to="/quality/8d">{{ $t('质量异常单（8D）') }}</router-link>
+        <button class="btn sm" @click="load">{{ $t('刷新') }}</button>
       </div>
 
       <section v-if="s.teacher" class="card">
-        <div class="card-head"><h2>老师：注入隐藏问题</h2><span class="small muted">学生看不到这里</span></div>
+        <div class="card-head"><h2>{{ $t('老师：注入隐藏问题') }}</h2><span class="small muted">{{ $t('学生看不到这里') }}</span></div>
         <div class="row">
-          <select v-model="kind" aria-label="问题"><option value="random">随机五选一（学生不知道是哪种）</option>
-            <option v-for="k in s.inject_kinds" :key="k.value" :value="k.value">{{ k.label }}</option></select>
-          <button class="btn danger" @click="inject">注入</button><span class="small ok">{{ injMsg }}</span>
+          <select v-model="kind" :aria-label="$t('问题')"><option value="random">{{ $t('随机五选一（学生不知道是哪种）') }}</option>
+            <option v-for="k in s.inject_kinds" :key="k.value" :value="k.value">{{ $td(k.label) }}</option></select>
+          <button class="btn danger" @click="inject">{{ $t('注入') }}</button><span class="small ok">{{ injMsg }}</span>
         </div>
-        <p v-if="s.problem" class="small">当前：{{ s.problem.name }}（{{ timeOf(s.problem.injected_at) }} 注入{{ s.problem.cleared_at ? '，已被措施消除' : '' }}）</p>
-        <p class="small muted">注入后让车间接着做：在“订单与计划”接几张平缝机、包缝机的单，或直接下铸件、机壳、上轴的工单（每张 6–10 件）。学生的 8D 措施要您在“质量异常单”里批准，批准后才下发车间。</p>
-        <table v-if="s.class?.length" class="tbl small"><thead><tr><th>学生</th><th v-for="(t, i) in s.tasks" :key="t.id" class="num">任务 {{ i + 1 }}</th><th class="num">合计</th></tr></thead>
-          <tbody><tr v-for="c in s.class" :key="c.user"><td>{{ c.user }}</td><td v-for="t in s.tasks" :key="t.id" class="num">{{ c.scores[t.id] ?? '—' }}</td>
-            <td class="num"><b>{{ c.total }}</b></td></tr></tbody></table>
+        <p v-if="s.problem" class="small">{{ $t('当前：{a}（{b} 注入{c}）', { a: $td(s.problem.name), b: timeOf(s.problem.injected_at), c: s.problem.cleared_at ? $t('，已被措施消除') : '' }) }}</p>
+        <p class="small muted">{{ $t('注入后让车间接着做：在“订单与计划”接几张平缝机、包缝机的单，或直接下铸件、机壳、上轴的工单（每张 6–10 件）。学生的 8D 措施要您在“质量异常单”里批准，批准后才下发车间。') }}</p>
+        <table v-if="s.class?.length" class="tbl small"><thead><tr><th>{{ $t('学生') }}</th><th v-for="(t, i) in s.tasks" :key="t.id" class="num">{{ $t('任务 {a}', { a: i + 1 }) }}</th><th class="num">{{ $t('合计') }}</th></tr></thead>
+          <tbody><tr v-for="c in s.class" :key="c.user"><td>{{ $td(c.user) }}</td><td v-for="t in s.tasks" :key="t.id" class="num">{{ c.scores[t.id] ?? '—' }}</td>
+            <td class="num"><b>{{ $td(c.total) }}</b></td></tr></tbody></table>
       </section>
 
       <section v-for="(t, i) in s.tasks" :key="t.id" class="card task" data-help="lab-task" :class="{ done: t.done }">
-        <div class="card-head"><h2>任务 {{ i + 1 }}　{{ t.title }}</h2><span class="pts">{{ t.score }} / {{ t.points }}</span></div>
-        <p>{{ t.desc }}</p>
-        <p class="small muted">提示：{{ t.hint }}</p>
+        <div class="card-head"><h2>{{ $t('任务 {a}　{b}', { a: i + 1, b: $td(t.title) }) }}</h2><span class="pts">{{ $td(t.score) }} / {{ $td(t.points) }}</span></div>
+        <p>{{ $td(t.desc) }}</p>
+        <p class="small muted">{{ $t('提示：{a}', { a: $td(t.hint) }) }}</p>
         <form v-if="t.id === 'l32_t1'" class="f" @submit.prevent="submit(t.id, a1)">
-          <div class="lf"><label>出问题的特性</label><select v-model="a1.characteristic" required>
-            <option v-for="c in s.characteristics" :key="c.value" :value="c.value">{{ c.label }}</option></select></div>
-          <div class="lf"><label>触发的判异规则</label><span class="cks">
-            <label v-for="r in s.rules" :key="r"><input v-model="a1.rule" type="radio" :value="r" required> 规则 {{ r }}</label></span></div>
-          <button class="btn primary" :disabled="!s.injected">提交</button>
+          <div class="lf"><label>{{ $t('出问题的特性') }}</label><select v-model="a1.characteristic" required>
+            <option v-for="c in s.characteristics" :key="c.value" :value="c.value">{{ $td(c.label) }}</option></select></div>
+          <div class="lf"><label>{{ $t('触发的判异规则') }}</label><span class="cks">
+            <label v-for="r in s.rules" :key="r"><input v-model="a1.rule" type="radio" :value="r" required> {{ $t('规则 {a}', { a: r }) }}</label></span></div>
+          <button class="btn primary" :disabled="!s.injected">{{ $t('提交') }}</button>
         </form>
         <template v-if="t.id === 'l32_t2'">
-          <div class="lf f"><label>看哪个特性分层</label><select v-model="sel" @change="loadStrata">
-            <option v-for="c in s.characteristics" :key="c.value" :value="c.value">{{ c.label }}</option></select></div>
+          <div class="lf f"><label>{{ $t('看哪个特性分层') }}</label><select v-model="sel" @change="loadStrata">
+            <option v-for="c in s.characteristics" :key="c.value" :value="c.value">{{ $td(c.label) }}</option></select></div>
           <div v-if="strata" class="strata">
             <div>
-              <b class="small">按精镗那台卧加</b>
-              <table class="tbl small"><thead><tr><th>卧加</th><th class="num">件数</th><th class="num">均值</th><th class="num">超差</th></tr></thead>
-                <tbody><tr v-for="(x, k) in strata.station" :key="k"><td class="mono">{{ k }}</td><td class="num">{{ x.n }}</td><td class="num">{{ x.mean }}</td>
-                  <td class="num" :class="{ 'bad-t': x.fails }">{{ x.fails }}</td></tr></tbody></table>
-              <p v-if="!Object.keys(strata.station).length" class="small muted">这个特性没有按卧加分组的数据（只有机壳记精镗那台卧加）。</p>
+              <b class="small">{{ $t('按精镗那台卧加') }}</b>
+              <table class="tbl small"><thead><tr><th>{{ $t('卧加') }}</th><th class="num">{{ $t('件数') }}</th><th class="num">{{ $t('均值') }}</th><th class="num">{{ $t('超差') }}</th></tr></thead>
+                <tbody><tr v-for="(x, k) in strata.station" :key="k"><td class="mono">{{ k }}</td><td class="num">{{ $td(x.n) }}</td><td class="num">{{ $td(x.mean) }}</td>
+                  <td class="num" :class="{ 'bad-t': x.fails }">{{ $td(x.fails) }}</td></tr></tbody></table>
+              <p v-if="!Object.keys(strata.station).length" class="small muted">{{ $t('这个特性没有按卧加分组的数据（只有机壳记精镗那台卧加）。') }}</p>
             </div>
           </div>
           <form class="f" @submit.prevent="submit(t.id, a2)">
-            <div class="lf"><label>问题出在</label><span class="cks">
-              <label v-for="l in s.layers" :key="l.value"><input v-model="a2.by" type="radio" :value="l.value" required> {{ l.label }}</label></span></div>
-            <div v-if="a2.by" class="lf"><label>哪台设备（编号）</label><input v-model="a2.group" placeholder="如 hmc-3、mix-1、age-1" required></div>
-            <button class="btn primary" :disabled="!s.injected">提交</button>
+            <div class="lf"><label>{{ $t('问题出在') }}</label><span class="cks">
+              <label v-for="l in s.layers" :key="l.value"><input v-model="a2.by" type="radio" :value="l.value" required> {{ $td(l.label) }}</label></span></div>
+            <div v-if="a2.by" class="lf"><label>{{ $t('哪台设备（编号）') }}</label><input v-model="a2.group" :placeholder="$t('如 hmc-3、mix-1、age-1')" required></div>
+            <button class="btn primary" :disabled="!s.injected">{{ $t('提交') }}</button>
           </form>
         </template>
         <div v-if="['l32_t3', 'l32_t4', 'l32_t5'].includes(t.id)" class="small">
-          <template v-if="t.evidence?.q8d">你的 8D：<router-link :to="'/quality/8d/' + t.evidence.q8d">{{ t.evidence.q8d }}</router-link>
-            <span v-if="t.id === 'l32_t4' && t.evidence.effective === false">（措施对了，等车间再做 10 台后在 8D 页点“验证”）</span></template>
-          <template v-else-if="t.evidence?.note">{{ t.evidence.note }}</template>
-          <template v-else>平台自动检查你的 8D 单。</template>
+          <template v-if="t.evidence?.q8d">{{ $t('你的 8D：') }}<router-link :to="'/quality/8d/' + t.evidence.q8d">{{ $td(t.evidence.q8d) }}</router-link>
+            <span v-if="t.id === 'l32_t4' && t.evidence.effective === false">{{ $t('（措施对了，等车间再做 10 台后在 8D 页点“验证”）') }}</span></template>
+          <template v-else-if="t.evidence?.note">{{ $td(t.evidence.note) }}</template>
+          <template v-else>{{ $t('平台自动检查你的 8D 单。') }}</template>
         </div>
-        <p v-if="fb[t.id]" class="small fb">{{ fb[t.id] }}</p>
+        <p v-if="fb[t.id]" class="small fb">{{ $td(fb[t.id]) }}</p>
       </section>
     </template>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { onMounted, reactive, ref } from 'vue';
 import { get, post } from '../lib/api';
 import { timeOf } from '../lib/fmt';

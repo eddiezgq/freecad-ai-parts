@@ -1,127 +1,126 @@
 <!-- 客户与服务（第 18 轮 E1）：销售漏斗、投诉、服务派工与排班、回访与满意度。手机宽度可用 -->
 <template>
   <div class="page">
-    <div class="page-title"><h1>客户与服务</h1>
-      <span class="muted">线索 → 商机 → 报价 → 合同 → 订单；投诉 → 追溯 → 派工 → 回访。线索、商机、报价、合同、服务工单都在 ERPNext 里有对应单据</span>
+    <div class="page-title"><h1>{{ $t('客户与服务') }}</h1>
+      <span class="muted">{{ $t('线索 → 商机 → 报价 → 合同 → 订单；投诉 → 追溯 → 派工 → 回访。线索、商机、报价、合同、服务工单都在 ERPNext 里有对应单据') }}</span>
       <span class="tabs" data-help="svc-tabs" role="tablist"><button v-for="(l, k) in TABS" :key="k" type="button" role="tab" :class="{ on: tab === k }" @click="go(k)">{{ l }}
-        <span v-if="k === 'complaints' && kp?.open_complaints" class="cnt">{{ kp.open_complaints }}</span></button></span></div>
+        <span v-if="k === 'complaints' && kp?.open_complaints" class="cnt">{{ $td(kp.open_complaints) }}</span></button></span></div>
     <div v-if="err" class="err">{{ err }}</div>
 
     <section v-if="kp" class="kpis" data-help="svc-kpis">
-      <div class="card k"><span class="small muted">满意度（近 30 天）</span><b>{{ kp.satisfaction ?? '—' }}<small v-if="kp.satisfaction"> / 5</small></b><span class="small muted">{{ kp.surveys }} 次回访</span></div>
-      <div class="card k"><span class="small muted">开着的投诉</span><b>{{ kp.open_complaints }}</b><span class="small muted">平均响应 {{ kp.response_h ?? '—' }} 小时</span></div>
-      <div class="card k"><span class="small muted">待上门的服务</span><b>{{ kp.open_jobs }}</b><span class="small muted">一次修复率 {{ kp.first_fix == null ? '—' : Math.round(kp.first_fix * 100) + '%' }}</span></div>
-      <div class="card k"><span class="small muted">保修成本（近 30 天）</span><b>${{ Math.round(kp.warranty_cost).toLocaleString() }}</b></div>
-      <div class="card k"><span class="small muted">漏斗金额</span><b>${{ Math.round(kp.funnel_amount).toLocaleString() }}</b><span class="small muted">本月成交 ${{ Math.round(kp.won_month).toLocaleString() }}</span></div>
+      <div class="card k"><span class="small muted">{{ $t('满意度（近 30 天）') }}</span><b>{{ kp.satisfaction ?? '—' }}<small v-if="kp.satisfaction"> / 5</small></b><span class="small muted">{{ $t('{a} 次回访', { a: $td(kp.surveys) }) }}</span></div>
+      <div class="card k"><span class="small muted">{{ $t('开着的投诉') }}</span><b>{{ $td(kp.open_complaints) }}</b><span class="small muted">{{ $t('平均响应 {a} 小时', { a: kp.response_h ?? '—' }) }}</span></div>
+      <div class="card k"><span class="small muted">{{ $t('待上门的服务') }}</span><b>{{ $td(kp.open_jobs) }}</b><span class="small muted">{{ $t('一次修复率 {a}', { a: kp.first_fix == null ? '—' : Math.round(kp.first_fix * 100) + '%' }) }}</span></div>
+      <div class="card k"><span class="small muted">{{ $t('保修成本（近 30 天）') }}</span><b>${{ Math.round(kp.warranty_cost).toLocaleString() }}</b></div>
+      <div class="card k"><span class="small muted">{{ $t('漏斗金额') }}</span><b>${{ Math.round(kp.funnel_amount).toLocaleString() }}</b><span class="small muted">{{ $t('本月成交 ${a}', { a: Math.round(kp.won_month).toLocaleString() }) }}</span></div>
     </section>
 
     <!-- ⑤ 客户 360（AI 代理的 customer_360 工具用的是同一个接口） -->
     <template v-if="tab === 'c360'">
       <div class="card add">
-        <label>客户 <select v-model="cust" @change="load360">
-          <option v-for="c in custs" :key="c" :value="c">{{ c }}</option></select></label>
+        <label>{{ $t('客户') }} <select v-model="cust" @change="load360">
+          <option v-for="c in custs" :key="c" :value="c">{{ $td(c) }}</option></select></label>
       </div>
       <section v-if="c3" class="card">
-        <div class="card-head"><h2>{{ c3.customer }}</h2>
-          <span class="small muted">满意度 {{ c3.satisfaction ?? '—' }}（{{ c3.surveys }} 次回访）</span></div>
-        <p v-if="c3.contract?.hidden" class="small muted">合同 {{ c3.contract.name }}：条款你没有权限查看。</p>
-        <p v-else-if="c3.contract" class="small">合同 <b class="mono">{{ c3.contract.name }}</b>：延期违约金 {{ c3.contract.penalty_per_day ? '$' + c3.contract.penalty_per_day + '/天' : '无' }}，
-          投诉响应 {{ c3.contract.response_h ?? 24 }} 小时，保修 {{ c3.contract.warranty_months ?? 12 }} 个月（{{ c3.contract.start }} 起）</p>
-        <p v-else class="small muted">没有生效的合同（按默认：响应 24 小时、保修 12 个月）。</p>
-        <h3>现场设备</h3>
-        <table v-if="c3.units.length" class="tbl small"><thead><tr><th>序列号</th><th>现场</th><th>健康度</th><th>报警</th><th>保修到</th></tr></thead>
-          <tbody><tr v-for="x in c3.units" :key="x.serial"><td class="mono"><router-link :to="{ path: '/twin', query: { serial: x.serial } }">{{ x.serial }}</router-link></td>
-            <td>{{ x.site }}</td><td><span class="pill" :class="{ red: 'bad', yellow: 'warn', green: 'good' }[x.health]">{{ { red: '红', yellow: '黄', green: '绿' }[x.health] || x.health }}</span></td>
-            <td>{{ x.alerts.join('；') || '—' }}</td><td>{{ x.warranty_until || '—' }}{{ x.in_warranty ? '' : '（已过保）' }}</td></tr></tbody></table>
-        <p v-else class="small muted">没有现场设备。</p>
-        <h3>订单</h3>
-        <p class="small"><span v-for="o in c3.orders" :key="o.name" class="mono">{{ o.name }}（{{ o.qty }} 台，交期 {{ o.delivery_date }}）　</span><span v-if="!c3.orders.length" class="muted">没有订单。</span></p>
-        <h3>投诉与服务</h3>
-        <p class="small"><span v-for="c in c3.complaints" :key="c.key">{{ c.key }} {{ c.subject }}（{{ c.status }}）　</span><span v-if="!c3.complaints.length" class="muted">没有投诉。</span></p>
-        <p class="small"><span v-for="j in c3.jobs" :key="j.key">{{ j.key }} {{ j.serial }} {{ j.kind }}（{{ j.status === 'done' ? '已完成' : j.day }}）　</span></p>
+        <div class="card-head"><h2>{{ $td(c3.customer) }}</h2>
+          <span class="small muted">{{ $t('满意度 {a}（{b} 次回访）', { a: c3.satisfaction ?? '—', b: $td(c3.surveys) }) }}</span></div>
+        <p v-if="c3.contract?.hidden" class="small muted">{{ $t('合同 {a}：条款你没有权限查看。', { a: $td(c3.contract.name) }) }}</p>
+        <p v-else-if="c3.contract" class="small">{{ $t('合同') }} <b class="mono">{{ $td(c3.contract.name) }}</b>{{ $t('：延期违约金 {a}，投诉响应 {b} 小时，保修 {c} 个月（{d} 起）', { a: c3.contract.penalty_per_day ? '$' + c3.contract.penalty_per_day + $t('/天') : $t('无'), b: c3.contract.response_h ?? 24, c: c3.contract.warranty_months ?? 12, d: $td(c3.contract.start) }) }}</p>
+        <p v-else class="small muted">{{ $t('没有生效的合同（按默认：响应 24 小时、保修 12 个月）。') }}</p>
+        <h3>{{ $t('现场设备') }}</h3>
+        <table v-if="c3.units.length" class="tbl small"><thead><tr><th>{{ $t('序列号') }}</th><th>{{ $t('现场') }}</th><th>{{ $t('健康度') }}</th><th>{{ $t('报警') }}</th><th>{{ $t('保修到') }}</th></tr></thead>
+          <tbody><tr v-for="x in c3.units" :key="x.serial"><td class="mono"><router-link :to="{ path: '/twin', query: { serial: x.serial } }">{{ $td(x.serial) }}</router-link></td>
+            <td>{{ $td(x.site) }}</td><td><span class="pill" :class="{ red: 'bad', yellow: 'warn', green: 'good' }[x.health]">{{ { red: $t('红'), yellow: $t('黄'), green: $t('绿') }[x.health] || x.health }}</span></td>
+            <td>{{ x.alerts.join($t('；')) || '—' }}</td><td>{{ x.warranty_until || '—' }}{{ x.in_warranty ? '' : $t('（已过保）') }}</td></tr></tbody></table>
+        <p v-else class="small muted">{{ $t('没有现场设备。') }}</p>
+        <h3>{{ $t('订单') }}</h3>
+        <p class="small"><span v-for="o in c3.orders" :key="o.name" class="mono">{{ $t('{a}（{b} 台，交期 {c}）', { a: $td(o.name), b: $td(o.qty), c: $td(o.delivery_date) }) }} · </span><span v-if="!c3.orders.length" class="muted">{{ $t('没有订单。') }}</span></p>
+        <h3>{{ $t('投诉与服务') }}</h3>
+        <p class="small"><span v-for="c in c3.complaints" :key="c.key">{{ $t('{a} {b}（{c}）', { a: $td(c.key), b: $td(c.subject), c: $td(c.status) }) }} · </span><span v-if="!c3.complaints.length" class="muted">{{ $t('没有投诉。') }}</span></p>
+        <p class="small"><span v-for="j in c3.jobs" :key="j.key">{{ $t('{a} {b} {c}（{d}）', { a: $td(j.key), b: $td(j.serial), c: $td(j.kind), d: j.status === 'done' ? $t('已完成') : j.day }) }} · </span></p>
       </section>
     </template>
 
     <!-- ① 销售漏斗 -->
     <template v-if="tab === 'funnel' && pl">
       <div class="card add" v-if="pl.can_edit">
-        <b class="small">新线索</b>
-        <input v-model="nl.company_name" placeholder="公司名称" aria-label="公司名称">
-        <input v-model="nl.note" placeholder="需求（例如：输送线改造，6 台）" aria-label="需求">
-        <button class="btn sm primary" @click="newLead">添加</button>
+        <b class="small">{{ $t('新线索') }}</b>
+        <input v-model="nl.company_name" :placeholder="$t('公司名称')" :aria-label="$t('公司名称')">
+        <input v-model="nl.note" :placeholder="$t('需求（例如：输送线改造，6 台）')" :aria-label="$t('需求')">
+        <button class="btn sm primary" @click="newLead">{{ $t('添加') }}</button>
         <span class="small muted">{{ msg }}</span>
       </div>
       <div class="board">
         <div v-for="st in pl.stages.slice(0, 4)" :key="st.key" class="col">
-          <div class="ch"><b>{{ st.label }}</b><span class="small muted">{{ st.count }}</span></div>
+          <div class="ch"><b>{{ $td(st.label) }}</b><span class="small muted">{{ $td(st.count) }}</span></div>
           <div v-for="c in pl.cards.filter((x) => x.stage === st.key)" :key="c.name" class="card cc">
-            <div class="small mono muted">{{ c.name }}</div>
-            <b>{{ c.title }}</b>
+            <div class="small mono muted">{{ $td(c.name) }}</div>
+            <b>{{ $td(c.title) }}</b>
             <div v-if="c.amount" class="small">${{ Math.round(c.amount).toLocaleString() }}</div>
-            <div v-if="c.note" class="small muted">{{ c.note }}</div>
-            <div v-if="c.terms" class="small muted">保修 {{ c.terms.warranty_months }} 个月 · 响应 {{ c.terms.response_h }} 小时 · 违约金 ${{ c.terms.penalty_per_day }}/天</div>
-            <div v-if="c.date" class="small muted">{{ st.key === 'quotation' ? '有效期到 ' : '' }}{{ c.date }}</div>
+            <div v-if="c.note" class="small muted">{{ $td(c.note) }}</div>
+            <div v-if="c.terms" class="small muted">{{ $t('保修 {a} 个月 · 响应 {b} 小时 · 违约金 ${c}/天', { a: $td(c.terms.warranty_months), b: $td(c.terms.response_h), c: $td(c.terms.penalty_per_day) }) }}</div>
+            <div v-if="c.date" class="small muted">{{ st.key === 'quotation' ? $t('有效期到 ') : '' }}{{ $td(c.date) }}</div>
             <div v-if="pl.can_edit" class="act">
-              <template v-if="st.key === 'lead'"><input v-model.number="qty[c.name]" type="number" min="1" placeholder="台数" class="n" aria-label="台数">
-                <button class="linkbtn" @click="toOpp(c)">转成商机</button></template>
-              <template v-else-if="st.key === 'opportunity'"><input v-model.number="qty[c.name]" type="number" min="1" placeholder="台数" class="n" aria-label="台数">
-                <button class="linkbtn" @click="toQuote(c)">出报价（${{ pl.price.toLocaleString() }}/台）</button></template>
-              <template v-else-if="st.key === 'quotation'"><button class="linkbtn" @click="ct = { quotation: c, customer: c.title, penalty_per_day: 0, response_h: 24, warranty_months: 12, amount: c.amount }">签合同…</button></template>
-              <template v-else-if="st.key === 'contract'"><input v-model.number="qty[c.name]" type="number" min="1" placeholder="台数" class="n" aria-label="台数">
-                <input v-model="due[c.name]" type="date" class="d" aria-label="交期"><button class="linkbtn" @click="toOrder(c)">转订单</button></template>
+              <template v-if="st.key === 'lead'"><input v-model.number="qty[c.name]" type="number" min="1" :placeholder="$t('台数')" class="n" :aria-label="$t('台数')">
+                <button class="linkbtn" @click="toOpp(c)">{{ $t('转成商机') }}</button></template>
+              <template v-else-if="st.key === 'opportunity'"><input v-model.number="qty[c.name]" type="number" min="1" :placeholder="$t('台数')" class="n" :aria-label="$t('台数')">
+                <button class="linkbtn" @click="toQuote(c)">{{ $t('出报价（${a}/台）', { a: pl.price.toLocaleString() }) }}</button></template>
+              <template v-else-if="st.key === 'quotation'"><button class="linkbtn" @click="ct = { quotation: c, customer: c.title, penalty_per_day: 0, response_h: 24, warranty_months: 12, amount: c.amount }">{{ $t('签合同…') }}</button></template>
+              <template v-else-if="st.key === 'contract'"><input v-model.number="qty[c.name]" type="number" min="1" :placeholder="$t('台数')" class="n" :aria-label="$t('台数')">
+                <input v-model="due[c.name]" type="date" class="d" :aria-label="$t('交期')"><button class="linkbtn" @click="toOrder(c)">{{ $t('转订单') }}</button></template>
             </div>
           </div>
         </div>
       </div>
       <div v-if="ct" class="card">
-        <h3>签合同：{{ ct.customer }}（报价 {{ ct.quotation.name }}）</h3>
+        <h3>{{ $t('签合同：{a}（报价 {b}）', { a: $td(ct.customer), b: $td(ct.quotation.name) }) }}</h3>
         <div class="grid3">
-          <label>客户名称<input v-model="ct.customer"></label>
-          <label>保修期（月）<input v-model.number="ct.warranty_months" type="number" min="0"></label>
-          <label>投诉响应时限（小时）<input v-model.number="ct.response_h" type="number" min="1"></label>
-          <label>延期违约金（$/天）<input v-model.number="ct.penalty_per_day" type="number" min="0"></label>
+          <label>{{ $t('客户名称') }}<input v-model="ct.customer"></label>
+          <label>{{ $t('保修期（月）') }}<input v-model.number="ct.warranty_months" type="number" min="0"></label>
+          <label>{{ $t('投诉响应时限（小时）') }}<input v-model.number="ct.response_h" type="number" min="1"></label>
+          <label>{{ $t('延期违约金（$/天）') }}<input v-model.number="ct.penalty_per_day" type="number" min="0"></label>
         </div>
-        <p class="small muted">违约金会进入推演：这个客户的订单有延期风险时，指挥台按合同算违约金。</p>
-        <button class="btn primary sm" @click="sign">签合同（写入 ERPNext）</button> <button class="btn sm" @click="ct = null">取消</button>
+        <p class="small muted">{{ $t('违约金会进入推演：这个客户的订单有延期风险时，指挥台按合同算违约金。') }}</p>
+        <button class="btn primary sm" @click="sign">{{ $t('签合同（写入 ERPNext）') }}</button> <button class="btn sm" @click="ct = null">{{ $t('取消') }}</button>
       </div>
       <div class="card">
-        <h3>生效中的合同</h3>
-        <table class="tbl small"><thead><tr><th>合同</th><th>客户</th><th class="num">保修（月）</th><th class="num">响应（小时）</th><th class="num">违约金 $/天</th><th>期限</th></tr></thead>
-          <tbody><tr v-for="c in pl.contracts" :key="c.name"><td class="mono">{{ c.name }}<span v-if="c.demo" class="pill mute">演示</span></td><td>{{ c.customer }}</td>
-            <td class="num">{{ c.warranty_months ?? '—' }}</td><td class="num">{{ c.response_h ?? '—' }}</td><td class="num">{{ c.penalty_per_day }}</td><td>{{ c.start }} — {{ c.end }}</td></tr></tbody></table>
+        <h3>{{ $t('生效中的合同') }}</h3>
+        <table class="tbl small"><thead><tr><th>{{ $t('合同') }}</th><th>{{ $t('客户') }}</th><th class="num">{{ $t('保修（月）') }}</th><th class="num">{{ $t('响应（小时）') }}</th><th class="num">{{ $t('违约金 $/天') }}</th><th>{{ $t('期限') }}</th></tr></thead>
+          <tbody><tr v-for="c in pl.contracts" :key="c.name"><td class="mono">{{ $td(c.name) }}<span v-if="c.demo" class="pill mute">{{ $t('演示') }}</span></td><td>{{ $td(c.customer) }}</td>
+            <td class="num">{{ c.warranty_months ?? '—' }}</td><td class="num">{{ c.response_h ?? '—' }}</td><td class="num">{{ $td(c.penalty_per_day) }}</td><td>{{ $td(c.start) }} — {{ $td(c.end) }}</td></tr></tbody></table>
       </div>
     </template>
 
     <!-- ② 投诉 -->
     <template v-if="tab === 'complaints' && cp">
       <div v-if="cp.can_edit" class="card" data-help="svc-complaint">
-        <h3>登记投诉</h3>
+        <h3>{{ $t('登记投诉') }}</h3>
         <div class="grid3">
-          <label>设备序列号（铭牌）<input v-model="nc.serial" list="serials" placeholder="例如 WQR105-H2504-06"></label>
-          <datalist id="serials"><option v-for="x in cp.units" :key="x.serial" :value="x.serial">{{ x.customer }}</option></datalist>
-          <label>客户（填了序列号可不填）<input v-model="nc.customer"></label>
-          <label>严重度<select v-model="nc.severity"><option v-for="(l, k) in cp.severities" :key="k" :value="k">{{ l }}</option></select></label>
-          <label class="w2">现象<input v-model="nc.subject" placeholder="例如：异响、油温偏高"></label>
-          <label>渠道<select v-model="nc.channel"><option>电话</option><option>邮件</option><option>现场</option><option>微信</option></select></label>
-          <label>联系人 / 邮箱<input v-model="nc.contact"></label>
-          <label class="w2">详细描述<input v-model="nc.detail"></label>
+          <label>{{ $t('设备序列号（铭牌）') }}<input v-model="nc.serial" list="serials" :placeholder="$t('例如 WQR105-H2504-06')"></label>
+          <datalist id="serials"><option v-for="x in cp.units" :key="x.serial" :value="x.serial">{{ $td(x.customer) }}</option></datalist>
+          <label>{{ $t('客户（填了序列号可不填）') }}<input v-model="nc.customer"></label>
+          <label>{{ $t('严重度') }}<select v-model="nc.severity"><option v-for="(l, k) in cp.severities" :key="k" :value="k">{{ $td(l) }}</option></select></label>
+          <label class="w2">{{ $t('现象') }}<input v-model="nc.subject" :placeholder="$t('例如：异响、油温偏高')"></label>
+          <label>{{ $t('渠道') }}<select v-model="nc.channel"><option value="电话">{{ $t('电话') }}</option><option value="邮件">{{ $t('邮件') }}</option><option value="现场">{{ $t('现场') }}</option><option value="微信">{{ $t('微信') }}</option></select></label><!-- i18n-ok 数据值比较 -->
+          <label>{{ $t('联系人 / 邮箱') }}<input v-model="nc.contact"></label>
+          <label class="w2">{{ $t('详细描述') }}<input v-model="nc.detail"></label>
         </div>
-        <button class="btn primary sm" @click="newComplaint">登记（同时在 ERPNext 开投诉单）</button> <span class="small ok">{{ msg }}</span>
+        <button class="btn primary sm" @click="newComplaint">{{ $t('登记（同时在 ERPNext 开投诉单）') }}</button> <span class="small ok">{{ msg }}</span>
       </div>
-      <div class="filters small"><label><input v-model="cpOpen" type="checkbox" @change="loadCp"> 只看没关闭的</label></div>
-      <p v-if="!cp.complaints.length" class="muted small">没有投诉。</p>
+      <div class="filters small"><label><input v-model="cpOpen" type="checkbox" @change="loadCp"> {{ $t('只看没关闭的') }}</label></div>
+      <p v-if="!cp.complaints.length" class="muted small">{{ $t('没有投诉。') }}</p>
       <div v-for="c in cp.complaints" :key="c.id" class="card item" :class="c.severity">
-        <div class="ih"><span class="mono small">{{ c.key }}</span><b>{{ c.subject }}</b><span class="pill" :class="c.status === 'closed' ? 'good' : c.status === 'doing' ? 'info' : 'warn'">{{ c.status_label }}</span>
-          <span class="pill" :class="c.severity === 'urgent' ? 'bad' : 'mute'">{{ c.severity_label }}</span></div>
-        <div class="small">{{ c.customer }}<template v-if="c.serial"> · 设备 <router-link :to="'/ont/FieldUnit/' + c.serial">{{ c.serial }}</router-link></template>
-          · {{ c.channel }} · {{ fmtTs(c.created_at) }} · {{ c.created_by }}<template v-if="c.issue"> · ERPNext {{ c.issue }}</template></div>
-        <div v-if="c.serial && !c.traceable" class="small warn-t">这台没有出厂数据，追不到车间</div>
-        <div v-if="c.unit" class="small muted">孪生健康度 {{ { red: '红', yellow: '黄', green: '绿' }[c.unit.health] }} · {{ c.unit.in_warranty ? '保修期内（到 ' + c.unit.warranty_until + '）' : '已过保修期' }}</div>
+        <div class="ih"><span class="mono small">{{ $td(c.key) }}</span><b>{{ $td(c.subject) }}</b><span class="pill" :class="c.status === 'closed' ? 'good' : c.status === 'doing' ? 'info' : 'warn'">{{ $td(c.status_label) }}</span>
+          <span class="pill" :class="c.severity === 'urgent' ? 'bad' : 'mute'">{{ $td(c.severity_label) }}</span></div>
+        <div class="small">{{ $td(c.customer) }}<template v-if="c.serial"> {{ $t('· 设备') }} <router-link :to="'/ont/FieldUnit/' + c.serial">{{ $td(c.serial) }}</router-link></template>
+          · {{ $td(c.channel) }} · {{ fmtTs(c.created_at) }} · {{ $td(c.created_by) }}<template v-if="c.issue"> · ERPNext {{ $td(c.issue) }}</template></div>
+        <div v-if="c.serial && !c.traceable" class="small warn-t">{{ $t('这台没有出厂数据，追不到车间') }}</div>
+        <div v-if="c.unit" class="small muted">{{ $t('孪生健康度 {a} · {b}', { a: { red: $t('红'), yellow: $t('黄'), green: $t('绿') }[c.unit.health], b: c.unit.in_warranty ? $t('保修期内（到 ') + c.unit.warranty_until + $t('）') : $t('已过保修期') }) }}</div>
         <div class="act">
-          <router-link v-if="c.anomaly_id" :to="{ path: '/ont', query: { view: 'anomalies', a: c.anomaly_id } }" class="btn sm primary">追溯与处理方案</router-link>
+          <router-link v-if="c.anomaly_id" :to="{ path: '/ont', query: { view: 'anomalies', a: c.anomaly_id } }" class="btn sm primary">{{ $t('追溯与处理方案') }}</router-link>
           <template v-if="cp.can_edit && c.status !== 'closed'">
-            <button v-if="c.status === 'open'" class="btn sm" @click="respond(c, 'doing')">已联系客户</button>
-            <button class="btn sm" @click="respond(c, 'closed')">关闭</button></template>
+            <button v-if="c.status === 'open'" class="btn sm" @click="respond(c, 'doing')">{{ $t('已联系客户') }}</button>
+            <button class="btn sm" @click="respond(c, 'closed')">{{ $t('关闭') }}</button></template>
         </div>
       </div>
     </template>
@@ -129,41 +128,41 @@
     <!-- ③ 服务 -->
     <template v-if="tab === 'service'">
       <div v-if="sc" class="card">
-        <div class="card-head"><h3>工程师排班（现场日 {{ sc.start }} 起 14 天）</h3><span class="small muted">本区域每天最多 2 单；去外区域当天只做 1 单</span></div>
+        <div class="card-head"><h3>{{ $t('工程师排班（现场日 {a} 起 14 天）', { a: $td(sc.start) }) }}</h3><span class="small muted">{{ $t('本区域每天最多 2 单；去外区域当天只做 1 单') }}</span></div>
         <div class="sched">
-          <table class="tbl small"><thead><tr><th>工程师</th><th v-for="d in sc.engineers[0]?.days || []" :key="d.day" :class="{ off: d.off }">{{ d.day.slice(5) }}</th></tr></thead>
-            <tbody><tr v-for="e in sc.engineers" :key="e.id"><td class="nm">{{ e.name }}<span class="muted"> · {{ e.region }}</span></td>
+          <table class="tbl small"><thead><tr><th>{{ $t('工程师') }}</th><th v-for="d in sc.engineers[0]?.days || []" :key="d.day" :class="{ off: d.off }">{{ d.day.slice(5) }}</th></tr></thead>
+            <tbody><tr v-for="e in sc.engineers" :key="e.id"><td class="nm">{{ $td(e.name) }}<span class="muted"> · {{ $td(e.region) }}</span></td>
               <td v-for="d in e.days" :key="d.day" :class="{ off: d.off, busy: d.jobs.length }" :title="d.jobs.map((j) => j.serial + ' ' + j.kind).join('\n')">
-                {{ d.off ? '休' : d.jobs.length || '' }}</td></tr></tbody></table>
+                {{ d.off ? $t('休') : d.jobs.length || '' }}</td></tr></tbody></table>
         </div>
       </div>
       <div v-if="jb" class="card">
-        <h3>服务工单</h3>
-        <table class="tbl small"><thead><tr><th>单号</th><th>设备 · 客户</th><th>内容</th><th>工程师</th><th>上门日</th><th>保修</th><th>ERPNext</th><th>状态</th><th></th></tr></thead>
-          <tbody><tr v-for="j in jb.jobs" :key="j.id"><td class="mono">{{ j.key }}</td><td>{{ j.serial }}<br><span class="muted">{{ j.customer }}</span></td><td>{{ j.kind_label }}</td>
-            <td>{{ j.engineer_name || '待定' }}</td><td>{{ j.day || '—' }}</td><td>{{ j.warranty ? '保修内' : '收费' }}</td><td class="mono">{{ j.issue || '…' }}</td>
-            <td>{{ { planned: '待上门', done: '已完成', cancelled: '已取消' }[j.status] }}<div v-if="j.result" class="muted">{{ j.result }}</div></td>
-            <td><button v-if="jb.can_edit && j.status === 'planned'" class="linkbtn" @click="done(j)">完工</button></td></tr></tbody></table>
-        <p v-if="!jb.jobs.length" class="muted small">还没有服务工单。投诉或现场报警在厂情中枢里采纳处理方案、批准后，会自动排进日历。</p>
+        <h3>{{ $t('服务工单') }}</h3>
+        <table class="tbl small"><thead><tr><th>{{ $t('单号') }}</th><th>{{ $t('设备 · 客户') }}</th><th>{{ $t('内容') }}</th><th>{{ $t('工程师') }}</th><th>{{ $t('上门日') }}</th><th>{{ $t('保修') }}</th><th>ERPNext</th><th>{{ $t('状态') }}</th><th></th></tr></thead>
+          <tbody><tr v-for="j in jb.jobs" :key="j.id"><td class="mono">{{ $td(j.key) }}</td><td>{{ $td(j.serial) }}<br><span class="muted">{{ $td(j.customer) }}</span></td><td>{{ $td(j.kind_label) }}</td>
+            <td>{{ j.engineer_name || $t('待定') }}</td><td>{{ j.day || '—' }}</td><td>{{ j.warranty ? $t('保修内') : $t('收费') }}</td><td class="mono">{{ j.issue || '…' }}</td>
+            <td>{{ { planned: $t('待上门'), done: $t('已完成'), cancelled: $t('已取消') }[j.status] }}<div v-if="j.result" class="muted">{{ $td(j.result) }}</div></td>
+            <td><button v-if="jb.can_edit && j.status === 'planned'" class="linkbtn" @click="done(j)">{{ $t('完工') }}</button></td></tr></tbody></table>
+        <p v-if="!jb.jobs.length" class="muted small">{{ $t('还没有服务工单。投诉或现场报警在厂情中枢里采纳处理方案、批准后，会自动排进日历。') }}</p>
       </div>
       <div v-if="nt?.notices.length" class="card">
-        <h3>客户通知</h3>
-        <div v-for="n in nt.notices" :key="n.id" class="small notice"><b>{{ n.customer }}</b> · {{ { draft: '草稿', sent: '已发出', recorded: '已记录（未发出）' }[n.status] }} · {{ fmtTs(n.created_at) }}
-          <details><summary>内容</summary><pre>{{ n.body }}</pre></details></div>
+        <h3>{{ $t('客户通知') }}</h3>
+        <div v-for="n in nt.notices" :key="n.id" class="small notice"><b>{{ $td(n.customer) }}</b> · {{ { draft: $t('草稿'), sent: $t('已发出'), recorded: $t('已记录（未发出）') }[n.status] }} · {{ fmtTs(n.created_at) }}
+          <details><summary>{{ $t('内容') }}</summary><pre>{{ $td(n.body) }}</pre></details></div>
       </div>
     </template>
 
     <!-- ④ 回访与满意度 -->
     <template v-if="tab === 'followups' && fu">
       <div class="card">
-        <h3>回访（服务完成后 1 天）</h3>
-        <table class="tbl small"><thead><tr><th>回访</th><th>客户 · 设备</th><th>服务内容</th><th>应回访日</th><th>满意度</th><th>意见</th></tr></thead>
-          <tbody><tr v-for="f in fu.followups" :key="f.id"><td class="mono">{{ f.key }}</td><td>{{ f.customer }}<br><span class="muted">{{ f.serial }}</span></td><td>{{ f.kind }}</td><td>{{ f.due_day }}</td>
-            <td><template v-if="f.score != null"><b>{{ f.score }}</b> / 5</template>
-              <template v-else-if="fu.can_edit"><select v-model.number="sco[f.id]"><option v-for="s in [5, 4, 3, 2, 1]" :key="s" :value="s">{{ s }}</option></select></template></td>
-            <td><template v-if="f.score != null">{{ f.comment }}</template>
-              <template v-else-if="fu.can_edit"><input v-model="cmt[f.id]" placeholder="客户的一句话"><button class="linkbtn" @click="score(f)">记下</button></template></td></tr></tbody></table>
-        <p v-if="!fu.followups.length" class="muted small">还没有回访。</p>
+        <h3>{{ $t('回访（服务完成后 1 天）') }}</h3>
+        <table class="tbl small"><thead><tr><th>{{ $t('回访') }}</th><th>{{ $t('客户 · 设备') }}</th><th>{{ $t('服务内容') }}</th><th>{{ $t('应回访日') }}</th><th>{{ $t('满意度') }}</th><th>{{ $t('意见') }}</th></tr></thead>
+          <tbody><tr v-for="f in fu.followups" :key="f.id"><td class="mono">{{ $td(f.key) }}</td><td>{{ $td(f.customer) }}<br><span class="muted">{{ $td(f.serial) }}</span></td><td>{{ $td(f.kind) }}</td><td>{{ $td(f.due_day) }}</td>
+            <td><template v-if="f.score != null"><b>{{ $td(f.score) }}</b> / 5</template>
+              <template v-else-if="fu.can_edit"><select v-model.number="sco[f.id]"><option v-for="s in [5, 4, 3, 2, 1]" :key="s" :value="s">{{ $td(s) }}</option></select></template></td>
+            <td><template v-if="f.score != null">{{ $td(f.comment) }}</template>
+              <template v-else-if="fu.can_edit"><input v-model="cmt[f.id]" :placeholder="$t('客户的一句话')"><button class="linkbtn" @click="score(f)">{{ $t('记下') }}</button></template></td></tr></tbody></table>
+        <p v-if="!fu.followups.length" class="muted small">{{ $t('还没有回访。') }}</p>
       </div>
     </template>
     <ProposalModal v-if="pid" :pid="pid" @close="pid = null; loadPl()" />
@@ -171,13 +170,14 @@
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { get, post } from '../lib/api';
 import { fmtTs } from '../lib/ont';
 import ProposalModal from '../components/ProposalModal.vue';
 
-const TABS = { funnel: '销售漏斗', complaints: '投诉', service: '服务与排班', followups: '回访与满意度', c360: '客户 360' };
+const TABS = { funnel: $t('销售漏斗'), complaints: $t('投诉'), service: $t('服务与排班'), followups: $t('回访与满意度'), c360: $t('客户 360') };
 const route = useRoute();
 const router = useRouter();
 const tab = ref(TABS[route.query.tab] ? route.query.tab : (route.query.customer ? 'c360' : 'complaints'));
@@ -194,7 +194,7 @@ const pid = ref(null);
 const ct = ref(null);
 const cpOpen = ref(true);
 const nl = reactive({ company_name: '', note: '' });
-const nc = reactive({ serial: '', customer: '', severity: 'normal', subject: '', channel: '电话', contact: '', detail: '' });
+const nc = reactive({ serial: '', customer: '', severity: 'normal', subject: '', channel: $t('电话'), contact: '', detail: '' });
 const qty = reactive({});
 const due = reactive({});
 const sco = reactive({});
@@ -222,7 +222,7 @@ function load() {
   ({ funnel: loadPl, complaints: loadCp, service: loadSv, followups: loadFu, c360: loadC3 })[tab.value]();
 }
 const later = (f) => setTimeout(f, 4000);           // 写进 ERPNext 后，桥接要几秒才把单据读回来
-async function newLead() { await wrap(async () => { await post('/crm/leads', { ...nl }); nl.company_name = ''; nl.note = ''; msg.value = '已写入 ERPNext，稍后出现'; later(loadPl); }); }
+async function newLead() { await wrap(async () => { await post('/crm/leads', { ...nl }); nl.company_name = ''; nl.note = ''; msg.value = $t('已写入 ERPNext，稍后出现'); later(loadPl); }); }
 async function toOpp(c) { await wrap(async () => { await post('/crm/opportunities', { from: 'Lead', party: c.name, qty: qty[c.name] || 1 }); later(loadPl); }); }
 async function toQuote(c) {
   await wrap(async () => {
@@ -239,13 +239,13 @@ async function sign() {
 }
 async function toOrder(c) {
   await wrap(async () => {
-    if (!due[c.name]) throw new Error('选交期');
+    if (!due[c.name]) throw new Error($t('选交期'));
     const r = await post(`/crm/contracts/${encodeURIComponent(c.name)}/order`, { qty: qty[c.name] || 1, delivery_date: due[c.name] });
     pid.value = r.proposal_id;
   });
 }
 async function newComplaint() {
-  await wrap(async () => { const r = await post('/complaints', { ...nc }); msg.value = '已登记 ' + r.key + '；厂情中枢下一轮检测（20 秒内）会开异常'; nc.subject = ''; nc.detail = ''; loadCp(); loadKp(); });
+  await wrap(async () => { const r = await post('/complaints', { ...nc }); msg.value = $t('已登记 ') + r.key + $t('；厂情中枢下一轮检测（20 秒内）会开异常'); nc.subject = ''; nc.detail = ''; loadCp(); loadKp(); });
 }
 async function respond(c, status) { await wrap(async () => { await post(`/complaints/${c.id}/respond`, { status }); loadCp(); loadKp(); }); }
 async function done(j) { await wrap(async () => { await post(`/service/jobs/${j.id}/done`, { note: '' }); loadSv(); loadKp(); }); }

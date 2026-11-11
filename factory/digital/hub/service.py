@@ -488,6 +488,29 @@ def issue_of(db, job):
     return None
 
 
+def _resolve_issue(H, mode, j, who):
+    """ERPNext 服务单改为已解决（提议、自动确认）。服务单号还没回来（桥接还在建 Issue）就先不做，等 after_orders 补"""
+    db = H.db
+    iss = issue_of(db, j)
+    if not iss or H.ai is None:
+        return None
+    if db.one("select 1 as x from ai_proposal where action='service_order_done' and mode=%s and preview->>'issue'=%s", (mode, iss)):
+        return iss
+    pid = H.ai.propose("service_order_done", {"issue": iss, "text": "已完成：{}。{}（问渠数字工厂 · 客户服务）".format(
+        kind_label(j["kind"]), j.get("result") or "已完成")}, mode, who, "完成服务工单 " + iss, source="service")
+    H.ai.decide(pid, who, True)
+    return iss
+
+
+def after_orders(H, action, preview, mode):
+    """第 134 轮：派工提议执行完（ERPNext 建好服务单）时，补上“已解决”——加速运行时模拟的现场工程师可能在服务单建好之前就完工了
+    （2026-11-10 服务器演练 42859371135：服务单一直没改成已解决）"""
+    if action != "service_orders":
+        return
+    for j in H.db.q("select * from service_job where mode=%s and status='done' and issue is null and proposal_id is not null", (mode,)):
+        _resolve_issue(H, mode, j, j.get("done_by") or "系统")
+
+
 def complete_job(H, mode, job_id, who, note="", day=None):
     """工程师完工：孪生寿命复位 / 故障消失；ERPNext 的 Issue 改为已解决；生成回访任务"""
     db = H.db
@@ -513,11 +536,7 @@ def complete_job(H, mode, job_id, who, note="", day=None):
     db.x("update twin_event set status='done' where mode=%s and kind='order' and (detail->>'job_id')::bigint=%s", (mode, job_id))
     db.x("insert into follow_up (mode, job_id, serial, customer, due_day) values (%s,%s,%s,%s,%s)",
          (mode, job_id, j["serial"], j["customer"], day + dt.timedelta(days=1)))
-    iss = issue_of(db, j)
-    if iss and H.ai is not None:
-        pid = H.ai.propose("service_order_done", {"issue": iss, "text": "已完成：{}。{}（问渠数字工厂 · 客户服务）".format(kind_label(j["kind"]), result)},
-                           mode, who, "完成服务工单 " + iss, source="service")
-        H.ai.decide(pid, who, True)
+    iss = _resolve_issue(H, mode, dict(j, result=result or "已完成"), who)
     if j["complaint_id"]:
         left = db.one("select count(*) as n from service_job where complaint_id=%s and status='planned'", (j["complaint_id"],))["n"]
         if not left:

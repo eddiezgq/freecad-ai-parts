@@ -1,10 +1,10 @@
 <template>
   <figure class="en">
     <div class="ctl">
-      <label class="small"><input v-model="standby" type="checkbox"> 机加设备空闲 10 分钟自动待机</label>
-      <label class="small"><input v-model="shift" type="checkbox"> 热处理错峰（峰后再开炉）</label>
+      <label class="small"><input v-model="standby" type="checkbox"> {{ $t('机加设备空闲 10 分钟自动待机') }}</label>
+      <label class="small"><input v-model="shift" type="checkbox"> {{ $t('热处理错峰（峰后再开炉）') }}</label>
     </div>
-    <svg viewBox="0 0 760 230" role="img" :aria-label="`一天的用电：${tot.kwh} kWh，电费 $${tot.cost}，峰时占 ${tot.peakPct}%，空转 ${tot.idle} kWh`">
+    <svg viewBox="0 0 760 230" role="img" :aria-label="`一天的用电：${tot.kwh} kWh，电费 $${tot.cost}，峰时占 ${tot.peakPct}%，空转 ${tot.idle} kWh`"><!-- i18n-ok 读屏标签 / 数据比较 -->
       <rect v-for="(b, h) in BANDS" :key="'b' + h" :x="x(h)" y="10" :width="W" height="170" :class="'bg-' + b" />
       <g v-for="(v, h) in hours" :key="h" :class="{ fut: h > now }">
         <rect :x="x(h) + 2" :y="y(v.run)" :width="W - 4" :height="180 - y(v.run)" class="run" />
@@ -14,27 +14,27 @@
       <line :x1="x(now) + W" y1="10" :x2="x(now) + W" y2="180" class="cur" />
       <text v-for="h in [0, 8, 11, 18, 21, 23]" :key="'t' + h" :x="x(h)" y="198" class="tk">{{ h }}:00</text>
       <g class="lg">
-        <rect x="40" y="210" width="12" height="12" class="run" /><text x="58" y="221">在干活</text>
-        <rect x="120" y="210" width="12" height="12" class="ht" /><text x="138" y="221">热处理炉</text>
-        <rect x="216" y="210" width="12" height="12" class="idle" /><text x="234" y="221">空转（开着没活）</text>
-        <rect x="370" y="210" width="12" height="12" class="bg-peak sw" /><text x="388" y="221">峰 $0.15</text>
-        <rect x="462" y="210" width="12" height="12" class="bg-flat sw" /><text x="480" y="221">平 $0.10</text>
-        <rect x="554" y="210" width="12" height="12" class="bg-valley sw" /><text x="572" y="221">谷 $0.05 / kWh</text>
+        <rect x="40" y="210" width="12" height="12" class="run" /><text x="58" y="221">{{ $t('在干活') }}</text>
+        <rect x="120" y="210" width="12" height="12" class="ht" /><text x="138" y="221">{{ $t('热处理炉') }}</text>
+        <rect x="216" y="210" width="12" height="12" class="idle" /><text x="234" y="221">{{ $t('空转（开着没活）') }}</text>
+        <rect x="370" y="210" width="12" height="12" class="bg-peak sw" /><text x="388" y="221">{{ $t('峰 $0.15') }}</text>
+        <rect x="462" y="210" width="12" height="12" class="bg-flat sw" /><text x="480" y="221">{{ $t('平 $0.10') }}</text>
+        <rect x="554" y="210" width="12" height="12" class="bg-valley sw" /><text x="572" y="221">{{ $t('谷 $0.05 / kWh') }}</text>
       </g>
     </svg>
     <dl class="nums">
-      <div><dt>电量</dt><dd>{{ tot.kwh }} kWh</dd></div>
-      <div><dt>电费</dt><dd>${{ tot.cost }}</dd></div>
-      <div><dt>峰时占比</dt><dd>{{ tot.peakPct }}%</dd></div>
-      <div><dt>空转</dt><dd>{{ tot.idle }} kWh</dd></div>
-      <div><dt>碳排放</dt><dd>{{ tot.co2 }} kg</dd></div>
+      <div><dt>{{ $t('电量') }}</dt><dd>{{ $td(tot.kwh) }} kWh</dd></div>
+      <div><dt>{{ $t('电费') }}</dt><dd>${{ $td(tot.cost) }}</dd></div>
+      <div><dt>{{ $t('峰时占比') }}</dt><dd>{{ $td(tot.peakPct) }}%</dd></div>
+      <div><dt>{{ $t('空转') }}</dt><dd>{{ $td(tot.idle) }} kWh</dd></div>
+      <div><dt>{{ $t('碳排放') }}</dt><dd>{{ $td(tot.co2) }} kg</dd></div>
     </dl>
-    <figcaption class="small muted">示例：一个车间一天的用电，电价和排放因子用本厂的缺省参数。灰色是机床开着没活；
-      勾上“自动待机”灰色变少，<b>电、钱、碳一起省</b>；勾上“错峰”，橙色的炉子挪出峰时段，<b>只省钱</b>，电量和碳不变。</figcaption>
+    <figcaption class="small muted">{{ $t('示例：一个车间一天的用电，电价和排放因子用本厂的缺省参数。灰色是机床开着没活；勾上“自动待机”灰色变少，') }}<b>{{ $t('电、钱、碳一起省') }}</b>{{ $t('；勾上“错峰”，橙色的炉子挪出峰时段，') }}<b>{{ $t('只省钱') }}</b>{{ $t('，电量和碳不变。') }}</figcaption>
   </figure>
 </template>
 
 <script setup>
+import { t as $t } from '../../../lib/i18n';
 // 一天的用电曲线：空转与错峰（第 30 轮 §八 8-2，能源与环境）。电价、峰谷时段、排放因子取 hub/energy.py、sim/energy.py 的缺省值。
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 

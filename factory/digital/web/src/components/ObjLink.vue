@@ -3,14 +3,14 @@
   <span class="ol" @mouseenter="enter" @mouseleave="leave" @focusin="enter" @focusout="leave">
     <router-link :to="objPath(type, k)" class="ol-a" :class="{ mono }"><slot>{{ k }}</slot></router-link>
     <span v-if="show" class="ol-card" role="tooltip">
-      <template v-if="!s"><span class="muted small">读取中…</span></template>
+      <template v-if="!s"><span class="muted small">{{ t('读取中…') }}</span></template>
       <template v-else-if="s.error"><span class="muted small">{{ s.error }}</span></template>
       <template v-else>
-        <span class="ol-h"><span class="pill info">{{ s.label }}</span> <b>{{ s.display }}</b>
+        <span class="ol-h"><span class="pill info">{{ td(s.label) }}</span> <b>{{ s.display }}</b>
           <span v-if="tone" class="pill" :class="tone">{{ state }}</span></span>
-        <span v-for="a in top" :key="a.name" class="ol-r small"><span class="muted">{{ a.label }}</span> <span class="mono">{{ fmtVal(a.value, a.unit) }}</span></span>
+        <span v-for="a in top" :key="a.name" class="ol-r small"><span class="muted">{{ td(a.label) }}</span> <span class="mono">{{ fmtVal(a.value, a.unit) }}</span></span>
         <span v-if="links" class="ol-r small muted">{{ links }}</span>
-        <span class="ol-r small muted">最近更新 {{ fmtTs(s.updated_at) }} · 点击查看全部</span>
+        <span class="ol-r small muted">{{ t('最近更新 {t} · 点击查看全部', { t: fmtTs(s.updated_at) }) }}</span>
       </template>
     </span>
   </span>
@@ -19,27 +19,28 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { objPath, summary, fmtVal, fmtTs, stateTone } from '../lib/ont';
+import { t, td } from '../lib/i18n';
 
 const props = defineProps({ type: { type: String, required: true }, k: { type: [String, Number], required: true }, mono: { type: Boolean, default: false } });
 const show = ref(false);
 const s = ref(null);
-let t;
+let timer;
 
 async function enter() {
-  clearTimeout(t);
-  t = setTimeout(async () => {
+  clearTimeout(timer);
+  timer = setTimeout(async () => {
     show.value = true;
     s.value = await summary(props.type, String(props.k));
   }, 300);
 }
-function leave() { clearTimeout(t); t = setTimeout(() => { show.value = false; }, 150); }
+function leave() { clearTimeout(timer); timer = setTimeout(() => { show.value = false; }, 150); }
 
 const pmap = computed(() => Object.fromEntries((s.value?.attrs || []).map((a) => [a.name, a.value])));
 const tone = computed(() => stateTone(pmap.value));
 const state = computed(() => pmap.value.status ?? pmap.value.state ?? pmap.value.result ?? pmap.value.health);
 const top = computed(() => (s.value?.attrs || []).filter((a) => a.value !== null && a.value !== undefined && typeof a.value !== 'object'
   && !['status', 'state', 'result', 'health', 'name', 'title'].includes(a.name)).slice(0, 5));
-const links = computed(() => (s.value?.links || []).slice(0, 4).map((g) => `${g.label} ${g.items.length}${g.more ? '+' : ''} 个${g.type_label}`).join(' · '));
+const links = computed(() => (s.value?.links || []).slice(0, 4).map((g) => `${td(g.label)} ` + t('{n} 个{k}', { n: g.items.length + (g.more ? '+' : ''), k: td(g.type_label) })).join(' · '));
 </script>
 
 <style scoped>

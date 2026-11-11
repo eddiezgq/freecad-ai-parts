@@ -69,40 +69,17 @@ def _source(code):
 
 
 def plan_order(db, customer, item, qty, delivery_date, mode="teach", now=None):
+    from hub import eto_design as _ETOD          # 第 139 轮：按单设计的作业，设计发布前不能算料、下工单
+    try:
+        _ETOD.require_released(db, mode, item)
+    except _ETOD.E.EtoError as e:
+        raise ValueError(str(e)) from None
     o = Overview(db, now, mode)
     today = o.now.astimezone(TZ).date()
     qty = int(qty)
     due = dt.date.fromisoformat(str(delivery_date)[:10])
     stock = o.stock()
-    # 在途：未收完的采购单 + 已提交未转采购的请购单
-    on_order = defaultdict(float)
-    for p in o.pos:
-        if p["data"].get("status") not in ("Completed", "Closed", "Cancelled"):
-            for it in p["data"].get("items", []):
-                on_order[it["item_code"]] += float(it.get("qty", 0)) - float(it.get("received_qty", 0))
-    for r in o.mrs:
-        if r["data"].get("status") not in ("Ordered", "Stopped", "Cancelled", "Transferred"):
-            for it in r["data"].get("items", []):
-                on_order[it["item_code"]] += float(it.get("qty", 0))
-    # 其他在手订单的占用：未下工单的订单按成品展开；已下工单按工单未完成量展开
-    committed = defaultdict(float)
-    for s in o.sos:
-        d = s["data"]
-        if d.get("status") in ("Completed", "Closed", "Cancelled"):
-            continue
-        for it in d.get("items", []):
-            left = float(it.get("qty", 0)) - float(it.get("delivered_qty", 0))
-            for c, q in explode(it["item_code"], left).items():
-                committed[c] += q
-    for w in o.wos:
-        d = w["data"]
-        if d.get("status") in ("Completed", "Stopped", "Closed", "Cancelled"):
-            continue
-        started = any(e["data"].get("work_order") == d["name"] for e in o.events
-                      if e["data"]["event"] == "cycle_start" and e["data"].get("op_index") == 0)
-        if started:          # 已开始下料，原材料已领用，不再占用
-            for c, q in F.BOMS.get(d.get("production_item"), ("", []))[1]:
-                committed[c] -= q * float(d.get("qty", 0))
+    on_order, committed = supply_demand(o)
     gross = explode(item, qty)
     rows, mrs, warnings = [], [], []
     start = today if o.now.astimezone(TZ).hour < 12 and today.weekday() < 5 else add_working_days(today, 1)
@@ -172,6 +149,39 @@ def plan_order(db, customer, item, qty, delivery_date, mode="teach", now=None):
         "basis": "库存取自 office/erp/bin 最新快照；在途取自采购单与请购单；占用取自在手订单与未开工工单",
     }
     return preview
+
+
+def supply_demand(o, exclude_project=None):
+    """在途（未收完的采购单 + 已提交未转采购的请购单）与其他在手订单的占用（未下工单的订单按成品展开；已开工的工单
+    原材料已领用、不再占用）。exclude_project：不算这个项目（按单设计的作业号，第 139 轮）自己的订单和工单。"""
+    on_order = defaultdict(float)
+    for p in o.pos:
+        if p["data"].get("status") not in ("Completed", "Closed", "Cancelled"):
+            for it in p["data"].get("items", []):
+                on_order[it["item_code"]] += float(it.get("qty", 0)) - float(it.get("received_qty", 0))
+    for r in o.mrs:
+        if r["data"].get("status") not in ("Ordered", "Stopped", "Cancelled", "Transferred"):
+            for it in r["data"].get("items", []):
+                on_order[it["item_code"]] += float(it.get("qty", 0))
+    committed = defaultdict(float)
+    for s in o.sos:
+        d = s["data"]
+        if d.get("status") in ("Completed", "Closed", "Cancelled") or (exclude_project and d.get("project") == exclude_project):
+            continue
+        for it in d.get("items", []):
+            left = float(it.get("qty", 0)) - float(it.get("delivered_qty", 0))
+            for c, q in explode(it["item_code"], left).items():
+                committed[c] += q
+    for w in o.wos:
+        d = w["data"]
+        if d.get("status") in ("Completed", "Stopped", "Closed", "Cancelled") or (exclude_project and d.get("project") == exclude_project):
+            continue
+        started = any(e["data"].get("work_order") == d["name"] for e in o.events
+                      if e["data"]["event"] == "cycle_start" and e["data"].get("op_index") == 0)
+        if started:          # 已开始下料，原材料已领用，不再占用
+            for c, q in F.BOMS.get(d.get("production_item"), ("", []))[1]:
+                committed[c] -= q * float(d.get("qty", 0))
+    return on_order, committed
 
 
 def explode_make(item, qty):

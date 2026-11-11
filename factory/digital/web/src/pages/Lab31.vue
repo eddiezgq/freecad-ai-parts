@@ -1,38 +1,38 @@
 <!-- 实验 31“关节终检抱闸报警的排查”（第 123 轮，机器人厂）：报警帧 → 线圈电流 → 坏件 → 安全逻辑 → 处置 → 复测放行 -->
 <template>
   <div class="page">
-    <div class="page-title"><h1>实验 31 · 关节终检抱闸报警的排查</h1>
-      <span class="muted">平台自动评 {{ s?.of || 60 }} 分，报告 {{ s?.report_points || 40 }} 分由老师在课程里批改</span>
-      <span class="r small" data-help="lab-links"><a href="/api/cae/lab31/guide.docx">指导书</a> · <a href="/api/cae/lab31/report-template.docx">报告模板</a></span></div>
+    <div class="page-title"><h1>{{ $t('实验 31 · 关节终检抱闸报警的排查') }}</h1>
+      <span class="muted">{{ $t('平台自动评 {a} 分，报告 {b} 分由老师在课程里批改', { a: s?.of || 60, b: s?.report_points || 40 }) }}</span>
+      <span class="r small" data-help="lab-links"><a href="/api/cae/lab31/guide.docx">{{ $t('指导书') }}</a> · <a href="/api/cae/lab31/report-template.docx">{{ $t('报告模板') }}</a></span></div>
     <div v-if="err" class="err">{{ err }}</div>
     <template v-if="s">
       <div class="card sum" data-help="lab-sum">
-        <b class="big">{{ s.score }} / {{ s.of }}</b>
-        <span class="small">终检报故障 7（抱闸）的 3 台关节模组：<b v-for="j in s.joints" :key="j.serial" class="mono sn">{{ j.serial }}</b></span>
-        <button class="btn sm" @click="load">刷新</button>
+        <b class="big">{{ $td(s.score) }} / {{ $td(s.of) }}</b>
+        <span class="small">{{ $t('终检报故障 7（抱闸）的 3 台关节模组：') }}<b v-for="j in s.joints" :key="j.serial" class="mono sn">{{ $td(j.serial) }}</b></span>
+        <button class="btn sm" @click="load">{{ $t('刷新') }}</button>
       </div>
-      <div v-if="s.sim_missing" class="err">固件仿真结果缺失（designs/drv-joint-b/fw/out/sim_motor.json），这个实验暂时做不了。</div>
+      <div v-if="s.sim_missing" class="err">{{ $t('固件仿真结果缺失（designs/drv-joint-b/fw/out/sim_motor.json），这个实验暂时做不了。') }}</div>
 
       <section v-if="s.teacher && s.class?.length" class="card">
-        <div class="card-head"><h2>老师：全班成绩</h2></div>
-        <table class="tbl small"><thead><tr><th>学生</th><th v-for="(t, i) in s.tasks" :key="t.id" class="num">任务 {{ i + 1 }}</th><th class="num">合计</th></tr></thead>
-          <tbody><tr v-for="c in s.class" :key="c.user"><td>{{ c.user }}</td><td v-for="t in s.tasks" :key="t.id" class="num">{{ c.scores[t.id] ?? '—' }}</td>
-            <td class="num"><b>{{ c.total }}</b></td></tr></tbody></table>
+        <div class="card-head"><h2>{{ $t('老师：全班成绩') }}</h2></div>
+        <table class="tbl small"><thead><tr><th>{{ $t('学生') }}</th><th v-for="(t, i) in s.tasks" :key="t.id" class="num">{{ $t('任务 {a}', { a: i + 1 }) }}</th><th class="num">{{ $t('合计') }}</th></tr></thead>
+          <tbody><tr v-for="c in s.class" :key="c.user"><td>{{ $td(c.user) }}</td><td v-for="t in s.tasks" :key="t.id" class="num">{{ c.scores[t.id] ?? '—' }}</td>
+            <td class="num"><b>{{ $td(c.total) }}</b></td></tr></tbody></table>
       </section>
 
       <section class="card" data-help="lab31-protocol">
-        <div class="card-head"><h2>协议摘录（驱动板 B 版 CAN，经典 CAN 1 Mbit/s，节点 1）</h2></div>
-        <ul class="small proto"><li v-for="p in s.protocol" :key="p">{{ p }}</li></ul>
-        <p class="small muted">测试记录是驱动板 B 版固件在 Renode 仿真器里跑出来的真实输出（第 114 轮场景 ⑮ ⑯ ⑰）。报文只给原始数据，自己按上面解。</p>
+        <div class="card-head"><h2>{{ $t('协议摘录（驱动板 B 版 CAN，经典 CAN 1 Mbit/s，节点 1）') }}</h2></div>
+        <ul class="small proto"><li v-for="p in s.protocol" :key="p">{{ $td(p) }}</li></ul>
+        <p class="small muted">{{ $t('测试记录是驱动板 B 版固件在 Renode 仿真器里跑出来的真实输出（第 114 轮场景 ⑮ ⑯ ⑰）。报文只给原始数据，自己按上面解。') }}</p>
       </section>
 
       <section v-for="j in s.joints" :key="j.serial" class="card" data-help="lab31-record">
-        <div class="card-head"><h2 class="mono">{{ j.serial }}</h2><span class="small muted">{{ j.item }} · 抱闸保持力矩名义 {{ j.brake_nominal }} N·m</span></div>
+        <div class="card-head"><h2 class="mono">{{ $td(j.serial) }}</h2><span class="small muted">{{ $t('{a} · 抱闸保持力矩名义 {b} N·m', { a: $td(j.item), b: $td(j.brake_nominal) }) }}</span></div>
         <template v-if="j.record">
-          <p class="small">{{ j.record.desc }}</p>
+          <p class="small">{{ $td(j.record.desc) }}</p>
           <div class="charts">
             <div v-for="tr in TRACES" :key="tr.k" class="chart">
-              <div class="small"><b>{{ tr.name }}</b> <span class="muted">{{ tr.unit }}</span></div>
+              <div class="small"><b>{{ $td(tr.name) }}</b> <span class="muted">{{ $td(tr.unit) }}</span></div>
               <svg viewBox="0 0 600 110" preserveAspectRatio="none" class="svg">
                 <line x1="40" y1="100" x2="595" y2="100" class="ax" /><line x1="40" y1="5" x2="40" y2="100" class="ax" />
                 <polyline :points="pts(j.record.series, tr)" class="ln" :style="{ stroke: tr.c }" />
@@ -44,61 +44,62 @@
             </div>
           </div>
           <div class="frames">
-            <div class="small">报文
-              <label v-for="id in IDS" :key="id" class="ck"><input v-model="show[j.serial + id]" type="checkbox"> {{ id }}</label></div>
-            <div class="scroll"><table class="tbl small mono"><thead><tr><th class="num">时间 s</th><th>方向</th><th>ID</th><th>数据</th></tr></thead>
+            <div class="small">{{ $t('报文') }}
+              <label v-for="id in IDS" :key="id" class="ck"><input v-model="show[j.serial + id]" type="checkbox"> {{ $td(id) }}</label></div>
+            <div class="scroll"><table class="tbl small mono"><thead><tr><th class="num">{{ $t('时间 s') }}</th><th>{{ $t('方向') }}</th><th>ID</th><th>{{ $t('数据') }}</th></tr></thead>
               <tbody><tr v-for="(f, k) in frames(j)" :key="k" :class="{ alarm: f.id === '0x081' }">
-                <td class="num">{{ f.t.toFixed(5) }}</td><td>{{ f.dir === 'tx' ? '驱动板 →' : '→ 驱动板' }}</td><td>{{ f.id }}</td><td>{{ f.data.match(/../g).join(' ') }}</td></tr></tbody></table></div>
+                <td class="num">{{ f.t.toFixed(5) }}</td><td>{{ f.dir === 'tx' ? $t('驱动板 →') : $t('→ 驱动板') }}</td><td>{{ $td(f.id) }}</td><td>{{ f.data.match(/../g).join(' ') }}</td></tr></tbody></table></div>
           </div>
         </template>
       </section>
 
       <section v-for="(t, i) in s.tasks" :key="t.id" class="card task" data-help="lab-task" :class="{ done: t.done }">
-        <div class="card-head"><h2>任务 {{ i + 1 }}　{{ t.title }}</h2><span class="pts">{{ t.score }} / {{ t.points }}</span></div>
-        <p>{{ t.desc }}</p>
-        <p class="small muted">提示：{{ t.hint }}</p>
+        <div class="card-head"><h2>{{ $t('任务 {a}　{b}', { a: i + 1, b: $td(t.title) }) }}</h2><span class="pts">{{ $td(t.score) }} / {{ $td(t.points) }}</span></div>
+        <p>{{ $td(t.desc) }}</p>
+        <p class="small muted">{{ $t('提示：{a}', { a: $td(t.hint) }) }}</p>
         <form v-if="t.id === 'l31_t1'" class="f" @submit.prevent="submit(t.id, a1)">
-          <div v-for="j in s.joints" :key="j.serial" class="lf"><label class="mono">{{ j.serial }}</label>
-            故障码 <input v-model="a1[j.serial].code" class="n" required> 子码 <input v-model="a1[j.serial].sub" class="n" required></div>
-          <button class="btn primary">提交</button>
+          <div v-for="j in s.joints" :key="j.serial" class="lf"><label class="mono">{{ $td(j.serial) }}</label>
+            {{ $t('故障码') }} <input v-model="a1[j.serial].code" class="n" required> {{ $t('子码') }} <input v-model="a1[j.serial].sub" class="n" required></div>
+          <button class="btn primary">{{ $t('提交') }}</button>
         </form>
         <form v-if="t.id === 'l31_t2' || t.id === 'l31_t5'" class="f" @submit.prevent="submit(t.id, t.id === 'l31_t2' ? a2 : a5)">
-          <div v-for="j in s.joints" :key="j.serial" class="lf"><label class="mono">{{ j.serial }}</label>
-            <select v-if="t.id === 'l31_t2'" v-model="a2[j.serial]" class="w2" required><option v-for="o in s.parts" :key="o.value" :value="o.value">{{ o.label }}</option></select>
-            <select v-else v-model="a5[j.serial]" class="w2" required><option v-for="o in s.actions" :key="o.value" :value="o.value">{{ o.label }}</option></select></div>
-          <button class="btn primary">提交</button>
+          <div v-for="j in s.joints" :key="j.serial" class="lf"><label class="mono">{{ $td(j.serial) }}</label>
+            <select v-if="t.id === 'l31_t2'" v-model="a2[j.serial]" class="w2" required><option v-for="o in s.parts" :key="o.value" :value="o.value">{{ $td(o.label) }}</option></select>
+            <select v-else v-model="a5[j.serial]" class="w2" required><option v-for="o in s.actions" :key="o.value" :value="o.value">{{ $td(o.label) }}</option></select></div>
+          <button class="btn primary">{{ $t('提交') }}</button>
         </form>
         <form v-if="t.id === 'l31_t3'" class="f" @submit.prevent="submit(t.id, a3)">
-          <div class="lf"><label>报警 → 抱住（ms）</label><input v-model.number="a3.engage_ms" type="number" step="1" required></div>
-          <div class="lf"><label>报警 → 关输出（ms）</label><input v-model.number="a3.off_ms" type="number" step="1" required></div>
-          <button class="btn primary">提交</button>
+          <div class="lf"><label>{{ $t('报警 → 抱住（ms）') }}</label><input v-model.number="a3.engage_ms" type="number" step="1" required></div>
+          <div class="lf"><label>{{ $t('报警 → 关输出（ms）') }}</label><input v-model.number="a3.off_ms" type="number" step="1" required></div>
+          <button class="btn primary">{{ $t('提交') }}</button>
         </form>
         <form v-if="t.id === 'l31_t4'" class="f" @submit.prevent="submit(t.id, a4)">
-          <div class="lf"><label>选一项</label><span class="cks col">
-            <label v-for="o in s.t4_choices" :key="o.value"><input v-model="a4.choice" type="radio" :value="o.value" required> {{ o.label }}</label></span></div>
-          <button class="btn primary">提交</button>
+          <div class="lf"><label>{{ $t('选一项') }}</label><span class="cks col">
+            <label v-for="o in s.t4_choices" :key="o.value"><input v-model="a4.choice" type="radio" :value="o.value" required> {{ $td(o.label) }}</label></span></div>
+          <button class="btn primary">{{ $t('提交') }}</button>
         </form>
         <div v-if="t.id === 'l31_t6'" class="f">
-          <button class="btn primary" @click="submit(t.id, {})">复测</button>
-          <table v-if="s.retest" class="tbl small"><thead><tr><th>关节</th><th>上电抱闸时序</th><th class="num">抱闸保持力矩 N·m</th><th>规格</th><th>判定</th></tr></thead>
-            <tbody><tr v-for="r in s.retest.rows" :key="r.serial"><td class="mono">{{ r.serial }}</td><td>{{ r.sequence_ok ? '通过' : '不通过' }}</td>
-              <td class="num">{{ r.brake_hold }}</td><td>{{ r.lo }}–{{ r.hi }}</td><td><b>{{ r.ok ? '合格，放行' : '不合格' }}</b></td></tr></tbody></table>
-          <p v-if="s.retest" class="small muted">时序：{{ s.retest.sequence }}（{{ s.retest.checks.join('；') }}）。{{ s.retest.note }}</p>
+          <button class="btn primary" @click="submit(t.id, {})">{{ $t('复测') }}</button>
+          <table v-if="s.retest" class="tbl small"><thead><tr><th>{{ $t('关节') }}</th><th>{{ $t('上电抱闸时序') }}</th><th class="num">{{ $t('抱闸保持力矩 N·m') }}</th><th>{{ $t('规格') }}</th><th>{{ $t('判定') }}</th></tr></thead>
+            <tbody><tr v-for="r in s.retest.rows" :key="r.serial"><td class="mono">{{ $td(r.serial) }}</td><td>{{ r.sequence_ok ? $t('通过') : $t('不通过') }}</td>
+              <td class="num">{{ $td(r.brake_hold) }}</td><td>{{ $td(r.lo) }}–{{ $td(r.hi) }}</td><td><b>{{ r.ok ? $t('合格，放行') : $t('不合格') }}</b></td></tr></tbody></table>
+          <p v-if="s.retest" class="small muted">{{ $t('时序：{a}（{b}）。{c}', { a: $td(s.retest.sequence), b: s.retest.checks.join($t('；')), c: $td(s.retest.note) }) }}</p>
         </div>
-        <p v-if="fb[t.id]" class="small fb">{{ fb[t.id] }}</p>
+        <p v-if="fb[t.id]" class="small fb">{{ $td(fb[t.id]) }}</p>
       </section>
     </template>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { onMounted, reactive, ref } from 'vue';
 import { get, post } from '../lib/api';
 
 const TRACES = [
-  { k: 'brake_i', name: '抱闸线圈电流', unit: 'A（额定 0.42 A）', c: '#d9480f' },
-  { k: 'joint', name: '关节角度', unit: '°', c: '#1971c2' },
-  { k: 'moe', name: '输出开关（逆变桥）', unit: '1 开、0 关', c: '#2b8a3e' },
+  { k: 'brake_i', name: $t('抱闸线圈电流'), unit: $t('A（额定 0.42 A）'), c: '#d9480f' },
+  { k: 'joint', name: $t('关节角度'), unit: '°', c: '#1971c2' },
+  { k: 'moe', name: $t('输出开关（逆变桥）'), unit: $t('1 开、0 关'), c: '#2b8a3e' },
 ];
 const IDS = ['0x081', '0x701', '0x181', '0x201'];
 const s = ref(null);

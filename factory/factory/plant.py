@@ -9,6 +9,7 @@ hub/kpi.py、hub/process.py 在导入时从清单取值；没指定时用代码�
 
 命令：python -m factory.plant export-demo 输出.yaml | check 清单.yaml | template 输出.xlsx | import 填好的.xlsx 输出.yaml
 """
+import json
 import os
 
 SCHEMA_VERSION = 2
@@ -173,6 +174,55 @@ def validate(p):
     if p.get("customers") is not None:
         need(isinstance(p["customers"], list) and all(isinstance(x, str) and x for x in p["customers"]), "customers", "客户名称的列表")
     errs += _validate_products(p, onames, uids)
+    errs += _validate_eto(p.get("eto"))
+    return errs
+
+
+ETO_ON = ("order", "design", "ship", "accept")     # 分期开票的里程碑：订单确认、设计发布、发货、验收
+
+
+def _validate_eto(e):
+    """按单设计（第 139 轮）：作业号前缀、风险预留、加价率、设计费率、报价有效期、分期开票。全部可不写，没写的算出来是“未知”"""
+    if e is None:
+        return []
+    import re
+    errs = []
+
+    def need(cond, where, msg):
+        if not cond:
+            errs.append("eto.{}：{}".format(where, msg))
+        return cond
+    if not need(isinstance(e, dict), "", "要写成 {prefix, contingency_pct, markup_pct, engineering_rate_per_h, valid_days, milestones}"):
+        return errs
+    if e.get("prefix") is not None:
+        need(isinstance(e["prefix"], str) and re.fullmatch(r"[A-Za-z][A-Za-z0-9-]{0,9}", e["prefix"]), "prefix",
+             "作业号前缀：字母开头，字母数字和“-”，不超过 10 位，如 JOB-")
+    for k, hi in (("contingency_pct", 100), ("markup_pct", 500)):
+        if e.get(k) is not None:
+            need(_num(e[k]) and 0 <= e[k] <= hi, k, "0–{} 的百分数".format(hi))
+    if e.get("engineering_rate_per_h") is not None:
+        need(_num(e["engineering_rate_per_h"]) and e["engineering_rate_per_h"] >= 0, "engineering_rate_per_h", "设计每小时费率，≥ 0")
+    if e.get("long_lead_days") is not None:
+        need(isinstance(e["long_lead_days"], int) and 0 < e["long_lead_days"] <= 365, "long_lead_days", "提前期达到多少天算长周期件（可在设计发布前先买），1–365")
+    if e.get("accept_days") is not None:
+        need(isinstance(e["accept_days"], int) and 0 <= e["accept_days"] <= 365, "accept_days", "交货后多少天验收（验收那一期的计划付款日），0–365")
+    if e.get("ship_days") is not None:
+        need(isinstance(e["ship_days"], int) and 0 <= e["ship_days"] <= 30, "ship_days", "倒排时发货预留几个工作日，0–30")
+    if e.get("valid_days") is not None:
+        need(isinstance(e["valid_days"], int) and 0 < e["valid_days"] <= 365, "valid_days", "报价有效天数 1–365")
+    ms = e.get("milestones")
+    if ms is not None and need(isinstance(ms, list), "milestones", "[{key, name, pct, on}, …]"):
+        keys = set()
+        for i, m in enumerate(ms):
+            at = "milestones[{}]".format(i)
+            if not need(isinstance(m, dict) and m.get("key") and m.get("name") and _num(m.get("pct")), at, "{key, name, pct, on}"):
+                continue
+            need(m["key"] not in keys, at + ".key", "代号重复")
+            keys.add(m["key"])
+            need(0 < m["pct"] <= 100, at + ".pct", "比例 0–100")
+            need(m.get("on") in ETO_ON, at + ".on", "到了什么时候开票：{}".format("、".join(ETO_ON)))
+        if all(isinstance(m, dict) and _num(m.get("pct")) for m in ms) and ms:
+            need(abs(sum(m["pct"] for m in ms) - 100) < 1e-6, "milestones", "各期比例加起来要等于 100")
     return errs
 
 
@@ -373,6 +423,7 @@ def derive(p):
     return {
         "COMPANY": dict(p["company"]),
         "DEMO_DATA": bool(p.get("demo_data", False)),
+        "ETO": dict(p["eto"]) if p.get("eto") else None,       # 第 139 轮：按单设计（没写为 None）
         "WORKSTATIONS": {w["name"]: (w["count"], tuple(w["cost"])) for w in ws},
         # ERPNext 工作中心的“同时开工数”：同一工作中心各台设备能同时加工的件数之和（热处理炉、烘箱一炉多件；第 133 轮）
         "WORKSTATION_PARALLEL": {w["name"]: max(int(w["count"]), sum(int(u.get("capacity") or 1) for u in units if u.get("workstation") == w["name"])) for w in ws},
@@ -648,6 +699,7 @@ def export_demo():
         "products": [{"item": k, "price": v} for k, v in F.PRODUCTS.items()],
         "stock": {"opening": dict(F.OPENING_STOCK), "safety": dict(F.SAFETY_STOCK)},
         "key_materials": list(F.KEY_MATERIALS),
+        "eto": json.loads(json.dumps(F.ETO)),           # 第 139 轮：按单设计（示例值）
     }
 
 

@@ -5,14 +5,15 @@
       <div v-if="tip" class="tip small mono">{{ tip }}</div>
     </div>
     <div class="legend small">
-      <span class="bar" /> 上表面 → 最深 {{ zmin.toFixed(2) }} mm（颜色越深越低）
-      <span class="k feed" />切削 <span class="k rapid" />快移 <span class="k cur" />刀具
-      <span class="muted">· 俯视图，X 向右、Y 向上；鼠标停在图上看高度</span>
+      <span class="bar" /> {{ $t('上表面 → 最深 {a} mm（颜色越深越低）', { a: zmin.toFixed(2) }) }}
+      <span class="k feed" />{{ $t('切削') }} <span class="k rapid" />{{ $t('快移') }} <span class="k cur" />{{ $t('刀具') }}
+      <span class="muted">{{ $t('· 俯视图，X 向右、Y 向上；鼠标停在图上看高度') }}</span>
     </div>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { computed, onMounted, ref, shallowRef, watch } from 'vue';
 import { MillSim, toolAt } from '../lib/cam';
 
@@ -93,7 +94,7 @@ function hover(ev) {
   if (i < 0 || j < 0 || i >= g.value.nx || j >= g.value.ny) { tip.value = ''; return; }
   const H = (cur.value.i >= props.prog.path.length - 1 && props.final) ? props.final : sim.value.H;
   const z = H[i * g.value.ny + j];
-  tip.value = `X${(g.value.x0 + i * g.value.h).toFixed(2)} Y${(g.value.y0 + j * g.value.h).toFixed(2)}  ` + (Number.isNaN(z) || z < -1e5 ? '（没有材料）' : `高度 Z${z.toFixed(3)}`);
+  tip.value = `X${(g.value.x0 + i * g.value.h).toFixed(2)} Y${(g.value.y0 + j * g.value.h).toFixed(2)}  ` + (Number.isNaN(z) || z < -1e5 ? $t('（没有材料）') : $t('高度 Z{a}', { a: z.toFixed(3) }));
 }
 </script>
 

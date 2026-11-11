@@ -7,27 +7,28 @@
         <div class="mono">{{ fmt(range[1]) }}</div>
         <div class="grad" :style="{ background: turboCss() }"></div>
         <div class="mono">{{ fmt(range[0]) }}</div>
-        <div class="small">{{ UNIT[field] }}</div>
+        <div class="small">{{ $td(UNIT[field]) }}</div>
       </div>
     </div>
     <div class="tools small">
-      <label>表面 <select v-model="field"><option value="p">压力</option><option v-if="hasH" value="h">散热系数 h</option></select></label>
-      <label class="chk"><input v-model="showLines" type="checkbox"> 流线</label>
-      <label class="chk"><input v-model="showSlice" type="checkbox"> 速度截面</label>
-      <button type="button" class="link" @click="fit">回到全景</button>
-      <span class="muted">拖动旋转 · 滚轮缩放 · 右键平移</span>
+      <label>{{ $t('表面') }} <select v-model="field"><option value="p">{{ $t('压力') }}</option><option v-if="hasH" value="h">{{ $t('散热系数 h') }}</option></select></label>
+      <label class="chk"><input v-model="showLines" type="checkbox"> {{ $t('流线') }}</label>
+      <label class="chk"><input v-model="showSlice" type="checkbox"> {{ $t('速度截面') }}</label>
+      <button type="button" class="link" @click="fit">{{ $t('回到全景') }}</button>
+      <span class="muted">{{ $t('拖动旋转 · 滚轮缩放 · 右键平移') }}</span>
     </div>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { turbo, turboCss } from '../lib/cae';
 
 const props = defineProps({ surface: { type: Object, required: true }, aux: { type: Object, required: true } });
-const UNIT = { p: '压力 Pa（相对来流）', h: '散热系数 W/(m²·K)', v: '速度 m/s' };
+const UNIT = { p: $t('压力 Pa（相对来流）'), h: $t('散热系数 W/(m²·K)'), v: $t('速度 m/s') };
 const field = ref('p'), showLines = ref(true), showSlice = ref(true);
 const box = ref(null), tip = ref(''), tipX = ref(0), tipY = ref(0);
 const hasH = computed(() => (props.surface.h || []).some((x) => x > 0));
@@ -131,7 +132,7 @@ function move(e) {
   const ti = hit.faceIndex, f = props.surface.face_of_triangle[ti];
   const a = props.surface.triangles[ti][0];
   const fa = (props.aux.faces || []).find((x) => x.id === f);
-  tip.value = `面 ${f}：压力 ${fmt(props.surface.p[a])} Pa` + (hasH.value ? `，h ${fmt(props.surface.h[a])}（面平均 ${fa?.h_w_m2k?.toFixed(1)}）W/(m²·K)` : '');
+  tip.value = $t('面 {a}：压力 {b} Pa', { a: f, b: fmt(props.surface.p[a]) }) + (hasH.value ? $t('，h {a}（面平均 {b}）W/(m²·K)', { a: fmt(props.surface.h[a]), b: fa?.h_w_m2k?.toFixed(1) }) : '');
   tipX.value = e.clientX - r.left + 12; tipY.value = e.clientY - r.top + 12;
 }
 

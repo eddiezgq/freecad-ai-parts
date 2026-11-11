@@ -1,12 +1,12 @@
 <template>
   <figure class="spc">
     <div class="ctl">
-      <button class="btn sm" @click="restart">重新开始</button>
-      <span class="small muted">已测 {{ pts.length }} 件{{ alarm ? ` · ${alarm}` : '' }}</span>
+      <button class="btn sm" @click="restart">{{ $t('重新开始') }}</button>
+      <span class="small muted">{{ $t('已测 {a} 件{b}', { a: pts.length, b: alarm ? ` · ${alarm}` : '' }) }}</span>
     </div>
-    <svg viewBox="0 0 760 210" role="img" :aria-label="`控制图演示：已测 ${pts.length} 件，${alarm || '受控'}`">
-      <line x1="40" :y1="Y(USL)" x2="706" :y2="Y(USL)" class="spec" /><text x="712" :y="Y(USL) + 4" class="lb">上限</text>
-      <line x1="40" :y1="Y(LSL)" x2="706" :y2="Y(LSL)" class="spec" /><text x="712" :y="Y(LSL) + 4" class="lb">下限</text>
+    <svg viewBox="0 0 760 210" role="img" :aria-label="`控制图演示：已测 ${pts.length} 件，${alarm || $t('受控')}`"><!-- i18n-ok 读屏标签 / 数据比较 -->
+      <line x1="40" :y1="Y(USL)" x2="706" :y2="Y(USL)" class="spec" /><text x="712" :y="Y(USL) + 4" class="lb">{{ $t('上限') }}</text>
+      <line x1="40" :y1="Y(LSL)" x2="706" :y2="Y(LSL)" class="spec" /><text x="712" :y="Y(LSL) + 4" class="lb">{{ $t('下限') }}</text>
       <line x1="40" :y1="Y(UCL)" x2="706" :y2="Y(UCL)" class="ctl-l" /><text x="712" :y="Y(UCL) + 4" class="lb">UCL</text>
       <line x1="40" :y1="Y(LCL)" x2="706" :y2="Y(LCL)" class="ctl-l" /><text x="712" :y="Y(LCL) + 4" class="lb">LCL</text>
       <line x1="40" :y1="Y(0)" x2="706" :y2="Y(0)" class="mid" />
@@ -14,12 +14,12 @@
       <circle v-for="(v, i) in pts" :key="i" :cx="X(i)" :cy="Y(v)" r="5" :class="cls(i)" />
       <rect v-if="hit" :x="X(hit.from) - 9" :y="Y(UCL) - 4" :width="X(hit.at) - X(hit.from) + 18" :height="Y(0) - Y(UCL) + 8" rx="6" class="box" />
     </svg>
-    <figcaption class="small muted">示例：磨床磨的轴承位直径，每件测一次。点子在中线附近上下跳是正常的；砂轮慢慢磨钝，点子<b>一路偏向一边</b>——
-      还没出上限、零件还合格，判异规则（和平台“质量”页同一套西电规则 1–4）已经报警，这时修整砂轮最便宜。不管它，后面就出不合格品了。</figcaption>
+    <figcaption class="small muted">{{ $t('示例：磨床磨的轴承位直径，每件测一次。点子在中线附近上下跳是正常的；砂轮慢慢磨钝，点子') }}<b>{{ $t('一路偏向一边') }}</b>{{ $t('——还没出上限、零件还合格，判异规则（和平台“质量”页同一套西电规则 1–4）已经报警，这时修整砂轮最便宜。不管它，后面就出不合格品了。') }}</figcaption>
   </figure>
 </template>
 
 <script setup>
+import { t as $t } from '../../../lib/i18n';
 // 控制图：砂轮磨钝 → 判异报警（西电规则）→ 再不管就超差（第 30 轮 §八 8-2，质量）。
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
@@ -34,7 +34,7 @@ const next = (i) => DATA[i];
 const X = (i) => 50 + i * 22;
 const Y = (v) => 115 - v * 22;
 // 西电规则 1–4（与 hub/spc.py 同一套）：第一次触发在哪一点、哪条、从哪一点起
-const TEXT = { 1: '1 点出 3σ', 2: '连续 3 点中 2 点在 2σ 外同侧', 3: '连续 5 点中 4 点在 1σ 外同侧', 4: '连续 8 点在中心线同侧' };
+const TEXT = { 1: $t('1 点出 3σ'), 2: $t('连续 3 点中 2 点在 2σ 外同侧'), 3: $t('连续 5 点中 4 点在 1σ 外同侧'), 4: $t('连续 8 点在中心线同侧') };
 function rules(p, i) {
   const side = (a, b, k) => { const w = p.slice(Math.max(0, i - a + 1), i + 1); return w.length === a && (w.filter((v) => v > k * SIG).length >= b || w.filter((v) => v < -k * SIG).length >= b); };
   if (Math.abs(p[i]) > 3 * SIG) return { rule: 1, from: i };
@@ -48,7 +48,7 @@ const hit = computed(() => {
   return null;
 });
 const firstOut = computed(() => pts.value.findIndex((v) => v > USL));
-const alarm = computed(() => (firstOut.value >= 0 ? '超出上限：出不合格品了' : hit.value ? `判异：${TEXT[hit.value.rule]}——报警，去修整砂轮` : ''));
+const alarm = computed(() => (firstOut.value >= 0 ? $t('超出上限：出不合格品了') : hit.value ? $t('判异：{a}——报警，去修整砂轮', { a: TEXT[hit.value.rule] }) : ''));
 function cls(i) { const v = pts.value[i]; return v > USL || v < LSL ? 'ng' : hit.value && i >= hit.value.from ? 'warn' : 'ok'; }
 let timer;
 function restart() {

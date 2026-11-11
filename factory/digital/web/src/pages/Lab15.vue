@@ -1,84 +1,85 @@
 <!-- 实验 15“车间异常的追因、推演与决策”（第 17 轮 D 期 D9）：先自己追因、自己拟方案，提交后才看中枢的建议 -->
 <template>
   <div class="page">
-    <div class="page-title"><h1>实验 15 · 车间异常的追因、推演与决策</h1>
-      <span class="muted">平台自动评 {{ s?.of || 60 }} 分（按平台里的事实），报告 {{ s?.report_points || 40 }} 分由老师在课程里批改</span>
-      <span class="r small" data-help="lab-links"><a href="/api/cae/lab15/guide.docx">指导书</a> · <a href="/api/cae/lab15/report-template.docx">报告模板</a></span></div>
+    <div class="page-title"><h1>{{ $t('实验 15 · 车间异常的追因、推演与决策') }}</h1>
+      <span class="muted">{{ $t('平台自动评 {a} 分（按平台里的事实），报告 {b} 分由老师在课程里批改', { a: s?.of || 60, b: s?.report_points || 40 }) }}</span>
+      <span class="r small" data-help="lab-links"><a href="/api/cae/lab15/guide.docx">{{ $t('指导书') }}</a> · <a href="/api/cae/lab15/report-template.docx">{{ $t('报告模板') }}</a></span></div>
     <div v-if="err" class="err">{{ err }}</div>
     <template v-if="s">
       <div class="card sum" data-help="lab-sum">
-        <b class="big">{{ s.score }} / {{ s.of }}</b>
-        <span v-if="!s.teacher" class="pill" :class="s.locked ? 'warn' : 'good'">{{ s.locked ? '比对模式：提交任务 3 之前，指挥台和 AI 不显示建议' : '已提交选择：可以看中枢的建议，和你的对比' }}</span>
-        <router-link v-if="s.anomaly_id" class="small" :to="{ path: '/ont', query: { view: 'anomalies', a: s.anomaly_id } }">打开你选的异常</router-link>
+        <b class="big">{{ $td(s.score) }} / {{ $td(s.of) }}</b>
+        <span v-if="!s.teacher" class="pill" :class="s.locked ? 'warn' : 'good'">{{ s.locked ? $t('比对模式：提交任务 3 之前，指挥台和 AI 不显示建议') : $t('已提交选择：可以看中枢的建议，和你的对比') }}</span>
+        <router-link v-if="s.anomaly_id" class="small" :to="{ path: '/ont', query: { view: 'anomalies', a: s.anomaly_id } }">{{ $t('打开你选的异常') }}</router-link>
       </div>
 
       <section v-if="s.teacher" class="card">
-        <div class="card-head"><h2>老师：注入问题</h2><span class="small muted">学生看不到这里；三种可以组合</span></div>
+        <div class="card-head"><h2>{{ $t('老师：注入问题') }}</h2><span class="small muted">{{ $t('学生看不到这里；三种可以组合') }}</span></div>
         <div class="row">
-          <select v-model="inj.kind"><option v-for="(l, k) in s.inject_kinds" :key="k" :value="k">{{ l }}</option></select>
+          <select v-model="inj.kind"><option v-for="(l, k) in s.inject_kinds" :key="k" :value="k">{{ $td(l) }}</option></select>
           <template v-if="inj.kind === 'down'">
             <select v-model="inj.unit"><option v-for="u in UNITS" :key="u" :value="u">{{ u.toUpperCase() }}</option></select>
-            <input v-model.number="inj.minutes" type="number" min="10" step="10" aria-label="停机分钟"> 分钟
+            <input v-model.number="inj.minutes" type="number" min="10" step="10" :aria-label="$t('停机分钟')"> {{ $t('分钟') }}
           </template>
           <template v-if="inj.kind === 'shortage'">
-            <select v-model="inj.item"><option v-for="c in ITEMS" :key="c" :value="c">{{ c }}</option></select>
-            库存降到 <input v-model.number="inj.qty" type="number" min="0" aria-label="库存">
+            <select v-model="inj.item"><option v-for="c in ITEMS" :key="c" :value="c">{{ $td(c) }}</option></select>
+            {{ $t('库存降到') }} <input v-model.number="inj.qty" type="number" min="0" :aria-label="$t('库存')">
           </template>
-          <button class="btn danger" @click="inject">注入</button><span class="small ok">{{ injMsg }}</span>
+          <button class="btn danger" @click="inject">{{ $t('注入') }}</button><span class="small ok">{{ injMsg }}</span>
         </div>
-        <p class="small muted">建议：停机选 GRD-01、1200–2400 分钟，并在“情景导演”的教师控制台切到“按班次”。注入后看指挥台右栏：“不处理”会晚、维修加急能按时，方案差别才明显；否则把停机加长再注入一次。</p>
-        <table v-if="s.class?.length" class="tbl small"><thead><tr><th>学生</th><th v-for="t in s.tasks" :key="t.id" class="num">{{ t.title }}</th><th class="num">合计</th></tr></thead>
-          <tbody><tr v-for="c in s.class" :key="c.user"><td>{{ c.user }}</td><td v-for="t in s.tasks" :key="t.id" class="num">{{ c.scores[t.id] ?? '—' }}</td>
-            <td class="num"><b>{{ c.total }}</b></td></tr></tbody></table>
+        <p class="small muted">{{ $t('建议：停机选 GRD-01、1200–2400 分钟，并在“情景导演”的教师控制台切到“按班次”。注入后看指挥台右栏：“不处理”会晚、维修加急能按时，方案差别才明显；否则把停机加长再注入一次。') }}</p>
+        <table v-if="s.class?.length" class="tbl small"><thead><tr><th>{{ $t('学生') }}</th><th v-for="t in s.tasks" :key="t.id" class="num">{{ $td(t.title) }}</th><th class="num">{{ $t('合计') }}</th></tr></thead>
+          <tbody><tr v-for="c in s.class" :key="c.user"><td>{{ $td(c.user) }}</td><td v-for="t in s.tasks" :key="t.id" class="num">{{ c.scores[t.id] ?? '—' }}</td>
+            <td class="num"><b>{{ $td(c.total) }}</b></td></tr></tbody></table>
       </section>
 
       <section v-for="(t, i) in s.tasks" :key="t.id" class="card task" data-help="lab-task" :class="{ done: t.done }">
-        <div class="card-head"><h2>任务 {{ i + 1 }}　{{ t.title }}</h2><span class="pts">{{ t.score }} / {{ t.points }}</span></div>
-        <p>{{ t.desc }}</p>
-        <p class="small muted">提示：{{ t.hint }}</p>
+        <div class="card-head"><h2>{{ $t('任务 {a}　{b}', { a: i + 1, b: $td(t.title) }) }}</h2><span class="pts">{{ $td(t.score) }} / {{ $td(t.points) }}</span></div>
+        <p>{{ $td(t.desc) }}</p>
+        <p class="small muted">{{ $t('提示：{a}', { a: $td(t.hint) }) }}</p>
         <form v-if="t.id === 'l15_t1'" class="f" @submit.prevent="submit('l15_t1', a1)">
-          <div class="field"><label>异常</label><select v-model="a1.anomaly_id" required>
-            <option v-for="o in s.options.anomalies" :key="o.value" :value="o.value">{{ o.label }}</option></select></div>
-          <div class="field"><label>受影响的工单</label><span class="cks">
-            <label v-for="w in s.options.work_orders" :key="w"><input v-model="a1.work_orders" type="checkbox" :value="w"> {{ w }}</label></span></div>
-          <div class="field"><label>受影响的订单</label><span class="cks">
-            <label v-for="o in s.options.sales_orders" :key="o"><input v-model="a1.sales_orders" type="checkbox" :value="o"> {{ o }}</label></span></div>
-          <div class="field"><label>不处理的话，订单晚几天</label><input v-model.number="a1.late_days" type="number" min="0" max="30" required></div>
-          <button class="btn primary">提交因果链</button>
+          <div class="field"><label>{{ $t('异常') }}</label><select v-model="a1.anomaly_id" required>
+            <option v-for="o in s.options.anomalies" :key="o.value" :value="o.value">{{ $td(o.label) }}</option></select></div>
+          <div class="field"><label>{{ $t('受影响的工单') }}</label><span class="cks">
+            <label v-for="w in s.options.work_orders" :key="w"><input v-model="a1.work_orders" type="checkbox" :value="w"> {{ $td(w) }}</label></span></div>
+          <div class="field"><label>{{ $t('受影响的订单') }}</label><span class="cks">
+            <label v-for="o in s.options.sales_orders" :key="o"><input v-model="a1.sales_orders" type="checkbox" :value="o"> {{ $td(o) }}</label></span></div>
+          <div class="field"><label>{{ $t('不处理的话，订单晚几天') }}</label><input v-model.number="a1.late_days" type="number" min="0" max="30" required></div>
+          <button class="btn primary">{{ $t('提交因果链') }}</button>
         </form>
         <div v-if="t.id === 'l15_t2'" class="small">
-          已保存 {{ t.evidence?.scenarios?.length || 0 }} 个场景，其中不同的方案 {{ t.evidence?.distinct || 0 }} 个。
-          <router-link v-if="s.anomaly_id" :to="{ path: '/ont/sim', query: { a: s.anomaly_id } }">去推演工作台</router-link>
-          <span v-else class="muted">先完成任务 1（选定异常）。</span>
+          {{ $t('已保存 {a} 个场景，其中不同的方案 {b} 个。', { a: t.evidence?.scenarios?.length || 0, b: t.evidence?.distinct || 0 }) }}
+          <router-link v-if="s.anomaly_id" :to="{ path: '/ont/sim', query: { a: s.anomaly_id } }">{{ $t('去推演工作台') }}</router-link>
+          <span v-else class="muted">{{ $t('先完成任务 1（选定异常）。') }}</span>
         </div>
         <form v-if="t.id === 'l15_t3'" class="f" @submit.prevent="submit('l15_t3', a3)">
-          <div class="field"><label>选哪个场景</label><select v-model="a3.scenario_id" required>
-            <option v-for="o in s.options.scenarios" :key="o.value" :value="o.value">{{ o.label }}</option></select></div>
-          <div class="field"><label>理由与代价</label><textarea v-model="a3.reason" rows="3" required placeholder="交期、成本、风险……"></textarea></div>
-          <button class="btn primary" :disabled="!s.options.scenarios.length">提交选择</button>
+          <div class="field"><label>{{ $t('选哪个场景') }}</label><select v-model="a3.scenario_id" required>
+            <option v-for="o in s.options.scenarios" :key="o.value" :value="o.value">{{ $td(o.label) }}</option></select></div>
+          <div class="field"><label>{{ $t('理由与代价') }}</label><textarea v-model="a3.reason" rows="3" required :placeholder="$t('交期、成本、风险……')"></textarea></div>
+          <button class="btn primary" :disabled="!s.options.scenarios.length">{{ $t('提交选择') }}</button>
         </form>
         <div v-if="t.id === 'l15_t4'" class="small">
-          <template v-if="t.evidence?.actions?.length">你的动作：<span v-for="x in t.evidence.actions" :key="x.id"> ACT-{{ String(x.id).padStart(5, '0') }}（{{ ST[x.status] || x.status }}）</span></template>
-          <template v-else>还没有动作。</template> <router-link to="/ont/actions?box=mine">动作收件箱</router-link>
+          <template v-if="t.evidence?.actions?.length">{{ $t('你的动作：') }}<span v-for="x in t.evidence.actions" :key="x.id"> {{ $t('ACT-{a}（{b}）', { a: String(x.id).padStart(5, '0'), b: ST[x.status] || x.status }) }}</span></template>
+          <template v-else>{{ $t('还没有动作。') }}</template> <router-link to="/ont/actions?box=mine">{{ $t('动作收件箱') }}</router-link>
         </div>
         <form v-if="t.id === 'l15_t5'" class="f" @submit.prevent="submit('l15_t5', a5)">
-          <div class="field"><label>推演与实际</label><span class="cks">
-            <label v-for="b in s.buckets" :key="b"><input v-model="a5.bucket" type="radio" :value="b" required> {{ b }}</label></span></div>
-          <button class="btn primary">提交复盘结论</button>
+          <div class="field"><label>{{ $t('推演与实际') }}</label><span class="cks">
+            <label v-for="b in s.buckets" :key="b"><input v-model="a5.bucket" type="radio" :value="b" required> {{ $td(b) }}</label></span></div>
+          <button class="btn primary">{{ $t('提交复盘结论') }}</button>
         </form>
-        <p v-if="fb[t.id]" class="small fb">{{ fb[t.id] }}</p>
+        <p v-if="fb[t.id]" class="small fb">{{ $td(fb[t.id]) }}</p>
       </section>
     </template>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { onMounted, reactive, ref } from 'vue';
 import { get, post } from '../lib/api';
 
 const UNITS = ['grd-01', 'cnc-l01-a', 'cnc-l01-b', 'key-01', 'saw-01', 'ht-01'];
 const ITEMS = ['RM-45-D50', 'BRG-6207', 'BRG-6206', 'BRG-6205'];
-const ST = { draft: '草稿', submitted: '待批准', approved: '已批准', rejected: '已驳回', executing: '执行中', done: '已完成', failed: '失败' };
+const ST = { draft: $t('草稿'), submitted: $t('待批准'), approved: $t('已批准'), rejected: $t('已驳回'), executing: $t('执行中'), done: $t('已完成'), failed: $t('失败') };
 const s = ref(null);
 const err = ref('');
 const fb = reactive({});

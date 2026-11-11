@@ -1,10 +1,10 @@
 <!-- 推演甘特图（第 17 轮 C 期）：设备 × 时间，按工单着色；停机斜线、下班灰底、加班橙底 -->
 <template>
   <div class="gc">
-    <div class="range small">看
-      <button v-for="h in [24, 72, 0]" :key="h" :class="{ on: hours === h }" @click="hours = h">{{ h ? (h / 24) + ' 天' : '全部' }}</button></div>
-    <div v-if="!rows.length" class="muted small">这段时间没有加工安排。</div>
-    <svg v-else :viewBox="`0 0 ${W} ${H}`" :height="H" class="svg" role="img" :aria-label="'甘特图：' + rows.length + ' 台设备'">
+    <div class="range small">{{ $t('看') }}
+      <button v-for="h in [24, 72, 0]" :key="h" :class="{ on: hours === h }" @click="hours = h">{{ h ? (h / 24) + $t(' 天') : $t('全部') }}</button></div>
+    <div v-if="!rows.length" class="muted small">{{ $t('这段时间没有加工安排。') }}</div>
+    <svg v-else :viewBox="`0 0 ${W} ${H}`" :height="H" class="svg" role="img" :aria-label="$t('甘特图：') + rows.length + $t(' 台设备')">
       <defs>
         <pattern id="gc-down" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
           <rect width="6" height="6" fill="#FCE8E6" /><line x1="0" y1="0" x2="0" y2="6" stroke="#B42318" stroke-width="2" />
@@ -16,27 +16,28 @@
       <!-- 时间刻度 -->
       <g v-for="(t, i) in ticks" :key="'t' + i">
         <line :x1="x(t.t)" y1="16" :x2="x(t.t)" :y2="H" stroke="#DDE1DC" />
-        <text :x="x(t.t) + 3" y="12" font-size="10" fill="#5D6873">{{ t.label }}</text>
+        <text :x="x(t.t) + 3" y="12" font-size="10" fill="#5D6873">{{ $td(t.label) }}</text>
       </g>
       <g v-for="(r, i) in rows" :key="r">
         <text x="4" :y="24 + i * ROW + ROW / 2 + 4" font-size="11" fill="#17212B" font-family="IBM Plex Mono, monospace">{{ r.toUpperCase() }}</text>
         <line :x1="LEFT" :y1="20 + (i + 1) * ROW" :x2="W" :y2="20 + (i + 1) * ROW" stroke="#EEF0EC" />
       </g>
       <rect v-for="(d, i) in downs" :key="'d' + i" :x="x(d.s)" :y="22 + rowOf(d.unit) * ROW" :width="Math.max(2, x(d.e) - x(d.s))"
-        :height="ROW - 6" fill="url(#gc-down)"><title>{{ d.unit.toUpperCase() }} 停机：{{ d.reason }}</title></rect>
+        :height="ROW - 6" fill="url(#gc-down)"><title>{{ $t('{a} 停机：{b}', { a: d.unit.toUpperCase(), b: $td(d.reason) }) }}</title></rect>
       <rect v-for="(g, i) in segs" :key="'g' + i" :x="x(g.s)" :y="24 + rowOf(g.unit) * ROW" :width="Math.max(1.5, x(g.e) - x(g.s) - 0.5)"
-        :height="ROW - 10" :fill="color(g.wo)" rx="1.5"><title>{{ g.wo }} · {{ g.op }} · {{ g.part }}
+        :height="ROW - 10" :fill="color(g.wo)" rx="1.5"><title>{{ $td(g.wo) }} · {{ $td(g.op) }} · {{ $td(g.part) }}
 {{ fmt(g.s) }} – {{ fmt(g.e) }}</title></rect>
       <line v-if="nowX" :x1="nowX" y1="16" :x2="nowX" :y2="H" stroke="#0E5E6F" stroke-dasharray="3 3" />
     </svg>
     <div class="legend small">
       <span v-for="w in wos" :key="w"><i :style="{ background: color(w) }"></i>{{ w }}</span>
-      <span><i class="down"></i>停机</span><span><i class="off"></i>下班</span><span><i class="ot"></i>加班</span>
+      <span><i class="down"></i>{{ $t('停机') }}</span><span><i class="off"></i>{{ $t('下班') }}</span><span><i class="ot"></i>{{ $t('加班') }}</span>
     </div>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { computed, ref } from 'vue';
 
 const props = defineProps({ result: Object, width: { type: Number, default: 900 } });

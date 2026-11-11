@@ -2,8 +2,8 @@
  "board_file": "kicad/drv-joint.kicad_pcb",
  "calc_link": "../calc/calc.html",
  "count": {
-  "fail": 7,
-  "pass": 54,
+  "fail": 2,
+  "pass": 59,
   "pending": 7,
   "unknown": 10
  },
@@ -492,22 +492,16 @@
    "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
   },
   {
-   "at": [
-    [
-     146.7,
-     -162.48,
-     "C42 离 U10 第 24 脚 3.5 mm"
-    ]
-   ],
-   "count": 1,
+   "at": [],
+   "count": 0,
    "detail": "C42 的 +3V3 焊盘到 U10 第 24 脚（焊盘边到边）",
    "key": "L-near-C42",
    "limit": 3.0,
    "name": "靠近：C42 去耦 U10 第 24 脚",
    "source": "示例值",
-   "status": "fail",
+   "status": "pass",
    "unit": "mm",
-   "value": 3.49,
+   "value": 1.19,
    "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
   },
   {
@@ -524,22 +518,16 @@
    "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
   },
   {
-   "at": [
-    [
-     139.52,
-     -150.5,
-     "C45 离 U10 第 48 脚 3.0 mm"
-    ]
-   ],
-   "count": 1,
+   "at": [],
+   "count": 0,
    "detail": "C45 的 +3V3 焊盘到 U10 第 48 脚（焊盘边到边）",
    "key": "L-near-C45",
    "limit": 3.0,
    "name": "靠近：C45 去耦 U10 第 48 脚",
    "source": "示例值",
-   "status": "fail",
+   "status": "pass",
    "unit": "mm",
-   "value": 3.03,
+   "value": 0.99,
    "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
   },
   {
@@ -582,60 +570,42 @@
    "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
   },
   {
-   "at": [
-    [
-     138.5,
-     -144.48,
-     "C27 离 U7 第 6 脚 6.7 mm"
-    ]
-   ],
-   "count": 1,
+   "at": [],
+   "count": 0,
    "detail": "C27 的 +3V3 焊盘到 U7 第 6 脚（焊盘边到边）",
    "key": "L-near-C27",
    "limit": 3.0,
    "name": "靠近：C27 去耦 U7 第 6 脚",
    "source": "示例值",
-   "status": "fail",
+   "status": "pass",
    "unit": "mm",
-   "value": 6.69,
+   "value": 0.78,
    "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
   },
   {
-   "at": [
-    [
-     154.5,
-     -144.48,
-     "C28 离 U8 第 6 脚 6.7 mm"
-    ]
-   ],
-   "count": 1,
+   "at": [],
+   "count": 0,
    "detail": "C28 的 +3V3 焊盘到 U8 第 6 脚（焊盘边到边）",
    "key": "L-near-C28",
    "limit": 3.0,
    "name": "靠近：C28 去耦 U8 第 6 脚",
    "source": "示例值",
-   "status": "fail",
+   "status": "pass",
    "unit": "mm",
-   "value": 6.69,
+   "value": 0.78,
    "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
   },
   {
-   "at": [
-    [
-     170.5,
-     -144.48,
-     "C29 离 U9 第 6 脚 6.7 mm"
-    ]
-   ],
-   "count": 1,
+   "at": [],
+   "count": 0,
    "detail": "C29 的 +3V3 焊盘到 U9 第 6 脚（焊盘边到边）",
    "key": "L-near-C29",
    "limit": 3.0,
    "name": "靠近：C29 去耦 U9 第 6 脚",
    "source": "示例值",
-   "status": "fail",
+   "status": "pass",
    "unit": "mm",
-   "value": 6.69,
+   "value": 0.78,
    "why": "去耦电容离芯片电源脚越远，中间走线的电感越大，高频电流就供不上"
   },
   {
@@ -987,7 +957,7 @@
    "name": "KiCad 设计规则检查（DRC）",
    "status": "pass",
    "unit": "",
-   "value": "错误 0、未连接 0、警告 76",
+   "value": "错误 0、未连接 0、警告 87",
    "why": "KiCad 按工程里的线宽、间距、连通规则查一遍；有错误或没连上的焊盘，板子就不能做"
   }
  ],
@@ -1041,16 +1011,16 @@
     "rds_cold": true,
     "ref": "Q1",
     "status": "unknown",
-    "t_board_c": 142.5,
+    "t_board_c": 142.6,
     "t_sw_ns": 170.9,
-    "tj_c": 143.7,
+    "tj_c": 143.8,
     "tj_max_c": 150
    },
    {
     "model": "mosfet",
     "notes": [
      "R_DS(on) 用 25 ℃ 的最大值；结温高时更大，导通损耗偏低",
-     "结温 141 ℃ 没超上限，但损耗偏低，判不了"
+     "结温 142 ℃ 没超上限，但损耗偏低，判不了"
     ],
     "p_w": 0.9864358974358973,
     "parts": [
@@ -1066,9 +1036,9 @@
     "rds_cold": true,
     "ref": "Q2",
     "status": "unknown",
-    "t_board_c": 140.1,
+    "t_board_c": 140.3,
     "t_sw_ns": 170.9,
-    "tj_c": 141.3,
+    "tj_c": 141.5,
     "tj_max_c": 150
    },
    {
@@ -1164,9 +1134,9 @@
     "rds_cold": true,
     "ref": "Q6",
     "status": "unknown",
-    "t_board_c": 144.2,
+    "t_board_c": 144.1,
     "t_sw_ns": 170.9,
-    "tj_c": 145.4,
+    "tj_c": 145.3,
     "tj_max_c": 150
    },
    {
@@ -1181,7 +1151,7 @@
     ],
     "ref": "R21",
     "status": "pass",
-    "t_board_c": 117.8
+    "t_board_c": 118.1
    },
    {
     "model": "shunt",
@@ -1195,7 +1165,7 @@
     ],
     "ref": "R22",
     "status": "pass",
-    "t_board_c": 124.3
+    "t_board_c": 124.2
    },
    {
     "model": "shunt",
@@ -1209,7 +1179,7 @@
     ],
     "ref": "R23",
     "status": "pass",
-    "t_board_c": 119.2
+    "t_board_c": 119.0
    }
   ],
   "source": "环境温度 40 ℃、两面自然对流换热系数 10 W/(m²·K) 都是示例假设（电控箱里不通风时的量级）；PWM 20 kHz 取自 drv-joint-b/fw/src/motor.h",

@@ -1,58 +1,59 @@
 <template>
   <div class="wrap">
     <form class="box" @submit.prevent="go">
-      <div class="brand"><span class="logo">渠</span><div><b>问渠数字工厂<span v-if="info?.edition === 'local'" class="ed">本地版</span></b><small>WenQuest Digital Factory</small></div></div>
-      <p class="muted">一个平台，两种用途：学生在这里扮演工厂的各个岗位完成生产任务；企业在这里接单、设计、排产、加工、检验。</p>
+      <div class="brand"><span class="logo">渠</span><!-- i18n-ok 标志字 --><div><b>{{ t('问渠数字工厂') }}<span v-if="info?.edition === 'local'" class="ed">{{ t('本地版') }}</span></b><small>{{ isEn() ? '' : 'WenQuest Digital Factory' }}</small></div></div>
+      <div class="langs" role="group" aria-label="Language / 语言"><button type="button" :class="{ on: i18n.lang === 'zh' }" lang="zh-CN" @click="setLang('zh')">中文</button><button type="button" :class="{ on: i18n.lang === 'en' }" lang="en" @click="setLang('en')">EN</button></div><!-- i18n-ok 语言切换 -->
+      <p class="muted">{{ t('一个平台，两种用途：学生在这里扮演工厂的各个岗位完成生产任务；企业在这里接单、设计、排产、加工、检验。') }}</p>
 
-      <div v-if="!info" class="muted">正在检查登录状态…</div>
+      <div v-if="!info" class="muted">{{ t('正在检查登录状态…') }}</div>
 
       <!-- 企业版：用户名 + 密码（freecad-ai-parts ADR-0063；/api/login/info 的 auth 是 enterprise 时） -->
       <template v-else-if="enterprise">
-        <div class="field"><label for="u">用户名</label><input id="u" v-model="username" autocomplete="username" required></div>
-        <div class="field"><label for="p">密码</label><input id="p" v-model="password" type="password" autocomplete="current-password" required></div>
-        <button class="btn primary big" :disabled="busy">登录</button>
-        <small class="muted">账号由企业管理员在“账号与角色”里开；忘了密码请找管理员重置。</small>
+        <div class="field"><label for="u">{{ t('用户名') }}</label><input id="u" v-model="username" autocomplete="username" required></div>
+        <div class="field"><label for="p">{{ t('密码') }}</label><input id="p" v-model="password" type="password" autocomplete="current-password" required></div>
+        <button class="btn primary big" :disabled="busy">{{ t('登录') }}</button>
+        <small class="muted">{{ t('账号由企业管理员在“账号与角色”里开；忘了密码请找管理员重置。') }}</small>
       </template>
 
       <!-- 线上：问渠账号（第 3 轮 D2） -->
       <template v-else-if="online && !info.account">
-        <p>用问渠学习平台的账号登录。登录后会自动回到这里。</p>
-        <a class="btn primary big center" :href="signInHref">用问渠账号登录</a>
-        <small class="muted">还没有账号？在登录页可以注册。</small>
+        <p>{{ t('用问渠学习平台的账号登录。登录后会自动回到这里。') }}</p>
+        <a class="btn primary big center" :href="signInHref">{{ t('用问渠账号登录') }}</a>
+        <small class="muted">{{ t('还没有账号？在登录页可以注册。') }}</small>
       </template>
 
       <template v-else>
         <div v-if="online" class="me">
           <span class="av">{{ info.account.fullname.slice(0, 1) }}</span>
-          <div><b>{{ info.account.fullname }}</b><small>{{ info.account.teacher ? '老师' : '学生' }} · 问渠账号</small></div>
+          <div><b>{{ info.account.fullname }}</b><small>{{ info.account.teacher ? t('老师') : t('学生') }} · {{ t('问渠账号') }}</small></div>
         </div>
-        <div v-else class="field"><label for="n">姓名</label><input id="n" v-model="name" autocomplete="name" required placeholder="例如：王小明"></div>
+        <div v-else class="field"><label for="n">{{ t('姓名') }}</label><input id="n" v-model="name" autocomplete="name" required :placeholder="t('例如：王小明')"></div>
         <!-- 本地版（第 30 轮 H-5）：学生选岗位；当老师要输老师密码（启动工厂时显示过，在 factory/digital/.env 的 WQ_TEACHER_PASSWORD） -->
         <div v-if="localRoles" class="field">
-          <label class="check"><input id="t" v-model="asTeacher" type="checkbox"> 我是老师（可当厂长、用生产模式和教师控制台）</label>
+          <label class="check"><input id="t" v-model="asTeacher" type="checkbox"> {{ t('我是老师（可当厂长、用生产模式和教师控制台）') }}</label>
           <input v-if="asTeacher" id="tp" v-model="teacherPassword" type="password" autocomplete="current-password" required
-            placeholder="老师密码（启动工厂时显示过）" aria-label="老师密码">
+            :placeholder="t('老师密码（启动工厂时显示过）')" :aria-label="t('老师密码')">
         </div>
         <div class="field">
-          <label>角色</label>
+          <label>{{ t('角色') }}</label>
           <div class="roles" :class="{ four: roles.length === 4 }">
             <button v-for="r in roles" :key="r.key" type="button" :class="{ on: role === r.key }" @click="role = r.key">
-              <b>{{ r.name }}</b><small>{{ r.en }}</small>
+              <b>{{ isEn() ? r.en : r.name }}</b><small>{{ isEn() ? '' : r.en }}</small>
             </button>
           </div>
         </div>
         <div class="field">
-          <label>模式</label>
+          <label>{{ t('模式') }}</label>
           <div class="modes">
-            <button type="button" :class="{ on: mode === 'teach' }" @click="mode = 'teach'"><b>教学模式</b><small>有任务、提示和评分，机床为仿真</small></button>
-            <button type="button" :class="{ on: mode === 'prod' }" :disabled="!teacher" :title="teacher ? '' : '生产模式只对老师开放'"
-              @click="mode = 'prod'"><b>生产模式</b><small>{{ teacher ? '工厂日常工作台，AI 可代办' : '只对老师开放' }}</small></button>
+            <button type="button" :class="{ on: mode === 'teach' }" @click="mode = 'teach'"><b>{{ t('教学模式') }}</b><small>{{ t('有任务、提示和评分，机床为仿真') }}</small></button>
+            <button type="button" :class="{ on: mode === 'prod' }" :disabled="!teacher" :title="teacher ? '' : t('生产模式只对老师开放')"
+              @click="mode = 'prod'"><b>{{ t('生产模式') }}</b><small>{{ teacher ? t('工厂日常工作台，AI 可代办') : t('只对老师开放') }}</small></button>
           </div>
         </div>
-        <button class="btn primary big" :disabled="busy">进入工厂</button>
+        <button class="btn primary big" :disabled="busy">{{ t('进入工厂') }}</button>
       </template>
       <div v-if="err" class="err">{{ err }}</div>
-      <router-link to="/help" class="help-link">第一次用？看帮助（不用登录）→</router-link>
+      <router-link to="/help" class="help-link">{{ t('第一次用？看帮助（不用登录）→') }}</router-link>
     </form>
   </div>
 </template>
@@ -61,6 +62,7 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { get, login, loginAccount, rolesFor } from '../lib/api';
+import { i18n, isEn, setLang, t } from '../lib/i18n';
 
 const route = useRoute();
 const router = useRouter();
@@ -126,5 +128,10 @@ async function go() {
 .check input { width: auto; }
 .modes button:disabled { cursor: not-allowed; opacity: .55; }
 @media (max-width: 560px) { .roles, .roles.four { grid-template-columns: repeat(2, 1fr); } .modes { grid-template-columns: 1fr; } }
+.brand { position: relative; }
+.langs { position: absolute; top: 24px; right: 24px; display: flex; gap: 2px; background: var(--bg, #F1F3EF); border-radius: 8px; padding: 3px; }
+.langs button { height: 26px; padding: 0 8px; border: 0; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: #3D4852; }
+.langs button.on { background: #fff; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.box { position: relative; }
 .help-link { display: block; margin-top: 14px; text-align: center; font-size: 13px; color: var(--muted, #6b7785); }
 </style>

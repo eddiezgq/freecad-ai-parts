@@ -1,6 +1,7 @@
 // 浏览器直接订阅统一数据总线（MQTT over WebSocket）：设备状态、AGV 位置实时更新，不用等看板轮询
 import { reactive } from 'vue';
 import mqtt from 'mqtt';
+import { t } from './i18n';
 
 export const bus = reactive({
   connected: false,
@@ -30,7 +31,7 @@ export function connectBus(url, m) {
       'wq/gearbox/+/+/cmd/ack'], { qos: 0 });
   });
   client.on('close', () => { bus.connected = false; });
-  client.on('offline', () => { bus.connected = false; if (!bus.error) bus.error = '网络断开或服务器不可达'; });
+  client.on('offline', () => { bus.connected = false; if (!bus.error) bus.error = t('网络断开或服务器不可达'); });
   client.on('error', (e) => { bus.error = String(e.message || e); });
   client.on('message', (topic, payload) => {
     let m;

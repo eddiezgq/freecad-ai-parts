@@ -1,13 +1,14 @@
 // 仿真与分析（第 11 轮）：结果文件解析、色标、约束载荷的种类
+import { t as $t } from './i18n';
 import { session, ApiError } from './api';
 
 export async function fetchSurface(jobId) {
   const r = await fetch(`/api/cae/jobs/${encodeURIComponent(jobId)}/surface.bin`, { headers: { 'x-wq-token': session.token } });
-  if (!r.ok) throw new ApiError(r.status, '结果读取失败');
+  if (!r.ok) throw new ApiError(r.status, $t('结果读取失败'));
   const buf = await r.arrayBuffer();
   const dv = new DataView(buf);
   const magic = String.fromCharCode(dv.getUint8(0), dv.getUint8(1), dv.getUint8(2), dv.getUint8(3));
-  if (magic !== 'WQS1') throw new Error('结果文件格式不对');
+  if (magic !== 'WQS1') throw new Error($t('结果文件格式不对'));
   const nv = dv.getUint32(4, true), nt = dv.getUint32(8, true);
   let o = 12;
   const take = (T, n) => { const a = new T(buf.slice(o, o + 4 * n)); o += 4 * n; return a; };
@@ -36,13 +37,13 @@ export const turboCss = (n = 10) => `linear-gradient(to top, ${Array.from({ leng
 
 // 约束与载荷的种类（网页上的名字 → 计算服务的设置）
 export const KINDS = {
-  fixed: { label: '固定', hint: '这个面完全不能动（焊死、夹紧）', color: '#5B6670', support: true },
-  bearing: { label: '轴承支承', hint: '圆柱面：只限制径向（轴可以转）；勾“止推”再限制轴向', color: '#2F6FDE', support: true, cyl: true },
-  coupling: { label: '限制转动', hint: '圆柱面：联轴器、键连接的那一端，只限制绕轴转动', color: '#7C4DDB', support: true, cyl: true },
-  force: { label: '力', hint: '总力（N），均匀分布在所选面上', color: '#D64541' },
-  pressure: { label: '压力', hint: '垂直压在面上（MPa = N/mm²）', color: '#E08A00' },
-  torque: { label: '扭矩', hint: '绕轴线的扭矩（N·m），按到轴线的距离分布', color: '#1F8A5B' },
-  moment: { label: '力矩', hint: '绕所选面形心、任意方向的力矩（N·m，三个分量）：可以是弯矩、扭矩或两者合成，按到力矩轴的距离线性分布', color: '#0E7C86' },
+  fixed: { label: $t('固定'), hint: $t('这个面完全不能动（焊死、夹紧）'), color: '#5B6670', support: true },
+  bearing: { label: $t('轴承支承'), hint: $t('圆柱面：只限制径向（轴可以转）；勾“止推”再限制轴向'), color: '#2F6FDE', support: true, cyl: true },
+  coupling: { label: $t('限制转动'), hint: $t('圆柱面：联轴器、键连接的那一端，只限制绕轴转动'), color: '#7C4DDB', support: true, cyl: true },
+  force: { label: $t('力'), hint: $t('总力（N），均匀分布在所选面上'), color: '#D64541' },
+  pressure: { label: $t('压力'), hint: $t('垂直压在面上（MPa = N/mm²）'), color: '#E08A00' },
+  torque: { label: $t('扭矩'), hint: $t('绕轴线的扭矩（N·m），按到轴线的距离分布'), color: '#1F8A5B' },
+  moment: { label: $t('力矩'), hint: $t('绕所选面形心、任意方向的力矩（N·m，三个分量）：可以是弯矩、扭矩或两者合成，按到力矩轴的距离线性分布'), color: '#0E7C86' },
 };
 
 export function toLoad(row, axes) {
@@ -74,20 +75,20 @@ export function axesOf(faces) {
       && Math.hypot(a.p[0] - p[0], a.p[1] - p[1], a.p[2] - p[2]) < 0.2);
     if (same) { same.faces.push(f.id); continue; }
     out.push({ key: 'a' + f.id, dir: d, origin: o, p, faces: [f.id],
-      label: `${out.length ? '' : '主轴 · '}经过面 ${f.id}（Ø${(f.radius_mm * 2).toFixed(1)}）的轴线` });
+      label: $t('{a}经过面 {b}（Ø{c}）的轴线', { a: out.length ? '' : $t('主轴 · '), b: f.id, c: (f.radius_mm * 2).toFixed(1) }) });
   }
   return out;
 }
 
-export const KIND_NAME = { plane: '平面', cylinder: '圆柱面', cone: '圆锥面', sphere: '球面', torus: '圆环面', other: '曲面' };
-export const faceText = (f) => f ? `面 ${f.id} · ${KIND_NAME[f.kind] || f.kind}${f.radius_mm ? ' Ø' + (f.radius_mm * 2).toFixed(1) : ''} · ${f.area_mm2.toFixed(1)} mm²` : '';
+export const KIND_NAME = { plane: $t('平面'), cylinder: $t('圆柱面'), cone: $t('圆锥面'), sphere: $t('球面'), torus: $t('圆环面'), other: $t('曲面') };
+export const faceText = (f) => f ? $t('面 {a} · {b}{c} · {d} mm²', { a: f.id, b: KIND_NAME[f.kind] || f.kind, c: f.radius_mm ? ' Ø' + (f.radius_mm * 2).toFixed(1) : '', d: f.area_mm2.toFixed(1) }) : '';
 
 // 热分析（第 14 轮）：热载荷的种类
 export const TH_KINDS = {
-  temperature: { label: '固定温度', hint: '这个面的温度已知（例如贴着热源、冷却水套）', color: '#C0392B' },
-  convection: { label: '对流散热', hint: '表面向周围空气 / 液体散热：散热系数 h 和环境温度', color: '#2E86C1' },
-  heat_flux: { label: '面发热', hint: '这个面上总共进来多少瓦热量（例如芯片贴合面、摩擦面）', color: '#E67E22' },
-  heat_body: { label: '整体发热', hint: '整个零件体积内均匀发热（例如线圈、整体损耗），不用选面', color: '#8E44AD', nofaces: true },
+  temperature: { label: $t('固定温度'), hint: $t('这个面的温度已知（例如贴着热源、冷却水套）'), color: '#C0392B' },
+  convection: { label: $t('对流散热'), hint: $t('表面向周围空气 / 液体散热：散热系数 h 和环境温度'), color: '#2E86C1' },
+  heat_flux: { label: $t('面发热'), hint: $t('这个面上总共进来多少瓦热量（例如芯片贴合面、摩擦面）'), color: '#E67E22' },
+  heat_body: { label: $t('整体发热'), hint: $t('整个零件体积内均匀发热（例如线圈、整体损耗），不用选面'), color: '#8E44AD', nofaces: true },
 };
 
 export function toThermal(row) {

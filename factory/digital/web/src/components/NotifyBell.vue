@@ -1,18 +1,18 @@
 <!-- 通知中心（第 17 轮 D 期 D6）：顶栏铃铛 + 未读数；新的严重异常、待我批准的动作、日报周报…… -->
 <template>
   <div class="bell-wrap">
-    <button class="bell" :aria-label="'通知，' + unread + ' 条未读'" @click="toggle">
+    <button class="bell" :aria-label="t('通知，{n} 条未读', { n: unread })" @click="toggle">
       <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor"
         d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-2 2v1h18v-1l-2-2Z"/></svg>
       <span v-if="unread" class="cnt">{{ unread > 99 ? '99+' : unread }}</span>
     </button>
-    <div v-if="open" class="pop" role="dialog" aria-label="通知">
-      <div class="ph"><b>通知</b><button class="linkbtn" :disabled="!unread" @click="readAll">全部已读</button>
-        <router-link class="linkbtn" to="/ont/notify" @click="open = false">通知设置</router-link></div>
-      <p v-if="!items.length" class="muted small pad">没有通知。</p>
+    <div v-if="open" class="pop" role="dialog" :aria-label="t('通知')">
+      <div class="ph"><b>{{ t('通知') }}</b><button class="linkbtn" :disabled="!unread" @click="readAll">{{ t('全部已读') }}</button>
+        <router-link class="linkbtn" to="/ont/notify" @click="open = false">{{ t('通知设置') }}</router-link></div>
+      <p v-if="!items.length" class="muted small pad">{{ t('没有通知。') }}</p>
       <button v-for="n in items" :key="n.id" class="it" :class="{ unread: !n.read, [n.severity || 'info']: true }" @click="go(n)">
-        <span class="t">{{ n.title }}</span>
-        <span v-if="n.body" class="b">{{ n.body }}</span>
+        <span class="t">{{ td(n.title) }}</span>
+        <span v-if="n.body" class="b">{{ td(n.body) }}</span>
         <span class="ts">{{ fmtTs(n.created_at) }}</span>
       </button>
     </div>
@@ -24,6 +24,7 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { get, post } from '../lib/api';
 import { fmtTs } from '../lib/ont';
+import { t, td } from '../lib/i18n';
 
 const router = useRouter();
 const open = ref(false);

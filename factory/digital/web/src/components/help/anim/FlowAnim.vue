@@ -1,18 +1,18 @@
 <template>
   <figure class="flow" :class="{ dark }">
-    <svg viewBox="0 0 1000 150" role="img" :aria-label="'全流程：' + STAGES.map((s) => s.name).join('、')">
+    <svg viewBox="0 0 1000 150" role="img" :aria-label="$t('全流程：') + STAGES.map((s) => s.name).join('、')"><!-- i18n-ok 读屏标签 / 数据比较 -->
       <line x1="40" y1="62" x2="960" y2="62" class="rail" />
       <line x1="40" y1="62" x2="960" y2="62" class="belt" :class="{ still: reduced }" />
       <g v-for="(s, i) in STAGES" :key="s.name" class="st" :class="{ on: i === cur, can: clickable }" tabindex="0" role="button"
-        :aria-label="s.name + '：' + s.doc" @click="pick(i)" @keydown.enter="pick(i)">
+        :aria-label="s.name + '：' + s.doc" @click="pick(i)" @keydown.enter="pick(i)"><!-- i18n-ok 读屏标签 / 数据比较 -->
         <circle :cx="x(i)" cy="62" r="17" />
         <text :x="x(i)" y="67" class="n">{{ i + 1 }}</text>
-        <text :x="x(i)" y="112" class="nm">{{ s.name }}</text>
-        <text :x="x(i)" y="132" class="sub">{{ s.role }}</text>
+        <text :x="x(i)" y="112" class="nm">{{ $td(s.name) }}</text>
+        <text :x="x(i)" y="132" class="sub">{{ $td(s.role) }}</text>
       </g>
       <g class="tok" :style="{ transform: `translate(${tokX}px, 0)` }">
         <rect x="-62" y="10" width="124" height="28" rx="6" />
-        <text x="0" y="29">{{ STAGES[cur].doc }}</text>
+        <text x="0" y="29">{{ $td(STAGES[cur].doc) }}</text>
       </g>
     </svg>
     <figcaption v-if="caption" class="small">{{ caption }}</figcaption>
@@ -20,6 +20,7 @@
 </template>
 
 <script setup>
+import { t as $t } from '../../../lib/i18n';
 // 全流程动画（ADR-0065）：一张单据沿着“设计 → ERP → MRP → MES → 车间 → 质量 → 厂情中枢”走，到哪一站换成那一站的单据。
 // 点站点跳到对应章节；减少动态效果时不自动走。
 import { onMounted, onUnmounted, ref } from 'vue';
@@ -27,13 +28,13 @@ import { onMounted, onUnmounted, ref } from 'vue';
 const props = defineProps({ dark: Boolean, clickable: Boolean, caption: String });
 const emit = defineEmits(['pick']);
 const STAGES = [
-  { name: '设计', role: '工程师 · 设计台', doc: '设计 第 1 版' },
-  { name: 'ERP', role: '物料与 BOM', doc: '物料 · BOM' },
-  { name: 'MRP', role: '计划员', doc: '订单 → 工单' },
-  { name: 'MES', role: '派工', doc: '派工单' },
-  { name: '车间', role: '操作工 · 设备', doc: '加工中 3/10' },
-  { name: '质量', role: '质检员', doc: '检验记录' },
-  { name: '厂情中枢', role: '厂长 · AI', doc: '日报 · 异常' },
+  { name: $t('设计'), role: $t('工程师 · 设计台'), doc: $t('设计 第 1 版') },
+  { name: 'ERP', role: $t('物料与 BOM'), doc: $t('物料 · BOM') },
+  { name: 'MRP', role: $t('计划员'), doc: $t('订单 → 工单') },
+  { name: 'MES', role: $t('派工'), doc: $t('派工单') },
+  { name: $t('车间'), role: $t('操作工 · 设备'), doc: $t('加工中 3/10') },
+  { name: $t('质量'), role: $t('质检员'), doc: $t('检验记录') },
+  { name: $t('厂情中枢'), role: $t('厂长 · AI'), doc: $t('日报 · 异常') },
 ];
 const x = (i) => 70 + i * (860 / (STAGES.length - 1));
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;

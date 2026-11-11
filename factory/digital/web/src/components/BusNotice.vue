@@ -1,17 +1,17 @@
 <template>
   <!-- 第 6 轮 W7②③：车间数据连不上或没有设备时，说清原因、给出下一步，不让页面看起来“没反应” -->
   <div v-if="kind" class="notice" :class="kind === 'connecting' ? 'info' : 'warn'" role="status">
-    <template v-if="kind === 'connecting'">正在连接统一数据总线…</template>
+    <template v-if="kind === 'connecting'">{{ t('正在连接统一数据总线…') }}</template>
     <template v-else-if="kind === 'failed'">
-      <span><b>连不上统一数据总线</b>（{{ bus.error || '超时' }}），设备状态不会更新，按钮发出的指令也收不到应答。</span>
-      <button class="btn" @click="reconnectBus">重试</button>
+      <span><b>{{ t('连不上统一数据总线') }}</b>{{ t('（{e}），设备状态不会更新，按钮发出的指令也收不到应答。', { e: bus.error || t('超时') }) }}</span>
+      <button class="btn" @click="reconnectBus">{{ t('重试') }}</button>
     </template>
     <template v-else-if="kind === 'prod-empty'">
-      <span><b>生产模式只显示接入的真实设备，目前没有设备接入。</b>要练习操作，请切换到教学模式（仿真车间）。</span>
-      <button class="btn primary" @click="toTeach">切换到教学模式</button>
+      <span><b>{{ t('生产模式只显示接入的真实设备，目前没有设备接入。') }}</b>{{ t('要练习操作，请切换到教学模式（仿真车间）。') }}</span>
+      <button class="btn primary" @click="toTeach">{{ t('切换到教学模式') }}</button>
     </template>
     <template v-else-if="kind === 'teach-empty'">
-      <span><b>仿真车间没有发来数据。</b>请稍等半分钟；仍然没有，请告诉管理员检查仿真程序。</span>
+      <span><b>{{ t('仿真车间没有发来数据。') }}</b>{{ t('请稍等半分钟；仍然没有，请告诉管理员检查仿真程序。') }}</span>
     </template>
   </div>
 </template>
@@ -20,11 +20,12 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { session, switchTo } from '../lib/api';
 import { bus, reconnectBus, setBusMode } from '../lib/bus';
+import { t } from '../lib/i18n';
 
 const waited = ref(false);
-let t;
-onMounted(() => { t = setTimeout(() => { waited.value = true; }, 10000); });
-onUnmounted(() => clearTimeout(t));
+let timer;
+onMounted(() => { timer = setTimeout(() => { waited.value = true; }, 10000); });
+onUnmounted(() => clearTimeout(timer));
 
 const kind = computed(() => {
   if (!bus.connected) return waited.value || bus.error ? 'failed' : 'connecting';

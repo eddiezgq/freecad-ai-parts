@@ -6,6 +6,7 @@
 维修工整改完，学生验收解锁 → 看订单的实际影响。评分全部依据平台里的事实。任务成绩存在 task_result，编号加前缀 l17_。"""
 import datetime as dt
 import json
+from hub import i18n
 
 TASKS = [
     {"id": "l17_t1", "points": 10, "title": "风险评估",
@@ -144,7 +145,7 @@ def answer(db, user, tid, ans, snaps=None):
         if kind not in ("none", "lockout", "temp", "lockout_plus"):
             return {"score": 0, "of": 10, "feedback": "选一个方案"}
         s = {"lockout": 6, "lockout_plus": 6, "temp": 4, "none": 0}[kind]
-        s += 4 if any(k in reason for k in ("安全", "风险", "伤")) and any(k in reason for k in ("交期", "按时", "晚", "成本", "钱", "费")) else 2
+        s += 4 if i18n.has_kw(reason, ("安全", "风险", "伤")) and i18n.has_kw(reason, ("交期", "按时", "晚", "成本", "钱", "费")) else 2
         _save(db, user, tid, s, {"submitted": True, "issue_id": x["id"], "option": kind, "reason": reason})
         fb = "提交了。现在可以在指挥台看中枢的建议，和你的选择对比。" if s == 10 else "提交了（得 {} 分）。".format(s)
         if kind == "none":

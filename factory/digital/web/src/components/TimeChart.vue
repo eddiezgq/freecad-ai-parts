@@ -2,9 +2,9 @@
   <!-- 时间曲线（一个单位一张图）：十字线 + 数值提示；点图上把动画跳到那一刻 -->
   <div class="tc">
     <div class="tc-head">
-      <b>{{ title }}</b><span class="muted small">（{{ unit }}；横轴：时间 s）</span>
+      <b>{{ title }}</b><span class="muted small">{{ $t('（{a}；横轴：时间 s）', { a: unit }) }}</span>
       <span v-if="lines.length > 1" class="legend small">
-        <span v-for="l in lines" :key="l.name"><i :style="{ background: l.color }"></i>{{ l.label }}</span>
+        <span v-for="l in lines" :key="l.name"><i :style="{ background: l.color }"></i>{{ $td(l.label) }}</span>
       </span>
     </div>
     <svg ref="svg" :viewBox="`0 0 ${W} ${H}`" class="tc-svg" role="img" :aria-label="title" @mousemove="hover" @mouseleave="hx = null" @click="seek">
@@ -25,12 +25,13 @@
     </svg>
     <div v-if="hx != null" class="tip small" :style="{ left: Math.min(tipX, 70) + '%' }">
       <div class="muted">t = {{ t[hi].toFixed(3) }} s</div>
-      <div v-for="l in lines" :key="'v' + l.name"><i :style="{ background: l.color }"></i>{{ l.label }}：<b>{{ fmt(l.v[hi]) }}</b> {{ unit }}</div>
+      <div v-for="l in lines" :key="'v' + l.name"><i :style="{ background: l.color }"></i>{{ $t('{a}：', { a: $td(l.label) }) }}<b>{{ fmt(l.v[hi]) }}</b> {{ unit }}</div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { computed, ref } from 'vue';
 
 const props = defineProps({
