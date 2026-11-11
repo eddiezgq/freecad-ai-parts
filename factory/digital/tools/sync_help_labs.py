@@ -18,9 +18,11 @@ SRC = REPO / "textbook" / "web-editions" / "dfactory" / "src" / "zh" / "labs"
 DST = DIGITAL / "web" / "public" / "labs"
 LABS = ["causal", "whatif", "weibull", "pmopt", "waterfall", "cashflow"]
 FILES = {SRC / f"{n}.html": DST / f"{n}.html" for n in LABS}
+# 第 130 轮第四批：英文界面嵌英文版（原件 src/en/labs/，副本 public/labs/en/）
+FILES.update({SRC.parent.parent / "en" / "labs" / f"{n}.html": DST / "en" / f"{n}.html" for n in LABS})
 
 if __name__ == "__main__":
-    DST.mkdir(parents=True, exist_ok=True)
+    (DST / "en").mkdir(parents=True, exist_ok=True)
     for src, dst in FILES.items():
         if src.exists():
             shutil.copyfile(src, dst)

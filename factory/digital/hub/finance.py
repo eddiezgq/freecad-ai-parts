@@ -349,6 +349,9 @@ def make_sales_invoice(H, mode, so_msg, who="系统", rng=None, now=None):
     rng = rng or random.Random()
     if db.one("select 1 as x from invoice where mode=%s and kind='ar' and ref=%s and status <> 'failed'", (mode, d["name"])):
         return None
+    from hub import eto_billing as _EB
+    if _EB.is_eto_order(db, mode, d["name"]):
+        return None                                   # 按单设计的作业按里程碑分期开票（第 139g 段），不在做完时整单开
     amt = _so_amount(d)
     due = now + dt.timedelta(seconds=TERMS_DAYS * day_s(mode))
     late = _late_days(mode, d.get("customer"), rng) if sim_on(db, mode) else 0

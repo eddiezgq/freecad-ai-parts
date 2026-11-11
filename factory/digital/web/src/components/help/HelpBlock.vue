@@ -2,12 +2,12 @@
   <!-- 带我去做 -->
   <div v-if="kind === 'goto'" class="hb goto">
     <div class="g-txt">
-      <b>{{ args.label || def?.title || '带我去做' }}</b>
-      <span class="small muted">{{ def ? `打开“${pageName}”，分 ${def.steps.length} 步指给你看` : '' }}</span>
+      <b>{{ args.label || def?.title || $t('带我去做') }}</b>
+      <span class="small muted">{{ def ? $t('打开“{a}”，分 {b} 步指给你看', { a: $td(pageName), b: def.steps.length }) : '' }}</span>
     </div>
-    <span v-if="checks" class="chk small" :title="'这个引导会检测你是不是真做了'">{{ doneBefore ? '✓ 做过了' : '做完打勾' }}</span>
-    <button v-if="loggedIn" class="btn primary" :disabled="!def" @click="go">带我去做</button>
-    <router-link v-else class="btn" :to="{ path: '/login', query: { next: $route.fullPath } }">登录后可以跟着做</router-link>
+    <span v-if="checks" class="chk small" :title="$t('这个引导会检测你是不是真做了')">{{ doneBefore ? $t('✓ 做过了') : $t('做完打勾') }}</span>
+    <button v-if="loggedIn" class="btn primary" :disabled="!def" @click="go">{{ $t('带我去做') }}</button>
+    <router-link v-else class="btn" :to="{ path: '/login', query: { next: $route.fullPath } }">{{ $t('登录后可以跟着做') }}</router-link>
   </div>
 
   <!-- 动画 -->
@@ -19,53 +19,53 @@
   <figure v-else-if="kind === 'video'" class="hb video">
     <video v-if="hasVideo" :src="`/help-media/${args.name}.webm`" controls preload="metadata" playsinline></video>
     <div v-else class="novid">
-      <p><b>{{ args.caption || '操作视频' }}</b></p>
-      <p class="small">这段视频还没装到这台服务器上。可以用本章的“带我去做”在系统里实际走一遍。</p>
+      <p><b>{{ args.caption || $t('操作视频') }}</b></p>
+      <p class="small">{{ $t('这段视频还没装到这台服务器上。可以用本章的“带我去做”在系统里实际走一遍。') }}</p>
     </div>
-    <figcaption v-if="hasVideo && args.caption" class="small muted">{{ args.caption }}（无配音，看字幕）</figcaption>
+    <figcaption v-if="hasVideo && args.caption" class="small muted">{{ $t('{a}（无配音，看字幕）', { a: args.caption }) }}</figcaption>
   </figure>
 
   <!-- 本厂此刻的数据 -->
   <div v-else-if="kind === 'live'" class="hb live">
-    <p class="lv-h small"><span class="dot"></span>{{ cfg?.plant?.name || '本厂' }} · 此刻</p>
+    <p class="lv-h small"><span class="dot"></span>{{ $t('{a} · 此刻', { a: nm(cfg?.plant) || $t('本厂') }) }}</p>
     <template v-if="args.kind === 'plant'">
       <dl class="facts">
-        <div><dt>工厂</dt><dd>{{ cfg?.plant?.name }}</dd></div>
-        <div><dt>公司</dt><dd>{{ cfg?.plant?.company }}</dd></div>
-        <div><dt>币种</dt><dd>{{ cfg?.plant?.currency }}</dd></div>
-        <div><dt>班次</dt><dd>{{ cfg?.plant?.shift }}</dd></div>
-        <div v-if="layout"><dt>车间</dt><dd>{{ layout.floor[0] }} × {{ layout.floor[1] }} 米，{{ Object.keys(layout.units).length }} 台设备</dd></div>
+        <div><dt>{{ $t('工厂') }}</dt><dd>{{ nm(cfg?.plant) }}</dd></div>
+        <div><dt>{{ $t('公司') }}</dt><dd>{{ $td(cfg?.plant?.company) }}</dd></div>
+        <div><dt>{{ $t('币种') }}</dt><dd>{{ $td(cfg?.plant?.currency) }}</dd></div>
+        <div><dt>{{ $t('班次') }}</dt><dd>{{ $td(cfg?.plant?.shift) }}</dd></div>
+        <div v-if="layout"><dt>{{ $t('车间') }}</dt><dd>{{ $t('{a} × {b} 米，{c} 台设备', { a: layout.floor[0], b: layout.floor[1], c: Object.keys(layout.units).length }) }}</dd></div>
       </dl>
     </template>
-    <p v-else-if="!loggedIn" class="small muted">登录后这里显示本厂此刻的{{ args.kind === 'kpi' ? '指标' : args.kind === 'domain' ? (DOMAINS[args.domain]?.name || '') + '数据' : '设备状态' }}。</p>
+    <p v-else-if="!loggedIn" class="small muted">{{ $t('登录后这里显示本厂此刻的{a}。', { a: args.kind === 'kpi' ? $t('指标') : args.kind === 'domain' ? $td(DOMAINS[args.domain]?.name || '') + $t('数据') : $t('设备状态') }) }}</p>
     <template v-else-if="args.kind === 'domain'">
       <div v-if="dom" class="kgrid">
         <div v-for="[k, label, f] in DOMAINS[args.domain].items" :key="k" class="k" :class="{ warn: warnOf(k, dom[k]) }">
-          <span class="small muted">{{ label }}</span><b>{{ fmtItem(dom[k], f, cfg?.plant?.currency) }}</b>
+          <span class="small muted">{{ $td(label) }}</span><b>{{ $td(fmtItem(dom[k], f, cfg?.plant?.currency)) }}</b>
         </div>
       </div>
-      <p v-else class="small muted">{{ domErr || '正在取数……' }}</p>
-      <router-link v-if="dom" class="small" :to="DOMAINS[args.domain].page">去“{{ DOMAINS[args.domain].name }}”页看全部 →</router-link>
+      <p v-else class="small muted">{{ domErr || $t('正在取数……') }}</p>
+      <router-link v-if="dom" class="small" :to="DOMAINS[args.domain].page">{{ $t('去“{a}”页看全部 →', { a: $td(DOMAINS[args.domain].name) }) }}</router-link>
     </template>
     <template v-else-if="args.kind === 'machines'">
       <div v-if="machineList.length" class="mgrid">
         <div v-for="m in machineList" :key="m.unit" class="m" :title="m.reason || ''">
           <i :style="{ background: HEX[m.state] || HEX.idle }"></i>
-          <span class="mono">{{ m.unit }}</span>
-          <span class="small muted">{{ STATE[m.state]?.label || '空闲' }}</span>
+          <span class="mono">{{ $td(m.unit) }}</span>
+          <span class="small muted">{{ STATE[m.state]?.label || $t('空闲') }}</span>
         </div>
       </div>
-      <p v-else class="small muted">还没收到设备状态（总线{{ bus.connected ? '已连接，设备还没发消息' : '连接中' }}）。</p>
+      <p v-else class="small muted">{{ $t('还没收到设备状态（总线{a}）。', { a: bus.connected ? $t('已连接，设备还没发消息') : $t('连接中') }) }}</p>
     </template>
     <template v-else-if="args.kind === 'kpi'">
       <div v-if="kpis.length" class="kgrid">
         <div v-for="k in kpis" :key="k.key" class="k" :class="k.tone">
-          <span class="small muted">{{ k.label }}</span>
+          <span class="small muted">{{ $td(k.label) }}</span>
           <b>{{ fmtKpi(k) }}</b>
-          <span class="small muted">{{ k.note }}</span>
+          <span class="small muted">{{ $td(k.note) }}</span>
         </div>
       </div>
-      <p v-else class="small muted">指标还在计算。</p>
+      <p v-else class="small muted">{{ $t('指标还在计算。') }}</p>
     </template>
   </div>
 
@@ -76,12 +76,13 @@
 
   <!-- 问 AI -->
   <div v-else-if="kind === 'ask'" class="hb ask">
-    <span class="small muted">还不清楚？</span>
-    <button class="btn" :disabled="!loggedIn" :title="loggedIn ? '' : '登录后可以问 AI 工厂助手'" @click="ask(args.q)">问 AI：{{ args.q }}</button>
+    <span class="small muted">{{ $t('还不清楚？') }}</span>
+    <button class="btn" :disabled="!loggedIn" :title="loggedIn ? '' : $t('登录后可以问 AI 工厂助手')" @click="ask(args.q)">{{ $t('问 AI：{a}', { a: args.q }) }}</button>
   </div>
 </template>
 
 <script setup>
+import { nm, t as $t } from '../../lib/i18n';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ANIMS } from './anim';
@@ -129,7 +130,7 @@ onMounted(async () => {
     // 每 10 秒刷新一次：上面“当场动手”按下去，这里跟着变
     const pull = async () => {
       try { dom.value = await get(DOMAINS[props.args.domain].api); domErr.value = ''; }
-      catch (e) { domErr.value = /403|404/.test(String(e?.message || e)) ? '这一块只在教学模式的演示工厂里有。' : '暂时取不到数据。'; }
+      catch (e) { domErr.value = /403|404/.test(String(e?.message || e)) ? $t('这一块只在教学模式的演示工厂里有。') : $t('暂时取不到数据。'); }
     };
     await pull();
     domTimer = setInterval(pull, 10000);

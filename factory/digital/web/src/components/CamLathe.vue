@@ -15,14 +15,15 @@
         <polygon :points="`0,0 ${3 * s},${-1.2 * s} ${3 * s},${-5 * s} ${1.2 * s},${-5 * s}`" class="tool" />
       </g>
       <g v-if="tip"><circle :cx="tip.z" :cy="-tip.r" :r="0.8 * s" class="dot" />
-        <text :x="tip.z + 1.5 * s" :y="-tip.r - 1.5 * s" :font-size="fs" class="lbl">Z{{ tip.z.toFixed(2) }} Ø{{ (2 * tip.r).toFixed(3) }}{{ tip.t !== null ? '（目标 Ø' + (2 * tip.t).toFixed(3) + '）' : '' }}</text></g>
+        <text :x="tip.z + 1.5 * s" :y="-tip.r - 1.5 * s" :font-size="fs" class="lbl">Z{{ tip.z.toFixed(2) }} Ø{{ (2 * tip.r).toFixed(3) }}{{ tip.t !== null ? $t('（目标 Ø') + (2 * tip.t).toFixed(3) + '）' : '' }}</text></g><!-- i18n-ok 只剩标点 -->
     </svg>
-    <div class="legend small"><span class="k stock" />毛坯 <span class="k mat" />剩下的材料 <span class="k target" />目标（本工序尺寸）
-      <span class="k feed" />切削 <span class="k rapid" />快移 <span class="muted">· 只画上半边刀路；鼠标停在轮廓上看直径</span></div>
+    <div class="legend small"><span class="k stock" />{{ $t('毛坯') }} <span class="k mat" />{{ $t('剩下的材料') }} <span class="k target" />{{ $t('目标（本工序尺寸）') }}
+      <span class="k feed" />{{ $t('切削') }} <span class="k rapid" />{{ $t('快移') }} <span class="muted">{{ $t('· 只画上半边刀路；鼠标停在轮廓上看直径') }}</span></div>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { computed, ref, shallowRef, watch } from 'vue';
 import { LatheSim, toolAt } from '../lib/cam';
 

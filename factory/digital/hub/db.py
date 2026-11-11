@@ -145,6 +145,15 @@ create table if not exists process_submission (
     decision    text
 );
 create index if not exists process_submission_item on process_submission (mode, item, ts desc);
+-- 第 128 轮（阶段 C1）：在页面上改工艺卡——每人每个零件一份草稿（工艺规程数据），提交后仍走 process_submission
+create table if not exists process_draft (
+    mode        text not null,
+    uid         text not null,
+    item        text not null,
+    plan        jsonb not null,
+    ts          timestamptz not null default now(),
+    primary key (mode, uid, item)
+);
 -- 问题情景与 8D 质量异常单（第 13 轮：hub/qproblem.py）
 create table if not exists quality_problem (
     id          serial primary key,

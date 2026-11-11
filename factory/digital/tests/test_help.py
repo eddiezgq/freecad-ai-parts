@@ -56,7 +56,7 @@ def _chapters():
     out = []
     for ed in EDITIONS:
         d = os.path.join(HELP, ed)
-        for fn in sorted(os.listdir(d)):
+        for fn in sorted(f for f in os.listdir(d) if os.path.isfile(os.path.join(d, f))):   # en/ 是英文稿（第 130 轮 D-13），另查
             out.append((ed, re.sub(r"^\d+-", "", fn[:-3]) if fn.endswith(".md") else fn, fn, _read(d, fn)))
     return out
 
@@ -127,6 +127,35 @@ def test_copies_match_originals():
         assert src.exists(), "原件不存在：{}".format(src)
         assert dst.exists(), "副本不存在：{}（运行 python3 factory/digital/help/sync.py）".format(dst.name)
         assert src.read_text(encoding="utf-8") == dst.read_text(encoding="utf-8"), "{} 与原件不一致（运行 help/sync.py）".format(dst.name)
+    assert m.IMAGES, "资料截图一张都没有"
+    for src, dst in m.IMAGES.items():                                    # 第 139 轮 139h：资料里的截图
+        assert dst.exists() and src.read_bytes() == dst.read_bytes(), "{} 与原件不一致（运行 help/sync.py）".format(dst.name)
+
+
+def test_doc_images_exist_and_served():
+    """资料里引用的截图都在副本目录里，渲染成 /help-img/ 地址，服务器能取到、拒绝越界路径"""
+    pytest.importorskip("markdown")
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+    from hub import help_api as HA
+    for n in ("按单设计（ETO）",):
+        if not HA.path_of(n):
+            pytest.skip("没有资料副本（digital/help/ 只在问渠仓库，见 SYNC.md）")
+        md = open(HA.path_of(n), encoding="utf-8").read()
+        refs = re.findall(r"!\[[^\]]*\]\(图/([^/)]+)/([^/)]+)\)", md)
+        assert refs, n
+        html = HA.render(md)
+        for folder, name in refs:
+            assert os.path.isfile(os.path.join(HA.IMG_DIR, folder, name)), name
+            assert 'src="/help-img/{}/{}"'.format(folder, name) in html
+    app = FastAPI()
+    HA.mount(app, lambda: {"name": "x"})
+    c = TestClient(app)
+    folder, name = refs[0]
+    r = c.get("/help-img/{}/{}".format(folder, name))
+    assert r.status_code == 200 and r.headers["content-type"] == "image/jpeg"
+    assert c.get("/help-img/{}/..%2F..%2Fsync.py".format(folder)).status_code == 404
+    assert c.get("/help-img/{}/x.png".format(folder)).status_code == 404
 
 
 def test_every_doc_renders_and_links():
@@ -456,11 +485,11 @@ def test_glossary_banned_words_not_on_pages():
 def test_nav_groups_and_old_routes():
     app = _read(WEB, "App.vue")
     for g in ("总览", "从订单到回款", "保障", "设计与工艺", "教学", "资源"):
-        assert "title: '{}'".format(g) in app
+        assert "title: tk('{}')".format(g) in app          # 第 130 轮：导航文字用 tk() 标出，显示时按语言
     assert "实验 15 · 任务" not in app and "'/labs'" in app and "'/director'" in app
     routes = _read(WEB, "main.js")
     assert "{ path: '/work/manager', redirect: { path: '/finance', query: { tab: 'production' } } }" in routes
-    for n in [7] + list(range(15, 24)):
+    for n in [7] + list(range(15, 24)) + [33]:
         assert ("'/teach'" if n == 7 else "'/lab{}'".format(n)) in routes
     assert not os.path.exists(os.path.join(WEB, "pages", "Manager.vue"))
     # 帮助：登录前也能看（public），登录后在工作台框架里（shell）；引导层挂在最外面
@@ -471,7 +500,7 @@ def test_nav_groups_and_old_routes():
 def test_cost_entry_only_on_enterprise_plants():
     """第 30 轮：企业工厂没有“经营与财务”，厂长用左栏“生产成本”；演示工厂导航不变（不显示这一项）"""
     app = _read(WEB, "App.vue")
-    assert "{ to: '/cost', label: '生产成本', role: 'manager', only: () => !demoPlant.value }" in app
+    assert "{ to: '/cost', label: tk('生产成本'), role: 'manager', only: () => !demoPlant.value }" in app
     assert "const demoPlant = computed(() => cfg.value.plant?.demo !== false);" in app
     assert ROUTES.get("/cost") == "Cost" and "<ProductionCost" in _read(WEB, "pages", "Cost.vue")
     hub = _read(DIGITAL, "hub", "app.py")

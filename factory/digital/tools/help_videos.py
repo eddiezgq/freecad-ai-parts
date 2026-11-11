@@ -667,6 +667,8 @@ async def record(args):
                                                     record_video_size={"width": W, "height": H}, locale="zh-CN",
                                                     ignore_https_errors=bool(args.cafile))
                 await context.add_init_script(OVERLAY)
+                # 帮助视频录中文界面（第 130 轮后本机/美国站默认英文，这里固定中文）
+                await context.add_init_script("localStorage.setItem('wq-factory-lang', 'zh');")
                 if name != "teach-login":
                     await context.add_init_script("localStorage.setItem('wq-df-session', JSON.stringify(%s));"
                                                   % json.dumps({"token": tok["token"], "user": tok["user"]}))

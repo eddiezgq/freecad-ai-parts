@@ -5,6 +5,7 @@
 在指挥台比较“调人顶岗 / 学徒带教 / 加班顶班 / 不处理”，选一个说明理由（比对模式）→ 起草调班或加班动作，班组长或厂长批准，车间按新排班开 →
 设计技能培训计划，把单点依赖降到 0。评分依据平台里的事实。任务编号前缀 l19_。"""
 import json
+from hub import i18n
 
 TASKS = [
     {"id": "l19_t1", "points": 10, "title": "找单点依赖",
@@ -100,7 +101,7 @@ def answer(db, user, tid, ans):
             return {"score": 0, "of": 10, "feedback": "选一个方案"}
         best = _system_choice(db, g)
         s = 6 if kind == best else (4 if kind != "none" else 2)
-        s += 4 if any(k in reason for k in ("交期", "订单", "产量", "少做", "件")) and any(k in reason for k in ("钱", "费", "成本", "$", "加班", "班")) else 2
+        s += 4 if i18n.has_kw(reason, ("交期", "订单", "产量", "少做", "件")) and i18n.has_kw(reason, ("钱", "费", "成本", "$", "加班", "班")) else 2
         _save(db, user, tid, s, {"submitted": True, "option": kind, "reason": reason, "system": best})
         return {"score": s, "of": 10, "feedback": "提交了。现在可以在指挥台看中枢的建议，和你的选择对比。" if s == 10 else "提交了（得 {} 分）。".format(s)}
     raise KeyError(tid)

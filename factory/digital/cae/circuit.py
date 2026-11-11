@@ -315,6 +315,27 @@ EXAMPLES = {
                      "params": [("f_bw_hz", "电流环带宽 Hz", 1000.0, 100, 5000), ("i_ref", "电流指令 A", None, 0.5, 30)]},
 }
 
+# 第 130 轮：英文版的题目与问题（参数、读数的名字在网页英文表 web/src/locales/en.json 里）
+EN = {
+    "sense": ("Phase-current sensing amplifier",
+              "The 400 W joint motor's peak phase current is about {ip:.0f} A. What shunt resistance (mΩ) and gain put the peak inside the ADC range "
+              "(0–3.3 V, zero at 1.65 V)? Is the bandwidth enough for the current loop?"),
+    "gate": ("Gate drive and switching time",
+             "How to choose the gate resistor: too large switches slowly with high loss; too small rings and causes interference. "
+             "How long do the drain-voltage fall and rise take? How long must the dead time be so the high and low sides never conduct together?"),
+    "bus": ("DC-bus capacitor and input filter",
+            "The inverter current on the 48 V bus switches on and off: how large must the bus capacitor be to keep the ripple under 1 V? "
+            "Will the cable inductance resonate with the bus capacitor?"),
+    "encoder": ("Encoder signal receiver and filter",
+                "An RC filter in front of the drive board blocks interference on the encoder signals: if it filters too hard, are pulses lost at high speed? "
+                "How much later does the comparator switch?"),
+    "buck": ("24 V → 5 V buck regulator",
+             "The board's logic needs 5 V at 1 A: what inductor and capacitor, and what are the inductor-current ripple, output ripple and efficiency?"),
+    "current_loop": ("Motor current loop",
+                     "The winding R and L set how fast the current rises: how long does an open-loop voltage step take? "
+                     "How should the PI current loop be tuned to be fast without overshoot? Is there enough voltage?"),
+}
+
 READING_NAMES = {
     "vout_peak": ("峰值电流时的输出", "V"), "vout_zero": ("零电流时的输出", "V"), "f3db": ("−3 dB 带宽", "Hz"), "g_lf": ("低频跨阻增益", "dB"),
     "vplat": ("米勒平台电压", "V"), "t_on": ("漏压下降时间（90%→10%）", "s"), "t_off": ("漏压上升时间（10%→90%）", "s"),
@@ -361,12 +382,14 @@ def build(key, params=None):
     out["netlists"] = {k: _save_all(v) for k, v in out["netlists"].items()}
     out.update(key=key, no=ex["no"], title=ex["title"], params=p,
                question=ex["question"].format(ip=i_peak()),
+               title_en=EN[key][0], question_en=EN[key][1].format(ip=i_peak()),
                param_defs=[{"key": k, "label": lb, "min": lo, "max": hi} for k, lb, _, lo, hi in ex["params"]])
     return out
 
 
 def catalog():
     return [{"key": k, "no": v["no"], "title": v["title"], "question": v["question"].format(ip=i_peak()), "defaults": defaults(k),
+             "title_en": EN[k][0], "question_en": EN[k][1].format(ip=i_peak()),
              "params": [{"key": a, "label": b, "min": lo, "max": hi} for a, b, _, lo, hi in v["params"]]}
             for k, v in EXAMPLES.items()]
 

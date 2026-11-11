@@ -1,4 +1,5 @@
 // 数控编程（第 13 轮）：回放用的刀位插值、浏览器里的去除材料（车削半径网格、铣削高度图），与服务器 cam_sim.py 同一规则
+import { t as $t } from './i18n';
 import { session } from './api';
 
 // path：[[0 快移 / 1 切削, x, y, z, 行号, 累计时间 s, 刀号], …]
@@ -124,14 +125,14 @@ export class MillSim {
 
 export async function fetchHeight(jid, k) {
   const r = await fetch(`/api/cam/jobs/${jid}/h${k}.bin`, { headers: { 'x-wq-token': session.token } });
-  if (!r.ok) throw new Error('高度图取不到');
+  if (!r.ok) throw new Error($t('高度图取不到'));
   return new Float32Array(await r.arrayBuffer());
 }
 
 export async function fetchNc(jid, k) {
   const r = await fetch(`/api/cam/jobs/${jid}/${k}.nc`, { headers: { 'x-wq-token': session.token } });
-  if (!r.ok) throw new Error('程序取不到');
+  if (!r.ok) throw new Error($t('程序取不到'));
   return r.text();
 }
 
-export const fmtMin = (s) => (s >= 60 ? `${Math.floor(s / 60)} 分 ${Math.round(s % 60)} 秒` : `${s.toFixed(1)} 秒`);
+export const fmtMin = (s) => (s >= 60 ? $t('{a} 分 {b} 秒', { a: Math.floor(s / 60), b: Math.round(s % 60) }) : $t('{a} 秒', { a: s.toFixed(1) }));

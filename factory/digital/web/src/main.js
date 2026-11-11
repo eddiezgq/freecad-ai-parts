@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import App from './App.vue';
 import './styles.css';
 import { session } from './lib/api';
+import { t, td } from './lib/i18n';
 
 const routes = [
   { path: '/login', component: () => import('./pages/Login.vue'), meta: { public: true } },
@@ -21,10 +22,12 @@ const routes = [
   { path: '/library', component: () => import('./pages/Library.vue') },
   { path: '/design', component: () => import('./pages/DesignRelease.vue') },
   { path: '/process', component: () => import('./pages/ProcessPlan.vue') },
+  { path: '/process/edit/:item', component: () => import('./pages/ProcessEdit.vue') },   // 第 128 轮：在页面上改工艺卡
   { path: '/process/:sid', component: () => import('./pages/ProcessPlan.vue') },
   { path: '/design/:id', component: () => import('./pages/DesignReview.vue') },
   { path: '/members', component: () => import('./pages/Members.vue') },
   { path: '/configurator', component: () => import('./pages/Configurator.vue') },
+  { path: '/eto', component: () => import('./pages/Eto.vue') },              // 第 139 轮：按单设计（ETO）
   { path: '/cae', component: () => import('./pages/Cae.vue') },
   { path: '/mbd', component: () => import('./pages/Mbd.vue') },
   { path: '/cam', component: () => import('./pages/Cam.vue') },
@@ -56,6 +59,7 @@ const routes = [
   { path: '/lab29', component: () => import('./pages/Lab29.vue') },        // 第 68 轮：一台机器人的售后追溯
   { path: '/lab30', component: () => import('./pages/Lab30.vue') },        // 第 74 轮：一台轮式人形从订单到交付
   { path: '/lab31', component: () => import('./pages/Lab31.vue') },        // 第 123 轮：关节终检抱闸报警的排查
+  { path: '/lab33', component: () => import('./pages/Lab33.vue') },        // 第 139 轮 139h：一张非标订单从询价到收款
   { path: '/rservice', component: () => import('./pages/RobotService.vue') }, // 第 64 轮：机器人厂的客户与服务（现场的机器人）
   { path: '/lab20', component: () => import('./pages/Lab20.vue') },
   { path: '/energy', component: () => import('./pages/Energy.vue') },
@@ -100,4 +104,7 @@ router.beforeEach((to) => {
   return true;
 });
 
-createApp(App).use(router).mount('#app');
+const app = createApp(App);
+app.config.globalProperties.$t = t;      // 第 130 轮第二批：模板里直接用 $t('中文原文')
+app.config.globalProperties.$td = td;    // 数据里的文字（实验任务的题目、说明、提示）按英文表译
+app.use(router).mount('#app');

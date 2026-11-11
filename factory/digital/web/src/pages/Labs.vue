@@ -1,25 +1,26 @@
 <!-- 实验与任务（第 19 轮 J-8）：一个入口列出实验 7、15–23，每个写领域、学时、我的得分；进去还是原来的实验页。手机宽度可用 -->
 <template>
   <div class="page">
-    <div class="page-title"><h1>实验与任务</h1>
-      <span class="muted">每个实验平台自动评一部分分数，报告由老师在课程里批改</span>
-      <span class="r small"><router-link :to="robot ? '/help/robot/labs' : '/help/teach/labs'">帮助</router-link><template v-if="d?.teacher && !robot"> · <router-link to="/director">情景导演</router-link></template></span></div>
+    <div class="page-title"><h1>{{ $t('实验与任务') }}</h1>
+      <span class="muted">{{ $t('每个实验平台自动评一部分分数，报告由老师在课程里批改') }}</span>
+      <span class="r small"><router-link :to="robot ? '/help/robot/labs' : '/help/teach/labs'">{{ $t('帮助') }}</router-link><template v-if="d?.teacher && !robot"> · <router-link to="/director">{{ $t('情景导演') }}</router-link></template></span></div>
     <div v-if="err" class="err">{{ err }}</div>
-    <p v-if="d && d.mode !== 'teach'" class="card empty">实验只在教学模式出现。右上角切到“教学模式”。</p>
+    <p v-if="d && d.mode !== 'teach'" class="card empty">{{ $t('实验只在教学模式出现。右上角切到“教学模式”。') }}</p>
     <div v-if="d && d.mode === 'teach'" class="grid" data-help="labs-grid">
       <router-link v-for="l in d.labs" :key="l.no" :to="l.path" class="card lab" :class="{ done: l.done === l.tasks, started: l.started }">
-        <div class="lh"><b class="no">实验 {{ l.no }}</b><span class="dom small">{{ l.domain }}</span></div>
-        <h2>{{ l.title }}</h2>
-        <p class="small muted">{{ typeof l.hours === 'number' ? l.hours + ' 学时' : l.hours }} · {{ l.tasks }} 个任务{{ l.team ? ' · 4–6 人一组' : '' }}</p>
-        <p class="sc"><b>{{ l.score }}</b> / {{ l.of }}<span class="small muted">（自动评）+ 报告 {{ l.report_points || '—' }}</span>
-          <span class="small st">{{ l.done === l.tasks ? '✓ 全部完成' : (l.started ? '做到第 ' + (l.done + 1) + ' 个任务' : '还没开始') }}</span></p>
-        <span class="small"><a v-if="l.guide" :href="l.guide" @click.stop>指导书</a><template v-if="l.template"> · <a :href="l.template" @click.stop>报告模板</a></template></span>
+        <div class="lh"><b class="no">{{ $t('实验 {a}', { a: $td(l.no) }) }}</b><span class="dom small">{{ $td(l.domain) }}</span></div>
+        <h2>{{ $td(l.title) }}</h2>
+        <p class="small muted">{{ $t('{a} · {b} 个任务{c}', { a: typeof l.hours === 'number' ? $td(l.hours) + $t(' 学时') : $td(l.hours), b: $td(l.tasks), c: l.team ? $t(' · 4–6 人一组') : '' }) }}</p>
+        <p class="sc"><b>{{ $td(l.score) }}</b> / {{ $td(l.of) }}<span class="small muted">{{ $t('（自动评）+ 报告 {a}', { a: l.report_points || '—' }) }}</span>
+          <span class="small st">{{ l.done === l.tasks ? $t('✓ 全部完成') : (l.started ? $t('做到第 ') + (l.done + 1) + $t(' 个任务') : $t('还没开始')) }}</span></p>
+        <span class="small"><a v-if="l.guide" :href="l.guide" @click.stop>{{ $t('指导书') }}</a><template v-if="l.template"> · <a :href="l.template" @click.stop>{{ $t('报告模板') }}</a></template></span>
       </router-link>
     </div>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { computed, onMounted, ref } from 'vue';
 import { get } from '../lib/api';
 

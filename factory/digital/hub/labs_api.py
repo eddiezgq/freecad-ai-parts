@@ -16,6 +16,8 @@ LABS = [
     {"no": 22, "title": "经营：订单毛利、应收与现金", "path": "/lab22", "module": "lab22", "domain": "经营与财务", "hours": 4},
     {"no": 23, "title": "两周情景：一张急单的全厂决策", "path": "/lab23", "module": "lab23", "domain": "全厂（七个领域）", "hours": "2 周课程设计",
      "team": True},
+    # 第 139 轮 139h：按单设计（ETO）全流程——估算、报价接单、设计计划、车间质量、分期开票
+    {"no": 33, "title": "一张非标订单：从询价到收款", "path": "/lab33", "module": "lab33", "domain": "订单与计划（按单设计）", "hours": 4},
     # 第 47 轮：机器人厂（清单 wenquest-robot）的实验；上面的只在演示工厂（减速器厂）
     {"no": 24, "title": "一台协作机器人从订单到交付", "path": "/lab24", "module": "lab24", "domain": "订单到交付（多层 BOM）", "hours": 4,
      "plant": "wenquest-robot"},

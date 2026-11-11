@@ -4,7 +4,7 @@
 要在 mount_anomaly 之前挂载：/api/ont/anomalies/{aid}/analyze 与那边的 /{kind} 同形。"""
 import threading
 
-from fastapi import Body, Depends, HTTPException
+from fastapi import Body, Depends, HTTPException, Request
 
 from hub.ont import agent as AG
 from hub.ont import evals as EV
@@ -17,14 +17,15 @@ def mount(app, H, user_of, who, ai_quota):
         return bool(u.get("teacher")) or (u.get("mode") == "prod" and u.get("role") == "manager")
 
     @app.post("/api/ont/anomalies/{aid}/analyze")
-    def analyze(aid: int, u=Depends(user_of)):
+    def analyze(aid: int, request: Request, u=Depends(user_of)):
         if H.agent is None:
             raise HTTPException(503, "AI 代理还没就绪")
         a = H.db.one("select id from anomaly where id=%s and mode=%s", (aid, u["mode"]))
         if a is None:
             raise HTTPException(404, "没有这个异常")
         ai_quota(u)
-        return H.agent.analyze(u, aid)
+        from hub import i18n
+        return H.agent.analyze(dict(u, lang=i18n.lang_of(request)), aid)   # 第 130 轮 D-10：英文界面让模型用英文答
 
     @app.get("/api/ai/runs")
     def runs(mine: int = 0, bad: int = 0, kind: str = "", u=Depends(user_of)):

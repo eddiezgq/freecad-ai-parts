@@ -311,7 +311,7 @@ def test_labs_catalogue(env):
     from hub import labs_api as LA
     H, _ = env
     labs = LA.catalogue(H.db, "甲计划员")
-    assert [x["no"] for x in labs] == [7, 15, 16, 17, 18, 19, 20, 21, 22, 23]
-    l23 = labs[-1]
+    assert [x["no"] for x in labs] == [7, 15, 16, 17, 18, 19, 20, 21, 22, 23, 33]
+    l23 = next(x for x in labs if x["no"] == 23)
     assert l23["of"] == 60 and l23["score"] >= 25 and l23["team"] and l23["guide"] == "/api/cae/lab23/guide.docx"
     assert re.match(r"/lab\d+|/teach", labs[0]["path"])

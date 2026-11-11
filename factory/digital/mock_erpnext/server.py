@@ -51,6 +51,11 @@ REQUIRED = {
     "Opportunity": ["opportunity_from", "party_name", "company", "transaction_date"],     # 第 18 轮 E1
     "Quotation": ["quotation_to", "party_name", "company", "transaction_date", "items"],
     "Quotation Item": ["item_code", "qty"],
+    "Project": ["project_name"],
+    "Delivery Note": ["customer", "company", "posting_date", "items"],                 # 第 139 轮：按单设计发货
+    "Delivery Note Item": ["item_code", "qty"],
+    "Timesheet": ["time_logs"],                                                        # 第 139 轮：设计工时
+    "Timesheet Detail": ["activity_type", "hours"],                                                       # 第 139 轮：按单设计的作业号
     "Contract": ["party_type", "party_name", "contract_terms"],
     "Issue": ["subject"],
     # 第 18 轮 E3：资产维护模块（必填与真 ERPNext v16 一致）
@@ -89,10 +94,13 @@ SERIES = {"Sales Order": "SAL-ORD-{y}-{n:05d}", "Work Order": "MFG-WO-{y}-{n:05d
           "Contract": "CON-{y}-{n:05d}", "Issue": "ISS-{y}-{n:05d}",
           "Asset": "ACC-ASS-{y}-{n:05d}", "Asset Maintenance Log": "ACC-AML-{y}-{n:05d}", "Asset Repair": "ACC-ASR-{y}-{n:05d}",
           "Employee": "HR-EMP-{n:05d}", "Purchase Receipt": "MAT-PRE-{y}-{n:05d}",
-          "Sales Invoice": "ACC-SINV-{y}-{n:05d}", "Purchase Invoice": "ACC-PINV-{y}-{n:05d}", "Payment Entry": "ACC-PAY-{y}-{n:05d}"}
+          "Sales Invoice": "ACC-SINV-{y}-{n:05d}", "Project": "PROJ-{n:04d}", "Delivery Note": "MAT-DN-{y}-{n:05d}", "Timesheet": "TS-{y}-{n:05d}", "Purchase Invoice": "ACC-PINV-{y}-{n:05d}", "Payment Entry": "ACC-PAY-{y}-{n:05d}"}
 BY_FIELD = {"Asset Maintenance": "asset_name", "Asset Category": "asset_category_name", "Asset Maintenance Team": "maintenance_team_name",
             "Location": "location_name", "User": "email", "Designation": "designation_name", "Supplier": "supplier_name",
-            "Item": "item_code"}                                  # 真 ERPNext：物料按物料编号命名
+            "Item": "item_code", "Activity Type": "activity_type", "Quality Inspection Parameter": "parameter"}   # 真 ERPNext：物料按物料编号命名；活动类型按名称
+
+
+ALLOW_ON_SUBMIT = {"BOM": {"is_default", "is_active"}}       # 真 ERPNext 里这几个字段提交后也能改（第 139 轮）
 
 
 def now_str():
@@ -255,6 +263,11 @@ class Mock:
     # ------------------------------------------------------------ 业务规则
     def on_submit(self, dt_, doc):
         if dt_ == "Sales Order":
+            days = [str(p.get("due_date")) for p in doc.get("payment_schedule") or []]
+            dup = next((d for i, d in enumerate(days) if d in days[:i]), None)
+            if dup:                                  # 真 ERPNext：付款计划不许两期同一天（第 139 轮演练查出）
+                raise Err(417, "ValidationError", "Rows with duplicate due dates in other rows were found: <br>{} in row {}".format(
+                    dup, days.index(dup, days.index(dup) + 1) + 1))
             doc.update(status="To Deliver and Bill", per_delivered=0)
             for it in doc.get("items", []):
                 it.setdefault("delivered_qty", 0)
@@ -364,6 +377,8 @@ class Mock:
                         billed = sum(float(i["amount"]) for si in self.db.get("Sales Invoice", {}).values() if si.get("docstatus") == 1
                                      for i in si["items"] if i.get("sales_order") == so_name) + sum(i["amount"] for i in doc["items"] if i.get("sales_order") == so_name)
                         tot_so = sum(float(r["qty"]) * float(r.get("rate") or 0) for r in so["items"]) or billed
+                        if billed > tot_so + 0.01:            # 第 139g 段：ERPNext 按金额防超开（订单的开票额不能超过订单金额）
+                            raise Err(417, "ValidationError", "Cannot overbill for Sales Order {} more than {}".format(so_name, round(tot_so, 2)))
                         so.update(per_billed=round(min(100, 100 * billed / tot_so), 2) if tot_so else 100, modified=now_str())
             else:
                 for pr_name in {i.get("purchase_receipt") for i in doc["items"] if i.get("purchase_receipt")}:
@@ -387,6 +402,15 @@ class Mock:
                 opp.update(status="Quotation", modified=now_str())
         elif dt_ == "Contract":
             doc["status"] = "Active" if doc.get("is_signed") else "Unsigned"
+        elif dt_ == "Delivery Note":                 # 第 139 轮：发货后销售订单的已发数量、发货百分比跟着变
+            for it in doc.get("items", []):
+                so = self.db.get("Sales Order", {}).get(it.get("against_sales_order") or "")
+                if so:
+                    row = next((r for r in so["items"] if r["name"] == it.get("so_detail")), None)
+                    if row:
+                        row["delivered_qty"] = float(row.get("delivered_qty") or 0) + float(it["qty"])
+                    tot = sum(float(r["qty"]) for r in so["items"])
+                    so["per_delivered"] = round(sum(float(r.get("delivered_qty") or 0) for r in so["items"]) / tot * 100, 2) if tot else 0
         elif dt_ == "BOM" and doc.get("is_default"):
             for b in self.db["BOM"].values():
                 if b["item"] == doc["item"] and b["name"] != doc["name"]:
@@ -420,14 +444,16 @@ class Mock:
         cap = int(self.db["Workstation"][doc["workstation"]]["production_capacity"] or 1)
         for lg in doc.get("time_logs", []):
             a, b = parse_dt(lg["from_time"]), parse_dt(lg["to_time"])
-            others = sorted([(parse_dt(x["from_time"]), parse_dt(x["to_time"]))
-                             for jc in self.db["Job Card"].values()
-                             if jc["name"] != doc["name"] and jc["workstation"] == doc["workstation"]
-                             for x in jc.get("time_logs", [])
-                             if parse_dt(x["from_time"]) < b and a < parse_dt(x["to_time"])])
+            hits = sorted([(parse_dt(x["from_time"]), parse_dt(x["to_time"]), jc["name"])
+                           for jc in self.db["Job Card"].values()
+                           if jc["name"] != doc["name"] and jc["workstation"] == doc["workstation"]
+                           for x in jc.get("time_logs", [])
+                           if parse_dt(x["from_time"]) < b and a < parse_dt(x["to_time"])])
+            others = [(x, y) for x, y, _ in hits]
             if others and _has_overlap(cap, others):
-                raise Err(417, "OverlapError", "Row: From Time and To Time of {} is overlapping with other job cards "
-                          "（工位 {} 台数 {}）".format(doc["workstation"], lg["from_time"], cap))
+                # 真 ERPNext 的提示：Row {idx}: From Time and To Time of {本卡} is overlapping with {冲突的那张卡}
+                raise Err(417, "OverlapError", "Row {}: From Time and To Time of {} is overlapping with {}".format(
+                    lg.get("idx") or 1, doc["name"], hits[-1][2]))
         doc["total_completed_qty"] = tot_q
         doc["total_time_in_mins"] = round(tot_t, 3)
         if doc.get("docstatus", 0) == 0 and tot_q > 0:
@@ -570,19 +596,38 @@ def msi(body: dict = Body(...)):
     so = M.db.get("Sales Order", {}).get(body.get("source_name") or "")
     if so is None or so.get("docstatus") != 1:
         raise Err(417, "ValidationError", "销售订单 {} 不存在或没提交".format(body.get("source_name")))
+    # 和 ERPNext 一样按金额算还没开票的部分（分期开票后剩下的数量 = 剩余金额 / 单价，第 139g 段）
     billed = {}
     for si in M.db.get("Sales Invoice", {}).values():
         if si.get("docstatus") == 1:
             for i in si["items"]:
                 if i.get("so_detail"):
-                    billed[i["so_detail"]] = billed.get(i["so_detail"], 0) + float(i["qty"])
-    items = [{"item_code": r["item_code"], "qty": float(r["qty"]) - billed.get(r["name"], 0), "rate": float(r.get("rate") or 0),
-              "uom": r.get("uom") or "Nos", "conversion_factor": 1, "sales_order": so["name"], "so_detail": r["name"],
-              "income_account": "Sales - " + ABBR, "cost_center": "Main - " + ABBR}
-             for r in so["items"] if float(r["qty"]) > billed.get(r["name"], 0)]
+                    billed[i["so_detail"]] = billed.get(i["so_detail"], 0) + float(i["qty"]) * float(i["rate"])
+    items = []
+    for r in so["items"]:
+        rate, amt = float(r.get("rate") or 0), float(r["qty"]) * float(r.get("rate") or 0)
+        left = amt - billed.get(r["name"], 0)
+        if left > 0.005 or (not amt and r["name"] not in billed):
+            items.append({"item_code": r["item_code"], "qty": round(left / rate, 6) if rate else float(r["qty"]), "rate": rate,
+                          "uom": r.get("uom") or "Nos", "conversion_factor": 1, "sales_order": so["name"], "so_detail": r["name"],
+                          "income_account": "Sales - " + ABBR, "cost_center": "Main - " + ABBR})
     today = dt.date.today().isoformat()
     return {"message": {"doctype": "Sales Invoice", "customer": so["customer"], "company": so["company"], "posting_date": today, "due_date": today,
                         "currency": "USD", "conversion_rate": 1, "debit_to": "Debtors - " + ABBR, "items": items, "__islocal": 1}}
+
+
+@app.post("/api/method/erpnext.selling.doctype.sales_order.sales_order.make_delivery_note")
+def mdn(body: dict = Body(...)):
+    """第 139 轮：按销售订单生成发货单（未保存）：带出没发的数量"""
+    so = M.db.get("Sales Order", {}).get(body.get("source_name") or "")
+    if so is None or so.get("docstatus") != 1:
+        raise Err(417, "ValidationError", "销售订单 {} 不存在或没提交".format(body.get("source_name")))
+    items = [{"item_code": r["item_code"], "qty": float(r["qty"]) - float(r.get("delivered_qty") or 0), "rate": float(r.get("rate") or 0),
+              "uom": r.get("uom") or "Nos", "conversion_factor": 1, "against_sales_order": so["name"], "so_detail": r["name"],
+              "warehouse": r.get("warehouse")}
+             for r in so["items"] if float(r["qty"]) > float(r.get("delivered_qty") or 0)]
+    return {"message": {"doctype": "Delivery Note", "customer": so["customer"], "company": so["company"],
+                        "posting_date": dt.date.today().isoformat(), "items": items, "__islocal": 1}}
 
 
 @app.post("/api/method/erpnext.stock.doctype.purchase_receipt.purchase_receipt.make_purchase_invoice")
@@ -694,6 +739,7 @@ def update(doctype: str, name: str, body: dict = Body(...)):
     body = {k: v for k, v in body.items() if k != "doctype"}
     M.validate(doctype, body, "修改 {} {}".format(doctype, name), partial=True)
     on_submit_ok = {cf["fieldname"] for cf in M.db.get("Custom Field", {}).values() if cf.get("dt") == doctype and cf.get("allow_on_submit")}
+    on_submit_ok |= ALLOW_ON_SUBMIT.get(doctype, set())
     if doc.get("docstatus") == 1 and any(k not in ("docstatus",) and k not in on_submit_ok for k in body) and doctype not in ("Item",):
         raise Err(417, "UpdateAfterSubmitError", "{} {} 已提交，不能修改".format(doctype, name))
     submit = int(body.get("docstatus", doc.get("docstatus", 0))) == 1 and doc.get("docstatus", 0) == 0

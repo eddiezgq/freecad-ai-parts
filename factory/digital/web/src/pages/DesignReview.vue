@@ -1,68 +1,68 @@
 <template>
   <div class="page">
-    <div class="page-title"><h1>审阅 {{ s?.item }}</h1>
-      <router-link to="/design" class="small">← 返回列表</router-link></div>
+    <div class="page-title"><h1>{{ $t('审阅 {a}', { a: $td(s?.item) }) }}</h1>
+      <router-link to="/design" class="small">{{ $t('← 返回列表') }}</router-link></div>
     <div v-if="err" class="err">{{ err }}</div>
     <div v-if="s" class="row">
       <section class="card grow">
         <div class="card-head">
-          <h2>三维模型</h2>
-          <span class="pill" :class="TONE[s.status]">{{ STATUS[s.status] }}{{ s.revision ? ' · rev ' + s.revision : '' }}</span>
-          <span class="muted small">提交时现行 rev {{ s.base_rev }}</span>
+          <h2>{{ $t('三维模型') }}</h2>
+          <span class="pill" :class="TONE[s.status]">{{ $td(STATUS[s.status]) }}{{ s.revision ? ' · rev ' + s.revision : '' }}</span>
+          <span class="muted small">{{ $t('提交时现行 rev {a}', { a: $td(s.base_rev) }) }}</span>
         </div>
         <ModelViewer v-if="glb" :url="glb" :base-url="s.base_glb || ''" :diff-url="diffUrl" :pins="pins"
           :can-pin="s.status === 'pending'" @pick="startPin" />
-        <div v-else class="empty">这次提交没有三维模型（只有图纸）。</div>
+        <div v-else class="empty">{{ $t('这次提交没有三维模型（只有图纸）。') }}</div>
         <div v-if="s.diff" class="diff small">
-          <b>与现行版的差异：</b>
-          <span v-if="s.diff.changed === false">几何没有变化。</span>
+          <b>{{ $t('与现行版的差异：') }}</b>
+          <span v-if="s.diff.changed === false">{{ $t('几何没有变化。') }}</span>
           <template v-else>
-            <span v-if="s.diff.changed_area_mm2 !== undefined">新增或改动的表面 {{ s.diff.changed_area_mm2 }} mm²，去掉的表面 {{ s.diff.removed_area_mm2 }} mm²；</span>
-            体积 {{ s.diff.volume_old_mm3 }} → {{ s.diff.volume_new_mm3 }} mm³；外形 {{ (s.diff.size_old_mm || []).join(' × ') }} → {{ (s.diff.size_new_mm || []).join(' × ') }} mm。
+            <span v-if="s.diff.changed_area_mm2 !== undefined">{{ $t('新增或改动的表面 {a} mm²，去掉的表面 {b} mm²；', { a: $td(s.diff.changed_area_mm2), b: $td(s.diff.removed_area_mm2) }) }}</span>
+            {{ $t('体积 {a} → {b} mm³；外形 {c} → {d} mm。', { a: $td(s.diff.volume_old_mm3), b: $td(s.diff.volume_new_mm3), c: (s.diff.size_old_mm || []).join(' × '), d: (s.diff.size_new_mm || []).join(' × ') }) }}
           </template>
-          <span v-if="s.diff.note" class="muted">{{ s.diff.note }}</span>
+          <span v-if="s.diff.note" class="muted">{{ $td(s.diff.note) }}</span>
         </div>
         <div class="files small">
-          <a v-for="f in s.files.filter((x) => ['step', 'drawing'].includes(x.kind))" :key="f.sha256" :href="f.url" target="_blank">{{ f.kind === 'step' ? 'STEP' : '图纸' }} · {{ f.name }}</a>
-          <a v-if="s.gcode" :href="s.gcode.url" target="_blank">加工程序（{{ s.gcode.operation.split(' ')[0] }} → {{ s.gcode.machine.toUpperCase() }}）</a>
+          <a v-for="f in s.files.filter((x) => ['step', 'drawing'].includes(x.kind))" :key="f.sha256" :href="f.url" target="_blank">{{ f.kind === 'step' ? 'STEP' : $t('图纸') }} · {{ $td(f.name) }}</a>
+          <a v-if="s.gcode" :href="s.gcode.url" target="_blank">{{ $t('加工程序（{a} → {b}）', { a: s.gcode.operation.split(' ')[0], b: s.gcode.machine.toUpperCase() }) }}</a>
         </div>
         <div v-if="drawing" class="drawing">
-          <img v-if="drawing.name.endsWith('.svg')" :src="drawing.url" alt="零件图">
-          <iframe v-else :src="drawing.url" title="零件图"></iframe>
+          <img v-if="drawing.name.endsWith('.svg')" :src="drawing.url" :alt="$t('零件图')">
+          <iframe v-else :src="drawing.url" :title="$t('零件图')"></iframe>
         </div>
       </section>
 
       <section class="card side">
-        <div class="card-head"><h2>提交信息</h2></div>
-        <p class="small"><b>{{ s.author }}</b><span v-if="s.mine" class="muted">（我）</span> · {{ timeOf(s.ts) }}</p>
-        <p class="small">{{ s.note || '（没有写改动说明）' }}</p>
-        <p v-if="s.decided_by" class="small muted">{{ STATUS[s.status] }}：{{ s.decided_by }} · {{ timeOf(s.decided_at) }}{{ s.decision ? ' · ' + s.decision : '' }}</p>
+        <div class="card-head"><h2>{{ $t('提交信息') }}</h2></div>
+        <p class="small"><b>{{ $td(s.author) }}</b><span v-if="s.mine" class="muted">{{ $t('（我）') }}</span> · {{ timeOf(s.ts) }}</p>
+        <p class="small">{{ s.note || $t('（没有写改动说明）') }}</p>
+        <p v-if="s.decided_by" class="small muted">{{ $t('{a}：{b} · {c}{d}', { a: $td(STATUS[s.status]), b: $td(s.decided_by), c: timeOf(s.decided_at), d: s.decision ? ' · ' + s.decision : '' }) }}</p>
 
-        <div class="card-head"><h2>批注</h2><span class="muted small">{{ openCount }} 条未处理</span></div>
-        <div v-if="!s.comments.length" class="empty small">还没有批注。{{ s.status === 'pending' ? '可以在左边选“点处批注”，点模型上的位置写意见。' : '' }}</div>
+        <div class="card-head"><h2>{{ $t('批注') }}</h2><span class="muted small">{{ $t('{a} 条未处理', { a: openCount }) }}</span></div>
+        <div v-if="!s.comments.length" class="empty small">{{ $t('还没有批注。{a}', { a: s.status === 'pending' ? $t('可以在左边选“点处批注”，点模型上的位置写意见。') : '' }) }}</div>
         <div v-for="(c, i) in s.comments" :key="c.id" class="cm" :class="{ done: c.resolved }">
-          <div class="small"><span v-if="c.anchor" class="num-badge" :class="{ done: c.resolved }">{{ i + 1 }}</span><b>{{ c.author }}</b>
+          <div class="small"><span v-if="c.anchor" class="num-badge" :class="{ done: c.resolved }">{{ i + 1 }}</span><b>{{ $td(c.author) }}</b>
             <span class="muted"> · {{ timeOf(c.ts) }}</span></div>
-          <div>{{ c.body }}</div>
-          <button v-if="s.status === 'pending'" class="btn ghost small" @click="resolve(c)">{{ c.resolved ? '重新打开' : '标为已处理' }}</button>
+          <div>{{ $td(c.body) }}</div>
+          <button v-if="s.status === 'pending'" class="btn ghost small" @click="resolve(c)">{{ c.resolved ? $t('重新打开') : $t('标为已处理') }}</button>
         </div>
         <form v-if="s.status === 'pending'" class="add" @submit.prevent="addComment">
-          <div v-if="anchor" class="small muted">位置：({{ anchor.x.toFixed(1) }}, {{ anchor.y.toFixed(1) }}, {{ anchor.z.toFixed(1) }}) mm
-            <a href="#" @click.prevent="anchor = null">不指定位置</a></div>
-          <textarea v-model="body" rows="3" maxlength="2000" :placeholder="anchor ? '对这个位置的意见' : '整体意见（也可以在模型上点一处）'"></textarea>
-          <button class="btn" :disabled="!body.trim()">添加批注</button>
+          <div v-if="anchor" class="small muted">{{ $t('位置：({a}, {b}, {c}) mm', { a: anchor.x.toFixed(1), b: anchor.y.toFixed(1), c: anchor.z.toFixed(1) }) }}
+            <a href="#" @click.prevent="anchor = null">{{ $t('不指定位置') }}</a></div>
+          <textarea v-model="body" rows="3" maxlength="2000" :placeholder="anchor ? $t('对这个位置的意见') : $t('整体意见（也可以在模型上点一处）')"></textarea>
+          <button class="btn" :disabled="!body.trim()">{{ $t('添加批注') }}</button>
         </form>
 
         <template v-if="s.status === 'pending'">
-          <div class="card-head"><h2>结论</h2></div>
-          <textarea v-model="decision" rows="2" maxlength="500" placeholder="审批意见（退回时必填）"></textarea>
+          <div class="card-head"><h2>{{ $t('结论') }}</h2></div>
+          <textarea v-model="decision" rows="2" maxlength="500" :placeholder="$t('审批意见（退回时必填）')"></textarea>
           <div class="line">
-            <button v-if="s.can_approve" class="btn primary" :disabled="openCount > 0" :title="openCount ? '还有没处理的批注' : ''" @click="decide('approve')">批准生效</button>
-            <button v-if="s.can_approve" class="btn danger" @click="decide('reject')">退回</button>
-            <button v-if="s.mine" class="btn ghost" @click="decide('withdraw')">撤回</button>
+            <button v-if="s.can_approve" class="btn primary" :disabled="openCount > 0" :title="openCount ? $t('还有没处理的批注') : ''" @click="decide('approve')">{{ $t('批准生效') }}</button>
+            <button v-if="s.can_approve" class="btn danger" @click="decide('reject')">{{ $t('退回') }}</button>
+            <button v-if="s.mine" class="btn ghost" @click="decide('withdraw')">{{ $t('撤回') }}</button>
           </div>
-          <p v-if="!s.can_approve && !s.mine" class="small muted">审批要用“审批人”或“厂长”角色（顶栏切换）。</p>
-          <p v-if="s.mine" class="small muted">自己的提交不能自己批准，请另一位审批人批准。</p>
+          <p v-if="!s.can_approve && !s.mine" class="small muted">{{ $t('审批要用“审批人”或“厂长”角色（顶栏切换）。') }}</p>
+          <p v-if="s.mine" class="small muted">{{ $t('自己的提交不能自己批准，请另一位审批人批准。') }}</p>
         </template>
         <div v-if="msg" :class="msgOk ? 'ok' : 'err'" class="small">{{ msg }}</div>
       </section>
@@ -71,13 +71,14 @@
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { get, post } from '../lib/api';
 import { timeOf } from '../lib/fmt';
 import ModelViewer from '../components/ModelViewer.vue';
 
-const STATUS = { pending: '待审', approved: '已生效', rejected: '退回', withdrawn: '撤回' };
+const STATUS = { pending: $t('待审'), approved: $t('已生效'), rejected: $t('退回'), withdrawn: $t('撤回') };
 const TONE = { pending: 'warn', approved: 'good', rejected: 'bad', withdrawn: '' };
 const route = useRoute();
 const s = ref(null);
@@ -98,7 +99,7 @@ const openCount = computed(() => (s.value?.comments || []).filter((c) => !c.reso
 async function load() {
   try { s.value = await get('/plm/submissions/' + route.params.id); } catch (e) { err.value = e.message; }
 }
-function startPin(p) { anchor.value = p; msg.value = '已选位置，在右边写意见'; msgOk.value = true; }
+function startPin(p) { anchor.value = p; msg.value = $t('已选位置，在右边写意见'); msgOk.value = true; }
 async function addComment() {
   s.value = await post(`/plm/submissions/${s.value.id}/comments`, { body: body.value, anchor: anchor.value });
   await load(); body.value = ''; anchor.value = null; msg.value = '';
@@ -110,7 +111,7 @@ async function decide(d) {
     await post(`/plm/submissions/${s.value.id}/decision`, { decision: d, note: decision.value });
     await load();
     msgOk.value = true;
-    msg.value = { approve: `已批准，生效为 rev ${s.value.revision}；ERPNext 和车间随后更新。`, reject: '已退回提交人。', withdraw: '已撤回。' }[d];
+    msg.value = { approve: $t('已批准，生效为 rev {a}；ERPNext 和车间随后更新。', { a: s.value.revision }), reject: $t('已退回提交人。'), withdraw: $t('已撤回。') }[d];
   } catch (e) { msgOk.value = false; msg.value = e.message; }
 }
 onMounted(load);

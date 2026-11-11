@@ -62,7 +62,7 @@ export function variant(task, seed) {
     const f = P.tof;
     return { sigma0_mm: f.sigma0_mm * (1 + f.var * c()), k_mm_m2: f.k_mm_m2 * (1 + f.var * c()) };
   }
-  throw new Error('没有这个任务 ' + task);
+  throw new Error('unknown task ' + task);
 }
 
 // ---------------------------------------------------------------- 传感器

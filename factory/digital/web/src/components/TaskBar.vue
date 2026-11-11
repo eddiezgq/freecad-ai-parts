@@ -1,21 +1,22 @@
 <template>
-  <section v-if="t" class="task-bar" aria-label="当前任务">
-    <span class="tag">实验 7 · 数字工厂闭环</span>
+  <section v-if="t" class="task-bar" :aria-label="tr('当前任务')">
+    <span class="tag">{{ tr('实验 7 · 数字工厂闭环') }}</span>
     <div class="body">
-      <b>任务 {{ t.current + 1 }} / {{ t.tasks.length }}：{{ cur.title }}{{ cur.done ? '（已完成）' : '' }}</b>
-      <span class="muted small">你的角色：{{ roleName(cur.role) }} · 提示：{{ cur.hint }}</span>
+      <b>{{ tr('任务 {i} / {n}：', { i: t.current + 1, n: t.tasks.length }) }}{{ td(cur.title) }}{{ cur.done ? tr('（已完成）') : '' }}</b>
+      <span class="muted small">{{ tr('你的角色：{r}', { r: roleName(cur.role) }) }} · {{ tr('提示：') }}{{ td(cur.hint) }}</span>
     </div>
     <div class="score">
       <span class="mono big">{{ t.score }} / {{ t.of }}</span>
-      <span class="muted small">得分 · 已用 {{ t.elapsed_min }} 分钟</span>
+      <span class="muted small">{{ tr('得分 · 已用 {m} 分钟', { m: t.elapsed_min }) }}</span>
     </div>
-    <router-link class="btn ghost" to="/teach">查看任务</router-link>
+    <router-link class="btn ghost" to="/teach">{{ tr('查看任务') }}</router-link>
   </section>
 </template>
 
 <script setup>
 import { computed } from 'vue';
 import { roleName } from '../lib/api';
+import { t as tr, td } from '../lib/i18n';
 
 const props = defineProps({ t: Object });
 const cur = computed(() => props.t.tasks[props.t.current]);

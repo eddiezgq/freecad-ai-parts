@@ -1,33 +1,33 @@
 <template>
   <div class="page lib">
     <div class="head">
-      <h1>零件与机器人库</h1>
+      <h1>{{ t('零件与机器人库') }}</h1>
       <span class="src mono" v-if="index">
-        library-v{{ index.version }} · {{ counts.A }} 个标准件族 / {{ counts.Asizes }} 个规格 · {{ counts.B }} 个机器人
-        <template v-for="c in index.collections" :key="c.id"> · {{ c.name.zh }} {{ c.count }} 个（只含索引）</template>
+        library-v{{ index.version }} · {{ t('{a} 个标准件族 / {s} 个规格 · {b} 个机器人', { a: counts.A, s: counts.Asizes, b: counts.B }) }}
+        <template v-for="c in index.collections" :key="c.id"> · {{ zhen(c.name) }} {{ t('{n} 个（只含索引）', { n: c.count }) }}</template>
       </span>
     </div>
 
     <div v-if="error" class="card empty">{{ error }}</div>
     <template v-else-if="index">
       <section class="card">
-        <label class="lbl" for="q">检索：名称、编号、标准号、规格、工厂物料号</label>
+        <label class="lbl" for="q">{{ t('检索：名称、编号、标准号、规格、工厂物料号') }}</label>
         <div class="field-row">
-          <input id="q" v-model="q" type="search" placeholder="如 6207、GB/T 1096、M8x25、UR5e、humanoid" autocomplete="off">
-          <button class="btn ghost" type="button" @click="q = ''">清除</button>
+          <input id="q" v-model="q" type="search" :placeholder="t('如 6207、GB/T 1096、M8x25、UR5e、humanoid')" autocomplete="off">
+          <button class="btn ghost" type="button" @click="q = ''">{{ t('清除') }}</button>
         </div>
-        <label class="lbl ai-lbl" for="ask">AI 选型：一句话说需求，只从零件库里挑</label>
+        <label class="lbl ai-lbl" for="ask">{{ t('AI 选型：一句话说需求，只从零件库里挑') }}</label>
         <form class="field-row" @submit.prevent="ask">
-          <input id="ask" v-model="askQ" type="text" placeholder="如：35 mm 轴、1450 r/min、径向载荷为主用什么轴承" autocomplete="off" maxlength="500">
-          <button class="btn primary" type="submit" :disabled="asking || !askQ.trim()">{{ asking ? '正在查库…' : '选型' }}</button>
+          <input id="ask" v-model="askQ" type="text" :placeholder="t('如：35 mm 轴、1450 r/min、径向载荷为主用什么轴承')" autocomplete="off" maxlength="500">
+          <button class="btn primary" type="submit" :disabled="asking || !askQ.trim()">{{ asking ? t('正在查库…') : t('选型') }}</button>
         </form>
         <div v-if="askErr" class="small err">{{ askErr }}</div>
         <div v-if="askRes" class="ai-res">
-          <p class="ai-text">{{ askRes.answer }}</p>
+          <p class="ai-text">{{ td(askRes.answer) }}</p>
           <div v-if="askRes.refs.length" class="ai-refs">
             <button v-for="r in askRes.refs" :key="r.ref" type="button" class="chip mono" @click="openRef(r)" :title="r.name">{{ r.ref }}</button>
           </div>
-          <p class="small muted">{{ askRes.engine === 'rules' ? '规则匹配（未配 AI 模型）' : '由 ' + askRes.engine + ' 回答' }}；只推荐零件库 v{{ askRes.library_version }} 里有的规格，答案里的编号已逐个核对<template v-if="askRes.invalid_refs.length">（去掉了库里没有的：{{ askRes.invalid_refs.join('、') }}）</template>。点编号打开详情；寿命、强度请按样本另行计算。</p>
+          <p class="small muted">{{ askRes.engine === 'rules' ? t('规则匹配（未配 AI 模型）') : t('由 {e} 回答', { e: askRes.engine }) }}{{ t('；只推荐零件库 v{v} 里有的规格，答案里的编号已逐个核对', { v: askRes.library_version }) }}<template v-if="askRes.invalid_refs.length">{{ t('（去掉了库里没有的：{x}）', { x: askRes.invalid_refs.join(', ') }) }}</template>{{ t('。点编号打开详情；寿命、强度请按样本另行计算。') }}</p>
         </div>
       </section>
 
@@ -37,26 +37,26 @@
       </div>
 
       <section class="work">
-        <aside class="filters card" aria-label="筛选">
+        <aside class="filters card" :aria-label="t('筛选')">
           <template v-if="part !== 'F'">
-            <div><h3>类别</h3>
+            <div><h3>{{ t('类别') }}</h3>
               <label v-for="c in catList" :key="c.key"><input type="checkbox" :checked="cats.has(c.key)" @change="toggle(cats, c.key)">
                 {{ c.name }}<span class="c">{{ c.count }}</span></label>
             </div>
-            <div><h3>来源</h3>
+            <div><h3>{{ t('来源') }}</h3>
               <label v-for="s in srcList" :key="s.key"><input type="checkbox" :checked="srcs.has(s.key)" @change="toggle(srcs, s.key)">
                 {{ s.name }}<span class="c">{{ s.count }}</span></label>
             </div>
-            <div><h3>用途</h3>
-              <label><input type="checkbox" v-model="wqr"> WQR-105 用到</label>
+            <div><h3>{{ t('用途') }}</h3>
+              <label><input type="checkbox" v-model="wqr"> {{ t('WQR-105 用到') }}</label>
             </div>
           </template>
           <template v-else>
-            <div><h3>分类</h3>
+            <div><h3>{{ t('分类') }}</h3>
               <label v-for="c in fcCats" :key="c.key"><input type="checkbox" :checked="fcSel.has(c.key)" @change="toggle(fcSel, c.key)">
                 {{ c.name }}<span class="c">{{ c.count }}</span></label>
             </div>
-            <p class="small muted">FreeCAD 零件库（CC BY 3.0）只收索引和缩略图；模型点击后从原仓库下载，使用时请署名。</p>
+            <p class="small muted">{{ t('FreeCAD 零件库（CC BY 3.0）只收索引和缩略图；模型点击后从原仓库下载，使用时请署名。') }}</p>
           </template>
         </aside>
 
@@ -66,7 +66,7 @@
               <button v-for="f in shown" :key="f.id" class="item" :class="{ on: sel === f.id }" type="button" @click="select(f.id)">
                 <span class="thumb"><img :src="fileUrl(f.thumb)" alt="" loading="lazy"></span>
                 <span class="meta">
-                  <span class="id">{{ f.id }}</span><b>{{ f.name.zh }}</b>
+                  <span class="id">{{ f.id }}</span><b>{{ zhen(f.name) }}</b>
                   <span class="std">{{ f.line }}</span>
                   <span class="pills"><span class="pill good">{{ f.license }}</span>
                     <span v-if="f.wqr" class="pill task">WQR-105</span></span>
@@ -75,45 +75,45 @@
             </template>
             <template v-else>
               <button v-for="f in shown" :key="f.id" class="item" :class="{ on: sel === f.id }" type="button" @click="sel = f.id">
-                <span class="thumb"><img v-if="f.thumb" :src="fileUrl(f.thumb)" alt="" loading="lazy"><span v-else class="muted small">无缩略图</span></span>
+                <span class="thumb"><img v-if="f.thumb" :src="fileUrl(f.thumb)" alt="" loading="lazy"><span v-else class="muted small">{{ t('无缩略图') }}</span></span>
                 <span class="meta"><b>{{ f.name }}</b><span class="std">{{ f.path.slice(1).join(' / ') }}</span>
-                  <span class="pills"><span class="pill info">{{ f.top.zh }}</span></span></span>
+                  <span class="pills"><span class="pill info">{{ zhen(f.top) }}</span></span></span>
               </button>
             </template>
           </div>
-          <div v-if="!shown.length" class="empty">没有符合条件的条目。试试清除检索词或筛选。</div>
-          <div v-if="more > 0" class="more-row"><button class="btn ghost" type="button" @click="limit += 120">再显示 {{ Math.min(more, 120) }} 个（还有 {{ more }} 个）</button></div>
+          <div v-if="!shown.length" class="empty">{{ t('没有符合条件的条目。试试清除检索词或筛选。') }}</div>
+          <div v-if="more > 0" class="more-row"><button class="btn ghost" type="button" @click="limit += 120">{{ t('再显示 {n} 个（还有 {m} 个）', { n: Math.min(more, 120), m: more }) }}</button></div>
         </div>
 
-        <article class="card detail" aria-label="条目详情">
+        <article class="card detail" :aria-label="t('条目详情')">
           <template v-if="part === 'F' && fcItem">
             <div class="d-head"><div class="src mono">FreeCAD-library · {{ fcItem.path.join(' / ') }}</div><h2>{{ fcItem.name }}</h2></div>
-            <div class="viewer flat"><img v-if="fcItem.thumb" :src="fileUrl(fcItem.thumb)" alt=""><span v-else class="muted">没有缩略图</span></div>
+            <div class="viewer flat"><img v-if="fcItem.thumb" :src="fileUrl(fcItem.thumb)" alt=""><span v-else class="muted">{{ t('没有缩略图') }}</span></div>
             <div class="actions">
-              <a v-for="(u, k) in fcItem.formats" :key="k" class="btn" :class="{ primary: k === 'step' }" :href="u" target="_blank" rel="noopener">下载 {{ k.toUpperCase() }}</a>
-              <a class="btn ghost" :href="fcItem.source_url" target="_blank" rel="noopener">原仓库页面</a>
+              <a v-for="(u, k) in fcItem.formats" :key="k" class="btn" :class="{ primary: k === 'step' }" :href="u" target="_blank" rel="noopener">{{ t('下载') }} {{ k.toUpperCase() }}</a>
+              <a class="btn ghost" :href="fcItem.source_url" target="_blank" rel="noopener">{{ t('原仓库页面') }}</a>
             </div>
-            <div class="dbody"><div class="attr">{{ fc.attribution }}<br>{{ fc.note.zh }}</div></div>
+            <div class="dbody"><div class="attr">{{ fc.attribution }}<br>{{ zhen(fc.note) }}</div></div>
           </template>
           <template v-else-if="entry">
             <div class="d-head">
               <div class="src mono">{{ entry.id }}<template v-if="size !== 'default'"> / {{ size }}</template></div>
-              <h2>{{ entry.name.zh }}{{ size !== 'default' ? ' ' + size : '' }}</h2>
-              <div class="small muted">{{ entry.name.en }}</div>
-              <div v-if="entry.source.origin === 'vendor' && entry.model.note" class="small proxy-note">{{ entry.model.note }}</div>
+              <h2>{{ zhen(entry.name) }}{{ size !== 'default' ? ' ' + size : '' }}</h2>
+              <div v-if="!isEn()" class="small muted">{{ entry.name.en }}</div>
+              <div v-if="entry.source.origin === 'vendor' && entry.model.note" class="small proxy-note">{{ td(entry.model.note) }}</div>
             </div>
             <div class="viewer" ref="viewerEl">
               <div class="v-tools" v-if="entry.robot || entry.mechanism || canExplode">
-                <button v-if="canExplode" class="btn ghost" type="button" @click="toggleExplode">{{ exploded ? '装回' : '拆开' }}</button>
+                <button v-if="canExplode" class="btn ghost" type="button" @click="toggleExplode">{{ exploded ? t('装回') : t('拆开') }}</button>
                 <button v-if="entry.mechanism?.motion" class="btn ghost" type="button" @click="toggleMotion"
-                  :title="entry.mechanism.input?.path?.zh || ''">{{ playing ? '停止' : '播放运动' }}</button>
-                <button v-if="entry.robot && !entry.robot.parallel" class="btn ghost" type="button" @click="resetJoints('zero')">零位</button>
+                  :title="zhen(entry.mechanism.input?.path)">{{ playing ? t('停止') : t('播放运动') }}</button>
+                <button v-if="entry.robot && !entry.robot.parallel" class="btn ghost" type="button" @click="resetJoints('zero')">{{ t('零位') }}</button>
                 <button v-if="entry.robot?.rest && !entry.robot.parallel" class="btn ghost" type="button" @click="resetJoints('init')"
-                  :title="'取自模型的关键帧 ' + (entry.robot.rest_source || '')">初始姿态</button>
+                  :title="t('取自模型的关键帧 ') + (entry.robot.rest_source || '')">{{ t('初始姿态') }}</button>
               </div>
               <div class="v-note">{{ viewNote }}</div>
             </div>
-            <p v-if="entry.robot?.parallel" class="small muted pad-x">并联机构是闭链，只拖主动臂不能保持闭合；点“播放运动”看{{ entry.mechanism?.input?.path?.zh || '运动' }}。</p>
+            <p v-if="entry.robot?.parallel" class="small muted pad-x">{{ t('并联机构是闭链，只拖主动臂不能保持闭合；点“播放运动”看{x}。', { x: zhen(entry.mechanism?.input?.path) || t('运动') }) }}</p>
             <div v-if="entry.robot && !entry.robot.parallel && joints.length" class="joints">
               <label v-for="j in joints" :key="j.name" :title="j.name">
                 <span class="jn mono">{{ j.short }}</span>
@@ -122,27 +122,27 @@
               </label>
             </div>
             <div class="actions">
-              <a class="btn primary" :href="fileUrl(curSize?.files.glb)" download>glTF（米）</a>
+              <a class="btn primary" :href="fileUrl(curSize?.files.glb)" download>{{ t('glTF（米）') }}</a>
               <a v-if="curSize?.files.urdf" class="btn" :href="fileUrl(curSize.files.urdf)" download>URDF</a>
-              <a v-if="curSize?.files.motion" class="btn ghost" :href="fileUrl(curSize.files.motion)" download>运动表 CSV</a>
-              <a v-if="curSize?.files.svg" class="btn ghost" :href="fileUrl(curSize.files.svg)" download>二维图 SVG</a>
-              <a v-if="!entry.robot && entry.kind !== 'mechanism'" class="btn" :href="entry.package">STEP / STL 压缩包（整族）</a>
-              <a v-else-if="entry.model.engine.startsWith('menagerie:')" class="btn" :href="entry.package" target="_blank" rel="noopener">原始模型 MJCF（{{ originName(entry.source.origin) }}）</a>
-              <a v-else-if="entry.model.engine.startsWith('urdf:')" class="btn" :href="entry.package" target="_blank" rel="noopener">原始模型 URDF（原仓库）</a>
-              <a v-else-if="entry.model.engine.startsWith('xacro:')" class="btn" :href="entry.package" target="_blank" rel="noopener">原始模型 xacro（ROS-Industrial）</a>
-              <a v-else-if="entry.source.origin === 'vendor'" class="btn" :href="entry.package" target="_blank" rel="noopener">官方技术参数表</a>
-              <a v-else class="btn ghost" :href="entry.package" target="_blank" rel="noopener">生成程序</a>
-              <button class="btn ghost" type="button" @click="copy(size === 'default' ? entry.id : entry.id + '/' + size)">复制编号</button>
+              <a v-if="curSize?.files.motion" class="btn ghost" :href="fileUrl(curSize.files.motion)" download>{{ t('运动表 CSV') }}</a>
+              <a v-if="curSize?.files.svg" class="btn ghost" :href="fileUrl(curSize.files.svg)" download>{{ t('二维图 SVG') }}</a>
+              <a v-if="!entry.robot && entry.kind !== 'mechanism'" class="btn" :href="entry.package">{{ t('STEP / STL 压缩包（整族）') }}</a>
+              <a v-else-if="entry.model.engine.startsWith('menagerie:')" class="btn" :href="entry.package" target="_blank" rel="noopener">{{ t('原始模型 MJCF（{o}）', { o: originName(entry.source.origin) }) }}</a>
+              <a v-else-if="entry.model.engine.startsWith('urdf:')" class="btn" :href="entry.package" target="_blank" rel="noopener">{{ t('原始模型 URDF（原仓库）') }}</a>
+              <a v-else-if="entry.model.engine.startsWith('xacro:')" class="btn" :href="entry.package" target="_blank" rel="noopener">{{ t('原始模型 xacro（ROS-Industrial）') }}</a>
+              <a v-else-if="entry.source.origin === 'vendor'" class="btn" :href="entry.package" target="_blank" rel="noopener">{{ t('官方技术参数表') }}</a>
+              <a v-else class="btn ghost" :href="entry.package" target="_blank" rel="noopener">{{ t('生成程序') }}</a>
+              <button class="btn ghost" type="button" @click="copy(size === 'default' ? entry.id : entry.id + '/' + size)">{{ t('复制编号') }}</button>
             </div>
             <div class="tabs dtabs">
-              <button v-for="t in dtabList" :key="t" class="tab" :class="{ on: dtab === t }" type="button" @click="dtab = t">{{ t }}</button>
+              <button v-for="x in dtabList" :key="x" class="tab" :class="{ on: dtab === x }" type="button" @click="dtab = x">{{ t(x) }}</button>
             </div>
             <div class="dbody">
-              <template v-if="dtab === '规格'">
-                <input v-if="entry.sizes.length > 12" v-model="sq" class="sq" type="search" placeholder="在规格里找，如 6207、M8">
+              <template v-if="dtab === tk('规格')">
+                <input v-if="entry.sizes.length > 12" v-model="sq" class="sq" type="search" :placeholder="t('在规格里找，如 6207、M8')">
                 <div class="tbl-wrap">
                   <table class="t">
-                    <thead><tr><th>规格</th><th v-for="p in cols" :key="p.key">{{ p.zh }}</th><th>工厂物料</th></tr></thead>
+                    <thead><tr><th>{{ t('规格') }}</th><th v-for="p in cols" :key="p.key">{{ zhen(p) }}</th><th>{{ t('工厂物料') }}</th></tr></thead>
                     <tbody>
                       <tr v-for="s in sizeRows" :key="s.size" :class="{ sel: s.size === size }" @click="pickSize(s.size)">
                         <td class="mono">{{ s.size }}</td>
@@ -152,116 +152,116 @@
                     </tbody>
                   </table>
                 </div>
-                <p v-if="entry.standards?.length" class="small muted">标准：{{ entry.standards.map((s) => s.code).join(' · ') }}</p>
+                <p v-if="entry.standards?.length" class="small muted">{{ t('标准：') }}{{ entry.standards.map((s) => s.code).join(' · ') }}</p>
               </template>
-              <template v-else-if="dtab === '参数'">
+              <template v-else-if="dtab === tk('参数')">
                 <dl class="kv wide">
                   <template v-for="(v, k) in entry.datasheet.values" :key="k">
-                    <dt>{{ entry.datasheet.labels?.[k]?.zh || k }}</dt>
+                    <dt>{{ zhen(entry.datasheet.labels?.[k]) || k }}</dt>
                     <dd class="mono">{{ v }} {{ entry.datasheet.labels?.[k]?.unit || '' }}</dd>
                   </template>
                 </dl>
-                <p class="small muted">{{ entry.datasheet.vendor }} {{ entry.datasheet.model }} 官方技术参数，
-                  <a :href="entry.datasheet.src" target="_blank" rel="noopener">出处</a><template v-if="entry.datasheet.note"> · {{ entry.datasheet.note }}</template></p>
+                <p class="small muted">{{ entry.datasheet.vendor }} {{ entry.datasheet.model }} {{ t('官方技术参数，') }}
+                  <a :href="entry.datasheet.src" target="_blank" rel="noopener">{{ t('出处') }}</a><template v-if="entry.datasheet.note"> · {{ td(entry.datasheet.note) }}</template></p>
                 <div v-if="entry.datasheet.axes?.length" class="tbl-wrap"><table class="t">
-                  <thead><tr><th>轴</th><th>运动范围（°）</th><th>最大速度（°/s）</th></tr></thead>
+                  <thead><tr><th>{{ t('轴') }}</th><th>{{ t('运动范围（°）') }}</th><th>{{ t('最大速度（°/s）') }}</th></tr></thead>
                   <tbody><tr v-for="a in entry.datasheet.axes" :key="a.axis">
                     <td>{{ a.axis }}</td>
-                    <td class="mono">{{ a.range_deg ? `${a.range_deg[0]} ～ ${a.range_deg[1]}` : '—' }}</td>
+                    <td class="mono">{{ a.range_deg ? `${a.range_deg[0]} ~ ${a.range_deg[1]}` : '—' }}</td>
                     <td class="mono">{{ a.speed_deg_s ?? '—' }}</td>
                   </tr></tbody>
                 </table></div>
                 <template v-if="entry.dh">
-                  <div class="small muted" style="margin-top:8px">DH 参数（{{ entry.dh.convention }}，米、弧度）</div>
+                  <div class="small muted" style="margin-top:8px">{{ t('DH 参数（{c}，米、弧度）', { c: entry.dh.convention }) }}</div>
                   <div class="tbl-wrap"><table class="t">
-                    <thead><tr><th>关节</th><th>a</th><th>d</th><th>α</th><th>最大速度</th></tr></thead>
+                    <thead><tr><th>{{ t('关节') }}</th><th>a</th><th>d</th><th>α</th><th>{{ t('最大速度') }}</th></tr></thead>
                     <tbody><tr v-for="(p, i) in entry.dh.params" :key="i"><td class="mono">{{ i + 1 }}</td>
                       <td class="num">{{ p[0] }}</td><td class="num">{{ p[1] }}</td><td class="num">{{ (p[2] * 180 / Math.PI).toFixed(0) }}°</td>
                       <td class="num">{{ entry.dh.speed_deg_s?.[i] ? entry.dh.speed_deg_s[i] + ' °/s' : '' }}</td></tr></tbody>
                   </table></div>
                 </template>
               </template>
-              <template v-else-if="dtab === '图纸'">
-                <a :href="fileUrl(curSize.files.svg)" target="_blank" rel="noopener" title="新窗口打开（可缩放、打印）">
-                  <img class="drawing" :src="fileUrl(curSize.files.svg)" :alt="entry.name.zh + ' 二维图'"></a>
-                <p class="small muted">{{ entry.id.startsWith('A') ? '主视图 + 俯视/侧视图，标总体尺寸，主要尺寸见标题栏上方' : entry.id.startsWith('B') ? '关节示意图（零位）' : entry.id.startsWith('E') ? '示意二维图（总体尺寸）' : '机构运动简图（默认参数）' }}；点图在新窗口打开。格式见《数字工厂资源接口约定》2.4。</p>
+              <template v-else-if="dtab === tk('图纸')">
+                <a :href="fileUrl(curSize.files.svg)" target="_blank" rel="noopener" :title="t('新窗口打开（可缩放、打印）')">
+                  <img class="drawing" :src="fileUrl(curSize.files.svg)" :alt="zhen(entry.name) + ' ' + t('二维图')"></a>
+                <p class="small muted">{{ entry.id.startsWith('A') ? t('主视图 + 俯视/侧视图，标总体尺寸，主要尺寸见标题栏上方') : entry.id.startsWith('B') ? t('关节示意图（零位）') : entry.id.startsWith('E') ? t('示意二维图（总体尺寸）') : t('机构运动简图（默认参数）') }}{{ t('；点图在新窗口打开。格式见《数字工厂资源接口约定》2.4。') }}</p>
               </template>
-              <template v-else-if="dtab === '零件表'">
+              <template v-else-if="dtab === tk('零件表')">
                 <div class="tbl-wrap">
                   <table class="t">
-                    <thead><tr><th>序号</th><th>零件</th><th>作用</th></tr></thead>
+                    <thead><tr><th>{{ t('序号') }}</th><th>{{ t('零件') }}</th><th>{{ t('作用') }}</th></tr></thead>
                     <tbody><tr v-for="p in entry.assembly.parts" :key="p.node">
                       <td class="mono">{{ p.number ?? '' }}</td><td><span class="swatch" :style="{ background: p.color }"></span>{{ p.name }}</td><td>{{ p.role }}</td>
                     </tr></tbody>
                   </table>
                 </div>
-                <p class="small muted">E 部分的模型与教材插图、数字工厂用的是同一份（factory/digital/models3d）；点“拆开”按爆炸方向分开各零件。</p>
+                <p class="small muted">{{ t('E 部分的模型与教材插图、数字工厂用的是同一份（factory/digital/models3d）；点“拆开”按爆炸方向分开各零件。') }}</p>
               </template>
-              <template v-else-if="dtab === '机构'">
+              <template v-else-if="dtab === tk('机构')">
                 <div class="tbl-wrap">
                   <table class="t">
-                    <thead><tr><th>构件</th><th>节点</th></tr></thead>
+                    <thead><tr><th>{{ t('构件') }}</th><th>{{ t('节点') }}</th></tr></thead>
                     <tbody><tr v-for="m in entry.mechanism?.members || []" :key="m.id">
-                      <td>{{ m.name.zh }}<template v-if="m.ground">（固定）</template><template v-if="m.id === entry.mechanism.input?.member">（主动）</template></td>
+                      <td>{{ zhen(m.name) }}<template v-if="m.ground">{{ t('（固定）') }}</template><template v-if="m.id === entry.mechanism.input?.member">{{ t('（主动）') }}</template></td>
                       <td class="mono small">{{ m.node }}</td></tr></tbody>
                   </table>
                 </div>
                 <dl class="kv wide">
                   <template v-for="(v, k) in entry.defaults || {}" :key="k">
-                    <dt>{{ (entry.params || []).find((x) => x.key === k)?.zh || k }}</dt>
+                    <dt>{{ zhen((entry.params || []).find((x) => x.key === k)) || k }}</dt>
                     <dd class="mono">{{ v }} {{ (entry.params || []).find((x) => x.key === k)?.unit || '' }}</dd>
                   </template>
                 </dl>
-                <p v-if="entry.mechanism?.analysis?.formula" class="small">{{ entry.mechanism.analysis.formula.zh }}</p>
-                <p class="small muted">{{ entry.mechanism?.dof }} 个自由度；输入：{{ entry.mechanism?.input?.path?.zh
-                  || ((entry.mechanism?.members || []).find((m) => m.id === entry.mechanism?.input?.member)?.name.zh + ' ' + (entry.mechanism?.input?.range || []).join('～') + ' ' + (entry.mechanism?.input?.unit || '')) }}。
-                  点“播放运动”看运动；运动表格式见《数字工厂资源接口约定》2.4。<template v-if="entry.mechanism?.note"> {{ entry.mechanism.note.zh }}</template></p>
+                <p v-if="entry.mechanism?.analysis?.formula" class="small">{{ zhen(entry.mechanism.analysis.formula) }}</p>
+                <p class="small muted">{{ t('{d} 个自由度；输入：', { d: entry.mechanism?.dof }) }}{{ zhen(entry.mechanism?.input?.path)
+                  || (zhen((entry.mechanism?.members || []).find((m) => m.id === entry.mechanism?.input?.member)?.name) + ' ' + (entry.mechanism?.input?.range || []).join(' ~ ') + ' ' + (entry.mechanism?.input?.unit || '')) }}{{ t('。') }}
+                  {{ t('点“播放运动”看运动；运动表格式见《数字工厂资源接口约定》2.4。') }}<template v-if="entry.mechanism?.note"> {{ zhen(entry.mechanism.note) }}</template></p>
               </template>
-              <template v-else-if="dtab === '关节'">
+              <template v-else-if="dtab === tk('关节')">
                 <div class="tbl-wrap">
                   <table class="t">
-                    <thead><tr><th>关节</th><th>类型</th><th>父 → 子</th><th>范围</th></tr></thead>
+                    <thead><tr><th>{{ t('关节') }}</th><th>{{ t('类型') }}</th><th>{{ t('父 → 子') }}</th><th>{{ t('范围') }}</th></tr></thead>
                     <tbody><tr v-for="j in entry.robot.joints" :key="j.name">
-                      <td class="mono">{{ j.name }}</td><td class="nw">{{ JT[j.type] }}<template v-if="j.mimic">（从动：跟随 {{ j.mimic.joint }} ×{{ j.mimic.multiplier }}）</template></td><td class="small">{{ j.parent }} → {{ j.child }}</td>
-                      <td class="num">{{ j.limit && j.limit.lower != null ? fmtLim(j) : '不限' }}</td></tr></tbody>
+                      <td class="mono">{{ j.name }}</td><td class="nw">{{ JT[j.type] ? t(JT[j.type]) : j.type }}<template v-if="j.mimic"> {{ t('（从动：跟随 {j} ×{m}）', { j: j.mimic.joint, m: j.mimic.multiplier }) }}</template></td><td class="small">{{ j.parent }} → {{ j.child }}</td>
+                      <td class="num">{{ j.limit && j.limit.lower != null ? fmtLim(j) : t('不限') }}</td></tr></tbody>
                   </table>
                 </div>
-                <p class="small muted">{{ entry.robot.dof }} 个自由度；连杆 {{ entry.robot.links.length }} 个。字段见《数字工厂资源接口约定》R4。</p>
+                <p class="small muted">{{ t('{d} 个自由度；连杆 {l} 个。字段见《数字工厂资源接口约定》R4。', { d: entry.robot.dof, l: entry.robot.links.length }) }}</p>
               </template>
-              <template v-else-if="dtab === '教学'">
+              <template v-else-if="dtab === tk('教学')">
                 <dl class="kv">
-                  <template v-if="entry.teaching.principle"><dt>原理</dt><dd>{{ entry.teaching.principle }}</dd></template>
-                  <template v-if="entry.teaching.uses"><dt>用途</dt><dd>{{ [].concat(entry.teaching.uses).join('；') }}</dd></template>
+                  <template v-if="entry.teaching.principle"><dt>{{ t('原理') }}</dt><dd>{{ entry.teaching.principle }}</dd></template>
+                  <template v-if="entry.teaching.uses"><dt>{{ t('用途') }}</dt><dd>{{ [].concat(entry.teaching.uses).map((u) => td(u)).join(isEn() ? '; ' : '；') }}</dd><!-- i18n-ok 中文分隔号 --></template>
                 </dl>
               </template>
               <template v-else>
                 <dl class="kv">
-                  <dt>来源</dt><dd>{{ originName(entry.source.origin) }}<template v-if="entry.source.repo"> · <a :href="entry.package" target="_blank" rel="noopener">原仓库</a></template></dd>
-                  <dt>许可</dt><dd>{{ entry.source.license }}</dd>
-                  <dt v-if="entry.source.checked">核对</dt><dd v-if="entry.source.checked">{{ entry.source.checked.by }} · {{ entry.source.checked.on }}<template v-if="entry.source.checked.note"> · {{ entry.source.checked.note }}</template></dd>
+                  <dt>{{ t('来源') }}</dt><dd>{{ originName(entry.source.origin) }}<template v-if="entry.source.repo"> · <a :href="entry.package" target="_blank" rel="noopener">{{ t('原仓库') }}</a></template></dd>
+                  <dt>{{ t('许可') }}</dt><dd>{{ entry.source.license }}</dd>
+                  <dt v-if="entry.source.checked">{{ t('核对') }}</dt><dd v-if="entry.source.checked">{{ entry.source.checked.by }} · {{ entry.source.checked.on }}<template v-if="entry.source.checked.note"> · {{ entry.source.checked.note }}</template></dd>
                 </dl>
                 <div v-if="entry.source.attribution" class="attr">{{ entry.source.attribution }}</div>
                 <div v-if="entry.alt_models?.length" class="dsrc">
-                  <div class="small muted">另有版本</div>
+                  <div class="small muted">{{ t('另有版本') }}</div>
                   <div v-for="m in entry.alt_models" :key="m.url" class="small">
                     <a :href="m.url" target="_blank" rel="noopener">{{ m.format.toUpperCase() }}</a> · {{ m.license }} · {{ m.via }}
                   </div>
                 </div>
                 <div v-if="entry.source.notes" class="attr">{{ entry.source.notes }}</div>
                 <div v-if="entry.source.data_sources?.length" class="dsrc">
-                  <div class="small muted">尺寸与参数出处</div>
+                  <div class="small muted">{{ t('尺寸与参数出处') }}</div>
                   <div v-for="d in entry.source.data_sources" :key="d.url" class="small">
-                    <a :href="d.url" target="_blank" rel="noopener">{{ d.title }}</a> · 取用 {{ d.retrieved }}<span v-if="d.note" class="muted"> · {{ d.note }}</span>
+                    <a :href="d.url" target="_blank" rel="noopener">{{ d.title }}</a> · {{ t('取用') }} {{ d.retrieved }}<span v-if="d.note" class="muted"> · {{ td(d.note) }}</span>
                   </div>
                 </div>
               </template>
             </div>
           </template>
-          <div v-else class="empty pad">在左边选一个条目，这里显示三维模型、规格和下载。</div>
+          <div v-else class="empty pad">{{ t('在左边选一个条目，这里显示三维模型、规格和下载。') }}</div>
         </article>
       </section>
     </template>
-    <div v-else class="card empty">正在读取零件库…</div>
+    <div v-else class="card empty">{{ t('正在读取零件库…') }}</div>
     <div v-if="toast" class="toast">{{ toast }}</div>
   </div>
 </template>
@@ -273,12 +273,13 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { useRoute } from 'vue-router';
 import { post } from '../lib/api.js';
+import { isEn, t, td, tk, zhen } from '../lib/i18n';
 
 const BASE = '/library/';
-const ORIGINS = { bd_warehouse: 'bd_warehouse', wenquest: '问渠自建', menagerie: 'MuJoCo Menagerie', vendor: '厂商目录',
+const ORIGINS = { bd_warehouse: 'bd_warehouse', wenquest: tk('问渠自建'), menagerie: 'MuJoCo Menagerie', vendor: tk('厂商目录'),
   robot_descriptions: 'robot_descriptions', ros_industrial: 'ROS-Industrial', 'freecad-library': 'FreeCAD-library' };
-const JT = { revolute: '转动', continuous: '转动（不限位）', prismatic: '移动' };
-const originName = (o) => ORIGINS[o] || o;
+const JT = { revolute: tk('转动'), continuous: tk('转动（不限位）'), prismatic: tk('移动') };
+const originName = (o) => (ORIGINS[o] ? t(ORIGINS[o]) : o);
 
 const useRouteRef = useRoute();
 const askQ = ref('');
@@ -310,7 +311,7 @@ const fc = ref(null);
 const fcSel = reactive(new Set());
 const entry = ref(null);
 const size = ref('default');
-const dtab = ref('规格');
+const dtab = ref(tk('规格'));
 const sq = ref('');
 const toast = ref('');
 const viewerEl = ref(null);
@@ -337,15 +338,15 @@ const families = computed(() => {
   }
   return [...m.values()].map((f) => {
     const cat = catName(f.part, f.category);
-    const who = f.vendor ? f.vendor.zh : '';
-    const line = f.kind === 'robot' ? `${who ? who + ' · ' : ''}${cat} · ${f.dof ?? '?'} 个关节`
-      : `${who || f.standards.slice(0, 2).join(' · ') || cat} · ${f.sizes.length} 个规格`;
-    const text = [f.id, f.name.zh, f.name.en, cat, who, f.vendor?.en || '', ...f.standards, ...f.tags, ...f.sizes, ...f.erp]
+    const who = f.vendor ? zhen(f.vendor) : '';
+    const line = f.kind === 'robot' ? `${who ? who + ' · ' : ''}${cat} · ` + t('{n} 个关节', { n: f.dof ?? '?' })
+      : `${who || f.standards.slice(0, 2).join(' · ') || cat} · ` + t('{n} 个规格', { n: f.sizes.length });
+    const text = [f.id, f.name.zh, f.name.en, cat, who, f.vendor?.zh || '', f.vendor?.en || '', ...f.standards, ...f.tags, ...f.sizes, ...f.erp]
       .join(' ').toLowerCase();
     return { ...f, line, text, wqr: f.erp.length > 0 };
   });
 });
-const catName = (p, c) => index.value?.categories?.[p]?.[c]?.zh || c;
+const catName = (p, c) => zhen(index.value?.categories?.[p]?.[c]) || c;
 const counts = computed(() => {
   const A = families.value.filter((f) => f.part === 'A');
   return { A: A.length, Asizes: A.reduce((n, f) => n + f.sizes.length, 0), B: families.value.filter((f) => f.part === 'B').length,
@@ -353,12 +354,12 @@ const counts = computed(() => {
     E: families.value.filter((f) => f.part === 'E').length };
 });
 const tabs = computed(() => [
-  { key: 'A', name: 'A 标准件', count: counts.value.A },
-  { key: 'B', name: 'B 机器人', count: counts.value.B },
-  ...(counts.value.C ? [{ key: 'C', name: 'C 机构', count: counts.value.C }] : []),
-  ...(counts.value.D ? [{ key: 'D', name: 'D 机器人零部件', count: counts.value.D }] : []),
-  ...(counts.value.E ? [{ key: 'E', name: 'E 工装夹具', count: counts.value.E }] : []),
-  ...(index.value?.collections || []).map((c) => ({ key: 'F', name: c.name.zh, count: c.count })),
+  { key: 'A', name: t('A 标准件'), count: counts.value.A },
+  { key: 'B', name: t('B 机器人'), count: counts.value.B },
+  ...(counts.value.C ? [{ key: 'C', name: t('C 机构'), count: counts.value.C }] : []),
+  ...(counts.value.D ? [{ key: 'D', name: t('D 机器人零部件'), count: counts.value.D }] : []),
+  ...(counts.value.E ? [{ key: 'E', name: t('E 工装夹具'), count: counts.value.E }] : []),
+  ...(index.value?.collections || []).map((c) => ({ key: 'F', name: zhen(c.name), count: c.count })),
 ]);
 const pool = computed(() => families.value.filter((f) => f.part === part.value));
 const catList = computed(() => countBy(pool.value, (f) => f.category).map(([k, n]) => ({ key: k, name: catName(part.value, k), count: n })));
@@ -369,7 +370,7 @@ function countBy(list, fn) {
   return [...m.entries()].sort((a, b) => b[1] - a[1]);
 }
 const fcCats = computed(() => countBy(fc.value?.items || [], (i) => i.path[0]).map(([k, n]) => ({
-  key: k, name: (fc.value.items.find((i) => i.path[0] === k) || {}).top?.zh || k, count: n })));
+  key: k, name: zhen((fc.value.items.find((i) => i.path[0] === k) || {}).top) || k, count: n })));
 
 const filtered = computed(() => {
   const words = q.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -415,7 +416,7 @@ const sizeRows = computed(() => {
 });
 const dtabList = computed(() => {
   if (!entry.value) return [];
-  return [...(entry.value.datasheet ? ['参数'] : []), entry.value.robot ? '关节' : entry.value.kind === 'mechanism' ? '机构' : '规格', ...(entry.value.assembly?.parts?.length > 1 ? ['零件表'] : []), ...(curSize.value?.files?.svg ? ['图纸'] : []), ...(entry.value.teaching?.principle || entry.value.teaching?.uses ? ['教学'] : []), '来源'];
+  return [...(entry.value.datasheet ? [tk('参数')] : []), entry.value.robot ? tk('关节') : entry.value.kind === 'mechanism' ? tk('机构') : tk('规格'), ...(entry.value.assembly?.parts?.length > 1 ? [tk('零件表')] : []), ...(curSize.value?.files?.svg ? [tk('图纸')] : []), ...(entry.value.teaching?.principle || entry.value.teaching?.uses ? [tk('教学')] : []), tk('来源')];
 });
 
 async function select(id, wantSize) {
@@ -429,11 +430,11 @@ async function select(id, wantSize) {
     const want = (wantSize || q.value).trim().toLowerCase();
     const hit = e.sizes.find((s) => s.size.toLowerCase() === want);
     size.value = hit ? hit.size : (e.sizes.find((s) => s.size === String(e.default))?.size || e.sizes[0]?.size || 'default');
-    dtab.value = e.datasheet ? '参数' : e.robot ? '关节' : e.kind === 'mechanism' ? '机构' : '规格';
+    dtab.value = e.datasheet ? tk('参数') : e.robot ? tk('关节') : e.kind === 'mechanism' ? tk('机构') : tk('规格');
     await nextTick();
     loadModel();
   } catch (err) {
-    say('读取 ' + (f?.id || id) + ' 失败：' + err.message);
+    say(t('读取 {x} 失败：', { x: f?.id || id }) + err.message);
   }
 }
 function pickSize(s) { size.value = s; loadModel(); }
@@ -442,7 +443,7 @@ function fmtLim(j) {
   return j.type === 'prismatic' ? `${(l.lower * 1000).toFixed(0)} ~ ${(l.upper * 1000).toFixed(0)} mm`
     : `${(l.lower * 180 / Math.PI).toFixed(0)}° ~ ${(l.upper * 180 / Math.PI).toFixed(0)}°`;
 }
-function copy(t) { navigator.clipboard?.writeText(t).then(() => say('已复制 ' + t), () => say(t)); }
+function copy(s) { navigator.clipboard?.writeText(s).then(() => say(t('已复制 ') + s), () => say(s)); }
 function say(t) { toast.value = t; clearTimeout(say.t); say.t = setTimeout(() => (toast.value = ''), 2800); }
 
 // ---------------------------------------------------------------- 三维预览
@@ -499,7 +500,7 @@ async function toggleMotion() {
         new THREE.Quaternion(r[col(id, 'qx')], r[col(id, 'qy')], r[col(id, 'qz')], r[col(id, 'qw')]), new THREE.Vector3(1, 1, 1));
       n.matrixWorldNeedsUpdate = true;
     }
-    viewNote.value = `运动表第 ${(i % motion.rows.length) + 1}/${motion.rows.length} 行 · 输入 ${r[0]} ${entry.value.mechanism.input?.unit || ''}`;
+    viewNote.value = t('运动表第 {i}/{n} 行 · 输入 {v}', { i: (i % motion.rows.length) + 1, n: motion.rows.length, v: r[0] + ' ' + (entry.value.mechanism.input?.unit || '') });
     i += 1;
   }, 80);
 }
@@ -518,7 +519,7 @@ function loadModel() {
   if (!renderer) return;
   const url = fileUrl(curSize.value.files.glb);
   const id = entry.value.id;
-  viewNote.value = '正在读取模型…';
+  viewNote.value = t('正在读取模型…');
   loader.load(url, (g) => {
     if (entry.value?.id !== id) return;
     disposeModel();
@@ -529,8 +530,8 @@ function loadModel() {
     setupJoints();
     exploded.value = false;
     const box = new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3());
-    viewNote.value = `拖动旋转 · 滚轮缩放 · 外形约 ${fmtLen(box.x)} × ${fmtLen(box.z)} × ${fmtLen(box.y)}（单位：米制）`;
-  }, undefined, () => { viewNote.value = '模型读取失败'; });
+    viewNote.value = t('拖动旋转 · 滚轮缩放 · 外形约 {x} × {z} × {y}（单位：米制）', { x: fmtLen(box.x), z: fmtLen(box.z), y: fmtLen(box.y) });
+  }, undefined, () => { viewNote.value = t('模型读取失败'); });
 }
 const fmtLen = (m) => (m >= 1 ? m.toFixed(2) + ' m' : (m * 1000).toFixed(m < 0.01 ? 1 : 0) + ' mm');
 function fit(obj) {
@@ -608,7 +609,7 @@ onMounted(async () => {
     const first = families.value.find((f) => f.id === 'A-BRG-DG') || families.value[0];
     if (first) select(first.id);
   } catch (e) {
-    error.value = e.message === '404' ? '零件库还没有发布。发布后（GitHub 工作流“零件库发布”）这里自动显示。' : '读取零件库失败：' + e.message;
+    error.value = e.message === '404' ? t('零件库还没有发布。发布后（GitHub 工作流“零件库发布”）这里自动显示。') : t('读取零件库失败：') + e.message;
   }
 });
 watch(part, () => { if (part.value === 'F') { disposeModel(); } });

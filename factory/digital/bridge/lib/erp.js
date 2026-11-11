@@ -26,6 +26,7 @@ const QI_TEMPLATE = { 'SH-301': '零件检验-输出轴' };
 const MAKE_WH = { 'SH-301': WH.semi };
 // 扩展（第 30 轮 H-8）：freecad-ai-parts 独有的提议（CAD 方案转为生产物料、到货入库）在它的 lib/erp_enterprise.js；问渠这边没有这个文件
 const EXTRA_ACTIONS = {};
+Object.assign(EXTRA_ACTIONS, require('./erp_eto')({ WH }));     // 按单设计（第 139 轮），两边共有
 try {
   Object.assign(EXTRA_ACTIONS, require('./erp_enterprise')({ WH }));
 } catch (e) {
@@ -65,6 +66,19 @@ function erpDatetime(iso) {
   return `${w.slice(0, 10)} ${w.slice(11, 19)}`;
 }
 const erpDate = (iso) => erpDatetime(iso).slice(0, 10);
+// ERPNext 的本地时间字符串加若干秒（不经时区换算：两边都是同一种本地时间）
+function shiftSeconds(local, sec) {
+  const t = new Date(Date.parse(String(local).slice(0, 19).replace(' ', 'T') + 'Z') + Math.round(sec * 1000)).toISOString();
+  return `${t.slice(0, 10)} ${t.slice(11, 19)}`;
+}
+// 417 工时重叠：从提示里取出冲突的那张作业卡（“… is overlapping with PO-JOB00005”）
+function overlapWith(e) {
+  if (!(e instanceof ErpError) || e.status !== 417) return null;
+  const text = `${e.message} ${JSON.stringify(e.body || {})}`.replace(/<[^>]+>/g, '');
+  if (!/OverlapError|overlapping/i.test(text)) return null;
+  const mm = text.match(/overlapping with\s+([A-Za-z0-9][A-Za-z0-9._-]*)/i);
+  return mm ? mm[1] : null;
+}
 
 class ErpError extends Error {
   constructor(status, message, body) {
@@ -728,9 +742,27 @@ class ERP {
       const logs = (doc.time_logs || []).map((l) => ({ from_time: l.from_time, to_time: l.to_time,
         completed_qty: l.completed_qty }));
       const start = d.factory_start_ts || new Date(Date.parse(d.factory_ts || m.ts) - d.cycle_time_s * 1000).toISOString();
-      logs.push({ from_time: erpDatetime(start), to_time: erpDatetime(d.factory_ts || m.ts), completed_qty: 1 });
-      const upd = await this.update('Job Card', jc, { time_logs: logs });
-      return [this.doc('Job Card', upd, 'updated', { corr: m.corr, mode: m.mode })];
+      let from = erpDatetime(start);
+      let to = erpDatetime(d.factory_ts || m.ts);
+      // 第 139 轮 139e0：工位上别的作业卡已经占了这段时间（教学情景重载后工厂时钟回到起点，和上一次情景的工时叠在一起），
+      // ERPNext 按工位台数拒收（417 重叠）。这时把这条工时顺延到冲突那张卡的最后一条工时之后，时长不变；最多顺延 6 次。
+      // 只改 ERPNext 里记的时段，总线上的事件（成本、节拍）照旧按仿真时间算
+      for (let k = 0; ; k++) {
+        try {
+          const upd = await this.update('Job Card', jc, { time_logs: [...logs, { from_time: from, to_time: to, completed_qty: 1 }] });
+          return [this.doc('Job Card', upd, 'updated', { corr: m.corr, mode: m.mode })];
+        } catch (e) {
+          const other = overlapWith(e);
+          if (!other || k >= 6) throw e;
+          const od = await this.get('Job Card', other);
+          const end = (od.time_logs || []).map((l) => l.to_time).sort().pop();
+          if (!end || end <= from) throw e;
+          const dur = Date.parse(to.replace(' ', 'T') + 'Z') - Date.parse(from.replace(' ', 'T') + 'Z');
+          from = shiftSeconds(end, 1);
+          to = shiftSeconds(from, dur / 1000);
+          this.log('作业卡工时与', other, '重叠，顺延到', from, '（', jc, d.operation, '）');
+        }
+      }
     });
   }
 
@@ -978,23 +1010,30 @@ class ERP {
 }
 
 // erp.doc 的 data：只放看板和 AI 需要的字段
+// 第 139 轮：请购单、采购单的项目（作业号）记在明细行上
+function projectOf(d) {
+  const p = (d.items || []).map((i) => i.project).find(Boolean) || d.project;
+  return p ? { project: p } : {};
+}
+
 function summarize(doctype, d) {
   const pick = (keys) => Object.fromEntries(keys.filter((k) => d[k] !== undefined).map((k) => [k, d[k]]));
   switch (doctype) {
     case 'Sales Order':
-      return { ...pick(['customer', 'delivery_date', 'transaction_date', 'status', 'docstatus', 'per_delivered']),
+      return { ...pick(['customer', 'delivery_date', 'transaction_date', 'status', 'docstatus', 'per_delivered', 'project']),
         items: (d.items || []).map((i) => ({ item_code: i.item_code, qty: i.qty, delivered_qty: i.delivered_qty || 0, rate: i.rate })), ...pick(['per_billed']) };
     case 'Work Order':
       return { ...pick(['production_item', 'qty', 'produced_qty', 'status', 'docstatus', 'bom_no',
-        'expected_delivery_date']), planned_start_date: String(d.planned_start_date || '').slice(0, 10),
+        'expected_delivery_date', 'project']), planned_start_date: String(d.planned_start_date || '').slice(0, 10),
         ...((d.sales_order || d.wq_sales_order) ? { sales_order: d.sales_order || d.wq_sales_order } : {}) };
     case 'Material Request':
       return { ...pick(['material_request_type', 'status', 'docstatus', 'transaction_date', 'schedule_date']),
+        ...projectOf(d),
         items: (d.items || []).map((i) => ({ item_code: i.item_code, qty: i.qty, schedule_date: i.schedule_date })) };
     case 'Purchase Order':
-      return { ...pick(['supplier', 'status', 'docstatus']),
+      return { ...pick(['supplier', 'status', 'docstatus']), ...projectOf(d),
         items: (d.items || []).map((i) => ({ item_code: i.item_code, qty: i.qty, received_qty: i.received_qty || 0,
-          schedule_date: i.schedule_date })) };
+          schedule_date: i.schedule_date, ...(i.rate !== undefined ? { rate: i.rate } : {}) })) };
     case 'Job Card':
       return pick(['work_order', 'operation', 'workstation', 'for_quantity', 'total_completed_qty', 'total_time_in_mins',
         'status', 'docstatus', 'quality_inspection']);
@@ -1005,8 +1044,8 @@ function summarize(doctype, d) {
       return pick(['purpose', 'stock_entry_type', 'work_order', 'fg_completed_qty', 'docstatus']);
     case 'Item':
       return pick(['item_code', 'item_name', 'wq_revision']);
-    case 'BOM':
-      return { ...pick(['item', 'is_default', 'is_active', 'docstatus']),
+    case 'BOM':                         // 第 139 轮：按单设计的物料清单带设计指纹（原来下面另有一个 case 'BOM'，永远走不到）
+      return { ...pick(['item', 'is_default', 'is_active', 'docstatus', 'wq_fingerprint', 'project']),
         items: (d.items || []).map((i) => ({ item_code: i.item_code, qty: i.qty })) };
     case 'Bin':
       return pick(['item_code', 'warehouse', 'actual_qty', 'ordered_qty', 'reserved_qty', 'projected_qty', 'stock_uom']);
@@ -1017,8 +1056,16 @@ function summarize(doctype, d) {
     case 'Opportunity':
       return pick(['opportunity_from', 'party_name', 'status', 'opportunity_amount', 'expected_closing', 'transaction_date']);
     case 'Quotation':
-      return { ...pick(['quotation_to', 'party_name', 'status', 'docstatus', 'valid_till', 'grand_total', 'total', 'opportunity', 'transaction_date']),
+      return { ...pick(['quotation_to', 'party_name', 'status', 'docstatus', 'valid_till', 'grand_total', 'total', 'opportunity', 'transaction_date', 'wq_job']),
         items: (d.items || []).map((i) => ({ item_code: i.item_code, qty: i.qty, rate: i.rate })) };
+    case 'Delivery Note':               // 第 139 轮：按单设计发货
+      return { ...pick(['customer', 'status', 'docstatus', 'posting_date', 'grand_total']),
+        sales_orders: [...new Set((d.items || []).map((i) => i.against_sales_order).filter(Boolean))],
+        items: (d.items || []).map((i) => ({ item_code: i.item_code, qty: i.qty })) };
+    case 'Timesheet':
+      return { ...pick(['docstatus', 'total_hours', 'parent_project']), projects: [...new Set((d.time_logs || []).map((l) => l.project).filter(Boolean))] };
+    case 'Project':                     // 第 139 轮：按单设计的作业号
+      return pick(['project_name', 'status', 'customer', 'company', 'expected_end_date', 'percent_complete']);
     case 'Contract':
       return pick(['party_type', 'party_name', 'status', 'docstatus', 'is_signed', 'start_date', 'end_date', 'wq_penalty_per_day',
         'wq_response_h', 'wq_warranty_months', 'wq_amount', 'wq_quotation', 'wq_sales_order']);
@@ -1058,4 +1105,4 @@ function summarize(doctype, d) {
   }
 }
 
-module.exports = { ERP, ErpError, summarize, erpDatetime, WH, QI_PARAM };
+module.exports = { ERP, ErpError, summarize, erpDatetime, WH, QI_PARAM, overlapWith, shiftSeconds };

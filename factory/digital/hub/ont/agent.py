@@ -1122,6 +1122,8 @@ class Agent:
             base += "\n现在是教学模式，对方是老师，可以给完整的分析。"
         else:
             base += "\n现在是生产模式，对方是{}。可以直接帮他把事办完（写操作仍只起草）。".format(ROLE_NAMES.get(u.get("role"), u.get("role")))
+        if u.get("lang") == "en":   # 第 130 轮 D-10：英文界面
+            base = base.replace("回答用中文", "回答用英文（对方用的是英文界面；单号、编号、数字照原样）")
         return base
 
     def _llm(self, u, messages, tools):

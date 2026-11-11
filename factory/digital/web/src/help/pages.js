@@ -7,18 +7,19 @@ export const PAGES = {
   '/quality/8d': '质量异常单（8D）', '/ont': '厂情中枢 · 指挥台', '/ont/map': '厂情中枢 · 全貌地图', '/ont/rules': '厂情中枢 · 规则目录', '/ont/sim': '厂情中枢 · 推演工作台', '/ont/actions': '厂情中枢 · 动作收件箱', '/ont/ai': '厂情中枢 · AI 运行记录', '/ont/notify': '通知设置', '/service': '客户与服务', '/lab15': '实验 15 · 车间异常的追因、推演与决策', '/lab16': '实验 16 · 客户投诉的追溯、召回与服务决策', '/lab17': '实验 17 · 安全隐患的识别、评估与停机决策', '/ehs': '安全环保', '/maint': '设备维护', '/lab18': '实验 18 · 设备维护策略：保养时机的决策', '/people': '人员', '/lab19': '实验 19 · 排班与技能：缺人时的决策', '/supply': '采购与来料', '/lab20': '实验 20 · 供应链：来料不合格与供应商选择', '/energy': '能源与环境', '/lab21': '实验 21 · 能源：空转、错峰与单件碳足迹', '/finance': '经营与财务', '/lab22': '实验 22 · 经营：订单毛利、应收与现金', '/ont/reports': '厂情中枢 · 日报与周报',
   '/director': '情景导演', '/labs': '实验与任务', '/lab23': '实验 23 · 两周情景：一张急单的全厂决策', '/help': '帮助',
   '/cost': '生产成本', '/lab28': '负载跑合 · 实验 28',
+  '/eto': '按单设计（ETO）', '/lab33': '实验 33 · 一张非标订单：从询价到收款',
 };
 
 export function pageTitle(path) {
   return PAGES[path] || (path === '/help' || path.startsWith('/help/') ? '帮助' : '')
     || (path.startsWith('/quality/8d/') ? '质量异常单（8D）' : path.startsWith('/ont/') ? '厂情中枢' : '')
-    || (path.startsWith('/design/') ? '设计审阅' : path.startsWith('/process/') ? '工艺规程与 AI 评审'
+    || (path.startsWith('/design/') ? '设计审阅' : path.startsWith('/process/edit/') ? '在页面上改工艺卡' : path.startsWith('/process/') ? '工艺规程与 AI 评审'
       : path.startsWith('/tasks/review/') ? '任务单审阅' : path.startsWith('/tasks/') ? '工程任务单' : '');
 }
 
 // 右上角“帮助”：这一页对应教学版的哪一章（第 19 轮 J-10 的对照表，第 30 轮改指新帮助的章节）。
 export const PAGE_CHAPTER = [
-  ['/work/planner', 'planning'], ['/work/operator', 'workshop'], ['/3d', 'workshop'], ['/bus', 'workshop'],
+  ['/work/planner', 'planning'], ['/eto', 'planning'], ['/lab33', 'planning'], ['/work/operator', 'workshop'], ['/3d', 'workshop'], ['/bus', 'workshop'],
   ['/work/quality', 'quality'], ['/quality/8d', 'quality'],
   ['/work/engineer', 'design-to-factory'], ['/process', 'design-to-factory'], ['/design', 'design-to-factory'],
   ['/cae', 'design-to-factory'], ['/cfd', 'design-to-factory'], ['/mbd', 'design-to-factory'], ['/cam', 'design-to-factory'],

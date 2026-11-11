@@ -5,6 +5,7 @@
 老师注入“卧加下班忘关 + 热处理峰时开炉”→ 学生在指挥台比较“空闲 10 / 30 分钟自动待机、全部机加设备待机、不处理”（比对模式）→
 执行，厂长批准后车间按新设定运行 → 算错峰一个月省多少电费、少排多少碳，卧加每晚待机一个月少排多少碳。任务编号前缀 l21_。"""
 import json
+from hub import i18n
 
 UNIT = "hmc-01"                  # 老师注入：卧式加工中心下班忘关
 WORK_DAYS = 22                   # 错峰按每月 22 个工作日
@@ -126,7 +127,7 @@ def answer(db, user, tid, ans):
             return {"score": 0, "of": 10, "feedback": "选一个方案"}
         best = (EN._state(db, "teach").get("recommended") or {}).get(str(a["id"])) or "standby10"
         s = 6 if kind == best else (4 if kind != "none" else 2)
-        s += 4 if any(k in reason for k in ("度", "电", "钱", "费", "$")) and any(k in reason for k in ("交期", "预热", "订单", "等", "慢")) else 2
+        s += 4 if i18n.has_kw(reason, ("度", "电", "钱", "费", "$")) and i18n.has_kw(reason, ("交期", "预热", "订单", "等", "慢")) else 2
         _save(db, user, tid, s, {"submitted": True, "option": kind, "reason": reason, "system": best, "anomaly_id": a["id"]})
         return {"score": s, "of": 10, "feedback": "提交了。现在可以在指挥台看中枢的建议，和你的选择对比。" if s == 10 else "提交了（得 {} 分）。".format(s)}
     if tid == "l21_t5":

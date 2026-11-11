@@ -1,128 +1,128 @@
 <template>
   <div class="page">
-    <div class="page-title"><h1>运动与动力分析</h1>
-      <span class="muted">多体动力学（MuJoCo）：选机构或机械臂 → 加驱动和负载 → 服务器计算 → 动画、运动曲线、关节受力、驱动力矩与功率</span>
-      <span class="labs small">实验 9：<a href="/api/cae/lab9/guide.docx">指导书</a> · <a href="/api/cae/lab9/report-template.docx">报告模板</a></span></div>
+    <div class="page-title"><h1>{{ $t('运动与动力分析') }}</h1>
+      <span class="muted">{{ $t('多体动力学（MuJoCo）：选机构或机械臂 → 加驱动和负载 → 服务器计算 → 动画、运动曲线、关节受力、驱动力矩与功率') }}</span>
+      <span class="labs small">{{ $t('实验 9：') }}<a href="/api/cae/lab9/guide.docx">{{ $t('指导书') }}</a> · <a href="/api/cae/lab9/report-template.docx">{{ $t('报告模板') }}</a></span></div>
 
     <div class="row">
       <section class="card side">
-        <div class="step"><b>1</b> 模型</div>
+        <div class="step"><b>1</b> {{ $t('模型') }}</div>
         <div class="seg">
-          <button v-for="s in SRC" :key="s.k" type="button" :class="{ on: src === s.k }" @click="src = s.k">{{ s.label }}</button>
+          <button v-for="s in SRC" :key="s.k" type="button" :class="{ on: src === s.k }" @click="src = s.k">{{ $td(s.label) }}</button>
         </div>
         <template v-if="src === 'mech'">
-          <select v-model="mechId" class="full" aria-label="机构">
-            <option v-for="m in mechs" :key="m.id" :value="m.id">{{ m.name }}</option>
+          <select v-model="mechId" class="full" :aria-label="$t('机构')">
+            <option v-for="m in mechs" :key="m.id" :value="m.id">{{ $td(m.name) }}</option>
           </select>
           <details v-if="mech" class="small">
-            <summary>参数（零件库默认值，可改）</summary>
+            <summary>{{ $t('参数（零件库默认值，可改）') }}</summary>
             <div class="grid2">
               <label v-for="(v, k) in mechParams" :key="k">{{ k }} <input v-model.number="mechParams[k]" type="number" step="any"></label>
             </div>
           </details>
         </template>
-        <select v-else-if="src === 'robot'" v-model="robotId" class="full" aria-label="机械臂">
-          <option v-for="r in robots" :key="r.id" :value="r.id">{{ r.name }}</option>
+        <select v-else-if="src === 'robot'" v-model="robotId" class="full" :aria-label="$t('机械臂')">
+          <option v-for="r in robots" :key="r.id" :value="r.id">{{ $td(r.name) }}</option>
         </select>
-        <label v-else class="small upload">MJCF（.xml）、URDF（.urdf），或带网格的 zip
+        <label v-else class="small upload">{{ $t('MJCF（.xml）、URDF（.urdf），或带网格的 zip') }}
           <input type="file" accept=".xml,.urdf,.mjcf,.zip" @change="pickFile"></label>
-        <button class="btn" :disabled="busy || (src === 'upload' && !file)" @click="loadModel">{{ busy ? '正在读入…' : '读入' }}</button>
-        <div v-if="info" class="small ok">{{ info.bodies.length }} 个构件 · {{ info.joints.length }} 个可驱动关节 · 总质量 {{ info.total_mass_kg.toFixed(2) }} kg</div>
+        <button class="btn" :disabled="busy || (src === 'upload' && !file)" @click="loadModel">{{ busy ? $t('正在读入…') : $t('读入') }}</button>
+        <div v-if="info" class="small ok">{{ $t('{a} 个构件 · {b} 个可驱动关节 · 总质量 {c} kg', { a: info.bodies.length, b: info.joints.length, c: info.total_mass_kg.toFixed(2) }) }}</div>
 
         <template v-if="info">
           <div class="ai-box">
             <textarea v-model="aiText" rows="2" maxlength="500" :placeholder="aiHint"></textarea>
-            <div class="line"><button class="btn" :disabled="aiBusy || !aiText.trim()" @click="aiFill">{{ aiBusy ? 'AI 正在理解…' : 'AI 填表' }}</button>
-              <span class="small muted">AI 只填下面的表，你确认后再计算</span></div>
+            <div class="line"><button class="btn" :disabled="aiBusy || !aiText.trim()" @click="aiFill">{{ aiBusy ? $t('AI 正在理解…') : $t('AI 填表') }}</button>
+              <span class="small muted">{{ $t('AI 只填下面的表，你确认后再计算') }}</span></div>
             <div v-if="aiRes" class="small">
               <div v-for="n in aiRes.notes" :key="n">✓ {{ n }}</div>
-              <div v-for="n in aiRes.unmatched" :key="n" class="warnline">？没看懂：“{{ n }}”——请手动补上</div>
-              <div v-if="aiRes.note" class="muted">{{ aiRes.note }}</div>
+              <div v-for="n in aiRes.unmatched" :key="n" class="warnline">{{ $t('？没看懂：“{a}”——请手动补上', { a: n }) }}</div>
+              <div v-if="aiRes.note" class="muted">{{ $td(aiRes.note) }}</div>
             </div>
           </div>
-          <div class="step"><b>2</b> 驱动 <span class="muted small">{{ src === 'mech' ? '主动件：' + jlabel(driver) : '每个关节一行；“自由”= 不驱动' }}</span></div>
+          <div class="step"><b>2</b> {{ $t('驱动') }} <span class="muted small">{{ src === 'mech' ? $t('主动件：') + jlabel(driver) : $t('每个关节一行；“自由”= 不驱动') }}</span></div>
           <div v-for="j in driveJoints" :key="j.name" class="jrow">
-            <div class="jname">{{ jlabel(j.name) }}<span class="muted small"> {{ j.type === 'hinge' ? '转动' : '移动' }}</span></div>
+            <div class="jname">{{ jlabel(j.name) }}<span class="muted small"> {{ j.type === 'hinge' ? $t('转动') : $t('移动') }}</span></div>
             <div class="jctl small">
-              <label>初值 <input v-model.number="dv[j.name].init" type="number" step="any"> {{ au(j) }}</label>
+              <label>{{ $t('初值') }} <input v-model.number="dv[j.name].init" type="number" step="any"> {{ au(j) }}</label>
               <select v-model="dv[j.name].kind">
-                <option v-for="o in kindsFor(j)" :key="o.k" :value="o.k">{{ o.label }}</option>
+                <option v-for="o in kindsFor(j)" :key="o.k" :value="o.k">{{ $td(o.label) }}</option>
               </select>
               <template v-if="dv[j.name].kind === 'speed'"><label><input v-model.number="dv[j.name].speed" type="number" step="any"> {{ j.type === 'hinge' ? 'r/min' : 'mm/s' }}</label></template>
               <template v-if="dv[j.name].kind === 'move'">
-                <label>到 <input v-model.number="dv[j.name].to" type="number" step="any"> {{ au(j) }}</label>
-                <label><input v-model.number="dv[j.name].t0" type="number" step="0.1" min="0"> 到 <input v-model.number="dv[j.name].t1" type="number" step="0.1"> 秒</label>
-                <label>加速段 <input v-model.number="dv[j.name].accel" type="number" step="5" min="1" max="50"> %</label>
+                <label>{{ $t('到') }} <input v-model.number="dv[j.name].to" type="number" step="any"> {{ au(j) }}</label>
+                <label><input v-model.number="dv[j.name].t0" type="number" step="0.1" min="0"> {{ $t('到') }} <input v-model.number="dv[j.name].t1" type="number" step="0.1"> {{ $t('秒') }}</label>
+                <label>{{ $t('加速段') }} <input v-model.number="dv[j.name].accel" type="number" step="5" min="1" max="50"> %</label>
               </template>
               <template v-if="dv[j.name].kind === 'sine'">
-                <label>幅值 <input v-model.number="dv[j.name].amp" type="number" step="any"> {{ au(j) }}</label>
+                <label>{{ $t('幅值') }} <input v-model.number="dv[j.name].amp" type="number" step="any"> {{ au(j) }}</label>
                 <label><input v-model.number="dv[j.name].freq" type="number" step="0.1"> Hz</label>
               </template>
               <template v-if="dv[j.name].kind === 'torque'"><label><input v-model.number="dv[j.name].torque" type="number" step="any"> {{ j.type === 'hinge' ? 'N·m' : 'N' }}</label></template>
             </div>
           </div>
           <div v-if="src === 'mech' && loadJoints.length" class="small">
-            <div class="muted">工作阻力 / 负载力矩（加在从动件上，方向与运动相反时填负值）</div>
+            <div class="muted">{{ $t('工作阻力 / 负载力矩（加在从动件上，方向与运动相反时填负值）') }}</div>
             <div v-for="j in loadJoints" :key="j.name" class="jrow inline">
               <span>{{ jlabel(j.name) }}</span>
               <label><input v-model.number="loads[j.name]" type="number" step="any"> {{ j.type === 'hinge' ? 'N·m' : 'N' }}</label>
             </div>
           </div>
 
-          <div class="step"><b>3</b> 负载与重力</div>
-          <label class="small chk"><input v-model="gravity" type="checkbox"> 计重力</label>
+          <div class="step"><b>3</b> {{ $t('负载与重力') }}</div>
+          <label class="small chk"><input v-model="gravity" type="checkbox"> {{ $t('计重力') }}</label>
           <div v-for="(p, i) in payloads" :key="'p' + i" class="jrow inline small">
-            <span>负载</span>
+            <span>{{ $t('负载') }}</span>
             <select v-model="p.body"><option v-for="b in info.bodies" :key="b.name" :value="b.name">{{ jlabel(b.name) }}</option></select>
             <label><input v-model.number="p.mass" type="number" step="0.1" min="0"> kg</label>
-            <label>偏移 <input v-model.number="p.y" type="number" step="10"> mm</label>
+            <label>{{ $t('偏移') }} <input v-model.number="p.y" type="number" step="10"> mm</label>
             <button class="x" @click="payloads.splice(i, 1)">×</button>
           </div>
           <div v-for="(f, i) in forces" :key="'f' + i" class="jrow inline small">
-            <span>外力</span>
+            <span>{{ $t('外力') }}</span>
             <select v-model="f.body"><option v-for="b in info.bodies" :key="b.name" :value="b.name">{{ jlabel(b.name) }}</option></select>
             <label>X <input v-model.number="f.fx" type="number"></label><label>Z <input v-model.number="f.fz" type="number"></label> N
             <button class="x" @click="forces.splice(i, 1)">×</button>
           </div>
           <div class="line">
-            <button class="btn ghost small-btn" @click="payloads.push({ body: endBody, mass: 1, y: 0 })">+ 末端负载（质量）</button>
-            <button class="btn ghost small-btn" @click="forces.push({ body: endBody, fx: 0, fz: -100 })">+ 外力</button>
+            <button class="btn ghost small-btn" @click="payloads.push({ body: endBody, mass: 1, y: 0 })">{{ $t('+ 末端负载（质量）') }}</button>
+            <button class="btn ghost small-btn" @click="forces.push({ body: endBody, fx: 0, fz: -100 })">{{ $t('+ 外力') }}</button>
           </div>
 
-          <div class="step"><b>4</b> 记录点与时长</div>
+          <div class="step"><b>4</b> {{ $t('记录点与时长') }}</div>
           <div v-for="(p, i) in points" :key="'pt' + i" class="jrow inline small">
             <input v-model="p.name" class="pname" maxlength="8">
             <select v-model="p.body"><option v-for="b in info.bodies" :key="b.name" :value="b.name">{{ jlabel(b.name) }}</option></select>
             <label>x <input v-model.number="p.x" type="number"></label><label>y <input v-model.number="p.y" type="number"></label><label>z <input v-model.number="p.z" type="number"></label> mm
             <button class="x" @click="points.splice(i, 1)">×</button>
           </div>
-          <button class="btn ghost small-btn" @click="points.push({ name: 'P' + (points.length + 1), body: endBody, x: 0, y: 0, z: 0 })">+ 记录一个点的轨迹</button>
-          <label class="small">仿真时长 <input v-model.number="duration" type="number" min="0.1" max="60" step="0.5"> 秒（最多 60）</label>
-          <label class="small">名称 <input v-model.trim="title" class="full" maxlength="80"></label>
-          <button class="btn primary big-w" :disabled="submitting || !driveCount" @click="submit">{{ submitting ? '正在提交…' : '开始计算' }}</button>
-          <div v-if="!driveCount" class="small muted">至少给一个关节加驱动（或给它“保持”）。</div>
+          <button class="btn ghost small-btn" @click="points.push({ name: 'P' + (points.length + 1), body: endBody, x: 0, y: 0, z: 0 })">{{ $t('+ 记录一个点的轨迹') }}</button>
+          <label class="small">{{ $t('仿真时长') }} <input v-model.number="duration" type="number" min="0.1" max="60" step="0.5"> {{ $t('秒（最多 60）') }}</label>
+          <label class="small">{{ $t('名称') }} <input v-model.trim="title" class="full" maxlength="80"></label>
+          <button class="btn primary big-w" :disabled="submitting || !driveCount" @click="submit">{{ submitting ? $t('正在提交…') : $t('开始计算') }}</button>
+          <div v-if="!driveCount" class="small muted">{{ $t('至少给一个关节加驱动（或给它“保持”）。') }}</div>
         </template>
         <div v-if="err" class="err small">{{ err }}</div>
       </section>
 
       <section class="card grow">
-        <div class="card-head"><h2>{{ result ? '结果' : '模型' }}{{ job ? ' · ' + (job.title || '') : '' }}</h2>
+        <div class="card-head"><h2>{{ result ? $t('结果') : $t('模型') }}{{ job ? ' · ' + (job.title || '') : '' }}</h2>
           <template v-if="result">
-            <button class="btn more" :disabled="reporting" @click="downloadReport">{{ reporting ? '正在生成报告…' : '下载报告（Word）' }}</button>
-            <button class="btn ghost" @click="downloadCsv">导出曲线（CSV）</button>
-            <button class="btn ghost" @click="backToSetup">回到设置</button>
+            <button class="btn more" :disabled="reporting" @click="downloadReport">{{ reporting ? $t('正在生成报告…') : $t('下载报告（Word）') }}</button>
+            <button class="btn ghost" @click="downloadCsv">{{ $t('导出曲线（CSV）') }}</button>
+            <button class="btn ghost" @click="backToSetup">{{ $t('回到设置') }}</button>
           </template></div>
         <div v-if="job && job.status !== 'done'" class="jobbar" :class="job.status">
-          <template v-if="job.status === 'queued'">排队中{{ job.position ? '：前面还有 ' + (job.position - 1) + ' 个任务' : '' }}…</template>
-          <template v-else-if="job.status === 'running'">正在计算…</template>
-          <template v-else>没算成：{{ job.error }}</template>
+          <template v-if="job.status === 'queued'">{{ $t('排队中{a}…', { a: job.position ? $t('：前面还有 ') + (job.position - 1) + $t(' 个任务') : '' }) }}</template>
+          <template v-else-if="job.status === 'running'">{{ $t('正在计算…') }}</template>
+          <template v-else>{{ $t('没算成：{a}', { a: job.error }) }}</template>
         </div>
-        <div v-if="!info && !result" class="empty big-empty">先在左边选一个机构或机械臂，点“读入”。</div>
+        <div v-if="!info && !result" class="empty big-empty">{{ $t('先在左边选一个机构或机械臂，点“读入”。') }}</div>
         <template v-else>
           <MbdViewer ref="viewer" :model-url="modelUrl" :anim="result?.anim" :time="time" :trails="trails" />
           <div v-if="result" class="player">
-            <button class="btn ghost" @click="toggle">{{ playing ? '暂停' : '播放' }}</button>
-            <input v-model.number="time" type="range" :min="0" :max="tmax" step="0.001" aria-label="时间">
+            <button class="btn ghost" @click="toggle">{{ playing ? $t('暂停') : $t('播放') }}</button>
+            <input v-model.number="time" type="range" :min="0" :max="tmax" step="0.001" :aria-label="$t('时间')">
             <span class="mono small">{{ time.toFixed(2) }} / {{ tmax.toFixed(2) }} s</span>
             <select v-model.number="speed" class="small"><option :value="0.1">0.1×</option><option :value="0.25">0.25×</option><option :value="0.5">0.5×</option><option :value="1">1×</option><option :value="2">2×</option></select>
           </div>
@@ -130,64 +130,64 @@
 
         <template v-if="result">
           <table class="t sum">
-            <thead><tr><th>驱动</th><th class="num">峰值</th><th class="num">均方根</th><th class="num">最高速度</th><th class="num">峰值功率 W</th><th class="num">平均功率 W</th></tr></thead>
+            <thead><tr><th>{{ $t('驱动') }}</th><th class="num">{{ $t('峰值') }}</th><th class="num">{{ $t('均方根') }}</th><th class="num">{{ $t('最高速度') }}</th><th class="num">{{ $t('峰值功率 W') }}</th><th class="num">{{ $t('平均功率 W') }}</th></tr></thead>
             <tbody><tr v-for="d in result.stats.drives" :key="d.joint">
-              <td>{{ jlabel(d.joint) }}<span class="muted small"> {{ KIND_NAME[d.kind] }}</span></td>
+              <td>{{ jlabel(d.joint) }}<span class="muted small"> {{ $td(KIND_NAME[d.kind]) }}</span></td>
               <td class="num">{{ d.peak.toFixed(2) }} {{ tu(d.joint) }}</td><td class="num">{{ d.rms.toFixed(2) }}</td>
               <td class="num">{{ spd(d) }}</td><td class="num">{{ d.power_peak.toFixed(1) }}</td><td class="num">{{ d.power_mean.toFixed(1) }}</td></tr></tbody>
           </table>
           <div class="ai-exp">
-            <div class="line"><b>AI 解释与建议</b>
-              <button class="btn ghost small-btn" :disabled="expBusy" @click="explain">{{ expBusy ? 'AI 正在分析…' : (exp ? '重新分析' : '请 AI 解释结果') }}</button></div>
+            <div class="line"><b>{{ $t('AI 解释与建议') }}</b>
+              <button class="btn ghost small-btn" :disabled="expBusy" @click="explain">{{ expBusy ? $t('AI 正在分析…') : (exp ? $t('重新分析') : $t('请 AI 解释结果')) }}</button></div>
             <template v-if="exp">
               <p v-for="(l, i) in exp.text.split('\n')" :key="i" class="exp-p">{{ l }}</p>
-              <div class="line"><button v-for="a in exp.actions" :key="a.label" class="btn primary small-btn" @click="act(a)">{{ a.label }}</button></div>
-              <div class="small muted">{{ exp.engine === 'rules' ? '规则分析' : exp.engine === 'saved' ? '上次的分析' : 'AI 模型分析' }}，仅供参考；会写进报告。</div>
+              <div class="line"><button v-for="a in exp.actions" :key="a.label" class="btn primary small-btn" @click="act(a)">{{ $td(a.label) }}</button></div>
+              <div class="small muted">{{ $t('{a}，仅供参考；会写进报告。', { a: exp.engine === 'rules' ? $t('规则分析') : exp.engine === 'saved' ? $t('上次的分析') : $t('AI 模型分析') }) }}</div>
             </template>
           </div>
           <div v-if="feaMembers.length" class="line small">
-            <span class="muted">把杆件受力最大的时刻送去有限元：</span>
+            <span class="muted">{{ $t('把杆件受力最大的时刻送去有限元：') }}</span>
             <router-link v-for="m in feaMembers" :key="m" class="btn ghost small-btn" :to="{ path: '/cae', query: { mbd: job.id, member: m } }">{{ jlabel(m) }} →</router-link>
           </div>
           <div class="motor">
-            <div class="line"><b>电机选型</b>
-              <label class="small">安全系数 <select v-model.number="safety"><option :value="1.0">1.0</option><option :value="1.2">1.2</option><option :value="1.5">1.5</option><option :value="2.0">2.0</option></select></label>
-              <button class="btn ghost small-btn" :disabled="motorBusy" @click="loadMotors">{{ motorBusy ? '正在选…' : (motors ? '重新选' : '按这次的力矩、转速选电机和减速器') }}</button></div>
+            <div class="line"><b>{{ $t('电机选型') }}</b>
+              <label class="small">{{ $t('安全系数') }} <select v-model.number="safety"><option :value="1.0">1.0</option><option :value="1.2">1.2</option><option :value="1.5">1.5</option><option :value="2.0">2.0</option></select></label>
+              <button class="btn ghost small-btn" :disabled="motorBusy" @click="loadMotors">{{ motorBusy ? $t('正在选…') : (motors ? $t('重新选') : $t('按这次的力矩、转速选电机和减速器')) }}</button></div>
             <table v-if="motors" class="t">
-              <thead><tr><th>关节</th><th class="num">峰值 N·m</th><th class="num">均方根 N·m</th><th class="num">最高 r/min</th><th>推荐</th><th class="num">裕量</th><th>说明</th></tr></thead>
+              <thead><tr><th>{{ $t('关节') }}</th><th class="num">{{ $t('峰值 N·m') }}</th><th class="num">{{ $t('均方根 N·m') }}</th><th class="num">{{ $t('最高 r/min') }}</th><th>{{ $t('推荐') }}</th><th class="num">{{ $t('裕量') }}</th><th>{{ $t('说明') }}</th></tr></thead>
               <tbody><tr v-for="m in motors.joints" :key="m.joint">
                 <td>{{ jlabel(m.joint) }}</td><td class="num">{{ m.need.peak_Nm.toFixed(1) }}</td><td class="num">{{ m.need.rms_Nm.toFixed(1) }}</td>
                 <td class="num">{{ m.need.speed_rpm.toFixed(1) }}</td>
-                <td><span class="pill" :class="m.ok ? 'good' : 'bad'">{{ m.ok ? '够用' : '不够' }}</span> {{ m.best.motor }} + {{ m.best.gear }}，i = {{ m.best.ratio }}</td>
-                <td class="num">{{ m.best.margin_pct == null ? '很大' : m.best.margin_pct + '%' }}</td>
-                <td class="small muted">{{ m.note }}</td></tr></tbody>
+                <td><span class="pill" :class="m.ok ? 'good' : 'bad'">{{ m.ok ? $t('够用') : $t('不够') }}</span> {{ $t('{a} + {b}，i = {c}', { a: m.best.motor, b: m.best.gear, c: m.best.ratio }) }}</td>
+                <td class="num">{{ m.best.margin_pct == null ? $t('很大') : m.best.margin_pct + '%' }}</td>
+                <td class="small muted">{{ $td(m.note) }}</td></tr></tbody>
             </table>
-            <div v-if="motors" class="small muted">参数：{{ motors.table.source }}。减速器效率取 {{ motors.table.eta }}；电机侧力矩含转子惯量的加速项。</div>
+            <div v-if="motors" class="small muted">{{ $t('参数：{a}。减速器效率取 {b}；电机侧力矩含转子惯量的加速项。', { a: motors.table.source, b: motors.table.eta }) }}</div>
           </div>
           <div class="chips">
-            <span class="small muted">曲线：</span>
+            <span class="small muted">{{ $t('曲线：') }}</span>
             <button v-for="(lab, g) in GROUPS" v-show="groupHas(g)" :key="g" type="button" class="chip" :class="{ on: shown.includes(g) }" @click="toggleGroup(g)">{{ lab }}</button>
           </div>
           <div class="charts">
             <TimeChart v-for="c in charts" :key="c.group" :title="c.title" :unit="c.unit" :t="series.t" :series="c.series" :cursor="time" @seek="time = $event" />
           </div>
-          <div v-if="charts.some((c) => c.more)" class="small muted">反力曲线只画受力最大的 6 个构件；全部数据在 CSV 里。</div>
+          <div v-if="charts.some((c) => c.more)" class="small muted">{{ $t('反力曲线只画受力最大的 6 个构件；全部数据在 CSV 里。') }}</div>
         </template>
       </section>
     </div>
 
     <section class="card">
-      <div class="card-head"><h2>{{ teacher ? '本厂的计算记录' : '我的计算记录' }}</h2></div>
-      <div v-if="!jobs.length" class="empty">还没有计算记录。</div>
+      <div class="card-head"><h2>{{ teacher ? $t('本厂的计算记录') : $t('我的计算记录') }}</h2></div>
+      <div v-if="!jobs.length" class="empty">{{ $t('还没有计算记录。') }}</div>
       <table v-else class="t">
-        <thead><tr><th>名称</th><th v-if="teacher">提交人</th><th>时间</th><th>状态</th><th class="num">用时 s</th><th></th></tr></thead>
+        <thead><tr><th>{{ $t('名称') }}</th><th v-if="teacher">{{ $t('提交人') }}</th><th>{{ $t('时间') }}</th><th>{{ $t('状态') }}</th><th class="num">{{ $t('用时 s') }}</th><th></th></tr></thead>
         <tbody><tr v-for="j in jobs" :key="j.id">
-          <td>{{ j.title || '—' }}</td><td v-if="teacher">{{ j.owner_name }}</td>
+          <td>{{ j.title || '—' }}</td><td v-if="teacher">{{ $td(j.owner_name) }}</td>
           <td class="small">{{ new Date(j.created * 1000).toLocaleString('zh-CN', { hour12: false }) }}</td>
-          <td><span class="pill" :class="TONE[j.status]">{{ STATUS[j.status] }}</span></td>
+          <td><span class="pill" :class="TONE[j.status]">{{ $td(STATUS[j.status]) }}</span></td>
           <td class="num">{{ j.stats?.seconds ?? '' }}</td>
-          <td><a v-if="j.status === 'done'" href="#" @click.prevent="openJob(j)">看结果 →</a>
-            <span v-else-if="j.status === 'failed'" class="small err" :title="j.error">原因</span></td>
+          <td><a v-if="j.status === 'done'" href="#" @click.prevent="openJob(j)">{{ $t('看结果 →') }}</a>
+            <span v-else-if="j.status === 'failed'" class="small err" :title="j.error">{{ $t('原因') }}</span></td>
         </tr></tbody>
       </table>
     </section>
@@ -195,16 +195,17 @@
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { get, post, session, ApiError } from '../lib/api';
 import { fetchSeries, fetchAnim, describe, GROUPS, SERIES, toCSV } from '../lib/mbd';
 import MbdViewer from '../components/MbdViewer.vue';
 import TimeChart from '../components/TimeChart.vue';
 
-const SRC = [{ k: 'mech', label: '零件库机构' }, { k: 'robot', label: '机械臂' }, { k: 'upload', label: '上传模型' }];
-const STATUS = { queued: '排队', running: '计算中', done: '完成', failed: '失败' };
+const SRC = [{ k: 'mech', label: $t('零件库机构') }, { k: 'robot', label: $t('机械臂') }, { k: 'upload', label: $t('上传模型') }];
+const STATUS = { queued: $t('排队'), running: $t('计算中'), done: $t('完成'), failed: $t('失败') };
 const TONE = { queued: 'mute', running: 'info', done: 'good', failed: 'bad' };
-const KIND_NAME = { speed: '匀速', move: '点到点', sine: '正弦', hold: '保持', torque: '给定力矩', coupled: '机构带动' };
+const KIND_NAME = { speed: $t('匀速'), move: $t('点到点'), sine: $t('正弦'), hold: $t('保持'), torque: $t('给定力矩'), coupled: $t('机构带动') };
 const DEG = Math.PI / 180;
 
 const teacher = computed(() => !!session.user?.teacher);
@@ -238,8 +239,8 @@ const endBody = computed(() => {
 const modelUrl = computed(() => info.value?.model_url || '');
 const au = (j) => (j.type === 'hinge' ? '°' : 'mm');
 const toSI = (j, v) => (j.type === 'hinge' ? v * DEG : v / 1000);
-const kindsFor = () => [{ k: 'free', label: '自由' }, { k: 'hold', label: '保持' }, { k: 'speed', label: '匀速' }, { k: 'move', label: '点到点' },
-  { k: 'sine', label: '正弦' }, { k: 'torque', label: '给定力矩' }];
+const kindsFor = () => [{ k: 'free', label: $t('自由') }, { k: 'hold', label: $t('保持') }, { k: 'speed', label: $t('匀速') }, { k: 'move', label: $t('点到点') },
+  { k: 'sine', label: $t('正弦') }, { k: 'torque', label: $t('给定力矩') }];
 const driveCount = computed(() => driveJoints.value.filter((j) => dv.value[j.name] && dv.value[j.name].kind !== 'free').length);
 const tu = (n) => (jtypes.value[n] === 'slide' ? 'N' : 'N·m');
 const spd = (d) => (jtypes.value[d.joint] === 'slide' ? (d.speed_max * 1000).toFixed(0) + ' mm/s' : (d.speed_max / (2 * Math.PI) * 60).toFixed(1) + ' r/min');
@@ -253,7 +254,7 @@ async function loadModel() {
       const fd = new FormData(); fd.append('file', file.value);
       const res = await fetch('/api/mbd/models/upload', { method: 'POST', headers: { 'x-wq-token': session.token }, body: fd });
       r = await res.json().catch(() => ({}));
-      if (!res.ok) throw new ApiError(res.status, r.detail || '读不了这个模型');
+      if (!res.ok) throw new ApiError(res.status, r.detail || $t('读不了这个模型'));
     } else {
       const ref = src.value === 'mech' ? { source: 'mech', id: mechId.value, params: mechParams.value } : { source: 'library', id: robotId.value };
       r = await post('/mbd/models/load', ref);
@@ -274,7 +275,7 @@ function resetForm() {
   payloads.value = []; forces.value = []; points.value = [];
   gravity.value = true; duration.value = driver.value ? 2 : 2;
   const id = ref_.value?.id;
-  title.value = (src.value === 'mech' ? mech.value?.name : robots.value.find((r) => r.id === id)?.name) || '上传的模型';
+  title.value = (src.value === 'mech' ? mech.value?.name : robots.value.find((r) => r.id === id)?.name) || $t('上传的模型');
   if (id === 'C-LNK-4BAR') points.value = [{ name: 'P', body: 'coupler', x: (mechParams.value.coupler_m || 0.12) * 500, y: 0, z: 0 }];
   if (id === 'C-LNK-SLIDER') forces.value = [{ body: 'slider', fx: -200, fz: 0 }];
   if (robots.value.some((r) => r.id === id)) {                       // 机械臂示范：肩、肘 1.3 秒内各转一个角度，带 3 kg
@@ -363,8 +364,8 @@ function backToSetup() { result.value = null; job.value = null; playing.value = 
 // ---- AI（第 5 步）
 const aiText = ref(''), aiBusy = ref(false), aiRes = ref(null);
 const aiHint = computed(() => (driver.value
-  ? '例如：曲柄 60 rpm 匀速转，滑块上有 200 N 阻力，仿真 3 秒'
-  : '例如：底座转 90°，大臂抬 30°，1.5 秒，末端带 3 kg'));
+  ? $t('例如：曲柄 60 rpm 匀速转，滑块上有 200 N 阻力，仿真 3 秒')
+  : $t('例如：底座转 90°，大臂抬 30°，1.5 秒，末端带 3 kg')));
 function aiModel() {
   const m = mechs.value.find((x) => x.id === ref_.value?.id);
   return { kind: ref_.value?.source === 'mech' ? 'mech' : ref_.value?.source === 'library' ? 'robot' : 'upload',
@@ -413,7 +414,7 @@ async function act(a) {
   for (const d of s.drives) if (d.kind === 'move') { d.t1 = d.t0 + (d.t1 - d.t0) * a.factor; end = Math.max(end, d.t1 + 0.3); }
   s.duration_s = +end.toFixed(2);
   try {
-    job.value = await post('/mbd/jobs', { model: job.value.model, setup: s, title: `${job.value.title}（运动时间 ×${a.factor}）`, item: job.value.item });
+    job.value = await post('/mbd/jobs', { model: job.value.model, setup: s, title: $t('{a}（运动时间 ×{b}）', { a: job.value.title, b: a.factor }), item: job.value.item });
     result.value = null; exp.value = null; poll(); loadJobs();
   } catch (e) { err.value = e.message; }
 }
@@ -479,7 +480,7 @@ function downloadCsv() {
   const names = Object.keys(series.value).filter((n) => n !== 't');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([toCSV(series.value, names)], { type: 'text/csv' }));
-  a.download = `动力学-${job.value?.title || job.value?.id}.csv`;
+  a.download = $t('动力学-{a}.csv', { a: job.value?.title || job.value?.id });
   document.body.appendChild(a); a.click(); a.remove();
 }
 // ---- 报告：动画截图 + 当前显示的曲线（SVG 转 PNG）+ 电机选型
@@ -507,18 +508,18 @@ async function downloadReport() {
   try {
     const images = [];
     const shot = viewer.value?.snapshot();
-    if (shot) images.push({ data: shot, caption: `模型与运动轨迹（t = ${time.value.toFixed(2)} s）` });
+    if (shot) images.push({ data: shot, caption: $t('模型与运动轨迹（t = {a} s）', { a: time.value.toFixed(2) }) });
     const svgs = [...document.querySelectorAll('.charts .tc')];
     for (const [i, el] of svgs.slice(0, 5).entries()) {
       const png = await svgPng(el.querySelector('svg'));
-      if (png) images.push({ data: png, caption: `${charts.value[i]?.title || ''}（${charts.value[i]?.unit || ''}），横轴时间 s；` + (charts.value[i]?.series || []).map((x) => x.label).join('、') });
+      if (png) images.push({ data: png, caption: $t('{a}（{b}），横轴时间 s；', { a: charts.value[i]?.title || '', b: charts.value[i]?.unit || '' }) + (charts.value[i]?.series || []).map((x) => x.label).join('、') });   // i18n-ok 只剩标点
     }
     const r = await fetch(`/api/mbd/jobs/${encodeURIComponent(job.value.id)}/report`, {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'x-wq-token': session.token }, body: JSON.stringify({ images, motors: motors.value }) });
-    if (!r.ok) throw new ApiError(r.status, (await r.json().catch(() => ({}))).detail || '报告生成失败');
+    if (!r.ok) throw new ApiError(r.status, (await r.json().catch(() => ({}))).detail || $t('报告生成失败'));
     const a = document.createElement('a');
     a.href = URL.createObjectURL(await r.blob());
-    a.download = `动力学报告-${job.value.title || job.value.id}.docx`;
+    a.download = $t('动力学报告-{a}.docx', { a: job.value.title || job.value.id });
     document.body.appendChild(a); a.click(); a.remove();
   } catch (e) { err.value = e.message; } finally { reporting.value = false; }
 }
@@ -529,7 +530,7 @@ onMounted(async () => {
     const [m, r] = await Promise.all([get('/mbd/mechs'), get('/mbd/robots')]);
     mechs.value = m.mechs; robots.value = r.robots;
     if (mech.value) mechParams.value = { ...mech.value.params };
-  } catch (e) { err.value = e.status === 503 ? '计算服务暂时连不上，请稍后再试' : e.message; }
+  } catch (e) { err.value = e.status === 503 ? $t('计算服务暂时连不上，请稍后再试') : e.message; }
   loadJobs();
 });
 onUnmounted(() => { clearTimeout(pollT); cancelAnimationFrame(raf); playing.value = false; });

@@ -1,11 +1,11 @@
 <template>
   <figure class="wo">
     <div class="ctl">
-      <label class="small"><input v-model="twin" type="checkbox" @change="restart"> 粗车加一台车床</label>
-      <button class="btn sm" @click="restart">重新开始</button>
-      <span class="small muted">工单 10 件 · 工厂时间 {{ Math.round(t) }} 分钟 · 完工 {{ done }} / 10</span>
+      <label class="small"><input v-model="twin" type="checkbox" @change="restart"> {{ $t('粗车加一台车床') }}</label>
+      <button class="btn sm" @click="restart">{{ $t('重新开始') }}</button>
+      <span class="small muted">{{ $t('工单 10 件 · 工厂时间 {a} 分钟 · 完工 {b} / 10', { a: Math.round(t), b: done }) }}</span>
     </div>
-    <svg viewBox="0 0 760 196" role="img" :aria-label="`工单流转演示：完工 ${done} 件，粗车前排队最多 ${maxQ} 件`">
+    <svg viewBox="0 0 760 196" role="img" :aria-label="`工单流转演示：完工 ${done} 件，粗车前排队最多 ${maxQ} 件`"><!-- i18n-ok 读屏标签 / 数据比较 -->
       <line x1="20" y1="104" x2="740" y2="104" class="belt" />
       <g v-for="(s, i) in st" :key="s.name">
         <g v-for="(p, k) in s.queue.slice(0, 8)" :key="'q' + p" class="qpart">
@@ -13,29 +13,30 @@
         </g>
         <text v-if="s.queue.length > 8" :x="sx(i) - 46" y="70" class="more">+{{ s.queue.length - 8 }}</text>
         <rect v-for="(m, j) in s.slots" :key="j" :x="sx(i) - 24" :y="74 + j * 0 - (s.slots.length > 1 ? 22 - j * 44 : 0)" width="64" height="40" rx="6"
-          class="mach" :class="{ busy: m.part !== null, bott: s.name === '粗车' }" />
+          class="mach" :class="{ busy: m.part !== null, bott: s.name === '粗车' }" /><!-- i18n-ok 数据比较 -->
         <template v-for="(m, j) in s.slots" :key="'p' + j">
           <circle v-if="m.part !== null" :cx="sx(i) + 8" :cy="94 - (s.slots.length > 1 ? 22 - j * 44 : 0)" r="7" class="part" />
           <rect v-if="m.part !== null" :x="sx(i) - 18" :y="108 - (s.slots.length > 1 ? 22 - j * 44 : 0)" :width="52 * (1 - m.left / s.cycle)" height="3" class="prog" />
         </template>
-        <text :x="sx(i) + 8" y="166" class="nm">{{ s.name }}</text>
-        <text :x="sx(i) + 8" y="188" class="sub">{{ s.cycle }} 分/件{{ s.slots.length > 1 ? ' × 2 台' : '' }}</text>
+        <text :x="sx(i) + 8" y="166" class="nm">{{ $td(s.name) }}</text>
+        <text :x="sx(i) + 8" y="188" class="sub">{{ $t('{a} 分/件{b}', { a: s.cycle, b: s.slots.length > 1 ? $t(' × 2 台') : '' }) }}</text>
       </g>
       <g class="bin">
         <rect x="676" y="70" width="70" height="56" rx="8" />
         <text x="711" y="98" class="bn">{{ done }}</text>
-        <text x="711" y="118" class="sub">完工</text>
+        <text x="711" y="118" class="sub">{{ $t('完工') }}</text>
       </g>
     </svg>
-    <figcaption class="small muted">示例：四道工序、每件依次流过。粗车最慢，零件在它前面排队，它就是<b>瓶颈</b>；给粗车加一台，排队消失，整批完工时间缩短（{{ twin ? '现在是两台' : '勾上“粗车加一台车床”试试' }}）。</figcaption>
+    <figcaption class="small muted">{{ $t('示例：四道工序、每件依次流过。粗车最慢，零件在它前面排队，它就是') }}<b>{{ $t('瓶颈') }}</b>{{ $t('；给粗车加一台，排队消失，整批完工时间缩短（{a}）。', { a: twin ? $t('现在是两台') : $t('勾上“粗车加一台车床”试试') }) }}</figcaption>
   </figure>
 </template>
 
 <script setup>
+import { t as $t } from '../../../lib/i18n';
 // 工单在设备间流转（ADR-0065）：一张 10 件的工单依次走四道工序，看排队、瓶颈；可以给瓶颈加一台设备对比。
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
-const STEPS = [{ name: '下料', cycle: 2 }, { name: '粗车', cycle: 6 }, { name: '精车', cycle: 4 }, { name: '检验', cycle: 2 }];
+const STEPS = [{ name: $t('下料'), cycle: 2 }, { name: $t('粗车'), cycle: 6 }, { name: $t('精车'), cycle: 4 }, { name: $t('检验'), cycle: 2 }];
 const twin = ref(false);
 const st = ref([]);
 const t = ref(0);
@@ -47,7 +48,7 @@ let raf, last;
 
 function reset() {
   st.value = STEPS.map((s, i) => ({ ...s, queue: i === 0 ? [...Array(10).keys()] : [],
-    slots: Array.from({ length: s.name === '粗车' && twin.value ? 2 : 1 }, () => ({ part: null, left: 0 })) }));
+    slots: Array.from({ length: s.name === '粗车' && twin.value ? 2 : 1 }, () => ({ part: null, left: 0 })) }));   // i18n-ok 数据比较
   t.value = 0; done.value = 0; maxQ.value = 0;
 }
 function step(dt) {

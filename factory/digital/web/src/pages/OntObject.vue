@@ -1,35 +1,35 @@
 <template>
   <div class="page">
-    <div v-if="err" class="err">{{ err }} <router-link to="/ont/map">回厂情中枢</router-link></div>
+    <div v-if="err" class="err">{{ err }} <router-link to="/ont/map">{{ $t('回厂情中枢') }}</router-link></div>
     <template v-if="o">
       <header class="head card" :style="{ '--c': DOMAIN_COLOR[o.domain] }">
-        <div class="crumb small"><router-link to="/ont/map">厂情中枢</router-link> / <span>{{ domainLabel }}</span> /
-          <router-link :to="'/ont/' + o.type">{{ o.label }}</router-link></div>
+        <div class="crumb small"><router-link to="/ont/map">{{ $t('厂情中枢') }}</router-link> / <span>{{ domainLabel }}</span> /
+          <router-link :to="'/ont/' + o.type">{{ $td(o.label) }}</router-link></div>
         <div class="title">
-          <span class="badge">{{ o.label }}</span>
-          <h1>{{ o.display }}</h1>
-          <span v-if="o.display !== o.key" class="mono muted">{{ o.key }}</span>
+          <span class="badge">{{ $td(o.label) }}</span>
+          <h1>{{ $td(o.display) }}</h1>
+          <span v-if="o.display !== o.key" class="mono muted">{{ $td(o.key) }}</span>
           <span v-if="tone" class="pill" :class="tone">{{ stateText }}</span>
-          <button class="btn sm ghost askbtn" @click="ask(o.key + ' 现在怎么样？有什么影响？')">问 AI 这个对象</button>
+          <button class="btn sm ghost askbtn" @click="ask($t('{a} 现在怎么样？有什么影响？', { a: $td(o.key) }))">{{ $t('问 AI 这个对象') }}</button>
         </div>
         <div class="small muted">
-          {{ o.label_en }} · 首次出现 {{ fmtTs(o.first_ts) || '—' }} · 最近更新 {{ fmtTs(o.updated_at) }}
-          <template v-if="o.aliases.length"> · 也叫：<span class="mono">{{ o.aliases.join('、') }}</span></template>
+          {{ $t('{a} · 首次出现 {b} · 最近更新 {c}', { a: $td(o.label_en), b: fmtTs(o.first_ts) || '—', c: fmtTs(o.updated_at) }) }}
+          <template v-if="o.aliases.length"> {{ $t('· 也叫：') }}<span class="mono">{{ o.aliases.join($t('、')) }}</span></template>
         </div>
       </header>
 
       <div class="cols">
         <section class="card attrs">
-          <div class="card-head"><h2>属性</h2><span class="muted small">ⓘ 看原始记录</span></div>
+          <div class="card-head"><h2>{{ $t('属性') }}</h2><span class="muted small">{{ $t('ⓘ 看原始记录') }}</span></div>
           <table class="t">
             <tbody><tr v-for="a in o.attrs" :key="a.name">
-              <th>{{ a.label }}</th>
+              <th>{{ $td(a.label) }}</th>
               <td class="mono">{{ fmtVal(a.value, a.unit) }}</td>
-              <td class="srccol"><button v-if="a.source" class="src-btn" :title="'来源：总线消息 #' + a.source" @click="showSource(a.source, a.label)">ⓘ</button></td>
+              <td class="srccol"><button v-if="a.source" class="src-btn" :title="$t('来源：总线消息 #') + a.source" @click="showSource(a.source, a.label)">ⓘ</button></td>
             </tr></tbody>
           </table>
-          <p v-if="!o.attrs.length" class="muted small">没有属性数据。</p>
-          <p class="muted small">数据来源：{{ o.sources.join('、') || '—' }}</p>
+          <p v-if="!o.attrs.length" class="muted small">{{ $t('没有属性数据。') }}</p>
+          <p class="muted small">{{ $t('数据来源：{a}', { a: o.sources.join($t('、')) || '—' }) }}</p>
         </section>
 
         <section class="card graph">
@@ -37,41 +37,41 @@
         </section>
 
         <section class="card tl">
-          <div class="card-head"><h2>时间线</h2>
-            <select v-model="kind" class="more" aria-label="事件种类"><option value="">全部</option><option v-for="k in kinds" :key="k" :value="k">{{ kindLabel(k) }}</option></select></div>
+          <div class="card-head"><h2>{{ $t('时间线') }}</h2>
+            <select v-model="kind" class="more" :aria-label="$t('事件种类')"><option value="">{{ $t('全部') }}</option><option v-for="k in kinds" :key="k" :value="k">{{ kindLabel(k) }}</option></select></div>
           <ol class="events">
             <li v-for="(e, i) in shownEvents" :key="i">
               <span class="ts mono small">{{ fmtTs(e.ts) }}</span>
               <span class="ev">{{ e.text || kindLabel(e.kind) }}</span>
-              <span v-for="c in e.changes" :key="c.prop" class="chg small"><b>{{ c.label }}</b> {{ fmtVal(c.old) }} → {{ fmtVal(c.new, c.unit) }}</span>
-              <button v-if="e.seq" class="src-btn" :title="'来源：总线消息 #' + e.seq" @click="showSource(e.seq, e.text)">ⓘ</button>
+              <span v-for="c in e.changes" :key="c.prop" class="chg small"><b>{{ $td(c.label) }}</b> {{ fmtVal(c.old) }} → {{ fmtVal(c.new, c.unit) }}</span>
+              <button v-if="e.seq" class="src-btn" :title="$t('来源：总线消息 #') + e.seq" @click="showSource(e.seq, e.text)">ⓘ</button>
             </li>
           </ol>
-          <p v-if="!shownEvents.length" class="muted small">没有事件。</p>
+          <p v-if="!shownEvents.length" class="muted small">{{ $t('没有事件。') }}</p>
         </section>
       </div>
 
       <section class="card">
-        <div class="card-head"><h2>影响面</h2><span class="muted small">从这个对象出发，往上游找原因、往下游看影响（不开异常）</span>
-          <button v-if="!impact" class="more btn" :disabled="impactBusy" @click="loadImpact">{{ impactBusy ? '计算中…' : '算一下影响面' }}</button></div>
+        <div class="card-head"><h2>{{ $t('影响面') }}</h2><span class="muted small">{{ $t('从这个对象出发，往上游找原因、往下游看影响（不开异常）') }}</span>
+          <button v-if="!impact" class="more btn" :disabled="impactBusy" @click="loadImpact">{{ impactBusy ? $t('计算中…') : $t('算一下影响面') }}</button></div>
         <template v-if="impact">
           <ul class="small isum"><li v-for="(x, i) in impact.summary" :key="i">{{ x }}</li></ul>
           <div class="impact"><ChainGraph :chain="impact" @edge="(e) => (ibasis = e)" /></div>
-          <p v-if="ibasis" class="small muted">依据：{{ ibasis.label }} —— {{ ibasis.basis.how }}<template v-if="ibasis.basis.seq">
-            <button class="src-btn" @click="showSource(ibasis.basis.seq, ibasis.label)">ⓘ #{{ ibasis.basis.seq }}</button></template></p>
+          <p v-if="ibasis" class="small muted">{{ $t('依据：{a} —— {b}', { a: $td(ibasis.label), b: $td(ibasis.basis.how) }) }}<template v-if="ibasis.basis.seq">
+            <button class="src-btn" @click="showSource(ibasis.basis.seq, ibasis.label)">ⓘ #{{ $td(ibasis.basis.seq) }}</button></template></p>
         </template>
       </section>
 
       <section class="card">
-        <div class="card-head"><h2>相关对象</h2><span class="muted small">按关系分组；每组最多显示 50 个</span>
-          <button class="more btn ghost sm" :disabled="!o.links.length" @click="exportCsv">导出 CSV</button></div>
-        <p v-if="!o.links.length" class="muted small">还没有和其他对象的关系。</p>
+        <div class="card-head"><h2>{{ $t('相关对象') }}</h2><span class="muted small">{{ $t('按关系分组；每组最多显示 50 个') }}</span>
+          <button class="more btn ghost sm" :disabled="!o.links.length" @click="exportCsv">{{ $t('导出 CSV') }}</button></div>
+        <p v-if="!o.links.length" class="muted small">{{ $t('还没有和其他对象的关系。') }}</p>
         <details v-for="g in o.links" :key="g.link + g.direction" open class="grp">
-          <summary><b>{{ g.label }}</b> <span class="muted">{{ g.type_label }}</span> <span class="pill mute">{{ g.items.length }}{{ g.more ? '+' : '' }}</span>
-            <router-link v-if="g.more" class="small" :to="'/ont/' + g.type">查看全部</router-link></summary>
+          <summary><b>{{ $td(g.label) }}</b> <span class="muted">{{ $td(g.type_label) }}</span> <span class="pill mute">{{ $td(g.items.length) }}{{ g.more ? '+' : '' }}</span>
+            <router-link v-if="g.more" class="small" :to="'/ont/' + g.type">{{ $t('查看全部') }}</router-link></summary>
           <table class="t">
             <tbody><tr v-for="it in g.items" :key="it.key">
-              <td><ObjLink :type="g.type" :k="it.key">{{ it.display }}</ObjLink></td>
+              <td><ObjLink :type="g.type" :k="it.key">{{ $td(it.display) }}</ObjLink></td>
               <td class="small muted mono">{{ linkProps(it.props) }}</td>
               <td class="srccol"><button v-if="it.seq" class="src-btn" @click="showSource(it.seq, g.label)">ⓘ</button></td>
             </tr></tbody>
@@ -81,12 +81,12 @@
     </template>
 
     <div v-if="src" class="modal-mask" @click.self="src = null">
-      <div class="modal src-modal" role="dialog" aria-label="原始记录">
-        <div class="card-head"><h2>原始记录 · {{ srcTitle }}</h2><button class="more btn ghost sm" @click="src = null">关闭</button></div>
-        <div v-if="src.error" class="err">{{ src.error }}</div>
+      <div class="modal src-modal" role="dialog" :aria-label="$t('原始记录')">
+        <div class="card-head"><h2>{{ $t('原始记录 · {a}', { a: srcTitle }) }}</h2><button class="more btn ghost sm" @click="src = null">{{ $t('关闭') }}</button></div>
+        <div v-if="src.error" class="err">{{ $td(src.error) }}</div>
         <template v-else>
-          <p class="small">总线消息 <b class="mono">#{{ src.seq }}</b> · {{ fmtTs(src.ts) }} · 来源 <span class="mono">{{ src.source }}</span></p>
-          <p class="small mono muted">{{ src.topic }}（{{ src.type }}）<template v-if="src.corr"> · 关联 {{ src.corr }}</template></p>
+          <p class="small">{{ $t('总线消息') }} <b class="mono">#{{ $td(src.seq) }}</b> {{ $t('· {a} · 来源', { a: fmtTs(src.ts) }) }} <span class="mono">{{ $td(src.source) }}</span></p>
+          <p class="small mono muted">{{ $t('{a}（{b}）', { a: $td(src.topic), b: $td(src.type) }) }}<template v-if="src.corr"> {{ $t('· 关联 {a}', { a: $td(src.corr) }) }}</template></p>
           <pre class="raw">{{ JSON.stringify(src.data, null, 2) }}</pre>
         </template>
       </div>
@@ -95,6 +95,7 @@
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import OntGraph from '../components/OntGraph.vue';
@@ -119,8 +120,8 @@ async function loadImpact() {
   try { impact.value = await get(`/ont/impact/${o.value.type}/${o.value.key.split('/').map(encodeURIComponent).join('/')}`); } catch (e) { alert(e.message); } finally { impactBusy.value = false; }
 }
 
-const KIND = { created: '出现', updated: '更新', processed: '加工', started: '开工', completed: '完工', runin: '跑合', nonconforming: '不合格',
-  removed: '卸下', recovered: '恢复', down: '停机', recover: '恢复', tool_change: '换刀' };
+const KIND = { created: $t('出现'), updated: $t('更新'), processed: $t('加工'), started: $t('开工'), completed: $t('完工'), runin: $t('跑合'), nonconforming: $t('不合格'),
+  removed: $t('卸下'), recovered: $t('恢复'), down: $t('停机'), recover: $t('恢复'), tool_change: $t('换刀') };
 const kindLabel = (k) => KIND[k] || (k.startsWith('erp.') ? 'ERPNext ' + k.slice(4) : k);
 const kinds = computed(() => [...new Set(events.value.map((e) => e.kind))]);
 const shownEvents = computed(() => events.value.filter((e) => !kind.value || e.kind === kind.value));
@@ -131,7 +132,7 @@ const stateText = computed(() => { const p = propsObj.value; return p.status ?? 
 
 function linkProps(p) {
   if (!p) return '';
-  const L = { machine: '设备', operation: '工序', tool: '刀具', tool_life_pct: '刀具剩余%', cycle_time_s: '节拍 s', qty: '数量', good: '合格' };
+  const L = { machine: $t('设备'), operation: $t('工序'), tool: $t('刀具'), tool_life_pct: $t('刀具剩余%'), cycle_time_s: $t('节拍 s'), qty: $t('数量'), good: $t('合格') };
   return Object.entries(p).filter(([k]) => k !== 'start' && k !== 'end').map(([k, v]) => `${L[k] || k} ${fmtVal(v)}`).join(' · ');
 }
 
@@ -142,9 +143,9 @@ async function showSource(seq, title) {
 }
 
 function exportCsv() {
-  const rows = [['关系', '对象类型', '编号', '名称', '链接属性']];
+  const rows = [[$t('关系'), $t('对象类型'), $t('编号'), $t('名称'), $t('链接属性')]];
   for (const g of o.value.links) for (const it of g.items) rows.push([g.label, g.type_label, it.key, it.display, it.props]);
-  download(`${o.value.type}_${o.value.key.replace(/\W+/g, '_')}_相关对象.csv`, toCsv(rows));
+  download($t('{a}_{b}_相关对象.csv', { a: o.value.type, b: o.value.key.replace(/\W+/g, '_') }), toCsv(rows));
 }
 
 async function load() {

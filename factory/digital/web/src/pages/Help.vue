@@ -1,8 +1,8 @@
 <template>
   <div class="help" :class="{ bare: !session.token }">
     <header v-if="!session.token" class="topbar">
-      <router-link to="/help" class="brand"><span class="logo">渠</span><b>问渠数字工厂</b><span class="muted">帮助</span></router-link>
-      <router-link class="btn" :to="{ path: '/login', query: { next: $route.fullPath } }">登录</router-link>
+      <router-link to="/help" class="brand"><span class="logo">渠</span><b>{{ $t('问渠数字工厂') }}</b><span class="muted">{{ $t('帮助') }}</span></router-link><!-- i18n-ok 标志 -->
+      <router-link class="btn" :to="{ path: '/login', query: { next: $route.fullPath } }">{{ $t('登录') }}</router-link>
     </header>
 
     <!-- 首页：实时 3D 车间 + 全流程 -->
@@ -11,12 +11,12 @@
         <div class="stage">
         <div ref="host" class="scene" aria-hidden="true"></div>
         <div class="hero-txt">
-          <div class="eds" role="tablist" aria-label="帮助版本">
+          <div class="eds" role="tablist" :aria-label="$t('帮助版本')">
             <button v-for="e in eds" :key="e.key" role="tab" :aria-selected="e.key === ed" :class="{ on: e.key === ed }"
-              @click="setEd(e.key)">{{ e.name }}<span>{{ e.who }}</span></button>
+              @click="setEd(e.key)">{{ $td(e.name) }}<span>{{ $td(e.who) }}</span></button>
           </div>
           <h1>{{ HERO[ed]?.[0] || HERO.enterprise[0] }}</h1>
-          <p class="lead">{{ (HERO[ed] || HERO.enterprise)[1].replace('{厂名}', plantName) }}</p>
+          <p class="lead">{{ (HERO[ed] || HERO.enterprise)[1].replace('{a}', plantName) }}</p>
         </div>
         </div>
         <div class="hero-flow">
@@ -26,35 +26,35 @@
 
       <section class="index">
         <div class="index-head">
-          <h2>{{ edName }} · 共 {{ chapters.length }} 章</h2>
-          <input v-model="q" type="search" class="search" placeholder="搜索帮助，比如：订单、Excel、备份" aria-label="搜索帮助">
+          <h2>{{ $t('{a} · 共 {b} 章', { a: edName, b: chapters.length }) }}</h2>
+          <input v-model="q" type="search" class="search" :placeholder="$t('搜索帮助，比如：订单、Excel、备份')" :aria-label="$t('搜索帮助')">
         </div>
         <ol v-if="!q" class="line">
           <li v-for="(c, i) in chapters" :key="c.slug">
             <router-link :to="`/help/${ed}/${c.slug}`">
               <span class="stop">{{ i + 1 }}</span>
-              <span class="t"><b>{{ c.title }}</b><span class="small muted">{{ c.lead }}</span></span>
+              <span class="t"><b>{{ $td(c.title) }}</b><span class="small muted">{{ $td(c.lead) }}</span></span>
               <span class="tags small"><span v-for="t in c.has" :key="t">{{ t }}</span></span>
             </router-link>
           </li>
         </ol>
         <div v-else class="results">
-          <p v-if="!hits.length" class="muted">没有找到“{{ q }}”。换个词试试，或者直接问 AI 工厂助手。</p>
+          <p v-if="!hits.length" class="muted">{{ $t('没有找到“{a}”。换个词试试，或者直接问 AI 工厂助手。', { a: q }) }}</p>
           <router-link v-for="h in hits" :key="h.slug" :to="`/help/${ed}/${h.slug}`" class="hit">
-            <b>{{ h.title }}</b><span class="small" v-html="h.snip"></span>
+            <b>{{ $td(h.title) }}</b><span class="small" v-html="h.snip"></span>
           </router-link>
         </div>
       </section>
 
       <!-- 资料：仓库 docs/帮助、docs/演示 里较长的说明（服务器 /api/help/docs 列出、转成网页） -->
-      <section class="index docs-index" aria-label="资料">
-        <div class="index-head"><h2>资料</h2><span class="small muted">较长的说明文件：领域说明、术语表、演示脚本、企业版与课程接口</span></div>
-        <p v-if="!session.token" class="small muted">登录后可以看。</p>
+      <section class="index docs-index" :aria-label="$t('资料')">
+        <div class="index-head"><h2>{{ $t('资料') }}</h2><span class="small muted">{{ $t('较长的说明文件：领域说明、术语表、演示脚本、企业版与课程接口') }}</span></div>
+        <p v-if="!session.token" class="small muted">{{ $t('登录后可以看。') }}</p>
         <p v-else-if="docsErr" class="small muted">{{ docsErr }}</p>
         <div v-else class="dgroups">
           <div v-for="g in docGroups" :key="g.group" class="dg">
-            <span class="small muted">{{ g.group }}</span>
-            <router-link v-for="i in g.items" :key="i.name" :to="'/help/docs/' + i.name">{{ i.title }}</router-link>
+            <span class="small muted">{{ grp(g.group) }}</span>
+            <router-link v-for="i in g.items" :key="i.name" :to="'/help/docs/' + i.name">{{ $td(i.title) }}</router-link>
           </div>
         </div>
       </section>
@@ -62,45 +62,47 @@
 
     <!-- 资料里的一份说明 -->
     <div v-else-if="isDocs" class="read">
-      <nav class="toc" aria-label="资料目录">
-        <router-link :to="`/help/${defaultEd}`" class="back small">← 帮助首页</router-link>
+      <nav class="toc" :aria-label="$t('资料目录')">
+        <router-link :to="`/help/${defaultEd}`" class="back small">{{ $t('← 帮助首页') }}</router-link>
         <div v-for="g in docGroups" :key="g.group" class="dg">
-          <span class="small muted">{{ g.group }}</span>
-          <router-link v-for="i in g.items" :key="i.name" :to="'/help/docs/' + i.name" :class="{ on: i.name === docName }">{{ i.title }}</router-link>
+          <span class="small muted">{{ grp(g.group) }}</span>
+          <router-link v-for="i in g.items" :key="i.name" :to="'/help/docs/' + i.name" :class="{ on: i.name === docName }">{{ $td(i.title) }}</router-link>
         </div>
       </nav>
       <article class="doc" @click="onLink">
-        <p class="kicker small muted">资料</p>
-        <p v-if="!session.token" class="muted">资料要登录后看。<router-link :to="{ path: '/login', query: { next: $route.fullPath } }">登录</router-link></p>
+        <p class="kicker small muted">{{ $t('资料') }}</p>
+        <p v-if="!session.token" class="muted">{{ $t('资料要登录后看。') }}<router-link :to="{ path: '/login', query: { next: $route.fullPath } }">{{ $t('登录') }}</router-link></p>
         <p v-else-if="docErr" class="muted">{{ docErr }}</p>
         <!-- 正文来自仓库里的 Markdown（服务器转 HTML），不是用户输入 -->
+        <p v-if="doc?.en_missing" class="small muted" lang="en">This document is not available in English yet; the Chinese version is shown.</p><!-- i18n-ok 英文界面才出现 -->
         <div v-if="doc" class="md docmd" v-html="doc.html"></div>
       </article>
     </div>
 
     <!-- 一章 -->
     <div v-else class="read">
-      <nav class="toc" aria-label="章节">
-        <router-link :to="`/help/${ed}`" class="back small">← {{ edName }}目录</router-link>
+      <nav class="toc" :aria-label="$t('章节')">
+        <router-link :to="`/help/${ed}`" class="back small">{{ $t('← {a}目录', { a: edName }) }}</router-link>
         <ol>
           <li v-for="(c, i) in chapters" :key="c.slug" :class="{ on: c.slug === chapter.slug }">
-            <router-link :to="`/help/${ed}/${c.slug}`"><span class="stop">{{ i + 1 }}</span>{{ c.title }}</router-link>
+            <router-link :to="`/help/${ed}/${c.slug}`"><span class="stop">{{ i + 1 }}</span>{{ $td(c.title) }}</router-link>
             <ul v-if="c.slug === chapter.slug && c.heads.length" class="heads">
-              <li v-for="h in c.heads" :key="h.id"><a :href="'#' + h.id" @click.prevent="jump(h.id)">{{ h.text }}</a></li>
+              <li v-for="h in c.heads" :key="h.id"><a :href="'#' + h.id" @click.prevent="jump(h.id)">{{ $td(h.text) }}</a></li>
             </ul>
           </li>
         </ol>
       </nav>
       <article class="doc" @click="onLink">
-        <p class="kicker small muted">{{ edName }} · 第 {{ idx + 1 }} 章</p>
-        <h1>{{ chapter.title }}</h1>
-        <p v-if="chapter.lead" class="lead">{{ chapter.lead }}</p>
+        <p class="kicker small muted">{{ $t('{a} · 第 {b} 章', { a: edName, b: idx + 1 }) }}</p>
+        <h1>{{ $td(chapter.title) }}</h1>
+        <p v-if="chapter.enMissing" class="small muted" lang="en">This chapter is not available in English yet; the Chinese version is shown.</p><!-- i18n-ok 英文界面才出现 -->
+        <p v-if="chapter.lead" class="lead">{{ $td(chapter.lead) }}</p>
         <template v-for="(s, i) in chapter.segments.filter((x) => !x.fold)" :key="i">
           <div v-if="s.type === 'md'" class="md" v-html="s.html"></div>
           <HelpBlock v-else :kind="s.kind" :args="s.args" :media="media" />
         </template>
         <details v-if="chapter.segments.some((x) => x.fold)" class="fold">
-          <summary>查表：页面、规则、谁做什么、处理方案</summary>
+          <summary>{{ $t('查表：页面、规则、谁做什么、处理方案') }}</summary>
           <template v-for="(s, i) in chapter.segments.filter((x) => x.fold)" :key="'f' + i">
             <div v-if="s.type === 'md'" class="md" v-html="s.html"></div>
             <HelpBlock v-else :kind="s.kind" :args="s.args" :media="media" />
@@ -108,9 +110,9 @@
         </details>
         <footer class="pn">
           <router-link v-if="idx > 0" :to="`/help/${ed}/${chapters[idx - 1].slug}`" class="prev">
-            <span class="small muted">上一章</span><b>{{ chapters[idx - 1].title }}</b></router-link>
+            <span class="small muted">{{ $t('上一章') }}</span><b>{{ $td(chapters[idx - 1].title) }}</b></router-link>
           <router-link v-if="idx < chapters.length - 1" :to="`/help/${ed}/${chapters[idx + 1].slug}`" class="next">
-            <span class="small muted">下一章</span><b>{{ chapters[idx + 1].title }}</b></router-link>
+            <span class="small muted">{{ $t('下一章') }}</span><b>{{ $td(chapters[idx + 1].title) }}</b></router-link>
         </footer>
       </article>
     </div>
@@ -118,6 +120,8 @@
 </template>
 
 <script setup>
+import { isEn, t as $t, td } from '../lib/i18n';
+const grp = (g) => (g === '演示' ? $t('演示|资料分组') : td(g));   // i18n-ok “演示”在别处是 demo，资料分组用复数
 // 帮助（第 30 轮 H-3，搬自 freecad-ai-parts ADR-0065）：教学版、企业版，另有“资料”（以前的帮助文件）。首页是实时 3D 车间和全流程动画；正文是 Markdown 加自定义块（带我去做、动画、视频、实时数据、问 AI）。
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -142,23 +146,23 @@ let off = null;
 const eds = computed(() => editionsFor(cfg.value?.plant?.id));
 const defaultEd = computed(() => eds.value.find((e) => e.plant)?.key || (cfg.value?.plant?.demo === false ? 'enterprise' : 'teach'));
 const HERO = {
-  teach: ['从一张图纸，到一台出厂的产品', '{厂名}在你眼前运转：设计、ERP、MRP、MES、车间、质量、厂情中枢连成一条线。点下面任一站，看它怎么做。'],
-  enterprise: ['把你的车间搬进数字工厂', '{厂名}的数字工厂：交一份 Excel 建好车间，产品从 FreeCAD 进来，计划、生产、质量、经营在一个工作台上。'],
-  pcb: ['一块光板，变成一块出厂的电路板', '问渠数字工业园 · {厂名}做关节驱动板、AGV 控制板和编码器读头板：SMT 线贴片、回流焊、光学检测，后段测试、老化，机器人厂来的订单做完发货。点下面任一站，看它怎么做。'],
-  robot: ['一张订单，造出一台机器人', '问渠数字工业园 · {厂名}造协作机器人、搬运 AGV 和关节模组：一张订单按多层物料清单展开，关节逐台测试、整机标定，做完开票。点下面任一站，看它怎么做。'],
+  teach: [$t('从一张图纸，到一台出厂的产品'), $t('{a}在你眼前运转：设计、ERP、MRP、MES、车间、质量、厂情中枢连成一条线。点下面任一站，看它怎么做。')],
+  enterprise: [$t('把你的车间搬进数字工厂'), $t('{a}的数字工厂：交一份 Excel 建好车间，产品从 FreeCAD 进来，计划、生产、质量、经营在一个工作台上。')],
+  pcb: [$t('一块光板，变成一块出厂的电路板'), $t('问渠数字工业园 · {a}做关节驱动板、AGV 控制板和编码器读头板：SMT 线贴片、回流焊、光学检测，后段测试、老化，机器人厂来的订单做完发货。点下面任一站，看它怎么做。')],
+  robot: [$t('一张订单，造出一台机器人'), $t('问渠数字工业园 · {a}造协作机器人、搬运 AGV 和关节模组：一张订单按多层物料清单展开，关节逐台测试、整机标定，做完开票。点下面任一站，看它怎么做。')],
 };
 const ed = computed(() => (EDITIONS.some((e) => e.key === route.params.ed) ? route.params.ed : defaultEd.value));
 const isDocs = computed(() => route.params.ed === 'docs');
-const edName = computed(() => EDITIONS.find((e) => e.key === ed.value)?.name);
-const plantName = computed(() => cfg.value?.plant?.name || '问渠减速器厂');
-const vars = computed(() => ({ 厂名: plantName.value, 公司: cfg.value?.plant?.company || '', 币种: cfg.value?.plant?.currency || '',
-  班次: cfg.value?.plant?.shift || '' }));
-const chapters = computed(() => chapterFiles(ed.value).map((f) => {
+const edName = computed(() => td(EDITIONS.find((e) => e.key === ed.value)?.name));
+const plantName = computed(() => (isEn() ? cfg.value?.plant?.name_en : '') || cfg.value?.plant?.name || $t('问渠减速器厂'));   // 第 130 轮第四批：英文取英文厂名
+const vars = computed(() => ({ 厂名: plantName.value,   // i18n-ok 正文占位名 公司: cfg.value?.plant?.company || '', 币种: cfg.value?.plant?.currency || '',
+  班次: cfg.value?.plant?.shift || '' }));   // i18n-ok 正文占位名
+const chapters = computed(() => chapterFiles(ed.value, isEn()).map((f) => {
   const d = parse(f.src, vars.value);
   const kinds = new Set(d.segments.filter((s) => s.type === 'block').map((s) => s.kind));
-  const has = [['goto', '带我去做'], ['video', '视频'], ['anim', '动画'], ['lab', '拖着玩'], ['try', '当场动手'], ['quiz', '你来选'], ['live', '实时数据']]
+  const has = [['goto', $t('带我去做')], ['video', $t('视频')], ['anim', $t('动画')], ['lab', $t('拖着玩')], ['try', $t('当场动手')], ['quiz', $t('你来选')], ['live', $t('实时数据')]]
     .filter(([k]) => kinds.has(k)).map(([, n]) => n);
-  return { slug: f.slug, ...d, has };
+  return { slug: f.slug, ...d, has, enMissing: f.enMissing };
 }));
 const chapter = computed(() => chapters.value.find((c) => c.slug === route.params.ch) || null);
 const idx = computed(() => chapters.value.findIndex((c) => c.slug === route.params.ch));
@@ -179,7 +183,7 @@ const docGroups = ref([]);
 const docsErr = ref('');
 const doc = ref(null);
 const docErr = ref('');
-const docName = computed(() => (isDocs.value ? route.params.ch || '使用说明' : ''));
+const docName = computed(() => (isDocs.value ? route.params.ch || $t('使用说明') : ''));
 async function loadDocList() {
   if (!session.token || docGroups.value.length) return;
   try { docGroups.value = (await get('/help/docs')).groups.filter((g) => g.items.length); docsErr.value = ''; } catch (e) { docsErr.value = e.message; }
@@ -201,7 +205,7 @@ watch(() => route.params.ed, legacy);
 
 function setEd(k) { router.push(`/help/${k}`); }
 function pickStage(i) {
-  const have = new Set(chapterFiles(ed.value).map((c) => c.slug));
+  const have = new Set(chapterFiles(ed.value, isEn()).map((c) => c.slug));
   const slug = ((STAGE_CHAPTER[ed.value] || [])[i] || '').split('|').find((s) => have.has(s));
   if (slug) router.push(`/help/${ed.value}/${slug}`);
 }

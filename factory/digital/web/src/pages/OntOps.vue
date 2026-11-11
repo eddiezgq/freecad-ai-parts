@@ -1,17 +1,17 @@
 <template>
   <div class="page">
-    <div class="page-title"><h1>厂情中枢 · 指挥台</h1>
-      <span class="muted">全厂态势、异常、原因和影响 · 规则每 20 秒检查一次全厂</span>
+    <div class="page-title"><h1>{{ $t('厂情中枢 · 指挥台') }}</h1>
+      <span class="muted">{{ $t('全厂态势、异常、原因和影响 · 规则每 20 秒检查一次全厂') }}</span>
       <span class="tabs" data-help="ont-tabs" role="tablist">
-        <button type="button" role="tab" :class="{ on: view === 'situation' }" @click="go({ view: 'situation' })">全厂态势</button>
-        <button type="button" role="tab" :class="{ on: view === 'anomalies' }" @click="go({ view: 'anomalies' })">异常处理
+        <button type="button" role="tab" :class="{ on: view === 'situation' }" @click="go({ view: 'situation' })">{{ $t('全厂态势') }}</button>
+        <button type="button" role="tab" :class="{ on: view === 'anomalies' }" @click="go({ view: 'anomalies' })">{{ $t('异常处理') }}
           <span v-if="openCount" class="cnt">{{ openCount }}</span></button>
-        <router-link to="/ont/sim" class="tablink">推演工作台</router-link>
-        <router-link to="/ont/actions" class="tablink">动作收件箱</router-link>
-        <router-link to="/ont/map" class="tablink">全貌地图与搜索</router-link>
-        <router-link to="/ont/rules" class="tablink">规则目录</router-link>
-        <router-link to="/ont/reports" class="tablink">日报与周报</router-link>
-        <router-link to="/ont/ai" class="tablink">AI 运行记录</router-link>
+        <router-link to="/ont/sim" class="tablink">{{ $t('推演工作台') }}</router-link>
+        <router-link to="/ont/actions" class="tablink">{{ $t('动作收件箱') }}</router-link>
+        <router-link to="/ont/map" class="tablink">{{ $t('全貌地图与搜索') }}</router-link>
+        <router-link to="/ont/rules" class="tablink">{{ $t('规则目录') }}</router-link>
+        <router-link to="/ont/reports" class="tablink">{{ $t('日报与周报') }}</router-link>
+        <router-link to="/ont/ai" class="tablink">{{ $t('AI 运行记录') }}</router-link>
       </span>
     </div>
     <div v-if="err" class="err">{{ err }}</div>
@@ -19,48 +19,48 @@
     <!-- 第一屏：全厂态势 -->
     <template v-if="view === 'situation'">
       <div class="timebar card" data-help="ont-timebar">
-        <span class="small"><b>时间</b></span>
-        <input v-model="atLocal" type="datetime-local" :max="maxLocal" :min="minLocal" aria-label="回看时刻" @change="loadHist">
-        <button class="btn sm ghost" @click="shift(-1)">往前 1 小时</button>
-        <button class="btn sm ghost" @click="shift(-24)">往前 1 天</button>
-        <button v-if="hist" class="btn sm primary" @click="backToNow">回到现在</button>
-        <span v-if="hist" class="small warnline">正在回看 {{ fmtTs(hist.at) }}（只能看；要问“如果当时那样做会怎样”，点“从这里推演”做复盘推演）</span>
-        <router-link v-if="hist?.snapshot" class="btn sm" :to="{ path: '/ont/sim', query: { snap: hist.snapshot.id, retro: 1 } }">从这里推演</router-link>
+        <span class="small"><b>{{ $t('时间') }}</b></span>
+        <input v-model="atLocal" type="datetime-local" :max="maxLocal" :min="minLocal" :aria-label="$t('回看时刻')" @change="loadHist">
+        <button class="btn sm ghost" @click="shift(-1)">{{ $t('往前 1 小时') }}</button>
+        <button class="btn sm ghost" @click="shift(-24)">{{ $t('往前 1 天') }}</button>
+        <button v-if="hist" class="btn sm primary" @click="backToNow">{{ $t('回到现在') }}</button>
+        <span v-if="hist" class="small warnline">{{ $t('正在回看 {a}（只能看；要问“如果当时那样做会怎样”，点“从这里推演”做复盘推演）', { a: fmtTs(hist.at) }) }}</span>
+        <router-link v-if="hist?.snapshot" class="btn sm" :to="{ path: '/ont/sim', query: { snap: hist.snapshot.id, retro: 1 } }">{{ $t('从这里推演') }}</router-link>
       </div>
-      <div v-if="!sit" class="empty">读取中…</div>
+      <div v-if="!sit" class="empty">{{ $t('读取中…') }}</div>
       <template v-else>
         <div v-for="row in rows" :key="row.key" class="maprow" data-help="ont-cards">
-          <div class="rowlabel">{{ row.label }}</div>
+          <div class="rowlabel">{{ $td(row.label) }}</div>
           <div class="cards" :class="row.key">
             <button v-for="c in row.cards" :key="c.domain" type="button" class="sc" :style="{ '--c': DOMAIN_COLOR[c.domain] }"
               :class="{ waiting: c.waiting }" @click="go({ view: 'anomalies', domain: c.domain })">
-              <span class="sc-h"><b>{{ c.label }}</b>
+              <span class="sc-h"><b>{{ $td(c.label) }}</b>
                 <span class="badges">
-                  <span v-if="c.anomalies.critical" class="b crit" :title="c.anomalies.critical + ' 个严重'">{{ c.anomalies.critical }}</span>
-                  <span v-if="c.anomalies.warn" class="b warn" :title="c.anomalies.warn + ' 个警告'">{{ c.anomalies.warn }}</span>
-                  <span v-if="c.anomalies.info" class="b info" :title="c.anomalies.info + ' 个提示'">{{ c.anomalies.info }}</span>
+                  <span v-if="c.anomalies.critical" class="b crit" :title="c.anomalies.critical + $t(' 个严重')">{{ $td(c.anomalies.critical) }}</span>
+                  <span v-if="c.anomalies.warn" class="b warn" :title="c.anomalies.warn + $t(' 个警告')">{{ $td(c.anomalies.warn) }}</span>
+                  <span v-if="c.anomalies.info" class="b info" :title="c.anomalies.info + $t(' 个提示')">{{ $td(c.anomalies.info) }}</span>
                 </span></span>
               <span v-for="m in c.metrics" :key="m.key" class="met">
-                <span class="ml small muted">{{ m.label }}</span>
+                <span class="ml small muted">{{ $td(m.label) }}</span>
                 <span class="mv mono">{{ fmt(m.value, m.fmt) }}</span>
                 <svg v-if="m.trend.length > 1" class="spark" viewBox="0 0 60 16" aria-hidden="true"><polyline :points="spark(m.trend)" /></svg>
               </span>
-              <span v-if="c.waiting" class="small wait">{{ c.waiting }}</span>
-              <span class="small muted foot">{{ c.rules_live.length ? c.rules_live.length + ' 条规则在跑' : '还没有规则在跑' }}<template
-                v-if="c.rules_waiting.length"> · {{ c.rules_waiting.length }} 条待数据</template></span>
+              <span v-if="c.waiting" class="small wait">{{ $td(c.waiting) }}</span>
+              <span class="small muted foot">{{ c.rules_live.length ? c.rules_live.length + $t(' 条规则在跑') : $t('还没有规则在跑') }}<template
+                v-if="c.rules_waiting.length"> {{ $t('· {a} 条待数据', { a: $td(c.rules_waiting.length) }) }}</template></span>
             </button>
           </div>
         </div>
-        <p class="muted small">点卡片看这个领域的异常。指标每天记一次，小折线是近 7 天。</p>
+        <p class="muted small">{{ $t('点卡片看这个领域的异常。指标每天记一次，小折线是近 7 天。') }}</p>
         <section v-if="hist" class="card">
-          <div class="card-head"><h2>那时开着的异常（{{ hist.anomalies.length }}）</h2>
-            <span v-if="hist.snapshot" class="muted small">设备状态取 {{ fmtTs(hist.snapshot.ts) }} 的快照（{{ hist.snapshot.exact ? '精确' : '近似' }}）</span></div>
-          <ul class="small hlist"><li v-for="a in hist.anomalies" :key="a.id"><span class="sev" :class="a.severity">{{ LVL[a.severity] }}</span>
-            <router-link :to="{ path: '/ont', query: { view: 'anomalies', a: a.id } }">{{ a.title }}</router-link>
-            <span class="muted"> · {{ fmtTs(a.first_seen) }} 起{{ a.closed_at ? '，' + fmtTs(a.closed_at) + ' 结束' : '' }}</span></li></ul>
-          <table v-if="hist.machines" class="t small"><thead><tr><th>设备</th><th>状态</th><th class="num">派工</th><th class="num">排队</th><th class="num">在做</th></tr></thead>
-            <tbody><tr v-for="(m, u) in hist.machines" :key="u"><td class="mono">{{ u.toUpperCase() }}</td><td>{{ m.state }}</td>
-              <td class="num">{{ m.jobs }}</td><td class="num">{{ m.queue }}</td><td class="num">{{ m.busy }}</td></tr></tbody></table>
+          <div class="card-head"><h2>{{ $t('那时开着的异常（{a}）', { a: $td(hist.anomalies.length) }) }}</h2>
+            <span v-if="hist.snapshot" class="muted small">{{ $t('设备状态取 {a} 的快照（{b}）', { a: fmtTs(hist.snapshot.ts), b: hist.snapshot.exact ? $t('精确') : $t('近似') }) }}</span></div>
+          <ul class="small hlist"><li v-for="a in hist.anomalies" :key="a.id"><span class="sev" :class="a.severity">{{ $td(LVL[a.severity]) }}</span>
+            <router-link :to="{ path: '/ont', query: { view: 'anomalies', a: a.id } }">{{ $td(a.title) }}</router-link>
+            <span class="muted"> {{ $t('· {a} 起{b}', { a: fmtTs(a.first_seen), b: a.closed_at ? $t('，') + fmtTs(a.closed_at) + $t(' 结束') : '' }) }}</span></li></ul>
+          <table v-if="hist.machines" class="t small"><thead><tr><th>{{ $t('设备') }}</th><th>{{ $t('状态') }}</th><th class="num">{{ $t('派工') }}</th><th class="num">{{ $t('排队') }}</th><th class="num">{{ $t('在做') }}</th></tr></thead>
+            <tbody><tr v-for="(m, u) in hist.machines" :key="u"><td class="mono">{{ u.toUpperCase() }}</td><td>{{ $td(m.state) }}</td>
+              <td class="num">{{ $td(m.jobs) }}</td><td class="num">{{ $td(m.queue) }}</td><td class="num">{{ $td(m.busy) }}</td></tr></tbody></table>
         </section>
       </template>
     </template>
@@ -69,79 +69,79 @@
     <div v-else class="three">
       <section class="card list" data-help="ont-list">
         <div class="filters">
-          <select v-model="f.status" aria-label="状态" @change="loadList"><option value="open">开着的</option><option value="closed">已结束</option><option value="all">全部</option></select>
-          <select v-model="f.domain" aria-label="领域" @change="loadList"><option value="">全部领域</option>
-            <option v-for="c in sit?.cards || []" :key="c.domain" :value="c.domain">{{ c.label }}</option></select>
-          <label class="small"><input v-model="f.mine" type="checkbox" @change="loadList"> 只看我负责的</label>
+          <select v-model="f.status" :aria-label="$t('状态')" @change="loadList"><option value="open">{{ $t('开着的') }}</option><option value="closed">{{ $t('已结束') }}</option><option value="all">{{ $t('全部') }}</option></select>
+          <select v-model="f.domain" :aria-label="$t('领域')" @change="loadList"><option value="">{{ $t('全部领域') }}</option>
+            <option v-for="c in sit?.cards || []" :key="c.domain" :value="c.domain">{{ $td(c.label) }}</option></select>
+          <label class="small"><input v-model="f.mine" type="checkbox" @change="loadList"> {{ $t('只看我负责的') }}</label>
         </div>
-        <div v-if="!list.length" class="empty">{{ f.status === 'open' ? '没有开着的异常。' : '没有记录。' }}</div>
+        <div v-if="!list.length" class="empty">{{ f.status === 'open' ? $t('没有开着的异常。') : $t('没有记录。') }}</div>
         <ul class="items">
           <li v-for="a in list" :key="a.id" :class="{ sel: a.id === sel?.id }" @click="go({ a: a.id })">
-            <span class="sev" :class="a.severity">{{ a.severity_label }}</span>
-            <span class="it"><b>{{ a.title }}</b>
-              <span class="small muted">{{ a.domain_label }} · {{ a.rule }} {{ a.rule_name }} · {{ a.status_label }} · {{ ago(a.last_seen) }}<template v-if="a.hits > 1"> · {{ a.hits }} 次</template></span></span>
+            <span class="sev" :class="a.severity">{{ $td(a.severity_label) }}</span>
+            <span class="it"><b>{{ $td(a.title) }}</b>
+              <span class="small muted">{{ $td(a.domain_label) }} · {{ $td(a.rule) }} {{ $td(a.rule_name) }} · {{ $td(a.status_label) }} · {{ ago(a.last_seen) }}<template v-if="a.hits > 1"> {{ $t('· {a} 次', { a: $td(a.hits) }) }}</template></span></span>
           </li>
         </ul>
-        <p v-if="last" class="small muted">上一轮检测 {{ ago(new Date(last.ts * 1000).toISOString()) }}，用时 {{ last.ms }} 毫秒</p>
+        <p v-if="last" class="small muted">{{ $t('上一轮检测 {a}，用时 {b} 毫秒', { a: ago(new Date(last.ts * 1000).toISOString()), b: $td(last.ms) }) }}</p>
       </section>
 
       <section class="card mid">
         <template v-if="sel">
-          <div class="card-head"><h2>{{ sel.title }}</h2><span class="sev" :class="sel.severity">{{ sel.severity_label }}</span></div>
+          <div class="card-head"><h2>{{ $td(sel.title) }}</h2><span class="sev" :class="sel.severity">{{ $td(sel.severity_label) }}</span></div>
           <div class="sum">
             <p class="narr">{{ narr?.text || sel.text_rules }}</p>
             <p class="small muted">
-              <template v-if="narr">{{ narr.by === 'rules' ? '规则版' : 'AI 润色（' + narr.by + '）' }}<template v-if="narr.note"> · {{ narr.note }}</template> · </template>
-              <button class="linkbtn" :disabled="narrBusy" @click="narrate">{{ narrBusy ? '润色中…' : '讲成人话（AI 润色）' }}</button>
-              · <button class="linkbtn" :disabled="ai.busy" @click="analyze(sel.id, sel.key)">让 AI 分析</button>
+              <template v-if="narr">{{ narr.by === 'rules' ? $t('规则版') : $t('AI 润色（') + narr.by + $t('）') }}<template v-if="narr.note"> · {{ $td(narr.note) }}</template> · </template>
+              <button class="linkbtn" :disabled="narrBusy" @click="narrate">{{ narrBusy ? $t('润色中…') : $t('讲成人话（AI 润色）') }}</button>
+              · <button class="linkbtn" :disabled="ai.busy" @click="analyze(sel.id, sel.key)">{{ $t('让 AI 分析') }}</button>
             </p>
           </div>
           <ChainGraph data-help="ont-chain" :chain="sel.chain" @edge="(e) => (basis = e)" @node="(n) => (node = n)" />
           <div v-if="basis" class="basis small">
-            <b>依据</b>：{{ basis.label }} —— {{ basis.basis.how }}
-            <template v-if="basis.basis.text">；{{ basis.basis.text }}</template>
-            <button v-if="basis.basis.seq" class="linkbtn" @click="showSource(basis.basis.seq)">看原始记录 #{{ basis.basis.seq }}</button>
+            <b>{{ $t('依据') }}</b>{{ $t('：{a} —— {b}', { a: $td(basis.label), b: $td(basis.basis.how) }) }}
+            <template v-if="basis.basis.text">{{ $t('；{a}', { a: $td(basis.basis.text) }) }}</template>
+            <button v-if="basis.basis.seq" class="linkbtn" @click="showSource(basis.basis.seq)">{{ $t('看原始记录 #{a}', { a: $td(basis.basis.seq) }) }}</button>
             <span v-for="(v, k) in basis.values" :key="k" class="muted"> · {{ k }} {{ fmtVal(v) }}</span>
           </div>
           <div v-if="node && !node.hidden" class="basis small">
-            <span class="pill info">{{ node.label }}</span> <ObjLink :type="node.type" :k="node.key">{{ node.display }}</ObjLink>
+            <span class="pill info">{{ $td(node.label) }}</span> <ObjLink :type="node.type" :k="node.key">{{ $td(node.display) }}</ObjLink>
             <span v-for="(v, k) in node.values" :key="k" class="muted"> · {{ k }} {{ fmtVal(v) }}</span>
           </div>
-          <div v-else-if="node?.hidden" class="basis small muted">这一环的原因需要自己查（学生看不到老师注入的情景）。</div>
+          <div v-else-if="node?.hidden" class="basis small muted">{{ $t('这一环的原因需要自己查（学生看不到老师注入的情景）。') }}</div>
         </template>
-        <div v-else class="empty">左边选一个异常，这里显示它的原因和影响。</div>
+        <div v-else class="empty">{{ $t('左边选一个异常，这里显示它的原因和影响。') }}</div>
       </section>
 
       <section class="card right" data-help="ont-actions">
         <template v-if="sel">
-          <h2>处理</h2>
-          <p class="small"><b>{{ sel.rule_info.id }} {{ sel.rule_info.name }}</b>：<span class="muted">{{ sel.rule_info.desc }}</span></p>
-          <p v-if="sel.hint" class="hint small">建议：{{ sel.hint }}</p>
-          <p class="small muted">负责：{{ roleName(sel.role) }} · 状态：{{ sel.status_label }}<template v-if="sel.assignee"> · {{ sel.assignee }}</template>
-            · 首次 {{ ago(sel.first_seen) }}</p>
+          <h2>{{ $t('处理') }}</h2>
+          <p class="small"><b>{{ $td(sel.rule_info.id) }} {{ $td(sel.rule_info.name) }}</b>{{ $t('：') }}<span class="muted">{{ $td(sel.rule_info.desc) }}</span></p>
+          <p v-if="sel.hint" class="hint small">{{ $t('建议：{a}', { a: $td(sel.hint) }) }}</p>
+          <p class="small muted">{{ $t('负责：{a} · 状态：{b}', { a: roleName(sel.role), b: $td(sel.status_label) }) }}<template v-if="sel.assignee"> · {{ $td(sel.assignee) }}</template>
+            {{ $t('· 首次 {a}', { a: ago(sel.first_seen) }) }}</p>
           <div v-if="isOpen" class="acts">
-            <button v-if="sel.status === 'open'" class="btn" :disabled="!sel.can_act" @click="act('ack')">确认</button>
-            <button v-if="sel.status !== 'doing'" class="btn" :disabled="!sel.can_act" @click="act('doing')">开始处理</button>
-            <select v-model="assignRole" :disabled="!sel.can_act" aria-label="指派给"><option value="">指派给…</option>
-              <option v-for="(n, k) in ROLES" :key="k" :value="k">{{ n }}</option></select>
-            <button v-if="assignRole" class="btn" @click="act('assign', { role: assignRole })">指派</button>
+            <button v-if="sel.status === 'open'" class="btn" :disabled="!sel.can_act" @click="act('ack')">{{ $t('确认') }}</button>
+            <button v-if="sel.status !== 'doing'" class="btn" :disabled="!sel.can_act" @click="act('doing')">{{ $t('开始处理') }}</button>
+            <select v-model="assignRole" :disabled="!sel.can_act" :aria-label="$t('指派给')"><option value="">{{ $t('指派给…') }}</option>
+              <option v-for="(n, k) in ROLES" :key="k" :value="k">{{ $td(n) }}</option></select>
+            <button v-if="assignRole" class="btn" @click="act('assign', { role: assignRole })">{{ $t('指派') }}</button>
           </div>
-          <p v-if="isOpen && !sel.can_act" class="small muted">这个异常由{{ roleName(sel.role) }}处理；你可以写备注。</p>
-          <textarea v-model="text" rows="2" placeholder="备注，或关闭时写怎么处理的" aria-label="备注"></textarea>
+          <p v-if="isOpen && !sel.can_act" class="small muted">{{ $t('这个异常由{a}处理；你可以写备注。', { a: roleName(sel.role) }) }}</p>
+          <textarea v-model="text" rows="2" :placeholder="$t('备注，或关闭时写怎么处理的')" :aria-label="$t('备注')"></textarea>
           <div class="acts">
-            <button class="btn ghost" :disabled="!text.trim()" @click="act('note')">写备注</button>
-            <button v-if="isOpen" class="btn danger" :disabled="!sel.can_act || !text.trim()" @click="act('close')">关闭</button>
+            <button class="btn ghost" :disabled="!text.trim()" @click="act('note')">{{ $t('写备注') }}</button>
+            <button v-if="isOpen" class="btn danger" :disabled="!sel.can_act || !text.trim()" @click="act('close')">{{ $t('关闭') }}</button>
           </div>
-          <div v-if="links.length" class="quick small"><b>去处理：</b>
-            <router-link v-for="l in links" :key="l.to" :to="l.to">{{ l.label }}</router-link></div>
-          <h3 class="small">记录</h3>
+          <div v-if="links.length" class="quick small"><b>{{ $t('去处理：') }}</b>
+            <router-link v-for="l in links" :key="l.to" :to="l.to">{{ $td(l.label) }}</router-link></div>
+          <h3 class="small">{{ $t('记录') }}</h3>
           <ol class="notes small">
-            <li v-for="(n, i) in sel.notes" :key="i"><span class="muted mono">{{ ts(n.ts) }}</span> {{ n.who === 'system' ? '系统' : n.who }}：{{ n.text }}</li>
+            <li v-for="(n, i) in sel.notes" :key="i"><span class="muted mono">{{ ts(n.ts) }}</span> {{ $t('{a}：{b}', { a: n.who === 'system' ? $t('系统') : n.who, b: $td(n.text) }) }}</li>
           </ol>
-          <h3 class="small">原始记录</h3>
+          <h3 class="small">{{ $t('原始记录') }}</h3>
           <ul class="small ev">
-            <li v-for="(e, i) in sel.evidence" :key="i"><span class="mono">{{ e.topic }}</span>
-              <button v-if="e.seq" class="linkbtn" @click="showSource(e.seq)">#{{ e.seq }}</button>
+            <li v-for="(e, i) in sel.evidence" :key="i"><span class="mono">{{ $td(e.topic) }}</span>
+              <button v-if="e.seq" class="linkbtn" @click="showSource(e.seq)">#{{ $td(e.seq) }}</button>
               <span v-else class="muted"> {{ e.name || e.item || e.id || e.ts || '' }}</span></li>
           </ul>
           <OptionsPanel v-if="isOpen" data-help="ont-options" :anomaly-id="sel.id" @adopted="loadSel" />
@@ -151,10 +151,10 @@
     </div>
 
     <div v-if="src" class="modal-mask" @click.self="src = null">
-      <div class="modal src-modal" role="dialog" aria-label="原始记录">
-        <div class="card-head"><h2>原始记录 #{{ src.seq }}</h2><button class="more btn ghost" @click="src = null">关闭</button></div>
-        <div v-if="src.error" class="err">{{ src.error }}</div>
-        <template v-else><p class="small mono muted">{{ src.topic }}（{{ src.type }}）· {{ ts(src.ts) }}</p>
+      <div class="modal src-modal" role="dialog" :aria-label="$t('原始记录')">
+        <div class="card-head"><h2>{{ $t('原始记录 #{a}', { a: $td(src.seq) }) }}</h2><button class="more btn ghost" @click="src = null">{{ $t('关闭') }}</button></div>
+        <div v-if="src.error" class="err">{{ $td(src.error) }}</div>
+        <template v-else><p class="small mono muted">{{ $t('{a}（{b}）· {c}', { a: $td(src.topic), b: $td(src.type), c: ts(src.ts) }) }}</p>
           <pre class="raw">{{ JSON.stringify(src.data, null, 2) }}</pre></template>
       </div>
     </div>
@@ -162,6 +162,7 @@
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { get, post, session } from '../lib/api';
@@ -172,7 +173,7 @@ import OptionsPanel from '../components/OptionsPanel.vue';
 import RetroPanel from '../components/RetroPanel.vue';
 import { ai, analyze } from '../lib/ai';
 
-const ROLES = { planner: '计划员', engineer: '工艺员', operator: '操作工', quality: '质检员', manager: '厂长', sales: '销售' };
+const ROLES = { planner: $t('计划员'), engineer: $t('工艺员'), operator: $t('操作工'), quality: $t('质检员'), manager: $t('厂长'), sales: $t('销售') };
 const roleName = (r) => ROLES[r] || r;
 const route = useRoute();
 const router = useRouter();
@@ -192,7 +193,7 @@ const src = ref(null);
 const isTeacher = session.user?.teacher === true || session.user?.role === 'manager';
 const f = ref({ status: 'open', domain: route.query.domain || '', mine: !isTeacher });
 const openCount = computed(() => (live.value?.total_open) || 0);
-const LVL = { critical: '严重', warn: '警告', info: '提示' };
+const LVL = { critical: $t('严重'), warn: $t('警告'), info: $t('提示') };
 // 时间回看（C11）
 const live = ref(null);
 const hist = ref(null);
@@ -219,8 +220,8 @@ const isOpen = computed(() => sel.value && ['open', 'ack', 'doing'].includes(sel
 
 const rows = computed(() => {
   const cs = [...(sit.value?.cards || [])].sort((a, b) => a.order - b.order);
-  return [{ key: 'chain', label: '价值链', cards: cs.filter((c) => c.row === 'chain') },
-    { key: 'support', label: '支撑面', cards: cs.filter((c) => c.row === 'support') }];
+  return [{ key: 'chain', label: $t('价值链'), cards: cs.filter((c) => c.row === 'chain') },
+    { key: 'support', label: $t('支撑面'), cards: cs.filter((c) => c.row === 'support') }];
 });
 
 function fmt(v, f) {
@@ -238,20 +239,20 @@ function spark(tr) {
 }
 function ago(s) {
   const m = (Date.now() - new Date(s).getTime()) / 60000;
-  if (m < 1) return '刚刚';
-  if (m < 60) return Math.round(m) + ' 分钟前';
-  if (m < 1440) return Math.round(m / 60) + ' 小时前';
-  return Math.round(m / 1440) + ' 天前';
+  if (m < 1) return $t('刚刚');
+  if (m < 60) return Math.round(m) + $t(' 分钟前');
+  if (m < 1440) return Math.round(m / 60) + $t(' 小时前');
+  return Math.round(m / 1440) + $t(' 天前');
 }
 
 const links = computed(() => {
   const a = sel.value;
   if (!a) return [];
-  const L = { production: [['/work/operator', '车间终端'], ['/finance?tab=production', '生产与成本']], quality: [['/work/quality', '质量'], ['/quality/8d', '开 8D']],
-    sales: [['/work/planner', '订单与计划']], planning: [['/work/planner', '订单与计划']], supply: [['/work/planner', '订单与计划（请购）']],
-    service: [['/twin', '数字孪生']], maintenance: [['/maint', '设备维护']], finance: [['/finance', '经营与财务']], product: [['/design', '设计发布与审批']] };
+  const L = { production: [['/work/operator', $t('车间终端')], ['/finance?tab=production', $t('生产与成本')]], quality: [['/work/quality', $t('质量')], ['/quality/8d', $t('开 8D')]],
+    sales: [['/work/planner', $t('订单与计划')]], planning: [['/work/planner', $t('订单与计划')]], supply: [['/work/planner', $t('订单与计划（请购）')]],
+    service: [['/twin', $t('数字孪生')]], maintenance: [['/maint', $t('设备维护')]], finance: [['/finance', $t('经营与财务')]], product: [['/design', $t('设计发布与审批')]] };
   const out = (L[a.domain] || []).map(([to, label]) => ({ to, label }));
-  if (a.subject) out.unshift({ to: `/ont/${a.subject.type}/${encodeURIComponent(a.subject.key)}`, label: '对象页' });
+  if (a.subject) out.unshift({ to: `/ont/${a.subject.type}/${encodeURIComponent(a.subject.key)}`, label: $t('对象页') });
   return out;
 });
 

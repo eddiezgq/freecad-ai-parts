@@ -1102,3 +1102,22 @@ key_materials:
 - RM-45-D50
 - RM-40CR-F225
 - OIL-CKC220
+eto:
+  prefix: JOB-
+  contingency_pct: 10
+  markup_pct: 30
+  engineering_rate_per_h: 65
+  valid_days: 30
+  milestones:
+  - key: deposit
+    name: 订金 Deposit
+    pct: 30
+    'on': order
+  - key: ship
+    name: 发货 Shipment
+    pct: 60
+    'on': ship
+  - key: accept
+    name: 验收 Acceptance
+    pct: 10
+    'on': accept

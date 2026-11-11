@@ -1,42 +1,42 @@
 <template>
   <figure class="jt">
     <div class="ctl">
-      <label for="jt-bl">背隙</label>
+      <label for="jt-bl">{{ $t('背隙') }}</label>
       <input id="jt-bl" v-model.number="backlash" type="range" min="0.2" max="1.6" step="0.05" aria-describedby="jt-note">
       <b class="mono">{{ backlash.toFixed(2) }}′</b>
-      <label for="jt-fr">摩擦</label>
+      <label for="jt-fr">{{ $t('摩擦') }}</label>
       <input id="jt-fr" v-model.number="friction" type="range" min="0.2" max="2.4" step="0.1">
       <b class="mono">{{ friction.toFixed(1) }} N·m</b>
-      <button class="btn sm" @click="replay">从头演示</button>
+      <button class="btn sm" @click="replay">{{ $t('从头演示') }}</button>
     </div>
-    <svg viewBox="0 0 520 230" role="img" :aria-label="`输入转角与输出转角的回差曲线：背隙 ${backlash.toFixed(2)} 角分`">
+    <svg viewBox="0 0 520 230" role="img" :aria-label="`输入转角与输出转角的回差曲线：背隙 ${backlash.toFixed(2)} 角分`"><!-- i18n-ok 读屏标签 / 数据比较 -->
       <line x1="40" y1="200" x2="500" y2="200" class="axis" />
       <line x1="40" y1="20" x2="40" y2="200" class="axis" />
-      <text x="500" y="218" text-anchor="end" class="lab">输入转角（电机侧，换算到输出）</text>
-      <text x="46" y="16" class="lab">输出转角</text>
+      <text x="500" y="218" text-anchor="end" class="lab">{{ $t('输入转角（电机侧，换算到输出）') }}</text>
+      <text x="46" y="16" class="lab">{{ $t('输出转角') }}</text>
       <polyline :points="pathPts" class="trace" />
       <circle v-if="dot" :cx="dot[0]" :cy="dot[1]" r="5" class="dot" />
       <g v-if="phase >= 2">
         <line :x1="gapX" :y1="gapY1" :x2="gapX" :y2="gapY2" class="gap" />
-        <text :x="gapX + 8" :y="(gapY1 + gapY2) / 2 + 4" class="lab strong">回差 = 背隙 {{ backlash.toFixed(2) }}′</text>
+        <text :x="gapX + 8" :y="(gapY1 + gapY2) / 2 + 4" class="lab strong">{{ $t('回差 = 背隙 {a}′', { a: backlash.toFixed(2) }) }}</text>
       </g>
     </svg>
-    <ol class="steps" aria-label="关节测试三步">
+    <ol class="steps" :aria-label="$t('关节测试三步')">
       <li v-for="(s, i) in STEPS" :key="s" :class="{ on: i <= phase }"><span>{{ i + 1 }}</span>{{ s }}</li>
     </ol>
     <p class="verdict" :class="ok ? 'good' : 'bad'">
-      {{ ok ? '合格' : '不合格' }}：背隙 {{ backlash.toFixed(2) }}′（上限 {{ LIMIT_BL }}′），空载摩擦力矩 {{ friction.toFixed(1) }} N·m（上限 {{ LIMIT_FR }} N·m）
+      {{ $t('{a}：背隙 {b}′（上限 {c}′），空载摩擦力矩 {d} N·m（上限 {e} N·m）', { a: ok ? $t('合格') : $t('不合格'), b: backlash.toFixed(2), c: LIMIT_BL, d: friction.toFixed(1), e: LIMIT_FR }) }}
     </p>
-    <figcaption id="jt-note" class="small muted">示例数据（WQJ-L 一类大关节），不是本厂此刻的数。测试台先正转、再反转：反转刚开始时电机在转、输出还没动，
-      这段“空程”就是背隙；空载时驱动电流换算出的力矩就是摩擦力矩。两项都进质量页的控制图。</figcaption>
+    <figcaption id="jt-note" class="small muted">{{ $t('示例数据（WQJ-L 一类大关节），不是本厂此刻的数。测试台先正转、再反转：反转刚开始时电机在转、输出还没动，这段“空程”就是背隙；空载时驱动电流换算出的力矩就是摩擦力矩。两项都进质量页的控制图。') }}</figcaption>
   </figure>
 </template>
 
 <script setup>
+import { t as $t } from '../../../lib/i18n';
 // 关节测试台（第 45 轮机器人厂）：正转—反转一圈，画输入转角—输出转角曲线，回差就是背隙；拖背隙、摩擦看合不合格
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
-const STEPS = ['正转到位', '反转：先走完空程，输出才跟着动', '量出回差，与上限比'];
+const STEPS = [$t('正转到位'), $t('反转：先走完空程，输出才跟着动'), $t('量出回差，与上限比')];
 const LIMIT_BL = 1.0;
 const LIMIT_FR = 2.0;
 const backlash = ref(0.6);

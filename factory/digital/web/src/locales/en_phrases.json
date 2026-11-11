@@ -1,0 +1,142 @@
+[
+[
+"心跳：",
+"Heartbeat: "
+],
+[
+"报警：",
+"Alarm: "
+],
+[
+"指令：",
+"Command: "
+],
+[
+"状态：",
+"State: "
+],
+[
+"初始化（对零）",
+"init (zeroing)"
+],
+[
+"就绪",
+"ready"
+],
+[
+"故障 无",
+"fault none"
+],
+[
+"故障 ",
+"fault "
+],
+[
+"故障",
+"fault"
+],
+[
+"运行",
+"running"
+],
+[
+"母线 ",
+"bus "
+],
+[
+"抱闸抱住",
+"brake engaged"
+],
+[
+"抱闸松开",
+"brake released"
+],
+[
+"抱闸·抱不住",
+"brake · slipping"
+],
+[
+"抱闸·断线",
+"brake · open wire"
+],
+[
+"抱闸·过流",
+"brake · overcurrent"
+],
+[
+"减速器 / 编码器不一致",
+"gearbox/encoder mismatch"
+],
+[
+"输出端编码器",
+"output encoder"
+],
+[
+"编码器",
+"encoder"
+],
+[
+"通信超时",
+"comm timeout"
+],
+[
+"欠压",
+"undervoltage"
+],
+[
+"过流",
+"overcurrent"
+],
+[
+"抱闸",
+"brake"
+],
+[
+"关节 ",
+"joint "
+],
+[
+"电机 ",
+"motor "
+],
+[
+"位置 ",
+"position "
+],
+[
+"力矩 q 轴 ",
+"torque q-axis "
+],
+[
+"速度 ",
+"speed "
+],
+[
+"清故障",
+"clear fault"
+],
+[
+"停",
+"stop"
+],
+[
+"，",
+", "
+],
+[
+"（",
+" ("
+],
+[
+"）",
+")"
+],
+[
+"松闸后 ",
+"after release "
+],
+[
+"；",
+"; "
+]
+]

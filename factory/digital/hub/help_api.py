@@ -11,7 +11,7 @@
 import os
 import re
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 from fastapi.responses import FileResponse
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -20,8 +20,10 @@ HELP_DIR = os.path.join(DIGITAL, "help")
 INDEX = os.path.join(DIGITAL, "帮助_数字工厂使用说明.md")
 HELP_MEDIA = os.environ.get("WQ_HELP_MEDIA", os.path.join(DIGITAL, "help-media"))
 MEDIA_NAME = re.compile(r"^[a-z0-9-]+\.(webm|mp4|vtt)$")
+IMG_DIR = os.path.join(HELP_DIR, "图")                         # 第 139 轮 139h：资料里的截图（原件 docs/帮助/图/，help/sync.py 复制）
+IMG_PART = re.compile(r"^[\w一-鿿（）()·\-]+$")
 GROUPS = [("开始", ["使用说明", "两周情景", "数字工厂术语表"]),
-          ("厂情中枢与七个领域", ["厂情中枢", "客户与服务", "采购与来料", "经营与财务", "设备维护", "人员与排班", "安全环保", "能源与环境"]),
+          ("厂情中枢与七个领域", ["厂情中枢", "客户与服务", "按单设计（ETO）", "采购与来料", "经营与财务", "设备维护", "人员与排班", "安全环保", "能源与环境"]),
           ("设计与工程软件", ["仿真与分析", "流体分析", "数控编程", "数字孪生", "设计优化", "虚拟PLC", "零件与机器人库"]),
           ("演示", ["学校版演示脚本", "企业版演示脚本", "演示前检查表"]),
           ("企业版、课程与运维", ["数字工厂企业版使用说明", "数字工厂课程接口", "数字工厂上线与维护"])]
@@ -44,19 +46,28 @@ def title_of(md, name):
 def render(md):
     import markdown
     html = markdown.markdown(md, extensions=["tables", "fenced_code", "sane_lists", "toc"], output_format="html5")
+    # 截图（图/<文件夹>/<名字>.jpg）→ /help-img/<文件夹>/<名字>.jpg
+    html = re.sub(r'src="(?:\./)?图/([^"/]+)/([^"/]+\.jpg)"', lambda m: 'src="/help-img/{}/{}" loading="lazy"'.format(m.group(1), m.group(2)), html)
     # 资料之间的相对链接（xxx.md）→ 网页里的资料页
     return re.sub(r'href="(?:\./)?([^"/#]+)\.md(#[^"]*)?"', lambda m: 'href="/help/docs/{}{}"'.format(m.group(1), m.group(2) or ""), html)
 
 
-def listing():
+def en_path(p):
+    """第 130 轮第四批（细则 D-13）：英文稿和中文稿放在一起，叫 <名字>.en.md；没有就 None"""
+    q = p[:-3] + ".en.md" if p and p.endswith(".md") else None
+    return q if q and os.path.exists(q) else None
+
+
+def listing(lang="zh"):
     out = []
     for g, names in GROUPS:
         items = []
         for n in names:
             p = path_of(n)
             if p:
-                with open(p, encoding="utf-8") as f:
-                    items.append({"name": n, "title": title_of(f.read(), n)})
+                e = en_path(p) if lang == "en" else None
+                with open(e or p, encoding="utf-8") as f:
+                    items.append({"name": n, "title": title_of(f.read(), n), "en_missing": lang == "en" and not e})
         out.append({"group": g, "items": items})
     return out
 
@@ -79,15 +90,28 @@ def mount(app, user_of):
             raise HTTPException(404, "没有这段视频")
         return FileResponse(f, headers={"Cache-Control": "public, max-age=86400"})
 
+    @app.get("/help-img/{folder}/{name}")
+    def help_img(folder: str, name: str):
+        """资料里的截图（演示工厂的页面，不用登录：和帮助视频一样）"""
+        if not (IMG_PART.match(folder) and name.endswith(".jpg") and IMG_PART.match(name[:-4])):
+            raise HTTPException(404, "没有这张图")
+        f = os.path.join(IMG_DIR, folder, name)
+        if not os.path.isfile(f):
+            raise HTTPException(404, "没有这张图")
+        return FileResponse(f, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=86400"})
+
     @app.get("/api/help/docs")
-    def help_index(u=Depends(user_of)):
-        return {"groups": listing()}
+    def help_index(request: Request, u=Depends(user_of)):
+        from hub import i18n
+        return {"groups": listing(i18n.lang_of(request))}
 
     @app.get("/api/help/docs/{name}")
-    def help_doc(name: str, u=Depends(user_of)):
+    def help_doc(name: str, request: Request, u=Depends(user_of)):
+        from hub import i18n
         p = path_of(name)
         if not p:
             raise HTTPException(404, "没有这份帮助：{}".format(name))
-        with open(p, encoding="utf-8") as f:
+        e = en_path(p) if i18n.lang_of(request) == "en" else None      # 英文界面有英文稿用英文稿
+        with open(e or p, encoding="utf-8") as f:
             md = f.read()
-        return {"name": name, "title": title_of(md, name), "html": render(md)}
+        return {"name": name, "title": title_of(md, name), "html": render(md), "en_missing": i18n.lang_of(request) == "en" and not e}

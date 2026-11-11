@@ -2,29 +2,30 @@
   <figure class="ad">
     <ol class="lane">
       <li v-for="(s, i) in STEPS" :key="s.who" :class="{ on: i === cur, past: i < cur, stop: rejected && i > 1 }">
-        <span class="who small">{{ s.who }}</span>
-        <b>{{ rejected && i === 2 ? '你点了“拒绝”' : s.what }}</b>
-        <span class="small muted">{{ rejected && i === 2 ? '提议作废，什么都不写' : s.note }}</span>
+        <span class="who small">{{ $td(s.who) }}</span>
+        <b>{{ rejected && i === 2 ? $t('你点了“拒绝”') : s.what }}</b>
+        <span class="small muted">{{ rejected && i === 2 ? $t('提议作废，什么都不写') : s.note }}</span>
       </li>
     </ol>
     <div class="ctl">
-      <button class="btn sm" @click="play(false)">看“确认”这条路</button>
-      <button class="btn sm" @click="play(true)">看“拒绝”这条路</button>
+      <button class="btn sm" @click="play(false)">{{ $t('看“确认”这条路') }}</button>
+      <button class="btn sm" @click="play(true)">{{ $t('看“拒绝”这条路') }}</button>
     </div>
-    <figcaption class="small muted">AI 工厂助手和厂情中枢都只<b>起草</b>：订单、请购、加班、动作都先成为一条“提议”，写清楚要做什么、依据是什么。只有人点了确认，桥接才把它写进 ERPNext；拒绝就什么也不发生。</figcaption>
+    <figcaption class="small muted">{{ $t('AI 工厂助手和厂情中枢都只') }}<b>{{ $t('起草') }}</b>{{ $t('：订单、请购、加班、动作都先成为一条“提议”，写清楚要做什么、依据是什么。只有人点了确认，桥接才把它写进 ERPNext；拒绝就什么也不发生。') }}</figcaption>
   </figure>
 </template>
 
 <script setup>
+import { t as $t } from '../../../lib/i18n';
 // AI 只起草、由人确认（ADR-0065）：一条提议从起草到写入 ERPNext 的路，以及拒绝的那条路。
 import { onMounted, onUnmounted, ref } from 'vue';
 
 const STEPS = [
-  { who: '你', what: '“帮我下一张 20 台的订单”', note: '在 AI 工厂助手里说一句话' },
-  { who: 'AI 工厂助手', what: '起草一条提议', note: '算好料、列出要建的单据和依据' },
-  { who: '你（或有权限的人）', what: '看清楚后点“确认执行”', note: '这是唯一能让它生效的一步' },
-  { who: '桥接', what: '按提议写入 ERPNext', note: '销售订单、工单、请购单' },
-  { who: 'ERPNext', what: '单据建好，状态回到工作台', note: '提议显示“已执行”，附单据号' },
+  { who: $t('你'), what: $t('“帮我下一张 20 台的订单”'), note: $t('在 AI 工厂助手里说一句话') },
+  { who: $t('AI 工厂助手'), what: $t('起草一条提议'), note: $t('算好料、列出要建的单据和依据') },
+  { who: $t('你（或有权限的人）'), what: $t('看清楚后点“确认执行”'), note: $t('这是唯一能让它生效的一步') },
+  { who: $t('桥接'), what: $t('按提议写入 ERPNext'), note: $t('销售订单、工单、请购单') },
+  { who: 'ERPNext', what: $t('单据建好，状态回到工作台'), note: $t('提议显示“已执行”，附单据号') },
 ];
 const cur = ref(0);
 const rejected = ref(false);

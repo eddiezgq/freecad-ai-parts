@@ -1,0 +1,3966 @@
+[
+[
+"接单并算料：{a} {b} × {c}，交期 {d}",
+"Take order and run MRP: {a} {b} × {c}, due {d}"
+],
+[
+"现在 {a}：OEE {b}，在制品 {c} 件，本周完工 {d}/{e}，一次合格率 {f}。{g}",
+"Now {a}: OEE {b}, WIP {c} pcs, completed this week {d}/{e}, first-pass yield {f}. {g}"
+],
+[
+"{a} 发布第 {b} 版（{c}）。在制工单：{d}。已开工的零件按旧版继续还是返工，需工艺员决定。",
+"{a} released revision {b} ({c}). Work orders in progress: {d}. Whether parts already started continue on the old revision or are reworked is for the process engineer to decide."
+],
+[
+"{a} 设计改版 rev {b}",
+"{a} design revision rev {b}"
+],
+[
+"已起草提议 {a}：销售订单 {b} × {c} 台，交期 {d}；工单 SH-301 × {e}，计划 {f} 至 {g}；请购：{h}。{i}请在下方预览后确认，确认后才写入 ERPNext。来源：office/erp/bin 库存快照、在手订单。",
+"Proposal {a} drafted: sales order {b} × {c} units, due {d}; work order SH-301 × {e}, planned {f} to {g}; material requests: {h}. {i}Preview and confirm below; it is written to ERPNext only after confirmation. Sources: office/erp/bin stock snapshot, open orders."
+],
+[
+"{a} 已完工 {b} 件：加工标准成本 ${c}，实际 ${d}，高 ${e}（{f}%）。其中调整与换刀 ${g}，加工超时 ${h}；差得最多的是“{i}”。来源：{j} 的 {k} 条完工事件（corr={l}）。",
+"{a} completed {b} pcs: standard machining cost ${c}, actual ${d}, ${e} over ({f}%). Of which setup and tool change ${g}, machining overrun ${h}; the largest gap is “{i}”. Source: {k} completion events of {j} (corr={l})."
+],
+[
+"{a}（{b}，{c} 台，交期 {d}）：{e}。预计完成 {f}；工单：{g}。{h}来源：office/erp/sales_order · {i}，machining/*/status。",
+"{a} ({b}, {c} units, due {d}): {e}. Expected completion {f}; work orders: {g}. {h}Sources: office/erp/sales_order · {i}, machining/*/status."
+],
+[
+"{a} 发布第 {b} 版，没有在制工单受影响；之后下达的工单按新版执行。",
+"{a} released revision {b}; no work orders in progress are affected; work orders released from now on follow the new revision."
+],
+[
+"提议 {a} 已经{b}",
+"Proposal {a} is already {b}"
+],
+[
+"本周瓶颈是 {a}（{b}）：负荷最高，今日 OEE {c}，停机 {d} 分钟。来源：machine_state_log、machining/{e}/status。",
+"This week's bottleneck is {a} ({b}): highest load, OEE today {c}, down {d} min. Sources: machine_state_log, machining/{e}/status."
+],
+[
+"{a} 已开工 {b} / {c} 件",
+"{a} started {b} / {c} pcs"
+],
+[
+"有{a}种物料的库存不够了。作为计划员，你要决定什么时候请购、请购多少。",
+"{a} items are short of stock. As planner, you decide when and how much to request."
+],
+[
+"{a} 最近 5 件均值上移 {b} µm，距上限还有 {c} µm，尚未超差。建议检查磨床砂轮。",
+"{a}: mean of the last 5 parts moved up {b} µm, {c} µm from the upper limit, not yet out of tolerance. Suggest checking the grinder wheel."
+],
+[
+"{a} 的测量值在上移。质检员会关心什么？可能是什么原因？",
+"{a} measurements are drifting up. What would the inspector care about? What could the cause be?"
+],
+[
+"模型暂时不可用（{a}），以下为规则回答",
+"Model unavailable for now ({a}); rule-based answer below"
+],
+[
+"这是计划员的任务，我不替你录入。提示：① 在“计划员”工作区点“新建订单”；② 看算料结果里 SH-301 要几根、45 钢够不够——现在库存 {a} kg，每根用 2.8 kg；③ 想想安全库存为什么也要算进去。",
+"This is the planner's task; I will not enter it for you. Hints: ① click “New order” in the “Planner” workspace; ② in the MRP result, check how many SH-301 are needed and whether there is enough 45 steel — stock now {a} kg, 2.8 kg per shaft; ③ think about why safety stock is included too."
+],
+[
+"提示：成本差异 = 实际 − 标准。标准只按单件工时算；实际还要加上每道工序的调整时间和换刀。在“厂长”工作区打开 {a} 的成本分解，看哪道工序差得最多，再想想为什么。",
+"Hint: cost variance = actual − standard. Standard counts per-part time only; actual adds each operation's setup time and tool changes. Open the cost breakdown of {a} in the “Plant manager” workspace, see which operation differs most, and think about why."
+],
+[
+"提示：先看“订单与交期”里 {a} 的进度，再看“车间实况”里有没有设备停机、哪里在排队。交期风险 = 剩余工作量 ÷ 瓶颈能力。",
+"Hint: first look at the progress of {a} under “Orders & due dates”, then under “Shop live” check for machines down and where parts queue. Delivery risk = remaining work ÷ bottleneck capacity."
+],
+[
+"{a} 停机（{b}），排队 {c} 件，是主要原因。",
+"{a} down ({b}), {c} pcs queued, is the main cause."
+],
+[
+"{a}（{b}）{c}：{d}，已停 {e} 分钟，前面排队 {f} 件{g}。建议：{h}",
+"{a} ({b}) {c}: {d}, down {e} min, {f} pcs queued ahead{g}. Suggestion: {h}"
+],
+[
+"{a}（{b}）停机了。想一想：它会影响哪张订单？在“车间实况”和“订单与交期”里找答案。",
+"{a} ({b}) is down. Think: which order will it affect? Find the answer under “Shop live” and “Orders & due dates”."
+],
+[
+"{a}（{b}）{c}，交期 {d}。",
+"{a} ({b}) {c}, due {d}."
+],
+[
+"{a}（{b}）待排产，缺 {c}。",
+"{a} ({b}) unscheduled, short {c}."
+],
+[
+"{a}（{b}）{c}：库存 {d}，在手工单与订单还需 {e}",
+"{a} ({b}) {c}: stock {d}, open work orders and orders still need {e}"
+],
+[
+"建议 {a} {b}：{c}，多花 ${d}。重大隐患先保安全，再比交期和成本。",
+"Suggest {a} {b}: {c}, extra ${d}. With a major hazard, safety first, then compare due date and cost."
+],
+[
+"{a} 分钟后",
+"in {a} min"
+],
+[
+"已开挂牌上锁许可 {a}（持证人 {b}），{c}停 {d}，整改约 {e} 分钟",
+"Lockout permit {a} opened (holder {b}), {c} stopped {d}, fix takes about {e} min"
+],
+[
+"隐患 SI-{a}：{b}。整改约 {c} 分钟。",
+"Hazard SI-{a}: {b}. Fix takes about {c} min."
+],
+[
+"已交 ERPNext 开整改工单（提议 {a}）",
+"Sent to ERPNext to open a fix work order (proposal {a})"
+],
+[
+"已验收解锁 {a}，{b} 恢复",
+"Verified and unlocked {a}, {b} back in service"
+],
+[
+"已安排“{a}”培训 {b} 人（{c}），有效期更新",
+"Scheduled “{a}” training for {b} people ({c}); validity updated"
+],
+[
+"已模拟违规拆锁：{a} 恢复运转，但许可没有关闭",
+"Simulated illegal lock removal: {a} running again, but the permit is not closed"
+],
+[
+"建议 {a} {b}：{c}",
+"Suggest {a} {b}: {c}"
+],
+[
+"没有这个人：{a}",
+"No such person: {a}"
+],
+[
+"{a}没有“{b}”培训记录",
+"{a} has no “{b}” training record"
+],
+[
+"{a}的“{b}”培训 {c} 已过期",
+"{a}'s “{b}” training {c} has expired"
+],
+[
+"{a} 指派给 {b}；",
+"{a} assigned to {b}; "
+],
+[
+"这条隐患已经{a}",
+"This hazard is already {a}"
+],
+[
+"这张许可已经{a}",
+"This permit is already {a}"
+],
+[
+"挂牌上锁，整改约 {a} 分钟（按隐患种类的标准工时），验收后解锁",
+"Lock out, fix takes about {a} min (standard time for the hazard type), unlock after verification"
+],
+[
+"限时整改：临时防护，{a} 分钟后停机",
+"Fix within a time limit: interim guard, stop in {a} min"
+],
+[
+"先加临时防护、降速、专人看守，{a} 分钟后（{b}）停机整改",
+"Add an interim guard, slow down and post an attendant first; stop and fix in {a} min ({b})"
+],
+[
+"【安全整改】{a} {b}",
+"[Safety fix] {a} {b}"
+],
+[
+"{a} 没有挂着的锁",
+"{a} has no lock on it"
+],
+[
+"整改完成：{a}；",
+"Fixed: {a}; "
+],
+[
+"安排培训（{a}）",
+"Schedule training ({a})"
+],
+[
+"{a} 附近切屑飞溅，擦过操作工的工作服，没有受伤",
+"Chips flew near {a} and grazed the operator's work clothes; no injury"
+],
+[
+"{a}（维修工）",
+"{a} (maintenance technician)"
+],
+[
+"先安排复训（{a}）",
+"Arrange refresher training first ({a})"
+],
+[
+"按时（余 {a} 天）",
+"On time ({a} days spare)"
+],
+[
+"{a}；每天{b} {c} 度、${d}、碳 {e} kg",
+"{a}; per day {b} {c} kWh, ${d}, carbon {e} kg"
+],
+[
+"建议 {a} {b}：未来 24 小时省 {c} 度、${d}，{e}",
+"Suggest {a} {b}: saves {c} kWh, ${d} over the next 24 hours, {e}"
+],
+[
+"已注入：{a}{b}",
+"Injected: {a}{b}"
+],
+[
+"{a} 电表",
+"{a} meter"
+],
+[
+"推演的未来 24 小时里各方案省不下电（这段时间{a}），先不处理",
+"None of the options saves electricity over the next 24 hours in the what-if (during this time {a}); do nothing for now"
+],
+[
+"油雾 {a} mg/m³（限值 {b}）；检修约 2 小时",
+"Oil mist {a} mg/m³ (limit {b}); service takes about 2 hours"
+],
+[
+"噪声 {a} dB(A)（限值 {b}）；加隔声罩后这两台低约 6 dB",
+"Noise {a} dB(A) (limit {b}); with enclosures these two are about 6 dB lower"
+],
+[
+"没有这种问题：{a}",
+"No such problem: {a}"
+],
+[
+"{a} 空闲 10 分钟自动待机",
+"{a} auto standby after 10 min idle"
+],
+[
+"{a} 空闲 30 分钟自动待机",
+"{a} auto standby after 30 min idle"
+],
+[
+"电费（未来 24 小时，比不处理{a}）",
+"Electricity cost (next 24 hours, vs doing nothing {a})"
+],
+[
+"单件电量比基线高 {a}；停机维修约 {b} 分钟（挂牌上锁）",
+"Energy per part {a} above baseline; repair downtime about {b} min (lockout)"
+],
+[
+"多出约 {a} kW，一天约 {b} 度、${c}；查漏约 2 小时，不停产",
+"About {a} kW extra, about {b} kWh and ${c} per day; finding leaks takes about 2 hours, no production stop"
+],
+[
+"{a}加隔声罩；高噪声区发耳塞",
+"{a} add noise enclosures; ear plugs in the high-noise area"
+],
+[
+"空闲 {a} 分钟自动待机",
+"Auto standby after {a} min idle"
+],
+[
+"{a} 应大于 0",
+"{a} must be greater than 0"
+],
+[
+"已催款：{a} {b} ${c}，逾期 {d} 天",
+"Reminded: {a} {b} ${c}, {d} days overdue"
+],
+[
+"开票：{a} {b} ${c}",
+"Invoiced: {a} {b} ${c}"
+],
+[
+"采购发票：{a} {b} ${c}",
+"Purchase invoice: {a} {b} ${c}"
+],
+[
+"输出轴 {a} 件用车间实测（工时、调整、换刀；运行电量），其余零件、装配、跑合按标准",
+"{a} output shafts use measured shop data (labor, setup, tool change; run energy); other parts, assembly and run-in at standard"
+],
+[
+"{a} 的发票（订单 {b}，${c}）逾期 {d} 天，不催就不付",
+"{a}'s invoice (order {b}, ${c}) is {d} days overdue and will not be paid without a reminder"
+],
+[
+"建议 {a}",
+"Suggest {a}"
+],
+[
+"毛利率 {a}（标准 {b}）：比标准多花的主要在 {c}。改进：报价按实际成本复核；工艺和供应商对症处理",
+"Gross margin {a} (standard {b}): the extra spending over standard is mainly in {c}. Improve: review quotes against actual cost; fix process and supplier issues at the cause"
+],
+[
+"指标“{a}”连续偏离目标：打开对应领域的异常和推演找原因",
+"Metric “{a}” keeps missing its target: open the anomalies and what-if of that domain to find the cause"
+],
+[
+"催款：发票 {a} 未付 ${b}，已逾期，请尽快安排付款。（问渠厂情中枢 · {c}）",
+"Payment reminder: invoice {a} unpaid ${b}, now overdue; please arrange payment soon. (WenQuest Plant Insight Hub · {c})"
+],
+[
+"付款 {a} ${b}（提议 {c}）",
+"Payment {a} ${b} (proposal {c})"
+],
+[
+"{a} {b} 预算改为 ${c}",
+"{a} {b} budget changed to ${c}"
+],
+[
+"已注入：{a} 一笔 ${b} 的发票逾期 {c} 天，不催就不付",
+"Injected: an invoice of {a} for ${b} is {c} days overdue and will not be paid without a reminder"
+],
+[
+"这张发票{a}，不能{b}",
+"This invoice is {a}; cannot {b}"
+],
+[
+"不合格输出轴 {a} 件 × 标准成本",
+"Nonconforming output shafts {a} pcs × standard cost"
+],
+[
+"订单在做期间（工厂时间）{a} 台设备的空转电 {b} 度，按件数分摊",
+"Idle electricity of {a} machines while the order was in progress (factory time), {b} kWh, allocated by part count"
+],
+[
+"这张发票现在{a}，不能设为逾期",
+"This invoice is now {a}; cannot be set overdue"
+],
+[
+"；{a}：客户压着不付",
+"; {a}: customer withholding payment"
+],
+[
+"{a}；{b}；现金流预测 8 周内最低第 {c} 周 ${d}",
+"{a}; {b}; cash flow forecast lowest in week {c} of 8: ${d}"
+],
+[
+"这张发票{a}，不用催",
+"This invoice is {a}; no reminder needed"
+],
+[
+"{a} 推迟 {b} 天付款",
+"{a} pays {b} days late"
+],
+[
+"客户按自己的习惯付；{a}",
+"The customer pays by its own habit; {a}"
+],
+[
+"通常 {a} 天内付；不伤和气",
+"Usually pays within {a} days; no hard feelings"
+],
+[
+"建议 {a} 发催款函：逾期不长，先催，通常几天内就付，不影响关系",
+"Suggest {a} send a reminder: not long overdue, remind first; usually paid within days without hurting the relationship"
+],
+[
+"建议 {a} 冻结信用：逾期太久或欠得太多，先停发货再谈",
+"Suggest {a} hold credit: too long overdue or too much owed; stop shipping first, then talk"
+],
+[
+"建议 {a} 加快催收：先把该收的钱收回来，不动供应商的账期",
+"Suggest {a} speed up collection: collect what is due first, keep the supplier's credit terms"
+],
+[
+"建议 {a} 调整预算：按现在的进度推到月底，同时找超支的原因",
+"Suggest {a} adjust the budget: project to month end at the current pace, and find the cause of the overrun"
+],
+[
+"（ERPNext 发票上留了催款记录{a}）",
+" (a reminder record was left on the ERPNext invoice{a})"
+],
+[
+"；额度改为 ${a}",
+"; limit changed to ${a}"
+],
+[
+"和供应商商量推迟 {a} 天付款",
+"Ask the supplier to defer payment by {a} days"
+],
+[
+"预计 {a} 天后收到 ${b}",
+"Expect ${b} in {a} days"
+],
+[
+"平时晚 {a}–{b} 天",
+"Usually {a}–{b} days late"
+],
+[
+"调整预算（+${a}）",
+"Adjust budget (+${a})"
+],
+[
+"本周完工 {a}",
+"Completed this week: {a}"
+],
+[
+"计划到今天 {a} 件",
+"Planned to date: {a} pcs"
+],
+[
+"· 在途 {a}",
+" · in transit {a}"
+],
+[
+"目标 95% · {a} 单延期风险",
+"Target 95% · {a} order(s) at risk"
+],
+[
+"本月尚无交付 · {a} 单延期风险",
+"No deliveries this month · {a} order(s) at risk"
+],
+[
+"比昨天 {a}",
+"{a} vs yesterday"
+],
+[
+"每件高 ${a} · 主要是{b}",
+"${a} over per unit · mainly {b}"
+],
+[
+"（{a} 前排队 {b} 件）",
+" ({b} queued at {a})"
+],
+[
+"· {a} 仅 {b}%",
+" · {a} only {b}%"
+],
+[
+"· {a} 件",
+" · {a} pcs"
+],
+[
+"预计晚 {a} 天",
+"Projected {a} day(s) late"
+],
+[
+"{a} {b} 已完工 {c}/{d}",
+"{a} {b} done {c}/{d}"
+],
+[
+"{a} 到货",
+"Arriving {a}"
+],
+[
+"约 {a} 天",
+"About {a} days"
+],
+[
+"已让 {a} 停机 {b} 分钟",
+"{a} put down for {b} min"
+],
+[
+"已把 {a} 的库存降到 {b}",
+"Stock of {a} dropped to {b}"
+],
+[
+"得 {a} / 15 分。对照系统的因果链：工单 {b}，订单 {c}，不处理时晚 {d} 天。",
+"{a} / 15 points. Compare with the system's causal chain: work orders {b}, orders {c}, {d} days late if nothing is done."
+],
+[
+"提交了（得 {a} 分）。理由里最好同时说到交期和成本。",
+"Submitted ({a} points). Ideally the reason covers both due date and cost."
+],
+[
+"复盘里是“{a}”。再看看工单那一行。",
+"The review says “{a}”. Look at the work order row again."
+],
+[
+"已注入：{a} 磨的轴所在的 {b} 台设备（{c}）出轴承问题，客户会在 {d} 陆续来电",
+"Injected: {b} units ({c}) with shafts ground by {a} develop bearing problems; customers will call during {d}"
+],
+[
+"得 {a} / 15 分。对照系统的追溯：砂轮 {b}，排查范围 {c}。",
+"{a} / 15 points. Compare with the system's trace: wheel {b}, search scope {c}."
+],
+[
+"得 {a} / 10 分（对 {b}，多标 {c}，漏标 {d}）。系统判定的高风险：{e}。",
+"{a} / 10 points ({b} right, {c} extra, {d} missed). High risk according to the system: {e}."
+],
+[
+"选 A、B 或 C（现有方案：{a}）",
+"Choose A, B or C (available options: {a})"
+],
+[
+"提交了（得 {a} 分）。{b}",
+"Submitted ({a} points). {b}"
+],
+[
+"回访平均 {a} 分，是“{b}”。",
+"Average follow-up score {a}, “{b}”."
+],
+[
+"你选的方案漏掉了 {a} 台高风险设备。",
+"The option you chose misses {a} high-risk units."
+],
+[
+"已注入重大隐患 SI-{a}（{b}）",
+"Major hazard SI-{a} injected ({b})"
+],
+[
+"提交了（得 {a} 分）。",
+"Submitted ({a} points)."
+],
+[
+"得 {a} / 10 分。对照：危险源 {b}（{c}），严重度 {d}；防护缺失后可能性至少 {e}，风险值 ≥ 15，属于重大。",
+"{a} / 10 points. Compare: hazard source {b} ({c}), severity {d}; with the guard missing, likelihood at least {e}, risk ≥ 15, which is major."
+],
+[
+"得 {a} / 15 分。对照：工单 {b}，订单 {c}，整改约 {d} 分钟。",
+"{a} / 15 points. Compare: work orders {b}, orders {c}, fix about {d} min."
+],
+[
+"看板现在是“{a}”。",
+"The dashboard now says “{a}”."
+],
+[
+"可靠性系数 {a}",
+"Reliability factor {a}"
+],
+[
+"得 {a} / 15 分。平台按提交时的数据算：运行 {b} 小时，概率 {c}，预期损失 ${d}（可靠性系数 {e}）。",
+"{a} / 15 points. The platform computes from the data at submission: {b} run hours, probability {c}, expected loss ${d} (reliability factor {e})."
+],
+[
+"平台记录：{a} 保养后坏了 {b} 次；{c} 同期坏了 {d} 次。",
+"Platform record: {a} failed {b} times after PM; {c} failed {d} times in the same period."
+],
+[
+"平台估的是 {a} 运行小时。",
+"The platform estimates {a} run hours."
+],
+[
+"已让 {a} {b} {c} 请假（{d} 这一班没人）",
+"Put {a} {b} {c} on leave ({d}: nobody on this shift)"
+],
+[
+"车间“要有人”已{a}",
+"Shop “someone must be present” is {a}"
+],
+[
+"得 {a} / 10 分（多选的倒扣）。",
+"{a} / 10 points (extra picks deducted)."
+],
+[
+"平台的算法：一个班 {a} 小时，{b} 每件 {c} 分钟，少做约 {d} 件。",
+"The platform's calculation: one shift {a} hours, {b} {c} minutes per part, about {d} parts fewer."
+],
+[
+"供应商模拟器已{a}",
+"Supplier simulator {a}"
+],
+[
+"得 {a} / 15 分。平台的抽样里有 {b} 处超差{c}。",
+"{a} / 15 points. The platform's sample has {b} readings out of tolerance{c}."
+],
+[
+"平台算的：默认 ${a}，备选 ${b}。",
+"The platform's figures: default ${a}, alternative ${b}."
+],
+[
+"老师注入后，在指挥台打开“{a} 空转”的异常，右栏比较：空闲 10 分钟 / 30 分钟自动待机、全部机加设备 10 分钟、不处理（对照）。选一个写理由。提交后才显示中枢的建议。",
+"After the teacher injects, open the “{a} idle” anomaly in the command center and compare in the right panel: auto standby after 10 / 30 minutes idle, all machining machines at 10 minutes, do nothing (baseline). Choose one and write the reasons. The hub's suggestions show only after submitting."
+],
+[
+"① 热处理错峰：一炉 110 kW × 3 小时从峰时挪到平时，每月 {a} 个工作日，一个月省多少电费？② 错峰少排多少碳？③ {b} 每晚 12 小时从空转（6 kW）改为待机（0.7 kW），一个月 {c} 晚少排多少 kg 碳？",
+"① Heat-treat peak shifting: one furnace load of 110 kW × 3 hours moved from peak to flat, {a} working days a month: how much electricity cost is saved per month? ② How much carbon does peak shifting save? ③ {b} switched each night for 12 hours from idle (6 kW) to standby (0.7 kW): how many kg of carbon are saved over {c} nights?"
+],
+[
+"{a} 空闲 10 分钟待机",
+"{a} standby after 10 min idle"
+],
+[
+"{a} 空闲 30 分钟待机",
+"{a} standby after 30 min idle"
+],
+[
+"{a}；{b}。约 3 分钟（真实时间）后 {c} 的空转满 1 小时，厂情中枢出异常",
+"{a}; {b}. In about 3 minutes (real time) {c} will have idled for 1 hour and the Plant Insight Hub raises an anomaly"
+],
+[
+"能源模拟器已{a}",
+"Energy simulator {a}"
+],
+[
+"得 {a} / 10 分：近 12 小时空转最多的是 {b}。",
+"{a} / 10 points: the most idle energy in the last 12 hours is {b}."
+],
+[
+"得 {a} / 15 分：每件 {b} 度、{c} kg CO2e。",
+"{a} / 15 points: {b} kWh and {c} kg CO2e per part."
+],
+[
+"还没有 {a} 的空转异常：老师注入后，车间空转满 1 小时（工厂时间）才报",
+"No idle anomaly for {a} yet: after the teacher injects, it is reported once the machine has idled 1 hour (factory time)"
+],
+[
+"平台算的：错峰省 ${a}、少排碳 0（电没少用，只是换了时段），待机少排 {b} kg。",
+"The platform's figures: peak shifting saves ${a} and no carbon (no less electricity, just a different time), standby saves {b} kg."
+],
+[
+"财务模拟器已{a}",
+"Finance simulator {a}"
+],
+[
+"得 {a} / 15 分：{b} 毛利率 {c}，料以外最多的是“{d}”。",
+"{a} / 15 points: {b} gross margin {c}, the largest item besides material is “{d}”."
+],
+[
+"平台算的：DSO {a} 天，现金最紧在第 {b} 周。",
+"The platform's figures: DSO {a} days, cash tightest in week {b}."
+],
+[
+"已登记：{a} 组，{b}。",
+"Registered: group {a}, {b}."
+],
+[
+"第 {a} 幕还没演，或者厂情中枢还没报出异常",
+"Scene {a} has not been played yet, or the Plant Insight Hub has not reported its anomaly"
+],
+[
+"第 {a} 幕该{b}处理（你登记的是{c}）",
+"Scene {a} is for {b} (you registered as {c})"
+],
+[
+"本组第 {a} 幕已经交过决定",
+"Your group has already submitted a decision for scene {a}"
+],
+[
+"选一个方案（{a}）",
+"Choose an option ({a})"
+],
+[
+"得 {a} / 20 分：毛利率 {b}，记到订单上最多的是第 {c} 幕，动作费用 ${d}。",
+"{a} / 20 points: gross margin {b}, scene {c} charged the most to the order, action cost ${d}."
+],
+[
+"得 {a} / 10 分。对照算料结果数一数工单，再看物料清单里三种关节模组各用几台。",
+"{a} / 10 points. Count the work orders in the MRP result, then see how many of each of the three joint modules the BOM uses."
+],
+[
+"得 {a} / 10 分。整台：标准 ${b}，实际 ${c}（{d}%），差得最多的是 {e}。",
+"{a} / 10 points. Whole robot: standard ${b}, actual ${c} ({d}%), the largest gap is {e}."
+],
+[
+"判对了，但超的是：{a}。",
+"Judged right, but the item out is: {a}."
+],
+[
+"不对：这台关节{a}。",
+"Wrong: this joint {a}."
+],
+[
+"已注入：{a}。学生看不到是哪一种，只能从数据里找。",
+"Injected: {a}. Students cannot see which one; they must find it from the data."
+],
+[
+"正确（差 {a} mm）。",
+"Correct (off by {a} mm)."
+],
+[
+"差 {a} mm：大方向对了，检查一下符号或某个关节的 a、d。",
+"Off by {a} mm: the general direction is right; check a sign or a joint's a, d."
+],
+[
+"正确（{a} 天）。",
+"Correct ({a} days)."
+],
+[
+"正确：同批还有 {a} 台要处理。",
+"Correct: {a} more units of the same lot need handling."
+],
+[
+"正确：预防性更换省 ${a}。",
+"Correct: preventive replacement saves ${a}."
+],
+[
+"得 {a} / 10 分。对照算料结果数一数工单（底盘和它的驱动单元也各有一张）；关节模组：双臂、腰、头加起来；底盘在这张单里自己造——成品库里的 AGV 是给别的客户的。",
+"{a} / 10 points. Count the work orders in the MRP result (the base and its drive units have one each too); joint modules: arms, waist and head together; the base is made within this order — the AGV in finished-goods stock is for another customer."
+],
+[
+"对策：这一周 {a} 的负荷 {b} 分钟、一周能排 {c} 分钟，只有一个人会——可行的是错开排产和带徒；外协做不了（标定要用本厂工位和这台机器的数据），跳过标定不能出厂",
+"Countermeasures: this week {a} has {b} minutes of load and {c} minutes available, with only one qualified person — staggering the schedule and coaching an apprentice are feasible; subcontracting cannot work (calibration needs this plant's station and this robot's data), and skipping calibration means it cannot ship"
+],
+[
+"得 {a} / 10 分。{b}。",
+"{a} / 10 points. {b}."
+],
+[
+"不对：这台人形{a}。",
+"Wrong: this humanoid {a}."
+],
+[
+"对了 {a} 台。报警帧 0x081：第 [0] 字节故障码，第 [3] 字节子码；两条报警的填最后一条。",
+"{a} right. Alarm frame 0x081: byte [0] fault code, byte [3] subcode; with two alarms enter the last one."
+],
+[
+"对了 {a} 台。线圈电流一直 0 → 回路断；冲到额定好几倍 → 线圈短路；撤了驱动还有电流 → 开关管常通。",
+"{a} right. Coil current always 0 → open circuit; surging to several times rated → coil shorted; current still there after drive removed → switch transistor stuck on."
+],
+[
+"对了 {a} 台。抱闸线圈在伺服电机里，开关管在驱动板上；断线先查插头和线束。",
+"{a} right. The brake coil is in the servo motor and the switch transistor on the driver board; for an open circuit check the connector and harness first."
+],
+[
+"建议 {a} {b}：交期 {c}，算上预期故障损失共 ${d}（不做的预期损失 ${e}）。",
+"Suggest {a} {b}: due date {c}, ${d} in total including expected failure loss (expected loss of doing nothing ${e})."
+],
+[
+"保养工单 PM-{a}：{b}（{c}）",
+"PM work order PM-{a}: {b} ({c})"
+],
+[
+"维修单 MR-{a}：{b} 挂牌上锁，ERPNext 开维修单",
+"Repair order MR-{a}: {b} locked out, repair order opened in ERPNext"
+],
+[
+"保养周期 {a} 改为 {b} 运行小时",
+"PM interval of {a} changed to {b} run hours"
+],
+[
+"已把 {a} 的运行小时设为 {b}（保养周期 {c}）",
+"Run hours of {a} set to {b} (PM interval {c})"
+],
+[
+"设备台账与保养计划 {a} 台",
+"Equipment register and PM plans, {a} machines"
+],
+[
+"；{a} 决定先观察",
+"; {a} decided to observe first"
+],
+[
+"这张维修单已经{a}",
+"This repair order is already {a}"
+],
+[
+"这张保养单已经{a}",
+"This PM order is already {a}"
+],
+[
+"保养周期 {a} → {b} 小时",
+"PM interval {a} → {b} hours"
+],
+[
+"保养周期 {a} 改为 {b} 运行小时（ERPNext 提议 {c}）",
+"PM interval of {a} changed to {b} run hours (ERPNext proposal {c})"
+],
+[
+"按失效率，未来 {a} 运行小时坏掉的概率 {b}，预期停机 {c} 分钟、预期损失 ${d}",
+"By failure rate, probability of failure in the next {a} run hours {b}, expected downtime {c} min, expected loss ${d}"
+],
+[
+"现在保养（停 {a} 分钟）",
+"PM now (down {a} min)"
+],
+[
+"保养后失效率回到起点：未来 {a} 运行小时坏掉的概率 {b}",
+"After PM the failure rate starts over: probability of failure in the next {a} run hours {b}"
+],
+[
+"{a}保养",
+"PM {a}"
+],
+[
+"先生产 {a} 分钟再停；这段时间里坏掉的概率约 {b}",
+"Produce {a} more minutes before stopping; probability of failure meanwhile about {b}"
+],
+[
+"；如果现在就坏（停 {a} 分钟），订单最多晚 {b} 天",
+"; if it fails now (down {a} min), the order is at most {b} days late"
+],
+[
+"挂牌上锁，维修工检修；可能用到 {a}",
+"Lock out, maintenance repairs it; may use {a}"
+],
+[
+"紧急采购备件（{a} 到货）",
+"Urgent spare parts purchase (arrives {a})"
+],
+[
+"维修 MR-{a}：{b}",
+"Repair MR-{a}: {b}"
+],
+[
+"维修单 {a} {b}",
+"Repair order {a} {b}"
+],
+[
+"备件 {a} 不够（要 {b}），先采购",
+"Spare part {a} short (need {b}); purchase first"
+],
+[
+"维修 MR-{a} 用件",
+"Parts for repair MR-{a}"
+],
+[
+"{a} 小时保养：{b}",
+"{a}-hour PM: {b}"
+],
+[
+"{a}，多花 ${b}",
+"{a}, extra ${b}"
+],
+[
+"改派 {a} {b}：{c} → {d}",
+"Reassign {a} {b}: {c} → {d}"
+],
+[
+"调序：{a} 在 {b} 上排到最前",
+"Resequence: {a} first on {b}"
+],
+[
+"加班：{a} {b} {c} 分钟",
+"Overtime: {a} {b} {c} min"
+],
+[
+"维修加急：{a} 剩余停机缩短到 {b}",
+"Expedite repair: {a} remaining downtime cut to {b}"
+],
+[
+"紧急采购：{a} × {b}，{c} 到货",
+"Urgent purchase: {a} × {b}, arrives {c}"
+],
+[
+"外协：{a} {b} {c} 件",
+"Subcontract: {a} {b} {c} pcs"
+],
+[
+"分批交货：{a} 先交 {b} 台（{c}）",
+"Split delivery: {a} delivers {b} units first ({c})"
+],
+[
+"服务派工：{a} 台（维修 {b}、点检 {c}）{d}",
+"Service dispatch: {a} units (repair {b}, inspection {c}) {d}"
+],
+[
+"现场机器人服务派工：{a} 台 {b}",
+"Field robot service dispatch: {a} units {b}"
+],
+[
+"预防性服务通知：{a} 个客户",
+"Preventive service notice: {a} customers"
+],
+[
+"停机挂牌整改：{a} {b}，整改约 {c} 分钟",
+"Lockout and fix: {a} {b}, fix about {c} min"
+],
+[
+"整改工单：{a} {b}",
+"Fix work order: {a} {b}"
+],
+[
+"验收解锁：{a}",
+"Verify and unlock: {a}"
+],
+[
+"安排培训：{a} {b} 人",
+"Schedule training: {a} {b} people"
+],
+[
+"保养工单：{a} {b}停 {c} 分钟",
+"PM work order: {a} {b} down {c} min"
+],
+[
+"维修工单：{a} {b}",
+"Repair work order: {a} {b}"
+],
+[
+"调整保养周期：{a} → {b} 运行小时",
+"Change PM interval: {a} → {b} run hours"
+],
+[
+"{a}：{b} {c} {d} 由 {e} {f}",
+"{a}: {b} {c} {d} by {e} {f}"
+],
+[
+"采购单：{a} {b}{c}",
+"Purchase order: {a} {b}{c}"
+],
+[
+"退货：批次 #{a}",
+"Return: lot #{a}"
+],
+[
+"让步接收（全检挑用）：批次 #{a}",
+"Concession (100% inspection and sorting): lot #{a}"
+],
+[
+"开发备选供应商：{a}",
+"Develop an alternative supplier: {a}"
+],
+[
+"节能设定：{a} {b}",
+"Energy-saving setting: {a} {b}"
+],
+[
+"催款：发票 #{a}",
+"Reminder: invoice #{a}"
+],
+[
+"{a}：发票 #{b}",
+"{a}: invoice #{b}"
+],
+[
+"调整预算：{a} → ${b}",
+"Adjust budget: {a} → ${b}"
+],
+[
+"错峰规则：{a} {b}",
+"Peak-shifting rule: {a} {b}"
+],
+[
+"技能培训：{a} 学 {b}，带教 {c} 小时",
+"Skills training: {a} learns {b}, coached {c} hours"
+],
+[
+"紧急采购 {a} × {b}（{c} 到货）",
+"Urgent purchase {a} × {b} (arrives {c})"
+],
+[
+"分批交货 {a}",
+"Split delivery {a}"
+],
+[
+"服务备件（动作 ACT-{a}）",
+"Service spare parts (action ACT-{a})"
+],
+[
+"{a} 分钟后停",
+"stop in {a} min"
+],
+[
+"加班 {a} 小时",
+"Overtime {a} hours"
+],
+[
+"，额度 ${a}",
+", limit ${a}"
+],
+[
+"推迟 {a} 天付款",
+"Defer payment by {a} days"
+],
+[
+"执行失败：{a}",
+"Execution failed: {a}"
+],
+[
+"已发给车间：{a} 的 {b} 改到 {c}",
+"Sent to the shop: {b} of {a} moved to {c}"
+],
+[
+"已发给车间：{a} 上 {b} 排到最前",
+"Sent to the shop: {b} first on {a}"
+],
+[
+"已发给车间：{a} 件外协",
+"Sent to the shop: {a} pcs subcontracted"
+],
+[
+"班次表已改：{a} 加班 {b} 分钟，已发给车间",
+"Shift roster changed: {a} overtime {b} min, sent to the shop"
+],
+[
+"已交 ERPNext 生成请购单（提议 {a}）",
+"Sent to ERPNext to create a material request (proposal {a})"
+],
+[
+"分批交货：先交 {a} 台，交期 {b}；其余按原交期。（问渠厂情中枢 · 动作 {c}）",
+"Split delivery: {a} units first, due {b}; the rest on the original due date. (WenQuest Plant Insight Hub · action {c})"
+],
+[
+"已交 ERPNext 在订单上留交货安排（提议 {a}）",
+"Sent to ERPNext to note the delivery arrangement on the order (proposal {a})"
+],
+[
+"已派 {a} 张服务工单（工程师 {b}），交 ERPNext 开服务工单（提议 {c}）",
+"Dispatched {a} service jobs (engineer {b}), sent to ERPNext to open service orders (proposal {c})"
+],
+[
+"已派 {a} 张现场机器人服务工单：{b}",
+"Dispatched {a} field robot service jobs: {b}"
+],
+[
+"已交 ERPNext 出库（提议 {a}）",
+"Sent to ERPNext for stock issue (proposal {a})"
+],
+[
+"通知 {a} 个客户：{b}",
+"Notified {a} customers: {b}"
+],
+[
+"采购单已交 ERPNext（提议 {a}），承诺 {b} 到货",
+"Purchase order sent to ERPNext (proposal {a}), promised arrival {b}"
+],
+[
+"等 {a} 台",
+"waiting {a} units"
+],
+[
+"已发给车间：{a} 维修加急",
+"Sent to the shop: {a} expedited repair"
+],
+[
+"人工 {a} 人天",
+"Labor {a} person-days"
+],
+[
+"已发邮件 {a} 封",
+"{a} emails sent"
+],
+[
+"{a} 台 21 天内排不进",
+"{a} units cannot be scheduled within 21 days"
+],
+[
+"{a} 天做完（到 {b}），工程师 {c}",
+"Done in {a} days (by {b}), engineer {c}"
+],
+[
+"现场机器人服务 {a} 台",
+"Field robot service, {a} units"
+],
+[
+"{a} 的 {b}",
+"{b} of {a}"
+],
+[
+"{a}：领域 {b} 不在本体里",
+"{a}: domain {b} is not in the ontology"
+],
+[
+"{a}：规则编号重复",
+"{a}: duplicate rule ID"
+],
+[
+"{a}：severity 只能是 {b}",
+"{a}: severity can only be {b}"
+],
+[
+"{a}：role 只能是 {b}",
+"{a}: role can only be {b}"
+],
+[
+"{a}：检测函数 {b} 不存在（hub/ont/rules/）",
+"{a}: check function {b} does not exist (hub/ont/rules/)"
+],
+[
+"规则 {a} 没有参数 {b}",
+"Rule {a} has no parameter {b}"
+],
+[
+"关闭后 {a} 小时内再次出现，重新打开",
+"Reappeared within {a} hours of closing; reopened"
+],
+[
+"{a}：缺少 {b}",
+"{a}: missing {b}"
+],
+[
+"严重度升为“{a}”：{b}",
+"Severity raised to “{a}”: {b}"
+],
+[
+"指派给{a}{b}",
+"Assigned to {a}{b}"
+],
+[
+"{a} {b}（{c}），预计还要约 {d} 分钟（工厂时间）",
+"{a} {b} ({c}), about {d} min more (factory time)"
+],
+[
+"{a}{b} 涉及零件 {c} 件，追到 {d} 把刀具 / 砂轮",
+"{a}{b} involves {c} parts, traced to {d} tools / wheels"
+],
+[
+"{a}设备 {b} 台：{c}",
+"{a} machines {b}: {c}"
+],
+[
+"同一片砂轮磨出的轴装在另外 {a} 台现场设备上{b}",
+"Shafts ground by the same wheel are fitted in {a} other field units{b}"
+],
+[
+"推迟（剩 {a} 件）",
+"Delayed ({a} pcs left)"
+],
+[
+"排在它上面、还没做完的工序 {a} 道，涉及工单 {b}",
+"{a} unfinished operations queued ahead of it, involving work orders {b}"
+],
+[
+"同一刀具加工的其他零件 {a} 件，建议复检：{b}",
+"{a} other parts machined with the same tool, recheck suggested: {b}"
+],
+[
+"它们的输出轴由 {a} 磨削",
+"Their output shafts were ground by {a}"
+],
+[
+"还有 {a} 根同一片砂轮磨出的轴没有装机（在库或在制），装配前建议复检轴承位",
+"{a} more shafts ground by the same wheel are not fitted yet (in stock or WIP); recheck the bearing seats before assembly"
+],
+[
+"{a} 库存 {b}，安全库存 {c}，在手工单还要 {d}",
+"{a} stock {b}, safety stock {c}, open work orders still need {d}"
+],
+[
+"用到它的未完工单：{a}；对应销售订单：{b}",
+"Unfinished work orders using it: {a}; corresponding sales orders: {b}"
+],
+[
+"在手订单里用到它的：{a}",
+"Open orders using it: {a}"
+],
+[
+"差 ${a}",
+"${a} off"
+],
+[
+"工单 {a} 实际比标准高 ${b}（{c}%）：调整与换刀 ${d}，节拍超时 ${e}",
+"Work order {a} actual is ${b} ({c}%) over standard: setup and tool change ${d}, cycle overrun ${e}"
+],
+[
+"{a} 交期 {b}，预计 {c} 完成",
+"{a} due {b}, expected completion {c}"
+],
+[
+"订单 {a} 还没做完，毛利还算不出来",
+"Order {a} is not finished yet; margin cannot be computed"
+],
+[
+"{a} 毛利率 {b}（按标准 {c}）",
+"{a} gross margin {b} (at standard {c})"
+],
+[
+"追到 {a} 个源头异常：{b}",
+"Traced to {a} source anomalies: {b}"
+],
+[
+"链接 PartSerial.processed（props.tool = {a}）",
+"link PartSerial.processed (props.tool = {a})"
+],
+[
+"销售订单 {a}：交期 {b}，按现在的预测 {c} 完成，{d}",
+"Sales order {a}: due {b}, forecast to finish {c}, {d}"
+],
+[
+"{a} 加工这些零件时剩余寿命只有 {b}%，磨损是首要怀疑对象",
+"{a} had only {b}% life left when machining these parts; wear is the prime suspect"
+],
+[
+"（{a}），属于客户：{b}",
+" ({a}), belongs to customer: {b}"
+],
+[
+"需要 {a}",
+"needs {a}"
+],
+[
+"差异最大的工序：{a}",
+"Operation with the largest variance: {a}"
+],
+[
+"缺料：{a}",
+"Short of: {a}"
+],
+[
+"发票 {a}",
+"Invoice {a}"
+],
+[
+"{a} 批 {b}（{c}）来料不合格，这批进不了库；等这种料的工单和订单如下",
+"{a} lot {b} ({c}) failed incoming inspection and cannot go into stock; work orders and orders waiting for this material are below"
+],
+[
+"{a} 现在{b}{c}；如果停下来，影响下面这些工单和订单",
+"{a} is now {b}{c}; if it stops, the work orders and orders below are affected"
+],
+[
+"{a} {b} {c} 没人能开（{d}）；这一班它停着，影响下面这些工单和订单",
+"{a} {b} {c}: nobody can run it ({d}); it is stopped this shift, affecting the work orders and orders below"
+],
+[
+"{a} 每件多用 {b} 的电，多半在劣化；停机维修会影响下面这些工单和订单",
+"{a} uses {b} more electricity per part and is probably degrading; a repair stop affects the work orders and orders below"
+],
+[
+"{a} 现在{b}{c}；{d}",
+"{a} is now {b}{c}; {d}"
+],
+[
+"预计完成 {a}（交期 {b}）",
+"Expected completion {a} (due {b})"
+],
+[
+"；未来 80 运行小时坏掉的概率 {a}",
+"; probability of failure in the next 80 run hours {a}"
+],
+[
+"{a} 加工过 {b} 件零件",
+"{a} machined {b} parts"
+],
+[
+"，刀具剩 {a}%",
+", tool {a}% left"
+],
+[
+"还来得及（余 {a} 天）",
+"Still in time ({a} days spare)"
+],
+[
+"订单需要 {a}",
+"Order needs {a}"
+],
+[
+"客户投诉（规则 {a}）",
+"Customer complaint (rule {a})"
+],
+[
+"；保养逾期 {a} 运行小时",
+"; PM overdue by {a} run hours"
+],
+[
+"（挂牌上锁 {a}）",
+" (lockout {a})"
+],
+[
+"要停机整改约 {a} 分钟",
+"Needs a stop of about {a} min to fix"
+],
+[
+"是瓶颈，排队 {a} 件",
+"is the bottleneck, {a} pcs queued"
+],
+[
+"没有这台设备：{a}",
+"No such machine: {a}"
+],
+[
+"不认识的改动：{a}",
+"Unknown change: {a}"
+],
+[
+"推演超过 {a} 秒，方案太大",
+"The what-if took more than {a} s; the option is too large"
+],
+[
+"待下达·{a}",
+"To release · {a}"
+],
+[
+"{a} {b}停机挂牌，{c} {d} 分钟",
+"{a} {b} lockout, {c} {d} min"
+],
+[
+"{a} 违约金（晚 {b} 天）",
+"{a} late penalty ({b} days late)"
+],
+[
+"加班 {a} {b} {c} 分钟",
+"Overtime {a} {b} {c} min"
+],
+[
+"保养人工 {a} 分钟、油脂滤芯",
+"PM labor {a} min, grease and filters"
+],
+[
+"安全整改人工 {a} 分钟",
+"Safety fix labor {a} min"
+],
+[
+"加班顶班 {a}（{b} 小时）",
+"Overtime cover {a} ({b} hours)"
+],
+[
+"维修加急 {a}：{b}",
+"Expedite repair {a}: {b}"
+],
+[
+"推演范围内（{a} 个工作日）做不完",
+"Cannot finish within the what-if horizon ({a} working days)"
+],
+[
+"维修加急 {a}",
+"Expedite repair {a}"
+],
+[
+"改派：{a}",
+"Reassign: {a}"
+],
+[
+"调序 {a}：{b}",
+"Resequence {a}: {b}"
+],
+[
+"外协：{a}",
+"Subcontract: {a}"
+],
+[
+"外协 {a} 件（{b}）",
+"Subcontract {a} pcs ({b})"
+],
+[
+"紧急采购 {a} × {b}",
+"Urgent purchase {a} × {b}"
+],
+[
+"紧急采购 {a}：没有在等这个物料的工单",
+"Urgent purchase {a}: no work order is waiting for this item"
+],
+[
+"{a} {b} 到料{c}",
+"{a} {b} material arrives{c}"
+],
+[
+"紧急采购 {a} 后，{b} 仍要等 {c}（{d} 到货）",
+"After the urgent purchase of {a}, {b} still waits for {c} (arrives {d})"
+],
+[
+"{a}（截至 {b}）：OEE {c}，准时交付率 {d}，本周完工 {e}/{f}，一次合格率 {g}，在制品 {h} 件。",
+"{a} (as of {b}): OEE {c}, on-time delivery {d}, completed this week {e}/{f}, first-pass yield {g}, WIP {h} pcs."
+],
+[
+"异常：新发现 {a} 个，处理完 {b} 个，还开着 {c} 个。",
+"Anomalies: {a} new, {b} resolved, {c} still open."
+],
+[
+"厂情日报 {a}",
+"Plant daily report {a}"
+],
+[
+"经营周报 {a} 起",
+"Business weekly report from {a}"
+],
+[
+"动作：{a} 个（{b}）。",
+"Actions: {a} ({b})."
+],
+[
+"客户与服务：新投诉 {a} 张、开着 {b} 张；完成服务 {c} 单、待上门 {d} 单；满意度 {e}。",
+"Customers & service: {a} new complaints, {b} open; {c} services done, {d} visits pending; satisfaction {e}."
+],
+[
+"安全环保：新隐患 {a} 条（重大 {b}）、整改关闭 {c} 条，还开着 {d} 条（重大 {e}、逾期 {f}）；挂牌上锁 {g} 台。",
+"Safety & environment: {a} new hazards ({b} major), {c} fixed and closed, {d} still open ({e} major, {f} overdue); {g} machines locked out."
+],
+[
+"设备维护：故障 {a} 次（停机 {b} 分钟），完成保养 {c} 次；保养逾期 {d} 台{e}，开着的维修单 {f} 张。",
+"Maintenance: {a} failures ({b} min down), {c} PMs done; {d} machines PM overdue{e}, {f} open repair orders."
+],
+[
+"采购与来料：到货 {a} 批（不合格 {b} 批），在途 {c} 批，待处理的不合格 {d} 批；近 30 天准时率 {e}、来料合格率 {f}。",
+"Purchasing & incoming: {a} lots arrived ({b} rejected), {c} in transit, {d} rejected lots pending; last 30 days on-time {e}, incoming pass rate {f}."
+],
+[
+"能源与环境（{a}）：用电 {b} 度、电费 ${c}，峰时占 {d}，空转 {e} 度（{f}{g}），碳排放 {h} kg；需量到合同的 {i}{j}。",
+"Energy & environment ({a}): {b} kWh, electricity ${c}, peak share {d}, idle {e} kWh ({f}{g}), carbon {h} kg; demand at {i} of contract{j}."
+],
+[
+"人员：请假缺勤 {a} 人次，24 小时内排班缺口 {b} 个；{c} 台设备只有一个人会开{d}；本周加班 {e} 小时{f}。",
+"People: {a} leave/absences, {b} roster gaps within 24 hours; {c} machines only one person can run{d}; overtime this week {e} hours{f}."
+],
+[
+"{a}（{b}）{c}，库存 {d}",
+"{a} ({b}) {c}, stock {d}"
+],
+[
+"经营与财务：开票 {a} 张 ${b}，收款 ${c}；毛利率 {d}；逾期应收 ${e}，应收周转 {f} 天；预算用了 {g}（月度进度 {h}）{i}；{j}。",
+"Business & finance: {a} invoices ${b}, collected ${c}; gross margin {d}; overdue receivables ${e}, DSO {f} days; budget used {g} (month progress {h}){i}; {j}."
+],
+[
+"{a} {b}，交期 {c}",
+"{a} {b}, due {c}"
+],
+[
+"现金与应收：现金 ${a}，逾期应收 ${b}{c}。",
+"Cash and receivables: cash ${a}, overdue receivables ${b}{c}."
+],
+[
+"，{a} 人在带教",
+", {a} people in coaching"
+],
+[
+"{a}要关注：",
+"{a} needs attention: "
+],
+[
+"，影响 {a} 张订单",
+", affecting {a} orders"
+],
+[
+"；今天开票 ${a}",
+"; invoiced today ${a}"
+],
+[
+"{a} 完工偏差 {b}",
+"{a} completion deviation {b}"
+],
+[
+"{a}（{b} 次）",
+"{a} ({b} times)"
+],
+[
+"{a} 高 ${b}",
+"{a} ${b} over"
+],
+[
+"CP 良率突降：最近 {a} 片均值 {b} %，之前 {c} 片 {d} %",
+"CP yield dropped: mean of the last {a} wafers {b} %, previous {c} wafers {d} %"
+],
+[
+"晶圆：{a}",
+"Wafers: {a}"
+],
+[
+"键合拉力下降：{a} 键合的批次均值 {b} gf",
+"Bond pull strength falling: lot mean of {a} bonding {b} gf"
+],
+[
+"{a}：最近 {b} 批均值 {c} {d}",
+"{a}: mean of the last {b} lots {c} {d}"
+],
+[
+"超上限 {a} {b} 的 {c} 批",
+"{c} lots above the upper limit {a} {b}"
+],
+[
+"第 {a} 个测试位失效集中：最近 {b} 片平均失效 {c} %，其余测试位中位数 {d} %",
+"Failures concentrated at test site {a}: last {b} wafers average failure {c} %, median of the other sites {d} %"
+],
+[
+"{a} {b} gf（{c} 批）",
+"{a} {b} gf ({c} lots)"
+],
+[
+"同一片砂轮 {a}",
+"the same wheel {a}"
+],
+[
+"同一张工单 {a}",
+"the same work order {a}"
+],
+[
+"客户投诉 {a}：{b}（{c}）",
+"Customer complaint {a}: {b} ({c})"
+],
+[
+"{a}；渠道 {b}；{c}",
+"{a}; channel {b}; {c}"
+],
+[
+"疑似批次问题：{a} 台被投诉的设备，输出轴出自{b}",
+"Suspected batch problem: the output shafts of {a} complained-about units come from {b}"
+],
+[
+"被投诉的设备：{a}",
+"Units complained about: {a}"
+],
+[
+"{a} 延期会触发违约金：预计晚 {b} 天 × ${c}/天 = ${d}",
+"{a} delay triggers a late penalty: expected {b} days late × ${c}/day = ${d}"
+],
+[
+"合同 {a}（{b}）：延期违约金 ${c}/天",
+"Contract {a} ({b}): late penalty ${c}/day"
+],
+[
+"{a} 满意度下降：近 {b} 次回访平均 {c} 分",
+"{a} satisfaction falling: average of the last {b} follow-ups {c}"
+],
+[
+"最近的打分：{a}",
+"Recent scores: {a}"
+],
+[
+"投诉 {a} 超过响应时限：已 {b} 小时没回复（合同要求 {c} 小时）",
+"Complaint {a} past its response time: no reply for {b} hours (contract requires {c} hours)"
+],
+[
+"报价 {a} 还有 {b} 天到期（{c}）",
+"Quotation {a} expires in {b} days ({c})"
+],
+[
+"金额 ${a}；有效期到 {b}",
+"Amount ${a}; valid until {b}"
+],
+[
+"重大隐患 {a}：{b}",
+"Major hazard {a}: {b}"
+],
+[
+"{a}（{b}）；发现人 {c}；整改期限 {d}",
+"{a} ({b}); found by {c}; fix by {d}"
+],
+[
+"隐患 {a} 整改逾期 {b} 天：{c}",
+"Hazard {a} fix overdue by {b} days: {c}"
+],
+[
+"整改人 {a}；期限 {b}",
+"Fixer {a}; deadline {b}"
+],
+[
+"作业许可 {a}（{b}）缺资质：{c}",
+"Work permit {a} ({b}) lacks qualification: {c}"
+],
+[
+"设备 {a}；申请人 {b}",
+"Machine {a}; applicant {b}"
+],
+[
+"{a}的“{b}”培训{c}",
+"{a}'s “{b}” training {c}"
+],
+[
+"有效期到 {a}",
+"valid until {a}"
+],
+[
+"{a} 挂牌上锁期间在运转（许可 {b} 还开着）",
+"{a} running while locked out (permit {b} still open)"
+],
+[
+"设备状态 {a}；可能有人没走许可就拆了锁",
+"Machine state {a}; someone may have removed the lock without going through the permit"
+],
+[
+"危险废物 {a}（{b} kg）暂存 {c} 天，超过 {d} 天",
+"Hazardous waste {a} ({b} kg) stored {c} days, over {d} days"
+],
+[
+"产生日期 {a}",
+"Generated on {a}"
+],
+[
+"已过期 {a} 天",
+"Expired {a} days ago"
+],
+[
+"还有 {a} 天到期",
+"Expires in {a} days"
+],
+[
+"AOI 缺陷率突升：最近 {a} 块板 {b} 个缺陷（每块 {c}），之前每块 {d}",
+"AOI defect rate jumped: last {a} boards {b} defects ({c} per board), before {d} per board"
+],
+[
+"有缺陷的板：{a}",
+"Boards with defects: {a}"
+],
+[
+"锡膏体积偏低：最近 {a} 块均值 {b} %（名义 100 %）",
+"Solder paste volume low: mean of the last {a} boards {b} % (nominal 100 %)"
+],
+[
+"低于 {a} %",
+"below {a} %"
+],
+[
+"驱动板相电流采样误差偏大：最近 {a} 块均值 {b} %",
+"Drive board phase current sensing error high: mean of the last {a} boards {b} %"
+],
+[
+"回流炉{a}{b}：最近 {c} 块均值 {d} {e}（窗口 {f}–{g}）",
+"Reflow oven {a}{b}: mean of the last {c} boards {d} {e} (window {f}–{g})"
+],
+[
+"越界 {a} 块",
+"{a} boards out of limits"
+],
+[
+"{a} {b} %（{c} 块）",
+"{a} {b} % ({c} boards)"
+],
+[
+"峰时用电占 {a}（目标 {b} 以下）",
+"Peak-hour electricity share {a} (target below {b})"
+],
+[
+"近 24 小时 {a} 度，峰时 {b} 度，其中热处理炉 {c} 度",
+"Last 24 hours {a} kWh, {b} kWh at peak, of which heat-treat furnace {c} kWh"
+],
+[
+"空压机比该用的多 {a} kW（可能漏气）",
+"Compressor drawing {a} kW more than needed (possible leak)"
+],
+[
+"近 {a} 小时平均 {b} kW，按开着的用气设备应 {c} kW",
+"Average {b} kW over the last {a} hours; the air-using machines that are on need {c} kW"
+],
+[
+"本月最大需量 {a} kW，到合同需量的 {b}",
+"Maximum demand this month {a} kW, {b} of contract demand"
+],
+[
+"合同需量 {a} kW；{b}超了要按超出部分加价",
+"Contract demand {a} kW; {b} the excess is charged extra"
+],
+[
+"{a} 单件能耗比基线高 {b}（{c}）",
+"{a} energy per part {b} above baseline ({c})"
+],
+[
+"最近 {a} 件每件 {b} 度；基线 {c} 度（{d}）。多半是设备在劣化：主轴轴承、刀具 / 砂轮",
+"Last {a} parts {b} kWh each; baseline {c} kWh ({d}). Probably the machine is degrading: spindle bearings, tools / wheel"
+],
+[
+"{a} 空转 {b} 小时，空转电量占 {c}",
+"{a} idle {b} hours, idle energy share {c}"
+],
+[
+"近 {a} 小时空转 {b} 度（约 ${c}）：开着没活",
+"Last {a} hours {b} kWh idle (about ${c}): on with no work"
+],
+[
+"{a} {b} {c}，超过限值 {d}",
+"{a} {b} {c}, above limit {d}"
+],
+[
+"近 {a} 小时平均；最高 {b}",
+"Mean over the last {a} hours; maximum {b}"
+],
+[
+"第 {a} 周现金将降到 ${b}",
+"Cash drops to ${b} in week {a}"
+],
+[
+"现在 ${a}；这两周应付 ${b}、预计收款 ${c}、固定开支每周 ${d}",
+"Now ${a}; payables these two weeks ${b}, expected receipts ${c}, fixed spending ${d} per week"
+],
+[
+"{a} 差 {b}",
+"{a} off by {b}"
+],
+[
+"工单 {a} 实际成本比标准高 {b}%",
+"Work order {a} actual cost {b}% above standard"
+],
+[
+"标准 ${a}，实际 ${b}；差异最大的工序：{c}",
+"Standard ${a}, actual ${b}; operation with the largest variance: {c}"
+],
+[
+"{a} 欠款 ${b} 逾期 {c} 天",
+"{a} owes ${b}, {c} days overdue"
+],
+[
+"发票 {a}（{b}），到期 {c}{d}",
+"Invoice {a} ({b}), due {c}{d}"
+],
+[
+"{a} 信用超限：${b} / 额度 ${c}",
+"{a} over credit limit: ${b} / limit ${c}"
+],
+[
+"应收 ${a} + 在做没开票的订单 ${b}",
+"Receivables ${a} + orders in progress not invoiced ${b}"
+],
+[
+"订单 {a} 毛利率 {b}（目标 {c}）",
+"Order {a} gross margin {b} (target {c})"
+],
+[
+"收入 ${a}，成本 ${b}；花得多的：{c}",
+"Revenue ${a}, cost ${b}; overspending in: {c}"
+],
+[
+"{a} 预算超支：${b}，按进度应 ${c}（超 {d}）",
+"{a} budget overrun: ${b}, ${c} expected at this progress ({d} over)"
+],
+[
+"{a} 预算 ${b}，本月已过 {c}",
+"{a} budget ${b}, {c} of the month passed"
+],
+[
+"经营指标“{a}”偏离目标：{b}（目标 {c}{d}）",
+"Business metric “{a}” off target: {b} (target {c}{d})"
+],
+[
+"近 {a} 天里 {b} 天是红的",
+"{b} of the last {a} days red"
+],
+[
+"订单 {a}",
+"Order {a}"
+],
+[
+"；已催 {a} 次",
+"; reminded {a} times"
+],
+[
+"全厂平均故障间隔下降：近 30 天 {a} 小时，之前 {b} 小时",
+"Plant MTBF falling: last 30 days {a} hours, before {b} hours"
+],
+[
+"近 30 天故障 {a} 次",
+"{a} failures in the last 30 days"
+],
+[
+"{a} 保养逾期 {b} 运行小时（周期 {c} 小时）",
+"{a} PM overdue by {b} run hours (interval {c} hours)"
+],
+[
+"自上次保养已运行 {a} 小时；未来 {b} 运行小时坏掉的概率 {c}，坏了平均停 {d} 分钟",
+"{a} hours run since last PM; probability of failure in the next {b} run hours {c}, average {d} min down per failure"
+],
+[
+"{a} 点检异常：{b}",
+"{a} inspection anomaly: {b}"
+],
+[
+"点检人 {a}；{b}",
+"Inspected by {a}; {b}"
+],
+[
+"{a} 未来 {b} 运行小时坏掉的概率 {c}",
+"{a} probability of failure in the next {b} run hours {c}"
+],
+[
+"已运行 {a} 小时（保养周期 {b}）；预期停机 {c} 分钟、预期损失 ${d}",
+"{a} hours run (PM interval {b}); expected downtime {c} min, expected loss ${d}"
+],
+[
+"维修单 {a} 等备件：{b}",
+"Repair order {a} waiting for parts: {b}"
+],
+[
+"维修单 {a} 超时：已 {b} 分钟没修好（平均修复 {c} 分钟）",
+"Repair order {a} overdue: not fixed after {b} min (average repair {c} min)"
+],
+[
+"{a} {b} 小时内停机 {c} 次",
+"{a} down {c} times within {b} hours"
+],
+[
+"{a} 要 {b}，库存 {c}",
+"{a} needs {b}, stock {c}"
+],
+[
+"{a}：最近 {b} 台均值 {c} {d}",
+"{a}: mean of the last {b} units {c} {d}"
+],
+[
+"超出{a}限 {b} {c} 的 {d} 台：{e}",
+"{d} units beyond the {a} limit {b} {c}: {e}"
+],
+[
+"三相电阻不平衡偏大：{a} 绕的定子均值 {b} %",
+"Three-phase resistance imbalance high: stators wound by {a} mean {b} %"
+],
+[
+"{a} {b} %（{c} 台）",
+"{a} {b} % ({c} units)"
+],
+[
+"{a} 只有 {b} 一个人能独立操作",
+"{a} can only be run alone by {b}"
+],
+[
+"技能矩阵里熟练以上只有 1 人：{a} 请假这台设备就停，也只能开一个班",
+"Only 1 person at proficient or above in the skills matrix: if {a} is on leave the machine stops, and it can run only one shift"
+],
+[
+"{a} {b} {c} 没人能开：{d}",
+"{a} {b} {c}: nobody can run it: {d}"
+],
+[
+"{a} 的 {b} 操作资质 {c}",
+"{a}'s {b} qualification {c}"
+],
+[
+"到期 {a}；过期后按学徒排班（60% 速度）",
+"Expires {a}; after expiry scheduled as apprentice (60% speed)"
+],
+[
+"{a} 本周加班 {b} 小时（上限 {c}）",
+"{a} overtime this week {b} hours (cap {c})"
+],
+[
+"{a} 近 {b} 天缺勤率 {c}",
+"{a} absence rate over the last {b} days {c}"
+],
+[
+"排班 {a} 人次，请假或缺勤 {b} 人次",
+"{a} shifts scheduled, {b} leave or absence"
+],
+[
+"{a} 天后到期",
+"expires in {a} days"
+],
+[
+"{a} 发布第 {b} 版时，工单 {c} 已有 {d} 件按旧版开工",
+"When {a} released revision {b}, work order {c} already had {d} pcs started on the old revision"
+],
+[
+"停机和调整多（开动率 {a}）",
+"Many stops and setups (availability {a})"
+],
+[
+"节拍慢于标准（性能 {a}）",
+"Cycle slower than standard (performance {a})"
+],
+[
+"不合格多（合格率 {a}）",
+"Many rejects (quality rate {a})"
+],
+[
+"{a} 今日 OEE {b}，低于目标 {c}",
+"{a} OEE today {b}, below target {c}"
+],
+[
+"主要损失：{a}；负荷时间 {b} 小时",
+"Main loss: {a}; loading time {b} hours"
+],
+[
+"预计还要约 {a} 分钟（工厂时间）；排队 {b} 件{c}",
+"About {a} min more (factory time); {b} pcs queued{c}"
+],
+[
+"{a} 刀具剩余寿命 {b}%",
+"{a} tool life left {b}%"
+],
+[
+"按当前节拍约再加工 {a} 件后需{b}",
+"At the current cycle, needs {b} after about {a} more parts"
+],
+[
+"{a} 今天换刀 {b} 次，是过去 7 天日均（{c}）的 {d} 倍以上",
+"{a} changed tools {b} times today, more than {d} times the 7-day daily average ({c})"
+],
+[
+"瓶颈 {a} 前排队 {b} 件（上限 {c}）",
+"{b} pcs queued at bottleneck {a} (limit {c})"
+],
+[
+"{a} 测量值上移，趋近上限",
+"{a} measurements drifting up, approaching the upper limit"
+],
+[
+"最近 5 件均值 {a} mm，比公差中值高 {b} µm，距上限只余 {c} µm，尚未超差",
+"Mean of the last 5 parts {a} mm, {b} µm above mid-tolerance, only {c} µm from the upper limit, not yet out of tolerance"
+],
+[
+"{a} 一次合格率 {b}（最近 {c} 件），低于 {d}",
+"{a} first-pass yield {b} (last {c} parts), below {d}"
+],
+[
+"不合格：{a}",
+"Nonconforming: {a}"
+],
+[
+"{a} 控制图判异（西电规则 {b}）",
+"{a} control chart out of control (Western Electric rule {b})"
+],
+[
+"不合格品 {a}：{b} 超差",
+"Nonconformance {a}: {b} out of tolerance"
+],
+[
+"{a} 实测 {b} mm，公差 {c}–{d}",
+"{a} measured {b} mm, tolerance {c}–{d}"
+],
+[
+"。均值–极差图，每组 {a} 件，共 {b} 组",
+". X̄–R chart, {a} parts per subgroup, {b} subgroups"
+],
+[
+"8D {a} 开了 {b} 天还没关闭：{c}",
+"8D {a} open {b} days without closing: {c}"
+],
+[
+"当前状态：{a}",
+"Current status: {a}"
+],
+[
+"{a} 可能延期：{b}",
+"{a} may be late: {b}"
+],
+[
+"{a} {b} 台，交期 {c}，预计 {d} 完成；{e}",
+"{a} {b} units, due {c}, expected completion {d}; {e}"
+],
+[
+"工单 {a} 逾期 {b} 天（{c} × {d}）",
+"Work order {a} overdue by {b} days ({c} × {d})"
+],
+[
+"计划完工 {a}，已完工 {b} / {c}",
+"Planned completion {a}, completed {b} / {c}"
+],
+[
+"一次谐波偏大：{a} 粘的码盘均值 {b}″",
+"First harmonic high: discs bonded by {a} mean {b}″"
+],
+[
+"码盘污点：最近 {a} 台里 {b} 台信号幅值在某处掉到 {c} % 以下",
+"Disc contamination: in the last {a} units, {b} had the signal amplitude drop below {c} % somewhere"
+],
+[
+"{a} {b}″（{c} 台）",
+"{a} {b}″ ({c} units)"
+],
+[
+"{a} 最低 {b} %",
+"{a} minimum {b} %"
+],
+[
+"同一批谐波减速器 {a} 有 {b} 台现场机器人背隙报警",
+"{b} field robots with the same harmonic reducer lot {a} have backlash alarms"
+],
+[
+"健康度 {a}",
+"Health {a}"
+],
+[
+"现场设备 {a}（{b}）报警：{c}",
+"Field unit {a} ({b}) alarm: {c}"
+],
+[
+"同批多台报警：{a} 台设备的输出轴出自{b}",
+"Several alarms in the same batch: the output shafts of {a} units come from {b}"
+],
+[
+"报警设备：{a}。同批的其他设备要排查",
+"Alarming units: {a}. Other units of the same batch need checking"
+],
+[
+"现场机器人 {a}（{b}）报警：{c}",
+"Field robot {a} ({b}) alarm: {c}"
+],
+[
+"服务工单 {a} 已开 {b} 个现场日未关闭：{c}",
+"Service job {a} open {b} site days without closing: {c}"
+],
+[
+"设备 {a}",
+"Equipment {a}"
+],
+[
+"{a}：最近 {b} 件均值 {c} {d}",
+"{a}: mean of the last {b} parts {c} {d}"
+],
+[
+"超出{a}限 {b} {c} 的 {d} 件：{e}",
+"{d} parts beyond the {a} limit {b} {c}: {e}"
+],
+[
+"针杆孔位置度偏大：{a} 精镗的机壳均值 {b} mm",
+"Needle bar hole position error high: housings finish-bored by {a} mean {b} mm"
+],
+[
+"{a} {b} mm（{c} 件）",
+"{a} {b} mm ({c} parts)"
+],
+[
+"{a} 库存 {b}，安全库存 {c}，在手工单与订单还需 {d}",
+"{a} stock {b}, safety stock {c}, open work orders and orders still need {d}"
+],
+[
+"来料不合格：{a} 批 {b}（{c} 件，{d}）",
+"Incoming rejected: {a} lot {b} ({c} pcs, {d})"
+],
+[
+"抽检 {a} 件，{b} 处超差；这批料进不了库",
+"{a} sampled, {b} readings out of tolerance; this lot cannot go into stock"
+],
+[
+"{a} 准时率 {b}（近 {c} 天到货 {d} 批）",
+"{a} on-time rate {b} ({d} lots arrived in the last {c} days)"
+],
+[
+"供应 {a}；准时率低于 {b}",
+"Supplies {a}; on-time rate below {b}"
+],
+[
+"{a} 来料合格率 {b}（近 {c} 天检验 {d} 批）",
+"{a} incoming pass rate {b} ({d} lots inspected in the last {c} days)"
+],
+[
+"供应 {a}",
+"Supplies {a}"
+],
+[
+"{a}只有一家供应商：{b}",
+"{a} has only one supplier: {b}"
+],
+[
+"物料 {a}{b}",
+"Items {a}{b}"
+],
+[
+"可疑批次 {a} 已用到 {b} 个零件上（{c}）",
+"Suspect lot {a} has been used in {b} parts ({c})"
+],
+[
+"{a}；要追查这些零件和装了它们的设备",
+"{a}; trace these parts and the units they went into"
+],
+[
+"采购单 {a} 逾期到货（{b}）",
+"Purchase order {a} arriving late ({b})"
+],
+[
+"{a} 晚 {b} 天，已到 {c} / {d}",
+"{a} {b} days late, {c} / {d} arrived"
+],
+[
+"没有配置 {a} 的地址",
+"No address configured for {a}"
+],
+[
+"；{a} 发货（订单 {b}）",
+"; {a} shipped (order {b})"
+],
+[
+"本厂不接 {a}（可接单的成品：{b}）",
+"This plant does not take {a} (products it takes: {b})"
+],
+[
+"数量不对：{a}",
+"Wrong quantity: {a}"
+],
+[
+"这张单已经{a}",
+"This order is already {a}"
+],
+[
+"；采购单已送到{a}（工业园订单 {b}）",
+"; purchase order sent to {a} (industrial park order {b})"
+],
+[
+"{a}未连通",
+"{a} not connected"
+],
+[
+"{a}不接：{b}",
+"{a} declined: {b}"
+],
+[
+"平台下达 {a} 张工单",
+"The platform released {a} work orders"
+],
+[
+"对方返回 {a}",
+"The other side returned {a}"
+],
+[
+"；{a}，按外部供应商处理",
+"; {a}, handled as an external supplier"
+],
+[
+"没有这一批：{a}",
+"No such lot: {a}"
+],
+[
+"对方不接这张单（{a}）",
+"The other side declined this order ({a})"
+],
+[
+"发货回传没送到：{a}（下一轮再试）",
+"Shipment notice not delivered: {a} (retry next round)"
+],
+[
+"建议 {a} {b}：{c}；多花 ${d}。",
+"Suggest {a} {b}: {c}; extra ${d}."
+],
+[
+"排班已改：{a} {b} {c} 由 {d} 顶岗{e}，已发给车间",
+"Roster changed: {a} {b} {c} covered by {d}{e}, sent to the shop"
+],
+[
+"{a} {b} {c} 由 {d} 加班顶班 {e} 小时，已发给车间",
+"{a} {b} {c} covered by {d} on overtime for {e} hours, sent to the shop"
+],
+[
+"技能培训 TR-{a}：{b} 学 {c}，带教 {d} 小时（先按学徒排班）",
+"Skills training TR-{a}: {b} learns {c}, coached {d} hours (scheduled as apprentice first)"
+],
+[
+"{a}（{b}）来顶",
+"{a} ({b}) covers"
+],
+[
+"{a} 最近两天没有排班",
+"{a} has not been scheduled in the last two days"
+],
+[
+"员工档案、部门、岗位 {a} 人",
+"Employee records, departments, posts: {a} people"
+],
+[
+"{a} 不会开 {b}",
+"{a} cannot run {b}"
+],
+[
+"{a} 已经会开 {b}",
+"{a} can already run {b}"
+],
+[
+"这一班 {a} 停着",
+"{a} stopped this shift"
+],
+[
+"；他原来的 {a} 这一天空出来",
+"; their original {a} is left empty that day"
+],
+[
+"调 {a} 顶岗",
+"Move {a} in to cover"
+],
+[
+"学徒 {a} 带教开机",
+"Apprentice {a} operates with coaching"
+],
+[
+"{a} 加班顶班",
+"{a} covers on overtime"
+],
+[
+"原岗位不动，加班 12 小时（本周已加班 {a} 小时）",
+"Original post unchanged, 12 hours overtime ({a} hours overtime already this week)"
+],
+[
+"培训 {a} 开 {b}",
+"Train {a} to run {b}"
+],
+[
+"带教 {a} 小时，考核通过后可以独立开，这台设备可以开两个班",
+"{a} hours of coaching; after passing the assessment they can run it alone, and this machine can run two shifts"
+],
+[
+"{a} 不会开这台设备",
+"{a} cannot run this machine"
+],
+[
+"建议 {a} {b}：派 {c} 位工程师（{d}），{e} 天做完（到 {f}），备件 {g} 件，花 ${h}（保修内由工厂承担 ${i}，向客户收 ${j}），涉及 {k} 个客户。",
+"Suggest {a} {b}: send {c} engineers ({d}), done in {e} days (by {f}), {g} spare parts, ${h} (factory pays ${i} under warranty, customer charged ${j}), {k} customers involved."
+],
+[
+"注意：还有 {a} 台高风险设备没覆盖。",
+"Note: {a} high-risk units are not covered."
+],
+[
+"{a}：\n\n我们在出厂质量追溯中发现，贵方现场的部分 WQR-105 减速器所用输出轴与一台已报问题的设备出自同一批次。为保证设备可靠运行，我们将安排服务工程师上门点检，费用按合同保修条款处理。工程师会提前与您确认时间。\n\n问渠减速器厂 客户服务",
+"{a}:\n\nOur factory quality trace found that some WQR-105 reducers at your site use output shafts from the same batch as a unit that has reported a problem. To keep your equipment running reliably, we will send a service engineer for an on-site inspection; costs are handled under the warranty terms of the contract. The engineer will confirm the time with you in advance.\n\nWenQuest Gearbox Customer Service"
+],
+[
+"更换{a}（{b}）",
+"Replace {a} ({b})"
+],
+[
+"服务工单 {a} 张",
+"{a} service jobs"
+],
+[
+"这张服务工单已经{a}",
+"This service job is already {a}"
+],
+[
+"点检发现{a}已用 {b}，当场更换",
+"Inspection found {a} {b} used; replaced on the spot"
+],
+[
+"投诉 CP-{a} 进 ERPNext",
+"Complaint CP-{a} to ERPNext"
+],
+[
+"高风险 = 孪生健康度红 / 黄，或最先到期的轴承已用 50% 以上：{a} 台",
+"High risk = twin health red / yellow, or the earliest-due bearing more than 50% used: {a} units"
+],
+[
+"同一片砂轮磨的轴装在 {a} 台设备上，全部上门点检",
+"Shafts ground by the same wheel are fitted in {a} units; inspect all on site"
+],
+[
+"服务工单 SJ-{a}：{b}。工程师 {c}，计划 {d} 上门。{e}",
+"Service job SJ-{a}: {b}. Engineer {c}, visit planned {d}. {e}"
+],
+[
+"已完成：{a}。{b}（问渠数字工厂 · 客户服务）",
+"Completed: {a}. {b} (WenQuest Digital Factory · Customer service)"
+],
+[
+"客户来电（教学模拟器：现场设备健康度{a}）",
+"Customer call (teaching simulator: field unit health {a})"
+],
+[
+"服务工单 SJ-{a}：{b}（{c} {d}）",
+"Service job SJ-{a}: {b} ({c} {d})"
+],
+[
+"【投诉】{a}：{b}",
+"[Complaint] {a}: {b}"
+],
+[
+"{a} 台排不进 21 天",
+"{a} units cannot be scheduled within 21 days"
+],
+[
+"{a} 下单 {b} × {c}，交期 {d}",
+"{a} orders {b} × {c}, due {d}"
+],
+[
+"；轴承 BRG-6207 要 {a} 个，库存 {b}",
+"; bearing BRG-6207 needs {a}, stock {b}"
+],
+[
+"订单 {a}，工单 {b} 已下达车间（{c} 道工序）",
+"Order {a}, work order {b} released to the shop ({c} operations)"
+],
+[
+"向 {a} 下采购单 {b} × {c}",
+"Purchase order {b} × {c} placed with {a}"
+],
+[
+"这一批现在：{a}",
+"This lot now: {a}"
+],
+[
+"{a} {b} {c} 请假（{d} 这一班没人）",
+"{a} {b} {c} on leave ({d}: nobody on this shift)"
+],
+[
+"巡检报重大隐患 SI-{a}：{b} 防护门联锁被短接",
+"Inspection reports major hazard SI-{a}: {b} guard door interlock bypassed"
+],
+[
+"没有这个剧本：{a}",
+"No such script: {a}"
+],
+[
+"一幕一幕来：下一幕是第 {a} 幕",
+"One scene at a time: the next is scene {a}"
+],
+[
+"订单没写进 ERPNext：{a}",
+"Order not written to ERPNext: {a}"
+],
+[
+"采购单 {a} 已进 ERPNext，在途",
+"Purchase order {a} in ERPNext, in transit"
+],
+[
+"抽样 {a} 件，{b} 处超差",
+"{a} sampled, {b} readings out of tolerance"
+],
+[
+"到货抽检 {a} 件，{b} 处超差，整批判不合格",
+"Incoming sample of {a}, {b} readings out of tolerance; the whole lot rejected"
+],
+[
+"{a} 最近没有排班",
+"{a} not scheduled recently"
+],
+[
+"订单 {a} 还没开票（客户被信用冻结时要厂长放行）",
+"Order {a} not invoiced yet (when the customer is on credit hold, the plant manager must release)"
+],
+[
+"ERPNext 销售发票 {a}",
+"ERPNext sales invoice {a}"
+],
+[
+"{a} 毛利率 {b}，按标准应是 {c}",
+"{a} gross margin {b}, {c} at standard"
+],
+[
+"最早的源头：第 {a} 幕“{b}”",
+"Earliest source: scene {a} “{b}”"
+],
+[
+"等车间做完这张订单（{a} / {b} 根）",
+"Waiting for the shop to finish this order ({a} / {b} shafts)"
+],
+[
+"第 {a} 幕已经演过了",
+"Scene {a} has already been played"
+],
+[
+"剧本里有不认识的步骤：{a}",
+"Unknown step in the script: {a}"
+],
+[
+"隐患 SI-{a} 整改验收，{b} 解锁",
+"Hazard SI-{a} fixed and verified, {b} unlocked"
+],
+[
+"保养 PM-{a} 完工验收，{b} 解锁",
+"PM PM-{a} completed and verified, {b} unlocked"
+],
+[
+"订单 {a} 已写进 ERPNext，工单 {b} 已下达车间",
+"Order {a} written to ERPNext, work order {b} released to the shop"
+],
+[
+"情景第 {a} 幕",
+"Scenario scene {a}"
+],
+[
+"建议 {a} {b}：{c} 到料；{d}；多花 ${e}。",
+"Suggest {a} {b}: material arrives {c}; {d}; extra ${e}."
+],
+[
+"{a} {b} 批 {c}",
+"{a} {b} lot {c}"
+],
+[
+"批 {a} 退货，{b} 补发（约 {c} 天到）",
+"Lot {a} returned, {b} reships (arrives in about {c} days)"
+],
+[
+"批 {a} 让步接收：全检 {b} 件，{c} 件可用入库（检验 {d} 小时）",
+"Lot {a} accepted under concession: {b} inspected 100%, {c} usable into stock (inspection {d} hours)"
+],
+[
+"{a}：启用备选供应商 {b}（贵 {c}，{d} 天到）",
+"{a}: enable alternative supplier {b} ({c} dearer, {d} days lead)"
+],
+[
+"备选供应商 {a} 家{b}",
+"{a} alternative suppliers{b}"
+],
+[
+"{a} 下一批：{b}",
+"{a} next lot: {b}"
+],
+[
+"；已下采购单 {a} × {b}，到货后留给学生检验",
+"; purchase order {a} × {b} placed; left for students to inspect on arrival"
+],
+[
+"没有这家供应商：{a}",
+"No such supplier: {a}"
+],
+[
+"{a} 还没启用（先开发备选供应商）",
+"{a} not enabled yet (develop the alternative supplier first)"
+],
+[
+"采购单：{a} {b}",
+"Purchase order: {a} {b}"
+],
+[
+"这一批已经{a}",
+"This lot is already {a}"
+],
+[
+"只有到货待检的批次能检验（现在：{a}）",
+"Only lots arrived and awaiting inspection can be inspected (now: {a})"
+],
+[
+"；{a} 退货",
+"; {a} returned"
+],
+[
+"补发（退货 {a}）",
+"Reshipment (return {a})"
+],
+[
+"；{a} 让步接收，全检 {b} 件挑出 {c} 件可用",
+"; {a} accepted under concession, {b} inspected 100%, {c} usable"
+],
+[
+"让步接收：全检 {a} 件，合格 {b} 件入库",
+"Concession: {a} inspected 100%, {b} good into stock"
+],
+[
+"{a} 没有可开发的备选供应商",
+"{a} has no alternative supplier to develop"
+],
+[
+"退货，等 {a} 补发",
+"Return and wait for {a} to reship"
+],
+[
+"补发约 {a} 个工作日到；不花钱（运费由供应商出）",
+"Reshipment arrives in about {a} working days; no cost (freight paid by the supplier)"
+],
+[
+"{a} 不供应 {b}",
+"{a} does not supply {b}"
+],
+[
+"；{a} 登记到货",
+"; {a} receipt registered"
+],
+[
+"、来料检验模板 {a} 份",
+", {a} incoming inspection templates"
+],
+[
+"向备选 {a} 下急单",
+"Rush order with alternative {a}"
+],
+[
+"{a} 个工作日到；这一批退货{b}",
+"Arrives in {a} working days; this lot returned{b}"
+],
+[
+"开发备选供应商 {a}",
+"Develop alternative supplier {a}"
+],
+[
+"贵 {a}，{b} 天到；平时仍向默认供应商下单，出问题时有退路",
+"{a} dearer, {b} days lead; orders still go to the default supplier normally, with a fallback when there is a problem"
+],
+[
+"全检 {a} 小时",
+"100% inspection {a} hours"
+],
+[
+"备选供应商加价 {a}",
+"Alternative supplier markup {a}"
+],
+[
+"得 {a} / {b} 分。{c}",
+"{a} / {b} points. {c}"
+],
+[
+"系统算得 {a}%。",
+"The system computes {a}%."
+],
+[
+"免打扰时段格式：{a}",
+"Quiet hours format: {a}"
+],
+[
+"厂情中枢：{a}",
+"Plant Insight Hub: {a}"
+],
+[
+"待批准：{a} {b}",
+"Awaiting approval: {a} {b}"
+],
+[
+"{a} 提交{b}",
+"submitted by {a}{b}"
+],
+[
+"，有 {a} 个处理方案可以推演比较",
+", {a} options available to compare in the what-if"
+],
+[
+"；影响 {a} 张订单",
+"; affects {a} orders"
+],
+[
+"（{a} 分钟没人确认）严重：{b}",
+"(unacknowledged for {a} min) Critical: {b}"
+],
+[
+"{a} 提交",
+"submitted by {a}"
+],
+[
+"振动 {a} mm/s（{b} 区）且在上升：轴承早期损坏",
+"Vibration {a} mm/s (zone {b}) and rising: early bearing damage"
+],
+[
+"最近 7 天振动每天增加约 {a}{b}。",
+"Vibration rising about {a}{b} per day over the last 7 days."
+],
+[
+"振动烈度按 ISO 10816-1 第 I 类（≤ 15 kW）分区：A/B 0.71、B/C 1.8、C/D 4.5 mm/s。振动持续上升、油温略升，最常见的是滚动轴承滚道剥落。寿命模型里消耗最高的是{a}（{b}，已用 L10 的 {c}），最可能是它。",
+"Vibration severity zones per ISO 10816-1 class I (≤ 15 kW): A/B 0.71, B/C 1.8, C/D 4.5 mm/s. Steadily rising vibration with slightly higher oil temperature most often means rolling bearing raceway spalling. The highest consumption in the life model is {a} ({b}, {c} of L10 used), most likely the culprit."
+],
+[
+"安排停机检查{a}（听诊、频谱看轴承故障频率），备好 {b} 轴承；{c}",
+"Schedule a stop to check {a} (stethoscope, spectrum for bearing defect frequencies), have {b} bearings ready; {c}"
+],
+[
+"油温比模型高 {a} ℃：{b}",
+"Oil temperature {a} °C above the model: {b}"
+],
+[
+"最近一天实测油温 {a} ℃，按当天转矩 {b} N·m、环境 {c} ℃ 用热平衡算应该 {d} ℃。",
+"Measured oil temperature over the last day {a} °C; by heat balance at that day's torque {b} N·m and ambient {c} °C it should be {d} °C."
+],
+[
+"{a}已用 L10 寿命的 {b}",
+"{a} has used {b} of its L10 life"
+],
+[
+"按最近 30 天的使用强度，{a}。",
+"At the usage intensity of the last 30 days, {a}."
+],
+[
+"下次计划停机时更换 {a}（预防性更换）",
+"Replace {a} at the next planned stop (preventive replacement)"
+],
+[
+"输出轴疲劳损伤已累积 {a}",
+"Output shaft fatigue damage accumulated {a}"
+],
+[
+"换油已过期 {a} 当量小时",
+"Oil change overdue by {a} equivalent hours"
+],
+[
+"本次换油后已累计 {a} 当量小时（油温高于 70 ℃ 每高 10 ℃ 按 2 倍计），应在 {b} 小时换。",
+"{a} equivalent hours since this oil change (each 10 °C above 70 °C counts double); change due at {b} hours."
+],
+[
+"开维修单：更换{a}",
+"Open a repair order: replace {a}"
+],
+[
+"实测和模型一致（残差 {a} ℃），是负载或环境温度高。",
+"Measurement matches the model (residual {a} °C); it is the load or ambient temperature."
+],
+[
+"开维修单：预防性更换{a}",
+"Open a repair order: preventively replace {a}"
+],
+[
+"约 {a} 天后该换油",
+"Oil change due in about {a} days"
+],
+[
+"还剩 {a} 当量小时。",
+"{a} equivalent hours left."
+],
+[
+"，照这个速度约 {a} 天进入 D 区（> 4.5 mm/s，不允许运行）",
+"; at this rate it enters zone D (> 4.5 mm/s, not allowed to run) in about {a} days"
+],
+[
+"过载：最近 7 天平均转矩 {a} N·m（额定 {b}）",
+"Overload: mean torque over the last 7 days {a} N·m (rated {b})"
+],
+[
+"冲击偏多：最近 {a} 天里有 {b} 天超过 2 倍额定",
+"Many shocks: {b} of the last {a} days above 2× rated"
+],
+[
+"约 {a} 天后到 L10",
+"Reaches L10 in about {a} days"
+],
+[
+"挂牌上锁 {a}：{b}",
+"Lockout {a}: {b}"
+],
+[
+"已改派到 {a}（{b} 件随之转过去）",
+"Reassigned to {a} ({b} pcs moved along)"
+],
+[
+"接下来 {a} 件外协，{b} 天后回厂",
+"Next {a} pcs subcontracted, back in {b} days"
+],
+[
+"运行小时设为 {a}",
+"Run hours set to {a}"
+],
+[
+"已挂牌上锁（{a}），预计整改 {b} 分钟",
+"Locked out ({a}), fix expected {b} min"
+],
+[
+"已注入：{a} {b} 分钟",
+"Injected: {a} {b} min"
+],
+[
+"预计 {a} 分钟后恢复",
+"Expected back in {a} min"
+],
+[
+"{a} 不能做 {b}",
+"{a} cannot do {b}"
+],
+[
+"外协件数应在 1–{a} 之间",
+"Subcontracted quantity must be between 1 and {a}"
+],
+[
+"{a} 件在炉",
+"{a} in furnace"
+],
+[
+"工单 {a} 的工艺路线里没有工序 {b}",
+"Routing of work order {a} has no operation {b}"
+],
+[
+"该工序已派给 {a}",
+"This operation is already dispatched to {a}"
+],
+[
+"设备{a}中，已登记开工，恢复后自动开始",
+"Machine {a}; start registered, begins automatically after recovery"
+],
+[
+"{a} 分钟后挂牌上锁（{b}）",
+"Lockout in {a} min ({b})"
+],
+[
+"挂牌上锁中（{a}），要先在“安全环保”页验收、解锁",
+"Locked out ({a}); verify and unlock on the “Safety & environment” page first"
+],
+[
+"上门换关节模组 {a}",
+"Replace joint module on site {a}"
+],
+[
+"建议 A：对症（{a}）",
+"Suggest A: addresses the cause ({a})"
+],
+[
+"投诉 RC-{a} 进 ERPNext",
+"Complaint RC-{a} to ERPNext"
+],
+[
+"回访（教学模拟器）：处理用了 {a} 个现场日",
+"Follow-up (teaching simulator): handling took {a} site days"
+],
+[
+"近 7 天碰撞 {a} 次（零位可能偏了）",
+"{a} collisions in the last 7 days (zero may have shifted)"
+],
+[
+"同批全部换（预防性）：{a} 台",
+"Replace the whole lot (preventive): {a} units"
+],
+[
+"用了 {a} 的关节都换，报警的和还没报警的一起",
+"Replace all joints that used {a}, alarmed or not"
+],
+[
+"只换报警的 {a} 台",
+"Replace only the {a} alarming units"
+],
+[
+"{a} 背隙 {b}′ 超过上限 {c}′",
+"{a} backlash {b}′ above limit {c}′"
+],
+[
+"{a} 温度峰值 {b} ℃ 超过 {c} ℃（润滑脂老化？）",
+"{a} peak temperature {b} °C above {c} °C (grease aged?)"
+],
+[
+"现场机器人 {a} 换 {b}",
+"Field robot {a} replace {b}"
+],
+[
+"{a} 有异响，抓取位置偏了",
+"{a} makes noise, grasp position off"
+],
+[
+"{a} 背隙 {b}′ 接近上限 {c}′",
+"{a} backlash {b}′ near limit {c}′"
+],
+[
+"派工到 {a}",
+"Dispatched to {a}"
+],
+[
+"跑合试验（{a}）",
+"Run-in test ({a})"
+],
+[
+"提议 {a}",
+"Proposal {a}"
+],
+[
+"发布 rev {a}",
+"Released rev {a}"
+],
+[
+"检验不合格：{a} = {b}",
+"Inspection failed: {a} = {b}"
+],
+[
+"现行设计 rev {a}",
+"Current design rev {a}"
+],
+[
+"状态 {a} → {b}{c}",
+"State {a} → {b}{c}"
+],
+[
+"开工（{a}）",
+"Started ({a})"
+],
+[
+"{a} 完成（{b}，{c} 秒{d}）",
+"{a} done ({b}, {c} s{d})"
+],
+[
+"搬运 {a} → {b}",
+"Transport {a} → {b}"
+],
+[
+"完成 {a} 件（合格 {b}）",
+"Completed {a} pcs ({b} good)"
+],
+[
+"停机：{a}",
+"Down: {a}"
+],
+[
+"恢复：{a}",
+"Recovered: {a}"
+],
+[
+"恢复（{a} 分钟）{b}",
+"Recovered ({a} min){b}"
+],
+[
+"现存 {a} → {b}",
+"On hand {a} → {b}"
+],
+[
+"保养完成：{a}（ERPNext {b}）",
+"PM done: {a} (ERPNext {b})"
+],
+[
+"{a} 停机：{b}",
+"{a} down: {b}"
+],
+[
+"两级中心距 {a} / {b} mm 不变，换齿数组合得到不同传动比；按输入功率校核转矩、轴承寿命、键",
+"Center distances {a} / {b} mm unchanged; different gear ratios from different tooth combinations; checks torque, bearing life and keys at the input power"
+],
+[
+"第 {a} 段直径",
+"Diameter of step {a}"
+],
+[
+"第 {a} 段长度",
+"Length of step {a}"
+],
+[
+"计入工况系数的输出转矩 {a} N·m 超过额定 {b} N·m：减小功率或选更小的传动比",
+"Output torque with service factor {a} N·m exceeds rated {b} N·m: reduce power or choose a smaller ratio"
+],
+[
+"轴承 6207 计算寿命 {a} h，低于要求的 {b} h",
+"Bearing 6207 calculated life {a} h, below the required {b} h"
+],
+[
+"{a} N·m（额定 {b}）",
+"{a} N·m (rated {b})"
+],
+[
+"{a} MPa（许用 {b}）",
+"{a} MPa (allowable {b})"
+],
+[
+"负载 {a} kg、臂展 {b} mm：本厂最大的关节模组（谐波 32 号 + 400 W）也不够用。减小负载或臂展",
+"Payload {a} kg, reach {b} mm: even the largest joint module in this plant (harmonic size 32 + 400 W) is not enough. Reduce payload or reach"
+],
+[
+"{a} 的力矩用到 {b}%（含 1.2 倍安全系数）：负载再大一点就要换大一号的模组",
+"{a} uses {b}% of its torque (with a 1.2 safety factor): a bit more payload needs the next module size up"
+],
+[
+"{a} / {b} mm（肩部死区 {c} mm）",
+"{a} / {b} mm (shoulder dead zone {c} mm)"
+],
+[
+"{a} kg（负载与自重之比 {b}）",
+"{a} kg (payload-to-weight ratio {b})"
+],
+[
+"{a}：峰值 {b}%、连续 {c}%",
+"{a}: peak {b}%, continuous {c}%"
+],
+[
+"输出轴平键 12×8×45 挤压应力 {a} MPa 超过许用 {b} MPa",
+"Output shaft parallel key 12×8×45 bearing stress {a} MPa exceeds allowable {b} MPa"
+],
+[
+"非标传动比：两对齿轮改齿数（{a}/{b}、{c}/{d}）",
+"Non-standard ratio: change teeth of both gear pairs ({a}/{b}, {c}/{d})"
+],
+[
+"关节模组改为 {a}（与标准 {b} 的差价）",
+"Joint module changed to {a} (price difference to standard {b})"
+],
+[
+"非标：大臂 {a} mm、小臂 {b} mm 另做，工装与小批量",
+"Non-standard: upper arm {a} mm, forearm {b} mm made specially, tooling and small batch"
+],
+[
+"{a}（自己只要{b}）",
+"{a} (only {b} itself)"
+],
+[
+"{a} 请假",
+"{a} on leave"
+],
+[
+"{a} 迟到",
+"{a} late"
+],
+[
+"{a} 缺勤",
+"{a} absent"
+],
+[
+"客户反映：{a}",
+"Customer reports: {a}"
+],
+[
+"{a} 标准",
+"{a} standard"
+],
+[
+"计量室抽检（{a}之后）",
+"Metrology lab sample check (after {a})"
+],
+[
+"车端面 Facing（余量 {a}）",
+"Facing (allowance {a})"
+],
+[
+"分层粗车 Rough turning（每层 ap={a}，留余量 径向 {b} 轴向 {c}）",
+"Rough turning in layers (ap={a} per layer, allowance radial {b} axial {c})"
+],
+[
+"槽宽 {a} 小于刀宽 {b}",
+"Groove width {a} smaller than tool width {b}"
+],
+[
+"切槽 Grooving：Z{a} 槽宽 {b} 槽底 Ø{c}，刀宽 {d}",
+"Grooving: Z{a} width {b} bottom Ø{c}, tool width {d}"
+],
+[
+"槽宽 {a} 小于刀具直径 {b}",
+"Slot width {a} smaller than tool diameter {b}"
+],
+[
+"铣槽 Slot：宽 {a} 深 {b}，刀具 Ø{c}，分 {d} 层",
+"Slot: width {a} depth {b}, tool Ø{c}, {d} layers"
+],
+[
+"型腔太窄，Ø{a} 的刀放不进去",
+"Pocket too narrow; a Ø{a} cutter does not fit"
+],
+[
+"铣型腔 Pocket：深 {a}，刀具 Ø{b}，行距 {c} 倍刀径，分 {d} 层",
+"Pocket: depth {a}, tool Ø{b}, stepover {c}× tool diameter, {d} layers"
+],
+[
+"铣外轮廓 Contour：深 {a}，刀具 Ø{b}，顺铣，分 {c} 层",
+"Contour: depth {a}, tool Ø{b}, climb milling, {c} layers"
+],
+[
+"钻孔 Drilling：{a} 个孔，深 {b}{c}",
+"Drilling: {a} holes, depth {b}{c}"
+],
+[
+"，啄钻每次 {a}",
+", peck {a} each time"
+],
+[
+"工艺规程里没有工序 {a}",
+"Process plan has no operation {a}"
+],
+[
+"默认：卡盘夹持限速 {a} r/min",
+"Default: chuck clamping speed limit {a} r/min"
+],
+[
+"设计轮廓；直径按工艺规程 {a} 工序尺寸（公差带中间），其余直径加 {b} mm",
+"Design profile; diameters at the process plan operation {a} dimensions (mid-tolerance), other diameters plus {b} mm"
+],
+[
+"精车后的外圆 Ø{a}",
+"Outer diameter after finishing Ø{a}"
+],
+[
+"按识别出的特征自动排：外轮廓 → 型腔 → 钻孔；型腔刀具取放得进、转角残留 ≤ 2% 的最大标准立铣刀；切削参数为默认值（{a}）",
+"Arranged automatically by recognized features: contour → pocket → drilling; the pocket cutter is the largest standard end mill that fits with ≤ 2% corner residue; cutting parameters are defaults ({a})"
+],
+[
+"默认：粗车轴肩留 {a} mm 给精车",
+"Default: rough turning leaves {a} mm at shoulders for finishing"
+],
+[
+"工艺规程 {a} 工序内容“总长”",
+"Process plan {a} operation content “total length”"
+],
+[
+"工艺规程 {a} 工序 tools",
+"Process plan {a} operation tools"
+],
+[
+"上一道车削工序 {a} 的尺寸",
+"Dimensions of the previous turning operation {a}"
+],
+[
+"工艺规程毛坯 {a} {b}×{c}",
+"Process plan stock {a} {b}×{c}"
+],
+[
+"工艺规程 {a} 工序：H = {b}（公差带中间 {c}），槽深 = Ø{d} − H",
+"Process plan operation {a}: H = {b} (mid-tolerance {c}), slot depth = Ø{d} − H"
+],
+[
+"工艺规程 {a} 工序 cut.{b}",
+"Process plan operation {a} cut.{b}"
+],
+[
+"车端面、粗车各外圆，单边留 {a}，总长 {b}",
+"Face, rough turn each diameter, leave {a} per side, total length {b}"
+],
+[
+"精车各外圆、轴肩与倒角，总长 {a}",
+"Finish turn each diameter, shoulders and chamfers, total length {a}"
+],
+[
+"{a} 铣键槽",
+"{a} keyway milling"
+],
+[
+"立铣刀 Ø{a}",
+"End mill Ø{a}"
+],
+[
+"麻花钻 Ø{a}",
+"Twist drill Ø{a}"
+],
+[
+"{a} 铣削",
+"{a} milling"
+],
+[
+"未知的编程单类型 {a}",
+"Unknown programming sheet type {a}"
+],
+[
+"生成 问渠数控编程 {a}",
+"Generated by WenQuest CNC programming {a}"
+],
+[
+"{a}：切削功率约 {b} kW，按效率 {c} 要 {d} kW，超过 {e} 主电机 {f} kW——减小切深或进给",
+"{a}: cutting power about {b} kW, needs {d} kW at efficiency {c}, above {e} spindle motor {f} kW — reduce depth of cut or feed"
+],
+[
+"{a}：要 {b} kW，已到主电机 {c} kW 的 {d}",
+"{a}: needs {b} kW, {d} of spindle motor {c} kW"
+],
+[
+"转速 S{a} 超过机床最高转速 {b}",
+"Speed S{a} above machine maximum {b}"
+],
+[
+"G50 限速 S{a} 超过机床最高转速 {b}",
+"G50 limit S{a} above machine maximum {b}"
+],
+[
+"过切：Z{a} ~ Z{b}，最多切多了 {c} mm（半径）",
+"Gouge: Z{a} ~ Z{b}, up to {c} mm over-cut (radius)"
+],
+[
+"过切：{a} 格比目标低，最多 {b} mm",
+"Gouge: {a} cells below target, up to {b} mm"
+],
+[
+"{a} 超程：{b}{c}，{d} 行程 {e} ~ {f}",
+"{a} overtravel: {b}{c}, {d} travel {e} ~ {f}"
+],
+[
+"快移撞到工件：Z{a} 处切进 {b} mm（快移不能切削）",
+"Rapid into the part: cuts {b} mm at Z{a} (rapids must not cut)"
+],
+[
+"快移撞到工件：切进 {a} mm（快移不能切削）",
+"Rapid into the part: cuts {a} mm (rapids must not cut)"
+],
+[
+"网格 {a} 个单元，超过教学版上限 {b}：请把加密级别调低",
+"Mesh {a} elements exceeds the teaching limit {b}: lower the refinement level"
+],
+[
+"网格 {a} 个单元，超过上限 {b}",
+"Mesh {a} elements exceeds the limit {b}"
+],
+[
+"400 W 关节电机峰值相电流约 {a} A：采样电阻取多少毫欧、放大多少倍，峰值才落在 ADC 量程（0–3.3 V，零点 1.65 V）里？带宽够不够电流环用？",
+"The 400 W joint motor peak phase current is about {a} A: what sense resistor (mΩ) and gain put the peak inside the ADC range (0–3.3 V, zero at 1.65 V)? Is the bandwidth enough for the current loop?"
+],
+[
+"网表太长（超过 {a} 行）",
+"Netlist too long (over {a} lines)"
+],
+[
+"第 {a} 行：网表模式不支持“{b}”（只做电路分析，不读写文件、不运行命令）",
+"Line {a}: netlist mode does not support “{b}” (circuit analysis only; no file access or commands)"
+],
+[
+"第 {a} 行：不认识的控制语句 {b}",
+"Line {a}: unknown control statement {b}"
+],
+[
+"第 {a} 行：看不懂“{b}”",
+"Line {a}: cannot understand “{b}”"
+],
+[
+"仿真超过 {a} 秒，停了（步长太小或时间太长？）",
+"Simulation took over {a} s and was stopped (step too small or time too long?)"
+],
+[
+"{a} 出错：{b}",
+"{a} error: {b}"
+],
+[
+"{a} 超过 {b} 秒",
+"{a} over {b} s"
+],
+[
+"虚拟仪器实验记录：{a}",
+"Virtual instrument lab record: {a}"
+],
+[
+"{a}　{b}　问渠数字工厂 · 虚拟仪器",
+"{a}  {b}  WenQuest Digital Factory · virtual instruments"
+],
+[
+"材料库里没有 {a}",
+"The material library has no {a}"
+],
+[
+"不认识的驱动方式“{a}”",
+"Unknown drive type “{a}”"
+],
+[
+"模型里没有关节“{a}”",
+"The model has no joint “{a}”"
+],
+[
+"模型里没有构件“{a}”",
+"The model has no body “{a}”"
+],
+[
+"教学版仿真时长最多 {a} 秒",
+"The teaching version simulates at most {a} s"
+],
+[
+"关节“{a}”的运动时间要大于 0",
+"Motion time of joint “{a}” must be greater than 0"
+],
+[
+"关节“{a}”有两个驱动",
+"Joint “{a}” has two drives"
+],
+[
+"关节“{a}”由机构带动，不能再加驱动",
+"Joint “{a}” is driven by the mechanism and cannot get another drive"
+],
+[
+"模型编译失败：{a}",
+"Model compilation failed: {a}"
+],
+[
+"关节“{a}”不是转动或移动关节，不能驱动",
+"Joint “{a}” is not revolute or prismatic and cannot be driven"
+],
+[
+"计算发散（第 {a} 秒）：载荷或速度太大，或者初始位置不满足约束",
+"Computation diverged (at {a} s): load or speed too large, or the initial position violates constraints"
+],
+[
+"零件库里没有可做动力学的机器人“{a}”",
+"The part library has no robot “{a}” for dynamics"
+],
+[
+"服务器上缺少模型文件 {a}",
+"Model file {a} missing on the server"
+],
+[
+"不认识的耦合“{a}”",
+"Unknown coupling “{a}”"
+],
+[
+"零件库里没有可做动力学的机构“{a}”",
+"The part library has no mechanism “{a}” for dynamics"
+],
+[
+"“{a}”的“{b}”不是杆件，不能送去有限元",
+"“{b}” of “{a}” is not a link and cannot be sent to FEA"
+],
+[
+"这组杆长在曲柄 {a}° 时装不上（不满足装配条件）",
+"These link lengths cannot assemble at crank {a}° (assembly condition not met)"
+],
+[
+"计算超过 {a} 秒：请把网格尺寸调大",
+"Computation took over {a} s: increase the mesh size"
+],
+[
+"按 {a} 倍安全系数选；最紧的是{b}（利用率 {c}）",
+"Selected with a {a}× safety factor; the tightest is {b} (utilization {c})"
+],
+[
+"表里没有够用的组合：最接近的是 {a} + {b}（i = {c}），卡在{d}（需要 {e}）。请换更大规格、改轨迹（降低加速度）或减小负载",
+"No sufficient combination in the table: the closest is {a} + {b} (i = {c}), limited by {d} (needs {e}). Choose a larger size, change the trajectory (lower acceleration) or reduce the payload"
+],
+[
+"安全系数 {a} < {b}",
+"Safety factor {a} < {b}"
+],
+[
+"最高温度 {a} ℃ > {b}",
+"Maximum temperature {a} °C > {b}"
+],
+[
+"疲劳寿命 {a} h 不够",
+"Fatigue life {a} h not enough"
+],
+[
+"这个问题不能优化 {a}",
+"This problem cannot optimize {a}"
+],
+[
+"{a} 的上限比下限小",
+"Upper bound of {a} is below the lower bound"
+],
+[
+"不认识的目标 {a}",
+"Unknown objective {a}"
+],
+[
+"分析失败：{a}",
+"Analysis failed: {a}"
+],
+[
+"有限元报告-{a}.docx",
+"fea-report-{a}.docx"
+],
+[
+"电路分析计算书-{a}.docx",
+"circuit-analysis-report-{a}.docx"
+],
+[
+"虚拟仪器实验记录-{a}.docx",
+"virtual-instrument-record-{a}.docx"
+],
+[
+"{a} 的{b}（t = {c} s，{d} N）",
+"{b} of {a} (t = {c} s, {d} N)"
+],
+[
+"拓扑优化结果校核：{a}（体积比 {b}，{c} N）",
+"Topology optimization result check: {a} (volume fraction {b}, {c} N)"
+],
+[
+"按密度 0.5 取轮廓、拉伸成 {a} mm 厚的板；{b}",
+"Outline at density 0.5, extruded into a {a} mm plate; {b}"
+],
+[
+"超过 {a} 秒，已中止：请把网格尺寸调大或简化模型",
+"Over {a} s, aborted: increase the mesh size or simplify the model"
+],
+[
+"仿真时长要在 0–{a} 秒之间",
+"Simulation time must be between 0 and {a} s"
+],
+[
+"这次计算里没有关节 {a} 的驱动力矩",
+"No drive torque of joint {a} in this computation"
+],
+[
+"固有频率没算出来：{a}",
+"Natural frequencies not computed: {a}"
+],
+[
+"网格 {a}×{b} 不合适：长边至少 8 格、短边至少 4 格，总数不超过 {c}",
+"Mesh {a}×{b} not suitable: at least 8 cells on the long side and 4 on the short side, total no more than {c}"
+],
+[
+"计算进程异常退出（代码 {a}，多半是内存不够）：请把网格尺寸调大",
+"The computation process exited abnormally (code {a}, probably out of memory): increase the mesh size"
+],
+[
+"读不了这个 STEP：{a}",
+"Cannot read this STEP: {a}"
+],
+[
+"读不了这个模型：{a}",
+"Cannot read this model: {a}"
+],
+[
+"杆件模型生成失败：{a}",
+"Link model generation failed: {a}"
+],
+[
+"识别不了这个零件：{a}",
+"Cannot recognize this part: {a}"
+],
+[
+"板件模型生成失败：{a}",
+"Plate model generation failed: {a}"
+],
+[
+"网格目标单元数要在 1 万–{a} 之间",
+"Target mesh element count must be between 10,000 and {a}"
+],
+[
+"平板说明不对：{a}",
+"Wrong plate description: {a}"
+],
+[
+"网格 {a} 个单元，超过教学版上限 {b}：请把网格尺寸调大",
+"Mesh {a} elements exceeds the teaching limit {b}: increase the mesh size"
+],
+[
+"没有这些面：{a}",
+"No such faces: {a}"
+],
+[
+"不认识的载荷类型 {a}",
+"Unknown load type {a}"
+],
+[
+"WQ-CR5 大臂 Ø{a}×{b}（伸直、{c} kg）",
+"WQ-CR5 upper arm Ø{a}×{b} (extended, {c} kg)"
+],
+[
+"预设载荷 = 手臂水平伸直、工具朝下、带 {a} kg 时 J3 端以外部分的重力（不含这根管自己的重量）；梁理论把法兰当作刚性、不计法兰与管连接处的应力集中；固有频率只算这根管一端固定，装到机器人上以后关节的柔性和负载让整机的一阶频率低得多（31.5 节）",
+"Preset load = weight of everything beyond J3 with the arm horizontal and extended, tool pointing down, carrying {a} kg (excluding this tube's own weight); beam theory treats the flanges as rigid and ignores stress concentration at the flange–tube joint; the natural frequency is for this tube fixed at one end only — on the robot, joint compliance and payload make the whole robot's first frequency much lower (section 31.5)"
+],
+[
+"不认识的热载荷 {a}",
+"Unknown thermal load {a}"
+],
+[
+"CPU 散热片 {a} 片 · {b} W",
+"CPU heat sink {a} fins · {b} W"
+],
+[
+"WQR-105 箱体热平衡（{a}）",
+"WQR-105 housing heat balance ({a})"
+],
+[
+"缝纫机电控箱 {a}×{b}×{c}（{d} W）",
+"Sewing machine control box {a}×{b}×{c} ({d} W)"
+],
+[
+"AGV 电控箱 {a}（{b} W）",
+"AGV control box {a} ({b} W)"
+],
+[
+"{a} 条散热筋 / 侧",
+"{a} fins / side"
+],
+[
+"散热片太密：片间距只有 {a} mm",
+"Heat sink too dense: fin spacing only {a} mm"
+],
+[
+"左边整个端面固定；载荷加在{a}的垫块上",
+"The whole left end face is fixed; load on the pad at {a}"
+],
+[
+"不认识的算例 {a}",
+"Unknown case {a}"
+],
+[
+"网格 {a}×{b} 不合适：单元数在 32–{c} 之间",
+"Mesh {a}×{b} not suitable: element count between 32 and {c}"
+],
+[
+"单元太粗，孔里落不下节点（单元边长 {a} mm）",
+"Elements too coarse: no nodes fall in the holes (element edge {a} mm)"
+],
+[
+"{a} 模组（J{b}）",
+"{a} module (J{b})"
+],
+[
+"{a}铝管 Ø{b}×{c}",
+"{a}aluminum tube Ø{b}×{c}"
+],
+[
+"{a} 模组（{b}A2）",
+"{a} module ({b}A2)"
+],
+[
+"{a} 模组（{b}A3）",
+"{a} module ({b}A3)"
+],
+[
+"臂管 ARM-FO Ø{a}×{b}",
+"Arm tube ARM-FO Ø{a}×{b}"
+],
+[
+"{a} 模组（{b}A4）",
+"{a} module ({b}A4)"
+],
+[
+"{a} 模组（{b}A5）",
+"{a} module ({b}A5)"
+],
+[
+"{a} 模组（{b}A6）",
+"{a} module ({b}A6)"
+],
+[
+"{a} 模组（W1）",
+"{a} module (W1)"
+],
+[
+"{a} 模组（W2）",
+"{a} module (W2)"
+],
+[
+"{a} 模组（H1）",
+"{a} module (H1)"
+],
+[
+"{a} 模组（LA1）",
+"{a} module (LA1)"
+],
+[
+"{a} 模组（RA1）",
+"{a} module (RA1)"
+],
+[
+"{a} 模组（H2）",
+"{a} module (H2)"
+],
+[
+"{a}{b}面",
+"{a}{b} face"
+],
+[
+"到设计台试：键槽轴段 Ø{a} → Ø{b}（键 {c}×{d}，GB/T 1095）",
+"Try at the design desk: keyed shaft segment Ø{a} → Ø{b} (key {c}×{d}, GB/T 1095)"
+],
+[
+"仿真建议：键槽轴段 Ø{a} → Ø{b}",
+"Simulation suggestion: keyed shaft segment Ø{a} → Ø{b}"
+],
+[
+"最危险的位置在{a}，Von Mises 应力 {b} MPa，安全系数 {c}（{d} {e} MPa）。",
+"The most critical location is {a}, Von Mises stress {b} MPa, safety factor {c} ({d} {e} MPa)."
+],
+[
+"约束面附近还有 {a} MPa 的局部高值，是“完全固定”这种理想约束造成的，评估时已避开。",
+"A local high of {a} MPa remains near the constrained faces, caused by the idealized “fully fixed” constraint; excluded from the assessment."
+],
+[
+"最左的 Ø{a}",
+"leftmost Ø{a}"
+],
+[
+"最右的 Ø{a}",
+"rightmost Ø{a}"
+],
+[
+"面 {a}（{b}）",
+"Face {a} ({b})"
+],
+[
+"换成 {a} 重算",
+"Recompute with {a}"
+],
+[
+"按这个载荷谱约 {a} 小时出现疲劳裂纹；起动冲击那几个大循环贡献了大部分损伤。",
+"Under this load spectrum a fatigue crack appears in about {a} hours; the few large start-up shock cycles contribute most of the damage."
+],
+[
+"模型暂时不可用（{a}），已用规则理解",
+"Model unavailable for now ({a}); read by rules instead"
+],
+[
+"“{a}” → 轴承支承兼止推：面 {b}（{c}）",
+"“{a}” → bearing support with thrust: face {b} ({c})"
+],
+[
+"动力学受力记录：{a}（{b} 秒一块，重复）",
+"Dynamics force record: {a} ({b} s per block, repeated)"
+],
+[
+"关节力矩记录：{a} · {b}（{c} 秒一块，重复）",
+"Joint torque record: {a} · {b} ({c} s per block, repeated)"
+],
+[
+"上传的载荷记录 {a}（{b} 个点，{c} 秒一块）",
+"Uploaded load record {a} ({b} points, {c} s per block)"
+],
+[
+"跑合试验台转矩记录 {a}（{b}，{c} 秒一块）",
+"Run-in stand torque record {a} ({b}, {c} s per block)"
+],
+[
+"恒幅：{a} ~ {b} {c}，{d} Hz",
+"Constant amplitude: {a} ~ {b} {c}, {d} Hz"
+],
+[
+"{a} 还没有发布过三维模型（STEP）",
+"{a} has never released a 3D model (STEP)"
+],
+[
+"{a}：{b} 行切削。",
+"{a}: {b} cutting lines."
+],
+[
+"程序头：% 是程序的开始符；{a} 是程序号和名称。括号里是注释，机床不执行，写明零件、版本、工序、机床和刀具表，操作工对照它装刀、对刀。",
+"Program header: % starts the program; {a} is the program number and name. Text in parentheses is a comment the machine ignores, giving part, revision, operation, machine and tool list for the operator to load and touch off tools."
+],
+[
+"{a}：刀从外圆外 X 处进到端面位置，G01 横向车过中心（X-1.0，过中心 0.5 mm 不留小凸台），快退。共 {b} 刀，每刀往左一层，最后一刀在 Z0（本次装夹的端面）。",
+"{a}: the tool enters from outside the diameter at X to the face position, G01 feeds across past center (X-1.0, 0.5 mm past center so no nub is left), then rapids back. {b} passes, one layer further left each, the last at Z0 (the face for this setup)."
+],
+[
+"{a}：每层先快移到 Z2.0（端面外 2 mm）、对准这一层的直径 X，再 G01 沿 Z 向左车到轴肩为止，45° 斜退 0.5 mm 防止刀尖划伤已加工面，快退回右边；直径每层减 2×ap。和 FANUC 的 G71 循环效果一样，这里展开成直线段，方便看懂。约 {b} 层。",
+"{a}: each layer first rapids to Z2.0 (2 mm outside the face) at this layer's diameter X, then G01 turns along Z to the left up to the shoulder, retracts 0.5 mm at 45° so the tool nose does not mark the finished surface, then rapids back to the right; diameter reduces 2×ap per layer. Same effect as the FANUC G71 cycle, expanded into straight segments for readability. About {b} layers."
+],
+[
+"{a}：分层车完，台阶处还留着三角形的残料；沿着本工序轮廓走一刀，把它们去掉，得到均匀的余量。",
+"{a}: after layered roughing, triangular leftovers remain at the steps; one pass along this operation's profile removes them for an even allowance."
+],
+[
+"{a}：从端面倒角开始，沿轮廓一刀车出各外圆和轴肩，直径依次 {b}（公差带中间）。精车切深小、进给小，表面粗糙度由进给量和刀尖圆弧决定。",
+"{a}: starting from the face chamfer, one pass along the profile turns each diameter and shoulder, diameters in order {b} (mid-tolerance). Finishing uses a small depth and feed; surface roughness depends on feed and nose radius."
+],
+[
+"{a}：切槽刀径向切入到槽底直径，再退出；槽比刀宽时左移一刀宽的 80% 再切一次。",
+"{a}: the grooving tool plunges radially to the groove bottom diameter, then retracts; if the groove is wider than the tool, it moves left 80% of the tool width and cuts again."
+],
+[
+"{a}：先快移到槽一端上方，再一边沿槽长方向走、一边往下（斜线下刀，键槽铣刀不垂直扎刀），到另一端时正好下了一层，再走回来把这一层铣平。共 {b} 层，最后一层到槽深。",
+"{a}: first rapid above one end of the slot, then move along the slot while descending (ramping in; a keyway cutter does not plunge vertically), reaching one layer down at the other end, then come back to mill the layer flat. {b} layers, the last at full slot depth."
+],
+[
+"{a}：每层在型腔中间斜线下刀，然后一圈一圈由里往外铣（刀心沿型腔边界的偏置线走），最外一圈贴着型腔壁；中间有岛时两圈之间如果直线会碰到岛就抬刀绕过去。",
+"{a}: each layer ramps in at the pocket center, then mills outward loop by loop (tool center following offsets of the pocket boundary), the last loop along the pocket wall; with an island, the tool lifts and goes around if a straight move between loops would hit it."
+],
+[
+"{a}：刀心在轮廓外偏一个刀具半径，顺铣（主轴正转、刀沿顺时针绕工件），从外面沿法线切入、切出，分层铣到深度。",
+"{a}: tool center offset outside the contour by one tool radius, climb milling (spindle forward, tool going clockwise around the part), entering and leaving along the normal, milled to depth in layers."
+],
+[
+"{a}：G98 G83（或 G81）是钻孔循环，一行就是一个孔：快移到 R 平面，钻到 Z 深，G83 每钻 Q 深退回 R 平面排屑；后面只写 X Y 的行是同样参数的下一个孔，G80 取消循环。",
+"{a}: G98 G83 (or G81) is a drilling cycle, one line per hole: rapid to the R plane, drill to depth Z; G83 retracts to the R plane every Q to clear chips; following lines with only X Y are the next holes with the same parameters; G80 cancels the cycle."
+],
+[
+"仿真里实际最大切深 {a} mm，比编程单的 {b} mm 大（多半是端面或轴肩处）：注意那一刀的切削力。",
+"In the simulation the actual maximum depth of cut is {a} mm, larger than the sheet's {b} mm (usually at a face or shoulder): watch the cutting force of that pass."
+],
+[
+"“{a}” → 工序 / 工步已由编程单确定",
+"“{a}” → operations / steps are fixed by the programming sheet"
+],
+[
+"{a}：换 {b} 号刀、用 {c} 号刀补（刀尖位置的补偿值）",
+"{a}: change to tool {b}, use offset {c} (tool nose position compensation)"
+],
+[
+"第 {a} 行：",
+"Line {a}: "
+],
+[
+"说明：工艺规程的粗车尺寸已经含精车余量，这里是在它之外再留 {a} mm（单边），提交时会提示与工艺规程不一致",
+"Note: the process plan's roughing dimensions already include the finishing allowance; this leaves another {a} mm (per side) on top of it, and you will be told on submission that it differs from the process plan"
+],
+[
+"{a}：换 {b} 号刀",
+"{a}: change to tool {b}"
+],
+[
+"…（共 {a} 行）",
+"… ({a} lines in total)"
+],
+[
+"{a}：主轴最高转速限制在 {b} r/min——恒线速切到小直径时转速会升高，卡盘夹持的工件不能转太快",
+"{a}: maximum spindle speed limited to {b} r/min — with constant surface speed the speed rises at small diameters, and a part held in a chuck must not spin too fast"
+],
+[
+"{a}：恒线速 {b} m/min，主轴正转。转速 n = 1000·vc/(π·D)，随刀尖所在直径自动变化",
+"{a}: constant surface speed {b} m/min, spindle forward. Speed n = 1000·vc/(π·D), changing automatically with the diameter at the tool nose"
+],
+[
+"{a}：主轴 {b} r/min 正转",
+"{a}: spindle {b} r/min forward"
+],
+[
+"{a}：先回到换刀点（离工件足够远）再换刀",
+"{a}: first return to the tool change point (far enough from the part), then change tools"
+],
+[
+"{a}：调用长度补偿 H，刀尖停在工件上表面上方 {b} mm",
+"{a}: apply length compensation H; tool nose stops {b} mm above the part top surface"
+],
+[
+"数控程序：工序 {a} {b}，{c} 个程序（{d}），合计 {e} 分（工艺规程工时 {f} 分）",
+"NC programs: operation {a} {b}, {c} programs ({d}), {e} min in total (process plan time {f} min)"
+],
+[
+"生效的工艺规程第 {a} 版",
+"Effective process plan revision {a}"
+],
+[
+"{a} 没有工艺规程",
+"{a} has no process plan"
+],
+[
+"没有工序 {a}",
+"No operation {a}"
+],
+[
+"检查还有 {a} 个错误（{b}），改好再提交",
+"The check still has {a} errors ({b}); fix them before submitting"
+],
+[
+"风速 {a} m/s 沿 {b}，按零件长度 {c} mm 算雷诺数 Re ≈ {d}，{e}。",
+"Air speed {a} m/s along {b}; with part length {c} mm the Reynolds number Re ≈ {d}, {e}."
+],
+[
+"阻力 {a} N，其中压差阻力 {b} N、摩擦阻力 {c} N——{d}；阻力系数 C_d ≈ {e}（按迎风面积 {f} cm²、动压 {g} Pa）。",
+"Drag {a} N, of which pressure drag {b} N and friction drag {c} N — {d}; drag coefficient C_d ≈ {e} (frontal area {f} cm², dynamic pressure {g} Pa)."
+],
+[
+"风速 {a} m/s",
+"Air speed {a} m/s"
+],
+[
+"空气 {a} ℃",
+"Air {a} °C"
+],
+[
+"表面 {a} ℃，算散热系数",
+"Surface {a} °C, compute film coefficients"
+],
+[
+"表面 {a} ℃、空气 {b} ℃ 时共散热 {c} W，平均散热系数 h = {d} W/(m²·K)。",
+"With surface {a} °C and air {b} °C, total heat removed {c} W, mean film coefficient h = {d} W/(m²·K)."
+],
+[
+"用教材平板公式核对量级（特征长度 {a} mm）：层流边界层 Nu = 0.664·Re^½·Pr^⅓ → h ≈ {b}；全湍流 Nu = 0.037·Re^0.8·Pr^⅓ → h ≈ {c} W/(m²·K)。算出的平均 h 落在两者之间是正常的（前缘附近层流、分离和尾流区紊乱、背风面风小）。点“送到温度场”就用这些 h 代替查表的散热系数。",
+"Magnitude check with textbook flat-plate formulas (characteristic length {a} mm): laminar boundary layer Nu = 0.664·Re^½·Pr^⅓ → h ≈ {b}; fully turbulent Nu = 0.037·Re^0.8·Pr^⅓ → h ≈ {c} W/(m²·K). A mean h between the two is normal (laminar near the leading edge, chaotic in separation and wake, little air on the lee side). Click “Send to temperature field” to use these h instead of looked-up coefficients."
+],
+[
+"风速 {a} km/h = {b} m/s",
+"Air speed {a} km/h = {b} m/s"
+],
+[
+"风沿{a}吹 → +{b}",
+"Air along {a} → +{b}"
+],
+[
+"来流方向 {a}",
+"Inflow direction {a}"
+],
+[
+"各面差别大：面 {a} 最大 {b}，面 {c} 最小 {d}。迎风面和边界层刚开始的地方 h 大（边界层薄），背风面、角落和贴近地面的地方 h 小（风到不了、空气已被加热）。",
+"Faces differ a lot: face {a} highest {b}, face {c} lowest {d}. h is high on the windward face and where the boundary layer starts (thin boundary layer), low on the lee side, in corners and near the floor (air does not reach, or is already warmed)."
+],
+[
+"；箱体每行另加辐射 {a} W/(m²·K)（涂漆铸铁发射率 0.9，教材 K_s 也含辐射）",
+"; housing rows add radiation {a} W/(m²·K) (painted cast iron emissivity 0.9; the textbook K_s also includes radiation)"
+],
+[
+"{a}（散热系数来自流体分析：{b} m/s）",
+"{a} (film coefficient from flow analysis: {b} m/s)"
+],
+[
+"散热系数取自流体分析 {a}：风速 {b} m/s、来流 {c}、表面 {d} ℃ 时算出的各面平均 h（{e} 个面，平均 {f} W/(m²·K)）",
+"Film coefficients from flow analysis {a}: face mean h computed at air speed {b} m/s, inflow {c}, surface {d} °C ({e} faces, mean {f} W/(m²·K))"
+],
+[
+"K_s = 流体分析算出的外表面平均对流 {a} + 辐射 {b}（发射率 0.9）W/(m²·K)，不再查表；",
+"K_s = mean outer-surface convection from flow analysis {a} + radiation {b} (emissivity 0.9) W/(m²·K), no longer from tables; "
+],
+[
+"倒角 {a} mm 超出范围 0～5 mm",
+"Chamfer {a} mm out of range 0–5 mm"
+],
+[
+"台阶圆角 {a} mm 超出范围 0～5 mm",
+"Step fillet {a} mm out of range 0–5 mm"
+],
+[
+"参数格式不对：{a}",
+"Wrong parameter format: {a}"
+],
+[
+"第 {a} 段直径 {b} mm 超出范围 {c}～{d} mm（棒料 Ø50）",
+"Segment {a} diameter {b} mm out of range {c}–{d} mm (bar Ø50)"
+],
+[
+"第 {a} 段长度 {b} mm 超出范围 {c}～{d} mm",
+"Segment {a} length {b} mm out of range {c}–{d} mm"
+],
+[
+"GB/T 1095：轴径 {a} mm（{b} mm 档）推荐键宽 b={c}、轴槽深 t={d}，当前 b={e}、t={f}",
+"GB/T 1095: shaft diameter {a} mm ({b} mm class) recommends key width b={c}, shaft slot depth t={d}; currently b={e}, t={f}"
+],
+[
+"第 {a}、{b} 段之间的台阶高只有 {c} mm，圆角 {d} mm 做不出来（圆角要小于台阶高）",
+"Step height between segments {a} and {b} is only {c} mm; a {d} mm fillet cannot be made (fillet must be smaller than the step height)"
+],
+[
+"本单位今天的计算次数已用完（每天 {a} 个），明天再来或联系问渠调整",
+"Your organization has used up today's computations ({a} per day); come back tomorrow or contact WenQuest to adjust"
+],
+[
+"本单位今天的{a}次数已用完（每天 {b} 个），明天再来或联系问渠调整",
+"Your organization has used up today's {a} ({b} per day); come back tomorrow or contact WenQuest to adjust"
+],
+[
+"设计要写成 {a}",
+"The design must be written as {a}"
+],
+[
+"新物料第 {a} 行",
+"New item row {a}"
+],
+[
+"物料清单第 {a} 组",
+"BOM group {a}"
+],
+[
+"照现有产品 {a} 的顶层物料清单和工艺起草；要改的件用“复制为新件”，再改它的工艺和子件。",
+"Drafted from the top-level BOM and routing of existing product {a}; for parts to change use “copy as new part”, then change its routing and components."
+],
+[
+"交期 {a} 早于今天",
+"Due date {a} is before today"
+],
+[
+"要有作业 {a} 本身的物料清单",
+"A BOM for job {a} itself is required"
+],
+[
+"{a} 没有物料清单，不是自制件，不能复制",
+"{a} has no BOM and is not a made part; it cannot be copied"
+],
+[
+"编号 {a} 已经有了",
+"Code {a} already exists"
+],
+[
+"{a} 的子件里没有 {b}",
+"{b} is not among the components of {a}"
+],
+[
+"{a}（{b} 专用）",
+"{a} ({b} only)"
+],
+[
+"第 {a} 版设计已经发布；要改先改设计（会出新版本）",
+"Design revision {a} is already released; to change it, change the design (a new revision results)"
+],
+[
+"作业 {a} 的设计还没发布，不能算料、下工单",
+"The design of job {a} is not released yet; cannot run MRP or create work orders"
+],
+[
+"{a}：编号要以作业号开头，如 {b}-SH",
+"{a}: code must start with the job number, e.g. {b}-SH"
+],
+[
+"{a}：类别要写 自制件 / 外购件 / 原材料",
+"{a}: category must be made / purchased / raw material"
+],
+[
+"{a}：父件 {b} 要是作业号或本单的新自制件",
+"{a}: parent {b} must be the job number or a new made part of this order"
+],
+[
+"{a}：父件 {b} 有两组物料清单",
+"{a}: parent {b} has two BOM groups"
+],
+[
+"{a}：{b} 要有工艺（至少一道工序）",
+"{a}: {b} needs a routing (at least one operation)"
+],
+[
+"{a}：{b} 要有子件",
+"{a}: {b} needs components"
+],
+[
+"新自制件 {a} 要有物料清单和工艺",
+"New made part {a} needs a BOM and a routing"
+],
+[
+"{a} 是{b}，不该有物料清单",
+"{a} is {b} and should not have a BOM"
+],
+[
+"新物料 {a} 没有用在任何物料清单里",
+"New item {a} is not used in any BOM"
+],
+[
+"{a}：编号 {b} 重复",
+"{a}: duplicate code {b}"
+],
+[
+"{a} 没有单价（成本按未知）",
+"{a} has no unit price (cost unknown)"
+],
+[
+"{a}：供应商 {b} 不在供应商表里",
+"{a}: supplier {b} is not in the supplier table"
+],
+[
+"{a} 第 {b} 道工序 {c} 不在本厂工序表里",
+"{a} operation {b} {c} is not in this plant's operation table"
+],
+[
+"{a} 第 {b} 道工序要写每件分钟（大于 0）",
+"{a} operation {b} needs minutes per part (greater than 0)"
+],
+[
+"{a} 的子件 {b} 不在物料主数据里，也不是本单新物料",
+"Component {b} of {a} is neither in item master data nor a new item of this order"
+],
+[
+"{a} 的子件不能是作业本身",
+"A component of {a} cannot be the job itself"
+],
+[
+"{a} 的子件 {b} 写了两次",
+"Component {b} of {a} is listed twice"
+],
+[
+"{a} 的子件 {b} 用量要大于 0",
+"Quantity of component {b} of {a} must be greater than 0"
+],
+[
+"{a} 没有供应商或交期（算料标“交期待确认”）",
+"{a} has no supplier or lead time (MRP marks “lead time to be confirmed”)"
+],
+[
+"夹具 {a} 的夹紧力约 {b} N，小于需要的 {c} N（起控制作用的是“{d}”），加工中工件可能移动。",
+"Fixture {a} clamping force about {b} N, less than the {c} N needed (governed by “{d}”); the part may move during machining."
+],
+[
+"夹具 {a} 的“{b}”精度预算合计 {c} mm，超过工序公差 {d} mm。",
+"Fixture {a} “{b}” accuracy budget totals {c} mm, above the operation tolerance {d} mm."
+],
+[
+"夹具 {a} 的“{b}”精度预算余量只有 {c} mm，不到公差的 10%，机床和刀具误差没有余地。",
+"Fixture {a} “{b}” accuracy budget margin only {c} mm, under 10% of the tolerance; no room for machine and tool errors."
+],
+[
+"驱动力矩最大的是{a}：峰值 {b}、均方根 {c}（单位 N·m 或 N），出现在第 {d} 秒。",
+"The largest drive torque is {a}: peak {b}, RMS {c} (N·m or N), at second {d}."
+],
+[
+"{a}的安装处（与地面、机座的连接）最大受力 {b} N、力矩 {c} N·m：安装螺栓和机座按这个校核。",
+"The mounting of {a} (connection to ground or base) carries at most {b} N and {c} N·m: check mounting bolts and base against this."
+],
+[
+"“{a}” → 末端负载 {b} kg（挂在 {c}）",
+"“{a}” → end payload {b} kg (hung on {c})"
+],
+[
+"{a}的峰值是均方根的 {b} 倍：力矩主要花在加速、减速上（惯性力），峰值出现在加减速段的起止时刻。把运动时间放长一些，或加速段占比放大（梯形速度更平缓），峰值会明显下降。",
+"The peak of {a} is {b} times the RMS: torque goes mainly into accelerating and decelerating (inertia), peaking at the start and end of the ramps. Lengthen the motion time, or enlarge the ramp share (a gentler trapezoid), and the peak drops markedly."
+],
+[
+"{a}的平均功率为负：这段运动里负载在“带着电机走”（下放、制动），电机处于发电状态，驱动器要能吸收回馈能量（制动电阻或能量回馈）。",
+"The mean power of {a} is negative: in this motion the load “drives the motor” (lowering, braking); the motor generates, and the drive must absorb regenerated energy (braking resistor or regeneration)."
+],
+[
+"关节反力最大的是{a}与上一个构件之间的铰链：{b} N（第 {c} 秒）。轴承、销轴要按这个力校核；",
+"The largest joint reaction is at the hinge between {a} and the previous body: {b} N (at second {c}). Check bearings and pins against this force; "
+],
+[
+"“{a}” → {b} 匀速 {c} r/min",
+"“{a}” → {b} constant {c} r/min"
+],
+[
+"“{a}” → {b} 点到点{c} {d}°",
+"“{a}” → {b} point to point{c} {d}°"
+],
+[
+"“{a}” → {b} 上 {c} N 阻力（与运动方向相反，沿 −X）",
+"“{a}” → {b} with {c} N resistance (opposing motion, along −X)"
+],
+[
+"“{a}” → {b} 负载力矩 {c} N·m",
+"“{a}” → {b} load torque {c} N·m"
+],
+[
+"“{a}” → {b} 保持不动",
+"“{a}” → {b} held still"
+],
+[
+"“{a}” → 没说关节角度，用示范动作：{b} 转 90°、{c} 抬 30°（可在表里改）",
+"“{a}” → no joint angles given, using the demo motion: {b} turns 90°, {c} lifts 30° (editable in the table)"
+],
+[
+"共分析 {a} 次（{b} 秒），{c} 次满足全部要求。",
+"{a} analyses in total ({b} s), {c} meet all requirements."
+],
+[
+"灰色单元（密度 0.1–0.9，说不清有没有材料）占 {a}%：{b}",
+"Gray elements (density 0.1–0.9, unclear whether material is there) make up {a}%: {b}"
+],
+[
+"最好的一组质量 {a} kg，比现行 {b}%。",
+"Best set mass {a} kg, {b}% vs current."
+],
+[
+"最好的一组安全系数 {a}（要求 ≥ {b}）：{c}",
+"Best set safety factor {a} (required ≥ {b}): {c}"
+],
+[
+"最好的一组最高温度 {a} ℃（要求 ≤ {b}）：{c}",
+"Best set maximum temperature {a} °C (required ≤ {b}): {c}"
+],
+[
+"两个目标互相矛盾：帕累托前沿上的 {a} 组方案，越轻的越热；按工厂更看重哪个来选。",
+"The two goals conflict: of the {a} designs on the Pareto front, the lighter the hotter; choose by what the plant values more."
+],
+[
+"从均匀的灰色（每格密度都是 {a}）开始，迭代 {b} 次{c}；柔度（越小越刚）从 {d} 降到 {e}，下降 {f}%。",
+"Starting from uniform gray (every cell density {a}), {b} iterations{c}; compliance (smaller is stiffer) from {d} to {e}, down {f}%."
+],
+[
+"“{a}” → 安全系数 ≥ {b}",
+"“{a}” → safety factor ≥ {b}"
+],
+[
+"“{a}” → 疲劳寿命：无限",
+"“{a}” → fatigue life: infinite"
+],
+[
+"“{a}” → 最高温度 ≤ {b} ℃",
+"“{a}” → maximum temperature ≤ {b} °C"
+],
+[
+"“{a}” → 分析 {b} 次",
+"“{a}” → {b} analyses"
+],
+[
+"“{a}” → 疲劳寿命 ≥ {b} 小时",
+"“{a}” → fatigue life ≥ {b} hours"
+],
+[
+"“{a}” → 目标：最轻",
+"“{a}” → goal: lightest"
+],
+[
+"不满足（{a}）。",
+"Not met ({a})."
+],
+[
+"“{a}” → 目标：最凉",
+"“{a}” → goal: coolest"
+],
+[
+"“{a}” → {b} 在 {c}–{d} 之间变",
+"“{a}” → {b} varies between {c} and {d}"
+],
+[
+"“{a}” → {b} 不参加优化",
+"“{a}” → {b} not optimized"
+],
+[
+"设计优化：齿轮位 Ø{a} → Ø{b}，轴伸 Ø{c} → Ø{d}",
+"Design optimization: gear seat Ø{a} → Ø{b}, shaft end Ø{c} → Ø{d}"
+],
+[
+"（核对：{a} 不在零件库里，已从推荐里去掉。）",
+" (check: {a} is not in the part library and was removed from the recommendations.)"
+],
+[
+"零件库里没有找到和“{a}”相关的条目。",
+"Nothing related to “{a}” found in the part library."
+],
+[
+"零件库里有相关的族（{a}），但没法按“{b}”直接筛规格，请在库页面打开这个族看规格表。",
+"The part library has related families ({a}), but cannot filter specs directly by “{b}”; open the family on the library page to see its spec table."
+],
+[
+"零件库里有相关的族（{a}），但没有符合“{b}”尺寸的规格。",
+"The part library has related families ({a}), but no spec matches the size “{b}”."
+],
+[
+"零件库里没有条目 {a}",
+"The part library has no entry {a}"
+],
+[
+"最高温度 {a} ℃，最低 {b} ℃，表面平均 {c} ℃。",
+"Maximum temperature {a} °C, minimum {b} °C, surface mean {c} °C."
+],
+[
+"热平衡：进来 {a} W，经对流散走 {b} W{c}。",
+"Heat balance: {a} W in, {b} W out by convection{c}."
+],
+[
+"散热主要靠对流面：面积 {a} m²，平均比环境高 {b} ℃，散走 {c} W。温升 ≈ 发热 ÷（散热系数 × 面积），要降温就三条路：减少发热、加大散热面积（散热筋、散热片）、提高散热系数（风扇、改善通风）。",
+"Cooling is mainly through convection faces: area {a} m², on average {b} °C above ambient, removing {c} W. Temperature rise ≈ heat ÷ (film coefficient × area); to cool down there are three ways: less heat, more cooling area (fins, heat sinks), higher film coefficient (fan, better ventilation)."
+],
+[
+"教材公式油温 {a} ℃（K_s = {b}、A = {c} m²），有限元外表面平均 {d} ℃：公式把整个箱体当成一个温度，有限元能看出底部、角落更热、上部更凉。",
+"Textbook formula oil temperature {a} °C (K_s = {b}, A = {c} m²), FEA outer surface mean {d} °C: the formula treats the whole housing as one temperature, while FEA shows the bottom and corners hotter and the top cooler."
+],
+[
+"热应力最大 {a} MPa（安全系数 {b}），热变形最大 {c} mm。热应力来自膨胀受约束：约束越死、温差越大，热应力越大；能让零件自由伸长（一端游动支承、留膨胀间隙）就能大幅减小。",
+"Maximum thermal stress {a} MPa (safety factor {b}), maximum thermal deformation {c} mm. Thermal stress comes from restrained expansion: the more rigid the constraint and the larger the temperature difference, the higher the stress; letting the part expand freely (a floating support at one end, expansion gaps) reduces it greatly."
+],
+[
+"瞬态：{a} 秒内平均温度从 {b} ℃ 变到 {c} ℃。",
+"Transient: in {a} s the mean temperature goes from {b} °C to {c} °C."
+],
+[
+"最高温度低于限值约 {a} ℃，满足要求，还有 {b} ℃ 余量。",
+"Maximum temperature about {a} °C below the limit: requirement met, {b} °C of margin."
+],
+[
+"“{a}” → 瞬态 {b} 秒，初温 {c} ℃",
+"“{a}” → transient {b} s, initial {c} °C"
+],
+[
+"“{a}” → 无应力参考温度 {b} ℃",
+"“{a}” → stress-free reference temperature {b} °C"
+],
+[
+"h = {a} W/(m²·K)，环境 {b} ℃",
+"h = {a} W/(m²·K), ambient {b} °C"
+],
+[
+"最高温度超过限值约 {a} ℃：",
+"Maximum temperature about {a} °C above the limit: "
+],
+[
+"这台 {a} 在{b}，{c} 起运行，累计 {d} 小时、起动 {e} 次，平均每天 {f} 小时。",
+"This {a} is at {b}, running since {c}, {d} hours and {e} starts in total, {f} hours per day on average."
+],
+[
+"寿命：最先到期的是{a}（{b}），已用 L10 的 {c}{d}；输出轴疲劳损伤 {e}，远没到 1。中间轴轴承 B 离第二级小齿轮近、转速又是输出轴的 3.5 倍，所以总是它最先到期——这和设计手算一致。",
+"Life: the earliest due is {a} ({b}), {c} of L10 used{d}; output shaft fatigue damage {e}, far from 1. Intermediate shaft bearing B is near the second-stage pinion and runs at 3.5× output speed, so it is always due first — consistent with the design hand calculation."
+],
+[
+"现在没有报警：油温和热平衡模型对得上（差 {a} ℃），振动 {b} 区。",
+"No alarms now: oil temperature matches the heat balance model (off by {a} °C), vibration zone {b}."
+],
+[
+"【{a}】{b} {c} 依据：{d} 建议：{e}",
+"[{a}] {b} {c} Evidence: {d} Suggestion: {e}"
+],
+[
+"{a}：轴承当量转矩 {b} N·m（额定的 {c}），平均每天 {d} h，{e}每年用掉 L10 的 {f}，约 {g} 年到期。",
+"{a}: bearing equivalent torque {b} N·m ({c} of rated), {d} h per day on average, {e}L10 used per year {f}, due in about {g} years."
+],
+[
+"设计建议：{a}的中间轴轴承 B 不到 4 年就到 L10。可以把中间轴两端换成 6306（同内径 30 mm，SKF 样本 C = 29.6 kN，寿命约 (29.6/20.3)³ ≈ 3.1 倍，箱体轴承孔要跟着改），或给这类客户选大一号的减速器；输出轴疲劳损伤很小，输出轴还有减重余地（见设计优化）。",
+"Design suggestion: the intermediate shaft bearing B of {a} reaches L10 in under 4 years. Replace both intermediate shaft bearings with 6306 (same 30 mm bore, SKF catalog C = 29.6 kN, life about (29.6/20.3)³ ≈ 3.1×, housing bores must change accordingly), or select a reducer one size up for this customer type; output shaft fatigue damage is small and the shaft still has room for weight reduction (see design optimization)."
+],
+[
+"，按最近一个月的用法约 {a} 天后到 L10",
+", at last month's usage reaching L10 in about {a} days"
+],
+[
+"设备：WQR-105 减速器 {a}（{b}起运行，累计 {c} h）",
+"Unit: WQR-105 reducer {a} (running since {b}, {c} h in total)"
+],
+[
+"数据不合规范：{a}",
+"Malformed data: {a}"
+],
+[
+"流体分析“{a}”：{b} m/s 时对流 {c} + 辐射 {d}",
+"Flow analysis “{a}”: convection {c} + radiation {d} at {b} m/s"
+]
+]

@@ -2,19 +2,20 @@
   <!-- 拖着玩（第 30 轮 §八 H-11 第 1 种）：课程里做好的虚拟实验，嵌在帮助里当场拖参数 -->
   <figure ref="root" class="hb lab">
     <div v-if="!on" class="cover" :style="{ height: h + 'px' }">
-      <b>{{ meta?.title || args.caption || '虚拟实验' }}</b>
-      <span class="small muted">{{ meta?.what || '拖参数，曲线当场变' }}</span>
-      <button class="btn primary" @click="start">打开实验</button>
+      <b>{{ $td(meta?.title || args.caption) || $t('虚拟实验') }}</b>
+      <span class="small muted">{{ $td(meta?.what) || $t('拖参数，曲线当场变') }}</span>
+      <button class="btn primary" @click="start">{{ $t('打开实验') }}</button>
     </div>
-    <iframe v-else ref="frame" :src="src" :title="meta?.title || '虚拟实验'" :style="{ height: h + 'px' }" loading="lazy" @load="onLoad"></iframe>
+    <iframe v-else ref="frame" :src="src" :title="$td(meta?.title) || $t('虚拟实验')" :style="{ height: h + 'px' }" loading="lazy" @load="onLoad"></iframe>
     <figcaption class="small muted">
-      <span>{{ args.caption || meta?.caption || '' }}</span>
-      <a :href="src" target="_blank" rel="noopener">整页打开 ↗</a>
+      <span>{{ $td(args.caption || meta?.caption || '') }}</span>
+      <a :href="src" target="_blank" rel="noopener">{{ $t('整页打开 ↗') }}</a>
     </figcaption>
   </figure>
 </template>
 
 <script setup>
+import { isEn, t as $t } from '../../lib/i18n';
 // 实验页是课程《数字工厂实训》网页版里的（textbook/web-editions/dfactory/src/zh/labs/），副本在 web/public/labs/，
 // 由 factory/digital/tools/sync_help_labs.py 同步，tests/test_help.py 核对一字不差。同源嵌入，所以能替它点“预置”按钮、定成浅色。
 import { computed, onMounted, onUnmounted, ref } from 'vue';
@@ -25,7 +26,7 @@ const root = ref(null);
 const frame = ref(null);
 const on = ref(false);
 const meta = computed(() => LABS[props.args.id]);
-const src = computed(() => `/labs/${props.args.id}.html`);
+const src = computed(() => `/labs/${isEn() ? 'en/' : ''}${props.args.id}.html`);
 const h = computed(() => Math.min(1200, Math.max(320, parseInt(props.args.height, 10) || 640)));
 let io = null;
 

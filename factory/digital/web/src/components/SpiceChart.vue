@@ -17,12 +17,13 @@
       <g v-if="hi != null"><line class="cross" :x1="sx(xs[hi])" :x2="sx(xs[hi])" :y1="T" :y2="H - B" />
         <circle v-for="l in lines" :key="'c' + l.name" :cx="sx(xs[hi])" :cy="sy(l.v[hi])" r="3.5" :fill="l.color" /></g>
     </svg>
-    <div v-if="hi != null" class="tip small">{{ xlabel }} = {{ si(xs[hi]) }}　<span v-for="l in lines" :key="'v' + l.name"><i :style="{ background: l.color }"></i>{{ l.name }} = <b>{{ si(l.v[hi]) }}</b>　</span></div>
+    <div v-if="hi != null" class="tip small">{{ xlabel }} = {{ si(xs[hi]) }}  <span v-for="l in lines" :key="'v' + l.name"><i :style="{ background: l.color }"></i>{{ l.name }} = <b>{{ si(l.v[hi]) }}</b>  </span></div>
   </div>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue';
+import { t } from '../lib/i18n';
 
 const props = defineProps({
   title: String,
@@ -42,8 +43,8 @@ const xs = computed(() => {
   const v = props.plot.data[xname.value] || [];
   return props.plot.complex ? v.map((c) => c[0]) : v;
 });
-const xlabel = computed(() => (props.kind === 'ac' ? '频率 Hz' : props.kind === 'dc' ? '扫描 ' + xname.value : '时间 s'));
-const ylabel = computed(() => (props.kind === 'ac' ? (props.phase ? '相位 °' : '幅值 dB') : props.show.some((n) => n.startsWith('i(')) && props.show.every((n) => n.startsWith('i(')) ? 'A' : 'V / A'));
+const xlabel = computed(() => (props.kind === 'ac' ? t('频率 Hz') : props.kind === 'dc' ? t('扫描 ') + xname.value : t('时间 s')));
+const ylabel = computed(() => (props.kind === 'ac' ? (props.phase ? t('相位 °') : t('幅值 dB')) : props.show.some((n) => n.startsWith('i(')) && props.show.every((n) => n.startsWith('i(')) ? 'A' : 'V / A'));
 function yval(c) {
   if (!props.plot.complex) return c;
   const [re, im] = c;

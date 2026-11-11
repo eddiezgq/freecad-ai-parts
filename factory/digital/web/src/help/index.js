@@ -23,11 +23,17 @@ export function editionsFor(plantId) {
   return EDITIONS.filter((e) => !e.plant || e.plant === plantId);
 }
 
-export function chapterFiles(ed) {
+// 第 130 轮第四批（细则 D-13）：英文稿放在 help/<版本>/en/<同名>.md；英文界面有英文稿用英文稿，没有就用中文稿（页面顶上说明）
+const RAW_EN = import.meta.glob('./*/en/*.md', { query: '?raw', import: 'default', eager: true });
+
+export function chapterFiles(ed, en = false) {
   return Object.entries(RAW)
     .filter(([p]) => p.startsWith(`./${ed}/`))
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([p, src]) => ({ slug: p.split('/').pop().replace(/^\d+-/, '').replace(/\.md$/, ''), src }));
+    .map(([p, src]) => {
+      const e = en ? RAW_EN[p.replace(/\/([^/]+)$/, '/en/$1')] : null;
+      return { slug: p.split('/').pop().replace(/^\d+-/, '').replace(/\.md$/, ''), src: e || src, enMissing: en && !e };
+    });
 }
 
 // 首页全流程动画的七站（设计、ERP、MRP、MES、车间、质量、厂情中枢）各跳到哪一章。

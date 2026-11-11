@@ -7,7 +7,7 @@ import datetime as dt
 import json
 
 from factory import data as F
-from hub import kpi, mrp
+from hub import i18n, kpi, mrp
 from hub.privacy import is_me
 
 TASKS = [
@@ -151,7 +151,7 @@ class Teach:
             diff = abs(v - (c["variance_pct"] or 0))
             s = 12 if diff <= 2 else (6 if diff <= 5 else 0)
             reason = str(ans.get("reason", ""))
-            if any(k in reason for k in ("调整", "换刀", "准备", "setup", "装夹")):
+            if i18n.has_kw(reason, ("调整", "换刀", "准备", "setup", "装夹")):
                 s += 3
             self._save(user, "t6", s, {"answer": ans, "expected_pct": c["variance_pct"], "work_order": wo})
             return {"score": s, "of": 15, "feedback": "系统算得 {:+.1f}%。".format(c["variance_pct"]) if s < 15 else "完全正确。"}

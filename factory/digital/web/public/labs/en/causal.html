@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The causal chain of one breakdown</title>
+<style>
+/* 动画 3-1（第 29 轮）：磨床停机后因果链一层层亮起来（原因 → 设备 → 工序 → 工单 → 订单 → 客户），各订单晚几天、罚多少跟着算；
+   模型与 course/calc/ch03.py 的 run() 相同（磨床按班次日历一分钟一分钟往前推） */
+:root{--bg:#eef2f3;--sheet:#fafbfb;--ink:#1b2430;--muted:#5a6570;--rule:#d3dadd;--accent:#1d6b86;--amber:#c27a12;--red:#c0392b;--green:#1f8a4c;--violet:#7444b4;
+  --redsoft:#f7e1de;--greensoft:#ddefe4;--ambersoft:#fbeedd;--violetsoft:#efe6f7;--greysoft:#eef1f3;--dim:#e4e9ec;
+  --f-display:"Noto Serif SC","Songti SC",serif;--f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;--f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#11161b;--sheet:#182029;--ink:#e2e7ec;--muted:#9aa6b2;--rule:#2b3540;--accent:#6cc3dd;--amber:#f0b45a;--red:#ff7b6b;--green:#5fd08f;--violet:#b99af0;
+  --redsoft:#3a2224;--greensoft:#1d3328;--ambersoft:#352a19;--violetsoft:#2b2338;--greysoft:#222b34;--dim:#202830;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#11161b;--sheet:#182029;--ink:#e2e7ec;--muted:#9aa6b2;--rule:#2b3540;--accent:#6cc3dd;--amber:#f0b45a;--red:#ff7b6b;--green:#5fd08f;--violet:#b99af0;
+  --redsoft:#3a2224;--greensoft:#1d3328;--ambersoft:#352a19;--violetsoft:#2b2338;--greysoft:#222b34;--dim:#202830;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:1240px;margin:0 auto;padding:18px 16px 36px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;margin-bottom:12px}
+h1{font-family:var(--f-display);font-size:1.5rem;margin:0}
+.sub{color:var(--muted);font-size:.9rem}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:16px}
+@media (max-width:880px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:12px;min-width:0}
+.panel h3{margin:0 0 8px;font-size:.8rem;letter-spacing:.1em;color:var(--muted);font-weight:600}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--f-body);fill:var(--muted);font-size:12px}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.ctl{display:grid;grid-template-columns:auto minmax(0,1fr) 5.6em;gap:6px 10px;align-items:center}
+.ctl label{font-size:.88rem;color:var(--muted)}
+.ctl b{font-family:var(--f-mono);font-size:.9rem;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+button{font:inherit;font-size:.86rem;border:1px solid var(--rule);background:var(--bg);color:var(--ink);border-radius:5px;padding:4px 10px;cursor:pointer}
+button:hover{border-color:var(--accent)} button.primary{background:var(--accent);color:var(--sheet);border-color:var(--accent)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.kpi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.kpi div{border-top:1px solid var(--rule);padding-top:4px}
+.kpi b{display:block;font-family:var(--f-mono);font-size:1.05rem;font-variant-numeric:tabular-nums}
+.kpi small{color:var(--muted);font-size:.76rem;line-height:1.3;display:block}
+.kpi .hot b{color:var(--amber)}
+.note{font-size:.8rem;color:var(--muted);margin:8px 0 0}
+.tasks{margin:0;padding-left:1.3em;font-size:.9rem} .tasks li{margin:.25em 0}
+.formula{font-family:var(--f-mono);font-size:.84rem;background:var(--bg);border-radius:6px;padding:6px 8px;overflow-x:auto;white-space:nowrap}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:14px;height:10px;vertical-align:middle;margin-right:5px;border-radius:2px}
+.node rect{stroke-width:1.6}
+.node text.t1{fill:var(--ink);font-size:12px;font-weight:600}
+.node text.t2{font-size:11px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1 data-t="h1"></h1><span class="sub" data-t="sub"></span></header>
+<div class="grid">
+  <div class="col">
+    <div class="panel" id="chainPanel">
+      <h3 data-t="chainTitle"></h3>
+      <svg id="chain" viewBox="0 0 760 400" role="img"></svg>
+      <div class="row" style="margin-top:4px"><button class="primary" id="play" data-t="play"></button><button id="again" data-t="again"></button><span class="note" id="stepNote" style="margin:0"></span></div>
+    </div>
+    <div class="panel" id="queue">
+      <h3 data-t="qTitle"></h3>
+      <svg id="q" viewBox="0 0 760 150" role="img"></svg>
+      <div class="legend"><span><i style="background:var(--violet)"></i><span data-t="nF"></span></span><span><i style="background:var(--accent)"></i><span data-t="nR"></span></span><span><i style="background:var(--muted)"></i><span data-t="nH"></span></span><span><i style="background:var(--redsoft);border:1px solid var(--red)"></i><span data-t="lgDown"></span></span></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel">
+      <h3 data-t="params"></h3>
+      <div class="row" style="margin:0 0 10px"><span class="note" style="margin:0" data-t="presets"></span><button data-p="book" data-t="pBook"></button><button data-p="lab" data-t="pLab"></button><button data-p="long" data-t="pLong"></button><button data-p="rush" data-t="pRush"></button><button data-p="fri" data-t="pFri"></button></div>
+      <div class="ctl">
+        <label for="D" data-t="lD"></label><input id="D" type="range" min="0" max="60" step="1" value="24"><b id="Dv"></b>
+        <label for="day" data-t="lDay"></label><input id="day" type="range" min="0" max="4" step="1" value="0"><b id="dayv"></b>
+        <label for="hr" data-t="lHr"></label><input id="hr" type="range" min="8" max="16" step="1" value="10"><b id="hrv"></b>
+        <label for="rush" data-t="lRush"></label><input id="rush" type="range" min="0" max="1" step="1" value="0"><b id="rushv"></b>
+      </div>
+      <p class="formula" style="white-space:normal">L = |[t<sub>s</sub>, t<sub>s</sub>+D) ∩ <span data-t="shifts"></span>| · <span data-t="lateIf"></span></p>
+    </div>
+    <div class="panel">
+      <h3 data-t="results"></h3>
+      <div class="kpi">
+        <div class="hot"><b id="kL"></b><small data-t="kL"></small></div>
+        <div><b id="kWo"></b><small data-t="kWo"></small></div>
+        <div class="hot"><b id="kR"></b><small data-t="kR"></small></div>
+        <div><b id="kF"></b><small data-t="kF"></small></div>
+        <div><b id="kLate"></b><small data-t="kLate"></small></div>
+        <div class="hot"><b id="kPen"></b><small data-t="kPen"></small></div>
+      </div>
+      <p class="note" id="verdict"></p>
+    </div>
+    <div class="panel">
+      <h3 data-t="tasksTitle"></h3>
+      <ol class="tasks" id="tasks"></ol>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+(function () {
+  var zh = (document.documentElement.lang || '').indexOf('zh') === 0;
+  var TX = {
+    h1: ['动画 3-1　一次停机的因果链', 'Animation 3-1  The causal chain of one breakdown'],
+    sub: ['磨床一停，往上找原因、往下算影响：设备 → 工序 → 工单 → 订单 → 客户，一层层亮起来；拖动停机时长，看影响面怎样变', 'When the grinder stops, trace up to the cause and down to the impact: machine → operation → work orders → orders → customers light up layer by layer; drag the downtime and watch the impact change'],
+    chainTitle: ['因果链（每一层的数字由磨床的排程推演算出）', 'Causal chain (every number comes from simulating the grinder schedule)'],
+    qTitle: ['磨床 GRD-01 这一周：上行不停机，下行停机后', 'Grinder GRD-01 this week: top row without the stop, bottom row with it'],
+    play: ['▶ 播放', '▶ Play'], pause: ['❚❚ 暂停', '❚❚ Pause'], again: ['从头亮起', 'Replay'],
+    params: ['参数', 'Parameters'], presets: ['情景：', 'Scenario:'],
+    pBook: ['本章：停 24 h', 'Chapter: 24 h'], pLab: ['实验 15：停 20 h', 'Lab 15: 20 h'], pLong: ['停 40 h', '40 h down'], pRush: ['机器人插到最前', 'Robot order first'], pFri: ['周五 15:00 停 20 h', 'Fri 15:00, 20 h'],
+    lD: ['停机时长（h）', 'Downtime (h)'], lDay: ['停机那天', 'Day it stops'], lHr: ['停机时刻', 'Time it stops'], lRush: ['机器人订单排最前', 'Robot order first'],
+    shifts: ['班次', 'shifts'], lateIf: ['L − 余量 > 0 的订单才会晚', 'only orders with L − slack > 0 are late'],
+    results: ['结果', 'Results'],
+    kL: ['真正丢掉的生产时间 L（停机与班次重叠）', 'Production time really lost, L (downtime overlapping shifts)'],
+    kWo: ['被推迟的工单（每台减速器三根轴各一张）', 'Work orders pushed back (one per shaft type and order)'],
+    kR: ['机器人厂订单（急单）', 'Robot plant order (rush)'], kF: ['峰顶搅拌机订单', 'Summit Mixers order'],
+    kLate: ['晚交的订单', 'Orders delivered late'], kPen: ['违约金合计', 'Total penalties'],
+    tasksTitle: ['实验任务', 'Tasks'],
+    tasks: [['点“本章：停 24 h”，看链条亮完，读出 L、机器人订单晚几天、违约金，与教材 3.4 节核对。', 'Press “Chapter: 24 h”, let the chain light up, and read L, the robot order’s delay and the penalty; check against Section 3.4.'],
+            ['把停机时长从 0 拖到 60 h，记下机器人订单开始晚交的时长；为什么 7–22 h 之间结果几乎不变？', 'Drag the downtime from 0 to 60 h and note where the robot order starts to be late. Why does the result hardly change between 7 and 22 h?'],
+            ['点“周五 15:00 停 20 h”，和周一停 20 h 比，L 差多少？为什么？', 'Press “Fri 15:00, 20 h” and compare L with a 20-hour stop on Monday. Why the difference?'],
+            ['点“机器人插到最前”：哪张订单变红？违约金是多少？插单解决问题了吗？', 'Press “Robot order first”: which order turns red, and what is the penalty? Did reordering solve the problem?']],
+    layers: [['原因', 'Cause'], ['设备', 'Machine'], ['工序', 'Operation'], ['工单', 'Work orders'], ['订单', 'Orders'], ['客户', 'Customers']],
+    cause: ['主轴故障', 'Spindle fault'], cause2: ['等备件', 'awaiting parts'],
+    dev: ['磨床 GRD-01', 'GRD-01'], devOk: ['正常运行', 'running'], devDown: ['停 {d} h', 'down {d} h'],
+    op: ['磨外圆', 'Grinding'], opQ: ['排着 {n} 根轴', '{n} shafts queued'],
+    nF: ['峰顶', 'Summit'], nR: ['机器人厂', 'Robot plant'], nH: ['海港', 'Harbor'],
+    woT: ['{who} ×3 工单', '{who}: 3 WOs'], woDone: ['{t} 磨完', 'done {t}'],
+    soT: ['{who} {q} 台', '{who}, {q} units']
+    , sF: ['峰顶', 'Summit'], sR: ['机器人厂', 'Robot'], sH: ['海港', 'Harbor'], due: ['{d}交', 'due {d}'], dueH: ['12 个工作日后交', 'due in 12 days'],
+    onTime: ['按时', 'on time'], lateN: ['晚 {n} 天', '{n} days late'], lateN1: ['晚 1 天', '1 day late'],
+    cuF: ['峰顶搅拌机', 'Summit Mixers'], cuR: ['机器人厂', 'Robot plant'], cuH: ['海港起重', 'Harbor Crane'],
+    pen: ['违约金 ${v}', 'penalty ${v}'], unaffected: ['不受影响', 'not affected'], noPen: ['无违约金', 'no penalty'],
+    lgDown: ['停机', 'down'], base: ['不停机', 'no stop'], withStop: ['停机后', 'with stop'],
+    nextW: ['下', 'next '],
+    days: [['周一', '周二', '周三', '周四', '周五', '周六', '周日'], ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']],
+    yes: ['是', 'yes'], no: ['否', 'no'],
+    steps: [['停机！', 'Breakdown!'], ['往上找原因', 'Up to the cause'], ['往下：工序', 'Down: operation'], ['往下：工单', 'Down: work orders'], ['往下：订单', 'Down: orders'], ['往下：客户与违约金', 'Down: customers and penalties']],
+    vNone: ['停机没有丢掉生产时间（落在班外），哪张订单都不受影响', 'The stop loses no production time (it falls outside the shifts), so no order is affected'],
+    vOk: ['订单都被推迟了，但都在余量之内：被牵连不等于会晚', 'Every order is pushed back, but all within their slack: affected does not mean late'],
+    vLate: ['丢掉 {L} h，超过了余量：{list}', '{L} h lost, more than the slack: {list}']
+  };
+  function LN(n) { return n === 1 ? T_('lateN1') : T_('lateN').replace('{n}', n); }
+  function T_(k) { var v = TX[k]; return v ? v[zh ? 0 : 1] : k; }
+  function P_(x) { return x[zh ? 0 : 1]; }
+  document.querySelectorAll('[data-t]').forEach(function (e) { e.textContent = T_(e.dataset.t); });
+  document.getElementById('tasks').innerHTML = TX.tasks.map(function (x) { return '<li>' + P_(x) + '</li>'; }).join('');
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt = function (x, d) { return x.toLocaleString(zh ? 'zh-CN' : 'en-US', { minimumFractionDigits: d, maximumFractionDigits: d }); };
+
+  // ---------------- 模型（与 course/calc/ch03.py 的 run() 相同）
+  var SET = 39, SH0 = 480, SH1 = 1020, QTY = { F: 8, R: 20, H: 12 }, DUE = { F: 2, R: 3, H: 12 }, PEN = { F: 200, R: 200, H: 0 }, DOWN = 1;
+  function isWd(d) { return d % 7 < 5; }
+  function wdIndex(n) { var d = 0, k = 0; for (;;) { if (isWd(d)) { if (k === n) return d; k++; } d++; } }
+  function run(D, tb, order) {
+    var up = tb + D * 60, items = order.map(function (k) { return [k, QTY[k] * SET]; }), fin = {}, segs = [];
+    for (var d = Math.floor(tb / 1440); items.length && d < 60; d++) {
+      if (!isWd(d)) continue;
+      var s = d * 1440 + SH0, e = d * 1440 + SH1, t = Math.max(s, up, tb);
+      while (items.length && t < e) {
+        var take = Math.min(items[0][1], e - t);
+        segs.push([items[0][0], t, t + take]);
+        t += take; items[0][1] -= take;
+        if (items[0][1] <= 1e-9) fin[items.shift()[0]] = t;
+      }
+    }
+    return { fin: fin, up: up, segs: segs };
+  }
+  function delivery(fin) { var d = Math.floor(fin / 1440), k = DOWN; while (k) { d++; if (isWd(d)) k--; } return d; }
+  function late(fin, key, off) { var due = wdIndex(DUE[key] + (off || 0)), p = delivery(fin), n = 0; for (var x = due + 1; x <= p; x++) if (isWd(x)) n++; return n; }
+  function lost(tb, up) { var tot = 0; for (var d = Math.floor(tb / 1440); d <= Math.floor(up / 1440); d++) if (isWd(d)) tot += Math.max(0, Math.min(d * 1440 + SH1, up) - Math.max(d * 1440 + SH0, tb)); return tot / 60; }
+  function hm(t) { var d = Math.floor(t / 1440), m = Math.round(t - d * 1440); if (m === 1440) { d++; m = 0; } return TX.days[zh ? 0 : 1][d % 7] + ' ' + String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); }
+  function dayName(n) { var d = wdIndex(n); return (d >= 7 ? T_('nextW') : '') + TX.days[zh ? 0 : 1][d % 7]; }   // 交期跟着停机那天往后挪（周一停 = 原来的交期）
+
+  function v() { return { D: +$('D').value, day: +$('day').value, hr: +$('hr').value, rush: +$('rush').value }; }
+  function compute() {
+    var p = v(), tb = p.day * 1440 + p.hr * 60, order = p.rush ? ['R', 'F', 'H'] : ['F', 'R', 'H'];
+    var r = run(p.D, tb, order), b = run(0, tb, order), res = { p: p, tb: tb, r: r, b: b, order: order, L: lost(tb, r.up), late: {}, pen: 0, wo: 0 };
+    ['F', 'R', 'H'].forEach(function (k) { res.late[k] = late(r.fin[k], k, p.day); res.pen += res.late[k] * PEN[k]; if (r.fin[k] > b.fin[k] + 0.5) res.wo += 3; });
+    return res;
+  }
+
+  // ---------------- 因果链（SVG）
+  var XS = [54, 176, 300, 428, 558, 692], YS = { F: 110, R: 215, H: 320 }, W = 116, Hn = 62;
+  var phase = 0, playing = false, last = 0, CYCLE = 11;
+  function node(x, y, w, fill, stroke, t1, t2, t3, on) {
+    var op = on ? 1 : 0.18;
+    var s = '<g class="node" opacity="' + op + '"><rect x="' + (x - w / 2) + '" y="' + (y - Hn / 2) + '" width="' + w + '" height="' + Hn + '" rx="8" fill="' + fill + '" stroke="' + stroke + '"/>';
+    s += '<text class="t1" x="' + x + '" y="' + (y - (t3 ? 12 : 5)) + '" text-anchor="middle">' + t1 + '</text>';
+    if (t2) s += '<text class="t2" x="' + x + '" y="' + (y + (t3 ? 5 : 13)) + '" text-anchor="middle">' + t2 + '</text>';
+    if (t3) s += '<text class="t2" x="' + x + '" y="' + (y + 21) + '" text-anchor="middle" style="fill:' + stroke + ';font-weight:600">' + t3 + '</text>';
+    return s + '</g>';
+  }
+  function edge(x0, y0, x1, y1, col, frac) {
+    if (frac <= 0) return '';
+    var xe = x0 + (x1 - x0) * Math.min(1, frac), ye = y0 + (y1 - y0) * Math.min(1, frac);
+    return '<line x1="' + x0 + '" y1="' + y0 + '" x2="' + xe.toFixed(1) + '" y2="' + ye.toFixed(1) + '" stroke="' + col + '" stroke-width="2"' + (frac >= 1 ? ' marker-end="url(#ah)"' : '') + '/>';
+  }
+  function draw() {
+    var c = compute(), p = c.p, s = '';
+    var stage = phase;                      // 0–1 停机闪烁，之后每秒亮一层；8.5 秒后全亮停住
+    var lit = function (i) { return stage >= i + 0.6; };
+    var grow = function (i) { return Math.max(0, Math.min(1, (stage - (i + 0.1)) / 0.5)); };
+    s += '<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="var(--muted)"/></marker></defs>';
+    TX.layers.forEach(function (l, i) { s += '<text x="' + XS[i] + '" y="22" text-anchor="middle" style="font-weight:600;fill:' + (stage >= i + 0.6 || (i === 1 && stage > 0) ? 'var(--ink)' : 'var(--muted)') + '">' + P_(l) + '</text>'; });
+    var down = p.D > 0 && c.L > 0;
+    var flash = stage < 1 ? (Math.sin(stage * Math.PI * 6) > 0) : true;
+    // 原因（往上找）
+    s += edge(XS[0] + 46, 215, XS[1] - W / 2, 215, 'var(--violet)', grow(1));
+    s += node(XS[0], 215, 92, 'var(--violetsoft)', 'var(--violet)', T_('cause'), T_('cause2'), '', lit(1) && p.D > 0);
+    // 设备
+    s += node(XS[1], 215, W, p.D > 0 ? 'var(--redsoft)' : 'var(--greysoft)', p.D > 0 ? 'var(--red)' : 'var(--muted)', T_('dev'), p.D > 0 ? T_('devDown').replace('{d}', p.D) : T_('devOk'),
+      p.D > 0 ? 'L = ' + fmt(c.L, 1) + ' h' : '', stage > 0 && (flash || stage >= 1));
+    // 工序
+    var nq = (QTY.F + QTY.R + QTY.H) * 3;
+    s += edge(XS[1] + W / 2, 215, XS[2] - W / 2, 215, 'var(--red)', grow(2));
+    s += node(XS[2], 215, W, 'var(--ambersoft)', 'var(--amber)', T_('op'), T_('opQ').replace('{n}', nq), '', lit(2));
+    ['F', 'R', 'H'].forEach(function (k) {
+      var y = YS[k], lt = c.late[k], pushed = c.r.fin[k] > c.b.fin[k] + 0.5;
+      var col = lt ? 'var(--red)' : (pushed ? 'var(--green)' : 'var(--muted)'), soft = lt ? 'var(--redsoft)' : (pushed ? 'var(--greensoft)' : 'var(--greysoft)');
+      var who = T_('s' + k);
+      s += edge(XS[2] + W / 2, 215, XS[3] - W / 2, y, 'var(--amber)', grow(3));
+      s += node(XS[3], y, W, 'var(--ambersoft)', 'var(--amber)', T_('woT').replace('{who}', who), T_('woDone').replace('{t}', hm(c.r.fin[k])), '', lit(3));
+      s += edge(XS[3] + W / 2, y, XS[4] - W / 2 - 4, y, col, grow(4));
+      var dueTxt = k === 'H' ? T_('dueH') : T_('due').replace('{d}', dayName(DUE[k] + c.p.day));
+      s += node(XS[4], y, W + 8, soft, col, T_('soT').replace('{who}', who).replace('{q}', QTY[k]), dueTxt, lt ? LN(lt) : T_('onTime'), lit(4));
+      s += edge(XS[4] + (W + 8) / 2, y, XS[5] - 55, y, col, grow(5));
+      var pen = lt * PEN[k];
+      s += node(XS[5], y, 110, soft, col, T_('cu' + k), PEN[k] ? T_('pen').replace('{v}', fmt(pen, 0)) : T_('noPen'), lt ? '' : (pushed ? '' : T_('unaffected')), lit(5));
+    });
+    if (!down && stage > 1) s += '<text x="380" y="392" text-anchor="middle" style="fill:var(--green)">' + T_('vNone') + '</text>';
+    $('chain').innerHTML = s;
+    var si = Math.min(5, Math.floor(stage));
+    $('stepNote').textContent = P_(TX.steps[si]);
+    drawQueue(c);
+    kpis(c);
+  }
+  function drawQueue(c) {
+    var L = 70, R = 750, d0 = c.p.day, t1 = wdIndex(d0 + 4) * 1440 + SH1;   // 从停机那天起画 5 个工作日
+    var X = function (t) { // 只画班次：每天 9 小时等宽排开
+      var d = Math.floor(t / 1440), m = t - d * 1440, k = 0;
+      for (var i = d0; i < d; i++) if (isWd(i)) k++;
+      var f = isWd(d) ? Math.max(0, Math.min(1, (m - SH0) / (SH1 - SH0))) : 0;
+      return L + (R - L) * Math.min(5, k + f) / 5;
+    };
+    var s = '', i;
+    for (i = 0; i < 5; i++) {
+      var x0 = L + (R - L) * i / 5;
+      s += '<line x1="' + x0 + '" x2="' + x0 + '" y1="18" y2="128" stroke="var(--rule)"/><text x="' + (x0 + (R - L) / 10) + '" y="14" text-anchor="middle">' + dayName(d0 + i) + '</text>';
+    }
+    var colOf = { F: 'var(--violet)', R: 'var(--accent)', H: 'var(--muted)' };
+    [[c.b, 30, T_('base')], [c.r, 82, T_('withStop')]].forEach(function (row, j) {
+      s += '<text x="' + (L - 6) + '" y="' + (row[1] + 22) + '" text-anchor="end">' + row[2] + '</text>';
+      if (j === 1 && c.p.D > 0) s += '<rect x="' + X(c.tb) + '" y="' + row[1] + '" width="' + Math.max(0, X(Math.min(c.r.up, t1)) - X(c.tb)) + '" height="36" fill="var(--redsoft)" stroke="var(--red)"/>';
+      row[0].segs.forEach(function (g) {
+        if (g[1] >= t1) return;
+        s += '<rect x="' + X(g[1]).toFixed(1) + '" y="' + (row[1] + 4) + '" width="' + Math.max(0.5, X(Math.min(g[2], t1)) - X(g[1])).toFixed(1) + '" height="28" fill="' + colOf[g[0]] + '" opacity=".85"/>';
+      });
+    });
+    var dl = wdIndex(DUE.R + d0 - DOWN) * 1440 + SH1;
+    s += '<line x1="' + X(dl) + '" x2="' + X(dl) + '" y1="22" y2="128" stroke="var(--ink)" stroke-dasharray="4 3"/><text x="' + (X(dl) - 4) + '" y="142" text-anchor="end" style="fill:var(--ink)">' + (zh ? '机器人订单最晚磨完' : 'robot order latest finish') + '</text>';
+    $('q').innerHTML = s;
+  }
+  function kpis(c) {
+    var p = c.p;
+    $('kL').textContent = fmt(c.L, 1) + ' h';
+    $('kWo').textContent = c.wo;
+    var lr = c.late.R, lf = c.late.F;
+    $('kR').textContent = lr ? LN(lr) : T_('onTime');
+    $('kF').textContent = lf ? LN(lf) : T_('onTime');
+    $('kLate').textContent = ['F', 'R', 'H'].filter(function (k) { return c.late[k]; }).length;
+    $('kPen').textContent = '$' + fmt(c.pen, 0);
+    var list = ['F', 'R', 'H'].filter(function (k) { return c.late[k]; }).map(function (k) { return T_('n' + k) + ' ' + LN(c.late[k]); }).join(zh ? '，' : ', ');
+    $('verdict').textContent = c.L <= 0 ? T_('vNone') : (list ? T_('vLate').replace('{L}', fmt(c.L, 1)).replace('{list}', list) : T_('vOk'));
+    $('Dv').textContent = p.D + ' h';
+    $('dayv').textContent = TX.days[zh ? 0 : 1][p.day];
+    $('hrv').textContent = String(p.hr).padStart(2, '0') + ':00';
+    $('rushv').textContent = p.rush ? T_('yes') : T_('no');
+  }
+
+  function loop(now) {
+    if (!playing) return;
+    var dt = Math.min(0.1, (now - (last || now)) / 1000); last = now;
+    phase += dt * 1.1;
+    if (phase > CYCLE) phase = 0;
+    draw();
+    requestAnimationFrame(loop);
+  }
+  function setPlay(on) { playing = on; $('play').textContent = T_(on ? 'pause' : 'play'); last = 0; if (on) requestAnimationFrame(loop); else { if (phase < 6) phase = 8; draw(); } }
+  $('play').onclick = function () { setPlay(!playing); };
+  $('again').onclick = function () { phase = 0; if (!playing) setPlay(true); else draw(); };
+  var PRE = { book: [24, 0, 10, 0], lab: [20, 0, 10, 0], long: [40, 0, 10, 0], rush: [24, 0, 10, 1], fri: [20, 4, 15, 0] };
+  document.querySelectorAll('[data-p]').forEach(function (b) {
+    b.onclick = function () { var q = PRE[b.dataset.p]; ['D', 'day', 'hr', 'rush'].forEach(function (k, i) { $(k).value = q[i]; }); phase = playing ? 0 : 8; draw(); };
+  });
+  ['D', 'day', 'hr', 'rush'].forEach(function (k) { $(k).addEventListener('input', function () { if (!playing) phase = 8; draw(); }); });
+  phase = 8; draw();
+  window.__lab = { play: setPlay, draw: draw };   // 课件片段用：暂停/播放
+  if (location.protocol === 'about:' || /[?&]auto/.test(location.search)) { phase = 0; setPlay(true); }
+})();
+</script>
+</body>
+</html>

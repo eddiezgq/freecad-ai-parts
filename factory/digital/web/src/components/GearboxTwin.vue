@@ -1,12 +1,13 @@
 <template>
   <!-- WQR-105 孪生的三维示意：三根轴、四个齿轮（按分度圆）、六个轴承、箱体；部件按健康度着色，鼠标停上去看数 -->
   <div ref="box" class="gt" @mousemove="hover" @mouseleave="tip = null">
-    <div v-if="tip" class="tip small" :style="{ left: tip.x + 'px', top: tip.y + 'px' }"><b>{{ tip.name }}</b><div>{{ tip.text }}</div></div>
-    <div class="legend small"><span><i style="background:#2E9E5B"></i>正常</span><span><i style="background:#E0A100"></i>注意</span><span><i style="background:#D64541"></i>报警 / 快到期</span></div>
+    <div v-if="tip" class="tip small" :style="{ left: tip.x + 'px', top: tip.y + 'px' }"><b>{{ $td(tip.name) }}</b><div>{{ $td(tip.text) }}</div></div>
+    <div class="legend small"><span><i style="background:#2E9E5B"></i>{{ $t('正常') }}</span><span><i style="background:#E0A100"></i>{{ $t('注意') }}</span><span><i style="background:#D64541"></i>{{ $t('报警 / 快到期') }}</span></div>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -45,7 +46,7 @@ function build() {
   const dl = new THREE.DirectionalLight(0xffffff, 1.5); dl.position.set(3, 4, 5); scene.add(dl);
   // 轴
   const sh = cyl(15, 230, C[level(props.shaft.used || 0)], X.out, 30);
-  sh.userData = { name: '输出轴 SH-301（疲劳）', text: `累积损伤 ${pct(props.shaft.used || 0)}；1 = 预计出现疲劳裂纹` };
+  sh.userData = { name: $t('输出轴 SH-301（疲劳）'), text: $t('累积损伤 {a}；1 = 预计出现疲劳裂纹', { a: pct(props.shaft.used || 0) }) };
   pickable.push(sh);
   cyl(12, 150, C.steel, X.in, 60); cyl(15, 140, C.steel, X.mid, 60);
   // 齿轮（分度圆）
@@ -58,7 +59,7 @@ function build() {
     const t = new THREE.Mesh(new THREE.TorusGeometry(d / 2 * S * 0.75, d / 2 * S * 0.28, 16, 48),
       new THREE.MeshStandardMaterial({ color: C[lv], emissive: lv === 'bad' ? 0x551111 : 0x000000, roughness: 0.4 }));
     t.position.set(X[s] * S, 0, z * S);
-    t.userData = { name: `${b.name}（${b.model}）`, text: `已用 L10 寿命 ${pct(b.used)}${b.alarm ? '；振动报警' : ''}` };
+    t.userData = { name: `${b.name}（${b.model}）`, text: $t('已用 L10 寿命 {a}{b}', { a: pct(b.used), b: b.alarm ? $t('；振动报警') : '' }) };   // i18n-ok 只剩标点
     scene.add(t); pickable.push(t);
   }
   // 箱体（线框 + 半透明），按油温 / 散热着色
@@ -67,7 +68,7 @@ function build() {
   const hm = new THREE.Mesh(hb, new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.07, depthWrite: false }));
   const cx = (X.out + X.in) / 2 * S;
   hm.position.set(cx, 0, 60 * S);
-  hm.userData = { name: '箱体与润滑油', text: props.housing.text };
+  hm.userData = { name: $t('箱体与润滑油'), text: props.housing.text };
   scene.add(hm); pickable.push(hm);
   const edges = new THREE.LineSegments(new THREE.EdgesGeometry(hb), new THREE.LineBasicMaterial({ color: col }));
   edges.position.copy(hm.position); scene.add(edges);

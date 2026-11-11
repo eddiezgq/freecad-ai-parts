@@ -2,22 +2,22 @@
   <!-- 第 8 轮 Q2、Q3：网页看图——转动、剖切、测距、两版对比、在模型上点一处写批注 -->
   <div class="mv">
     <div class="tools">
-      <div class="seg" role="group" aria-label="显示">
-        <button v-for="o in viewOpts" :key="o.k" type="button" :class="{ on: view === o.k }" :disabled="o.dis" @click="view = o.k">{{ o.label }}</button>
+      <div class="seg" role="group" :aria-label="t('显示')">
+        <button v-for="o in viewOpts" :key="o.k" type="button" :class="{ on: view === o.k }" :disabled="o.dis" @click="view = o.k">{{ t(o.label) }}</button>
       </div>
-      <label class="small">剖切
-        <select v-model="clipAxis"><option value="">不剖</option><option value="x">X</option><option value="y">Y</option><option value="z">Z</option></select>
+      <label class="small">{{ t('剖切') }}
+        <select v-model="clipAxis"><option value="">{{ t('不剖') }}</option><option value="x">X</option><option value="y">Y</option><option value="z">Z</option></select>
       </label>
-      <input v-if="clipAxis" v-model.number="clipPos" type="range" min="0" max="1" step="0.005" aria-label="剖切位置">
-      <div class="seg" role="group" aria-label="点击做什么">
-        <button type="button" :class="{ on: tool === 'orbit' }" @click="setTool('orbit')">转动</button>
-        <button type="button" :class="{ on: tool === 'measure' }" @click="setTool('measure')">测距</button>
-        <button v-if="canPin" type="button" :class="{ on: tool === 'pin' }" @click="setTool('pin')">点处批注</button>
+      <input v-if="clipAxis" v-model.number="clipPos" type="range" min="0" max="1" step="0.005" :aria-label="t('剖切位置')">
+      <div class="seg" role="group" :aria-label="t('点击做什么')">
+        <button type="button" :class="{ on: tool === 'orbit' }" @click="setTool('orbit')">{{ t('转动') }}</button>
+        <button type="button" :class="{ on: tool === 'measure' }" @click="setTool('measure')">{{ t('测距') }}</button>
+        <button v-if="canPin" type="button" :class="{ on: tool === 'pin' }" @click="setTool('pin')">{{ t('点处批注') }}</button>
       </div>
     </div>
     <div ref="box" class="stage" :class="{ pick: tool !== 'orbit' }" @pointerdown="down" @pointerup="up">
       <div v-for="p in pinLabels" :key="p.n" class="pinlab" :class="{ done: p.resolved }" :style="{ left: p.x + 'px', top: p.y + 'px' }">{{ p.n }}</div>
-      <div v-if="legend" class="legend small"><i class="r"></i>新增或改动 <i class="b"></i>去掉的 <i class="g"></i>没变</div>
+      <div v-if="legend" class="legend small"><i class="r"></i>{{ t('新增或改动') }} <i class="b"></i>{{ t('去掉的') }} <i class="g"></i>{{ t('没变') }}</div>
     </div>
     <div class="note small muted">{{ note }}</div>
   </div>
@@ -25,6 +25,7 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { t, tk } from '../lib/i18n';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -42,12 +43,12 @@ const view = ref('new');
 const clipAxis = ref('');
 const clipPos = ref(0.5);
 const tool = ref('orbit');
-const note = ref('正在读取模型…');
+const note = ref(t('正在读取模型…'));
 const pinLabels = ref([]);
 const viewOpts = computed(() => [
-  { k: 'new', label: '本版' },
-  { k: 'diff', label: '差异着色', dis: !props.diffUrl },
-  { k: 'overlay', label: '叠加现行版', dis: !props.baseUrl },
+  { k: 'new', label: tk('本版') },
+  { k: 'diff', label: tk('差异着色'), dis: !props.diffUrl },
+  { k: 'overlay', label: tk('叠加现行版'), dis: !props.baseUrl },
 ]);
 const legend = computed(() => view.value === 'diff');
 
@@ -75,7 +76,7 @@ function load(key, url, my) {
       models[key] = m;
       root.add(m);
       res(m);
-    }, undefined, () => { note.value = '模型读取失败'; res(null); });
+    }, undefined, () => { note.value = t('模型读取失败'); res(null); });
   });
 }
 
@@ -113,10 +114,10 @@ function up(ev) {
   if (!p) return;
   if (tool.value === 'pin') { emit('pick', { x: +p.x.toFixed(3), y: +p.y.toFixed(3), z: +p.z.toFixed(3) }); return; }
   measurePts.push(p.clone());
-  if (measurePts.length === 1) { note.value = '已选第一点，再点第二点'; drawMeasure(); return; }
+  if (measurePts.length === 1) { note.value = t('已选第一点，再点第二点'); drawMeasure(); return; }
   const d = measurePts[0].distanceTo(measurePts[1]);
   drawMeasure();
-  note.value = `两点距离 ${d.toFixed(2)} mm（ΔX ${Math.abs(measurePts[1].x - measurePts[0].x).toFixed(2)}，ΔY ${Math.abs(measurePts[1].y - measurePts[0].y).toFixed(2)}，ΔZ ${Math.abs(measurePts[1].z - measurePts[0].z).toFixed(2)}）· 再点开始新的测量`;
+  note.value = t('两点距离 {d} mm（ΔX {x}，ΔY {y}，ΔZ {z}）· 再点开始新的测量', { d: d.toFixed(2), x: Math.abs(measurePts[1].x - measurePts[0].x).toFixed(2), y: Math.abs(measurePts[1].y - measurePts[0].y).toFixed(2), z: Math.abs(measurePts[1].z - measurePts[0].z).toFixed(2) });
   measurePts = [];
 }
 function drawMeasure() {
@@ -129,7 +130,7 @@ function drawMeasure() {
   if (pts.length === 2) g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0xd64541 })));
   measureObj = g; scene.add(g);
 }
-function setTool(t) { tool.value = t; measurePts = []; drawMeasure(); note.value = { orbit: '拖动旋转 · 滚轮缩放 · 右键平移', measure: '点模型上两点量距离（毫米）', pin: '点模型上要批注的位置' }[t]; }
+function setTool(k) { tool.value = k; measurePts = []; drawMeasure(); note.value = t({ orbit: tk('拖动旋转 · 滚轮缩放 · 右键平移'), measure: tk('点模型上两点量距离（毫米）'), pin: tk('点模型上要批注的位置') }[k]); }
 
 // ---- 批注编号跟着模型走
 let pinObjs = null;
@@ -160,7 +161,7 @@ function fit() {
   camera.position.copy(c).add(new THREE.Vector3(r * 0.85, r * 0.6, r * 1.1));
   controls.target.copy(c);
   const s = bbox.getSize(new THREE.Vector3());
-  note.value = `拖动旋转 · 滚轮缩放 · 外形 ${s.x.toFixed(1)} × ${s.y.toFixed(1)} × ${s.z.toFixed(1)} mm`;
+  note.value = t('拖动旋转 · 滚轮缩放 · 外形 {x} × {y} × {z} mm', { x: s.x.toFixed(1), y: s.y.toFixed(1), z: s.z.toFixed(1) });
 }
 function resize() {
   if (!renderer) return;

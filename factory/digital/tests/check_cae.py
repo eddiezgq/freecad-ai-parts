@@ -158,7 +158,13 @@ while time.time() - t0 < 120:
         break
     time.sleep(3)
 assert len(fl["units"]) >= 12, len(fl["units"])
-brg = next(u for u in fl["units"] if any(a["kind"] == "bearing" for a in u["alerts"]))
+brg = next((u for u in fl["units"] if any(a["kind"] == "bearing" for a in u["alerts"])), None)
+if brg is None:                         # 诊断（第 134 轮；11-07 运行 42359205106 在这里 StopIteration）：各台的报警、维修记录
+    for u in fl["units"]:
+        print("诊断 {} {} 健康 {}：报警 {}".format(u["serial"], u["site"], u["health"], [(a["kind"], a["ordered"]) for a in u["alerts"]]))
+        d = call("GET", "/api/twin/units/" + u["serial"], token=tok)
+        print("    事件 {}".format([(e["day"], e["kind"], e["status"]) for e in d["events"] if e["kind"] in ("bearing", "order")][-6:]))
+    raise SystemExit("12 台情景设备里没有带轴承报警的（应有 1 台）")
 d = call("GET", "/api/twin/units/" + brg["serial"], token=tok)
 ev = next(e for e in d["events"] if e["kind"] == "bearing" and e["status"] == "open")
 r = call("POST", "/api/twin/units/{}/order".format(brg["serial"]), {"action": ev["detail"]["action"]["kind"], "event_id": ev["id"]}, token=tok)

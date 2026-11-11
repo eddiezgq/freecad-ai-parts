@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """第 113 轮：KiCad 插件的本机结果页（不要 KiCad）：只认一次性口令；定位、重新检查走 POST；出错写在页面上。"""
 
+import dataclasses
 import json
 import os
 import sys
@@ -9,6 +10,7 @@ import urllib.request
 from types import SimpleNamespace
 
 from conftest import EDA, EXAMPLE_CAP
+from shapely import affinity
 
 sys.path.insert(0, os.path.join(EDA, "kicad-plugin"))
 
@@ -20,6 +22,11 @@ def _session():
     from conftest import DESIGNS
 
     model = model_io.load(os.path.join(DESIGNS, "drv-joint", "report", "board-model.json.gz"))
+    # 第 129 轮以后 A 版布局约束全部通过；这里把 C27 挪远 10 mm，造一条“不通过”来测定位
+    model.features = [
+        dataclasses.replace(f, geom=affinity.translate(f.geom, -10, 0)) if f.ref == "C27" else f
+        for f in model.features
+    ]
     res = app.run_checks(model, os.path.join(DESIGNS, "drv-joint", "design.yaml"), EXAMPLE_CAP)
     calls = []
 

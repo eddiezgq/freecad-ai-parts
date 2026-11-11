@@ -1,53 +1,53 @@
 <template>
   <div class="page">
     <div class="page-title">
-      <h1><router-link to="/ont" class="back">厂情中枢</router-link> / 规则目录</h1>
-      <span class="muted">{{ live }} 条在跑、{{ waiting }} 条待数据<template v-if="data?.last_round"> · 上一轮检测用时 {{ data.last_round.ms }} 毫秒</template>
-        · {{ data?.can_edit ? '厂长（教师）可以改阈值和开关，每次改动都有记录' : '阈值和开关由厂长（教师）调整' }}</span>
+      <h1><router-link to="/ont" class="back">{{ $t('厂情中枢') }}</router-link> {{ $t('/ 规则目录') }}</h1>
+      <span class="muted">{{ $t('{a} 条在跑、{b} 条待数据', { a: live, b: waiting }) }}<template v-if="data?.last_round"> {{ $t('· 上一轮检测用时 {a} 毫秒', { a: $td(data.last_round.ms) }) }}</template>
+        · {{ data?.can_edit ? $t('厂长（教师）可以改阈值和开关，每次改动都有记录') : $t('阈值和开关由厂长（教师）调整') }}</span>
     </div>
     <div v-if="err" class="err">{{ err }}</div>
     <section v-if="data?.calibration?.length" class="card calib">
-      <div class="card-head"><h2>校准提示（来自复盘）</h2><span class="small muted">只提示，不自动改；改标准工时请在工艺规程里改</span></div>
-      <ul class="small"><li v-for="(c, i) in data.calibration" :key="i">{{ c.text }}<span class="muted">（{{ c.retros.join('、') }}）</span></li></ul>
+      <div class="card-head"><h2>{{ $t('校准提示（来自复盘）') }}</h2><span class="small muted">{{ $t('只提示，不自动改；改标准工时请在工艺规程里改') }}</span></div>
+      <ul class="small"><li v-for="(c, i) in data.calibration" :key="i">{{ $td(c.text) }}<span class="muted">{{ $t('（{a}）', { a: c.retros.join($t('、')) }) }}</span></li></ul>
     </section>
     <section v-for="g in groups" :key="g.domain" class="card">
-      <div class="card-head"><h2>{{ g.label }}</h2></div>
+      <div class="card-head"><h2>{{ $td(g.label) }}</h2></div>
       <table class="t">
-        <thead><tr><th>编号</th><th>规则</th><th>严重度</th><th>负责</th><th>阈值</th><th class="num">开过</th><th class="num">开着</th><th>最近</th><th>开关</th><th></th></tr></thead>
+        <thead><tr><th>{{ $t('编号') }}</th><th>{{ $t('规则') }}</th><th>{{ $t('严重度') }}</th><th>{{ $t('负责') }}</th><th>{{ $t('阈值') }}</th><th class="num">{{ $t('开过') }}</th><th class="num">{{ $t('开着') }}</th><th>{{ $t('最近') }}</th><th>{{ $t('开关') }}</th><th></th></tr></thead>
         <tbody>
           <template v-for="r in g.rules" :key="r.id">
             <tr :class="{ off: !r.enabled }">
-              <td class="mono">{{ r.id }}</td>
-              <td><b>{{ r.name }}</b><div class="small muted">{{ r.desc }}</div>
-                <div v-if="r.error" class="small bad">出错：{{ r.error }}</div></td>
-              <td><span class="sev" :class="r.severity">{{ LV[r.severity] }}</span></td>
-              <td class="small">{{ r.role.map((x) => ROLES[x] || x).join('、') }}</td>
+              <td class="mono">{{ $td(r.id) }}</td>
+              <td><b>{{ $td(r.name) }}</b><div class="small muted">{{ $td(r.desc) }}</div>
+                <div v-if="r.error" class="small bad">{{ $t('出错：{a}', { a: $td(r.error) }) }}</div></td>
+              <td><span class="sev" :class="r.severity">{{ $td(LV[r.severity]) }}</span></td>
+              <td class="small">{{ r.role.map((x) => ROLES[x] || x).join($t('、')) }}</td>
               <td class="small">
-                <template v-if="r.waiting"><span class="pill mute">待数据</span></template>
+                <template v-if="r.waiting"><span class="pill mute">{{ $t('待数据') }}</span></template>
                 <template v-else>
                   <span v-for="(v, k) in r.params" :key="k" class="param">{{ k }}
                     <input v-if="data.can_edit && !Array.isArray(v)" v-model="edits[r.id][k]" :aria-label="r.id + ' ' + k" class="mono">
-                    <b v-else class="mono">{{ Array.isArray(v) ? v.join('、') : v }}</b>
-                    <span v-if="v !== r.defaults[k]" class="muted">（默认 {{ r.defaults[k] }}）</span>
+                    <b v-else class="mono">{{ Array.isArray(v) ? v.join($t('、')) : v }}</b>
+                    <span v-if="v !== r.defaults[k]" class="muted">{{ $t('（默认 {a}）', { a: $td(r.defaults[k]) }) }}</span>
                   </span>
                   <span v-if="!Object.keys(r.params).length" class="muted">—</span>
                 </template>
               </td>
-              <td class="num">{{ r.fired }}</td><td class="num">{{ r.open }}</td>
+              <td class="num">{{ $td(r.fired) }}</td><td class="num">{{ $td(r.open) }}</td>
               <td class="small">{{ r.last_fired ? fmtTs(r.last_fired) : '—' }}</td>
               <td><label v-if="!r.waiting" class="small"><input type="checkbox" :checked="r.enabled" :disabled="!data.can_edit"
-                @change="save(r, { enabled: $event.target.checked })"> 启用</label></td>
+                @change="save(r, { enabled: $event.target.checked })"> {{ $t('启用') }}</label></td>
               <td class="acts">
-                <button v-if="data.can_edit && changed(r)" class="btn sm primary" @click="save(r, { params: editable(r) })">保存</button>
-                <button v-if="!r.waiting" class="btn sm ghost" :disabled="bt[r.id] === 'busy'" @click="backtest(r)">{{ bt[r.id] === 'busy' ? '检验中…' : '用历史检验' }}</button>
+                <button v-if="data.can_edit && changed(r)" class="btn sm primary" @click="save(r, { params: editable(r) })">{{ $t('保存') }}</button>
+                <button v-if="!r.waiting" class="btn sm ghost" :disabled="bt[r.id] === 'busy'" @click="backtest(r)">{{ bt[r.id] === 'busy' ? $t('检验中…') : $t('用历史检验') }}</button>
               </td>
             </tr>
             <tr v-if="bt[r.id] && bt[r.id] !== 'busy'" class="btrow">
               <td></td><td colspan="9" class="small">
-                过去 7 天每 6 小时按当时的数据跑一次{{ changed(r) ? '（用上面改过的阈值）' : '' }}：共报 <b>{{ bt[r.id].total }}</b> 次。
+                {{ $t('过去 7 天每 6 小时按当时的数据跑一次{a}：共报', { a: changed(r) ? $t('（用上面改过的阈值）') : '' }) }} <b>{{ $td(bt[r.id].total) }}</b> {{ $t('次。') }}
                 <span class="bars"><span v-for="p in bt[r.id].points" :key="p.at" class="bar" :style="{ height: Math.min(24, 3 + p.count * 6) + 'px' }"
-                  :class="{ on: p.count }" :title="fmtTs(p.at) + '：' + p.count + ' 次' + (p.items.length ? '（' + p.items.map((x) => x.title).join('；') + '）' : '')"></span></span>
-                <div class="muted">{{ bt[r.id].note }}</div>
+                  :class="{ on: p.count }" :title="fmtTs(p.at) + $t('：') + p.count + $t(' 次') + (p.items.length ? $t('（') + p.items.map((x) => x.title).join($t('；')) + $t('）') : '')"></span></span>
+                <div class="muted">{{ $td(bt[r.id].note) }}</div>
               </td>
             </tr>
           </template>
@@ -55,21 +55,22 @@
       </table>
     </section>
     <section v-if="data?.changes?.length" class="card">
-      <div class="card-head"><h2>改动记录</h2></div>
+      <div class="card-head"><h2>{{ $t('改动记录') }}</h2></div>
       <table class="t small"><tbody><tr v-for="(c, i) in data.changes" :key="i">
-        <td class="mono">{{ fmtTs(c.ts) }}</td><td>{{ c.who }}</td><td class="mono">{{ c.rule }}</td><td>{{ c.field }}</td>
+        <td class="mono">{{ fmtTs(c.ts) }}</td><td>{{ $td(c.who) }}</td><td class="mono">{{ $td(c.rule) }}</td><td>{{ $td(c.field) }}</td>
         <td class="mono">{{ JSON.stringify(c.old) }} → {{ JSON.stringify(c.new) }}</td></tr></tbody></table>
     </section>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { get, post } from '../lib/api';
 import { fmtTs } from '../lib/ont';
 
-const ROLES = { planner: '计划员', engineer: '工艺员', operator: '操作工', quality: '质检员', manager: '厂长', sales: '销售' };
-const LV = { info: '提示', warn: '警告', critical: '严重' };
+const ROLES = { planner: $t('计划员'), engineer: $t('工艺员'), operator: $t('操作工'), quality: $t('质检员'), manager: $t('厂长'), sales: $t('销售') };
+const LV = { info: $t('提示'), warn: $t('警告'), critical: $t('严重') };
 const data = ref(null);
 const err = ref('');
 const edits = reactive({});

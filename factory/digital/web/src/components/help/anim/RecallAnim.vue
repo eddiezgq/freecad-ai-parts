@@ -1,11 +1,11 @@
 <template>
   <figure class="rc">
     <div class="ctl">
-      <span class="small">方案：</span>
-      <button v-for="o in OPTS" :key="o.k" class="btn sm" :class="{ primary: plan === o.k }" :aria-pressed="plan === o.k" @click="choose(o.k)">{{ o.k }} {{ o.t }}</button>
-      <button class="btn sm" @click="restart">重新追一遍</button>
+      <span class="small">{{ $t('方案：') }}</span>
+      <button v-for="o in OPTS" :key="o.k" class="btn sm" :class="{ primary: plan === o.k }" :aria-pressed="plan === o.k" @click="choose(o.k)">{{ $td(o.k) }} {{ $td(o.t) }}</button>
+      <button class="btn sm" @click="restart">{{ $t('重新追一遍') }}</button>
     </div>
-    <svg viewBox="0 0 760 250" role="img" :aria-label="`追溯演示：从投诉的设备追到同一片砂轮磨的 ${UNITS.length} 根轴，方案 ${plan} 上门 ${visited} 台`">
+    <svg viewBox="0 0 760 250" role="img" :aria-label="`追溯演示：从投诉的设备追到同一片砂轮磨的 ${UNITS.length} 根轴，方案 ${plan} 上门 ${visited} 台`"><!-- i18n-ok 读屏标签 / 数据比较 -->
       <!-- 追溯链 -->
       <g v-for="(n, i) in CHAIN" :key="n" :class="['node', { lit: step > i }]">
         <rect :x="18 + i * 122" y="14" width="110" height="40" rx="8" />
@@ -17,45 +17,45 @@
         :style="{ transitionDelay: (i * 0.08) + 's' }">
         <line :x1="624" y1="54" :x2="ux(i) + 30" y2="100" class="fan" />
         <rect :x="ux(i)" y="100" width="60" height="42" rx="6" />
-        <text :x="ux(i) + 30" y="118" class="sn">{{ u.sn }}</text>
-        <text :x="ux(i) + 30" y="134" class="hp">{{ u.bad ? '投诉' : u.risk ? '高风险' : '健康' }}</text>
-        <text :x="ux(i) + 30" y="162" class="cu">{{ u.cust }}</text>
-        <text v-if="goes(u)" :x="ux(i) + 30" y="186" class="van">🔧 上门</text>
+        <text :x="ux(i) + 30" y="118" class="sn">{{ $td(u.sn) }}</text>
+        <text :x="ux(i) + 30" y="134" class="hp">{{ u.bad ? $t('投诉') : u.risk ? $t('高风险') : $t('健康') }}</text>
+        <text :x="ux(i) + 30" y="162" class="cu">{{ $td(u.cust) }}</text>
+        <text v-if="goes(u)" :x="ux(i) + 30" y="186" class="van">{{ $t('🔧 上门') }}</text>
       </g>
       <text x="380" y="226" class="sum">{{ summary }}</text>
     </svg>
-    <figcaption class="small muted">示例。投诉的设备有序列号，就能一路追到出厂数据：它的输出轴是哪一片砂轮磨的，同一片砂轮还磨了哪些轴、装进了哪些客户的设备——这就是<b>排查范围</b>。
-      再选方案：A 只修投诉的那台；B 加上范围里的高风险设备；C 范围里全部上门。</figcaption>
+    <figcaption class="small muted">{{ $t('示例。投诉的设备有序列号，就能一路追到出厂数据：它的输出轴是哪一片砂轮磨的，同一片砂轮还磨了哪些轴、装进了哪些客户的设备——这就是') }}<b>{{ $t('排查范围') }}</b>{{ $t('。再选方案：A 只修投诉的那台；B 加上范围里的高风险设备；C 范围里全部上门。') }}</figcaption>
   </figure>
 </template>
 
 <script setup>
+import { t as $t } from '../../../lib/i18n';
 // 投诉追溯与召回范围（第 30 轮 §八 8-2，客户与服务）：追溯链一环环亮，同批的设备摊开，选 A/B/C 看上门哪几台。
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
-const CHAIN = ['投诉的设备', '出厂总成', '输出轴', '磨它的砂轮', '同一片砂轮'];
+const CHAIN = [$t('投诉的设备'), $t('出厂总成'), $t('输出轴'), $t('磨它的砂轮'), $t('同一片砂轮')];
 const UNITS = [
-  { sn: 'U-0312', cust: '港口客户', bad: true },
-  { sn: 'U-0315', cust: '港口客户', risk: true },
-  { sn: 'U-0318', cust: '汽配厂' },
-  { sn: 'U-0321', cust: '汽配厂', risk: true },
-  { sn: 'U-0324', cust: '机器人厂' },
-  { sn: 'U-0327', cust: '机器人厂' },
-  { sn: 'U-0330', cust: '物流公司', risk: true },
-  { sn: 'U-0333', cust: '物流公司' },
-  { sn: 'U-0336', cust: '机器人厂' },
+  { sn: 'U-0312', cust: $t('港口客户'), bad: true },
+  { sn: 'U-0315', cust: $t('港口客户'), risk: true },
+  { sn: 'U-0318', cust: $t('汽配厂') },
+  { sn: 'U-0321', cust: $t('汽配厂'), risk: true },
+  { sn: 'U-0324', cust: $t('机器人厂') },
+  { sn: 'U-0327', cust: $t('机器人厂') },
+  { sn: 'U-0330', cust: $t('物流公司'), risk: true },
+  { sn: 'U-0333', cust: $t('物流公司') },
+  { sn: 'U-0336', cust: $t('机器人厂') },
 ];
-const OPTS = [{ k: 'A', t: '只修投诉的' }, { k: 'B', t: '修 + 高风险点检' }, { k: 'C', t: '整批排查' }];
+const OPTS = [{ k: 'A', t: $t('只修投诉的') }, { k: 'B', t: $t('修 + 高风险点检') }, { k: 'C', t: $t('整批排查') }];
 const step = ref(0);
 const plan = ref('B');
 const ux = (i) => 18 + i * 82;
 const goes = (u) => step.value > CHAIN.length && (u.bad || (plan.value !== 'A' && (u.risk || plan.value === 'C')));
 const visited = computed(() => UNITS.filter(goes).length);
 const summary = computed(() => {
-  if (step.value <= CHAIN.length) return '沿着出厂数据往回追……';
+  if (step.value <= CHAIN.length) return $t('沿着出厂数据往回追……');
   const custs = new Set(UNITS.filter(goes).map((u) => u.cust)).size;
   const missed = UNITS.filter((u) => u.risk && !goes(u)).length;
-  return `方案 ${plan.value}：上门 ${visited.value} 台，涉及 ${custs} 个客户` + (missed ? `，漏掉 ${missed} 台高风险设备` : '，不漏高风险设备');
+  return $t('方案 {a}：上门 {b} 台，涉及 {c} 个客户', { a: plan.value, b: visited.value, c: custs }) + (missed ? $t('，漏掉 {a} 台高风险设备', { a: missed }) : $t('，不漏高风险设备'));
 });
 let timer;
 function restart() {

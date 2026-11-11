@@ -5,6 +5,7 @@
 在指挥台比较“现在保养 / 下班后保养 / 不做”，选一个说明理由（比对模式）→ 起草保养工单，老师批准，到时间挂牌上锁 → 维修工做完，验收解锁 →
 一段时间（工厂时间）后对比保养过的设备和没保养的设备的故障记录 → 用故障记录估平均故障间隔。评分依据平台里的事实。任务编号前缀 l18_。"""
 import json
+from hub import i18n
 
 TASKS = [
     {"id": "l18_t1", "points": 15, "title": "手算故障概率和预期损失",
@@ -94,7 +95,7 @@ def answer(db, user, tid, ans):
             return {"score": 0, "of": 10, "feedback": "选一个方案"}
         best = _system_choice(db, unit)
         s = 6 if kind == best else (4 if kind != "none" else 2)
-        s += 4 if any(k in reason for k in ("概率", "风险", "可能")) and any(k in reason for k in ("钱", "成本", "损失", "费", "$")) else 2
+        s += 4 if i18n.has_kw(reason, ("概率", "风险", "可能")) and i18n.has_kw(reason, ("钱", "成本", "损失", "费", "$")) else 2
         _save(db, user, tid, s, {"submitted": True, "unit": unit, "option": kind, "reason": reason, "system": best})
         return {"score": s, "of": 10, "feedback": "提交了。现在可以在指挥台看中枢的建议，和你的选择对比。" if s == 10 else "提交了（得 {} 分）。".format(s)}
     if tid == "l18_t4":

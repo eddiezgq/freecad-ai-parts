@@ -3,30 +3,30 @@
     <div ref="host" class="host" data-help="3d-scene" @pointerdown="down" @pointerup="up"></div>
     <div class="legend small" data-help="3d-legend">
       <span v-for="s in ['run', 'idle', 'setup', 'down']" :key="s"><i :style="{ background: HEX[s] }"></i>{{ STATE[s].label }}</span>
-      <span class="muted">拖动旋转 · 滚轮缩放 · 点设备看详情</span>
+      <span class="muted">{{ t('拖动旋转 · 滚轮缩放 · 点设备看详情') }}</span>
     </div>
     <aside v-if="sel" class="panel" data-help="3d-panel">
-      <button class="x" aria-label="关闭" @click="sel = null">×</button>
-      <h2>{{ sel.toUpperCase() }} {{ layout?.units[sel]?.name }}</h2>
+      <button class="x" :aria-label="t('关闭')" @click="sel = null">×</button>
+      <h2>{{ sel.toUpperCase() }} {{ unitName(sel) }}</h2>
       <template v-if="bus.machines[sel]">
         <p><span class="pill" :style="{ color: STATE[m.state].color, background: STATE[m.state].bg }">{{ STATE[m.state].label }}</span>
-          <span v-if="m.reason" class="small"> {{ m.locked ? '🔒 ' : '' }}{{ m.reason }}</span></p>
-        <p class="small">工单 <b class="mono">{{ m.work_order || '—' }}</b> · {{ (m.operation || '').split(' ')[0] }} · {{ m.qty_done }}/{{ m.qty }} 件</p>
-        <p class="small">待加工 {{ m.queue }} 件 · 刀具寿命 {{ Math.round((m.tool_life_left ?? 1) * 100) }}%</p>
-        <p v-if="info.tags.length" class="tags"><span v-for="t in info.tags" :key="t.text" class="tag small" :class="t.tone">{{ t.text }}</span></p>
-        <p v-if="info.pmH" class="small muted">自上次保养运行 {{ info.runH }} 小时 · 保养周期 {{ info.pmH }} 小时</p>
-        <router-link :to="{ path: '/work/operator', query: { unit: sel } }" class="small">打开车间终端 →</router-link>
+          <span v-if="m.reason" class="small"> {{ m.locked ? '🔒 ' : '' }}{{ td(m.reason) }}</span></p>
+        <p class="small">{{ t('工单') }} <b class="mono">{{ m.work_order || '—' }}</b> · {{ isEn() ? bi(m.operation || '') : (m.operation || '').split(' ')[0] }} · {{ t('{d}/{n} 件', { d: m.qty_done, n: m.qty }) }}</p>
+        <p class="small">{{ t('待加工 {n} 件 · 刀具寿命 {p}%', { n: m.queue, p: Math.round((m.tool_life_left ?? 1) * 100) }) }}</p>
+        <p v-if="info.tags.length" class="tags"><span v-for="g in info.tags" :key="g.text" class="tag small" :class="g.tone">{{ g.text }}</span></p>
+        <p v-if="info.pmH" class="small muted">{{ t('自上次保养运行 {r} 小时 · 保养周期 {p} 小时', { r: info.runH, p: info.pmH }) }}</p>
+        <router-link :to="{ path: '/work/operator', query: { unit: sel } }" class="small">{{ t('打开车间终端 →') }}</router-link>
       </template>
-      <p v-else class="small muted">这个单元没有状态消息。</p>
+      <p v-else class="small muted">{{ t('这个单元没有状态消息。') }}</p>
       <!-- 点哪看哪（第 30 轮 §八）：对应的帮助章节 -->
-      <p class="helpto small"><span v-if="info.help.domain" class="muted">领域：{{ info.help.domain }} · </span>
+      <p class="helpto small"><span v-if="info.help.domain" class="muted">{{ t('领域：') }}{{ info.help.domain }} · </span>
         <router-link :to="info.help.to">{{ info.help.label }} →</router-link></p>
       <template v-if="sel === 'key-01' || isLathe">
         <hr>
-        <h3>{{ sel === 'key-01' ? '键槽刀路回放' : '车削刀路回放' }}<span v-if="gcInfo" class="small muted"> {{ gcInfo }}</span></h3>
+        <h3>{{ sel === 'key-01' ? t('键槽刀路回放') : t('车削刀路回放') }}<span v-if="gcInfo" class="small muted"> {{ gcInfo }}</span></h3>
         <div ref="gcHost" class="gchost"></div>
-        <p v-if="!gcode" class="small muted">{{ sel === 'key-01' ? '还没有 G 代码：工艺员在 FreeCAD 或网页设计台发布后生成。' : '还没有车削程序：在“数控编程”里给粗车或精车工序编程，挂到工艺规程上审批生效后才有。' }}</p>
-        <button v-else class="btn" @click="playGcode">{{ gcPlaying ? '重新播放' : '播放刀路' }}</button>
+        <p v-if="!gcode" class="small muted">{{ sel === 'key-01' ? t('还没有 G 代码：工艺员在 FreeCAD 或网页设计台发布后生成。') : t('还没有车削程序：在“数控编程”里给粗车或精车工序编程，挂到工艺规程上审批生效后才有。') }}</p>
+        <button v-else class="btn" @click="playGcode">{{ gcPlaying ? t('重新播放') : t('播放刀路') }}</button>
       </template>
     </aside>
     <div v-if="err" class="errbox err">{{ err }}</div>
@@ -43,6 +43,8 @@ import { bus } from '../lib/bus';
 import { STATE } from '../lib/fmt';
 import { parseGcode } from '../lib/gcode';
 import { machineInfo } from '../lib/machinfo';
+import { bi, isEn, nm, t, td } from '../lib/i18n';
+const unitName = (u) => { const x = layout.value?.units[u]; return x ? (isEn() ? x.name_en || x.en || x.name : x.name) : ''; };
 
 const route = useRoute();
 const host = ref(null);
@@ -82,11 +84,11 @@ async function loadGcode(unit) {
   let ref_ = unit === 'key-01' ? route.query.gcode : null;
   if (!ref_) {
     design = design || await get('/design/SH-301');
-    const g = unit === 'key-01' ? design.gcode.find((x) => (x.operation || '').startsWith('铣键槽'))
+    const g = unit === 'key-01' ? design.gcode.find((x) => (x.operation || '').startsWith('铣键槽'))   // i18n-ok 数据里的工序名
       : design.gcode.filter((x) => (x.machine || '').startsWith('cnc-l01'))
         .sort((a, b) => (b.process_revision || 0) - (a.process_revision || 0) || (a.program || 0) - (b.program || 0))[0];
     ref_ = g?.gcode_ref;
-    if (g && g.program) gcInfo.value = `O${String(g.program).padStart(4, '0')} · ${(g.operation || '').split(' ')[0]}`;
+    if (g && g.program) gcInfo.value = `O${String(g.program).padStart(4, '0')} · ${isEn() ? bi(g.operation || '') : (g.operation || '').split(' ')[0]}`;
   }
   if (ref_) gcode.value = await (await fetch(ref_)).text();
 }
@@ -196,7 +198,7 @@ onMounted(async () => {
     off = watch(() => [bus.machines, bus.agvs], applyStatus, { deep: true });
     if (route.query.gcode) sel.value = 'key-01';
     else if (route.query.unit) sel.value = String(route.query.unit);           // 数控编程页“到 3D 车间回放”带过来
-  } catch (e) { err.value = '3D 车间载入失败：' + e.message; }
+  } catch (e) { err.value = t('3D 车间载入失败：') + e.message; }
 });
 onUnmounted(() => {
   if (off) off();

@@ -1,63 +1,64 @@
 <!-- 实验 29“一台机器人的售后追溯”（第 68 轮，机器人厂）：现场报警 → 出厂档案 → 减速器批次 → 判原因 → 召回范围 → 派工 → 算账 -->
 <template>
   <div class="page">
-    <div class="page-title"><h1>实验 29 · 一台机器人的售后追溯</h1>
-      <span class="muted">平台自动评 {{ s?.of || 60 }} 分，报告 {{ s?.report_points || 40 }} 分由老师在课程里批改</span>
-      <span class="r small" data-help="lab-links"><a href="/api/cae/lab29/guide.docx">指导书</a> · <a href="/api/cae/lab29/report-template.docx">报告模板</a></span></div>
+    <div class="page-title"><h1>{{ $t('实验 29 · 一台机器人的售后追溯') }}</h1>
+      <span class="muted">{{ $t('平台自动评 {a} 分，报告 {b} 分由老师在课程里批改', { a: s?.of || 60, b: s?.report_points || 40 }) }}</span>
+      <span class="r small" data-help="lab-links"><a href="/api/cae/lab29/guide.docx">{{ $t('指导书') }}</a> · <a href="/api/cae/lab29/report-template.docx">{{ $t('报告模板') }}</a></span></div>
     <div v-if="err" class="err">{{ err }}</div>
     <template v-if="s">
       <div class="card sum" data-help="lab-sum">
-        <b class="big">{{ s.score }} / {{ s.of }}</b>
-        <span class="small">你的场景：客户 <b>{{ s.case.customer.split(' ')[0] }}</b>，机器人序列号以 <b class="mono">{{ s.case.prefix }}</b> 开头（3 台）</span>
-        <router-link class="small" to="/rservice">客户与服务（现场的机器人）</router-link>
-        <router-link class="small" to="/ont">厂情中枢</router-link>
-        <button class="btn sm" @click="load">刷新</button>
+        <b class="big">{{ $td(s.score) }} / {{ $td(s.of) }}</b>
+        <span class="small">{{ $t('你的场景：客户') }} <b>{{ $td(s.case.customer.split(' ')[0]) }}</b>{{ $t('，机器人序列号以') }} <b class="mono">{{ $td(s.case.prefix) }}</b> {{ $t('开头（3 台）') }}</span>
+        <router-link class="small" to="/rservice">{{ $t('客户与服务（现场的机器人）') }}</router-link>
+        <router-link class="small" to="/ont">{{ $t('厂情中枢') }}</router-link>
+        <button class="btn sm" @click="load">{{ $t('刷新') }}</button>
       </div>
 
       <section v-if="s.teacher && s.class?.length" class="card">
-        <div class="card-head"><h2>老师：全班成绩</h2></div>
-        <table class="tbl small"><thead><tr><th>学生</th><th v-for="(t, i) in s.tasks" :key="t.id" class="num">任务 {{ i + 1 }}</th><th class="num">合计</th></tr></thead>
-          <tbody><tr v-for="c in s.class" :key="c.user"><td>{{ c.user }}</td><td v-for="t in s.tasks" :key="t.id" class="num">{{ c.scores[t.id] ?? '—' }}</td>
-            <td class="num"><b>{{ c.total }}</b></td></tr></tbody></table>
+        <div class="card-head"><h2>{{ $t('老师：全班成绩') }}</h2></div>
+        <table class="tbl small"><thead><tr><th>{{ $t('学生') }}</th><th v-for="(t, i) in s.tasks" :key="t.id" class="num">{{ $t('任务 {a}', { a: i + 1 }) }}</th><th class="num">{{ $t('合计') }}</th></tr></thead>
+          <tbody><tr v-for="c in s.class" :key="c.user"><td>{{ $td(c.user) }}</td><td v-for="t in s.tasks" :key="t.id" class="num">{{ c.scores[t.id] ?? '—' }}</td>
+            <td class="num"><b>{{ $td(c.total) }}</b></td></tr></tbody></table>
       </section>
 
       <section v-for="(t, i) in s.tasks" :key="t.id" class="card task" data-help="lab-task" :class="{ done: t.done }">
-        <div class="card-head"><h2>任务 {{ i + 1 }}　{{ t.title }}</h2><span class="pts">{{ t.score }} / {{ t.points }}</span></div>
-        <p>{{ t.desc }}</p>
-        <p class="small muted">提示：{{ t.hint }}</p>
+        <div class="card-head"><h2>{{ $t('任务 {a}　{b}', { a: i + 1, b: $td(t.title) }) }}</h2><span class="pts">{{ $td(t.score) }} / {{ $td(t.points) }}</span></div>
+        <p>{{ $td(t.desc) }}</p>
+        <p class="small muted">{{ $t('提示：{a}', { a: $td(t.hint) }) }}</p>
         <form v-if="t.id === 'l29_t1'" class="f" @submit.prevent="submit(t.id, a1)">
-          <div class="lf"><label>机器人序列号</label><input v-model="a1.serial" class="w" required></div>
-          <div class="lf"><label>关节</label><select v-model="a1.joint" required><option v-for="j in JOINTS" :key="j" :value="j">{{ j }}</option></select></div>
-          <button class="btn primary">提交</button>
+          <div class="lf"><label>{{ $t('机器人序列号') }}</label><input v-model="a1.serial" class="w" required></div>
+          <div class="lf"><label>{{ $t('关节') }}</label><select v-model="a1.joint" required><option v-for="j in JOINTS" :key="j" :value="j">{{ $td(j) }}</option></select></div>
+          <button class="btn primary">{{ $t('提交') }}</button>
         </form>
         <form v-if="t.id === 'l29_t2'" class="f" @submit.prevent="submit(t.id, a2)">
-          <div class="lf"><label>谐波减速器批号</label><input v-model="a2.lot" class="w" required></div>
-          <div class="lf"><label>出厂背隙（′）</label><input v-model.number="a2.backlash0" type="number" step="0.01" required></div>
-          <button class="btn primary">提交</button>
+          <div class="lf"><label>{{ $t('谐波减速器批号') }}</label><input v-model="a2.lot" class="w" required></div>
+          <div class="lf"><label>{{ $t('出厂背隙（′）') }}</label><input v-model.number="a2.backlash0" type="number" step="0.01" required></div>
+          <button class="btn primary">{{ $t('提交') }}</button>
         </form>
         <form v-if="t.id === 'l29_t3'" class="f" @submit.prevent="submit(t.id, a3)">
-          <div class="lf"><label>选一项</label><span class="cks col">
-            <label v-for="o in s.t3_choices" :key="o.value"><input v-model="a3.choice" type="radio" :value="o.value" required> {{ o.label }}</label></span></div>
-          <button class="btn primary">提交</button>
+          <div class="lf"><label>{{ $t('选一项') }}</label><span class="cks col">
+            <label v-for="o in s.t3_choices" :key="o.value"><input v-model="a3.choice" type="radio" :value="o.value" required> {{ $td(o.label) }}</label></span></div>
+          <button class="btn primary">{{ $t('提交') }}</button>
         </form>
         <form v-if="t.id === 'l29_t4'" class="f" @submit.prevent="submit(t.id, a4)">
-          <div class="lf"><label>同批的机器人（逗号分开）</label><input v-model="a4.serials" class="w2" required></div>
-          <button class="btn primary">提交</button>
+          <div class="lf"><label>{{ $t('同批的机器人（逗号分开）') }}</label><input v-model="a4.serials" class="w2" required></div>
+          <button class="btn primary">{{ $t('提交') }}</button>
         </form>
-        <p v-if="t.id === 'l29_t5'" class="small muted">在“客户与服务 → 现场的机器人”里点报警的那台、选服务方案派工；工程师做完（或点“做完”）后这一步自动打勾。</p>
+        <p v-if="t.id === 'l29_t5'" class="small muted">{{ $t('在“客户与服务 → 现场的机器人”里点报警的那台、选服务方案派工；工程师做完（或点“做完”）后这一步自动打勾。') }}</p>
         <form v-if="t.id === 'l29_t6'" class="f" @submit.prevent="submit(t.id, a6)">
-          <div class="lf"><label>A 全部预防性更换（$）</label><input v-model.number="a6.A" type="number" step="1" required></div>
-          <div class="lf"><label>B 等报警了再换（$）</label><input v-model.number="a6.B" type="number" step="1" required></div>
-          <span class="small muted">B 的每次停线损失 ${{ s.loss_per_complaint.toLocaleString() }}（示例值）</span>
-          <button class="btn primary">提交</button>
+          <div class="lf"><label>{{ $t('A 全部预防性更换（$）') }}</label><input v-model.number="a6.A" type="number" step="1" required></div>
+          <div class="lf"><label>{{ $t('B 等报警了再换（$）') }}</label><input v-model.number="a6.B" type="number" step="1" required></div>
+          <span class="small muted">{{ $t('B 的每次停线损失 ${a}（示例值）', { a: s.loss_per_complaint.toLocaleString() }) }}</span>
+          <button class="btn primary">{{ $t('提交') }}</button>
         </form>
-        <p v-if="fb[t.id]" class="small fb">{{ fb[t.id] }}</p>
+        <p v-if="fb[t.id]" class="small fb">{{ $td(fb[t.id]) }}</p>
       </section>
     </template>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { onMounted, reactive, ref } from 'vue';
 import { get, post } from '../lib/api';
 

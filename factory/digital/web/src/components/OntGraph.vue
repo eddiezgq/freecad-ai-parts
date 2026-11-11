@@ -1,18 +1,19 @@
 <template>
   <div class="og">
     <div class="bar">
-      <span class="small muted">关系图 · 单击展开一跳，双击进入</span>
-      <label class="small">跳数
+      <span class="small muted">{{ $t('关系图 · 单击展开一跳，双击进入') }}</span>
+      <label class="small">{{ $t('跳数') }}
         <select v-model.number="depth" @change="reload"><option :value="1">1</option><option :value="2">2</option><option :value="3">3</option></select></label>
-      <button class="btn ghost sm" title="重新排布" @click="relayout">排布</button>
+      <button class="btn ghost sm" :title="$t('重新排布')" @click="relayout">{{ $t('排布') }}</button>
     </div>
-    <div ref="el" class="canvas" role="img" :aria-label="'关系图：' + nodes + ' 个对象、' + edges + ' 条关系'"></div>
-    <div class="foot small muted">{{ nodes }} 个对象 · {{ edges }} 条关系<span v-if="truncated">（太多了，只画了一部分，可以从相关对象表里找）</span>
+    <div ref="el" class="canvas" role="img" :aria-label="$t('关系图：') + nodes + $t(' 个对象、') + edges + $t(' 条关系')"></div>
+    <div class="foot small muted">{{ $t('{a} 个对象 · {b} 条关系', { a: nodes, b: edges }) }}<span v-if="truncated">{{ $t('（太多了，只画了一部分，可以从相关对象表里找）') }}</span>
       <span v-if="hover" class="hover">{{ hover }}</span></div>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import cytoscape from 'cytoscape';

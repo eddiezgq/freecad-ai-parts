@@ -1,87 +1,86 @@
 <template>
   <div class="page">
-    <div class="page-title"><h1>流体分析</h1>
-      <span class="muted">零件放进虚拟风洞或风道：看风怎么走、阻力多大、每个面的散热系数 h 是多少——算出的 h 一键送进温度场，代替查表（OpenFOAM 求解）</span>
-      <span class="labs small">实验 14：<a href="/api/cae/lab14/guide.docx">指导书</a> · <a href="/api/cae/lab14/report-template.docx">报告模板</a></span></div>
+    <div class="page-title"><h1>{{ $t('流体分析') }}</h1>
+      <span class="muted">{{ $t('零件放进虚拟风洞或风道：看风怎么走、阻力多大、每个面的散热系数 h 是多少——算出的 h 一键送进温度场，代替查表（OpenFOAM 求解）') }}</span>
+      <span class="labs small">{{ $t('实验 14：') }}<a href="/api/cae/lab14/guide.docx">{{ $t('指导书') }}</a> · <a href="/api/cae/lab14/report-template.docx">{{ $t('报告模板') }}</a></span></div>
 
     <div class="row">
       <section class="card side">
-        <div class="step"><b>1</b> 零件</div>
+        <div class="step"><b>1</b> {{ $t('零件') }}</div>
         <div class="line">
-          <select v-model="partSel" class="grow-in" aria-label="零件">
-            <option value="">选一个零件…</option>
-            <option v-for="e in examples" :key="e.key" :value="'ex:' + e.key">示例 · {{ e.label }}</option>
-            <option v-for="p in parts" :key="p.item" :value="p.item">{{ p.item }} {{ p.name || '' }}</option>
+          <select v-model="partSel" class="grow-in" :aria-label="$t('零件')">
+            <option value="">{{ $t('选一个零件…') }}</option>
+            <option v-for="e in examples" :key="e.key" :value="'ex:' + e.key">{{ $t('示例 · {a}', { a: $td(e.label) }) }}</option>
+            <option v-for="p in parts" :key="p.item" :value="p.item">{{ $td(p.item) }} {{ bi(p.name || '') }}</option>
           </select>
-          <button class="btn" type="button" :disabled="!partSel || busy" @click="loadPart">读入</button>
+          <button class="btn" type="button" :disabled="!partSel || busy" @click="loadPart">{{ $t('读入') }}</button>
         </div>
-        <label class="small upload">或者上传 STEP（任何 CAD 导出）<input type="file" accept=".step,.stp,.STEP,.STP" :disabled="busy" @change="upload"></label>
+        <label class="small upload">{{ $t('或者上传 STEP（任何 CAD 导出）') }}<input type="file" accept=".step,.stp,.STEP,.STP" :disabled="busy" @change="upload"></label>
         <div v-if="exSel" class="exbox small">
-          <div class="muted">示例参数（改了点“读入”重新生成）</div>
+          <div class="muted">{{ $t('示例参数（改了点“读入”重新生成）') }}</div>
           <div class="grid2"><label v-for="(n, k) in exSel.names" :key="k">{{ n }} <input v-model.number="exParams[k]" type="number" step="any"></label></div>
         </div>
-        <div v-if="geo" class="small okline">{{ geo.name || geo.item || '零件' }} · {{ geo.faces.length }} 个面 · 外形 {{ dims }}</div>
+        <div v-if="geo" class="small okline">{{ $t('{a} · {b} 个面 · 外形 {c}', { a: geo.name || geo.item || $t('零件'), b: geo.faces.length, c: dims }) }}</div>
 
-        <div class="step"><b>2</b> 风</div>
+        <div class="step"><b>2</b> {{ $t('风') }}</div>
         <div class="ai-box">
-          <textarea v-model="aiText" rows="2" maxlength="300" placeholder="例如：轴端风扇 5 m/s 沿长边吹，空气 25 ℃，箱体表面 70 ℃，放在机座上"></textarea>
-          <div class="line"><button class="btn small-btn" type="button" :disabled="!aiText.trim() || aiBusy" @click="aiFill">{{ aiBusy ? 'AI 正在理解…' : 'AI 填表' }}</button>
-            <span class="small muted">AI 只填表，你确认后再算</span></div>
+          <textarea v-model="aiText" rows="2" maxlength="300" :placeholder="$t('例如：轴端风扇 5 m/s 沿长边吹，空气 25 ℃，箱体表面 70 ℃，放在机座上')"></textarea>
+          <div class="line"><button class="btn small-btn" type="button" :disabled="!aiText.trim() || aiBusy" @click="aiFill">{{ aiBusy ? $t('AI 正在理解…') : $t('AI 填表') }}</button>
+            <span class="small muted">{{ $t('AI 只填表，你确认后再算') }}</span></div>
           <div v-if="aiRes" class="small"><div v-for="n in aiRes.notes" :key="n">✓ {{ n }}</div>
-            <div v-for="n in aiRes.unmatched" :key="n" class="warnline">？没看懂：“{{ n }}”</div></div>
+            <div v-for="n in aiRes.unmatched" :key="n" class="warnline">{{ $t('？没看懂：“{a}”', { a: n }) }}</div></div>
         </div>
-        <div class="line">风速 <input v-model.number="vel" type="number" min="0.1" max="60" step="0.5" class="numin"> m/s
-          来流方向 <select v-model="dir"><option v-for="(t, k) in DIRS" :key="k" :value="k">{{ t }}</option></select></div>
-        <div class="line">空气 <input v-model.number="tAir" type="number" class="numin"> ℃
-          <label class="chk"><input v-model="ground" type="checkbox"> 放在地面 / 机座上（底面不吹风）</label></div>
+        <div class="line">{{ $t('风速') }} <input v-model.number="vel" type="number" min="0.1" max="60" step="0.5" class="numin"> {{ $t('m/s来流方向') }} <select v-model="dir"><option v-for="(t, k) in DIRS" :key="k" :value="k">{{ $td(t) }}</option></select></div>
+        <div class="line">{{ $t('空气') }} <input v-model.number="tAir" type="number" class="numin"> ℃
+          <label class="chk"><input v-model="ground" type="checkbox"> {{ $t('放在地面 / 机座上（底面不吹风）') }}</label></div>
 
-        <div class="step"><b>3</b> 换热</div>
-        <label class="chk"><input v-model="heat" type="checkbox"> 算散热系数（零件表面定温）</label>
-        <div v-if="heat" class="line">表面温度 <input v-model.number="tWall" type="number" class="numin"> ℃
-          <span class="small muted">h 基本不随温差变（强制对流），取接近实际的温度即可</span></div>
+        <div class="step"><b>3</b> {{ $t('换热') }}</div>
+        <label class="chk"><input v-model="heat" type="checkbox"> {{ $t('算散热系数（零件表面定温）') }}</label>
+        <div v-if="heat" class="line">{{ $t('表面温度') }} <input v-model.number="tWall" type="number" class="numin"> ℃
+          <span class="small muted">{{ $t('h 基本不随温差变（强制对流），取接近实际的温度即可') }}</span></div>
 
-        <div class="step"><b>4</b> 网格</div>
-        <div class="seg"><button v-for="m in MESH" :key="m.k" type="button" :class="{ on: meshK === m.k }" @click="meshK = m.k">{{ m.label }}</button></div>
-        <div class="small muted">约 {{ (MESH.find((m) => m.k === meshK).cells / 10000).toFixed(0) }} 万个单元，一般 2–8 分钟；计算服务排队，一次算一个。</div>
+        <div class="step"><b>4</b> {{ $t('网格') }}</div>
+        <div class="seg"><button v-for="m in MESH" :key="m.k" type="button" :class="{ on: meshK === m.k }" @click="meshK = m.k">{{ $td(m.label) }}</button></div>
+        <div class="small muted">{{ $t('约 {a} 万个单元，一般 2–8 分钟；计算服务排队，一次算一个。', { a: (MESH.find((m) => m.k === meshK).cells / 10000).toFixed(0) }) }}</div>
 
-        <input v-model="title" class="full" placeholder="这次计算的名称（可不填）">
-        <button class="btn primary big-w" type="button" :disabled="!geo || busy" @click="submit">{{ busy ? '提交中…' : '开始计算' }}</button>
+        <input v-model="title" class="full" :placeholder="$t('这次计算的名称（可不填）')">
+        <button class="btn primary big-w" type="button" :disabled="!geo || busy" @click="submit">{{ busy ? $t('提交中…') : $t('开始计算') }}</button>
         <div v-if="err" class="small warnline">{{ err }}</div>
       </section>
 
       <section class="card grow">
-        <div class="card-head"><h2>{{ job ? job.title : '结果' }}</h2>
-          <span v-if="job" class="pill" :class="TONE[job.status]">{{ STATUS[job.status] }}{{ job.status === 'queued' && job.position ? '（前面 ' + (job.position - 1) + ' 个）' : '' }}</span>
-          <span v-if="progress && job?.status === 'running'" class="small muted">正在算：{{ progress }}</span></div>
-        <div v-if="!job" class="big-empty muted">左边读入零件、填好风和换热，点“开始计算”。<br>也可以先做一次“标准题核对”（页面下方），看看这套方法和教材公式差多少。</div>
-        <div v-else-if="job.status === 'failed'" class="jobbar failed">失败：{{ job.error }}</div>
-        <div v-else-if="job.status !== 'done'" class="jobbar">计算中…（网格 → 流场 → 温度场，一般几分钟）</div>
+        <div class="card-head"><h2>{{ job ? job.title : $t('结果') }}</h2>
+          <span v-if="job" class="pill" :class="TONE[job.status]">{{ $td(STATUS[job.status]) }}{{ job.status === 'queued' && job.position ? $t('（前面 ') + (job.position - 1) + $t(' 个）') : '' }}</span>
+          <span v-if="progress && job?.status === 'running'" class="small muted">{{ $t('正在算：{a}', { a: progress }) }}</span></div>
+        <div v-if="!job" class="big-empty muted">{{ $t('左边读入零件、填好风和换热，点“开始计算”。') }}<br>{{ $t('也可以先做一次“标准题核对”（页面下方），看看这套方法和教材公式差多少。') }}</div>
+        <div v-else-if="job.status === 'failed'" class="jobbar failed">{{ $t('失败：{a}', { a: job.error }) }}</div>
+        <div v-else-if="job.status !== 'done'" class="jobbar">{{ $t('计算中…（网格 → 流场 → 温度场，一般几分钟）') }}</div>
         <template v-else-if="res && job.kind === 'cfd'">
           <CfdViewer ref="viewer" :surface="res.surface" :aux="res.aux" />
           <div class="cards">
-            <div class="kpi"><span class="small muted">阻力</span><span class="big">{{ st.drag_n.toFixed(3) }} N</span>
-              <span class="small">压差 {{ st.drag_pressure_n.toFixed(3) }} + 摩擦 {{ st.drag_friction_n.toFixed(3) }}；C_d ≈ {{ st.Cd?.toFixed(2) }}</span></div>
-            <div v-if="st.heat_w != null" class="kpi"><span class="small muted">平均散热系数</span><span class="big">{{ st.h_mean.toFixed(1) }} W/(m²·K)</span>
-              <span class="small">散热 {{ st.heat_w.toFixed(1) }} W（表面 {{ st.wall_t_c }} ℃、空气 {{ st.air_t_c }} ℃）</span></div>
-            <div class="kpi"><span class="small muted">流动</span><span class="big">Re ≈ {{ fmtRe(st.Re) }}</span>
-              <span class="small">{{ st.turbulence === 'laminar' ? '层流' : '湍流（k-ω SST）' }} · 特征尺寸 {{ st.L_char_mm }} mm</span></div>
-            <div class="kpi" :class="st.converged ? '' : 'warn'"><span class="small muted">网格与收敛</span><span class="big">{{ (st.cells / 10000).toFixed(1) }} 万单元</span>
-              <span class="small">{{ st.iterations }} 步{{ st.converged ? '收敛' : '（到步数上限，结果看趋势）' }} · {{ st.seconds }} 秒</span></div>
+            <div class="kpi"><span class="small muted">{{ $t('阻力') }}</span><span class="big">{{ st.drag_n.toFixed(3) }} N</span>
+              <span class="small">{{ $t('压差 {a} + 摩擦 {b}；C_d ≈ {c}', { a: st.drag_pressure_n.toFixed(3), b: st.drag_friction_n.toFixed(3), c: st.Cd?.toFixed(2) }) }}</span></div>
+            <div v-if="st.heat_w != null" class="kpi"><span class="small muted">{{ $t('平均散热系数') }}</span><span class="big">{{ st.h_mean.toFixed(1) }} W/(m²·K)</span>
+              <span class="small">{{ $t('散热 {a} W（表面 {b} ℃、空气 {c} ℃）', { a: st.heat_w.toFixed(1), b: st.wall_t_c, c: st.air_t_c }) }}</span></div>
+            <div class="kpi"><span class="small muted">{{ $t('流动') }}</span><span class="big">Re ≈ {{ fmtRe(st.Re) }}</span>
+              <span class="small">{{ $t('{a} · 特征尺寸 {b} mm', { a: st.turbulence === 'laminar' ? $t('层流') : $t('湍流（k-ω SST）'), b: st.L_char_mm }) }}</span></div>
+            <div class="kpi" :class="st.converged ? '' : 'warn'"><span class="small muted">{{ $t('网格与收敛') }}</span><span class="big">{{ $t('{a} 万单元', { a: (st.cells / 10000).toFixed(1) }) }}</span>
+              <span class="small">{{ $t('{a} 步{b} · {c} 秒', { a: st.iterations, b: st.converged ? $t('收敛') : $t('（到步数上限，结果看趋势）'), c: st.seconds }) }}</span></div>
           </div>
           <div class="line">
-            <button v-if="st.heat_w != null" class="btn primary" type="button" @click="toThermal">把散热系数送到温度场 →</button>
-            <button class="btn" type="button" :disabled="expBusy" @click="explain">{{ expBusy ? 'AI 正在看…' : '请 AI 解释结果' }}</button>
-            <button class="btn" type="button" :disabled="repBusy" @click="report">{{ repBusy ? '正在生成…' : '下载 Word 报告' }}</button>
+            <button v-if="st.heat_w != null" class="btn primary" type="button" @click="toThermal">{{ $t('把散热系数送到温度场 →') }}</button>
+            <button class="btn" type="button" :disabled="expBusy" @click="explain">{{ expBusy ? $t('AI 正在看…') : $t('请 AI 解释结果') }}</button>
+            <button class="btn" type="button" :disabled="repBusy" @click="report">{{ repBusy ? $t('正在生成…') : $t('下载 Word 报告') }}</button>
           </div>
           <div v-if="exp" class="exp"><p v-for="(t, i) in exp.text.split('\n')" :key="i">{{ t }}</p>
-            <div class="small muted">{{ exp.engine === 'rules' ? '（规则生成）' : '（由 AI 模型生成）' }}</div></div>
-          <h3>每个面</h3>
+            <div class="small muted">{{ exp.engine === 'rules' ? $t('（规则生成）') : $t('（由 AI 模型生成）') }}</div></div>
+          <h3>{{ $t('每个面') }}</h3>
           <table class="t">
-            <thead><tr><th>面</th><th class="num">面积 mm²</th><th class="num">平均压力 Pa</th><th v-if="st.heat_w != null" class="num">h W/(m²·K)</th><th v-if="st.heat_w != null" class="num">散热 W</th></tr></thead>
-            <tbody><tr v-for="f in facesSorted" :key="f.id"><td>面 {{ f.id }}</td><td class="num">{{ f.area_mm2.toFixed(0) }}</td><td class="num">{{ f.p_pa.toFixed(2) }}</td>
+            <thead><tr><th>{{ $t('面') }}</th><th class="num">{{ $t('面积 mm²') }}</th><th class="num">{{ $t('平均压力 Pa') }}</th><th v-if="st.heat_w != null" class="num">h W/(m²·K)</th><th v-if="st.heat_w != null" class="num">{{ $t('散热 W') }}</th></tr></thead>
+            <tbody><tr v-for="f in facesSorted" :key="f.id"><td>{{ $t('面 {a}', { a: f.id }) }}</td><td class="num">{{ f.area_mm2.toFixed(0) }}</td><td class="num">{{ f.p_pa.toFixed(2) }}</td>
               <td v-if="st.heat_w != null" class="num">{{ f.h_w_m2k?.toFixed(1) }}</td><td v-if="st.heat_w != null" class="num">{{ f.heat_w?.toFixed(2) }}</td></tr></tbody>
           </table>
-          <div class="small muted">压力是相对来流的表压（迎风面为正）；h = 该面散热量 ÷（面积 × 温差）。按面积排序，最多列 30 个面。</div>
+          <div class="small muted">{{ $t('压力是相对来流的表压（迎风面为正）；h = 该面散热量 ÷（面积 × 温差）。按面积排序，最多列 30 个面。') }}</div>
         </template>
         <template v-else-if="res && job.kind === 'cfd_bench'">
           <BenchTable :rows="res.aux.bench" />
@@ -90,22 +89,22 @@
     </div>
 
     <section class="card">
-      <div class="card-head"><h2>标准题核对</h2><span class="small muted">四道题和教材公式比：平行平板层流压降、平板层流换热、湍流通道摩擦与换热、绕圆柱阻力（约 3–5 分钟）</span>
-        <button class="btn small-btn" type="button" @click="bench">在服务器上跑一遍</button></div>
-      <div class="small muted">方法：OpenFOAM simpleFoam 算流场；温度场在流场上自写有限体积求解；后处理全部按面元积分。</div>
+      <div class="card-head"><h2>{{ $t('标准题核对') }}</h2><span class="small muted">{{ $t('四道题和教材公式比：平行平板层流压降、平板层流换热、湍流通道摩擦与换热、绕圆柱阻力（约 3–5 分钟）') }}</span>
+        <button class="btn small-btn" type="button" @click="bench">{{ $t('在服务器上跑一遍') }}</button></div>
+      <div class="small muted">{{ $t('方法：OpenFOAM simpleFoam 算流场；温度场在流场上自写有限体积求解；后处理全部按面元积分。') }}</div>
     </section>
 
     <section class="card">
-      <div class="card-head"><h2>{{ teacher ? '本厂的流体分析记录' : '我的流体分析记录' }}</h2></div>
-      <div v-if="!jobs.length" class="empty">还没有记录。</div>
+      <div class="card-head"><h2>{{ teacher ? $t('本厂的流体分析记录') : $t('我的流体分析记录') }}</h2></div>
+      <div v-if="!jobs.length" class="empty">{{ $t('还没有记录。') }}</div>
       <table v-else class="t">
-        <thead><tr><th>名称</th><th v-if="teacher">提交人</th><th>时间</th><th>状态</th><th class="num">阻力 N</th><th class="num">平均 h</th><th></th></tr></thead>
+        <thead><tr><th>{{ $t('名称') }}</th><th v-if="teacher">{{ $t('提交人') }}</th><th>{{ $t('时间') }}</th><th>{{ $t('状态') }}</th><th class="num">{{ $t('阻力 N') }}</th><th class="num">{{ $t('平均 h') }}</th><th></th></tr></thead>
         <tbody><tr v-for="j in jobs" :key="j.id">
-          <td>{{ j.title }}</td><td v-if="teacher">{{ j.owner_name }}</td>
+          <td>{{ $td(j.title) }}</td><td v-if="teacher">{{ $td(j.owner_name) }}</td>
           <td class="small">{{ new Date(j.created * 1000).toLocaleString('zh-CN', { hour12: false }) }}</td>
-          <td><span class="pill" :class="TONE[j.status]">{{ STATUS[j.status] }}</span></td>
+          <td><span class="pill" :class="TONE[j.status]">{{ $td(STATUS[j.status]) }}</span></td>
           <td class="num">{{ j.stats?.drag_n?.toFixed?.(3) ?? '' }}</td><td class="num">{{ j.stats?.h_mean?.toFixed?.(1) ?? '' }}</td>
-          <td><a href="#" @click.prevent="openJob(j.id)">看 →</a></td>
+          <td><a href="#" @click.prevent="openJob(j.id)">{{ $t('看 →') }}</a></td>
         </tr></tbody>
       </table>
     </section>
@@ -113,6 +112,7 @@
 </template>
 
 <script setup>
+import { bi, t as $t } from '../lib/i18n';
 import { computed, defineComponent, h, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { get, post, session } from '../lib/api';
@@ -122,7 +122,7 @@ const BenchTable = defineComponent({
   props: { rows: Array },
   setup(p) {
     return () => h('table', { class: 't' }, [
-      h('thead', h('tr', ['题', '计算', '教材 / 文献', '差', '公式'].map((x) => h('th', x)))),
+      h('thead', h('tr', [$t('题'), $t('计算'), $t('教材 / 文献'), $t('差'), $t('公式')].map((x) => h('th', x)))),
       h('tbody', p.rows.map((r) => h('tr', { class: Math.abs(r.error) < 0.05 ? 'good' : 'warn' }, [
         h('td', r.name), h('td', { class: 'num' }, fmt4(r.value) + (r.unit ? ' ' + r.unit : '')),
         h('td', { class: 'num' }, r.range ? r.range.join('–') : fmt4(r.theory)), h('td', { class: 'num' }, (r.error * 100).toFixed(1) + '%'),
@@ -133,10 +133,10 @@ const BenchTable = defineComponent({
 function fmt4(v) { return Math.abs(v) < 0.1 ? v.toPrecision(3) : v.toFixed(Math.abs(v) >= 100 ? 1 : 3); }
 
 const router = useRouter();
-const STATUS = { queued: '排队', running: '计算中', done: '完成', failed: '失败' };
+const STATUS = { queued: $t('排队'), running: $t('计算中'), done: $t('完成'), failed: $t('失败') };
 const TONE = { queued: 'mute', running: 'info', done: 'good', failed: 'bad' };
-const DIRS = { '+x': '沿 +X（从左往右）', '-x': '沿 −X', '+y': '沿 +Y（从前往后）', '-y': '沿 −Y', '+z': '沿 +Z（从下往上）', '-z': '沿 −Z（从上往下）' };
-const MESH = [{ k: 'c', label: '粗（快）', cells: 60000 }, { k: 'm', label: '中', cells: 120000 }, { k: 'f', label: '细（慢）', cells: 250000 }];
+const DIRS = { '+x': $t('沿 +X（从左往右）'), '-x': $t('沿 −X'), '+y': $t('沿 +Y（从前往后）'), '-y': $t('沿 −Y'), '+z': $t('沿 +Z（从下往上）'), '-z': $t('沿 −Z（从上往下）') };
+const MESH = [{ k: 'c', label: $t('粗（快）'), cells: 60000 }, { k: 'm', label: $t('中'), cells: 120000 }, { k: 'f', label: $t('细（慢）'), cells: 250000 }];
 const EX_DEFAULT = { housing: { dir: '+x', vel: 5, ground: true, wall: 70 }, heatsink: { dir: '+y', vel: 3, ground: true, wall: 70 },
   agv_box: { dir: '+x', vel: 1.5, ground: true, wall: 50, level: 3, mesh: 'm' } };
 const teacher = computed(() => !!session.user?.teacher);
@@ -152,7 +152,7 @@ watch(exSel, (e) => { if (e) exParams.value = { ...e.params }; });
 const dims = computed(() => { const b = geo.value?.solid?.bbox_mm; return b ? `${(b[3] - b[0]).toFixed(0)} × ${(b[4] - b[1]).toFixed(0)} × ${(b[5] - b[2]).toFixed(0)} mm` : ''; });
 const st = computed(() => job.value?.stats || {});
 const facesSorted = computed(() => [...(res.value?.aux?.faces || [])].sort((a, b) => b.area_mm2 - a.area_mm2).slice(0, 30));
-const fmtRe = (x) => (x >= 1e4 ? (x / 1e4).toFixed(1) + ' 万' : x.toFixed(0));
+const fmtRe = (x) => (x >= 1e4 ? (x / 1e4).toFixed(1) + $t(' 万') : x.toFixed(0));
 
 async function loadPart() {
   busy.value = true; err.value = '';
@@ -174,7 +174,7 @@ async function upload(e) {
     const fd = new FormData(); fd.append('step', f);
     const r = await fetch('/api/cae/geometry/upload', { method: 'POST', headers: { 'x-wq-token': session.token }, body: fd });
     const d = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(d.detail || '读不了这个文件');
+    if (!r.ok) throw new Error(d.detail || $t('读不了这个文件'));
     geo.value = d; exKey = null;
   } catch (x) { err.value = x.message; } finally { busy.value = false; e.target.value = ''; }
 }
@@ -184,7 +184,7 @@ async function submit() {
     domain: { ground: ground.value }, mesh: { cells_target: MESH.find((m) => m.k === meshK.value).cells, level: (exKey && EX_DEFAULT[exKey]?.level) || 2 } };
   if (exKey && geo.value?.example) setup.example = { key: exKey, params: geo.value.example.params };
   try {
-    job.value = await post('/cfd/jobs', { step_sha: geo.value.sha, setup, title: title.value || `${geo.value.name || '零件'} · ${vel.value} m/s ${dir.value}`, item: geo.value.item });
+    job.value = await post('/cfd/jobs', { step_sha: geo.value.sha, setup, title: title.value || $t('{a} · {b} m/s {c}', { a: geo.value.name || $t('零件'), b: vel.value, c: dir.value }), item: geo.value.item });
     poll(); loadJobs();
   } catch (e) { err.value = e.message; } finally { busy.value = false; }
 }
@@ -195,7 +195,7 @@ async function poll() {
     if (job.value.status === 'done') { res.value = await get(`/cfd/jobs/${encodeURIComponent(job.value.id)}/result`); loadJobs(); return; }
     if (job.value.status === 'failed') { loadJobs(); return; }
     if (job.value.status === 'running') {
-      try { const r = await get(`/cfd/jobs/${encodeURIComponent(job.value.id)}/result`); progress.value = { 网格: '划网格', 流场: '算流场', 温度场: '算温度场' }[r.progress?.stage] || ''; } catch (e) { /* */ }
+      try { const r = await get(`/cfd/jobs/${encodeURIComponent(job.value.id)}/result`); progress.value = { 网格: $t('划网格'), 流场: $t('算流场'), 温度场: $t('算温度场') }[r.progress?.stage] || ''; } catch (e) { /* */ }   // i18n-ok 键是枢纽给的阶段名
     }
   } catch (e) { err.value = e.message; return; }
   pollT = setTimeout(poll, 3000);
@@ -212,18 +212,18 @@ async function report() {
   repBusy.value = true;
   try {
     const images = [];
-    const shots = [['p', '零件表面压力（Pa，相对来流）、流线（按速度着色）和水平速度截面']];
-    if (st.value.heat_w != null) shots.push(['h', '零件表面散热系数 h（W/(m²·K)）']);
+    const shots = [['p', $t('零件表面压力（Pa，相对来流）、流线（按速度着色）和水平速度截面')]];
+    if (st.value.heat_w != null) shots.push(['h', $t('零件表面散热系数 h（W/(m²·K)）')]);
     for (const [f, cap] of shots) {
       viewer.value.setField(f); await frame(); await frame(); await frame();
-      images.push({ data: viewer.value.snapshot(), caption: cap + '，色标蓝 → 红 = 低 → 高' });
+      images.push({ data: viewer.value.snapshot(), caption: cap + $t('，色标蓝 → 红 = 低 → 高') });
     }
     const r = await fetch(`/api/cfd/jobs/${encodeURIComponent(job.value.id)}/report`, {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'x-wq-token': session.token }, body: JSON.stringify({ images, ai_text: exp.value?.text }) });
-    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail || '报告生成失败');
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail || $t('报告生成失败'));
     const a = document.createElement('a');
     a.href = URL.createObjectURL(await r.blob());
-    a.download = `流体分析报告-${job.value.id}.docx`;
+    a.download = $t('流体分析报告-{a}.docx', { a: job.value.id });
     document.body.appendChild(a); a.click(); a.remove();
   } catch (e) { err.value = e.message; } finally { repBusy.value = false; }
 }
@@ -244,7 +244,7 @@ async function aiFill() {
 async function loadJobs() { try { jobs.value = (await get('/cfd/jobs')).jobs; } catch (e) { /* */ } }
 
 onMounted(async () => {
-  try { const p = await get('/cae/parts'); parts.value = p.items; examples.value = p.examples || []; } catch (e) { err.value = e.status === 503 ? '计算服务暂时连不上，请稍后再试' : e.message; }
+  try { const p = await get('/cae/parts'); parts.value = p.items; examples.value = p.examples || []; } catch (e) { err.value = e.status === 503 ? $t('计算服务暂时连不上，请稍后再试') : e.message; }
   loadJobs();
 });
 onUnmounted(() => clearTimeout(pollT));

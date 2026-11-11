@@ -1,15 +1,15 @@
 <template>
   <!-- 按日期的曲线（孪生用）：多条线 + 水平参考线（限值、振动分区），鼠标十字线看当天的数 -->
   <div class="dc">
-    <div class="dc-head"><b>{{ title }}</b><span class="muted small">（{{ unit }}）</span>
-      <span class="legend small"><span v-for="s in series" :key="s.label"><i :style="{ background: s.color }"></i>{{ s.label }}</span></span>
+    <div class="dc-head"><b>{{ title }}</b><span class="muted small">{{ $t('（{a}）', { a: unit }) }}</span>
+      <span class="legend small"><span v-for="s in series" :key="s.label"><i :style="{ background: s.color }"></i>{{ $td(s.label) }}</span></span>
     </div>
     <svg :viewBox="`0 0 ${W} ${H}`" class="dc-svg" role="img" :aria-label="title" @mousemove="move" @mouseleave="hi = null">
       <rect v-for="b in bands" :key="'b' + b.label" :x="L" :width="W - L - R" :y="sy(Math.min(b.to, yhi))" :height="Math.max(0, sy(Math.max(b.from, ylo)) - sy(Math.min(b.to, yhi)))" :fill="b.color" opacity="0.12" />
       <g class="grid"><line v-for="y in yticks" :key="'y' + y" :x1="L" :x2="W - R" :y1="sy(y)" :y2="sy(y)" /></g>
       <g v-for="r in refs" :key="'r' + r.label">
         <line :x1="L" :x2="W - R" :y1="sy(r.y)" :y2="sy(r.y)" :stroke="r.color" stroke-dasharray="5 4" />
-        <text :x="W - R - 4" :y="sy(r.y) - 3" text-anchor="end" class="small" :fill="r.color">{{ r.label }}</text>
+        <text :x="W - R - 4" :y="sy(r.y) - 3" text-anchor="end" class="small" :fill="r.color">{{ $td(r.label) }}</text>
       </g>
       <g class="ax small">
         <text v-for="y in yticks" :key="'t' + y" :x="L - 6" :y="sy(y) + 4" text-anchor="end">{{ fmt(y) }}</text>
@@ -22,13 +22,14 @@
       </g>
     </svg>
     <div v-if="hi != null" class="tip small" :style="{ left: Math.min(70, hi / Math.max(1, days.length - 1) * 100) + '%' }">
-      <div class="muted">{{ days[hi] }}</div>
-      <div v-for="s in series" :key="'v' + s.label"><i :style="{ background: s.color }"></i>{{ s.label }}：<b>{{ s.values[hi] == null ? '—' : fmt(s.values[hi]) }}</b></div>
+      <div class="muted">{{ $td(days[hi]) }}</div>
+      <div v-for="s in series" :key="'v' + s.label"><i :style="{ background: s.color }"></i>{{ $t('{a}：', { a: $td(s.label) }) }}<b>{{ s.values[hi] == null ? '—' : fmt(s.values[hi]) }}</b></div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { computed, ref } from 'vue';
 
 const props = defineProps({

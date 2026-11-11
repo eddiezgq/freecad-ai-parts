@@ -25,7 +25,7 @@
 - U10：引脚 13：未用 → ENC_SCK
 - U10：引脚 14：ENC_A_F → ENC_MISO
 - U10：引脚 15：ENC_B_F → ENC_MOSI
-- U10：引脚 16：ENC_Z_F → 未用
+- U10：引脚 16：ENC_Z_F → BRK_ISEN
 - U10：引脚 17：未用 → ENC_RST_N
 - U10：引脚 43：未用 → BRK_PWM
 - U14：新增：编码器接口芯片 WQ-ENCIF（第 92 轮设计，未流片）：滤波、4 倍频计数、SPI 从机
@@ -44,6 +44,9 @@
 - R38：新增：抱闸输入下拉：MCU 复位、没输出时线圈断电 → 抱住（失效安全）
 - C62：新增：U16 去耦
 - J6：新增：抱闸线圈（失电制动，24 V 0.42 A，示例）：1 = 母线 +、2 = 线圈 −
+- R39：新增：抱闸线圈电流采样（第 114 轮）：0.5 Ω 在 Q7 源极，导通时电压 = 线圈电流 × 0.5 Ω（示例）
+- R40：新增：采样滤波（与 C63 约 160 Hz）
+- C63：新增：采样滤波：读到的是“线圈电流 × 占空比 × 0.5 Ω”的平均值
 - 铺铜：新增 VBUS 铺铜（F.Cu）
 
 ## 跟着变的器件
@@ -51,7 +54,7 @@
 | 位号 | 字段 | 原来 | 现在 |
 |---|---|---|---|
 | U10 | 说明 | 电机控制 MCU（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线、TIM3 编码器、SPI1 读 SSI、FDCAN1 | 电机控制 MCU（示例选型）：TIM1 三相互补 PWM、ADC 采三相电流与母线、SPI1 读编码器接口芯片 U14、SPI3 读 SSI、TIM4_CH1（PB6）抱闸 PWM、FDCAN1 |
-| U10 | 引脚 | {'1': '+3V3', '5': 'OSC_IN', '6': 'OSC_OUT', '7': 'NRST', '8': 'ISNS_A', '9': 'ISNS_B', '10': 'ISNS_C', '11': 'VBUS_SNS', '14': 'ENC_A_F', '15': 'ENC_B_F', '16': 'ENC_Z_F', '19': 'GND', '20': '+3V3', '21': '+3V3', '23': 'GND', '24': '+3V3', '27': 'PWM_AL', '28': 'PWM_BL', '29': 'PWM_CL', '30': 'PWM_AH', '31': 'PWM_BH', '32': 'PWM_CH', '33': 'CAN_RXD', '34': 'CAN_TXD', '35': 'GND', '36': '+3V3', '37': 'SWDIO', '38': 'SWCLK', '40': 'SSI_CLK', '41': 'SSI_DATA', '45': 'BOOT0', '47': 'GND', '48': '+3V3'} | {'1': '+3V3', '5': 'OSC_IN', '6': 'OSC_OUT', '7': 'NRST', '8': 'ISNS_A', '9': 'ISNS_B', '10': 'ISNS_C', '11': 'VBUS_SNS', '14': 'ENC_MISO', '15': 'ENC_MOSI', '19': 'GND', '20': '+3V3', '21': '+3V3', '23': 'GND', '24': '+3V3', '27': 'PWM_AL', '28': 'PWM_BL', '29': 'PWM_CL', '30': 'PWM_AH', '31': 'PWM_BH', '32': 'PWM_CH', '33': 'CAN_RXD', '34': 'CAN_TXD', '35': 'GND', '36': '+3V3', '37': 'SWDIO', '38': 'SWCLK', '40': 'SSI_CLK', '41': 'SSI_DATA', '45': 'BOOT0', '47': 'GND', '48': '+3V3', '12': 'ENC_CS_N', '13': 'ENC_SCK', '17': 'ENC_RST_N', '43': 'BRK_PWM'} |
+| U10 | 引脚 | {'1': '+3V3', '5': 'OSC_IN', '6': 'OSC_OUT', '7': 'NRST', '8': 'ISNS_A', '9': 'ISNS_B', '10': 'ISNS_C', '11': 'VBUS_SNS', '14': 'ENC_A_F', '15': 'ENC_B_F', '16': 'ENC_Z_F', '19': 'GND', '20': '+3V3', '21': '+3V3', '23': 'GND', '24': '+3V3', '27': 'PWM_AL', '28': 'PWM_BL', '29': 'PWM_CL', '30': 'PWM_AH', '31': 'PWM_BH', '32': 'PWM_CH', '33': 'CAN_RXD', '34': 'CAN_TXD', '35': 'GND', '36': '+3V3', '37': 'SWDIO', '38': 'SWCLK', '40': 'SSI_CLK', '41': 'SSI_DATA', '45': 'BOOT0', '47': 'GND', '48': '+3V3'} | {'1': '+3V3', '5': 'OSC_IN', '6': 'OSC_OUT', '7': 'NRST', '8': 'ISNS_A', '9': 'ISNS_B', '10': 'ISNS_C', '11': 'VBUS_SNS', '14': 'ENC_MISO', '15': 'ENC_MOSI', '16': 'BRK_ISEN', '19': 'GND', '20': '+3V3', '21': '+3V3', '23': 'GND', '24': '+3V3', '27': 'PWM_AL', '28': 'PWM_BL', '29': 'PWM_CL', '30': 'PWM_AH', '31': 'PWM_BH', '32': 'PWM_CH', '33': 'CAN_RXD', '34': 'CAN_TXD', '35': 'GND', '36': '+3V3', '37': 'SWDIO', '38': 'SWCLK', '40': 'SSI_CLK', '41': 'SSI_DATA', '45': 'BOOT0', '47': 'GND', '48': '+3V3', '12': 'ENC_CS_N', '13': 'ENC_SCK', '17': 'ENC_RST_N', '43': 'BRK_PWM'} |
 
 ## 跟着变的计算结果
 

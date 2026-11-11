@@ -1,46 +1,47 @@
 <template>
   <figure class="mrp">
     <div class="ctl">
-      <label for="mrp-qty">订单数量</label>
+      <label for="mrp-qty">{{ $t('订单数量') }}</label>
       <input id="mrp-qty" v-model.number="qty" type="range" min="1" max="40" aria-describedby="mrp-note">
-      <b class="mono">{{ qty }} 台</b>
-      <button class="btn sm" @click="replay">从头演示</button>
+      <b class="mono">{{ $t('{a} 台', { a: qty }) }}</b>
+      <button class="btn sm" @click="replay">{{ $t('从头演示') }}</button>
     </div>
-    <ol class="phases" aria-label="算料四步">
+    <ol class="phases" :aria-label="$t('算料四步')">
       <li v-for="(p, i) in PHASES" :key="p" :class="{ on: i <= phase }"><span>{{ i + 1 }}</span>{{ p }}</li>
     </ol>
     <div class="tablewrap">
       <table>
-        <thead><tr><th>物料</th><th class="num">每台用量</th><th class="num">毛需求</th>
-          <th class="num" :class="{ dim: phase < 1 }">库存</th><th class="num" :class="{ dim: phase < 1 }">在途</th>
-          <th class="num" :class="{ dim: phase < 2 }">净需求</th><th :class="{ dim: phase < 3 }">动作</th></tr></thead>
+        <thead><tr><th>{{ $t('物料') }}</th><th class="num">{{ $t('每台用量') }}</th><th class="num">{{ $t('毛需求') }}</th>
+          <th class="num" :class="{ dim: phase < 1 }">{{ $t('库存') }}</th><th class="num" :class="{ dim: phase < 1 }">{{ $t('在途') }}</th>
+          <th class="num" :class="{ dim: phase < 2 }">{{ $t('净需求') }}</th><th :class="{ dim: phase < 3 }">{{ $t('动作') }}</th></tr></thead>
         <tbody>
           <tr v-for="r in rows" :key="r.code" :class="{ need: phase >= 2 && r.net > 0 }">
-            <td><b>{{ r.name }}</b> <span class="small muted">{{ r.kind }}</span></td>
-            <td class="num">{{ r.per }} {{ r.uom }}</td>
+            <td><b>{{ $td(r.name) }}</b> <span class="small muted">{{ $td(r.kind) }}</span></td>
+            <td class="num">{{ $td(r.per) }} {{ $td(r.uom) }}</td>
             <td class="num">{{ fmt(r.gross) }}</td>
-            <td class="num" :class="{ dim: phase < 1 }">{{ r.stock }}</td>
-            <td class="num" :class="{ dim: phase < 1 }">{{ r.onOrder }}</td>
+            <td class="num" :class="{ dim: phase < 1 }">{{ $td(r.stock) }}</td>
+            <td class="num" :class="{ dim: phase < 1 }">{{ $td(r.onOrder) }}</td>
             <td class="num" :class="{ dim: phase < 2 }">{{ fmt(r.net) }}</td>
-            <td :class="{ dim: phase < 3 }"><span v-if="phase >= 3" class="act" :class="r.actKind">{{ r.action }}</span></td>
+            <td :class="{ dim: phase < 3 }"><span v-if="phase >= 3" class="act" :class="r.actKind">{{ $td(r.action) }}</span></td>
           </tr>
         </tbody>
       </table>
     </div>
-    <figcaption id="mrp-note" class="small muted">示例数据，不是本厂的。净需求 = 毛需求 − 库存 − 在途；采购按批量取整，自制件按净需求下工单。拖动数量看哪一行先变红。</figcaption>
+    <figcaption id="mrp-note" class="small muted">{{ $t('示例数据，不是本厂的。净需求 = 毛需求 − 库存 − 在途；采购按批量取整，自制件按净需求下工单。拖动数量看哪一行先变红。') }}</figcaption>
   </figure>
 </template>
 
 <script setup>
+import { t as $t } from '../../../lib/i18n';
 // MRP 展开（ADR-0065）：拖订单数量，看毛需求、扣库存和在途、净需求、请购或工单怎么跟着变。分四步演示。
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
-const PHASES = ['按 BOM 展开毛需求', '扣掉库存和在途', '得出净需求', '生成工单和请购'];
+const PHASES = [$t('按 BOM 展开毛需求'), $t('扣掉库存和在途'), $t('得出净需求'), $t('生成工单和请购')];
 const BOM = [
-  { code: 'FG', name: '成品', kind: '订单', per: 1, uom: '台', stock: 0, onOrder: 0, make: true, lot: 1 },
-  { code: 'SH', name: '输出轴', kind: '自制件', per: 1, uom: '件', stock: 4, onOrder: 0, make: true, lot: 1 },
-  { code: 'BRG', name: '轴承', kind: '外购件', per: 2, uom: '个', stock: 16, onOrder: 10, make: false, lot: 10 },
-  { code: 'RM', name: '45 钢棒料', kind: '原材料', per: 0.6, uom: 'kg', stock: 5, onOrder: 0, make: false, lot: 50 },
+  { code: 'FG', name: $t('成品'), kind: $t('订单'), per: 1, uom: $t('台'), stock: 0, onOrder: 0, make: true, lot: 1 },
+  { code: 'SH', name: $t('输出轴'), kind: $t('自制件'), per: 1, uom: $t('件'), stock: 4, onOrder: 0, make: true, lot: 1 },
+  { code: 'BRG', name: $t('轴承'), kind: $t('外购件'), per: 2, uom: $t('个'), stock: 16, onOrder: 10, make: false, lot: 10 },
+  { code: 'RM', name: $t('45 钢棒料'), kind: $t('原材料'), per: 0.6, uom: 'kg', stock: 5, onOrder: 0, make: false, lot: 50 },
 ];
 const qty = ref(10);
 const phase = ref(3);
@@ -50,11 +51,11 @@ let timer;
 const rows = computed(() => BOM.map((b) => {
   const gross = +(b.per * qty.value).toFixed(2);
   const net = Math.max(0, +(gross - b.stock - b.onOrder).toFixed(2));
-  let action = '库存够用';
+  let action = $t('库存够用');
   let actKind = 'ok';
   if (net > 0) {
-    if (b.make) { action = `工单 ${Math.ceil(net)} ${b.uom}`; actKind = 'wo'; } else {
-      action = `请购 ${Math.ceil(net / b.lot) * b.lot} ${b.uom}（批量 ${b.lot}）`; actKind = 'mr';
+    if (b.make) { action = $t('工单 {a} {b}', { a: Math.ceil(net), b: b.uom }); actKind = 'wo'; } else {
+      action = $t('请购 {a} {b}（批量 {c}）', { a: Math.ceil(net / b.lot) * b.lot, b: b.uom, c: b.lot }); actKind = 'mr';
     }
   }
   return { ...b, gross, net, action, actKind };

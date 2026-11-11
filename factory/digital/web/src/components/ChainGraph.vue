@@ -1,15 +1,16 @@
 <!-- 因果链图（第 17 轮 B 期）：原因在上、异常居中、影响在下；点边看依据，点节点看对象，双击进入 360 页 -->
 <template>
   <div class="cg">
-    <div ref="el" class="canvas" role="img" :aria-label="'因果链：' + (chain?.nodes?.length || 0) + ' 个对象'"></div>
+    <div ref="el" class="canvas" role="img" :aria-label="$t('因果链：') + (chain?.nodes?.length || 0) + $t(' 个对象')"></div>
     <div class="legend small muted">
-      <span><i class="dot cause"></i>原因</span><span><i class="dot anomaly"></i>异常</span><span><i class="dot impact"></i>影响</span>
-      <span class="r">单击边看依据 · 双击节点进入对象页<span v-if="chain?.truncated">（对象太多，只画了一部分）</span></span>
+      <span><i class="dot cause"></i>{{ $t('原因') }}</span><span><i class="dot anomaly"></i>{{ $t('异常') }}</span><span><i class="dot impact"></i>{{ $t('影响') }}</span>
+      <span class="r">{{ $t('单击边看依据 · 双击节点进入对象页') }}<span v-if="chain?.truncated">{{ $t('（对象太多，只画了一部分）') }}</span></span>
     </div>
   </div>
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import cytoscape from 'cytoscape';
@@ -63,7 +64,7 @@ function draw() {
   const ch = props.chain;
   if (!ch || !ch.nodes?.length) return;
   const pos = positions(ch.nodes, ch.edges || []);
-  cy.add(ch.nodes.map((n) => ({ group: 'nodes', position: pos[n.id], data: { id: n.id, label: short(n.hidden ? '原因待查' : n.display),
+  cy.add(ch.nodes.map((n) => ({ group: 'nodes', position: pos[n.id], data: { id: n.id, label: short(n.hidden ? $t('原因待查') : n.display),
     type: n.type, key: n.key, role: n.role, hidden: n.hidden ? 1 : 0, color: n.role === 'anomaly' ? '#B42318' : (DOMAIN_COLOR[n.domain] || '#888'), kind: n.label } })));
   const seen = new Set();
   cy.add((ch.edges || []).filter((e) => { const k = e.from + '>' + e.to + '>' + e.label; if (seen.has(k)) return false; seen.add(k); return true; })

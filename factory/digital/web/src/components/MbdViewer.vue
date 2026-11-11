@@ -4,6 +4,7 @@
 </template>
 
 <script setup>
+import { t as $t } from '../lib/i18n';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -22,7 +23,7 @@ const loader = new GLTFLoader();
 
 function load() {
   if (!props.modelUrl) return;
-  note.value = '正在读取模型…';
+  note.value = $t('正在读取模型…');
   loader.load(props.modelUrl, (g) => {
     root.clear(); nodes = {}; fitted = false;
     g.scene.traverse((o) => {
@@ -36,9 +37,9 @@ function load() {
     const meshes = [];
     g.scene.traverse((o) => { if (o.isMesh) meshes.push(o); });
     for (const m of meshes) { m.position.set(0, 0, 0); m.quaternion.identity(); m.scale.set(1, 1, 1); root.add(m); nodes[m.name] = m; }
-    note.value = '拖动旋转 · 滚轮缩放 · 右键平移';
+    note.value = $t('拖动旋转 · 滚轮缩放 · 右键平移');
     pose(); fit();
-  }, undefined, () => { note.value = '模型读取失败'; });
+  }, undefined, () => { note.value = $t('模型读取失败'); });
 }
 
 function pose() {

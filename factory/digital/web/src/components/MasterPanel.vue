@@ -6,23 +6,22 @@
     <template v-if="d">
       <div class="dia">
         <div class="row">
-          <div class="b host">主站 master.py<small>100 Hz：收帧 → 监督 → 直线插补 → 逆运动学 → 发指令</small></div><span class="ar">⇄ CAN ⇄</span>
-          <div class="b mcu">关节 1 驱动板（节点 1）<small>0x201 / 0x181 / 0x081 / 0x701</small></div>
-          <div class="b mcu">关节 2 驱动板（节点 2）<small>0x202 / 0x182 / 0x082 / 0x702</small></div>
+          <div class="b host">{{ t('主站 master.py') }}<small>{{ t('100 Hz：收帧 → 监督 → 直线插补 → 逆运动学 → 发指令') }}</small></div><span class="ar">⇄ CAN ⇄</span>
+          <div class="b mcu">{{ t('关节 1 驱动板（节点 1）') }}<small>0x201 / 0x181 / 0x081 / 0x701</small></div>
+          <div class="b mcu">{{ t('关节 2 驱动板（节点 2）') }}<small>0x202 / 0x182 / 0x082 / 0x702</small></div>
         </div>
       </div>
-      <p class="small">两块驱动板跑的是同一份固件（只是节点号不同，<code>make NODE=2</code>），在 Renode 里同时仿真、时间同步；主站程序每 10 ms 推进一拍，
-        真的“在环”——它看到的只是 CAN 帧，不知道自己在仿真里。机械臂：大臂 {{ d.arm.l1 }} m、小臂 {{ d.arm.l2 }} m，水平面里转；{{ d.arm.note }}。</p>
-      <p class="small">监督规则：任何一个关节报警 → 下一拍给所有关节发“停”；任何一个关节心跳 {{ d.arm.heart_timeout * 1000 }} ms 没来 → 一起停；
-        跟踪误差超过 {{ d.arm.track_max }}° → 一起停。</p>
+      <p class="small">{{ t('两块驱动板跑的是同一份固件（只是节点号不同，make NODE=2），在 Renode 里同时仿真、时间同步；主站程序每 10 ms 推进一拍，真的“在环”——它看到的只是 CAN 帧，不知道自己在仿真里。') }}
+        {{ t('机械臂：大臂 {a} m、小臂 {b} m，水平面里转；', { a: d.arm.l1, b: d.arm.l2 }) }}{{ td(d.arm.note) }}{{ t('。') }}</p>
+      <p class="small">{{ t('监督规则：任何一个关节报警 → 下一拍给所有关节发“停”；任何一个关节心跳 {h} ms 没来 → 一起停；跟踪误差超过 {m}° → 一起停。', { h: d.arm.heart_timeout * 1000, m: d.arm.track_max }) }}</p>
 
-      <h3>场景（{{ d.scenarios.filter((s) => s.ok).length }} / {{ d.scenarios.length }} 通过）</h3>
+      <h3>{{ t('场景（{p} / {n} 通过）', { p: d.scenarios.filter((s) => s.ok).length, n: d.scenarios.length }) }}</h3>
       <div class="line">
         <button v-for="s in d.scenarios" :key="s.id" class="chip" :class="{ on: sc && sc.id === s.id }" @click="pick(s.id)">
-          {{ s.ok ? '✓' : '✗' }} {{ s.name }}</button>
+          {{ s.ok ? '✓' : '✗' }} {{ td(s.name) }}</button>
       </div>
       <div v-if="sc" class="card2">
-        <p class="small">{{ sc.desc }}</p>
+        <p class="small">{{ td(sc.desc) }}</p>
         <div class="wrap">
           <div class="arm">
             <svg :viewBox="'0 0 ' + VW + ' ' + VH" class="svg">
@@ -40,28 +39,28 @@
             </svg>
             <div class="slider">
               <input v-model.number="k" type="range" min="0" :max="S.t.length - 1" />
-              <span class="small">{{ S.t[k].toFixed(2) }} s · {{ S.phase[k] }} · 关节 {{ S.j1[k].toFixed(2) }}°、{{ S.j2[k].toFixed(2) }}°</span>
+              <span class="small">{{ S.t[k].toFixed(2) }} s · {{ td(S.phase[k]) }} · {{ t('关节') }} {{ S.j1[k].toFixed(2) }}°, {{ S.j2[k].toFixed(2) }}°</span>
             </div>
-            <p class="small muted">虚线：要走的直线；实线：末端实际走过的路（由两个关节的真实角度算出）。</p>
+            <p class="small muted">{{ t('虚线：要走的直线；实线：末端实际走过的路（由两个关节的真实角度算出）。') }}</p>
           </div>
           <div class="charts">
-            <LineChart title="关节 1 角度 °" :t="S.t" :series="[{ name: '主站指令', data: S.ref1, cls: 'ref' }, { name: '实际', data: S.j1, cls: 'truth' }]" />
-            <LineChart title="关节 2 角度 °" :t="S.t" :series="[{ name: '主站指令', data: S.ref2, cls: 'ref' }, { name: '实际', data: S.j2, cls: 'truth' }]" />
-            <LineChart title="输出开（MOE）与抱闸松开" :t="S.t" :zero="true"
-              :series="[{ name: '关节 1 输出', data: S.moe1, cls: 'c2' }, { name: '关节 2 输出', data: S.moe2, cls: 'c3' },
-                        { name: '关节 1 抱闸松开', data: S.brk1, cls: 'fwk' }, { name: '关节 2 抱闸松开', data: S.brk2, cls: 'ref' }]" />
+            <LineChart :title="t('关节 1 角度 °')" :t="S.t" :series="[{ name: tk('主站指令'), data: S.ref1, cls: 'ref' }, { name: tk('实际'), data: S.j1, cls: 'truth' }]" />
+            <LineChart :title="t('关节 2 角度 °')" :t="S.t" :series="[{ name: tk('主站指令'), data: S.ref2, cls: 'ref' }, { name: tk('实际'), data: S.j2, cls: 'truth' }]" />
+            <LineChart :title="t('输出开（MOE）与抱闸松开')" :t="S.t" :zero="true"
+              :series="[{ name: tk('关节 1 输出'), data: S.moe1, cls: 'c2' }, { name: tk('关节 2 输出'), data: S.moe2, cls: 'c3' },
+                        { name: tk('关节 1 抱闸松开'), data: S.brk1, cls: 'fwk' }, { name: tk('关节 2 抱闸松开'), data: S.brk2, cls: 'ref' }]" />
           </div>
         </div>
-        <h4>主站做的决定</h4>
-        <ul class="small ev"><li v-for="(e, i) in sc.events" :key="i"><b>{{ e[0].toFixed(2) }} s</b> {{ e[1] }}</li></ul>
+        <h4>{{ t('主站做的决定') }}</h4>
+        <ul class="small ev"><li v-for="(e, i) in sc.events" :key="i"><b>{{ e[0].toFixed(2) }} s</b> {{ td(e[1]) }}</li></ul>
         <table class="tbl">
-          <thead><tr><th>判据</th><th>结果</th><th>读数</th></tr></thead>
-          <tbody><tr v-for="c in sc.checks" :key="c.name"><td>{{ c.name }}</td><td>{{ c.ok ? '✓' : '✗' }}</td><td>{{ c.detail }}</td></tr></tbody>
+          <thead><tr><th>{{ t('判据') }}</th><th>{{ t('结果') }}</th><th>{{ t('读数') }}</th></tr></thead>
+          <tbody><tr v-for="c in sc.checks" :key="c.name"><td>{{ td(c.name) }}</td><td>{{ c.ok ? '✓' : '✗' }}</td><td>{{ td(c.detail) }}</td></tr></tbody>
         </table>
-        <details class="small"><summary>CAN 帧（不含每 10 ms 的位置指令和状态帧，前 {{ sc.frames.length }} 帧）</summary>
+        <details class="small"><summary>{{ t('CAN 帧（不含每 10 ms 的位置指令和状态帧，前 {n} 帧）', { n: sc.frames.length }) }}</summary>
           <div class="fr"><table class="tbl"><tbody>
             <tr v-for="(f, i) in sc.frames" :key="i" :class="{ emcy: (f.id & 0x780) === 0x080 }">
-              <td>{{ f.t.toFixed(4) }}</td><td>{{ f.dir === 'tx' ? '板→主站' : '主站→板' }}</td><td class="mono">0x{{ f.id.toString(16).toUpperCase().padStart(3, '0') }}</td><td class="mono">{{ f.data }}</td></tr>
+              <td>{{ f.t.toFixed(4) }}</td><td>{{ f.dir === 'tx' ? t('板→主站') : t('主站→板') }}</td><td class="mono">0x{{ f.id.toString(16).toUpperCase().padStart(3, '0') }}</td><td class="mono">{{ f.data }}</td></tr>
           </tbody></table></div>
         </details>
       </div>
@@ -72,6 +71,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import LineChart from './LineChart.vue';
+import { t, td, tk } from '../lib/i18n';
 
 const d = ref(null);
 const err = ref('');
@@ -97,7 +97,7 @@ function pick(id) {
 onMounted(async () => {
   try {
     const r = await fetch('/api/designs/drv-joint-b/fw/sim_master.json');
-    if (!r.ok) throw new Error('读不到多关节主站仿真结果（' + r.status + '）');
+    if (!r.ok) throw new Error(t('读不到多关节主站仿真结果（{s}）', { s: r.status }));
     d.value = await r.json();
     pick('line');
   } catch (e) { err.value = e.message || String(e); }

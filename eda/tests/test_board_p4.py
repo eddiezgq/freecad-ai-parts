@@ -122,11 +122,19 @@ def _track(board, net, layer="F"):
 
 def test_broken_boards_are_caught(board, cap, xa):
     feats = list(board.features)
-    # F2：一根走线外面 0.09 mm 处围一圈别的网络的细铜
-    t = _track(board, "PWM_AH")
-    b = _with(
-        board, features=feats + [Feature("F", t.geom.buffer(0.10).exterior.buffer(0.01), "track", "X", width=0.02)]
+    # F2：一根走线中段旁边 0.09 mm 处放一小块别的网络的细铜。只取中段那一小块：整圈围住会压在同网络相邻的走线上，
+    # 和这个网络连成一块，量不出间距（第 129 轮重新布线后原来那段走线就是这样）
+    def sliver(f):
+        return f.geom.buffer(0.10).exterior.buffer(0.01).intersection(f.geom.centroid.buffer(0.4))
+
+    others = [f for f in feats if f.layer == "F" and f.kind != "opening"]
+    t = next(
+        f
+        for f in sorted(feats, key=lambda f: -f.geom.length)
+        if f.kind == "track" and f.net == "PWM_AH" and f.layer == "F"
+        and not any(g.geom.intersects(sliver(f)) for g in others)
     )
+    b = _with(board, features=feats + [Feature("F", sliver(t), "track", "X", width=0.02)])
     r = process.f2_space(b, cap)
     assert r["status"] == "fail" and r["value"] < 0.127 and r["count"] >= 1
     # F4：两个开窗之间只留 0.05 mm 阻焊
@@ -197,10 +205,10 @@ def test_layout_constraints_on_drive_board(board, xa):
     assert all(rows["L-loop-" + p]["status"] == "pass" for p in "ABC")
     assert all(rows["L-kelvin-" + p]["status"] == "pass" for p in "ABC")
     assert rows["L-apart-hot"]["status"] == rows["L-edge-conn"]["status"] == "pass"
-    # 查出的真问题：三个采样放大器的去耦电容离电源脚 6.7 mm，MCU 两个去耦电容略超 3 mm（示例限值）
-    fails = sorted(k for k, r in rows.items() if r["status"] == "fail")
-    assert fails == ["L-near-C27", "L-near-C28", "L-near-C29", "L-near-C42", "L-near-C45"]
-    assert rows["L-near-C27"]["value"] == pytest.approx(6.69, abs=0.02)
+    # 第 111 轮查出五个去耦电容离电源脚超过 3 mm（C27–C29 6.7 mm、C42 3.5 mm、C45 3.0 mm），第 129 轮挪近后全部通过
+    assert all(r["status"] == "pass" for r in rows.values()), [k for k, r in rows.items() if r["status"] != "pass"]
+    assert rows["L-near-C27"]["value"] == pytest.approx(0.78, abs=0.02)
+    assert rows["L-near-C45"]["value"] < 3
 
 
 def _move(board, ref, dx, dy):
@@ -356,7 +364,8 @@ def test_report_counts_everything(tmp_path):
     n = rep["count"]
     keys = [r["key"] for r in rep["process"]]
     assert {"D1", "F1", "F2", "F4", "F6", "F7", "F8", "T1", "C1", "K1"} <= set(keys)
-    assert n["fail"] == 5 and rep["status"] == "fail"  # 五处去耦电容偏远
+    assert n["fail"] == 0 and n["pass"] > 0  # 第 129 轮去耦电容挪近后，不算热就没有不通过
+    assert rep["status"] != "pass"  # 还有待核对、未知，不能判通过
     report.write(str(tmp_path), rep)
     assert "板子报告" in (tmp_path / "report.md").read_text(encoding="utf-8")
     assert (tmp_path / "calc.html").exists() is False

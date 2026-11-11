@@ -1,5 +1,6 @@
 // 工作台与枢纽服务（hub）之间的全部请求都走这里
 import { reactive } from 'vue';
+import { i18n, t } from './i18n';
 
 const KEY = 'wq-df-session';
 function load() {
@@ -19,14 +20,14 @@ export class ApiError extends Error {
 export async function api(method, path, body) {
   const r = await fetch('/api' + path, {
     method,
-    headers: { 'Content-Type': 'application/json', ...(session.token ? { 'x-wq-token': session.token } : {}) },
+    headers: { 'Content-Type': 'application/json', 'x-wq-lang': i18n.lang, ...(session.token ? { 'x-wq-token': session.token } : {}) },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   const text = await r.text();
   let data = null;
   try { data = text ? JSON.parse(text) : null; } catch (e) { data = { detail: text }; }
-  if (r.status === 401) { logout(); throw new ApiError(401, '请先登录'); }
-  if (!r.ok) throw new ApiError(r.status, (data && data.detail) || `请求失败（${r.status}）`);
+  if (r.status === 401) { logout(); throw new ApiError(401, t('请先登录')); }
+  if (!r.ok) throw new ApiError(r.status, (data && data.detail) || t('请求失败（{s}）', { s: r.status }));
   return data;
 }
 
@@ -71,17 +72,17 @@ export async function loadConfig() {
 }
 
 export const ROLES = [
-  { key: 'manager', name: '厂长', en: 'Plant manager' },
-  { key: 'planner', name: '计划员', en: 'Planner' },
-  { key: 'engineer', name: '工艺员', en: 'Process engineer' },
-  { key: 'operator', name: '操作工', en: 'Operator' },
-  { key: 'quality', name: '质检员', en: 'Quality inspector' },
-  { key: 'approver', name: '审批人', en: 'Approver', prod: true },
-  { key: 'sales', name: '销售', en: 'Sales', prod: true },
-  { key: 'service', name: '售后', en: 'Customer service' },
-  { key: 'safety', name: '安全员', en: 'Safety officer' },
-  { key: 'maintenance', name: '维修工', en: 'Maintenance technician' },
-  { key: 'lead', name: '班组长', en: 'Shift lead' },
+  { key: 'manager', name: '厂长', en: 'Plant manager' },   // i18n-ok 中英对照
+  { key: 'planner', name: '计划员', en: 'Planner' },   // i18n-ok 中英对照
+  { key: 'engineer', name: '工艺员', en: 'Process engineer' },   // i18n-ok 中英对照
+  { key: 'operator', name: '操作工', en: 'Operator' },   // i18n-ok 中英对照
+  { key: 'quality', name: '质检员', en: 'Quality inspector' },   // i18n-ok 中英对照
+  { key: 'approver', name: '审批人', en: 'Approver', prod: true },   // i18n-ok 中英对照
+  { key: 'sales', name: '销售', en: 'Sales', prod: true },   // i18n-ok 中英对照
+  { key: 'service', name: '售后', en: 'Customer service' },   // i18n-ok 中英对照
+  { key: 'safety', name: '安全员', en: 'Safety officer' },   // i18n-ok 中英对照
+  { key: 'maintenance', name: '维修工', en: 'Maintenance technician' },   // i18n-ok 中英对照
+  { key: 'lead', name: '班组长', en: 'Shift lead' },   // i18n-ok 中英对照
 ];
 // 学生可选的岗位（厂长只给老师，第 3 轮 D3）
 // 企业版（第 8 轮）：审批人、销售只在生产模式；企业成员在生产模式只能用授权给他的角色
@@ -92,4 +93,4 @@ export const rolesFor = (user, mode) => {
   return ROLES.filter((r) => r.key !== 'manager' && !r.prod);
 };
 export const canProd = (user) => !user || user.teacher !== false || !!(user.member || []).length;
-export const roleName = (k) => (ROLES.find((r) => r.key === k) || {}).name || k;
+export const roleName = (k) => { const r = ROLES.find((x) => x.key === k); return r ? (i18n.lang === 'en' ? r.en : r.name) : k; };
