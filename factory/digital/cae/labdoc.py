@@ -28,7 +28,8 @@ GUIDES = {"lab8": GUIDE_MD, "lab9": os.path.join(HERE, "实验9_机械臂关节�
           "lab28": os.path.join(HERE, "实验28_负载跑合台上的仿真与实测对比.md"),
           "lab29": os.path.join(HERE, "实验29_一台机器人的售后追溯.md"),
           "lab30": os.path.join(HERE, "实验30_一台轮式人形从订单到交付.md"),
-          "lab31": os.path.join(HERE, "实验31_关节终检抱闸报警的排查.md")}
+          "lab31": os.path.join(HERE, "实验31_关节终检抱闸报警的排查.md"),
+          "lab32": os.path.join(HERE, "实验32_机壳与关键零件质量异常的追因与8D.md")}
 
 
 def _doc():
@@ -140,7 +141,7 @@ def report_template_docx(lab="lab8"):
         return lab22_template()
     if lab == "lab23":
         return lab23_template()
-    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28", "lab29", "lab30", "lab31"):
+    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28", "lab29", "lab30", "lab31", "lab32"):
         return robot_template(lab)
     from docx.shared import Pt
     d = _doc()
@@ -1080,6 +1081,23 @@ def robot_template(lab):
         table([["项目 Item", "标定前 Before", "标定后 After"], ["平均绝对定位误差（mm）", "", ""], ["最大（mm）", "", ""], ["判定（≤ 0.5 mm）", "", ""]])
         d.add_heading("五、讨论（任务 6）· Discussion", 1)
         hint("零位偏差从哪里来？标定补不了的误差有哪些（柔度、齿隙、温度）？如果测试台零位漂了 30″，辨识结果会怎样？")
+    elif lab == "lab32":
+        d.add_heading("实验 32　机壳与关键零件质量异常的追因与 8D　实验报告 · Lab 32 Report: Tracing Housing and Key-Part Quality Problems", 0)
+        table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)
+        d.add_heading("一、发现（任务 1）· Detection", 1)
+        table([["项目 Item", "记录 Record"], ["出问题的特性（物料 · 特性）", ""], ["触发的判异规则、从第几件开始", ""], ["当时的超差件数", ""]])
+        hint("贴控制图截图，标出触发判异的那几点。")
+        d.add_heading("二、分层（任务 2）· Stratification", 1)
+        table([["精镗卧加 Machining centre", "件数 n", "均值 Mean", "超差 Out of tol."], ["hmc-1", "", "", ""], ["hmc-2", "", "", ""], ["hmc-3", "", "", ""],
+               ["hmc-4", "", "", ""], ["hmc-5", "", "", ""]])
+        table([["项目 Item", "记录 Record"], ["结论：只在一台卧加，还是所有件一起偏", ""], ["是哪台设备（编号）", ""],
+               ["依据（差多少，远大于随机散布吗；别的特性怎样）", ""]])
+        d.add_heading("三、8D（任务 3–5）", 1)
+        table([["步骤 Step", "内容 Content"], ["D1 小组", ""], ["D2 问题描述（5W2H，带数据）", ""], ["D3 临时措施（已做的件怎么办）", ""],
+               ["D4 根本原因（5 Why）", ""], ["D5 纠正措施（选了哪一项，为什么别的不对症）", ""],
+               ["D6 验证：措施前后件数、均值、超差、Cpk", ""], ["D7 预防再发生（改了哪些工艺文件、加了什么防错）", ""], ["D8 总结", ""]])
+        d.add_heading("四、讨论 · Discussion", 1)
+        hint("机壳孔的问题可能来自铸造、时效，也可能来自机加工，怎样用数据分开？三坐标全检、返镗能代替纠正措施吗？计量室抽检的 N 取多大才来得及发现缓慢漂移？")
     else:
         d.add_heading("实验 25　关节背隙异常的追因与 8D　实验报告", 0)
         table([["班级", "", "组号", ""], ["姓名 / 学号", "", "日期", ""]], head=False)

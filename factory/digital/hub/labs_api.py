@@ -39,6 +39,9 @@ LABS = [
     # 第 123 轮：关节终检抱闸报警的排查（驱动板 B 版故障 7：报警帧 → 线圈电流 → 坏件 → 处置 → 复测）
     {"no": 31, "title": "关节终检抱闸报警的排查", "path": "/lab31", "module": "lab31", "domain": "质量（终检与返修）", "hours": 4,
      "plant": "wenquest-robot"},
+    # 第 141 轮：缝纫机厂（清单 wenquest-sewing）——铸件、机壳、轴的五种隐藏问题，照实验 25
+    {"no": 32, "title": "机壳与关键零件质量异常的追因与 8D", "path": "/lab32", "module": "lab32", "domain": "质量（分层、8D）", "hours": 4,
+     "plant": "wenquest-sewing"},
 ]
 
 
