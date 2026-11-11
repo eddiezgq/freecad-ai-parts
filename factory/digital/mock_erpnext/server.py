@@ -576,6 +576,75 @@ def run_doc_method(body: dict = Body(...)):
     return {"docs": [M.bom_operations(doc)], "message": None}
 
 
+@app.post("/api/method/frappe.client.cancel")
+def client_cancel(body: dict = Body(...)):
+    """第 150 轮：取消已提交的单据（和真 ERPNext 一样：工单有完工入库、采购单有收货就不能取消）"""
+    dt_, name = body.get("doctype"), body.get("name")
+    doc = M.db.get(dt_, {}).get(name or "")
+    if doc is None or doc.get("docstatus") != 1:
+        raise Err(417, "ValidationError", "{} {} 不存在或没提交".format(dt_, name))
+    if dt_ == "Work Order" and float(doc.get("produced_qty") or 0) > 0:
+        raise Err(417, "ValidationError", "工单 {} 已有完工入库，不能取消".format(name))
+    if dt_ == "Purchase Order" and any(float(r.get("received_qty") or 0) > 0 for r in doc.get("items") or []):
+        raise Err(417, "ValidationError", "采购单 {} 已有收货，不能取消".format(name))
+    doc.update(docstatus=2, status="Cancelled", modified=now_str())
+    M.log.append(("cancel", dt_, name))
+    return {"message": None}
+
+
+@app.post("/api/method/erpnext.manufacturing.doctype.work_order.work_order.stop_unstop")
+def wo_stop(body: dict = Body(...)):
+    doc = M.db.get("Work Order", {}).get(body.get("work_order") or "")
+    if doc is None or doc.get("docstatus") != 1:
+        raise Err(417, "ValidationError", "工单 {} 不存在或没提交".format(body.get("work_order")))
+    if doc.get("status") == "Closed":
+        raise Err(417, "ValidationError", "Closed Work Order can not be stopped or Re-opened")
+    doc.update(status=body.get("status") or "Stopped", modified=now_str())
+    M.log.append(("stop", "Work Order", doc["name"]))
+    return {"message": doc["status"]}
+
+
+@app.post("/api/method/erpnext.buying.doctype.purchase_order.purchase_order.update_status")
+def po_status(body: dict = Body(...)):
+    doc = M.db.get("Purchase Order", {}).get(body.get("name") or "")
+    if doc is None or doc.get("docstatus") != 1:
+        raise Err(417, "ValidationError", "采购单 {} 不存在或没提交".format(body.get("name")))
+    doc.update(status=body.get("status"), modified=now_str())
+    M.log.append(("status", "Purchase Order", doc["name"]))
+    return {"message": None}
+
+
+@app.post("/api/method/erpnext.controllers.accounts_controller.update_child_qty_rate")
+def update_child(body: dict = Body(...)):
+    """采购单（已提交）改明细数量：和真 ERPNext 一样，不能少于已收数量；没传的行（没收过货）删掉"""
+    dt_, name = body.get("parent_doctype"), body.get("parent_doctype_name")
+    doc = M.db.get(dt_, {}).get(name or "")
+    if doc is None or doc.get("docstatus") != 1:
+        raise Err(417, "ValidationError", "{} {} 不存在或没提交".format(dt_, name))
+    rows = json.loads(body["trans_items"]) if isinstance(body.get("trans_items"), str) else body.get("trans_items") or []
+    keep = {r.get("docname"): r for r in rows if r.get("docname")}
+    items = []
+    for it in doc.get("items") or []:
+        r = keep.get(it.get("name"))
+        if r is None:
+            if float(it.get("received_qty") or 0) > 0:
+                raise Err(417, "ValidationError", "Row #{}: Cannot delete item {} which has already been received".format(it.get("idx"), it["item_code"]))
+            continue
+        q = float(r.get("qty") or 0)
+        if q < float(it.get("received_qty") or 0):
+            raise Err(417, "ValidationError", "Cannot reduce quantity than ordered or purchased quantity")
+        if q <= 0:
+            raise Err(417, "ValidationError", "Qty for {} must be greater than 0".format(it["item_code"]))
+        it = dict(it, qty=q, amount=round(q * float(it.get("rate") or 0), 2))
+        items.append(it)
+    doc["items"] = items
+    doc["total_qty"] = sum(float(i["qty"]) for i in items)
+    doc["grand_total"] = doc["total"] = round(sum(float(i.get("amount") or 0) for i in items), 2)
+    doc["modified"] = now_str()
+    M.log.append(("update_items", dt_, name))
+    return {"message": None}
+
+
 @app.post("/api/method/erpnext.buying.doctype.purchase_order.purchase_order.make_purchase_receipt")
 def mpr(body: dict = Body(...)):
     """第 18 轮 E5：按采购单生成收货单（未保存），和真 ERPNext 一样只带没收齐的数量"""

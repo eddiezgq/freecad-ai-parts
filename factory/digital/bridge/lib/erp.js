@@ -1079,7 +1079,10 @@ function summarize(doctype, d) {
         sales_orders: [...new Set((d.items || []).map((i) => i.sales_order).filter(Boolean))] };
     case 'Purchase Invoice':
       return { ...pick(['supplier', 'status', 'docstatus', 'posting_date', 'due_date', 'grand_total', 'outstanding_amount', 'bill_no']),
-        purchase_receipts: [...new Set((d.items || []).map((i) => i.purchase_receipt).filter(Boolean))] };
+        purchase_receipts: [...new Set((d.items || []).map((i) => i.purchase_receipt).filter(Boolean))],
+        // 第 150 轮 150b：按单设计的采购对账要逐行（采购单、物料、数量、单价、金额）
+        items: (d.items || []).map((i) => ({ item_code: i.item_code, qty: i.qty, rate: i.rate, amount: i.amount,
+          purchase_order: i.purchase_order, purchase_receipt: i.purchase_receipt })) };
     case 'Payment Entry':
       return { ...pick(['payment_type', 'party_type', 'party', 'paid_amount', 'posting_date', 'docstatus']),
         references: (d.references || []).map((r) => ({ reference_doctype: r.reference_doctype, reference_name: r.reference_name, allocated_amount: r.allocated_amount })) };

@@ -3,6 +3,7 @@
 //              数量阶梯与付款条件写进条款）。重复执行时已有的 Project、物料不重建。
 //   eto_order：销售订单（挂 Project、引用报价单，付款计划按里程碑）。
 //   eto_release：设计发布——新物料、物料清单（带工序，子件先建）并设为默认；同一指纹的物料清单已有就不重建。
+//   eto_change（第 150 轮）：设计变更处理——工单取消 / 停止，请购单取消，采购单改量 / 取消 / 关闭；“照用”不动 ERPNext。
 // 共有文件（问渠与 freecad-ai-parts 两边一样）；erp.js 加载后，方法里的 this 是 ERP 实例。
 const erpToday = () => new Date().toISOString().slice(0, 10);
 
@@ -112,6 +113,37 @@ module.exports = ({ WH }) => ({
       made[b.item] = doc.name;
       out.push(this.doc('BOM', doc, 'submitted', opt));
       created.push(['BOM', doc.name]);
+    }
+  },
+
+  // 第 150 轮 150a：设计变更处理。每条按人选的做；已经是目标状态的跳过（重发不重做）
+  async eto_change(pv, { out, created, opt }) {
+    for (const a of pv.actions) {
+      if (a.action === 'keep') continue;
+      const cur = await this.get(a.doctype, a.name);
+      if (Number(cur.docstatus) === 2 || ['Cancelled', 'Closed', 'Stopped'].includes(cur.status)) {
+        out.push(this.doc(a.doctype, cur, 'updated', opt));
+        continue;
+      }
+      if (a.action === 'cancel' || a.action === 'renew') {
+        await this.method('frappe.client.cancel', { doctype: a.doctype, name: a.name });
+      } else if (a.action === 'stop') {
+        await this.method('erpnext.manufacturing.doctype.work_order.work_order.stop_unstop', { work_order: a.name, status: 'Stopped' });
+      } else if (a.action === 'close') {
+        await this.method('erpnext.buying.doctype.purchase_order.purchase_order.update_status', { status: 'Closed', name: a.name });
+      } else if (a.action === 'qty') {
+        const want = Object.fromEntries((a.lines || []).map((l) => [l.item_code, Number(l.qty)]));
+        const rows = (cur.items || []).filter((r) => !(r.item_code in want) || want[r.item_code] > 1e-9).map((r) => ({
+          docname: r.name, item_code: r.item_code, qty: r.item_code in want ? want[r.item_code] : r.qty, rate: r.rate,
+          conversion_factor: r.conversion_factor, uom: r.uom, schedule_date: r.schedule_date, description: r.description }));
+        await this.method('erpnext.controllers.accounts_controller.update_child_qty_rate', { parent_doctype: a.doctype,
+          trans_items: JSON.stringify(rows), parent_doctype_name: a.name, child_docname: 'items' });
+      } else {
+        throw new Error(`不认识的处理方式 ${a.action}`);
+      }
+      const doc = await this.get(a.doctype, a.name);
+      out.push(this.doc(a.doctype, doc, 'updated', opt));
+      created.push([a.doctype, a.name]);
     }
   },
 

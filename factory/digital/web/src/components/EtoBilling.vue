@@ -40,6 +40,21 @@
         </tbody>
       </table>
       <p class="small muted">{{ $t('毛利 = 订单金额 − 实际成本；实际成本里哪一项未知（见“车间与成本”），毛利就是未知。') }}</p>
+
+      <h3>{{ $t('采购对账') }}</h3>
+      <p v-if="!b.purchases?.length" class="small muted">{{ $t('作业上还没有采购单。') }}</p>
+      <table v-else class="t">
+        <thead><tr><th>{{ $t('采购单') }}</th><th>{{ $t('物料') }}</th><th class="num">{{ $t('数量') }}</th><th class="num">{{ $t('采购单价') }}</th>
+          <th class="num">{{ $t('已开票') }}</th><th class="num">{{ $t('发票单价') }}</th><th class="num">{{ $t('差额') }}</th><th>{{ $t('发票') }}</th></tr></thead>
+        <tbody><tr v-for="r in b.purchases" :key="r.purchase_order + r.item_code">
+          <td class="mono">{{ r.purchase_order }}</td><td class="mono">{{ r.item_code }}</td><td class="num">{{ r.qty }}</td>
+          <td class="num mono">{{ r.rate === null || r.rate === undefined ? $t('未知') : money(r.rate) }}</td>
+          <td class="num">{{ r.invoiced_qty }}</td><td class="num mono">{{ r.invoice_rate === null ? '' : money(r.invoice_rate) }}</td>
+          <td class="num mono" :class="{ bad: r.diff > 0.005, good: r.diff < -0.005 }">{{ r.diff === null ? '' : (r.diff > 0 ? '+' : '') + money(r.diff) }}</td>
+          <td class="small">{{ r.status === 'invoiced' ? r.invoices.join(', ') : (r.status === 'partly' ? $t('部分：{a}', { a: r.invoices.join(', ') }) : $t('发票未到')) }}</td></tr></tbody>
+      </table>
+      <p v-if="b.invoice_pending?.length" class="small warnline">{{ $t('发票未到，暂按采购单算：{a}', { a: b.invoice_pending.join(', ') }) }}</p>
+      <p class="small muted">{{ $t('外协和本单专料的实际成本按供应商发票算；差额 = 发票金额 − 采购单价 × 已开票数量，正数是多付。发票的录入和付款在 ERPNext 里做。') }}</p>
       <div v-if="msg" :class="msgOk ? 'ok' : 'err'" class="small">{{ msg }}</div>
     </template>
     <ProposalModal v-if="pid" :pid="pid" @close="pid = null; load()" @done="load" />
@@ -92,4 +107,5 @@ tr.sum td { font-weight: 600; }
 .acc { display: flex; gap: 8px; flex-wrap: wrap; }
 .acc input { border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; font: inherit; }
 .err { color: var(--bad); } .ok { color: var(--good); }
+.bad { color: var(--bad); } .good { color: var(--good); } .warnline { color: var(--warn-ink); }
 </style>
