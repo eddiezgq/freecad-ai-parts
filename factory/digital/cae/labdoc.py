@@ -36,6 +36,7 @@ GUIDES = {"lab8": GUIDE_MD, "lab9": os.path.join(HERE, "实验9_机械臂关节�
           "lab36": os.path.join(HERE, "实验36_编码器与扭矩传感器质量异常的追因与8D.md"),
           "lab37": os.path.join(HERE, "实验37_驱动板质量异常的追因与8D.md"),
           "lab38": os.path.join(HERE, "实验38_芯片封测质量异常的追因与8D.md"),
+          "lab41": os.path.join(HERE, "实验41_输出轴质量异常的追因与8D.md"),
           "lab39": os.path.join(HERE, "实验39_一块驱动板从订单到交付.md"),
           "lab40": os.path.join(HERE, "实验40_一批芯片从订单到交付.md")}
 
@@ -149,7 +150,7 @@ def report_template_docx(lab="lab8"):
         return lab22_template()
     if lab == "lab23":
         return lab23_template()
-    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28", "lab29", "lab30", "lab31", "lab32", "lab33", "lab34", "lab35", "lab36", "lab37", "lab38", "lab39", "lab40"):
+    if lab in ("lab24", "lab25", "lab26", "lab27", "lab28", "lab29", "lab30", "lab31", "lab32", "lab33", "lab34", "lab35", "lab36", "lab37", "lab38", "lab39", "lab40", "lab41"):
         return robot_template(lab)
     from docx.shared import Pt
     d = _doc()
@@ -1108,14 +1109,16 @@ def robot_template(lab):
         table([["项目 Item", "标定前 Before", "标定后 After"], ["平均绝对定位误差（mm）", "", ""], ["最大（mm）", "", ""], ["判定（≤ 0.5 mm）", "", ""]])
         d.add_heading("五、讨论（任务 6）· Discussion", 1)
         hint("零位偏差从哪里来？标定补不了的误差有哪些（柔度、齿隙、温度）？如果测试台零位漂了 30″，辨识结果会怎样？")
-    elif lab in ("lab35", "lab36", "lab37", "lab38"):
+    elif lab in ("lab35", "lab36", "lab37", "lab38", "lab41"):
         name, by, units = {"lab35": ("电机质量异常的追因与 8D · Tracing Motor Quality Problems with 8D", "绕线机 Winding machine", ("wd-1", "wd-2")),
                            "lab36": ("编码器与扭矩传感器质量异常的追因与 8D · Tracing Encoder and Torque-Sensor Quality Problems with 8D",
                                      "粘接对心机 Disc bonding machine", ("cb-1", "cb-2")),
                            "lab37": ("驱动板质量异常的追因与 8D · Tracing Drive-Board Quality Problems with 8D",
                                      "采样电阻卷号 Shunt reel", ("SH-001", "SH-002", "SH-003")),
                            "lab38": ("芯片封测质量异常的追因与 8D · Tracing Chip Assembly-and-Test Quality Problems with 8D",
-                                     "键合机 Wire bonder", ("wb-1", "wb-2"))}[lab]
+                                     "键合机 Wire bonder", ("wb-1", "wb-2")),
+                           "lab41": ("输出轴质量异常的追因与 8D · Tracing Output-Shaft Quality Problems with 8D",
+                                     "设备 Machine", ("grd-01", "key-01"))}[lab]
         d.add_heading("实验 {}　{}　实验报告".format(lab[3:], name), 0)
         table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)
         d.add_heading("一、发现（任务 1）· Detection", 1)
@@ -1124,6 +1127,7 @@ def robot_template(lab):
         d.add_heading("二、分层（任务 2）· Stratification", 1)
         table([[by, "件数 n", "均值 Mean", "超差 Out of tol."]] + [[u, "", "", ""] for u in units])
         concl = (["结论：某道工序的设备，还是从某一批来料起偏", ""], ["是哪台设备（编号）或哪一卷（卷号）", ""]) if lab == "lab37" else \
+            (["是哪台设备（编号）", ""], ["同一台磨床上是哪一种原因（尾座、修整间隔、预热、中心孔、修整不锋利）", ""]) if lab == "lab41" else \
             (["结论：只在一台设备，还是所有件一起偏", ""], ["是哪台设备（编号）", ""])
         table([["项目 Item", "记录 Record"], *concl,
                ["依据（差多少，远大于随机散布吗；别的特性怎样）", ""]])

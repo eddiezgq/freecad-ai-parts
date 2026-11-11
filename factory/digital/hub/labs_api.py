@@ -18,6 +18,8 @@ LABS = [
      "team": True},
     # 第 139 轮 139h：按单设计（ETO）全流程——估算、报价接单、设计计划、车间质量、分期开票
     {"no": 33, "title": "一张非标订单：从询价到收款", "path": "/lab33", "module": "lab33", "domain": "订单与计划（按单设计）", "hours": 4},
+    # 第 152 轮：演示工厂的质量追因与 8D（通用实现 hub/labq.py）
+    {"no": 41, "title": "输出轴质量异常的追因与 8D", "path": "/labq/41", "module": "lab41", "domain": "质量（分层、8D）", "hours": 4},
     # 第 47 轮：机器人厂（清单 wenquest-robot）的实验；上面的只在演示工厂（减速器厂）
     {"no": 24, "title": "一台协作机器人从订单到交付", "path": "/lab24", "module": "lab24", "domain": "订单到交付（多层 BOM）", "hours": 4,
      "plant": "wenquest-robot"},

@@ -2502,7 +2502,8 @@ def _olab(no):
     if no not in OLABS:
         raise HTTPException(404, "没有这个实验")
     mod, plant = OLABS[no]
-    if _labs_api.plant_id() != plant:
+    here = _labs_api.plant_id()
+    if (None if here == "wenquest-gearbox" else here) != plant:
         raise HTTPException(404, "实验 {} 不在这座厂".format(no))
     return importlib.import_module("hub." + mod)
 
@@ -2531,7 +2532,8 @@ def labo_answer(no: int, tid: str, body: dict = Body(...), u=Depends(user_of)):
 
 
 # ---------------------------------------------------------------- 实验 35、36（第 147 轮）：通用质量追因实验 hub/labq.py，一座厂一份配置
-QLABS = {35: ("lab35", "wenquest-motor"), 36: ("lab36", "wenquest-sensor"), 37: ("lab37", "wenquest-pcb"), 38: ("lab38", "wenquest-chip")}   # 37、38：第 148 轮
+QLABS = {35: ("lab35", "wenquest-motor"), 36: ("lab36", "wenquest-sensor"), 37: ("lab37", "wenquest-pcb"), 38: ("lab38", "wenquest-chip"),   # 37、38：第 148 轮
+         41: ("lab41", None)}     # 第 152 轮：演示工厂（减速器厂；没指定清单或清单是 wenquest-gearbox）
 
 
 def _qlab(no):
@@ -2539,7 +2541,8 @@ def _qlab(no):
     if no not in QLABS:
         raise HTTPException(404, "没有这个实验")
     mod, plant = QLABS[no]
-    if _labs_api.plant_id() != plant:
+    here = _labs_api.plant_id()
+    if (None if here == "wenquest-gearbox" else here) != plant:
         raise HTTPException(404, "实验 {} 不在这座厂".format(no))
     return importlib.import_module("hub." + mod)
 

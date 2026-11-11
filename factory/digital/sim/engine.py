@@ -921,7 +921,7 @@ class Engine:
             self.transfers.append((p, unit, FG_STORE))
             self._dispatch_agvs()
         # 换刀
-        if unit in WEAR_PER_PART and m.tool_life < 0.08:
+        if unit in WEAR_PER_PART and m.tool_life < self.errors.dress_limit(unit, WEAR_PER_PART[unit]):
             self.pub(unit_topic(unit, "event"), "machine.event", "sim/" + unit,
                      {"event": "tool_change", "message": "砂轮修整" if unit == "grd-01" else "换刀",
                       "tool_life_before": round(m.tool_life, 3)}, corr)

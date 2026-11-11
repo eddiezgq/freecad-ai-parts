@@ -10,7 +10,9 @@ CFG 键：no（实验号）、items（物料编号前缀，元组）、problems�
 station（分层表的说明，如“按绕线机”）、station_layer（“只在某一台……”的选项文字）、eight_d_on（可选，{问题: (特性, …)}）、
 t1_desc、t2_desc、t2_hint、t4_hint、t5_desc（任务文字，各厂自己写）。
 第 148 轮：layers（可选，默认 ("station", "shared")）可以加 "lot"（来料批次：测量记录里的 lot 字段，如电路板厂的采样电阻卷号），
-配 lot（批次表的说明）、lot_layer（选项文字）；分层答“批次”时，说出的那一批均值偏离名义值超过 3σ 就算对。"""
+配 lot（批次表的说明）、lot_layer（选项文字）；分层答“批次”时，说出的那一批均值偏离名义值超过 3σ 就算对。
+第 152 轮：problems 的特性可以写元组（一种问题让几项特性一起偏，任务 1 答哪一项都对，8D 开在哪一项上都认；第一项是主特性）；
+chart="xbar"（演示工厂）：判异按“质量”页的均值–极差图（spc.for_characteristic），特性清单取 sim/errors.py 的 CHARS（计数型不列）。"""
 import json
 import random
 
@@ -25,7 +27,9 @@ def build(cfg):
     no = cfg["no"]
     pre = "l{}_".format(no)
     items = tuple(cfg["items"])
-    char_of = {k: v[0] for k, v in cfg["problems"].items()}
+    chars_of = {k: (tuple(v[0]) if isinstance(v[0], (tuple, list)) else (v[0],)) for k, v in cfg["problems"].items()}
+    char_of = {k: v[0] for k, v in chars_of.items()}
+    xbar = cfg.get("chart") == "xbar"
     layer_of = {k: v[1] for k, v in cfg["problems"].items()}
     eight_d_on = cfg.get("eight_d_on") or {}
     tasks = [
@@ -74,6 +78,8 @@ def build(cfg):
 
     def signals(db, item, code, last=40):
         from hub import spc
+        if xbar:
+            return spc.for_characteristic(db, "teach", item, code).get("signals") or []
         c = _spec(item, code)
         v = [d["value_mm"] for d in part_rows(db) if d["item"] == item and d["characteristic"] == code][-last:]
         if not c or len(v) < 3:
@@ -100,7 +106,7 @@ def build(cfg):
                 return {"score": 0, "of": 10, "feedback": "老师还没注入问题"}
             item, _, code = str(ans.get("characteristic") or "").partition("|")
             s = 0
-            if code == char_of[p["problem"]]:
+            if code in chars_of[p["problem"]]:
                 s += 6
                 try:
                     if int(ans.get("rule") or 0) in {x["rule"] for x in signals(db, item, code)}:
@@ -134,7 +140,7 @@ def build(cfg):
 
     def _my_8d(db, user, problem):
         from hub.privacy import is_me
-        codes = list(eight_d_on.get(problem, (char_of[problem],)))
+        codes = list(eight_d_on.get(problem, chars_of[problem]))
         rows = db.q("select * from quality_8d where mode='teach' and characteristic = any(%s) order by created_at", (codes,))
         return [dict(r) for r in rows if is_me(r["author"], user)]
 
@@ -164,8 +170,12 @@ def build(cfg):
         for t in tasks:
             r = rows.get(t["id"])
             out_tasks.append(dict(t, score=r["score"] if r else 0, done=bool(r and r["score"] >= t["points"]), evidence=r["evidence"] if r else None))
-        chars = [{"value": "{}|{}".format(it, c["code"]), "label": "{} · {}".format(it, c["name"])}
-                 for (it, _op), cs in F.MEASURE.items() if it.startswith(items) for c in cs if c.get("sigma")]
+        if xbar:
+            chars = [{"value": "{}|{}".format(it, code), "label": "{} · {}".format(it, name)}
+                     for it in items for code, name, _nom, lo, hi in ERR.CHARS if hi > lo]
+        else:
+            chars = [{"value": "{}|{}".format(it, c["code"]), "label": "{} · {}".format(it, c["name"])}
+                     for (it, _op), cs in F.MEASURE.items() if it.startswith(items) for c in cs if c.get("sigma")]
         p = current_problem(db)
         out = {"user": user, "no": no, "title": cfg["title"], "tasks": out_tasks, "score": sum(t["score"] for t in out_tasks), "of": sum(t["points"] for t in tasks),
                "report_points": 40, "injected": bool(p), "characteristics": chars, "rules": [1, 2, 3, 4],
@@ -203,6 +213,6 @@ def build(cfg):
             out.setdefault(r["user_name"], {})[r["task_id"]] = r["score"]
         return [{"user": k, "scores": v, "total": sum(v.values())} for k, v in sorted(out.items())]
 
-    return {"TASKS": tasks, "REPORT_POINTS": 40, "CHAR_OF": char_of, "LAYER_OF": layer_of, "LAYERS": layers,
+    return {"TASKS": tasks, "REPORT_POINTS": 40, "CHAR_OF": char_of, "CHARS_OF": chars_of, "LAYER_OF": layer_of, "LAYERS": layers,
             "start": start, "locked": locked, "current_problem": current_problem, "signals": signals, "groups": groups,
             "answer": answer, "check": check, "status": status, "strata": strata, "inject": inject, "class_view": class_view}
