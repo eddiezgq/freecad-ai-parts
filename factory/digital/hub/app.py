@@ -1327,9 +1327,18 @@ def _desktop_submit(msg, u):
     return {"submission": r["id"], "pending": True, "id": r["id"]}
 
 
+def _item_lookup(u):
+    """物料名称：线上先查 ERPNext；再认按单设计草稿里还没发布的本单新件（第 150 轮 150d：发布前先交图纸）"""
+    from hub import eto_design as _ETOD
+
+    def look(item):
+        return (plm.erp_item_name(item) if AUTH == "wenquest" else None) or _ETOD.draft_item(H.db, u["mode"], item)
+    return look
+
+
 @app.get("/api/plm/item/{item}")
 def plm_item(item: str, u=Depends(user_of)):
-    info = plm.item_info(item, plm.erp_item_name if AUTH == "wenquest" else None)
+    info = plm.item_info(item, _item_lookup(u))
     if not info:
         raise HTTPException(404, "物料 {} 不存在（先在 ERPNext 里建物料）".format(item))
     return dict(info, revision=plm.current_revision(H.db, u["mode"], item))
@@ -1342,7 +1351,7 @@ async def plm_submit(item: str = Form(...), note: str = Form(""), operation: str
     """网页上传发布（任何 CAD 导出的 STEP 都行）：教学模式直接生效，生产模式进待审"""
     _can_submit(u)
     item = item.strip()
-    if not plm.item_info(item, plm.erp_item_name if AUTH == "wenquest" else None):
+    if not plm.item_info(item, _item_lookup(u)):
         raise HTTPException(404, "物料 {} 不存在（先在 ERPNext 里建物料）".format(item))
     blobs = {}
     for k, f in (("step", step), ("drawing", drawing), ("gcode", gcode)):

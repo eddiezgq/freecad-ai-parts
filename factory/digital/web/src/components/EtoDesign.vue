@@ -17,7 +17,9 @@
         <th class="num">{{ $t('单价') }}</th><th>{{ $t('供应商') }}</th><th></th></tr></thead>
       <tbody>
         <tr v-for="(it, i) in spec.items" :key="i">
-          <td><input v-model="it.code" class="mono code" :disabled="!editable" @input="touch"></td>
+          <td><input v-model="it.code" class="mono code" :disabled="!editable" @input="touch">
+            <div v-if="it.kind !== 'raw'" class="small dwg">{{ $t('图纸：') }}<span v-if="d?.drawings?.[it.code]" class="ok">{{ $t('第 {r} 版（{w} 批准）', { r: d.drawings[it.code].rev, w: d.drawings[it.code].by }) }}</span>
+              <router-link v-else-if="it.code && it.code.startsWith(jn + '-')" :to="{ path: '/design', query: { item: it.code } }" class="warnline">{{ $t('去交图纸') }}</router-link></div></td>
           <td><input v-model="it.name" :disabled="!editable" @input="touch"></td>
           <td><select v-model="it.kind" :disabled="!editable" @change="kindChanged(it)"><option v-for="k in KINDS" :key="k" :value="k">{{ $t(KIND_ZH[k]) }}</option></select></td>
           <td><input v-model="it.uom" class="short" :disabled="!editable" @input="touch"></td>
@@ -64,6 +66,9 @@
     <div v-if="spec.outside?.length" class="small muted">{{ $t('外协（接单后转采购，第 139c 段）：{a}', { a: spec.outside.map((o) => o.desc).join(', ') }) }}</div>
     <div v-if="dirty" class="small warnline">{{ $t('有改动还没保存：检查结果是上次保存的。') }}</div>
     <div v-for="e in d?.errors || []" :key="e" class="err small">✗ {{ $td(e) }}</div>
+    <div v-if="d?.drawings_missing?.length" :class="d.require_drawing ? 'err' : 'warnline'" class="small">{{ d.require_drawing
+      ? $t('✗ 本单新件还没有批准的图纸：{a}（点“去交图纸”）', { a: d.drawings_missing.join(', ') })
+      : $t('！本单新件没有批准的图纸：{a}（本厂不要求）', { a: d.drawings_missing.join(', ') }) }}</div>
     <div v-for="w in d?.warnings || []" :key="w" class="warnline small">{{ $t('！{a}', { a: $td(w) }) }}</div>
     <div v-if="d?.affected?.length" class="warnbox small">{{ $t('设计改版会影响这些单据，发布后请逐条处理：') }}
       <span v-for="a in d.affected" :key="a.name" class="mono">{{ a.doctype }} {{ a.name }} </span></div>
@@ -103,6 +108,7 @@ const msgOk = ref(true);
 const jn = computed(() => props.job.job_no);
 const editable = computed(() => !d.value?.pending_proposal);
 const canRelease = computed(() => props.job.sales_order && d.value?.design && d.value.design.status === 'draft' && !d.value.errors.length
+  && !(d.value.require_drawing && d.value.drawings_missing?.length)
   && !dirty.value && editable.value);
 const allItems = computed(() => [...spec.value.items.map((i) => ({ code: i.code, name: i.name })), ...(props.items || [])]);
 const nameOf = (c) => (c === jn.value ? props.job.title : (allItems.value.find((i) => i.code === c)?.name || ''));
@@ -170,5 +176,6 @@ input.code { width: 170px; } input.short { width: 76px; text-align: right; }
 .warnbox { background: var(--warn-bg); color: var(--warn-ink); border-radius: 8px; padding: 8px 10px; margin-top: 8px; }
 .err { color: var(--bad); } .ok { color: var(--good); } .warnline { color: var(--warn-ink); }
 .empty { color: var(--muted, #888); }
+.dwg { margin-top: 2px; }
 @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
 </style>

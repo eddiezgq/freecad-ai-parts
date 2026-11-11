@@ -198,46 +198,126 @@ def feasibility(job, lines, today=None):
     return out
 
 
+def _spread_days(a, b):
+    days, d = [], _workday(a)
+    while d <= b or not days:
+        if d.weekday() < 5:
+            days.append(d)
+        d += dt.timedelta(days=1)
+    return days
+
+
+def _week(d):
+    return (d - dt.timedelta(days=d.weekday())).isoformat()
+
+
+def _job_demand(db, mode, j, today, have_wo):
+    """另一张作业还没下工单的工序负荷：{(工作站, 周): 分钟}，以及它的松紧（工作日）。
+    设计发布了按倒排摊到各件的开工—完工日（已有工单的件不算，工单另算）；没发布按报出去那一版估算的工序，从交期往回摊。"""
+    out = defaultdict(float)
+    jn, due = j["job_no"], dt.date.fromisoformat(j["due_date"])
+    if ED.released(db, mode, jn) and jn in F.BOMS:
+        t = schedule_tree(jn, j["qty"], due, today, 0, _cfg_ship())
+        for x in t["make"]:
+            if x["item_code"] in have_wo:
+                continue
+            days = _spread_days(max(dt.date.fromisoformat(x["latest_start"]), today), max(dt.date.fromisoformat(x["latest_finish"]), today))
+            for op, m in F.ROUTINGS[F.BOMS[x["item_code"]][0]]:
+                for d in days:
+                    out[(F.OPERATIONS.get(op), _week(d))] += m * x["qty"] / len(days)
+        return out, t["slack_days"], t["earliest"]
+    rev = j.get("quoted_rev")
+    r = db.one("select lines from eto_estimate where mode=%s and job_no=%s " + ("and rev=%s" if rev else "order by rev desc limit 1"),
+               (mode, jn, rev) if rev else (mode, jn))
+    lines = (r or {}).get("lines") or []
+    ops = [(F.OPERATIONS.get(x.get("op")), float(x.get("setup_min") or 0) + float(x.get("run_min") or 0) * float(j["qty"]))
+           for x in lines if x.get("kind") == "operation" and x.get("op") in F.OPERATIONS]
+    total = sum(m for _, m in ops)
+    fz = feasibility(j, lines, today)
+    if not total:
+        return out, fz.get("slack_days"), fz["earliest"]
+    end = sub_working_days(_workday(due, back=True), _cfg_ship())
+    days = _spread_days(max(sub_working_days(end, _days(total) - 1), today), max(end, today))
+    for ws, m in ops:
+        for d in days:
+            out[(ws, _week(d))] += m / len(days)
+    return out, fz.get("slack_days"), fz["earliest"]
+
+
+def suggest_conflict(row, slack, earliest, due):
+    """超负荷的一周（纯函数）：建议推迟松紧最大的那张作业；推迟后赶不上交期就建议加班或外协。
+    row：{workstation, week, capacity_min, total_min, jobs: {作业号: 分钟}}；slack / earliest / due：各作业的松紧（工作日）、最早交期、交期"""
+    over = row["total_min"] - row["capacity_min"]
+    if over <= 0 or not row["jobs"]:
+        return None
+    per_day = row["capacity_min"] / 5
+    delay = max(1, math.ceil(over / per_day))
+    known = [jn for jn in row["jobs"] if slack.get(jn) is not None]
+    if not known:
+        return {"action": "unknown", "over_min": round(over), "text": "超出 {} 分钟；作业的松紧算不出来，请人看".format(round(over))}
+    pick = max(known, key=lambda jn: (slack[jn], jn))
+    if slack[pick] - delay >= 0:
+        new = add_working_days(dt.date.fromisoformat(earliest[pick]), delay)
+        return {"action": "delay", "job_no": pick, "delay_days": delay, "over_min": round(over), "new_earliest": new.isoformat(),
+                "text": "超出 {} 分钟：建议 {} 让出这一周（松紧 {} 个工作日，最大），把它这周的活挪开 {} 个工作日，交期 {} 仍赶得上".format(
+                    round(over), pick, slack[pick], delay, due[pick])}
+    return {"action": "overtime", "job_no": pick, "delay_days": delay, "over_min": round(over),
+            "text": "超出 {} 分钟：推迟哪张都赶不上交期（最松的 {} 只有 {} 个工作日余量），建议加班或外协，缺 {} 分钟".format(
+                round(over), pick, slack[pick], round(over))}
+
+
 def load(db, mode, job_no=None, today=None):
-    """各工作站每周负荷：其他在制工单（未完成数 × 工序分钟，按计划开工到计划完工的工作日摊开）+ 本作业（按倒排）"""
+    """各工作站每周负荷：其他在制工单（未完成数 × 工序分钟，按计划开工到计划完工的工作日摊开）+ 其他已接单作业还没下工单的部分
+    （第 150 轮 150c）+ 本作业（按倒排）。超负荷的周给出占用的作业和建议（推迟松紧最大的那张，或加班外协）。"""
     from hub.kpi import Overview
     today = today or dt.date.today()
     o = Overview(db, None, mode)
-    week = lambda d: (d - dt.timedelta(days=d.weekday())).isoformat()  # noqa: E731
     used = defaultdict(lambda: defaultdict(float))
     mine = defaultdict(lambda: defaultdict(float))
+    jobs_in = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))      # 工作站 → 周 → 作业号 → 分钟
 
-    def spread(bucket, item, qty, a, b):
+    def spread(bucket, item, qty, a, b, jn=None):
         if item not in F.BOMS or qty <= 0:
             return
-        days, d = [], _workday(a)
-        while d <= b or not days:
-            if d.weekday() < 5:
-                days.append(d)
-            d += dt.timedelta(days=1)
+        days = _spread_days(a, b)
         for op, m in F.ROUTINGS[F.BOMS[item][0]]:
             ws = F.OPERATIONS.get(op)
             for d in days:
-                bucket[ws][week(d)] += m * qty / len(days)
-    proj = E.project_of(E.job(db, mode, job_no)) if job_no else None
+                bucket[ws][_week(d)] += m * qty / len(days)
+                if jn:
+                    jobs_in[ws][_week(d)][jn] += m * qty / len(days)
+    me = E.job(db, mode, job_no) if job_no else None
+    proj = E.project_of(me) if me else None
+    others = [j for j in E.jobs(db, mode) if j["job_no"] != job_no and j.get("sales_order") and not j.get("delivery_note") and j.get("due_date")]
+    proj_job = {E.project_of(j): j["job_no"] for j in others}
+    wo_items = defaultdict(set)
     for w in o.wos:
         d = w["data"]
         if d.get("status") in ("Completed", "Stopped", "Closed", "Cancelled") or d.get("docstatus") == 2:
             continue
         if proj and d.get("project") == proj:
             continue
+        wo_items[d.get("project")].add(d.get("production_item"))
         try:
             a = dt.date.fromisoformat(str(d.get("planned_start_date"))[:10])
             b = dt.date.fromisoformat(str(d.get("expected_delivery_date") or d.get("planned_start_date"))[:10])
         except ValueError:
             continue
         left = float(d.get("qty", 0)) - float(d.get("produced_qty", 0) or 0)
-        spread(used, d.get("production_item"), left, max(a, today), max(b, a, today))
+        spread(used, d.get("production_item"), left, max(a, today), max(b, a, today), proj_job.get(d.get("project")))
+    slack, earliest, due = {}, {}, {}
+    for j in others:
+        dem, sl, ea = _job_demand(db, mode, j, today, wo_items.get(E.project_of(j), set()))
+        slack[j["job_no"]], earliest[j["job_no"]], due[j["job_no"]] = sl, ea, j["due_date"]
+        for (ws, wk), m in dem.items():
+            used[ws][wk] += m
+            jobs_in[ws][wk][j["job_no"]] += m
     if job_no:
         t = schedule(db, mode, job_no, today)
+        slack[job_no], earliest[job_no], due[job_no] = t["slack_days"], t["earliest"], me["due_date"]
         for x in t["make"]:
             spread(mine, x["item_code"], x["qty"], max(dt.date.fromisoformat(x["latest_start"]), today),
-                   max(dt.date.fromisoformat(x["latest_finish"]), today))
+                   max(dt.date.fromisoformat(x["latest_finish"]), today), job_no)
     rows = []
     for ws, (count, _) in F.WORKSTATIONS.items():
         par = (getattr(F, "WORKSTATION_PARALLEL", {}) or {}).get(ws) or count
@@ -245,6 +325,68 @@ def load(db, mode, job_no=None, today=None):
         for wk in sorted(set(used[ws]) | set(mine[ws])):
             tot = used[ws][wk] + mine[ws][wk]
             if mine[ws][wk] or tot > cap:
-                rows.append({"workstation": ws, "week": wk, "others_min": round(used[ws][wk]), "job_min": round(mine[ws][wk]),
-                             "capacity_min": cap, "load_pct": round(tot / cap * 100), "over": tot > cap})
-    return {"rows": rows, "basis": "能力 = 同时开工数 × 480 分钟 × 5 天；工单按计划开工到计划完工的工作日平均摊开"}
+                jm = {k: round(v) for k, v in jobs_in[ws][wk].items() if v >= 0.5}
+                row = {"workstation": ws, "week": wk, "others_min": round(used[ws][wk]), "job_min": round(mine[ws][wk]),
+                       "capacity_min": cap, "load_pct": round(tot / cap * 100), "over": tot > cap,
+                       "jobs": [{"job_no": k, "min": v, "slack_days": slack.get(k)} for k, v in sorted(jm.items())]}
+                row["suggestion"] = suggest_conflict({"workstation": ws, "week": wk, "capacity_min": cap, "total_min": tot, "jobs": jm},
+                                                     slack, earliest, due) if tot > cap else None
+                rows.append(row)
+    return {"rows": rows, "basis": "能力 = 同时开工数 × 480 分钟 × 5 天；工单按计划开工到计划完工的工作日平均摊开；"
+                                   "其他已接单作业没下工单的部分按它的倒排（设计没发布按估算工序从交期往回）摊开；只给建议，不改任何作业的日期"}
+
+
+def quote_capacity(db, mode, job, lines, today=None):
+    """第 150 轮 150c：报价时工位够不够——这张作业估算的工序分钟，按交期前的周数摊开，加上其他作业和在制工单的负荷，哪个工位哪周超了"""
+    today = today or dt.date.today()
+    if not job.get("due_date"):
+        return []
+    j = dict(job, sales_order=job.get("sales_order") or "quote")
+    dem, _, _ = _job_demand(db, mode, j, today, set()) if lines else ({}, None, None)
+    if not dem:
+        return []
+    full = _others_by_week(db, mode, job.get("job_no"), today)       # 各周其他负荷：在制工单 + 其他已接单作业
+    out = []
+    for (ws, wk), m in sorted(dem.items(), key=lambda kv: (kv[0][1], kv[0][0] or "")):
+        if ws not in F.WORKSTATIONS:
+            continue
+        count = F.WORKSTATIONS[ws][0]
+        par = (getattr(F, "WORKSTATION_PARALLEL", {}) or {}).get(ws) or count
+        cap = par * DAY_MIN * 5
+        other = full.get((ws, wk), 0)
+        if other + m > cap:
+            out.append({"workstation": ws, "week": wk, "job_min": round(m), "others_min": round(other), "capacity_min": cap,
+                        "short_min": round(other + m - cap)})
+    return out
+
+
+def _others_by_week(db, mode, job_no, today):
+    from hub.kpi import Overview
+    o = Overview(db, None, mode)
+    out = defaultdict(float)
+    for w in o.wos:
+        d = w["data"]
+        if d.get("status") in ("Completed", "Stopped", "Closed", "Cancelled") or d.get("docstatus") == 2 or d.get("production_item") not in F.BOMS:
+            continue
+        try:
+            a = dt.date.fromisoformat(str(d.get("planned_start_date"))[:10])
+            b = dt.date.fromisoformat(str(d.get("expected_delivery_date") or d.get("planned_start_date"))[:10])
+        except ValueError:
+            continue
+        left = float(d.get("qty", 0)) - float(d.get("produced_qty", 0) or 0)
+        if left <= 0:
+            continue
+        days = _spread_days(max(a, today), max(b, a, today))
+        for op, m in F.ROUTINGS[F.BOMS[d["production_item"]][0]]:
+            for dd in days:
+                out[(F.OPERATIONS.get(op), _week(dd))] += m * left / len(days)
+    wo_items = defaultdict(set)
+    for w in o.wos:
+        wo_items[w["data"].get("project")].add(w["data"].get("production_item"))
+    for j in E.jobs(db, mode):
+        if j["job_no"] == job_no or not j.get("sales_order") or j.get("delivery_note") or not j.get("due_date"):
+            continue
+        dem, _, _ = _job_demand(db, mode, j, today, wo_items.get(E.project_of(j), set()))
+        for k, m in dem.items():
+            out[k] += m
+    return out

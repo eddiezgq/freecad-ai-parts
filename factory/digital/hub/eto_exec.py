@@ -99,6 +99,7 @@ def traveler(db, mode, job_no, work_order):
     return {"job_no": job_no, "title": j["title"], "customer": j["customer"], "due_date": j["due_date"], "sales_order": j.get("sales_order"),
             "work_order": work_order, "item": item, "item_name": F.ITEMS[item][0], "qty": w["qty"],
             "design_rev": rel["rev"] if rel else None, "fingerprint": (rel or {}).get("fingerprint"),
+            "drawing": ((rel or {}).get("drawings") or {}).get(item),          # 第 150 轮 150d：按哪张批准的图做
             "operations": [{"seq": i + 1, "operation": op, "workstation": F.OPERATIONS.get(op), "std_min": m,
                             "total_min": round(m * w["qty"], 1), "inspection": op in INSPECT_OPS} for i, (op, m) in enumerate(F.ROUTINGS[rt])],
             "components": [{"item_code": c, "name": F.ITEMS[c][0], "per": q, "qty": round(q * w["qty"], 4), "uom": F.ITEMS[c][2]} for c, q in comps],

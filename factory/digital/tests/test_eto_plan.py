@@ -89,3 +89,51 @@ def test_load_and_mrp_dates(db, tree):  # noqa: F811
     w = {x["production_item"]: x for x in pv["work_orders"]}
     mk = {x["item_code"]: x for x in P.schedule(db, "teach", jn)["make"]}
     assert w[jn]["planned_start_date"] == mk[jn]["latest_start"] > dt.date.today().isoformat()     # 交期远：按倒排的最晚开工
+
+
+# ---------------------------------------------------------------- 第 150 轮 150c：多张作业抢工位
+def test_suggest_conflict_by_hand():
+    row = {"workstation": "数控车床 CNC-L01", "week": "2026-11-16", "capacity_min": 2400, "total_min": 3000, "jobs": {"J-A": 1800, "J-B": 1200}}
+    # 超 600 分；一天能力 480 分 → 挪开 2 个工作日；J-A 松紧 5 最大（new_earliest：最早完工 2026-11-20 周五 + 2 → 2026-11-24）
+    s = P.suggest_conflict(row, {"J-A": 5, "J-B": 2}, {"J-A": "2026-11-20", "J-B": "2026-11-27"}, {"J-A": "2026-11-30", "J-B": "2026-12-01"})
+    assert s["action"] == "delay" and s["job_no"] == "J-A" and s["delay_days"] == 2 and s["over_min"] == 600 and s["new_earliest"] == "2026-11-24"
+    # 最松的也只有 1 天余量：推迟赶不上，建议加班或外协，缺 600 分
+    s = P.suggest_conflict(row, {"J-A": 1, "J-B": 0}, {"J-A": "2026-11-20", "J-B": "2026-11-27"}, {"J-A": "x", "J-B": "y"})
+    assert s["action"] == "overtime" and s["job_no"] == "J-A" and "缺 600 分钟" in s["text"]
+    assert P.suggest_conflict(row, {"J-A": None, "J-B": None}, {}, {})["action"] == "unknown"     # 松紧算不出：不猜
+    assert P.suggest_conflict(dict(row, total_min=2400), {"J-A": 5}, {"J-A": "2026-11-20"}, {"J-A": "x"}) is None   # 没超：不出建议
+
+
+def test_other_jobs_count_in_load_and_quote(db, tree):  # noqa: F811
+    import json
+
+    from hub import eto as E
+    from hub import eto_design as ED
+    from tests.test_eto import CFG
+    today = dt.date(2026, 11, 16)
+    j = E.new_job(db, "teach", "王销售", "示例·客户乙", "非标甲", "", 1, None, "2026-12-04", cfg=CFG)
+    jn = j["job_no"]
+    db.x("update eto_job set status='ordered', sales_order='SO-A', project='PROJ-A' where mode='teach' and job_no=%s", (jn,))
+    spec = {"items": [], "boms": [{"item": jn, "routing": [[OP, 2400]], "components": [["B", 1]]}]}
+    db.x("insert into eto_design (mode, job_no, rev, spec, status) values ('teach',%s,1,%s,'released')", (jn, json.dumps(spec)))
+    ED.merge(jn, "非标甲", spec)
+    # 另两张已接单、设计没发布的作业：估算里车床各 2400 分，交期同一周（车床 2 台，一周能力 4800 分；三张每天各占 480 分）
+    others = []
+    for k in "BC":
+        o = E.new_job(db, "teach", "王销售", "示例·客户" + k, "非标" + k, "", 1, None, "2026-12-04", cfg=CFG)
+        E.save_estimate(db, "teach", o["job_no"], [{"kind": "operation", "op": OP, "setup_min": 0, "run_min": 2400}], "", "王销售")
+        db.x("update eto_job set status='ordered', sales_order=%s, project=%s where mode='teach' and job_no=%s", ("SO-" + k, "PROJ-" + k, o["job_no"]))
+        others.append(o["job_no"])
+    on = others[0]
+    rows = [r for r in P.load(db, "teach", jn, today)["rows"] if r["workstation"] == F.OPERATIONS[OP] and r["over"] and r["job_min"]]
+    assert rows, "两张作业都落在同一周的车床上，应该超"
+    r = rows[0]
+    jobs = {x["job_no"]: x for x in r["jobs"]}
+    assert set(jobs) >= {jn, *others} and all(jobs[k]["min"] > 0 for k in others)
+    best = max(v["slack_days"] for v in jobs.values())
+    assert r["suggestion"]["action"] == "delay" and jobs[r["suggestion"]["job_no"]]["slack_days"] == best      # 推迟松紧最大的那张
+    # 没接单的作业（还在报价）：报价页看得到车床那周不够
+    q = E.new_job(db, "teach", "王销售", "示例·客户丁", "非标丙", "", 1, None, "2026-12-04", cfg=CFG)
+    E.save_estimate(db, "teach", q["job_no"], [{"kind": "operation", "op": OP, "setup_min": 0, "run_min": 2400}], "", "王销售")
+    cap = P.quote_capacity(db, "teach", E.job(db, "teach", q["job_no"]), [{"kind": "operation", "op": OP, "run_min": 2400}], today)
+    assert any(c["workstation"] == F.OPERATIONS[OP] and c["short_min"] > 0 for c in cap)

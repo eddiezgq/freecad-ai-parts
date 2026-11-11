@@ -3962,5 +3962,29 @@
 [
 "流体分析“{a}”：{b} m/s 时对流 {c} + 辐射 {d}",
 "Flow analysis “{a}”: convection {c} + radiation {d} at {b} m/s"
+],
+[
+"超出 {a} 分钟：建议 {b} 让出这一周（松紧 {c} 个工作日，最大），把它这周的活挪开 {d} 个工作日，交期 {e} 仍赶得上",
+"{a} min over: suggest {b} gives up this week (largest slack, {c} working days) by moving its work here {d} working days away; its due date {e} still holds"
+],
+[
+"超出 {a} 分钟：推迟哪张都赶不上交期（最松的 {b} 只有 {c} 个工作日余量），建议加班或外协，缺 {d} 分钟",
+"{a} min over: delaying any job misses its due date (the loosest, {b}, has only {c} working days of slack); suggest overtime or outside processing, {d} min short"
+],
+[
+"超出 {a} 分钟；作业的松紧算不出来，请人看",
+"{a} min over; job slack cannot be calculated, please review"
+],
+[
+"从交期倒排：发货预留 {a} 个工作日，父件开工前一天子件做完或到货；每件工期 = 单件分钟 × 件数 ÷ 480（一天 8 小时，串行），采购按供应商提前期",
+"Backward from the due date: {a} working days kept for shipping; children finish or arrive the day before the parent starts; each part's duration = minutes per piece × quantity ÷ 480 (8-hour day, in series); purchases by supplier lead time"
+],
+[
+"本单新件还没有批准的图纸：{a}（先到“设计发布与审批”提交图纸并批准）",
+"New parts for this job have no approved drawing yet: {a} (submit drawings in “Design release & approval” and get them approved first)"
+],
+[
+"本单新件没有批准的图纸：{a}",
+"New parts for this job have no approved drawing: {a}"
 ]
 ]

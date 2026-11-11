@@ -57,16 +57,25 @@ def mount(app, H, user_of, who, ai_quota=None):
         except E.EtoError as e:
             raise HTTPException(400, str(e))
 
-    def with_feas(d):
-        """第 139d 段：报价时能否按期（按估算粗算）"""
+    def with_feas(d, u):
+        """第 139d 段：报价时能否按期（按估算粗算）；第 150 轮 150c：加上其他作业和在制工单占的工位"""
         if d:
-            d["feasibility"] = EP.feasibility(d["job"], (d.get("estimate") or {}).get("lines") or [])
+            lines = (d.get("estimate") or {}).get("lines") or []
+            f = EP.feasibility(d["job"], lines)
+            try:
+                f["capacity"] = EP.quote_capacity(H.db, u["mode"], d["job"], lines)
+            except Exception:  # noqa: BLE001  （负荷算不出来不挡报价页，只是不显示）
+                log.exception("报价时工位负荷")
+                f["capacity"] = None
+            if f["capacity"]:
+                f["ok"] = False
+            d["feasibility"] = f
         return d
 
     @app.get("/api/eto/jobs/{job_no}")
     def eto_detail(job_no: str, u=Depends(user_of)):
         try:
-            return with_feas(found(E.detail(H.db, u["mode"], job_no), job_no))
+            return with_feas(found(E.detail(H.db, u["mode"], job_no), job_no), u)
         except E.EtoError as e:
             raise HTTPException(400, str(e))
 
@@ -79,7 +88,7 @@ def mount(app, H, user_of, who, ai_quota=None):
             raise HTTPException(404, "没有作业 {}".format(job_no))
         except E.EtoError as e:
             raise HTTPException(409, str(e))
-        return with_feas(E.detail(H.db, u["mode"], job_no))
+        return with_feas(E.detail(H.db, u["mode"], job_no), u)
 
     @app.post("/api/eto/jobs/{job_no}/draft")
     def eto_draft(job_no: str, u=Depends(user_of)):
