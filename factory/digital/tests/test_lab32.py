@@ -139,13 +139,13 @@ def test_lab32_induction():
     assert not any(c.startswith(("WQ-LS|", "WQ-OL|")) for c in out["chars"])
 
 
-def test_lab32_listed_only_in_sewing_plant():
+def test_sewing_labs_listed_only_in_sewing_plant():
     code = ("import sys, json; sys.path[:0] = [{!r}, {!r}]\nfrom hub import labs_api as L\n"
             "print(json.dumps([l['no'] for l in L.labs_here()]))").format(DIG, FAC)
     env = dict(os.environ, WQ_PLANT_FILE=SEW)
     r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, env=env, cwd=DIG, timeout=60)
     assert r.returncode == 0, r.stderr[-2000:]
-    assert json.loads(r.stdout) == [32]
+    assert json.loads(r.stdout) == [32, 34]
 
 
 def test_lab32_docs():

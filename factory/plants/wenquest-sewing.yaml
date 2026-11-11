@@ -3824,7 +3824,7 @@ measurements:
     nominal: 285
     lo: 250
     hi: 340
-    sigma: 10
+    sigma: 6.5
   - code: cast_wall
     name: 关键壁厚（超声测厚，机臂）
     unit: mm
@@ -3847,7 +3847,7 @@ measurements:
     nominal: 3.4
     lo: 3.0
     hi: 3.8
-    sigma: 0.1
+    sigma: 0.074
 - item: CAST-OL
   operation: C160 铸件检验 Casting inspection
   chars:
@@ -3871,7 +3871,7 @@ measurements:
     nominal: 26.0015
     lo: 25.991
     hi: 26.012
-    sigma: 0.0022
+    sigma: 0.0019
   - code: hs_coax_up
     name: 上轴孔三处同轴度（三坐标）
     unit: mm
@@ -3899,14 +3899,14 @@ measurements:
     nominal: 0
     lo: -0.02
     hi: 0.02
-    sigma: 0.005
+    sigma: 0.0037
   - code: hs_perp
     name: 针杆孔对上轴孔垂直度（三坐标）
     unit: mm
     nominal: 0.005
     lo: 0
     hi: 0.01
-    sigma: 0.0012
+    sigma: 0.00093
   - code: hs_pos
     name: 针杆孔到下轴孔位置度（三坐标）
     unit: mm
@@ -3920,14 +3920,14 @@ measurements:
     nominal: 32.0
     lo: 31.97
     hi: 32.03
-    sigma: 0.007
+    sigma: 0.0056
   - code: hs_flat
     name: 底面 A 平面度（三坐标）
     unit: mm
     nominal: 0.01
     lo: 0
     hi: 0.02
-    sigma: 0.0025
+    sigma: 0.0019
   - code: hs_clean
     name: 清洁度：残留颗粒（每班抽检）
     unit: mg
@@ -3944,7 +3944,7 @@ measurements:
     nominal: 0.005
     lo: 0
     hi: 0.01
-    sigma: 0.0012
+    sigma: 0.00093
   - code: ho_par
     name: 下弯针摆轴孔对主轴孔平行度（三坐标）
     unit: mm
@@ -3958,14 +3958,14 @@ measurements:
     nominal: 0.005
     lo: 0
     hi: 0.01
-    sigma: 0.0012
+    sigma: 0.00093
   - code: ho_pos
     name: 针杆孔到下弯针摆轴孔位置度（三坐标）
     unit: mm
     nominal: 0.014
     lo: 0
     hi: 0.03
-    sigma: 0.0035
+    sigma: 0.003
   - code: ho_flat
     name: 油底壳结合面平面度（三坐标）
     unit: mm
@@ -3996,14 +3996,14 @@ measurements:
     nominal: 12.005
     lo: 12.001
     hi: 12.009
-    sigma: 0.0012
+    sigma: 0.00074
   - code: ls_runout
     name: 轴承位径向圆跳动
     unit: mm
     nominal: 0.004
     lo: 0
     hi: 0.01
-    sigma: 0.0015
+    sigma: 0.0011
   - code: ls_hrc
     name: 轴颈表面硬度（高频淬火）
     unit: HRC
@@ -4017,7 +4017,7 @@ measurements:
     nominal: 0
     lo: -0.5
     hi: 0.5
-    sigma: 0.12
+    sigma: 0.093
 - item: LS-102
   operation: P110 零件检验 Part inspection
   chars: *id005
@@ -4033,21 +4033,21 @@ measurements:
     nominal: 7.997
     lo: 7.994
     hi: 8.0
-    sigma: 0.0009
+    sigma: 0.00056
   - code: nb_str
     name: 针杆直线度（每 100 mm）
     unit: mm
     nominal: 0.002
     lo: 0
     hi: 0.005
-    sigma: 0.0007
+    sigma: 0.00056
   - code: nb_hrc
     name: 针杆硬度
     unit: HRC
-    nominal: 60
+    nominal: 60.5
     lo: 58
     hi: 63
-    sigma: 0.8
+    sigma: 0.45
 - item: OL-201
   operation: P110 零件检验 Part inspection
   chars: *id006
@@ -4060,14 +4060,14 @@ measurements:
     nominal: 0
     lo: -0.01
     hi: 0.01
-    sigma: 0.0028
+    sigma: 0.0019
   - code: hk_hrc
     name: 旋梭表面硬度
     unit: HRC
     nominal: 61
     lo: 58
     hi: 64
-    sigma: 0.8
+    sigma: 0.55
 - item: LS-401
   operation: P110 零件检验 Part inspection
   chars: &id007
@@ -4077,21 +4077,21 @@ measurements:
     nominal: 0
     lo: -0.01
     hi: 0.01
-    sigma: 0.0028
+    sigma: 0.0019
   - code: ec_phase
     name: 偏心相位偏差（对键槽）
     unit: °
     nominal: 0
     lo: -0.5
     hi: 0.5
-    sigma: 0.12
+    sigma: 0.093
   - code: ec_hrc
     name: 表面硬度（渗碳淬火）
     unit: HRC
     nominal: 60.5
     lo: 58
     hi: 63
-    sigma: 0.8
+    sigma: 0.45
 - item: OL-401
   operation: P110 零件检验 Part inspection
   chars: *id007
@@ -4111,35 +4111,35 @@ measurements:
     nominal: 0
     lo: -1.5
     hi: 1.5
-    sigma: 0.4
+    sigma: 0.28
   - code: lsa_feed
     name: 送布牙高度（调试工位）
     unit: mm
     nominal: 0.9
     lo: 0.8
     hi: 1.0
-    sigma: 0.03
+    sigma: 0.019
   - code: lsa_temp
     name: 跑合轴承处温升（跑合台）
     unit: K
     nominal: 15
     lo: 0
     hi: 25
-    sigma: 2.5
+    sigma: 1.9
   - code: lsa_noise
     name: 空载噪声（5000 r/min）
     unit: dB(A)
-    nominal: 79
+    nominal: 78
     lo: 60
     hi: 83
-    sigma: 1.2
+    sigma: 0.9
   - code: lsa_stop
     name: 停针定位误差
     unit: °
     nominal: 0
     lo: -1.0
     hi: 1.0
-    sigma: 0.25
+    sigma: 0.19
   - code: lsa_skip
     name: 试缝跳针（次）
     unit: 次
@@ -4156,14 +4156,14 @@ measurements:
     nominal: 0.025
     lo: 0
     hi: 0.05
-    sigma: 0.006
+    sigma: 0.0046
   - code: ola_knife
     name: 上下刀重叠量（调试工位）
     unit: mm
     nominal: 0.75
     lo: 0.5
     hi: 1.0
-    sigma: 0.06
+    sigma: 0.046
   - code: ola_temp
     name: 跑合温升（跑合台）
     unit: K
@@ -4177,7 +4177,7 @@ measurements:
     nominal: 80
     lo: 60
     hi: 85
-    sigma: 1.2
+    sigma: 0.93
   - code: ola_leak
     name: 跑合后渗油点（吸油纸检查）
     unit: 处
