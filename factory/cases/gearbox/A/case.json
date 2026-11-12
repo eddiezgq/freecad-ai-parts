@@ -100,8 +100,8 @@
    "key": "calc",
    "title": "计算",
    "title_en": "Calculation",
-   "summary": "齿轮力 3333 / 1213 N；四个截面静强度、疲劳都过（40Cr）；转角、临界转速、键、轴承寿命 173,849 h 都满足。",
-   "summary_en": "Gear forces 3333 / 1213 N; static and fatigue checks pass at all four sections (40Cr); slope, critical speed, keys and bearing life (173,849 h) all pass.",
+   "summary": "齿轮力 3333 / 1213 N；四个截面静强度、疲劳都过（40Cr）；转角、临界转速、键、轴承寿命 225,703 h 都满足。",
+   "summary_en": "Gear forces 3333 / 1213 N; static and fatigue checks pass at all four sections (40Cr); slope, critical speed, keys and bearing life (225,703 h) all pass.",
    "md": "3_计算书.md",
    "figs": [],
    "files": [],
@@ -128,7 +128,7 @@
     {
      "name": "轴承寿命",
      "name_en": "Bearing life",
-     "value": "173,849",
+     "value": "225,703",
      "unit": "h"
     }
    ]
@@ -437,7 +437,7 @@
    "step": "calc",
    "what": "轴承 6207 寿命",
    "what_en": "6207 bearing life",
-   "value": "173,849",
+   "value": "225,703",
    "op": ">=",
    "limit": "10,000",
    "unit": "h",

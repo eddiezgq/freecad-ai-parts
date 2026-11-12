@@ -1,0 +1,451 @@
+{
+ "plant": "gearbox",
+ "id": "C",
+ "level": "完整",
+ "title": "二级圆柱齿轮减速器 WQR-105（整机）",
+ "title_en": "Two-stage gear reducer WQR-105 (complete)",
+ "item": "WQR-105",
+ "summary": "整台减速器：传动比分配、两级齿轮、三根轴和六个轴承、轴向布置、箱体热平衡（有限元）、三维装配，再在减速器厂合箱镗孔、装配、跑合、出厂 10 台。",
+ "summary_en": "The complete reducer: ratio split, both gear stages, three shafts and six bearings, axial layout, housing heat balance (FEA), 3D assembly, then line-boring, assembly, run-in and dispatch of 10 units in the gearbox plant.",
+ "script": "tools/cases/gearbox_c.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "4 kW、1450 r/min 输入，350 N·m、138.1 r/min 输出，i = 10.5；油温 ≤ 80 ℃；输出轴和低速级齿轮用案例 A、B 的结果。",
+   "summary_en": "4 kW at 1450 rpm in, 350 N·m at 138.1 rpm out, i = 10.5; oil ≤ 80 °C; output shaft and low-speed gears from cases A and B.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "参数配置器",
+     "label_en": "Configurator",
+     "route": "/configurator"
+    }
+   ],
+   "facts": [
+    {
+     "name": "输入功率",
+     "name_en": "Input power",
+     "value": "5.54",
+     "unit": "kW"
+    },
+    {
+     "name": "总传动比",
+     "name_en": "Overall ratio",
+     "value": "10.5",
+     "unit": ""
+    },
+    {
+     "name": "输出转矩",
+     "name_en": "Output torque",
+     "value": "350",
+     "unit": "N·m"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "比较四种传动比分配：总中心距差不到 4%，差在浸油；现行 3 × 3.5 低速级大齿轮浸油 0.42 倍半径略深，但工装和 A、B 已定，保持不变，下一代改 i₁ > i₂。",
+   "summary_en": "Four ratio splits compared: total centre distance within 4%, the difference is oil immersion; the current 3 × 3.5 dips the low-speed wheel 0.42 of its radius, slightly deep, but tooling and cases A/B are fixed, so it is kept; next generation should use i₁ > i₂.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "参数配置器",
+     "label_en": "Configurator",
+     "route": "/configurator"
+    }
+   ],
+   "facts": [
+    {
+     "name": "中心距",
+     "name_en": "Centre distances",
+     "value": "96 + 135",
+     "unit": "mm"
+    },
+    {
+     "name": "低速级浸油",
+     "name_en": "Low-speed immersion",
+     "value": "0.419",
+     "unit": "r"
+    }
+   ]
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "两级齿轮 S_H 1.14 / 1.12；轴承跨距要从案例 A 的 115 加到 136 mm；三根轴最小 S_ca 3.35；轴承最短寿命 11,758 h。",
+   "summary_en": "Gear stages S_H 1.14 / 1.12; bearing span must grow from case A's 115 to 136 mm; lowest shaft S_ca 3.35; shortest bearing life 11,758 h.",
+   "md": "3_计算书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "仿真与分析",
+     "label_en": "Simulation & analysis",
+     "route": "/cae"
+    },
+    {
+     "label": "零件库",
+     "label_en": "Parts library",
+     "route": "/library"
+    }
+   ],
+   "facts": [
+    {
+     "name": "第一级 S_H",
+     "name_en": "Stage 1 S_H",
+     "value": "1.14",
+     "unit": ""
+    },
+    {
+     "name": "第二级 S_H",
+     "name_en": "Stage 2 S_H",
+     "value": "1.12",
+     "unit": ""
+    },
+    {
+     "name": "轴承跨距",
+     "name_en": "Bearing span",
+     "value": "136",
+     "unit": "mm"
+    },
+    {
+     "name": "轴最小 S_ca",
+     "name_en": "Lowest shaft S_ca",
+     "value": "3.35",
+     "unit": ""
+    },
+    {
+     "name": "轴承最短寿命",
+     "name_en": "Shortest bearing life",
+     "value": "11,758",
+     "unit": "h"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "光箱体满载油温约 88 ℃，超 80 ℃；每侧 8 条散热筋后约 73 ℃（有限元 65 ℃）；输出轴按新跨距复核 S_ca 1.71。",
+   "summary_en": "Plain housing runs at about 88 °C, above 80 °C; with 8 fins per side about 73 °C (FEA 65 °C); output shaft rechecked at the new span, S_ca 1.71.",
+   "md": "4_热平衡与复核.md",
+   "figs": [
+    {
+     "file": "4_热平衡.png",
+     "caption": "箱体热平衡：有限元与教材公式",
+     "caption_en": "Housing heat balance: FEA and textbook formula"
+    },
+    {
+     "file": "4_箱体温度.png",
+     "caption": "加散热筋后箱体外表面温度（有限元）",
+     "caption_en": "Housing surface temperature with fins (FEA)"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "仿真与分析",
+     "label_en": "Simulation & analysis",
+     "route": "/cae"
+    }
+   ],
+   "facts": [
+    {
+     "name": "光箱体油温",
+     "name_en": "Plain housing oil",
+     "value": "87.9",
+     "unit": "℃"
+    },
+    {
+     "name": "加筋后油温",
+     "name_en": "With fins",
+     "value": "73.1",
+     "unit": "℃"
+    },
+    {
+     "name": "输出轴 S_ca",
+     "name_en": "Output shaft S_ca",
+     "value": "1.71",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "三根轴、四只齿轮、六只轴承按新布置装成三维；装配示意图标出跨距 136 mm；物料清单 17 行。",
+   "summary_en": "Three shafts, four gears and six bearings assembled in 3D to the new layout; layout sketch with the 136 mm span; 17-line BOM.",
+   "md": "5_三维与装配.md",
+   "figs": [
+    {
+     "file": "5_三维装配.png",
+     "caption": "WQR-105 内部三维（不含箱体）",
+     "caption_en": "WQR-105 internals in 3D (housing hidden)"
+    },
+    {
+     "file": "5_装配示意图.png",
+     "caption": "装配示意图（俯视展开）",
+     "caption_en": "Layout sketch (developed plan view)"
+    }
+   ],
+   "files": [
+    {
+     "file": "WQR-105-内部.step",
+     "label": "内部三维 STEP",
+     "label_en": "Internals (STEP)"
+    }
+   ],
+   "tools": [
+    {
+     "label": "零件库",
+     "label_en": "Parts library",
+     "route": "/library"
+    },
+    {
+     "label": "设计发布与审批",
+     "label_en": "Design release",
+     "route": "/design"
+    },
+    {
+     "label": "3D 车间",
+     "label_en": "3D shop",
+     "route": "/3d"
+    }
+   ],
+   "facts": [
+    {
+     "name": "跨距",
+     "name_en": "Span",
+     "value": "136",
+     "unit": "mm"
+    },
+    {
+     "name": "物料清单",
+     "name_en": "BOM lines",
+     "value": "17",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "5 个部件 / 产品、13 道装配工序；合箱镗孔保证中心距；跨距改了，箱体、输出轴、中间轴一起改版。",
+   "summary_en": "Five assemblies, 13 operations; line-boring holds the centre distances; with the new span the housing, output and intermediate shafts are revised together.",
+   "md": "6_装配工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "工艺规程与 AI 评审",
+     "label_en": "Process plans & AI review",
+     "route": "/process"
+    },
+    {
+     "label": "设计发布与审批",
+     "label_en": "Design release",
+     "route": "/design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "装配工序",
+     "name_en": "Assembly operations",
+     "value": "13",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "五张工单各 10 套 / 台完工；跑合起动峰值 1.58–1.69 倍额定；标准成本 $591.57/台。",
+   "summary_en": "Five work orders of 10 completed; run-in start-up peaks 1.58–1.69× rated; standard cost $591.57 per unit.",
+   "md": "7_装配与跑合.md",
+   "figs": [
+    {
+     "file": "7_跑合记录.png",
+     "caption": "10 台跑合的起动峰值与运行平均转矩",
+     "caption_en": "Run-in start-up peaks and running mean torque of 10 units"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间终端",
+     "label_en": "Shop-floor terminal",
+     "route": "/work/operator"
+    },
+    {
+     "label": "数字孪生",
+     "label_en": "Digital twin",
+     "route": "/twin"
+    },
+    {
+     "label": "经营与成本",
+     "label_en": "Business & cost",
+     "route": "/finance"
+    }
+   ],
+   "facts": [
+    {
+     "name": "总装用时",
+     "name_en": "Final assembly",
+     "value": "9.72",
+     "unit": "h"
+    },
+    {
+     "name": "标准成本",
+     "name_en": "Standard cost",
+     "value": "$591.57",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "8 / 8 项校核通过；整机反过来改了零件：跨距 115 → 136、箱体加筋。",
+   "summary_en": "8 / 8 checks pass; the whole machine changed its parts: span 115 → 136, housing fins.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计发布与审批",
+     "label_en": "Design release",
+     "route": "/design"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "calc",
+   "what": "第一级齿面接触安全系数",
+   "what_en": "Stage 1 contact safety factor",
+   "value": "1.14",
+   "op": ">=",
+   "limit": "1",
+   "unit": "",
+   "ok": true,
+   "src": "GB/T 3480"
+  },
+  {
+   "step": "calc",
+   "what": "第二级齿面接触安全系数",
+   "what_en": "Stage 2 contact safety factor",
+   "value": "1.12",
+   "op": ">=",
+   "limit": "1",
+   "unit": "",
+   "ok": true,
+   "src": "GB/T 3480"
+  },
+  {
+   "step": "calc",
+   "what": "两级齿根弯曲安全系数",
+   "what_en": "Bending safety factor, both stages",
+   "value": "5.49",
+   "op": ">=",
+   "limit": "1.25",
+   "unit": "",
+   "ok": true,
+   "src": "GB/T 3480"
+  },
+  {
+   "step": "calc",
+   "what": "三根轴疲劳安全系数",
+   "what_en": "Fatigue safety factor, three shafts",
+   "value": "3.35",
+   "op": ">=",
+   "limit": "1.5",
+   "unit": "",
+   "ok": true,
+   "src": "《机械设计》33.5.5 节"
+  },
+  {
+   "step": "calc",
+   "what": "六个轴承最短寿命",
+   "what_en": "Shortest life of the six bearings",
+   "value": "11,758",
+   "op": ">=",
+   "limit": "10,000",
+   "unit": "h",
+   "ok": true,
+   "src": "ISO 281"
+  },
+  {
+   "step": "sim",
+   "what": "加散热筋后满载油温（教材公式，偏保守）",
+   "what_en": "Full-load oil temperature with fins (textbook formula, conservative)",
+   "value": "73.1",
+   "op": "<=",
+   "limit": "80",
+   "unit": "℃",
+   "ok": true,
+   "src": "濮良贵《机械设计》"
+  },
+  {
+   "step": "sim",
+   "what": "输出轴按新跨距的疲劳安全系数",
+   "what_en": "Output shaft fatigue factor at the new span",
+   "value": "1.71",
+   "op": ">=",
+   "limit": "1.5",
+   "unit": "",
+   "ok": true,
+   "src": "33.5.5 节"
+  },
+  {
+   "step": "make",
+   "what": "10 台总装、跑合、出厂完工",
+   "what_en": "Units through assembly, run-in and dispatch",
+   "value": "10",
+   "op": "==",
+   "limit": "10",
+   "unit": "",
+   "ok": true,
+   "src": "检验站"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算书.md",
+  "4_热平衡.png",
+  "4_热平衡与复核.md",
+  "4_箱体温度.png",
+  "5_三维与装配.md",
+  "5_三维装配.png",
+  "5_装配示意图.png",
+  "6_装配工艺.md",
+  "7_装配与跑合.md",
+  "7_跑合记录.png",
+  "8_总结.md",
+  "WQR-105-内部.step"
+ ]
+}
