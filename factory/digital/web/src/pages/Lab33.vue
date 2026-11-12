@@ -43,6 +43,10 @@
             <label v-for="o in s.reasons" :key="o.value"><input v-model="a5.reason" type="radio" :value="o.value" required> {{ $td(o.label) }}</label></span></div>
           <button class="btn primary" :disabled="!s.job_no">{{ $t('提交') }}</button>
         </form>
+        <form v-if="t.id === 'l33_t6'" class="f" @submit.prevent="submit('l33_t6', a6)">
+          <div class="fr"><label>{{ $t('这次设计变更的变更损失（$）') }}</label><input v-model.number="a6.loss" type="number" step="0.01" required></div>
+          <button class="btn primary" :disabled="!s.job_no">{{ $t('提交') }}</button>
+        </form>
         <p v-if="fb[t.id]" class="small fb">{{ $td(fb[t.id]) }}</p>
       </section>
     </template>
@@ -61,6 +65,7 @@ const a1 = reactive({ job_no: '', price: null });
 const a3 = reactive({ earliest: '' });
 const a4 = reactive({ diff: null });
 const a5 = reactive({ reason: '' });
+const a6 = reactive({ loss: null });
 
 async function load() {
   try { s.value = await get('/lab33'); err.value = ''; if (s.value.job_no && !a1.job_no) a1.job_no = s.value.job_no; } catch (e) { err.value = e.message; }

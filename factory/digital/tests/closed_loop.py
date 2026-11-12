@@ -621,14 +621,43 @@ def eto(teacher):
     run("materials", "作业算料提议执行（工单、请购挂作业号）")
     wos = [x for x in erp_docs("Work Order") if x.get("project") == j["project"] and x.get("docstatus") == 1]
     check(any(x.get("production_item") == jn for x in wos), "ERPNext 里有作业 {} 的工单（{}）".format(jn, "、".join(x["name"] for x in wos)))
+    # 第 150 轮 150a：工单下了以后设计改版（粗车 +1 分钟）→ 发布第 2 版 → 处理设计变更（没开工的工单换新版）→ 再算料，新工单用第 2 版
+    planner = login("测试计划员", "planner")
+    spec2 = hub("GET", "/api/eto/jobs/{}/design".format(jn), token=sales)["design"]["spec"]
+    for b_ in spec2.get("boms") or []:
+        if b_["item"] == jn and b_["routing"]:
+            b_["routing"][0][1] = float(b_["routing"][0][1]) + 1
+    d = hub("PUT", "/api/eto/jobs/{}/design".format(jn), {"spec": spec2}, sales)
+    check(d["design"]["rev"] == 2 and not d["errors"], "设计改版：第 {} 版草稿".format(d["design"]["rev"]))
+    run("design/release", "设计第 2 版发布执行")
+    ch = hub("GET", "/api/eto/jobs/{}/change".format(jn), token=planner)
+    old = [r for r in ch["rows"] if r["doctype"] == "Work Order" and r["item"] == jn]
+    check(ch["from_rev"] == 1 and ch["rev"] == 2 and old and old[0]["suggest"] == "renew",
+          "处理设计变更：{}".format("；".join("{} {} 建议{}".format(r["doctype"], r["name"], r["suggest"]) for r in ch["rows"])))
+    try:
+        hub("POST", "/api/eto/jobs/{}/materials".format(jn), token=sales)
+        check(False, "变更没处理完不能再算料")
+    except RuntimeError as e:
+        check("409" in str(e), "变更没处理完不能再算料（{}）".format(str(e)[-50:]))
+    q = hub("POST", "/api/eto/jobs/{}/change".format(jn), {"choices": {}}, planner)
+    hub("POST", "/api/proposals/{}/confirm".format(q["proposal_id"]), token=planner)
+    p = wait(lambda: (lambda x: x if x["status"] in ("executed", "failed") else None)(
+        hub("GET", "/api/proposals/" + q["proposal_id"], token=planner)), "设计变更处理", 120, 2)
+    check(p is not None and p["status"] == "executed", "设计变更处理执行：{}".format(p and p.get("result")))
+    ch = hub("GET", "/api/eto/jobs/{}/change".format(jn), token=planner)
+    check(ch["open"] == 0, "这次变更都处理完了（{} 条）".format(ch["decided"]))
+    if old:
+        gone = wait(lambda: next((x for x in erp_docs("Work Order") if x.get("name") == old[0]["name"] and x.get("docstatus") == 2), None),
+                    "ERPNext 旧版工单取消", 60, 2)
+        check(gone is not None, "ERPNext 旧版工单 {} 已取消".format(old[0]["name"]))
+    run("materials", "再算料提议执行（按第 2 版下工单）")
     sc = hub("GET", "/api/eto/jobs/{}/schedule".format(jn), token=sales)                     # 139d
     check(sc["make"] and sc["earliest"] and "slack_days" in sc and sc["load"]["rows"], "倒排：最早 {} 能交，松紧 {} 个工作日".format(sc["earliest"], sc["slack_days"]))
     # 139e：作业的工单下达车间 → 仿真车间报工 → 作业成本有实际工序
     shop = hub("GET", "/api/eto/jobs/{}/shop".format(jn), token=sales)
-    top = next((w for w in shop["work_orders"] if w["item"] == jn), None)
-    check(top is not None and top["current_design"], "作业工单 {} 用的是发布的那一版物料清单".format((top or {}).get("name")))
+    top = next((w for w in shop["work_orders"] if w["item"] == jn and w["current_design"]), None)
+    check(top is not None and top["current_design"], "作业工单 {} 用的是发布的那一版（第 2 版）物料清单".format((top or {}).get("name")))
     if top:
-        planner = login("测试计划员", "planner")
         q = hub("POST", "/api/eto/jobs/{}/release".format(jn), {"work_order": top["name"]}, planner)
         hub("POST", "/api/proposals/{}/confirm".format(q["proposal_id"]), token=planner)
         rp = hub("GET", "/api/proposals/" + q["proposal_id"], token=planner)
@@ -691,6 +720,9 @@ def eto(teacher):
         mon = bl["money"]
         check(mon["order_amount"] is not None and abs(mon["invoiced"] - mon["order_amount"]) < 0.01 and mon["not_invoiced"] == 0,
               "三期开完：订单 ${}，已开票 ${}".format(mon["order_amount"], mon["invoiced"]))
+        # 第 150 轮 150b：采购对账在真数据上算得出来（这张作业的外协只到请购，没有采购单时为空表）
+        check(isinstance(bl.get("purchases"), list), "采购对账：作业上的采购单 {} 行，发票未到 {}".format(len(bl.get("purchases") or []),
+                                                                                       bl.get("invoice_pending")))
         names = {m["invoice"] for m in bl["milestones"]}
         tot = sum(float(x.get("grand_total") or 0) for x in erp_docs("Sales Invoice") if x.get("name") in names and x.get("docstatus") == 1)
         check(abs(tot - (mon["order_amount"] or 0)) < 0.01, "ERPNext 三张销售发票合计 ${:,.2f} = 订单金额".format(tot))
