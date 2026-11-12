@@ -109,6 +109,50 @@
     </div>
     </template>
 
+    <!-- 第 160 轮：工厂清单（Excel）——下载在用清单、上传改好的清单、校验、改动预览、待上线清单（第一期不改在用清单） -->
+    <section v-if="canPlant" class="card" data-help="eng-plantbook">
+      <div class="card-head"><h2>{{ $t('工厂清单（Excel）') }}</h2>
+        <span class="muted small">{{ $t('改产品、物料清单、工艺路线：下载在用的清单，在 Excel 里改好再传上来') }}</span></div>
+      <div class="pb-actions">
+        <button class="btn" :disabled="pbBusy" @click="pbDownload">{{ $t('下载在用清单') }}</button>
+        <label class="btn primary" :class="{ disabled: pbBusy }">{{ pbBusy ? $t('正在校验…') : $t('上传改好的清单') }}
+          <input type="file" accept=".xlsx" hidden :disabled="pbBusy" @change="pbUpload"></label>
+      </div>
+      <p v-if="pbErr" class="err small">{{ pbErr }}</p>
+      <div v-if="pbRes && !pbRes.ok" class="pb-errs">
+        <p class="err small">{{ $t('清单有 {n} 处错，改好再传：', { n: pbRes.errors.length }) }}</p>
+        <ul class="small"><li v-for="(e, i) in pbRes.errors" :key="i">{{ $td(e) }}</li></ul>
+      </div>
+      <div v-if="pbRes && pbRes.ok" class="pb-diff">
+        <p class="small"><b>{{ $t('校验通过，已存为待上线清单 #{id}。', { id: pbRes.id }) }}</b>
+          {{ pbRes.diff.total ? $t('和在用清单比，共 {n} 处改动：', { n: pbRes.diff.total }) : $t('和在用清单一样，没有改动。') }}</p>
+        <template v-for="sec in pbSections" :key="sec.k">
+          <div v-if="pbCount(sec.k)" class="pb-sec">
+            <h3 class="sub">{{ sec.t }}</h3>
+            <ul class="small">
+              <li v-for="x in pbRes.diff[sec.k].added.rows" :key="'a' + x"><span class="tag ok">{{ $t('新增') }}</span> <span class="mono">{{ $td(x) }}</span></li>
+              <li v-for="x in pbRes.diff[sec.k].removed.rows" :key="'r' + x"><span class="tag bad">{{ $t('删除') }}</span> <span class="mono">{{ $td(x) }}</span></li>
+              <li v-for="x in pbRes.diff[sec.k].changed.rows" :key="'c' + x.key"><span class="tag warn">{{ $t('改动') }}</span> <span class="mono">{{ $td(x.key) }}</span>{{ $t('：') }}
+                <span v-for="(f, i) in (x.fields || x.lines)" :key="i">{{ i ? $t('；') : '' }}{{ f.field ? pbField(f.field) : $td(f.line) }} {{ pbVal(f.old) }} → {{ pbVal(f.new) }}</span></li>
+              <li v-if="pbMore(sec.k)" class="muted">{{ $t('还有 {n} 条', { n: pbMore(sec.k) }) }}</li>
+            </ul>
+          </div>
+        </template>
+      </div>
+      <div v-if="pbPending.length" class="pb-pending">
+        <h3 class="sub">{{ $t('待上线清单') }}</h3>
+        <div class="tw"><table class="t small">
+          <thead><tr><th>#</th><th>{{ $t('上传人') }}</th><th>{{ $t('时间') }}</th><th>{{ $t('文件') }}</th><th class="num">{{ $t('改动') }}</th><th></th></tr></thead>
+          <tbody><tr v-for="r in pbPending" :key="r.id">
+            <td class="mono">{{ r.id }}</td><td>{{ r.uploaded_by || '—' }}</td><td class="mono">{{ timeOf(r.created_at) }}</td>
+            <td class="small">{{ r.filename }}</td><td class="num">{{ r.summary?.total ?? '—' }}</td>
+            <td><button class="btn ghost small" @click="pbYaml(r.id)">{{ $t('下载') }}</button></td>
+          </tr></tbody>
+        </table></div>
+        <p class="small muted">{{ $t('待上线清单还没有生效：现在由实施人员拿去上线（帮助“工厂清单”一章第 3 步）；网页上一键上线是下一期。') }}</p>
+      </div>
+    </section>
+
     <!-- 第 155 轮：非演示工厂显示本厂产品的物料清单与工艺路线（只读；数据与算料、车间仿真同一份）；第 157 轮：演示工厂放在页面最下面 -->
     <div class="row">
       <section class="card plist" data-help="eng-products">
@@ -143,7 +187,7 @@
         </table></div>
         <p v-else class="muted small">{{ $t('这个物料没有登记工艺路线。') }}</p>
         <p class="small muted">{{ $t('标准成本：材料 ${a} + 加工 ${b} / 件', { a: $td(cur.std_cost.material), b: $td(cur.std_cost.operations) }) }}</p>
-        <p v-if="plantMode" class="small muted">{{ $t('只读。改物料清单和工艺路线：企业在“产品登记”或“按单设计”里改；接单时“订单与计划”的算料用的就是这份清单。') }}</p>
+        <p v-if="plantMode" class="small muted">{{ $t('只读。改物料清单和工艺路线：用上面的“工厂清单（Excel）”（工艺员、厂长）；接单时“订单与计划”的算料用的就是这份清单。') }}</p>
         <p v-else class="small muted">{{ $t('只读。输出轴 SH-301 的设计在上面的“在线设计”里改；接单时“订单与计划”的算料用的就是这份清单。') }}</p>
       </section>
     </div>
@@ -154,13 +198,56 @@
 import { t as $t } from '../lib/i18n';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { get, loadConfig, post, session } from '../lib/api';
+import { ApiError, get, loadConfig, post, session } from '../lib/api';
 import ShaftView from '../components/ShaftView.vue';
 import { timeOf } from '../lib/fmt';
 import GcodeView from '../components/GcodeView.vue';
 import TaskBar from '../components/TaskBar.vue';
 
 const route = useRoute();
+// 第 160 轮：工厂清单（Excel）
+const canPlant = computed(() => !!session.user && (session.user.teacher || ['engineer', 'manager'].includes(session.user.role)));
+const pbBusy = ref(false);
+const pbErr = ref('');
+const pbRes = ref(null);
+const pbPending = ref([]);
+const pbSections = [{ k: 'items', t: $t('物料') }, { k: 'boms', t: $t('物料清单') }, { k: 'routings', t: $t('工艺路线') },
+  { k: 'products', t: $t('成品') }, { k: 'operations', t: $t('工序') }, { k: 'units', t: $t('设备') }];
+const pbCount = (k) => { const d = pbRes.value?.diff?.[k]; return d ? ['added', 'removed', 'changed'].reduce((n, x) => n + d[x].rows.length + d[x].more, 0) : 0; };
+const pbMore = (k) => { const d = pbRes.value.diff[k]; return d.added.more + d.removed.more + d.changed.more; };
+const pbField = (k) => ({ name: $t('名称'), kind: $t('类别'), uom: $t('单位'), price: $t('单价'), supplier: $t('供应商'),
+  workstation: $t('工作站'), units: $t('设备'), stage: $t('阶段'), area: $t('区域') })[k] || k;
+const pbVal = (v) => (v === null || v === undefined ? '—' : Array.isArray(v) ? v.join(', ') : String(v));
+async function pbFetch(path, name) {
+  const r = await fetch('/api' + path, { headers: { 'x-wq-token': session.token } });
+  if (!r.ok) throw new ApiError(r.status, (await r.json().catch(() => ({}))).detail || $t('下载失败'));
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(await r.blob());
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+async function pbDownload() {
+  pbErr.value = ''; pbBusy.value = true;
+  try { await pbFetch('/plant/workbook', $t('工厂清单.xlsx')); } catch (e) { pbErr.value = e.message; } finally { pbBusy.value = false; }
+}
+async function pbYaml(id) {
+  try { await pbFetch(`/plant/pending/${id}.yaml`, `plant-pending-${id}.yaml`); } catch (e) { pbErr.value = e.message; }
+}
+async function pbLoadPending() { if (canPlant.value) pbPending.value = (await get('/plant/pending').catch(() => ({ rows: [] }))).rows; }
+async function pbUpload(ev) {
+  const f = ev.target.files[0];
+  if (!f) return;
+  pbErr.value = ''; pbRes.value = null; pbBusy.value = true;
+  try {
+    const fd = new FormData(); fd.append('file', f);
+    const r = await fetch('/api/plant/workbook', { method: 'POST', headers: { 'x-wq-token': session.token }, body: fd });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new ApiError(r.status, d.detail || $t('上传失败'));
+    pbRes.value = d;
+    await pbLoadPending();
+  } catch (e) { pbErr.value = e.message; } finally { pbBusy.value = false; ev.target.value = ''; }
+}
 // 第 155 轮：非演示工厂（含企业工厂）显示本厂产品的物料清单与工艺路线
 const plantMode = computed(() => session.config?.plant?.demo === false);
 const ps = ref(null);
@@ -263,6 +350,7 @@ async function loadDesign() {
 onMounted(async () => {
   await loadConfig().catch(() => null);
   const loadStructure = get('/products/structure').then((r) => { ps.value = r; sel.value = route.query.item || r.items[0]?.item || ''; });
+  pbLoadPending();
   if (plantMode.value) { await loadStructure; return; }
   loadParams().then(applySuggest);
   [d.value, rt.value] = await Promise.all([get('/design/SH-301'), get('/routing/SH-301')]);
@@ -282,6 +370,13 @@ onMounted(async () => {
 .pbtn.on { border-color: var(--accent); background: var(--accent-bg); }
 .sub { font-size: 15px; margin: 14px 0 6px; }
 .tw { overflow-x: auto; }
+.pb-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.pb-actions .disabled { opacity: .6; pointer-events: none; }
+.pb-actions .btn { display: inline-flex; align-items: center; }
+.pb-errs ul, .pb-sec ul { margin: 4px 0 8px 18px; padding: 0; }
+.pb-sec li { margin: 2px 0; overflow-wrap: anywhere; }
+.tag { display: inline-block; font-size: 12px; padding: 0 6px; border-radius: 4px; border: 1px solid currentColor; }
+.tag.ok { color: var(--ok, #2e7d32); } .tag.bad { color: var(--bad, #c62828); } .tag.warn { color: var(--warn, #b26a00); }
 @media (max-width: 900px) { .plist { width: auto; } }
 .side { width: 360px; flex-shrink: 0; }
 .b { font-weight: 600; }
