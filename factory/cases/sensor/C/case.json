@@ -1,0 +1,427 @@
+{
+ "plant": "sensor",
+ "id": "C",
+ "level": "完整",
+ "title": "关节扭矩传感器 WQ-TS：从产品定义到批量交付",
+ "title_en": "Joint torque sensor WQ-TS: from product definition to volume delivery",
+ "item": "WQ-TS",
+ "summary": "把弹性体（案例 B）和信号链（案例 A）做成一个能卖的传感器：产品指标、误差预算、调零与温度补偿、砝码标定；传感器厂做第一批 20 台——蠕变、滞后、温漂成片超差，8D 追到固化炉，改固化曲线后第二批全部合格。",
+ "summary_en": "Turning the flexure (case B) and the signal chain (case A) into a sensor that sells: specification, error budget, zero balancing and temperature compensation, dead-weight calibration; the first batch of 20 fails on creep, hysteresis and thermal zero drift, the 8D leads to the curing oven, and after a new cure profile the second batch passes.",
+ "script": "tools/cases/sensor_c.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "±200 N·m，非线性 ≤ 0.3、滞后 ≤ 0.25、蠕变 ≤ 0.1、温漂 ≤ 0.15 %FS/10K；售价 320 美元。",
+   "summary_en": "±200 N·m; non-linearity ≤ 0.3, hysteresis ≤ 0.25, creep ≤ 0.1, thermal zero ≤ 0.15 %FS/10 K; price USD 320.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "量程",
+     "name_en": "Range",
+     "value": "200",
+     "unit": "N·m"
+    },
+    {
+     "name": "售价",
+     "name_en": "Price",
+     "value": "320",
+     "unit": "USD"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "弹性体 + 4 片应变片 + 补偿电阻 + 调理板 + 盖板；对照零件库 ATI 六维传感器，定位关节专用单轴、分辨率约 0.07 N·m。",
+   "summary_en": "Flexure + 4 gauges + compensation resistors + conditioning board + cover; compared with the ATI six-axis sensors in the library, positioned as a single-axis joint sensor with ~0.07 N·m resolution.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "零件库：Delta",
+     "label_en": "Library: Delta",
+     "route": "/library?ref=D-FTS-ATI-FT/Delta"
+    },
+    {
+     "label": "零件库：Omega85",
+     "label_en": "Library: Omega85",
+     "route": "/library?ref=D-FTS-ATI-FT/Omega85"
+    },
+    {
+     "label": "零件库：Theta",
+     "label_en": "Library: Theta",
+     "route": "/library?ref=D-FTS-ATI-FT/Theta"
+    }
+   ],
+   "facts": [
+    {
+     "name": "分辨率",
+     "name_en": "Resolution",
+     "value": "0.07",
+     "unit": "N·m"
+    }
+   ]
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "误差预算方和根 0.75 %FS，温漂和零点是大头；调零串几欧电阻；标定杠杆 500 mm、每级砝码 8.16 kg。",
+   "summary_en": "Error budget 0.75 %FS RSS, thermal zero and zero residual dominate; a few ohms in series balances the zero; 500 mm calibration lever, 8.16 kg per step.",
+   "md": "3_计算书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "虚拟仪器（扭矩传感器标定）",
+     "label_en": "Virtual instruments (torque calibration)",
+     "route": "/instruments"
+    }
+   ],
+   "facts": [
+    {
+     "name": "综合误差（方和根）",
+     "name_en": "Total error (RSS)",
+     "value": "0.75",
+     "unit": "%FS"
+    },
+    {
+     "name": "每级砝码",
+     "name_en": "Mass per step",
+     "value": "8.16",
+     "unit": "kg"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "虚拟标定：非线性 0.08、滞后 0.09 %FS；温度补偿 200 台：只粗补 14 % 合格，加 MCU 三点修正 100 % 合格。",
+   "summary_en": "Virtual calibration: non-linearity 0.08, hysteresis 0.09 %FS; temperature compensation of 200 units: 14 % pass with coarse compensation only, 100 % with the 3-point MCU correction.",
+   "md": "4_标定与温度补偿.md",
+   "figs": [
+    {
+     "file": "4_标定与温度补偿.png",
+     "caption": "标定曲线、一台的温漂、200 台的温漂分布",
+     "caption_en": "Calibration curves, thermal zero of one unit, distribution over 200 units"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "虚拟仪器（扭矩传感器标定）",
+     "label_en": "Virtual instruments (torque calibration)",
+     "route": "/instruments"
+    }
+   ],
+   "facts": [
+    {
+     "name": "非线性",
+     "name_en": "Non-linearity",
+     "value": "0.081",
+     "unit": "%FS"
+    },
+    {
+     "name": "滞后",
+     "name_en": "Hysteresis",
+     "value": "0.09",
+     "unit": "%FS"
+    },
+    {
+     "name": "细补后合格率",
+     "name_en": "Pass rate after fine compensation",
+     "value": "100",
+     "unit": "%"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "整机三维（弹性体 + 盖板 + 调理板）；物料清单 8 行；8 种标准件、元件从零件库选。",
+   "summary_en": "3D assembly (flexure + cover + conditioning board); 8-line BOM; 8 standard parts and components from the library.",
+   "md": "5_三维与物料清单.md",
+   "figs": [
+    {
+     "file": "5_整机三维.png",
+     "caption": "WQ-TS 整机（正面盖板）",
+     "caption_en": "WQ-TS assembly (front cover)"
+    }
+   ],
+   "files": [
+    {
+     "file": "WQ-TS.step",
+     "label": "整机 STEP",
+     "label_en": "Assembly (STEP)"
+    }
+   ],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    },
+    {
+     "label": "零件库：M3x8",
+     "label_en": "Library: M3x8",
+     "route": "/library?ref=A-SCR-SHC/M3x8"
+    },
+    {
+     "label": "零件库：M5x20",
+     "label_en": "Library: M5x20",
+     "route": "/library?ref=A-SCR-SHC/M5x20"
+    },
+    {
+     "label": "零件库：M6x25",
+     "label_en": "Library: M6x25",
+     "route": "/library?ref=A-SCR-SHC/M6x25"
+    },
+    {
+     "label": "零件库：6x30",
+     "label_en": "Library: 6x30",
+     "route": "/library?ref=A-PIN-TAPER/6x30"
+    },
+    {
+     "label": "零件库：5P",
+     "label_en": "Library: 5P",
+     "route": "/library?ref=A-ELE-XH/5P"
+    },
+    {
+     "label": "零件库：4P",
+     "label_en": "Library: 4P",
+     "route": "/library?ref=A-ELE-XH/4P"
+    },
+    {
+     "label": "零件库：STM32G431CBT6",
+     "label_en": "Library: STM32G431CBT6",
+     "route": "/library?ref=A-ELE-LQFP48/STM32G431CBT6"
+    },
+    {
+     "label": "零件库：MCP2562-E-SN",
+     "label_en": "Library: MCP2562-E-SN",
+     "route": "/library?ref=A-ELE-SOIC8/MCP2562-E-SN"
+    }
+   ],
+   "facts": [
+    {
+     "name": "物料清单",
+     "name_en": "BOM lines",
+     "value": "8",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "8 道工序，每道写明要点；固化曲线、温度补偿三点、标定 3 个循环。",
+   "summary_en": "8 operations with key points; cure profile, three-point temperature compensation, three calibration cycles.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "工序",
+     "name_en": "Operations",
+     "value": "8",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "第一批 18/20 台超差（蠕变、滞后、温漂），8D 追到固化炉温偏低，改固化曲线；第二批不合格 0、最低 Cpk 1.74。",
+   "summary_en": "First batch: 18/20 out of tolerance (creep, hysteresis, thermal zero); the 8D traces it to a low curing-oven temperature and the cure profile is redone; second batch: 0 failures, lowest Cpk 1.74.",
+   "md": "7_两批与8D.md",
+   "figs": [
+    {
+     "file": "7_两批对比.png",
+     "caption": "两批终检对比（均值占公差）",
+     "caption_en": "Two batches compared (mean as % of tolerance)"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间终端",
+     "label_en": "Shop-floor terminal",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    },
+    {
+     "label": "质量 8D",
+     "label_en": "8D problem solving",
+     "route": "/quality/8d"
+    }
+   ],
+   "facts": [
+    {
+     "name": "第一批超差台数",
+     "name_en": "Batch-1 units out of tolerance",
+     "value": "18",
+     "unit": ""
+    },
+    {
+     "name": "第二批最低 Cpk",
+     "name_en": "Batch-2 lowest Cpk",
+     "value": "1.74",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "7 / 7 项校核通过；综合精度 ±0.8 %FS；第二批全部合格。",
+   "summary_en": "7 / 7 checks pass; overall accuracy ±0.8 %FS; second batch all good.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "质量 8D",
+     "label_en": "8D problem solving",
+     "route": "/quality/8d"
+    },
+    {
+     "label": "虚拟仪器（扭矩传感器标定）",
+     "label_en": "Virtual instruments (torque calibration)",
+     "route": "/instruments"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "calc",
+   "what": "综合误差（方和根，按公差上限）",
+   "what_en": "Total error (RSS of tolerance limits)",
+   "value": "0.75",
+   "op": "<=",
+   "limit": "1",
+   "unit": "%FS",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "sim",
+   "what": "虚拟标定非线性",
+   "what_en": "Virtual-calibration non-linearity",
+   "value": "0.081",
+   "op": "<=",
+   "limit": "0.3",
+   "unit": "%FS",
+   "ok": true,
+   "src": "终检公差"
+  },
+  {
+   "step": "sim",
+   "what": "虚拟标定滞后",
+   "what_en": "Virtual-calibration hysteresis",
+   "value": "0.09",
+   "op": "<=",
+   "limit": "0.25",
+   "unit": "%FS",
+   "ok": true,
+   "src": "终检公差"
+  },
+  {
+   "step": "sim",
+   "what": "温度补偿后零点温漂合格率",
+   "what_en": "Thermal-zero pass rate after compensation",
+   "value": "100",
+   "op": ">=",
+   "limit": "99",
+   "unit": "%",
+   "ok": true,
+   "src": "终检公差"
+  },
+  {
+   "step": "make",
+   "what": "第一批超差台数（问题批次，追因）",
+   "what_en": "Batch-1 units out of tolerance (problem batch)",
+   "value": "18",
+   "op": ">",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "记录：注入固化炉故障"
+  },
+  {
+   "step": "make",
+   "what": "第二批不合格项",
+   "what_en": "Batch-2 failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "扭矩终检台"
+  },
+  {
+   "step": "make",
+   "what": "第二批最低 Cpk",
+   "what_en": "Batch-2 lowest Cpk",
+   "value": "1.74",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算书.md",
+  "4_标定与温度补偿.md",
+  "4_标定与温度补偿.png",
+  "5_三维与物料清单.md",
+  "5_整机三维.png",
+  "6_工艺.md",
+  "7_两批与8D.md",
+  "7_两批对比.png",
+  "8_总结.md",
+  "WQ-TS.step"
+ ]
+}

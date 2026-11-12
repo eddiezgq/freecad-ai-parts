@@ -1,0 +1,53 @@
+Printing statistics.
+
+=== wq_ssi ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      158 wires
+      376 wire bits
+       14 public wires
+       69 public wire bits
+        9 ports
+       25 port bits
+      331 cells
+       72   $_AND_
+       60   $_DFFE_PN0P_
+        1   $_DFFE_PN1P_
+        1   $_DFF_PN0_
+        2   $_DFF_PN1_
+       57   $_MUX_
+       21   $_NOT_
+       65   $_OR_
+       52   $_XOR_
+
+2.24. Executing CHECK pass (checking for obvious problems).
+Checking module wq_ssi...
+Found and reported 0 problems.
+
+3. Printing statistics.
+
+=== wq_ssi ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      158 wires
+      376 wire bits
+       14 public wires
+       69 public wire bits
+        9 ports
+       25 port bits
+      331 cells
+       72   $_AND_
+       60   $_DFFE_PN0P_
+        1   $_DFFE_PN1P_
+        1   $_DFF_PN0_
+        2   $_DFF_PN1_
+       57   $_MUX_
+       21   $_NOT_
+       65   $_OR_
+       52   $_XOR_
+
+End of script. Logfile hash: dcdb18858b, time: 0.06s, user: 0.06s, system: 0.00s
+Yosys 0.70 (git sha1 28ba3cb92, Release, Clang /workspace/YoWASP/yosys/wasi-sdk-33.0-x86_64-linux/share/cmake/../..//bin/clang++ 22.1.0)
+Time spent: 22% 3x read_verilog (0 sec), 17% 1x techmap (0 sec), ...

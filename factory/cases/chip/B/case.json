@@ -1,0 +1,312 @@
+{
+ "plant": "chip",
+ "id": "B",
+ "level": "中等",
+ "title": "数字模块：SSI 绝对值编码器读取",
+ "title_en": "Digital block: SSI absolute-encoder reader",
+ "item": "WQ-SSI（WQ-ENCIF B 版候选模块）",
+ "summary": "驱动板现在用 MCU 的 SPI 软件读关节输出端的 SSI 编码器；把它做成芯片里的硬件模块：写 RTL，Icarus 逐拍仿真、和 Python 参考模型逐帧对照，扫线缆延迟找出能用多长的线，发现偶校验抓不住移位错，Yosys 综合看规模；按工程样片路线做一批。",
+ "summary_en": "The drive board reads the joint-output SSI encoder with MCU SPI software; this case moves it into hardware on the chip: RTL, cycle-accurate Icarus simulation checked frame by frame against a Python reference model, a cable-delay sweep to find the usable length (even parity misses shifted frames), Yosys synthesis for size; one engineering-sample lot.",
+ "script": "tools/cases/chip_b.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "SSI 17 位格雷码 + 偶校验；芯片 50 MHz、SSI 1 MHz；帧间 20 μs；≥ 1 kHz；线缆 2 m。",
+   "summary_en": "SSI, 17-bit Gray + even parity; 50 MHz core, 1 MHz SSI; 20 μs between frames; ≥ 1 kHz; 2 m cable.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路板设计：B 版固件",
+     "label_en": "PCB design: rev-B firmware",
+     "route": "/pcb-design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "位数",
+     "name_en": "Bits",
+     "value": "17",
+     "unit": ""
+    },
+    {
+     "name": "SSI 时钟",
+     "name_en": "SSI clock",
+     "value": "1",
+     "unit": "MHz"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "三状态状态机 + 18 位移位寄存器；高电平最后一拍采样；两级同步；格雷码转换与偶校验。",
+   "summary_en": "Three-state FSM + 18-bit shift register; sample in the last cycle of the high phase; two-flop synchroniser; Gray conversion and even parity.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [
+    {
+     "file": "wq_ssi.v",
+     "label": "RTL（Verilog）",
+     "label_en": "RTL (Verilog)"
+    },
+    {
+     "file": "tb_ssi.v",
+     "label": "测试平台",
+     "label_en": "Testbench"
+    }
+   ],
+   "tools": [
+    {
+     "label": "芯片设计（WQ-ENCIF）",
+     "label_en": "Chip design (WQ-ENCIF)",
+     "route": "/chip-design"
+    }
+   ],
+   "facts": []
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "一帧 38 μs（26.3 千帧/秒）；往返延迟预算 440 ns，约 38 m 线缆。",
+   "summary_en": "38 μs per frame (26.3 k frames/s); 440 ns round-trip budget, about 38 m of cable.",
+   "md": "3_时序预算.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "帧率",
+     "name_en": "Frame rate",
+     "value": "26.3",
+     "unit": "kHz"
+    },
+    {
+     "name": "延迟预算",
+     "name_en": "Delay budget",
+     "value": "440",
+     "unit": "ns"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "64 / 64 帧与参考模型一致；延迟 ≤ 450 ns 全对、500 ns 起出错；157 个错帧里 49 个校验没抓住。",
+   "summary_en": "64 / 64 frames match the reference model; all correct up to 450 ns delay, errors from 500 ns; 49 of 157 bad frames slip past the parity check.",
+   "md": "4_逐拍仿真.md",
+   "figs": [
+    {
+     "file": "4_线缆延迟.png",
+     "caption": "线缆往返延迟扫描",
+     "caption_en": "Cable round-trip delay sweep"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "芯片设计（WQ-ENCIF）",
+     "label_en": "Chip design (WQ-ENCIF)",
+     "route": "/chip-design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "对照参考模型",
+     "name_en": "Frames vs model",
+     "value": "64/64",
+     "unit": ""
+    },
+    {
+     "name": "实测延迟上限",
+     "name_en": "Delay limit (simulated)",
+     "value": "450",
+     "unit": "ns"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "Yosys 综合：触发器 64、组合门 267；约为现有 WQ-ENCIF 逻辑的四分之一。",
+   "summary_en": "Yosys synthesis: 64 flip-flops, 267 gates; about a quarter of the present WQ-ENCIF logic.",
+   "md": "5_综合.md",
+   "figs": [],
+   "files": [
+    {
+     "file": "综合统计.txt",
+     "label": "综合统计",
+     "label_en": "Synthesis statistics"
+    }
+   ],
+   "tools": [
+    {
+     "label": "芯片设计（WQ-ENCIF）",
+     "label_en": "Chip design (WQ-ENCIF)",
+     "route": "/chip-design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "触发器",
+     "name_en": "Flip-flops",
+     "value": "64",
+     "unit": ""
+    },
+    {
+     "name": "组合门",
+     "name_en": "Gates",
+     "value": "267",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "并进 RTL → LibreLane → 流片 → 晶圆测试 → 工程样片路线 12 道（含老化）→ 成品测试加 SSI 向量。",
+   "summary_en": "Merge RTL → LibreLane → tape-out → wafer probe → 12-step engineering-sample route (with burn-in) → SSI vectors at final test.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    },
+    {
+     "label": "芯片设计（WQ-ENCIF）",
+     "label_en": "Chip design (WQ-ENCIF)",
+     "route": "/chip-design"
+    }
+   ],
+   "facts": []
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "工程样片一批（37 小时），成品测试不合格 0；本模块要等新一版流片后在样片上测。",
+   "summary_en": "One engineering-sample lot (37 h), 0 final-test failures; this block is tested on samples once the new revision is taped out.",
+   "md": "7_工程样片.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间终端",
+     "label_en": "Shop-floor terminal",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    }
+   ],
+   "facts": [
+    {
+     "name": "不合格",
+     "name_en": "Out of tolerance",
+     "value": "0",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "4 / 4 项校核通过；64 个触发器，延迟上限 450 ns。",
+   "summary_en": "4 / 4 checks pass; 64 flip-flops, delay limit 450 ns.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "芯片设计（WQ-ENCIF）",
+     "label_en": "Chip design (WQ-ENCIF)",
+     "route": "/chip-design"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "calc",
+   "what": "最高帧率",
+   "what_en": "Maximum frame rate",
+   "value": "26.3",
+   "op": ">=",
+   "limit": "1",
+   "unit": "kHz",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "sim",
+   "what": "与参考模型一致的帧",
+   "what_en": "Frames matching the reference model",
+   "value": "64",
+   "op": "==",
+   "limit": "64",
+   "unit": "",
+   "ok": true,
+   "src": "逐帧对照"
+  },
+  {
+   "step": "sim",
+   "what": "仿真延迟上限与预算相差",
+   "what_en": "Simulated delay limit vs budget",
+   "value": "10",
+   "op": "<=",
+   "limit": "50",
+   "unit": "ns",
+   "ok": true,
+   "src": "仿真步长 50 ns"
+  },
+  {
+   "step": "make",
+   "what": "工程样片成品测试不合格",
+   "what_en": "Engineering-sample final-test failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "成品测试"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_时序预算.md",
+  "4_线缆延迟.png",
+  "4_逐拍仿真.md",
+  "5_综合.md",
+  "6_工艺.md",
+  "7_工程样片.md",
+  "8_总结.md",
+  "tb_ssi.v",
+  "wq_ssi.v",
+  "综合统计.txt"
+ ]
+}

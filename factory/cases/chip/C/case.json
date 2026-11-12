@@ -1,0 +1,344 @@
+{
+ "plant": "chip",
+ "id": "C",
+ "level": "完整",
+ "title": "编码器接口芯片 WQ-ENCIF：从 RTL 到封装测试",
+ "title_en": "Encoder interface IC WQ-ENCIF: from RTL to packaged test",
+ "item": "WQ-ENCIF",
+ "summary": "一颗真能走完开源流程的小芯片：引脚与寄存器、五个功能块的 RTL、九个场景逐拍对照 Python 参考模型、SKY130 综合与版图（时序、设计规则、LVS），到芯片封测厂一片晶圆的晶圆测试（晶圆图、良率）、封装 12 道工序、成品测试，约 34 000 只交给电路板厂。",
+ "summary_en": "A small chip that really goes through an open-source flow: pins and registers, RTL of five blocks, nine scenarios checked cycle by cycle against a Python model, SKY130 synthesis and layout (timing, DRC, LVS), then wafer probe of one wafer (wafer map, yield), 12 assembly steps and final test, about 34 000 parts to the PCB plant.",
+ "script": "tools/cases/chip_c.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "SKY130（开源工艺库，130 nm）、50 MHz；9 个信号脚、5 个寄存器；QFN-16；一片晶圆约 34 000 只。",
+   "summary_en": "SKY130（开源工艺库，130 nm）, 50 MHz; 9 signal pins, 5 registers; QFN-16; about 34 000 parts per wafer.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "芯片设计（WQ-ENCIF）",
+     "label_en": "Chip design (WQ-ENCIF)",
+     "route": "/chip-design"
+    },
+    {
+     "label": "电路板设计（驱动板 B 版）",
+     "label_en": "PCB design (drive board B)",
+     "route": "/pcb-design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "时钟",
+     "name_en": "Clock",
+     "value": "50",
+     "unit": "MHz"
+    },
+    {
+     "name": "寄存器",
+     "name_en": "Registers",
+     "value": "5",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "5 个功能块（同步、滤波、4 倍频解码、计数与 Z 锁存、SPI 从机）；5 个寄存器。",
+   "summary_en": "5 blocks (synchroniser, filter, x4 decoder, counter & Z latch, SPI slave); 5 registers.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "芯片设计（WQ-ENCIF）",
+     "label_en": "Chip design (WQ-ENCIF)",
+     "route": "/chip-design"
+    }
+   ],
+   "facts": []
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "RTL 137 行；滤掉 < 80 ns 的毛刺；A 相最高约 2.1 MHz；SPI ≤ 5 MHz。",
+   "summary_en": "137 lines of RTL; glitches under 80 ns rejected; A-phase up to about 2.1 MHz; SPI ≤ 5 MHz.",
+   "md": "3_计算.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "芯片设计（WQ-ENCIF）",
+     "label_en": "Chip design (WQ-ENCIF)",
+     "route": "/chip-design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "RTL 行数",
+     "name_en": "RTL lines",
+     "value": "137",
+     "unit": ""
+    },
+    {
+     "name": "滤波宽度",
+     "name_en": "Filter width",
+     "value": "80",
+     "unit": "ns"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "9 / 9 个场景、29,900 拍逐拍与参考模型一致。",
+   "summary_en": "9 / 9 scenarios, 29,900 cycles, match the reference model cycle by cycle.",
+   "md": "4_逐拍仿真.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "芯片设计（WQ-ENCIF）",
+     "label_en": "Chip design (WQ-ENCIF)",
+     "route": "/chip-design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "场景",
+     "name_en": "Scenarios",
+     "value": "9",
+     "unit": ""
+    },
+    {
+     "name": "一致",
+     "name_en": "Matching",
+     "value": "9/9",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "24,534 μm²、1316 个标准单元；时序余量 5.06 ns；DRC、LVS 0 错误；转换时间违例 204 处待优化。",
+   "summary_en": "24,534 μm², 1316 standard cells; 5.06 ns setup slack; zero DRC/LVS errors; 204 slew violations to fix.",
+   "md": "5_综合与版图.md",
+   "figs": [
+    {
+     "file": "5_版图.png",
+     "caption": "WQ-ENCIF 版图（SKY130）",
+     "caption_en": "WQ-ENCIF layout (SKY130)"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "芯片设计（WQ-ENCIF）",
+     "label_en": "Chip design (WQ-ENCIF)",
+     "route": "/chip-design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "面积",
+     "name_en": "Die area",
+     "value": "24,534",
+     "unit": "μm²"
+    },
+    {
+     "name": "建立余量",
+     "name_en": "Setup slack",
+     "value": "5.06",
+     "unit": "ns"
+    }
+   ]
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "晶圆测试 3 道 + 封装测试 11 道；引线键合是瓶颈。",
+   "summary_en": "3 wafer-probe + 11 assembly/test operations; wire bonding is the bottleneck.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "工序",
+     "name_en": "Operations",
+     "value": "14",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "一片晶圆 CP 良率 92.7 %、FT 良率 98.4 % → 约 34,403 只；不合格项 0。",
+   "summary_en": "One wafer: CP yield 92.7 %, FT yield 98.4 % → about 34,403 parts; 0 items out of tolerance.",
+   "md": "7_晶圆测试与封装.md",
+   "figs": [
+    {
+     "file": "7_晶圆图.png",
+     "caption": "这片晶圆的 CP 晶圆图",
+     "caption_en": "CP wafer map of this wafer"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间终端",
+     "label_en": "Shop-floor terminal",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    },
+    {
+     "label": "晶圆图",
+     "label_en": "Wafer map",
+     "route": "/wafer-map"
+    },
+    {
+     "label": "实验 40：一批芯片从订单到交付",
+     "label_en": "Lab 40: a chip lot from order to delivery",
+     "route": "/labo/40"
+    }
+   ],
+   "facts": [
+    {
+     "name": "CP 良率",
+     "name_en": "CP yield",
+     "value": "92.7",
+     "unit": "%"
+    },
+    {
+     "name": "成品",
+     "name_en": "Good parts",
+     "value": "34,403",
+     "unit": "只"
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "5 / 5 项校核通过；9 个场景逐拍一致，一片晶圆约 34,403 只。",
+   "summary_en": "5 / 5 checks pass; 9 scenarios match, about 34,403 parts per wafer.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "芯片设计（WQ-ENCIF）",
+     "label_en": "Chip design (WQ-ENCIF)",
+     "route": "/chip-design"
+    },
+    {
+     "label": "实验 40：一批芯片从订单到交付",
+     "label_en": "Lab 40: a chip lot from order to delivery",
+     "route": "/labo/40"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "sim",
+   "what": "与参考模型逐拍一致的场景",
+   "what_en": "Scenarios matching the reference model",
+   "value": "9",
+   "op": "==",
+   "limit": "9",
+   "unit": "",
+   "ok": true,
+   "src": "Icarus 逐拍对照"
+  },
+  {
+   "step": "cad",
+   "what": "建立时间余量",
+   "what_en": "Setup slack",
+   "value": "5.06",
+   "op": ">=",
+   "limit": "0",
+   "unit": "ns",
+   "ok": true,
+   "src": "静态时序分析"
+  },
+  {
+   "step": "cad",
+   "what": "保持时间余量",
+   "what_en": "Hold slack",
+   "value": "0.12",
+   "op": ">=",
+   "limit": "0",
+   "unit": "ns",
+   "ok": true,
+   "src": "静态时序分析"
+  },
+  {
+   "step": "cad",
+   "what": "设计规则 + LVS 错误",
+   "what_en": "DRC + LVS errors",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "LibreLane"
+  },
+  {
+   "step": "make",
+   "what": "晶圆测试 + 成品测试不合格项",
+   "what_en": "Probe + final-test failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "芯片厂测试公差"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算.md",
+  "4_逐拍仿真.md",
+  "5_版图.png",
+  "5_综合与版图.md",
+  "6_工艺.md",
+  "7_晶圆图.png",
+  "7_晶圆测试与封装.md",
+  "8_总结.md"
+ ]
+}

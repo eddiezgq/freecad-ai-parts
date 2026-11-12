@@ -1,0 +1,29 @@
+* ENC-RD sine channel (case 161f B)
+.param a0=1e5 gbw=10meg
+.subckt wqop inp inn out
+* generic op-amp macromodel (example): open-loop gain a0, one pole so that GBW = gbw; Rin 10 Meg, Rout 50 ohm (linear, no rail limits)
+Rin inp inn 10meg
+Eg a 0 inp inn {a0}
+Rp a b 1k
+Cp b 0 {1/(2*3.141592653589793*1k*gbw/a0)}
+Eo c 0 b 0 1
+Ro c out 50
+.ends
+Vref ref 0 1.65
+Ip ref np 6e-06
+Ipa ref np AC 2.5e-06
+Cdp np ref 1e-11
+Rfp np op 100000
+Cfp np op 1e-11
+Xp ref np op wqop
+In ref nn 6e-06
+Ina ref nn AC -2.5e-06
+Cdn nn ref 1e-11
+Rfn nn on 100000
+Cfn nn on 1e-11
+Xn ref nn on wqop
+Ed dso 0 op on 1
+.ac dec 40 100 10meg
+.meas ac g_lf FIND vm(dso) AT=1k
+.meas ac f3db WHEN vdb(dso)=-9.020600 FALL=1
+.end

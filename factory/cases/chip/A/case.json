@@ -1,0 +1,330 @@
+{
+ "plant": "chip",
+ "id": "A",
+ "level": "简单",
+ "title": "输入施密特触发器：门限与回差",
+ "title_en": "Input Schmitt trigger: thresholds and hysteresis",
+ "item": "WQ-ENCIF 输入级",
+ "summary": "编码器信号线长、边沿慢、有干扰：芯片输入用施密特触发器。手算上下门限，晶体管级仿真（SKY130）扫反馈管宽度、选回差 ≥ 0.6 V 的最小一档，七个工艺角与温度复核，慢边沿加 ±0.3 V 干扰数翻转次数；芯片封测厂晶圆测试量门限、成品测试量回差。",
+ "summary_en": "Encoder lines are long, slow and noisy, so the chip inputs use Schmitt triggers: thresholds by hand, transistor-level simulation (SKY130) sweeping the feedback width for the smallest one with ≥ 0.6 V hysteresis, seven process/temperature corners, toggles counted on a slow edge with ±0.3 V noise; thresholds measured at wafer probe, hysteresis at final test.",
+ "script": "tools/cases/chip_a.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "1.8 V；回差 ≥ 0.6 V；晶圆测试 VT+ 1.10–1.40、VT− 0.45–0.75 V；面积尽量小。",
+   "summary_en": "1.8 V; hysteresis ≥ 0.6 V; wafer-probe limits VT+ 1.10–1.40 V, VT− 0.45–0.75 V; minimum area.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "芯片设计：晶体管级",
+     "label_en": "Chip design: transistor level",
+     "route": "/chip-design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "电源",
+     "name_en": "Supply",
+     "value": "1.8",
+     "unit": "V"
+    },
+    {
+     "name": "回差要求",
+     "name_en": "Hysteresis target",
+     "value": "0.6",
+     "unit": "V"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "普通反相器、数字滤波、施密特比较；选 6 管施密特 + 数字滤波，主通路与教材反相器同尺寸。",
+   "summary_en": "Plain inverter, digital filter and Schmitt trigger compared; a 6-transistor Schmitt plus digital filter, main path sized like the textbook inverter.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "芯片设计：晶体管级",
+     "label_en": "Chip design: transistor level",
+     "route": "/chip-design"
+    }
+   ],
+   "facts": []
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "平方律手算：k = 1.5 时 VT+ 1.19、VT− 0.61、回差 0.59 V；k 越大回差越大。",
+   "summary_en": "Square-law estimate: at k = 1.5, VT+ 1.19, VT− 0.61, hysteresis 0.59 V; larger k, larger hysteresis.",
+   "md": "3_计算书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "芯片设计：晶体管级",
+     "label_en": "Chip design: transistor level",
+     "route": "/chip-design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "手算 VT+（k=1.5）",
+     "name_en": "Hand VT+ (k=1.5)",
+     "value": "1.19",
+     "unit": "V"
+    },
+    {
+     "name": "手算 VT−（k=1.5）",
+     "name_en": "Hand VT− (k=1.5)",
+     "value": "0.607",
+     "unit": "V"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "SKY130：k = 1.5 回差 0.648 V；七个工艺角最小 0.602 V；干扰下施密特翻 2 次、反相器 70 次。",
+   "summary_en": "SKY130: k = 1.5 gives 0.648 V; minimum over seven corners 0.602 V; with noise the Schmitt toggles 2 times, the inverter 70.",
+   "md": "4_晶体管级仿真.md",
+   "figs": [
+    {
+     "file": "4_晶体管级仿真.png",
+     "caption": "传输特性、扫反馈管宽度、干扰下的翻转",
+     "caption_en": "Transfer curves, feedback-width sweep, toggles under noise"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "芯片设计：晶体管级",
+     "label_en": "Chip design: transistor level",
+     "route": "/chip-design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "回差（典型）",
+     "name_en": "Hysteresis (typical)",
+     "value": "0.648",
+     "unit": "V"
+    },
+    {
+     "name": "工艺角最小回差",
+     "name_en": "Min. hysteresis over corners",
+     "value": "0.602",
+     "unit": "V"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "芯片自动布局布线用标准单元库的施密特缓冲单元；本案例把它拆开讲；整颗芯片版图见案例 C。",
+   "summary_en": "The automated layout uses the standard-cell Schmitt buffer; this case opens that cell up; the full chip layout is in case C.",
+   "md": "5_版图.md",
+   "figs": [
+    {
+     "file": "5_版图器件层.png",
+     "caption": "WQ-ENCIF 版图（器件层）",
+     "caption_en": "WQ-ENCIF layout (device layers)"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "芯片设计：晶体管级",
+     "label_en": "Chip design: transistor level",
+     "route": "/chip-design"
+    }
+   ],
+   "facts": []
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "晶圆测试 3 道工序；每颗芯片扫输入找 VT+、VT−，超差打坏点。",
+   "summary_en": "3 wafer-probe operations; every die swept for VT+ and VT−, outliers inked.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    },
+    {
+     "label": "晶圆图",
+     "label_en": "Wafer map",
+     "route": "/wafer-map"
+    }
+   ],
+   "facts": []
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "25 片晶圆：VT+ 1.257、VT− 0.604 V（仿真 1.254 / 0.607）；不合格 0、最低 Cpk 2.10。",
+   "summary_en": "25 wafers: VT+ 1.257, VT− 0.604 V (simulated 1.254 / 0.607); 0 failures, lowest Cpk 2.10.",
+   "md": "7_晶圆测试.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间终端",
+     "label_en": "Shop-floor terminal",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    },
+    {
+     "label": "晶圆图",
+     "label_en": "Wafer map",
+     "route": "/wafer-map"
+    }
+   ],
+   "facts": [
+    {
+     "name": "VT+ 均值",
+     "name_en": "Mean VT+",
+     "value": "1.26",
+     "unit": "V"
+    },
+    {
+     "name": "最低 Cpk",
+     "name_en": "Lowest Cpk",
+     "value": "2.1",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "6 / 6 项校核通过；k = 1.5，回差 0.648 V。",
+   "summary_en": "6 / 6 checks pass; k = 1.5, hysteresis 0.648 V.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "芯片设计：晶体管级",
+     "label_en": "Chip design: transistor level",
+     "route": "/chip-design"
+    },
+    {
+     "label": "晶圆图",
+     "label_en": "Wafer map",
+     "route": "/wafer-map"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "sim",
+   "what": "七个工艺角的最小回差",
+   "what_en": "Minimum hysteresis over seven corners",
+   "value": "0.602",
+   "op": ">=",
+   "limit": "0.6",
+   "unit": "V",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "sim",
+   "what": "工艺角 VT+ 最大值",
+   "what_en": "Highest VT+ over corners",
+   "value": "1.33",
+   "op": "<=",
+   "limit": "1.4",
+   "unit": "V",
+   "ok": true,
+   "src": "晶圆测试公差"
+  },
+  {
+   "step": "sim",
+   "what": "工艺角 VT− 最小值",
+   "what_en": "Lowest VT− over corners",
+   "value": "0.533",
+   "op": ">=",
+   "limit": "0.45",
+   "unit": "V",
+   "ok": true,
+   "src": "晶圆测试公差"
+  },
+  {
+   "step": "sim",
+   "what": "干扰下施密特翻转次数",
+   "what_en": "Schmitt toggles under noise",
+   "value": "2",
+   "op": "==",
+   "limit": "2",
+   "unit": "",
+   "ok": true,
+   "src": "一上一下"
+  },
+  {
+   "step": "make",
+   "what": "晶圆测试不合格",
+   "what_en": "Wafer-probe failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "晶圆测试"
+  },
+  {
+   "step": "make",
+   "what": "最低 Cpk",
+   "what_en": "Lowest Cpk",
+   "value": "2.1",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算书.md",
+  "4_晶体管级仿真.md",
+  "4_晶体管级仿真.png",
+  "5_版图.md",
+  "5_版图器件层.png",
+  "6_工艺.md",
+  "7_晶圆测试.md",
+  "8_总结.md"
+ ]
+}

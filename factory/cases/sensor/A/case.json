@@ -1,0 +1,445 @@
+{
+ "plant": "sensor",
+ "id": "A",
+ "level": "简单",
+ "title": "扭矩传感器信号链：电桥、放大、滤波、模数转换",
+ "title_en": "Torque-sensor signal chain: bridge, amplifier, filter, ADC",
+ "item": "WQ-TS 信号调理 SIG-TS",
+ "summary": "把应变全桥几毫伏的信号变成控制器能用的数：比较三种信号链，算增益、带宽和噪声，用 ngspice 仿真增益、频响和元件容差——发现分立电阻做差分级会让零点随供桥电压漂、应变片阻值公差会让零点大到满量程的几十个百分点；传感器厂做 20 台看零点。",
+ "summary_en": "Turning a few millivolts from a strain-gauge bridge into a number the controller can use: three signal chains compared; gain, bandwidth and noise calculated; ngspice for gain, frequency response and component tolerances — a discrete difference stage lets the zero drift with the excitation voltage, and gauge tolerance puts the bridge zero at tens of per cent of full scale; 20 sensors built and their zero checked.",
+ "script": "tools/cases/sensor_a.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "电桥满量程只有 6.35 mV；要 24 位、1 kHz、带宽 ≥ 500 Hz、噪声峰峰值 ≤ 0.05 %FS（3.2 μV）。",
+   "summary_en": "The bridge gives only 6.35 mV at full scale; 24-bit, 1 kHz, bandwidth ≥ 500 Hz, peak-to-peak noise ≤ 0.05 %FS (3.2 μV).",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "虚拟仪器（扭矩传感器）",
+     "label_en": "Virtual instruments (torque sensor)",
+     "route": "/instruments"
+    }
+   ],
+   "facts": [
+    {
+     "name": "满量程电桥输出",
+     "name_en": "Full-scale bridge output",
+     "value": "6.35",
+     "unit": "mV"
+    },
+    {
+     "name": "噪声要求",
+     "name_en": "Noise limit",
+     "value": "3.2",
+     "unit": "μV p-p"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "三种信号链比较，选两运放前置级 + RC 抗混叠 + 差分 24 位 ADC：增益只由一个电阻定，共模抑制不靠电阻匹配；比例测量。",
+   "summary_en": "Three signal chains compared; a two-op-amp front end + RC anti-alias filter + differential 24-bit ADC chosen: one resistor sets the gain, CMRR does not rely on resistor matching; ratiometric.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路分析",
+     "label_en": "Circuit analysis",
+     "route": "/circuit"
+    }
+   ],
+   "facts": []
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "增益 167.7（零件库 R_G 120 Ω）；额定 1.06 V、过载 1.60 V 不削顶；RC 截止 758 Hz；噪声峰峰值 0.035 %FS。",
+   "summary_en": "Gain 167.7 (library R_G 120 Ω); 1.06 V rated, 1.60 V overload without clipping; RC cut-off 758 Hz; noise 0.035 %FS p-p.",
+   "md": "3_计算书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路分析",
+     "label_en": "Circuit analysis",
+     "route": "/circuit"
+    },
+    {
+     "label": "零件库：10K",
+     "label_en": "Library: 10K",
+     "route": "/library?ref=A-ELE-R0402/10K"
+    },
+    {
+     "label": "零件库：120R",
+     "label_en": "Library: 120R",
+     "route": "/library?ref=A-ELE-R0402/120R"
+    },
+    {
+     "label": "零件库：1K",
+     "label_en": "Library: 1K",
+     "route": "/library?ref=A-ELE-R0402/1K"
+    },
+    {
+     "label": "零件库：100N",
+     "label_en": "Library: 100N",
+     "route": "/library?ref=A-ELE-C0402/100N"
+    },
+    {
+     "label": "零件库：10N",
+     "label_en": "Library: 10N",
+     "route": "/library?ref=A-ELE-C0402/10N"
+    }
+   ],
+   "facts": [
+    {
+     "name": "增益",
+     "name_en": "Gain",
+     "value": "168",
+     "unit": ""
+    },
+    {
+     "name": "差分截止频率",
+     "name_en": "Differential cut-off",
+     "value": "758",
+     "unit": "Hz"
+    },
+    {
+     "name": "噪声峰峰值",
+     "name_en": "Noise p-p",
+     "value": "0.035",
+     "unit": "%FS"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "ngspice：增益与公式差 0.02 %、带宽 748 Hz；分立差分级在供桥漂 ±5 % 时零点变化达 0.34 %FS；应变片 ±0.3 % 让电桥零点标准差 50 %FS，必须先调零。",
+   "summary_en": "ngspice: gain within 0.02 % of the formula, bandwidth 748 Hz; a discrete difference stage shifts the zero by up to 0.34 %FS for ±5 % excitation drift; ±0.3 % gauges give a 50 %FS bridge-zero spread, so zero balancing is mandatory.",
+   "md": "4_ngspice仿真.md",
+   "figs": [
+    {
+     "file": "4_ngspice仿真.png",
+     "caption": "频响、两种方案的零点、应变片公差引起的电桥零点",
+     "caption_en": "Frequency response, zero offset of two chains, bridge zero from gauge tolerance"
+    }
+   ],
+   "files": [
+    {
+     "file": "4_信号链_dc.cir",
+     "label": "直流扫描网表",
+     "label_en": "DC sweep netlist"
+    },
+    {
+     "file": "4_信号链_ac.cir",
+     "label": "交流网表",
+     "label_en": "AC netlist"
+    }
+   ],
+   "tools": [
+    {
+     "label": "电路分析",
+     "label_en": "Circuit analysis",
+     "route": "/circuit"
+    }
+   ],
+   "facts": [
+    {
+     "name": "带宽",
+     "name_en": "Bandwidth",
+     "value": "748",
+     "unit": "Hz"
+    },
+    {
+     "name": "增益与公式差",
+     "name_en": "Gain vs formula",
+     "value": "0.02",
+     "unit": "%"
+    },
+    {
+     "name": "电桥零点标准差",
+     "name_en": "Bridge-zero std. dev.",
+     "value": "50",
+     "unit": "%FS"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "框图级原理图；10 种元件从零件库选，运放、ADC 零件库没有，写通用类型待确认。",
+   "summary_en": "Block-level schematic; 10 component types from the library, op-amp and ADC not in the library and left as generic types to be confirmed.",
+   "md": "5_原理图与元件.md",
+   "figs": [
+    {
+     "file": "5_原理图.png",
+     "caption": "信号调理原理图（框图级）",
+     "caption_en": "Signal-conditioning schematic (block level)"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路板设计",
+     "label_en": "PCB design",
+     "route": "/pcb-design"
+    },
+    {
+     "label": "零件库：10K",
+     "label_en": "Library: 10K",
+     "route": "/library?ref=A-ELE-R0402/10K"
+    },
+    {
+     "label": "零件库：120R",
+     "label_en": "Library: 120R",
+     "route": "/library?ref=A-ELE-R0402/120R"
+    },
+    {
+     "label": "零件库：1K",
+     "label_en": "Library: 1K",
+     "route": "/library?ref=A-ELE-R0402/1K"
+    },
+    {
+     "label": "零件库：100N",
+     "label_en": "Library: 100N",
+     "route": "/library?ref=A-ELE-C0402/100N"
+    },
+    {
+     "label": "零件库：10N",
+     "label_en": "Library: 10N",
+     "route": "/library?ref=A-ELE-C0402/10N"
+    },
+    {
+     "label": "零件库：AMS1117-5.0",
+     "label_en": "Library: AMS1117-5.0",
+     "route": "/library?ref=A-ELE-SOT/AMS1117-5.0"
+    },
+    {
+     "label": "零件库：STM32G431CBT6",
+     "label_en": "Library: STM32G431CBT6",
+     "route": "/library?ref=A-ELE-LQFP48/STM32G431CBT6"
+    },
+    {
+     "label": "零件库：MCP2562-E-SN",
+     "label_en": "Library: MCP2562-E-SN",
+     "route": "/library?ref=A-ELE-SOIC8/MCP2562-E-SN"
+    },
+    {
+     "label": "零件库：5P",
+     "label_en": "Library: 5P",
+     "route": "/library?ref=A-ELE-XH/5P"
+    },
+    {
+     "label": "零件库：4P",
+     "label_en": "Library: 4P",
+     "route": "/library?ref=A-ELE-XH/4P"
+    }
+   ],
+   "facts": [
+    {
+     "name": "零件库元件",
+     "name_en": "Library parts",
+     "value": "10",
+     "unit": "种"
+    }
+   ]
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "8 道工序；组桥接线表（相对轮辐串联）；焊点、引线、检验三条要点都对应仿真里的数。",
+   "summary_en": "Eight operations; bridge wiring table (opposite spokes in series); three rules on solder joints, leads and inspection, each tied to a simulated number.",
+   "md": "6_组桥工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "工序",
+     "name_en": "Operations",
+     "value": "8",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "20 台，不合格 0 项；零点输出标准差 0.091 %FS、Cpk 1.50（不调零时 50 %FS）。",
+   "summary_en": "20 sensors, 0 failures; zero output std. dev. 0.091 %FS, Cpk 1.50 (vs 50 %FS without balancing).",
+   "md": "7_制造与终检.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间终端",
+     "label_en": "Shop-floor terminal",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    }
+   ],
+   "facts": [
+    {
+     "name": "零点 Cpk",
+     "name_en": "Zero Cpk",
+     "value": "1.5",
+     "unit": ""
+    },
+    {
+     "name": "不合格",
+     "name_en": "Out of tolerance",
+     "value": "0",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "7 / 7 项校核通过；增益 167.7、带宽 748 Hz、噪声 0.035 %FS。",
+   "summary_en": "7 / 7 checks pass; gain 167.7, bandwidth 748 Hz, noise 0.035 %FS.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路分析",
+     "label_en": "Circuit analysis",
+     "route": "/circuit"
+    },
+    {
+     "label": "虚拟仪器（扭矩传感器）",
+     "label_en": "Virtual instruments (torque sensor)",
+     "route": "/instruments"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "calc",
+   "what": "过载时 ADC 量程占用",
+   "what_en": "ADC range used at overload",
+   "value": "64",
+   "op": "<=",
+   "limit": "90",
+   "unit": "%",
+   "ok": true,
+   "src": "留 10 % 余量放零点"
+  },
+  {
+   "step": "calc",
+   "what": "噪声峰峰值",
+   "what_en": "Noise peak-to-peak",
+   "value": "0.035",
+   "op": "<=",
+   "limit": "0.05",
+   "unit": "%FS",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "sim",
+   "what": "增益：ngspice 与公式相差",
+   "what_en": "Gain: ngspice vs formula",
+   "value": "0.02",
+   "op": "<=",
+   "limit": "0.5",
+   "unit": "%",
+   "ok": true,
+   "src": "公式核对"
+  },
+  {
+   "step": "sim",
+   "what": "−3 dB 带宽",
+   "what_en": "−3 dB bandwidth",
+   "value": "748",
+   "op": ">=",
+   "limit": "500",
+   "unit": "Hz",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "sim",
+   "what": "选定方案：供桥 ±5 % 时零点变化（1 % 电阻）",
+   "what_en": "Chosen chain: zero shift for ±5 % excitation (1 % resistors)",
+   "value": "1.3e-07",
+   "op": "<=",
+   "limit": "0.01",
+   "unit": "%FS",
+   "ok": true,
+   "src": "蒙特卡洛"
+  },
+  {
+   "step": "make",
+   "what": "终检不合格项",
+   "what_en": "Final-test failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "扭矩终检台"
+  },
+  {
+   "step": "make",
+   "what": "零点输出 Cpk",
+   "what_en": "Zero-output Cpk",
+   "value": "1.5",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算书.md",
+  "4_ngspice仿真.md",
+  "4_ngspice仿真.png",
+  "4_信号链_ac.cir",
+  "4_信号链_dc.cir",
+  "5_原理图.png",
+  "5_原理图与元件.md",
+  "6_组桥工艺.md",
+  "7_制造与终检.md",
+  "8_总结.md"
+ ]
+}

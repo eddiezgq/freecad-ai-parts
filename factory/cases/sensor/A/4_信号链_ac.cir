@@ -1,0 +1,32 @@
+* WQ-TS signal chain (case 161e A)
+.param a0=1e6 gbw=1meg
+.subckt wqop inp inn out
+* generic op-amp macromodel (example): open-loop gain a0, one pole so that GBW = gbw; Rin 10 Meg, Rout 50 ohm (linear, no rail limits)
+Rin inp inn 10meg
+Eg a 0 inp inn {a0}
+Rp a b 1k
+Cp b 0 {1/(2*3.141592653589793*1k*gbw/a0)}
+Eo c 0 b 0 1
+Ro c out 50
+.ends
+Vt t 0 DC 0 AC 1
+Vex e 0 DC 5
+Bsp a 0 V=V(e)/2*(1+0.00127*V(t)*0.005)
+Rsp a sp 350
+Bsn b 0 V=V(e)/2*(1-0.00127*V(t)*0.005)
+Rsn b sn 350
+Xa sp n1 oa wqop
+Ra oa n1 10000
+Rg n1 n2 120
+Rb ob n2 10000
+Xb sn n2 ob wqop
+Rf1 oa fa 1000
+Rf2 ob fb 1000
+Cd fa fb 1e-07
+Cc1 fa 0 1e-08
+Cc2 fb 0 1e-08
+Eod od 0 fa fb 1
+.ac dec 40 1 1meg
+.meas ac g_lf FIND vdb(od) AT=10
+.meas ac f3db WHEN vdb(od)=-48.476191 FALL=1
+.end
