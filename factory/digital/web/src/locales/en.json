@@ -8760,5 +8760,14 @@
   "下载失败": "Download failed",
   "工厂清单.xlsx": "plant-manifest.xlsx",
   "上传失败": "Upload failed",
-  "只读。改物料清单和工艺路线：用上面的“工厂清单（Excel）”（工艺员、厂长）；接单时“订单与计划”的算料用的就是这份清单。": "Read-only. To change BOMs and routings, use “Plant manifest (Excel)” above (process engineers, plant managers); MRP in Orders & Planning uses exactly this BOM."
+  "只读。改物料清单和工艺路线：用上面的“工厂清单（Excel）”（工艺员、厂长）；接单时“订单与计划”的算料用的就是这份清单。": "Read-only. To change BOMs and routings, use “Plant manifest (Excel)” above (process engineers, plant managers); MRP in Orders & Planning uses exactly this BOM.",
+  "设计案例": "Design cases",
+  "从任务书到车间：每一步都用本平台的软件算出来": "From the design brief to the shop floor: every step computed with this platform's software",
+  "校核 {a}/{b}": "Checks {a}/{b}",
+  "制作中": "In preparation",
+  "这一级的案例还在做，做好后出现在这里。": "This case is still being prepared and will appear here when ready.",
+  "A 是一个零件或模块，B 是一个部件，C 是整台产品；A、B 正好是 C 里的零部件。": "A is one part or module, B a sub-assembly, C the complete product; A and B are parts of C.",
+  "全部案例": "All cases",
+  "打开软件：": "Open software:",
+  "下面的正文是中文。": "The text below is in Chinese."
 }
