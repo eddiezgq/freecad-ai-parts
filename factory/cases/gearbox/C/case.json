@@ -210,11 +210,6 @@
    ],
    "tools": [
     {
-     "label": "零件库",
-     "label_en": "Parts library",
-     "route": "/library"
-    },
-    {
      "label": "设计发布与审批",
      "label_en": "Design release",
      "route": "/design"
@@ -223,6 +218,21 @@
      "label": "3D 车间",
      "label_en": "3D shop",
      "route": "/3d"
+    },
+    {
+     "label": "零件库：6205",
+     "label_en": "Library: 6205",
+     "route": "/library?ref=A-BRG-DG/6205"
+    },
+    {
+     "label": "零件库：6206",
+     "label_en": "Library: 6206",
+     "route": "/library?ref=A-BRG-DG/6206"
+    },
+    {
+     "label": "零件库：6207",
+     "label_en": "Library: 6207",
+     "route": "/library?ref=A-BRG-DG/6207"
     }
    ],
    "facts": [
@@ -326,8 +336,8 @@
    "key": "review",
    "title": "总结",
    "title_en": "Review",
-   "summary": "8 / 8 项校核通过；整机反过来改了零件：跨距 115 → 136、箱体加筋。",
-   "summary_en": "8 / 8 checks pass; the whole machine changed its parts: span 115 → 136, housing fins.",
+   "summary": "9 / 9 项校核通过；整机反过来改了零件：跨距 115 → 136、箱体加筋。",
+   "summary_en": "9 / 9 checks pass; the whole machine changed its parts: span 115 → 136, housing fins.",
    "md": "8_总结.md",
    "figs": [],
    "files": [],
@@ -418,6 +428,17 @@
    "unit": "",
    "ok": true,
    "src": "33.5.5 节"
+  },
+  {
+   "step": "cad",
+   "what": "轴承尺寸与零件库一致",
+   "what_en": "Bearing dimensions match the parts library",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "零件库 A-BRG-DG"
   },
   {
    "step": "make",

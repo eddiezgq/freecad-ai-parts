@@ -1,0 +1,397 @@
+{
+ "plant": "robot",
+ "id": "A",
+ "level": "简单",
+ "title": "WQ-CR5 六个关节配模组（关节选型）",
+ "title_en": "Choosing joint modules for the six joints of the WQ-CR5",
+ "item": "WQJ-L、WQJ-M、WQJ-S",
+ "summary": "按负载、臂展、速度算出每个关节的峰值和连续力矩需求，从三种关节模组里给六个关节选型，用 MuJoCo 跑一遍标准动作核对，再在关节测试台测 30 只模组。",
+ "summary_en": "Peak and continuous torque demands of each joint from payload, reach and speed; choose one of three joint modules for each of the six joints, check with a MuJoCo run of the standard motion, then test 30 modules on the joint test bench.",
+ "script": "tools/cases/robot_a.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "5 kg、臂展 860 mm、设计角加速度 360°/s²；三种模组里给六个关节选。",
+   "summary_en": "5 kg, 860 mm reach, 360°/s² design acceleration; pick one of three modules for each joint.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "参数配置器",
+     "label_en": "Configurator",
+     "route": "/configurator"
+    },
+    {
+     "label": "零件与机器人库",
+     "label_en": "Parts & robot library",
+     "route": "/library"
+    }
+   ],
+   "facts": [
+    {
+     "name": "负载",
+     "name_en": "Payload",
+     "value": "5",
+     "unit": "kg"
+    },
+    {
+     "name": "臂展",
+     "name_en": "Reach",
+     "value": "860",
+     "unit": "mm"
+    },
+    {
+     "name": "设计角加速度",
+     "name_en": "Design acceleration",
+     "value": "360",
+     "unit": "°/s²"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "J1 自己用 M 就够，与 J2 统一成 L；比较了快速、长臂、重载、轻载四种需求下的选型；选定 L、L、M、S、S、S。",
+   "summary_en": "J1 alone would need only M but is unified with J2 as L; four other requirement sets compared; L, L, M, S, S, S chosen.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "参数配置器",
+     "label_en": "Configurator",
+     "route": "/configurator"
+    }
+   ],
+   "facts": [
+    {
+     "name": "模组",
+     "name_en": "Modules",
+     "value": "L L M S S S",
+     "unit": ""
+    },
+    {
+     "name": "整机质量",
+     "name_en": "Robot mass",
+     "value": "17.4",
+     "unit": "kg"
+    }
+   ]
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "J2 峰值需求 177 N·m（利用率 0.53）；J3 连续利用率 0.97，全机最紧。",
+   "summary_en": "J2 peak demand 177 N·m (utilisation 0.53); J3 continuous utilisation 0.97, the tightest in the robot.",
+   "md": "3_计算.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "参数配置器",
+     "label_en": "Configurator",
+     "route": "/configurator"
+    },
+    {
+     "label": "零件库：32-100",
+     "label_en": "Library: 32-100",
+     "route": "/library?ref=D-RDC-HD-CSF/32-100"
+    },
+    {
+     "label": "零件库：25-100",
+     "label_en": "Library: 25-100",
+     "route": "/library?ref=D-RDC-HD-CSF/25-100"
+    },
+    {
+     "label": "零件库：17-100",
+     "label_en": "Library: 17-100",
+     "route": "/library?ref=D-RDC-HD-CSF/17-100"
+    }
+   ],
+   "facts": [
+    {
+     "name": "J2 峰值需求",
+     "name_en": "J2 peak demand",
+     "value": "177",
+     "unit": "N·m"
+    },
+    {
+     "name": "J3 连续利用率",
+     "name_en": "J3 continuous use",
+     "value": "0.974",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "MuJoCo 跑标准动作（带 5 kg），六个关节的电机峰值、均方根、转速都在额定内。",
+   "summary_en": "MuJoCo run of the standard motion with 5 kg: motor peak, RMS and speed within rating on all six joints.",
+   "md": "4_动力学仿真.md",
+   "figs": [
+    {
+     "file": "4_标准动作关节力矩.png",
+     "caption": "标准动作中六个关节的力矩（红线：模组上限）",
+     "caption_en": "Joint torques in the standard motion (red: module limits)"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "运动与动力分析",
+     "label_en": "Motion & dynamics",
+     "route": "/mbd"
+    }
+   ],
+   "facts": [
+    {
+     "name": "J2 峰值",
+     "name_en": "J2 peak",
+     "value": "88.6",
+     "unit": "N·m"
+    },
+    {
+     "name": "动作时长",
+     "name_en": "Motion time",
+     "value": "4.8",
+     "unit": "s"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "由同一份模型数据生成整机三维；三种模组 L / M / S 装在 J1–J2 / J3 / J4–J6；整机 17.4 kg。",
+   "summary_en": "Robot 3D generated from the same model data; modules L / M / S on J1–J2 / J3 / J4–J6; 17.4 kg.",
+   "md": "5_三维.md",
+   "figs": [
+    {
+     "file": "5_整机三维.png",
+     "caption": "WQ-CR5 整机（初始位姿）",
+     "caption_en": "WQ-CR5 in the home pose"
+    }
+   ],
+   "files": [
+    {
+     "file": "WQ-CR5.step",
+     "label": "整机 STEP",
+     "label_en": "Robot (STEP)"
+    }
+   ],
+   "tools": [
+    {
+     "label": "零件库：WQ-CR5",
+     "label_en": "Library: WQ-CR5",
+     "route": "/library?ref=B-ARM-WQCR5"
+    }
+   ],
+   "facts": [
+    {
+     "name": "整机质量",
+     "name_en": "Robot mass",
+     "value": "17.4",
+     "unit": "kg"
+    }
+   ]
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "三种模组同一条路线：装配 40 min、测试 20 min；测试台逐只测五项。",
+   "summary_en": "One routing for all three modules: assembly 40 min, test 20 min; five characteristics tested on every module.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "测试项",
+     "name_en": "Test items",
+     "value": "5",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "30 只模组 150 个测量值、不合格 0 个，最低 Cpk 1.49。",
+   "summary_en": "30 modules, 150 measurements, 0 out of tolerance, lowest Cpk 1.49.",
+   "md": "7_制造与测试.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间终端",
+     "label_en": "Shop-floor terminal",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    },
+    {
+     "label": "经营与财务",
+     "label_en": "Business & finance",
+     "route": "/finance"
+    }
+   ],
+   "facts": [
+    {
+     "name": "测量值",
+     "name_en": "Measurements",
+     "value": "150",
+     "unit": ""
+    },
+    {
+     "name": "不合格",
+     "name_en": "Out of tolerance",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "最低 Cpk",
+     "name_en": "Lowest Cpk",
+     "value": "1.49",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "7 / 7 项校核通过；L、L、M、S、S、S，最紧的是 J3 连续力矩。",
+   "summary_en": "7 / 7 checks pass; L, L, M, S, S, S; J3 continuous torque is the tightest.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "参数配置器",
+     "label_en": "Configurator",
+     "route": "/configurator"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "concept",
+   "what": "标准需求下三种模组够用",
+   "what_en": "Three modules suffice for the standard requirement",
+   "value": "1",
+   "op": "==",
+   "limit": "1",
+   "unit": "",
+   "ok": true,
+   "src": "30.3 节"
+  },
+  {
+   "step": "calc",
+   "what": "按零件库减速器参数的最大利用率",
+   "what_en": "Largest utilisation with library gear data",
+   "value": "0.973",
+   "op": "<=",
+   "limit": "1",
+   "unit": "",
+   "ok": true,
+   "src": "零件库 D-RDC-HD-CSF"
+  },
+  {
+   "step": "calc",
+   "what": "六个关节峰值利用率最大值",
+   "what_en": "Largest peak utilisation",
+   "value": "0.531",
+   "op": "<=",
+   "limit": "1",
+   "unit": "",
+   "ok": true,
+   "src": "30.3 节"
+  },
+  {
+   "step": "calc",
+   "what": "六个关节连续利用率最大值",
+   "what_en": "Largest continuous utilisation",
+   "value": "0.974",
+   "op": "<=",
+   "limit": "1",
+   "unit": "",
+   "ok": true,
+   "src": "30.3 节"
+  },
+  {
+   "step": "sim",
+   "what": "六个关节电机侧校核",
+   "what_en": "Motor-side checks on six joints",
+   "value": "1",
+   "op": "==",
+   "limit": "1",
+   "unit": "",
+   "ok": true,
+   "src": "电机选型助手"
+  },
+  {
+   "step": "make",
+   "what": "30 只模组测量不合格数",
+   "what_en": "Out-of-tolerance values in 30 modules",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "关节测试台"
+  },
+  {
+   "step": "make",
+   "what": "关节测试最低过程能力 Cpk",
+   "what_en": "Lowest Cpk of the joint test",
+   "value": "1.49",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算.md",
+  "4_动力学仿真.md",
+  "4_标准动作关节力矩.png",
+  "5_三维.md",
+  "5_整机三维.png",
+  "6_工艺.md",
+  "7_制造与测试.md",
+  "8_总结.md",
+  "WQ-CR5.step"
+ ]
+}

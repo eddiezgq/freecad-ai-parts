@@ -1,0 +1,433 @@
+{
+ "plant": "robot",
+ "id": "C",
+ "level": "完整",
+ "title": "六轴协作机器人 WQ-CR5（整机）",
+ "title_en": "Six-axis collaborative robot WQ-CR5 (complete)",
+ "item": "WQ-CR5",
+ "summary": "整台协作机器人：臂长怎么分、连杆受力与大臂有限元、末端变形与固有频率、整机装配、激光跟踪仪标定、负载跑合，再在机器人厂出厂 5 台。",
+ "summary_en": "The complete cobot: splitting the reach, link loads and upper-arm FEA, TCP deflection and natural frequency, assembly, laser-tracker calibration, load run-in, and 5 robots dispatched.",
+ "script": "tools/cases/robot_c.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "5 kg、臂展 860 mm；重复精度 ±0.03 mm，标定后绝对误差 ≤ 0.5 mm；模组用案例 A 的选型。",
+   "summary_en": "5 kg, 860 mm reach; ±0.03 mm repeatability, ≤ 0.5 mm absolute error after calibration; modules from case A.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "参数配置器",
+     "label_en": "Configurator",
+     "route": "/configurator"
+    },
+    {
+     "label": "零件与机器人库",
+     "label_en": "Parts & robot library",
+     "route": "/library"
+    }
+   ],
+   "facts": [
+    {
+     "name": "负载",
+     "name_en": "Payload",
+     "value": "5",
+     "unit": "kg"
+    },
+    {
+     "name": "臂展",
+     "name_en": "Reach",
+     "value": "860",
+     "unit": "mm"
+    },
+    {
+     "name": "整机质量",
+     "name_en": "Mass",
+     "value": "17.4",
+     "unit": "kg"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "比较三种大小臂分配；按死区取 400 / 360，模组不变，差在 J2 力矩和变形上很小。",
+   "summary_en": "Three upper/forearm splits compared; 400 / 360 chosen by the dead-zone rule; modules unchanged, small differences in J2 torque and deflection.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "参数配置器",
+     "label_en": "Configurator",
+     "route": "/configurator"
+    }
+   ],
+   "facts": [
+    {
+     "name": "大臂 / 小臂",
+     "name_en": "Upper / forearm",
+     "value": "400 / 360",
+     "unit": "mm"
+    }
+   ]
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "伸直带 5 kg，大臂根部弯矩最大；应力只有几 MPa，对屈服的安全系数最小 52：臂管按刚度和重量定，不按强度。",
+   "summary_en": "Outstretched with 5 kg the upper-arm root carries the largest moment; stresses are only a few MPa, minimum yield safety factor 52: tubes are sized by stiffness and weight, not strength.",
+   "md": "3_计算.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "仿真与分析",
+     "label_en": "Simulation & analysis",
+     "route": "/cae"
+    }
+   ],
+   "facts": [
+    {
+     "name": "最小安全系数",
+     "name_en": "Lowest safety factor",
+     "value": "52.1",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "大臂有限元最大应力 5.54 MPa、端部位移 0.115 mm；整机末端重力变形 2.43 mm，关节占 81%；一阶频率 11.8 Hz。",
+   "summary_en": "Upper-arm FEA: max stress 5.54 MPa, tip displacement 0.115 mm; TCP gravity deflection 2.43 mm, 81% from joints; first mode 11.8 Hz.",
+   "md": "4_有限元与刚度.md",
+   "figs": [
+    {
+     "file": "4_末端变形来源.png",
+     "caption": "末端重力变形的来源",
+     "caption_en": "Sources of TCP gravity deflection"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "仿真与分析",
+     "label_en": "Simulation & analysis",
+     "route": "/cae"
+    },
+    {
+     "label": "运动与动力分析",
+     "label_en": "Motion & dynamics",
+     "route": "/mbd"
+    }
+   ],
+   "facts": [
+    {
+     "name": "大臂最大应力",
+     "name_en": "Upper-arm max stress",
+     "value": "5.54",
+     "unit": "MPa"
+    },
+    {
+     "name": "末端变形",
+     "name_en": "TCP deflection",
+     "value": "2.43",
+     "unit": "mm"
+    },
+    {
+     "name": "一阶频率",
+     "name_en": "First mode",
+     "value": "11.8",
+     "unit": "Hz"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "整机三维、名义 DH 参数、9 行物料清单；整机 17.4 kg。",
+   "summary_en": "3D robot, nominal DH parameters, 9-line BOM; 17.4 kg.",
+   "md": "5_三维与清单.md",
+   "figs": [
+    {
+     "file": "5_整机三维.png",
+     "caption": "WQ-CR5（初始位姿）",
+     "caption_en": "WQ-CR5 in the home pose"
+    }
+   ],
+   "files": [
+    {
+     "file": "WQ-CR5.step",
+     "label": "整机 STEP",
+     "label_en": "Robot (STEP)"
+    }
+   ],
+   "tools": [
+    {
+     "label": "零件库：WQ-CR5",
+     "label_en": "Library: WQ-CR5",
+     "route": "/library?ref=B-ARM-WQCR5"
+    },
+    {
+     "label": "零件库：32-100",
+     "label_en": "Library: 32-100",
+     "route": "/library?ref=D-RDC-HD-CSF/32-100"
+    },
+    {
+     "label": "零件库：25-100",
+     "label_en": "Library: 25-100",
+     "route": "/library?ref=D-RDC-HD-CSF/25-100"
+    },
+    {
+     "label": "零件库：17-100",
+     "label_en": "Library: 17-100",
+     "route": "/library?ref=D-RDC-HD-CSF/17-100"
+    },
+    {
+     "label": "零件库：6010",
+     "label_en": "Library: 6010",
+     "route": "/library?ref=A-BRG-DG/6010"
+    },
+    {
+     "label": "零件库：6007",
+     "label_en": "Library: 6007",
+     "route": "/library?ref=A-BRG-DG/6007"
+    },
+    {
+     "label": "零件库：6004",
+     "label_en": "Library: 6004",
+     "route": "/library?ref=A-BRG-DG/6004"
+    },
+    {
+     "label": "零件库：M5x16",
+     "label_en": "Library: M5x16",
+     "route": "/library?ref=A-SCR-SHC/M5x16"
+    }
+   ],
+   "facts": [
+    {
+     "name": "物料清单",
+     "name_en": "BOM lines",
+     "value": "9",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "5 道工序：装配、标定、负载跑合、出厂检验、包装；标定 24 个参数、30 个位姿。",
+   "summary_en": "5 operations: assembly, calibration, load run-in, final inspection, packing; 24 parameters from 30 poses.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "整机标定",
+     "label_en": "Robot calibration",
+     "route": "/calib"
+    },
+    {
+     "label": "负载跑合",
+     "label_en": "Load run-in",
+     "route": "/lab28"
+    }
+   ],
+   "facts": [
+    {
+     "name": "工序",
+     "name_en": "Operations",
+     "value": "5",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "5 台出厂，10 个测量值不合格 0 个；标定后平均绝对误差 0.11–0.12 mm；标准成本 $9,816/台。",
+   "summary_en": "5 robots dispatched, 0 of 10 measurements out of tolerance; mean absolute error after calibration 0.11–0.12 mm; standard cost $9,816.",
+   "md": "7_出厂.md",
+   "figs": [
+    {
+     "file": "7_标定前后.png",
+     "caption": "5 台标定前后的平均绝对误差（红线：0.5 mm）",
+     "caption_en": "Mean absolute error before and after calibration (red: 0.5 mm)"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "整机标定",
+     "label_en": "Robot calibration",
+     "route": "/calib"
+    },
+    {
+     "label": "负载跑合",
+     "label_en": "Load run-in",
+     "route": "/lab28"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    },
+    {
+     "label": "经营与财务",
+     "label_en": "Business & finance",
+     "route": "/finance"
+    }
+   ],
+   "facts": [
+    {
+     "name": "不合格",
+     "name_en": "Out of tolerance",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "标定后最大平均误差",
+     "name_en": "Worst mean error after calibration",
+     "value": "0.123",
+     "unit": "mm"
+    },
+    {
+     "name": "标准成本",
+     "name_en": "Standard cost",
+     "value": "$9,816",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "7 / 7 项校核通过；臂管按刚度定、低频来自关节、精度靠标定。",
+   "summary_en": "7 / 7 checks pass; tubes sized by stiffness, low modes from the joints, accuracy from calibration.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "参数配置器",
+     "label_en": "Configurator",
+     "route": "/configurator"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "calc",
+   "what": "臂管对屈服的最小安全系数",
+   "what_en": "Lowest yield safety factor of the arm tubes",
+   "value": "52.1",
+   "op": ">=",
+   "limit": "3",
+   "unit": "",
+   "ok": true,
+   "src": "《机器人学》31.1 节"
+  },
+  {
+   "step": "sim",
+   "what": "大臂端部位移：有限元与梁理论相差",
+   "what_en": "Upper-arm tip displacement: FEA vs beam theory",
+   "value": "5.38",
+   "op": "<=",
+   "limit": "15",
+   "unit": "%",
+   "ok": true,
+   "src": "31.3 节（核对有限元）"
+  },
+  {
+   "step": "sim",
+   "what": "整机末端重力变形",
+   "what_en": "TCP gravity deflection",
+   "value": "2.43",
+   "op": "<=",
+   "limit": "5",
+   "unit": "mm",
+   "ok": true,
+   "src": "本案例设定（标定、重力补偿前）"
+  },
+  {
+   "step": "sim",
+   "what": "大臂有限元最大应力对屈服的安全系数",
+   "what_en": "Upper-arm FEA yield safety factor",
+   "value": "49.8",
+   "op": ">=",
+   "limit": "3",
+   "unit": "",
+   "ok": true,
+   "src": "31.3 节"
+  },
+  {
+   "step": "make",
+   "what": "5 台出厂检验不合格数",
+   "what_en": "Out-of-tolerance values in 5 robots",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "出厂检验"
+  },
+  {
+   "step": "make",
+   "what": "位置重复精度过程能力 Cpk",
+   "what_en": "Repeatability Cpk",
+   "value": "1.78",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  },
+  {
+   "step": "make",
+   "what": "标定后平均绝对误差（最差一台）",
+   "what_en": "Mean absolute error after calibration (worst robot)",
+   "value": "0.123",
+   "op": "<=",
+   "limit": "0.5",
+   "unit": "mm",
+   "ok": true,
+   "src": "出厂检验"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算.md",
+  "4_有限元与刚度.md",
+  "4_末端变形来源.png",
+  "5_三维与清单.md",
+  "5_整机三维.png",
+  "6_工艺.md",
+  "7_出厂.md",
+  "7_标定前后.png",
+  "8_总结.md",
+  "WQ-CR5.step"
+ ]
+}
