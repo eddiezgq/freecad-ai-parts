@@ -2881,6 +2881,11 @@ def motor_motor(serial: str, u=Depends(user_of)):
         raise HTTPException(404, "没有这台电机的终检记录：{}".format(serial))
 
 
+# ---------------------------------------------------------------- 设计案例（第 161 轮）：每座厂三个设计制造全过程案例，只读
+from hub import cases as _cases  # noqa: E402
+_cases.mount(app, user_of, PLANT.plant_id)
+
+
 # ---------------------------------------------------------------- 电路板设计的产物（第 88 轮）：KiCad 生成的原理图、PCB、三维、BOM、检查结果
 _DESIGNS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "designs")
 

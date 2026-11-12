@@ -6,14 +6,14 @@ export const PAGES = {
   '/process': '工艺规程与 AI 评审',
   '/quality/8d': '质量异常单（8D）', '/ont': '厂情中枢 · 指挥台', '/ont/map': '厂情中枢 · 全貌地图', '/ont/rules': '厂情中枢 · 规则目录', '/ont/sim': '厂情中枢 · 推演工作台', '/ont/actions': '厂情中枢 · 动作收件箱', '/ont/ai': '厂情中枢 · AI 运行记录', '/ont/notify': '通知设置', '/service': '客户与服务', '/lab15': '实验 15 · 车间异常的追因、推演与决策', '/lab16': '实验 16 · 客户投诉的追溯、召回与服务决策', '/lab17': '实验 17 · 安全隐患的识别、评估与停机决策', '/ehs': '安全环保', '/maint': '设备维护', '/lab18': '实验 18 · 设备维护策略：保养时机的决策', '/people': '人员', '/lab19': '实验 19 · 排班与技能：缺人时的决策', '/supply': '采购与来料', '/lab20': '实验 20 · 供应链：来料不合格与供应商选择', '/energy': '能源与环境', '/lab21': '实验 21 · 能源：空转、错峰与单件碳足迹', '/finance': '经营与财务', '/lab22': '实验 22 · 经营：订单毛利、应收与现金', '/ont/reports': '厂情中枢 · 日报与周报',
   '/director': '情景导演', '/labs': '实验与任务', '/lab23': '实验 23 · 两周情景：一张急单的全厂决策', '/help': '帮助',
-  '/cost': '生产成本', '/lab28': '负载跑合 · 实验 28',
+  '/cost': '生产成本', '/lab28': '负载跑合 · 实验 28', '/cases': '设计案例',
   '/eto': '按单设计（ETO）', '/lab33': '实验 33 · 一张非标订单：从询价到收款',
 };
 
 export function pageTitle(path) {
   return PAGES[path] || (path === '/help' || path.startsWith('/help/') ? '帮助' : '')
     || (path.startsWith('/quality/8d/') ? '质量异常单（8D）' : path.startsWith('/ont/') ? '厂情中枢' : '')
-    || (path.startsWith('/design/') ? '设计审阅' : path.startsWith('/process/edit/') ? '在页面上改工艺卡' : path.startsWith('/process/') ? '工艺规程与 AI 评审'
+    || (path.startsWith('/cases/') ? '设计案例' : path.startsWith('/design/') ? '设计审阅' : path.startsWith('/process/edit/') ? '在页面上改工艺卡' : path.startsWith('/process/') ? '工艺规程与 AI 评审'
       : path.startsWith('/tasks/review/') ? '任务单审阅' : path.startsWith('/tasks/') ? '工程任务单' : '');
 }
 
@@ -27,7 +27,7 @@ export const PAGE_CHAPTER = [
   ['/ont', 'insight'], ['/service', 'service'], ['/lab16', 'service'], ['/supply', 'supply'], ['/lab20', 'supply'],
   ['/finance', 'finance'], ['/lab22', 'finance'], ['/maint', 'maint'], ['/lab18', 'maint'], ['/people', 'people'], ['/lab19', 'people'],
   ['/ehs', 'ehs'], ['/lab17', 'ehs'], ['/energy', 'energy'], ['/lab21', 'energy'],
-  ['/labs', 'labs'], ['/teach', 'labs'], ['/lab15', 'labs'], ['/tasks', 'start'],
+  ['/cases', 'design-cases'], ['/labs', 'labs'], ['/teach', 'labs'], ['/lab15', 'labs'], ['/tasks', 'start'],
   ['/director', 'director'], ['/lab23', 'director'],
   // 没有对应章节的页面打开“资料”里的说明
   ['/library', '/help/docs/零件与机器人库'], ['/members', '/help/docs/数字工厂企业版使用说明'], ['/', 'dashboard'],

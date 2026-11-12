@@ -1,0 +1,547 @@
+{
+ "plant": "gearbox",
+ "id": "A",
+ "level": "简单",
+ "title": "输出轴 SH-301（B 版）",
+ "title_en": "Output shaft SH-301 (rev B)",
+ "item": "SH-301",
+ "summary": "一根轴从任务书做到车间：受力、强度、疲劳、有限元、三维、零件图、数控程序，再在减速器厂的仿真车间加工 20 根、检验、核算成本。",
+ "summary_en": "One shaft from the design brief to the shop floor: loads, strength, fatigue, FEA, 3D model, drawing, CNC programs, then 20 parts machined, inspected and costed in the gearbox plant's simulated shop.",
+ "script": "tools/cases/gearbox_a.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "额定 350 N·m、138.1 r/min，起停冲击 1.66 倍，寿命 10,000 h；轴承 6207，毛坯 Ø50 圆钢。",
+   "summary_en": "Rated 350 N·m at 138.1 rpm, start-up peaks 1.66× rated, 10,000 h life; 6207 bearings, Ø50 bar stock.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "在线设计",
+     "label_en": "Online design",
+     "route": "/work/engineer"
+    },
+    {
+     "label": "零件库",
+     "label_en": "Parts library",
+     "route": "/library"
+    }
+   ],
+   "facts": [
+    {
+     "name": "额定转矩",
+     "name_en": "Rated torque",
+     "value": "350",
+     "unit": "N·m"
+    },
+    {
+     "name": "输出转速",
+     "name_en": "Output speed",
+     "value": "138",
+     "unit": "r/min"
+    },
+    {
+     "name": "起动冲击",
+     "name_en": "Start-up peak",
+     "value": "1.66",
+     "unit": "×"
+    },
+    {
+     "name": "要求寿命",
+     "name_en": "Required life",
+     "value": "10,000",
+     "unit": "h"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "现行 A 版装不下轴承、键传不了扭矩，改 B 版；B 版用 45 钢疲劳安全系数 1.38 不够，选 40Cr（1.71）。",
+   "summary_en": "Rev A cannot take the bearing and its keys are too weak, so rev B; with 45 steel the fatigue factor is 1.38, so 40Cr is chosen (1.71).",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "在线设计",
+     "label_en": "Online design",
+     "route": "/work/engineer"
+    },
+    {
+     "label": "设计发布与审批",
+     "label_en": "Design release",
+     "route": "/design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "45 钢疲劳安全系数",
+     "name_en": "Fatigue factor, 45 steel",
+     "value": "1.38",
+     "unit": ""
+    },
+    {
+     "name": "40Cr 疲劳安全系数",
+     "name_en": "Fatigue factor, 40Cr",
+     "value": "1.71",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "齿轮力 3333 / 1213 N；四个截面静强度、疲劳都过（40Cr）；转角、临界转速、键、轴承寿命 173,849 h 都满足。",
+   "summary_en": "Gear forces 3333 / 1213 N; static and fatigue checks pass at all four sections (40Cr); slope, critical speed, keys and bearing life (173,849 h) all pass.",
+   "md": "3_计算书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "仿真与分析",
+     "label_en": "Simulation & analysis",
+     "route": "/cae"
+    }
+   ],
+   "facts": [
+    {
+     "name": "圆周力",
+     "name_en": "Tangential force",
+     "value": "3,333",
+     "unit": "N"
+    },
+    {
+     "name": "径向力",
+     "name_en": "Radial force",
+     "value": "1,213",
+     "unit": "N"
+    },
+    {
+     "name": "轴承寿命",
+     "name_en": "Bearing life",
+     "value": "173,849",
+     "unit": "h"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "有限元支反力与手算差 1.0%、光滑段应力差 0.0%；40Cr 寿命 146,683 h，45 钢只有 8,629 h。",
+   "summary_en": "FEA reactions within 1.0% and plain-shaft stress within 0.0% of hand calculation; life 146,683 h with 40Cr versus 8,629 h with 45 steel.",
+   "md": "4_有限元与疲劳.md",
+   "figs": [
+    {
+     "file": "4_应力沿轴线.png",
+     "caption": "表面冯·米塞斯应力（有限元）与梁理论对照",
+     "caption_en": "Surface von Mises stress (FEA) against beam theory"
+    },
+    {
+     "file": "4_载荷谱与雨流计数.png",
+     "caption": "跑合台转矩记录与雨流计数",
+     "caption_en": "Run-in bench torque record and rainflow counting"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "仿真与分析",
+     "label_en": "Simulation & analysis",
+     "route": "/cae"
+    }
+   ],
+   "facts": [
+    {
+     "name": "单元数",
+     "name_en": "Elements",
+     "value": "47,262",
+     "unit": ""
+    },
+    {
+     "name": "40Cr 寿命",
+     "name_en": "Life, 40Cr",
+     "value": "146,683",
+     "unit": "h"
+    },
+    {
+     "name": "45 钢寿命",
+     "name_en": "Life, 45 steel",
+     "value": "8,629",
+     "unit": "h"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "七段、5 处圆角、两个键槽；质量 1.88 kg；零件图带公差、跳动、粗糙度和两个键槽断面。",
+   "summary_en": "Seven steps, 5 fillets, two keyways; 1.88 kg; drawing with fits, run-out, roughness and keyway sections.",
+   "md": "5_三维与图纸.md",
+   "figs": [
+    {
+     "file": "5_三维.png",
+     "caption": "SH-301 B 版三维模型",
+     "caption_en": "SH-301 rev B 3D model"
+    },
+    {
+     "file": "5_零件图.svg",
+     "caption": "零件图（生成）",
+     "caption_en": "Part drawing (generated)"
+    }
+   ],
+   "files": [
+    {
+     "file": "SH-301-B.step",
+     "label": "三维模型 STEP",
+     "label_en": "3D model (STEP)"
+    },
+    {
+     "file": "5_零件图.svg",
+     "label": "零件图 SVG",
+     "label_en": "Part drawing (SVG)"
+    }
+   ],
+   "tools": [
+    {
+     "label": "在线设计",
+     "label_en": "Online design",
+     "route": "/work/engineer"
+    },
+    {
+     "label": "零件库",
+     "label_en": "Parts library",
+     "route": "/library"
+    },
+    {
+     "label": "设计发布与审批",
+     "label_en": "Design release",
+     "route": "/design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "质量",
+     "name_en": "Mass",
+     "value": "1.88",
+     "unit": "kg"
+    },
+    {
+     "name": "总长",
+     "name_en": "Length",
+     "value": "240",
+     "unit": "mm"
+    }
+   ]
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "7 道工序；生成 6 个数控程序（车两次装夹 × 粗精、两个键槽），仿真检查错误 0 个。",
+   "summary_en": "7 operations; 6 CNC programs generated (two turning set-ups × rough/finish, two keyways); 0 errors in simulation.",
+   "md": "6_工艺与数控程序.md",
+   "figs": [],
+   "files": [
+    {
+     "file": "6_O1101.nc",
+     "label": "O1101 粗车 Rough turning 右端（第一次装夹）",
+     "label_en": "O1101 CNC program"
+    },
+    {
+     "file": "6_O1102.nc",
+     "label": "O1102 粗车 Rough turning 左端（调头装夹）",
+     "label_en": "O1102 CNC program"
+    },
+    {
+     "file": "6_O1201.nc",
+     "label": "O1201 精车 Finish turning 右端（第一次装夹）",
+     "label_en": "O1201 CNC program"
+    },
+    {
+     "file": "6_O1202.nc",
+     "label": "O1202 精车 Finish turning 左端（调头装夹）",
+     "label_en": "O1202 CNC program"
+    },
+    {
+     "file": "6_O1501.nc",
+     "label": "O1501 铣键槽（齿轮处） 键槽",
+     "label_en": "O1501 CNC program"
+    },
+    {
+     "file": "6_O1502.nc",
+     "label": "O1502 铣键槽（外伸段） 键槽",
+     "label_en": "O1502 CNC program"
+    }
+   ],
+   "tools": [
+    {
+     "label": "工艺规程",
+     "label_en": "Process plans",
+     "route": "/process"
+    },
+    {
+     "label": "数控编程",
+     "label_en": "CNC programming",
+     "route": "/cam"
+    }
+   ],
+   "facts": [
+    {
+     "name": "工序",
+     "name_en": "Operations",
+     "value": "7",
+     "unit": ""
+    },
+    {
+     "name": "数控程序",
+     "name_en": "CNC programs",
+     "value": "6",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "第一批 20 根全合格，但轴承位 Cpk 1.06；缩短砂轮修整间隔后第二批最低 Cpk 1.36。标准成本 $59.33/根。",
+   "summary_en": "First 20 parts all in tolerance but bearing-seat Cpk 1.06; after shortening the dressing interval the second batch reaches Cpk 1.36. Standard cost $59.33 per part.",
+   "md": "7_制造与检验.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间终端",
+     "label_en": "Shop-floor terminal",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    },
+    {
+     "label": "经营与成本",
+     "label_en": "Business & cost",
+     "route": "/finance"
+    }
+   ],
+   "facts": [
+    {
+     "name": "加工时间",
+     "name_en": "Shop time",
+     "value": "7.71",
+     "unit": "h"
+    },
+    {
+     "name": "第一批最低 Cpk",
+     "name_en": "Lowest Cpk, batch 1",
+     "value": "1.06",
+     "unit": ""
+    },
+    {
+     "name": "改进后最低 Cpk",
+     "name_en": "Lowest Cpk, batch 2",
+     "value": "1.36",
+     "unit": ""
+    },
+    {
+     "name": "标准成本",
+     "name_en": "Standard cost",
+     "value": "$59.33",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "12 / 12 项校核通过；设计改了结构、键、圆角、材料四处，制造改了砂轮修整间隔。",
+   "summary_en": "12 / 12 checks pass; changes in layout, keys, fillets and material, plus a shorter wheel-dressing interval in production.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计发布与审批",
+     "label_en": "Design release",
+     "route": "/design"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "concept",
+   "what": "选定方案疲劳安全系数",
+   "what_en": "Fatigue factor of the chosen design",
+   "value": "1.71",
+   "op": ">=",
+   "limit": "1.5",
+   "unit": "",
+   "ok": true,
+   "src": "33.5.5 节"
+  },
+  {
+   "step": "calc",
+   "what": "计算书全部校核（40Cr）",
+   "what_en": "All checks in the calculation sheet (40Cr)",
+   "value": "1",
+   "op": "==",
+   "limit": "1",
+   "unit": "",
+   "ok": true,
+   "src": "计算书"
+  },
+  {
+   "step": "calc",
+   "what": "齿轮处平键能传的转矩",
+   "what_en": "Torque capacity of the gear key",
+   "value": "356",
+   "op": ">=",
+   "limit": "350",
+   "unit": "N·m",
+   "ok": true,
+   "src": "第 25 章"
+  },
+  {
+   "step": "calc",
+   "what": "外伸段平键能传的转矩",
+   "what_en": "Torque capacity of the coupling key",
+   "value": "418",
+   "op": ">=",
+   "limit": "350",
+   "unit": "N·m",
+   "ok": true,
+   "src": "第 25 章"
+  },
+  {
+   "step": "calc",
+   "what": "轴承 6207 寿命",
+   "what_en": "6207 bearing life",
+   "value": "173,849",
+   "op": ">=",
+   "limit": "10,000",
+   "unit": "h",
+   "ok": true,
+   "src": "ISO 281"
+  },
+  {
+   "step": "sim",
+   "what": "有限元支反力与手算相差",
+   "what_en": "FEA bearing reaction vs hand calculation",
+   "value": "1.03",
+   "op": "<=",
+   "limit": "5",
+   "unit": "%",
+   "ok": true,
+   "src": "33.8 节"
+  },
+  {
+   "step": "sim",
+   "what": "光滑段应力与手算相差",
+   "what_en": "FEA plain-shaft stress vs hand calculation",
+   "value": "0.0484",
+   "op": "<=",
+   "limit": "5",
+   "unit": "%",
+   "ok": true,
+   "src": "33.8 节"
+  },
+  {
+   "step": "sim",
+   "what": "疲劳寿命（40Cr，跑合台载荷谱）",
+   "what_en": "Fatigue life (40Cr, run-in bench spectrum)",
+   "value": "146,683",
+   "op": ">=",
+   "limit": "10,000",
+   "unit": "h",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "cad",
+   "what": "最大直径不超过毛坯（Ø50 圆钢）",
+   "what_en": "Largest diameter within the Ø50 bar stock",
+   "value": "48",
+   "op": "<=",
+   "limit": "48",
+   "unit": "mm",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "process",
+   "what": "数控程序仿真检查出的错误",
+   "what_en": "Errors found by CNC simulation",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "数控编程仿真"
+  },
+  {
+   "step": "make",
+   "what": "两批 40 根测量不合格数",
+   "what_en": "Out-of-tolerance values in 40 parts",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "检验站"
+  },
+  {
+   "step": "make",
+   "what": "改进后最低过程能力 Cpk",
+   "what_en": "Lowest Cpk after improvement",
+   "value": "1.36",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算书.md",
+  "4_应力沿轴线.png",
+  "4_有限元与疲劳.md",
+  "4_载荷谱与雨流计数.png",
+  "5_三维.png",
+  "5_三维与图纸.md",
+  "5_零件图.svg",
+  "6_O1101.nc",
+  "6_O1102.nc",
+  "6_O1201.nc",
+  "6_O1202.nc",
+  "6_O1501.nc",
+  "6_O1502.nc",
+  "6_工艺与数控程序.md",
+  "7_制造与检验.md",
+  "8_总结.md",
+  "SH-301-B.step"
+ ]
+}
