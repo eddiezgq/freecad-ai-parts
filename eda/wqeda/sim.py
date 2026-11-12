@@ -11,6 +11,7 @@ import shutil
 import sys
 
 from .blocks import SIM
+from . import parts
 from .blocks import common as c
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -44,7 +45,13 @@ def run(doc):
     out = {}
     have = shutil.which("ngspice") is not None
     circuit = _circuit() if have else None
+    ctrl_dev = None
     for u in design_units(doc):
+        if u["type"] in sim_ctrl.CASES:  # 第 159 轮：平缝机控制器的仿真核对，网表在 sim_ctrl.py
+            if ctrl_dev is None:
+                ctrl_dev = parts.Devices.load()
+            out[u["type"]] = sim_ctrl.run_unit(u, doc["spec"], ctrl_dev, have)
+            continue
         key = SIM.get(u["type"])
         if not key:
             continue
@@ -82,3 +89,6 @@ def design_units(doc):
     from . import blocks
 
     return blocks.units(doc)
+
+
+from . import sim_ctrl  # noqa: E402  （sim_ctrl 反过来用本文件的 _circuit）

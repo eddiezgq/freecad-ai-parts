@@ -286,8 +286,10 @@ def calc_pfc_boost(block, spec, d, parts):
             "refs": [(dd, "rth_jc"), (dd, "tj_max")],
         }
     # 母线：二倍工频纹波、保持时间、分压
-    f2 = 2 * spec["f_line_min_hz"]
-    dv = None if c_tot is None else r["po"] / (2 * math.pi * f2 * c_tot * vo)
+    # 电容电流 = I_o·cos(2ωt)：幅值 I_o/(2ω·C)，峰峰值翻倍 → ΔV = P_o / (2π·f_工频·C·V_o)
+    # （159c 仿真核对时发现原来少乘了 2，改正）
+    fl = spec["f_line_min_hz"]
+    dv = None if c_tot is None else r["po"] / (2 * math.pi * fl * c_tot * vo)
     t_hold = None if c_tot is None else c_tot * (vo**2 - p["v_holdup_min"] ** 2) / (2 * r["po"])
     vref = dev.value(ctl, "v_vsref")
     rb = c.parse(p["r_vs_bottom"])
@@ -355,7 +357,7 @@ def calc_pfc_boost(block, spec, d, parts):
             "母线二倍工频纹波（峰峰）",
             dv,
             "V",
-            "ΔV = P_o / (2π · 2f_工频 · C · V_o)",
+            "ΔV = P_o / (2π · f_工频 · C · V_o)（峰峰）",
             note="f_工频取 {:g} Hz".format(spec["f_line_min_hz"]),
         ),
         c.item(
