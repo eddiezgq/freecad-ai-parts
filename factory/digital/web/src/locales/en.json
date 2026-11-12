@@ -8735,5 +8735,6 @@
   "这个物料没有登记工艺路线。": "No routing registered for this item.",
   "只读。改物料清单和工艺路线：企业在“产品登记”或“按单设计”里改；接单时“订单与计划”的算料用的就是这份清单。": "Read-only. To change BOMs and routings, use Product registration or Engineer-to-order; MRP in Orders & Planning uses exactly this BOM.",
   "可接单的产品": "Products you can sell",
-  "自制的半成品、部件": "Made sub-assemblies and parts"
+  "自制的半成品、部件": "Made sub-assemblies and parts",
+  "只读。输出轴 SH-301 的设计在上面的“在线设计”里改；接单时“订单与计划”的算料用的就是这份清单。": "Read-only. The output shaft SH-301 is changed in Online design above; MRP in Orders & Planning uses exactly this BOM."
 }

@@ -79,6 +79,10 @@ In teaching mode it takes effect on submission. In production mode it takes effe
 When the check fails, “Release new version” is gray: read the red lines (e.g. keyway longer than its shaft segment). Yellow lines are notes that differ from the standard's recommended values; you can click “Use recommended value”, or release without changing.
 The sign-in credential in the macro pack is valid for 7 days. When it expires, download it again from the “Design & process” page.
 
+## Plant-wide BOMs and routings
+
+At the bottom of Design & process is every item in the plant that has a BOM: the WQR-105 gear reducer and its sub-assemblies and parts. Pick one to see its BOM (click a made part to jump to its own BOM), its routing (minutes per piece, machines, pieces per load) and its standard cost. It is read-only; MRP uses exactly this data.
+
 ## Two steps of a process plan
 
 1. **AI pre-check**: automatically checks locating error, clamping force and times. Out of tolerance is marked “Must change”; where there is margin it gives “Suggestions”.
