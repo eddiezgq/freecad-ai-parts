@@ -8739,5 +8739,7 @@
   "只读。输出轴 SH-301 的设计在上面的“在线设计”里改；接单时“订单与计划”的算料用的就是这份清单。": "Read-only. The output shaft SH-301 is changed in Online design above; MRP in Orders & Planning uses exactly this BOM.",
 "厂商官网": "Vendor website",
 "到外部库查（{s}）": "Look it up in outside libraries ({s})",
-"外部网站，内容以对方为准；这里只放链接，不转存对方的文件和参数。": "Outside websites; their content is theirs. We only link to them and do not copy their files or data."
+"外部网站，内容以对方为准；这里只放链接，不转存对方的文件和参数。": "Outside websites; their content is theirs. We only link to them and do not copy their files or data.",
+"到外部库查": "Look up outside",
+"“到外部库查”只拼对方网站的搜索地址、新窗口打开，内容以对方为准；没有尺寸码的电解电容、二极管、端子、自研芯片不出链接（不猜）。": "“Look up outside” only builds a search address on the other website and opens it in a new window; their content is theirs. Electrolytic capacitors without a size code, diodes, terminal blocks and our own chip get no link (we do not guess)."
 }
