@@ -1,0 +1,445 @@
+{
+ "plant": "pcb",
+ "id": "C",
+ "level": "完整",
+ "title": "关节伺服驱动板 DRV-JOINT-B 整板",
+ "title_en": "Joint servo drive board DRV-JOINT-B",
+ "item": "DRV-JOINT-B",
+ "summary": "一块 48 V、400 W 关节伺服驱动板的全过程：规格、九个功能块的计算与判定、电路分析例题核对、固件在虚拟硬件里跑十七个场景、KiCad 原理图与四层板（自动布线、电气规则、可制造性检查），到电路板厂贴片线 + 后段做一批 50 块、在线测试与功能测试。",
+ "summary_en": "The whole path of a 48 V, 400 W joint servo drive board: specification, calculations and verdicts for nine function blocks, circuit-analysis cross-checks, firmware running seventeen scenarios on virtual hardware, KiCad schematic and four-layer board (autorouted, DRC, DFM), then a batch of 50 boards through SMT and back end with ICT and FCT.",
+ "script": "tools/cases/pcb_c.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "48 V、400 W，相电流 8.5 / 29.73 A；CAN、双编码器、抱闸；100×70 mm 四层。",
+   "summary_en": "48 V, 400 W, phase current 8.5 / 29.73 A; CAN, two encoders, brake; 100×70 mm, four layers.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路板设计（驱动板 A/B）",
+     "label_en": "PCB design (drive board A/B)",
+     "route": "/pcb-design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "母线",
+     "name_en": "DC bus",
+     "value": "48",
+     "unit": "V"
+    },
+    {
+     "name": "功率",
+     "name_en": "Power",
+     "value": "400",
+     "unit": "W"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "A 版 7 个功能块；B 版在其上 27 处改动（WQ-ENCIF、抱闸、SSI）。",
+   "summary_en": "7 function blocks in rev A; rev B adds 27 changes (WQ-ENCIF, brake, SSI).",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路板设计（驱动板 A/B）",
+     "label_en": "PCB design (drive board A/B)",
+     "route": "/pcb-design"
+    },
+    {
+     "label": "芯片设计（WQ-ENCIF）",
+     "label_en": "Chip design (WQ-ENCIF)",
+     "route": "/chip-design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "功能块",
+     "name_en": "Function blocks",
+     "value": "7",
+     "unit": ""
+    },
+    {
+     "name": "B 版改动",
+     "name_en": "Rev-B changes",
+     "value": "27",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "9 个功能块的判定：通过 25、不通过 0、待核对 7、未知 6。",
+   "summary_en": "Verdicts over 9 blocks: 25 pass, 0 fail, 7 to verify, 6 unknown.",
+   "md": "3_计算书汇总.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路板设计（驱动板 A/B）",
+     "label_en": "PCB design (drive board A/B)",
+     "route": "/pcb-design"
+    },
+    {
+     "label": "电路分析",
+     "label_en": "Circuit analysis",
+     "route": "/circuit"
+    }
+   ],
+   "facts": [
+    {
+     "name": "通过",
+     "name_en": "Pass",
+     "value": "25",
+     "unit": "项"
+    },
+    {
+     "name": "不通过",
+     "name_en": "Fail",
+     "value": "0",
+     "unit": "项"
+    },
+    {
+     "name": "待核对",
+     "name_en": "To verify",
+     "value": "7",
+     "unit": "项"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "电路核对 13 / 13 项通过；固件在 Renode 里 17 个场景、72 / 72 项判定通过。",
+   "summary_en": "Circuit cross-checks 13 / 13 pass; firmware on Renode: 17 scenarios, 72 / 72 checks pass.",
+   "md": "4_电路与固件仿真.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路分析",
+     "label_en": "Circuit analysis",
+     "route": "/circuit"
+    },
+    {
+     "label": "电路板设计（驱动板 A/B）",
+     "label_en": "PCB design (drive board A/B)",
+     "route": "/pcb-design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "固件场景",
+     "name_en": "Firmware scenarios",
+     "value": "17",
+     "unit": ""
+    },
+    {
+     "name": "固件判定通过",
+     "name_en": "Firmware checks passed",
+     "value": "72/72",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "原理图、4 层 PCB、三维；DRC 错误 0、未连接 0；DFM 10 项全过；46 行物料、108 个元件。",
+   "summary_en": "Schematic, 4-layer PCB, 3D; DRC 0 errors, 0 unconnected; DFM 10 checks all pass; 46 BOM lines, 108 parts.",
+   "md": "5_原理图与PCB.md",
+   "figs": [
+    {
+     "file": "5_顶面装配.png",
+     "caption": "顶面装配图（丝印 + 装配层）",
+     "caption_en": "Top assembly (silkscreen + fab)"
+    },
+    {
+     "file": "5_顶层铜.png",
+     "caption": "顶层铜",
+     "caption_en": "Top copper"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路板设计（驱动板 A/B）",
+     "label_en": "PCB design (drive board A/B)",
+     "route": "/pcb-design"
+    },
+    {
+     "label": "零件库：STM32G431CBT6",
+     "label_en": "Library: STM32G431CBT6",
+     "route": "/library?ref=A-ELE-LQFP48/STM32G431CBT6"
+    },
+    {
+     "label": "零件库：IR2101S",
+     "label_en": "Library: IR2101S",
+     "route": "/library?ref=A-ELE-SOIC8/IR2101S"
+    },
+    {
+     "label": "零件库：INA240A1D",
+     "label_en": "Library: INA240A1D",
+     "route": "/library?ref=A-ELE-SOIC8/INA240A1D"
+    },
+    {
+     "label": "零件库：MCP2562-E-SN",
+     "label_en": "Library: MCP2562-E-SN",
+     "route": "/library?ref=A-ELE-SOIC8/MCP2562-E-SN"
+    },
+    {
+     "label": "零件库：MAX3485",
+     "label_en": "Library: MAX3485",
+     "route": "/library?ref=A-ELE-SOIC8/MAX3485"
+    },
+    {
+     "label": "零件库：LMR16006YQ",
+     "label_en": "Library: LMR16006YQ",
+     "route": "/library?ref=A-ELE-SOT/LMR16006YQ"
+    },
+    {
+     "label": "零件库：2M",
+     "label_en": "Library: 2M",
+     "route": "/library?ref=A-ELE-SHUNT/2M"
+    },
+    {
+     "label": "零件库：BSC040N08NS5",
+     "label_en": "Library: BSC040N08NS5",
+     "route": "/library?ref=A-ELE-MOSTDSON/BSC040N08NS5"
+    }
+   ],
+   "facts": [
+    {
+     "name": "元件",
+     "name_en": "Parts",
+     "value": "108",
+     "unit": ""
+    },
+    {
+     "name": "DRC 错误",
+     "name_en": "DRC errors",
+     "value": "0",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "两层物料清单；贴片线 6 道 + 后段 7 道；贴片坐标和钢网直接来自 KiCad。",
+   "summary_en": "Two-level BOM; 6 SMT + 7 back-end operations; placement and stencil straight from KiCad.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "工序",
+     "name_en": "Operations",
+     "value": "13",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "贴片 50 块（不合格 0、最低 Cpk 1.73），后段 50 块（不合格 0、最低 Cpk 1.42）。",
+   "summary_en": "50 boards through SMT (0 failures, lowest Cpk 1.73) and back end (0 failures, lowest Cpk 1.42).",
+   "md": "7_制造与测试.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间终端",
+     "label_en": "Shop-floor terminal",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    },
+    {
+     "label": "功能测试台",
+     "label_en": "Functional test bench",
+     "route": "/fct"
+    },
+    {
+     "label": "实验 39：一块驱动板从订单到交付",
+     "label_en": "Lab 39: a drive board from order to delivery",
+     "route": "/labo/39"
+    }
+   ],
+   "facts": [
+    {
+     "name": "贴片最低 Cpk",
+     "name_en": "SMT lowest Cpk",
+     "value": "1.73",
+     "unit": ""
+    },
+    {
+     "name": "功能测试最低 Cpk",
+     "name_en": "FCT lowest Cpk",
+     "value": "1.42",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "8 / 8 项校核通过；待核对 7、未知 6 项是投产前要清的账。",
+   "summary_en": "8 / 8 checks pass; 7 to-verify and 6 unknown items remain before production.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路板设计（驱动板 A/B）",
+     "label_en": "PCB design (drive board A/B)",
+     "route": "/pcb-design"
+    },
+    {
+     "label": "实验 39：一块驱动板从订单到交付",
+     "label_en": "Lab 39: a drive board from order to delivery",
+     "route": "/labo/39"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "calc",
+   "what": "计算书“不通过”项",
+   "what_en": "Calculation 'fail' verdicts",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "功能块计算器"
+  },
+  {
+   "step": "sim",
+   "what": "电路仿真核对通过率",
+   "what_en": "Circuit cross-check pass rate",
+   "value": "100",
+   "op": "==",
+   "limit": "100",
+   "unit": "%",
+   "ok": true,
+   "src": "计算书"
+  },
+  {
+   "step": "sim",
+   "what": "固件场景判定通过率",
+   "what_en": "Firmware scenario pass rate",
+   "value": "100",
+   "op": "==",
+   "limit": "100",
+   "unit": "%",
+   "ok": true,
+   "src": "Renode 仿真"
+  },
+  {
+   "step": "cad",
+   "what": "电气规则错误",
+   "what_en": "DRC errors",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "KiCad DRC"
+  },
+  {
+   "step": "cad",
+   "what": "未连接",
+   "what_en": "Unconnected items",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "KiCad DRC"
+  },
+  {
+   "step": "cad",
+   "what": "可制造性检查",
+   "what_en": "DFM checks",
+   "value": "1",
+   "op": "==",
+   "limit": "1",
+   "unit": "",
+   "ok": true,
+   "src": "电路板厂工艺能力"
+  },
+  {
+   "step": "make",
+   "what": "贴片 + 功能测试不合格",
+   "what_en": "SMT + FCT failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "AOI、功能测试"
+  },
+  {
+   "step": "make",
+   "what": "最低 Cpk",
+   "what_en": "Lowest Cpk",
+   "value": "1.42",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算书汇总.md",
+  "4_电路与固件仿真.md",
+  "5_原理图与PCB.md",
+  "5_顶层铜.png",
+  "5_顶面装配.png",
+  "6_工艺.md",
+  "7_制造与测试.md",
+  "8_总结.md"
+ ]
+}

@@ -1,0 +1,475 @@
+{
+ "plant": "sensor",
+ "id": "B",
+ "level": "中等",
+ "title": "扭矩传感器弹性体：轮辐与剪切腹板",
+ "title_en": "Torque-sensor flexure: spokes with shear webs",
+ "item": "WQ-TS 弹性体 BODY-TS",
+ "summary": "给关节扭矩传感器设计弹性体：比较三种结构，手算剪切腹板的应变，再用有限元复核——手算高估了近一倍，改版加宽、减薄腹板；复核过载、刚度、侧向力串扰，定外协加工要求，传感器厂按它做 20 台。",
+ "summary_en": "Designing the flexure of a joint torque sensor: three structures compared, shear-web strain by hand, then FEA — the hand calculation overestimates by nearly 2×, so the web is widened and thinned; overload, stiffness and cross-talk checked, machining requirements set, 20 sensors built.",
+ "script": "tools/cases/sensor_b.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "±200 N·m、过载 300 N·m；额定输出 ≥ 1.0 mV/V、刚度 ≥ 2.28e+05 N·m/rad、串扰 ≤ 0.5 %FS；外径 ≤ 90。",
+   "summary_en": "±200 N·m, overload 300 N·m; rated output ≥ 1.0 mV/V, stiffness ≥ 2.28e+05 N·m/rad, cross-talk ≤ 0.5 %FS; OD ≤ 90.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    },
+    {
+     "label": "零件库：25-100",
+     "label_en": "Library: 25-100",
+     "route": "/library?ref=D-RDC-HD-CSF/25-100"
+    }
+   ],
+   "facts": [
+    {
+     "name": "量程",
+     "name_en": "Range",
+     "value": "200",
+     "unit": "N·m"
+    },
+    {
+     "name": "过载",
+     "name_en": "Overload",
+     "value": "300",
+     "unit": "N·m"
+    },
+    {
+     "name": "刚度下限",
+     "name_en": "Min. stiffness",
+     "value": "228,000",
+     "unit": "N·m/rad"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "三种结构比较，选轮辐 + 剪切腹板：厚壁抗弯给刚度，薄腹板集中剪应变；相对轮辐的栅串联抵消串扰。",
+   "summary_en": "Three structures compared; spokes with shear webs chosen: thick walls give stiffness, thin webs concentrate shear strain; grids on opposite spokes in series cancel cross-talk.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": []
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "第一版（腹板 1.5 mm、凹槽 8×8）：轮辐剪力 1786 N，腹板剪应力 108 MPa，手算输出 1.40 mV/V。",
+   "summary_en": "Version 1 (web 1.5 mm, pocket 8×8): spoke shear 1786 N, web shear stress 108 MPa, hand-calculated output 1.40 mV/V.",
+   "md": "3_计算书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "仿真与分析（结构有限元）",
+     "label_en": "Simulation & analysis (FEA)",
+     "route": "/cae"
+    }
+   ],
+   "facts": [
+    {
+     "name": "轮辐剪力",
+     "name_en": "Spoke shear force",
+     "value": "1,786",
+     "unit": "N"
+    },
+    {
+     "name": "手算输出",
+     "name_en": "Hand-calc output",
+     "value": "1.4",
+     "unit": "mV/V"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "有限元：第一版只有 0.76 mV/V（手算 1.40），改版后 1.27 mV/V；刚度 3e+05 N·m/rad，过载安全系数 3.7，串扰 ≤ 0.01 %FS。",
+   "summary_en": "FEA: version 1 gives only 0.76 mV/V (hand calc 1.40); revised 1.27 mV/V; stiffness 3e+05 N·m/rad, overload safety factor 3.7, cross-talk ≤ 0.01 %FS.",
+   "md": "4_有限元复核.md",
+   "figs": [
+    {
+     "file": "4_应力云图.png",
+     "caption": "正面应力云图：第一版与定稿（白框 = 应变片）",
+     "caption_en": "Front-face stress: version 1 and final (white squares = gauges)"
+    },
+    {
+     "file": "4_剪应变与串扰.png",
+     "caption": "每根轮辐腹板的剪应变：力矩与径向力",
+     "caption_en": "Web shear strain per spoke: torque vs radial force"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "仿真与分析（结构有限元）",
+     "label_en": "Simulation & analysis (FEA)",
+     "route": "/cae"
+    }
+   ],
+   "facts": [
+    {
+     "name": "第一版输出",
+     "name_en": "Version-1 output",
+     "value": "0.763",
+     "unit": "mV/V"
+    },
+    {
+     "name": "定稿输出",
+     "name_en": "Final output",
+     "value": "1.27",
+     "unit": "mV/V"
+    },
+    {
+     "name": "扭转刚度",
+     "name_en": "Torsional stiffness",
+     "value": "300,191",
+     "unit": "N·m/rad"
+    },
+    {
+     "name": "过载安全系数",
+     "name_en": "Overload safety factor",
+     "value": "3.67",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "定稿三维与图纸：Ø90×14，腹板 1.00；外圈 8×M5；内毂 M5 摩擦不够，改 6×M6 + 2×Ø6 锥销。",
+   "summary_en": "Final 3D model and drawing: Ø90×14, web 1.00; 8×M5 on the rim; M5 on the hub is not enough, changed to 6×M6 + 2×Ø6 taper pins.",
+   "md": "5_三维与图纸.md",
+   "figs": [
+    {
+     "file": "5_弹性体三维.png",
+     "caption": "弹性体 BODY-TS 三维（定稿）",
+     "caption_en": "Flexure BODY-TS (final)"
+    },
+    {
+     "file": "5_弹性体图纸.png",
+     "caption": "弹性体图纸（主要尺寸）",
+     "caption_en": "Flexure drawing (main dimensions)"
+    }
+   ],
+   "files": [
+    {
+     "file": "BODY-TS.step",
+     "label": "弹性体 STEP",
+     "label_en": "Flexure (STEP)"
+    }
+   ],
+   "tools": [
+    {
+     "label": "仿真与分析（结构有限元）",
+     "label_en": "Simulation & analysis (FEA)",
+     "route": "/cae"
+    },
+    {
+     "label": "零件库：M5x20",
+     "label_en": "Library: M5x20",
+     "route": "/library?ref=A-SCR-SHC/M5x20"
+    },
+    {
+     "label": "零件库：M6x25",
+     "label_en": "Library: M6x25",
+     "route": "/library?ref=A-SCR-SHC/M6x25"
+    },
+    {
+     "label": "零件库：6x30",
+     "label_en": "Library: 6x30",
+     "route": "/library?ref=A-PIN-TAPER/6x30"
+    }
+   ],
+   "facts": [
+    {
+     "name": "腹板厚",
+     "name_en": "Web thickness",
+     "value": "1",
+     "unit": "mm"
+    },
+    {
+     "name": "外圈摩擦能传",
+     "name_en": "Rim friction capacity",
+     "value": "518",
+     "unit": "N·m"
+    },
+    {
+     "name": "内毂摩擦能传",
+     "name_en": "Hub friction capacity",
+     "value": "223",
+     "unit": "N·m"
+    }
+   ]
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "外协 8 道工序；时效 H1025 在精加工前；腹板 1.00±0.01（每 0.01 mm 影响输出约 6.1 %），四个腹板相互差 ≤ 0.01。",
+   "summary_en": "Eight outsourced operations; H1025 ageing before finishing; web 1.00±0.01 (≈6.1 % output per 0.01 mm), the four webs within 0.01 of each other.",
+   "md": "6_外协加工要求.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "采购与供应商",
+     "label_en": "Purchasing & suppliers",
+     "route": "/supply"
+    },
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "腹板公差",
+     "name_en": "Web tolerance",
+     "value": "±0.01",
+     "unit": "mm"
+    },
+    {
+     "name": "每 0.01 mm 影响输出",
+     "name_en": "Output change per 0.01 mm",
+     "value": "6.1",
+     "unit": "%"
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "20 台终检五项，不合格 0 项，最低 Cpk 1.41；非线性、滞后均值 0.10、0.08 %FS。",
+   "summary_en": "20 sensors, five final-test items: 0 out of tolerance, lowest Cpk 1.41; mean non-linearity 0.10 and hysteresis 0.08 %FS.",
+   "md": "7_制造与终检.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间终端",
+     "label_en": "Shop-floor terminal",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    }
+   ],
+   "facts": [
+    {
+     "name": "不合格",
+     "name_en": "Out of tolerance",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "最低 Cpk",
+     "name_en": "Lowest Cpk",
+     "value": "1.41",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "12 / 12 项校核通过（含记录第一版不行的一项）；定稿 1.27 mV/V、3e+05 N·m/rad。",
+   "summary_en": "12 / 12 checks pass (including the record that version 1 failed); final 1.27 mV/V, 3e+05 N·m/rad.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "虚拟仪器（扭矩传感器）",
+     "label_en": "Virtual instruments (torque sensor)",
+     "route": "/instruments"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "sim",
+   "what": "第一版有限元输出（不满足，改版）",
+   "what_en": "Version-1 FEA output (fails, revised)",
+   "value": "0.763",
+   "op": "<",
+   "limit": "1",
+   "unit": "mV/V",
+   "ok": true,
+   "src": "有限元：说明为什么改版"
+  },
+  {
+   "step": "sim",
+   "what": "定稿额定输出",
+   "what_en": "Final rated output",
+   "value": "1.27",
+   "op": ">=",
+   "limit": "1",
+   "unit": "mV/V",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "sim",
+   "what": "扭转刚度",
+   "what_en": "Torsional stiffness",
+   "value": "300,191",
+   "op": ">=",
+   "limit": "228,000",
+   "unit": "N·m/rad",
+   "ok": true,
+   "src": "4 × K3（零件库）"
+  },
+  {
+   "step": "sim",
+   "what": "过载 300 N·m 对屈服的安全系数",
+   "what_en": "Yield safety factor at 300 N·m",
+   "value": "3.67",
+   "op": ">=",
+   "limit": "2",
+   "unit": "",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "sim",
+   "what": "径向力 1 kN 串扰",
+   "what_en": "Cross-talk, 1 kN radial force",
+   "value": "0.006",
+   "op": "<=",
+   "limit": "0.5",
+   "unit": "%FS",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "sim",
+   "what": "倾覆力矩 20 N·m 串扰",
+   "what_en": "Cross-talk, 20 N·m tilting moment",
+   "value": "0.004",
+   "op": "<=",
+   "limit": "0.5",
+   "unit": "%FS",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "sim",
+   "what": "网格 2 mm 与 1.6 mm 输出相差",
+   "what_en": "Output difference, 2 mm vs 1.6 mm mesh",
+   "value": "0.7",
+   "op": "<=",
+   "limit": "2",
+   "unit": "%",
+   "ok": true,
+   "src": "网格收敛"
+  },
+  {
+   "step": "cad",
+   "what": "外圈螺钉摩擦能传的力矩",
+   "what_en": "Rim bolt friction torque",
+   "value": "518",
+   "op": ">=",
+   "limit": "360",
+   "unit": "N·m",
+   "ok": true,
+   "src": "过载 × 1.2"
+  },
+  {
+   "step": "cad",
+   "what": "内毂螺钉摩擦能传的力矩",
+   "what_en": "Hub bolt friction torque",
+   "value": "223",
+   "op": ">=",
+   "limit": "188",
+   "unit": "N·m",
+   "ok": true,
+   "src": "重复峰值 × 1.2（零件库）"
+  },
+  {
+   "step": "cad",
+   "what": "过载时内毂锥销剪应力",
+   "what_en": "Hub taper-pin shear stress at overload",
+   "value": "85",
+   "op": "<=",
+   "limit": "100",
+   "unit": "MPa",
+   "ok": true,
+   "src": "不淬火锥销许用值（示例取值）"
+  },
+  {
+   "step": "make",
+   "what": "终检不合格项",
+   "what_en": "Final-test failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "扭矩终检台"
+  },
+  {
+   "step": "make",
+   "what": "终检最低 Cpk",
+   "what_en": "Lowest final-test Cpk",
+   "value": "1.41",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算书.md",
+  "4_剪应变与串扰.png",
+  "4_应力云图.png",
+  "4_有限元复核.md",
+  "5_三维与图纸.md",
+  "5_弹性体三维.png",
+  "5_弹性体图纸.png",
+  "6_外协加工要求.md",
+  "7_制造与终检.md",
+  "8_总结.md",
+  "BODY-TS.step"
+ ]
+}

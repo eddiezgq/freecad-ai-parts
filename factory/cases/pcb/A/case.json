@@ -1,0 +1,362 @@
+{
+ "plant": "pcb",
+ "id": "A",
+ "level": "简单",
+ "title": "关节驱动板的相电流采样",
+ "title_en": "Phase-current sensing on the joint drive board",
+ "item": "DRV-JOINT-B 相电流采样",
+ "summary": "电机电流环要知道每一相电流：比较三种测法，选采样电阻 + 专用放大器；算灵敏度、量程、功耗、分辨率，用 ngspice 核对增益、带宽和元件容差，定布局要点（开尔文接法），到电路板厂在线测试量采样电阻、功能测试量电流误差，20 块板。",
+ "summary_en": "The current loop needs each phase current: three methods compared, shunt + dedicated amplifier chosen; sensitivity, range, dissipation and resolution calculated, ngspice for gain, bandwidth and tolerances, layout rules (Kelvin connection), then in-circuit and functional test of 20 boards.",
+ "script": "tools/cases/pcb_a.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "额定 8.5 A、峰值 29.7 A，3.3 V 12 位 ADC，误差 ±2 %，带宽 ≥ 20 kHz，共模 0–48 V 跳变。",
+   "summary_en": "8.5 A rated, 29.7 A peak, 3.3 V 12-bit ADC, ±2 % error, bandwidth ≥ 20 kHz, common mode jumping 0–48 V.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路分析：例题 1 相电流采样",
+     "label_en": "Circuit analysis: example 1",
+     "route": "/circuit"
+    }
+   ],
+   "facts": [
+    {
+     "name": "峰值电流",
+     "name_en": "Peak current",
+     "value": "29.7",
+     "unit": "A"
+    },
+    {
+     "name": "精度",
+     "name_en": "Accuracy",
+     "value": "±2",
+     "unit": "%"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "三种测法比较，选相线采样电阻 + 专用放大器（零件库 2 mΩ、增益 20）：任何时刻可读，承受 48 V 共模跳变。",
+   "summary_en": "Three methods compared; in-line shunt + dedicated amplifier chosen (library 2 mΩ, gain 20): readable at any time and tolerant of the 48 V common-mode swing.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "零件库：2M",
+     "label_en": "Library: 2M",
+     "route": "/library?ref=A-ELE-SHUNT/2M"
+    },
+    {
+     "label": "零件库：INA240A1D",
+     "label_en": "Library: INA240A1D",
+     "route": "/library?ref=A-ELE-SOIC8/INA240A1D"
+    }
+   ],
+   "facts": []
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "2 mΩ × 20 = 40 mV/A，量程 ±41.2 A（峰值 29.7 A），额定功耗 143 mW，分辨率 20.1 mA。",
+   "summary_en": "2 mΩ × 20 = 40 mV/A, range ±41.2 A (peak 29.7 A), 143 mW at rated current, 20.1 mA resolution.",
+   "md": "3_计算书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路分析：例题 1 相电流采样",
+     "label_en": "Circuit analysis: example 1",
+     "route": "/circuit"
+    }
+   ],
+   "facts": [
+    {
+     "name": "灵敏度",
+     "name_en": "Sensitivity",
+     "value": "40",
+     "unit": "mV/A"
+    },
+    {
+     "name": "量程",
+     "name_en": "Range",
+     "value": "41.2",
+     "unit": "A"
+    },
+    {
+     "name": "额定功耗",
+     "name_en": "Rated dissipation",
+     "value": "143",
+     "unit": "mW"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "ngspice 与公式相差 ≤ 0.51 %；带宽 474 kHz；分立 1 % 电阻的散布 ±3.8 %，要逐块标定。",
+   "summary_en": "ngspice within 0.51 % of the formulas; bandwidth 474 kHz; ±3.8 % spread with discrete 1 % resistors, so every board is calibrated.",
+   "md": "4_ngspice仿真.md",
+   "figs": [
+    {
+     "file": "4_ngspice.png",
+     "caption": "直流、交流、蒙特卡洛",
+     "caption_en": "DC, AC, Monte Carlo"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路分析：例题 1 相电流采样",
+     "label_en": "Circuit analysis: example 1",
+     "route": "/circuit"
+    }
+   ],
+   "facts": [
+    {
+     "name": "带宽",
+     "name_en": "Bandwidth",
+     "value": "474",
+     "unit": "kHz"
+    },
+    {
+     "name": "容差散布（3σ）",
+     "name_en": "Tolerance spread (3σ)",
+     "value": "3.8",
+     "unit": "%"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "驱动板 B 版顶层铜：采样电阻开尔文接法、放大器靠近电阻、输入线并排等长、焊盘下散热过孔。",
+   "summary_en": "Drive board rev B top copper: Kelvin connection of the shunts, amplifier next to the shunt, paired equal-length inputs, thermal vias under the pads.",
+   "md": "5_布局要点.md",
+   "figs": [
+    {
+     "file": "5_顶层铜.png",
+     "caption": "驱动板 B 版顶层铜（KiCad 产物）",
+     "caption_en": "Drive board rev B top copper (KiCad output)"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路板设计（驱动板）",
+     "label_en": "PCB design (drive board)",
+     "route": "/pcb-design"
+    },
+    {
+     "label": "零件库：2M",
+     "label_en": "Library: 2M",
+     "route": "/library?ref=A-ELE-SHUNT/2M"
+    },
+    {
+     "label": "零件库：INA240A1D",
+     "label_en": "Library: INA240A1D",
+     "route": "/library?ref=A-ELE-SOIC8/INA240A1D"
+    },
+    {
+     "label": "零件库：STM32G431CBT6",
+     "label_en": "Library: STM32G431CBT6",
+     "route": "/library?ref=A-ELE-LQFP48/STM32G431CBT6"
+    },
+    {
+     "label": "零件库：1N",
+     "label_en": "Library: 1N",
+     "route": "/library?ref=A-ELE-C0402/1N"
+    },
+    {
+     "label": "零件库：100N",
+     "label_en": "Library: 100N",
+     "route": "/library?ref=A-ELE-C0402/100N"
+    }
+   ],
+   "facts": []
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "贴片线 6 道、后段 7 道；锡量、四线法测采样电阻、功能测试标定写入。",
+   "summary_en": "6 SMT and 7 back-end operations; paste volume, four-wire shunt test, per-board calibration at functional test.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    },
+    {
+     "label": "功能测试台",
+     "label_en": "Functional test bench",
+     "route": "/fct"
+    }
+   ],
+   "facts": [
+    {
+     "name": "工序",
+     "name_en": "Operations",
+     "value": "13",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "20 块：采样电阻、相电流误差、老化零漂三项，不合格 0，最低 Cpk 1.63。",
+   "summary_en": "20 boards: shunt resistance, phase-current error and drift after burn-in; 0 failures, lowest Cpk 1.63.",
+   "md": "7_制造与测试.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间终端",
+     "label_en": "Shop-floor terminal",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    },
+    {
+     "label": "功能测试台",
+     "label_en": "Functional test bench",
+     "route": "/fct"
+    }
+   ],
+   "facts": [
+    {
+     "name": "不合格",
+     "name_en": "Out of tolerance",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "最低 Cpk",
+     "name_en": "Lowest Cpk",
+     "value": "1.63",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "5 / 5 项校核通过；40 mV/A、±41 A。",
+   "summary_en": "5 / 5 checks pass; 40 mV/A, ±41 A.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路分析：例题 1 相电流采样",
+     "label_en": "Circuit analysis: example 1",
+     "route": "/circuit"
+    },
+    {
+     "label": "功能测试台",
+     "label_en": "Functional test bench",
+     "route": "/fct"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "calc",
+   "what": "量程 / 峰值电流",
+   "what_en": "Range / peak current",
+   "value": "1.39",
+   "op": ">=",
+   "limit": "1.05",
+   "unit": "",
+   "ok": true,
+   "src": "设计描述 sense_headroom"
+  },
+  {
+   "step": "sim",
+   "what": "ngspice 与公式最大相差",
+   "what_en": "Largest ngspice-vs-formula difference",
+   "value": "0.51",
+   "op": "<=",
+   "limit": "3",
+   "unit": "%",
+   "ok": true,
+   "src": "例题 1 的核对规则"
+  },
+  {
+   "step": "sim",
+   "what": "−3 dB 带宽",
+   "what_en": "−3 dB bandwidth",
+   "value": "474",
+   "op": ">=",
+   "limit": "20",
+   "unit": "kHz",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "make",
+   "what": "不合格项",
+   "what_en": "Failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "在线测试、功能测试"
+  },
+  {
+   "step": "make",
+   "what": "最低 Cpk",
+   "what_en": "Lowest Cpk",
+   "value": "1.63",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算书.md",
+  "4_ngspice.png",
+  "4_ngspice仿真.md",
+  "5_布局要点.md",
+  "5_顶层铜.png",
+  "6_工艺.md",
+  "7_制造与测试.md",
+  "8_总结.md"
+ ]
+}

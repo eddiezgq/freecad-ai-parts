@@ -1,0 +1,364 @@
+{
+ "plant": "pcb",
+ "id": "B",
+ "level": "中等",
+ "title": "编码器读头板：光电流到正余弦信号",
+ "title_en": "Encoder read-head board: photocurrent to sine/cosine",
+ "item": "ENC-RD",
+ "summary": "传感器厂的光电编码器要一块读头板：把几微安的光电流放大成 1 Vpp 的正余弦信号。算跨阻、带宽，ngspice 核对；把幅值、偏置、相位误差换算成细分误差（角秒），蒙特卡洛看 1 % 电阻和光电管不对称留下多少偏置；电路板厂做 50 块、功能测试四项。",
+ "summary_en": "The optical encoder of the sensor plant needs a read-head board turning a few microamps of photocurrent into 1 Vpp sine/cosine signals: transimpedance and bandwidth calculated and checked in ngspice; amplitude, offset and phase errors converted to interpolation error in arc-seconds; Monte Carlo for the offset left by 1 % resistors and photodiode mismatch; 20 boards built and tested on four items.",
+ "script": "tools/cases/pcb_b.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "2048 线（一周期 633″）；输出 1 Vpp、偏置 ±20 mV、相位 90±3°、细分误差 ≤ 40″；最高 2.0 kHz。",
+   "summary_en": "2048 lines (633″ per period); 1 Vpp, ±20 mV offset, 90±3° phase, ≤ 40″ interpolation error; up to 2.0 kHz.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "编码器误差曲线（传感器厂）",
+     "label_en": "Encoder error curve (sensor plant)",
+     "route": "/enc-curve"
+    }
+   ],
+   "facts": [
+    {
+     "name": "线数",
+     "name_en": "Lines",
+     "value": "2,048",
+     "unit": ""
+    },
+    {
+     "name": "一个信号周期",
+     "name_en": "Signal period",
+     "value": "633",
+     "unit": "″"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "正反相两个光电管各一级跨阻放大再相减：直流抵消、交流加倍；跨阻 100 kΩ、10 pF（零件库）。",
+   "summary_en": "A transimpedance stage for each of the two antiphase photodiodes, then subtract: DC cancels, AC doubles; 100 kΩ and 10 pF from the library.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "零件库：100K",
+     "label_en": "Library: 100K",
+     "route": "/library?ref=A-ELE-R0402/100K"
+    },
+    {
+     "label": "零件库：10P",
+     "label_en": "Library: 10P",
+     "route": "/library?ref=A-ELE-C0402/10P"
+    }
+   ],
+   "facts": []
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "差分 1.00 Vpp、带宽 159 kHz（2.0 kHz 时掉 0.008 %）；读头板公差全取上限，细分误差 10.1″（≤ 40″）。",
+   "summary_en": "1.00 Vpp differential, 159 kHz bandwidth (0.008 % drop at 2.0 kHz); with every board tolerance at its limit, interpolation error 10.1″ (≤ 40″).",
+   "md": "3_计算书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路分析",
+     "label_en": "Circuit analysis",
+     "route": "/circuit"
+    },
+    {
+     "label": "编码器误差曲线（传感器厂）",
+     "label_en": "Encoder error curve (sensor plant)",
+     "route": "/enc-curve"
+    }
+   ],
+   "facts": [
+    {
+     "name": "输出峰峰值",
+     "name_en": "Output",
+     "value": "1",
+     "unit": "Vpp"
+    },
+    {
+     "name": "带宽",
+     "name_en": "Bandwidth",
+     "value": "159",
+     "unit": "kHz"
+    },
+    {
+     "name": "最坏细分误差",
+     "name_en": "Worst-case interpolation error",
+     "value": "10.1",
+     "unit": "″"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "ngspice 幅值、带宽与公式一致；1 % 电阻 + 光电管 2 % 让偏置标准差 11 mV、8 % 超差——偏置必须出厂调。",
+   "summary_en": "ngspice amplitude and bandwidth match the formulas; 1 % resistors and 2 % photodiodes give 11 mV offset spread, 8 % out of tolerance — offset trimming at test is required.",
+   "md": "4_ngspice仿真.md",
+   "figs": [
+    {
+     "file": "4_ngspice.png",
+     "caption": "频响、偏置蒙特卡洛、李萨如图",
+     "caption_en": "Frequency response, offset Monte Carlo, Lissajous"
+    }
+   ],
+   "files": [
+    {
+     "file": "4_正弦通道_ac.cir",
+     "label": "交流网表",
+     "label_en": "AC netlist"
+    }
+   ],
+   "tools": [
+    {
+     "label": "电路分析",
+     "label_en": "Circuit analysis",
+     "route": "/circuit"
+    }
+   ],
+   "facts": [
+    {
+     "name": "带宽",
+     "name_en": "Bandwidth",
+     "value": "161",
+     "unit": "kHz"
+    },
+    {
+     "name": "未调偏置标准差",
+     "name_en": "Untrimmed offset std. dev.",
+     "value": "11",
+     "unit": "mV"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "框图、零件库元件、四条布局要点（保护环、对称、电源远离、清洗）；读头板 KiCad 工程以后补。",
+   "summary_en": "Block diagram, library parts and four layout rules (guard ring, symmetry, supply far away, cleaning); the KiCad project of this board is to follow.",
+   "md": "5_框图与布局.md",
+   "figs": [
+    {
+     "file": "5_框图.png",
+     "caption": "读头板框图",
+     "caption_en": "Read-head board block diagram"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "零件库：100K",
+     "label_en": "Library: 100K",
+     "route": "/library?ref=A-ELE-R0402/100K"
+    },
+    {
+     "label": "零件库：10P",
+     "label_en": "Library: 10P",
+     "route": "/library?ref=A-ELE-C0402/10P"
+    },
+    {
+     "label": "零件库：100N",
+     "label_en": "Library: 100N",
+     "route": "/library?ref=A-ELE-C0402/100N"
+    },
+    {
+     "label": "零件库：LMR16006YQ",
+     "label_en": "Library: LMR16006YQ",
+     "route": "/library?ref=A-ELE-SOT/LMR16006YQ"
+    },
+    {
+     "label": "零件库：6P",
+     "label_en": "Library: 6P",
+     "route": "/library?ref=A-ELE-XH/6P"
+    }
+   ],
+   "facts": []
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "贴片 + 后段；湿敏的光电读头、涂覆遮蔽光学窗口、功能测试先调偏置再测。",
+   "summary_en": "SMT + back end; moisture-sensitive optical sensor, mask the optical window during coating, trim the offset before functional test.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "工序",
+     "name_en": "Operations",
+     "value": "13",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "50 块功能测试四项，不合格 0，最低 Cpk 1.42；细分误差均值 15″。",
+   "summary_en": "50 boards, four functional tests, 0 failures, lowest Cpk 1.42; mean interpolation error 15″.",
+   "md": "7_制造与测试.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间终端",
+     "label_en": "Shop-floor terminal",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    },
+    {
+     "label": "功能测试台",
+     "label_en": "Functional test bench",
+     "route": "/fct"
+    }
+   ],
+   "facts": [
+    {
+     "name": "不合格",
+     "name_en": "Out of tolerance",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "最低 Cpk",
+     "name_en": "Lowest Cpk",
+     "value": "1.42",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "5 / 5 项校核通过；1.0 Vpp、带宽 159 kHz、最坏细分误差 10.1″。",
+   "summary_en": "5 / 5 checks pass; 1.0 Vpp, 159 kHz, worst-case interpolation error 10.1″.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路分析",
+     "label_en": "Circuit analysis",
+     "route": "/circuit"
+    },
+    {
+     "label": "编码器误差曲线（传感器厂）",
+     "label_en": "Encoder error curve (sensor plant)",
+     "route": "/enc-curve"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "calc",
+   "what": "最高信号频率时幅值下降",
+   "what_en": "Amplitude drop at the highest signal frequency",
+   "value": "0.008",
+   "op": "<=",
+   "limit": "1",
+   "unit": "%",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "calc",
+   "what": "读头板公差全取上限的细分误差",
+   "what_en": "Interpolation error with all board tolerances at limit",
+   "value": "10.1",
+   "op": "<=",
+   "limit": "40",
+   "unit": "″",
+   "ok": true,
+   "src": "功能测试公差"
+  },
+  {
+   "step": "sim",
+   "what": "差分幅值：ngspice 与公式相差",
+   "what_en": "Amplitude: ngspice vs formula",
+   "value": "0",
+   "op": "<=",
+   "limit": "1",
+   "unit": "%",
+   "ok": true,
+   "src": "公式核对"
+  },
+  {
+   "step": "make",
+   "what": "功能测试不合格项",
+   "what_en": "Functional-test failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "功能测试台"
+  },
+  {
+   "step": "make",
+   "what": "最低 Cpk",
+   "what_en": "Lowest Cpk",
+   "value": "1.42",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算书.md",
+  "4_ngspice.png",
+  "4_ngspice仿真.md",
+  "4_正弦通道_ac.cir",
+  "5_框图.png",
+  "5_框图与布局.md",
+  "6_工艺.md",
+  "7_制造与测试.md",
+  "8_总结.md"
+ ]
+}
