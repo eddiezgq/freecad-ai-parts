@@ -275,7 +275,7 @@ class Tools:
             w.append("domain=%s")
             args.append(domain)
         rows = self.db.q("select * from anomaly where {} order by case severity when 'critical' then 0 when 'warn' then 1 else 2 end, last_seen desc "
-                         "limit 30".format(" and ".join(w)), args)
+                         "limit 60".format(" and ".join(w)), args)     # 第 157 轮补漏：30 条时，情景跑久了开着的异常超过 30 个，缺料（提示级）被挤出去（评测 A01 偶发失败）
         out = []
         for a in rows:
             if a["subject_type"] and not self._visible(a["subject_type"]):
