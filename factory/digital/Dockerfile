@@ -34,6 +34,8 @@ COPY licensing/ /app/fap/licensing/
 ENV PYTHONPATH=/app/fap
 COPY factory/factory/ factory/
 COPY factory/plants/ plants/
+# 问渠第 161 轮：设计案例（网页“设计案例”读这里）
+COPY factory/cases/ cases/
 # 服务器首次安装时用它把减速器厂数据导入 ERPNext（第 3 轮 D6）
 COPY factory/seed.py seed.py
 COPY factory/digital/wqbus/ digital/wqbus/

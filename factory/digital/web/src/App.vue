@@ -111,6 +111,7 @@ const NAV = [
   ] },
   { title: tk('设计与工艺'), items: [
     { to: '/work/engineer', label: tk('设计与工艺'), role: 'engineer' },
+    { to: '/cases', label: tk('设计案例'), only: () => (cfg.value.plant?.id || 'wenquest-gearbox').startsWith('wenquest-') },   // 第 161 轮：问渠七座厂各三个全过程案例
     { to: '/process', label: tk('工艺规程与 AI 评审') },
     { to: '/design', label: tk('设计发布与审批') },
     { to: '/cad', label: tk('CAD 方案'), only: () => hasRoute('/cad') },        // 企业页面：只在 freecad-ai-parts 有（main.js）

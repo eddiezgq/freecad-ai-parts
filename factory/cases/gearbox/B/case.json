@@ -1,0 +1,494 @@
+{
+ "plant": "gearbox",
+ "id": "B",
+ "level": "中等",
+ "title": "低速级齿轮副 GR-203 / GR-302",
+ "title_en": "Low-speed gear pair GR-203 / GR-302",
+ "item": "GR-203、GR-302",
+ "summary": "WQR-105 第二级的一对齿轮：直齿和斜齿方案比较、齿面接触与齿根弯曲强度、轮齿有限元、展成齿形与三维、零件图、工艺与 AI 评审、车间加工 20 对。",
+ "summary_en": "The second-stage gear pair of the WQR-105: spur versus helical, contact and root-bending strength, tooth FEA, generated tooth form and 3D, drawings, process review, and 20 pairs made in the simulated shop.",
+ "script": "tools/cases/gearbox_b.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "小齿轮 104.1 N·m、483 r/min，i₂ = 3.5，中心距 135 mm 固定；寿命 10,000 h。",
+   "summary_en": "Pinion 104.1 N·m at 483 rpm, i₂ = 3.5, centre distance fixed at 135 mm; 10,000 h life.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "零件库",
+     "label_en": "Parts library",
+     "route": "/library"
+    }
+   ],
+   "facts": [
+    {
+     "name": "小齿轮转矩",
+     "name_en": "Pinion torque",
+     "value": "104",
+     "unit": "N·m"
+    },
+    {
+     "name": "小齿轮转速",
+     "name_en": "Pinion speed",
+     "value": "483",
+     "unit": "r/min"
+    },
+    {
+     "name": "中心距",
+     "name_en": "Centre distance",
+     "value": "135",
+     "unit": "mm"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "四个方案比接触与弯曲强度；斜齿接触高约 15% 但改传动比、多轴向力；选直齿 b = 45，S_H = 1.12。",
+   "summary_en": "Four concepts compared on contact and bending; helical gains about 15% in contact but changes the ratio and adds axial load; spur with b = 45 chosen, S_H = 1.12.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计发布与审批",
+     "label_en": "Design release",
+     "route": "/design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "选定方案 S_H",
+     "name_en": "S_H, chosen",
+     "value": "1.12",
+     "unit": ""
+    },
+    {
+     "name": "斜齿方案 S_H",
+     "name_en": "S_H, helical",
+     "value": "1.31",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "F_t = 3471 N；σ_H = 617 MPa，S_H = 1.12（大齿轮）；S_F = 5.83；公法线 W₃ = 22.981、W₈ = 69.364。",
+   "summary_en": "F_t = 3471 N; σ_H = 617 MPa, S_H = 1.12 (wheel); S_F = 5.83; span measurements 22.981 / 69.364 mm.",
+   "md": "3_计算书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "仿真与分析",
+     "label_en": "Simulation & analysis",
+     "route": "/cae"
+    }
+   ],
+   "facts": [
+    {
+     "name": "接触应力",
+     "name_en": "Contact stress",
+     "value": "617",
+     "unit": "MPa"
+    },
+    {
+     "name": "S_H",
+     "name_en": "S_H",
+     "value": "1.12",
+     "unit": ""
+    },
+    {
+     "name": "S_F",
+     "name_en": "S_F",
+     "value": "5.83",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "展成齿形 + 三齿薄片有限元：齿根应力比 ISO 系数法高 16%，按它算 S_F 仍有 4.6；沿啮合线算，大齿轮 D 点接触应力 683 MPa，余量只有 1%。",
+   "summary_en": "Generated tooth form and a three-tooth FEA slice: root stress 16% above the ISO factor method, still S_F ≥ 4.6; along the line of action the wheel's contact stress at D is 683 MPa, only 1% margin.",
+   "md": "4_有限元与接触应力.md",
+   "figs": [
+    {
+     "file": "4_轮齿有限元.png",
+     "caption": "三齿薄片有限元：最大主应力（中间齿受力）",
+     "caption_en": "Three-tooth slice FEA: maximum principal stress (middle tooth loaded)"
+    },
+    {
+     "file": "4_啮合线接触应力.png",
+     "caption": "沿啮合线的接触应力（双齿区一半载荷）",
+     "caption_en": "Contact stress along the line of action (half load in double-tooth zones)"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "仿真与分析",
+     "label_en": "Simulation & analysis",
+     "route": "/cae"
+    }
+   ],
+   "facts": [
+    {
+     "name": "齿根应力（有限元）",
+     "name_en": "Root stress (FEA)",
+     "value": "117",
+     "unit": "MPa"
+    },
+    {
+     "name": "D 点接触应力",
+     "name_en": "Contact stress at D",
+     "value": "683",
+     "unit": "MPa"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "展成齿形直接拉伸成三维；GR-203 约 0.70 kg，GR-302 约 6.2 kg；两张零件图带啮合参数表和公法线检验尺寸。",
+   "summary_en": "The generated tooth outline is extruded into 3D; GR-203 about 0.70 kg, GR-302 about 6.2 kg; two drawings with gear data tables and span measurements.",
+   "md": "5_三维与图纸.md",
+   "figs": [
+    {
+     "file": "5_三维.png",
+     "caption": "齿轮副三维（中心距 135 啮合位置）",
+     "caption_en": "3D gear pair at 135 mm centre distance"
+    },
+    {
+     "file": "5_GR-203零件图.svg",
+     "caption": "GR-203 零件图（生成）",
+     "caption_en": "GR-203 drawing (generated)"
+    },
+    {
+     "file": "5_GR-302零件图.svg",
+     "caption": "GR-302 零件图（生成）",
+     "caption_en": "GR-302 drawing (generated)"
+    }
+   ],
+   "files": [
+    {
+     "file": "GR-203.step",
+     "label": "GR-203 三维 STEP",
+     "label_en": "GR-203 3D model (STEP)"
+    },
+    {
+     "file": "GR-302.step",
+     "label": "GR-302 三维 STEP",
+     "label_en": "GR-302 3D model (STEP)"
+    }
+   ],
+   "tools": [
+    {
+     "label": "零件库",
+     "label_en": "Parts library",
+     "route": "/library"
+    },
+    {
+     "label": "设计发布与审批",
+     "label_en": "Design release",
+     "route": "/design"
+    }
+   ],
+   "facts": [
+    {
+     "name": "GR-203 质量",
+     "name_en": "GR-203 mass",
+     "value": "0.702",
+     "unit": "kg"
+    },
+    {
+     "name": "GR-302 质量",
+     "name_en": "GR-302 mass",
+     "value": "6.15",
+     "unit": "kg"
+    }
+   ]
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "两条现行路线 13 道工序；AI 评审 12 条意见（2 条错误，都是“工艺规程没写全”）；齿坯车削程序 7 个，仿真无错。",
+   "summary_en": "13 operations on the two current routings; the AI reviewer raises 12 points (2 errors, all about incomplete process plans); 7 blank-turning programs, no errors in simulation.",
+   "md": "6_工艺与评审.md",
+   "figs": [],
+   "files": [
+    {
+     "file": "6_GR-203_O2011.nc",
+     "label": "GR-203 O2011 粗车 Rough turning 右端（第一次装夹）",
+     "label_en": "GR-203 O2011 CNC program"
+    },
+    {
+     "file": "6_GR-203_O2021.nc",
+     "label": "GR-203 O2021 精车 Finish turning 右端（第一次装夹）",
+     "label_en": "GR-203 O2021 CNC program"
+    },
+    {
+     "file": "6_GR-203_O2022.nc",
+     "label": "GR-203 O2022 精车 Finish turning 左端（调头装夹）",
+     "label_en": "GR-203 O2022 CNC program"
+    },
+    {
+     "file": "6_GR-302_O2111.nc",
+     "label": "GR-302 O2111 粗车 Rough turning 右端（第一次装夹）",
+     "label_en": "GR-302 O2111 CNC program"
+    },
+    {
+     "file": "6_GR-302_O2112.nc",
+     "label": "GR-302 O2112 粗车 Rough turning 左端（调头装夹）",
+     "label_en": "GR-302 O2112 CNC program"
+    },
+    {
+     "file": "6_GR-302_O2121.nc",
+     "label": "GR-302 O2121 精车 Finish turning 右端（第一次装夹）",
+     "label_en": "GR-302 O2121 CNC program"
+    },
+    {
+     "file": "6_GR-302_O2122.nc",
+     "label": "GR-302 O2122 精车 Finish turning 左端（调头装夹）",
+     "label_en": "GR-302 O2122 CNC program"
+    }
+   ],
+   "tools": [
+    {
+     "label": "工艺规程与 AI 评审",
+     "label_en": "Process plans & AI review",
+     "route": "/process"
+    },
+    {
+     "label": "数控编程",
+     "label_en": "CNC programming",
+     "route": "/cam"
+    }
+   ],
+   "facts": [
+    {
+     "name": "工序",
+     "name_en": "Operations",
+     "value": "13",
+     "unit": ""
+    },
+    {
+     "name": "评审意见",
+     "name_en": "Review points",
+     "value": "12",
+     "unit": ""
+    },
+    {
+     "name": "数控程序",
+     "name_en": "CNC programs",
+     "value": "7",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "20 对齿轮全部完工；GR-302 用 14.3 h；瓶颈是滚齿（一对 55 分钟）。",
+   "summary_en": "All 20 pairs completed; GR-302 took 14.3 h; gear hobbing is the bottleneck (55 min per pair).",
+   "md": "7_制造.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间终端",
+     "label_en": "Shop-floor terminal",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    },
+    {
+     "label": "经营与成本",
+     "label_en": "Business & cost",
+     "route": "/finance"
+    }
+   ],
+   "facts": [
+    {
+     "name": "GR-302 加工时间",
+     "name_en": "GR-302 shop time",
+     "value": "14.3",
+     "unit": "h"
+    },
+    {
+     "name": "滚齿每对",
+     "name_en": "Hobbing per pair",
+     "value": "55",
+     "unit": "min"
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "9 / 9 项校核通过；直齿 m3 20/70、b = 45/50；关键在大齿轮齿面。",
+   "summary_en": "9 / 9 checks pass; spur m3 20/70, b = 45/50; the wheel's flank is the critical point.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计发布与审批",
+     "label_en": "Design release",
+     "route": "/design"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "concept",
+   "what": "选定方案齿面接触安全系数",
+   "what_en": "Contact safety factor of the chosen design",
+   "value": "1.12",
+   "op": ">=",
+   "limit": "1",
+   "unit": "",
+   "ok": true,
+   "src": "GB/T 3480"
+  },
+  {
+   "step": "calc",
+   "what": "齿面接触安全系数 S_H",
+   "what_en": "Contact safety factor S_H",
+   "value": "1.12",
+   "op": ">=",
+   "limit": "1",
+   "unit": "",
+   "ok": true,
+   "src": "GB/T 3480"
+  },
+  {
+   "step": "calc",
+   "what": "齿根弯曲安全系数 S_F",
+   "what_en": "Bending safety factor S_F",
+   "value": "5.83",
+   "op": ">=",
+   "limit": "1.25",
+   "unit": "",
+   "ok": true,
+   "src": "GB/T 3480"
+  },
+  {
+   "step": "calc",
+   "what": "端面重合度",
+   "what_en": "Transverse contact ratio",
+   "value": "1.68",
+   "op": ">=",
+   "limit": "1.2",
+   "unit": "",
+   "ok": true,
+   "src": "教材常用下限"
+  },
+  {
+   "step": "sim",
+   "what": "按有限元齿根应力的弯曲安全系数",
+   "what_en": "Bending safety factor from FEA root stress",
+   "value": "4.63",
+   "op": ">=",
+   "limit": "1.25",
+   "unit": "",
+   "ok": true,
+   "src": "GB/T 3480"
+  },
+  {
+   "step": "sim",
+   "what": "B 点接触应力（小齿轮）不超过许用值",
+   "what_en": "Contact stress at B within the pinion's allowable",
+   "value": "760",
+   "op": "<=",
+   "limit": "1,425",
+   "unit": "MPa",
+   "ok": true,
+   "src": "ISO 6336（Z_B）"
+  },
+  {
+   "step": "sim",
+   "what": "D 点接触应力（大齿轮）不超过许用值",
+   "what_en": "Contact stress at D within the wheel's allowable",
+   "value": "683",
+   "op": "<=",
+   "limit": "690",
+   "unit": "MPa",
+   "ok": true,
+   "src": "ISO 6336（Z_D）"
+  },
+  {
+   "step": "process",
+   "what": "齿坯数控程序仿真错误",
+   "what_en": "Errors in blank-turning CNC simulation",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "数控编程仿真"
+  },
+  {
+   "step": "make",
+   "what": "两张工单完工合格件",
+   "what_en": "Good parts from both work orders",
+   "value": "40",
+   "op": "==",
+   "limit": "40",
+   "unit": "",
+   "ok": true,
+   "src": "检验站"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算书.md",
+  "4_啮合线接触应力.png",
+  "4_有限元与接触应力.md",
+  "4_轮齿有限元.png",
+  "5_GR-203零件图.svg",
+  "5_GR-302零件图.svg",
+  "5_三维.png",
+  "5_三维与图纸.md",
+  "6_GR-203_O2011.nc",
+  "6_GR-203_O2021.nc",
+  "6_GR-203_O2022.nc",
+  "6_GR-302_O2111.nc",
+  "6_GR-302_O2112.nc",
+  "6_GR-302_O2121.nc",
+  "6_GR-302_O2122.nc",
+  "6_工艺与评审.md",
+  "7_制造.md",
+  "8_总结.md",
+  "GR-203.step",
+  "GR-302.step"
+ ]
+}

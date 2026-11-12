@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="700" viewBox="0 0 1120 700" font-family="Noto Sans CJK SC, Noto Sans SC, sans-serif" font-size="12">
+<defs><pattern id="h" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#666" stroke-width="0.7"/></pattern><marker id="a" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 2 L10 5 L0 8 z"/></marker></defs>
+<rect width="1120" height="700" fill="#fff"/><rect x="8" y="8" width="1104" height="684" fill="none" stroke="#000" stroke-width="1.6"/>
+<polygon points="155.0,231.0 305.0,231.0 305.0,267.6 155.0,267.6" fill="url(#h)" stroke="#000" stroke-width="1.3"/>
+<line x1="143.0" y1="240.0" x2="317.0" y2="240.0" stroke="#000" stroke-dasharray="10 3 2 3" stroke-width="0.6"/>
+<line x1="155.0" y1="251.2" x2="305.0" y2="251.2" stroke="#000" stroke-width="0.6"/>
+<polygon points="155.0,429.0 305.0,429.0 305.0,382.5 155.0,382.5" fill="url(#h)" stroke="#000" stroke-width="1.3"/>
+<line x1="143.0" y1="420.0" x2="317.0" y2="420.0" stroke="#000" stroke-dasharray="10 3 2 3" stroke-width="0.6"/>
+<line x1="155.0" y1="408.8" x2="305.0" y2="408.8" stroke="#000" stroke-width="0.6"/>
+<line x1="110.0" y1="330" x2="350.0" y2="330" stroke="#000" stroke-dasharray="14 3 2 3" stroke-width="0.6"/>
+<line x1="351.0" y1="231.0" x2="351.0" y2="429.0" stroke="#000" stroke-width="0.6" marker-start="url(#a)" marker-end="url(#a)"/><text x="355.0" y="324" font-size="11" transform="rotate(-90 355.0 324)">Ø66 h11</text>
+<line x1="415.0" y1="277.5" x2="415.0" y2="382.5" stroke="#000" stroke-width="0.6" marker-start="url(#a)" marker-end="url(#a)"/><text x="419.0" y="324" font-size="11" transform="rotate(-90 419.0 324)">Ø35 H7</text>
+<line x1="155.0" y1="459.0" x2="305.0" y2="459.0" stroke="#000" stroke-width="0.6" marker-start="url(#a)" marker-end="url(#a)"/><text x="230.0" y="455.0" text-anchor="middle" font-size="11">50（齿宽）</text>
+<text x="147.0" y="271.6" text-anchor="end" font-size="10.5">键槽 10 JS9</text><text x="147.0" y="285.6" text-anchor="end" font-size="10.5">孔径 + t₂ = 38.3</text>
+<text x="660" y="142" font-size="13" font-weight="bold">啮合参数</text>
+<rect x="660" y="150" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><rect x="860" y="150" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><text x="666" y="165" font-size="11">模数 m</text><text x="866" y="165" font-size="11">3</text>
+<rect x="660" y="172" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><rect x="860" y="172" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><text x="666" y="187" font-size="11">齿数 z</text><text x="866" y="187" font-size="11">20</text>
+<rect x="660" y="194" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><rect x="860" y="194" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><text x="666" y="209" font-size="11">压力角 α</text><text x="866" y="209" font-size="11">20°</text>
+<rect x="660" y="216" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><rect x="860" y="216" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><text x="666" y="231" font-size="11">齿顶高系数 hₐ*</text><text x="866" y="231" font-size="11">1</text>
+<rect x="660" y="238" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><rect x="860" y="238" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><text x="666" y="253" font-size="11">变位系数 x</text><text x="866" y="253" font-size="11">0</text>
+<rect x="660" y="260" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><rect x="860" y="260" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><text x="666" y="275" font-size="11">精度等级</text><text x="866" y="275" font-size="11">8（GB/T 10095.1）</text>
+<rect x="660" y="282" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><rect x="860" y="282" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><text x="666" y="297" font-size="11">配对齿轮</text><text x="866" y="297" font-size="11">GR-302（z = 70）</text>
+<rect x="660" y="304" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><rect x="860" y="304" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><text x="666" y="319" font-size="11">中心距</text><text x="866" y="319" font-size="11">135 ± 0.03</text>
+<rect x="660" y="326" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><rect x="860" y="326" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><text x="666" y="341" font-size="11">跨齿数 k</text><text x="866" y="341" font-size="11">3</text>
+<rect x="660" y="348" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><rect x="860" y="348" width="200" height="22" fill="none" stroke="#000" stroke-width="0.6"/><text x="666" y="363" font-size="11">公法线长度 W_k</text><text x="866" y="363" font-size="11">22.981（-0.05 / -0.12）</text>
+<text x="660" y="404" font-size="13" font-weight="bold">技术要求</text>
+<text x="660" y="424" font-size="11.5">1. 渗碳淬火，有效硬化层 0.6–0.9，齿面 58–62 HRC</text>
+<text x="660" y="442" font-size="11.5">2. 孔与两端面淬火后磨削</text>
+<text x="660" y="460" font-size="11.5">3. 未注倒角 C1，齿顶倒角 0.5 × 45°</text>
+<text x="660" y="478" font-size="11.5">4. 示例设计，未经实物试制</text>
+<rect x="690" y="588" width="410" height="92" fill="none" stroke="#000" stroke-width="1.2"/>
+<rect x="690" y="588" width="205" height="23" fill="none" stroke="#000" stroke-width="0.5"/><text x="696" y="604" font-size="11">名称：小齿轮 Pinion</text>
+<rect x="895" y="588" width="205" height="23" fill="none" stroke="#000" stroke-width="0.5"/><text x="901" y="604" font-size="11">图号 / 物料：GR-203</text>
+<rect x="690" y="611" width="205" height="23" fill="none" stroke="#000" stroke-width="0.5"/><text x="696" y="627" font-size="11">版本：B</text>
+<rect x="895" y="611" width="205" height="23" fill="none" stroke="#000" stroke-width="0.5"/><text x="901" y="627" font-size="11">材料：20CrMnTi 渗碳淬火</text>
+<rect x="690" y="634" width="205" height="23" fill="none" stroke="#000" stroke-width="0.5"/><text x="696" y="650" font-size="11">单位：问渠减速器厂（示例设计）</text>
+<rect x="895" y="634" width="205" height="23" fill="none" stroke="#000" stroke-width="0.5"/><text x="901" y="650" font-size="11">日期：2026-11-12</text>
+<rect x="690" y="657" width="205" height="23" fill="none" stroke="#000" stroke-width="0.5"/><text x="696" y="673" font-size="11">比例：3 像素 / mm</text>
+<rect x="895" y="657" width="205" height="23" fill="none" stroke="#000" stroke-width="0.5"/><text x="901" y="673" font-size="11">生成：tools/cases</text>
+</svg>

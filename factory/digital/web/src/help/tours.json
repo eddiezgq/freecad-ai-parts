@@ -614,5 +614,22 @@
         }
       }
     ]
+  },
+  "cases-walk": {
+    "title": "看一个设计案例",
+    "path": "/cases",
+    "steps": [
+      {
+        "help": "cases-grid",
+        "text": "本厂三个案例：A 一个零件或模块，B 一个部件，C 整台产品。右上角的“校核 12/12”是这个案例的校核一共几项、通过几项。"
+      },
+      {
+        "help": "cases-card",
+        "text": "点开一个做好的案例（还在做的显示“制作中”）。（点开案例 A，八步的标签出现就打勾。）",
+        "done": {
+          "selector": "[data-help=\"cases-steps\"]"
+        }
+      }
+    ]
   }
 }
