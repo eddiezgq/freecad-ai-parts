@@ -1994,14 +1994,25 @@ class Rules:
         if not lst:
             return "现在没有开着的异常，全厂运行平稳。"
         out = ["现在开着 {} 个异常（按严重程度）：".format(len(lst))]
-        per, shown, more = {}, 0, {}
-        for a in lst:                                  # 同一条规则最多列 2 个，其余合并成一句（例如多台设备单点依赖）
-            r = a.get("rule") or a["key"]
-            per[r] = per.get(r, 0) + 1
-            if per[r] > 2 or shown >= 20:
-                more[r] = more.get(r, 0) + 1
+        # 同一条规则最多列 2 个，其余合并成一句（例如多台设备单点依赖）；先保证每条规则至少列 1 个，再补到 20 个——
+        # 异常一多（例如培训过期随日期增加），排在后面的规则也不会整条被挤掉（第 161 轮：评测 A01 偶发失败）
+        rule = lambda a: a.get("rule") or a["key"]  # noqa: E731
+        pick, per = set(), {}
+        for i, a in enumerate(lst):
+            if rule(a) not in per:
+                per[rule(a)] = 1
+                pick.add(i)
+        for i, a in enumerate(lst):
+            if len(pick) >= max(20, len(per)):
+                break
+            if i not in pick and per[rule(a)] < 2:
+                per[rule(a)] += 1
+                pick.add(i)
+        more = {}
+        for i, a in enumerate(lst):
+            if i not in pick:
+                more[rule(a)] = more.get(rule(a), 0) + 1
                 continue
-            shown += 1
             out.append("· {} {} [{}]：{}".format(a["severity"], a["key"], a["ref"], a["title"]))
         if more:
             out.append("……还有 {} 个（{}），见厂情中枢异常清单。".format(sum(more.values()), "、".join("{} {} 个".format(k, n) for k, n in more.items())))
