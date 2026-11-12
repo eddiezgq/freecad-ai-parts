@@ -630,7 +630,7 @@ def read_workbook(path):
                         o.pop("inspection")
             p[key] = items
     if "物料" in wb.sheetnames:
-        _read_products(wb, p, errs)
+        _read_products(wb, p, errs, rows)
     eto = _read_eto(wb, errs)
     if eto:
         p["eto"] = eto
@@ -666,16 +666,22 @@ def _sheet_rows(wb, sheet, cols, errs):
     return out
 
 
-def _read_products(wb, p, errs):
-    p["items"] = [d for _, d in _sheet_rows(wb, "物料", ITEM_COLS, errs)]
-    routes = {}
+def _read_products(wb, p, errs, rows=None):
+    """rows（第 160 轮）：记下每条物料、工序、子件、成品在 Excel 的行号，校验出错时 _where 换成“某表第几行”"""
+    rows = {} if rows is None else rows
+    its = _sheet_rows(wb, "物料", ITEM_COLS, errs)
+    p["items"] = [d for _, d in its]
+    rows["_items"] = [r for r, _ in its]
+    routes, rrows = {}, {}
     for r, d in _sheet_rows(wb, "工艺路线", ROUTE_COLS, errs):
         if not d.get("name") or not d.get("op") or d.get("min") is None:
             errs.append("工艺路线表第 {} 行：工艺路线、工序、每件分钟都要填".format(r))
             continue
         routes.setdefault(d["name"], []).append([d["op"], d["min"]])
+        rrows.setdefault(d["name"], []).append(r)
     p["routings"] = [{"name": k, "steps": v} for k, v in routes.items()]
-    boms = {}
+    rows["_routings"] = [rrows[k] for k in routes]
+    boms, brows = {}, {}
     for r, d in _sheet_rows(wb, "物料清单", BOM_COLS, errs):
         if not d.get("item") or not d.get("child") or d.get("qty") is None:
             errs.append("物料清单表第 {} 行：父件、子件、用量都要填".format(r))
@@ -684,9 +690,12 @@ def _read_products(wb, p, errs):
         if d.get("routing"):
             b["routing"] = d["routing"]
         b["components"].append([d["child"], d["qty"]])
+        brows.setdefault(d["item"], []).append(r)
     p["boms"] = list(boms.values())
-    p["products"] = [dict({"item": d["item"]}, **({"price": d["price"]} if d.get("price") is not None else {}))
-                     for _, d in _sheet_rows(wb, "成品", PROD_COLS, errs) if d.get("item")]
+    rows["_boms"] = [brows[k] for k in boms]
+    prs = [(r, d) for r, d in _sheet_rows(wb, "成品", PROD_COLS, errs) if d.get("item")]
+    p["products"] = [dict({"item": d["item"]}, **({"price": d["price"]} if d.get("price") is not None else {})) for _, d in prs]
+    rows["_products"] = [r for r, _ in prs]
     st, keys = {"opening": {}, "safety": {}}, []
     for _, d in _sheet_rows(wb, "库存", STOCK_COLS, errs):
         for k in ("opening", "safety"):
@@ -726,6 +735,17 @@ def _where(err, rows):
         name = GROUP.get(field) or cols.get(field)
         col = "“{}”".format(name) if name else ""
         return "{}表第 {} 行{}：{}".format(FIELD_SHEET[key], rows[key][i], col, msg)
+    # 第 160 轮：产品几张表——items[i].x、routings[i].steps[k]、boms[i].components[k]、products[i].x → 某表第几行
+    m = re.match(r"(items|routings|boms|products)\[(\d+)\](?:\.(\w+)(?:\[(\d+)\])?)?：(.*)", err)
+    if m and rows.get("_" + m.group(1)) and int(m.group(2)) < len(rows["_" + m.group(1)]):
+        key, i, field, k, msg = m.group(1), int(m.group(2)), m.group(3), m.group(4), m.group(5)
+        sheet = {"items": "物料", "routings": "工艺路线", "boms": "物料清单", "products": "成品"}[key]
+        at = rows["_" + key][i]
+        if isinstance(at, list):
+            at = at[int(k)] if k is not None and int(k) < len(at) else at[0]
+        cols = {c[1]: c[0] for c in {"items": ITEM_COLS, "products": PROD_COLS}.get(key, ())}
+        name = cols.get(field) if k is None else None
+        return "{}表第 {} 行{}：{}".format(sheet, at, "“{}”".format(name) if name else "", msg)
     m = re.match(r"([a-z_]+\.[a-z_]+|id|version)：(.*)", err)
     if m:
         label = {path: label for path, label, _ in FACTORY_ROWS}.get(m.group(1))

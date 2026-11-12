@@ -788,6 +788,55 @@ def products_structure():
     return {"demo": DEMO_PLANT, "items": out}
 
 
+# ---------------------------------------------------------------- 第 160 轮：网页上维护工厂清单（第一期：下载、上传校验、改动预览）
+def _can_plant(u):
+    if u.get("teacher") or u.get("role") in ("engineer", "manager"):
+        return
+    raise HTTPException(403, "工厂清单要用工艺员（设计工程师）、厂长或老师账号")
+
+
+@app.get("/api/plant/workbook")
+def plant_workbook(u=Depends(user_of)):
+    from hub import plant_admin as PA
+    _can_plant(u)
+    name = urllib.parse.quote("工厂清单-{}.xlsx".format(PLANT.plant_id()))
+    return Response(PA.workbook_bytes(), media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    headers={"Content-Disposition": f"attachment; filename*=UTF-8''{name}"})
+
+
+@app.post("/api/plant/workbook")
+async def plant_workbook_upload(file: UploadFile = File(...), u=Depends(user_of)):
+    """上传改好的工厂清单 Excel：校验（错按表、行、列），过了就和在用清单比、存为待上线（不改在用清单）"""
+    from hub import plant_admin as PA
+    _can_plant(u)
+    data = await file.read()
+    if len(data) > 20 * 1024 * 1024:
+        raise HTTPException(413, "文件超过 20 MB")
+    r = PA.check_upload(data)
+    if not r["ok"]:
+        return {"ok": False, "errors": r["errors"]}
+    row = PA.save_pending(H.db, r["plant"], r["diff"], u.get("name"), file.filename)
+    return {"ok": True, "id": row["id"], "diff": r["diff"]}
+
+
+@app.get("/api/plant/pending")
+def plant_pending(u=Depends(user_of)):
+    from hub import plant_admin as PA
+    _can_plant(u)
+    return {"rows": PA.pending(H.db)}
+
+
+@app.get("/api/plant/pending/{pid}.yaml")
+def plant_pending_yaml(pid: int, u=Depends(user_of)):
+    from hub import plant_admin as PA
+    _can_plant(u)
+    body = PA.pending_body(H.db, pid)
+    if body is None:
+        raise HTTPException(404, "没有这份待上线清单")
+    return Response(body, media_type="application/x-yaml; charset=utf-8",
+                    headers={"Content-Disposition": f"attachment; filename=plant-pending-{pid}.yaml"})
+
+
 @app.get("/api/health")
 def health():
     ok_db = bool(H.db.one("select 1 as x"))
