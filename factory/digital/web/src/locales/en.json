@@ -8736,5 +8736,8 @@
   "只读。改物料清单和工艺路线：企业在“产品登记”或“按单设计”里改；接单时“订单与计划”的算料用的就是这份清单。": "Read-only. To change BOMs and routings, use Product registration or Engineer-to-order; MRP in Orders & Planning uses exactly this BOM.",
   "可接单的产品": "Products you can sell",
   "自制的半成品、部件": "Made sub-assemblies and parts",
-  "只读。输出轴 SH-301 的设计在上面的“在线设计”里改；接单时“订单与计划”的算料用的就是这份清单。": "Read-only. The output shaft SH-301 is changed in Online design above; MRP in Orders & Planning uses exactly this BOM."
+  "只读。输出轴 SH-301 的设计在上面的“在线设计”里改；接单时“订单与计划”的算料用的就是这份清单。": "Read-only. The output shaft SH-301 is changed in Online design above; MRP in Orders & Planning uses exactly this BOM.",
+"厂商官网": "Vendor website",
+"到外部库查（{s}）": "Look it up in outside libraries ({s})",
+"外部网站，内容以对方为准；这里只放链接，不转存对方的文件和参数。": "Outside websites; their content is theirs. We only link to them and do not copy their files or data."
 }
