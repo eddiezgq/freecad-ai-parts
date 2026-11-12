@@ -1,0 +1,355 @@
+{
+ "plant": "motor",
+ "id": "A",
+ "level": "简单",
+ "title": "伺服电机定子绕组：槽极配合与绕组排布",
+ "title_en": "Servo-motor stator winding: slot/pole combination and layout",
+ "item": "WQ-SM200 定子",
+ "summary": "给 200 W 伺服电机选槽数和极数：比较四种槽极配合的绕组系数、谐波、齿槽转矩阶次和单边磁拉力，排出 10 极 12 槽的集中绕组，再在定子测试台测 20 只定子。",
+ "summary_en": "Choosing slots and poles for a 200 W servo motor: four slot/pole combinations compared on winding factor, harmonics, cogging order and unbalanced magnetic pull; the 10-pole 12-slot concentrated winding laid out; 20 stators tested.",
+ "script": "tools/cases/motor_a.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "200 W、3000 r/min、48 V 驱动；反电势 THD ≤ 5 %、齿槽转矩 ≤ 2.5 %；齿上直接绕的集中绕组。",
+   "summary_en": "200 W, 3000 rpm, 48 V drive; back-EMF THD ≤ 5 %, cogging ≤ 2.5 %; concentrated windings wound on the teeth.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "额定转矩",
+     "name_en": "Rated torque",
+     "value": "0.637",
+     "unit": "N·m"
+    },
+    {
+     "name": "额定转速",
+     "name_en": "Rated speed",
+     "value": "3,000",
+     "unit": "r/min"
+    },
+    {
+     "name": "母线",
+     "name_en": "DC bus",
+     "value": "48",
+     "unit": "V"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "四种槽极配合比较：12/8 谐波大，9/8 有单边磁拉力，12/14 电频率高；选 12 槽 10 极（k_w1 = 0.933，5、7 次 0.067）。",
+   "summary_en": "Four combinations compared: 12/8 has large harmonics, 9/8 unbalanced pull, 12/14 high electrical frequency; 12-slot 10-pole chosen (k_w1 = 0.933, 5th/7th 0.067).",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "基波绕组系数",
+     "name_en": "Fundamental winding factor",
+     "value": "0.933",
+     "unit": ""
+    },
+    {
+     "name": "齿槽转矩周期",
+     "name_en": "Cogging periods / rev",
+     "value": "60",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "槽距电角 150°；排布 A −A −B B C −C −A A B −B −C C；k_w1 = 0.933（k_p 0.966 × k_d 0.966）。",
+   "summary_en": "Slot pitch 150° electrical; layout A −A −B B C −C −A A B −B −C C; k_w1 = 0.933 (k_p 0.966 × k_d 0.966).",
+   "md": "3_计算.md",
+   "figs": [
+    {
+     "file": "3_星形图与绕组系数.png",
+     "caption": "线圈电势星形图与各次绕组系数",
+     "caption_en": "Coil EMF star and harmonic winding factors"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "k_w1",
+     "name_en": "k_w1",
+     "value": "0.933",
+     "unit": ""
+    },
+    {
+     "name": "5 次",
+     "name_en": "5th",
+     "value": "0.067",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "同一个终检函数：好电机齿槽转矩 1.25 %、THD 2.24 %；磁钢贴歪后齿槽转矩 2.42 %。",
+   "summary_en": "Same test-bench function: a good motor shows 1.25 % cogging and 2.24 % THD; with misplaced magnets cogging rises to 2.42 %.",
+   "md": "4_波形.md",
+   "figs": [
+    {
+     "file": "4_反电势与齿槽转矩.png",
+     "caption": "三相反电势；齿槽转矩（好 / 磁钢贴歪）",
+     "caption_en": "Three-phase back-EMF; cogging torque (good / misplaced magnets)"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "电机终检波形",
+     "label_en": "Motor test waveforms",
+     "route": "/motor-wave"
+    }
+   ],
+   "facts": [
+    {
+     "name": "THD",
+     "name_en": "THD",
+     "value": "2.24",
+     "unit": "%"
+    },
+    {
+     "name": "齿槽转矩",
+     "name_en": "Cogging",
+     "value": "1.25",
+     "unit": "%"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "展开绕组图、每相四个线圈串联、星形连接。",
+   "summary_en": "Developed winding diagram, four coils in series per phase, star connection.",
+   "md": "5_绕组图.md",
+   "figs": [
+    {
+     "file": "5_展开绕组图.png",
+     "caption": "12 槽 10 极展开绕组图",
+     "caption_en": "12-slot 10-pole developed winding diagram"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "每相线圈",
+     "name_en": "Coils per phase",
+     "value": "4",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "定子 6 道工序；绕线按绕组图、浸漆一炉 24 只；测试三项。",
+   "summary_en": "Six stator operations; winding per the diagram, varnish 24 per batch; three tests.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "工序",
+     "name_en": "Operations",
+     "value": "6",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "20 只定子三项测试，不合格 0 个，最低 Cpk 1.95。",
+   "summary_en": "20 stators, three tests, 0 out of tolerance, lowest Cpk 1.95.",
+   "md": "7_制造与测试.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间终端",
+     "label_en": "Shop-floor terminal",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    }
+   ],
+   "facts": [
+    {
+     "name": "不合格",
+     "name_en": "Out of tolerance",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "最低 Cpk",
+     "name_en": "Lowest Cpk",
+     "value": "1.95",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "6 / 6 项校核通过；12 槽 10 极，k_w1 0.933。",
+   "summary_en": "6 / 6 checks pass; 12-slot 10-pole, k_w1 0.933.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电机终检波形",
+     "label_en": "Motor test waveforms",
+     "route": "/motor-wave"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "concept",
+   "what": "选定配合的基波绕组系数",
+   "what_en": "Fundamental winding factor of the chosen combination",
+   "value": "0.933",
+   "op": ">=",
+   "limit": "0.9",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  },
+  {
+   "step": "calc",
+   "what": "三相线圈数相等",
+   "what_en": "Equal number of coils per phase",
+   "value": "1",
+   "op": "==",
+   "limit": "1",
+   "unit": "",
+   "ok": true,
+   "src": "星形图"
+  },
+  {
+   "step": "sim",
+   "what": "好电机反电势 THD",
+   "what_en": "Back-EMF THD of a good motor",
+   "value": "2.24",
+   "op": "<=",
+   "limit": "5",
+   "unit": "%",
+   "ok": true,
+   "src": "终检公差"
+  },
+  {
+   "step": "sim",
+   "what": "好电机齿槽转矩峰峰值",
+   "what_en": "Cogging of a good motor",
+   "value": "1.25",
+   "op": "<=",
+   "limit": "2.5",
+   "unit": "%",
+   "ok": true,
+   "src": "终检公差"
+  },
+  {
+   "step": "make",
+   "what": "定子测试不合格数",
+   "what_en": "Stator test failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "定子测试台"
+  },
+  {
+   "step": "make",
+   "what": "定子测试最低 Cpk",
+   "what_en": "Lowest stator-test Cpk",
+   "value": "1.95",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_星形图与绕组系数.png",
+  "3_计算.md",
+  "4_反电势与齿槽转矩.png",
+  "4_波形.md",
+  "5_展开绕组图.png",
+  "5_绕组图.md",
+  "6_工艺.md",
+  "7_制造与测试.md",
+  "8_总结.md"
+ ]
+}

@@ -1,0 +1,397 @@
+{
+ "plant": "motor",
+ "id": "C",
+ "level": "完整",
+ "title": "伺服电机 WQ-SM200（整机）",
+ "title_en": "Servo motor WQ-SM200 (complete)",
+ "item": "WQ-SM200",
+ "summary": "整台 200 W 伺服电机：转矩—转速特性、效率、机壳温升（有限元）、轴与轴承（零件库）、抱闸，三维装配，13 道工序做出 20 台、全部测试项和成本。",
+ "summary_en": "The complete 200 W servo motor: torque–speed curve, efficiency, housing temperature rise (FEA), shaft and bearings (parts library), brake, 3D assembly, 13 operations, 20 motors with all tests and cost.",
+ "script": "tools/cases/motor_c.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "200 W、3000 r/min、48 V；抱闸 ≥ 额定转矩；40 ℃ 环境连续额定；电磁用案例 B 定稿。",
+   "summary_en": "200 W, 3000 rpm, 48 V; brake ≥ rated torque; continuous rating at 40 °C; electromagnetics from case B.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "额定功率",
+     "name_en": "Rated power",
+     "value": "200",
+     "unit": "W"
+    },
+    {
+     "name": "每线圈匝数",
+     "name_en": "Turns per coil",
+     "value": "7",
+     "unit": ""
+    },
+    {
+     "name": "转矩常数",
+     "name_en": "Torque constant",
+     "value": "0.0523",
+     "unit": "N·m/A"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "关节模组里装不下散热筋和风扇：光铝机壳自然冷却，靠低损耗和机壳面积。",
+   "summary_en": "No room for fins or a fan inside the joint: plain aluminium housing with natural cooling, relying on low loss and housing area.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "冷却",
+     "name_en": "Cooling",
+     "value": "自然冷却",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "K_t 0.0523；6000 r/min 仍出 2.23 N·m；额定铜耗 12.8 W、效率约 94%（未计铁耗）；608 轴承 L₁₀ 14,347,867 h。",
+   "summary_en": "K_t 0.0523; 2.23 N·m still available at 6000 rpm; rated copper loss 12.8 W, efficiency about 94% (iron loss not included); 608 bearings L₁₀ 14,347,867 h.",
+   "md": "3_计算.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    },
+    {
+     "label": "零件库：608",
+     "label_en": "Library: 608",
+     "route": "/library?ref=A-BRG-DG/608"
+    }
+   ],
+   "facts": [
+    {
+     "name": "最高转速转矩",
+     "name_en": "Torque at max speed",
+     "value": "2.23",
+     "unit": "N·m"
+    },
+    {
+     "name": "铜耗",
+     "name_en": "Copper loss",
+     "value": "12.8",
+     "unit": "W"
+    },
+    {
+     "name": "轴承寿命",
+     "name_en": "Bearing life",
+     "value": "14,347,867",
+     "unit": "h"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "特性曲线：6000 r/min 仍有 2.23 N·m；机壳有限元 89 ℃（公式 85 ℃），绕组约 104 ℃。",
+   "summary_en": "Torque–speed: 2.23 N·m still at 6000 rpm; housing FEA 89 °C (formula 85 °C), winding about 104 °C.",
+   "md": "4_特性与温升.md",
+   "figs": [
+    {
+     "file": "4_转矩转速.png",
+     "caption": "转矩—转速特性（48 V）",
+     "caption_en": "Torque–speed curve (48 V)"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "仿真与分析",
+     "label_en": "Simulation & analysis",
+     "route": "/cae"
+    },
+    {
+     "label": "电机终检波形",
+     "label_en": "Motor test waveforms",
+     "route": "/motor-wave"
+    }
+   ],
+   "facts": [
+    {
+     "name": "机壳温度",
+     "name_en": "Housing temp.",
+     "value": "88.8",
+     "unit": "℃"
+    },
+    {
+     "name": "绕组温度",
+     "name_en": "Winding temp.",
+     "value": "104",
+     "unit": "℃"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "机壳 60 × 60 × 90；定子、转子、磁钢、两只 608（零件库）、抱闸、编码器；物料清单的“BRG-M 待确认”定为 608。",
+   "summary_en": "Housing 60 × 60 × 90; stator, rotor, magnets, two 608 bearings (library), brake, encoder; BOM item “BRG-M (TBD)” set to 608.",
+   "md": "5_三维装配.md",
+   "figs": [
+    {
+     "file": "5_三维剖视.png",
+     "caption": "WQ-SM200 三维剖视",
+     "caption_en": "WQ-SM200 3D cut-away"
+    }
+   ],
+   "files": [
+    {
+     "file": "WQ-SM200.step",
+     "label": "整机 STEP",
+     "label_en": "Motor (STEP)"
+    }
+   ],
+   "tools": [
+    {
+     "label": "零件库：608",
+     "label_en": "Library: 608",
+     "route": "/library?ref=A-BRG-DG/608"
+    },
+    {
+     "label": "零件库：M4x12",
+     "label_en": "Library: M4x12",
+     "route": "/library?ref=A-SCR-SHC/M4x12"
+    }
+   ],
+   "facts": [
+    {
+     "name": "机壳长",
+     "name_en": "Housing length",
+     "value": "90",
+     "unit": "mm"
+    }
+   ]
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "13 道工序；浸漆一炉 24 只，瓶颈在绕线。",
+   "summary_en": "13 operations; varnish 24 per batch, winding is the bottleneck.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "工序",
+     "name_en": "Operations",
+     "value": "13",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "20 台、200 个测量值，不合格 0 个，最低 Cpk 1.63；标准成本 $192.61/台。",
+   "summary_en": "20 motors, 200 measurements, 0 out of tolerance, lowest Cpk 1.63; standard cost $192.61.",
+   "md": "7_出厂.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间终端",
+     "label_en": "Shop-floor terminal",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    },
+    {
+     "label": "电机终检波形",
+     "label_en": "Motor test waveforms",
+     "route": "/motor-wave"
+    },
+    {
+     "label": "经营与财务",
+     "label_en": "Business & finance",
+     "route": "/finance"
+    }
+   ],
+   "facts": [
+    {
+     "name": "不合格",
+     "name_en": "Out of tolerance",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "最低 Cpk",
+     "name_en": "Lowest Cpk",
+     "value": "1.63",
+     "unit": ""
+    },
+    {
+     "name": "标准成本",
+     "name_en": "Standard cost",
+     "value": "$192.61",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "7 / 7 项校核通过；48 V 定 K_t、散热靠低损耗、轴承定为零件库 608。",
+   "summary_en": "7 / 7 checks pass; 48 V sets K_t, cooling relies on low loss, bearing set to library 608.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电机终检波形",
+     "label_en": "Motor test waveforms",
+     "route": "/motor-wave"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "calc",
+   "what": "最高转速时可用转矩不低于额定",
+   "what_en": "Torque at max speed ≥ rated",
+   "value": "2.23",
+   "op": ">=",
+   "limit": "0.637",
+   "unit": "N·m",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "calc",
+   "what": "轴承寿命",
+   "what_en": "Bearing life",
+   "value": "14,347,867",
+   "op": ">=",
+   "limit": "20,000",
+   "unit": "h",
+   "ok": true,
+   "src": "ISO 281；零件库 608"
+  },
+  {
+   "step": "calc",
+   "what": "抱闸保持力矩下限不低于额定转矩",
+   "what_en": "Brake minimum ≥ rated torque",
+   "value": "0.64",
+   "op": ">=",
+   "limit": "0.637",
+   "unit": "N·m",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "sim",
+   "what": "机壳温度：有限元与公式相差",
+   "what_en": "Housing temperature: FEA vs formula",
+   "value": "4.23",
+   "op": "<=",
+   "limit": "5",
+   "unit": "K",
+   "ok": true,
+   "src": "核对有限元"
+  },
+  {
+   "step": "sim",
+   "what": "绕组温度（F 级 155 ℃ 留 25 K）",
+   "what_en": "Winding temperature (class F with 25 K margin)",
+   "value": "104",
+   "op": "<=",
+   "limit": "130",
+   "unit": "℃",
+   "ok": true,
+   "src": "GB/T 755"
+  },
+  {
+   "step": "make",
+   "what": "20 台测量不合格数",
+   "what_en": "Failures in 20 motors",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "各测试台"
+  },
+  {
+   "step": "make",
+   "what": "最低过程能力 Cpk",
+   "what_en": "Lowest Cpk",
+   "value": "1.63",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算.md",
+  "4_特性与温升.md",
+  "4_转矩转速.png",
+  "5_三维剖视.png",
+  "5_三维装配.md",
+  "6_工艺.md",
+  "7_出厂.md",
+  "8_总结.md",
+  "WQ-SM200.step"
+ ]
+}
