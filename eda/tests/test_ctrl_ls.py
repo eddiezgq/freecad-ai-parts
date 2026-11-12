@@ -4,11 +4,13 @@
 
 import math
 import os
+import shutil
 
 import pytest
 
-from wqeda import blocks, calcbook, parts
+from wqeda import blocks, calcbook, parts, sim_ctrl
 from wqeda.blocks import common as c
+from wqeda.schema import design
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DESIGN = os.path.join(HERE, "..", "..", "factory", "designs", "ctrl-ls", "design.yaml")
@@ -64,8 +66,9 @@ def test_pfc_inductor_and_currents_by_hand(book):
     assert item(book, "pfc_boost", "p_q_cond") == pytest.approx(iq**2 * 0.115 * 0.060 / 0.049, rel=1e-9)
     # 采样电阻上限 = 0.18 V / (1.2 × (I_峰 + ΔI/2))；选 10 mΩ 不超过
     assert item(book, "pfc_boost", "r_shunt_max") == pytest.approx(0.18 / (1.2 * (ipk + di / 2)), rel=1e-9)
-    # 二倍工频纹波：P_o / (2π·100 Hz·3×330 µF·390 V)
-    assert item(book, "pfc_boost", "dv_bus") == pytest.approx(po / (2 * math.pi * 100 * 990e-6 * 390), rel=1e-9)
+    # 二倍工频纹波（峰峰）：电容电流 I_o·cos(2ωt)，幅值 I_o/(2ω·C)，峰峰 = P_o / (2π·50 Hz·3×330 µF·390 V)
+    io = po / 390
+    assert item(book, "pfc_boost", "dv_bus") == pytest.approx(2 * io / (2 * 2 * math.pi * 50 * 990e-6), rel=1e-9)
     # 分压上臂：20 k × (390/2.5 − 1)
     assert item(book, "pfc_boost", "r_vs_top") == pytest.approx(20e3 * (390 / 2.5 - 1), rel=1e-9)
 
@@ -138,3 +141,28 @@ def test_all_new_unit_types_registered():
         "heatsink",
     ):
         assert t in blocks.CALCULATORS and t in blocks.NAMES
+
+
+@pytest.mark.skipif(shutil.which("ngspice") is None, reason="没有 ngspice")
+def test_spice_matches_formulas():
+    """159c：校正级开关纹波、母线二倍工频纹波、掉电保持、电磁铁释放——仿真与公式相差都在容差里"""
+    b = calcbook.build(DESIGN, sim=True)
+    sims = {u["type"]: u["sim"] for u in b["units"] if u.get("sim")}
+    assert set(sims) == {"pfc_boost", "solenoid_drive"}
+    rows = [r for s in sims.values() for r in s["rows"]]
+    assert len(rows) == 5 and all(r["status"] == c.PASS for r in rows)
+
+
+def test_spice_formula_by_hand():
+    """网表对照用的公式值也逐项手算（不调 ngspice）"""
+    dev = parts.Devices.load()
+    d = design.read_yaml(DESIGN)
+    doc, spec = blocks.by_type(d), d["spec"]
+    case = sim_ctrl.pfc_cases(spec, doc["pfc_boost"]["params"], dev)
+    po = 550 / 0.90 / 0.97 + 40
+    assert case["formulas"]["vripple"] == pytest.approx(po / (2 * math.pi * 50 * 990e-6 * 390), rel=1e-9)
+    assert case["formulas"]["t_hold"] == pytest.approx(990e-6 * (390**2 - 300**2) / (2 * po), rel=1e-9)
+    sol = sim_ctrl.solenoid_cases(spec, doc["solenoid_drive"]["params"], dev)
+    vz = 29.50 + 0.95
+    assert sol["formulas"]["t_off"] == pytest.approx(0.0025 * math.log((3 + vz / 8) / (0.03 + vz / 8)), rel=1e-9)
+    assert sol["formulas"]["v_ds"] == pytest.approx(24 + vz, rel=1e-9)

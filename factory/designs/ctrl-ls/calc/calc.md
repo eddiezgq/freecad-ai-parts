@@ -19,7 +19,7 @@
 
 ## 结论
 
-通过 1 项，不通过 0 项，待核对 48 项，未知 4 项。
+通过 6 项，不通过 0 项，待核对 48 项，未知 4 项。
 
 ## 交流输入、电磁兼容与浪涌（AC input, EMI and inrush）
 
@@ -78,7 +78,7 @@
 | 升压二极管导通损耗 | 4.123 W | V_F(175 ℃ 最大) · I_o | C3D06060A Silicon Carbide Schottky Diode Z-Rec Rectifier Rev. F, 10-2015，p.2 Electrical Characteristics |
 | 采样电阻损耗 | 444 mW | I_Q² · R |  |
 | 母线电容纹波电流（校正级产生） | 3.75 A | √(I_D,rms² − I_o²)，I_D,rms² = 8√2·I²·V_in/(3π·V_o) |  |
-| 母线二倍工频纹波（峰峰） | 2.762 V | ΔV = P_o / (2π · 2f_工频 · C · V_o) | f_工频取 50 Hz |
+| 母线二倍工频纹波（峰峰） | 5.524 V | ΔV = P_o / (2π · f_工频 · C · V_o)（峰峰） | f_工频取 50 Hz |
 | 掉电保持时间（降到 300 V） | 45.88 ms | t = C·(V_o² − V_min²) / (2·P_o) |  |
 | 母线分压上臂 | 3.1 MΩ | R_上 = R_下 · (V_o / V_VSREF − 1) | R_下 = 20k；ICE3PCS01G Standalone Power Factor Correction (PFC) Controller in Continuous Conduction Mode (CCM), Datasheet Version 3.0, 03 April 2017，p.20 4.3.11 |
 | 过压保护动作的母线电压 | 421.2 V | 1.08 × V_o（OVP1 = 108 % 额定，规格书 4.3.6） |  |
@@ -94,9 +94,14 @@
 | 母线电容耐压 | 487.5 V | 500 V | V_额定 ≥ 1.25 × V_o | **待核对** | 待核对；Rubycon MXH series SNAP-IN aluminum electrolytic capacitors catalog page 115-116 (no revision printed)，p.2 table 500 Vdc |
 | 母线电容耐压（过压点） | 421.2 V | 500 V | V_额定 ≥ 过压保护点 | **待核对** | 待核对；Rubycon MXH series SNAP-IN aluminum electrolytic capacitors catalog page 115-116 (no revision printed)，p.2 table 500 Vdc |
 | 母线电容纹波电流 | 3.75 A | 5.43 A | 3 只 × 额定（120 Hz，偏保守）≥ I_C | **待核对** | Rubycon MXH series SNAP-IN aluminum electrolytic capacitors catalog page 115-116 (no revision printed)，p.2 table 500 Vdc, 330 µF |
-| 母线纹波不超过要求 | 2.762 V | 20 V | ΔV ≤ 20 V | **待核对** | Rubycon MXH series SNAP-IN aluminum electrolytic capacitors catalog page 115-116 (no revision printed)，p.1 Specifications; p.2 table |
+| 母线纹波不超过要求 | 5.524 V | 20 V | ΔV ≤ 20 V | **待核对** | Rubycon MXH series SNAP-IN aluminum electrolytic capacitors catalog page 115-116 (no revision printed)，p.1 Specifications; p.2 table |
 | 掉电保持时间 | 20 ms | 45.88 ms | t ≥ 0.02 s | **待核对** | Rubycon MXH series SNAP-IN aluminum electrolytic capacitors catalog page 115-116 (no revision printed)，p.1 Specifications; p.2 table |
 | 控制器供电绝对最大值 | 15 V | 26 V | V_CC,max ≥ 辅助 15 V | **待核对** | 待核对；ICE3PCS01G Standalone Power Factor Correction (PFC) Controller in Continuous Conduction Mode (CCM), Datasheet Version 3.0, 03 April 2017，p.15 4.1 |
+| 仿真：电感电流纹波（峰峰，V_x = V_o/2 处） | 3.325 A | 3.328 A | 要求列是公式值、实有列是仿真值，相差 ≤ 3% | **通过** | 相差 0.09% |
+| 仿真：母线二倍工频纹波（峰峰） | 5.524 V | 5.524 V | 要求列是公式值、实有列是仿真值，相差 ≤ 5% | **通过** | 相差 0.00% |
+| 仿真：掉电保持时间 | 45.88 ms | 45.68 ms | 要求列是公式值、实有列是仿真值，相差 ≤ 3% | **通过** | 相差 0.42% |
+
+仿真核对：数字工厂电路分析例题“CTRL-LS 校正级”，参数 L_uH=451.2，f_kHz=65，C_uF=990。
 
 ## 反激辅助电源（Flyback auxiliary supply）
 
@@ -189,6 +194,10 @@
 | 续流二极管耐压 | 33 V | 200 V | V_RRM ≥ 1.25 × V_24 | **待核对** | 待核对；ES3A - ES3J Fast Rectifiers Rev. 2.11, June 2016，p.2 Absolute Maximum Ratings |
 | 稳压管峰值功率 | 116.7 W | 600 W | P_PPM(10/1000 µs) ≥ V_C · I₀ | **待核对** | 待核对；Surface Mount - 600 W > SMBJ series TVS Diodes Revised: JC.07/04/25 v4，p.1 Features |
 | 释放时间满足要求 | 1.453 ms | 3 ms | t ≤ 3 ms | **待核对** |  |
+| 仿真：释放时间（电流降到 1 %） | 1.433 ms | 1.465 ms | 要求列是公式值、实有列是仿真值，相差 ≤ 3% | **通过** | 相差 2.22% |
+| 仿真：关断时漏极电压最高 | 54.45 V | 53.56 V | 要求列是公式值、实有列是仿真值，相差 ≤ 3% | **通过** | 相差 1.64% |
+
+仿真核对：数字工厂电路分析例题“CTRL-LS 电磁铁关断”，参数 R_ohm=8，L_mH=20，Vz_V=30.45。仿真里二极管压降用理想模型近似，钳位电压按 V_BR,max + V_F 加在等效电压源上；读数“释放时间”取电流降到 1 %
 
 ## 针距步进驱动（Stitch-length stepper driver）
 
