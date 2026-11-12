@@ -1,0 +1,88 @@
+# 连续导通功率因数校正控制器。平缝机控制器 CTRL-LS（第 159 轮）用。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+format: wqeda.part/1
+part: ICE3PCS01G
+maker: Infineon
+datasheet:
+  title: ICE3PCS01G Standalone Power Factor Correction (PFC) Controller in Continuous Conduction Mode (CCM), Datasheet
+  revision: Version 3.0, 03 April 2017
+  url: https://www.lcsc.com/datasheet/C192050.pdf
+params:
+  vcc_abs:
+    value: 26
+    unit: V
+    kind: abs_max
+    condition: VCC supply voltage
+    where: p.15 4.1
+    checked: false
+  vcc_on_max:
+    value: 12.9
+    unit: V
+    kind: max
+    condition: VCC turn-on threshold (min 11.5, typ 12)
+    where: p.16 4.3.1
+    checked: false
+  vcc_uvlo_max:
+    value: 11.9
+    unit: V
+    kind: max
+    condition: VCC turn-off threshold / UVLO (min 10.5, typ 11.0)
+    where: p.16 4.3.1
+    checked: false
+  icc_op_max:
+    value: 0.009
+    unit: A
+    kind: max
+    condition: operating current with active GATE, C_L = 1 nF (typ 6.7 mA)
+    where: p.16 4.3.1
+    checked: false
+  f_sw_typ:
+    value: 65000
+    unit: Hz
+    kind: typ
+    condition: switching frequency, R_FREQ = 67 kΩ (min 62.5, max 67.5 kHz)
+    where: p.17 4.3.2
+    checked: false
+  f_sw_range:
+    min: 21000
+    max: 100000
+    unit: Hz
+    kind: range
+    condition: PFC switching frequency F_PFC operating range
+    where: p.16 4.2
+    checked: false
+  d_max_min:
+    value: 0.93
+    unit: ''
+    kind: min
+    condition: max. duty cycle at f_SWnom (typ 0.95)
+    where: p.17 4.3.3
+    checked: false
+  v_pcl_min:
+    value: 0.18
+    unit: V
+    kind: min
+    condition: peak current limitation ISENSE threshold magnitude (-180 … -220 mV, typ -200 mV)
+    where: p.18 4.3.6
+    checked: false
+  v_vsref:
+    value: 2.5
+    unit: V
+    kind: typ
+    condition: trimmed reference voltage VSENSE (2.47 … 2.53 V, ±1.2 %)
+    where: p.20 4.3.11
+    checked: false
+  v_ovp1:
+    value: 2.7
+    unit: V
+    kind: typ
+    condition: over voltage protection OVP1 low to high (2.65 … 2.77 V), 108 % V_BULK rated
+    where: p.18 4.3.6
+    checked: false
+  gate_high_15v:
+    value: 12.4
+    unit: V
+    kind: typ
+    condition: GATE high voltage, V_CC = 15 V, C_L = 1 nF
+    where: p.20 4.3.13
+    checked: false

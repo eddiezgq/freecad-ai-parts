@@ -1,0 +1,17 @@
+# 浪涌旁路继电器（12 V 线圈）。平缝机控制器 CTRL-LS（第 159 轮）用。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+format: wqeda.part/1
+part: G5LE-1-E DC12
+maker: Omron
+datasheet:
+  title: Power Relay G5LE-G / G5LE-E
+  revision: (no revision printed)
+  url: https://www.lcsc.com/datasheet/C152711.pdf
+params:
+  contact_a_250vac:
+    value: 16
+    unit: A
+    kind: max
+    condition: rated load, G5LE-E high capacity type, 250 VAC
+    where: p.1
+    checked: false

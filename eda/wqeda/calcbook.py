@@ -120,6 +120,52 @@ def _md_cell(s):
     return str(s).replace("|", "\\|").replace("\n", " ")
 
 
+def spec_rows(s):
+    """计算书“规格”表的行：电机驱动板写相电流；交流输入的控制器（第 159 轮 CTRL-LS）写输入电压、功率与假设的效率"""
+    rows = [("母线电压", q(s["bus_voltage_v"], "V"))]
+    if "phase_current_a" in s:
+        rows += [
+            (
+                "额定 / 峰值相电流",
+                "{} / {}".format(q(s["phase_current_a"], "A"), q(s.get("phase_current_peak_a"), "A")),
+            ),
+            ("电流出处", s.get("current_source", "—")),
+        ]
+    if "vin_min_vac" in s:
+        rows += [
+            (
+                "输入电压",
+                "{:g}–{:g} V 交流（波动 ±{:g} %）".format(
+                    s["vin_min_vac"], s["vin_max_vac"], s["line_tolerance"] * 100
+                ),
+            ),
+            (
+                "电机",
+                "{} · {:g} r/min · 峰值 {} / 均方根 {}".format(
+                    q(s["motor_power_w"], "W"),
+                    s["speed_max_rpm"],
+                    q(s["torque_peak_nm"], "N·m"),
+                    q(s["torque_rms_nm"], "N·m"),
+                ),
+            ),
+            ("力矩出处", s.get("torque_source", "—")),
+            (
+                "假设（无器件数据可依）",
+                "η_电机 {:g}，η_逆变 {:g}，η_校正 {:g}，功率因数 {:g}，电控箱内 {:g} ℃".format(
+                    s["eta_motor"], s["eta_inverter"], s["eta_pfc"], s["power_factor"], s["ambient_c"]
+                ),
+            ),
+        ]
+    rows += [
+        ("降额与余量规则（示例值）", "，".join("{} {:g}".format(k, v) for k, v in s["derating"].items())),
+        (
+            "目标工厂 / 验收等级",
+            "{} / {}".format(s.get("target_factory") or "未定", s.get("acceptance_class") or "未定"),
+        ),
+    ]
+    return rows
+
+
 def to_markdown(b):
     L = ["# 计算书：{}（{} 版）".format(b["name"], b["rev"]), ""]
     if b["title"]:
@@ -131,20 +177,16 @@ def to_markdown(b):
         "",
     ]
     s = b["spec"]
-    L += [
-        "## 规格",
-        "",
-        "| 项 | 值 |",
-        "|---|---|",
-        "| 母线电压 | {} |".format(q(s["bus_voltage_v"], "V")),
-        "| 额定 / 峰值相电流 | {} / {} |".format(q(s["phase_current_a"], "A"), q(s.get("phase_current_peak_a"), "A")),
-        "| 电流出处 | {} |".format(_md_cell(s.get("current_source", "—"))),
-        "| 降额与余量规则（示例值） | {} |".format("，".join("{} {:g}".format(k, v) for k, v in s["derating"].items())),
-        "| 目标工厂 / 验收等级 | {} / {} |".format(
-            s.get("target_factory") or "未定", s.get("acceptance_class") or "未定"
-        ),
-        "",
-    ]
+    L += (
+        [
+            "## 规格",
+            "",
+            "| 项 | 值 |",
+            "|---|---|",
+        ]
+        + ["| {} | {} |".format(a, _md_cell(v)) for a, v in spec_rows(s)]
+        + [""]
+    )
     n = b["count"]
     L += ["## 结论", "", "通过 {pass} 项，不通过 {fail} 项，待核对 {pending} 项，未知 {unknown} 项。".format(**n), ""]
     if b["changes"]:
@@ -257,16 +299,7 @@ def to_html(b):
         + "</div>"
     )
     s = b["spec"]
-    rows = [
-        ("母线电压", q(s["bus_voltage_v"], "V")),
-        ("额定 / 峰值相电流", "{} / {}".format(q(s["phase_current_a"], "A"), q(s.get("phase_current_peak_a"), "A"))),
-        ("电流出处", s.get("current_source", "—")),
-        ("降额与余量规则（示例值）", "，".join("{} {:g}".format(k, v) for k, v in s["derating"].items())),
-        (
-            "目标工厂 / 验收等级",
-            "{} / {}".format(s.get("target_factory") or "未定", s.get("acceptance_class") or "未定"),
-        ),
-    ]
+    rows = spec_rows(s)
     h.append(
         "<h2>规格</h2><div class='wrap'><table>"
         + "".join("<tr><th>{}</th><td>{}</td></tr>".format(_e(a), _e(v)) for a, v in rows)

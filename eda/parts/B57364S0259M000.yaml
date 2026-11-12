@@ -1,0 +1,45 @@
+# 浪涌限流热敏电阻（S364，2.5 Ω）。平缝机控制器 CTRL-LS（第 159 轮）用。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+format: wqeda.part/1
+part: B57364S0259M000
+maker: TDK
+datasheet:
+  title: NTC thermistors for inrush current limiting, Series/Type S364/**/M**, B57364S0***M0**
+  revision: 'Date: 2021-04-22, Version a'
+  url: https://www.lcsc.com/datasheet/C17362791.pdf
+params:
+  r25:
+    value: 2.5
+    unit: Ω
+    kind: typ
+    condition: R_25, tolerance ±20 %
+    where: p.4 Table 1
+    checked: false
+  i_max:
+    value: 11
+    unit: A
+    kind: max
+    condition: I_max (0 … 65 °C)
+    where: p.4 Table 1
+    checked: false
+  ct_230:
+    value: 0.001
+    unit: F
+    kind: max
+    condition: maximum load capacitance C_T at 230 VAC
+    where: p.4 Table 1
+    checked: false
+  ct_110:
+    value: 0.004
+    unit: F
+    kind: max
+    condition: maximum load capacitance C_T at 110 VAC
+    where: p.4 Table 1
+    checked: false
+  r_min:
+    value: 0.044
+    unit: Ω
+    kind: typ
+    condition: R_min at I_max, 25 °C
+    where: p.4 Table 1
+    checked: false

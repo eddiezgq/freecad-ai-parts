@@ -1,0 +1,66 @@
+# 升压二极管（碳化硅肖特基 600 V）。平缝机控制器 CTRL-LS（第 159 轮）用。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+format: wqeda.part/1
+part: C3D06060A
+maker: Wolfspeed (Cree)
+datasheet:
+  title: C3D06060A Silicon Carbide Schottky Diode Z-Rec Rectifier
+  revision: Rev. F, 10-2015
+  url: https://www.lcsc.com/datasheet/C5693025.pdf
+params:
+  vrrm:
+    value: 600
+    unit: V
+    kind: abs_max
+    condition: repetitive peak reverse voltage
+    where: p.1 Maximum Ratings
+    checked: false
+  if_135c:
+    value: 9
+    unit: A
+    kind: abs_max
+    condition: continuous forward current, T_C = 135 °C (6 A at 154 °C, 19 A at 25 °C)
+    where: p.1 Maximum Ratings
+    checked: false
+  vf_max:
+    value: 1.7
+    unit: V
+    kind: max
+    condition: forward voltage I_F = 6 A, T_J = 25 °C (typ 1.5; max 2.4 at 175 °C)
+    where: p.2 Electrical Characteristics
+    checked: false
+  vf_max_hot:
+    value: 2.4
+    unit: V
+    kind: max
+    condition: forward voltage I_F = 6 A, T_J = 175 °C (typ 2.0)
+    where: p.2 Electrical Characteristics
+    checked: false
+  qc:
+    value: 1.5e-08
+    unit: C
+    kind: typ
+    condition: total capacitive charge V_R = 400 V, I_F = 6 A, di/dt = 500 A/µs
+    where: p.2 Electrical Characteristics
+    checked: false
+  rth_jc:
+    value: 1.7
+    unit: K/W
+    kind: typ
+    condition: thermal resistance junction to case
+    where: p.2 Thermal Characteristics
+    checked: false
+  tj_max:
+    value: 175
+    unit: ℃
+    kind: abs_max
+    condition: operating junction temperature -55 … 175 °C
+    where: p.1 Maximum Ratings
+    checked: false
+  ifsm:
+    value: 63
+    unit: A
+    kind: abs_max
+    condition: non-repetitive peak forward surge current, T_C = 25 °C, 10 ms half sine
+    where: p.1 Maximum Ratings
+    checked: false

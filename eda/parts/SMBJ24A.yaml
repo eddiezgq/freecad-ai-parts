@@ -1,0 +1,45 @@
+# 瞬态抑制二极管（600 W），电磁铁关断钳位。平缝机控制器 CTRL-LS（第 159 轮）用。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+format: wqeda.part/1
+part: SMBJ24A
+maker: Littelfuse
+datasheet:
+  title: Surface Mount - 600 W > SMBJ series TVS Diodes
+  revision: 'Revised: JC.07/04/25 v4'
+  url: https://www.lcsc.com/datasheet/C224017.pdf
+params:
+  vr:
+    value: 24.0
+    unit: V
+    kind: typ
+    condition: reverse stand-off voltage V_R
+    where: p.2 table
+    checked: false
+  vbr_min:
+    value: 26.7
+    unit: V
+    kind: min
+    condition: breakdown voltage V_BR @ I_T = 1 mA (max 29.50)
+    where: p.2 table
+    checked: false
+  vbr_max:
+    value: 29.5
+    unit: V
+    kind: max
+    condition: breakdown voltage V_BR @ I_T = 1 mA
+    where: p.2 table
+    checked: false
+  vc:
+    value: 38.9
+    unit: V
+    kind: max
+    condition: maximum clamping voltage V_C @ I_PP = 15.5 A
+    where: p.2 table
+    checked: false
+  ppk:
+    value: 600
+    unit: W
+    kind: abs_max
+    condition: peak pulse power, 10/1000 µs
+    where: p.1 Features
+    checked: false

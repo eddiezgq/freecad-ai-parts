@@ -1,0 +1,73 @@
+# 反激控制器（集成 725 V 开关管，eSOP-12B）。平缝机控制器 CTRL-LS（第 159 轮）用。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+format: wqeda.part/1
+part: TOP266KG
+maker: Power Integrations
+datasheet:
+  title: TOP264-271 TOPSwitch-JX Family, Integrated Off-Line Switcher with EcoSmart Technology
+  revision: Rev. E 08/12
+  url: https://www.lcsc.com/datasheet/C568204.pdf
+params:
+  bvdss:
+    value: 725
+    unit: V
+    kind: min
+    condition: breakdown voltage BV_DSS, T_J = 25 °C
+    where: p.28
+    checked: false
+  ilimit_min:
+    value: 2.371
+    unit: A
+    kind: min
+    condition: self protection current limit TOP266, T_J = 25 °C (typ 2.55, max 2.728 A)
+    where: p.27
+    checked: false
+  id_peak_abs:
+    value: 4.08
+    unit: A
+    kind: abs_max
+    condition: DRAIN pin peak current TOP266
+    where: p.24 Absolute Maximum Ratings
+    checked: false
+  f_osc:
+    value: 132000
+    unit: Hz
+    kind: typ
+    condition: switching frequency, full frequency mode, FREQUENCY pin to SOURCE (119 … 145 kHz; 66 kHz option)
+    where: p.24
+    checked: false
+  dc_max_min:
+    value: 0.75
+    unit: ''
+    kind: min
+    condition: maximum duty cycle DC_MAX (typ 0.78, max 0.83)
+    where: p.24
+    checked: false
+  rds_on_100c:
+    value: 4.75
+    unit: Ω
+    kind: max
+    condition: ON-state resistance TOP266, I_D = 300 mA, T_J = 100 °C (2.8 typ / 3.20 max at 25 °C)
+    where: p.28
+    checked: false
+  p_open_230:
+    value: 58
+    unit: W
+    kind: max
+    condition: maximum continuous power, open frame, 230 VAC or 110/115 VAC with doubler, +50 °C ambient (TOP266KG)
+    where: p.2 Table 1
+    checked: false
+  p_open_wide:
+    value: 39
+    unit: W
+    kind: max
+    condition: maximum continuous power, open frame, 85-265 VAC, +50 °C ambient (TOP266KG)
+    where: p.2 Table 1
+    checked: false
+  rth_ja_k:
+    value: 45
+    unit: K/W
+    kind: typ
+    condition: thermal resistance K package θ_JA (38 °C/W with larger copper; θ_JC 2 °C/W)
+    where: p.24
+    checked: false

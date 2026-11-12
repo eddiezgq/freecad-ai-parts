@@ -1,0 +1,36 @@
+# 智能功率模块（三相逆变，内带驱动、自举二极管、热敏电阻）。平缝机控制器 CTRL-LS（第 159 轮）。
+# 数值摘自厂家规格书；经立创转存的同一份 PDF 用网页工具读出文字录入，未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+format: wqeda.part/1
+part: STGIPS14K60T
+maker: STMicroelectronics
+datasheet:
+  title: STGIPS14K60T SLLIMM small low-loss intelligent molded module IPM, 3-phase inverter, 14 A, 600 V, Datasheet - production data
+  revision: DocID018534 Rev 5, April 2015
+  url: https://www.lcsc.com/datasheet/C5268145.pdf
+params:
+  vpn_abs: {value: 450, unit: V, kind: abs_max, condition: "supply voltage between P and NU, NV, NW", where: p.5 Table 3, checked: false}
+  vpn_surge: {value: 500, unit: V, kind: abs_max, condition: "supply voltage (surge) between P and N", where: p.5 Table 3, checked: false}
+  vpn_rec_max: {value: 400, unit: V, kind: max, condition: "recommended operating supply voltage P-N (min 300)", where: p.14 Table 14, checked: false}
+  vces: {value: 600, unit: V, kind: abs_max, condition: each IGBT collector-emitter voltage, where: p.5 Table 3, checked: false}
+  ic_25c: {value: 14, unit: A, kind: abs_max, condition: "each IGBT continuous collector current, T_C = 25 °C", where: p.5 Table 3, checked: false}
+  icp: {value: 30, unit: A, kind: abs_max, condition: "each IGBT pulsed collector current, pulse width limited by T_j max", where: p.5 Table 3, checked: false}
+  ptot_25c: {value: 42, unit: W, kind: abs_max, condition: "each IGBT total dissipation, T_C = 25 °C", where: p.5 Table 3, checked: false}
+  tj_max: {value: 150, unit: ℃, kind: abs_max, condition: "power chips operating junction temperature -40 … 150 °C", where: p.5 Table 5, checked: false}
+  tc_rec_max: {value: 100, unit: ℃, kind: max, condition: "recommended case operation temperature", where: p.14 Table 14, checked: false}
+  rth_jc_igbt: {value: 3.0, unit: K/W, kind: max, condition: "thermal resistance junction-case, single IGBT", where: p.6 Table 6, checked: false}
+  rth_jc_diode: {value: 5.5, unit: K/W, kind: max, condition: "thermal resistance junction-case, single diode", where: p.6 Table 6, checked: false}
+  vce_sat_max: {value: 2.5, unit: V, kind: max, condition: "V_CC = V_boot = 15 V, I_C = 7 A, T_J = 25 °C (typ 2.1; typ 1.8 at T_J = 125 °C)", where: p.7 Table 7, checked: false}
+  vf_diode_max: {value: 2.1, unit: V, kind: max, condition: "diode forward voltage, I_C = 7 A", where: p.7 Table 7, checked: false}
+  eon_7a: {value: 150.0e-6, unit: J, kind: typ, condition: "turn-on switching losses, V_DD = 300 V, I_C = 7 A, V_CC = V_boot = 15 V", where: p.7 Table 7, checked: false}
+  eoff_7a: {value: 110.0e-6, unit: J, kind: typ, condition: "turn-off switching losses, V_DD = 300 V, I_C = 7 A", where: p.7 Table 7, checked: false}
+  vcc_rec: {min: 13.5, max: 18, unit: V, kind: range, condition: "recommended control supply voltage V_CC - GND (typ 15)", where: p.14 Table 14, checked: false}
+  vcc_uv_on: {value: 12.5, unit: V, kind: max, condition: "V_CC UV turn ON threshold (min 11.5, typ 12)", where: p.9 Table 8, checked: false}
+  iqcc: {value: 3.5e-3, unit: A, kind: max, condition: "quiescent current, V_CC = 15 V", where: p.9 Table 8, checked: false}
+  iqbs: {value: 300.0e-6, unit: A, kind: max, condition: "V_BS quiescent current, V_BS = 15 V", where: p.9 Table 9, checked: false}
+  dead_time_int: {value: 600.0e-9, unit: s, kind: typ, condition: internal dead time, where: p.9 Table 10, checked: false}
+  t_dead_rec: {value: 1.0e-6, unit: s, kind: min, condition: "recommended blanking time to prevent arm short, each input", where: p.14 Table 14, checked: false}
+  f_pwm_rec_max: {value: 20000, unit: Hz, kind: max, condition: "PWM input signal, -40 °C < T_C < 100 °C, -40 °C < T_j < 125 °C", where: p.14 Table 14, checked: false}
+  vih_max: {value: 2.25, unit: V, kind: max, condition: "high logic level voltage (min 1.9)", where: p.9 Table 10, checked: false}
+  ntc_r25: {value: 4700, unit: Ω, kind: typ, condition: "NTC resistance, T = 25 °C", where: p.11 Table 13, checked: false}
+  ntc_b: {value: 3950, unit: K, kind: typ, condition: "NTC B-constant, 25 … 85 °C", where: p.11 Table 13, checked: false}
+  v_iso: {value: 2500, unit: V, kind: abs_max, condition: "isolation withstand voltage pins to heatsink plate, AC, 60 s", where: p.5 Table 5, checked: false}

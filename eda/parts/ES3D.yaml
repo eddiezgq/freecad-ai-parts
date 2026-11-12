@@ -1,0 +1,38 @@
+# 快恢复二极管 200 V 3 A（SMC），电磁铁续流。平缝机控制器 CTRL-LS（第 159 轮）用。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+format: wqeda.part/1
+part: ES3D
+maker: onsemi (Fairchild)
+datasheet:
+  title: ES3A - ES3J Fast Rectifiers
+  revision: Rev. 2.11, June 2016
+  url: https://www.lcsc.com/datasheet/C241735.pdf
+params:
+  vrrm:
+    value: 200
+    unit: V
+    kind: abs_max
+    condition: maximum repetitive reverse voltage (ES3D)
+    where: p.2 Absolute Maximum Ratings
+    checked: false
+  if_av:
+    value: 3.0
+    unit: A
+    kind: abs_max
+    condition: average rectified forward current, T_A = 75 °C
+    where: p.2 Absolute Maximum Ratings
+    checked: false
+  ifsm:
+    value: 100
+    unit: A
+    kind: abs_max
+    condition: non-repetitive peak forward surge current, 8.3 ms
+    where: p.2 Absolute Maximum Ratings
+    checked: false
+  vf_max:
+    value: 0.95
+    unit: V
+    kind: max
+    condition: maximum forward voltage I_F = 3.0 A (ES3A-ES3D)
+    where: p.3 Electrical Characteristics
+    checked: false

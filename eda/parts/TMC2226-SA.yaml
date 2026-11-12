@@ -1,0 +1,39 @@
+# 两相步进电机驱动。平缝机控制器 CTRL-LS（第 159 轮）用。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+format: wqeda.part/1
+part: TMC2226-SA
+maker: ADI / Trinamic
+datasheet:
+  title: TMC2226 Datasheet, Power driver for stepper motors
+  revision: Rev. 1.06 / 2020-MAY-18
+  url: https://www.lcsc.com/datasheet/C705366.pdf
+params:
+  vs_abs:
+    value: 32
+    unit: V
+    kind: abs_max
+    condition: supply voltage operating with inductive load
+    where: p.72 Absolute Maximum Ratings
+    checked: false
+  vs_op:
+    min: 5.5
+    max: 29
+    unit: V
+    kind: range
+    condition: supply voltage using internal +5 V regulator
+    where: p.72 Operational Range
+    checked: false
+  i_rms_cont:
+    value: 1.6
+    unit: A
+    kind: max
+    condition: RMS motor coil current per coil (value for design guideline)
+    where: p.72 Operational Range
+    checked: false
+  i_rms_duty:
+    value: 2.0
+    unit: A
+    kind: max
+    condition: RMS motor coil current per coil with duty cycle limit, e.g. 1 s on, 1 s standby
+    where: p.72 Operational Range
+    checked: false
