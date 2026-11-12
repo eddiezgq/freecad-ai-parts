@@ -1077,6 +1077,9 @@ def robot_template(lab):
         table([["期 Milestone", "比例 %", "金额 Amount ($)", "里程碑到的日期 Reached", "发票号 Invoice"], ["订金 Deposit", "", "", "", ""],
                ["发货 Shipment", "", "", "", ""], ["验收 Acceptance", "", "", "", ""]])
         hint("和“全部做完再一次开票”相比，分期开票让工厂的现金早到多少、早几天？订金比例定 30% 而不是 10%，对工厂和客户各有什么影响？")
+        d.add_heading("五、设计变更（任务 6）· Design change", 1)
+        table([["单据 Document", "平台建议 Suggested", "你选的 Chosen", "变更损失 Loss ($)"], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""]])
+        hint("改了什么、为什么出新版本而不是直接改第 1 版？哪张单据你没照建议处理，为什么？变更损失最后算在谁身上（工厂还是客户），合同里该怎么写？")
     elif lab == "lab28":
         d.add_heading("实验 28　负载跑合台上的仿真与实测对比　实验报告 · Lab 28 Report: Simulation versus Measurement on the Run-in Stand", 0)
         table([["班级 Class", "", "组号 Group", ""], ["姓名 / 学号 Name / ID", "", "日期 Date", ""]], head=False)

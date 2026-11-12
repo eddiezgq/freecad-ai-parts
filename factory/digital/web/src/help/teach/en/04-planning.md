@@ -105,6 +105,9 @@ The rules (all decided by the platform from facts, never by AI):
 - Too few final inspections, an unapproved plan or an open nonconformance blocks shipping.
 - Each installment is invoiced once, and only after its milestone (order, shipment, acceptance) is reached.
 
+Before a design is released, every new part for the job needs an approved drawing in “Design release & approval”. Changing a released design makes a new revision; the work orders, material requests and purchase orders made under the old revision must be handled one by one in the “Handle design change” table before materials planning can run again.
+When several jobs need the same workstation, the “Plan” tab suggests what to do (the job with the most slack gives up that week, or overtime / outside processing); actual cost of outside work and job-specific materials follows supplier invoices, with a purchase reconciliation under “Billing & margin”.
+
 Step-by-step details and FAQs are in the document “Engineer to order (ETO)”; to practise, do lab 33.
 
 ## Where else orders come from

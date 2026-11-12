@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""实验 33“一张非标订单：从询价到收款”（第 139 轮 139h）：五个任务的自动评分（60 分）+ 报告（40 分，老师在课程里批改）。
+"""实验 33“一张非标订单：从询价到收款”（第 139 轮 139h；第 150 轮加任务 6“一次设计变更”）：六个任务的自动评分（60 分）+ 报告（40 分，老师在课程里批改）。
 
 学生在“按单设计（ETO）”页走完一张非标订单：估算 → 报价、接单 → 设计（复制为新件）、发布、倒排计划 → 下达车间、终检 →
 按里程碑开票。每个任务一部分由平台按事实自动检查（auto），一部分要学生填数（q），两部分相加是这个任务的分。
@@ -13,19 +13,23 @@ TASKS = [
      "desc": "在“按单设计”页新建一张询价（数量 2 件，数量阶梯里也写上 2），用“AI 起草”出估算，把标着“未知”的行补齐（调整时间、单价、工时），"
              "直到估算没有未知项。然后填你的作业号和 2 件那一档的报价总额。",
      "hint": "报价 = 小计 ×（1 + 风险预留）×（1 + 加价率）。有一行未知，整张就不能报价。"},
-    {"id": "l33_t2", "points": 10, "title": "报价与接单",
+    {"id": "l33_t2", "points": 5, "title": "报价与接单",
      "desc": "生成报价提议，请老师（厂长）确认（ERPNext 里出报价单和项目）；再点“客户接受报价”生成接单提议并确认（出销售订单，带分期付款计划）。",
      "hint": "接单提议里能看到付款计划：订金、发货、验收三期。平台自动检查，不用填。"},
     {"id": "l33_t3", "points": 15, "title": "设计与计划",
      "desc": "在“设计（物料清单与工艺）”里照估算起草，把客户要改的那个件“复制为新件”（编号以作业号开头）；到“设计发布与审批”给这个新件交一张图纸（PDF 或 SVG），批准后再发布设计；再到“计划”里看倒排结果，填最早能交货的日期。",
      "hint": "发布前检查不过会列出原因（新件没有批准的图纸也挡）。最早交货日期在计划页上方。"},
-    {"id": "l33_t4", "points": 15, "title": "车间与质量",
+    {"id": "l33_t4", "points": 10, "title": "车间与质量",
      "desc": "在“物料”里生成算料提议并确认，在“车间与成本”里下达车间，操作工逐道开工；批准检验计划，至少做完 1 件终检并合格。然后在“车间与成本”里找实际工序成本和估算的工序成本，"
              "填“实际 − 估算”（美元，可以是负数）。",
      "hint": "车间做得越多，实际工序成本越高；填你提交那一刻页面上的数。"},
     {"id": "l33_t5", "points": 10, "title": "开票与毛利",
      "desc": "在“开票与毛利”里给订金那一期“起草发票”并确认。再试着给“发货”那一期起草发票，看平台怎么说，选出原因。",
      "hint": "分期开票只按事实：每一期的里程碑到了才能开。"},
+    {"id": "l33_t6", "points": 10, "title": "一次设计变更",
+     "desc": "工单下达以后，客户说新件要改：在“设计”里把本单新件的一道工序工时改一下，保存（会出第 2 版），交图纸后发布第 2 版。"
+             "然后在“处理设计变更”表里按建议处理受影响的工单、请购单、采购单，提交并请老师确认。最后填这次变更的“变更损失”（美元，没有损失填 0）。",
+     "hint": "没处理完变更，不能再算料、再发布。变更损失在“车间与成本”页签的“设计变更前后”下面。"},
 ]
 REPORT_POINTS = 40
 REASONS = [{"value": "milestone", "label": "这一期的里程碑（发货）还没到"},
@@ -102,7 +106,19 @@ def facts(db, jn):
             "ordered": bool(j.get("sales_order")), "schedule": len(EB.schedule_of(db, "teach", j)) if j.get("sales_order") else 0,
             "released": bool(rel), "copied": copied,
             "final_pass": len({(r["work_order"], r["piece"]) for r in finals}),
-            "deposit_invoiced": bool(dep) and all(m["state"] == "invoiced" for m in dep)}
+            "deposit_invoiced": bool(dep) and all(m["state"] == "invoiced" for m in dep),
+            "released_revs": len([r for r in ED.revisions(db, "teach", jn) if r["status"] == "released"]),
+            "change_done": _change_done(db, jn)}
+
+
+def _change_done(db, jn):
+    """第 150 轮：这次设计变更（最新发布版对上一版）受影响的单据都处理了，而且至少处理了一张"""
+    from hub import eto_change as EC
+    try:
+        p = EC.plan(db, "teach", jn)
+    except Exception:  # noqa: BLE001
+        return False
+    return bool(p["from_rev"]) and p["open"] == 0 and p["decided"] > 0
 
 
 def auto_scores(f, ops_actual):
@@ -110,10 +126,11 @@ def auto_scores(f, ops_actual):
     if not f:
         return {}
     return {"l33_t1": 5 if f["can_quote"] else 0,
-            "l33_t2": (5 if f["ordered"] else 0) + (5 if f["schedule"] else 0),
+            "l33_t2": (3 if f["ordered"] else 0) + (2 if f["schedule"] else 0),
             "l33_t3": 8 if f["released"] and f["copied"] else 0,
-            "l33_t4": (5 if ops_actual > 0 else 0) + (5 if f["final_pass"] >= 1 else 0),
-            "l33_t5": 6 if f["deposit_invoiced"] else 0}
+            "l33_t4": (3 if ops_actual > 0 else 0) + (3 if f["final_pass"] >= 1 else 0),
+            "l33_t5": 6 if f["deposit_invoiced"] else 0,
+            "l33_t6": 6 if f.get("released_revs", 0) >= 2 and f.get("change_done") else 0}
 
 
 def _ops(db, jn):
@@ -163,16 +180,16 @@ def answer(db, user, tid, ans):
     if tid == "l33_t4":
         act, est = _ops(db, jn)
         if est is None:
-            return {"score": 0, "of": 15, "feedback": "这张作业还没报价，没有估算的工序成本"}
+            return {"score": 0, "of": 10, "feedback": "这张作业还没报价，没有估算的工序成本"}
         if act <= 0:
-            return {"score": 0, "of": 15, "feedback": "车间还没报工，实际工序成本是 0：先让操作工开工"}
+            return {"score": 0, "of": 10, "feedback": "车间还没报工，实际工序成本是 0：先让操作工开工"}
         v = _num(ans.get("diff"))
         if v is None:
-            return {"score": 0, "of": 15, "feedback": "填数字（美元，实际 − 估算，可以是负数）"}
+            return {"score": 0, "of": 10, "feedback": "填数字（美元，实际 − 估算，可以是负数）"}
         want = round(act - est, 2)
         ok = abs(v - want) <= max(1.0, abs(est) * 0.02)
-        s = _put(db, user, tid, q=5 if ok else 0, answer=v, expected=want, actual=round(act, 2), estimate=est)
-        return {"score": s, "of": 15, "feedback": "正确。" if ok else "现在实际 ${:,.2f}、估算 ${:,.2f}，差 ${:,.2f}。".format(act, est, want)}
+        s = _put(db, user, tid, q=4 if ok else 0, answer=v, expected=want, actual=round(act, 2), estimate=est)
+        return {"score": s, "of": 10, "feedback": "正确。" if ok else "现在实际 ${:,.2f}、估算 ${:,.2f}，差 ${:,.2f}。".format(act, est, want)}
     if tid == "l33_t5":
         r = ans.get("reason")
         if r not in [x["value"] for x in REASONS]:
@@ -180,6 +197,22 @@ def answer(db, user, tid, ans):
         ok = r == "milestone"
         s = _put(db, user, tid, q=4 if ok else 0, answer=r)
         return {"score": s, "of": 10, "feedback": "正确：分期开票按事实，发货那一期要等发货单出来。" if ok else "再去点一下“开票”，看平台给的原因。"}
+    if tid == "l33_t6":
+        from hub import eto_change as EC
+        f = facts(db, jn)
+        if f["released_revs"] < 2:
+            return {"score": 0, "of": 10, "feedback": "还没有发布第 2 版设计：先在“设计”里改、交图、发布"}
+        if not f["change_done"]:
+            return {"score": 0, "of": 10, "feedback": "“处理设计变更”表里还有单据没处理（或还没提交确认）"}
+        lo = EC.loss(db, "teach", jn)
+        if lo["amount"] is None:
+            return {"score": _put(db, user, tid), "of": 10, "feedback": "变更损失里有单价未知的，算不出数：这一问不判"}
+        v = _num(ans.get("loss"))
+        if v is None:
+            return {"score": _put(db, user, tid), "of": 10, "feedback": "填数字（美元，没有损失填 0）"}
+        ok = abs(v - lo["amount"]) <= 0.01
+        s = _put(db, user, tid, q=4 if ok else 0, answer=v, expected=lo["amount"])
+        return {"score": s, "of": 10, "feedback": "正确。" if ok else "平台记的变更损失是 ${:,.2f}：看“车间与成本”里“设计变更前后”下面那一行。".format(lo["amount"])}
     raise KeyError(tid)
 
 
@@ -208,7 +241,8 @@ def status(db, user):
     tasks = []
     for t in TASKS:
         r = rows.get(t["id"])
-        tasks.append(dict(t, score=r["score"] if r else 0, done=bool(r and r["score"] >= t["points"]), evidence=r["evidence"] if r else None))
+        sc = min(r["score"], t["points"]) if r else 0          # 第 150 轮调了满分：以前多得的按新满分算
+        tasks.append(dict(t, score=sc, done=bool(r and sc >= t["points"]), evidence=r["evidence"] if r else None))
     return {"user": user, "job_no": job_no(db, user), "tasks": tasks, "score": sum(t["score"] for t in tasks),
             "of": sum(t["points"] for t in TASKS), "report_points": REPORT_POINTS, "reasons": REASONS}
 
@@ -217,5 +251,5 @@ def class_view(db):
     rows = db.q("select user_name, task_id, score from task_result where task_id like 'l33_t%%'")
     out = {}
     for r in rows:
-        out.setdefault(r["user_name"], {})[r["task_id"]] = r["score"]
+        out.setdefault(r["user_name"], {})[r["task_id"]] = min(r["score"], POINTS.get(r["task_id"], r["score"]))
     return [{"user": k, "scores": v, "total": sum(v.values())} for k, v in sorted(out.items())]

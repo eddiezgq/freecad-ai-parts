@@ -3986,5 +3986,9 @@
 [
 "本单新件没有批准的图纸：{a}",
 "New parts for this job have no approved drawing: {a}"
+],
+[
+"平台记的变更损失是 ${a}：看“车间与成本”里“设计变更前后”下面那一行。",
+"The platform recorded a change loss of ${a}: see the line under “Before and after the design change” in “Shop floor & cost”."
 ]
 ]

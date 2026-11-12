@@ -8717,5 +8717,13 @@
 "图号 {c} 第 {r} 版（{w} 批准，{d}）": "Drawing {c} rev {r} (approved by {w}, {d})",
 "没有批准的图纸（按物料清单和工艺做）": "No approved drawing (build to the BOM and routing)",
 "！本单新件没有批准的图纸：{a}（本厂不要求）": "! New parts for this job have no approved drawing: {a} (not required in this plant)",
-"图纸：": "Drawing: "
+"图纸：": "Drawing: ",
+"一次设计变更": "A design change",
+"工单下达以后，客户说新件要改：在“设计”里把本单新件的一道工序工时改一下，保存（会出第 2 版），交图纸后发布第 2 版。然后在“处理设计变更”表里按建议处理受影响的工单、请购单、采购单，提交并请老师确认。最后填这次变更的“变更损失”（美元，没有损失填 0）。": "After the work orders are released the customer wants the new part changed: in “Design” change the time of one operation of the job's new part and save (this makes rev 2), submit the drawing and release rev 2. Then in the “Handle design change” table handle the affected work orders, requests and purchase orders as suggested, submit and ask the instructor to confirm. Finally enter the change loss of this change (USD, 0 if none).",
+"没处理完变更，不能再算料、再发布。变更损失在“车间与成本”页签的“设计变更前后”下面。": "Until the change is handled you cannot run materials planning or release again. The change loss is under “Before and after the design change” on the “Shop floor & cost” tab.",
+"这次设计变更的变更损失（$）": "Change loss of this design change ($)",
+"还没有发布第 2 版设计：先在“设计”里改、交图、发布": "Rev 2 of the design is not released yet: change it in “Design”, submit the drawing and release it first",
+"“处理设计变更”表里还有单据没处理（或还没提交确认）": "Documents in the “Handle design change” table are still open (or not yet confirmed)",
+"变更损失里有单价未知的，算不出数：这一问不判": "Some change loss has an unknown price, so it cannot be calculated: this question is not graded",
+"填数字（美元，没有损失填 0）": "Enter a number (USD, 0 if there is no loss)"
 }

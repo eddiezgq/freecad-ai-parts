@@ -21,14 +21,16 @@ SCHED = [{"key": "deposit", "description": "订金 Deposit", "invoice_portion": 
 def test_auto_scores_pure():
     assert L.auto_scores(None, 0) == {}
     f = {"can_quote": True, "ordered": True, "schedule": 3, "released": True, "copied": ["J-SH"], "final_pass": 1, "deposit_invoiced": True}
-    assert L.auto_scores(f, 12.5) == {"l33_t1": 5, "l33_t2": 10, "l33_t3": 8, "l33_t4": 10, "l33_t5": 6}
+    assert L.auto_scores(f, 12.5) == {"l33_t1": 5, "l33_t2": 5, "l33_t3": 8, "l33_t4": 6, "l33_t5": 6, "l33_t6": 0}
+    assert L.auto_scores(dict(f, released_revs=2, change_done=True), 12.5)["l33_t6"] == 6           # 第 150 轮：发布第 2 版且变更处理完
     g = dict(f, can_quote=False, schedule=0, copied=[], final_pass=0, deposit_invoiced=False)
-    assert L.auto_scores(g, 0) == {"l33_t1": 0, "l33_t2": 5, "l33_t3": 0, "l33_t4": 0, "l33_t5": 0}
+    assert L.auto_scores(g, 0) == {"l33_t1": 0, "l33_t2": 3, "l33_t3": 0, "l33_t4": 0, "l33_t5": 0, "l33_t6": 0}
     assert sum(t["points"] for t in L.TASKS) == 60 and L.REPORT_POINTS == 40
 
 
 def _fresh(db):  # noqa: F811
-    for m in (EX, EQ, EB):
+    from hub import eto_change as EC
+    for m in (EX, EQ, EB, EC):
         m.init(db)
     db.x("delete from task_result where user_name=%s", (U,))
 
@@ -58,7 +60,7 @@ def test_lab33_flow(db, monkeypatch):  # noqa: F811
          (json.dumps(SCHED, ensure_ascii=False), jn))
     monkeypatch.setattr(EX, "cost", lambda db_, mode, job_no: {"actual": {"operations": 0.0}, "estimate": {"operations": 40.0}})
     st = L.check(db, U)
-    assert {t["id"]: t["score"] for t in st["tasks"]}["l33_t2"] == 10
+    assert {t["id"]: t["score"] for t in st["tasks"]}["l33_t2"] == 5
 
     # 任务 3：发布的设计里有复制的新件；最早交货日期和平台一致
     spec = {"items": [{"code": jn + "-SH", "name": "输出轴（专用）", "kind": "make", "uom": "Nos", "from": "SH-301"}], "boms": [], "outside": []}
@@ -73,16 +75,33 @@ def test_lab33_flow(db, monkeypatch):  # noqa: F811
     monkeypatch.setattr(EX, "cost", lambda db_, mode, job_no: {"actual": {"operations": 34.87}, "estimate": {"operations": 40.0}})
     db.x("insert into eto_insp (mode, job_no, kind, work_order, item, piece, plan_rev, readings, result, inspector) "
          "values ('teach',%s,'final','WO-1',%s,1,1,'{}','pass','质检甲')", (jn, jn))
-    assert L.answer(db, U, "l33_t4", {"diff": 5.13})["score"] == 10                               # 符号反了
-    assert L.answer(db, U, "l33_t4", {"diff": -5.13})["score"] == 15
+    assert L.answer(db, U, "l33_t4", {"diff": 5.13})["score"] == 6                                # 符号反了
+    assert L.answer(db, U, "l33_t4", {"diff": -5.13})["score"] == 10
 
     # 任务 5：订金开票；原因选里程碑
     assert L.answer(db, U, "l33_t5", {"reason": "erp"})["score"] == 0
     db.x("insert into eto_invoice (mode, job_no, key, amount, invoice) values ('teach',%s,'deposit',351.78,'ACC-SINV-1')", (jn,))
     assert L.answer(db, U, "l33_t5", {"reason": "milestone"})["score"] == 10                     # 订金已开票 6 + 原因 4
+    # 任务 6（第 150 轮）：没有第 2 版 → 不判；发布第 2 版、变更处理完（记了一张单据，损失 12.5）→ 自动 6 + 答对 4
+    assert L.answer(db, U, "l33_t6", {"loss": 0})["score"] == 0
+    db.x("insert into eto_design (mode, job_no, rev, spec, status, fingerprint) values ('teach',%s,2,%s,'released','fp2')",
+         (jn, json.dumps(spec, ensure_ascii=False)))
+    db.x("insert into eto_change (mode, job_no, rev, doctype, name, action, loss, decided_by) values ('teach',%s,2,'Work Order','WO-1','stop',12.5,'老师')", (jn,))
+    assert L.answer(db, U, "l33_t6", {"loss": 0})["score"] == 6
+    assert L.answer(db, U, "l33_t6", {"loss": 12.5})["score"] == 10
     st = L.check(db, U)
-    assert {t["id"]: t["score"] for t in st["tasks"]} == {"l33_t1": 10, "l33_t2": 10, "l33_t3": 15, "l33_t4": 15, "l33_t5": 10}
+    assert {t["id"]: t["score"] for t in st["tasks"]} == {"l33_t1": 10, "l33_t2": 5, "l33_t3": 15, "l33_t4": 10, "l33_t5": 10, "l33_t6": 10}
     assert st["score"] == 60 and st["job_no"] == jn
     assert [c["total"] for c in L.class_view(db) if c["user"] == U] == [60]
     with pytest.raises(KeyError):
         L.answer(db, U, "l33_t2", {})
+
+
+def test_lab33_old_scores_capped(db):  # noqa: F811
+    """第 150 轮调了满分：以前任务 2 拿到 10 分的，按新满分 5 算"""
+    _fresh(db)
+    L.start(db, U)
+    db.x("insert into task_result (user_name, task_id, score, evidence) values (%s,'l33_t2',10,'{}')", (U,))
+    st = L.status(db, U)
+    assert {t["id"]: t["score"] for t in st["tasks"]}["l33_t2"] == 5 and st["score"] == 5
+
