@@ -6,7 +6,7 @@ circuit.generate 列出的生成器按顺序展开。计算器、生成器都是
 
 from __future__ import annotations
 
-from . import common, control, drive, power
+from . import common, control, drive, mains, power, servo
 
 CALCULATORS = {
     "bus_input": power.calc_bus_input,
@@ -18,6 +18,17 @@ CALCULATORS = {
     "encoder": control.calc_encoder,
     "ssi_rs485": control.calc_ssi_rs485,
     "can": control.calc_can,
+    # 第 159 轮：平缝机控制器 CTRL-LS（交流输入、校正、逆变、执行器）
+    "ac_input": mains.calc_ac_input,
+    "bridge": mains.calc_bridge,
+    "pfc_boost": mains.calc_pfc_boost,
+    "flyback_aux": mains.calc_flyback_aux,
+    "ipm_inverter": servo.calc_ipm_inverter,
+    "low_side_sense": servo.calc_low_side_sense,
+    "solenoid_drive": servo.calc_solenoid_drive,
+    "stepper": servo.calc_stepper,
+    "panel_iso": servo.calc_panel_iso,
+    "heatsink": mains.calc_heatsink,
 }
 NAMES = {
     "bus_input": ("母线输入与电压检测", "DC bus input and voltage sensing"),
@@ -29,6 +40,16 @@ NAMES = {
     "encoder": ("编码器接口", "Encoder interface"),
     "ssi_rs485": ("绝对值编码器 SSI（RS-485）", "SSI encoder (RS-485)"),
     "can": ("CAN 总线", "CAN bus"),
+    "ac_input": ("交流输入、电磁兼容与浪涌", "AC input, EMI and inrush"),
+    "bridge": ("整流桥", "Bridge rectifier"),
+    "pfc_boost": ("功率因数校正（连续导通升压）", "PFC boost (CCM)"),
+    "flyback_aux": ("反激辅助电源", "Flyback auxiliary supply"),
+    "ipm_inverter": ("智能功率模块逆变", "IPM inverter"),
+    "low_side_sense": ("下桥电流采样与片内运放", "Low-side current sensing"),
+    "solenoid_drive": ("电磁铁驱动", "Solenoid drivers"),
+    "stepper": ("针距步进驱动", "Stitch-length stepper driver"),
+    "panel_iso": ("面板口隔离", "Isolated panel port"),
+    "heatsink": ("散热器", "Heatsink"),
 }
 # 单个单元的生成器；phase_legs 一次用三个单元（半桥、驱动、采样）
 GENERATORS = {

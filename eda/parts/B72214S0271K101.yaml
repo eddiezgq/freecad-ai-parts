@@ -1,0 +1,31 @@
+# 压敏电阻 S14K275。平缝机控制器 CTRL-LS（第 159 轮）用。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+format: wqeda.part/1
+part: B72214S0271K101
+maker: TDK (EPCOS)
+datasheet:
+  title: 'SIOV metal oxide varistors, Leaded varistors, StandarD series, Series/Type: B722*'
+  revision: 'Date: March 2018'
+  url: https://www.lcsc.com/datasheet/C7502584.pdf
+params:
+  v_rms:
+    value: 275
+    unit: V
+    kind: max
+    condition: maximum operating AC voltage V_RMS (S14K275)
+    where: ratings table, V_RMS = 275 V group
+    checked: false
+  v_dc:
+    value: 350
+    unit: V
+    kind: max
+    condition: maximum operating DC voltage
+    where: ratings table
+    checked: false
+  i_max_8_20:
+    value: 4500
+    unit: A
+    kind: max
+    condition: maximum surge current 8/20 µs
+    where: ratings table
+    checked: false

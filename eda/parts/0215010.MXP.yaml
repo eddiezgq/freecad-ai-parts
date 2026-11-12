@@ -1,0 +1,38 @@
+# 输入保险丝 5×20 mm 10 A 慢断。平缝机控制器 CTRL-LS（第 159 轮）用。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+format: wqeda.part/1
+part: 0215010.MXP
+maker: Littelfuse
+datasheet:
+  title: Axial Lead & Cartridge Fuses 5×20 mm > Time-Lag > 215 Series
+  revision: 'Revised: 01/12/17'
+  url: https://www.lcsc.com/datasheet/C142733.pdf
+params:
+  i_rated:
+    value: 10
+    unit: A
+    kind: typ
+    condition: ampere rating (amp code 010.)
+    where: p.2 table
+    checked: false
+  v_rated:
+    value: 250
+    unit: V
+    kind: max
+    condition: voltage rating
+    where: p.2 table
+    checked: false
+  i2t_melt:
+    value: 333.565
+    unit: A²s
+    kind: typ
+    condition: nominal melting I²t
+    where: p.2 table
+    checked: false
+  r_cold:
+    value: 0.0066
+    unit: Ω
+    kind: typ
+    condition: nominal cold resistance
+    where: p.2 table
+    checked: false

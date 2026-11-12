@@ -111,6 +111,13 @@ def test_calculators_on_drive_board(doc):
     assert c.FAIL not in st
     assert c.PASS not in [ch["status"] for u in res for ch in u["checks"] if ch.get("note") == "待核对"]
     names = {u["type"] for u in res}
+    # 每个计算器都要在一份真实设计上跑到：关节驱动板 + 平缝机控制器 CTRL-LS
+    # （第 159 轮加的交流输入、校正、逆变等块在后者）
+    ctrl = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..", "..", "factory", "designs", "ctrl-ls", "design.yaml"
+    )
+    if os.path.exists(ctrl):
+        names |= {u["type"] for u in blocks.calculate(design.read_yaml(ctrl), parts.Devices.load(), [])}
     assert names == set(blocks.CALCULATORS)
 
 

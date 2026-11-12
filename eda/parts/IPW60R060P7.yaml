@@ -1,0 +1,94 @@
+# 升压开关管（600 V CoolMOS P7，TO-247）。平缝机控制器 CTRL-LS（第 159 轮）用；159b 计算后由 IPA60R180P7S 换来（FullPAK 18.7 W 导通损耗、热阻 4.85 K/W 散不掉）。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+format: wqeda.part/1
+part: IPW60R060P7
+maker: Infineon
+datasheet:
+  title: IPW60R060P7 600V CoolMOS P7 Power Transistor, Final Data Sheet
+  revision: Rev. 2.1, 2018-05-15
+  url: https://www.lcsc.com/datasheet/C454258.pdf
+params:
+  vds:
+    value: 600
+    unit: V
+    kind: min
+    condition: drain-source breakdown voltage V(BR)DSS (650 V at T_j,max)
+    where: p.1 Table 1; p.5 Table 4
+    checked: false
+  id_25c:
+    value: 48
+    unit: A
+    kind: abs_max
+    condition: continuous drain current T_C = 25 °C
+    where: p.3 Table 2
+    checked: false
+  id_100c:
+    value: 30
+    unit: A
+    kind: abs_max
+    condition: continuous drain current T_C = 100 °C
+    where: p.3 Table 2
+    checked: false
+  rds_on_max:
+    value: 0.06
+    unit: Ω
+    kind: max
+    condition: V_GS = 10 V, I_D = 15.9 A, T_j = 25 °C (typ 0.049)
+    where: p.5 Table 4
+    checked: false
+  rds_on_typ_25c:
+    value: 0.049
+    unit: Ω
+    kind: typ
+    condition: V_GS = 10 V, I_D = 15.9 A, T_j = 25 °C
+    where: p.5 Table 4
+    checked: false
+  rds_on_typ_150c:
+    value: 0.115
+    unit: Ω
+    kind: typ
+    condition: V_GS = 10 V, I_D = 15.9 A, T_j = 150 °C
+    where: p.5 Table 4
+    checked: false
+  eoss_400v:
+    value: 7.1e-06
+    unit: J
+    kind: typ
+    condition: E_oss at 400 V
+    where: p.1 Table 1
+    checked: false
+  tr:
+    value: 1.2e-08
+    unit: s
+    kind: typ
+    condition: rise time, V_DD = 400 V, V_GS = 13 V, I_D = 15.9 A, R_G = 3.3 Ω
+    where: p.5 Table 5
+    checked: false
+  tf:
+    value: 4.0e-09
+    unit: s
+    kind: typ
+    condition: fall time, same conditions
+    where: p.5 Table 5
+    checked: false
+  qg:
+    value: 6.7e-08
+    unit: C
+    kind: typ
+    condition: gate charge total
+    where: p.1 Table 1
+    checked: false
+  rth_jc:
+    value: 0.76
+    unit: K/W
+    kind: max
+    condition: thermal resistance junction-case
+    where: p.4 Table 3
+    checked: false
+  tj_max:
+    value: 150
+    unit: ℃
+    kind: abs_max
+    condition: operating junction temperature -55 … 150 °C
+    where: p.3 Table 2
+    checked: false

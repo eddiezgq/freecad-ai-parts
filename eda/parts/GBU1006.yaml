@@ -1,0 +1,59 @@
+# 整流桥（LGE 鲁光）。平缝机控制器 CTRL-LS（第 159 轮）用。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+format: wqeda.part/1
+part: GBU1006
+maker: LGE (Luguang)
+datasheet:
+  title: GBU1001 - GBU1007 Single Phase 10.0 AMP. Glass Passivated Bridge Rectifiers
+  revision: 'Version: A06'
+  url: https://www.lcsc.com/datasheet/C5183365.pdf
+params:
+  vrrm:
+    value: 800
+    unit: V
+    kind: abs_max
+    condition: maximum recurrent peak reverse voltage (GBU1006)
+    where: p.1 Maximum Ratings
+    checked: false
+  vrms:
+    value: 560
+    unit: V
+    kind: abs_max
+    condition: maximum RMS voltage (GBU1006)
+    where: p.1 Maximum Ratings
+    checked: false
+  if_av_100c:
+    value: 10.0
+    unit: A
+    kind: abs_max
+    condition: maximum average forward rectified current, T_C = 100 °C
+    where: p.1 Maximum Ratings
+    checked: false
+  ifsm:
+    value: 220
+    unit: A
+    kind: abs_max
+    condition: peak forward surge current, 8.3 ms single half sine-wave
+    where: p.1 Maximum Ratings
+    checked: false
+  vf_10a:
+    value: 1.1
+    unit: V
+    kind: max
+    condition: maximum instantaneous forward voltage at 10 A, per element (1.0 V at 5 A)
+    where: p.1 Maximum Ratings
+    checked: false
+  rth_jc_leg:
+    value: 2.0
+    unit: K/W
+    kind: typ
+    condition: typical thermal resistance per leg R_θJC, mounted on 4 × 6 × 0.25 in plate heatsink
+    where: p.1 Note 2
+    checked: false
+  tj_max:
+    value: 150
+    unit: ℃
+    kind: abs_max
+    condition: operating temperature range -55 … +150 °C
+    where: p.1 Maximum Ratings
+    checked: false

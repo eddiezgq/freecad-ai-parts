@@ -1,0 +1,114 @@
+# 平缝机控制器 CTRL-LS 的设计描述（问渠电子 wqeda.design/1；第 159 轮）。
+# 159b 先有 spec 规格和 blocks 功能块（计算器）：计算书由 python3 -m wqeda.calcbook 生成；circuit 和 board 在 159d 补全（原理图、PCB 由这里生成）。
+# 示例设计，未经硬件验证，不能直接投产。器件为示例选型（factory/designs/ctrl-ls/parts.yaml，都在立创核实过型号）。
+format: wqeda.design/1
+name: CTRL-LS
+rev: A
+title: 平缝机控制器（单相 110–250 V，功率因数校正 + 智能功率模块）
+notice: 示例设计，未经硬件验证，不能直接投产。器件为示例选型。
+spec:
+  example_values: true
+  notes:
+  - 架构照第 138 轮 GC（Eddie 11-10 定）；额定值第一遍见 docs/设计/WQ-LS/GC/控制器方案与选型.md
+  - 效率、功率因数、电控箱内环境温度、负载电流、线圈参数是假设或示例值，计算书里逐行标明；器件参数一律来自 eda/parts/ 的规格书
+  - derating 是降额与余量规则，示例值；企业按自己的设计规范填
+  vin_min_vac: 90
+  vin_max_vac: 250
+  line_tolerance: 0.10
+  f_line_min_hz: 50
+  bus_voltage_v: 390
+  motor_power_w: 550
+  speed_max_rpm: 5000
+  bemf_ll_peak_max_v: 300
+  torque_peak_nm: 3.0
+  torque_rms_nm: 0.58
+  torque_source: 第 138 轮 G2（峰值 ≥ 3 N·m）与 gc_sim（速度环 40 Hz 时力矩均方根 0.58 N·m）
+  eta_motor: 0.90
+  eta_inverter: 0.97
+  eta_pfc: 0.95
+  power_factor: 0.99
+  aux_power_w: 40
+  c_bus_f: 0.00099
+  vcc_aux_v: 15
+  v24: 24
+  ambient_c: 50
+  tj_margin_c: 25
+  tc_ipm_max_c: 100
+  target_factory: null
+  acceptance_class: null
+  derating:
+    capacitor: 1.25
+    diode: 1.25
+    mosfet: 1.25
+    sense_headroom: 1.05
+    fuse: 1.25
+blocks:
+- key: mains
+  name: 交流输入、浪涌与整流
+  name_en: AC input, inrush and rectifier
+  units:
+  - type: ac_input
+    params: {fuse: 0215010.MXP, ntc: B57364S0259M000, mov: B72214S0271K101, x_cap: BFC233920474, relay: G5LE-1-E DC12,
+             cmc: FC-HLF2018-15mH-10A-LF}
+  - type: bridge
+    params: {bridge: GBU1006, ntc: B57364S0259M000}
+- key: pfc
+  name: 功率因数校正与母线
+  name_en: PFC and DC bus
+  units:
+  - type: pfc_boost
+    params: {controller: ICE3PCS01G, fet: IPW60R060P7, diode: C3D06060A, cap: 500MXH330MEFCSN30X50, n_caps: 3, f_sw: 65000,
+             ripple_ratio: 0.3, pcl_margin: 1.2, r_shunt: 10m, v_holdup_min: 300, r_vs_bottom: 20k, dv_bus_max: 20, t_hold_min_s: 0.02}
+- key: aux
+  name: 辅助电源
+  name_en: Auxiliary supply
+  units:
+  - type: flyback_aux
+    params:
+      ic: TOP266KG
+      out_diode: ES3D
+      outputs:
+      - {name: 24 V（电磁铁、步进、照明，平均）, v: 24, i: 0.8}
+      - {name: 15 V（功率模块、校正控制器、继电器）, v: 15, i: 0.15}
+      - {name: 5 V（主控、编码器、面板口）, v: 5, i: 0.3}
+      eta: 0.80
+      v_or: 100
+      f_sw: 66000
+      vf_out: 0.95
+      v_clamp: 150
+      clamp_ratio_min: 1.4
+      ilim_margin: 1.2
+- key: servo
+  name: 主轴伺服逆变与电流采样
+  name_en: Spindle servo inverter and current sensing
+  units:
+  - type: ipm_inverter
+    params: {ipm: STGIPS14K60T, f_pwm: 16000, m_index: 0.9, cos_phi: 0.9, t_dead: 1.0e-6}
+  - type: low_side_sense
+    params: {shunt: WSLT2512R0250FEA, ipm: STGIPS14K60T, gain: 8, v_ref: 3.3, i_trip: 7.5}
+- key: act
+  name: 电磁铁与步进
+  name_en: Solenoids and stepper
+  units:
+  - type: solenoid_drive
+    params: {fet: BSC040N08NS5, tvs: SMBJ24A, diode: ES3D, v24_tol: 0.1, coil_r: 8, coil_l: 0.02, t_off_max: 0.003}
+  - type: stepper
+    params: {driver: TMC2226-SA, v24_tol: 0.1, i_coil_rms: 1.0}
+- key: comm
+  name: 面板口
+  name_en: Panel port
+  units:
+  - type: panel_iso
+    params: {isolator: ADUM1201ARZ-RL7, dcdc: B0505S-1WR2, baud: 115200, iso_need_v: 1500}
+- key: thermal
+  name: 散热
+  name_en: Heatsink
+  units:
+  - type: heatsink
+    params: {r_cs: 0.5, r_sa_selected: 0.9}
+circuit:
+  generate: []
+  parts: []
+board:
+  outline_mm: [200, 140]
+  layers: 2

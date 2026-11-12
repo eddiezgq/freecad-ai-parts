@@ -1,0 +1,17 @@
+# X2 抑制电容 0.47 µF（MKP339 X2）。平缝机控制器 CTRL-LS（第 159 轮）用。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+format: wqeda.part/1
+part: BFC233920474
+maker: Vishay BCcomponents
+datasheet:
+  title: MKP339 X2 Interference Suppression Film Capacitors
+  revision: 'Document Number: 28138, Revision: 24-Jul-2019'
+  url: https://www.lcsc.com/datasheet/C511073.pdf
+params:
+  v_ac_rated:
+    value: 310
+    unit: V
+    kind: max
+    condition: rated AC voltage, 50 Hz to 60 Hz
+    where: p.1 Quick Reference Data
+    checked: false

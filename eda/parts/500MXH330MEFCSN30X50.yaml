@@ -1,0 +1,38 @@
+# 母线电容（330 µF 500 V，卡扣式铝电解）。平缝机控制器 CTRL-LS（第 159 轮）用。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+format: wqeda.part/1
+part: 500MXH330MEFCSN30X50
+maker: Rubycon
+datasheet:
+  title: Rubycon MXH series SNAP-IN aluminum electrolytic capacitors
+  revision: catalog page 115-116 (no revision printed)
+  url: https://www.lcsc.com/datasheet/C472902.pdf
+params:
+  c:
+    value: 0.00033
+    unit: F
+    kind: typ
+    condition: rated capacitance, tolerance ±20 % (120 Hz, 20 °C)
+    where: p.1 Specifications; p.2 table
+    checked: false
+  v_rated:
+    value: 500
+    unit: V
+    kind: abs_max
+    condition: rated voltage
+    where: p.2 table 500 Vdc
+    checked: false
+  ripple_120hz_105c:
+    value: 1.81
+    unit: A
+    kind: max
+    condition: rated ripple current A rms at 120 Hz, 105 °C, case 30 × 50
+    where: p.2 table 500 Vdc, 330 µF
+    checked: false
+  life_105c:
+    value: 2000
+    unit: h
+    kind: typ
+    condition: load life at 105 °C with rated voltage and rated ripple current
+    where: p.1 Endurance
+    checked: false

@@ -1,0 +1,24 @@
+# 2512 电流采样电阻 25 mΩ。平缝机控制器 CTRL-LS（第 159 轮）用。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+format: wqeda.part/1
+part: WSLT2512R0250FEA
+maker: Vishay Dale
+datasheet:
+  title: WSLT2512 Power Metal Strip Resistors, High Temperature (275 °C), Low Value, Surface-Mount
+  revision: 'Document Number: 30121, Revision: 04-Apr-2022'
+  url: https://www.lcsc.com/datasheet/C4210426.pdf
+params:
+  p_70c:
+    value: 1.0
+    unit: W
+    kind: max
+    condition: power rating at 70 °C (WSLT2512)
+    where: p.1 Standard Electrical Specifications
+    checked: false
+  r:
+    value: 0.025
+    unit: Ω
+    kind: typ
+    condition: resistance (part number R0250), tolerance ±1 % (F)
+    where: p.1 Global Part Number Information
+    checked: false
