@@ -1,0 +1,401 @@
+{
+ "plant": "motor",
+ "id": "B",
+ "level": "中等",
+ "title": "WQ-SM200 电磁设计与有限元",
+ "title_en": "WQ-SM200 electromagnetic design and FEA",
+ "item": "WQ-SM200",
+ "summary": "12 槽 10 极伺服电机的电磁设计：磁钢厚度比较、按 48 V 母线定匝数，二维静磁场有限元算气隙磁密、反电势和转矩常数并与手算对照，再在终检台测 20 台。",
+ "summary_en": "Electromagnetic design of the 12-slot 10-pole servo motor: magnet thickness, turns from the 48 V bus, 2D magnetostatic FEA for air-gap flux density, back-EMF and torque constant checked against hand calculation, then 20 motors tested.",
+ "script": "tools/cases/motor_b.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "0.637 N·m、3000/6000 r/min、48 V；60 机座；N35 磁钢。",
+   "summary_en": "0.637 N·m, 3000/6000 rpm, 48 V; frame 60; N35 magnets.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "额定转矩",
+     "name_en": "Rated torque",
+     "value": "0.637",
+     "unit": "N·m"
+    },
+    {
+     "name": "母线",
+     "name_en": "DC bus",
+     "value": "48",
+     "unit": "V"
+    },
+    {
+     "name": "机座",
+     "name_en": "Frame",
+     "value": "60",
+     "unit": "mm"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "第一版（Ø50 × 40）齿部 1.79 T 饱和、电流密度 9.9 A/mm²；匝数被 48 V 卡死，只能改铁心：定稿 Ø56 × 45，1.51 T、7.3 A/mm²。",
+   "summary_en": "First try (Ø50 × 40): teeth saturate at 1.79 T, 9.9 A/mm²; turns are fixed by the 48 V bus, so the core changes: final Ø56 × 45, 1.51 T, 7.3 A/mm².",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "第一版齿部磁密",
+     "name_en": "First-try tooth flux",
+     "value": "1.79",
+     "unit": "T"
+    },
+    {
+     "name": "定稿齿部磁密",
+     "name_en": "Final tooth flux",
+     "value": "1.51",
+     "unit": "T"
+    }
+   ]
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "磁路法气隙磁密 0.99 T；按 48 V 定每线圈 7 匝；K_t = 0.0524 N·m/A，额定相电流 8.6 A 有效值；电流密度 7.0 A/mm²、铜耗 12.8 W。",
+   "summary_en": "Magnetic-circuit air-gap flux density 0.99 T; 7 turns per coil from the 48 V bus; K_t = 0.0524 N·m/A, rated phase current 8.6 A rms; 7.0 A/mm², copper loss 12.8 W.",
+   "md": "3_计算书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "每线圈匝数",
+     "name_en": "Turns per coil",
+     "value": "7",
+     "unit": ""
+    },
+    {
+     "name": "转矩常数",
+     "name_en": "Torque constant",
+     "value": "0.0524",
+     "unit": "N·m/A"
+    },
+    {
+     "name": "电流密度",
+     "name_en": "Current density",
+     "value": "7.04",
+     "unit": "A/mm²"
+    },
+    {
+     "name": "铜耗",
+     "name_en": "Copper loss",
+     "value": "12.8",
+     "unit": "W"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "有限元：额定电流转矩 0.624 N·m（与手算差 -2.0 %）、线反电势 THD 2.99 %、铁心磁密 1.58 T。",
+   "summary_en": "FEA: torque at rated current 0.624 N·m (-2.0 % vs hand), line back-EMF THD 2.99 %, iron flux density 1.58 T.",
+   "md": "4_有限元.md",
+   "figs": [
+    {
+     "file": "4_磁场与反电势.png",
+     "caption": "空载磁场与反电势（有限元）",
+     "caption_en": "No-load field and back-EMF (FEA)"
+    },
+    {
+     "file": "4_气隙磁密.png",
+     "caption": "气隙径向磁密（两个极距）",
+     "caption_en": "Air-gap radial flux density (two pole pitches)"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "电机终检波形",
+     "label_en": "Motor test waveforms",
+     "route": "/motor-wave"
+    }
+   ],
+   "facts": [
+    {
+     "name": "转矩（有限元）",
+     "name_en": "Torque (FEA)",
+     "value": "0.624",
+     "unit": "N·m"
+    },
+    {
+     "name": "THD",
+     "name_en": "THD",
+     "value": "2.99",
+     "unit": "%"
+    },
+    {
+     "name": "铁心磁密",
+     "name_en": "Iron flux density",
+     "value": "1.58",
+     "unit": "T"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "冲片 Ø56/Ø29、12 槽，叠厚 45；STEP 与有限元同一套槽形。",
+   "summary_en": "Lamination Ø56/Ø29, 12 slots, 45 mm stack; STEP from the same slot shapes as the FEA.",
+   "md": "5_冲片.md",
+   "figs": [
+    {
+     "file": "5_截面.png",
+     "caption": "电机截面（有限元网格的区域）",
+     "caption_en": "Motor cross-section (FEA regions)"
+    },
+    {
+     "file": "5_定子铁心.png",
+     "caption": "定子铁心三维",
+     "caption_en": "Stator core 3D"
+    }
+   ],
+   "files": [
+    {
+     "file": "LAM-60-定子铁心.step",
+     "label": "定子铁心 STEP",
+     "label_en": "Stator core (STEP)"
+    }
+   ],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "叠厚",
+     "name_en": "Stack",
+     "value": "45",
+     "unit": "mm"
+    }
+   ]
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "叠压、磁钢粘贴、充磁、动平衡；充磁电压决定反电势常数，定位工装决定齿槽转矩。",
+   "summary_en": "Stacking, magnet bonding, magnetising, balancing; magnetising voltage sets K_e, the fixture sets cogging.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "相关工序",
+     "name_en": "Operations",
+     "value": "4",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "20 台终检，不合格 0 个，最低 Cpk 2.54。",
+   "summary_en": "20 motors final-tested, 0 out of tolerance, lowest Cpk 2.54.",
+   "md": "7_终检.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间终端",
+     "label_en": "Shop-floor terminal",
+     "route": "/work/operator"
+    },
+    {
+     "label": "电机终检波形",
+     "label_en": "Motor test waveforms",
+     "route": "/motor-wave"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    }
+   ],
+   "facts": [
+    {
+     "name": "不合格",
+     "name_en": "Out of tolerance",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "最低 Cpk",
+     "name_en": "Lowest Cpk",
+     "value": "2.54",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "7 / 7 项校核通过；2.5 mm 磁钢、7 匝、K_t 0.0524。",
+   "summary_en": "7 / 7 checks pass; 2.5 mm magnets, 7 turns, K_t 0.0524.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电机终检波形",
+     "label_en": "Motor test waveforms",
+     "route": "/motor-wave"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "calc",
+   "what": "最高转速线反电势峰值 / 母线",
+   "what_en": "Peak line back-EMF at max speed / bus",
+   "value": "0.791",
+   "op": "<=",
+   "limit": "0.8",
+   "unit": "",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "calc",
+   "what": "额定电流密度",
+   "what_en": "Rated current density",
+   "value": "7.04",
+   "op": "<=",
+   "limit": "8",
+   "unit": "A/mm²",
+   "ok": true,
+   "src": "自然冷却小电机常用上限"
+  },
+  {
+   "step": "sim",
+   "what": "有限元转矩与手算相差",
+   "what_en": "FEA torque vs hand calculation",
+   "value": "2.01",
+   "op": "<=",
+   "limit": "5",
+   "unit": "%",
+   "ok": true,
+   "src": "核对有限元"
+  },
+  {
+   "step": "sim",
+   "what": "线反电势 THD（有限元）",
+   "what_en": "Line back-EMF THD (FEA)",
+   "value": "2.99",
+   "op": "<=",
+   "limit": "5",
+   "unit": "%",
+   "ok": true,
+   "src": "终检公差"
+  },
+  {
+   "step": "sim",
+   "what": "额定电流时定子铁心磁密",
+   "what_en": "Stator iron flux density at rated current",
+   "value": "1.58",
+   "op": "<=",
+   "limit": "1.6",
+   "unit": "T",
+   "ok": true,
+   "src": "线性铁心的前提"
+  },
+  {
+   "step": "make",
+   "what": "终检不合格数",
+   "what_en": "Final-test failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "终检台"
+  },
+  {
+   "step": "make",
+   "what": "终检最低 Cpk",
+   "what_en": "Lowest final-test Cpk",
+   "value": "2.54",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算书.md",
+  "4_有限元.md",
+  "4_气隙磁密.png",
+  "4_磁场与反电势.png",
+  "5_冲片.md",
+  "5_定子铁心.png",
+  "5_截面.png",
+  "6_工艺.md",
+  "7_终检.md",
+  "8_总结.md",
+  "LAM-60-定子铁心.step"
+ ]
+}
