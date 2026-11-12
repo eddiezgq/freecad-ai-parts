@@ -753,15 +753,39 @@ def ai_set(body: dict = Body(...), u=Depends(user_of)):
 
 @app.get("/api/routing/{item}")
 def routing(item: str):
-    from sim.engine import OP_UNITS, routing_for
+    from sim.engine import CAPACITY, OP_UNITS, routing_for
     if item not in F.BOMS:
         raise HTTPException(404, "没有这个自制件")
     ops = routing_for(item)
     return {"item": item, "name": F.ITEMS[item][0], "routing": F.BOMS[item][0],
             "bom": [{"item_code": c, "qty": q, "name": F.ITEMS[c][0]} for c, q in F.BOMS[item][1]],
             "operations": [{"operation": op, "minutes": m, "units": OP_UNITS[op],
+                            "batch": max([CAPACITY.get(u, 1) for u in OP_UNITS[op]] or [1]),    # 第 155 轮：一台一次装几件
                             "rate_per_hour": kpi.rate_per_hour(OP_UNITS[op][0])} for op, m in ops],
             "std_cost": dict(zip(("material", "operations"), mrp.std_unit_cost(item)))}
+
+
+@app.get("/api/products/structure")
+def products_structure():
+    """第 155 轮：本厂全部有物料清单的物料——物料清单（自制 / 外购）、工艺路线（分钟/件、设备、一次装几件）、标准成本。
+    “设计与工艺”页在非演示工厂用它显示本厂产品；数据与订单算料、车间仿真同一份。可接单的成品在前。"""
+    from sim.engine import CAPACITY, OP_UNITS, routing_for
+    out = []
+    for item, (rname, lines) in F.BOMS.items():
+        info = F.ITEMS.get(item) or (item, "", "")
+        try:
+            ops = routing_for(item)
+        except (KeyError, ValueError):
+            ops = []
+        mat, opc = mrp.std_unit_cost(item)
+        out.append({"item": item, "name": info[0], "kind": info[1], "product": item in F.PRODUCTS, "routing": rname,
+                    "bom": [{"item_code": c, "name": (F.ITEMS.get(c) or (c,))[0], "qty": q, "uom": (F.ITEMS.get(c) or ("", "", ""))[2],
+                             "made": c in F.BOMS} for c, q in lines],
+                    "operations": [{"operation": op, "minutes": m, "units": OP_UNITS.get(op) or [],
+                                    "batch": max([CAPACITY.get(u, 1) for u in OP_UNITS.get(op) or []] or [1])} for op, m in ops],
+                    "std_cost": {"material": round(mat, 2), "operations": round(opc, 2)}})
+    out.sort(key=lambda x: (not x["product"], x["item"]))
+    return {"demo": DEMO_PLANT, "items": out}
 
 
 @app.get("/api/health")

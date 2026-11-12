@@ -89,3 +89,7 @@ Items, BOMs and routings are all in the plant manifest (`factory/plants/wenquest
 
 Opening stock is roughly enough for 5 each of robots, AGVs and the three joints (example values). Purchase receipts belong to the supply chain domain, which in this phase exists only in the gearbox plant:
 the robot plant's material requests are only records, and when stock runs out the teacher tops it up with a “Material Receipt” in ERPNext (the teaching plant allows negative stock, so nothing gets stuck).
+
+## Viewing BOMs and routings on the page
+
+[Design & process](/work/engineer) lists every item in this plant that has a BOM (sellable products first): pick one to see its BOM (click a made part to jump to its own BOM), its routing (minutes per piece, machines, pieces per load) and its standard cost. It is read-only; MRP uses exactly this data.

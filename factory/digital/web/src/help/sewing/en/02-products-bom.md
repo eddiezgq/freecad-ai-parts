@@ -36,3 +36,7 @@ ERPNext has one inspection template per item, so all of an item's measurements a
 ## Lab 34: one lockstitch machine from order to delivery
 
 On the left, Labs & tasks → Lab 34: take an order for 1 WQ-LS, run MRP, release by level (casting and key parts → housing → machine), judge one machine's final test, receive it and invoice, compare the machine's standard and actual cost, then review. The platform grades 60 points automatically; the lab report is worth 40.
+
+## Viewing BOMs and routings on the page
+
+[Design & process](/work/engineer) lists every item in this plant that has a BOM (sellable products first): pick one to see its BOM (click a made part to jump to its own BOM), its routing (minutes per piece, machines, pieces per load) and its standard cost. It is read-only; MRP uses exactly this data.
