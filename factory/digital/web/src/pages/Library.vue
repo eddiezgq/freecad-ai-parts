@@ -254,6 +254,11 @@
                     <a :href="d.url" target="_blank" rel="noopener">{{ d.title }}</a> · {{ t('取用') }} {{ d.retrieved }}<span v-if="d.note" class="muted"> · {{ td(d.note) }}</span>
                   </div>
                 </div>
+                <div v-if="ext.length" class="dsrc ext">
+                  <div class="small muted">{{ ext[0].site === 'vendor' ? t('厂商官网') : t('到外部库查（{s}）', { s: extQuery }) }}</div>
+                  <div class="small"><a v-for="l in ext" :key="l.site" :href="l.url" target="_blank" rel="noopener external">{{ l.name }}</a></div>
+                  <div class="small muted">{{ t('外部网站，内容以对方为准；这里只放链接，不转存对方的文件和参数。') }}</div>
+                </div>
               </template>
             </div>
           </template>
@@ -273,6 +278,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { useRoute } from 'vue-router';
 import { post } from '../lib/api.js';
+import { extLinks } from '../lib/extlinks.js';
 import { isEn, t, td, tk, zhen } from '../lib/i18n';
 
 const BASE = '/library/';
@@ -403,6 +409,12 @@ async function getJson(url) {
 
 // ---------------------------------------------------------------- 条目详情
 const curSize = computed(() => entry.value?.sizes.find((s) => s.size === size.value) || entry.value?.sizes[0]);
+const ext = computed(() => extLinks(entry.value, curSize.value));   // 第 158 轮：到外部库查
+const extQuery = computed(() => {
+  const u = ext.value[0]?.url || '';
+  const m = u.match(/[?&](?:q|keywords|Keyword)=([^&]*)/);
+  return m ? decodeURIComponent(m[1]) : '';
+});
 const cols = computed(() => (entry.value?.params || []).filter((p) => p.role === 'key' || p.role === 'perf').slice(0, 6));
 const erp = computed(() => {
   const m = {};
@@ -696,6 +708,7 @@ dl.kv dd { margin: 0; overflow-wrap: anywhere; }
 .proxy-note { color: var(--warn-ink); background: var(--warn-bg); border-radius: 6px; padding: 4px 8px; margin-top: 4px; }
 .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; border: 1px solid rgba(0, 0, 0, 0.25); vertical-align: -1px; }
 .dsrc { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; overflow-wrap: anywhere; }
+.ext a + a { margin-left: 12px; }
 .attr { margin-top: 10px; background: var(--surface-2); border: 1px dashed var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12px; }
 .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 16px;
   border-radius: 8px; font-size: 13px; z-index: 50; }
