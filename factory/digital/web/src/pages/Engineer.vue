@@ -4,44 +4,6 @@
     <div v-if="plantMode" class="page-title"><h1>{{ $t('设计与工艺') }}</h1><span class="muted">{{ $t('工艺员工作区 · 本厂产品的物料清单、工艺路线与标准成本') }}</span></div>
     <div v-else class="page-title"><h1>{{ $t('设计与工艺') }}</h1><span class="muted">{{ $t('工艺员工作区 · 输出轴 SH-301 的设计版本、工艺路线与键槽 G 代码') }}</span></div>
 
-    <!-- 第 155 轮：非演示工厂显示本厂产品的物料清单与工艺路线（只读；数据与算料、车间仿真同一份） -->
-    <div v-if="plantMode" class="row">
-      <section class="card plist" data-help="eng-products">
-        <div class="card-head"><h2>{{ $t('本厂物料') }}</h2></div>
-        <div v-if="!ps" class="empty">{{ $t('正在读取…') }}</div>
-        <template v-else>
-          <div v-for="grp in groups" :key="grp.title" class="grp">
-            <div class="small muted gt">{{ grp.title }}</div>
-            <button v-for="x in grp.items" :key="x.item" class="pbtn" :class="{ on: x.item === sel }" @click="sel = x.item">
-              <span class="mono">{{ $td(x.item) }}</span> <span class="small">{{ $td(x.name) }}</span></button>
-          </div>
-        </template>
-      </section>
-      <section v-if="cur" class="card grow" data-help="eng-structure">
-        <div class="card-head"><h2>{{ $t('{a} · {b}', { a: $td(cur.item), b: $td(cur.name) }) }}</h2>
-          <span class="muted small">{{ $t('工艺路线 {a}', { a: $td(cur.routing) }) }}</span></div>
-        <h3 class="sub">{{ $t('物料清单（每件）') }}</h3>
-        <div class="tw"><table class="t">
-          <thead><tr><th>{{ $t('物料') }}</th><th>{{ $t('名称') }}</th><th class="num">{{ $t('用量') }}</th><th>{{ $t('单位') }}</th><th>{{ $t('来源') }}</th></tr></thead>
-          <tbody><tr v-for="b in cur.bom" :key="b.item_code">
-            <td class="mono">{{ $td(b.item_code) }}</td><td>{{ $td(b.name) }}</td><td class="num">{{ $td(b.qty) }}</td><td>{{ $td(b.uom) }}</td>
-            <td><button v-if="b.made" class="btn ghost small" @click="sel = b.item_code">{{ $t('自制 · 看它的清单') }}</button><span v-else class="muted">{{ $t('外购') }}</span></td>
-          </tr></tbody>
-        </table></div>
-        <h3 class="sub">{{ $t('工艺路线') }}</h3>
-        <div v-if="cur.operations.length" class="tw"><table class="t">
-          <thead><tr><th>{{ $t('工序') }}</th><th class="num">{{ $t('分钟/件') }}</th><th>{{ $t('设备') }}</th><th class="num">{{ $t('一次装几件') }}</th></tr></thead>
-          <tbody><tr v-for="o in cur.operations" :key="o.operation">
-            <td>{{ $td(o.operation.split(' ')[0]) }}</td><td class="num">{{ $td(o.minutes) }}</td>
-            <td class="mono small">{{ o.units.map((u) => u.toUpperCase()).join(' / ') }}</td><td class="num">{{ $td(o.batch) }}</td>
-          </tr></tbody>
-        </table></div>
-        <p v-else class="muted small">{{ $t('这个物料没有登记工艺路线。') }}</p>
-        <p class="small muted">{{ $t('标准成本：材料 ${a} + 加工 ${b} / 件', { a: $td(cur.std_cost.material), b: $td(cur.std_cost.operations) }) }}</p>
-        <p class="small muted">{{ $t('只读。改物料清单和工艺路线：企业在“产品登记”或“按单设计”里改；接单时“订单与计划”的算料用的就是这份清单。') }}</p>
-      </section>
-    </div>
-
     <template v-if="!plantMode">
 
     <!-- 第 6 轮 W2：网页设计台，不用装软件 -->
@@ -146,6 +108,45 @@
       </section>
     </div>
     </template>
+
+    <!-- 第 155 轮：非演示工厂显示本厂产品的物料清单与工艺路线（只读；数据与算料、车间仿真同一份）；第 157 轮：演示工厂放在页面最下面 -->
+    <div class="row">
+      <section class="card plist" data-help="eng-products">
+        <div class="card-head"><h2>{{ $t('本厂物料') }}</h2></div>
+        <div v-if="!ps" class="empty">{{ $t('正在读取…') }}</div>
+        <template v-else>
+          <div v-for="grp in groups" :key="grp.title" class="grp">
+            <div class="small muted gt">{{ grp.title }}</div>
+            <button v-for="x in grp.items" :key="x.item" class="pbtn" :class="{ on: x.item === sel }" @click="sel = x.item">
+              <span class="mono">{{ $td(x.item) }}</span> <span class="small">{{ $td(x.name) }}</span></button>
+          </div>
+        </template>
+      </section>
+      <section v-if="cur" class="card grow" data-help="eng-structure">
+        <div class="card-head"><h2>{{ $t('{a} · {b}', { a: $td(cur.item), b: $td(cur.name) }) }}</h2>
+          <span class="muted small">{{ $t('工艺路线 {a}', { a: $td(cur.routing) }) }}</span></div>
+        <h3 class="sub">{{ $t('物料清单（每件）') }}</h3>
+        <div class="tw"><table class="t">
+          <thead><tr><th>{{ $t('物料') }}</th><th>{{ $t('名称') }}</th><th class="num">{{ $t('用量') }}</th><th>{{ $t('单位') }}</th><th>{{ $t('来源') }}</th></tr></thead>
+          <tbody><tr v-for="b in cur.bom" :key="b.item_code">
+            <td class="mono">{{ $td(b.item_code) }}</td><td>{{ $td(b.name) }}</td><td class="num">{{ $td(b.qty) }}</td><td>{{ $td(b.uom) }}</td>
+            <td><button v-if="b.made" class="btn ghost small" @click="sel = b.item_code">{{ $t('自制 · 看它的清单') }}</button><span v-else class="muted">{{ $t('外购') }}</span></td>
+          </tr></tbody>
+        </table></div>
+        <h3 class="sub">{{ $t('工艺路线') }}</h3>
+        <div v-if="cur.operations.length" class="tw"><table class="t">
+          <thead><tr><th>{{ $t('工序') }}</th><th class="num">{{ $t('分钟/件') }}</th><th>{{ $t('设备') }}</th><th class="num">{{ $t('一次装几件') }}</th></tr></thead>
+          <tbody><tr v-for="o in cur.operations" :key="o.operation">
+            <td>{{ $td(o.operation.split(' ')[0]) }}</td><td class="num">{{ $td(o.minutes) }}</td>
+            <td class="mono small">{{ o.units.map((u) => u.toUpperCase()).join(' / ') }}</td><td class="num">{{ $td(o.batch) }}</td>
+          </tr></tbody>
+        </table></div>
+        <p v-else class="muted small">{{ $t('这个物料没有登记工艺路线。') }}</p>
+        <p class="small muted">{{ $t('标准成本：材料 ${a} + 加工 ${b} / 件', { a: $td(cur.std_cost.material), b: $td(cur.std_cost.operations) }) }}</p>
+        <p v-if="plantMode" class="small muted">{{ $t('只读。改物料清单和工艺路线：企业在“产品登记”或“按单设计”里改；接单时“订单与计划”的算料用的就是这份清单。') }}</p>
+        <p v-else class="small muted">{{ $t('只读。输出轴 SH-301 的设计在上面的“在线设计”里改；接单时“订单与计划”的算料用的就是这份清单。') }}</p>
+      </section>
+    </div>
   </div>
 </template>
 
@@ -261,11 +262,8 @@ async function loadDesign() {
 
 onMounted(async () => {
   await loadConfig().catch(() => null);
-  if (plantMode.value) {
-    ps.value = await get('/products/structure');
-    sel.value = route.query.item || ps.value.items[0]?.item || '';
-    return;
-  }
+  const loadStructure = get('/products/structure').then((r) => { ps.value = r; sel.value = route.query.item || r.items[0]?.item || ''; });
+  if (plantMode.value) { await loadStructure; return; }
   loadParams().then(applySuggest);
   [d.value, rt.value] = await Promise.all([get('/design/SH-301'), get('/routing/SH-301')]);
   if (g.value) code.value = await (await fetch(g.value.gcode_ref)).text();
