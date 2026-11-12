@@ -11,6 +11,7 @@ digital/.env
 !designs/drv-joint-b/out/*.zip
 !designs/drv-joint-b/fw/out/*.zip
 designs/drv-joint/.route/
+designs/ctrl-ls/.route/
 designs/drv-joint-b/.route/
 designs/drv-joint-b/fw/build/
 designs/tools/freerouting-*.jar

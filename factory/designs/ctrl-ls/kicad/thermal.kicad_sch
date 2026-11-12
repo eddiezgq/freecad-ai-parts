@@ -1,0 +1,19 @@
+(kicad_sch
+  (version 20230121)
+  (generator eeschema)
+  (uuid "57589320-2444-5764-86a0-0ca42fc7d804")
+  (paper "A3")
+  (title_block
+    (title "CTRL-LS · 散热 Heatsink")
+    (date "2026-11-12")
+    (rev "示例 A")
+    (company "问渠数字工业园 · 电路板厂（示例设计，未经硬件验证，不能直接投产）")
+    (comment 1 "散热器（型号 159d2 定）：整流桥、升压管、升压二极管、功率模块共用一块，热阻 ≤ 1.05 K/W（计算书）。本页没有电气器件。"))
+  (lib_symbols)
+  (text "散热器（型号 159d2 定）：整流桥、升压管、升压二极管、功率模块共用一块，热阻 ≤ 1.05 K/W（计算书）。本页没有电气器件。"
+    (at 30 22 0)
+    (effects
+      (font
+        (size 2 2))
+      (justify left))
+    (uuid "a779a799-89f4-5784-936a-aa3e6e364910")))

@@ -19,7 +19,7 @@
 
 ## 结论
 
-通过 6 项，不通过 0 项，待核对 48 项，未知 4 项。
+通过 9 项，不通过 0 项，待核对 49 项，未知 5 项。
 
 ## 交流输入、电磁兼容与浪涌（AC input, EMI and inrush）
 
@@ -161,13 +161,14 @@
 
 | 量 | 结果 | 公式 | 说明 |
 |---|---|---|---|
-| 量程（±） | 8.25 A | I_满 = (V_ref/2) / (G · R) | G = 8，V_ref = 3.3 V；WSLT2512 Power Metal Strip Resistors, High Temperature (275 °C), Low Value, Surface-Mount Document Number: 30121, Revision: 04-Apr-2022，p.1 Global Part Number Information |
+| 量程（±） | 8.8 A | I_满 = min(V_零, V_ref − V_零) / (G · k · R) | G = 8，V_ref = 3.3 V，k = 0.9375；WSLT2512 Power Metal Strip Resistors, High Temperature (275 °C), Low Value, Surface-Mount Document Number: 30121, Revision: 04-Apr-2022，p.1 Global Part Number Information |
+| 零电流时运放输出（零点） | 1.65 V | V_零 = G · V_ref · R_in/(R_in + R_b) | R_in = 1k，R_b = 15k |
 | 采样电阻功耗（峰值力矩持续时） | 456.9 mW | (I_峰/√2)² · R |  |
 | 过流比较器门限（采样电阻上的电压） | 187.5 mV | I_跳 · R | I_跳 = 7.5 A |
 
 | 判定 | 要求 | 实有 | 规则 | 结论 | 说明 |
 |---|---|---|---|---|---|
-| 量程覆盖峰值电流（留余量） | 6.348 A | 8.25 A | I_满 ≥ 1.05 × 峰值 | **待核对** | WSLT2512 Power Metal Strip Resistors, High Temperature (275 °C), Low Value, Surface-Mount Document Number: 30121, Revision: 04-Apr-2022，p.1 Global Part Number Information |
+| 量程覆盖峰值电流（留余量） | 6.348 A | 8.8 A | I_满 ≥ 1.05 × 峰值 | **待核对** | WSLT2512 Power Metal Strip Resistors, High Temperature (275 °C), Low Value, Surface-Mount Document Number: 30121, Revision: 04-Apr-2022，p.1 Global Part Number Information |
 | 过流门限高于峰值、在量程内 | 6.046 A | 7.5 A | 峰值 ≤ I_跳 ≤ I_满 | **待核对** |  |
 | 采样电阻额定功率 | 456.9 mW | 1 W | P_额定(70 ℃) ≥ 峰值时功耗 | **待核对** | 待核对；WSLT2512 Power Metal Strip Resistors, High Temperature (275 °C), Low Value, Surface-Mount Document Number: 30121, Revision: 04-Apr-2022，p.1 Standard Electrical Specifications |
 | MCU 片内运放能设成这个增益 | 8 | — | 片内 PGA 可选增益含 G | **未知** | STM32G431 的运放增益档位没录进 eda/parts（参考手册），待补 |
@@ -211,6 +212,35 @@
 |---|---|---|---|---|---|
 | 24 V（含波动）在驱动器工作范围 | 26.4 V | 5.5–29 V | 范围包含 26.4 V | **待核对** | 待核对；TMC2226 Datasheet, Power driver for stepper motors Rev. 1.06 / 2020-MAY-18，p.72 Operational Range |
 | 驱动器连续电流 | 1 A | 1.6 A | I_RMS,连续 ≥ 线圈电流 | **待核对** | 待核对；TMC2226 Datasheet, Power driver for stepper motors Rev. 1.06 / 2020-MAY-18，p.72 Operational Range |
+
+## MCU 最小系统与烧录口（MCU core and programming port）
+
+原理图页：io
+
+| 量 | 结果 | 公式 | 说明 |
+|---|---|---|---|
+| 已分配的 MCU 引脚 | 48 只 |  |  |
+
+| 判定 | 要求 | 实有 | 规则 | 结论 | 说明 |
+|---|---|---|---|---|---|
+| 电流、母线、烧录信号都接到 MCU | 15 个 | 15 个 | 全部接上 | **通过** |  |
+| MCU 供电 3.3 V 在工作范围内 | 3.3 V | 1.71–3.6 V | 范围包含 3.3 V | **待核对** | 待核对；STM32G431x6/x8/xB (DS12589) Rev 6, 2021-10，p.71 Table 17 |
+| 晶振负载电容 | — | — | 要晶振的负载电容 C_L 数据才能算（C = 2·(C_L − C_杂散)） | **未知** | 晶振型号与数据未录，判未知 |
+
+## 编码器、霍尔与脚踏输入（Encoder, Hall and pedal inputs）
+
+原理图页：io
+
+| 量 | 结果 | 公式 | 说明 |
+|---|---|---|---|
+| 编码器输入 RC 截止频率 | 723.4 kHz | f_c = 1 / (2π·R·C) |  |
+| 编码器最高脉冲频率 | 208.3 kHz | 线数 × n_max / 60 | 电机未选型：线数是示例值 |
+| 脚踏信号分压后最高电压 | 3 V | V_max × 20 k / 30 k |  |
+
+| 判定 | 要求 | 实有 | 规则 | 结论 | 说明 |
+|---|---|---|---|---|---|
+| 截止频率 ≥ 余量 × 最高脉冲频率 | 416.7 kHz | 723.4 kHz | f_c ≥ 2 × f_max | **通过** | 线数是示例值（电机未选型） |
+| 脚踏信号不超过 ADC 满量程 | 3 V | 3.3 V | V ≤ 3.3 V | **通过** | 脚踏输出 4.5 V 是示例值 |
 
 ## 面板口隔离（Isolated panel port）
 
@@ -261,6 +291,7 @@
 | IPW60R060P7 | Infineon | IPW60R060P7 600V CoolMOS P7 Power Transistor, Final Data Sheet Rev. 2.1, 2018-05-15 | https://www.lcsc.com/datasheet/C454258.pdf |
 | SMBJ24A | Littelfuse | Surface Mount - 600 W > SMBJ series TVS Diodes Revised: JC.07/04/25 v4 | https://www.lcsc.com/datasheet/C224017.pdf |
 | STGIPS14K60T | STMicroelectronics | STGIPS14K60T SLLIMM small low-loss intelligent molded module IPM, 3-phase inverter, 14 A, 600 V, Datasheet - production data DocID018534 Rev 5, April 2015 | https://www.lcsc.com/datasheet/C5268145.pdf |
+| STM32G431CBT6 | STMicroelectronics | STM32G431x6/x8/xB (DS12589) Rev 6, 2021-10 | https://www.st.com/resource/en/datasheet/stm32g431cb.pdf |
 | TMC2226-SA | ADI / Trinamic | TMC2226 Datasheet, Power driver for stepper motors Rev. 1.06 / 2020-MAY-18 | https://www.lcsc.com/datasheet/C705366.pdf |
 | TOP266KG | Power Integrations | TOP264-271 TOPSwitch-JX Family, Integrated Off-Line Switcher with EcoSmart Technology Rev. E 08/12 | https://www.lcsc.com/datasheet/C568204.pdf |
 | WSLT2512R0250FEA | Vishay Dale | WSLT2512 Power Metal Strip Resistors, High Temperature (275 °C), Low Value, Surface-Mount Document Number: 30121, Revision: 04-Apr-2022 | https://www.lcsc.com/datasheet/C4210426.pdf |

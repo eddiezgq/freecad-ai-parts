@@ -1,41 +1,42 @@
 # 平缝机控制器 CTRL-LS 的器件表（第 159 轮 159a）。示例选型，未经硬件验证。
 # 每个外购件都在立创 LCSC 上打开核实过型号存在、有货（checked_on）；lcsc 是立创商品编号。
 # kicad：KiCad 7.0.11 官方库里的符号（库:符号）——原理图和封装由它来，159d 生成。
+# item 是电路板厂的物料编号（159d1 起：原理图器件和物料清单按它对到这里的型号和立创编号）。
 # 计算要用的规格书参数不在这里，按 eda/parts/ 的规矩录（159b，逐项注明出处）。
 # custom: true 的是定制件（磁性元件），没有现成型号；规格由 159b 的计算书给出，供应商按规格绕制。
 format: wq.ctrl-ls.parts/1
 checked_on: '2026-11-11'
 parts:
   # —— 交流输入与电磁兼容 ——
-  - {role: 输入保险丝（5×20 mm，10 A 慢断）, mpn: 0215010.MXP, maker: Littelfuse, lcsc: C142733}
-  - {role: 压敏电阻（275 V 交流）, mpn: B72214S0271K101, maker: TDK, lcsc: C7502584}
-  - {role: X2 电容 0.47 µF, mpn: BFC233920474, maker: Vishay, lcsc: C511073}
-  - {role: Y 电容 2.2 nF, mpn: DE1E3RA222MA4BP01F, maker: Murata, lcsc: C907949}
-  - {role: 共模电感 15 mH 10 A, mpn: FC-HLF2018-15mH-10A-LF, maker: FANGCHENG, lcsc: C5142780}
-  - {role: 浪涌限流热敏电阻, mpn: B57364S0259M000, maker: TDK, lcsc: C17362791}
-  - {role: 旁路继电器（12 V 线圈）, mpn: G5LE-1-E DC12, maker: Omron, lcsc: C152711}
-  - {role: 整流桥 10 A 600 V, mpn: GBU1006, maker: LGE, lcsc: C5183365}
+  - {role: 输入保险丝（5×20 mm，10 A 慢断）, item: FUSE-T10A, mpn: 0215010.MXP, maker: Littelfuse, lcsc: C142733}
+  - {role: 压敏电阻（275 V 交流）, item: MOV-275, mpn: B72214S0271K101, maker: TDK, lcsc: C7502584}
+  - {role: X2 电容 0.47 µF, item: CAP-X2-470N, mpn: BFC233920474, maker: Vishay, lcsc: C511073}
+  - {role: Y 电容 2.2 nF, item: CAP-Y-2N2, mpn: DE1E3RA222MA4BP01F, maker: Murata, lcsc: C907949}
+  - {role: 共模电感 15 mH 10 A, item: CMC-15MH, mpn: FC-HLF2018-15mH-10A-LF, maker: FANGCHENG, lcsc: C5142780}
+  - {role: 浪涌限流热敏电阻, item: NTC-2R5, mpn: B57364S0259M000, maker: TDK, lcsc: C17362791}
+  - {role: 旁路继电器（12 V 线圈）, item: RLY-G5LE, mpn: G5LE-1-E DC12, maker: Omron, lcsc: C152711}
+  - {role: 整流桥 10 A 600 V, item: BRG-GBU1006, mpn: GBU1006, maker: LGE, lcsc: C5183365}
   # —— 功率因数校正 ——
-  - {role: 连续导通功率因数校正控制器, mpn: ICE3PCS01G, maker: Infineon, lcsc: C192050, kicad: 'Regulator_Controller:ICE3PCS01'}
-  - {role: 升压开关管 600 V 60 mΩ（TO-247）, mpn: IPW60R060P7, maker: Infineon, lcsc: C454258, note: 159b 由 IPA60R180P7S 换来（FullPAK 散不掉 18.7 W）}
-  - {role: 升压二极管（碳化硅 6 A 600 V）, mpn: C3D06060A, maker: Wolfspeed (Cree), lcsc: C5693025}
-  - {role: 升压电感, custom: true, spec_from: 159b 计算书}
-  - {role: 母线电容 330 µF 500 V（3 只）, mpn: 500MXH330MEFCSN30X50, maker: Rubycon, lcsc: C472902, note: 159b 由 2 只改 3 只（纹波电流 3.75 A > 2 × 1.81 A）}
+  - {role: 连续导通功率因数校正控制器, item: IC-PFC-ICE3PCS01G, mpn: ICE3PCS01G, maker: Infineon, lcsc: C192050, kicad: 'Regulator_Controller:ICE3PCS01'}
+  - {role: 升压开关管 600 V 60 mΩ（TO-247）, item: MOS-IPW60R060P7, mpn: IPW60R060P7, maker: Infineon, lcsc: C454258, note: 159b 由 IPA60R180P7S 换来（FullPAK 散不掉 18.7 W）}
+  - {role: 升压二极管（碳化硅 6 A 600 V）, item: DIO-C3D06060A, mpn: C3D06060A, maker: Wolfspeed (Cree), lcsc: C5693025}
+  - {role: 升压电感, item: IND-PFC-CUSTOM, custom: true, spec_from: 159b 计算书}
+  - {role: 母线电容 330 µF 500 V（3 只）, item: CAP-BULK-330U-500V, mpn: 500MXH330MEFCSN30X50, maker: Rubycon, lcsc: C472902, note: 159b 由 2 只改 3 只（纹波电流 3.75 A > 2 × 1.81 A）}
   # —— 逆变 ——
-  - {role: 智能功率模块（三相，14 A 600 V，带热敏电阻）, mpn: STGIPS14K60T, maker: STMicroelectronics, lcsc: C5268145, kicad: 'Transistor_Power_Module:STGIPS14K60T'}
-  - {role: 三相下桥采样电阻 25 mΩ 2512, mpn: WSLT2512R0250FEA, maker: Vishay, lcsc: C4210426}
+  - {role: 智能功率模块（三相，14 A 600 V，带热敏电阻）, item: IPM-STGIPS14K60T, mpn: STGIPS14K60T, maker: STMicroelectronics, lcsc: C5268145, kicad: 'Transistor_Power_Module:STGIPS14K60T'}
+  - {role: 三相下桥采样电阻 25 mΩ 2512, item: RES-SHUNT-25M, mpn: WSLT2512R0250FEA, maker: Vishay, lcsc: C4210426}
   # —— 辅助电源 ——
-  - {role: 反激控制器（集成开关管）, mpn: TOP266KG, maker: Power Integrations, lcsc: C568204, kicad: 'Regulator_Switching:TOP266KG'}
-  - {role: 反激变压器, custom: true, spec_from: 159b 计算书}
-  - {role: 反馈光耦, mpn: PC817X2NSZ9F, maker: Sharp, lcsc: C390734}
-  - {role: 反馈基准, mpn: TL431AIDBZR, maker: Texas Instruments, lcsc: C23892}
+  - {role: 反激控制器（集成开关管）, item: IC-TOP266KG, mpn: TOP266KG, maker: Power Integrations, lcsc: C568204, kicad: 'Regulator_Switching:TOP266KG'}
+  - {role: 反激变压器, item: XFMR-FLY-CUSTOM, custom: true, spec_from: 159b 计算书}
+  - {role: 反馈光耦, item: OPTO-PC817, mpn: PC817X2NSZ9F, maker: Sharp, lcsc: C390734}
+  - {role: 反馈基准, item: IC-TL431, mpn: TL431AIDBZR, maker: Texas Instruments, lcsc: C23892}
   # —— 主控与接口 ——
-  - {role: 主控, mpn: STM32G431CBT6, maker: STMicroelectronics, lcsc: C529355, note: 沿用关节驱动板（片内三路运放采电流、比较器过流）, kicad: 'MCU_ST_STM32G4:STM32G431CBTx'}
-  - {role: 编码器与针位信号施密特整形, mpn: SN74LVC14APWR, maker: Texas Instruments, lcsc: C7663}
-  - {role: 电磁铁驱动管 80 V, mpn: BSC040N08NS5, maker: Infineon, lcsc: C534333, note: 159b 由 AOD4184A（40 V）换来：钳位后漏极 57 V}
-  - {role: 电磁铁关断钳位稳压管, mpn: SMBJ24A, maker: Littelfuse, lcsc: C224017, note: 159b 由 SMBJ33A 换来（与二极管串联跨在线圈上）}
-  - {role: 电磁铁续流二极管、24 V 整流管, mpn: ES3D, maker: onsemi, lcsc: C241735}
-  - {role: 针距步进驱动, mpn: TMC2226-SA, maker: ADI / Trinamic, lcsc: C6718351, kicad: 'Driver_Motor:TMC2226-SA'}
-  - {role: 面板口数字隔离, mpn: ADUM1201ARZ-RL7, maker: Analog Devices, lcsc: C9669, kicad: 'Isolator:ADuM1201AR'}
-  - {role: 面板口隔离电源 5 V→5 V 1 W, mpn: B0505S-1WR2, maker: YLPTEC, lcsc: C2992393}
-  - {role: 面板口 RS-485, mpn: MAX3485ESA+T, maker: Analog Devices (Maxim), lcsc: C18148, note: 沿用关节驱动板}
+  - {role: 主控, item: IC-MCU-MC, mpn: STM32G431CBT6, maker: STMicroelectronics, lcsc: C529355, note: 沿用关节驱动板（片内三路运放采电流、比较器过流）, kicad: 'MCU_ST_STM32G4:STM32G431CBTx'}
+  - {role: 编码器与针位信号施密特整形, item: IC-74LVC14, mpn: SN74LVC14APWR, maker: Texas Instruments, lcsc: C7663}
+  - {role: 电磁铁驱动管 80 V, item: MOS-80V, mpn: BSC040N08NS5, maker: Infineon, lcsc: C534333, note: 159b 由 AOD4184A（40 V）换来：钳位后漏极 57 V}
+  - {role: 电磁铁关断钳位稳压管, item: TVS-SMBJ24A, mpn: SMBJ24A, maker: Littelfuse, lcsc: C224017, note: 159b 由 SMBJ33A 换来（与二极管串联跨在线圈上）}
+  - {role: 电磁铁续流二极管、24 V 整流管, item: DIO-ES3D, mpn: ES3D, maker: onsemi, lcsc: C241735}
+  - {role: 针距步进驱动, item: IC-TMC2226, mpn: TMC2226-SA, maker: ADI / Trinamic, lcsc: C6718351, kicad: 'Driver_Motor:TMC2226-SA'}
+  - {role: 面板口数字隔离, item: IC-ADUM1201, mpn: ADUM1201ARZ-RL7, maker: Analog Devices, lcsc: C9669, kicad: 'Isolator:ADuM1201AR'}
+  - {role: 面板口隔离电源 5 V→5 V 1 W, item: DCDC-B0505S, mpn: B0505S-1WR2, maker: YLPTEC, lcsc: C2992393}
+  - {role: 面板口 RS-485, item: IC-RS485, mpn: MAX3485ESA+T, maker: Analog Devices (Maxim), lcsc: C18148, note: 沿用关节驱动板}

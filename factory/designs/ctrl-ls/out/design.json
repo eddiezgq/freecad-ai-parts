@@ -1,0 +1,2147 @@
+{
+ "board_mm": [
+  200,
+  140
+ ],
+ "bom_by_item": {
+  "BRG-GBU1006": 1,
+  "CAP-0402": 9,
+  "CAP-0603": 34,
+  "CAP-0805": 3,
+  "CAP-1206": 10,
+  "CAP-1206-1KV": 1,
+  "CAP-1210": 1,
+  "CAP-1812-630V": 1,
+  "CAP-BULK-330U-500V": 3,
+  "CAP-EL-1000U-10V": 1,
+  "CAP-EL-220U-25V": 1,
+  "CAP-EL-470U-35V": 1,
+  "CAP-EL-47U-16V": 1,
+  "CAP-FILM-1U-450V": 1,
+  "CAP-X2-470N": 1,
+  "CAP-Y-2N2": 2,
+  "CMC-15MH": 1,
+  "CONN-AC": 1,
+  "CONN-MOT": 1,
+  "CONN-VH8": 1,
+  "CONN-XH3": 1,
+  "CONN-XH4": 2,
+  "CONN-XH8": 1,
+  "DCDC-B0505S": 1,
+  "DIO-1N4007": 2,
+  "DIO-1N4148W": 1,
+  "DIO-1N5408": 1,
+  "DIO-C3D06060A": 1,
+  "DIO-ES3D": 7,
+  "DIO-US1M": 1,
+  "FUSE-T10A": 1,
+  "IC-74LVC14": 1,
+  "IC-ADUM1201": 1,
+  "IC-LDO-3V3": 2,
+  "IC-MCU-MC": 1,
+  "IC-PFC-ICE3PCS01G": 1,
+  "IC-RS485": 1,
+  "IC-TL431": 1,
+  "IC-TMC2226": 1,
+  "IC-TOP266KG": 1,
+  "IND-PFC-CUSTOM": 1,
+  "IPM-STGIPS14K60T": 1,
+  "MOS-2N7002": 6,
+  "MOS-80V": 4,
+  "MOS-IPW60R060P7": 1,
+  "MOV-275": 1,
+  "NTC-2R5": 1,
+  "OPTO-PC817": 1,
+  "RES-0402": 1,
+  "RES-0603": 66,
+  "RES-1206": 15,
+  "RES-2010-0R12": 2,
+  "RES-2512": 1,
+  "RES-SHUNT-10M": 1,
+  "RES-SHUNT-25M": 3,
+  "RLY-G5LE": 1,
+  "TVS-SMBJ24A": 4,
+  "XFMR-FLY-CUSTOM": 1,
+  "XTAL": 1
+ },
+ "bom_rows": 95,
+ "date": "2026-11-12",
+ "disclaimer": "示例设计，未经硬件验证，不能直接投产",
+ "files": {
+  "bom.csv": "17dbee891c587d66",
+  "netcheck.json": "f503c998631c0107",
+  "schematic/ctrl-ls-1 交流输入、浪涌与整流.svg": "20af9f86c7cafd01",
+  "schematic/ctrl-ls-2 功率因数校正与母线.svg": "bf7e88fa275a15da",
+  "schematic/ctrl-ls-3 辅助电源.svg": "80ff077791499fcd",
+  "schematic/ctrl-ls-4 主轴伺服逆变与电流采样.svg": "e989a8807fc40f73",
+  "schematic/ctrl-ls-5 电磁铁与步进.svg": "08d1bd459ac12381",
+  "schematic/ctrl-ls-6 主控与传感器输入.svg": "9912be3f1d53be69",
+  "schematic/ctrl-ls-7 面板口.svg": "3f685410973e2db9",
+  "schematic/ctrl-ls-8 散热.svg": "2b5dd4c7085082d4",
+  "schematic/ctrl-ls.svg": "5be3d304c7a1f898"
+ },
+ "item": "CTRL-LS",
+ "layers": 2,
+ "name": "平缝机控制器 CTRL-LS",
+ "netcheck": {
+  "nets_design": 149,
+  "nets_schematic": 149,
+  "parts_design": 221,
+  "parts_schematic": 221,
+  "pass": true
+ },
+ "nets": 149,
+ "parts": [
+  {
+   "fp": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-3-5.08_1x03_P5.08mm_Horizontal",
+   "item": "CONN-AC",
+   "lib": "Connector:Screw_Terminal_01x03",
+   "note": "交流输入：1 相线、2 零线、3 保护地",
+   "ref": "J101",
+   "sheet": "mains",
+   "value": "AC IN L/N/PE"
+  },
+  {
+   "fp": "Fuse:Fuseholder_Clip-5x20mm_Bel_FC-203-22_Lateral_P17.80x5.00mm_D1.17mm_Horizontal",
+   "item": "FUSE-T10A",
+   "lib": "Device:Fuse",
+   "note": "0215010.MXP（5×20 mm 慢断，夹座安装；夹座封装待核对）",
+   "ref": "F101",
+   "sheet": "mains",
+   "value": "10A T"
+  },
+  {
+   "fp": "Varistor:RV_Disc_D15.5mm_W4.9mm_P7.5mm",
+   "item": "MOV-275",
+   "lib": "Device:Varistor",
+   "note": "B72214S0271K101（封装按 14 mm 盘片选，待核对）",
+   "ref": "RV101",
+   "sheet": "mains",
+   "value": "S14K275"
+  },
+  {
+   "fp": "Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4",
+   "item": "CAP-X2-470N",
+   "lib": "Device:C",
+   "note": "BFC233920474（封装待核对）",
+   "ref": "C101",
+   "sheet": "mains",
+   "value": "470n X2"
+  },
+  {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "item": "RES-1206",
+   "lib": "Device:R",
+   "note": "X 电容放电：2 MΩ × 0.47 µF = 0.94 s（拔插头后 1 s 内放到安全）",
+   "ref": "R101",
+   "sheet": "mains",
+   "value": "1M"
+  },
+  {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "item": "RES-1206",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R102",
+   "sheet": "mains",
+   "value": "1M"
+  },
+  {
+   "fp": "Inductor_THT:L_CommonMode_Toroid_Vertical_L34.3mm_W20.3mm_Px15.24mm_Py22.86mm_Bourns_8100",
+   "item": "CMC-15MH",
+   "lib": "Device:Filter_EMI_CommonMode",
+   "note": "FC-HLF2018-15mH-10A-LF（规格书是图片读不出、KiCad 库没有它的封装：159d2 换一个库里有封装的型号，这里先占位）",
+   "ref": "L101",
+   "sheet": "mains",
+   "value": "15mH 10A"
+  },
+  {
+   "fp": "Capacitor_THT:C_Disc_D8.0mm_W5.0mm_P7.50mm",
+   "item": "CAP-Y-2N2",
+   "lib": "Device:C",
+   "note": "Y 电容（封装待核对）",
+   "ref": "C102",
+   "sheet": "mains",
+   "value": "2n2 Y1"
+  },
+  {
+   "fp": "Capacitor_THT:C_Disc_D8.0mm_W5.0mm_P7.50mm",
+   "item": "CAP-Y-2N2",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C103",
+   "sheet": "mains",
+   "value": "2n2 Y1"
+  },
+  {
+   "fp": "Varistor:RV_Disc_D15.5mm_W4.9mm_P7.5mm",
+   "item": "NTC-2R5",
+   "lib": "Device:Thermistor_NTC",
+   "note": "B57364S0259M000（上电浪涌限流，母线充好后由 K101 短接；封装按盘片选，待核对）",
+   "ref": "TH101",
+   "sheet": "mains",
+   "value": "2.5R"
+  },
+  {
+   "fp": "Relay_THT:Relay_SPDT_Omron-G5LE-1",
+   "item": "RLY-G5LE",
+   "lib": "Relay:G5LE-1",
+   "note": "G5LE-1-E DC12：1 公共端、3 常开（短接热敏电阻）、2/5 线圈。线圈 12 V 用在 15 V 上——线圈最高允许电压待核对规格书",
+   "ref": "K101",
+   "sheet": "mains",
+   "value": "G5LE-1 DC12"
+  },
+  {
+   "fp": "Diode_SMD:D_SOD-123",
+   "item": "DIO-1N4148W",
+   "lib": "Device:D",
+   "note": "继电器线圈续流",
+   "ref": "D101",
+   "sheet": "mains",
+   "value": "1N4148W"
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:SOT-23",
+   "item": "MOS-2N7002",
+   "lib": "Transistor_FET:2N7002",
+   "note": "母线充好（校正控制器 VB_OK = 5 V）后吸合",
+   "ref": "Q101",
+   "sheet": "mains",
+   "value": "2N7002"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "VB_OK 最多出 1 mA（ICE3PCS01G 规格书 p.19），只推管子栅极",
+   "ref": "R103",
+   "sheet": "mains",
+   "value": "1k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R104",
+   "sheet": "mains",
+   "value": "100k"
+  },
+  {
+   "fp": "Diode_THT:Diode_Bridge_Vishay_GBU",
+   "item": "BRG-GBU1006",
+   "lib": "Device:D_Bridge_+AA-",
+   "note": "整流桥（引脚 + ~ ~ −，与 KiCad 的 GBU 封装对照规格书待核对；装在散热器上）",
+   "ref": "BR101",
+   "sheet": "mains",
+   "value": "GBU1006"
+  },
+  {
+   "fp": "Capacitor_THT:C_Rect_L18.0mm_W8.0mm_P15.00mm_FKS3_FKP3",
+   "item": "CAP-FILM-1U-450V",
+   "lib": "Device:C",
+   "note": "整流后高频旁路（吸收升压管开关电流，薄膜电容）",
+   "ref": "C104",
+   "sheet": "mains",
+   "value": "1u/450V"
+  },
+  {
+   "fp": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+   "item": "IC-PFC-ICE3PCS01G",
+   "lib": "Regulator_Controller:ICE3PCS01",
+   "note": "连续导通功率因数校正控制器",
+   "ref": "U201",
+   "sheet": "pfc",
+   "value": "ICE3PCS01G"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0805_2012Metric",
+   "item": "CAP-0805",
+   "lib": "Device:C",
+   "note": "VCC 去耦（规格书没给值，设计取值）",
+   "ref": "C201",
+   "sheet": "pfc",
+   "value": "1u/25V"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C202",
+   "sheet": "pfc",
+   "value": "100n"
+  },
+  {
+   "fp": "wq:Magnetics_TBD",
+   "item": "IND-PFC-CUSTOM",
+   "lib": "wq:L_PFC",
+   "note": "升压电感（定制：电感量、峰值电流见计算书；磁芯与封装 159d2 定）",
+   "ref": "L201",
+   "sheet": "pfc",
+   "value": "451uH"
+  },
+  {
+   "fp": "Package_TO_SOT_THT:TO-247-3_Vertical",
+   "item": "MOS-IPW60R060P7",
+   "lib": "Device:Q_NMOS_GDS",
+   "note": "升压开关管（TO-247：1 G、2 D、3 S；装在散热器上）",
+   "ref": "Q201",
+   "sheet": "pfc",
+   "value": "IPW60R060P7"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "栅极电阻 3.3 Ω（规格书 p.7 物料表 RGATE）",
+   "ref": "R201",
+   "sheet": "pfc",
+   "value": "3.3"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "栅源下拉（设计取值）",
+   "ref": "R202",
+   "sheet": "pfc",
+   "value": "10k"
+  },
+  {
+   "fp": "Package_TO_SOT_THT:TO-220-2_Vertical",
+   "item": "DIO-C3D06060A",
+   "lib": "Device:D",
+   "note": "升压二极管（碳化硅，TO-220-2：1 阴极、2 阳极，待核对规格书；装在散热器上）",
+   "ref": "D201",
+   "sheet": "pfc",
+   "value": "C3D06060A"
+  },
+  {
+   "fp": "Diode_THT:D_DO-201AD_P15.24mm_Horizontal",
+   "item": "DIO-1N5408",
+   "lib": "Device:D",
+   "note": "旁路二极管：上电时浪涌电流绕过电感直接给母线电容充电（规格书 p.7 物料表 DBYP 的作用，型号是设计取值）",
+   "ref": "D202",
+   "sheet": "pfc",
+   "value": "1N5408"
+  },
+  {
+   "fp": "Capacitor_THT:CP_Radial_D30.0mm_P10.00mm_SnapIn",
+   "item": "CAP-BULK-330U-500V",
+   "lib": "Device:C_Polarized",
+   "note": "500MXH330MEFCSN30X50（母线电容，计算书：3 只并联）",
+   "ref": "C221",
+   "sheet": "pfc",
+   "value": "330u/500V"
+  },
+  {
+   "fp": "Capacitor_THT:CP_Radial_D30.0mm_P10.00mm_SnapIn",
+   "item": "CAP-BULK-330U-500V",
+   "lib": "Device:C_Polarized",
+   "note": "",
+   "ref": "C222",
+   "sheet": "pfc",
+   "value": "330u/500V"
+  },
+  {
+   "fp": "Capacitor_THT:CP_Radial_D30.0mm_P10.00mm_SnapIn",
+   "item": "CAP-BULK-330U-500V",
+   "lib": "Device:C_Polarized",
+   "note": "",
+   "ref": "C223",
+   "sheet": "pfc",
+   "value": "330u/500V"
+  },
+  {
+   "fp": "Resistor_SMD:R_2512_6332Metric",
+   "item": "RES-SHUNT-10M",
+   "lib": "Device:R",
+   "note": "电流采样电阻（整流桥负端到地，ISENSE 取负压；型号与额定功率 159d2 定）",
+   "ref": "R203",
+   "sheet": "pfc",
+   "value": "10m"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "ISENSE 串联电阻约 50 Ω，限浪涌（规格书 p.4、p.7 物料表 RCS）",
+   "ref": "R204",
+   "sheet": "pfc",
+   "value": "51"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "规格书 p.7 物料表 CISENSE 1 nF",
+   "ref": "C205",
+   "sheet": "pfc",
+   "value": "1n"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "电流环补偿（规格书 p.7 物料表 CICOMP 4.7 nF）",
+   "ref": "C206",
+   "sheet": "pfc",
+   "value": "4.7n"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "开关频率：规格书 67 kΩ → 65 kHz（p.7–8），取 E96 最近的 66.5 kΩ",
+   "ref": "R205",
+   "sheet": "pfc",
+   "value": "66.5k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "5 V 基准去耦（规格书 p.7、p.8）",
+   "ref": "C207",
+   "sheet": "pfc",
+   "value": "100n"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "BOFO 拉到 0.5 V 以上 = 不用升压跟随（规格书 p.13）；200 k / 200 k 照 p.7 物料表",
+   "ref": "R206",
+   "sheet": "pfc",
+   "value": "200k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R207",
+   "sheet": "pfc",
+   "value": "200k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "VB_OK 断开门限 = 5 V × 200/530 = 1.89 V（母线约 294 V）；330 k / 200 k 照 p.7 物料表 RVB1、RVB2，接法是按框图读的，待核对",
+   "ref": "R208",
+   "sheet": "pfc",
+   "value": "330k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R209",
+   "sheet": "pfc",
+   "value": "200k"
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:SOT-23",
+   "item": "MOS-2N7002",
+   "lib": "Transistor_FET:2N7002",
+   "note": "主控拉高 PFC_OFF → VBTHL_EN < 0.5 V → 校正关断（规格书 p.14）",
+   "ref": "Q202",
+   "sheet": "pfc",
+   "value": "2N7002"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "主控没输出时校正照常工作",
+   "ref": "R210",
+   "sheet": "pfc",
+   "value": "100k"
+  },
+  {
+   "fp": "Diode_SMD:D_SMA",
+   "item": "DIO-1N4007",
+   "lib": "Device:D",
+   "note": "欠压取样（规格书 p.7 DBRO1、DBRO2；贴片 M7 等效）",
+   "ref": "D203",
+   "sheet": "pfc",
+   "value": "1N4007"
+  },
+  {
+   "fp": "Diode_SMD:D_SMA",
+   "item": "DIO-1N4007",
+   "lib": "Device:D",
+   "note": "",
+   "ref": "D204",
+   "sheet": "pfc",
+   "value": "1N4007"
+  },
+  {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "item": "RES-1206",
+   "lib": "Device:R",
+   "note": "规格书 p.7 RBRO1、RBRO2 3.9 MΩ",
+   "ref": "R211",
+   "sheet": "pfc",
+   "value": "3.9M"
+  },
+  {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "item": "RES-1206",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R212",
+   "sheet": "pfc",
+   "value": "3.9M"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "规格书 p.7 RBRO3 130 kΩ",
+   "ref": "R213",
+   "sheet": "pfc",
+   "value": "130k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0805_2012Metric",
+   "item": "CAP-0805",
+   "lib": "Device:C",
+   "note": "规格书 p.7 CBRO 3 µF，取 3.3 µF",
+   "ref": "C208",
+   "sheet": "pfc",
+   "value": "3.3u/25V"
+  },
+  {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "item": "RES-1206",
+   "lib": "Device:R",
+   "note": "VSENSE 上臂 3 × 1.02M（理想 3.1 MΩ）：母线 = 2.5 V × (1 + 上/下)",
+   "ref": "R214",
+   "sheet": "pfc",
+   "value": "1.02M"
+  },
+  {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "item": "RES-1206",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R215",
+   "sheet": "pfc",
+   "value": "1.02M"
+  },
+  {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "item": "RES-1206",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R216",
+   "sheet": "pfc",
+   "value": "1.02M"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "VSENSE 下臂",
+   "ref": "R217",
+   "sheet": "pfc",
+   "value": "20k"
+  },
+  {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "item": "RES-1206",
+   "lib": "Device:R",
+   "note": "OVP 上臂 3 × 1.13M：第二级过压约 110 % 额定（429 V，设计取值）",
+   "ref": "R218",
+   "sheet": "pfc",
+   "value": "1.13M"
+  },
+  {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "item": "RES-1206",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R219",
+   "sheet": "pfc",
+   "value": "1.13M"
+  },
+  {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "item": "RES-1206",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R220",
+   "sheet": "pfc",
+   "value": "1.13M"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "OVP 下臂",
+   "ref": "R221",
+   "sheet": "pfc",
+   "value": "20k"
+  },
+  {
+   "fp": "Package_SO:PowerIntegrations_eSOP-12B",
+   "item": "IC-TOP266KG",
+   "lib": "Regulator_Switching:TOP266KG",
+   "note": "反激控制器（集成 725 V 开关管）；X 接 S、F 接 C",
+   "ref": "U301",
+   "sheet": "aux",
+   "value": "TOP266KG"
+  },
+  {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "item": "RES-1206",
+   "lib": "Device:R",
+   "note": "V 脚线路检测 4 MΩ（规格书 p.6），两只 1206 串联分压；离 V 脚 10 mm 内（p.21）",
+   "ref": "R301",
+   "sheet": "aux",
+   "value": "2M"
+  },
+  {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "item": "RES-1206",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R302",
+   "sheet": "aux",
+   "value": "2M"
+  },
+  {
+   "fp": "Capacitor_SMD:CP_Elec_6.3x5.4",
+   "item": "CAP-EL-47U-16V",
+   "lib": "Device:C_Polarized",
+   "note": "C 脚旁路 47 µF（规格书 p.8：起动 / 重启时间按 47 µF 给出）",
+   "ref": "C301",
+   "sheet": "aux",
+   "value": "47u/16V"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "C 脚高频旁路（规格书 p.20–21 建议）",
+   "ref": "C302",
+   "sheet": "aux",
+   "value": "100n"
+  },
+  {
+   "fp": "wq:Magnetics_TBD",
+   "item": "XFMR-FLY-CUSTOM",
+   "lib": "wq:Transformer_FLY3",
+   "note": "反激变压器（定制：初级电感、匝比见计算书；三路次级共地，不要求加强绝缘；磁芯与封装 159d2 定）",
+   "ref": "T301",
+   "sheet": "aux",
+   "value": "FLY-24/15/5"
+  },
+  {
+   "fp": "Diode_SMD:D_SMA",
+   "item": "DIO-US1M",
+   "lib": "Device:D",
+   "note": "钳位二极管（快恢复 1000 V）",
+   "ref": "D301",
+   "sheet": "aux",
+   "value": "US1M"
+  },
+  {
+   "fp": "Resistor_SMD:R_2512_6332Metric",
+   "item": "RES-2512",
+   "lib": "Device:R",
+   "note": "RCD 钳位电阻：要变压器漏感才能算，第一版取常见值、按样机调（待定）",
+   "ref": "R303",
+   "sheet": "aux",
+   "value": "100k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206-1KV",
+   "lib": "Device:C",
+   "note": "RCD 钳位电容（待定，同上）",
+   "ref": "C303",
+   "sheet": "aux",
+   "value": "1n/1kV"
+  },
+  {
+   "fp": "Diode_SMD:D_SMC",
+   "item": "DIO-ES3D",
+   "lib": "Device:D",
+   "note": "24 V 整流",
+   "ref": "D302",
+   "sheet": "aux",
+   "value": "ES3D"
+  },
+  {
+   "fp": "Capacitor_THT:CP_Radial_D10.0mm_P5.00mm",
+   "item": "CAP-EL-470U-35V",
+   "lib": "Device:C_Polarized",
+   "note": "24 V 输出（电磁铁吸合的脉冲电流从这里出）",
+   "ref": "C304",
+   "sheet": "aux",
+   "value": "470u/35V"
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C305",
+   "sheet": "aux",
+   "value": "1u/50V"
+  },
+  {
+   "fp": "Diode_SMD:D_SMC",
+   "item": "DIO-ES3D",
+   "lib": "Device:D",
+   "note": "15 V 整流",
+   "ref": "D303",
+   "sheet": "aux",
+   "value": "ES3D"
+  },
+  {
+   "fp": "Capacitor_THT:CP_Radial_D8.0mm_P3.50mm",
+   "item": "CAP-EL-220U-25V",
+   "lib": "Device:C_Polarized",
+   "note": "15 V 输出（功率模块、校正控制器、继电器）",
+   "ref": "C306",
+   "sheet": "aux",
+   "value": "220u/25V"
+  },
+  {
+   "fp": "Diode_SMD:D_SMC",
+   "item": "DIO-ES3D",
+   "lib": "Device:D",
+   "note": "5 V 整流",
+   "ref": "D304",
+   "sheet": "aux",
+   "value": "ES3D"
+  },
+  {
+   "fp": "Capacitor_THT:CP_Radial_D8.0mm_P3.50mm",
+   "item": "CAP-EL-1000U-10V",
+   "lib": "Device:C_Polarized",
+   "note": "5 V 输出",
+   "ref": "C307",
+   "sheet": "aux",
+   "value": "1000u/10V"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "加权取样：24 V 与 15 V 各占一半（设计取值），下臂 10 k",
+   "ref": "R304",
+   "sheet": "aux",
+   "value": "82k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R305",
+   "sheet": "aux",
+   "value": "47k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R306",
+   "sheet": "aux",
+   "value": "10k"
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:SOT-23",
+   "item": "IC-TL431",
+   "lib": "Reference_Voltage:TL431DBZ",
+   "note": "反馈基准",
+   "ref": "U302",
+   "sheet": "aux",
+   "value": "TL431AIDBZR"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "补偿（设计取值，按样机调）",
+   "ref": "R307",
+   "sheet": "aux",
+   "value": "10k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C308",
+   "sheet": "aux",
+   "value": "100n"
+  },
+  {
+   "fp": "Package_DIP:SMDIP-4_W9.53mm",
+   "item": "OPTO-PC817",
+   "lib": "Isolator:PC817",
+   "note": "反馈光耦（这里不为隔离，只为把误差电流送进 C 脚）",
+   "ref": "U303",
+   "sheet": "aux",
+   "value": "PC817X2NSZ9F"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "光耦发光管限流",
+   "ref": "R308",
+   "sheet": "aux",
+   "value": "1k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "发光管旁路（TL431 最小工作电流从这里走）",
+   "ref": "R309",
+   "sheet": "aux",
+   "value": "1k"
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:SOT-223-3_TabPin2",
+   "item": "IC-LDO-3V3",
+   "lib": "Regulator_Linear:AMS1117-3.3",
+   "note": "3.3 V（沿用关节驱动板）",
+   "ref": "U304",
+   "sheet": "aux",
+   "value": "AMS1117-3.3"
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C309",
+   "sheet": "aux",
+   "value": "10u/25V"
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C310",
+   "sheet": "aux",
+   "value": "10u/25V"
+  },
+  {
+   "fp": "Transistor_Power_Module:ST_SDIP-25L",
+   "item": "IPM-STGIPS14K60T",
+   "lib": "Transistor_Power_Module:STGIPS14K60T",
+   "note": "三相智能功率模块（装在散热器上）。OUT_x 是上桥浮地参考，自举电容接在 VB_x 与 OUT_x 之间",
+   "ref": "U401",
+   "sheet": "servo",
+   "value": "STGIPS14K60T"
+  },
+  {
+   "fp": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-3-5.08_1x03_P5.08mm_Horizontal",
+   "item": "CONN-MOT",
+   "lib": "Connector:Screw_Terminal_01x03",
+   "note": "电机三相",
+   "ref": "J401",
+   "sheet": "servo",
+   "value": "MOTOR U/V/W"
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206",
+   "lib": "Device:C",
+   "note": "自举电容：静态电流 300 µA（规格书）× 每个 PWM 周期 62.5 µs ≪ 4.7 µF × 1 V",
+   "ref": "C401",
+   "sheet": "servo",
+   "value": "4.7u/25V"
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C402",
+   "sheet": "servo",
+   "value": "4.7u/25V"
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C403",
+   "sheet": "servo",
+   "value": "4.7u/25V"
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206",
+   "lib": "Device:C",
+   "note": "VCC 去耦，紧靠模块引脚（规格书 4.1 节）",
+   "ref": "C404",
+   "sheet": "servo",
+   "value": "10u/25V"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C405",
+   "sheet": "servo",
+   "value": "100n"
+  },
+  {
+   "fp": "Capacitor_SMD:C_1812_4532Metric",
+   "item": "CAP-1812-630V",
+   "lib": "Device:C",
+   "note": "母线高频旁路，紧靠 P、N 引脚（规格书 4.1 节）",
+   "ref": "C406",
+   "sheet": "servo",
+   "value": "100n/630V"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "SD 外接上拉到 3.3 V（规格书 4.1 节）；主控拉低关断",
+   "ref": "R401",
+   "sheet": "servo",
+   "value": "10k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C407",
+   "sheet": "servo",
+   "value": "1n"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "热敏电阻上拉：25 ℃ 4.7 kΩ → 2.71 V，100 ℃ 约 330 Ω → 0.82 V（R25、B 值见规格书）",
+   "ref": "R402",
+   "sheet": "servo",
+   "value": "1k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C408",
+   "sheet": "servo",
+   "value": "10n"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "输入 RC 滤波 100 Ω / 1 nF（0.1 µs ≪ 死区 1 µs，设计取值）",
+   "ref": "R403",
+   "sheet": "servo",
+   "value": "100"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C409",
+   "sheet": "servo",
+   "value": "1n"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R404",
+   "sheet": "servo",
+   "value": "100"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C410",
+   "sheet": "servo",
+   "value": "1n"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R405",
+   "sheet": "servo",
+   "value": "100"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C411",
+   "sheet": "servo",
+   "value": "1n"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R406",
+   "sheet": "servo",
+   "value": "100"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C412",
+   "sheet": "servo",
+   "value": "1n"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R407",
+   "sheet": "servo",
+   "value": "100"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C413",
+   "sheet": "servo",
+   "value": "1n"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R408",
+   "sheet": "servo",
+   "value": "100"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C414",
+   "sheet": "servo",
+   "value": "1n"
+  },
+  {
+   "fp": "Resistor_SMD:R_2512_6332Metric",
+   "item": "RES-SHUNT-25M",
+   "lib": "Device:R",
+   "note": "WSLT2512R0250FEA（下桥采样电阻）",
+   "ref": "R411",
+   "sheet": "servo",
+   "value": "25m"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "偏置网络：输入 1k / 偏置 15k（见计算书）",
+   "ref": "R414",
+   "sheet": "servo",
+   "value": "1k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R417",
+   "sheet": "servo",
+   "value": "15k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "抗混叠",
+   "ref": "C415",
+   "sheet": "servo",
+   "value": "1n"
+  },
+  {
+   "fp": "Resistor_SMD:R_2512_6332Metric",
+   "item": "RES-SHUNT-25M",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R412",
+   "sheet": "servo",
+   "value": "25m"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R415",
+   "sheet": "servo",
+   "value": "1k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R418",
+   "sheet": "servo",
+   "value": "15k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C416",
+   "sheet": "servo",
+   "value": "1n"
+  },
+  {
+   "fp": "Resistor_SMD:R_2512_6332Metric",
+   "item": "RES-SHUNT-25M",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R413",
+   "sheet": "servo",
+   "value": "25m"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R416",
+   "sheet": "servo",
+   "value": "1k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R419",
+   "sheet": "servo",
+   "value": "15k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C417",
+   "sheet": "servo",
+   "value": "1n"
+  },
+  {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "item": "RES-1206",
+   "lib": "Device:R",
+   "note": "母线电压检测：3 MΩ / 22 kΩ，390 V → 2.84 V",
+   "ref": "R420",
+   "sheet": "servo",
+   "value": "1M"
+  },
+  {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "item": "RES-1206",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R421",
+   "sheet": "servo",
+   "value": "1M"
+  },
+  {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "item": "RES-1206",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R422",
+   "sheet": "servo",
+   "value": "1M"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R423",
+   "sheet": "servo",
+   "value": "22k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C418",
+   "sheet": "servo",
+   "value": "10n"
+  },
+  {
+   "fp": "Connector_JST:JST_VH_B8P-VH_1x08_P3.96mm_Vertical",
+   "item": "CONN-VH8",
+   "lib": "Connector_Generic:Conn_01x08",
+   "note": "电磁铁 4 路（每路 +24 V 与漏极）：剪线、拨线、倒缝、抬压脚",
+   "ref": "J501",
+   "sheet": "act",
+   "value": "SOLENOIDS"
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:TDSON-8-1",
+   "item": "MOS-80V",
+   "lib": "Transistor_FET:BSC040N08NS5",
+   "note": "剪线电磁铁",
+   "ref": "Q501",
+   "sheet": "act",
+   "value": "BSC040N08NS5"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "栅极上拉到 15 V",
+   "ref": "R501",
+   "sheet": "act",
+   "value": "4.7k"
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:SOT-23",
+   "item": "MOS-2N7002",
+   "lib": "Transistor_FET:2N7002",
+   "note": "主控输出低 = 吸合",
+   "ref": "Q505",
+   "sheet": "act",
+   "value": "2N7002"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "复位时保持不吸合",
+   "ref": "R505",
+   "sheet": "act",
+   "value": "10k"
+  },
+  {
+   "fp": "Diode_SMD:D_SMC",
+   "item": "DIO-ES3D",
+   "lib": "Device:D",
+   "note": "钳位支路二极管",
+   "ref": "D501",
+   "sheet": "act",
+   "value": "ES3D"
+  },
+  {
+   "fp": "Diode_SMD:D_SMB",
+   "item": "TVS-SMBJ24A",
+   "lib": "Device:D_Zener",
+   "note": "钳位稳压管（反接，击穿电压 + 二极管压降 + 24 V = 关断时漏极电压）",
+   "ref": "D505",
+   "sheet": "act",
+   "value": "SMBJ24A"
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:TDSON-8-1",
+   "item": "MOS-80V",
+   "lib": "Transistor_FET:BSC040N08NS5",
+   "note": "拨线电磁铁",
+   "ref": "Q502",
+   "sheet": "act",
+   "value": "BSC040N08NS5"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R502",
+   "sheet": "act",
+   "value": "4.7k"
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:SOT-23",
+   "item": "MOS-2N7002",
+   "lib": "Transistor_FET:2N7002",
+   "note": "",
+   "ref": "Q506",
+   "sheet": "act",
+   "value": "2N7002"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R506",
+   "sheet": "act",
+   "value": "10k"
+  },
+  {
+   "fp": "Diode_SMD:D_SMC",
+   "item": "DIO-ES3D",
+   "lib": "Device:D",
+   "note": "",
+   "ref": "D502",
+   "sheet": "act",
+   "value": "ES3D"
+  },
+  {
+   "fp": "Diode_SMD:D_SMB",
+   "item": "TVS-SMBJ24A",
+   "lib": "Device:D_Zener",
+   "note": "",
+   "ref": "D506",
+   "sheet": "act",
+   "value": "SMBJ24A"
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:TDSON-8-1",
+   "item": "MOS-80V",
+   "lib": "Transistor_FET:BSC040N08NS5",
+   "note": "倒缝电磁铁",
+   "ref": "Q503",
+   "sheet": "act",
+   "value": "BSC040N08NS5"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R503",
+   "sheet": "act",
+   "value": "4.7k"
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:SOT-23",
+   "item": "MOS-2N7002",
+   "lib": "Transistor_FET:2N7002",
+   "note": "",
+   "ref": "Q507",
+   "sheet": "act",
+   "value": "2N7002"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R507",
+   "sheet": "act",
+   "value": "10k"
+  },
+  {
+   "fp": "Diode_SMD:D_SMC",
+   "item": "DIO-ES3D",
+   "lib": "Device:D",
+   "note": "",
+   "ref": "D503",
+   "sheet": "act",
+   "value": "ES3D"
+  },
+  {
+   "fp": "Diode_SMD:D_SMB",
+   "item": "TVS-SMBJ24A",
+   "lib": "Device:D_Zener",
+   "note": "",
+   "ref": "D507",
+   "sheet": "act",
+   "value": "SMBJ24A"
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:TDSON-8-1",
+   "item": "MOS-80V",
+   "lib": "Transistor_FET:BSC040N08NS5",
+   "note": "抬压脚电磁铁",
+   "ref": "Q504",
+   "sheet": "act",
+   "value": "BSC040N08NS5"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R504",
+   "sheet": "act",
+   "value": "4.7k"
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:SOT-23",
+   "item": "MOS-2N7002",
+   "lib": "Transistor_FET:2N7002",
+   "note": "",
+   "ref": "Q508",
+   "sheet": "act",
+   "value": "2N7002"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R508",
+   "sheet": "act",
+   "value": "10k"
+  },
+  {
+   "fp": "Diode_SMD:D_SMC",
+   "item": "DIO-ES3D",
+   "lib": "Device:D",
+   "note": "",
+   "ref": "D504",
+   "sheet": "act",
+   "value": "ES3D"
+  },
+  {
+   "fp": "Diode_SMD:D_SMB",
+   "item": "TVS-SMBJ24A",
+   "lib": "Device:D_Zener",
+   "note": "",
+   "ref": "D508",
+   "sheet": "act",
+   "value": "SMBJ24A"
+  },
+  {
+   "fp": "Package_SO:HTSSOP-28-1EP_4.4x9.7mm_P0.65mm_EP2.75x6.2mm_ThermalVias",
+   "item": "IC-TMC2226",
+   "lib": "Driver_Motor:TMC2226-SA",
+   "note": "针距步进驱动：MS1、MS2 接地（8 细分）、SPREAD 接地（静音模式）、CLK 接地（片内时钟）、PDN_UART 接地（停转时电流减半）、STDBY 接地；以上独立模式接法待核对规格书",
+   "ref": "U501",
+   "sheet": "act",
+   "value": "TMC2226-SA"
+  },
+  {
+   "fp": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+   "item": "CONN-XH4",
+   "lib": "Connector_Generic:Conn_01x04",
+   "note": "针距步进电机",
+   "ref": "J502",
+   "sheet": "act",
+   "value": "STEPPER"
+  },
+  {
+   "fp": "Resistor_SMD:R_2010_5025Metric",
+   "item": "RES-2010-0R12",
+   "lib": "Device:R",
+   "note": "采样电阻 0.12 Ω / 1 W（BOB 物料清单）",
+   "ref": "R509",
+   "sheet": "act",
+   "value": "0.12"
+  },
+  {
+   "fp": "Resistor_SMD:R_2010_5025Metric",
+   "item": "RES-2010-0R12",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R510",
+   "sheet": "act",
+   "value": "0.12"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "电荷泵（BOB 物料清单）",
+   "ref": "C501",
+   "sheet": "act",
+   "value": "22n/50V"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C502",
+   "sheet": "act",
+   "value": "100n/50V"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0805_2012Metric",
+   "item": "CAP-0805",
+   "lib": "Device:C",
+   "note": "片内 5 V 稳压输出",
+   "ref": "C503",
+   "sheet": "act",
+   "value": "2.2u"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C504",
+   "sheet": "act",
+   "value": "100n/50V"
+  },
+  {
+   "fp": "Capacitor_SMD:C_1210_3225Metric",
+   "item": "CAP-1210",
+   "lib": "Device:C",
+   "note": "VS 去耦",
+   "ref": "C505",
+   "sheet": "act",
+   "value": "10u/50V"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C506",
+   "sheet": "act",
+   "value": "100n"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "VREF 分压（电流设定，见计算书；关系式待核对）",
+   "ref": "R511",
+   "sheet": "act",
+   "value": "10k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R512",
+   "sheet": "act",
+   "value": "22k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "EN 高 = 关断：主控没输出时步进不动",
+   "ref": "R513",
+   "sheet": "act",
+   "value": "10k"
+  },
+  {
+   "fp": "Package_QFP:LQFP-48_7x7mm_P0.5mm",
+   "item": "IC-MCU-MC",
+   "lib": "MCU_ST_STM32G4:STM32G431CBTx",
+   "note": "主控（沿用关节驱动板）：TIM1 三相互补 PWM、片内运放采三相电流、ADC 测母线与模块温度、TIM4 编码器、USART2 面板口、TIM3 步进脉冲",
+   "ref": "U10",
+   "sheet": "io",
+   "value": "STM32G431CBT6"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C40",
+   "sheet": "io",
+   "value": "100n"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C41",
+   "sheet": "io",
+   "value": "100n"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C42",
+   "sheet": "io",
+   "value": "100n"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C43",
+   "sheet": "io",
+   "value": "100n"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C44",
+   "sheet": "io",
+   "value": "4.7u"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "VDDA",
+   "ref": "C45",
+   "sheet": "io",
+   "value": "1u"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C46",
+   "sheet": "io",
+   "value": "100n"
+  },
+  {
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "item": "RES-0402",
+   "lib": "Device:R",
+   "note": "BOOT0 下拉",
+   "ref": "R30",
+   "sheet": "io",
+   "value": "10k"
+  },
+  {
+   "fp": "Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm",
+   "item": "XTAL",
+   "lib": "Device:Crystal_GND24",
+   "note": "",
+   "ref": "Y1",
+   "sheet": "io",
+   "value": "8MHz"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C47",
+   "sheet": "io",
+   "value": "10p"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "item": "CAP-0402",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C48",
+   "sheet": "io",
+   "value": "10p"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "烧录口（烧录工位 PG-1 的弹簧针夹具）",
+   "ref": "TP1",
+   "sheet": "io",
+   "value": "SWDIO"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "烧录口",
+   "ref": "TP2",
+   "sheet": "io",
+   "value": "SWCLK"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "烧录口",
+   "ref": "TP3",
+   "sheet": "io",
+   "value": "NRST"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "烧录口供电",
+   "ref": "TP4",
+   "sheet": "io",
+   "value": "+3V3"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "烧录口地",
+   "ref": "TP5",
+   "sheet": "io",
+   "value": "GND"
+  },
+  {
+   "fp": "Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical",
+   "item": "CONN-XH8",
+   "lib": "Connector_Generic:Conn_01x08",
+   "note": "电机编码器与霍尔",
+   "ref": "J701",
+   "sheet": "io",
+   "value": "ENCODER"
+  },
+  {
+   "fp": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+   "item": "IC-74LVC14",
+   "lib": "74xx:74HC14",
+   "note": "施密特整形（六路）",
+   "ref": "U701",
+   "sheet": "io",
+   "value": "SN74LVC14APWR"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C701",
+   "sheet": "io",
+   "value": "100n"
+  },
+  {
+   "fp": "Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",
+   "item": "CONN-XH3",
+   "lib": "Connector_Generic:Conn_01x03",
+   "note": "脚踏板（霍尔，0.5–4.5 V）",
+   "ref": "J702",
+   "sheet": "io",
+   "value": "PEDAL"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "脚踏分压 × 2/3：4.5 V → 3.0 V",
+   "ref": "R701",
+   "sheet": "io",
+   "value": "10k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R702",
+   "sheet": "io",
+   "value": "20k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C702",
+   "sheet": "io",
+   "value": "100n"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "上拉到 5 V",
+   "ref": "R703",
+   "sheet": "io",
+   "value": "2.2k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "RC 滤波（截止频率见计算书）",
+   "ref": "R709",
+   "sheet": "io",
+   "value": "1k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C703",
+   "sheet": "io",
+   "value": "220p"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R704",
+   "sheet": "io",
+   "value": "2.2k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R710",
+   "sheet": "io",
+   "value": "1k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C704",
+   "sheet": "io",
+   "value": "220p"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R705",
+   "sheet": "io",
+   "value": "2.2k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R711",
+   "sheet": "io",
+   "value": "1k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C705",
+   "sheet": "io",
+   "value": "220p"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R706",
+   "sheet": "io",
+   "value": "2.2k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R712",
+   "sheet": "io",
+   "value": "1k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C706",
+   "sheet": "io",
+   "value": "220p"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R707",
+   "sheet": "io",
+   "value": "2.2k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R713",
+   "sheet": "io",
+   "value": "1k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C707",
+   "sheet": "io",
+   "value": "220p"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R708",
+   "sheet": "io",
+   "value": "2.2k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R714",
+   "sheet": "io",
+   "value": "1k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C708",
+   "sheet": "io",
+   "value": "220p"
+  },
+  {
+   "fp": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+   "item": "IC-ADUM1201",
+   "lib": "Isolator:ADuM1201AR",
+   "note": "数字隔离：B 通道主控 → 面板（发送），A 通道面板 → 主控（接收）",
+   "ref": "U601",
+   "sheet": "comm",
+   "value": "ADUM1201ARZ-RL7"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C601",
+   "sheet": "comm",
+   "value": "100n"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C602",
+   "sheet": "comm",
+   "value": "100n"
+  },
+  {
+   "fp": "wq:Converter_SIP4_B0505S",
+   "item": "DCDC-B0505S",
+   "lib": "wq:B0505S",
+   "note": "隔离电源 5 V → 5 V 1 W（引脚 1 GND、2 Vin、3 0V、4 +Vo；引脚与封装待核对规格书）",
+   "ref": "U602",
+   "sheet": "comm",
+   "value": "B0505S-1WR2"
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C603",
+   "sheet": "comm",
+   "value": "4.7u/25V"
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C604",
+   "sheet": "comm",
+   "value": "10u/25V"
+  },
+  {
+   "fp": "Package_TO_SOT_SMD:SOT-223-3_TabPin2",
+   "item": "IC-LDO-3V3",
+   "lib": "Regulator_Linear:AMS1117-3.3",
+   "note": "隔离侧 3.3 V",
+   "ref": "U603",
+   "sheet": "comm",
+   "value": "AMS1117-3.3"
+  },
+  {
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "item": "CAP-1206",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C605",
+   "sheet": "comm",
+   "value": "10u/25V"
+  },
+  {
+   "fp": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+   "item": "IC-RS485",
+   "lib": "Interface_UART:MAX3485",
+   "note": "RS-485 收发（DE、/RE 由发送信号控制，DI 接地）",
+   "ref": "U604",
+   "sheet": "comm",
+   "value": "MAX3485ESA+T"
+  },
+  {
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "item": "CAP-0603",
+   "lib": "Device:C",
+   "note": "",
+   "ref": "C606",
+   "sheet": "comm",
+   "value": "100n"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "发送时接收器关、RO 高阻，上拉保持 1",
+   "ref": "R601",
+   "sheet": "comm",
+   "value": "10k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "总线空闲偏置（A 上拉、B 下拉）",
+   "ref": "R602",
+   "sheet": "comm",
+   "value": "680"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R603",
+   "sheet": "comm",
+   "value": "680"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "终端电阻（控制器在总线一端）",
+   "ref": "R604",
+   "sheet": "comm",
+   "value": "120"
+  },
+  {
+   "fp": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+   "item": "CONN-XH4",
+   "lib": "Connector_Generic:Conn_01x04",
+   "note": "操作面板（隔离侧，人能碰到的唯一接口）",
+   "ref": "J601",
+   "sheet": "comm",
+   "value": "PANEL"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "VB_OK 5 V → 3.3 V",
+   "ref": "R801",
+   "sheet": "io",
+   "value": "10k"
+  },
+  {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "item": "RES-0603",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R802",
+   "sheet": "io",
+   "value": "20k"
+  }
+ ],
+ "rev": "示例 A",
+ "root_svg": "ctrl-ls.svg",
+ "sheets": [
+  {
+   "key": "mains",
+   "name": "交流输入、浪涌与整流",
+   "name_en": "AC input, inrush and rectifier",
+   "note": "交流 L/N/PE 从 J101 进：保险丝 F101、压敏 RV101、X 电容 C101（R101/R102 放电）、共模电感 L101、Y 电容 C102/C103；热敏电阻 TH101 限上电浪涌，母线充好后校正控制器的 VB_OK 让 K101 吸合短接它；整流桥 BR101。",
+   "svg": "ctrl-ls-1 交流输入、浪涌与整流.svg"
+  },
+  {
+   "key": "pfc",
+   "name": "功率因数校正与母线",
+   "name_en": "PFC and DC bus",
+   "note": "ICE3PCS01G 连续导通升压校正：L201 定制电感、Q201 600 V 60 mΩ、D201 碳化硅二极管、C221–C223 母线 3 × 330 µF / 500 V；R203 10 mΩ 采样（ISENSE 取负压）；外围阻容照规格书 V3.0 p.7 物料表，母线分压按 390 V 重算。主控拉 PFC_OFF 可关断校正。",
+   "svg": "ctrl-ls-2 功率因数校正与母线.svg"
+  },
+  {
+   "key": "aux",
+   "name": "辅助电源",
+   "name_en": "Auxiliary supply",
+   "note": "TOP266KG 反激：母线 → 24 V（电磁铁、步进）、15 V（功率模块、校正、继电器）、5 V；AMS1117 再出 3.3 V。整块板共地，三路输出不隔离；TL431 + 光耦按 24 V / 15 V 加权稳压。钳位 R303/C303 要变压器漏感才能算，按样机调。",
+   "svg": "ctrl-ls-3 辅助电源.svg"
+  },
+  {
+   "key": "servo",
+   "name": "主轴伺服逆变与电流采样",
+   "name_en": "Spindle servo inverter and current sensing",
+   "note": "STGIPS14K60T 三相智能功率模块：PWM 经 100 Ω / 1 nF 进模块，SD 上拉 3.3 V，模块内热敏电阻经 1 kΩ 上拉进 ADC；三相下桥 25 mΩ 采样经偏置网络（1 k / 15 k）进主控片内运放（放大 8 倍，零点 1.65 V）；母线电压 3 MΩ / 22 kΩ 分压。",
+   "svg": "ctrl-ls-4 主轴伺服逆变与电流采样.svg"
+  },
+  {
+   "key": "act",
+   "name": "电磁铁与步进",
+   "name_en": "Solenoids and stepper",
+   "note": "电磁铁 4 路（剪线、拨线、倒缝、抬压脚）：80 V 管低边开关，关断经 ES3D + SMBJ24A 钳位；栅极由 2N7002 反相从 15 V 驱动，主控复位时不吸合。针距步进 TMC2226 独立模式（STEP/DIR），采样 0.12 Ω。",
+   "svg": "ctrl-ls-5 电磁铁与步进.svg"
+  },
+  {
+   "key": "io",
+   "name": "主控与传感器输入",
+   "name_en": "MCU and sensor inputs",
+   "note": "STM32G431（沿用关节驱动板的最小系统）。编码器 A/B/Z 与霍尔 U/V/W 上拉 5 V、RC 滤波后经 SN74LVC14A 整形；脚踏板霍尔分压进 ADC；VB_OK 分压给主控看。",
+   "svg": "ctrl-ls-6 主控与传感器输入.svg"
+  },
+  {
+   "key": "comm",
+   "name": "面板口",
+   "name_en": "Panel port",
+   "note": "面板口：USART2 发送反相 → ADuM1201 → 隔离侧 MAX3485（3.3 V，由 B0505S 隔离 5 V 再经 AMS1117 降压）；发送信号同时控制 DE、/RE，DI 接地。J601 是人能碰到的唯一接口。",
+   "svg": "ctrl-ls-7 面板口.svg"
+  },
+  {
+   "key": "thermal",
+   "name": "散热",
+   "name_en": "Heatsink",
+   "note": "散热器（型号 159d2 定）：整流桥、升压管、升压二极管、功率模块共用一块，热阻 ≤ 1.05 K/W（计算书）。本页没有电气器件。",
+   "svg": "ctrl-ls-8 散热.svg"
+  }
+ ],
+ "stage": "159d1 原理图（PCB 在 159d2）",
+ "tool": "KiCad 7.0.11"
+}

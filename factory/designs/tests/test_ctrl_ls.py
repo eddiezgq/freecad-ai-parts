@@ -1,0 +1,40 @@
+# -*- coding: utf-8 -*-
+"""第 159 轮 159d1：平缝机控制器 CTRL-LS 原理图产物（tools/ctrl_ls_build.py 生成；CI 重新生成后核对一字不差）。"""
+import csv
+import json
+import os
+
+import yaml
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+P = os.path.join(os.path.dirname(HERE), "ctrl-ls")
+
+
+def test_netlist_matches_design():
+    """KiCad 从原理图导出的网表与设计描述逐网络、逐引脚一致（KiCad 7 命令行没有电气规则检查，用它代替）"""
+    with open(os.path.join(P, "out", "netcheck.json"), encoding="utf-8") as f:
+        nc = json.load(f)
+    assert nc["pass"] and nc["problems"] == [] and nc["missing_parts"] == [] and nc["extra_parts"] == []
+    assert nc["nets_design"] == nc["nets_schematic"] and nc["parts_design"] == nc["parts_schematic"]
+
+
+def test_every_sheet_rendered():
+    with open(os.path.join(P, "out", "design.json"), encoding="utf-8") as f:
+        d = json.load(f)
+    assert len(d["sheets"]) == 8 and all(s["svg"] for s in d["sheets"])
+    for s in d["sheets"]:
+        assert os.path.exists(os.path.join(P, "out", "schematic", s["svg"]))
+    assert d["disclaimer"].startswith("示例设计")
+
+
+def test_bom_carries_catalog_parts():
+    """器件表里每个外购件（有立创编号的）都进了物料清单，型号、立创编号对得上"""
+    with open(os.path.join(P, "parts.yaml"), encoding="utf-8") as f:
+        cat = yaml.safe_load(f)["parts"]
+    with open(os.path.join(P, "out", "bom.csv"), encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    by_item = {r["物料编号"]: r for r in rows}
+    for q in cat:
+        assert q["item"] in by_item, q["item"]
+        if q.get("lcsc"):
+            assert by_item[q["item"]]["立创编号"] == q["lcsc"] and by_item[q["item"]]["型号"] == q["mpn"]
