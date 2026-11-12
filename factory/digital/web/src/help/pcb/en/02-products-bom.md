@@ -9,7 +9,7 @@
 | Finished board | DRV-JOINT | SMT board SMT-DRV × 1, power terminals × 2, signal connectors × 3, conformal coating, ESD bag |
 | SMT board | SMT-DRV | Bare board × 1, motor control MCU, half-bridge gate drivers × 3, CAN transceiver, RS-485 transceivers × 2, buck regulator, linear regulators × 2, current sense amplifiers × 3, MOSFETs × 6, **shunt resistors × 3**, 0402 resistors 18 / capacitors 30, 1206 capacitors 7, bus electrolytic capacitor, diodes × 4, power inductor, crystal, solder paste |
 
-Driver board quantities follow its KiCad design (the BOM on the “PCB design” page); the chips are example selections, not hardware-verified. The AGV control board and read-head board likewise have two levels. Take a driver board order and MRP schedules the SMT board work order first, then the finished board work order.
+Driver board quantities follow its KiCad design (the BOM on the “PCB design” page); the chips are example selections, not hardware-verified. The last column of the BOM table on the “PCB design” page is “Look up outside”: chips by part number, resistors, capacitors and inductors by package size + value, with ready-made search links to LCSC, DigiKey and SnapMagic for stock and prices (links only, not used in any check). The AGV control board and read-head board likewise have two levels. Take a driver board order and MRP schedules the SMT board work order first, then the finished board work order.
 
 ```anim
 name: bom-tree

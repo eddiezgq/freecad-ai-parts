@@ -50,10 +50,12 @@
       <p v-if="rev === 'A'" class="small">{{ t('同一物料编号、同一数值和封装合为一行；“物料编号”就是电路板厂清单里的编号（贴片板 SMT-DRV 与成品板 DRV-JOINT 的物料清单按这份设计的数量写，测试核对）。') }}</p>
       <p v-else class="small">{{ t('B 版：现实里不投产（芯片未流片）；数字工业园里电路板厂试产，贴片板 SMT-DRV-B 与成品板 DRV-JOINT-B 的物料清单按这份设计的数量写（测试核对）。比 A 版多出的见“A→B 改了什么”。') }}</p>
       <table class="tbl">
-        <thead><tr><th>{{ t('物料编号') }}</th><th>{{ t('数值') }}</th><th>{{ t('封装') }}</th><th>{{ t('数量') }}</th><th>{{ t('位号') }}</th><th>{{ t('说明') }}</th></tr></thead>
+        <thead><tr><th>{{ t('物料编号') }}</th><th>{{ t('数值') }}</th><th>{{ t('封装') }}</th><th>{{ t('数量') }}</th><th>{{ t('位号') }}</th><th>{{ t('说明') }}</th><th>{{ t('到外部库查') }}</th></tr></thead>
         <tbody><tr v-for="(r, i) in bom" :key="i"><td class="mono">{{ r[0] }}</td><td>{{ td(r[1]) }}</td><td class="small">{{ r[2] }}</td><td>{{ r[3] }}</td>
-          <td class="small mono">{{ r[4] }}</td><td class="small">{{ td(r[5]) }}</td></tr></tbody>
+          <td class="small mono">{{ r[4] }}</td><td class="small">{{ td(r[5]) }}</td>
+          <td class="small ext"><a v-for="l in bomLinks({ item: r[0], value: r[1], package: r[2] })" :key="l.site" :href="l.url" target="_blank" rel="noopener external">{{ l.name }}</a></td></tr></tbody>
       </table>
+      <p class="small muted">{{ t('“到外部库查”只拼对方网站的搜索地址、新窗口打开，内容以对方为准；没有尺寸码的电解电容、二极管、端子、自研芯片不出链接（不猜）。') }}</p>
       <p class="small muted">{{ t('不进 BOM 的：测试点（ICT 针床、烧录夹具扎的焊盘）、网络连接点（开尔文引线）、安装孔。') }}</p>
     </section>
 
@@ -114,6 +116,7 @@ import { useRoute, useRouter } from 'vue-router';
 import ModelViewer from '../components/ModelViewer.vue';
 import FirmwarePanel from '../components/FirmwarePanel.vue';
 import { nm, t, td, tk } from '../lib/i18n';
+import { bomLinks } from '../lib/extlinks.js';
 
 const STEM = { A: 'drv-joint', B: 'drv-joint-b' };
 const TABS = [{ k: 'sch', label: tk('原理图') }, { k: 'pcb', label: 'PCB' }, { k: '3d', label: tk('三维') }, { k: 'bom', label: 'BOM' },
@@ -193,4 +196,7 @@ onMounted(load);
 .ok { color: #15803d; } .bad { color: #b91c1c; }
 .dl li { margin: 6px 0; }
 .btn.sm { padding: 1px 8px; font-size: 12px; }
+.ext a + a { margin-left: 8px; }
+.ext { white-space: nowrap; }
+.tbl td.mono:first-child, .tbl th { white-space: nowrap; }
 </style>
