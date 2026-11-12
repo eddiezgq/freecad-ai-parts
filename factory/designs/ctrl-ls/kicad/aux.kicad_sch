@@ -1,0 +1,3985 @@
+(kicad_sch
+  (version 20230121)
+  (generator eeschema)
+  (uuid "41002fb7-e02e-56f9-8b04-69a093e53d38")
+  (paper "A2")
+  (title_block
+    (title "CTRL-LS · 辅助电源 Auxiliary supply")
+    (date "2026-11-12")
+    (rev "示例 A")
+    (company "问渠数字工业园 · 电路板厂（示例设计，未经硬件验证，不能直接投产）")
+    (comment 1 "TOP266KG 反激：母线 → 24 V（电磁铁、步进）、15 V（功率模块、校正、继电器）、5 V；AMS1117 再出 3.3 V。整块板共地，三路输出不隔离；TL431 + 光耦按 24 V / 15 V 加权稳压。钳位 R303/"))
+  (lib_symbols
+    (symbol "Regulator_Switching:TOP266KG"
+      (pin_names
+        (offset 1.016))
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U"
+        (at 5.08 8.89 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Value" "TOP266KG"
+        (at 5.08 6.35 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Footprint" "Package_SO:PowerIntegrations_eSOP-12B"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27) italic) hide))
+      (property "Datasheet" "https://ac-dc.power.com/sites/default/files/product-docs/topswitch-jx_family_datasheet.pdf"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "Integrated Off-Line Switcher with EcoSmart™ Technology"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "TOPSwitch-JX Family, 39W Output Power, eSOP-12B"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "PowerIntegrations?eSOP?12B*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "TOP266KG_0_1"
+        (rectangle
+          (start -7.62 5.08)
+          (end 7.62 -5.08)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type background))))
+      (symbol "TOP266KG_1_1"
+        (pin input line
+          (at 2.54 7.62 270)
+          (length 2.54)
+          (name "V"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -7.62 90)
+          (length 2.54) hide
+          (name "S"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "10"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -7.62 90)
+          (length 2.54) hide
+          (name "S"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "11"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -7.62 90)
+          (length 2.54) hide
+          (name "S"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "12"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin input line
+          (at 0 -7.62 90)
+          (length 2.54)
+          (name "X"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin input line
+          (at 10.16 0 180)
+          (length 2.54)
+          (name "C"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 5.08 -7.62 90)
+          (length 2.54)
+          (name "F"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "4"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin open_collector line
+          (at -5.08 7.62 270)
+          (length 2.54)
+          (name "D"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "6"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin power_in line
+          (at -5.08 -7.62 90)
+          (length 2.54)
+          (name "S"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "7"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -7.62 90)
+          (length 2.54) hide
+          (name "S"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "8"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -7.62 90)
+          (length 2.54) hide
+          (name "S"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "9"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Device:R"
+      (pin_numbers hide)
+      (pin_names
+        (offset 0))
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "R"
+        (at 2.032 0 90)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "R"
+        (at 0 0 90)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" ""
+        (at -1.778 0 90)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "R res resistor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Resistor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "R_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "R_0_1"
+        (rectangle
+          (start -1.016 -2.54)
+          (end 1.016 2.54)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none))))
+      (symbol "R_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Device:C_Polarized"
+      (pin_numbers hide)
+      (pin_names
+        (offset 0.254))
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "C"
+        (at 0.635 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Value" "C_Polarized"
+        (at 0.635 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Footprint" ""
+        (at 0.9652 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "cap capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Polarized capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "CP_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "C_Polarized_0_1"
+        (rectangle
+          (start -2.286 0.508)
+          (end 2.286 1.016)
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy -1.778 2.286)
+            (xy -0.762 2.286))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy -1.27 2.794)
+            (xy -1.27 1.778))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start 2.286 -0.508)
+          (end -2.286 -1.016)
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type outline))))
+      (symbol "C_Polarized_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Device:C"
+      (pin_numbers hide)
+      (pin_names
+        (offset 0.254))
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "C"
+        (at 0.635 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Value" "C"
+        (at 0.635 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Footprint" ""
+        (at 0.9652 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "cap capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Unpolarized capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "C_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "C_0_1"
+        (polyline
+          (pts
+            (xy -2.032 -0.762)
+            (xy 2.032 -0.762))
+          (stroke
+            (width 0.508)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy -2.032 0.762)
+            (xy 2.032 0.762))
+          (stroke
+            (width 0.508)
+            (type default))
+          (fill
+            (type none))))
+      (symbol "C_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "wq:Transformer_FLY3"
+      (pin_names
+        (offset 1.016))
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "T"
+        (at 0 11.43 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "FLY3"
+        (at 0 -11.43 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" "wq:Magnetics_TBD"
+        (at 0 -13.97 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "反激变压器：一初级（1 起、2 末）三次级（3/4、5/6、7/8），定制件"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "Transformer_FLY3_0_1"
+        (rectangle
+          (start -7.62 10.16)
+          (end 7.62 -10.16)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type background))))
+      (symbol "Transformer_FLY3_1_1"
+        (pin passive line
+          (at -10.16 7.62 0)
+          (length 2.54)
+          (name "P+"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -10.16 2.54 0)
+          (length 2.54)
+          (name "P-"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 10.16 7.62 180)
+          (length 2.54)
+          (name "S1+"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 10.16 5.08 180)
+          (length 2.54)
+          (name "S1-"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "4"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 10.16 2.54 180)
+          (length 2.54)
+          (name "S2+"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "5"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 10.16 0 180)
+          (length 2.54)
+          (name "S2-"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "6"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 10.16 -2.54 180)
+          (length 2.54)
+          (name "S3+"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "7"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 10.16 -5.08 180)
+          (length 2.54)
+          (name "S3-"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "8"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Device:D"
+      (pin_numbers hide)
+      (pin_names
+        (offset 1.016) hide)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "D"
+        (at 0 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "D"
+        (at 0 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Sim.Device" "D"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Sim.Pins" "1=K 2=A"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "diode"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Diode"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "D_0_1"
+        (polyline
+          (pts
+            (xy -1.27 1.27)
+            (xy -1.27 -1.27))
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 1.27 0)
+            (xy -1.27 0))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 1.27 1.27)
+            (xy 1.27 -1.27)
+            (xy -1.27 0)
+            (xy 1.27 1.27))
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none))))
+      (symbol "D_1_1"
+        (pin passive line
+          (at -3.81 0 0)
+          (length 2.54)
+          (name "K"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 3.81 0 180)
+          (length 2.54)
+          (name "A"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Reference_Voltage:TL431DBZ"
+      (pin_numbers hide)
+      (pin_names hide)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U"
+        (at -2.54 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "TL431DBZ"
+        (at 0 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+        (at 0 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27) italic) hide))
+      (property "Datasheet" "http://www.ti.com/lit/ds/symlink/tl431.pdf"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27) italic) hide))
+      (property "ki_keywords" "diode device shunt regulator"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Shunt Regulator, SOT-23"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "SOT?23*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "TL431DBZ_0_1"
+        (polyline
+          (pts
+            (xy -1.27 0)
+            (xy 0 0)
+            (xy 1.27 0))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy -0.762 0.762)
+            (xy 0.762 0)
+            (xy -0.762 -0.762))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type outline)))
+        (polyline
+          (pts
+            (xy 0.508 -1.016)
+            (xy 0.762 -0.762)
+            (xy 0.762 0.762)
+            (xy 0.762 0.762))
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none))))
+      (symbol "TL431DBZ_1_1"
+        (pin passive line
+          (at 2.54 0 180)
+          (length 2.54)
+          (name "K"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 0 2.54 270)
+          (length 2.54)
+          (name "REF"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -2.54 0 0)
+          (length 2.54)
+          (name "A"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Isolator:PC817"
+      (pin_names
+        (offset 1.016))
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U"
+        (at -5.08 5.08 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Value" "PC817"
+        (at 0 5.08 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Footprint" "Package_DIP:DIP-4_W7.62mm"
+        (at -5.08 -5.08 0)
+        (effects
+          (font
+            (size 1.27 1.27) italic)
+          (justify left) hide))
+      (property "Datasheet" "http://www.soselectronic.cz/a_info/resource/d/pc817.pdf"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left) hide))
+      (property "ki_keywords" "NPN DC Optocoupler"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "DC Optocoupler, Vce 35V, CTR 50-300%, DIP-4"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "DIP*W7.62mm*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "PC817_0_1"
+        (rectangle
+          (start -5.08 3.81)
+          (end 5.08 -3.81)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type background)))
+        (polyline
+          (pts
+            (xy -3.175 -0.635)
+            (xy -1.905 -0.635))
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 2.54 0.635)
+            (xy 4.445 2.54))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 4.445 -2.54)
+            (xy 2.54 -0.635))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type outline)))
+        (polyline
+          (pts
+            (xy 4.445 -2.54)
+            (xy 5.08 -2.54))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 4.445 2.54)
+            (xy 5.08 2.54))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy -5.08 2.54)
+            (xy -2.54 2.54)
+            (xy -2.54 -0.635))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy -2.54 -0.635)
+            (xy -2.54 -2.54)
+            (xy -5.08 -2.54))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 2.54 1.905)
+            (xy 2.54 -1.905)
+            (xy 2.54 -1.905))
+          (stroke
+            (width 0.508)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy -2.54 -0.635)
+            (xy -3.175 0.635)
+            (xy -1.905 0.635)
+            (xy -2.54 -0.635))
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy -0.508 -0.508)
+            (xy 0.762 -0.508)
+            (xy 0.381 -0.635)
+            (xy 0.381 -0.381)
+            (xy 0.762 -0.508))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy -0.508 0.508)
+            (xy 0.762 0.508)
+            (xy 0.381 0.381)
+            (xy 0.381 0.635)
+            (xy 0.762 0.508))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 3.048 -1.651)
+            (xy 3.556 -1.143)
+            (xy 4.064 -2.159)
+            (xy 3.048 -1.651)
+            (xy 3.048 -1.651))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type outline))))
+      (symbol "PC817_1_1"
+        (pin passive line
+          (at -7.62 2.54 0)
+          (length 2.54)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -7.62 -2.54 0)
+          (length 2.54)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 7.62 -2.54 180)
+          (length 2.54)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 7.62 2.54 180)
+          (length 2.54)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "4"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Regulator_Linear:AMS1117-3.3"
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U"
+        (at -3.81 3.175 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "AMS1117-3.3"
+        (at 0 3.175 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Footprint" "Package_TO_SOT_SMD:SOT-223-3_TabPin2"
+        (at 0 5.08 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "http://www.advanced-monolithic.com/pdf/ds1117.pdf"
+        (at 2.54 -6.35 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "linear regulator ldo fixed positive"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "1A Low Dropout regulator, positive, 3.3V fixed output, SOT-223"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "SOT?223*TabPin2*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "AMS1117-3.3_0_1"
+        (rectangle
+          (start -5.08 -5.08)
+          (end 5.08 1.905)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type background))))
+      (symbol "AMS1117-3.3_1_1"
+        (pin power_in line
+          (at 0 -7.62 90)
+          (length 2.54)
+          (name "GND"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin power_out line
+          (at 7.62 0 180)
+          (length 2.54)
+          (name "VO"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin power_in line
+          (at -7.62 0 0)
+          (length 2.54)
+          (name "VI"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27))))))))
+  (symbol
+    (lib_id "Regulator_Switching:TOP266KG")
+    (at 66.04 60.96 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "ae09a2f2-eff7-564d-9a3b-259021e5410f")
+    (property "Reference" "U301"
+      (at 66.04 50.8 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "TOP266KG"
+      (at 66.04 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Package_SO:PowerIntegrations_eSOP-12B"
+      (at 66.04 60.96 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 66.04 60.96 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "IC-TOP266KG"
+      (at 66.04 60.96 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "反激控制器（集成 725 V 开关管）；X 接 S、F 接 C"
+      (at 66.04 60.96 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "d41e364c-ffc7-5695-b256-e0d7423b8b39"))
+    (pin "2"
+      (uuid "08bf3ae3-39cc-5306-962c-d19af0d1851f"))
+    (pin "3"
+      (uuid "b3c58588-672a-51c8-a5bd-0a5bc7632e85"))
+    (pin "4"
+      (uuid "fe02cbac-47ff-5a02-a1a9-13a055a26048"))
+    (pin "6"
+      (uuid "bbede505-ccea-52ca-b906-c5220ac7e7d7"))
+    (pin "7"
+      (uuid "f104955b-d6b1-56bc-9b73-0ea5af816b31"))
+    (pin "8"
+      (uuid "a372d8de-b25c-55fa-984c-46dbd8c09290"))
+    (pin "9"
+      (uuid "a48eea7d-4dfc-5530-a3d0-21dadfdac89f"))
+    (pin "10"
+      (uuid "3d929b70-bf0a-5aa7-a53a-9bfb42b352d5"))
+    (pin "11"
+      (uuid "77cc1999-7eba-56bd-9295-dff90a81ba66"))
+    (pin "12"
+      (uuid "7527f66a-ab1f-52e5-af6a-0567e45deddd"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "U301")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 68.58 53.34)
+      (xy 68.58 50.8))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "5298d552-6462-5ff1-a6b8-66127f41d06e"))
+  (global_label "TOP_V"
+    (shape passive)
+    (at 68.58 50.8 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "5fc1bc17-8fd6-5af2-b862-01bddb370aa6")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 68.58 50.8 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 60.96 68.58)
+      (xy 60.96 71.12))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "3d18326d-6dc2-5df9-aab5-17e94b91ce27"))
+  (global_label "GND"
+    (shape passive)
+    (at 60.96 71.12 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "214496c2-345b-5784-a53b-e74288375497")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 66.04 68.58)
+      (xy 66.04 71.12))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "5a242e88-d4ce-576b-acd1-5ced571d39a0"))
+  (global_label "GND"
+    (shape passive)
+    (at 66.04 71.12 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "682f8769-1deb-5b13-96c4-965aed83e7d5")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 66.04 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 76.2 60.96)
+      (xy 78.74 60.96))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "0c6dbee1-e54d-5998-9365-c00d137f35ef"))
+  (global_label "TOP_C"
+    (shape passive)
+    (at 78.74 60.96 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "aaf87fa1-678d-5b2e-852a-32f79aa1be29")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 78.74 60.96 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 71.12 68.58)
+      (xy 71.12 71.12))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "34fe27d0-52a1-59e9-b201-56ecd6356b25"))
+  (global_label "TOP_C"
+    (shape passive)
+    (at 71.12 71.12 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "c872e559-ab44-5b6d-82c2-ff686146190e")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 71.12 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 60.96 53.34)
+      (xy 60.96 50.8))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "3e8ca41f-60fc-5393-814f-0277f1c4f63d"))
+  (global_label "FLY_D"
+    (shape passive)
+    (at 60.96 50.8 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "c807041d-bac2-5124-9047-5a35c3dd36c5")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 50.8 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:R")
+    (at 134.62 58.42 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "d4348652-4ae5-5113-9f79-de310d347a57")
+    (property "Reference" "R301"
+      (at 134.62 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "2M"
+      (at 134.62 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_1206_3216Metric"
+      (at 134.62 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 134.62 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "RES-1206"
+      (at 134.62 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "V 脚线路检测 4 MΩ（规格书 p.6），两只 1206 串联分压；离 V 脚 10 mm 内（p.21）"
+      (at 134.62 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "71a58d1b-dcfd-53dd-a4b8-26a5de69cf56"))
+    (pin "2"
+      (uuid "9dd6e3e0-1a0d-58b9-96b5-b409a057f7dc"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "R301")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 134.62 54.61)
+      (xy 134.62 52.07))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "23d2c4f4-90a9-5cef-9eda-b7c4339e38e1"))
+  (global_label "VBUS"
+    (shape passive)
+    (at 134.62 52.07 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "39443f34-8b67-5262-a96f-cff06a1e9d55")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 134.62 52.07 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 134.62 62.23)
+      (xy 134.62 64.77))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "e1ff48f6-cd57-53cb-8360-25fa2a135ab0"))
+  (global_label "TOP_V1"
+    (shape passive)
+    (at 134.62 64.77 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "6033257d-2d3d-5bf0-afaa-d3affec6af03")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 134.62 64.77 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:R")
+    (at 195.58 58.42 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "60869532-a7a2-55df-9cd4-9e7e6cbccda8")
+    (property "Reference" "R302"
+      (at 195.58 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "2M"
+      (at 195.58 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_1206_3216Metric"
+      (at 195.58 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 195.58 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "RES-1206"
+      (at 195.58 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" ""
+      (at 195.58 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "dcac19e5-8529-560b-b7b4-c9ddbebb114c"))
+    (pin "2"
+      (uuid "466de9b8-29cc-51b6-91ca-f33b50d59de6"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "R302")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 195.58 54.61)
+      (xy 195.58 52.07))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "e4c8e94d-7dd4-570d-9864-77b358c53bd4"))
+  (global_label "TOP_V1"
+    (shape passive)
+    (at 195.58 52.07 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "313694a4-b251-58ed-aeec-d1803b9ca116")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 195.58 52.07 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 195.58 62.23)
+      (xy 195.58 64.77))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "ec20234d-8c72-52b2-864b-391e9882aabf"))
+  (global_label "TOP_V"
+    (shape passive)
+    (at 195.58 64.77 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "99aa4be1-b10e-5ebf-b0c5-8b715b8575cb")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 195.58 64.77 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 254 58.42 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "65fed9e7-c568-5ac6-9afd-25eec517b36c")
+    (property "Reference" "C301"
+      (at 254 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "47u/16V"
+      (at 254 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:CP_Elec_6.3x5.4"
+      (at 254 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 254 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-EL-47U-16V"
+      (at 254 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "C 脚旁路 47 µF（规格书 p.8：起动 / 重启时间按 47 µF 给出）"
+      (at 254 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "3fb84674-cad5-5710-be65-843d27d5e508"))
+    (pin "2"
+      (uuid "1855a8c7-09e2-5145-83d7-81f3fcddc13f"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "C301")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 254 54.61)
+      (xy 254 52.07))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "4c0989a1-e704-5029-b79f-4e1c5a729bf2"))
+  (global_label "TOP_C"
+    (shape passive)
+    (at 254 52.07 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "160c9a67-d7ba-5ba1-80d4-8fa98b0f316c")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 254 52.07 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 254 62.23)
+      (xy 254 64.77))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "cbe658f6-7ea2-5dde-91bd-535d68be8d6b"))
+  (global_label "GND"
+    (shape passive)
+    (at 254 64.77 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "6123744e-1fce-5b1c-8e8e-c525558451b6")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 254 64.77 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C")
+    (at 314.96 58.42 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "3acf3854-dc35-5a11-ba3a-e901e6aae2b7")
+    (property "Reference" "C302"
+      (at 314.96 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "100n"
+      (at 314.96 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+      (at 314.96 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 314.96 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-0603"
+      (at 314.96 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "C 脚高频旁路（规格书 p.20–21 建议）"
+      (at 314.96 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "aaa59be6-bf86-510c-9127-01bd84cdc8fd"))
+    (pin "2"
+      (uuid "c9534a52-b25d-5e58-b838-499946629570"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "C302")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 314.96 54.61)
+      (xy 314.96 52.07))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "b20254f2-2f48-56b3-80c1-5148dc71110e"))
+  (global_label "TOP_C"
+    (shape passive)
+    (at 314.96 52.07 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "7cdc65e8-e555-564c-a07e-471d7b2f79e0")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 314.96 52.07 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 314.96 62.23)
+      (xy 314.96 64.77))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "31ef4b79-1369-5b5b-977a-973c6c17a9eb"))
+  (global_label "GND"
+    (shape passive)
+    (at 314.96 64.77 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "bb9f7c26-7ece-5cb5-b8f3-5cfb64cdb17c")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 314.96 64.77 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "wq:Transformer_FLY3")
+    (at 386.08 60.96 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "4fe7cdd0-11be-55e2-9e23-8c114a014f52")
+    (property "Reference" "T301"
+      (at 386.08 50.8 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "FLY-24/15/5"
+      (at 386.08 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "wq:Magnetics_TBD"
+      (at 386.08 60.96 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 386.08 60.96 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "XFMR-FLY-CUSTOM"
+      (at 386.08 60.96 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "反激变压器（定制：初级电感、匝比见计算书；三路次级共地，不要求加强绝缘；磁芯与封装 159d2 定）"
+      (at 386.08 60.96 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "d115d973-385c-53ee-9120-cc113712323f"))
+    (pin "2"
+      (uuid "1c55b391-ee77-5fb3-b77b-1ad1b0308758"))
+    (pin "3"
+      (uuid "8066875b-6176-5cf7-a55c-eddfaf5e96ac"))
+    (pin "4"
+      (uuid "33588cc6-d97c-586f-81a9-7e479bbadc67"))
+    (pin "5"
+      (uuid "a21eb625-8ab3-5e4e-880c-8d6a323132ba"))
+    (pin "6"
+      (uuid "807044df-f52e-56e8-be85-0efbba38f605"))
+    (pin "7"
+      (uuid "4fc212a5-aae3-539d-af56-a9bb31385c91"))
+    (pin "8"
+      (uuid "244b0719-833b-5055-9fac-c476c6a94c13"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "T301")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 375.92 53.34)
+      (xy 373.38 53.34))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "93ddbc5c-f710-5a6e-86ce-b22eff74fd2b"))
+  (global_label "VBUS"
+    (shape passive)
+    (at 373.38 53.34 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "a882f584-784b-5983-a17d-c230c7ec8caa")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 373.38 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 375.92 58.42)
+      (xy 373.38 58.42))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "e5e2d014-2e05-53fe-8a90-acd5b1e4f10a"))
+  (global_label "FLY_D"
+    (shape passive)
+    (at 373.38 58.42 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "a40b0f28-bb2d-5c7c-8f34-72e97c003fc7")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 373.38 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 396.24 53.34)
+      (xy 398.78 53.34))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "c8812e6f-59fa-554c-a761-abb09a7b5410"))
+  (global_label "FLY_24"
+    (shape passive)
+    (at 398.78 53.34 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "6a67a0f9-b4ce-5c9b-9515-35972701cc65")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 398.78 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 396.24 55.88)
+      (xy 398.78 55.88))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "f87a883f-7216-5904-9faa-2b2b76736d0f"))
+  (global_label "GND"
+    (shape passive)
+    (at 398.78 55.88 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "c52c96f1-d8f8-5cb1-b7c5-6b7cf161881a")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 398.78 55.88 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 396.24 58.42)
+      (xy 398.78 58.42))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "c9f1beb3-7ed6-5e78-b694-65c1000f6887"))
+  (global_label "FLY_15"
+    (shape passive)
+    (at 398.78 58.42 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "133aa1f0-b918-541f-a0e8-2f6b2b736af3")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 398.78 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 396.24 60.96)
+      (xy 398.78 60.96))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "832f9e9b-19e9-55a8-9da6-73b9ed48643e"))
+  (global_label "GND"
+    (shape passive)
+    (at 398.78 60.96 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "320722b7-e1cc-5992-9290-3f763896998f")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 398.78 60.96 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 396.24 63.5)
+      (xy 398.78 63.5))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "4485aae5-06b9-5715-96e3-239d51932e55"))
+  (global_label "FLY_5"
+    (shape passive)
+    (at 398.78 63.5 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "3f4e96bb-059c-5d3a-a1e0-09b394471ebb")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 398.78 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 396.24 66.04)
+      (xy 398.78 66.04))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "244a38dd-e83e-529b-9300-4c83a4df4f0f"))
+  (global_label "GND"
+    (shape passive)
+    (at 398.78 66.04 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "39c1356e-cd8d-5cc6-8b6e-bec5556f3127")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 398.78 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:D")
+    (at 459.74 53.34 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "5d128e31-c044-5ab0-808c-c27eb0339bb3")
+    (property "Reference" "D301"
+      (at 459.74 50.8 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "US1M"
+      (at 459.74 55.88 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Diode_SMD:D_SMA"
+      (at 459.74 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 459.74 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "DIO-US1M"
+      (at 459.74 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "钳位二极管（快恢复 1000 V）"
+      (at 459.74 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "76078445-b673-5f43-868c-6d5cddf33315"))
+    (pin "2"
+      (uuid "8dfd39d1-e6e1-5492-85e4-0a4127abb4d9"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "D301")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 455.93 53.34)
+      (xy 453.39 53.34))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "5b8d3403-bea8-500a-a3fd-17f9ff3c236c"))
+  (global_label "CLAMP"
+    (shape passive)
+    (at 453.39 53.34 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "34e2ef9d-84ab-5d81-96ff-3903333f1381")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 453.39 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 463.55 53.34)
+      (xy 466.09 53.34))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "a35b822d-dda7-56f4-a018-fd037898b61f"))
+  (global_label "FLY_D"
+    (shape passive)
+    (at 466.09 53.34 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "137d6331-fce3-5df4-8fab-131719934365")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 466.09 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:R")
+    (at 523.24 58.42 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "9eba98ec-1c69-511e-9a80-a3182972b848")
+    (property "Reference" "R303"
+      (at 523.24 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "100k"
+      (at 523.24 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_2512_6332Metric"
+      (at 523.24 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 523.24 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "RES-2512"
+      (at 523.24 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "RCD 钳位电阻：要变压器漏感才能算，第一版取常见值、按样机调（待定）"
+      (at 523.24 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "b65f6829-c913-512e-96a8-767dd1f5a8d4"))
+    (pin "2"
+      (uuid "864f2d80-2f75-5f9f-aa7e-1bd50efe6608"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "R303")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 523.24 54.61)
+      (xy 523.24 52.07))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "7edab31c-b45e-5728-892f-ac423e729695"))
+  (global_label "VBUS"
+    (shape passive)
+    (at 523.24 52.07 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "e84314d1-4929-5ceb-adf1-75f9b63394d1")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 523.24 52.07 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 523.24 62.23)
+      (xy 523.24 64.77))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "c0cc9245-4644-56ea-ab36-7488e9b4e6d8"))
+  (global_label "CLAMP"
+    (shape passive)
+    (at 523.24 64.77 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "be2ea898-3d77-5724-bb06-682831bb1803")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 523.24 64.77 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C")
+    (at 60.96 101.6 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "f82573fb-8f55-5d78-8505-190da698795c")
+    (property "Reference" "C303"
+      (at 60.96 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "1n/1kV"
+      (at 60.96 109.22 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+      (at 60.96 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 60.96 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-1206-1KV"
+      (at 60.96 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "RCD 钳位电容（待定，同上）"
+      (at 60.96 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "5f19ed2a-fdc4-5eb9-9c04-68d6348b2cbe"))
+    (pin "2"
+      (uuid "b1e48169-ad12-5a26-bde5-6e9a9a17f58d"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "C303")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 60.96 97.79)
+      (xy 60.96 95.25))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "8eb52363-8afc-5860-ae8c-b06ea568926a"))
+  (global_label "VBUS"
+    (shape passive)
+    (at 60.96 95.25 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "6e1f0383-3cb4-5317-a4cc-2ea1e57f3651")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 60.96 105.41)
+      (xy 60.96 107.95))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "8af153c6-8cba-5cdc-ace8-43367d1e8146"))
+  (global_label "CLAMP"
+    (shape passive)
+    (at 60.96 107.95 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "ed8598e4-4e32-5252-a500-b4b3930287e3")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:D")
+    (at 124.46 96.52 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "f7e034d5-b1a2-54f2-9015-11a791053ea1")
+    (property "Reference" "D302"
+      (at 124.46 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "ES3D"
+      (at 124.46 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Diode_SMD:D_SMC"
+      (at 124.46 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 124.46 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "DIO-ES3D"
+      (at 124.46 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "24 V 整流"
+      (at 124.46 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "155d2ff2-b1bd-5af5-a1ea-2acd49f7dc15"))
+    (pin "2"
+      (uuid "77446264-fd70-5d01-a401-bfb0e60bce4e"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "D302")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 120.65 96.52)
+      (xy 118.11 96.52))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "c9da68ee-3770-5539-97a8-a036dd41d97c"))
+  (global_label "+24V"
+    (shape passive)
+    (at 118.11 96.52 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "b1ddf30e-a1f7-5014-a374-819737031e9c")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 118.11 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 128.27 96.52)
+      (xy 130.81 96.52))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "c9bee642-c951-5e5d-9c4b-123b086b3643"))
+  (global_label "FLY_24"
+    (shape passive)
+    (at 130.81 96.52 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "0e77e33c-05b4-5611-9c27-c7d8ab777c73")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 130.81 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 187.96 101.6 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "576fb474-88bd-5ab6-b509-67138c7bf0a1")
+    (property "Reference" "C304"
+      (at 187.96 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "470u/35V"
+      (at 187.96 109.22 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_THT:CP_Radial_D10.0mm_P5.00mm"
+      (at 187.96 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 187.96 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-EL-470U-35V"
+      (at 187.96 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "24 V 输出（电磁铁吸合的脉冲电流从这里出）"
+      (at 187.96 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "c212bc66-3a38-5fe7-8b66-4b145d419237"))
+    (pin "2"
+      (uuid "49672c1f-566c-5cdb-8fc8-0b41a8f589b0"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "C304")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 187.96 97.79)
+      (xy 187.96 95.25))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "7efde1df-8676-5ed8-9329-df864cb60fbd"))
+  (global_label "+24V"
+    (shape passive)
+    (at 187.96 95.25 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "c194b4dd-7f4e-59b4-8c04-f45f86158b89")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 187.96 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 187.96 105.41)
+      (xy 187.96 107.95))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "b2e905b3-2fe7-5f8d-a3d6-0f9facd9e7bc"))
+  (global_label "GND"
+    (shape passive)
+    (at 187.96 107.95 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "0b867fe3-b58e-5d2e-8ef5-06901c4429d9")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 187.96 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C")
+    (at 246.38 101.6 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "671fdf3a-31ae-5618-ba24-3f3e0e22f85e")
+    (property "Reference" "C305"
+      (at 246.38 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "1u/50V"
+      (at 246.38 109.22 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+      (at 246.38 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 246.38 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-1206"
+      (at 246.38 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" ""
+      (at 246.38 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "422dd1c3-6c36-5d0f-9b9a-2f64d7d8cdcc"))
+    (pin "2"
+      (uuid "a239876a-105d-5948-ab13-fbe74a15ea62"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "C305")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 246.38 97.79)
+      (xy 246.38 95.25))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "7e28e760-c2e8-5577-aa66-abab004de5b4"))
+  (global_label "+24V"
+    (shape passive)
+    (at 246.38 95.25 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "dfb6222f-2771-5d10-b3fa-f3ededbe265a")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 246.38 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 246.38 105.41)
+      (xy 246.38 107.95))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "bae9e6e9-998b-5b21-bea3-698ab41b4f8c"))
+  (global_label "GND"
+    (shape passive)
+    (at 246.38 107.95 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "219ab867-d18e-59fd-961a-fe16faee868f")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 246.38 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:D")
+    (at 312.42 96.52 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "62d4072c-b6e2-5ec7-92a0-5c0395b8533d")
+    (property "Reference" "D303"
+      (at 312.42 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "ES3D"
+      (at 312.42 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Diode_SMD:D_SMC"
+      (at 312.42 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 312.42 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "DIO-ES3D"
+      (at 312.42 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "15 V 整流"
+      (at 312.42 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "907c39ac-04be-50ba-9e68-dac39a7991ca"))
+    (pin "2"
+      (uuid "c5b6efc9-c74a-532b-8bab-16a5441d4ac7"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "D303")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 308.61 96.52)
+      (xy 306.07 96.52))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "e044c807-0b1a-5933-979a-04b69c1a6825"))
+  (global_label "+15V"
+    (shape passive)
+    (at 306.07 96.52 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "d970b4f5-1408-55de-a65b-8894c02b0be4")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 306.07 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 316.23 96.52)
+      (xy 318.77 96.52))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "bcdf63f0-fdfa-5ef1-8f64-e1657667ce7f"))
+  (global_label "FLY_15"
+    (shape passive)
+    (at 318.77 96.52 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "a8292423-1196-5c2e-8c17-98560ad5c070")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 318.77 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 375.92 101.6 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "3a0be5fb-1b4f-52e9-b9dd-3e1fa6917dda")
+    (property "Reference" "C306"
+      (at 375.92 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "220u/25V"
+      (at 375.92 109.22 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_THT:CP_Radial_D8.0mm_P3.50mm"
+      (at 375.92 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 375.92 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-EL-220U-25V"
+      (at 375.92 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "15 V 输出（功率模块、校正控制器、继电器）"
+      (at 375.92 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "686db9e9-2e46-5e9a-bd56-ff969fd97f72"))
+    (pin "2"
+      (uuid "747c53f4-9ae9-5f53-a2db-3b138c564b57"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "C306")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 375.92 97.79)
+      (xy 375.92 95.25))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "7767225d-9cf3-5308-aa1d-2af84381d3ad"))
+  (global_label "+15V"
+    (shape passive)
+    (at 375.92 95.25 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "b334d3b8-108c-5081-bbf7-3863664f8bc6")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 375.92 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 375.92 105.41)
+      (xy 375.92 107.95))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "354f3838-bf99-55b0-a96f-89ff6955a039"))
+  (global_label "GND"
+    (shape passive)
+    (at 375.92 107.95 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "e88ed177-7bed-537b-ad7b-e5cb8234806f")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 375.92 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:D")
+    (at 439.42 96.52 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "bca84222-2406-5ad0-94a3-633870b64177")
+    (property "Reference" "D304"
+      (at 439.42 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "ES3D"
+      (at 439.42 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Diode_SMD:D_SMC"
+      (at 439.42 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 439.42 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "DIO-ES3D"
+      (at 439.42 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "5 V 整流"
+      (at 439.42 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "7c791768-f97f-57f4-9c96-ad3cb406bf76"))
+    (pin "2"
+      (uuid "9124b23b-ea50-5f1f-bab0-830db6a5fb20"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "D304")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 435.61 96.52)
+      (xy 433.07 96.52))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "5a9afe4c-cb40-58b1-b92b-be4efed4ab30"))
+  (global_label "+5V"
+    (shape passive)
+    (at 433.07 96.52 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "8bef07e1-ba4f-5d74-af3a-ad0ba1f87329")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 433.07 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 443.23 96.52)
+      (xy 445.77 96.52))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "af8a52d2-c77b-5980-98cc-7f297ee1da36"))
+  (global_label "FLY_5"
+    (shape passive)
+    (at 445.77 96.52 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "2ee257cf-4bcd-5782-a4ee-02e75bb2fe03")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 445.77 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 502.92 101.6 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "4b70c9f6-d786-5927-9eb8-f9652ed021c6")
+    (property "Reference" "C307"
+      (at 502.92 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "1000u/10V"
+      (at 502.92 109.22 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_THT:CP_Radial_D8.0mm_P3.50mm"
+      (at 502.92 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 502.92 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-EL-1000U-10V"
+      (at 502.92 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "5 V 输出"
+      (at 502.92 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "a29679fc-2603-56bd-aef9-8632db519ea3"))
+    (pin "2"
+      (uuid "e56aced8-dcb5-5fc5-abf2-a380c15e0c48"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "C307")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 502.92 97.79)
+      (xy 502.92 95.25))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "a7033e02-b053-5838-acb0-29fc54a1be0f"))
+  (global_label "+5V"
+    (shape passive)
+    (at 502.92 95.25 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "10c601d6-40e4-51f6-9a76-38386a66ca3d")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 502.92 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 502.92 105.41)
+      (xy 502.92 107.95))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "0f206ac1-43c5-5eba-87ca-5426513fc3a2"))
+  (global_label "GND"
+    (shape passive)
+    (at 502.92 107.95 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "385c333b-1559-5508-a180-4d70f0b2c8dc")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 502.92 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:R")
+    (at 60.96 137.16 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "e11388f9-9355-5361-85a3-a3a3b0f85f37")
+    (property "Reference" "R304"
+      (at 60.96 129.54 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "82k"
+      (at 60.96 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+      (at 60.96 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 60.96 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "RES-0603"
+      (at 60.96 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "加权取样：24 V 与 15 V 各占一半（设计取值），下臂 10 k"
+      (at 60.96 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "a24312cf-5d37-5f37-ae41-28b1baf1283a"))
+    (pin "2"
+      (uuid "2aef6003-1f74-5f09-89d8-cdcb55e9846c"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "R304")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 60.96 133.35)
+      (xy 60.96 130.81))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "0636f8a8-c00c-579f-94c7-aa30e5abb6da"))
+  (global_label "+24V"
+    (shape passive)
+    (at 60.96 130.81 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "c5047bc4-34cc-580e-97b5-e9f35aa427e2")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 130.81 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 60.96 140.97)
+      (xy 60.96 143.51))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "ff74f265-0785-5bcd-9c0d-ee842253501d"))
+  (global_label "FB_REF"
+    (shape passive)
+    (at 60.96 143.51 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "e53402bc-a2ba-5f42-a264-aa890e6dfd58")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 143.51 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:R")
+    (at 119.38 137.16 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "723a357f-625c-5d31-96c3-ea9a9cb7df05")
+    (property "Reference" "R305"
+      (at 119.38 129.54 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "47k"
+      (at 119.38 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+      (at 119.38 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 119.38 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "RES-0603"
+      (at 119.38 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" ""
+      (at 119.38 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "2d361f4c-86bb-5016-a4ec-5f94c786e24a"))
+    (pin "2"
+      (uuid "31fda420-6bc7-51aa-863c-e53222793380"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "R305")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 119.38 133.35)
+      (xy 119.38 130.81))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "f582e011-180a-54b1-82bb-5fd318b8d144"))
+  (global_label "+15V"
+    (shape passive)
+    (at 119.38 130.81 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "7ee67539-ed7e-5acc-8d1c-cc2da85d12a5")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 119.38 130.81 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 119.38 140.97)
+      (xy 119.38 143.51))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "1518e36e-655a-5b87-b8e4-54aa434f1105"))
+  (global_label "FB_REF"
+    (shape passive)
+    (at 119.38 143.51 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "cbf24215-a7f1-5b24-816a-6a76643ca8b3")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 119.38 143.51 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:R")
+    (at 180.34 137.16 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "46cf965f-462f-5f6a-8742-8ac80578da06")
+    (property "Reference" "R306"
+      (at 180.34 129.54 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "10k"
+      (at 180.34 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+      (at 180.34 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 180.34 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "RES-0603"
+      (at 180.34 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" ""
+      (at 180.34 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "2e51117c-48eb-5d30-bfc4-2c64350cd8e2"))
+    (pin "2"
+      (uuid "e6ed21fe-9005-58b8-96be-4982727b1c1e"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "R306")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 180.34 133.35)
+      (xy 180.34 130.81))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "5b7c6497-8edd-53f0-b392-72fc0c550502"))
+  (global_label "FB_REF"
+    (shape passive)
+    (at 180.34 130.81 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "57c9954a-657a-52c7-b3c7-3f40d52fed98")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 180.34 130.81 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 180.34 140.97)
+      (xy 180.34 143.51))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "2a81cac6-7355-521c-8edb-a3aa9b2b3f17"))
+  (global_label "GND"
+    (shape passive)
+    (at 180.34 143.51 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "961902e3-a6a3-588c-9ece-56e43c61a741")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 180.34 143.51 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Reference_Voltage:TL431DBZ")
+    (at 241.3 134.62 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "c499ff4d-b19f-5994-a145-38fb5ef454fe")
+    (property "Reference" "U302"
+      (at 241.3 129.54 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "TL431AIDBZR"
+      (at 241.3 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+      (at 241.3 134.62 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 241.3 134.62 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "IC-TL431"
+      (at 241.3 134.62 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "反馈基准"
+      (at 241.3 134.62 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "6a1dd47b-530a-5bd2-af9b-00e29049cb9e"))
+    (pin "2"
+      (uuid "96548b90-9a28-58c9-8276-e9a2bbfed2ef"))
+    (pin "3"
+      (uuid "2692f5e3-097b-5810-8380-6978f5577961"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "U302")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 243.84 134.62)
+      (xy 246.38 134.62))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "e8919081-6821-5619-89ee-6eb23e80ea25"))
+  (global_label "FB_K"
+    (shape passive)
+    (at 246.38 134.62 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "64ce172e-bbf1-5525-ad7c-1a16dbc90814")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 246.38 134.62 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 241.3 132.08)
+      (xy 241.3 129.54))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "0220eac8-4198-55fa-ba4a-e19c32cbaf2a"))
+  (global_label "FB_REF"
+    (shape passive)
+    (at 241.3 129.54 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "7fb97d36-e26a-5cd6-8ed5-8f1654230c75")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 241.3 129.54 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 238.76 134.62)
+      (xy 236.22 134.62))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "ef63d5e1-b509-5e70-9d1d-95f6c9589e5b"))
+  (global_label "GND"
+    (shape passive)
+    (at 236.22 134.62 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "cc7b5be7-8612-532f-ad2d-780d0185b814")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 236.22 134.62 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:R")
+    (at 304.8 137.16 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "5bb08033-6eed-5efb-83ca-6f11ca381290")
+    (property "Reference" "R307"
+      (at 304.8 129.54 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "10k"
+      (at 304.8 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+      (at 304.8 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 304.8 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "RES-0603"
+      (at 304.8 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "补偿（设计取值，按样机调）"
+      (at 304.8 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "66788a1c-9781-5b56-850e-5ab910d51647"))
+    (pin "2"
+      (uuid "94feede4-9a62-5104-8358-3bcbf2829dce"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "R307")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 304.8 133.35)
+      (xy 304.8 130.81))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "c715fa8c-fc8e-5d41-bb47-a0bdebe0f8dc"))
+  (global_label "FB_K"
+    (shape passive)
+    (at 304.8 130.81 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "27a11709-8034-54ae-8f7f-451273d8e4c2")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 304.8 130.81 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 304.8 140.97)
+      (xy 304.8 143.51))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "441e382a-c2c2-5dfa-af31-4480454da043"))
+  (global_label "FB_RC"
+    (shape passive)
+    (at 304.8 143.51 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "0d00d09a-fca8-5916-bf1a-e09d8871ecb0")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 304.8 143.51 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C")
+    (at 365.76 137.16 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "7ebc9135-c336-5ac0-bdab-6f78ce6f50a8")
+    (property "Reference" "C308"
+      (at 365.76 129.54 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "100n"
+      (at 365.76 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+      (at 365.76 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 365.76 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-0603"
+      (at 365.76 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" ""
+      (at 365.76 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "25dcaefe-c905-55f6-9bd7-ac0edacaff6e"))
+    (pin "2"
+      (uuid "405b5418-3531-599e-8468-d9f0d3ee7653"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "C308")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 365.76 133.35)
+      (xy 365.76 130.81))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "fefecd24-1cc3-51f4-b5ab-3e626f27b94e"))
+  (global_label "FB_RC"
+    (shape passive)
+    (at 365.76 130.81 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "82f3a147-cf4f-56c1-a675-529ad99c120d")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 365.76 130.81 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 365.76 140.97)
+      (xy 365.76 143.51))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "2fe0037e-4703-517b-9a97-5bb4cce3febd"))
+  (global_label "FB_REF"
+    (shape passive)
+    (at 365.76 143.51 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "4ddcc3e3-4587-500b-a54b-2056ee485a09")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 365.76 143.51 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Isolator:PC817")
+    (at 431.8 134.62 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "9b7920ef-79e5-5cfd-9a6f-40d0134bf4ba")
+    (property "Reference" "U303"
+      (at 431.8 129.54 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "PC817X2NSZ9F"
+      (at 431.8 139.7 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Package_DIP:SMDIP-4_W9.53mm"
+      (at 431.8 134.62 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 431.8 134.62 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "OPTO-PC817"
+      (at 431.8 134.62 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "反馈光耦（这里不为隔离，只为把误差电流送进 C 脚）"
+      (at 431.8 134.62 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "1abfd560-e411-5997-a335-8d0a951bf4bc"))
+    (pin "2"
+      (uuid "4f74096b-5b70-5069-84ce-8e7e89991c95"))
+    (pin "3"
+      (uuid "95e3d643-d48b-5fb6-acd3-f77f5f371c90"))
+    (pin "4"
+      (uuid "94782da1-44ee-5d41-95dd-5a47c3dee81f"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "U303")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 424.18 132.08)
+      (xy 421.64 132.08))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "fa78e90d-9e59-5886-8955-cc665e0443e2"))
+  (global_label "FB_LED"
+    (shape passive)
+    (at 421.64 132.08 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "ec4c0d11-d34e-58d1-887e-ab360509d9ac")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 421.64 132.08 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 424.18 137.16)
+      (xy 421.64 137.16))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "68eef7f2-fef1-538e-adb3-89c656ec35d0"))
+  (global_label "FB_K"
+    (shape passive)
+    (at 421.64 137.16 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "2500b861-4e5c-5d78-acc7-6075ff24af91")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 421.64 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 439.42 137.16)
+      (xy 441.96 137.16))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "4efb1ac4-b3e2-54ca-96b1-5f2102d7ccc5"))
+  (global_label "TOP_C"
+    (shape passive)
+    (at 441.96 137.16 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "a7510860-6a96-5fab-8fbd-0bb0cb76ede2")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 441.96 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 439.42 132.08)
+      (xy 441.96 132.08))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "64181191-fed2-51fd-ac0d-9fc2a27ed1a8"))
+  (global_label "+15V"
+    (shape passive)
+    (at 441.96 132.08 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "f5f1cc77-c651-546f-8dd5-925e2eaf8b19")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 441.96 132.08 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:R")
+    (at 500.38 137.16 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "2bd2ea88-e839-5de1-a9eb-f03450690b52")
+    (property "Reference" "R308"
+      (at 500.38 129.54 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "1k"
+      (at 500.38 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+      (at 500.38 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 500.38 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "RES-0603"
+      (at 500.38 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "光耦发光管限流"
+      (at 500.38 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "890ab81d-e3c4-54cb-a75c-d3e211ce1d8e"))
+    (pin "2"
+      (uuid "343e1d69-3a4b-50dd-9251-9fc86da743a7"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "R308")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 500.38 133.35)
+      (xy 500.38 130.81))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "8ce80b78-5c25-55d2-8fff-68d5bcd94b67"))
+  (global_label "+24V"
+    (shape passive)
+    (at 500.38 130.81 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "eb714498-18c2-5a61-970f-910291b66af7")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 500.38 130.81 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 500.38 140.97)
+      (xy 500.38 143.51))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "562cd8d1-789e-5a2f-bfc3-7d1b249b4937"))
+  (global_label "FB_LED"
+    (shape passive)
+    (at 500.38 143.51 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "612f1364-916c-57bd-86d3-49dbf893c6eb")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 500.38 143.51 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:R")
+    (at 60.96 172.72 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "93284801-47fa-59a9-a8bf-faad714c0192")
+    (property "Reference" "R309"
+      (at 60.96 165.1 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "1k"
+      (at 60.96 180.34 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+      (at 60.96 172.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 60.96 172.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "RES-0603"
+      (at 60.96 172.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "发光管旁路（TL431 最小工作电流从这里走）"
+      (at 60.96 172.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "ea1ea8d3-2467-53d5-9974-8e76d3c922ea"))
+    (pin "2"
+      (uuid "a07dc7ad-5949-5a9d-9ad0-f27897d8c626"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "R309")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 60.96 168.91)
+      (xy 60.96 166.37))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "5fe97b0a-d4c5-59f3-90a7-7998b06408db"))
+  (global_label "FB_LED"
+    (shape passive)
+    (at 60.96 166.37 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "06f0005d-5b28-5d9c-a374-5ab4ca177191")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 166.37 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 60.96 176.53)
+      (xy 60.96 179.07))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "1af9ed6a-b28a-53ab-a62d-eeebe13a4d16"))
+  (global_label "FB_K"
+    (shape passive)
+    (at 60.96 179.07 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "437a3df2-1d72-5db3-a505-a90351302229")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 179.07 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Regulator_Linear:AMS1117-3.3")
+    (at 127 167.64 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "5e68ead2-fe6f-57dc-8325-5c4d62de2784")
+    (property "Reference" "U304"
+      (at 127 165.1 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "AMS1117-3.3"
+      (at 127 177.8 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:SOT-223-3_TabPin2"
+      (at 127 167.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 127 167.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "IC-LDO-3V3"
+      (at 127 167.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "3.3 V（沿用关节驱动板）"
+      (at 127 167.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "a0e0d8b0-3891-5f35-a745-a20df37c45b2"))
+    (pin "2"
+      (uuid "de7603d7-a9c9-5a4f-b6b0-5f084aa615f9"))
+    (pin "3"
+      (uuid "423cd1fe-76a3-5e5c-8c60-a46523e9f54d"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "U304")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 127 175.26)
+      (xy 127 177.8))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "dc5a52e6-ba52-5759-9b77-f9129a2dc893"))
+  (global_label "GND"
+    (shape passive)
+    (at 127 177.8 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "13b8ca34-2dfe-521d-8862-9c17b57602bc")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 127 177.8 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 134.62 167.64)
+      (xy 137.16 167.64))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "63a67a2d-72de-5cd4-ab6f-741c1c888626"))
+  (global_label "+3V3"
+    (shape passive)
+    (at 137.16 167.64 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "41d329a3-47e3-5978-8a7a-094aafdd1ac0")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 137.16 167.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 119.38 167.64)
+      (xy 116.84 167.64))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "3d0ca01a-f076-5465-9679-d4142b068ba0"))
+  (global_label "+5V"
+    (shape passive)
+    (at 116.84 167.64 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "a22e8096-e8b2-5786-b2f7-0ba149b0b18f")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 116.84 167.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C")
+    (at 195.58 172.72 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "5b787f7c-3858-515b-a4aa-d7b32e483507")
+    (property "Reference" "C309"
+      (at 195.58 165.1 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "10u/25V"
+      (at 195.58 180.34 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+      (at 195.58 172.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 195.58 172.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-1206"
+      (at 195.58 172.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" ""
+      (at 195.58 172.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "ffc69a31-f418-5d29-bcae-b8dc0cae6b7f"))
+    (pin "2"
+      (uuid "d38a55e8-2d1e-5109-b669-896b337f61f4"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "C309")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 195.58 168.91)
+      (xy 195.58 166.37))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "981fa64a-5df8-5c71-a5b5-ec212268b450"))
+  (global_label "+5V"
+    (shape passive)
+    (at 195.58 166.37 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "be5b7b44-8933-5c17-89ae-b9aa918c07b0")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 195.58 166.37 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 195.58 176.53)
+      (xy 195.58 179.07))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "df557f9b-ec5e-5b5c-b86b-18799ae0f787"))
+  (global_label "GND"
+    (shape passive)
+    (at 195.58 179.07 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "126df966-102f-5c9d-8d58-bd5b0a034b29")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 195.58 179.07 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:C")
+    (at 254 172.72 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "05b718c2-2e84-5168-b480-ad9b4337b9c9")
+    (property "Reference" "C310"
+      (at 254 165.1 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "10u/25V"
+      (at 254 180.34 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+      (at 254 172.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 254 172.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "CAP-1206"
+      (at 254 172.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" ""
+      (at 254 172.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "01f23409-0b18-5fcf-b01a-7778ef6a6a84"))
+    (pin "2"
+      (uuid "d5239fbd-6189-560d-b579-f6c25d7be0b4"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/90f2d8c6-0fb2-5bac-aaf9-efd115e434ac"
+          (reference "C310")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 254 168.91)
+      (xy 254 166.37))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "4d894d01-7eda-59fc-98e1-346972492857"))
+  (global_label "+3V3"
+    (shape passive)
+    (at 254 166.37 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "55cc8a6b-4454-5109-ad3c-aaf95c0d343b")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 254 166.37 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 254 176.53)
+      (xy 254 179.07))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "cb9529e9-f762-53ea-a023-97b07d6e4955"))
+  (global_label "GND"
+    (shape passive)
+    (at 254 179.07 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "79b6f204-523c-5e4e-b932-7153bbd679b4")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 254 179.07 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (text "TOP266KG 反激：母线 → 24 V（电磁铁、步进）、15 V（功率模块、校正、继电器）、5 V；AMS1117 再出 3.3 V。整块板共地，三路输出不隔离；TL431 + 光耦按 24 V / 15 V 加权稳压。钳位 R303/C303 要变压器漏感才能算，按样机调。"
+    (at 30 22 0)
+    (effects
+      (font
+        (size 2 2))
+      (justify left))
+    (uuid "a48db1b2-7f43-58e8-a313-160fa78d9f47")))

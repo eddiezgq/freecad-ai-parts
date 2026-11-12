@@ -82,8 +82,10 @@ def test_ipm_motor_and_losses_by_hand(book):
     pc = 2.5 * ipk * (1 / (2 * math.pi) + 0.9 * 0.9 / 8)
     ps = (150e-6 + 110e-6) * 16000 * (390 / 300) * (ipk / 7) / math.pi
     assert item(book, "ipm_inverter", "p_igbt") == pytest.approx(pc + ps, rel=1e-9)
-    # 量程 = 1.65 V / (8 × 25 mΩ) = 8.25 A
-    assert item(book, "low_side_sense", "i_fs") == pytest.approx(8.25, rel=1e-9)
+    # 159d1 起进运放前有偏置网络 1 k / 15 k：采样电压乘 15/16，零点 8 × 3.3 V × 1/16 = 1.65 V
+    # 量程 = 1.65 V / (8 × 15/16 × 25 mΩ) = 8.8 A
+    assert item(book, "low_side_sense", "v_zero") == pytest.approx(1.65, rel=1e-9)
+    assert item(book, "low_side_sense", "i_fs") == pytest.approx(1.65 / (8 * 15 / 16 * 0.025), rel=1e-9)
     assert check(book, "low_side_sense", "pga_gain")["status"] == c.UNKNOWN
 
 
@@ -166,3 +168,41 @@ def test_spice_formula_by_hand():
     vz = 29.50 + 0.95
     assert sol["formulas"]["t_off"] == pytest.approx(0.0025 * math.log((3 + vz / 8) / (0.03 + vz / 8)), rel=1e-9)
     assert sol["formulas"]["v_ds"] == pytest.approx(24 + vz, rel=1e-9)
+
+
+def test_sensor_inputs_by_hand(book):
+    """159d1 新单元：编码器 RC 截止 1/(2π·1 kΩ·220 pF) ≈ 723 kHz ≥ 2 × 2500 线 × 5000 r/min / 60"""
+    fc = 1 / (2 * math.pi * 1000 * 220e-12)
+    assert item(book, "sensor_inputs", "fc") == pytest.approx(fc, rel=1e-9)
+    assert item(book, "sensor_inputs", "f_max") == pytest.approx(2500 * 5000 / 60, rel=1e-9)
+    assert check(book, "sensor_inputs", "fc")["status"] == c.PASS
+    assert item(book, "sensor_inputs", "v_pedal") == pytest.approx(4.5 * 2 / 3, rel=1e-9)
+
+
+def test_generated_circuit():
+    """生成器展开的电路：位号不重复、除不连接标记外没有只接一个引脚的网络；关键连接逐条核对"""
+    from collections import Counter
+
+    d = design.read_yaml(DESIGN)
+    assert design.validate_design(d) == []
+    x = design.expand(d)
+    refs = [q["ref"] for q in x["parts"]]
+    assert len(refs) == len(set(refs))
+    cnt = Counter(n for q in x["parts"] for n in q["pins"].values())
+    assert {n for n, k in cnt.items() if k == 1} <= x["nc_nets"]
+    pins = {q["ref"]: q["pins"] for q in x["parts"]}
+    # 功率模块三个 P 脚都接母线，三个 N 脚各经一只采样电阻到地
+    assert {pins["U401"][k] for k in ("19", "22", "25")} == {"VBUS"}
+    for ph, n_pin, r in (("U", "23", "R411"), ("V", "20", "R412"), ("W", "17", "R413")):
+        assert pins["U401"][n_pin] == "N_" + ph and set(pins[r].values()) == {"N_" + ph, "GND"}
+    # 校正：采样电阻在整流桥负端与地之间，ISENSE 经 51 Ω 取它的负端
+    assert pins["BR101"]["4"] == "RECT_N" and set(pins["R203"].values()) == {"RECT_N", "GND"}
+    assert set(pins["R204"].values()) == {"RECT_N", "ISENSE"}
+    # 电磁铁 4 路：每路钳位支路 = 二极管（漏极 → K）+ 稳压管（K → +24 V，反接）
+    for n in range(1, 5):
+        assert pins["D{}".format(500 + n)] == {"1": "SOL{}_K".format(n), "2": "SOL{}_D".format(n)}
+        assert pins["D{}".format(504 + n)] == {"1": "SOL{}_K".format(n), "2": "+24V"}
+    # 面板口：隔离两侧的地分开，只经 ADuM1201 与 B0505S 跨过去
+    iso = {q["ref"] for q in x["parts"] if "GND_ISO" in q["pins"].values()}
+    both = {r for r in iso if "GND" in pins[r].values()}
+    assert both == {"U601", "U602"}

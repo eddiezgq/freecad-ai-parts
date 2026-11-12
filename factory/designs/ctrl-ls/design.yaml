@@ -1,5 +1,5 @@
 # 平缝机控制器 CTRL-LS 的设计描述（问渠电子 wqeda.design/1；第 159 轮）。
-# 159b 先有 spec 规格和 blocks 功能块（计算器）：计算书由 python3 -m wqeda.calcbook 生成；circuit 和 board 在 159d 补全（原理图、PCB 由这里生成）。
+# spec 规格 → blocks 功能块（计算器出计算书：python3 -m wqeda.calcbook）→ circuit 电路（159d1：生成器展开原理图）→ board 板子（159d2）。
 # 示例设计，未经硬件验证，不能直接投产。器件为示例选型（factory/designs/ctrl-ls/parts.yaml，都在立创核实过型号）。
 format: wqeda.design/1
 name: CTRL-LS
@@ -85,15 +85,79 @@ blocks:
   - type: ipm_inverter
     params: {ipm: STGIPS14K60T, f_pwm: 16000, m_index: 0.9, cos_phi: 0.9, t_dead: 1.0e-6}
   - type: low_side_sense
-    params: {shunt: WSLT2512R0250FEA, ipm: STGIPS14K60T, gain: 8, v_ref: 3.3, i_trip: 7.5}
+    params: {shunt: WSLT2512R0250FEA, ipm: STGIPS14K60T, gain: 8, v_ref: 3.3, i_trip: 7.5, r_in: 1000, r_bias: 15000}
 - key: act
   name: 电磁铁与步进
   name_en: Solenoids and stepper
   units:
   - type: solenoid_drive
-    params: {fet: BSC040N08NS5, tvs: SMBJ24A, diode: ES3D, v24_tol: 0.1, coil_r: 8, coil_l: 0.02, t_off_max: 0.003}
+    params: {fet: BSC040N08NS5, tvs: SMBJ24A, diode: ES3D, v24_tol: 0.1, coil_r: 8, coil_l: 0.02, t_off_max: 0.003,
+             channels: [[剪线, SOL_TRIM], [拨线, SOL_WIPE], [倒缝, SOL_REV], [抬压脚, SOL_FOOT]]}
   - type: stepper
     params: {driver: TMC2226-SA, v24_tol: 0.1, i_coil_rms: 1.0}
+- key: io
+  name: 主控与传感器输入
+  name_en: MCU and sensor inputs
+  units:
+  - type: mcu_core
+    params:
+      mcu: STM32G431CBT6
+      mcu_note: 主控（沿用关节驱动板）：TIM1 三相互补 PWM、片内运放采三相电流、ADC 测母线与模块温度、TIM4 编码器、USART2 面板口、TIM3 步进脉冲
+      # 引脚分配（固件 159f 按 STM32G431 数据手册的复用功能表核对）
+      pin_map:
+        '1': +3V3
+        '2': HALL_U_F
+        '3': HALL_V_F
+        '4': HALL_W_F
+        '5': OSC_IN
+        '6': OSC_OUT
+        '7': NRST
+        '8': VBUS_SNS
+        '9': ISNS_U
+        '10': PNL_TX
+        '11': PNL_RX
+        '12': IPM_T
+        '13': SOL_TRIM
+        '14': ENC_Z_F
+        '15': ISNS_V
+        '16': ISNS_W
+        '17': PEDAL
+        '18': STP_DIAG
+        '19': GND
+        '20': +3V3
+        '21': +3V3
+        '22': PNL_DE_NC
+        '23': GND
+        '24': +3V3
+        '25': STP_EN
+        '26': IPM_SD
+        '27': PWM_UL
+        '28': PWM_VL
+        '29': PWM_WL
+        '30': PWM_UH
+        '31': PWM_VH
+        '32': PWM_WH
+        '33': SOL_WIPE
+        '34': SOL_REV
+        '35': GND
+        '36': +3V3
+        '37': SWDIO
+        '38': SWCLK
+        '39': SOL_FOOT
+        '40': VB_OK_SNS
+        '41': STP_STEP
+        '42': STP_DIR
+        '43': ENC_A_F
+        '44': ENC_B_F
+        '45': BOOT0
+        '46': PFC_OFF
+        '47': GND
+        '48': +3V3
+      xtal: 8MHz
+      c_load: 10p
+      required_nets: [ISNS_U, ISNS_V, ISNS_W, VBUS_SNS, IPM_SD, IPM_T, PWM_UH, PWM_UL, PWM_VH, PWM_VL, PWM_WH, PWM_WL, SWDIO, SWCLK, NRST]
+  - type: sensor_inputs
+    params: {r_pullup: 2200, r_filter: 1000, c_filter: 2.2e-10, encoder_lines: 2500, fc_margin: 2.0, pedal_v_max: 4.5}
 - key: comm
   name: 面板口
   name_en: Panel port
@@ -107,8 +171,18 @@ blocks:
   - type: heatsink
     params: {r_cs: 0.5, r_sa_selected: 0.9}
 circuit:
-  generate: []
-  parts: []
+  generate: [ac_input, bridge, pfc_boost, flyback_aux, ipm_inverter, low_side_sense, solenoid_drive, stepper, mcu_core, sensor_inputs,
+             panel_iso]
+  parts:
+  # VB_OK（5 V）分压给主控看（3.3 V 引脚）
+  - {ref: R801, lib: 'Device:R', value: 10k, fp: 'Resistor_SMD:R_0603_1608Metric', block: io, pins: {'1': VB_OK, '2': VB_OK_SNS},
+     item: RES-0603, note: VB_OK 5 V → 3.3 V}
+  - {ref: R802, lib: 'Device:R', value: 20k, fp: 'Resistor_SMD:R_0603_1608Metric', block: io, pins: {'1': VB_OK_SNS, '2': GND},
+     item: RES-0603, note: ''}
+  footprints: {}
+  nets:
+    nc: [PNL_DE_NC]
+    power: [+24V, +15V, +5V, +3V3, GND, VBUS, +5V_ISO, +3V3_ISO, GND_ISO]
 board:
   outline_mm: [200, 140]
   layers: 2

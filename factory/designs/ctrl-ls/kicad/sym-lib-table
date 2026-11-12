@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name "wq")(type "KiCad")(uri "${KIPRJMOD}/wq.kicad_sym")(options "")(descr "问渠：定制磁性元件、隔离电源等官方库没有的符号"))
+)

@@ -61,7 +61,8 @@ def gen_mcu_core(block, spec, d):
 def calc_mcu_core(block, spec, d, parts):
     p, dev = block["params"], d["devices"]
     nets = set(p["pin_map"].values())
-    need = {"ISNS_A", "ISNS_B", "ISNS_C", "VBUS_SNS", "SWDIO", "SWCLK", "NRST"}
+    # 必须接到 MCU 的信号：缺省是关节驱动板那一组；别的设计在参数 required_nets 里写自己的（第 159 轮）
+    need = set(p.get("required_nets") or ("ISNS_A", "ISNS_B", "ISNS_C", "VBUS_SNS", "SWDIO", "SWCLK", "NRST"))
     items = [c.item("pins", "已分配的 MCU 引脚", len(p["pin_map"]), "只")]
     checks = [
         c.judge(

@@ -38,23 +38,74 @@ def _label_angle(d):
     return {(-1, 0): 180, (1, 0): 0, (0, 1): 270, (0, -1): 90}[d]
 
 
+def _title_block(design):
+    """图框文字：缺省是关节驱动板（第 88 轮）的写法；别的设计在设计模块里给 SCH_TITLE_BLOCK（第 159 轮）"""
+    tb = {"prefix": "DRV-JOINT", "date": "2026-11-05", "rev": "示例 A", "company": "问渠数字工业园 · 电路板厂（示例设计，未经硬件验证，不能直接投产）"}
+    tb.update(getattr(design, "SCH_TITLE_BLOCK", {}) or {})
+    return tb
+
+
+def _placed(parts, libs):
+    """每个器件的每个单元各摆一个（多单元器件如六反相器 74HC14 一个门一个；单单元器件只有单元 1）"""
+    out = []
+    for p in parts:
+        units = sorted({pp[7] for pp in sexp.pins(libs[p["lib"]]) if pp[7] > 0}) or [1]
+        out += [(p, u) for u in units]
+    return out
+
+
+def _unit_pins(pins, unit):
+    """这个单元的引脚 + 各单元共用的（单元 0）；单单元器件就是全部引脚"""
+    units = {pp[7] for pp in pins if pp[7] > 0}
+    if len(units) <= 1:
+        return pins
+    return [pp for pp in pins if pp[7] in (0, unit)]
+
+
+PAPERS = [("A3", 420, 297), ("A2", 594, 420), ("A1", 841, 594), ("A0", 1189, 841)]
+
+
+def _rows_height(parts, libs, maxw):
+    x0, y0 = 30.0, 40.0
+    x, y, rowh = x0, y0, 0.0
+    for p, unit in _placed(parts, libs):
+        mnx, mxx, mny, mxy = _bbox(_unit_pins(sexp.pins(libs[p["lib"]]), unit))
+        w, h = (mxx - mnx) + 60, (mxy - mny) + 28
+        if x + w > maxw + x0:
+            x, y, rowh = x0, y + rowh, 0.0
+        x += w
+        rowh = max(rowh, h)
+    return y + rowh
+
+
+def _paper(parts, libs):
+    """图纸大小：A3 放得下就用 A3，放不下依次换 A2、A1、A0（第 159 轮：平缝机控制器器件多）。
+    设计模块里 SCH_AUTO_PAPER = True 才用；关节驱动板一律 A3（第 88 轮的产物不变）"""
+    for name, w, h in PAPERS:
+        maxw = 380.0 if name == "A3" else w - 60.0
+        if _rows_height(parts, libs, maxw) <= h - 40 or name == "A0":
+            return name, maxw
+
+
 def sheet_file(design, project, sheet, title, title_en, page, root_uuid, nc_nets, note):
     parts = [p for p in design.PARTS if p["sheet"] == sheet]
     libs = {}
     for p in parts:
         libs.setdefault(p["lib"], sexp.symbol(p["lib"]))
     su = uid(project, "sheet", sheet)
+    tb = _title_block(design)
+    paper, maxw = _paper(parts, libs) if getattr(design, "SCH_AUTO_PAPER", False) else ("A3", 380.0)
     body = [Sym("kicad_sch"), [Sym("version"), 20230121], [Sym("generator"), Sym("eeschema")], [Sym("uuid"), uid(project, "file", sheet)],
-            [Sym("paper"), "A3"],
-            [Sym("title_block"), [Sym("title"), "DRV-JOINT · {} {}".format(title, title_en)], [Sym("date"), "2026-11-05"], [Sym("rev"), "示例 A"],
-             [Sym("company"), "问渠数字工业园 · 电路板厂（示例设计，未经硬件验证，不能直接投产）"],
+            [Sym("paper"), paper],
+            [Sym("title_block"), [Sym("title"), "{} · {} {}".format(tb["prefix"], title, title_en)], [Sym("date"), tb["date"]], [Sym("rev"), tb["rev"]],
+             [Sym("company"), tb["company"]],
              [Sym("comment"), 1, note[:120]]],
             [Sym("lib_symbols")] + list(libs.values())]
     # 摆放：按行排，每格宽 = 符号宽 + 两侧标签位
-    x0, y0, maxw = 30.0, 40.0, 380.0
+    x0, y0 = 30.0, 40.0
     x, y, rowh = x0, y0, 0.0
-    for p in parts:
-        pins = sexp.pins(libs[p["lib"]])
+    for p, unit in _placed(parts, libs):
+        pins = _unit_pins(sexp.pins(libs[p["lib"]]), unit)
         mnx, mxx, mny, mxy = _bbox(pins)
         w = (mxx - mnx) + 2 * 30
         h = (mxy - mny) + 2 * 14
@@ -64,8 +115,9 @@ def sheet_file(design, project, sheet, title, title_en, page, root_uuid, nc_nets
         ox, oy = snap(x + 30 - mnx), snap(y + 14 + mxy)
         x += w
         rowh = max(rowh, h)
-        sym = [Sym("symbol"), [Sym("lib_id"), p["lib"]], [Sym("at"), ox, oy, 0], [Sym("unit"), 1], [Sym("in_bom"), Sym("yes" if p["item"] else "no")],
-               [Sym("on_board"), Sym("yes")], [Sym("dnp"), Sym("no")], [Sym("uuid"), uid(project, "sym", p["ref"])]]
+        su_id = uid(project, "sym", p["ref"]) if unit == 1 else uid(project, "sym", p["ref"], unit)
+        sym = [Sym("symbol"), [Sym("lib_id"), p["lib"]], [Sym("at"), ox, oy, 0], [Sym("unit"), unit], [Sym("in_bom"), Sym("yes" if p["item"] else "no")],
+               [Sym("on_board"), Sym("yes")], [Sym("dnp"), Sym("no")], [Sym("uuid"), su_id]]
         props = [("Reference", p["ref"], ox, snap(oy - mxy) - 2.54, False), ("Value", p["value"], ox, snap(oy - mny) + 2.54, False),
                  ("Footprint", p["fp"], ox, oy, True), ("Datasheet", "", ox, oy, True),
                  ("物料编号", p["item"] or "", ox, oy, True), ("说明", p["note"] or "", ox, oy, True)]
@@ -74,7 +126,7 @@ def sheet_file(design, project, sheet, title, title_en, page, root_uuid, nc_nets
             sym.append([Sym("property"), k, v, [Sym("at"), px, py, 0], eff])
         for num in sorted({pp[0] for pp in pins}, key=lambda s: (len(s), s)):
             sym.append([Sym("pin"), num, [Sym("uuid"), uid(project, "pin", p["ref"], num)]])
-        sym.append([Sym("instances"), [Sym("project"), project, [Sym("path"), "/{}/{}".format(root_uuid, su), [Sym("reference"), p["ref"]], [Sym("unit"), 1]]]])
+        sym.append([Sym("instances"), [Sym("project"), project, [Sym("path"), "/{}/{}".format(root_uuid, su), [Sym("reference"), p["ref"]], [Sym("unit"), unit]]]])
         body.append(sym)
         seen = set()
         for num, name, typ, px, py, ang, ln, unit in pins:
@@ -107,8 +159,8 @@ def sheet_file(design, project, sheet, title, title_en, page, root_uuid, nc_nets
 
 def root_file(design, project, root_uuid, title):
     body = [Sym("kicad_sch"), [Sym("version"), 20230121], [Sym("generator"), Sym("eeschema")], [Sym("uuid"), root_uuid], [Sym("paper"), "A3"],
-            [Sym("title_block"), [Sym("title"), title], [Sym("date"), "2026-11-05"], [Sym("rev"), "示例 A"],
-             [Sym("company"), "问渠数字工业园 · 电路板厂（示例设计，未经硬件验证，不能直接投产）"]],
+            [Sym("title_block"), [Sym("title"), title], [Sym("date"), _title_block(design)["date"]], [Sym("rev"), _title_block(design)["rev"]],
+             [Sym("company"), _title_block(design)["company"]]],
             [Sym("lib_symbols")]]
     for i, (key, name, name_en) in enumerate(design.SHEETS):
         x, y = 40 + (i % 4) * 90, 60 + (i // 4) * 60
@@ -120,7 +172,7 @@ def root_file(design, project, root_uuid, title):
                      [Sym("property"), "Sheetfile", key + ".kicad_sch", [Sym("at"), x, round(y + 30.6, 2), 0],
                       [Sym("effects"), [Sym("font"), [Sym("size"), 1.27, 1.27]], [Sym("justify"), Sym("left"), Sym("top")]]],
                      [Sym("instances"), [Sym("project"), project, [Sym("path"), "/" + root_uuid, [Sym("page"), str(i + 2)]]]]])
-    body.append([Sym("text"), "关节伺服驱动板 DRV-JOINT：48 V、三相、相电流采样 + 编码器接口 + CAN。示例设计，未经硬件验证。",
+    body.append([Sym("text"), getattr(design, "ROOT_TEXT", "关节伺服驱动板 DRV-JOINT：48 V、三相、相电流采样 + 编码器接口 + CAN。示例设计，未经硬件验证。"),
                  [Sym("at"), 40, 35, 0], [Sym("effects"), [Sym("font"), [Sym("size"), 2.5, 2.5]], [Sym("justify"), Sym("left")]],
                  [Sym("uuid"), uid(project, "roottext")]])
     body.append([Sym("sheet_instances"), [Sym("path"), "/", [Sym("page"), "1"]]])

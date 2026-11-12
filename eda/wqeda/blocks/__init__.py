@@ -6,7 +6,7 @@ circuit.generate 列出的生成器按顺序展开。计算器、生成器都是
 
 from __future__ import annotations
 
-from . import common, control, drive, mains, power, servo
+from . import common, control, ctrl, drive, mains, power, servo
 
 CALCULATORS = {
     "bus_input": power.calc_bus_input,
@@ -28,6 +28,7 @@ CALCULATORS = {
     "solenoid_drive": servo.calc_solenoid_drive,
     "stepper": servo.calc_stepper,
     "panel_iso": servo.calc_panel_iso,
+    "sensor_inputs": ctrl.calc_sensor_inputs,
     "heatsink": mains.calc_heatsink,
 }
 NAMES = {
@@ -50,6 +51,7 @@ NAMES = {
     "stepper": ("针距步进驱动", "Stitch-length stepper driver"),
     "panel_iso": ("面板口隔离", "Isolated panel port"),
     "heatsink": ("散热器", "Heatsink"),
+    "sensor_inputs": ("编码器、霍尔与脚踏输入", "Encoder, Hall and pedal inputs"),
 }
 # 单个单元的生成器；phase_legs 一次用三个单元（半桥、驱动、采样）
 GENERATORS = {
@@ -59,6 +61,17 @@ GENERATORS = {
     "encoder": control.gen_encoder,
     "ssi_rs485": control.gen_ssi_rs485,
     "can": control.gen_can,
+    # 第 159 轮 159d1：平缝机控制器 CTRL-LS
+    "ac_input": ctrl.gen_ac_input,
+    "bridge": ctrl.gen_bridge,
+    "pfc_boost": ctrl.gen_pfc_boost,
+    "flyback_aux": ctrl.gen_flyback_aux,
+    "ipm_inverter": ctrl.gen_ipm_inverter,
+    "low_side_sense": ctrl.gen_low_side_sense,
+    "solenoid_drive": ctrl.gen_solenoid_drive,
+    "stepper": ctrl.gen_stepper,
+    "panel_iso": ctrl.gen_panel_iso,
+    "sensor_inputs": ctrl.gen_sensor_inputs,
 }
 MULTI = {"phase_legs": (drive.gen_phase_legs, ("half_bridge", "gate_drive", "current_sense"))}
 SIM = {"current_sense": "sense", "gate_drive": "gate", "bus_input": "bus", "encoder": "encoder"}

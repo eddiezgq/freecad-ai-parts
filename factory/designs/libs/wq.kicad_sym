@@ -227,4 +227,278 @@
         (number "17"
           (effects
             (font
+              (size 1.27 1.27)))))))
+  (symbol "L_PFC"
+    (pin_names
+      (offset 1.016))
+    (in_bom yes)
+    (on_board yes)
+    (property "Reference" "L"
+      (at 0 3.81 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "L_PFC"
+      (at 0 -3.81 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "wq:Magnetics_TBD"
+      (at 0 -6.35 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 0 0 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "ki_description" "升压电感（平缝机控制器 CTRL-LS，定制件；磁芯 159d2 定）"
+      (at 0 0 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (symbol "L_PFC_0_1"
+      (rectangle
+        (start -5.08 2.54)
+        (end 5.08 -2.54)
+        (stroke
+          (width 0.254)
+          (type default))
+        (fill
+          (type background))))
+    (symbol "L_PFC_1_1"
+      (pin passive line
+        (at -7.62 0 0)
+        (length 2.54)
+        (name "1"
+          (effects
+            (font
+              (size 1.27 1.27))))
+        (number "1"
+          (effects
+            (font
+              (size 1.27 1.27)))))
+      (pin passive line
+        (at 7.62 0 180)
+        (length 2.54)
+        (name "2"
+          (effects
+            (font
+              (size 1.27 1.27))))
+        (number "2"
+          (effects
+            (font
+              (size 1.27 1.27)))))))
+  (symbol "Transformer_FLY3"
+    (pin_names
+      (offset 1.016))
+    (in_bom yes)
+    (on_board yes)
+    (property "Reference" "T"
+      (at 0 11.43 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "FLY3"
+      (at 0 -11.43 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "wq:Magnetics_TBD"
+      (at 0 -13.97 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 0 0 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "ki_description" "反激变压器：一初级（1 起、2 末）三次级（3/4、5/6、7/8），定制件"
+      (at 0 0 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (symbol "Transformer_FLY3_0_1"
+      (rectangle
+        (start -7.62 10.16)
+        (end 7.62 -10.16)
+        (stroke
+          (width 0.254)
+          (type default))
+        (fill
+          (type background))))
+    (symbol "Transformer_FLY3_1_1"
+      (pin passive line
+        (at -10.16 7.62 0)
+        (length 2.54)
+        (name "P+"
+          (effects
+            (font
+              (size 1.27 1.27))))
+        (number "1"
+          (effects
+            (font
+              (size 1.27 1.27)))))
+      (pin passive line
+        (at -10.16 2.54 0)
+        (length 2.54)
+        (name "P-"
+          (effects
+            (font
+              (size 1.27 1.27))))
+        (number "2"
+          (effects
+            (font
+              (size 1.27 1.27)))))
+      (pin passive line
+        (at 10.16 7.62 180)
+        (length 2.54)
+        (name "S1+"
+          (effects
+            (font
+              (size 1.27 1.27))))
+        (number "3"
+          (effects
+            (font
+              (size 1.27 1.27)))))
+      (pin passive line
+        (at 10.16 5.08 180)
+        (length 2.54)
+        (name "S1-"
+          (effects
+            (font
+              (size 1.27 1.27))))
+        (number "4"
+          (effects
+            (font
+              (size 1.27 1.27)))))
+      (pin passive line
+        (at 10.16 2.54 180)
+        (length 2.54)
+        (name "S2+"
+          (effects
+            (font
+              (size 1.27 1.27))))
+        (number "5"
+          (effects
+            (font
+              (size 1.27 1.27)))))
+      (pin passive line
+        (at 10.16 0 180)
+        (length 2.54)
+        (name "S2-"
+          (effects
+            (font
+              (size 1.27 1.27))))
+        (number "6"
+          (effects
+            (font
+              (size 1.27 1.27)))))
+      (pin passive line
+        (at 10.16 -2.54 180)
+        (length 2.54)
+        (name "S3+"
+          (effects
+            (font
+              (size 1.27 1.27))))
+        (number "7"
+          (effects
+            (font
+              (size 1.27 1.27)))))
+      (pin passive line
+        (at 10.16 -5.08 180)
+        (length 2.54)
+        (name "S3-"
+          (effects
+            (font
+              (size 1.27 1.27))))
+        (number "8"
+          (effects
+            (font
+              (size 1.27 1.27)))))))
+  (symbol "B0505S"
+    (pin_names
+      (offset 1.016))
+    (in_bom yes)
+    (on_board yes)
+    (property "Reference" "U"
+      (at 0 6.35 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "B0505S"
+      (at 0 -6.35 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "wq:Converter_SIP4_B0505S"
+      (at 0 -8.89 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 0 0 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "ki_description" "隔离电源模块 5 V → 5 V 1 W（SIP-4：1 GND、2 Vin、3 0V、4 +Vo，待核对规格书）"
+      (at 0 0 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (symbol "B0505S_0_1"
+      (rectangle
+        (start -7.62 5.08)
+        (end 7.62 -5.08)
+        (stroke
+          (width 0.254)
+          (type default))
+        (fill
+          (type background))))
+    (symbol "B0505S_1_1"
+      (pin power_in line
+        (at -10.16 2.54 0)
+        (length 2.54)
+        (name "Vin"
+          (effects
+            (font
+              (size 1.27 1.27))))
+        (number "2"
+          (effects
+            (font
+              (size 1.27 1.27)))))
+      (pin power_in line
+        (at -10.16 0 0)
+        (length 2.54)
+        (name "GND"
+          (effects
+            (font
+              (size 1.27 1.27))))
+        (number "1"
+          (effects
+            (font
+              (size 1.27 1.27)))))
+      (pin power_out line
+        (at 10.16 2.54 180)
+        (length 2.54)
+        (name "+Vo"
+          (effects
+            (font
+              (size 1.27 1.27))))
+        (number "4"
+          (effects
+            (font
+              (size 1.27 1.27)))))
+      (pin power_out line
+        (at 10.16 0 180)
+        (length 2.54)
+        (name "0V"
+          (effects
+            (font
+              (size 1.27 1.27))))
+        (number "3"
+          (effects
+            (font
               (size 1.27 1.27))))))))

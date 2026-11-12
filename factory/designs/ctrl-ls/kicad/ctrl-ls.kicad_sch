@@ -1,0 +1,229 @@
+(kicad_sch
+  (version 20230121)
+  (generator eeschema)
+  (uuid "175e27dc-760c-5df9-a7da-6b1c2af4118a")
+  (paper "A3")
+  (title_block
+    (title "平缝机控制器 CTRL-LS Lockstitch sewing machine controller（示例设计，未经硬件验证）")
+    (date "2026-11-12")
+    (rev "示例 A")
+    (company "问渠数字工业园 · 电路板厂（示例设计，未经硬件验证，不能直接投产）"))
+  (lib_symbols)
+  (sheet
+    (at 40 60)
+    (size 70 30)
+    (fields_autoplaced)
+    (stroke
+      (width 0.1524)
+      (type solid))
+    (fill
+      (color 0 0 0 0))
+    (uuid "200e218f-a52a-5277-abf3-68100ea1b43b")
+    (property "Sheetname" "1 交流输入、浪涌与整流"
+      (at 40 59.3 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left bottom)))
+    (property "Sheetfile" "mains.kicad_sch"
+      (at 40 90.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left top)))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a"
+          (page "2")))))
+  (sheet
+    (at 130 60)
+    (size 70 30)
+    (fields_autoplaced)
+    (stroke
+      (width 0.1524)
+      (type solid))
+    (fill
+      (color 0 0 0 0))
+    (uuid "cf93e7db-67f9-51f5-8e6d-6878a0ae1db0")
+    (property "Sheetname" "2 功率因数校正与母线"
+      (at 130 59.3 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left bottom)))
+    (property "Sheetfile" "pfc.kicad_sch"
+      (at 130 90.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left top)))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a"
+          (page "3")))))
+  (sheet
+    (at 220 60)
+    (size 70 30)
+    (fields_autoplaced)
+    (stroke
+      (width 0.1524)
+      (type solid))
+    (fill
+      (color 0 0 0 0))
+    (uuid "90f2d8c6-0fb2-5bac-aaf9-efd115e434ac")
+    (property "Sheetname" "3 辅助电源"
+      (at 220 59.3 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left bottom)))
+    (property "Sheetfile" "aux.kicad_sch"
+      (at 220 90.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left top)))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a"
+          (page "4")))))
+  (sheet
+    (at 310 60)
+    (size 70 30)
+    (fields_autoplaced)
+    (stroke
+      (width 0.1524)
+      (type solid))
+    (fill
+      (color 0 0 0 0))
+    (uuid "12d6d878-3387-5651-a39d-a0d3988e4aba")
+    (property "Sheetname" "4 主轴伺服逆变与电流采样"
+      (at 310 59.3 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left bottom)))
+    (property "Sheetfile" "servo.kicad_sch"
+      (at 310 90.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left top)))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a"
+          (page "5")))))
+  (sheet
+    (at 40 120)
+    (size 70 30)
+    (fields_autoplaced)
+    (stroke
+      (width 0.1524)
+      (type solid))
+    (fill
+      (color 0 0 0 0))
+    (uuid "41da601a-f052-539b-9ba7-0381ceac3552")
+    (property "Sheetname" "5 电磁铁与步进"
+      (at 40 119.3 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left bottom)))
+    (property "Sheetfile" "act.kicad_sch"
+      (at 40 150.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left top)))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a"
+          (page "6")))))
+  (sheet
+    (at 130 120)
+    (size 70 30)
+    (fields_autoplaced)
+    (stroke
+      (width 0.1524)
+      (type solid))
+    (fill
+      (color 0 0 0 0))
+    (uuid "33d70254-ef9c-5766-978e-d78ffaf9f61c")
+    (property "Sheetname" "6 主控与传感器输入"
+      (at 130 119.3 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left bottom)))
+    (property "Sheetfile" "io.kicad_sch"
+      (at 130 150.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left top)))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a"
+          (page "7")))))
+  (sheet
+    (at 220 120)
+    (size 70 30)
+    (fields_autoplaced)
+    (stroke
+      (width 0.1524)
+      (type solid))
+    (fill
+      (color 0 0 0 0))
+    (uuid "da7e7db5-214d-530a-9e4e-d8cfad5d60f9")
+    (property "Sheetname" "7 面板口"
+      (at 220 119.3 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left bottom)))
+    (property "Sheetfile" "comm.kicad_sch"
+      (at 220 150.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left top)))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a"
+          (page "8")))))
+  (sheet
+    (at 310 120)
+    (size 70 30)
+    (fields_autoplaced)
+    (stroke
+      (width 0.1524)
+      (type solid))
+    (fill
+      (color 0 0 0 0))
+    (uuid "2c2b1be3-294d-5956-a0c6-85d69b7a917a")
+    (property "Sheetname" "8 散热"
+      (at 310 119.3 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left bottom)))
+    (property "Sheetfile" "thermal.kicad_sch"
+      (at 310 150.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))
+        (justify left top)))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a"
+          (page "9")))))
+  (text "平缝机控制器 CTRL-LS：单相 90–250 V 输入 → 功率因数校正 → 390 V 母线 → 智能功率模块 → 主轴电机；电磁铁 4 路、针距步进、隔离面板口。整块板以母线负端为地，只有面板口隔离。示例设计，未经硬件验证。"
+    (at 40 35 0)
+    (effects
+      (font
+        (size 2.5 2.5))
+      (justify left))
+    (uuid "f22e769c-9bb7-54d8-b3bf-2c61a1549ccc"))
+  (sheet_instances
+    (path "/"
+      (page "1"))))

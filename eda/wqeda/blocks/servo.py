@@ -200,13 +200,18 @@ def calc_ipm_inverter(block, spec, d, parts):
 
 
 def calc_low_side_sense(block, spec, d, parts):
-    """三相下桥采样电阻 + MCU 片内运放（同相放大，偏置 V_ref/2）"""
+    """三相下桥采样电阻 + MCU 片内运放（同相放大 G 倍）。
+    159d1 起进运放前加偏置网络（输入电阻 R_in、到 V_ref 的偏置电阻 R_b）：
+    V+ = V_采样 · k + V_ref · R_in/(R_in + R_b)，k = R_b/(R_in + R_b)；取 R_b = (2G − 1)·R_in 时零点正好是 V_ref/2"""
     p, m, dev = block["params"], d["derating"], d["devices"]
     rs_part = p["shunt"]
     r = dev.value(rs_part, "r")
     mo = motor(spec)
     g, vref = p["gain"], p["v_ref"]
-    i_fs = None if r is None else (vref / 2) / (g * r)
+    r_in, r_b = p["r_in"], p["r_bias"]
+    k = r_b / (r_in + r_b)
+    v0 = g * vref * r_in / (r_in + r_b)
+    i_fs = None if r is None else min(v0, vref - v0) / (g * k * r)
     p_pk = None if r is None else (mo["i_pk"] / SQ2) ** 2 * r
     i_trip = p["i_trip"]
     items = [
@@ -215,10 +220,12 @@ def calc_low_side_sense(block, spec, d, parts):
             "量程（±）",
             i_fs,
             "A",
-            "I_满 = (V_ref/2) / (G · R)",
+            "I_满 = min(V_零, V_ref − V_零) / (G · k · R)",
             source=dev.source(rs_part, "r"),
-            note="G = {:g}，V_ref = {:g} V".format(g, vref),
+            note="G = {:g}，V_ref = {:g} V，k = {:.4g}".format(g, vref, k),
         ),
+        c.item("v_zero", "零电流时运放输出（零点）", v0, "V", "V_零 = G · V_ref · R_in/(R_in + R_b)",
+               note="R_in = {}，R_b = {}".format(c.fmt(r_in), c.fmt(r_b))),
         c.item("p_pk", "采样电阻功耗（峰值力矩持续时）", p_pk, "W", "(I_峰/√2)² · R"),
         c.item(
             "v_trip",
