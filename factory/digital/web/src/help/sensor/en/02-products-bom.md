@@ -35,3 +35,7 @@ so as soon as it starts work this plant receives purchase orders — visible amo
 ## Lab 43: one torque sensor from order to delivery
 
 On the left, Labs & tasks → Lab 43: take an order for 1 WQ-TS yourself, run MRP (single-level BOM, so one work order), read the routing and find the bottleneck — temperature compensation is the longest per piece, but 10 sensors share one chamber load, so the real limits are the one-at-a-time operations, gauge bonding and dead-weight calibration; judge whether the sensor passes final test, receive and invoice, compare the order's standard and actual cost, and review. The platform grades 60 points automatically; the lab report is worth 40.
+
+## Viewing BOMs and routings on the page
+
+[Design & process](/work/engineer) lists every item in this plant that has a BOM (sellable products first): pick one to see its BOM (click a made part to jump to its own BOM), its routing (minutes per piece, machines, pieces per load) and its standard cost. It is read-only; MRP uses exactly this data.

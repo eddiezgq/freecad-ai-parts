@@ -47,3 +47,7 @@ On the left, Labs & tasks → Lab 39: take an order for 1 DRV-JOINT yourself, ru
 ```ask
 q: Which components need to be requested for 20 driver boards?
 ```
+
+## Viewing BOMs and routings on the page
+
+[Design & process](/work/engineer) lists every item in this plant that has a BOM (sellable products first): pick one to see its BOM (click a made part to jump to its own BOM), its routing (minutes per piece, machines, pieces per load) and its standard cost. It is read-only; MRP uses exactly this data.

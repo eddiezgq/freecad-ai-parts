@@ -34,3 +34,7 @@ On the left, Labs & tasks → Lab 40: take an order for 1 lot of WQ-ENCIF (one w
 ```ask
 q: How much material does one WQ-ENCIF lot use? How many lots can stock cover?
 ```
+
+## Viewing BOMs and routings on the page
+
+[Design & process](/work/engineer) lists every item in this plant that has a BOM (sellable products first): pick one to see its BOM (click a made part to jump to its own BOM), its routing (minutes per piece, machines, pieces per load) and its standard cost. It is read-only; MRP uses exactly this data.

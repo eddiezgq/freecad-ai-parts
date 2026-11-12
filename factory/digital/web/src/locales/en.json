@@ -8725,5 +8725,15 @@
 "还没有发布第 2 版设计：先在“设计”里改、交图、发布": "Rev 2 of the design is not released yet: change it in “Design”, submit the drawing and release it first",
 "“处理设计变更”表里还有单据没处理（或还没提交确认）": "Documents in the “Handle design change” table are still open (or not yet confirmed)",
 "变更损失里有单价未知的，算不出数：这一问不判": "Some change loss has an unknown price, so it cannot be calculated: this question is not graded",
-"填数字（美元，没有损失填 0）": "Enter a number (USD, 0 if there is no loss)"
+"填数字（美元，没有损失填 0）": "Enter a number (USD, 0 if there is no loss)",
+  "工艺员工作区 · 本厂产品的物料清单、工艺路线与标准成本": "Process engineer's workspace · this plant's bills of materials, routings and standard costs",
+  "本厂物料": "This plant's items",
+  "物料清单（每件）": "Bill of materials (per piece)",
+  "自制 · 看它的清单": "Made · view its BOM",
+  "外购": "Bought",
+  "工艺路线": "Routing",
+  "这个物料没有登记工艺路线。": "No routing registered for this item.",
+  "只读。改物料清单和工艺路线：企业在“产品登记”或“按单设计”里改；接单时“订单与计划”的算料用的就是这份清单。": "Read-only. To change BOMs and routings, use Product registration or Engineer-to-order; MRP in Orders & Planning uses exactly this BOM.",
+  "可接单的产品": "Products you can sell",
+  "自制的半成品、部件": "Made sub-assemblies and parts"
 }
