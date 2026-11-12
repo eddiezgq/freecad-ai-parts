@@ -1,0 +1,442 @@
+{
+ "plant": "robot",
+ "id": "B",
+ "level": "中等",
+ "title": "大关节模组 WQJ-L",
+ "title_en": "Large joint module WQJ-L",
+ "item": "WQJ-L",
+ "summary": "J1、J2 用的大关节模组里面：谐波减速器按平均负载和峰值核对、输出轴承承受倾覆力矩、抱闸保持力矩、电机温升、扭转刚度对末端变形和固有频率的影响，再在关节测试台测 20 只。",
+ "summary_en": "Inside the large joint module used on J1 and J2: strain-wave gear checked on average and peak torque, output bearings under tilting moment, brake holding torque, motor heating, torsional stiffness and its effect on TCP deflection and natural frequency; then 20 modules on the test bench.",
+ "script": "tools/cases/robot_b.py",
+ "generated": "2026-11-12",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "同一只 WQJ-L 用在 J1（倾覆力矩 92 N·m）和 J2（峰值需求 177 N·m）；寿命设定 20,000 h。",
+   "summary_en": "The same WQJ-L sits on J1 (tilting moment 92 N·m) and J2 (peak demand 177 N·m); life set at 20,000 h.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "零件与机器人库",
+     "label_en": "Parts & robot library",
+     "route": "/library"
+    }
+   ],
+   "facts": [
+    {
+     "name": "J2 峰值需求",
+     "name_en": "J2 peak demand",
+     "value": "177",
+     "unit": "N·m"
+    },
+    {
+     "name": "J1 倾覆力矩",
+     "name_en": "J1 tilting moment",
+     "value": "91.6",
+     "unit": "N·m"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "25 号减速器连续能力不够 J2；选 CSF-32-100 + 400 W，模组外径由减速器 Ø110 定。",
+   "summary_en": "Size 25 cannot carry J2's continuous torque; CSF-32-100 with 400 W chosen; the module diameter follows the Ø110 gear.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "参数配置器",
+     "label_en": "Configurator",
+     "route": "/configurator"
+    },
+    {
+     "label": "零件库：CSF 谐波减速器",
+     "label_en": "Library: CSF gears",
+     "route": "/library?ref=D-RDC-HD-CSF/32-100"
+    }
+   ],
+   "facts": [
+    {
+     "name": "减速器",
+     "name_en": "Strain-wave gear",
+     "value": "CSF-32-100",
+     "unit": ""
+    },
+    {
+     "name": "电机",
+     "name_en": "Motor",
+     "value": "400 W",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "谐波平均负载 78/216 N·m；输出轴承按 J1 校核，最短寿命 77,015 h；抱闸要 116 N·m，下限 160。",
+   "summary_en": "Gear average torque 78/216 N·m; output bearings checked for J1, shortest life 77,015 h; brake needs 116 N·m against a 160 minimum.",
+   "md": "3_计算书.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "零件与机器人库",
+     "label_en": "Parts & robot library",
+     "route": "/library"
+    }
+   ],
+   "facts": [
+    {
+     "name": "谐波平均负载",
+     "name_en": "Gear average torque",
+     "value": "78.1",
+     "unit": "N·m"
+    },
+    {
+     "name": "轴承寿命",
+     "name_en": "Bearing life",
+     "value": "77,015",
+     "unit": "h"
+    },
+    {
+     "name": "抱闸需求",
+     "name_en": "Brake demand",
+     "value": "116",
+     "unit": "N·m"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "末端重力变形约 2.43 mm，J2 减速器扭转占 47%；一阶固有频率 11.8 Hz。",
+   "summary_en": "TCP gravity deflection about 2.43 mm, 47% of it from J2 gear torsion; first natural frequency 11.8 Hz.",
+   "md": "4_刚度与固有频率.md",
+   "figs": [
+    {
+     "file": "4_刚度与变形.png",
+     "caption": "末端变形的来源；谐波减速器的扭转刚度",
+     "caption_en": "Sources of TCP deflection; strain-wave gear torsional stiffness"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "运动与动力分析",
+     "label_en": "Motion & dynamics",
+     "route": "/mbd"
+    },
+    {
+     "label": "仿真与分析",
+     "label_en": "Simulation & analysis",
+     "route": "/cae"
+    }
+   ],
+   "facts": [
+    {
+     "name": "末端变形",
+     "name_en": "TCP deflection",
+     "value": "2.43",
+     "unit": "mm"
+    },
+    {
+     "name": "一阶频率",
+     "name_en": "First mode",
+     "value": "11.8",
+     "unit": "Hz"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "零件沿轴向排开：法兰、两只 6010、CSF-32 就占 84 mm；模型里模组长 110 mm 放不下电机，按示意排下来约 170 mm，模型数据要更新。",
+   "summary_en": "Parts stacked along the axis: flange, two 6010s and the CSF-32 already take 84 mm; the model's 110 mm module cannot hold the motor; about 170 mm by the sketch, so the model data must be updated.",
+   "md": "5_结构.md",
+   "figs": [
+    {
+     "file": "5_结构示意.png",
+     "caption": "WQJ-L 零件沿轴向排开（红线：模型里的模组长度）",
+     "caption_en": "WQJ-L parts along the axis (red: module length in the model)"
+    },
+    {
+     "file": "5_三维剖视.png",
+     "caption": "三维剖视（示意）",
+     "caption_en": "3D cut-away (schematic)"
+    }
+   ],
+   "files": [
+    {
+     "file": "WQJ-L-示意.step",
+     "label": "结构示意 STEP",
+     "label_en": "Layout (STEP)"
+    }
+   ],
+   "tools": [
+    {
+     "label": "零件库：32-100",
+     "label_en": "Library: 32-100",
+     "route": "/library?ref=D-RDC-HD-CSF/32-100"
+    },
+    {
+     "label": "零件库：6010",
+     "label_en": "Library: 6010",
+     "route": "/library?ref=A-BRG-DG/6010"
+    },
+    {
+     "label": "零件库：M5x16",
+     "label_en": "Library: M5x16",
+     "route": "/library?ref=A-SCR-SHC/M5x16"
+    }
+   ],
+   "facts": [
+    {
+     "name": "输出端占长",
+     "name_en": "Output-end length",
+     "value": "84",
+     "unit": "mm"
+    },
+    {
+     "name": "排下来约",
+     "name_en": "Stack length",
+     "value": "170",
+     "unit": "mm"
+    }
+   ]
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "六步装配；轴承预紧控制背隙，抱闸每只都测。",
+   "summary_en": "Six assembly steps; bearing preload controls backlash; every brake is tested.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "装配 + 测试",
+     "name_en": "Assembly + test",
+     "value": "60",
+     "unit": "min"
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "20 只、不合格 0 个，最低 Cpk 1.35；标准成本 $1580.61/只。",
+   "summary_en": "20 modules, 0 out of tolerance, lowest Cpk 1.35; standard cost $1580.61 each.",
+   "md": "7_制造与测试.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间终端",
+     "label_en": "Shop-floor terminal",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    },
+    {
+     "label": "质量异常单（8D）",
+     "label_en": "Quality issues (8D)",
+     "route": "/quality/8d"
+    }
+   ],
+   "facts": [
+    {
+     "name": "不合格",
+     "name_en": "Out of tolerance",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "最低 Cpk",
+     "name_en": "Lowest Cpk",
+     "value": "1.35",
+     "unit": ""
+    },
+    {
+     "name": "标准成本",
+     "name_en": "Standard cost",
+     "value": "$1580.61",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "10 / 10 项校核通过；J2 考减速器、J1 考轴承，刚度在减速器上；模型里的模组长度偏短，要回头改。",
+   "summary_en": "10 / 10 checks pass; J2 loads the gear, J1 the bearings; stiffness sits in the gear.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "零件与机器人库",
+     "label_en": "Parts & robot library",
+     "route": "/library"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "calc",
+   "what": "谐波平均负载转矩（J1、J2 较大者）",
+   "what_en": "Gear average load torque (J1/J2 worst)",
+   "value": "78.1",
+   "op": "<=",
+   "limit": "216",
+   "unit": "N·m",
+   "ok": true,
+   "src": "厂商目录"
+  },
+  {
+   "step": "calc",
+   "what": "谐波启停峰值",
+   "what_en": "Gear repeated peak",
+   "value": "106",
+   "op": "<=",
+   "limit": "333",
+   "unit": "N·m",
+   "ok": true,
+   "src": "厂商目录"
+  },
+  {
+   "step": "calc",
+   "what": "急停冲击",
+   "what_en": "Emergency-stop torque",
+   "value": "334",
+   "op": "<=",
+   "limit": "647",
+   "unit": "N·m",
+   "ok": true,
+   "src": "厂商目录"
+  },
+  {
+   "step": "calc",
+   "what": "输出轴承最短寿命",
+   "what_en": "Shortest output-bearing life",
+   "value": "77,015",
+   "op": ">=",
+   "limit": "20,000",
+   "unit": "h",
+   "ok": true,
+   "src": "ISO 281"
+  },
+  {
+   "step": "calc",
+   "what": "抱闸保持力矩需求不超过测试下限",
+   "what_en": "Brake demand within the test minimum",
+   "value": "116",
+   "op": "<=",
+   "limit": "160",
+   "unit": "N·m",
+   "ok": true,
+   "src": "关节测试台"
+  },
+  {
+   "step": "calc",
+   "what": "电机均方根力矩 / 额定",
+   "what_en": "Motor RMS torque / rated",
+   "value": "0.565",
+   "op": "<=",
+   "limit": "1",
+   "unit": "",
+   "ok": true,
+   "src": "电机选型助手"
+  },
+  {
+   "step": "sim",
+   "what": "末端重力变形",
+   "what_en": "TCP gravity deflection",
+   "value": "2.43",
+   "op": "<=",
+   "limit": "5",
+   "unit": "mm",
+   "ok": true,
+   "src": "本案例设定（标定前可补偿）"
+  },
+  {
+   "step": "cad",
+   "what": "输出法兰、轴承、减速器的长度不超过模组长度",
+   "what_en": "Flange, bearings and gear fit within the module length",
+   "value": "84",
+   "op": "<=",
+   "limit": "110",
+   "unit": "mm",
+   "ok": true,
+   "src": "动力学模型 wqcr5.MODULES"
+  },
+  {
+   "step": "make",
+   "what": "20 只测量不合格数",
+   "what_en": "Out-of-tolerance values in 20 modules",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "关节测试台"
+  },
+  {
+   "step": "make",
+   "what": "最低过程能力 Cpk",
+   "what_en": "Lowest Cpk",
+   "value": "1.35",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算书.md",
+  "4_刚度与变形.png",
+  "4_刚度与固有频率.md",
+  "5_三维剖视.png",
+  "5_结构.md",
+  "5_结构示意.png",
+  "6_工艺.md",
+  "7_制造与测试.md",
+  "8_总结.md",
+  "WQJ-L-示意.step"
+ ]
+}

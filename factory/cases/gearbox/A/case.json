@@ -219,14 +219,29 @@
      "route": "/work/engineer"
     },
     {
-     "label": "零件库",
-     "label_en": "Parts library",
-     "route": "/library"
-    },
-    {
      "label": "设计发布与审批",
      "label_en": "Design release",
      "route": "/design"
+    },
+    {
+     "label": "零件库：6207",
+     "label_en": "Library: 6207",
+     "route": "/library?ref=A-BRG-DG/6207"
+    },
+    {
+     "label": "零件库：12x8x45",
+     "label_en": "Library: 12x8x45",
+     "route": "/library?ref=A-KEY-FLAT/12x8x45"
+    },
+    {
+     "label": "零件库：8x7x63",
+     "label_en": "Library: 8x7x63",
+     "route": "/library?ref=A-KEY-FLAT/8x7x63"
+    },
+    {
+     "label": "零件库：35x52x8",
+     "label_en": "Library: 35x52x8",
+     "route": "/library?ref=A-SEL-LIP/35x52x8"
     }
    ],
    "facts": [
@@ -373,8 +388,8 @@
    "key": "review",
    "title": "总结",
    "title_en": "Review",
-   "summary": "12 / 12 项校核通过；设计改了结构、键、圆角、材料四处，制造改了砂轮修整间隔。",
-   "summary_en": "12 / 12 checks pass; changes in layout, keys, fillets and material, plus a shorter wheel-dressing interval in production.",
+   "summary": "13 / 13 项校核通过；设计改了结构、键、圆角、材料四处，制造改了砂轮修整间隔。",
+   "summary_en": "13 / 13 checks pass; changes in layout, keys, fillets and material, plus a shorter wheel-dressing interval in production.",
    "md": "8_总结.md",
    "figs": [],
    "files": [],
@@ -476,6 +491,17 @@
    "unit": "h",
    "ok": true,
    "src": "任务书"
+  },
+  {
+   "step": "cad",
+   "what": "轴承尺寸与零件库一致",
+   "what_en": "Bearing dimensions match the parts library",
+   "value": "1",
+   "op": "==",
+   "limit": "1",
+   "unit": "",
+   "ok": true,
+   "src": "零件库 A-BRG-DG"
   },
   {
    "step": "cad",

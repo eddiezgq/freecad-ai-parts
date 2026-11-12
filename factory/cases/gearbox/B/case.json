@@ -197,14 +197,19 @@
    ],
    "tools": [
     {
-     "label": "零件库",
-     "label_en": "Parts library",
-     "route": "/library"
-    },
-    {
      "label": "设计发布与审批",
      "label_en": "Design release",
      "route": "/design"
+    },
+    {
+     "label": "零件库：10x8x40",
+     "label_en": "Library: 10x8x40",
+     "route": "/library?ref=A-KEY-FLAT/10x8x40"
+    },
+    {
+     "label": "零件库：12x8x45",
+     "label_en": "Library: 12x8x45",
+     "route": "/library?ref=A-KEY-FLAT/12x8x45"
     }
    ],
    "facts": [
@@ -350,8 +355,8 @@
    "key": "review",
    "title": "总结",
    "title_en": "Review",
-   "summary": "9 / 9 项校核通过；直齿 m3 20/70、b = 45/50；关键在大齿轮齿面。",
-   "summary_en": "9 / 9 checks pass; spur m3 20/70, b = 45/50; the wheel's flank is the critical point.",
+   "summary": "10 / 10 项校核通过；直齿 m3 20/70、b = 45/50；关键在大齿轮齿面。",
+   "summary_en": "10 / 10 checks pass; spur m3 20/70, b = 45/50; the wheel's flank is the critical point.",
    "md": "8_总结.md",
    "figs": [],
    "files": [],
@@ -442,6 +447,17 @@
    "unit": "MPa",
    "ok": true,
    "src": "ISO 6336（Z_D）"
+  },
+  {
+   "step": "cad",
+   "what": "毂槽深与零件库（GB/T 1095）一致",
+   "what_en": "Hub keyway depth matches the parts library",
+   "value": "1",
+   "op": "==",
+   "limit": "1",
+   "unit": "",
+   "ok": true,
+   "src": "零件库 A-KEY-FLAT"
   },
   {
    "step": "process",
