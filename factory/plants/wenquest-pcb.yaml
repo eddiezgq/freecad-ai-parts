@@ -5,6 +5,7 @@
 # 第 106 轮：试产驱动板 B 版 DRV-JOINT-B（第 118 轮起供机器人厂关节模组）（放上编码器接口芯片 WQ-ENCIF，第 98 轮设计）：芯片向工业园的问渠芯片厂买，一次一整批
 #   （34 000 只，pack；对方物料号 WQ-ENCIF 1 批，park_item）。现实里芯片未流片、B 版不投产——这里是工业园（仿真）里试产。
 # 外购件一律写通用名称 +“型号待确认”，不编厂商型号。
+# 第 159 轮 159e：平缝机控制器 CTRL-LS（第 159 轮设计）：物料编号和型号照设计的物料清单与器件表，示例选型、未经硬件验证；先卖给“示例·缝纫机厂”。
 # 单价、交货期、工时、设备费率、车间尺寸、测量名义值与散布都是示例值，不是哪家真实工厂的数据。
 # 一种物料只有一处测量特性（ERPNext 一种物料一张检验模板）：贴片板在 AOI 工位把 SPI、炉温记录、AOI 结果一起记（按板追溯）；
 # 成品板在功能测试工位把 ICT 采样电阻阻值和 FCT 结果一起记。
@@ -91,10 +92,14 @@ suppliers:
   # 第 106 轮：工业园的问渠芯片厂（WQ-ENCIF 按晶圆批卖；交期示例）
   chipfab: {name: 问渠芯片厂 WenQuest Semiconductor, park: wenquest-chip, lead: 10, on_time: 0.95, pass: 0.995, cat_name: 自研芯片,
             incoming: [{name: 防潮包装 Dry pack, text: 防潮袋密封完好、湿度卡未变色、盘标批号与发货单一致}]}
+  # 第 159 轮 159e：CTRL-LS 的升压电感、反激变压器是定制件，按计算书的规格外协绕制（交期示例）
+  magnetics: {name: 示例·磁性元件厂 Magnetics Winder (Demo), lead: 15, on_time: 0.9, pass: 0.98, cat_name: 定制磁性元件,
+              incoming: [{name: 电感量 Inductance, text: 按规格书测试报告，抽检电感量与耐压}]}
 customers:
 - 示例·工业机器人集成商 Robot Integrator (Demo)
 - 示例·物流设备厂 Logistics Equipment Maker (Demo)
 - 示例·传感器厂 Sensor Maker (Demo)
+- 示例·缝纫机厂 Sewing Machine Maker (Demo)
 items:
 # 印制板（光板，外协）
 - {code: PCB-DRV, name: 驱动板光板 4 层 2 oz（外协） Drive board bare PCB, kind: buy, uom: Nos, price: 6.5, supplier: pcbfab}
@@ -138,11 +143,67 @@ items:
 - {code: PASTE-SAC305, name: 无铅锡膏 SAC305（型号待确认） Lead-free solder paste, kind: raw, uom: Kg, price: 70, supplier: chem, note: 冷藏 2–10 ℃}
 - {code: COAT-AR, name: 三防漆（丙烯酸，型号待确认） Conformal coating, kind: raw, uom: Kg, price: 25, supplier: chem}
 - {code: BAG-ESD, name: 防静电袋 ESD bag, kind: buy, uom: Nos, price: 0.1, supplier: packing}
+# 第 159 轮 159e：平缝机控制器 CTRL-LS（第 159 轮设计，factory/designs/ctrl-ls）。物料编号与设计的物料清单相同（测试逐项核对）；
+# 型号来自设计的器件表（parts.yaml，立创核实过有货），示例选型，未经硬件验证；没写型号的是通用阻容。7 种与驱动板相同的直接用上面的编号
+- {code: PCB-CTRL, name: 平缝机控制器光板 4 层 外层 3 oz 250 × 150 mm（外协） Sewing controller bare PCB, kind: buy, uom: Nos, price: 18.0, supplier: pcbfab}
+- {code: BRG-GBU1006, name: 整流桥 10 A 600 V（示例选型 GBU1006，未经硬件验证） Bridge rectifier, kind: buy, uom: Nos, price: 0.45, supplier: ic}
+- {code: CAP-0603, name: 贴片电容 0603 Chip capacitor 0603, kind: buy, uom: Nos, price: 0.004, supplier: passive}
+- {code: CAP-0805, name: 贴片电容 0805 Chip capacitor 0805, kind: buy, uom: Nos, price: 0.01, supplier: passive}
+- {code: CAP-1210, name: 贴片陶瓷电容 1210 10 µF 50 V Chip capacitor 1210, kind: buy, uom: Nos, price: 0.06, supplier: passive}
+- {code: CAP-1812-1KV, name: 贴片陶瓷电容 1812 15 nF 1 kV Chip capacitor 1812 1 kV, kind: buy, uom: Nos, price: 0.25, supplier: passive}
+- {code: CAP-1812-630V, name: 贴片陶瓷电容 1812 100 nF 630 V Chip capacitor 1812 630 V, kind: buy, uom: Nos, price: 0.15, supplier: passive}
+- {code: CAP-BULK-330U-500V, name: 母线电解电容 330 µF 500 V 牛角（示例选型 Rubycon 500MXH330MEFCSN30X50，未经硬件验证） Bulk capacitor 500 V, kind: buy, uom: Nos, price: 4.8, supplier: passive}
+- {code: CAP-EL-1000U-10V, name: 电解电容 1000 µF 10 V Electrolytic capacitor, kind: buy, uom: Nos, price: 0.08, supplier: passive}
+- {code: CAP-EL-220U-25V, name: 电解电容 220 µF 25 V Electrolytic capacitor, kind: buy, uom: Nos, price: 0.06, supplier: passive}
+- {code: CAP-EL-470U-35V, name: 电解电容 470 µF 35 V Electrolytic capacitor, kind: buy, uom: Nos, price: 0.1, supplier: passive}
+- {code: CAP-EL-47U-16V, name: 贴片电解电容 47 µF 16 V SMD electrolytic capacitor, kind: buy, uom: Nos, price: 0.04, supplier: passive}
+- {code: CAP-FILM-1U-450V, name: 薄膜电容 1 µF 450 V Film capacitor, kind: buy, uom: Nos, price: 0.35, supplier: passive}
+- {code: CAP-X2-470N, name: X2 安规电容 0.47 µF（示例选型 Vishay BFC233920474，未经硬件验证） X2 capacitor, kind: buy, uom: Nos, price: 0.4, supplier: passive}
+- {code: CAP-Y-2N2, name: Y1 安规电容 2.2 nF（示例选型 Murata DE1E3RA222MA4BP01F，未经硬件验证） Y1 capacitor, kind: buy, uom: Nos, price: 0.08, supplier: passive}
+- {code: CMC-8118RC, name: 共模电感 7.3 mH 9.3 A（示例选型 Bourns 8118-RC，未经硬件验证） Common-mode choke, kind: buy, uom: Nos, price: 3.5, supplier: passive}
+- {code: CONN-AC, name: 交流输入端子 2 位 5.08 mm AC input terminal, kind: buy, uom: Nos, price: 0.4, supplier: passive}
+- {code: CONN-MOT, name: 电机端子 3 位 5.08 mm Motor terminal, kind: buy, uom: Nos, price: 0.5, supplier: passive}
+- {code: CONN-VH8, name: 电磁铁插座 JST VH 8 位 Solenoid connector, kind: buy, uom: Nos, price: 0.3, supplier: passive}
+- {code: CONN-XH3, name: 插座 JST XH 3 位 Connector XH 3-pin, kind: buy, uom: Nos, price: 0.05, supplier: passive}
+- {code: CONN-XH4, name: 插座 JST XH 4 位 Connector XH 4-pin, kind: buy, uom: Nos, price: 0.06, supplier: passive}
+- {code: CONN-XH8, name: 插座 JST XH 8 位 Connector XH 8-pin, kind: buy, uom: Nos, price: 0.1, supplier: passive}
+- {code: DCDC-B0505S, name: 隔离电源模块 5 V → 5 V 1 W（示例选型 B0505S-1WR2，未经硬件验证） Isolated DC-DC module, kind: buy, uom: Nos, price: 1.1, supplier: ic}
+- {code: DIO-1N4007, name: 整流二极管 1N4007 SMA Rectifier diode, kind: buy, uom: Nos, price: 0.02, supplier: ic}
+- {code: DIO-1N4148W, name: 开关二极管 1N4148W Switching diode, kind: buy, uom: Nos, price: 0.01, supplier: ic}
+- {code: DIO-1N5408, name: 整流二极管 1N5408 Rectifier diode 3 A, kind: buy, uom: Nos, price: 0.06, supplier: ic}
+- {code: DIO-C3D06060A, name: 碳化硅二极管 6 A 600 V（示例选型 Wolfspeed C3D06060A，未经硬件验证） SiC diode, kind: buy, uom: Nos, price: 1.6, supplier: ic}
+- {code: DIO-ES3D, name: 快恢复二极管 ES3D（示例选型 onsemi ES3D，未经硬件验证） Fast rectifier, kind: buy, uom: Nos, price: 0.06, supplier: ic}
+- {code: DIO-US1M, name: 快恢复二极管 US1M SMA Fast rectifier, kind: buy, uom: Nos, price: 0.03, supplier: ic}
+- {code: FUSE-T10A, name: 保险丝 5×20 mm 10 A 慢断（示例选型 Littelfuse 0215010.MXP，未经硬件验证）及保险丝座 Fuse 10 A T, kind: buy, uom: Nos, price: 0.3, supplier: passive}
+- {code: IC-74LVC14, name: 施密特反相器（示例选型 SN74LVC14APWR，未经硬件验证） Schmitt inverter, kind: buy, uom: Nos, price: 0.12, supplier: ic}
+- {code: IC-ADUM1201, name: 数字隔离器（示例选型 ADUM1201ARZ-RL7，未经硬件验证） Digital isolator, kind: buy, uom: Nos, price: 1.5, supplier: ic}
+- {code: IC-LDO-3V3, name: 3.3 V 线性稳压（示例选型 AMS1117-3.3，未经硬件验证） 3.3 V LDO, kind: buy, uom: Nos, price: 0.08, supplier: ic}
+- {code: IC-PFC-ICE3PCS01G, name: 功率因数校正控制器（示例选型 Infineon ICE3PCS01G，未经硬件验证） PFC controller, kind: buy, uom: Nos, price: 1.3, supplier: ic}
+- {code: IC-TL431, name: 并联稳压基准（示例选型 TL431AIDBZR，未经硬件验证） Shunt reference, kind: buy, uom: Nos, price: 0.05, supplier: ic}
+- {code: IC-TMC2226, name: 步进电机驱动（示例选型 TMC2226-SA，未经硬件验证） Stepper driver, kind: buy, uom: Nos, price: 2.2, supplier: ic}
+- {code: IC-TOP266KG, name: 反激控制器（示例选型 Power Integrations TOP266KG，未经硬件验证） Flyback switcher, kind: buy, uom: Nos, price: 2.4, supplier: ic}
+- {code: IND-PFC-CUSTOM, name: 升压电感 451 µH ETD59（定制，按计算书规格绕制） PFC boost inductor (custom), kind: buy, uom: Nos, price: 6, supplier: magnetics}
+- {code: IPM-STGIPS14K60T, name: 智能功率模块 14 A 600 V（示例选型 ST STGIPS14K60T，未经硬件验证） Intelligent power module, kind: buy, uom: Nos, price: 7.5, supplier: ic}
+- {code: MOS-2N7002, name: 小信号 MOSFET 2N7002 Small-signal MOSFET, kind: buy, uom: Nos, price: 0.02, supplier: ic}
+- {code: MOS-IPW60R060P7, name: 升压开关管 600 V 60 mΩ（示例选型 Infineon IPW60R060P7，未经硬件验证） PFC MOSFET, kind: buy, uom: Nos, price: 4.5, supplier: ic}
+- {code: MOV-275, name: 压敏电阻 275 V（示例选型 TDK B72214S0271K101，未经硬件验证） Varistor, kind: buy, uom: Nos, price: 0.15, supplier: passive}
+- {code: NTC-2R5, name: 浪涌限流热敏电阻 2.5 Ω（示例选型 TDK B57364S0259M000，未经硬件验证） Inrush NTC, kind: buy, uom: Nos, price: 0.4, supplier: passive}
+- {code: OPTO-PC817, name: 光耦（示例选型 Sharp PC817X2NSZ9F，未经硬件验证） Optocoupler, kind: buy, uom: Nos, price: 0.05, supplier: ic}
+- {code: RES-0603, name: 贴片电阻 0603 Chip resistor 0603, kind: buy, uom: Nos, price: 0.003, supplier: passive}
+- {code: RES-1206, name: 贴片电阻 1206（母线分压） Chip resistor 1206, kind: buy, uom: Nos, price: 0.006, supplier: passive}
+- {code: RES-2010-0R12, name: 采样电阻 0.12 Ω 2010（步进驱动） Sense resistor 0.12 Ω, kind: buy, uom: Nos, price: 0.05, supplier: passive}
+- {code: RES-2512, name: 贴片电阻 2512 6.2 kΩ（钳位） Chip resistor 2512, kind: buy, uom: Nos, price: 0.03, supplier: passive}
+- {code: RES-SHUNT-10M, name: 采样电阻 10 mΩ 2512（校正电流） Current shunt 10 mΩ, kind: buy, uom: Nos, price: 0.15, supplier: passive}
+- {code: RES-SHUNT-25M, name: 采样电阻 25 mΩ 1% 2512（示例选型 Vishay WSLT2512R0250FEA，未经硬件验证） Current shunt 25 mΩ, kind: buy, uom: Nos, price: 0.3, supplier: passive}
+- {code: RLY-G5LE, name: 旁路继电器 12 V 线圈（示例选型 Omron G5LE-1-E DC12，未经硬件验证） Bypass relay, kind: buy, uom: Nos, price: 0.8, supplier: passive}
+- {code: TVS-SMBJ24A, name: 瞬态抑制二极管 SMBJ24A TVS diode, kind: buy, uom: Nos, price: 0.05, supplier: ic}
+- {code: XFMR-FLY-CUSTOM, name: 反激变压器 24 V / 15 V / 5 V（定制，按计算书规格绕制） Flyback transformer (custom), kind: buy, uom: Nos, price: 3.5, supplier: magnetics}
 # 贴片板（SMT 线做完）
 - {code: SMT-DRV, name: 驱动板贴片板 Drive board SMT assembly, kind: sub, uom: Nos}
 - {code: SMT-AGV, name: AGV 控制板贴片板 AGV controller SMT assembly, kind: sub, uom: Nos}
 - {code: SMT-ENC, name: 编码器读头板贴片板 Encoder head SMT assembly, kind: sub, uom: Nos}
 - {code: SMT-DRV-B, name: 驱动板 B 版贴片板（试产） Drive board rev B SMT assembly, kind: sub, uom: Nos}
+- {code: SMT-CTRL, name: 平缝机控制器贴片板 Sewing controller SMT assembly, kind: sub, uom: Nos}
 # 成品板
 - {code: DRV-JOINT, name: 关节伺服驱动板（示例：48 V、三相、电流采样 + 编码器接口） Joint servo drive board, kind: fg, uom: Nos,
    note: 卖给机器人厂（关节模组）；E4 做它的 KiCad 设计}
@@ -150,6 +211,8 @@ items:
 - {code: ENC-RD, name: 编码器读头板（示例：正余弦输出） Encoder read-head board, kind: fg, uom: Nos, note: 以后卖给传感器厂}
 - {code: DRV-JOINT-B, name: 关节伺服驱动板 B 版（编码器接口芯片 WQ-ENCIF；抱闸驱动与线圈电流检测） Joint servo drive board rev B, kind: fg, uom: Nos,
    note: 第 98 轮设计、第 100/102/107/110/114 轮固件；第 118 轮起供机器人厂三种关节模组（工业园里生产，现实不投产）}
+- {code: CTRL-LS, name: 平缝机控制器（示例：单相 220 V 输入、校正、主轴伺服、电磁铁 4 路、针距步进、隔离面板口） Lockstitch sewing machine controller, kind: fg, uom: Nos,
+   note: 第 159 轮设计（示例设计，未经硬件验证）；卖给缝纫机厂（电控箱，下一轮接入工业园）}
 routings:
 - name: RT-SMT 贴片线 SMT line
   steps: [[锡膏印刷 Stencil printing, 1.0], [锡膏检测 SPI, 0.5], [高速贴片 Chip placement, 2.0], [多功能贴片 IC placement, 1.5],
@@ -157,6 +220,14 @@ routings:
 - name: RT-后段 Back end
   steps: [[选择焊 Selective soldering, 2.0], [在线测试 ICT, 1.5], [程序烧录 Programming, 1.0], [三防涂覆 Conformal coating, 1.5],
           [老化 Burn-in, 120], [功能测试 FCT, 3.0], [包装 Packing, 0.5]]
+# 第 159 轮 159e：平缝机控制器同一条线，贴片件 187 个（驱动板约一半），贴片工时加长；通孔件 30 个，选择焊加长；
+# 接市电的板子老化 4 小时、功能测试多一项耐压（工时都是示例值）
+- name: RT-SMT-CTRL 贴片线（平缝机控制器） SMT line (sewing controller)
+  steps: [[锡膏印刷 Stencil printing, 1.2], [锡膏检测 SPI, 0.8], [高速贴片 Chip placement, 4.0], [多功能贴片 IC placement, 2.5],
+          [回流焊 Reflow soldering, 6.0], [自动光学检测 AOI, 1.5]]
+- name: RT-后段-CTRL 后段（平缝机控制器） Back end (sewing controller)
+  steps: [[选择焊 Selective soldering, 5.0], [在线测试 ICT, 2.0], [程序烧录 Programming, 1.0], [三防涂覆 Conformal coating, 2.5],
+          [老化 Burn-in, 240], [功能测试 FCT, 6.0], [包装 Packing, 1.0]]
 boms:
 - item: SMT-DRV
   routing: RT-SMT 贴片线 SMT line
@@ -190,17 +261,27 @@ boms:
 - item: ENC-RD
   routing: RT-后段 Back end
   components: [[SMT-ENC, 1], [CONN-SIG, 1], [COAT-AR, 0.001], [BAG-ESD, 1]]
+- item: SMT-CTRL
+  routing: RT-SMT-CTRL 贴片线（平缝机控制器） SMT line (sewing controller)
+  # 第 159 轮 159e：贴片件 187 个（与 KiCad 设计的物料清单逐项一致，测试核对；锡膏按板子面积示例值）
+  components: [[PCB-CTRL, 1], [CAP-0402, 9], [CAP-0603, 34], [CAP-0805, 3], [CAP-1206, 10], [CAP-1210, 1], [CAP-1812-1KV, 1], [CAP-1812-630V, 1], [CAP-EL-47U-16V, 1], [DIO-1N4007, 2], [DIO-1N4148W, 1], [DIO-ES3D, 7], [DIO-US1M, 1], [IC-74LVC14, 1], [IC-ADUM1201, 1], [IC-LDO-3V3, 2], [IC-MCU-MC, 1], [IC-PFC-ICE3PCS01G, 1], [IC-RS485, 1], [IC-TL431, 1], [IC-TMC2226, 1], [IC-TOP266KG, 1], [MOS-2N7002, 6], [MOS-80V, 4], [OPTO-PC817, 1], [RES-0402, 1], [RES-0603, 66], [RES-1206, 15], [RES-2010-0R12, 2], [RES-2512, 2], [RES-SHUNT-10M, 1], [RES-SHUNT-25M, 3], [TVS-SMBJ24A, 4], [XTAL, 1], [PASTE-SAC305, 0.012]]
+- item: CTRL-LS
+  routing: RT-后段-CTRL 后段（平缝机控制器） Back end (sewing controller)
+  # 通孔件 30 个（选择焊；KiCad 板上的通孔封装，测试核对）。发热大件贴电控箱顶板散热，散热片、导热垫在缝纫机厂装箱时装，不在这块板上
+  components: [[SMT-CTRL, 1], [BRG-GBU1006, 1], [CAP-BULK-330U-500V, 3], [CAP-EL-1000U-10V, 1], [CAP-EL-220U-25V, 1], [CAP-EL-470U-35V, 1], [CAP-FILM-1U-450V, 1], [CAP-X2-470N, 1], [CAP-Y-2N2, 2], [CMC-8118RC, 1], [CONN-AC, 1], [CONN-MOT, 1], [CONN-VH8, 1], [CONN-XH3, 1], [CONN-XH4, 2], [CONN-XH8, 1], [DCDC-B0505S, 1], [DIO-1N5408, 1], [DIO-C3D06060A, 1], [FUSE-T10A, 1], [IND-PFC-CUSTOM, 1], [IPM-STGIPS14K60T, 1], [MOS-IPW60R060P7, 1], [MOV-275, 1], [NTC-2R5, 1], [RLY-G5LE, 1], [XFMR-FLY-CUSTOM, 1], [COAT-AR, 0.012], [BAG-ESD, 1]]
 products:
 - {item: DRV-JOINT, price: 160}
 - {item: CTRL-AGV, price: 700}
 - {item: ENC-RD, price: 60}
 - {item: DRV-JOINT-B, price: 165}
+- {item: CTRL-LS, price: 95}
 stock:
-  # 期初库存（示例值）：大约够做驱动板 150 块、AGV 控制板 40 块、读头板 100 块
-  opening: {PCB-DRV: 150, PCB-AGV: 40, PCB-ENC: 100, IC-MCU-MC: 150, IC-MCU-HP: 40, IC-GDRV: 700, IC-LDO: 320, IC-RS485: 320, CAP-1206: 1100, DIO-SMD: 620, XTAL: 160, IC-ISO: 240, IC-CAN: 240, IC-BUCK: 330,
-            IC-AMP: 620, IC-ENC-AFE: 100, SNS-OPT: 100, MOS-80V: 1400, RES-SHUNT: 620, RES-0402: 16000, CAP-0402: 19000, CAP-BULK: 850,
+  # 期初库存（示例值）：大约够做驱动板 150 块、AGV 控制板 40 块、读头板 100 块、平缝机控制器 40 块（159e）
+  opening: {PCB-DRV: 150, PCB-AGV: 40, PCB-ENC: 100, IC-MCU-MC: 190, IC-MCU-HP: 40, IC-GDRV: 700, IC-LDO: 320, IC-RS485: 360, CAP-1206: 1500, DIO-SMD: 620, XTAL: 200, IC-ISO: 240, IC-CAN: 240, IC-BUCK: 330,
+            IC-AMP: 620, IC-ENC-AFE: 100, SNS-OPT: 100, MOS-80V: 1560, RES-SHUNT: 620, RES-0402: 16040, CAP-0402: 19360, CAP-BULK: 850,
             IND-PWR: 240, CONN-PWR: 450, CONN-SIG: 560, PASTE-SAC305: 1.2, COAT-AR: 1.0, BAG-ESD: 300,
-            OSC-50M: 120, IC-LDO18: 120, IC-GDRV-LS: 120, DIO-SMD-100: 120, RES-0805: 150}     # 第 106 轮：WQ-ENCIF 不备期初库存，第一次做 B 版就向芯片厂买
+            OSC-50M: 120, IC-LDO18: 120, IC-GDRV-LS: 120, DIO-SMD-100: 120, RES-0805: 150,
+            BRG-GBU1006: 40, CAP-0603: 1360, CAP-0805: 120, CAP-1210: 40, CAP-1812-1KV: 40, CAP-1812-630V: 40, CAP-BULK-330U-500V: 120, CAP-EL-1000U-10V: 40, CAP-EL-220U-25V: 40, CAP-EL-470U-35V: 40, CAP-EL-47U-16V: 40, CAP-FILM-1U-450V: 40, CAP-X2-470N: 40, CAP-Y-2N2: 80, CMC-8118RC: 40, CONN-AC: 40, CONN-MOT: 40, CONN-VH8: 40, CONN-XH3: 40, CONN-XH4: 80, CONN-XH8: 40, DCDC-B0505S: 40, DIO-1N4007: 80, DIO-1N4148W: 40, DIO-1N5408: 40, DIO-C3D06060A: 40, DIO-ES3D: 280, DIO-US1M: 40, FUSE-T10A: 40, IC-74LVC14: 40, IC-ADUM1201: 40, IC-LDO-3V3: 80, IC-PFC-ICE3PCS01G: 40, IC-TL431: 40, IC-TMC2226: 40, IC-TOP266KG: 40, IND-PFC-CUSTOM: 40, IPM-STGIPS14K60T: 40, MOS-2N7002: 240, MOS-IPW60R060P7: 40, MOV-275: 40, NTC-2R5: 40, OPTO-PC817: 40, PCB-CTRL: 40, RES-0603: 2640, RES-1206: 600, RES-2010-0R12: 80, RES-2512: 80, RES-SHUNT-10M: 40, RES-SHUNT-25M: 120, RLY-G5LE: 40, TVS-SMBJ24A: 160, XFMR-FLY-CUSTOM: 40}     # 第 106 轮：WQ-ENCIF 不备期初库存，第一次做 B 版就向芯片厂买
   safety: {IC-MCU-MC: 30, MOS-80V: 200, RES-SHUNT: 100, PCB-DRV: 30}
 key_materials: [IC-MCU-MC, MOS-80V, RES-SHUNT, PCB-DRV]
 measurements:
@@ -218,6 +299,7 @@ measurements:
 - {item: SMT-AGV, operation: 自动光学检测 AOI, chars: *smt}
 - {item: SMT-ENC, operation: 自动光学检测 AOI, chars: *smt}
 - {item: SMT-DRV-B, operation: 自动光学检测 AOI, chars: *smt}
+- {item: SMT-CTRL, operation: 自动光学检测 AOI, chars: *smt}
 # 成品板：在功能测试工位记下 ICT 的采样电阻阻值和功能测试结果（老化之后测）
 - item: DRV-JOINT
   operation: 功能测试 FCT
@@ -251,3 +333,16 @@ measurements:
   - {code: enc_offset, name: 直流偏置, unit: mV, nominal: 0, lo: -20, hi: 20, sigma: 4}
   - {code: enc_phase, name: A/B 相位差, unit: °, nominal: 90, lo: 87, hi: 93, sigma: 0.6}
   - {code: enc_interp, name: 细分误差, unit: ″, nominal: 15, lo: 0, hi: 40, sigma: 4}
+# 第 159 轮 159e：平缝机控制器——名义值取设计的计算书（母线 390 V、辅助电源 24 / 15 / 5 V、3.3 V、隔离 5 V；采样电阻 25 mΩ 1%），
+# 偏差限与散布是示例值；耐压只记击穿次数（试验电压按计算书“面板口隔离”的要求，示例值），不在这里另写电压
+- item: CTRL-LS
+  operation: 功能测试 FCT
+  chars:
+  - {code: ict_shunt, name: 下桥采样电阻阻值（ICT，25 mΩ 1%）, unit: mΩ, nominal: 25.0, lo: 24.75, hi: 25.25, sigma: 0.05}
+  - {code: ctl_vbus, name: 母线电压（校正输出）, unit: V, nominal: 390, lo: 382, hi: 398, sigma: 1.2}
+  - {code: ctl_24v, name: 24 V 辅助电源输出, unit: V, nominal: 24.0, lo: 22.8, hi: 25.2, sigma: 0.15}
+  - {code: ctl_15v, name: 15 V 辅助电源输出, unit: V, nominal: 15.0, lo: 14.25, hi: 15.75, sigma: 0.1}
+  - {code: ctl_5v, name: 5 V 辅助电源输出, unit: V, nominal: 5.0, lo: 4.85, hi: 5.15, sigma: 0.02}
+  - {code: ctl_3v3, name: 3.3 V 电源输出, unit: V, nominal: 3.3, lo: 3.2, hi: 3.4, sigma: 0.012}
+  - {code: ctl_iso5v, name: 隔离 5 V 输出（面板口）, unit: V, nominal: 5.0, lo: 4.5, hi: 5.5, sigma: 0.05}
+  - {code: ctl_hipot, name: 面板口隔离耐压击穿次数（试验电压按计算书）, unit: 次, nominal: 0, lo: 0, hi: 0, sigma: 0}

@@ -361,6 +361,23 @@
   {
    "at": [
     [
+     216.0,
+     126.5,
+     "Circle on B.Silkscreen"
+    ],
+    [
+     217.0,
+     125.45,
+     "Reference 'TP21'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
      212.0,
      126.0,
      "Reference 'U602'"
@@ -819,5 +836,5 @@
   }
  ],
  "unconnected": 0,
- "warnings": 58
+ "warnings": 59
 }

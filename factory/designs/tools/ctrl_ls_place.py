@@ -123,7 +123,12 @@ def main():
         bx, by, bw, bh = bbox(parts[ref]["fp"], rot)
         place[ref] = (round(x - bx, 2), round(y - by, 2), rot, "F")
         used.append((x, y, x + bw, y + bh, is_hv[ref]))
-    order = {k: [p for p in D.PARTS if p["sheet"] == k and p["ref"] not in FIXED and p["ref"] not in FIXED_POS] for k in REGIONS}
+    # 底面 ICT 测试点（159e）不在这里排：ctrl_ls_build.py --testpoints 按布好的线找空地放，位置照 design.yaml 原样保留
+    rule = D.DOC["circuit"].get("ict_test_points") or {}
+    ict = {p["ref"] for p in D.PARTS if p["ref"].startswith("TP") and p["note"] == rule.get("note")}
+    place.update({r: D.X["placement"][r] for r in ict if r in D.X["placement"]})
+    order = {k: [p for p in D.PARTS if p["sheet"] == k and p["ref"] not in FIXED and p["ref"] not in FIXED_POS and p["ref"] not in ict]
+             for k in REGIONS}
     left = []
     global GAP
     for k, plist in order.items():

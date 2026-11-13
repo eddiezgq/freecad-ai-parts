@@ -665,3 +665,174 @@ def close_slivers(board, gap=SAME_NET_GAP, keep_mm=0.3):
                 board.Add(s)
                 n += 1
     return n
+
+
+def _copper(board, layer):
+    """这一层上的铜：[(形状, 网络名, 是不是铺铜)]——焊盘、过孔、走线、铺铜（已填的）"""
+    from shapely.geometry import LineString, Point
+
+    mm = pcbnew.ToMM
+    out = []
+    for fp in board.GetFootprints():
+        for p in fp.Pads():
+            if p.IsOnLayer(layer):
+                out.append((_poly(p.GetEffectivePolygon()), p.GetNetname(), False))
+    for t in board.GetTracks():
+        if not t.IsOnLayer(layer):
+            continue
+        if t.GetClass() == "PCB_VIA":
+            c = Point(mm(t.GetPosition().x), mm(t.GetPosition().y))
+            out.append((c.buffer(mm(t.GetWidth()) / 2), t.GetNetname(), False))
+        else:
+            seg = LineString([(mm(t.GetStart().x), mm(t.GetStart().y)), (mm(t.GetEnd().x), mm(t.GetEnd().y))])
+            out.append((seg.buffer(mm(t.GetWidth()) / 2), t.GetNetname(), False))
+    for z in board.Zones():
+        if z.GetIsRuleArea() or not z.IsOnLayer(layer):
+            continue
+        fl = z.GetFilledPolysList(layer)
+        for k in range(fl.OutlineCount()):
+            o = fl.Outline(k)
+            from shapely.geometry import Polygon
+
+            pts = [(mm(o.CPoint(i).x), mm(o.CPoint(i).y)) for i in range(o.PointCount())]
+            if len(pts) >= 3:
+                out.append((Polygon(pts).buffer(0), z.GetNetname(), True))
+    return out
+
+
+def add_test_points(board, tps, load_fp, clearance, outline, keepouts=(), pitch=2.54, edge_mm=1.0, via=(0.6, 0.3),
+                width=0.25, reach=15.0, grid=0.5, tries=40, pour_ok=False, avoid=None, avoid_mm=3.0):
+    """第 159 轮 159e：给板上没有测试点的网络补底面 ICT 测试点（板子已经布好线，不重新布）。
+    tps = [(位号, 网络, 封装)]。每个测试点：在这个网络的铜附近找一处底面空地放焊盘（离别的网络按要求间距、离别的测试点
+    至少 pitch、离板边 edge_mm），旁边打一个过孔、底面一小段线连到焊盘，再在顶层按网格（maze）从过孔接到这个网络。
+    avoid：不放的地方（形状，板上坐标；离它至少 avoid_mm），例如发热件周围——
+    高压网络的过孔穿过地平面要挖一大圈，那里的铜少了板温就高。
+    pour_ok：底面焊盘和那段线可以放进别的网络（非高压）的铺铜里（铺铜重填时让开），给周围全是铺铜的网络用。
+    找不到地方的列出来，不硬放。返回 ({位号: (板上 x, y)}, [放不下的位号])。纯几何计算。"""
+    from shapely.geometry import LineString, Point
+    from shapely.strtree import STRtree
+
+    mm = pcbnew.ToMM
+    lays = {pcbnew.F_Cu: "F", pcbnew.In2_Cu: "In2", pcbnew.B_Cu: "B"}
+    placed, failed = {}, []
+    taken = []
+    for fp in board.GetFootprints():
+        if fp.GetLayer() == pcbnew.B_Cu and fp.GetReference().startswith("TP"):
+            taken.append((mm(fp.GetPosition().x), mm(fp.GetPosition().y)))
+    inner = outline.buffer(-edge_mm)
+    kos_all = [kp for kp, _ls in keepouts]
+    for ref, net, fpid in tps:
+        cu = {L: _copper(board, L) for L in lays}
+        trees = {L: STRtree([g for g, _n, _z in cu[L]]) for L in lays}
+
+        def free(geom, L, need, _cu=cu, _trees=trees, _net=net):
+            for k in _trees[L].query(geom.buffer(need + 3.0)):
+                g, n, z = _cu[L][k]
+                if n == _net or (z and pour_ok and L == pcbnew.B_Cu and clearance(_net, n) <= 0.3):
+                    continue
+                if g.distance(geom) < clearance(_net, n) + need:
+                    return False
+            return True
+
+        mine = [g for g, n, _z in cu[pcbnew.F_Cu] if n == net]
+        if not mine:
+            failed.append(ref)
+            continue
+        from shapely.ops import unary_union
+
+        home = unary_union(mine)
+        x0, y0, x1, y1 = home.buffer(reach).bounds
+        cands = []
+        x = x0
+        while x <= x1:
+            y = y0
+            while y <= y1:
+                p = Point(round(x / grid) * grid, round(y / grid) * grid)
+                d = home.distance(p)
+                if d <= reach and inner.contains(p):
+                    cands.append((d, p.x, p.y))
+                y += grid
+            x += grid
+        cands.sort()
+        ok = False
+        tried = 0
+        for _d, tx, ty in cands:
+            t = Point(tx, ty)
+            if any((tx - a) ** 2 + (ty - b) ** 2 < pitch**2 for a, b in taken):
+                continue
+            near = avoid is not None and avoid.distance(t) < avoid_mm
+            if near or any(kp.distance(t) < 0.5 + 0.1 for kp in kos_all):
+                continue
+            if not free(t.buffer(0.5), pcbnew.B_Cu, 0.0):
+                continue
+            for k in range(8):
+                import math
+
+                for r in (1.3, 1.8):
+                    vx, vy = tx + r * math.cos(k * math.pi / 4), ty + r * math.sin(k * math.pi / 4)
+                    v = Point(vx, vy)
+                    if not inner.contains(v) or any(kp.distance(v) < via[0] / 2 + 0.1 for kp in kos_all) or (
+                            avoid is not None and avoid.distance(v) < avoid_mm):
+                        continue
+                    if not all(free(v.buffer(via[0] / 2), L, 0.0) for L in lays):
+                        continue
+                    leg = LineString([(tx, ty), (vx, vy)]).buffer(width / 2)
+                    if not free(leg, pcbnew.B_Cu, 0.0):
+                        continue
+                    tried += 1
+                    # 先只放过孔、按网格从顶层接；接上了再放焊盘和底面那段线（接不上只拿掉过孔：
+                    # 从板上拿掉封装在 KiCad 7 的 Python 接口里会弄坏后面的读封装，第一次试跑在第 41 次时报错）
+                    vi = _via(board, net, (vx, vy), via)
+                    zk = [(g.buffer(clearance(net, n)), {L}) for L in (pcbnew.F_Cu,) for g, n, _z in cu[L]
+                          if n != net and g.geom_type in ("Polygon", "MultiPolygon") and g.area > 4.0]
+                    r_ = maze(board, net, None, clearance, width, ["F.Cu"], outline, list(keepouts) + zk, lock=True)
+                    if r_ is None:
+                        board.Remove(vi)
+                        continue
+                    _drop_tp(board, ref, net, fpid, load_fp, (tx, ty), (vx, vy), width)
+                    placed[ref] = (tx, ty)
+                    taken.append((tx, ty))
+                    ok = True
+                    break
+                if ok or tried > tries:
+                    break
+            if ok or tried > tries:
+                break
+        if not ok:
+            failed.append(ref)
+    return placed, failed
+
+
+def _via(board, net, v, via):
+    mm = pcbnew.FromMM
+    vi = pcbnew.PCB_VIA(board)
+    vi.SetPosition(pcbnew.VECTOR2I(mm(v[0]), mm(v[1])))
+    vi.SetWidth(mm(via[0]))
+    vi.SetDrill(mm(via[1]))
+    vi.SetNet(board.FindNet(net))
+    vi.SetLocked(True)
+    board.Add(vi)
+    return vi
+
+
+def _drop_tp(board, ref, net, fpid, load_fp, t, v, width):
+    """放测试点焊盘（底面）和焊盘到过孔的一小段底面线"""
+    mm = pcbnew.FromMM
+    ni = board.FindNet(net)
+    fp = load_fp(fpid)
+    fp.SetReference(ref)
+    fp.SetValue(net)
+    board.Add(fp)
+    fp.SetPosition(pcbnew.VECTOR2I(mm(t[0]), mm(t[1])))
+    fp.Flip(fp.GetPosition(), False)
+    fp.SetAttributes(fp.GetAttributes() | pcbnew.FP_EXCLUDE_FROM_BOM)
+    for pad in fp.Pads():
+        pad.SetNet(ni)
+    tr = pcbnew.PCB_TRACK(board)
+    tr.SetStart(pcbnew.VECTOR2I(mm(t[0]), mm(t[1])))
+    tr.SetEnd(pcbnew.VECTOR2I(mm(v[0]), mm(v[1])))
+    tr.SetWidth(mm(width))
+    tr.SetLayer(pcbnew.B_Cu)
+    tr.SetNet(ni)
+    tr.SetLocked(True)
+    board.Add(tr)

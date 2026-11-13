@@ -70,3 +70,54 @@ def test_report_trace_width_and_board_thermal():
     assert {"R203", "R303", "R310", "R411", "R412", "R413", "Q501"} <= set(rows)
     for r in rows.values():
         assert r["model"] == "calc" and r["status"] == "pass" and r["t_board_c"] <= r["t_limit_c"], r["ref"]
+
+
+def test_ict_test_points_on_bottom_and_t1_pass():
+    """159e：通孔焊盘、过孔扎不到的网络各补一个底面测试点；报告的 ICT 覆盖率达到设计描述的要求"""
+    with open(os.path.join(P, "design.yaml"), encoding="utf-8") as f:
+        doc = yaml.safe_load(f)
+    rule = doc["circuit"]["ict_test_points"]
+    place = doc["board"]["placement"]
+    tps = ["TP{}".format(rule["ref_start"] + k) for k in range(len(rule["nets"]))]
+    for ref in tps:
+        assert place[ref][3] == "B", ref
+    with open(os.path.join(P, "out", "bom.csv"), encoding="utf-8") as f:
+        assert not any(r["位号"].startswith("TP") or " TP" in r["位号"] for r in csv.DictReader(f))  # 测试点不进物料清单
+    with open(os.path.join(P, "report", "report.json"), encoding="utf-8") as f:
+        rep = json.load(f)
+    t1 = next(r for r in rep["process"] if r["key"] == "T1")
+    assert t1["status"] == "pass" and t1["value"] >= doc["board"]["rules"]["ict_coverage_min"]
+
+
+def _tht_refs():
+    """KiCad 板上的通孔封装（板子文件里 attr through_hole）"""
+    import re
+    with open(os.path.join(P, "kicad", "ctrl-ls.kicad_pcb"), encoding="utf-8") as f:
+        t = f.read()
+    refs = set()
+    for blk in re.split(r"\n  \(footprint ", t)[1:]:
+        m = re.search(r'\(property "Reference" "([^"]+)"', blk) or re.search(r'\(fp_text reference "([^"]+)"', blk)
+        if m and "(attr through_hole" in blk:
+            refs.add(m.group(1))
+    return refs
+
+
+def test_pcb_plant_bom_matches_design():
+    """159e：电路板厂清单的贴片板 + 成品板两层物料清单，与设计的物料清单逐项相等；成品板上加的正好是通孔件"""
+    with open(os.path.join(os.path.dirname(os.path.dirname(HERE)), "plants", "wenquest-pcb.yaml"), encoding="utf-8") as f:
+        plant = yaml.safe_load(f)
+    boms = {b["item"]: dict((c[0], c[1]) for c in b["components"]) for b in plant["boms"]}
+    smt, fg = boms["SMT-CTRL"], boms["CTRL-LS"]
+    tht = {r for r in _tht_refs() if not r.startswith("H")}
+    want_smt, want_tht = {}, {}
+    with open(os.path.join(P, "out", "bom.csv"), encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            for ref in r["位号"].split():
+                d = want_tht if ref in tht else want_smt
+                d[r["物料编号"]] = d.get(r["物料编号"], 0) + 1
+    assert {k: v for k, v in smt.items() if k not in ("PCB-CTRL", "PASTE-SAC305")} == want_smt
+    assert {k: v for k, v in fg.items() if k not in ("SMT-CTRL", "COAT-AR", "BAG-ESD")} == want_tht
+    assert sum(want_smt.values()) == 187 and sum(want_tht.values()) == 30
+    items = {i["code"] for i in plant["items"]}
+    assert set(want_smt) | set(want_tht) <= items
+    assert "CTRL-LS" in {p["item"] for p in plant["products"]}
