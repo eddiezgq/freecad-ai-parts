@@ -2908,10 +2908,13 @@ _DESIGNS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.
 
 @app.get("/api/designs/{name}/{path:path}")
 def design_file(name: str, path: str):
-    # 第 100 轮：板子的固件产物在 <板>/fw/out（板的 out 每次重新导出会整个重建），用 fw/ 前缀取
-    sub = ("fw", "out") if path.startswith("fw/") else ("out",)
-    if sub[0] == "fw":
-        path = path[3:]
+    # 第 100 轮：板子的固件产物在 <板>/fw/out（板的 out 每次重新导出会整个重建），用 fw/ 前缀取；
+    # 第 159 轮：板子的统一报告（报告、计算书网页）在 <板>/report，用 report/ 前缀取
+    sub = ("out",)
+    for pre, s in (("fw/", ("fw", "out")), ("report/", ("report",))):
+        if path.startswith(pre):
+            sub, path = s, path[len(pre):]
+            break
     base = os.path.realpath(os.path.join(_DESIGNS, name, *sub))
     f = os.path.realpath(os.path.join(base, path))
     if not f.startswith(base + os.sep) or not os.path.isfile(f):

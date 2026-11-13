@@ -104,3 +104,30 @@ def test_firmware_files_served():
     assert c.get("/api/designs/drv-joint-b/design.json").status_code == 200
     assert c.get("/api/designs/drv-joint-b/fw/../../out/design.json").status_code == 404
     assert c.get("/api/designs/drv-joint-b/fw/%2e%2e/src/main.c").status_code == 404
+
+
+def test_ctrl_ls_served_for_page():
+    """第 159 轮 159d3：“电路板设计”页第三块板 CTRL-LS——页面要的产物都在、report/ 前缀取统一报告，不能借它越出目录。"""
+    from fastapi.testclient import TestClient
+    import hub.app as app_mod
+    c = TestClient(app_mod.app)
+    d = c.get("/api/designs/ctrl-ls/design.json").json()
+    for k in ("name", "disclaimer", "board_mm", "origin_mm", "layers", "sheets", "pcb_layers", "parts", "drc", "safety"):
+        assert k in d, k
+    for s in d["sheets"]:
+        assert c.get("/api/designs/ctrl-ls/schematic/" + s["svg"]).status_code == 200, s["key"]
+    for ly in d["pcb_layers"]:
+        assert c.get("/api/designs/ctrl-ls/pcb/" + ly["svg"]).status_code == 200, ly["key"]
+    for f in ("ctrl-ls.glb", "ctrl-ls.step", "bom.csv", "pos.csv", "gerber.zip", "kicad-project.zip", "drc.json", "safety.json"):
+        assert c.get("/api/designs/ctrl-ls/" + f).status_code == 200, f
+    head = c.get("/api/designs/ctrl-ls/bom.csv").text.splitlines()[0].split(",")
+    for h in ("物料编号", "数值", "封装", "数量", "位号", "型号", "厂家", "说明"):
+        assert h in head, h
+    safety = c.get("/api/designs/ctrl-ls/safety.json").json()
+    assert all(r["at"] and r["example"] for r in safety)
+    rep = c.get("/api/designs/ctrl-ls/report/report.json").json()
+    assert rep["count"]["fail"] == 0 and rep["thermal"]["rows"]
+    assert c.get("/api/designs/ctrl-ls/report/report.html").status_code == 200
+    assert c.get("/api/designs/ctrl-ls/report/calc.html").status_code == 200
+    assert c.get("/api/designs/ctrl-ls/report/../out/design.json").status_code == 404
+    assert c.get("/api/designs/ctrl-ls/report/%2e%2e/design.yaml").status_code == 404

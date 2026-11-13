@@ -76,7 +76,7 @@
   "bom.csv": "9f20a8bc3946c9f2",
   "drc.json": "0db290334101b9b4",
   "gerber.zip": "a94cc596a265363f",
-  "kicad-project.zip": "a67cf80706d53a06",
+  "kicad-project.zip": "dfeaf3dd5252f1fe",
   "netcheck.json": "9eddaa8fe06de745",
   "pcb/B_Cu.svg": "0695d8f15014aa2d",
   "pcb/B_Silk.svg": "ed162fcdced0af57",
@@ -86,7 +86,7 @@
   "pcb/In2_Cu.svg": "ce470f924e5f6af4",
   "pos.csv": "455e7610783009c1",
   "safety.json": "002748b9643d3476",
-  "schematic/ctrl-ls-1 交流输入、浪涌与整流.svg": "e0142d35c4b2b912",
+  "schematic/ctrl-ls-1 交流输入、浪涌与整流.svg": "d741afc43d3efe76",
   "schematic/ctrl-ls-2 功率因数校正与母线.svg": "d0b0075d62408796",
   "schematic/ctrl-ls-3 辅助电源.svg": "4fc48a7082c416a7",
   "schematic/ctrl-ls-4 主轴伺服逆变与电流采样.svg": "e989a8807fc40f73",
@@ -107,6 +107,10 @@
   "pass": true
  },
  "nets": 150,
+ "origin_mm": [
+  100.0,
+  100.0
+ ],
  "parts": [
   {
    "fp": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",
@@ -2180,7 +2184,7 @@
    "key": "mains",
    "name": "交流输入、浪涌与整流",
    "name_en": "AC input, inrush and rectifier",
-   "note": "交流 L/N/PE 从 J101 进：保险丝 F101、压敏 RV101、X 电容 C101（R101/R102 放电）、共模电感 L101、Y 电容 C102/C103；热敏电阻 TH101 限上电浪涌，母线充好后校正控制器的 VB_OK 让 K101 吸合短接它；整流桥 BR101。",
+   "note": "交流 L/N 从 J101 进（保护地线直接接电控箱的接地螺柱，Y 电容经安装孔 H1 接箱体）：保险丝 F101、压敏 RV101、X 电容 C101（R101/R102 放电）、共模电感 L101、Y 电容 C102/C103；热敏电阻 TH101 限上电浪涌，母线充好后校正控制器的 VB_OK 让 K101 吸合短接它；整流桥 BR101。",
    "svg": "ctrl-ls-1 交流输入、浪涌与整流.svg"
   },
   {
@@ -2233,6 +2237,12 @@
    "svg": "ctrl-ls-8 散热.svg"
   }
  ],
- "stage": "159d2b 原理图与 PCB（网页在 159d3）",
+ "stage": "159d3 原理图、PCB 与网页",
+ "stats": {
+  "parts": 222,
+  "track_mm": 11828.3,
+  "tracks": 2393,
+  "vias": 327
+ },
  "tool": "KiCad 7.0.11"
 }
