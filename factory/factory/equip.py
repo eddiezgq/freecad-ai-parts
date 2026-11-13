@@ -31,7 +31,10 @@ PREFIX = (("saw", "saw"), ("cnc", "lathe"), ("vmc", "mc"), ("hmc", "mc"), ("grd"
           ("shot", "shotblast"), ("vib", "knockout"), ("fet", "fettling"), ("age", "furnace"), ("put", "paint"), ("prime", "paint"),
           ("ci", "incoming"), ("tap", "mc"), ("deb", "deburr"), ("wash", "washer"), ("leak", "leaktest"), ("paint", "paint"), ("oven", "oven"),
           ("qt", "furnace"), ("car", "furnace"), ("ihd", "ihardening"), ("str", "straightener"), ("lap", "lapping"), ("adj", "adjust"),
-          ("rin", "sewrunin"), ("eol", "eoltest"))
+          ("rin", "sewrunin"), ("eol", "eoltest"),
+          # 第 166 轮：计算机厂（主板 SMT 沿用电路板厂的类别；X 光、内存测试、钣金、阳极氧化、点胶、开机灌装、整机柜联调）
+          ("xr", "xray"), ("mt", "memtest"), ("lc", "lasercut"), ("pb", "pressbrake"), ("pem", "clinch"), ("pc", "powdercoat"),
+          ("an", "anodize"), ("dp", "dispense"), ("ost", "osimage"), ("rk", "racktest"))
 
 # 类别缺省（示例值）：原值 $、购入年、保养内容、保养分钟、一次修理费 $、停机每小时损失 $、
 # 威布尔 β、η 运行小时、平均修复分钟、保养周期 运行小时、开始时已运行小时、故障模式 [(代码, 名称)]、功率 (运行, 空转, 待机) kW、
@@ -248,6 +251,42 @@ KIND = {
                  bought=2022, pm_text="标准电机比对、校扭矩传感器与功率分析仪、查联轴器对中", pm_min=90, repair_usd=2000, lost_per_h=150, beta=2.0, eta_h=4000,
                  mttr_min=180, pm_h=800, init_h=600, modes=[("torque", "扭矩传感器漂移"), ("coupling", "联轴器不对中")], power=(5.0, 1.5, 0.2), air=False,
                  wet=False, noise=72, auto=True, check=["标准电机（金样）复测通过", "联轴器对中"]),
+    # 第 166 轮：计算机厂（示例值）
+    "xray": dict(hazards=[('X 射线辐射', 3, 4, ['舱门联锁', '剂量计年检'])], name="X 光检测仪", value=120000, bought=2022, pm_text="校射线管与探测器、查舱门联锁、测漏射线",
+                 pm_min=90, repair_usd=3000, lost_per_h=80, beta=2.0, eta_h=5000, mttr_min=240, pm_h=1000, init_h=500, modes=[("tube", "射线管老化、图像变暗"), ("detector", "探测器坏点")],
+                 power=(2.0, 0.8, 0.1), air=False, wet=False, noise=50, auto=True, check=["舱门联锁有效", "标准样板空洞率复测"]),
+    "memtest": dict(hazards=[('高低温箱烫伤冻伤', 1, 2, ['戴隔热手套'])], name="内存测试机", value=160000, bought=2022, pm_text="测试座清洁与更换、标准内存条复测、校温度",
+                    pm_min=60, repair_usd=1200, lost_per_h=90, beta=2.0, eta_h=4000, mttr_min=120, pm_h=800, init_h=600, modes=[("socket", "测试座接触不良"), ("thermal", "温控漂移")],
+                    power=(4.0, 1.5, 0.2), air=False, wet=False, noise=58, auto=True, check=["标准内存条（金样）各测试座复测通过", "测试座插拔次数未到寿命"]),
+    "lasercut": dict(hazards=[('激光灼伤', 3, 4, ['防护舱门联锁', '戴激光防护眼镜']), ('切割烟尘', 2, 2, ['除尘开启'])], name="光纤激光切割机", value=180000, bought=2021,
+                     pm_text="清洁保护镜片、校焦点、查除尘与冷水机", pm_min=90, repair_usd=2500, lost_per_h=120, beta=2.2, eta_h=4500, mttr_min=180, pm_h=800, init_h=900,
+                     modes=[("lens", "保护镜片污染、切不透"), ("chiller", "冷水机故障")], power=(18.0, 4.0, 0.5), air=True, wet=False, noise=72, auto=True,
+                     check=["保护镜片清洁", "首件尺寸核对"]),
+    "pressbrake": dict(hazards=[('上下模之间夹手', 3, 4, ['光电保护', '脚踏开关']), ('板料甩动', 2, 2, ['扶料姿势'])], name="数控折弯机", value=90000, bought=2021,
+                       pm_text="校后挡料与滑块平行度、查液压油、查光电保护", pm_min=90, repair_usd=1200, lost_per_h=90, beta=2.0, eta_h=5000, mttr_min=150, pm_h=1000,
+                       init_h=800, modes=[("backgauge", "后挡料定位偏移"), ("hydraulic", "液压不稳、角度漂")], power=(8.0, 2.0, 0.3), air=False, wet=False, noise=70,
+                       auto=False, check=["光电保护有效", "后挡料用标准块复核", "首件角度核对"]),
+    "clinch": dict(hazards=[('压头夹手', 2, 3, ['双手按钮'])], name="压铆机", value=25000, bought=2022, pm_text="校压力、换上下模", pm_min=30, repair_usd=300, lost_per_h=40,
+                   beta=2.0, eta_h=6000, mttr_min=60, pm_h=1500, init_h=300, modes=[("die", "模具磨损、压不平")], power=(1.0, 0.3, 0.05), air=True, wet=False, noise=65,
+                   auto=False, check=["推出力抽检合格"]),
+    "powdercoat": dict(hazards=[('粉尘爆炸', 3, 4, ['静电接地', '回收系统除尘']), ('固化炉高温', 2, 3, ['戴隔热手套'])], name="喷粉线", value=200000, bought=2020,
+                       pm_text="清喷房与回收系统、查喷枪、测固化炉温曲线、查前处理槽液", pm_min=180, repair_usd=2000, lost_per_h=100, beta=2.0, eta_h=4000, mttr_min=180,
+                       pm_h=800, init_h=1200, modes=[("gun", "喷枪出粉不稳、膜厚不均"), ("oven", "固化炉温度偏差")], power=(45.0, 15.0, 1.0), air=True, wet=True, noise=70,
+                       auto=False, check=["接地良好", "固化炉温度记录正常", "前处理槽液浓度在规定内"]),
+    "anodize": dict(hazards=[('酸碱槽液腐蚀', 3, 3, ['戴防酸手套与面罩', '洗眼器可用']), ('槽液挥发物', 2, 2, ['排风开启'])], name="阳极氧化线", value=220000, bought=2020,
+                    pm_text="化验槽液、调整、查整流器与冷冻机、清挂具", pm_min=180, repair_usd=2500, lost_per_h=110, beta=2.0, eta_h=4000, mttr_min=200, pm_h=800, init_h=1300,
+                    modes=[("rectifier", "整流器电流不稳、膜厚不均"), ("bath", "槽液老化、色差")], power=(60.0, 20.0, 2.0), air=True, wet=True, noise=60, auto=False,
+                    check=["槽液化验在规定内", "排风正常"]),
+    "dispense": dict(hazards=[('硅脂接触皮肤', 1, 1, ['戴手套'])], name="导热硅脂点胶机", value=18000, bought=2023, pm_text="清洗针头与管路、称重校点胶量", pm_min=30, repair_usd=200,
+                     lost_per_h=50, beta=2.0, eta_h=5000, mttr_min=45, pm_h=1000, init_h=300, modes=[("needle", "针头半堵、点胶量不足"), ("pump", "计量泵磨损")],
+                     power=(0.5, 0.2, 0.05), air=True, wet=False, noise=50, auto=False, check=["每班首件称重点胶量", "针头清洁"]),
+    "osimage": dict(hazards=[('带电插拔', 1, 2, ['先断电再插拔'])], name="开机自检与系统灌装台", value=20000, bought=2023, pm_text="更新镜像与测试程序、查网络与电源",
+                    pm_min=30, repair_usd=300, lost_per_h=60, beta=2.0, eta_h=6000, mttr_min=60, pm_h=1500, init_h=300, modes=[("network", "灌装网络掉速")],
+                    power=(3.0, 1.0, 0.2), air=False, wet=False, noise=50, auto=True, check=["镜像版本与工单一致"]),
+    "racktest": dict(hazards=[('整柜倾倒', 3, 4, ['机柜固定、地脚调好再上架']), ('高压配电触电', 3, 4, ['断电挂牌再接线']), ('搬运重物', 2, 2, ['用升降车上架'])],
+                     name="整机柜联调台", value=150000, bought=2022, pm_text="校功率计与温度传感器、查冷却水接口、更新测试脚本", pm_min=90, repair_usd=1500, lost_per_h=120,
+                     beta=2.0, eta_h=5000, mttr_min=180, pm_h=1000, init_h=400, modes=[("cooling", "冷却水流量不足"), ("meter", "功率计漂移")], power=(15.0, 3.0, 0.5),
+                     air=False, wet=True, noise=78, auto=True, check=["冷却水压力与流量正常", "配电接线复核"]),
     "general": dict(hazards=[('机械伤害', 2, 3, ['防护罩', '急停按钮'])], name="通用设备", value=20000, bought=2022, pm_text="例行保养", pm_min=120, repair_usd=400, lost_per_h=60,
                     beta=2.0, eta_h=2000, mttr_min=120, pm_h=800, init_h=300, modes=[("general", "设备故障")],
                     power=(5.0, 1.5, 0.3), air=False, wet=False, noise=70, auto=False, check=[]),
@@ -314,7 +353,7 @@ KIND.update({
     "eoltest": _k("出厂测试台", 30000, "校声级计、转速计、停针角度检测", [("sensor", "声级计 / 角度传感器漂移")], (1.0, 0.3, 0.05),
                   [('机针刺伤', 3, 2, ['试缝时手不进针区'])], ["标准机（金样）复测通过"], noise=80, air=False),
 })
-STAFFED_EXCEPT = ("bench", "runin", "reflow", "burnin", "cure", "plasma", "thermcycle", "thermcomp", "varnish",
+STAFFED_EXCEPT = ("bench", "runin", "reflow", "burnin", "cure", "plasma", "thermcycle", "thermcomp", "varnish", "memtest", "racktest",
                   "furnace", "oven", "cooling", "sewrunin")   # 第 134 轮：热处理炉、烘道、冷却线、跑合台   # 第 61 轮：自动测试台、跑合台不用人看着开（其余设备“要有人”）；第 85 轮：回流炉、老化房；第 103 轮：固化烘箱、等离子清洗；第 125 轮：温度循环箱、温度补偿箱；第 131 轮：浸漆烘箱
 MAINT_KEYS = ("value", "bought", "pm_text", "pm_min", "repair_usd", "lost_per_h", "beta", "eta_h", "mttr_min", "pm_h", "init_h")
 

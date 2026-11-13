@@ -3990,5 +3990,29 @@
 [
 "平台记的变更损失是 ${a}：看“车间与成本”里“设计变更前后”下面那一行。",
 "The platform recorded a change loss of ${a}: see the line under “Before and after the design change” in “Shop floor & cost”."
+],
+[
+"CPU 满载温度偏高：{a} 涂硅脂的整机离上限平均只剩 {b} ℃",
+"CPU full-load temperature high: systems pasted by {a} are only {b} ℃ below the limit on average"
+],
+[
+"内存测试：{a} 的时序余量比其他座低 {b} ps",
+"Memory test: {a} reads {b} ps less timing margin than the other sockets"
+],
+[
+"测试座 {a}",
+"Socket {a}"
+],
+[
+"超出公差的 {a} 件：{b}",
+"{a} out of tolerance: {b}"
+],
+[
+"{a} {b} ℃（{c} 台）",
+"{a} {b} ℃ ({c} units)"
+],
+[
+"{a} {b} ps（{c} 条）",
+"{a} {b} ps ({c} modules)"
 ]
 ]

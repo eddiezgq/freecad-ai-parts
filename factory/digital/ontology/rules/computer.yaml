@@ -1,0 +1,39 @@
+# 第 166 轮：计算机厂的质量规则。plant 写了厂的清单 id：只在那座厂的规则目录里出现（别的厂看不到）
+domain: quality
+rules:
+  CP1:
+    name: CPU 满载温度偏高（按点胶机）
+    fn: pc_tmax_station
+    plant: wenquest-computer
+    severity: warn            # 有台超出上限为 critical
+    role: [quality, engineer, operator]
+    params: {last: 8, margin: 6, gap: 6}
+    desc: 最近 last 台整机的 CPU 满载温度离上限的余量按点胶机分开：某台平均余量小于 margin ℃，或比另一台少 gap ℃ 以上
+    hint: 打开“整机老化曲线”看温度上升得快、满载平台高、风扇早早到顶——是导热硅脂那一层热阻大：称重查那台点胶机的点胶量、查针头；老化加长、风扇调高只是掩盖
+  CP2:
+    name: BGA 焊点空洞率上升
+    fn: pc_bga_void
+    plant: wenquest-computer
+    severity: warn            # 有块超出上限为 critical
+    role: [quality, engineer]
+    params: {last: 6, above: 15}
+    desc: 最近 last 块主板 X 光测得的最大 BGA 空洞率均值超过 above %（上限 25 %）
+    hint: 空洞变大、同时内存条时序余量下降，两种板都过回流炉——测回流炉温曲线，看哪个温区偏低
+  CP3:
+    name: 机箱安装孔位置偏
+    fn: pc_chassis_hole
+    plant: wenquest-computer
+    severity: warn            # 有件超出公差为 critical
+    role: [quality, engineer, operator]
+    params: {last: 5, above: 0.12}
+    desc: 最近 last 件机箱的安装孔位置偏差（绝对值）均值超过 above mm（公差 ±0.2 mm）
+    hint: 孔位都偏同一个方向、折弯角也跟着偏，是折弯边长变了：用标准块校折弯机后挡料；激光切割的孔位本身没问题
+  CP4:
+    name: 内存测试某个测试座读数偏低（按测试座）
+    fn: pc_mem_socket
+    plant: wenquest-computer
+    severity: warn
+    role: [quality, engineer]
+    params: {last: 24, gap: 15}
+    desc: 最近 last 条内存条的时序余量按测试座分开，某个座比其他座平均低 gap ps 以上
+    hint: 只有一个座低、换到别的座复测就好——是测试座接触不良（假不良）：用金样内存条复核各座、换座；不要把被判不良的内存条报废

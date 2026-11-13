@@ -127,6 +127,19 @@ PROBLEMS.update({            # 第 134 轮：问渠缝纫机厂（铸造、机�
                "default": 0.008, "plant": SEWING},
     "ind_coil": {"name": "高频淬火感应器老化、加热不足（轴颈硬度偏低）", "unit": "ihd-1", "fix": "replace_ind_coil", "default": 5.0, "plant": SEWING},
 })
+COMPUTER = "wenquest-computer"
+PROBLEMS.update({            # 第 166 轮：计算机厂（偏差量都是示例值，按“台 / 块”计数）
+    "tim_dp2": {"name": "点胶机 dp-2 针头半堵、导热硅脂量少（只有它点过的整机 CPU 满载温度高）", "unit": "dp-2", "fix": "clean_dp_needle", "default": 2.0,
+                "plant": COMPUTER},
+    "reflow_zone": {"name": "回流焊炉第 7 温区加热器老化、温度偏低（BGA 空洞率上升、内存条时序余量下降）", "unit": "rf-1", "fix": "repair_reflow_zone",
+                    "default": 1.5, "plant": COMPUTER},
+    "backgauge": {"name": "数控折弯机后挡料定位偏移（机箱安装孔位置偏、整机装配卡）", "unit": "pb-1", "fix": "recal_backgauge", "default": 0.25,
+                  "plant": COMPUTER},
+    "mt_socket": {"name": "内存测试机第 6 测试座接触不良（好内存条被判时序余量不足）", "unit": "mt-1", "fix": "replace_mt_socket", "default": 1.0,
+                  "plant": COMPUTER},
+})
+MT_BAD_SOCKET = 6            # 接触不良的测试座（1 起数，示例）；内存测试机 8 个座，按测试顺序轮流用
+MT_SOCKETS = 8
 SEW_BORE = ("hmc-1", "hmc-2", "hmc-3", "hmc-4", "hmc-5", "hmc-6", "hmc-7")     # 缝纫机厂的卧加：记下精镗用的哪一台（分层用）
 PROBE_SITE = 5               # 磨损的测试位（0 起数，页面上显示第 6 位；示例）
 SHUNT_LOT = 30               # 采样电阻每卷用于 30 块驱动板（示例）：按测试顺序依次用掉；仓库有到货批次时用到货批次
@@ -198,6 +211,15 @@ FIXES.update({                # 电机厂（第 131 轮）
     "comp_drive": "在驱动器参数里补偿齿槽转矩",
     "rebake": "定子按原炉温再烘一遍",
 })
+FIXES.update({                # 计算机厂（第 166 轮）
+    "clean_dp_needle": "清洗点胶机 dp-2 针头与管路、称重校点胶量，它点过的整机拆开补涂硅脂复测",
+    "repair_reflow_zone": "更换回流焊炉第 7 温区加热器、测炉温曲线，空洞超标的主板返修",
+    "recal_backgauge": "用标准块校正折弯机后挡料、首件复核，孔位超差的机箱返工",
+    "replace_mt_socket": "更换内存测试机第 6 测试座、用金样内存条复核各座，被判不良的内存条复测",
+    "longer_burnin": "整机老化时间加长",
+    "fan_speed_up": "提高风扇转速曲线",
+    "widen_sys_test": "整机功能测试判定放宽",
+})
 ROBOT_FIXES = ("recalibrate_torque", "quarantine_lot", "recalibrate_bench", "add_grease", "tighten_test", "retrain", "change_gauge",
                "recenter_encoder", "recalibrate_brake_bench")
 PCB_FIXES = ("wipe_stencil", "profile_oven", "replace_nozzle", "quarantine_shunt", "raise_peak", "replace_squeegee", "tighten_aoi",
@@ -210,7 +232,10 @@ MOTOR_FIXES = ("replace_mag_fixture", "service_magnetizer", "fix_tensioner", "pr
                "retrain", "change_gauge")
 SEWING_FIXES = ("control_sand_water", "dry_inoculant", "replace_hmc_pins", "calibrate_age_tc", "replace_ind_coil", "widen_tol_sew", "cmm_100",
                 "rebore", "retrain", "change_gauge")
-PLANT_FIXES = {ROBOT: ROBOT_FIXES, PCB: PCB_FIXES, CHIP: CHIP_FIXES, SENSOR: SENSOR_FIXES, MOTOR: MOTOR_FIXES, SEWING: SEWING_FIXES}
+COMPUTER_FIXES = ("clean_dp_needle", "repair_reflow_zone", "recal_backgauge", "replace_mt_socket", "longer_burnin", "fan_speed_up", "widen_sys_test",
+                  "retrain", "change_gauge")
+PLANT_FIXES = {ROBOT: ROBOT_FIXES, PCB: PCB_FIXES, CHIP: CHIP_FIXES, SENSOR: SENSOR_FIXES, MOTOR: MOTOR_FIXES, SEWING: SEWING_FIXES,
+               COMPUTER: COMPUTER_FIXES}
 
 
 def problems_for(plant_id):
@@ -236,6 +261,8 @@ MW_ITEMS = ("WQ-SM100", "WQ-SM200", "WQ-SM400", "WQ-AM750")
 MOTOR_CODES = ("st_r_unbal", "st_surge", "st_leak", "mt_i0")
 SEW_CODES = ("cast_hb", "cast_pores", "cast_moist", "hs_pos", "hs_ctr", "hs_coax_up", "hs_flat", "ls_hrc")     # 第 134 轮
 MOTOR_I0 = {"WQ-SM100": 0.25, "WQ-SM200": 0.40, "WQ-SM400": 0.70, "WQ-AM750": 1.20}   # 空载电流名义值（与清单一致，示例）
+BI_CODES = ("pc_tmax", "pc_pavg")                              # 第 166 轮：由整机老化曲线算出
+PC_CODES = ("mb_void", "mem_margin", "chs_hole", "chs_bend")    # 第 166 轮：计算机厂叠加偏差的测量
 CHIP_CODES = ("cp_yield", "cp_contact", "chipping", "bond_pull", "ball_shear", "mold_void", "ft_yield")
 PCB_CODES = ("spi_volume", "spi_height", "reflow_peak", "reflow_tal", "offset_ic", "aoi_defects", "ict_shunt", "fct_isense")
 
@@ -291,6 +318,7 @@ class ErrorModel:
         self.zero_fifo = {}       # 第 55 轮：关节测试台测得的零位残差（角秒），按规格先进先出装进整机（整机标定的零位偏差从这里来）
         self.fric_fifo = {}       # 第 58 轮：关节测试台测得的空载摩擦力矩（N·m），同样先进先出装进整机（负载跑合台的“实测”力矩从这里来）
         self.history = []         # (事件, 问题或措施, 结果)
+        self.mt_count = 0         # 第 166 轮：内存测试机测过的内存条数（按顺序轮流用 8 个测试座）
         self.dress_parts = None   # 第 152 轮：措施“缩短砂轮修整间隔”下发后，磨床每磨这么多件修整一次（新注入问题时恢复原来的修整规则）
 
     def add_lot(self, item: str, lot: str, qty: float):
@@ -421,6 +449,11 @@ class ErrorModel:
             st["_ja"] = unit
             st["_lot_no"] = (size, order.index(lot))
             part.hd_lot = lot
+        if unit.startswith("dp-"):            # 计算机厂（第 166 轮）：哪台点胶机涂的硅脂（分层用）
+            st["_ja"] = unit
+        if unit == "mt-1" and "_ja" not in st and str(getattr(getattr(part, "wo", None), "item", "") or "") == "DIMM-32":
+            self.mt_count += 1               # 计算机厂（第 166 轮）：内存条在哪个测试座上测（分层用）
+            st["_ja"] = "测试座 {}".format((self.mt_count - 1) % MT_SOCKETS + 1)
         if unit.startswith(("wb-", "cb-", "wd-")):  # 芯片封测厂（第 103 轮）：哪台键合机；传感器厂（第 125 轮）：哪台粘接对心机；电机厂（第 131 轮）：哪台绕线机（分层用）
             st["_ja"] = unit
         if unit in SEW_BORE:                 # 缝纫机厂（第 134 轮）：最后一次在哪台卧加上加工（= 精镗那台）
@@ -549,6 +582,44 @@ class ErrorModel:
             return -ramp("ind_coil", 3.0) * self.rng.uniform(0.85, 1.15)
         return 0.0
 
+    def _pc_offset(self, st, code):
+        """计算机厂（第 166 轮）：主板空洞率、内存条时序余量、机箱孔位与折弯角上叠加的偏差（CPU 满载温度由老化曲线给，见 override）"""
+        def ramp(p, tau):
+            mag, k = st[p]
+            return mag * (1 - math.exp(-k / tau))
+        if code == "mb_void" and "reflow_zone" in st:            # 温区偏低：焊料里的挥发物排不干净，空洞变大（示例：每单位 +12 %）
+            return 12.0 * ramp("reflow_zone", 3.0) * self.rng.uniform(0.7, 1.3)
+        if code == "mem_margin":
+            off = 0.0
+            if "reflow_zone" in st:                              # 颗粒焊点不好，信号余量下降
+                off -= 12.0 * ramp("reflow_zone", 3.0) * self.rng.uniform(0.7, 1.3)
+            if "mt_socket" in st and st.get("_ja") == "测试座 {}".format(MT_BAD_SOCKET):   # 只有那一个座读数偏低（假不良）
+                off -= 40.0 * st["mt_socket"][0] * self.rng.uniform(0.9, 1.1)
+            return off
+        if code == "chs_hole" and "backgauge" in st:             # 后挡料偏：折弯边长变了，孔位整体偏一个方向
+            return ramp("backgauge", 2.0) * self.rng.uniform(0.85, 1.15)
+        if code == "chs_bend" and "backgauge" in st:
+            return 0.4 * ramp("backgauge", 2.0) * self.rng.uniform(0.5, 1.2)
+        return 0.0
+
+    def _bi(self, part):
+        """计算机厂（第 166 轮）：这台整机的老化曲线（算一次记在零件上）"""
+        from sim import burnin
+        st = getattr(part, "err", None)
+        if st is None:
+            st = {}
+            part.err = st
+        if "_bi" not in st:
+            item = str(getattr(getattr(part, "wo", None), "item", "") or "")
+            extra = 0.0
+            if "tim_dp2" in st:
+                mag, k = st["tim_dp2"]
+                extra = mag * (1 - math.exp(-k / 3.0))
+            desc = burnin.params(self.rng, str(getattr(part, "serial", "")), burnin.ITEM_KIND[item], tim_extra=extra)
+            g = burnin.generate(desc)
+            st["_bi"] = {"desc": desc, "tmax": g["tmax"], "pavg": g["pavg"]}
+        return st["_bi"]
+
     def _cp(self, part):
         """这片晶圆的 CP 结果（算一次记在零件上）：各测试位接触电阻 → 晶圆图 → 良率"""
         from sim import wafermap
@@ -615,6 +686,11 @@ class ErrorModel:
             key = code[4:]
             st = getattr(part, "err", None) or {}
             return e[key], ({"enc": {**e["desc"], "station": st.get("_ja")}} if code == "enc_acc" else {})
+        if code in BI_CODES:
+            from sim import burnin
+            if str(getattr(getattr(part, "wo", None), "item", "") or "") in burnin.ITEM_KIND:
+                e = self._bi(part)
+                return e[code[3:]], ({"bi": e["desc"]} if code == "pc_tmax" else {})
         if code in MW_CODES and str(getattr(getattr(part, "wo", None), "item", "") or "") in MW_ITEMS:
             e = self._mw(part)
             return e[code[3:]], ({"mw": e["desc"]} if code == "mt_ke" else {})
@@ -635,6 +711,8 @@ class ErrorModel:
             return self._chip_offset(st, code)
         if code in SEW_CODES:                                # 缝纫机厂（第 134 轮）
             return self._sew_offset(st, code)
+        if code in PC_CODES:                                 # 计算机厂（第 166 轮）
+            return self._pc_offset(st, code)
         if code in MOTOR_CODES:                              # 电机厂（第 131 轮）
             return self._motor_offset(st, code, str(getattr(getattr(part, "wo", None), "item", "") or ""))
         if code in TS_CODES:                                 # 传感器厂（第 125 轮）：胶没固化透

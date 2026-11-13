@@ -106,6 +106,9 @@ suppliers:
   # 第 131 轮：工业园的问渠电机厂（伺服电机、AGV 驱动电机；原来向“示例·伺服电机供应商”买，那一行留着作备选）
   motor: {name: 问渠电机厂 WenQuest Motors (Demo), lead: 7, on_time: 0.95, pass: 0.995, cat_name: 伺服电机, park: wenquest-motor,
           incoming: [{name: 出厂终检记录 Final test record, text: 每台有反电势、齿槽转矩、耐压记录，序列号与发货单一致}, {name: 空载电流 No-load current, unit: A, lo: 0.1, hi: 2.0}]}
+  # 第 166 轮：工业园的问渠计算机厂（控制柜里的工控机拆出来向它买）
+  computer: {name: 问渠计算机厂 WenQuest Computers (Demo), lead: 7, on_time: 0.95, pass: 0.995, cat_name: 工控机, park: wenquest-computer,
+             incoming: [{name: 出厂测试记录 Test record, text: 每台有老化与整机功能测试记录、序列号与发货单一致}]}
   agvparts: {name: 示例·AGV 配件商 AGV Parts Supplier (Demo), lead: 10, on_time: 0.9, pass: 0.98, cat_name: AGV 配件}
 customers:
 - 示例·汽车零部件厂 Auto Parts Plant (Demo)
@@ -140,7 +143,10 @@ items:
 - {code: DRV-JOINT, name: 关节伺服驱动板（A 版） Joint servo drive board rev A, kind: buy, uom: Nos, price: 160, supplier: pcb, note: 问渠电路板厂的成品（第 85 轮）；第 118 轮起关节模组改用 B 版}
 - {code: DRV-JOINT-B, name: 关节伺服驱动板 B 版（抱闸驱动、输出端编码器） Joint servo drive board rev B, kind: buy, uom: Nos, price: 165, supplier: pcb,
    note: 问渠电路板厂的成品（第 98/110/114 轮设计）；第 118 轮起三种关节模组都用它}
-- {code: CTRL-CAB, name: 机器人控制柜（型号待确认） Robot controller cabinet, kind: buy, uom: Nos, price: 2200, supplier: electronics}
+- {code: CTRL-CAB, name: 机器人控制柜（不含工控机，型号待确认） Robot controller cabinet (without IPC), kind: buy, uom: Nos, price: 1700, supplier: electronics,
+   note: 第 166 轮起工控机拆出来向计算机厂买，单价减去工控机 500（示例）}
+- {code: IPC, name: 工控机（问渠计算机厂 WQ-IPC） Industrial PC, kind: buy, uom: Nos, price: 500, supplier: computer, pack: 1, park_item: WQ-IPC,
+   note: 第 166 轮起向工业园的问渠计算机厂买（原来含在控制柜里）}
 - {code: CABLE-ARM, name: 臂内线束 Arm cable harness, kind: buy, uom: Nos, price: 120, supplier: electronics}
 - {code: SCR-M5x16, name: 内六角螺钉 M5×16 Socket screw, kind: buy, uom: Nos, price: 0.15, supplier: hardware}
 - {code: MTR-AGV-750, name: AGV 驱动电机 750 W（问渠电机厂 WQ-AM750） AGV drive motor, kind: buy, uom: Nos, price: 380, supplier: motor, pack: 1,
@@ -220,7 +226,7 @@ boms:
 - {item: DU-AGV, routing: RT-驱动单元 Drive unit, components: [[WQR-105, 1], [MTR-AGV-750, 1], [WHL-PU-200, 1]]}
 - item: WQ-CR5
   routing: RT-协作机器人 Cobot
-  components: [[WQJ-L, 2], [WQJ-M, 1], [WQJ-S, 3], [ARM-UP, 1], [ARM-FO, 1], [BASE-CR5, 1], [CTRL-CAB, 1], [CABLE-ARM, 1], [SCR-M5x16, 24]]
+  components: [[WQJ-L, 2], [WQJ-M, 1], [WQJ-S, 3], [ARM-UP, 1], [ARM-FO, 1], [BASE-CR5, 1], [CTRL-CAB, 1], [IPC, 1], [CABLE-ARM, 1], [SCR-M5x16, 24]]
 - item: WQ-AGV300
   routing: RT-AGV
   components: [[FRAME-AGV300, 1], [DU-AGV, 2], [CASTER-100, 4], [BAT-48V, 1], [LDR-TIM781, 1], [CTRL-AGV, 1], [SCR-M5x16, 20]]
@@ -240,12 +246,12 @@ stock:
   # 机器人厂的请购单只是记录，用完了由老师在 ERPNext 里做“物料入库”补上
   opening: {RM-AL6061-D120: 90, RM-AL6061-P20: 35, RM-AL-TUBE-D90: 6, RM-AL-TUBE-D75: 5, RM-40CR-D60: 80,
             HD-CSF-32-100: 15, HD-CSF-25-100: 10, HD-CSF-17-100: 20, MTR-SV-400: 15, MTR-SV-200: 10, MTR-SV-100: 20,
-            ENC-ABS: 45, DRV-JOINT-B: 45, BRG-6010: 30, BRG-6007: 20, BRG-6004: 40, SCR-M5x16: 800, CABLE-ARM: 6, CTRL-CAB: 6,
+            ENC-ABS: 45, DRV-JOINT-B: 45, BRG-6010: 30, BRG-6007: 20, BRG-6004: 40, SCR-M5x16: 800, CABLE-ARM: 6, CTRL-CAB: 6, IPC: 6,
             FRAME-AGV300: 6, MTR-AGV-750: 10, WHL-PU-200: 10, CASTER-100: 20, BAT-48V: 6, LDR-TIM781: 6, CTRL-AGV: 6,
             WQR-105: 10, GRIP-2F: 4, CAM-STEREO: 2, CTRL-H1: 2}
   # 安全库存（示例值）：WQR-105 定在期初库存上，每接一单 AGV 就要向问渠减速器厂请购；
   # 第 85 轮：驱动板也定在期初库存上，每接一单要用关节的产品就向问渠电路板厂请购（第 118 轮起是 B 版 DRV-JOINT-B）
-  safety: {WQR-105: 10, DRV-JOINT-B: 45, HD-CSF-32-100: 4, ENC-ABS: 45, MTR-SV-400: 15, BRG-6010: 8, SCR-M5x16: 200}
+  safety: {WQR-105: 10, DRV-JOINT-B: 45, HD-CSF-32-100: 4, ENC-ABS: 45, MTR-SV-400: 15, BRG-6010: 8, SCR-M5x16: 200, IPC: 6}
 key_materials: [HD-CSF-32-100, MTR-SV-400, WQR-105, RM-AL6061-D120]
 measurements:
 - item: JS-L

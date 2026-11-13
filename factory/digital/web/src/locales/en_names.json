@@ -32,6 +32,14 @@
 "Power MOSFET 80 V"
 ],
 [
+"机器人控制柜（不含工控机，型号待确认） Robot controller cabinet (without IPC)",
+"Robot controller cabinet (without IPC)"
+],
+[
+"台式机主板元件套料（供电、芯片组、插座、接口，型号待确认） Desktop board component kit",
+"Desktop board component kit"
+],
+[
 "伺服电机 WQ-SM100（100 W，带抱闸，示例） Servo motor 100 W with brake",
 "Servo motor 100 W with brake"
 ],
@@ -46,6 +54,10 @@
 [
 "关节伺服驱动板（示例：48 V、三相、电流采样 + 编码器接口） Joint servo drive board",
 "Joint servo drive board"
+],
+[
+"服务器主板元件套料（双路供电、管理芯片、插座，型号待确认） Server board component kit",
+"Server board component kit"
 ],
 [
 "轮式人形 WQ-H1（示例：双臂 + 腰 + 头 16 个关节，AGV 底盘） Wheeled humanoid",
@@ -66,6 +78,10 @@
 [
 "钕铁硼磁钢 80 机座（10 块一套，未充磁，型号待确认） NdFeB magnet set frame 80",
 "NdFeB magnet set frame 80"
+],
+[
+"42U 整机柜 WQ-RACK42（16 台 WQ-SV2U，示例） 42U integrated rack",
+"42U integrated rack"
 ],
 [
 "光电码盘 Ø32 mm（玻璃，绝对码道 + 增量码道，外协，型号待确认） Optical code disk",
@@ -120,6 +136,14 @@
 "4-thread overlock"
 ],
 [
+"2U 双路服务器 WQ-SV2U（示例） 2U dual-socket server WQ-SV2U",
+"2U dual-socket server WQ-SV2U"
+],
+[
+"DDR5 内存颗粒 16 Gb（型号待确认） DDR5 DRAM die package 16 Gb",
+"DDR5 DRAM die package 16 Gb"
+],
+[
 "RS-485 收发器（示例选型 MAX3485，未经硬件验证） RS-485 transceiver",
 "RS-485 transceiver"
 ],
@@ -156,6 +180,10 @@
 "Finish base, pin holes, ID mark"
 ],
 [
+"企业级固态硬盘 3.84 TB U.2（型号待确认） Enterprise SSD 3.84 TB",
+"Enterprise SSD 3.84 TB"
+],
+[
 "信号调理板（仪表放大 + ADC，型号待确认） Signal conditioning board",
 "Signal conditioning board"
 ],
@@ -182,6 +210,14 @@
 [
 "失电制动器 80 机座（24 V，型号待确认） Fail-safe brake frame 80",
 "Fail-safe brake frame 80"
+],
+[
+"笔记本主板光板 10 层 HDI（外协） Notebook mainboard bare PCB",
+"Notebook mainboard bare PCB"
+],
+[
+"14 英寸笔记本铝壳 A、C 面（自制） Notebook aluminium housing",
+"Notebook aluminium housing"
 ],
 [
 "LA-A07 装针杆挑线压脚 Fit needle bar, take-up, presser",
@@ -224,6 +260,10 @@
 "Rotor core & shaft frame 80"
 ],
 [
+"14 英寸笔记本 WQ-NB14（示例） 14-inch notebook WQ-NB14",
+"14-inch notebook WQ-NB14"
+],
+[
 "OA-B06 装油底壳、电机、外罩 Fit oil sump, motor, covers",
 "Fit oil sump, motor, covers"
 ],
@@ -234,6 +274,14 @@
 [
 "机壳与端盖 80 机座（铝，外协） Housing & end caps frame 80",
 "Housing & end caps frame 80"
+],
+[
+"电镀锌钢板 1.0 mm（卷料，型号待确认） Galvanized steel sheet",
+"Galvanized steel sheet"
+],
+[
+"笔记本主板元件套料（型号待确认） Notebook board component kit",
+"Notebook board component kit"
 ],
 [
 "补偿电阻套件（零点、温漂，型号待确认） Compensation resistor kit",
@@ -252,8 +300,20 @@
 "Drive board rev B SMT assembly"
 ],
 [
+"服务器 CPU 散热器 2U（型号待确认） Server CPU heatsink 2U",
+"Server CPU heatsink 2U"
+],
+[
+"示例·显示屏与电池商 Display & Battery Supplier (Demo)",
+"Display & Battery Supplier (Demo)"
+],
+[
 "编码器读头板（问渠电路板厂，正余弦输出） Encoder read-head board",
 "Encoder read-head board"
+],
+[
+"DDR5 内存条 32 GB（自制） DDR5 memory module 32 GB",
+"DDR5 memory module 32 GB"
 ],
 [
 "LA-A01 机壳上线、扫序列号 Head loading & serial scan",
@@ -262,6 +322,10 @@
 [
 "OA-B01 机壳上线、装油泵油管 Housing loading, oil pump",
 "Housing loading, oil pump"
+],
+[
+"内存条电源管理与 SPD 芯片组（型号待确认） DIMM PMIC & SPD hub",
+"DIMM PMIC & SPD hub"
 ],
 [
 "平缝机电控箱（出厂测试时烧录本厂固件）（型号待确认） Control box (LS)",
@@ -296,8 +360,16 @@
 "Absolute encoder"
 ],
 [
+"台式机主板光板 8 层（外协） Desktop mainboard bare PCB",
+"Desktop mainboard bare PCB"
+],
+[
 "有源晶振 50 MHz 3.3 V（型号待确认） Oscillator 50 MHz",
 "Oscillator 50 MHz"
+],
+[
+"服务器主板光板 14 层（外协） Server mainboard bare PCB",
+"Server mainboard bare PCB"
 ],
 [
 "母线电解电容 470 μF / 63 V（型号待确认） Bulk capacitor",
@@ -306,6 +378,18 @@
 [
 "示例·塑封料与银浆商 Mold Compound & Adhesive (Demo)",
 "Mold Compound & Adhesive (Demo)"
+],
+[
+"示例·网络与机柜设备商 Network & Rack Supplier (Demo)",
+"Network & Rack Supplier (Demo)"
+],
+[
+"笔记本热管散热模组（型号待确认） Notebook heat-pipe module",
+"Notebook heat-pipe module"
+],
+[
+"笔记本电源适配器 65 W（型号待确认） Notebook adapter 65 W",
+"Notebook adapter 65 W"
 ],
 [
 "AGV 控制板光板 6 层（外协） AGV controller bare PCB",
@@ -356,12 +440,20 @@
 "WQR-105 Two-stage gear reducer"
 ],
 [
+"服务器双路主板（自制） Server dual-socket mainboard",
+"Server dual-socket mainboard"
+],
+[
 "示例·漆包线与绝缘材料商 Magnet Wire Supplier (Demo)",
 "Magnet Wire Supplier (Demo)"
 ],
 [
 "编码器读头板（示例：正余弦输出） Encoder read-head board",
 "Encoder read-head board"
+],
+[
+"背门换热器（水冷，型号待确认） Rear-door heat exchanger",
+"Rear-door heat exchanger"
 ],
 [
 "K30 铣梭尖、梭道 Milling hook point & raceway",
@@ -390,6 +482,10 @@
 [
 "平缝机壳铸件 HT250 Lockstitch housing casting",
 "HT250 Lockstitch housing casting"
+],
+[
+"服务器冗余电源 1600 W（型号待确认） Server PSU 1600 W",
+"Server PSU 1600 W"
 ],
 [
 "示例·电子分销商 Electronics Distributor (Demo)",
@@ -440,8 +536,12 @@
 "Thread tension assembly"
 ],
 [
-"机器人控制柜（型号待确认） Robot controller cabinet",
-"Robot controller cabinet"
+"导热硅脂（型号待确认） Thermal interface material",
+"Thermal interface material"
+],
+[
+"服务器风扇 60 mm 高速（型号待确认） Server fan 60 mm",
+"Server fan 60 mm"
 ],
 [
 "示例·授权分销商 Authorized Distributor (Demo)",
@@ -456,6 +556,10 @@
 "Sewing Parts Supplier (Demo)"
 ],
 [
+"笔记本主板（自制，CPU 与内存板载） Notebook mainboard",
+"Notebook mainboard"
+],
+[
 "绝缘套件（槽绝缘纸、槽楔、绑扎带，型号待确认） Insulation kit",
 "Insulation kit"
 ],
@@ -464,8 +568,16 @@
 "Encoder head bare PCB"
 ],
 [
+"铝合金板 6063（笔记本壳坯料） Aluminium plate 6063",
+"Aluminium plate 6063"
+],
+[
 "问渠缝纫机厂 WenQuest Sewing Machines (Demo)",
 "WenQuest Sewing Machines (Demo)"
+],
+[
+"14 英寸显示屏（型号待确认） 14-inch display panel",
+"14-inch display panel"
 ],
 [
 "20CrMnTi圆钢 Ø60 Steel bar 20CrMnTi Ø60",
@@ -490,6 +602,10 @@
 [
 "包缝机壳铸件 HT250 Overlock housing casting",
 "HT250 Overlock housing casting"
+],
+[
+"台式机 CPU 散热器（型号待确认） Desktop CPU cooler",
+"Desktop CPU cooler"
 ],
 [
 "扭矩传感器线缆（屏蔽，型号待确认） Torque sensor cable",
@@ -544,6 +660,22 @@
 "Humanoid main controller"
 ],
 [
+"压铆螺母柱（型号待确认） Self-clinching standoff",
+"Self-clinching standoff"
+],
+[
+"台式机电源 500 W（型号待确认） Desktop PSU 500 W",
+"Desktop PSU 500 W"
+],
+[
+"服务器线缆套件（电源线、网线、管理线） Server cable kit",
+"Server cable kit"
+],
+[
+"柜顶交换机 48 口（型号待确认） Top-of-rack switch",
+"Top-of-rack switch"
+],
+[
 "深沟球轴承 6205-2RS Ball bearing 25×52×15",
 "6205-2RS Ball bearing 25×52×15"
 ],
@@ -576,6 +708,10 @@
 "Bonding Wire Supplier (Demo)"
 ],
 [
+"笔记本键盘与触控板（型号待确认） Keyboard & touchpad",
+"Keyboard & touchpad"
+],
+[
 "编码器轴承（小型深沟球轴承，型号待确认） Encoder bearing",
 "Encoder bearing"
 ],
@@ -592,6 +728,10 @@
 "Box & accessory kit (OL)"
 ],
 [
+"工控机 WQ-IPC（示例） Industrial PC WQ-IPC",
+"Industrial PC WQ-IPC"
+],
+[
 "平缝机包装箱与附件包 Box & accessory kit (LS)",
 "Box & accessory kit (LS)"
 ],
@@ -606,6 +746,10 @@
 [
 "示例·工业机器人集成商 Robot Integrator (Demo)",
 "Robot Integrator (Demo)"
+],
+[
+"示例·某算力中心 AI Computing Center (Demo)",
+"AI Computing Center (Demo)"
 ],
 [
 "示例·海港起重 Harbor Crane Systems (Demo)",
@@ -626,6 +770,10 @@
 [
 "示例·钕铁硼磁钢厂 NdFeB Magnet Maker (Demo)",
 "NdFeB Magnet Maker (Demo)"
+],
+[
+"笔记本电池组（型号待确认） Notebook battery pack",
+"Notebook battery pack"
 ],
 [
 "绝缘漆（无溶剂，型号待确认） Impregnating varnish",
@@ -660,6 +808,10 @@
 "Crystal 8 MHz"
 ],
 [
+"机箱风扇 120 mm（型号待确认） Case fan 120 mm",
+"Case fan 120 mm"
+],
+[
 "码盘粘接胶（紫外固化，型号待确认） UV disk adhesive",
 "UV disk adhesive"
 ],
@@ -672,12 +824,24 @@
 "Packaging Supplier (Demo)"
 ],
 [
+"示例·存储颗粒分销商 DRAM Distributor (Demo)",
+"DRAM Distributor (Demo)"
+],
+[
 "示例·峰顶搅拌机 Summit Mixer Works (Demo)",
 "Summit Mixer Works (Demo)"
 ],
 [
 "示例·引线框架商 Leadframe Supplier (Demo)",
 "Leadframe Supplier (Demo)"
+],
+[
+"示例·散热器与风扇商 Thermal Supplier (Demo)",
+"Thermal Supplier (Demo)"
+],
+[
+"示例·某云数据中心 Cloud Data Center (Demo)",
+"Cloud Data Center (Demo)"
 ],
 [
 "示例·焊接材料商 Solder & Chemicals (Demo)",
@@ -694,6 +858,10 @@
 [
 "问渠电路板厂 WenQuest Electronics (Demo)",
 "WenQuest Electronics (Demo)"
+],
+[
+"2U 服务器机箱（钣金，自制） 2U server chassis",
+"2U server chassis"
 ],
 [
 "40Cr锻坯 Ø155×32 Forging blank 40Cr",
@@ -724,6 +892,10 @@
 "Intermediate shaft assembly"
 ],
 [
+"固态硬盘 1 TB M.2（型号待确认） SSD 1 TB M.2",
+"SSD 1 TB M.2"
+],
+[
 "梭壳与梭芯（型号待确认） Bobbin case & bobbin",
 "Bobbin case & bobbin"
 ],
@@ -736,12 +908,20 @@
 "Northern Aluminium (Demo)"
 ],
 [
+"示例·固态硬盘分销商 SSD Distributor (Demo)",
+"SSD Distributor (Demo)"
+],
+[
 "示例·汽车零部件厂 Auto Parts Plant (Demo)",
 "Auto Parts Plant (Demo)"
 ],
 [
 "示例·物流仓储中心 Logistics Center (Demo)",
 "Logistics Center (Demo)"
+],
+[
+"笔记本处理器（BGA 板载，型号待确认） Notebook CPU",
+"Notebook CPU"
 ],
 [
 "编码器线缆（屏蔽，带插头，型号待确认） Encoder cable",
@@ -784,12 +964,24 @@
 "Conformal coating"
 ],
 [
+"台式机 WQ-PC1（示例） Desktop PC WQ-PC1",
+"Desktop PC WQ-PC1"
+],
+[
 "头部双目相机（型号待确认） Stereo head camera",
 "Stereo head camera"
 ],
 [
 "导电银浆（装片胶，型号待确认） Die-attach epoxy",
 "Die-attach epoxy"
+],
+[
+"工控机（问渠计算机厂 WQ-IPC） Industrial PC",
+"Industrial PC"
+],
+[
+"整机柜运输木箱与减震底座 Rack shipping crate",
+"Rack shipping crate"
 ],
 [
 "深沟球轴承 6004 Ball bearing 20×42×12",
@@ -812,6 +1004,10 @@
 "Servo Supplier (Demo)"
 ],
 [
+"示例·处理器分销商 CPU Distributor (Demo)",
+"CPU Distributor (Demo)"
+],
+[
 "示例·家纺厂 Home Textile Maker (Demo)",
 "Home Textile Maker (Demo)"
 ],
@@ -820,12 +1016,20 @@
 "Fastener Supplier (Demo)"
 ],
 [
+"示例·电源商 Power Supply Maker (Demo)",
+"Power Supply Maker (Demo)"
+],
+[
 "示例·钣金塑料件商 Covers Supplier (Demo)",
 "Covers Supplier (Demo)"
 ],
 [
 "箱盖铸件 HT200 Housing cover casting",
 "HT200 Housing cover casting"
+],
+[
+"问渠计算机厂 WenQuest Computers (Demo)",
+"WenQuest Computers (Demo)"
 ],
 [
 "LA-A05 装送布抬牙 Fit feed mechanism",
@@ -852,6 +1056,10 @@
 "Gauge adhesive"
 ],
 [
+"机箱螺钉 M3（型号待确认） Chassis screw M3",
+"Chassis screw M3"
+],
+[
 "深沟球轴承 6000 Ball bearing 10×26×8",
 "6000 Ball bearing 10×26×8"
 ],
@@ -872,12 +1080,20 @@
 "Dongyue Castings (Demo)"
 ],
 [
+"示例·企业 IT 采购 Corporate IT (Demo)",
+"Corporate IT (Demo)"
+],
+[
 "示例·光栅码盘厂 Code Disk Maker (Demo)",
 "Code Disk Maker (Demo)"
 ],
 [
 "示例·基石锻造 Keystone Forging (Demo)",
 "Keystone Forging (Demo)"
+],
+[
+"示例·焊接与导热材料商 Solder & TIM (Demo)",
+"Solder & TIM (Demo)"
 ],
 [
 "示例·电磁制动器商 Brake Supplier (Demo)",
@@ -906,6 +1122,10 @@
 [
 "40Cr 圆钢 Ø60 Steel bar 40Cr Ø60",
 "Steel bar 40Cr Ø60"
+],
+[
+"42U 机柜框架（型号待确认） 42U rack frame",
+"42U rack frame"
 ],
 [
 "C65 孕育浇注 Inoculation & pouring",
@@ -960,6 +1180,10 @@
 "IC Distributor (Demo)"
 ],
 [
+"示例·金属材料商 Metal Supplier (Demo)",
+"Metal Supplier (Demo)"
+],
+[
 "示例·长河锻压 Changhe Forging (Demo)",
 "Changhe Forging (Demo)"
 ],
@@ -1008,8 +1232,20 @@
 "Signal connector"
 ],
 [
+"台式机主板元件套料（供电、芯片组、插座、接口，型号待确认）",
+"Desktop board component kit"
+],
+[
+"台式机处理器（插座式，型号待确认） Desktop CPU",
+"Desktop CPU"
+],
+[
 "数字隔离器（型号待确认） Digital isolator",
 "Digital isolator"
+],
+[
+"服务器主板元件套料（双路供电、管理芯片、插座，型号待确认）",
+"Server board component kit"
 ],
 [
 "温度补偿 Temperature compensation",
@@ -1072,8 +1308,20 @@
 "Socket screw M3×8"
 ],
 [
+"内存条光板 10 层（外协） DIMM bare PCB",
+"DIMM bare PCB"
+],
+[
+"台式机机箱（钣金，自制） Desktop chassis",
+"Desktop chassis"
+],
+[
 "平缝机针 DB×1（型号待确认） Needle DB×1",
 "Needle DB×1"
+],
+[
+"服务器处理器（插座式，型号待确认） Server CPU",
+"Server CPU"
 ],
 [
 "砝码标定 Dead-weight calibration",
@@ -1128,6 +1376,14 @@
 "Oil sump (OL)"
 ],
 [
+"台式机主板（自制） Desktop mainboard",
+"Desktop mainboard"
+],
+[
+"整机柜联调 Rack integration test",
+"Rack integration test"
+],
+[
 "漆包线（聚酯亚胺，型号待确认） Magnet wire",
 "Magnet wire"
 ],
@@ -1138,6 +1394,10 @@
 [
 "示例·服装厂 Garment Maker (Demo)",
 "Garment Maker (Demo)"
+],
+[
+"示例·电脑零售商 PC Retailer (Demo)",
+"PC Retailer (Demo)"
 ],
 [
 "输出轴组件 Output shaft assembly",
@@ -1184,12 +1444,20 @@
 "Oil pump (OL)"
 ],
 [
+"多功能贴片机（BGA、CPU 插座、DIMM 插槽）",
+"Flexible placer"
+],
+[
 "平缝机电控箱（出厂测试时烧录本厂固件）（型号待确认）",
 "Control box (LS)"
 ],
 [
 "弯针 / 差动偏心 Looper eccentric",
 "Looper eccentric"
+],
+[
+"粉末涂料（型号待确认） Powder coating",
+"Powder coating"
 ],
 [
 "聚氨酯驱动轮 Ø200 PU drive wheel",
@@ -1244,6 +1512,10 @@
 "Bushing Ø20"
 ],
 [
+"BIOS 烧录 BIOS programming",
+"BIOS programming"
+],
+[
 "C120 清内腔芯砂 Core knockout",
 "Core knockout"
 ],
@@ -1254,6 +1526,10 @@
 [
 "RT-棒料齿轮 Bar-stock pinion",
 "Bar-stock pinion"
+],
+[
+"RT-笔记本壳 Notebook housing",
+"Notebook housing"
 ],
 [
 "RT-轮式人形 Wheeled humanoid",
@@ -1281,6 +1557,10 @@
 ],
 [
 "来料检验 Incoming inspection",
+"Incoming inspection"
+],
+[
+"来料检验台（CPU、颗粒、光板防静电与湿敏检查）",
 "Incoming inspection"
 ],
 [
@@ -1384,6 +1664,10 @@
 "VMC 5 (parts)"
 ],
 [
+"笔记本装配 Notebook assembly",
+"Notebook assembly"
+],
+[
 "绝缘套件（槽绝缘纸、槽楔、绑扎带，型号待确认）",
 "Insulation kit"
 ],
@@ -1428,6 +1712,10 @@
 "Torque sensor"
 ],
 [
+"X 光检测 X-ray inspection",
+"X-ray inspection"
+],
+[
 "三防涂覆 Conformal coating",
 "Conformal coating"
 ],
@@ -1452,8 +1740,20 @@
 "Joint module S"
 ],
 [
+"台式机与工控机包装箱 Desktop box",
+"Desktop box"
+],
+[
+"台式机装配 Desktop assembly",
+"Desktop assembly"
+],
+[
 "同步带（型号待确认） Timing belt",
 "Timing belt"
+],
+[
+"壳体加工 Housing machining",
+"Housing machining"
 ],
 [
 "平键 6×6×25 Parallel key",
@@ -1464,12 +1764,20 @@
 "8×7×36 Parallel key"
 ],
 [
+"开机自检与灌装 POST & imaging",
+"POST & imaging"
+],
+[
 "扭矩终检 Torque final test",
 "Torque final test"
 ],
 [
 "整机标定 Robot calibration",
 "Robot calibration"
+],
+[
+"机柜配电单元（型号待确认） Rack PDU",
+"Rack PDU"
 ],
 [
 "臂内线束 Arm cable harness",
@@ -1532,6 +1840,10 @@
 "Wafer incoming"
 ],
 [
+"服务器装配 Server assembly",
+"Server assembly"
+],
+[
 "杆式油标 M12 Oil dipstick",
 "M12 Oil dipstick"
 ],
@@ -1592,6 +1904,10 @@
 "Joint module"
 ],
 [
+"RT-内存条 Memory module",
+"Memory module"
+],
+[
 "RT-包缝机总装 OL assembly",
 "OL assembly"
 ],
@@ -1616,12 +1932,20 @@
 "Material store"
 ],
 [
+"原材料库（防潮柜、防静电区、钣金卷料区）",
+"Material store"
+],
+[
 "回流焊 Reflow soldering",
 "Reflow soldering"
 ],
 [
 "平面密封胶 Flange sealant",
 "Flange sealant"
+],
+[
+"涂导热硅脂 TIM dispensing",
+"TIM dispensing"
 ],
 [
 "温度循环 Thermal cycling",
@@ -1736,6 +2060,14 @@
 "CP Wafer probe"
 ],
 [
+"服务器线缆套件（电源线、网线、管理线）",
+"Server cable kit"
+],
+[
+"机器人控制柜（不含工控机，型号待确认）",
+"Robot controller cabinet (without IPC)"
+],
+[
 "测试分选机 + 测试机（4 个测试位）",
 "Final test handler"
 ],
@@ -1752,8 +2084,16 @@
 "Magnet bonding"
 ],
 [
+"笔记本包装盒 Notebook box",
+"Notebook box"
+],
+[
 "编码器线缆（屏蔽，带插头，型号待确认）",
 "Encoder cable"
+],
+[
+"老化房（满载压力测试、温度与功耗记录）",
+"Burn-in room"
 ],
 [
 "补偿电阻套件（零点、温漂，型号待确认）",
@@ -1824,8 +2164,24 @@
 "FT Final test"
 ],
 [
+"数控折弯 Press braking",
+"Press braking"
+],
+[
+"整机功能测试 System test",
+"System test"
+],
+[
+"整机柜联调台（上架、布线、满载联调）",
+"Rack integration & test"
+],
+[
 "温度补偿箱（测零点温漂、配补偿电阻）",
 "Temperature compensation chamber"
+],
+[
+"激光切割 Laser cutting",
+"Laser cutting"
 ],
 [
 "激光打标 Laser marking",
@@ -1880,8 +2236,24 @@
 "Rotary hook"
 ],
 [
+"内存测试机（8 个测试座、高低温）",
+"Memory module tester"
+],
+[
+"压铆 Self-clinching",
+"Self-clinching"
+],
+[
 "原材料库（炉料、型砂、钢材、油漆）",
 "Raw materials store"
+],
+[
+"台式机处理器（插座式，型号待确认）",
+"Desktop CPU"
+],
+[
+"喷粉 Powder coating",
+"Powder coating"
 ],
 [
 "外购件库（电机、电控、轴承、机针）",
@@ -1942,6 +2314,18 @@
 [
 "旧砂处理（磁选、破碎、筛分、冷却）",
 "Sand reclamation"
+],
+[
+"服务器包装箱 Server box",
+"Server box"
+],
+[
+"服务器处理器（插座式，型号待确认）",
+"Server CPU"
+],
+[
+"柜顶交换机 48 口（型号待确认）",
+"Top-of-rack switch"
 ],
 [
 "清洁度分析（过滤称重 + 显微镜）",
@@ -2028,8 +2412,16 @@
 "Needle bar"
 ],
 [
+"X 光检测仪（BGA 焊点空洞）",
+"X-ray inspection"
+],
+[
 "六角螺母 M12 Hex nut",
 "M12 Hex nut"
+],
+[
+"内存测试 Memory test",
+"Memory test"
 ],
 [
 "减薄 Back grinding",
@@ -2100,6 +2492,10 @@
 "Brake tester"
 ],
 [
+"服务器主板光板 14 层（外协）",
+"Server mainboard bare PCB"
+],
+[
 "机壳终检站（气动量仪、综合检具）",
 "Housing final inspection (air gauges, check fixture)"
 ],
@@ -2126,6 +2522,18 @@
 [
 "立式加工中心 4 号（包缝机壳）",
 "VMC 4 (OL housing)"
+],
+[
+"笔记本主板元件套料（型号待确认）",
+"Notebook board component kit"
+],
+[
+"笔记本热管散热模组（型号待确认）",
+"Notebook heat-pipe module"
+],
+[
+"笔记本键盘与触控板（型号待确认）",
+"Keyboard & touchpad"
 ],
 [
 "箱盖 Housing cover",
@@ -2196,8 +2604,16 @@
 "Shakeout"
 ],
 [
+"RT-主板 Mainboard",
+"Mainboard"
+],
+[
 "RT-偏心 Eccentric",
 "Eccentric"
+],
+[
+"RT-笔记本 Notebook",
+"Notebook"
 ],
 [
 "万向轮 Ø100 Caster",
@@ -2214,6 +2630,18 @@
 [
 "包缝机外罩与前盖（型号待确认）",
 "Covers (OL)"
+],
+[
+"台式机主板光板 8 层（外协）",
+"Desktop mainboard bare PCB"
+],
+[
+"喷粉线（前处理、喷粉、固化炉）",
+"Powder coating line"
+],
+[
+"在线测试仪（针床、上电测供电）",
+"In-circuit tester"
 ],
 [
 "大齿轮 m2 z72 Gear",
@@ -2276,6 +2704,10 @@
 "Encoder calibration bench"
 ],
 [
+"背门换热器（水冷，型号待确认）",
+"Rear-door heat exchanger"
+],
+[
 "贴片肖特基二极管（型号待确认）",
 "Schottky diode"
 ],
@@ -2312,6 +2744,10 @@
 "Cobot"
 ],
 [
+"RT-台式机 Desktop",
+"Desktop"
+],
+[
 "RT-后段 Back end",
 "Back end"
 ],
@@ -2336,8 +2772,24 @@
 "Optical encoder sensor"
 ],
 [
+"内存条光板 10 层（外协）",
+"DIMM bare PCB"
+],
+[
 "划片膜与晶圆框（型号待确认）",
 "Dicing tape & frame"
+],
+[
+"加工中心 1 号（笔记本壳）",
+"Machining center 1"
+],
+[
+"加工中心 2 号（笔记本壳）",
+"Machining center 2"
+],
+[
+"回流焊炉（12 温区、氮气）",
+"Reflow oven"
 ],
 [
 "增碳剂 Carburiser",
@@ -2396,8 +2848,20 @@
 "ESD box"
 ],
 [
+"阳极氧化 Anodizing",
+"Anodizing"
+],
+[
 "P10 下料 Sawing",
 "Sawing"
+],
+[
+"RT-服务器 Server",
+"Server"
+],
+[
+"RT-机箱 Chassis",
+"Chassis"
 ],
 [
 "内圆磨床（偏心内孔、端面）",
@@ -2452,8 +2916,8 @@
 "Line OL B02: Fit main shaft"
 ],
 [
-"机器人控制柜（型号待确认）",
-"Robot controller cabinet"
+"机柜配电单元（型号待确认）",
+"Rack PDU"
 ],
 [
 "渗漏试验台（包缝机壳油池）",
@@ -2462,6 +2926,10 @@
 [
 "立式加工中心 VMC-01",
 "Vertical machining centre VMC-01"
+],
+[
+"笔记本电池组（型号待确认）",
+"Notebook battery pack"
 ],
 [
 "绕线机 1 号（针式绕线）",
@@ -2504,6 +2972,14 @@
 "Oil pump (OL)"
 ],
 [
+"压铆螺母柱（型号待确认）",
+"Self-clinching standoff"
+],
+[
+"台式机机箱（钣金，自制）",
+"Desktop chassis"
+],
+[
 "大臂 Upper arm",
 "Upper arm"
 ],
@@ -2528,6 +3004,10 @@
 "Oil pan (LS)"
 ],
 [
+"开机自检与灌装台 OST",
+"POST & OS imaging OST"
+],
+[
 "总装线 A11：通电检查",
 "Line LS A11: Power-on check"
 ],
@@ -2542,6 +3022,10 @@
 [
 "数控车床 CNC-L01",
 "CNC lathe CNC-L01"
+],
+[
+"整机柜运输木箱与减震底座",
+"Rack shipping crate"
 ],
 [
 "梭壳与梭芯（型号待确认）",
@@ -2600,6 +3084,14 @@
 "AGV test area AT"
 ],
 [
+"BIOS 烧录台 PG",
+"BIOS programming station PG"
+],
+[
+"RT-整机柜 Rack",
+"Rack"
+],
+[
 "人形主控（型号待确认）",
 "Humanoid main controller"
 ],
@@ -2644,6 +3136,10 @@
 "WIP store (housings, parts)"
 ],
 [
+"台式机与工控机装配工位",
+"Desktop assembly"
+],
+[
 "同步带轮（型号待确认）",
 "Timing pulley"
 ],
@@ -2658,6 +3154,18 @@
 [
 "外圆磨床 GRD-01",
 "Cylindrical grinder GRD-01"
+],
+[
+"导热硅脂点胶机 1 号",
+"TIM dispenser 1"
+],
+[
+"导热硅脂点胶机 2 号",
+"TIM dispenser 2"
+],
+[
+"导热硅脂（型号待确认）",
+"Thermal interface material"
 ],
 [
 "平缝机调试工位 1 号",
@@ -2708,6 +3216,14 @@
 "Vibratory core knockout"
 ],
 [
+"整机功能测试台 FCT",
+"System test bench FCT"
+],
+[
+"服务器双路主板（自制）",
+"Server dual-socket mainboard"
+],
+[
 "水平分型脱箱射压造型线",
 "Flaskless horizontal moulding line"
 ],
@@ -2732,12 +3248,24 @@
 "Robot Integrator (Demo)"
 ],
 [
+"示例·焊接与导热材料商",
+"Solder & TIM (Demo)"
+],
+[
 "示例·编带与防潮包装商",
 "Tape & Dry-pack (Demo)"
 ],
 [
+"示例·网络与机柜设备商",
+"Network & Rack Supplier (Demo)"
+],
+[
 "示例·谐波减速器代理商",
 "Strain-wave Gear Distributor (Demo)"
+],
+[
+"粉末涂料（型号待确认）",
+"Powder coating"
 ],
 [
 "编码器标定台 ECAL",
@@ -2856,6 +3384,10 @@
 "HMC 1 (LS housing) HMC"
 ],
 [
+"台式机与工控机包装箱",
+"Desktop box"
+],
+[
 "同步带（型号待确认）",
 "Timing belt"
 ],
@@ -2924,6 +3456,10 @@
 "Primer booth PRIME"
 ],
 [
+"开机自检与系统灌装台",
+"POST & OS imaging"
+],
+[
 "总装线 A12：下线",
 "Line LS A12: Unload"
 ],
@@ -2942,6 +3478,10 @@
 [
 "整机标定工位 CAL",
 "Robot calibration cell CAL"
+],
+[
+"整机装配工位 ASM",
+"Desktop assembly ASM"
 ],
 [
 "无心磨床 GRD-L",
@@ -2992,8 +3532,24 @@
 "Servo Supplier (Demo)"
 ],
 [
+"示例·固态硬盘分销商",
+"SSD Distributor (Demo)"
+],
+[
 "示例·塑封料与银浆商",
 "Mold Compound & Adhesive (Demo)"
+],
+[
+"示例·存储颗粒分销商",
+"DRAM Distributor (Demo)"
+],
+[
+"示例·散热器与风扇商",
+"Thermal Supplier (Demo)"
+],
+[
+"示例·显示屏与电池商",
+"Display & Battery Supplier (Demo)"
 ],
 [
 "示例·生铁废钢供应商",
@@ -3056,6 +3612,10 @@
 "LS adjustment station 1 ADJ-O"
 ],
 [
+"选择焊（插座、接口）",
+"Selective soldering"
+],
+[
 "铣削 Milling",
 "Milling"
 ],
@@ -3066,6 +3626,10 @@
 [
 "面漆喷房 PAINT",
 "Top-coat booth PAINT"
+],
+[
+"X 光检测仪 XR",
+"X-ray inspection XR"
 ],
 [
 "三坐标 CMM-R",
@@ -3116,6 +3680,10 @@
 "Degating station GATE"
 ],
 [
+"台式机主板（自制）",
+"Desktop mainboard"
+],
+[
 "在线测试仪 ICT",
 "In-circuit tester ICT"
 ],
@@ -3162,6 +3730,10 @@
 [
 "数控车床 10 号",
 "CNC lathe 10"
+],
+[
+"整机柜联调台 RK",
+"Rack integration & test RK"
 ],
 [
 "整机装配单元 RA",
@@ -3238,6 +3810,14 @@
 [
 "示例·协作机器人厂",
 "Cobot Maker (Demo)"
+],
+[
+"示例·处理器分销商",
+"CPU Distributor (Demo)"
+],
+[
+"示例·某云数据中心",
+"Cloud Data Center (Demo)"
 ],
 [
 "示例·汽车零部件厂",
@@ -3340,12 +3920,20 @@
 "AGV test area"
 ],
 [
+"BIOS 烧录台",
+"BIOS programming station"
+],
+[
 "三防涂覆机 CC",
 "Conformal coater CC"
 ],
 [
 "关节测试台 JT",
 "Joint test bench JT"
+],
+[
+"内存测试机 MT",
+"Memory module tester MT"
 ],
 [
 "冷却线 COOL",
@@ -3374,6 +3962,10 @@
 [
 "功能测试 FCT",
 "FCT"
+],
+[
+"加工中心 VMC",
+"Machining center 1 VMC"
 ],
 [
 "动平衡机 BAL",
@@ -3436,6 +4028,10 @@
 "LS cleaning & packing"
 ],
 [
+"开机自检与灌装台",
+"POST & OS imaging"
+],
+[
 "引线键合机 WB",
 "Wire bonder 1 WB"
 ],
@@ -3466,6 +4062,10 @@
 [
 "振动清砂 VIB",
 "Vibratory core knockout VIB"
+],
+[
+"数控折弯机 PB",
+"CNC press brake PB"
 ],
 [
 "数控车床 1 号",
@@ -3520,8 +4120,16 @@
 "Final test handler FT"
 ],
 [
+"激光切割机 LC",
+"Fiber laser cutter LC"
+],
+[
 "激光打标机 LM",
 "Laser marker LM"
+],
+[
+"焊接与导热材料商",
+"Solder & TIM (Demo)"
 ],
 [
 "物流小车 1 号",
@@ -3584,6 +4192,10 @@
 "Wafer Foundry (Demo)"
 ],
 [
+"示例·某算力中心",
+"AI Computing Center (Demo)"
+],
+[
 "示例·海湾润滑油",
 "Gulf Coast Lubricants (Demo)"
 ],
@@ -3612,6 +4224,10 @@
 "Electronics Assembly (Demo)"
 ],
 [
+"示例·电脑零售商",
+"PC Retailer (Demo)"
+],
+[
 "示例·硅钢冲片厂",
 "Lamination Supplier (Demo)"
 ],
@@ -3626,6 +4242,10 @@
 [
 "示例·造型材料商",
 "Foundry Consumables (Demo)"
+],
+[
+"示例·金属材料商",
+"Metal Supplier (Demo)"
 ],
 [
 "空心输出轴（中）",
@@ -3650,6 +4270,10 @@
 [
 "编带与防潮包装商",
 "Tape & Dry-pack (Demo)"
+],
+[
+"网络与机柜设备商",
+"Network & Rack Supplier (Demo)"
 ],
 [
 "读头装调台 HM",
@@ -3684,12 +4308,20 @@
 "SPI"
 ],
 [
+"阳极氧化线 AN",
+"Anodizing line AN"
+],
+[
 "事故 / 未遂",
 "Incident / near miss"
 ],
 [
 "伺服电机供应商",
 "Servo Supplier (Demo)"
+],
+[
+"光纤激光切割机",
+"Fiber laser cutter"
 ],
 [
 "关节壳体（中）",
@@ -3720,6 +4352,10 @@
 "Tool"
 ],
 [
+"压铆机 PEM",
+"Self-clinching press PEM"
+],
+[
 "双臂与手眼标定",
 "Dual-arm & hand-eye calibration"
 ],
@@ -3732,12 +4368,20 @@
 "Post-mold cure oven CUR"
 ],
 [
+"固态硬盘分销商",
+"SSD Distributor (Demo)"
+],
+[
 "塑封料与银浆商",
 "Mold Compound & Adhesive (Demo)"
 ],
 [
 "塑封机 MLD",
 "Transfer molding press MLD"
+],
+[
+"存储颗粒分销商",
+"DRAM Distributor (Demo)"
 ],
 [
 "带锯床 1 号",
@@ -3752,6 +4396,10 @@
 "Band saw 1 SAW"
 ],
 [
+"开机自检与灌装",
+"POST & imaging"
+],
+[
 "成品库（防潮）",
 "Finished goods store"
 ],
@@ -3760,12 +4408,28 @@
 "Prober + tester (CP)"
 ],
 [
+"散热器与风扇商",
+"Thermal Supplier (Demo)"
+],
+[
+"整机功能测试台",
+"System test bench"
+],
+[
 "时效炉 AGE",
 "Bogie stress-relief furnace AGE"
 ],
 [
+"显示屏与电池商",
+"Display & Battery Supplier (Demo)"
+],
+[
 "晶圆来料检验台",
 "Wafer incoming inspection"
+],
+[
+"服务器装配工位",
+"Server assembly"
 ],
 [
 "校直机 STR",
@@ -3864,6 +4528,10 @@
 "Changhe Forging (Demo)"
 ],
 [
+"笔记本装配工位",
+"Notebook assembly"
+],
+[
 "缝纫设备经销商",
 "Sewing Equipment Dealer (Demo)"
 ],
@@ -3882,6 +4550,10 @@
 [
 "阻容与连接器商",
 "Passives & Connectors (Demo)"
+],
+[
+"X 光检测仪",
+"X-ray inspection"
 ],
 [
 "三坐标测量室",
@@ -3956,6 +4628,14 @@
 "Hanger shot-blast machine"
 ],
 [
+"喷粉线 PC",
+"Powder coating line PC"
+],
+[
+"处理器分销商",
+"CPU Distributor (Demo)"
+],
+[
 "多功能贴片机",
 "Flexible placer"
 ],
@@ -3984,6 +4664,14 @@
 "CNC lathe B"
 ],
 [
+"整机功能测试",
+"System test"
+],
+[
+"整机柜联调台",
+"Rack integration & test"
+],
+[
 "整机标定工位",
 "Robot calibration cell"
 ],
@@ -3992,12 +4680,28 @@
 "Robot assembly cell"
 ],
 [
+"整机装配工位",
+"Desktop assembly"
+],
+[
 "晶圆来料检验",
 "Wafer incoming"
 ],
 [
+"服务器包装箱",
+"Server box"
+],
+[
+"某云数据中心",
+"Cloud Data Center (Demo)"
+],
+[
 "汽车零部件厂",
 "Auto Parts Plant (Demo)"
+],
+[
+"点胶机 DP",
+"TIM dispenser 1 DP"
 ],
 [
 "物流仓储中心",
@@ -4032,12 +4736,20 @@
 "Paint Supplier (Demo)"
 ],
 [
+"示例·电源商",
+"Power Supply Maker (Demo)"
+],
+[
 "程序烧录工位",
 "Programming station"
 ],
 [
 "立式加工中心",
 "Vertical machining centre"
+],
+[
+"笔记本包装盒",
+"Notebook box"
 ],
 [
 "等离子清洗机",
@@ -4148,6 +4860,10 @@
 "WenQuest Sewing Machines (Demo)"
 ],
 [
+"问渠计算机厂",
+"WenQuest Computers (Demo)"
+],
+[
 "防静电包装盒",
 "ESD box"
 ],
@@ -4208,6 +4924,10 @@
 "Joint test bench"
 ],
 [
+"内存测试机",
+"Memory module tester"
+],
+[
 "出厂测试台",
 "LS end-of-line tester 1"
 ],
@@ -4238,6 +4958,10 @@
 [
 "去毛刺工位",
 "Deburring 1 (LS)"
+],
+[
+"台式机装配",
+"Desktop assembly"
 ],
 [
 "后固化烘箱",
@@ -4328,12 +5052,24 @@
 "Authorized Distributor (Demo)"
 ],
 [
+"数控折弯机",
+"CNC press brake"
+],
+[
+"整机柜联调",
+"Rack integration test"
+],
+[
 "晶圆代工厂",
 "Wafer Foundry (Demo)"
 ],
 [
 "晶圆减薄机",
 "Back grinder"
+],
+[
+"服务器装配",
+"Server assembly"
 ],
 [
 "服务工程师",
@@ -4346,6 +5082,10 @@
 [
 "来料检验台",
 "Incoming inspection"
+],
+[
+"某算力中心",
+"AI Computing Center (Demo)"
 ],
 [
 "梭尖研磨机",
@@ -4362,6 +5102,10 @@
 [
 "海湾润滑油",
 "Gulf Coast Lubricants (Demo)"
+],
+[
+"涂导热硅脂",
+"TIM dispensing"
 ],
 [
 "渗漏试验台",
@@ -4382,6 +5126,10 @@
 [
 "满意度调查",
 "Satisfaction survey"
+],
+[
+"激光切割机",
+"Fiber laser cutter"
 ],
 [
 "激光打标机",
@@ -4424,6 +5172,10 @@
 "Motor final test dyno"
 ],
 [
+"电脑零售商",
+"PC Retailer (Demo)"
+],
+[
 "码盘清洗台",
 "Disk cleaning station"
 ],
@@ -4446,6 +5198,10 @@
 [
 "磁钢粘贴台",
 "Magnet bonding bench"
+],
+[
+"笔记本装配",
+"Notebook assembly"
 ],
 [
 "等离子清洗",
@@ -4512,6 +5268,10 @@
 "Foundry Consumables (Demo)"
 ],
 [
+"金属材料商",
+"Metal Supplier (Demo)"
+],
+[
 "钻攻螺纹孔",
 "Drilling & tapping"
 ],
@@ -4546,6 +5306,10 @@
 [
 "问渠芯片厂",
 "WenQuest Semiconductor"
+],
+[
+"阳极氧化线",
+"Anodizing line"
 ],
 [
 "零件库条目",
@@ -4620,6 +5384,10 @@
 "Internal grinder"
 ],
 [
+"内存测试",
+"Memory test"
+],
+[
 "出厂检验",
 "Final inspection"
 ],
@@ -4634,6 +5402,10 @@
 [
 "功能测试",
 "FCT"
+],
+[
+"加工中心",
+"Machining center 1"
 ],
 [
 "动作记录",
@@ -4694,6 +5466,10 @@
 [
 "基石锻造",
 "Keystone Forging (Demo)"
+],
+[
+"壳体加工",
+"Housing machining"
 ],
 [
 "外圆磨床",
@@ -4796,6 +5572,10 @@
 "Failure record"
 ],
 [
+"数控折弯",
+"Press braking"
+],
+[
 "数控程序",
 "NC program"
 ],
@@ -4870,6 +5650,10 @@
 [
 "湖畔特钢",
 "Lakeside Special Steel (Demo)"
+],
+[
+"激光切割",
+"Laser cutting"
 ],
 [
 "激光打标",
@@ -5056,6 +5840,10 @@
 "ESD bag"
 ],
 [
+"阳极氧化",
+"Anodizing"
+],
+[
 "零件实物",
 "Serialized part"
 ],
@@ -5136,6 +5924,10 @@
 "Hazard"
 ],
 [
+"压铆机",
+"Self-clinching press"
+],
+[
 "原子灰",
 "Putty"
 ],
@@ -5150,6 +5942,10 @@
 [
 "后固化",
 "Post-mold cure"
+],
+[
+"喷粉线",
+"Powder coating line"
 ],
 [
 "回流焊",
@@ -5189,7 +5985,7 @@
 ],
 [
 "成品库",
-"Finished store"
+"Finished goods store"
 ],
 [
 "抛丸机",
@@ -5228,8 +6024,16 @@
 "Gear hobber"
 ],
 [
+"点胶机",
+"TIM dispenser 1"
+],
+[
 "理化室",
 "Test lab (tensile, hardness, metallography)"
+],
+[
+"电源商",
+"Power Supply Maker (Demo)"
 ],
 [
 "电镀线",
@@ -5360,6 +6164,10 @@
 "Packing"
 ],
 [
+"压铆",
+"Self-clinching"
+],
+[
 "合同",
 "Contract"
 ],
@@ -5370,6 +6178,10 @@
 [
 "商机",
 "Opportunity"
+],
+[
+"喷粉",
+"Powder coating"
 ],
 [
 "回访",
