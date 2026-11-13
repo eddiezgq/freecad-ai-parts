@@ -1,0 +1,391 @@
+{
+ "plant": "computer",
+ "id": "C",
+ "level": "完整",
+ "title": "20 柜算力中心",
+ "title_en": "A 20-rack computing center",
+ "item": "20 × WQ-RACK42 机房",
+ "summary": "20 台整机柜（320 台服务器）组成的算力中心：比较三种制冷方案，选背门换热器 + 18/24 ℃ 温水 + 自然冷却；算供配电（变压器、UPS 3+1、电池 15 分钟、发电机）、冷机和水泵；全年 8760 小时逐时仿真年 PUE；N+1 冗余的可用性用公式和蒙特卡洛对照；出机房三维和平面图；整机柜联调 20 台，写现场安装与综合测试。",
+ "summary_en": "A computing center of 20 racks (320 servers): three cooling options compared, rear-door heat exchangers on 18/24 °C warm water with free cooling chosen; power chain (transformers, 3+1 UPS, 15-minute battery, generators), chillers and pumps sized; annual PUE from an 8760-hour simulation; N+1 availability by formula and Monte Carlo; 3D hall and floor plan; 20 racks integration-tested, site installation and integrated systems test planned.",
+ "script": "tools/cases/computer_c.py",
+ "generated": "2026-11-13",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "20 柜 × 16 台；IT 设计 260 kW、满载约 216 kW；年 PUE ≤ 1.3；可用性 ≥ 99.98 %。",
+   "summary_en": "20 racks × 16 servers; IT 260 kW design, about 216 kW at full load; annual PUE ≤ 1.3; availability ≥ 99.98 %.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "IT 设计负荷",
+     "name_en": "IT design load",
+     "value": "260",
+     "unit": "kW"
+    },
+    {
+     "name": "PUE 要求",
+     "name_en": "PUE target",
+     "value": "1.3",
+     "unit": ""
+    },
+    {
+     "name": "服务器",
+     "name_en": "Servers",
+     "value": "320",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "选背门换热器 + 18/24 ℃ 温水 + 自然冷却：年 PUE 1.167（房间精密空调 1.381、冷冻水 1.309）。",
+   "summary_en": "Rear-door heat exchangers on 18/24 °C warm water with free cooling: annual PUE 1.167 (room DX units 1.381, chilled water 1.309).",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "选定方案 PUE",
+     "name_en": "Chosen PUE",
+     "value": "1.17",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "背门换热器每柜 18.2 kW ≥ 13 kW；冷机 2+1 × 150 kW；变压器 2 × 500 kVA；UPS 3+1 × 100 kW；电池 3 × 30 kWh。",
+   "summary_en": "RDHX 18.2 kW per rack ≥ 13 kW; chillers 2+1 × 150 kW; transformers 2 × 500 kVA; UPS 3+1 × 100 kW; battery 3 × 30 kWh.",
+   "md": "3_计算书.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "每柜换热",
+     "name_en": "RDHX capacity",
+     "value": "18.2",
+     "unit": "kW"
+    },
+    {
+     "name": "冷机",
+     "name_en": "Chillers",
+     "value": "2+1",
+     "unit": ""
+    },
+    {
+     "name": "变压器",
+     "name_en": "Transformers",
+     "value": "2×500",
+     "unit": "kVA"
+    },
+    {
+     "name": "UPS",
+     "name_en": "UPS",
+     "value": "3+1×100",
+     "unit": "kW"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "全年逐时：方案 C 年 PUE 1.167，全自然冷却 3,450 小时；可用性 99.9996 %（公式与蒙特卡洛相差 1 %）。",
+   "summary_en": "8760 hours: option C annual PUE 1.167, 3,450 h of full free cooling; availability 99.9996 % (formula vs Monte Carlo within 1 %).",
+   "md": "4_全年仿真.md",
+   "figs": [
+    {
+     "file": "4_全年PUE.png",
+     "caption": "气候、逐月 PUE、非 IT 用电",
+     "caption_en": "Climate, monthly PUE, non-IT energy"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "能源与环境",
+     "label_en": "Energy & environment",
+     "route": "/energy"
+    }
+   ],
+   "facts": [
+    {
+     "name": "年 PUE",
+     "name_en": "Annual PUE",
+     "value": "1.17",
+     "unit": ""
+    },
+    {
+     "name": "自然冷却",
+     "name_en": "Free cooling",
+     "value": "3,450",
+     "unit": "h"
+    },
+    {
+     "name": "可用性",
+     "name_en": "Availability",
+     "value": "100",
+     "unit": "%"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "IT 机房 12 × 9 m，两排各 10 柜、中间冷通道；温水管环形布置；电力室、室外冷机和冷却塔。",
+   "summary_en": "12 × 9 m IT hall with two rows of 10 racks facing a cold aisle; warm-water ring under the floor; power room, chillers and towers outdoors.",
+   "md": "5_三维与平面图.md",
+   "figs": [
+    {
+     "file": "5_平面图.png",
+     "caption": "平面布置",
+     "caption_en": "Floor plan"
+    },
+    {
+     "file": "5_机房三维.png",
+     "caption": "IT 机房三维",
+     "caption_en": "IT hall 3D"
+    }
+   ],
+   "files": [
+    {
+     "file": "5_机房.step",
+     "label": "机房三维模型（STEP）",
+     "label_en": "Hall 3D model (STEP)"
+    }
+   ],
+   "tools": [],
+   "facts": []
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "工厂整柜联调 2 道；现场五个阶段：场地、供配电、水系统（保压、冲洗）、机柜就位、综合测试（满载 24 小时 + 逐项故障演练）。",
+   "summary_en": "2 rack operations in the plant; five site stages: room, power, water (pressure test, flushing), rack placement, integrated systems test (24 h full load + failure drills).",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "现场阶段",
+     "name_en": "Site stages",
+     "value": "5",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "20 台整机柜：满载功率平均 10.86 kW（设计 13），不合格 0，最低 Cpk 1.51；联调台 7.0 天。",
+   "summary_en": "20 racks: average full-load power 10.86 kW (design 13); 0 failures, lowest Cpk 1.51; 7.0 days on the test bench.",
+   "md": "7_制造与测试.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间执行",
+     "label_en": "Shop floor",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    },
+    {
+     "label": "3D 车间",
+     "label_en": "3D shop",
+     "route": "/3d"
+    }
+   ],
+   "facts": [
+    {
+     "name": "不合格",
+     "name_en": "Out of tolerance",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "最低 Cpk",
+     "name_en": "Lowest Cpk",
+     "value": "1.51",
+     "unit": ""
+    },
+    {
+     "name": "联调天数",
+     "name_en": "Bench days",
+     "value": "7",
+     "unit": "d"
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "9 / 9 项校核通过；年 PUE 1.167、可用性 99.9996 %。",
+   "summary_en": "9 / 9 checks pass; annual PUE 1.167, availability 99.9996 %.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "能源与环境",
+     "label_en": "Energy & environment",
+     "route": "/energy"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "calc",
+   "what": "背门换热器换热量（每柜设计功率）",
+   "what_en": "RDHX capacity at rack design power",
+   "value": "18.2",
+   "op": ">=",
+   "limit": "13",
+   "unit": "kW",
+   "ok": true,
+   "src": "第 1 节"
+  },
+  {
+   "step": "calc",
+   "what": "换热后回机房空气温度",
+   "what_en": "Air back into the room after the RDHX",
+   "value": "22.2",
+   "op": "<=",
+   "limit": "25",
+   "unit": "℃",
+   "ok": true,
+   "src": "不额外加热机房"
+  },
+  {
+   "step": "calc",
+   "what": "UPS 去掉一块后的容量",
+   "what_en": "UPS capacity with one module out",
+   "value": "300",
+   "op": ">=",
+   "limit": "260",
+   "unit": "kW",
+   "ok": true,
+   "src": "N+1"
+  },
+  {
+   "step": "sim",
+   "what": "年 PUE（方案 C）",
+   "what_en": "Annual PUE (option C)",
+   "value": "1.17",
+   "op": "<=",
+   "limit": "1.3",
+   "unit": "",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "sim",
+   "what": "年可用性",
+   "what_en": "Annual availability",
+   "value": "100",
+   "op": ">=",
+   "limit": "100",
+   "unit": "%",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "sim",
+   "what": "可用性：蒙特卡洛与公式相差",
+   "what_en": "Availability: Monte Carlo vs formula",
+   "value": "0.9",
+   "op": "<=",
+   "limit": "5",
+   "unit": "%",
+   "ok": true,
+   "src": "核对公式"
+  },
+  {
+   "step": "make",
+   "what": "不合格项",
+   "what_en": "Failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "整机柜联调"
+  },
+  {
+   "step": "make",
+   "what": "最低 Cpk",
+   "what_en": "Lowest Cpk",
+   "value": "1.51",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  },
+  {
+   "step": "make",
+   "what": "实测整柜功率最大值",
+   "what_en": "Largest measured rack power",
+   "value": "11.3",
+   "op": "<=",
+   "limit": "13",
+   "unit": "kW",
+   "ok": true,
+   "src": "第 3 步按设计功率"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算书.md",
+  "4_全年PUE.png",
+  "4_全年仿真.md",
+  "5_三维与平面图.md",
+  "5_平面图.png",
+  "5_机房.step",
+  "5_机房三维.png",
+  "6_工艺.md",
+  "7_制造与测试.md",
+  "8_总结.md"
+ ]
+}

@@ -298,7 +298,7 @@ measurements:
   chars: &mb
   - {code: mb_paste, name: 锡膏厚度（SPI）, unit: μm, nominal: 120, lo: 90, hi: 150, sigma: 6}
   - {code: mb_void, name: BGA 焊点空洞率（X 光，最大一颗）, unit: '%', nominal: 8, lo: 0, hi: 25, sigma: 2.2}
-  - {code: mb_vcore, name: CPU 核心供电电压偏差（上电测试）, unit: mV, nominal: 0, lo: -15, hi: 15, sigma: 3}
+  - {code: mb_vcore, name: CPU 核心供电电压偏差（上电测试）, unit: mV, nominal: 0, lo: -15, hi: 15, sigma: 2.2}   # 第 166b 轮案例 A 的公差叠加（tools/cases/computer_a.py）
 - {item: MB-NB, operation: 在线测试 ICT, chars: *mb}
 - {item: MB-SV, operation: 在线测试 ICT, chars: *mb}
 - item: DIMM-32

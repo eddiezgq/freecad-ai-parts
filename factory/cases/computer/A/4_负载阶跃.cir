@@ -1,0 +1,20 @@
+* WQ MB-PC VRM: averaged AVP model, 30 -> 130 A load step (phase current = state node ni, A)
+Bc 0 ni i=max(-4.56e+07,min(4.344e+08,502655*((1.25-v(vs))/0.0011-v(ni))))
+Cni ni 0 1 ic=30
+Bs 0 vs i=(v(out)-v(vs))/5e-07
+Cvs vs 0 1 ic=1.217
+Bph 0 out i=v(ni)
+Cb out nb 0.00336 ic=1.217
+Rb nb nb2 0.001
+Lb nb2 0 2e-10
+Cm out nm 0.0004 ic=1.217
+Rm nm nm2 7.5e-05
+Lm nm2 0 1e-11
+Iload out 0 pwl(0 30 5e-05 30 5.1e-05 130 250u 130 0.000251 30 450u 30)
+.options numdgt=7
+.tran 10n 450u 0 20n uic
+.meas tran vmin min v(out) from=50u to=230u
+.meas tran v130 avg v(out) from=230u to=250u
+.meas tran vmax max v(out) from=250u to=430u
+.meas tran v30 avg v(out) from=430u to=450u
+.end

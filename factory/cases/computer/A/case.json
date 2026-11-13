@@ -1,0 +1,425 @@
+{
+ "plant": "computer",
+ "id": "A",
+ "level": "简单",
+ "title": "台式机主板的 CPU 核心供电",
+ "title_en": "CPU core power on the desktop mainboard",
+ "item": "MB-PC CPU 供电（VRM）",
+ "summary": "12 V 降到约 1.1 V、最大 140 A 给 CPU：比较 4 / 6 / 8 相选 6 相，算纹波、损耗与效率、负载线和输出电容，ngspice 开关仿真核对纹波和导通损耗、平均模型看 100 A 负载阶跃，电压公差叠加算出核心电压散布，写回工厂数据；SMT 线做 40 块、上电测试。",
+ "summary_en": "12 V down to about 1.1 V at up to 140 A for the CPU: 4 / 6 / 8 phases compared and 6 chosen; ripple, losses, efficiency, load line and output capacitors calculated; ngspice switching simulation for ripple and conduction loss, averaged model for a 100 A load step; tolerance stack gives the core-voltage spread used by the plant; 40 boards built and tested.",
+ "script": "tools/cases/computer_a.py",
+ "generated": "2026-11-13",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "12 V → 约 1.1 V，最大 140 A；负载线 1.1 mΩ；阶跃 30 → 130 A；偏离负载线 ±15 mV。",
+   "summary_en": "12 V to about 1.1 V, up to 140 A; 1.1 mΩ load line; 30 → 130 A step; ±15 mV around the load line.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "最大电流",
+     "name_en": "Max current",
+     "value": "140",
+     "unit": "A"
+    },
+    {
+     "name": "负载线",
+     "name_en": "Load line",
+     "value": "1.1",
+     "unit": "mΩ"
+    },
+    {
+     "name": "允许偏差",
+     "name_en": "Tolerance",
+     "value": "15",
+     "unit": "mV"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "6 相（100 A 时效率 92.4 %）；智能功率级测电流；自适应电压定位（AVP）。",
+   "summary_en": "6 phases (92.4 % at 100 A); current sensed in smart power stages; adaptive voltage positioning (AVP).",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "相数",
+     "name_en": "Phases",
+     "value": "6",
+     "unit": ""
+    },
+    {
+     "name": "效率",
+     "name_en": "Efficiency",
+     "value": "92.4",
+     "unit": "%"
+    }
+   ]
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "100 A 损耗 9.4 W、效率 92.4 %；电容 ≥ 3.54 mF（选 3.76 mF）；公差叠加 3σ = 6.5 mV。",
+   "summary_en": "9.4 W loss, 92.4 % efficiency at 100 A; ≥ 3.54 mF needed (3.76 mF chosen); tolerance stack 3σ = 6.5 mV.",
+   "md": "3_计算书.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "效率",
+     "name_en": "Efficiency",
+     "value": "92.4",
+     "unit": "%"
+    },
+    {
+     "name": "输出电容",
+     "name_en": "Output capacitance",
+     "value": "3.76",
+     "unit": "mF"
+    },
+    {
+     "name": "阻尼 ζ",
+     "name_en": "Damping ζ",
+     "value": "0.72",
+     "unit": ""
+    },
+    {
+     "name": "电压散布 3σ",
+     "name_en": "Voltage spread 3σ",
+     "value": "6.51",
+     "unit": "mV"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "开关仿真与公式：纹波相差 3.9 %、导通损耗相差 0.2 %；负载阶跃：6 只聚合物电容偏离负载线 0.0 mV，少 20 % 电容 0.0 mV。",
+   "summary_en": "Switching sim vs formulas: ripple within 3.9 %, conduction loss within 0.2 %; load step: 0.0 mV off the load line with 6 polymer caps, 0.0 mV with 20 % less capacitance.",
+   "md": "4_ngspice仿真.md",
+   "figs": [
+    {
+     "file": "4_ngspice.png",
+     "caption": "六相电流交错、负载阶跃、电容只数与过冲",
+     "caption_en": "Interleaved phase currents, load step, capacitor count vs deviation"
+    }
+   ],
+   "files": [
+    {
+     "file": "4_稳态.cir",
+     "label": "六相开关仿真网表（ngspice）",
+     "label_en": "6-phase switching netlist (ngspice)"
+    },
+    {
+     "file": "4_负载阶跃.cir",
+     "label": "负载阶跃平均模型网表",
+     "label_en": "Averaged load-step netlist"
+    }
+   ],
+   "tools": [
+    {
+     "label": "电路分析（ngspice）",
+     "label_en": "Circuit analysis (ngspice)",
+     "route": "/circuit"
+    }
+   ],
+   "facts": [
+    {
+     "name": "纹波相差",
+     "name_en": "Ripple difference",
+     "value": "3.9",
+     "unit": "%"
+    },
+    {
+     "name": "阶跃偏差",
+     "name_en": "Step deviation",
+     "value": "0",
+     "unit": "mV"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "插座左侧 3 相、上方 3 相；功率级 → 电感 → 插座一条直线；陶瓷电容放插座背面；远端差分采样。",
+   "summary_en": "Three phases left of the socket, three above; power stage → inductor → socket in a straight line; ceramics behind the socket; remote differential sensing.",
+   "md": "5_布局.md",
+   "figs": [
+    {
+     "file": "5_VRM布局.png",
+     "caption": "VRM 布局（俯视）",
+     "caption_en": "VRM layout (top view)"
+    },
+    {
+     "file": "5_VRM三维.png",
+     "caption": "VRM 三维（示意）",
+     "caption_en": "VRM 3D (schematic)"
+    }
+   ],
+   "files": [
+    {
+     "file": "5_VRM布局.step",
+     "label": "三维模型（STEP）",
+     "label_en": "3D model (STEP)"
+    }
+   ],
+   "tools": [
+    {
+     "label": "零件库：10U-25V",
+     "label_en": "Library: 10U-25V",
+     "route": "/library?ref=A-ELE-C1206/10U-25V"
+    },
+    {
+     "label": "零件库：470U-63V",
+     "label_en": "Library: 470U-63V",
+     "route": "/library?ref=A-ELE-CPEL/470U-63V"
+    },
+    {
+     "label": "零件库：100N",
+     "label_en": "Library: 100N",
+     "route": "/library?ref=A-ELE-C0402/100N"
+    }
+   ],
+   "facts": []
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "主板 SMT 线 11 道：功率级大焊盘网格开孔、X 光看空洞、上电测试量核心电压偏差、BIOS 写控制器参数。",
+   "summary_en": "11 SMT operations: grid stencil for the power-stage pads, X-ray for voids, power-on test of core-voltage deviation, controller settings with the BIOS.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "工序",
+     "name_en": "Operations",
+     "value": "11",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "40 块：核心电压偏差 σ 2.21 mV（预计 2.17），不合格 0，最低 Cpk 1.34。",
+   "summary_en": "40 boards: core-voltage deviation σ 2.21 mV (predicted 2.17); 0 failures, lowest Cpk 1.34.",
+   "md": "7_制造与测试.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间执行",
+     "label_en": "Shop floor",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    },
+    {
+     "label": "3D 车间",
+     "label_en": "3D shop",
+     "route": "/3d"
+    }
+   ],
+   "facts": [
+    {
+     "name": "不合格",
+     "name_en": "Out of tolerance",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "最低 Cpk",
+     "name_en": "Lowest Cpk",
+     "value": "1.34",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "10 / 10 项校核通过；6 相、效率 92.4 %、电容 3.76 mF、电压 3σ 6.5 mV。",
+   "summary_en": "10 / 10 checks pass; 6 phases, 92.4 % efficiency, 3.76 mF, voltage 3σ 6.5 mV.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路分析（ngspice）",
+     "label_en": "Circuit analysis (ngspice)",
+     "route": "/circuit"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "concept",
+   "what": "6 相 100 A 效率",
+   "what_en": "6-phase efficiency at 100 A",
+   "value": "92.4",
+   "op": ">=",
+   "limit": "88",
+   "unit": "%",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "calc",
+   "what": "输出电容（ζ ≥ 0.7 所需）",
+   "what_en": "Output capacitance (needed for ζ ≥ 0.7)",
+   "value": "3.76",
+   "op": ">=",
+   "limit": "3.54",
+   "unit": "mF",
+   "ok": true,
+   "src": "第 3 节"
+  },
+  {
+   "step": "calc",
+   "what": "140 A 时每颗功率级发热",
+   "what_en": "Power-stage dissipation at 140 A",
+   "value": "2.25",
+   "op": "<=",
+   "limit": "3",
+   "unit": "W",
+   "ok": true,
+   "src": "功率级封装加铜皮散热（示例）"
+  },
+  {
+   "step": "calc",
+   "what": "预计核心电压 Cpk",
+   "what_en": "Predicted core-voltage Cpk",
+   "value": "2.3",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  },
+  {
+   "step": "sim",
+   "what": "开关仿真与公式：纹波最大相差",
+   "what_en": "Switching sim vs formula: ripple",
+   "value": "3.9",
+   "op": "<=",
+   "limit": "5",
+   "unit": "%",
+   "ok": true,
+   "src": "核对公式"
+  },
+  {
+   "step": "sim",
+   "what": "开关仿真与公式：导通损耗相差",
+   "what_en": "Switching sim vs formula: conduction loss",
+   "value": "0.2",
+   "op": "<=",
+   "limit": "5",
+   "unit": "%",
+   "ok": true,
+   "src": "核对公式"
+  },
+  {
+   "step": "sim",
+   "what": "负载阶跃偏离负载线（电容少 20 %）",
+   "what_en": "Load-step deviation (20 % less capacitance)",
+   "value": "0",
+   "op": "<=",
+   "limit": "8.5",
+   "unit": "mV",
+   "ok": true,
+   "src": "第 3 步动态允许"
+  },
+  {
+   "step": "make",
+   "what": "工厂数据 mb_vcore 的 σ = 公差叠加结果（向上取 0.1 mV）",
+   "what_en": "Plant mb_vcore σ equals the tolerance stack (rounded up)",
+   "value": "2.2",
+   "op": "==",
+   "limit": "2.2",
+   "unit": "mV",
+   "ok": true,
+   "src": "第 3 步"
+  },
+  {
+   "step": "make",
+   "what": "不合格项",
+   "what_en": "Failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "在线测试"
+  },
+  {
+   "step": "make",
+   "what": "最低 Cpk",
+   "what_en": "Lowest Cpk",
+   "value": "1.34",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算书.md",
+  "4_ngspice.png",
+  "4_ngspice仿真.md",
+  "4_稳态.cir",
+  "4_负载阶跃.cir",
+  "5_VRM三维.png",
+  "5_VRM布局.png",
+  "5_VRM布局.step",
+  "5_布局.md",
+  "6_工艺.md",
+  "7_制造与测试.md",
+  "8_总结.md"
+ ]
+}
