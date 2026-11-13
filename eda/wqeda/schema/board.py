@@ -6,7 +6,8 @@
     class_pairs  [{a: [类名], b: [类名], clearance_mm}]            分类之间的布线间距（第 159 轮；Default = 其余网络）
     stackup      {thickness_mm, outer_oz, inner_oz, source}        板厚、铜厚（大电流线宽、热分析用）
     rules        {trace_dt_c, ict_coverage_min, source}            设计规则：允许的走线温升、ICT 覆盖率要求
-    thermal      {ambient_c, h_w_m2k, f_pwm_hz, source, heat:[...]}
+    thermal      {ambient_c, h_w_m2k, f_pwm_hz, board_max_c?, source, heat:[...]}
+                 heat 的 model：mosfet、shunt（关节驱动板）、calc（损耗取计算书 item，share 分摊；第 159 轮）
                  热分析：环境温度、对流换热系数（假设）、开关频率、哪些器件发热
     constraints  [{key, kind, ...}]                                布局约束，五种：loop、kelvin、near、apart、edge
 
@@ -21,7 +22,7 @@ KINDS = {
     "apart": ("远离", ("hot", "cold", "min_mm")),
     "edge": ("接插件在板边", ("refs", "max_mm")),
 }
-HEAT_MODELS = ("mosfet", "shunt")
+HEAT_MODELS = ("mosfet", "shunt", "calc")
 
 
 def _num(v):
@@ -83,6 +84,11 @@ def validate(bd, refs):
                 p.append("thermal.heat 的 model 应是 {} 之一".format("、".join(HEAT_MODELS)))
             if not h.get("refs") or any(r not in refs for r in h["refs"]):
                 p.append("thermal.heat 的位号要在器件清单里：{}".format(h.get("refs")))
+            if h.get("model") == "calc" and ("." not in str(h.get("item") or "") or
+                                             not (isinstance(h.get("share", 1), int) and h.get("share", 1) >= 1)):
+                p.append("thermal.heat 的 calc 要写 item（功能块.条目），share 是正整数：{}".format(h.get("refs")))
+        if th.get("board_max_c") is not None and not _num(th["board_max_c"]):
+            p.append("thermal.board_max_c 应是数")
     keys = []
     for c in bd.get("constraints") or []:
         kind = c.get("kind")

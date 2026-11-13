@@ -305,6 +305,23 @@
       },
       {
         "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Load",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 1.0,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
         "clearance": 0.5,
         "diff_pair_gap": 0.25,
         "diff_pair_via_gap": 0.25,
@@ -572,23 +589,23 @@
         "pattern": "FLY_15"
       },
       {
-        "netclass": "Power",
+        "netclass": "Load",
         "pattern": "+24V"
       },
       {
-        "netclass": "Power",
+        "netclass": "Load",
         "pattern": "SOL1_D"
       },
       {
-        "netclass": "Power",
+        "netclass": "Load",
         "pattern": "SOL2_D"
       },
       {
-        "netclass": "Power",
+        "netclass": "Load",
         "pattern": "SOL3_D"
       },
       {
-        "netclass": "Power",
+        "netclass": "Load",
         "pattern": "SOL4_D"
       },
       {
