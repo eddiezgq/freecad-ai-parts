@@ -50,7 +50,7 @@ BASE_TOP = 0.095                                # 底座上 J1 模组的顶面�
 # 谐波减速器（名称、额定、重复峰值 N·m，取自 motors.HARMONIC）；名义摩擦：粘性 N·m·s/rad（示例）、库仑 N·m（关节侧，
 # = 机器人厂关节测试台“空载摩擦力矩”的名义值，plants/wenquest-robot.yaml 的 joint_friction）
 MODULES = {
-    "L": {"code": "WQJ-L", "mass": 3.0, "r": 0.055, "h": 0.110, "motor": ("伺服 400 W", 4.46, 0.42e-4),
+    "L": {"code": "WQJ-L", "mass": 3.0, "r": 0.055, "h": 0.170, "motor": ("伺服 400 W", 4.46, 0.42e-4),
           "gear": ("谐波 32 号", 137.0, 333.0), "damping": 2.0, "frictionloss": 1.2},
     "M": {"code": "WQJ-M", "mass": 2.0, "r": 0.045, "h": 0.095, "motor": ("伺服 200 W", 2.23, 0.26e-4),
           "gear": ("谐波 25 号", 67.0, 157.0), "damping": 1.0, "frictionloss": 0.8},

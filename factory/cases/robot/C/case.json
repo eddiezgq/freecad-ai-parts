@@ -8,7 +8,7 @@
  "summary": "整台协作机器人：臂长怎么分、连杆受力与大臂有限元、末端变形与固有频率、整机装配、激光跟踪仪标定、负载跑合，再在机器人厂出厂 5 台。",
  "summary_en": "The complete cobot: splitting the reach, link loads and upper-arm FEA, TCP deflection and natural frequency, assembly, laser-tracker calibration, load run-in, and 5 robots dispatched.",
  "script": "tools/cases/robot_c.py",
- "generated": "2026-11-12",
+ "generated": "2026-11-13",
  "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
  "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
  "steps": [
