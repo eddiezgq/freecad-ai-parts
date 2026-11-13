@@ -6,6 +6,8 @@
           t_on = Q_sw / I_g,on，t_off = Q_sw / I_g,off；I_g 取驱动器最小输出电流和栅极回路能给的电流中小的那个。
           保守：电流按额定相电流的直流算，每个管子都按整段导通、每次都硬开关算。
   shunt   P = I² · R
+  calc    损耗直接取计算书的结果（item: <功能块>.<条目>，share 只数分摊；第 159 轮平缝机控制器加）：
+          板上温度和板子允许温度（thermal.board_max_c）比
 导热：每格的面内导热按铜层厚度和这一格的铜占比并联折算，厚度方向按各层串联折算（过孔的导热没算，偏保守）。
   铜 390 W/(m·K)、FR-4 0.25 W/(m·K)：Electronics Cooling, Calculation Corner “Conduction heat transfer in a printed
   circuit board”, 1998-05。
@@ -33,9 +35,20 @@ def _unit(doc_or_x, typ):
     return None
 
 
-def losses(doc, x, devices):
+def calc_items(book):
+    """计算书 → {"功能块.条目": (数值, 名称)}"""
+    out = {}
+    for u in (book or {}).get("units") or []:
+        for it in u.get("items") or []:
+            if it.get("key") and isinstance(it.get("value"), (int, float)):
+                out["{}.{}".format(u["block"], it["key"])] = (float(it["value"]), it.get("name", ""))
+    return out
+
+
+def losses(doc, x, devices, book=None):
     """每个发热位号的损耗：[{ref, model, p_w, parts:[(名称, W)], status, notes}]。
-    doc = 设计描述（读功能块参数）"""
+    doc = 设计描述（读功能块参数）；book = 计算书（calc 模型要）"""
+    items = calc_items(book)
     th, spec = x.get("thermal") or {}, doc["spec"]
     irat, vbus = spec.get("phase_current_a"), spec.get("bus_voltage_v")
     hb, gd, cs = _unit(doc, "half_bridge"), _unit(doc, "gate_drive"), _unit(doc, "current_sense")
@@ -81,6 +94,15 @@ def losses(doc, x, devices):
             elif h["model"] == "shunt" and cs:
                 rs = cs["RS_MOHM"] * 1e-3
                 row["parts"].append(("I²·R", irat**2 * rs))
+            elif h["model"] == "calc":
+                v = items.get(h.get("item"))
+                if v is None:
+                    row["status"] = c.UNKNOWN
+                    row["notes"].append("计算书里没有 {}".format(h.get("item")))
+                else:
+                    share = h.get("share", 1)
+                    row["parts"].append(("计算书 {}{}".format(v[1], "（{} 只分摊）".format(share) if share > 1 else ""),
+                                         v[0] / share))
             row["p_w"] = sum(p for _, p in row["parts"])
             out.append(row)
     return out
@@ -146,7 +168,7 @@ def heat_cells(board, g, rows):
     return q, where
 
 
-def solve(board, doc, x, devices, workdir=None, dx=DX_MM):
+def solve(board, doc, x, devices, workdir=None, dx=DX_MM, book=None):
     """整套：损耗 → 网格 → CalculiX → 结温判定。返回报告用的字典（没写热分析条件、缺板子形状时 status = unknown）"""
     th = x.get("thermal") or {}
     if not th or not x.get("stackup"):
@@ -157,7 +179,7 @@ def solve(board, doc, x, devices, workdir=None, dx=DX_MM):
         }
     if not board.features:
         return {"status": c.UNKNOWN, "detail": "板子模型里没有铜的形状", "rows": []}
-    rows = losses(doc, x, devices)
+    rows = losses(doc, x, devices, book)
     g = grid(board, x, dx)
     t_cu, t_fr4 = k_layers(x)
     k = {}
@@ -193,6 +215,19 @@ def solve(board, doc, x, devices, workdir=None, dx=DX_MM):
             elif r.get("rds_cold"):
                 r["status"] = c.UNKNOWN
                 r["notes"].append("结温 {:.0f} ℃ 没超上限，但损耗偏低，判不了".format(r["tj_c"]))
+    for r in rows:
+        if r["model"] != "calc" or r["status"] == c.UNKNOWN:
+            continue
+        lim = th.get("board_max_c")
+        if r["t_board_c"] is None:
+            r["status"] = c.UNKNOWN
+            r["notes"].append("板子上找不到它的焊盘")
+        elif lim is None:
+            r["status"] = c.UNKNOWN
+            r["notes"].append("设计描述没写板子允许温度（thermal.board_max_c）")
+        else:
+            r["t_limit_c"] = lim
+            r["status"] = c.PASS if r["t_board_c"] <= lim else c.FAIL
     tmax = max(T.values())
     st = {r["status"] for r in rows}
     status = next((s for s in (c.FAIL, c.UNKNOWN, c.PENDING) if s in st), c.PASS)

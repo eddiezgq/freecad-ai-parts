@@ -4,60 +4,9 @@
   {
    "at": [
     [
-     153.03,
-     29.83,
-     "Reference 'C406'"
-    ],
-    [
-     198.46,
-     29.21,
-     "Line on F.Silkscreen"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     196.11,
-     30.65,
-     "Reference 'U401'"
-    ],
-    [
-     194.23,
-     31.09,
-     "Line on F.Silkscreen"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     196.11,
-     30.65,
-     "Reference 'U401'"
-    ],
-    [
-     194.94,
-     30.15,
-     "Reference 'C401'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     144.03,
-     20.87,
-     "Reference 'Q202'"
+     48.91,
+     63.95,
+     "Reference 'Q101'"
     ],
     [
      -101.16,
@@ -71,117 +20,15 @@
   },
   {
    "at": [
-    [
-     213.59,
-     92.63,
-     "Line on F.Silkscreen"
-    ],
-    [
-     215.73,
-     93.23,
-     "Reference 'D508'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     174.12,
-     93.23,
-     "Reference 'D507'"
-    ],
-    [
-     171.98,
-     92.63,
-     "Line on F.Silkscreen"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     212.0,
-     126.0,
-     "Reference 'U602'"
-    ],
-    [
-     212.0,
-     126.56,
-     "Line on F.Silkscreen"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     212.0,
-     126.56,
-     "Line on F.Silkscreen"
-    ],
-    [
-     212.0,
-     126.0,
-     "Reference 'U602'"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     164.56,
-     85.5,
-     "Reference 'Q505'"
-    ],
-    [
-     -101.16,
-     -101.51,
-     "Polygon on F.Silkscreen"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     151.94,
-     93.45,
-     "Reference 'Q507'"
-    ],
-    [
-     -101.16,
-     -101.51,
-     "Polygon on F.Silkscreen"
-    ]
-   ],
-   "code": "silk_overlap",
-   "severity": "warning",
-   "text": "Silkscreen overlap"
-  },
-  {
-   "at": [
-    [
-     77.28,
-     7.03,
-     "Reference 'C104'"
-    ],
     [
      79.37,
      6.18,
      "Reference 'BR101'"
+    ],
+    [
+     77.28,
+     7.03,
+     "Reference 'C104'"
     ]
    ],
    "code": "silk_overlap",
@@ -191,14 +38,31 @@
   {
    "at": [
     [
-     59.47,
-     144.83,
-     "Reference 'U302'"
+     75.0,
+     16.5,
+     "Reference 'D204'"
     ],
     [
-     -101.16,
-     -101.51,
-     "Polygon on F.Silkscreen"
+     68.16,
+     16.4,
+     "Line on F.Silkscreen"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     82.5,
+     16.5,
+     "Reference 'D203'"
+    ],
+    [
+     68.16,
+     16.4,
+     "Line on F.Silkscreen"
     ]
    ],
    "code": "silk_overlap",
@@ -225,9 +89,9 @@
   {
    "at": [
     [
-     48.91,
-     63.95,
-     "Reference 'Q101'"
+     88.16,
+     114.5,
+     "Reference 'Q202'"
     ],
     [
      -101.16,
@@ -242,14 +106,133 @@
   {
    "at": [
     [
-     193.56,
-     93.45,
-     "Reference 'Q508'"
+     17.45,
+     132.06,
+     "Reference 'U302'"
     ],
     [
      -101.16,
      -101.51,
      "Polygon on F.Silkscreen"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     196.11,
+     30.65,
+     "Reference 'U401'"
+    ],
+    [
+     194.94,
+     30.15,
+     "Reference 'C401'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     196.11,
+     30.65,
+     "Reference 'U401'"
+    ],
+    [
+     194.23,
+     31.09,
+     "Line on F.Silkscreen"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     165.78,
+     101.23,
+     "Reference 'R512'"
+    ],
+    [
+     159.36,
+     100.58,
+     "Line on F.Silkscreen"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     153.03,
+     29.83,
+     "Reference 'C406'"
+    ],
+    [
+     198.46,
+     29.21,
+     "Line on F.Silkscreen"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     -101.16,
+     -101.51,
+     "Polygon on F.Silkscreen"
+    ],
+    [
+     164.56,
+     85.5,
+     "Reference 'Q505'"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     151.94,
+     93.45,
+     "Reference 'Q507'"
+    ],
+    [
+     -101.16,
+     -101.51,
+     "Polygon on F.Silkscreen"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     159.36,
+     100.58,
+     "Line on F.Silkscreen"
+    ],
+    [
+     161.56,
+     101.23,
+     "Reference 'R511'"
     ]
    ],
    "code": "silk_overlap",
@@ -276,14 +259,104 @@
   {
    "at": [
     [
-     196.11,
-     30.65,
-     "Reference 'U401'"
+     174.12,
+     93.23,
+     "Reference 'D507'"
+    ],
+    [
+     171.98,
+     92.63,
+     "Line on F.Silkscreen"
     ]
    ],
-   "code": "silk_over_copper",
+   "code": "silk_overlap",
    "severity": "warning",
-   "text": "Silkscreen clipped by solder mask"
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     193.56,
+     93.45,
+     "Reference 'Q508'"
+    ],
+    [
+     -101.16,
+     -101.51,
+     "Polygon on F.Silkscreen"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     212.0,
+     126.0,
+     "Reference 'U602'"
+    ],
+    [
+     212.0,
+     126.56,
+     "Line on F.Silkscreen"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     212.0,
+     126.0,
+     "Reference 'U602'"
+    ],
+    [
+     212.0,
+     126.56,
+     "Line on F.Silkscreen"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     215.73,
+     93.23,
+     "Reference 'D508'"
+    ],
+    [
+     213.59,
+     92.63,
+     "Line on F.Silkscreen"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
+  },
+  {
+   "at": [
+    [
+     223.81,
+     93.28,
+     "Reference 'R509'"
+    ],
+    [
+     213.59,
+     92.63,
+     "Line on F.Silkscreen"
+    ]
+   ],
+   "code": "silk_overlap",
+   "severity": "warning",
+   "text": "Silkscreen overlap"
   },
   {
    "at": [
@@ -300,19 +373,14 @@
   {
    "at": [
     [
-     2.0,
-     0.0,
-     "Line on Edge.Cuts"
-    ],
-    [
-     102.23,
-     0.17,
-     "Reference 'Q201'"
+     196.11,
+     30.65,
+     "Reference 'U401'"
     ]
    ],
-   "code": "silk_edge_clearance",
+   "code": "silk_over_copper",
    "severity": "warning",
-   "text": "Silkscreen clipped by board edge"
+   "text": "Silkscreen clipped by solder mask"
   },
   {
    "at": [
@@ -351,9 +419,38 @@
   {
    "at": [
     [
+     2.0,
+     0.0,
+     "Line on Edge.Cuts"
+    ],
+    [
+     102.23,
+     0.17,
+     "Reference 'Q201'"
+    ]
+   ],
+   "code": "silk_edge_clearance",
+   "severity": "warning",
+   "text": "Silkscreen clipped by board edge"
+  },
+  {
+   "at": [
+    [
      185.46,
      28.05,
      "Track [+15V] on F.Cu, length 3.6000 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     209.52,
+     122.09,
+     "Track [+3V3] on F.Cu, length 2.0000 mm"
     ]
    ],
    "code": "track_dangling",
@@ -375,6 +472,150 @@
   {
    "at": [
     [
+     190.16,
+     28.05,
+     "Track [IN_UL] on In2.Cu, length 3.5500 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     20.97,
+     73.46,
+     "Track [L_C] on F.Cu, length 0.0015 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     48.05,
+     60.2,
+     "Track [L_C] on F.Cu, length 0.1100 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     16.73,
+     32.85,
+     "Track [L_C] on B.Cu, length 0.0197 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     28.25,
+     31.88,
+     "Track [L_F] on F.Cu, length 1.5274 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     36.66,
+     11.9,
+     "Track [L_F] on F.Cu, length 0.0003 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     25.17,
+     43.15,
+     "Track [L_F] on B.Cu, length 0.0007 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     8.79,
+     63.22,
+     "Track [L_F] on B.Cu, length 0.0004 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     26.19,
+     12.82,
+     "Track [L_F] on B.Cu, length 2.9719 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     83.5,
+     27.25,
+     "Track [L_R] on F.Cu, length 1.4142 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     49.87,
+     20.87,
+     "Track [L_R] on B.Cu, length 1.7020 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     58.38,
+     46.78,
+     "Track [L_R] on B.Cu, length 0.5162 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
      160.95,
      6.67,
      "Track [MOT_W] on B.Cu, length 0.0008 mm"
@@ -387,9 +628,9 @@
   {
    "at": [
     [
-     6.74,
-     5.07,
-     "Track [N_IN] on B.Cu, length 4.8000 mm"
+     26.0,
+     51.12,
+     "Track [N_C] on F.Cu, length 2.8750 mm"
     ]
    ],
    "code": "track_dangling",
@@ -399,9 +640,105 @@
   {
    "at": [
     [
-     48.27,
+     77.61,
+     16.55,
+     "Track [N_C] on F.Cu, length 0.4327 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     29.19,
+     53.12,
+     "Track [N_C] on F.Cu, length 0.0005 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     34.48,
+     25.0,
+     "Track [N_IN] on F.Cu, length 0.0021 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     36.38,
+     41.12,
+     "Track [N_IN] on B.Cu, length 0.6428 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     154.66,
+     2.82,
+     "Track [N_W] on F.Cu, length 4.5000 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     15.98,
+     37.3,
+     "Track [PE] on F.Cu, length 0.0006 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     8.75,
+     31.27,
+     "Track [PE] on F.Cu, length 0.0010 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     209.52,
+     123.37,
+     "Track [PNL_RX] on F.Cu, length 2.0000 mm"
+    ]
+   ],
+   "code": "track_dangling",
+   "severity": "warning",
+   "text": "Track has unconnected end"
+  },
+  {
+   "at": [
+    [
+     45.65,
      91.89,
-     "Track [TOP_V] on F.Cu, length 0.0028 mm"
+     "Track [TOP_V] on F.Cu, length 3.5000 mm"
     ]
    ],
    "code": "track_dangling",
@@ -435,9 +772,9 @@
   {
    "at": [
     [
-     180.11,
-     26.6,
-     "Track [VB_V] on F.Cu, length 0.0003 mm"
+     179.51,
+     28.05,
+     "Track [VB_V] on F.Cu, length 3.6500 mm"
     ]
    ],
    "code": "track_dangling",
@@ -447,9 +784,9 @@
   {
    "at": [
     [
-     179.51,
-     28.05,
-     "Track [VB_V] on F.Cu, length 3.6500 mm"
+     180.11,
+     26.6,
+     "Track [VB_V] on F.Cu, length 0.0003 mm"
     ]
    ],
    "code": "track_dangling",
@@ -482,5 +819,5 @@
   }
  ],
  "unconnected": 0,
- "warnings": 32
+ "warnings": 58
 }

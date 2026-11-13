@@ -282,6 +282,12 @@ def board_build(route, jar):
         ox, oy = gb.ORIGIN
         kos = [(RF._poly(z.Outline()), set(z.GetLayerSet().CuStack())) for z in board.Zones()
                if z.GetIsRuleArea() and z.GetDoNotAllowTracks()]
+        # 保护地、交流相线、零线先布（保护地最先：它离谁都要 4.2 mm，排在交流线后面就挤不进去；159d2c：零线交给自动布线器几次都没布通——它从滤波电感到整流桥要穿过整个交流区，
+        # 等别的线占了地方就过不去了）
+        pre, pre_fail, pre_ids = RF.preroute(board, ["PE", "N_C", "N_IN", "L_R", "L_C", "L_F", "L_IN"], class_of, clearance,
+                                             lambda n: width.get(n, 0.25), lambda n: lays.get(n, ["F.Cu", "B.Cu"]),
+                                             box(ox, oy, ox + w_, oy + h_), kos)
+        print("先布的交流线（段数）：", pre, "；没布通：", pre_fail)
         n_stub = RF.stubs(board, class_of, clearance, lambda n: width.get(n, 0.25),
                           lambda n: lays.get(n, ["F.Cu", "In2.Cu", "B.Cu"]), box(ox, oy, ox + w_, oy + h_),
                           kos)
@@ -293,15 +299,18 @@ def board_build(route, jar):
         board.BuildConnectivity()
         left = board.GetConnectivity().GetUnconnectedCount(False)
         if left:
-            stats = gb.autoroute(board, TMP, jar, gb.classes_of(D.X), passes=15, keepouts=keep, pairs=gb.pairs_of(D.X),
+            stats = gb.autoroute(board, TMP, jar, gb.classes_of(D.X), passes=30, keepouts=keep, pairs=gb.pairs_of(D.X),
                                  timeout=1500, replace=True)
             print("第二遍（第一遍剩 {} 处）：".format(left), stats, "；去重：", RF.dedupe(board))
         print("补线（两遍都没接上的，直线或一个拐角）：", RF.finish(board, class_of, clearance, lambda n: width.get(n, 0.25),
                                                        lambda n: lays.get(n, ["F.Cu", "In2.Cu", "B.Cu"]), keepouts=kos))
         # 先补线再删用不上的引出线：引出线的线头正好是补线的好起点（第十七次：隔离电源 +5V 脚的引出线先被删了，补线找不到路）
-        print("用不上的引出线：", RF.drop_dangling(board))
+        print("用不上的引出线：", RF.drop_dangling(board, keep=pre_ids))
         targets = {n: c["track_mm"] for c in D.X["net_classes"] if c.get("route_mm") for n in c["nets"]}
-        print("加宽（到目标 / 部分 / 没动）：", RF.widen(board, targets, clearance))
+        print("加宽（到目标 / 部分 / 没动）：", RF.widen(board, targets, clearance, outline=box(ox, oy, ox + w_, oy + h_),
+                                                             keepouts=kos))
+        print("差一点点的线收细：", RF.shrink_close(board, clearance))
+        print("同网络细缝补上：", RF.close_slivers(board))
     # 功率铺铜（设计描述 board.pours）布完线再加：给布线器当平面时，别的网络从底层穿过去把它切成几块、块和块之间没连上
     # （第十二、十三次布线的“铺铜孤岛”）；现在母线全部按走线布通，铺铜只是加宽电流通路，连不上的碎块自动去掉
     for net, layer, pts in D.X["pours"]:
@@ -426,10 +435,14 @@ def _pin_rules():
         if (ref, na, nb) in seen:
             continue
         seen.add((ref, na, nb))
-        s += ('(rule "pins_{r}_{a}_{b}"\n  (condition "((A.NetName == \'{a}\' && B.NetName == \'{b}\') || '
-              '(A.NetName == \'{b}\' && B.NetName == \'{a}\')) && A.intersectsCourtyard(\'{r}\') && '
-              'B.intersectsCourtyard(\'{r}\')")\n  (constraint clearance (min {c:g}mm)))\n').format(
-            r=ref, a=na, b=nb, c=max(0.15, int((g - 0.05) / 0.05) * 0.05))
+        # 只放宽“这个器件自己的焊盘”和别的东西之间（焊盘对焊盘、引出线对邻脚）；铺铜不在内——它很大，
+        # 和器件外框沾边就会把整块铺铜都放宽（159d2c 第一次布线：母线铺铜离 N_U 线只剩 1.6 mm，规则检查没报）。
+        # A 是这个器件的焊盘、两个网络各写一条（KiCad 7 不认 A.Parent.Reference，条件整条不生效；用“焊盘沾这个器件外框”代替，已逐条试过）
+        for pa, pb in ((na, nb), (nb, na)):
+            s += ('(rule "pins_{r}_{a}_{b}"\n  (condition "A.Type == \'Pad\' && A.intersectsCourtyard(\'{r}\') && '
+                  'A.NetName == \'{a}\' && B.NetName == \'{b}\' && B.Type != \'Zone\' && B.intersectsCourtyard(\'{r}\')")'
+                  '\n  (constraint clearance (min {c:g}mm)))\n').format(
+                r=ref, a=pa, b=pb, c=max(0.15, int((g - 0.05) / 0.05) * 0.05))
     return s
 
 

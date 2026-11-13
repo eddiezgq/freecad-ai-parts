@@ -79,7 +79,7 @@ def build(path, cap_path, board_path=None, gerbers=None, drc=None, sim=True, the
     if board is None:
         board = kicad_reader.read(board_path) if board_path else None
     sec = (
-        board_checks(doc, x, board, cap, devices, thermal=thermal)
+        board_checks(doc, x, board, cap, devices, thermal=thermal, book=book)
         if board is not None
         else {"process": [], "layout": [], "thermal": None}
     )
@@ -117,7 +117,7 @@ def build(path, cap_path, board_path=None, gerbers=None, drc=None, sim=True, the
     for r in proc + lay:
         count[r["status"]] += 1
     for r in (th or {}).get("rows", []):
-        if r["model"] == "mosfet":
+        if r["model"] in ("mosfet", "calc"):
             count[r["status"]] += 1
     return {
         "name": doc["name"],
@@ -159,7 +159,7 @@ def build(path, cap_path, board_path=None, gerbers=None, drc=None, sim=True, the
     }
 
 
-def board_checks(doc, x, board, cap, devices, thermal=True, dx=None):
+def board_checks(doc, x, board, cap, devices, thermal=True, dx=None, book=None):
     """板子这一章（工艺、布局约束、热）：起草台也用它，按新规格查模板板子（不重新布线）"""
     proc = basic.run(board, cap)["checks"] + process.run(board, cap, x)
     lay = layout.run(board, x)
@@ -167,12 +167,12 @@ def board_checks(doc, x, board, cap, devices, thermal=True, dx=None):
     if thermal:
         from .thermal import board as tb
 
-        th = tb.solve(board, doc, x, devices, dx=dx or tb.DX_MM)
+        th = tb.solve(board, doc, x, devices, dx=dx or tb.DX_MM, book=book)
     count = {k: 0 for k in STATUS}
     for r in proc + lay:
         count[r["status"]] += 1
     for r in (th or {}).get("rows", []):
-        if r["model"] == "mosfet":
+        if r["model"] in ("mosfet", "calc"):
             count[r["status"]] += 1
     return {"process": proc, "layout": lay, "thermal": th, "count": count}
 
@@ -194,6 +194,15 @@ def _v(r):
     if lim is None:
         return fmt(v) + (" " + u if v is not None and u else "")
     return "{} / 限 {}{}".format(fmt(v), fmt(lim), " " + u if u else "")
+
+
+def _tj(r):
+    """“结温 / 上限”一栏：功率管写结温；按计算书损耗算的（calc）写板子允许温度"""
+    if r.get("tj_c") is not None:
+        return "{} / {}".format(r["tj_c"], r["tj_max_c"])
+    if r.get("t_limit_c") is not None:
+        return "板温上限 {:g}".format(r["t_limit_c"])
+    return "—"
 
 
 def to_markdown(rep):
@@ -272,8 +281,8 @@ def to_markdown(rep):
         ]
         for r in th["rows"]:
             parts_ = "；".join("{} {:.3f}".format(a, b) for a, b in r["parts"])
-            tj = "{} / {}".format(r["tj_c"], r["tj_max_c"]) if r.get("tj_c") is not None else "—"
-            st = STATUS[r["status"]] if r["model"] == "mosfet" else "（只算损耗）"
+            tj = _tj(r)
+            st = STATUS[r["status"]] if r["model"] in ("mosfet", "calc") else "（只算损耗）"
             L.append(
                 "| {} | {:.3f} | {} | {} | {} | {} | {} |".format(
                     r["ref"], r["p_w"], parts_, r.get("t_board_c"), tj, st, calcbook._md_cell("；".join(r["notes"]))
@@ -420,10 +429,10 @@ def to_html(rep):
             "<th>结温 ℃ / 上限</th><th>结论</th><th>说明</th></tr>"
         )
         for r in th["rows"]:
-            tj = "{} / {}".format(r["tj_c"], r["tj_max_c"]) if r.get("tj_c") is not None else "—"
+            tj = _tj(r)
             st = (
                 "<span class='s {}'>{}</span>".format(_cls(r["status"]), STATUS[r["status"]])
-                if r["model"] == "mosfet"
+                if r["model"] in ("mosfet", "calc")
                 else "只算损耗"
             )
             h.append(

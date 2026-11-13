@@ -55,3 +55,18 @@ def test_board_routed_and_checked():
     assert len(d["pcb_layers"]) == 6
     for k in ("gerber.zip", "pos.csv", "kicad-project.zip"):
         assert os.path.exists(os.path.join(P, "out", k)), k
+
+
+def test_report_trace_width_and_board_thermal():
+    """159d2c：统一报告里没有“不通过”；大电流线宽 21 条都过；板上按计算书损耗算的发热件板温都在允许温度以内"""
+    with open(os.path.join(P, "report", "report.json"), encoding="utf-8") as f:
+        rep = json.load(f)
+    assert rep["count"]["fail"] == 0
+    c1 = next(r for r in rep["process"] if r["key"] == "C1")
+    assert c1["status"] == "pass" and c1["value"] == c1["limit"] == 21
+    th = rep["thermal"]
+    assert th["status"] == "pass"
+    rows = {r["ref"]: r for r in th["rows"]}
+    assert {"R203", "R303", "R310", "R411", "R412", "R413", "Q501"} <= set(rows)
+    for r in rows.values():
+        assert r["model"] == "calc" and r["status"] == "pass" and r["t_board_c"] <= r["t_limit_c"], r["ref"]

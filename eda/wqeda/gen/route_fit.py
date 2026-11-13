@@ -19,6 +19,8 @@ import itertools
 import pcbnew
 
 STEP = 0.05
+SAME_NET_GAP = 0.2  # 同网络、不相连的两块铜加宽后至少隔这么多（比工艺能力表最小线距 0.127 mm 宽）
+SLACK = 0.01  # 焊盘圆弧在这里按多边形算，比 KiCad 精确算的近一点点：加宽时多留 0.01 mm（159d2c：2.595 对 2.6）
 
 
 def _poly(ps):
@@ -82,6 +84,21 @@ def stubs(board, class_of, clearance, width_of, layers_of, outline, keepouts=())
             need.setdefault(k, (p, 0.6))
     lid = {"F.Cu": pcbnew.F_Cu, "B.Cu": pcbnew.B_Cu, "In2.Cu": pcbnew.In2_Cu}
     made = []  # 已经引出的线也算障碍：(网络, 层, 形状)
+    n_made = 0
+    # 板上已有的线（先布的交流线）也算障碍；已经有线接着的焊盘不用再引
+    # （159d2c：相线的引出线贴着先布的零线，只隔 0.68 mm）
+    mm = pcbnew.ToMM
+    for t in board.GetTracks():
+        if t.GetClass() == "PCB_VIA":
+            continue
+        g = LineString([(mm(t.GetStart().x), mm(t.GetStart().y)), (mm(t.GetEnd().x), mm(t.GetEnd().y))]).buffer(
+            mm(t.GetWidth()) / 2)
+        made.append((t.GetNetname(), {v: k for k, v in lid.items()}.get(t.GetLayer()), g))
+        for key in list(need):
+            pa = need[key][0]
+            if pa.GetNetname() == t.GetNetname() and pa.IsOnLayer(t.GetLayer()) and \
+                    _poly(pa.GetEffectivePolygon()).distance(g) < 1e-3:
+                del need[key]
     for (_ref, _num), (p, c) in sorted(need.items(), key=lambda kv: (kv[0][0], kv[0][1])):
         net = p.GetNetname()
         w = width_of(net)
@@ -125,10 +142,11 @@ def stubs(board, class_of, clearance, width_of, layers_of, outline, keepouts=())
         t.SetLocked(True)
         board.Add(t)
         made.append((net, best[1], LineString([(x0, y0), best[2]]).buffer(w / 2)))
-    return len(made)
+        n_made += 1
+    return n_made
 
 
-def drop_dangling(board):
+def drop_dangling(board, keep=()):
     """布完以后，没有别的线、过孔接到（焊盘以外那一截）的引出线删掉：布线器从别处接通了这个焊盘，引出线用不上。返回删的段数"""
     from shapely.geometry import LineString, Point
 
@@ -142,7 +160,7 @@ def drop_dangling(board):
     tracks = list(board.GetTracks())
     drop = []
     for t in tracks:
-        if t.GetClass() == "PCB_VIA" or not t.IsLocked():
+        if t.GetClass() == "PCB_VIA" or not t.IsLocked() or t.m_Uuid.AsString() in keep:
             continue
         mm = pcbnew.ToMM
         a, b = (mm(t.GetStart().x), mm(t.GetStart().y)), (mm(t.GetEnd().x), mm(t.GetEnd().y))
@@ -179,74 +197,90 @@ def dedupe(board):
     return len(drop)
 
 
-def widen(board, targets, clearance):
+def widen(board, targets, clearance, passes=2, outline=None, edge_mm=0.5, keepouts=()):
     """targets = {网络名: 目标线宽 mm}；clearance(网络 A, 网络 B) → 要求间距 mm。
-    每段线按“离别的网络的铜还有多远”加宽，最多到目标线宽；别的网络若也要加宽，按它加宽后的宽度算（偏保守）。
+    每段线按“离别的网络的铜还有多远”加宽，最多到目标线宽。一段一段来，已加宽的按加宽后的宽度给后面的段让路；走两遍
+    （第一遍让路让多了的，第二遍再补）。线头接着的焊盘所在器件，它别的焊盘按“器件自己引脚间距”算
+    （与 stubs、设计规则检查里的引脚规则同一口径：线贴着自己的焊盘，离邻脚不比两个焊盘之间更近）。
+    outline = 板框（shapely 多边形）：线离板边至少 edge_mm（159d2c：端子旁的线加宽后压到板边）；
+    keepouts = 禁布区 [(多边形, 铜层号集合)]：加宽不进去（159d2c：一段内层线加宽后压进了隔离带）。
     返回 (加宽到目标的段数, 只加宽一部分的段数, 没动的段数)"""
     from shapely import STRtree
     from shapely.geometry import LineString, Point
 
-    layers = {}
-
-    def add(layer, net, geom, grow=0.0):
-        layers.setdefault(layer, []).append((net, geom.buffer(grow) if grow else geom))
-
+    mm = pcbnew.ToMM
+    edge = outline.exterior if outline is not None else None
+    static = {}  # 层 → [(网络, 形状, 器件, 焊盘形状)]
+    pads = []
     for fp in board.GetFootprints():
         for p in fp.Pads():
             g = _poly(p.GetEffectivePolygon())
+            pads.append((p.GetNetname(), g, fp.GetReference()))
             for lid in p.GetLayerSet().CuStack():
-                add(lid, p.GetNetname(), g)
+                static.setdefault(lid, []).append((p.GetNetname(), g, fp.GetReference()))
     segs = []
     for t in board.GetTracks():
-        lid, net = t.GetLayer(), t.GetNetname()
+        net = t.GetNetname()
         if t.GetClass() == "PCB_VIA":
-            g = Point(pcbnew.ToMM(t.GetPosition().x), pcbnew.ToMM(t.GetPosition().y)).buffer(
-                pcbnew.ToMM(t.GetWidth()) / 2
-            )
+            g = Point(mm(t.GetPosition().x), mm(t.GetPosition().y)).buffer(mm(t.GetWidth()) / 2)
             for l2 in t.GetLayerSet().CuStack():
-                add(l2, net, g)
+                static.setdefault(l2, []).append((net, g, None))
             continue
-        line = LineString(
-            [
-                (pcbnew.ToMM(t.GetStart().x), pcbnew.ToMM(t.GetStart().y)),
-                (pcbnew.ToMM(t.GetEnd().x), pcbnew.ToMM(t.GetEnd().y)),
-            ]
-        )
-        w = pcbnew.ToMM(t.GetWidth())
-        add(lid, net, line.buffer(max(w, targets.get(net, w)) / 2))
+        line = LineString([(mm(t.GetStart().x), mm(t.GetStart().y)), (mm(t.GetEnd().x), mm(t.GetEnd().y))])
+        w = mm(t.GetWidth())
         if net in targets and targets[net] > w + 1e-6:
-            segs.append((t, line, w))
-    for z in board.Zones():
-        if z.GetIsRuleArea() or not z.GetNetname():
-            continue
-        for lid in z.GetLayerSet().CuStack():
-            fill = z.GetFilledPolysList(lid)
-            for i in range(fill.OutlineCount()):
-                o = fill.Outline(i)
-                from shapely.geometry import Polygon
-
-                pg = Polygon([(pcbnew.ToMM(o.CPoint(k).x), pcbnew.ToMM(o.CPoint(k).y)) for k in range(o.PointCount())])
-                if pg.is_valid and not pg.is_empty:
-                    add(lid, z.GetNetname(), pg)
-    trees = {lid: (STRtree([g for _, g in v]), v) for lid, v in layers.items()}
+            segs.append([t, line, w, t.GetLayer()])
+        else:
+            static.setdefault(t.GetLayer(), []).append((net, line.buffer(w / 2), None))
+    # 铺铜不算：它在线之后填，会给线让路（板上已填好的铺铜正好贴着现在的线宽，算进来就加不宽了）
+    trees = {lid: (STRtree([g for _, g, _ in v]), v) for lid, v in static.items()}
+    # 每段线头接着哪些焊盘：{段号: [(器件, 焊盘形状)]}
+    own = {}
+    for k, (t, line, _w, _l) in enumerate(segs):
+        ends = [Point(line.coords[0]), Point(line.coords[-1])]
+        own[k] = [(ref, g) for n, g, ref in pads
+                  if n == t.GetNetname() and any(g.buffer(0.01).contains(e) for e in ends)]
+    width = [sg[2] for sg in segs]
+    for npass in range(passes):
+        for k, (t, line, w0, lid) in enumerate(segs):
+            net, goal = t.GetNetname(), targets[t.GetNetname()]
+            half = goal / 2
+            if edge is not None:
+                half = min(half, line.distance(edge) - edge_mm)
+            for kp, lays in keepouts:
+                if lid in lays:
+                    half = min(half, line.distance(kp) - 0.05)
+            win = line.buffer(goal / 2 + 6.0)
+            tree, items = trees.get(lid, (None, []))
+            near = [items[int(i)] for i in tree.query(win)] if tree is not None else []
+            for onet, g, ref in near:
+                if onet == net:
+                    # 同一网络、原来没碰上的铜：要么碰上、要么隔开，不能加宽到只剩一条细缝
+                    # （159d2c：工艺检查 F2 量到 0.12 mm 的缝）
+                    if g.distance(line.buffer(w0 / 2)) > 1e-3:
+                        half = min(half, line.distance(g) - SAME_NET_GAP)
+                    continue
+                c = clearance(net, onet)
+                if ref is not None:
+                    for oref, pg in own[k]:
+                        if oref == ref:
+                            c = min(c, pg.distance(g))
+                half = min(half, line.distance(g) - c - SLACK)
+            for m, (t2, line2, _w, lid2) in enumerate(segs):
+                if m == k or lid2 != lid or t2.GetNetname() == net or line2.distance(line) > goal + 6.0:
+                    continue
+                half = min(half, line.distance(line2) - width[m] / 2 - clearance(net, t2.GetNetname()) - SLACK)
+            width[k] = max(w0, min(goal, int(2 * half / STEP + 1e-9) * STEP), width[k] if npass else w0)
     full = part = none = 0
-    for t, line, w in segs:
-        net, goal = t.GetNetname(), targets[t.GetNetname()]
-        tree, items = trees[t.GetLayer()]
-        half = goal / 2
-        for i in tree.query(line.buffer(goal / 2 + 6.0)):
-            onet, g = items[int(i)]
-            if onet == net:
-                continue
-            half = min(half, line.distance(g) - clearance(net, onet))
-        nw = max(w, min(goal, int(2 * half / STEP + 1e-9) * STEP))
-        if nw >= goal - 1e-6:
+    for k, (t, _line, w0, _l) in enumerate(segs):
+        goal = targets[t.GetNetname()]
+        if width[k] >= goal - 1e-6:
             full += 1
-        elif nw > w + 1e-6:
+        elif width[k] > w0 + 1e-6:
             part += 1
         else:
             none += 1
-        t.SetWidth(pcbnew.FromMM(round(nw, 2)))
+        t.SetWidth(pcbnew.FromMM(round(width[k], 2)))
     return full, part, none
 
 
@@ -316,10 +350,13 @@ def finish(board, class_of, clearance, width_of, layers_of, skip=("GND", "GND_IS
                         legs = zip(path, path[1:], strict=False)
                         shape = unary_union([LineString([u, v]).buffer(w / 2) for u, v in legs])
                         ok = not any(lid[ln] in lays and shape.intersects(k) for k, lays in keepouts)
+                        ends = [g for g in (its[x][2], its[y][2])]
                         for onet, olay, og, oref, _c in its if ok else ():
                             if onet == net or lid[ln] not in olay:
                                 continue
-                            need = 0.15 if (oref in refs) else clearance(net, onet)
+                            need = clearance(net, onet)
+                            if oref in refs:  # 两头焊盘所在器件的邻脚：不比两个焊盘之间更近（与 widen 同一口径）
+                                need = min(need, min(e.distance(og) for e in ends))
                             if og.distance(shape) < need:
                                 ok = False
                                 break
@@ -354,3 +391,277 @@ def _root(parent, k):
         parent[k] = parent[parent[k]]
         k = parent[k]
     return k
+
+
+def _pieces(board, net):
+    """一个网络的铜分成几块：[[(层号集合, 形状)], ...]（焊盘、过孔跨层，走线单层；同层相碰算连着）"""
+    from shapely.geometry import LineString, Point
+
+    mm = pcbnew.ToMM
+    its = []
+    for fp in board.GetFootprints():
+        for p in fp.Pads():
+            if p.GetNetname() == net:
+                its.append((set(p.GetLayerSet().CuStack()), _poly(p.GetEffectivePolygon())))
+    for t in board.GetTracks():
+        if t.GetNetname() != net:
+            continue
+        if t.GetClass() == "PCB_VIA":
+            c = (mm(t.GetPosition().x), mm(t.GetPosition().y))
+            its.append((set(t.GetLayerSet().CuStack()), Point(c).buffer(mm(t.GetWidth()) / 2)))
+        else:
+            a, b = (mm(t.GetStart().x), mm(t.GetStart().y)), (mm(t.GetEnd().x), mm(t.GetEnd().y))
+            its.append(({t.GetLayer()}, LineString([a, b]).buffer(mm(t.GetWidth()) / 2)))
+    parent = {k: k for k in range(len(its))}
+    for i in range(len(its)):
+        for j in range(i + 1, len(its)):
+            if its[i][0] & its[j][0] and its[i][1].distance(its[j][1]) < 1e-3:
+                parent[_root(parent, i)] = _root(parent, j)
+    groups = {}
+    for k in range(len(its)):
+        groups.setdefault(_root(parent, k), []).append(its[k])
+    return list(groups.values())
+
+
+def maze(board, net, class_of, clearance, width, layers, outline, keepouts=(), step=0.25, edge_mm=0.5, lock=False):
+    """补线的最后一招（159d2c：交流零线一根从滤波电感到整流桥，两遍自动布线、直线和拐角都接不上）：
+    在一层上按网格找路（A*，八个方向），把网络还分开的两块接起来。障碍 = 这一层别的网络的铜各按要求间距外扩、
+    禁布区、板边。找到就按路径（合并同方向的格）加线，返回 (层名, 段数)；找不到返回 None。纯几何计算。"""
+    import heapq
+
+    import numpy as np
+    import shapely
+    from shapely import contains_xy
+    from shapely.geometry import LineString, Point
+    from shapely.ops import unary_union
+
+    mm = pcbnew.ToMM
+    lid = {"F.Cu": pcbnew.F_Cu, "B.Cu": pcbnew.B_Cu, "In2.Cu": pcbnew.In2_Cu}
+    pieces = _pieces(board, net)
+    if len(pieces) < 2:
+        return None
+    x0, y0, x1, y1 = outline.bounds
+    xs = np.arange(x0, x1, step) + step / 2
+    ys = np.arange(y0, y1, step) + step / 2
+    gx, gy = np.meshgrid(xs, ys)
+    inner = outline.buffer(-(width / 2 + edge_mm))
+    for ln in layers:
+        if ln not in lid:
+            continue
+        L = lid[ln]
+        bufs = []
+        for fp in board.GetFootprints():
+            for p in fp.Pads():
+                if p.GetNetname() != net and p.IsOnLayer(L):
+                    g = _poly(p.GetEffectivePolygon())
+                    bufs.append(g.buffer(clearance(net, p.GetNetname()) + width / 2 + SLACK))
+        for t in board.GetTracks():
+            if t.GetNetname() == net or not t.IsOnLayer(L):
+                continue
+            if t.GetClass() == "PCB_VIA":
+                g = Point(mm(t.GetPosition().x), mm(t.GetPosition().y)).buffer(mm(t.GetWidth()) / 2)
+            else:
+                g = LineString([(mm(t.GetStart().x), mm(t.GetStart().y)), (mm(t.GetEnd().x), mm(t.GetEnd().y))]).buffer(
+                    mm(t.GetWidth()) / 2)
+            bufs.append(g.buffer(clearance(net, t.GetNetname()) + width / 2 + SLACK))
+        for kp, lays in keepouts:
+            if L in lays:
+                bufs.append(kp.buffer(width / 2 + SLACK))
+        obst = unary_union(bufs)
+        blocked = contains_xy(obst, gx, gy) | ~contains_xy(inner, gx, gy)
+        on = [unary_union([g for ls, g in pc if L in ls]) for pc in pieces]
+        if sum(1 for o in on if not o.is_empty) < 2:
+            continue
+        src = contains_xy(on[0], gx, gy) if not on[0].is_empty else np.zeros_like(blocked)
+        dst = np.zeros_like(blocked)
+        for o in on[1:]:
+            if not o.is_empty:
+                dst |= contains_xy(o, gx, gy)
+        if not src.any() or not dst.any():
+            continue
+        free = ~blocked | src | dst
+        ny, nx = free.shape
+        tgt = np.argwhere(dst)
+        ty, tx = tgt[:, 0].mean(), tgt[:, 1].mean()
+        start = [tuple(v) for v in np.argwhere(src)]
+        dist = {s: 0.0 for s in start}
+        prev = {}
+        heap = [(np.hypot(s[0] - ty, s[1] - tx), 0.0, s) for s in start]
+        heapq.heapify(heap)
+        moves = [(-1, 0, 1.0), (1, 0, 1.0), (0, -1, 1.0), (0, 1, 1.0),
+                 (-1, -1, 1.4142), (-1, 1, 1.4142), (1, -1, 1.4142), (1, 1, 1.4142)]
+        end = None
+        while heap:
+            _f, d, (i, j) = heapq.heappop(heap)
+            if d > dist.get((i, j), 1e18):
+                continue
+            if dst[i, j]:
+                end = (i, j)
+                break
+            for di, dj, c in moves:
+                a, b = i + di, j + dj
+                if 0 <= a < ny and 0 <= b < nx and free[a, b]:
+                    nd = d + c
+                    if nd < dist.get((a, b), 1e18):
+                        dist[(a, b)] = nd
+                        prev[(a, b)] = (i, j)
+                        heapq.heappush(heap, (nd + 0.5 * np.hypot(a - ty, b - tx), nd, (a, b)))
+        if end is None:
+            continue
+        path = [end]
+        while path[-1] in prev:
+            path.append(prev[path[-1]])
+        path.reverse()
+        # 合并同方向的格成一段
+        pts = [path[0]]
+        for k in range(1, len(path) - 1):
+            d1 = (path[k][0] - path[k - 1][0], path[k][1] - path[k - 1][1])
+            d2 = (path[k + 1][0] - path[k][0], path[k + 1][1] - path[k][1])
+            if d1 != d2:
+                pts.append(path[k])
+        pts.append(path[-1])
+        xy = [(float(xs[j]), float(ys[i])) for i, j in pts]
+        # 拉直：从当前点往后找最远、直线过去不碰障碍的点（网格路径是锯齿，段数多）
+        ok_area = inner.difference(obst).union(unary_union([o for o in on if not o.is_empty]))
+        shapely.prepare(ok_area)
+        out = [xy[0]]
+        k = 0
+        while k < len(xy) - 1:
+            far = k + 1
+            for m in range(len(xy) - 1, k + 1, -1):
+                if ok_area.contains(LineString([xy[k], xy[m]])):
+                    far = m
+                    break
+            out.append(xy[far])
+            k = far
+        xy = out
+        made = []
+        for u, v in zip(xy, xy[1:], strict=False):
+            if u == v:
+                continue
+            t = pcbnew.PCB_TRACK(board)
+            t.SetStart(pcbnew.VECTOR2I(pcbnew.FromMM(u[0]), pcbnew.FromMM(u[1])))
+            t.SetEnd(pcbnew.VECTOR2I(pcbnew.FromMM(v[0]), pcbnew.FromMM(v[1])))
+            t.SetWidth(pcbnew.FromMM(width))
+            t.SetLayer(L)
+            t.SetNet(board.FindNet(net))
+            board.Add(t)
+            made.append(t)
+        for t in made:
+            t.SetLocked(lock)
+        return ln, len(xy) - 1
+    return None
+
+
+def preroute(board, nets, class_of, clearance, width_of, layers_of, outline, keepouts=()):
+    """先布几根要紧的线（159d2c：交流相线、零线），再交给自动布线器：板上还空的时候按网格找路（maze），
+    每根网络把还分开的块一块块接起来，加的线锁定，自动布线器绕着它们走。
+    返回 ({网络: 段数}, 没布通的网络, 加的线的编号集合)"""
+    done, failed, ids = {}, [], set()
+    for net in nets:
+        n = 0
+        while len(_pieces(board, net)) > 1:
+            before = {t.m_Uuid.AsString() for t in board.GetTracks()}
+            r = maze(board, net, class_of, clearance, width_of(net), layers_of(net), outline, keepouts,
+                     lock=True)
+            if r is None:
+                failed.append(net)
+                break
+            ids |= {t.m_Uuid.AsString() for t in board.GetTracks()} - before
+            n += r[1]
+        done[net] = n
+    return done, failed, ids
+
+
+def shrink_close(board, clearance, min_w=0.15, most=0.06):
+    """走线离别的网络的焊盘差一点点（≤ most mm）不够时，把这段线收细一点补上（不细于 min_w）。
+    焊盘要求的间距取网络要求和器件、焊盘自己写的间距里大的（159d2c：反激芯片没接网络的散热焊盘，器件要求 0.2 mm，
+    布线器给的 0.164）。返回收细的段数"""
+    from shapely import STRtree
+    from shapely.geometry import LineString
+
+    mm = pcbnew.ToMM
+    pads = []
+    for fp in board.GetFootprints():
+        fc = mm(fp.GetLocalClearance()) if hasattr(fp, "GetLocalClearance") else 0.0
+        for p in fp.Pads():
+            pc = mm(p.GetLocalClearance()) if hasattr(p, "GetLocalClearance") else 0.0
+            pads.append((p.GetNetname(), _poly(p.GetEffectivePolygon()), max(fc, pc), p))
+    tree = STRtree([g for _, g, _, _ in pads])
+    n = 0
+    for t in board.GetTracks():
+        if t.GetClass() == "PCB_VIA":
+            continue
+        net, w = t.GetNetname(), mm(t.GetWidth())
+        line = LineString([(mm(t.GetStart().x), mm(t.GetStart().y)), (mm(t.GetEnd().x), mm(t.GetEnd().y))])
+        short = 0.0
+        for i in tree.query(line.buffer(w / 2 + 1.0)):
+            pn, g, lc, p = pads[int(i)]
+            if pn == net or not p.IsOnLayer(t.GetLayer()):
+                continue
+            need = max(clearance(net, pn) if pn else 0.0, lc)
+            d = line.distance(g) - w / 2
+            if d < need:
+                short = max(short, need - d)
+        if 0 < short <= most and w - 2 * (short + 0.005) >= min_w:
+            t.SetWidth(pcbnew.FromMM(round(w - 2 * (short + 0.005), 3)))
+            n += 1
+    return n
+
+
+def close_slivers(board, gap=SAME_NET_GAP, keep_mm=0.3):
+    """同一网络、同一层上两块不相连的铜离得比 gap 还近（只剩一条细缝，板厂蚀刻难做，工艺检查 F2 报）：
+    在两者最近的两点之间加一小段线把缝补上（159d2c：功率模块 N_W 脚旁的线在底层离自己的焊盘 0.086 mm）。返回补的处数"""
+    from shapely.geometry import LineString, Point
+    from shapely.ops import nearest_points
+
+    mm = pcbnew.ToMM
+    its = []
+    for fp in board.GetFootprints():
+        for p in fp.Pads():
+            if p.GetNetname():
+                for lid in p.GetLayerSet().CuStack():
+                    its.append((p.GetNetname(), lid, _poly(p.GetEffectivePolygon())))
+    tracks = []
+    for t in board.GetTracks():
+        if t.GetClass() == "PCB_VIA":
+            g = Point(mm(t.GetPosition().x), mm(t.GetPosition().y)).buffer(mm(t.GetWidth()) / 2)
+            for lid in t.GetLayerSet().CuStack():
+                its.append((t.GetNetname(), lid, g))
+        else:
+            g = LineString([(mm(t.GetStart().x), mm(t.GetStart().y)), (mm(t.GetEnd().x), mm(t.GetEnd().y))]).buffer(
+                mm(t.GetWidth()) / 2)
+            its.append((t.GetNetname(), t.GetLayer(), g))
+            tracks.append((t, g))
+    # 别的网络（含没接网络的焊盘）的铜：补的那一小段离它们至少 keep_mm（159d2c：补在反激芯片散热焊盘旁，差了 0.005 mm）
+    others = {}
+    for fp in board.GetFootprints():
+        for p in fp.Pads():
+            for lid in p.GetLayerSet().CuStack():
+                others.setdefault(lid, []).append((p.GetNetname(), _poly(p.GetEffectivePolygon())))
+    for net, lid, og in its:
+        others.setdefault(lid, []).append((net, og))
+    n = 0
+    for t, g in tracks:
+        for net, lid, og in its:
+            if net != t.GetNetname() or lid != t.GetLayer() or og is g:
+                continue
+            d = g.distance(og)
+            if 1e-3 < d < gap:
+                a, b = nearest_points(g, og)
+                w = min(mm(t.GetWidth()), 0.3)
+                bridge = LineString([a, b]).buffer(w / 2 + keep_mm)
+                if any(on != net and og2.intersects(bridge) for on, og2 in others.get(lid, [])):
+                    continue
+                s = pcbnew.PCB_TRACK(board)
+                # 两头各往里伸半个线宽，保证和两边都搭上
+                dx, dy = b.x - a.x, b.y - a.y
+                k = (w / 2) / max(d, 1e-6)
+                s.SetStart(pcbnew.VECTOR2I(pcbnew.FromMM(a.x - dx * k), pcbnew.FromMM(a.y - dy * k)))
+                s.SetEnd(pcbnew.VECTOR2I(pcbnew.FromMM(b.x + dx * k), pcbnew.FromMM(b.y + dy * k)))
+                s.SetWidth(pcbnew.FromMM(w))
+                s.SetLayer(lid)
+                s.SetNet(t.GetNet())
+                board.Add(s)
+                n += 1
+    return n
