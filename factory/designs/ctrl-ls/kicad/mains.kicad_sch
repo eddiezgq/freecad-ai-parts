@@ -10,17 +10,17 @@
     (company "问渠数字工业园 · 电路板厂（示例设计，未经硬件验证，不能直接投产）")
     (comment 1 "交流 L/N/PE 从 J101 进：保险丝 F101、压敏 RV101、X 电容 C101（R101/R102 放电）、共模电感 L101、Y 电容 C102/C103；热敏电阻 TH101 限上电浪涌，母线充好后校正控制器的 VB_OK"))
   (lib_symbols
-    (symbol "Connector:Screw_Terminal_01x03"
+    (symbol "Connector:Screw_Terminal_01x02"
       (pin_names
         (offset 1.016) hide)
       (in_bom yes)
       (on_board yes)
       (property "Reference" "J"
-        (at 0 5.08 0)
+        (at 0 2.54 0)
         (effects
           (font
             (size 1.27 1.27))))
-      (property "Value" "Screw_Terminal_01x03"
+      (property "Value" "Screw_Terminal_01x02"
         (at 0 -5.08 0)
         (effects
           (font
@@ -40,7 +40,7 @@
         (effects
           (font
             (size 1.27 1.27)) hide))
-      (property "ki_description" "Generic screw terminal, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+      (property "ki_description" "Generic screw terminal, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
         (at 0 0 0)
         (effects
           (font
@@ -50,9 +50,9 @@
         (effects
           (font
             (size 1.27 1.27)) hide))
-      (symbol "Screw_Terminal_01x03_1_1"
+      (symbol "Screw_Terminal_01x02_1_1"
         (rectangle
-          (start -1.27 3.81)
+          (start -1.27 1.27)
           (end 1.27 -3.81)
           (stroke
             (width 0.254)
@@ -87,15 +87,6 @@
             (type none)))
         (polyline
           (pts
-            (xy -0.5334 2.8702)
-            (xy 0.3302 2.032))
-          (stroke
-            (width 0.1524)
-            (type default))
-          (fill
-            (type none)))
-        (polyline
-          (pts
             (xy -0.3556 -2.032)
             (xy 0.508 -2.8702))
           (stroke
@@ -112,15 +103,6 @@
             (type default))
           (fill
             (type none)))
-        (polyline
-          (pts
-            (xy -0.3556 3.048)
-            (xy 0.508 2.2098))
-          (stroke
-            (width 0.1524)
-            (type default))
-          (fill
-            (type none)))
         (circle
           (center 0 0)
           (radius 0.635)
@@ -129,16 +111,8 @@
             (type default))
           (fill
             (type none)))
-        (circle
-          (center 0 2.54)
-          (radius 0.635)
-          (stroke
-            (width 0.1524)
-            (type default))
-          (fill
-            (type none)))
         (pin passive line
-          (at -5.08 2.54 0)
+          (at -5.08 0 0)
           (length 3.81)
           (name "Pin_1"
             (effects
@@ -149,24 +123,13 @@
               (font
                 (size 1.27 1.27)))))
         (pin passive line
-          (at -5.08 0 0)
+          (at -5.08 -2.54 0)
           (length 3.81)
           (name "Pin_2"
             (effects
               (font
                 (size 1.27 1.27))))
           (number "2"
-            (effects
-              (font
-                (size 1.27 1.27)))))
-        (pin passive line
-          (at -5.08 -2.54 0)
-          (length 3.81)
-          (name "Pin_3"
-            (effects
-              (font
-                (size 1.27 1.27))))
-          (number "3"
             (effects
               (font
                 (size 1.27 1.27)))))))
@@ -1493,7 +1456,7 @@
             (effects
               (font
                 (size 1.27 1.27)))))))
-    (symbol "Device:D_Bridge_+AA-"
+    (symbol "Diode_Bridge:GBU4A"
       (pin_names
         (offset 0))
       (in_bom yes)
@@ -1504,60 +1467,45 @@
           (font
             (size 1.27 1.27))
           (justify left)))
-      (property "Value" "D_Bridge_+AA-"
+      (property "Value" "GBU4A"
         (at 2.54 5.08 0)
         (effects
           (font
             (size 1.27 1.27))
           (justify left)))
-      (property "Footprint" ""
+      (property "Footprint" "Diode_THT:Diode_Bridge_Vishay_GBU"
+        (at 3.81 3.175 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left) hide))
+      (property "Datasheet" "http://www.vishay.com/docs/88656/gbu4a.pdf"
         (at 0 0 0)
         (effects
           (font
             (size 1.27 1.27)) hide))
-      (property "Datasheet" "~"
+      (property "ki_keywords" "rectifier acdc"
         (at 0 0 0)
         (effects
           (font
             (size 1.27 1.27)) hide))
-      (property "ki_keywords" "rectifier ACDC"
+      (property "ki_description" "Single-Phase Bridge Rectifier, 35V Vrms, 4.0A If, GBU package"
         (at 0 0 0)
         (effects
           (font
             (size 1.27 1.27)) hide))
-      (property "ki_description" "Diode bridge, +ve/AC/AC/-ve"
+      (property "ki_fp_filters" "Diode*Bridge*Vishay*GBU*"
         (at 0 0 0)
         (effects
           (font
             (size 1.27 1.27)) hide))
-      (property "ki_fp_filters" "D*Bridge* D*Rectifier*"
-        (at 0 0 0)
-        (effects
-          (font
-            (size 1.27 1.27)) hide))
-      (symbol "D_Bridge_+AA-_0_1"
-        (circle
-          (center -5.08 0)
-          (radius 0.254)
-          (stroke
-            (width 0)
-            (type default))
-          (fill
-            (type outline)))
-        (circle
-          (center 0 -5.08)
-          (radius 0.254)
-          (stroke
-            (width 0)
-            (type default))
-          (fill
-            (type outline)))
+      (symbol "GBU4A_0_1"
         (polyline
           (pts
             (xy -2.54 3.81)
             (xy -1.27 2.54))
           (stroke
-            (width 0.254)
+            (width 0)
             (type default))
           (fill
             (type none)))
@@ -1566,7 +1514,7 @@
             (xy -1.27 -2.54)
             (xy -2.54 -3.81))
           (stroke
-            (width 0.254)
+            (width 0)
             (type default))
           (fill
             (type none)))
@@ -1575,7 +1523,7 @@
             (xy 2.54 -1.27)
             (xy 3.81 -2.54))
           (stroke
-            (width 0.254)
+            (width 0)
             (type default))
           (fill
             (type none)))
@@ -1584,7 +1532,7 @@
             (xy 2.54 1.27)
             (xy 3.81 2.54))
           (stroke
-            (width 0.254)
+            (width 0)
             (type default))
           (fill
             (type none)))
@@ -1595,7 +1543,7 @@
             (xy -1.905 3.175)
             (xy -3.81 2.54))
           (stroke
-            (width 0.254)
+            (width 0)
             (type default))
           (fill
             (type none)))
@@ -1606,7 +1554,7 @@
             (xy -1.905 -3.175)
             (xy -2.54 -1.27))
           (stroke
-            (width 0.254)
+            (width 0)
             (type default))
           (fill
             (type none)))
@@ -1617,7 +1565,7 @@
             (xy 3.175 1.905)
             (xy 1.27 2.54))
           (stroke
-            (width 0.254)
+            (width 0)
             (type default))
           (fill
             (type none)))
@@ -1628,7 +1576,7 @@
             (xy 2.54 -3.81)
             (xy 3.175 -1.905))
           (stroke
-            (width 0.254)
+            (width 0)
             (type default))
           (fill
             (type none)))
@@ -1643,24 +1591,8 @@
             (width 0)
             (type default))
           (fill
-            (type none)))
-        (circle
-          (center 0 5.08)
-          (radius 0.254)
-          (stroke
-            (width 0)
-            (type default))
-          (fill
-            (type outline)))
-        (circle
-          (center 5.08 0)
-          (radius 0.254)
-          (stroke
-            (width 0)
-            (type default))
-          (fill
-            (type outline))))
-      (symbol "D_Bridge_+AA-_1_1"
+            (type none))))
+      (symbol "GBU4A_1_1"
         (pin passive line
           (at 7.62 0 180)
           (length 2.54)
@@ -1673,7 +1605,7 @@
               (font
                 (size 1.27 1.27)))))
         (pin passive line
-          (at 0 7.62 270)
+          (at 0 -7.62 90)
           (length 2.54)
           (name "~"
             (effects
@@ -1684,7 +1616,7 @@
               (font
                 (size 1.27 1.27)))))
         (pin passive line
-          (at 0 -7.62 90)
+          (at 0 7.62 270)
           (length 2.54)
           (name "~"
             (effects
@@ -1706,8 +1638,8 @@
               (font
                 (size 1.27 1.27))))))))
   (symbol
-    (lib_id "Connector:Screw_Terminal_01x03")
-    (at 66.04 55.88 0)
+    (lib_id "Connector:Screw_Terminal_01x02")
+    (at 66.04 53.34 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
@@ -1718,28 +1650,28 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "AC IN L/N/PE"
-      (at 66.04 60.96 0)
+    (property "Value" "AC IN L/N"
+      (at 66.04 58.42 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-3-5.08_1x03_P5.08mm_Horizontal"
-      (at 66.04 55.88 0)
+    (property "Footprint" "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal"
+      (at 66.04 53.34 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 66.04 55.88 0)
+      (at 66.04 53.34 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (property "物料编号" "CONN-AC"
-      (at 66.04 55.88 0)
+      (at 66.04 53.34 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "交流输入：1 相线、2 零线、3 保护地"
-      (at 66.04 55.88 0)
+    (property "说明" "交流输入：1 相线、2 零线。保护地线不上板：直接接电控箱的接地螺柱；板上的 Y 电容经安装孔 H1 接箱体（159d2b）"
+      (at 66.04 53.34 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
@@ -1747,8 +1679,6 @@
       (uuid "ec4594b5-3cd9-5413-807a-ea03f6acfe0b"))
     (pin "2"
       (uuid "4d2dd7d3-d503-5f42-ad9d-b94f8461d971"))
-    (pin "3"
-      (uuid "858b42d0-d6f7-55eb-a940-4ebc49f47b93"))
     (instances
       (project "ctrl-ls"
         (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/200e218f-a52a-5277-abf3-68100ea1b43b"
@@ -1795,28 +1725,6 @@
     (uuid "f495ce3c-b3a5-58d7-b85f-52965abbfb06")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 58.42 55.88 0)
-      (effects
-        (font
-          (size 1.27 1.27)) hide)))
-  (wire
-    (pts
-      (xy 60.96 58.42)
-      (xy 58.42 58.42))
-    (stroke
-      (width 0)
-      (type default))
-    (uuid "094c711b-9b03-5865-a9af-742c3cf0dbb6"))
-  (global_label "PE"
-    (shape passive)
-    (at 58.42 58.42 180)
-    (fields_autoplaced)
-    (effects
-      (font
-        (size 1.27 1.27))
-      (justify right))
-    (uuid "35a374ac-467e-5be5-9a48-188aa9c1652f")
-    (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 58.42 58.42 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))
@@ -2288,12 +2196,12 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "15mH 10A"
+    (property "Value" "7.3mH 9.3A"
       (at 66.04 96.52 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "Inductor_THT:L_CommonMode_Toroid_Vertical_L34.3mm_W20.3mm_Px15.24mm_Py22.86mm_Bourns_8100"
+    (property "Footprint" "Inductor_THT:L_CommonMode_Toroid_Vertical_L41.9mm_W20.3mm_Px15.24mm_Py22.86mm_Bourns_8100"
       (at 66.04 91.44 0)
       (effects
         (font
@@ -2303,12 +2211,12 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "物料编号" "CMC-15MH"
+    (property "物料编号" "CMC-8118RC"
       (at 66.04 91.44 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "FC-HLF2018-15mH-10A-LF（规格书是图片读不出、KiCad 库没有它的封装：159d2 换一个库里有封装的型号，这里先占位）"
+    (property "说明" "8118-RC（Bourns 8100 系列，KiCad 官方库同系列封装；159d2 由 FC-HLF2018 换来：那颗规格书读不出、库里没有封装）"
       (at 66.04 91.44 0)
       (effects
         (font
@@ -3220,7 +3128,7 @@
         (font
           (size 1.27 1.27)) hide)))
   (symbol
-    (lib_id "Device:D_Bridge_+AA-")
+    (lib_id "Diode_Bridge:GBU4A")
     (at 322.58 139.7 0)
     (unit 1)
     (in_bom yes)
@@ -3252,7 +3160,7 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "整流桥（引脚 + ~ ~ −，与 KiCad 的 GBU 封装对照规格书待核对；装在散热器上）"
+    (property "说明" "整流桥（符号和封装用 KiCad 官方库的 GBU 系列：1 +、2 ~、3 ~、4 −；装在散热器上）"
       (at 322.58 139.7 0)
       (effects
         (font
@@ -3294,35 +3202,13 @@
           (size 1.27 1.27)) hide)))
   (wire
     (pts
-      (xy 322.58 132.08)
-      (xy 322.58 129.54))
-    (stroke
-      (width 0)
-      (type default))
-    (uuid "15f16640-5d00-5d14-b697-1c48bc420ca5"))
-  (global_label "L_R"
-    (shape passive)
-    (at 322.58 129.54 90)
-    (fields_autoplaced)
-    (effects
-      (font
-        (size 1.27 1.27))
-      (justify left))
-    (uuid "2446c550-33e2-5786-9aa7-d49b0d54892f")
-    (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 322.58 129.54 0)
-      (effects
-        (font
-          (size 1.27 1.27)) hide)))
-  (wire
-    (pts
       (xy 322.58 147.32)
       (xy 322.58 149.86))
     (stroke
       (width 0)
       (type default))
-    (uuid "1452ceef-901b-5883-ae33-1cd29422c639"))
-  (global_label "N_C"
+    (uuid "2829ce0a-5eba-55a2-a3e5-4eeb21019eec"))
+  (global_label "L_R"
     (shape passive)
     (at 322.58 149.86 270)
     (fields_autoplaced)
@@ -3330,9 +3216,31 @@
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "815f1b5f-1f5f-5e6d-bec4-1779c9b47785")
+    (uuid "a4228469-e03c-58fb-aba0-2ee0d50ab0fd")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 322.58 149.86 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 322.58 132.08)
+      (xy 322.58 129.54))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "cb286fd1-524c-51f8-b306-2ff949467da5"))
+  (global_label "N_C"
+    (shape passive)
+    (at 322.58 129.54 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "6fa05c57-d508-5657-aaae-738fece33171")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 322.58 129.54 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))

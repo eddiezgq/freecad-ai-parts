@@ -13,6 +13,7 @@ from __future__ import annotations
 import math
 
 from . import common as c
+from . import magnetics
 
 SQ2 = math.sqrt(2.0)
 
@@ -133,15 +134,15 @@ def calc_ac_input(block, spec, d, parts):
             "A",
             "触点额定 ≥ {:g} × I_输入".format(m["fuse"]),
         ),
-        c.judge(
-            "cmc_i",
-            "共模电感额定电流",
-            pb["i_in"],
-            None,
-            "A",
-            "额定 ≥ I_输入",
-            status=c.UNKNOWN,
-            note="{} 的规格书是图片，读不出数；施工时换一份能读的规格书或换型号".format(p["cmc"]),
+        dev.judge(p["cmc"], "i_rated", "共模电感额定电流", pb["i_in"], "A", "额定（温升约 35 ℃）≥ I_输入"),
+        # 159d2：继电器线圈 12 V 用在 15 V 辅助电源上
+        dev.judge(
+            p["relay"],
+            "coil_v_max_pct",
+            "继电器线圈电压（12 V 线圈接 15 V）",
+            100 * spec["vcc_aux_v"] / p["relay_coil_v"],
+            "%",
+            "最高允许电压（额定的 %）≥ 15 V / 12 V",
         ),
     ]
     return items, checks
@@ -436,17 +437,19 @@ def calc_pfc_boost(block, spec, d, parts):
         ),
         dev.judge(ctl, "vcc_abs", "控制器供电绝对最大值", spec["vcc_aux_v"], "V", "V_CC,max ≥ 辅助 15 V"),
     ]
+    if p.get("core"):  # 159d2b：定制电感按理论选磁芯
+        mi, mc = magnetics.inductor("l_", "升压电感", r["L"], r["i_l_pk"], r["iin"], p["core"], spec["magnetics"], dev)
+        items += mi
+        checks += mc
     return items, checks
 
 
 # ------------------------------------------------------------------------------------------------- 反激辅助电源
 
 
-def calc_flyback_aux(block, spec, d, parts):
-    p, m, dev = block["params"], d["derating"], d["devices"]
-    ic, dout = p["ic"], p["out_diode"]
-    outs = p["outputs"]
-    po = sum(o["v"] * o["i"] for o in outs)
+def fly(spec, p):
+    """断续反激的主要量（计算器和生成器共用）"""
+    po = sum(o["v"] * o["i"] for o in p["outputs"])
     pin = po / p["eta"]
     vmin = SQ2 * spec["vin_min_vac"] * (1 - spec["line_tolerance"])  # 校正级没起来时，从整流后的峰值取电
     vmax = spec["bus_voltage_v"] * 1.08
@@ -454,6 +457,16 @@ def calc_flyback_aux(block, spec, d, parts):
     dmax = vor / (vor + vmin)
     i_pk = 2 * pin / (vmin * dmax)  # 断续模式三角波
     lp = vmin * dmax / (i_pk * f)
+    return {"po": po, "pin": pin, "vmin": vmin, "vmax": vmax, "vor": vor, "f": f, "dmax": dmax, "i_pk": i_pk, "lp": lp}
+
+
+def calc_flyback_aux(block, spec, d, parts):
+    p, m, dev = block["params"], d["derating"], d["devices"]
+    ic, dout = p["ic"], p["out_diode"]
+    outs = p["outputs"]
+    fl = fly(spec, p)
+    keys = ("po", "pin", "vmin", "vmax", "vor", "f", "dmax", "i_pk", "lp")
+    po, pin, vmin, vmax, vor, f, dmax, i_pk, lp = (fl[k] for k in keys)
     main = outs[0]
     n = vor / (main["v"] + p["vf_out"])
     v_ds = vmax + p["v_clamp"]
@@ -516,6 +529,20 @@ def calc_flyback_aux(block, spec, d, parts):
         ),
         dev.judge(dout, "if_av", "24 V 整流管电流", main["i"], "A", "I_F(AV) ≥ 24 V 平均电流"),
     ]
+    if p.get("core"):  # 159d2b：定制变压器按理论选磁芯；RCD 钳位按理论（漏感取初级电感的比例）
+        mg = dict(spec["magnetics"], ku=p.get("ku", spec["magnetics"]["ku"]))
+        mi, mc = magnetics.flyback("t_", "反激变压器", lp, i_pk, dmax, outs, vor, p["vf_out"], p["core"], mg, dev)
+        items += mi
+        checks += mc
+    if p.get("llk_ratio"):
+        cl = magnetics.rcd_clamp(lp, i_pk, f, p["v_clamp"], vor, p["llk_ratio"])
+        items += [
+            c.item("llk", "漏感（按理论）", cl["llk"], "H", "L_lk = 比例 × L_p",
+                   note="比例 {:g}（教材经验值 1–3 %，按样机实测改）".format(p["llk_ratio"])),
+            c.item("p_clamp", "钳位电阻功耗", cl["p"], "W", "½ · L_lk · I_p² · f · V_c / (V_c − V_OR)"),
+            c.item("r_clamp", "钳位电阻（最多）", cl["r"], "Ω", "R = V_c² / P"),
+            c.item("c_clamp", "钳位电容（最少）", cl["c_min"], "F", "C ≥ 10 / (R · f)（钳位电压纹波 ≤ 10 %）"),
+        ]
     return items, checks
 
 

@@ -19,7 +19,7 @@
 
 ## 结论
 
-通过 9 项，不通过 0 项，待核对 49 项，未知 5 项。
+通过 9 项，不通过 0 项，待核对 60 项，未知 2 项。
 
 ## 交流输入、电磁兼容与浪涌（AC input, EMI and inrush）
 
@@ -42,7 +42,8 @@
 | 热敏电阻最大电流 | 7.916 A | 11 A | I_max ≥ I_输入（继电器旁路前） | **待核对** | 待核对；NTC thermistors for inrush current limiting, Series/Type S364/**/M**, B57364S0***M0** Date: 2021-04-22, Version a，p.4 Table 1 |
 | 热敏电阻允许的负载电容（230 V） | 990 µF | 1 mF | C_T ≥ 母线电容 | **待核对** | 待核对；NTC thermistors for inrush current limiting, Series/Type S364/**/M**, B57364S0***M0** Date: 2021-04-22, Version a，p.4 Table 1 |
 | 旁路继电器触点电流 | 9.894 A | 16 A | 触点额定 ≥ 1.25 × I_输入 | **待核对** | 待核对；Power Relay G5LE-G / G5LE-E (no revision printed)，p.1 |
-| 共模电感额定电流 | 7.916 A | — | 额定 ≥ I_输入 | **未知** | FC-HLF2018-15mH-10A-LF 的规格书是图片，读不出数；施工时换一份能读的规格书或换型号 |
+| 共模电感额定电流 | 7.916 A | 9.3 A | 额定（温升约 35 ℃）≥ I_输入 | **待核对** | 待核对；8100 Series Common Mode Inductors (with optional header) REV. 07/15，p.1 table, footnote * |
+| 继电器线圈电压（12 V 线圈接 15 V） | 125 % | 170 % | 最高允许电压（额定的 %）≥ 15 V / 12 V | **待核对** | 待核对；Power Relay G5LE-G / G5LE-E (no revision printed)，Omron G5LE 标准型资料 Cat. No. K100-E1-06（Farnell 转存）p.1 coil ratings |
 
 ## 整流桥（Bridge rectifier）
 
@@ -82,6 +83,13 @@
 | 掉电保持时间（降到 300 V） | 45.88 ms | t = C·(V_o² − V_min²) / (2·P_o) |  |
 | 母线分压上臂 | 3.1 MΩ | R_上 = R_下 · (V_o / V_VSREF − 1) | R_下 = 20k；ICE3PCS01G Standalone Power Factor Correction (PFC) Controller in Continuous Conduction Mode (CCM), Datasheet Version 3.0, 03 April 2017，p.20 4.3.11 |
 | 过压保护动作的母线电压 | 421.2 V | 1.08 × V_o（OVP1 = 108 % 额定，规格书 4.3.6） |  |
+| 升压电感：要的面积积 | 9.387 cm⁴ | A_p = L · I_峰 · I_有效 / (B_max · J · K_u) | B_max 0.3 T、J 4 A/mm²、K_u 0.4（按理论，教材取值） |
+| 升压电感：磁芯面积积 | 13.45 cm⁴ | A_e · A_N | ETD59-N87；ETD 59/31/22 core B66397, coil former B66398 (Ferrites and accessories) 08/01，p.497；ETD 59/31/22 core B66397, coil former B66398 (Ferrites and accessories) 08/01，p.499 |
+| 升压电感：匝数 | 53 匝 | N = ⌈L · I_峰 / (B_max · A_e)⌉ |  |
+| 升压电感：气隙（总） | 2.879 mm | l_g ≈ μ0 · N² · A_e / L | 不计边缘磁通，绕制厂按实测电感调 |
+| 升压电感：峰值磁密 | 0.2948 T | B = L · I_峰 / (N · A_e) |  |
+| 升压电感：导线截面 | 1.959 mm² | A_w = I_有效 / J | 用多股绞线（利兹线） |
+| 升压电感：铜损（100 ℃） | 4.054 W | I² · ρ · N · l_N / A_w | 不含高频趋肤、邻近效应 |
 
 | 判定 | 要求 | 实有 | 规则 | 结论 | 说明 |
 |---|---|---|---|---|---|
@@ -97,6 +105,9 @@
 | 母线纹波不超过要求 | 5.524 V | 20 V | ΔV ≤ 20 V | **待核对** | Rubycon MXH series SNAP-IN aluminum electrolytic capacitors catalog page 115-116 (no revision printed)，p.1 Specifications; p.2 table |
 | 掉电保持时间 | 20 ms | 45.88 ms | t ≥ 0.02 s | **待核对** | Rubycon MXH series SNAP-IN aluminum electrolytic capacitors catalog page 115-116 (no revision printed)，p.1 Specifications; p.2 table |
 | 控制器供电绝对最大值 | 15 V | 26 V | V_CC,max ≥ 辅助 15 V | **待核对** | 待核对；ICE3PCS01G Standalone Power Factor Correction (PFC) Controller in Continuous Conduction Mode (CCM), Datasheet Version 3.0, 03 April 2017，p.15 4.1 |
+| 升压电感：磁芯面积积够 | 9.387 cm⁴ | 13.45 cm⁴ | A_e · A_N ≥ 要的 | **待核对** |  |
+| 升压电感：窗口放得下 | 0.284 | 0.4 | N · A_w / A_N ≤ K_u | **待核对** |  |
+| 升压电感：铁损 | — | — | 要材料损耗曲线 | **未知** | 铁损要磁芯材料的损耗曲线（N87 的 Steinmetz 系数），本版没录 |
 | 仿真：电感电流纹波（峰峰，V_x = V_o/2 处） | 3.325 A | 3.328 A | 要求列是公式值、实有列是仿真值，相差 ≤ 3% | **通过** | 相差 0.09% |
 | 仿真：母线二倍工频纹波（峰峰） | 5.524 V | 5.524 V | 要求列是公式值、实有列是仿真值，相差 ≤ 5% | **通过** | 相差 0.00% |
 | 仿真：掉电保持时间 | 45.88 ms | 45.68 ms | 要求列是公式值、实有列是仿真值，相差 ≤ 3% | **通过** | 相差 0.42% |
@@ -118,6 +129,15 @@
 | 匝比 N_p : N_24V | 4.008 | n = V_OR / (V_o + V_F) |  |
 | 开关管最高漏极电压 | 571.2 V | 过压点 + 钳位电压 | 钳位 150 V |
 | 24 V 整流管反向电压 | 129.1 V | V_o + V_max / n |  |
+| 反激变压器：要的面积积 | 0.1142 cm⁴ | A_p = L_p · I_p · I_p,有效 / (B_max · J · K_u) | B_max 0.3 T、J 4 A/mm²、K_u 0.25（按理论，教材取值）；I_p,有效 = I_p · √(D/3) |
+| 反激变压器：磁芯面积积 | 0.7372 cm⁴ | A_e · A_N | ETD29-N87；ETD 29/16/10 core B66358, coil former B66359 (Ferrites and accessories) core 08/01, accessories 18.09.03，p.477 |
+| 反激变压器：初级匝数 | 36 匝 | N_p = ⌈L_p · I_p / (B_max · A_e)⌉ | 次级：24 V 9 匝、15 V 6 匝、5 V 2 匝 |
+| 反激变压器：气隙（总） | 0.1644 mm | l_g ≈ μ0 · N_p² · A_e / L_p | 绕制厂按实测电感调 |
+| 反激变压器：窗口占用 | 0.1655 | Σ N · I_有效 / J / A_N |  |
+| 漏感（按理论） | 15.06 µH | L_lk = 比例 × L_p | 比例 0.02（教材经验值 1–3 %，按样机实测改） |
+| 钳位电阻功耗 | 1.721 W | ½ · L_lk · I_p² · f · V_c / (V_c − V_OR) |  |
+| 钳位电阻（最多） | 13.07 kΩ | R = V_c² / P |  |
+| 钳位电容（最少） | 11.59 nF | C ≥ 10 / (R · f)（钳位电压纹波 ≤ 10 %） |  |
 
 | 判定 | 要求 | 实有 | 规则 | 结论 | 说明 |
 |---|---|---|---|---|---|
@@ -128,6 +148,8 @@
 | 钳位电压高于反射电压 | 140 V | 150 V | V_钳位 ≥ 1.4 × V_OR | **通过** |  |
 | 24 V 整流管耐压 | 161.4 V | 200 V | V_RRM ≥ 1.25 × 反向电压 | **待核对** | 待核对；ES3A - ES3J Fast Rectifiers Rev. 2.11, June 2016，p.2 Absolute Maximum Ratings |
 | 24 V 整流管电流 | 800 mA | 3 A | I_F(AV) ≥ 24 V 平均电流 | **待核对** | 待核对；ES3A - ES3J Fast Rectifiers Rev. 2.11, June 2016，p.2 Absolute Maximum Ratings |
+| 反激变压器：磁芯面积积够 | 0.1142 cm⁴ | 0.7372 cm⁴ | A_e · A_N ≥ 要的 | **待核对** |  |
+| 反激变压器：窗口放得下 | 0.1655 | 0.25 | 占用 ≤ K_u | **待核对** |  |
 
 ## 智能功率模块逆变（IPM inverter）
 
@@ -171,7 +193,7 @@
 | 量程覆盖峰值电流（留余量） | 6.348 A | 8.8 A | I_满 ≥ 1.05 × 峰值 | **待核对** | WSLT2512 Power Metal Strip Resistors, High Temperature (275 °C), Low Value, Surface-Mount Document Number: 30121, Revision: 04-Apr-2022，p.1 Global Part Number Information |
 | 过流门限高于峰值、在量程内 | 6.046 A | 7.5 A | 峰值 ≤ I_跳 ≤ I_满 | **待核对** |  |
 | 采样电阻额定功率 | 456.9 mW | 1 W | P_额定(70 ℃) ≥ 峰值时功耗 | **待核对** | 待核对；WSLT2512 Power Metal Strip Resistors, High Temperature (275 °C), Low Value, Surface-Mount Document Number: 30121, Revision: 04-Apr-2022，p.1 Standard Electrical Specifications |
-| MCU 片内运放能设成这个增益 | 8 | — | 片内 PGA 可选增益含 G | **未知** | STM32G431 的运放增益档位没录进 eda/parts（参考手册），待补 |
+| MCU 片内运放能设成这个增益 | 8 | 有 | 片内 PGA 可选增益含 G | **待核对** | 可选：2、4、8、16、32、64；STM32G431x6/x8/xB (DS12589) Rev 6, 2021-10，AN5306 Rev 2, section 4.4.1 p.24 |
 | 过流门限不超过模块电流 | 7.5 A | 14 A | I_C ≥ I_跳 | **待核对** | 待核对；STGIPS14K60T SLLIMM small low-loss intelligent molded module IPM, 3-phase inverter, 14 A, 600 V, Datasheet - production data DocID018534 Rev 5, April 2015，p.5 Table 3 |
 
 ## 电磁铁驱动（Solenoid drivers）
@@ -207,11 +229,14 @@
 | 量 | 结果 | 公式 | 说明 |
 |---|---|---|---|
 | 步进电机线圈电流（有效值） | 1 A |  | 示例值（针距步进电机按实物改） |
+| VREF 电压 | 1.562 V | V_5VOUT · R_下/(R_上 + R_下) |  |
+| 设定的线圈电流（有效值） | 1.026 A | I = 0.325 V / (R_采样 + 0.02 Ω) / √2 × V_REF / 2.5 V | TMC22xx 的电流式子（采样 0.11 Ω、V_REF 2.5 V 时 1.77 A，与 FYSETC TMC2226 资料一致）；待核对 TMC2226 规格书 |
 
 | 判定 | 要求 | 实有 | 规则 | 结论 | 说明 |
 |---|---|---|---|---|---|
 | 24 V（含波动）在驱动器工作范围 | 26.4 V | 5.5–29 V | 范围包含 26.4 V | **待核对** | 待核对；TMC2226 Datasheet, Power driver for stepper motors Rev. 1.06 / 2020-MAY-18，p.72 Operational Range |
 | 驱动器连续电流 | 1 A | 1.6 A | I_RMS,连续 ≥ 线圈电流 | **待核对** | 待核对；TMC2226 Datasheet, Power driver for stepper motors Rev. 1.06 / 2020-MAY-18，p.72 Operational Range |
+| 设定电流与线圈电流相差 ≤ 10 % | 1 A | 1.026 A | \|I_设 − I_线圈\| ≤ 10 % | **待核对** | 式子待核对规格书，所以只判到“待核对” |
 
 ## MCU 最小系统与烧录口（MCU core and programming port）
 
@@ -249,11 +274,13 @@
 | 量 | 结果 | 公式 | 说明 |
 |---|---|---|---|
 | 面板串口速率 | 1.152e+05 bit/s |  | 设计给定 |
+| 数字隔离器耐压（峰值） | 3.536 kV | √2 × V_iso,rms | ADuM1200/ADuM1201 Dual-Channel Digital Isolators Rev. L, 3/2025，p.21 Table 9, Table 10 |
 
 | 判定 | 要求 | 实有 | 规则 | 结论 | 说明 |
 |---|---|---|---|---|---|
-| 数字隔离器隔离耐压 | 1.5 kV | — | 耐压 ≥ 要求 | **未知** | ADUM1201ARZ-RL7 规格书未录（隔离耐压要求 1500 V 是示例值，企业按安规表填） |
-| 隔离电源隔离耐压 | 1.5 kV | — | 耐压 ≥ 要求 | **未知** | B0505S-1WR2 规格书未录 |
+| 数字隔离器隔离耐压 | 1.5 kV | 3.536 kV | √2 × V_iso,rms ≥ 要求（直流 1 分钟，示例值） | **待核对** | ADuM1200/ADuM1201 Dual-Channel Digital Isolators Rev. L, 3/2025，p.21 Table 9, Table 10 |
+| 隔离电源隔离耐压 | 1.5 kV | 1.5 kV | V_iso（直流 1 分钟）≥ 要求 | **待核对** | 待核对；Mornsun B_S-1WR2 & B_D-1WR2 Series, 1W isolated DC-DC converter 2013.06.18-A/2，p.1 general characteristics |
+| 数字隔离器两侧供电 3.3 V 在范围内 | 3.3 V | 2.7–5.5 V | 范围包含 3.3 V | **待核对** | 待核对；ADuM1200/ADuM1201 Dual-Channel Digital Isolators Rev. L, 3/2025，p.23 Table 12 |
 
 ## 散热器（Heatsink）
 
@@ -279,12 +306,17 @@
 |---|---|---|---|
 | 0215010.MXP | Littelfuse | Axial Lead & Cartridge Fuses 5×20 mm > Time-Lag > 215 Series Revised: 01/12/17 | https://www.lcsc.com/datasheet/C142733.pdf |
 | 500MXH330MEFCSN30X50 | Rubycon | Rubycon MXH series SNAP-IN aluminum electrolytic capacitors catalog page 115-116 (no revision printed) | https://www.lcsc.com/datasheet/C472902.pdf |
+| 8118-RC | Bourns | 8100 Series Common Mode Inductors (with optional header) REV. 07/15 | https://static.chipdip.ru/lib/855/DOC011855172.pdf |
+| ADUM1201ARZ-RL7 | Analog Devices | ADuM1200/ADuM1201 Dual-Channel Digital Isolators Rev. L, 3/2025 | https://www.analog.com/media/en/technical-documentation/data-sheets/ADUM1200_1201.pdf |
+| B0505S-1WR2 | YLPTEC（系列原版 Mornsun） | Mornsun B_S-1WR2 & B_D-1WR2 Series, 1W isolated DC-DC converter 2013.06.18-A/2 | https://mantech.co.za/datasheets/products/b_s-1wr2.pdf |
 | B57364S0259M000 | TDK | NTC thermistors for inrush current limiting, Series/Type S364/**/M**, B57364S0***M0** Date: 2021-04-22, Version a | https://www.lcsc.com/datasheet/C17362791.pdf |
 | B72214S0271K101 | TDK (EPCOS) | SIOV metal oxide varistors, Leaded varistors, StandarD series, Series/Type: B722* Date: March 2018 | https://www.lcsc.com/datasheet/C7502584.pdf |
 | BFC233920474 | Vishay BCcomponents | MKP339 X2 Interference Suppression Film Capacitors Document Number: 28138, Revision: 24-Jul-2019 | https://www.lcsc.com/datasheet/C511073.pdf |
 | BSC040N08NS5 | Infineon | BSC040N08NS5 OptiMOS 5 Power-Transistor, 80 V, Final Data Sheet Rev. 2.2, 2020-05-15 | https://www.infineon.com/assets/row/public/documents/24/49/infineon-bsc040n08ns5-datasheet-en.pdf |
 | C3D06060A | Wolfspeed (Cree) | C3D06060A Silicon Carbide Schottky Diode Z-Rec Rectifier Rev. F, 10-2015 | https://www.lcsc.com/datasheet/C5693025.pdf |
 | ES3D | onsemi (Fairchild) | ES3A - ES3J Fast Rectifiers Rev. 2.11, June 2016 | https://www.lcsc.com/datasheet/C241735.pdf |
+| ETD29-N87 | TDK (EPCOS) | ETD 29/16/10 core B66358, coil former B66359 (Ferrites and accessories) core 08/01, accessories 18.09.03 | https://storage.sea.com.ua/tech_info//epcos/B66358, B66359.pdf |
+| ETD59-N87 | TDK (EPCOS) | ETD 59/31/22 core B66397, coil former B66398 (Ferrites and accessories) 08/01 | https://www.elsin.ru/pdf/B66397.pdf |
 | G5LE-1-E DC12 | Omron | Power Relay G5LE-G / G5LE-E (no revision printed) | https://www.lcsc.com/datasheet/C152711.pdf |
 | GBU1006 | LGE (Luguang) | GBU1001 - GBU1007 Single Phase 10.0 AMP. Glass Passivated Bridge Rectifiers Version: A06 | https://www.lcsc.com/datasheet/C5183365.pdf |
 | ICE3PCS01G | Infineon | ICE3PCS01G Standalone Power Factor Correction (PFC) Controller in Continuous Conduction Mode (CCM), Datasheet Version 3.0, 03 April 2017 | https://www.lcsc.com/datasheet/C192050.pdf |

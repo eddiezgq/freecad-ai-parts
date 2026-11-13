@@ -15,3 +15,21 @@ params:
     condition: rated load, G5LE-E high capacity type, 250 VAC
     where: p.1
     checked: false
+  # 159d2：线圈数据。手头能读的是 G5LE 标准型的资料（Omron Cat. No. K100-E1-06，Farnell 转存），不含 -E 高容量型；
+  # 线圈按同系列 12 VDC 录，待核对 -E 型的资料。
+  coil_r:
+    value: 360
+    unit: Ω
+    kind: typ
+    condition: coil resistance, 12 VDC coil (G5LE standard type document, Cat. No. K100-E1-06)
+    where: Omron G5LE 标准型资料 Cat. No. K100-E1-06（Farnell 转存）p.1 coil ratings
+    url: https://www.farnell.com/datasheets/2182434.pdf
+    checked: false
+  coil_v_max_pct:
+    value: 170
+    unit: '%'
+    kind: max
+    condition: max. voltage, % of rated voltage, at 23 °C (G5LE standard type document)
+    where: Omron G5LE 标准型资料 Cat. No. K100-E1-06（Farnell 转存）p.1 coil ratings
+    url: https://www.farnell.com/datasheets/2182434.pdf
+    checked: false

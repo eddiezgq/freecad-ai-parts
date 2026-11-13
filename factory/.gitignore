@@ -10,6 +10,7 @@ digital/.env
 !designs/wq-encif/out/*.zip
 !designs/drv-joint-b/out/*.zip
 !designs/drv-joint-b/fw/out/*.zip
+!designs/ctrl-ls/out/*.zip
 designs/drv-joint/.route/
 designs/ctrl-ls/.route/
 designs/drv-joint-b/.route/

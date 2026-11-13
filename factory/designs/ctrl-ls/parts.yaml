@@ -12,7 +12,8 @@ parts:
   - {role: 压敏电阻（275 V 交流）, item: MOV-275, mpn: B72214S0271K101, maker: TDK, lcsc: C7502584}
   - {role: X2 电容 0.47 µF, item: CAP-X2-470N, mpn: BFC233920474, maker: Vishay, lcsc: C511073}
   - {role: Y 电容 2.2 nF, item: CAP-Y-2N2, mpn: DE1E3RA222MA4BP01F, maker: Murata, lcsc: C907949}
-  - {role: 共模电感 15 mH 10 A, item: CMC-15MH, mpn: FC-HLF2018-15mH-10A-LF, maker: FANGCHENG, lcsc: C5142780}
+  - {role: 共模电感 7.3 mH 9.3 A, item: CMC-8118RC, mpn: 8118-RC, maker: Bourns, digikey: '775452', checked_on: '2026-11-12',
+     note: 159d2 由 FC-HLF2018-15mH-10A-LF（立创 C5142780）换来：那颗规格书是图片读不出、KiCad 库没有封装；8118-RC 在 DigiKey 核实，KiCad 有同系列封装}
   - {role: 浪涌限流热敏电阻, item: NTC-2R5, mpn: B57364S0259M000, maker: TDK, lcsc: C17362791}
   - {role: 旁路继电器（12 V 线圈）, item: RLY-G5LE, mpn: G5LE-1-E DC12, maker: Omron, lcsc: C152711}
   - {role: 整流桥 10 A 600 V, item: BRG-GBU1006, mpn: GBU1006, maker: LGE, lcsc: C5183365}

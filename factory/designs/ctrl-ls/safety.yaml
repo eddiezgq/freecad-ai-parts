@@ -1,0 +1,53 @@
+# 平缝机控制器 CTRL-LS 的安全距离规则（第 159 轮 159d2b；细则第二节第 3 条：做成规则数据，不写死标准数值）。
+# 数都是示例值（example: true）：企业按自己产品适用的安全标准、工作电压、污染等级、材料组查表后填。
+# 检查程序 eda/wqeda/checks/safety.py 按这里分组量最小铜间距。
+#
+# 这块板的绝缘关系（方案第一节）：整块板以母线负端为地，主控、功率模块输入都和电网连着（危险电压）；
+# 人能碰到的只有隔离面板口（GND_ISO 一侧）——它和其余部分之间要一道基本绝缘，面板外壳再加一道（双重绝缘）；
+# 安装孔接保护地 PE，和带电部分之间是基本绝缘。
+format: wq.safety/1
+groups:
+  ac_l: [L_IN, L_F, L_C, L_R]             # 相线一侧
+  ac_n: [N_IN, N_C]                        # 零线一侧
+  bus_hv: [VBUS, VRECT, SW_PFC, FLY_D, CLAMP, CLAMP_M, MOT_U, MOT_V, MOT_W, OUT_U, OUT_V, OUT_W, VB_U, VB_V, VB_W,
+           VSENSE_1, VSENSE_2, OVP_1, OVP_2, VBUS_SNS_1, VBUS_SNS_2, TOP_V1, BRO_A, BRO_B, XDIS]   # 含高压分压的中间点
+  pe: [PE, PE_H2, PE_H3, PE_H4]           # 安装孔：H1 在板上接 PE，其余压在接地的箱体上
+  iso: [GND_ISO, +5V_ISO, +3V3_ISO, PNL_A, PNL_B, RO_ISO, TXN_ISO]
+  low: rest                                # 其余：以母线负端为地的弱电（对地是危险电压，但彼此之间电压低）
+rules:
+- key: iso
+  name: 隔离面板口 ↔ 其余电路
+  a: [iso]
+  b: [ac_l, ac_n, bus_hv, low]
+  insulation: 基本绝缘（面板外壳另加一道，合成双重绝缘）
+  clearance_mm: 3.0
+  creepage_mm: 4.0
+  example: true
+  source: 示例值；数字隔离器 ADuM1201 本身的爬电与电气间隙各 4.0 mm（规格书 Rev. L p.21），板上不应比它小
+- key: pe
+  name: 保护地（安装孔） ↔ 带电部分
+  a: [pe]
+  b: [ac_l, ac_n, bus_hv, low]
+  insulation: 基本绝缘
+  clearance_mm: 3.0
+  creepage_mm: 4.0
+  example: true
+  source: 示例值
+- key: ln
+  name: 相线 ↔ 零线（保险丝之后）
+  a: [ac_l]
+  b: [ac_n]
+  insulation: 功能绝缘
+  clearance_mm: 2.5
+  creepage_mm: 2.5
+  example: true
+  source: 示例值
+- key: bus
+  name: 390 V 母线与电机相线 ↔ 弱电
+  a: [bus_hv]
+  b: [low]
+  insulation: 功能绝缘
+  clearance_mm: 2.0
+  creepage_mm: 2.0
+  example: true
+  source: 示例值

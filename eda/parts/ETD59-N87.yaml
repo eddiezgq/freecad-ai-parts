@@ -1,0 +1,15 @@
+# 升压电感磁芯（平缝机控制器 CTRL-LS，第 159 轮 159d2b：定制件按理论选磁芯）。EPCOS ETD 59/31/22（B66397）+ 骨架 B66398。
+# 规格书是 2001 年版（elsin.ru 转存），网页工具读出文字录入，未逐页对照原图：checked: false。
+format: wqeda.part/1
+part: ETD59-N87
+maker: TDK (EPCOS)
+datasheet:
+  title: ETD 59/31/22 core B66397, coil former B66398 (Ferrites and accessories)
+  revision: 08/01
+  url: https://www.elsin.ru/pdf/B66397.pdf
+params:
+  ae: {value: 368.0e-6, unit: m², kind: typ, condition: effective cross section Ae per set, where: p.497, checked: false}
+  le: {value: 139.0e-3, unit: m, kind: typ, condition: effective magnetic path length le, where: p.497, checked: false}
+  ve: {value: 51200.0e-9, unit: m³, kind: typ, condition: effective volume Ve, where: p.497, checked: false}
+  an: {value: 365.6e-6, unit: m², kind: typ, condition: coil former B66398 winding cross section AN (1 section, 24 pins), where: p.499, checked: false}
+  ln: {value: 106.1e-3, unit: m, kind: typ, condition: coil former average length of turn lN, where: p.499, checked: false}

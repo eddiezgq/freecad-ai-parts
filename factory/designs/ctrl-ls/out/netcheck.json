@@ -1,10 +1,10 @@
 {
  "extra_parts": [],
  "missing_parts": [],
- "nets_design": 149,
- "nets_schematic": 149,
- "parts_design": 221,
- "parts_schematic": 221,
+ "nets_design": 150,
+ "nets_schematic": 150,
+ "parts_design": 222,
+ "parts_schematic": 222,
  "pass": true,
  "problems": []
 }

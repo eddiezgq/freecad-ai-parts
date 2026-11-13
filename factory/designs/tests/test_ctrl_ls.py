@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""第 159 轮 159d1：平缝机控制器 CTRL-LS 原理图产物（tools/ctrl_ls_build.py 生成；CI 重新生成后核对一字不差）。"""
+"""第 159 轮 159d1、159d2b：平缝机控制器 CTRL-LS 原理图与板子产物（tools/ctrl_ls_build.py 生成；CI 重新生成后核对一字不差）。"""
 import csv
 import json
 import os
@@ -38,3 +38,20 @@ def test_bom_carries_catalog_parts():
         assert q["item"] in by_item, q["item"]
         if q.get("lcsc"):
             assert by_item[q["item"]]["立创编号"] == q["lcsc"] and by_item[q["item"]]["型号"] == q["mpn"]
+
+
+def test_board_routed_and_checked():
+    """159d2b：板子全部布通、KiCad 设计规则检查 0 错误；安全距离四条规则都过，规则是示例值且如实标出"""
+    with open(os.path.join(P, "out", "drc.json"), encoding="utf-8") as f:
+        dr = json.load(f)
+    assert dr["errors"] == 0 and dr["unconnected"] == 0
+    with open(os.path.join(P, "out", "safety.json"), encoding="utf-8") as f:
+        res = json.load(f)
+    assert {r["key"] for r in res} == {"S-iso", "S-pe", "S-ln", "S-bus"}
+    for r in res:
+        assert r["status"] == "pass" and r["value"] >= r["limit"] and r["example"] is True, r["key"]
+    with open(os.path.join(P, "out", "design.json"), encoding="utf-8") as f:
+        d = json.load(f)
+    assert len(d["pcb_layers"]) == 6
+    for k in ("gerber.zip", "pos.csv", "kicad-project.zip"):
+        assert os.path.exists(os.path.join(P, "out", k)), k
