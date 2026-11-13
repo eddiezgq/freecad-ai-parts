@@ -1,0 +1,63 @@
+* WQ MB-PC VRM: 6-phase interleaved buck, steady state at TDC (ideal switches + Ron)
+Vin vin 0 12
+Vg0 g0 0 pulse(0 5 0 1n 1n 1.93918e-07 2e-06)
+Bgl0 gl0 0 v=5-v(g0)
+S0h vin sw0 g0 0 swh
+S0l sw0 0 gl0 0 swl
+L0 sw0 m0 1.5e-07 ic=16.6667
+Vp0 m0 q0 0
+R0 q0 pc 0.0002
+Vg1 g1 0 pulse(0 5 3.33333e-07 1n 1n 1.93918e-07 2e-06)
+Bgl1 gl1 0 v=5-v(g1)
+S1h vin sw1 g1 0 swh
+S1l sw1 0 gl1 0 swl
+L1 sw1 m1 1.5e-07 ic=16.6667
+Vp1 m1 q1 0
+R1 q1 pc 0.0002
+Vg2 g2 0 pulse(0 5 6.66667e-07 1n 1n 1.93918e-07 2e-06)
+Bgl2 gl2 0 v=5-v(g2)
+S2h vin sw2 g2 0 swh
+S2l sw2 0 gl2 0 swl
+L2 sw2 m2 1.5e-07 ic=16.6667
+Vp2 m2 q2 0
+R2 q2 pc 0.0002
+Vg3 g3 0 pulse(0 5 1e-06 1n 1n 1.93918e-07 2e-06)
+Bgl3 gl3 0 v=5-v(g3)
+S3h vin sw3 g3 0 swh
+S3l sw3 0 gl3 0 swl
+L3 sw3 m3 1.5e-07 ic=16.6667
+Vp3 m3 q3 0
+R3 q3 pc 0.0002
+Vg4 g4 0 pulse(0 5 1.33333e-06 1n 1n 1.93918e-07 2e-06)
+Bgl4 gl4 0 v=5-v(g4)
+S4h vin sw4 g4 0 swh
+S4l sw4 0 gl4 0 swl
+L4 sw4 m4 1.5e-07 ic=16.6667
+Vp4 m4 q4 0
+R4 q4 pc 0.0002
+Vg5 g5 0 pulse(0 5 1.66667e-06 1n 1n 1.93918e-07 2e-06)
+Bgl5 gl5 0 v=5-v(g5)
+S5h vin sw5 g5 0 swh
+S5l sw5 0 gl5 0 swl
+L5 sw5 m5 1.5e-07 ic=16.6667
+Vp5 m5 q5 0
+R5 q5 pc 0.0002
+Vsum pc out 0
+.model swh sw vt=2.5 vh=0 ron=0.005 roff=1e5
+.model swl sw vt=2.5 vh=0 ron=0.0012 roff=1e5
+Cb out nb 0.00336 ic=1.14
+Rb nb 0 0.001
+Cm out nm 0.0004 ic=1.14
+Rm nm 0 7.5e-05
+Iload out 0 100
+.options numdgt=7
+.tran 2n 600u 0 2n uic
+.meas tran vavg avg v(out) from=580u to=600u
+.meas tran vpp pp v(out) from=580u to=600u
+.meas tran pin avg par('-v(vin)*i(Vin)') from=580u to=600u
+.meas tran ppc avg par('v(pc)*i(Vsum)') from=580u to=600u
+.meas tran iopp pp i(Vsum) from=580u to=600u
+.meas tran i0pp pp i(Vp0) from=580u to=600u
+.meas tran i0 avg i(Vp0) from=580u to=600u
+.meas tran i3 avg i(Vp3) from=580u to=600u
+.end
