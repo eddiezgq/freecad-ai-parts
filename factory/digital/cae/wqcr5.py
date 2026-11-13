@@ -53,7 +53,7 @@ MODULES = {
     "L": {"code": "WQJ-L", "mass": 3.0, "r": 0.055, "h": 0.110, "motor": ("伺服 400 W", 4.46, 0.42e-4),
           "gear": ("谐波 32 号", 137.0, 333.0), "damping": 2.0, "frictionloss": 1.2},
     "M": {"code": "WQJ-M", "mass": 2.0, "r": 0.045, "h": 0.095, "motor": ("伺服 200 W", 2.23, 0.26e-4),
-          "gear": ("谐波 25 号", 67.0, 178.0), "damping": 1.0, "frictionloss": 0.8},
+          "gear": ("谐波 25 号", 67.0, 157.0), "damping": 1.0, "frictionloss": 0.8},
     "S": {"code": "WQJ-S", "mass": 1.2, "r": 0.035, "h": 0.080, "motor": ("伺服 100 W", 1.11, 0.04e-4),
           "gear": ("谐波 17 号", 24.0, 54.0), "damping": 0.3, "frictionloss": 0.4},
 }
