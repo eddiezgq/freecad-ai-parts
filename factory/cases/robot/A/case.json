@@ -8,7 +8,7 @@
  "summary": "按负载、臂展、速度算出每个关节的峰值和连续力矩需求，从三种关节模组里给六个关节选型，用 MuJoCo 跑一遍标准动作核对，再在关节测试台测 30 只模组。",
  "summary_en": "Peak and continuous torque demands of each joint from payload, reach and speed; choose one of three joint modules for each of the six joints, check with a MuJoCo run of the standard motion, then test 30 modules on the joint test bench.",
  "script": "tools/cases/robot_a.py",
- "generated": "2026-11-12",
+ "generated": "2026-11-13",
  "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
  "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
  "steps": [
