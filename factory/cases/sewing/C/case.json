@@ -1,0 +1,383 @@
+{
+ "plant": "sewing",
+ "id": "C",
+ "level": "完整",
+ "title": "问渠工业直驱平缝机 WQ-LS",
+ "title_en": "WenQuest direct-drive lockstitch machine WQ-LS",
+ "item": "WQ-LS 整机",
+ "summary": "一台工业平缝机从任务书到总装线：G1 任务书与 1–5 mm 全针距机构校核，G2 动力学（案例 A），G3 外观与 HT250 机壳（模态定刚度、优化减重），G4 零件与一转干涉检查，G5 铸造凝固仿真、机加工工艺、精度预算和三坐标计划，控制器见案例 B；补总装线 40 台的出厂测试。",
+ "summary_en": "An industrial lockstitch machine from brief to assembly line: G1 brief and mechanism checks for 1–5 mm stitches, G2 dynamics (case A), G3 styling and HT250 housing (stiffness from modal analysis, weight optimisation), G4 parts and one-revolution interference check, G5 casting simulation, machining, precision budgets and CMM plan; controller in case B; plus end-of-line test of 40 machines.",
+ "script": "tools/cases/sewing_c.py",
+ "generated": "2026-11-13",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "单针平缝机，5000 r/min、针距 1–5 mm、直驱伺服、自动润滑；机臂空间 300 mm。",
+   "summary_en": "Single-needle lockstitch, 5000 rpm, 1–5 mm stitches, direct-drive servo, automatic lubrication; 300 mm arm space.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "最高缝速",
+     "name_en": "Max speed",
+     "value": "5,000",
+     "unit": "r/min"
+    },
+    {
+     "name": "最大针距",
+     "name_en": "Max stitch",
+     "value": "5",
+     "unit": "mm"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "直驱上轴 + 同步带 + 1:2 齿轮带旋梭；外观定 B（流线），机壳 HT250 灰铸铁。",
+   "summary_en": "Direct-drive upper shaft, timing belt and 1:2 gears to the hook; styling B (streamlined), HT250 grey-iron housing.",
+   "md": "2_方案.md",
+   "figs": [
+    {
+     "file": "2_总体布置图.png",
+     "caption": "总体布置图（G1）",
+     "caption_en": "General arrangement (G1)"
+    },
+    {
+     "file": "2_三个外观方案.png",
+     "caption": "三个外观方案（G3）",
+     "caption_en": "Three styling options (G3)"
+    },
+    {
+     "file": "2_机构运动简图.png",
+     "caption": "机构运动简图（G1）",
+     "caption_en": "Kinematic diagram (G1)"
+    }
+   ],
+   "files": [],
+   "tools": [],
+   "facts": []
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "G1 机构项 16 项 × 5 档针距全过；机壳前两阶 221 / 229 Hz（要求 ≥ 210）、铸件 23.3 kg。",
+   "summary_en": "All 16 G1 mechanism checks pass for 5 stitch lengths; housing modes 221 / 229 Hz (≥ 210 required), casting 23.3 kg.",
+   "md": "3_计算.md",
+   "figs": [
+    {
+     "file": "3_时序图.png",
+     "caption": "一转时序图（G1）",
+     "caption_en": "Timing diagram (G1)"
+    }
+   ],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "机构校核",
+     "name_en": "Mechanism checks",
+     "value": "16",
+     "unit": ""
+    },
+    {
+     "name": "机壳一阶",
+     "name_en": "Housing 1st mode",
+     "value": "221",
+     "unit": "Hz"
+    },
+    {
+     "name": "铸件",
+     "name_en": "Casting",
+     "value": "23.3",
+     "unit": "kg"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "一转 90 帧、105 对零件最小间隙 1.00 mm；上件铸造凝固 322 s、出品率 64.5 %。",
+   "summary_en": "105 part pairs over 90 frames: minimum gap 1.00 mm; upper casting solidifies in 322 s, yield 64.5 %.",
+   "md": "4_仿真.md",
+   "figs": [
+    {
+     "file": "4_凝固过程.png",
+     "caption": "上件凝固过程（G5）",
+     "caption_en": "Upper casting solidification (G5)"
+    },
+    {
+     "file": "4_机构.png",
+     "caption": "全部机构（G4）",
+     "caption_en": "All mechanisms (G4)"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "仿真与分析",
+     "label_en": "Simulation",
+     "route": "/cae"
+    }
+   ],
+   "facts": [
+    {
+     "name": "最小间隙",
+     "name_en": "Min gap",
+     "value": "1",
+     "unit": "mm"
+    },
+    {
+     "name": "出品率",
+     "name_en": "Yield",
+     "value": "64.5",
+     "unit": "%"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "机壳上下两件铸造、合箱精加工；外观、剖视、合件图、零件图、夹具图。",
+   "summary_en": "Housing cast in two halves and finish-machined as a pair; styling, sections, assembly, part and fixture drawings.",
+   "md": "5_三维与图纸.md",
+   "figs": [
+    {
+     "file": "5_机壳外观.png",
+     "caption": "整机外观（G3）",
+     "caption_en": "Machine styling (G3)"
+    },
+    {
+     "file": "5_合件图.png",
+     "caption": "机壳合件图（G5）",
+     "caption_en": "Housing assembly drawing (G5)"
+    },
+    {
+     "file": "5_正面剖.png",
+     "caption": "正面剖视（G3）",
+     "caption_en": "Front section (G3)"
+    }
+   ],
+   "files": [
+    {
+     "file": "5_合件图.pdf",
+     "label": "合件图（PDF）",
+     "label_en": "Assembly drawing (PDF)"
+    }
+   ],
+   "tools": [
+    {
+     "label": "3D 车间",
+     "label_en": "3D shop",
+     "route": "/3d"
+    }
+   ],
+   "facts": []
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "机壳精度预算 10 项，超公差 0；总装线 20 道（分装 4、总装 12、调试、跑合、出厂测试、包装）。",
+   "summary_en": "10 housing precision budgets, 0 over tolerance; 20 assembly operations.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "精度预算",
+     "name_en": "Precision budgets",
+     "value": "10",
+     "unit": ""
+    },
+    {
+     "name": "总装工序",
+     "name_en": "Assembly ops",
+     "value": "20",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "40 台：出厂测试七项不合格 0，最低 Cpk 1.62。",
+   "summary_en": "40 machines: 0 end-of-line failures, lowest Cpk 1.62.",
+   "md": "7_制造与测试.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间执行",
+     "label_en": "Shop floor",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    },
+    {
+     "label": "3D 车间",
+     "label_en": "3D shop",
+     "route": "/3d"
+    }
+   ],
+   "facts": [
+    {
+     "name": "不合格",
+     "name_en": "Out of tolerance",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "最低 Cpk",
+     "name_en": "Lowest Cpk",
+     "value": "1.62",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "7 / 7 项校核通过；机构、模态、干涉、精度预算、出厂测试全过。",
+   "summary_en": "7 / 7 checks pass; mechanisms, modes, interference, precision budgets and end-of-line test all pass.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "calc",
+   "what": "G1 机构项不通过",
+   "what_en": "G1 mechanism checks failed",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "G1 校核"
+  },
+  {
+   "step": "calc",
+   "what": "机壳前两阶固有频率（较低者）",
+   "what_en": "Housing first two modes (lower)",
+   "value": "221",
+   "op": ">=",
+   "limit": "210",
+   "unit": "Hz",
+   "ok": true,
+   "src": "G3 目标"
+  },
+  {
+   "step": "sim",
+   "what": "一转最小间隙",
+   "what_en": "Minimum gap over one revolution",
+   "value": "1",
+   "op": ">=",
+   "limit": "1",
+   "unit": "mm",
+   "ok": true,
+   "src": "G4 干涉检查"
+  },
+  {
+   "step": "sim",
+   "what": "太近的零件对",
+   "what_en": "Part pairs too close",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "G4 干涉检查"
+  },
+  {
+   "step": "process",
+   "what": "精度预算超公差项",
+   "what_en": "Precision budgets over tolerance",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "G5 精度分析"
+  },
+  {
+   "step": "make",
+   "what": "不合格项",
+   "what_en": "Failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "出厂测试"
+  },
+  {
+   "step": "make",
+   "what": "最低 Cpk",
+   "what_en": "Lowest Cpk",
+   "value": "1.62",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_三个外观方案.png",
+  "2_总体布置图.png",
+  "2_方案.md",
+  "2_机构运动简图.png",
+  "3_时序图.png",
+  "3_计算.md",
+  "4_仿真.md",
+  "4_凝固过程.png",
+  "4_机构.png",
+  "5_三维与图纸.md",
+  "5_合件图.pdf",
+  "5_合件图.png",
+  "5_机壳外观.png",
+  "5_正面剖.png",
+  "6_工艺.md",
+  "7_制造与测试.md",
+  "8_总结.md"
+ ]
+}

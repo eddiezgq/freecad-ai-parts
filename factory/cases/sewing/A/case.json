@@ -1,0 +1,323 @@
+{
+ "plant": "sewing",
+ "id": "A",
+ "level": "简单",
+ "title": "平缝机上轴 LS-101",
+ "title_en": "Upper shaft LS-101 of the lockstitch machine",
+ "item": "LS-101 上轴",
+ "summary": "直驱平缝机的主轴：一转里 ±5 N·m 的惯性力矩全部从它通过。整理第 138 轮 G2 的计算：驱动力矩（MuJoCo 对照）、四个截面的疲劳、轴承寿命、临界转速、有限元，以及从教材 A 版到 D 版为什么一改再改；补缝纫机厂轴车间 40 根的制造与检验。",
+ "summary_en": "The main shaft of the direct-drive lockstitch machine carries the ±5 N·m inertia torque of every revolution. Round 138 G2 results organised: drive torque (checked with MuJoCo), fatigue at four sections, bearing life, critical speed, FEA, and why the shaft went from revision A to D; plus 40 shafts made and inspected.",
+ "script": "tools/cases/sewing_a.py",
+ "generated": "2026-11-13",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "直驱平缝机上轴：5000 r/min、跨过 300 mm 机臂；疲劳 ≥ 1.5、轴承 ≥ 20 000 h、临界转速 ≥ 1.5 倍。",
+   "summary_en": "Upper shaft of the direct-drive machine: 5000 rpm, spans the 300 mm arm; fatigue ≥ 1.5, bearings ≥ 20 000 h, critical speed ≥ 1.5×.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "最高转速",
+     "name_en": "Max speed",
+     "value": "5,000",
+     "unit": "r/min"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "现行 D 版两支承；三支承挠度小但前轴承寿命 16,433 h 不够，不加。",
+   "summary_en": "Revision D on two supports; a third support stiffens the shaft but cuts front bearing life to 16,433 h, so not used.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": []
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "最危险截面疲劳安全系数 3.62；前轴承 27,198 h；临界转速 11,601 r/min（2.3 倍）。",
+   "summary_en": "Lowest fatigue safety factor 3.62; front bearing 27,198 h; critical speed 11,601 rpm (2.3×).",
+   "md": "3_计算书.md",
+   "figs": [
+    {
+     "file": "3_上轴.png",
+     "caption": "上轴载荷、弯矩与截面（G2）",
+     "caption_en": "Shaft loads, moments and sections (G2)"
+    }
+   ],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "疲劳安全系数",
+     "name_en": "Fatigue S",
+     "value": "3.62",
+     "unit": ""
+    },
+    {
+     "name": "前轴承寿命",
+     "name_en": "Front bearing",
+     "value": "27,198",
+     "unit": "h"
+    },
+    {
+     "name": "临界转速",
+     "name_en": "Critical speed",
+     "value": "11,601",
+     "unit": "r/min"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "MuJoCo 与设计软件的驱动力矩最大差 0.16 %；有限元确认最危险位置在截面 I 圆角。",
+   "summary_en": "MuJoCo vs designer drive torque within 0.16 %; FEA confirms the critical spot at the section I fillet.",
+   "md": "4_仿真.md",
+   "figs": [
+    {
+     "file": "4_驱动力矩.png",
+     "caption": "一转之内的驱动力矩",
+     "caption_en": "Drive torque over one revolution"
+    },
+    {
+     "file": "4_MuJoCo对照.png",
+     "caption": "MuJoCo 对照",
+     "caption_en": "MuJoCo cross-check"
+    },
+    {
+     "file": "4_上轴有限元.png",
+     "caption": "上轴有限元",
+     "caption_en": "Shaft FEA"
+    }
+   ],
+   "files": [],
+   "tools": [
+    {
+     "label": "仿真与分析",
+     "label_en": "Simulation",
+     "route": "/cae"
+    }
+   ],
+   "facts": [
+    {
+     "name": "MuJoCo 相差",
+     "name_en": "MuJoCo difference",
+     "value": "0.16",
+     "unit": "%"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "D 版上轴：全长 452 mm，前 Ø15 装 6202、后 Ø12 装 6201，右端 Ø10 装转子和手轮。",
+   "summary_en": "Revision D: 452 mm long, Ø15 with 6202 at the front, Ø12 with 6201 at the rear, Ø10 for rotor and handwheel.",
+   "md": "5_三维与图纸.md",
+   "figs": [
+    {
+     "file": "5_上轴三维.png",
+     "caption": "上轴三维",
+     "caption_en": "Shaft 3D"
+    }
+   ],
+   "files": [
+    {
+     "file": "5_LS-101.step",
+     "label": "上轴三维模型（STEP）",
+     "label_en": "Shaft 3D model (STEP)"
+    }
+   ],
+   "tools": [],
+   "facts": []
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "轴类线 11 道：调质、校直、精车、铣扁、轴颈高频淬火、再校直、磨外圆、检验。",
+   "summary_en": "11 operations: Q&T, straightening, turning, flats, induction hardening, straightening again, grinding, inspection.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "工序",
+     "name_en": "Operations",
+     "value": "11",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "40 根：不合格 0，最低 Cpk 1.61（轴承位直径、跳动、硬度、相位）。",
+   "summary_en": "40 shafts: 0 failures, lowest Cpk 1.61 (bearing diameter, runout, hardness, phase).",
+   "md": "7_制造与检验.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间执行",
+     "label_en": "Shop floor",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    },
+    {
+     "label": "3D 车间",
+     "label_en": "3D shop",
+     "route": "/3d"
+    }
+   ],
+   "facts": [
+    {
+     "name": "不合格",
+     "name_en": "Out of tolerance",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "最低 Cpk",
+     "name_en": "Lowest Cpk",
+     "value": "1.61",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "6 / 6 项校核通过；疲劳 3.62、前轴承 27,198 h。",
+   "summary_en": "6 / 6 checks pass; fatigue 3.62, front bearing 27,198 h.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "calc",
+   "what": "最危险截面疲劳安全系数",
+   "what_en": "Lowest fatigue safety factor",
+   "value": "3.62",
+   "op": ">=",
+   "limit": "1.5",
+   "unit": "",
+   "ok": true,
+   "src": "教材第 33 章"
+  },
+  {
+   "step": "calc",
+   "what": "前轴承寿命 L10h",
+   "what_en": "Front bearing life L10h",
+   "value": "27,198",
+   "op": ">=",
+   "limit": "20,000",
+   "unit": "h",
+   "ok": true,
+   "src": "G2 计算书"
+  },
+  {
+   "step": "calc",
+   "what": "一阶临界转速 / 最高转速",
+   "what_en": "First critical / max speed",
+   "value": "2.32",
+   "op": ">=",
+   "limit": "1.5",
+   "unit": "",
+   "ok": true,
+   "src": "G2 计算书"
+  },
+  {
+   "step": "sim",
+   "what": "MuJoCo 与设计软件驱动力矩相差（占峰值）",
+   "what_en": "MuJoCo vs designer torque (of peak)",
+   "value": "0.16",
+   "op": "<=",
+   "limit": "1",
+   "unit": "%",
+   "ok": true,
+   "src": "核对模型"
+  },
+  {
+   "step": "make",
+   "what": "不合格项",
+   "what_en": "Failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "零件检验"
+  },
+  {
+   "step": "make",
+   "what": "最低 Cpk（件数 ≥ 10 的特性）",
+   "what_en": "Lowest Cpk (characteristics with ≥ 10 parts)",
+   "value": "1.61",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_上轴.png",
+  "3_计算书.md",
+  "4_MuJoCo对照.png",
+  "4_上轴有限元.png",
+  "4_仿真.md",
+  "4_驱动力矩.png",
+  "5_LS-101.step",
+  "5_三维与图纸.md",
+  "5_上轴三维.png",
+  "6_工艺.md",
+  "7_制造与检验.md",
+  "8_总结.md"
+ ]
+}

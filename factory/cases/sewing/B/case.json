@@ -1,0 +1,323 @@
+{
+ "plant": "sewing",
+ "id": "B",
+ "level": "中等",
+ "title": "平缝机控制器 CTRL-LS",
+ "title_en": "Lockstitch machine controller CTRL-LS",
+ "item": "CTRL-LS 电控板",
+ "summary": "单相 110–250 V 进、驱动 550 W 直驱伺服的一块板：功率因数校正、智能功率模块、反激辅助电源、磁场定向控制、电磁铁和针距步进驱动。整理第 138 轮 GC 的控制仿真（起停、停针）和第 159 轮的板子报告（电气、工艺、热，真器件型号），看平缝机出厂测试里的停针定位误差。",
+ "summary_en": "One board from 110–250 V single phase to a 550 W direct-drive servo: PFC, intelligent power module, flyback auxiliary supply, field-oriented control, solenoid and stitch-stepper drives. Round 138 GC control simulation (start, stop, needle positioning) and round 159 board report (electrical, process, thermal, real parts) organised; needle-stop error from the end-of-line test.",
+ "script": "tools/cases/sewing_b.py",
+ "generated": "2026-11-13",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "90–250 V 单相进、390 V 母线、550 W 直驱伺服；停针 ±1°。",
+   "summary_en": "90–250 V single phase, 390 V bus, 550 W direct-drive servo; needle stop ±1°.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "母线",
+     "name_en": "Bus",
+     "value": "390",
+     "unit": "V"
+    },
+    {
+     "name": "电机",
+     "name_en": "Motor",
+     "value": "550",
+     "unit": "W"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "功率和主控做在一块板上，主控以母线负端为地、对人能碰到的接口隔离；磁场定向控制 + 缝纫状态机。",
+   "summary_en": "Power and control on one board, control referenced to bus minus, isolated towards touchable ports; FOC plus a sewing state machine.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": []
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "母线 390 V、输入约 7.9 A；功能块校核：通过 9、不通过 0、待核对 60（第 159 轮在做）。",
+   "summary_en": "390 V bus, about 7.9 A input; block checks: 9 pass, 0 fail, 60 pending (round 159 in progress).",
+   "md": "3_计算.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "电路分析",
+     "label_en": "Circuit analysis",
+     "route": "/circuit"
+    }
+   ],
+   "facts": [
+    {
+     "name": "通过",
+     "name_en": "Pass",
+     "value": "9",
+     "unit": ""
+    },
+    {
+     "name": "不通过",
+     "name_en": "Fail",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "待核对",
+     "name_en": "Pending",
+     "value": "60",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "速度环 40 Hz：98 ms 到 5000 r/min，停针误差 -0.04°；板上最热 102 ℃。",
+   "summary_en": "40 Hz speed loop: 5000 rpm in 98 ms, needle stop error -0.04°; hottest board spot 102 °C.",
+   "md": "4_仿真.md",
+   "figs": [
+    {
+     "file": "4_工作周期.png",
+     "caption": "一个工作周期（GC 仿真）",
+     "caption_en": "One work cycle (GC simulation)"
+    },
+    {
+     "file": "4_速度环带宽.png",
+     "caption": "速度环带宽的取舍",
+     "caption_en": "Speed-loop bandwidth trade-off"
+    }
+   ],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "停针误差",
+     "name_en": "Stop error",
+     "value": "-0.04",
+     "unit": "°"
+    },
+    {
+     "name": "板上最热",
+     "name_en": "Hottest spot",
+     "value": "102",
+     "unit": "℃"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "KiCad 工程由设计描述生成；物料清单 95 行（真型号、立创编号）；顶层铜、三维模型。",
+   "summary_en": "KiCad project generated from the design description; 95-line BOM (real parts, LCSC numbers); top copper and 3D model.",
+   "md": "5_电路板.md",
+   "figs": [
+    {
+     "file": "5_顶层铜.png",
+     "caption": "顶层铜（KiCad 产物）",
+     "caption_en": "Top copper (KiCad output)"
+    }
+   ],
+   "files": [
+    {
+     "file": "5_ctrl-ls.step",
+     "label": "电路板三维模型（STEP）",
+     "label_en": "Board 3D model (STEP)"
+    }
+   ],
+   "tools": [
+    {
+     "label": "电路板设计",
+     "label_en": "PCB design",
+     "route": "/pcb-design"
+    }
+   ],
+   "facts": []
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "贴片可制造性 15 项：不通过 0；进厂后在出厂测试工位烧固件、量停针。",
+   "summary_en": "15 manufacturability checks, 0 failed; firmware flashed and needle stop measured at end-of-line.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "工艺检查",
+     "name_en": "Process checks",
+     "value": "15",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "40 台出厂测试：停针误差 Cpk 1.62，不合格 0。",
+   "summary_en": "40 machines at end-of-line: needle-stop Cpk 1.62, 0 failures.",
+   "md": "7_制造与测试.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "车间执行",
+     "label_en": "Shop floor",
+     "route": "/work/operator"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    }
+   ],
+   "facts": [
+    {
+     "name": "不合格",
+     "name_en": "Out of tolerance",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "Cpk",
+     "name_en": "Cpk",
+     "value": "1.62",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "6 / 6 项校核通过；待核对 60 项（第 159 轮在做）。",
+   "summary_en": "6 / 6 checks pass; 60 items pending (round 159 in progress).",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "calc",
+   "what": "电气校核不通过项",
+   "what_en": "Electrical checks failed",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "第 159 轮计算书"
+  },
+  {
+   "step": "sim",
+   "what": "停针误差（仿真）",
+   "what_en": "Needle-stop error (simulation)",
+   "value": "0.04",
+   "op": "<=",
+   "limit": "1",
+   "unit": "°",
+   "ok": true,
+   "src": "出厂测试 lsa_stop"
+  },
+  {
+   "step": "sim",
+   "what": "板上最高温度",
+   "what_en": "Hottest board temperature",
+   "value": "102",
+   "op": "<=",
+   "limit": "105",
+   "unit": "℃",
+   "ok": true,
+   "src": "第 159 轮热检查"
+  },
+  {
+   "step": "process",
+   "what": "贴片可制造性不通过项",
+   "what_en": "Manufacturability checks failed",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "第 159 轮板子报告"
+  },
+  {
+   "step": "make",
+   "what": "停针误差不合格",
+   "what_en": "Needle-stop failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "出厂测试"
+  },
+  {
+   "step": "make",
+   "what": "停针误差 Cpk",
+   "what_en": "Needle-stop Cpk",
+   "value": "1.62",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算.md",
+  "4_仿真.md",
+  "4_工作周期.png",
+  "4_速度环带宽.png",
+  "5_ctrl-ls.step",
+  "5_电路板.md",
+  "5_顶层铜.png",
+  "6_工艺.md",
+  "7_制造与测试.md",
+  "8_总结.md"
+ ]
+}
