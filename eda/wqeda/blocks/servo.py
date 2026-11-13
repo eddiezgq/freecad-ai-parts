@@ -209,6 +209,7 @@ def calc_low_side_sense(block, spec, d, parts):
     mo = motor(spec)
     g, vref = p["gain"], p["v_ref"]
     r_in, r_b = p["r_in"], p["r_bias"]
+    gains = dev.value(p["mcu"], "pga_gains") if p.get("mcu") else None
     k = r_b / (r_in + r_b)
     v0 = g * vref * r_in / (r_in + r_b)
     i_fs = None if r is None else min(v0, vref - v0) / (g * k * r)
@@ -224,8 +225,14 @@ def calc_low_side_sense(block, spec, d, parts):
             source=dev.source(rs_part, "r"),
             note="G = {:g}，V_ref = {:g} V，k = {:.4g}".format(g, vref, k),
         ),
-        c.item("v_zero", "零电流时运放输出（零点）", v0, "V", "V_零 = G · V_ref · R_in/(R_in + R_b)",
-               note="R_in = {}，R_b = {}".format(c.fmt(r_in), c.fmt(r_b))),
+        c.item(
+            "v_zero",
+            "零电流时运放输出（零点）",
+            v0,
+            "V",
+            "V_零 = G · V_ref · R_in/(R_in + R_b)",
+            note="R_in = {}，R_b = {}".format(c.fmt(r_in), c.fmt(r_b)),
+        ),
         c.item("p_pk", "采样电阻功耗（峰值力矩持续时）", p_pk, "W", "(I_峰/√2)² · R"),
         c.item(
             "v_trip",
@@ -263,11 +270,12 @@ def calc_low_side_sense(block, spec, d, parts):
             "pga_gain",
             "MCU 片内运放能设成这个增益",
             g,
-            None,
+            None if gains is None else ("有" if g in gains else "没有"),
             "",
             "片内 PGA 可选增益含 G",
-            status=c.UNKNOWN,
-            note="STM32G431 的运放增益档位没录进 eda/parts（参考手册），待补",
+            status=stat(dev, [(p["mcu"], "pga_gains")], None if gains is None else g in gains),
+            source=dev.source(p["mcu"], "pga_gains"),
+            note="" if gains is None else "可选：" + "、".join(str(x) for x in gains),
         ),
         dev.judge(p["ipm"], "ic_25c", "过流门限不超过模块电流", i_trip, "A", "I_C ≥ I_跳"),
     ]
@@ -348,33 +356,67 @@ def calc_stepper(block, spec, d, parts):
         dev.in_range(drv, "vs_op", "24 V（含波动）在驱动器工作范围", v, "V"),
         dev.judge(drv, "i_rms_cont", "驱动器连续电流", p["i_coil_rms"], "A", "I_RMS,连续 ≥ 线圈电流"),
     ]
+    if "r_sense" in p:  # 159d2：VREF 分压设电流
+        vref = p["v_5vout"] * p["r_vref_bot"] / (p["r_vref_top"] + p["r_vref_bot"])
+        i_set = 0.325 / (p["r_sense"] + 0.02) / math.sqrt(2) * min(vref, 2.5) / 2.5
+        items += [
+            c.item("v_vref", "VREF 电压", vref, "V", "V_5VOUT · R_下/(R_上 + R_下)"),
+            c.item(
+                "i_set",
+                "设定的线圈电流（有效值）",
+                i_set,
+                "A",
+                "I = 0.325 V / (R_采样 + 0.02 Ω) / √2 × V_REF / 2.5 V",
+                note="TMC22xx 的电流式子（采样 0.11 Ω、V_REF 2.5 V 时 1.77 A，与 FYSETC TMC2226 资料一致）；"
+                "待核对 TMC2226 规格书",
+            ),
+        ]
+        ok = abs(i_set - p["i_coil_rms"]) <= 0.1 * p["i_coil_rms"]
+        checks.append(
+            c.judge(
+                "i_set",
+                "设定电流与线圈电流相差 ≤ 10 %",
+                p["i_coil_rms"],
+                i_set,
+                "A",
+                "|I_设 − I_线圈| ≤ 10 %",
+                status=c.PENDING if ok else c.FAIL,
+                note="式子待核对规格书，所以只判到“待核对”",
+            )
+        )
     return items, checks
 
 
 def calc_panel_iso(block, spec, d, parts):
-    """面板口：数字隔离 + 隔离电源 + RS-485。隔离耐压的规格书本轮还没录：如实判“未知”，159d 前补。"""
-    p = block["params"]
-    items = [c.item("baud", "面板串口速率", p["baud"], "bit/s", note="设计给定")]
+    """面板口：数字隔离 + 隔离电源 + RS-485。隔离耐压要求 iso_need_v 是示例值（按直流 1 分钟），企业按安规表填。
+    159d2 起两颗器件的隔离耐压从规格书读（eda/parts）：数字隔离器给的是交流有效值，按峰值 √2 倍和直流要求比。"""
+    p, dev = block["params"], d["devices"]
+    need = p["iso_need_v"]
+    v_ac = dev.value(p["isolator"], "v_iso_rms")
+    items = [
+        c.item("baud", "面板串口速率", p["baud"], "bit/s", note="设计给定"),
+        c.item(
+            "iso_pk",
+            "数字隔离器耐压（峰值）",
+            None if v_ac is None else v_ac * math.sqrt(2),
+            "V",
+            "√2 × V_iso,rms",
+            source=dev.source(p["isolator"], "v_iso_rms"),
+        ),
+    ]
+    st = stat(dev, [(p["isolator"], "v_iso_rms")], None if v_ac is None else v_ac * math.sqrt(2) >= need)
     checks = [
         c.judge(
             "iso_v",
             "数字隔离器隔离耐压",
-            p["iso_need_v"],
-            None,
+            need,
+            None if v_ac is None else v_ac * math.sqrt(2),
             "V",
-            "耐压 ≥ 要求",
-            status=c.UNKNOWN,
-            note="{} 规格书未录（隔离耐压要求 {:g} V 是示例值，企业按安规表填）".format(p["isolator"], p["iso_need_v"]),
+            "√2 × V_iso,rms ≥ 要求（直流 1 分钟，示例值）",
+            status=st,
+            source=dev.source(p["isolator"], "v_iso_rms"),
         ),
-        c.judge(
-            "dcdc_v",
-            "隔离电源隔离耐压",
-            p["iso_need_v"],
-            None,
-            "V",
-            "耐压 ≥ 要求",
-            status=c.UNKNOWN,
-            note="{} 规格书未录".format(p["dcdc"]),
-        ),
+        dev.judge(p["dcdc"], "v_iso_dc", "隔离电源隔离耐压", need, "V", "V_iso（直流 1 分钟）≥ 要求"),
+        dev.in_range(p["isolator"], "vdd_range", "数字隔离器两侧供电 3.3 V 在范围内", 3.3, "V"),
     ]
     return items, checks

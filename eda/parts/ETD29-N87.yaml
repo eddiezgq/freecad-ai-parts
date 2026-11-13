@@ -1,0 +1,15 @@
+# 反激变压器磁芯（平缝机控制器 CTRL-LS，第 159 轮 159d2b：定制件按理论选磁芯）。EPCOS ETD 29/16/10（B66358）+ 卧式骨架 B66359A1013T001（13 脚，
+# KiCad 官方库有它的封装 Transformer_EPCOS_B66359A1013T_Horizontal）。规格书 2001/2003 年版（sea.com.ua 转存）：checked: false。
+format: wqeda.part/1
+part: ETD29-N87
+maker: TDK (EPCOS)
+datasheet:
+  title: ETD 29/16/10 core B66358, coil former B66359 (Ferrites and accessories)
+  revision: core 08/01, accessories 18.09.03
+  url: https://storage.sea.com.ua/tech_info//epcos/B66358, B66359.pdf
+params:
+  ae: {value: 76.0e-6, unit: m², kind: typ, condition: effective cross section Ae per set, where: p.477, checked: false}
+  le: {value: 70.4e-3, unit: m, kind: typ, condition: effective magnetic path length le, where: p.477, checked: false}
+  ve: {value: 5350.0e-9, unit: m³, kind: typ, condition: effective volume Ve, where: p.477, checked: false}
+  an: {value: 97.0e-6, unit: m², kind: typ, condition: coil former B66359 winding cross section AN (horizontal, 13 pins), where: accessories page, checked: false}
+  ln: {value: 52.8e-3, unit: m, kind: typ, condition: coil former average length of turn lN, where: accessories page, checked: false}

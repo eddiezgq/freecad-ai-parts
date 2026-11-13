@@ -1,0 +1,38 @@
+# 面板口隔离电源（平缝机控制器 CTRL-LS，第 159 轮 159d2）。立创上的这一颗是 YLPTEC 的同名型号；能读到文字的是这个系列原版 Mornsun 的规格书，
+# 按它录（同系列同名型号按原版规格书兼容，待核对 YLPTEC 的规格书）。网页工具读出文字录入：checked: false。
+format: wqeda.part/1
+part: B0505S-1WR2
+maker: YLPTEC（系列原版 Mornsun）
+datasheet:
+  title: Mornsun B_S-1WR2 & B_D-1WR2 Series, 1W isolated DC-DC converter
+  revision: 2013.06.18-A/2
+  url: https://mantech.co.za/datasheets/products/b_s-1wr2.pdf
+params:
+  v_iso_dc:
+    value: 1500
+    unit: V
+    kind: min
+    condition: isolation voltage input-output, VDC, tested for 1 minute, leakage current < 1 mA
+    where: p.1 general characteristics
+    checked: false
+  i_out_max:
+    value: 0.2
+    unit: A
+    kind: max
+    condition: B0505S-1WR2 output current (min 20 mA = 10 % minimum load)
+    where: p.1 product selection table
+    checked: false
+  c_in_rec:
+    value: 4.7e-6
+    unit: F
+    kind: typ
+    condition: recommended input capacitor, Vin 3.3/5 V
+    where: Table 1
+    checked: false
+  c_out_rec:
+    value: 10.0e-6
+    unit: F
+    kind: typ
+    condition: recommended output capacitor, Vo 3.3/5 V
+    where: Table 1
+    checked: false

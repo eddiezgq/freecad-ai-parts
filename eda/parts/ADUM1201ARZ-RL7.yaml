@@ -1,0 +1,45 @@
+# 面板口数字隔离（平缝机控制器 CTRL-LS，第 159 轮 159d2）。数值摘自 ADI 官网规格书，网页工具读出文字录入，未逐页对照原图：checked: false。
+format: wqeda.part/1
+part: ADUM1201ARZ-RL7
+maker: Analog Devices
+datasheet:
+  title: ADuM1200/ADuM1201 Dual-Channel Digital Isolators
+  revision: Rev. L, 3/2025
+  url: https://www.analog.com/media/en/technical-documentation/data-sheets/ADUM1200_1201.pdf
+params:
+  v_iso_rms:
+    value: 2500
+    unit: V
+    kind: min
+    condition: input-to-output momentary withstand voltage, V rms, 1 minute (UL 1577 single protection)
+    where: p.21 Table 9, Table 10
+    checked: false
+  creepage_min:
+    value: 4.0
+    unit: mm
+    kind: min
+    condition: minimum external tracking (creepage), R-8 SOIC
+    where: p.21 Table 10
+    checked: false
+  clearance_min:
+    value: 4.0
+    unit: mm
+    kind: min
+    condition: minimum external air gap (clearance), R-8 SOIC
+    where: p.21 Table 10
+    checked: false
+  v_iowm:
+    value: 396
+    unit: V
+    kind: max
+    condition: maximum working insulation voltage, V rms
+    where: p.22 Table 11
+    checked: false
+  vdd_range:
+    min: 2.7
+    max: 5.5
+    unit: V
+    kind: range
+    condition: supply voltage VDD1, VDD2 (standard 105 °C parts)
+    where: p.23 Table 12
+    checked: false

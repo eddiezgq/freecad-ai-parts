@@ -2,7 +2,7 @@
 """第 98 轮：工程自带符号库 ../libs/wq.kicad_sym——编码器接口芯片 WQ-ENCIF（第 92 轮）的原理图符号，引脚按细则 B-3。
 封装用 KiCad 官方库的 QFN-16 3×3 mm。用法：python3 wq_symbols.py（产物入库，逐字可复现）。示例设计，未流片。
 第 159 轮 159d1 加平缝机控制器 CTRL-LS 用的三个：升压电感 L_PFC、反激变压器 Transformer_FLY3（一初级三次级，共地）、
-隔离电源 B0505S（KiCad 官方库没有这几样；磁性元件是定制件，封装 159d2 定）。"""
+隔离电源 B0505S（KiCad 官方库没有这几样；159d2b 磁芯按理论选定：电感 ETD59、变压器 ETD29）。"""
 import os
 
 from sexp import Sym, dump
@@ -51,11 +51,11 @@ def box(name, ref, value, fp, desc, pins, w=7.62, h=None):
 
 
 CTRL_LS = [
-    box("L_PFC", "L", "L_PFC", "wq:Magnetics_TBD", "升压电感（平缝机控制器 CTRL-LS，定制件；磁芯 159d2 定）",
+    box("L_PFC", "L", "L_PFC", "wq:L_ETD59_Horizontal", "升压电感（平缝机控制器 CTRL-LS，定制件；ETD59 磁芯按理论选，见计算书）",
         [("1", "1", "passive", "L", 0), ("2", "2", "passive", "R", 0)], w=5.08, h=2.54),
-    box("Transformer_FLY3", "T", "FLY3", "wq:Magnetics_TBD", "反激变压器：一初级（1 起、2 末）三次级（3/4、5/6、7/8），定制件",
-        [("1", "P+", "passive", "L", 0), ("2", "P-", "passive", "L", 2), ("3", "S1+", "passive", "R", 0), ("4", "S1-", "passive", "R", 1),
-         ("5", "S2+", "passive", "R", 2), ("6", "S2-", "passive", "R", 3), ("7", "S3+", "passive", "R", 4), ("8", "S3-", "passive", "R", 5)]),
+    box("Transformer_FLY3", "T", "FLY3", "Transformer_THT:Transformer_EPCOS_B66359A1013T_Horizontal", "反激变压器：一初级（1 起、3 末）三次级（8/9、10/11、12/13），定制件；引脚号按 ETD29 卧式骨架 B66359A1013T（13 脚）",
+        [("1", "P+", "passive", "L", 0), ("3", "P-", "passive", "L", 2), ("8", "S1+", "passive", "R", 0), ("9", "S1-", "passive", "R", 1),
+         ("10", "S2+", "passive", "R", 2), ("11", "S2-", "passive", "R", 3), ("12", "S3+", "passive", "R", 4), ("13", "S3-", "passive", "R", 5)]),
     box("B0505S", "U", "B0505S", "wq:Converter_SIP4_B0505S", "隔离电源模块 5 V → 5 V 1 W（SIP-4：1 GND、2 Vin、3 0V、4 +Vo，待核对规格书）",
         [("2", "Vin", "power_in", "L", 0), ("1", "GND", "power_in", "L", 1), ("4", "+Vo", "power_out", "R", 0), ("3", "0V", "power_out", "R", 1)]),
 ]

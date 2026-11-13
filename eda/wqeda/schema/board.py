@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """板子层（L4）新加的字段（第 111 轮 P4）：网络分类、叠层、设计规则、热分析条件、布局约束。只做格式校验，不判对错。
 
-    net_classes  [{name, track_mm, clearance_mm, nets, layers?}]   布线器的线宽 / 间距类别
+    net_classes  [{name, track_mm, clearance_mm, nets, layers?, route_mm?}]
+                 布线器的线宽 / 间距类别（route_mm：布线时先用的细线宽，第 159 轮）
+    class_pairs  [{a: [类名], b: [类名], clearance_mm}]            分类之间的布线间距（第 159 轮；Default = 其余网络）
     stackup      {thickness_mm, outer_oz, inner_oz, source}        板厚、铜厚（大电流线宽、热分析用）
     rules        {trace_dt_c, ict_coverage_min, source}            设计规则：允许的走线温升、ICT 覆盖率要求
     thermal      {ambient_c, h_w_m2k, f_pwm_hz, source, heat:[...]}
@@ -40,8 +42,19 @@ def validate(bd, refs):
             p.append("网络分类 {} 的 track_mm、clearance_mm 应是正数".format(c.get("name")))
         if not isinstance(c.get("nets"), list) or not c["nets"]:
             p.append("网络分类 {} 应列出 nets".format(c.get("name")))
+        rw = c.get("route_mm")
+        if rw is not None and not (_pos(rw) and _pos(c.get("track_mm")) and rw <= c["track_mm"]):
+            p.append("网络分类 {} 的 route_mm（布线时线宽）应是不大于 track_mm 的正数".format(c.get("name")))
         if c.get("layers") is not None and not isinstance(c["layers"], list):
             p.append("网络分类 {} 的 layers 应是列表".format(c.get("name")))
+    names = {c.get("name") for c in bd.get("net_classes") or []} | {"Default"}
+    for q in bd.get("class_pairs") or []:
+        if not _pos(q.get("clearance_mm")):
+            p.append("class_pairs 的 clearance_mm 应是正数")
+        for k in ("a", "b"):
+            v = q.get(k)
+            if not isinstance(v, list) or not v or any(n not in names for n in v):
+                p.append("class_pairs 的 {} 应列出已定义的网络分类（或 Default）：{}".format(k, v))
     st = bd.get("stackup")
     if st is not None:
         for k in ("thickness_mm", "outer_oz", "inner_oz"):

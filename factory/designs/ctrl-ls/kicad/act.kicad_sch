@@ -4937,7 +4937,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "0.12"
+    (property "Value" "120m"
       (at 276.86 185.42 0)
       (effects
         (font
@@ -5028,7 +5028,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "0.12"
+    (property "Value" "120m"
       (at 337.82 185.42 0)
       (effects
         (font
@@ -5665,7 +5665,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "10k"
+    (property "Value" "22k"
       (at 238.76 281.94 0)
       (effects
         (font
@@ -5685,7 +5685,7 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "VREF 分压（电流设定，见计算书；关系式待核对）"
+    (property "说明" "VREF 分压：线圈电流见计算书"
       (at 238.76 274.32 0)
       (effects
         (font
@@ -5756,7 +5756,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "22k"
+    (property "Value" "10k"
       (at 299.72 281.94 0)
       (effects
         (font

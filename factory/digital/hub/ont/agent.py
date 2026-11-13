@@ -1997,6 +1997,12 @@ class Rules:
         # 同一条规则最多列 2 个，其余合并成一句（例如多台设备单点依赖）；先保证每条规则至少列 1 个，再补到 20 个——
         # 异常一多（例如培训过期随日期增加），排在后面的规则也不会整条被挤掉（第 161 轮：评测 A01 偶发失败）
         rule = lambda a: a.get("rule") or a["key"]  # noqa: E731
+        # 同一条规则里按编号从小到大（开着最久的先列）：清单按“最近一次出现”排，同规则里谁先随运行快慢变，
+        # 每条规则只列得下 1 个时会换来换去（第 159 轮查 CI 上评测 A01 时发现）；不同规则之间仍按严重程度
+        first = {}
+        for i, a in enumerate(lst):
+            first.setdefault(rule(a), i)
+        lst = sorted(lst, key=lambda a: (first[rule(a)], a["id"]))
         pick, per = set(), {}
         for i, a in enumerate(lst):
             if rule(a) not in per:

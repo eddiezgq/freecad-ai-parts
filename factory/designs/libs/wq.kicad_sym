@@ -243,7 +243,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "wq:Magnetics_TBD"
+    (property "Footprint" "wq:L_ETD59_Horizontal"
       (at 0 -6.35 0)
       (effects
         (font
@@ -253,7 +253,7 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "ki_description" "升压电感（平缝机控制器 CTRL-LS，定制件；磁芯 159d2 定）"
+    (property "ki_description" "升压电感（平缝机控制器 CTRL-LS，定制件；ETD59 磁芯按理论选，见计算书）"
       (at 0 0 0)
       (effects
         (font
@@ -305,7 +305,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "wq:Magnetics_TBD"
+    (property "Footprint" "Transformer_THT:Transformer_EPCOS_B66359A1013T_Horizontal"
       (at 0 -13.97 0)
       (effects
         (font
@@ -315,7 +315,7 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "ki_description" "反激变压器：一初级（1 起、2 末）三次级（3/4、5/6、7/8），定制件"
+    (property "ki_description" "反激变压器：一初级（1 起、3 末）三次级（8/9、10/11、12/13），定制件；引脚号按 ETD29 卧式骨架 B66359A1013T（13 脚）"
       (at 0 0 0)
       (effects
         (font
@@ -348,7 +348,7 @@
           (effects
             (font
               (size 1.27 1.27))))
-        (number "2"
+        (number "3"
           (effects
             (font
               (size 1.27 1.27)))))
@@ -359,7 +359,7 @@
           (effects
             (font
               (size 1.27 1.27))))
-        (number "3"
+        (number "8"
           (effects
             (font
               (size 1.27 1.27)))))
@@ -370,7 +370,7 @@
           (effects
             (font
               (size 1.27 1.27))))
-        (number "4"
+        (number "9"
           (effects
             (font
               (size 1.27 1.27)))))
@@ -381,7 +381,7 @@
           (effects
             (font
               (size 1.27 1.27))))
-        (number "5"
+        (number "10"
           (effects
             (font
               (size 1.27 1.27)))))
@@ -392,7 +392,7 @@
           (effects
             (font
               (size 1.27 1.27))))
-        (number "6"
+        (number "11"
           (effects
             (font
               (size 1.27 1.27)))))
@@ -403,7 +403,7 @@
           (effects
             (font
               (size 1.27 1.27))))
-        (number "7"
+        (number "12"
           (effects
             (font
               (size 1.27 1.27)))))
@@ -414,7 +414,7 @@
           (effects
             (font
               (size 1.27 1.27))))
-        (number "8"
+        (number "13"
           (effects
             (font
               (size 1.27 1.27)))))))

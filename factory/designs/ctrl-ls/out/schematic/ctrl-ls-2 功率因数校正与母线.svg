@@ -19188,20 +19188,6 @@ stroke-linecap:round; stroke-linejoin:round;">
 <g style="fill:#840000; fill-opacity:0.0; 
 stroke:#840000; stroke-width:0.1524; stroke-opacity:1; 
 stroke-linecap:round; stroke-linejoin:round;">
-</g>
-<g style="fill:#840000; fill-opacity:0.0; 
-stroke:#840000; stroke-width:0.2540; stroke-opacity:1; 
-stroke-linecap:round; stroke-linejoin:round;">
-<path style="fill:#840000; fill-opacity:0.0; 
-stroke:#840000; stroke-width:0.2540; stroke-opacity:1; 
-stroke-linecap:round; stroke-linejoin:round;fill:none"
-d="M 524.5100,52.0700
-524.5100,54.6100
-" /> 
-</g>
-<g style="fill:#840000; fill-opacity:0.0; 
-stroke:#840000; stroke-width:0.1524; stroke-opacity:1; 
-stroke-linecap:round; stroke-linejoin:round;">
 <path style="fill:#840000; fill-opacity:0.0; 
 stroke:#840000; stroke-width:0.1524; stroke-opacity:1; 
 stroke-linecap:round; stroke-linejoin:round;fill:none"
@@ -19219,6 +19205,16 @@ d="M 527.0500,52.0700
 527.0500,54.6100
 524.5100,53.3400
 Z" /> 
+<path style="fill:#840000; fill-opacity:0.0; 
+stroke:#840000; stroke-width:0.2540; stroke-opacity:1; 
+stroke-linecap:round; stroke-linejoin:round;fill:none"
+d="M 523.8750,52.7050
+523.8750,52.0700
+524.5100,52.0700
+524.5100,54.6100
+525.1450,54.6100
+525.1450,53.9750
+" /> 
 </g>
 <g style="fill:#840000; fill-opacity:0.0; 
 stroke:#840000; stroke-width:0.1524; stroke-opacity:1; 

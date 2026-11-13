@@ -373,6 +373,7 @@ def expand(doc, var=None):
         "power_pads": {net: [tuple(x) for x in pads] for net, pads in (bd.get("power_pads") or {}).items()},
         "pours": [(q["net"], q["layer"], [tuple(xy) for xy in q["points"]]) for q in bd.get("pours") or []],
         "net_classes": _net_classes(bd, parts),
+        "class_pairs": copy.deepcopy(bd.get("class_pairs") or []),
         "stackup": dict(bd.get("stackup") or {}),
         "rules": dict(bd.get("rules") or {}),
         "thermal": copy.deepcopy(bd.get("thermal") or {}),

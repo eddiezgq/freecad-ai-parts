@@ -1,0 +1,217 @@
+(version 1)
+(rule "AC_L-AC_N"
+  (condition "(A.NetClass == 'AC_L' && B.NetClass == 'AC_N') || (A.NetClass == 'AC_N' && B.NetClass == 'AC_L')")
+  (constraint clearance (min 2.6mm)))
+(rule "AC_L-HV"
+  (condition "(A.NetClass == 'AC_L' && B.NetClass == 'HV') || (A.NetClass == 'HV' && B.NetClass == 'AC_L')")
+  (constraint clearance (min 1.4mm)))
+(rule "AC_L-HVSig"
+  (condition "(A.NetClass == 'AC_L' && B.NetClass == 'HVSig') || (A.NetClass == 'HVSig' && B.NetClass == 'AC_L')")
+  (constraint clearance (min 1.4mm)))
+(rule "AC_L-Boot"
+  (condition "(A.NetClass == 'AC_L' && B.NetClass == 'Boot') || (A.NetClass == 'Boot' && B.NetClass == 'AC_L')")
+  (constraint clearance (min 1.4mm)))
+(rule "AC_N-HV"
+  (condition "(A.NetClass == 'AC_N' && B.NetClass == 'HV') || (A.NetClass == 'HV' && B.NetClass == 'AC_N')")
+  (constraint clearance (min 1.4mm)))
+(rule "AC_N-HVSig"
+  (condition "(A.NetClass == 'AC_N' && B.NetClass == 'HVSig') || (A.NetClass == 'HVSig' && B.NetClass == 'AC_N')")
+  (constraint clearance (min 1.4mm)))
+(rule "AC_N-Boot"
+  (condition "(A.NetClass == 'AC_N' && B.NetClass == 'Boot') || (A.NetClass == 'Boot' && B.NetClass == 'AC_N')")
+  (constraint clearance (min 1.4mm)))
+(rule "AC_L-Return"
+  (condition "(A.NetClass == 'AC_L' && B.NetClass == 'Return') || (A.NetClass == 'Return' && B.NetClass == 'AC_L')")
+  (constraint clearance (min 2.2mm)))
+(rule "AC_L-Shunt"
+  (condition "(A.NetClass == 'AC_L' && B.NetClass == 'Shunt') || (A.NetClass == 'Shunt' && B.NetClass == 'AC_L')")
+  (constraint clearance (min 2.2mm)))
+(rule "AC_L-IpmIn"
+  (condition "(A.NetClass == 'AC_L' && B.NetClass == 'IpmIn') || (A.NetClass == 'IpmIn' && B.NetClass == 'AC_L')")
+  (constraint clearance (min 2.2mm)))
+(rule "AC_L-Vcc15"
+  (condition "(A.NetClass == 'AC_L' && B.NetClass == 'Vcc15') || (A.NetClass == 'Vcc15' && B.NetClass == 'AC_L')")
+  (constraint clearance (min 2.2mm)))
+(rule "AC_L-Power"
+  (condition "(A.NetClass == 'AC_L' && B.NetClass == 'Power') || (A.NetClass == 'Power' && B.NetClass == 'AC_L')")
+  (constraint clearance (min 2.2mm)))
+(rule "AC_L-Ground"
+  (condition "(A.NetClass == 'AC_L' && B.NetClass == 'Ground') || (A.NetClass == 'Ground' && B.NetClass == 'AC_L')")
+  (constraint clearance (min 2.2mm)))
+(rule "AC_L-Default"
+  (condition "(A.NetClass == 'AC_L' && B.NetClass == 'Default') || (A.NetClass == 'Default' && B.NetClass == 'AC_L')")
+  (constraint clearance (min 2.2mm)))
+(rule "AC_N-Return"
+  (condition "(A.NetClass == 'AC_N' && B.NetClass == 'Return') || (A.NetClass == 'Return' && B.NetClass == 'AC_N')")
+  (constraint clearance (min 2.2mm)))
+(rule "AC_N-Shunt"
+  (condition "(A.NetClass == 'AC_N' && B.NetClass == 'Shunt') || (A.NetClass == 'Shunt' && B.NetClass == 'AC_N')")
+  (constraint clearance (min 2.2mm)))
+(rule "AC_N-IpmIn"
+  (condition "(A.NetClass == 'AC_N' && B.NetClass == 'IpmIn') || (A.NetClass == 'IpmIn' && B.NetClass == 'AC_N')")
+  (constraint clearance (min 2.2mm)))
+(rule "AC_N-Vcc15"
+  (condition "(A.NetClass == 'AC_N' && B.NetClass == 'Vcc15') || (A.NetClass == 'Vcc15' && B.NetClass == 'AC_N')")
+  (constraint clearance (min 2.2mm)))
+(rule "AC_N-Power"
+  (condition "(A.NetClass == 'AC_N' && B.NetClass == 'Power') || (A.NetClass == 'Power' && B.NetClass == 'AC_N')")
+  (constraint clearance (min 2.2mm)))
+(rule "AC_N-Ground"
+  (condition "(A.NetClass == 'AC_N' && B.NetClass == 'Ground') || (A.NetClass == 'Ground' && B.NetClass == 'AC_N')")
+  (constraint clearance (min 2.2mm)))
+(rule "AC_N-Default"
+  (condition "(A.NetClass == 'AC_N' && B.NetClass == 'Default') || (A.NetClass == 'Default' && B.NetClass == 'AC_N')")
+  (constraint clearance (min 2.2mm)))
+(rule "HV-Return"
+  (condition "(A.NetClass == 'HV' && B.NetClass == 'Return') || (A.NetClass == 'Return' && B.NetClass == 'HV')")
+  (constraint clearance (min 2.2mm)))
+(rule "HV-Shunt"
+  (condition "(A.NetClass == 'HV' && B.NetClass == 'Shunt') || (A.NetClass == 'Shunt' && B.NetClass == 'HV')")
+  (constraint clearance (min 2.2mm)))
+(rule "HV-IpmIn"
+  (condition "(A.NetClass == 'HV' && B.NetClass == 'IpmIn') || (A.NetClass == 'IpmIn' && B.NetClass == 'HV')")
+  (constraint clearance (min 2.2mm)))
+(rule "HV-Vcc15"
+  (condition "(A.NetClass == 'HV' && B.NetClass == 'Vcc15') || (A.NetClass == 'Vcc15' && B.NetClass == 'HV')")
+  (constraint clearance (min 2.2mm)))
+(rule "HV-Power"
+  (condition "(A.NetClass == 'HV' && B.NetClass == 'Power') || (A.NetClass == 'Power' && B.NetClass == 'HV')")
+  (constraint clearance (min 2.2mm)))
+(rule "HV-Ground"
+  (condition "(A.NetClass == 'HV' && B.NetClass == 'Ground') || (A.NetClass == 'Ground' && B.NetClass == 'HV')")
+  (constraint clearance (min 2.2mm)))
+(rule "HV-Default"
+  (condition "(A.NetClass == 'HV' && B.NetClass == 'Default') || (A.NetClass == 'Default' && B.NetClass == 'HV')")
+  (constraint clearance (min 2.2mm)))
+(rule "HVSig-Return"
+  (condition "(A.NetClass == 'HVSig' && B.NetClass == 'Return') || (A.NetClass == 'Return' && B.NetClass == 'HVSig')")
+  (constraint clearance (min 2.2mm)))
+(rule "HVSig-Shunt"
+  (condition "(A.NetClass == 'HVSig' && B.NetClass == 'Shunt') || (A.NetClass == 'Shunt' && B.NetClass == 'HVSig')")
+  (constraint clearance (min 2.2mm)))
+(rule "HVSig-IpmIn"
+  (condition "(A.NetClass == 'HVSig' && B.NetClass == 'IpmIn') || (A.NetClass == 'IpmIn' && B.NetClass == 'HVSig')")
+  (constraint clearance (min 2.2mm)))
+(rule "HVSig-Vcc15"
+  (condition "(A.NetClass == 'HVSig' && B.NetClass == 'Vcc15') || (A.NetClass == 'Vcc15' && B.NetClass == 'HVSig')")
+  (constraint clearance (min 2.2mm)))
+(rule "HVSig-Power"
+  (condition "(A.NetClass == 'HVSig' && B.NetClass == 'Power') || (A.NetClass == 'Power' && B.NetClass == 'HVSig')")
+  (constraint clearance (min 2.2mm)))
+(rule "HVSig-Ground"
+  (condition "(A.NetClass == 'HVSig' && B.NetClass == 'Ground') || (A.NetClass == 'Ground' && B.NetClass == 'HVSig')")
+  (constraint clearance (min 2.2mm)))
+(rule "HVSig-Default"
+  (condition "(A.NetClass == 'HVSig' && B.NetClass == 'Default') || (A.NetClass == 'Default' && B.NetClass == 'HVSig')")
+  (constraint clearance (min 2.2mm)))
+(rule "Boot-Return"
+  (condition "(A.NetClass == 'Boot' && B.NetClass == 'Return') || (A.NetClass == 'Return' && B.NetClass == 'Boot')")
+  (constraint clearance (min 2.2mm)))
+(rule "Boot-Shunt"
+  (condition "(A.NetClass == 'Boot' && B.NetClass == 'Shunt') || (A.NetClass == 'Shunt' && B.NetClass == 'Boot')")
+  (constraint clearance (min 2.2mm)))
+(rule "Boot-IpmIn"
+  (condition "(A.NetClass == 'Boot' && B.NetClass == 'IpmIn') || (A.NetClass == 'IpmIn' && B.NetClass == 'Boot')")
+  (constraint clearance (min 2.2mm)))
+(rule "Boot-Vcc15"
+  (condition "(A.NetClass == 'Boot' && B.NetClass == 'Vcc15') || (A.NetClass == 'Vcc15' && B.NetClass == 'Boot')")
+  (constraint clearance (min 2.2mm)))
+(rule "Boot-Power"
+  (condition "(A.NetClass == 'Boot' && B.NetClass == 'Power') || (A.NetClass == 'Power' && B.NetClass == 'Boot')")
+  (constraint clearance (min 2.2mm)))
+(rule "Boot-Ground"
+  (condition "(A.NetClass == 'Boot' && B.NetClass == 'Ground') || (A.NetClass == 'Ground' && B.NetClass == 'Boot')")
+  (constraint clearance (min 2.2mm)))
+(rule "Boot-Default"
+  (condition "(A.NetClass == 'Boot' && B.NetClass == 'Default') || (A.NetClass == 'Default' && B.NetClass == 'Boot')")
+  (constraint clearance (min 2.2mm)))
+(rule "PE-AC_L"
+  (condition "(A.NetClass == 'PE' && B.NetClass == 'AC_L') || (A.NetClass == 'AC_L' && B.NetClass == 'PE')")
+  (constraint clearance (min 4.2mm)))
+(rule "PE-AC_N"
+  (condition "(A.NetClass == 'PE' && B.NetClass == 'AC_N') || (A.NetClass == 'AC_N' && B.NetClass == 'PE')")
+  (constraint clearance (min 4.2mm)))
+(rule "PE-HV"
+  (condition "(A.NetClass == 'PE' && B.NetClass == 'HV') || (A.NetClass == 'HV' && B.NetClass == 'PE')")
+  (constraint clearance (min 4.2mm)))
+(rule "PE-HVSig"
+  (condition "(A.NetClass == 'PE' && B.NetClass == 'HVSig') || (A.NetClass == 'HVSig' && B.NetClass == 'PE')")
+  (constraint clearance (min 4.2mm)))
+(rule "PE-Boot"
+  (condition "(A.NetClass == 'PE' && B.NetClass == 'Boot') || (A.NetClass == 'Boot' && B.NetClass == 'PE')")
+  (constraint clearance (min 4.2mm)))
+(rule "PE-Return"
+  (condition "(A.NetClass == 'PE' && B.NetClass == 'Return') || (A.NetClass == 'Return' && B.NetClass == 'PE')")
+  (constraint clearance (min 4.2mm)))
+(rule "PE-Shunt"
+  (condition "(A.NetClass == 'PE' && B.NetClass == 'Shunt') || (A.NetClass == 'Shunt' && B.NetClass == 'PE')")
+  (constraint clearance (min 4.2mm)))
+(rule "PE-IpmIn"
+  (condition "(A.NetClass == 'PE' && B.NetClass == 'IpmIn') || (A.NetClass == 'IpmIn' && B.NetClass == 'PE')")
+  (constraint clearance (min 4.2mm)))
+(rule "PE-Vcc15"
+  (condition "(A.NetClass == 'PE' && B.NetClass == 'Vcc15') || (A.NetClass == 'Vcc15' && B.NetClass == 'PE')")
+  (constraint clearance (min 4.2mm)))
+(rule "PE-Power"
+  (condition "(A.NetClass == 'PE' && B.NetClass == 'Power') || (A.NetClass == 'Power' && B.NetClass == 'PE')")
+  (constraint clearance (min 4.2mm)))
+(rule "PE-Ground"
+  (condition "(A.NetClass == 'PE' && B.NetClass == 'Ground') || (A.NetClass == 'Ground' && B.NetClass == 'PE')")
+  (constraint clearance (min 4.2mm)))
+(rule "PE-Default"
+  (condition "(A.NetClass == 'PE' && B.NetClass == 'Default') || (A.NetClass == 'Default' && B.NetClass == 'PE')")
+  (constraint clearance (min 4.2mm)))
+(rule "pins_R212_BOP_BRO_B"
+  (condition "((A.NetName == 'BOP' && B.NetName == 'BRO_B') || (A.NetName == 'BRO_B' && B.NetName == 'BOP')) && A.intersectsCourtyard('R212') && B.intersectsCourtyard('R212')")
+  (constraint clearance (min 1.75mm)))
+(rule "pins_R422_VBUS_SNS_VBUS_SNS_2"
+  (condition "((A.NetName == 'VBUS_SNS' && B.NetName == 'VBUS_SNS_2') || (A.NetName == 'VBUS_SNS_2' && B.NetName == 'VBUS_SNS')) && A.intersectsCourtyard('R422') && B.intersectsCourtyard('R422')")
+  (constraint clearance (min 1.75mm)))
+(rule "pins_R216_VSENSE_VSENSE_2"
+  (condition "((A.NetName == 'VSENSE' && B.NetName == 'VSENSE_2') || (A.NetName == 'VSENSE_2' && B.NetName == 'VSENSE')) && A.intersectsCourtyard('R216') && B.intersectsCourtyard('R216')")
+  (constraint clearance (min 1.75mm)))
+(rule "pins_U401_IN_UL_VB_U"
+  (condition "((A.NetName == 'IN_UL' && B.NetName == 'VB_U') || (A.NetName == 'VB_U' && B.NetName == 'IN_UL')) && A.intersectsCourtyard('U401') && B.intersectsCourtyard('U401')")
+  (constraint clearance (min 1.75mm)))
+(rule "pins_U401_+15V_OUT_V"
+  (condition "((A.NetName == '+15V' && B.NetName == 'OUT_V') || (A.NetName == 'OUT_V' && B.NetName == '+15V')) && A.intersectsCourtyard('U401') && B.intersectsCourtyard('U401')")
+  (constraint clearance (min 1.75mm)))
+(rule "pins_U401_GND_VB_V"
+  (condition "((A.NetName == 'GND' && B.NetName == 'VB_V') || (A.NetName == 'VB_V' && B.NetName == 'GND')) && A.intersectsCourtyard('U401') && B.intersectsCourtyard('U401')")
+  (constraint clearance (min 1.75mm)))
+(rule "pins_U401_IN_VH_OUT_W"
+  (condition "((A.NetName == 'IN_VH' && B.NetName == 'OUT_W') || (A.NetName == 'OUT_W' && B.NetName == 'IN_VH')) && A.intersectsCourtyard('U401') && B.intersectsCourtyard('U401')")
+  (constraint clearance (min 1.75mm)))
+(rule "pins_U401_IN_WL_VB_W"
+  (condition "((A.NetName == 'IN_WL' && B.NetName == 'VB_W') || (A.NetName == 'VB_W' && B.NetName == 'IN_WL')) && A.intersectsCourtyard('U401') && B.intersectsCourtyard('U401')")
+  (constraint clearance (min 1.75mm)))
+(rule "pins_U401_MOT_W_N_W"
+  (condition "((A.NetName == 'MOT_W' && B.NetName == 'N_W') || (A.NetName == 'N_W' && B.NetName == 'MOT_W')) && A.intersectsCourtyard('U401') && B.intersectsCourtyard('U401')")
+  (constraint clearance (min 1.6mm)))
+(rule "pins_U401_N_V_VBUS"
+  (condition "((A.NetName == 'N_V' && B.NetName == 'VBUS') || (A.NetName == 'VBUS' && B.NetName == 'N_V')) && A.intersectsCourtyard('U401') && B.intersectsCourtyard('U401')")
+  (constraint clearance (min 1.6mm)))
+(rule "pins_U401_N_U_VBUS"
+  (condition "((A.NetName == 'N_U' && B.NetName == 'VBUS') || (A.NetName == 'VBUS' && B.NetName == 'N_U')) && A.intersectsCourtyard('U401') && B.intersectsCourtyard('U401')")
+  (constraint clearance (min 1.6mm)))
+(rule "pins_U401_MOT_U_N_U"
+  (condition "((A.NetName == 'MOT_U' && B.NetName == 'N_U') || (A.NetName == 'N_U' && B.NetName == 'MOT_U')) && A.intersectsCourtyard('U401') && B.intersectsCourtyard('U401')")
+  (constraint clearance (min 1.65mm)))
+(rule "pins_R220_OVP_OVP_2"
+  (condition "((A.NetName == 'OVP' && B.NetName == 'OVP_2') || (A.NetName == 'OVP_2' && B.NetName == 'OVP')) && A.intersectsCourtyard('R220') && B.intersectsCourtyard('R220')")
+  (constraint clearance (min 1.7mm)))
+(rule "pins_J101_L_IN_N_IN"
+  (condition "((A.NetName == 'L_IN' && B.NetName == 'N_IN') || (A.NetName == 'N_IN' && B.NetName == 'L_IN')) && A.intersectsCourtyard('J101') && B.intersectsCourtyard('J101')")
+  (constraint clearance (min 2.4mm)))
+(rule "pins_R302_TOP_V_TOP_V1"
+  (condition "((A.NetName == 'TOP_V' && B.NetName == 'TOP_V1') || (A.NetName == 'TOP_V1' && B.NetName == 'TOP_V')) && A.intersectsCourtyard('R302') && B.intersectsCourtyard('R302')")
+  (constraint clearance (min 1.75mm)))
+(rule "pins_BR101_L_R_N_C"
+  (condition "((A.NetName == 'L_R' && B.NetName == 'N_C') || (A.NetName == 'N_C' && B.NetName == 'L_R')) && A.intersectsCourtyard('BR101') && B.intersectsCourtyard('BR101')")
+  (constraint clearance (min 1.8mm)))
+(rule "pins_BR101_N_C_RECT_N"
+  (condition "((A.NetName == 'N_C' && B.NetName == 'RECT_N') || (A.NetName == 'RECT_N' && B.NetName == 'N_C')) && A.intersectsCourtyard('BR101') && B.intersectsCourtyard('BR101')")
+  (constraint clearance (min 1.8mm)))
+(rule "same_footprint_pads"
+  (condition "A.Type == 'Pad' && B.Type == 'Pad' && A.Parent.Reference == B.Parent.Reference")
+  (constraint clearance (min 0.15mm)))

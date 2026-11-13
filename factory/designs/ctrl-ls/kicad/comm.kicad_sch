@@ -1421,7 +1421,7 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "隔离电源 5 V → 5 V 1 W（引脚 1 GND、2 Vin、3 0V、4 +Vo；引脚与封装待核对规格书）"
+    (property "说明" "隔离电源 5 V → 5 V 1 W，隔离 1500 V 直流 1 分钟（Mornsun 原版规格书）。规格书写“行业标准引脚”、图读不出：按 1 W 单列直插行业通用排法 1 −Vin、2 +Vin、3 −Vo、4 +Vo、间距 2.54 mm 做封装，待核对"
       (at 274.32 55.88 0)
       (effects
         (font

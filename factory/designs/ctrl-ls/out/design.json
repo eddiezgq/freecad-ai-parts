@@ -1,7 +1,7 @@
 {
  "board_mm": [
-  200,
-  140
+  250,
+  150
  ],
  "bom_by_item": {
   "BRG-GBU1006": 1,
@@ -9,8 +9,8 @@
   "CAP-0603": 34,
   "CAP-0805": 3,
   "CAP-1206": 10,
-  "CAP-1206-1KV": 1,
   "CAP-1210": 1,
+  "CAP-1812-1KV": 1,
   "CAP-1812-630V": 1,
   "CAP-BULK-330U-500V": 3,
   "CAP-EL-1000U-10V": 1,
@@ -20,7 +20,7 @@
   "CAP-FILM-1U-450V": 1,
   "CAP-X2-470N": 1,
   "CAP-Y-2N2": 2,
-  "CMC-15MH": 1,
+  "CMC-8118RC": 1,
   "CONN-AC": 1,
   "CONN-MOT": 1,
   "CONN-VH8": 1,
@@ -56,7 +56,7 @@
   "RES-0603": 66,
   "RES-1206": 15,
   "RES-2010-0R12": 2,
-  "RES-2512": 1,
+  "RES-2512": 2,
   "RES-SHUNT-10M": 1,
   "RES-SHUNT-25M": 3,
   "RLY-G5LE": 1,
@@ -67,39 +67,55 @@
  "bom_rows": 95,
  "date": "2026-11-12",
  "disclaimer": "示例设计，未经硬件验证，不能直接投产",
+ "drc": {
+  "errors": 0,
+  "unconnected": 0,
+  "warnings": 32
+ },
  "files": {
-  "bom.csv": "17dbee891c587d66",
-  "netcheck.json": "f503c998631c0107",
-  "schematic/ctrl-ls-1 交流输入、浪涌与整流.svg": "20af9f86c7cafd01",
-  "schematic/ctrl-ls-2 功率因数校正与母线.svg": "bf7e88fa275a15da",
-  "schematic/ctrl-ls-3 辅助电源.svg": "80ff077791499fcd",
+  "bom.csv": "9f20a8bc3946c9f2",
+  "drc.json": "0a399c06ddac6bda",
+  "gerber.zip": "8ff2175d9aa45685",
+  "kicad-project.zip": "53171122794cb21c",
+  "netcheck.json": "9eddaa8fe06de745",
+  "pcb/B_Cu.svg": "014b28dfe8a3b6b6",
+  "pcb/B_Silk.svg": "bbc53e054b636b68",
+  "pcb/F_Cu.svg": "949a893942f6e538",
+  "pcb/F_Silk.svg": "892d457644f78e77",
+  "pcb/In1_Cu.svg": "95cca14486e021ef",
+  "pcb/In2_Cu.svg": "13685db6e9e17017",
+  "pos.csv": "75dd311ba6f5876b",
+  "safety.json": "4430d51552383670",
+  "schematic/ctrl-ls-1 交流输入、浪涌与整流.svg": "e0142d35c4b2b912",
+  "schematic/ctrl-ls-2 功率因数校正与母线.svg": "d0b0075d62408796",
+  "schematic/ctrl-ls-3 辅助电源.svg": "4fc48a7082c416a7",
   "schematic/ctrl-ls-4 主轴伺服逆变与电流采样.svg": "e989a8807fc40f73",
-  "schematic/ctrl-ls-5 电磁铁与步进.svg": "08d1bd459ac12381",
+  "schematic/ctrl-ls-5 电磁铁与步进.svg": "ee228cd5fbb892f2",
   "schematic/ctrl-ls-6 主控与传感器输入.svg": "9912be3f1d53be69",
   "schematic/ctrl-ls-7 面板口.svg": "3f685410973e2db9",
   "schematic/ctrl-ls-8 散热.svg": "2b5dd4c7085082d4",
   "schematic/ctrl-ls.svg": "5be3d304c7a1f898"
  },
  "item": "CTRL-LS",
- "layers": 2,
+ "layers": 4,
  "name": "平缝机控制器 CTRL-LS",
  "netcheck": {
-  "nets_design": 149,
-  "nets_schematic": 149,
-  "parts_design": 221,
-  "parts_schematic": 221,
+  "nets_design": 150,
+  "nets_schematic": 150,
+  "parts_design": 222,
+  "parts_schematic": 222,
   "pass": true
  },
- "nets": 149,
+ "nets": 150,
  "parts": [
   {
-   "fp": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-3-5.08_1x03_P5.08mm_Horizontal",
+   "fp": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",
    "item": "CONN-AC",
-   "lib": "Connector:Screw_Terminal_01x03",
-   "note": "交流输入：1 相线、2 零线、3 保护地",
+   "lib": "Connector:Screw_Terminal_01x02",
+   "note": "交流输入：1 相线、2 零线。保护地线不上板：直接接电控箱的接地螺柱；板上的 Y 电容经安装孔 H1 接箱体（159d2b）",
    "ref": "J101",
    "sheet": "mains",
-   "value": "AC IN L/N/PE"
+   "value": "AC IN L/N"
   },
   {
    "fp": "Fuse:Fuseholder_Clip-5x20mm_Bel_FC-203-22_Lateral_P17.80x5.00mm_D1.17mm_Horizontal",
@@ -147,13 +163,13 @@
    "value": "1M"
   },
   {
-   "fp": "Inductor_THT:L_CommonMode_Toroid_Vertical_L34.3mm_W20.3mm_Px15.24mm_Py22.86mm_Bourns_8100",
-   "item": "CMC-15MH",
+   "fp": "Inductor_THT:L_CommonMode_Toroid_Vertical_L41.9mm_W20.3mm_Px15.24mm_Py22.86mm_Bourns_8100",
+   "item": "CMC-8118RC",
    "lib": "Device:Filter_EMI_CommonMode",
-   "note": "FC-HLF2018-15mH-10A-LF（规格书是图片读不出、KiCad 库没有它的封装：159d2 换一个库里有封装的型号，这里先占位）",
+   "note": "8118-RC（Bourns 8100 系列，KiCad 官方库同系列封装；159d2 由 FC-HLF2018 换来：那颗规格书读不出、库里没有封装）",
    "ref": "L101",
    "sheet": "mains",
-   "value": "15mH 10A"
+   "value": "7.3mH 9.3A"
   },
   {
    "fp": "Capacitor_THT:C_Disc_D8.0mm_W5.0mm_P7.50mm",
@@ -230,8 +246,8 @@
   {
    "fp": "Diode_THT:Diode_Bridge_Vishay_GBU",
    "item": "BRG-GBU1006",
-   "lib": "Device:D_Bridge_+AA-",
-   "note": "整流桥（引脚 + ~ ~ −，与 KiCad 的 GBU 封装对照规格书待核对；装在散热器上）",
+   "lib": "Diode_Bridge:GBU4A",
+   "note": "整流桥（符号和封装用 KiCad 官方库的 GBU 系列：1 +、2 ~、3 ~、4 −；装在散热器上）",
    "ref": "BR101",
    "sheet": "mains",
    "value": "GBU1006"
@@ -273,10 +289,10 @@
    "value": "100n"
   },
   {
-   "fp": "wq:Magnetics_TBD",
+   "fp": "wq:L_ETD59_Horizontal",
    "item": "IND-PFC-CUSTOM",
    "lib": "wq:L_PFC",
-   "note": "升压电感（定制：电感量、峰值电流见计算书；磁芯与封装 159d2 定）",
+   "note": "升压电感（定制：ETD59 + 骨架 B66398，匝数、气隙、线径见计算书“按理论”）",
    "ref": "L201",
    "sheet": "pfc",
    "value": "451uH"
@@ -311,8 +327,8 @@
   {
    "fp": "Package_TO_SOT_THT:TO-220-2_Vertical",
    "item": "DIO-C3D06060A",
-   "lib": "Device:D",
-   "note": "升压二极管（碳化硅，TO-220-2：1 阴极、2 阳极，待核对规格书；装在散热器上）",
+   "lib": "Diode:C3D06060A",
+   "note": "升压二极管（碳化硅；符号和封装用 KiCad 官方库的 C3D06060A：1 阴极、2 阳极；装在散热器上）",
    "ref": "D201",
    "sheet": "pfc",
    "value": "C3D06060A"
@@ -633,10 +649,10 @@
    "value": "100n"
   },
   {
-   "fp": "wq:Magnetics_TBD",
+   "fp": "Transformer_THT:Transformer_EPCOS_B66359A1013T_Horizontal",
    "item": "XFMR-FLY-CUSTOM",
    "lib": "wq:Transformer_FLY3",
-   "note": "反激变压器（定制：初级电感、匝比见计算书；三路次级共地，不要求加强绝缘；磁芯与封装 159d2 定）",
+   "note": "反激变压器（定制：ETD29 + 卧式骨架 B66359A1013T，匝数、气隙见计算书“按理论”；三路次级共地，不要求加强绝缘）",
    "ref": "T301",
    "sheet": "aux",
    "value": "FLY-24/15/5"
@@ -654,19 +670,28 @@
    "fp": "Resistor_SMD:R_2512_6332Metric",
    "item": "RES-2512",
    "lib": "Device:R",
-   "note": "RCD 钳位电阻：要变压器漏感才能算，第一版取常见值、按样机调（待定）",
+   "note": "RCD 钳位电阻：两只 2512 串联 = 12.4k（计算书 R ≤ 13.1 kΩ，功耗 1.7 W 两只分担）",
    "ref": "R303",
    "sheet": "aux",
-   "value": "100k"
+   "value": "6.2k"
   },
   {
-   "fp": "Capacitor_SMD:C_1206_3216Metric",
-   "item": "CAP-1206-1KV",
+   "fp": "Resistor_SMD:R_2512_6332Metric",
+   "item": "RES-2512",
+   "lib": "Device:R",
+   "note": "",
+   "ref": "R310",
+   "sheet": "aux",
+   "value": "6.2k"
+  },
+  {
+   "fp": "Capacitor_SMD:C_1812_4532Metric",
+   "item": "CAP-1812-1KV",
    "lib": "Device:C",
-   "note": "RCD 钳位电容（待定，同上）",
+   "note": "RCD 钳位电容（计算书：≥ 11.6n）",
    "ref": "C303",
    "sheet": "aux",
-   "value": "1n/1kV"
+   "value": "15n/1kV"
   },
   {
    "fp": "Diode_SMD:D_SMC",
@@ -1458,7 +1483,7 @@
    "note": "采样电阻 0.12 Ω / 1 W（BOB 物料清单）",
    "ref": "R509",
    "sheet": "act",
-   "value": "0.12"
+   "value": "120m"
   },
   {
    "fp": "Resistor_SMD:R_2010_5025Metric",
@@ -1467,7 +1492,7 @@
    "note": "",
    "ref": "R510",
    "sheet": "act",
-   "value": "0.12"
+   "value": "120m"
   },
   {
    "fp": "Capacitor_SMD:C_0603_1608Metric",
@@ -1527,10 +1552,10 @@
    "fp": "Resistor_SMD:R_0603_1608Metric",
    "item": "RES-0603",
    "lib": "Device:R",
-   "note": "VREF 分压（电流设定，见计算书；关系式待核对）",
+   "note": "VREF 分压：线圈电流见计算书",
    "ref": "R511",
    "sheet": "act",
-   "value": "10k"
+   "value": "22k"
   },
   {
    "fp": "Resistor_SMD:R_0603_1608Metric",
@@ -1539,7 +1564,7 @@
    "note": "",
    "ref": "R512",
    "sheet": "act",
-   "value": "22k"
+   "value": "10k"
   },
   {
    "fp": "Resistor_SMD:R_0603_1608Metric",
@@ -1959,7 +1984,7 @@
    "fp": "wq:Converter_SIP4_B0505S",
    "item": "DCDC-B0505S",
    "lib": "wq:B0505S",
-   "note": "隔离电源 5 V → 5 V 1 W（引脚 1 GND、2 Vin、3 0V、4 +Vo；引脚与封装待核对规格书）",
+   "note": "隔离电源 5 V → 5 V 1 W，隔离 1500 V 直流 1 分钟（Mornsun 原版规格书）。规格书写“行业标准引脚”、图读不出：按 1 W 单列直插行业通用排法 1 −Vin、2 +Vin、3 −Vo、4 +Vo、间距 2.54 mm 做封装，待核对",
    "ref": "U602",
    "sheet": "comm",
    "value": "B0505S-1WR2"
@@ -2082,8 +2107,74 @@
    "value": "20k"
   }
  ],
+ "pcb_layers": [
+  {
+   "key": "F_Cu",
+   "name": "顶层铜",
+   "svg": "F_Cu.svg"
+  },
+  {
+   "key": "In1_Cu",
+   "name": "内层 1（地平面，隔离角另铺 GND_ISO）",
+   "svg": "In1_Cu.svg"
+  },
+  {
+   "key": "In2_Cu",
+   "name": "内层 2",
+   "svg": "In2_Cu.svg"
+  },
+  {
+   "key": "B_Cu",
+   "name": "底层铜",
+   "svg": "B_Cu.svg"
+  },
+  {
+   "key": "F_Silk",
+   "name": "顶面丝印与装配",
+   "svg": "F_Silk.svg"
+  },
+  {
+   "key": "B_Silk",
+   "name": "底面丝印与装配",
+   "svg": "B_Silk.svg"
+  }
+ ],
  "rev": "示例 A",
  "root_svg": "ctrl-ls.svg",
+ "safety": [
+  {
+   "example": true,
+   "key": "S-iso",
+   "limit": 4.0,
+   "name": "安全距离：隔离面板口 ↔ 其余电路",
+   "status": "pass",
+   "value": 4.0
+  },
+  {
+   "example": true,
+   "key": "S-pe",
+   "limit": 4.0,
+   "name": "安全距离：保护地（安装孔） ↔ 带电部分",
+   "status": "pass",
+   "value": 4.2
+  },
+  {
+   "example": true,
+   "key": "S-ln",
+   "limit": 2.5,
+   "name": "安全距离：相线 ↔ 零线（保险丝之后）",
+   "status": "pass",
+   "value": 2.603
+  },
+  {
+   "example": true,
+   "key": "S-bus",
+   "limit": 2.0,
+   "name": "安全距离：390 V 母线与电机相线 ↔ 弱电",
+   "status": "pass",
+   "value": 2.2
+  }
+ ],
  "sheets": [
   {
    "key": "mains",
@@ -2142,6 +2233,6 @@
    "svg": "ctrl-ls-8 散热.svg"
   }
  ],
- "stage": "159d1 原理图（PCB 在 159d2）",
+ "stage": "159d2b 原理图与 PCB（网页在 159d3）",
  "tool": "KiCad 7.0.11"
 }

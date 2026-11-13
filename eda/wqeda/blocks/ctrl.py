@@ -18,6 +18,8 @@ from __future__ import annotations
 import math
 
 from . import common as c
+from . import magnetics
+from .mains import fly
 
 FP_R = "Resistor_SMD:R_0603_1608Metric"
 FP_R1206 = "Resistor_SMD:R_1206_3216Metric"
@@ -32,7 +34,6 @@ FP_SMB = "Diode_SMD:D_SMB"
 FP_SMC = "Diode_SMD:D_SMC"
 FP_TDSON = "Package_TO_SOT_SMD:TDSON-8-1"
 FP_TERM3 = "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-3-5.08_1x03_P5.08mm_Horizontal"
-FP_MAG = "wq:Magnetics_TBD"  # 定制磁性元件：磁芯与骨架 159d2 定，封装随之
 
 
 def _r(ref, val, a, b, k, note="", fp=FP_R, item="RES-0603"):
@@ -52,6 +53,16 @@ def _nfet(ref, g, d_, s, k, note=""):
     return c.part(ref, "Transistor_FET:2N7002", "2N7002", FP_SOT23, k, {"1": g, "2": s, "3": d_}, "MOS-2N7002", note)
 
 
+def _e24_below(x):
+    """E24 里不超过 x 的最大值"""
+    return max(v for v in (m * 10**d for d in range(-1, 8) for m in c.SERIES["E24"]) if v <= x * (1 + 1e-9))
+
+
+def _e6_above(x):
+    """E6 里不小于 x 的最小值"""
+    return min(v for v in (m * 10**d for d in range(-13, -3) for m in c.SERIES["E6"]) if v >= x * (1 - 1e-9))
+
+
 def _divider_top(refs, a, b, val, k, note):
     """高压分压的上臂拆成几只 1206 串联（每只承受的电压低于它的额定）"""
     out, nets = [], [a] + ["{}_{}".format(b, i) for i in range(1, len(refs))] + [b]
@@ -68,13 +79,14 @@ def gen_ac_input(block, spec, d):
     return [
         c.part(
             "J101",
-            "Connector:Screw_Terminal_01x03",
-            "AC IN L/N/PE",
-            FP_TERM3,
+            "Connector:Screw_Terminal_01x02",
+            "AC IN L/N",
+            "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",
             k,
-            {"1": "L_IN", "2": "N_IN", "3": "PE"},
+            {"1": "L_IN", "2": "N_IN"},
             "CONN-AC",
-            "交流输入：1 相线、2 零线、3 保护地",
+            "交流输入：1 相线、2 零线。保护地线不上板：直接接电控箱的接地螺柱；"
+            "板上的 Y 电容经安装孔 H1 接箱体（159d2b）",
         ),
         c.part(
             "F101",
@@ -120,12 +132,13 @@ def gen_ac_input(block, spec, d):
         c.part(
             "L101",
             "Device:Filter_EMI_CommonMode",
-            "15mH 10A",
-            "Inductor_THT:L_CommonMode_Toroid_Vertical_L34.3mm_W20.3mm_Px15.24mm_Py22.86mm_Bourns_8100",
+            "7.3mH 9.3A",
+            "Inductor_THT:L_CommonMode_Toroid_Vertical_L41.9mm_W20.3mm_Px15.24mm_Py22.86mm_Bourns_8100",
             k,
             {"1": "L_F", "2": "L_C", "3": "N_IN", "4": "N_C"},
-            "CMC-15MH",
-            p["cmc"] + "（规格书是图片读不出、KiCad 库没有它的封装：159d2 换一个库里有封装的型号，这里先占位）",
+            "CMC-8118RC",
+            p["cmc"]
+            + "（Bourns 8100 系列，KiCad 官方库同系列封装；159d2 由 FC-HLF2018 换来：那颗规格书读不出、库里没有封装）",
         ),
         c.part(
             "C102",
@@ -179,13 +192,13 @@ def gen_bridge(block, spec, d):
     return [
         c.part(
             "BR101",
-            "Device:D_Bridge_+AA-",
+            "Diode_Bridge:GBU4A",
             p["bridge"],
             "Diode_THT:Diode_Bridge_Vishay_GBU",
             k,
             {"1": "VRECT", "2": "L_R", "3": "N_C", "4": "RECT_N"},
             "BRG-GBU1006",
-            "整流桥（引脚 + ~ ~ −，与 KiCad 的 GBU 封装对照规格书待核对；装在散热器上）",
+            "整流桥（符号和封装用 KiCad 官方库的 GBU 系列：1 +、2 ~、3 ~、4 −；装在散热器上）",
         ),
         c.part(
             "C104",
@@ -240,11 +253,11 @@ def gen_pfc_boost(block, spec, d):
             "L201",
             "wq:L_PFC",
             "{:.0f}uH".format(_pfc_l(spec, p, d)),
-            FP_MAG,
+            "wq:L_ETD59_Horizontal",
             k,
             {"1": "VRECT", "2": "SW_PFC"},
             "IND-PFC-CUSTOM",
-            "升压电感（定制：电感量、峰值电流见计算书；磁芯与封装 159d2 定）",
+            "升压电感（定制：ETD59 + 骨架 B66398，匝数、气隙、线径见计算书“按理论”）",
         ),
         c.part(
             "Q201",
@@ -260,13 +273,13 @@ def gen_pfc_boost(block, spec, d):
         _r("R202", "10k", "GATE_PFC", "GND", k, "栅源下拉（设计取值）"),
         c.part(
             "D201",
-            "Device:D",
+            "Diode:C3D06060A",
             p["diode"],
             "Package_TO_SOT_THT:TO-220-2_Vertical",
             k,
             {"1": "VBUS", "2": "SW_PFC"},
             "DIO-C3D06060A",
-            "升压二极管（碳化硅，TO-220-2：1 阴极、2 阳极，待核对规格书；装在散热器上）",
+            "升压二极管（碳化硅；符号和封装用 KiCad 官方库的 C3D06060A：1 阴极、2 阳极；装在散热器上）",
         ),
         _d(
             "D202",
@@ -387,6 +400,10 @@ def gen_flyback_aux(block, spec, d):
     F 脚接 C 选 66 kHz（p.5）、C 脚 47 µF（p.8 的例子）。整块板共地，三路输出都以 GND 为参考（不隔离），
     稳压取 24 V 与 15 V 加权（TL431 + 光耦）。"""
     p, k = block["params"], block["key"]
+    fl = fly(spec, p)
+    cl = magnetics.rcd_clamp(fl["lp"], fl["i_pk"], fl["f"], p["v_clamp"], fl["vor"], p["llk_ratio"])
+    rc = c.fmt(_e24_below(cl["r"] / 2))
+    cc = _e6_above(cl["c_min"])
     return [
         c.part(
             "U301",
@@ -436,34 +453,22 @@ def gen_flyback_aux(block, spec, d):
             "T301",
             "wq:Transformer_FLY3",
             "FLY-24/15/5",
-            FP_MAG,
+            "Transformer_THT:Transformer_EPCOS_B66359A1013T_Horizontal",
             k,
-            {"1": "VBUS", "2": "FLY_D", "3": "FLY_24", "4": "GND", "5": "FLY_15", "6": "GND", "7": "FLY_5", "8": "GND"},
+            {"1": "VBUS", "3": "FLY_D", "8": "FLY_24", "9": "GND", "10": "FLY_15", "11": "GND", "12": "FLY_5",
+             "13": "GND"},
             "XFMR-FLY-CUSTOM",
-            "反激变压器（定制：初级电感、匝比见计算书；三路次级共地，不要求加强绝缘；磁芯与封装 159d2 定）",
+            "反激变压器（定制：ETD29 + 卧式骨架 B66359A1013T，匝数、气隙见计算书“按理论”；"
+            "三路次级共地，不要求加强绝缘）",
         ),
-        # 初级钳位（RCD）：漏感未知，R、C 按样机调（第一版取常见值）
+        # 初级钳位（RCD，按理论：漏感取初级电感的比例，见计算书）
         _d("D301", "US1M", "FLY_D", "CLAMP", k, "Diode_SMD:D_SMA", "DIO-US1M", "钳位二极管（快恢复 1000 V）"),
-        _r(
-            "R303",
-            "100k",
-            "VBUS",
-            "CLAMP",
-            k,
-            "RCD 钳位电阻：要变压器漏感才能算，第一版取常见值、按样机调（待定）",
-            FP_R2512,
-            "RES-2512",
-        ),
-        c.part(
-            "C303",
-            "Device:C",
-            "1n/1kV",
-            FP_C1206,
-            k,
-            {"1": "VBUS", "2": "CLAMP"},
-            "CAP-1206-1KV",
-            "RCD 钳位电容（待定，同上）",
-        ),
+        _r("R303", rc, "VBUS", "CLAMP_M", k,
+           "RCD 钳位电阻：两只 2512 串联 = {}（计算书 R ≤ {:.3g} kΩ，功耗 {:.2g} W 两只分担）".format(
+            c.fmt(2 * c.parse(rc)), cl["r"] / 1e3, cl["p"]), FP_R2512, "RES-2512"),
+        _r("R310", rc, "CLAMP_M", "CLAMP", k, fp=FP_R2512, item="RES-2512"),
+        c.part("C303", "Device:C", "{}/1kV".format(c.fmt(cc)), FP_C1812, k, {"1": "VBUS", "2": "CLAMP"}, "CAP-1812-1KV",
+               "RCD 钳位电容（计算书：≥ {}）".format(c.fmt(cl["c_min"]))),
         _d("D302", p["out_diode"], "FLY_24", "+24V", k, FP_SMC, "DIO-ES3D", "24 V 整流"),
         c.part(
             "C304",
@@ -805,7 +810,7 @@ def gen_stepper(block, spec, d):
         c.part(
             "R509",
             "Device:R",
-            "0.12",
+            c.fmt(p["r_sense"]),
             "Resistor_SMD:R_2010_5025Metric",
             k,
             {"1": "STP_BRA", "2": "GND"},
@@ -815,7 +820,7 @@ def gen_stepper(block, spec, d):
         c.part(
             "R510",
             "Device:R",
-            "0.12",
+            c.fmt(p["r_sense"]),
             "Resistor_SMD:R_2010_5025Metric",
             k,
             {"1": "STP_BRB", "2": "GND"},
@@ -836,8 +841,8 @@ def gen_stepper(block, spec, d):
             "VS 去耦",
         ),
         _c("C506", "100n", "+3V3", "GND", k),
-        _r("R511", "10k", "STP_5V", "STP_VREF", k, "VREF 分压（电流设定，见计算书；关系式待核对）"),
-        _r("R512", "22k", "STP_VREF", "GND", k),
+        _r("R511", c.fmt(p["r_vref_top"]), "STP_5V", "STP_VREF", k, "VREF 分压：线圈电流见计算书"),
+        _r("R512", c.fmt(p["r_vref_bot"]), "STP_VREF", "GND", k),
         _r("R513", "10k", "+3V3", "STP_EN", k, "EN 高 = 关断：主控没输出时步进不动"),
     ]
 
@@ -880,7 +885,8 @@ def gen_panel_iso(block, spec, d):
             k,
             {"1": "GND", "2": "+5V", "3": "GND_ISO", "4": "+5V_ISO"},
             "DCDC-B0505S",
-            "隔离电源 5 V → 5 V 1 W（引脚 1 GND、2 Vin、3 0V、4 +Vo；引脚与封装待核对规格书）",
+            "隔离电源 5 V → 5 V 1 W，隔离 1500 V 直流 1 分钟（Mornsun 原版规格书）。规格书写“行业标准引脚”、图读不出："
+            "按 1 W 单列直插行业通用排法 1 −Vin、2 +Vin、3 −Vo、4 +Vo、间距 2.54 mm 做封装，待核对",
         ),
         c.part("C603", "Device:C", "4.7u/25V", FP_C1206, k, {"1": "+5V", "2": "GND"}, "CAP-1206"),
         c.part("C604", "Device:C", "10u/25V", FP_C1206, k, {"1": "+5V_ISO", "2": "GND_ISO"}, "CAP-1206"),

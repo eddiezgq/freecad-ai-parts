@@ -34,6 +34,10 @@ def check(book, t, key):
     return next(x for x in unit(book, t)["checks"] if x["key"] == key)
 
 
+def item_or_check_need(book, t, key):
+    return check(book, t, key)["need"]
+
+
 def test_power_budget_by_hand(book):
     p_bus = 550 / 0.90 / 0.97 + 40  # 电机额定 ÷ η电机 ÷ η逆变 + 辅助
     p_in = p_bus / 0.95
@@ -43,7 +47,11 @@ def test_power_budget_by_hand(book):
     assert i_in == pytest.approx(7.92, abs=0.01)
     # 浪涌：√2·250·1.1 / 2.5 Ω（热敏电阻 R25，规格书 p.4 Table 1）
     assert item(book, "ac_input", "i_inrush") == pytest.approx(math.sqrt(2) * 250 * 1.1 / 2.5, rel=1e-9)
-    assert check(book, "ac_input", "cmc_i")["status"] == c.UNKNOWN  # 共模电感规格书读不出：未知，不是通过
+    # 159d2 共模电感换成 8118-RC（9.3 A，规格书能读、未逐页核对）：待核对，不是通过
+    cmc = next(x for x in unit(book, "ac_input")["checks"] if x["name"] == "共模电感额定电流")
+    assert cmc["status"] == c.PENDING and cmc["have"] == 9.3
+    # 继电器 12 V 线圈接 15 V：125 % ≤ 最高允许 170 %（G5LE 标准型资料）
+    assert item_or_check_need(book, "ac_input", "coil_v_max_pct") == pytest.approx(125.0)
 
 
 def test_bridge_loss_by_hand(book):
@@ -86,7 +94,9 @@ def test_ipm_motor_and_losses_by_hand(book):
     # 量程 = 1.65 V / (8 × 15/16 × 25 mΩ) = 8.8 A
     assert item(book, "low_side_sense", "v_zero") == pytest.approx(1.65, rel=1e-9)
     assert item(book, "low_side_sense", "i_fs") == pytest.approx(1.65 / (8 * 15 / 16 * 0.025), rel=1e-9)
-    assert check(book, "low_side_sense", "pga_gain")["status"] == c.UNKNOWN
+    assert (
+        check(book, "low_side_sense", "pga_gain")["status"] == c.PENDING
+    )  # 增益 8 在 2、4、8、16、32、64 里（AN5306）
 
 
 def test_solenoid_release_by_hand(book):
@@ -121,7 +131,7 @@ def test_unchecked_data_never_passes_and_missing_data_is_unknown(book):
     """录了没核对的 → 待核对；没录的 → 未知；都不算通过（细则第二节第 2 条）"""
     st = [x["status"] for u in book["units"] for x in u["checks"]]
     assert c.FAIL not in st
-    assert book["count"][c.UNKNOWN] >= 4
+    assert book["count"][c.UNKNOWN] >= 1  # 159d2 起只剩晶振负载电容（晶振型号没定）
     dev = parts.Devices.load()
     dev.entries.pop("GBU1006")
     b2 = calcbook.build(DESIGN, sim=False, devices=dev)
@@ -206,3 +216,40 @@ def test_generated_circuit():
     iso = {q["ref"] for q in x["parts"] if "GND_ISO" in q["pins"].values()}
     both = {r for r in iso if "GND" in pins[r].values()}
     assert both == {"U601", "U602"}
+
+
+def test_stepper_current_and_panel_isolation_by_hand(book):
+    """159d2：VREF = 5 V × 10 k / 32 k；I = 0.325 V / (0.12 + 0.02) Ω / √2 × V_REF / 2.5 V；
+    面板口隔离器 2500 V 有效值 × √2 与 1500 V 直流要求比"""
+    vref = 5.0 * 10 / 32
+    assert item(book, "stepper", "v_vref") == pytest.approx(vref, rel=1e-9)
+    assert item(book, "stepper", "i_set") == pytest.approx(0.325 / 0.14 / math.sqrt(2) * vref / 2.5, rel=1e-9)
+    assert check(book, "stepper", "i_set")["status"] == c.PENDING
+    assert item(book, "panel_iso", "iso_pk") == pytest.approx(2500 * math.sqrt(2), rel=1e-9)
+    assert check(book, "panel_iso", "iso_v")["status"] == c.PENDING
+
+
+def test_magnetics_by_theory(book):
+    """159d2b 按理论选磁芯（面积积法）：升压电感 ETD59（A_e 368 mm²、A_N 365.6 mm²），反激 ETD29（76 mm²、97 mm²）"""
+    po = 550 / 0.90 / 0.97 + 40
+    iin = po / 0.95 / 90
+    ipk = math.sqrt(2) * iin
+    di = 0.3 * ipk
+    L = 195 * (1 - 195 / 390) / (65000 * di)
+    i_l_pk = ipk + di / 2
+    ap = L * i_l_pk * iin / (0.3 * 4e6 * 0.4)
+    assert item(book, "pfc_boost", "l_ap_need") == pytest.approx(ap * 1e8, rel=1e-9)
+    n = math.ceil(L * i_l_pk / (0.3 * 368e-6))
+    assert item(book, "pfc_boost", "l_n") == n
+    assert item(book, "pfc_boost", "l_lg") == pytest.approx(4e-7 * math.pi * n**2 * 368e-6 / L * 1e3, rel=1e-9)
+    assert check(book, "pfc_boost", "l_ap")["status"] == c.PENDING  # 磁芯数据录了、没逐页核对
+    assert check(book, "pfc_boost", "l_p_fe")["status"] == c.UNKNOWN  # 铁损要损耗曲线：未知
+    # 反激 RCD 钳位（按理论）：漏感 2 % L_p，P = ½·L_lk·I_p²·f·V_c/(V_c − V_OR)
+    vmin = math.sqrt(2) * 90 * 0.9
+    pin = (24 * 0.8 + 15 * 0.15 + 5 * 0.3) / 0.80
+    dmax = 100 / (100 + vmin)
+    ip = 2 * pin / (vmin * dmax)
+    lp = vmin * dmax / (ip * 66000)
+    p = 0.5 * 0.02 * lp * ip**2 * 66000 * 150 / (150 - 100)
+    assert item(book, "flyback_aux", "p_clamp") == pytest.approx(p, rel=1e-9)
+    assert item(book, "flyback_aux", "r_clamp") == pytest.approx(150**2 / p, rel=1e-9)

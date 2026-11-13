@@ -314,7 +314,7 @@
         (effects
           (font
             (size 1.27 1.27))))
-      (property "Footprint" "wq:Magnetics_TBD"
+      (property "Footprint" "wq:L_ETD59_Horizontal"
         (at 0 -6.35 0)
         (effects
           (font
@@ -324,7 +324,7 @@
         (effects
           (font
             (size 1.27 1.27)) hide))
-      (property "ki_description" "升压电感（平缝机控制器 CTRL-LS，定制件；磁芯 159d2 定）"
+      (property "ki_description" "升压电感（平缝机控制器 CTRL-LS，定制件；ETD59 磁芯按理论选，见计算书）"
         (at 0 0 0)
         (effects
           (font
@@ -631,6 +631,104 @@
           (at 0 -3.81 90)
           (length 1.27)
           (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Diode:C3D06060A"
+      (pin_numbers hide)
+      (pin_names
+        (offset 1.016) hide)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "D"
+        (at 0 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "C3D06060A"
+        (at 0 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" "Package_TO_SOT_THT:TO-220-2_Vertical"
+        (at 0 -4.445 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "https://www.wolfspeed.com/media/downloads/844/C3D06060A.pdf"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "sic diode"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "600V, 6A, SiC Schottky Diode, TO-220"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "TO?220*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "C3D06060A_0_1"
+        (polyline
+          (pts
+            (xy 1.27 0)
+            (xy -1.27 0))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 1.27 1.27)
+            (xy 1.27 -1.27)
+            (xy -1.27 0)
+            (xy 1.27 1.27))
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy -1.905 0.635)
+            (xy -1.905 1.27)
+            (xy -1.27 1.27)
+            (xy -1.27 -1.27)
+            (xy -0.635 -1.27)
+            (xy -0.635 -0.635))
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none))))
+      (symbol "C3D06060A_1_1"
+        (pin passive line
+          (at -3.81 0 0)
+          (length 2.54)
+          (name "K"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 3.81 0 180)
+          (length 2.54)
+          (name "A"
             (effects
               (font
                 (size 1.27 1.27))))
@@ -1632,7 +1730,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "wq:Magnetics_TBD"
+    (property "Footprint" "wq:L_ETD59_Horizontal"
       (at 266.7 53.34 0)
       (effects
         (font
@@ -1647,7 +1745,7 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "升压电感（定制：电感量、峰值电流见计算书；磁芯与封装 159d2 定）"
+    (property "说明" "升压电感（定制：ETD59 + 骨架 B66398，匝数、气隙、线径见计算书“按理论”）"
       (at 266.7 53.34 0)
       (effects
         (font
@@ -2003,7 +2101,7 @@
         (font
           (size 1.27 1.27)) hide)))
   (symbol
-    (lib_id "Device:D")
+    (lib_id "Diode:C3D06060A")
     (at 525.78 53.34 0)
     (unit 1)
     (in_bom yes)
@@ -2035,7 +2133,7 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "升压二极管（碳化硅，TO-220-2：1 阴极、2 阳极，待核对规格书；装在散热器上）"
+    (property "说明" "升压二极管（碳化硅；符号和封装用 KiCad 官方库的 C3D06060A：1 阴极、2 阳极；装在散热器上）"
       (at 525.78 53.34 0)
       (effects
         (font
