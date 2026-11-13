@@ -132,15 +132,27 @@ def _refkey(r):
     return (m.group(1), int(m.group(2))) if m else (r, 0)
 
 
+def _stats():
+    """器件、走线段数与总长、过孔数（网页 PCB 页签那一行，和关节驱动板同样的字段）"""
+    m = pcbnew()
+    b = m.LoadBoard(os.path.join(KDIR, NAME + ".kicad_pcb"))
+    tracks = [t for t in b.GetTracks() if t.GetClass() == "PCB_TRACK"]
+    vias = [t for t in b.GetTracks() if t.GetClass() == "PCB_VIA"]
+    return {"parts": len(D.PARTS), "tracks": len(tracks), "vias": len(vias),
+            "track_mm": round(sum(m.ToMM(t.GetLength()) for t in tracks), 1)}
+
+
 def summary(nc, n_bom, brd=None):
+    from wqeda.gen import board as gb
     sheets = sorted(os.listdir(os.path.join(OUT, "schematic")))
     files = {}
     for i, (key, _, _) in enumerate(D.SHEETS):
         files[key] = next((s for s in sheets if s.startswith("{}-{} ".format(NAME, i + 1))), None)
     d = {
-        "name": "平缝机控制器 CTRL-LS", "item": "CTRL-LS", "rev": "示例 A", "date": DATE, "stage": "159d2b 原理图与 PCB（网页在 159d3）",
+        "name": "平缝机控制器 CTRL-LS", "item": "CTRL-LS", "rev": "示例 A", "date": DATE, "stage": "159d3 原理图、PCB 与网页",
         "disclaimer": "示例设计，未经硬件验证，不能直接投产",
         "tool": "KiCad 7.0.11", "board_mm": list(D.X["board_mm"]), "layers": D.X["layers"],
+        "origin_mm": list(gb.ORIGIN),  # 检查结果里的位置是 KiCad 绝对坐标（板框左上角在这里），网页标位置时减掉
         "sheets": [{"key": k, "name": n, "name_en": e, "svg": files.get(k), "note": D.SHEET_NOTES.get(k, "")} for k, n, e in D.SHEETS],
         "root_svg": next((s for s in sheets if s == NAME + ".svg"), None),
         "parts": [{"ref": p["ref"], "value": p["value"], "fp": p["fp"], "sheet": p["sheet"], "item": p["item"], "note": p["note"],
@@ -151,6 +163,7 @@ def summary(nc, n_bom, brd=None):
         "pcb_layers": [{"key": k, "name": n, "svg": k + ".svg"} for k, _, n in LAYERS_SVG] if brd else [],
         "drc": {k: brd[0][k] for k in ("errors", "warnings", "unconnected")} if brd else None,
         "safety": [{k: r[k] for k in ("key", "name", "status", "value", "limit", "example")} for r in brd[1]] if brd else None,
+        "stats": _stats() if brd else None,
         "files": {},
     }
     for root, _, fs in os.walk(OUT):
