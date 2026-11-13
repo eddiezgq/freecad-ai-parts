@@ -8,7 +8,7 @@
  "summary": "J1、J2 用的大关节模组里面：谐波减速器按平均负载和峰值核对、输出轴承承受倾覆力矩、抱闸保持力矩、电机温升、扭转刚度对末端变形和固有频率的影响，再在关节测试台测 20 只。",
  "summary_en": "Inside the large joint module used on J1 and J2: strain-wave gear checked on average and peak torque, output bearings under tilting moment, brake holding torque, motor heating, torsional stiffness and its effect on TCP deflection and natural frequency; then 20 modules on the test bench.",
  "script": "tools/cases/robot_b.py",
- "generated": "2026-11-12",
+ "generated": "2026-11-13",
  "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
  "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
  "steps": [
@@ -162,8 +162,8 @@
    "key": "cad",
    "title": "三维与图纸",
    "title_en": "3D model & drawing",
-   "summary": "零件沿轴向排开：法兰、两只 6010、CSF-32 就占 84 mm；模型里模组长 110 mm 放不下电机，按示意排下来约 170 mm，模型数据要更新。",
-   "summary_en": "Parts stacked along the axis: flange, two 6010s and the CSF-32 already take 84 mm; the model's 110 mm module cannot hold the motor; about 170 mm by the sketch, so the model data must be updated.",
+   "summary": "零件沿轴向排开：法兰、两只 6010、CSF-32 就占 84 mm；模型里模组长 170 mm 放不下电机，按示意排下来约 170 mm，模型数据要更新。",
+   "summary_en": "Parts stacked along the axis: flange, two 6010s and the CSF-32 already take 84 mm; the model's 170 mm module cannot hold the motor; about 170 mm by the sketch, so the model data must be updated.",
    "md": "5_结构.md",
    "figs": [
     {
@@ -297,7 +297,7 @@
    "key": "review",
    "title": "总结",
    "title_en": "Review",
-   "summary": "10 / 10 项校核通过；J2 考减速器、J1 考轴承，刚度在减速器上；模型里的模组长度偏短，要回头改。",
+   "summary": "10 / 10 项校核通过；J2 考减速器、J1 考轴承，刚度在减速器上；模组长约 170 mm。",
    "summary_en": "10 / 10 checks pass; J2 loads the gear, J1 the bearings; stiffness sits in the gear.",
    "md": "8_总结.md",
    "figs": [],
@@ -396,7 +396,7 @@
    "what_en": "Flange, bearings and gear fit within the module length",
    "value": "84",
    "op": "<=",
-   "limit": "110",
+   "limit": "170",
    "unit": "mm",
    "ok": true,
    "src": "动力学模型 wqcr5.MODULES"
