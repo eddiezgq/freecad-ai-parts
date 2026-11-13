@@ -41,6 +41,7 @@ const routes = [
   { path: '/wafer-map', component: () => import('./pages/WaferMap.vue') },   // 第 103 轮：芯片封测厂晶圆图
   { path: '/enc-curve', component: () => import('./pages/EncCurve.vue') },   // 第 125 轮：传感器厂编码器误差曲线
   { path: '/motor-wave', component: () => import('./pages/MotorWave.vue') },   // 第 131 轮：电机厂终检波形
+  { path: '/burn-in', component: () => import('./pages/BurnIn.vue') },   // 第 166 轮：计算机厂整机老化曲线
   { path: '/twin', component: () => import('./pages/Twin.vue') },
   { path: '/plc', component: () => import('./pages/VirtualPlc.vue') },
   { path: '/lab15', component: () => import('./pages/Lab15.vue') },

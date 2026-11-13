@@ -2886,6 +2886,22 @@ from hub import cases as _cases  # noqa: E402
 _cases.mount(app, user_of, PLANT.plant_id)
 
 
+# ---------------------------------------------------------------- 整机老化曲线（第 166 轮，计算机厂）
+@app.get("/api/computer/units")
+def computer_units(u=Depends(user_of)):
+    from hub import burnin_api
+    return {"units": burnin_api.units(H.db, u["mode"])}
+
+
+@app.get("/api/computer/unit/{serial}")
+def computer_unit(serial: str, u=Depends(user_of)):
+    from hub import burnin_api
+    try:
+        return burnin_api.unit(H.db, u["mode"], serial)
+    except KeyError:
+        raise HTTPException(404, "没有这台整机的老化记录：{}".format(serial))
+
+
 # ---------------------------------------------------------------- 电路板设计的产物（第 88 轮）：KiCad 生成的原理图、PCB、三维、BOM、检查结果
 _DESIGNS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "designs")
 
