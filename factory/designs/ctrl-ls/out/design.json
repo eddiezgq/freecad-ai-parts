@@ -70,20 +70,20 @@
  "drc": {
   "errors": 0,
   "unconnected": 0,
-  "warnings": 58
+  "warnings": 59
  },
  "files": {
   "bom.csv": "9f20a8bc3946c9f2",
-  "drc.json": "0db290334101b9b4",
-  "gerber.zip": "a94cc596a265363f",
-  "kicad-project.zip": "dfeaf3dd5252f1fe",
-  "netcheck.json": "9eddaa8fe06de745",
-  "pcb/B_Cu.svg": "0695d8f15014aa2d",
-  "pcb/B_Silk.svg": "ed162fcdced0af57",
-  "pcb/F_Cu.svg": "aab644563d9f65e9",
-  "pcb/F_Silk.svg": "87232ed009277b72",
-  "pcb/In1_Cu.svg": "384401f406fe840e",
-  "pcb/In2_Cu.svg": "ce470f924e5f6af4",
+  "drc.json": "c2dfe85955730fcc",
+  "gerber.zip": "e175577b32d4addc",
+  "kicad-project.zip": "770f1a181c901545",
+  "netcheck.json": "1a4a6480005f2be7",
+  "pcb/B_Cu.svg": "06ae6f175d78a278",
+  "pcb/B_Silk.svg": "da51ac4e345b131d",
+  "pcb/F_Cu.svg": "141ead4a6a8454b6",
+  "pcb/F_Silk.svg": "2aca5583af3197bf",
+  "pcb/In1_Cu.svg": "acd74b0b8a6152ce",
+  "pcb/In2_Cu.svg": "1f144660cbf6a5b0",
   "pos.csv": "455e7610783009c1",
   "safety.json": "002748b9643d3476",
   "schematic/ctrl-ls-1 交流输入、浪涌与整流.svg": "d741afc43d3efe76",
@@ -91,7 +91,7 @@
   "schematic/ctrl-ls-3 辅助电源.svg": "4fc48a7082c416a7",
   "schematic/ctrl-ls-4 主轴伺服逆变与电流采样.svg": "e989a8807fc40f73",
   "schematic/ctrl-ls-5 电磁铁与步进.svg": "ee228cd5fbb892f2",
-  "schematic/ctrl-ls-6 主控与传感器输入.svg": "9912be3f1d53be69",
+  "schematic/ctrl-ls-6 主控与传感器输入.svg": "afe0f0b00316ea24",
   "schematic/ctrl-ls-7 面板口.svg": "3f685410973e2db9",
   "schematic/ctrl-ls-8 散热.svg": "2b5dd4c7085082d4",
   "schematic/ctrl-ls.svg": "5be3d304c7a1f898"
@@ -102,8 +102,8 @@
  "netcheck": {
   "nets_design": 150,
   "nets_schematic": 150,
-  "parts_design": 222,
-  "parts_schematic": 222,
+  "parts_design": 253,
+  "parts_schematic": 253,
   "pass": true
  },
  "nets": 150,
@@ -2109,6 +2109,285 @@
    "ref": "R802",
    "sheet": "io",
    "value": "20k"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP6",
+   "sheet": "io",
+   "value": "+3V3_ISO"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP7",
+   "sheet": "io",
+   "value": "BRO_B"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP8",
+   "sheet": "io",
+   "value": "CLAMP"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP9",
+   "sheet": "io",
+   "value": "CLAMP_M"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP10",
+   "sheet": "io",
+   "value": "ENC_Z_F"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP11",
+   "sheet": "io",
+   "value": "FB_RC"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP12",
+   "sheet": "io",
+   "value": "FB_REF"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP13",
+   "sheet": "io",
+   "value": "FREQ"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP14",
+   "sheet": "io",
+   "value": "GATE_IC"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP15",
+   "sheet": "io",
+   "value": "HALL_V_F"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP16",
+   "sheet": "io",
+   "value": "HALL_W_F"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP17",
+   "sheet": "io",
+   "value": "ICOMP"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP18",
+   "sheet": "io",
+   "value": "OVP_1"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP19",
+   "sheet": "io",
+   "value": "OVP_2"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP20",
+   "sheet": "io",
+   "value": "RLY_G"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP21",
+   "sheet": "io",
+   "value": "RO_ISO"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP22",
+   "sheet": "io",
+   "value": "SOL1_G"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP23",
+   "sheet": "io",
+   "value": "SOL1_K"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP24",
+   "sheet": "io",
+   "value": "SOL2_G"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP25",
+   "sheet": "io",
+   "value": "SOL2_K"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP26",
+   "sheet": "io",
+   "value": "SOL3_K"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP27",
+   "sheet": "io",
+   "value": "SOL4_G"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP28",
+   "sheet": "io",
+   "value": "SOL4_K"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP29",
+   "sheet": "io",
+   "value": "SWCLK"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP30",
+   "sheet": "io",
+   "value": "SWDIO"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP31",
+   "sheet": "io",
+   "value": "TOP_V"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP32",
+   "sheet": "io",
+   "value": "TXN_ISO"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP33",
+   "sheet": "io",
+   "value": "VBUS_SNS_1"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP34",
+   "sheet": "io",
+   "value": "VBUS_SNS_2"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP35",
+   "sheet": "io",
+   "value": "VSENSE_1"
+  },
+  {
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "item": null,
+   "lib": "Connector:TestPoint",
+   "note": "ICT 测试点",
+   "ref": "TP36",
+   "sheet": "io",
+   "value": "VSENSE_2"
   }
  ],
  "pcb_layers": [
@@ -2219,7 +2498,7 @@
    "key": "io",
    "name": "主控与传感器输入",
    "name_en": "MCU and sensor inputs",
-   "note": "STM32G431（沿用关节驱动板的最小系统）。编码器 A/B/Z 与霍尔 U/V/W 上拉 5 V、RC 滤波后经 SN74LVC14A 整形；脚踏板霍尔分压进 ADC；VB_OK 分压给主控看。",
+   "note": "STM32G431（沿用关节驱动板的最小系统）。编码器 A/B/Z 与霍尔 U/V/W 上拉 5 V、RC 滤波后经 SN74LVC14A 整形；脚踏板霍尔分压进 ADC；VB_OK 分压给主控看。TP1–TP5 是顶面烧录点；TP6–TP36 是底面 ICT 测试点（159e，针床从底面扎）。",
    "svg": "ctrl-ls-6 主控与传感器输入.svg"
   },
   {
@@ -2239,10 +2518,10 @@
  ],
  "stage": "159d3 原理图、PCB 与网页",
  "stats": {
-  "parts": 222,
-  "track_mm": 11828.3,
-  "tracks": 2393,
-  "vias": 327
+  "parts": 253,
+  "track_mm": 11940.3,
+  "tracks": 2463,
+  "vias": 358
  },
  "tool": "KiCad 7.0.11"
 }

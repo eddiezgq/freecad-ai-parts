@@ -73,7 +73,7 @@ def _mean(ms, char, wo=None):
 def test_manifest_checks():
     r = subprocess.run([sys.executable, "-m", "factory.plant", "check", PCB], capture_output=True, text=True, cwd=FAC)
     assert r.returncode == 0, r.stdout + r.stderr
-    assert "13 道工序" in r.stdout and "4 种可接单的成品" in r.stdout      # 第 106 轮：加了驱动板 B 版
+    assert "13 道工序" in r.stdout and "5 种可接单的成品" in r.stdout      # 第 106 轮：加了驱动板 B 版；第 159 轮 159e：加了平缝机控制器
 
 
 def test_smt_and_fct_measurements_normal():
@@ -232,3 +232,23 @@ def test_pcb_domains_with_db():
     assert {"rf-1", "sw-1", "cc-1", "fct-1"} <= hz
     assert "rf-1" not in o["needs"] and "bi-1" not in o["needs"] and "pp-1" in o["needs"]        # 回流炉、老化房不用人看着
     assert o["people_n"] > 10
+
+
+def test_ctrl_ls_through_both_lines():
+    """第 159 轮 159e：平缝机控制器——贴片板走自己的贴片路线、成品板走自己的后段，两段都出测量值；
+    功能测试的名义值取设计计算书（母线 390 V 等），正常时都合格；驱动板的采样电阻卷号问题不碰它（它不用 2 mΩ 采样电阻）"""
+    import yaml
+    with open(PCB, encoding="utf-8") as f:
+        boms = {b["item"]: b["routing"] for b in yaml.safe_load(f)["boms"]}
+    assert boms["SMT-CTRL"].startswith("RT-SMT-CTRL") and boms["CTRL-LS"].startswith("RT-后段-CTRL")
+    ms = _run({"batches": [["SMT-CTRL", 6], ["CTRL-LS", 6]]})
+    smt = [m for m in ms if m["item"] == "SMT-CTRL"]
+    assert {m["op"] for m in smt} == {"自动光学检测 AOI"} and len(_vals(smt, "spi_volume")) == 6
+    fct = [m for m in ms if m["item"] == "CTRL-LS"]
+    assert {m["char"] for m in fct} == {"ict_shunt", "ctl_vbus", "ctl_24v", "ctl_15v", "ctl_5v", "ctl_3v3", "ctl_iso5v", "ctl_hipot"}
+    assert {m["op"] for m in fct} == {"功能测试 FCT"} and len(_vals(fct, "ctl_vbus")) == 6
+    assert abs(_mean(fct, "ctl_vbus") - 390) < 3 and abs(_mean(fct, "ict_shunt") - 25.0) < 0.1
+    assert all(m["result"] == "pass" for m in fct)
+    hurt = _run({"inject_at": {"0": ["shunt_lot"]}, "batches": [["CTRL-LS", 6]]})
+    assert all(m["result"] == "pass" for m in hurt if m["char"] == "ict_shunt")
+

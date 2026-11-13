@@ -186,6 +186,18 @@ circuit:
   - {ref: R802, lib: 'Device:R', value: 20k, fp: 'Resistor_SMD:R_0603_1608Metric', block: io, pins: {'1': VB_OK_SNS, '2': GND},
      item: RES-0603, note: ''}
   footprints: {}
+  # ICT 测试点（第 159 轮 159e）：只给通孔焊盘、过孔都扎不到的网络加（加之前 153 个网络扎得到 121 个，覆盖率 0.79）；
+  # 底面 1.0 mm 圆焊盘（KiCad 官方库，和关节驱动板一样），不进物料清单。
+  # 步进芯片电荷泵脚 STP_CPO 不加：它的电容夹在芯片和两根线中间，顶层接不出来；只有这一个网络扎不到（152 / 153）
+  # 顶面的 TP1–TP5 是主控最小系统带的烧录点（针床扎不到），SWCLK、SWDIO 在底面再各加一个，烧录夹具也从底面扎
+  ict_test_points:
+    ref_start: 6
+    lib: Connector:TestPoint
+    fp: TestPoint:TestPoint_Pad_D1.0mm
+    block: io
+    power_block: io
+    note: ICT 测试点
+    nets: ['+3V3_ISO', BRO_B, CLAMP, CLAMP_M, ENC_Z_F, FB_RC, FB_REF, FREQ, GATE_IC, HALL_V_F, HALL_W_F, ICOMP, OVP_1, OVP_2, RLY_G, RO_ISO, SOL1_G, SOL1_K, SOL2_G, SOL2_K, SOL3_K, SOL4_G, SOL4_K, SWCLK, SWDIO, TOP_V, TXN_ISO, VBUS_SNS_1, VBUS_SNS_2, VSENSE_1, VSENSE_2]
   nets:
     nc: [PNL_DE_NC]
     power: [+24V, +15V, +5V, +3V3, GND, VBUS, +5V_ISO, +3V3_ISO, GND_ISO]
@@ -250,7 +262,8 @@ board:
     source: 示例值。外层 3 oz（关节驱动板是 2 oz）：交流输入 7.9 A 按 IPC-2221、温升 20 ℃，2 oz 要 1.71 mm、3 oz 要 1.14 mm——引脚旁边只放得下 1.2 mm，所以用厚铜，不放宽温升；板厂要能做 3 oz（价钱高一些），企业按自己的板厂核对
   rules:
     trace_dt_c: 20.0
-    source: 示例值（走线允许温升 20 ℃，与关节驱动板相同）
+    ict_coverage_min: 0.9
+    source: 示例值（走线允许温升 20 ℃、ICT 测试点覆盖率 ≥ 90%，与关节驱动板相同）；企业按自己的设计规范填
   thermal:
     ambient_c: 50.0
     h_w_m2k: 10.0
@@ -493,6 +506,37 @@ board:
     TP3: [147.77, 127.03, 0, F]
     TP4: [67.03, 131.67, 0, F]
     TP5: [70.28, 131.67, 0, F]
+    TP6: [215, 122, 0, B]
+    TP7: [104, 113, 0, B]
+    TP8: [28.5, 118, 0, B]
+    TP9: [12, 113, 0, B]
+    TP10: [75.5, 135, 0, B]
+    TP11: [24, 133, 0, B]
+    TP12: [3, 133, 0, B]
+    TP13: [119, 18.5, 0, B]
+    TP14: [117, 10.5, 0, B]
+    TP15: [99.5, 134, 0, B]
+    TP16: [107.5, 135, 0, B]
+    TP17: [113.5, 14.5, 0, B]
+    TP18: [78, 122.5, 0, B]
+    TP19: [80.5, 124.5, 0, B]
+    TP20: [47.5, 65.5, 0, B]
+    TP21: [217, 124, 0, B]
+    TP22: [150, 86.5, 0, B]
+    TP23: [172.5, 88, 0, B]
+    TP24: [194.5, 86, 0, B]
+    TP25: [214, 88, 0, B]
+    TP26: [160, 96, 0, B]
+    TP27: [179.5, 98.5, 0, B]
+    TP28: [201.5, 96, 0, B]
+    TP29: [144, 126.5, 0, B]
+    TP30: [135.5, 125.5, 0, B]
+    TP31: [42.5, 78, 0, B]
+    TP32: [216, 126.5, 0, B]
+    TP33: [214, 73, 0, B]
+    TP34: [219.5, 73, 0, B]
+    TP35: [130, 115, 0, B]
+    TP36: [142.5, 114.5, 0, B]
     U10: [119.17, 132.18, 0, F]
     U201: [117.17, 13.76, 0, F]
     U301: [48.71, 82.62, 0, F]

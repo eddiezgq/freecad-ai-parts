@@ -264,6 +264,78 @@ def pcbnew():
     return m
 
 
+def _rules():
+    """网络分类与分类间距 → (class_of, clearance)，和布线、检查用的同一套"""
+    from wqeda.gen import board as gb
+    cls = {n: c["name"] for c in D.X["net_classes"] for n in c["nets"]}
+    own = {c["name"]: c["clearance_mm"] for c in D.X["net_classes"]}
+    want = {frozenset((a, b)): c for a, b, c in gb.pairs_of(D.X)}
+
+    def class_of(net):
+        return cls.get(net, "Default")
+
+    def clearance(na, nb):
+        a, b = class_of(na), class_of(nb)
+        return want.get(frozenset((a, b)), max(own.get(a, 0.2), own.get(b, 0.2)))
+
+    return class_of, clearance
+
+
+def testpoints(board=None):
+    """159e：设计描述 ict_test_points 里的底面测试点，板上还没有的补上（不重新布线）；位置写回 design.yaml 的 board.placement"""
+    from shapely.geometry import box
+
+    import ctrl_ls_place as PL
+    from wqeda.gen import board as gb
+    from wqeda.gen import route_fit as RF
+    m = pcbnew()
+    path = os.path.join(KDIR, NAME + ".kicad_pcb")
+    # 封装先读好、用时复制：读过板子以后同一进程里再按库读封装，KiCad 7 的 Python 接口有时取不到读封装的插件
+    proto = {}
+    for p in D.PARTS:
+        if p["ref"].startswith("TP") and p["fp"] not in proto:
+            proto[p["fp"]] = gb.load_fp(p["fp"])
+
+    def load_fp(fpid):
+        return proto[fpid].Duplicate()
+
+    save = board is None
+    if save:
+        board = m.LoadBoard(path)
+    have = {fp.GetReference() for fp in board.GetFootprints()}
+    rule = D.DOC["circuit"].get("ict_test_points") or {}
+    todo = [(p["ref"], p["pins"]["1"], p["fp"]) for p in D.PARTS
+            if p["ref"].startswith("TP") and p["note"] == rule.get("note") and p["ref"] not in have]
+    _, clearance = _rules()
+    w_, h_ = D.X["board_mm"]
+    ox, oy = gb.ORIGIN
+    kos = [(RF._poly(z.Outline()), set(z.GetLayerSet().CuStack())) for z in board.Zones()
+           if z.GetIsRuleArea() and z.GetDoNotAllowTracks()]
+    # 钳位电阻 R303、R310 那块散热铜（ctrl_ls_place.RESERVE）周围不放：第一次放在那里，
+    # 高压过孔在地平面上挖的圈让 R303 板温从 102.3 升到 104.5 ℃；
+    # 离开 3 mm 还升到 103.5 ℃（钳位网络的过孔在地平面上让出 2.2 mm 一圈），离开 8 mm
+    from shapely.geometry import box as _box
+    from shapely.ops import unary_union
+    avoid = unary_union([_box(ox + a, oy + b, ox + c, oy + d) for a, b, c, d in PL.RESERVE])
+    placed, failed = RF.add_test_points(board, todo, load_fp, clearance, box(ox, oy, ox + w_, oy + h_), kos,
+                                        avoid=avoid, avoid_mm=8.0)
+    if failed:  # 剩下的放宽找的范围、多试几处（第一次跑 32 个剩 1 个：步进芯片电荷泵脚，周围挤）
+        more, failed = RF.add_test_points(board, [t for t in todo if t[0] in failed], load_fp, clearance,
+                                      box(ox, oy, ox + w_, oy + h_), kos, reach=30.0, tries=400, avoid=avoid, avoid_mm=8.0)
+        placed.update(more)
+    if failed:  # 还剩的：底面焊盘可以放进别的低压网络的铺铜里（步进芯片电荷泵脚周围底面整片是 24 V 铺铜）
+        more, failed = RF.add_test_points(board, [t for t in todo if t[0] in failed], load_fp, clearance,
+                                      box(ox, oy, ox + w_, oy + h_), kos, pour_ok=True, avoid=avoid, avoid_mm=8.0)
+        placed.update(more)
+    if save:
+        m.SaveBoard(path, board)
+    place = dict(D.X["placement"])
+    for ref, (x, y) in placed.items():
+        place[ref] = (round(x - ox, 2), round(y - oy, 2), 0, "B")
+    PL.write(place)
+    return placed, failed
+
+
 def board_build(route, jar):
     from wqeda.gen import board as gb
     gb.LOCAL_FPDIRS["wq"] = os.path.join(ROOT, "libs")
@@ -484,7 +556,14 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--board", action="store_true")
     ap.add_argument("--no-route", action="store_true")
+    ap.add_argument("--testpoints", action="store_true", help="只补底面测试点（板子已布好线），再按 --board --no-route 出产物")
     a = ap.parse_args()
+    if a.testpoints:
+        placed, failed = testpoints()
+        print("测试点：放好 {} 个；放不下：{}".format(len(placed), failed or "无"))
+        if failed:
+            return 1
+        return subprocess.call([sys.executable, os.path.abspath(__file__), "--board", "--no-route"])
     if a.board:
         jar = os.environ.get("FREEROUTING_JAR") or os.path.join(HERE, "freerouting-1.9.0.jar")
         if not a.no_route:

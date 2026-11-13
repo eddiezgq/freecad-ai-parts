@@ -2,9 +2,9 @@
  "board_file": "kicad/ctrl-ls.kicad_pcb",
  "count": {
   "fail": 0,
-  "pass": 33,
+  "pass": 34,
   "pending": 60,
-  "unknown": 3
+  "unknown": 2
  },
  "electrical": {
   "count": {
@@ -822,13 +822,13 @@
   {
    "at": [],
    "count": 0,
-   "detail": "设计描述没写 ICT 覆盖率要求（board.rules.ict_coverage_min）",
+   "detail": "扎不到的网络：STP_CPO",
    "key": "T1",
-   "limit": null,
+   "limit": 0.9,
    "name": "ICT 测试点覆盖率",
-   "status": "unknown",
+   "status": "pass",
    "unit": "",
-   "value": null,
+   "value": 0.993,
    "why": "在线测试（ICT）用针床扎测试点；网络上没有能扎的点，这个网络就测不到"
   },
   {
@@ -852,7 +852,7 @@
    "name": "KiCad 设计规则检查（DRC）",
    "status": "pass",
    "unit": "",
-   "value": "错误 0、未连接 0、警告 58",
+   "value": "错误 0、未连接 0、警告 59",
    "why": "KiCad 按工程里的线宽、间距、连通规则查一遍；有错误或没连上的焊盘，板子就不能做"
   }
  ],
@@ -982,7 +982,7 @@
     ],
     "ref": "R303",
     "status": "pass",
-    "t_board_c": 102.3,
+    "t_board_c": 102.8,
     "t_limit_c": 105.0
    },
    {
@@ -997,7 +997,7 @@
     ],
     "ref": "R310",
     "status": "pass",
-    "t_board_c": 100.6,
+    "t_board_c": 101.1,
     "t_limit_c": 105.0
    },
    {
@@ -1042,7 +1042,7 @@
     ],
     "ref": "Q503",
     "status": "pass",
-    "t_board_c": 54.4,
+    "t_board_c": 54.3,
     "t_limit_c": 105.0
    },
    {
@@ -1067,7 +1067,7 @@
    112.5,
    -224.5
   ],
-  "t_max_c": 102.3,
+  "t_max_c": 102.8,
   "total_w": 3.68
  },
  "title": "平缝机控制器（单相 110–250 V，功率因数校正 + 智能功率模块）"

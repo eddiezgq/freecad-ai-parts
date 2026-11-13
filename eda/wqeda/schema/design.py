@@ -115,6 +115,13 @@ def validate_design(doc):
         for k in ("ref_start", "lib", "fp", "block", "power_block", "note"):
             if k not in ict:
                 p.append("ict_test_points 缺 {}".format(k))
+        try:
+            names = {n for q in all_parts(doc) for n in q["pins"].values()}
+        except Exception:  # 功能块本身有错，前后别的检查会报；这里不重复
+            names = None
+        for n in ict.get("nets") or []:
+            if names is not None and n not in names:
+                p.append("ict_test_points.nets 里的 {} 不是电路里的网络".format(n))
     bd = doc["board"]
     if not _check_xy(bd.get("outline_mm")):
         p.append("board.outline_mm 应是 [宽, 高]")
@@ -122,6 +129,12 @@ def validate_design(doc):
         p.append("board.layers 应是正整数")
     place = bd.get("placement") or {}
     known = set(refs)
+    if ict is not None and not p:
+        # 按规则生成的 ICT 测试点也可以写摆放（159e：CTRL-LS 的底面测试点按布好的线找空地放，位置记在这里）
+        try:
+            known |= {q["ref"] for q in test_point_parts(all_parts(doc), ict)}
+        except (ValueError, KeyError, TypeError):
+            pass
     for ref, v in place.items():
         if ref not in known:
             p.append("摆放里的 {} 不在器件清单里".format(ref))
@@ -291,10 +304,14 @@ def apply_variant(doc, var):
 
 
 def ict_nets(parts, rule):
-    """要放 ICT 测试点的网络：所有网络 − 接插件（J*，有通孔焊盘可扎）的网络 − 已有测试点的网络 − 规则里排除的"""
+    """要放 ICT 测试点的网络：所有网络 − 接插件（J*，有通孔焊盘可扎）的网络 − 已有测试点的网络 − 规则里排除的。
+    规则里写了 nets（第 159 轮 159e，CTRL-LS：通孔焊盘、过孔已经扎得到的网络不再加）就照单放这几个——
+    顶面已有烧录测试点的网络也照放（ICT 针床从底面扎，顶面的点扎不到）"""
     tht = {n for q in parts if q["ref"].startswith("J") for n in q["pins"].values()}
     has_tp = {q["pins"]["1"] for q in parts if q["ref"].startswith("TP")}
     every = {n for q in parts for n in q["pins"].values()}
+    if rule.get("nets") is not None:
+        return sorted(set(rule["nets"]) & every)
     return sorted(every - tht - has_tp - set(rule.get("exclude_nets") or []))
 
 

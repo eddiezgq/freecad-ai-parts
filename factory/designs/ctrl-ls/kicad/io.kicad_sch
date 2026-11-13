@@ -8,7 +8,7 @@
     (date "2026-11-12")
     (rev "示例 A")
     (company "问渠数字工业园 · 电路板厂（示例设计，未经硬件验证，不能直接投产）")
-    (comment 1 "STM32G431（沿用关节驱动板的最小系统）。编码器 A/B/Z 与霍尔 U/V/W 上拉 5 V、RC 滤波后经 SN74LVC14A 整形；脚踏板霍尔分压进 ADC；VB_OK 分压给主控看。"))
+    (comment 1 "STM32G431（沿用关节驱动板的最小系统）。编码器 A/B/Z 与霍尔 U/V/W 上拉 5 V、RC 滤波后经 SN74LVC14A 整形；脚踏板霍尔分压进 ADC；VB_OK 分压给主控看。TP1–TP5 是顶面烧录点；TP6–TP"))
   (lib_symbols
     (symbol "MCU_ST_STM32G4:STM32G431CBTx"
       (in_bom yes)
@@ -7750,7 +7750,2084 @@
       (effects
         (font
           (size 1.27 1.27)) hide)))
-  (text "STM32G431（沿用关节驱动板的最小系统）。编码器 A/B/Z 与霍尔 U/V/W 上拉 5 V、RC 滤波后经 SN74LVC14A 整形；脚踏板霍尔分压进 ADC；VB_OK 分压给主控看。"
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 180.34 294.64 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "9f2e522e-d3a3-5bcb-b226-d22fbe300426")
+    (property "Reference" "TP6"
+      (at 180.34 292.1 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "+3V3_ISO"
+      (at 180.34 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 180.34 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 180.34 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 180.34 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 180.34 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "4b0b65d0-b154-5fe9-bd14-85bacd0167a4"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP6")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 180.34 294.64)
+      (xy 180.34 297.18))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "f2889ace-6b1e-5e28-8131-8483dab5b4d2"))
+  (global_label "+3V3_ISO"
+    (shape passive)
+    (at 180.34 297.18 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "8b5518d8-a387-50c6-85ec-90e6bef0e7a4")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 180.34 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 238.76 294.64 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "c86329eb-d8d1-57fb-9b64-02845c9bb9e1")
+    (property "Reference" "TP7"
+      (at 238.76 292.1 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "BRO_B"
+      (at 238.76 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 238.76 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 238.76 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 238.76 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 238.76 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "20d442ef-b82c-5392-903d-b06be72f401d"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP7")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 238.76 294.64)
+      (xy 238.76 297.18))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "f385e05e-5ee1-59a3-a814-01793e47b7d8"))
+  (global_label "BRO_B"
+    (shape passive)
+    (at 238.76 297.18 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "3704f226-8f18-5105-aaea-d733e76ae452")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 238.76 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 299.72 294.64 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "38caddef-d610-51be-a13d-fda2bd4329b9")
+    (property "Reference" "TP8"
+      (at 299.72 292.1 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "CLAMP"
+      (at 299.72 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 299.72 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 299.72 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 299.72 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 299.72 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "26bff0af-437a-56bb-aea3-429ce3e3b1ab"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP8")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 299.72 294.64)
+      (xy 299.72 297.18))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "7d0d9580-31cf-5a2a-919f-15eff9c96798"))
+  (global_label "CLAMP"
+    (shape passive)
+    (at 299.72 297.18 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "6f11497b-dc4f-5f64-80f6-b053e89f7685")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 299.72 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 360.68 294.64 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "d9ad6182-e592-5597-8976-7b154fc8720a")
+    (property "Reference" "TP9"
+      (at 360.68 292.1 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "CLAMP_M"
+      (at 360.68 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 360.68 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 360.68 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 360.68 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 360.68 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "208b5083-2ff4-501c-87da-849a65513e20"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP9")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 360.68 294.64)
+      (xy 360.68 297.18))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "3eaa38e2-ef2c-5be4-a433-bfef879817e7"))
+  (global_label "CLAMP_M"
+    (shape passive)
+    (at 360.68 297.18 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "990e56f1-6d71-523c-a915-75d0de3f430b")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 360.68 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 419.1 294.64 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "14194015-6319-557d-8b53-fb583247f054")
+    (property "Reference" "TP10"
+      (at 419.1 292.1 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "ENC_Z_F"
+      (at 419.1 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 419.1 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 419.1 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 419.1 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 419.1 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "fc4f287a-d02f-59f4-b801-a9a1af5a8c56"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP10")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 419.1 294.64)
+      (xy 419.1 297.18))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "56f6dd15-ddba-57e1-acb4-79eb71925096"))
+  (global_label "ENC_Z_F"
+    (shape passive)
+    (at 419.1 297.18 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "7ef489ac-7237-5ce4-b39a-8e2cf86afa17")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 419.1 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 480.06 294.64 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "188298ab-ba3d-5346-a0c4-7cc92bf6ee6a")
+    (property "Reference" "TP11"
+      (at 480.06 292.1 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "FB_RC"
+      (at 480.06 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 480.06 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 480.06 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 480.06 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 480.06 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "165d20be-0acb-537a-9582-6307ddb2a461"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP11")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 480.06 294.64)
+      (xy 480.06 297.18))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "c534c522-3649-5ea8-adb2-65bd15f07b23"))
+  (global_label "FB_RC"
+    (shape passive)
+    (at 480.06 297.18 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "26e1a22c-9b4a-5628-9dca-50f11f4925e9")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 480.06 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 541.02 294.64 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "4ca75750-6fcb-5a44-939c-5f37f7a59259")
+    (property "Reference" "TP12"
+      (at 541.02 292.1 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "FB_REF"
+      (at 541.02 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 541.02 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 541.02 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 541.02 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 541.02 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "3f02255c-a59a-54d4-9e48-3bb584d3b64e"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP12")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 541.02 294.64)
+      (xy 541.02 297.18))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "83d41e66-8c7d-5bd2-a0bc-e4a3546f1c26"))
+  (global_label "FB_REF"
+    (shape passive)
+    (at 541.02 297.18 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "b906b99f-de95-5df2-b256-d32860c29b5d")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 541.02 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 599.44 294.64 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "7a722935-0495-5768-be9c-2c753d0e601f")
+    (property "Reference" "TP13"
+      (at 599.44 292.1 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "FREQ"
+      (at 599.44 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 599.44 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 599.44 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 599.44 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 599.44 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "2a93bd6a-ea62-5b39-a0a9-42ce23464542"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP13")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 599.44 294.64)
+      (xy 599.44 297.18))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "1ef84936-48aa-56d4-a807-86d9bec9af8b"))
+  (global_label "FREQ"
+    (shape passive)
+    (at 599.44 297.18 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "7b449a60-ef4b-564a-bb20-29c389d13403")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 599.44 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 660.4 294.64 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "c587ab7a-85f8-5d5d-9234-aef7dfd49ad3")
+    (property "Reference" "TP14"
+      (at 660.4 292.1 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "GATE_IC"
+      (at 660.4 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 660.4 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 660.4 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 660.4 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 660.4 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "61503edb-f180-54b7-915f-181719938b40"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP14")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 660.4 294.64)
+      (xy 660.4 297.18))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "14e996a8-e94a-53d8-9b44-a14345ea1348"))
+  (global_label "GATE_IC"
+    (shape passive)
+    (at 660.4 297.18 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "9c12061a-b440-5ccd-a80f-bc708314fcba")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 660.4 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 718.82 294.64 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "51c5765a-a181-5c05-be0d-d8699055d56f")
+    (property "Reference" "TP15"
+      (at 718.82 292.1 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "HALL_V_F"
+      (at 718.82 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 718.82 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 718.82 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 718.82 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 718.82 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "4bb80d85-a023-5297-8f01-730133426c5c"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP15")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 718.82 294.64)
+      (xy 718.82 297.18))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "a25f260d-b28c-54e4-bd64-fdd075b03a85"))
+  (global_label "HALL_V_F"
+    (shape passive)
+    (at 718.82 297.18 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "9f4f8b69-819a-5c81-acec-8881db4ec8f4")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 718.82 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 779.78 294.64 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "749c479d-4fd6-551f-bc42-056d8a27eba2")
+    (property "Reference" "TP16"
+      (at 779.78 292.1 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "HALL_W_F"
+      (at 779.78 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 779.78 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 779.78 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 779.78 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 779.78 294.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "8a919222-179e-5263-96ab-4ba2d0d2b39f"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP16")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 779.78 294.64)
+      (xy 779.78 297.18))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "7586b8d3-bbd6-5a08-894a-f4aa70af533c"))
+  (global_label "HALL_W_F"
+    (shape passive)
+    (at 779.78 297.18 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "3f76b9c2-3ae3-5b4b-b307-5f0d61d5638c")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 779.78 297.18 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 60.96 330.2 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "3516c64e-36b5-50bd-9676-ecf8d5c924f6")
+    (property "Reference" "TP17"
+      (at 60.96 327.66 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "ICOMP"
+      (at 60.96 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 60.96 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 60.96 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 60.96 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 60.96 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "70493efe-0936-5033-ab5a-5858219d065a"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP17")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 60.96 330.2)
+      (xy 60.96 332.74))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "2a3508f8-8b09-5497-86fb-cbfc2ac0875a"))
+  (global_label "ICOMP"
+    (shape passive)
+    (at 60.96 332.74 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "df2b5946-f1b2-55c2-8df8-e599b9d15d0c")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 119.38 330.2 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "838cac62-712b-525c-87e1-6a03e9e8ef35")
+    (property "Reference" "TP18"
+      (at 119.38 327.66 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "OVP_1"
+      (at 119.38 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 119.38 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 119.38 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 119.38 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 119.38 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "7016885b-186c-50f0-a72b-b265c4fa98fd"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP18")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 119.38 330.2)
+      (xy 119.38 332.74))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "2bdb4000-bec2-5fa1-bbcd-c0989046b33a"))
+  (global_label "OVP_1"
+    (shape passive)
+    (at 119.38 332.74 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "f75865f7-029d-5d10-b3c0-603ffefbf0a3")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 119.38 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 180.34 330.2 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "aa3215da-c725-5dca-85b9-d2c5829e6a86")
+    (property "Reference" "TP19"
+      (at 180.34 327.66 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "OVP_2"
+      (at 180.34 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 180.34 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 180.34 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 180.34 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 180.34 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "ef5627f9-355b-5cd7-b787-6e5fec31e957"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP19")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 180.34 330.2)
+      (xy 180.34 332.74))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "cb5ac3e8-2d1b-5f83-9db4-afcb5ec825e2"))
+  (global_label "OVP_2"
+    (shape passive)
+    (at 180.34 332.74 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "d3cfcf83-cfc6-5904-bef2-24e395c0aeda")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 180.34 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 238.76 330.2 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "88abdd20-9b18-5247-8a9e-ef966b78fe91")
+    (property "Reference" "TP20"
+      (at 238.76 327.66 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "RLY_G"
+      (at 238.76 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 238.76 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 238.76 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 238.76 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 238.76 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "c9e7659b-1eca-51f2-9d70-f00c8f68967f"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP20")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 238.76 330.2)
+      (xy 238.76 332.74))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "e5b2fac5-a214-51d7-8105-fd2e5b2b9aaf"))
+  (global_label "RLY_G"
+    (shape passive)
+    (at 238.76 332.74 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "79d081e2-164c-5e58-842c-87c5d4823aa8")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 238.76 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 299.72 330.2 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "4ef19f2a-9970-51fe-adbd-1c0239de7fa6")
+    (property "Reference" "TP21"
+      (at 299.72 327.66 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "RO_ISO"
+      (at 299.72 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 299.72 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 299.72 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 299.72 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 299.72 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "99929535-f17c-558f-9b86-889dd212cc64"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP21")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 299.72 330.2)
+      (xy 299.72 332.74))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "211b5084-78fa-5825-a08d-7cd67bca9cf5"))
+  (global_label "RO_ISO"
+    (shape passive)
+    (at 299.72 332.74 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "b1d65bdc-0b07-568d-b0fb-83c067f8d3ff")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 299.72 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 360.68 330.2 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "ef64cef2-8873-54e9-801e-21dd751c0e7c")
+    (property "Reference" "TP22"
+      (at 360.68 327.66 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "SOL1_G"
+      (at 360.68 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 360.68 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 360.68 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 360.68 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 360.68 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "4f08bd74-694d-53e8-b327-b4f1f77917b6"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP22")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 360.68 330.2)
+      (xy 360.68 332.74))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "6700b054-d260-503e-82a5-c32442079b8c"))
+  (global_label "SOL1_G"
+    (shape passive)
+    (at 360.68 332.74 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "7042ab58-b2c7-5cd2-a7db-e9911b90cfa4")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 360.68 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 419.1 330.2 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "faa95a60-92b3-5241-a539-03932fbdd5ea")
+    (property "Reference" "TP23"
+      (at 419.1 327.66 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "SOL1_K"
+      (at 419.1 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 419.1 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 419.1 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 419.1 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 419.1 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "f3217e3e-463e-56bf-abd9-35c18489d6f8"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP23")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 419.1 330.2)
+      (xy 419.1 332.74))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "efd141c6-7c01-5921-8d6a-b64373f8ae0b"))
+  (global_label "SOL1_K"
+    (shape passive)
+    (at 419.1 332.74 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "984e1e5e-5be5-502e-a5ba-3bbbb1f33c5b")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 419.1 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 480.06 330.2 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "de10df82-f572-5563-b21b-cef2433dc691")
+    (property "Reference" "TP24"
+      (at 480.06 327.66 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "SOL2_G"
+      (at 480.06 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 480.06 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 480.06 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 480.06 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 480.06 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "a0ee139c-2c04-5bcd-b846-06f30ee0caff"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP24")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 480.06 330.2)
+      (xy 480.06 332.74))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "91bacda5-29a5-58fb-8d51-1e92dc4b028a"))
+  (global_label "SOL2_G"
+    (shape passive)
+    (at 480.06 332.74 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "aa61506d-899d-51ef-9bcf-bf128c416fcc")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 480.06 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 541.02 330.2 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "8293c352-41b8-58e5-b86b-673ffb8a1a92")
+    (property "Reference" "TP25"
+      (at 541.02 327.66 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "SOL2_K"
+      (at 541.02 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 541.02 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 541.02 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 541.02 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 541.02 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "412f3217-3ab9-570a-9ff7-153792300359"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP25")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 541.02 330.2)
+      (xy 541.02 332.74))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "7a1b23d5-7900-5f13-b984-23b573532e79"))
+  (global_label "SOL2_K"
+    (shape passive)
+    (at 541.02 332.74 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "7602d845-f6ce-5d99-87b2-5d001c7783df")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 541.02 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 599.44 330.2 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "ce491652-a0dc-55d6-9431-7cf6cf1f991a")
+    (property "Reference" "TP26"
+      (at 599.44 327.66 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "SOL3_K"
+      (at 599.44 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 599.44 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 599.44 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 599.44 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 599.44 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "70367f9e-e362-578f-99e7-9faa97f9fce3"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP26")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 599.44 330.2)
+      (xy 599.44 332.74))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "648560df-e1fd-556c-90eb-63bbbac27234"))
+  (global_label "SOL3_K"
+    (shape passive)
+    (at 599.44 332.74 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "09cbbece-2b27-57eb-8e45-e8653ee15c22")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 599.44 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 660.4 330.2 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "3559309c-933d-51de-bbc9-3d7753fb76df")
+    (property "Reference" "TP27"
+      (at 660.4 327.66 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "SOL4_G"
+      (at 660.4 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 660.4 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 660.4 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 660.4 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 660.4 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "c44d5a7f-5c27-5d7e-9858-97455f03b10b"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP27")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 660.4 330.2)
+      (xy 660.4 332.74))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "c18017a1-5d3b-510f-b63a-e49049c8688c"))
+  (global_label "SOL4_G"
+    (shape passive)
+    (at 660.4 332.74 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "d15d51f0-f62a-519e-a412-f0401d043830")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 660.4 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 718.82 330.2 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "6941d729-d35b-54b1-a377-0f468f6d798d")
+    (property "Reference" "TP28"
+      (at 718.82 327.66 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "SOL4_K"
+      (at 718.82 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 718.82 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 718.82 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 718.82 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 718.82 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "9eecb59b-c623-51b4-84b9-26233eda7f45"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP28")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 718.82 330.2)
+      (xy 718.82 332.74))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "e2c74486-1e26-5f8d-b50d-8d2ea0b3c23f"))
+  (global_label "SOL4_K"
+    (shape passive)
+    (at 718.82 332.74 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "555c2ae2-b863-577d-9240-0fcf7e38ec92")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 718.82 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 779.78 330.2 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "074184ae-1fc7-515d-bbad-d77e692d2209")
+    (property "Reference" "TP29"
+      (at 779.78 327.66 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "SWCLK"
+      (at 779.78 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 779.78 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 779.78 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 779.78 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 779.78 330.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "85621330-a30e-5cc0-8107-06d63e686a70"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP29")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 779.78 330.2)
+      (xy 779.78 332.74))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "09d021ed-0233-54f3-928c-cfd573b7e439"))
+  (global_label "SWCLK"
+    (shape passive)
+    (at 779.78 332.74 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "ff10a7fe-57f2-562c-b036-d6fa6d4aa395")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 779.78 332.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 60.96 358.14 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "beae7b88-408b-5bb5-9c0c-8db817f1eadf")
+    (property "Reference" "TP30"
+      (at 60.96 355.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "SWDIO"
+      (at 60.96 360.68 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 60.96 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 60.96 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 60.96 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 60.96 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "082b998e-40b6-56e8-8204-de46571b6f43"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP30")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 60.96 358.14)
+      (xy 60.96 360.68))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "07b0fcb0-62b3-516a-a762-244ae9e6ae20"))
+  (global_label "SWDIO"
+    (shape passive)
+    (at 60.96 360.68 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "c2533879-8c01-55b6-b97d-c73412d4baed")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 360.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 119.38 358.14 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "0373ac92-423a-5f43-a934-425b1006526c")
+    (property "Reference" "TP31"
+      (at 119.38 355.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "TOP_V"
+      (at 119.38 360.68 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 119.38 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 119.38 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 119.38 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 119.38 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "92908c8a-f86a-55c9-ab3b-06de53aa01bb"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP31")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 119.38 358.14)
+      (xy 119.38 360.68))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "bbe7ee19-727c-5a30-9b7b-4f23949511e4"))
+  (global_label "TOP_V"
+    (shape passive)
+    (at 119.38 360.68 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "5440edca-07ef-5bc5-88c3-0f754954e50b")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 119.38 360.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 180.34 358.14 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "43b1cf93-63a7-55a4-a6ea-416ab2239095")
+    (property "Reference" "TP32"
+      (at 180.34 355.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "TXN_ISO"
+      (at 180.34 360.68 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 180.34 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 180.34 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 180.34 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 180.34 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "fc5ff89d-f7f6-575f-9276-a91a3afb04e2"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP32")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 180.34 358.14)
+      (xy 180.34 360.68))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "ad2b3a45-e851-586b-91ec-5aa1defe047f"))
+  (global_label "TXN_ISO"
+    (shape passive)
+    (at 180.34 360.68 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "dae96ec4-917f-5397-9255-4d93b5e0e2ff")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 180.34 360.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 238.76 358.14 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "7e1eb4bd-1ab1-5bca-a26e-37867d7e0b2e")
+    (property "Reference" "TP33"
+      (at 238.76 355.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "VBUS_SNS_1"
+      (at 238.76 360.68 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 238.76 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 238.76 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 238.76 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 238.76 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "0f39d1dd-3ad7-583a-8618-c08c5e07d095"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP33")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 238.76 358.14)
+      (xy 238.76 360.68))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "a0f28fd9-81d0-51c1-bad7-440206d336ef"))
+  (global_label "VBUS_SNS_1"
+    (shape passive)
+    (at 238.76 360.68 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "757df683-311c-569b-8a4a-57c249214485")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 238.76 360.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 299.72 358.14 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "5e44648e-229c-5d0b-9670-36905dd52491")
+    (property "Reference" "TP34"
+      (at 299.72 355.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "VBUS_SNS_2"
+      (at 299.72 360.68 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 299.72 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 299.72 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 299.72 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 299.72 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "0186b19a-8ca9-5874-8242-a0546809ecba"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP34")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 299.72 358.14)
+      (xy 299.72 360.68))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "49ad9dca-f588-548f-a9e4-dd6861b169bd"))
+  (global_label "VBUS_SNS_2"
+    (shape passive)
+    (at 299.72 360.68 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "5bb55a6a-e1f4-5878-a5db-d65beedbd4ed")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 299.72 360.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 360.68 358.14 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "e57becb3-2b78-51fd-9033-dfacdb667c8b")
+    (property "Reference" "TP35"
+      (at 360.68 355.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "VSENSE_1"
+      (at 360.68 360.68 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 360.68 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 360.68 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 360.68 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 360.68 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "e7a9e370-2c16-576c-adbe-b3e81b690f8c"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP35")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 360.68 358.14)
+      (xy 360.68 360.68))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "52a991ed-6f57-595a-8791-fe5d1067993d"))
+  (global_label "VSENSE_1"
+    (shape passive)
+    (at 360.68 360.68 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "4b676f92-fc5f-5911-83dd-a98cf9acc9c9")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 360.68 360.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Connector:TestPoint")
+    (at 419.1 358.14 0)
+    (unit 1)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "516a61e6-7fbe-5cd5-8b00-42bf243c3c97")
+    (property "Reference" "TP36"
+      (at 419.1 355.6 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "VSENSE_2"
+      (at 419.1 360.68 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+      (at 419.1 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 419.1 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" ""
+      (at 419.1 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "ICT 测试点"
+      (at 419.1 358.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "bc2954c3-13f8-5c22-8a66-648501b8f19e"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/33d70254-ef9c-5766-978e-d78ffaf9f61c"
+          (reference "TP36")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 419.1 358.14)
+      (xy 419.1 360.68))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "bd9a5a82-1756-511e-84d1-368cb8637e69"))
+  (global_label "VSENSE_2"
+    (shape passive)
+    (at 419.1 360.68 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "c7ae2975-2cd3-51b5-acfd-6111feacf814")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 419.1 360.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (text "STM32G431（沿用关节驱动板的最小系统）。编码器 A/B/Z 与霍尔 U/V/W 上拉 5 V、RC 滤波后经 SN74LVC14A 整形；脚踏板霍尔分压进 ADC；VB_OK 分压给主控看。TP1–TP5 是顶面烧录点；TP6–TP36 是底面 ICT 测试点（159e，针床从底面扎）。"
     (at 30 22 0)
     (effects
       (font
