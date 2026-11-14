@@ -220,7 +220,8 @@ def test_buyer_robot_plant_supply_and_park():
     assert out["profiles"]["metals/alt"][2] is True and out["cat_name"] == "谐波减速器"
     assert "示例·精密传动 Precision Drive (Demo)" in out["setup"]["suppliers"]
     assert set(out["setup"]["templates"]) == {"进货检验-metals", "进货检验-harmonic", "进货检验-gearbox",
-                                              "进货检验-pcb", "进货检验-sensor", "进货检验-motor", "进货检验-computer"}   # 第 166 轮：工控机向计算机厂买
+                                              "进货检验-pcb", "进货检验-sensor", "进货检验-motor", "进货检验-computer",
+                                              "进货检验-software"}   # 第 166 轮：工控机向计算机厂买；第 167 轮：机器人软件授权向软件公司买
                                                 # 第 85 轮：驱动板、AGV 控制板向电路板厂买；第 125 轮：编码器向传感器厂买；
     # 第 131 轮：电机改向电机厂买——没有物料再向“示例·伺服电机供应商”买，它的来料检验模板不再建（数据变了，不是放宽）
     (plant, path, body), = out["sent"]
