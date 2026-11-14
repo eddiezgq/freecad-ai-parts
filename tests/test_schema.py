@@ -117,6 +117,7 @@ TOP_LEVEL = {
     "requirement": "requirement.schema.json",
     "system": "system.schema.json",
     "extraction": "extraction.schema.json",
+    "fea-study": "fea-study.schema.json",          # ADR-0093
 }
 
 

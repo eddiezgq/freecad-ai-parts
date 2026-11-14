@@ -1,6 +1,6 @@
 # ADR-0093：有限元模块做到接近商业可用——算例模型、可信度核查、装配与接触、非线性、动力学，AI 只起草不判定
 
-- 状态：提议（2026-11-13，待项目负责人确认）
+- 状态：已接受（2026-11-13 22:42，项目负责人“好”：F1–F7 的顺序与代码归属照本 ADR）
 - 日期：2026-11-13
 - 补充：ADR-0056（本地运行的分析模块）、ADR-0059（第二批分析模块）、ADR-0060（计算内核并入 analysis/）
 
@@ -75,3 +75,20 @@
 - 依赖不增加（gmsh、numpy、scipy、CalculiX）；报告导出复用现有 python-docx。
 - 问渠数字工厂的 `cae/solve.py` 暂不动，F7 之后另开问渠的轮次改为调用本仓库。
 - 计算时间：网格收敛要多算两到三遍，缺省只对最大应力处局部加密复算，时间约为单次的 2–3 倍，界面可关。
+
+## 补充：算例模型第一版（F1，2026-11-13）
+
+`schema/fea-study.schema.json`，`format` 为 `fea-study/1`：
+
+- `bodies`：F1 只允许一个（`maxItems: 1`），每个写 `id`、`step_path`、`material`（材料库 id）。
+- `supports`：`fixed`、`cyl_support`；`loads`：`force`（`vector_n`）、`pressure`（`value_mpa`）、`torque`（`value_nm` + `axis`）、`moment`（`vector_nm`）。
+  每项都写 `body` 和 `faces`（面编号同 `analysis: faces` 的清单）。轴线写 `axis: {origin_mm, dir}`（旧 setup 的 `origin` 改名带单位）。
+- `steps`：`static`、`modal`（`n_modes`）；有多个时依次算，同一份网格。
+- `mesh`：`size_mm`、`refine_faces`、`max_elements`。
+- `checks`：`convergence`（缺省开）、`levels`（3–4）、`refine_ratio`（1.3–2.0，缺省 1.6）、`tolerance_ratio`（GCI 上限，缺省 0.05）、
+  `balance_tolerance_ratio`（反力平衡，缺省 0.001）。
+- `provenance`：`drafted_by`（human / ai）、`confirmed_by_human`；AI 起草且未确认的算例不算（F1 就执行这条）。
+
+旧的 `run(setup)` 写法（`step_path` + `loads` 混写支承和载荷）继续可用：内部转换成算例模型；为了不改旧测试与示例，旧写法的结果照旧给安全系数，
+同时附可信度核查结果并注明“安全系数未经网格收敛核查”（旧写法缺省不做收敛）。新写法只在可信度核查结论为“通过”时给安全系数，
+否则给 `safety_factor: null` 和原因。

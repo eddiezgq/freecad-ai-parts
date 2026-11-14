@@ -1,0 +1,128 @@
+{
+ "instance": {
+  "format": "fea-study/1",
+  "name": "cantilever",
+  "bodies": [
+   {
+    "id": "b1",
+    "step_path": "box.step",
+    "material": "45-QT"
+   }
+  ],
+  "supports": [
+   {
+    "type": "fixed",
+    "body": "b1",
+    "faces": [
+     1
+    ]
+   },
+   {
+    "type": "cyl_support",
+    "body": "b1",
+    "faces": [
+     3
+    ],
+    "axis": {
+     "origin_mm": [
+      0,
+      0,
+      0
+     ],
+     "dir": [
+      1,
+      0,
+      0
+     ]
+    },
+    "dofs": [
+     "radial"
+    ],
+    "band_mm": 1
+   }
+  ],
+  "loads": [
+   {
+    "type": "force",
+    "body": "b1",
+    "faces": [
+     2
+    ],
+    "vector_n": [
+     0,
+     0,
+     -100
+    ]
+   },
+   {
+    "type": "pressure",
+    "body": "b1",
+    "faces": [
+     4
+    ],
+    "value_mpa": 1.5
+   },
+   {
+    "type": "torque",
+    "body": "b1",
+    "faces": [
+     5
+    ],
+    "value_nm": 35,
+    "axis": {
+     "origin_mm": [
+      0,
+      0,
+      0
+     ],
+     "dir": [
+      1,
+      0,
+      0
+     ]
+    }
+   },
+   {
+    "type": "moment",
+    "body": "b1",
+    "faces": [
+     2
+    ],
+    "vector_nm": [
+     0,
+     10,
+     0
+    ]
+   }
+  ],
+  "steps": [
+   {
+    "id": "s1",
+    "type": "static"
+   },
+   {
+    "id": "m1",
+    "type": "modal",
+    "n_modes": 6
+   }
+  ],
+  "mesh": {
+   "size_mm": 2.5,
+   "refine_faces": [
+    2
+   ]
+  },
+  "checks": {
+   "convergence": true,
+   "levels": 3,
+   "refine_ratio": 1.6,
+   "tolerance_ratio": 0.05
+  },
+  "provenance": {
+   "drafted_by": "ai",
+   "confirmed_by_human": true,
+   "note": "起草后人改过载荷"
+  },
+  "time_limit_s": 600
+ }
+}

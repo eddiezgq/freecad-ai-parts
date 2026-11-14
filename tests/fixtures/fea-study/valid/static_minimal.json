@@ -1,0 +1,42 @@
+{
+ "instance": {
+  "format": "fea-study/1",
+  "name": "cantilever",
+  "bodies": [
+   {
+    "id": "b1",
+    "step_path": "box.step",
+    "material": "45-QT"
+   }
+  ],
+  "supports": [
+   {
+    "type": "fixed",
+    "body": "b1",
+    "faces": [
+     1
+    ]
+   }
+  ],
+  "loads": [
+   {
+    "type": "force",
+    "body": "b1",
+    "faces": [
+     2
+    ],
+    "vector_n": [
+     0,
+     0,
+     -100
+    ]
+   }
+  ],
+  "steps": [
+   {
+    "id": "s1",
+    "type": "static"
+   }
+  ]
+ }
+}
