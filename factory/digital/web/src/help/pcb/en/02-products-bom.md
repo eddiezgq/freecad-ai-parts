@@ -11,6 +11,11 @@
 
 Driver board quantities follow its KiCad design (the BOM on the “PCB design” page); the chips are example selections, not hardware-verified. The last column of the BOM table on the “PCB design” page is “Look up outside”: chips by part number, resistors, capacitors and inductors by package size + value, with ready-made search links to LCSC, DigiKey and SnapMagic for stock and prices (links only, not used in any check). The AGV control board and read-head board likewise have two levels. Take a driver board order and MRP schedules the SMT board work order first, then the finished board work order.
 
+The **lockstitch controller CTRL-LS** (Round 159) also has two levels, and its quantities equal the KiCad design's BOM item by item (checked by a test): SMT board SMT-CTRL = bare board PCB-CTRL (4 layers, 3 oz outer copper, 250 × 150 mm) + 187 SMD parts + solder paste;
+finished board CTRL-LS = SMT board + 30 through-hole parts (bridge rectifier, bus capacitors, common-mode choke, relay, terminals…, selective soldering in the back end) + conformal coating + ESD bag.
+Part numbers and models follow the design's part list (example selections); the custom PFC inductor and flyback transformer are wound by the “Magnetics Winder (Demo)”.
+The finished board has **no heatsink**: the hot parts are mounted to the controller box's aluminium case, and the heat-spreading pads go on when the sewing machine plant assembles the box. Design, checks and firmware: “PCB design → Lockstitch machine controller CTRL-LS”.
+
 ```anim
 name: bom-tree
 caption: One driver board explodes into two levels: SMT board → components

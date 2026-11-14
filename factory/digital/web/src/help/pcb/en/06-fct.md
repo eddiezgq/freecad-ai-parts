@@ -22,6 +22,10 @@ name: spc
 caption: Each board's results go into the quality record: sensed current error keeps rising — first check whether it is the same reel of shunts
 ```
 
+The lockstitch controller CTRL-LS (Round 159; nominal values from the design's calculation book, limits are examples) is also measured at the FCT station: low-side shunt 25 mΩ (in-circuit test), bus 390 V,
+the 24 / 15 / 5 / 3.3 V supplies, isolated 5 V, and breakdowns in the panel-port isolation test (test voltage per the calculation book, limit 0). Its back end burns in for 4 hours (a mains-powered board).
+The instrument replay on this page covers the driver board only for now; CTRL-LS measurements are in the quality records.
+
 ## Replay and retest
 
 On the left are boards that have had functional test (with shunt reel number); click one to see each step's instrument screen — the readings are the values the shop recorded at the functional test station.
