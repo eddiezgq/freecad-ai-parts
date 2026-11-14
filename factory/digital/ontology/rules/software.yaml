@@ -1,0 +1,48 @@
+# 第 167 轮：软件公司的质量规则。plant 写了厂的清单 id：只在那座厂的规则目录里出现（别的厂看不到）
+domain: quality
+rules:
+  SW1:
+    name: 测试通过率偏低（按构建服务器）
+    fn: sw_runner
+    plant: wenquest-software
+    severity: warn            # 有版本低于门禁下限为 critical
+    role: [quality, engineer]
+    params: {last: 12, gap: 0.3}
+    desc: 最近 last 个版本的自动化测试通过率按构建服务器分开，某台平均比其他台低 gap 个百分点以上
+    hint: 只在一台构建服务器上失败、换台机器重跑就过——是那台机器的环境问题（时钟、磁盘、缓存），不是代码：查它的时钟同步；“重跑一下就发”只是盖住
+  SW2:
+    name: 长稳压测内存一直涨
+    fn: sw_leak
+    plant: wenquest-software
+    severity: warn            # 有版本超过上限为 critical
+    role: [quality, engineer]
+    params: {last: 4, above: 2}
+    desc: 最近 last 个版本长稳压测的内存增长速率均值超过 above MB/h（上限 5 MB/h）
+    hint: 打开“发布流水线”看内存曲线：每次垃圾回收后的底线在一直往上走就是泄漏——从第一个变坏的版本找那次提交、回滚并补长稳回归用例；加内存、定时重启只是拖延
+  SW3:
+    name: 中断延迟偏高（按硬件在环测试台）
+    fn: sw_irq_bench
+    plant: wenquest-software
+    severity: warn
+    role: [quality, engineer]
+    params: {last: 6, gap: 1.5}
+    desc: 最近 last 个实时 OS / 机器人软件版本的最坏中断延迟离上限的余量按测试台分开，某台比最好的那台少 gap μs 以上
+    hint: 同一个版本换台测试台就正常——是测试台被测板的配置（缓存、频率）不对，不是内核：按标准配置重刷、用信号源复核测量卡
+  SW4:
+    name: 服务延迟偏高（按宿主机）
+    fn: svc_host
+    plant: wenquest-software
+    severity: warn
+    role: [quality, engineer, operator]
+    params: {last: 12, gap: 10}
+    desc: 最近 last 份订阅验收时的服务延迟 p99 按宿主机分开，某台平均比其他台高 gap ms 以上
+    hint: 只有一台宿主机上的服务慢、延迟一阵一阵地高——查同机的其他租户（吵闹的邻居）：迁走、加资源限额；加宿主机不解决这台上的争用
+  SW5:
+    name: 服务错误率偏高（按可用区）
+    fn: svc_zone
+    plant: wenquest-software
+    severity: warn
+    role: [quality, engineer, operator]
+    params: {last: 12, gap: 0.05}
+    desc: 最近 last 份订阅验收时的错误率按可用区分开，一个区比另一个区高 gap 个百分点以上
+    hint: 一个区的两台宿主机一起出错、另一个区正常——查最近推到这个区的配置变更：回滚，配置发布加金丝雀检查

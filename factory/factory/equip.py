@@ -34,7 +34,10 @@ PREFIX = (("saw", "saw"), ("cnc", "lathe"), ("vmc", "mc"), ("hmc", "mc"), ("grd"
           ("rin", "sewrunin"), ("eol", "eoltest"),
           # 第 166 轮：计算机厂（主板 SMT 沿用电路板厂的类别；X 光、内存测试、钣金、阳极氧化、点胶、开机灌装、整机柜联调）
           ("xr", "xray"), ("mt", "memtest"), ("lc", "lasercut"), ("pb", "pressbrake"), ("pem", "clinch"), ("pc", "powdercoat"),
-          ("an", "anodize"), ("dp", "dispense"), ("ost", "osimage"), ("rk", "racktest"))
+          ("an", "anodize"), ("dp", "dispense"), ("ost", "osimage"), ("rk", "racktest"),
+          # 第 167 轮：软件公司（研发工位、构建与测试机房、云平台机房）
+          ("dev", "devdesk"), ("bld", "buildsrv"), ("tst", "testfarm"), ("hil", "hilbench"), ("sk", "soak"), ("sec", "secscan"),
+          ("rel", "release"), ("lic", "licsrv"), ("cl", "cloudhost"), ("mon", "monitor"))
 
 # 类别缺省（示例值）：原值 $、购入年、保养内容、保养分钟、一次修理费 $、停机每小时损失 $、
 # 威布尔 β、η 运行小时、平均修复分钟、保养周期 运行小时、开始时已运行小时、故障模式 [(代码, 名称)]、功率 (运行, 空转, 待机) kW、
@@ -353,8 +356,35 @@ KIND.update({
     "eoltest": _k("出厂测试台", 30000, "校声级计、转速计、停针角度检测", [("sensor", "声级计 / 角度传感器漂移")], (1.0, 0.3, 0.05),
                   [('机针刺伤', 3, 2, ['试缝时手不进针区'])], ["标准机（金样）复测通过"], noise=80, air=False),
 })
+# 第 167 轮：软件公司的设备类别（全部示例值）。机房设备的危险源主要是电气、噪声和气体灭火；研发工位是久坐与用眼
+_SRV = [('机柜带电部件触电', 2, 4, ['断电挂牌再插拔电源', '机柜接地']), ('气体灭火释放窒息', 1, 5, ['灭火前撤离、听到报警即离开'])]
+KIND.update({
+    "devdesk": _k("研发工位", 8000, "电脑与显示器检查、开发环境更新", [("pc", "开发机故障")], (0.6, 0.3, 0.05),
+                  [('久坐与用眼疲劳', 2, 2, ['每小时起身活动', '显示器高度与距离调好'])], ["开发环境镜像是最新版"], noise=45, air=False),
+    "buildsrv": _k("构建服务器", 25000, "清缓存、查磁盘与时钟同步、更新构建镜像", [("disk", "磁盘写满"), ("clock", "时钟漂移")], (0.8, 0.4, 0.1),
+                   _SRV, ["时钟同步正常（与时间服务器差 < 1 s）", "磁盘余量 > 20 %"], noise=65, air=False, auto=True, mttr_min=60, lost_per_h=80),
+    "testfarm": _k("集成测试机群", 120000, "更新测试镜像、查网络与存储", [("node", "测试节点掉线")], (6.0, 2.0, 0.5), _SRV, ["测试节点全部在线"],
+                   noise=68, air=False, auto=True, mttr_min=90),
+    "hilbench": _k("硬件在环测试台", 30000, "校示波器与延迟测量卡、核对被测板固件与缓存配置", [("probe", "测量卡漂移"), ("config", "被测板配置不对")],
+                   (0.5, 0.2, 0.05), [('电路板带电短路', 2, 2, ['断电再换板', '防静电腕带'])], ["被测板配置与标准一致", "延迟测量卡用信号源自检"],
+                   noise=50, air=False, auto=True),
+    "soak": _k("长稳压测平台", 90000, "清理压测数据、查负载机与内存采集", [("agent", "采集程序掉线")], (5.0, 1.5, 0.3), _SRV, ["采集程序在线"],
+               noise=68, air=False, auto=True),
+    "secscan": _k("安全扫描服务器", 20000, "更新漏洞库与许可证规则库", [("db", "漏洞库过期")], (0.6, 0.3, 0.1), _SRV, ["漏洞库是今天的"],
+                  noise=62, air=False, auto=True),
+    "release": _k("发布门禁与签名服务器", 40000, "检查硬件安全模块与证书有效期", [("hsm", "签名模块故障"), ("cert", "证书快到期")], (0.6, 0.3, 0.1),
+                  _SRV, ["签名证书有效期 > 30 天"], noise=62, air=False, auto=True),
+    "licsrv": _k("授权服务器", 30000, "检查硬件安全模块、备份授权库", [("hsm", "签名模块故障")], (0.4, 0.2, 0.1), _SRV, ["授权库备份成功"],
+                 noise=60, air=False, auto=True),
+    "cloudhost": _k("云平台宿主机（整机柜）", 172000, "滚动升级宿主机、换坏盘、查背门换热器水温", [("disk", "硬盘故障"), ("nic", "网卡丢包")],
+                    (10.8, 4.0, 1.0), _SRV + [('漏水', 1, 3, ['漏水检测绳', '快接头关断阀'])], ["背门换热器供水 18 ℃ 左右", "坏盘已更换"],
+                    noise=75, air=False, auto=True, repair_usd=2000, lost_per_h=500, mttr_min=60),
+    "monitor": _k("监控平台与值班室", 50000, "检查报警通道与值班表", [("alert", "报警通道不通")], (1.0, 0.5, 0.2),
+                  [('夜班疲劳', 2, 2, ['轮班、交接班记录'])], ["报警测试短信 / 电话能收到"], noise=50, air=False, auto=True),
+})
 STAFFED_EXCEPT = ("bench", "runin", "reflow", "burnin", "cure", "plasma", "thermcycle", "thermcomp", "varnish", "memtest", "racktest",
-                  "furnace", "oven", "cooling", "sewrunin")   # 第 134 轮：热处理炉、烘道、冷却线、跑合台   # 第 61 轮：自动测试台、跑合台不用人看着开（其余设备“要有人”）；第 85 轮：回流炉、老化房；第 103 轮：固化烘箱、等离子清洗；第 125 轮：温度循环箱、温度补偿箱；第 131 轮：浸漆烘箱
+                  "furnace", "oven", "cooling", "sewrunin",
+                  "buildsrv", "testfarm", "hilbench", "soak", "secscan", "release", "licsrv", "cloudhost", "monitor")   # 第 134 轮：热处理炉、烘道、冷却线、跑合台   # 第 61 轮：自动测试台、跑合台不用人看着开（其余设备“要有人”）；第 85 轮：回流炉、老化房；第 103 轮：固化烘箱、等离子清洗；第 125 轮：温度循环箱、温度补偿箱；第 131 轮：浸漆烘箱
 MAINT_KEYS = ("value", "bought", "pm_text", "pm_min", "repair_usd", "lost_per_h", "beta", "eta_h", "mttr_min", "pm_h", "init_h")
 
 

@@ -4014,5 +4014,33 @@
 [
 "{a} {b} ps（{c} 条）",
 "{a} {b} ps ({c} modules)"
+],
+[
+"测试通过率：{a} 跑的构建比其他构建服务器低 {b} 个百分点",
+"Pass rate: builds on {a} are {b} points lower than on the other build servers"
+],
+[
+"长稳压测内存一直涨：最近 {a} 个版本平均 {b} MB/h",
+"Soak memory keeps rising: last {a} releases average {b} MB/h"
+],
+[
+"超过上限的版本：{a}；最早的一个 {b}",
+"Releases over the limit: {a}; earliest {b}"
+],
+[
+"中断延迟：{a} 测的版本离上限只剩 {b} μs，比别的测试台少 {c} μs",
+"Interrupt latency: releases tested on {a} have only {b} μs margin, {c} μs less than other benches"
+],
+[
+"服务延迟：{a} 上的订阅比其他宿主机高 {b} ms",
+"Service latency: subscriptions on {a} are {b} ms higher than on other hosts"
+],
+[
+"服务错误率：{a} 比另一个区高 {b} 个百分点",
+"Service errors: {a} is {b} points higher than the other zone"
+],
+[
+"{a} {b} {c}（{d} 个）",
+"{a} {b} {c} ({d})"
 ]
 ]

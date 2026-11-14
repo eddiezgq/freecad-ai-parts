@@ -1,0 +1,238 @@
+# 工厂清单（ADR-0064；第 2 版见问渠第 45 轮）。改完用 python -m factory.plant check 本文件 校验。
+# 问渠数字工业园 · 软件公司（第 167 轮）：实时操作系统、服务器 / 桌面操作系统、云平台、数字工厂（工业软件）、机器人软件。
+# 软件的“生产线”是发布流水线：合并与评审 → 编译与单元测试 → 集成测试 → 硬件在环测试 / 长稳压测 → 安全扫描 → 发布门禁 → 签名发布。
+#   一次构建 = 一张工单（版本构建做成成品，按“定制版本交付”卖）；物料清单就是软件物料清单（SBOM：开源与第三方组件、签名）；
+#   来料检验 = 组件进来先查许可证与已知漏洞。
+# 授权（实时 OS、OS、机器人软件，每台设备一份）走“授权签发”；订阅（云平台、数字工厂）走“资源开通 → 24 小时服务验收”。
+# 工业园：计算机厂买 OS 授权、机器人厂买机器人软件授权、电路板厂的关节驱动板买实时 OS 授权；软件公司向计算机厂买整机柜建云平台机房。
+# 设备是构建服务器、测试机群、硬件在环测试台（接真的关节驱动板）、长稳压测平台、云平台宿主机（两个可用区）。
+# 测试通过率、中断延迟、内存泄漏速率由构建流水线模型算出，云服务延迟、错误率、可用性由 24 小时服务曲线算出（sim/softsim.py；参数随测量记录带走）。
+# 单价、工时、设备费率、测试数量、测量名义值与散布都是示例值；开源组件单价 0（审查成本另计），商业组件写通用名称 +“型号待确认”。
+version: 2
+id: wenquest-software
+demo_data: false
+company:
+  name: 问渠软件公司 WenQuest Software (Demo)
+  abbr: WQSO
+  country: United States
+  currency: USD
+  timezone: America/New_York
+workstations:
+- {name: 研发工位 DEV, count: 3, cost: [3, 60, 0.5]}
+- {name: 构建服务器 BLD, count: 4, cost: [6, 0, 1.2]}
+- {name: 集成测试机群 TST, count: 2, cost: [8, 0, 3]}
+- {name: 硬件在环测试台 HIL, count: 3, cost: [5, 0, 0.8]}
+- {name: 长稳压测平台 SK, count: 1, cost: [10, 0, 6]}
+- {name: 安全扫描服务器 SEC, count: 1, cost: [4, 0, 0.8]}
+- {name: 发布与签名服务器 REL, count: 1, cost: [4, 40, 0.5]}
+- {name: 授权服务器 LIC, count: 1, cost: [2, 0, 0.3]}
+- {name: 云平台宿主机 CL, count: 4, cost: [12, 0, 8]}
+- {name: 监控平台 MON, count: 1, cost: [4, 0, 1]}
+units:
+# 研发楼（y = 4）
+- {id: dev-1, area: design, name: 内核与驱动组工位, name_en: Kernel & drivers team, workstation: 研发工位 DEV, layout: [4, 4, 6, 3], height_m: 1.2, setup_min: 5}
+- {id: dev-2, area: design, name: 平台与云组工位, name_en: Platform & cloud team, workstation: 研发工位 DEV, layout: [12, 4, 6, 3], height_m: 1.2, setup_min: 5}
+- {id: dev-3, area: design, name: 应用与机器人软件组工位, name_en: Applications & robotics team, workstation: 研发工位 DEV, layout: [20, 4, 6, 3], height_m: 1.2,
+   setup_min: 5}
+# 构建与测试机房（y = 13）
+- {id: bld-1, area: machining, name: 构建服务器 1 号, name_en: Build server 1, workstation: 构建服务器 BLD, layout: [3, 13, 1.2, 1.2], height_m: 2.0, setup_min: 1}
+- {id: bld-2, area: machining, name: 构建服务器 2 号, name_en: Build server 2, workstation: 构建服务器 BLD, layout: [5, 13, 1.2, 1.2], height_m: 2.0, setup_min: 1}
+- {id: bld-3, area: machining, name: 构建服务器 3 号, name_en: Build server 3, workstation: 构建服务器 BLD, layout: [7, 13, 1.2, 1.2], height_m: 2.0, setup_min: 1}
+- {id: bld-4, area: machining, name: 构建服务器 4 号, name_en: Build server 4, workstation: 构建服务器 BLD, layout: [9, 13, 1.2, 1.2], height_m: 2.0, setup_min: 1}
+- {id: tst-1, area: quality, name: 集成测试机群 1, name_en: Integration test farm 1, workstation: 集成测试机群 TST, layout: [12.5, 13, 2.4, 1.2], height_m: 2.0,
+   capacity: 4, setup_min: 2}
+- {id: tst-2, area: quality, name: 集成测试机群 2, name_en: Integration test farm 2, workstation: 集成测试机群 TST, layout: [15.5, 13, 2.4, 1.2], height_m: 2.0,
+   capacity: 4, setup_min: 2}
+- {id: hil-1, area: quality, name: 硬件在环测试台 1 号（关节驱动板、工控机）, name_en: HIL bench 1, workstation: 硬件在环测试台 HIL, layout: [19.5, 13, 2, 1.2],
+   height_m: 1.2, setup_min: 3}
+- {id: hil-2, area: quality, name: 硬件在环测试台 2 号（关节驱动板、工控机）, name_en: HIL bench 2, workstation: 硬件在环测试台 HIL, layout: [22.5, 13, 2, 1.2],
+   height_m: 1.2, setup_min: 3}
+- {id: hil-3, area: quality, name: 硬件在环测试台 3 号（关节驱动板、工控机）, name_en: HIL bench 3, workstation: 硬件在环测试台 HIL, layout: [25.5, 13, 2, 1.2],
+   height_m: 1.2, setup_min: 3}
+- {id: sk-1, area: quality, name: 长稳压测平台（12 小时满负荷、记内存曲线）, name_en: Soak test platform, workstation: 长稳压测平台 SK, layout: [29, 13, 3, 1.2],
+   height_m: 2.0, capacity: 12, setup_min: 2}
+- {id: sec-1, area: quality, name: 安全扫描服务器（漏洞、许可证、代码扫描）, name_en: Security scanner, workstation: 安全扫描服务器 SEC, layout: [33, 13, 1.2, 1.2],
+   height_m: 2.0, capacity: 4, setup_min: 1}
+- {id: rel-1, area: quality, name: 发布门禁与签名服务器, name_en: Release gate & signing, workstation: 发布与签名服务器 REL, layout: [35.5, 13, 1.2, 1.2], height_m: 2.0,
+   setup_min: 1}
+- {id: lic-1, area: warehouse, name: 授权服务器（硬件安全模块签发授权）, name_en: License server, workstation: 授权服务器 LIC, layout: [35.5, 4, 1.2, 1.2], height_m: 2.0,
+   capacity: 50, setup_min: 1}
+# 云平台机房（y = 22）：两个可用区，每区两台宿主机（示意：一台代表一个整机柜）
+- {id: cl-a1, area: machining, name: 云平台 A 区宿主机 1, name_en: Cloud zone A host 1, workstation: 云平台宿主机 CL, layout: [5, 22, 1.2, 2.4], height_m: 2.0, capacity: 20,
+   setup_min: 1}
+- {id: cl-a2, area: machining, name: 云平台 A 区宿主机 2, name_en: Cloud zone A host 2, workstation: 云平台宿主机 CL, layout: [8, 22, 1.2, 2.4], height_m: 2.0, capacity: 20,
+   setup_min: 1}
+- {id: cl-b1, area: machining, name: 云平台 B 区宿主机 1, name_en: Cloud zone B host 1, workstation: 云平台宿主机 CL, layout: [14, 22, 1.2, 2.4], height_m: 2.0, capacity: 20,
+   setup_min: 1}
+- {id: cl-b2, area: machining, name: 云平台 B 区宿主机 2, name_en: Cloud zone B host 2, workstation: 云平台宿主机 CL, layout: [17, 22, 1.2, 2.4], height_m: 2.0, capacity: 20,
+   setup_min: 1}
+- {id: mon-1, area: quality, name: 监控平台（延迟、错误率、可用性；运维值班）, name_en: Monitoring platform, workstation: 监控平台 MON, layout: [24, 22, 3, 1.4],
+   height_m: 1.2, capacity: 100, setup_min: 1}
+- {id: store-s1, area: warehouse, name: 组件仓库（开源与第三方组件、证书与密钥）, name_en: Component repository, layout: [31, 22, 3, 2], height_m: 2.0}
+- {id: store-s2, area: warehouse, name: 制品库（已签名的版本、授权）, name_en: Artifact repository, layout: [35.5, 22, 3, 2], height_m: 2.0}
+- {id: agv-s1, area: logistics, name: 机房巡检与搬运机器人（换硬盘、送备件）, name_en: Data-center patrol robot, home: [1, 18]}
+dashboard: [dev-1, dev-2, dev-3, bld-1, bld-2, bld-3, bld-4, tst-1, tst-2, hil-1, hil-2, hil-3, sk-1, sec-1, rel-1, lic-1, cl-a1, cl-a2, cl-b1, cl-b2, mon-1]
+stores: {raw: store-s1, finished: store-s2}
+operations:
+- {name: 合并与评审 Merge & review, workstation: 研发工位 DEV, units: [dev-1, dev-2, dev-3], stage: assembly}
+- {name: 编译与单元测试 Build & unit test, workstation: 构建服务器 BLD, units: [bld-1, bld-2, bld-3, bld-4], stage: other}
+- {name: 集成测试 Integration test, workstation: 集成测试机群 TST, units: [tst-1, tst-2], stage: inspect}
+- {name: 硬件在环测试 HIL test, workstation: 硬件在环测试台 HIL, units: [hil-1, hil-2, hil-3], stage: inspect}
+- {name: 长稳压测 Soak test, workstation: 长稳压测平台 SK, units: [sk-1], stage: inspect}
+- {name: 安全扫描 Security scan, workstation: 安全扫描服务器 SEC, units: [sec-1], stage: inspect}
+- {name: 发布门禁 Release gate, workstation: 发布与签名服务器 REL, units: [rel-1], stage: inspect, inspection: true}
+- {name: 签名发布 Sign & publish, workstation: 发布与签名服务器 REL, units: [rel-1], stage: other}
+- {name: 授权签发 License issuance, workstation: 授权服务器 LIC, units: [lic-1], stage: other}
+- {name: 资源开通 Provisioning, workstation: 云平台宿主机 CL, units: [cl-a1, cl-a2, cl-b1, cl-b2], stage: other}
+- {name: 服务验收 Service acceptance, workstation: 监控平台 MON, units: [mon-1], stage: inspect, inspection: true}
+floor: {length_m: 40, width_m: 28, aisles_y: [9, 18], cross_x: 1}
+shift:
+  periods: [['09:00:00', '12:00:00'], ['13:00:00', '18:00:00']]
+  workdays: [0, 1, 2, 3, 4]
+  max_overtime_min: 180
+kpi: {on_time: 0.95, oee: 0.6, fpy: 0.95}
+suppliers:
+  # 准时率、合格率（教学模拟器）、交货期、来料检验项都是示例值；开源组件“合格率”= 许可证与漏洞审查通过的比例
+  oss: {name: 示例·开源社区上游 Open-source Upstream (Demo), lead: 1, on_time: 0.99, pass: 0.97, cat_name: 开源组件,
+        incoming: [{name: 许可证 License, text: 许可证在白名单内（Apache-2.0、MIT、BSD；GPL 组件只用于不链接的独立程序）},
+                   {name: 已知漏洞 CVE, text: 没有未修复的高危漏洞（CVSS ≥ 7）}]}
+  tools: {name: 示例·工具链与组件授权商 Toolchain Vendor (Demo), lead: 3, on_time: 0.97, pass: 0.995, cat_name: 商业组件,
+          incoming: [{name: 授权文件 License file, text: 授权数量、有效期与订单一致}]}
+  ca: {name: 示例·证书与签名服务商 Certificate Authority (Demo), lead: 1, on_time: 0.99, pass: 0.999, cat_name: 证书与密钥}
+  computer: {name: 问渠计算机厂 WenQuest Computers (Demo), lead: 14, on_time: 0.95, pass: 0.995, cat_name: 整机柜, park: wenquest-computer,
+             incoming: [{name: 整柜联调记录 Rack test record, text: 联调记录齐全（整柜功率、换热器温差、链路误码）}]}
+customers:
+- 示例·问渠计算机厂 WenQuest Computers (Demo)
+- 示例·问渠机器人厂 WenQuest Robotics (Demo)
+- 示例·企业云客户 Enterprise Cloud Customer (Demo)
+- 示例·设备制造商 OEM Device Maker (Demo)
+items:
+# 软件物料清单里的组件（开源单价 0；商业组件型号待确认）
+- {code: OSS-RTOS, name: 实时内核与驱动的开源组件包（BSD / Apache，审查入库） RTOS open-source components, kind: buy, uom: Nos, price: 0, supplier: oss}
+- {code: OSS-LINUX, name: Linux 内核与用户态组件包（GPL / LGPL / MIT，审查入库） Linux distribution components, kind: buy, uom: Nos, price: 0, supplier: oss}
+- {code: OSS-CLOUD, name: 云原生组件包（容器编排、分布式存储、网络，Apache-2.0） Cloud-native components, kind: buy, uom: Nos, price: 0, supplier: oss}
+- {code: OSS-WEB, name: 前后端框架与数据库组件包（MIT / Apache） Web & database components, kind: buy, uom: Nos, price: 0, supplier: oss}
+- {code: OSS-ROBOT, name: 机器人中间件与视觉库（Apache / BSD） Robotics middleware & vision, kind: buy, uom: Nos, price: 0, supplier: oss}
+- {code: TOOL-SAFE, name: 功能安全认证编译器授权（每次构建，型号待确认） Safety-certified compiler seat, kind: buy, uom: Nos, price: 20, supplier: tools}
+- {code: DB-ENT, name: 商业数据库驱动与中间件授权（每个版本，型号待确认） Commercial database middleware, kind: buy, uom: Nos, price: 300, supplier: tools}
+- {code: SIGN-CODE, name: 代码签名（每次，硬件安全模块） Code signing, kind: buy, uom: Nos, price: 1, supplier: ca}
+- {code: KEY-LIC, name: 授权密钥签发配额（每份） License key quota, kind: buy, uom: Nos, price: 0.05, supplier: ca}
+- {code: RACK-CLOUD, name: 云平台整机柜（问渠计算机厂 WQ-RACK42，16 台服务器） Cloud rack, kind: buy, uom: Nos, price: 172000, supplier: computer,
+   park_item: WQ-RACK42, pack: 1, note: 机房资产，按安全库存补，不随订阅消耗}
+# 成品：版本（每次构建交付一个定制版本）
+- {code: REL-RTOS, name: 实时操作系统 WQ-RTOS 版本（板级定制构建） WQ-RTOS release, kind: fg, uom: Nos}
+- {code: REL-OS, name: 服务器 / 桌面操作系统 WQ-OS 版本 WQ-OS release, kind: fg, uom: Nos}
+- {code: REL-CLOUD, name: 云平台 WQ-Cloud 版本 WQ-Cloud release, kind: fg, uom: Nos}
+- {code: REL-MES, name: 数字工厂 WQ-MES 版本 WQ-MES release, kind: fg, uom: Nos}
+- {code: REL-ROBOT, name: 机器人软件 WQ-Robot 版本（运动控制、视觉） WQ-Robot release, kind: fg, uom: Nos}
+# 成品：授权与订阅
+- {code: LIC-RTOS, name: WQ-RTOS 设备授权（每台设备） WQ-RTOS device license, kind: fg, uom: Nos, note: 电路板厂关节驱动板烧录固件时用}
+- {code: LIC-OS, name: WQ-OS 授权（每台计算机） WQ-OS license, kind: fg, uom: Nos, note: 计算机厂“开机自检与系统灌装”时用}
+- {code: LIC-ROBOT, name: WQ-Robot 授权（每台机器人） WQ-Robot license, kind: fg, uom: Nos, note: 机器人厂整机标定前装}
+- {code: SUB-CLOUD, name: WQ-Cloud 订阅（100 vCPU·月） WQ-Cloud subscription, kind: fg, uom: Nos}
+- {code: SUB-MES, name: WQ-MES 订阅（每厂每月） WQ-MES subscription, kind: fg, uom: Nos}
+routings:
+- name: RT-实时OS RTOS
+  steps: [[合并与评审 Merge & review, 30], [编译与单元测试 Build & unit test, 25], [集成测试 Integration test, 30], [硬件在环测试 HIL test, 60],
+          [安全扫描 Security scan, 15], [发布门禁 Release gate, 5], [签名发布 Sign & publish, 5]]
+- name: RT-操作系统 OS
+  steps: [[合并与评审 Merge & review, 30], [编译与单元测试 Build & unit test, 45], [集成测试 Integration test, 40], [长稳压测 Soak test, 720],
+          [安全扫描 Security scan, 20], [发布门禁 Release gate, 5], [签名发布 Sign & publish, 5]]
+- name: RT-平台 Platform
+  steps: [[合并与评审 Merge & review, 30], [编译与单元测试 Build & unit test, 35], [集成测试 Integration test, 60], [长稳压测 Soak test, 720],
+          [安全扫描 Security scan, 20], [发布门禁 Release gate, 5], [签名发布 Sign & publish, 5]]
+- name: RT-应用 Application
+  steps: [[合并与评审 Merge & review, 20], [编译与单元测试 Build & unit test, 15], [集成测试 Integration test, 30], [长稳压测 Soak test, 240],
+          [安全扫描 Security scan, 15], [发布门禁 Release gate, 5], [签名发布 Sign & publish, 5]]
+- name: RT-机器人软件 Robot software
+  steps: [[合并与评审 Merge & review, 20], [编译与单元测试 Build & unit test, 20], [集成测试 Integration test, 20], [硬件在环测试 HIL test, 45],
+          [安全扫描 Security scan, 15], [发布门禁 Release gate, 5], [签名发布 Sign & publish, 5]]
+- name: RT-授权 License
+  steps: [[授权签发 License issuance, 0.5]]
+- name: RT-订阅 Subscription
+  steps: [[资源开通 Provisioning, 10], [服务验收 Service acceptance, 1440]]
+boms:
+- item: REL-RTOS
+  routing: RT-实时OS RTOS
+  components: [[OSS-RTOS, 1], [TOOL-SAFE, 1], [SIGN-CODE, 1]]
+- item: REL-OS
+  routing: RT-操作系统 OS
+  components: [[OSS-LINUX, 1], [SIGN-CODE, 1]]
+- item: REL-CLOUD
+  routing: RT-平台 Platform
+  components: [[OSS-LINUX, 1], [OSS-CLOUD, 1], [SIGN-CODE, 1]]
+- item: REL-MES
+  routing: RT-应用 Application
+  components: [[OSS-WEB, 1], [DB-ENT, 1], [SIGN-CODE, 1]]
+- item: REL-ROBOT
+  routing: RT-机器人软件 Robot software
+  components: [[OSS-RTOS, 1], [OSS-ROBOT, 1], [TOOL-SAFE, 1], [SIGN-CODE, 1]]
+- item: LIC-RTOS
+  routing: RT-授权 License
+  components: [[KEY-LIC, 1]]
+- item: LIC-OS
+  routing: RT-授权 License
+  components: [[KEY-LIC, 1]]
+- item: LIC-ROBOT
+  routing: RT-授权 License
+  components: [[KEY-LIC, 1]]
+- item: SUB-CLOUD
+  routing: RT-订阅 Subscription
+  components: [[KEY-LIC, 1]]
+- item: SUB-MES
+  routing: RT-订阅 Subscription
+  components: [[KEY-LIC, 1]]
+products:
+- {item: REL-RTOS, price: 15000}
+- {item: REL-OS, price: 20000}
+- {item: REL-CLOUD, price: 30000}
+- {item: REL-MES, price: 12000}
+- {item: REL-ROBOT, price: 15000}
+- {item: LIC-RTOS, price: 3}
+- {item: LIC-OS, price: 25}
+- {item: LIC-ROBOT, price: 400}
+- {item: SUB-CLOUD, price: 2400}
+- {item: SUB-MES, price: 3000}
+stock:
+  # 期初库存（示例值）：组件包各 20 份、签名 200 次、授权密钥 5000 份；整机柜已有 4 台（建机房时买的），安全库存 4（坏一台就补）
+  opening: {OSS-RTOS: 20, OSS-LINUX: 20, OSS-CLOUD: 20, OSS-WEB: 20, OSS-ROBOT: 20, TOOL-SAFE: 40, DB-ENT: 10, SIGN-CODE: 200, KEY-LIC: 5000,
+            RACK-CLOUD: 4}
+  safety: {SIGN-CODE: 50, KEY-LIC: 1000, RACK-CLOUD: 4}
+key_materials: [KEY-LIC, SIGN-CODE]
+# 测量（名义值、规格限、散布都是示例值）：版本在发布门禁记（测试通过率、中断延迟、内存泄漏速率由构建流水线模型算出）；订阅在服务验收记（由 24 小时服务曲线算出）
+measurements:
+- item: REL-RTOS
+  operation: 发布门禁 Release gate
+  chars:
+  - {code: sw_pass, name: 自动化测试通过率（构建流水线）, unit: '%', nominal: 99.97, lo: 99.5, hi: 100, sigma: 0.03}
+  - {code: sw_cov, name: 代码覆盖率, unit: '%', nominal: 86, lo: 80, hi: 100, sigma: 1.2}
+  - {code: rtos_irq, name: 最坏中断延迟（硬件在环，2 万次）, unit: μs, nominal: 5.75, lo: 0, hi: 8, sigma: 0.3}
+  - {code: rtos_boot, name: 冷启动到控制环就绪, unit: ms, nominal: 120, lo: 0, hi: 200, sigma: 6}
+- item: REL-ROBOT
+  operation: 发布门禁 Release gate
+  chars:
+  - {code: sw_pass, name: 自动化测试通过率（构建流水线）, unit: '%', nominal: 99.97, lo: 99.5, hi: 100, sigma: 0.03}
+  - {code: sw_cov, name: 代码覆盖率, unit: '%', nominal: 82, lo: 75, hi: 100, sigma: 1.5}
+  - {code: rtos_irq, name: 控制环最坏抖动（硬件在环，2 万次）, unit: μs, nominal: 7.55, lo: 0, hi: 12, sigma: 0.3}
+- item: REL-OS
+  operation: 发布门禁 Release gate
+  chars:
+  - {code: sw_pass, name: 自动化测试通过率（构建流水线）, unit: '%', nominal: 99.97, lo: 99.5, hi: 100, sigma: 0.03}
+  - {code: sw_cov, name: 代码覆盖率, unit: '%', nominal: 78, lo: 70, hi: 100, sigma: 1.5}
+  - {code: os_leak, name: 长稳压测内存增长速率（12 小时）, unit: MB/h, nominal: 0.3, lo: -5, hi: 5, sigma: 0.15}
+  - {code: os_boot, name: 开机到登录界面, unit: s, nominal: 9, lo: 0, hi: 15, sigma: 0.6}
+- item: REL-CLOUD
+  operation: 发布门禁 Release gate
+  chars: &plat
+  - {code: sw_pass, name: 自动化测试通过率（构建流水线）, unit: '%', nominal: 99.97, lo: 99.5, hi: 100, sigma: 0.03}
+  - {code: sw_cov, name: 代码覆盖率, unit: '%', nominal: 82, lo: 75, hi: 100, sigma: 1.5}
+  - {code: os_leak, name: 长稳压测内存增长速率, unit: MB/h, nominal: 0.3, lo: -5, hi: 5, sigma: 0.15}
+  - {code: api_p99, name: 接口延迟 p99（压测）, unit: ms, nominal: 35, lo: 0, hi: 80, sigma: 3}
+- {item: REL-MES, operation: 发布门禁 Release gate, chars: *plat}
+- item: SUB-CLOUD
+  operation: 服务验收 Service acceptance
+  chars: &svc
+  - {code: cl_p99, name: 服务延迟 p99（24 小时平均）, unit: ms, nominal: 18, lo: 0, hi: 50, sigma: 0.05}
+  - {code: cl_err, name: 请求错误率（24 小时）, unit: '%', nominal: 0.02, lo: 0, hi: 0.1, sigma: 0.001}
+  - {code: cl_avail, name: 可用性（24 小时，按分钟）, unit: '%', nominal: 100, lo: 99.9, hi: 100, sigma: 0.02}
+- {item: SUB-MES, operation: 服务验收 Service acceptance, chars: *svc}

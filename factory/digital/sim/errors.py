@@ -138,6 +138,20 @@ PROBLEMS.update({            # 第 166 轮：计算机厂（偏差量都是示�
     "mt_socket": {"name": "内存测试机第 6 测试座接触不良（好内存条被判时序余量不足）", "unit": "mt-1", "fix": "replace_mt_socket", "default": 1.0,
                   "plant": COMPUTER},
 })
+SOFTWARE = "wenquest-software"
+PROBLEMS.update({            # 第 167 轮：软件公司（偏差量都是示例值）
+    "bld_clock": {"name": "3 号构建服务器时钟漂移（只有它跑的测试偶发失败，“重跑一下就过”）", "unit": "bld-3", "fix": "sync_ntp_bld3", "default": 30.0,
+                  "plant": SOFTWARE},
+    "mem_leak": {"name": "一次提交带进内存泄漏（长稳压测内存底线一直涨）", "unit": "sk-1", "fix": "revert_leak", "default": 6.0, "plant": SOFTWARE},
+    "hil_cache": {"name": "2 号硬件在环测试台被测板缓存配置错（只有它测的中断延迟偏高）", "unit": "hil-2", "fix": "fix_hil_cache", "default": 2.5,
+                  "plant": SOFTWARE},
+    "noisy_nb": {"name": "A 区 2 号宿主机被“吵闹的邻居”占满（只有它上面的服务延迟高）", "unit": "cl-a2", "fix": "isolate_tenant", "default": 2.5,
+                 "plant": SOFTWARE},
+    "bad_config": {"name": "一次错误配置随灰度发布推到 A 区（A 区两台宿主机上的服务错误率都升高）", "unit": "cl-a*", "fix": "rollback_config",
+                   "default": 0.15, "plant": SOFTWARE},
+})
+SW_BUILD = {"sw_pass": "pass", "rtos_irq": "irq_max", "os_leak": "leak"}       # 第 167 轮：由构建流水线模型算出
+SW_SVC = {"cl_p99": "p99", "cl_err": "err", "cl_avail": "avail"}             # 第 167 轮：由 24 小时服务曲线算出
 MT_BAD_SOCKET = 6            # 接触不良的测试座（1 起数，示例）；内存测试机 8 个座，按测试顺序轮流用
 MT_SOCKETS = 8
 SEW_BORE = ("hmc-1", "hmc-2", "hmc-3", "hmc-4", "hmc-5", "hmc-6", "hmc-7")     # 缝纫机厂的卧加：记下精镗用的哪一台（分层用）
@@ -211,6 +225,16 @@ FIXES.update({                # 电机厂（第 131 轮）
     "comp_drive": "在驱动器参数里补偿齿槽转矩",
     "rebake": "定子按原炉温再烘一遍",
 })
+FIXES.update({                # 软件公司（第 167 轮）
+    "sync_ntp_bld3": "校正 3 号构建服务器的时钟同步，它跑出的失败用例换别的服务器复跑确认、把和时间有关的用例改成不依赖本机时钟",
+    "revert_leak": "对比前后两个版本的内存底线，定位并回滚带进泄漏的那次提交，补一条长稳回归用例",
+    "fix_hil_cache": "按标准配置重刷 2 号测试台被测板的缓存配置，用信号源复核延迟测量，它测过的版本重测",
+    "isolate_tenant": "把占满 A 区 2 号宿主机的租户迁走并加资源限额，受影响的订阅重新验收",
+    "rollback_config": "回滚推到 A 区的那次配置，配置发布加金丝雀检查（先推一台、看错误率再推全区）",
+    "rerun_tests": "失败的测试重跑，过了就发（不对症：偶发失败被盖住）",
+    "add_capacity": "加宿主机、加构建服务器（不对症）",
+    "widen_gate": "放宽发布门禁和服务验收的阈值（不对症）",
+})
 FIXES.update({                # 计算机厂（第 166 轮）
     "clean_dp_needle": "清洗点胶机 dp-2 针头与管路、称重校点胶量，它点过的整机拆开补涂硅脂复测",
     "repair_reflow_zone": "更换回流焊炉第 7 温区加热器、测炉温曲线，空洞超标的主板返修",
@@ -234,8 +258,10 @@ SEWING_FIXES = ("control_sand_water", "dry_inoculant", "replace_hmc_pins", "cali
                 "rebore", "retrain", "change_gauge")
 COMPUTER_FIXES = ("clean_dp_needle", "repair_reflow_zone", "recal_backgauge", "replace_mt_socket", "longer_burnin", "fan_speed_up", "widen_sys_test",
                   "retrain", "change_gauge")
+SOFTWARE_FIXES = ("sync_ntp_bld3", "revert_leak", "fix_hil_cache", "isolate_tenant", "rollback_config", "rerun_tests", "add_capacity", "widen_gate",
+                  "retrain", "change_gauge")
 PLANT_FIXES = {ROBOT: ROBOT_FIXES, PCB: PCB_FIXES, CHIP: CHIP_FIXES, SENSOR: SENSOR_FIXES, MOTOR: MOTOR_FIXES, SEWING: SEWING_FIXES,
-               COMPUTER: COMPUTER_FIXES}
+               COMPUTER: COMPUTER_FIXES, SOFTWARE: SOFTWARE_FIXES}
 
 
 def problems_for(plant_id):
@@ -454,6 +480,10 @@ class ErrorModel:
         if unit == "mt-1" and "_ja" not in st and str(getattr(getattr(part, "wo", None), "item", "") or "") == "DIMM-32":
             self.mt_count += 1               # 计算机厂（第 166 轮）：内存条在哪个测试座上测（分层用）
             st["_ja"] = "测试座 {}".format((self.mt_count - 1) % MT_SOCKETS + 1)
+        if unit.startswith(("bld-", "cl-")):  # 软件公司（第 167 轮）：哪台构建服务器编译与单元测试、开通在哪台宿主机（分层用）
+            st["_ja"] = unit
+        if unit.startswith("hil-"):          # 软件公司：哪台硬件在环测试台测的中断延迟（随曲线参数带走）
+            st["_bench"] = unit
         if unit.startswith(("wb-", "cb-", "wd-")):  # 芯片封测厂（第 103 轮）：哪台键合机；传感器厂（第 125 轮）：哪台粘接对心机；电机厂（第 131 轮）：哪台绕线机（分层用）
             st["_ja"] = unit
         if unit in SEW_BORE:                 # 缝纫机厂（第 134 轮）：最后一次在哪台卧加上加工（= 精镗那台）
@@ -462,7 +492,7 @@ class ErrorModel:
             self._take_shunt(part, st)       # 电路板厂（第 85 轮）：在线测试时认出这块驱动板用的是哪一卷采样电阻
         for p, a in self.active.items():
             u = PROBLEMS[p]["unit"]
-            if u == unit or (u == "ja-*" and unit.startswith("ja-")):
+            if u == unit or (u.endswith("*") and unit.startswith(u[:-1])):    # “ja-*”“cl-a*”：一类设备都算
                 if p == "hd_lot":
                     size, no = st.get("_lot_no", (None, -1))
                     if no < a["from_lot"].get(size, 0):
@@ -620,6 +650,29 @@ class ErrorModel:
             st["_bi"] = {"desc": desc, "tmax": g["tmax"], "pavg": g["pavg"]}
         return st["_bi"]
 
+    def _sw(self, part, kind):
+        """软件公司（第 167 轮）：这个版本的构建流水线结果（kind = build）或这份订阅的 24 小时服务曲线（kind = svc），算一次记在零件上"""
+        from sim import softsim
+        st = getattr(part, "err", None)
+        if st is None:
+            st = {}
+            part.err = st
+        key = "_swb" if kind == "build" else "_sws"
+        if key not in st:
+            def ramp(p):
+                return st[p][0] if p in st else 0.0           # 软件的问题是一下子出现的（一次提交、一次配置、一台机器），不爬坡
+            item = str(getattr(getattr(part, "wo", None), "item", "") or "")
+            serial = str(getattr(part, "serial", ""))
+            if kind == "build":
+                desc = softsim.build_params(self.rng, serial, item, flaky=ramp("bld_clock"), irq_extra=ramp("hil_cache"), leak=ramp("mem_leak"),
+                                            runner=st.get("_ja", ""), bench=st.get("_bench", ""))
+                g = softsim.build(desc)
+            else:
+                desc = softsim.service_params(self.rng, serial, item, host=st.get("_ja", ""), noisy=ramp("noisy_nb"), cfg=ramp("bad_config"))
+                g = softsim.service(desc)
+            st[key] = {"desc": desc, **{k: g[k] for k in ("pass", "irq_max", "leak", "p99", "err", "avail") if k in g}}
+        return st[key]
+
     def _cp(self, part):
         """这片晶圆的 CP 结果（算一次记在零件上）：各测试位接触电阻 → 晶圆图 → 良率"""
         from sim import wafermap
@@ -691,6 +744,16 @@ class ErrorModel:
             if str(getattr(getattr(part, "wo", None), "item", "") or "") in burnin.ITEM_KIND:
                 e = self._bi(part)
                 return e[code[3:]], ({"bi": e["desc"]} if code == "pc_tmax" else {})
+        if code in SW_BUILD or code in SW_SVC:              # 软件公司（第 167 轮）
+            from sim import softsim
+            item = str(getattr(getattr(part, "wo", None), "item", "") or "")
+            if code in SW_BUILD and item in softsim.BUILD:
+                e = self._sw(part, "build")
+                if SW_BUILD[code] in e:
+                    return e[SW_BUILD[code]], {"sw": e["desc"]}
+            if code in SW_SVC and item in softsim.SERVICE:
+                e = self._sw(part, "svc")
+                return e[SW_SVC[code]], ({"svc": e["desc"]} if code != "cl_avail" else {})
         if code in MW_CODES and str(getattr(getattr(part, "wo", None), "item", "") or "") in MW_ITEMS:
             e = self._mw(part)
             return e[code[3:]], ({"mw": e["desc"]} if code == "mt_ke" else {})
