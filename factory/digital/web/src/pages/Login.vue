@@ -1,7 +1,7 @@
 <template>
   <div class="wrap">
     <form class="box" @submit.prevent="go">
-      <div class="brand"><span class="logo">渠</span><!-- i18n-ok 标志字 --><div><b>{{ t('问渠数字工厂') }}<span v-if="info?.edition === 'local'" class="ed">{{ t('本地版') }}</span></b><small>{{ isEn() ? '' : 'WenQuest Digital Factory' }}</small></div></div>
+      <div class="brand"><component :is="home ? 'a' : 'span'" :href="home" class="logo" :title="home ? t('问渠官网首页') : null">渠</component><!-- i18n-ok 标志字 --><div><b>{{ t('问渠数字工厂') }}<span v-if="info?.edition === 'local'" class="ed">{{ t('本地版') }}</span></b><small>{{ isEn() ? '' : 'WenQuest Digital Factory' }}</small></div></div>
       <div class="langs" role="group" aria-label="Language / 语言"><button type="button" :class="{ on: i18n.lang === 'zh' }" lang="zh-CN" @click="setLang('zh')">中文</button><button type="button" :class="{ on: i18n.lang === 'en' }" lang="en" @click="setLang('en')">EN</button></div><!-- i18n-ok 语言切换 -->
       <p class="muted">{{ t('一个平台，两种用途：学生在这里扮演工厂的各个岗位完成生产任务；企业在这里接单、设计、排产、加工、检验。') }}</p>
 
@@ -63,6 +63,8 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { get, login, loginAccount, rolesFor } from '../lib/api';
 import { i18n, isEn, setLang, t } from '../lib/i18n';
+import { homeUrl } from '../lib/park';
+const home = homeUrl();   // 第 167d 轮：问渠标志回问渠官网首页
 
 const route = useRoute();
 const router = useRouter();
@@ -109,7 +111,7 @@ async function go() {
 .brand { display: flex; align-items: center; gap: 12px; }
 .brand b { font-size: 20px; display: block; }
 .brand small { color: var(--muted); }
-.logo { width: 44px; height: 44px; border-radius: 10px; background: var(--brand); display: flex; align-items: center;
+.logo { text-decoration: none; width: 44px; height: 44px; border-radius: 10px; background: var(--brand); display: flex; align-items: center;
   justify-content: center; font-weight: 700; font-size: 22px; }
 .center { display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .center:hover { text-decoration: none; }
