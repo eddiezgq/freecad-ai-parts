@@ -10,6 +10,7 @@
 | Joint servo driver board Rev B (encoder interface chip, brake driver with coil current sensing, output-side encoder) | DRV-JOINT-B | $165 | One per joint module in the robot plant from round 118 |
 | AGV control board (dual motor control + CAN + safety IO) | CTRL-AGV | $700 | One per AGV in the robot plant |
 | Encoder read-head board (sine/cosine output) | ENC-RD | $60 | To be sold to the sensor plant |
+| Lockstitch sewing machine controller (220 V input, PFC, main-shaft servo, 4 solenoids, stitch-length stepper, isolated panel port) | CTRL-LS | $95 | Round 159 design; sold first to the “Sewing Machine Maker (Demo)” (the sewing plant joins the park later) |
 
 Prices, times and nominal values are all **example values**. The driver board has a KiCad design ([PCB design](/pcb-design), example design, not hardware-verified);
 the chips it uses are example selections; other purchased items use generic names marked “part number to be confirmed”, with no made-up vendor part numbers.
