@@ -255,7 +255,7 @@ boms:
   components: [[PCB-ENC, 1], [SNS-OPT, 1], [IC-ENC-AFE, 1], [IC-BUCK, 1], [RES-0402, 20], [CAP-0402, 25], [PASTE-SAC305, 0.001]]
 - item: DRV-JOINT
   routing: RT-后段 Back end
-  components: [[SMT-DRV, 1], [CONN-PWR, 2], [CONN-SIG, 3], [COAT-AR, 0.003], [BAG-ESD, 1]]
+  components: [[SMT-DRV, 1], [CONN-PWR, 2], [CONN-SIG, 3], [COAT-AR, 0.003], [BAG-ESD, 1], [LIC-RTOS, 1]]   # 第 167 轮：A 版也跑 WQ-RTOS
 - item: CTRL-AGV
   routing: RT-后段 Back end
   components: [[SMT-AGV, 1], [CONN-PWR, 3], [CONN-SIG, 4], [COAT-AR, 0.005], [BAG-ESD, 1]]
