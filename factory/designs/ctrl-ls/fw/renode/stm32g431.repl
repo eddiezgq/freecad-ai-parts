@@ -1,0 +1,54 @@
+// STM32G431CB 仿真平台（Renode）——只描述平缝机控制器 CTRL-LS 固件用到的部分（第 159 轮 159f；照驱动板 B 版的同名文件）。
+// 地址与中断号对照 ST 官方 CMSIS 头文件 stm32g431xx.h 核对。示例，非 ST 官方平台文件。
+cpu: CPU.CortexM @ sysbus
+    cpuType: "cortex-m4f"
+    nvic: nvic
+
+nvic: IRQControllers.NVIC @ sysbus 0xE000E000
+    systickFrequency: 170000000
+    -> cpu@0
+
+flash: Memory.MappedMemory @ sysbus 0x08000000
+    size: 0x20000
+
+sram: Memory.MappedMemory @ sysbus 0x20000000
+    size: 0x5800
+
+// GPIOA / B / C（AHB2 0x4800 0000 / 0400 / 0800）
+gpioPortA: GPIOPort.STM32_GPIOPort @ sysbus <0x48000000, +0x400>
+    // 电磁铁：剪线 PA5、拨线 PA11、倒缝 PA12、抬压脚 PA15（低 = 吸合）
+    5 -> tim1@0
+    11 -> tim1@1
+    12 -> tim1@2
+    15 -> tim1@3
+
+gpioPortB: GPIOPort.STM32_GPIOPort @ sysbus <0x48000400, +0x400>
+    // IPM_SD：高 = 功率模块工作
+    12 -> tim1@4
+
+gpioPortC: GPIOPort.STM32_GPIOPort @ sysbus <0x48000800, +0x400>
+
+rcc: Miscellaneous.WqRcc @ sysbus 0x40021000
+
+flashif: Memory.MappedMemory @ sysbus 0x40022000
+    size: 0x400
+
+pwr: Memory.MappedMemory @ sysbus 0x40007000
+    size: 0x400
+
+// SYSCFG + 片内运放 OPAMP1–3（APB2 0x4001 0000，运放 CSR 在 +0x300）：只占位，增益在 ADC 模型里按设计值算
+syscfg: Memory.MappedMemory @ sysbus 0x40010000
+    size: 0x400
+
+// TIM1（APB2 0x4001 2C00）+ 功率模块 + 电机 + 主轴负载；Z 相直接给 GPIOA 第 6 脚（PA6）
+tim1: Miscellaneous.WqSewMotor @ sysbus 0x40012C00
+    zPort: gpioPortA
+
+// TIM4（APB1 0x4000 0800）：编码器模式
+tim4: Miscellaneous.WqTim4Enc @ sysbus 0x40000800
+    motor: tim1
+
+// ADC1 / ADC2（AHB2 0x5000 0000 / 0x5000 0100，公共 0x5000 0300），中断 ADC1_2 = 18
+adc: Miscellaneous.WqAdc12 @ sysbus 0x50000000
+    motor: tim1
+    IRQ -> nvic@18

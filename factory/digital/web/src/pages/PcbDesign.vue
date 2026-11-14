@@ -135,6 +135,9 @@
     <section v-if="d && tab === 'fw' && rev === 'B'" class="card">
       <FirmwarePanel />
     </section>
+    <section v-if="d && tab === 'fw' && rev === 'C'" class="card">
+      <SewFirmwarePanel />
+    </section>
 
     <section v-if="d && tab === 'dl'" class="card">
       <ul class="dl">
@@ -156,15 +159,16 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import ModelViewer from '../components/ModelViewer.vue';
 import FirmwarePanel from '../components/FirmwarePanel.vue';
+import SewFirmwarePanel from '../components/SewFirmwarePanel.vue';
 import { nm, t, td, tk } from '../lib/i18n';
 import { bomLinks } from '../lib/extlinks.js';
 
-// 第 159 轮（159d3）加 C：平缝机控制器 CTRL-LS（检查页签放安全距离与统一报告，不放关节驱动板的可制造性、A→B、固件）
+// 第 159 轮（159d3）加 C：平缝机控制器 CTRL-LS（检查页签放安全距离与统一报告，不放关节驱动板的可制造性、A→B）；159f 加 C 的固件页签
 const STEM = { A: 'drv-joint', B: 'drv-joint-b', C: 'ctrl-ls' };
 const TABS = [{ k: 'sch', label: tk('原理图') }, { k: 'pcb', label: 'PCB' }, { k: '3d', label: tk('三维') }, { k: 'bom', label: 'BOM' },
   { k: 'dfm', label: tk('可制造性检查'), ab: true }, { k: 'chk', label: tk('检查'), c: true }, { k: 'diff', label: tk('A→B 改了什么'), b: true },
-  { k: 'fw', label: tk('固件（Renode 仿真）'), b: true }, { k: 'dl', label: tk('下载') }];
-const okTab = (y, r) => (!y.b || r === 'B') && (!y.ab || r !== 'C') && (!y.c || r === 'C');
+  { k: 'fw', label: tk('固件（Renode 仿真）'), bc: true }, { k: 'dl', label: tk('下载') }];
+const okTab = (y, r) => (!y.b || r === 'B') && (!y.bc || r !== 'A') && (!y.ab || r !== 'C') && (!y.c || r === 'C');
 const STATUS = { pass: tk('✓ 通过'), fail: tk('✗ 不通过'), unknown: tk('未知'), pending: tk('待核对') };
 // 原理图这一页 ↔ 电路分析的例题（同一组数）
 const EXAMPLE = { sense: 'sense', gate: 'gate', power: 'bus', io: 'encoder' };

@@ -24,7 +24,7 @@ export const BATCH = [
   'components/AiDrawer.vue', 'components/NotifyBell.vue', 'components/TourOverlay.vue', 'components/TaskBar.vue', 'components/BusNotice.vue',
   'components/ControlChart.vue', 'components/ObjLink.vue', 'components/ProposalModal.vue',
   'components/SchematicView.vue', 'components/SpiceChart.vue', 'components/ScopeScreen.vue', 'components/ModelViewer.vue',
-  'components/FirmwarePanel.vue', 'components/MotorPanel.vue', 'components/MasterPanel.vue', 'components/LineChart.vue',
+  'components/FirmwarePanel.vue', 'components/SewFirmwarePanel.vue', 'components/MotorPanel.vue', 'components/MasterPanel.vue', 'components/LineChart.vue',
   'lib/fmt.js', 'lib/machinfo.js', 'lib/api.js', 'lib/schematics.js', 'lib/encif.js', 'lib/instruments.js', 'lib/spice.js', 'lib/bus.js',
 ];
 // 第二批（细则 D-4）：工厂运营各页、厂情中枢、实验与任务页（含首页的实验 7 任务）
@@ -209,6 +209,13 @@ export function dataStrings() {
   const ma = J(fwo + 'sim_master.json');
   for (const f of ['title', 'arm.note', 'scenarios[].name', 'scenarios[].desc', 'scenarios[].checks[].name', 'scenarios[].checks[].detail',
     'scenarios[].events[][1]', 'scenarios[].series.phase[]']) pick(ma, f, s);
+  // 第 159 轮 159f：平缝机控制器 CTRL-LS 固件
+  const sw = J('designs/ctrl-ls/fw/out/sim_sew.json');
+  for (const f of ['title', 'disclaimer', 'params[].name', 'params[].value', 'params[].source', 'scenarios[].name', 'scenarios[].desc',
+    'scenarios[].checks[].name', 'scenarios[].checks[].detail', 'scenarios[].checks[].vs', 'scenarios[].solenoids[].name']) pick(sw, f, s);
+  for (const v of Object.values(sw.states)) s.add(v);
+  pick(J('designs/ctrl-ls/fw/out/fw.json'), 'disclaimer', s);
+  pick(J('designs/ctrl-ls/fw/out/fw.json'), 'files[].note', s);
   const sensors = JSON.parse(fs.readFileSync(path.join(SRC, 'lib', 'sensors.json'), 'utf8'));
   for (const v of Object.values(sensors)) if (v && typeof v === 'object' && hasCjk(v.note)) s.add(v.note);
   return s;
