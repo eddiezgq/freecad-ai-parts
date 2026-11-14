@@ -41,7 +41,8 @@ def _ccx(ccx, tmp, limit):
 GMSH2CCX_TET10 = [0, 1, 2, 3, 4, 5, 6, 7, 9, 8]
 
 
-def mesh(gmsh, size_mm, fine_faces=(), max_elements=MAX_ELEMENTS):
+def mesh(gmsh, size_mm, fine_faces=(), max_elements=MAX_ELEMENTS, refine=None):
+    """refine（ADR-0093 F1，网格收敛用）：{"center_mm": [x, y, z], "radius_mm": R, "size_mm": hs}——半径 R 的球内单元尺寸 hs"""
     bb = gmsh.model.getBoundingBox(-1, -1)
     diag = math.dist(bb[:3], bb[3:])
     h = size_mm or diag / 30
@@ -52,8 +53,9 @@ def mesh(gmsh, size_mm, fine_faces=(), max_elements=MAX_ELEMENTS):
     gmsh.option.setNumber("Mesh.HighOrderOptimize", 1)
     gmsh.option.setNumber("Mesh.Algorithm3D", 10)        # HXT，快
     gmsh.option.setNumber("Mesh.MaxNumThreads3D", int(os.environ.get("FAP_MESH_THREADS", "1")))  # 1：网格每次相同，数字可复现
+    fields = []
+    f = gmsh.model.mesh.field
     if fine_faces:                                        # 载荷、圆角处加密
-        f = gmsh.model.mesh.field
         d = f.add("Distance")
         f.setNumbers(d, "SurfacesList", list(fine_faces))
         t = f.add("Threshold")
@@ -62,7 +64,29 @@ def mesh(gmsh, size_mm, fine_faces=(), max_elements=MAX_ELEMENTS):
         f.setNumber(t, "SizeMax", h)
         f.setNumber(t, "DistMin", h / 2)
         f.setNumber(t, "DistMax", 3 * h)
-        f.setAsBackgroundMesh(t)
+        fields.append(t)
+    if refine:                                            # 球内加密：尺寸 hs，球外渐变到 h（过渡带宽一个半径）
+        hs = float(refine["size_mm"])
+        gmsh.option.setNumber("Mesh.MeshSizeMin", min(hs, h / 8))
+        c, r = [float(x) for x in refine["center_mm"]], float(refine["radius_mm"])
+        dp = f.add("Distance")
+        pt = gmsh.model.occ.addPoint(*c)
+        gmsh.model.occ.synchronize()
+        f.setNumbers(dp, "PointsList", [pt])
+        tb = f.add("Threshold")
+        f.setNumber(tb, "InField", dp)
+        f.setNumber(tb, "SizeMin", hs)
+        f.setNumber(tb, "SizeMax", h)
+        f.setNumber(tb, "DistMin", r)
+        f.setNumber(tb, "DistMax", 2 * r)
+        fields.append(tb)
+    if fields:
+        if len(fields) > 1:
+            m = f.add("Min")
+            f.setNumbers(m, "FieldsList", fields)
+            f.setAsBackgroundMesh(m)
+        else:
+            f.setAsBackgroundMesh(fields[0])
         gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
     gmsh.model.mesh.generate(3)
     etypes, _etags, enodes = gmsh.model.mesh.getElements(3)
@@ -74,6 +98,19 @@ def mesh(gmsh, size_mm, fine_faces=(), max_elements=MAX_ELEMENTS):
         raise TooBig(f"网格 {len(tets)} 个单元，超过上限 {max_elements}：请把网格尺寸调大")
     ntags, xyz, _ = gmsh.model.mesh.getNodes()
     return np.asarray(ntags, np.int64), np.asarray(xyz, float).reshape(-1, 3), tets
+
+
+def quality(gmsh):
+    """网格质量（ADR-0093 F1）：每个二阶四面体的最小缩放雅可比（minSJ，≤ 0 为翻转、不能用）和形状因子 gamma
+    （内切球 / 外接球半径之比 × 3，正四面体为 1）。返回统计；判定在 analysis/fea/trust.py"""
+    et, etags, _ = gmsh.model.mesh.getElements(3)
+    k = list(et).index(11)
+    tags = list(etags[k])
+    sj = np.asarray(gmsh.model.mesh.getElementQualities(tags, "minSJ"), float)
+    gam = np.asarray(gmsh.model.mesh.getElementQualities(tags, "gamma"), float)
+    return {"elements": len(tags), "min_sj_min": round(float(sj.min()), 4), "inverted": int((sj <= 0).sum()),
+            "gamma_min": round(float(gam.min()), 4), "gamma_p01": round(float(np.percentile(gam, 1)), 4),
+            "gamma_below_0_1": int((gam < 0.1).sum())}
 
 
 def face_tris(gmsh, tag):
@@ -109,7 +146,7 @@ def _nset(w, name, nodes):
         w.write(",".join(str(int(n)) for n in ns[i:i + 12]) + "\n")
 
 
-def write_inp(path, ntags, xyz, tets, fixed_nodes, cyl_supports, nodal_forces, mat):
+def write_inp(path, ntags, xyz, tets, fixed_nodes, cyl_supports, nodal_forces, mat, reactions=False):
     """cyl_supports: [(节点集合, 轴心, 轴向, [限制的局部自由度 1 径向 2 切向 3 轴向])]"""
     with open(path, "w") as w:
         w.write("*HEADING\nWenQuest CAE\n*NODE, NSET=NALL\n")
@@ -137,17 +174,23 @@ def write_inp(path, ntags, xyz, tets, fixed_nodes, cyl_supports, nodal_forces, m
                 for d in range(3):
                     if abs(f[d]) > 0:
                         w.write(f"{int(n)},{d + 1},{f[d]:.9g}\n")
-        w.write("*NODE FILE\nU\n*EL FILE\nS\n*END STEP\n")
+        w.write("*NODE FILE\n{}\n*EL FILE\nS\n*END STEP\n".format("U,RF" if reactions else "U"))
 
 
 def read_frd(path):
     """CalculiX .frd（文本）里的节点位移 DISP 和节点应力 STRESS"""
-    disp, stress, block = {}, {}, None
+    disp, stress, _ = read_frd_rf(path)
+    return disp, stress
+
+
+def read_frd_rf(path):
+    """同 read_frd，另返回节点反力 FORC（*NODE FILE 里要求了 RF 时才有）"""
+    disp, stress, forc, block = {}, {}, {}, None
     with open(path, errors="replace") as f:
         for line in f:
             if line.startswith(" -4"):
                 name = line.split()[1]
-                block = {"DISP": disp, "STRESS": stress}.get(name)
+                block = {"DISP": disp, "STRESS": stress, "FORC": forc}.get(name)
                 continue
             if block is None:
                 continue
@@ -158,7 +201,7 @@ def read_frd(path):
                 nid = int(line[3:13])
                 vals = [float(line[13 + 12 * i:25 + 12 * i]) for i in range((len(line.rstrip()) - 13) // 12)]
                 block[nid] = vals
-    return disp, stress
+    return disp, stress, forc
 
 
 def von_mises(s):
@@ -212,9 +255,10 @@ def solve(step_path, setup, ccx, workdir=None):
         if bad:
             raise ValueError(f"没有这些面：{bad}")
         size = (setup.get("mesh") or {}).get("size_mm")
-        ntags, xyz, tets = mesh(gmsh, size, [f for l in loads if l["type"] not in SUPPORTS for f in l["faces"]],
-                                setup.get("max_elements", MAX_ELEMENTS))
+        fine = [f for l in loads if l["type"] not in SUPPORTS for f in l["faces"]] + list(setup.get("refine_faces") or [])
+        ntags, xyz, tets = mesh(gmsh, size, fine, setup.get("max_elements", MAX_ELEMENTS), refine=setup.get("refine"))
         h = float(gmsh.option.getNumber("Mesh.MeshSizeMax"))
+        qual = quality(gmsh)
         P = {int(t): p for t, p in zip(ntags, xyz)}
         fixed, cyl, forces, constrained = set(), [], {}, set()
 
@@ -280,7 +324,7 @@ def solve(step_path, setup, ccx, workdir=None):
         surf = np.concatenate([face_tris(gmsh, f) for f in all_faces])
         face_of = np.concatenate([np.full(len(face_tris(gmsh, f)), f) for f in all_faces])
         n_el, n_nodes = len(tets), len(ntags)
-        write_inp(os.path.join(tmp, "job.inp"), ntags, xyz, tets, fixed, cyl, forces, mat)
+        write_inp(os.path.join(tmp, "job.inp"), ntags, xyz, tets, fixed, cyl, forces, mat, reactions=True)
         r = _ccx(ccx, tmp, setup.get("time_limit_s", TIME_LIMIT_S))
         frd = os.path.join(tmp, "job.frd")
         if r.returncode < 0:
@@ -288,7 +332,7 @@ def solve(step_path, setup, ccx, workdir=None):
         if r.returncode != 0 or not os.path.exists(frd) or "*ERROR" in r.stdout:
             err = [x for x in (r.stdout + r.stderr).splitlines() if "ERROR" in x or "error" in x]
             raise RuntimeError("求解失败：" + ("；".join(err[-3:]) or (r.stdout + r.stderr)[-400:]))
-        disp, stress = read_frd(frd)
+        disp, stress, forc = read_frd_rf(frd)
     # 表面节点重新编号
     corner = surf[:, :3]
     used_nodes = np.unique(corner)
@@ -308,7 +352,7 @@ def solve(step_path, setup, ccx, workdir=None):
         from scipy.spatial import cKDTree
         cp = np.array([P[n] for n in constrained])
         dist, _ = cKDTree(cp).query(allp)
-        ok = dist > 1.5 * h
+        ok = dist > 1.5 * float(setup.get("exclude_h_mm") or h)     # 收敛核查时各层都按原网格尺寸避开，评估区域不变
     if not ok.any():
         ok[:] = True
     ie = int(np.argmax(np.where(ok, allvm, -1)))
@@ -324,7 +368,51 @@ def solve(step_path, setup, ccx, workdir=None):
              "vm_peak_all_mpa": round(float(allvm[ia]), 3), "vm_peak_all_at": [round(float(x), 3) for x in allp[ia]],
              "u_max_mm": round(float(umag.max()), 6), "u_max_at": [round(float(x), 3) for x in pos[jmax]],
              "applied_force_n": [round(float(x), 3) for x in sum(forces.values(), np.zeros(3))]}
+    stats["mesh_quality"] = qual
+    stats["balance"] = _balance(forces, {n: v for n, v in forc.items() if n in constrained}, P)
+    stats["vm_max_node"] = int(allid[ie])
+    stats["vm_max_local_h_mm"] = _local_h(tets, P, int(allid[ie]), h)
     materials.safety(stats, mat, optional=bool(setup.get("strength_optional")))
     surface = {"positions": np.round(pos, 4), "triangles": tri_idx.astype(np.int32),
                "face_of_triangle": face_of.astype(np.int32), "vm": np.round(VM, 4), "u": np.round(U, 7)}
     return stats, surface, {"vm": vm_all, "nodes": P}
+
+
+def _balance(forces, reactions, P):
+    """反力与外载的平衡（ADR-0093 F1）：ΣF + ΣR = 0、Σr×F + Σr×R = 0（对坐标原点）。返回合力、合力矩与相对误差；
+    相对误差以外载合力（或各力的模之和）和外载力矩量级为分母。判定在 analysis/fea/trust.py"""
+    F = np.zeros(3)
+    M = np.zeros(3)
+    fsum = 0.0
+    msum = 0.0
+    for n, f in forces.items():
+        f = np.asarray(f, float)
+        F += f
+        fsum += np.linalg.norm(f)
+        m = np.cross(P[n], f)
+        M += m
+        msum += np.linalg.norm(m)
+    R = np.zeros(3)
+    MR = np.zeros(3)
+    for n, r in reactions.items():
+        # CalculiX 的 RF 是节点上的全部外力（支承反力 + 加在这个节点上的载荷），整体坐标；减去载荷才是支承反力
+        r = np.asarray(r[:3], float) - np.asarray(forces.get(n, np.zeros(3)), float)
+        R += r
+        MR += np.cross(P[int(n)], r)
+    if not reactions:
+        return {"available": False}
+    scale_f = max(np.linalg.norm(F), fsum * 1e-3, 1e-12)
+    scale_m = max(np.linalg.norm(M), msum * 1e-3, 1e-12)
+    return {"available": True, "applied_n": [round(float(x), 6) for x in F], "reaction_n": [round(float(x), 6) for x in R],
+            "force_error_ratio": float(np.linalg.norm(F + R) / scale_f),
+            "moment_error_ratio": float(np.linalg.norm(M + MR) / scale_m)}
+
+
+def _local_h(tets, P, node, default):
+    """某节点周围单元的平均边长（收敛核查按它逐层缩小局部尺寸）"""
+    rows = tets[(tets == node).any(axis=1)][:, :4]
+    if not len(rows):
+        return round(float(default), 4)
+    L = [np.linalg.norm(P[int(r[i])] - P[int(r[j])]) for r in rows for i in range(4) for j in range(i + 1, 4)]
+    return round(float(np.mean(L)), 4)
+
