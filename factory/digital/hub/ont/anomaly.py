@@ -287,6 +287,10 @@ class Detector:
                 if fs is None:            # 规则出错：已开的异常保持原样，不当成“条件消失”
                     continue
                 alerts += self._apply(mode, self.rule(rid), fs, c.now)
+            # 第 167c 轮：不在本厂规则目录里的规则（只属于别的厂，如减速器厂的现场设备报警）以前开的异常，直接解除
+            self.db.x("update anomaly set status='resolved', closed_at=%s, closed_by='system', "
+                      "closed_reason='这条规则不属于本厂，自动解除' where mode=%s and status = any(%s) and not (rule = any(%s))",
+                      (c.now, mode, list(OPEN), list(self.catalog)))
             self.refresh_chains(mode, c)
             self.last_round[mode] = {"ts": time.time(), "ms": round((time.time() - t0) * 1000),
                                      "findings": sum(len(v or []) for v in found.values())}

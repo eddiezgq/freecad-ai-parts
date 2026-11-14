@@ -271,8 +271,24 @@ class TwinService:
             log.info("现场时钟暂停（%s）：%s 分钟没人看数字孪生页", mode, IDLE_MIN)
 
     # ------------------------------------------------------------ 模拟器
+    def purge_seed(self, mode):
+        """第 167c 轮：减速器厂以外的厂，删掉以前每座厂都建的 12 台情景减速器（连同运行记录、报警事件、现场档案）"""
+        sub = "select serial from twin where mode=%s and source='seed' and item='WQR-105'"
+        n = self.db.one("select count(*) as n from twin where mode=%s and source='seed' and item='WQR-105'", (mode,))["n"]
+        if not n:
+            return 0
+        for t in ("twin_event", "twin_log", "field_unit"):
+            self.db.x("delete from {} where mode=%s and serial in ({})".format(t, sub), (mode, mode))
+        self.db.x("delete from twin where mode=%s and source='seed' and item='WQR-105'", (mode,))
+        log.info("删掉了 %s 台不属于本厂的情景减速器（%s）", n, mode)
+        return n
+
     def seed(self, mode):
-        """情景里已经在用的 12 台：建档、补发历史运行摘要（按周）"""
+        """情景里已经在用的 12 台：建档、补发历史运行摘要（按周）。第 167c 轮：只在减速器厂（演示工厂）建；别的厂删掉以前建进去的"""
+        from factory import plant
+        if plant.plant_id() != "wenquest-gearbox":
+            self.purge_seed(mode)
+            return 0
         if self.db.one("select 1 as x from field_unit where mode=%s limit 1", (mode,)):
             return 0
         from sim.engine import torque_record

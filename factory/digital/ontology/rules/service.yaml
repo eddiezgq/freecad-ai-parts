@@ -3,6 +3,7 @@ rules:
   V1:
     name: 现场设备报警
     fn: field_alarm
+    plant: wenquest-gearbox   # 第 167c 轮：读减速器厂的现场机队，只在减速器厂（演示工厂）出现
     severity: warn            # 孪生红色为 critical
     role: [manager]
     alert: false              # 孪生自己已经发 ai.alert，这里只开异常
@@ -11,6 +12,7 @@ rules:
   V2:
     name: 同批多台报警
     fn: field_batch
+    plant: wenquest-gearbox   # 第 167c 轮
     severity: critical
     role: [manager, quality]
     params: {min_units: 2, kinds: [bearing, shaft]}

@@ -461,3 +461,17 @@ def test_lab13_documents():
     t = docx.Document(io.BytesIO(labdoc.report_template_docx("lab13")))
     cells = " ".join(c.text for tb in t.tables for r in tb.rows for c in r.cells)
     assert "2990" in cells and "ERPNext 服务工单号" in cells
+
+
+def test_seed_fleet_only_in_gearbox_plant(db, monkeypatch):
+    """第 167c 轮：情景减速器机队只在减速器厂（演示工厂）建；别的厂启动时删掉以前建进去的（连同运行记录、事件、现场档案），也不再建"""
+    from factory import plant
+    from hub import twin as TW
+    monkeypatch.setattr(TW, "FIELD_MODES", ["teach"])
+    tw, sent, hist = _service(db)
+    assert tw.seed("teach") > 300 and len(TW.fleet(db, "teach")) == 12           # 减速器厂：12 台
+    monkeypatch.setattr(plant, "plant_id", lambda: "wenquest-software")
+    assert tw.seed("teach") == 0 and TW.fleet(db, "teach") == []                  # 别的厂：删掉、不建
+    for t in ("twin_log", "twin_event", "field_unit"):
+        assert db.one("select count(*) as n from {} where mode='teach'".format(t))["n"] == 0
+    assert tw.seed("teach") == 0 and TW.fleet(db, "teach") == []

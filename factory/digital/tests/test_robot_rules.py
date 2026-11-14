@@ -87,7 +87,7 @@ def test_robot_plant_rules_and_assistant():
     assert r.returncode == 0, r.stderr[-4000:]
     o = json.loads(r.stdout.strip().splitlines()[-1])
     assert o["waiting"] == ["C1", "C2", "C3", "C4"]                    # 只有读减速器厂投诉表的四条不跑
-    assert o["live"] == 59
+    assert o["live"] == 57                                              # 第 167c 轮：减速器现场设备的 V1、V2 只在减速器厂
     assert o["errors"] == {}
     assert {"H1", "E7", "RS1"} <= set(o["fired"]), o["fired"]
     for k, v in o["opts"].items():
