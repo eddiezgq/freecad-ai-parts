@@ -12,6 +12,10 @@
           {"type": "torque", "faces": [..], "value_nm": T, "axis": {...}}]
   mesh: {"size_mm": h}；n_modes（模态，缺省 6）；max_elements；time_limit_s
 
+新写法（ADR-0093）：直接传算例模型（schema/fea-study.schema.json，format = "fea-study/1"），结果 data = {study, steps: [...],
+  trust_verdict}；静力步带 trust（反力平衡、网格质量、网格收敛与奇异点，结论 pass / fail / unknown）、levels（各层网格的结果），
+  只有 trust 通过才给 safety_factor（否则为 null，并在 safety_factor_withheld 写原因）。下面是旧写法：
+
 结果 data：
   static：最大 Von Mises 应力（不计约束面 1.5 个网格尺寸以内）及位置与所在面、全部节点中的峰值、最大位移、安全系数
           （按屈服强度；脆性材料按抗拉强度）、网格、表面结果（节点坐标、三角形、应力、位移，供显示）
@@ -29,7 +33,7 @@ from analysis.common import materials, result
 from analysis.common.solvers import ccx_version, find_ccx
 
 MODULE = {
-    "id": "fea", "name": "有限元强度 · 固有频率", "version": "1",
+    "id": "fea", "name": "有限元强度 · 固有频率", "version": "2",
     "description": "零件的应力、变形、安全系数与固有频率（Gmsh + CalculiX，本机计算）",
     "python": ["gmsh", "numpy", "scipy"], "solvers": ["ccx"],
     "install": '安装：pip install -e ".[fea]"；CalculiX 用 FreeCAD 自带的，或设置环境变量 FAP_CCX',
@@ -54,7 +58,9 @@ def _lists(d: dict) -> dict:
 
 
 def run(setup: dict) -> dict:
-    from analysis.fea import geometry, modal, solve
+    if setup.get("format") == "fea-study/1":
+        return run_study(setup)
+    from analysis.fea import geometry, modal, solve, trust
 
     t0 = time.time()
     kind = setup.get("analysis", "static")
@@ -72,7 +78,11 @@ def run(setup: dict) -> dict:
         inner = {**setup, "material": mat, "loads": _internal_loads(setup.get("loads") or [])}
         if kind == "static":
             stats, surface, _ = solve.solve(step, inner, ccx)
-            data = {**stats, "surface": _lists(surface)}
+            items = [trust.balance(stats["balance"]), trust.mesh_quality(stats["mesh_quality"]),
+                     trust.item("网格收敛", trust.UNKNOWN, "旧写法不做网格收敛核查；用算例模型（fea-study/1）计算可得收敛结论")]
+            data = {**stats, "surface": _lists(surface), "trust": {"verdict": trust.verdict(items), "items": items}}
+            if "safety_factor" in stats:
+                data["safety_factor_note"] = "安全系数未经网格收敛核查（旧写法）"
             limits = LIMITS_STATIC
         elif kind == "modal":
             stats, surface = modal.solve(step, inner, ccx, n_modes=int(setup.get("n_modes", 6)))
@@ -83,4 +93,24 @@ def run(setup: dict) -> dict:
     except (materials.MissingData, ValueError, RuntimeError, KeyError) as exc:
         return result.failed("fea", MODULE["version"], setup, f"没有算出：{exc}")
     return result.make("fea", MODULE["version"], setup, data, limitations=limits,
+                       solver={"name": "CalculiX", "version": ccx_version(ccx) or "未知"}, elapsed_s=time.time() - t0)
+
+
+def run_study(study: dict) -> dict:
+    """按算例模型（ADR-0093，schema/fea-study.schema.json）计算，带可信度核查"""
+    from analysis.fea import study as S
+
+    t0 = time.time()
+    try:
+        S.validate(study)
+        for b in study["bodies"]:
+            if not Path(b["step_path"]).is_file():
+                return result.failed("fea", MODULE["version"], study, f"找不到零件 STEP 文件：{b['step_path']!r}")
+        ccx = find_ccx()
+        if ccx is None:
+            return result.failed("fea", MODULE["version"], study, "本机没有 CalculiX（ccx）")
+        data, limits = S.run(study, ccx)
+    except (S.StudyInvalid, materials.MissingData, ValueError, RuntimeError, KeyError) as exc:
+        return result.failed("fea", MODULE["version"], study, f"没有算出：{exc}")
+    return result.make("fea", MODULE["version"], study, data, limitations=limits,
                        solver={"name": "CalculiX", "version": ccx_version(ccx) or "未知"}, elapsed_s=time.time() - t0)
