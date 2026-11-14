@@ -1,0 +1,161 @@
+{
+ "instance": {
+  "format": "fea-study/1",
+  "name": "cantilever",
+  "bodies": [
+   {
+    "id": "b1",
+    "step_path": "box.step",
+    "material": "45-QT"
+   }
+  ],
+  "supports": [
+   {
+    "type": "fixed",
+    "body": "b1",
+    "faces": [
+     1
+    ]
+   },
+   {
+    "type": "displacement",
+    "body": "b1",
+    "faces": [
+     3
+    ],
+    "uz_mm": 0
+   },
+   {
+    "type": "displacement",
+    "body": "b1",
+    "edges": [
+     7
+    ],
+    "ux_mm": 0.01,
+    "uy_mm": 0
+   },
+   {
+    "type": "symmetry",
+    "body": "b1",
+    "faces": [
+     4
+    ]
+   },
+   {
+    "type": "elastic_support",
+    "body": "b1",
+    "faces": [
+     5
+    ],
+    "stiffness_n_per_mm3": 2.5
+   }
+  ],
+  "loads": [
+   {
+    "type": "force",
+    "body": "b1",
+    "faces": [
+     2
+    ],
+    "vector_n": [
+     0,
+     0,
+     -100
+    ]
+   },
+   {
+    "type": "gravity",
+    "body": "b1",
+    "acceleration_m_s2": [
+     0,
+     0,
+     -9.81
+    ]
+   },
+   {
+    "type": "centrifugal",
+    "body": "b1",
+    "speed_rpm": 3000,
+    "axis": {
+     "origin_mm": [
+      0,
+      0,
+      0
+     ],
+     "dir": [
+      0,
+      0,
+      1
+     ]
+    }
+   },
+   {
+    "type": "remote_load",
+    "body": "b1",
+    "faces": [
+     2
+    ],
+    "point_mm": [
+     100,
+     0,
+     50
+    ],
+    "force_n": [
+     0,
+     0,
+     -200
+    ],
+    "vector_nm": [
+     0,
+     5,
+     0
+    ]
+   },
+   {
+    "type": "bearing_load",
+    "body": "b1",
+    "faces": [
+     6
+    ],
+    "force_n": [
+     0,
+     -1500,
+     0
+    ],
+    "axis": {
+     "origin_mm": [
+      0,
+      0,
+      0
+     ],
+     "dir": [
+      0,
+      0,
+      1
+     ]
+    }
+   },
+   {
+    "type": "temperature",
+    "body": "b1",
+    "delta_t_k": 60
+   }
+  ],
+  "steps": [
+   {
+    "id": "s1",
+    "type": "static"
+   }
+  ],
+  "probes": [
+   {
+    "id": "D",
+    "point_mm": [
+     2000,
+     0,
+     600
+    ]
+   }
+  ]
+ }
+}

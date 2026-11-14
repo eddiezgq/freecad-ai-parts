@@ -106,3 +106,16 @@
 - **偏差**：NAFEMS LE1、LE10 挪到 F2——它们要对称面和强制位移边界，F1 还没有；参考值届时按原始出处核对后再进测试。
 - **发现、留给 F2**：曲面上的压力按三角形角点所成平面的法向分配，厚壁圆筒内压的合力本应为 0，实际有 1.7 × 10⁻⁴ 倍总压力的轴向残量；
   F2 改为按二阶面的真实法向积分。
+
+## 补充二：算例模型加 F2 的内容（2026-11-14）
+
+项目负责人 11-14 10:47“好，继续”：做 F2。`fea-study/1` 只加不改（旧算例照样有效），新增：
+
+- 支承：`displacement`（强制位移，`ux_mm` / `uy_mm` / `uz_mm` 写哪个限哪个；作用在 `faces` 或 `edges` 之一——NAFEMS LE10 要在一条线上限位移）、
+  `symmetry`（平面，限法向位移）、`elastic_support`（`stiffness_n_per_mm3`，三个方向同刚度）。
+- 载荷：`gravity`（`acceleration_m_s2`，整个实体）、`centrifugal`（`speed_rpm` + `axis`）、`remote_load`（`point_mm` 处的 `force_n`、`vector_nm`，
+  静力等效分到面上、不增加刚度）、`bearing_load`（`force_n` + `axis`，余弦分布在受压半圈，合力等于 `force_n`）、`temperature`（`delta_t_k`，均匀温度变化）。
+- `probes`：结果探针，在给定点报应力张量、Von Mises、位移（和标准题、试验点对照用）。
+- 边的编号：`analysis: faces` 的结果加 `edges` 清单。
+- 偏差：ADR 原写“温度场接 analysis/thermal”，F2 先做均匀温度变化；非均匀温度场的热应力仍用 `analysis/thermal` 的 `thermo_mech`，接进算例模型放到 F3 的分析步串联里。
+- 夹具 `invalid/unknown_load.json` 原来用 `gravity` 当“不认识的类型”，现在 `gravity` 合法，改用 `contact`（F3 才有）。

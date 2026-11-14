@@ -2,11 +2,17 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/fea-study.schema.json",
   "title": "有限元算例",
-  "description": "有限元模块（ADR-0093）的一个算例：几何、材料分配、支承与载荷、分析步、网格控制、可信度核查。单位只用 mm、N、MPa、N·m、kg/m³（字段名带单位后缀）。第一版（F1）只含已实现的内容：单个实体、固定与圆柱支承、面力、压力、扭矩、力矩，静力与模态；后续各段（F2–F5）扩充时另写 ADR 补充并单独改本文件。",
+  "description": "有限元模块（ADR-0093）的一个算例：几何、材料分配、支承与载荷、分析步、网格控制、可信度核查。单位只用 mm、N、MPa、N·m、kg/m³（字段名带单位后缀）。F1：单个实体、固定与圆柱支承、面力、压力、扭矩、力矩，静力与模态。F2（ADR-0093 补充二）加：强制位移（面或边）、对称面、弹性支承、重力、离心、远端载荷、轴承载荷、均匀温度变化、结果探针。后续各段扩充时另写 ADR 补充并单独改本文件。",
   "type": "object",
   "properties": {
-    "format": {"const": "fea-study/1"},
-    "name": {"type": "string", "minLength": 1, "maxLength": 200},
+    "format": {
+      "const": "fea-study/1"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
     "bodies": {
       "type": "array",
       "minItems": 1,
@@ -15,35 +21,115 @@
       "items": {
         "type": "object",
         "properties": {
-          "id": {"$ref": "#/$defs/id"},
-          "step_path": {"type": "string", "minLength": 1, "description": "STEP 文件路径（本机）"},
-          "material": {"type": "string", "minLength": 1, "description": "材料库 id（analysis/common/materials.yaml）"}
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "step_path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "STEP 文件路径（本机）"
+          },
+          "material": {
+            "type": "string",
+            "minLength": 1,
+            "description": "材料库 id（analysis/common/materials.yaml）"
+          }
         },
-        "required": ["id", "step_path", "material"],
+        "required": [
+          "id",
+          "step_path",
+          "material"
+        ],
         "additionalProperties": false
       }
     },
     "supports": {
       "type": "array",
       "minItems": 1,
-      "items": {"oneOf": [{"$ref": "#/$defs/fixed"}, {"$ref": "#/$defs/cyl_support"}]}
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/fixed"
+          },
+          {
+            "$ref": "#/$defs/cyl_support"
+          },
+          {
+            "$ref": "#/$defs/displacement"
+          },
+          {
+            "$ref": "#/$defs/symmetry"
+          },
+          {
+            "$ref": "#/$defs/elastic_support"
+          }
+        ]
+      }
     },
     "loads": {
       "type": "array",
-      "items": {"oneOf": [{"$ref": "#/$defs/force"}, {"$ref": "#/$defs/pressure"}, {"$ref": "#/$defs/torque"},
-                          {"$ref": "#/$defs/moment"}]}
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/force"
+          },
+          {
+            "$ref": "#/$defs/pressure"
+          },
+          {
+            "$ref": "#/$defs/torque"
+          },
+          {
+            "$ref": "#/$defs/moment"
+          },
+          {
+            "$ref": "#/$defs/gravity"
+          },
+          {
+            "$ref": "#/$defs/centrifugal"
+          },
+          {
+            "$ref": "#/$defs/remote_load"
+          },
+          {
+            "$ref": "#/$defs/bearing_load"
+          },
+          {
+            "$ref": "#/$defs/temperature"
+          }
+        ]
+      }
     },
     "steps": {
       "type": "array",
       "minItems": 1,
-      "items": {"oneOf": [{"$ref": "#/$defs/static"}, {"$ref": "#/$defs/modal"}]}
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/static"
+          },
+          {
+            "$ref": "#/$defs/modal"
+          }
+        ]
+      }
     },
     "mesh": {
       "type": "object",
       "properties": {
-        "size_mm": {"type": "number", "exclusiveMinimum": 0, "description": "单元尺寸；不写时取包围盒对角线 / 30"},
-        "refine_faces": {"$ref": "#/$defs/face_list", "description": "另外加密的面（载荷面总是加密）"},
-        "max_elements": {"type": "integer", "minimum": 1000}
+        "size_mm": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "单元尺寸；不写时取包围盒对角线 / 30"
+        },
+        "refine_faces": {
+          "$ref": "#/$defs/face_list",
+          "description": "另外加密的面（载荷面总是加密）"
+        },
+        "max_elements": {
+          "type": "integer",
+          "minimum": 1000
+        }
       },
       "additionalProperties": false
     },
@@ -51,12 +137,37 @@
       "type": "object",
       "description": "可信度核查（ADR-0093 决策 2）。反力平衡、网格质量总是做；收敛与奇异点要多算几遍，可关",
       "properties": {
-        "convergence": {"type": "boolean", "default": true},
-        "levels": {"type": "integer", "minimum": 3, "maximum": 4, "default": 3, "description": "网格层数（含原网格）"},
-        "refine_ratio": {"type": "number", "minimum": 1.3, "maximum": 2.0, "default": 1.6, "description": "相邻两层单元尺寸之比"},
-        "tolerance_ratio": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.5, "default": 0.05,
-                            "description": "最大应力的网格误差估计（GCI）上限"},
-        "balance_tolerance_ratio": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.05, "default": 0.001}
+        "convergence": {
+          "type": "boolean",
+          "default": true
+        },
+        "levels": {
+          "type": "integer",
+          "minimum": 3,
+          "maximum": 4,
+          "default": 3,
+          "description": "网格层数（含原网格）"
+        },
+        "refine_ratio": {
+          "type": "number",
+          "minimum": 1.3,
+          "maximum": 2.0,
+          "default": 1.6,
+          "description": "相邻两层单元尺寸之比"
+        },
+        "tolerance_ratio": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 0.5,
+          "default": 0.05,
+          "description": "最大应力的网格误差估计（GCI）上限"
+        },
+        "balance_tolerance_ratio": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 0.05,
+          "default": 0.001
+        }
       },
       "additionalProperties": false
     },
@@ -64,86 +175,551 @@
       "type": "object",
       "description": "算例由谁起草；AI 起草的必须人确认后才能计算（ADR-0093 决策 3）",
       "properties": {
-        "drafted_by": {"enum": ["human", "ai"]},
-        "confirmed_by_human": {"type": "boolean"},
-        "note": {"type": "string"}
+        "drafted_by": {
+          "enum": [
+            "human",
+            "ai"
+          ]
+        },
+        "confirmed_by_human": {
+          "type": "boolean"
+        },
+        "note": {
+          "type": "string"
+        }
       },
-      "required": ["drafted_by", "confirmed_by_human"],
+      "required": [
+        "drafted_by",
+        "confirmed_by_human"
+      ],
       "additionalProperties": false
     },
-    "time_limit_s": {"type": "number", "exclusiveMinimum": 0}
+    "time_limit_s": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "probes": {
+      "type": "array",
+      "maxItems": 50,
+      "description": "结果探针：在这些点（取最近的节点）报应力张量、Von Mises、位移；用于和标准题、试验点对照",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "point_mm": {
+            "$ref": "#/$defs/vec3"
+          }
+        },
+        "required": [
+          "id",
+          "point_mm"
+        ],
+        "additionalProperties": false
+      }
+    }
   },
-  "required": ["format", "bodies", "supports", "steps"],
+  "required": [
+    "format",
+    "bodies",
+    "supports",
+    "steps"
+  ],
   "additionalProperties": false,
   "$defs": {
-    "id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,39}$"},
-    "face_list": {"type": "array", "minItems": 1, "items": {"type": "integer", "minimum": 1}, "uniqueItems": true},
-    "vec3": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,39}$"
+    },
+    "face_list": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "uniqueItems": true
+    },
+    "vec3": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
     "axis": {
       "type": "object",
-      "properties": {"origin_mm": {"$ref": "#/$defs/vec3"}, "dir": {"$ref": "#/$defs/vec3"}},
-      "required": ["origin_mm", "dir"],
+      "properties": {
+        "origin_mm": {
+          "$ref": "#/$defs/vec3"
+        },
+        "dir": {
+          "$ref": "#/$defs/vec3"
+        }
+      },
+      "required": [
+        "origin_mm",
+        "dir"
+      ],
       "additionalProperties": false
     },
     "where": {
       "description": "作用在哪个实体的哪些面（面编号同 analysis fea faces 的清单）",
       "type": "object",
-      "properties": {"body": {"$ref": "#/$defs/id"}, "faces": {"$ref": "#/$defs/face_list"}},
-      "required": ["body", "faces"]
+      "properties": {
+        "body": {
+          "$ref": "#/$defs/id"
+        },
+        "faces": {
+          "$ref": "#/$defs/face_list"
+        }
+      },
+      "required": [
+        "body",
+        "faces"
+      ]
     },
     "fixed": {
-      "allOf": [{"$ref": "#/$defs/where"}],
-      "properties": {"type": {"const": "fixed"}, "body": true, "faces": true},
-      "required": ["type"],
+      "allOf": [
+        {
+          "$ref": "#/$defs/where"
+        }
+      ],
+      "properties": {
+        "type": {
+          "const": "fixed"
+        },
+        "body": true,
+        "faces": true
+      },
+      "required": [
+        "type"
+      ],
       "unevaluatedProperties": false
     },
     "cyl_support": {
-      "allOf": [{"$ref": "#/$defs/where"}],
+      "allOf": [
+        {
+          "$ref": "#/$defs/where"
+        }
+      ],
       "properties": {
-        "type": {"const": "cyl_support"}, "body": true, "faces": true,
-        "axis": {"$ref": "#/$defs/axis"},
-        "dofs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["radial", "tangential", "axial"]}},
-        "band_mm": {"type": "number", "minimum": 0}
+        "type": {
+          "const": "cyl_support"
+        },
+        "body": true,
+        "faces": true,
+        "axis": {
+          "$ref": "#/$defs/axis"
+        },
+        "dofs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "radial",
+              "tangential",
+              "axial"
+            ]
+          }
+        },
+        "band_mm": {
+          "type": "number",
+          "minimum": 0
+        }
       },
-      "required": ["type", "axis"],
+      "required": [
+        "type",
+        "axis"
+      ],
       "unevaluatedProperties": false
     },
     "force": {
-      "allOf": [{"$ref": "#/$defs/where"}],
-      "properties": {"type": {"const": "force"}, "body": true, "faces": true, "vector_n": {"$ref": "#/$defs/vec3"}},
-      "required": ["type", "vector_n"],
+      "allOf": [
+        {
+          "$ref": "#/$defs/where"
+        }
+      ],
+      "properties": {
+        "type": {
+          "const": "force"
+        },
+        "body": true,
+        "faces": true,
+        "vector_n": {
+          "$ref": "#/$defs/vec3"
+        }
+      },
+      "required": [
+        "type",
+        "vector_n"
+      ],
       "unevaluatedProperties": false
     },
     "pressure": {
-      "allOf": [{"$ref": "#/$defs/where"}],
-      "properties": {"type": {"const": "pressure"}, "body": true, "faces": true, "value_mpa": {"type": "number"}},
-      "required": ["type", "value_mpa"],
+      "allOf": [
+        {
+          "$ref": "#/$defs/where"
+        }
+      ],
+      "properties": {
+        "type": {
+          "const": "pressure"
+        },
+        "body": true,
+        "faces": true,
+        "value_mpa": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "type",
+        "value_mpa"
+      ],
       "unevaluatedProperties": false
     },
     "torque": {
-      "allOf": [{"$ref": "#/$defs/where"}],
-      "properties": {"type": {"const": "torque"}, "body": true, "faces": true, "value_nm": {"type": "number"},
-                     "axis": {"$ref": "#/$defs/axis"}},
-      "required": ["type", "value_nm", "axis"],
+      "allOf": [
+        {
+          "$ref": "#/$defs/where"
+        }
+      ],
+      "properties": {
+        "type": {
+          "const": "torque"
+        },
+        "body": true,
+        "faces": true,
+        "value_nm": {
+          "type": "number"
+        },
+        "axis": {
+          "$ref": "#/$defs/axis"
+        }
+      },
+      "required": [
+        "type",
+        "value_nm",
+        "axis"
+      ],
       "unevaluatedProperties": false
     },
     "moment": {
-      "allOf": [{"$ref": "#/$defs/where"}],
-      "properties": {"type": {"const": "moment"}, "body": true, "faces": true, "vector_nm": {"$ref": "#/$defs/vec3"}},
-      "required": ["type", "vector_nm"],
+      "allOf": [
+        {
+          "$ref": "#/$defs/where"
+        }
+      ],
+      "properties": {
+        "type": {
+          "const": "moment"
+        },
+        "body": true,
+        "faces": true,
+        "vector_nm": {
+          "$ref": "#/$defs/vec3"
+        }
+      },
+      "required": [
+        "type",
+        "vector_nm"
+      ],
       "unevaluatedProperties": false
     },
     "static": {
       "type": "object",
-      "properties": {"id": {"$ref": "#/$defs/id"}, "type": {"const": "static"}},
-      "required": ["id", "type"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "const": "static"
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ],
       "additionalProperties": false
     },
     "modal": {
       "type": "object",
-      "properties": {"id": {"$ref": "#/$defs/id"}, "type": {"const": "modal"},
-                     "n_modes": {"type": "integer", "minimum": 1, "maximum": 50, "default": 6}},
-      "required": ["id", "type"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "const": "modal"
+        },
+        "n_modes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "default": 6
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "edge_list": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "uniqueItems": true
+    },
+    "displacement": {
+      "type": "object",
+      "description": "强制位移（整体坐标，mm）；只写出的分量被限制，0 即该方向固定。作用在面上或边上（边编号见 analysis faces 的 edges）",
+      "properties": {
+        "type": {
+          "const": "displacement"
+        },
+        "body": {
+          "$ref": "#/$defs/id"
+        },
+        "faces": {
+          "$ref": "#/$defs/face_list"
+        },
+        "edges": {
+          "$ref": "#/$defs/edge_list"
+        },
+        "ux_mm": {
+          "type": "number"
+        },
+        "uy_mm": {
+          "type": "number"
+        },
+        "uz_mm": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "type",
+        "body"
+      ],
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "required": [
+                "faces"
+              ]
+            },
+            {
+              "required": [
+                "edges"
+              ]
+            }
+          ]
+        },
+        {
+          "anyOf": [
+            {
+              "required": [
+                "ux_mm"
+              ]
+            },
+            {
+              "required": [
+                "uy_mm"
+              ]
+            },
+            {
+              "required": [
+                "uz_mm"
+              ]
+            }
+          ]
+        }
+      ],
+      "additionalProperties": false
+    },
+    "symmetry": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/where"
+        }
+      ],
+      "description": "对称面：面必须是平面，限制法向位移",
+      "properties": {
+        "type": {
+          "const": "symmetry"
+        },
+        "body": true,
+        "faces": true
+      },
+      "required": [
+        "type"
+      ],
+      "unevaluatedProperties": false
+    },
+    "elastic_support": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/where"
+        }
+      ],
+      "description": "弹性支承（基础刚度，N/mm³ = 每 mm² 面积每 mm 位移的力），三个方向同刚度",
+      "properties": {
+        "type": {
+          "const": "elastic_support"
+        },
+        "body": true,
+        "faces": true,
+        "stiffness_n_per_mm3": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "type",
+        "stiffness_n_per_mm3"
+      ],
+      "unevaluatedProperties": false
+    },
+    "gravity": {
+      "type": "object",
+      "description": "重力 / 惯性加速度（整个实体）",
+      "properties": {
+        "type": {
+          "const": "gravity"
+        },
+        "body": {
+          "$ref": "#/$defs/id"
+        },
+        "acceleration_m_s2": {
+          "$ref": "#/$defs/vec3"
+        }
+      },
+      "required": [
+        "type",
+        "body",
+        "acceleration_m_s2"
+      ],
+      "additionalProperties": false
+    },
+    "centrifugal": {
+      "type": "object",
+      "description": "绕轴旋转的离心力（整个实体）",
+      "properties": {
+        "type": {
+          "const": "centrifugal"
+        },
+        "body": {
+          "$ref": "#/$defs/id"
+        },
+        "speed_rpm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "axis": {
+          "$ref": "#/$defs/axis"
+        }
+      },
+      "required": [
+        "type",
+        "body",
+        "speed_rpm",
+        "axis"
+      ],
+      "additionalProperties": false
+    },
+    "remote_load": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/where"
+        }
+      ],
+      "description": "远端载荷：作用在 point_mm 的力和力矩，按静力等效分到面上（面力均布 + 力矩线性分布，不增加刚度）",
+      "properties": {
+        "type": {
+          "const": "remote_load"
+        },
+        "body": true,
+        "faces": true,
+        "point_mm": {
+          "$ref": "#/$defs/vec3"
+        },
+        "force_n": {
+          "$ref": "#/$defs/vec3"
+        },
+        "vector_nm": {
+          "$ref": "#/$defs/vec3"
+        }
+      },
+      "required": [
+        "type",
+        "point_mm"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "force_n"
+          ]
+        },
+        {
+          "required": [
+            "vector_nm"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "bearing_load": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/where"
+        }
+      ],
+      "description": "轴承载荷：圆柱面上的径向力，按余弦分布在受压的半圈上，合力正好是 force_n",
+      "properties": {
+        "type": {
+          "const": "bearing_load"
+        },
+        "body": true,
+        "faces": true,
+        "force_n": {
+          "$ref": "#/$defs/vec3"
+        },
+        "axis": {
+          "$ref": "#/$defs/axis"
+        }
+      },
+      "required": [
+        "type",
+        "force_n",
+        "axis"
+      ],
+      "unevaluatedProperties": false
+    },
+    "temperature": {
+      "type": "object",
+      "description": "整个实体均匀的温度变化（K）；材料要有线膨胀系数",
+      "properties": {
+        "type": {
+          "const": "temperature"
+        },
+        "body": {
+          "$ref": "#/$defs/id"
+        },
+        "delta_t_k": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "type",
+        "body",
+        "delta_t_k"
+      ],
       "additionalProperties": false
     }
   }
