@@ -1,7 +1,7 @@
 <template>
   <div class="help" :class="{ bare: !session.token }">
     <header v-if="!session.token" class="topbar">
-      <router-link to="/help" class="brand"><span class="logo">渠</span><b>{{ $t('问渠数字工厂') }}</b><span class="muted">{{ $t('帮助') }}</span></router-link><!-- i18n-ok 标志 -->
+      <span class="brand"><component :is="home ? 'a' : 'router-link'" v-bind="home ? { href: home } : { to: '/help' }" class="brand" :title="home ? $t('问渠官网首页') : null"><span class="logo">渠</span></component><router-link to="/help" class="brand"><b>{{ $t('问渠数字工厂') }}</b><span class="muted">{{ $t('帮助') }}</span></router-link></span><!-- i18n-ok 标志 -->
       <router-link class="btn" :to="{ path: '/login', query: { next: $route.fullPath } }">{{ $t('登录') }}</router-link>
     </header>
 
@@ -121,6 +121,8 @@
 
 <script setup>
 import { isEn, t as $t, td } from '../lib/i18n';
+import { homeUrl } from '../lib/park';
+const home = homeUrl();   // 第 167d 轮：问渠标志回问渠官网首页
 const grp = (g) => (g === '演示' ? $t('演示|资料分组') : td(g));   // i18n-ok “演示”在别处是 demo，资料分组用复数
 // 帮助（第 30 轮 H-3，搬自 freecad-ai-parts ADR-0065）：教学版、企业版，另有“资料”（以前的帮助文件）。首页是实时 3D 车间和全流程动画；正文是 Markdown 加自定义块（带我去做、动画、视频、实时数据、问 AI）。
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';

@@ -86,6 +86,8 @@ Open the address your teacher gives you in a browser (on your own computer it is
 
 One factory; each post sees its own workbench. Items in the left sidebar marked “Mine” are the pages your current role uses most. Change roles any time with the “Role” dropdown in the top bar.
 
+The plant name on the left of the top bar is a dropdown too: pick another plant in the park (robot, PCB, software …) to open it (each plant has its own accounts, so sign in there the first time). The WenQuest logo at the top left goes to the WenQuest home page; this plant's home is the first sidebar item, “Home · Operations overview”.
+
 | Role | Main page | What they do |
 | --- | --- | --- |
 | Planner | Orders & planning, Purchasing & incoming | Take orders, run MRP, release work orders; convert purchase orders; start actions from the what-if |

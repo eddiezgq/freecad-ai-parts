@@ -3,10 +3,10 @@
   <router-view v-if="route.meta.public && !(route.meta.shell && session.token)" />
   <div v-else class="shell">
     <nav class="rail" :aria-label="t('工作区')">
-      <router-link to="/" class="brand">
+      <component :is="home ? 'a' : 'router-link'" v-bind="home ? { href: home } : { to: '/' }" class="brand" :title="home ? t('问渠官网首页') : ''">
         <span class="logo">渠</span><!-- i18n-ok 标志字 -->
         <span class="brand-text"><b>{{ t('问渠数字工厂') }}</b><small>{{ isEn() ? '' : 'WenQuest Digital Factory' }}{{ cfg.edition === 'local' ? ' · ' + t('本地版') : cfg.edition === 'enterprise' ? ' · ' + t('企业版') : '' }}</small></span>
-      </router-link>
+      </component>
       <!-- 第 19 轮 J-8：按工厂的价值链分组（总览 / 从订单到回款 / 保障 / 设计与工艺 / 教学 / 资源） -->
       <div v-for="g in navGroups" :key="g.title" class="group">
         <span class="group-title">{{ t(g.title) }}</span>
@@ -34,7 +34,9 @@
     <main class="main">
       <header class="top">
         <div class="title">
-          <b>{{ plantName }}{{ cfg.factory_name ? t('（{n}）', { n: cfg.factory_name }) : '' }} · {{ pageName }}</b>
+          <b><select v-if="plantChoices" class="plantsel" :value="plantId" :aria-label="t('切换工厂')" :title="t('切换工厂')" @change="goPlant($event.target.value)">
+            <option v-for="p in plantChoices" :key="p.id" :value="p.id">{{ p.id === plantId ? plantName : t(p.name) }}</option>
+          </select><template v-else>{{ plantName }}</template>{{ cfg.factory_name ? t('（{n}）', { n: cfg.factory_name }) : '' }} · {{ pageName }}</b>
           <small>{{ clock }} · {{ t('第 1 班（{s}）', { s: cfg.plant?.shift || '08:00–17:00' }) }} · {{ t('数据实时刷新') }}</small>
         </div>
         <div class="modes" role="group" :aria-label="t('模式')">
@@ -73,6 +75,7 @@ import { helpLink, pageTitle } from './help/pages';
 import NotifyBell from './components/NotifyBell.vue';
 import { ai } from './lib/ai';
 import { bi, i18n, isEn, loc, setLang, t, tk } from './lib/i18n';
+import { PARK, homeUrl, plantUrl } from './lib/park';
 
 const route = useRoute();
 const router = useRouter();
@@ -137,6 +140,14 @@ const NAV = [
 const hidden = computed(() => new Set(cfg.value.plant?.hidden || []));
 const shown = (to) => !to || !hidden.value.has(to.split('?')[0]);
 const plantName = computed(() => (isEn() ? cfg.value.plant?.name_en || bi(cfg.value.plant?.name) || 'WenQuest Gearbox' : cfg.value.plant?.name || '问渠减速器厂'));   // i18n-ok
+// 第 167d 轮：顶上厂名做成下拉菜单，换厂就到那个厂的网址；问渠标志回问渠官网首页（本机没有这些网址，照旧）
+const home = homeUrl();
+const plantId = computed(() => cfg.value.plant?.id || 'wenquest-gearbox');
+const plantChoices = computed(() => (plantUrl(PARK[0]) && PARK.some((p) => p.id === plantId.value) ? PARK : null));
+function goPlant(id) {
+  const p = PARK.find((x) => x.id === id);
+  if (p && id !== plantId.value) location.href = plantUrl(p);
+}
 const demoPlant = computed(() => cfg.value.plant?.demo !== false);
 const navGroups = computed(() => NAV.filter((g) => !g.only || g.only(session.user))
   .map((g) => ({ ...g, items: g.items.filter((n) => (!n.only || n.only(session.user)) && shown(n.to)) })).filter((g) => g.items.length));
@@ -234,6 +245,9 @@ onUnmounted(() => clearInterval(timer));
 .helpbtn { height: 30px; padding: 0 10px; border: 1px solid var(--line); border-radius: 6px; display: inline-flex; align-items: center; font-size: 13px; color: inherit; text-decoration: none; }
 .title b { font-size: 17px; font-weight: 600; }
 .title small { font-size: 12px; color: var(--muted); }
+.plantsel { font: inherit; font-weight: 600; color: inherit; border: 1px solid transparent; border-radius: 6px; background: transparent;
+  padding: 0 2px; margin-left: -3px; cursor: pointer; max-width: 46vw; field-sizing: content; }
+.plantsel:hover, .plantsel:focus { border-color: var(--line); background: #F6F8F9; }
 .modes { margin-left: auto; display: flex; gap: 4px; background: var(--bg); border-radius: 8px; padding: 3px; }
 .modes button { height: 30px; padding: 0 14px; border: 0; border-radius: 6px; background: transparent; color: #3D4852; cursor: pointer; }
 .modes button.on { background: var(--accent); color: #fff; font-weight: 500; }

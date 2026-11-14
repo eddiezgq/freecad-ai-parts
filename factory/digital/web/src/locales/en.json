@@ -9119,5 +9119,11 @@
 "生成一转负载表": "Builds the one-revolution load table",
 "从 159c 的模型多取两个对照量": "Takes two more comparison values from the 159c model",
 "四个场景与判据": "Four scenarios and checks",
-"这条规则不属于本厂，自动解除": "This rule does not belong to this plant; resolved automatically"
+"这条规则不属于本厂，自动解除": "This rule does not belong to this plant; resolved automatically",
+"问渠减速器厂（演示工厂）": "WenQuest Gearbox (demo plant)",
+"芯片封测厂": "Chip packaging and test plant",
+"计算机厂": "Computer plant",
+"软件公司": "Software company",
+"切换工厂": "Switch plant",
+"问渠官网首页": "WenQuest home page"
 }
