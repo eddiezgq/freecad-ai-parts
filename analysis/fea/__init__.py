@@ -14,13 +14,14 @@
 
 新写法（ADR-0093）：直接传算例模型（schema/fea-study.schema.json，format = "fea-study/1"），结果 data = {study, steps: [...],
   trust_verdict}；静力步带 trust（反力平衡、网格质量、网格收敛与奇异点，结论 pass / fail / unknown）、levels（各层网格的结果），
-  只有 trust 通过才给 safety_factor（否则为 null，并在 safety_factor_withheld 写原因）。下面是旧写法：
+  只有 trust 通过才给 safety_factor（否则为 null，并在 safety_factor_withheld 写原因）。F2 起另有 probes（探针）、
+  support_reactions（各支承的反力）；支承加强制位移、对称面、弹性支承，载荷加重力、离心、远端载荷、轴承载荷、温度变化。下面是旧写法：
 
 结果 data：
   static：最大 Von Mises 应力（不计约束面 1.5 个网格尺寸以内）及位置与所在面、全部节点中的峰值、最大位移、安全系数
           （按屈服强度；脆性材料按抗拉强度）、网格、表面结果（节点坐标、三角形、应力、位移，供显示）
   modal：前几阶固有频率（Hz、rpm）、第一阶振型
-  faces：面清单（编号、类型、面积、中心、法向或轴线）
+  faces：面清单（编号、类型、面积、中心、法向或轴线）；edges：边清单（编号、类型、长度、中心）
 """
 
 from __future__ import annotations
@@ -71,7 +72,8 @@ def run(setup: dict) -> dict:
     try:
         if kind == "faces":
             faces, solid = geometry.faces(step)
-            return result.make("fea", MODULE["version"], setup, {"faces": faces, "solid": solid},
+            edges = solid.pop("edge_list", [])
+            return result.make("fea", MODULE["version"], setup, {"faces": faces, "edges": edges, "solid": solid},
                                elapsed_s=time.time() - t0)
         mat = materials.get(setup.get("material", ""))
         materials.require(mat, ["elastic_modulus_mpa", "poisson_ratio", "density_kg_m3"], "有限元")
