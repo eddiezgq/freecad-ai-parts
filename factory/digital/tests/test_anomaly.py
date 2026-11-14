@@ -205,3 +205,14 @@ def test_evaluate_publishes_alerts_once(db):
     assert a.evaluate("teach", NOW) == []
     st = a.detector().stats
     assert not [k for k, v in st.items() if v["error"] and k not in ("V1", "V2", "V3")], st
+
+
+def test_rules_not_in_this_plant_get_resolved(db):
+    """第 167c 轮：以前开着的、规则不在本厂目录里（如别的厂的 V1 现场设备报警）的异常，下一轮检测自动解除"""
+    from hub.ont import anomaly as A
+    db.x("insert into anomaly (mode, rule, fkey, domain, severity, role, title, detail, first_seen, last_seen) "
+         "values ('teach','ZZ9','x','service','critical','manager','不属于本厂的报警','{}', now(), now())")
+    cat = {k: v for k, v in A.load_catalog().items() if k in ("P1", "Q2")}
+    A.Detector(db, catalog=cat).run("teach", NOW)
+    r = db.one("select status, closed_reason from anomaly where rule='ZZ9'")
+    assert r["status"] == "resolved" and "不属于本厂" in r["closed_reason"]

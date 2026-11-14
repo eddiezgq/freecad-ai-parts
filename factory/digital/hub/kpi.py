@@ -448,7 +448,7 @@ def overview(db, now=None, mode="teach"):
     plan = o.wo_plan()
     comp = o.completions(o.week0)
     items = sorted(set(plan) | set(comp), key=lambda i: -sum(plan.get(i, {}).values()) - sum(comp.get(i, {}).values()))
-    item = items[0] if items else "SH-301"
+    item = items[0] if items else (next(iter(F.PRODUCTS), None) or "SH-301")   # 第 167c 轮：还没有工单时写本厂的第一种成品
     week_days = [(o.week0.astimezone(TZ).date() + dt.timedelta(days=i)) for i in range(5)]
     week = []
     for dday in week_days:
