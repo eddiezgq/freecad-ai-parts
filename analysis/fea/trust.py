@@ -49,6 +49,9 @@ def mesh_quality(q: dict) -> dict:
     frac = q["gamma_below_0_1"] / max(q["elements"], 1)
     if frac > GAMMA_BAD_FRACTION:
         return item("网格质量", UNKNOWN, f"形状很差的单元（gamma < {GAMMA_BAD}）占 {frac:.2%}，可能影响结果", **q)
+    if q.get("straight_sided"):
+        return item("网格质量", UNKNOWN, "曲面上的二阶单元升阶后太扭曲，改用了直边二阶单元（曲面按弦近似），曲面附近的应力可能偏差较大："
+                    "把网格尺寸调小（曲面上至少要有几层单元）", **q)
     return item("网格质量", PASS, "没有翻转单元，形状很差的单元很少", **q)
 
 

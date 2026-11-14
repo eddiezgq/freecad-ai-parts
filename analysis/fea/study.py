@@ -34,7 +34,8 @@ def validate(study: dict) -> None:
     pv = study.get("provenance")
     if pv and pv["drafted_by"] == "ai" and not pv["confirmed_by_human"]:
         raise StudyInvalid("这个算例是 AI 起草的，还没有人确认，不计算")
-    if not study.get("loads") and any(s["type"] == "static" for s in study["steps"]):
+    moved = any(x["type"] == "displacement" and any(x.get(k) for k in ("ux_mm", "uy_mm", "uz_mm")) for x in study["supports"])
+    if not study.get("loads") and not moved and any(s["type"] == "static" for s in study["steps"]):
         raise StudyInvalid("静力分析还没有加载荷")
 
 
@@ -43,16 +44,24 @@ def _axis(a: dict) -> dict:
 
 
 def internal_loads(study: dict) -> list[dict]:
-    """算例的支承与载荷 → 求解器内部的写法（solve.py：mm、N、N·mm；支承和载荷混在一个表里）"""
+    """算例的支承与载荷 → 求解器内部的写法（solve.py：mm、N、N·mm、mm/s²；支承和载荷混在一个表里）"""
     out = []
     for x in study["supports"] + study.get("loads", []):
-        d = {"type": x["type"], "faces": list(x["faces"])}
         t = x["type"]
+        d = {"type": t}
+        if "faces" in x:
+            d["faces"] = list(x["faces"])
+        if "edges" in x:
+            d["edges"] = list(x["edges"])
         if t == "cyl_support":
             d["axis"] = _axis(x["axis"])
             d["dofs"] = list(x.get("dofs") or ["radial"])
             if "band_mm" in x:
                 d["band_mm"] = x["band_mm"]
+        elif t == "displacement":
+            d.update({k: float(x[k]) for k in ("ux_mm", "uy_mm", "uz_mm") if k in x})
+        elif t == "elastic_support":
+            d["stiffness_n_per_mm3"] = float(x["stiffness_n_per_mm3"])
         elif t == "force":
             d["vector_n"] = list(x["vector_n"])
         elif t == "pressure":
@@ -62,6 +71,22 @@ def internal_loads(study: dict) -> list[dict]:
             d["axis"] = _axis(x["axis"])
         elif t == "moment":
             d["vector_nmm"] = [float(v) * 1000 for v in x["vector_nm"]]
+        elif t == "gravity":
+            d["acceleration_mm_s2"] = [float(v) * 1000 for v in x["acceleration_m_s2"]]
+        elif t == "centrifugal":
+            d["speed_rpm"] = float(x["speed_rpm"])
+            d["axis"] = _axis(x["axis"])
+        elif t == "remote_load":
+            d["point_mm"] = list(x["point_mm"])
+            if "force_n" in x:
+                d["vector_n"] = list(x["force_n"])
+            if "vector_nm" in x:
+                d["vector_nmm"] = [float(v) * 1000 for v in x["vector_nm"]]
+        elif t == "bearing_load":
+            d["vector_n"] = list(x["force_n"])
+            d["axis"] = _axis(x["axis"])
+        elif t == "temperature":
+            d["delta_t_k"] = float(x["delta_t_k"])
         out.append(d)
     return out
 
@@ -100,6 +125,8 @@ def _inner(study: dict, mat: dict) -> dict:
         inner["max_elements"] = m["max_elements"]
     if study.get("time_limit_s"):
         inner["time_limit_s"] = study["time_limit_s"]
+    if study.get("probes"):
+        inner["probes"] = study["probes"]
     return inner
 
 
@@ -114,33 +141,44 @@ def run_static(step_path: str, inner: dict, ccx: str, checks: dict) -> tuple[dic
     btol = float(checks.get("balance_tolerance_ratio", 1e-3))
     stats, surface, _ = solve.solve(step_path, inner, ccx)
     runs = [stats]
+    center = stats["vm_max_at"]
     if conv:
         h0 = stats["mesh_size_mm"]
         s0 = stats["vm_max_local_h_mm"]
-        center = stats["vm_max_at"]
-        for k in range(1, levels):
+        rad = max(2 * h0, 4 * s0)
+        for k in range(levels):
             lv = copy.deepcopy(inner)
-            lv["refine"] = {"center_mm": center, "radius_mm": max(2 * h0, 4 * s0), "size_mm": s0 / r ** k}
+            if k:
+                lv["refine"] = {"center_mm": center, "radius_mm": rad, "size_mm": s0 / r ** k}
             lv["exclude_h_mm"] = h0
+            lv["track_point_mm"], lv["track_radius_mm"] = center, rad
+            if not k:                                     # 第 0 层：原网格，只补算加密球内的最大值
+                stats["vm_at_track_mpa"], stats["track_local_h_mm"] = stats["vm_max_mpa"], s0
+                continue
             st_k, surf_k, _ = solve.solve(step_path, lv, ccx)
             runs.append(st_k)
             stats, surface = st_k, surf_k
     items = [trust.balance(stats["balance"], btol), trust.mesh_quality(stats["mesh_quality"])]
     if conv:
-        items.append(trust.convergence([x["vm_max_mpa"] for x in runs], r, tol, "最大应力", [x["vm_max_local_h_mm"] for x in runs]))
+        vals = [x["vm_at_track_mpa"] for x in runs]
+        hs = [x["track_local_h_mm"] for x in runs]
+        items.append(trust.convergence(vals, r, tol, "最大应力", hs))
         items.append(trust.convergence([x["u_max_mm"] for x in runs], r, tol, "最大位移"))
-        moved = math.dist(runs[0]["vm_max_at"], runs[-1]["vm_max_at"])
-        if moved > 2 * runs[0]["mesh_size_mm"]:
-            ok = items[-2]["verdict"] == trust.PASS
-            items.append(trust.item("最大应力的位置", trust.PASS if ok else trust.UNKNOWN,
-                                    f"加密后最大应力的位置移动了 {moved:.2f} mm" +
-                                    ("，但各层最大值一致：应力相近的区域不止一处（例如整圈均匀受力）" if ok
-                                     else "：可能有几处应力相近，逐处核查"), moved_mm=moved))
+        # 最细一层里别处（没有加密的地方）的应力比核查的那一点还大：那一处没有核查过收敛
+        top, at = runs[-1]["vm_max_mpa"], runs[-1]["vm_max_at"]
+        far = math.dist(at, center) > rad
+        if far and top > vals[-1] * (1 + tol):
+            items.append(trust.item("最大应力的位置", trust.UNKNOWN,
+                                    f"别处 {at} 的应力 {top:.4g} MPa 比核查的这一点（{vals[-1]:.4g} MPa）还大，那一处没有核查收敛：在那里另做核查",
+                                    other_vm_mpa=top, other_at=at))
     else:
         items.append(trust.item("网格收敛", trust.UNKNOWN, "没有做网格收敛核查（checks.convergence = false）"))
     tr = {"verdict": trust.verdict(items), "items": items,
-          "levels": [{"mesh_size_mm": x["mesh_size_mm"], "local_h_mm": x["vm_max_local_h_mm"], "elements": x["elements"],
-                      "vm_max_mpa": x["vm_max_mpa"], "u_max_mm": x["u_max_mm"]} for x in runs]}
+          "checked_at": center if conv else None,
+          "levels": [{"mesh_size_mm": x["mesh_size_mm"], "local_h_mm": h_, "elements": x["elements"],
+                      "vm_checked_mpa": v_, "vm_max_mpa": x["vm_max_mpa"], "u_max_mm": x["u_max_mm"]}
+                     for x, v_, h_ in zip(runs, vals if conv else [runs[0]["vm_max_mpa"]],
+                                          hs if conv else [runs[0]["vm_max_local_h_mm"]])]}
     return stats, surface, tr
 
 

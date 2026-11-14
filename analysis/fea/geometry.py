@@ -36,6 +36,11 @@ def load_step(gmsh, step_path, tmp):
     vols = gmsh.model.getEntities(3)
     if not vols:
         raise ValueError("STEP 里没有实体（只有曲面或线框），不能做有限元")
+    if len(vols) > 1:
+        # 一个零件由几块实体拼成（STEP 里贴合的面是两份）：粘成共面共节点的网格，否则各块互不相连、算不出来（ADR-0093 F2）
+        gmsh.model.occ.fragment(vols[:1], vols[1:])
+        gmsh.model.occ.synchronize()
+        vols = gmsh.model.getEntities(3)
     return vols
 
 
@@ -109,7 +114,14 @@ def faces(step_path, size_hint=None, with_mesh=False):
                 idx = {int(t): i for i, t in enumerate(ntags)}
                 meshes[int(tag)] = (np.asarray(xyz, float).reshape(-1, 3),
                                     np.array([idx[int(n)] for n in enodes[0]], int).reshape(-1, 3))
+        edges = []
+        for _, tag in gmsh.model.getEntities(1):                 # 边（强制位移可作用在边上，ADR-0093 补充二）
+            typ = gmsh.model.getType(1, tag)
+            edges.append({"id": int(tag), "kind": {"Line": "line", "Circle": "circle", "Ellipse": "ellipse"}.get(typ, "other"),
+                          "length_mm": round(gmsh.model.occ.getMass(1, tag), 4),
+                          "center": [round(x, 4) for x in gmsh.model.occ.getCenterOfMass(1, tag)],
+                          "bbox": [round(x, 4) for x in gmsh.model.getBoundingBox(1, tag)]})
         vol = sum(gmsh.model.occ.getMass(3, t) for _, t in gmsh.model.getEntities(3))
         solid = {"bbox_mm": [round(x, 3) for x in bb], "volume_mm3": round(vol, 1), "faces": len(out),
-                 "solids": len(gmsh.model.getEntities(3))}
+                 "solids": len(gmsh.model.getEntities(3)), "edge_list": edges}
     return (out, solid, meshes) if with_mesh else (out, solid)
