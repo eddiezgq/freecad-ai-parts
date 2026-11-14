@@ -149,6 +149,8 @@ suppliers:
   network: {name: 示例·网络与机柜设备商 Network & Rack Supplier (Demo), lead: 28, on_time: 0.9, pass: 0.995, cat_name: 网络与机柜}
   hardware: {name: 示例·标准件商 Fastener Supplier (Demo), lead: 3, on_time: 0.95, pass: 0.99, cat_name: 标准件}
   packing: {name: 示例·包装材料商 Packaging Supplier (Demo), lead: 3, on_time: 0.95, pass: 0.99, cat_name: 包装材料}
+  software: {name: 问渠软件公司 WenQuest Software (Demo), lead: 1, on_time: 0.99, pass: 0.999, cat_name: 软件授权, park: wenquest-software,   # 第 167 轮
+             incoming: [{name: 授权文件 License file, text: 授权数量、版本号与发货单一致，签名校验通过}]}
 customers:
 - 示例·某算力中心 AI Computing Center (Demo)
 - 示例·某云数据中心 Cloud Data Center (Demo)
@@ -202,6 +204,8 @@ items:
 - {code: BOX-NB, name: 笔记本包装盒 Notebook box, kind: buy, uom: Nos, price: 3, supplier: packing}
 - {code: BOX-SV, name: 服务器包装箱 Server box, kind: buy, uom: Nos, price: 15, supplier: packing}
 - {code: CRATE-RACK, name: 整机柜运输木箱与减震底座 Rack shipping crate, kind: buy, uom: Nos, price: 300, supplier: packing}
+- {code: LIC-OS, name: 操作系统授权（问渠软件公司 WQ-OS，每台一份） WQ-OS license, kind: buy, uom: Nos, price: 25, supplier: software, pack: 1, park_item: LIC-OS,
+   note: 开机自检与系统灌装时激活}   # 第 167 轮
 # 自制半成品
 - {code: MB-PC, name: 台式机主板（自制） Desktop mainboard, kind: make, uom: Nos}
 - {code: MB-NB, name: 笔记本主板（自制，CPU 与内存板载） Notebook mainboard, kind: make, uom: Nos}
@@ -263,16 +267,16 @@ boms:
   components: [[AL-6063, 0.9]]
 - item: WQ-PC1
   routing: RT-台式机 Desktop
-  components: [[MB-PC, 1], [CPU-DT, 1], [DIMM-32, 2], [SSD-1T, 1], [PSU-PC, 1], [CHS-PC, 1], [HS-PC, 1], [FAN-PC, 2], [TIM, 0.002], [SCR-M3, 12], [BOX-PC, 1]]
+  components: [[MB-PC, 1], [CPU-DT, 1], [DIMM-32, 2], [SSD-1T, 1], [PSU-PC, 1], [CHS-PC, 1], [HS-PC, 1], [FAN-PC, 2], [TIM, 0.002], [SCR-M3, 12], [BOX-PC, 1], [LIC-OS, 1]]
 - item: WQ-IPC
   routing: RT-台式机 Desktop
-  components: [[MB-PC, 1], [CPU-DT, 1], [DIMM-32, 1], [SSD-1T, 1], [PSU-PC, 1], [CHS-PC, 1], [HS-PC, 1], [FAN-PC, 1], [TIM, 0.002], [SCR-M3, 12], [BOX-PC, 1]]
+  components: [[MB-PC, 1], [CPU-DT, 1], [DIMM-32, 1], [SSD-1T, 1], [PSU-PC, 1], [CHS-PC, 1], [HS-PC, 1], [FAN-PC, 1], [TIM, 0.002], [SCR-M3, 12], [BOX-PC, 1], [LIC-OS, 1]]
 - item: WQ-NB14
   routing: RT-笔记本 Notebook
-  components: [[MB-NB, 1], [NBC-14, 1], [DISP-14, 1], [BAT-NB, 1], [KB-NB, 1], [SSD-1T, 1], [HS-NB, 1], [TIM, 0.001], [ADP-65W, 1], [SCR-M3, 20], [BOX-NB, 1]]
+  components: [[MB-NB, 1], [NBC-14, 1], [DISP-14, 1], [BAT-NB, 1], [KB-NB, 1], [SSD-1T, 1], [HS-NB, 1], [TIM, 0.001], [ADP-65W, 1], [SCR-M3, 20], [BOX-NB, 1], [LIC-OS, 1]]
 - item: WQ-SV2U
   routing: RT-服务器 Server
-  components: [[MB-SV, 1], [CPU-SV, 2], [DIMM-32, 16], [SSD-3T8, 4], [PSU-SV, 2], [CHS-SV, 1], [HS-SV, 2], [FAN-SV, 6], [TIM, 0.004], [SCR-M3, 30], [BOX-SV, 1]]
+  components: [[MB-SV, 1], [CPU-SV, 2], [DIMM-32, 16], [SSD-3T8, 4], [PSU-SV, 2], [CHS-SV, 1], [HS-SV, 2], [FAN-SV, 6], [TIM, 0.004], [SCR-M3, 30], [BOX-SV, 1], [LIC-OS, 1]]
 - item: WQ-RACK42
   routing: RT-整机柜 Rack
   components: [[WQ-SV2U, 16], [SW-TOR, 1], [PDU-R, 2], [RDHX, 1], [RACK-42, 1], [CABLE-SV, 16], [CRATE-RACK, 1]]
@@ -284,11 +288,11 @@ products:
 - {item: WQ-IPC, price: 500}
 stock:
   # 期初库存（示例值）：大约够做台式机 / 工控机 30 台、笔记本 30 台、服务器 20 台（一个整机柜要 16 台服务器，第一单整柜要先做服务器）
-  opening: {CPU-DT: 30, CPU-NB: 30, CPU-SV: 40, DRAM-16G: 1200, PMIC-DIMM: 60, SSD-1T: 60, SSD-3T8: 80, PCB-MB-PC: 30, PCB-MB-NB: 30, PCB-MB-SV: 20,
+  opening: {LIC-OS: 80, CPU-DT: 30, CPU-NB: 30, CPU-SV: 40, DRAM-16G: 1200, PMIC-DIMM: 60, SSD-1T: 60, SSD-3T8: 80, PCB-MB-PC: 30, PCB-MB-NB: 30, PCB-MB-SV: 20,
             PCB-DIMM: 60, KIT-MB-PC: 30, KIT-MB-NB: 30, KIT-MB-SV: 20, PASTE-SAC305: 2, TIM: 0.3, SHEET-SGCC: 450, AL-6063: 30, PEM-NUT: 1500,
             POWDER: 25, DISP-14: 30, BAT-NB: 30, KB-NB: 30, PSU-PC: 30, PSU-SV: 40, ADP-65W: 30, FAN-PC: 60, FAN-SV: 120, HS-PC: 30, HS-NB: 30,
             HS-SV: 40, SCR-M3: 2000, SW-TOR: 1, PDU-R: 2, RDHX: 1, RACK-42: 1, CABLE-SV: 16, BOX-PC: 30, BOX-NB: 30, BOX-SV: 20, CRATE-RACK: 1}
-  safety: {CPU-DT: 6, CPU-SV: 8, DRAM-16G: 200, PCB-MB-PC: 6}
+  safety: {LIC-OS: 20, CPU-DT: 6, CPU-SV: 8, DRAM-16G: 200, PCB-MB-PC: 6}
 key_materials: [CPU-DT, CPU-SV, DRAM-16G, PCB-MB-SV]
 # 测量（名义值、规格限、散布都是示例值）：ERPNext 一种物料一张检验模板，一种物料的测量都记在它最后一道检验工序上：
 #   主板在在线测试工位记 SPI、X 光、上电供电；内存条在内存测试机；机箱在喷粉后；笔记本壳在阳极氧化后；整机在整机功能测试（含老化曲线算出的两项）；整机柜在联调。

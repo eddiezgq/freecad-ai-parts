@@ -2886,6 +2886,37 @@ from hub import cases as _cases  # noqa: E402
 _cases.mount(app, user_of, PLANT.plant_id)
 
 
+# ---------------------------------------------------------------- 发布流水线与服务监控（第 167 轮，软件公司）
+@app.get("/api/software/builds")
+def software_builds(u=Depends(user_of)):
+    from hub import software_api
+    return {"builds": software_api.builds(H.db, u["mode"])}
+
+
+@app.get("/api/software/build/{serial}")
+def software_build(serial: str, u=Depends(user_of)):
+    from hub import software_api
+    try:
+        return software_api.build(H.db, u["mode"], serial)
+    except KeyError:
+        raise HTTPException(404, "没有这个版本的构建记录：{}".format(serial))
+
+
+@app.get("/api/software/services")
+def software_services(u=Depends(user_of)):
+    from hub import software_api
+    return {"services": software_api.services(H.db, u["mode"])}
+
+
+@app.get("/api/software/service/{serial}")
+def software_service(serial: str, u=Depends(user_of)):
+    from hub import software_api
+    try:
+        return software_api.service(H.db, u["mode"], serial)
+    except KeyError:
+        raise HTTPException(404, "没有这份订阅的验收记录：{}".format(serial))
+
+
 # ---------------------------------------------------------------- 整机老化曲线（第 166 轮，计算机厂）
 @app.get("/api/computer/units")
 def computer_units(u=Depends(user_of)):

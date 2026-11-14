@@ -92,6 +92,8 @@ suppliers:
   # 第 106 轮：工业园的问渠芯片厂（WQ-ENCIF 按晶圆批卖；交期示例）
   chipfab: {name: 问渠芯片厂 WenQuest Semiconductor, park: wenquest-chip, lead: 10, on_time: 0.95, pass: 0.995, cat_name: 自研芯片,
             incoming: [{name: 防潮包装 Dry pack, text: 防潮袋密封完好、湿度卡未变色、盘标批号与发货单一致}]}
+  software: {name: 问渠软件公司 WenQuest Software (Demo), lead: 1, on_time: 0.99, pass: 0.999, cat_name: 软件授权, park: wenquest-software,   # 第 167 轮
+             incoming: [{name: 授权文件 License file, text: 授权数量、版本号与发货单一致，签名校验通过}]}
   # 第 159 轮 159e：CTRL-LS 的升压电感、反激变压器是定制件，按计算书的规格外协绕制（交期示例）
   magnetics: {name: 示例·磁性元件厂 Magnetics Winder (Demo), lead: 15, on_time: 0.9, pass: 0.98, cat_name: 定制磁性元件,
               incoming: [{name: 电感量 Inductance, text: 按规格书测试报告，抽检电感量与耐压}]}
@@ -143,6 +145,8 @@ items:
 - {code: PASTE-SAC305, name: 无铅锡膏 SAC305（型号待确认） Lead-free solder paste, kind: raw, uom: Kg, price: 70, supplier: chem, note: 冷藏 2–10 ℃}
 - {code: COAT-AR, name: 三防漆（丙烯酸，型号待确认） Conformal coating, kind: raw, uom: Kg, price: 25, supplier: chem}
 - {code: BAG-ESD, name: 防静电袋 ESD bag, kind: buy, uom: Nos, price: 0.1, supplier: packing}
+- {code: LIC-RTOS, name: 实时操作系统授权（问渠软件公司 WQ-RTOS，每块板一份） WQ-RTOS device license, kind: buy, uom: Nos, price: 3, supplier: software, pack: 1,
+   park_item: LIC-RTOS}   # 第 167 轮：关节驱动板的固件跑在 WQ-RTOS 上
 # 第 159 轮 159e：平缝机控制器 CTRL-LS（第 159 轮设计，factory/designs/ctrl-ls）。物料编号与设计的物料清单相同（测试逐项核对）；
 # 型号来自设计的器件表（parts.yaml，立创核实过有货），示例选型，未经硬件验证；没写型号的是通用阻容。7 种与驱动板相同的直接用上面的编号
 - {code: PCB-CTRL, name: 平缝机控制器光板 4 层 外层 3 oz 250 × 150 mm（外协） Sewing controller bare PCB, kind: buy, uom: Nos, price: 18.0, supplier: pcbfab}
@@ -257,7 +261,7 @@ boms:
   components: [[SMT-AGV, 1], [CONN-PWR, 3], [CONN-SIG, 4], [COAT-AR, 0.005], [BAG-ESD, 1]]
 - item: DRV-JOINT-B
   routing: RT-后段 Back end
-  components: [[SMT-DRV-B, 1], [CONN-PWR, 2], [CONN-SIG, 4], [COAT-AR, 0.003], [BAG-ESD, 1]]   # 第 110 轮：多一个抱闸接口 J6（通孔，后段选择焊）
+  components: [[SMT-DRV-B, 1], [CONN-PWR, 2], [CONN-SIG, 4], [COAT-AR, 0.003], [BAG-ESD, 1], [LIC-RTOS, 1]]   # 第 110 轮：多一个抱闸接口 J6（通孔，后段选择焊）
 - item: ENC-RD
   routing: RT-后段 Back end
   components: [[SMT-ENC, 1], [CONN-SIG, 1], [COAT-AR, 0.001], [BAG-ESD, 1]]
@@ -277,12 +281,12 @@ products:
 - {item: CTRL-LS, price: 95}
 stock:
   # 期初库存（示例值）：大约够做驱动板 150 块、AGV 控制板 40 块、读头板 100 块、平缝机控制器 40 块（159e）
-  opening: {PCB-DRV: 150, PCB-AGV: 40, PCB-ENC: 100, IC-MCU-MC: 190, IC-MCU-HP: 40, IC-GDRV: 700, IC-LDO: 320, IC-RS485: 360, CAP-1206: 1500, DIO-SMD: 620, XTAL: 200, IC-ISO: 240, IC-CAN: 240, IC-BUCK: 330,
+  opening: {LIC-RTOS: 150, PCB-DRV: 150, PCB-AGV: 40, PCB-ENC: 100, IC-MCU-MC: 190, IC-MCU-HP: 40, IC-GDRV: 700, IC-LDO: 320, IC-RS485: 360, CAP-1206: 1500, DIO-SMD: 620, XTAL: 200, IC-ISO: 240, IC-CAN: 240, IC-BUCK: 330,
             IC-AMP: 620, IC-ENC-AFE: 100, SNS-OPT: 100, MOS-80V: 1560, RES-SHUNT: 620, RES-0402: 16040, CAP-0402: 19360, CAP-BULK: 850,
             IND-PWR: 240, CONN-PWR: 450, CONN-SIG: 560, PASTE-SAC305: 1.2, COAT-AR: 1.0, BAG-ESD: 300,
             OSC-50M: 120, IC-LDO18: 120, IC-GDRV-LS: 120, DIO-SMD-100: 120, RES-0805: 150,
             BRG-GBU1006: 40, CAP-0603: 1360, CAP-0805: 120, CAP-1210: 40, CAP-1812-1KV: 40, CAP-1812-630V: 40, CAP-BULK-330U-500V: 120, CAP-EL-1000U-10V: 40, CAP-EL-220U-25V: 40, CAP-EL-470U-35V: 40, CAP-EL-47U-16V: 40, CAP-FILM-1U-450V: 40, CAP-X2-470N: 40, CAP-Y-2N2: 80, CMC-8118RC: 40, CONN-AC: 40, CONN-MOT: 40, CONN-VH8: 40, CONN-XH3: 40, CONN-XH4: 80, CONN-XH8: 40, DCDC-B0505S: 40, DIO-1N4007: 80, DIO-1N4148W: 40, DIO-1N5408: 40, DIO-C3D06060A: 40, DIO-ES3D: 280, DIO-US1M: 40, FUSE-T10A: 40, IC-74LVC14: 40, IC-ADUM1201: 40, IC-LDO-3V3: 80, IC-PFC-ICE3PCS01G: 40, IC-TL431: 40, IC-TMC2226: 40, IC-TOP266KG: 40, IND-PFC-CUSTOM: 40, IPM-STGIPS14K60T: 40, MOS-2N7002: 240, MOS-IPW60R060P7: 40, MOV-275: 40, NTC-2R5: 40, OPTO-PC817: 40, PCB-CTRL: 40, RES-0603: 2640, RES-1206: 600, RES-2010-0R12: 80, RES-2512: 80, RES-SHUNT-10M: 40, RES-SHUNT-25M: 120, RLY-G5LE: 40, TVS-SMBJ24A: 160, XFMR-FLY-CUSTOM: 40}     # 第 106 轮：WQ-ENCIF 不备期初库存，第一次做 B 版就向芯片厂买
-  safety: {IC-MCU-MC: 30, MOS-80V: 200, RES-SHUNT: 100, PCB-DRV: 30}
+  safety: {LIC-RTOS: 30, IC-MCU-MC: 30, MOS-80V: 200, RES-SHUNT: 100, PCB-DRV: 30}
 key_materials: [IC-MCU-MC, MOS-80V, RES-SHUNT, PCB-DRV]
 measurements:
 # 贴片板：在 AOI 工位按板记下这块板的 SPI、炉温记录和 AOI 结果（名义值、散布是示例值）

@@ -16,6 +16,8 @@ export const EDITIONS = [
   { key: 'motor', name: '电机厂', who: '问渠数字工业园 · 电机厂', plant: 'wenquest-motor' },
   // 第 166 轮：第八座厂，计算机厂（台式机、笔记本、服务器、整机柜、工控机）
   { key: 'computer', name: '计算机厂', who: '问渠数字工业园 · 计算机厂', plant: 'wenquest-computer' },
+  // 第 167 轮：第九家，软件公司（实时 OS、OS、云平台、数字工厂、机器人软件）
+  { key: 'software', name: '软件公司', who: '问渠数字工业园 · 软件公司', plant: 'wenquest-software' },
   // 第 134 轮：问渠缝纫机厂（按工艺方案建的整机厂，不在工业园的买卖链里）
   { key: 'sewing', name: '缝纫机厂', who: '问渠缝纫机厂', plant: 'wenquest-sewing' },
 ];
@@ -49,5 +51,6 @@ export const STAGE_CHAPTER = {
   sensor: ['plant', 'products-bom', 'products-bom', 'products-bom', 'plant', 'encoder-line', 'equip-ai'],
   motor: ['plant', 'products-bom', 'products-bom', 'products-bom', 'plant', 'final-test', 'equip-ai'],
   computer: ['plant', 'products-bom', 'products-bom', 'lines', 'lines', 'burn-in', 'equip-ai'],   // 第 166b 轮另有一章“设计案例”（06-cases）
+  software: ['company', 'products-sbom', 'products-sbom', 'pipeline', 'pipeline', 'ops', 'equip-ai'],
   sewing: ['plant', 'products-bom', 'products-bom', 'products-bom', 'foundry-housing', 'foundry-housing', 'equip-ai'],
 };

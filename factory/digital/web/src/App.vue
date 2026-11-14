@@ -101,6 +101,7 @@ const NAV = [
     { to: '/enc-curve', label: tk('编码器误差曲线'), role: 'quality', only: () => cfg.value.plant?.id === 'wenquest-sensor' },   // 第 125 轮：传感器厂
     { to: '/motor-wave', label: tk('电机终检波形'), role: 'quality', only: () => cfg.value.plant?.id === 'wenquest-motor' },   // 第 131 轮：电机厂
     { to: '/burn-in', label: tk('整机老化曲线'), role: 'quality', only: () => cfg.value.plant?.id === 'wenquest-computer' },   // 第 166 轮：计算机厂
+    { to: '/software-ops', label: tk('发布流水线与服务监控'), role: 'quality', only: () => cfg.value.plant?.id === 'wenquest-software' },   // 第 167 轮：软件公司
     { to: '/finance', label: tk('经营与财务'), role: 'manager' },         // 第 18 轮 E7；第 19 轮并入原“经营与成本”
     { to: '/cost', label: tk('生产成本'), role: 'manager', only: () => !demoPlant.value },   // 第 30 轮：企业工厂没有“经营与财务”，厂长看这里
   ] },
