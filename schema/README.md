@@ -19,6 +19,7 @@
 | `categories/` | 5 个品类的参数与标准端口，由 `component.schema.json` 按 `category` 引用；见 [ADR-0014](../docs/adr/0014-interface-data-in-ports.md) | M1 issue #5 |
 | `analysis-result.schema.json` | 分析模块一次计算的结果外壳（设置、数据、核对、局限）；见 [ADR-0056](../docs/adr/0056-local-analysis-modules.md) | M10 |
 | `material.schema.json` | 分析模块用的材料性能（标准单位，每条注明出处） ；见 ADR-0056 | M10 |
+| `fea-study.schema.json` | 有限元算例：实体与材料、支承与载荷、分析步、网格、可信度核查、起草来源；见 [ADR-0093](../docs/adr/0093-fea-industrial.md) | M37 F1 |
 
 ## 约定
 
