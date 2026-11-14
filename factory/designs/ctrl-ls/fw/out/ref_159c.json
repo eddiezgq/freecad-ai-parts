@@ -1,0 +1,6 @@
+{
+ "source": "tools/wqls/gc_sim.py（第 138 轮），力矩上限 3.0 N·m（159c）",
+ "trim_rpm_mean": 295.09,
+ "trim_rpm_min": 286.08,
+ "t_decel_300_s": 0.1194
+}
