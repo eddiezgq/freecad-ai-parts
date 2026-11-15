@@ -536,7 +536,7 @@ def _prep_body(gmsh, body, setup, tmp):
     surf = np.concatenate([face_tris(gmsh, f) for f in all_faces])
     face_of = np.concatenate([np.full(len(face_tris(gmsh, f)), f) for f in all_faces])
     conn = {f: face_tris(gmsh, f) for f in conn_faces}
-    return {"id": body["id"], "mat": mat, "ntags": np.asarray(ntags, np.int64), "xyz": xyz, "tets": np.asarray(tets, np.int64),
+    return {"id": body["id"], "mat": mat, "plastic": body.get("plastic"), "ntags": np.asarray(ntags, np.int64), "xyz": xyz, "tets": np.asarray(tets, np.int64),
             "P": P, "fixed": fixed, "cyl": cyl, "dsp": dsp, "rect": rect, "springs": springs, "forces": forces,
             "body_f": body_f, "sup_dofs": sup_dofs, "constrained": constrained, "dload": dload, "delta_t": delta_t,
             "surf": surf, "face_of": face_of, "conn": conn, "h": h, "qual": qual}
@@ -645,7 +645,7 @@ def _bolt_cut(B, bolt, next_id):
     return [(n, dup[n]) for n in sec], abs(area), d, faces
 
 
-def _write_multi(path, Bs, conns, bolts, contact, reactions=True):
+def _write_multi(path, Bs, conns, bolts, contact, reactions=True, nlgeom=False, buckle=0, sup_sets=()):
     """多个实体、连接、螺栓预紧的输入文件（ADR-0093 F3）"""
     with open(path, "w") as w:
         w.write("*HEADING\nWenQuest CAE\n*NODE, NSET=NALL\n")
@@ -726,6 +726,8 @@ def _write_multi(path, Bs, conns, bolts, contact, reactions=True):
             m = B["mat"]
             w.write("*MATERIAL, NAME=M{}\n*ELASTIC\n{:.9g},{:.9g}\n*DENSITY\n{:.9g}\n".format(
                 k, m["elastic_modulus_mpa"], m["poisson_ratio"], m["density_kg_m3"] * 1e-12))   # kg/m³ → t/mm³
+            if B.get("plastic"):                                   # Mises 屈服、各向同性硬化：真应力, 塑性应变（最后一点之后水平）
+                w.write("*PLASTIC\n" + "".join(f"{sg:.9g},{ep:.9g}\n" for sg, ep in B["plastic"]))
             if any(x["delta_t"] for x in Bs):
                 if not m.get("thermal_expansion_per_k"):
                     raise ValueError(f"实体 {B['id']} 的材料缺线膨胀系数，不能加温度载荷")
@@ -734,10 +736,22 @@ def _write_multi(path, Bs, conns, bolts, contact, reactions=True):
         delta_t = sum(B["delta_t"] for B in Bs)
         if delta_t:
             w.write("*INITIAL CONDITIONS, TYPE=TEMPERATURE\nNALL,20\n")
-        head = "*STEP, INC=300\n*STATIC\n0.1,1\n" if contact else f"*STEP\n*STATIC, SOLVER={SOLVER}\n"
-        if contact:
-            head = head.replace("*STATIC\n", f"*STATIC, SOLVER={SOLVER}\n")
-        out = "*NODE FILE\n{}\n*EL FILE\nS\n{}".format("U,RF" if reactions else "U", "*CONTACT FILE\nCSTR\n" if contact else "")
+        plastic = any(B.get("plastic") for B in Bs)
+        if buckle:
+            head = f"*STEP\n*BUCKLE, SOLVER={SOLVER}\n{int(buckle)}\n"
+        elif plastic or nlgeom:                                    # 非线性：小增量起步，增量不超过 5 %（载荷—位移历程看得清）
+            head = "*STEP{}, INC=2000\n*STATIC, SOLVER={}\n0.02,1,1e-5,0.05\n".format(", NLGEOM" if nlgeom else "", SOLVER)
+        elif contact:
+            head = f"*STEP, INC=300\n*STATIC, SOLVER={SOLVER}\n0.1,1\n"
+        else:
+            head = f"*STEP\n*STATIC, SOLVER={SOLVER}\n"
+        out = "*NODE FILE\n{}\n*EL FILE\n{}\n{}".format("U,RF" if reactions else "U", "S,PEEQ" if plastic else "S",
+                                                         "*CONTACT FILE\nCSTR\n" if contact else "")
+        if buckle:
+            out = "*NODE FILE\nU\n"
+        for name, nodes in sup_sets:                               # 非线性：各支承每个增量的反力合力（载荷—位移历程）
+            _nset(w, name, nodes)
+        out += "".join(f"*NODE PRINT, NSET={name}, TOTALS=ONLY\nRF\n" for name, _n in sup_sets)
         if bolts:
             out += "".join(f"*SECTION PRINT, SURFACE=BS{bl['k']}, NAME=SP{bl['k']}\nSOF\n" for bl in bolts)
 
@@ -778,14 +792,18 @@ def _write_multi(path, Bs, conns, bolts, contact, reactions=True):
         w.write(out + "*END STEP\n")
 
 
-def _read_blocks(path):
-    """.frd 里最后一步的各结果块 {名字: {节点: 数值}}"""
-    blocks, cur = {}, None
+def _read_blocks(path, upto=None):
+    """.frd 里最后一步的各结果块 {名字: {节点: 数值}}。upto=(分析步, 增量)：只读到这个增量为止——
+    非线性没收敛时 CalculiX 会把最后一次没收敛的迭代也写进 .frd（供排错），那一块不能当结果"""
+    blocks, cur, here = {}, None, (0, 0)
     with open(path, errors="replace") as f:
         for line in f:
-            if line.startswith(" -4"):
+            if line.startswith("    1PSTEP"):
+                v = line.split()
+                here = (int(v[3]), int(v[2])) if len(v) >= 4 else here
+            elif line.startswith(" -4"):
                 name = line.split()[1]
-                cur = blocks.setdefault(name, {})
+                cur = blocks.setdefault(name, {}) if upto is None or here <= upto else None
             elif line.startswith(" -3"):
                 cur = None
             elif cur is not None and line.startswith(" -1"):
@@ -793,6 +811,84 @@ def _read_blocks(path):
                 vals = [float(line[13 + 12 * i:25 + 12 * i]) for i in range((len(line.rstrip("\n")) - 13) // 12)]
                 cur[nid] = vals
     return blocks
+
+
+def _last_converged(sta):
+    """.sta 里最后一个收敛的 (分析步, 增量)：尝试号后面带 U 的是没收敛、要减小增量重试的"""
+    last = None
+    if not os.path.exists(sta):
+        return last
+    with open(sta, errors="replace") as f:
+        for line in f:
+            v = line.split()
+            if len(v) >= 4 and v[0].isdigit() and v[1].isdigit() and not v[2].endswith("U"):
+                last = (int(v[0]), int(v[1]))
+    return last
+
+
+def _read_dat_totals(path, sets):
+    """.dat 里非线性各增量的 *NODE PRINT TOTALS=ONLY：[{load_fraction, totals: {集合名: (fx, fy, fz)}}]（时间就是载荷比例）"""
+    out, cur, want = [], None, False
+    if not os.path.exists(path) or not sets:
+        return out
+    with open(path, errors="replace") as f:
+        for line in f:
+            low = line.strip().lower()
+            if low.startswith("total force (fx,fy,fz) for set"):
+                name = line.split("for set")[1].split()[0].upper()
+                t = float(low.split("time")[-1])
+                cur, want = (name, t), name in sets
+                continue
+            if cur and want and line.strip():
+                v = tuple(float(x) for x in line.split()[:3])
+                if not out or abs(out[-1]["load_fraction"] - cur[1]) > 1e-12:
+                    out.append({"load_fraction": cur[1], "totals": {}})
+                out[-1]["totals"][cur[0]] = v
+                cur, want = None, False
+    return out
+
+
+def _read_buckling(path):
+    """.dat 里的屈曲系数（*BUCKLE）"""
+    out, on = [], False
+    if not os.path.exists(path):
+        return out
+    with open(path, errors="replace") as f:
+        for line in f:
+            if "B U C K L I N G" in line:
+                on = True
+                continue
+            if on:
+                v = line.split()
+                if len(v) == 2 and v[0].isdigit():
+                    out.append(float(v[1]))
+                elif out and not line.strip():
+                    on = False
+    return out
+
+
+def _ext_total(Bs):
+    out = {}
+    for B in Bs:
+        for n, f in B["forces"].items():
+            out[n] = out.get(n, 0) + f
+    return out
+
+
+def _history(history, sup_sets, sup_dofs, ext):
+    """载荷—位移历程：每个增量的载荷比例、各支承的反力合力（减去按比例加在这些节点上的载荷）"""
+    names = [(name, i) for (name, nodes), i in zip(sup_sets, [int(n[3:]) - 1 for n, _ in sup_sets])]
+    out = []
+    for h in history:
+        t = h["load_fraction"]
+        row = {"load_fraction": round(t, 6), "supports": []}
+        for name, i in names:
+            l, nodes, _d = sup_dofs[i]
+            v = np.asarray(h["totals"].get(name, (0, 0, 0)), float)
+            v = v - t * sum((np.asarray(ext.get(n, np.zeros(3)), float) for n in nodes), np.zeros(3))
+            row["supports"].append({"type": l["type"], "faces": l.get("faces"), "force_n": [round(float(x), 4) for x in v]})
+        out.append(row)
+    return out
 
 
 def _read_dat_sof(path, sets):
@@ -881,18 +977,45 @@ def solve_bodies(bodies, setup, ccx, workdir=None):
         contact = any(c["type"] == "contact" for c in conns)
         n_el = sum(len(B["tets"]) for B in Bs)
         n_nodes = sum(len(B["ntags"]) for B in Bs)
-        _write_multi(os.path.join(tmp, "job.inp"), Bs, conns, bolts, contact)
+        nlgeom = bool(setup.get("nlgeom"))
+        buckle = int(setup.get("buckle") or 0)
+        plastic = any(B.get("plastic") for B in Bs)
+        if buckle and (contact or bolts or plastic):
+            raise ValueError("线性屈曲不能带接触、螺栓预紧或弹塑性材料（线性屈曲以线弹性、固定的连接为前提）")
+        nonlin = (plastic or nlgeom) and not buckle
+        sup_sets = []
+        if nonlin:
+            for i, (l, nodes, _d) in enumerate(sup_dofs_all := [c for B in Bs for c in B["sup_dofs"]], 1):
+                if l["type"] != "elastic_support" and nodes:
+                    sup_sets.append((f"SUP{i}", nodes))
+        _write_multi(os.path.join(tmp, "job.inp"), Bs, conns, bolts, contact, nlgeom=nlgeom, buckle=buckle, sup_sets=sup_sets)
         r = _ccx(ccx, tmp, setup.get("time_limit_s", TIME_LIMIT_S))
         frd = os.path.join(tmp, "job.frd")
+        dat = os.path.join(tmp, "job.dat")
         if r.returncode < 0:
             raise TooBig("计算被系统中止（多半是内存不够）：请把网格尺寸调大")
-        if r.returncode != 0 or not os.path.exists(frd) or "*ERROR" in r.stdout:
+        history = _read_dat_totals(dat, {n for n, _ in sup_sets}) if nonlin else []
+        partial = False
+        if nonlin and (r.returncode != 0 or "*ERROR" in r.stdout) and history and os.path.exists(frd):
+            partial = True                                          # 没算完全部载荷：如实报算到哪一成（塑性垮塌或不收敛）
+        elif r.returncode != 0 or not os.path.exists(frd) or "*ERROR" in r.stdout:
             err = [x for x in (r.stdout + r.stderr).splitlines() if "ERROR" in x or "error" in x]
             hint = "；可能有零件没有被约束住（只靠无摩擦接触时会整体滑动）" if contact else ""
             raise RuntimeError("求解失败：" + ("；".join(err[-3:]) or (r.stdout + r.stderr)[-400:]) + hint)
-        blocks = _read_blocks(frd)
+        if buckle:
+            factors = _read_buckling(dat)
+            if not factors:
+                raise RuntimeError("求解失败：没有读到屈曲系数")
+            return ({"nodes": n_nodes, "elements": n_el, "mesh_size_mm": round(min(B["h"] for B in Bs), 3),
+                     "seconds": round(time.time() - t0, 1), "mesh_quality": _merge_quality([B["qual"] for B in Bs]),
+                     "load_factors": [round(f, 6) for f in factors]}, None, None)
+        upto = _last_converged(os.path.join(tmp, "job.sta")) if partial else None
+        if partial and upto is None:
+            raise RuntimeError("求解失败：第一个增量就没有收敛（检查约束是否足够、载荷是否过大）")
+        blocks = _read_blocks(frd, upto)
         disp, stress, forc = blocks.get("DISP", {}), blocks.get("STRESS", {}), blocks.get("FORC", {})
-        bolt_sof = _read_dat_sof(os.path.join(tmp, "job.dat"), {f"BS{bl['k']}" for bl in bolts})
+        peeq = {n: v[0] for n, v in (blocks.get("PE") or {}).items()}
+        bolt_sof = _read_dat_sof(dat, {f"BS{bl['k']}" for bl in bolts})
     P = {}
     for B in Bs:
         P.update(B["P"])
@@ -950,6 +1073,24 @@ def solve_bodies(bodies, setup, ccx, workdir=None):
              "applied_force_n": [round(float(x), 3) for x in sum(forces.values(), np.zeros(3))]}
     if len(Bs) > 1:
         stats["vm_max_body"] = Bs[int(node_body[ie])]["id"]
+    if nonlin:
+        frac = history[-1]["load_fraction"] if history else 1.0
+        if partial:
+            frac = min(frac, 0.999999)
+        stats["nonlinear"] = {"large_deformation": nlgeom, "plasticity": plastic, "completed": not partial,
+                              "load_fraction_reached": round(frac, 6), "increments": len(history),
+                              "history": _history(history, sup_sets, sup_dofs_all, _ext_total(Bs))}
+        if partial:                                                 # 外载按已加到的比例核对平衡
+            forces = {n: f * frac for n, f in forces.items()}
+            body_f = {n: f * frac for n, f in body_f.items()}
+    if plastic:
+        pe = {n: v for n, v in peeq.items() if n in P}
+        if pe:
+            n_pe = max(pe, key=pe.get)
+            stats["peeq_max"] = round(float(pe[n_pe]), 6)
+            stats["peeq_max_at"] = [round(float(x), 3) for x in P[n_pe]]
+        else:
+            stats["peeq_max"] = 0.0
     stats["mesh_quality"] = _merge_quality([B["qual"] for B in Bs])
     spring_r = {int(n): [-k * x for x in disp.get(int(n), [0, 0, 0])[:3]] for n, k in springs}
     ext = dict(forces)                                     # 全部外载的节点力：面上的 + 体力的
@@ -958,7 +1099,9 @@ def solve_bodies(bodies, setup, ccx, workdir=None):
     # 接触力作用在两面的同一个空间点上；按原位置算力矩时，它落在相距“两侧相对位移”的两个材料点上，多出
     # Σ 相对位移 × 接触力 的力偶（摩擦滑动 0.2 mm 时约占 0.5 %；过盈配合两环轴向伸缩不同也有）。这一项估出上界，从力矩误差里扣除
     slip_m = sum(_contact_couple(c, Bs, P, disp, blocks.get("CONTACT") or {}) for c in conns if c["type"] == "contact")
-    stats["balance"] = _balance(ext, _constrained_rf(sup_dofs, forc, ext), P, springs=spring_r, slip_moment=slip_m)
+    # 大变形：平衡在变形后的位置上成立，力矩按变形后的位置算（节点力的方向 CalculiX 已按整体坐标给出，载荷方向不随转动）
+    Pb = {n: np.asarray(p) + np.asarray(disp.get(n, [0, 0, 0])[:3]) for n, p in P.items()} if nlgeom else P
+    stats["balance"] = _balance(ext, _constrained_rf(sup_dofs, forc, ext), Pb, springs=spring_r, slip_moment=slip_m)
     if body_f:
         stats["body_force_n"] = [round(float(x), 6) for x in sum(body_f.values(), np.zeros(3))]
     stats["probes"] = _probes(setup.get("probes") or [], P, disp, stress)

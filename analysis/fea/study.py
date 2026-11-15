@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import copy
+import itertools
 import math
 import time
 
@@ -38,6 +39,20 @@ def validate(study: dict) -> None:
     for r in refs:
         if r not in ids:
             raise StudyInvalid(f"没有实体 {r!r}")
+    for b in study["bodies"]:
+        pl = b.get("plasticity")
+        if pl and pl["model"] == "curve":
+            eps = [p["plastic_strain"] for p in pl["points"]]
+            if eps[0] != 0 or any(b2 <= a2 for a2, b2 in itertools.pairwise(eps)):
+                raise StudyInvalid(f"实体 {b['id']} 的塑性曲线：第一个点的塑性应变要为 0，之后递增")
+    kinds = {s["type"] for s in study["steps"]}
+    if "buckling" in kinds:
+        if any(b.get("plasticity") for b in study["bodies"]):
+            raise StudyInvalid("线性屈曲不能用弹塑性材料（线性屈曲以线弹性为前提）")
+        if any(c["type"] in ("contact", "bolt_preload") for c in study.get("connections") or []):
+            raise StudyInvalid("线性屈曲不能带接触或螺栓预紧（连接要是固定的）")
+        if not study.get("loads"):
+            raise StudyInvalid("线性屈曲要有参考载荷")
     if len(ids) > 1 and any(s["type"] == "modal" for s in study["steps"]):
         raise StudyInvalid("多个实体的模态分析还没有（ADR-0093 F5）")
     pv = study.get("provenance")
@@ -126,6 +141,17 @@ def from_setup(setup: dict) -> dict:
     return st
 
 
+def _plastic(body: dict, mat: dict) -> list | None:
+    """塑性 → 求解器的 (真应力, 塑性应变) 表；理想弹塑性用材料库的屈服强度（没有就报缺数据，不估）"""
+    pl = body.get("plasticity")
+    if not pl:
+        return None
+    if pl["model"] == "perfectly_plastic":
+        materials.require(mat, ["yield_strength_mpa"], "弹塑性")
+        return [(float(mat["yield_strength_mpa"]), 0.0)]
+    return [(float(p["true_stress_mpa"]), float(p["plastic_strain"])) for p in pl["points"]]
+
+
 def _inner(study: dict, mats: dict) -> dict:
     """算例 → 求解器的输入：每个实体各自的支承与载荷、连接（实体用下标）、螺栓预紧"""
     m = study.get("mesh") or {}
@@ -134,7 +160,7 @@ def _inner(study: dict, mats: dict) -> dict:
     owner = [x["body"] for x in study["supports"] + study.get("loads", [])]
     bodies = []
     for b in study["bodies"]:
-        bodies.append({"id": b["id"], "step_path": b["step_path"], "material": mats[b["id"]],
+        bodies.append({"id": b["id"], "step_path": b["step_path"], "material": mats[b["id"]], "plastic": _plastic(b, mats[b["id"]]),
                        "loads": [ld for ld, o in zip(loads, owner) if o == b["id"]],
                        "refine_faces": list(m.get("refine_faces") or []) if len(ids) == 1 else []})
     conns, bolts = [], []
@@ -189,6 +215,14 @@ def run_static(step_path: str, inner: dict, ccx: str, checks: dict) -> tuple[dic
             runs.append(st_k)
             stats, surface = st_k, surf_k
     items = [trust.balance(stats["balance"], btol), trust.mesh_quality(stats["mesh_quality"])]
+    nl = stats.get("nonlinear")
+    if nl:
+        if nl["completed"]:
+            items.append(trust.item("载荷加完", trust.PASS, "全部载荷都加上了", load_fraction_reached=1.0))
+        else:
+            items.append(trust.item("载荷加完", trust.FAIL,
+                                    "只加到 {:.1%} 的载荷就算不下去了：结构在这一载荷下失去承载（塑性垮塌、失稳）或数值不收敛".format(
+                                        nl["load_fraction_reached"]), load_fraction_reached=nl["load_fraction_reached"]))
     if conv:
         vals = [x["vm_at_track_mpa"] for x in runs]
         hs = [x["track_local_h_mm"] for x in runs]
@@ -212,9 +246,21 @@ def run_static(step_path: str, inner: dict, ccx: str, checks: dict) -> tuple[dic
     return stats, surface, tr
 
 
+def run_buckling(inner: dict, ccx: str, n_modes: int) -> tuple[dict, dict]:
+    """线性屈曲：参考载荷 × 系数 = 屈曲载荷。核查：网格质量；系数 < 1 表示参考载荷下就会失稳（这是结论，不是可信度）"""
+    from analysis.fea import solve
+
+    stats, _s, _n = solve.solve_bodies(inner["bodies"], dict(inner, buckle=n_modes), ccx)
+    lf = stats["load_factors"]
+    stats["buckles_under_reference_load"] = bool(lf and min(lf) < 1)
+    items = [trust.mesh_quality(stats["mesh_quality"]),
+             trust.item("网格收敛", trust.UNKNOWN, "屈曲系数没有做网格收敛核查")]
+    return stats, {"verdict": trust.verdict(items), "items": items}
+
+
 def run(study: dict, ccx: str) -> tuple[dict, list[str]]:
     """按算例计算。返回 (data, 局限说明)。抛 StudyInvalid / ValueError / RuntimeError / materials.MissingData"""
-    from analysis.fea import LIMITS_MODAL, LIMITS_STATIC, _lists, modal
+    from analysis.fea import LIMITS_BUCKLING, LIMITS_MODAL, LIMITS_STATIC, _lists, modal
 
     validate(study)
     body = study["bodies"][0]
@@ -227,15 +273,33 @@ def run(study: dict, ccx: str) -> tuple[dict, list[str]]:
     steps, limits, verdicts = [], [], []
     for st in study["steps"]:
         t0 = time.time()
-        if st["type"] == "static":
-            stats, surface, tr = run_static(body["step_path"], inner, ccx, checks)
+        if st["type"] == "buckling":
+            res, tr = run_buckling(inner, ccx, int(st.get("n_modes", 3)))
+            res = {"id": st["id"], "type": "buckling", **res, "trust": tr}
+            verdicts.append(tr["verdict"])
+            limits += [x for x in LIMITS_BUCKLING if x not in limits]
+        elif st["type"] == "static":
+            inner_s = dict(inner, nlgeom=bool(st.get("large_deformation")))
+            stats, surface, tr = run_static(body["step_path"], inner_s, ccx, checks)
             res = {"id": st["id"], "type": "static", **stats, "trust": tr, "surface": _lists(surface)}
-            if tr["verdict"] != trust.PASS and "safety_factor" in res:
+            plastic = any(b.get("plastic") for b in inner["bodies"])
+            if plastic:                                    # 屈服之后“屈服强度 / 最大应力”没有意义：不给，改看塑性应变
+                for k in ("safety_factor", "strength_mpa", "strength_kind", "safety_body"):
+                    res.pop(k, None)
+                for b in res.get("bodies") or []:
+                    b.pop("safety_factor", None)
+                res["safety_factor_withheld"] = "弹塑性计算不给“屈服强度 / 最大应力”的安全系数：看最大等效塑性应变和载荷是否加完"
+            elif tr["verdict"] != trust.PASS and "safety_factor" in res:
                 res["safety_factor"] = None
                 res["safety_factor_withheld"] = "可信度核查没有通过（结论：{}），不给安全系数".format(
                     {"fail": "不通过", "unknown": "未知"}[tr["verdict"]])
             verdicts.append(tr["verdict"])
-            limits += [x for x in LIMITS_STATIC if x not in limits]
+            first = "{}、{}".format("弹塑性（Mises、各向同性硬化）" if plastic else "线弹性",
+                                   "大变形" if st.get("large_deformation") else "小变形")
+            if not inner["connections"]:
+                first += "；不计接触"
+            first += "；不计残余应力与表面硬化"
+            limits += [x for x in [first, *LIMITS_STATIC[1:]] if x not in limits]
         else:
             stats, surface = modal.solve(body["step_path"], inner, ccx, n_modes=int(st.get("n_modes", 6)))
             res = {"id": st["id"], "type": "modal", **stats, "surface": _lists(surface)}
