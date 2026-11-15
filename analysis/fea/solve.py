@@ -372,188 +372,544 @@ def _axis(l):
 
 
 def solve(step_path, setup, ccx, workdir=None):
-    """线性静力。返回 (统计, 表面结果, 全部节点应力)。
+    """线性静力（单个实体）。返回 (统计, 表面结果, 全部节点应力)。多个实体、连接见 solve_bodies。
 
     支承：fixed（三个方向都固定）；cyl_support（圆柱面，按柱坐标限制 radial 径向 / tangential 转动 / axial 轴向——
     轴承一般限径向，止推的那个再限轴向，联轴器限转动）。
     约束面附近应力受边界条件影响（圣维南原理），“评估最大应力”不计约束面 1.5 个网格尺寸以内的点；云图照常显示。"""
+    body = {"id": "b1", "step_path": step_path, "material": setup["material"], "loads": setup.get("loads") or [],
+            "refine_faces": setup.get("refine_faces")}
+    return solve_bodies([body], setup, ccx, workdir)
+
+
+def _prep_body(gmsh, body, setup, tmp):
+    """一个实体：读 STEP、划网格、处理它的支承和载荷。节点编号是这一个实体自己的（之后统一加偏移）"""
+    mat = body["material"]
+    loads = body.get("loads") or []
+    load_step(gmsh, body["step_path"], tmp)
+    all_faces = [t for _, t in gmsh.model.getEntities(2)]
+    conn_faces = sorted(set(body.get("connection_faces") or []))
+    used = sorted({f for l in loads for f in l.get("faces") or []} | set(conn_faces))
+    bad = [f for f in used if f not in all_faces]
+    if bad:
+        raise ValueError(f"实体 {body['id']} 没有这些面：{bad}")
+    all_edges = [t for _, t in gmsh.model.getEntities(1)]
+    bad = sorted({e for l in loads for e in l.get("edges") or [] if e not in all_edges})
+    if bad:
+        raise ValueError(f"实体 {body['id']} 没有这些边：{bad}")
+    size = body.get("size_mm") or (setup.get("mesh") or {}).get("size_mm")
+    # 接触面不自动加密：面-面接触的接触单元数随两面三角形数的乘积增长，加密后一次迭代要十几秒（要加密用 refine_faces）
+    fine = [f for l in loads if l["type"] not in SUPPORTS for f in l.get("faces") or []] + list(body.get("refine_faces") or [])
+    ntags, xyz, tets = mesh(gmsh, size, fine, setup.get("max_elements", MAX_ELEMENTS), refine=setup.get("refine"))
+    h = float(gmsh.option.getNumber("Mesh.MeshSizeMax"))
+    qual = quality(gmsh)
+    P = {int(t): p for t, p in zip(ntags, xyz)}
+    fixed, cyl, forces, constrained = set(), [], {}, set()
+    dsp, rect, springs, dload = [], [], [], []
+    sup_dofs = []                                      # 各支承：(设置, 节点, 限制的整体自由度)——报各支承的反力
+    body_f, delta_t = {}, 0.0                          # 体力的等效节点力（只用于核对平衡）
+    rho = mat["density_kg_m3"] * 1e-12
+
+    def add(d):
+        for n, f in d.items():
+            forces[n] = forces.get(n, 0) + f
+
+    def moment_traction(pts, o, d, T):
+        # 切向面力 τ = T·r⊥ / J，J = ∫ r⊥² dA：合力矩正好是 T（右手定则绕 d）
+        J = sum(float(np.dot(r, r)) * wj for _k, _N, x, _n, wj in pts for r in [(x - o) - d * np.dot(x - o, d)])
+        return lambda x, n: T / J * np.cross(d, (x - o) - d * np.dot(x - o, d))
+    for l in loads:
+        t = l["type"]
+        if t in BODY_LOADS:
+            if t == "gravity":
+                acc = np.array(l["acceleration_mm_s2"], float)
+                g = float(np.linalg.norm(acc))
+                if g:
+                    dload.append("{{elset}},GRAV,{:.9g},{:.9g},{:.9g},{:.9g}".format(g, *(acc / g)))
+                    for n, f in body_nodal(gmsh, rho, accel=acc).items():
+                        body_f[n] = body_f.get(n, 0) + f
+            elif t == "centrifugal":
+                o, d = _axis(l)
+                w2 = (float(l["speed_rpm"]) * 2 * math.pi / 60) ** 2
+                dload.append("{{elset}},CENTRIF,{:.9g},{:.9g},{:.9g},{:.9g},{:.9g},{:.9g},{:.9g}".format(w2, *o, *d))
+                for n, f in body_nodal(gmsh, rho, omega2=w2, o=o, d=d).items():
+                    body_f[n] = body_f.get(n, 0) + f
+            else:
+                if not mat.get("thermal_expansion_per_k"):
+                    raise ValueError("材料缺线膨胀系数，不能加温度载荷")
+                delta_t += float(l["delta_t_k"])
+            continue
+        if l.get("edges"):
+            nodes = set().union(*(edge_nodes(gmsh, e) for e in l["edges"]))
+            tris = np.zeros((0, 6), np.int64)
+        else:
+            tris = np.concatenate([face_tris(gmsh, f) for f in l["faces"]]) if l.get("faces") else np.zeros((0, 6), np.int64)
+            nodes = {int(n) for n in tris.ravel()}
+        if t == "fixed":
+            sup_dofs.append((l, set(nodes), (1, 2, 3)))
+            fixed |= nodes
+            constrained |= nodes
+            continue
+        if t == "cyl_support":
+            o, d = _axis(l)
+            dofs = sorted({SUPPORT_DOFS[k] for k in l.get("dofs") or ["radial"]})
+            nodes = band_nodes(nodes, P, o, d, l.get("band_mm"))
+            if l.get("band_mm") and 3 in dofs and len(dofs) > 1:
+                # 铰支的止推：轴向只限一个节点（只消除沿轴线的刚体移动）；整圈都限轴向会把截面夹住、不让它转角
+                n0 = min(nodes)
+                cyl.append((nodes - {n0}, o, d, [x for x in dofs if x != 3]))
+                cyl.append(({n0}, o, d, dofs))
+            else:
+                cyl.append((nodes, o, d, dofs))
+            sup_dofs.append((l, set(nodes), (1, 2, 3)))         # 局部坐标的约束：反力整个算给它
+            constrained |= nodes
+            continue
+        if t == "displacement":
+            vals = {i + 1: float(l[k]) for i, k in enumerate(("ux_mm", "uy_mm", "uz_mm")) if k in l}
+            dsp.append((nodes, vals))
+            sup_dofs.append((l, set(nodes), tuple(vals)))
+            constrained |= nodes
+            continue
+        if t == "symmetry":
+            ns = np.array([q[3] for q in tri_points(tris, P)])
+            m = ns.mean(0)
+            m /= np.linalg.norm(m)
+            if np.min(np.abs(ns @ m)) < 1 - 1e-6:
+                raise ValueError("对称面必须是平面：面 {} 不是".format(l["faces"]))
+            ax = int(np.argmax(np.abs(m)))
+            if abs(m[ax]) > 1 - 1e-9:                         # 与坐标轴平行：直接限该方向
+                dsp.append((nodes, {ax + 1: 0.0}))
+                sup_dofs.append((l, set(nodes), (ax + 1,)))
+            else:
+                b = np.cross(m, [1, 0, 0] if abs(m[0]) < 0.9 else [0, 1, 0])
+                rect.append((nodes, m, b, [1]))
+                sup_dofs.append((l, set(nodes), (1, 2, 3)))
+            constrained |= nodes
+            continue
+        if t == "elastic_support":
+            k = float(l["stiffness_n_per_mm3"])
+            springs += [(n, k * a) for n, a in nodal_areas(tris, P).items() if a > 0]
+            sup_dofs.append((l, {n for n, a in nodal_areas(tris, P).items() if a > 0}, (1, 2, 3)))
+            continue
+        area, cen, pts = face_area_centroid(tris, P)
+        if t == "force":
+            v = np.array(l["vector_n"], float)
+            add(consistent_loads(tris, P, lambda x, n, v=v, A=area: v / A, pts))
+        elif t == "pressure":
+            p = float(l["value_mpa"])
+            add(consistent_loads(tris, P, lambda x, n, p=p: -p * n, pts))
+        elif t in ("torque", "moment"):
+            if t == "moment":
+                # 问渠第 66 轮：任意方向的力矩 = 绕“过面形心、沿力矩方向”的轴的“扭矩”。面力 = (M/J)·d × r⊥：对端面加弯矩时
+                # d 在面内，d × r⊥ 垂直于面、与到中性轴的距离成正比——正好是梁弯曲的线性正应力分布
+                mv = np.array(l["vector_nmm"], float)
+                if not np.linalg.norm(mv):
+                    raise ValueError("力矩的大小是 0")
+                o, d, T = cen, mv / np.linalg.norm(mv), float(np.linalg.norm(mv))
+            else:
+                (o, d), T = _axis(l), float(l["value_nmm"])
+            add(consistent_loads(tris, P, moment_traction(pts, o, d, T), pts))
+        elif t == "remote_load":
+            # 远端载荷（RBE3 式的静力等效分配，不增加刚度）：搬到面形心 C：F 不变，M' = M + (Q − C) × F
+            F = np.array(l.get("vector_n") or [0, 0, 0], float)
+            M = np.array(l.get("vector_nmm") or [0, 0, 0], float) + np.cross(np.array(l["point_mm"], float) - cen, F)
+            if np.linalg.norm(F):
+                add(consistent_loads(tris, P, lambda x, n, v=F, A=area: v / A, pts))
+            if np.linalg.norm(M):
+                add(consistent_loads(tris, P, moment_traction(pts, cen, M / np.linalg.norm(M), float(np.linalg.norm(M))), pts))
+        elif t == "bearing_load":
+            # 轴承载荷：受压的半圈上 p = p0·cosθ（θ 为“指向面内的法向”与力方向的夹角），p0 由合力 = |F| 定
+            o, d = _axis(l)
+            F = np.array(l["vector_n"], float)
+            fm = float(np.linalg.norm(F))
+            if not fm or abs(np.dot(F, d)) > 1e-6 * fm:
+                raise ValueError("轴承载荷必须是垂直于轴线的径向力")
+            fh = F / fm
+            c2 = sum(max(float(np.dot(-n, fh)), 0.0) ** 2 * wj for _k, _N, _x, n, wj in pts)
+            p0 = fm / c2
+            add(consistent_loads(tris, P, lambda x, n, p0=p0, fh=fh: p0 * max(float(np.dot(-n, fh)), 0.0) * (-n), pts))
+        else:
+            raise ValueError(f"不认识的载荷类型 {t}")
+    if not forces and not dload and not delta_t and not any(v for _n, vals in dsp for v in vals.values()) \
+            and not body.get("passive"):
+        raise ValueError("还没有加载荷")
+    surf = np.concatenate([face_tris(gmsh, f) for f in all_faces])
+    face_of = np.concatenate([np.full(len(face_tris(gmsh, f)), f) for f in all_faces])
+    conn = {f: face_tris(gmsh, f) for f in conn_faces}
+    return {"id": body["id"], "mat": mat, "ntags": np.asarray(ntags, np.int64), "xyz": xyz, "tets": np.asarray(tets, np.int64),
+            "P": P, "fixed": fixed, "cyl": cyl, "dsp": dsp, "rect": rect, "springs": springs, "forces": forces,
+            "body_f": body_f, "sup_dofs": sup_dofs, "constrained": constrained, "dload": dload, "delta_t": delta_t,
+            "surf": surf, "face_of": face_of, "conn": conn, "h": h, "qual": qual}
+
+
+def _shift(B, off):
+    """实体的节点编号整体加 off（多个实体合成一个模型）"""
+    if not off:
+        return B
+    m = lambda ns: {int(n) + off for n in ns}
+    B["ntags"] = B["ntags"] + off
+    B["tets"] = B["tets"] + off
+    B["P"] = {n + off: p for n, p in B["P"].items()}
+    B["fixed"] = m(B["fixed"])
+    B["constrained"] = m(B["constrained"])
+    B["cyl"] = [(m(ns), o, d, dofs) for ns, o, d, dofs in B["cyl"]]
+    B["rect"] = [(m(ns), a, b, dofs) for ns, a, b, dofs in B["rect"]]
+    B["dsp"] = [(m(ns), v) for ns, v in B["dsp"]]
+    B["springs"] = [(int(n) + off, k) for n, k in B["springs"]]
+    B["forces"] = {int(n) + off: f for n, f in B["forces"].items()}
+    B["body_f"] = {int(n) + off: f for n, f in B["body_f"].items()}
+    B["sup_dofs"] = [(l, m(ns), dofs) for l, ns, dofs in B["sup_dofs"]]
+    B["surf"] = B["surf"] + off
+    B["conn"] = {f: t + off for f, t in B["conn"].items()}
+    return B
+
+
+# CalculiX C3D10 的四个面（按 CalculiX 的节点次序 1..4）：S1 = 1-2-3、S2 = 1-4-2、S3 = 2-4-3、S4 = 3-4-1
+_CCX_FACES = {1: (0, 1, 2), 2: (0, 3, 1), 3: (1, 3, 2), 4: (2, 3, 0)}
+
+
+def _element_faces(tets_ccx, eid0, tris):
+    """面上的三角形 → (单元号, 面号)，用于 *SURFACE TYPE=ELEMENT（接触、绑定的主面）"""
+    want = {frozenset(int(x) for x in t[:3]) for t in tris}
+    out = []
+    for i, e in enumerate(tets_ccx):
+        for fn, (a, b, c) in _CCX_FACES.items():
+            if frozenset((e[a], e[b], e[c])) in want:
+                out.append((eid0 + i + 1, fn))
+    return out
+
+
+_GMSH_MID = {4: (0, 1), 5: (1, 2), 6: (0, 2), 7: (0, 3), 8: (2, 3), 9: (1, 3)}   # gmsh 二阶四面体的边中节点
+
+
+def _tri6_area_vector(x):
+    """六节点曲边三角形（角点 0-2，边中 01、12、20）的面积向量 ∫ ∂x/∂ξ × ∂x/∂η，三点积分（被积函数二次，精确）"""
+    x = np.asarray(x, float)
+    out = np.zeros(3)
+    for xi, eta in ((1 / 6, 1 / 6), (2 / 3, 1 / 6), (1 / 6, 2 / 3)):
+        l0 = 1 - xi - eta
+        dxi = np.array([-(4 * l0 - 1), 4 * xi - 1, 0, 4 * (l0 - xi), 4 * eta, -4 * eta])
+        deta = np.array([-(4 * l0 - 1), 0, 4 * eta - 1, -4 * xi, 4 * xi, 4 * (l0 - eta)])
+        out += np.cross(dxi @ x, deta @ x) / 6
+    return out
+
+
+def _bolt_cut(B, bolt, next_id):
+    """螺栓预紧截面：按单元形心在截面哪一侧把实体分成两半，截面上的节点复制一份给“上侧”的单元，
+    两侧用约束方程连接。返回 (节点对 [(下侧, 上侧)], 截面面积 mm²)，并改写 B 的单元与表面三角形。"""
+    p0 = np.asarray(bolt["point_mm"], float)
+    d = np.asarray(bolt["axis_dir"], float)
+    d = d / np.linalg.norm(d)
+    P = B["P"]
+    corners = B["tets"][:, :4]
+    cen = np.array([np.mean([P[int(n)] for n in e], axis=0) for e in corners])
+    up = (cen - p0) @ d > 0
+    if up.all() or not up.any():
+        raise ValueError(f"螺栓预紧截面没有穿过实体 {B['id']}")
+    lo_nodes = {int(n) for n in B["tets"][~up].ravel()}
+    up_nodes = {int(n) for n in B["tets"][up].ravel()}
+    sec = sorted(lo_nodes & up_nodes)
+    dup = {n: next_id + i for i, n in enumerate(sec)}
+    t = B["tets"].copy()
+    for i in np.nonzero(up)[0]:
+        t[i] = [dup.get(int(n), int(n)) for n in t[i]]
+    B["tets"] = t
+    for n in sec:
+        B["P"][dup[n]] = P[n]
+    B["ntags"] = np.concatenate([B["ntags"], np.array([dup[n] for n in sec], np.int64)])
+    B["xyz"] = np.vstack([B["xyz"], np.array([P[n] for n in sec])])
+    sc = np.array([np.mean([P[int(n)] for n in tri[:3]], axis=0) for tri in B["surf"]])
+    sup = (sc - p0) @ d > 0
+    s2 = B["surf"].copy()
+    for i in np.nonzero(sup)[0]:
+        s2[i] = [dup.get(int(n), int(n)) for n in s2[i]]
+    B["surf"] = s2
+    # 截面：下侧单元上角点都在截面节点上的面（截面按单元形心切开，是锯齿状的）。面积取它在垂直于轴线的平面上的投影
+    # （按单元外法向带符号相加，锯齿的折返部分正负抵消）；螺栓力由 CalculiX 在这些面上积分应力得到（*SECTION PRINT）
+    area = 0.0
+    secset = set(sec)
+    faces = []
+    for i in np.nonzero(~up)[0]:
+        e = corners[i]
+        mid = {frozenset((int(B["tets"][i][x]), int(B["tets"][i][y]))): int(B["tets"][i][m]) for m, (x, y) in _GMSH_MID.items()}
+        for fn, (a, b, c) in _CCX_FACES.items():
+            f = [int(e[a]), int(e[b]), int(e[c])]
+            if all(x in secset for x in f):
+                other = next(int(x) for x in e if int(x) not in f)
+                ms = [mid[frozenset((f[0], f[1]))], mid[frozenset((f[1], f[2]))], mid[frozenset((f[2], f[0]))]]
+                a6 = _tri6_area_vector([P[x] for x in f + ms])
+                if np.dot(np.cross(P[f[1]] - P[f[0]], P[f[2]] - P[f[0]]), P[other] - P[f[0]]) > 0:
+                    a6 = -a6
+                area += float(np.dot(a6, d))
+                faces.append((int(i), fn))
+    return [(n, dup[n]) for n in sec], abs(area), d, faces
+
+
+def _write_multi(path, Bs, conns, bolts, contact, reactions=True):
+    """多个实体、连接、螺栓预紧的输入文件（ADR-0093 F3）"""
+    with open(path, "w") as w:
+        w.write("*HEADING\nWenQuest CAE\n*NODE, NSET=NALL\n")
+        for B in Bs:
+            w.writelines("{},{:.9g},{:.9g},{:.9g}\n".format(t, *B["P"][int(t)]) for t in B["ntags"])
+        w.writelines("{},{:.9g},{:.9g},{:.9g}\n".format(bl["ref"], *bl["point"]) for bl in bolts)
+        eid = 0
+        for k, B in enumerate(Bs, 1):
+            w.write(f"*ELEMENT, TYPE=C3D10, ELSET=B{k}\n")
+            B["eid0"] = eid
+            B["ccx"] = [[int(e[j]) for j in GMSH2CCX_TET10] for e in B["tets"]]
+            w.writelines("{},{}\n".format(eid + i, ",".join(map(str, e))) for i, e in enumerate(B["ccx"], 1))
+            eid += len(B["tets"])
+        w.write("*ELSET, ELSET=EALL\n" + ",".join(f"B{k}" for k in range(1, len(Bs) + 1)) + "\n")
+        fixed = set().union(*(B["fixed"] for B in Bs))
+        cyl = [c for B in Bs for c in B["cyl"]]
+        rect = [c for B in Bs for c in B["rect"]]
+        dsp = [c for B in Bs for c in B["dsp"] if c[0]]
+        springs = [c for B in Bs for c in B["springs"]]
+        if fixed:
+            _nset(w, "FIX", fixed)
+        for k, (nodes, o, d, _dofs) in enumerate(cyl, 1):
+            _nset(w, f"CYL{k}", nodes)
+            a, b = np.asarray(o, float), np.asarray(o, float) + 100 * np.asarray(d, float)
+            w.write("*TRANSFORM, NSET=CYL{}, TYPE=C\n{}\n".format(k, ",".join(f"{x:.9g}" for x in [*a, *b])))
+        for k, (nodes, a, b, _dofs) in enumerate(rect, 1):
+            _nset(w, f"REC{k}", nodes)
+            w.write("*TRANSFORM, NSET=REC{}, TYPE=R\n{}\n".format(k, ",".join(f"{x:.9g}" for x in [*a, *b])))
+        for k, (nodes, _vals) in enumerate(dsp, 1):
+            _nset(w, f"DSP{k}", nodes)
+        for k, (n, kk) in enumerate(springs, 1):
+            for dof in (1, 2, 3):
+                eid += 1
+                w.write(f"*ELEMENT, TYPE=SPRING1, ELSET=SP{k}_{dof}\n{eid},{int(n)}\n*SPRING, ELSET=SP{k}_{dof}\n{dof}\n{kk:.9g}\n")
+        # 连接
+        for k, c in enumerate(conns, 1):
+            Ba, Bb = Bs[c["a_body"]], Bs[c["b_body"]]
+            ta = np.concatenate([Ba["conn"][f] for f in c["a_faces"]])
+            tb = np.concatenate([Bb["conn"][f] for f in c["b_faces"]])
+            sb = _element_faces(Bb["ccx"], Bb["eid0"], tb)
+            w.write(f"*SURFACE, NAME=M{k}, TYPE=ELEMENT\n" + "".join(f"{e},S{f}\n" for e, f in sb))
+            if c["type"] == "bonded":
+                _nset(w, f"SN{k}", {int(n) for n in ta.ravel()})
+                w.write(f"*SURFACE, NAME=S{k}, TYPE=NODE\nSN{k}\n")
+                w.write("*TIE, NAME=T{}, POSITION TOLERANCE={:.9g}\nS{},M{}\n".format(k, c["tolerance_mm"], k, k))
+            else:
+                sa = _element_faces(Ba["ccx"], Ba["eid0"], ta)
+                w.write(f"*SURFACE, NAME=S{k}, TYPE=ELEMENT\n" + "".join(f"{e},S{f}\n" for e, f in sa))
+                w.write(f"*CONTACT PAIR, INTERACTION=I{k}, TYPE=SURFACE TO SURFACE\nS{k},M{k}\n")
+                w.write("*SURFACE INTERACTION, NAME=I{}\n*SURFACE BEHAVIOR, PRESSURE-OVERCLOSURE=LINEAR\n{:.9g}\n".format(
+                    k, c["penalty"]))
+                if c.get("mu"):
+                    w.write("*FRICTION\n{:.9g},{:.9g}\n".format(c["mu"], c["stick_slope"]))
+        # 螺栓预紧：上侧 − 下侧的法向相对位移 = 参考节点的位移（第 1 自由度）；切向两侧一起动
+        if bolts:
+            w.write("*EQUATION\n")
+        for bl in bolts:
+            d = bl["dir"]
+            t1 = np.cross(d, [1, 0, 0] if abs(d[0]) < 0.9 else [0, 1, 0])
+            t1 /= np.linalg.norm(t1)
+            t2 = np.cross(d, t1)
+            dofs = list(np.argsort(-np.abs(d)))                    # 上侧节点的被消去自由度：三个方程各用一个
+            dep = [dofs[0]]
+            for v in (t1, t2):
+                rest = [i for i in np.argsort(-np.abs(v)) if i not in dep]
+                dep.append(rest[0])
+            for lo, up in bl["pairs"]:
+                for v, j, ref in ((d, dep[0], True), (t1, dep[1], False), (t2, dep[2], False)):
+                    terms = [(up, j + 1, v[j])] + [(up, i + 1, v[i]) for i in range(3) if i != j and abs(v[i]) > 1e-12]
+                    terms += [(lo, i + 1, -v[i]) for i in range(3) if abs(v[i]) > 1e-12]
+                    if ref:
+                        terms.append((bl["ref"], 1, -1.0))
+                    w.write(f"{len(terms)}\n" + ",".join("{},{},{:.12g}".format(*x) for x in terms) + "\n")
+            _nset(w, f"BREF{bl['k']}", {bl["ref"]})
+            e0 = Bs[bl["body"]]["eid0"]
+            w.write(f"*SURFACE, NAME=BS{bl['k']}, TYPE=ELEMENT\n" + "".join(f"{e0 + i + 1},S{fn}\n" for i, fn in bl["faces"]))
+        for k, B in enumerate(Bs, 1):
+            m = B["mat"]
+            w.write("*MATERIAL, NAME=M{}\n*ELASTIC\n{:.9g},{:.9g}\n*DENSITY\n{:.9g}\n".format(
+                k, m["elastic_modulus_mpa"], m["poisson_ratio"], m["density_kg_m3"] * 1e-12))   # kg/m³ → t/mm³
+            if any(x["delta_t"] for x in Bs):
+                if not m.get("thermal_expansion_per_k"):
+                    raise ValueError(f"实体 {B['id']} 的材料缺线膨胀系数，不能加温度载荷")
+                w.write("*EXPANSION\n{:.9g}\n".format(m["thermal_expansion_per_k"]))
+            w.write(f"*SOLID SECTION, ELSET=B{k}, MATERIAL=M{k}\n")
+        delta_t = sum(B["delta_t"] for B in Bs)
+        if delta_t:
+            w.write("*INITIAL CONDITIONS, TYPE=TEMPERATURE\nNALL,20\n")
+        head = "*STEP, INC=300\n*STATIC\n0.1,1\n" if contact else f"*STEP\n*STATIC, SOLVER={SOLVER}\n"
+        if contact:
+            head = head.replace("*STATIC\n", f"*STATIC, SOLVER={SOLVER}\n")
+        out = "*NODE FILE\n{}\n*EL FILE\nS\n{}".format("U,RF" if reactions else "U", "*CONTACT FILE\nCSTR\n" if contact else "")
+        if bolts:
+            out += "".join(f"*SECTION PRINT, SURFACE=BS{bl['k']}, NAME=SP{bl['k']}\nSOF\n" for bl in bolts)
+
+        def bcs():
+            w.write("*BOUNDARY\n")
+            if fixed:
+                w.write("FIX,1,3,0\n")
+            for k, (_, _, _, dofs) in enumerate(cyl, 1):
+                w.writelines(f"CYL{k},{dof},{dof},0\n" for dof in dofs)
+            for k, (_, _, _, dofs) in enumerate(rect, 1):
+                w.writelines(f"REC{k},{dof},{dof},0\n" for dof in dofs)
+        if bolts:                                                  # 第一步：只加预紧
+            w.write(head)
+            bcs()
+            w.write("*CLOAD\n" + "".join("{},1,{:.9g}\n".format(bl["ref"], -bl["force"]) for bl in bolts))
+            w.write(out + "*END STEP\n")
+        w.write(head)
+        bcs()
+        for k, (_, vals) in enumerate(dsp, 1):
+            w.writelines(f"DSP{k},{dof},{dof},{v:.9g}\n" for dof, v in sorted(vals.items()))
+        if bolts:
+            w.write("*BOUNDARY, FIXED\n" + "".join("{},1\n".format(bl["ref"]) for bl in bolts))
+        forces = {}
+        for B in Bs:
+            for n, f in B["forces"].items():
+                forces[n] = forces.get(n, 0) + f
+        if forces or bolts:
+            w.write("*CLOAD{}\n".format(", OP=NEW" if bolts else ""))
+            for n, f in forces.items():
+                for d in range(3):
+                    if abs(f[d]) > 0:
+                        w.write(f"{int(n)},{d + 1},{f[d]:.9g}\n")
+        dl = [x.format(elset=f"B{k}") for k, B in enumerate(Bs, 1) for x in B["dload"]]
+        if dl:
+            w.write("*DLOAD\n" + "".join(x + "\n" for x in dl))
+        if delta_t:
+            w.write(f"*TEMPERATURE\nNALL,{20 + float(delta_t):.9g}\n")
+        w.write(out + "*END STEP\n")
+
+
+def _read_blocks(path):
+    """.frd 里最后一步的各结果块 {名字: {节点: 数值}}"""
+    blocks, cur = {}, None
+    with open(path, errors="replace") as f:
+        for line in f:
+            if line.startswith(" -4"):
+                name = line.split()[1]
+                cur = blocks.setdefault(name, {})
+            elif line.startswith(" -3"):
+                cur = None
+            elif cur is not None and line.startswith(" -1"):
+                nid = int(line[3:13])
+                vals = [float(line[13 + 12 * i:25 + 12 * i]) for i in range((len(line.rstrip("\n")) - 13) // 12)]
+                cur[nid] = vals
+    return blocks
+
+
+def _read_dat_sof(path, sets):
+    """.dat 里 *SECTION PRINT 的截面合力：{面名: [每个时间点的 (fx, fy, fz)]}"""
+    out, cur, want = {}, None, False
+    if not os.path.exists(path):
+        return out
+    with open(path, errors="replace") as f:
+        for line in f:
+            low = line.strip().lower()
+            if low.startswith("statistics for surface set"):
+                name = line.split("surface set")[1].split()[0].upper()
+                cur = name if name in sets else None
+                want = False
+                continue
+            if cur and low.startswith("total surface force"):
+                want = True
+                continue
+            if cur and want and line.strip():
+                out.setdefault(cur, []).append(tuple(float(x) for x in line.split()[:3]))
+                cur, want = None, False
+    return out
+
+
+def solve_bodies(bodies, setup, ccx, workdir=None):
+    """线性静力；多个实体（各自的材料）、绑定、接触、螺栓预紧（ADR-0093 F3）。
+    bodies：[{id, step_path, material, loads, refine_faces?, connection_faces?, contact_faces?, passive?}]；
+    setup["connections"]：[{type: bonded / contact, a_body, a_faces, b_body, b_faces, mu?, tolerance_mm?}]（a_body 为下标）；
+    setup["bolts"]：[{body（下标）, point_mm, axis_dir, force_n}]"""
     t0 = time.time()
-    mat = setup["material"]  # 材料库条目（已检查 E、ν、密度）
-    loads = setup.get("loads") or []
-    if not any(l["type"] in SUPPORTS for l in loads):
+    allloads = [l for b in bodies for l in b.get("loads") or []]
+    if not any(l["type"] in SUPPORTS for l in allloads):
         raise ValueError("至少要有一个固定或支承面，否则零件会整体移动、算不出来")
-    moved = any(l["type"] == "displacement" and any(l.get(k) for k in ("ux_mm", "uy_mm", "uz_mm")) for l in loads)
-    if not any(l["type"] not in SUPPORTS for l in loads) and not moved:
+    moved = any(l["type"] == "displacement" and any(l.get(k) for k in ("ux_mm", "uy_mm", "uz_mm")) for l in allloads)
+    bolts_in = setup.get("bolts") or []
+    conns_in = setup.get("connections") or []
+    pressed = any(c["type"] == "contact" for c in conns_in)        # 过盈配合：初始穿透本身就是载荷
+    if not any(l["type"] not in SUPPORTS for l in allloads) and not moved and not bolts_in and not pressed:
         raise ValueError("还没有加载荷")
     with _LOCK, tempfile.TemporaryDirectory(dir=workdir) as tmp:
         gmsh = _gmsh()
-        load_step(gmsh, step_path, tmp)
-        all_faces = [t for _, t in gmsh.model.getEntities(2)]
-        used = sorted({f for l in loads for f in l.get("faces") or []})
-        bad = [f for f in used if f not in all_faces]
-        if bad:
-            raise ValueError(f"没有这些面：{bad}")
-        all_edges = [t for _, t in gmsh.model.getEntities(1)]
-        bad = sorted({e for l in loads for e in l.get("edges") or [] if e not in all_edges})
-        if bad:
-            raise ValueError(f"没有这些边：{bad}")
-        size = (setup.get("mesh") or {}).get("size_mm")
-        fine = [f for l in loads if l["type"] not in SUPPORTS for f in l.get("faces") or []] + list(setup.get("refine_faces") or [])
-        ntags, xyz, tets = mesh(gmsh, size, fine, setup.get("max_elements", MAX_ELEMENTS), refine=setup.get("refine"))
-        h = float(gmsh.option.getNumber("Mesh.MeshSizeMax"))
-        qual = quality(gmsh)
-        P = {int(t): p for t, p in zip(ntags, xyz)}
-        fixed, cyl, forces, constrained = set(), [], {}, set()
-        dsp, rect, springs, dload = [], [], [], []
-        sup_dofs = []                                      # 各支承：(设置, 节点, 限制的整体自由度)——报各支承的反力
-        body_f, delta_t = {}, 0.0                          # 体力的等效节点力（只用于核对平衡）
-        rho = mat["density_kg_m3"] * 1e-12
-
-        def add(d):
-            for n, f in d.items():
-                forces[n] = forces.get(n, 0) + f
-
-        def moment_traction(pts, o, d, T):
-            # 切向面力 τ = T·r⊥ / J，J = ∫ r⊥² dA：合力矩正好是 T（右手定则绕 d）
-            J = sum(float(np.dot(r, r)) * wj for _k, _N, x, _n, wj in pts for r in [(x - o) - d * np.dot(x - o, d)])
-            return lambda x, n: T / J * np.cross(d, (x - o) - d * np.dot(x - o, d))
-        for l in loads:
-            t = l["type"]
-            if t in BODY_LOADS:
-                if t == "gravity":
-                    acc = np.array(l["acceleration_mm_s2"], float)
-                    g = float(np.linalg.norm(acc))
-                    if g:
-                        dload.append("EALL,GRAV,{:.9g},{:.9g},{:.9g},{:.9g}".format(g, *(acc / g)))
-                        for n, f in body_nodal(gmsh, rho, accel=acc).items():
-                            body_f[n] = body_f.get(n, 0) + f
-                elif t == "centrifugal":
-                    o, d = _axis(l)
-                    w2 = (float(l["speed_rpm"]) * 2 * math.pi / 60) ** 2
-                    dload.append("EALL,CENTRIF,{:.9g},{:.9g},{:.9g},{:.9g},{:.9g},{:.9g},{:.9g}".format(w2, *o, *d))
-                    for n, f in body_nodal(gmsh, rho, omega2=w2, o=o, d=d).items():
-                        body_f[n] = body_f.get(n, 0) + f
-                else:
-                    if not mat.get("thermal_expansion_per_k"):
-                        raise ValueError("材料缺线膨胀系数，不能加温度载荷")
-                    delta_t += float(l["delta_t_k"])
-                continue
-            if l.get("edges"):
-                nodes = set().union(*(edge_nodes(gmsh, e) for e in l["edges"]))
-                tris = np.zeros((0, 6), np.int64)
-            else:
-                tris = np.concatenate([face_tris(gmsh, f) for f in l["faces"]]) if l.get("faces") else np.zeros((0, 6), np.int64)
-                nodes = {int(n) for n in tris.ravel()}
-            if t == "fixed":
-                sup_dofs.append((l, set(nodes), (1, 2, 3)))
-                fixed |= nodes
-                constrained |= nodes
-                continue
-            if t == "cyl_support":
-                o, d = _axis(l)
-                dofs = sorted({SUPPORT_DOFS[k] for k in l.get("dofs") or ["radial"]})
-                nodes = band_nodes(nodes, P, o, d, l.get("band_mm"))
-                if l.get("band_mm") and 3 in dofs and len(dofs) > 1:
-                    # 铰支的止推：轴向只限一个节点（只消除沿轴线的刚体移动）；整圈都限轴向会把截面夹住、不让它转角
-                    n0 = min(nodes)
-                    cyl.append((nodes - {n0}, o, d, [x for x in dofs if x != 3]))
-                    cyl.append(({n0}, o, d, dofs))
-                else:
-                    cyl.append((nodes, o, d, dofs))
-                sup_dofs.append((l, set(nodes), (1, 2, 3)))         # 局部坐标的约束：反力整个算给它
-                constrained |= nodes
-                continue
-            if t == "displacement":
-                vals = {i + 1: float(l[k]) for i, k in enumerate(("ux_mm", "uy_mm", "uz_mm")) if k in l}
-                dsp.append((nodes, vals))
-                sup_dofs.append((l, set(nodes), tuple(vals)))
-                constrained |= nodes
-                continue
-            if t == "symmetry":
-                ns = np.array([q[3] for q in tri_points(tris, P)])
-                m = ns.mean(0)
-                m /= np.linalg.norm(m)
-                if np.min(np.abs(ns @ m)) < 1 - 1e-6:
-                    raise ValueError("对称面必须是平面：面 {} 不是".format(l["faces"]))
-                ax = int(np.argmax(np.abs(m)))
-                if abs(m[ax]) > 1 - 1e-9:                         # 与坐标轴平行：直接限该方向
-                    dsp.append((nodes, {ax + 1: 0.0}))
-                    sup_dofs.append((l, set(nodes), (ax + 1,)))
-                else:
-                    b = np.cross(m, [1, 0, 0] if abs(m[0]) < 0.9 else [0, 1, 0])
-                    rect.append((nodes, m, b, [1]))
-                    sup_dofs.append((l, set(nodes), (1, 2, 3)))
-                constrained |= nodes
-                continue
-            if t == "elastic_support":
-                k = float(l["stiffness_n_per_mm3"])
-                springs += [(n, k * a) for n, a in nodal_areas(tris, P).items() if a > 0]
-                sup_dofs.append((l, {n for n, a in nodal_areas(tris, P).items() if a > 0}, (1, 2, 3)))
-                continue
-            area, cen, pts = face_area_centroid(tris, P)
-            if t == "force":
-                v = np.array(l["vector_n"], float)
-                add(consistent_loads(tris, P, lambda x, n, v=v, A=area: v / A, pts))
-            elif t == "pressure":
-                p = float(l["value_mpa"])
-                add(consistent_loads(tris, P, lambda x, n, p=p: -p * n, pts))
-            elif t in ("torque", "moment"):
-                if t == "moment":
-                    # 问渠第 66 轮：任意方向的力矩 = 绕“过面形心、沿力矩方向”的轴的“扭矩”。面力 = (M/J)·d × r⊥：对端面加弯矩时
-                    # d 在面内，d × r⊥ 垂直于面、与到中性轴的距离成正比——正好是梁弯曲的线性正应力分布
-                    mv = np.array(l["vector_nmm"], float)
-                    if not np.linalg.norm(mv):
-                        raise ValueError("力矩的大小是 0")
-                    o, d, T = cen, mv / np.linalg.norm(mv), float(np.linalg.norm(mv))
-                else:
-                    (o, d), T = _axis(l), float(l["value_nmm"])
-                add(consistent_loads(tris, P, moment_traction(pts, o, d, T), pts))
-            elif t == "remote_load":
-                # 远端载荷（RBE3 式的静力等效分配，不增加刚度）：搬到面形心 C：F 不变，M' = M + (Q − C) × F
-                F = np.array(l.get("vector_n") or [0, 0, 0], float)
-                M = np.array(l.get("vector_nmm") or [0, 0, 0], float) + np.cross(np.array(l["point_mm"], float) - cen, F)
-                if np.linalg.norm(F):
-                    add(consistent_loads(tris, P, lambda x, n, v=F, A=area: v / A, pts))
-                if np.linalg.norm(M):
-                    add(consistent_loads(tris, P, moment_traction(pts, cen, M / np.linalg.norm(M), float(np.linalg.norm(M))), pts))
-            elif t == "bearing_load":
-                # 轴承载荷：受压的半圈上 p = p0·cosθ（θ 为“指向面内的法向”与力方向的夹角），p0 由合力 = |F| 定
-                o, d = _axis(l)
-                F = np.array(l["vector_n"], float)
-                fm = float(np.linalg.norm(F))
-                if not fm or abs(np.dot(F, d)) > 1e-6 * fm:
-                    raise ValueError("轴承载荷必须是垂直于轴线的径向力")
-                fh = F / fm
-                c2 = sum(max(float(np.dot(-n, fh)), 0.0) ** 2 * wj for _k, _N, _x, n, wj in pts)
-                p0 = fm / c2
-                add(consistent_loads(tris, P, lambda x, n, p0=p0, fh=fh: p0 * max(float(np.dot(-n, fh)), 0.0) * (-n), pts))
-            else:
-                raise ValueError(f"不认识的载荷类型 {t}")
-        if not forces and not dload and not delta_t and not any(v for _n, vals in dsp for v in vals.values()):
-            raise ValueError("还没有加载荷")
+        Bs, off = [], 0
+        for k, body in enumerate(bodies):
+            if k:
+                gmsh.clear()
+            b = dict(body)
+            b["passive"] = len(bodies) > 1 or bool(bolts_in) or pressed
+            b["connection_faces"] = [f for c in conns_in for side in ("a", "b") if c[side + "_body"] == k for f in c[side + "_faces"]]
+            b["contact_faces"] = [f for c in conns_in if c["type"] == "contact" for side in ("a", "b")
+                                  if c[side + "_body"] == k for f in c[side + "_faces"]]
+            B = _shift(_prep_body(gmsh, b, setup, tmp), off)
+            off = int(max(B["ntags"].max(), max(B["P"]))) + 1
+            Bs.append(B)
         # 一个节点只能有一个局部坐标系：固定的优先，其次整体坐标下的强制位移（含与坐标轴平行的对称面），再按先后
-        seen = set(fixed) | {n for nodes, _v in dsp for n in nodes}
-        for nodes, *_ in cyl + rect:
-            nodes -= seen
-            seen |= nodes
-        cyl = [c for c in cyl if c[0]]
-        rect = [c for c in rect if c[0]]
-        for nodes, _v in dsp:
-            nodes -= fixed
-        surf = np.concatenate([face_tris(gmsh, f) for f in all_faces])
-        face_of = np.concatenate([np.full(len(face_tris(gmsh, f)), f) for f in all_faces])
-        n_el, n_nodes = len(tets), len(ntags)
-        write_inp(os.path.join(tmp, "job.inp"), ntags, xyz, tets, fixed, cyl, forces, mat, reactions=True,
-                  extra={"disp": [x for x in dsp if x[0]], "rect": rect, "springs": springs, "dload": dload, "delta_t_k": delta_t})
+        fixed = set().union(*(B["fixed"] for B in Bs))
+        seen = set(fixed) | {n for B in Bs for nodes, _v in B["dsp"] for n in nodes}
+        for B in Bs:
+            for nodes, *_ in B["cyl"] + B["rect"]:
+                nodes -= seen
+                seen |= nodes
+            B["cyl"] = [c for c in B["cyl"] if c[0]]
+            B["rect"] = [c for c in B["rect"] if c[0]]
+            for nodes, _v in B["dsp"]:
+                nodes -= fixed
+        bolts = []
+        for k, bl in enumerate(bolts_in, 1):
+            B = Bs[bl["body"]]
+            ref = off
+            pairs, area, d, faces = _bolt_cut(B, bl, off + 1)
+            off += len(pairs) + 2
+            bolts.append({"k": k, "ref": ref, "pairs": pairs, "dir": d, "force": float(bl["force_n"]), "body": bl["body"], "faces": faces,
+                          "point": np.asarray(bl["point_mm"], float), "area": area, "id": bl.get("id") or f"bolt{k}"})
+        hmin = min(B["h"] for B in Bs)
+        emax = max(B["mat"]["elastic_modulus_mpa"] for B in Bs)
+        conns = []
+        for c in conns_in:
+            c = dict(c)
+            if c["type"] == "bonded":
+                c["tolerance_mm"] = float(c.get("tolerance_mm") or 0.1 * hmin)
+            else:
+                # 罚刚度（N/mm³）：10·E/h——穿透量约为接触压力的 h/(10E)，与单元变形相比可忽略、又不至于让迭代难收敛
+                c["penalty"] = 10 * emax / hmin
+                c["mu"] = float(c.get("mu") or 0)
+                c["stick_slope"] = c["penalty"] / 10
+            conns.append(c)
+        contact = any(c["type"] == "contact" for c in conns)
+        n_el = sum(len(B["tets"]) for B in Bs)
+        n_nodes = sum(len(B["ntags"]) for B in Bs)
+        _write_multi(os.path.join(tmp, "job.inp"), Bs, conns, bolts, contact)
         r = _ccx(ccx, tmp, setup.get("time_limit_s", TIME_LIMIT_S))
         frd = os.path.join(tmp, "job.frd")
         if r.returncode < 0:
             raise TooBig("计算被系统中止（多半是内存不够）：请把网格尺寸调大")
         if r.returncode != 0 or not os.path.exists(frd) or "*ERROR" in r.stdout:
             err = [x for x in (r.stdout + r.stderr).splitlines() if "ERROR" in x or "error" in x]
-            raise RuntimeError("求解失败：" + ("；".join(err[-3:]) or (r.stdout + r.stderr)[-400:]))
-        disp, stress, forc = read_frd_rf(frd)
+            hint = "；可能有零件没有被约束住（只靠无摩擦接触时会整体滑动）" if contact else ""
+            raise RuntimeError("求解失败：" + ("；".join(err[-3:]) or (r.stdout + r.stderr)[-400:]) + hint)
+        blocks = _read_blocks(frd)
+        disp, stress, forc = blocks.get("DISP", {}), blocks.get("STRESS", {}), blocks.get("FORC", {})
+        bolt_sof = _read_dat_sof(os.path.join(tmp, "job.dat"), {f"BS{bl['k']}" for bl in bolts})
+    P = {}
+    for B in Bs:
+        P.update(B["P"])
+    constrained = set().union(*(B["constrained"] for B in Bs))
+    forces, body_f = {}, {}
+    for B in Bs:
+        for n, f in B["forces"].items():
+            forces[n] = forces.get(n, 0) + f
+        for n, f in B["body_f"].items():
+            body_f[n] = body_f.get(n, 0) + f
+    springs = [c for B in Bs for c in B["springs"]]
+    sup_dofs = [c for B in Bs for c in B["sup_dofs"]]
+    h = Bs[0]["h"] if len(Bs) == 1 else hmin
     # 表面节点重新编号
+    surf = np.concatenate([B["surf"] for B in Bs])
+    face_of = np.concatenate([B["face_of"] for B in Bs])
+    body_of = np.concatenate([np.full(len(B["surf"]), k) for k, B in enumerate(Bs)])
     corner = surf[:, :3]
     used_nodes = np.unique(corner)
     pos = np.array([P[int(n)] for n in used_nodes])
@@ -564,9 +920,12 @@ def solve(step_path, setup, ccx, workdir=None):
     umag = np.linalg.norm(U, axis=1)
     jmax = int(np.argmax(umag))
     # 评估用：离约束面 1.5h 以外的点（全部节点里找）
-    allid = np.array(sorted(vm_all), np.int64)
+    allid = np.array(sorted(n for n in vm_all if n in P), np.int64)
     allp = np.array([P[int(n)] for n in allid])
     allvm = np.array([vm_all[int(n)] for n in allid])
+    node_body = np.zeros(len(allid), np.int64)
+    for k, B in enumerate(Bs):
+        node_body[np.isin(allid, np.fromiter(B["P"].keys(), np.int64))] = k
     ok = np.ones(len(allid), bool)
     if constrained:
         from scipy.spatial import cKDTree
@@ -582,40 +941,133 @@ def solve(step_path, setup, ccx, workdir=None):
         hit = [int(face_of[k]) for k in np.nonzero((surf == nid).any(axis=1))[0]]
         return sorted(set(hit)) or None
 
+    tets_all = np.concatenate([B["tets"] for B in Bs])
     stats = {"nodes": n_nodes, "elements": n_el, "mesh_size_mm": round(h, 3), "seconds": round(time.time() - t0, 1),
              "vm_max_mpa": round(float(allvm[ie]), 3), "vm_max_at": [round(float(x), 3) for x in allp[ie]],
              "vm_max_faces": face_at(int(allid[ie])),
              "vm_peak_all_mpa": round(float(allvm[ia]), 3), "vm_peak_all_at": [round(float(x), 3) for x in allp[ia]],
              "u_max_mm": round(float(umag.max()), 6), "u_max_at": [round(float(x), 3) for x in pos[jmax]],
              "applied_force_n": [round(float(x), 3) for x in sum(forces.values(), np.zeros(3))]}
-    stats["mesh_quality"] = qual
+    if len(Bs) > 1:
+        stats["vm_max_body"] = Bs[int(node_body[ie])]["id"]
+    stats["mesh_quality"] = _merge_quality([B["qual"] for B in Bs])
     spring_r = {int(n): [-k * x for x in disp.get(int(n), [0, 0, 0])[:3]] for n, k in springs}
     ext = dict(forces)                                     # 全部外载的节点力：面上的 + 体力的
     for n, f in body_f.items():
         ext[n] = ext.get(n, 0) + f
-    stats["balance"] = _balance(ext, {n: v for n, v in forc.items() if n in constrained}, P, springs=spring_r)
+    # 接触力作用在两面的同一个空间点上；按原位置算力矩时，它落在相距“两侧相对位移”的两个材料点上，多出
+    # Σ 相对位移 × 接触力 的力偶（摩擦滑动 0.2 mm 时约占 0.5 %；过盈配合两环轴向伸缩不同也有）。这一项估出上界，从力矩误差里扣除
+    slip_m = sum(_contact_couple(c, Bs, P, disp, blocks.get("CONTACT") or {}) for c in conns if c["type"] == "contact")
+    stats["balance"] = _balance(ext, _constrained_rf(sup_dofs, forc, ext), P, springs=spring_r, slip_moment=slip_m)
     if body_f:
         stats["body_force_n"] = [round(float(x), 6) for x in sum(body_f.values(), np.zeros(3))]
     stats["probes"] = _probes(setup.get("probes") or [], P, disp, stress)
     stats["support_reactions"] = _support_reactions(sup_dofs, forc, ext, spring_r, P)
     stats["vm_max_node"] = int(allid[ie])
-    stats["vm_max_local_h_mm"] = _local_h(tets, P, int(allid[ie]), h)
+    stats["vm_max_local_h_mm"] = _local_h(tets_all, P, int(allid[ie]), h)
     if setup.get("track_point_mm") is not None:              # 收敛核查：加密球内（各层同一区域）的最大应力
         q = np.asarray(setup["track_point_mm"], float)
         near = ok & (np.linalg.norm(allp - q, axis=1) <= float(setup["track_radius_mm"]))
         cand = np.nonzero(near if near.any() else ok)[0]
         it = int(cand[np.argmax(allvm[cand])])
         stats["vm_at_track_mpa"] = round(float(allvm[it]), 3)
-        stats["track_local_h_mm"] = _local_h(tets, P, int(allid[it]), h)
-    materials.safety(stats, mat, optional=bool(setup.get("strength_optional")))
+        stats["track_local_h_mm"] = _local_h(tets_all, P, int(allid[it]), h)
+    if len(Bs) == 1:
+        materials.safety(stats, Bs[0]["mat"], optional=bool(setup.get("strength_optional")))
+    else:                                                  # 每个实体按自己的材料；总的安全系数取最小
+        per = []
+        for k, B in enumerate(Bs):
+            sel = ok & (node_body == k)
+            if not sel.any():
+                sel = node_body == k
+            j = int(np.argmax(np.where(sel, allvm, -1)))
+            st = {"vm_max_mpa": round(float(allvm[j]), 3)}
+            materials.safety(st, B["mat"], optional=bool(setup.get("strength_optional")))
+            per.append({"id": B["id"], "vm_max_mpa": st["vm_max_mpa"], "vm_max_at": [round(float(x), 3) for x in allp[j]],
+                        **{k2: st[k2] for k2 in ("strength_mpa", "strength_kind", "safety_factor") if k2 in st}})
+        stats["bodies"] = per
+        sfs = [x["safety_factor"] for x in per if "safety_factor" in x]
+        if sfs:
+            worst = min(per, key=lambda x: x.get("safety_factor", math.inf))
+            stats.update(strength_mpa=worst["strength_mpa"], strength_kind=worst["strength_kind"], safety_factor=min(sfs),
+                         safety_body=worst["id"])
+    if bolts:
+        stats["bolts"] = []
+        for bl in bolts:
+            sof = bolt_sof.get(f"BS{bl['k']}") or []
+            final = float(np.dot(sof[-1], bl["dir"])) if sof else None          # 正为拉
+            stats["bolts"].append({"id": bl["id"], "preload_n": bl["force"], "section_area_mm2": round(bl["area"], 3),
+                                   "force_n": round(final, 3) if final is not None else None})
+    cont = blocks.get("CONTACT") or {}
+    if conns and any(c["type"] == "contact" for c in conns):
+        press = [v[3] for v in cont.values() if len(v) > 3]
+        stats["contact"] = {"max_pressure_mpa": round(float(max(press)), 4) if press else 0.0,
+                            "nodes_in_contact": int(sum(1 for x in press if x > 1e-9))}
     surface = {"positions": np.round(pos, 4), "triangles": tri_idx.astype(np.int32),
                "face_of_triangle": face_of.astype(np.int32), "vm": np.round(VM, 4), "u": np.round(U, 7)}
+    if len(Bs) > 1:
+        surface["body_of_triangle"] = body_of.astype(np.int32)
     return stats, surface, {"vm": vm_all, "nodes": P}
 
 
-def _balance(forces, reactions, P, springs=None):
+def _contact_couple(c, Bs, P, disp, cst):
+    """接触对的力偶上界（N·mm）：每个从面节点的接触力（CPRESS、CSHEAR × 节点面积）× 它与最近主面节点的相对位移——
+    法向力乘相对位移的切向分量，剪力乘整个相对位移"""
+    from scipy.spatial import cKDTree
+    ta = np.concatenate([Bs[c["a_body"]]["conn"][f] for f in c["a_faces"]])
+    tb = np.concatenate([Bs[c["b_body"]]["conn"][f] for f in c["b_faces"]])
+    mnodes = np.unique(tb.ravel())
+    tree = cKDTree(np.array([P[int(n)] for n in mnodes]))
+    nrm = {}
+    for t in ta:
+        nv = np.cross(P[int(t[1])] - P[int(t[0])], P[int(t[2])] - P[int(t[0])])
+        for n in t:
+            nrm[int(n)] = nrm.get(int(n), 0) + nv
+    out = 0.0
+    for n, A in nodal_areas(ta, P).items():
+        v = cst.get(int(n))
+        if not v or len(v) < 6 or A <= 0:
+            continue
+        _d, j = tree.query(P[int(n)])
+        du = np.asarray(disp.get(int(mnodes[j]), [0, 0, 0])[:3], float) - np.asarray(disp.get(int(n), [0, 0, 0])[:3], float)
+        nn = nrm[int(n)] / (np.linalg.norm(nrm[int(n)]) or 1.0)
+        dn = float(np.dot(du, nn))
+        dt = float(np.linalg.norm(du - dn * nn))
+        out += A * (abs(v[3]) * dt + math.hypot(v[4], v[5]) * float(np.linalg.norm(du)))
+    return out
+
+
+def _merge_quality(qs):
+    if len(qs) == 1:
+        return qs[0]
+    n = sum(q["elements"] for q in qs)
+    return {"elements": n, "straight_sided": any(q["straight_sided"] for q in qs), "min_sj_min": min(q["min_sj_min"] for q in qs),
+            "inverted": sum(q["inverted"] for q in qs), "gamma_min": min(q["gamma_min"] for q in qs),
+            "gamma_p01": min(q["gamma_p01"] for q in qs), "gamma_below_0_1": sum(q["gamma_below_0_1"] for q in qs)}
+
+
+def _constrained_rf(sup_dofs, forc, ext):
+    """只留被约束的方向上的节点力（其余方向换成该节点上的外载，减去后为 0）。绑定的从面节点同时在对称面上时，
+    没被约束的方向上有约束方程传来的力，不是支承反力"""
+    dofs = {}
+    for l, nodes, ds in sup_dofs:
+        if l["type"] == "elastic_support":
+            continue
+        for n in nodes:
+            dofs.setdefault(n, set()).update(ds)
+    out = {}
+    for n, ds in dofs.items():
+        if n not in forc:
+            continue
+        f = np.asarray(ext.get(n, np.zeros(3)), float)
+        out[n] = [forc[n][i] if i + 1 in ds else f[i] for i in range(3)]
+    return out
+
+
+def _balance(forces, reactions, P, springs=None, slip_moment=0.0):
     """反力与外载的平衡（ADR-0093 F1）：ΣF + ΣR = 0、Σr×F + Σr×R = 0（对坐标原点）。外载含面上的节点力和体力（重力、离心）的合力、
-    合力矩；反力含支承反力和弹性支承的弹簧力。相对误差以外载合力（或各力的模之和）和外载力矩量级为分母。判定在 analysis/fea/trust.py"""
+    合力矩；反力含支承反力和弹性支承的弹簧力。相对误差以外载合力（或各力的模之和）和外载力矩量级为分母。判定在 analysis/fea/trust.py。
+    slip_moment：接触滑移造成的力偶上界（N·mm），从力矩误差里扣除（ADR-0093 F3）"""
     F = np.zeros(3)
     M = np.zeros(3)
     fsum = 0.0
@@ -652,7 +1104,9 @@ def _balance(forces, reactions, P, springs=None):
     scale_m = max(np.linalg.norm(M), (msum + mrsum) * 1e-3, size)
     return {"available": True, "applied_n": [round(float(x), 6) for x in F], "reaction_n": [round(float(x), 6) for x in R],
             "force_error_ratio": float(np.linalg.norm(F + R) / scale_f),
-            "moment_error_ratio": float(np.linalg.norm(M + MR) / scale_m)}
+            "moment_error_ratio": float(max(np.linalg.norm(M + MR) - slip_moment, 0.0) / scale_m),
+            **({"contact_slip_moment_nmm": round(float(slip_moment), 3),
+                "moment_error_raw_ratio": float(np.linalg.norm(M + MR) / scale_m)} if slip_moment else {})}
 
 
 def _support_reactions(sup_dofs, forc, ext, spring_r, P):

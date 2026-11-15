@@ -27,15 +27,25 @@ def validate(study: dict) -> None:
     errs = errors("fea-study.schema.json", study)
     if errs:
         raise StudyInvalid("算例不符合格式：" + "；".join(errs[:5]))
-    ids = {b["id"] for b in study["bodies"]}
-    for x in study["supports"] + study.get("loads", []):
-        if x["body"] not in ids:
-            raise StudyInvalid(f"没有实体 {x['body']!r}")
+    ids = [b["id"] for b in study["bodies"]]
+    if len(set(ids)) != len(ids):
+        raise StudyInvalid("实体的 id 重复")
+    refs = [x["body"] for x in study["supports"] + study.get("loads", [])]
+    for c in study.get("connections") or []:
+        refs += [c["body"]] if c["type"] == "bolt_preload" else [c["a"]["body"], c["b"]["body"]]
+        if c["type"] != "bolt_preload" and c["a"]["body"] == c["b"]["body"]:
+            raise StudyInvalid("连接的两侧要在不同的实体上")
+    for r in refs:
+        if r not in ids:
+            raise StudyInvalid(f"没有实体 {r!r}")
+    if len(ids) > 1 and any(s["type"] == "modal" for s in study["steps"]):
+        raise StudyInvalid("多个实体的模态分析还没有（ADR-0093 F5）")
     pv = study.get("provenance")
     if pv and pv["drafted_by"] == "ai" and not pv["confirmed_by_human"]:
         raise StudyInvalid("这个算例是 AI 起草的，还没有人确认，不计算")
     moved = any(x["type"] == "displacement" and any(x.get(k) for k in ("ux_mm", "uy_mm", "uz_mm")) for x in study["supports"])
-    if not study.get("loads") and not moved and any(s["type"] == "static" for s in study["steps"]):
+    bolts = any(c["type"] in ("bolt_preload", "contact") for c in study.get("connections") or [])   # 预紧、过盈本身就是载荷
+    if not study.get("loads") and not moved and not bolts and any(s["type"] == "static" for s in study["steps"]):
         raise StudyInvalid("静力分析还没有加载荷")
 
 
@@ -116,10 +126,30 @@ def from_setup(setup: dict) -> dict:
     return st
 
 
-def _inner(study: dict, mat: dict) -> dict:
+def _inner(study: dict, mats: dict) -> dict:
+    """算例 → 求解器的输入：每个实体各自的支承与载荷、连接（实体用下标）、螺栓预紧"""
     m = study.get("mesh") or {}
-    inner = {"material": mat, "loads": internal_loads(study), "mesh": {"size_mm": m.get("size_mm")}}
-    if m.get("refine_faces"):
+    ids = [b["id"] for b in study["bodies"]]
+    loads = internal_loads(study)
+    owner = [x["body"] for x in study["supports"] + study.get("loads", [])]
+    bodies = []
+    for b in study["bodies"]:
+        bodies.append({"id": b["id"], "step_path": b["step_path"], "material": mats[b["id"]],
+                       "loads": [ld for ld, o in zip(loads, owner) if o == b["id"]],
+                       "refine_faces": list(m.get("refine_faces") or []) if len(ids) == 1 else []})
+    conns, bolts = [], []
+    for c in study.get("connections") or []:
+        if c["type"] == "bolt_preload":
+            bolts.append({"id": c.get("id"), "body": ids.index(c["body"]), "point_mm": list(c["point_mm"]),
+                          "axis_dir": list(c["axis_dir"]), "force_n": float(c["force_n"])})
+        else:
+            conns.append({"type": c["type"], "id": c.get("id"), "a_body": ids.index(c["a"]["body"]), "a_faces": list(c["a"]["faces"]),
+                          "b_body": ids.index(c["b"]["body"]), "b_faces": list(c["b"]["faces"]),
+                          "mu": float(c.get("friction_coefficient") or 0), "tolerance_mm": c.get("tolerance_mm")})
+    inner = {"bodies": bodies, "connections": conns, "bolts": bolts, "mesh": {"size_mm": m.get("size_mm")},
+             # 单个实体时模态分析仍用旧的单体接口
+             "material": bodies[0]["material"], "loads": bodies[0]["loads"]}
+    if m.get("refine_faces") and len(ids) == 1:
         inner["refine_faces"] = list(m["refine_faces"])
     if m.get("max_elements"):
         inner["max_elements"] = m["max_elements"]
@@ -139,7 +169,7 @@ def run_static(step_path: str, inner: dict, ccx: str, checks: dict) -> tuple[dic
     r = float(checks.get("refine_ratio", 1.6))
     tol = float(checks.get("tolerance_ratio", 0.05))
     btol = float(checks.get("balance_tolerance_ratio", 1e-3))
-    stats, surface, _ = solve.solve(step_path, inner, ccx)
+    stats, surface, _ = solve.solve_bodies(inner["bodies"], inner, ccx)
     runs = [stats]
     center = stats["vm_max_at"]
     if conv:
@@ -155,7 +185,7 @@ def run_static(step_path: str, inner: dict, ccx: str, checks: dict) -> tuple[dic
             if not k:                                     # 第 0 层：原网格，只补算加密球内的最大值
                 stats["vm_at_track_mpa"], stats["track_local_h_mm"] = stats["vm_max_mpa"], s0
                 continue
-            st_k, surf_k, _ = solve.solve(step_path, lv, ccx)
+            st_k, surf_k, _ = solve.solve_bodies(lv["bodies"], lv, ccx)
             runs.append(st_k)
             stats, surface = st_k, surf_k
     items = [trust.balance(stats["balance"], btol), trust.mesh_quality(stats["mesh_quality"])]
@@ -188,9 +218,11 @@ def run(study: dict, ccx: str) -> tuple[dict, list[str]]:
 
     validate(study)
     body = study["bodies"][0]
-    mat = materials.get(body["material"])
-    materials.require(mat, ["elastic_modulus_mpa", "poisson_ratio", "density_kg_m3"], "有限元")
-    inner = _inner(study, mat)
+    mats = {}
+    for b in study["bodies"]:
+        mats[b["id"]] = materials.get(b["material"])
+        materials.require(mats[b["id"]], ["elastic_modulus_mpa", "poisson_ratio", "density_kg_m3"], "有限元")
+    inner = _inner(study, mats)
     checks = study.get("checks") or {}
     steps, limits, verdicts = [], [], []
     for st in study["steps"]:
