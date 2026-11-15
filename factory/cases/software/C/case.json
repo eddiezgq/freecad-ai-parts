@@ -1,0 +1,427 @@
+{
+ "plant": "software",
+ "id": "C",
+ "level": "完整",
+ "title": "20 柜云平台的容量规划",
+ "title_en": "Capacity planning for a 20-rack cloud",
+ "item": "WQ-Cloud 机房与订阅",
+ "summary": "计算机厂 20 柜机房上的云平台：16 柜计算、4 柜存储、两个可用区。比较超分比和内存配置，选 1.5 倍超分 + 768 GB 内存；留一整柜余量；三年订阅预测与可卖容量对照；虚拟机在线装箱仿真算碎片；接口网关 Erlang C 与离散事件仿真对照；全年 8 760 小时看高峰 CPU；坏服务器、坏柜、可用区事故的蒙特卡洛算租户停机；回本时间；开通 24 份订阅验收，演一次“吵闹的邻居”从发现到隔离。",
+ "summary_en": "A cloud on the computer plant's 20-rack hall: 16 compute racks, 4 storage racks, two availability zones. Overcommit ratio and memory compared, 1.5× overcommit with 768 GB chosen; one rack per zone held in reserve; three-year subscription forecast against sellable capacity; online VM bin-packing simulation for fragmentation; API gateways by Erlang C and discrete-event simulation; 8,760-hour peak CPU; Monte Carlo of server, rack and zone failures for tenant downtime; payback; 24 subscriptions accepted and a noisy-neighbour incident caught and isolated.",
+ "script": "tools/cases/software_c.py",
+ "generated": "2026-11-15",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "256 台计算服务器、两个可用区；第 36 个月约 367 份订阅；留一整柜；网关 p99 ≤ 20 ms；月可用性 ≥ 99.9 %；36 个月回本。",
+   "summary_en": "256 compute servers in two zones; about 367 subscriptions by month 36; one rack in reserve; gateway p99 ≤ 20 ms; monthly availability ≥ 99.9 %; payback within 36 months.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "计算服务器",
+     "name_en": "Compute servers",
+     "value": "256",
+     "unit": ""
+    },
+    {
+     "name": "36 个月订阅",
+     "name_en": "Subscriptions at month 36",
+     "value": "367",
+     "unit": ""
+    },
+    {
+     "name": "单价",
+     "name_en": "Price",
+     "value": "2,400",
+     "unit": "USD/月"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "选 1.5 倍超分 + 768 GB：每台卖 184 vCPU，全平台 367 份订阅 ≥ 第 36 个月 367 份；512 GB 时内存先用完。",
+   "summary_en": "1.5× overcommit with 768 GB: 184 vCPU per server, 367 subscriptions ≥ 367 needed at month 36; with 512 GB memory runs out first.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "每台可卖",
+     "name_en": "Sellable per server",
+     "value": "184",
+     "unit": "vCPU"
+    },
+    {
+     "name": "能卖订阅",
+     "name_en": "Sellable subscriptions",
+     "value": "367",
+     "unit": ""
+    },
+    {
+     "name": "加内存投入",
+     "name_en": "Memory upgrade",
+     "value": "158,720",
+     "unit": "USD"
+    }
+   ]
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "网关每区 2 台（单区扛全部 p99 9.2 ms）；租户一年停机期望 9.2 / 3.4 分钟（单区 / 两区）；第 24 个月回本。",
+   "summary_en": "2 gateways per zone (p99 9.2 ms with one zone carrying all); expected downtime 9.2 / 3.4 min a year (single / dual zone); payback in month 24.",
+   "md": "3_计算.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "网关",
+     "name_en": "Gateways",
+     "value": "2×2",
+     "unit": ""
+    },
+    {
+     "name": "期初投资",
+     "name_en": "Capex",
+     "value": "3.75",
+     "unit": "M USD"
+    },
+    {
+     "name": "回本",
+     "name_en": "Payback",
+     "value": "24",
+     "unit": "月"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "装箱效率 95.2 %（假设 92 %）；高峰物理 CPU 75 %；网关仿真与公式相差 +0.1 %；两区租户违约月份 0.000 %。",
+   "summary_en": "Packing efficiency 95.2 % (assumed 92 %); peak physical CPU 75 %; gateway sim vs formula +0.1 %; dual-zone tenants miss the SLA in 0.000 % of months.",
+   "md": "4_仿真.md",
+   "figs": [
+    {
+     "file": "4_容量仿真.png",
+     "caption": "订阅与容量、CPU、网关、现金流",
+     "caption_en": "Subscriptions vs capacity, CPU, gateway, cash flow"
+    }
+   ],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "装箱效率",
+     "name_en": "Packing efficiency",
+     "value": "95.2",
+     "unit": "%"
+    },
+    {
+     "name": "高峰物理 CPU",
+     "name_en": "Peak physical CPU",
+     "value": "75",
+     "unit": "%"
+    },
+    {
+     "name": "两区违约月份",
+     "name_en": "Dual-zone SLA-miss months",
+     "value": "0",
+     "unit": "%"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "两区对称：各 7 柜计算 + 1 柜余量 + 2 柜存储，控制面 4 台、网关 2 台；租户 CPU 限额；默认跨两区。",
+   "summary_en": "Two symmetric zones: 7 compute racks + 1 reserve + 2 storage each, 4 control-plane servers and 2 gateways; per-tenant CPU limits; dual-zone by default.",
+   "md": "5_机房分区与架构.md",
+   "figs": [
+    {
+     "file": "5_机房分区与架构.png",
+     "caption": "机房分区与平台架构",
+     "caption_en": "Hall zoning and platform architecture"
+    }
+   ],
+   "files": [],
+   "tools": [],
+   "facts": []
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "订阅 2 道：资源开通 → 24 小时服务验收；每月容量评审，分配率过 75 % 向计算机厂下单。",
+   "summary_en": "Subscription in 2 steps: provisioning, then 24-hour acceptance; monthly capacity review, order racks from the computer plant above 75 % allocation.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    },
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    }
+   ],
+   "facts": [
+    {
+     "name": "工序",
+     "name_en": "Operations",
+     "value": "2",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "24 份订阅不合格 0；注入吵闹的邻居后 cl-a2 上 6 / 6 份不合格（p99 64 ms）；隔离租户后 0 份。",
+   "summary_en": "24 subscriptions, 0 failures; with a noisy neighbour 6 of 6 on cl-a2 fail (p99 64 ms); none after isolating the tenant.",
+   "md": "7_订阅验收.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "发布与服务",
+     "label_en": "Releases & services",
+     "route": "/software-ops"
+    },
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    }
+   ],
+   "facts": [
+    {
+     "name": "不合格",
+     "name_en": "Failures",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "最低 Cpk",
+     "name_en": "Lowest Cpk",
+     "value": "144",
+     "unit": ""
+    },
+    {
+     "name": "故障拦下",
+     "name_en": "Caught by acceptance",
+     "value": "6/6",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "13 / 13 项校核通过；1.5 倍超分 + 768 GB，367 份可卖，网关 2 × 2，第 24 个月回本。",
+   "summary_en": "13 / 13 checks pass; 1.5× overcommit with 768 GB, 367 sellable, 2 × 2 gateways, payback in month 24.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "发布与服务",
+     "label_en": "Releases & services",
+     "route": "/software-ops"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    },
+    {
+     "label": "能源与环境",
+     "label_en": "Energy & environment",
+     "route": "/energy"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "concept",
+   "what": "可卖订阅 ≥ 第 36 个月预测",
+   "what_en": "Sellable subscriptions ≥ month-36 forecast",
+   "value": "367",
+   "op": ">=",
+   "limit": "367",
+   "unit": "份",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "calc",
+   "what": "一个可用区全断时网关 p99",
+   "what_en": "Gateway p99 with one zone down",
+   "value": "9.2",
+   "op": "<=",
+   "limit": "20",
+   "unit": "ms",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "calc",
+   "what": "回本月数",
+   "what_en": "Payback (months)",
+   "value": "24",
+   "op": "<=",
+   "limit": "36",
+   "unit": "月",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "sim",
+   "what": "装箱效率 ≥ 第 2 步假设",
+   "what_en": "Packing efficiency ≥ assumption",
+   "value": "95.2",
+   "op": ">=",
+   "limit": "92",
+   "unit": "%",
+   "ok": true,
+   "src": "第 2 步"
+  },
+  {
+   "step": "sim",
+   "what": "三年内放不下被拒的虚拟机",
+   "what_en": "VMs rejected over three years",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "sim",
+   "what": "高峰物理 CPU 利用率",
+   "what_en": "Peak physical CPU utilization",
+   "value": "75.1",
+   "op": "<=",
+   "limit": "85",
+   "unit": "%",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "sim",
+   "what": "网关 p99：仿真与 Erlang C 相差",
+   "what_en": "Gateway p99: simulation vs Erlang C",
+   "value": "0.1",
+   "op": "<=",
+   "limit": "5",
+   "unit": "%",
+   "ok": true,
+   "src": "核对公式"
+  },
+  {
+   "step": "sim",
+   "what": "可用性：蒙特卡洛与公式相差（最大）",
+   "what_en": "Availability: Monte Carlo vs formula (max)",
+   "value": "1.1",
+   "op": "<=",
+   "limit": "5",
+   "unit": "%",
+   "ok": true,
+   "src": "核对公式"
+  },
+  {
+   "step": "sim",
+   "what": "两区租户违约月份占比",
+   "what_en": "Dual-zone tenants: share of months below SLA",
+   "value": "0",
+   "op": "<=",
+   "limit": "0.1",
+   "unit": "%",
+   "ok": true,
+   "src": "订阅合同"
+  },
+  {
+   "step": "make",
+   "what": "24 份订阅不合格",
+   "what_en": "Failures in 24 subscriptions",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "服务验收"
+  },
+  {
+   "step": "make",
+   "what": "24 份订阅最低 Cpk",
+   "what_en": "Lowest Cpk over 24 subscriptions",
+   "value": "144",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  },
+  {
+   "step": "make",
+   "what": "吵闹的邻居：验收拦下的订阅",
+   "what_en": "Noisy neighbour: subscriptions caught at acceptance",
+   "value": "6",
+   "op": ">",
+   "limit": "0",
+   "unit": "份",
+   "ok": true,
+   "src": "服务验收"
+  },
+  {
+   "step": "make",
+   "what": "隔离租户后不合格",
+   "what_en": "Failures after isolating the tenant",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "纠正措施"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_计算.md",
+  "4_仿真.md",
+  "4_容量仿真.png",
+  "5_机房分区与架构.md",
+  "5_机房分区与架构.png",
+  "6_工艺.md",
+  "7_订阅验收.md",
+  "8_总结.md"
+ ]
+}

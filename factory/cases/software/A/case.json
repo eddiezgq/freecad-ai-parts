@@ -1,0 +1,428 @@
+{
+ "plant": "software",
+ "id": "A",
+ "level": "简单",
+ "title": "关节驱动板的实时任务调度",
+ "title_en": "Real-time task scheduling on the joint drive board",
+ "item": "REL-RTOS 任务与优先级",
+ "summary": "电流环 20 kHz、速度环、EtherCAT 通信、位置环、诊断、日志 6 个任务排在关节驱动板的一颗 MCU 上：比较前后台大循环、固定优先级、最早截止期优先，选固定优先级（截止期单调）；手算利用率、Liu–Layland 界和精确响应时间（含中断延迟、上下文切换、共享缓冲阻塞），发现电流环超时、改成无锁双缓冲；离散事件调度仿真 1 000 个超周期对照；软件公司发布流水线做 20 次构建，发布门禁量最坏中断延迟。",
+ "summary_en": "Six tasks (20 kHz current loop, speed loop, EtherCAT, position loop, diagnostics, logging) on the joint drive board's MCU: super-loop, fixed priority and EDF compared, fixed priority (deadline monotonic) chosen; utilization, Liu–Layland bound and exact response-time analysis (interrupt latency, context switches, blocking on a shared buffer) show the current loop missing its deadline, fixed with a lock-free double buffer; a discrete-event scheduling simulation over 1,000 hyperperiods cross-checks; 20 release builds through the software company's pipeline, worst-case interrupt latency measured at the release gate.",
+ "script": "tools/cases/software_a.py",
+ "generated": "2026-11-15",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "一颗 200 MHz MCU 上 6 个硬实时任务，电流环 20 kHz、截止期 25 μs；中断延迟 ≤ 8 μs。",
+   "summary_en": "Six hard real-time tasks on one 200 MHz MCU; 20 kHz current loop with a 25 μs deadline; interrupt latency ≤ 8 μs.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "任务",
+     "name_en": "Tasks",
+     "value": "6",
+     "unit": ""
+    },
+    {
+     "name": "电流环截止期",
+     "name_en": "Current-loop deadline",
+     "value": "25",
+     "unit": "μs"
+    },
+    {
+     "name": "中断延迟上限",
+     "name_en": "Interrupt latency limit",
+     "value": "8",
+     "unit": "μs"
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "选固定优先级（截止期单调）+ 优先级天花板；利用率 78.0 % 超过 Liu–Layland 界 73.5 %，要精确分析。",
+   "summary_en": "Fixed priority (deadline monotonic) with priority ceiling; utilization 78.0 % exceeds the Liu–Layland bound 73.5 %, so exact analysis is needed.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "利用率",
+     "name_en": "Utilization",
+     "value": "78",
+     "unit": "%"
+    },
+    {
+     "name": "Liu–Layland 界",
+     "name_en": "Liu–Layland bound",
+     "value": "73.5",
+     "unit": "%"
+    },
+    {
+     "name": "大循环最坏",
+     "name_en": "Super-loop worst",
+     "value": "9,373",
+     "unit": "μs"
+    }
+   ]
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "初稿电流环 R = 29.6 μs > 25 μs（被共享缓冲挡住）；改无锁双缓冲后 23.6 μs，6 个任务全部满足截止期。",
+   "summary_en": "Draft current loop R = 29.6 μs > 25 μs (blocked on the shared buffer); with a lock-free double buffer 23.6 μs, all six tasks meet their deadlines.",
+   "md": "3_响应时间分析.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "电流环 R（初稿）",
+     "name_en": "Current loop R (draft)",
+     "value": "29.6",
+     "unit": "μs"
+    },
+    {
+     "name": "电流环 R（改后）",
+     "name_en": "Current loop R (final)",
+     "value": "23.6",
+     "unit": "μs"
+    },
+    {
+     "name": "EtherCAT R",
+     "name_en": "EtherCAT R",
+     "value": "60.8",
+     "unit": "μs"
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "1000 个超周期：仿真最坏都不超过分析值（电流环 21.9 / 23.6 μs），0 次错过；初稿错过 74 次；日志超时 3 倍不连累别人。",
+   "summary_en": "1000 hyperperiods: simulated worst cases never exceed the analysis (current loop 21.9 / 23.6 μs), 0 misses; the draft missed 74 times; a 3× logging overrun affects no other task.",
+   "md": "4_调度仿真.md",
+   "figs": [
+    {
+     "file": "4_调度仿真.png",
+     "caption": "调度时序与响应时间",
+     "caption_en": "Schedule timeline and response times"
+    }
+   ],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "仿真电流环最坏",
+     "name_en": "Simulated current-loop worst",
+     "value": "21.9",
+     "unit": "μs"
+    },
+    {
+     "name": "错过截止期",
+     "name_en": "Deadline misses",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "初稿错过",
+     "name_en": "Draft misses",
+     "value": "74",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "6 个任务 P1–P6；电流环与速度环之间无锁双缓冲；其余共享数据用优先级天花板（P2）；调度表写进板级配置。",
+   "summary_en": "Six tasks P1–P6; lock-free double buffer between the current and speed loops; other shared data under priority ceiling (P2); schedule table in the board configuration.",
+   "md": "5_任务架构.md",
+   "figs": [
+    {
+     "file": "5_任务架构.png",
+     "caption": "任务与优先级架构",
+     "caption_en": "Task and priority architecture"
+    }
+   ],
+   "files": [],
+   "tools": [],
+   "facts": []
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "发布流水线 7 道：合并评审 → 编译单元测试 → 集成测试 → 硬件在环（量中断延迟）→ 安全扫描 → 发布门禁 → 签名发布。",
+   "summary_en": "7-step release pipeline: review, build & unit test, integration test, HIL (interrupt latency), security scan, release gate, sign & publish.",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "工序",
+     "name_en": "Operations",
+     "value": "7",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "20 次构建：最坏中断延迟最大 6.73 μs（≤ 8），不合格 0，最低 Cpk 2.06；实测延迟下电流环 R = 22.3 μs。",
+   "summary_en": "20 builds: worst interrupt latency at most 6.73 μs (≤ 8); 0 failures, lowest Cpk 2.06; current loop R = 22.3 μs with the measured latency.",
+   "md": "7_构建与发布门禁.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "发布与服务",
+     "label_en": "Releases & services",
+     "route": "/software-ops"
+    },
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    }
+   ],
+   "facts": [
+    {
+     "name": "不合格",
+     "name_en": "Out of spec",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "最低 Cpk",
+     "name_en": "Lowest Cpk",
+     "value": "2.06",
+     "unit": ""
+    },
+    {
+     "name": "最坏中断延迟",
+     "name_en": "Worst interrupt latency",
+     "value": "6.73",
+     "unit": "μs"
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "14 / 14 项校核通过；固定优先级、电流环无锁双缓冲，R = 23.6 μs ≤ 25 μs。",
+   "summary_en": "14 / 14 checks pass; fixed priority, lock-free current loop, R = 23.6 μs ≤ 25 μs.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "发布与服务",
+     "label_en": "Releases & services",
+     "route": "/software-ops"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "concept",
+   "what": "CPU 利用率（含上下文切换）",
+   "what_en": "CPU utilization (with context switches)",
+   "value": "78",
+   "op": "<=",
+   "limit": "85",
+   "unit": "%",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "calc",
+   "what": "电流环（FOC） 最坏响应",
+   "what_en": "Current loop (FOC) worst-case response",
+   "value": "23.6",
+   "op": "<=",
+   "limit": "25",
+   "unit": "μs",
+   "ok": true,
+   "src": "截止期"
+  },
+  {
+   "step": "calc",
+   "what": "速度环 最坏响应",
+   "what_en": "Speed loop worst-case response",
+   "value": "60.8",
+   "op": "<=",
+   "limit": "250",
+   "unit": "μs",
+   "ok": true,
+   "src": "截止期"
+  },
+  {
+   "step": "calc",
+   "what": "EtherCAT 过程数据 最坏响应",
+   "what_en": "EtherCAT process data worst-case response",
+   "value": "314",
+   "op": "<=",
+   "limit": "600",
+   "unit": "μs",
+   "ok": true,
+   "src": "截止期"
+  },
+  {
+   "step": "calc",
+   "what": "位置环与插补 最坏响应",
+   "what_en": "Position loop & interpolation worst-case response",
+   "value": "417",
+   "op": "<=",
+   "limit": "1,000",
+   "unit": "μs",
+   "ok": true,
+   "src": "截止期"
+  },
+  {
+   "step": "calc",
+   "what": "诊断（编码器、温度、过流） 最坏响应",
+   "what_en": "Diagnostics worst-case response",
+   "value": "2,673",
+   "op": "<=",
+   "limit": "10,000",
+   "unit": "μs",
+   "ok": true,
+   "src": "截止期"
+  },
+  {
+   "step": "calc",
+   "what": "日志与参数服务 最坏响应",
+   "what_en": "Logging & parameters worst-case response",
+   "value": "23,715",
+   "op": "<=",
+   "limit": "100,000",
+   "unit": "μs",
+   "ok": true,
+   "src": "截止期"
+  },
+  {
+   "step": "sim",
+   "what": "仿真最坏 ≤ 分析值（所有任务，最大比值）",
+   "what_en": "Simulated worst ≤ analysis (max ratio over tasks)",
+   "value": "0.928",
+   "op": "<=",
+   "limit": "1",
+   "unit": "",
+   "ok": true,
+   "src": "响应时间分析是上界"
+  },
+  {
+   "step": "sim",
+   "what": "改后错过截止期",
+   "what_en": "Deadline misses after the fix",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "硬实时"
+  },
+  {
+   "step": "sim",
+   "what": "日志超时 3 倍时其他任务错过截止期",
+   "what_en": "Misses of other tasks with a 3× logging overrun",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "过载隔离"
+  },
+  {
+   "step": "sim",
+   "what": "初稿仿真也能看到电流环超时（次数）",
+   "what_en": "Draft simulation shows current-loop misses",
+   "value": "74",
+   "op": ">",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "和分析一致"
+  },
+  {
+   "step": "make",
+   "what": "实测最坏中断延迟 ≤ 设计用的抖动",
+   "what_en": "Measured worst latency ≤ jitter used in the design",
+   "value": "6.73",
+   "op": "<=",
+   "limit": "8",
+   "unit": "μs",
+   "ok": true,
+   "src": "第 3 步"
+  },
+  {
+   "step": "make",
+   "what": "不合格项",
+   "what_en": "Failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "发布门禁"
+  },
+  {
+   "step": "make",
+   "what": "最低 Cpk",
+   "what_en": "Lowest Cpk",
+   "value": "2.06",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_响应时间分析.md",
+  "4_调度仿真.md",
+  "4_调度仿真.png",
+  "5_任务架构.md",
+  "5_任务架构.png",
+  "6_工艺.md",
+  "7_构建与发布门禁.md",
+  "8_总结.md"
+ ]
+}

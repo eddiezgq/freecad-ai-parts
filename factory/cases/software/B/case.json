@@ -1,0 +1,450 @@
+{
+ "plant": "software",
+ "id": "B",
+ "level": "中等",
+ "title": "云平台对象存储：三副本还是纠删码",
+ "title_en": "Cloud object storage: replicas or erasure coding",
+ "item": "REL-CLOUD 存储层",
+ "summary": "64 台存储节点、768 块 16 TB 盘：比较三副本、RS(6,3)、RS(10,4) 的可用容量、修复时间、数据持久性和读延迟；马尔可夫链算几个 9，蒙特卡洛（固定修复时间）对照；读延迟仿真看出纠删码小文件尾延迟高、大文件反而快；选热数据三副本 + 温冷数据 RS(6,3)；云平台版本构建 10 次、云订阅开通 24 份验收。",
+ "summary_en": "64 storage nodes with 768 × 16 TB disks: 3-way replication, RS(6,3) and RS(10,4) compared on usable capacity, repair time, durability and read latency; Markov-chain durability cross-checked by Monte Carlo with fixed repair times; latency simulation shows erasure coding has a worse tail for small objects but is faster for large ones; hot data on replicas, warm and cold data on RS(6,3); 10 platform builds and 24 cloud subscriptions accepted.",
+ "script": "tools/cases/software_b.py",
+ "generated": "2026-11-15",
+ "honest": "示例设计：经计算和仿真校核，没有实物试制；数值为示例值。",
+ "honest_en": "Example design: checked by calculation and simulation, not built and tested; all values are examples.",
+ "steps": [
+  {
+   "key": "brief",
+   "title": "任务书",
+   "title_en": "Design brief",
+   "summary": "64 台节点 768 块盘（12.3 PB 裸）：三年 ≥ 4 PB 可用、11 个 9、扛整柜故障、小文件 p99 ≤ 30 ms。",
+   "summary_en": "64 nodes, 768 disks (12.3 PB raw): ≥ 4 PB usable in three years, 11 nines, survive a rack failure, small-object p99 ≤ 30 ms.",
+   "md": "1_任务书.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "裸容量",
+     "name_en": "Raw capacity",
+     "value": "12.3",
+     "unit": "PB"
+    },
+    {
+     "name": "可用容量要求",
+     "name_en": "Usable capacity needed",
+     "value": "4",
+     "unit": "PB"
+    },
+    {
+     "name": "持久性",
+     "name_en": "Durability",
+     "value": "11 × 9",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "concept",
+   "title": "方案",
+   "title_en": "Concept",
+   "summary": "三副本只有 3.28 PB 装不下；选热数据三副本 + 温冷 RS(6,3)：可用 5.70 PB，持久性都过 11 个 9，整柜故障不丢。",
+   "summary_en": "Replication alone gives only 3.28 PB; hot data on replicas plus warm/cold on RS(6,3) gives 5.70 PB, all above 11 nines, rack-failure safe.",
+   "md": "2_方案.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "可用容量（选定）",
+     "name_en": "Usable (chosen)",
+     "value": "5.7",
+     "unit": "PB"
+    },
+    {
+     "name": "三副本可用",
+     "name_en": "Replicas only",
+     "value": "3.28",
+     "unit": "PB"
+    }
+   ]
+  },
+  {
+   "key": "calc",
+   "title": "计算",
+   "title_en": "Calculation",
+   "summary": "修复：三副本 2.3 h、RS(6,3) 11.2 h；持久性 12.5 / 13.7 个 9；一柜最多 3 块 ≤ 能坏 3 块。",
+   "summary_en": "Repair: replicas 2.3 h, RS(6,3) 11.2 h; durability 12.5 / 13.7 nines; at most 3 chunks per rack ≤ 3 tolerated.",
+   "md": "3_方案与计算.md",
+   "figs": [],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "RS(6,3) 修复",
+     "name_en": "RS(6,3) repair",
+     "value": "11.2",
+     "unit": "h"
+    },
+    {
+     "name": "三副本几个 9",
+     "name_en": "Replica nines",
+     "value": "12.5",
+     "unit": ""
+    },
+    {
+     "name": "RS(6,3) 几个 9",
+     "name_en": "RS(6,3) nines",
+     "value": "13.7",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "sim",
+   "title": "仿真",
+   "title_en": "Simulation",
+   "summary": "蒙特卡洛（固定修复）与马尔可夫链相差 ≤ 2 %；小文件 p99：三副本 31.2 ms，加对冲读 28.1 ms，RS(6,3) 43.6 ms；大文件 RS(6,3) 更快。",
+   "summary_en": "Monte Carlo (fixed repair) within 2 % of the Markov chain; small-object p99 31.2 ms replicas, 28.1 ms with hedged reads, vs 43.6 ms RS(6,3); RS(6,3) is faster for large objects.",
+   "md": "4_仿真.md",
+   "figs": [
+    {
+     "file": "4_延迟与持久性.png",
+     "caption": "读延迟 p99 与持久性",
+     "caption_en": "Read p99 and durability"
+    }
+   ],
+   "files": [],
+   "tools": [],
+   "facts": [
+    {
+     "name": "小文件 p99（三副本 + 对冲）",
+     "name_en": "Small p99 (replicas, hedged)",
+     "value": "28.1",
+     "unit": "ms"
+    },
+    {
+     "name": "小文件 p99（RS(6,3)）",
+     "name_en": "Small p99 (RS(6,3))",
+     "value": "43.6",
+     "unit": "ms"
+    },
+    {
+     "name": "大文件 p99（RS(6,3)）",
+     "name_en": "Large p99 (RS(6,3))",
+     "value": "58",
+     "unit": "ms"
+    }
+   ]
+  },
+  {
+   "key": "cad",
+   "title": "三维与图纸",
+   "title_en": "3D model & drawing",
+   "summary": "柜 → 节点 → 盘三级故障域；三副本分 3 柜，RS(6,3) 按 3/2/2/2 分 4 柜；热池、温冷池、元数据、网关的架构图。",
+   "summary_en": "Rack → node → disk failure domains; replicas across 3 racks, RS(6,3) split 3/2/2/2 over 4 racks; architecture with hot and warm/cold pools, metadata and gateways.",
+   "md": "5_放置与架构.md",
+   "figs": [
+    {
+     "file": "5_放置与架构.png",
+     "caption": "放置规则与存储层架构",
+     "caption_en": "Placement rules and storage architecture"
+    }
+   ],
+   "files": [],
+   "tools": [],
+   "facts": []
+  },
+  {
+   "key": "process",
+   "title": "工艺",
+   "title_en": "Process planning",
+   "summary": "版本 7 道（集成测试加拔盘、断柜、迁移校验）；订阅 2 道（开通 + 24 小时服务验收）。",
+   "summary_en": "Release 7 steps (integration tests add disk pull, rack cut, migration checksum); subscription 2 steps (provisioning + 24 h acceptance).",
+   "md": "6_工艺.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "设计与工艺",
+     "label_en": "Design & process",
+     "route": "/work/engineer"
+    }
+   ],
+   "facts": [
+    {
+     "name": "版本工序",
+     "name_en": "Release steps",
+     "value": "7",
+     "unit": ""
+    },
+    {
+     "name": "订阅工序",
+     "name_en": "Subscription steps",
+     "value": "2",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "make",
+   "title": "制造",
+   "title_en": "Manufacturing",
+   "summary": "10 次构建不合格 0；24 份订阅不合格 0、最低 Cpk 155.09，服务延迟 p99 平均 18.0 ms。",
+   "summary_en": "10 builds, 0 failures; 24 subscriptions, 0 failures, lowest Cpk 155.09, mean service p99 18.0 ms.",
+   "md": "7_构建与订阅验收.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "发布与服务",
+     "label_en": "Releases & services",
+     "route": "/software-ops"
+    },
+    {
+     "label": "订单与计划",
+     "label_en": "Orders & planning",
+     "route": "/work/planner"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    }
+   ],
+   "facts": [
+    {
+     "name": "构建不合格",
+     "name_en": "Build failures",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "订阅不合格",
+     "name_en": "Subscription failures",
+     "value": "0",
+     "unit": ""
+    },
+    {
+     "name": "订阅最低 Cpk",
+     "name_en": "Lowest subscription Cpk",
+     "value": "155",
+     "unit": ""
+    }
+   ]
+  },
+  {
+   "key": "review",
+   "title": "总结",
+   "title_en": "Review",
+   "summary": "16 / 16 项校核通过；热三副本 + 温冷 RS(6,3)：5.70 PB、≥ 12 个 9。",
+   "summary_en": "16 / 16 checks pass; hot replicas + warm/cold RS(6,3): 5.70 PB, ≥ 12 nines.",
+   "md": "8_总结.md",
+   "figs": [],
+   "files": [],
+   "tools": [
+    {
+     "label": "发布与服务",
+     "label_en": "Releases & services",
+     "route": "/software-ops"
+    },
+    {
+     "label": "质量",
+     "label_en": "Quality",
+     "route": "/work/quality"
+    }
+   ],
+   "facts": []
+  }
+ ],
+ "checks": [
+  {
+   "step": "concept",
+   "what": "可用容量（热三副本 + 温冷 RS(6,3)）",
+   "what_en": "Usable capacity (hot replicas + warm/cold RS(6,3))",
+   "value": "5.7",
+   "op": ">=",
+   "limit": "4",
+   "unit": "PB",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "calc",
+   "what": "三副本 持久性（几个 9）",
+   "what_en": "3-way replication durability (nines)",
+   "value": "12.5",
+   "op": ">=",
+   "limit": "11",
+   "unit": "",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "calc",
+   "what": "三副本 整柜故障：一柜最多块数 ≤ 能坏块数",
+   "what_en": "3-way replication rack failure: max chunks per rack ≤ tolerated",
+   "value": "1",
+   "op": "<=",
+   "limit": "2",
+   "unit": "块",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "calc",
+   "what": "RS(6,3) 持久性（几个 9）",
+   "what_en": "RS(6,3) durability (nines)",
+   "value": "13.7",
+   "op": ">=",
+   "limit": "11",
+   "unit": "",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "calc",
+   "what": "RS(6,3) 整柜故障：一柜最多块数 ≤ 能坏块数",
+   "what_en": "RS(6,3) rack failure: max chunks per rack ≤ tolerated",
+   "value": "3",
+   "op": "<=",
+   "limit": "3",
+   "unit": "块",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "calc",
+   "what": "RS(6,3) 坏盘修复时间",
+   "what_en": "RS(6,3) disk repair time",
+   "value": "11.2",
+   "op": "<=",
+   "limit": "12",
+   "unit": "h",
+   "ok": true,
+   "src": "运维规程"
+  },
+  {
+   "step": "calc",
+   "what": "马尔可夫近似公式与精确解相差（最大）",
+   "what_en": "Markov approximation vs exact (max)",
+   "value": "0.041",
+   "op": "<=",
+   "limit": "1",
+   "unit": "%",
+   "ok": true,
+   "src": "核对公式"
+  },
+  {
+   "step": "sim",
+   "what": "蒙特卡洛与马尔可夫链相差（最大）",
+   "what_en": "Monte Carlo vs Markov chain (max)",
+   "value": "2.4",
+   "op": "<=",
+   "limit": "15",
+   "unit": "%",
+   "ok": true,
+   "src": "固定 vs 指数修复时间 + 统计误差"
+  },
+  {
+   "step": "sim",
+   "what": "读延迟仿真与最慢一块公式相差（小文件，最大）",
+   "what_en": "Latency sim vs slowest-of-k formula (small, max)",
+   "value": "2.2",
+   "op": "<=",
+   "limit": "5",
+   "unit": "%",
+   "ok": true,
+   "src": "核对公式"
+  },
+  {
+   "step": "sim",
+   "what": "热数据（三副本 + 对冲读）小文件读 p99",
+   "what_en": "Hot data (replicas + hedged reads) small-object p99",
+   "value": "28.1",
+   "op": "<=",
+   "limit": "30",
+   "unit": "ms",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "sim",
+   "what": "对冲读多发的读请求",
+   "what_en": "Extra reads from hedging",
+   "value": "6.7",
+   "op": "<=",
+   "limit": "10",
+   "unit": "%",
+   "ok": true,
+   "src": "盘的余量（负载 50 %）"
+  },
+  {
+   "step": "sim",
+   "what": "温冷数据（RS(6,3)）大文件读 p99",
+   "what_en": "Warm/cold (RS(6,3)) large-object p99",
+   "value": "58.1",
+   "op": "<=",
+   "limit": "250",
+   "unit": "ms",
+   "ok": true,
+   "src": "任务书"
+  },
+  {
+   "step": "sim",
+   "what": "RS(6,3) 降级读小文件 p99（温冷数据可接受 2 倍）",
+   "what_en": "RS(6,3) degraded small-object p99 (2× allowed for warm/cold)",
+   "value": "44.8",
+   "op": "<=",
+   "limit": "60",
+   "unit": "ms",
+   "ok": true,
+   "src": "运维规程"
+  },
+  {
+   "step": "make",
+   "what": "云平台构建不合格",
+   "what_en": "Platform build failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "发布门禁"
+  },
+  {
+   "step": "make",
+   "what": "云订阅不合格",
+   "what_en": "Subscription failures",
+   "value": "0",
+   "op": "==",
+   "limit": "0",
+   "unit": "",
+   "ok": true,
+   "src": "服务验收"
+  },
+  {
+   "step": "make",
+   "what": "云订阅最低 Cpk",
+   "what_en": "Lowest subscription Cpk",
+   "value": "155",
+   "op": ">=",
+   "limit": "1.33",
+   "unit": "",
+   "ok": true,
+   "src": "常用要求"
+  }
+ ],
+ "all_ok": true,
+ "files": [
+  "1_任务书.md",
+  "2_方案.md",
+  "3_方案与计算.md",
+  "4_仿真.md",
+  "4_延迟与持久性.png",
+  "5_放置与架构.md",
+  "5_放置与架构.png",
+  "6_工艺.md",
+  "7_构建与订阅验收.md",
+  "8_总结.md"
+ ]
+}

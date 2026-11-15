@@ -62,7 +62,7 @@ CODE = ("import sys, json; sys.path[:0] = [{!r}, {!r}]\nfrom hub import app, cas
         "print(json.dumps({{'plant': cases.plant_key(app.PLANT.plant_id()), 'list': cases.listing(cases.plant_key(app.PLANT.plant_id()))}}, ensure_ascii=False))")
 
 
-@pytest.mark.parametrize("plant,expect", [(None, "gearbox"), ("motor", "motor")])
+@pytest.mark.parametrize("plant,expect", [(None, "gearbox"), ("motor", "motor"), ("software", "software")])
 def test_listing_by_plant(plant, expect):
     env = dict(os.environ)
     if plant:

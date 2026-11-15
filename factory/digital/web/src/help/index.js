@@ -51,6 +51,6 @@ export const STAGE_CHAPTER = {
   sensor: ['plant', 'products-bom', 'products-bom', 'products-bom', 'plant', 'encoder-line', 'equip-ai'],
   motor: ['plant', 'products-bom', 'products-bom', 'products-bom', 'plant', 'final-test', 'equip-ai'],
   computer: ['plant', 'products-bom', 'products-bom', 'lines', 'lines', 'burn-in', 'equip-ai'],   // 第 166b 轮另有一章“设计案例”（06-cases）
-  software: ['company', 'products-sbom', 'products-sbom', 'pipeline', 'pipeline', 'ops', 'equip-ai'],
+  software: ['company', 'products-sbom', 'products-sbom', 'pipeline', 'pipeline', 'ops', 'equip-ai'],   // 第 167b 轮另有一章“设计案例”（06-cases）
   sewing: ['plant', 'products-bom', 'products-bom', 'products-bom', 'foundry-housing', 'foundry-housing', 'equip-ai'],
 };
