@@ -1,0 +1,90 @@
+{
+ "instance": {
+  "format": "fea-study/1",
+  "name": "cantilever",
+  "bodies": [
+   {
+    "id": "b1",
+    "step_path": "box.step",
+    "material": "45-QT"
+   }
+  ],
+  "supports": [
+   {
+    "type": "fixed",
+    "body": "b1",
+    "faces": [
+     1
+    ]
+   }
+  ],
+  "loads": [
+   {
+    "type": "force",
+    "body": "b1",
+    "faces": [
+     2
+    ],
+    "vector_n": [
+     0,
+     0,
+     -100
+    ]
+   }
+  ],
+  "steps": [
+   {
+    "id": "m",
+    "type": "modal",
+    "n_modes": 6,
+    "prestress": true
+   },
+   {
+    "id": "h",
+    "type": "harmonic",
+    "f_min_hz": 10,
+    "f_max_hz": 2000,
+    "n_points": 300,
+    "damping_ratio": 0.02
+   },
+   {
+    "id": "r",
+    "type": "random",
+    "direction": [
+     0,
+     0,
+     1
+    ],
+    "damping_ratio": 0.02,
+    "n_modes": 40,
+    "asd": [
+     {
+      "frequency_hz": 20,
+      "asd_m2_s4_per_hz": 0.96
+     },
+     {
+      "frequency_hz": 2000,
+      "asd_m2_s4_per_hz": 0.96
+     }
+    ]
+   },
+   {
+    "id": "t",
+    "type": "transient",
+    "end_time_s": 0.1,
+    "time_step_s": 0.0001,
+    "damping_ratio": 0.02,
+    "amplitude": [
+     {
+      "time_s": 0,
+      "factor": 0
+     },
+     {
+      "time_s": 0.001,
+      "factor": 1
+     }
+    ]
+   }
+  ]
+ }
+}
