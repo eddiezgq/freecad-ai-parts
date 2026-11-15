@@ -83,7 +83,7 @@ def test_study_validation_rules():
     with pytest.raises(S.StudyInvalid, match="载荷"):
         S.validate(_study(loads=[]))
     with pytest.raises(S.StudyInvalid, match="格式"):
-        S.validate(_study(steps=[{"id": "s1", "type": "harmonic"}]))
+        S.validate(_study(steps=[{"id": "s1", "type": "fatigue"}]))
     out = analysis.run("fea", _study(provenance={"drafted_by": "ai", "confirmed_by_human": False}))
     assert out["status"] == "failed" and "AI 起草" in out["messages"][0]
 
