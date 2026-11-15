@@ -1,8 +1,10 @@
 <template>
   <div class="wrap3d">
     <div ref="host" class="host" data-help="3d-scene" @pointerdown="down" @pointerup="up"></div>
+    <div v-show="mode === 'plan'" ref="planHost" class="host plan" data-help="3d-plan"></div>
     <!-- 第 171 轮：分车间、参观 -->
     <div v-if="pm" class="zonebar" data-help="3d-zones">
+      <span class="seg"><button class="chip" :class="{ on: mode === '3d' }" @click="setMode('3d')">{{ t('三维') }}</button><button class="chip" :class="{ on: mode === 'plan' }" @click="setMode('plan')">{{ t('平面图') }}</button></span>
       <button class="chip" :class="{ on: zone === null }" @click="goZone(null)">{{ t('全厂') }}</button>
       <template v-if="realZones.length">
         <button v-for="z in realZones" :key="z.id" class="chip" :class="{ on: zone === z.id }" @click="goZone(z.id)">{{ zname(z) }}</button>
@@ -21,12 +23,12 @@
     </div>
     <div class="legend small" data-help="3d-legend">
       <span v-for="s in ['run', 'idle', 'setup', 'down']" :key="s"><i :style="{ background: HEX[s] }"></i>{{ STATE[s].label }}</span>
-      <span class="muted">{{ t('拖动旋转 · 滚轮缩放 · 点车间进去 · 点设备看状态和工艺文件') }}</span>
+      <span class="muted">{{ mode === 'plan' ? t('拖动平移 · 滚轮缩放 · 点车间进去 · 点设备看状态和工艺文件') : t('拖动旋转 · 滚轮缩放 · 点车间进去 · 点设备看状态和工艺文件') }}</span>
     </div>
     <aside v-if="sel" class="panel" data-help="3d-panel">
       <button class="x" :aria-label="t('关闭')" @click="close">×</button>
       <h2>{{ sel.toUpperCase() }} {{ unitName(sel) }}</h2>
-      <p v-if="pmu" class="small muted">{{ zoneOf(sel) }}<template v-if="pmu.workstation"> · {{ t('工作中心') }} {{ opName(pmu.workstation) }}</template></p>
+      <p v-if="pmu" class="small muted">{{ [zoneOf(sel), pmu.workstation ? t('工作中心') + ' ' + opName(pmu.workstation) : ''].filter(Boolean).join(' · ') }}</p>
       <div class="tabs">
         <button v-for="tb in TABS" :key="tb[0]" :class="{ on: tab === tb[0] }" @click="tab = tb[0]">{{ t(tb[1]) }}</button>
       </div>
@@ -148,6 +150,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import * as THREE from 'three';
 import { createWorkshop, HEX } from '../lib/workshop3d';
+import { createPlan } from '../lib/plan2d';
 import { get, loadConfig } from '../lib/api';
 import { bus } from '../lib/bus';
 import { STATE } from '../lib/fmt';
@@ -178,6 +181,29 @@ watch(sel, (u) => {
 });
 const isLathe = computed(() => (sel.value || '').startsWith('cnc-l01'));
 let ws, downAt;
+// 第 171b 轮：平面图（白板手绘俯视图）。V() = 当前看的那个视图；高亮、路线、状态两个视图都改
+let plan = null;
+const MODE_KEY = 'wq-3d-mode';
+const mode = ref((() => { try { return localStorage.getItem(MODE_KEY) || '3d'; } catch (e) { return '3d'; } })());
+const planHost = ref(null);
+const V = () => (mode.value === 'plan' ? plan : ws);
+const both = (f) => { if (ws) f(ws); if (plan) f(plan); };
+function ensurePlan() {
+  if (plan || !planHost.value || !layout.value) return;
+  const zs = (pm.value?.zones || []).map((z) => ({ ...z, name_shown: zname(z) }));
+  plan = createPlan(planHost.value, layout.value, { zones: zs, unitLabel: unitName,
+    onPick: (u) => { sel.value = u; }, onZone: (z) => { if (z !== zone.value) goZone(z); } });
+  plan.update(bus.machines, bus.agvs);
+  if (sel.value) plan.highlight(sel.value);
+}
+async function setMode(m) {
+  mode.value = m;
+  try { localStorage.setItem(MODE_KEY, m); } catch (e) { /* 无痕窗口 */ }
+  await nextTick();
+  if (m === 'plan') { ensurePlan(); plan?.resize(); } else ws?.resize();
+  if (routeOn.value) { routeOn.value = false; both((v) => v.clearRoute()); }
+  if (sel.value) V()?.flyUnit(sel.value); else if (zone.value) V()?.flyZone(zone.value); else V()?.overview();
+}
 
 // ---------------------------------------------------------------- 第 171 轮：分车间、参观、工艺文件
 const TABS = [['status', tk('状态')], ['route', tk('工艺卡')], ['op', tk('工序卡')], ['insp', tk('检验规程')]];
@@ -206,16 +232,16 @@ const metroRows = computed(() => (job.value && pd.value?.metro ? pd.value.metro.
 const metroTasks = computed(() => Object.entries(pm.value?.sampling || {}).flatMap(([key, xs]) => xs.filter((x) => x.unit === sel.value).map((x) => ({ key, ...x }))));
 watch(sel, (u) => {
   jobKey.value = '';
-  if (ws) ws.highlight(u);
+  both((v) => v.highlight(u));
   if (routeOn.value) toggleRoute();
   if (!u) tab.value = 'status';
 });
 watch(jobs, (js) => {           // 选设备后默认选它的第一道（零件 · 工序）
   if (js.length && !js.some((j) => j[0] + '|' + j[1] === jobKey.value)) jobKey.value = js[0][0] + '|' + js[0][1];
 }, { immediate: true });
-watch(job, () => { if (routeOn.value) { routeOn.value = false; ws?.clearRoute(); } });
+watch(job, () => { if (routeOn.value) { routeOn.value = false; both((v) => v.clearRoute()); } });
 function close() { sel.value = null; }
-function selectUnit(u, fly = true) { sel.value = u; if (fly && ws) ws.flyUnit(u); }
+function selectUnit(u, fly = true) { sel.value = u; if (fly && V()) V().flyUnit(u); }
 function gotoStep(i) {
   const s = steps.value[i];
   if (!s) return;
@@ -229,16 +255,16 @@ function gotoStep(i) {
 }
 function toggleRoute() {
   if (!ws) return;
-  if (routeOn.value) { ws.clearRoute(); routeOn.value = false; return; }
+  if (routeOn.value) { both((v) => v.clearRoute()); routeOn.value = false; return; }
   const us = steps.value.map((s) => { const c = pm.value.ops[s[0]]?.units || []; return c.includes(sel.value) ? sel.value : c[0]; }).filter(Boolean);
-  ws.showRoute(us); routeOn.value = true;
+  both((v) => v.showRoute(us)); routeOn.value = true;
   const L_ = layout.value.units, xs = us.map((u) => L_[u]).filter(Boolean);
-  if (xs.length) ws.flyRect([Math.min(...xs.map((v) => v.x)) - 4, Math.min(...xs.map((v) => v.y)) - 4, Math.max(...xs.map((v) => v.x)) + 4, Math.max(...xs.map((v) => v.y)) + 4]);
+  if (xs.length) V().flyRect([Math.min(...xs.map((v) => v.x)) - 4, Math.min(...xs.map((v) => v.y)) - 4, Math.max(...xs.map((v) => v.x)) + 4, Math.max(...xs.map((v) => v.y)) + 4]);
 }
 function goZone(id) {
   zone.value = id;
-  if (!ws) return;
-  if (id) ws.flyZone(id); else ws.overview();
+  if (!V()) return;
+  if (id) V().flyZone(id); else V().overview();
 }
 // 参观：全厂 → 每个车间（全貌，再每个工作中心停一台，最多 8 台）
 function buildStops() {
@@ -302,7 +328,7 @@ const stopLines = computed(() => {
 });
 let gc = null;             // 刀路小窗
 
-function applyStatus() { if (ws) ws.update(bus.machines, bus.agvs); }
+function applyStatus() { both((v) => v.update(bus.machines, bus.agvs)); }
 function down(e) { downAt = [e.clientX, e.clientY]; }
 function up(e) {
   if (!ws || !downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 5) return;
@@ -433,6 +459,7 @@ onMounted(async () => {
     try { pm.value = await get('/plantmap'); } catch (e) { pm.value = null; }
     const zs = (pm.value?.zones || []).map((z) => ({ ...z, name_shown: zname(z) }));
     ws = createWorkshop(host.value, layout.value, { zones: zs, onFrame: () => { if (gc) gc.render(); } });
+    if (mode.value === 'plan') { await nextTick(); ensurePlan(); }
     applyStatus();
     off = watch(() => [bus.machines, bus.agvs], applyStatus, { deep: true });
     if (route.query.gcode) sel.value = 'key-01';
@@ -443,6 +470,7 @@ onUnmounted(() => {
   clearTimeout(timer);
   if (off) off();
   if (ws) ws.dispose();
+  if (plan) plan.dispose();
   if (gc) gc.r.dispose();
 });
 </script>
@@ -466,6 +494,9 @@ onUnmounted(() => {
 .chip { flex: 0 0 auto; border: 1px solid var(--line); background: rgba(255, 255, 255, .94); border-radius: 999px; padding: 4px 12px; font: inherit;
   font-size: 13px; cursor: pointer; white-space: nowrap; }
 .chip.on { background: var(--accent, #0E5E6F); color: #fff; border-color: transparent; }
+.seg { display: inline-flex; flex: 0 0 auto; margin-right: 6px; }
+.seg .chip:first-child { border-radius: 999px 0 0 999px; } .seg .chip:last-child { border-radius: 0 999px 999px 0; border-left: 0; }
+.plan { z-index: 0; }
 .chip.tourbtn { border-color: #C2410C; color: #C2410C; font-weight: 600; }
 .tourcard { position: absolute; left: 50%; transform: translateX(-50%); bottom: 56px; width: min(560px, calc(100% - 32px)); background: #fff;
   border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; box-shadow: 0 4px 18px rgba(0, 0, 0, .12); }
@@ -487,7 +518,7 @@ table.tbl tr.cur td { background: #FFF4D6; font-weight: 600; }
 @media (max-width: 760px) {
   .zonebar { right: 16px; }
   .panel { left: 8px; right: 8px; top: auto; bottom: 8px; width: auto; max-height: 55%; }
-  .tourcard { bottom: 8px; }
+  .tourcard { top: 52px; bottom: auto; }
 }
 .errbox { position: absolute; left: 16px; top: 16px; background: #fff; padding: 10px; border-radius: 8px; }
 hr { border: 0; border-top: 1px solid var(--line); margin: 12px 0; }

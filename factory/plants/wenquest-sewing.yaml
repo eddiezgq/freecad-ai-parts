@@ -406,8 +406,8 @@ units:
   name_en: Charge scale & feeder
   workstation: 配料加料 CHG
   layout:
-  - 4
-  - 4
+  - 6
+  - 5.5
   - 4
   - 3
   height_m: 2.5
@@ -417,8 +417,8 @@ units:
   name_en: Induction furnace 1 t no.1
   workstation: 中频感应电炉 IND
   layout:
-  - 10
-  - 4
+  - 12
+  - 6
   - 4
   - 4
   height_m: 3.0
@@ -429,8 +429,8 @@ units:
   name_en: Induction furnace 1 t no.2
   workstation: 中频感应电炉 IND
   layout:
-  - 16
-  - 4
+  - 18
+  - 6
   - 4
   - 4
   height_m: 3.0
@@ -441,8 +441,8 @@ units:
   name_en: Melt lab (spectrometer, thermal analysis)
   workstation: 炉前分析室 LAB-M
   layout:
-  - 22
-  - 4
+  - 24
+  - 5.5
   - 4
   - 3
   height_m: 2.6
@@ -452,8 +452,8 @@ units:
   name_en: Automatic pouring unit (stream inoculation)
   workstation: 自动浇注机 POUR
   layout:
-  - 28
-  - 4
+  - 30
+  - 5.5
   - 4
   - 3
   height_m: 3.2
@@ -463,8 +463,8 @@ units:
   name_en: Flaskless horizontal moulding line
   workstation: 造型线 MOLD
   layout:
-  - 34
-  - 4
+  - 42
+  - 6.5
   - 16
   - 5
   height_m: 3.5
@@ -474,8 +474,8 @@ units:
   name_en: Mould cooling line
   workstation: 冷却线 COOL
   layout:
-  - 52
-  - 4
+  - 61
+  - 6
   - 18
   - 4
   height_m: 2.0
@@ -486,8 +486,8 @@ units:
   name_en: Shell core shooter no.1
   workstation: 射芯机 CORE
   layout:
-  - 4
-  - 12
+  - 5.5
+  - 13.5
   - 3
   - 3
   height_m: 2.8
@@ -497,8 +497,8 @@ units:
   name_en: Shell core shooter no.2
   workstation: 射芯机 CORE
   layout:
-  - 9
-  - 12
+  - 10.5
+  - 13.5
   - 3
   - 3
   height_m: 2.8
@@ -508,8 +508,8 @@ units:
   name_en: Shell core shooter no.3
   workstation: 射芯机 CORE
   layout:
-  - 14
-  - 12
+  - 15.5
+  - 13.5
   - 3
   - 3
   height_m: 2.8
@@ -519,8 +519,8 @@ units:
   name_en: Core finishing & check bench
   workstation: 砂芯检验台 CQ
   layout:
-  - 19
-  - 12
+  - 20.5
+  - 13
   - 3
   - 2
   height_m: 1.0
@@ -530,8 +530,8 @@ units:
   name_en: Rotor sand mixer
   workstation: 砂处理 SAND
   layout:
-  - 24
-  - 12
+  - 26
+  - 14
   - 4
   - 4
   height_m: 4.0
@@ -541,8 +541,8 @@ units:
   name_en: Sand reclamation
   workstation: 砂处理 SAND
   layout:
-  - 30
-  - 12
+  - 34
+  - 14
   - 8
   - 4
   height_m: 5.0
@@ -552,8 +552,8 @@ units:
   name_en: Sand lab
   workstation: 型砂实验室 LAB-S
   layout:
-  - 40
-  - 12
+  - 41.5
+  - 13.5
   - 3
   - 3
   height_m: 2.6
@@ -563,8 +563,8 @@ units:
   name_en: Vibrating shakeout
   workstation: 落砂机 SO
   layout:
-  - 45
-  - 12
+  - 47
+  - 13.5
   - 4
   - 3
   height_m: 1.8
@@ -574,8 +574,8 @@ units:
   name_en: Degating station
   workstation: 去浇冒口 GATE
   layout:
-  - 4
-  - 19
+  - 5.5
+  - 20.5
   - 3
   - 3
   height_m: 1.2
@@ -585,8 +585,8 @@ units:
   name_en: Hanger shot-blast machine
   workstation: 抛丸机 SHOT
   layout:
-  - 9
-  - 19
+  - 11.5
+  - 21
   - 5
   - 4
   height_m: 5.0
@@ -597,8 +597,8 @@ units:
   name_en: Vibratory core knockout
   workstation: 振动清砂 VIB
   layout:
-  - 16
-  - 19
+  - 17.5
+  - 20.5
   - 3
   - 3
   height_m: 2.0
@@ -608,8 +608,8 @@ units:
   name_en: Fettling station 1
   workstation: 打磨工位 FET
   layout:
-  - 21
-  - 19
+  - 22.5
+  - 20
   - 3
   - 2
   height_m: 1.5
@@ -619,8 +619,8 @@ units:
   name_en: Fettling station 2
   workstation: 打磨工位 FET
   layout:
-  - 26
-  - 19
+  - 27.5
+  - 20
   - 3
   - 2
   height_m: 1.5
@@ -630,8 +630,8 @@ units:
   name_en: Fettling station 3
   workstation: 打磨工位 FET
   layout:
-  - 31
-  - 19
+  - 32.5
+  - 20
   - 3
   - 2
   height_m: 1.5
@@ -641,8 +641,8 @@ units:
   name_en: Bogie stress-relief furnace
   workstation: 时效炉 AGE
   layout:
-  - 36
-  - 19
+  - 39
+  - 21.5
   - 6
   - 5
   height_m: 3.5
@@ -653,8 +653,8 @@ units:
   name_en: Putty station 1
   workstation: 刮腻子工位 PUT
   layout:
-  - 4
-  - 27
+  - 5.5
+  - 28
   - 3
   - 2
   height_m: 1.5
@@ -664,8 +664,8 @@ units:
   name_en: Putty station 2
   workstation: 刮腻子工位 PUT
   layout:
-  - 9
-  - 27
+  - 10.5
+  - 28
   - 3
   - 2
   height_m: 1.5
@@ -675,8 +675,8 @@ units:
   name_en: Primer booth
   workstation: 底漆喷房 PRIME
   layout:
-  - 14
-  - 27
+  - 16.5
+  - 29
   - 5
   - 4
   height_m: 3.5
@@ -687,8 +687,8 @@ units:
   name_en: Test lab (tensile, hardness, metallography)
   workstation: 理化室 LAB-P
   layout:
-  - 21
-  - 27
+  - 23
+  - 28.5
   - 4
   - 3
   height_m: 2.6
@@ -698,8 +698,8 @@ units:
   name_en: Casting inspection bench
   workstation: 铸件检验台 CI
   layout:
-  - 27
-  - 27
+  - 28.5
+  - 28
   - 3
   - 2
   height_m: 1.0
@@ -709,8 +709,8 @@ units:
   name_en: Casting receiving inspection
   workstation: 毛坯检验台 IQC
   layout:
-  - 86
-  - 4
+  - 87.5
+  - 5
   - 3
   - 2
   height_m: 1.0
@@ -720,8 +720,8 @@ units:
   name_en: VMC 1 (LS housing)
   workstation: 立式加工中心 VMC-H
   layout:
-  - 91
-  - 4
+  - 92.5
+  - 5.3
   - 3
   - 2.6
   height_m: 2.6
@@ -731,8 +731,8 @@ units:
   name_en: VMC 2 (LS housing)
   workstation: 立式加工中心 VMC-H
   layout:
-  - 96
-  - 4
+  - 97.5
+  - 5.3
   - 3
   - 2.6
   height_m: 2.6
@@ -742,8 +742,8 @@ units:
   name_en: VMC 3 (LS housing)
   workstation: 立式加工中心 VMC-H
   layout:
-  - 101
-  - 4
+  - 102.5
+  - 5.3
   - 3
   - 2.6
   height_m: 2.6
@@ -753,8 +753,8 @@ units:
   name_en: VMC 4 (OL housing)
   workstation: 立式加工中心 VMC-H
   layout:
-  - 106
-  - 4
+  - 107.5
+  - 5.3
   - 3
   - 2.6
   height_m: 2.6
@@ -764,8 +764,8 @@ units:
   name_en: HMC 1 (LS housing)
   workstation: 卧式加工中心 HMC
   layout:
-  - 86
-  - 9.6
+  - 88.25
+  - 11.6
   - 4.5
   - 4
   height_m: 3.0
@@ -775,8 +775,8 @@ units:
   name_en: HMC 2 (LS housing)
   workstation: 卧式加工中心 HMC
   layout:
-  - 92.5
-  - 9.6
+  - 94.75
+  - 11.6
   - 4.5
   - 4
   height_m: 3.0
@@ -786,8 +786,8 @@ units:
   name_en: HMC 3 (LS housing)
   workstation: 卧式加工中心 HMC
   layout:
-  - 99.0
-  - 9.6
+  - 101.25
+  - 11.6
   - 4.5
   - 4
   height_m: 3.0
@@ -797,8 +797,8 @@ units:
   name_en: HMC 4 (LS housing)
   workstation: 卧式加工中心 HMC
   layout:
-  - 105.5
-  - 9.6
+  - 107.75
+  - 11.6
   - 4.5
   - 4
   height_m: 3.0
@@ -808,8 +808,8 @@ units:
   name_en: HMC 5 (LS housing)
   workstation: 卧式加工中心 HMC
   layout:
-  - 112.0
-  - 9.6
+  - 114.25
+  - 11.6
   - 4.5
   - 4
   height_m: 3.0
@@ -819,8 +819,8 @@ units:
   name_en: HMC 6 (OL housing)
   workstation: 卧式加工中心 HMC
   layout:
-  - 118.5
-  - 9.6
+  - 120.75
+  - 11.6
   - 4.5
   - 4
   height_m: 3.0
@@ -830,8 +830,8 @@ units:
   name_en: HMC 7 (OL housing)
   workstation: 卧式加工中心 HMC
   layout:
-  - 125.0
-  - 9.6
+  - 127.25
+  - 11.6
   - 4.5
   - 4
   height_m: 3.0
@@ -841,8 +841,8 @@ units:
   name_en: Tapping centre 1 (LS, 4-axis)
   workstation: 钻攻中心 TAP
   layout:
-  - 86
-  - 16.6
+  - 87.2
+  - 17.8
   - 2.4
   - 2.4
   height_m: 2.4
@@ -852,8 +852,8 @@ units:
   name_en: Tapping centre 2 (LS, 4-axis)
   workstation: 钻攻中心 TAP
   layout:
-  - 90.4
-  - 16.6
+  - 91.6
+  - 17.8
   - 2.4
   - 2.4
   height_m: 2.4
@@ -863,8 +863,8 @@ units:
   name_en: Tapping centre 3 (LS, 4-axis)
   workstation: 钻攻中心 TAP
   layout:
-  - 94.8
-  - 16.6
+  - 96
+  - 17.8
   - 2.4
   - 2.4
   height_m: 2.4
@@ -874,8 +874,8 @@ units:
   name_en: Tapping centre 4 (OL, 4-axis)
   workstation: 钻攻中心 TAP
   layout:
-  - 99.2
-  - 16.6
+  - 100.4
+  - 17.8
   - 2.4
   - 2.4
   height_m: 2.4
@@ -885,8 +885,8 @@ units:
   name_en: Deburring 1 (LS)
   workstation: 去毛刺工位 DEB
   layout:
-  - 103.6
-  - 16.6
+  - 104.85
+  - 17.6
   - 2.5
   - 2
   height_m: 1.5
@@ -896,8 +896,8 @@ units:
   name_en: Deburring 2 (LS)
   workstation: 去毛刺工位 DEB
   layout:
-  - 108.1
-  - 16.6
+  - 109.35
+  - 17.6
   - 2.5
   - 2
   height_m: 1.5
@@ -907,8 +907,8 @@ units:
   name_en: Deburring 3 (OL)
   workstation: 去毛刺工位 DEB
   layout:
-  - 112.6
-  - 16.6
+  - 113.85
+  - 17.6
   - 2.5
   - 2
   height_m: 1.5
@@ -918,8 +918,8 @@ units:
   name_en: Through-feed housing washer
   workstation: 清洗机 WASH-H
   layout:
-  - 86
-  - 22.0
+  - 91
+  - 23.5
   - 10
   - 3
   height_m: 2.6
@@ -930,8 +930,8 @@ units:
   name_en: Leak test bench (OL oil sump)
   workstation: 渗漏试验台 LEAK
   layout:
-  - 98
-  - 22.0
+  - 99.5
+  - 23
   - 3
   - 2
   height_m: 1.6
@@ -941,8 +941,8 @@ units:
   name_en: Housing final inspection (air gauges, check fixture)
   workstation: 机壳终检站 QC-H
   layout:
-  - 103
-  - 22.0
+  - 105
+  - 23.5
   - 4
   - 3
   height_m: 1.5
@@ -952,8 +952,8 @@ units:
   name_en: Top-coat booth
   workstation: 面漆喷房 PAINT
   layout:
-  - 109
-  - 22.0
+  - 112
+  - 24
   - 6
   - 4
   height_m: 3.5
@@ -964,8 +964,8 @@ units:
   name_en: Low-temperature curing oven
   workstation: 烘道 OVEN
   layout:
-  - 117
-  - 22.0
+  - 125
+  - 23.5
   - 16
   - 3
   height_m: 3.0
@@ -976,8 +976,8 @@ units:
   name_en: CMM (metrology room)
   workstation: 三坐标测量机 CMM
   layout:
-  - 166
-  - 4
+  - 168
+  - 5.5
   - 4
   - 3
   height_m: 3.0
@@ -987,8 +987,8 @@ units:
   name_en: Cam & eccentric gauge
   workstation: 计量室 CMM-R
   layout:
-  - 172
-  - 4
+  - 173.5
+  - 5
   - 3
   - 2
   height_m: 2.0
@@ -998,8 +998,8 @@ units:
   name_en: Roundness tester
   workstation: 计量室 CMM-R
   layout:
-  - 177
-  - 4
+  - 178
+  - 5
   - 2
   - 2
   height_m: 2.0
@@ -1009,8 +1009,8 @@ units:
   name_en: Surface roughness & contour tester
   workstation: 计量室 CMM-R
   layout:
-  - 181
-  - 4
+  - 182
+  - 5
   - 2
   - 2
   height_m: 1.6
@@ -1020,8 +1020,8 @@ units:
   name_en: Cleanliness analysis
   workstation: 计量室 CMM-R
   layout:
-  - 185
-  - 4
+  - 186
+  - 5
   - 2
   - 2
   height_m: 1.6
@@ -1031,8 +1031,8 @@ units:
   name_en: Band saw 1
   workstation: 带锯床 SAW
   layout:
-  - 86
-  - 58
+  - 87.5
+  - 58.75
   - 3
   - 1.5
   height_m: 1.4
@@ -1042,8 +1042,8 @@ units:
   name_en: Band saw 2
   workstation: 带锯床 SAW
   layout:
-  - 91
-  - 58
+  - 92.5
+  - 58.75
   - 3
   - 1.5
   height_m: 1.4
@@ -1053,8 +1053,8 @@ units:
   name_en: CNC lathe 1
   workstation: 数控车床 CNC
   layout:
-  - 96
-  - 58
+  - 97.5
+  - 58.9
   - 3
   - 1.8
   height_m: 1.9
@@ -1064,8 +1064,8 @@ units:
   name_en: CNC lathe 2
   workstation: 数控车床 CNC
   layout:
-  - 101
-  - 58
+  - 102.5
+  - 58.9
   - 3
   - 1.8
   height_m: 1.9
@@ -1075,8 +1075,8 @@ units:
   name_en: CNC lathe 3
   workstation: 数控车床 CNC
   layout:
-  - 106
-  - 58
+  - 107.5
+  - 58.9
   - 3
   - 1.8
   height_m: 1.9
@@ -1086,8 +1086,8 @@ units:
   name_en: CNC lathe 4
   workstation: 数控车床 CNC
   layout:
-  - 111
-  - 58
+  - 112.5
+  - 58.9
   - 3
   - 1.8
   height_m: 1.9
@@ -1097,8 +1097,8 @@ units:
   name_en: CNC lathe 5
   workstation: 数控车床 CNC
   layout:
-  - 116
-  - 58
+  - 117.5
+  - 58.9
   - 3
   - 1.8
   height_m: 1.9
@@ -1108,8 +1108,8 @@ units:
   name_en: CNC lathe 6
   workstation: 数控车床 CNC
   layout:
-  - 121
-  - 58
+  - 122.5
+  - 58.9
   - 3
   - 1.8
   height_m: 1.9
@@ -1119,8 +1119,8 @@ units:
   name_en: CNC lathe 7
   workstation: 数控车床 CNC
   layout:
-  - 126
-  - 58
+  - 127.5
+  - 58.9
   - 3
   - 1.8
   height_m: 1.9
@@ -1130,8 +1130,8 @@ units:
   name_en: CNC lathe 8
   workstation: 数控车床 CNC
   layout:
-  - 131
-  - 58
+  - 132.5
+  - 58.9
   - 3
   - 1.8
   height_m: 1.9
@@ -1141,8 +1141,8 @@ units:
   name_en: CNC lathe 9
   workstation: 数控车床 CNC
   layout:
-  - 136
-  - 58
+  - 137.5
+  - 58.9
   - 3
   - 1.8
   height_m: 1.9
@@ -1152,8 +1152,8 @@ units:
   name_en: CNC lathe 10
   workstation: 数控车床 CNC
   layout:
-  - 141
-  - 58
+  - 142.5
+  - 58.9
   - 3
   - 1.8
   height_m: 1.9
@@ -1163,8 +1163,8 @@ units:
   name_en: VMC 5 (parts)
   workstation: 立式加工中心 VMC-P
   layout:
-  - 86
-  - 62.8
+  - 87.5
+  - 64.1
   - 3
   - 2.6
   height_m: 2.6
@@ -1174,8 +1174,8 @@ units:
   name_en: VMC 6 (parts)
   workstation: 立式加工中心 VMC-P
   layout:
-  - 91
-  - 62.8
+  - 92.5
+  - 64.1
   - 3
   - 2.6
   height_m: 2.6
@@ -1185,8 +1185,8 @@ units:
   name_en: Hardening & tempering furnace
   workstation: 调质炉 QT
   layout:
-  - 96
-  - 62.8
+  - 98.5
+  - 64.8
   - 5
   - 4
   height_m: 3.5
@@ -1197,8 +1197,8 @@ units:
   name_en: Continuous mesh-belt carburising line
   workstation: 渗碳淬火线 CAR
   layout:
-  - 103
-  - 62.8
+  - 111
+  - 64.3
   - 16
   - 3
   height_m: 3.5
@@ -1209,8 +1209,8 @@ units:
   name_en: Induction hardening machine
   workstation: 高频淬火机 IHD
   layout:
-  - 121
-  - 62.8
+  - 122.5
+  - 64.05
   - 3
   - 2.5
   height_m: 2.6
@@ -1220,8 +1220,8 @@ units:
   name_en: Straightening press
   workstation: 校直机 STR
   layout:
-  - 126
-  - 62.8
+  - 127.25
+  - 63.8
   - 2.5
   - 2
   height_m: 2.0
@@ -1231,8 +1231,8 @@ units:
   name_en: Cylindrical grinder 1
   workstation: 外圆磨床 GRD-C
   layout:
-  - 86
-  - 69.8
+  - 88
+  - 70.9
   - 4
   - 2.2
   height_m: 1.8
@@ -1242,8 +1242,8 @@ units:
   name_en: Cylindrical grinder 2
   workstation: 外圆磨床 GRD-C
   layout:
-  - 92
-  - 69.8
+  - 94
+  - 70.9
   - 4
   - 2.2
   height_m: 1.8
@@ -1253,8 +1253,8 @@ units:
   name_en: Cylindrical grinder 3
   workstation: 外圆磨床 GRD-C
   layout:
-  - 98
-  - 69.8
+  - 100
+  - 70.9
   - 4
   - 2.2
   height_m: 1.8
@@ -1264,8 +1264,8 @@ units:
   name_en: Cylindrical grinder 4
   workstation: 外圆磨床 GRD-C
   layout:
-  - 104
-  - 69.8
+  - 106
+  - 70.9
   - 4
   - 2.2
   height_m: 1.8
@@ -1275,8 +1275,8 @@ units:
   name_en: Centreless grinder
   workstation: 无心磨床 GRD-L
   layout:
-  - 110
-  - 69.8
+  - 111.75
+  - 70.9
   - 3.5
   - 2.2
   height_m: 1.8
@@ -1286,8 +1286,8 @@ units:
   name_en: Internal grinder
   workstation: 内圆磨床 GRD-I
   layout:
-  - 115.5
-  - 69.8
+  - 117.25
+  - 70.8
   - 3.5
   - 2
   height_m: 1.8
@@ -1297,8 +1297,8 @@ units:
   name_en: CNC cam grinder 1
   workstation: 数控凸轮磨床 GRD-K
   layout:
-  - 121.0
-  - 69.8
+  - 123
+  - 71
   - 4
   - 2.4
   height_m: 2.0
@@ -1308,8 +1308,8 @@ units:
   name_en: CNC cam grinder 2
   workstation: 数控凸轮磨床 GRD-K
   layout:
-  - 127.0
-  - 69.8
+  - 129
+  - 71
   - 4
   - 2.4
   height_m: 2.0
@@ -1319,8 +1319,8 @@ units:
   name_en: Hook raceway grinder 1
   workstation: 梭道磨床 GRD-H
   layout:
-  - 86
-  - 75.2
+  - 87.5
+  - 76.2
   - 3
   - 2
   height_m: 1.8
@@ -1330,8 +1330,8 @@ units:
   name_en: Hook raceway grinder 2
   workstation: 梭道磨床 GRD-H
   layout:
-  - 91
-  - 75.2
+  - 92.5
+  - 76.2
   - 3
   - 2
   height_m: 1.8
@@ -1341,8 +1341,8 @@ units:
   name_en: Hook point lapping 1
   workstation: 梭尖研磨机 LAP
   layout:
-  - 96
-  - 75.2
+  - 97
+  - 75.95
   - 2
   - 1.5
   height_m: 1.6
@@ -1352,8 +1352,8 @@ units:
   name_en: Hook point lapping 2
   workstation: 梭尖研磨机 LAP
   layout:
-  - 100
-  - 75.2
+  - 101
+  - 75.95
   - 2
   - 1.5
   height_m: 1.6
@@ -1363,8 +1363,8 @@ units:
   name_en: Parts washer
   workstation: 零件清洗机 WASH-P
   layout:
-  - 104
-  - 75.2
+  - 106
+  - 76.2
   - 4
   - 2
   height_m: 2.0
@@ -1375,8 +1375,8 @@ units:
   name_en: Parts inspection (gauges, runout tester)
   workstation: 零件检验站 QC-P
   layout:
-  - 110
-  - 75.2
+  - 112
+  - 76.7
   - 4
   - 3
   height_m: 1.5
@@ -1386,8 +1386,8 @@ units:
   name_en: 'Sub-assembly: upper shaft'
   workstation: 分装台 SUB-L
   layout:
-  - 166
-  - 26
+  - 167.25
+  - 26.75
   - 2.5
   - 1.5
   height_m: 1.0
@@ -1397,8 +1397,8 @@ units:
   name_en: 'Sub-assembly: lower shaft'
   workstation: 分装台 SUB-L
   layout:
-  - 170.5
-  - 26
+  - 171.75
+  - 26.75
   - 2.5
   - 1.5
   height_m: 1.0
@@ -1408,8 +1408,8 @@ units:
   name_en: 'Sub-assembly: feed mechanism'
   workstation: 分装台 SUB-L
   layout:
-  - 175.0
-  - 26
+  - 176.25
+  - 26.75
   - 2.5
   - 1.5
   height_m: 1.0
@@ -1419,8 +1419,8 @@ units:
   name_en: 'Sub-assembly: needle bar & take-up'
   workstation: 分装台 SUB-L
   layout:
-  - 179.5
-  - 26
+  - 180.75
+  - 26.75
   - 2.5
   - 1.5
   height_m: 1.0
@@ -1430,8 +1430,8 @@ units:
   name_en: 'Line LS A01: Head loading & serial scan'
   workstation: 平缝机总装线 ASM-L
   layout:
-  - 166
-  - 30.5
+  - 167.1
+  - 31.5
   - 2.2
   - 2.0
   height_m: 1.0
@@ -1441,8 +1441,8 @@ units:
   name_en: 'Line LS A02: Press bearings & bushings'
   workstation: 平缝机总装线 ASM-L
   layout:
-  - 170.2
-  - 30.5
+  - 171.3
+  - 31.5
   - 2.2
   - 2.0
   height_m: 1.0
@@ -1452,8 +1452,8 @@ units:
   name_en: 'Line LS A03: Fit upper shaft'
   workstation: 平缝机总装线 ASM-L
   layout:
-  - 174.4
-  - 30.5
+  - 175.5
+  - 31.5
   - 2.2
   - 2.0
   height_m: 1.0
@@ -1463,8 +1463,8 @@ units:
   name_en: 'Line LS A04: Fit lower shaft & belt'
   workstation: 平缝机总装线 ASM-L
   layout:
-  - 178.6
-  - 30.5
+  - 179.7
+  - 31.5
   - 2.2
   - 2.0
   height_m: 1.0
@@ -1474,8 +1474,8 @@ units:
   name_en: 'Line LS A05: Fit feed mechanism'
   workstation: 平缝机总装线 ASM-L
   layout:
-  - 182.8
-  - 30.5
+  - 183.9
+  - 31.5
   - 2.2
   - 2.0
   height_m: 1.0
@@ -1485,8 +1485,8 @@ units:
   name_en: 'Line LS A06: Fit stitch regulator'
   workstation: 平缝机总装线 ASM-L
   layout:
-  - 187.0
-  - 30.5
+  - 188.1
+  - 31.5
   - 2.2
   - 2.0
   height_m: 1.0
@@ -1496,8 +1496,8 @@ units:
   name_en: 'Line LS A07: Fit needle bar, take-up, presser'
   workstation: 平缝机总装线 ASM-L
   layout:
-  - 191.2
-  - 30.5
+  - 192.3
+  - 31.5
   - 2.2
   - 2.0
   height_m: 1.0
@@ -1507,8 +1507,8 @@ units:
   name_en: 'Line LS A08: Fit rotary hook'
   workstation: 平缝机总装线 ASM-L
   layout:
-  - 195.4
-  - 30.5
+  - 196.5
+  - 31.5
   - 2.2
   - 2.0
   height_m: 1.0
@@ -1518,8 +1518,8 @@ units:
   name_en: 'Line LS A09: Fit oil pump & covers'
   workstation: 平缝机总装线 ASM-L
   layout:
-  - 199.6
-  - 30.5
+  - 200.7
+  - 31.5
   - 2.2
   - 2.0
   height_m: 1.0
@@ -1529,8 +1529,8 @@ units:
   name_en: 'Line LS A10: Fit motor & wiring'
   workstation: 平缝机总装线 ASM-L
   layout:
-  - 203.8
-  - 30.5
+  - 204.9
+  - 31.5
   - 2.2
   - 2.0
   height_m: 1.0
@@ -1540,8 +1540,8 @@ units:
   name_en: 'Line LS A11: Power-on check'
   workstation: 平缝机总装线 ASM-L
   layout:
-  - 208.0
-  - 30.5
+  - 209.1
+  - 31.5
   - 2.2
   - 2.0
   height_m: 1.0
@@ -1551,8 +1551,8 @@ units:
   name_en: 'Line LS A12: Unload'
   workstation: 平缝机总装线 ASM-L
   layout:
-  - 212.2
-  - 30.5
+  - 213.3
+  - 31.5
   - 2.2
   - 2.0
   height_m: 1.0
@@ -1562,8 +1562,8 @@ units:
   name_en: LS adjustment station 1
   workstation: 调试工位 ADJ-L
   layout:
-  - 166
-  - 35.5
+  - 167
+  - 36.3
   - 2
   - 1.6
   height_m: 1.0
@@ -1573,8 +1573,8 @@ units:
   name_en: LS adjustment station 2
   workstation: 调试工位 ADJ-L
   layout:
-  - 170
-  - 35.5
+  - 171
+  - 36.3
   - 2
   - 1.6
   height_m: 1.0
@@ -1584,8 +1584,8 @@ units:
   name_en: LS adjustment station 3
   workstation: 调试工位 ADJ-L
   layout:
-  - 174
-  - 35.5
+  - 175
+  - 36.3
   - 2
   - 1.6
   height_m: 1.0
@@ -1595,8 +1595,8 @@ units:
   name_en: LS adjustment station 4
   workstation: 调试工位 ADJ-L
   layout:
-  - 178
-  - 35.5
+  - 179
+  - 36.3
   - 2
   - 1.6
   height_m: 1.0
@@ -1606,8 +1606,8 @@ units:
   name_en: LS adjustment station 5
   workstation: 调试工位 ADJ-L
   layout:
-  - 182
-  - 35.5
+  - 183
+  - 36.3
   - 2
   - 1.6
   height_m: 1.0
@@ -1617,8 +1617,8 @@ units:
   name_en: LS end-of-line tester 1
   workstation: 出厂测试台 EOL-L
   layout:
-  - 186
-  - 35.5
+  - 187.25
+  - 36.3
   - 2.5
   - 1.6
   height_m: 1.2
@@ -1628,8 +1628,8 @@ units:
   name_en: LS end-of-line tester 2
   workstation: 出厂测试台 EOL-L
   layout:
-  - 190.5
-  - 35.5
+  - 191.75
+  - 36.3
   - 2.5
   - 1.6
   height_m: 1.2
@@ -1639,8 +1639,8 @@ units:
   name_en: LS end-of-line tester 3
   workstation: 出厂测试台 EOL-L
   layout:
-  - 195.0
-  - 35.5
+  - 196.25
+  - 36.3
   - 2.5
   - 1.6
   height_m: 1.2
@@ -1650,8 +1650,8 @@ units:
   name_en: LS cleaning & packing
   workstation: 包装台 PK-L
   layout:
-  - 199.5
-  - 35.5
+  - 201
+  - 36.5
   - 3
   - 2
   height_m: 1.0
@@ -1661,8 +1661,8 @@ units:
   name_en: LS run-in stand 1
   workstation: 跑合台 RUN-L
   layout:
-  - 166
-  - 40.5
+  - 166.7
+  - 41.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -1672,8 +1672,8 @@ units:
   name_en: LS run-in stand 2
   workstation: 跑合台 RUN-L
   layout:
-  - 169.4
-  - 40.5
+  - 170.1
+  - 41.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -1683,8 +1683,8 @@ units:
   name_en: LS run-in stand 3
   workstation: 跑合台 RUN-L
   layout:
-  - 172.8
-  - 40.5
+  - 173.5
+  - 41.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -1694,8 +1694,8 @@ units:
   name_en: LS run-in stand 4
   workstation: 跑合台 RUN-L
   layout:
-  - 176.2
-  - 40.5
+  - 176.9
+  - 41.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -1705,8 +1705,8 @@ units:
   name_en: LS run-in stand 5
   workstation: 跑合台 RUN-L
   layout:
-  - 179.6
-  - 40.5
+  - 180.3
+  - 41.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -1716,8 +1716,8 @@ units:
   name_en: LS run-in stand 6
   workstation: 跑合台 RUN-L
   layout:
-  - 183.0
-  - 40.5
+  - 183.7
+  - 41.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -1727,8 +1727,8 @@ units:
   name_en: LS run-in stand 7
   workstation: 跑合台 RUN-L
   layout:
-  - 186.4
-  - 40.5
+  - 187.1
+  - 41.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -1738,8 +1738,8 @@ units:
   name_en: LS run-in stand 8
   workstation: 跑合台 RUN-L
   layout:
-  - 189.8
-  - 40.5
+  - 190.5
+  - 41.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -1749,8 +1749,8 @@ units:
   name_en: LS run-in stand 9
   workstation: 跑合台 RUN-L
   layout:
-  - 193.2
-  - 40.5
+  - 193.9
+  - 41.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -1760,8 +1760,8 @@ units:
   name_en: LS run-in stand 10
   workstation: 跑合台 RUN-L
   layout:
-  - 196.6
-  - 40.5
+  - 197.3
+  - 41.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -1771,8 +1771,8 @@ units:
   name_en: LS run-in stand 11
   workstation: 跑合台 RUN-L
   layout:
-  - 200.0
-  - 40.5
+  - 200.7
+  - 41.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -1782,8 +1782,8 @@ units:
   name_en: LS run-in stand 12
   workstation: 跑合台 RUN-L
   layout:
-  - 203.4
-  - 40.5
+  - 204.1
+  - 41.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -1793,8 +1793,8 @@ units:
   name_en: LS run-in stand 13
   workstation: 跑合台 RUN-L
   layout:
-  - 206.8
-  - 40.5
+  - 207.5
+  - 41.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -1804,8 +1804,8 @@ units:
   name_en: LS run-in stand 14
   workstation: 跑合台 RUN-L
   layout:
-  - 210.2
-  - 40.5
+  - 210.9
+  - 41.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -1815,8 +1815,8 @@ units:
   name_en: LS run-in stand 15
   workstation: 跑合台 RUN-L
   layout:
-  - 213.6
-  - 40.5
+  - 214.3
+  - 41.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -1826,8 +1826,8 @@ units:
   name_en: 'Sub-assembly: main shaft'
   workstation: 分装台 SUB-O
   layout:
-  - 166
-  - 66
+  - 167.25
+  - 66.75
   - 2.5
   - 1.5
   height_m: 1.0
@@ -1837,8 +1837,8 @@ units:
   name_en: 'Sub-assembly: looper drive'
   workstation: 分装台 SUB-O
   layout:
-  - 170.5
-  - 66
+  - 171.75
+  - 66.75
   - 2.5
   - 1.5
   height_m: 1.0
@@ -1848,8 +1848,8 @@ units:
   name_en: 'Line OL B01: Housing loading, oil pump'
   workstation: 包缝机总装线 ASM-O
   layout:
-  - 166
-  - 70.5
+  - 167.2
+  - 71.5
   - 2.4
   - 2.0
   height_m: 1.0
@@ -1859,8 +1859,8 @@ units:
   name_en: 'Line OL B02: Fit main shaft'
   workstation: 包缝机总装线 ASM-O
   layout:
-  - 170.4
-  - 70.5
+  - 171.6
+  - 71.5
   - 2.4
   - 2.0
   height_m: 1.0
@@ -1870,8 +1870,8 @@ units:
   name_en: 'Line OL B03: Fit loopers'
   workstation: 包缝机总装线 ASM-O
   layout:
-  - 174.8
-  - 70.5
+  - 176
+  - 71.5
   - 2.4
   - 2.0
   height_m: 1.0
@@ -1881,8 +1881,8 @@ units:
   name_en: 'Line OL B04: Fit needle bar & presser'
   workstation: 包缝机总装线 ASM-O
   layout:
-  - 179.2
-  - 70.5
+  - 180.4
+  - 71.5
   - 2.4
   - 2.0
   height_m: 1.0
@@ -1892,8 +1892,8 @@ units:
   name_en: 'Line OL B05: Fit feed, differential, knives'
   workstation: 包缝机总装线 ASM-O
   layout:
-  - 183.6
-  - 70.5
+  - 184.8
+  - 71.5
   - 2.4
   - 2.0
   height_m: 1.0
@@ -1903,8 +1903,8 @@ units:
   name_en: 'Line OL B06: Fit oil sump, motor, covers'
   workstation: 包缝机总装线 ASM-O
   layout:
-  - 188.0
-  - 70.5
+  - 189.2
+  - 71.5
   - 2.4
   - 2.0
   height_m: 1.0
@@ -1914,8 +1914,8 @@ units:
   name_en: OL adjustment station 1
   workstation: 调试工位 ADJ-O
   layout:
-  - 166
-  - 75.5
+  - 167
+  - 76.3
   - 2
   - 1.6
   height_m: 1.0
@@ -1925,8 +1925,8 @@ units:
   name_en: OL adjustment station 2
   workstation: 调试工位 ADJ-O
   layout:
-  - 170
-  - 75.5
+  - 171
+  - 76.3
   - 2
   - 1.6
   height_m: 1.0
@@ -1936,8 +1936,8 @@ units:
   name_en: OL adjustment station 3
   workstation: 调试工位 ADJ-O
   layout:
-  - 174
-  - 75.5
+  - 175
+  - 76.3
   - 2
   - 1.6
   height_m: 1.0
@@ -1947,8 +1947,8 @@ units:
   name_en: OL end-of-line tester
   workstation: 出厂测试台 EOL-O
   layout:
-  - 178
-  - 75.5
+  - 179.25
+  - 76.3
   - 2.5
   - 1.6
   height_m: 1.2
@@ -1958,8 +1958,8 @@ units:
   name_en: OL packing
   workstation: 包装台 PK-O
   layout:
-  - 182.5
-  - 75.5
+  - 184
+  - 76.5
   - 3
   - 2
   height_m: 1.0
@@ -1969,8 +1969,8 @@ units:
   name_en: OL run-in stand 1
   workstation: 跑合台 RUN-O
   layout:
-  - 166
-  - 80.5
+  - 166.7
+  - 81.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -1980,8 +1980,8 @@ units:
   name_en: OL run-in stand 2
   workstation: 跑合台 RUN-O
   layout:
-  - 169.4
-  - 80.5
+  - 170.1
+  - 81.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -1991,8 +1991,8 @@ units:
   name_en: OL run-in stand 3
   workstation: 跑合台 RUN-O
   layout:
-  - 172.8
-  - 80.5
+  - 173.5
+  - 81.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -2002,8 +2002,8 @@ units:
   name_en: OL run-in stand 4
   workstation: 跑合台 RUN-O
   layout:
-  - 176.2
-  - 80.5
+  - 176.9
+  - 81.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -2013,8 +2013,8 @@ units:
   name_en: OL run-in stand 5
   workstation: 跑合台 RUN-O
   layout:
-  - 179.6
-  - 80.5
+  - 180.3
+  - 81.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -2024,8 +2024,8 @@ units:
   name_en: OL run-in stand 6
   workstation: 跑合台 RUN-O
   layout:
-  - 183.0
-  - 80.5
+  - 183.7
+  - 81.1
   - 1.4
   - 1.2
   height_m: 1.2
@@ -2055,8 +2055,8 @@ units:
   name: 原材料库（炉料、型砂、钢材、油漆）
   name_en: Raw materials store
   layout:
-  - 4
-  - 58
+  - 14
+  - 64
   - 20
   - 12
   height_m: 4
@@ -2065,8 +2065,8 @@ units:
   name: 铸件库
   name_en: Castings store
   layout:
-  - 30
-  - 58
+  - 38
+  - 63
   - 16
   - 10
   height_m: 3
@@ -2075,8 +2075,8 @@ units:
   name: 半成品库（机壳、零件）
   name_en: WIP store (housings, parts)
   layout:
-  - 52
-  - 58
+  - 62
+  - 63
   - 20
   - 10
   height_m: 4
@@ -2085,8 +2085,8 @@ units:
   name: 外购件库（电机、电控、轴承、机针）
   name_en: Bought-out parts store
   layout:
-  - 4
-  - 76
+  - 14
+  - 81
   - 20
   - 10
   height_m: 4
@@ -2095,8 +2095,8 @@ units:
   name: 成品库
   name_en: Finished-goods store
   layout:
-  - 30
-  - 76
+  - 45
+  - 82
   - 30
   - 12
   height_m: 4
@@ -2846,6 +2846,7 @@ floor:
   - 104
   cross_x: 83
 # 车间分区（第 171 轮，3D 车间分车间、参观用；和白板图一致）：rect = [x0, y0, x1, y1]（米），设备平面位置的中心落在哪个框里就属于哪个车间
+# （第 171b 轮：设备 layout 原来按左上角写，平台按中心用，整体改成中心 = 原角点 + 宽/2、深/2）
 zones:
 - {id: foundry, name: ① 机壳铸造车间, name_en: Housing foundry, rect: [4, 4, 80, 50]}
 - {id: housing, name: ② 机壳加工车间, name_en: Housing machining, rect: [86, 4, 160, 50]}
