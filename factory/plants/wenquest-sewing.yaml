@@ -2845,6 +2845,15 @@ floor:
   - 54
   - 104
   cross_x: 83
+# 车间分区（第 171 轮，3D 车间分车间、参观用；和白板图一致）：rect = [x0, y0, x1, y1]（米），设备平面位置的中心落在哪个框里就属于哪个车间
+zones:
+- {id: foundry, name: ① 机壳铸造车间, name_en: Housing foundry, rect: [4, 4, 80, 50]}
+- {id: housing, name: ② 机壳加工车间, name_en: Housing machining, rect: [86, 4, 160, 50]}
+- {id: parts, name: ③ 关键零件加工车间, name_en: Key parts machining, rect: [86, 58, 160, 106]}
+- {id: ls, name: ④ 平缝机装配车间, name_en: Lockstitch assembly, rect: [166, 26, 226, 60]}
+- {id: ol, name: ⑤ 包缝机装配车间, name_en: Overlock assembly, rect: [166, 66, 226, 100]}
+- {id: metro, name: 计量室, name_en: Metrology room, rect: [166, 4, 226, 20]}
+- {id: store, name: 库房, name_en: Stores, rect: [4, 58, 72, 90]}
 shift:
   periods:
   - - 06:00:00
