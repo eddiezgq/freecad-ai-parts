@@ -1,0 +1,45 @@
+{
+ "why": "谐响应必须给阻尼比，不设缺省值",
+ "instance": {
+  "format": "fea-study/1",
+  "name": "cantilever",
+  "bodies": [
+   {
+    "id": "b1",
+    "step_path": "box.step",
+    "material": "45-QT"
+   }
+  ],
+  "supports": [
+   {
+    "type": "fixed",
+    "body": "b1",
+    "faces": [
+     1
+    ]
+   }
+  ],
+  "loads": [
+   {
+    "type": "force",
+    "body": "b1",
+    "faces": [
+     2
+    ],
+    "vector_n": [
+     0,
+     0,
+     -100
+    ]
+   }
+  ],
+  "steps": [
+   {
+    "id": "h",
+    "type": "harmonic",
+    "f_min_hz": 10,
+    "f_max_hz": 100
+   }
+  ]
+ }
+}
