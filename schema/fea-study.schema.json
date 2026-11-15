@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/fea-study.schema.json",
   "title": "有限元算例",
-  "description": "有限元模块（ADR-0093）的一个算例：几何、材料分配、支承与载荷、分析步、网格控制、可信度核查。单位只用 mm、N、MPa、N·m、kg/m³（字段名带单位后缀）。F1：单个实体、固定与圆柱支承、面力、压力、扭矩、力矩，静力与模态。F2（ADR-0093 补充二）加：强制位移（面或边）、对称面、弹性支承、重力、离心、远端载荷、轴承载荷、均匀温度变化、结果探针。后续各段扩充时另写 ADR 补充并单独改本文件。",
+  "description": "有限元模块（ADR-0093）的一个算例：几何、材料分配、支承与载荷、分析步、网格控制、可信度核查。单位只用 mm、N、MPa、N·m、kg/m³（字段名带单位后缀）。F1：单个实体、固定与圆柱支承、面力、压力、扭矩、力矩，静力与模态。F2（ADR-0093 补充二）加：强制位移（面或边）、对称面、弹性支承、重力、离心、远端载荷、轴承载荷、均匀温度变化、结果探针。F3（ADR-0093 补充四）加：多个实体（各自的材料）、连接（绑定、接触、螺栓预紧）。后续各段扩充时另写 ADR 补充并单独改本文件。",
   "type": "object",
   "properties": {
     "format": {
@@ -16,8 +16,8 @@
     "bodies": {
       "type": "array",
       "minItems": 1,
-      "maxItems": 1,
-      "description": "参与计算的实体。F1 只支持一个；多体与连接在 F3 扩充",
+      "maxItems": 20,
+      "description": "参与计算的实体（零件）。各自一个 STEP、各自的材料；面编号是各自 STEP 里的编号",
       "items": {
         "type": "object",
         "properties": {
@@ -217,6 +217,24 @@
           "point_mm"
         ],
         "additionalProperties": false
+      }
+    },
+    "connections": {
+      "type": "array",
+      "maxItems": 100,
+      "description": "实体之间的连接（F3）",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/bonded"
+          },
+          {
+            "$ref": "#/$defs/contact"
+          },
+          {
+            "$ref": "#/$defs/bolt_preload"
+          }
+        ]
       }
     }
   },
@@ -719,6 +737,113 @@
         "type",
         "body",
         "delta_t_k"
+      ],
+      "additionalProperties": false
+    },
+    "side": {
+      "type": "object",
+      "properties": {
+        "body": {
+          "$ref": "#/$defs/id"
+        },
+        "faces": {
+          "$ref": "#/$defs/face_list"
+        }
+      },
+      "required": [
+        "body",
+        "faces"
+      ],
+      "additionalProperties": false
+    },
+    "bonded": {
+      "type": "object",
+      "description": "绑定（两组面粘在一起，网格可不一致）：a 为从面（网格宜较密的一侧），b 为主面",
+      "properties": {
+        "type": {
+          "const": "bonded"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "a": {
+          "$ref": "#/$defs/side"
+        },
+        "b": {
+          "$ref": "#/$defs/side"
+        },
+        "tolerance_mm": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "两组面之间允许的间隙，缺省为单元尺寸的 1/10"
+        }
+      },
+      "required": [
+        "type",
+        "a",
+        "b"
+      ],
+      "additionalProperties": false
+    },
+    "contact": {
+      "type": "object",
+      "description": "接触（面对面，非线性）：只传压力和摩擦力，可分开。friction_coefficient 缺省 0（无摩擦）",
+      "properties": {
+        "type": {
+          "const": "contact"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "a": {
+          "$ref": "#/$defs/side"
+        },
+        "b": {
+          "$ref": "#/$defs/side"
+        },
+        "friction_coefficient": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2
+        }
+      },
+      "required": [
+        "type",
+        "a",
+        "b"
+      ],
+      "additionalProperties": false
+    },
+    "bolt_preload": {
+      "type": "object",
+      "description": "螺栓预紧：在实体 body 上、过 point_mm 垂直于 axis 的截面处施加预紧力 force_n（拉为正）。先单独算预紧，再锁住截面加其余载荷",
+      "properties": {
+        "type": {
+          "const": "bolt_preload"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "body": {
+          "$ref": "#/$defs/id"
+        },
+        "point_mm": {
+          "$ref": "#/$defs/vec3"
+        },
+        "axis_dir": {
+          "$ref": "#/$defs/vec3"
+        },
+        "force_n": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "type",
+        "body",
+        "point_mm",
+        "axis_dir",
+        "force_n"
       ],
       "additionalProperties": false
     }
