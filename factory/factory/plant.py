@@ -148,6 +148,17 @@ def validate(p):
                 need(0 <= lay[0] <= f["length_m"] and 0 <= lay[1] <= f["width_m"], "units[{}].layout".format(i),
                      "位置在车间外（车间 {} × {} 米）".format(f["length_m"], f["width_m"]))
 
+    zs = p.get("zones")                 # 第 171 轮：车间分区（可不写；不写时 3D 车间按设备区域自动分）
+    if zs is not None:
+        if need(isinstance(zs, list) and all(isinstance(z, dict) for z in zs), "zones", "车间分区：[{id, name, rect: [x0, y0, x1, y1]}, …]"):
+            ids = [z.get("id") for z in zs]
+            need(len(set(ids)) == len(ids) and all(ids), "zones", "车间分区的 id 要有、且不重复")
+            for i, z in enumerate(zs):
+                r = z.get("rect")
+                need(bool(z.get("name")), "zones[{}].name".format(i), "车间名")
+                need(isinstance(r, list) and len(r) == 4 and all(_num(x) for x in r) and r[0] < r[2] and r[1] < r[3],
+                     "zones[{}].rect".format(i), "车间范围 [x0, y0, x1, y1]（米），x0 < x1、y0 < y1")
+
     s = p.get("shift") or {}
     per = s.get("periods")
     need(isinstance(per, list) and per and all(isinstance(x, list) and len(x) == 2 for x in per), "shift.periods",
@@ -438,6 +449,7 @@ def derive(p):
         "MACHINES": tuple(p.get("dashboard") or [u["id"] for u in units if u["area"] in ("machining", "quality")]),
         "PLC_UNITS": {u["id"]: u["plc"] for u in units if u.get("plc")},
         "LAYOUT": {u["id"]: tuple(u["layout"]) for u in units if u.get("layout")},
+        "ZONES": [dict(z) for z in p.get("zones") or []],          # 第 171 轮：车间分区
         "HEIGHT": {u["id"]: u["height_m"] for u in units if u.get("height_m") is not None},
         "AGV_HOME": {u["id"]: tuple(u["home"]) for u in units if u.get("home")},
         "DOCK": {u["id"]: tuple(u["dock"]) for u in units if u.get("dock")},

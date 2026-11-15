@@ -862,6 +862,19 @@ def get_layout():
             "agv_home": L.AGV_HOME, "aisles": L.AISLES, "cross_x": L.CROSS_X}
 
 
+_PLANTMAP = None
+
+
+@app.get("/api/plantmap")
+def get_plantmap(u=Depends(user_of)):
+    """第 171 轮：3D 车间的车间分区、每台设备做的工序、工艺路线、物料清单、测量特性、抽检（工艺卡 / 工序卡 / 检验规程）；清单不变，算一次留着"""
+    global _PLANTMAP
+    if _PLANTMAP is None:
+        from hub import plantmap
+        _PLANTMAP = plantmap.build()
+    return _PLANTMAP
+
+
 # ---------------------------------------------------------------- 看板
 @app.get("/api/overview")
 def get_overview(request: Request, u=Depends(user_of)):

@@ -149,10 +149,14 @@ MS_COLS = [("代号", "key", "str", "英文小写，如 deposit"), ("名称", "n
 PRODUCT_SHEETS = (("物料", ITEM_COLS), ("工艺路线", ROUTE_COLS), ("物料清单", BOM_COLS), ("成品", PROD_COLS),
                   ("库存", STOCK_COLS), ("测量特性", MEAS_COLS), ("计量室抽检", SAMPLE_COLS), ("来料检验", INC_COLS))
 
-GROUP = {"cost": "费率", "power": "主电机功率 / 传动效率", "layout": "x / y / 宽 / 深", "dock": "上下料点 x / y",
+GROUP = {"cost": "费率", "power": "主电机功率 / 传动效率", "layout": "x / y / 宽 / 深", "rect": "x0 / y0 / x1 / y1", "dock": "上下料点 x / y",
          "home": "停靠点 x / y", "spindle": "主轴转速 / 进给"}
+ZONE_COLS = [("编号", "id", "str", "英文小写，如 foundry"), ("车间名", "name", "str", "如 ① 机壳铸造车间"), ("英文名", "name_en", "str", "可空"),
+             ("x0（米）", "rect.0", "num", "车间范围：左下角 x"), ("y0（米）", "rect.1", "num", ""), ("x1（米）", "rect.2", "num", "右上角 x"),
+             ("y1（米）", "rect.3", "num", "")]
 LIST_SHEETS = (("工作站", "workstations", WS_COLS), ("设备", "units", UNIT_COLS), ("工序", "operations", OP_COLS),
-               ("供应商", "suppliers", SUP_COLS), ("客户", "customers", CUS_COLS))
+               ("供应商", "suppliers", SUP_COLS), ("客户", "customers", CUS_COLS),
+               ("车间分区", "zones", ZONE_COLS))          # 第 171 轮：3D 车间分车间（可空）
 FIELD_SHEET = {"workstations": "工作站", "units": "设备", "operations": "工序"}
 
 
@@ -572,7 +576,7 @@ def _list_sheet(ws, sheet, key, cols, errs):
             val = _parse(kind, row[ci] if ci < len(row) else None, cell)
             if val is not None:
                 _put(d, k, val)
-        _pack(d, {"cost": 3, "power": 2, "layout": 4, "dock": 2, "home": 2, "spindle": 2},
+        _pack(d, {"cost": 3, "power": 2, "layout": 4, "dock": 2, "home": 2, "spindle": 2, "rect": 4},
               lambda k, r=r: _Cell(errs, sheet, r, GROUP.get(k, k)))
         items.append(d)
         rownum.append(r)
@@ -622,6 +626,9 @@ def read_workbook(path):
         elif key == "customers":
             if items:
                 p["customers"] = [it["_name"] for it in items if it.get("_name")]
+        elif key == "zones":
+            if items:
+                p["zones"] = items
         else:
             if key == "operations":
                 for o in items:
