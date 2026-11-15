@@ -11,6 +11,8 @@ import itertools
 import math
 import time
 
+import numpy as np
+
 from analysis.common import materials
 from analysis.fea import trust
 
@@ -53,8 +55,34 @@ def validate(study: dict) -> None:
             raise StudyInvalid("线性屈曲不能带接触或螺栓预紧（连接要是固定的）")
         if not study.get("loads"):
             raise StudyInvalid("线性屈曲要有参考载荷")
-    if len(ids) > 1 and any(s["type"] == "modal" for s in study["steps"]):
-        raise StudyInvalid("多个实体的模态分析还没有（ADR-0093 F5）")
+    dyn = [s for s in study["steps"] if s["type"] in ("modal", "harmonic", "random", "transient")]
+    if dyn:
+        if any(b.get("plasticity") for b in study["bodies"]):
+            raise StudyInvalid("模态与动力学只用于线性模型：不能用弹塑性材料")
+        if any(c["type"] in ("contact", "bolt_preload") for c in study.get("connections") or []):
+            raise StudyInvalid("模态与动力学只用于线性模型：连接只能是绑定（不能带接触、螺栓预紧）")
+    for s in dyn:
+        if s["type"] in ("harmonic", "random", "transient"):
+            if any(x["type"] == "temperature" for x in study.get("loads", [])):
+                raise StudyInvalid("动力学的分析步不能带温度载荷")
+            if moved_any(study):
+                raise StudyInvalid("动力学的分析步不能带非零的强制位移")
+        if s["type"] == "harmonic" and s["f_max_hz"] <= s["f_min_hz"]:
+            raise StudyInvalid("谐响应的上限频率要大于下限频率")
+        if s["type"] in ("harmonic", "transient") and not study.get("loads"):
+            raise StudyInvalid("谐响应、瞬态要有载荷（载荷值为幅值）")
+        if s["type"] == "random":
+            fs = [p["frequency_hz"] for p in s["asd"]]
+            if any(b <= a for a, b in itertools.pairwise(fs)):
+                raise StudyInvalid("功率谱的频率要递增")
+            if not any(s["direction"]):
+                raise StudyInvalid("随机振动的激励方向不能是零向量")
+        if s["type"] == "transient":
+            ts = [p["time_s"] for p in s["amplitude"]]
+            if any(b <= a for a, b in itertools.pairwise(ts)):
+                raise StudyInvalid("载荷随时间的变化：时间要递增")
+            if s["end_time_s"] / s["time_step_s"] > 20000:
+                raise StudyInvalid("瞬态的输出点超过 20000 个：把输出间隔调大")
     pv = study.get("provenance")
     if pv and pv["drafted_by"] == "ai" and not pv["confirmed_by_human"]:
         raise StudyInvalid("这个算例是 AI 起草的，还没有人确认，不计算")
@@ -62,6 +90,10 @@ def validate(study: dict) -> None:
     bolts = any(c["type"] in ("bolt_preload", "contact") for c in study.get("connections") or [])   # 预紧、过盈本身就是载荷
     if not study.get("loads") and not moved and not bolts and any(s["type"] == "static" for s in study["steps"]):
         raise StudyInvalid("静力分析还没有加载荷")
+
+
+def moved_any(study: dict) -> bool:
+    return any(x["type"] == "displacement" and any(x.get(k) for k in ("ux_mm", "uy_mm", "uz_mm")) for x in study["supports"])
 
 
 def _axis(a: dict) -> dict:
@@ -258,9 +290,92 @@ def run_buckling(inner: dict, ccx: str, n_modes: int) -> tuple[dict, dict]:
     return stats, {"verdict": trust.verdict(items), "items": items}
 
 
+def _modal(inner: dict, ccx: str, n: int, prestress: bool, cache: dict) -> dict:
+    from analysis.fea import solve
+
+    key = (n, prestress)
+    if key not in cache:
+        cache[key] = solve.solve_bodies(inner["bodies"], dict(inner, frequency=n, prestress=prestress), ccx)[0]
+    return cache[key]
+
+
+def run_modal(inner: dict, ccx: str, st: dict, cache: dict) -> tuple[dict, dict]:
+    """预应力模态、多个实体的模态（ADR-0093 F5）"""
+    n = int(st.get("n_modes", 6))
+    m = _modal(inner, ccx, n, bool(st.get("prestress")), cache)
+    out = {"analysis": "modal", "nodes": m["nodes"], "elements": m["elements"], "prestress": m["prestress"],
+           "freqs": [{"mode": i + 1, "hz": round(float(hz), 4), "rpm": round(float(hz) * 60, 0)} for i, hz in enumerate(m["freqs_hz"][:n])],
+           "rigid_modes": m["rigid_modes"]}
+    if m.get("eff_mass") is not None and m.get("total_mass") is not None:
+        out["effective_mass_fraction"] = {k: round(float(m["eff_mass"][:n, i].sum() / m["total_mass"][i]), 6)
+                                          for i, k in enumerate("xyz") if m["total_mass"][i] > 0}
+    sf = m["surface"]                                      # 表面上画第一阶振型（最大为 1），同旧的模态输出
+    rows = np.searchsorted(m["node_ids"], sf["nodes"])
+    U = m["phi"][rows, :, 0]
+    U = U / max(float(np.linalg.norm(U, axis=1).max()), 1e-12)
+    surface = {"positions": np.round(sf["positions"], 4), "triangles": sf["triangles"], "u": np.round(U, 6),
+               "vm": np.round(np.linalg.norm(U, axis=1), 6)}
+    return out, surface
+
+
+def run_dynamic(inner: dict, ccx: str, st: dict, cache: dict) -> tuple[dict, dict]:
+    """谐响应、随机振动、瞬态（模态叠加）+ 核查：网格质量、模态截断、频率范围"""
+    from analysis.fea import dynamics, solve
+
+    n = int(st.get("n_modes", 30))
+    m = _modal(inner, ccx, n, False, cache)
+    z = float(st["damping_ratio"])
+    probes = inner.get("probes") or []
+    items = [trust.mesh_quality(m["mesh_quality"])]
+    fmax = None
+    if st["type"] == "harmonic":
+        res = dynamics.harmonic(m, float(st["f_min_hz"]), float(st["f_max_hz"]), int(st.get("n_points", 200)), z, probes)
+        fmax = float(st["f_max_hz"])
+    elif st["type"] == "random":
+        asd = [(float(p["frequency_hz"]), float(p["asd_m2_s4_per_hz"]) * 1e6) for p in st["asd"]]   # (m/s²)²/Hz → (mm/s²)²/Hz
+        res = dynamics.random_vibration(m, st["direction"], asd, z, probes)
+        fmax = asd[-1][0]
+        fr = res["effective_mass_fraction"]
+        if fr is None:
+            items.append(trust.item("模态截断", trust.UNKNOWN, "没有读到有效质量"))
+        else:
+            ok = fr >= 0.9
+            items.append(trust.item("模态截断", trust.PASS if ok else trust.UNKNOWN,
+                                    f"所取 {len(m['freqs_hz'])} 阶在激励方向的有效质量占 {fr:.1%}" + ("" if ok else "，不到 90 %：加阶数"),
+                                    effective_mass_fraction=fr))
+    else:
+        amp = [(float(p["time_s"]), float(p["factor"])) for p in st["amplitude"]]
+        res = dynamics.transient(m, amp, float(st["end_time_s"]), float(st["time_step_s"]), z, probes)
+    if st["type"] in ("harmonic", "transient"):                    # 0 Hz 时的模态叠加 vs 真正的静力解
+        if "static" not in cache:
+            cache["static"] = solve.solve_bodies(inner["bodies"], inner, ccx)[0]
+        us = float(cache["static"]["u_max_mm"])
+        um = float(np.linalg.norm(dynamics.static_from_modes(m), axis=1).max())
+        err = abs(um - us) / max(us, 1e-30)
+        ok = err <= 0.05
+        items.append(trust.item("模态截断", trust.PASS if ok else trust.UNKNOWN,
+                                f"0 Hz 时模态叠加的最大位移与静力解差 {err:.1%}" + ("" if ok else "，超过 5 %：加阶数"),
+                                static_u_max_mm=us, modal_u_max_mm=um, error_ratio=err))
+    if fmax is not None:
+        top = float(m["freqs_hz"][-1])
+        ok = top >= 1.5 * fmax
+        items.append(trust.item("频率范围", trust.PASS if ok else trust.UNKNOWN,
+                                f"所取最高一阶 {top:.4g} Hz，分析上限 {fmax:.4g} Hz" + ("" if ok else "：不到 1.5 倍，加阶数"),
+                                highest_mode_hz=top, f_max_hz=fmax))
+    res.update({"nodes": m["nodes"], "elements": m["elements"], "n_modes_used": len(m["freqs_hz"]),
+                "mode_freqs_hz": [round(float(x), 4) for x in m["freqs_hz"]], "damping_ratio": z})
+    return res, {"verdict": trust.verdict(items), "items": items}
+
+
 def run(study: dict, ccx: str) -> tuple[dict, list[str]]:
     """按算例计算。返回 (data, 局限说明)。抛 StudyInvalid / ValueError / RuntimeError / materials.MissingData"""
-    from analysis.fea import LIMITS_BUCKLING, LIMITS_MODAL, LIMITS_STATIC, _lists, modal
+    from analysis.fea import (
+        LIMITS_BUCKLING,
+        LIMITS_DYNAMIC,
+        LIMITS_MODAL,
+        LIMITS_STATIC,
+        _lists,
+    )
 
     validate(study)
     body = study["bodies"][0]
@@ -270,10 +385,19 @@ def run(study: dict, ccx: str) -> tuple[dict, list[str]]:
         materials.require(mats[b["id"]], ["elastic_modulus_mpa", "poisson_ratio", "density_kg_m3"], "有限元")
     inner = _inner(study, mats)
     checks = study.get("checks") or {}
-    steps, limits, verdicts = [], [], []
+    steps, limits, verdicts, cache = [], [], [], {}
     for st in study["steps"]:
         t0 = time.time()
-        if st["type"] == "buckling":
+        if st["type"] in ("harmonic", "random", "transient"):
+            res, tr = run_dynamic(inner, ccx, st, cache)
+            res = {"id": st["id"], "type": st["type"], **res, "trust": tr}
+            verdicts.append(tr["verdict"])
+            limits += [x for x in LIMITS_DYNAMIC if x not in limits]
+        elif st["type"] == "modal":                       # 算例里的模态都走多实体求解（支承类型齐全、可加预应力，ADR-0093 F5）
+            mres, surface = run_modal(inner, ccx, st, cache)
+            res = {"id": st["id"], "type": "modal", **mres, "surface": _lists(surface)}
+            limits += [x for x in LIMITS_MODAL if x not in limits]
+        elif st["type"] == "buckling":
             res, tr = run_buckling(inner, ccx, int(st.get("n_modes", 3)))
             res = {"id": st["id"], "type": "buckling", **res, "trust": tr}
             verdicts.append(tr["verdict"])
@@ -300,10 +424,6 @@ def run(study: dict, ccx: str) -> tuple[dict, list[str]]:
                 first += "；不计接触"
             first += "；不计残余应力与表面硬化"
             limits += [x for x in [first, *LIMITS_STATIC[1:]] if x not in limits]
-        else:
-            stats, surface = modal.solve(body["step_path"], inner, ccx, n_modes=int(st.get("n_modes", 6)))
-            res = {"id": st["id"], "type": "modal", **stats, "surface": _lists(surface)}
-            limits += [x for x in LIMITS_MODAL if x not in limits]
         res["seconds"] = round(time.time() - t0, 1)
         steps.append(res)
     data = {"study": study.get("name", ""), "steps": steps,

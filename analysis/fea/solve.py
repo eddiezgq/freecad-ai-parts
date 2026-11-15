@@ -645,7 +645,7 @@ def _bolt_cut(B, bolt, next_id):
     return [(n, dup[n]) for n in sec], abs(area), d, faces
 
 
-def _write_multi(path, Bs, conns, bolts, contact, reactions=True, nlgeom=False, buckle=0, sup_sets=()):
+def _write_multi(path, Bs, conns, bolts, contact, reactions=True, nlgeom=False, buckle=0, sup_sets=(), frequency=0, prestress=False):
     """多个实体、连接、螺栓预紧的输入文件（ADR-0093 F3）"""
     with open(path, "w") as w:
         w.write("*HEADING\nWenQuest CAE\n*NODE, NSET=NALL\n")
@@ -737,8 +737,11 @@ def _write_multi(path, Bs, conns, bolts, contact, reactions=True, nlgeom=False, 
         if delta_t:
             w.write("*INITIAL CONDITIONS, TYPE=TEMPERATURE\nNALL,20\n")
         plastic = any(B.get("plastic") for B in Bs)
+        freq_step = f"*STEP{', PERTURBATION' if prestress else ''}\n*FREQUENCY, SOLVER={SOLVER}\n{int(frequency)}\n"
         if buckle:
             head = f"*STEP\n*BUCKLE, SOLVER={SOLVER}\n{int(buckle)}\n"
+        elif prestress:                                            # 预应力模态：先大变形静力（应力刚度要 NLGEOM 才进入下一步）
+            head = f"*STEP, NLGEOM, INC=100\n*STATIC, SOLVER={SOLVER}\n0.25,1\n"
         elif plastic or nlgeom:                                    # 非线性：小增量起步，增量不超过 5 %（载荷—位移历程看得清）
             head = "*STEP{}, INC=2000\n*STATIC, SOLVER={}\n0.02,1,1e-5,0.05\n".format(", NLGEOM" if nlgeom else "", SOLVER)
         elif contact:
@@ -763,6 +766,13 @@ def _write_multi(path, Bs, conns, bolts, contact, reactions=True, nlgeom=False, 
                 w.writelines(f"CYL{k},{dof},{dof},0\n" for dof in dofs)
             for k, (_, _, _, dofs) in enumerate(rect, 1):
                 w.writelines(f"REC{k},{dof},{dof},0\n" for dof in dofs)
+        if frequency and not prestress:                            # 模态：只有支承，没有载荷
+            w.write(freq_step)
+            bcs()
+            for k, (_, vals) in enumerate(dsp, 1):                 # 强制位移在这里都是 0（非零的已拒算）
+                w.writelines(f"DSP{k},{dof},{dof},{v:.9g}\n" for dof, v in sorted(vals.items()))
+            w.write("*NODE FILE\nU\n*EL FILE\nS\n*END STEP\n")
+            return
         if bolts:                                                  # 第一步：只加预紧
             w.write(head)
             bcs()
@@ -790,6 +800,8 @@ def _write_multi(path, Bs, conns, bolts, contact, reactions=True, nlgeom=False, 
         if delta_t:
             w.write(f"*TEMPERATURE\nNALL,{20 + float(delta_t):.9g}\n")
         w.write(out + "*END STEP\n")
+        if prestress:
+            w.write(freq_step + "*NODE FILE\nU\n*EL FILE\nS\n*END STEP\n")
 
 
 def _read_blocks(path, upto=None):
@@ -846,6 +858,104 @@ def _read_dat_totals(path, sets):
                 out[-1]["totals"][cur[0]] = v
                 cur, want = None, False
     return out
+
+
+def _read_mode_blocks(path):
+    """频率步的每一阶：[{"DISP": {节点: [ux, uy, uz]}, "STRESS": {节点: [6 个分量]}}]（按阶次）"""
+    modes, cur, mode = {}, None, None
+    with open(path, errors="replace") as f:
+        for line in f:
+            if line.startswith("  100C"):
+                v = line.split()
+                mode = next((int(x[:-5]) for x in v if x.endswith("MODAL") and x[:-5].isdigit()), None)
+            elif line.startswith(" -4"):
+                name = line.split()[1]
+                cur = modes.setdefault(mode, {}).setdefault(name, {}) if mode is not None and name in ("DISP", "STRESS") else None
+            elif line.startswith(" -3"):
+                cur = None
+            elif cur is not None and line.startswith(" -1"):
+                cur[int(line[3:13])] = [float(line[13 + 12 * i:25 + 12 * i]) for i in range((len(line.rstrip("\n")) - 13) // 12)]
+    return [modes[k] for k in sorted(modes)]
+
+
+def _read_participation(path):
+    """频率步 .dat 里的参与系数、有效质量（各阶 x、y、z 平动）和总有效质量（t）"""
+    gam, eff, total, sec = [], [], None, None
+    if not os.path.exists(path):
+        return gam, eff, total
+    with open(path, errors="replace") as f:
+        for line in f:
+            if "P A R T I C I P A T I O N" in line:
+                sec = "g"
+                continue
+            if "T O T A L   E F F E C T I V E" in line:
+                sec = "t"
+                continue
+            if "E F F E C T I V E   M O D A L" in line:
+                sec = "e"
+                continue
+            v = line.split()
+            if not v or sec is None:
+                continue
+            try:
+                nums = [float(x) for x in v]
+            except ValueError:
+                continue
+            if sec == "g" and len(nums) >= 4:
+                gam.append(nums[1:4])
+            elif sec == "e" and len(nums) >= 4:
+                eff.append(nums[1:4])
+            elif sec == "t" and len(nums) >= 3:
+                total = nums[:3]
+                sec = None
+    return gam, eff, total
+
+
+def _modal_result(Bs, tmp, n_nodes, n_el, t0, prestress):
+    """模态结果（质量归一化的振型，CalculiX 缺省如此）：频率、振型、振型应力、参与系数、有效质量，加上载荷向量和表面，
+    供 analysis/fea/dynamics.py 做模态叠加"""
+    from analysis.fea.modal import RIGID_HZ, read_freqs
+
+    dat, frd = os.path.join(tmp, "job.dat"), os.path.join(tmp, "job.frd")
+    freqs = [hz for _k, hz in read_freqs(dat)]
+    blocks = _read_mode_blocks(frd)
+    gam, eff, total = _read_participation(dat)
+    keep = [i for i, hz in enumerate(freqs) if hz >= RIGID_HZ and i < len(blocks)]
+    if not keep:
+        raise RuntimeError("没有求出弹性振型（支承是否太少？）")
+    P = {}
+    for B in Bs:
+        P.update(B["P"])
+    ids = np.array(sorted(P), np.int64)
+    phi = np.zeros((len(ids), 3, len(keep)))
+    sig = np.zeros((len(ids), 6, len(keep)))
+    for j, i in enumerate(keep):
+        d, st = blocks[i].get("DISP", {}), blocks[i].get("STRESS", {})
+        phi[:, :, j] = np.array([d.get(int(n), [0, 0, 0])[:3] for n in ids])
+        sig[:, :, j] = np.array([st.get(int(n), [0] * 6)[:6] for n in ids])
+    ext = {}
+    for B in Bs:
+        for src in (B["forces"], B["body_f"]):
+            for n, f in src.items():
+                ext[n] = ext.get(n, 0) + np.asarray(f, float)
+    F = np.zeros((len(ids), 3))
+    pos = {int(n): k for k, n in enumerate(ids)}
+    for n, f in ext.items():
+        F[pos[int(n)]] += f
+    surf = np.concatenate([B["surf"] for B in Bs])
+    corner = surf[:, :3]
+    used = np.unique(corner)
+    return {"nodes": n_nodes, "elements": n_el, "mesh_size_mm": round(min(B["h"] for B in Bs), 3),
+            "seconds": round(time.time() - t0, 1), "mesh_quality": _merge_quality([B["qual"] for B in Bs]),
+            "prestress": prestress, "rigid_modes": sum(1 for hz in freqs if hz < RIGID_HZ),
+            "freqs_hz": np.array([freqs[i] for i in keep]), "node_ids": ids, "xyz": np.array([P[int(n)] for n in ids]),
+            "phi": phi, "sig": sig, "load": F,
+            "gamma": np.array([gam[i] for i in keep]) if len(gam) >= len(freqs) else None,
+            "eff_mass": np.array([eff[i] for i in keep]) if len(eff) >= len(freqs) else None,
+            "total_mass": np.array(total) if total else None,
+            "constrained": set().union(*(B["constrained"] for B in Bs)),
+            "surface": {"positions": np.array([P[int(n)] for n in used]), "triangles": np.searchsorted(used, corner).astype(np.int32),
+                        "face_of_triangle": np.concatenate([B["face_of"] for B in Bs]).astype(np.int32), "nodes": used}}, None, None
 
 
 def _read_buckling(path):
@@ -926,7 +1036,10 @@ def solve_bodies(bodies, setup, ccx, workdir=None):
     bolts_in = setup.get("bolts") or []
     conns_in = setup.get("connections") or []
     pressed = any(c["type"] == "contact" for c in conns_in)        # 过盈配合：初始穿透本身就是载荷
-    if not any(l["type"] not in SUPPORTS for l in allloads) and not moved and not bolts_in and not pressed:
+    frequency = int(setup.get("frequency") or 0)
+    prestress = bool(setup.get("prestress")) and bool(frequency)
+    if not any(l["type"] not in SUPPORTS for l in allloads) and not moved and not bolts_in and not pressed \
+            and (not frequency or prestress):
         raise ValueError("还没有加载荷")
     with _LOCK, tempfile.TemporaryDirectory(dir=workdir) as tmp:
         gmsh = _gmsh()
@@ -935,7 +1048,7 @@ def solve_bodies(bodies, setup, ccx, workdir=None):
             if k:
                 gmsh.clear()
             b = dict(body)
-            b["passive"] = len(bodies) > 1 or bool(bolts_in) or pressed
+            b["passive"] = len(bodies) > 1 or bool(bolts_in) or pressed or bool(frequency)
             b["connection_faces"] = [f for c in conns_in for side in ("a", "b") if c[side + "_body"] == k for f in c[side + "_faces"]]
             b["contact_faces"] = [f for c in conns_in if c["type"] == "contact" for side in ("a", "b")
                                   if c[side + "_body"] == k for f in c[side + "_faces"]]
@@ -988,7 +1101,12 @@ def solve_bodies(bodies, setup, ccx, workdir=None):
             for i, (l, nodes, _d) in enumerate(sup_dofs_all := [c for B in Bs for c in B["sup_dofs"]], 1):
                 if l["type"] != "elastic_support" and nodes:
                     sup_sets.append((f"SUP{i}", nodes))
-        _write_multi(os.path.join(tmp, "job.inp"), Bs, conns, bolts, contact, nlgeom=nlgeom, buckle=buckle, sup_sets=sup_sets)
+        if frequency and (contact or bolts or plastic or nlgeom or buckle):
+            raise ValueError("模态与动力学只用于线性模型：不能带接触、螺栓预紧、弹塑性、大变形")
+        if frequency and (any(B["delta_t"] for B in Bs) or any(v for B in Bs for _n, vals in B["dsp"] for v in vals.values())):
+            raise ValueError("模态与动力学不能带温度载荷或非零的强制位移")
+        _write_multi(os.path.join(tmp, "job.inp"), Bs, conns, bolts, contact, nlgeom=nlgeom, buckle=buckle, sup_sets=sup_sets,
+                     frequency=frequency, prestress=prestress)
         r = _ccx(ccx, tmp, setup.get("time_limit_s", TIME_LIMIT_S))
         frd = os.path.join(tmp, "job.frd")
         dat = os.path.join(tmp, "job.dat")
@@ -1002,6 +1120,8 @@ def solve_bodies(bodies, setup, ccx, workdir=None):
             err = [x for x in (r.stdout + r.stderr).splitlines() if "ERROR" in x or "error" in x]
             hint = "；可能有零件没有被约束住（只靠无摩擦接触时会整体滑动）" if contact else ""
             raise RuntimeError("求解失败：" + ("；".join(err[-3:]) or (r.stdout + r.stderr)[-400:]) + hint)
+        if frequency:
+            return _modal_result(Bs, tmp, n_nodes, n_el, t0, prestress)
         if buckle:
             factors = _read_buckling(dat)
             if not factors:
