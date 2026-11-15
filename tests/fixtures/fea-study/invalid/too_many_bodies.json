@@ -1,0 +1,143 @@
+{
+ "why": "实体最多 20 个",
+ "instance": {
+  "format": "fea-study/1",
+  "name": "cantilever",
+  "bodies": [
+   {
+    "id": "b0",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b1",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b2",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b3",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b4",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b5",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b6",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b7",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b8",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b9",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b10",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b11",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b12",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b13",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b14",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b15",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b16",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b17",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b18",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b19",
+    "step_path": "x.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "b20",
+    "step_path": "x.step",
+    "material": "45-QT"
+   }
+  ],
+  "supports": [
+   {
+    "type": "fixed",
+    "body": "b1",
+    "faces": [
+     1
+    ]
+   }
+  ],
+  "loads": [
+   {
+    "type": "force",
+    "body": "b1",
+    "faces": [
+     2
+    ],
+    "vector_n": [
+     0,
+     0,
+     -100
+    ]
+   }
+  ],
+  "steps": [
+   {
+    "id": "s1",
+    "type": "static"
+   }
+  ]
+ }
+}

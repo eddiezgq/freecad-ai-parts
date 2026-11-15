@@ -1,0 +1,96 @@
+{
+ "why": "螺栓预紧要写预紧力",
+ "instance": {
+  "format": "fea-study/1",
+  "name": "cantilever",
+  "bodies": [
+   {
+    "id": "b1",
+    "step_path": "box.step",
+    "material": "45-QT"
+   },
+   {
+    "id": "bolt",
+    "step_path": "bolt.step",
+    "material": "45-QT"
+   }
+  ],
+  "supports": [
+   {
+    "type": "fixed",
+    "body": "b1",
+    "faces": [
+     1
+    ]
+   }
+  ],
+  "loads": [
+   {
+    "type": "force",
+    "body": "b1",
+    "faces": [
+     2
+    ],
+    "vector_n": [
+     0,
+     0,
+     -100
+    ]
+   }
+  ],
+  "steps": [
+   {
+    "id": "s1",
+    "type": "static"
+   }
+  ],
+  "connections": [
+   {
+    "type": "bonded",
+    "a": {
+     "body": "bolt",
+     "faces": [
+      3
+     ]
+    },
+    "b": {
+     "body": "b1",
+     "faces": [
+      5
+     ]
+    }
+   },
+   {
+    "type": "contact",
+    "id": "c1",
+    "a": {
+     "body": "bolt",
+     "faces": [
+      2
+     ]
+    },
+    "b": {
+     "body": "b1",
+     "faces": [
+      6
+     ]
+    },
+    "friction_coefficient": 0.15
+   },
+   {
+    "type": "bolt_preload",
+    "body": "bolt",
+    "point_mm": [
+     0,
+     0,
+     20
+    ],
+    "axis_dir": [
+     0,
+     0,
+     1
+    ]
+   }
+  ]
+ }
+}
