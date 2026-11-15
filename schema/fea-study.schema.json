@@ -33,6 +33,67 @@
             "type": "string",
             "minLength": 1,
             "description": "材料库 id（analysis/common/materials.yaml）"
+          },
+          "plasticity": {
+            "description": "弹塑性材料（ADR-0093 F4）。不写则线弹性。perfectly_plastic：理想弹塑性，屈服强度取材料库；curve：真应力—塑性应变曲线，必须写出处",
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "model": {
+                    "const": "perfectly_plastic"
+                  }
+                },
+                "required": [
+                  "model"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "model": {
+                    "const": "curve"
+                  },
+                  "points": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 50,
+                    "description": "第一个点的塑性应变为 0（初始屈服），之后塑性应变递增",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "true_stress_mpa": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "plastic_strain": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 2
+                        }
+                      },
+                      "required": [
+                        "true_stress_mpa",
+                        "plastic_strain"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "source": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "曲线出处（试验报告、标准、手册的页码或表号）"
+                  }
+                },
+                "required": [
+                  "model",
+                  "points",
+                  "source"
+                ],
+                "additionalProperties": false
+              }
+            ]
           }
         },
         "required": [
@@ -110,6 +171,9 @@
           },
           {
             "$ref": "#/$defs/modal"
+          },
+          {
+            "$ref": "#/$defs/buckling"
           }
         ]
       }
@@ -455,6 +519,11 @@
         },
         "type": {
           "const": "static"
+        },
+        "large_deformation": {
+          "type": "boolean",
+          "default": false,
+          "description": "大变形（几何非线性，ADR-0093 F4）"
         }
       },
       "required": [
@@ -844,6 +913,29 @@
         "point_mm",
         "axis_dir",
         "force_n"
+      ],
+      "additionalProperties": false
+    },
+    "buckling": {
+      "type": "object",
+      "description": "线性屈曲（ADR-0093 F4）：以算例里的全部载荷为参考载荷，求屈曲载荷系数",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "const": "buckling"
+        },
+        "n_modes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20,
+          "default": 3
+        }
+      },
+      "required": [
+        "id",
+        "type"
       ],
       "additionalProperties": false
     }
