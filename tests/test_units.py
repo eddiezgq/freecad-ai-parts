@@ -139,3 +139,12 @@ def test_hours_suffix():
     assert standard_unit("rated_life_h") == ("_h", "hour")
     assert to_standard(7000, "h", "rated_life_h") == 7000
     assert to_standard(7000, "hours", "rated_life_h") == 7000
+
+
+def test_pressure_and_acceleration_fields_for_fea_drafting():
+    """AI 起草算例（ADR-0093 补充十一）：压力 MPa、加速度 m/s² 也在入口换算"""
+    assert to_standard(5, "bar", "pressure_mpa") == pytest.approx(0.5)
+    assert to_standard(0.3, "MPa", "pressure_mpa") == pytest.approx(0.3)
+    assert to_standard(9.81, "m/s²", "acceleration_m_s2") == pytest.approx(9.81)
+    with pytest.raises(UnitError):
+        to_standard(2, "g", "acceleration_m_s2")       # “2 g”会被当成克：拒收，不猜
