@@ -225,6 +225,42 @@
         "rated_input_speed_rpm": {
           "$ref": "../common/param-value.schema.json#/$defs/number",
           "description": "额定转矩与额定寿命对应的输入转速（ADR-0057）"
+        },
+        "torsion_t1_nm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "扭转刚度折线的第一个分段扭矩 T₁（ADR-0094）"
+        },
+        "torsion_t2_nm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "扭转刚度折线的第二个分段扭矩 T₂（ADR-0094）"
+        },
+        "torsional_stiffness_k1_nm_per_arcmin": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "扭转刚度 K₁：0–T₁ 段（ADR-0094）"
+        },
+        "torsional_stiffness_k2_nm_per_arcmin": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "扭转刚度 K₂：T₁–T₂ 段（ADR-0094）"
+        },
+        "torsional_stiffness_k3_nm_per_arcmin": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "扭转刚度 K₃：T₂ 以上（ADR-0094）"
+        },
+        "output_bearing_static_load_rating_n": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "输出轴承额定静载荷 C₀（ADR-0094）"
+        },
+        "output_bearing_pitch_diameter_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "输出轴承滚子节圆直径 dp（ADR-0094）"
+        },
+        "output_bearing_offset_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "输出轴承偏距 R：滚子中心到安装面（力矩计算用，ADR-0094）"
+        },
+        "output_bearing_moment_stiffness_nm_per_arcmin": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "输出轴承力矩刚度（ADR-0094）"
         }
       },
       "additionalProperties": false
