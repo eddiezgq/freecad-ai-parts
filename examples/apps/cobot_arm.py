@@ -34,7 +34,8 @@ ASSUMPTIONS = [
     "运动：j1–j5 各转 90°，用时 1.0 s，加减速各占 25%（最高 120°/s，低于数据表的 180°/s）；j6 的负载按 5 kg 质点在半径 50 mm 处（偏心工具，偏保守）",
     "供电按控制柜 200 V 三相交流、EtherCAT 总线（零件库里的伺服是 200 V 交流；真实协作臂多用 48 V 直流关节）",
     "结构设计取值：大臂铝管 Ø90×4、小臂铝管 Ø70×3、底座铝管 Ø130×6，6061-T6；关节壳体壁厚 6 mm、端板 6 mm，内径按减速器包络外径；"
-    + "管子输入端的法兰毂外径同上一关节的壳体，法兰盘厚 10 mm",
+    + "管子输入端的法兰毂外径同上一关节的壳体，法兰盘厚 10 mm；第二版：法兰毂远端加 6 mm 封板（防止椭圆化，第一版末端结构下垂 0.855 mm → 0.673 mm）",
+    "输出轴承摆动寿命下限 35,000 h：取减速器本身的平均寿命 L50（样本表 012-1），轴承不先于减速器坏；选型时 j1 按此筛选",
     "模组（电机 + 减速器）的质量按样本质量挂在壳体内孔上；结构里不计电缆、盖板、电子板的质量",
     "急停：底座 j1 以 180°/s 转动、0.1 s 内停住，整臂按末端处的切向减速度均匀受力（偏保守）；结构阻尼比 0.02（示例值，按试验修正）",
     "输出轴承载荷系数 fw = 1.5（样本表 032-3“normal operation”上限）；工作制每天 16 小时，j1 每分钟往返 30 次、摆角 90°",
@@ -42,8 +43,11 @@ ASSUMPTIONS = [
 D1, A2, A3 = 162.5, 425.0, 392.2
 UPPER, FORE, BASE = (90.0, 4.0), (70.0, 3.0), (130.0, 6.0)        # 设计取值：外径、壁厚
 WALL, PLATE, DISC = 6.0, 6.0, 10.0
+HUB_WALL, HUB_CAP = 6.0, True                                          # 法兰毂壁厚、远端是否封板（第二版改，见 ADR-0094 施工记录）
 BASE_CFG = {"safety_factor": 1.2, "supply": {"current_type": "ac", "voltage_v": 200, "phases": 3},
             "fieldbus_protocol": "ethercat", "ambient_temp_c": 25}
+BEARING_LIFE_H = 35000.0       # 输出轴承摆动寿命下限：取减速器本身的平均寿命 L50（样本表 012-1，CSF 系列 35,000 h），轴承不先于减速器坏
+DUTY = (30, 45)                # 每分钟往返 30 次、摆角 90°（半角 45°）——见假设
 MOVE = {"kind": "move", "to": -90, "t0_s": 0.2, "t1_s": 1.2, "accel_ratio": 0.25}
 
 
@@ -174,8 +178,8 @@ def arm_steps(out, od):
 
     def hub(occ, x, y0, length, d_in):
         """输入端的法兰毂：沿 y 的圆筒，y0 一端是实心法兰盘（接上一个关节的输出法兰），另一端敞开；把管子的端头包住"""
-        return (3, occ.addCylinder(x, y0, D1, 0, length, 0, d_in / 2 + WALL)), \
-            (x, y0 + DISC, y0 + length + 1, d_in)
+        return (3, occ.addCylinder(x, y0, D1, 0, length, 0, d_in / 2 + HUB_WALL)), \
+            (x, y0 + DISC, y0 + length - PLATE if HUB_CAP else y0 + length + 1, d_in)
 
     def open_bore(occ, body, x, ya, yb, d_in):
         occ.cut(body, [(3, occ.addCylinder(x, ya, D1, 0, yb - ya, 0, d_in / 2))])
@@ -255,6 +259,10 @@ def main(argv=None):
         w6 = analysis.run("mbd", {"model": {"kind": "arm", "base_height_mm": 0, "links": [{"length_mm": 50.0, "mass_kg": 5.0}],
                                             "payload_kg": 0}, "duration_s": 1.4, "sample_hz": 100,
                                   "drives": [{"joint": "j1", **MOVE}, {"joint": "j2", "kind": "hold"}]})
+        # j1 输出轴承的载荷：整臂重力矩当倾覆力矩、j1 以上的全部重量当轴向力（ADR-0094 第二版：选型时就查寿命）
+        g = r["data"]["static"]["gravity_torque_nm"]["j2"]
+        w_up = (link_mass["base"] + link_mass["upper"] + link_mass["fore"] + link_mass["wrist"]
+                + sum(mods.get(k, 0.0) for k in ("j2", "j3", "j4", "j5", "j6")) + 5.0) * 9.81
         picks = {}
         for j, rr, jj in (("j1", r, "j1"), ("j2", r, "j2"), ("j3", r, "j3"), ("j4", w, "j2"), ("j5", w5, "j2"), ("j6", w6, "j1")):
             req = mbd.requirement(rr, jj, base=BASE_CFG)
@@ -262,6 +270,8 @@ def main(argv=None):
             cands = C.compose(req, top=30)
             # 协作臂在意重量：在没有“不通过”的候选里取外购件最轻、且电机与减速器都有样本质量的
             ok = [c for c in cands if c.report["overall"] != "fail" and module_mass(c.system) is not None]
+            if j == "j1":                                                   # 选型引擎不查输出轴承寿命：这里补上
+                ok = [c for c in ok if (bearing_life(_comp(c.system, "reducer"), 0.0, w_up, g, *DUTY) or (0,))[0] >= BEARING_LIFE_H]
             best = min(ok, key=lambda c: module_mass(c.system)) if ok else (cands[0] if cands else None)
             picks[j] = (req, best, len(cands))
         return picks, {"arm": r, "j4": w, "j5": w5, "j6": w6}
@@ -444,13 +454,15 @@ def main(argv=None):
         rows = []
         for j, fr, fa, m in (("j1", 0.0, W + (lm["base"] + mods["j2"]) * 9.81, T["T2"]), ("j2", W, 0.0, 0.0)):
             mc = _pv(red[j], "output_bearing_moment_load_rating_nm")
-            life = bearing_life(red[j], fr, fa, m, 30, 45)
+            life = bearing_life(red[j], fr, fa, m, *DUTY)
             if life is None:
                 rows.append(f"{j} 缺数据")
                 continue
             h, pc, x, y = life
             rows.append(f"{j}（{red[j]['model']}）径向 {fr:.0f} N、轴向 {fa:.0f} N、倾覆力矩 {m:.1f} N·m（许用 {mc} N·m）："
-                        f"Pc = {pc:.0f} N（X = {x:g}、Y = {y:g}），摆动寿命 {h:.3g} 小时（每天 16 小时约 {h / 16 / 365:.3g} 年）")
+                        f"Pc = {pc:.0f} N（X = {x:g}、Y = {y:g}），摆动寿命 {h:.3g} 小时（每天 16 小时约 {h / 16 / 365:.3g} 年），"
+                        + ("满足" if h >= BEARING_LIFE_H else "不满足") + f" {BEARING_LIFE_H:.0f} h 的下限")
+            out.setdefault("bearing_h", {})[j] = h
         # j1 换大一号的减速器时输出轴承寿命（零件库里同系列、减速比相同的下一个规格）
         lib = C.library()
         cur = red["j1"]
@@ -458,7 +470,7 @@ def main(argv=None):
                 and (_pv(c, "output_bearing_dynamic_load_rating_n") or 0) > (_pv(cur, "output_bearing_dynamic_load_rating_n") or 0)]
         if same:
             nxt = min(same, key=lambda c: _pv(c, "output_bearing_dynamic_load_rating_n"))
-            alt = bearing_life(nxt, 0.0, W + (lm["base"] + mods["j2"]) * 9.81, T["T2"], 30, 45)
+            alt = bearing_life(nxt, 0.0, W + (lm["base"] + mods["j2"]) * 9.81, T["T2"], *DUTY)
             if alt:
                 rows.append(f"j1 换 {nxt['model']}（输出轴承 C = {_pv(nxt, 'output_bearing_dynamic_load_rating_n'):.0f} N）时摆动寿命 {alt[0]:.3g} 小时"
                             f"（约 {alt[0] / 16 / 365:.3g} 年）")
