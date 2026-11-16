@@ -70,3 +70,21 @@ def test_bolt_circle_with_tapped_holes(tmp_path):
     assert "M6" in pat[0]["text"] and "须人确认" in pat[0]["text"]
     center = next(b for b in _of(r, "bore") if b["diameter_mm"] == 40.0)
     assert "thread_suspect" not in center
+
+
+def test_recognition_ignores_global_gmsh_options_and_axis_sign():
+    """gmsh 选项是全局的：别的计算设过网格尺寸下限、二阶单元后，识别结果不变；
+    同一圆柱面被切成几块、拟合出的轴线正负号不同，也要合成一段（整臂大臂两个毂的外圆 Ø150、Ø119，各两块面，段长取并集）"""
+    _need_fea()
+    from analysis.fea.geometry import _gmsh
+
+    step = str(OUT / "cobot_arm" / "ARM-UPPER.step")
+    a = recognize(step, _lib())
+    g = _gmsh()
+    g.option.setNumber("Mesh.MeshSizeMin", 20)
+    g.option.setNumber("Mesh.ElementOrder", 2)
+    b = recognize(step, _lib())
+    assert a["text"] == b["text"]
+    segs = {x["diameter_mm"]: x for x in _of(a, "shaft_segment")}
+    assert len(segs[150.0]["faces"]) == 2 and segs[150.0]["length_mm"] == pytest.approx(100.0)
+    assert len(segs[119.0]["faces"]) == 2 and segs[119.0]["length_mm"] == pytest.approx(100.0)

@@ -26,6 +26,8 @@ SUFFIX_UNITS: dict[str, str] = {
     "_nm_per_arcmin": "N*m/arcmin",
     "_nm_per_a": "N*m/A",
     "_kgm2": "kg*m**2",
+    "_m_s2": "m/s**2",
+    "_mpa": "MPa",
     "_arcmin": "arcmin",
     "_ratio": "dimensionless",
     "_rpm": "rpm",
