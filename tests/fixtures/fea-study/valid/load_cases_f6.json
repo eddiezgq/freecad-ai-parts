@@ -1,0 +1,100 @@
+{
+ "instance": {
+  "format": "fea-study/1",
+  "name": "cantilever",
+  "bodies": [
+   {
+    "id": "b1",
+    "step_path": "box.step",
+    "material": "45-QT"
+   }
+  ],
+  "supports": [
+   {
+    "type": "fixed",
+    "body": "b1",
+    "faces": [
+     1
+    ]
+   }
+  ],
+  "loads": [
+   {
+    "type": "force",
+    "body": "b1",
+    "faces": [
+     2
+    ],
+    "vector_n": [
+     0,
+     0,
+     -100
+    ],
+    "case": "W"
+   },
+   {
+    "type": "gravity",
+    "body": "b1",
+    "acceleration_m_s2": [
+     0,
+     0,
+     -9.81
+    ],
+    "case": "G"
+   }
+  ],
+  "steps": [
+   {
+    "id": "s1",
+    "type": "static",
+    "combination": "C1"
+   }
+  ],
+  "load_cases": [
+   {
+    "id": "G",
+    "name": "自重",
+    "kind": "dead"
+   },
+   {
+    "id": "W",
+    "name": "工作载荷",
+    "kind": "operating"
+   }
+  ],
+  "combinations": [
+   {
+    "id": "C1",
+    "name": "1.35G + 1.5W",
+    "factors": {
+     "G": 1.35,
+     "W": 1.5
+    },
+    "basis": "用户指定"
+   }
+  ],
+  "provenance": {
+   "drafted_by": "ai",
+   "confirmed_by_human": true,
+   "confirmed_by": "张国庆",
+   "confirmed_at": "2026-11-15T23:30:00-05:00",
+   "basis": [
+    {
+     "target": "/loads/0",
+     "source": "statement",
+     "quote": "顶端受 500 N"
+    },
+    {
+     "target": "/supports/0",
+     "source": "feature",
+     "features": [
+      "面 3：安装平面"
+     ]
+    }
+   ],
+   "questions": [
+    "阻尼比是多少？"
+   ]
+  }
+ }
+}
