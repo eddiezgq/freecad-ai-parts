@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/categories/reducer.schema.json",
   "title": "品类：减速器（整机型）（reducer）",
-  "description": "由 component.schema.json 按 category 引用。约束该品类的参数名（只允许列出的必填与选填参数）和必须具备的标准端口；接口数据只放在端口里，不在参数表重复（ADR-0014）。x-key-fields 列出关键参数：缺失时组件仍可入库，但进入复核，相关校验结果为 unknown。",
+  "description": "由 component.schema.json 按 category 引用。约束该品类的参数名（只允许列出的必填与选填参数）和必须具备的标准端口；接口数据只放在端口里，不在参数表重复（ADR-0014）。x-key-fields 列出关键参数：缺失时组件仍可入库，但进入复核，相关校验结果为 unknown。 参数带 x-manual-only 的只由人工对照规格书录入，不进模型抽取的提示词（ADR-0094 第 3 条补充）。",
   "type": "object",
   "x-key-fields": [
     "reducer_kind",
@@ -228,39 +228,48 @@
         },
         "torsion_t1_nm": {
           "$ref": "../common/param-value.schema.json#/$defs/number",
-          "description": "扭转刚度折线的第一个分段扭矩 T₁（ADR-0094）"
+          "description": "扭转刚度折线的第一个分段扭矩 T₁（ADR-0094）",
+          "x-manual-only": true
         },
         "torsion_t2_nm": {
           "$ref": "../common/param-value.schema.json#/$defs/number",
-          "description": "扭转刚度折线的第二个分段扭矩 T₂（ADR-0094）"
+          "description": "扭转刚度折线的第二个分段扭矩 T₂（ADR-0094）",
+          "x-manual-only": true
         },
         "torsional_stiffness_k1_nm_per_arcmin": {
           "$ref": "../common/param-value.schema.json#/$defs/number",
-          "description": "扭转刚度 K₁：0–T₁ 段（ADR-0094）"
+          "description": "扭转刚度 K₁：0–T₁ 段（ADR-0094）",
+          "x-manual-only": true
         },
         "torsional_stiffness_k2_nm_per_arcmin": {
           "$ref": "../common/param-value.schema.json#/$defs/number",
-          "description": "扭转刚度 K₂：T₁–T₂ 段（ADR-0094）"
+          "description": "扭转刚度 K₂：T₁–T₂ 段（ADR-0094）",
+          "x-manual-only": true
         },
         "torsional_stiffness_k3_nm_per_arcmin": {
           "$ref": "../common/param-value.schema.json#/$defs/number",
-          "description": "扭转刚度 K₃：T₂ 以上（ADR-0094）"
+          "description": "扭转刚度 K₃：T₂ 以上（ADR-0094）",
+          "x-manual-only": true
         },
         "output_bearing_static_load_rating_n": {
           "$ref": "../common/param-value.schema.json#/$defs/number",
-          "description": "输出轴承额定静载荷 C₀（ADR-0094）"
+          "description": "输出轴承额定静载荷 C₀（ADR-0094）",
+          "x-manual-only": true
         },
         "output_bearing_pitch_diameter_mm": {
           "$ref": "../common/param-value.schema.json#/$defs/number",
-          "description": "输出轴承滚子节圆直径 dp（ADR-0094）"
+          "description": "输出轴承滚子节圆直径 dp（ADR-0094）",
+          "x-manual-only": true
         },
         "output_bearing_offset_mm": {
           "$ref": "../common/param-value.schema.json#/$defs/number",
-          "description": "输出轴承偏距 R：滚子中心到安装面（力矩计算用，ADR-0094）"
+          "description": "输出轴承偏距 R：滚子中心到安装面（力矩计算用，ADR-0094）",
+          "x-manual-only": true
         },
         "output_bearing_moment_stiffness_nm_per_arcmin": {
           "$ref": "../common/param-value.schema.json#/$defs/number",
-          "description": "输出轴承力矩刚度（ADR-0094）"
+          "description": "输出轴承力矩刚度（ADR-0094）",
+          "x-manual-only": true
         }
       },
       "additionalProperties": false

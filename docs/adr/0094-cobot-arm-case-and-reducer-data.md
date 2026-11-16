@@ -25,6 +25,9 @@
    - `output_bearing_static_load_rating_n`（C₀）、`output_bearing_pitch_diameter_mm`（dp）、`output_bearing_offset_mm`（R）、
      `output_bearing_moment_stiffness_nm_per_arcmin`。
    已有的 `torsional_stiffness_nm_per_arcmin` 保留，给只印一个刚度值的厂家用。
+   **补充（11-15）**：这 9 个参数标 `x-manual-only: true`——只由人工对照样本录入，不进模型抽取的目标表和提示词。
+   原因：抽取提示词由品类的参数表生成，加了参数提示词就变，仓库里真实录制的回放（`tests/test_evaluate.py` 的多型号目录验收）
+   对不上录制、无法回放（#494 合并后已出现）；而这几项是折线、轴承表，本来就按人工录入（第 5 条）。
 4. **人工录入允许写原单位**：`data/review/confirmed.yaml` 的录入项可写 `unit`（照抄样本的单位，如“×10⁴ Nm/rad”），
    由 `ingest/crosscheck.py` 调 `ingest/units.py`（pint）换算成字段的标准单位，来源备注记下原值与原单位。不写 `unit` 时与现在相同（值即标准单位）。
 5. **录入方式**：沿用 ADR-0044 第 4 条的人工录入（对照原页、给页码与照抄的原文），由 Claude 逐项录入、项目负责人可抽查推翻；
