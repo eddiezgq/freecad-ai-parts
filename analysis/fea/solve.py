@@ -399,7 +399,7 @@ def _prep_body(gmsh, body, setup, tmp):
         raise ValueError(f"实体 {body['id']} 没有这些边：{bad}")
     size = body.get("size_mm") or (setup.get("mesh") or {}).get("size_mm")
     # 接触面不自动加密：面-面接触的接触单元数随两面三角形数的乘积增长，加密后一次迭代要十几秒（要加密用 refine_faces）
-    fine = [f for l in loads if l["type"] not in SUPPORTS for f in l.get("faces") or []] + list(body.get("refine_faces") or [])
+    fine = [f for l in loads if l["type"] not in (*SUPPORTS, "mass") for f in l.get("faces") or []] + list(body.get("refine_faces") or [])
     ntags, xyz, tets = mesh(gmsh, size, fine, setup.get("max_elements", MAX_ELEMENTS), refine=setup.get("refine"))
     h = float(gmsh.option.getNumber("Mesh.MeshSizeMax"))
     qual = quality(gmsh)
@@ -408,6 +408,7 @@ def _prep_body(gmsh, body, setup, tmp):
     dsp, rect, springs, dload = [], [], [], []
     sup_dofs = []                                      # 各支承：(设置, 节点, 限制的整体自由度)——报各支承的反力
     body_f, delta_t = {}, 0.0                          # 体力的等效节点力（只用于核对平衡）
+    masses = {}                                        # 附加质量：节点 → t
     rho = mat["density_kg_m3"] * 1e-12
 
     def add(d):
@@ -486,6 +487,12 @@ def _prep_body(gmsh, body, setup, tmp):
                 sup_dofs.append((l, set(nodes), (1, 2, 3)))
             constrained |= nodes
             continue
+        if t == "mass":                                    # 附加质量：按节点面积分（ADR-0093 补充十）
+            na = {n: a for n, a in nodal_areas(tris, P).items() if a > 0}
+            tot = sum(na.values())
+            for n, a in na.items():
+                masses[n] = masses.get(n, 0.0) + float(l["mass_t"]) * a / tot
+            continue
         if t == "elastic_support":
             k = float(l["stiffness_n_per_mm3"])
             springs += [(n, k * a) for n, a in nodal_areas(tris, P).items() if a > 0]
@@ -533,13 +540,18 @@ def _prep_body(gmsh, body, setup, tmp):
     if not forces and not dload and not delta_t and not any(v for _n, vals in dsp for v in vals.values()) \
             and not body.get("passive"):
         raise ValueError("还没有加载荷")
+    acc_total = sum((np.array(l["acceleration_mm_s2"], float) for l in loads if l["type"] == "gravity"), np.zeros(3))
+    if masses and any(l["type"] == "centrifugal" for l in loads):
+        raise ValueError("附加质量不能与离心载荷用在同一个实体上（ADR-0093 补充十）")
+    if masses and np.any(acc_total):                   # 附加质量的重量按节点加在外载里（t × mm/s² = N）
+        add({n: m * acc_total for n, m in masses.items()})
     surf = np.concatenate([face_tris(gmsh, f) for f in all_faces])
     face_of = np.concatenate([np.full(len(face_tris(gmsh, f)), f) for f in all_faces])
     conn = {f: face_tris(gmsh, f) for f in conn_faces}
     return {"id": body["id"], "mat": mat, "plastic": body.get("plastic"), "ntags": np.asarray(ntags, np.int64), "xyz": xyz, "tets": np.asarray(tets, np.int64),
             "P": P, "fixed": fixed, "cyl": cyl, "dsp": dsp, "rect": rect, "springs": springs, "forces": forces,
             "body_f": body_f, "sup_dofs": sup_dofs, "constrained": constrained, "dload": dload, "delta_t": delta_t,
-            "surf": surf, "face_of": face_of, "conn": conn, "h": h, "qual": qual}
+            "surf": surf, "face_of": face_of, "conn": conn, "h": h, "qual": qual, "masses": masses}
 
 
 def _shift(B, off):
@@ -558,6 +570,7 @@ def _shift(B, off):
     B["springs"] = [(int(n) + off, k) for n, k in B["springs"]]
     B["forces"] = {int(n) + off: f for n, f in B["forces"].items()}
     B["body_f"] = {int(n) + off: f for n, f in B["body_f"].items()}
+    B["masses"] = {int(n) + off: v for n, v in B.get("masses", {}).items()}
     B["sup_dofs"] = [(l, m(ns), dofs) for l, ns, dofs in B["sup_dofs"]]
     B["surf"] = B["surf"] + off
     B["conn"] = {f: t + off for f, t in B["conn"].items()}
@@ -660,6 +673,12 @@ def _write_multi(path, Bs, conns, bolts, contact, reactions=True, nlgeom=False, 
             w.writelines("{},{}\n".format(eid + i, ",".join(map(str, e))) for i, e in enumerate(B["ccx"], 1))
             eid += len(B["tets"])
         w.write("*ELSET, ELSET=EALL\n" + ",".join(f"B{k}" for k in range(1, len(Bs) + 1)) + "\n")
+        j = 0
+        for B in Bs:                                               # 附加质量：每个节点一个 MASS 单元（不在 EALL 里，不受 GRAV）
+            for n, m in sorted(B.get("masses", {}).items()):
+                eid += 1
+                j += 1
+                w.write(f"*ELEMENT, TYPE=MASS, ELSET=MS{j}\n{eid},{n}\n*MASS, ELSET=MS{j}\n{m:.9g}\n")
         fixed = set().union(*(B["fixed"] for B in Bs))
         cyl = [c for B in Bs for c in B["cyl"]]
         rect = [c for B in Bs for c in B["rect"]]
@@ -1038,7 +1057,7 @@ def solve_bodies(bodies, setup, ccx, workdir=None):
     pressed = any(c["type"] == "contact" for c in conns_in)        # 过盈配合：初始穿透本身就是载荷
     frequency = int(setup.get("frequency") or 0)
     prestress = bool(setup.get("prestress")) and bool(frequency)
-    if not any(l["type"] not in SUPPORTS for l in allloads) and not moved and not bolts_in and not pressed \
+    if not any(l["type"] not in (*SUPPORTS, "mass") for l in allloads) and not moved and not bolts_in and not pressed \
             and (not frequency or prestress):
         raise ValueError("还没有加载荷")
     with _LOCK, tempfile.TemporaryDirectory(dir=workdir) as tmp:
