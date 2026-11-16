@@ -69,7 +69,7 @@ def validate(study: dict) -> None:
                 raise StudyInvalid("动力学的分析步不能带非零的强制位移")
         if s["type"] == "harmonic" and s["f_max_hz"] <= s["f_min_hz"]:
             raise StudyInvalid("谐响应的上限频率要大于下限频率")
-        if s["type"] in ("harmonic", "transient") and not study.get("loads"):
+        if s["type"] in ("harmonic", "transient") and not [x for x in study.get("loads", []) if x["type"] != "mass"]:
             raise StudyInvalid("谐响应、瞬态要有载荷（载荷值为幅值）")
         if s["type"] == "random":
             fs = [p["frequency_hz"] for p in s["asd"]]
@@ -88,8 +88,12 @@ def validate(study: dict) -> None:
         raise StudyInvalid("这个算例是 AI 起草的，还没有人确认，不计算")
     moved = any(x["type"] == "displacement" and any(x.get(k) for k in ("ux_mm", "uy_mm", "uz_mm")) for x in study["supports"])
     bolts = any(c["type"] in ("bolt_preload", "contact") for c in study.get("connections") or [])   # 预紧、过盈本身就是载荷
-    if not study.get("loads") and not moved and not bolts and any(s["type"] == "static" for s in study["steps"]):
+    real = [x for x in study.get("loads", []) if x["type"] != "mass"]       # 附加质量本身不是载荷（要有重力才受力）
+    if not real and not moved and not bolts and any(s["type"] == "static" for s in study["steps"]):
         raise StudyInvalid("静力分析还没有加载荷")
+    for x in study.get("loads", []):
+        if x["type"] == "mass" and any(y["type"] == "centrifugal" and y["body"] == x["body"] for y in study["loads"]):
+            raise StudyInvalid("附加质量不能与离心载荷用在同一个实体上（ADR-0093 补充十）")
 
 
 def moved_any(study: dict) -> bool:
@@ -130,6 +134,8 @@ def internal_loads(study: dict) -> list[dict]:
             d["vector_nmm"] = [float(v) * 1000 for v in x["vector_nm"]]
         elif t == "gravity":
             d["acceleration_mm_s2"] = [float(v) * 1000 for v in x["acceleration_m_s2"]]
+        elif t == "mass":
+            d["mass_t"] = float(x["mass_kg"]) / 1000
         elif t == "centrifugal":
             d["speed_rpm"] = float(x["speed_rpm"])
             d["axis"] = _axis(x["axis"])
