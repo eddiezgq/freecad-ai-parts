@@ -86,6 +86,13 @@ operations:
 - {name: 资源开通 Provisioning, workstation: 云平台宿主机 CL, units: [cl-a1, cl-a2, cl-b1, cl-b2], stage: other}
 - {name: 服务验收 Service acceptance, workstation: 监控平台 MON, units: [mon-1], stage: inspect, inspection: true}
 floor: {length_m: 40, width_m: 28, aisles_y: [9, 18], cross_x: 1}
+# 车间分区（第 171c 轮，3D 车间、平面图分车间和参观用）：rect = [x0, y0, x1, y1]（米），设备中心落在哪个框里就属于哪个车间
+zones:
+- {id: dev, name: ① 研发区, name_en: Development, rect: [0.5, 1, 24, 8]}
+- {id: lic, name: 授权机房, name_en: Licence room, rect: [33, 1, 38, 8]}
+- {id: build, name: ② 构建与测试机房, name_en: Build & test room, rect: [1, 10, 37, 17]}
+- {id: cloud, name: ③ 云平台机房, name_en: Cloud data hall, rect: [2, 19, 27, 27]}
+- {id: store, name: 库房, name_en: Stores, rect: [29, 19, 38, 27]}
 shift:
   periods: [['09:00:00', '12:00:00'], ['13:00:00', '18:00:00']]
   workdays: [0, 1, 2, 3, 4]

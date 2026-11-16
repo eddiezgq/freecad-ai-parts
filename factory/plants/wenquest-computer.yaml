@@ -121,6 +121,13 @@ operations:
 - {name: 整机柜联调 Rack integration test, workstation: 整机柜联调台 RK, units: [rk-1], stage: inspect, inspection: true}
 - {name: 包装 Packing, workstation: 包装台 PK, units: [pk-1], stage: other}
 floor: {length_m: 48, width_m: 34, aisles_y: [9, 18], cross_x: 1}
+# 车间分区（第 171c 轮，3D 车间、平面图分车间和参观用）：rect = [x0, y0, x1, y1]（米），设备中心落在哪个框里就属于哪个车间
+zones:
+- {id: smt, name: ① 主板贴片车间, name_en: Mainboard SMT, rect: [1, 1, 47, 8]}
+- {id: sheet, name: ② 结构件车间, name_en: Enclosures & structures, rect: [1, 10, 40, 17]}
+- {id: mem, name: 内存与板卡测试, name_en: Memory & board test, rect: [41, 10, 47, 17]}
+- {id: asm, name: ③ 整机装配与测试车间, name_en: System assembly & test, rect: [1, 19, 47, 26]}
+- {id: store, name: 库房, name_en: Stores, rect: [1, 27, 47, 33]}
 shift:
   periods: [['08:00:00', '12:00:00'], ['13:00:00', '17:00:00']]
   workdays: [0, 1, 2, 3, 4]

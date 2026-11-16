@@ -702,6 +702,7 @@ def export_demo():
         "workstations": ws, "units": units, "dashboard": list(T.MACHINES), "operations": ops,
         "stores": {"raw": E.RAW_STORE, "finished": E.FG_STORE},
         "floor": {"length_m": L.FLOOR[0], "width_m": L.FLOOR[1], "aisles_y": list(L.AISLES), "cross_x": L.CROSS_X},
+        "zones": [dict(z) for z in L.ZONES],          # 第 171c 轮：车间分区
         "shift": {"periods": [list(x) for x in F.SHIFT], "workdays": list(cal.workdays), "max_overtime_min": CAL.MAX_OT_MIN},
         "kpi": dict(K.TARGET),
         "suppliers": {k: dict(v) for k, v in F.SUPPLIERS.items()},

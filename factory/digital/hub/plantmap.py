@@ -20,13 +20,18 @@ from wqbus import topics as T
 AREA_ZH = {"machining": "生产", "quality": "检验", "warehouse": "库房", "logistics": "物流", "design": "研发"}
 
 
-def _zone_of(zones, lay):
-    x, y, w, d = lay
-    for cx, cy in ((x, y), (x + w / 2, y + d / 2)):        # 清单的位置有的按中心写、有的按角写，两种都试
-        for z in zones:
+def _zone_of(zones, lay, nearest=False):
+    """设备中心 (x, y) 落在哪个车间框里；nearest：都不在时取最近的那个（物流小车停在通道上）"""
+    x, y = lay[0], lay[1]
+    for z in zones:
+        x0, y0, x1, y1 = z["rect"]
+        if x0 <= x <= x1 and y0 <= y <= y1:
+            return z["id"]
+    if nearest and zones:
+        def dist(z):
             x0, y0, x1, y1 = z["rect"]
-            if x0 <= cx <= x1 and y0 <= cy <= y1:
-                return z["id"]
+            return max(x0 - x, 0, x - x1) ** 2 + max(y0 - y, 0, y - y1) ** 2
+        return min(zones, key=dist)["id"]
     return None
 
 
@@ -41,7 +46,7 @@ def _procdocs():
 def build():
     act = __import__("factory.plant", fromlist=["active"]).active()
     fw, fd = L.FLOOR
-    zones = [dict(z) for z in ((act or {}).get("ZONES") or [])]
+    zones = [dict(z) for z in (L.ZONES or [])]           # 清单的 zones（演示工厂在 wqbus/layout.py）
     if not zones:          # 清单没写车间：整个厂算一个车间（设备按区域交错摆，按区域画框会互相压）
         zones = [{"id": "all", "name": "车间", "name_en": "Shop floor", "rect": [0, 0, fw, fd], "auto": True}]
     units = {}
@@ -50,11 +55,11 @@ def build():
         area = (act["UNITS"][u][0] if act and u in act["UNITS"] else ("warehouse" if u.startswith("store") else "machining"))
         ws = act["UNITS"][u][3] if act and u in act["UNITS"] else None
         units[u] = {"name": meta[1], "name_en": meta[2], "area": area, "area_zh": AREA_ZH.get(area, area), "workstation": ws,
-                    "zone": _zone_of(zones, lay) or zones[0]["id"]}
+                    "zone": _zone_of(zones, lay, nearest=True)}
     for a in L.AGV_HOME:
         meta = T.UNITS.get(a) or ("", a, a)
         units[a] = {"name": meta[1], "name_en": meta[2], "area": "logistics", "area_zh": AREA_ZH["logistics"], "workstation": None,
-                    "zone": _zone_of(zones, (*L.AGV_HOME[a], 0, 0)) or zones[0]["id"], "agv": True}
+                    "zone": _zone_of(zones, L.AGV_HOME[a], nearest=True), "agv": True}
     for z in zones:
         z["units"] = [u for u, v in units.items() if v["zone"] == z["id"]]
     zones = [z for z in zones if z["units"]]

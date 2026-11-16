@@ -88,6 +88,12 @@ operations:
 - {name: 成品测试 FT Final test, workstation: 测试分选机 FT, units: [ft-1], stage: inspect, inspection: true}
 - {name: 编带包装 Tape & reel, workstation: 编带机 TR, units: [tr-1], stage: other}
 floor: {length_m: 36, width_m: 28, aisles_y: [9, 18], cross_x: 2}
+# 车间分区（第 171c 轮，3D 车间、平面图分车间和参观用）：rect = [x0, y0, x1, y1]（米），设备中心落在哪个框里就属于哪个车间
+zones:
+- {id: wafer, name: ① 晶圆减薄划片车间, name_en: Wafer thinning & dicing, rect: [2, 1, 21, 8]}
+- {id: pkg, name: ② 封装车间, name_en: Assembly (packaging), rect: [2, 10, 32, 17]}
+- {id: test, name: ③ 测试与包装车间, name_en: Final test & packing, rect: [2, 19, 22, 27]}
+- {id: store, name: 库房, name_en: Stores, rect: [23, 19, 34, 27]}
 shift:
   periods: [['08:00:00', '12:00:00'], ['13:00:00', '17:00:00']]
   workdays: [0, 1, 2, 3, 4]

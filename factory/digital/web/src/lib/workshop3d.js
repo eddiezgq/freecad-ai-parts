@@ -33,8 +33,10 @@ function zoneLabel(text) {
   g.fillStyle = 'rgba(255,255,255,0.88)'; g.fillRect((1024 - w) / 2, 8, w, 112);
   g.fillStyle = '#17212B'; g.textAlign = 'center'; g.textBaseline = 'middle';
   g.fillText(text, 512, 66);
-  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false }));
-  return sp;
+  // 平铺在车间前沿的地面上（像地上刷的字），不挡设备
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true }));
+  m.rotation.x = -Math.PI / 2;
+  return m;
 }
 
 export function createWorkshop(host, L, { onFrame, night = false, autoRotate = false, zones = null } = {}) {
@@ -76,7 +78,7 @@ export function createWorkshop(host, L, { onFrame, night = false, autoRotate = f
   (zones || []).filter((z) => !z.auto).forEach((z, i) => {
     const [x0, y0, x1, y1] = z.rect, w = x1 - x0, d = y1 - y0;
     const patch = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshLambertMaterial({ color: ZONE_COLORS[i % ZONE_COLORS.length] }));
-    patch.rotation.x = -Math.PI / 2; patch.position.set(x0 + w / 2, 0.005, y0 + d / 2);
+    patch.rotation.x = -Math.PI / 2; patch.position.set(x0 + w / 2, 0.03, y0 + d / 2);   // 抬高一点，免得和地面打架出条纹
     patch.userData.zone = z.id;
     scene.add(patch);
     const wallMat = new THREE.MeshLambertMaterial({ color: '#8C99A6', transparent: true, opacity: 0.55 });
@@ -85,8 +87,8 @@ export function createWorkshop(host, L, { onFrame, night = false, autoRotate = f
       wall.position.set(cx, 0.4, cz); scene.add(wall);
     }
     const lb = zoneLabel(z.name_shown || z.name);
-    const sw = Math.max(10, Math.min(w * 0.8, 40));
-    lb.scale.set(sw, sw / 8, 1); lb.position.set(x0 + w / 2, 6 + sw / 10, y0 + 1.5);
+    const sw = Math.max(4, Math.min(w * 0.9, d * 0.35 * 8, (z.name_shown || z.name).length * 4.2, 40));   // 小车间（库房、检测室）标签也不伸出框
+    lb.scale.set(sw, sw / 8, 1); lb.position.set(x0 + w / 2, 0.06, y1 - sw / 16 - 0.2);
     scene.add(lb);
     zoneObjs[z.id] = { patch, label: lb, rect: z.rect };
   });

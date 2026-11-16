@@ -72,6 +72,12 @@ operations:
 - {name: 功能测试 FCT, workstation: 功能测试台 FCT, units: [fct-1], stage: inspect, inspection: true}
 - {name: 包装 Packing, workstation: 包装台 PK, units: [pk-1], stage: other}
 floor: {length_m: 38, width_m: 30, aisles_y: [9, 19], cross_x: 2}
+# 车间分区（第 171c 轮，3D 车间、平面图分车间和参观用）：rect = [x0, y0, x1, y1]（米），设备中心落在哪个框里就属于哪个车间
+zones:
+- {id: smt, name: ① 贴片车间, name_en: SMT line, rect: [2, 1, 30, 8]}
+- {id: back, name: ② 后段与测试车间, name_en: Back end & test, rect: [2, 10, 31, 18]}
+- {id: pack, name: 包装间, name_en: Packing, rect: [31.5, 10, 37, 18]}
+- {id: store, name: 库房, name_en: Stores, rect: [2, 20, 36, 28]}
 shift:
   periods: [['08:00:00', '12:00:00'], ['13:00:00', '17:00:00']]
   workdays: [0, 1, 2, 3, 4]

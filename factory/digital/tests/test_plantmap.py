@@ -32,6 +32,16 @@ def test_every_unit_in_a_zone_and_every_routing_step_has_a_machine(plant):
     d = _build(plant)
     zone_ids = {z["id"] for z in d["zones"]}
     assert d["units"] and all(v["zone"] in zone_ids for v in d["units"].values())
+    # 第 171c 轮：九座厂都分了车间，每台设备（物流小车除外）的中心都在自己车间的框里
+    assert len(d["zones"]) >= 3 and not any(z.get("auto") for z in d["zones"])
+    rect = {z["id"]: z["rect"] for z in d["zones"]}
+    pos = _positions(plant)
+    for u, v in d["units"].items():
+        if v.get("agv"):
+            continue
+        x0, y0, x1, y1 = rect[v["zone"]]
+        x, y = pos[u]
+        assert x0 <= x <= x1 and y0 <= y <= y1, (u, v["zone"], x, y)
     assert sum(len(z["units"]) for z in d["zones"]) == len(d["units"])
     for item, b in d["boms"].items():
         for op, _m in d["routings"][b["routing"]]:
@@ -54,8 +64,17 @@ def test_sewing_zones_match_whiteboard_and_procdocs_cover_every_doc_step():
     assert all(r["unit"] in metro["units"] for r in pd["metro"]["rows"])
 
 
-def test_demo_plant_has_one_auto_zone_and_output_shaft_chars():
+def _positions(plant):
+    env = dict(os.environ)
+    env["WQ_PLANT_FILE"] = str(PLANTS / f"{plant}.yaml") if plant else ""
+    code = "import json, sys; sys.path[:0] = ['.', '..']; from wqbus import layout as L; print(json.dumps({u: v[:2] for u, v in L.LAYOUT.items()}))"
+    out = subprocess.run([sys.executable, "-c", code], cwd=HERE, env=env, capture_output=True, text=True, check=True)
+    return json.loads(out.stdout)
+
+
+def test_demo_plant_zones_match_its_plant_file_and_output_shaft_chars():
     d = _build(None)
-    assert len(d["zones"]) == 1 and d["zones"][0]["auto"]
+    yml = _build("wenquest-gearbox")
+    assert [(z["id"], z["rect"]) for z in d["zones"]] == [(z["id"], z["rect"]) for z in yml["zones"]]
     assert len(d["meas"]["SH-301|零件检验 Part inspection"]) >= 6
     assert d["procdocs"] is None
