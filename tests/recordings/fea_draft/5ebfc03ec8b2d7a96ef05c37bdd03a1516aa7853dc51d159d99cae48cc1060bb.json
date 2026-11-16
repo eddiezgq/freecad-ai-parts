@@ -3,7 +3,7 @@
   "prompt_version": "fea-draft/1",
   "request_key": "5ebfc03ec8b2d7a96ef05c37bdd03a1516aa7853dc51d159d99cae48cc1060bb",
   "response": {
-    "id": "msg_011Ch6jjuzJXsGez6PrhTHv3",
+    "id": "msg_011Ch6wV2UT4XnMZwz8vUrhw",
     "simulated": false,
     "tool_input": {
       "bodies": [
@@ -60,12 +60,12 @@
           "type": "modal"
         }
       ],
-      "name": "LS-101_upper_shaft",
+      "name": "LS-101 shang zhou",
       "questions": [
-        "扭矩的转向（绕轴正向或负向）原话未说明，请确认扭矩方向。",
-        "“峰值扭矩”是否按静态载荷直接施加？原话未提供其他工况或组合系数。",
-        "电机端 z=297 端面“固定”是否为完全固定（三个方向全约束）？这里按 F7 端面固定处理，请确认。",
-        "两处 Ø12 轴承位我选了 F1（z 22–32）和 F4（z 247–257），请确认。"
+        "扭矩的转向（绕轴线正向还是反向，即 +z 右手方向或其反向）原话未说明，请确认。",
+        "扭矩是施加在 F3（Ø10、长 22 的针杆端轴段外圆面）上，对吗？",
+        "固定面选了 F7（z = 297 的端面，面积 79 mm²），对吗？",
+        "两处 Ø12 轴承位选了 F1（z 22–32）和 F4（z 247–257），对吗？"
       ]
     }
   }

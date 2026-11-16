@@ -3,7 +3,7 @@
   "prompt_version": "fea-draft/1",
   "request_key": "c72675d2aef1903bf3a06e8cd3beb7eff788f07bda9fe11782aa2694b5855402",
   "response": {
-    "id": "msg_011Ch6jmG73xVnREqCjrehE9",
+    "id": "msg_011Ch6wWGfmCWAERHG1E6PQB",
     "simulated": false,
     "tool_input": {
       "bodies": [
@@ -21,7 +21,7 @@
               "value": 1.35
             },
             {
-              "case": "work",
+              "case": "operating",
               "value": 1.5
             }
           ],
@@ -38,13 +38,13 @@
         {
           "case": "dead",
           "direction": null,
+          "direction_quote": null,
           "magnitude": null,
-          "part": 1,
           "quote": "重力竖直向下",
           "type": "gravity"
         },
         {
-          "case": "work",
+          "case": "operating",
           "features": [
             "F4"
           ],
@@ -58,6 +58,7 @@
           "type": "torque"
         },
         {
+          "case": null,
           "features": [
             "F6"
           ],
@@ -74,17 +75,19 @@
           "quote": "自重"
         },
         {
-          "id": "work",
+          "id": "operating",
           "kind": "operating",
           "name": "工作载荷",
           "quote": "工作载荷"
         }
       ],
-      "name": "ARM-UPPER_combo",
+      "name": "ARM-UPPER combo check",
       "questions": [
-        "“重力竖直向下”对应模型坐标系的哪个方向（+x/-x/+y/-y/+z/-z）？清单里没有说明哪个轴是竖直方向，请确认。",
-        "重力加速度的数值是多少（原话未给）？",
-        "扭矩作用在 F4（Ø107 孔座，面 8）上，请确认是加在该孔座的圆柱面上；扭矩的转向原话没有给出，是否需要指定？"
+        "“竖直向下”对应模型坐标系的哪个轴方向（+x/-x/+y/-y/+z/-z）？零件清单里没有标明竖直方向，请确认。",
+        "重力加速度的数值原话未给出，请指明（取值及单位）。",
+        "扭矩 46.4 N·m 的转向（绕 F4 轴线的正/反方向）原话未说明，请确认。",
+        "肩部固定约束是否对所有工况（自重、工作）都施加？这里默认两个工况均适用，请确认。",
+        "F4（Ø107 孔/座，轴线沿 y）按“肘部 Ø107 减速器座”选取，F6（Ø138 孔/座）按“肩部 Ø138 减速器座”选取，请确认；固定是否仅约束孔面 F6，还是还包括其台阶面 F12/F13。"
       ]
     }
   }
