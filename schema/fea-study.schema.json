@@ -157,6 +157,9 @@
           },
           {
             "$ref": "#/$defs/temperature"
+          },
+          {
+            "$ref": "#/$defs/mass"
           }
         ]
       }
@@ -1130,6 +1133,37 @@
         "time_step_s",
         "amplitude",
         "damping_ratio"
+      ],
+      "additionalProperties": false
+    },
+    "mass": {
+      "type": "object",
+      "description": "附加质量（ADR-0093 补充十）：装在这些面上的外购件（电机、减速器、负载等）的质量，按节点面积分到各节点；随该实体的重力 / 惯性加速度一起受力，在模态与动力学里计入惯性。只算平动质量，不计它自身的转动惯量和刚度",
+      "properties": {
+        "type": {
+          "const": "mass"
+        },
+        "body": {
+          "$ref": "#/$defs/id"
+        },
+        "faces": {
+          "$ref": "#/$defs/face_list"
+        },
+        "mass_kg": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 80,
+          "description": "写明是什么（如“j2 电机 + 减速器，样本质量”）"
+        }
+      },
+      "required": [
+        "type",
+        "body",
+        "faces",
+        "mass_kg"
       ],
       "additionalProperties": false
     }
