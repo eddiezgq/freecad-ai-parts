@@ -1,0 +1,46 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "fea-draft/1",
+  "request_key": "8ecf32a7fe27b9a7f1cc42cb93da0f75c238036a65db2afc79056b112ff0e268",
+  "response": {
+    "id": "msg_011Ch6jkdUtMxYXtpfhKitUL",
+    "simulated": false,
+    "tool_input": {
+      "bodies": [
+        {
+          "material": "6061-T6",
+          "material_quote": "6061-T6",
+          "part": 1
+        }
+      ],
+      "items": [
+        {
+          "features": [
+            "F6"
+          ],
+          "part": 1,
+          "quote": "肩部 Ø138 减速器座固定",
+          "type": "fixed"
+        },
+        {
+          "features": [
+            "F4"
+          ],
+          "magnitude": {
+            "quote": "46.4 N·m",
+            "unit": "N·m",
+            "value": 46.4
+          },
+          "part": 1,
+          "quote": "肘部 Ø107 减速器座上加 j3 峰值扭矩 46.4 N·m",
+          "type": "torque"
+        }
+      ],
+      "name": "ARM-UPPER_j3_peak_torque",
+      "questions": [
+        "扭矩绕轴线的转向（正/反）原话未说明，请确认。",
+        "是否需要考虑大臂自重（重力）？原话未提及，目前未加入。"
+      ]
+    }
+  }
+}

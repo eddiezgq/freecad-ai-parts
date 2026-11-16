@@ -113,10 +113,26 @@ def test_combination_factors_and_one_static_step_per_combination(parts):
     st = r["study"]
     assert st["combinations"][0]["factors"] == {"G": 1.35, "W": 1.5}
     assert [s.get("combination") for s in st["steps"]] == ["C1"]
-    g = next(x for x in st["loads"] if x["type"] == "gravity")
+    # “重力竖直向下”没说零件坐标的哪个轴：不起草重力，追问
+    assert not [x for x in st["loads"] if x["type"] == "gravity"] and any("重力" in q for q in r["questions"])
+
+
+def test_gravity_with_axis_stated_uses_standard_g(parts):
+    sid = "S4-ARMUPPER-combination"
+    stmt = SAMPLES[sid]["statement"].replace("重力竖直向下", "重力沿 -z")
+    p = copy.deepcopy(GOOD[sid])
+    for x in p["load_cases"] + p["items"]:
+        x["quote"] = x["quote"].replace("重力竖直向下", "重力沿 -z")
+    p["items"][1]["direction_quote"] = "重力沿 -z"
+    ps = [x for q in SAMPLES[sid]["parts"] for x in parts[q]]
+    r = D.verify(p, stmt, ps)
+    g = next(x for x in r["study"]["loads"] if x["type"] == "gravity")
     assert g["acceleration_m_s2"] == [0, 0, -D.STANDARD_GRAVITY] and g["case"] == "G"
-    note = next(b["note"] for b in st["provenance"]["basis"] if b["target"] == "/loads/0")
-    assert "9.80665" in note and "z 轴朝上" in note
+    note = next(b["note"] for b in r["study"]["provenance"]["basis"] if b["target"] == "/loads/0")
+    assert "9.80665" in note and r["errors"] == [] and r["questions"] == []
+    p["items"][1]["direction"] = "+z"                          # 与原话相反
+    r = D.verify(p, stmt, ps)
+    assert any("不符" in x["reason"] for x in r["rejected"])
 
 
 def test_torque_axis_comes_from_the_feature(parts):
@@ -164,11 +180,11 @@ def test_direction_must_come_from_statement(parts):
 
 
 def test_bearing_load_must_be_radial(parts):
-    """LS-101 的轴线是 z：原话说“向下”= -z，与轴线平行，不是径向力，要拦下"""
-    s = "平缝机上轴 LS-101，45 钢调质。Ø12 轴承位受向下 50 N 的轴承力。"
+    """LS-101 的轴线是 z：原话说沿 -z，与轴线平行，不是径向力，要拦下"""
+    s = "平缝机上轴 LS-101，45 钢调质。Ø12 轴承位受沿 -z 方向 50 N 的轴承力。"
     prop = {"bodies": [{"part": 1, "material": "45-QT", "material_quote": "45 钢调质"}],
-            "items": [{"type": "bearing_load", "part": 1, "features": ["F1"], "quote": "Ø12 轴承位受向下 50 N 的轴承力",
-                       "magnitude": {"value": 50, "unit": "N", "quote": "向下 50 N"}, "direction": "-z", "direction_quote": "向下"}],
+            "items": [{"type": "bearing_load", "part": 1, "features": ["F1"], "quote": "Ø12 轴承位受沿 -z 方向 50 N 的轴承力",
+                       "magnitude": {"value": 50, "unit": "N", "quote": "50 N"}, "direction": "-z", "direction_quote": "沿 -z 方向"}],
             "questions": []}
     r = D.verify(prop, s, parts["examples/apps/out/lockstitch/LS-101.step"])
     assert any("不垂直于轴线" in x["reason"] for x in r["rejected"])
@@ -181,6 +197,8 @@ def test_material_must_be_in_statement_and_library(parts):
     p = _edit("S1-RJ201-torque", lambda p: p["bodies"][0].update(material="S355J2", material_quote="45 钢调质"))
     assert "material" not in _run("S1-RJ201-torque", p, parts)["study"]["bodies"][0]
     assert not D._material_ok("45-QT", "45 钢（调质）", "Q345 调质") and D._material_ok("Q345", "Q345（Q355）", "Q345 钢板")
+    assert D._material_ok("40Cr-QT", "40Cr（调质）", "40Cr quenched and tempered")       # 真实 LLM 验收时查出的漏洞
+    assert D._material_ok("45-QT", "45 钢（调质）", "45钢调质")
     p = _edit("S1-RJ201-torque", lambda p: p["bodies"][0].update(material=None, material_quote=None))
     r = _run("S1-RJ201-torque", p, parts)
     assert any("材料" in q for q in r["questions"]) and r["errors"]
@@ -228,9 +246,10 @@ def test_parse_direction():
     assert D.parse_direction("沿 -y 方向")[0] == "-y"
     assert D.parse_direction("z 轴负向")[0] == "-z"
     assert D.parse_direction("in the negative x direction")[0] == "-x"
-    assert D.parse_direction("竖直向下") == ("-z", D.parse_direction("向下")[1]) and "z 轴朝上" in D.parse_direction("向下")[1]
+    assert D.parse_direction("竖直向下")[0] is None          # 零件坐标的哪个轴没说：不猜
+    assert D.parse_direction("沿 -y 方向")[1] == ""
     assert D.parse_direction("径向力")[0] is None
-    assert D.parse_direction("pushed upward")[0] == "+z"
+    assert D.parse_direction("pushed upward")[0] is None
     assert D.parse_direction("a setup step")[0] is None
 
 
