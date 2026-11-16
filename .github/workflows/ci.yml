@@ -64,7 +64,7 @@ jobs:
       - name: 安装字体（模拟规格书 PDF 用）、CalculiX（分析模块，ADR-0056）与 OpenFOAM（流体，ADR-0059）
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends fonts-dejavu-core fonts-wqy-zenhei calculix-ccx libglu1-mesa libxcursor1 libxft2 libxinerama1 libgomp1 openfoam openmpi-bin
       - name: 安装依赖
-        run: pip install -e ".[dev,mbd,fea,optimize]"
+        run: pip install -e ".[dev,mbd,fea,optimize,report]"
       - name: 代码检查
         run: python -m ruff check .
       - name: schema 校验、单元测试与数据库测试

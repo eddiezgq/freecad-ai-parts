@@ -38,6 +38,11 @@ fea = [
 optimize = [
     "optuna>=4.0",
 ]
+# 有限元报告（ADR-0093 补充十一）：Word 与云图；PDF 用本机的 LibreOffice 转
+report = [
+    "python-docx>=1.1",
+    "matplotlib>=3.8",
+]
 dev = [
     "pytest>=8",
     "jsonschema>=4.21",

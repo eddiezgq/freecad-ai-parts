@@ -1,0 +1,137 @@
+{
+ "format": "fea-study/1",
+ "name": "ARM-UPPER_combo",
+ "bodies": [
+  {
+   "id": "b1",
+   "step_path": "examples/apps/out/cobot_arm/ARM-UPPER.step",
+   "material": "6061-T6"
+  }
+ ],
+ "supports": [
+  {
+   "type": "fixed",
+   "body": "b1",
+   "faces": [
+    13
+   ]
+  }
+ ],
+ "loads": [
+  {
+   "type": "torque",
+   "body": "b1",
+   "faces": [
+    8
+   ],
+   "value_nm": 46.4,
+   "axis": {
+    "origin_mm": [
+     425.0,
+     56.041,
+     162.5
+    ],
+    "dir": [
+     0.0,
+     -1.0,
+     0.0
+    ]
+   },
+   "case": "work"
+  }
+ ],
+ "steps": [
+  {
+   "id": "s_combo1",
+   "type": "static",
+   "combination": "combo1"
+  }
+ ],
+ "load_cases": [
+  {
+   "id": "dead",
+   "name": "自重",
+   "kind": "dead"
+  },
+  {
+   "id": "work",
+   "name": "工作载荷",
+   "kind": "operating"
+  }
+ ],
+ "combinations": [
+  {
+   "id": "combo1",
+   "name": "1.35自重+1.5工作",
+   "factors": {
+    "dead": 1.35,
+    "work": 1.5
+   },
+   "basis": "1.35 × 自重 + 1.5 × 工作"
+  }
+ ],
+ "provenance": {
+  "drafted_by": "ai",
+  "confirmed_by_human": true,
+  "basis": [
+   {
+    "target": "/bodies/0/material",
+    "source": "statement",
+    "quote": "6061-T6",
+    "note": "6061-T6：6061-T6 铝合金"
+   },
+   {
+    "target": "/load_cases/0",
+    "source": "statement",
+    "quote": "自重"
+   },
+   {
+    "target": "/load_cases/1",
+    "source": "statement",
+    "quote": "工作载荷"
+   },
+   {
+    "target": "/combinations/0",
+    "source": "statement",
+    "quote": "1.35 × 自重 + 1.5 × 工作"
+   },
+   {
+    "target": "/supports/0",
+    "source": "statement",
+    "quote": "肩部 Ø138 减速器座固定",
+    "features": [
+     "F6：孔 / 座 Ø138，深 84.0，面 [13]；直径与零件库 CSF-32-100-2UH 外形 Ø138 相符（可能的配合面）"
+    ]
+   },
+   {
+    "target": "/loads/0",
+    "source": "statement",
+    "quote": "肘部 Ø107 减速器座上的扭矩 46.4 N·m",
+    "features": [
+     "F4：孔 / 座 Ø107，深 94.0，面 [8]；直径与零件库 CSF-25-100-2UH 外形 Ø107 相符（可能的配合面）"
+    ],
+    "note": "轴线取特征的轴线；扭矩方向按特征轴线的正向（线弹性下正负不影响应力大小）"
+   },
+   {
+    "target": "/steps/0",
+    "source": "statement",
+    "quote": "1.35 × 自重 + 1.5 × 工作",
+    "note": "按组合 combo1 算"
+   },
+   {
+    "target": "/mesh",
+    "source": "default",
+    "note": "网格尺寸缺省（包围盒对角线 / 30，载荷面加密）"
+   },
+   {
+    "target": "/checks",
+    "source": "default",
+    "note": "可信度核查缺省：反力平衡、网格质量、三层网格收敛"
+   }
+  ],
+  "questions": [],
+  "note": "AI 起草（提示词 fea-draft/1，模型 claude-sonnet-5-5，响应 msg_011Ch6jmG73xVnREqCjrehE9）；未采用的提议见起草记录。须工程师逐项核对、清掉追问后确认",
+  "confirmed_by": "样例（测试用，非真人确认）",
+  "confirmed_at": "2026-11-16T16:12:39+00:00"
+ }
+}

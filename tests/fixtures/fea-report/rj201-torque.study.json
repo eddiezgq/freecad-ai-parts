@@ -1,0 +1,96 @@
+{
+ "format": "fea-study/1",
+ "name": "RJ-201_hollow_shaft_torque",
+ "bodies": [
+  {
+   "id": "b1",
+   "step_path": "examples/apps/out/cobot_joint/RJ-201.step",
+   "material": "45-QT"
+  }
+ ],
+ "supports": [
+  {
+   "type": "fixed",
+   "body": "b1",
+   "faces": [
+    3
+   ]
+  }
+ ],
+ "loads": [
+  {
+   "type": "torque",
+   "body": "b1",
+   "faces": [
+    8
+   ],
+   "value_nm": 92.5,
+   "axis": {
+    "origin_mm": [
+     0.0,
+     0.0,
+     76.453
+    ],
+    "dir": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "s1",
+   "type": "static"
+  }
+ ],
+ "provenance": {
+  "drafted_by": "ai",
+  "confirmed_by_human": true,
+  "basis": [
+   {
+    "target": "/bodies/0/material",
+    "source": "statement",
+    "quote": "45 钢调质",
+    "note": "45-QT：45 钢（调质）"
+   },
+   {
+    "target": "/supports/0",
+    "source": "statement",
+    "quote": "Ø70 法兰那一端的端面固定",
+    "features": [
+     "F6：端面 / 安装面：面 3，朝 -z，面积 3142 mm²"
+    ]
+   },
+   {
+    "target": "/loads/0",
+    "source": "statement",
+    "quote": "在 Ø42.75 花键段上加峰值扭矩 92.5 N·m",
+    "features": [
+     "F4：外圆 / 轴段 Ø42.75，长 20.0，面 [8]"
+    ],
+    "note": "轴线取特征的轴线；扭矩方向按特征轴线的正向（线弹性下正负不影响应力大小）"
+   },
+   {
+    "target": "/steps/0",
+    "source": "default",
+    "note": "有载荷，缺省做静力分析"
+   },
+   {
+    "target": "/mesh",
+    "source": "default",
+    "note": "网格尺寸缺省（包围盒对角线 / 30，载荷面加密）"
+   },
+   {
+    "target": "/checks",
+    "source": "default",
+    "note": "可信度核查缺省：反力平衡、网格质量、三层网格收敛"
+   }
+  ],
+  "questions": [],
+  "note": "AI 起草（提示词 fea-draft/1，模型 claude-sonnet-5-5，响应 msg_011Ch6jjFUnf4iRdit5Qiwqx）；未采用的提议见起草记录。须工程师逐项核对、清掉追问后确认",
+  "confirmed_by": "样例（测试用，非真人确认）",
+  "confirmed_at": "2026-11-16T16:10:15+00:00"
+ }
+}

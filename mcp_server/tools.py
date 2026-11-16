@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 from engine.values import bounds
@@ -334,3 +335,59 @@ __all__: list[Any] = [
     "search_components",
     "verify_system",
 ]
+
+
+def fea_draft(statement: str, step_paths: list[str], proposal: dict | None = None) -> dict:
+    """AI 起草有限元算例（ADR-0093 补充十一）。不给 proposal：返回零件特征清单、起草规则与提议格式，由调用方的 AI 按它提议；
+    给了 proposal：程序逐项核对，返回算例草稿（未确认，不能算）、未采用的提议及原因、追问。"""
+    from assist import fea_draft as D
+
+    if not isinstance(statement, str) or not statement.strip():
+        raise ToolInputError("statement 须为一句话需求")
+    if not step_paths or not all(isinstance(p, str) and Path(p).is_file() for p in step_paths):
+        raise ToolInputError("step_paths 须为存在的 STEP 文件路径")
+    parts = D.part_features(step_paths)
+    if proposal is None:
+        req = D.build_request(statement, parts)
+        return {"instructions": req["system"], "context": req["user"], "proposal_schema": D.TOOL_SCHEMA,
+                "next": "按 instructions 写 proposal（只用特征编号选面、每项附原话引用），再调用本工具并传入 proposal"}
+    try:
+        out = D.verify(proposal, statement, parts, response_id="mcp", model="调用方的 AI")
+    except TypeError as exc:
+        raise ToolInputError(str(exc)) from exc
+    return {**out, "features": [p["text"] for p in parts],
+            "next": "工程师逐项核对、答完追问并删掉 provenance.questions 后，用 python -m assist.fea confirm 算例 --by 姓名 确认"}
+
+
+def fea_report(study: dict, out_path: str, result: dict | None = None, number: str | None = None,
+               revision: str = "草稿", reason: str = "首次出稿", explanation: dict | None = None) -> dict:
+    """有限元报告（Word，本机有 LibreOffice 时另出 PDF）。不给 result 就先算。explanation 是调用方 AI 写的解释与建议
+    （{"paragraphs": [...], "suggestions": [...]}，数值只能用事实清单里的占位符），程序逐段核对，不合规的退回。
+    不给 explanation 时，结果里带 explain_request（事实清单与规则），调用方可据此写一份再调用。"""
+    from assist import fea_report as R
+
+    if not isinstance(study, dict):
+        raise ToolInputError("study 须为算例对象")
+    if result is None:
+        import analysis
+
+        result = analysis.run("fea", study)
+        if result["status"] != "ok":
+            return {"status": "failed", "messages": result["messages"]}
+    expl = None
+    if explanation is not None:
+        expl = R.verify_explanation(explanation, result)
+        expl.update(model="调用方的 AI", response_id="mcp", prompt_version=R.PROMPT_VERSION, simulated=False)
+    try:
+        got = R.build(study, result, Path(out_path), number=number, revision=revision, reason=reason, explanation=expl)
+    except ValueError as exc:
+        raise ToolInputError(str(exc)) from exc
+    pdf = R.to_pdf(Path(got["docx"]))
+    out = {"status": "ok", "docx": str(got["docx"]), "pdf": str(pdf) if pdf else None, "ledger": str(got["ledger"]),
+           "record": str(got["record"]), "trust_verdict": result["data"].get("trust_verdict")}
+    if expl is not None:
+        out["explanation_rejected"] = expl["rejected"]
+    else:
+        req = R.build_request(result)
+        out["explain_request"] = {"instructions": req["system"], "facts": req["user"], "schema": R.TOOL_SCHEMA}
+    return out

@@ -1,8 +1,8 @@
-name: AI 起草算例验收（手动运行）
+name: AI 起草算例与报告解释验收（手动运行）
 
 # ADR-0093 补充十一第 4 步：在云端用真实 LLM 跑六个真实零件样例，量面选对率（门槛：面选错 ≤ 10 %），并录制。
 # 密钥用仓库 demo 环境里已有的 ANTHROPIC_API_KEY（与“真实数据”工作流同一个），不经过对话、不写进仓库。
-# 结果写在本次运行的摘要里；录制推到新分支 m38/fea-draft-rec-<运行号>，由人或 Claude 开 PR 合并。约 6 次模型调用。
+# 结果写在本次运行的摘要里；录制推到新分支 m38/fea-draft-rec-<运行号>，由人或 Claude 开 PR 合并。约 9 次模型调用（起草 6 次、解释 3 次）。
 
 on:
   workflow_dispatch:
@@ -28,7 +28,7 @@ jobs:
       - name: gmsh 所需系统库
         run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends libglu1-mesa libxcursor1 libxft2 libxinerama1 libgomp1
       - name: 安装依赖
-        run: pip install -e ".[dev,llm,fea]"
+        run: pip install -e ".[dev,llm,fea,report]"
       - name: 没有密钥时停止
         if: env.ANTHROPIC_API_KEY == ''
         run: echo "::error::demo 环境中没有 ANTHROPIC_API_KEY" && exit 1
@@ -55,13 +55,32 @@ jobs:
           EOF
           cat eval.json
           echo "评测退出码 $code（1 = 未达标；录制照样提交，便于分析）"
+      - name: 报告解释（真实零件的结果）并录制
+        run: |
+          set +e
+          python -m assist.fea explain-eval --record > explain.json
+          code=$?
+          set -e
+          python - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          r = json.load(open("explain.json"))
+          print("\n## 报告解释验收\n")
+          print(f"- 结论：{'达标' if r['passed'] else '未达标'}（每份都有采用的段落、用了占位符、没有退回的段落）\n")
+          print("| 结果 | 采用段落 | 占位符 | 退回 |")
+          print("|---|---|---|---|")
+          for x in r["samples"]:
+              why = "；".join(f"{y['part']}：{y['reason']}" for y in x["rejected"]) or "—"
+              print(f"| {x['id']} | {x['kept']} | {x['placeholders']} | {why} |")
+          EOF
+          cat explain.json
+          echo "解释评测退出码 $code"
       - name: 推到新分支
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           branch="m38/fea-draft-rec-${GITHUB_RUN_ID}"
           git checkout -b "$branch"
-          git add tests/recordings/fea_draft
+          git add -A tests/recordings
           if git diff --cached --quiet; then echo "没有新录制"; exit 0; fi
           git commit -m "M38: AI 起草算例录制（运行 ${GITHUB_RUN_ID}）" -m "由 .github/workflows/fea-draft-eval.yml 生成"
           git push origin "$branch"

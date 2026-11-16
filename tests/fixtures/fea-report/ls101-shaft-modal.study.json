@@ -1,0 +1,140 @@
+{
+ "format": "fea-study/1",
+ "name": "LS-101_upper_shaft",
+ "bodies": [
+  {
+   "id": "b1",
+   "step_path": "examples/apps/out/lockstitch/LS-101.step",
+   "material": "45-QT"
+  }
+ ],
+ "supports": [
+  {
+   "type": "cyl_support",
+   "body": "b1",
+   "faces": [
+    1,
+    8
+   ],
+   "axis": {
+    "origin_mm": [
+     0.0,
+     0.0,
+     26.787
+    ],
+    "dir": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   },
+   "dofs": [
+    "radial"
+   ]
+  },
+  {
+   "type": "fixed",
+   "body": "b1",
+   "faces": [
+    11
+   ]
+  }
+ ],
+ "loads": [
+  {
+   "type": "torque",
+   "body": "b1",
+   "faces": [
+    5
+   ],
+   "value_nm": 2.82,
+   "axis": {
+    "origin_mm": [
+     0.0,
+     0.0,
+     11.015
+    ],
+    "dir": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "s1",
+   "type": "static"
+  },
+  {
+   "id": "m1",
+   "type": "modal",
+   "n_modes": 4
+  }
+ ],
+ "provenance": {
+  "drafted_by": "ai",
+  "confirmed_by_human": true,
+  "basis": [
+   {
+    "target": "/bodies/0/material",
+    "source": "statement",
+    "quote": "45 钢调质",
+    "note": "45-QT：45 钢（调质）"
+   },
+   {
+    "target": "/supports/0",
+    "source": "statement",
+    "quote": "两处 Ø12 轴承位只限制径向",
+    "features": [
+     "F1：外圆 / 轴段 Ø12，长 10.0，面 [1]；直径与零件库 CSF-20-100-2UH 的孔（input_bore）Ø12、CSF-20-50-2UH 的孔（input_bore）Ø12 相符（可能的配合面）",
+     "F4：外圆 / 轴段 Ø12，长 10.0，面 [8]；直径与零件库 CSF-20-100-2UH 的孔（input_bore）Ø12、CSF-20-50-2UH 的孔（input_bore）Ø12 相符（可能的配合面）"
+    ],
+    "note": "轴线取特征的轴线"
+   },
+   {
+    "target": "/supports/1",
+    "source": "statement",
+    "quote": "电机端（z = 297 的端面）固定",
+    "features": [
+     "F7：端面 / 安装面：面 11，朝 +z，面积 79 mm²"
+    ]
+   },
+   {
+    "target": "/loads/0",
+    "source": "statement",
+    "quote": "针杆端 Ø10、长 22 的轴段上加峰值扭矩 2.82 N·m",
+    "features": [
+     "F3：外圆 / 轴段 Ø10，长 22.0，面 [5]"
+    ],
+    "note": "轴线取特征的轴线；扭矩方向按特征轴线的正向（线弹性下正负不影响应力大小）"
+   },
+   {
+    "target": "/steps/0",
+    "source": "statement",
+    "quote": "加峰值扭矩 2.82 N·m"
+   },
+   {
+    "target": "/steps/1",
+    "source": "statement",
+    "quote": "另算前 4 阶固有频率",
+    "note": "阶数按原话“前 4 阶”"
+   },
+   {
+    "target": "/mesh",
+    "source": "default",
+    "note": "网格尺寸缺省（包围盒对角线 / 30，载荷面加密）"
+   },
+   {
+    "target": "/checks",
+    "source": "default",
+    "note": "可信度核查缺省：反力平衡、网格质量、三层网格收敛"
+   }
+  ],
+  "questions": [],
+  "note": "AI 起草（提示词 fea-draft/1，模型 claude-sonnet-5-5，响应 msg_011Ch6jjuzJXsGez6PrhTHv3）；未采用的提议见起草记录。须工程师逐项核对、清掉追问后确认",
+  "confirmed_by": "样例（测试用，非真人确认）",
+  "confirmed_at": "2026-11-16T16:11:41+00:00"
+ }
+}
