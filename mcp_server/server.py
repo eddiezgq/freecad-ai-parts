@@ -208,6 +208,32 @@ def create_server(library_factory: Callable[[], Library] = default_library,
 
     @mcp.tool
     @_guard
+    def fea_draft(
+        statement: Annotated[str, Field(description="工程师的一句话：零件、材料、支承、载荷、要算什么")],
+        step_paths: Annotated[list[str], Field(description="零件 STEP 文件路径（本机）")],
+        proposal: Annotated[dict | None, Field(description="按第一次调用返回的规则与格式写的提议；不给则只返回特征清单与规则")] = None,
+    ) -> dict:
+        """AI 起草有限元算例（ADR-0093 补充十一）：先不带 proposal 调用，拿到零件特征清单与规则；按规则提议后再调用，
+        程序逐项核对（引用、数值与单位、面的类型、方向、材料），返回算例草稿（未确认，不能算）、未采用的提议与追问。"""
+        return tools.fea_draft(statement, step_paths, proposal)
+
+    @mcp.tool
+    @_guard
+    def fea_report(
+        study: Annotated[dict, Field(description="已由工程师确认的算例（fea-study/1）")],
+        out_path: Annotated[str, Field(description="Word 报告的输出路径（.docx）")],
+        result: Annotated[dict | None, Field(description="已算好的结果（须是这份算例算的）；不给就先算")] = None,
+        number: Annotated[str | None, Field(description="报告编号（质量体系分配）")] = None,
+        revision: Annotated[str, Field(description="版次")] = "草稿",
+        reason: Annotated[str, Field(description="本版出稿 / 改版原因")] = "首次出稿",
+        explanation: Annotated[dict | None, Field(description="解释与建议 {paragraphs, suggestions}，数值只用占位符")] = None,
+    ) -> dict:
+        """有限元报告：Word（有 LibreOffice 时另出 PDF），带审核清单、可追溯信息、出处账；报告里每个数字都由程序从文件填。
+        不给 explanation 时返回 explain_request（事实清单与规则），可据此写解释再调用；不合规的段落退回。"""
+        return tools.fea_report(study, out_path, result, number, revision, reason, explanation)
+
+    @mcp.tool
+    @_guard
     def place_component(
         instance: Annotated[str, Field(description="实例名，如 motor、reducer、drive（小写字母开头）")],
         component_id: Annotated[str | None, Field(description="组件 id；新实例必填，移动已有实例时可省略")] = None,
