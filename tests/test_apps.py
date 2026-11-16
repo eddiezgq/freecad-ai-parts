@@ -64,6 +64,8 @@ def test_cobot_arm():
     for j in ("j1", "j2", "j3", "j4", "j5", "j6"):
         assert s[f"选型 {j}"]["status"] in ("ok", "unknown"), s[f"选型 {j}"]["summary"]
     assert "CSF-32-100-2UH" in s["选型 j2"]["summary"]
+    assert "CSF-32-100-2UH" in s["选型 j1"]["summary"]                      # 第二版：j1 按输出轴承寿命 ≥ 35000 h 选（ADR-0094）
+    assert "不满足" not in s["输出轴承寿命"]["summary"]
     d = s["有限元：整臂静力"]["data"]
     sag, hand = -d["tcp_u_mm"][2], d["hand_sag_mm"]
     assert hand < sag < 4 * hand                                            # 梁理论只算管子弯曲，是下限
