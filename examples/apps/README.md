@@ -7,6 +7,7 @@
 |---|---|---|
 | `cobot_joint.py` | 协作机器人肩、肘、腕关节（UR5e 一类） | 动力学、选型（含外购件最轻的组合）、FreeCAD 布局与干涉、BOM、空心轴有限元与疲劳、壳体热分析、大臂侧板拓扑优化、车削与铣削编程、数字孪生、发布到工厂 |
 | `scara.py` | SCARA 大臂、小臂关节（600 mm 臂展一类） | 快慢两种节拍的动力学、选型（快节拍零件库供不了，如实报告）、布局、BOM、大臂拓扑优化 + 有限元 + 模态、铣削编程、发布 |
+| `cobot_arm.py` | 一整台六轴协作臂（UR5e 一类，ADR-0094） | 六关节动力学与选型（模组质量迭代）、结构设计取值、整臂多体有限元（静力、模态、急停瞬态）、减速器扭转与输出轴承刚度叠加、Dunkerley 合成频率、输出交叉滚子轴承寿命（样本公式）、减速器寿命、BOM |
 | `lockstitch.py` | 工业直驱平缝机主轴（JUKI DDL-9000C 一类） | 针杆曲柄滑块动力学（盈亏功、转速不均匀系数）、直驱电机 + 驱动器逐对校验（上下限）、上轴模态（临界转速）/ 扭转 / 疲劳、车削编程、控制箱散热器流体、支架拓扑优化、发布 |
 | `factory_flow.py` | 工厂一侧 | 转为生产物料（ERP 建物料、BOM）、自制件工艺规程（AI 评审、审批）、接单与 MRP、采购到货、MES 车间执行、工厂计算服务（有限元、数控编程、动力学）、厂情中枢（异常追因、预案推演、动作审批执行、简报、日报、态势、对象搜索） |
 
@@ -15,6 +16,7 @@
 ```bash
 pip install -e ".[dev,mbd,fea]"          # 流体另需 OpenFOAM（没有时自动跳过）
 python -m examples.apps.cobot_joint --quick           # 不连工厂、粗网格，几十秒
+python -m examples.apps.cobot_arm                     # 整臂，约 15 分钟（7 GB 内存够用；--quick 不做网格收敛核查）
 FAP_FREECAD=headless python -m examples.apps.cobot_joint --hub http://localhost:8100   # 带 FreeCAD 布局，发布到工厂
 python -m examples.apps.factory_flow --hub http://localhost:8100 --erp http://localhost:8091
 ```
