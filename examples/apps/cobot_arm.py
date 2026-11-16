@@ -328,6 +328,23 @@ def main(argv=None):
                 f" = {total + lm:.1f} kg（驱动器在控制柜，算在外购件里但不在臂上）", rows=rows, total_mass_kg=total)
     run.guard("BOM", bom)
 
+    # 3b 电机法兰的定制要求（ADR-0045、ADR-0053）：CSF-2UH 的电机侧法兰由厂商按所配电机做，
+    #    订货时把电机法兰的规格（照录电机样本，带页码）给厂商；C3 在厂商确认前保持“待确认”（ADR-0046 第 1 条）
+    def flanges():
+        from engine.custom import custom_requirements
+        rows, missing = [], []
+        for j in joints:
+            reqs = custom_requirements(picks[j][1].system, C.library().get)
+            for r in reqs:
+                spec = "、".join(f"{i['name']} {i['value']}" for i in r["items"])
+                rows.append(f"{j}：{r['model']} 的 {r['port']} 按 {r['mate']['model']} 定制（{spec}）")
+                missing += [f"{j} {m}" for m in r["missing"]]
+        run.add("电机法兰定制要求", "ok" if not missing else "unknown",
+                f"{len(rows)} 条，随减速器订货发给厂商：" + "；".join(rows)
+                + (f"；电机样本缺：{'、'.join(missing)}" if missing else "")
+                + "。C3 在厂商确认前按规定记“待确认”，不是缺设计", rows=rows, missing=missing)
+    run.guard("电机法兰定制要求", flanges)
+
     # 4 整臂多体有限元：重力 + 满载
     mesh = 8.0 if a.quick else 7.0                                   # 7 GB 内存：6 mm 带网格收敛核查会超内存
 

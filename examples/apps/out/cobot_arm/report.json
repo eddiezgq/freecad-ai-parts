@@ -3071,6 +3071,22 @@
    }
   },
   {
+   "step": "电机法兰定制要求",
+   "status": "ok",
+   "summary": "6 条，随减速器订货发给厂商：j1：Harmonic Drive LLC CSF-32-100-2UH 的 motor_flange 按 Yaskawa Electric Corporation SGM7J-02A（轴端代码 6） 定制（分度圆直径 70、孔数 4、孔的形式 通孔、通孔直径 5.5、止口直径 50（+0 / -0.025）、止口形式 凸）；j2：Harmonic Drive LLC CSF-32-100-2UH 的 motor_flange 按 Yaskawa Electric Corporation SGM7J-04A（轴端代码 6） 定制（分度圆直径 70、孔数 4、孔的形式 通孔、通孔直径 5.5、止口直径 50（+0 / -0.025）、止口形式 凸）；j3：Harmonic Drive LLC CSF-25-100-2UH 的 motor_flange 按 Yaskawa Electric Corporation SGM7J-04A（轴端代码 6） 定制（分度圆直径 70、孔数 4、孔的形式 通孔、通孔直径 5.5、止口直径 50（+0 / -0.025）、止口形式 凸）；j4：Harmonic Drive LLC CSF-17-100-2UH 的 motor_flange 按 Yaskawa Electric Corporation SGM7J-01A 定制（分度圆直径 46、孔数 2、孔的形式 通孔、通孔直径 4.3、止口直径 30（+0 / -0.021）、止口形式 凸、方形法兰边长 40）；j5：Harmonic Drive LLC CSF-17-100-2UH 的 motor_flange 按 Yaskawa Electric Corporation SGM7J-A5A 定制（分度圆直径 46、孔数 2、孔的形式 通孔、通孔直径 4.3、止口直径 30（+0 / -0.021）、止口形式 凸、方形法兰边长 40）；j6：Harmonic Drive LLC CSF-17-50-2UH 的 motor_flange 按 Yaskawa Electric Corporation SGM7J-A5A 定制（分度圆直径 46、孔数 2、孔的形式 通孔、通孔直径 4.3、止口直径 30（+0 / -0.021）、止口形式 凸、方形法兰边长 40）。C3 在厂商确认前按规定记“待确认”，不是缺设计",
+   "data": {
+    "rows": [
+     "j1：Harmonic Drive LLC CSF-32-100-2UH 的 motor_flange 按 Yaskawa Electric Corporation SGM7J-02A（轴端代码 6） 定制（分度圆直径 70、孔数 4、孔的形式 通孔、通孔直径 5.5、止口直径 50（+0 / -0.025）、止口形式 凸）",
+     "j2：Harmonic Drive LLC CSF-32-100-2UH 的 motor_flange 按 Yaskawa Electric Corporation SGM7J-04A（轴端代码 6） 定制（分度圆直径 70、孔数 4、孔的形式 通孔、通孔直径 5.5、止口直径 50（+0 / -0.025）、止口形式 凸）",
+     "j3：Harmonic Drive LLC CSF-25-100-2UH 的 motor_flange 按 Yaskawa Electric Corporation SGM7J-04A（轴端代码 6） 定制（分度圆直径 70、孔数 4、孔的形式 通孔、通孔直径 5.5、止口直径 50（+0 / -0.025）、止口形式 凸）",
+     "j4：Harmonic Drive LLC CSF-17-100-2UH 的 motor_flange 按 Yaskawa Electric Corporation SGM7J-01A 定制（分度圆直径 46、孔数 2、孔的形式 通孔、通孔直径 4.3、止口直径 30（+0 / -0.021）、止口形式 凸、方形法兰边长 40）",
+     "j5：Harmonic Drive LLC CSF-17-100-2UH 的 motor_flange 按 Yaskawa Electric Corporation SGM7J-A5A 定制（分度圆直径 46、孔数 2、孔的形式 通孔、通孔直径 4.3、止口直径 30（+0 / -0.021）、止口形式 凸、方形法兰边长 40）",
+     "j6：Harmonic Drive LLC CSF-17-50-2UH 的 motor_flange 按 Yaskawa Electric Corporation SGM7J-A5A 定制（分度圆直径 46、孔数 2、孔的形式 通孔、通孔直径 4.3、止口直径 30（+0 / -0.021）、止口形式 凸、方形法兰边长 40）"
+    ],
+    "missing": []
+   }
+  },
+  {
    "step": "结构设计",
    "status": "ok",
    "summary": "关节壳体内径按所选减速器的包络外径：j2 Ø138、j3 Ø107、j4 Ø79、j5 Ø79；大臂 Ø90×4、小臂 Ø70×3、底座 Ø130×6（6061-T6，设计取值）；STEP：ARM-BASE / UPPER / FORE / WRIST",
@@ -3231,5 +3247,5 @@
    "summary": "Harmonic Drive LLC CSF-32-100-2UH 按每天 16 小时、30 天的动作记录：已用 0.46%，按这个强度剩余约 102759 小时（样本 L10 = 7000 h 在额定扭矩、2000 rpm 下）"
   }
  ],
- "elapsed_s": 560.3
+ "elapsed_s": 536.0
 }
