@@ -169,6 +169,18 @@
         "page": 17
       }
     },
+    "input_inertia_kgm2": {
+      "condition": "折算到减速器输入侧（样本第 12 页定义）",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 9 页原文“20 ... 10000 6500 6500 3500 0.193 0.197（表 127-1 Moment of Inertia I）”，原值 0.193 ×10⁻⁴ kg·m²，换算为标准单位“1.93e-05”",
+        "page": 9
+      },
+      "value": 1.93e-05
+    },
     "mass_kg": {
       "confidence": 0.8,
       "method": "extracted",
@@ -203,6 +215,97 @@
       },
       "value": 98.0
     },
+    "output_bearing_dynamic_load_rating_n": {
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 18 页原文“20 0.05 0.0095 57.8 ... 90.0 ... 91 ... 12.8 ...（表 136-1 CSG/CSF 系列）”，原值 57.8 ×10² N，换算为标准单位“5780”",
+        "page": 18
+      },
+      "value": 5780.0
+    },
+    "output_bearing_moment_load_rating_nm": {
+      "condition": "许用力矩 Mc",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 18 页原文“20 0.05 0.0095 57.8 ... 90.0 ... 91 ... 12.8 ...（表 136-1 CSG/CSF 系列）”",
+        "page": 18
+      },
+      "value": 91
+    },
+    "output_bearing_moment_stiffness_nm_per_arcmin": {
+      "condition": "样本参考值（平均值），最小值约为表值的 80 %",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 18 页原文“20 0.05 0.0095 57.8 ... 90.0 ... 91 ... 12.8 ...（表 136-1 CSG/CSF 系列）”，原值 12.8 ×10⁴ Nm/rad，换算为标准单位“37.2337”",
+        "page": 18
+      },
+      "value": 37.23369070921237
+    },
+    "output_bearing_offset_mm": {
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 18 页原文“20 0.05 0.0095 57.8 ... 90.0 ... 91 ... 12.8 ...（表 136-1 CSG/CSF 系列）”，原值 0.0095 m，换算为标准单位“9.5”",
+        "page": 18
+      },
+      "value": 9.5
+    },
+    "output_bearing_pitch_diameter_mm": {
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 18 页原文“20 0.05 0.0095 57.8 ... 90.0 ... 91 ... 12.8 ...（表 136-1 CSG/CSF 系列）”，原值 0.05 m，换算为标准单位“50”",
+        "page": 18
+      },
+      "value": 50.0
+    },
+    "output_bearing_static_load_rating_n": {
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 18 页原文“20 0.05 0.0095 57.8 ... 90.0 ... 91 ... 12.8 ...（表 136-1 CSG/CSF 系列）”，原值 90 ×10² N，换算为标准单位“9000”",
+        "page": 18
+      },
+      "value": 9000.0
+    },
+    "rated_input_speed_rpm": {
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 9 页原文“Rated Torque at 2000rpm（表 127-1）”",
+        "page": 9
+      },
+      "value": 2000
+    },
+    "rated_life_h": {
+      "condition": "波发生器轴承 L10，额定扭矩、额定输入转速",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 32 页原文“Series name CSF, CSD, SHF, SHD, CSF-mini L10 7,000 hours（表 012-1）”",
+        "page": 32
+      },
+      "value": 7000
+    },
     "rated_torque_nm": {
       "condition": "Rated Torque at 2000rpm",
       "confidence": 0.8,
@@ -236,6 +339,64 @@
         "page": 9
       },
       "value": 56.0
+    },
+    "torsion_t1_nm": {
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 12 页原文“T1 Nm 7.0 … / T2 Nm 25 …（表 130-4）”",
+        "page": 12
+      },
+      "value": 7.0
+    },
+    "torsion_t2_nm": {
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 12 页原文“T1 Nm 7.0 … / T2 Nm 25 …（表 130-4）”",
+        "page": 12
+      },
+      "value": 25
+    },
+    "torsional_stiffness_k1_nm_per_arcmin": {
+      "condition": "样本参考值，最小值约为表值的 80 %",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 12 页原文“Reduction ratio 50 K1 ×10⁴Nm/rad 0.34 0.81 1.3 2.5 5.4 10 15 20 31 44”，原值 1.3 ×10⁴ Nm/rad，换算为标准单位“3.78155”",
+        "page": 12
+      },
+      "value": 3.7815467126543814
+    },
+    "torsional_stiffness_k2_nm_per_arcmin": {
+      "condition": "样本参考值，最小值约为表值的 80 %",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 12 页原文“Reduction ratio 50 K2 ×10⁴Nm/rad 0.47 1.1 1.8 3.4 7.8 14 20 28 44 61”，原值 1.8 ×10⁴ Nm/rad，换算为标准单位“5.23599”",
+        "page": 12
+      },
+      "value": 5.23598775598299
+    },
+    "torsional_stiffness_k3_nm_per_arcmin": {
+      "condition": "样本参考值，最小值约为表值的 80 %",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 12 页原文“Reduction ratio 50 K3 ×10⁴Nm/rad 0.57 1.3 2.3 4.4 9.8 18 26 34 54 78”，原值 2.3 ×10⁴ Nm/rad，换算为标准单位“6.69043”",
+        "page": 12
+      },
+      "value": 6.690428799311597
     }
   },
   "ports": [

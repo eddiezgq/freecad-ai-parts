@@ -169,6 +169,18 @@
         "page": 17
       }
     },
+    "input_inertia_kgm2": {
+      "condition": "折算到减速器输入侧（样本第 12 页定义）",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 9 页原文“14 ... 14000 8500 6500 3500 0.033 0.034（表 127-1 Moment of Inertia I）”，原值 0.033 ×10⁻⁴ kg·m²，换算为标准单位“3.3e-06”",
+        "page": 9
+      },
+      "value": 3.3e-06
+    },
     "max_input_speed_rpm": {
       "condition": "脂润滑（Grease lubricant）",
       "confidence": 1,
@@ -191,6 +203,97 @@
         "page": 9
       },
       "value": 54.0
+    },
+    "output_bearing_dynamic_load_rating_n": {
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 18 页原文“14 0.035 0.0095 47 ... 60.7 ... 41 ... 4.38 ...（表 136-1 CSG/CSF 系列）”，原值 47 ×10² N，换算为标准单位“4700”",
+        "page": 18
+      },
+      "value": 4700.0
+    },
+    "output_bearing_moment_load_rating_nm": {
+      "condition": "许用力矩 Mc",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 18 页原文“14 0.035 0.0095 47 ... 60.7 ... 41 ... 4.38 ...（表 136-1 CSG/CSF 系列）”",
+        "page": 18
+      },
+      "value": 41
+    },
+    "output_bearing_moment_stiffness_nm_per_arcmin": {
+      "condition": "样本参考值（平均值），最小值约为表值的 80 %",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 18 页原文“14 0.035 0.0095 47 ... 60.7 ... 41 ... 4.38 ...（表 136-1 CSG/CSF 系列）”，原值 4.38 ×10⁴ Nm/rad，换算为标准单位“12.7409”",
+        "page": 18
+      },
+      "value": 12.740903539558607
+    },
+    "output_bearing_offset_mm": {
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 18 页原文“14 0.035 0.0095 47 ... 60.7 ... 41 ... 4.38 ...（表 136-1 CSG/CSF 系列）”，原值 0.0095 m，换算为标准单位“9.5”",
+        "page": 18
+      },
+      "value": 9.5
+    },
+    "output_bearing_pitch_diameter_mm": {
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 18 页原文“14 0.035 0.0095 47 ... 60.7 ... 41 ... 4.38 ...（表 136-1 CSG/CSF 系列）”，原值 0.035 m，换算为标准单位“35”",
+        "page": 18
+      },
+      "value": 35.0
+    },
+    "output_bearing_static_load_rating_n": {
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 18 页原文“14 0.035 0.0095 47 ... 60.7 ... 41 ... 4.38 ...（表 136-1 CSG/CSF 系列）”，原值 60.7 ×10² N，换算为标准单位“6070”",
+        "page": 18
+      },
+      "value": 6070.0
+    },
+    "rated_input_speed_rpm": {
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 9 页原文“Rated Torque at 2000rpm（表 127-1）”",
+        "page": 9
+      },
+      "value": 2000
+    },
+    "rated_life_h": {
+      "condition": "波发生器轴承 L10，额定扭矩、额定输入转速",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 32 页原文“Series name CSF, CSD, SHF, SHD, CSF-mini L10 7,000 hours（表 012-1）”",
+        "page": 32
+      },
+      "value": 7000
     },
     "rated_torque_nm": {
       "condition": "Rated Torque at 2000rpm",
@@ -225,6 +328,64 @@
         "page": 9
       },
       "value": 28.0
+    },
+    "torsion_t1_nm": {
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 13 页原文“T1 Nm 2.0 … / T2 Nm 6.9 …（表 131-1）”",
+        "page": 13
+      },
+      "value": 2.0
+    },
+    "torsion_t2_nm": {
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 13 页原文“T1 Nm 2.0 … / T2 Nm 6.9 …（表 131-1）”",
+        "page": 13
+      },
+      "value": 6.9
+    },
+    "torsional_stiffness_k1_nm_per_arcmin": {
+      "condition": "样本参考值，最小值约为表值的 80 %",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 13 页原文“K1 ×10⁴Nm/rad 0.47 1 1.6 3.1 6.7 13 18 25 40 54”，原值 0.47 ×10⁴ Nm/rad，换算为标准单位“1.36717”",
+        "page": 13
+      },
+      "value": 1.3671745807288915
+    },
+    "torsional_stiffness_k2_nm_per_arcmin": {
+      "condition": "样本参考值，最小值约为表值的 80 %",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 13 页原文“K2 ×10⁴Nm/rad 0.61 1.4 2.5 5.0 11 20 29 40 61 88”，原值 0.61 ×10⁴ Nm/rad，换算为标准单位“1.77442”",
+        "page": 13
+      },
+      "value": 1.7744180728609018
+    },
+    "torsional_stiffness_k3_nm_per_arcmin": {
+      "condition": "样本参考值，最小值约为表值的 80 %",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-hd-csg-csf-gear-units",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-15），规格书第 13 页原文“K3 ×10⁴Nm/rad 0.71 1.6 2.9 5.7 12 23 33 44 71 98”，原值 0.71 ×10⁴ Nm/rad，换算为标准单位“2.06531”",
+        "page": 13
+      },
+      "value": 2.0653062815266234
     }
   },
   "ports": [

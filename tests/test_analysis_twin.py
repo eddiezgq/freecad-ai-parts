@@ -91,19 +91,27 @@ def test_alerts_and_status():
 
 
 def test_public_library_reducer_is_unknown_until_filled():
-    """公共库的减速器还没有额定寿命：待确认，并说明缺什么（ADR-0057 第 2 条）。"""
+    """缺额定寿命时待确认，并说明缺什么（ADR-0057 第 2 条）；公共库的谐波减速器 11-15 已按样本补了额定寿命（ADR-0094），
+    补上之后就能算。缺数据的情形用去掉 rated_life_h 的副本检查。"""
+    import copy
+
     system = {"components": [{"instance": "motor", "component": "servo_motor.yaskawa-electric-corporation.sgm7j-02a-6"},
                              {"instance": "reducer", "component": "reducer.harmonic-drive-llc.csf-25-100-2uh"}]}
     parts = twin.parts_from_system(system, LIB.get)
     assert [p["instance"] for p in parts] == ["reducer"]
-    out = analysis.run("twin", {"parts": parts, "records": _rows(3, "reducer", output_torque_avg_nm=20,
-                                                                  output_speed_rpm=15)})
+    rows = _rows(3, "reducer", output_torque_avg_nm=20, output_speed_rpm=15)
+    missing = copy.deepcopy(parts)
+    del missing[0]["component"]["params"]["rated_life_h"]
+    out = analysis.run("twin", {"parts": missing, "records": rows})
     p = out["data"]["parts"][0]
     assert p["status"] == "unknown" and "rated_life_h" in p["missing"] and out["data"]["overall"] == "unknown"
+    filled = analysis.run("twin", {"parts": parts, "records": rows})["data"]["parts"][0]   # 公共库：样本的 L10 = 7000 h
+    assert filled["status"] == "ok" and not filled.get("missing") and filled["used_ratio"] > 0
     from mcp_server import tools
 
     via_tool = tools.run_analysis("twin", {"system": system, "records": []}, LIB)
-    assert via_tool["data"]["parts"][0]["status"] == "unknown"
+    vp = via_tool["data"]["parts"][0]
+    assert vp["status"] == "ok" and vp["hours"] == 0 and vp["remaining_h"] is None   # 补了寿命、还没有运行记录：没用掉，剩余不推算
 
 
 def test_csv_records(tmp_path):
