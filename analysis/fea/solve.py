@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import math
 import os
+import shutil
 import subprocess
 import tempfile
 import time
@@ -1139,6 +1140,11 @@ def solve_bodies(bodies, setup, ccx, workdir=None):
             err = [x for x in (r.stdout + r.stderr).splitlines() if "ERROR" in x or "error" in x]
             hint = "；可能有零件没有被约束住（只靠无摩擦接触时会整体滑动）" if contact else ""
             raise RuntimeError("求解失败：" + ("；".join(err[-3:]) or (r.stdout + r.stderr)[-400:]) + hint)
+        if setup.get("keep_dir") and not partial:           # 留下求解器的输入与结果文件（FreeCAD 原生后处理读，ADR-0093 补充十二）
+            os.makedirs(setup["keep_dir"], exist_ok=True)
+            for name in ("job.inp", "job.frd", "job.dat"):
+                if os.path.exists(os.path.join(tmp, name)):
+                    shutil.copy(os.path.join(tmp, name), os.path.join(setup["keep_dir"], name))
         if frequency:
             return _modal_result(Bs, tmp, n_nodes, n_el, t0, prestress)
         if buckle:

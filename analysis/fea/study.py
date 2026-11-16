@@ -10,6 +10,7 @@ import copy
 import itertools
 import math
 import time
+from pathlib import Path
 
 import numpy as np
 
@@ -454,8 +455,9 @@ def run_dynamic(inner: dict, ccx: str, st: dict, cache: dict) -> tuple[dict, dic
     return res, {"verdict": trust.verdict(items), "items": items}
 
 
-def run(study: dict, ccx: str) -> tuple[dict, list[str]]:
-    """按算例计算。返回 (data, 局限说明)。抛 StudyInvalid / ValueError / RuntimeError / materials.MissingData"""
+def run(study: dict, ccx: str, keep_dir: str | None = None) -> tuple[dict, list[str]]:
+    """按算例计算。返回 (data, 局限说明)。抛 StudyInvalid / ValueError / RuntimeError / materials.MissingData。
+    keep_dir：给了就把每个静力 / 模态步最终那次求解的 job.inp、job.frd 留在 keep_dir/<分析步 id>/（FreeCAD 原生后处理用）"""
     from analysis.fea import (
         LIMITS_BUCKLING,
         LIMITS_DYNAMIC,
@@ -481,7 +483,8 @@ def run(study: dict, ccx: str) -> tuple[dict, list[str]]:
             verdicts.append(tr["verdict"])
             limits += [x for x in LIMITS_DYNAMIC if x not in limits]
         elif st["type"] == "modal":                       # 算例里的模态都走多实体求解（支承类型齐全、可加预应力，ADR-0093 F5）
-            mres, surface = run_modal(inner, ccx, st, cache)
+            mres, surface = run_modal(dict(inner, keep_dir=str(Path(keep_dir) / st["id"])) if keep_dir else inner, ccx, st,
+                                      {} if keep_dir else cache)
             res = {"id": st["id"], "type": "modal", **mres, "surface": _lists(surface)}
             limits += [x for x in LIMITS_MODAL if x not in limits]
         elif st["type"] == "buckling":
@@ -498,6 +501,8 @@ def run(study: dict, ccx: str) -> tuple[dict, list[str]]:
                                                                            "elastic_support", "mass") for f in l.get("faces") or []]
                     bc["refine_faces"] = sorted(set(bc.get("refine_faces") or []) | set(loaded))
             inner_s = dict(base, nlgeom=bool(st.get("large_deformation")))
+            if keep_dir:
+                inner_s["keep_dir"] = str(Path(keep_dir) / st["id"])
             stats, surface, tr = run_static(body["step_path"], inner_s, ccx, checks)
             res = {"id": st["id"], "type": "static", **stats, "trust": tr, "surface": _lists(surface)}
             if st.get("combination"):

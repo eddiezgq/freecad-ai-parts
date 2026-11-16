@@ -102,8 +102,9 @@ def run(setup: dict) -> dict:
                        solver={"name": "CalculiX", "version": ccx_version(ccx) or "未知"}, elapsed_s=time.time() - t0)
 
 
-def run_study(study: dict) -> dict:
-    """按算例模型（ADR-0093，schema/fea-study.schema.json）计算，带可信度核查"""
+def run_study(study: dict, keep_dir: str | None = None) -> dict:
+    """按算例模型（ADR-0093，schema/fea-study.schema.json）计算，带可信度核查。
+    keep_dir：留下各静力 / 模态步最终那次求解的 CalculiX 文件（keep_dir/<分析步 id>/job.frd），供 FreeCAD 原生后处理读"""
     from analysis.fea import study as S
 
     t0 = time.time()
@@ -115,7 +116,7 @@ def run_study(study: dict) -> dict:
         ccx = find_ccx()
         if ccx is None:
             return result.failed("fea", MODULE["version"], study, "本机没有 CalculiX（ccx）")
-        data, limits = S.run(study, ccx)
+        data, limits = S.run(study, ccx, keep_dir)
     except (S.StudyInvalid, materials.MissingData, ValueError, RuntimeError, KeyError) as exc:
         return result.failed("fea", MODULE["version"], study, f"没有算出：{exc}")
     return result.make("fea", MODULE["version"], study, data, limitations=limits,
