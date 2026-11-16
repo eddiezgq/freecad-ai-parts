@@ -73,8 +73,9 @@ def test_targets_cover_category_schema(category):
     tmap = targets(category)
     cat = json.loads((lx.SCHEMA_DIR / "categories" / f"{category}.schema.json").read_text(encoding="utf-8"))
     for name, sub in cat["properties"]["params"]["properties"].items():
-        # 参数值类的参数都是抽取目标；效率曲线等不是参数值的参数不由模型抽取（ADR-0047）
-        assert (f"params/{name}" in tmap) == lx._is_param_value(sub), name
+        # 参数值类的参数都是抽取目标；效率曲线等不是参数值的参数不由模型抽取（ADR-0047）；
+        # 标了 x-manual-only 的只由人工录入（ADR-0094），也不是抽取目标
+        assert (f"params/{name}" in tmap) == (lx._is_param_value(sub) and not sub.get("x-manual-only")), name
     for key in cat.get("x-key-fields", []):
         assert tmap[f"params/{key}"][0].key
     assert {t for t in tmap if t.startswith("dims/")} == {f"dims/{d}" for d in lx.CATEGORY_DIMS[category]}

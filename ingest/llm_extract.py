@@ -114,6 +114,8 @@ def targets(category: str) -> dict[str, tuple[Target, tuple[str, ...]]]:
     for name, sub in cat["properties"]["params"]["properties"].items():
         if not _is_param_value(sub):
             continue  # 不是“参数值”的参数（如效率曲线，ADR-0047）不由模型抽取
+        if sub.get("x-manual-only"):
+            continue  # 只由人工对照规格书录入的参数（ADR-0094），不进抽取目标和提示词
         kind, enum, desc = _kind_and_enum(sub)
         t = Target(f"params/{name}", kind, _unit_for(name), enum, desc, name in key_fields)
         out[t.target] = (t, (f"{cat_id}#/properties/params/properties/{name}",))

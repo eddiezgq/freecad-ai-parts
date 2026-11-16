@@ -103,6 +103,8 @@ def _factor(unit: str, field: str) -> float:
         expr = _TORQUE_ALIASES[key]
     elif suffix in _TORQUE_SUFFIXES and key.startswith(("nm/", "nm*")):
         expr = "N*m" + cleaned[2:]
+    elif suffix in _TORQUE_SUFFIXES and re.search(r"(?<![A-Za-z])Nm(?![A-Za-z])", cleaned):
+        expr = re.sub(r"(?<![A-Za-z])Nm(?![A-Za-z])", "N*m", cleaned)  # “×10⁴ Nm/rad”：前面带倍数的扭矩写法
     else:
         expr = _ALIASES.get(key, cleaned)
     expr = re.sub(r"10\^(-?\d+)\s*\*?\s*", r"1e\1*", expr).replace("^", "**")

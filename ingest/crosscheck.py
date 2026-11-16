@@ -95,6 +95,7 @@ def apply_confirmations(primary: dict, check: dict, cmp: dict, confirms: list[di
     - 录入：没有任何抽取读到时，由人对照规格书填写，须给出页码与照抄的原文 quote
     - 给出 tol_upper / tol_lower 时按名义值加公差记录
     - 只给 min、max 时为范围值，只能人工录入；可附 condition（工况，如润滑方式）
+    - 人工录入可写 unit（照抄规格书的单位，如“×10⁴ Nm/rad”）：value 是印出的数，按字段的标准单位换算（ADR-0094 第 4 条）
     确认或录入的值记为 reviewed，来源注明确认人与日期。返回说明。
     """
     from ingest.units import to_standard
@@ -123,8 +124,18 @@ def apply_confirmations(primary: dict, check: dict, cmp: dict, confirms: list[di
             notes.append(f"人工确认写法不全，未采用：{c}")
             continue
         field = t.rsplit("/", 1)[-1]
+        printed_unit = c.get("unit")
+        if isinstance(printed_unit, str) and printed_unit.strip() and not isinstance(v, str) and rng is None:
+            printed_v = v
+            try:
+                v = to_standard(float(v), printed_unit, field)
+            except ValueError as e:
+                notes.append(f"{t} 的单位“{printed_unit}”换算不了（{e}），未采用")
+                continue
+        else:
+            printed_unit = None
         pv = None
-        for ext in (primary, check) if rng is None else ():
+        for ext in (primary, check) if rng is None and printed_unit is None else ():
             for it in ext["items"]:
                 got = it["value"].get("value", it["value"].get("nominal"))
                 same = (got == v) if isinstance(v, str) else (
@@ -161,6 +172,9 @@ def apply_confirmations(primary: dict, check: dict, cmp: dict, confirms: list[di
         pv["reviewed"] = True
         if isinstance(c.get("condition"), str) and c["condition"].strip():
             pv["condition"] = c["condition"].strip()
+        if manual and printed_unit:
+            pv["value"] = v
+            quote = f"{quote.strip()}”，原值 {printed_v:g} {printed_unit.strip()}，换算为标准单位“{v:.6g}"
         how = f"人工录入：{who}（{day}），规格书第 {c['page']} 页原文“{quote.strip()}”" if manual else \
             f"人工确认：{who}（{day}），对照规格书第 {pv['source'].get('page')} 页"
         pv["source"]["note"] = how

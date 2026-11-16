@@ -262,3 +262,46 @@ def test_manual_entry_of_an_efficiency_curve():
         cmp = cx.compare(p, c)
         cx.apply_confirmations(p, c, cmp, [bad], "D-1")
         assert "params/efficiency_curve" not in cmp["agreed"]
+
+
+def test_manual_entry_with_printed_unit_is_converted():
+    """人工录入可写照抄的单位，按字段的标准单位换算并在来源里记下原值（ADR-0094 第 4 条）。"""
+    p, c = _ext("a"), _ext("b")
+    entry = {"doc": "src-x-doc", "model": "D-1", "target": "params/torsional_stiffness_k1_nm_per_arcmin", "value": 3.1,
+             "unit": "×10⁴ Nm/rad", "page": 13, "quote": "K1 ×10⁴Nm/rad 0.47 1 1.6 3.1", "confirmed_by": "张国庆", "date": "2026-11-15"}
+    cmp = cx.compare(p, c)
+    cx.apply_confirmations(p, c, cmp, [entry], "D-1")
+    pv = cmp["agreed"]["params/torsional_stiffness_k1_nm_per_arcmin"]
+    assert pv["value"] == pytest.approx(3.1e4 / (180 * 60 / 3.141592653589793))       # 1 rad = 3437.75′
+    assert pv["method"] == "manual" and "原值 3.1 ×10⁴ Nm/rad" in pv["source"]["note"]
+    inertia = dict(entry, target="params/input_inertia_kgm2", value=0.413, unit="×10⁻⁴ kg·m²", quote="0.413 0.421")
+    cmp = cx.compare(p, c)
+    cx.apply_confirmations(p, c, cmp, [inertia], "D-1")
+    assert cmp["agreed"]["params/input_inertia_kgm2"]["value"] == pytest.approx(4.13e-5)
+    bad = dict(entry, unit="kg")                                                     # 量纲不符：不采用
+    cmp = cx.compare(p, c)
+    notes = cx.apply_confirmations(p, c, cmp, [bad], "D-1")
+    assert "params/torsional_stiffness_k1_nm_per_arcmin" not in cmp["agreed"] and any("换算不了" in n for n in notes)
+
+
+def test_library_reducers_have_catalog_stiffness_and_output_bearing():
+    """零件库的 8 个谐波减速器都补了 ADR-0094 的参数，且与样本的 kgfm/arcmin 一栏互相印证。"""
+    from pathlib import Path
+    lib = Path(cx.LIBRARY_DIR) / "reducer"
+    kgf = 9.80665
+    # 样本同一表里另印的 kgfm/arcmin 值（第 13 页 K1、第 18 页力矩刚度），用来核对换算
+    k1_kgfm = {"csf-14-100": 0.14, "csf-17-100": 0.3, "csf-20-100": 0.47, "csf-25-100": 0.92, "csf-32-100": 2.0}
+    for f in sorted(lib.glob("reducer.harmonic-drive-llc.csf-*.json")):
+        p = json.loads(f.read_text(encoding="utf-8"))["params"]
+        for k in ("input_inertia_kgm2", "torsion_t1_nm", "torsion_t2_nm", "torsional_stiffness_k1_nm_per_arcmin",
+                  "torsional_stiffness_k2_nm_per_arcmin", "torsional_stiffness_k3_nm_per_arcmin", "output_bearing_dynamic_load_rating_n",
+                  "output_bearing_static_load_rating_n", "output_bearing_moment_load_rating_nm", "output_bearing_moment_stiffness_nm_per_arcmin",
+                  "output_bearing_pitch_diameter_mm", "output_bearing_offset_mm", "rated_life_h", "rated_input_speed_rpm"):
+            assert p[k]["reviewed"] and p[k]["source"]["doc"] == "src-hd-csg-csf-gear-units", (f.name, k)
+        ks = [p[f"torsional_stiffness_k{i}_nm_per_arcmin"]["value"] for i in (1, 2, 3)]
+        assert ks[0] < ks[1] < ks[2] and p["torsion_t1_nm"]["value"] < p["torsion_t2_nm"]["value"]
+        key = next((m for m in k1_kgfm if m in f.name), None)
+        if key:
+            assert ks[0] == pytest.approx(k1_kgfm[key] * kgf, rel=0.05)
+    p = json.loads((lib / "reducer.harmonic-drive-llc.csf-25-100-2uh.json").read_text(encoding="utf-8"))["params"]
+    assert p["output_bearing_moment_stiffness_nm_per_arcmin"]["value"] == pytest.approx(7.2 * kgf, rel=0.03)
