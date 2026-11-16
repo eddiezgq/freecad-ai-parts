@@ -45,6 +45,9 @@ def _faces(step_path):
     out = []
     with _LOCK, tempfile.TemporaryDirectory() as tmp:
         gmsh = _gmsh()
+        gmsh.option.restoreDefaults()                 # 选项是全局的：别处设过的网格尺寸下限、单元阶次会改变面的识别，先复位
+        gmsh.option.setNumber("General.Terminal", 0)
+        gmsh.option.setNumber("General.Verbosity", 1)
         vols = load_step(gmsh, step_path, tmp)
         bb = gmsh.model.getBoundingBox(-1, -1)
         diag = math.dist(bb[:3], bb[3:])
@@ -140,16 +143,16 @@ def recognize(step_path, library: Iterable[dict] = ()) -> dict:
     main = [f for f in cyl if f["id"] not in skip]
 
     # 同轴、同凹凸的圆柱面合并成一个“段”（轴段、孔）
-    def span(f):
-        d = np.array(f["axis"])
+    def span(f, d):                                   # 沿方向 d 的范围（d 取所比那一段的轴线：拟合出的轴线正负号不一定相同）
         e = [float(np.dot(np.array(c), d)) for c in _corners(f["bbox"])]
         return min(e), max(e)
     groups = []
     for f in main:                                   # 同轴、同径、同凹凸、轴向连着的面才合成一段（两个分开的轴承位不合并）
-        lo, hi = span(f)
         for g in groups:
             h = g[0]
-            glo, ghi = min(span(x)[0] for x in g), max(span(x)[1] for x in g)
+            d = np.array(h["axis"])
+            lo, hi = span(f, d)
+            glo, ghi = min(span(x, d)[0] for x in g), max(span(x, d)[1] for x in g)
             if h["concave"] == f["concave"] and abs(h["radius_mm"] - f["radius_mm"]) < 1e-3 and _coaxial(h, f) \
                     and lo <= ghi + 1e-3 and hi >= glo - 1e-3:
                 g.append(f)
@@ -160,7 +163,8 @@ def recognize(step_path, library: Iterable[dict] = ()) -> dict:
     for g in groups:
         f0 = g[0]
         dia = 2 * f0["radius_mm"]
-        length = sum(f["length_mm"] for f in g)
+        d0 = np.array(f0["axis"])                    # 段长取各面沿轴线范围的并（面有重叠时不重复计）
+        length = max(span(f, d0)[1] for f in g) - min(span(f, d0)[0] for f in g)
         ids = [f["id"] for f in g]
         item = {"faces": ids, "diameter_mm": round(dia, 3), "length_mm": round(length, 2),
                 "axis": [round(x, 4) for x in f0["axis"]], "axis_origin": [round(x, 3) for x in f0["axis_origin"]]}

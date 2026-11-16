@@ -41,7 +41,7 @@ GOOD = {
         "questions": []},
     "S3-ARMUPPER-elbow-torque": {
         "bodies": [{"part": 1, "material": "6061-T6", "material_quote": "6061-T6"}],
-        "items": [{"type": "fixed", "part": 1, "features": ["F7"], "quote": "肩部 Ø138 减速器座固定"},
+        "items": [{"type": "fixed", "part": 1, "features": ["F6"], "quote": "肩部 Ø138 减速器座固定"},
                   {"type": "torque", "part": 1, "features": ["F4"], "quote": "肘部 Ø107 减速器座上加 j3 峰值扭矩 46.4 N·m",
                    "magnitude": {"value": 46.4, "unit": "N·m", "quote": "峰值扭矩 46.4 N·m"}}],
         "questions": []},
@@ -51,7 +51,7 @@ GOOD = {
                        {"id": "W", "name": "工作", "kind": "operating", "quote": "工作载荷是肘部 Ø107 减速器座上的扭矩 46.4 N·m"}],
         "combinations": [{"id": "C1", "name": "1.35G+1.5W", "quote": "按 1.35 × 自重 + 1.5 × 工作 组合校核",
                           "factors": [{"case": "G", "value": 1.35}, {"case": "W", "value": 1.5}]}],
-        "items": [{"type": "fixed", "part": 1, "features": ["F7"], "quote": "肩部 Ø138 减速器座固定"},
+        "items": [{"type": "fixed", "part": 1, "features": ["F6"], "quote": "肩部 Ø138 减速器座固定"},
                   {"type": "gravity", "part": 1, "case": "G", "quote": "自重（重力竖直向下）", "direction": "-z",
                    "direction_quote": "重力竖直向下"},
                   {"type": "torque", "part": 1, "features": ["F4"], "case": "W", "quote": "肘部 Ø107 减速器座上的扭矩 46.4 N·m",
@@ -259,7 +259,7 @@ def test_request_is_deterministic_and_lists_features(parts):
     s = SAMPLES["S3-ARMUPPER-elbow-torque"]["statement"]
     a, b = D.build_request(s, ps), D.build_request(s, ps)
     assert a == b and a["prompt_version"] == D.PROMPT_VERSION
-    assert "F7（零件 1）孔 / 座 Ø138" in a["user"] and "CSF-32-100-2UH" in a["user"] and "6061-T6" in a["user"]
+    assert "F6（零件 1）孔 / 座 Ø138" in a["user"] and "CSF-32-100-2UH" in a["user"] and "6061-T6" in a["user"]
 
 
 def test_draft_end_to_end_with_fake_client_is_fast(parts):
