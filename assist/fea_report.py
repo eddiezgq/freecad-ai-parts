@@ -231,19 +231,52 @@ _NEG = r"(?<!不)(?<!未)(?<!没有)(?<!无法)(?<!不能)(?<!尚未)"
 ACCEPT = re.compile(r"合格|满足(?:强度|刚度|设计|使用)?要求|安全可靠|足够安全|可以放心|可以使用|可放心使用|approved|acceptable"
                     r"|safe to use|meets? the requirements?", re.IGNORECASE)
 ACCEPT_OK = re.compile(r"合格判定|判定合格|是否合格|合格与否")
-TRUSTED = re.compile(_NEG + r"(已收敛|收敛良好|结果可信|结果可靠|可信度(?:核查)?(?:已|均|全部)?通过|核查(?:均|全部)?通过|converged|reliable)",
+TRUSTED = re.compile(r"(已收敛|收敛良好|结果可信|结果可靠|可信度(?:核查)?(?:已|均|全部)?通过|核查(?:均|全部)?通过|converged|reliable)",
                      re.IGNORECASE)
 
 
-def check_text(text: str, facts_: dict, all_pass: bool) -> str | None:
-    """一段 AI 文字不合规的原因；合规返回 None"""
+_HEDGE = re.compile(r"不|未|没有|无法|不能|尚未|若|如果|一旦|直到|待|before|until|unless|not|cannot", re.IGNORECASE)
+_HEDGE_AFTER = re.compile(r"^\s*(之前|以前|前|为止)")
+_CLAUSE = re.compile(r"[，。；;,.!?！？\n]")
+
+
+def _item_words(name: str) -> list[str]:
+    """核查项在文字里可能的叫法：“网格收敛（最大位移）”→ 最大位移 / 位移"""
+    m = re.match(r"网格收敛（(.+)）", name)
+    if m:
+        w = m.group(1)
+        return [w, w.removeprefix("最大")]
+    return [name]
+
+
+def _context(result: dict) -> tuple[list[str], list[str], list[str]]:
+    """（分析步、组合、工况的 id——是名字不是数值；通过的核查项叫法；没通过的核查项叫法）"""
+    d = result.get("data") or {}
+    ids, ok, bad = [], [], []
+    for st in d.get("steps") or []:
+        ids += [str(st.get("id", "")), str(st.get("combination") or "")]
+        for it in (st.get("trust") or {}).get("items") or []:
+            (ok if it.get("verdict") == "pass" else bad).extend(_item_words(it.get("name", "")))
+    setup = result.get("setup") or {}
+    ids += [str(x.get("id", "")) for x in (setup.get("load_cases") or []) + (setup.get("combinations") or [])]
+    return [x for x in ids if x], ok, bad
+
+
+def check_text(text: str, facts_: dict, all_pass: bool, result: dict | None = None) -> str | None:
+    """一段 AI 文字不合规的原因；合规返回 None。
+    分析步、组合、工况的 id（如 s1、s_combo1）是名字，不算数字；说某一项“核查通过”而那一项确实通过、或在否定 / 条件句里
+    （“不能视为已收敛”“在核查通过之前不使用”）都不算违规——这两条是真实 LLM 录制里查出的误判（11-16）"""
     if not isinstance(text, str) or not text.strip():
         return "空段落"
     for k in PLACE.findall(text):
         if k not in facts_:
             return f"占位符 {{{{{k}}}}} 不在事实清单里"
     bare = PLACE.sub("", text)
-    if re.search(r"[0-9０-９]", bare):
+    ids, ok_words, bad_words = _context(result or {})
+    named = bare
+    for x in sorted(ids, key=len, reverse=True):
+        named = re.sub(rf"(?<![A-Za-z0-9_]){re.escape(x)}(?![A-Za-z0-9_])", "", named)
+    if re.search(r"[0-9０-９]", named):
         return "文字里有数字（数值必须用占位符）"
     if _CN_NUM.search(bare) or "百分之" in bare:
         return "文字里有汉字写的数值"
@@ -253,8 +286,12 @@ def check_text(text: str, facts_: dict, all_pass: bool) -> str | None:
     if m:
         return f"做了合格判定（“{m.group(0)}”）：AI 不判定合格"
     if not all_pass:
-        m = TRUSTED.search(bare)
-        if m:
+        for clause in _CLAUSE.split(bare):
+            m = TRUSTED.search(clause)
+            if not m or _HEDGE.search(clause[:m.start()]) or _HEDGE_AFTER.search(clause[m.end():]):
+                continue
+            if any(w in clause for w in ok_words) and not any(w in clause for w in bad_words):
+                continue
             return f"可信度核查没有全部通过，却说“{m.group(0)}”"
     return None
 
@@ -269,7 +306,7 @@ def verify_explanation(tool_input: Any, result: dict) -> dict:
         return out
     for part in ("paragraphs", "suggestions"):
         for i, t in enumerate(tool_input.get(part) or []):
-            why = check_text(t, fx, all_pass)
+            why = check_text(t, fx, all_pass, result)
             if why:
                 out["rejected"].append({"part": f"{'解释' if part == 'paragraphs' else '建议'}第 {i + 1} 段", "reason": why})
             else:
@@ -413,6 +450,7 @@ def build(study: dict, result: dict, out: Path, *, number: str | None = None, re
     today = today or datetime.now(UTC).date()
 
     # 改版记录（报告旁的 *.record.json）：同一版次重出就替换那一条
+    out.parent.mkdir(parents=True, exist_ok=True)
     rec_path = out.with_suffix(".record.json")
     record = json.loads(rec_path.read_text(encoding="utf-8")) if rec_path.is_file() else {"history": []}
     record["number"] = number or record.get("number") or "未编号（由质量体系分配）"
@@ -691,7 +729,6 @@ def build(study: dict, result: dict, out: Path, *, number: str | None = None, re
         p(f"解释与建议由 AI 起草（提示词 {L.txt('explain', '/prompt_version')}，模型 {L.txt('explain', '/model')}，"
           f"响应 {L.txt('explain', '/response_id') or '未记录'}）。")
 
-    out.parent.mkdir(parents=True, exist_ok=True)
     doc.save(out)
     ledger = {"report": out.name, "files": files, "entries": L.entries, "labels": list(LABELS)}
     led_path = out.with_suffix(".ledger.json")

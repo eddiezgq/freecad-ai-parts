@@ -3,7 +3,7 @@
   "prompt_version": "fea-draft/1",
   "request_key": "4dccbe7d2327c0f7e8ec35956c367d71d6acdc6125e5e3004fe713871a845a1c",
   "response": {
-    "id": "msg_011Ch6jjFUnf4iRdit5Qiwqx",
+    "id": "msg_011Ch6wUQJ5yVobJF67SPKaE",
     "simulated": false,
     "tool_input": {
       "bodies": [
@@ -36,11 +36,11 @@
           "type": "torque"
         }
       ],
-      "name": "RJ-201_hollow_shaft_torque",
+      "name": "RJ-201_peak_torque",
       "questions": [
-        "“Ø70 法兰那一端的端面”我选了 F6（z=0，朝 -z，面积 3142 mm²）。请确认不是 F8（z=10 的法兰台阶面）。",
-        "原话没有写分析类型。我按静力分析处理，未加模态。请确认。",
-        "扭矩只给了大小，没给转向（绕轴正向还是负向）。请确认是否需要指定。"
+        "扭矩的转向（绕 +z 还是 -z）原话没有说明，是否需要指定？",
+        "Ø42.75 花键段按光滑圆柱面（F4）施加扭矩，是否可以？",
+        "原话没有说明分析类型，按线性静力分析处理是否可以？"
       ]
     }
   }
