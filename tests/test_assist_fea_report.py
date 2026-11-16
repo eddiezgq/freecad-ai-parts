@@ -161,7 +161,7 @@ def test_explanation_fills_numbers_from_result(tmp_path):
     ("该零件不合格。", "合格判定"),
     ("网格已收敛，结果可信。", "没有全部通过"),
     ("最大应力为 {{s1.safety_factor}}。", "不在事实清单"),
-    ("最大应力为 {s1.vm_max_mpa}。", "数字"),                   # 单花括号：不是占位符，数字照样退回
+    ("最大应力为 {s1.vm_max_mpa}。", "格式"),                   # 单花括号：不是占位符
 ])
 def test_bad_explanation_paragraphs_are_rejected(bad, why):
     _s, r = R.load_fixture("rj201-torque")
@@ -264,3 +264,37 @@ def test_mcp_tools(tmp_path):
     assert out["status"] == "ok" and Path(out["docx"]).is_file() and "{{s1.vm_max_mpa}}" in out["explain_request"]["facts"]
     out = tools.fea_report(s, str(tmp_path / "rep.docx"), result=r, explanation={"paragraphs": ["结构合格。"], "suggestions": []})
     assert out["explanation_rejected"] and "合格判定" in out["explanation_rejected"][0]["reason"]
+
+
+@pytest.mark.parametrize("text,ok", [
+    ("反力平衡核查通过，外载与支承反力相抵。", True),                       # 真实录制里的误判：这一项确实通过
+    ("最大位移的网格收敛核查也通过，相互差别很小。", True),
+    ("分析步 s1 的可信度不通过，本步结果不能视为已收敛或可信。", True),       # s1 是名字；否定句
+    ("在可信度核查通过之前，不使用本次结果计算安全系数。", True),            # 条件句
+    ("最大应力的网格收敛核查通过。", False),                              # 这一项其实没通过
+    ("结果已收敛。", False),
+    ("网格质量与最大应力均已收敛。", False),                              # 混了没通过的项
+])
+def test_trust_claims_are_judged_per_item(text, ok):
+    _s, r = R.load_fixture("rj201-torque")
+    why = R.check_text(text, R.facts(r), False, r)
+    assert (why is None) == ok, why
+
+
+def test_recorded_explanation_goes_into_traced_report(tmp_path):
+    if not R.RECORDINGS_DIR.is_dir() or not any(R.RECORDINGS_DIR.glob("*.json")):
+        pytest.skip("还没有真实 LLM 的录制")
+    from analysis.common import materials
+    from ingest.llm_extract import RecordedClient
+
+    _s, r = R.load_fixture("rj201-torque")
+    e = R.explain(r, RecordedClient(R.RECORDINGS_DIR))
+    assert not e["simulated"] and not e["rejected"]
+    s, r, got = _build("rj201-torque", tmp_path, explanation=e)
+    ledger = json.loads(got["ledger"].read_text(encoding="utf-8"))
+    record = json.loads(got["record"].read_text(encoding="utf-8"))
+    env = {"code": R.code_version(), "gmsh": R.gmsh_version(), "solver": f"{r['solver']['name']} {r['solver']['version']}",
+           "module": f"fea {r['module_version']}"}
+    sources = {"study": s, "result": r, "materials": {"materials": {"45-QT": materials._table()["45-QT"]}}, "record": record,
+               "files": ledger["files"], "env": env, "library": R.library_sources(s), "explain": e}
+    _trace(_docx_text(got["docx"]), ledger, sources)
