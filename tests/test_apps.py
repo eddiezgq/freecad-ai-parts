@@ -66,6 +66,8 @@ def test_cobot_arm():
     assert "CSF-32-100-2UH" in s["选型 j2"]["summary"]
     assert "CSF-32-100-2UH" in s["选型 j1"]["summary"]                      # 第二版：j1 按输出轴承寿命 ≥ 35000 h 选（ADR-0094）
     assert "不满足" not in s["输出轴承寿命"]["summary"]
+    f = s["电机法兰定制要求"]                                                # CSF-2UH 电机法兰由厂商按所配电机定制（ADR-0045、ADR-0053）
+    assert f["status"] == "ok" and len(f["data"]["rows"]) == 6 and "分度圆直径 70" in f["summary"]
     d = s["有限元：整臂静力"]["data"]
     sag, hand = -d["tcp_u_mm"][2], d["hand_sag_mm"]
     assert hand < sag < 4 * hand                                            # 梁理论只算管子弯曲，是下限
