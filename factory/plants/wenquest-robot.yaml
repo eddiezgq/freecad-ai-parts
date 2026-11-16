@@ -77,6 +77,14 @@ operations:
 - {name: 双臂与手眼标定 Dual-arm & hand-eye calibration, workstation: 整机标定工位 CAL, units: [cal-1], stage: other}
 - {name: 人形联调 Humanoid integration test, workstation: AGV 调试场地 AT, units: [at-1], stage: inspect, inspection: true}
 floor: {length_m: 46, width_m: 30, aisles_y: [10, 20], cross_x: 3}
+# 车间分区（第 171c 轮，3D 车间、平面图分车间和参观用）：rect = [x0, y0, x1, y1]（米），设备中心落在哪个框里就属于哪个车间
+zones:
+- {id: parts, name: ① 零件加工车间, name_en: Parts machining, rect: [2, 1, 38, 9]}
+- {id: metro, name: 计量室, name_en: Metrology room, rect: [39, 1, 45, 9]}
+- {id: joint, name: ② 关节与整机装配车间, name_en: Joint & robot assembly, rect: [2, 11, 45, 19]}
+- {id: raw, name: 原料库, name_en: Raw stores, rect: [2, 21, 9.5, 29]}
+- {id: mobile, name: ③ AGV 与人形装配车间, name_en: AGV & humanoid assembly, rect: [10.5, 21, 36, 29]}
+- {id: fin, name: 成品库, name_en: Finished stores, rect: [37, 21, 45, 29]}
 shift:
   periods: [['08:00:00', '12:00:00'], ['13:00:00', '17:00:00']]
   workdays: [0, 1, 2, 3, 4]

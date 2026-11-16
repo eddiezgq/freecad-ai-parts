@@ -22,6 +22,11 @@ FLOOR = (50, 28)        # 车间长、宽
 AGV_HOME = {"agv-01": (7, 9), "agv-02": (7, 18.5)}
 AISLES = (9.0, 18.5)    # 两条横向主通道；左侧 x=7 有一条纵向通道把它们连起来
 CROSS_X = 7.0
+# 车间分区（第 171c 轮，3D 车间、平面图用；和 plants/wenquest-gearbox.yaml 一致）：(id, 名, 英文名, [x0, y0, x1, y1])
+ZONES = [{"id": i, "name": n, "name_en": e, "rect": r} for i, n, e, r in (
+    ("raw", "原料库", "Raw stores", [0.5, 1, 5.5, 8]), ("turn", "① 下料与车削车间", "Sawing & turning", [7.5, 1, 33, 8]),
+    ("heat", "② 热处理与磨削车间", "Heat treatment & grinding", [13, 10, 34, 17]), ("qc", "检测室", "Inspection room", [35, 10, 41, 17]),
+    ("gear", "③ 齿轮加工与装配车间", "Gear cutting & assembly", [7.5, 19.5, 41, 27]), ("fin", "成品库", "Finished stores", [42.5, 19.5, 49, 27]))]
 
 try:                                   # 工厂清单（第 30 轮；freecad-ai-parts ADR-0064）
     from factory import plant as _plant
@@ -32,6 +37,7 @@ except ImportError:                    # 单独用总线库时（没有 factory 
     _P = None
 if _P:
     LAYOUT, FLOOR, AGV_HOME, AISLES, CROSS_X = _P["LAYOUT"], _P["FLOOR"], _P["AGV_HOME"], _P["AISLES"], _P["CROSS_X"]
+    ZONES = _P.get("ZONES") or []
 HEIGHT = _P["HEIGHT"] if _P else None   # 3D 车间的设备高度（米）；演示工厂用网页里的
 
 

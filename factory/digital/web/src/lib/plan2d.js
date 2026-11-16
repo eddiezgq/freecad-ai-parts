@@ -44,8 +44,10 @@ export function createPlan(host, L, { zones = [], onPick, onZone, unitLabel } = 
       { fill: ZONE_FILL[i % ZONE_FILL.length], fillStyle: 'solid', stroke: '#7B8794', strokeWidth: 2.2, roughness: 1.4, seed: 11 + i });
     n.dataset.zone = z.id; n.style.cursor = 'pointer';
     gZone.appendChild(n);
-    const fs = Math.max(30, Math.min((x1 - x0) * S / 9, 70));
-    const tx = el('text', { x: (x0 + 1.5) * S, y: y0 * S + fs * 1.15, 'font-size': fs, 'font-weight': 700, fill: '#17212B', 'data-zone': z.id }, gLab);
+    const name = z.name_shown || z.name;
+    // 车间名：放在框的左下角（设备多在框中间），字号按框的大小和字数定，不出框、不压隔壁
+    const fs = Math.max(9, Math.min(70, (x1 - x0) * S * 0.92 / ([...name].reduce((a, c) => a + (c.charCodeAt(0) > 255 ? 1 : 0.55), 0) || 1), (y1 - y0) * S * 0.3));
+    const tx = el('text', { x: x0 * S + fs * 0.35, y: y1 * S - fs * 0.3, 'font-size': fs, 'font-weight': 700, fill: '#17212B', 'data-zone': z.id }, gLab);
     tx.textContent = z.name_shown || z.name;
     tx.style.cursor = 'pointer';
     zoneTexts.push(tx);
@@ -87,7 +89,7 @@ export function createPlan(host, L, { zones = [], onPick, onZone, unitLabel } = 
     svg.setAttribute('viewBox', vb.join(' '));
     gUlab.style.display = vb[2] < 1100 ? '' : 'none';             // 放大到 110 米以内才显示设备号
     gUname.style.display = vb[2] < 450 ? '' : 'none';             // 45 米以内再显示设备名
-    for (const z of zoneTexts) z.setAttribute('opacity', vb[2] < 1500 ? 0.22 : 1);   // 放大进车间后车间名变淡，不挡设备
+    for (const z of zoneTexts) z.setAttribute('opacity', vb[2] < FW * S * 0.55 ? 0.25 : 0.85);   // 放大进车间后车间名变淡，不挡设备
   }
   function animate(to, ms = 700) {
     const from = vb.slice(), t0 = performance.now();

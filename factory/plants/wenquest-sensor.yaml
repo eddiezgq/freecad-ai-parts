@@ -83,6 +83,11 @@ operations:
 - {name: 扭矩终检 Torque final test, workstation: 扭矩终检台 TFT, units: [tft-1], stage: inspect, inspection: true}
 - {name: 包装 Packing, workstation: 包装台 PK, units: [pk-1], stage: other}
 floor: {length_m: 36, width_m: 28, aisles_y: [9, 18], cross_x: 2}
+# 车间分区（第 171c 轮，3D 车间、平面图分车间和参观用）：rect = [x0, y0, x1, y1]（米），设备中心落在哪个框里就属于哪个车间
+zones:
+- {id: enc, name: ① 编码器车间, name_en: Encoder line, rect: [2, 1, 32, 8]}
+- {id: tq, name: ② 扭矩传感器车间, name_en: Torque sensor line, rect: [2, 10, 29, 17]}
+- {id: store, name: 包装与库房, name_en: Packing & stores, rect: [2, 19, 22, 27]}
 shift:
   periods: [['08:00:00', '12:00:00'], ['13:00:00', '17:00:00']]
   workdays: [0, 1, 2, 3, 4]
