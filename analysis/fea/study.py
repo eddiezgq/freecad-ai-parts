@@ -55,6 +55,7 @@ def validate(study: dict) -> None:
             raise StudyInvalid("线性屈曲不能带接触或螺栓预紧（连接要是固定的）")
         if not study.get("loads"):
             raise StudyInvalid("线性屈曲要有参考载荷")
+    _validate_cases(study)
     dyn = [s for s in study["steps"] if s["type"] in ("modal", "harmonic", "random", "transient")]
     if dyn:
         if any(b.get("plasticity") for b in study["bodies"]):
@@ -94,6 +95,86 @@ def validate(study: dict) -> None:
     for x in study.get("loads", []):
         if x["type"] == "mass" and any(y["type"] == "centrifugal" and y["body"] == x["body"] for y in study["loads"]):
             raise StudyInvalid("附加质量不能与离心载荷用在同一个实体上（ADR-0093 补充十）")
+
+
+CASED = ("force", "pressure", "torque", "moment", "gravity", "centrifugal", "remote_load", "bearing_load", "temperature")
+
+
+def _validate_cases(study: dict) -> None:
+    """工况与组合的引用（ADR-0093 补充十一）"""
+    cases = [c["id"] for c in study.get("load_cases") or []]
+    if len(set(cases)) != len(cases):
+        raise StudyInvalid("工况 id 有重复")
+    combos = {c["id"]: c for c in study.get("combinations") or []}
+    if len(combos) != len(study.get("combinations") or []):
+        raise StudyInvalid("组合 id 有重复")
+    for l in study.get("loads", []):
+        if l["type"] in CASED:
+            if cases and "case" not in l:
+                raise StudyInvalid(f"有工况时每个载荷都要写 case：{l['type']} 没写")
+            if "case" in l and l["case"] not in cases:
+                raise StudyInvalid(f"载荷引用的工况 {l['case']} 不存在")
+    for c in combos.values():
+        bad = [k for k in c["factors"] if k not in cases]
+        if bad:
+            raise StudyInvalid(f"组合 {c['id']} 引用的工况不存在：{bad}")
+        for l in study.get("loads", []):
+            if l["type"] == "centrifugal" and c["factors"].get(l.get("case"), 0) < 0:
+                raise StudyInvalid(f"组合 {c['id']}：离心载荷的系数不能为负")
+    for st in study["steps"]:
+        if st.get("combination") and st["combination"] not in combos:
+            raise StudyInvalid(f"分析步 {st['id']} 引用的组合 {st['combination']} 不存在")
+
+
+def apply_combination(study: dict, comb_id: str | None) -> dict:
+    """按组合把各工况的载荷乘系数，组合里没有的工况去掉；一起求解（不是把结果相加，非线性也成立）。返回新算例"""
+    if not comb_id:
+        return study
+    f = next(c for c in study["combinations"] if c["id"] == comb_id)["factors"]
+    out = copy.deepcopy(study)
+    loads = []
+    for l in out.get("loads", []):
+        if l["type"] not in CASED:
+            loads.append(l)                                        # 附加质量：重量随重力载荷的系数走
+            continue
+        k = f.get(l.get("case"))
+        if k is None or k == 0:
+            continue
+        for key in ("vector_n", "force_n", "vector_nm", "acceleration_m_s2"):
+            if key in l:
+                l[key] = [v * k for v in l[key]]
+        for key in ("value_mpa", "value_nm", "delta_t_k"):
+            if key in l:
+                l[key] = l[key] * k
+        if l["type"] == "centrifugal":
+            l["speed_rpm"] = l["speed_rpm"] * math.sqrt(k)        # 离心力与转速平方成正比
+        loads.append(l)
+    out["loads"] = loads
+    return out
+
+
+def envelope(steps: list[dict]) -> dict | None:
+    """多个组合的静力结果取包络：最大应力、最大位移、最小安全系数各由哪个组合控制；表面网格相同时逐点取最大"""
+    st = [s for s in steps if s["type"] == "static" and s.get("combination")]
+    if len(st) < 2:
+        return None
+    vm = max(st, key=lambda s: s.get("vm_max_mpa") or 0)
+    um = max(st, key=lambda s: s.get("u_max_mm") or 0)
+    out = {"combinations": [s["combination"] for s in st],
+           "vm_max_mpa": vm.get("vm_max_mpa"), "vm_governing": vm["combination"],
+           "u_max_mm": um.get("u_max_mm"), "u_governing": um["combination"]}
+    sfs = [s for s in st if s.get("safety_factor") is not None]
+    if len(sfs) == len(st):
+        sm = min(sfs, key=lambda s: s["safety_factor"])
+        out.update(safety_factor=sm["safety_factor"], safety_governing=sm["combination"])
+    else:
+        out["safety_factor"] = None
+        out["safety_withheld"] = "有组合的可信度核查没有通过，包络不给安全系数"
+    surf = [s.get("surface") or {} for s in st]
+    if all(x.get("positions") == surf[0].get("positions") and x.get("vm") for x in surf):
+        n = len(surf[0]["vm"])
+        out["surface_vm_envelope"] = [max(x["vm"][i] for x in surf) for i in range(n)]
+    return out
 
 
 def moved_any(study: dict) -> bool:
@@ -409,9 +490,18 @@ def run(study: dict, ccx: str) -> tuple[dict, list[str]]:
             verdicts.append(tr["verdict"])
             limits += [x for x in LIMITS_BUCKLING if x not in limits]
         elif st["type"] == "static":
-            inner_s = dict(inner, nlgeom=bool(st.get("large_deformation")))
+            base = inner
+            if st.get("combination"):                      # 各组合用同一套网格：加密面按全部工况的载荷面定（不随组合变）
+                base = _inner(apply_combination(study, st["combination"]), mats)
+                for bc, bf in zip(base["bodies"], inner["bodies"]):
+                    loaded = [f for l in bf["loads"] if l["type"] not in ("fixed", "cyl_support", "displacement", "symmetry",
+                                                                           "elastic_support", "mass") for f in l.get("faces") or []]
+                    bc["refine_faces"] = sorted(set(bc.get("refine_faces") or []) | set(loaded))
+            inner_s = dict(base, nlgeom=bool(st.get("large_deformation")))
             stats, surface, tr = run_static(body["step_path"], inner_s, ccx, checks)
             res = {"id": st["id"], "type": "static", **stats, "trust": tr, "surface": _lists(surface)}
+            if st.get("combination"):
+                res["combination"] = st["combination"]
             plastic = any(b.get("plastic") for b in inner["bodies"])
             if plastic:                                    # 屈服之后“屈服强度 / 最大应力”没有意义：不给，改看塑性应变
                 for k in ("safety_factor", "strength_mpa", "strength_kind", "safety_body"):
@@ -432,6 +522,7 @@ def run(study: dict, ccx: str) -> tuple[dict, list[str]]:
             limits += [x for x in [first, *LIMITS_STATIC[1:]] if x not in limits]
         res["seconds"] = round(time.time() - t0, 1)
         steps.append(res)
-    data = {"study": study.get("name", ""), "steps": steps,
+    env = envelope(steps)
+    data = {"study": study.get("name", ""), "steps": steps, **({"envelope": env} if env else {}),
             "trust_verdict": trust.verdict([{"verdict": v} for v in verdicts]) if verdicts else None}
     return data, limits
