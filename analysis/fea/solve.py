@@ -90,12 +90,12 @@ def mesh(gmsh, size_mm, fine_faces=(), max_elements=MAX_ELEMENTS, refine=None):
     # 曲面网格自检：个别曲面（例如椭圆柱面）在加了尺寸场以后，缺省的 Frontal-Delaunay 会在参数平面里连出横跨整个面的三角形；
     # 有边长超过 3 倍单元尺寸的面，改用 MeshAdapt 重新划分（ADR-0093 F2，NAFEMS LE1 加密核查时出现）
     bad = []
+    nt_all, xyz_all, _ = gmsh.model.mesh.getNodes()          # 全部节点：面上的三角形可能用到别的实体上的节点（周期面的接缝、退化点）
+    X = dict(zip(nt_all, np.asarray(xyz_all, float).reshape(-1, 3)))
     for _, tag in gmsh.model.getEntities(2):
-        nt, xyz, _ = gmsh.model.mesh.getNodes(2, tag, includeBoundary=True)
         et, _, en = gmsh.model.mesh.getElements(2, tag)
-        if not len(nt) or not len(et):
+        if not len(et):
             continue
-        X = dict(zip(nt, np.asarray(xyz, float).reshape(-1, 3)))
         tri = np.asarray(en[0], np.int64).reshape(-1, 3)
         A, B, C = (np.array([X[n] for n in tri[:, i]]) for i in range(3))
         L = np.max([np.linalg.norm(A - B, axis=1), np.linalg.norm(B - C, axis=1), np.linalg.norm(C - A, axis=1)])

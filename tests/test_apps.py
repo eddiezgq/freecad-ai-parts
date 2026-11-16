@@ -54,3 +54,23 @@ def test_lockstitch():
     assert lo["status"] == "unknown" and "SGM7J-04A" in lo["summary"]  # 惯量吸收：400 W，缝制阻力待确认
     assert s["固有频率：上轴 LS-101"]["status"] == "ok"
     assert s["流体：控制箱散热器"]["status"] == "skip"
+
+
+def test_cobot_arm():
+    """整臂案例（ADR-0094）：六个关节都选得出；有限元的末端下垂与梁理论同一量级（多出的是壳体、法兰毂的变形）；
+    关节扭矩与动力学的重力矩一致；Dunkerley 合成频率低于每一个分量；输出轴承寿命按样本公式给出。"""
+    s = _steps("cobot_arm")
+    _no_crash(s)
+    for j in ("j1", "j2", "j3", "j4", "j5", "j6"):
+        assert s[f"选型 {j}"]["status"] in ("ok", "unknown"), s[f"选型 {j}"]["summary"]
+    assert "CSF-32-100-2UH" in s["选型 j2"]["summary"]
+    d = s["有限元：整臂静力"]["data"]
+    sag, hand = -d["tcp_u_mm"][2], d["hand_sag_mm"]
+    assert hand < sag < 4 * hand                                            # 梁理论只算管子弯曲，是下限
+    assert next(i for i in d["items"] if i["name"] == "反力平衡")["verdict"] == "pass"
+    g = s["动力学"]["data"]["gravity"]["j2"]
+    assert s["关节刚度"]["data"]["T2_nm"] == pytest.approx(g, rel=0.02)    # 两处独立算的肩关节重力矩一致
+    m = s["模态：整臂"]["data"]
+    assert m["f_dunkerley"] < min(m["freqs"][0]["hz"], m["f_j2"], m["f_j3"])
+    assert "摆动寿命" in s["输出轴承寿命"]["summary"] and "j1" in s["输出轴承寿命"]["summary"]
+    assert s["减速器寿命：j2"]["status"] == "ok"
