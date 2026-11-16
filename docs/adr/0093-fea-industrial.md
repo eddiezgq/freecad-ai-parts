@@ -448,3 +448,97 @@ AI 不改结果、不判定合格；不自动从图纸读载荷（以后另议�
   但那一项确实通过；③ “不能视为已收敛”“在可信度核查通过之前不使用结果”是否定句、条件句。改为：分析步、组合、工况的 id 不算数字；
   “核查通过 / 已收敛”按分句判断——分句里只提到确实通过的核查项、或在否定 / 条件句里，不算违规，提到没通过的项（或没指明哪一项）
   照样退回；七个正反例写进测试。修完按录制回放：三份解释全部采用、共用占位符 35 处，报告里的数字照样逐个对回文件。
+
+## 补充十二：F7 计划——与 FreeCAD 自带的 FEM 工作台一致（2026-11-16，项目负责人 14:36“好”同意按此方向写计划；动手前再确认）
+
+### 1. 为什么
+
+工程师熟悉 FreeCAD 自带的 FEM 工作台。它与本仓库用的是同一个求解器（CalculiX），自带的有：
+- 模型树里的“分析”节点，约束、网格、材料、结果都挂在节点下、随文件保存；
+- 约束和载荷以标准符号画在面上；
+- 原生后处理：剖切、变形放大、等值线、动画、探针。
+
+本仓库的“有限元 · 疲劳”面板（ADR-0056）是自建的对话框，只记录选了哪些面、只按应力给零件着色，和 FreeCAD 的习惯不一致。
+F7 改为：**界面和对象一律用 FEM 工作台自带的；本仓库独有的起草、核查、报告做成 FEM 工作台里的命令。**
+
+计算仍走 `analysis/fea`。原因是三层网格收敛、奇异点、反力平衡、“缺数据为 unknown”这些核查在它里面。
+FEM 工作台自带的求解器对象保留，但不由我们调用。
+
+### 2. 已核对的 FreeCAD 1.0.2 现状
+
+用锁定版本（`scripts/fetch_freecad.sh`）核对过：
+- `ObjectsFem` 有 65 个 `make*` 函数，包括：分析、固定、位移、力、压力、自重、离心、弹簧、刚体、绑定（Tie）、接触、
+  坐标变换（Transform）、温度、热流、体热源、壳厚度（ElementGeometry2D）、梁截面（ElementGeometry1D）、
+  固体材料与非线性材料、gmsh 网格、力学结果对象，以及 VTK 后处理（结果管线、剖切区域、截面、变形、等值线）；
+- FreeCADGui 有 `addWorkbenchManipulator`，可以把命令加进 FEM 工作台的工具栏和菜单，不改 FreeCAD 源码。
+
+### 3. 算例 ↔ FEM 对象对照（双向转换）
+
+| 本仓库算例 | FEM 工作台对象 |
+|---|---|
+| 实体 + 材料 | 零件对象 + MaterialSolid（数值取材料库，卡片里注明出处） |
+| fixed | ConstraintFixed |
+| displacement | ConstraintDisplacement |
+| cyl_support | ConstraintTransform（柱坐标）+ ConstraintDisplacement |
+| symmetry | ConstraintDisplacement（法向为零） |
+| elastic_support | ConstraintSpring |
+| force | ConstraintForce |
+| pressure | ConstraintPressure |
+| gravity | ConstraintSelfWeight |
+| centrifugal | ConstraintCentrif |
+| remote_load、moment | ConstraintRigidBody |
+| bonded | ConstraintTie |
+| contact | ConstraintContact |
+| 温度场：定温、对流 / 热流、体热源 | ConstraintTemperature、ConstraintHeatflux、ConstraintBodyHeatSource |
+| torque、bearing_load、bolt_preload、mass、工况与组合、AI 依据 | FEM 没有对应对象，做本仓库的 FeaturePython 对象，挂在同一个“分析”节点下，自绘符号（扭矩画绕轴箭头，轴承载荷画径向箭头） |
+
+规则：
+- 面的对应：FreeCAD 的 `FaceN` ↔ STEP 面号，按面中心与面积一一对应。对不上或一对多时拒绝转换并说明，不猜。
+- 本仓库没有对应的 FEM 对象（例如人手加的电磁约束）：转换时列出来、不计算，不悄悄丢掉。
+- 转回来的算例和原算例一致（往返测试）。人在 FEM 工作台里手工建的分析，同样能转成算例，再走核查和报告。
+
+### 4. 结果进原生后处理
+
+本仓库算出的位移、应力写成 ResultMechanical 和 VTK 结果管线：
+- 剖切、截面、变形放大、等值线、动画、探针直接用 FreeCAD 自带的；
+- 可信度核查结论与安全系数挂在结果对象的属性里，并在任务面板显示；
+- 核查不通过时，结果对象名字带“（可信度不通过）”。
+
+### 5. FEM 工作台里加的命令
+
+1. 一句话起草（第 4 步）：AI 起草的约束、载荷直接成为树上的对象、画在模型上；追问显示在任务面板里，答完才能确认。
+2. 计算并核查（`analysis/fea`，后台线程）。
+3. 出报告（第 5 步，Word / PDF）。
+
+原“有限元 · 疲劳”面板：F7 的第 5 步验收后，有限元部分退役；疲劳、热分析入口暂留，以后另议。
+
+### 6. 壳单元与梁单元
+
+FEM 工作台已有壳厚度、梁截面对象，本仓库求解链补上：
+- 薄壁件：取中面、壳单元（S6）；
+- 框架：梁单元（B32）。
+- 对照题：薄板弯曲、悬臂梁，用解析解对照。
+
+算例 schema 要加字段，按规矩单独成 PR 并附 ADR。
+
+### 7. 规模（原 F7 内容保留）
+
+求解器多线程；算前估内存，超限先报；50 万单元算例在本机跑通，记录时间与内存。
+
+### 8. 施工顺序与验收
+
+1. 算例 ↔ FEM 对象双向转换（`freecad_addon/fc/fem_bridge.py`）。
+   验收：真实零件 RJ-201、LS-101、大臂三个算例往返一致；人手建的 FEM 分析能转成算例；对不上的面、不支持的对象被拒绝并说明。
+   测试标 `@pytest.mark.freecad`，CI 的 FreeCAD 作业跑。
+2. 结果进原生后处理。
+   验收：VTK 管线里的最大应力、最大位移与结果文件一致；剖切、变形放大可用（截图存档）。
+3. FEM 工作台命令：起草、计算并核查、出报告。
+   验收：在 FreeCAD 里从一句话走到 Word 报告，录屏存档。
+4. 壳单元、梁单元：schema PR + ADR，解析解对照题通过。
+5. 规模：50 万单元跑通并记录。
+
+### 9. 不做的
+
+- 不改 FreeCAD 源码，只用它的 Python 接口（与 GPL / LGPL 的边界清楚）；
+- 不调用 FEM 工作台自带的求解器对象；
+- 不做电磁、流体。
