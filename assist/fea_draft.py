@@ -6,7 +6,7 @@
 3. 代码核对（本模块，纯函数，不联网）——不过的不采用，列进“未采用及原因”，缺的改成追问：
    - 引用必须是原话里的一段；数值以完整数字紧跟单位出现在引用里，单位经 `ingest.units` 换算；
    - 特征存在、属于该实体，类型合乎这项（轴承载荷、圆柱支承、扭矩要轴段或孔，对称要平面；圆角、倒角不加载）；轴线取特征的轴线；
-   - 方向必须在原话里（“-z”“向下”等），与 AI 写的一致；轴承载荷要垂直于轴线；
+   - 方向必须在原话里按零件坐标写明（“-z”“y 轴负向”等），与 AI 写的一致；只说“向下”不算（零件文件看不出哪边朝上），改成追问；轴承载荷要垂直于轴线；
    - 材料在材料库里，且原话里有它的牌号；
    - 原话没给的大小、方向、材料、工况系数一律不猜，改成追问；网格、核查用缺省并注明“缺省”；
 4. 输出算例草稿（provenance.drafted_by = "ai"、confirmed_by_human = false，带每项依据与追问）；人改完、清掉追问、确认后才能算。
@@ -212,7 +212,8 @@ _AXIS = {"x": 0, "y": 1, "z": 2}
 
 
 def parse_direction(quote: str) -> tuple[str | None, str]:
-    """从原话的一段里读方向：显式的 ±x/y/z（含“z 负向”“negative z”），或“向下 / 向上”（按 z 朝上理解，须人核对）"""
+    """从原话的一段里读方向：只认按零件坐标写明的 ±x/y/z（含“z 轴负向”“negative z”）。
+    “向下 / 向上”不认：零件文件看不出哪边朝上，按某个轴猜就是编造（真实 LLM 验收时 AI 自己也是这样问的）"""
     t = unicodedata.normalize("NFKC", quote or "").replace("−", "-").casefold()
     m = re.search(r"(?<![a-z0-9])([+\-])\s*([xyz])(?![a-z])", t)
     if m:
@@ -223,10 +224,6 @@ def parse_direction(quote: str) -> tuple[str | None, str]:
     m = re.search(r"\b(positive|negative)\s+([xyz])\b", t)
     if m:
         return ("+" if m.group(1) == "positive" else "-") + m.group(2), ""
-    if re.search(r"竖直向下|向下|朝下|\bdown(?:ward)?s?\b", t):
-        return "-z", "“向下”按 z 轴朝上理解为 -z，须人核对零件坐标"
-    if re.search(r"竖直向上|向上|朝上|\bup(?:ward)?s?\b", t):
-        return "+z", "“向上”按 z 轴朝上理解为 +z，须人核对零件坐标"
     return None, ""
 
 
@@ -237,20 +234,24 @@ def _vec(d: str, mag: float) -> list[float]:
 
 
 def _has(word: str, q: str) -> bool:
-    """q 里有 word，且前后不紧挨字母数字（“45”不能匹配到“Q345”里）"""
-    return re.search(rf"(?<![a-z0-9]){re.escape(_norm(word))}(?![a-z0-9])", q) is not None
+    """原话的一段 q 里有 word，且前后不紧挨字母数字（“45”不能匹配到“Q345”里）。保留空格比，
+    否则“40Cr quenched”去掉空格成了“40crquenched”，牌号后面紧挨字母就认不出来"""
+    t = re.sub(r"\s+", " ", unicodedata.normalize("NFKC", q or "")).casefold()
+    w = re.sub(r"\s+", " ", unicodedata.normalize("NFKC", word)).casefold().strip()
+    return re.search(rf"(?<![a-z0-9]){re.escape(w)}(?![a-z0-9])", t) is not None
 
 
 def _material_ok(mid: str, name: str, quote: str) -> bool:
     """原话里要有这个材料：id 或名称，或牌号 + 对应的热处理词（“45 钢调质”“40Cr quenched and tempered”）"""
     q = _norm(quote)
+    raw = quote or ""
     grade, _, heat = mid.partition("-")
     plain = re.sub(r"[（(].*?[）)]", "", name)
-    if _has(mid, q) or _norm(name) in q:
+    if _has(mid, raw) or _norm(name) in q:
         return True
     if heat:
-        return _has(grade, q) and (any(_norm(w) in q for w in HEAT.get(heat, ())) or _has(heat, q))
-    return _has(plain, q)
+        return _has(grade, raw) and (any(_norm(w) in q for w in HEAT.get(heat, ())) or _has(heat, raw))
+    return _has(plain, raw)
 
 
 def _feat_line(fid: str, x: dict) -> str:
