@@ -1009,10 +1009,16 @@ def test_twin_panel(gui, tmp_path):
         def all(self, category=None):
             return [self.c] if category in (None, "reducer") else []
 
+    class Bare(Top):  # 缺参数的情形：去掉额定寿命（零件库里的 CSF-25 已按样本补齐，11-15，ADR-0094），保留“待确认”这条路的测试
+        def __init__(self):
+            super().__init__()
+            for k in ("rated_life_h", "rated_input_speed_rpm"):
+                self.c["params"].pop(k, None)
+
     csv = tmp_path / "run.csv"
     csv.write_text("instance,hours,output_torque_avg_nm,output_torque_max_nm,output_speed_rpm\n"
                    + "reducer,16,30,60,15\n" * 30, encoding="utf-8")
-    for lib, expect in ((LayeredLibrary(Top(), REAL), "正常"), (REAL, "待确认")):
+    for lib, expect in ((LayeredLibrary(Top(), REAL), "正常"), (REAL, "正常"), (Bare(), "待确认")):
         host = ToolsHost(lambda lib=lib: lib, note="测试")
         panel = TwinPanel(host=host)
         try:
