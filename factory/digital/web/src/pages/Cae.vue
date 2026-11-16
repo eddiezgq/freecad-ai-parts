@@ -349,7 +349,7 @@
 import { bi, t as $t } from '../lib/i18n';
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { get, post, session, ApiError } from '../lib/api';
+import { get, loadConfig, mainPart, post, session, ApiError } from '../lib/api';
 import { KINDS, TH_KINDS, toLoad, toThermal, axesOf, faceText, fetchSurface } from '../lib/cae';
 import CaeViewer from '../components/CaeViewer.vue';
 
@@ -787,6 +787,9 @@ onMounted(async () => {
   try {
     const [p, m] = await Promise.all([get('/cae/parts'), get('/cae/materials')]);
     parts.value = p.items; materials.value = m.materials; examples.value = p.examples || []; films.value = m.films || [];
+    // 第 171d 轮：默认零件 SH-301 不在本厂时改选本厂主零件（在零件表里的话），否则不选
+    await loadConfig().catch(() => null);
+    if (!parts.value.some((x) => x.item === partSel.value)) partSel.value = parts.value.some((x) => x.item === mainPart()) ? mainPart() : '';
   } catch (e) { err.value = e.status === 503 ? $t('计算服务暂时连不上，请稍后再试') : e.message; }
   if (route.query.example && examples.value.find((e) => e.key === route.query.example)) {   // 第 14 轮：设计优化 → 按这组参数重算温度场
     partSel.value = 'ex:' + route.query.example;

@@ -705,6 +705,8 @@ def _plant_cfg():
             "company": c["name"], "currency": c["currency"], "demo": DEMO_PLANT,
             "id": act["ID"] if act else "wenquest-gearbox",          # 第 45 轮：帮助按它显示“机器人厂”一册
             "shift": "{}–{}".format(cal.DEF_START, cal.DEF_END),
+            # 第 171d 轮：设计工具默认打开本厂的主零件；工艺规程页列本厂有工艺路线的物料
+            "main_part": PLANT.main_part(), "main_product": PLANT.main_product(), "make_items": PLANT.make_items(),
             # “实验与任务”：本厂有自己的实验（机器人厂的实验 24、25，第 47 轮）就显示
             "hidden": [] if DEMO_PLANT else [p for p in TEACH_ONLY_NAV if not (p == "/labs" and _labs_api.has_labs()) and not (p == "/supply" and SUPPLY_ON)
                                          and not (p in DOMAIN_NAV and DOMAINS_ON)]}
@@ -1186,7 +1188,7 @@ def q8d_list(u=Depends(user_of)):
 def q8d_create(body: dict = Body(...), u=Depends(user_of)):
     if not (body.get("title") or "").strip():
         raise HTTPException(400, "写一个简短的标题（现象）")
-    return qproblem.create(H.db, u["mode"], who(u), _uid(u), body.get("item") or "SH-301", body.get("characteristic"),
+    return qproblem.create(H.db, u["mode"], who(u), _uid(u), body.get("item") or PLANT.main_part(), body.get("characteristic"),
                            body["title"].strip(), body.get("d"))
 
 
@@ -1755,10 +1757,10 @@ def process_decision(sid: str, body: dict = Body(...), u=Depends(user_of)):
 
 # 质量统计（第 13 轮〔SPC〕）：控制图、判异、过程能力；测量系统分析
 @app.get("/api/quality/spc")
-def quality_spc(item: str = "SH-301", characteristic: str = "bearing_seat_d35", n: int = 5, u=Depends(user_of)):
+def quality_spc(item: str = "", characteristic: str = "bearing_seat_d35", n: int = 5, u=Depends(user_of)):
     if not 2 <= n <= 10:
         raise HTTPException(400, "子组容量 n 取 2–10")
-    return spc.for_characteristic(H.db, u["mode"], item, characteristic, n)
+    return spc.for_characteristic(H.db, u["mode"], item or PLANT.main_part(), characteristic, n)     # 第 171d 轮：默认本厂主零件
 
 
 @app.post("/api/quality/msa")

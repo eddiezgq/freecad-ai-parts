@@ -9185,5 +9185,7 @@
 "物流": "Logistics",
 "研发": "R&D",
 "平面图": "Plan",
-"拖动平移 · 滚轮缩放 · 点车间进去 · 点设备看状态和工艺文件": "Drag to pan · scroll to zoom · click a shop to enter · click a machine for status and process documents"
+"拖动平移 · 滚轮缩放 · 点车间进去 · 点设备看状态和工艺文件": "Drag to pan · scroll to zoom · click a shop to enter · click a machine for status and process documents",
+"件数（{a}）": "Quantity ({a})",
+"例如 {a}": "e.g. {a}"
 }

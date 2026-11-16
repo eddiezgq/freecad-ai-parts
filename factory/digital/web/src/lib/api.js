@@ -66,6 +66,9 @@ export function logout() {
   save();
 }
 
+// 第 171d 轮：本厂主零件（设计工具默认打开它）；演示工厂是 SH-301。要先 loadConfig()
+export const mainPart = () => session.config?.plant?.main_part || 'SH-301';
+
 export async function loadConfig() {
   if (!session.config) session.config = await get('/config');
   return session.config;
