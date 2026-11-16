@@ -262,6 +262,68 @@
         },
         "note": {
           "type": "string"
+        },
+        "basis": {
+          "type": "array",
+          "maxItems": 500,
+          "description": "每一项的依据（ADR-0093 补充十一）：AI 起草时由程序核对后写入",
+          "items": {
+            "type": "object",
+            "properties": {
+              "target": {
+                "type": "string",
+                "description": "算例里的位置，JSON Pointer，如 /loads/2"
+              },
+              "source": {
+                "enum": [
+                  "statement",
+                  "feature",
+                  "default",
+                  "human"
+                ],
+                "description": "原话 / 零件特征 / 缺省 / 人改的"
+              },
+              "quote": {
+                "type": "string",
+                "maxLength": 200,
+                "description": "原话里的引用"
+              },
+              "features": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                "description": "用到的零件特征（如“面 12：轴承座 Ø62”）"
+              },
+              "note": {
+                "type": "string",
+                "maxLength": 300
+              }
+            },
+            "required": [
+              "target",
+              "source"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "description": "起草时没法定、要问人的"
+        },
+        "confirmed_by": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "confirmed_at": {
+          "type": "string",
+          "format": "date-time"
         }
       },
       "required": [
@@ -311,6 +373,73 @@
             "$ref": "#/$defs/bolt_preload"
           }
         ]
+      }
+    },
+    "load_cases": {
+      "type": "array",
+      "maxItems": 50,
+      "description": "命名工况（ADR-0093 补充十一）。有工况时每个载荷都要写 case",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "kind": {
+            "enum": [
+              "dead",
+              "operating",
+              "accidental",
+              "test",
+              "other"
+            ],
+            "description": "自重 / 工作 / 偶然（急停、冲击）/ 试验 / 其他"
+          }
+        },
+        "required": [
+          "id",
+          "kind"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "combinations": {
+      "type": "array",
+      "maxItems": 50,
+      "description": "工况组合：各工况乘系数后线性叠加（系数由人给，程序不替人定）",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "factors": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+              "type": "number"
+            },
+            "description": "工况 id → 系数"
+          },
+          "basis": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "系数的出处（标准与条款，或“用户指定”）"
+          }
+        },
+        "required": [
+          "id",
+          "factors"
+        ],
+        "additionalProperties": false
       }
     }
   },
@@ -445,6 +574,10 @@
         "faces": true,
         "vector_n": {
           "$ref": "#/$defs/vec3"
+        },
+        "case": {
+          "$ref": "#/$defs/id",
+          "description": "所属工况（load_cases 里的 id）"
         }
       },
       "required": [
@@ -467,6 +600,10 @@
         "faces": true,
         "value_mpa": {
           "type": "number"
+        },
+        "case": {
+          "$ref": "#/$defs/id",
+          "description": "所属工况（load_cases 里的 id）"
         }
       },
       "required": [
@@ -492,6 +629,10 @@
         },
         "axis": {
           "$ref": "#/$defs/axis"
+        },
+        "case": {
+          "$ref": "#/$defs/id",
+          "description": "所属工况（load_cases 里的 id）"
         }
       },
       "required": [
@@ -515,6 +656,10 @@
         "faces": true,
         "vector_nm": {
           "$ref": "#/$defs/vec3"
+        },
+        "case": {
+          "$ref": "#/$defs/id",
+          "description": "所属工况（load_cases 里的 id）"
         }
       },
       "required": [
@@ -536,6 +681,10 @@
           "type": "boolean",
           "default": false,
           "description": "大变形（几何非线性，ADR-0093 F4）"
+        },
+        "combination": {
+          "$ref": "#/$defs/id",
+          "description": "按哪个工况组合算（combinations 里的 id）；不写时全部载荷一起"
         }
       },
       "required": [
@@ -702,6 +851,10 @@
         },
         "acceleration_m_s2": {
           "$ref": "#/$defs/vec3"
+        },
+        "case": {
+          "$ref": "#/$defs/id",
+          "description": "所属工况（load_cases 里的 id）"
         }
       },
       "required": [
@@ -727,6 +880,10 @@
         },
         "axis": {
           "$ref": "#/$defs/axis"
+        },
+        "case": {
+          "$ref": "#/$defs/id",
+          "description": "所属工况（load_cases 里的 id）"
         }
       },
       "required": [
@@ -758,6 +915,10 @@
         },
         "vector_nm": {
           "$ref": "#/$defs/vec3"
+        },
+        "case": {
+          "$ref": "#/$defs/id",
+          "description": "所属工况（load_cases 里的 id）"
         }
       },
       "required": [
@@ -796,6 +957,10 @@
         },
         "axis": {
           "$ref": "#/$defs/axis"
+        },
+        "case": {
+          "$ref": "#/$defs/id",
+          "description": "所属工况（load_cases 里的 id）"
         }
       },
       "required": [
@@ -817,6 +982,10 @@
         },
         "delta_t_k": {
           "type": "number"
+        },
+        "case": {
+          "$ref": "#/$defs/id",
+          "description": "所属工况（load_cases 里的 id）"
         }
       },
       "required": [

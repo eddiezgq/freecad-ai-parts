@@ -366,3 +366,8 @@ AI 不改结果、不判定合格；不自动从图纸读载荷（以后另议�
 3. 零件特征识别（`assist/features.py`），在真实零件上逐项核对。
 4. 起草与核对（`assist/fea_draft.py`），真实零件样例与人工标注答案。
 5. 解释、报告、审核清单、可追溯信息（`assist/fea_report.py`），报告数字逐个对回结果文件。
+- **第 1 步施工记录（11-15，数据格式）**：`provenance` 加 `basis`（target 用 JSON Pointer；source 为 statement / feature / default / human；
+  quote、features、note）、`questions`、`confirmed_by`、`confirmed_at`；顶层加 `load_cases`（id、name、kind：dead / operating /
+  accidental / test / other）与 `combinations`（id、name、factors：工况 → 系数、basis：系数出处）；各载荷加可选 `case`；静力步加可选
+  `combination`。附加质量（`mass`）不分工况：它的重量随所在实体的重力载荷一起乘那个工况的系数。夹具 valid 1 个、invalid 3 个。
+  程序要核对的（下一步）：工况 id、组合引用的工况都存在；有工况时每个载荷都写了 case；静力步引用的组合存在。
