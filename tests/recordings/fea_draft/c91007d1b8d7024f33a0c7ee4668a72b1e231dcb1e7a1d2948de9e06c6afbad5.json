@@ -1,0 +1,46 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "fea-draft/1",
+  "request_key": "c91007d1b8d7024f33a0c7ee4668a72b1e231dcb1e7a1d2948de9e06c6afbad5",
+  "response": {
+    "id": "msg_011Ch6jnQb417kV7nqZwbfV1",
+    "simulated": false,
+    "tool_input": {
+      "bodies": [
+        {
+          "material": "40Cr-QT",
+          "material_quote": "40Cr quenched and tempered",
+          "part": 1
+        }
+      ],
+      "items": [
+        {
+          "features": [
+            "F6"
+          ],
+          "part": 1,
+          "quote": "Fix the end face on the Ø70 flange end",
+          "type": "fixed"
+        },
+        {
+          "direction": null,
+          "direction_quote": null,
+          "features": [
+            "F2"
+          ],
+          "magnitude": null,
+          "part": 1,
+          "quote": "Apply a radial bearing load on the Ø50 bearing seat",
+          "type": "bearing_load"
+        }
+      ],
+      "name": "RJ-201_bearing_load",
+      "questions": [
+        "轴承载荷的大小原话里说还在计算中，没有给数值。请问最终的载荷大小和单位是多少？",
+        "轴承载荷在径向平面内的方向（+x、-x、+y、-y）没有说明。请问载荷朝哪个方向？",
+        "Ø70 法兰端的端面我选了 F6（z=0，朝 -z 的端面）。F8 是 z=10 的法兰台阶面，也在法兰端，但它不是端面。请确认固定面是 F6。",
+        "原话没有明说分析类型。我按载荷和约束理解为静力分析，没有写分析步。请确认是否需要静力分析，或还要做模态分析。"
+      ]
+    }
+  }
+}

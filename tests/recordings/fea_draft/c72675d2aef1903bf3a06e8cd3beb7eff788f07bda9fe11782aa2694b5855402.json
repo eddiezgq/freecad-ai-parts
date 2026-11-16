@@ -1,0 +1,91 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "fea-draft/1",
+  "request_key": "c72675d2aef1903bf3a06e8cd3beb7eff788f07bda9fe11782aa2694b5855402",
+  "response": {
+    "id": "msg_011Ch6jmG73xVnREqCjrehE9",
+    "simulated": false,
+    "tool_input": {
+      "bodies": [
+        {
+          "material": "6061-T6",
+          "material_quote": "6061-T6",
+          "part": 1
+        }
+      ],
+      "combinations": [
+        {
+          "factors": [
+            {
+              "case": "dead",
+              "value": 1.35
+            },
+            {
+              "case": "work",
+              "value": 1.5
+            }
+          ],
+          "id": "combo1",
+          "name": "1.35自重+1.5工作",
+          "quote": "1.35 × 自重 + 1.5 × 工作"
+        }
+      ],
+      "items": [
+        {
+          "quote": "组合校核",
+          "type": "static"
+        },
+        {
+          "case": "dead",
+          "direction": null,
+          "magnitude": null,
+          "part": 1,
+          "quote": "重力竖直向下",
+          "type": "gravity"
+        },
+        {
+          "case": "work",
+          "features": [
+            "F4"
+          ],
+          "magnitude": {
+            "quote": "46.4 N·m",
+            "unit": "N·m",
+            "value": 46.4
+          },
+          "part": 1,
+          "quote": "肘部 Ø107 减速器座上的扭矩 46.4 N·m",
+          "type": "torque"
+        },
+        {
+          "features": [
+            "F6"
+          ],
+          "part": 1,
+          "quote": "肩部 Ø138 减速器座固定",
+          "type": "fixed"
+        }
+      ],
+      "load_cases": [
+        {
+          "id": "dead",
+          "kind": "dead",
+          "name": "自重",
+          "quote": "自重"
+        },
+        {
+          "id": "work",
+          "kind": "operating",
+          "name": "工作载荷",
+          "quote": "工作载荷"
+        }
+      ],
+      "name": "ARM-UPPER_combo",
+      "questions": [
+        "“重力竖直向下”对应模型坐标系的哪个方向（+x/-x/+y/-y/+z/-z）？清单里没有说明哪个轴是竖直方向，请确认。",
+        "重力加速度的数值是多少（原话未给）？",
+        "扭矩作用在 F4（Ø107 孔座，面 8）上，请确认是加在该孔座的圆柱面上；扭矩的转向原话没有给出，是否需要指定？"
+      ]
+    }
+  }
+}

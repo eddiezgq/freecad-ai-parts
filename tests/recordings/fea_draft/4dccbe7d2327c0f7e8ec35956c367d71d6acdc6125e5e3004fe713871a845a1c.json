@@ -1,0 +1,47 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "fea-draft/1",
+  "request_key": "4dccbe7d2327c0f7e8ec35956c367d71d6acdc6125e5e3004fe713871a845a1c",
+  "response": {
+    "id": "msg_011Ch6jjFUnf4iRdit5Qiwqx",
+    "simulated": false,
+    "tool_input": {
+      "bodies": [
+        {
+          "material": "45-QT",
+          "material_quote": "45 钢调质",
+          "part": 1
+        }
+      ],
+      "items": [
+        {
+          "features": [
+            "F6"
+          ],
+          "part": 1,
+          "quote": "Ø70 法兰那一端的端面固定",
+          "type": "fixed"
+        },
+        {
+          "features": [
+            "F4"
+          ],
+          "magnitude": {
+            "quote": "92.5 N·m",
+            "unit": "N·m",
+            "value": 92.5
+          },
+          "part": 1,
+          "quote": "在 Ø42.75 花键段上加峰值扭矩 92.5 N·m",
+          "type": "torque"
+        }
+      ],
+      "name": "RJ-201_hollow_shaft_torque",
+      "questions": [
+        "“Ø70 法兰那一端的端面”我选了 F6（z=0，朝 -z，面积 3142 mm²）。请确认不是 F8（z=10 的法兰台阶面）。",
+        "原话没有写分析类型。我按静力分析处理，未加模态。请确认。",
+        "扭矩只给了大小，没给转向（绕轴正向还是负向）。请确认是否需要指定。"
+      ]
+    }
+  }
+}
