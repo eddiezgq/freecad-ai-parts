@@ -95,9 +95,9 @@
 import { t as $t } from '../lib/i18n';
 import { computed, defineComponent, h, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { get, post, session } from '../lib/api';
+import { get, loadConfig, mainPart, post, session } from '../lib/api';
 
-const ITEMS = ['SH-301', 'SH-101'];
+const ITEMS = ref(['SH-301', 'SH-101']);           // 第 171d 轮：别的厂换成本厂有工艺路线的物料（loadConfig 后）
 const HAS_REF = { 'SH-301': true };   // SH-101 网页上只给零件图要求（第 13 轮十二），路线由学生拟定；std/SH-101_process.yaml（第 57 章）可经接口下载
 const STATUS = { pending: $t('待审'), approved: $t('已批准'), rejected: $t('已退回') };
 const TONE = { pending: 'warn', approved: 'ok', rejected: 'bad' };
@@ -198,7 +198,16 @@ async function decide(d) {
   catch (e) { msg.value = e.message; ok.value = false; } finally { busy.value = false; }
 }
 watch([sid, item], load);
-onMounted(load);
+onMounted(async () => {
+  const c = await loadConfig().catch(() => null);
+  if (c?.plant && c.plant.demo === false && c.plant.make_items?.length) {
+    ITEMS.value = c.plant.make_items.map((x) => x[0]);
+    const q = route.query.item;
+    const want = q && ITEMS.value.includes(q) ? q : mainPart();
+    if (want !== item.value) { item.value = want; return; }      // watch 会去 load
+  }
+  load();
+});
 </script>
 
 <style scoped>

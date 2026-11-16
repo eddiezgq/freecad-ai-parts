@@ -15,6 +15,7 @@ import uuid
 from psycopg.types.json import Jsonb
 
 from factory import data as F
+from factory import plant as PLANT
 from sim.calendar import MAX_OT_MIN, Calendar
 from sim.engine import OP_UNITS, Engine, routing_for
 
@@ -379,7 +380,7 @@ def _simulate(snap, changes, ctx, horizon_days, limit_s):
                 unit_cost = mins / 60 * rate_per_hour(c["unit"]) * OUTSOURCE_MARKUP
                 costs.append({"what": "外协 {} 件（{}）".format(c["qty"], c["operation"]), "usd": round(unit_cost * int(c["qty"]) + OUTSOURCE_FREIGHT, 2)})
         elif typ == "insert_order":
-            releases.append({"work_order": c["work_order"], "item": c.get("item", "SH-301"), "qty": int(c["qty"]),
+            releases.append({"work_order": c["work_order"], "item": c.get("item") or PLANT.main_part(), "qty": int(c["qty"]),
                              "at": c.get("at"), "sales_order": c.get("sales_order"), "material": c.get("material")})
             applied.append(c)
         elif typ == "urgent_purchase":

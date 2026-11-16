@@ -7,7 +7,7 @@
       <section class="card side">
         <div class="card-head"><h2>{{ $t('提交新版本') }}</h2></div>
         <form class="form" @submit.prevent="submit">
-          <label>{{ $t('物料编号') }} <input v-model.trim="item" :placeholder="$t('例如 SH-301、CAP-52-T')" required @change="lookup"></label>
+          <label>{{ $t('物料编号') }} <input v-model.trim="item" :placeholder="$t('例如 {a}', { a: mainPart() })" required @change="lookup"></label>
           <div v-if="info" class="small ok">{{ $t('{a} · 现行 rev {b}', { a: $td(info.name), b: $td(info.revision) }) }}</div>
           <div v-if="infoErr" class="small err">{{ infoErr }}</div>
           <label>{{ $t('三维模型（STEP）') }} <input type="file" accept=".step,.stp,.STEP,.STP" @change="pick('step', $event)"></label>
@@ -48,7 +48,7 @@
 import { t as $t } from '../lib/i18n';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { get, session } from '../lib/api';
+import { get, loadConfig, mainPart, session } from '../lib/api';
 import { timeOf } from '../lib/fmt';
 
 const STATUS = { pending: $t('待审'), approved: $t('已生效'), rejected: $t('退回'), withdrawn: $t('撤回') };
@@ -91,6 +91,7 @@ async function submit() {
   } catch (e) { msgOk.value = false; msg.value = e.message; } finally { busy.value = false; }
 }
 onMounted(() => {
+  loadConfig().catch(() => null);          // 第 171d 轮：示例物料号写本厂主零件
   load();
   if (route.query.item) { item.value = String(route.query.item); lookup(); }   // 第 150 轮 150d：从按单设计页“去交图纸”带物料编号过来
 });

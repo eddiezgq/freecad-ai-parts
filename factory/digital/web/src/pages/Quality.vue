@@ -90,7 +90,7 @@
 import { t as $t } from '../lib/i18n';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { get, loadConfig, post, session } from '../lib/api';
+import { get, loadConfig, mainPart, post, session } from '../lib/api';
 import { bus } from '../lib/bus';
 import { timeOf } from '../lib/fmt';
 import ControlChart from '../components/ControlChart.vue';
@@ -143,7 +143,7 @@ async function load8d() {
   if (isTeacher.value) problems.value = await get('/quality/problems');
 }
 async function open8d() {
-  const r = await post('/quality/8d', { item: cur.value?.item || 'SH-301', characteristic: ch.value, title: newTitle.value });
+  const r = await post('/quality/8d', { item: cur.value?.item || mainPart(), characteristic: ch.value, title: newTitle.value });
   newTitle.value = '';
   router.push('/quality/8d/' + r.id);
 }

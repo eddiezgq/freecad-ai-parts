@@ -30,7 +30,7 @@
             </tbody>
           </table>
           <p class="muted small">{{ td(pv.basis) }}</p>
-          <h3>{{ t('工单（本轮只下达输出轴 SH-301）') }}</h3>
+          <h3>{{ session.config?.plant?.demo === false ? t('工单') : t('工单（本轮只下达输出轴 SH-301）') }}</h3>
           <table class="t">
             <thead><tr><th>{{ t('物料') }}</th><th class="num">{{ t('数量') }}</th><th>{{ t('计划开工') }}</th><th>{{ t('计划完工') }}</th><th class="num">{{ t('理论工时') }}</th></tr></thead>
             <tbody><tr v-for="w in pv.work_orders" :key="w.production_item">
@@ -157,7 +157,7 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { get, post } from '../lib/api';
+import { get, post, session } from '../lib/api';
 import { short } from '../lib/fmt';
 import { bi, isEn, t, td, tk } from '../lib/i18n';
 

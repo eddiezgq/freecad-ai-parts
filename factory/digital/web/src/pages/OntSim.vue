@@ -59,7 +59,7 @@
           </template>
           <template v-if="form.type === 'insert_order'">
             <div class="field"><label>{{ $t('工单号') }}</label><input v-model="form.work_order" :placeholder="$t('如 插单-1')"></div>
-            <div class="field"><label>{{ $t('件数（SH-301）') }}</label><input v-model.number="form.qty" type="number" min="1"></div>
+            <div class="field"><label>{{ $t('件数（{a}）', { a: part }) }}</label><input v-model.number="form.qty" type="number" min="1"></div>
             <div class="field"><label>{{ $t('下达日') }}</label><input v-model="form.at" type="date"></div>
           </template>
           <button class="btn primary sm" @click="addChange">{{ $t('加入并推演') }}</button>
@@ -106,7 +106,7 @@
 import { t as $t } from '../lib/i18n';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { get, post, session } from '../lib/api';
+import { get, loadConfig, mainPart, post, session } from '../lib/api';
 import { fmtTs } from '../lib/ont';
 import GanttChart from '../components/GanttChart.vue';
 
@@ -128,6 +128,8 @@ const compared = ref([]);
 const shift = ref({ mode: 'continuous' });
 const adding = ref(false);
 const canInitiate = computed(() => session.user?.teacher === true || ['planner', 'manager'].includes(session.user?.role));
+const part = ref('SH-301');                      // 第 171d 轮：插单插本厂主零件
+loadConfig().then(() => { part.value = mainPart(); }).catch(() => {});
 const form = ref({ type: 'expedite', qty: 3, days: 1, minutes: 120, unit: '*', factor: 0.5 });
 
 const jobs = computed(() => {
@@ -175,7 +177,7 @@ function addChange() {
   if (f.type === 'expedite') c = { ...c, unit: f.unit, factor: f.factor };
   if (f.type === 'urgent_purchase') c = { ...c, item: f.item, qty: f.qty, arrive: f.arrive };
   if (f.type === 'split_delivery') c = { ...c, sales_order: f.sales_order, first_qty: f.first_qty, first_date: f.first_date };
-  if (f.type === 'insert_order') c = { ...c, work_order: f.work_order || $t('插单-1'), item: 'SH-301', qty: f.qty, at: f.at };
+  if (f.type === 'insert_order') c = { ...c, work_order: f.work_order || $t('插单-1'), item: part.value, qty: f.qty, at: f.at };
   changes.value.push(c);
   adding.value = false;
   run();

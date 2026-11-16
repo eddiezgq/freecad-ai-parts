@@ -591,6 +591,33 @@ def has_domains():
     return has_supply()
 
 
+def main_product():
+    """本厂主产品（第 171d 轮）：演示工厂 WQR-105；其余厂 = 清单第一个产品"""
+    from factory import data as F
+    return "WQR-105" if active() is None else next(iter(F.PRODUCTS), None)
+
+
+def main_part():
+    """本厂主零件（第 171d 轮，设计工具默认打开它）：演示工厂 SH-301；其余厂 = 清单里第一个有工艺路线的自制件，
+    没有取第一个半成品，再没有取主产品"""
+    from factory import data as F
+    if active() is None:
+        return "SH-301"
+    for kind in ("make", "sub"):
+        for it in F.BOMS:
+            if F.ITEMS.get(it, ("", ""))[1] == kind:
+                return it
+    return main_product()
+
+
+def make_items():
+    """有工艺路线的物料（编号, 名, 类别），自制件、半成品在前"""
+    from factory import data as F
+    order = {"make": 0, "sub": 1, "fg": 2}
+    return [[it, F.ITEMS[it][0], F.ITEMS[it][1]] for it in sorted(F.BOMS, key=lambda i: (order.get(F.ITEMS.get(i, ("", ""))[1], 3), list(F.BOMS).index(i)))
+            if it in F.ITEMS]
+
+
 def has_supply():
     """“采购与来料”（第 18 轮 E5）在哪些厂开：演示工厂，和清单写了产品的厂（第 51 轮：机器人厂等）"""
     p = active()
