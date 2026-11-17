@@ -197,3 +197,28 @@ def test_buttons_appear_in_fem_workbench():
         FreeCADGui.removeWorkbenchManipulator(FreeCADGui._fap_fem_manipulator)
         del FreeCADGui._fap_fem_manipulator
         FreeCADGui.activateWorkbench("NoneWorkbench")
+
+
+def test_beam_sentence_to_result(doc):
+    """壳、梁的一句话起草（ADR-0096 第 1 步）：悬臂梁 CANT-500 → 截面成为 FEM 的梁截面对象、固定与力作用在顶点上 →
+    确认 → 计算：端部挠度与 PL³/(3EI) 相差 < 2.5 %"""
+    from analysis.common import materials
+    from assist import fea_draft as D
+    from freecad_addon.fc import fem_flow as F
+    from tests.test_assist_fea_draft import GOOD
+
+    s = _samples()["S10-CANT-rect"]
+    part = _part(doc, ROOT / "tests/fixtures/fea-draft/CANT-500.step")
+    out = F.draft_into(doc, s["statement"], [part], D.FakeClient(GOOD["S10-CANT-rect"]))
+    an = out["analysis"]
+    assert not out["questions"] and not out["rejected"] and not out["errors"]
+    assert any(o.Name.startswith("FapBeam_") for o in an.Group)                     # 截面是 FEM 的 ElementGeometry1D
+    F.confirm_analysis(an, "测试工程师", False)
+    study, wd = F.prepare_run(an)
+    b = study["bodies"][0]
+    assert b["kind"] == "beam" and b["section"]["width_mm"] == 20 and b["section"]["orientation"] == [0.0, 1.0, 0.0]
+    assert study["supports"][0]["vertices"] == [1] and study["loads"][0]["vertices"] == [2]
+    res = F.compute(study, wd)
+    assert res["status"] == "ok", res.get("messages")
+    E = materials.get("45-QT")["elastic_modulus_mpa"]
+    assert res["data"]["steps"][0]["u_max_mm"] == pytest.approx(1000 * 500 ** 3 / (3 * E * 20 * 40 ** 3 / 12), rel=0.025)

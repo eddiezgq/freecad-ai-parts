@@ -32,7 +32,7 @@ import numpy as np
 
 from ingest.units import UnitError, to_standard
 
-PROMPT_VERSION = "fea-draft/1"
+PROMPT_VERSION = "fea-draft/2"
 DEFAULT_MODEL = "claude-sonnet-5-5"
 TOOL_NAME = "propose_fea_study"
 ROOT = Path(__file__).resolve().parent.parent
@@ -40,7 +40,7 @@ RECORDINGS_DIR = ROOT / "tests" / "recordings" / "fea_draft"
 SAMPLES = ROOT / "tests" / "fixtures" / "fea-draft" / "samples.json"
 STANDARD_GRAVITY = 9.80665           # 标准重力加速度（定义值，CGPM 1901）
 
-SUPPORTS = ("fixed", "cyl_support", "symmetry")
+SUPPORTS = ("fixed", "cyl_support", "symmetry", "pinned")
 LOADS = ("force", "pressure", "torque", "moment", "bearing_load", "gravity", "remote_load")
 CONNECTIONS = ("bonded", "bolt_preload")
 STEPS = ("static", "modal")
@@ -60,6 +60,16 @@ MODAL_WORDS = ("模态", "固有频率", "振型", "共振", "modal", "natural f
 GRAVITY_WORDS = ("自重", "重力", "self-weight", "self weight", "gravity", "own weight")
 DOF_WORDS = {"radial": ("径向", "radial"), "axial": ("轴向", "axial"),
              "tangential": ("切向", "周向", "转动", "tangential", "rotation", "circumferential")}
+# 壳、梁（ADR-0095；起草见 ADR-0096 第 1 步）：能用的类型、各类特征作用在哪（面、边、顶点）
+THIN_TYPES = {"shell": ("fixed", "pinned", "force", "pressure", "gravity", "static", "modal"),
+              "beam": ("fixed", "pinned", "force", "gravity", "static", "modal")}
+THIN_WHERE = {"shell_face": "faces", "shell_edge": "edges", "beam_member": "edges", "beam_end": "vertices",
+              "beam_joint": "vertices"}
+PINNED_WORDS = ("简支", "铰支", "铰接", "铰链", "pinned", "simply supported", "simple support", "hinged")
+SECTION_WORDS = {"rect": ("矩形", "方钢", "扁钢", "rectangular", "rectangle", "square bar", "flat bar"),
+                 "circle": ("圆钢", "实心圆", "圆截面", "圆棒", "solid round", "round bar", "solid circular"),
+                 "pipe": ("圆管", "钢管", "管", "pipe", "tube")}
+SECTION_DIMS = {"rect": ("width", "height"), "circle": ("diameter",), "pipe": ("outer_diameter", "wall")}
 HEAT = {"QT": ("调质", "quenched and tempered", "q&t", "qt"), "CQ": ("渗碳", "carburiz", "case harden"),
         "T6": ("t6",)}
 
@@ -76,6 +86,13 @@ SYSTEM_PROMPT = """你是机械工程师的助手，把工程师的一句话起�
 7. 原话分了工况、给了组合系数才写 load_cases 和 combinations；系数只用原话里的数。
 8. 原话要求模态 / 固有频率才写 modal 分析步。
 9. 原话里有而你拿不准的（哪个面、哪个方向、载荷属于哪个工况），宁可提问，不要猜。
+10. 清单里标“壳（STEP 是中面）”的零件：bodies 里写 thickness（厚度，原话里的数和单位）；支承、载荷选壳面或边的特征
+    （边界边上的固定、简支、力用边）。只能用 fixed、pinned、force、pressure、gravity。
+11. 清单里标“梁（STEP 是轴线）”的零件：bodies 里写 section（截面）：shape 为 rect（矩形实心）、circle（实心圆）、pipe（圆管）之一，
+    尺寸只用原话里的数（rect 写 width、height 和 orientation——宽度方向，按零件坐标 ±x/±y/±z，附 orientation_quote；
+    circle 写 diameter；pipe 写 outer_diameter、wall），并附 section_quote（原话里说截面的那段）。
+    支承、载荷选杆件（边）或端点、节点（顶点）。只能用 fixed、pinned、force、gravity。
+12. 原话说“简支 / 铰支 / pinned”的用 pinned（只限平动、不限转动）；说“固定 / 固支 / 夹紧”的用 fixed。
 """
 TOOL_INSTRUCTION = "\n必须调用一次工具 {name} 提交起草结果。"
 
@@ -88,7 +105,14 @@ TOOL_SCHEMA = {
         "bodies": {"type": "array", "items": {"type": "object", "properties": {
             "part": {"type": "integer", "description": "零件序号（清单里的“零件 k”）"},
             "material": {"type": ["string", "null"], "description": "材料库 id"},
-            "material_quote": {"type": ["string", "null"]}}, "required": ["part"]}},
+            "material_quote": {"type": ["string", "null"]},
+            "thickness": {**_VAL, "description": "壳：厚度"},
+            "section": {"type": ["object", "null"], "description": "梁：截面", "properties": {
+                "shape": {"enum": ["rect", "circle", "pipe"]},
+                "width": _VAL, "height": _VAL, "diameter": _VAL, "outer_diameter": _VAL, "wall": _VAL,
+                "orientation": {"type": ["string", "null"], "enum": ["+x", "-x", "+y", "-y", "+z", "-z", None]},
+                "orientation_quote": {"type": ["string", "null"]},
+                "section_quote": {"type": "string"}}, "required": ["shape", "section_quote"]}}, "required": ["part"]}},
         "items": {"type": "array", "items": {"type": "object", "properties": {
             "type": {"enum": list(TYPES)},
             "part": {"type": "integer"},
@@ -122,7 +146,7 @@ TOOL_SCHEMA = {
 
 def part_features(step_paths: list[str], library=None) -> list[dict]:
     """每个零件：{"part": k, "path", "recog", "ids": {"F3": 特征}}；特征编号全局连续，给 AI 看的清单在 "text" 里"""
-    from assist.features import recognize
+    from assist.features import geometry_kind, recognize, recognize_thin
 
     if library is None:
         from kb.library import JsonLibrary
@@ -130,21 +154,22 @@ def part_features(step_paths: list[str], library=None) -> list[dict]:
         library = list(JsonLibrary(ROOT / "data" / "library").all())
     out, n = [], 0
     for k, p in enumerate(step_paths, 1):
-        r = recognize(str(p), library)
+        kind = geometry_kind(str(p))
+        r = recognize(str(p), library) if kind == "solid" else recognize_thin(str(p))
         faces = {f["id"]: f for f in r["faces"]}
         ids, lines = {}, [f"零件 {k}：{Path(p).name}；{r['text'].splitlines()[0]}"]
         for x in r["features"]:
             n += 1
             fid = f"F{n}"
             ids[fid] = x
-            bb = [faces[i]["bbox"] for i in x["faces"] if i in faces]
+            bb = [faces[i]["bbox"] for i in x.get("faces") or [] if i in faces] or [x["bbox"]]
             lo = np.min([b[:3] for b in bb], axis=0)
             hi = np.max([b[3:] for b in bb], axis=0)
             span = "，".join(f"{a} {lo[j]:.1f}…{hi[j]:.1f}" if hi[j] - lo[j] > 0.05 else f"{a} = {lo[j]:.1f}"
                             for j, a in enumerate("xyz"))
             extra = f"；轴线方向 {[round(v, 3) for v in x['axis']]}" if isinstance(x.get("axis"), list) else ""
             lines.append(f"- {fid}（零件 {k}）{x['text']}；范围 {span}{extra}")
-        out.append({"part": k, "path": str(p), "recog": r, "ids": ids, "text": "\n".join(lines)})
+        out.append({"part": k, "path": str(p), "kind": kind, "recog": r, "ids": ids, "text": "\n".join(lines)})
     return out
 
 
@@ -258,6 +283,58 @@ def _feat_line(fid: str, x: dict) -> str:
     return f"{fid}：{x['text']}"[:120]
 
 
+def _section_shape(quote: str) -> str | None:
+    """原话里说的截面形状：矩形管（方管）本版不支持，返回 "box"；认不出返回 None"""
+    q = _norm(quote)
+    if any(_norm(w) in q for w in ("方管", "矩形管", "rectangular tube", "square tube", "box section", "hollow section")):
+        return "box"
+    for shape in ("pipe", "rect", "circle"):            # 先认管（“圆钢管”里有“圆钢”）
+        if any(_norm(w) in q for w in SECTION_WORDS[shape]):
+            return shape
+    return None
+
+
+def _thin_body(b: dict, part: dict, statement: str, members: list[dict]) -> tuple[dict, list[dict], str | None]:
+    """壳的厚度、梁的截面：只用原话里的数。返回（要并进实体的字段, 依据, 不通过的原因）"""
+    if part["kind"] == "shell":
+        val, why = _value_with_unit(b.get("thickness"), statement, "thickness_mm")
+        if why:
+            return {}, [], f"厚度：{why}"
+        return {"thickness_mm": val}, [{"target": "thickness_mm", "quote": b["thickness"]["quote"]}], None
+    sec = b.get("section")
+    if not isinstance(sec, dict) or not _in_statement(sec.get("section_quote"), statement):
+        return {}, [], "截面：原话里找不到说截面的那段"
+    said = _section_shape(sec["section_quote"])
+    if said == "box":
+        return {}, [], "截面：矩形管（方管）本版不支持（只有矩形实心、实心圆、圆管）"
+    if said is None or said != sec.get("shape"):
+        return {}, [], f"截面：AI 写的形状 {sec.get('shape')} 与原话“{sec['section_quote']}”不符"
+    out, basis = {"shape": said}, []
+    for d in SECTION_DIMS[said]:
+        val, why = _value_with_unit(sec.get(d), statement, f"{d}_mm")
+        if why:
+            return {}, [], f"截面的 {d}：{why}"
+        out[f"{d}_mm"] = val
+        basis.append({"target": f"section/{d}_mm", "quote": sec[d]["quote"]})
+    if said == "rect":
+        oq = sec.get("orientation_quote")
+        d, _ = parse_direction(oq) if _in_statement(oq, statement) else (None, "")
+        if d is None or d != sec.get("orientation"):
+            return {}, [], "截面：矩形截面的宽度方向原话没按零件坐标写明（±x / ±y / ±z）"
+        vec = _vec(d, 1.0)
+        if any(abs(float(np.dot(vec, m["direction"]))) > 1e-6 for m in members if "direction" in m):
+            return {}, [], f"截面：宽度方向 {d} 不垂直于杆件轴线"
+        out["orientation"] = vec
+        basis.append({"target": "section/orientation", "quote": oq})
+    if said == "pipe" and out["wall_mm"] * 2 > out["outer_diameter_mm"]:
+        return {}, [], "截面：壁厚超过外半径"
+    return {"section": out}, basis, None
+
+
+THIN_ASK = {"shell": "零件 {k}（{name}）是壳（中面）：板厚是多少（mm）？",
+            "beam": "零件 {k}（{name}）是梁（轴线）：截面是什么（矩形宽 × 高与宽度方向、实心圆直径、圆管外径 × 壁厚，mm）？"}
+
+
 def verify(tool_input: Any, statement: str, parts: list[dict], *, response_id: str = "", model: str = "") -> dict:
     """核对 AI 的提议，拼成算例草稿。返回 {"study", "questions", "rejected", "errors"}"""
     if not isinstance(tool_input, dict):
@@ -290,11 +367,25 @@ def verify(tool_input: Any, statement: str, parts: list[dict], *, response_id: s
         else:
             why = "原话没说材料" if not m else f"材料 {m} 不在材料库或原话里没有这个牌号"
             reject(None, "material", f"零件 {k}：{why}", f"零件 {k}（{Path(by_part[k]['path']).name}）用什么材料（材料库里的牌号）？")
+        kind = by_part[k].get("kind", "solid")
+        if kind != "solid":
+            body["kind"] = kind
+            members = [x for x in by_part[k]["ids"].values() if x["type"] == "beam_member"]
+            extra, bs, why = _thin_body(b, by_part[k], statement, members)
+            if why:
+                reject(None, kind, f"零件 {k}：{why}", THIN_ASK[kind].format(k=k, name=Path(by_part[k]["path"]).name))
+            body.update(extra)
+            for x in bs:
+                basis.append({"target": f"/bodies/{len(bodies)}/{x['target']}", "source": "statement", "quote": x["quote"][:200]})
         bodies.append(body)
     for k, p in by_part.items():
         if k not in bid:
             bid[k] = f"b{k}"
-            bodies.append({"id": bid[k], "step_path": p["path"]})
+            body = {"id": bid[k], "step_path": p["path"]}
+            if p.get("kind", "solid") != "solid":
+                body["kind"] = p["kind"]
+                questions.append(THIN_ASK[p["kind"]].format(k=k, name=Path(p["path"]).name))
+            bodies.append(body)
             questions.append(f"零件 {k}（{Path(p['path']).name}）用什么材料（材料库里的牌号）？")
 
     # 工况与组合
@@ -369,6 +460,20 @@ def verify(tool_input: Any, statement: str, parts: list[dict], *, response_id: s
             continue
         fids = it.get("features") or []
         feats = []
+        thin = by_part[k].get("kind", "solid") if k is not None else "solid"
+        if thin != "solid" and typ not in THIN_TYPES[thin]:
+            reject(i, typ, f"{'壳' if thin == 'shell' else '梁'}本版只能用 {'、'.join(THIN_TYPES[thin])}",
+                   f"“{it['quote']}”在{'壳' if thin == 'shell' else '梁'}上怎么处理（固定、简支、力"
+                   + ("、压力" if thin == "shell" else "") + "）？")
+            continue
+        if typ == "pinned":
+            if thin == "solid":
+                reject(i, typ, "实体零件不用简支：用固定或圆柱支承", f"“{it['quote']}”的支承限制哪些方向？")
+                continue
+            if not any(_norm(w) in _norm(it["quote"]) for w in PINNED_WORDS):
+                reject(i, typ, "原话没说简支 / 铰支", f"“{it['quote']}”是固定（夹紧）还是简支（只限平动）？")
+                continue
+        where = "faces"
         if typ != "gravity":
             if not fids:
                 reject(i, typ, "没有选特征", f"“{it['quote']}”作用在哪个面上？")
@@ -378,6 +483,13 @@ def verify(tool_input: Any, statement: str, parts: list[dict], *, response_id: s
                 reject(i, typ, f"特征 {missing} 不在零件 {k} 上", f"“{it['quote']}”作用在零件 {k} 的哪个面上？")
                 continue
             feats = [by_part[k]["ids"][f] for f in fids]
+            if thin != "solid":
+                kinds = {THIN_WHERE.get(x["type"]) for x in feats}
+                if None in kinds or len(kinds) != 1 or (typ == "pressure" and kinds != {"faces"}):
+                    need = "壳面" if typ == "pressure" else "同一类特征（都是面、都是边或都是顶点）"
+                    reject(i, typ, f"特征 {fids} 不合乎 {typ}（要{need}）", f"“{it['quote']}”作用在哪里？")
+                    continue
+                where = kinds.pop()
             wrong = [f for f, x in zip(fids, feats, strict=True)
                      if x["type"] in NO_LOAD or (typ in ALLOWED and x["type"] not in ALLOWED[typ])]
             if wrong:
@@ -385,7 +497,7 @@ def verify(tool_input: Any, statement: str, parts: list[dict], *, response_id: s
                         "symmetry": "平面"}.get(typ, "不是圆角、倒角的面")
                 reject(i, typ, f"特征 {wrong} 的类型不合乎 {typ}（要{need}）", f"“{it['quote']}”作用在哪个面上？")
                 continue
-        faces = sorted({f for x in feats for f in x["faces"]})
+        faces = sorted({f for x in feats for f in x.get(where) or []})
         b = {"source": "statement", "quote": it["quote"][:200], "features": [_feat_line(f, x) for f, x in zip(fids, feats, strict=True)]}
         notes = []
         axis = None
@@ -398,7 +510,10 @@ def verify(tool_input: Any, statement: str, parts: list[dict], *, response_id: s
             notes.append("轴线取特征的轴线")
         rec: dict[str, Any] = {"type": typ, "body": bid[k] if k is not None else None}
         if typ != "gravity":
-            rec["faces"] = faces
+            rec[where] = faces
+        if typ == "pinned":                              # 简支 = 三个平动为零、转动自由（ADR-0095）
+            rec = {"type": "displacement", "body": rec["body"], where: faces, "ux_mm": 0.0, "uy_mm": 0.0, "uz_mm": 0.0}
+            notes.append("简支：三个平动为零、转动不限")
         if typ == "cyl_support":
             dofs = [d for d in it.get("dofs") or [] if any(_norm(w) in _norm(it["quote"]) for w in DOF_WORDS.get(d, ()))]
             if not dofs or len(dofs) != len(it.get("dofs") or []):
@@ -584,12 +699,17 @@ def confirm(study: dict, by: str, at: datetime | None = None) -> dict:
 # ---------------------------------------------------------------- 验收打分（与人工标注答案比）
 
 
+def _where(x: dict) -> set:
+    """作用位置：面号照旧用整数；边、顶点（壳、梁）加前缀，免得与面号相混"""
+    return set(x.get("faces", ())) | {f"e{i}" for i in x.get("edges", ())} | {f"v{i}" for i in x.get("vertices", ())}
+
+
 def _groups(study: dict) -> dict[tuple[str, str], dict]:
     """按（类型，实体）归并：面的并集与载荷大小（同一类型的多项合在一起比，分成几项写都算对）"""
     out: dict[tuple[str, str], dict] = {}
     for x in study["supports"] + study["loads"]:
         g = out.setdefault((x["type"], x["body"]), {"faces": set(), "values": []})
-        g["faces"] |= set(x.get("faces", ()))
+        g["faces"] |= _where(x)
         v = x.get("value_nm", x.get("value_mpa"))
         if v is None:
             vec = x.get("vector_n") or x.get("force_n") or x.get("acceleration_m_s2") or x.get("vector_nm")
@@ -601,6 +721,16 @@ def _groups(study: dict) -> dict[tuple[str, str], dict]:
     return out
 
 
+def _round(x: Any) -> Any:
+    if isinstance(x, float):
+        return round(x, 9) + 0.0
+    if isinstance(x, list):
+        return [_round(v) for v in x]
+    if isinstance(x, dict):
+        return {k: _round(v) for k, v in x.items()}
+    return x
+
+
 def score(result: dict, answer: dict) -> dict:
     """与人工标注的答案比。answer：{"items": [{type, body, faces?, value?}], "questions": [[关键词…]…], "steps": [...]}。
     面选错 = 该有的项面不对 + 不该有的项；漏掉 = 该有的项没起草（原话给全了却变成追问，也算漏）"""
@@ -608,7 +738,7 @@ def score(result: dict, answer: dict) -> dict:
     want: dict[tuple[str, str], dict] = {}
     for e in answer.get("items", []):
         w = want.setdefault((e["type"], e["body"]), {"faces": set(), "values": []})
-        w["faces"] |= set(e.get("faces", ()))
+        w["faces"] |= _where(e)
         if "value" in e:
             w["values"].append(float(e["value"]))
     right = wrong_face = missing = wrong_value = 0
@@ -623,6 +753,19 @@ def score(result: dict, answer: dict) -> dict:
         else:
             right += 1
     extra = [k for k in got if k not in want]
+    # 壳的厚度、梁的截面（answer.bodies：[{"body", "thickness_mm" | "section"}]）：没起草算漏，数不对算数错
+    have = {b["id"]: b for b in result["study"]["bodies"]}
+    for e in answer.get("bodies", []):
+        b = have.get(e["body"], {})
+        for key, val in e.items():
+            if key == "body":
+                continue
+            if key not in b:
+                missing += 1
+            elif json.dumps(_round(b[key]), sort_keys=True) != json.dumps(_round(val), sort_keys=True):
+                wrong_value += 1
+            else:
+                right += 1
     n = max(1, len(want))
     qs = " ".join(result["questions"]).casefold()
     q_hit = [any(w.casefold() in qs for w in group) for group in answer.get("questions", [])]

@@ -69,6 +69,44 @@ GOOD = {
                   {"type": "bearing_load", "part": 1, "features": ["F2"], "magnitude": None,
                    "quote": "Apply a radial bearing load on the Ø50 bearing seat"}],
         "questions": ["How large is the radial bearing load on the Ø50 seat, and in which direction?"]},
+    # 壳、梁（ADR-0096 第 1 步）。特征编号：PLATE F1 = 面 1、F2–F5 = 边 1–4；BRKT F1、F2 = 面 1、2，F3–F9 = 边 1–7；
+    # FRAME F1–F4 = 杆件（边 1–4），F5–F9 = 顶点 1–5；CANT F1 = 杆件，F2、F3 = 顶点 1、2
+    "S7-PLATE-pinned-pressure": {
+        "bodies": [{"part": 1, "material": "6061-T6", "material_quote": "6061-T6 铝",
+                    "thickness": {"value": 5, "unit": "mm", "quote": "板厚 5 mm"}}],
+        "items": [{"type": "pinned", "part": 1, "features": ["F2", "F3", "F4", "F5"], "quote": "四条边都简支"},
+                  {"type": "pressure", "part": 1, "features": ["F1"], "quote": "板面受均布压力 0.01 MPa",
+                   "magnitude": {"value": 0.01, "unit": "MPa", "quote": "压力 0.01 MPa"}}],
+        "questions": []},
+    "S8-BRKT-missing-thickness": {
+        "bodies": [{"part": 1, "material": "Q235", "material_quote": "Q235", "thickness": None}],
+        "items": [{"type": "fixed", "part": 1, "features": ["F6"], "quote": "底板 x = 0 那条边固定"},
+                  {"type": "force", "part": 1, "features": ["F8"], "quote": "立板顶边（z = 60）受 200 N 的力，方向 -z",
+                   "magnitude": {"value": 200, "unit": "N", "quote": "受 200 N 的力"}, "direction": "-z",
+                   "direction_quote": "方向 -z"}],
+        "questions": ["钣金的板厚是多少？"]},
+    "S9-FRAME-pipe-modal": {
+        "bodies": [{"part": 1, "material": "Q235", "material_quote": "Q235",
+                    "section": {"shape": "pipe", "section_quote": "Q235 圆管，外径 60 mm、壁厚 4 mm",
+                                "outer_diameter": {"value": 60, "unit": "mm", "quote": "外径 60 mm"},
+                                "wall": {"value": 4, "unit": "mm", "quote": "壁厚 4 mm"}}}],
+        "items": [{"type": "fixed", "part": 1, "features": ["F5", "F9"], "quote": "两根柱脚（z = 0 的两个端点）固定"},
+                  {"type": "force", "part": 1, "features": ["F7"], "quote": "横梁中点（x = 1000 的节点）受 5 kN 的力，方向 -z",
+                   "magnitude": {"value": 5, "unit": "kN", "quote": "受 5 kN 的力"}, "direction": "-z",
+                   "direction_quote": "方向 -z"},
+                  {"type": "modal", "quote": "另算前 4 阶固有频率", "n_modes": {"value": 4, "quote": "前 4 阶固有频率"}}],
+        "questions": []},
+    "S10-CANT-rect": {
+        "bodies": [{"part": 1, "material": "45-QT", "material_quote": "45 钢调质",
+                    "section": {"shape": "rect", "section_quote": "矩形截面宽 20 mm、高 40 mm",
+                                "width": {"value": 20, "unit": "mm", "quote": "宽 20 mm"},
+                                "height": {"value": 40, "unit": "mm", "quote": "高 40 mm"},
+                                "orientation": "+y", "orientation_quote": "宽度方向沿 +y"}}],
+        "items": [{"type": "fixed", "part": 1, "features": ["F2"], "quote": "x = 0 的端点固定"},
+                  {"type": "force", "part": 1, "features": ["F3"], "quote": "自由端受 1 kN 的力，方向 -z",
+                   "magnitude": {"value": 1, "unit": "kN", "quote": "受 1 kN 的力"}, "direction": "-z",
+                   "direction_quote": "方向 -z"}],
+        "questions": []},
 }
 
 
@@ -310,3 +348,84 @@ def test_cli_confirm_refuses_open_questions(parts, tmp_path, capsys):
     f.write_text(json.dumps(r["study"], ensure_ascii=False), encoding="utf-8")
     assert D.main(["confirm", str(f), "--by", "张工"]) == 0
     assert json.loads(f.read_text(encoding="utf-8"))["provenance"]["confirmed_by"] == "张工"
+
+
+# ---------------------------------------------------------------- 壳、梁（ADR-0096 第 1 步）
+
+
+def test_thin_parts_feature_list(parts):
+    """壳列出面和边（边界边 / 折边），梁列出杆件和顶点（端点 / 节点）；相接处的点、边只有一份（框架连成一体）"""
+    brkt = parts["tests/fixtures/fea-draft/BRKT-L.step"][0]
+    assert brkt["kind"] == "shell" and "壳（STEP 是中面）" in brkt["text"]
+    assert brkt["ids"]["F6"]["edges"] == [4] and brkt["ids"]["F6"]["boundary"] is True
+    assert brkt["ids"]["F4"]["boundary"] is False                       # 底板与立板的折边
+    frame = parts["tests/fixtures/fea-draft/FRAME-2000.step"][0]
+    assert frame["kind"] == "beam"
+    assert [x["type"] for x in frame["ids"].values()].count("beam_joint") == 3       # 两个角点 + 横梁中点
+    assert frame["ids"]["F7"]["vertices"] == [3] and frame["ids"]["F7"]["point"] == [1000.0, 0.0, 1000.0]
+
+
+@pytest.mark.parametrize("sid,edit,why", [
+    ("S7-PLATE-pinned-pressure", lambda p: p["bodies"][0].update(thickness={"value": 6, "unit": "mm", "quote": "板厚 5 mm"}),
+     "厚度"),                                                                       # 编造的厚度
+    ("S9-FRAME-pipe-modal", lambda p: p["bodies"][0]["section"].update(shape="circle"), "形状"),
+    ("S10-CANT-rect", lambda p: p["bodies"][0]["section"].update(orientation="+x", orientation_quote="宽度方向沿 +y"),
+     "宽度方向"),
+])
+def test_thin_body_numbers_must_come_from_statement(parts, sid, edit, why):
+    r = _run(sid, _edit(sid, edit), parts)
+    assert any(why in x["reason"] for x in r["rejected"]), r["rejected"]
+    assert any(("板厚" in q or "截面" in q) for q in r["questions"]), r["questions"]
+    b = r["study"]["bodies"][0]
+    assert "thickness_mm" not in b and "section" not in b
+
+
+def test_rect_width_direction_must_be_perpendicular_to_member(parts):
+    s = SAMPLES["S10-CANT-rect"]
+    stmt = s["statement"].replace("宽度方向沿 +y", "宽度方向沿 +x")
+    p = _edit("S10-CANT-rect", lambda p: p["bodies"][0]["section"].update(orientation="+x", orientation_quote="宽度方向沿 +x"))
+    r = D.verify(p, stmt, parts[s["parts"][0]], response_id="fake", model="fake")
+    assert any("不垂直" in x["reason"] for x in r["rejected"]), r["rejected"]
+
+
+def test_box_section_is_not_supported(parts):
+    s = SAMPLES["S9-FRAME-pipe-modal"]
+    stmt = s["statement"].replace("Q235 圆管，外径 60 mm、壁厚 4 mm", "Q235 方管，外径 60 mm、壁厚 4 mm")
+    p = _edit("S9-FRAME-pipe-modal", lambda p: p["bodies"][0]["section"].update(section_quote="Q235 方管，外径 60 mm、壁厚 4 mm"))
+    r = D.verify(p, stmt, parts[s["parts"][0]], response_id="fake", model="fake")
+    assert any("方管" in x["reason"] for x in r["rejected"]), r["rejected"]
+
+
+@pytest.mark.parametrize("sid,edit,why", [
+    ("S7-PLATE-pinned-pressure", lambda p: p["items"][0].update(quote="板面受均布压力 0.01 MPa"), "简支"),   # 原话那段没说简支
+    ("S10-CANT-rect", lambda p: p["items"][1].update(type="pressure"), "梁本版只能用"),
+    ("S7-PLATE-pinned-pressure", lambda p: p["items"].append({"type": "torque", "part": 1, "features": ["F1"],
+                                                              "quote": "板面受均布压力 0.01 MPa"}), "壳本版只能用"),
+    ("S9-FRAME-pipe-modal", lambda p: p["items"][0].update(features=["F5", "F1"]), "同一类特征"),     # 顶点与杆件混用
+    ("S7-PLATE-pinned-pressure", lambda p: p["items"][1].update(features=["F2"]), "壳面"),            # 压力加在边上
+])
+def test_thin_items_rules(parts, sid, edit, why):
+    r = _run(sid, _edit(sid, edit), parts)
+    assert any(why in x["reason"] for x in r["rejected"]), r["rejected"]
+
+
+def test_pinned_on_solid_is_rejected(parts):
+    p = _edit("S1-RJ201-torque", lambda p: p["items"].__setitem__(0, {**p["items"][0], "type": "pinned"}))
+    r = _run("S1-RJ201-torque", p, parts)
+    assert any("实体零件不用简支" in x["reason"] for x in r["rejected"]), r["rejected"]
+
+
+def test_drafted_cantilever_beam_computes_to_beam_theory(parts):
+    """起草 → 确认 → 计算：悬臂梁端部挠度与 PL³/(3EI) 相差 < 2.5 %（差的是剪切变形，见 ADR-0095）"""
+    from analysis.common import materials
+    from analysis.fea import run_study
+
+    r = _run("S10-CANT-rect", GOOD["S10-CANT-rect"], parts)
+    assert r["errors"] == [] and r["questions"] == []
+    study = D.confirm(r["study"], "测试工程师")
+    study["checks"] = {"convergence": False}
+    res = run_study(study)
+    assert res["status"] == "ok", res["messages"]
+    E = materials.get("45-QT")["elastic_modulus_mpa"]
+    inertia = 20 * 40 ** 3 / 12                                     # 绕 y 轴（宽度沿 y、力沿 -z）
+    assert res["data"]["steps"][0]["u_max_mm"] == pytest.approx(1000 * 500 ** 3 / (3 * E * inertia), rel=0.025)

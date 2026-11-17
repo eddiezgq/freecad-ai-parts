@@ -260,3 +260,105 @@ def recognize(step_path, library: Iterable[dict] = ()) -> dict:
     lines += [f"- {x['text']}" for x in feats]
     return {"faces": faces, "features": feats, "text": "\n".join(lines), "bbox_mm": info["bbox_mm"],
             "volume_mm3": info["volume_mm3"]}
+
+
+# ---------------------------------------------------------------- 壳（中面）与梁（轴线）（ADR-0096 第 1 步）
+
+def _adjacency(step_path) -> tuple[dict[int, list[int]], dict[int, list[int]], dict[int, list[int]]]:
+    """（边 → 相邻的面, 边 → 两端顶点, 顶点 → 相连的边）；编号与 analysis.fea.geometry.faces 一致（同样的读入方式）"""
+    from analysis.fea.geometry import _LOCK, _gmsh, load_step
+
+    with _LOCK, tempfile.TemporaryDirectory() as tmp:
+        gmsh = _gmsh()
+        load_step(gmsh, step_path, tmp, require_solid=False)
+        e_faces, e_verts, v_edges = {}, {}, {}
+        for _d, e in gmsh.model.getEntities(1):
+            up, down = gmsh.model.getAdjacencies(1, e)
+            e_faces[int(e)] = [int(x) for x in up]
+            e_verts[int(e)] = [int(x) for x in down]
+            for v in down:
+                v_edges.setdefault(int(v), []).append(int(e))
+    return e_faces, e_verts, v_edges
+
+
+def _xyz(p) -> str:
+    return "(" + ", ".join(f"{x:.1f}" for x in p) + ")"
+
+
+def _dir_text(d) -> str:
+    """方向写法：沿坐标轴的写 ±x / ±y / ±z，否则写单位向量"""
+    d = np.asarray(d, float)
+    k = int(np.argmax(np.abs(d)))
+    if abs(abs(d[k]) - 1) < 1e-6:
+        return ("+" if d[k] > 0 else "-") + "xyz"[k]
+    return "[" + ", ".join(f"{x:.3f}" for x in d) + "]"
+
+
+def recognize_thin(step_path) -> dict:
+    """壳的中面、梁的轴线：认出可以加支承、载荷的地方。
+    壳：每个面（中面）、每条边（边界边只属于一个面，折边 / 交线属于两个以上）；
+    梁：每根杆件（边：长度、方向、两端坐标）、每个顶点（只连一根杆件的是端点，连几根的是节点）。
+    特征写明作用位置的种类：faces / edges / vertices（算例里固定、力、强制位移可作用在边、顶点上，ADR-0095）。"""
+    from analysis.fea.geometry import faces as geo_faces
+
+    fs, info = geo_faces(step_path)
+    kind = info["geometry_kind"]
+    if kind == "solid":
+        raise ValueError("这是实体零件：用 recognize")
+    e_faces, e_verts, v_edges = _adjacency(step_path)
+    edges = {e["id"]: e for e in info["edge_list"]}
+    verts = {v["id"]: v for v in info["vertex_list"]}
+    feats = []
+    if kind == "shell":
+        for f in fs:
+            shape = {"plane": "平面", "cylinder": "圆柱面"}.get(f["kind"], "曲面")
+            extra = f"，法向 {_dir_text(f['normal'])}" if f["kind"] == "plane" and "normal" in f else ""
+            if f["kind"] == "cylinder" and "axis" in f:
+                extra = f"，半径 {f['radius_mm']:g}，轴线 {_dir_text(f['axis'])}"
+            feats.append({"type": "shell_face", "faces": [f["id"]], "bbox": f["bbox"],
+                          "text": f"壳面（中面）：面 {f['id']}，{shape}{extra}，面积 {f['area_mm2']:.0f} mm²"})
+        for eid, e in sorted(edges.items()):
+            n = len(e_faces.get(eid, []))
+            what = "壳的边界边" if n <= 1 else f"壳的折边 / 交线（{n} 个面共用）"
+            ends = [verts[v]["point"] for v in e_verts.get(eid, []) if v in verts]
+            shape = {"line": "直线", "circle": "圆弧"}.get(e["kind"], "曲线")
+            feats.append({"type": "shell_edge", "edges": [eid], "bbox": e["bbox"], "boundary": n <= 1,
+                          "text": f"{what}：边 {eid}，{shape}，长 {e['length_mm']:.1f}，中点 {_xyz(e['center'])}"
+                          + (f"，两端 {_xyz(ends[0])}–{_xyz(ends[1])}" if len(ends) == 2 else "")})
+    else:
+        for eid, e in sorted(edges.items()):
+            ends = [verts[v]["point"] for v in e_verts.get(eid, []) if v in verts]
+            item = {"type": "beam_member", "edges": [eid], "bbox": e["bbox"], "length_mm": e["length_mm"]}
+            text = f"杆件：边 {eid}，{ {'line': '直线', 'circle': '圆弧'}.get(e['kind'], '曲线') }，长 {e['length_mm']:.1f}"
+            if e["kind"] == "line" and len(ends) == 2:
+                d = np.array(ends[1]) - np.array(ends[0])
+                d = d / (np.linalg.norm(d) or 1.0)
+                if d[int(np.argmax(np.abs(d)))] < 0:
+                    d = -d
+                item["direction"] = [round(float(x), 6) + 0.0 for x in d]
+                text += f"，方向 {_dir_text(d)}"
+            if len(ends) == 2:
+                text += f"，两端 {_xyz(ends[0])}–{_xyz(ends[1])}"
+            item["text"] = text
+            feats.append(item)
+        for vid, v in sorted(verts.items()):
+            n = len(v_edges.get(vid, []))
+            typ = "beam_end" if n <= 1 else "beam_joint"
+            p = v["point"]
+            feats.append({"type": typ, "vertices": [vid], "bbox": [*p, *p], "point": p,
+                          "text": (f"梁的端点：顶点 {vid}，坐标 {_xyz(p)}" if n <= 1
+                                   else f"梁的节点（{n} 根杆件相交）：顶点 {vid}，坐标 {_xyz(p)}")})
+    head = (f"{'壳（STEP 是中面）' if kind == 'shell' else '梁（STEP 是轴线）'}；包围盒 {[round(x, 1) for x in info['bbox_mm']]} mm，"
+            f"{len(fs)} 个面、{len(edges)} 条边、{len(verts)} 个顶点")
+    return {"kind": kind, "faces": fs, "features": feats, "text": "\n".join([head] + [f"- {x['text']}" for x in feats]),
+            "bbox_mm": info["bbox_mm"]}
+
+
+def geometry_kind(step_path) -> str:
+    """STEP 里是实体（solid）、只有曲面（shell，中面）还是只有曲线（beam，轴线）；只读入，不划网格"""
+    from analysis.fea.geometry import _LOCK, _gmsh, load_step
+
+    with _LOCK, tempfile.TemporaryDirectory() as tmp:
+        gmsh = _gmsh()
+        vols = load_step(gmsh, step_path, tmp, require_solid=False)
+        return "solid" if vols else ("shell" if gmsh.model.getEntities(2) else "beam")

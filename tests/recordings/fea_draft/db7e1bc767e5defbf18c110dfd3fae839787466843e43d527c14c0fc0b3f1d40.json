@@ -1,9 +1,9 @@
 {
   "model": "claude-sonnet-5-5",
-  "prompt_version": "fea-draft/1",
-  "request_key": "4dccbe7d2327c0f7e8ec35956c367d71d6acdc6125e5e3004fe713871a845a1c",
+  "prompt_version": "fea-draft/2",
+  "request_key": "db7e1bc767e5defbf18c110dfd3fae839787466843e43d527c14c0fc0b3f1d40",
   "response": {
-    "id": "msg_011Ch6wUQJ5yVobJF67SPKaE",
+    "id": "msg_011Ch82avnQbzUXYYiUCjx47",
     "simulated": false,
     "tool_input": {
       "bodies": [
@@ -34,13 +34,16 @@
           "part": 1,
           "quote": "在 Ø42.75 花键段上加峰值扭矩 92.5 N·m",
           "type": "torque"
+        },
+        {
+          "quote": "加峰值扭矩 92.5 N·m",
+          "type": "static"
         }
       ],
       "name": "RJ-201_peak_torque",
       "questions": [
-        "扭矩的转向（绕 +z 还是 -z）原话没有说明，是否需要指定？",
-        "Ø42.75 花键段按光滑圆柱面（F4）施加扭矩，是否可以？",
-        "原话没有说明分析类型，按线性静力分析处理是否可以？"
+        "固定面我选了 F6（z=0 处 Ø70 法兰的端面，朝 -z）。如果您指的是法兰台阶面 F8（z=10），请告诉我。",
+        "扭矩的转向（正向还是反向）原话没有说明。程序按 F4 的轴线施加扭矩，请确认转向是否有要求。"
       ]
     }
   }

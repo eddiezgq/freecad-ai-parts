@@ -1,9 +1,9 @@
 {
   "model": "claude-sonnet-5-5",
-  "prompt_version": "fea-draft/1",
-  "request_key": "5ebfc03ec8b2d7a96ef05c37bdd03a1516aa7853dc51d159d99cae48cc1060bb",
+  "prompt_version": "fea-draft/2",
+  "request_key": "7c1f7d9ad5ca942ff76a771b1c89bcc50bdb0308f707d995c95a5aaffb177f90",
   "response": {
-    "id": "msg_011Ch6wV2UT4XnMZwz8vUrhw",
+    "id": "msg_011Ch82bSZHvvVFEZYuSUkZV",
     "simulated": false,
     "tool_input": {
       "bodies": [
@@ -56,17 +56,12 @@
             "quote": "前 4 阶",
             "value": 4
           },
-          "quote": "另算前 4 阶固有频率",
+          "quote": "前 4 阶固有频率",
           "type": "modal"
         }
       ],
-      "name": "LS-101 shang zhou",
-      "questions": [
-        "扭矩的转向（绕轴线正向还是反向，即 +z 右手方向或其反向）原话未说明，请确认。",
-        "扭矩是施加在 F3（Ø10、长 22 的针杆端轴段外圆面）上，对吗？",
-        "固定面选了 F7（z = 297 的端面，面积 79 mm²），对吗？",
-        "两处 Ø12 轴承位选了 F1（z 22–32）和 F4（z 247–257），对吗？"
-      ]
+      "name": "LS-101_upper_shaft",
+      "questions": []
     }
   }
 }
