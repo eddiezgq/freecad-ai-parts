@@ -317,6 +317,7 @@ def verify_explanation(tool_input: Any, result: dict) -> dict:
 def explain(result: dict, client, *, model: str = DEFAULT_MODEL) -> dict:
     resp = client.complete(build_request(result, model=model))
     out = verify_explanation(resp.get("tool_input"), result)
+    model = resp.get("model") or model                   # 网关换了另一家时，报告写实际回答的模型（ADR-0096 第 2 步）
     out.update(model=model, response_id=resp.get("id", ""), prompt_version=PROMPT_VERSION, simulated=bool(resp.get("simulated")))
     return out
 
@@ -810,12 +811,13 @@ def fixture_names() -> list[str]:
     return sorted(p.name.removesuffix(".study.json") for p in FIXTURES.glob("*.study.json"))
 
 
-def evaluate(client) -> dict:
+def evaluate(client, *, model: str | None = None) -> dict:
     """在真实零件的结果上让 AI 写解释：退回的段落数、占位符用了没有"""
+    model = model or getattr(client, "model", None) or DEFAULT_MODEL
     rows = []
     for n in fixture_names():
         _s, r = load_fixture(n)
-        e = explain(r, client)
+        e = explain(r, client, model=model)
         used = sum(len(PLACE.findall(t)) for t in e["paragraphs"] + e["suggestions"])
         rows.append({"id": n, "kept": len(e["paragraphs"]) + len(e["suggestions"]), "rejected": e["rejected"],
                      "placeholders": used, "simulated": e["simulated"]})
@@ -826,13 +828,22 @@ def evaluate(client) -> dict:
 
 
 def _client(args):
+    """--provider 给了就经模型网关（只用这一家）；没给照旧直连 Claude"""
     from ingest.llm_extract import AnthropicClient, RecordedClient
 
-    if args.record is not None:
-        return AnthropicClient(record_dir=args.record)
-    if args.live:
-        return AnthropicClient()
+    if args.record is not None or args.live:
+        if args.provider:
+            from assist.llm import GatewayClient
+
+            return GatewayClient(args.provider, record_dir=args.record)
+        return AnthropicClient(record_dir=args.record) if args.record is not None else AnthropicClient()
     return RecordedClient(args.replay or RECORDINGS_DIR)
+
+
+def _model(client, args) -> str:
+    from assist.fea_draft import provider_model
+
+    return getattr(client, "model", None) or provider_model(args.provider)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -853,9 +864,12 @@ def main(argv: list[str] | None = None) -> int:
         mode.add_argument("--replay", type=Path, default=None)
         mode.add_argument("--record", type=Path, nargs="?", const=RECORDINGS_DIR, default=None)
         mode.add_argument("--live", action="store_true")
+        p_.add_argument("--provider", choices=("claude", "deepseek"), default=None,
+                        help="经模型网关、只用这一家（ADR-0096 第 2 步）；不给则直连 Claude")
     a = ap.parse_args(argv)
     if a.cmd == "eval":
-        res = evaluate(_client(a))
+        c = _client(a)
+        res = evaluate(c, model=_model(c, a))
         print(json.dumps(res, ensure_ascii=False, indent=1))
         return 0 if res["passed"] else 1
     study = json.loads(a.study.read_text(encoding="utf-8"))
@@ -869,7 +883,10 @@ def main(argv: list[str] | None = None) -> int:
             print("没有算出：" + "；".join(result["messages"]), file=sys.stderr)
             return 2
         a.study.with_suffix(".result.json").write_text(json.dumps(result, ensure_ascii=False) + "\n", encoding="utf-8")
-    expl = explain(result, _client(a)) if a.explain else None
+    expl = None
+    if a.explain:
+        c = _client(a)
+        expl = explain(result, c, model=_model(c, a))
     out = a.out or a.study.with_suffix(".docx")
     try:
         got = build(study, result, out, number=a.number, revision=a.revision, reason=a.reason, explanation=expl,

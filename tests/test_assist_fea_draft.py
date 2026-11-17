@@ -327,14 +327,21 @@ def test_draft_end_to_end_with_fake_client_is_fast(parts):
     assert D.score(r, s["answer"])["wrong_face"] == 0
 
 
-def test_recorded_llm_meets_usability_threshold():
-    """真实 LLM（录制回放）：面选错 ≤ 10 %、该给的都给了、该问的都问了。录制要在有密钥的机器上生成"""
+def _recorded_models(directory) -> set:
+    return {json.loads(f.read_text(encoding="utf-8")).get("model") for f in directory.glob("*.json")}
+
+
+@pytest.mark.parametrize("provider", ["claude", "deepseek"])
+def test_recorded_llm_meets_usability_threshold(provider):
+    """真实 LLM（录制回放）：面选错 ≤ 10 %、该给的都给了、该问的都问了。Claude、DeepSeek 同一门槛（ADR-0096 第 2 步），
+    各按自己的录制回放；录制在云端用 fea-draft-eval.yml 生成"""
     _need_fea()
-    if not D.RECORDINGS_DIR.is_dir() or not any(D.RECORDINGS_DIR.glob("*.json")):
-        pytest.skip("还没有真实 LLM 的录制：在有密钥的机器上跑 python -m assist.fea_draft eval --record")
+    model = D.provider_model(provider)
+    if not D.RECORDINGS_DIR.is_dir() or model not in _recorded_models(D.RECORDINGS_DIR):
+        pytest.skip(f"还没有 {provider} 的录制：用 .github/workflows/fea-draft-eval.yml 在云端录制")
     from ingest.llm_extract import RecordedClient
 
-    r = D.evaluate(RecordedClient(D.RECORDINGS_DIR))
+    r = D.evaluate(RecordedClient(D.RECORDINGS_DIR), model=model)
     assert r["passed"], json.dumps(r, ensure_ascii=False, indent=1)
 
 

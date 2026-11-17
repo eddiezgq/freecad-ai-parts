@@ -20,6 +20,7 @@ import argparse
 import copy
 import json
 import math
+import os
 import re
 import sys
 import time
@@ -668,9 +669,11 @@ def draft(statement: str, step_paths: list[str], client, *, model: str = DEFAULT
     t1 = time.perf_counter()
     resp = client.complete(request)
     t2 = time.perf_counter()
+    model = resp.get("model") or model                   # 网关换了另一家时，记实际回答的模型（ADR-0096 第 2 步）
     out = verify(resp["tool_input"], statement, parts, response_id=resp.get("id", ""), model=model)
     out["features"] = [p["text"] for p in parts]
     out["simulated"] = bool(resp.get("simulated"))
+    out["provider"] = resp.get("provider") or ("claude" if model.startswith("claude") else None)
     out["elapsed_s"] = {"features": round(t1 - t0, 2), "llm": round(t2 - t1, 2), "check": round(time.perf_counter() - t2, 2)}
     return out
 
@@ -776,12 +779,13 @@ def score(result: dict, answer: dict) -> dict:
             "steps_ok": steps == sorted(answer["steps"]) if "steps" in answer else None}
 
 
-def evaluate(client, samples_path: Path = SAMPLES) -> dict:
-    """跑全部样例并打分；门槛：面选错 ≤ 10 %、起草（不含 LLM）< 60 s"""
+def evaluate(client, samples_path: Path = SAMPLES, *, model: str | None = None) -> dict:
+    """跑全部样例并打分；门槛：面选错 ≤ 10 %、起草（不含 LLM）< 60 s。model 缺省用客户端的（网关客户端是它首选那家的模型）"""
+    model = model or getattr(client, "model", None) or DEFAULT_MODEL
     samples = json.loads(samples_path.read_text(encoding="utf-8"))["samples"]
     rows = []
     for s in samples:
-        r = draft(s["statement"], [str(ROOT / p) for p in s["parts"]], client)
+        r = draft(s["statement"], [str(ROOT / p) for p in s["parts"]], client, model=model)
         sc = score(r, s["answer"])
         rows.append({"id": s["id"], **sc, "rejected": len(r["rejected"]), "elapsed_s": r["elapsed_s"],
                      "simulated": r["simulated"]})
@@ -799,13 +803,25 @@ def evaluate(client, samples_path: Path = SAMPLES) -> dict:
 # ---------------------------------------------------------------- 命令行
 
 
+def provider_model(provider: str | None) -> str:
+    """回放时请求里写的模型名：claude 用 DEFAULT_MODEL，deepseek 用网关的 DeepSeek 模型（录制按请求哈希存）"""
+    if provider == "deepseek":
+        import llm_gateway
+
+        return os.environ.get("FAP_DEEPSEEK_MODEL") or llm_gateway.DEEPSEEK_MODEL
+    return DEFAULT_MODEL
+
+
 def _client(args):
+    """--provider 给了就经模型网关（只用这一家）；没给照旧直连 Claude"""
     from ingest.llm_extract import AnthropicClient, RecordedClient
 
-    if args.record is not None:
-        return AnthropicClient(record_dir=args.record)
-    if args.live:
-        return AnthropicClient()
+    if args.record is not None or args.live:
+        if args.provider:
+            from assist.llm import GatewayClient
+
+            return GatewayClient(args.provider, record_dir=args.record)
+        return AnthropicClient(record_dir=args.record) if args.record is not None else AnthropicClient()
     return RecordedClient(args.replay or RECORDINGS_DIR)
 
 
@@ -825,6 +841,8 @@ def main(argv: list[str] | None = None) -> int:
         mode.add_argument("--replay", type=Path, default=None)
         mode.add_argument("--record", type=Path, nargs="?", const=RECORDINGS_DIR, default=None)
         mode.add_argument("--live", action="store_true")
+        p.add_argument("--provider", choices=("claude", "deepseek"), default=None,
+                       help="经模型网关、只用这一家（ADR-0096 第 2 步）；不给则直连 Claude")
     a = ap.parse_args(argv)
     if a.cmd == "confirm":
         s = json.loads(a.study.read_text(encoding="utf-8"))
@@ -837,11 +855,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f"已确认：{s['provenance']['confirmed_by']} {s['provenance']['confirmed_at']}")
         return 0
     client = _client(a)
+    model = getattr(client, "model", None) or provider_model(a.provider)
     if a.cmd == "eval":
-        r = evaluate(client)
+        r = evaluate(client, model=model)
         print(json.dumps(r, ensure_ascii=False, indent=1))
         return 0 if r["passed"] else 1
-    r = draft(a.statement, a.steps, client)
+    r = draft(a.statement, a.steps, client, model=model)
     a.out.write_text(json.dumps(r["study"], ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"算例草稿写到 {a.out}（AI 起草，未确认，不能算）")
     for x in r["rejected"]:
