@@ -25,7 +25,8 @@ def test_pick_solver(monkeypatch):
         S.pick_solver(300000, False, avail=7000)          # 模态、接触等要直接法：放不下就算前报
     with pytest.raises(S.TooBig, match="内存"):
         S.pick_solver(3_000_000, True, avail=7000)
-    assert S.pick_solver(10 ** 7, True, avail=None)[0] == "SPOOLES"   # 不知道可用内存时不估、照常
+    monkeypatch.setattr(S, "available_mb", lambda: None)
+    assert S.pick_solver(10 ** 7, True)[0] == "SPOOLES"               # 不知道可用内存时不估、照常
     monkeypatch.setenv("FAP_CCX_SOLVER", "PARDISO")
     assert S.pick_solver(10, True, avail=7000)[0] == "PARDISO"
 
