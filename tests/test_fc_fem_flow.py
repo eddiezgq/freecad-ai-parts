@@ -291,7 +291,8 @@ def test_fea_edition_menus_and_license(monkeypatch, tmp_path):
             app.processEvents()
             time.sleep(0.01)
         menus = {a.text(): [x.text() for x in a.menu().actions()] for a in FreeCADGui.getMainWindow().menuBar().actions() if a.menu()}
-        assert {"一句话起草（AI）", "计算并核查（零件库）", "出报告（零件库）", "热分析 · 疲劳"} <= set(menus["&Solve"]), menus["&Solve"]
+        solve = [x.replace("（零件库）", "") for x in menus["&Solve"]]      # 同一进程里先注册过全功能版的按钮名
+        assert {"一句话起草（AI）", "计算并核查", "出报告", "热分析 · 疲劳"} <= set(solve), menus["&Solve"]
         assert {"问渠有限元：授权…", "问渠有限元：设置 AI 密钥…", "关于问渠有限元"} <= set(menus["&Help"]), menus["&Help"]
         assert "免费版" in fea_brand.tier_text() and "还没有导入" in fea_brand.tier_text()
         lic, key = _license(tmp_path, [fea_edition.PRO])

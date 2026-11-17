@@ -68,6 +68,9 @@ def test_fea_iss_basics():
     assert (FEA / "wenquest-fea.ico").read_bytes()[:4] == b"\x00\x00\x01\x00"
     for pdf in re.findall(r'\{#DocsDir\}\\([^"]+\.pdf)', iss):                     # 验证手册随安装包
         assert (ROOT / "docs/verification" / pdf).is_file(), pdf
+    guides = re.findall(r'\{#HelpDir\}\\([^"]+\.pdf)', iss)                              # 用户手册随安装包（ADR-0096 第 6 步）
+    assert len(guides) == 2 and all((ROOT / "docs/wenquest-fea/help" / g).is_file() for g in guides), guides
+    assert "{#ExamplesDir}" in iss and (ROOT / "examples/wenquest-fea/01-j2-housing-free/J2-HSG.FCStd").is_file()
     notices = (FEA / "NOTICES.txt").read_text(encoding="utf-8-sig")
     for word in ("Apache License 2.0", "LGPL", "GPL", "github.com/FreeCAD/FreeCAD", "gmsh.info", "dhondt.de"):
         assert word in notices

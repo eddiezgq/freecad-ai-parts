@@ -1,5 +1,6 @@
 ﻿; 问渠有限元 WenQuest FEA 安装包（ADR-0096 第 5 步）。由 build.ps1 -Edition fea 调用：
-;   ISCC /DAppVersion=0.0.1 /DSourceDir=<FreeCAD 与问渠有限元的目录> /DOutputDir=<输出目录> /DDocsDir=<验证手册目录> wenquest-fea.iss
+;   ISCC /DAppVersion=0.0.1 /DSourceDir=<FreeCAD 与问渠有限元的目录> /DOutputDir=<输出目录> /DDocsDir=<验证手册目录>
+;        /DHelpDir=<用户手册目录> /DExamplesDir=<入门例子目录> wenquest-fea.iss
 ; 静默安装：Setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART [/DIR=目录] [/CURRENTUSER]
 
 #ifndef AppVersion
@@ -10,6 +11,12 @@
 #endif
 #ifndef DocsDir
   #error 需要 /DDocsDir
+#endif
+#ifndef HelpDir
+  #error 需要 /DHelpDir
+#endif
+#ifndef ExamplesDir
+  #error 需要 /DExamplesDir
 #endif
 #ifndef OutputDir
   #define OutputDir "."
@@ -54,10 +61,14 @@ Name: "en"; MessagesFile: "compiler:Default.isl"
 en.AppTitle=WenQuest FEA
 en.Notices=Licenses and source code
 en.Manual=Verification manual
+en.Guide=User guide
+en.Examples=Getting-started examples
 #ifdef HaveZh
 zh.AppTitle=问渠有限元
 zh.Notices=许可证与源码获取说明
 zh.Manual=验证手册
+zh.Guide=用户手册
+zh.Examples=入门例子
 #endif
 
 [Tasks]
@@ -69,9 +80,15 @@ Source: "NOTICES.txt"; DestDir: "{app}"; DestName: "NOTICES.txt"; Flags: ignorev
 Source: "wenquest-fea.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#DocsDir}\问渠有限元验证手册.pdf"; DestDir: "{app}\docs"; Flags: ignoreversion
 Source: "{#DocsDir}\WenQuest-FEA-Verification-Manual.pdf"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "{#HelpDir}\问渠有限元用户手册.pdf"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "{#HelpDir}\WenQuest-FEA-User-Guide.pdf"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "{#ExamplesDir}\*"; DestDir: "{app}\examples"; Excludes: "*.py,__pycache__"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{cm:AppTitle}"; Filename: "{app}\bin\FreeCAD.exe"; WorkingDir: "{app}\bin"; IconFilename: "{app}\wenquest-fea.ico"
+Name: "{group}\{cm:Guide} (中文)"; Filename: "{app}\docs\问渠有限元用户手册.pdf"
+Name: "{group}\{cm:Guide} (English)"; Filename: "{app}\docs\WenQuest-FEA-User-Guide.pdf"
+Name: "{group}\{cm:Examples}"; Filename: "{app}\examples"
 Name: "{group}\{cm:Manual} (中文)"; Filename: "{app}\docs\问渠有限元验证手册.pdf"
 Name: "{group}\{cm:Manual} (English)"; Filename: "{app}\docs\WenQuest-FEA-Verification-Manual.pdf"
 Name: "{group}\{cm:Notices}"; Filename: "{app}\NOTICES.txt"
