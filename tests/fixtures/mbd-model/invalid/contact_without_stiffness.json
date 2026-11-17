@@ -1,0 +1,468 @@
+{
+ "why": "接触对没写刚度",
+ "instance": {
+  "format": "mbd-model/1",
+  "name": "D3 全部",
+  "gravity_mm_s2": [
+   0,
+   0,
+   -9810
+  ],
+  "bodies": [
+   {
+    "id": "ball",
+    "mass_kg": 0.1,
+    "cm_mm": [
+     0,
+     0,
+     20
+    ],
+    "inertia_kg_m2": {
+     "ixx": 0.001,
+     "iyy": 0.001,
+     "izz": 0.001
+    }
+   },
+   {
+    "id": "cam",
+    "mass_kg": 1,
+    "cm_mm": [
+     0,
+     100,
+     0
+    ],
+    "inertia_kg_m2": {
+     "ixx": 0.001,
+     "iyy": 0.001,
+     "izz": 0.001
+    }
+   },
+   {
+    "id": "follower",
+    "mass_kg": 0.2,
+    "cm_mm": [
+     0,
+     100,
+     40
+    ],
+    "inertia_kg_m2": {
+     "ixx": 0.001,
+     "iyy": 0.001,
+     "izz": 0.001
+    }
+   },
+   {
+    "id": "g1",
+    "mass_kg": 0.5,
+    "cm_mm": [
+     0,
+     200,
+     0
+    ],
+    "inertia_kg_m2": {
+     "ixx": 0.001,
+     "iyy": 0.001,
+     "izz": 0.001
+    }
+   },
+   {
+    "id": "g2",
+    "mass_kg": 0.5,
+    "cm_mm": [
+     60,
+     200,
+     0
+    ],
+    "inertia_kg_m2": {
+     "ixx": 0.001,
+     "iyy": 0.001,
+     "izz": 0.001
+    }
+   },
+   {
+    "id": "cube",
+    "mass_kg": 1,
+    "cm_mm": [
+     0,
+     300,
+     15
+    ],
+    "inertia_kg_m2": {
+     "ixx": 0.001,
+     "iyy": 0.001,
+     "izz": 0.001
+    }
+   }
+  ],
+  "joints": [
+   {
+    "id": "rc",
+    "type": "revolute",
+    "body_i": "ground",
+    "body_j": "cam",
+    "point_mm": [
+     0,
+     100,
+     0
+    ],
+    "axis": [
+     1,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "tf",
+    "type": "translational",
+    "body_i": "ground",
+    "body_j": "follower",
+    "point_mm": [
+     0,
+     100,
+     40
+    ],
+    "axis": [
+     0,
+     0,
+     1
+    ]
+   },
+   {
+    "id": "r1",
+    "type": "revolute",
+    "body_i": "ground",
+    "body_j": "g1",
+    "point_mm": [
+     0,
+     200,
+     0
+    ],
+    "axis": [
+     0,
+     0,
+     1
+    ]
+   },
+   {
+    "id": "r2",
+    "type": "revolute",
+    "body_i": "ground",
+    "body_j": "g2",
+    "point_mm": [
+     60,
+     200,
+     0
+    ],
+    "axis": [
+     0,
+     0,
+     1
+    ]
+   }
+  ],
+  "motions": [
+   {
+    "id": "mc",
+    "joint": "rc",
+    "dof": "rotation",
+    "speed": 300
+   }
+  ],
+  "forces": [
+   {
+    "id": "gm",
+    "type": "gear_mesh",
+    "joint_i": "r1",
+    "joint_j": "r2",
+    "module_mm": 2,
+    "teeth_i": 20,
+    "teeth_j": 40,
+    "pressure_angle_deg": 20,
+    "mesh_stiffness_n_per_mm": 200000.0,
+    "damping_n_s_per_mm": 1,
+    "backlash_mm": 0.05
+   }
+  ],
+  "geometries": [
+   {
+    "id": "ball_s",
+    "body": "ball",
+    "type": "sphere",
+    "center_mm": [
+     0,
+     0,
+     20
+    ],
+    "radius_mm": 10
+   },
+   {
+    "id": "floor",
+    "body": "ground",
+    "type": "plane",
+    "point_mm": [
+     0,
+     0,
+     0
+    ],
+    "normal": [
+     0,
+     0,
+     1
+    ]
+   },
+   {
+    "id": "cam_c",
+    "body": "cam",
+    "type": "curve",
+    "origin_mm": [
+     0,
+     100,
+     0
+    ],
+    "normal": [
+     1,
+     0,
+     0
+    ],
+    "x_axis": [
+     0,
+     1,
+     0
+    ],
+    "points_mm": [
+     [
+      35.0,
+      0.0
+     ],
+     [
+      30.98076211353316,
+      14.999999999999998
+     ],
+     [
+      20.000000000000004,
+      25.980762113533157
+     ],
+     [
+      5.000000000000002,
+      30.0
+     ],
+     [
+      -9.999999999999993,
+      25.98076211353316
+     ],
+     [
+      -20.98076211353316,
+      14.999999999999998
+     ],
+     [
+      -25.0,
+      3.67394039744206e-15
+     ],
+     [
+      -20.980762113533157,
+      -15.000000000000004
+     ],
+     [
+      -10.000000000000014,
+      -25.980762113533153
+     ],
+     [
+      4.999999999999995,
+      -30.0
+     ],
+     [
+      20.000000000000004,
+      -25.980762113533157
+     ],
+     [
+      30.980762113533153,
+      -15.000000000000014
+     ]
+    ]
+   },
+   {
+    "id": "face",
+    "body": "follower",
+    "type": "plane",
+    "point_mm": [
+     0,
+     100,
+     35
+    ],
+    "normal": [
+     0,
+     0,
+     -1
+    ],
+    "x_axis": [
+     1,
+     0,
+     0
+    ],
+    "half_size_mm": [
+     20,
+     20
+    ]
+   },
+   {
+    "id": "roller",
+    "body": "follower",
+    "type": "cylinder",
+    "center_mm": [
+     0,
+     100,
+     45
+    ],
+    "axis": [
+     1,
+     0,
+     0
+    ],
+    "radius_mm": 5,
+    "length_mm": 8
+   },
+   {
+    "id": "cube_m",
+    "body": "cube",
+    "type": "mesh",
+    "vertices_mm": [
+     [
+      -10,
+      290,
+      5
+     ],
+     [
+      -10,
+      290,
+      25
+     ],
+     [
+      -10,
+      310,
+      5
+     ],
+     [
+      -10,
+      310,
+      25
+     ],
+     [
+      10,
+      290,
+      5
+     ],
+     [
+      10,
+      290,
+      25
+     ],
+     [
+      10,
+      310,
+      5
+     ],
+     [
+      10,
+      310,
+      25
+     ]
+    ],
+    "faces": [
+     [
+      0,
+      1,
+      3
+     ],
+     [
+      0,
+      3,
+      2
+     ],
+     [
+      4,
+      6,
+      7
+     ],
+     [
+      4,
+      7,
+      5
+     ],
+     [
+      0,
+      4,
+      5
+     ],
+     [
+      0,
+      5,
+      1
+     ],
+     [
+      2,
+      3,
+      7
+     ],
+     [
+      2,
+      7,
+      6
+     ],
+     [
+      0,
+      2,
+      6
+     ],
+     [
+      0,
+      6,
+      4
+     ],
+     [
+      1,
+      5,
+      7
+     ],
+     [
+      1,
+      7,
+      3
+     ]
+    ]
+   }
+  ],
+  "contacts": [
+   {
+    "id": "c1",
+    "geometry_i": "floor",
+    "geometry_j": "ball_s",
+    "exponent": 1.5,
+    "damping_n_s_per_mm": 0.1,
+    "friction": {
+     "mu_static": 0.3,
+     "mu_dynamic": 0.2,
+     "stiction_speed_mm_s": 1,
+     "transition_speed_mm_s": 2
+    }
+   },
+   {
+    "id": "c2",
+    "geometry_i": "cam_c",
+    "geometry_j": "face",
+    "stiffness_n_per_mm": 100000.0
+   },
+   {
+    "id": "c3",
+    "geometry_i": "floor",
+    "geometry_j": "cube_m",
+    "stiffness_n_per_mm": 100000.0,
+    "exponent": 1.0,
+    "penetration_mm": 0.005
+   }
+  ],
+  "analysis": {
+   "type": "dynamic",
+   "end_time_s": 0.1
+  }
+ }
+}
