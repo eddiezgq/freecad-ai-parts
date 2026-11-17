@@ -38,6 +38,9 @@ def load_step(gmsh, step_path, tmp, require_solid=True):
     if not vols and not require_solid:
         if not gmsh.model.getEntities(2) and not gmsh.model.getEntities(1):
             raise ValueError("STEP 里没有曲面也没有曲线")
+        # 框架、钣金的 STEP 里，相接处的点、边常各有一份（FreeCAD 导出的折线也是这样）：合并成共用的，否则各段互不相连
+        gmsh.model.occ.removeAllDuplicates()
+        gmsh.model.occ.synchronize()
         return []
     if not vols:
         raise ValueError("STEP 里没有实体（只有曲面或线框）：薄壁件按壳、型材按梁算（算例里写 kind，ADR-0095）")

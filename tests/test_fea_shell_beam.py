@@ -207,3 +207,38 @@ def test_beam_report_numbers_trace(tmp_path):
     text = _docx_text(got["docx"])
     assert "最大应力（MPa）" in text
     _trace(text, ledger, sources)
+
+
+
+def test_frame_segments_are_joined(tmp_path):
+    """L 形框架（ADR-0096 第 1 步）：立柱、横梁在 STEP 里是两段各自的线（相接处的点有两份），读入时合并成一个点，框架连成一体。
+    立柱底固定、横梁端部受竖向力 P（不计轴向、剪切变形）：
+    竖向位移 = Pa³/(3EI) + Pa²h/(EI)（横梁弯曲 + 立柱顶转角带动），水平位移 = Pa·h²/(2EI)（立柱受弯矩 Pa 侧移），合位移相差 < 3 %"""
+    _need_fea()
+    from analysis.fea import run_study
+    from analysis.fea.geometry import faces
+
+    h, a, P = 400.0, 300.0, 500.0
+
+    def build(o):
+        o.addLine(o.addPoint(0, 0, 0), o.addPoint(0, 0, h))
+        o.addLine(o.addPoint(0, 0, h), o.addPoint(a, 0, h))
+
+    step = _write(tmp_path / "frame.step", build)
+    verts = faces(step)[1]["vertex_list"]
+    assert len(verts) == 3                                                   # 合并后：柱底、角点、横梁端
+    base = next(v["id"] for v in verts if v["point"] == [0.0, 0.0, 0.0])
+    tip = next(v["id"] for v in verts if v["point"] == [a, 0.0, h])
+    study = {"format": "fea-study/1", "name": "frame",
+             "bodies": [{"id": "b", "step_path": step, "material": MAT, "kind": "beam", "section": PIPE}],
+             "supports": [{"type": "fixed", "body": "b", "vertices": [base]}],
+             "loads": [{"type": "force", "body": "b", "vertices": [tip], "vector_n": [0, 0, -P]}],
+             "steps": [{"id": "s1", "type": "static"}], "mesh": {"size_mm": 10.0}, "checks": {"convergence": False}}
+    r = run_study(study)
+    assert r["status"] == "ok", r["messages"]
+    E = _mat()["elastic_modulus_mpa"]
+    do, t = PIPE["outer_diameter_mm"], PIPE["wall_mm"]
+    EI = E * math.pi * (do ** 4 - (do - 2 * t) ** 4) / 64
+    v = P * a ** 3 / (3 * EI) + P * a ** 2 * h / EI
+    u = P * a * h ** 2 / (2 * EI)
+    assert r["data"]["steps"][0]["u_max_mm"] == pytest.approx(math.hypot(v, u), rel=0.03)

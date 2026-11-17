@@ -1,5 +1,5 @@
 {
- "about": "ADR-0093 补充十一第 4 步的验收样例：本仓库真实设计过的零件，工况照各应用里的真实算法写（RJ-201 峰值扭矩 92.5 N·m 见 examples/apps/out/cobot_joint/report.json；LS-101 峰值扭矩 2.82 N·m、两轴承位径向支承、电机端固定见 lockstitch；大臂 j3 峰值扭矩 46.4 N·m 见 cobot_arm）。answer 是标注的正确答案：faces 是各 STEP 里的面号（与 examples/apps 里各应用选的面一致），questions 是应当追问的事（每组关键词命中一个即算问到）。S4 的组合系数 1.35 / 1.5 是工程师在原话里给的输入，程序不替人定系数。答案由 Claude 按各应用的算法标注，须项目负责人复核。",
+ "about": "ADR-0093 补充十一第 4 步的验收样例：本仓库真实设计过的零件，工况照各应用里的真实算法写（RJ-201 峰值扭矩 92.5 N·m 见 examples/apps/out/cobot_joint/report.json；LS-101 峰值扭矩 2.82 N·m、两轴承位径向支承、电机端固定见 lockstitch；大臂 j3 峰值扭矩 46.4 N·m 见 cobot_arm）。answer 是标注的正确答案：faces 是各 STEP 里的面号（与 examples/apps 里各应用选的面一致），questions 是应当追问的事（每组关键词命中一个即算问到）。S4 的组合系数 1.35 / 1.5 是工程师在原话里给的输入，程序不替人定系数。答案由 Claude 按各应用的算法标注，须项目负责人复核。 S7–S10（ADR-0096 第 1 步）是壳、梁的典型构件：方板、L 形钣金支架（壳，STEP 是中面）、门式框架、悬臂梁（梁，STEP 是轴线），几何由脚本按给定尺寸生成，工况是教科书式的典型题，不是某个真实设计；answer.bodies 是厚度、截面的正确答案，edges / vertices 是边、顶点编号。",
  "samples": [
   {"id": "S1-RJ201-torque",
    "statement": "肩关节空心轴 RJ-201，45 钢调质。Ø70 法兰那一端的端面固定，在 Ø42.75 花键段上加峰值扭矩 92.5 N·m。",
@@ -36,6 +36,30 @@
    "statement": "Hollow shaft RJ-201, 40Cr quenched and tempered. Fix the end face on the Ø70 flange end. Apply a radial bearing load on the Ø50 bearing seat; the magnitude is still being calculated.",
    "parts": ["examples/apps/out/cobot_joint/RJ-201.step"],
    "answer": {"items": [{"type": "fixed", "body": "b1", "faces": [3]}],
-              "steps": [], "questions": [["大小", "magnitude", "多少", "how large"]]}}
+              "steps": [], "questions": [["大小", "magnitude", "多少", "how large"]]}},
+  {"id": "S7-PLATE-pinned-pressure",
+   "statement": "方板 PLATE-400，6061-T6 铝，板厚 5 mm，四条边都简支，板面受均布压力 0.01 MPa。",
+   "parts": ["tests/fixtures/fea-draft/PLATE-400.step"],
+   "answer": {"items": [{"type": "displacement", "body": "b1", "edges": [1, 2, 3, 4]},
+                        {"type": "pressure", "body": "b1", "faces": [1], "value": 0.01}],
+              "bodies": [{"body": "b1", "kind": "shell", "thickness_mm": 5.0}], "steps": ["static"], "questions": []}},
+  {"id": "S8-BRKT-missing-thickness",
+   "statement": "钣金 L 形支架 BRKT-L，Q235。底板 x = 0 那条边固定，立板顶边（z = 60）受 200 N 的力，方向 -z。",
+   "parts": ["tests/fixtures/fea-draft/BRKT-L.step"],
+   "answer": {"items": [{"type": "fixed", "body": "b1", "edges": [4]},
+                        {"type": "force", "body": "b1", "edges": [6], "value": 200}],
+              "bodies": [{"body": "b1", "kind": "shell"}], "steps": ["static"], "questions": [["厚"]]}},
+  {"id": "S9-FRAME-pipe-modal",
+   "statement": "门式框架 FRAME-2000，Q235 圆管，外径 60 mm、壁厚 4 mm。两根柱脚（z = 0 的两个端点）固定，横梁中点（x = 1000 的节点）受 5 kN 的力，方向 -z；另算前 4 阶固有频率。",
+   "parts": ["tests/fixtures/fea-draft/FRAME-2000.step"],
+   "answer": {"items": [{"type": "fixed", "body": "b1", "vertices": [1, 5]},
+                        {"type": "force", "body": "b1", "vertices": [3], "value": 5000}],
+              "bodies": [{"body": "b1", "kind": "beam", "section": {"shape": "pipe", "outer_diameter_mm": 60.0, "wall_mm": 4.0}}], "steps": ["static", "modal"], "questions": []}},
+  {"id": "S10-CANT-rect",
+   "statement": "悬臂梁 CANT-500，45 钢调质，矩形截面宽 20 mm、高 40 mm，宽度方向沿 +y。x = 0 的端点固定，自由端受 1 kN 的力，方向 -z。",
+   "parts": ["tests/fixtures/fea-draft/CANT-500.step"],
+   "answer": {"items": [{"type": "fixed", "body": "b1", "vertices": [1]},
+                        {"type": "force", "body": "b1", "vertices": [2], "value": 1000}],
+              "bodies": [{"body": "b1", "kind": "beam", "section": {"shape": "rect", "width_mm": 20.0, "height_mm": 40.0, "orientation": [0.0, 1.0, 0.0]}}], "steps": ["static"], "questions": []}}
  ]
 }
