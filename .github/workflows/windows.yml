@@ -46,7 +46,20 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5
+      - name: 检出（不含 factory/）
+        # factory/designs 里有 Windows 不允许的文件名（aux.kicad_sch），actions/checkout 整个失败（2026-11-17 发现）；
+        # 安装包用不到 factory/：关掉 NTFS 路径检查，稀疏检出时不写这些文件
+        shell: bash
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          git init -q .
+          git config core.protectNTFS false
+          git remote add origin "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}"
+          git sparse-checkout set --no-cone '/*' '!/factory/'
+          git fetch -q --depth 1 origin "${{ github.sha }}"
+          git checkout -q FETCH_HEAD
+          git remote set-url origin "https://github.com/${{ github.repository }}"
       - name: 缓存 FreeCAD 便携版
         uses: actions/cache@v4
         with:
@@ -100,7 +113,20 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v5
+      - name: 检出（不含 factory/）
+        # factory/designs 里有 Windows 不允许的文件名（aux.kicad_sch），actions/checkout 整个失败（2026-11-17 发现）；
+        # 安装包用不到 factory/：关掉 NTFS 路径检查，稀疏检出时不写这些文件
+        shell: bash
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          git init -q .
+          git config core.protectNTFS false
+          git remote add origin "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}"
+          git sparse-checkout set --no-cone '/*' '!/factory/'
+          git fetch -q --depth 1 origin "${{ github.sha }}"
+          git checkout -q FETCH_HEAD
+          git remote set-url origin "https://github.com/${{ github.repository }}"
       - name: 缓存 FreeCAD 便携版
         uses: actions/cache@v4
         with:
