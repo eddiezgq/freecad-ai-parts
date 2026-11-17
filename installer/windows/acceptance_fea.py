@@ -237,7 +237,7 @@ def main(app: Path, repo: Path) -> int:
     menus = {a.text(): [x.text() for x in a.menu().actions()]
              for a in FreeCADGui.getMainWindow().menuBar().actions() if a.menu()}
     R["solve_menu"], R["help_menu"] = menus.get("&Solve"), menus.get("&Help")
-    ok["menus"] = {"一句话起草（AI）", "计算并核查（零件库）", "出报告（零件库）", "热分析 · 疲劳"} <= set(menus.get("&Solve") or []) \
+    ok["menus"] = {"一句话起草（AI）", "计算并核查", "出报告", "热分析 · 疲劳"} <= set(menus.get("&Solve") or []) \
         and {"问渠有限元：授权…", "问渠有限元：设置 AI 密钥…", "关于问渠有限元"} <= set(menus.get("&Help") or [])
 
     # 2. 免费版

@@ -101,7 +101,7 @@ if (-not $iscc) { throw "找不到 Inno Setup 6（ISCC.exe）" }
 $appVersion = (& $py -c "import tomllib;print(tomllib.load(open(r'$Repo\pyproject.toml','rb'))['project']['version'])").Trim()
 $outAbs = (Resolve-Path $Out).Path
 if ($Edition -eq "fea") {
-  & $iscc "/DAppVersion=$appVersion" "/DSourceDir=$app" "/DOutputDir=$outAbs" "/DDocsDir=$Repo\docs\verification" "$PSScriptRoot\wenquest-fea\wenquest-fea.iss"
+  & $iscc "/DAppVersion=$appVersion" "/DSourceDir=$app" "/DOutputDir=$outAbs" "/DDocsDir=$Repo\docs\verification" "/DHelpDir=$Repo\docs\wenquest-fea\help" "/DExamplesDir=$Repo\examples\wenquest-fea" "$PSScriptRoot\wenquest-fea\wenquest-fea.iss"
   $pattern = "WenQuest-FEA-Setup-*.exe"
 } else {
   & $iscc "/DAppVersion=$appVersion" "/DSourceDir=$app" "/DOutputDir=$outAbs" "$PSScriptRoot\fap.iss"

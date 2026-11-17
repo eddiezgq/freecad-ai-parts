@@ -12,7 +12,8 @@ Write-Host "静默安装 $setup 到 $Dir"
 $p = Start-Process -FilePath $setup -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/DIR=$Dir", "/LOG=$log" -Wait -PassThru
 if ($p.ExitCode -ne 0) { Get-Content $log -Tail 30; Write-Host "安装失败：$($p.ExitCode)"; exit 1 }
 foreach ($f in @("Mod\FreeCADAIParts\InitGui.py", "Mod\FreeCADAIParts\lib\edition.json", "NOTICES.txt", "wenquest-fea.ico",
-                 "docs\WenQuest-FEA-Verification-Manual.pdf")) {
+                 "docs\WenQuest-FEA-Verification-Manual.pdf", "docs\WenQuest-FEA-User-Guide.pdf",
+                 "examples\01-j2-housing-free\J2-HSG.FCStd", "examples\02-rj201-shaft-sentence\sample-report.en.pdf")) {
   if (-not (Test-Path (Join-Path $Dir $f))) { Write-Host "安装目录里没有 $f"; exit 1 }
 }
 Push-Location $env:TEMP

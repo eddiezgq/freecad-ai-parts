@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import threading
+from pathlib import Path
 
 import FreeCAD
 import FreeCADGui
@@ -14,9 +15,17 @@ import FreeCADGui
 from assist.i18n import tr as T
 from freecad_addon.fc import fem_flow as F
 
+ICONS = Path(__file__).with_name("icons")
 ANCHOR = "FEM_SolverRun"          # 插在 FEM 工作台“运行求解器”按钮前面（只有 FEM 工作台有这个按钮）
 CMDS = ("FAP_FemDraft", "FAP_FemRun", "FAP_FemReport")
 _LAST_PANEL = None                # 最近打开的起草面板（录屏演示、测试用）
+
+
+def _label(zh: str) -> str:
+    """问渠有限元版里没有“零件库”：按钮名去掉“（零件库）”（ADR-0096 第 6 步）"""
+    from assist import fea_edition
+
+    return zh.replace("（零件库）", "") if fea_edition.edition() == "fea" else zh
 
 
 def _mw():
@@ -157,7 +166,7 @@ class DraftPanel:
 
 class FemDraftCommand:
     def GetResources(self):
-        return {"MenuText": T("一句话起草（AI）"), "ToolTip": T("选中零件，用一句话说清材料、支承、载荷：AI 起草约束与载荷，程序逐项核对，你确认")}
+        return {"Pixmap": str(ICONS / "fem_draft.svg"), "MenuText": T("一句话起草（AI）"), "ToolTip": T("选中零件，用一句话说清材料、支承、载荷：AI 起草约束与载荷，程序逐项核对，你确认")}
 
     def IsActive(self):
         return FreeCAD.ActiveDocument is not None
@@ -179,7 +188,7 @@ class FemDraftCommand:
 
 class FemRunCommand:
     def GetResources(self):
-        return {"MenuText": T("计算并核查（零件库）"), "ToolTip": T("按“分析”节点计算，带网格收敛、反力平衡、奇异点核查；结果进 FreeCAD 的后处理")}
+        return {"Pixmap": str(ICONS / "fem_run.svg"), "MenuText": T(_label("计算并核查（零件库）")), "ToolTip": T("按“分析”节点计算，带网格收敛、反力平衡、奇异点核查；结果进 FreeCAD 的后处理")}
 
     def IsActive(self):
         return _analysis() is not None
@@ -231,7 +240,7 @@ def _adopt(an) -> bool:
 
 class FemReportCommand:
     def GetResources(self):
-        return {"MenuText": T("出报告（零件库）"), "ToolTip": T("Word / PDF 报告：结论、算例与依据、核查、云图、审核清单、可追溯信息")}
+        return {"Pixmap": str(ICONS / "fem_report.svg"), "MenuText": T(_label("出报告（零件库）")), "ToolTip": T("Word / PDF 报告：结论、算例与依据、核查、云图、审核清单、可追溯信息")}
 
     def IsActive(self):
         an = _analysis()

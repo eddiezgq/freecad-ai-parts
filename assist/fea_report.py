@@ -14,6 +14,7 @@ import gzip
 import hashlib
 import json
 import math
+import os
 import re
 import shutil
 import subprocess
@@ -837,8 +838,19 @@ def library_sources(study: dict) -> list[dict]:
 # ---------------------------------------------------------------- PDF
 
 
-def to_pdf(docx: Path) -> Path | None:
+def soffice() -> str | None:
+    """LibreOffice 的命令行程序：PATH 里的，或 Windows 默认安装位置（安装后不进 PATH，2026-11-17 写帮助时发现）"""
     exe = shutil.which("soffice") or shutil.which("libreoffice")
+    if exe:
+        return exe
+    for base in (os.environ.get("ProgramFiles"), os.environ.get("ProgramFiles(x86)")):
+        if base and (Path(base) / "LibreOffice" / "program" / "soffice.exe").is_file():
+            return str(Path(base) / "LibreOffice" / "program" / "soffice.exe")
+    return None
+
+
+def to_pdf(docx: Path) -> Path | None:
+    exe = soffice()
     if not exe:
         return None
     subprocess.run([exe, "--headless", "--convert-to", "pdf", "--outdir", str(docx.parent), str(docx)],
