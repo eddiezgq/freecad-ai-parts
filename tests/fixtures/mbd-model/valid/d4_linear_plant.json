@@ -1,0 +1,99 @@
+{
+ "instance": {
+  "format": "mbd-model/1",
+  "name": "弹簧质量线性化",
+  "gravity_mm_s2": [
+   0,
+   0,
+   0
+  ],
+  "bodies": [
+   {
+    "id": "m",
+    "mass_kg": 1,
+    "cm_mm": [
+     0,
+     0,
+     0
+    ],
+    "inertia_kg_m2": {
+     "ixx": 0.0001,
+     "iyy": 0.0001,
+     "izz": 0.0001
+    }
+   }
+  ],
+  "joints": [
+   {
+    "id": "s",
+    "type": "translational",
+    "body_i": "ground",
+    "body_j": "m",
+    "point_mm": [
+     0,
+     0,
+     0
+    ],
+    "axis": [
+     1,
+     0,
+     0
+    ]
+   }
+  ],
+  "forces": [
+   {
+    "id": "k",
+    "type": "spring_damper",
+    "body_i": "ground",
+    "point_i_mm": [
+     -100,
+     0,
+     0
+    ],
+    "body_j": "m",
+    "point_j_mm": [
+     0,
+     0,
+     0
+    ],
+    "stiffness_n_per_mm": 1,
+    "damping_n_s_per_mm": 0.01,
+    "free_length_mm": 100
+   }
+  ],
+  "measures": [
+   {
+    "id": "x",
+    "type": "joint_displacement",
+    "joint": "s"
+   }
+  ],
+  "analysis": {
+   "type": "static_then_linear",
+   "modes": 1,
+   "plant": {
+    "inputs": [
+     {
+      "id": "u",
+      "type": "force",
+      "body": "m",
+      "point_mm": [
+       0,
+       0,
+       0
+      ],
+      "direction": [
+       1,
+       0,
+       0
+      ]
+     }
+    ],
+    "outputs": [
+     "x"
+    ]
+   }
+  }
+ }
+}
