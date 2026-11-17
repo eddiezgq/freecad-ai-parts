@@ -7,6 +7,7 @@
    “帮助”菜单有授权、设置、关于
 2. 免费版：手建的单实体静力（RJ-201 端面固定、花键段扭矩）能算完，可信度核查有结论；AI 起草、正式报告、专业版算例
    （大变形）拒绝并说明
+（起草、计算、报告在不开界面的子进程里做，见 core()）
 3. 专业版：CI 临时生成测试密钥、签发授权，从“授权”对话框导入 → AI 一句话起草（录制回放）→ 确认 → 计算并核查
    → 出中文、英文两份 Word 报告，两份的结果指纹相同
 """
@@ -70,6 +71,78 @@ def part(doc, step: Path):
     return o
 
 
+def core(phase: str, app: Path, repo: Path, work: Path) -> dict:
+    """文档里的工作（起草、计算、报告）在不开界面的 FreeCAD 进程里做：GitHub 的 Windows 机器没有 OpenGL，开着界面新建文档
+    （三维视图）会崩（2026-11-17 CI 发现）。代码照样来自安装目录。返回 {"results", "checks"}"""
+    sys.path.insert(0, str(app / "Mod" / "FreeCADAIParts" / "lib"))
+    import FreeCAD
+
+    from freecad_addon.fc import fem_bridge as B
+    from freecad_addon.fc import fem_flow as F
+
+    R: dict[str, object] = {}
+    ok: dict[str, bool] = {}
+    step = repo / "examples/apps/out/cobot_joint/RJ-201.step"
+    if phase == "free":
+        doc = FreeCAD.newDocument("wq_free")
+        doc.saveAs(str(work / "free.FCStd"))
+        p = part(doc, step)
+        R["refuse_draft"] = refused(lambda: F.draft_steps(doc, STATEMENT, [p]), "专业版")
+        an = B.study_to_fem(doc, free_study(step), parts={"b1": p})
+        study, wd = F.prepare_run(an)
+        t0 = time.time()
+        res = F.compute(study, wd)
+        R["free_compute_s"] = round(time.time() - t0, 1)
+        R["free_status"], R["free_messages"] = res["status"], res.get("messages")
+        if res["status"] == "ok":
+            F.finish_run(an, res, wd)
+            R["free_trust"] = res["data"].get("trust_verdict")
+            R["free_vm_max_mpa"] = (res["data"].get("steps") or [{}])[0].get("vm_max_mpa")
+        ok["free_static"] = res["status"] == "ok" and R.get("free_trust") in ("pass", "fail", "unknown")
+        R["refuse_report"] = refused(lambda: F.make_report(an, number=None, revision="A", reason="首次出稿"), "正式报告")
+        pro_study = copy.deepcopy(free_study(step))
+        pro_study["steps"] = [{"id": "s1", "type": "static", "large_deformation": True}]
+        an2 = B.study_to_fem(doc, pro_study, parts={"b1": p})
+        R["refuse_pro_study"] = refused(lambda: F.prepare_run(an2), "大变形")
+        ok["free_refusals"] = all(R[k] for k in ("refuse_draft", "refuse_report", "refuse_pro_study"))
+        return {"results": R, "checks": ok}
+
+    doc2 = FreeCAD.newDocument("wq_pro")
+    doc2.saveAs(str(work / "pro.FCStd"))
+    p2 = part(doc2, step)
+    out = F.draft_into(doc2, STATEMENT, [p2], F.llm_client(), tmp_dir=work / "parts")
+    R["draft"] = {"questions": out["questions"], "rejected": out["rejected"], "errors": out["errors"], "replay": out["replay"]}
+    ok["ai_draft"] = out["replay"] and not out["errors"] and not out["rejected"]
+    F.confirm_analysis(out["analysis"], "CI 验收", True)
+    study2, wd2 = F.prepare_run(out["analysis"])
+    res2 = F.compute(study2, wd2)
+    R["pro_status"], R["pro_messages"] = res2["status"], res2.get("messages")
+    ok["pro_compute"] = res2["status"] == "ok"
+    ok["reports"] = False
+    if ok["pro_compute"]:
+        F.finish_run(out["analysis"], res2, wd2)
+        reps = {lang: F.make_report(out["analysis"], number="CI-1", revision="A", reason="CI 验收", lang=lang)
+                for lang in ("zh", "en")}
+        R["reports"] = {k: v["docx"] for k, v in reps.items()}
+        fps = {k: json.loads(Path(v["record"]).read_text(encoding="utf-8"))["history"][-1]["result_fingerprint"]
+               for k, v in reps.items()}
+        R["result_fingerprints"] = fps
+        ok["reports"] = all(Path(v["docx"]).is_file() and Path(v["docx"]).stat().st_size > 10000 for v in reps.values()) \
+            and fps["zh"] == fps["en"]
+    return {"results": R, "checks": ok}
+
+
+def run_core(phase: str, app: Path, repo: Path, work: Path) -> dict:
+    import subprocess
+
+    out = work / f"{phase}.json"
+    p = subprocess.run([sys.executable, str(Path(__file__).resolve()), "--core", phase, str(app), str(repo), str(work)],
+                       env=dict(os.environ), timeout=3600, check=False)
+    if not out.is_file():
+        return {"results": {f"{phase}_exit": p.returncode}, "checks": {f"{phase}_ran": False}}
+    return json.loads(out.read_text(encoding="utf-8"))
+
+
 def main(app: Path, repo: Path) -> int:
     work = Path(tempfile.mkdtemp(prefix="wq-fea-acc-"))
     os.environ["FAP_LANG"] = "zh"                                   # 拒绝说明按中文核对；英文报告另出
@@ -79,15 +152,12 @@ def main(app: Path, repo: Path) -> int:
     R: dict[str, object] = {}
     ok: dict[str, bool] = {}
 
-    import FreeCAD
     import FreeCADGui
 
     FreeCADGui.showMainWindow()
 
     import freecad_addon
     from assist import fea_edition
-    from freecad_addon.fc import fem_bridge as B
-    from freecad_addon.fc import fem_flow as F
     from freecad_addon.gui import fea_brand
 
     lib = app / "Mod" / "FreeCADAIParts" / "lib"
@@ -105,29 +175,10 @@ def main(app: Path, repo: Path) -> int:
         and {"问渠有限元：授权…", "问渠有限元：设置 AI 密钥…", "关于问渠有限元"} <= set(menus.get("&Help") or [])
 
     # 2. 免费版
-    step = repo / "examples/apps/out/cobot_joint/RJ-201.step"
-    doc = FreeCAD.newDocument("wq_free")
-    doc.saveAs(str(work / "free.FCStd"))
-    p = part(doc, step)
     ok["free_tier"] = not fea_edition.pro_allowed() and "免费版" in fea_brand.tier_text()
-    R["refuse_draft"] = refused(lambda: F.draft_steps(doc, STATEMENT, [p]), "专业版")
-    an = B.study_to_fem(doc, free_study(step), parts={"b1": p})
-    study, wd = F.prepare_run(an)
-    t0 = time.time()
-    res = F.compute(study, wd)
-    R["free_compute_s"] = round(time.time() - t0, 1)
-    R["free_status"], R["free_messages"] = res["status"], res.get("messages")
-    if res["status"] == "ok":
-        F.finish_run(an, res, wd)
-        R["free_trust"] = res["data"].get("trust_verdict")
-        R["free_vm_max_mpa"] = (res["data"].get("steps") or [{}])[0].get("vm_max_mpa")
-    ok["free_static"] = res["status"] == "ok" and R.get("free_trust") in ("pass", "fail", "unknown")
-    R["refuse_report"] = refused(lambda: F.make_report(an, number=None, revision="A", reason="首次出稿"), "正式报告")
-    pro_study = copy.deepcopy(free_study(step))
-    pro_study["steps"] = [{"id": "s1", "type": "static", "large_deformation": True}]
-    an2 = B.study_to_fem(doc, pro_study, parts={"b1": p})
-    R["refuse_pro_study"] = refused(lambda: F.prepare_run(an2), "大变形")
-    ok["free_refusals"] = all(R[k] for k in ("refuse_draft", "refuse_report", "refuse_pro_study"))
+    got = run_core("free", app, repo, work)
+    R.update(got["results"])
+    ok.update(got["checks"])
 
     # 3. 专业版：测试密钥签发、从授权对话框导入
     from licensing.issue import keygen
@@ -143,32 +194,11 @@ def main(app: Path, repo: Path) -> int:
     os.environ["FAP_LICENSE_TEST_KEY"] = f"test-ci:{pub}"
     ok["license_import"] = fea_brand.LicenseDialog().import_file(str(lic_file)) and fea_edition.pro_allowed()
     R["tier"] = fea_brand.tier_text()
-
     os.environ["FAP_LLM_REPLAY"] = str(repo / "tests/recordings/fea_draft")
     os.environ["FAP_AI_PROVIDER"] = "claude"
-    doc2 = FreeCAD.newDocument("wq_pro")
-    doc2.saveAs(str(work / "pro.FCStd"))
-    p2 = part(doc2, step)
-    out = F.draft_into(doc2, STATEMENT, [p2], F.llm_client(), tmp_dir=work / "parts")
-    R["draft"] = {"questions": out["questions"], "rejected": out["rejected"], "errors": out["errors"], "replay": out["replay"]}
-    ok["ai_draft"] = out["replay"] and not out["errors"] and not out["rejected"]
-    F.confirm_analysis(out["analysis"], "CI 验收", True)
-    study2, wd2 = F.prepare_run(out["analysis"])
-    res2 = F.compute(study2, wd2)
-    R["pro_status"], R["pro_messages"] = res2["status"], res2.get("messages")
-    ok["pro_compute"] = res2["status"] == "ok"
-    if ok["pro_compute"]:
-        F.finish_run(out["analysis"], res2, wd2)
-        reps = {lang: F.make_report(out["analysis"], number="CI-1", revision="A", reason="CI 验收", lang=lang)
-                for lang in ("zh", "en")}
-        R["reports"] = {k: v["docx"] for k, v in reps.items()}
-        fps = {k: json.loads(Path(v["record"]).read_text(encoding="utf-8"))["history"][-1]["result_fingerprint"]
-               for k, v in reps.items()}
-        R["result_fingerprints"] = fps
-        ok["reports"] = all(Path(v["docx"]).is_file() and Path(v["docx"]).stat().st_size > 10000 for v in reps.values()) \
-            and fps["zh"] == fps["en"]
-    else:
-        ok["reports"] = False
+    got = run_core("pro", app, repo, work)
+    R.update(got["results"])
+    ok.update(got["checks"])
 
     print(json.dumps({"results": R, "checks": ok}, ensure_ascii=False, indent=2, default=str))
     passed = all(ok.values())
@@ -178,7 +208,13 @@ def main(app: Path, repo: Path) -> int:
 
 if __name__ == "__main__":
     try:
-        rc = main(Path(sys.argv[1]), Path(sys.argv[2]))
+        if sys.argv[1] == "--core":
+            phase, app_dir, repo_dir, work_dir = sys.argv[2], Path(sys.argv[3]), Path(sys.argv[4]), Path(sys.argv[5])
+            got = core(phase, app_dir, repo_dir, work_dir)
+            (work_dir / f"{phase}.json").write_text(json.dumps(got, ensure_ascii=False, default=str), encoding="utf-8")
+            rc = 0
+        else:
+            rc = main(Path(sys.argv[1]), Path(sys.argv[2]))
     except Exception:  # noqa: BLE001 — 验收脚本：把错误打印出来再判不通过
         traceback.print_exc()
         rc = 1
