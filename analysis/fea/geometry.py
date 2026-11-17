@@ -25,7 +25,8 @@ def _gmsh():
     return gmsh
 
 
-def load_step(gmsh, step_path, tmp):
+def load_step(gmsh, step_path, tmp, require_solid=True):
+    """读 STEP。require_solid=False 时也接受只有曲面（壳的中面）或曲线（梁的轴线）的 STEP（ADR-0095）"""
     p = str(Path(tmp) / "part.step")
     shutil.copyfile(step_path, p)
     gmsh.clear()
@@ -34,8 +35,12 @@ def load_step(gmsh, step_path, tmp):
     gmsh.model.occ.importShapes(p)
     gmsh.model.occ.synchronize()
     vols = gmsh.model.getEntities(3)
+    if not vols and not require_solid:
+        if not gmsh.model.getEntities(2) and not gmsh.model.getEntities(1):
+            raise ValueError("STEP 里没有曲面也没有曲线")
+        return []
     if not vols:
-        raise ValueError("STEP 里没有实体（只有曲面或线框），不能做有限元")
+        raise ValueError("STEP 里没有实体（只有曲面或线框）：薄壁件按壳、型材按梁算（算例里写 kind，ADR-0095）")
     if len(vols) > 1:
         # 一个零件由几块实体拼成（STEP 里贴合的面是两份）：粘成共面共节点的网格，否则各块互不相连、算不出来（ADR-0093 F2）
         gmsh.model.occ.fragment(vols[:1], vols[1:])
@@ -97,7 +102,7 @@ def faces(step_path, size_hint=None, with_mesh=False):
     """返回（面清单, 实体信息）；with_mesh=True 时再返回每个面的表面三角形 {面编号: (节点坐标 mm, 三角形)}（工厂网页画模型用）。"""
     with _LOCK, tempfile.TemporaryDirectory() as tmp:
         gmsh = _gmsh()
-        load_step(gmsh, step_path, tmp)
+        vols = load_step(gmsh, step_path, tmp, require_solid=False)
         bb = gmsh.model.getBoundingBox(-1, -1)
         diag = math.dist(bb[:3], bb[3:])
         gmsh.option.setNumber("Mesh.MeshSizeMax", size_hint or diag / 40)
@@ -122,6 +127,9 @@ def faces(step_path, size_hint=None, with_mesh=False):
                           "center": [round(x, 4) for x in gmsh.model.occ.getCenterOfMass(1, tag)],
                           "bbox": [round(x, 4) for x in gmsh.model.getBoundingBox(1, tag)]})
         vol = sum(gmsh.model.occ.getMass(3, t) for _, t in gmsh.model.getEntities(3))
+        verts = [{"id": int(t), "point": [round(float(x), 4) for x in gmsh.model.getValue(0, t, [])]} for _, t in gmsh.model.getEntities(0)]
+        geo_kind = "solid" if vols else ("shell" if out else "beam")
         solid = {"bbox_mm": [round(x, 3) for x in bb], "volume_mm3": round(vol, 1), "faces": len(out),
-                 "solids": len(gmsh.model.getEntities(3)), "edge_list": edges}
+                 "solids": len(gmsh.model.getEntities(3)), "edge_list": edges, "vertex_list": verts,
+                 "geometry_kind": geo_kind}
     return (out, solid, meshes) if with_mesh else (out, solid)
