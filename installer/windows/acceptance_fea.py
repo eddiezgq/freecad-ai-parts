@@ -105,6 +105,8 @@ def core(phase: str, app: Path, repo: Path, work: Path) -> dict:
         an2 = B.study_to_fem(doc, pro_study, parts={"b1": p})
         R["refuse_pro_study"] = refused(lambda: F.prepare_run(an2), "大变形")
         ok["free_refusals"] = all(R[k] for k in ("refuse_draft", "refuse_report", "refuse_pro_study"))
+        R["euler"] = euler(work)
+        ok["buckling_repeatable"] = R["euler"]["ok"]
         return {"results": R, "checks": ok}
 
     doc2 = FreeCAD.newDocument("wq_pro")
@@ -130,6 +132,42 @@ def core(phase: str, app: Path, repo: Path, work: Path) -> dict:
         ok["reports"] = all(Path(v["docx"]).is_file() and Path(v["docx"]).stat().st_size > 10000 for v in reps.values()) \
             and fps["zh"] == fps["en"]
     return {"results": R, "checks": ok}
+
+
+def euler(work: Path) -> dict:
+    """欧拉压杆（10×10×200 方截面，一端固定一端自由）算两遍：临界载荷与 π²EI/(4L²) 相差 < 1 %，两遍结果完全相同。
+    Linux CI 上屈曲结果曾不可重复（issue #543），这里在用户会用的这套求解器上查一遍"""
+    import gmsh
+
+    import analysis
+    from analysis.common import materials
+    from analysis.fea.geometry import faces
+
+    step = work / "col.step"
+    gmsh.initialize()
+    gmsh.option.setNumber("General.Terminal", 0)
+    gmsh.model.add("col")
+    gmsh.model.occ.addBox(0, 0, 0, 10, 10, 200)
+    gmsh.model.occ.synchronize()
+    gmsh.write(str(step))
+    gmsh.finalize()
+    fs = faces(str(step))[0]
+
+    def plane(z):
+        return next(f["id"] for f in fs if f["kind"] == "plane" and abs(f["center"][2] - z) < 1e-6)
+
+    st = {"format": "fea-study/1", "name": "euler", "bodies": [{"id": "c", "step_path": str(step), "material": "45-QT"}],
+          "supports": [{"type": "fixed", "body": "c", "faces": [plane(0)]}],
+          "loads": [{"type": "force", "body": "c", "faces": [plane(200)], "vector_n": [0, 0, -1000]}],
+          "steps": [{"id": "b", "type": "buckling", "n_modes": 2}], "mesh": {"size_mm": 5.0}, "checks": {"convergence": False}}
+    e = materials.get("45-QT")["elastic_modulus_mpa"]
+    pcr = 3.141592653589793 ** 2 * e * (10 ** 4 / 12) / (4 * 200 ** 2)
+    got = []
+    for _ in range(2):
+        r = analysis.run("fea", json.loads(json.dumps(st)))
+        got.append(r["data"]["steps"][0]["load_factors"][0] * 1000 if r["status"] == "ok" else None)
+    good = None not in got and got[0] == got[1] and abs(got[0] / pcr - 1) < 0.01
+    return {"pcr_n": round(pcr, 1), "runs_n": got, "ok": good}
 
 
 def run_core(phase: str, app: Path, repo: Path, work: Path) -> dict:
