@@ -289,14 +289,82 @@ class System:
             M[7 * k + 3:7 * k + 7, 7 * k + 3:7 * k + 7] = 4 * G.T @ b.J @ G
         return M
 
+    # ------------------------------------------------ 测量量（D2，SI：rad、rad/s、m、m/s）
+    def joint_frame(self, q, info):
+        """运动副在 body_i 上的 f、g、h（地面系）"""
+        i = info["i"]
+        if i < 0:
+            return info["f"], info["g"], info["h"]
+        A = A_of(self.rp(q, i)[1])
+        return A @ info["f"], A @ info["g"], A @ info["h"]
+
+    def joint_kin(self, q, qd, info):
+        """运动副 j 相对 i 的转角（−π…π）、角速度、沿轴位移、沿轴速度"""
+        f_i, g_i, h = self.joint_frame(q, info)
+        j = info["j"]
+        f_j = info["f"] if j < 0 else A_of(self.rp(q, j)[1]) @ info["f"]
+        ang = math.atan2(float(f_j @ g_i), float(f_j @ f_i))
+        wi = self.omega(q, qd, info["i"]) if info["i"] >= 0 else np.zeros(3)
+        wj = self.omega(q, qd, j) if j >= 0 else np.zeros(3)
+        Pi, Vi = self._pv(q, qd, info["i"], info["si"])
+        Pj, Vj = self._pv(q, qd, j, info["sj"])
+        return ang, float(h @ (wj - wi)), float(h @ (Pj - Pi)), float(h @ (Vj - Vi))
+
+    def measures(self, q, qd):
+        """对外单位：°、°/s、mm、mm/s"""
+        out = {}
+        for m in getattr(self, "measure_defs", []):
+            if m["type"].startswith("joint_"):
+                ang, w, x, v = self.joint_kin(q, qd, self.joints[m["joint"]])
+                out[m["id"]] = {"joint_angle": math.degrees(ang), "joint_speed": math.degrees(w),
+                                "joint_displacement": x * 1000, "joint_velocity": v * 1000}[m["type"]]
+            else:
+                Pi, Vi = self._pv(q, qd, m["i"], m["s_i"])
+                Pj, Vj = self._pv(q, qd, m["j"], m["s_j"])
+                d = Pj - Pi
+                L = float(np.linalg.norm(d))
+                out[m["id"]] = L * 1000 if m["type"] == "point_distance" else (float(d @ (Vj - Vi)) / L * 1000 if L > 0 else 0.0)
+        return out
+
+    def _add(self, F, N, q, b, Fw, P=None, T=None):
+        """把作用在构件 b 的力 Fw（作用点 P，地面系）和力矩 T 加进去"""
+        if b < 0:
+            return
+        if Fw is not None:
+            F[b] += Fw
+            N[b] += np.cross(P - self.rp(q, b)[0], Fw)
+        if T is not None:
+            N[b] += T
+
+    @staticmethod
+    def _qconj(p):
+        return np.array([p[0], -p[1], -p[2], -p[3]])
+
+    @staticmethod
+    def _qmul(a, b):
+        a0, av, b0, bv = a[0], a[1:], b[0], b[1:]
+        return np.r_[a0 * b0 - av @ bv, a0 * bv + b0 * av + np.cross(av, bv)]
+
+    def rel_rotvec(self, q, i, j):
+        """j 相对 i 的转动向量（body_i 坐标系）"""
+        pi = np.array([1.0, 0, 0, 0]) if i < 0 else self.rp(q, i)[1]
+        pj = np.array([1.0, 0, 0, 0]) if j < 0 else self.rp(q, j)[1]
+        r = self._qmul(self._qconj(pi), pj) / (np.linalg.norm(pi) * np.linalg.norm(pj))
+        if r[0] < 0:
+            r = -r
+        v = r[1:]
+        sv = float(np.linalg.norm(v))
+        return np.zeros(3) if sv < 1e-15 else 2 * math.atan2(sv, r[0]) * v / sv
+
     def body_wrenches(self, q, qd, t):
         """每个构件受的外力（地面系）与对质心的力矩（地面系）——不含约束力"""
         F = np.zeros((self.nb, 3))
         N = np.zeros((self.nb, 3))
         F += self.masses[:, None] * self.g[None, :]
+        env = self.measures(q, qd) if getattr(self, "needs_env", False) else None
         for kind, f in self.forces:
             if kind == "force":
-                vec = np.array([fn(t) for fn in f["fn"]])
+                vec = np.array([fn(t, env) for fn in f["fn"]])
                 b = f["body"]
                 if b < 0:
                     continue
@@ -305,7 +373,7 @@ class System:
                 F[b] += Fw
                 N[b] += np.cross(A @ f["s"], Fw)
             elif kind == "torque":
-                vec = np.array([fn(t) for fn in f["fn"]])
+                vec = np.array([fn(t, env) for fn in f["fn"]])
                 b = f["body"]
                 if b < 0:
                     continue
@@ -326,6 +394,84 @@ class System:
                     Fw = sign * T * u
                     F[b] += Fw
                     N[b] += np.cross(A_of(self.rp(q, b)[1]) @ s, Fw)
+            elif kind == "rspring":
+                info = {"i": f["i"], "j": f["j"], "f": f["f"], "g": f["g"], "h": f["h"], "si": np.zeros(3), "sj": np.zeros(3)}
+                ang, w, _, _ = self.joint_kin(q, qd, info)
+                h = self.joint_frame(q, info)[2]
+                Tq = -(f["k"] * math.remainder(ang - f["a0"], 2 * math.pi) + f["c"] * w) + f["pre"]
+                self._add(F, N, q, f["j"], None, T=Tq * h)
+                self._add(F, N, q, f["i"], None, T=-Tq * h)
+            elif kind in ("bushing", "beam"):
+                i, j = f["i"], f["j"]
+                Ai = np.eye(3) if i < 0 else A_of(self.rp(q, i)[1])
+                Pi, Vi = self._pv(q, qd, i, f["s_i"])
+                Pj, Vj = self._pv(q, qd, j, f["s_j"])
+                d = Ai.T @ (Pj - Pi) - f["d0"]
+                dd = Ai.T @ (Vj - Vi)
+                th = self.rel_rotvec(q, i, j)
+                wi = self.omega(q, qd, i) if i >= 0 else np.zeros(3)
+                wj = self.omega(q, qd, j) if j >= 0 else np.zeros(3)
+                wr = Ai.T @ (wj - wi)
+                if kind == "bushing":
+                    fl = -f["K"] * d - f["C"] * dd + f["F0"]
+                    tl = -f["Kr"] * th - f["Cr"] * wr + f["T0"]
+                else:
+                    Bm = f["Bm"]
+                    x = np.r_[Bm.T @ d, Bm.T @ th]
+                    xd = np.r_[Bm.T @ dd, Bm.T @ wr]
+                    g6 = -f["K6"] @ (x + f["cr"] * xd)
+                    fl, tl = Bm @ g6[:3], Bm @ g6[3:]
+                Fw, Tw = Ai @ fl, Ai @ tl
+                self._add(F, N, q, j, Fw, Pj, Tw)
+                self._add(F, N, q, i, -Fw, Pj, -Tw)
+            elif kind == "clearance":
+                i, j = f["i"], f["j"]
+                Pi, Vi = self._pv(q, qd, i, f["s_i"])
+                Pj, Vj = self._pv(q, qd, j, f["s_j"])
+                h = f["h"] if i < 0 else A_of(self.rp(q, i)[1]) @ f["h"]
+                d = Pj - Pi
+                dr = d - (h @ d) * h
+                er = float(np.linalg.norm(dr))
+                pen = er - f["c"]
+                if pen <= 0 or er < 1e-15:
+                    continue
+                u = dr / er
+                pend = float(u @ (Vj - Vi))
+                damp = f["cd"] if pen >= f["dpen"] else f["cd"] * (pen / f["dpen"]) ** 2 * (3 - 2 * pen / f["dpen"])
+                Fn = max(0.0, f["k"] * pen ** f["e"] + damp * pend)
+                self._add(F, N, q, j, -Fn * u, Pj)
+                self._add(F, N, q, i, Fn * u, Pj)
+        return F, N
+
+    def friction_wrenches(self, q, qd, react):
+        """运动副摩擦（D2）：react = {joint: (F_on_j, T_on_j about joint point)} 来自上一次迭代的约束力"""
+        F = np.zeros((self.nb, 3))
+        N = np.zeros((self.nb, 3))
+        for jid, info in self.joints.items():
+            fr = info.get("friction")
+            if not fr or jid not in react:
+                continue
+            Fr = react[jid][0]
+            _, w, _, v = self.joint_kin(q, qd, info)
+            h = self.joint_frame(q, info)[2]
+            Nn = float(np.linalg.norm(Fr - (Fr @ h) * h)) + fr["pre"]
+            vel = w if info["type"] == "revolute" else v
+            a = abs(vel)
+            if a <= fr["vs"]:
+                mu = fr["ms"] * _smooth(a / fr["vs"])
+            elif a < fr["vt"]:
+                mu = fr["ms"] + (fr["md"] - fr["ms"]) * _smooth((a - fr["vs"]) / (fr["vt"] - fr["vs"]))
+            else:
+                mu = fr["md"]
+            mag = -math.copysign(mu * Nn, vel) if vel != 0 else 0.0
+            if info["type"] == "revolute":
+                Tq = mag * fr["R"] * h
+                self._add(F, N, q, info["j"], None, T=Tq)
+                self._add(F, N, q, info["i"], None, T=-Tq)
+            else:
+                Pj = self._pv(q, qd, info["j"], info["sj"])[0]
+                self._add(F, N, q, info["j"], mag * h, Pj)
+                self._add(F, N, q, info["i"], -mag * h, Pj)
         return F, N
 
     def _pv(self, q, qd, b, s):
@@ -335,8 +481,19 @@ class System:
         rd, pdot = qd[7 * b:7 * b + 3], qd[7 * b + 3:7 * b + 7]
         return r + A_of(p) @ s, rd + B_of(p, s) @ pdot
 
-    def Q(self, q, qd, t):
+    def Q_extra(self, q, qd, F, N):
+        """只把附加的力 / 力矩（地面系）换成广义力（不含惯性项）"""
+        out = np.zeros(self.n)
+        for k in range(self.nb):
+            p = self.rp(q, k)[1]
+            out[7 * k:7 * k + 3] = F[k]
+            out[7 * k + 3:7 * k + 7] = 2 * G_of(p).T @ (A_of(p).T @ N[k])
+        return out
+
+    def Q(self, q, qd, t, extra=None):
         F, N = self.body_wrenches(q, qd, t)
+        if extra is not None:
+            F, N = F + extra[0], N + extra[1]
         out = np.zeros(self.n)
         for k, b in enumerate(self.bodies):
             p = self.rp(q, k)[1]
@@ -358,11 +515,21 @@ class System:
                 L = float(np.linalg.norm(self._pv(q, qd, f["j"], f["s_j"])[0] - self._pv(q, qd, f["i"], f["s_i"])[0]))
                 x = L - f["L0"]
                 pe += 0.5 * f["k"] * x * x + f["pre"] * x
+            elif kind == "rspring":
+                info = {"i": f["i"], "j": f["j"], "f": f["f"], "g": f["g"], "h": f["h"], "si": np.zeros(3), "sj": np.zeros(3)}
+                x = math.remainder(self.joint_kin(q, qd, info)[0] - f["a0"], 2 * math.pi)
+                pe += 0.5 * f["k"] * x * x - f["pre"] * x
         return ke, pe
 
     def omega(self, q, qd, k):
         p = self.rp(q, k)[1]
         return 2 * E_of(p) @ qd[7 * k + 3:7 * k + 7]
+
+
+def _smooth(s):
+    """三次过渡 0 → 1（STEP 的形状）"""
+    s = min(max(s, 0.0), 1.0)
+    return s * s * (3 - 2 * s)
 
 
 def _jsin(x: Jet):
@@ -384,16 +551,16 @@ def frame_from_axis(h):
     return f, g, h
 
 
-def fn_of(src, scale):
-    """表达式（对外单位）→ 射流函数（SI）：fn(Jet t) → Jet"""
-    e = compile_expr(src)
+def fn_of(src, scale, variables=(), splines=None):
+    """表达式（对外单位）→ 射流函数（SI）：fn(Jet t) → Jet；力元的表达式可以用测量量（env）"""
+    e = compile_expr(src, variables, splines)
 
-    def f(tj):
+    def f(tj, env=None):
         if isinstance(tj, Jet):
-            v, d, dd = e.jet(tj.v)
+            v, d, dd = e.jet(tj.v, env)
             # 复合：位移 s(t)，t 是射流 (t, td, tdd)
             return Jet(scale * v, scale * d * tj.d, scale * (dd * tj.d ** 2 + d * tj.dd))
-        return scale * e(tj)
+        return scale * e(tj, env)
 
     f.expr = e
     return f

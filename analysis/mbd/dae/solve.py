@@ -102,18 +102,55 @@ def initial_velocity(sysm: System, q, t, rows):
 
 
 # ---------------------------------------------------------------- 加速度与反力
+FRICTION_ITER = 30
+
+
+def _friction_joints(sysm):
+    return [jid for jid, info in sysm.joints.items() if info.get("friction")]
+
+
+def _joint_forces(sysm, q, J, lam, rows, jids):
+    """摩擦要用的运动副约束力（作用在 body_j 上，地面系；只用到大小和方向，不分正负）"""
+    pos = {id(r): n for n, r in enumerate(rows)}
+    out = {}
+    for jid in jids:
+        info = sysm.joints[jid]
+        ks = [pos[id(sysm.rows[r])] for r in info["rows"] if id(sysm.rows[r]) in pos]
+        b = info["j"] if info["j"] >= 0 else info["i"]
+        gen = -J[ks].T @ lam[ks] if ks else np.zeros(sysm.n)
+        F, _ = _gen_to_wrench(sysm, q, b, gen)
+        out[jid] = (F, None)
+    return out
+
+
 def accel(sysm: System, q, qd, t, rows):
     M = sysm.mass(q)
     J = sysm.jac(q, t, rows)
-    Q = sysm.Q(q, qd, t)
     gam = sysm.gamma(q, qd, t, rows)
     m = J.shape[0]
     K = np.block([[M, J.T], [J, np.zeros((m, m))]])
-    rhs = np.concatenate([Q, gam])
     try:
-        x = np.linalg.solve(K, rhs)
-    except np.linalg.LinAlgError:
-        x = np.linalg.lstsq(K, rhs, rcond=None)[0]
+        lu = sla.lu_factor(K)
+
+        def solve(r):
+            return sla.lu_solve(lu, r)
+    except (np.linalg.LinAlgError, ValueError):
+        def solve(r):
+            return np.linalg.lstsq(K, r, rcond=None)[0]
+    Q0 = sysm.Q(q, qd, t)
+    x = solve(np.concatenate([Q0, gam]))
+    jids = _friction_joints(sysm)
+    if jids:
+        # 摩擦力随约束反力变：不动点迭代（反力 → 摩擦 → 反力），一般 3~6 次收敛
+        for _ in range(FRICTION_ITER):
+            react = _joint_forces(sysm, q, J, x[sysm.n:], rows, jids)
+            Fx, Nx = sysm.friction_wrenches(q, qd, react)
+            Qf = Q0 + sysm.Q_extra(q, qd, Fx, Nx)
+            x1 = solve(np.concatenate([Qf, gam]))
+            done = np.max(np.abs(x1 - x)) <= 1e-12 * (1 + np.max(np.abs(x1)))
+            x = x1
+            if done:
+                break
     return x[:sysm.n], x[sysm.n:]
 
 
