@@ -128,11 +128,28 @@ def summarize(cases: list[dict], rows: list[dict], outcome: dict[str, str]) -> d
             "rows": n_rows, "rows_ok": sum(r["ok"] for c in out for r in c["rows"])}
 
 
+def _source(src: str, lang: str) -> str:
+    """出处里“中文 / English”的写法按语言取一边（文献名照原样）"""
+    import re
+
+    from assist.i18n import has_cjk
+
+    src = re.sub(r"（([^（）/]+?) / ([^（）]+?)）", lambda m: f"（{m.group(1)}）" if lang == "zh" else f" ({m.group(2)})", src)
+    if " / " in src and has_cjk(src.split(" / ")[0]) and not has_cjk(src.split(" / ", 1)[1]):
+        zh, en = src.split(" / ", 1)
+        if lang == "zh" and ": " in en:
+            return f"{zh}：{en.split(': ', 1)[1]}"
+        return zh if lang == "zh" else en
+    return src
+
+
 def build(summary: dict, env: dict, out: Path, lang: str) -> Path:
     from docx import Document
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.oxml.ns import qn
     from docx.shared import Cm, Pt
+
+    from assist import i18n
 
     T = {k: (v[lang] if isinstance(v, dict) and lang in v else v) for k, v in TEXT.items()}
     cats = load_cases()["categories"]
@@ -144,7 +161,7 @@ def build(summary: dict, env: dict, out: Path, lang: str) -> Path:
     for s in doc.sections:
         s.left_margin = s.right_margin = Cm(1.8)
         hp = s.header.paragraphs[0]
-        hp.text = f"{T['title']}   {env['code']}   {env['date']}"
+        hp.text = f"{T['title']}   {i18n.t(env['code'], lang)}   {env['date']}"
         hp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
 
     def table(head, rows, widths=None):
@@ -166,7 +183,7 @@ def build(summary: dict, env: dict, out: Path, lang: str) -> Path:
     doc.add_heading(T["title"], 0)
     doc.add_paragraph(T["intro"])
     doc.add_heading(T["env"], 1)
-    table([T["item"], T["value"]], [[T["edition"], env["code"]], [T["date"], env["date"]], [T["solver"], env["solver"]],
+    table([T["item"], T["value"]], [[T["edition"], i18n.t(env["code"], lang)], [T["date"], env["date"]], [T["solver"], env["solver"]],
                                      [T["mesher"], f"Gmsh {env['gmsh']}"], [T["python"], env["python"]]], [5, 12])
     doc.add_heading(T["summary"], 1)
     doc.add_paragraph(T["sum_line"].format(**{k: summary[k] for k in ("n", "ok", "bad", "skip", "rows", "rows_ok")}))
@@ -183,7 +200,7 @@ def build(summary: dict, env: dict, out: Path, lang: str) -> Path:
         doc.add_heading(name[lang], 1)
         for c in group:
             doc.add_heading(f"{c['id']}  {c['title'][lang]}", 2)
-            doc.add_paragraph(f"{T['source']}: {c['source']}")
+            doc.add_paragraph(f"{T['source']}: {_source(c['source'], lang)}")
             doc.add_paragraph(f"{T['test']}: {c['test']}    {T['result']}: {T[c['result']]}")
             if not c["rows"]:
                 doc.add_paragraph(T["norows"])

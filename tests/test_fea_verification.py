@@ -83,3 +83,11 @@ def test_manual_in_both_languages(tmp_path):
         text = "\n".join([p.text for p in d.paragraphs] + [c.text for t in d.tables for r in t.rows for c in r.cells])
         for w in words:
             assert w in text, (lang, w)
+
+
+def test_source_by_language():
+    assert V._source("材料力学 / strength of materials: σ = Eδ/L", "zh") == "材料力学：σ = Eδ/L"
+    assert V._source("材料力学 / strength of materials: σ = Eδ/L", "en") == "strength of materials: σ = Eδ/L"
+    assert V._source("Timoshenko & Goodier, Theory of Elasticity（旋转圆盘 / rotating disc）", "en") == \
+        "Timoshenko & Goodier, Theory of Elasticity (rotating disc)"
+    assert V._source("Johnson, Contact Mechanics (1985), ch. 4", "zh") == "Johnson, Contact Mechanics (1985), ch. 4"
