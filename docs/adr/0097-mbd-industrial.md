@@ -210,3 +210,35 @@ B 由加速度方程对输入广义力的线性关系直接解出（精确），
   衬套支承自由体六阶；单摆力矩输入 → 转角输出直流增益 1/(mgL)；有摩擦时给提示；
   刚性转子 0、3000、−6000 °/s 三种转速下正、反进动频率 It·ω² ∓ Ip·Ω·ω − kr = 0（Genta《Dynamics of Rotating Systems》）。
 - 对“非稳态运动中的工作点”（例如摆经过最低点时）线性化，与 ADAMS 一样只代表那一瞬间的局部特性。
+
+## 补充九：D5 分三段做（2026-11-17）
+
+D5 量大，按“先能用、再省事、再好看”分三段，各自一个 PR：
+
+- **D5a 从 FreeCAD 装配体生成模型**（本段）。不改 schema（构件的 `name`、`source` 字段已有）。
+  - `freecad_addon/fc/mbd_assembly.py`（在 FreeCAD 里跑）：读 Assembly 工作台的装配体，收集每个零件的体积、质心、单位密度惯性张量（OCC 精确积分）、
+    材料密度（`ShapeMaterial`），以及每个运动副两侧零件和运动副坐标系的地面位姿（`UtilsAssembly.getJcsGlobalPlc`），整理成中性描述。
+  - `analysis/mbd/assembly.py`（纯 Python，可单测）：中性描述 → `mbd-model/1`。
+    - 质量 = 密度 × 体积，惯量 = 密度 × 单位密度惯性张量（地面轴、对质心）；App::Part 里多个零件按平行轴定理合成。
+    - **没设材料（或是 FreeCAD 的 Default 材料）的零件不估密度，直接报错列出**；可以给零件填质量覆盖（仍要求密度来算惯量的形状，惯量按质量比例缩放）。
+    - 运动副对应：Fixed→fixed、Revolute→revolute、Cylindrical→cylindrical、Slider→translational、Ball→spherical，轴取运动副坐标系 Z。
+      Distance、Parallel、Perpendicular、Angle、RackPinion、Screw、Gears、Belt 这里**不对应、报错列出**（不静默丢，丢了自由度就错）；
+      齿轮请在模型里用 `gear_mesh`（要齿数、模数，FreeCAD 的 Gears 只有半径）。
+    - Grounded 零件并成地面；重力缺省 −Z 9810 mm/s²（写进消息）。驱动、力、分析设置由面板或使用者补。
+  - 验收：在 FreeCAD 里用 Assembly 工作台搭曲柄滑块和两连杆机械臂（材料钢），导出的模型与手写模型（同尺寸、同质量惯量）
+    算出的运动、反力、驱动力矩一致到 1e-9；缺材料、不支持的运动副会报错；单测覆盖纯 Python 部分，FreeCAD 部分标 `@pytest.mark.freecad`。
+- **D5b STEP 装配导入 + AI 起草运动副**：STEP 装配进来后，确定性代码先找同轴圆柱面配合、平面配合等候选，LLM 只负责起名、挑选和解释，
+  人确认后写成 Assembly 运动副；之后走 D5a。
+- **D5c 工作台面板**：在 FreeCAD 里设驱动、力、分析，跑完播放动画、看曲线和核查结论，替换现在只能选“参数化机械臂 / 常用机构”的多体窗口。
+
+## 补充十：D5a 完成（2026-11-17）
+
+- 代码：`analysis/mbd/assembly.py`（中性描述 → 模型，纯 Python）；`freecad_addon/fc/mbd_assembly.py`（在 FreeCAD 里收集：`describe`、`model_from_assembly`）。
+- 核实到的 FreeCAD 1.0.2 事实（写回）：材料库里有的材料没有密度（例如 MildSteel），也按“没设材料”报错，不估；Default 材料密度 1000 kg/m³ 是占位值，同样报错；
+  `Shape.MatrixOfInertia` 是单位密度、对质心、地面轴的惯性张量（非对角为张量分量），与 schema 的 ixy 等字段同号，直接用。
+- 验收（`tests/test_fc_mbd_assembly.py`，FreeCAD 1.0.2 AppImage 内跑，4 项全过；`tests/test_mbd_assembly.py` 纯 Python 5 项全过）：
+  - Assembly 工作台搭的曲柄滑块（Steel-C15）：导出的质量、质心、惯量与长方体公式手算一致到 1e-9；同一驱动下运动学反算的驱动力矩、滑块位置与手写模型一致到 1e-9；
+  - 第二节转 30° 的空间两连杆摆（转动副 + 球副）：地面轴惯量积与 R·diag·Rᵀ 手算一致到 1e-9，自由下落 0.2 s 的位置一致到 1e-7 mm、反力矩一致到 1e-6；
+  - 像界面那样选“面 + 顶点”建转动副、FreeCAD 自己求解摆放：导出的运动副中心、轴正确，动力学约束残差通过；
+  - 一个零件没材料、一个齿轮副：两条问题一次列出（含“请用 gear_mesh”的提示）。
+- 平缝机挑线机构的装配体验收放到 D5b（要先有 STEP 装配导入）。
