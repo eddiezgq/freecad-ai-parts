@@ -1,5 +1,5 @@
 """拓扑优化对话框（ADR-0059，M11 第一步）：选算例（MBB 梁、悬臂、简支、支架）、网格、材料用量、板长与板厚 → 本机计算 →
-密度图与柔度 → 按密度 0.5 取轮廓拉伸成板件放进 FreeCAD，再用“有限元 · 疲劳”选中它校核。
+密度图与柔度 → 按密度 0.5 取轮廓拉伸成板件放进 FreeCAD，再在 FEM 工作台里选中它“计算并核查”校核。
 
 计算在 analysis/topo，后台线程中进行。
 """
@@ -99,7 +99,7 @@ class TopoDialog(QtWidgets.QDialog):
         p = topo.PRESETS[self.preset.currentData()]
         self.nelx.setValue(p["nelx"])
         self.nely.setValue(p["nely"])
-        self.note.setText("支承与载荷按算例：" + p["label"] + "。结果是构形建议，生成板件后用“有限元 · 疲劳”按实际载荷校核。")
+        self.note.setText("支承与载荷按算例：" + p["label"] + "。结果是构形建议，生成板件后在 FEM 工作台里按实际载荷“计算并核查”。")
 
     def setup(self) -> dict:
         s = {"preset": self.preset.currentData(), "nelx": self.nelx.value(), "nely": self.nely.value(),
@@ -164,5 +164,5 @@ class TopoDialog(QtWidgets.QDialog):
         obj.Label = "拓扑优化板件"
         obj.Shape = plate_shape(self.result["data"]["outline"], self.result["setup"]["thickness_mm"])
         doc.recompute()
-        self.status.setText(f"已在 {doc.Label} 中生成 {obj.Label}：选中它，用“有限元 · 疲劳”加约束与载荷校核")
+        self.status.setText(f"已在 {doc.Label} 中生成 {obj.Label}：选中它，在 FEM 工作台里“一句话起草”或手工加约束与载荷，再“计算并核查”")
         return obj

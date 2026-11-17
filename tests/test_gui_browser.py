@@ -766,46 +766,44 @@ def test_mbd_panel_computes_and_sends_to_selection(gui):
 
 
 @pytest.mark.freecad
-def test_fea_panel_static_color_and_fatigue(gui, tmp_path):
-    """M10 第三步：有限元窗口——FreeCAD 中的轴（Part 圆柱）→ 选端面固定、另一端加扭矩 → 计算 → 着色 → 疲劳。"""
+def test_fatigue_panel_uses_fem_result(gui, tmp_path):
+    """M10 第三步的疲劳，ADR-0096 第 1 步改：强度在 FEM 工作台里算（Ø35 轴、一端固定、另一端扭矩 350 N·m），
+    疲劳的参考应力取自这次“计算并核查”的结果（可信度通过）；窗口里不再有强度、固有频率。"""
     pytest.importorskip("gmsh")
     import FreeCAD
-    import FreeCADGui
-    import Part
 
     from analysis.common.solvers import find_ccx
+    from freecad_addon.fc import fem_bridge as B
+    from freecad_addon.fc import fem_flow as F
     from freecad_addon.gui.fea_panel import FeaPanel
+    from tests.test_fc_fem_flow import _shaft_study
 
     if find_ccx() is None:
         pytest.skip("没有 CalculiX")
     doc = FreeCAD.newDocument("FeaTest")
     try:
-        obj = doc.addObject("Part::Feature", "Shaft")
-        obj.Shape = Part.makeCylinder(17.5, 100)
-        doc.recompute()
-        FreeCADGui.ActiveDocument.ActiveView.viewIsometric()
-        panel = FeaPanel(mbd_result=lambda: {"data": {"series": {"j2": {"drive": [0, 100, 350, 200, 0]}}}})
-        assert panel.set_part(obj) and len(panel.faces) == 3
-        bottom = next(f"Face{i + 1}" for i, f in enumerate(obj.Shape.Faces)
-                      if f.Surface.__class__.__name__ == "Plane" and abs(f.CenterOfMass.z) < 1e-6)
-        top = next(f"Face{i + 1}" for i, f in enumerate(obj.Shape.Faces)
-                   if f.Surface.__class__.__name__ == "Plane" and abs(f.CenterOfMass.z - 100) < 1e-6)
-        assert panel.add_load("fixed", panel.face_ids([bottom]))
-        assert panel.add_load("torque", panel.face_ids([top]), "350")
-        panel.material.setCurrentIndex(panel.material.findData("45-QT"))
-        panel.mesh.setText("4")
-        assert panel.compute() is True
-        _pump_until(gui, lambda: not panel.busy, timeout=300)
-        assert panel.result and panel.result["status"] == "ok", panel.status.text()
-        assert panel.result["data"]["vm_max_mpa"] == pytest.approx(72.0, rel=0.05)
-        assert panel.node is not None and "安全系数" in panel.summary.text()
-        assert panel.load_ref() == 350
-        assert panel.compute_fatigue() is False and "β" in panel.fatigue_label.text()  # 不给缺省值
+        doc.saveAs(str(tmp_path / "fat.FCStd"))
+        an = B.study_to_fem(doc, _shaft_study(tmp_path), base_dir=tmp_path)
+        panel = FeaPanel(mbd_result=lambda: {"data": {"series": {"j2": {"drive": [0, 100, 350, 200, 0]}}}},
+                         fem_analysis=lambda: an)
+        assert panel.windowTitle() == "热分析 · 疲劳"
+        assert panel.kind.findData("static") == -1 and panel.kind.findData("modal") == -1   # 强度、固有频率已退役
         panel.surface.setText("0.92")
         panel.size.setText("0.85")
+        assert panel.compute_fatigue() is False and "计算并核查" in panel.fatigue_label.text()   # 还没算
+        study, wd = F.prepare_run(an)
+        res = F.compute(study, wd)
+        assert res["status"] == "ok", res.get("messages")
+        F.finish_run(an, res, wd)
+        assert panel.load_ref()["stress_ref_mpa"] == pytest.approx(72.0, rel=0.05)   # √3 · 16T / πd³
+        assert panel.fatigue_ref["load_ref"] == 350
+        panel.surface.setText("")
+        assert panel.compute_fatigue() is False and "β" in panel.fatigue_label.text()  # 不给缺省值
+        panel.surface.setText("0.92")
         panel.series_kind.setCurrentIndex(panel.series_kind.findData("mbd"))
         panel.mbd_joint.setText("j2")
         assert panel.compute_fatigue() is True and panel.fatigue["data"]["cycles_per_block"] >= 1
+        assert "参考应力" in panel.fatigue_label.text() and "45-QT" in panel.fatigue_label.text()
         panel.close()
     finally:
         FreeCAD.closeDocument(doc.Name)
