@@ -32,10 +32,13 @@ def _ids() -> dict[str, str]:
     return {_load(p).MODULE["id"]: p for p in MODULE_PATHS}
 
 
-def status(mod: ModuleType) -> dict:
-    """模块是否可用、缺什么、怎么装。"""
+def status(mod: ModuleType, setup: dict | None = None) -> dict:
+    """模块是否可用、缺什么、怎么装。模块可以按设置声明自己这次要的依赖（needs(setup)，例如多体动力学的新求解器不要 mujoco）。"""
     info = dict(mod.MODULE)
-    missing = [f"Python 包 {m}" for m in missing_python(info.get("python", []))]
+    needs = info.get("python", [])
+    if setup is not None and hasattr(mod, "needs"):
+        needs = mod.needs(setup)
+    missing = [f"Python 包 {m}" for m in missing_python(needs)]
     if "ccx" in info.get("solvers", []) and find_ccx() is None:
         missing.append("CalculiX 求解器 ccx（FreeCAD 自带；或设置环境变量 FAP_CCX）")
     if "openfoam" in info.get("solvers", []):
@@ -61,7 +64,7 @@ def get(module_id: str) -> ModuleType:
 def run(module_id: str, setup: dict) -> dict:
     """运行一个模块；依赖缺失时返回 failed 结果并说明缺什么。"""
     mod = get(module_id)
-    st = status(mod)
+    st = status(mod, setup)
     if not st["available"]:
         return result.failed(module_id, mod.MODULE.get("version", "1"), setup,
                              f"{st['name']} 不可用：缺 {'、'.join(st['missing'])}。{st['install']}")

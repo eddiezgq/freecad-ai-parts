@@ -108,7 +108,41 @@ def _downsample(xs, n=600):
     return [float(x) for x in xs[::step]]
 
 
+def needs(setup: Mapping) -> list[str]:
+    """新写法（ADR-0097：setup = {"model": mbd-model/1 模型}）只要 numpy、scipy；旧写法要 mujoco"""
+    if _is_model(setup):
+        return ["numpy", "scipy"]
+    return MODULE["python"]
+
+
+def _is_model(setup) -> bool:
+    m = setup.get("model") if isinstance(setup, Mapping) else None
+    return isinstance(m, Mapping) and m.get("format") == "mbd-model/1"
+
+
+def _run_model(setup: Mapping) -> dict:
+    """ADR-0097：模型（schema/mbd-model.schema.json）→ 自写的精确求解器（analysis/mbd/dae）"""
+    import scipy
+
+    from analysis.mbd.dae import model as dmodel
+    from analysis.mbd.dae import run as drun
+    from analysis.mbd.dae import solve as dsolve
+
+    t0 = time.time()
+    try:
+        data, messages = drun.run_model(setup["model"])
+    except (dmodel.ModelError, dsolve.SolveError) as exc:
+        return result.failed("mbd", MODULE["version"], setup, f"模型或计算有误：{exc}")
+    lim = ["刚体（D1）：构件不变形，运动副无间隙、无摩擦（摩擦、间隙在 ADR-0097 D2）",
+           "删掉的冗余约束方向上，运动副反力不唯一（与 ADAMS 相同），这些运动副的反力标为不完整"]
+    return result.make("mbd", MODULE["version"], setup, data, limitations=lim, messages=messages,
+                       solver={"name": "问渠多体求解器（绝对坐标 + 坐标分块，ADR-0097 D1；scipy 积分器）",
+                               "version": scipy.__version__}, elapsed_s=time.time() - t0)
+
+
 def run(setup: dict) -> dict:
+    if _is_model(setup):
+        return _run_model(setup)
     from analysis.mbd import core, mechanisms
 
     t0 = time.time()
