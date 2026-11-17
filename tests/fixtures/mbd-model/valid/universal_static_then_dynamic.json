@@ -1,0 +1,128 @@
+{
+ "instance": {
+  "format": "mbd-model/1",
+  "name": "万向节",
+  "bodies": [
+   {
+    "id": "a",
+    "mass_kg": 0.3,
+    "cm_mm": [
+     50,
+     0,
+     0
+    ],
+    "inertia_kg_m2": {
+     "ixx": 0.0001,
+     "iyy": 0.0001,
+     "izz": 0.0001,
+     "ixy": 0,
+     "ixz": 0,
+     "iyz": 0
+    }
+   },
+   {
+    "id": "b",
+    "mass_kg": 0.3,
+    "cm_mm": [
+     150,
+     0,
+     0
+    ],
+    "inertia_kg_m2": {
+     "ixx": 0.0001,
+     "iyy": 0.0001,
+     "izz": 0.0001
+    }
+   }
+  ],
+  "joints": [
+   {
+    "id": "u",
+    "type": "universal",
+    "body_i": "a",
+    "body_j": "b",
+    "point_mm": [
+     100,
+     0,
+     0
+    ],
+    "axis_i": [
+     0,
+     1,
+     0
+    ],
+    "axis_j": [
+     0,
+     0,
+     1
+    ]
+   },
+   {
+    "id": "r1",
+    "type": "revolute",
+    "body_i": "ground",
+    "body_j": "a",
+    "point_mm": [
+     0,
+     0,
+     0
+    ],
+    "axis": [
+     1,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "c",
+    "type": "cylindrical",
+    "body_i": "ground",
+    "body_j": "b",
+    "point_mm": [
+     200,
+     0,
+     0
+    ],
+    "axis": [
+     1,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "f",
+    "type": "fixed",
+    "body_i": "ground",
+    "body_j": "b",
+    "point_mm": [
+     200,
+     0,
+     0
+    ]
+   }
+  ],
+  "motions": [
+   {
+    "id": "m",
+    "joint": "r1",
+    "dof": "rotation",
+    "function": "360*time"
+   }
+  ],
+  "forces": [
+   {
+    "id": "t",
+    "type": "torque",
+    "body": "b",
+    "frame": "body",
+    "tx_n_m": 1.5
+   }
+  ],
+  "analysis": {
+   "type": "static_then_dynamic",
+   "end_time_s": 0.5,
+   "integrator": "Radau",
+   "rtol": 1e-08
+  }
+ }
+}

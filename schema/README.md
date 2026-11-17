@@ -20,6 +20,7 @@
 | `analysis-result.schema.json` | 分析模块一次计算的结果外壳（设置、数据、核对、局限）；见 [ADR-0056](../docs/adr/0056-local-analysis-modules.md) | M10 |
 | `material.schema.json` | 分析模块用的材料性能（标准单位，每条注明出处） ；见 ADR-0056 | M10 |
 | `fea-study.schema.json` | 有限元算例：实体与材料、支承与载荷、分析步、网格、可信度核查、起草来源；见 [ADR-0093](../docs/adr/0093-fea-industrial.md) | M37 F1 |
+| `mbd-model.schema.json` | 多体动力学模型：构件、运动副、驱动、力元、测量、分析；见 [ADR-0096](../docs/adr/0096-mbd-industrial.md) | M39 D1 |
 
 ## 约定
 

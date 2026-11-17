@@ -1,0 +1,603 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/mbd-model.schema.json",
+  "title": "多体动力学模型",
+  "description": "多体动力学模块（ADR-0096）的一个模型：构件、运动副、驱动、力元、测量、分析。单位只用 mm、kg、kg·m²、s、°、N、N·m（字段名带单位后缀）。位置、方向都写装配好时（t = 0）在地面坐标系里的值；构件坐标系在 t = 0 时与地面坐标系同向、原点在质心。D1：刚体；固定、转动、移动、圆柱、球、万向副；运动副驱动；重力、恒定或函数的力与力矩、点对点弹簧阻尼；运动学、动力学、静平衡。后续各段扩充时另写 ADR 补充并单独改本文件。",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "mbd-model/1"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "gravity_mm_s2": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3,
+      "description": "重力加速度向量（mm/s²），例如 [0, 0, -9810]；不写则没有重力"
+    },
+    "bodies": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 200,
+      "description": "构件（刚体）。地面不用写，id 固定为 ground",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "mass_kg": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "cm_mm": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "质心位置（地面坐标系，t = 0）"
+          },
+          "inertia_kg_m2": {
+            "type": "object",
+            "description": "对质心、沿地面坐标轴（t = 0）的惯性张量的分量：ixx、iyy、izz 是对角元；ixy、ixz、iyz 是张量的非对角元本身（= −∫xy dm 等）",
+            "properties": {
+              "ixx": {
+                "type": "number"
+              },
+              "iyy": {
+                "type": "number"
+              },
+              "izz": {
+                "type": "number"
+              },
+              "ixy": {
+                "type": "number"
+              },
+              "ixz": {
+                "type": "number"
+              },
+              "iyz": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "ixx",
+              "iyy",
+              "izz"
+            ],
+            "additionalProperties": false
+          },
+          "v0_mm_s": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "质心初速度（可选；与运动副不相容的部分由程序按最小改动修正）"
+          },
+          "w0_deg_s": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "初角速度（地面坐标系，可选）"
+          },
+          "source": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "质量、惯量的出处（几何 + 材料算的写算法与材料 id）"
+          }
+        },
+        "required": [
+          "id",
+          "mass_kg",
+          "cm_mm",
+          "inertia_kg_m2"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "joints": {
+      "type": "array",
+      "maxItems": 500,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "type": {
+            "enum": [
+              "fixed",
+              "revolute",
+              "translational",
+              "cylindrical",
+              "spherical",
+              "universal"
+            ]
+          },
+          "body_i": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_\\-]{0,63}$",
+            "description": "构件 id；地面写 ground"
+          },
+          "body_j": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_\\-]{0,63}$",
+            "description": "构件 id；地面写 ground"
+          },
+          "point_mm": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "运动副中心（地面坐标系，t = 0）"
+          },
+          "axis": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "转动 / 移动 / 圆柱副的轴；万向副不用"
+          },
+          "axis_i": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "万向副：在 body_i 上的十字轴方向"
+          },
+          "axis_j": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "万向副：在 body_j 上的十字轴方向（与 axis_i 垂直）"
+          },
+          "initial_speed": {
+            "type": "number",
+            "description": "运动副初速度（可选）：转动副 °/s、移动副 mm/s；j 相对 i、沿 axis"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "body_i",
+          "body_j",
+          "point_mm"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "revolute",
+                    "translational",
+                    "cylindrical"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "axis"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "universal"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "axis_i",
+                "axis_j"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "motions": {
+      "type": "array",
+      "maxItems": 200,
+      "description": "运动副驱动：给定运动副的相对位移随时间的函数（j 相对 i）",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "joint": {
+            "$ref": "#/$defs/id"
+          },
+          "dof": {
+            "enum": [
+              "rotation",
+              "translation"
+            ],
+            "description": "转动副只能 rotation；移动副只能 translation；圆柱副两样都可"
+          },
+          "function": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "description": "位移随时间：rotation 是 °、translation 是 mm，t = 0 时的位置记为 0（相对装配位置）"
+          },
+          "speed": {
+            "type": "number",
+            "description": "匀速的简写：rotation 是 rpm、translation 是 mm/s（与 function 二选一）"
+          }
+        },
+        "required": [
+          "id",
+          "joint",
+          "dof"
+        ],
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "function"
+            ]
+          },
+          {
+            "required": [
+              "speed"
+            ]
+          }
+        ]
+      }
+    },
+    "forces": {
+      "type": "array",
+      "maxItems": 500,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "type": {
+                "const": "force"
+              },
+              "body": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_\\-]{0,63}$",
+                "description": "构件 id；地面写 ground"
+              },
+              "point_mm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "frame": {
+                "enum": [
+                  "ground",
+                  "body"
+                ],
+                "description": "分量所在坐标系：ground 地面坐标系（缺省）；body 随构件转"
+              },
+              "fx_n": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "description": "函数表达式（ADR-0096 第 3 条）：变量 time（s）；运算 + − × ÷ ^、括号；函数 sin cos tan asin acos atan atan2 sqrt exp log abs min max sign STEP STEP5 HAVSIN；常数 PI、DTOR、RTOD"
+                  }
+                ]
+              },
+              "fy_n": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "description": "函数表达式（ADR-0096 第 3 条）：变量 time（s）；运算 + − × ÷ ^、括号；函数 sin cos tan asin acos atan atan2 sqrt exp log abs min max sign STEP STEP5 HAVSIN；常数 PI、DTOR、RTOD"
+                  }
+                ]
+              },
+              "fz_n": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "description": "函数表达式（ADR-0096 第 3 条）：变量 time（s）；运算 + − × ÷ ^、括号；函数 sin cos tan asin acos atan atan2 sqrt exp log abs min max sign STEP STEP5 HAVSIN；常数 PI、DTOR、RTOD"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "body",
+              "point_mm"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "type": {
+                "const": "torque"
+              },
+              "body": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_\\-]{0,63}$",
+                "description": "构件 id；地面写 ground"
+              },
+              "frame": {
+                "enum": [
+                  "ground",
+                  "body"
+                ]
+              },
+              "tx_n_m": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "description": "函数表达式（ADR-0096 第 3 条）：变量 time（s）；运算 + − × ÷ ^、括号；函数 sin cos tan asin acos atan atan2 sqrt exp log abs min max sign STEP STEP5 HAVSIN；常数 PI、DTOR、RTOD"
+                  }
+                ]
+              },
+              "ty_n_m": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "description": "函数表达式（ADR-0096 第 3 条）：变量 time（s）；运算 + − × ÷ ^、括号；函数 sin cos tan asin acos atan atan2 sqrt exp log abs min max sign STEP STEP5 HAVSIN；常数 PI、DTOR、RTOD"
+                  }
+                ]
+              },
+              "tz_n_m": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "description": "函数表达式（ADR-0096 第 3 条）：变量 time（s）；运算 + − × ÷ ^、括号；函数 sin cos tan asin acos atan atan2 sqrt exp log abs min max sign STEP STEP5 HAVSIN；常数 PI、DTOR、RTOD"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "body"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "type": {
+                "const": "spring_damper"
+              },
+              "body_i": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_\\-]{0,63}$",
+                "description": "构件 id；地面写 ground"
+              },
+              "point_i_mm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "body_j": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_\\-]{0,63}$",
+                "description": "构件 id；地面写 ground"
+              },
+              "point_j_mm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "stiffness_n_per_mm": {
+                "type": "number",
+                "minimum": 0
+              },
+              "damping_n_s_per_mm": {
+                "type": "number",
+                "minimum": 0
+              },
+              "free_length_mm": {
+                "type": "number",
+                "minimum": 0,
+                "description": "自由长度；不写则取 t = 0 时两点距离"
+              },
+              "preload_n": {
+                "type": "number",
+                "description": "自由长度时的力（拉为正）"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "body_i",
+              "point_i_mm",
+              "body_j",
+              "point_j_mm",
+              "stiffness_n_per_mm"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "requests": {
+      "type": "array",
+      "maxItems": 200,
+      "description": "要记录的量（运动副反力、驱动力矩、能量总是记录）",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "type": {
+            "enum": [
+              "point"
+            ]
+          },
+          "body": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_\\-]{0,63}$",
+            "description": "构件 id；地面写 ground"
+          },
+          "point_mm": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "body",
+          "point_mm"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "kinematic",
+            "dynamic",
+            "static",
+            "static_then_dynamic"
+          ]
+        },
+        "end_time_s": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 3600
+        },
+        "output_steps": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
+        },
+        "integrator": {
+          "enum": [
+            "DOP853",
+            "Radau",
+            "BDF"
+          ],
+          "description": "动力学积分器（缺省 DOP853；刚性问题用 Radau 或 BDF）"
+        },
+        "rtol": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 0.01
+        },
+        "atol": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 0.01
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "模型来源（手写 / FreeCAD 装配 / AI 起草后人确认……）"
+    }
+  },
+  "required": [
+    "format",
+    "name",
+    "bodies",
+    "analysis"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_\\-]{0,63}$",
+      "not": {
+        "const": "ground"
+      }
+    }
+  }
+}

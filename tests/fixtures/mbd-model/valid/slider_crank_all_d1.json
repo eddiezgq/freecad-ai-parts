@@ -1,0 +1,167 @@
+{
+ "instance": {
+  "format": "mbd-model/1",
+  "name": "曲柄滑块",
+  "bodies": [
+   {
+    "id": "crank",
+    "mass_kg": 0.2,
+    "cm_mm": [
+     20,
+     0,
+     0
+    ],
+    "inertia_kg_m2": {
+     "ixx": 1e-06,
+     "iyy": 3e-05,
+     "izz": 3e-05
+    }
+   },
+   {
+    "id": "rod",
+    "mass_kg": 0.5,
+    "cm_mm": [
+     110,
+     0,
+     0
+    ],
+    "inertia_kg_m2": {
+     "ixx": 1e-06,
+     "iyy": 0.0008,
+     "izz": 0.0008
+    }
+   },
+   {
+    "id": "slider",
+    "mass_kg": 1.0,
+    "cm_mm": [
+     180,
+     0,
+     0
+    ],
+    "inertia_kg_m2": {
+     "ixx": 0.0001,
+     "iyy": 0.0001,
+     "izz": 0.0001
+    }
+   }
+  ],
+  "joints": [
+   {
+    "id": "j1",
+    "type": "revolute",
+    "body_i": "ground",
+    "body_j": "crank",
+    "point_mm": [
+     0,
+     0,
+     0
+    ],
+    "axis": [
+     0,
+     0,
+     1
+    ]
+   },
+   {
+    "id": "j2",
+    "type": "revolute",
+    "body_i": "crank",
+    "body_j": "rod",
+    "point_mm": [
+     40,
+     0,
+     0
+    ],
+    "axis": [
+     0,
+     0,
+     1
+    ]
+   },
+   {
+    "id": "j3",
+    "type": "spherical",
+    "body_i": "rod",
+    "body_j": "slider",
+    "point_mm": [
+     180,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "j4",
+    "type": "translational",
+    "body_i": "ground",
+    "body_j": "slider",
+    "point_mm": [
+     180,
+     0,
+     0
+    ],
+    "axis": [
+     1,
+     0,
+     0
+    ]
+   }
+  ],
+  "motions": [
+   {
+    "id": "m1",
+    "joint": "j1",
+    "dof": "rotation",
+    "speed": 60
+   }
+  ],
+  "forces": [
+   {
+    "id": "load",
+    "type": "force",
+    "body": "slider",
+    "point_mm": [
+     180,
+     0,
+     0
+    ],
+    "fx_n": "-200*STEP(time,0,0,0.1,1)"
+   },
+   {
+    "id": "k1",
+    "type": "spring_damper",
+    "body_i": "ground",
+    "point_i_mm": [
+     250,
+     0,
+     0
+    ],
+    "body_j": "slider",
+    "point_j_mm": [
+     180,
+     0,
+     0
+    ],
+    "stiffness_n_per_mm": 2,
+    "damping_n_s_per_mm": 0.01
+   }
+  ],
+  "requests": [
+   {
+    "id": "P",
+    "type": "point",
+    "body": "rod",
+    "point_mm": [
+     110,
+     0,
+     0
+    ]
+   }
+  ],
+  "analysis": {
+   "type": "kinematic",
+   "end_time_s": 1,
+   "output_steps": 100
+  }
+ }
+}

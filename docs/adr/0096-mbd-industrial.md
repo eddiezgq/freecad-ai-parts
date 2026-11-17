@@ -72,3 +72,17 @@
 - 新 schema 一份（单独 PR）；`analysis/mbd` 增加 `dae/` 子包，旧接口保留。
 - 依赖不增加（numpy、scipy 已有；mujoco 照旧可选）。
 - 问渠数字工厂的多体页面之后另开问渠轮次改为调用新内核。
+
+## 补充一：模型 schema 第一版（D1，2026-11-17）
+
+`schema/mbd-model.schema.json`（format = `mbd-model/1`）：
+
+- 单位：长度 mm、质量 kg、惯量 kg·m²、时间 s、角度 °、力 N、力矩 N·m、刚度 N/mm、阻尼 N·s/mm；字段名带单位后缀。求解器内部用 SI，换算只在模型读入处。
+- 位置、方向都写装配好时（t = 0）在地面坐标系里的值；构件坐标系 t = 0 时与地面同向、原点在质心（以后 D5 从装配建模时加构件姿态字段）。
+  惯性张量对质心、沿地面轴；ixy、ixz、iyz 写张量的非对角元本身（= −∫xy dm 等）。
+- 运动副：fixed、revolute、translational、cylindrical、spherical、universal；一律用“中心点 + 轴”描述，程序在两个构件上各建标记点坐标系。
+- 驱动：运动副相对位移的函数（rotation 是 °、translation 是 mm，t = 0 记为 0），或匀速简写（rpm、mm/s）。
+- 力元：力（作用点、地面或构件坐标系）、力矩、点对点弹簧阻尼；分量可以是数或函数表达式。
+- 分析：kinematic（自由度为 0 时，逆动力学出驱动力矩与反力）、dynamic、static、static_then_dynamic；积分器 DOP853 / Radau / BDF，容差可写。
+- 测量：构件上一点的位置、速度、加速度；运动副反力、驱动力矩、能量总是输出。
+- 地面构件 id 固定为 `ground`，其他构件不能用这个 id。
