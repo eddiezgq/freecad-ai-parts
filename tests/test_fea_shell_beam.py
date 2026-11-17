@@ -16,6 +16,7 @@ import math
 import pytest
 
 from tests.test_fea_bench import _need_fea, _write
+from tests.verification import record, record_verdict
 
 MAT = "45-QT"
 
@@ -62,6 +63,8 @@ def test_cantilever_tip_load(tmp_path, section):
     I = sp["i1_mm4"]                                                  # 绕局部 1 轴（y）弯：高度沿 z
     c = (section.get("height_mm") or section.get("diameter_mm") or section.get("outer_diameter_mm")) / 2
     eb = Pn * L ** 3 / (3 * E * I)
+    record((f"端部挠度（{section['shape']} 截面）", f"tip deflection ({section['shape']} section)"), s["u_max_mm"], eb, tol=0.025,
+           unit="mm", formula="PL³/(3EI) (Euler–Bernoulli)")
     assert s["u_max_mm"] == pytest.approx(eb, rel=0.025)             # Euler–Bernoulli：差的主要是剪切变形（短粗梁）
     if section is RECT:                                               # Timoshenko 梁（矩形截面剪切系数 κ = 5/6）
         shear = Pn * L / (5 / 6 * E / (2 * (1 + nu)) * sp["area_mm2"])
@@ -94,10 +97,14 @@ def test_cantilever_self_weight_and_first_frequency(tmp_path):
     r = run_study(st)
     assert r["status"] == "ok", r["messages"]
     w = rho * sp["area_mm2"] * 9806.65                                # N/mm
+    record(("自重端部挠度", "tip deflection under self-weight"), r["data"]["steps"][0]["u_max_mm"], w * L ** 4 / (8 * E * sp["i1_mm4"]),
+           tol=0.01, unit="mm", formula="wL⁴/(8EI)")
     assert r["data"]["steps"][0]["u_max_mm"] == pytest.approx(w * L ** 4 / (8 * E * sp["i1_mm4"]), rel=0.01)
     bal = r["data"]["steps"][0]["balance"]
     assert bal["applied_n"][2] == pytest.approx(-w * L, rel=1e-6)
     f_weak = 1.875104 ** 2 / L ** 2 * math.sqrt(E * sp["i2_mm4"] / (rho * sp["area_mm2"])) / (2 * math.pi)
+    record(("梁一阶固有频率", "beam first natural frequency"), r["data"]["steps"][1]["freqs"][0]["hz"], f_weak, tol=0.01, unit="Hz",
+           formula="(1.875104²/L²)·√(EI/(ρA))/(2π)")
     assert r["data"]["steps"][1]["freqs"][0]["hz"] == pytest.approx(f_weak, rel=0.01)
 
 
@@ -125,6 +132,8 @@ def test_simply_supported_plate(tmp_path):
                                                                                                 "n_modes": 1}]), keep_dir=str(keep))
     assert r["status"] == "ok", r["messages"]
     s = r["data"]["steps"][0]
+    record(("方板中点挠度", "plate centre deflection"), s["u_max_mm"], 0.00406 * q * a ** 4 / D, tol=0.02, unit="mm",
+           formula="α·q·a⁴/D, α = 0.00406")
     assert s["u_max_mm"] == pytest.approx(0.00406 * q * a ** 4 / D, rel=0.02)
     assert s["u_max_at"][:2] == pytest.approx([100, 100], abs=1.0)
     disp, stress = read_frd(keep / "s1" / "job.frd")
@@ -142,6 +151,9 @@ def test_simply_supported_plate(tmp_path):
     # 四边铰支方板的角点：最大应力随网格加密一直增大——程序判“疑似奇异点”，不给安全系数
     assert items["网格收敛（最大应力）"] == "fail" and s["safety_factor"] is None
     f11 = math.pi / 2 * (2 / a ** 2) * math.sqrt(D / (rho * t))
+    record(("方板一阶固有频率", "plate first natural frequency"), r["data"]["steps"][1]["freqs"][0]["hz"], f11, tol=0.02, unit="Hz",
+           formula="(π/2)·(2/a²)·√(D/(ρt))")
+    record_verdict(("角点应力收敛核查（应判不收敛）", "corner stress convergence (must fail)"), items["网格收敛（最大应力）"], "fail")
     assert r["data"]["steps"][1]["freqs"][0]["hz"] == pytest.approx(f11, rel=0.02)
 
 
@@ -241,4 +253,6 @@ def test_frame_segments_are_joined(tmp_path):
     EI = E * math.pi * (do ** 4 - (do - 2 * t) ** 4) / 64
     v = P * a ** 3 / (3 * EI) + P * a ** 2 * h / EI
     u = P * a * h ** 2 / (2 * EI)
+    record(("L 形框架端部合位移", "L-frame tip resultant displacement"), r["data"]["steps"][0]["u_max_mm"], math.hypot(v, u), tol=0.03,
+           unit="mm", formula="√(v² + u²), v = Pa³/(3EI) + Pa²h/(EI), u = Pah²/(2EI)")
     assert r["data"]["steps"][0]["u_max_mm"] == pytest.approx(math.hypot(v, u), rel=0.03)

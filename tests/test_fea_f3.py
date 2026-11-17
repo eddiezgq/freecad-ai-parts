@@ -18,6 +18,7 @@ import pytest
 
 import analysis
 from tests.test_fea_bench import _faces, _need_fea, _plane, _write
+from tests.verification import record
 
 STEEL = "45-QT"
 
@@ -61,6 +62,8 @@ def test_bonded_bars_with_mismatched_meshes(tmp_path):
                [{"type": "bonded", "a": {"body": "B", "faces": [_plane(fb, 0, 50)]}, "b": {"body": "A", "faces": [_plane(fa, 0, 50)]}}],
                7.0, probes=[{"id": "pa", "point_mm": [25, 10, 10]}, {"id": "pb", "point_mm": [75, 10, 10]},
                             {"id": "tip", "point_mm": [100, 10, 10]}])
+    record(("绑定后杆端伸长", "elongation of the bonded bars"), _probe(s, "tip")["u_mm"][0],
+           sig * 100 / _mat()["elastic_modulus_mpa"], tol=0.005, unit="mm", formula="ΔL = σL/E")
     assert _probe(s, "pa")["stress_mpa"]["xx"] == pytest.approx(sig, rel=0.005)
     assert _probe(s, "pb")["stress_mpa"]["xx"] == pytest.approx(sig, rel=0.005)
     assert _probe(s, "tip")["u_mm"][0] == pytest.approx(sig * 100 / _mat()["elastic_modulus_mpa"], rel=0.005)
@@ -94,6 +97,10 @@ def test_press_fit_contact_pressure(tmp_path):
         pr = _probe(s, pid)["stress_mpa"]
         return pr["xx"] * math.sin(th) ** 2 + pr["yy"] * math.cos(th) ** 2 - 2 * pr["xy"] * math.sin(th) * math.cos(th)
     # 内环内壁 σθ = −2pb²/(b² − a²)，外环外壁 σθ = 2pb²/(c² − b²)：两处都在自由表面上，探针不会取到另一个零件的节点
+    record(("内环内壁环向应力", "hoop stress at inner ring bore"), hoop("in"), -2 * p * b * b / (b * b - a * a), tol=0.03,
+           unit="MPa", formula="σθ = −2pb²/(b² − a²) (Lamé)")
+    record(("接触压力", "contact pressure"), s["contact"]["max_pressure_mpa"], p, tol=0.05, unit="MPa",
+           formula="p = Eδ/b · (b² − a²)(c² − b²)/(2b²(c² − a²))")
     assert hoop("in") == pytest.approx(-2 * p * b * b / (b * b - a * a), rel=0.03)
     assert hoop("out") == pytest.approx(2 * p * b * b / (c * c - b * b), rel=0.03)
     assert s["contact"]["max_pressure_mpa"] == pytest.approx(p, rel=0.05)
@@ -112,6 +119,8 @@ def test_friction_sliding_force_is_mu_n(tmp_path):
                [{"type": "contact", "a": {"body": "blk", "faces": [_plane(fk, 2, 10)]}, "b": {"body": "base", "faces": [_plane(fb, 2, 10)]},
                  "friction_coefficient": mu}], 4.0)
     pull = next(r for r in s["support_reactions"] if r["type"] == "displacement")
+    record(("滑动摩擦力", "sliding friction force"), abs(pull["force_n"][0]), mu * p * 40 * 20, tol=0.02, unit="N",
+           formula="F = μN (Coulomb)")
     assert abs(pull["force_n"][0]) == pytest.approx(mu * p * 40 * 20, rel=0.02)
 
 
@@ -126,6 +135,8 @@ def test_bolt_preload_in_fixed_bar(tmp_path):
     bolt = s["bolts"][0]
     assert bolt["force_n"] == pytest.approx(F, rel=1e-3)
     assert bolt["section_area_mm2"] == pytest.approx(math.pi * 25, rel=0.02)
+    record(("螺栓杆应力", "bolt shank stress"), _probe(s, "m")["stress_mpa"]["zz"], F / (math.pi * 25), tol=0.02, unit="MPa",
+           formula="σ = F/A")
     assert _probe(s, "m")["stress_mpa"]["zz"] == pytest.approx(F / (math.pi * 25), rel=0.02)
 
 
@@ -152,4 +163,6 @@ def test_bolted_joint_load_factor(tmp_path):
     kb, kc = math.pi * rb ** 2, math.pi * (ro ** 2 - ri ** 2)          # 同材料、同长度：刚度比 = 面积比
     phi = kb / (kb + kc)
     got = s["bolts"][0]["force_n"]
+    record(("外载使螺栓力增加的部分", "bolt force increase from external load"), got - F0, phi * Pext, tol=0.05, unit="N",
+           formula="ΔF = Φ·P, Φ = kb/(kb + kc) (VDI 2230)")
     assert got - F0 == pytest.approx(phi * Pext, rel=0.05), (got, phi)

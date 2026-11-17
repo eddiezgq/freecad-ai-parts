@@ -8,6 +8,7 @@ import pytest
 import analysis
 from analysis.fea import study as S
 from tests.test_fea_bench import _faces, _need_fea, _plane, _write
+from tests.verification import record
 
 
 def _cantilever(tmp_path):
@@ -35,6 +36,8 @@ def test_combination_equals_superposition(tmp_path):
     assert r["status"] == "ok", r["messages"]
     s = {x["id"]: x for x in r["data"]["steps"]}
     u = {k: s[k]["probes"][0]["u_mm"] for k in s}
+    record(("组合 C1 的竖向位移（与叠加比）", "combination C1 vertical displacement (vs superposition)"), u["C1"][2],
+           1.35 * u["g"][2] + 1.5 * u["w"][2], tol=1e-4, unit="mm", formula="1.35·u_g + 1.5·u_w")
     for i in range(3):
         assert u["C1"][i] == pytest.approx(1.35 * u["g"][i] + 1.5 * u["w"][i], rel=1e-4, abs=1e-9)
         assert u["C2"][i] == pytest.approx(u["g"][i] + u["w"][i] + u["e"][i], rel=1e-4, abs=1e-9)

@@ -22,6 +22,7 @@ import pytest
 import analysis
 from analysis.fea import study as S
 from tests.test_fea_bench import _faces, _need_fea, _plane, _write
+from tests.verification import record, record_verdict
 
 STEEL = "45-QT"
 E, NU, SY = 210000.0, 0.30, 355.0           # 45-QT（材料库）
@@ -64,6 +65,7 @@ def test_euler_column_buckling(tmp_path):
              [{"id": "b", "type": "buckling", "n_modes": 2}], 5.0)
     pcr = math.pi ** 2 * E * (10 ** 4 / 12) / (4 * 200 ** 2)
     assert s["type"] == "buckling" and len(s["load_factors"]) == 2
+    record(("临界载荷", "critical load"), s["load_factors"][0] * 1000, pcr, tol=0.01, unit="N", formula="P = π²EI/(4L²)")
     assert s["load_factors"][0] * 1000 == pytest.approx(pcr, rel=0.01)
     assert s["load_factors"][1] == pytest.approx(s["load_factors"][0], rel=0.01)      # 方截面：两个方向同一个值
     assert s["buckles_under_reference_load"] is False
@@ -86,6 +88,8 @@ def test_simply_supported_plate_buckling(tmp_path):
              {"type": "force", "body": "p", "faces": [_plane(f, 0, 0)], "vector_n": [sig * a * t, 0, 0]}]
     s = _run([_body("p", step)], sup, loads, [{"id": "b", "type": "buckling", "n_modes": 1}], 2.5)
     scr = 4 * math.pi ** 2 * E / (12 * (1 - NU ** 2)) * (t / a) ** 2
+    record(("临界应力", "critical stress"), s["load_factors"][0] * sig, scr, tol=0.03, unit="MPa",
+           formula="σ = kπ²E/(12(1 − ν²))·(t/b)², k = 4")
     assert s["load_factors"][0] * sig == pytest.approx(scr, rel=0.03)
 
 
@@ -135,6 +139,8 @@ def test_perfectly_plastic_bar_plateau(tmp_path):
     s, hist = _bar(tmp_path, {"model": "perfectly_plastic"}, 0.5)           # 应变 0.5 %，约为屈服应变的 3 倍
     nl = s["nonlinear"]
     assert nl["completed"] and nl["plasticity"] and nl["increments"] >= 10
+    record(("屈服后反力平台", "reaction plateau after yield"), hist[-1], SY * 100, tol=0.005, unit="N", formula="F = σy·A")
+    record(("等效塑性应变", "equivalent plastic strain"), s["peeq_max"], 0.005 - SY / E, tol=0.01, formula="εp = ε − σy/E")
     assert hist[-1] == pytest.approx(SY * 100, rel=0.005)                     # 屈服后反力平台 = σy·A
     assert max(hist) <= SY * 100 * 1.005
     assert hist[0] == pytest.approx(E * nl["history"][0]["load_fraction"] * 0.5 / 100 * 100, rel=0.01)   # 第一个增量还在弹性段
@@ -150,6 +156,8 @@ def test_hardening_curve_bar(tmp_path):
              "points": [{"true_stress_mpa": s0, "plastic_strain": 0}, {"true_stress_mpa": s0 + h * 0.01, "plastic_strain": 0.01}]}
     s, hist = _bar(tmp_path, curve, 0.5)
     sig = (s0 + h * 0.005) / (1 + h / E)
+    record(("杆中应力", "bar stress"), s["probes"][0]["stress_mpa"]["xx"], sig, tol=0.005, unit="MPa",
+           formula="σ = σ0 + H·εp, εp = ε − σ/E")
     assert hist[-1] / 100 == pytest.approx(sig, rel=0.005)
     assert s["probes"][0]["stress_mpa"]["xx"] == pytest.approx(sig, rel=0.005)
     assert s["peeq_max"] == pytest.approx(0.005 - sig / E, rel=0.01)
@@ -173,6 +181,9 @@ def test_thick_cylinder_limit_pressure(tmp_path):
              [{"type": "pressure", "body": "r", "faces": [bore], "value_mpa": p}], [{"id": "s", "type": "static"}], 2.5)
     nl = s["nonlinear"]
     assert nl["completed"] is False
+    record(("极限压力", "limit pressure"), nl["load_fraction_reached"] * p, plim, tol=0.02, unit="MPa",
+           formula="p = (2/√3)·σy·ln(b/a) (Hill)")
+    record_verdict(("载荷加完（应判不通过）", "full load reached (must fail)"), _verdicts(s)["载荷加完"], "fail")
     assert nl["load_fraction_reached"] * p == pytest.approx(plim, rel=0.02)
     v = _verdicts(s)
     assert v["载荷加完"] == "fail" and v["反力平衡"] == "pass"               # 平衡按已加到的那一成载荷核对
@@ -196,6 +207,10 @@ def test_large_deflection_cantilever(tmp_path):
                  probes=[{"id": "tip", "point_mm": [L, b / 2, b / 2]}])
         return s, s["probes"][0]["u_mm"]
     s, u = tip(True)
+    record(("端部竖向位移 / L", "tip vertical displacement / L"), -u[2] / L, 0.30172, tol=0.01,
+           formula="Bisshopp & Drucker, PL²/EI = 1")
+    record(("端部水平缩进 / L", "tip horizontal shortening / L"), -u[0] / L, 0.05643, tol=0.03,
+           formula="Bisshopp & Drucker, PL²/EI = 1")
     assert -u[2] / L == pytest.approx(0.30172, rel=0.01)
     assert -u[0] / L == pytest.approx(0.05643, rel=0.03)
     assert s["nonlinear"]["large_deformation"] and s["nonlinear"]["completed"]
@@ -225,5 +240,7 @@ def test_hertz_sphere_on_flat(tmp_path):
     F = 4 * abs(next(r for r in s["support_reactions"] if r["type"] == "displacement")["force_n"][2])    # 四分之一模型
     es = E / (2 * (1 - NU ** 2))
     a = (3 * F * R / (4 * es)) ** (1 / 3)
+    record(("最大接触压力", "max contact pressure"), s["contact"]["max_pressure_mpa"], 3 * F / (2 * math.pi * a * a), tol=0.05,
+           unit="MPa", formula="p0 = 3F/(2πa²), a = (3FR/(4E*))^(1/3) (Hertz)")
     assert s["contact"]["max_pressure_mpa"] == pytest.approx(3 * F / (2 * math.pi * a * a), rel=0.05)
     assert _verdicts(s)["反力平衡"] == "pass"
