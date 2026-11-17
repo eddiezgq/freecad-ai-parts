@@ -52,7 +52,7 @@
           },
           "inertia_kg_m2": {
             "type": "object",
-            "description": "对质心、沿地面坐标轴（t = 0）的惯性张量；积的惯性矩按 Ixy = −∫xy dm 的约定（与 ADAMS 相同）",
+            "description": "对质心、沿地面坐标轴（t = 0）的惯性张量的分量：ixx、iyy、izz 是对角元；ixy、ixz、iyz 是张量的非对角元本身（= −∫xy dm 等）",
             "properties": {
               "ixx": {
                 "type": "number"
