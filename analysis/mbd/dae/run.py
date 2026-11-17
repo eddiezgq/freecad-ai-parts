@@ -1,4 +1,4 @@
-"""模型 → 分析 → 结果（对外单位）与核查（ADR-0097 D1）。"""
+"""模型 → 分析 → 结果（对外单位）与核查（ADR-0097 D1、D2）。"""
 
 from __future__ import annotations
 
@@ -51,13 +51,26 @@ def _series(rec, sysm):
             acc.append(((qdd[7 * b:7 * b + 3] + B_of(p, sv) @ pdd + B_of(pd, sv) @ pd) * 1000).tolist())
         reqs[r["id"]] = {"pos_mm": pos, "vel_mm_s": vel, "acc_mm_s2": acc}
     energy = {"kinetic_j": [e[0] for e in rec.energy], "potential_j": [e[1] for e in rec.energy]}
-    return out_b, joints, motions, reqs, energy
+    meas = {}
+    units = {"joint_angle": "deg", "joint_speed": "deg/s", "joint_displacement": "mm", "joint_velocity": "mm/s",
+             "point_distance": "mm", "point_distance_rate": "mm/s"}
+    if getattr(s, "measure_defs", None):
+        vals = [s.measures(q, qd) for q, qd in zip(rec.q, rec.qd, strict=True)]
+        for m in s.measure_defs:
+            meas[m["id"]] = {"type": m["type"], "unit": units[m["type"]], "values": [v[m["id"]] for v in vals]}
+    return out_b, joints, motions, reqs, energy, meas
 
 
 def _conservative(sysm) -> bool:
     if sysm.motions:
         return False
+    if any(info.get("friction") for info in sysm.joints.values()):
+        return False
     for kind, f in sysm.forces:
+        if kind in ("bushing", "beam", "clearance"):
+            return False          # 衬套、梁的阻尼和间隙碰撞耗能；势能也没单独算
+        if kind == "rspring" and (f["c"] > 0 or f["pre"]):
+            return False
         if kind == "spring" and f["c"] > 0:
             return False
         if kind in ("force", "torque"):
@@ -92,7 +105,7 @@ def run_model(model: dict):
     if info.get("redundant"):
         messages.append("删掉了 {} 条冗余约束（反力里这些方向的分量不唯一，标为不完整）：{}".format(
             len(info["redundant"]), "、".join(info["redundant"])))
-    bodies, joints, motions, reqs, energy = _series(rec, sysm)
+    bodies, joints, motions, reqs, energy, meas = _series(rec, sysm)
     resid = max(rec.resid) if rec.resid else 0.0
     verification = [{"key": "constraint_residual", "name": "约束残差（全部约束，含删掉的冗余约束）", "value": resid,
                      "limit": RESID_LIMIT_M, "status": PASS if resid <= RESID_LIMIT_M else FAIL}]
@@ -112,7 +125,7 @@ def run_model(model: dict):
                          "status": PASS if info["dof"] == dof_g + len(info.get("redundant", [])) else UNKNOWN,
                          "note": "雅可比秩算出的自由度 = Grübler 自由度 + 冗余约束数时通过；不等说明有奇异位形，请检查模型"})
     data = {"model": model["name"], "analysis": typ, "dof": info["dof"], "redundant_constraints": info.get("redundant", []),
-            "times_s": rec.t, "bodies": bodies, "joints": joints, "motions": motions, "requests": reqs, "energy": energy,
+            "times_s": rec.t, "bodies": bodies, "joints": joints, "motions": motions, "requests": reqs, "measures": meas, "energy": energy,
             "verification": verification,
             "solver": {k: info[k] for k in ("rhs", "segments", "repartitions") if k in info} | {"integrator": method, "rtol": rtol,
                                                                                                "atol": atol}}

@@ -8,7 +8,8 @@
 
 变量：time（s）。运算：+ − * / ^（或 **）、一元负号、括号。
 函数：sin cos tan asin acos atan atan2 sqrt exp log abs min max sign，
-     STEP(x, x0, h0, x1, h1)（三次过渡，ADAMS 同名函数）、STEP5（五次过渡）、HAVSIN（半正弦过渡）。
+     STEP(x, x0, h0, x1, h1)（三次过渡，ADAMS 同名函数）、STEP5（五次过渡）、HAVSIN（半正弦过渡）；
+     D2 起：IMPACT（单边接触力）、SPLINE(名, x)；力元里可用测量量的 id 当变量。
 常数：PI、DTOR（π/180）、RTOD（180/π）。函数名不分大小写。
 """
 
@@ -16,6 +17,8 @@ from __future__ import annotations
 
 import math
 import re
+
+import numpy as np
 
 
 class ExprError(ValueError):
@@ -205,9 +208,20 @@ def _blend(x, x0, h0, x1, h1, shape):
     return _chain(x, h0.v + dh * g, dh * g1 / w, dh * g2 / w ** 2)
 
 
+def _impact(x, xd, x1, k, e, cmax, d):
+    """IMPACT(x, ẋ, x1, k, e, cmax, d)：x < x1 时 max(0, k(x1 − x)^e − STEP(x, x1 − d, cmax, x1, 0)·ẋ)，否则 0（ADR-0097 补充三）"""
+    if x.v >= x1.v:
+        return Jet(0.0)
+    if k.v < 0 or e.v <= 0 or cmax.v < 0 or d.v <= 0:
+        raise ExprError("IMPACT 要 k ≥ 0、e > 0、cmax ≥ 0、d > 0")
+    f = k * _pow(x1 - x, e) - _step(x, x1 - d, cmax, x1, Jet(0.0)) * xd
+    return f if f.v > 0 else Jet(0.0)
+
+
 FUNCS = {"sin": (1, _sin), "cos": (1, _cos), "tan": (1, _tan), "asin": (1, _asin), "acos": (1, _acos), "atan": (1, _atan),
          "atan2": (2, _atan2), "sqrt": (1, _sqrt), "exp": (1, _exp), "log": (1, _log), "abs": (1, _abs), "sign": (1, _sign),
-         "min": (2, _min), "max": (2, _max), "step": (5, _step), "step5": (5, _step5), "havsin": (5, _havsin)}
+         "min": (2, _min), "max": (2, _max), "step": (5, _step), "step5": (5, _step5), "havsin": (5, _havsin),
+         "impact": (7, _impact)}
 CONSTS = {"pi": math.pi, "dtor": math.pi / 180, "rtod": 180 / math.pi}
 TOKEN = re.compile(r"\s*(?:(\d+\.?\d*(?:[eE][+-]?\d+)?|\.\d+(?:[eE][+-]?\d+)?)|([A-Za-z_][A-Za-z0-9_]*)|(\*\*|[-+*/^(),]))")
 
@@ -229,8 +243,10 @@ def _tokens(src: str):
 class _Parser:
     """递归下降：expr = term {(+|−) term}；term = unary {(*|/) unary}；unary = [−|+] power；power = atom [^ unary]"""
 
-    def __init__(self, src):
+    def __init__(self, src, variables=(), splines=None):
         self.t, self.i = _tokens(src), 0
+        self.vars = {v.lower() for v in variables}
+        self.splines = {k.lower(): v for k, v in (splines or {}).items()}
 
     def peek(self):
         return self.t[self.i]
@@ -294,6 +310,17 @@ class _Parser:
                 return ("time",)
             if v in CONSTS:
                 return ("num", CONSTS[v])
+            if v == "spline":
+                self.take("op", "(")
+                name = self.take("name")
+                if name not in self.splines:
+                    raise ExprError(f"没有样条 {name}")
+                self.take("op", ",")
+                arg = self.expr()
+                self.take("op", ")")
+                return ("spline", self.splines[name], arg)
+            if v in self.vars:
+                return ("var", v)
             if v in FUNCS:
                 n, _ = FUNCS[v]
                 self.take("op", "(")
@@ -309,17 +336,23 @@ class _Parser:
         raise ExprError(f"这里不该出现 {v!r}")
 
 
-def _eval(node, t: Jet) -> Jet:
+def _eval(node, t: Jet, env=None) -> Jet:
     k = node[0]
     if k == "num":
         return Jet(node[1])
     if k == "time":
         return t
+    if k == "var":
+        if env is None or node[1] not in env:
+            raise ExprError(f"测量量 {node[1]} 在这里不能用")
+        return Jet.of(env[node[1]])
     if k == "neg":
-        return -_eval(node[1], t)
+        return -_eval(node[1], t, env)
     if k == "call":
-        return FUNCS[node[1]][1](*[_eval(a, t) for a in node[2]])
-    a, b = _eval(node[1], t), _eval(node[2], t)
+        return FUNCS[node[1]][1](*[_eval(a, t, env) for a in node[2]])
+    if k == "spline":
+        return node[1].jet(_eval(node[2], t, env))
+    a, b = _eval(node[1], t, env), _eval(node[2], t, env)
     if k == "+":
         return a + b
     if k == "-":
@@ -332,31 +365,55 @@ def _eval(node, t: Jet) -> Jet:
 
 
 class Expr:
-    def __init__(self, src: str):
+    def __init__(self, src: str, variables=(), splines=None):
         self.src = src
-        self.tree = _Parser(src).parse()
-        self.constant = not _uses_time(self.tree)
+        self.tree = _Parser(src, variables, splines).parse()
+        self.uses_vars = _uses(self.tree, "var")
+        self.constant = not _uses(self.tree, "time") and not self.uses_vars
 
-    def jet(self, t: float):
-        j = _eval(self.tree, Jet(t, 1.0, 0.0))
+    def jet(self, t: float, env=None):
+        j = _eval(self.tree, Jet(t, 1.0, 0.0), env)
         return j.v, j.d, j.dd
 
-    def __call__(self, t: float) -> float:
-        return _eval(self.tree, Jet(t, 1.0, 0.0)).v
+    def __call__(self, t: float, env=None) -> float:
+        return _eval(self.tree, Jet(t, 1.0, 0.0), env).v
 
 
-def _uses_time(node) -> bool:
-    if node[0] == "time":
+def _uses(node, kind) -> bool:
+    if node[0] == kind:
         return True
     if node[0] == "call":
-        return any(_uses_time(a) for a in node[2])
-    return any(_uses_time(x) for x in node[1:] if isinstance(x, tuple))
+        return any(_uses(a, kind) for a in node[2])
+    if node[0] == "spline":
+        return _uses(node[2], kind)
+    return any(_uses(x, kind) for x in node[1:] if isinstance(x, tuple))
 
 
-def compile_expr(src) -> Expr:
-    """数或表达式文字 → Expr（数也包成常数表达式）"""
+class Spline:
+    """样条（三次非扭结 / Akima / 线性），射流用它的一、二阶导数"""
+
+    def __init__(self, x, y, method="cubic"):
+        from scipy.interpolate import Akima1DInterpolator, CubicSpline, make_interp_spline
+
+        x, y = np.asarray(x, float), np.asarray(y, float)
+        if x.shape != y.shape or x.size < 2 or np.any(np.diff(x) <= 0):
+            raise ExprError("样条的 x 要严格递增、与 y 一样多、至少 2 个点")
+        if method == "linear" or x.size < 4:
+            self.f = make_interp_spline(x, y, k=1)
+        elif method == "akima":
+            self.f = Akima1DInterpolator(x, y, extrapolate=True)
+        else:
+            self.f = CubicSpline(x, y, bc_type="not-a-knot")
+        self.d1, self.d2 = self.f.derivative(1), self.f.derivative(2)
+
+    def jet(self, x: Jet) -> Jet:
+        return _chain(x, float(self.f(x.v)), float(self.d1(x.v)), float(self.d2(x.v)))
+
+
+def compile_expr(src, variables=(), splines=None) -> Expr:
+    """数或表达式文字 → Expr（数也包成常数表达式）；variables：可用的测量量名；splines：名 → Spline"""
     if isinstance(src, (int, float)):
         return Expr(repr(float(src)))
     if not isinstance(src, str):
         raise ExprError("表达式要是文字或数")
-    return Expr(src)
+    return Expr(src, variables, splines)
