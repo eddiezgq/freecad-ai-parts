@@ -1,0 +1,56 @@
+{
+ "why": "梁要写截面",
+ "instance": {
+  "format": "fea-study/1",
+  "name": "cantilever",
+  "bodies": [
+   {
+    "id": "b",
+    "step_path": "beam.step",
+    "material": "S235",
+    "kind": "beam"
+   }
+  ],
+  "supports": [
+   {
+    "type": "fixed",
+    "body": "b",
+    "vertices": [
+     1
+    ]
+   }
+  ],
+  "loads": [
+   {
+    "type": "force",
+    "body": "b",
+    "vertices": [
+     2
+    ],
+    "vector_n": [
+     0,
+     0,
+     -100
+    ]
+   },
+   {
+    "type": "force",
+    "body": "b",
+    "edges": [
+     1
+    ],
+    "vector_n": [
+     0,
+     50,
+     0
+    ]
+   }
+  ],
+  "steps": [
+   {
+    "id": "s1",
+    "type": "static"
+   }
+  ]
+ }
+}
