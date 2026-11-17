@@ -42,18 +42,23 @@ WizardStyle=modern
 [Languages]
 #if FileExists(CompilerPath + "Languages\ChineseSimplified.isl")
 Name: "zh"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+  #define HaveZh
 #elif FileExists(CompilerPath + "Languages\Unofficial\ChineseSimplified.isl")
 Name: "zh"; MessagesFile: "compiler:Languages\Unofficial\ChineseSimplified.isl"
+  #define HaveZh
 #endif
 Name: "en"; MessagesFile: "compiler:Default.isl"
 
 [CustomMessages]
-zh.AppTitle=问渠有限元
+; 打包机没有中文语言文件时只有英文界面（GitHub 的 Windows 机器就没有）
 en.AppTitle=WenQuest FEA
-zh.Notices=许可证与源码获取说明
 en.Notices=Licenses and source code
-zh.Manual=验证手册
 en.Manual=Verification manual
+#ifdef HaveZh
+zh.AppTitle=问渠有限元
+zh.Notices=许可证与源码获取说明
+zh.Manual=验证手册
+#endif
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
