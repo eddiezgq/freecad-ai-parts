@@ -133,7 +133,9 @@ def _run_model(setup: Mapping) -> dict:
         data, messages = drun.run_model(setup["model"])
     except (dmodel.ModelError, dsolve.SolveError) as exc:
         return result.failed("mbd", MODULE["version"], setup, f"模型或计算有误：{exc}")
-    lim = ["刚体（D1）：构件不变形，运动副无间隙、无摩擦（摩擦、间隙在 ADR-0097 D2）",
+    lim = ["刚体：构件不变形（柔性体在 ADR-0097 D6）；梁、衬套是构件之间的线性弹性连接",
+           "运动副摩擦、接触摩擦用速度光滑过渡的库仑模型，静平衡不计摩擦",
+           "接触几何只支持 ADR-0097 补充五列出的配对；网格只能是凸体；齿轮只有直齿外啮合",
            "删掉的冗余约束方向上，运动副反力不唯一（与 ADAMS 相同），这些运动副的反力标为不完整"]
     return result.make("mbd", MODULE["version"], setup, data, limitations=lim, messages=messages,
                        solver={"name": "问渠多体求解器（绝对坐标 + 坐标分块，ADR-0097 D1；scipy 积分器）",

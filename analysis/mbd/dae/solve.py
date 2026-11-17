@@ -138,6 +138,8 @@ def accel(sysm: System, q, qd, t, rows):
         def solve(r):
             return np.linalg.lstsq(K, r, rcond=None)[0]
     Q0 = sysm.Q(q, qd, t)
+    if getattr(sysm, "relax_alpha", 0.0):
+        Q0 = Q0 - sysm.relax_alpha * (M @ qd)
     x = solve(np.concatenate([Q0, gam]))
     jids = _friction_joints(sysm)
     if jids:
@@ -239,7 +241,33 @@ def kinematic(sysm: System, t_end, steps):
     return rec, {"dof": 0, "redundant": [sysm.rows[k].label for k in drop]}
 
 
+RELAX_ALPHA = 1000.0     # 1/s，静平衡找不到时“过阻尼动力学放松”的质量比例阻尼
+RELAX_TIME = 0.05        # s
+
+
+def _nonsmooth(sysm):
+    return any(kind in ("contact", "gear", "clearance") for kind, _ in sysm.forces)
+
+
 def static(sysm: System, t=0.0, q=None):
+    """静平衡。直接解不出来、且模型有接触 / 齿轮 / 间隙（力在间隙里为 0，牛顿法没有方向）时，
+    先用重阻尼的动力学放松一段，再从放松后的位置解（ADR-0097 补充六）"""
+    try:
+        return _static(sysm, t, q)
+    except SolveError:
+        if not _nonsmooth(sysm):
+            raise
+    sysm.relax_alpha = RELAX_ALPHA
+    try:
+        rec0, _ = dynamic(sysm, RELAX_TIME, 5, q=q, t0=t, qd=np.zeros(sysm.n))
+    finally:
+        sysm.relax_alpha = 0.0
+    rec, info = _static(sysm, t, rec0.q[-1])
+    info["relaxed"] = True
+    return rec, info
+
+
+def _static(sysm: System, t=0.0, q=None):
     """静平衡：Q(q) − Φ_qᵀλ = 0、Φ(q) = 0（速度为 0）"""
     q = sysm.q0() if q is None else q
     keep, drop = independent_rows(sysm, q, t)
@@ -329,12 +357,30 @@ def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, 
 
         def rhs(t, y, dep=dep, ind=ind):
             stats["rhs"] += 1
-            _, qd_, qdd_, _ = full_state(t, y, dep, ind)
+            keep_q = state["q"].copy()
+            try:
+                if not np.all(np.isfinite(y)):
+                    raise SolveError("NaN")
+                _, qd_, qdd_, _ = full_state(t, y, dep, ind)
+                if not (np.all(np.isfinite(qd_)) and np.all(np.isfinite(qdd_))):
+                    raise SolveError("NaN")
+            except (SolveError, np.linalg.LinAlgError):
+                # 积分器试的步太大、约束解不回来：退回原点、给 NaN，积分器会拒掉这一步、缩小步长（接触、齿轮这类硬力元会碰到）
+                state["q"] = keep_q
+                stats["rejected"] = stats.get("rejected", 0) + 1
+                return np.full(2 * dof, np.nan)
             return np.concatenate([qd_[ind], qdd_[ind]])
 
         def ill(t, y, dep=dep, ind=ind, limit=limit):
             # 分块变病态（非独立坐标的雅可比条件数超限）就停下来换分块
-            qq, _, _, _ = full_state(t, y, dep, ind, need_acc=False)
+            keep_q = state["q"].copy()
+            try:
+                if not np.all(np.isfinite(y)):
+                    raise SolveError("NaN")
+                qq, _, _, _ = full_state(t, y, dep, ind, need_acc=False)
+            except (SolveError, np.linalg.LinAlgError):
+                state["q"] = keep_q
+                return 1.0
             return math.log(limit) - math.log(np.linalg.cond(sysm.jac(qq, t, rows)[:, dep]))
 
         ill.terminal = True
