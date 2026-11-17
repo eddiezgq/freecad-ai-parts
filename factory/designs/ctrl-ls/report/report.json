@@ -1,17 +1,18 @@
 {
  "board_file": "kicad/ctrl-ls.kicad_pcb",
+ "calc_link": "../calc/calc.html",
  "count": {
   "fail": 0,
-  "pass": 34,
-  "pending": 60,
-  "unknown": 2
+  "pass": 67,
+  "pending": 30,
+  "unknown": 1
  },
  "electrical": {
   "count": {
    "fail": 0,
-   "pass": 9,
-   "pending": 60,
-   "unknown": 2
+   "pass": 42,
+   "pending": 30,
+   "unknown": 1
   },
   "units": [
    {
@@ -22,7 +23,7 @@
       "name": "保险丝额定电压",
       "need": 250,
       "rule": "额定电压 ≥ 最高输入电压",
-      "status": "pending",
+      "status": "pass",
       "unit": "V"
      },
      {
@@ -30,7 +31,7 @@
       "name": "保险丝额定电流",
       "need": 9.894433438976355,
       "rule": "I_额定 ≥ 1.25 × I_输入",
-      "status": "pending",
+      "status": "pass",
       "unit": "A"
      },
      {
@@ -38,7 +39,7 @@
       "name": "压敏电阻最高工作电压",
       "need": 275.0,
       "rule": "V_RMS ≥ 最高输入电压 ×（1 + 波动）",
-      "status": "pending",
+      "status": "pass",
       "unit": "V"
      },
      {
@@ -46,7 +47,7 @@
       "name": "X 电容额定电压",
       "need": 275.0,
       "rule": "额定 ≥ 最高输入电压 ×（1 + 波动）",
-      "status": "pending",
+      "status": "pass",
       "unit": "V"
      },
      {
@@ -54,7 +55,7 @@
       "name": "热敏电阻最大电流",
       "need": 7.9155467511810835,
       "rule": "I_max ≥ I_输入（继电器旁路前）",
-      "status": "pending",
+      "status": "pass",
       "unit": "A"
      },
      {
@@ -62,7 +63,7 @@
       "name": "热敏电阻允许的负载电容（230 V）",
       "need": 0.00099,
       "rule": "C_T ≥ 母线电容",
-      "status": "pending",
+      "status": "pass",
       "unit": "F"
      },
      {
@@ -70,7 +71,7 @@
       "name": "旁路继电器触点电流",
       "need": 9.894433438976355,
       "rule": "触点额定 ≥ 1.25 × I_输入",
-      "status": "pending",
+      "status": "pass",
       "unit": "A"
      },
      {
@@ -78,16 +79,32 @@
       "name": "共模电感额定电流",
       "need": 7.9155467511810835,
       "rule": "额定（温升约 35 ℃）≥ I_输入",
-      "status": "pending",
+      "status": "pass",
       "unit": "A"
      },
      {
-      "have": 170,
-      "name": "继电器线圈电压（12 V 线圈接 15 V）",
-      "need": 125.0,
-      "rule": "最高允许电压（额定的 %）≥ 15 V / 12 V",
-      "status": "pending",
+      "have": 130,
+      "name": "继电器线圈电压（85 ℃ 时最高允许）",
+      "need": 101.80995475113122,
+      "rule": "最高允许电压（额定的 %，85 ℃）≥ V_线圈 / 12 V",
+      "status": "pass",
       "unit": "%"
+     },
+     {
+      "have": 12.217194570135746,
+      "name": "继电器能吸合（线圈电压 ≥ 吸合电压）",
+      "need": 9.0,
+      "rule": "V_线圈 ≥ 吸合电压（额定的 75 %）",
+      "status": "pass",
+      "unit": "V"
+     },
+     {
+      "have": 9,
+      "name": "保险丝夹额定电流",
+      "need": 7.9155467511810835,
+      "rule": "夹子额定 ≥ I_输入",
+      "status": "pass",
+      "unit": "A"
      }
     ],
     "name": "交流输入、电磁兼容与浪涌",
@@ -101,7 +118,7 @@
       "name": "反向耐压",
       "need": 486.13591206575154,
       "rule": "V_RRM ≥ 1.25 × 输入峰值",
-      "status": "pending",
+      "status": "pass",
       "unit": "V"
      },
      {
@@ -109,7 +126,7 @@
       "name": "平均整流电流（壳温 100 ℃ 额定）",
       "need": 7.126495891392703,
       "rule": "I_F(AV) ≥ I_平均",
-      "status": "pending",
+      "status": "pass",
       "unit": "A"
      },
      {
@@ -117,7 +134,7 @@
       "name": "浪涌电流",
       "need": 155.5634918610405,
       "rule": "I_FSM ≥ 上电浪涌（热敏电阻冷态）",
-      "status": "pending",
+      "status": "pass",
       "unit": "A"
      }
     ],
@@ -132,7 +149,7 @@
       "name": "开关频率在控制器范围内",
       "need": 65000,
       "rule": "范围包含 65000 Hz",
-      "status": "pending",
+      "status": "pass",
       "unit": "Hz"
      },
      {
@@ -140,7 +157,7 @@
       "name": "采样电阻不大于上限",
       "need": 0.01,
       "rule": "R ≤ 上限",
-      "status": "pending",
+      "status": "pass",
       "unit": "Ω"
      },
      {
@@ -148,7 +165,7 @@
       "name": "开关管耐压",
       "need": 526.5,
       "rule": "V_DS ≥ 1.25 × 过压点",
-      "status": "pending",
+      "status": "pass",
       "unit": "V"
      },
      {
@@ -156,7 +173,7 @@
       "name": "开关管电流（壳温 100 ℃）",
       "need": 12.744680458441502,
       "rule": "I_D(100℃) ≥ 电感峰值电流",
-      "status": "pending",
+      "status": "pass",
       "unit": "A"
      },
      {
@@ -164,7 +181,7 @@
       "name": "升压二极管耐压",
       "need": 526.5,
       "rule": "V_RRM ≥ 1.25 × 过压点",
-      "status": "pending",
+      "status": "pass",
       "unit": "V"
      },
      {
@@ -172,7 +189,7 @@
       "name": "升压二极管电流（壳温 135 ℃）",
       "need": 1.7179780891121097,
       "rule": "I_F ≥ I_o",
-      "status": "pending",
+      "status": "pass",
       "unit": "A"
      },
      {
@@ -220,7 +237,7 @@
       "name": "控制器供电绝对最大值",
       "need": 15,
       "rule": "V_CC,max ≥ 辅助 15 V",
-      "status": "pending",
+      "status": "pass",
       "unit": "V"
      },
      {
@@ -362,7 +379,7 @@
       "name": "母线不超过推荐工作电压",
       "need": 390,
       "rule": "V_母线 ≤ V_PN,推荐上限",
-      "status": "pending",
+      "status": "pass",
       "unit": "V"
      },
      {
@@ -370,7 +387,7 @@
       "name": "过压点不超过绝对最大值",
       "need": 421.20000000000005,
       "rule": "1.08 × V_母线 ≤ V_PN,max",
-      "status": "pending",
+      "status": "pass",
       "unit": "V"
      },
      {
@@ -378,7 +395,7 @@
       "name": "IGBT 电流（壳温 25 ℃）",
       "need": 7.557497350975906,
       "rule": "I_C ≥ 1.25 × 峰值相电流",
-      "status": "pending",
+      "status": "pass",
       "unit": "A"
      },
      {
@@ -386,7 +403,7 @@
       "name": "开关频率不超过推荐上限",
       "need": 16000,
       "rule": "f ≤ f_PWM,推荐",
-      "status": "pending",
+      "status": "pass",
       "unit": "Hz"
      },
      {
@@ -394,7 +411,7 @@
       "name": "15 V 供电在推荐范围内",
       "need": 15,
       "rule": "范围包含 15 V",
-      "status": "pending",
+      "status": "pass",
       "unit": "V"
      },
      {
@@ -402,7 +419,7 @@
       "name": "峰值力矩时结温",
       "need": 116.26850122812746,
       "rule": "T_j ≤ T_j,max − 25",
-      "status": "pending",
+      "status": "pass",
       "unit": "℃"
      },
      {
@@ -410,7 +427,7 @@
       "name": "死区不小于推荐",
       "need": 1e-06,
       "rule": "t_死区 ≥ 推荐值",
-      "status": "pending",
+      "status": "pass",
       "unit": "s"
      }
     ],
@@ -457,7 +474,7 @@
       "name": "过流门限不超过模块电流",
       "need": 7.5,
       "rule": "I_C ≥ I_跳",
-      "status": "pending",
+      "status": "pass",
       "unit": "A"
      }
     ],
@@ -543,7 +560,7 @@
       "name": "24 V（含波动）在驱动器工作范围",
       "need": 26.400000000000002,
       "rule": "范围包含 26.4 V",
-      "status": "pending",
+      "status": "pass",
       "unit": "V"
      },
      {
@@ -551,7 +568,7 @@
       "name": "驱动器连续电流",
       "need": 1.0,
       "rule": "I_RMS,连续 ≥ 线圈电流",
-      "status": "pending",
+      "status": "pass",
       "unit": "A"
      },
      {
@@ -586,12 +603,12 @@
       "unit": "V"
      },
      {
-      "have": null,
-      "name": "晶振负载电容",
-      "need": null,
-      "rule": "要晶振的负载电容 C_L 数据才能算（C = 2·(C_L − C_杂散)）",
-      "status": "unknown",
-      "unit": ""
+      "have": 0.5,
+      "name": "晶振负载电容（偏差 ≤ 1 pF）",
+      "need": 1.0,
+      "rule": "|C_L' − C_L| ≤ 1 pF（C_L 12 pF，实际 12.5 pF）",
+      "status": "pass",
+      "unit": "pF"
      }
     ],
     "name": "MCU 最小系统与烧录口",
@@ -636,7 +653,7 @@
       "name": "隔离电源隔离耐压",
       "need": 1500,
       "rule": "V_iso（直流 1 分钟）≥ 要求",
-      "status": "pending",
+      "status": "pass",
       "unit": "V"
      },
      {
@@ -657,7 +674,7 @@
      {
       "have": 1.0549772042389667,
       "name": "选的散热器热阻够小",
-      "need": 0.9,
+      "need": 0.53,
       "rule": "R_sa,要求 ≥ R_sa,选用",
       "status": "pending",
       "unit": "K/W"
@@ -680,11 +697,11 @@
    "count": 0,
    "detail": "",
    "key": "D1",
-   "limit": 217,
+   "limit": 218,
    "name": "物料清单与坐标位号对上",
    "status": "pass",
    "unit": "个位号",
-   "value": 217,
+   "value": 218,
    "why": "物料清单和坐标文件是两份文件，位号对不上，贴片机就会漏贴、多贴或贴错料"
   },
   {
@@ -692,11 +709,11 @@
    "count": 0,
    "detail": "",
    "key": "D2",
-   "limit": 95,
+   "limit": 96,
    "name": "数量等于位号个数",
    "status": "pass",
    "unit": "行",
-   "value": 95,
+   "value": 96,
    "why": "数量和位号个数不一致，备料、报价都会错"
   },
   {
@@ -704,11 +721,11 @@
    "count": 0,
    "detail": "",
    "key": "D4",
-   "limit": 217,
+   "limit": 218,
    "name": "坐标正反面与焊盘一致",
    "status": "pass",
    "unit": "个",
-   "value": 217,
+   "value": 218,
    "why": "坐标写在顶面，焊盘却在底面（或反过来），贴片编程会放错面"
   },
   {
@@ -720,7 +737,7 @@
    "name": "最小线宽",
    "status": "pass",
    "unit": "mm",
-   "value": 0.152,
+   "value": 0.15,
    "why": "板厂蚀刻能做到的最细线宽；再细就会断线"
   },
   {
@@ -786,7 +803,7 @@
   {
    "at": [],
    "count": 0,
-   "detail": "217 个器件",
+   "detail": "218 个器件",
    "key": "F6",
    "limit": 0,
    "name": "器件外框不重叠",
@@ -822,13 +839,13 @@
   {
    "at": [],
    "count": 0,
-   "detail": "扎不到的网络：STP_CPO",
+   "detail": "扎不到的网络：ENC_A_RC、FB_LED、HALL_U_F、HALL_V_RC、ISENSE、SOL3_G、STP_CPI、STP_CPO、STP_STEP、VB_OK_SNS、XDIS",
    "key": "T1",
    "limit": 0.9,
    "name": "ICT 测试点覆盖率",
    "status": "pass",
    "unit": "",
-   "value": 0.993,
+   "value": 0.929,
    "why": "在线测试（ICT）用针床扎测试点；网络上没有能扎的点，这个网络就测不到"
   },
   {
@@ -852,7 +869,7 @@
    "name": "KiCad 设计规则检查（DRC）",
    "status": "pass",
    "unit": "",
-   "value": "错误 0、未连接 0、警告 59",
+   "value": "错误 0、未连接 0、警告 58",
    "why": "KiCad 按工程里的线宽、间距、连通规则查一遍；有错误或没连上的焊盘，板子就不能做"
   }
  ],
@@ -922,7 +939,7 @@
     ],
     "ref": "R203",
     "status": "pass",
-    "t_board_c": 66.9,
+    "t_board_c": 68.6,
     "t_limit_c": 105.0
    },
    {
@@ -937,7 +954,7 @@
     ],
     "ref": "R411",
     "status": "pass",
-    "t_board_c": 74.2,
+    "t_board_c": 72.6,
     "t_limit_c": 105.0
    },
    {
@@ -952,7 +969,7 @@
     ],
     "ref": "R412",
     "status": "pass",
-    "t_board_c": 74.8,
+    "t_board_c": 73.0,
     "t_limit_c": 105.0
    },
    {
@@ -967,7 +984,7 @@
     ],
     "ref": "R413",
     "status": "pass",
-    "t_board_c": 72.8,
+    "t_board_c": 71.3,
     "t_limit_c": 105.0
    },
    {
@@ -982,7 +999,7 @@
     ],
     "ref": "R303",
     "status": "pass",
-    "t_board_c": 102.8,
+    "t_board_c": 101.8,
     "t_limit_c": 105.0
    },
    {
@@ -997,7 +1014,7 @@
     ],
     "ref": "R310",
     "status": "pass",
-    "t_board_c": 101.1,
+    "t_board_c": 100.5,
     "t_limit_c": 105.0
    },
    {
@@ -1027,7 +1044,7 @@
     ],
     "ref": "Q502",
     "status": "pass",
-    "t_board_c": 53.8,
+    "t_board_c": 53.9,
     "t_limit_c": 105.0
    },
    {
@@ -1042,7 +1059,7 @@
     ],
     "ref": "Q503",
     "status": "pass",
-    "t_board_c": 54.3,
+    "t_board_c": 54.5,
     "t_limit_c": 105.0
    },
    {
@@ -1057,7 +1074,7 @@
     ],
     "ref": "Q504",
     "status": "pass",
-    "t_board_c": 53.3,
+    "t_board_c": 53.4,
     "t_limit_c": 105.0
    }
   ],
@@ -1067,7 +1084,7 @@
    112.5,
    -224.5
   ],
-  "t_max_c": 102.8,
+  "t_max_c": 101.8,
   "total_w": 3.68
  },
  "title": "平缝机控制器（单相 110–250 V，功率因数校正 + 智能功率模块）"

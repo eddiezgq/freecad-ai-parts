@@ -131,13 +131,15 @@ void motor_init(void)
         OPAMP_CSR(n) = OPAMP_CSR_EN | OPAMP_CSR_VMSEL_PGA | OPAMP_CSR_HIGHSPEED | OPAMP_CSR_INTEN | OPAMP_CSR_GAIN8;
     }
 
-    /* TIM1：中心对齐 1、16 kHz；PWM 模式 1 + 预装载；六路输出高有效（功率模块 HIN、LIN 高有效）；死区 1 µs；更新事件作 TRGO；RCR = 1 */
+    /* TIM1：中心对齐 1、16 kHz；PWM 模式 1 + 预装载；上桥 CHx 高有效（功率模块 HIN 高有效）、下桥 CHxN 低有效
+     * （159h 对照 STGIPS14K60T 规格书 Rev 5 p.7 表 7 注 1、p.8 图 4 说明：LIN 低有效，所以 CC1NP、CC2NP、CC3NP 置 1）；
+     * 死区 1 µs；更新事件作 TRGO；RCR = 1。MOE = 0 时六路都不输出（引脚不驱动），功率模块另由 SD 拉低关断 */
     TIM1_PSC = 0;
     TIM1_ARR = PWM_ARR;
     TIM1_RCR = 1;
     TIM1_CCMR1 = (6u << 4) | (1u << 3) | (6u << 12) | (1u << 11);
     TIM1_CCMR2 = (6u << 4) | (1u << 3);
-    TIM1_CCER = (1u << 0) | (1u << 2) | (1u << 4) | (1u << 6) | (1u << 8) | (1u << 10);
+    TIM1_CCER = (1u << 0) | (1u << 2) | (1u << 3) | (1u << 4) | (1u << 6) | (1u << 7) | (1u << 8) | (1u << 10) | (1u << 11);
     TIM1_CCR1 = TIM1_CCR2 = TIM1_CCR3 = PWM_ARR / 2;
     TIM1_BDTR = DTG_1US;                                                          /* MOE 先关 */
     TIM1_CR2 = 2u << 4;

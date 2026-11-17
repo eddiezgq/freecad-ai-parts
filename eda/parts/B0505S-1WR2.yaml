@@ -1,38 +1,39 @@
-# 面板口隔离电源（平缝机控制器 CTRL-LS，第 159 轮 159d2）。立创上的这一颗是 YLPTEC 的同名型号；能读到文字的是这个系列原版 Mornsun 的规格书，
-# 按它录（同系列同名型号按原版规格书兼容，待核对 YLPTEC 的规格书）。网页工具读出文字录入：checked: false。
+# 面板口隔离电源（平缝机控制器 CTRL-LS，第 159 轮 159d2）。立创 C2992393 是 YLPTEC（中山市易川电子）的 B0505S-1WR2。
+# 159h（2026-11-16）：改按 YLPTEC 本身的规格书（立创转存）逐项核对，checked: true；引脚图 p.5 看原图：1 GND（输入负）、2 +Vin、3 −Vo、4 +Vo、间距 2.54 mm。
+# 核对记录见 factory/designs/ctrl-ls/order/核对表.md。
 format: wqeda.part/1
 part: B0505S-1WR2
-maker: YLPTEC（系列原版 Mornsun）
+maker: YLPTEC
 datasheet:
-  title: Mornsun B_S-1WR2 & B_D-1WR2 Series, 1W isolated DC-DC converter
-  revision: 2013.06.18-A/2
-  url: https://mantech.co.za/datasheets/products/b_s-1wr2.pdf
+  title: YLPTEC DC/DC 电源模块 B_S-1WR2 系列（定电压输入、隔离非稳压输出，1 W）
+  revision: (no revision printed)
+  url: https://www.lcsc.com/datasheet/C2992393.pdf
 params:
   v_iso_dc:
     value: 1500
     unit: V
     kind: min
     condition: isolation voltage input-output, VDC, tested for 1 minute, leakage current < 1 mA
-    where: p.1 general characteristics
-    checked: false
+    where: p.1 特点（隔离电压 1500VDC）
+    checked: true
   i_out_max:
     value: 0.2
     unit: A
     kind: max
     condition: B0505S-1WR2 output current (min 20 mA = 10 % minimum load)
-    where: p.1 product selection table
-    checked: false
+    where: p.1 产品选型表
+    checked: true
   c_in_rec:
     value: 4.7e-6
     unit: F
     kind: typ
     condition: recommended input capacitor, Vin 3.3/5 V
-    where: Table 1
-    checked: false
+    where: p.4 表 1
+    checked: true
   c_out_rec:
     value: 10.0e-6
     unit: F
     kind: typ
     condition: recommended output capacitor, Vo 3.3/5 V
-    where: Table 1
-    checked: false
+    where: p.4 表 1
+    checked: true

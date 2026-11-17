@@ -131,3 +131,7 @@ def test_ctrl_ls_served_for_page():
     assert c.get("/api/designs/ctrl-ls/report/calc.html").status_code == 200
     assert c.get("/api/designs/ctrl-ls/report/../out/design.json").status_code == 404
     assert c.get("/api/designs/ctrl-ls/report/%2e%2e/design.yaml").status_code == 404
+    # 159h：打样下单文件包
+    assert c.get("/api/designs/ctrl-ls/order/ctrl-ls-order.zip").status_code == 200
+    assert c.get("/api/designs/ctrl-ls/order/README.md").status_code == 200
+    assert c.get("/api/designs/ctrl-ls/order/%2e%2e/design.yaml").status_code == 404

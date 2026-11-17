@@ -2957,7 +2957,8 @@ def design_file(name: str, path: str):
     # 第 100 轮：板子的固件产物在 <板>/fw/out（板的 out 每次重新导出会整个重建），用 fw/ 前缀取；
     # 第 159 轮：板子的统一报告（报告、计算书网页）在 <板>/report，用 report/ 前缀取
     sub = ("out",)
-    for pre, s in (("fw/", ("fw", "out")), ("report/", ("report",))):
+    # 第 159h 轮：平缝机控制器的打样下单文件包在 <板>/order，用 order/ 前缀取
+    for pre, s in (("fw/", ("fw", "out")), ("report/", ("report",)), ("order/", ("order",))):
         if path.startswith(pre):
             sub, path = s, path[len(pre):]
             break

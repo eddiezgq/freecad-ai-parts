@@ -9,6 +9,11 @@ checked_on: '2026-11-11'
 parts:
   # —— 交流输入与电磁兼容 ——
   - {role: 输入保险丝（5×20 mm，10 A 慢断）, item: FUSE-T10A, mpn: 0215010.MXP, maker: Littelfuse, lcsc: C142733}
+  - {role: 散热器（整流桥、升压管、升压二极管、功率模块共用）, item: HS-SK47-150, kind: heatsink, mpn: SK 47 150 SA, maker: Fischer Elektronik,
+     qty_per_board: 1, mount_of: BR101 Q201 D201 U401, checked_on: '2026-11-16',
+     note: 159h 选型：型材 200 × 40 mm、切 150 mm、基板 10 mm，热阻 0.53 K/W（计算书要求 ≤ 1.05）；升压管、升压二极管的散热面带电要垫导热绝缘片，功率模块、整流桥本体绝缘可只用导热垫；四个器件的孔按实物在基板上配钻 M3}
+  - {role: 保险丝夹 5×20 mm 9 A（每块板 2 个，夹住 F101）, item: FUSE-CLIP-5X20, mpn: 5X20（9A.520SWG1）, maker: 旭程电子 XC, lcsc: C3130,
+     qty_per_board: 2, mount_of: F101, checked_on: '2026-11-16', note: 159h 加：F101 的封装就是这两个夹子的焊盘}
   - {role: 压敏电阻（275 V 交流）, item: MOV-275, mpn: B72214S0271K101, maker: TDK, lcsc: C7502584}
   - {role: X2 电容 0.47 µF, item: CAP-X2-470N, mpn: BFC233920474, maker: Vishay, lcsc: C511073}
   - {role: Y 电容 2.2 nF, item: CAP-Y-2N2, mpn: DE1E3RA222MA4BP01F, maker: Murata, lcsc: C907949}
@@ -16,7 +21,7 @@ parts:
      note: 159d2 由 FC-HLF2018-15mH-10A-LF（立创 C5142780）换来：那颗规格书是图片读不出、KiCad 库没有封装；8118-RC 在 DigiKey 核实，KiCad 有同系列封装}
   - {role: 浪涌限流热敏电阻, item: NTC-2R5, mpn: B57364S0259M000, maker: TDK, lcsc: C17362791}
   - {role: 旁路继电器（12 V 线圈）, item: RLY-G5LE, mpn: G5LE-1-E DC12, maker: Omron, lcsc: C152711}
-  - {role: 整流桥 10 A 600 V, item: BRG-GBU1006, mpn: GBU1006, maker: LGE, lcsc: C5183365}
+  - {role: 整流桥 10 A 800 V（LGE GBU1006 的 V_RRM 是 800 V，159h 核对改正）, item: BRG-GBU1006, mpn: GBU1006, maker: LGE, lcsc: C5183365}
   # —— 功率因数校正 ——
   - {role: 连续导通功率因数校正控制器, item: IC-PFC-ICE3PCS01G, mpn: ICE3PCS01G, maker: Infineon, lcsc: C192050, kicad: 'Regulator_Controller:ICE3PCS01'}
   - {role: 升压开关管 600 V 60 mΩ（TO-247）, item: MOS-IPW60R060P7, mpn: IPW60R060P7, maker: Infineon, lcsc: C454258, note: 159b 由 IPA60R180P7S 换来（FullPAK 散不掉 18.7 W）}
@@ -32,6 +37,7 @@ parts:
   - {role: 反馈光耦, item: OPTO-PC817, mpn: PC817X2NSZ9F, maker: Sharp, lcsc: C390734}
   - {role: 反馈基准, item: IC-TL431, mpn: TL431AIDBZR, maker: Texas Instruments, lcsc: C23892}
   # —— 主控与接口 ——
+  - {role: 主控晶振 8 MHz 3225（C_L 12 pF，159h 选型）, item: XTAL, mpn: CF4008M00012001, maker: 华昕电子 Huaxin, lcsc: C7294546, checked_on: '2026-11-16'}
   - {role: 主控, item: IC-MCU-MC, mpn: STM32G431CBT6, maker: STMicroelectronics, lcsc: C529355, note: 沿用关节驱动板（片内三路运放采电流、比较器过流）, kicad: 'MCU_ST_STM32G4:STM32G431CBTx'}
   - {role: 编码器与针位信号施密特整形, item: IC-74LVC14, mpn: SN74LVC14APWR, maker: Texas Instruments, lcsc: C7663}
   - {role: 电磁铁驱动管 80 V, item: MOS-80V, mpn: BSC040N08NS5, maker: Infineon, lcsc: C534333, note: 159b 由 AOD4184A（40 V）换来：钳位后漏极 57 V}

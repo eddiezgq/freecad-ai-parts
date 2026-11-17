@@ -4075,7 +4075,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "10p"
+    (property "Value" "15p"
       (at 701.04 63.5 0)
       (effects
         (font
@@ -4166,7 +4166,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "10p"
+    (property "Value" "15p"
       (at 759.46 63.5 0)
       (effects
         (font

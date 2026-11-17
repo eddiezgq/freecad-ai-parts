@@ -112,12 +112,32 @@ def test_pcb_plant_bom_matches_design():
     want_smt, want_tht = {}, {}
     with open(os.path.join(P, "out", "bom.csv"), encoding="utf-8") as f:
         for r in csv.DictReader(f):
+            if not r["封装"]:
+                continue  # 159h：随装件（保险丝夹、散热器）不在原理图上，电路板厂清单里也不列
             for ref in r["位号"].split():
                 d = want_tht if ref in tht else want_smt
                 d[r["物料编号"]] = d.get(r["物料编号"], 0) + 1
     assert {k: v for k, v in smt.items() if k not in ("PCB-CTRL", "PASTE-SAC305")} == want_smt
     assert {k: v for k, v in fg.items() if k not in ("SMT-CTRL", "COAT-AR", "BAG-ESD")} == want_tht
-    assert sum(want_smt.values()) == 187 and sum(want_tht.values()) == 30
+    assert sum(want_smt.values()) == 188 and sum(want_tht.values()) == 30
     items = {i["code"] for i in plant["items"]}
     assert set(want_smt) | set(want_tht) <= items
     assert "CTRL-LS" in {p["item"] for p in plant["products"]}
+
+
+def test_order_package():
+    """159h：下单文件包——物料清单每行有位号、型号、封装、立创编号（通用件写明按数值封装配料），定制件与散热器另列，坐标覆盖贴装件"""
+    import zipfile
+    o = os.path.join(P, "order")
+    with open(os.path.join(o, "bom_pcba.csv"), encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    assert rows and all(r["Designator"] and r["型号"] and r["Footprint"] and r["LCSC Part #"] for r in rows)
+    refs = {x for r in rows for x in r["Designator"].split()}
+    with open(os.path.join(o, "cpl.csv"), encoding="utf-8") as f:
+        cpl = {r["Designator"] for r in csv.DictReader(f)}
+    assert refs <= cpl
+    with open(os.path.join(o, "定制件与散热器.csv"), encoding="utf-8") as f:
+        cus = {r["物料编号"] for r in csv.DictReader(f)}
+    assert {"IND-PFC-CUSTOM", "XFMR-FLY-CUSTOM", "HS-SK47-150", "FUSE-CLIP-5X20"} <= cus
+    names = set(zipfile.ZipFile(os.path.join(o, "ctrl-ls-order.zip")).namelist())
+    assert {"gerber.zip", "bom_pcba.csv", "cpl.csv", "磁性件绕制规格单.md", "核对表.md", "板厂工艺核对.md", "README.md"} <= names

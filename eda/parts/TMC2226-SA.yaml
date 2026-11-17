@@ -1,5 +1,6 @@
 # 两相步进电机驱动。平缝机控制器 CTRL-LS（第 159 轮）用。
-# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: true（判定显示“待核对”，不算通过）。
+# 159h（2026-11-16）：逐项对照立创（或注明的转存处）同一份规格书核对，checked 改 true；核对记录见 factory/designs/ctrl-ls/order/核对表.md。
 format: wqeda.part/1
 part: TMC2226-SA
 maker: ADI / Trinamic
@@ -14,7 +15,7 @@ params:
     kind: abs_max
     condition: supply voltage operating with inductive load
     where: p.72 Absolute Maximum Ratings
-    checked: false
+    checked: true
   vs_op:
     min: 5.5
     max: 29
@@ -22,18 +23,18 @@ params:
     kind: range
     condition: supply voltage using internal +5 V regulator
     where: p.72 Operational Range
-    checked: false
+    checked: true
   i_rms_cont:
     value: 1.6
     unit: A
     kind: max
     condition: RMS motor coil current per coil (value for design guideline)
     where: p.72 Operational Range
-    checked: false
+    checked: true
   i_rms_duty:
     value: 2.0
     unit: A
     kind: max
     condition: RMS motor coil current per coil with duty cycle limit, e.g. 1 s on, 1 s standby
     where: p.72 Operational Range
-    checked: false
+    checked: true

@@ -1,7 +1,7 @@
 物料编号,数值,封装,数量,位号,型号,厂家,立创编号,说明
-BRG-GBU1006,GBU1006,Diode_Bridge_Vishay_GBU,1,BR101,GBU1006,LGE,C5183365,整流桥（符号和封装用 KiCad 官方库的 GBU 系列：1 +、2 ~、3 ~、4 −；装在散热器上）
+BRG-GBU1006,GBU1006,Diode_Bridge_GBU_D1.8mm,1,BR101,GBU1006,LGE,C5183365,整流桥（符号用 KiCad 官方库的 GBU 系列：1 +、2 ~、3 ~、4 −，LGE 规格书 p.1 核对；封装同官方库、孔改 1.8 mm（159h）；装在散热器上）
 CAP-0402,100n,C_0402_1005Metric,5,C40 C41 C42 C43 C46,,,,
-CAP-0402,10p,C_0402_1005Metric,2,C47 C48,,,,
+CAP-0402,15p,C_0402_1005Metric,2,C47 C48,,,,
 CAP-0402,1u,C_0402_1005Metric,1,C45,,,,VDDA
 CAP-0402,4.7u,C_0402_1005Metric,1,C44,,,,
 CAP-0603,100n,C_0603_1608Metric,11,C202 C207 C302 C308 C405 C506 C601 C602 C606 C701 C702,,,,
@@ -26,8 +26,8 @@ CAP-EL-220U-25V,220u/25V,CP_Radial_D8.0mm_P3.50mm,1,C306,,,,15 V 输出（功率
 CAP-EL-470U-35V,470u/35V,CP_Radial_D10.0mm_P5.00mm,1,C304,,,,24 V 输出（电磁铁吸合的脉冲电流从这里出）
 CAP-EL-47U-16V,47u/16V,CP_Elec_6.3x5.4,1,C301,,,,C 脚旁路 47 µF（规格书 p.8：起动 / 重启时间按 47 µF 给出）
 CAP-FILM-1U-450V,1u/450V,C_Rect_L18.0mm_W8.0mm_P15.00mm_FKS3_FKP3,1,C104,,,,整流后高频旁路（吸收升压管开关电流，薄膜电容）
-CAP-X2-470N,470n X2,C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4,1,C101,BFC233920474,Vishay,C511073,BFC233920474（封装待核对）
-CAP-Y-2N2,2n2 Y1,C_Disc_D8.0mm_W5.0mm_P7.50mm,2,C102 C103,DE1E3RA222MA4BP01F,Murata,C907949,Y 电容（封装待核对）
+CAP-X2-470N,470n X2,C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3,1,C101,BFC233920474,Vishay,C511073,BFC233920474（MKP339 X2 规格书：0.47 µF 是 15 mm 脚距、10.0 × 16.5 × 17.5 mm；159h 由 22.5 mm 封装改来）
+CAP-Y-2N2,2n2 Y1,C_Disc_D9.0mm_W5.0mm_P10.00mm,2,C102 C103,DE1E3RA222MA4BP01F,Murata,C907949,Y 电容（Murata DE1 规格书：2200 pF 直径 9.0、厚 4.0、脚距 10.0 mm；159h 由 7.5 mm 封装改来）
 CMC-8118RC,7.3mH 9.3A,L_CommonMode_Toroid_Vertical_L41.9mm_W20.3mm_Px15.24mm_Py22.86mm_Bourns_8100,1,L101,8118-RC,Bourns,,8118-RC（Bourns 8100 系列，KiCad 官方库同系列封装；159d2 由 FC-HLF2018 换来：那颗规格书读不出、库里没有封装）
 CONN-AC,AC IN L/N,"TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",1,J101,,,,交流输入：1 相线、2 零线。保护地线不上板：直接接电控箱的接地螺柱；板上的 Y 电容经安装孔 H1 接箱体（159d2b）
 CONN-MOT,MOTOR U/V/W,"TerminalBlock_Phoenix_MKDS-1,5-3-5.08_1x03_P5.08mm_Horizontal",1,J401,,,,电机三相
@@ -38,12 +38,12 @@ CONN-XH4,STEPPER,JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical,1,J502,,,,针距步进电
 CONN-XH8,ENCODER,JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical,1,J701,,,,电机编码器与霍尔
 DCDC-B0505S,B0505S-1WR2,Converter_SIP4_B0505S,1,U602,B0505S-1WR2,YLPTEC,C2992393,隔离电源 5 V → 5 V 1 W，隔离 1500 V 直流 1 分钟（Mornsun 原版规格书）。规格书写“行业标准引脚”、图读不出：按 1 W 单列直插行业通用排法 1 −Vin、2 +Vin、3 −Vo、4 +Vo、间距 2.54 mm 做封装，待核对
 DIO-1N4007,1N4007,D_SMA,2,D203 D204,,,,欠压取样（规格书 p.7 DBRO1、DBRO2；贴片 M7 等效）
-DIO-1N4148W,1N4148W,D_SOD-123,1,D101,,,,继电器线圈续流
+DIO-1N4148W,1N4148W,D_SOD-123,1,D101,,,,继电器线圈续流（跨在线圈两端）
 DIO-1N5408,1N5408,D_DO-201AD_P15.24mm_Horizontal,1,D202,,,,旁路二极管：上电时浪涌电流绕过电感直接给母线电容充电（规格书 p.7 物料表 DBYP 的作用，型号是设计取值）
 DIO-C3D06060A,C3D06060A,TO-220-2_Vertical,1,D201,C3D06060A,Wolfspeed (Cree),C5693025,升压二极管（碳化硅；符号和封装用 KiCad 官方库的 C3D06060A：1 阴极、2 阳极；装在散热器上）
 DIO-ES3D,ES3D,D_SMC,7,D302 D303 D304 D501 D502 D503 D504,ES3D,onsemi,C241735,24 V 整流
 DIO-US1M,US1M,D_SMA,1,D301,,,,钳位二极管（快恢复 1000 V）
-FUSE-T10A,10A T,Fuseholder_Clip-5x20mm_Bel_FC-203-22_Lateral_P17.80x5.00mm_D1.17mm_Horizontal,1,F101,0215010.MXP,Littelfuse,C142733,0215010.MXP（5×20 mm 慢断，夹座安装；夹座封装待核对）
+FUSE-T10A,10A T,Fuseholder_Clip-5x20_XC-C3130_Pair,1,F101,0215010.MXP,Littelfuse,C142733,0215010.MXP（5×20 mm 慢断，装在两个旭程 C3130 保险丝夹上；夹子另列物料，159h 按规格书定封装）
 IC-74LVC14,SN74LVC14APWR,TSSOP-14_4.4x5mm_P0.65mm,1,U701,SN74LVC14APWR,Texas Instruments,C7663,施密特整形（六路）
 IC-ADUM1201,ADUM1201ARZ-RL7,SOIC-8_3.9x4.9mm_P1.27mm,1,U601,ADUM1201ARZ-RL7,Analog Devices,C9669,数字隔离：B 通道主控 → 面板（发送），A 通道面板 → 主控（接收）
 IC-LDO-3V3,AMS1117-3.3,SOT-223-3_TabPin2,2,U304 U603,,,,3.3 V（沿用关节驱动板）
@@ -58,8 +58,8 @@ IPM-STGIPS14K60T,STGIPS14K60T,ST_SDIP-25L,1,U401,STGIPS14K60T,STMicroelectronics
 MOS-2N7002,2N7002,SOT-23,6,Q101 Q202 Q505 Q506 Q507 Q508,,,,母线充好（校正控制器 VB_OK = 5 V）后吸合
 MOS-80V,BSC040N08NS5,TDSON-8-1,4,Q501 Q502 Q503 Q504,BSC040N08NS5,Infineon,C534333,剪线电磁铁
 MOS-IPW60R060P7,IPW60R060P7,TO-247-3_Vertical,1,Q201,IPW60R060P7,Infineon,C454258,升压开关管（TO-247：1 G、2 D、3 S；装在散热器上）
-MOV-275,S14K275,RV_Disc_D15.5mm_W4.9mm_P7.5mm,1,RV101,B72214S0271K101,TDK,C7502584,B72214S0271K101（封装按 14 mm 盘片选，待核对）
-NTC-2R5,2.5R,RV_Disc_D15.5mm_W4.9mm_P7.5mm,1,TH101,B57364S0259M000,TDK,C17362791,B57364S0259M000（上电浪涌限流，母线充好后由 K101 短接；封装按盘片选，待核对）
+MOV-275,S14K275,RV_Disc_D15.5mm_W5.0mm_P7.5mm_TDK_S14,1,RV101,B72214S0271K101,TDK,C7502584,B72214S0271K101（封装按 TDK StandarD 系列 p.14 尺寸图，159h）
+NTC-2R5,2.5R,NTC_Disc_D21.0mm_W7.0mm_P7.5mm_TDK_S364,1,TH101,B57364S0259M000,TDK,C17362791,B57364S0259M000（上电浪涌限流，母线充好后由 K101 短接；封装按 TDK S364 p.3 尺寸图，159h）
 OPTO-PC817,PC817X2NSZ9F,SMDIP-4_W9.53mm,1,U303,PC817X2NSZ9F,Sharp,C390734,反馈光耦（这里不为隔离，只为把误差电流送进 C 脚）
 RES-0402,10k,R_0402_1005Metric,1,R30,,,,BOOT0 下拉
 RES-0603,100,R_0603_1608Metric,6,R403 R404 R405 R406 R407 R408,,,,输入 RC 滤波 100 Ω / 1 nF（0.1 µs ≪ 死区 1 µs，设计取值）
@@ -86,11 +86,14 @@ RES-1206,1.13M,R_1206_3216Metric,3,R218 R219 R220,,,,OVP 上臂 3 × 1.13M：第
 RES-1206,1M,R_1206_3216Metric,5,R101 R102 R420 R421 R422,,,,X 电容放电：2 MΩ × 0.47 µF = 0.94 s（拔插头后 1 s 内放到安全）
 RES-1206,2M,R_1206_3216Metric,2,R301 R302,,,,V 脚线路检测 4 MΩ（规格书 p.6），两只 1206 串联分压；离 V 脚 10 mm 内（p.21）
 RES-1206,3.9M,R_1206_3216Metric,2,R211 R212,,,,规格书 p.7 RBRO1、RBRO2 3.9 MΩ
+RES-1206,82,R_1206_3216Metric,1,R105,,,,159h：线圈串 82 Ω，15 V 分到线圈约 12.2 V（线圈 360 Ω，-E 型资料 p.2）；不串时 15 V 是额定的 125 %，离 85 ℃ 时的上限 130 % 太近。电阻耗 0.1 W，用 1206
 RES-2010-0R12,120m,R_2010_5025Metric,2,R509 R510,,,,采样电阻 0.12 Ω / 1 W（BOB 物料清单）
 RES-2512,6.2k,R_2512_6332Metric,2,R303 R310,,,,RCD 钳位电阻：两只 2512 串联 = 12.4k（计算书 R ≤ 13.1 kΩ，功耗 1.7 W 两只分担）
 RES-SHUNT-10M,10m,R_2512_6332Metric,1,R203,,,,电流采样电阻（整流桥负端到地，ISENSE 取负压；型号与额定功率 159d2 定）
 RES-SHUNT-25M,25m,R_2512_6332Metric,3,R411 R412 R413,WSLT2512R0250FEA,Vishay,C4210426,WSLT2512R0250FEA（下桥采样电阻）
-RLY-G5LE,G5LE-1 DC12,Relay_SPDT_Omron-G5LE-1,1,K101,G5LE-1-E DC12,Omron,C152711,G5LE-1-E DC12：1 公共端、3 常开（短接热敏电阻）、2/5 线圈。线圈 12 V 用在 15 V 上——线圈最高允许电压待核对规格书
+RLY-G5LE,G5LE-1 DC12,Relay_SPDT_Omron-G5LE-1,1,K101,G5LE-1-E DC12,Omron,C152711,G5LE-1-E DC12：1 公共端、3 常开（短接热敏电阻）、2/5 线圈（-E 型资料 p.4 底视图，159h 核对）
 TVS-SMBJ24A,SMBJ24A,D_SMB,4,D505 D506 D507 D508,SMBJ24A,Littelfuse,C224017,钳位稳压管（反接，击穿电压 + 二极管压降 + 24 V = 关断时漏极电压）
 XFMR-FLY-CUSTOM,FLY-24/15/5,Transformer_EPCOS_B66359A1013T_Horizontal,1,T301,,,,反激变压器（定制：ETD29 + 卧式骨架 B66359A1013T，匝数、气隙见计算书“按理论”；三路次级共地，不要求加强绝缘）
-XTAL,8MHz,Crystal_SMD_3225-4Pin_3.2x2.5mm,1,Y1,,,,
+XTAL,8MHz,Crystal_SMD_3225-4Pin_3.2x2.5mm,1,Y1,CF4008M00012001,华昕电子 Huaxin,C7294546,
+HS-SK47-150,,,1,BR101 Q201 D201 U401,SK 47 150 SA,Fischer Elektronik,,159h 选型：型材 200 × 40 mm、切 150 mm、基板 10 mm，热阻 0.53 K/W（计算书要求 ≤ 1.05）；升压管、升压二极管的散热面带电要垫导热绝缘片，功率模块、整流桥本体绝缘可只用导热垫；四个器件的孔按实物在基板上配钻 M3
+FUSE-CLIP-5X20,,,2,F101,5X20（9A.520SWG1）,旭程电子 XC,C3130,159h 加：F101 的封装就是这两个夹子的焊盘

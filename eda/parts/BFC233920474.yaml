@@ -1,5 +1,6 @@
 # X2 抑制电容 0.47 µF（MKP339 X2）。平缝机控制器 CTRL-LS（第 159 轮）用。
-# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: true（判定显示“待核对”，不算通过）。
+# 159h（2026-11-16）：逐项对照立创（或注明的转存处）同一份规格书核对，checked 改 true；核对记录见 factory/designs/ctrl-ls/order/核对表.md。
 format: wqeda.part/1
 part: BFC233920474
 maker: Vishay BCcomponents
@@ -14,4 +15,4 @@ params:
     kind: max
     condition: rated AC voltage, 50 Hz to 60 Hz
     where: p.1 Quick Reference Data
-    checked: false
+    checked: true
