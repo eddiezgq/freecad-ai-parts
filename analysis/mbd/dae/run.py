@@ -101,7 +101,21 @@ def _series(rec, sysm):
         for n in fx.interface:
             nodes[str(n)] = [((q[7 * k:7 * k + 3] + A_of(q[7 * k + 3:7 * k + 7]) @ (fx.x0[n] + fx.Phit[n] @ q[o:o + fx.nm]))
                               * 1000).tolist() for q in rec.q]
-        flex[bd.name] = {"modes": fx.nm, "frequencies_hz": (fx.freqs / (2 * math.pi)).tolist(),
+        stress = None
+        if getattr(fx, "stress_shapes", None) is not None:      # D6b：应力回放 σ(t) = Σ ηₖ σₖ
+            from analysis.mbd.flexsolid import von_mises
+
+            vmax, where = [], []
+            for q in rec.q:
+                vm = von_mises(np.einsum("k,kni->ni", q[o:o + fx.nm], fx.stress_shapes))
+                j = int(np.argmax(vm))
+                vmax.append(float(vm[j]))
+                where.append(int(fx.stress_nodes[j]))
+            kmax = int(np.argmax(vmax))
+            stress = {"max_von_mises_mpa": vmax, "max_node": where, "peak_mpa": vmax[kmax], "peak_time_s": rec.t[kmax],
+                      "peak_node": where[kmax],
+                      "peak_node_mm": (fx.nodes_world0[where[kmax]] * 1000).tolist() if fx.nodes_world0 is not None else None}
+        flex[bd.name] = {"modes": fx.nm, "stress": stress, "frequencies_hz": (fx.freqs / (2 * math.pi)).tolist(),
                          "eta": [q[o:o + fx.nm].tolist() for q in rec.q],
                          "elastic_energy_j": [0.5 * float(q[o:o + fx.nm] @ fx.K @ q[o:o + fx.nm]) for q in rec.q],
                          "interface_nodes_mm": nodes}

@@ -452,6 +452,11 @@ def _flex_body(b):
             iface = list(f["interface_nodes"])
         cm = (m @ X) / m.sum()
         fx = FX.from_full(X, m, Jn, shapes, w, cm, float(f.get("damping_ratio", 0.0)), iface)
+        if f.get("stress_shapes_mpa"):                       # D6b：应力振型，用于应力回放
+            fx.stress_nodes = np.asarray(f["stress_nodes"], int)
+            fx.stress_shapes = np.asarray(f["stress_shapes_mpa"], float)
+            if fx.stress_shapes.shape != (fx.nm, len(fx.stress_nodes), 6):
+                raise FX.FlexError("stress_shapes_mpa 的形状与模态数、stress_nodes 对不上")
     except FX.FlexError as exc:
         raise ModelError(f"柔性构件 {b['id']}：{exc}") from exc
     J = fx.mass_v(np.zeros(fx.nm))[1]
