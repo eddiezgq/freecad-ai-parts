@@ -1,5 +1,6 @@
 # 浪涌限流热敏电阻（S364，2.5 Ω）。平缝机控制器 CTRL-LS（第 159 轮）用。
-# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: true（判定显示“待核对”，不算通过）。
+# 159h（2026-11-16）：逐项对照立创（或注明的转存处）同一份规格书核对，checked 改 true；核对记录见 factory/designs/ctrl-ls/order/核对表.md。
 format: wqeda.part/1
 part: B57364S0259M000
 maker: TDK
@@ -14,32 +15,32 @@ params:
     kind: typ
     condition: R_25, tolerance ±20 %
     where: p.4 Table 1
-    checked: false
+    checked: true
   i_max:
     value: 11
     unit: A
     kind: max
     condition: I_max (0 … 65 °C)
     where: p.4 Table 1
-    checked: false
+    checked: true
   ct_230:
     value: 0.001
     unit: F
     kind: max
     condition: maximum load capacitance C_T at 230 VAC
     where: p.4 Table 1
-    checked: false
+    checked: true
   ct_110:
     value: 0.004
     unit: F
     kind: max
     condition: maximum load capacitance C_T at 110 VAC
     where: p.4 Table 1
-    checked: false
+    checked: true
   r_min:
     value: 0.044
     unit: Ω
     kind: typ
     condition: R_min at I_max, 25 °C
     where: p.4 Table 1
-    checked: false
+    checked: true

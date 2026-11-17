@@ -1,6 +1,6 @@
 (footprint "Converter_SIP4_B0505S" (version 20211014) (generator pcbnew)
   (layer "F.Cu")
-  (descr "1 W isolated DC-DC converter, SIP-4, 2.54 mm (CTRL-LS, industry-standard pinout, to be checked)")
+  (descr "1 W isolated DC-DC converter, SIP-4, 2.54 mm (CTRL-LS; checked against YLPTEC B_S-1WR2 p.5 in 159h)")
   (attr through_hole)
   (fp_text reference "REF**" (at 3.81 -6.0) (layer "F.SilkS")
     (effects (font (size 1 1) (thickness 0.15)))

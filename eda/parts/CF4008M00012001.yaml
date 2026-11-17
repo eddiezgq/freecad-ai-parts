@@ -1,0 +1,16 @@
+# 主控晶振 8 MHz 3225（平缝机控制器 CTRL-LS，第 159 轮 159h 选型）。立创 C7294546，深圳华昕电子承认书。
+# 159h（2026-11-16）：内置浏览器读文字、外形与焊盘图看原图核对，checked: true；核对记录见 factory/designs/ctrl-ls/order/核对表.md。
+# 引脚（p.5 Top View Crystal Connection）：1、3 接晶体，2、4 接地。
+format: wqeda.part/1
+part: CF4008M00012001
+maker: 深圳市华昕电子 Huaxin
+datasheet:
+  title: 3225-4P 8.000MHz 12PF ±10PPM CF4008M00012001 石英晶体规格书
+  revision: 首次制定 2020.04.22
+  url: https://www.lcsc.com/datasheet/C7294546.pdf
+params:
+  f_nom: {value: 8.0e6, unit: Hz, kind: typ, condition: nominal frequency, fundamental AT-cut, where: p.4 item 1–2, checked: true}
+  c_load: {value: 12.0e-12, unit: F, kind: typ, condition: load capacitance C_L, where: p.4 item 3, checked: true}
+  esr_max: {value: 250, unit: Ω, kind: max, condition: resonant resistance RR, where: p.4 item 8, checked: true}
+  c0_max: {value: 3.0e-12, unit: F, kind: max, condition: shunt (direct) capacitance C0, where: p.4 item 9, checked: true}
+  drive_max: {value: 300.0e-6, unit: W, kind: max, condition: drive level DL (typ 100 µW), where: p.4 item 7, checked: true}

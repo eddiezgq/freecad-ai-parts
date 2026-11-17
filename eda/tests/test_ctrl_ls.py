@@ -47,11 +47,16 @@ def test_power_budget_by_hand(book):
     assert i_in == pytest.approx(7.92, abs=0.01)
     # 浪涌：√2·250·1.1 / 2.5 Ω（热敏电阻 R25，规格书 p.4 Table 1）
     assert item(book, "ac_input", "i_inrush") == pytest.approx(math.sqrt(2) * 250 * 1.1 / 2.5, rel=1e-9)
-    # 159d2 共模电感换成 8118-RC（9.3 A，规格书能读、未逐页核对）：待核对，不是通过
+    # 159d2 共模电感换成 8118-RC（9.3 A）；159h 对照 REV. 08/21 规格书核对过：通过
     cmc = next(x for x in unit(book, "ac_input")["checks"] if x["name"] == "共模电感额定电流")
-    assert cmc["status"] == c.PENDING and cmc["have"] == 9.3
-    # 继电器 12 V 线圈接 15 V：125 % ≤ 最高允许 170 %（G5LE 标准型资料）
-    assert item_or_check_need(book, "ac_input", "coil_v_max_pct") == pytest.approx(125.0)
+    assert cmc["status"] == c.PASS and cmc["have"] == 9.3
+    # 159h：继电器线圈串 82 Ω：15 V × 360 / 442 = 12.22 V = 额定的 101.8 %
+    # ≤ 85 ℃ 时最高 130 %（G5LE-E 资料 p.2）；≥ 吸合 9 V
+    v = 15 * 360 / (360 + 82)
+    assert item(book, "ac_input", "v_coil") == pytest.approx(v, rel=1e-9)
+    assert item_or_check_need(book, "ac_input", "coil_v_max_pct_85c") == pytest.approx(100 * v / 12)
+    assert check(book, "ac_input", "coil_v_max_pct_85c")["status"] == c.PASS
+    assert check(book, "ac_input", "must_operate")["status"] == c.PASS
 
 
 def test_bridge_loss_by_hand(book):
@@ -131,7 +136,7 @@ def test_unchecked_data_never_passes_and_missing_data_is_unknown(book):
     """录了没核对的 → 待核对；没录的 → 未知；都不算通过（细则第二节第 2 条）"""
     st = [x["status"] for u in book["units"] for x in u["checks"]]
     assert c.FAIL not in st
-    assert book["count"][c.UNKNOWN] >= 1  # 159d2 起只剩晶振负载电容（晶振型号没定）
+    assert book["count"][c.UNKNOWN] >= 1  # 159h 晶振定了型号，只剩升压电感铁损（N87 损耗曲线没录）
     dev = parts.Devices.load()
     dev.entries.pop("GBU1006")
     b2 = calcbook.build(DESIGN, sim=False, devices=dev)
@@ -253,3 +258,10 @@ def test_magnetics_by_theory(book):
     p = 0.5 * 0.02 * lp * ip**2 * 66000 * 150 / (150 - 100)
     assert item(book, "flyback_aux", "p_clamp") == pytest.approx(p, rel=1e-9)
     assert item(book, "flyback_aux", "r_clamp") == pytest.approx(150**2 / p, rel=1e-9)
+
+
+def test_crystal_load_caps_159h(book):
+    """159h：晶振定型号（C_L 12 pF），C = 2 × (12 − 5) = 14 pF 取 15 pF，实际 12.5 pF，偏差 0.5 pF ≤ 1 pF"""
+    ch = check(book, "mcu_core", "c_load")
+    assert ch["status"] == c.PASS and ch["have"] == pytest.approx(0.5)
+    assert item(book, "mcu_core", "c_load_need") == pytest.approx(14e-12)

@@ -1,12 +1,13 @@
 # 共模电感（平缝机控制器 CTRL-LS，第 159 轮 159d2：原选 FC-HLF2018 的规格书是图片读不出、KiCad 库没有封装，换这一颗；
-# KiCad 官方库有 Bourns 8100 系列的封装）。数值摘自 Bourns 8100 系列规格书（chipdip 转存），网页工具读出文字录入：checked: false。
+# KiCad 官方库有 Bourns 8100 系列的封装）。数值摘自 Bourns 8100 系列规格书（chipdip 转存），网页工具读出文字录入：checked: true。
+# 159h（2026-11-16）：逐项对照立创（或注明的转存处）同一份规格书核对，checked 改 true；核对记录见 factory/designs/ctrl-ls/order/核对表.md。
 format: wqeda.part/1
 part: 8118-RC
 maker: Bourns
 datasheet:
   title: 8100 Series Common Mode Inductors (with optional header)
-  revision: REV. 07/15
-  url: https://static.chipdip.ru/lib/855/DOC011855172.pdf
+  revision: REV. 08/21
+  url: https://static6.arrow.com/aropdfconversion/ca97117305b1617fcdbdedccd8ea86d147c3622/8100series.pdf
 params:
   l_min:
     value: 7.3e-3
@@ -14,25 +15,25 @@ params:
     kind: min
     condition: inductance min. at 1 kHz
     where: p.1 table
-    checked: false
+    checked: true
   i_rated:
     value: 9.3
     unit: A
     kind: max
     condition: rated current to cause approx. 35 °C temperature rise
     where: p.1 table, footnote *
-    checked: false
+    checked: true
   dcr_max:
     value: 0.032
     unit: Ω
     kind: max
     condition: DC resistance max. (per winding)
     where: p.1 table
-    checked: false
+    checked: true
   v_dielectric:
     value: 1500
     unit: V
     kind: min
     condition: dielectric strength, V rms
     where: p.1 specifications
-    checked: false
+    checked: true

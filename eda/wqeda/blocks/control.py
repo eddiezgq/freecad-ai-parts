@@ -74,16 +74,50 @@ def calc_mcu_core(block, spec, d, parts):
             "缺：" + "、".join(sorted(need - nets)) if need - nets else "全部接上",
         ),
         dev.in_range(p["mcu"], "vdd_range", "MCU 供电 3.3 V 在工作范围内", 3.3, "V"),
+    ]
+    xt = p.get("xtal_part")
+    cl = dev.value(xt, "c_load") if xt else None
+    if cl is None:
+        checks.append(
+            c.judge(
+                "c_load",
+                "晶振负载电容",
+                None,
+                None,
+                "",
+                "要晶振的负载电容 C_L 数据才能算（C = 2·(C_L − C_杂散)）",
+                note="晶振型号与数据未录，判未知",
+            )
+        )
+        return items, checks
+    # 159h：晶振定了型号（xtal_part）。两只负载电容 C 串联再加杂散电容 = 晶振要的 C_L（ST AN2867 的式子）；
+    # 杂散电容 c_stray_pf 是设计取值（引脚 + 走线，AN2867 举例的量级），开板后照调试步骤书测频率再微调
+    cs = float(p["c_stray_pf"]) * 1e-12
+    cx = c.parse(p["c_load"])
+    need = 2 * (cl - cs)
+    cl_eff = cx / 2 + cs
+    items += [
+        c.item("c_load_need", "负载电容理论值", need, "F", "C = 2·(C_L − C_杂散)",
+               source=dev.source(xt, "c_load"), note="C_杂散 {:g} pF 是设计取值".format(p["c_stray_pf"])),
+        c.item("c_load_eff", "实际负载（取 {}）".format(p["c_load"]), cl_eff, "F", "C_L' = C / 2 + C_杂散"),
+    ]
+    err = abs(cl_eff - cl)
+    if not dev.checked(xt, "c_load"):
+        st = c.PENDING
+    else:
+        st = c.PASS if err <= 1e-12 + 1e-15 else c.FAIL
+    checks.append(
         c.judge(
             "c_load",
-            "晶振负载电容",
-            None,
-            None,
-            "",
-            "要晶振的负载电容 C_L 数据才能算（C = 2·(C_L − C_杂散)）",
-            note="晶振型号与数据未录，判未知",
-        ),
-    ]
+            "晶振负载电容（偏差 ≤ 1 pF）",
+            1.0,
+            round(err * 1e12, 3),
+            "pF",
+            "|C_L' − C_L| ≤ 1 pF（C_L {:g} pF，实际 {:g} pF）".format(cl * 1e12, cl_eff * 1e12),
+            status=st,
+            source=dev.source(xt, "c_load"),
+        )
+    )
     return items, checks
 
 

@@ -1746,7 +1746,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "Fuse:Fuseholder_Clip-5x20mm_Bel_FC-203-22_Lateral_P17.80x5.00mm_D1.17mm_Horizontal"
+    (property "Footprint" "wq:Fuseholder_Clip-5x20_XC-C3130_Pair"
       (at 119.38 58.42 0)
       (effects
         (font
@@ -1761,7 +1761,7 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "0215010.MXP（5×20 mm 慢断，夹座安装；夹座封装待核对）"
+    (property "说明" "0215010.MXP（5×20 mm 慢断，装在两个旭程 C3130 保险丝夹上；夹子另列物料，159h 按规格书定封装）"
       (at 119.38 58.42 0)
       (effects
         (font
@@ -1837,7 +1837,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "Varistor:RV_Disc_D15.5mm_W4.9mm_P7.5mm"
+    (property "Footprint" "wq:RV_Disc_D15.5mm_W5.0mm_P7.5mm_TDK_S14"
       (at 180.34 58.42 0)
       (effects
         (font
@@ -1852,7 +1852,7 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "B72214S0271K101（封装按 14 mm 盘片选，待核对）"
+    (property "说明" "B72214S0271K101（封装按 TDK StandarD 系列 p.14 尺寸图，159h）"
       (at 180.34 58.42 0)
       (effects
         (font
@@ -1928,7 +1928,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4"
+    (property "Footprint" "Capacitor_THT:C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3"
       (at 238.76 58.42 0)
       (effects
         (font
@@ -1943,7 +1943,7 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "BFC233920474（封装待核对）"
+    (property "说明" "BFC233920474（MKP339 X2 规格书：0.47 µF 是 15 mm 脚距、10.0 × 16.5 × 17.5 mm；159h 由 22.5 mm 封装改来）"
       (at 238.76 58.42 0)
       (effects
         (font
@@ -2340,7 +2340,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "Capacitor_THT:C_Disc_D8.0mm_W5.0mm_P7.50mm"
+    (property "Footprint" "Capacitor_THT:C_Disc_D9.0mm_W5.0mm_P10.00mm"
       (at 129.54 93.98 0)
       (effects
         (font
@@ -2355,7 +2355,7 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "Y 电容（封装待核对）"
+    (property "说明" "Y 电容（Murata DE1 规格书：2200 pF 直径 9.0、厚 4.0、脚距 10.0 mm；159h 由 7.5 mm 封装改来）"
       (at 129.54 93.98 0)
       (effects
         (font
@@ -2431,7 +2431,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "Capacitor_THT:C_Disc_D8.0mm_W5.0mm_P7.50mm"
+    (property "Footprint" "Capacitor_THT:C_Disc_D9.0mm_W5.0mm_P10.00mm"
       (at 190.5 93.98 0)
       (effects
         (font
@@ -2522,7 +2522,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "Varistor:RV_Disc_D15.5mm_W4.9mm_P7.5mm"
+    (property "Footprint" "wq:NTC_Disc_D21.0mm_W7.0mm_P7.5mm_TDK_S364"
       (at 248.92 93.98 0)
       (effects
         (font
@@ -2537,7 +2537,7 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "B57364S0259M000（上电浪涌限流，母线充好后由 K101 短接；封装按盘片选，待核对）"
+    (property "说明" "B57364S0259M000（上电浪涌限流，母线充好后由 K101 短接；封装按 TDK S364 p.3 尺寸图，159h）"
       (at 248.92 93.98 0)
       (effects
         (font
@@ -2628,7 +2628,7 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "G5LE-1-E DC12：1 公共端、3 常开（短接热敏电阻）、2/5 线圈。线圈 12 V 用在 15 V 上——线圈最高允许电压待核对规格书"
+    (property "说明" "G5LE-1-E DC12：1 公共端、3 常开（短接热敏电阻）、2/5 线圈（-E 型资料 p.4 底视图，159h 核对）"
       (at 314.96 96.52 0)
       (effects
         (font
@@ -2678,7 +2678,7 @@
       (width 0)
       (type default))
     (uuid "8245688c-2898-57a7-a4a0-2e79ba202354"))
-  (global_label "+15V"
+  (global_label "RLY_A"
     (shape passive)
     (at 309.88 106.68 270)
     (fields_autoplaced)
@@ -2740,40 +2740,131 @@
         (font
           (size 1.27 1.27)) hide)))
   (symbol
+    (lib_id "Device:R")
+    (at 60.96 137.16 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "da9f5b04-6ae7-50a6-887c-5eecd3887eda")
+    (property "Reference" "R105"
+      (at 60.96 129.54 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "82"
+      (at 60.96 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_1206_3216Metric"
+      (at 60.96 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 60.96 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "RES-1206"
+      (at 60.96 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" "159h：线圈串 82 Ω，15 V 分到线圈约 12.2 V（线圈 360 Ω，-E 型资料 p.2）；不串时 15 V 是额定的 125 %，离 85 ℃ 时的上限 130 % 太近。电阻耗 0.1 W，用 1206"
+      (at 60.96 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "82de6719-a344-5082-82a3-a6f364d082e8"))
+    (pin "2"
+      (uuid "487df98b-b73f-58c0-b338-4113cfa67a4d"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/200e218f-a52a-5277-abf3-68100ea1b43b"
+          (reference "R105")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 60.96 133.35)
+      (xy 60.96 130.81))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "036a3a6d-d9fb-5417-bf96-9e8615340a22"))
+  (global_label "+15V"
+    (shape passive)
+    (at 60.96 130.81 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "8151356e-44f2-5bab-800c-ac99f6252e0b")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 130.81 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 60.96 140.97)
+      (xy 60.96 143.51))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "a83f2cf3-77ff-5553-a349-5de44e87a55b"))
+  (global_label "RLY_A"
+    (shape passive)
+    (at 60.96 143.51 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "0c89ef3b-1d3c-5c89-b3ab-08e59edac092")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 60.96 143.51 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
     (lib_id "Device:D")
-    (at 63.5 132.08 0)
+    (at 124.46 132.08 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "0174b317-0243-55a7-a338-31dc8f7addd0")
     (property "Reference" "D101"
-      (at 63.5 129.54 0)
+      (at 124.46 129.54 0)
       (effects
         (font
           (size 1.27 1.27))))
     (property "Value" "1N4148W"
-      (at 63.5 134.62 0)
+      (at 124.46 134.62 0)
       (effects
         (font
           (size 1.27 1.27))))
     (property "Footprint" "Diode_SMD:D_SOD-123"
-      (at 63.5 132.08 0)
+      (at 124.46 132.08 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 63.5 132.08 0)
+      (at 124.46 132.08 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (property "物料编号" "DIO-1N4148W"
-      (at 63.5 132.08 0)
+      (at 124.46 132.08 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "继电器线圈续流"
-      (at 63.5 132.08 0)
+    (property "说明" "继电器线圈续流（跨在线圈两端）"
+      (at 124.46 132.08 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
@@ -2788,83 +2879,83 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 59.69 132.08)
-      (xy 57.15 132.08))
+      (xy 120.65 132.08)
+      (xy 118.11 132.08))
     (stroke
       (width 0)
       (type default))
-    (uuid "a29b2e39-e202-50bc-9a4f-126c11cefec9"))
-  (global_label "+15V"
+    (uuid "12ae4aee-4ed8-5aa5-9c54-b38a2759faf3"))
+  (global_label "RLY_A"
     (shape passive)
-    (at 57.15 132.08 180)
+    (at 118.11 132.08 180)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "f9fbf0f1-c16d-5d7c-9124-6caa44e6d917")
+    (uuid "d1f34646-2b7d-53d0-a0dd-82f02628f24e")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 57.15 132.08 0)
+      (at 118.11 132.08 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))
   (wire
     (pts
-      (xy 67.31 132.08)
-      (xy 69.85 132.08))
+      (xy 128.27 132.08)
+      (xy 130.81 132.08))
     (stroke
       (width 0)
       (type default))
-    (uuid "8a5ebdd8-b852-5847-ba9b-79e2b703a12a"))
+    (uuid "442d2632-a47c-52ce-9884-5cd3c9a460c9"))
   (global_label "RLY_K"
     (shape passive)
-    (at 69.85 132.08 0)
+    (at 130.81 132.08 0)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify left))
-    (uuid "2bb51325-e0a1-502b-b22e-dd801634d53e")
+    (uuid "74580400-8b31-5a79-ba64-bfc3dcec98c4")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 69.85 132.08 0)
+      (at 130.81 132.08 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))
   (symbol
     (lib_id "Transistor_FET:2N7002")
-    (at 132.08 137.16 0)
+    (at 193.04 137.16 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "fe23a331-75d6-5bd0-b47b-6f2d2224f48f")
     (property "Reference" "Q101"
-      (at 132.08 129.54 0)
+      (at 193.04 129.54 0)
       (effects
         (font
           (size 1.27 1.27))))
     (property "Value" "2N7002"
-      (at 132.08 144.78 0)
+      (at 193.04 144.78 0)
       (effects
         (font
           (size 1.27 1.27))))
     (property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-      (at 132.08 137.16 0)
+      (at 193.04 137.16 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 132.08 137.16 0)
+      (at 193.04 137.16 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (property "物料编号" "MOS-2N7002"
-      (at 132.08 137.16 0)
+      (at 193.04 137.16 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (property "说明" "母线充好（校正控制器 VB_OK = 5 V）后吸合"
-      (at 132.08 137.16 0)
+      (at 193.04 137.16 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
@@ -2881,158 +2972,67 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 127 137.16)
-      (xy 124.46 137.16))
+      (xy 187.96 137.16)
+      (xy 185.42 137.16))
     (stroke
       (width 0)
       (type default))
-    (uuid "cc9a1b15-6684-51d8-b734-3ded3499c5b8"))
+    (uuid "77f22d67-15a0-5f70-9e4f-bd893aac16da"))
   (global_label "RLY_G"
     (shape passive)
-    (at 124.46 137.16 180)
+    (at 185.42 137.16 180)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "99d1f562-4adf-5d3c-b51a-aebe977a0873")
+    (uuid "a89d5ce0-ad81-5b4e-911e-2c45af6625dd")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 124.46 137.16 0)
+      (at 185.42 137.16 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))
   (wire
     (pts
-      (xy 134.62 142.24)
-      (xy 134.62 144.78))
+      (xy 195.58 142.24)
+      (xy 195.58 144.78))
     (stroke
       (width 0)
       (type default))
-    (uuid "48444d49-9d04-5ed9-8b5b-8e75f6ee50bb"))
+    (uuid "46e34b72-d17f-5406-9c90-5902e75e95ab"))
   (global_label "GND"
     (shape passive)
-    (at 134.62 144.78 270)
+    (at 195.58 144.78 270)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "e4fd1af1-7a0e-568d-a7b5-35733a7b5941")
+    (uuid "6fec0fc2-e699-545a-b421-313885e07756")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 134.62 144.78 0)
-      (effects
-        (font
-          (size 1.27 1.27)) hide)))
-  (wire
-    (pts
-      (xy 134.62 132.08)
-      (xy 134.62 129.54))
-    (stroke
-      (width 0)
-      (type default))
-    (uuid "75543c6b-9b28-5296-beaa-e39c2ad07087"))
-  (global_label "RLY_K"
-    (shape passive)
-    (at 134.62 129.54 90)
-    (fields_autoplaced)
-    (effects
-      (font
-        (size 1.27 1.27))
-      (justify left))
-    (uuid "41d9487b-8e7a-5afb-a7d1-9ac53c09885f")
-    (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 134.62 129.54 0)
-      (effects
-        (font
-          (size 1.27 1.27)) hide)))
-  (symbol
-    (lib_id "Device:R")
-    (at 195.58 137.16 0)
-    (unit 1)
-    (in_bom yes)
-    (on_board yes)
-    (dnp no)
-    (uuid "ac3cf4f5-83dd-543f-a55c-d897b6720d9d")
-    (property "Reference" "R103"
-      (at 195.58 129.54 0)
-      (effects
-        (font
-          (size 1.27 1.27))))
-    (property "Value" "1k"
       (at 195.58 144.78 0)
       (effects
         (font
-          (size 1.27 1.27))))
-    (property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-      (at 195.58 137.16 0)
-      (effects
-        (font
-          (size 1.27 1.27)) hide))
-    (property "Datasheet" ""
-      (at 195.58 137.16 0)
-      (effects
-        (font
-          (size 1.27 1.27)) hide))
-    (property "物料编号" "RES-0603"
-      (at 195.58 137.16 0)
-      (effects
-        (font
-          (size 1.27 1.27)) hide))
-    (property "说明" "VB_OK 最多出 1 mA（ICE3PCS01G 规格书 p.19），只推管子栅极"
-      (at 195.58 137.16 0)
-      (effects
-        (font
-          (size 1.27 1.27)) hide))
-    (pin "1"
-      (uuid "9bc10fba-6710-5ce7-a130-453c7ff3ba16"))
-    (pin "2"
-      (uuid "a0f3da55-ca22-57e8-a084-e3a6944b6d68"))
-    (instances
-      (project "ctrl-ls"
-        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/200e218f-a52a-5277-abf3-68100ea1b43b"
-          (reference "R103")
-          (unit 1)))))
+          (size 1.27 1.27)) hide)))
   (wire
     (pts
-      (xy 195.58 133.35)
-      (xy 195.58 130.81))
+      (xy 195.58 132.08)
+      (xy 195.58 129.54))
     (stroke
       (width 0)
       (type default))
-    (uuid "035a25be-ff0b-5c3f-aace-8f1f66f4b633"))
-  (global_label "VB_OK"
+    (uuid "5219b60e-9e26-5837-ac34-5d6f779502b3"))
+  (global_label "RLY_K"
     (shape passive)
-    (at 195.58 130.81 90)
+    (at 195.58 129.54 90)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify left))
-    (uuid "02bf71ad-86ad-5fc2-a301-c94043f5c715")
+    (uuid "9839d6be-09cb-5b09-98ef-f98c37cfdaca")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 195.58 130.81 0)
-      (effects
-        (font
-          (size 1.27 1.27)) hide)))
-  (wire
-    (pts
-      (xy 195.58 140.97)
-      (xy 195.58 143.51))
-    (stroke
-      (width 0)
-      (type default))
-    (uuid "3e326c87-3d1a-5aa6-b294-4c5bcf036bdd"))
-  (global_label "RLY_G"
-    (shape passive)
-    (at 195.58 143.51 270)
-    (fields_autoplaced)
-    (effects
-      (font
-        (size 1.27 1.27))
-      (justify right))
-    (uuid "8ce09809-6f97-5d21-8442-0a5c5366db52")
-    (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 195.58 143.51 0)
+      (at 195.58 129.54 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))
@@ -3043,13 +3043,13 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "714bebd3-8709-5f46-b325-328a97c9ff02")
-    (property "Reference" "R104"
+    (uuid "ac3cf4f5-83dd-543f-a55c-d897b6720d9d")
+    (property "Reference" "R103"
       (at 254 129.54 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "100k"
+    (property "Value" "1k"
       (at 254 144.78 0)
       (effects
         (font
@@ -3069,8 +3069,99 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" ""
+    (property "说明" "VB_OK 最多出 1 mA（ICE3PCS01G 规格书 p.19），只推管子栅极"
       (at 254 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid "9bc10fba-6710-5ce7-a130-453c7ff3ba16"))
+    (pin "2"
+      (uuid "a0f3da55-ca22-57e8-a084-e3a6944b6d68"))
+    (instances
+      (project "ctrl-ls"
+        (path "/175e27dc-760c-5df9-a7da-6b1c2af4118a/200e218f-a52a-5277-abf3-68100ea1b43b"
+          (reference "R103")
+          (unit 1)))))
+  (wire
+    (pts
+      (xy 254 133.35)
+      (xy 254 130.81))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "b4548da2-48aa-5e47-9f6a-db9def3d3ccf"))
+  (global_label "VB_OK"
+    (shape passive)
+    (at 254 130.81 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left))
+    (uuid "60f807ca-188d-5b9a-97a6-611fec684943")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 254 130.81 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 254 140.97)
+      (xy 254 143.51))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "0e3b6ac8-7066-501f-9ba0-1b722fc6f053"))
+  (global_label "RLY_G"
+    (shape passive)
+    (at 254 143.51 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right))
+    (uuid "84aa1263-af8f-5798-a433-aad5c195f9ea")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 254 143.51 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide)))
+  (symbol
+    (lib_id "Device:R")
+    (at 314.96 137.16 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "714bebd3-8709-5f46-b325-328a97c9ff02")
+    (property "Reference" "R104"
+      (at 314.96 129.54 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "100k"
+      (at 314.96 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+      (at 314.96 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 314.96 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "物料编号" "RES-0603"
+      (at 314.96 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "说明" ""
+      (at 314.96 137.16 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
@@ -3085,83 +3176,83 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 254 133.35)
-      (xy 254 130.81))
+      (xy 314.96 133.35)
+      (xy 314.96 130.81))
     (stroke
       (width 0)
       (type default))
-    (uuid "18fd577b-f942-5157-a3e7-85360c6f1e0b"))
+    (uuid "c1f08cec-1a8e-5be2-89bc-2669bf57a7b9"))
   (global_label "RLY_G"
     (shape passive)
-    (at 254 130.81 90)
+    (at 314.96 130.81 90)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify left))
-    (uuid "fce97e47-8dc8-5394-a1b3-e8ee7f8930d8")
+    (uuid "b55fd3a0-2829-5194-b7aa-9a598cccfb36")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 254 130.81 0)
+      (at 314.96 130.81 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))
   (wire
     (pts
-      (xy 254 140.97)
-      (xy 254 143.51))
+      (xy 314.96 140.97)
+      (xy 314.96 143.51))
     (stroke
       (width 0)
       (type default))
-    (uuid "1a21d181-4c0f-5cba-b39d-048797da6e92"))
+    (uuid "3b8598ae-4381-503a-8642-b1d46a4ccc05"))
   (global_label "GND"
     (shape passive)
-    (at 254 143.51 270)
+    (at 314.96 143.51 270)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "258e2bdb-ab25-5800-98c7-c7ca9bc2c1aa")
+    (uuid "537f85b0-cb8e-5592-8c12-5604ddeb6528")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 254 143.51 0)
+      (at 314.96 143.51 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))
   (symbol
     (lib_id "Diode_Bridge:GBU4A")
-    (at 322.58 139.7 0)
+    (at 68.58 177.8 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "d215cbe0-9a39-5308-93d7-33794bd1cd87")
     (property "Reference" "BR101"
-      (at 322.58 129.54 0)
+      (at 68.58 167.64 0)
       (effects
         (font
           (size 1.27 1.27))))
     (property "Value" "GBU1006"
-      (at 322.58 149.86 0)
+      (at 68.58 187.96 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "Diode_THT:Diode_Bridge_Vishay_GBU"
-      (at 322.58 139.7 0)
+    (property "Footprint" "wq:Diode_Bridge_GBU_D1.8mm"
+      (at 68.58 177.8 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 322.58 139.7 0)
+      (at 68.58 177.8 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (property "物料编号" "BRG-GBU1006"
-      (at 322.58 139.7 0)
+      (at 68.58 177.8 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "说明" "整流桥（符号和封装用 KiCad 官方库的 GBU 系列：1 +、2 ~、3 ~、4 −；装在散热器上）"
-      (at 322.58 139.7 0)
+    (property "说明" "整流桥（符号用 KiCad 官方库的 GBU 系列：1 +、2 ~、3 ~、4 −，LGE 规格书 p.1 核对；封装同官方库、孔改 1.8 mm（159h）；装在散热器上）"
+      (at 68.58 177.8 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
@@ -3180,127 +3271,127 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 330.2 139.7)
-      (xy 332.74 139.7))
+      (xy 76.2 177.8)
+      (xy 78.74 177.8))
     (stroke
       (width 0)
       (type default))
-    (uuid "7c7d8d56-bd80-5364-b424-95f2b4de5363"))
+    (uuid "841fe231-2844-575b-8b19-4f627037ed36"))
   (global_label "VRECT"
     (shape passive)
-    (at 332.74 139.7 0)
+    (at 78.74 177.8 0)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify left))
-    (uuid "ea185630-67ee-5f99-a03b-2ae7d6e9a28e")
+    (uuid "8ced7eae-4f0f-585b-a743-43d07449a05d")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 332.74 139.7 0)
+      (at 78.74 177.8 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))
   (wire
     (pts
-      (xy 322.58 147.32)
-      (xy 322.58 149.86))
+      (xy 68.58 185.42)
+      (xy 68.58 187.96))
     (stroke
       (width 0)
       (type default))
-    (uuid "2829ce0a-5eba-55a2-a3e5-4eeb21019eec"))
+    (uuid "7f8216f3-f6a6-5ab4-ab20-2c0d20a1123d"))
   (global_label "L_R"
     (shape passive)
-    (at 322.58 149.86 270)
+    (at 68.58 187.96 270)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "a4228469-e03c-58fb-aba0-2ee0d50ab0fd")
+    (uuid "8faa9ad6-a96f-5a69-9c1c-3c184c7efa4d")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 322.58 149.86 0)
+      (at 68.58 187.96 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))
   (wire
     (pts
-      (xy 322.58 132.08)
-      (xy 322.58 129.54))
+      (xy 68.58 170.18)
+      (xy 68.58 167.64))
     (stroke
       (width 0)
       (type default))
-    (uuid "cb286fd1-524c-51f8-b306-2ff949467da5"))
+    (uuid "7dee0c7c-19f1-5bf8-8b67-b8378482c94d"))
   (global_label "N_C"
     (shape passive)
-    (at 322.58 129.54 90)
+    (at 68.58 167.64 90)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify left))
-    (uuid "6fa05c57-d508-5657-aaae-738fece33171")
+    (uuid "d5e0b1c9-7615-57d8-8afb-a6e9d8b99708")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 322.58 129.54 0)
+      (at 68.58 167.64 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))
   (wire
     (pts
-      (xy 314.96 139.7)
-      (xy 312.42 139.7))
+      (xy 60.96 177.8)
+      (xy 58.42 177.8))
     (stroke
       (width 0)
       (type default))
-    (uuid "bc96d2c4-cbac-5a9a-bd6e-a69c6c6c84a9"))
+    (uuid "8cedf94d-fa10-52a9-8fb4-9c2db7c09866"))
   (global_label "RECT_N"
     (shape passive)
-    (at 312.42 139.7 180)
+    (at 58.42 177.8 180)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "24c8d409-af4f-5131-b631-0233a9e301de")
+    (uuid "1f7b7f25-98de-5075-8099-454c1f48b973")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 312.42 139.7 0)
+      (at 58.42 177.8 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))
   (symbol
     (lib_id "Device:C")
-    (at 60.96 180.34 0)
+    (at 134.62 175.26 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "13976251-1000-50e3-98b3-f7f230a52bff")
     (property "Reference" "C104"
-      (at 60.96 175.26 0)
+      (at 134.62 170.18 0)
       (effects
         (font
           (size 1.27 1.27))))
     (property "Value" "1u/450V"
-      (at 60.96 185.42 0)
+      (at 134.62 180.34 0)
       (effects
         (font
           (size 1.27 1.27))))
     (property "Footprint" "Capacitor_THT:C_Rect_L18.0mm_W8.0mm_P15.00mm_FKS3_FKP3"
-      (at 60.96 180.34 0)
+      (at 134.62 175.26 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 60.96 180.34 0)
+      (at 134.62 175.26 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (property "物料编号" "CAP-FILM-1U-450V"
-      (at 60.96 180.34 0)
+      (at 134.62 175.26 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (property "说明" "整流后高频旁路（吸收升压管开关电流，薄膜电容）"
-      (at 60.96 180.34 0)
+      (at 134.62 175.26 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
@@ -3315,45 +3406,45 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 60.96 176.53)
-      (xy 60.96 173.99))
+      (xy 134.62 171.45)
+      (xy 134.62 168.91))
     (stroke
       (width 0)
       (type default))
-    (uuid "177e0eb6-f754-5d8e-8317-706ebf190a96"))
+    (uuid "bba7e470-357b-577f-8d9c-300e3b179620"))
   (global_label "VRECT"
     (shape passive)
-    (at 60.96 173.99 90)
+    (at 134.62 168.91 90)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify left))
-    (uuid "fc0de59c-8e4e-56d8-a3b1-4fc53934f12d")
+    (uuid "74aac3d5-e9ee-5edb-9ddb-1862b4d4bf0d")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 60.96 173.99 0)
+      (at 134.62 168.91 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))
   (wire
     (pts
-      (xy 60.96 184.15)
-      (xy 60.96 186.69))
+      (xy 134.62 179.07)
+      (xy 134.62 181.61))
     (stroke
       (width 0)
       (type default))
-    (uuid "5f30cd4c-35f1-537e-8a6a-4bd433eeb5c7"))
+    (uuid "b6d1ef36-51ab-5dda-bafe-ffd0e64bddc0"))
   (global_label "RECT_N"
     (shape passive)
-    (at 60.96 186.69 270)
+    (at 134.62 181.61 270)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify right))
-    (uuid "0e33e028-421c-5aa6-8579-d7f9b28305c1")
+    (uuid "bd696acf-3e1a-5761-99d1-47dde1eb4e1e")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 60.96 186.69 0)
+      (at 134.62 181.61 0)
       (effects
         (font
           (size 1.27 1.27)) hide)))

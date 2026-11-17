@@ -9187,5 +9187,8 @@
 "平面图": "Plan",
 "拖动平移 · 滚轮缩放 · 点车间进去 · 点设备看状态和工艺文件": "Drag to pan · scroll to zoom · click a shop to enter · click a machine for status and process documents",
 "件数（{a}）": "Quantity ({a})",
-"例如 {a}": "e.g. {a}"
+"例如 {a}": "e.g. {a}",
+"下单文件包（打样 5 块：光绘、贴片物料清单与坐标、定制件与散热器、磁性件绕制规格单、核对表）": "Order package (5 prototype boards: Gerbers, assembly BOM and placement, custom parts and heatsink, magnetics winding specs, pin and footprint check list)",
+"下单说明": "Ordering notes",
+"下单文件包（打样）": "Order package (prototypes)"
 }

@@ -135,16 +135,63 @@ def calc_ac_input(block, spec, d, parts):
             "触点额定 ≥ {:g} × I_输入".format(m["fuse"]),
         ),
         dev.judge(p["cmc"], "i_rated", "共模电感额定电流", pb["i_in"], "A", "额定（温升约 35 ℃）≥ I_输入"),
-        # 159d2：继电器线圈 12 V 用在 15 V 辅助电源上
-        dev.judge(
-            p["relay"],
-            "coil_v_max_pct",
-            "继电器线圈电压（12 V 线圈接 15 V）",
-            100 * spec["vcc_aux_v"] / p["relay_coil_v"],
-            "%",
-            "最高允许电压（额定的 %）≥ 15 V / 12 V",
-        ),
+        # 159d2：继电器线圈 12 V 用在 15 V 辅助电源上；159h：线圈串电阻（relay_coil_series_ohm）分掉多出来的电压，
+        # 按 -E 型资料 85 ℃ 时的最高允许电压（130 %）判；吸合电压（75 %）也判。没写串电阻就按直接接 15 V 判（旧做法）。
     ]
+    rs = p.get("relay_coil_series_ohm")
+    rcoil = dev.value(p["relay"], "coil_r")
+    v_coil = spec["vcc_aux_v"] if not rs or rcoil is None else spec["vcc_aux_v"] * rcoil / (rcoil + rs)
+    if rs:
+        items.append(
+            c.item(
+                "v_coil",
+                "继电器线圈电压（串 {:g} Ω）".format(rs),
+                v_coil,
+                "V",
+                "V = V_辅助 · R_线圈 / (R_线圈 + R_串)",
+                source=dev.source(p["relay"], "coil_r"),
+                note=dev.note(p["relay"], "coil_r"),
+            )
+        )
+        checks.append(
+            dev.judge(
+                p["relay"],
+                "coil_v_max_pct_85c",
+                "继电器线圈电压（85 ℃ 时最高允许）",
+                100 * v_coil / p["relay_coil_v"],
+                "%",
+                "最高允许电压（额定的 %，85 ℃）≥ V_线圈 / 12 V",
+            )
+        )
+        pick = dev.value(p["relay"], "must_operate_pct")
+        checks.append(
+            c.judge(
+                "must_operate",
+                "继电器能吸合（线圈电压 ≥ 吸合电压）",
+                None if pick is None else p["relay_coil_v"] * pick / 100,
+                v_coil,
+                "V",
+                "V_线圈 ≥ 吸合电压（额定的 {} %）".format("—" if pick is None else "{:g}".format(pick)),
+                status=c.PENDING if pick is not None and not dev.checked(p["relay"], "must_operate_pct") else None,
+                source=dev.source(p["relay"], "must_operate_pct"),
+                note=dev.note(p["relay"], "must_operate_pct"),
+            )
+        )
+    else:
+        checks.append(
+            dev.judge(
+                p["relay"],
+                "coil_v_max_pct",
+                "继电器线圈电压（12 V 线圈接 15 V）",
+                100 * spec["vcc_aux_v"] / p["relay_coil_v"],
+                "%",
+                "最高允许电压（额定的 %）≥ 15 V / 12 V",
+            )
+        )
+    if p.get("fuse_clip"):
+        checks.append(
+            dev.judge(p["fuse_clip"], "i_rated", "保险丝夹额定电流", pb["i_in"], "A", "夹子额定 ≥ I_输入")
+        )
     return items, checks
 
 
@@ -609,16 +656,25 @@ def calc_heatsink(block, spec, d, parts):
             note="电控箱内环境 {:g} ℃（示例），导热垫 R_cs {:g} K/W（示例）".format(ta, rcs),
         )
     )
+    hs = p.get("heatsink")
+    if hs:  # 159h：散热器定了型号，热阻取它的资料（eda/parts/），待核对的照样显示待核对
+        sel = dev.value(hs, "r_sa")
+        refs = refs + [(hs, "r_sa")]
+        src_ = dev.source(hs, "r_sa")
+        note = "{}：{:g} K/W（{}）".format(hs, sel, src_) if sel is not None else "{} 的热阻没录".format(hs)
+    else:
+        sel = p["r_sa_selected"]
+        note = "选用值 {:g} K/W 是设计给定（散热器型号在 159d 定）".format(sel)
     checks = [
         c.judge(
             "r_sa",
             "选的散热器热阻够小",
-            p["r_sa_selected"],
+            sel,
             r_sa,
             "K/W",
             "R_sa,要求 ≥ R_sa,选用",
-            status=stat(dev, refs, None if r_sa is None else r_sa >= p["r_sa_selected"]),
-            note="选用值 {:g} K/W 是设计给定（散热器型号在 159d 定）".format(p["r_sa_selected"]),
+            status=stat(dev, refs, None if r_sa is None or sel is None else r_sa >= sel),
+            note=note,
         )
     ]
     return items, checks

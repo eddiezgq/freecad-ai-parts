@@ -273,8 +273,8 @@ boms:
   components: [[SMT-ENC, 1], [CONN-SIG, 1], [COAT-AR, 0.001], [BAG-ESD, 1]]
 - item: SMT-CTRL
   routing: RT-SMT-CTRL 贴片线（平缝机控制器） SMT line (sewing controller)
-  # 第 159 轮 159e：贴片件 187 个（与 KiCad 设计的物料清单逐项一致，测试核对；锡膏按板子面积示例值）
-  components: [[PCB-CTRL, 1], [CAP-0402, 9], [CAP-0603, 34], [CAP-0805, 3], [CAP-1206, 10], [CAP-1210, 1], [CAP-1812-1KV, 1], [CAP-1812-630V, 1], [CAP-EL-47U-16V, 1], [DIO-1N4007, 2], [DIO-1N4148W, 1], [DIO-ES3D, 7], [DIO-US1M, 1], [IC-74LVC14, 1], [IC-ADUM1201, 1], [IC-LDO-3V3, 2], [IC-MCU-MC, 1], [IC-PFC-ICE3PCS01G, 1], [IC-RS485, 1], [IC-TL431, 1], [IC-TMC2226, 1], [IC-TOP266KG, 1], [MOS-2N7002, 6], [MOS-80V, 4], [OPTO-PC817, 1], [RES-0402, 1], [RES-0603, 66], [RES-1206, 15], [RES-2010-0R12, 2], [RES-2512, 2], [RES-SHUNT-10M, 1], [RES-SHUNT-25M, 3], [TVS-SMBJ24A, 4], [XTAL, 1], [PASTE-SAC305, 0.012]]
+  # 第 159 轮 159e：贴片件 187 个（与 KiCad 设计的物料清单逐项一致，测试核对；锡膏按板子面积示例值）；159h 加继电器线圈串电阻 R105，188 个
+  components: [[PCB-CTRL, 1], [CAP-0402, 9], [CAP-0603, 34], [CAP-0805, 3], [CAP-1206, 10], [CAP-1210, 1], [CAP-1812-1KV, 1], [CAP-1812-630V, 1], [CAP-EL-47U-16V, 1], [DIO-1N4007, 2], [DIO-1N4148W, 1], [DIO-ES3D, 7], [DIO-US1M, 1], [IC-74LVC14, 1], [IC-ADUM1201, 1], [IC-LDO-3V3, 2], [IC-MCU-MC, 1], [IC-PFC-ICE3PCS01G, 1], [IC-RS485, 1], [IC-TL431, 1], [IC-TMC2226, 1], [IC-TOP266KG, 1], [MOS-2N7002, 6], [MOS-80V, 4], [OPTO-PC817, 1], [RES-0402, 1], [RES-0603, 66], [RES-1206, 16], [RES-2010-0R12, 2], [RES-2512, 2], [RES-SHUNT-10M, 1], [RES-SHUNT-25M, 3], [TVS-SMBJ24A, 4], [XTAL, 1], [PASTE-SAC305, 0.012]]
 - item: CTRL-LS
   routing: RT-后段-CTRL 后段（平缝机控制器） Back end (sewing controller)
   # 通孔件 30 个（选择焊；KiCad 板上的通孔封装，测试核对）。发热大件贴电控箱顶板散热，散热片、导热垫在缝纫机厂装箱时装，不在这块板上

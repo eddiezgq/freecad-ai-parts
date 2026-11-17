@@ -1,10 +1,11 @@
 # 浪涌旁路继电器（12 V 线圈）。平缝机控制器 CTRL-LS（第 159 轮）用。
-# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+# 159h（2026-11-16）：改按立创转存的 -E 高容量型资料（G5LE-E/-G 目录）逐项对照原图核对（p.2 线圈表看原图），checked: true；
+# 核对记录见 factory/designs/ctrl-ls/order/核对表.md。原先线圈数据借的是标准型资料（K100-E1-06），已换成 -E 型本身的数。
 format: wqeda.part/1
 part: G5LE-1-E DC12
 maker: Omron
 datasheet:
-  title: Power Relay G5LE-G / G5LE-E
+  title: G5LE-E/-G Power Relay (G5LE-E Catalogue)
   revision: (no revision printed)
   url: https://www.lcsc.com/datasheet/C152711.pdf
 params:
@@ -13,23 +14,33 @@ params:
     unit: A
     kind: max
     condition: rated load, G5LE-E high capacity type, 250 VAC
-    where: p.1
-    checked: false
-  # 159d2：线圈数据。手头能读的是 G5LE 标准型的资料（Omron Cat. No. K100-E1-06，Farnell 转存），不含 -E 高容量型；
-  # 线圈按同系列 12 VDC 录，待核对 -E 型的资料。
+    where: p.1 Ordering Information
+    checked: true
   coil_r:
     value: 360
     unit: Ω
     kind: typ
-    condition: coil resistance, 12 VDC coil (G5LE standard type document, Cat. No. K100-E1-06)
-    where: Omron G5LE 标准型资料 Cat. No. K100-E1-06（Farnell 转存）p.1 coil ratings
-    url: https://www.farnell.com/datasheets/2182434.pdf
-    checked: false
+    condition: coil resistance, 400-mW type (G5LE-E) 12 VDC, at 23 °C, tolerance ±10 % (rated current 33.3 mA)
+    where: p.2 Coil Ratings, 400-mW Type (G5LE-E)
+    checked: true
   coil_v_max_pct:
     value: 170
     unit: '%'
     kind: max
-    condition: max. voltage, % of rated voltage, at 23 °C (G5LE standard type document)
-    where: Omron G5LE 标准型资料 Cat. No. K100-E1-06（Farnell 转存）p.1 coil ratings
-    url: https://www.farnell.com/datasheets/2182434.pdf
-    checked: false
+    condition: max. voltage, % of rated voltage, at 23 °C (400-mW type)
+    where: p.2 Coil Ratings, 400-mW Type (G5LE-E)
+    checked: true
+  coil_v_max_pct_85c:
+    value: 130
+    unit: '%'
+    kind: max
+    condition: max. voltage, % of rated voltage, at 85 °C (400-mW type)
+    where: p.2 Coil Ratings, 400-mW Type (G5LE-E); p.4 Ambient Temp. vs Max. Voltage
+    checked: true
+  must_operate_pct:
+    value: 75
+    unit: '%'
+    kind: max
+    condition: must operate voltage, % of rated voltage (max.)
+    where: p.2 Coil Ratings, 400-mW Type (G5LE-E)
+    checked: true

@@ -1,0 +1,25 @@
+# 5×20 mm 保险丝夹（每只保险丝两个）。平缝机控制器 CTRL-LS（第 159 轮 159h）用。
+# 159h（2026-11-16）：立创 C3130 旭程电子（XC Electronics）承认书，内置浏览器读文字、尺寸图看原图核对，checked: true。
+# 核对记录见 factory/designs/ctrl-ls/order/核对表.md。
+format: wqeda.part/1
+part: XC-5X20-9A
+maker: 旭程电子（深圳）XC Electronics
+datasheet:
+  title: 产品承认书 保险丝夹 5*20 镀锡黄铜夹（9A.520SWG1）
+  revision: XCRD-C Ver.1.1（2023-10-26）
+  url: https://www.lcsc.com/datasheet/C3130.pdf
+params:
+  i_rated:
+    value: 9
+    unit: A
+    kind: max
+    condition: fuse clip 9A for Φ5.2×20 mm
+    where: p.2 1. 适用范围、2. 型号定义
+    checked: true
+  r_contact:
+    value: 0.020
+    unit: Ω
+    kind: max
+    condition: contact resistance after 3 insertions of Φ5.2×20 mm fuse
+    where: p.4 6.2
+    checked: true

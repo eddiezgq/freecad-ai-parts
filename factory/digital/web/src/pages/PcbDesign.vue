@@ -53,6 +53,8 @@
       <p v-if="rev === 'A'" class="small">{{ t('同一物料编号、同一数值和封装合为一行；“物料编号”就是电路板厂清单里的编号（贴片板 SMT-DRV 与成品板 DRV-JOINT 的物料清单按这份设计的数量写，测试核对）。') }}</p>
       <p v-else-if="rev === 'B'" class="small">{{ t('B 版：现实里不投产（芯片未流片）；数字工业园里电路板厂试产，贴片板 SMT-DRV-B 与成品板 DRV-JOINT-B 的物料清单按这份设计的数量写（测试核对）。比 A 版多出的见“A→B 改了什么”。') }}</p>
       <p v-else class="small">{{ t('型号、厂家、立创编号来自第 159 轮选型（外部零件库查到、规格书核过的写在设计描述里）；同一物料编号、数值和封装合为一行。') }}</p>
+      <p v-if="rev === 'C'" class="small"><a :href="url('order/ctrl-ls-order.zip')" download>{{ t('下单文件包（打样 5 块：光绘、贴片物料清单与坐标、定制件与散热器、磁性件绕制规格单、核对表）') }}</a>
+        · <a :href="url('order/README.md')" target="_blank">{{ t('下单说明') }}</a></p>
       <table class="tbl">
         <thead><tr><th>{{ t('物料编号') }}</th><th>{{ t('数值') }}</th><th>{{ t('封装') }}</th><th>{{ t('数量') }}</th><th>{{ t('位号') }}</th>
           <th v-if="rev === 'C'">{{ t('型号 / 厂家') }}</th><th>{{ t('说明') }}</th><th>{{ t('到外部库查') }}</th></tr></thead>
@@ -145,6 +147,7 @@
         <li><a :href="url('gerber.zip')" download>{{ t('Gerber 与钻孔文件（给板厂）') }}</a></li>
         <li><a :href="url('bom.csv')" download>BOM (CSV)</a> · <a :href="url('pos.csv')" download>{{ t('贴片坐标（CSV，给贴片机编程）') }}</a></li>
         <li><a :href="url(stem + '.step')" download>{{ t('三维 STEP（FreeCAD）') }}</a></li>
+        <li v-if="rev === 'C'"><a :href="url('order/ctrl-ls-order.zip')" download>{{ t('下单文件包（打样）') }}</a></li>
         <li v-if="rev !== 'C'"><a :href="url('drc.json')" target="_blank">{{ t('设计规则检查结果') }}</a> · <a :href="url('dfm.json')" target="_blank">{{ t('可制造性检查结果') }}</a></li>
         <li v-else><a :href="url('drc.json')" target="_blank">{{ t('设计规则检查结果') }}</a> · <a :href="url('safety.json')" target="_blank">{{ t('安全距离检查结果') }}</a>
           · <a :href="url('report/report.html')" target="_blank">{{ t('报告全文') }}</a> · <a :href="url('report/calc.html')" target="_blank">{{ t('计算书') }}</a></li>

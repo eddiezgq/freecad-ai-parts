@@ -5,6 +5,7 @@
 import json
 import math
 import os
+import re
 import shutil
 
 import pytest
@@ -97,12 +98,25 @@ def test_device_data_unknown_pending_pass_fail():
 
 
 def test_shipped_device_data_is_sourced_and_unchecked():
+    """每个数都有出处；checked 只能是 true / false。159h 起核对过的器件改 true，文件里要写明核对记录在哪（核对表）"""
+    import glob
     dev = parts.Devices.load()
     assert {"BSC040N08NS5", "INA240A1D", "LMR16006YQ", "MAX3485", "STM32G431CBT6"} <= set(dev.entries)
+    text = {}
+    for f in glob.glob(os.path.join(os.path.dirname(parts.__file__), "..", "parts", "*.yaml")):
+        with open(f, encoding="utf-8") as fh:
+            t = fh.read()
+        m = re.search(r"(?m)^part: (.+)$", t)
+        text[m.group(1).strip().strip("'\"")] = t
     for m, e in dev.entries.items():
         assert e["datasheet"]["url"].startswith("https://") and e["datasheet"]["title"]
         for k, p in e["params"].items():
-            assert p.get("where") and p.get("checked") is False, (m, k)
+            assert p.get("where") and p.get("checked") in (True, False), (m, k)
+            if p["checked"]:
+                assert "核对表" in text[m], (m, k)  # 核对过的要能查到核对记录
+    # 关节驱动板用的器件仍是录入未核对（第 104 轮的状态，判定显示“待核对”）
+    for m in ("BSC040N08NS5", "INA240A1D", "LMR16006YQ", "MAX3485", "STM32G431CBT6"):
+        assert all(p["checked"] is False for p in dev.entries[m]["params"].values()), m
 
 
 def test_calculators_on_drive_board(doc):

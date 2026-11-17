@@ -1,0 +1,19 @@
+# 散热器（平缝机控制器 CTRL-LS，第 159 轮 159h 选型）：Fischer Elektronik SK 47 型材，切 150 mm，黑色阳极氧化。
+# 整流桥、升压管、升压二极管、功率模块一排装在板子上边，贴在散热器基板上（基板 10 mm 厚）。
+# 热阻 0.53 K/W：厂家网站的产品页要过人机验证、本会话打不开，数取自 Conrad 商品页（厂家货号 10020505）转引的厂家数据；
+# 厂家曲线原图没对照，checked: false（判定显示“待核对”，不算通过）。打样时按调试步骤书满载测散热器温升，实测热阻写回这里。
+format: wqeda.part/1
+part: SK47-150-SA
+maker: Fischer Elektronik
+datasheet:
+  title: SK 47 150 SA standard extruded heatsink（Conrad 商品页 188824 转引厂家数据）
+  revision: (product page, checked 2026-11-16)
+  url: https://www.conrad.com/en/p/fischer-elektronik-10020505-sk-47-150-sa-heat-sink-0-53-k-w-l-x-w-x-h-150-x-200-x-40-mm-188824.html
+params:
+  r_sa:
+    value: 0.53
+    unit: K/W
+    kind: typ
+    condition: thermal resistance, length 150 mm, profile 200 x 40 mm, base 10 mm, black anodised
+    where: Technical data
+    checked: false

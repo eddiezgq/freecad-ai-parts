@@ -54,7 +54,7 @@
   "OPTO-PC817": 1,
   "RES-0402": 1,
   "RES-0603": 66,
-  "RES-1206": 15,
+  "RES-1206": 16,
   "RES-2010-0R12": 2,
   "RES-2512": 2,
   "RES-SHUNT-10M": 1,
@@ -64,34 +64,34 @@
   "XFMR-FLY-CUSTOM": 1,
   "XTAL": 1
  },
- "bom_rows": 95,
+ "bom_rows": 98,
  "date": "2026-11-12",
  "disclaimer": "示例设计，未经硬件验证，不能直接投产",
  "drc": {
   "errors": 0,
   "unconnected": 0,
-  "warnings": 59
+  "warnings": 58
  },
  "files": {
-  "bom.csv": "9f20a8bc3946c9f2",
-  "drc.json": "c2dfe85955730fcc",
-  "gerber.zip": "e175577b32d4addc",
-  "kicad-project.zip": "770f1a181c901545",
-  "netcheck.json": "1a4a6480005f2be7",
-  "pcb/B_Cu.svg": "06ae6f175d78a278",
-  "pcb/B_Silk.svg": "da51ac4e345b131d",
-  "pcb/F_Cu.svg": "141ead4a6a8454b6",
-  "pcb/F_Silk.svg": "2aca5583af3197bf",
-  "pcb/In1_Cu.svg": "acd74b0b8a6152ce",
-  "pcb/In2_Cu.svg": "1f144660cbf6a5b0",
-  "pos.csv": "455e7610783009c1",
-  "safety.json": "002748b9643d3476",
-  "schematic/ctrl-ls-1 交流输入、浪涌与整流.svg": "d741afc43d3efe76",
+  "bom.csv": "dcaf5a6e62ddb78c",
+  "drc.json": "e0b941bacac34cd6",
+  "gerber.zip": "b6a8c42af5e0fb89",
+  "kicad-project.zip": "c648fd165d559841",
+  "netcheck.json": "b6257200d490147a",
+  "pcb/B_Cu.svg": "e4034810b71665f3",
+  "pcb/B_Silk.svg": "10c5dbb716477e57",
+  "pcb/F_Cu.svg": "065e0a8d678ea84a",
+  "pcb/F_Silk.svg": "d956eabb87c08709",
+  "pcb/In1_Cu.svg": "8beefe458eb3ee30",
+  "pcb/In2_Cu.svg": "a09ad81510fb6575",
+  "pos.csv": "c762c174efbb53fa",
+  "safety.json": "71acc297d4ad1c3e",
+  "schematic/ctrl-ls-1 交流输入、浪涌与整流.svg": "4ee6ae34066aebf1",
   "schematic/ctrl-ls-2 功率因数校正与母线.svg": "d0b0075d62408796",
   "schematic/ctrl-ls-3 辅助电源.svg": "4fc48a7082c416a7",
   "schematic/ctrl-ls-4 主轴伺服逆变与电流采样.svg": "e989a8807fc40f73",
   "schematic/ctrl-ls-5 电磁铁与步进.svg": "ee228cd5fbb892f2",
-  "schematic/ctrl-ls-6 主控与传感器输入.svg": "afe0f0b00316ea24",
+  "schematic/ctrl-ls-6 主控与传感器输入.svg": "1c33e9cce78db79c",
   "schematic/ctrl-ls-7 面板口.svg": "3f685410973e2db9",
   "schematic/ctrl-ls-8 散热.svg": "2b5dd4c7085082d4",
   "schematic/ctrl-ls.svg": "5be3d304c7a1f898"
@@ -100,13 +100,13 @@
  "layers": 4,
  "name": "平缝机控制器 CTRL-LS",
  "netcheck": {
-  "nets_design": 150,
-  "nets_schematic": 150,
-  "parts_design": 253,
-  "parts_schematic": 253,
+  "nets_design": 151,
+  "nets_schematic": 151,
+  "parts_design": 254,
+  "parts_schematic": 254,
   "pass": true
  },
- "nets": 150,
+ "nets": 151,
  "origin_mm": [
   100.0,
   100.0
@@ -122,28 +122,28 @@
    "value": "AC IN L/N"
   },
   {
-   "fp": "Fuse:Fuseholder_Clip-5x20mm_Bel_FC-203-22_Lateral_P17.80x5.00mm_D1.17mm_Horizontal",
+   "fp": "wq:Fuseholder_Clip-5x20_XC-C3130_Pair",
    "item": "FUSE-T10A",
    "lib": "Device:Fuse",
-   "note": "0215010.MXP（5×20 mm 慢断，夹座安装；夹座封装待核对）",
+   "note": "0215010.MXP（5×20 mm 慢断，装在两个旭程 C3130 保险丝夹上；夹子另列物料，159h 按规格书定封装）",
    "ref": "F101",
    "sheet": "mains",
    "value": "10A T"
   },
   {
-   "fp": "Varistor:RV_Disc_D15.5mm_W4.9mm_P7.5mm",
+   "fp": "wq:RV_Disc_D15.5mm_W5.0mm_P7.5mm_TDK_S14",
    "item": "MOV-275",
    "lib": "Device:Varistor",
-   "note": "B72214S0271K101（封装按 14 mm 盘片选，待核对）",
+   "note": "B72214S0271K101（封装按 TDK StandarD 系列 p.14 尺寸图，159h）",
    "ref": "RV101",
    "sheet": "mains",
    "value": "S14K275"
   },
   {
-   "fp": "Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4",
+   "fp": "Capacitor_THT:C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3",
    "item": "CAP-X2-470N",
    "lib": "Device:C",
-   "note": "BFC233920474（封装待核对）",
+   "note": "BFC233920474（MKP339 X2 规格书：0.47 µF 是 15 mm 脚距、10.0 × 16.5 × 17.5 mm；159h 由 22.5 mm 封装改来）",
    "ref": "C101",
    "sheet": "mains",
    "value": "470n X2"
@@ -176,16 +176,16 @@
    "value": "7.3mH 9.3A"
   },
   {
-   "fp": "Capacitor_THT:C_Disc_D8.0mm_W5.0mm_P7.50mm",
+   "fp": "Capacitor_THT:C_Disc_D9.0mm_W5.0mm_P10.00mm",
    "item": "CAP-Y-2N2",
    "lib": "Device:C",
-   "note": "Y 电容（封装待核对）",
+   "note": "Y 电容（Murata DE1 规格书：2200 pF 直径 9.0、厚 4.0、脚距 10.0 mm；159h 由 7.5 mm 封装改来）",
    "ref": "C102",
    "sheet": "mains",
    "value": "2n2 Y1"
   },
   {
-   "fp": "Capacitor_THT:C_Disc_D8.0mm_W5.0mm_P7.50mm",
+   "fp": "Capacitor_THT:C_Disc_D9.0mm_W5.0mm_P10.00mm",
    "item": "CAP-Y-2N2",
    "lib": "Device:C",
    "note": "",
@@ -194,10 +194,10 @@
    "value": "2n2 Y1"
   },
   {
-   "fp": "Varistor:RV_Disc_D15.5mm_W4.9mm_P7.5mm",
+   "fp": "wq:NTC_Disc_D21.0mm_W7.0mm_P7.5mm_TDK_S364",
    "item": "NTC-2R5",
    "lib": "Device:Thermistor_NTC",
-   "note": "B57364S0259M000（上电浪涌限流，母线充好后由 K101 短接；封装按盘片选，待核对）",
+   "note": "B57364S0259M000（上电浪涌限流，母线充好后由 K101 短接；封装按 TDK S364 p.3 尺寸图，159h）",
    "ref": "TH101",
    "sheet": "mains",
    "value": "2.5R"
@@ -206,16 +206,25 @@
    "fp": "Relay_THT:Relay_SPDT_Omron-G5LE-1",
    "item": "RLY-G5LE",
    "lib": "Relay:G5LE-1",
-   "note": "G5LE-1-E DC12：1 公共端、3 常开（短接热敏电阻）、2/5 线圈。线圈 12 V 用在 15 V 上——线圈最高允许电压待核对规格书",
+   "note": "G5LE-1-E DC12：1 公共端、3 常开（短接热敏电阻）、2/5 线圈（-E 型资料 p.4 底视图，159h 核对）",
    "ref": "K101",
    "sheet": "mains",
    "value": "G5LE-1 DC12"
   },
   {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "item": "RES-1206",
+   "lib": "Device:R",
+   "note": "159h：线圈串 82 Ω，15 V 分到线圈约 12.2 V（线圈 360 Ω，-E 型资料 p.2）；不串时 15 V 是额定的 125 %，离 85 ℃ 时的上限 130 % 太近。电阻耗 0.1 W，用 1206",
+   "ref": "R105",
+   "sheet": "mains",
+   "value": "82"
+  },
+  {
    "fp": "Diode_SMD:D_SOD-123",
    "item": "DIO-1N4148W",
    "lib": "Device:D",
-   "note": "继电器线圈续流",
+   "note": "继电器线圈续流（跨在线圈两端）",
    "ref": "D101",
    "sheet": "mains",
    "value": "1N4148W"
@@ -248,10 +257,10 @@
    "value": "100k"
   },
   {
-   "fp": "Diode_THT:Diode_Bridge_Vishay_GBU",
+   "fp": "wq:Diode_Bridge_GBU_D1.8mm",
    "item": "BRG-GBU1006",
    "lib": "Diode_Bridge:GBU4A",
-   "note": "整流桥（符号和封装用 KiCad 官方库的 GBU 系列：1 +、2 ~、3 ~、4 −；装在散热器上）",
+   "note": "整流桥（符号用 KiCad 官方库的 GBU 系列：1 +、2 ~、3 ~、4 −，LGE 规格书 p.1 核对；封装同官方库、孔改 1.8 mm（159h）；装在散热器上）",
    "ref": "BR101",
    "sheet": "mains",
    "value": "GBU1006"
@@ -1676,7 +1685,7 @@
    "note": "",
    "ref": "C47",
    "sheet": "io",
-   "value": "10p"
+   "value": "15p"
   },
   {
    "fp": "Capacitor_SMD:C_0402_1005Metric",
@@ -1685,7 +1694,7 @@
    "note": "",
    "ref": "C48",
    "sheet": "io",
-   "value": "10p"
+   "value": "15p"
   },
   {
    "fp": "TestPoint:TestPoint_Pad_D1.0mm",
@@ -2447,7 +2456,7 @@
    "limit": 2.5,
    "name": "安全距离：相线 ↔ 零线（保险丝之后）",
    "status": "pass",
-   "value": 2.61
+   "value": 2.617
   },
   {
    "example": true,
@@ -2518,10 +2527,10 @@
  ],
  "stage": "159d3 原理图、PCB 与网页",
  "stats": {
-  "parts": 253,
-  "track_mm": 11940.3,
-  "tracks": 2463,
-  "vias": 358
+  "parts": 254,
+  "track_mm": 11895.1,
+  "tracks": 2600,
+  "vias": 354
  },
  "tool": "KiCad 7.0.11"
 }

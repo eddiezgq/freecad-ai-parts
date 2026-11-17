@@ -5,10 +5,10 @@
     314.15,
     216.0,
     "In1",
-    "zone GND_ISO zone:3c2bfaa9-708b-490d-b531-0700b80e4eb5 ↔ zone GND zone:b0a3e170-46fa-42eb-b640-7b2e466baffe"
+    "zone GND_ISO zone:a871690e-cd99-4292-99b1-b096db258acc ↔ zone GND zone:f57d79b6-8a1b-489e-a559-5ceddead3f61"
    ]
   ],
-  "detail": "最近 4.00 mm（In1 层，zone GND_ISO zone:3c2bfaa9-708b-490d-b531-0700b80e4eb5 ↔ zone GND zone:b0a3e170-46fa-42eb-b640-7b2e466baffe）",
+  "detail": "最近 4.00 mm（In1 层，zone GND_ISO zone:a871690e-cd99-4292-99b1-b096db258acc ↔ zone GND zone:f57d79b6-8a1b-489e-a559-5ceddead3f61）",
   "example": true,
   "groups": [
    [
@@ -108,6 +108,7 @@
     "PWM_WH",
     "PWM_WL",
     "RECT_N",
+    "RLY_A",
     "RLY_G",
     "RLY_K",
     "SOL1_D",
@@ -178,13 +179,13 @@
  {
   "at": [
    [
-    121.63,
-    122.08,
+    115.91,
+    134.46,
     "In1",
-    "pth PE C102 ↔ zone GND zone:b0a3e170-46fa-42eb-b640-7b2e466baffe"
+    "pth PE C102 ↔ zone GND zone:f57d79b6-8a1b-489e-a559-5ceddead3f61"
    ]
   ],
-  "detail": "最近 4.20 mm（In1 层，pth PE C102 ↔ zone GND zone:b0a3e170-46fa-42eb-b640-7b2e466baffe）",
+  "detail": "最近 4.20 mm（In1 层，pth PE C102 ↔ zone GND zone:f57d79b6-8a1b-489e-a559-5ceddead3f61）",
   "example": true,
   "groups": [
    [
@@ -281,6 +282,7 @@
     "PWM_WH",
     "PWM_WL",
     "RECT_N",
+    "RLY_A",
     "RLY_G",
     "RLY_K",
     "SOL1_D",
@@ -351,13 +353,13 @@
  {
   "at": [
    [
-    133.54,
-    173.87,
-    "F",
-    "track L_C ↔ pth N_IN L101"
+    121.03,
+    149.74,
+    "B",
+    "track L_F ↔ pth N_C C103"
    ]
   ],
-  "detail": "最近 2.61 mm（F 层，track L_C ↔ pth N_IN L101）",
+  "detail": "最近 2.62 mm（B 层，track L_F ↔ pth N_C C103）",
   "example": true,
   "groups": [
    [
@@ -379,18 +381,18 @@
   "source": "示例值",
   "status": "pass",
   "unit": "mm",
-  "value": 2.61
+  "value": 2.617
  },
  {
   "at": [
    [
-    329.91,
-    132.34,
+    301.34,
+    135.12,
     "B",
-    "zone VBUS zone:a784da79-8f06-47e4-ae41-cb11f1314fa3 ↔ track IN_UL"
+    "zone VBUS zone:201a184d-4b35-44c0-8840-dd9bddf518d0 ↔ track IPM_SD"
    ]
   ],
-  "detail": "最近 2.20 mm（B 层，zone VBUS zone:a784da79-8f06-47e4-ae41-cb11f1314fa3 ↔ track IN_UL）",
+  "detail": "最近 2.20 mm（B 层，zone VBUS zone:201a184d-4b35-44c0-8840-dd9bddf518d0 ↔ track IPM_SD）",
   "example": true,
   "groups": [
    [
@@ -489,6 +491,7 @@
     "PWM_WH",
     "PWM_WL",
     "RECT_N",
+    "RLY_A",
     "RLY_G",
     "RLY_K",
     "SOL1_D",

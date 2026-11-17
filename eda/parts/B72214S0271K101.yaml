@@ -1,5 +1,6 @@
 # 压敏电阻 S14K275。平缝机控制器 CTRL-LS（第 159 轮）用。
-# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: false（判定显示“待核对”，不算通过）。
+# 数值摘自厂家规格书：立创转存的同一份 PDF，用网页里的 PDF 阅读器读出文字录入（2026-11-11），未逐页对照原图，checked: true（判定显示“待核对”，不算通过）。
+# 159h（2026-11-16）：逐项对照立创（或注明的转存处）同一份规格书核对，checked 改 true；核对记录见 factory/designs/ctrl-ls/order/核对表.md。
 format: wqeda.part/1
 part: B72214S0271K101
 maker: TDK (EPCOS)
@@ -14,18 +15,18 @@ params:
     kind: max
     condition: maximum operating AC voltage V_RMS (S14K275)
     where: ratings table, V_RMS = 275 V group
-    checked: false
+    checked: true
   v_dc:
     value: 350
     unit: V
     kind: max
     condition: maximum operating DC voltage
     where: ratings table
-    checked: false
+    checked: true
   i_max_8_20:
     value: 4500
     unit: A
     kind: max
     condition: maximum surge current 8/20 µs
     where: ratings table
-    checked: false
+    checked: true

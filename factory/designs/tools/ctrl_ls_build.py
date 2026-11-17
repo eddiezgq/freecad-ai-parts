@@ -124,7 +124,12 @@ def bom(path):
             q = cat.get(item, {})
             w.writerow([item, val, fp, len(refs), " ".join(sorted(refs, key=_refkey)), q.get("mpn", ""), q.get("maker", ""), q.get("lcsc", ""),
                         note])
-    return len(rows)
+        # 159h：不在原理图上的随装件（保险丝夹：F101 的封装就是两个夹子的焊盘），按器件表的 mount_of / qty_per_board 记一行
+        extra = [q for q in cat.values() if q.get("mount_of")]
+        for q in extra:
+            w.writerow([q["item"], "", "", q.get("qty_per_board", 1), q["mount_of"], q.get("mpn", ""), q.get("maker", ""), q.get("lcsc", ""),
+                        q.get("note", "")])
+    return len(rows) + len(extra)
 
 
 def _refkey(r):
