@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/mbd-model.schema.json",
   "title": "多体动力学模型",
-  "description": "多体动力学模块（ADR-0097）的一个模型：构件、运动副、驱动、力元、测量、分析。单位只用 mm、kg、kg·m²、s、°、N、N·m（字段名带单位后缀）。位置、方向都写装配好时（t = 0）在地面坐标系里的值；构件坐标系在 t = 0 时与地面坐标系同向、原点在质心。D1：刚体；固定、转动、移动、圆柱、球、万向副；运动副驱动；重力、恒定或函数的力与力矩、点对点弹簧阻尼；运动学、动力学、静平衡。后续各段扩充时另写 ADR 补充并单独改本文件。",
+  "description": "多体动力学模块（ADR-0097）的一个模型：构件、运动副、驱动、力元、测量、分析。单位只用 mm、kg、kg·m²、s、°、N、N·m（字段名带单位后缀）。位置、方向都写装配好时（t = 0）在地面坐标系里的值；构件坐标系在 t = 0 时与地面坐标系同向、原点在质心。D1：刚体；固定、转动、移动、圆柱、球、万向副；运动副驱动；重力、恒定或函数的力与力矩、点对点弹簧阻尼；运动学、动力学、静平衡。后续各段扩充时另写 ADR 补充并单独改本文件。 D2（ADR-0097 补充三）：运动副摩擦、转动副间隙；衬套、梁、转动弹簧阻尼、测量量与样条；表达式里的 IMPACT、SPLINE。",
   "type": "object",
   "properties": {
     "format": {
@@ -181,6 +181,82 @@
           "initial_speed": {
             "type": "number",
             "description": "运动副初速度（可选）：转动副 °/s、移动副 mm/s；j 相对 i、沿 axis"
+          },
+          "friction": {
+            "type": "object",
+            "description": "运动副摩擦（D2）：只用于转动副、移动副。摩擦力 = μ(v)·(反力 + 预载)，μ 在静、动摩擦系数间按速度光滑过渡；转动副的摩擦力矩 = 摩擦力 × 销半径",
+            "properties": {
+              "mu_static": {
+                "type": "number",
+                "minimum": 0
+              },
+              "mu_dynamic": {
+                "type": "number",
+                "minimum": 0
+              },
+              "stiction_speed": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "静摩擦过渡速度：转动副 °/s、移动副 mm/s（相对速度小于它时 μ 从 0 升到 μs）"
+              },
+              "transition_speed": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "静→动摩擦过渡结束的速度（同上单位，要大于 stiction_speed）"
+              },
+              "pin_radius_mm": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "转动副的销半径（摩擦力臂）"
+              },
+              "preload_n": {
+                "type": "number",
+                "minimum": 0,
+                "description": "预载（与反力无关的正压力）"
+              }
+            },
+            "required": [
+              "mu_static",
+              "mu_dynamic",
+              "stiction_speed",
+              "transition_speed"
+            ],
+            "additionalProperties": false
+          },
+          "clearance": {
+            "type": "object",
+            "description": "转动副间隙（D2）：销与孔之间留径向间隙，径向不再是理想约束，改成接触力：间隙用完以后 F = k·δ^e + 阻尼（压入深度在 0 到 depth 之间阻尼从 0 升到全值）；两轴仍平行、轴向不动",
+            "properties": {
+              "radial_mm": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "径向间隙（孔半径 − 销半径）"
+              },
+              "stiffness_n_per_mm": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "接触刚度 k（e = 1 时 N/mm；e ≠ 1 时 N/mm^e）"
+              },
+              "exponent": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "力指数 e（缺省 1；Hertz 线接触约 1，点接触 1.5）"
+              },
+              "damping_n_s_per_mm": {
+                "type": "number",
+                "minimum": 0
+              },
+              "penetration_mm": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "阻尼升到全值的压入深度（缺省 0.01 mm）"
+              }
+            },
+            "required": [
+              "radial_mm",
+              "stiffness_n_per_mm"
+            ],
+            "additionalProperties": false
           }
         },
         "required": [
@@ -322,7 +398,7 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 2000,
-                    "description": "函数表达式（ADR-0097 第 3 条）：变量 time（s）；运算 + − × ÷ ^、括号；函数 sin cos tan asin acos atan atan2 sqrt exp log abs min max sign STEP STEP5 HAVSIN；常数 PI、DTOR、RTOD"
+                    "description": "函数表达式。力元里还能用测量量的 id 当变量（单位见 measures）和 IMPACT、SPLINE"
                   }
                 ]
               },
@@ -335,7 +411,7 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 2000,
-                    "description": "函数表达式（ADR-0097 第 3 条）：变量 time（s）；运算 + − × ÷ ^、括号；函数 sin cos tan asin acos atan atan2 sqrt exp log abs min max sign STEP STEP5 HAVSIN；常数 PI、DTOR、RTOD"
+                    "description": "函数表达式。力元里还能用测量量的 id 当变量（单位见 measures）和 IMPACT、SPLINE"
                   }
                 ]
               },
@@ -348,7 +424,7 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 2000,
-                    "description": "函数表达式（ADR-0097 第 3 条）：变量 time（s）；运算 + − × ÷ ^、括号；函数 sin cos tan asin acos atan atan2 sqrt exp log abs min max sign STEP STEP5 HAVSIN；常数 PI、DTOR、RTOD"
+                    "description": "函数表达式。力元里还能用测量量的 id 当变量（单位见 measures）和 IMPACT、SPLINE"
                   }
                 ]
               }
@@ -390,7 +466,7 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 2000,
-                    "description": "函数表达式（ADR-0097 第 3 条）：变量 time（s）；运算 + − × ÷ ^、括号；函数 sin cos tan asin acos atan atan2 sqrt exp log abs min max sign STEP STEP5 HAVSIN；常数 PI、DTOR、RTOD"
+                    "description": "函数表达式。力元里还能用测量量的 id 当变量（单位见 measures）和 IMPACT、SPLINE"
                   }
                 ]
               },
@@ -403,7 +479,7 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 2000,
-                    "description": "函数表达式（ADR-0097 第 3 条）：变量 time（s）；运算 + − × ÷ ^、括号；函数 sin cos tan asin acos atan atan2 sqrt exp log abs min max sign STEP STEP5 HAVSIN；常数 PI、DTOR、RTOD"
+                    "description": "函数表达式。力元里还能用测量量的 id 当变量（单位见 measures）和 IMPACT、SPLINE"
                   }
                 ]
               },
@@ -416,7 +492,7 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 2000,
-                    "description": "函数表达式（ADR-0097 第 3 条）：变量 time（s）；运算 + − × ÷ ^、括号；函数 sin cos tan asin acos atan atan2 sqrt exp log abs min max sign STEP STEP5 HAVSIN；常数 PI、DTOR、RTOD"
+                    "description": "函数表达式。力元里还能用测量量的 id 当变量（单位见 measures）和 IMPACT、SPLINE"
                   }
                 ]
               }
@@ -489,6 +565,256 @@
               "body_j",
               "point_j_mm",
               "stiffness_n_per_mm"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "转动弹簧阻尼（D2）：绕运动副轴（或给的轴）的扭簧、扭转阻尼，转角按 j 相对 i、绕 axis，−180°…180°",
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "type": {
+                "const": "rotational_spring_damper"
+              },
+              "body_i": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_\\-]{0,63}$",
+                "description": "构件 id；地面写 ground"
+              },
+              "body_j": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_\\-]{0,63}$",
+                "description": "构件 id；地面写 ground"
+              },
+              "axis": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "stiffness_n_m_per_deg": {
+                "type": "number",
+                "minimum": 0
+              },
+              "damping_n_m_s_per_deg": {
+                "type": "number",
+                "minimum": 0
+              },
+              "free_angle_deg": {
+                "type": "number"
+              },
+              "preload_n_m": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "body_i",
+              "body_j",
+              "axis",
+              "stiffness_n_m_per_deg"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "衬套（D2）：两构件在一点之间的线性六向弹簧阻尼，分量沿 body_i 在 t = 0 时的坐标轴（与地面同向）；转角按小转角（转动向量）",
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "type": {
+                "const": "bushing"
+              },
+              "body_i": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_\\-]{0,63}$",
+                "description": "构件 id；地面写 ground"
+              },
+              "body_j": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_\\-]{0,63}$",
+                "description": "构件 id；地面写 ground"
+              },
+              "point_mm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "stiffness_n_per_mm": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "damping_n_s_per_mm": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "rot_stiffness_n_m_per_deg": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "rot_damping_n_m_s_per_deg": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "preload_n": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "preload_n_m": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "body_i",
+              "body_j",
+              "point_mm"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "梁（D2）：两构件之间一根直梁（欧拉–伯努利，可选剪切变形），梁轴从 point_i 指向 point_j，截面主轴给 y_axis（与梁轴垂直）；线性小变形，力按 body_i 坐标系算",
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "type": {
+                "const": "beam"
+              },
+              "body_i": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_\\-]{0,63}$",
+                "description": "构件 id；地面写 ground"
+              },
+              "point_i_mm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "body_j": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_\\-]{0,63}$",
+                "description": "构件 id；地面写 ground"
+              },
+              "point_j_mm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "y_axis": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "youngs_modulus_mpa": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "shear_modulus_mpa": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "area_mm2": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "iyy_mm4": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "绕截面 y 轴的惯性矩"
+              },
+              "izz_mm4": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "绕截面 z 轴的惯性矩"
+              },
+              "ixx_mm4": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "扭转常数 J"
+              },
+              "shear_area_ratio_y": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "剪切面积比（缺省不算剪切变形）"
+              },
+              "shear_area_ratio_z": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "damping_ratio": {
+                "type": "number",
+                "minimum": 0,
+                "description": "阻尼矩阵 = 系数 × 刚度矩阵（单位 s）"
+              },
+              "source": {
+                "type": "string",
+                "maxLength": 500
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "body_i",
+              "point_i_mm",
+              "body_j",
+              "point_j_mm",
+              "y_axis",
+              "youngs_modulus_mpa",
+              "shear_modulus_mpa",
+              "area_mm2",
+              "iyy_mm4",
+              "izz_mm4",
+              "ixx_mm4"
             ],
             "additionalProperties": false
           }
@@ -582,6 +908,136 @@
       "type": "string",
       "maxLength": 2000,
       "description": "模型来源（手写 / FreeCAD 装配 / AI 起草后人确认……）"
+    },
+    "measures": {
+      "type": "array",
+      "maxItems": 500,
+      "description": "测量量（D2）：结果里输出，力元的表达式里可以拿 id 当变量。单位：joint_angle °、joint_speed °/s、joint_displacement mm、joint_velocity mm/s、point_distance mm、point_distance_rate mm/s",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "type": {
+                "enum": [
+                  "joint_angle",
+                  "joint_speed",
+                  "joint_displacement",
+                  "joint_velocity"
+                ]
+              },
+              "joint": {
+                "$ref": "#/$defs/id"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "joint"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "type": {
+                "enum": [
+                  "point_distance",
+                  "point_distance_rate"
+                ]
+              },
+              "body_i": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_\\-]{0,63}$",
+                "description": "构件 id；地面写 ground"
+              },
+              "point_i_mm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "body_j": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_\\-]{0,63}$",
+                "description": "构件 id；地面写 ground"
+              },
+              "point_j_mm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "body_i",
+              "point_i_mm",
+              "body_j",
+              "point_j_mm"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "splines": {
+      "type": "array",
+      "maxItems": 200,
+      "description": "样条（D2）：表达式里写 SPLINE(id, x)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "x": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 100000
+          },
+          "y": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 100000
+          },
+          "method": {
+            "enum": [
+              "cubic",
+              "akima",
+              "linear"
+            ],
+            "description": "缺省 cubic（三次样条，两端非扭结）"
+          },
+          "source": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "id",
+          "x",
+          "y"
+        ],
+        "additionalProperties": false
+      }
     }
   },
   "required": [
