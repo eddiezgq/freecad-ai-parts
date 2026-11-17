@@ -15,6 +15,7 @@ import pytest
 import analysis
 from analysis.fea import study as S
 from tests.test_fea_bench import _faces, _need_fea, _plane, _write
+from tests.verification import record
 
 E, RHO = 210000.0, 7850e-12                 # 45-QT：MPa、t/mm³
 
@@ -39,8 +40,12 @@ def test_tip_mass_static_and_modal(tmp_path):
     assert s["balance"]["force_error_ratio"] < 1e-4
     q = RHO * b * b * 9810                                                       # N/mm
     tip = M * 9.81 * L ** 3 / (3 * E * I) + q * L ** 4 / (8 * E * I)
+    record(("端部挠度（端部质量 + 自重）", "tip deflection (tip mass + self-weight)"), -s["probes"][0]["u_mm"][2], tip, tol=0.01,
+           unit="mm", formula="MgL³/(3EI) + qL⁴/(8EI)")
     assert -s["probes"][0]["u_mm"][2] == pytest.approx(tip, rel=0.01)
     f_r = math.sqrt(3 * E * I / L ** 3 / (M / 1000 + 33 / 140 * mb)) / (2 * math.pi)
+    record(("一阶固有频率（端部质量）", "first natural frequency (tip mass)"), m["freqs"][0]["hz"], f_r, tol=0.01, unit="Hz",
+           formula="(1/2π)·√(3EI/L³/(M + 33/140·m_beam)) (Rayleigh)")
     assert m["freqs"][0]["hz"] == pytest.approx(f_r, rel=0.01)
     st["loads"] = st["loads"][1:]                                                # 去掉附加质量：频率明显升高
     m0 = analysis.run("fea", dict(st, steps=[st["steps"][1]]))["data"]["steps"][0]

@@ -21,6 +21,7 @@ import analysis
 from analysis.fea import dynamics as D
 from analysis.fea import study as S
 from tests.test_fea_bench import _faces, _need_fea, _plane, _write
+from tests.verification import record
 
 STEEL = "45-QT"
 E, RHO = 210000.0, 7850e-12                 # 45-QT：MPa、t/mm³
@@ -75,6 +76,8 @@ def test_sdof_frequency_and_effective_mass(sdof):
     r, _k, _m, wn = sdof
     mo = r["m"]
     vertical = min(mo["freqs"], key=lambda x: abs(x["hz"] - wn / (2 * math.pi)))
+    record(("竖向固有频率", "vertical natural frequency"), vertical["hz"], wn / (2 * math.pi), tol=1e-3, unit="Hz",
+           formula="ωn = √(kA/m)")
     assert vertical["hz"] == pytest.approx(wn / (2 * math.pi), rel=1e-3)
     assert mo["effective_mass_fraction"]["z"] == pytest.approx(1.0, abs=1e-3)       # 地基上的刚块：全部质量都参与
     assert mo["surface"]["u"] and mo["prestress"] is False
@@ -88,6 +91,9 @@ def test_sdof_harmonic_amplification(sdof):
     for target in (50.0, fn, 200.0):
         f, a = _at(h["frequencies_hz"], amp, target)
         rr = f / fn
+        record((f"位移幅值（f/fn = {rr:.2f}）", f"displacement amplitude (f/fn = {rr:.2f})"), a,
+               (F0 / k) / math.sqrt((1 - rr * rr) ** 2 + (2 * ZETA * rr) ** 2), tol=0.005, unit="mm",
+               formula="(F/k)/√((1 − r²)² + (2ζr)²)")
         assert a == pytest.approx((F0 / k) / math.sqrt((1 - rr * rr) ** 2 + (2 * ZETA * rr) ** 2), rel=0.005)
     assert h["peak"]["frequency_hz"] == pytest.approx(fn, rel=0.002)                  # 共振峰没有落在频率点之间
     v = _verdicts(h)
@@ -98,6 +104,8 @@ def test_sdof_random_miles(sdof):
     r, _k, _m, wn = sdof
     rv = r["r"]
     g = 1.0e6                                                                         # 1 (m/s²)²/Hz = 10⁶ (mm/s²)²/Hz
+    record(("相对位移均方根", "RMS relative displacement"), rv["probes"][0]["u_rms_mm"][2], math.sqrt(g / (8 * ZETA * wn ** 3)),
+           tol=0.01, unit="mm", formula="√(G/(8ζωn³)) (Miles)")
     assert rv["probes"][0]["u_rms_mm"][2] == pytest.approx(math.sqrt(g / (8 * ZETA * wn ** 3)), rel=0.01)
     assert rv["input_a_rms_m_s2"] == pytest.approx(math.sqrt(5000 - 5), rel=1e-3)     # 平直谱：RMS = √(G·Δf)
     assert rv["vm_3sigma_mpa"] == pytest.approx(3 * rv["vm_rms_max_mpa"], rel=1e-4)
@@ -115,6 +123,8 @@ def test_sdof_step_load(sdof):
         tt = t["times_s"][i]
         exact = -ust * (1 - math.exp(-z * wn * tt) * (math.cos(wd * tt) + z / math.sqrt(1 - z * z) * math.sin(wd * tt)))
         assert uz[i] == pytest.approx(exact, rel=0.005, abs=ust * 1e-3)
+    record(("阶跃载荷峰值位移", "peak displacement under step load"), t["u_max_mm"], 2 * ust, tol=0.01, unit="mm",
+           formula="u_max ≈ 2F/k (Chopra)")
     assert t["u_max_mm"] == pytest.approx(2 * ust, rel=0.01)
     assert t["u_max_time_s"] == pytest.approx(math.pi / wd, rel=0.02)
     assert _verdicts(t)["模态截断"] == "pass"
@@ -147,6 +157,8 @@ def test_cantilever_harmonic_exact(tmp_path):
                  [{"id": "m", "type": "modal", "n_modes": 2},
                   {"id": "h", "type": "harmonic", "f_min_hz": 0.2 * f1, "f_max_hz": 3.2 * f1, "n_points": 60, "damping_ratio": 0.001,
                    "n_modes": 20}], 5.0, probes=[{"id": "tip", "point_mm": [L, b / 2, b / 2]}])
+    record(("一阶固有频率", "first natural frequency"), _m["freqs"][0]["hz"], f1, tol=0.005, unit="Hz",
+           formula="(1.875104²/2π)·√(EI/(ρAL⁴))")
     assert _m["freqs"][0]["hz"] == pytest.approx(f1, rel=0.005)
 
     def receptance(w):
@@ -155,6 +167,8 @@ def test_cantilever_harmonic_exact(tmp_path):
     amp = h["probes"][0]["u_amp_mm"][2]
     for r in (0.2, 0.5, 2.0, 3.0):                                                    # 一阶以下、一阶与二阶之间
         fq, a = _at(h["frequencies_hz"], amp, r * f1)
+        record((f"端部位移 / 力（f = {r:g}·f1）", f"tip receptance (f = {r:g}·f1)"), a, abs(receptance(2 * math.pi * fq)), tol=0.01,
+               unit="mm/N", formula="Euler–Bernoulli beam exact receptance")
         assert a == pytest.approx(abs(receptance(2 * math.pi * fq)), rel=0.01)
 
 
@@ -180,7 +194,10 @@ def test_prestressed_pinned_beam(tmp_path):
         assert s["prestress"] is pre
         return s["freqs"][0]["hz"]                                                    # 一阶是 z 向（两端铰支）弯曲
     f0 = f1(1.0, False)
-    assert f1(pcr, True) / f0 == pytest.approx(math.sqrt(2.0), rel=0.015)             # 拉力 = 欧拉临界力：频率 × √2
+    ten = f1(pcr, True) / f0
+    record(("受拉（T = Pcr）频率比", "frequency ratio in tension (T = Pcr)"), ten, math.sqrt(2.0), tol=0.015,
+           formula="fn/fn0 = √(1 + TL²/(π²EI))")
+    assert ten == pytest.approx(math.sqrt(2.0), rel=0.015)                            # 拉力 = 欧拉临界力：频率 × √2
     assert f1(-0.5 * pcr, True) / f0 == pytest.approx(math.sqrt(0.5), rel=0.015)      # 压力 = 一半临界力：频率 × √0.5
 
 
@@ -195,6 +212,8 @@ def test_bonded_bodies_modal_equals_single_bar(tmp_path):
     two = _run([_body("A", a), _body("B", b)], [{"type": "fixed", "body": "A", "faces": [_plane(fa, 0, 0)]}], [], step, 5.0,
                connections=[{"type": "bonded", "a": {"body": "B", "faces": [_plane(fb, 0, 100)]},
                              "b": {"body": "A", "faces": [_plane(fa, 0, 100)]}}], mesh={"size_mm": 4.0})[0]
+    record(("两段绑定与整根杆的一阶频率", "first frequency, two bonded parts vs one bar"), two["freqs"][0]["hz"],
+           one["freqs"][0]["hz"], tol=0.005, unit="Hz", formula="same structure")
     assert two["freqs"][0]["hz"] == pytest.approx(one["freqs"][0]["hz"], rel=0.005)
 
 

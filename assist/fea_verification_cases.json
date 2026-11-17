@@ -1,0 +1,459 @@
+{
+ "about": "验证手册的题目清单（ADR-0096 第 4 步）：每题对应一个标准题测试；手册里的数字由这些测试在运行时记下（tests/verification.py）。",
+ "categories": {
+  "static": {
+   "zh": "线性静力",
+   "en": "Linear static"
+  },
+  "contact": {
+   "zh": "多实体、接触与螺栓",
+   "en": "Multi-body, contact and bolts"
+  },
+  "nonlinear": {
+   "zh": "弹塑性与大变形",
+   "en": "Plasticity and large deformation"
+  },
+  "buckling": {
+   "zh": "线性屈曲",
+   "en": "Linear buckling"
+  },
+  "modal": {
+   "zh": "模态",
+   "en": "Modal"
+  },
+  "dynamic": {
+   "zh": "谐响应、随机振动、瞬态",
+   "en": "Harmonic, random and transient"
+  },
+  "shell_beam": {
+   "zh": "壳与梁",
+   "en": "Shells and beams"
+  },
+  "trust": {
+   "zh": "可信度核查",
+   "en": "Trust checks"
+  }
+ },
+ "cases": [
+  {
+   "id": "VM-01",
+   "test": "tests/test_fea_bench.py::test_cantilever_balance_and_legacy_trust_block",
+   "category": "static",
+   "title": {
+    "zh": "悬臂块端部受力：支承反力平衡",
+    "en": "Cantilever block with tip force: support reaction balance"
+   },
+   "source": "静力平衡 / static equilibrium"
+  },
+  {
+   "id": "VM-02",
+   "test": "tests/test_fea_bench.py::test_lame_thick_cylinder",
+   "category": "static",
+   "title": {
+    "zh": "Lamé 厚壁圆筒受内压",
+    "en": "Lamé thick-walled cylinder under internal pressure"
+   },
+   "source": "Timoshenko & Goodier, Theory of Elasticity（厚壁圆筒 / thick-walled cylinder）"
+  },
+  {
+   "id": "VM-03",
+   "test": "tests/test_fea_bench.py::test_kirsch_plate_with_hole",
+   "category": "static",
+   "title": {
+    "zh": "带圆孔的板单向拉伸（Kirsch）",
+    "en": "Plate with a circular hole in uniaxial tension (Kirsch)"
+   },
+   "source": "Kirsch (1898); Heywood finite-width correction"
+  },
+  {
+   "id": "VM-04",
+   "test": "tests/test_fea_bench.py::test_l_shape_reentrant_corner_is_flagged",
+   "category": "trust",
+   "title": {
+    "zh": "L 形板凹角：应力奇异点必须判不收敛",
+    "en": "L-shaped plate re-entrant corner: stress singularity must be flagged"
+   },
+   "source": "线弹性理论（凹角应力奇异）/ linear elasticity (re-entrant corner singularity)"
+  },
+  {
+   "id": "VM-05",
+   "test": "tests/test_fea_f2.py::test_prescribed_displacement_bar_and_symmetry",
+   "category": "static",
+   "title": {
+    "zh": "强制位移拉杆（对称面）",
+    "en": "Bar with prescribed displacement (symmetry planes)"
+   },
+   "source": "材料力学 / strength of materials: σ = Eδ/L"
+  },
+  {
+   "id": "VM-06",
+   "test": "tests/test_fea_f2.py::test_free_thermal_expansion",
+   "category": "static",
+   "title": {
+    "zh": "自由热膨胀",
+    "en": "Free thermal expansion"
+   },
+   "source": "u = αΔT·L"
+  },
+  {
+   "id": "VM-07",
+   "test": "tests/test_fea_f2.py::test_gravity_cantilever",
+   "category": "static",
+   "title": {
+    "zh": "自重悬臂梁",
+    "en": "Cantilever under self-weight"
+   },
+   "source": "材料力学 / strength of materials: δ = qL⁴/(8EI)"
+  },
+  {
+   "id": "VM-08",
+   "test": "tests/test_fea_f2.py::test_rotating_disk_centre_stress",
+   "category": "static",
+   "title": {
+    "zh": "旋转薄圆盘中心应力（离心载荷）",
+    "en": "Rotating thin disc, centre stress (centrifugal load)"
+   },
+   "source": "Timoshenko & Goodier, Theory of Elasticity（旋转圆盘 / rotating disc）"
+  },
+  {
+   "id": "VM-09",
+   "test": "tests/test_fea_f2.py::test_block_on_elastic_foundation",
+   "category": "static",
+   "title": {
+    "zh": "弹性地基上的块",
+    "en": "Block on an elastic foundation"
+   },
+   "source": "p/k + pH/E"
+  },
+  {
+   "id": "VM-10",
+   "test": "tests/test_fea_f2.py::test_remote_load_equals_tip_force_plus_moment",
+   "category": "static",
+   "title": {
+    "zh": "远端载荷 = 端部力 + 力矩",
+    "en": "Remote load equals tip force plus moment"
+   },
+   "source": "材料力学 / strength of materials"
+  },
+  {
+   "id": "VM-11",
+   "test": "tests/test_fea_f2.py::test_nafems_le1_elliptic_membrane",
+   "category": "static",
+   "title": {
+    "zh": "NAFEMS LE1 椭圆膜",
+    "en": "NAFEMS LE1 elliptic membrane"
+   },
+   "source": "NAFEMS TNSB Rev. 3 (1990) LE1; Davies, Fenner, Lewis, Background to Benchmarks (NAFEMS 1993)"
+  },
+  {
+   "id": "VM-12",
+   "test": "tests/test_fea_f2.py::test_nafems_le10_thick_plate",
+   "category": "static",
+   "title": {
+    "zh": "NAFEMS LE10 厚板受压",
+    "en": "NAFEMS LE10 thick plate under pressure"
+   },
+   "source": "NAFEMS TNSB Rev. 3 (1990) LE10"
+  },
+  {
+   "id": "VM-13",
+   "test": "tests/test_fea_f2.py::test_le1_convergence_check_passes",
+   "category": "trust",
+   "title": {
+    "zh": "LE1 三层网格收敛核查应判通过",
+    "en": "LE1: three-level mesh convergence check must pass"
+   },
+   "source": "Roache (1998); Celik et al. (2008) GCI"
+  },
+  {
+   "id": "VM-14",
+   "test": "tests/test_fea_f3.py::test_bonded_bars_with_mismatched_meshes",
+   "category": "contact",
+   "title": {
+    "zh": "网格不一致的两块杆绑定",
+    "en": "Two bars with mismatched meshes bonded together"
+   },
+   "source": "材料力学 / strength of materials: σ = F/A, ΔL = σL/E"
+  },
+  {
+   "id": "VM-15",
+   "test": "tests/test_fea_f3.py::test_press_fit_contact_pressure",
+   "category": "contact",
+   "title": {
+    "zh": "过盈配合的接触压力（Lamé）",
+    "en": "Press-fit contact pressure (Lamé)"
+   },
+   "source": "Timoshenko & Goodier, Theory of Elasticity（厚壁圆筒 / thick-walled cylinder）"
+  },
+  {
+   "id": "VM-16",
+   "test": "tests/test_fea_f3.py::test_friction_sliding_force_is_mu_n",
+   "category": "contact",
+   "title": {
+    "zh": "摩擦滑动：切向力 = μN",
+    "en": "Frictional sliding: tangential force = μN"
+   },
+   "source": "Coulomb friction"
+  },
+  {
+   "id": "VM-17",
+   "test": "tests/test_fea_f3.py::test_bolt_preload_in_fixed_bar",
+   "category": "contact",
+   "title": {
+    "zh": "螺栓预紧：截面拉力",
+    "en": "Bolt pretension: section force"
+   },
+   "source": "σ = F/A"
+  },
+  {
+   "id": "VM-18",
+   "test": "tests/test_fea_f3.py::test_bolted_joint_load_factor",
+   "category": "contact",
+   "title": {
+    "zh": "螺栓连接受外载：载荷系数",
+    "en": "Bolted joint under external load: load factor"
+   },
+   "source": "VDI 2230"
+  },
+  {
+   "id": "VM-19",
+   "test": "tests/test_fea_f4.py::test_euler_column_buckling",
+   "category": "buckling",
+   "title": {
+    "zh": "欧拉压杆（一端固定一端自由）",
+    "en": "Euler column (fixed–free)"
+   },
+   "source": "Timoshenko & Gere, Theory of Elastic Stability, ch. 2"
+  },
+  {
+   "id": "VM-20",
+   "test": "tests/test_fea_f4.py::test_simply_supported_plate_buckling",
+   "category": "buckling",
+   "title": {
+    "zh": "四边简支方板单向受压屈曲",
+    "en": "Simply supported square plate buckling under uniaxial compression"
+   },
+   "source": "Timoshenko & Gere, Theory of Elastic Stability, ch. 9"
+  },
+  {
+   "id": "VM-21",
+   "test": "tests/test_fea_f4.py::test_perfectly_plastic_bar_plateau",
+   "category": "nonlinear",
+   "title": {
+    "zh": "理想弹塑性拉杆",
+    "en": "Elastic–perfectly plastic bar"
+   },
+   "source": "定义 / definition: F = σy·A, εp = ε − σy/E"
+  },
+  {
+   "id": "VM-22",
+   "test": "tests/test_fea_f4.py::test_hardening_curve_bar",
+   "category": "nonlinear",
+   "title": {
+    "zh": "线性硬化拉杆",
+    "en": "Bar with linear hardening"
+   },
+   "source": "σ = σ0 + H·εp"
+  },
+  {
+   "id": "VM-23",
+   "test": "tests/test_fea_f4.py::test_thick_cylinder_limit_pressure",
+   "category": "nonlinear",
+   "title": {
+    "zh": "厚壁筒极限压力（平面应变）",
+    "en": "Thick cylinder limit pressure (plane strain)"
+   },
+   "source": "Hill, The Mathematical Theory of Plasticity (1950), ch. 5"
+  },
+  {
+   "id": "VM-24",
+   "test": "tests/test_fea_f4.py::test_large_deflection_cantilever",
+   "category": "nonlinear",
+   "title": {
+    "zh": "大挠度悬臂梁",
+    "en": "Large-deflection cantilever"
+   },
+   "source": "Bisshopp & Drucker (1945), Quart. Appl. Math. 3; Mattiasson (1981)"
+  },
+  {
+   "id": "VM-25",
+   "test": "tests/test_fea_f4.py::test_hertz_sphere_on_flat",
+   "category": "contact",
+   "title": {
+    "zh": "Hertz 接触：球压平面",
+    "en": "Hertz contact: sphere on flat"
+   },
+   "source": "Johnson, Contact Mechanics (1985), ch. 4"
+  },
+  {
+   "id": "VM-26",
+   "test": "tests/test_fea_f5.py::test_sdof_frequency_and_effective_mass",
+   "category": "modal",
+   "title": {
+    "zh": "单自由度：弹性地基上的刚块",
+    "en": "Single degree of freedom: rigid block on elastic foundation"
+   },
+   "source": "ωn = √(k/m)"
+  },
+  {
+   "id": "VM-27",
+   "test": "tests/test_fea_f5.py::test_sdof_harmonic_amplification",
+   "category": "dynamic",
+   "title": {
+    "zh": "单自由度谐响应",
+    "en": "Single degree of freedom: harmonic response"
+   },
+   "source": "Chopra, Dynamics of Structures, ch. 3"
+  },
+  {
+   "id": "VM-28",
+   "test": "tests/test_fea_f5.py::test_sdof_random_miles",
+   "category": "dynamic",
+   "title": {
+    "zh": "单自由度白噪声随机振动（Miles）",
+    "en": "Single degree of freedom: white-noise random vibration (Miles)"
+   },
+   "source": "Miles (1954); Crandall & Mark, Random Vibration in Mechanical Systems"
+  },
+  {
+   "id": "VM-29",
+   "test": "tests/test_fea_f5.py::test_sdof_step_load",
+   "category": "dynamic",
+   "title": {
+    "zh": "单自由度阶跃载荷瞬态",
+    "en": "Single degree of freedom: step-load transient"
+   },
+   "source": "Chopra, Dynamics of Structures, ch. 4"
+  },
+  {
+   "id": "VM-30",
+   "test": "tests/test_fea_f5.py::test_cantilever_harmonic_exact",
+   "category": "dynamic",
+   "title": {
+    "zh": "悬臂梁端部简谐力（连续梁精确解）",
+    "en": "Cantilever under tip harmonic force (exact continuous-beam solution)"
+   },
+   "source": "Bishop & Johnson, The Mechanics of Vibration"
+  },
+  {
+   "id": "VM-31",
+   "test": "tests/test_fea_f5.py::test_prestressed_pinned_beam",
+   "category": "modal",
+   "title": {
+    "zh": "受轴力的两端铰支梁（预应力模态）",
+    "en": "Pinned–pinned beam with axial force (prestressed modal)"
+   },
+   "source": "Blevins, Formulas for Natural Frequency and Mode Shape"
+  },
+  {
+   "id": "VM-32",
+   "test": "tests/test_fea_f5.py::test_bonded_bodies_modal_equals_single_bar",
+   "category": "modal",
+   "title": {
+    "zh": "两段绑定的杆与整根杆的模态",
+    "en": "Modal analysis: two bonded parts vs one bar"
+   },
+   "source": "同一结构 / same structure"
+  },
+  {
+   "id": "VM-33",
+   "test": "tests/test_fea_mass.py::test_tip_mass_static_and_modal",
+   "category": "modal",
+   "title": {
+    "zh": "端部附加质量的悬臂梁（静力、模态）",
+    "en": "Cantilever with tip mass (static and modal)"
+   },
+   "source": "Thomson, Theory of Vibration with Applications, ch. 2 (Rayleigh)"
+  },
+  {
+   "id": "VM-34",
+   "test": "tests/test_fea_nafems_fv.py::test_nafems_fv52_flexural_modes",
+   "category": "modal",
+   "title": {
+    "zh": "NAFEMS FV52 简支厚方板：弯曲模态",
+    "en": "NAFEMS FV52 simply supported thick plate: flexural modes"
+   },
+   "source": "NAFEMS TNSB Rev. 3 (1990) FV52; Ansys VM Benchmark C5; Altair OS-V: 0455"
+  },
+  {
+   "id": "VM-35",
+   "test": "tests/test_fea_nafems_fv.py::test_nafems_fv52_inplane_mode",
+   "category": "modal",
+   "title": {
+    "zh": "NAFEMS FV52 简支厚方板：面内模态",
+    "en": "NAFEMS FV52 simply supported thick plate: in-plane mode"
+   },
+   "source": "NAFEMS TNSB Rev. 3 (1990) FV52; Ansys VM Benchmark C5; Altair OS-V: 0455"
+  },
+  {
+   "id": "VM-36",
+   "test": "tests/test_fea_shell_beam.py::test_cantilever_tip_load[rect]",
+   "category": "shell_beam",
+   "title": {
+    "zh": "梁单元悬臂梁端部受力（矩形截面）",
+    "en": "Beam-element cantilever with tip force (rectangular section)"
+   },
+   "source": "Euler–Bernoulli beam theory"
+  },
+  {
+   "id": "VM-37",
+   "test": "tests/test_fea_shell_beam.py::test_cantilever_tip_load[circle]",
+   "category": "shell_beam",
+   "title": {
+    "zh": "梁单元悬臂梁端部受力（实心圆截面）",
+    "en": "Beam-element cantilever with tip force (solid round section)"
+   },
+   "source": "Euler–Bernoulli beam theory"
+  },
+  {
+   "id": "VM-38",
+   "test": "tests/test_fea_shell_beam.py::test_cantilever_tip_load[pipe]",
+   "category": "shell_beam",
+   "title": {
+    "zh": "梁单元悬臂梁端部受力（圆管截面）",
+    "en": "Beam-element cantilever with tip force (tube section)"
+   },
+   "source": "Euler–Bernoulli beam theory"
+  },
+  {
+   "id": "VM-39",
+   "test": "tests/test_fea_shell_beam.py::test_cantilever_self_weight_and_first_frequency",
+   "category": "shell_beam",
+   "title": {
+    "zh": "梁单元悬臂梁自重与一阶频率",
+    "en": "Beam-element cantilever: self-weight and first frequency"
+   },
+   "source": "Euler–Bernoulli beam theory"
+  },
+  {
+   "id": "VM-40",
+   "test": "tests/test_fea_shell_beam.py::test_simply_supported_plate",
+   "category": "shell_beam",
+   "title": {
+    "zh": "壳单元四边简支方板（均布压力、一阶频率）",
+    "en": "Shell-element simply supported square plate (uniform pressure, first frequency)"
+   },
+   "source": "Timoshenko & Woinowsky-Krieger, Theory of Plates and Shells, ch. 5"
+  },
+  {
+   "id": "VM-41",
+   "test": "tests/test_fea_shell_beam.py::test_frame_segments_are_joined",
+   "category": "shell_beam",
+   "title": {
+    "zh": "梁单元 L 形框架",
+    "en": "Beam-element L-frame"
+   },
+   "source": "材料力学 / strength of materials"
+  },
+  {
+   "id": "VM-42",
+   "test": "tests/test_fea_cases.py::test_combination_equals_superposition",
+   "category": "static",
+   "title": {
+    "zh": "工况组合等于按系数叠加",
+    "en": "Load combination equals factored superposition"
+   },
+   "source": "线弹性叠加原理 / linear superposition"
+  }
+ ]
+}

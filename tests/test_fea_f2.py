@@ -26,6 +26,7 @@ import pytest
 import analysis
 from analysis.fea import trust as T
 from tests.test_fea_bench import _faces, _need_fea, _plane, _write
+from tests.verification import record, record_verdict
 
 STEEL = "45-QT"          # E = 210 GPa、ν = 0.3、ρ = 7850、α = 1.12e-5（材料库）
 
@@ -72,6 +73,8 @@ def test_prescribed_displacement_bar_and_symmetry(tmp_path):
              probes=[{"id": "mid", "point_mm": [50, 5, 5]}])
     E = _mat()["elastic_modulus_mpa"]
     p = _probe(s, "mid")
+    record(("杆中轴向应力", "axial stress at mid-bar"), p["stress_mpa"]["xx"], E * 0.1 / 100, tol=1e-4, unit="MPa",
+           formula="σ = Eδ/L")
     assert p["stress_mpa"]["xx"] == pytest.approx(E * 0.1 / 100, rel=1e-4)
     assert abs(p["stress_mpa"]["yy"]) < 1e-3 and abs(p["stress_mpa"]["zz"]) < 1e-3
     pull = next(r for r in s["support_reactions"] if r["type"] == "displacement")
@@ -86,6 +89,8 @@ def test_free_thermal_expansion(tmp_path):
              [{"type": "temperature", "body": "b1", "delta_t_k": 100}], 8.0,
              probes=[{"id": "corner", "point_mm": [100, 40, 20]}])
     a = _mat()["thermal_expansion_per_k"]
+    record(("角点 x 向位移", "corner x displacement"), _probe(s, "corner")["u_mm"][0], a * 100 * 100, tol=1e-6, unit="mm",
+           formula="u = αΔT·L")
     assert _probe(s, "corner")["u_mm"] == pytest.approx([a * 100 * 100, a * 100 * 40, a * 100 * 20], rel=1e-6)
     assert s["vm_peak_all_mpa"] < 1e-3
 
@@ -103,6 +108,8 @@ def test_gravity_cantilever(tmp_path):
     g = 9810e3
     q = rho * g * h * h
     EI = m["elastic_modulus_mpa"] * h ** 4 / 12
+    record(("端部挠度", "tip deflection"), -_probe(s, "tip")["u_mm"][2], q * L ** 4 / (8 * EI), tol=0.03, unit="mm",
+           formula="δ = qL⁴/(8EI)")
     assert -_probe(s, "tip")["u_mm"][2] == pytest.approx(q * L ** 4 / (8 * EI), rel=0.03)
     assert s["body_force_n"][2] == pytest.approx(-q * L, rel=1e-6)
     assert s["balance"]["reaction_n"][2] == pytest.approx(q * L, rel=1e-6)
@@ -122,6 +129,8 @@ def test_rotating_disk_centre_stress(tmp_path):
     w = 10000 * 2 * math.pi / 60
     ref = (3 + m["poisson_ratio"]) / 8 * m["density_kg_m3"] * 1e-12 * w * w * R * R
     p = _probe(s, "c")
+    record(("圆盘中心径向应力", "radial stress at disc centre"), p["stress_mpa"]["xx"], ref, tol=0.02, unit="MPa",
+           formula="σr = σθ = (3 + ν)/8 · ρω²R²")
     assert p["stress_mpa"]["xx"] == pytest.approx(ref, rel=0.02)
     assert p["stress_mpa"]["yy"] == pytest.approx(ref, rel=0.02)
     assert s["body_force_n"] == pytest.approx([0, 0, 0], abs=1e-6 * ref * R * R)
@@ -136,6 +145,7 @@ def test_block_on_elastic_foundation(tmp_path):
              [{"type": "pressure", "body": "b1", "faces": [_plane(f, 2, 20)], "value_mpa": p}], 5.0,
              probes=[{"id": "top", "point_mm": [25, 25, 20]}])
     ref = p / k + p * 20 / _mat()["elastic_modulus_mpa"]
+    record(("顶面沉降", "top-face settlement"), -_probe(s, "top")["u_mm"][2], ref, tol=0.01, unit="mm", formula="p/k + pH/E")
     assert -_probe(s, "top")["u_mm"][2] == pytest.approx(ref, rel=0.01)
     assert s["balance"]["reaction_n"][2] == pytest.approx(p * 50 * 50, rel=1e-6)
 
@@ -150,6 +160,8 @@ def test_remote_load_equals_tip_force_plus_moment(tmp_path):
                "force_n": [0, 0, -100]}], 2.5, probes=[{"id": "tip", "point_mm": [L, h / 2, h / 2]}])
     EI = _mat()["elastic_modulus_mpa"] * h ** 4 / 12
     F, M = 100.0, 100.0 * 2 * L
+    record(("端部挠度", "tip deflection"), -_probe(s, "tip")["u_mm"][2], F * L ** 3 / (3 * EI) + M * L ** 2 / (2 * EI),
+           tol=0.03, unit="mm", formula="δ = FL³/(3EI) + ML²/(2EI)")
     assert -_probe(s, "tip")["u_mm"][2] == pytest.approx(F * L ** 3 / (3 * EI) + M * L ** 2 / (2 * EI), rel=0.03)
     assert s["applied_force_n"] == pytest.approx([0, 0, -100], abs=1e-6)
 
@@ -192,6 +204,8 @@ def test_nafems_le1_elliptic_membrane(tmp_path):
     s = _run(step, [_sym(f, 0), _sym(f, 1), _sym(f, 2)],
              [{"type": "pressure", "body": "b1", "faces": [outer], "value_mpa": -10.0}], 60.0,
              mesh={"size_mm": 60.0, "refine_faces": [inner]}, probes=[{"id": "D", "point_mm": [2000, 0, 25]}])
+    record(("D 点 σyy", "σyy at point D"), _probe(s, "D")["stress_mpa"]["yy"], 92.7, tol=0.01, unit="MPa",
+           formula="NAFEMS LE1 target")
     assert _probe(s, "D")["stress_mpa"]["yy"] == pytest.approx(92.7, rel=0.01)          # 实得 92.76（+0.06 %）
     assert not s["mesh_quality"]["straight_sided"]
 
@@ -220,6 +234,7 @@ def test_nafems_le10_thick_plate(tmp_path):
              [{"type": "pressure", "body": "b1", "faces": [top], "value_mpa": 1.0}], 120.0,
              mesh={"size_mm": 120.0}, probes=[{"id": "D", "point_mm": [2000, 0, 300]}])
     syy = _probe(s, "D")["stress_mpa"]["yy"]
+    record(("D 点 σyy", "σyy at point D"), syy, -5.38, tol=0.02, unit="MPa", formula="NAFEMS LE10 target")
     assert syy == pytest.approx(-5.38, rel=0.02), syy                       # 实得 −5.384（4.1 万个单元）
 
 
@@ -234,4 +249,5 @@ def test_le1_convergence_check_passes(tmp_path):
           "loads": [{"type": "pressure", "body": "b1", "faces": [outer], "value_mpa": -10.0}],
           "steps": [{"id": "s1", "type": "static"}], "mesh": {"size_mm": 80.0}}
     s = analysis.run("fea", st)["data"]["steps"][0]
+    record_verdict(("三层网格收敛等可信度核查", "trust checks incl. three-level mesh convergence"), s["trust"]["verdict"], T.PASS)
     assert s["trust"]["verdict"] == T.PASS, s["trust"]["items"]

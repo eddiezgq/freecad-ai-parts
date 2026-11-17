@@ -20,6 +20,7 @@ import pytest
 import analysis
 from analysis.fea import study as S
 from analysis.fea import trust as T
+from tests.verification import record, record_verdict
 
 # ---------------------------------------------------------------- 纯函数（不要求求解器）
 
@@ -157,6 +158,8 @@ def test_cantilever_balance_and_legacy_trust_block(tmp_path):
     s = _static(step, [{"type": "fixed", "body": "b1", "faces": [root]}],
                 [{"type": "force", "body": "b1", "faces": [tip], "vector_n": [0, 0, -100]}], 2.5,
                 checks={"convergence": False})
+    record(("支承竖向反力", "vertical support reaction"), s["balance"]["reaction_n"][2], 100, tol=1e-4, unit="N",
+           formula="ΣF = 0")
     assert s["balance"]["force_error_ratio"] < 1e-3 and s["balance"]["moment_error_ratio"] < 1e-3
     assert s["balance"]["reaction_n"][2] == pytest.approx(100, rel=1e-4)
     assert s["trust"]["verdict"] == T.UNKNOWN and s["safety_factor"] is None          # 没做收敛：不给安全系数
@@ -186,6 +189,9 @@ def test_lame_thick_cylinder(tmp_path):
                 [{"type": "pressure", "body": "b1", "faces": [inner], "value_mpa": p}], 5.0)
     th = p * (b * b + a * a) / (b * b - a * a)
     vm = math.sqrt(th * th + p * p + th * p)
+    record(("内壁 von Mises 应力", "inner-wall von Mises stress"), s["vm_max_mpa"], vm, tol=0.02, unit="MPa",
+           formula="σθ = p(b² + a²)/(b² − a²), σr = −p, σz = 0")
+    record_verdict(("可信度核查", "trust check"), s["trust"]["verdict"], T.PASS)
     assert s["vm_max_mpa"] == pytest.approx(vm, rel=0.02)
     assert s["trust"]["verdict"] == T.PASS, s["trust"]["items"]
     assert s["safety_factor"] == pytest.approx(355 / s["vm_max_mpa"], rel=1e-3)
@@ -204,6 +210,9 @@ def test_kirsch_plate_with_hole(tmp_path):
     s = _static(step, [{"type": "fixed", "body": "b1", "faces": [_plane(f, 0, 0)]}],
                 [{"type": "force", "body": "b1", "faces": [_plane(f, 0, 400)], "vector_n": [sigma * w * t, 0, 0]}], 8.0,
                 mesh={"size_mm": 8.0, "refine_faces": [hole]})
+    record(("孔边应力集中系数", "stress concentration factor at the hole"), s["vm_max_mpa"] / sigma, 3.0, tol=0.03,
+           formula="Kt = 3 (Kirsch); W/d = 20")
+    record_verdict(("可信度核查", "trust check"), s["trust"]["verdict"], T.PASS)
     assert s["vm_max_mpa"] / sigma == pytest.approx(3.0, rel=0.03)
     assert abs(s["vm_max_at"][1]) == pytest.approx(d / 2, abs=0.5)                     # 在孔边、垂直于拉力方向
     assert s["trust"]["verdict"] == T.PASS, s["trust"]["items"]
@@ -219,6 +228,10 @@ def test_l_shape_reentrant_corner_is_flagged(tmp_path):
     s = _static(step, [{"type": "fixed", "body": "b1", "faces": [_plane(f, 1, 100)]}],
                 [{"type": "force", "body": "b1", "faces": [_plane(f, 0, 100)], "vector_n": [0, -500, 0]}], 5.0)
     conv = next(i for i in s["trust"]["items"] if i["name"] == "网格收敛（最大应力）")
+    record_verdict(("凹角应力收敛核查（应判不收敛）", "stress convergence at the re-entrant corner (must fail)"),
+                   conv["verdict"], T.FAIL)
+    record_verdict(("位移收敛核查", "displacement convergence"),
+                   next(i for i in s["trust"]["items"] if i["name"] == "网格收敛（最大位移）")["verdict"], T.PASS)
     assert conv["verdict"] == T.FAIL and "奇异点" in conv["text"]
     assert s["vm_max_at"][:2] == pytest.approx([20, 20], abs=1.0)                       # 峰值在凹角
     assert s["trust"]["verdict"] == T.FAIL and s["safety_factor"] is None and "不通过" in s["safety_factor_withheld"]
