@@ -351,8 +351,8 @@ SOLVER = os.environ.get("FAP_CCX_SOLVER", "SPOOLES")
 ITERATIVE = "ITERATIVE CHOLESKY"
 # 求解器内存估算（ADR-0093 补充十二第 5 步；CalculiX 2.21、二阶四面体，本机实测标定，见施工记录）：
 # 直接法 SPOOLES ≈ A·(节点数 / 1e4)^B MB；迭代法（预条件共轭梯度）≈ C + D·(节点数 / 1e4) MB
-MEM_SPOOLES = (60.0, 1.30)
-MEM_ITERATIVE = (40.0, 35.0)
+MEM_SPOOLES = (206.0, 1.35)
+MEM_ITERATIVE = (40.0, 43.0)
 MEM_SHARE = 0.7                      # 估计值不超过可用内存的七成才用
 
 
