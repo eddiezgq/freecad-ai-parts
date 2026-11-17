@@ -49,6 +49,7 @@ def validate(study: dict) -> None:
             if eps[0] != 0 or any(b2 <= a2 for a2, b2 in itertools.pairwise(eps)):
                 raise StudyInvalid(f"实体 {b['id']} 的塑性曲线：第一个点的塑性应变要为 0，之后递增")
     kinds = {s["type"] for s in study["steps"]}
+    _validate_shell_beam(study, kinds)
     if "buckling" in kinds:
         if any(b.get("plasticity") for b in study["bodies"]):
             raise StudyInvalid("线性屈曲不能用弹塑性材料（线性屈曲以线弹性为前提）")
@@ -455,6 +456,51 @@ def run_dynamic(inner: dict, ccx: str, st: dict, cache: dict) -> tuple[dict, dic
     return res, {"verdict": trust.verdict(items), "items": items}
 
 
+SHELL_BEAM_SUPPORTS = ("fixed", "displacement")
+SHELL_BEAM_LOADS = ("force", "pressure", "gravity")
+
+
+def _validate_shell_beam(study: dict, kinds: set) -> None:
+    """壳、梁（ADR-0095）：本版只能单独一个实体、只做静力与模态；壳认面、边，梁认顶点、边；实体单元不认顶点"""
+    sb = [b for b in study["bodies"] if b.get("kind") in ("shell", "beam")]
+    items = study["supports"] + study.get("loads", [])
+    if not sb:
+        for x in items:
+            if x.get("vertices"):
+                raise StudyInvalid("实体单元的支承、载荷不能作用在顶点上（顶点只用于梁，ADR-0095）")
+            if x["type"] in ("fixed", "force") and x.get("edges"):
+                raise StudyInvalid("实体单元的固定、力不能作用在边上（边只用于壳、梁；实体的强制位移可在边上）")
+        return
+    b = sb[0]
+    if len(study["bodies"]) > 1:
+        raise StudyInvalid("壳、梁本版只能单独一个实体，不与其他实体混算（ADR-0095）")
+    if study.get("connections"):
+        raise StudyInvalid("壳、梁本版不带接触、绑定、螺栓")
+    if kinds - {"static", "modal"}:
+        raise StudyInvalid("壳、梁本版只做静力与模态")
+    if any(s.get("large_deformation") for s in study["steps"]):
+        raise StudyInvalid("壳、梁本版只做小变形")
+    if study.get("load_cases") or any(s.get("combination") for s in study["steps"]):
+        raise StudyInvalid("壳、梁本版不做工况组合")
+    for x in study["supports"]:
+        if x["type"] not in SHELL_BEAM_SUPPORTS:
+            raise StudyInvalid(f"壳、梁的支承本版只有固定（夹紧）与强制位移，不认 {x['type']}")
+    for x in study.get("loads", []):
+        if x["type"] not in SHELL_BEAM_LOADS:
+            raise StudyInvalid(f"壳、梁的载荷本版只有力、压力、重力，不认 {x['type']}")
+    for x in items:
+        if b["kind"] == "shell" and x.get("vertices"):
+            raise StudyInvalid("壳的支承、载荷作用在边或面上，不认顶点")
+        if b["kind"] == "beam" and (x.get("faces") or x["type"] == "pressure"):
+            raise StudyInvalid("梁没有面：支承、力作用在顶点或边上，不加压力")
+    if b["kind"] == "beam" and b["section"]["shape"] == "rect":
+        ori = b["section"]["orientation"]
+        if not any(abs(v) > 0 for v in ori):
+            raise StudyInvalid("矩形截面的局部 1 轴方向不能是零向量")
+    if study.get("checks", {}).get("convergence") is not False and study.get("probes"):
+        raise StudyInvalid("壳、梁本版不做测点")
+
+
 def run(study: dict, ccx: str, keep_dir: str | None = None) -> tuple[dict, list[str]]:
     """按算例计算。返回 (data, 局限说明)。抛 StudyInvalid / ValueError / RuntimeError / materials.MissingData。
     keep_dir：给了就把每个静力 / 模态步最终那次求解的 job.inp、job.frd 留在 keep_dir/<分析步 id>/（FreeCAD 原生后处理用）"""
@@ -472,6 +518,10 @@ def run(study: dict, ccx: str, keep_dir: str | None = None) -> tuple[dict, list[
     for b in study["bodies"]:
         mats[b["id"]] = materials.get(b["material"])
         materials.require(mats[b["id"]], ["elastic_modulus_mpa", "poisson_ratio", "density_kg_m3"], "有限元")
+    if study["bodies"][0].get("kind") in ("shell", "beam"):        # 壳、梁（ADR-0095）
+        from analysis.fea import structural
+
+        return structural.run(study, ccx, mats, keep_dir)
     inner = _inner(study, mats)
     checks = study.get("checks") or {}
     steps, limits, verdicts, cache = [], [], [], {}

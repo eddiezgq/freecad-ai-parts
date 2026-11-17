@@ -624,11 +624,12 @@ def build(study: dict, result: dict, out: Path, *, number: str | None = None, re
             h(f"分析步 {L.txt('result', b + '/id')}", 2)
             lv = s["trust"].get("levels") or []
             if lv:
-                table(["网格层", "整体网格尺寸（mm）", "核查点局部尺寸（mm）", "单元数", "核查点应力（MPa）", "最大位移（mm）"], [
-                    [f"第{_cn(j)}层", L.num("result", f"{b}/trust/levels/{j}/mesh_size_mm"),
-                     L.num("result", f"{b}/trust/levels/{j}/local_h_mm"), L.num("result", f"{b}/trust/levels/{j}/elements"),
-                     L.num("result", f"{b}/trust/levels/{j}/vm_checked_mpa"), L.num("result", f"{b}/trust/levels/{j}/u_max_mm")]
-                    for j in range(len(lv))])
+                cols = [(k, t) for k, t in (("mesh_size_mm", "整体网格尺寸（mm）"), ("local_h_mm", "核查点局部尺寸（mm）"),
+                                            ("elements", "单元数"), ("vm_checked_mpa", "核查点应力（MPa）"),
+                                            ("vm_max_mpa", "最大应力（MPa）"), ("u_max_mm", "最大位移（mm）"))
+                        if all(k in x for x in lv)]                # 实体与壳、梁（ADR-0095）各层记的项不同：有哪项列哪项
+                table(["网格层"] + [t for _k, t in cols], [
+                    [f"第{_cn(j)}层"] + [L.num("result", f"{b}/trust/levels/{j}/{k}") for k, _t in cols] for j in range(len(lv))])
             table(["核查项", "结论", "说明"], [[L.txt("result", f"{b}/trust/items/{k}/name"), VERDICT.get(it["verdict"]),
                                            L.txt("result", f"{b}/trust/items/{k}/text")] for k, it in enumerate(s["trust"]["items"])])
         elif s["type"] == "modal":

@@ -65,6 +65,47 @@ def face_map(shape, table: list[dict], tol: float = 1e-3) -> dict[int, int]:
     return out
 
 
+def geom_info(step_path: str) -> dict:
+    """STEP 的边、顶点清单（gmsh 编号）：壳的边、梁的端点要用（ADR-0095）"""
+    from analysis.fea.geometry import faces
+
+    return faces(step_path)[1]
+
+
+def edge_map(shape, edges: list[dict], tol: float = 1e-3) -> dict[int, int]:
+    """STEP 边号 → FreeCAD 的边序号（从 1 起），按中点与长度一一对应"""
+    scale = max(shape.BoundBox.DiagonalLength, 1.0)
+    out: dict[int, int] = {}
+    for i, e in enumerate(shape.Edges, 1):
+        c = e.CenterOfMass
+        cands = [t for t in edges if abs(t["length_mm"] - e.Length) <= max(1e-3, 1e-4 * e.Length)
+                 and math.dist(t["center"], (c.x, c.y, c.z)) <= tol * scale]
+        if len(cands) != 1:
+            raise BridgeError(f"FreeCAD 的 Edge{i}（长 {e.Length:.3f} mm）在 STEP 边表里对上 {len(cands)} 条边，不能一一对应")
+        out[int(cands[0]["id"])] = i
+    if len(out) != len(edges):
+        raise BridgeError(f"STEP 有 {len(edges)} 条边，FreeCAD 里有 {len(shape.Edges)} 条，对不齐")
+    return out
+
+
+def vertex_map(shape, verts: list[dict], tol: float = 1e-3) -> dict[int, int]:
+    """STEP 顶点号 → FreeCAD 的顶点序号（从 1 起），按坐标一一对应"""
+    scale = max(shape.BoundBox.DiagonalLength, 1.0)
+    out: dict[int, int] = {}
+    for i, v in enumerate(shape.Vertexes, 1):
+        p = v.Point
+        cands = [t for t in verts if math.dist(t["point"], (p.x, p.y, p.z)) <= tol * scale]
+        if len(cands) != 1:
+            raise BridgeError(f"FreeCAD 的 Vertex{i} 在 STEP 顶点表里对上 {len(cands)} 个，不能一一对应")
+        out[int(cands[0]["id"])] = i
+    if len(out) != len(verts):
+        raise BridgeError(f"STEP 有 {len(verts)} 个顶点，FreeCAD 里有 {len(shape.Vertexes)} 个，对不齐")
+    return out
+
+
+SUBS = (("faces", "Face"), ("edges", "Edge"), ("vertices", "Vertex"))
+
+
 # ---------------------------------------------------------------- 小工具
 
 
@@ -155,18 +196,35 @@ def study_to_fem(doc, study: dict, *, base_dir: Path | None = None, tables: dict
             part.Label = f"{b['id']}：{p.name}"
         _prop(part, "FapBody", json.dumps(b, ensure_ascii=False))
         table = (tables or {}).get(b["id"]) or face_table(str(p))
-        fmaps[b["id"]] = face_map(shape, table)
+        fmaps[b["id"]] = {"Face": face_map(shape, table), "_step": str(p), "_shape": shape}
         parts[b["id"]] = part
         if b.get("material"):
             _material(doc, analysis, part, b["material"])
+        if b.get("kind") in ("shell", "beam"):
+            _element_geometry(doc, analysis, part, b)
     doc.recompute()
 
-    def refs(body, faces):
-        fm = fmaps[body]
-        missing = [f for f in faces if f not in fm]
+    def submap(body, prefix):
+        m = fmaps[body]
+        if prefix not in m:
+            info = geom_info(m["_step"])
+            m["Edge"] = edge_map(m["_shape"], info["edge_list"])
+            m["Vertex"] = vertex_map(m["_shape"], info["vertex_list"])
+        return m[prefix]
+
+    def refs(body, ids, prefix="Face"):
+        fm = submap(body, prefix)
+        missing = [f for f in ids if f not in fm]
         if missing:
-            raise BridgeError(f"实体 {body} 没有 STEP 面 {missing}")
-        return [(parts[body], tuple(f"Face{fm[f]}" for f in faces))]
+            zh = {"Face": "面", "Edge": "边", "Vertex": "顶点"}[prefix]
+            raise BridgeError(f"实体 {body} 没有 STEP {zh} {missing}")
+        return [(parts[body], tuple(f"{prefix}{fm[f]}" for f in ids))]
+
+    def refs_of(it):
+        for key, prefix in SUBS:
+            if it.get(key):
+                return refs(it["body"], it[key], prefix)
+        return []
 
     def line(name, origin, direction):
         o = doc.addObject("Part::Line", name)
@@ -180,12 +238,10 @@ def study_to_fem(doc, study: dict, *, base_dir: Path | None = None, tables: dict
     for key in ("supports", "loads", "connections"):
         for i, it in enumerate(study.get(key) or []):
             name = f"Fap_{key}_{i}"
-            obj = _native(doc, analysis, it, refs, line, name) if _is_native(it) else None
+            obj = _native(doc, analysis, it, refs, line, name, refs_of) if _is_native(it) else None
             if obj is None:
                 obj = _fap_object(doc, analysis, name)
-                fr = []
-                if it.get("faces") and it.get("body"):
-                    fr = refs(it["body"], it["faces"])
+                fr = refs_of(it) if it.get("body") else []
                 for side in ("a", "b"):
                     if isinstance(it.get(side), dict):
                         fr += refs(it[side]["body"], it[side]["faces"])
@@ -208,21 +264,21 @@ def _is_native(it: dict) -> bool:
     t = it["type"]
     if t not in NATIVE:
         return False
-    if t == "displacement" and (it.get("edges") or not it.get("faces")):
-        return False
     if t in ("bonded", "contact"):                       # Tie / Contact：每侧一个面
         return len(it["a"]["faces"]) == 1 and len(it["b"]["faces"]) == 1
-    return not (t in ("fixed", "force", "pressure", "cyl_support") and not it.get("faces"))
+    if t in ("fixed", "displacement", "force"):          # 面、边、顶点 FEM 的固定、位移、力都认（ADR-0095）
+        return any(it.get(k) for k, _ in SUBS)
+    return not (t in ("pressure", "cyl_support") and not it.get("faces"))
 
 
-def _native(doc, analysis, it, refs, line, name):
+def _native(doc, analysis, it, refs, line, name, refs_of):
     t = it["type"]
     if t == "fixed":
         o = ObjectsFem.makeConstraintFixed(doc, name)
-        o.References = refs(it["body"], it["faces"])
+        o.References = refs_of(it)
     elif t == "displacement":
         o = ObjectsFem.makeConstraintDisplacement(doc, name)
-        o.References = refs(it["body"], it["faces"])
+        o.References = refs_of(it)
         for ax in "xyz":
             v = it.get(f"u{ax}_mm")
             setattr(o, f"{ax}Free", v is None)
@@ -242,7 +298,7 @@ def _native(doc, analysis, it, refs, line, name):
             setattr(o, f"{ax}Displacement", FreeCAD.Units.Quantity("0 mm"))
     elif t == "force":
         o = ObjectsFem.makeConstraintForce(doc, name)
-        o.References = refs(it["body"], it["faces"])
+        o.References = refs_of(it)
         v = it["vector_n"]
         o.Force = FreeCAD.Units.Quantity(f"{math.sqrt(sum(x * x for x in v))!r} N")
         o.Direction = (line(name + "_dir", [0, 0, 0], v), ["Edge1"])
@@ -272,6 +328,51 @@ def _native(doc, analysis, it, refs, line, name):
     o.Label = _ZH[t]
     analysis.addObject(o)
     return o
+
+
+def _element_geometry(doc, analysis, part, b: dict):
+    """壳厚度 / 梁截面：FEM 工作台的 ElementGeometry2D / 1D（ADR-0095）。矩形截面的局部 1 轴方向 FEM 没有对应量，记在实体的原始条目里"""
+    if b["kind"] == "shell":
+        o = ObjectsFem.makeElementGeometry2D(doc, float(b["thickness_mm"]), f"FapShell_{part.Name}")
+        o.References = [(part, tuple(f"Face{i}" for i in range(1, len(part.Shape.Faces) + 1)))]
+        o.Label = "壳厚度（零件库）"
+    else:
+        sec = b["section"]
+        o = ObjectsFem.makeElementGeometry1D(doc, name=f"FapBeam_{part.Name}")
+        if sec["shape"] == "rect":
+            o.SectionType, o.RectWidth, o.RectHeight = "Rectangular", f"{sec['width_mm']!r} mm", f"{sec['height_mm']!r} mm"
+        elif sec["shape"] == "circle":
+            o.SectionType, o.CircDiameter = "Circular", f"{sec['diameter_mm']!r} mm"
+        else:
+            o.SectionType, o.PipeDiameter, o.PipeThickness = "Pipe", f"{sec['outer_diameter_mm']!r} mm", f"{sec['wall_mm']!r} mm"
+        o.References = [(part, tuple(f"Edge{i}" for i in range(1, len(part.Shape.Edges) + 1)))]
+        o.Label = "梁截面（零件库）"
+    _prop(o, "FapGeomOf", b["id"])
+    analysis.addObject(o)
+    return o
+
+
+def _geometry_back(o, b: dict) -> dict:
+    """从 ElementGeometry 读回厚度 / 截面（人在 FreeCAD 里改过的以 FreeCAD 为准）"""
+    bb = copy.deepcopy(b)
+    if b.get("kind") == "shell":
+        bb["thickness_mm"] = _keep(b["thickness_mm"], _q(o.Thickness, "mm"))
+        return bb
+    sec = dict(b["section"])
+    st = {"Rectangular": "rect", "Circular": "circle", "Pipe": "pipe"}[o.SectionType]
+    if st == "rect":
+        new = {"shape": "rect", "width_mm": _q(o.RectWidth, "mm"), "height_mm": _q(o.RectHeight, "mm"),
+               "orientation": sec.get("orientation") or [0.0, 0.0, 1.0]}
+    elif st == "circle":
+        new = {"shape": "circle", "diameter_mm": _q(o.CircDiameter, "mm")}
+    else:
+        new = {"shape": "pipe", "outer_diameter_mm": _q(o.PipeDiameter, "mm"), "wall_mm": _q(o.PipeThickness, "mm")}
+    bb["section"] = sec if _same(new, sec) else new
+    return bb
+
+
+def _keep(old: float, new: float) -> float:
+    return old if math.isclose(float(old), new, rel_tol=REL, abs_tol=1e-12) else new
 
 
 def _material(doc, analysis, part, mid: str):
@@ -316,7 +417,16 @@ def fem_to_study(analysis, *, tables: dict[str, list] | None = None) -> tuple[di
     for bid, part in parts.items():
         b = _jget(part, "FapBody")
         table = (tables or {}).get(bid) or face_table(_abs(b["step_path"], doc))
-        rev[part.Name] = {v: k for k, v in face_map(part.Shape, table).items()}
+        rev[part.Name] = {"Face": {v: k for k, v in face_map(part.Shape, table).items()}, "_step": _abs(b["step_path"], doc),
+                          "_shape": part.Shape}
+
+    def rev_of(name, prefix):
+        m = rev[name]
+        if prefix not in m:
+            info = geom_info(m["_step"])
+            m["Edge"] = {v: k for k, v in edge_map(m["_shape"], info["edge_list"]).items()}
+            m["Vertex"] = {v: k for k, v in vertex_map(m["_shape"], info["vertex_list"]).items()}
+        return m[prefix]
     by_name = {p.Name: bid for bid, p in parts.items()}
     bodies = []
     for b in rest.get("bodies") or []:
@@ -326,28 +436,38 @@ def fem_to_study(analysis, *, tables: dict[str, list] | None = None) -> tuple[di
         if mat is not None and mat.FapMaterialId != b.get("material"):
             note["changed"].append(f"/bodies/{len(bodies)}/material")
             bb["material"] = mat.FapMaterialId
+        geo = next((o for o in analysis.Group if getattr(o, "FapGeomOf", None) == b["id"]), None)
+        if geo is not None and b.get("kind") in ("shell", "beam"):
+            nb = _geometry_back(geo, bb)
+            if nb != bb:
+                note["changed"].append(f"/bodies/{len(bodies)}/" + ("thickness_mm" if b["kind"] == "shell" else "section"))
+                bb = nb
         bodies.append(bb)
     study["bodies"] = bodies
 
     def faces_of(refs_):
-        """References → [(body, [STEP 面号])]"""
+        """References → [(body, [STEP 编号], "faces" / "edges" / "vertices")]（一个约束只引用一种：面、边或顶点）"""
         out = []
         for obj, subs in refs_:
             if obj.Name not in rev:
                 raise BridgeError(f"约束引用了不是零件库实体的对象 {obj.Label}")
             subs = subs if isinstance(subs, (list, tuple)) else [subs]
-            ids = []
-            for s in subs:
-                if not s.startswith("Face"):
-                    raise BridgeError(f"约束引用了 {s}（只认面）")
-                ids.append(rev[obj.Name][int(s[4:])])
-            out.append((by_name[obj.Name], ids))
+            ids, keys = [], set()
+            for sub in subs:
+                key, prefix = next(((k, p) for k, p in SUBS if sub.startswith(p) and sub[len(p):].isdigit()), (None, None))
+                if key is None:
+                    raise BridgeError(f"约束引用了 {sub}（只认面、边、顶点）")
+                keys.add(key)
+                ids.append(rev_of(obj.Name, prefix)[int(sub[len(prefix):])])
+            if len(keys) != 1:
+                raise BridgeError("一个约束里面、边、顶点混着引用：请分成几个约束")
+            out.append((by_name[obj.Name], ids, keys.pop()))
         return out
 
     groups: dict[str, list[tuple[int, dict, str]]] = {"supports": [], "loads": [], "connections": []}
     transforms = {o.FapPartOf for o in analysis.Group if "FapPartOf" in o.PropertiesList}
     for o in analysis.Group:
-        if "FapPartOf" in o.PropertiesList or "FapMaterialId" in o.PropertiesList:
+        if "FapPartOf" in o.PropertiesList or "FapMaterialId" in o.PropertiesList or "FapGeomOf" in o.PropertiesList:
             continue
         if o.TypeId.startswith("Fem::FemMesh") or o.TypeId.startswith("Fem::FemSolver") or "Result" in o.TypeId \
                 or o.TypeId.startswith("App::MaterialObject") or o.TypeId == "Fem::FemSolverObjectPython":
@@ -356,10 +476,12 @@ def fem_to_study(analysis, *, tables: dict[str, list] | None = None) -> tuple[di
         key = getattr(o, "FapKey", "") if "FapKey" in o.PropertiesList else ""
         if stored is not None and not _is_native(stored):
             item = copy.deepcopy(stored)
-            if "faces" in stored and stored.get("body") and o.References:
-                (_body, ids), *_ = faces_of(o.References)
-                if sorted(ids) != sorted(stored["faces"]):
-                    item["faces"] = ids
+            skey = next((k for k, _p in SUBS if stored.get(k)), None)
+            if skey and stored.get("body") and o.References:
+                _body, ids, rkey = faces_of(o.References)[0]
+                if rkey != skey or sorted(ids) != sorted(stored[skey]):
+                    item.pop(skey, None)
+                    item[rkey] = ids
                     note["changed"].append(key)
             groups[key.split("/")[0]].append((int(key.split("/")[1]), item, o.Name))
             continue
@@ -464,6 +586,8 @@ def _read_native(o, t: str, faces_of, stored: dict | None, has_transform: bool) 
     if t in ("bonded", "contact"):
         if len(refs) != 2:
             raise BridgeError("绑定 / 接触要两侧各一组面")
+        if any(r[2] != "faces" for r in refs):
+            raise BridgeError("绑定 / 接触只能作用在面上")
         it = {"type": t, "a": {"body": refs[0][0], "faces": refs[0][1]}, "b": {"body": refs[1][0], "faces": refs[1][1]}}
         if stored and stored.get("id"):
             it = {"type": t, "id": stored["id"], **{k: it[k] for k in ("a", "b")}}
@@ -472,16 +596,18 @@ def _read_native(o, t: str, faces_of, stored: dict | None, has_transform: bool) 
         return it
     if len(refs) != 1:
         raise BridgeError("一个约束只能作用在一个实体上")
-    body, ids = refs[0]
+    body, ids, where = refs[0]
+    if where != "faces" and t not in ("fixed", "displacement", "force"):
+        raise BridgeError(f"{t} 只能作用在面上")
     if t == "fixed":
-        return {"type": "fixed", "body": body, "faces": ids}
+        return {"type": "fixed", "body": body, where: ids}
     if t == "displacement":
         if has_transform:
             dofs = [n for n, free in (("radial", o.xFree), ("tangential", o.yFree), ("axial", o.zFree)) if not free]
             axis = (stored or {}).get("axis") or _cyl_axis(o)
             it = {"type": "cyl_support", "body": body, "faces": ids, "axis": axis, "dofs": dofs}
             return it
-        it = {"type": "displacement", "body": body, "faces": ids}
+        it = {"type": "displacement", "body": body, where: ids}
         for ax in "xyz":
             if not getattr(o, f"{ax}Free"):
                 it[f"u{ax}_mm"] = _q(getattr(o, f"{ax}Displacement"), "mm")
@@ -494,7 +620,7 @@ def _read_native(o, t: str, faces_of, stored: dict | None, has_transform: bool) 
         d = d * (1 / d.Length)
         if o.Reversed:
             d = d * -1
-        return {"type": "force", "body": body, "faces": ids, "vector_n": [f * d.x, f * d.y, f * d.z]}
+        return {"type": "force", "body": body, where: ids, "vector_n": [f * d.x, f * d.y, f * d.z]}
     if t == "pressure":
         p = _q(o.Pressure, "MPa")
         return {"type": "pressure", "body": body, "faces": ids, "value_mpa": -p if o.Reversed else p}

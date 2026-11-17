@@ -207,3 +207,48 @@ def test_saved_document_round_trips(doc, tmp_path):
         assert back == study and _plain(note) == {"changed": [], "added": [], "unsupported": []}
     finally:
         FreeCAD.closeDocument(d2.Name)
+
+
+def test_shell_and_beam_round_trip_and_results(doc, tmp_path):
+    """壳、梁（ADR-0095）：厚度、截面成为 FEM 的 ElementGeometry；边、顶点上的约束与力是 FEM 自带的对象；往返一致；
+    在 FreeCAD 里改厚度以 FreeCAD 为准；壳的结果（展开成三维的节点）也能进原生后处理"""
+    import ObjectsFem  # noqa: F401
+
+    from analysis.fea import run_study
+    from freecad_addon.fc import fem_bridge as B
+    from freecad_addon.fc import fem_results as R
+    from tests.test_fea_bench import _write
+
+    beam = _write(tmp_path / "beam.step", lambda o: o.addLine(o.addPoint(0, 0, 0), o.addPoint(200, 0, 0)))
+    plate = _write(tmp_path / "plate.step", lambda o: o.addRectangle(0, 0, 0, 200, 200))
+    bstudy = {"format": "fea-study/1", "name": "beam", "bodies": [{"id": "b", "step_path": beam, "material": "45-QT", "kind": "beam",
+                                                                   "section": {"shape": "rect", "width_mm": 10.0, "height_mm": 20.0,
+                                                                               "orientation": [0.0, 1.0, 0.0]}}],
+              "supports": [{"type": "fixed", "body": "b", "vertices": [1]}],
+              "loads": [{"type": "force", "body": "b", "vertices": [2], "vector_n": [0.0, 0.0, -100.0]}],
+              "steps": [{"id": "s1", "type": "static"}], "mesh": {"size_mm": 10.0}}
+    an = B.study_to_fem(doc, bstudy)
+    types = {o.TypeId for o in an.Group}
+    assert {"Fem::ConstraintFixed", "Fem::ConstraintForce"} <= types
+    geo = next(o for o in an.Group if "FapGeomOf" in o.PropertiesList)
+    assert geo.SectionType == "Rectangular" and geo.RectHeight.getValueAs("mm").Value == pytest.approx(20.0)
+    back, note = B.fem_to_study(an)
+    assert back == bstudy and _plain(note) == {"changed": [], "added": [], "unsupported": []}
+
+    pstudy = {"format": "fea-study/1", "name": "plate",
+              "bodies": [{"id": "p", "step_path": plate, "material": "45-QT", "kind": "shell", "thickness_mm": 2.0}],
+              "supports": [{"type": "displacement", "body": "p", "edges": [1, 2, 3, 4], "ux_mm": 0.0, "uy_mm": 0.0, "uz_mm": 0.0}],
+              "loads": [{"type": "pressure", "body": "p", "faces": [1], "value_mpa": 0.01}],
+              "steps": [{"id": "s1", "type": "static"}], "mesh": {"size_mm": 25.0}, "checks": {"convergence": False}}
+    an2 = B.study_to_fem(doc, pstudy)
+    back, note = B.fem_to_study(an2)
+    assert back == pstudy and _plain(note) == {"changed": [], "added": [], "unsupported": []}
+    res = run_study(pstudy, keep_dir=str(tmp_path / "keep"))
+    assert res["status"] == "ok", res["messages"]
+    out = R.results_to_fem(an2, res, tmp_path / "keep")
+    o = doc.getObject(out["results"][0])
+    assert max(o.DisplacementLengths) == pytest.approx(res["data"]["steps"][0]["u_max_mm"], rel=1e-3)
+    g2 = next(o for o in an2.Group if "FapGeomOf" in o.PropertiesList)
+    g2.Thickness = "3 mm"
+    back, note = B.fem_to_study(an2)
+    assert back["bodies"][0]["thickness_mm"] == pytest.approx(3.0) and note["changed"] == ["/bodies/0/thickness_mm"]
