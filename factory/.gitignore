@@ -12,6 +12,7 @@ digital/.env
 !designs/drv-joint-b/fw/out/*.zip
 !designs/ctrl-ls/out/*.zip
 !designs/ctrl-ls/fw/out/*.zip
+!designs/ctrl-ls/order/*.zip
 designs/drv-joint/.route/
 designs/ctrl-ls/.route/
 designs/drv-joint-b/.route/
