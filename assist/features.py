@@ -182,7 +182,7 @@ def recognize(step_path, library: Iterable[dict] = ()) -> dict:
             text = f"外圆 / 轴段 Ø{dia:g}，长 {length:.1f}，面 {ids}"
         if match:
             item["fits"] = match
-            text += "；直径与零件库 " + "、".join(match[:3]) + " 相符（可能的配合面）"
+            text += "；直径与零件库 {} 相符（可能的配合面）".format("、".join(match[:3]))
         item["text"] = text
         feats.append(item)
 

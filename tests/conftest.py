@@ -9,6 +9,8 @@
 
 import importlib.util
 import os
+
+os.environ.setdefault("FAP_LANG", "zh")   # 界面语言：测试按中文（ADR-0096 第 3 步；英文另有专门的测试）
 import uuid
 
 import pytest

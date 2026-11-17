@@ -15,6 +15,7 @@ from pathlib import Path
 import pytest
 
 from assist import fea_report as R
+from assist import i18n
 
 ROOT = Path(__file__).resolve().parents[1]
 NAMES = R.fixture_names()
@@ -48,6 +49,8 @@ def _trace(text: str, ledger: dict, sources: dict) -> None:
         if e["kind"] == "number":
             assert e["text"] == R.fmt(v), e
             assert float(e["text"]) == pytest.approx(v, rel=5e-4, abs=1e-12), e
+        elif "original" in e:                       # 英文报告里翻过的程序说明：原文对得上文件，译文就是对照表译出来的
+            assert e["original"] == str(v) and e["text"] == i18n.t(str(v)), e
         else:
             assert e["text"] == str(v), e
     rest = text
@@ -75,6 +78,33 @@ def test_every_number_in_report_traces_to_files(name, tmp_path):
     sources = {"study": s, "result": r, "materials": {"materials": mats}, "record": record, "files": ledger["files"],
                "env": env, "library": R.library_sources(s), "explain": {}}
     _trace(_docx_text(got["docx"]), ledger, sources)
+
+
+@pytest.mark.parametrize("name", NAMES)
+def test_english_report_same_numbers_and_only_user_text_in_chinese(name, tmp_path):
+    """英文报告（ADR-0096 第 3 步）：每个数字照样追得到文件；印出的数字与中文报告一模一样；
+    剩下的中文只能是用户写的话（算例里的原话、名字、确认人）或材料数据的文献出处"""
+    from analysis.common import materials
+
+    s, r, zh = _build(name, tmp_path / "zh")
+    _s, _r, en = _build(name, tmp_path / "en", lang="en")
+    lz, le = (json.loads(x["ledger"].read_text(encoding="utf-8")) for x in (zh, en))
+    assert le["lang"] == "en"
+    nums = [[(e["source"], e["pointer"], e["text"]) for e in x["entries"] if e["kind"] == "number"] for x in (lz, le)]
+    assert nums[0] == nums[1] and le["files"]["result"] == lz["files"]["result"]
+    mats = {b["material"]: materials._table()[b["material"]] for b in s["bodies"] if b.get("material")}
+    record = json.loads(en["record"].read_text(encoding="utf-8"))
+    env = {"code": R.code_version(), "gmsh": R.gmsh_version(), "solver": f"{r['solver']['name']} {r['solver']['version']}",
+           "module": f"fea {r['module_version']}"}
+    sources = {"study": s, "result": r, "materials": {"materials": mats}, "record": record, "files": le["files"],
+               "env": env, "library": R.library_sources(s), "explain": {}}
+    text = _docx_text(en["docx"])
+    _trace(text, le, sources)
+    allowed = json.dumps(s, ensure_ascii=False) + json.dumps([m.get("sources") for m in mats.values()], ensure_ascii=False)
+    runs = re.findall(r"[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef]+", text)
+    stray = sorted({x for x in runs if x not in allowed})
+    assert not stray, f"英文报告里有没翻的程序文字：{stray[:10]}"
+    assert "Finite element analysis report" in text and "Review checklist" in text
 
 
 def test_report_content_rj201(tmp_path):
@@ -182,18 +212,18 @@ def test_request_lists_facts_with_placeholders():
     assert req == R.build_request(r)
 
 
+@pytest.mark.parametrize("lang", ["zh", "en"])
 @pytest.mark.parametrize("provider", ["claude", "deepseek"])
-def test_recorded_explanations_pass(provider):
-    """Claude、DeepSeek 的解释各按自己的录制回放，同一套核对（ADR-0096 第 2 步）"""
+def test_recorded_explanations_pass(provider, lang):
+    """Claude、DeepSeek 的解释各按自己的录制回放，同一套核对（ADR-0096 第 2 步）；英文报告的解释用英文写（第 3 步）"""
     from assist.fea_draft import provider_model
+    from ingest.llm_extract import RecordedClient, RecordingMissing
 
     model = provider_model(provider)
-    if not R.RECORDINGS_DIR.is_dir() or model not in {json.loads(f.read_text(encoding="utf-8")).get("model")
-                                                      for f in R.RECORDINGS_DIR.glob("*.json")}:
-        pytest.skip(f"还没有 {provider} 的录制：用 .github/workflows/fea-draft-eval.yml 在云端录制")
-    from ingest.llm_extract import RecordedClient
-
-    res = R.evaluate(RecordedClient(R.RECORDINGS_DIR), model=model)
+    try:
+        res = R.evaluate(RecordedClient(R.RECORDINGS_DIR), model=model, lang=lang)
+    except RecordingMissing:
+        pytest.skip(f"还没有 {provider}（{lang}）的录制：用 .github/workflows/fea-draft-eval.yml 在云端录制")
     assert res["passed"], json.dumps(res, ensure_ascii=False, indent=1)
 
 

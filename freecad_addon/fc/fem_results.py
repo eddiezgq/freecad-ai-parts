@@ -14,12 +14,14 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from assist.i18n import tr as T
+
 VERDICT = {"pass": "通过", "fail": "不通过", "unknown": "未知", None: "未知"}
 
 
 def _prop(obj, name: str, value: str) -> None:
     if name not in obj.PropertiesList:
-        obj.addProperty("App::PropertyString", name, "零件库结论", "零件库 / 有限元的结论（只读）")
+        obj.addProperty("App::PropertyString", name, T("零件库结论"), T("零件库 / 有限元的结论（只读）"))
         obj.setEditorMode(name, 1)
     setattr(obj, name, value)
 
@@ -59,14 +61,15 @@ def _annotate(o, st: dict) -> None:
     v = tr.get("verdict")
     _prop(o, "FapStep", st["id"])
     if st["type"] == "static":
-        _prop(o, "FapTrust", VERDICT.get(v) + "：" + "；".join(f"{i['name']}：{VERDICT.get(i['verdict'])}" for i in tr.get("items") or []))
+        _prop(o, "FapTrust", T(VERDICT.get(v)) + T("：") + T("；").join(f"{T(i['name'])}{T('：')}{T(VERDICT.get(i['verdict']))}"
+                                                                    for i in tr.get("items") or []))
         _prop(o, "FapVmMaxMpa", json.dumps({"value": st.get("vm_max_mpa"), "at_mm": st.get("vm_max_at"),
                                             "note": "避开约束面的最大 von Mises 应力（本仓库报告用这个值）"}, ensure_ascii=False))
         if st.get("safety_factor") is not None:
-            _prop(o, "FapSafetyFactor", f"{st['safety_factor']}（按{st.get('strength_kind', '')} {st.get('strength_mpa')} MPa）")
+            _prop(o, "FapSafetyFactor", T(f"{st['safety_factor']}（按{st.get('strength_kind', '')} {st.get('strength_mpa')} MPa）"))
         else:
-            _prop(o, "FapSafetyFactor", "不给：" + str(st.get("safety_factor_withheld") or "没有算出"))
+            _prop(o, "FapSafetyFactor", T("不给：") + T(str(st.get("safety_factor_withheld") or "没有算出")))
         if v != "pass":
-            o.Label = o.Label + f"（可信度{VERDICT.get(v)}）"
+            o.Label = T(o.Label + f"（可信度{VERDICT.get(v)}）")
     else:
-        _prop(o, "FapTrust", "模态：频率见报告；振型可在此查看")
+        _prop(o, "FapTrust", T("模态：频率见报告；振型可在此查看"))

@@ -68,16 +68,17 @@ jobs:
           EOF
           cat eval.json
           echo "评测退出码 $code（1 = 未达标；录制照样提交，便于分析）"
-      - name: 报告解释（真实零件的结果）并录制
+      - name: 报告解释（真实零件的结果；中文、英文各一遍）并录制
         run: |
+          for lang in zh en; do
           set +e
-          python -m assist.fea explain-eval --record --provider "$PROVIDER" > explain.json
+          python -m assist.fea explain-eval --record --provider "$PROVIDER" --lang "$lang" > explain.json
           code=$?
           set -e
-          python - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
-          import json
+          LANG_="$lang" python - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import json, os
           r = json.load(open("explain.json"))
-          print("\n## 报告解释验收\n")
+          print(f"\n## 报告解释验收（{os.environ['LANG_']}）\n")
           print(f"- 结论：{'达标' if r['passed'] else '未达标'}（每份都有采用的段落、用了占位符、没有退回的段落）\n")
           print("| 结果 | 采用段落 | 占位符 | 退回 |")
           print("|---|---|---|---|")
@@ -86,7 +87,8 @@ jobs:
               print(f"| {x['id']} | {x['kept']} | {x['placeholders']} | {why} |")
           EOF
           cat explain.json
-          echo "解释评测退出码 $code"
+          echo "解释评测（$lang）退出码 $code"
+          done
       - name: 推到新分支
         run: |
           git config user.name "github-actions[bot]"
