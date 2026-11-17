@@ -288,6 +288,10 @@ def _context(result: dict) -> tuple[list[str], list[str], list[str]]:
         ids += [str(st.get("id", "")), str(st.get("combination") or "")]
         for it in (st.get("trust") or {}).get("items") or []:
             (ok if it.get("verdict") == "pass" else bad).extend(_item_words(it.get("name", "")))
+    conv = [it.get("verdict") for st in d.get("steps") or [] for it in (st.get("trust") or {}).get("items") or []
+            if it.get("name", "").startswith("网格收敛")]
+    if conv and all(v == "pass" for v in conv):          # 网格收敛各项都通过：说“网格收敛核查都通过”是实话（11-17 英文录制里查出的误判）
+        ok += ["网格收敛", "mesh convergence", "mesh-convergence", "Mesh convergence", "Mesh-convergence"]
     setup = result.get("setup") or {}
     ids += [str(x.get("id", "")) for x in (setup.get("load_cases") or []) + (setup.get("combinations") or [])]
     return [x for x in ids if x], ok, bad

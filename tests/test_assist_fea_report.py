@@ -334,3 +334,14 @@ def test_recorded_explanation_goes_into_traced_report(tmp_path):
     sources = {"study": s, "result": r, "materials": {"materials": {"45-QT": materials._table()["45-QT"]}}, "record": record,
                "files": ledger["files"], "env": env, "library": R.library_sources(s), "explain": e}
     _trace(_docx_text(got["docx"]), ledger, sources)
+
+
+def test_saying_all_convergence_checks_passed_is_true_when_they_did():
+    """LS-101：网格收敛两项都通过、网格质量未知——“两项网格收敛核查都通过”是实话，不退回；说“全部核查通过”仍退回"""
+    _s, r = R.load_fixture("ls101-shaft-modal")
+    fx = R.facts(r)
+    assert R.check_text("Both mesh-convergence checks passed, but mesh quality is still unknown.", fx, False, r) is None
+    assert R.check_text("两项网格收敛核查都通过，网格质量未知。", fx, False, r) is None
+    assert R.check_text("All checks passed.", fx, False, r) is not None
+    _s, r2 = R.load_fixture("rj201-torque")                         # 应力收敛没通过：不能这么说
+    assert R.check_text("Both mesh-convergence checks passed.", R.facts(r2), False, r2) is not None
