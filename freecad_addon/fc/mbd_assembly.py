@@ -73,8 +73,9 @@ def _solid_props(assembly, top, sub, leaf):
 
 def describe(assembly, mass_overrides=None) -> dict:
     """装配体 → 中性描述（见 analysis/mbd/assembly.py）"""
-    import JointObject
-    import UtilsAssembly
+    from freecad_addon.fc.assembly_modules import load
+
+    JointObject, UtilsAssembly = load()
 
     mass_overrides = mass_overrides or {}
     grounded, joints = set(), []
