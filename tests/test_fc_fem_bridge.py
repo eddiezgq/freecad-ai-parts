@@ -18,6 +18,10 @@ ROOT = Path(__file__).resolve().parent.parent
 FIX = ROOT / "tests" / "fixtures" / "fea-report"
 
 
+def _plain(note):
+    return {k: v for k, v in note.items() if k != "objects"}
+
+
 @pytest.fixture
 def doc(monkeypatch):
     import FreeCAD
@@ -39,7 +43,7 @@ def test_real_part_studies_round_trip(doc, name):
     labels = {o.TypeId for o in a.Group}
     assert "Fem::ConstraintFixed" in labels or "Fem::ConstraintDisplacement" in labels
     back, note = B.fem_to_study(a)
-    assert note == {"changed": [], "added": [], "unsupported": []}
+    assert _plain(note) == {"changed": [], "added": [], "unsupported": []}
     assert back == study
 
 
@@ -108,7 +112,7 @@ def test_every_item_type_round_trips(doc, tmp_path):
     d = f.DirectionVector
     assert (d.x, d.y, d.z) == pytest.approx((0.0, 0.6, -0.8))
     back, note = B.fem_to_study(an)
-    assert note == {"changed": [], "added": [], "unsupported": []}
+    assert _plain(note) == {"changed": [], "added": [], "unsupported": []}
     assert back == study
 
 
@@ -200,6 +204,6 @@ def test_saved_document_round_trips(doc, tmp_path):
     try:
         an = next(o for o in d2.Objects if o.Name == "FapAnalysis")
         back, note = B.fem_to_study(an)
-        assert back == study and note == {"changed": [], "added": [], "unsupported": []}
+        assert back == study and _plain(note) == {"changed": [], "added": [], "unsupported": []}
     finally:
         FreeCAD.closeDocument(d2.Name)

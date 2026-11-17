@@ -544,3 +544,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
 
 def register() -> None:
     FreeCADGui.addWorkbench(AiPartsWorkbench())
+    # FEM 工作台里的起草、计算并核查、出报告（ADR-0093 补充十二）
+    from freecad_addon.gui import fem_commands
+
+    fem_commands.register()
