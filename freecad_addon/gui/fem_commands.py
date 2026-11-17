@@ -11,6 +11,7 @@ import threading
 import FreeCAD
 import FreeCADGui
 
+from assist.i18n import tr as T
 from freecad_addon.fc import fem_flow as F
 
 ANCHOR = "FEM_SolverRun"          # 插在 FEM 工作台“运行求解器”按钮前面（只有 FEM 工作台有这个按钮）
@@ -35,7 +36,7 @@ def _analysis():
 def _say(title: str, text: str, warn: bool = False) -> None:
     from PySide import QtWidgets
 
-    (QtWidgets.QMessageBox.warning if warn else QtWidgets.QMessageBox.information)(_mw(), title, text)
+    (QtWidgets.QMessageBox.warning if warn else QtWidgets.QMessageBox.information)(_mw(), T(title), T(text))
 
 
 def _in_background(work, done) -> None:
@@ -71,24 +72,24 @@ class DraftPanel:
 
         self.parts, self.client_factory, self.analysis = parts, client_factory, None
         self.form = QtWidgets.QWidget()
-        self.form.setWindowTitle("一句话起草算例（AI 起草，程序核对，人确认）")
+        self.form.setWindowTitle(T("一句话起草算例（AI 起草，程序核对，人确认）"))
         lay = QtWidgets.QVBoxLayout(self.form)
-        lay.addWidget(QtWidgets.QLabel("零件：" + "、".join(o.Label for o in parts)))
+        lay.addWidget(QtWidgets.QLabel(T("零件：") + T("、").join(o.Label for o in parts)))
         self.text = QtWidgets.QPlainTextEdit()
-        self.text.setPlaceholderText("例：肩关节空心轴，45 钢调质。Ø70 法兰那一端的端面固定，在 Ø42.75 花键段上加峰值扭矩 92.5 N·m。")
+        self.text.setPlaceholderText(T("例：肩关节空心轴，45 钢调质。Ø70 法兰那一端的端面固定，在 Ø42.75 花键段上加峰值扭矩 92.5 N·m。"))
         lay.addWidget(self.text)
-        self.go = QtWidgets.QPushButton("起草")
+        self.go = QtWidgets.QPushButton(T("起草"))
         self.go.clicked.connect(self.draft)
         lay.addWidget(self.go)
         self.info = QtWidgets.QTextBrowser()
         lay.addWidget(self.info)
-        self.handled = QtWidgets.QCheckBox("追问都已处理（在 FEM 里补好了，或判断不需要）")
+        self.handled = QtWidgets.QCheckBox(T("追问都已处理（在 FEM 里补好了，或判断不需要）"))
         lay.addWidget(self.handled)
         row = QtWidgets.QHBoxLayout()
-        row.addWidget(QtWidgets.QLabel("确认人："))
+        row.addWidget(QtWidgets.QLabel(T("确认人：")))
         self.by = QtWidgets.QLineEdit()
         row.addWidget(self.by)
-        self.ok = QtWidgets.QPushButton("确认算例")
+        self.ok = QtWidgets.QPushButton(T("确认算例"))
         self.ok.clicked.connect(self.confirm)
         self.ok.setEnabled(False)
         row.addWidget(self.ok)
@@ -101,15 +102,15 @@ class DraftPanel:
             steps = F.draft_steps(doc, statement, self.parts)
             client = self.client_factory()
         except Exception as exc:  # noqa: BLE001 — 显示给人
-            self.info.setPlainText(f"没有起草：{exc}")
+            self.info.setPlainText(T(f"没有起草：{exc}"))
             return
         self.go.setEnabled(False)
-        self.info.setPlainText("正在识别零件特征、请 AI 起草、程序核对……")
+        self.info.setPlainText(T("正在识别零件特征、请 AI 起草、程序核对……"))
 
         def done(r):
             self.go.setEnabled(True)
             if isinstance(r, Exception):
-                self.info.setPlainText(f"没有起草：{r}")
+                self.info.setPlainText(T(f"没有起草：{r}"))
                 return
             out = F.place_draft(doc, statement, self.parts, r)
             self.analysis = out["analysis"]
@@ -129,15 +130,15 @@ class DraftPanel:
             lines.append(f"未采用：{x['type']}——{x['reason']}")
         for x in out["errors"]:
             lines.append(f"还不能算：{x}")
-        self.info.setPlainText("\n".join(lines))
+        self.info.setPlainText("\n".join(T(x) for x in lines))
 
     def confirm(self):
         try:
             s = F.confirm_analysis(self.analysis, self.by.text(), self.handled.isChecked())
         except Exception as exc:  # noqa: BLE001
-            self.info.append(f"没有确认：{exc}")
+            self.info.append(T(f"没有确认：{exc}"))
             return
-        self.info.append(f"已确认：{s['provenance']['confirmed_by']} {s['provenance']['confirmed_at']}。下一步点“计算并核查”。")
+        self.info.append(T(f"已确认：{s['provenance']['confirmed_by']} {s['provenance']['confirmed_at']}。下一步点“计算并核查”。"))
         self.ok.setEnabled(False)
 
     def accept(self):
@@ -156,7 +157,7 @@ class DraftPanel:
 
 class FemDraftCommand:
     def GetResources(self):
-        return {"MenuText": "一句话起草（AI）", "ToolTip": "选中零件，用一句话说清材料、支承、载荷：AI 起草约束与载荷，程序逐项核对，你确认"}
+        return {"MenuText": T("一句话起草（AI）"), "ToolTip": T("选中零件，用一句话说清材料、支承、载荷：AI 起草约束与载荷，程序逐项核对，你确认")}
 
     def IsActive(self):
         return FreeCAD.ActiveDocument is not None
@@ -173,7 +174,7 @@ class FemDraftCommand:
 
 class FemRunCommand:
     def GetResources(self):
-        return {"MenuText": "计算并核查（零件库）", "ToolTip": "按“分析”节点计算，带网格收敛、反力平衡、奇异点核查；结果进 FreeCAD 的后处理"}
+        return {"MenuText": T("计算并核查（零件库）"), "ToolTip": T("按“分析”节点计算，带网格收敛、反力平衡、奇异点核查；结果进 FreeCAD 的后处理")}
 
     def IsActive(self):
         return _analysis() is not None
@@ -185,7 +186,7 @@ class FemRunCommand:
         except Exception as exc:  # noqa: BLE001
             _say("计算并核查", f"不能算：{exc}", warn=True)
             return
-        FreeCAD.Console.PrintMessage("零件库有限元：开始计算（带可信度核查，可能要几分钟）……\n")
+        FreeCAD.Console.PrintMessage(T("零件库有限元：开始计算（带可信度核查，可能要几分钟）……\n"))
 
         def done(res):
             if isinstance(res, Exception) or res.get("status") != "ok":
@@ -201,7 +202,7 @@ class FemRunCommand:
 
 class FemReportCommand:
     def GetResources(self):
-        return {"MenuText": "出报告（零件库）", "ToolTip": "Word / PDF 报告：结论、算例与依据、核查、云图、审核清单、可追溯信息"}
+        return {"MenuText": T("出报告（零件库）"), "ToolTip": T("Word / PDF 报告：结论、算例与依据、核查、云图、审核清单、可追溯信息")}
 
     def IsActive(self):
         an = _analysis()
@@ -210,20 +211,29 @@ class FemReportCommand:
     def Activated(self):
         from PySide import QtWidgets
 
+        from assist import i18n
+
         an = _analysis()
-        number, ok = QtWidgets.QInputDialog.getText(_mw(), "出报告", "报告编号（质量体系分配，可空）：")
+        title = T("出报告")
+        langs = ["中文", "English"]
+        pick, ok = QtWidgets.QInputDialog.getItem(_mw(), title, T("报告语言："), langs, 0 if i18n.lang() == "zh" else 1, False)
         if not ok:
             return
-        revision, ok = QtWidgets.QInputDialog.getText(_mw(), "出报告", "版次：", text="A")
+        lang = "zh" if pick == langs[0] else "en"
+        number, ok = QtWidgets.QInputDialog.getText(_mw(), title, T("报告编号（质量体系分配，可空）："))
         if not ok:
             return
-        reason, ok = QtWidgets.QInputDialog.getText(_mw(), "出报告", "出稿 / 改版原因：", text="首次出稿")
+        revision, ok = QtWidgets.QInputDialog.getText(_mw(), title, T("版次："), text="A")
         if not ok:
             return
-        explain = QtWidgets.QMessageBox.question(_mw(), "出报告", "让 AI 写“解释与建议”吗？（数字由程序填，AI 不判定合格）") \
+        reason, ok = QtWidgets.QInputDialog.getText(_mw(), title, T("出稿 / 改版原因："), text=i18n.t("首次出稿", lang))
+        if not ok:
+            return
+        explain = QtWidgets.QMessageBox.question(_mw(), title, T("让 AI 写“解释与建议”吗？（数字由程序填，AI 不判定合格）")) \
             == QtWidgets.QMessageBox.Yes
         try:
-            out = F.make_report(an, number=number or None, revision=revision or "草稿", reason=reason or "首次出稿",
+            out = F.make_report(an, number=number or None, revision=revision or i18n.t("草稿", lang),
+                                reason=reason or i18n.t("首次出稿", lang), lang=lang,
                                 explain_client=F.llm_client() if explain else None)
         except Exception as exc:  # noqa: BLE001
             _say("出报告", f"没有出报告：{exc}", warn=True)

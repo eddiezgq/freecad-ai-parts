@@ -229,16 +229,18 @@ def fatigue_inputs(analysis) -> dict:
             "load_type": ld["type"], "load_unit": FATIGUE_UNITS[ld["type"]], "material": body["material"], "step": st["id"]}
 
 
-def make_report(analysis, *, number: str | None, revision: str, reason: str, explain_client=None) -> dict:
-    """出报告：用工作目录里这次计算的算例与结果；算例在计算后又改过（与 FEM 里现在的不一致）就拒绝，要先重算"""
+def make_report(analysis, *, number: str | None, revision: str, reason: str, explain_client=None, lang: str = "zh") -> dict:
+    """出报告：用工作目录里这次计算的算例与结果；算例在计算后又改过（与 FEM 里现在的不一致）就拒绝，要先重算。
+    lang：报告语言（zh / en，ADR-0096 第 3 步）；英文报告的 AI 解释也用英文写"""
     from assist import fea_report as R
 
     study, result, wd = last_run(analysis)
     sp = wd / "study.json"
-    expl = R.explain(result, explain_client, model=_model(explain_client)) if explain_client is not None else None
+    expl = R.explain(result, explain_client, model=_model(explain_client), lang=lang) if explain_client is not None else None
+    name = f"{study.get('name', 'fea')}-报告.docx" if lang == "zh" else f"{study.get('name', 'fea')}-report.docx"
     try:
-        got = R.build(study, result, wd / f"{study.get('name', 'fea')}-报告.docx", number=number, revision=revision,
-                      reason=reason, explanation=expl, study_path=sp)
+        got = R.build(study, result, wd / name, number=number, revision=revision,
+                      reason=reason, explanation=expl, study_path=sp, lang=lang)
     except ValueError as e:
         raise FlowError(str(e)) from e
     pdf = R.to_pdf(Path(got["docx"]))

@@ -205,9 +205,11 @@ class FeaCommand:
     """热分析 · 疲劳窗口（ADR-0056；ADR-0096 第 1 步：强度、固有频率改在 FEM 工作台里算）。"""
 
     def GetResources(self):
-        return {"MenuText": "热分析 · 疲劳",
-                "ToolTip": "零件的温度场、热应力（本机 CalculiX）；按 FEM 分析的计算结果和载荷谱算疲劳寿命。"
-                           "强度、固有频率请在 FEM 工作台里“一句话起草 / 计算并核查 / 出报告”"}
+        from assist.i18n import tr as T
+
+        return {"MenuText": T("热分析 · 疲劳"),
+                "ToolTip": T("零件的温度场、热应力（本机 CalculiX）；按 FEM 分析的计算结果和载荷谱算疲劳寿命。"
+                             "强度、固有频率请在 FEM 工作台里“一句话起草 / 计算并核查 / 出报告”")}
 
     def Activated(self):
         from PySide import QtCore

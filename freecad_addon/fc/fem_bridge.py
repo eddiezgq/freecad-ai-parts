@@ -21,6 +21,8 @@ import FreeCAD
 import ObjectsFem
 import Part
 
+from assist.i18n import tr as T
+
 REL = 1e-9
 # 与 FEM 工作台对象语义一致的条目类型
 NATIVE = {"fixed", "displacement", "cyl_support", "force", "pressure", "gravity", "centrifugal", "bonded", "contact"}
@@ -111,7 +113,7 @@ SUBS = (("faces", "Face"), ("edges", "Edge"), ("vertices", "Vertex"))
 
 def _prop(obj, name: str, value: str, group: str = "Fap") -> None:
     if name not in obj.PropertiesList:
-        obj.addProperty("App::PropertyString", name, group, "零件库 / 有限元：原始数据（JSON）")
+        obj.addProperty("App::PropertyString", name, T(group), T("零件库 / 有限元：原始数据（JSON）"))
         obj.setEditorMode(name, 2)
     setattr(obj, name, value)
 
@@ -173,13 +175,13 @@ def study_to_fem(doc, study: dict, *, base_dir: Path | None = None, tables: dict
     （零件形状须与 STEP 一致，面按中心与面积对应，对不上就拒绝）"""
     base = Path(base_dir) if base_dir else Path.cwd()
     analysis = ObjectsFem.makeAnalysis(doc, "FapAnalysis")
-    analysis.Label = f"有限元：{study.get('name', '')}"
+    analysis.Label = T(f"有限元：{study.get('name', '')}")
     rest = {k: v for k, v in study.items() if k not in ("supports", "loads", "connections")}
     _prop(analysis, "FapStudy", json.dumps(rest, ensure_ascii=False))
     given = parts or {}
     parts, fmaps = {}, {}
     helpers = doc.addObject("App::DocumentObjectGroup", "FapHelpers")
-    helpers.Label = "有限元辅助几何"
+    helpers.Label = T("有限元辅助几何")
     for b in study["bodies"]:
         p = Path(b["step_path"])
         p = p if p.is_absolute() else base / p
@@ -193,7 +195,7 @@ def study_to_fem(doc, study: dict, *, base_dir: Path | None = None, tables: dict
             shape.read(str(p))
             part = doc.addObject("Part::Feature", f"Fap_{b['id']}")
             part.Shape = shape
-            part.Label = f"{b['id']}：{p.name}"
+            part.Label = T(f"{b['id']}：{p.name}")
         _prop(part, "FapBody", json.dumps(b, ensure_ascii=False))
         table = (tables or {}).get(b["id"]) or face_table(str(p))
         fmaps[b["id"]] = {"Face": face_map(shape, table), "_step": str(p), "_shape": shape}
@@ -247,7 +249,7 @@ def study_to_fem(doc, study: dict, *, base_dir: Path | None = None, tables: dict
                         fr += refs(it[side]["body"], it[side]["faces"])
                 if fr:
                     obj.References = fr
-                obj.Label = f"{_ZH.get(it['type'], it['type'])}（零件库）"
+                obj.Label = T(f"{_ZH.get(it['type'], it['type'])}（零件库）")
             _prop(obj, "FapItem", json.dumps(it, ensure_ascii=False))
             _prop(obj, "FapKey", f"{key}/{i}")
     doc.recompute()
@@ -325,7 +327,7 @@ def _native(doc, analysis, it, refs, line, name, refs_of):
             o.FrictionCoefficient = float(it["friction_coefficient"])
     else:
         return None
-    o.Label = _ZH[t]
+    o.Label = T(_ZH[t])
     analysis.addObject(o)
     return o
 
@@ -335,7 +337,7 @@ def _element_geometry(doc, analysis, part, b: dict):
     if b["kind"] == "shell":
         o = ObjectsFem.makeElementGeometry2D(doc, float(b["thickness_mm"]), f"FapShell_{part.Name}")
         o.References = [(part, tuple(f"Face{i}" for i in range(1, len(part.Shape.Faces) + 1)))]
-        o.Label = "壳厚度（零件库）"
+        o.Label = T("壳厚度（零件库）")
     else:
         sec = b["section"]
         o = ObjectsFem.makeElementGeometry1D(doc, name=f"FapBeam_{part.Name}")
@@ -346,7 +348,7 @@ def _element_geometry(doc, analysis, part, b: dict):
         else:
             o.SectionType, o.PipeDiameter, o.PipeThickness = "Pipe", f"{sec['outer_diameter_mm']!r} mm", f"{sec['wall_mm']!r} mm"
         o.References = [(part, tuple(f"Edge{i}" for i in range(1, len(part.Shape.Edges) + 1)))]
-        o.Label = "梁截面（零件库）"
+        o.Label = T("梁截面（零件库）")
     _prop(o, "FapGeomOf", b["id"])
     analysis.addObject(o)
     return o
@@ -391,7 +393,7 @@ def _material(doc, analysis, part, mid: str):
         card["Density"] = f"{m['density_kg_m3']} kg/m^3"
     o.Material = card
     o.References = [(part, "Solid1")]
-    o.Label = f"材料：{mid}（零件库材料库，出处见报告）"
+    o.Label = T(f"材料：{mid}（零件库材料库，出处见报告）")
     _prop(o, "FapMaterialId", mid)
     analysis.addObject(o)
     return o

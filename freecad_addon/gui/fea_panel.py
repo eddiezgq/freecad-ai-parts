@@ -18,6 +18,8 @@ from pathlib import Path
 
 from PySide import QtCore, QtWidgets
 
+from assist.i18n import tr as T
+
 LOAD_KINDS = (("fixed", "固定"), ("force", "力 N（x, y, z）"), ("torque", "扭矩 N·m（绕面的轴线）"), ("pressure", "压力 MPa"),
               ("temperature", "定温 ℃"), ("convection", "对流 h W/(m²·K), 环境 ℃"), ("heat_flux", "发热 W"))
 THERMAL_KINDS = ("temperature", "convection", "heat_flux")
@@ -54,7 +56,7 @@ class FeaPanel(QtWidgets.QDockWidget):
     done = QtCore.Signal(object)
 
     def __init__(self, parent=None, mbd_result=None, fem_analysis=None):
-        super().__init__("热分析 · 疲劳", parent)
+        super().__init__(T("热分析 · 疲劳"), parent)
         self.setObjectName("FapFeaPanel")
         self.mbd_result = mbd_result  # 可调用：返回多体动力学的最新结果（疲劳载荷谱用）
         self.fem_analysis = fem_analysis or _active_fem_analysis  # 可调用：疲劳用的 FEM 分析节点
@@ -70,8 +72,8 @@ class FeaPanel(QtWidgets.QDockWidget):
         w = QtWidgets.QWidget()
         lay = QtWidgets.QVBoxLayout(w)
         row = QtWidgets.QHBoxLayout()
-        self.part_label = QtWidgets.QLabel("（未选零件）")
-        self.pick_button = QtWidgets.QPushButton("用选中的零件")
+        self.part_label = QtWidgets.QLabel(T("（未选零件）"))
+        self.pick_button = QtWidgets.QPushButton(T("用选中的零件"))
         row.addWidget(self.part_label, 1)
         row.addWidget(self.pick_button)
         lay.addLayout(row)
@@ -80,67 +82,67 @@ class FeaPanel(QtWidgets.QDockWidget):
         from analysis.common import materials
 
         for m in materials.all_materials():
-            self.material.addItem(m["name"], m["id"])
+            self.material.addItem(T(m["name"]), m["id"])
         self.kind = QtWidgets.QComboBox()
-        self.kind.addItem("温度场", "thermal")
-        self.kind.addItem("热应力（温度 + 结构）", "thermo_mech")
+        self.kind.addItem(T("温度场"), "thermal")
+        self.kind.addItem(T("热应力（温度 + 结构）"), "thermo_mech")
         self.mesh = QtWidgets.QLineEdit()
-        self.mesh.setPlaceholderText("网格尺寸 mm（空 = 自动）")
-        form.addRow("材料", self.material)
-        form.addRow("分析", self.kind)
-        form.addRow("网格", self.mesh)
+        self.mesh.setPlaceholderText(T("网格尺寸 mm（空 = 自动）"))
+        form.addRow(T("材料"), self.material)
+        form.addRow(T("分析"), self.kind)
+        form.addRow(T("网格"), self.mesh)
         lay.addLayout(form)
-        box = QtWidgets.QGroupBox("约束与载荷（先在三维视图中选面）")
+        box = QtWidgets.QGroupBox(T("约束与载荷（先在三维视图中选面）"))
         bl = QtWidgets.QVBoxLayout(box)
         r2 = QtWidgets.QHBoxLayout()
         self.load_kind = QtWidgets.QComboBox()
         for k, label in LOAD_KINDS:
-            self.load_kind.addItem(label, k)
+            self.load_kind.addItem(T(label), k)
         self.load_value = QtWidgets.QLineEdit()
-        self.load_value.setPlaceholderText("值（力写 x, y, z）")
-        self.add_button = QtWidgets.QPushButton("加到所选面")
+        self.load_value.setPlaceholderText(T("值（力写 x, y, z）"))
+        self.add_button = QtWidgets.QPushButton(T("加到所选面"))
         for x in (self.load_kind, self.load_value, self.add_button):
             r2.addWidget(x)
         bl.addLayout(r2)
         self.load_list = QtWidgets.QListWidget()
         self.load_list.setMaximumHeight(90)
         bl.addWidget(self.load_list)
-        self.clear_button = QtWidgets.QPushButton("清空")
+        self.clear_button = QtWidgets.QPushButton(T("清空"))
         bl.addWidget(self.clear_button)
         lay.addWidget(box)
-        self.run_button = QtWidgets.QPushButton("计算")
+        self.run_button = QtWidgets.QPushButton(T("计算"))
         lay.addWidget(self.run_button)
         self.summary = QtWidgets.QLabel("")
         self.summary.setWordWrap(True)
         lay.addWidget(self.summary)
-        note = QtWidgets.QLabel("强度、固有频率：在 FEM 工作台里用“一句话起草 / 计算并核查 / 出报告”。")
+        note = QtWidgets.QLabel(T("强度、固有频率：在 FEM 工作台里用“一句话起草 / 计算并核查 / 出报告”。"))
         note.setWordWrap(True)
         lay.addWidget(note)
-        fbox = QtWidgets.QGroupBox("疲劳寿命（参考应力取自 FEM 分析“计算并核查”的结果）")
+        fbox = QtWidgets.QGroupBox(T("疲劳寿命（参考应力取自 FEM 分析“计算并核查”的结果）"))
         ff = QtWidgets.QFormLayout(fbox)
         self.series_kind = QtWidgets.QComboBox()
-        self.series_kind.addItem("起停：0 → 所加载荷 → 0", "startstop")
-        self.series_kind.addItem("对称：−载荷 → +载荷", "reversed")
-        self.series_kind.addItem("多体动力学的关节力矩记录", "mbd")
+        self.series_kind.addItem(T("起停：0 → 所加载荷 → 0"), "startstop")
+        self.series_kind.addItem(T("对称：−载荷 → +载荷"), "reversed")
+        self.series_kind.addItem(T("多体动力学的关节力矩记录"), "mbd")
         self.mbd_joint = QtWidgets.QLineEdit()
-        self.mbd_joint.setPlaceholderText("关节名，如 j2")
+        self.mbd_joint.setPlaceholderText(T("关节名，如 j2"))
         self.surface = QtWidgets.QLineEdit()
-        self.surface.setPlaceholderText("表面状态系数 β（查教材图表，如磨削）")
+        self.surface.setPlaceholderText(T("表面状态系数 β（查教材图表，如磨削）"))
         self.size = QtWidgets.QLineEdit()
-        self.size.setPlaceholderText("尺寸系数 ε（查教材图表）")
+        self.size.setPlaceholderText(T("尺寸系数 ε（查教材图表）"))
         self.block = QtWidgets.QLineEdit("1")
-        ff.addRow("载荷谱", self.series_kind)
-        ff.addRow("关节", self.mbd_joint)
+        ff.addRow(T("载荷谱"), self.series_kind)
+        ff.addRow(T("关节"), self.mbd_joint)
         ff.addRow("β", self.surface)
         ff.addRow("ε", self.size)
-        ff.addRow("一块时长 s", self.block)
-        self.fatigue_button = QtWidgets.QPushButton("算疲劳寿命")
+        ff.addRow(T("一块时长 s"), self.block)
+        self.fatigue_button = QtWidgets.QPushButton(T("算疲劳寿命"))
         ff.addRow("", self.fatigue_button)
         self.fatigue_label = QtWidgets.QLabel("")
         self.fatigue_label.setWordWrap(True)
         ff.addRow("", self.fatigue_label)
         lay.addWidget(fbox)
-        self.status = QtWidgets.QLabel("选一个零件，点“用选中的零件”。")
+        self.status = QtWidgets.QLabel(T("选一个零件，点“用选中的零件”。"))
         self.status.setWordWrap(True)
         lay.addWidget(self.status)
         lay.addStretch(1)
@@ -158,7 +160,7 @@ class FeaPanel(QtWidgets.QDockWidget):
         """导出所选对象的形状为 STEP，列出面。"""
         shape = getattr(obj, "Shape", None)
         if shape is None or shape.isNull() or not shape.Solids:
-            self.status.setText("所选对象没有实体形状")
+            self.status.setText(T("所选对象没有实体形状"))
             return False
         tmp = Path(tempfile.mkdtemp(prefix="fap-fea-")) / f"{obj.Name}.step"
         shape.exportStep(str(tmp))
@@ -166,12 +168,12 @@ class FeaPanel(QtWidgets.QDockWidget):
 
         out = analysis.run("fea", {"analysis": "faces", "step_path": str(tmp)})
         if out["status"] != "ok":
-            self.status.setText("；".join(out["messages"]))
+            self.status.setText(T("；".join(out["messages"])))
             return False
         self.obj, self.step_path, self.faces = obj, str(tmp), out["data"]["faces"]
-        self.part_label.setText(f"{obj.Label}（{len(self.faces)} 个面）")
+        self.part_label.setText(T(f"{obj.Label}（{len(self.faces)} 个面）"))
         self.clear_loads()
-        self.status.setText("在三维视图中选面，选载荷类型、填值，点“加到所选面”。")
+        self.status.setText(T("在三维视图中选面，选载荷类型、填值，点“加到所选面”。"))
         return True
 
     def pick(self) -> bool:
@@ -179,7 +181,7 @@ class FeaPanel(QtWidgets.QDockWidget):
 
         sel = FreeCADGui.Selection.getSelection()
         if not sel:
-            self.status.setText("请先在三维视图或树中选一个零件")
+            self.status.setText(T("请先在三维视图或树中选一个零件"))
             return False
         return self.set_part(sel[0])
 
@@ -199,12 +201,12 @@ class FeaPanel(QtWidgets.QDockWidget):
 
         names = [s for x in FreeCADGui.Selection.getSelectionEx() for s in x.SubElementNames if s.startswith("Face")]
         if self.obj is None or not names:
-            self.status.setText("请先选零件，再在三维视图中选面")
+            self.status.setText(T("请先选零件，再在三维视图中选面"))
             return False
         try:
             return self.add_load(self.load_kind.currentData(), self.face_ids(names), self.load_value.text())
         except ValueError as exc:
-            self.status.setText(str(exc))
+            self.status.setText(T(str(exc)))
             return False
 
     def add_load(self, kind: str, faces: list[int], value: str = "") -> bool:
@@ -233,11 +235,11 @@ class FeaPanel(QtWidgets.QDockWidget):
                     raise ValueError
                 ld["axis"] = {"origin": origin, "dir": axis}
         except (ValueError, StopIteration):
-            self.status.setText("值填写有误（力写 x, y, z；对流写 h, 环境温度；扭矩要加在有轴线或法向的面上）")
+            self.status.setText(T("值填写有误（力写 x, y, z；对流写 h, 环境温度；扭矩要加在有轴线或法向的面上）"))
             return False
         self.loads.append(ld)
         label = dict(LOAD_KINDS)[kind].split(" ")[0]
-        self.load_list.addItem(f"{label} 面 {faces}" + (f"：{value}" if value and kind != "fixed" else ""))
+        self.load_list.addItem(T(f"{label} 面 {faces}") + (f"：{value}" if value and kind != "fixed" else ""))
         return True
 
     def clear_loads(self) -> None:
@@ -260,23 +262,23 @@ class FeaPanel(QtWidgets.QDockWidget):
 
     def compute(self) -> bool:
         if self.busy or self.step_path is None:
-            self.status.setText("请先选零件" if self.step_path is None else "正在计算")
+            self.status.setText(T("请先选零件") if self.step_path is None else "正在计算")
             return False
         import analysis
 
         module = self.module()
         st = next((m for m in analysis.modules() if m["id"] == module), None)
         if st is None or not st["available"]:
-            self.status.setText("分析模块不可用：" + "、".join((st or {}).get("missing", [])) + "。" + (st or {}).get("install", ""))
+            self.status.setText(T("分析模块不可用：") + "、".join((st or {}).get("missing", [])) + "。" + (st or {}).get("install", ""))
             return False
         try:
             setup = self.setup()
         except ValueError:
-            self.status.setText("网格尺寸须为数字")
+            self.status.setText(T("网格尺寸须为数字"))
             return False
         self.busy = True
         self.run_button.setEnabled(False)
-        self.status.setText("正在划网格、求解 …")
+        self.status.setText(T("正在划网格、求解 …"))
 
         def work() -> None:
             try:
@@ -292,20 +294,20 @@ class FeaPanel(QtWidgets.QDockWidget):
         self.busy = False
         self.run_button.setEnabled(True)
         if out.get("status") != "ok":
-            self.status.setText("没有算出：" + "；".join(out.get("messages", [])))
+            self.status.setText(T("没有算出：" + "；".join(out.get("messages", []))))
             return
         self.result = out
         d = out["data"]
         kind = out["setup"].get("analysis")
         if kind == "thermal":
-            self.summary.setText(f"最高 {d['t_max_c']:.1f} ℃、最低 {d['t_min_c']:.1f} ℃、表面平均 {d['t_surface_mean_c']:.1f} ℃；"
-                                 f"输入 {d['heat_in_w']:g} W，对流散走 {d['heat_out_convection_w']:g} W")
+            self.summary.setText(T(f"最高 {d['t_max_c']:.1f} ℃、最低 {d['t_min_c']:.1f} ℃、表面平均 {d['t_surface_mean_c']:.1f} ℃；"
+                                   f"输入 {d['heat_in_w']:g} W，对流散走 {d['heat_out_convection_w']:g} W"))
         elif kind == "thermo_mech":
-            self.summary.setText(f"最高 {d['t_max_c']:.1f} ℃；热应力最大 {d['vm_max_mpa']:.1f} MPa，"
-                                 f"安全系数 {d['safety_factor']:.2f}，最大热变形 {d['u_max_mm']:.4f} mm")
+            self.summary.setText(T(f"最高 {d['t_max_c']:.1f} ℃；热应力最大 {d['vm_max_mpa']:.1f} MPa，"
+                                   f"安全系数 {d['safety_factor']:.2f}，最大热变形 {d['u_max_mm']:.4f} mm"))
         self.show_surface(d["surface"], "temp" if kind == "thermal" else "vm")
-        self.status.setText(f"算完（{out.get('elapsed_s', 0):.1f} s，CalculiX {out['solver']['version']}）。"
-                            + "；".join(out["limitations"][:1]))
+        self.status.setText(T(f"算完（{out.get('elapsed_s', 0):.1f} s，CalculiX {out['solver']['version']}）。"
+                              + "；".join(out["limitations"][:1])))
 
     def show_surface(self, surface: dict, field: str = "vm") -> None:
         """在三维视图中按应力（或振型幅值）着色显示表面。"""
@@ -349,12 +351,12 @@ class FeaPanel(QtWidgets.QDockWidget):
 
         analysis = self.fem_analysis()
         if analysis is None:
-            self.fatigue_label.setText("文档里没有 FEM 分析：先在 FEM 工作台里起草并“计算并核查”")
+            self.fatigue_label.setText(T("文档里没有 FEM 分析：先在 FEM 工作台里起草并“计算并核查”"))
             return None
         try:
             self.fatigue_ref = fem_flow.fatigue_inputs(analysis)
         except fem_flow.FlowError as e:
-            self.fatigue_label.setText(str(e))
+            self.fatigue_label.setText(T(str(e)))
             return None
         return self.fatigue_ref
 
@@ -372,7 +374,7 @@ class FeaPanel(QtWidgets.QDockWidget):
             joint = self.mbd_joint.text().strip()
             s = ((mbd or {}).get("data", {}).get("series") or {}).get(joint)
             if not s:
-                self.fatigue_label.setText("没有这个关节的多体动力学结果（先在多体动力学窗口算一次）")
+                self.fatigue_label.setText(T("没有这个关节的多体动力学结果（先在多体动力学窗口算一次）"))
                 return False
             series = s["drive"]
         try:
@@ -380,13 +382,13 @@ class FeaPanel(QtWidgets.QDockWidget):
                      "load_ref": ref["load_ref"], "load_series": series, "block_seconds": float(self.block.text() or 0),
                      "surface_factor": float(self.surface.text()), "size_factor": float(self.size.text())}
         except ValueError:
-            self.fatigue_label.setText("请填写 β、ε 与一块时长（数字）")
+            self.fatigue_label.setText(T("请填写 β、ε 与一块时长（数字）"))
             return False
         import analysis
 
         out = analysis.run("fatigue", setup)
         if out["status"] != "ok":
-            self.fatigue_label.setText("；".join(out["messages"]))
+            self.fatigue_label.setText(T("；".join(out["messages"])))
             return False
         self.fatigue = out
         d = out["data"]
@@ -395,10 +397,10 @@ class FeaPanel(QtWidgets.QDockWidget):
         else:
             hours = f"，约 {d['life_hours']:.4g} 小时" if d["life_hours"] else ""
             text = f"寿命 {d['life_blocks']:.4g} 块{hours}"
-        self.fatigue_label.setText(
+        self.fatigue_label.setText(T(
             f"{text}；修正后疲劳极限 {d['fatigue_strength_mpa']:.1f} MPa，每块 {d['cycles_per_block']} 个循环。"
             f"参考应力 {ref['stress_ref_mpa']:.1f} MPa（FEM 分析步 {ref['step']}，避开约束面），"
-            f"对应参考载荷 {ref['load_ref']:g} {ref['load_unit']}；材料 {ref['material']}")
+            f"对应参考载荷 {ref['load_ref']:g} {ref['load_unit']}；材料 {ref['material']}"))
         return True
 
 

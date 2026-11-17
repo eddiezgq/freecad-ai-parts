@@ -111,9 +111,11 @@ def fmt(v: float) -> str:
 class Ledger:
     """每个印出来的数字（或带数字的文字）都记一笔：印的字样、来自哪个文件的哪一处"""
 
-    def __init__(self, sources: dict[str, Any]):
+    def __init__(self, sources: dict[str, Any], lang: str = "zh"):
         self.sources = sources          # 名字 → 文档（study、result、materials、record、input、env、files、library）
         self.entries: list[dict] = []
+        self.lang = lang                # 报告语言（ADR-0096 第 3 步）
+        self.labels: list[str] = list(LABELS)
 
     def num(self, src: str, ptr: str, unit: str = "") -> str:
         v = _ptr_get(self.sources[src], ptr)
@@ -123,11 +125,26 @@ class Ledger:
         self.entries.append({"text": s, "source": src, "pointer": ptr, "kind": "number"})
         return s + (f" {unit}" if unit else "")
 
-    def txt(self, src: str, ptr: str) -> str:
+    def txt(self, src: str, ptr: str, tr: bool = False) -> str:
+        """文件里的一段文字。tr：程序生成的说明（核查说明、局限……），英文报告里翻成英文，账上记原文与印出的译文；
+        否则是用户写的话或文献出处，原样印（标成原样，整段不翻）"""
+        from assist import i18n
+
         v = _ptr_get(self.sources[src], ptr)
         s = str(v)
+        if tr:
+            out = i18n.t(s, self.lang)
+            if re.search(r"[0-9]", s + out):
+                self.entries.append({"text": out, "source": src, "pointer": ptr, "kind": "text",
+                                     **({"original": s} if out != s else {})})
+            return out
         if re.search(r"[0-9]", s):
             self.entries.append({"text": s, "source": src, "pointer": ptr, "kind": "text"})
+        return i18n.raw(s) if s else s
+
+    def label(self, s: str) -> str:
+        """模板里固定带数字的字样（英文报告的章节号、网格层号）：记进账的 labels"""
+        self.labels.append(s)
         return s
 
     def vec(self, src: str, ptr: str, unit: str = "") -> str:
@@ -136,7 +153,7 @@ class Ledger:
 
     def ints(self, src: str, ptr: str) -> str:
         v = _ptr_get(self.sources[src], ptr)
-        return "、".join(self.num(src, f"{ptr}/{i}") for i in range(len(v)))
+        return (", " if self.lang == "en" else "、").join(self.num(src, f"{ptr}/{i}") for i in range(len(v)))
 
 
 # ---------------------------------------------------------------- 事实清单（给 AI 与摘要用）
@@ -217,10 +234,14 @@ TOOL_SCHEMA = {
 }
 
 
-def build_request(result: dict, *, model: str = DEFAULT_MODEL) -> dict:
+EN_RULE = "\n7. 本次报告是英文的：解释与建议都用英文写（书面、简洁），代替第 6 条；占位符照写。\n"
+
+
+def build_request(result: dict, *, model: str = DEFAULT_MODEL, lang: str = "zh") -> dict:
+    """lang = "en" 时加一条“用英文写”（ADR-0096 第 3 步）；中文请求与原来一字不差（录制照旧可用）"""
     user = "事实（程序从结果文件整理）：\n" + "\n".join(fact_lines(result))
     return {"model": model, "prompt_version": PROMPT_VERSION,
-            "system": SYSTEM_PROMPT + TOOL_INSTRUCTION.format(name=TOOL_NAME), "user": user,
+            "system": SYSTEM_PROMPT + (EN_RULE if lang == "en" else "") + TOOL_INSTRUCTION.format(name=TOOL_NAME), "user": user,
             "tool": {"name": TOOL_NAME, "description": "提交解释与建议", "input_schema": TOOL_SCHEMA}}
 
 
@@ -231,7 +252,11 @@ _NEG = r"(?<!不)(?<!未)(?<!没有)(?<!无法)(?<!不能)(?<!尚未)"
 ACCEPT = re.compile(r"合格|满足(?:强度|刚度|设计|使用)?要求|安全可靠|足够安全|可以放心|可以使用|可放心使用|approved|acceptable"
                     r"|safe to use|meets? the requirements?", re.IGNORECASE)
 ACCEPT_OK = re.compile(r"合格判定|判定合格|是否合格|合格与否")
-TRUSTED = re.compile(r"(已收敛|收敛良好|结果可信|结果可靠|可信度(?:核查)?(?:已|均|全部)?通过|核查(?:均|全部)?通过|converged|reliable)",
+TRUSTED = re.compile(r"(已收敛|收敛良好|结果可信|结果可靠|可信度(?:核查)?(?:已|均|全部)?通过|核查(?:均|全部)?通过|converged|reliable"
+                     r"|trustworthy|(?:all |every )?(?:the )?(?:trust )?checks? (?:have |has |all )?passed)", re.IGNORECASE)
+# 英文写的数值（数词紧跟单位或倍数）
+_EN_NUM = re.compile(r"\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|forty|fifty|hundred|thousand|"
+                     r"million|half|twice|double|triple)\b[\s-]*(?:MPa|kPa|Pa|N|kN|mm|cm|m|Hz|rpm|percent|per cent|%|times|fold|degrees?)\b",
                      re.IGNORECASE)
 
 
@@ -241,12 +266,18 @@ _CLAUSE = re.compile(r"[，。；;,.!?！？\n]")
 
 
 def _item_words(name: str) -> list[str]:
-    """核查项在文字里可能的叫法：“网格收敛（最大位移）”→ 最大位移 / 位移"""
+    """核查项在文字里可能的叫法：“网格收敛（最大位移）”→ 最大位移 / 位移；英文报告再加英文叫法（max displacement / displacement）"""
+    from assist import i18n
+
+    out = [name]
     m = re.match(r"网格收敛（(.+)）", name)
     if m:
         w = m.group(1)
-        return [w, w.removeprefix("最大")]
-    return [name]
+        out = [w, w.removeprefix("最大")]
+    en = i18n.t(name)
+    m = re.match(r"Mesh convergence \((.+)\)", en)
+    out += [m.group(1), m.group(1).removeprefix("max ")] if m else [en, en.lower()]
+    return out
 
 
 def _context(result: dict) -> tuple[list[str], list[str], list[str]]:
@@ -257,6 +288,10 @@ def _context(result: dict) -> tuple[list[str], list[str], list[str]]:
         ids += [str(st.get("id", "")), str(st.get("combination") or "")]
         for it in (st.get("trust") or {}).get("items") or []:
             (ok if it.get("verdict") == "pass" else bad).extend(_item_words(it.get("name", "")))
+    conv = [it.get("verdict") for st in d.get("steps") or [] for it in (st.get("trust") or {}).get("items") or []
+            if it.get("name", "").startswith("网格收敛")]
+    if conv and all(v == "pass" for v in conv):          # 网格收敛各项都通过：说“网格收敛核查都通过”是实话（11-17 英文录制里查出的误判）
+        ok += ["网格收敛", "mesh convergence", "mesh-convergence", "Mesh convergence", "Mesh-convergence"]
     setup = result.get("setup") or {}
     ids += [str(x.get("id", "")) for x in (setup.get("load_cases") or []) + (setup.get("combinations") or [])]
     return [x for x in ids if x], ok, bad
@@ -280,6 +315,8 @@ def check_text(text: str, facts_: dict, all_pass: bool, result: dict | None = No
         return "文字里有数字（数值必须用占位符）"
     if _CN_NUM.search(bare) or "百分之" in bare:
         return "文字里有汉字写的数值"
+    if _EN_NUM.search(bare):
+        return "文字里有英文单词写的数值"
     if "{" in bare or "}" in bare:
         return "占位符格式不对"
     m = ACCEPT.search(ACCEPT_OK.sub("", bare))
@@ -314,11 +351,11 @@ def verify_explanation(tool_input: Any, result: dict) -> dict:
     return out
 
 
-def explain(result: dict, client, *, model: str = DEFAULT_MODEL) -> dict:
-    resp = client.complete(build_request(result, model=model))
+def explain(result: dict, client, *, model: str = DEFAULT_MODEL, lang: str = "zh") -> dict:
+    resp = client.complete(build_request(result, model=model, lang=lang))
     out = verify_explanation(resp.get("tool_input"), result)
     model = resp.get("model") or model                   # 网关换了另一家时，报告写实际回答的模型（ADR-0096 第 2 步）
-    out.update(model=model, response_id=resp.get("id", ""), prompt_version=PROMPT_VERSION, simulated=bool(resp.get("simulated")))
+    out.update(lang=lang, model=model, response_id=resp.get("id", ""), prompt_version=PROMPT_VERSION, simulated=bool(resp.get("simulated")))
     return out
 
 
@@ -433,14 +470,22 @@ def _resolve(p: str, base: Path) -> Path:
 
 def build(study: dict, result: dict, out: Path, *, number: str | None = None, revision: str = "草稿",
           reason: str = "首次出稿", explanation: dict | None = None, base_dir: Path | None = None,
-          study_path: Path | None = None, today: date | None = None) -> dict:
-    """出 Word 报告（与出处账、改版记录）。返回 {"docx", "ledger", "record"}"""
+          study_path: Path | None = None, today: date | None = None, lang: str = "zh") -> dict:
+    """出 Word 报告（与出处账、改版记录）。返回 {"docx", "ledger", "record"}。
+    lang = "en" 出英文报告（ADR-0096 第 3 步）：程序写的文字翻成英文，用户写的话与文献出处原样；数字与结果指纹与中文版完全相同"""
     from docx import Document
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.oxml.ns import qn
     from docx.shared import Cm, Pt
 
     from analysis.common import materials
+    from assist import i18n
+
+    if lang not in i18n.LANGS:
+        raise ValueError(f"报告语言只能是 {i18n.LANGS}")
+
+    def F(x):
+        return i18n.final(x, lang)
 
     if result.get("status") != "ok":
         raise ValueError("结果不是算成的（status ≠ ok），不出报告：" + "；".join(result.get("messages") or []))
@@ -477,7 +522,7 @@ def build(study: dict, result: dict, out: Path, *, number: str | None = None, re
            "module": f"fea {result.get('module_version', '')}"}
     lib = library_sources(study)
     L = Ledger({"study": study, "result": result, "materials": {"materials": mats}, "record": record,
-                "files": files, "env": env, "library": lib, "explain": explanation or {}})
+                "files": files, "env": env, "library": lib, "explain": explanation or {}}, lang)
     fx = facts(result)
 
     doc = Document()
@@ -489,33 +534,36 @@ def build(study: dict, result: dict, out: Path, *, number: str | None = None, re
         s.left_margin = s.right_margin = Cm(2)
         hp = s.header.paragraphs[0]
         rev_ptr = f"/history/{len(record['history']) - 1}/revision"
-        hp.text = f"{DRAFT_MARK}　报告编号 {L.txt('record', '/number')}　版次 {L.txt('record', rev_ptr)}"
+        hp.text = F(f"{DRAFT_MARK}　报告编号 {L.txt('record', '/number', True)}　版次 {L.txt('record', rev_ptr, True)}")
         hp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
 
     def h(text, lvl=1):
-        doc.add_heading(text, level=lvl)
+        out = F(text)
+        if lang == "en" and lvl == 1 and re.match(r"^\d+\. ", out):
+            L.label(out)                                       # 英文章节号（中文是“一、二、”）
+        doc.add_heading(out, level=lvl)
 
-    def p(text):
-        return doc.add_paragraph(text)
+    def p(text, style=None):
+        return doc.add_paragraph(F(text), style=style) if style else doc.add_paragraph(F(text))
 
     def table(head, rows, widths=None):
         t = doc.add_table(rows=1, cols=len(head))
         t.style = "Table Grid"
         for c, x in zip(t.rows[0].cells, head, strict=True):
-            c.text = x
+            c.text = F(x)
             for r in c.paragraphs[0].runs:
                 r.bold = True
         for row in rows:
             cells = t.add_row().cells
             for c, x in zip(cells, row, strict=True):
-                c.text = x
+                c.text = F(x)
         return t
 
-    doc.add_heading(f"有限元分析报告：{L.txt('study', '/name')}", 0)
+    doc.add_heading(F(f"有限元分析报告：{L.txt('study', '/name')}"), 0)
     last = len(record["history"]) - 1
     table(["项目", "内容"], [
-        ["报告编号", L.txt("record", "/number")],
-        ["版次", L.txt("record", f"/history/{last}/revision")],
+        ["报告编号", L.txt("record", "/number", True)],
+        ["版次", L.txt("record", f"/history/{last}/revision", True)],
         ["出稿日期", L.txt("record", f"/history/{last}/date")],
         ["状态", DRAFT_MARK],
         ["编制（签字 / 日期）", ""], ["审核（签字 / 日期）", ""], ["批准（签字 / 日期）", ""],
@@ -534,10 +582,10 @@ def build(study: dict, result: dict, out: Path, *, number: str | None = None, re
               f"（位置 {L.vec('result', b + '/vm_max_at', 'mm')}），最大位移 {L.num('result', b + '/u_max_mm', 'mm')}；"
               f"可信度 {VERDICT.get(s['trust']['verdict'])}。")
             if s.get("safety_factor") is not None:
-                p(f"安全系数 {L.num('result', b + '/safety_factor')}（按{L.txt('result', b + '/strength_kind')} "
+                p(f"安全系数 {L.num('result', b + '/safety_factor')}（按{L.txt('result', b + '/strength_kind', True)} "
                   f"{L.num('result', b + '/strength_mpa', 'MPa')}）。")
             elif s.get("safety_factor_withheld"):
-                p(f"安全系数：不给。原因：{L.txt('result', b + '/safety_factor_withheld')}")
+                p(f"安全系数：不给。原因：{L.txt('result', b + '/safety_factor_withheld', True)}")
         elif s["type"] == "modal":
             fr = "；".join(f"第 {L.num('result', f'{b}/freqs/{j}/mode')} 阶 {L.num('result', f'{b}/freqs/{j}/hz', 'Hz')}"
                           f"（{L.num('result', f'{b}/freqs/{j}/rpm', 'rpm')}）" for j in range(len(s.get("freqs") or [])))
@@ -552,7 +600,7 @@ def build(study: dict, result: dict, out: Path, *, number: str | None = None, re
         mid = bd.get("material")
         if m:
             src = "；".join(L.txt("materials", f"/materials/{_esc(mid)}/sources/{j}") for j in range(len(m.get("sources") or [])))
-            mat = (f"{L.txt('materials', f'/materials/{_esc(mid)}/id')}（{L.txt('materials', f'/materials/{_esc(mid)}/name')}）；"
+            mat = (f"{L.txt('materials', f'/materials/{_esc(mid)}/id')}（{L.txt('materials', f'/materials/{_esc(mid)}/name', True)}）；"
                    f"E = {L.num('materials', f'/materials/{_esc(mid)}/elastic_modulus_mpa', 'MPa')}，"
                    f"ν = {L.num('materials', f'/materials/{_esc(mid)}/poisson_ratio')}"
                    + (f"，屈服强度 {L.num('materials', f'/materials/{_esc(mid)}/yield_strength_mpa', 'MPa')}"
@@ -567,8 +615,9 @@ def build(study: dict, result: dict, out: Path, *, number: str | None = None, re
         for k, bb in enumerate(pv.get("basis") or []):
             if bb["target"] == target:
                 q = f"“{L.txt('study', f'/provenance/basis/{k}/quote')}”" if bb.get("quote") else ""
-                n = L.txt("study", f"/provenance/basis/{k}/note") if bb.get("note") else ""
-                return f"{SOURCE_ZH.get(bb.get('source'), bb.get('source'))}{q}{('；' + n) if n else ''}"
+                n = L.txt("study", f"/provenance/basis/{k}/note", True) if bb.get("note") else ""
+                src_ = i18n.t(SOURCE_ZH.get(bb.get('source'), bb.get('source')), lang)
+                return f"{src_}{(' ' if lang == 'en' and q else '')}{q}{(i18n.t('；', lang) + n) if n else ''}"
         return "—"
 
     def params(key, i, x):
@@ -581,12 +630,13 @@ def build(study: dict, result: dict, out: Path, *, number: str | None = None, re
             if k in x:
                 out_.append(L.vec("study", f"{ptr}/{k}", unit))
         if "axis" in x:
-            out_.append(f"轴线过 {L.vec('study', ptr + '/axis/origin_mm', 'mm')}、方向 {L.vec('study', ptr + '/axis/dir')}")
+            out_.append(i18n.t(f"轴线过 {L.vec('study', ptr + '/axis/origin_mm', 'mm')}、方向 {L.vec('study', ptr + '/axis/dir')}", lang))
         if "dofs" in x:
-            out_.append("限制 " + "、".join({"radial": "径向", "tangential": "切向", "axial": "轴向"}.get(t, t) for t in x["dofs"]))
+            out_.append(i18n.t("限制 ", lang) + i18n.t("、", lang).join(
+                i18n.t({"radial": "径向", "tangential": "切向", "axial": "轴向"}.get(t, t), lang) for t in x["dofs"]))
         if x.get("case"):
-            out_.append(f"工况 {L.txt('study', ptr + '/case')}")
-        return "；".join(out_) or "—"
+            out_.append(i18n.final(f"工况 {L.txt('study', ptr + '/case')}", lang))
+        return i18n.t("；", lang).join(out_) or "—"
 
     for key, title in (("supports", "支承"), ("loads", "载荷")):
         h(title, 2)
@@ -630,9 +680,9 @@ def build(study: dict, result: dict, out: Path, *, number: str | None = None, re
                                             ("vm_max_mpa", "最大应力（MPa）"), ("u_max_mm", "最大位移（mm）"))
                         if all(k in x for x in lv)]                # 实体与壳、梁（ADR-0095）各层记的项不同：有哪项列哪项
                 table(["网格层"] + [t for _k, t in cols], [
-                    [f"第{_cn(j)}层"] + [L.num("result", f"{b}/trust/levels/{j}/{k}") for k, _t in cols] for j in range(len(lv))])
-            table(["核查项", "结论", "说明"], [[L.txt("result", f"{b}/trust/items/{k}/name"), VERDICT.get(it["verdict"]),
-                                           L.txt("result", f"{b}/trust/items/{k}/text")] for k, it in enumerate(s["trust"]["items"])])
+                    [f"第{_cn(j)}层" if lang == "zh" else L.label(f"Level {j + 1}")] + [L.num("result", f"{b}/trust/levels/{j}/{k}") for k, _t in cols] for j in range(len(lv))])
+            table(["核查项", "结论", "说明"], [[L.txt("result", f"{b}/trust/items/{k}/name", True), VERDICT.get(it["verdict"]),
+                                           L.txt("result", f"{b}/trust/items/{k}/text", True)] for k, it in enumerate(s["trust"]["items"])])
         elif s["type"] == "modal":
             h(f"分析步 {L.txt('result', b + '/id')}", 2)
             p(f"节点 {L.num('result', b + '/nodes')}，单元 {L.num('result', b + '/elements')}。")
@@ -665,7 +715,7 @@ def build(study: dict, result: dict, out: Path, *, number: str | None = None, re
             if isinstance(v, (int, float)) and not isinstance(v, bool):
                 rows.append([k, L.num("result", f"/data/envelope/{_esc(k)}")])
             elif isinstance(v, str):
-                rows.append([k, L.txt("result", f"/data/envelope/{_esc(k)}")])
+                rows.append([k, L.txt("result", f"/data/envelope/{_esc(k)}", True)])
         table(["项目", "值"], rows)
     shutil.rmtree(tmp, ignore_errors=True)
 
@@ -680,14 +730,14 @@ def build(study: dict, result: dict, out: Path, *, number: str | None = None, re
         if explanation.get("suggestions"):
             p("建议：")
             for t in explanation["suggestions"]:
-                doc.add_paragraph(_fill(t, fx, L), style="List Bullet")
+                p(_fill(t, fx, L), "List Bullet")
         if explanation.get("rejected"):
             p("退回不用的 AI 段落：" + "；".join(f"{r['part']}（{r['reason']}）" for r in explanation["rejected"]))
 
     # 六、局限
     h("六、局限")
     for k in range(len(result.get("limitations") or [])):
-        doc.add_paragraph(L.txt("result", f"/limitations/{k}"), style="List Bullet")
+        p(L.txt("result", f"/limitations/{k}", True), "List Bullet")
 
     # 七、审核清单
     h("七、审核清单")
@@ -702,15 +752,15 @@ def build(study: dict, result: dict, out: Path, *, number: str | None = None, re
         trace.append([f"STEP 文件 SHA-256（{L.txt('study', f'/bodies/{i}/step_path')}）", L.txt("files", f"/step{i}")])
     trace += [["结果指纹（SHA-256，同一算例重算应相同）", L.txt("files", "/result")],
               ["求解器", L.txt("env", "/solver")], ["网格程序", "gmsh " + L.txt("env", "/gmsh")],
-              ["分析模块", L.txt("env", "/module")], ["本项目代码版本（git 提交）", L.txt("env", "/code")]]
+              ["分析模块", L.txt("env", "/module")], ["本项目代码版本（git 提交）", L.txt("env", "/code", True)]]
     if lib:
         for k, x in enumerate(lib):
             trace.append([f"外购件数据出处（{L.txt('library', f'/{k}/model')}）",
-                          f"{L.txt('library', f'/{k}/doc')}，第 {L.num('library', f'/{k}/page')} 页（{L.txt('library', f'/{k}/what')}）"])
+                          f"{L.txt('library', f'/{k}/doc')}，第 {L.num('library', f'/{k}/page')} 页（{L.txt('library', f'/{k}/what', True)}）"])
     table(["项目", "内容"], trace)
     h("改版记录", 2)
-    table(["版次", "日期", "原因", "结果指纹"], [[L.txt("record", f"/history/{k}/revision"), L.txt("record", f"/history/{k}/date"),
-                                         L.txt("record", f"/history/{k}/reason"), L.txt("record", f"/history/{k}/result_fingerprint")]
+    table(["版次", "日期", "原因", "结果指纹"], [[L.txt("record", f"/history/{k}/revision", True), L.txt("record", f"/history/{k}/date"),
+                                         L.txt("record", f"/history/{k}/reason", True), L.txt("record", f"/history/{k}/result_fingerprint")]
                                         for k in range(len(record["history"]))])
 
     # 九、AI 起草说明
@@ -718,12 +768,12 @@ def build(study: dict, result: dict, out: Path, *, number: str | None = None, re
     if pv.get("drafted_by") == "ai":
         p(f"算例由 AI 起草，{L.txt('study', '/provenance/confirmed_by') if pv.get('confirmed_by') else '（没有确认人）'} 于 "
           f"{L.txt('study', '/provenance/confirmed_at') if pv.get('confirmed_at') else '（未记时间）'} 确认。"
-          + (L.txt("study", "/provenance/note") if pv.get("note") else ""))
+          + (L.txt("study", "/provenance/note", True) if pv.get("note") else ""))
         table(["位置", "来源", "原话引用", "用到的零件特征", "说明"], [
             [L.txt("study", f"/provenance/basis/{k}/target"), SOURCE_ZH.get(bb.get("source"), bb.get("source", "")),
              L.txt("study", f"/provenance/basis/{k}/quote") if bb.get("quote") else "",
-             "；".join(L.txt("study", f"/provenance/basis/{k}/features/{j}") for j in range(len(bb.get("features") or []))),
-             L.txt("study", f"/provenance/basis/{k}/note") if bb.get("note") else ""]
+             "；".join(L.txt("study", f"/provenance/basis/{k}/features/{j}", True) for j in range(len(bb.get("features") or []))),
+             L.txt("study", f"/provenance/basis/{k}/note", True) if bb.get("note") else ""]
             for k, bb in enumerate(pv.get("basis") or [])])
     else:
         p("算例由人建立。")
@@ -732,7 +782,7 @@ def build(study: dict, result: dict, out: Path, *, number: str | None = None, re
           f"响应 {L.txt('explain', '/response_id') or '未记录'}）。")
 
     doc.save(out)
-    ledger = {"report": out.name, "files": files, "entries": L.entries, "labels": list(LABELS)}
+    ledger = {"report": out.name, "lang": lang, "files": files, "entries": L.entries, "labels": L.labels}
     led_path = out.with_suffix(".ledger.json")
     led_path.write_text(json.dumps(ledger, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     return {"docx": out, "ledger": led_path, "record": rec_path}
@@ -753,7 +803,7 @@ def _ltxt(L: Ledger, s: str) -> str:
     for i, st in enumerate(L.sources["result"]["data"].get("steps") or []):
         for k, it in enumerate((st.get("trust") or {}).get("items") or []):
             if it.get("text") == s:
-                return L.txt("result", f"/data/steps/{i}/trust/items/{k}/text")
+                return L.txt("result", f"/data/steps/{i}/trust/items/{k}/text", True)
     raise ValueError(f"审核清单里有来路不明的数字：{s}")
 
 
@@ -811,13 +861,13 @@ def fixture_names() -> list[str]:
     return sorted(p.name.removesuffix(".study.json") for p in FIXTURES.glob("*.study.json"))
 
 
-def evaluate(client, *, model: str | None = None) -> dict:
+def evaluate(client, *, model: str | None = None, lang: str = "zh") -> dict:
     """在真实零件的结果上让 AI 写解释：退回的段落数、占位符用了没有"""
     model = model or getattr(client, "model", None) or DEFAULT_MODEL
     rows = []
     for n in fixture_names():
         _s, r = load_fixture(n)
-        e = explain(r, client, model=model)
+        e = explain(r, client, model=model, lang=lang)
         used = sum(len(PLACE.findall(t)) for t in e["paragraphs"] + e["suggestions"])
         rows.append({"id": n, "kept": len(e["paragraphs"]) + len(e["suggestions"]), "rejected": e["rejected"],
                      "placeholders": used, "simulated": e["simulated"]})
@@ -864,12 +914,13 @@ def main(argv: list[str] | None = None) -> int:
         mode.add_argument("--replay", type=Path, default=None)
         mode.add_argument("--record", type=Path, nargs="?", const=RECORDINGS_DIR, default=None)
         mode.add_argument("--live", action="store_true")
+        p_.add_argument("--lang", choices=("zh", "en"), default="zh", help="报告与 AI 解释的语言（ADR-0096 第 3 步）")
         p_.add_argument("--provider", choices=("claude", "deepseek"), default=None,
                         help="经模型网关、只用这一家（ADR-0096 第 2 步）；不给则直连 Claude")
     a = ap.parse_args(argv)
     if a.cmd == "eval":
         c = _client(a)
-        res = evaluate(c, model=_model(c, a))
+        res = evaluate(c, model=_model(c, a), lang=a.lang)
         print(json.dumps(res, ensure_ascii=False, indent=1))
         return 0 if res["passed"] else 1
     study = json.loads(a.study.read_text(encoding="utf-8"))
@@ -886,11 +937,11 @@ def main(argv: list[str] | None = None) -> int:
     expl = None
     if a.explain:
         c = _client(a)
-        expl = explain(result, c, model=_model(c, a))
+        expl = explain(result, c, model=_model(c, a), lang=a.lang)
     out = a.out or a.study.with_suffix(".docx")
     try:
         got = build(study, result, out, number=a.number, revision=a.revision, reason=a.reason, explanation=expl,
-                    study_path=a.study)
+                    study_path=a.study, lang=a.lang)
     except ValueError as ex:
         print(f"没有出报告：{ex}", file=sys.stderr)
         return 2

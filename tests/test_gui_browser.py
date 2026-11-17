@@ -1105,3 +1105,31 @@ def test_publish_dialog_to_factory(gui, tmp_path):
         srv.shutdown()
         panel.close()
         host.tools.close()
+
+
+@pytest.mark.freecad
+def test_fea_ui_in_english(gui, tmp_path, monkeypatch):
+    """问渠有限元的界面（ADR-0096 第 3 步）：FreeCAD 设成英文（这里用 FAP_LANG）时，三个按钮、热分析 · 疲劳窗口、提示都是英文"""
+    import FreeCAD
+
+    from freecad_addon.fc import fem_bridge as B
+    from freecad_addon.gui import fem_commands as C
+    from freecad_addon.gui.fea_panel import FeaPanel
+    from tests.test_fc_fem_flow import _shaft_study
+
+    monkeypatch.setenv("FAP_LANG", "en")
+    assert C.FemDraftCommand().GetResources()["MenuText"] == "Draft from one sentence (AI)"
+    assert C.FemRunCommand().GetResources()["MenuText"] == "Compute and check (parts library)"
+    assert C.FemReportCommand().GetResources()["MenuText"] == "Report (parts library)"
+    doc = FreeCAD.newDocument("FeaEn")
+    try:
+        doc.saveAs(str(tmp_path / "en.FCStd"))
+        an = B.study_to_fem(doc, _shaft_study(tmp_path), base_dir=tmp_path)
+        assert an.Label == "FEA: shaft"
+        panel = FeaPanel(fem_analysis=lambda: an)
+        assert panel.windowTitle() == "Thermal · fatigue"
+        assert panel.compute_fatigue() is False
+        assert panel.fatigue_label.text() == 'No results yet: click "Compute and check" first'
+        panel.close()
+    finally:
+        FreeCAD.closeDocument(doc.Name)

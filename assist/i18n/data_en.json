@@ -1,0 +1,14 @@
+{
+"about": "材料库里材料名的英文（材料库数据本身不改）。测试核对材料库里每个中文名都有英文。",
+"names": {
+"45 钢（调质）": "Steel 45 (quenched and tempered)",
+"40Cr（调质）": "40Cr (quenched and tempered)",
+"20CrMnTi（渗碳淬火回火）": "20CrMnTi (carburised, quenched and tempered)",
+"Q345（Q355）": "Q345 (Q355)",
+"HT200 灰铸铁": "HT200 grey cast iron",
+"QT500-7 球墨铸铁": "QT500-7 ductile iron",
+"6061-T6 铝合金": "6061-T6 aluminium alloy",
+"7075-T6 铝合金": "7075-T6 aluminium alloy",
+"304 不锈钢（固溶）": "304 stainless steel (solution annealed)"
+}
+}
