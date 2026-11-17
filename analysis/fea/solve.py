@@ -30,10 +30,20 @@ class TooBig(ValueError):
     pass
 
 
+def ccx_env(env=None) -> dict:
+    """CalculiX 子进程的环境：自身线程数 OMP_NUM_THREADS（FAP_CCX_THREADS 可另指定）；它调用的 BLAS 一律单线程
+    （issue #543：Linux CI 上同一算例连算两遍结果不同、屈曲差几倍。疑为 CalculiX 的多线程里再调多线程 OpenBLAS）"""
+    env = dict(os.environ if env is None else env)
+    env["OMP_NUM_THREADS"] = env.get("FAP_CCX_THREADS", str(os.cpu_count() or 2))
+    for k in ("OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "GOTO_NUM_THREADS"):
+        env[k] = "1"
+    return env
+
+
 def _ccx(ccx, tmp, limit):
     try:
         return subprocess.run([ccx, "-i", "job"], cwd=tmp, capture_output=True, text=True, timeout=limit, check=False,
-                              env=dict(os.environ, OMP_NUM_THREADS=os.environ.get("FAP_CCX_THREADS", str(os.cpu_count() or 2))))
+                              env=ccx_env())
     except subprocess.TimeoutExpired:
         raise TooBig(f"计算超过 {limit} 秒：请把网格尺寸调大") from None
 
