@@ -250,3 +250,10 @@ ADR-0093 的 F1–F7 已全部合进主线（最后一个是 PR #520）。有限
     问渠有限元版只装 llm、fea、report 三组依赖，不装多体与优化。
   - 验收：`installer/windows/accept_fea.ps1` 静默安装 → `acceptance_fea.py`（代码全部来自安装目录）→ 静默卸载。
     CI 的 `wenquest-fea` 作业用 `-TestBuild` 打的测试版跑，产物只留 7 天的 CI 附件，不进 Release。
+  - CI 里查出并修好的：GitHub 的 Windows 机器没有 OpenGL，开着界面新建文档会崩——验收把起草、计算、出报告放在不开界面的
+    FreeCAD 子进程里（代码照样来自安装目录），界面进程只查菜单与授权对话框；仓库里 `factory/designs/.../aux.kicad_sch`
+    是 Windows 不允许的文件名（AUX 是设备名），自 #460 起 Windows 作业一直检出失败——两个 Windows 作业改成不检出 `factory/`；
+    零件库版验收在解释器收尾时崩、退出码不对——改成打印结论后直接退出；打包机没有中文 Inno Setup 语言文件时只出英文安装界面。
+  - 验收结果（2026-11-17）：本机 Linux 与 CI 的干净 Windows（运行 PR #542）都 11 项全过。Windows 上安装包 477 MB；
+    免费版 RJ-201 静力 131 s、可信度核查“通过”；专业版 AI 起草（录制回放）→ 确认 → 计算 → 中英两份 Word 报告，结果指纹相同；
+    零件库版安装包验收同时恢复通过（golden 58/58，悬臂梁与理论差 0.3 %）。
