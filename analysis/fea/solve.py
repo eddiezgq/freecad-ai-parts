@@ -353,7 +353,8 @@ ITERATIVE = "ITERATIVE CHOLESKY"
 # 直接法 SPOOLES ≈ A·(节点数 / 1e4)^B MB；迭代法（预条件共轭梯度）≈ C + D·(节点数 / 1e4) MB
 MEM_SPOOLES = (206.0, 1.35)
 MEM_ITERATIVE = (40.0, 43.0)
-MEM_SHARE = 0.7                      # 估计值不超过可用内存的七成才用
+MEM_DIRECT_SHARE = 0.9               # 直接法估计值（标定时偏高约 5 %）不超过可用内存的九成就用直接法（快、多核）
+MEM_SHARE = 0.7                      # 放不下直接法时，迭代法估计值不超过七成才用
 
 
 def estimate_mb(solver: str, n_nodes: int) -> float:
@@ -387,11 +388,11 @@ def pick_solver(n_nodes: int, iterative_ok: bool, avail: float | None = None) ->
         return os.environ["FAP_CCX_SOLVER"], f"用环境变量 FAP_CCX_SOLVER 指定的 {os.environ['FAP_CCX_SOLVER']}"
     avail = available_mb() if avail is None else avail
     es = estimate_mb("SPOOLES", n_nodes)
-    if avail is None or es <= MEM_SHARE * avail:
+    if avail is None or es <= MEM_DIRECT_SHARE * avail:
         return "SPOOLES", ""
     ei = estimate_mb(ITERATIVE, n_nodes)
     if iterative_ok and ei <= MEM_SHARE * avail:
-        return ITERATIVE, (f"直接法估计要 {es:.0f} MB，超过本机可用内存 {avail:.0f} MB 的七成，改用迭代法"
+        return ITERATIVE, (f"直接法估计要 {es:.0f} MB，超过本机可用内存 {avail:.0f} MB 的九成，改用迭代法"
                            f"（预条件共轭梯度，估计 {ei:.0f} MB；与直接法的结果一致性有测试）")
     need = ei if iterative_ok else es
     raise TooBig(f"{n_nodes} 个节点估计要 {need:.0f} MB 内存，本机可用 {avail:.0f} MB：请把网格尺寸调大，或换内存更大的机器")
