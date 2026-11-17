@@ -33,7 +33,7 @@ class TooBig(ValueError):
 def _ccx(ccx, tmp, limit):
     try:
         return subprocess.run([ccx, "-i", "job"], cwd=tmp, capture_output=True, text=True, timeout=limit, check=False,
-                              env=dict(os.environ, OMP_NUM_THREADS=os.environ.get("FAP_CCX_THREADS", "2")))
+                              env=dict(os.environ, OMP_NUM_THREADS=os.environ.get("FAP_CCX_THREADS", str(os.cpu_count() or 2))))
     except subprocess.TimeoutExpired:
         raise TooBig(f"计算超过 {limit} 秒：请把网格尺寸调大") from None
 
@@ -348,6 +348,54 @@ def von_mises(s):
 
 
 SOLVER = os.environ.get("FAP_CCX_SOLVER", "SPOOLES")
+ITERATIVE = "ITERATIVE CHOLESKY"
+# 求解器内存估算（ADR-0093 补充十二第 5 步；CalculiX 2.21、二阶四面体，本机实测标定，见施工记录）：
+# 直接法 SPOOLES ≈ A·(节点数 / 1e4)^B MB；迭代法（预条件共轭梯度）≈ C + D·(节点数 / 1e4) MB
+MEM_SPOOLES = (206.0, 1.35)
+MEM_ITERATIVE = (40.0, 43.0)
+MEM_DIRECT_SHARE = 0.9               # 直接法估计值（标定时偏高约 5 %）不超过可用内存的九成就用直接法（快、多核）
+MEM_SHARE = 0.7                      # 放不下直接法时，迭代法估计值不超过七成才用
+
+
+def estimate_mb(solver: str, n_nodes: int) -> float:
+    x = n_nodes / 1e4
+    if solver == "SPOOLES":
+        return MEM_SPOOLES[0] * x ** MEM_SPOOLES[1]
+    return MEM_ITERATIVE[0] + MEM_ITERATIVE[1] * x
+
+
+def available_mb() -> float | None:
+    """可用内存（MB）：Linux 读 /proc/meminfo 的 MemAvailable；其他系统有 psutil 就用；都没有返回 None（不估）"""
+    try:
+        with open("/proc/meminfo") as f:
+            for line in f:
+                if line.startswith("MemAvailable:"):
+                    return int(line.split()[1]) / 1024
+    except OSError:
+        pass
+    try:
+        import psutil
+
+        return psutil.virtual_memory().available / 2 ** 20
+    except ImportError:
+        return None
+
+
+def pick_solver(n_nodes: int, iterative_ok: bool, avail: float | None = None) -> tuple[str, str]:
+    """选求解器：环境变量 FAP_CCX_SOLVER 指定了就用它；否则直接法放得下就用直接法，放不下而这一步能用迭代法就改用迭代法，
+    都放不下就算前报出来（不让系统杀进程）。迭代法只用于线性静力（模态、屈曲、接触、非线性要直接法）"""
+    if os.environ.get("FAP_CCX_SOLVER"):
+        return os.environ["FAP_CCX_SOLVER"], f"用环境变量 FAP_CCX_SOLVER 指定的 {os.environ['FAP_CCX_SOLVER']}"
+    avail = available_mb() if avail is None else avail
+    es = estimate_mb("SPOOLES", n_nodes)
+    if avail is None or es <= MEM_DIRECT_SHARE * avail:
+        return "SPOOLES", ""
+    ei = estimate_mb(ITERATIVE, n_nodes)
+    if iterative_ok and ei <= MEM_SHARE * avail:
+        return ITERATIVE, (f"直接法估计要 {es:.0f} MB，超过本机可用内存 {avail:.0f} MB 的九成，改用迭代法"
+                           f"（预条件共轭梯度，估计 {ei:.0f} MB；与直接法的结果一致性有测试）")
+    need = ei if iterative_ok else es
+    raise TooBig(f"{n_nodes} 个节点估计要 {need:.0f} MB 内存，本机可用 {avail:.0f} MB：请把网格尺寸调大，或换内存更大的机器")
 SUPPORT_DOFS = {"radial": 1, "tangential": 2, "axial": 3}
 SUPPORTS = ("fixed", "cyl_support", "displacement", "symmetry", "elastic_support")
 BODY_LOADS = ("gravity", "centrifugal", "temperature")
@@ -659,7 +707,8 @@ def _bolt_cut(B, bolt, next_id):
     return [(n, dup[n]) for n in sec], abs(area), d, faces
 
 
-def _write_multi(path, Bs, conns, bolts, contact, reactions=True, nlgeom=False, buckle=0, sup_sets=(), frequency=0, prestress=False):
+def _write_multi(path, Bs, conns, bolts, contact, reactions=True, nlgeom=False, buckle=0, sup_sets=(), frequency=0, prestress=False,
+                 solver=None):
     """多个实体、连接、螺栓预紧的输入文件（ADR-0093 F3）"""
     with open(path, "w") as w:
         w.write("*HEADING\nWenQuest CAE\n*NODE, NSET=NALL\n")
@@ -757,17 +806,17 @@ def _write_multi(path, Bs, conns, bolts, contact, reactions=True, nlgeom=False, 
         if delta_t:
             w.write("*INITIAL CONDITIONS, TYPE=TEMPERATURE\nNALL,20\n")
         plastic = any(B.get("plastic") for B in Bs)
-        freq_step = f"*STEP{', PERTURBATION' if prestress else ''}\n*FREQUENCY, SOLVER={SOLVER}\n{int(frequency)}\n"
+        freq_step = f"*STEP{', PERTURBATION' if prestress else ''}\n*FREQUENCY, SOLVER={solver or SOLVER}\n{int(frequency)}\n"
         if buckle:
-            head = f"*STEP\n*BUCKLE, SOLVER={SOLVER}\n{int(buckle)}\n"
+            head = f"*STEP\n*BUCKLE, SOLVER={solver or SOLVER}\n{int(buckle)}\n"
         elif prestress:                                            # 预应力模态：先大变形静力（应力刚度要 NLGEOM 才进入下一步）
-            head = f"*STEP, NLGEOM, INC=100\n*STATIC, SOLVER={SOLVER}\n0.25,1\n"
+            head = f"*STEP, NLGEOM, INC=100\n*STATIC, SOLVER={solver or SOLVER}\n0.25,1\n"
         elif plastic or nlgeom:                                    # 非线性：小增量起步，增量不超过 5 %（载荷—位移历程看得清）
-            head = "*STEP{}, INC=2000\n*STATIC, SOLVER={}\n0.02,1,1e-5,0.05\n".format(", NLGEOM" if nlgeom else "", SOLVER)
+            head = "*STEP{}, INC=2000\n*STATIC, SOLVER={}\n0.02,1,1e-5,0.05\n".format(", NLGEOM" if nlgeom else "", solver or SOLVER)
         elif contact:
-            head = f"*STEP, INC=300\n*STATIC, SOLVER={SOLVER}\n0.1,1\n"
+            head = f"*STEP, INC=300\n*STATIC, SOLVER={solver or SOLVER}\n0.1,1\n"
         else:
-            head = f"*STEP\n*STATIC, SOLVER={SOLVER}\n"
+            head = f"*STEP\n*STATIC, SOLVER={solver or SOLVER}\n"
         out = "*NODE FILE\n{}\n*EL FILE\n{}\n{}".format("U,RF" if reactions else "U", "S,PEEQ" if plastic else "S",
                                                          "*CONTACT FILE\nCSTR\n" if contact else "")
         if buckle:
@@ -1125,8 +1174,10 @@ def solve_bodies(bodies, setup, ccx, workdir=None):
             raise ValueError("模态与动力学只用于线性模型：不能带接触、螺栓预紧、弹塑性、大变形")
         if frequency and (any(B["delta_t"] for B in Bs) or any(v for B in Bs for _n, vals in B["dsp"] for v in vals.values())):
             raise ValueError("模态与动力学不能带温度载荷或非零的强制位移")
+        linear_static = not (frequency or buckle or contact or nonlin or bolts)
+        solver, solver_note = pick_solver(n_nodes, linear_static)
         _write_multi(os.path.join(tmp, "job.inp"), Bs, conns, bolts, contact, nlgeom=nlgeom, buckle=buckle, sup_sets=sup_sets,
-                     frequency=frequency, prestress=prestress)
+                     frequency=frequency, prestress=prestress, solver=solver)
         r = _ccx(ccx, tmp, setup.get("time_limit_s", TIME_LIMIT_S))
         frd = os.path.join(tmp, "job.frd")
         dat = os.path.join(tmp, "job.dat")
@@ -1295,6 +1346,9 @@ def solve_bodies(bodies, setup, ccx, workdir=None):
                "face_of_triangle": face_of.astype(np.int32), "vm": np.round(VM, 4), "u": np.round(U, 7)}
     if len(Bs) > 1:
         surface["body_of_triangle"] = body_of.astype(np.int32)
+    stats["solver"] = solver
+    if solver_note:
+        stats["solver_note"] = solver_note
     return stats, surface, {"vm": vm_all, "nodes": P}
 
 

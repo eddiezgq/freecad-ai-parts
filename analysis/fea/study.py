@@ -569,6 +569,8 @@ def run(study: dict, ccx: str, keep_dir: str | None = None) -> tuple[dict, list[
                 res["safety_factor_withheld"] = "可信度核查没有通过（结论：{}），不给安全系数".format(
                     {"fail": "不通过", "unknown": "未知"}[tr["verdict"]])
             verdicts.append(tr["verdict"])
+            if res.get("solver_note") and res["solver_note"] not in limits:   # 大模型改用迭代法（ADR-0093 补充十二第 5 步）
+                limits.append(res["solver_note"])
             first = "{}、{}".format("弹塑性（Mises、各向同性硬化）" if plastic else "线弹性",
                                    "大变形" if st.get("large_deformation") else "小变形")
             if not inner["connections"]:
