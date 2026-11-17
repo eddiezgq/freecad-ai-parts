@@ -7,3 +7,7 @@
 - 生成：`python -m assist.fea_verification --out <目录>`。命令会跑全部标准题，生成中英两版 Word 和 PDF，外加 `verification.json`。有题没通过或没运行时，手册照样生成，但结论里会写明，命令以非 0 退出。
 - 发版：每次发版都从干净的提交重新生成。手册页眉和“运行环境”表写明生成时的代码版本（git 提交号）、求解器版本和网格程序版本。
 - 漏题检查：测试 `tests/test_fea_verification.py` 核对清单与测试一一对应。新写的标准题只要记了对照数却没进清单，测试就不通过。
+
+## 当前版本
+
+第 1 版（2026-11-17）：用提交 `03020cc` 生成，CalculiX 2.21、Gmsh 4.13.1。42 题全部通过，64 项对照全部在容差内。文件：`问渠有限元验证手册.pdf`、`WenQuest-FEA-Verification-Manual.pdf`、`verification.json`。
