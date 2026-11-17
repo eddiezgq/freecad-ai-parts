@@ -5,8 +5,8 @@
 代码一律来自安装目录（FreeCAD 启动时由 Mod 里的 InitGui 加载）；仓库只提供零件 STEP 和 AI 回复的录制（回放，不联网）。
 1. 安装：版本是问渠有限元（验收用的测试版），没有零件库工作台，FEM 工作台的“求解”菜单有三个按钮和热分析 · 疲劳，
    “帮助”菜单有授权、设置、关于
-2. 免费版：手建的单实体静力（RJ-201 端面固定、花键段扭矩）能算完，可信度核查有结论；AI 起草、正式报告、专业版算例
-   （大变形）拒绝并说明
+2. 免费版：只用 FEM 工作台的工具手建的悬臂梁静力，选材料库材料接管后算完，挠度与 PL³/3EI 相差 < 3 %；
+   AI 起草、正式报告、专业版算例（求解器设了几何非线性）拒绝并说明；欧拉压杆屈曲算两遍准确且相同
 （起草、计算、报告在不开界面的子进程里做，见 core()）
 3. 专业版：CI 临时生成测试密钥、签发授权，从“授权”对话框导入 → AI 一句话起草（录制回放）→ 确认 → 计算并核查
    → 出中文、英文两份 Word 报告，两份的结果指纹相同
@@ -14,7 +14,6 @@
 
 from __future__ import annotations
 
-import copy
 import datetime as dt
 import json
 import os
@@ -27,14 +26,36 @@ from pathlib import Path
 STATEMENT = "肩关节空心轴 RJ-201，45 钢调质。Ø70 法兰那一端的端面固定，在 Ø42.75 花键段上加峰值扭矩 92.5 N·m。"
 
 
-def free_study(step: Path) -> dict:
-    """工程师在 FEM 里手建的算例（与 AI 无关）：同 RJ-201 起草样例的面号"""
-    return {"format": "fea-study/1", "name": "RJ-201-free",
-            "bodies": [{"id": "b1", "step_path": str(step), "material": "45-QT"}],
-            "supports": [{"type": "fixed", "body": "b1", "faces": [3]}],
-            "loads": [{"type": "torque", "body": "b1", "faces": [8], "value_nm": 92.5,
-                       "axis": {"origin_mm": [0.0, 0.0, 76.453], "dir": [0.0, 0.0, 1.0]}}],
-            "steps": [{"id": "s1", "type": "static"}]}
+def hand_built(doc, solver_type: str, nonlinear: bool = False):
+    """像用户那样只用 FEM 工作台的工具建分析：悬臂方梁 100×10×10，x = 0 面固定，x = 100 面受 100 N 的力（-z）"""
+    import FreeCAD
+    import ObjectsFem
+    import Part
+
+    box = doc.addObject("Part::Feature", "Beam")
+    box.Shape = Part.makeBox(100, 10, 10)
+    doc.recompute()
+    faces = {round(f.CenterOfMass.x, 3): i + 1 for i, f in enumerate(box.Shape.Faces) if abs(f.normalAt(0, 0).x) > 0.99}
+    an = ObjectsFem.makeAnalysis(doc, "Analysis")
+    solver = ObjectsFem.makeSolverCalculiXCcxTools(doc)
+    solver.AnalysisType = solver_type
+    if nonlinear:
+        solver.GeometricalNonlinearity = "nonlinear"
+    an.addObject(solver)
+    fix = ObjectsFem.makeConstraintFixed(doc, "Fixed")
+    fix.References = [(box, f"Face{faces[0.0]}")]
+    an.addObject(fix)
+    force = ObjectsFem.makeConstraintForce(doc, "Force")
+    force.References = [(box, f"Face{faces[100.0]}")]
+    force.Force = FreeCAD.Units.Quantity("100 N")
+    line = doc.addObject("Part::Line", "Dir")
+    line.X1, line.Y1, line.Z1, line.X2, line.Y2, line.Z2 = 0, 0, 0, 0, 0, -10
+    doc.recompute()
+    force.Direction = (line, ["Edge1"])
+    force.Reversed = False
+    an.addObject(force)
+    doc.recompute()
+    return an
 
 
 def pump(sec: float) -> None:
@@ -77,32 +98,39 @@ def core(phase: str, app: Path, repo: Path, work: Path) -> dict:
     sys.path.insert(0, str(app / "Mod" / "FreeCADAIParts" / "lib"))
     import FreeCAD
 
-    from freecad_addon.fc import fem_bridge as B
     from freecad_addon.fc import fem_flow as F
 
     R: dict[str, object] = {}
     ok: dict[str, bool] = {}
     step = repo / "examples/apps/out/cobot_joint/RJ-201.step"
     if phase == "free":
+        # 免费版的主路径：只用 FEM 工作台自己的工具手建分析（不经 AI），选材料库材料接管，再“计算并核查”
         doc = FreeCAD.newDocument("wq_free")
         doc.saveAs(str(work / "free.FCStd"))
         p = part(doc, step)
         R["refuse_draft"] = refused(lambda: F.draft_steps(doc, STATEMENT, [p]), "专业版")
-        an = B.study_to_fem(doc, free_study(step), parts={"b1": p})
+        an = hand_built(doc, "static")
+        F.adopt(an, "45-QT")
         study, wd = F.prepare_run(an)
+        study["mesh"] = {"size_mm": 2.5}
         t0 = time.time()
         res = F.compute(study, wd)
         R["free_compute_s"] = round(time.time() - t0, 1)
         R["free_status"], R["free_messages"] = res["status"], res.get("messages")
+        from analysis.common import materials
+
+        e = materials.get("45-QT")["elastic_modulus_mpa"]
+        theory = 100 * 100 ** 3 / (3 * e * 10 * 10 ** 3 / 12)
         if res["status"] == "ok":
             F.finish_run(an, res, wd)
             R["free_trust"] = res["data"].get("trust_verdict")
-            R["free_vm_max_mpa"] = (res["data"].get("steps") or [{}])[0].get("vm_max_mpa")
-        ok["free_static"] = res["status"] == "ok" and R.get("free_trust") in ("pass", "fail", "unknown")
+            R["free_u_max_mm"] = res["data"]["steps"][0].get("u_max_mm")
+            R["free_theory_mm"] = round(theory, 5)
+        ok["free_static"] = res["status"] == "ok" and R.get("free_trust") in ("pass", "fail", "unknown") \
+            and abs(R["free_u_max_mm"] / theory - 1) < 0.03
         R["refuse_report"] = refused(lambda: F.make_report(an, number=None, revision="A", reason="首次出稿"), "正式报告")
-        pro_study = copy.deepcopy(free_study(step))
-        pro_study["steps"] = [{"id": "s1", "type": "static", "large_deformation": True}]
-        an2 = B.study_to_fem(doc, pro_study, parts={"b1": p})
+        an2 = hand_built(doc, "static", nonlinear=True)
+        F.adopt(an2, "45-QT")
         R["refuse_pro_study"] = refused(lambda: F.prepare_run(an2), "大变形")
         ok["free_refusals"] = all(R[k] for k in ("refuse_draft", "refuse_report", "refuse_pro_study"))
         R["euler"] = euler(work)

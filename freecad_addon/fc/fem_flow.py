@@ -5,6 +5,8 @@
 - `confirm_analysis`：工程师确认（写确认人；追问须由人处理完）；
 - `prepare_run` / `compute` / `finish_run`：读回算例 → 后台计算（带可信度核查，留下求解器文件）→ 结果进原生后处理；
 - `make_report`：Word（与 PDF）报告，带审核清单与可追溯信息；算例在计算后改过就拒绝出报告，要先重算；
+- `adopt`：接管用 FEM 工作台自己的工具手建的分析（ADR-0096 第 6 步前补：免费版的主路径）——给零件选材料库的材料、
+  按 CalculiX 求解器的分析类型定分析步，之后与起草来的分析一样“计算并核查”；
 - `fatigue_inputs`：疲劳寿命用的参考应力与参考载荷，取自这次“计算并核查”的结果（ADR-0096 第 1 步：旧窗口的有限元部分退役）。
 
 文档对象只能在界面线程里动：`compute` 不碰文档，可以放后台线程；其余在界面线程调用。
@@ -35,6 +37,72 @@ def work_dir(analysis) -> Path:
         d = Path(FreeCAD.getUserAppDataDir()) / "fap_fea" / doc.Name / analysis.Name
     d.mkdir(parents=True, exist_ok=True)
     return d
+
+
+def adopted(analysis) -> bool:
+    """这个分析是不是本仓库建的或已接管的（有算例）"""
+    return "FapStudy" in analysis.PropertiesList
+
+
+def _ref_parts(analysis) -> list:
+    """手建分析里约束、载荷、网格引用到的零件（有实体的对象）"""
+    out = []
+    for o in analysis.Group:
+        if o.TypeId.startswith("App::MaterialObject") or "Result" in o.TypeId or o.TypeId.startswith("Fem::FemSolver"):
+            continue
+        objs = [r[0] for r in (getattr(o, "References", None) or [])]
+        if getattr(o, "Shape", None) is not None and o.TypeId.startswith("Fem::FemMesh"):
+            objs.append(o.Shape)
+        for x in objs:
+            if x is not None and hasattr(x, "Shape") and x.Shape.Solids and x not in out:
+                out.append(x)
+    return out
+
+
+def _fem_steps(analysis) -> list[dict]:
+    """CalculiX 求解器对象的分析类型 → 分析步（没有求解器对象就是静力）"""
+    solver = next((o for o in analysis.Group if hasattr(o, "AnalysisType")), None)
+    if solver is None:
+        return [{"id": "s1", "type": "static"}]
+    t = solver.AnalysisType
+    if t == "static":
+        st = {"id": "s1", "type": "static"}
+        if getattr(solver, "GeometricalNonlinearity", "linear") == "nonlinear":
+            st["large_deformation"] = True
+        return [st]
+    if t == "frequency":
+        return [{"id": "m1", "type": "modal", "n_modes": int(getattr(solver, "EigenmodesCount", 6) or 6)}]
+    if t == "buckling":
+        return [{"id": "b1", "type": "buckling", "n_modes": int(getattr(solver, "BucklingFactors", 1) or 1)}]
+    raise FlowError(f"求解器的分析类型“{t}”本仓库不算：请在求解器里选静力（static）、模态（frequency）或屈曲（buckling）")
+
+
+def adopt(analysis, material_id: str, step_dir: Path | None = None) -> dict:
+    """接管手建的分析：引用到的零件（只认一个实体零件）导出 STEP，材料用材料库的 material_id（数值有出处，
+    FEM 自己的材料卡不用），分析步按求解器的分析类型。之后用法与起草来的分析一样。返回算例"""
+    from analysis.common import materials
+
+    if adopted(analysis):
+        raise FlowError("这个分析已经接管过了")
+    if material_id not in materials._table():
+        raise FlowError(f"材料 {material_id} 不在材料库里")
+    parts = _ref_parts(analysis)
+    if not parts:
+        raise FlowError("分析里还没有约束或载荷引用零件：先用 FEM 工作台的固定、力、压力等加在零件的面上")
+    if len(parts) > 1:
+        raise FlowError("手建的分析现在只接管单个零件（引用到了 {}）；多个零件请用一句话起草".format(
+            "、".join(p.Label for p in parts)))
+    part = parts[0]
+    if len(part.Shape.Solids) != 1:
+        raise FlowError(f"{part.Label} 有 {len(part.Shape.Solids)} 个实体：手建的分析只接管单个实体")
+    step = part_step(part, step_dir or work_dir(analysis) / "parts")
+    body = {"id": "b1", "step_path": step, "material": material_id}
+    study = {"format": "fea-study/1", "name": analysis.Label, "bodies": [body], "steps": _fem_steps(analysis)}
+    B._prop(part, "FapBody", json.dumps(body, ensure_ascii=False))
+    B._prop(analysis, "FapStudy", json.dumps(study, ensure_ascii=False))
+    B._material(analysis.Document, analysis, part, material_id)
+    analysis.Document.recompute()
+    return study
 
 
 def part_step(obj, out_dir: Path) -> str:
