@@ -1,0 +1,65 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "fea-draft/2",
+  "request_key": "651bfca7f7f2a655f62c3d4119acbc30928a700b5edc5e0b1cc73821163e1e5e",
+  "response": {
+    "id": "msg_011Ch82fFk3Mk8tSoCFC3JQ5",
+    "simulated": false,
+    "tool_input": {
+      "bodies": [
+        {
+          "material": "45-QT",
+          "material_quote": "45 钢调质",
+          "part": 1,
+          "section": {
+            "height": {
+              "quote": "高 40 mm",
+              "unit": "mm",
+              "value": 40
+            },
+            "orientation": "+y",
+            "orientation_quote": "宽度方向沿 +y",
+            "section_quote": "矩形截面宽 20 mm、高 40 mm",
+            "shape": "rect",
+            "width": {
+              "quote": "宽 20 mm",
+              "unit": "mm",
+              "value": 20
+            }
+          }
+        }
+      ],
+      "items": [
+        {
+          "features": [
+            "F2"
+          ],
+          "part": 1,
+          "quote": "x = 0 的端点固定",
+          "type": "fixed"
+        },
+        {
+          "direction": "-z",
+          "direction_quote": "方向 -z",
+          "features": [
+            "F3"
+          ],
+          "magnitude": {
+            "quote": "1 kN",
+            "unit": "kN",
+            "value": 1
+          },
+          "part": 1,
+          "quote": "自由端受 1 kN 的力，方向 -z",
+          "type": "force"
+        },
+        {
+          "quote": "悬臂梁 CANT-500",
+          "type": "static"
+        }
+      ],
+      "name": "CANT-500 cantilever",
+      "questions": []
+    }
+  }
+}

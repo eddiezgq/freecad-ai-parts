@@ -1,0 +1,52 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "fea-draft/2",
+  "request_key": "590f9118fdec1a6e178e20ae508b6fe2ec4c0b3d7b4fbf391703d43e634a070c",
+  "response": {
+    "id": "msg_011Ch82bzqWCZpjTMZoeU4Tu",
+    "simulated": false,
+    "tool_input": {
+      "bodies": [
+        {
+          "material": "6061-T6",
+          "material_quote": "6061-T6",
+          "part": 1
+        }
+      ],
+      "items": [
+        {
+          "features": [
+            "F6"
+          ],
+          "part": 1,
+          "quote": "肩部 Ø138 减速器座固定",
+          "type": "fixed"
+        },
+        {
+          "features": [
+            "F4"
+          ],
+          "magnitude": {
+            "quote": "46.4 N·m",
+            "unit": "N·m",
+            "value": 46.4
+          },
+          "part": 1,
+          "quote": "肘部 Ø107 减速器座上加 j3 峰值扭矩 46.4 N·m",
+          "type": "torque"
+        },
+        {
+          "quote": "j3 峰值扭矩 46.4 N·m",
+          "type": "static"
+        }
+      ],
+      "name": "ARM-UPPER_j3_peak_torque",
+      "questions": [
+        "扭矩的转向（绕轴正向/反向）原话未说明，程序按 F4 轴线施加，请确认符号是否需要指定（对应力大小通常无影响）。",
+        "是否需要考虑大臂自重（重力）？原话未提及，未添加。",
+        "肩部 Ø138 座固定选用的是孔面 F6（Ø138 孔壁）；如果实际是整个安装台阶面（F12/F13）固定，请说明。",
+        "未提及末端负载/其他载荷，仅按 j3 峰值扭矩计算，请确认。"
+      ]
+    }
+  }
+}

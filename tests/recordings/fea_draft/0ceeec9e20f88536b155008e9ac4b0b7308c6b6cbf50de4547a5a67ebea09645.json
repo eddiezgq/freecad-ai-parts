@@ -1,0 +1,45 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "fea-draft/2",
+  "request_key": "0ceeec9e20f88536b155008e9ac4b0b7308c6b6cbf50de4547a5a67ebea09645",
+  "response": {
+    "id": "msg_011Ch82dbYMCatQgpri4kqcH",
+    "simulated": false,
+    "tool_input": {
+      "bodies": [
+        {
+          "material": "40Cr-QT",
+          "material_quote": "40Cr quenched and tempered",
+          "part": 1
+        }
+      ],
+      "items": [
+        {
+          "features": [
+            "F6"
+          ],
+          "part": 1,
+          "quote": "Fix the end face on the Ø70 flange end",
+          "type": "fixed"
+        },
+        {
+          "direction": null,
+          "direction_quote": null,
+          "features": [
+            "F2"
+          ],
+          "magnitude": null,
+          "part": 1,
+          "quote": "Apply a radial bearing load on the Ø50 bearing seat",
+          "type": "bearing_load"
+        }
+      ],
+      "name": "RJ-201 hollow shaft",
+      "questions": [
+        "轴承载荷大小原话未给出（\"still being calculated\"），请补充数值和单位。",
+        "径向轴承载荷作用的具体方向（垂直于轴线 z 的 ±x 或 ±y）原话未说明，请指明。",
+        "固定面我选了 Ø70 法兰端的外端面 F6（z=0，朝 -z）；如果你指的是法兰台阶面 F8（z=10），请告知。"
+      ]
+    }
+  }
+}

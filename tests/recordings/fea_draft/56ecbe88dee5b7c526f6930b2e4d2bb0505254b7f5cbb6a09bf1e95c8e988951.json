@@ -1,0 +1,72 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "fea-draft/2",
+  "request_key": "56ecbe88dee5b7c526f6930b2e4d2bb0505254b7f5cbb6a09bf1e95c8e988951",
+  "response": {
+    "id": "msg_011Ch82epcBt84idyAHe6zdP",
+    "simulated": false,
+    "tool_input": {
+      "bodies": [
+        {
+          "material": "Q235",
+          "material_quote": "Q235",
+          "part": 1,
+          "section": {
+            "outer_diameter": {
+              "quote": "外径 60 mm",
+              "unit": "mm",
+              "value": 60
+            },
+            "section_quote": "圆管，外径 60 mm、壁厚 4 mm",
+            "shape": "pipe",
+            "wall": {
+              "quote": "壁厚 4 mm",
+              "unit": "mm",
+              "value": 4
+            }
+          }
+        }
+      ],
+      "items": [
+        {
+          "features": [
+            "F5",
+            "F9"
+          ],
+          "part": 1,
+          "quote": "两根柱脚（z = 0 的两个端点）固定",
+          "type": "fixed"
+        },
+        {
+          "direction": "-z",
+          "direction_quote": "方向 -z",
+          "features": [
+            "F7"
+          ],
+          "magnitude": {
+            "quote": "5 kN",
+            "unit": "kN",
+            "value": 5
+          },
+          "part": 1,
+          "quote": "横梁中点（x = 1000 的节点）受 5 kN 的力，方向 -z",
+          "type": "force"
+        },
+        {
+          "quote": "受 5 kN 的力",
+          "type": "static"
+        },
+        {
+          "n_modes": {
+            "quote": "前 4 阶",
+            "value": 4
+          },
+          "quote": "另算前 4 阶固有频率",
+          "type": "modal"
+        }
+      ],
+      "name": "FRAME-2000",
+      "questions": []
+    }
+  }
+}
