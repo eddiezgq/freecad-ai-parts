@@ -126,13 +126,16 @@ def _fap_object(doc, analysis, name: str):
 # ---------------------------------------------------------------- 算例 → FEM
 
 
-def study_to_fem(doc, study: dict, *, base_dir: Path | None = None, tables: dict[str, list] | None = None):
-    """在文档里建 FEM 分析。返回分析节点对象"""
+def study_to_fem(doc, study: dict, *, base_dir: Path | None = None, tables: dict[str, list] | None = None,
+                 parts: dict | None = None):
+    """在文档里建 FEM 分析。返回分析节点对象。parts：{实体 id: 文档里已有的零件对象}——给了就用它，不再导入 STEP
+    （零件形状须与 STEP 一致，面按中心与面积对应，对不上就拒绝）"""
     base = Path(base_dir) if base_dir else Path.cwd()
     analysis = ObjectsFem.makeAnalysis(doc, "FapAnalysis")
     analysis.Label = f"有限元：{study.get('name', '')}"
     rest = {k: v for k, v in study.items() if k not in ("supports", "loads", "connections")}
     _prop(analysis, "FapStudy", json.dumps(rest, ensure_ascii=False))
+    given = parts or {}
     parts, fmaps = {}, {}
     helpers = doc.addObject("App::DocumentObjectGroup", "FapHelpers")
     helpers.Label = "有限元辅助几何"
@@ -141,11 +144,15 @@ def study_to_fem(doc, study: dict, *, base_dir: Path | None = None, tables: dict
         p = p if p.is_absolute() else base / p
         if not p.is_file():
             raise BridgeError(f"STEP 文件不存在：{b['step_path']}")
-        shape = Part.Shape()
-        shape.read(str(p))
-        part = doc.addObject("Part::Feature", f"Fap_{b['id']}")
-        part.Shape = shape
-        part.Label = f"{b['id']}：{p.name}"
+        if b["id"] in given:
+            part = given[b["id"]]
+            shape = part.Shape
+        else:
+            shape = Part.Shape()
+            shape.read(str(p))
+            part = doc.addObject("Part::Feature", f"Fap_{b['id']}")
+            part.Shape = shape
+            part.Label = f"{b['id']}：{p.name}"
         _prop(part, "FapBody", json.dumps(b, ensure_ascii=False))
         table = (tables or {}).get(b["id"]) or face_table(str(p))
         fmaps[b["id"]] = face_map(shape, table)
@@ -337,7 +344,7 @@ def fem_to_study(analysis, *, tables: dict[str, list] | None = None) -> tuple[di
             out.append((by_name[obj.Name], ids))
         return out
 
-    groups: dict[str, list[tuple[int, dict]]] = {"supports": [], "loads": [], "connections": []}
+    groups: dict[str, list[tuple[int, dict, str]]] = {"supports": [], "loads": [], "connections": []}
     transforms = {o.FapPartOf for o in analysis.Group if "FapPartOf" in o.PropertiesList}
     for o in analysis.Group:
         if "FapPartOf" in o.PropertiesList or "FapMaterialId" in o.PropertiesList:
@@ -354,7 +361,7 @@ def fem_to_study(analysis, *, tables: dict[str, list] | None = None) -> tuple[di
                 if sorted(ids) != sorted(stored["faces"]):
                     item["faces"] = ids
                     note["changed"].append(key)
-            groups[key.split("/")[0]].append((int(key.split("/")[1]), item))
+            groups[key.split("/")[0]].append((int(key.split("/")[1]), item, o.Name))
             continue
         kind_type = _fem_type(o)
         if kind_type is None:
@@ -371,14 +378,18 @@ def fem_to_study(analysis, *, tables: dict[str, list] | None = None) -> tuple[di
                 item = {**{k: v for k, v in stored.items() if k == "case"}, **item}
             else:
                 item = stored
-            groups[key.split("/")[0]].append((int(key.split("/")[1]), item))
+            groups[key.split("/")[0]].append((int(key.split("/")[1]), item, o.Name))
         else:
             k = "supports" if kind_type in ("fixed", "displacement", "cyl_support") else \
                 "connections" if kind_type in ("bonded", "contact") else "loads"
-            groups[k].append((10 ** 6 + len(groups[k]), item))
+            groups[k].append((10 ** 6 + len(groups[k]), item, o.Name))
             note["added"].append(f"{o.Label} → {kind_type}")
+    note["objects"] = {}
     for k, rows in groups.items():
-        items = [it for _, it in sorted(rows, key=lambda x: x[0])]
+        rows = sorted(rows, key=lambda x: x[0])
+        items = [it for _, it, _n in rows]
+        for i, (_, _it, objname) in enumerate(rows):
+            note["objects"][f"{k}/{i}"] = objname
         if items or k != "connections":
             study[k] = items
         elif "connections" in study:
@@ -387,6 +398,19 @@ def fem_to_study(analysis, *, tables: dict[str, list] | None = None) -> tuple[di
         study.pop("connections", None)
     _mark_human_edits(study, note)
     return study, note
+
+
+def commit(analysis, study: dict, objects: dict[str, str]) -> None:
+    """把（确认过的）算例写回分析节点：节点上的算例与各对象的原始条目都换成这一版，之后再读回不算“改过”。
+    objects：fem_to_study 返回的 {"loads/0": 对象名…}"""
+    doc = analysis.Document
+    rest = {k: v for k, v in study.items() if k not in ("supports", "loads", "connections")}
+    _prop(analysis, "FapStudy", json.dumps(rest, ensure_ascii=False))
+    for key, name in objects.items():
+        k, i = key.split("/")
+        o = doc.getObject(name)
+        _prop(o, "FapItem", json.dumps(study[k][int(i)], ensure_ascii=False))
+        _prop(o, "FapKey", key)
 
 
 def _abs(p: str, doc) -> str:
