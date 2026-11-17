@@ -201,6 +201,32 @@ class MbdCommand:
         return True
 
 
+class MbdAssemblyCommand:
+    """装配体多体动力学（ADR-0097 D5c）：从 Assembly 工作台装配体或 STEP 装配建模，驱动、计算、核查、曲线、动画。"""
+
+    def GetResources(self):
+        return {"MenuText": "装配体多体动力学",
+                "ToolTip": "用当前装配体（或导入 STEP、程序起草运动副）算运动、反力、驱动力矩、模态，播放动画"}
+
+    def Activated(self):
+        from PySide import QtCore
+
+        from freecad_addon.fc.fem_flow import llm_client
+        from freecad_addon.gui.mbd_assembly_panel import MbdAssemblyPanel
+
+        dock = _state.get("mbd_asm")
+        if dock is None:
+            dock = MbdAssemblyPanel(parent=_main_window(), client_factory=llm_client)
+            _main_window().addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
+            _state["mbd_asm"] = dock
+        dock.show()
+        dock.raise_()
+        dock.load_document()
+
+    def IsActive(self):
+        return True
+
+
 class FeaCommand:
     """热分析 · 疲劳窗口（ADR-0056；ADR-0096 第 1 步：强度、固有频率改在 FEM 工作台里算）。"""
 
@@ -511,6 +537,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         FreeCADGui.addCommand("FAP_NewPart", NewPartCommand())
         FreeCADGui.addCommand("FAP_Analyses", AnalysesCommand())
         FreeCADGui.addCommand("FAP_Mbd", MbdCommand())
+        FreeCADGui.addCommand("FAP_MbdAssembly", MbdAssemblyCommand())
         FreeCADGui.addCommand("FAP_Fea", FeaCommand())
         FreeCADGui.addCommand("FAP_Optimize", OptimizeCommand())
         FreeCADGui.addCommand("FAP_Twin", TwinCommand())
@@ -529,7 +556,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bom",
                  "FAP_Restore", "FAP_Bridge", "FAP_Record"]
         self.appendToolbar("AI Parts", tools)
-        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_Fea", "FAP_Optimize", "FAP_Topo", "FAP_Cam", "FAP_Cfd", "FAP_Twin", "FAP_Publish", "FAP_RecordVideo", "FAP_FirstRun", "FAP_License"])
+        self.appendMenu("AI Parts", [*tools, "FAP_Enterprise", "FAP_NewPart", "FAP_Analyses", "FAP_Mbd", "FAP_MbdAssembly", "FAP_Fea", "FAP_Optimize", "FAP_Topo", "FAP_Cam", "FAP_Cfd", "FAP_Twin", "FAP_Publish", "FAP_RecordVideo", "FAP_FirstRun", "FAP_License"])
 
     def Activated(self):
         """第一次打开工作台时弹出首次设置（ADR-0066）；以后从菜单再打开。"""

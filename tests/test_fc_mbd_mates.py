@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import itertools
 import math
 
 import numpy as np
@@ -142,6 +143,6 @@ def test_takeup_mechanism_from_step(imported):
         near = ref
     assert worst < 1e-6
     ang = [math.atan2(p[2], p[1]) for p in data["requests"]["P"]["pos_mm"]]
-    assert max(abs(math.remainder(b - a, 2 * math.pi)) for a, b in zip(ang, ang[1:])) == pytest.approx(math.radians(10), rel=1e-6)
+    assert max(abs(math.remainder(b - a, 2 * math.pi)) for a, b in itertools.pairwise(ang)) == pytest.approx(math.radians(10), rel=1e-6)
     assert frame not in {b["id"] for b in model["bodies"]}
     assert App.ActiveDocument is not None

@@ -64,8 +64,9 @@ TYPE_INDEX = {"fixed": 0, "revolute": 1, "cylindrical": 2, "translational": 3, "
 
 def build_assembly(doc, objs, ground: str, joints: list[dict], name="Assembly"):
     """把零件放进新的 Assembly，按确认过的条目（mates.to_assembly_joints 的输出）建运动副"""
-    import JointObject
+    from freecad_addon.fc.assembly_modules import load
 
+    JointObject, _ = load()
     asm = doc.addObject("Assembly::AssemblyObject", name)
     jg = asm.newObject("Assembly::JointGroup", "Joints")
     by = {o.Name: o for o in objs}

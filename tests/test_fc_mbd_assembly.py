@@ -19,8 +19,11 @@ STEEL = "06ae5c92-de7b-46c9-984d-4dd87964bc5c"      # FreeCAD 材料库 Steel-C1
 @pytest.fixture
 def env():
     import FreeCAD as App
-    import JointObject
     import Materials
+
+    from freecad_addon.fc.assembly_modules import load
+
+    JointObject, _ = load()                       # 没有界面时不导入真的 pivy（见 assembly_modules）
 
     doc = App.newDocument("mbd_asm_test")
     asm = doc.addObject("Assembly::AssemblyObject", "Assembly")
@@ -61,7 +64,8 @@ def ground(e, obj):
     e["JO"].GroundedJoint(g, obj)
 
 
-def box_body(bid, rho, size, center, R=np.eye(3)):
+def box_body(bid, rho, size, center, R=None):
+    R = np.eye(3) if R is None else R
     a, b, c = (x * 1e-3 for x in size)
     m = rho * a * b * c
     I = R @ np.diag([m * (b * b + c * c) / 12, m * (a * a + c * c) / 12, m * (a * a + b * b) / 12]) @ R.T
@@ -93,7 +97,7 @@ def test_slider_crank_from_assembly_matches_hand_model(env):
     joint(e, "J2", 1, crank, rod, (100, 0, 0))
     joint(e, "J3", 1, rod, slider, (400, 0, 0))
     joint(e, "J4", 3, frame, slider, (400, 0, 0), z=(1, 0, 0))
-    model, msgs = export(e)
+    model, _ = export(e)
     rho = e["rho"]
     hand = {"format": "mbd-model/1", "name": "hand", "gravity_mm_s2": [0, 0, -9810],
             "bodies": [box_body("Crank", rho, (100, 10, 10), (50, 0, 0)), box_body("Rod", rho, (300, 10, 10), (250, 0, 0)),
