@@ -7,6 +7,10 @@
 
 --standalone（ADR-0066）：把运行时代码与数据（freecad_addon.bundle）复制到 Mod/FreeCADAIParts/lib/，
 InitGui.py 指向这个 lib，装完可以删掉仓库。--from-bundle 目录：用已生成的包（安装包用这个）。
+
+--edition fea（ADR-0096 第 5 步，隐含 --standalone）：装成问渠有限元版——不加零件库工作台，FEM 工作台里加起草、计算并核查、
+出报告与问渠有限元的授权、设置、关于；分免费 / 专业两档。版本写在 lib/edition.json。
+--test-build：只给 CI 验收用的安装包，edition.json 里写 "test_build": true，才认环境变量里的测试授权公钥。
 """
 
 from __future__ import annotations
@@ -88,7 +92,20 @@ def standalone_init_gui_source(lib: Path) -> str:
     )
 
 
-def install(mod_dir: Path, standalone: bool = False, bundle: Path | None = None) -> Path:
+EDITION_FILE = "edition.json"
+
+
+def edition_doc(edition: str, test_build: bool = False) -> dict:
+    if edition not in ("full", "fea"):
+        raise ValueError(f"版本只能是 full 或 fea：{edition}")
+    return {"edition": edition, "test_build": bool(test_build)}
+
+
+def install(mod_dir: Path, standalone: bool = False, bundle: Path | None = None, edition: str = "full",
+            test_build: bool = False) -> Path:
+    doc = edition_doc(edition, test_build)
+    if (edition != "full" or test_build) and not (standalone or bundle):
+        raise ValueError("--edition fea 与 --test-build 只用于自包含安装（--standalone）")
     target = mod_dir / MOD_NAME
     if target.is_dir():
         init = target / "InitGui.py"
@@ -110,6 +127,10 @@ def install(mod_dir: Path, standalone: bool = False, bundle: Path | None = None)
         from freecad_addon.bundle import build
 
         build(lib)
+    if edition != "full" or test_build:
+        import json
+
+        (lib / EDITION_FILE).write_text(json.dumps(doc, ensure_ascii=False) + "\n", encoding="utf-8")
     (target / "InitGui.py").write_text(standalone_init_gui_source(lib), encoding="utf-8")
     return target
 
@@ -131,13 +152,23 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--uninstall", action="store_true")
     parser.add_argument("--standalone", action="store_true", help="复制代码与数据进 Mod，不依赖仓库（ADR-0066）")
     parser.add_argument("--from-bundle", type=Path, default=None, help="用已生成的工作台包目录（隐含 --standalone）")
+    parser.add_argument("--edition", choices=("full", "fea"), default="full",
+                        help="full：零件库全功能版；fea：问渠有限元版（隐含 --standalone，ADR-0096）")
+    parser.add_argument("--test-build", action="store_true", help="CI 验收用：认环境变量里的测试授权公钥（正式安装包不加）")
     args = parser.parse_args(argv)
+    if args.edition == "fea" or args.test_build:
+        args.standalone = args.standalone or not args.from_bundle
     mod_dirs = [args.mod_dir] if args.mod_dir else default_mod_dirs()
     if args.uninstall:
         for mod_dir in mod_dirs:
             print(f"已卸载：{mod_dir / MOD_NAME}" if uninstall(mod_dir) else f"未安装：{mod_dir / MOD_NAME}")
         return 0
-    targets = [install(mod_dir, args.standalone, args.from_bundle) for mod_dir in mod_dirs]
+    targets = [install(mod_dir, args.standalone, args.from_bundle, args.edition, args.test_build) for mod_dir in mod_dirs]
+    if args.edition == "fea":
+        print("已安装问渠有限元版到：\n" + "\n".join(f"  {t}" for t in targets) + "\n"
+              "重启 FreeCAD 后在 FEM 工作台里用（“求解”菜单与工具栏；授权、设置、关于在“帮助”菜单）。"
+              + ("\n注意：这是验收用的测试版（test_build），不得发给客户。" if args.test_build else ""))
+        return 0
     if args.standalone or args.from_bundle:
         print("已安装（自包含）到：\n" + "\n".join(f"  {t}" for t in targets) + "\n"
               "重启 FreeCAD 后，在工作台列表中选择 “AI Parts”。\n"

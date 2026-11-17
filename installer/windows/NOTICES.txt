@@ -14,7 +14,7 @@
    这些组件未经修改；你可以按其许可证自由使用、复制和再分发它们。
 
 3. 安装到 FreeCAD 自带 Python 中的第三方 Python 包（anthropic、numpy、scipy、gmsh、mujoco、optuna、pint、
-   jsonschema、pyyaml、httpx、fastmcp、psycopg、pdfplumber、openpyxl 及其依赖）
+   jsonschema、pyyaml、httpx、fastmcp、psycopg、pdfplumber、openpyxl、python-docx、matplotlib、cryptography 及其依赖）
    各包许可证见安装目录 bin\Lib\site-packages 下各包的 dist-info 目录。
 
 流体分析（CFD）所需的 OpenFOAM 不在本安装包内：可在企业数字工厂网页的“流体分析”中计算，或自行安装 OpenFOAM。

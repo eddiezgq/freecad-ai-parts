@@ -72,4 +72,8 @@ def main(app: Path) -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main(Path(sys.argv[1])))
+    import os
+
+    rc = main(Path(sys.argv[1]))
+    sys.stdout.flush()
+    os._exit(rc)        # 不等解释器收尾：Windows 上收尾时 FreeCAD 报 “PyThreadState_Get … GIL is released”，退出码就不对了

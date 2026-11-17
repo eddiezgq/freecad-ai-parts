@@ -1,0 +1,36 @@
+﻿问渠有限元 WenQuest FEA —— 许可证与源码获取说明 / Licenses and source code
+
+本安装包由以下软件组成，各部分按各自的许可证分发。安装即表示你同意这些许可证。
+This installer contains the components below, each distributed under its own license. By installing you accept these licenses.
+
+1. 问渠有限元（有限元起草、计算核查、报告、授权等，安装目录 Mod\FreeCADAIParts\lib）
+   WenQuest FEA (study drafting, credibility-checked solving, reports, licensing; folder Mod\FreeCADAIParts\lib)
+   著作权 © Guoqing Zhang. Copyright © Guoqing Zhang.
+   其中 2026-10-09 前公开发布过的代码按 Apache License 2.0（见 lib\LICENSE、lib\NOTICE）；其余部分按问渠有限元的
+   商业许可使用：免费版可免费使用；专业版功能需要有效的授权文件。
+   Code published before 2026-10-09 is under the Apache License 2.0 (see lib\LICENSE and lib\NOTICE); everything else
+   is under the WenQuest FEA commercial license: the free edition is free to use; Pro features need a valid license file.
+
+2. FreeCAD 1.0.2（含其自带的 Python、Qt、OpenCASCADE、CalculiX、Gmsh 等）
+   FreeCAD 1.0.2 (with its bundled Python, Qt, OpenCASCADE, CalculiX, Gmsh and others)
+   许可证：FreeCAD 为 GNU LGPL 2.1 或更新版本；CalculiX、Gmsh 为 GNU GPL；其余组件见各自许可证。
+   Licenses: FreeCAD is GNU LGPL 2.1 or later; CalculiX and Gmsh are GNU GPL; other components under their own licenses.
+   源码 / Source: https://github.com/FreeCAD/FreeCAD/releases/tag/1.0.2
+   CalculiX 源码 / source: http://www.dhondt.de/   Gmsh 源码 / source: https://gmsh.info/
+   这些组件未经修改；你可以按其许可证自由使用、复制和再分发它们。
+   These components are unmodified; you may use, copy and redistribute them under their licenses.
+
+3. 装进 FreeCAD 自带 Python 的第三方包（gmsh、numpy、scipy、python-docx、matplotlib、pint、jsonschema、pyyaml、httpx、
+   anthropic、cryptography 等及其依赖），许可证见 bin\Lib\site-packages 下各包的 dist-info 目录。
+   Third-party Python packages installed into FreeCAD's Python (gmsh, numpy, scipy, python-docx, matplotlib, pint,
+   jsonschema, pyyaml, httpx, anthropic, cryptography and their dependencies); see each package's dist-info folder under
+   bin\Lib\site-packages for its license.
+
+数据：零件模型和计算结果只在你的电脑上。使用 AI 起草或解释（专业版）时，只把你写的那句话和程序识别出的零件特征清单
+发给你选择的 AI 服务（DeepSeek 或 Claude），不发模型文件。
+Data: part models and results stay on your computer. When you use AI drafting or explanation (Pro), only your sentence
+and the list of part features recognized by the program are sent to the AI service you chose (DeepSeek or Claude),
+never the model files.
+
+本软件按“现状”提供，不附带任何明示或暗示的担保。计算结果须由有资质的工程师审核。
+This software is provided "as is", without warranty of any kind. Results must be reviewed by a qualified engineer.

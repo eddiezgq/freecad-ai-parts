@@ -75,8 +75,19 @@ def _model(client) -> str:
     return getattr(client, "model", None) or DEFAULT_MODEL
 
 
+def _pro(study: dict | None = None, feature: str | None = None) -> None:
+    """问渠有限元免费版遇到专业版功能就拒绝（ADR-0096 第 5 步）；全功能版、有专业版授权时不拦"""
+    from assist import fea_edition
+
+    try:
+        fea_edition.gate(study, feature=feature)
+    except fea_edition.NeedsPro as e:
+        raise FlowError(str(e)) from e
+
+
 def draft_steps(doc, statement: str, part_objs: list, tmp_dir: Path | None = None) -> list[str]:
     """起草前的准备（界面线程）：检查输入，零件对应的 STEP"""
+    _pro(feature="AI 一句话起草")
     if not statement.strip():
         raise FlowError("先写一句话：零件、材料、怎么支承、受什么载荷、要算什么")
     if not part_objs:
@@ -140,6 +151,7 @@ def prepare_run(analysis) -> tuple[dict, Path]:
         validate(study)
     except StudyInvalid as e:
         raise FlowError(str(e)) from e
+    _pro(study)
     return study, work_dir(analysis)
 
 
@@ -147,6 +159,7 @@ def compute(study: dict, wd: Path) -> dict:
     """计算（带可信度核查），可在后台线程里调；算例、结果写进工作目录"""
     from analysis.fea import run_study
 
+    _pro(study)
     (wd / "study.json").write_text(json.dumps(study, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     res = run_study(study, keep_dir=str(wd / "solver"))
     (wd / "result.json").write_text(json.dumps(res, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -234,6 +247,7 @@ def make_report(analysis, *, number: str | None, revision: str, reason: str, exp
     lang：报告语言（zh / en，ADR-0096 第 3 步）；英文报告的 AI 解释也用英文写"""
     from assist import fea_report as R
 
+    _pro(feature="正式报告")
     study, result, wd = last_run(analysis)
     sp = wd / "study.json"
     expl = R.explain(result, explain_client, model=_model(explain_client), lang=lang) if explain_client is not None else None
