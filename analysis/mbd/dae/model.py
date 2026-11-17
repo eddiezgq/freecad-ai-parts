@@ -48,6 +48,9 @@ def build(model: dict) -> System:
         if b["id"] in seen:
             raise ModelError(f"构件 id 重复：{b['id']}")
         seen.add(b["id"])
+        if "flex" in b:
+            bodies.append(_flex_body(b))
+            continue
         it = b["inertia_kg_m2"]
         J = np.array([[it["ixx"], it.get("ixy", 0.0), it.get("ixz", 0.0)],
                       [it.get("ixy", 0.0), it["iyy"], it.get("iyz", 0.0)],
@@ -92,13 +95,20 @@ def build(model: dict) -> System:
         if i == j:
             raise ModelError(f"运动副 {jid} 两边是同一个构件")
         P = _v(jt["point_mm"], f"{jid}.point_mm") * MM
+        ni, nj = _node(bodies, i, P, jid), _node(bodies, j, P, jid)
         si, sj = local(i, P), local(j, P)
+        if ni is not None:
+            si = bodies[i].flex.x0[ni].copy()
+        if nj is not None:
+            sj = bodies[j].flex.x0[nj].copy()
         typ = jt["type"]
         start = len(sysm.rows)
-        info = {"type": typ, "i": i, "j": j, "si": si, "sj": sj, "P": P}
+        info = {"type": typ, "i": i, "j": j, "si": si, "sj": sj, "P": P, "node_i": ni, "node_j": nj}
+        if (ni is not None or nj is not None) and (jt.get("clearance") or jt.get("friction")):
+            raise ModelError(f"运动副 {jid}：挂在柔性构件上的运动副暂不支持间隙、摩擦（ADR-0097 补充十三）")
 
-        def add(kind, label, i=i, j=j, jid=jid, **kw):
-            sysm.rows.append(Row(kind, i, j, joint=jid, label=f"{jid} {label}", **kw))
+        def add(kind, label, i=i, j=j, jid=jid, ni=ni, nj=nj, **kw):
+            sysm.rows.append(Row(kind, i, j, joint=jid, label=f"{jid} {label}", node_i=ni, node_j=nj, **kw))
 
         clear = jt.get("clearance")
         if clear is not None and typ != "revolute":
@@ -179,10 +189,10 @@ def build(model: dict) -> System:
         i, j = jinfo["i"], jinfo["j"]
         if dof == "rotation":
             row = Row("rdrive", i, j, a_i=jinfo["f"], a_j=jinfo["f"], b_i=jinfo["g"], fn=fn, joint=mo["joint"],
-                      label=f"{mid} 转动驱动")
+                      label=f"{mid} 转动驱动", node_i=jinfo["node_i"], node_j=jinfo["node_j"])
         else:
             row = Row("tdrive", i, j, a_i=jinfo["h"], s_i=jinfo["si"], s_j=jinfo["sj"], fn=fn, c=0.0, joint=mo["joint"],
-                      label=f"{mid} 移动驱动")
+                      label=f"{mid} 移动驱动", node_i=jinfo["node_i"], node_j=jinfo["node_j"])
         sysm.motions[mid] = {"row": len(sysm.rows), "joint": mo["joint"], "dof": dof}
         sysm.rows.append(row)
 
@@ -252,9 +262,40 @@ def build(model: dict) -> System:
     sysm.requests = []
     for r in model.get("requests") or []:
         b = body(r["body"], r["id"])
-        sysm.requests.append({"id": r["id"], "body": b, "s": local(b, _v(r["point_mm"], r["id"]) * MM)})
+        P = _v(r["point_mm"], r["id"]) * MM
+        node = None
+        if b >= 0 and bodies[b].flex is not None:       # 柔性构件上的点：落在节点上就带弹性变形输出
+            d = np.linalg.norm(bodies[b].flex.nodes_world0 - P, axis=1)
+            node = int(np.argmin(d)) if d.min() <= FLEX_SNAP_MM * MM else None
+            if node is None:
+                raise ModelError(f"输出点 {r['id']} 不在柔性构件 {bodies[b].name} 的节点上")
+        sysm.requests.append({"id": r["id"], "body": b, "s": local(b, P) if node is None else bodies[b].flex.x0[node],
+                              "node": node})
+    _check_flex_use(sysm)
     sysm.model = model
     return sysm
+
+
+def _check_flex_use(sysm):
+    """D6a：力元、接触、测量量不能挂在柔性构件上（会按刚体算错，所以报错而不是悄悄近似）"""
+    flex = {k for k, b in enumerate(sysm.bodies) if b.flex is not None}
+    if not flex:
+        return
+    name = {k: sysm.bodies[k].name for k in flex}
+    for kind, f in sysm.forces:
+        used = {f.get(x) for x in ("body", "i", "j")}
+        if kind == "contact":
+            used |= {f["ga"].body, f["gb"].body}
+        if kind == "gear":
+            used |= {sysm.joints[f["joint_i"]]["j"], sysm.joints[f["joint_j"]]["j"]}
+        bad = used & flex
+        if bad:
+            raise ModelError(f"{kind} {f.get('id', '')} 挂在柔性构件 {name[bad.pop()]} 上：D6a 还不支持，"
+                             "请挂在与它相连的刚体上（ADR-0097 补充十三）")
+    for m in getattr(sysm, "measure_defs", []):
+        js = sysm.joints.get(m.get("joint"), {})
+        if {m.get("i"), m.get("j"), js.get("i"), js.get("j")} & flex:
+            raise ModelError(f"测量量 {m['id']} 涉及柔性构件：D6a 还不支持（ADR-0097 补充十三）")
 
 
 def _beam(f, i, j, local):
@@ -372,6 +413,64 @@ def _contacts(model, sysm, body, local):
         sysm.forces.append(("contact", f))
 
 
+FLEX_SNAP_MM = 1e-6
+
+
+def _flex_body(b):
+    """bodies[].flex → 柔性 Body（质量、质心、惯量由节点算；ADR-0097 补充十三）"""
+    from analysis.mbd.dae import flex as FX
+
+    f = b["flex"]
+    try:
+        if f["type"] == "beam":
+            P0, P1 = _v(f["from_mm"], "from_mm") * MM, _v(f["to_mm"], "to_mm") * MM
+            X, K, Mm, m, Jn = FX.beam_fe(P0, P1, _v(f["y_axis"], "y_axis"), f["youngs_modulus_mpa"] * 1e6,
+                                         f["shear_modulus_mpa"] * 1e6, f["density_kg_m3"], f["area_mm2"] * 1e-6,
+                                         f["iyy_mm4"] * 1e-12, f["izz_mm4"] * 1e-12, f["ixx_mm4"] * 1e-12,
+                                         int(f.get("elements", 20)))
+            N = len(X)
+            bnd = list(range(6)) + list(range(6 * (N - 1), 6 * N))
+            shapes, w = FX.craig_bampton(K, Mm, bnd, int(f.get("fixed_interface_modes", 4)), f.get("keep_modes"))
+            iface = [0, N - 1]
+        else:
+            X = np.asarray(f["nodes_mm"], float) * MM
+            N = len(X)
+            m = np.asarray(f["node_mass_kg"], float)
+            if len(m) != N:
+                raise FX.FlexError("node_mass_kg 的个数与节点数不同")
+            Jn = np.zeros((N, 3, 3))
+            if "node_inertia_kg_m2" in f:
+                Jn = np.array([np.diag(x) for x in f["node_inertia_kg_m2"]], float)
+            sh = np.asarray(f["shapes"], float)              # nm × N × 6
+            if sh.shape[1] != N:
+                raise FX.FlexError("模态振型的节点数与 nodes_mm 不同")
+            sh[:, :, :3] *= MM
+            shapes = sh.reshape(sh.shape[0], 6 * N).T
+            w = np.asarray(f["frequencies_hz"], float) * 2 * math.pi
+            if len(w) != sh.shape[0]:
+                raise FX.FlexError("frequencies_hz 的个数与模态数不同")
+            iface = list(f["interface_nodes"])
+        cm = (m @ X) / m.sum()
+        fx = FX.from_full(X, m, Jn, shapes, w, cm, float(f.get("damping_ratio", 0.0)), iface)
+    except FX.FlexError as exc:
+        raise ModelError(f"柔性构件 {b['id']}：{exc}") from exc
+    J = fx.mass_v(np.zeros(fx.nm))[1]
+    return Body(b["id"], fx.mass, J, cm, v0=_v(b.get("v0_mm_s", [0, 0, 0]), "v0_mm_s") * MM,
+                w0=_v(b.get("w0_deg_s", [0, 0, 0]), "w0_deg_s") * DEG, flex=fx)
+
+
+def _node(bodies, b, P, where):
+    """柔性构件上与点 P 重合的界面节点；刚体返回 None"""
+    if b < 0 or bodies[b].flex is None:
+        return None
+    fx = bodies[b].flex
+    for n in fx.interface:
+        if np.linalg.norm(fx.nodes_world0[n] - P) <= FLEX_SNAP_MM * MM:
+            return n
+    raise ModelError(f"{where}：点 {np.round(P / MM, 6).tolist()} mm 不在柔性构件 {bodies[b].name} 的界面节点上"
+                     f"（界面节点：{[np.round(fx.nodes_world0[n] / MM, 6).tolist() for n in fx.interface]}）")
+
+
 def grubler(sysm: System) -> int:
-    """空间自由度粗算（Grübler–Kutzbach）：6 × 构件数 − Σ 运动副约束数 − 驱动数"""
-    return 6 * sysm.nb - sum(N_ROWS[j["type"]] for j in sysm.joints.values()) - len(sysm.motions)
+    """空间自由度粗算（Grübler–Kutzbach）：6 × 构件数 + 模态数 − Σ 运动副约束数 − 驱动数"""
+    return 6 * sysm.nb + sum(b.flex.nm for b in sysm.bodies if b.flex is not None) - sum(N_ROWS[j["type"]] for j in sysm.joints.values()) - len(sysm.motions)

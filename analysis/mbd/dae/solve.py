@@ -103,6 +103,7 @@ def initial_velocity(sysm: System, q, t, rows):
 
 # ---------------------------------------------------------------- 加速度与反力
 FRICTION_ITER = 30
+FLEX_PIVOT_WEIGHT = 1e-6
 
 
 def _friction_joints(sysm):
@@ -310,6 +311,8 @@ def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, 
 
     def partition(q, t):
         J = sysm.jac(q, t, rows)
+        J = J.copy()
+        J[:, 7 * sysm.nb:] *= FLEX_PIVOT_WEIGHT   # D6：非独立坐标优先挑刚体坐标，模态坐标留作独立坐标（否则参考系会漂走）
         _, _, piv = sla.qr(J, pivoting=True, mode="economic")
         dep = np.sort(piv[:len(rows)])
         ind = np.array(sorted(set(range(sysm.n)) - set(dep.tolist())))
@@ -392,7 +395,16 @@ def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, 
             raise SolveError(f"积分失败：{sol.message}")
         for n_, tt in enumerate(sol.t):
             state["q"] = rec.q[-1].copy()       # 牛顿迭代从上一个记录点起步（积分器的最后一次求值可能在更后面）
-            qq, qqd, qqdd, lam = full_state(tt, sol.y[:, n_], dep, ind)
+            try:
+                qq, qqd, qqdd, lam = full_state(tt, sol.y[:, n_], dep, ind)
+            except SolveError:
+                # 两个记录点之间动得多（大摆角、柔性构件）时，从上一点直接牛顿可能收不回来：沿积分器的稠密输出分小步走过去
+                t_prev = rec.t[-1]
+                state["q"] = rec.q[-1].copy()
+                for s_ in range(1, 33):
+                    ts = t_prev + (tt - t_prev) * s_ / 32
+                    full_state(ts, sol.sol(ts), dep, ind, need_acc=False)
+                qq, qqd, qqdd, lam = full_state(tt, sol.y[:, n_], dep, ind)
             rec.add(float(tt), qq, qqd, qqdd, keep, lam)
             k += 1
         if sol.status == 1:                 # 事件：换分块，从事件点接着积
@@ -400,7 +412,13 @@ def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, 
             te = float(sol.t_events[0][0])
             ye = sol.sol(te)
             state["q"] = rec.q[-1].copy()
-            q_cur, qd_cur, _, _ = full_state(te, ye, dep, ind, need_acc=False)
+            try:
+                q_cur, qd_cur, _, _ = full_state(te, ye, dep, ind, need_acc=False)
+            except SolveError:
+                state["q"] = rec.q[-1].copy()
+                for s_ in range(1, 33):
+                    ts = rec.t[-1] + (te - rec.t[-1]) * s_ / 32
+                    q_cur, qd_cur, _, _ = full_state(ts, sol.sol(ts), dep, ind, need_acc=False)
             t_cur = te
         else:
             t_cur, q_cur, qd_cur = float(sol.t[-1]), rec.q[-1].copy(), rec.qd[-1].copy()

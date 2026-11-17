@@ -99,6 +99,7 @@ class Body:
     p0: np.ndarray = field(default_factory=lambda: np.array([1.0, 0, 0, 0]))
     v0: np.ndarray = field(default_factory=lambda: np.zeros(3))
     w0: np.ndarray = field(default_factory=lambda: np.zeros(3))
+    flex: object = None            # D6：柔性构件的 FlexData（analysis/mbd/dae/flex.py）
 
 
 @dataclass
@@ -117,13 +118,22 @@ class Row:
     c: float = 0.0                 # 常数项（移动驱动的初始距离）
     joint: str = ""
     label: str = ""
+    node_i: int | None = None      # D6：挂在柔性构件的哪个界面节点上（点、方向随节点变形）
+    node_j: int | None = None
 
 
 class System:
     def __init__(self, bodies: list[Body], gravity):
         self.bodies = bodies
         self.nb = len(bodies)
-        self.n = 7 * self.nb
+        # D6：柔性构件的模态坐标依次接在全部刚体坐标后面（不动现有下标）
+        self.foff = {}
+        n = 7 * self.nb
+        for k, b in enumerate(bodies):
+            if b.flex is not None:
+                self.foff[k] = n
+                n += b.flex.nm
+        self.n = n
         self.g = np.asarray(gravity, float)
         self.rows: list[Row] = []
         self.forces = []           # (kind, data)
@@ -157,40 +167,67 @@ class System:
                 ps.append((A_of(p), 0.5 * (A_of(p + pd) - A_of(p - pd)), 2 * A_of(pd)))
             else:
                 ps.append((A_of(p), None, None))
+        es = {k: V(q[o:o + self.bodies[k].flex.nm], qd[o:o + self.bodies[k].flex.nm]) for k, o in self.foff.items()}
+        self._es = es
         return rs, ps, Jet(t, td, 0.0)
+
+    def eta(self, q, k):
+        o = self.foff[k]
+        return q[o:o + self.bodies[k].flex.nm]
+
+    def _local(self, b, s, node, which="s"):
+        """柔性构件界面节点上的点 / 方向在构件系里的射流（刚体就是常向量）"""
+        if b < 0 or node is None or b not in self.foff:
+            return V(np.asarray(s, float))
+        fx, e = self.bodies[b].flex, self._es[b]
+        if which == "s":
+            P = fx.Phit[node]
+            return V(np.asarray(s, float)) + V(P @ e.v, P @ e.d, P @ e.dd)
+        th = V(fx.Phir[node] @ e.v, fx.Phir[node] @ e.d, fx.Phir[node] @ e.dd)
+        a = V(np.asarray(s, float))
+        return a + th.cross(a)
 
     @staticmethod
     def _rot(trip, a):
         A0, A1, A2 = trip
+        if isinstance(a, V):                       # D6：a 本身是射流（柔性节点）
+            if A1 is None:
+                return V(A0 @ a.v, A0 @ a.d, A0 @ a.dd)
+            return V(A0 @ a.v, A1 @ a.v + A0 @ a.d, A2 @ a.v + 2 * (A1 @ a.d) + A0 @ a.dd)
         if A1 is None:
             return V(A0 @ a)
         return V(A0 @ a, A1 @ a, A2 @ a)
 
-    def _vec(self, ps, b, a):
-        return V(a) if b < 0 else self._rot(ps[b], a)
+    def _vec(self, ps, b, a, node=None):
+        if b < 0:
+            return V(a)
+        return self._rot(ps[b], self._local(b, a, node, "a") if node is not None else a)
 
-    def _pt(self, rs, ps, b, s):
-        return V(s) if b < 0 else rs[b] + self._rot(ps[b], s)
+    def _pt(self, rs, ps, b, s, node=None):
+        if b < 0:
+            return V(s)
+        return rs[b] + self._rot(ps[b], self._local(b, s, node, "s") if node is not None else s)
 
     def _row_jet(self, row: Row, rs, ps, tj) -> Jet:
         k = row.kind
         if k == "norm":
             return self._pnorm[row.i]
+        ni, nj = row.node_i, row.node_j
         if k == "dot1":
-            return self._vec(ps, row.i, row.a_i).dot(self._vec(ps, row.j, row.a_j))
+            return self._vec(ps, row.i, row.a_i, ni).dot(self._vec(ps, row.j, row.a_j, nj))
         if k in ("sph", "dot2", "tdrive"):
-            d = self._pt(rs, ps, row.j, row.s_j) - self._pt(rs, ps, row.i, row.s_i)
+            d = self._pt(rs, ps, row.j, row.s_j, nj) - self._pt(rs, ps, row.i, row.s_i, ni)
             if k == "sph":
                 return Jet(d.v[row.k], d.d[row.k], d.dd[row.k])
-            val = self._vec(ps, row.i, row.a_i).dot(d)
+            val = self._vec(ps, row.i, row.a_i, ni).dot(d)
             if k == "dot2":
                 return val
             s = row.fn(tj)
             return val - (s + row.c)
         if k == "rdrive":
-            fj = self._vec(ps, row.j, row.a_j)
-            fi = self._vec(ps, row.i, row.a_i)
-            gi = self._vec(ps, row.i, row.b_i)
+            fj = self._vec(ps, row.j, row.a_j, nj)
+            fi = self._vec(ps, row.i, row.a_i, ni)
+            gi = self._vec(ps, row.i, row.b_i, ni)
             th = row.fn(tj)
             c, s = _jcos(th), _jsin(th)
             return fj.dot(gi) * c - fj.dot(fi) * s
@@ -226,51 +263,72 @@ class System:
                 Ap[b] = A_of(self.rp(q, b)[1])
             return Ap[b]
 
-        def vec(b, a):
-            return np.asarray(a, float) if b < 0 else A(b) @ a
+        def flex(b, node):
+            return node is not None and b in self.foff
 
-        def B(b, a):
-            return B_of(self.rp(q, b)[1], a)
+        def s_eff(b, s, node):
+            if not flex(b, node):
+                return np.asarray(s, float)
+            return np.asarray(s, float) + self.bodies[b].flex.Phit[node] @ self.eta(q, b)
 
-        def add(row_i, b, cr, cp):
+        def a_eff(b, a, node):
+            if not flex(b, node):
+                return np.asarray(a, float)
+            a = np.asarray(a, float)
+            return a + np.cross(self.bodies[b].flex.Phir[node] @ self.eta(q, b), a)
+
+        def wvec(b, a, node):
+            return np.asarray(a, float) if b < 0 else A(b) @ a_eff(b, a, node)
+
+        def wpt(b, s, node):
+            return np.asarray(s, float) if b < 0 else self.rp(q, b)[0] + A(b) @ s_eff(b, s, node)
+
+        def add_pt(n_, b, s, node, c, sign):
+            """Φ 里有 sign·c·(r_b + A_b s_b)"""
             if b < 0:
                 return
-            if cr is not None:
-                Jm[row_i, 7 * b:7 * b + 3] += cr
-            if cp is not None:
-                Jm[row_i, 7 * b + 3:7 * b + 7] += cp
+            c = sign * np.asarray(c, float)
+            Jm[n_, 7 * b:7 * b + 3] += c
+            Jm[n_, 7 * b + 3:7 * b + 7] += c @ B_of(self.rp(q, b)[1], s_eff(b, s, node))
+            if flex(b, node):
+                o, fx = self.foff[b], self.bodies[b].flex
+                Jm[n_, o:o + fx.nm] += c @ A(b) @ fx.Phit[node]
+
+        def add_vec(n_, b, a, node, c):
+            """Φ 里有 c·(A_b a_b)"""
+            if b < 0:
+                return
+            Jm[n_, 7 * b + 3:7 * b + 7] += c @ B_of(self.rp(q, b)[1], a_eff(b, a, node))
+            if flex(b, node):
+                o, fx = self.foff[b], self.bodies[b].flex
+                Jm[n_, o:o + fx.nm] += c @ A(b) @ (-skew(np.asarray(a, float)) @ fx.Phir[node])
 
         for n_, row in enumerate(rows):
             k = row.kind
+            ni, nj = row.node_i, row.node_j
             if k == "norm":
-                add(n_, row.i, None, 2 * self.rp(q, row.i)[1])
+                Jm[n_, 7 * row.i + 3:7 * row.i + 7] += 2 * self.rp(q, row.i)[1]
             elif k == "dot1":
-                ai, aj = vec(row.i, row.a_i), vec(row.j, row.a_j)
-                if row.i >= 0:
-                    add(n_, row.i, None, aj @ B(row.i, row.a_i))
-                if row.j >= 0:
-                    add(n_, row.j, None, ai @ B(row.j, row.a_j))
+                ai, aj = wvec(row.i, row.a_i, ni), wvec(row.j, row.a_j, nj)
+                add_vec(n_, row.i, row.a_i, ni, aj)
+                add_vec(n_, row.j, row.a_j, nj, ai)
             elif k in ("sph", "dot2", "tdrive"):
-                d = self._point(q, row.j, row.s_j) - self._point(q, row.i, row.s_i)
                 if k == "sph":
-                    e = I3[row.k]
-                    add(n_, row.i, -e, -e @ B(row.i, row.s_i) if row.i >= 0 else None)
-                    add(n_, row.j, e, e @ B(row.j, row.s_j) if row.j >= 0 else None)
+                    c = I3[row.k]
                 else:
-                    ai = vec(row.i, row.a_i)
-                    if row.i >= 0:
-                        add(n_, row.i, -ai, d @ B(row.i, row.a_i) - ai @ B(row.i, row.s_i))
-                    if row.j >= 0:
-                        add(n_, row.j, ai, ai @ B(row.j, row.s_j))
+                    c = wvec(row.i, row.a_i, ni)
+                    d = wpt(row.j, row.s_j, nj) - wpt(row.i, row.s_i, ni)
+                    add_vec(n_, row.i, row.a_i, ni, d)
+                add_pt(n_, row.j, row.s_j, nj, c, 1.0)
+                add_pt(n_, row.i, row.s_i, ni, c, -1.0)
             elif k == "rdrive":
                 th = row.fn(Jet(t, 0.0, 0.0)).v
-                c, s = math.cos(th), math.sin(th)
-                fj, fi, gi = vec(row.j, row.a_j), vec(row.i, row.a_i), vec(row.i, row.b_i)
+                c, s_ = math.cos(th), math.sin(th)
+                fj, fi, gi = wvec(row.j, row.a_j, nj), wvec(row.i, row.a_i, ni), wvec(row.i, row.b_i, ni)
                 # Φ = c (fj·gi) − s (fj·fi)
-                if row.j >= 0:
-                    add(n_, row.j, None, (c * gi - s * fi) @ B(row.j, row.a_j))
-                if row.i >= 0:
-                    add(n_, row.i, None, c * (fj @ B(row.i, row.b_i)) - s * (fj @ B(row.i, row.a_i)))
+                add_vec(n_, row.j, row.a_j, nj, c * gi - s_ * fi)
+                add_vec(n_, row.i, row.b_i, ni, c * fj)
+                add_vec(n_, row.i, row.a_i, ni, -s_ * fj)
         return Jm
 
     def _point(self, q, b, s):
@@ -286,7 +344,23 @@ class System:
             p = self.rp(q, k)[1]
             G = G_of(p)
             M[7 * k:7 * k + 3, 7 * k:7 * k + 3] = b.mass * I3
-            M[7 * k + 3:7 * k + 7, 7 * k + 3:7 * k + 7] = 4 * G.T @ b.J @ G
+            if b.flex is None:
+                M[7 * k + 3:7 * k + 7, 7 * k + 3:7 * k + 7] = 4 * G.T @ b.J @ G
+                continue
+            # D6：柔性构件，速度 (ṙ, ω̄ = 2Gṗ, η̇) 下的质量阵换到 (ṙ, ṗ, η̇)
+            fx, A = b.flex, A_of(p)
+            S, J, Mwf = fx.mass_v(self.eta(q, k))
+            G2 = 2 * G
+            r_, p_, o = slice(7 * k, 7 * k + 3), slice(7 * k + 3, 7 * k + 7), self.foff[k]
+            f_ = slice(o, o + fx.nm)
+            Mrp = -A @ skew(S) @ G2
+            Mrf = A @ fx.Psi
+            Mpf = G2.T @ Mwf
+            M[p_, p_] = G2.T @ J @ G2
+            M[r_, p_], M[p_, r_] = Mrp, Mrp.T
+            M[r_, f_], M[f_, r_] = Mrf, Mrf.T
+            M[p_, f_], M[f_, p_] = Mpf, Mpf.T
+            M[f_, f_] = fx.Mff
         return M
 
     # ------------------------------------------------ 测量量（D2，SI：rad、rad/s、m、m/s）
@@ -507,9 +581,21 @@ class System:
             p = self.rp(q, k)[1]
             pdot = qd[7 * k + 3:7 * k + 7]
             G, Gd = G_of(p), G_of(pdot)
-            nb = A_of(p).T @ N[k]
-            out[7 * k:7 * k + 3] = F[k]
-            out[7 * k + 3:7 * k + 7] = 2 * G.T @ nb + 8 * Gd.T @ b.J @ Gd @ p
+            A = A_of(p)
+            nb = A.T @ N[k]
+            if b.flex is None:
+                out[7 * k:7 * k + 3] = F[k]
+                out[7 * k + 3:7 * k + 7] = 2 * G.T @ nb + 8 * Gd.T @ b.J @ Gd @ p
+                continue
+            # D6：柔性构件——逐节点的二次速度力、分布重力、弹性与模态阻尼
+            fx, o = b.flex, self.foff[k]
+            eta, etad = q[o:o + fx.nm], qd[o:o + fx.nm]
+            w = 2 * G @ pdot
+            cr, Qw, Qf = fx.quad(w, eta, etad)
+            gw, gf = fx.gravity(A.T @ self.g, eta)
+            out[7 * k:7 * k + 3] = F[k] - A @ cr
+            out[7 * k + 3:7 * k + 7] = 2 * G.T @ (nb + Qw + gw)
+            out[o:o + fx.nm] = Qf + gf - fx.K @ eta - fx.D @ etad
         return out
 
     # ------------------------------------------------ 能量
@@ -518,6 +604,11 @@ class System:
         pe = 0.0
         for k in range(self.nb):
             pe -= self.masses[k] * self.g @ self.rp(q, k)[0]
+            fx = self.bodies[k].flex
+            if fx is not None:
+                eta = self.eta(q, k)
+                S = fx.m @ fx.x(eta)
+                pe += -self.g @ (A_of(self.rp(q, k)[1]) @ S) + 0.5 * eta @ fx.K @ eta
         for kind, f in self.forces:
             if kind == "spring":
                 L = float(np.linalg.norm(self._pv(q, qd, f["j"], f["s_j"])[0] - self._pv(q, qd, f["i"], f["s_i"])[0]))
