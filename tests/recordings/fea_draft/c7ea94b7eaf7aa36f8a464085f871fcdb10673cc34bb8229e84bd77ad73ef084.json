@@ -1,0 +1,92 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "fea-draft/2",
+  "request_key": "c7ea94b7eaf7aa36f8a464085f871fcdb10673cc34bb8229e84bd77ad73ef084",
+  "response": {
+    "id": "msg_011Ch82cWWCim4SaWSwC6bDz",
+    "simulated": false,
+    "tool_input": {
+      "bodies": [
+        {
+          "material": "6061-T6",
+          "material_quote": "6061-T6",
+          "part": 1
+        }
+      ],
+      "combinations": [
+        {
+          "factors": [
+            {
+              "case": "dead",
+              "value": 1.35
+            },
+            {
+              "case": "operating",
+              "value": 1.5
+            }
+          ],
+          "id": "combo1",
+          "name": "1.35自重+1.5工作",
+          "quote": "按 1.35 × 自重 + 1.5 × 工作 组合校核"
+        }
+      ],
+      "items": [
+        {
+          "case": "dead",
+          "direction": null,
+          "direction_quote": null,
+          "part": 1,
+          "quote": "重力竖直向下",
+          "type": "gravity"
+        },
+        {
+          "case": "operating",
+          "features": [
+            "F4"
+          ],
+          "magnitude": {
+            "quote": "46.4 N·m",
+            "unit": "N·m",
+            "value": 46.4
+          },
+          "part": 1,
+          "quote": "肘部 Ø107 减速器座上的扭矩 46.4 N·m",
+          "type": "torque"
+        },
+        {
+          "features": [
+            "F6"
+          ],
+          "part": 1,
+          "quote": "肩部 Ø138 减速器座固定",
+          "type": "fixed"
+        },
+        {
+          "quote": "按 1.35 × 自重 + 1.5 × 工作 组合校核",
+          "type": "static"
+        }
+      ],
+      "load_cases": [
+        {
+          "id": "dead",
+          "kind": "dead",
+          "name": "自重",
+          "quote": "自重"
+        },
+        {
+          "id": "operating",
+          "kind": "operating",
+          "name": "工作载荷",
+          "quote": "工作载荷"
+        }
+      ],
+      "name": "ARM-UPPER combo check",
+      "questions": [
+        "重力“竖直向下”对应零件坐标系的哪个方向（±x/±y/±z）？清单只给了包围盒，无法判断竖直轴，请指明。",
+        "重力加速度的数值未给出，请说明取值（例如 9.8 m/s² 或 9.81 m/s²）。",
+        "扭矩的转向（正负）原话未说明，是否只按大小施加，或请指明方向。",
+        "肘部 Ø107 减速器座我选了 F4（孔/座 Ø107），肩部 Ø138 我选了 F6（孔/座 Ø138），请确认。"
+      ]
+    }
+  }
+}

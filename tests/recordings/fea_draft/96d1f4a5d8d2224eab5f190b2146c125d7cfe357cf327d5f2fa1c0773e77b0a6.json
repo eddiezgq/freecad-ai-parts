@@ -1,0 +1,52 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "fea-draft/2",
+  "request_key": "96d1f4a5d8d2224eab5f190b2146c125d7cfe357cf327d5f2fa1c0773e77b0a6",
+  "response": {
+    "id": "msg_011Ch82eSX9SAGMYqz73s78Y",
+    "simulated": false,
+    "tool_input": {
+      "bodies": [
+        {
+          "material": "Q235",
+          "material_quote": "Q235",
+          "part": 1,
+          "thickness": null
+        }
+      ],
+      "items": [
+        {
+          "features": [
+            "F6"
+          ],
+          "part": 1,
+          "quote": "底板 x = 0 那条边固定",
+          "type": "fixed"
+        },
+        {
+          "direction": "-z",
+          "direction_quote": "方向 -z",
+          "features": [
+            "F8"
+          ],
+          "magnitude": {
+            "quote": "200 N",
+            "unit": "N",
+            "value": 200
+          },
+          "part": 1,
+          "quote": "立板顶边（z = 60）受 200 N 的力，方向 -z",
+          "type": "force"
+        },
+        {
+          "quote": "受 200 N 的力",
+          "type": "static"
+        }
+      ],
+      "name": "BRKT-L",
+      "questions": [
+        "钣金壳的厚度原话没给，请问 BRKT-L 的板厚是多少（mm）？"
+      ]
+    }
+  }
+}

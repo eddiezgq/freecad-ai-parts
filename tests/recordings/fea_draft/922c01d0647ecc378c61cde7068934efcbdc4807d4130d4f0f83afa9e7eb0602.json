@@ -1,0 +1,44 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "fea-draft/2",
+  "request_key": "922c01d0647ecc378c61cde7068934efcbdc4807d4130d4f0f83afa9e7eb0602",
+  "response": {
+    "id": "msg_011Ch82dAxEyV67zbNbGTZBb",
+    "simulated": false,
+    "tool_input": {
+      "bodies": [
+        {
+          "material": "6061-T6",
+          "material_quote": "6061-T6",
+          "part": 1
+        }
+      ],
+      "items": [
+        {
+          "features": [
+            "F6"
+          ],
+          "part": 1,
+          "quote": "底面（-z 面）固定在机座上",
+          "type": "fixed"
+        },
+        {
+          "direction": null,
+          "direction_quote": null,
+          "features": [
+            "F1"
+          ],
+          "magnitude": null,
+          "part": 1,
+          "quote": "Ø110 减速器座受减速器传来的径向力",
+          "type": "bearing_load"
+        }
+      ],
+      "name": "J2-HSG",
+      "questions": [
+        "径向力的大小是多少（原话说还在算）？请给出数值和单位。",
+        "径向力的方向是什么（±x、±y 之一，或其他方向）？原话只说了“径向力”，没有指明方向。"
+      ]
+    }
+  }
+}
