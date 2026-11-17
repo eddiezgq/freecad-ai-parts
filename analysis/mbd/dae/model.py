@@ -220,6 +220,8 @@ def build(model: dict) -> System:
                                                 "C": arr("damping_n_s_per_mm", 1 / MM), "Kr": arr("rot_stiffness_n_m_per_deg", 1 / DEG),
                                                 "Cr": arr("rot_damping_n_m_s_per_deg", 1 / DEG), "F0": arr("preload_n", 1.0),
                                                 "T0": arr("preload_n_m", 1.0)}))
+            elif f["type"] == "gear_mesh":
+                sysm.forces.append(("gear", _gear(f, sysm)))
             elif f["type"] == "beam":
                 sysm.forces.append(("beam", _beam(f, body(f["body_i"], fid), body(f["body_j"], fid), local)))
             else:
@@ -231,6 +233,7 @@ def build(model: dict) -> System:
                                                "pre": float(f.get("preload_n", 0.0))}))
         except ExprError as exc:
             raise ModelError(f"力元 {fid} 的函数：{exc}") from exc
+    _contacts(model, sysm, body, local)
     sysm.measure_defs = []
     for mdef in model.get("measures") or []:
         if mdef["type"].startswith("joint_"):
@@ -283,6 +286,90 @@ def _beam(f, i, j, local):
     K[4, 4] = (4 + pz) * E * Iy / (L * (1 + pz))
     return {"id": f["id"], "i": i, "j": j, "s_i": local(i, Pi), "s_j": local(j, Pj), "d0": Pj - Pi,
             "Bm": np.column_stack([x, y, z]), "K6": K, "cr": float(f.get("damping_ratio", 0.0))}
+
+
+def _gear(f, sysm):
+    fid = f["id"]
+    for k in ("joint_i", "joint_j"):
+        if f[k] not in sysm.joints or sysm.joints[f[k]]["type"] != "revolute":
+            raise ModelError(f"齿轮啮合 {fid}：{f[k]} 要是转动副")
+    j1, j2 = sysm.joints[f["joint_i"]], sysm.joints[f["joint_j"]]
+    if j1["i"] != j2["i"]:
+        raise ModelError(f"齿轮啮合 {fid}：两个转动副要装在同一个支承构件上（body_i 相同）")
+    if j1["j"] < 0 or j2["j"] < 0 or j1["j"] == j2["j"]:
+        raise ModelError(f"齿轮啮合 {fid}：两个齿轮要是不同的运动构件（body_j）")
+    s = float(j1["h"] @ j2["h"])
+    if abs(abs(s) - 1) > 1e-6:
+        raise ModelError(f"齿轮啮合 {fid}：两轴要平行")
+    m, z1, z2 = f["module_mm"] * MM, int(f["teeth_i"]), int(f["teeth_j"])
+    alpha = f.get("pressure_angle_deg", 20.0) * DEG
+    d = j2["P"] - j1["P"]
+    d = d - (d @ j1["h"]) * j1["h"]
+    a_geo, a_nom = float(np.linalg.norm(d)), m * (z1 + z2) / 2
+    if abs(a_geo - a_nom) > 1e-3 * a_nom:
+        raise ModelError(f"齿轮啮合 {fid}：中心距 {a_geo / MM:.4g} mm 与 m(z1+z2)/2 = {a_nom / MM:.4g} mm 不符")
+    return {"id": fid, "joint_i": f["joint_i"], "joint_j": f["joint_j"], "s": math.copysign(1.0, s), "alpha": alpha,
+            "rp1": m * z1 / 2, "rb1": m * z1 * math.cos(alpha) / 2, "rb2": m * z2 * math.cos(alpha) / 2,
+            "pb": math.pi * m * math.cos(alpha), "k": f["mesh_stiffness_n_per_mm"] / MM,
+            "c": f.get("damping_n_s_per_mm", 0.0) / MM, "b": f.get("backlash_mm", 0.0) * MM}
+
+
+def _contacts(model, sysm, body, local):
+    from analysis.mbd.dae import contact as C
+    geos = {}
+    for g in model.get("geometries") or []:
+        gid = g["id"]
+        if gid in geos:
+            raise ModelError(f"接触几何 id 重复：{gid}")
+        b = body(g["body"], gid)
+
+        def L(key, g=g, b=b, gid=gid):
+            return local(b, _v(g[key], f"{gid}.{key}") * MM)
+
+        try:
+            t = g["type"]
+            if t == "sphere":
+                geos[gid] = C.Sphere(gid, b, L("center_mm"), g["radius_mm"] * MM)
+            elif t == "plane":
+                half = None if "half_size_mm" not in g else np.asarray(g["half_size_mm"], float) * MM
+                geos[gid] = C.Plane(gid, b, L("point_mm"), g["normal"], g.get("x_axis"), half)
+            elif t == "cylinder":
+                geos[gid] = C.Cylinder(gid, b, L("center_mm"), g["axis"], g["radius_mm"] * MM, g["length_mm"] * MM)
+            elif t == "curve":
+                geos[gid] = C.Curve(gid, b, L("origin_mm"), g["normal"], g["x_axis"], np.asarray(g["points_mm"], float) * MM,
+                                    g.get("closed", True), g.get("method", "cubic"))
+            else:
+                v = np.asarray(g["vertices_mm"], float) * MM
+                v = v if b < 0 else v - sysm.bodies[b].r0
+                geos[gid] = C.Mesh(gid, b, v, g["faces"])
+        except C.ContactError as exc:
+            raise ModelError(str(exc)) from exc
+    ids = set()
+    for c in model.get("contacts") or []:
+        cid = c["id"]
+        if cid in ids:
+            raise ModelError(f"接触对 id 重复：{cid}")
+        ids.add(cid)
+        for k in ("geometry_i", "geometry_j"):
+            if c[k] not in geos:
+                raise ModelError(f"接触对 {cid}：没有接触几何 {c[k]}")
+        ga, gb = geos[c["geometry_i"]], geos[c["geometry_j"]]
+        if ga.body == gb.body:
+            raise ModelError(f"接触对 {cid}：两个几何在同一个构件上")
+        try:
+            fn, swap = C.pair_function(ga.kind, gb.kind)
+        except C.ContactError as exc:
+            raise ModelError(f"接触对 {cid}：{exc}") from exc
+        e = float(c.get("exponent", 1.5))
+        f = {"id": cid, "ga": ga, "gb": gb, "fn": fn, "swap": swap, "k": c["stiffness_n_per_mm"] * (1 / MM) ** e, "e": e,
+             "c": c.get("damping_n_s_per_mm", 0.0) / MM, "d": c.get("penetration_mm", 0.01) * MM}
+        fr = c.get("friction")
+        if fr:
+            if fr["transition_speed_mm_s"] <= fr["stiction_speed_mm_s"]:
+                raise ModelError(f"接触对 {cid}：摩擦的 transition_speed 要大于 stiction_speed")
+            f["friction"] = {"ms": fr["mu_static"], "md": fr["mu_dynamic"], "vs": fr["stiction_speed_mm_s"] * MM,
+                             "vt": fr["transition_speed_mm_s"] * MM}
+        sysm.forces.append(("contact", f))
 
 
 def grubler(sysm: System) -> int:

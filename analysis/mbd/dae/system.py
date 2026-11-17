@@ -363,6 +363,14 @@ class System:
         F += self.masses[:, None] * self.g[None, :]
         env = self.measures(q, qd) if getattr(self, "needs_env", False) else None
         for kind, f in self.forces:
+            if kind == "contact":
+                from analysis.mbd.dae.contact import contact_wrenches
+                contact_wrenches(self, q, qd, f, F, N)
+                continue
+            if kind == "gear":
+                from analysis.mbd.dae.contact import gear_wrenches
+                gear_wrenches(self, q, qd, f, F, N)
+                continue
             if kind == "force":
                 vec = np.array([fn(t, env) for fn in f["fn"]])
                 b = f["body"]
