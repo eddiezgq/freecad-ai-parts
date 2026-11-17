@@ -1,0 +1,51 @@
+{
+ "why": "format 版本不对",
+ "instance": {
+  "format": "mbd-model/2",
+  "name": "单摆",
+  "gravity_mm_s2": [
+   0,
+   0,
+   -9810
+  ],
+  "bodies": [
+   {
+    "id": "bob",
+    "mass_kg": 1.0,
+    "cm_mm": [
+     500,
+     0,
+     0
+    ],
+    "inertia_kg_m2": {
+     "ixx": 1e-05,
+     "iyy": 1e-05,
+     "izz": 1e-05
+    }
+   }
+  ],
+  "joints": [
+   {
+    "id": "pivot",
+    "type": "revolute",
+    "body_i": "ground",
+    "body_j": "bob",
+    "point_mm": [
+     0,
+     0,
+     0
+    ],
+    "axis": [
+     0,
+     1,
+     0
+    ]
+   }
+  ],
+  "analysis": {
+   "type": "dynamic",
+   "end_time_s": 2,
+   "output_steps": 200
+  }
+ }
+}
