@@ -369,3 +369,19 @@ D7 分两段：**D7a** 执行器与控制器（本段）；**D7b** 参数扫描�
 标准题（`tests/test_mbd_control.py`）：转台 PD 位置闭环阶跃响应与二阶系统解析解（ωn = √(kp/J)、ζ = kd/(2√(kp·J))）；
 加恒定扰动力矩时 PID 稳态误差为 0、PD 稳态误差 = T/kp；同一 PD 用状态空间控制器写结果相同；
 限幅时初始段角加速度 = u_max/J；FMU（参考 StateSpace，D = [kp, −kd]）采样 1 kHz 时与连续 PD 一致到采样误差量级。
+
+## 补充十八：D7a 完成（2026-11-17）
+
+- 代码：`analysis/mbd/dae/control.py`（`Controllers`：连续 PID、状态空间，FMU 包装 FMI 2.0 / 3.0）；`model.py`（`actuator` 力元、`controllers`；
+  `build(model, base_dir)` 让 FMU 相对路径按模型文件目录找）；`system.py`（执行器力 / 力矩沿运动副轴）；
+  `solve.dynamic`（控制器状态接在积分器状态后；FMU 采样时刻分段、零阶保持；积分循环拆成 `_dynamic_loop`，结束时关 FMU）；
+  `run.py`（结果加 `actuators`：每个记录点的执行器值；有执行器时不判能量守恒）。`pyproject` 的 mbd 依赖加 fmpy 0.3.32。
+- 测试件：`tests/fixtures/fmu/StateSpace.fmu`（Modelica Reference-FMUs v0.0.38，BSD-2，许可与出处一并放）。
+- 标准题（`tests/test_mbd_control.py`，6 项全过，约 21 s）：
+  - PD 位置闭环 10° 阶跃（ωn = 20 rad/s、ζ = 0.5）与二阶解析解差 < 1e-6°，初始输出 = kp·e；
+  - 恒定扰动 0.5 N·m：PD 稳态偏差 = T/kp（1e-3°），PID 稳态误差 0、积分项刚好顶住扰动；
+  - 同一 PD 写成状态空间控制器，结果一致到 1e-9°；带一阶滤波状态的状态空间控制器稳态到位；
+  - 限幅 0.1 N·m 时起步段 θ = ½(u_max/J)t²（1e-6）；
+  - FMU（参考 StateSpace，D = [kp, −kp, −kd]）采样 0.5 ms，与连续 PD 解析解差 0.03°（0.3%，零阶保持的采样延迟）；
+  - 测量量、执行器写错会报出名字。
+- D7b（参数扫描、试验设计、优化、载荷谱给疲劳）下一段做。

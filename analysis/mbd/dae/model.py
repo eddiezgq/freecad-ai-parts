@@ -35,7 +35,8 @@ def _unit(x, name):
     return a / n
 
 
-def build(model: dict) -> System:
+def build(model: dict, base_dir=None) -> System:
+    """base_dir：模型文件所在目录（FMU 等相对路径按它找）"""
     from kb.validation import errors
 
     errs = errors("mbd-model.schema.json", model)
@@ -230,6 +231,16 @@ def build(model: dict) -> System:
                                                 "C": arr("damping_n_s_per_mm", 1 / MM), "Kr": arr("rot_stiffness_n_m_per_deg", 1 / DEG),
                                                 "Cr": arr("rot_damping_n_m_s_per_deg", 1 / DEG), "F0": arr("preload_n", 1.0),
                                                 "T0": arr("preload_n_m", 1.0)}))
+            elif f["type"] == "actuator":
+                if f["joint"] not in sysm.joints:
+                    raise ModelError(f"执行器 {fid}：没有运动副 {f['joint']}")
+                jt = sysm.joints[f["joint"]]["type"]
+                dof = f.get("dof") or {"revolute": "rotation", "translational": "translation"}.get(jt)
+                if jt not in ("revolute", "translational", "cylindrical") or dof is None:
+                    raise ModelError(f"执行器 {fid}：{jt} 副上不能加执行器（圆柱副要写 dof）")
+                if (jt == "revolute" and dof != "rotation") or (jt == "translational" and dof != "translation"):
+                    raise ModelError(f"执行器 {fid}：{jt} 副只能是 {'rotation' if jt == 'revolute' else 'translation'}")
+                sysm.forces.append(("actuator", {"id": fid, "joint": f["joint"], "dof": dof}))
             elif f["type"] == "gear_mesh":
                 sysm.forces.append(("gear", _gear(f, sysm)))
             elif f["type"] == "beam":
@@ -272,6 +283,13 @@ def build(model: dict) -> System:
         sysm.requests.append({"id": r["id"], "body": b, "s": local(b, P) if node is None else bodies[b].flex.x0[node],
                               "node": node})
     _check_flex_use(sysm)
+    from analysis.mbd.dae.control import ControlError, Controllers
+    try:
+        sysm.ctrl = Controllers(model.get("controllers") or [], {m["id"] for m in sysm.measure_defs},
+                                {f["id"] for kind, f in sysm.forces if kind == "actuator"}, base_dir)
+    except ControlError as exc:
+        raise ModelError(str(exc)) from exc
+    sysm.act = {}
     sysm.model = model
     return sysm
 
