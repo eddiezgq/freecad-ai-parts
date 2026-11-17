@@ -3,7 +3,9 @@
   "prompt_version": "fea-draft/2",
   "request_key": "590f9118fdec1a6e178e20ae508b6fe2ec4c0b3d7b4fbf391703d43e634a070c",
   "response": {
-    "id": "msg_011Ch82bzqWCZpjTMZoeU4Tu",
+    "id": "msg_011Ch8dKYoyBJntzoGyLjyFA",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
     "simulated": false,
     "tool_input": {
       "bodies": [
@@ -42,10 +44,9 @@
       ],
       "name": "ARM-UPPER_j3_peak_torque",
       "questions": [
-        "扭矩的转向（绕轴正向/反向）原话未说明，程序按 F4 轴线施加，请确认符号是否需要指定（对应力大小通常无影响）。",
-        "是否需要考虑大臂自重（重力）？原话未提及，未添加。",
-        "肩部 Ø138 座固定选用的是孔面 F6（Ø138 孔壁）；如果实际是整个安装台阶面（F12/F13）固定，请说明。",
-        "未提及末端负载/其他载荷，仅按 j3 峰值扭矩计算，请确认。"
+        "扭矩绕 Ø107 座轴线的转向（正/负）原话没有说明，请确认。",
+        "F4 是 Ø107 孔/座的圆柱面，扭矩施加在该面上；若扭矩实际通过孔底台阶面（F11）或端面传递，请说明。",
+        "肩部固定选用 Ø138 座 F6（孔面）；若需同时约束其孔底台阶面 F12，请说明。"
       ]
     }
   }

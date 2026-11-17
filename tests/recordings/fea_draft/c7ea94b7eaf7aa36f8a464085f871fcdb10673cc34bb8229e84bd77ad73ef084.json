@@ -3,7 +3,9 @@
   "prompt_version": "fea-draft/2",
   "request_key": "c7ea94b7eaf7aa36f8a464085f871fcdb10673cc34bb8229e84bd77ad73ef084",
   "response": {
-    "id": "msg_011Ch82cWWCim4SaWSwC6bDz",
+    "id": "msg_011Ch8dL3jm7FwQdiQ3MQ92j",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
     "simulated": false,
     "tool_input": {
       "bodies": [
@@ -21,13 +23,13 @@
               "value": 1.35
             },
             {
-              "case": "operating",
+              "case": "op",
               "value": 1.5
             }
           ],
-          "id": "combo1",
+          "id": "C1",
           "name": "1.35自重+1.5工作",
-          "quote": "按 1.35 × 自重 + 1.5 × 工作 组合校核"
+          "quote": "1.35 × 自重 + 1.5 × 工作"
         }
       ],
       "items": [
@@ -40,7 +42,7 @@
           "type": "gravity"
         },
         {
-          "case": "operating",
+          "case": "op",
           "features": [
             "F4"
           ],
@@ -62,7 +64,7 @@
           "type": "fixed"
         },
         {
-          "quote": "按 1.35 × 自重 + 1.5 × 工作 组合校核",
+          "quote": "组合校核",
           "type": "static"
         }
       ],
@@ -74,18 +76,18 @@
           "quote": "自重"
         },
         {
-          "id": "operating",
+          "id": "op",
           "kind": "operating",
           "name": "工作载荷",
           "quote": "工作载荷"
         }
       ],
-      "name": "ARM-UPPER combo check",
+      "name": "ARM-UPPER_combo",
       "questions": [
-        "重力“竖直向下”对应零件坐标系的哪个方向（±x/±y/±z）？清单只给了包围盒，无法判断竖直轴，请指明。",
-        "重力加速度的数值未给出，请说明取值（例如 9.8 m/s² 或 9.81 m/s²）。",
-        "扭矩的转向（正负）原话未说明，是否只按大小施加，或请指明方向。",
-        "肘部 Ø107 减速器座我选了 F4（孔/座 Ø107），肩部 Ø138 我选了 F6（孔/座 Ø138），请确认。"
+        "重力“竖直向下”对应零件坐标系的哪个方向（-x、-y 还是 -z）？零件坐标系的竖直轴没有给出，我没有猜。",
+        "重力加速度的数值原话没给，请确认取值。",
+        "肩部 Ø138 减速器座固定：我选了孔面 F6。如果要固定的是孔底台阶面 F12，请告诉我。",
+        "肘部 Ø107 的扭矩我选了孔面 F4。请确认扭矩加在这个孔的圆柱面上，而不是加在别处。"
       ]
     }
   }

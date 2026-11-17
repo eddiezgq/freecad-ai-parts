@@ -3,7 +3,9 @@
   "prompt_version": "fea-draft/2",
   "request_key": "7c1f7d9ad5ca942ff76a771b1c89bcc50bdb0308f707d995c95a5aaffb177f90",
   "response": {
-    "id": "msg_011Ch82bSZHvvVFEZYuSUkZV",
+    "id": "msg_011Ch8dK2Gh2GLYknDsg9YLh",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
     "simulated": false,
     "tool_input": {
       "bodies": [
@@ -56,12 +58,15 @@
             "quote": "前 4 阶",
             "value": 4
           },
-          "quote": "前 4 阶固有频率",
+          "quote": "另算前 4 阶固有频率",
           "type": "modal"
         }
       ],
-      "name": "LS-101_upper_shaft",
-      "questions": []
+      "name": "LS-101 upper shaft",
+      "questions": [
+        "扭矩的转向（绕 +z 还是 -z，即右手定则正负）原话未说明，请确认。",
+        "扭矩作用在 F3（Ø10、长 22 的针杆端轴段外圆）上，请确认是否按此施加。"
+      ]
     }
   }
 }
