@@ -117,6 +117,8 @@ def run_model(model: dict):
         rec, info = S.static(sysm)
     elif typ == "dynamic":
         rec, info = S.dynamic(sysm, t_end, steps, method=method, rtol=rtol, atol=atol)
+    elif typ in ("linear", "static_then_linear"):
+        return _run_linear(model, sysm, typ)
     else:  # static_then_dynamic
         st, info0 = S.static(sysm)
         messages.append("先做静平衡（残差 {:.2g}），从平衡位置开始动力学".format(info0["residual"]))
@@ -148,4 +150,64 @@ def run_model(model: dict):
             "verification": verification,
             "solver": {k: info[k] for k in ("rhs", "segments", "repartitions") if k in info} | {"integrator": method, "rtol": rtol,
                                                                                                "atol": atol}}
+    return data, messages
+
+
+def _plant_inputs(model, sysm):
+    names = {b.name: k for k, b in enumerate(sysm.bodies)}
+    out = []
+    for u in (model["analysis"].get("plant") or {}).get("inputs", []):
+        if u["body"] not in names:
+            raise M.ModelError(f"状态空间输入 {u['id']}：没有构件 {u['body']}（地面上加力没有意义）")
+        k = names[u["body"]]
+        d = np.asarray(u["direction"], float)
+        if np.linalg.norm(d) < 1e-12:
+            raise M.ModelError(f"状态空间输入 {u['id']}：方向不能是零向量")
+        P = np.asarray(u.get("point_mm", (sysm.bodies[k].r0 * 1000).tolist()), float) * 1e-3
+        out.append({"id": u["id"], "type": u["type"], "body": k, "dir": d / np.linalg.norm(d), "s": P - sysm.bodies[k].r0})
+    return out
+
+
+def _run_linear(model, sysm, typ):
+    from analysis.mbd.dae import linear as L
+    an = model["analysis"]
+    messages = []
+    outputs = (an.get("plant") or {}).get("outputs", [])
+    known = {m["id"] for m in getattr(sysm, "measure_defs", [])}
+    for o in outputs:
+        if o not in known:
+            raise M.ModelError(f"状态空间输出 {o} 不在 measures 里")
+    inputs = _plant_inputs(model, sysm)
+    if typ == "static_then_linear":
+        st, info0 = S.static(sysm)
+        messages.append("先做静平衡（残差 {:.2g}），在平衡位置线性化".format(info0["residual"]))
+        q, qd = st.q[0], np.zeros(sysm.n)
+    else:
+        q = sysm.q0()
+        keep, _ = S.independent_rows(sysm, q, 0.0)
+        rows = S._rows(sysm, keep)
+        q = S.assemble(sysm, q, 0.0, rows)
+        qd = S.initial_velocity(sysm, q, 0.0, rows)
+    if L.nonsmooth(sysm):
+        messages.append("模型里有摩擦、接触、间隙或齿轮侧隙：这些力不光滑，线性化结果只在工作点附近、接触状态不变时成立")
+    lin, q, qd = L.linearize(sysm, q, qd, 0.0, inputs, outputs, an.get("modes"))
+    rec = S.Recorder(sysm)
+    keep, _ = S.independent_rows(sysm, q, 0.0)
+    rows = S._rows(sysm, keep)
+    qdd, lam = S.accel(sysm, q, qd, 0.0, rows)
+    rec.add(0.0, q, qd, qdd, keep, lam)
+    bodies, joints, motions, reqs, energy, meas, cont = _series(rec, sysm)
+    resid = max(rec.resid) if rec.resid else 0.0
+    unstable = [m for m in lin["modes"] if m["eigenvalue"][0] > 1e-6 * max(1.0, abs(complex(*m["eigenvalue"])))]
+    verification = [{"key": "constraint_residual", "name": "约束残差（工作点）", "value": resid, "limit": RESID_LIMIT_M,
+                     "status": PASS if resid <= RESID_LIMIT_M else FAIL},
+                    {"key": "stability", "name": "工作点稳定性（特征值实部都不大于 0）", "value": len(unstable),
+                     "status": PASS if not unstable else FAIL,
+                     "note": "有实部为正的特征值说明工作点不稳定（例如倒立摆顶点），这是结论不是计算错误"}]
+    if lin["redundant"]:
+        messages.append("删掉了 {} 条冗余约束：{}".format(len(lin["redundant"]), "、".join(lin["redundant"])))
+    data = {"model": model["name"], "analysis": typ, "dof": lin["dof"], "redundant_constraints": lin["redundant"],
+            "times_s": rec.t, "bodies": bodies, "joints": joints, "motions": motions, "requests": reqs, "measures": meas,
+            "contacts": cont, "energy": energy, "linear": {k: v for k, v in lin.items() if k != "redundant"},
+            "verification": verification, "solver": {"linearization": "中心差分（相对步长 1e-6），B 精确"}}
     return data, messages
