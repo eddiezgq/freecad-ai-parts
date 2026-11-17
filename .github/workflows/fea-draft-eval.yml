@@ -2,10 +2,18 @@ name: AI 起草算例与报告解释验收（手动运行）
 
 # ADR-0093 补充十一第 4 步：在云端用真实 LLM 跑六个真实零件样例，量面选对率（门槛：面选错 ≤ 10 %），并录制。
 # 密钥用仓库 demo 环境里已有的 ANTHROPIC_API_KEY（与“真实数据”工作流同一个），不经过对话、不写进仓库。
-# 结果写在本次运行的摘要里；录制推到新分支 m38/fea-draft-rec-<运行号>，由人或 Claude 开 PR 合并。约 9 次模型调用（起草 6 次、解释 3 次）。
+# 结果写在本次运行的摘要里；录制推到新分支 m38/fea-draft-rec-<运行号>，由人或 Claude 开 PR 合并。约 13 次模型调用（起草 10 次、解释 3 次）。
+# ADR-0096 第 2 步：provider 选 deepseek 时经模型网关只用 DeepSeek（密钥 DEEPSEEK_API_KEY，同在 demo 环境），门槛与 Claude 相同。
 
 on:
   workflow_dispatch:
+    inputs:
+      provider:
+        description: "用哪家模型（claude / deepseek）"
+        required: true
+        default: claude
+        type: choice
+        options: [claude, deepseek]
 
 permissions:
   contents: write
@@ -20,6 +28,8 @@ jobs:
     environment: demo
     env:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      PROVIDER: ${{ inputs.provider || 'claude' }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -30,18 +40,21 @@ jobs:
       - name: 安装依赖
         run: pip install -e ".[dev,llm,fea,report]"
       - name: 没有密钥时停止
-        if: env.ANTHROPIC_API_KEY == ''
-        run: echo "::error::demo 环境中没有 ANTHROPIC_API_KEY" && exit 1
+        run: |
+          if [ "$PROVIDER" = deepseek ]; then k="$DEEPSEEK_API_KEY"; n=DEEPSEEK_API_KEY; else k="$ANTHROPIC_API_KEY"; n=ANTHROPIC_API_KEY; fi
+          if [ -z "$k" ]; then echo "::error::demo 环境中没有 $n" ; echo "demo 环境中没有 $n" >> "$GITHUB_STEP_SUMMARY"; exit 1; fi
+          echo "用 $PROVIDER（$n 已配置）" >> "$GITHUB_STEP_SUMMARY"
       - name: 跑样例并录制
         run: |
           set +e
-          python -m assist.fea_draft eval --record > eval.json
+          python -m assist.fea_draft eval --record --provider "$PROVIDER" > eval.json
           code=$?
           set -e
           python - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
           import json
           r = json.load(open("eval.json"))
-          print("## AI 起草算例验收\n")
+          import os
+          print(f"## AI 起草算例验收（{os.environ['PROVIDER']}）\n")
           print(f"- 结论：{'达标' if r['passed'] else '未达标'}")
           print(f"- 面选错率：{r['face_error_rate']:.0%}（门槛 ≤ 10 %，共 {r['items']} 项）")
           q = r["question_hit_rate"]
@@ -58,7 +71,7 @@ jobs:
       - name: 报告解释（真实零件的结果）并录制
         run: |
           set +e
-          python -m assist.fea explain-eval --record > explain.json
+          python -m assist.fea explain-eval --record --provider "$PROVIDER" > explain.json
           code=$?
           set -e
           python - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
@@ -78,7 +91,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          branch="m38/fea-draft-rec-${GITHUB_RUN_ID}"
+          branch="m38/fea-draft-rec-${PROVIDER}-${GITHUB_RUN_ID}"
           git checkout -b "$branch"
           git add -A tests/recordings
           if git diff --cached --quiet; then echo "没有新录制"; exit 0; fi

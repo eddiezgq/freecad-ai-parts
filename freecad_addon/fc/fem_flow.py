@@ -52,11 +52,27 @@ def part_step(obj, out_dir: Path) -> str:
 
 
 def llm_client():
-    """AI 客户端：设了 FAP_LLM_REPLAY（录制目录）就回放录制（演示、离线用，界面上会标明“回放”）；否则真实调用（要密钥）"""
-    from ingest.llm_extract import AnthropicClient, RecordedClient
+    """AI 客户端：设了 FAP_LLM_REPLAY（录制目录）就回放录制（演示、离线用，界面上会标明“回放”）；
+    否则经模型网关真实调用（ADR-0096 第 2 步）：国内用 DeepSeek、其他地方用 Claude，出错换另一家；要对应的密钥。
+    回放时请求里的模型按 FAP_AI_PROVIDER（claude / deepseek，缺省 claude）定，与录制对得上。"""
+    from ingest.llm_extract import RecordedClient
 
     replay = os.environ.get("FAP_LLM_REPLAY")
-    return RecordedClient(Path(replay)) if replay else AnthropicClient()
+    if replay:
+        from assist.fea_draft import provider_model
+
+        c = RecordedClient(Path(replay))
+        c.model = provider_model((os.environ.get("FAP_AI_PROVIDER") or "").strip().lower() or None)
+        return c
+    from assist.llm import GatewayClient
+
+    return GatewayClient()
+
+
+def _model(client) -> str:
+    from assist.fea_draft import DEFAULT_MODEL
+
+    return getattr(client, "model", None) or DEFAULT_MODEL
 
 
 def draft_steps(doc, statement: str, part_objs: list, tmp_dir: Path | None = None) -> list[str]:
@@ -73,7 +89,7 @@ def draft_study(statement: str, steps: list[str], client) -> dict:
     """识别特征、AI 起草、程序核对（不碰文档，可在后台线程里调）"""
     from assist import fea_draft as D
 
-    return D.draft(statement, steps, client)
+    return D.draft(statement, steps, client, model=_model(client))
 
 
 def place_draft(doc, statement: str, part_objs: list, r: dict) -> dict:
@@ -219,7 +235,7 @@ def make_report(analysis, *, number: str | None, revision: str, reason: str, exp
 
     study, result, wd = last_run(analysis)
     sp = wd / "study.json"
-    expl = R.explain(result, explain_client) if explain_client is not None else None
+    expl = R.explain(result, explain_client, model=_model(explain_client)) if explain_client is not None else None
     try:
         got = R.build(study, result, wd / f"{study.get('name', 'fea')}-报告.docx", number=number, revision=revision,
                       reason=reason, explanation=expl, study_path=sp)

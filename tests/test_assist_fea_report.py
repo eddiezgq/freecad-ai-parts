@@ -182,12 +182,18 @@ def test_request_lists_facts_with_placeholders():
     assert req == R.build_request(r)
 
 
-def test_recorded_explanations_pass():
-    if not R.RECORDINGS_DIR.is_dir() or not any(R.RECORDINGS_DIR.glob("*.json")):
-        pytest.skip("还没有真实 LLM 的录制：用 .github/workflows/fea-draft-eval.yml 在云端录制")
+@pytest.mark.parametrize("provider", ["claude", "deepseek"])
+def test_recorded_explanations_pass(provider):
+    """Claude、DeepSeek 的解释各按自己的录制回放，同一套核对（ADR-0096 第 2 步）"""
+    from assist.fea_draft import provider_model
+
+    model = provider_model(provider)
+    if not R.RECORDINGS_DIR.is_dir() or model not in {json.loads(f.read_text(encoding="utf-8")).get("model")
+                                                      for f in R.RECORDINGS_DIR.glob("*.json")}:
+        pytest.skip(f"还没有 {provider} 的录制：用 .github/workflows/fea-draft-eval.yml 在云端录制")
     from ingest.llm_extract import RecordedClient
 
-    res = R.evaluate(RecordedClient(R.RECORDINGS_DIR))
+    res = R.evaluate(RecordedClient(R.RECORDINGS_DIR), model=model)
     assert res["passed"], json.dumps(res, ensure_ascii=False, indent=1)
 
 
