@@ -8,7 +8,7 @@ import numpy as np
 
 from analysis.mbd.dae import model as M
 from analysis.mbd.dae import solve as S
-from analysis.mbd.dae.system import B_of, E_of
+from analysis.mbd.dae.system import A_of, B_of, E_of, G_of
 
 PASS, FAIL, UNKNOWN = "pass", "fail", "unknown"
 RESID_LIMIT_M = 1e-8        # 约束残差判据（m 或无量纲）
@@ -45,10 +45,25 @@ def _series(rec, sysm):
         for q, qd, qdd in zip(rec.q, rec.qd, rec.qdd, strict=True):
             rr, p = q[7 * b:7 * b + 3], q[7 * b + 3:7 * b + 7]
             pd, pdd = qd[7 * b + 3:7 * b + 7], qdd[7 * b + 3:7 * b + 7]
-            from analysis.mbd.dae.system import A_of
             pos.append(((rr + A_of(p) @ sv) * 1000).tolist())
             vel.append(((qd[7 * b:7 * b + 3] + B_of(p, sv) @ pd) * 1000).tolist())
             acc.append(((qdd[7 * b:7 * b + 3] + B_of(p, sv) @ pdd + B_of(pd, sv) @ pd) * 1000).tolist())
+        if r.get("node") is not None:                   # D6：柔性构件界面节点，加上弹性变形
+            fx, o = s.bodies[b].flex, s.foff[b]
+            Pt = fx.Phit[r["node"]]
+            pos, vel, acc = [], [], []
+            for q, qd, qdd in zip(rec.q, rec.qd, rec.qdd, strict=True):
+                A = A_of(q[7 * b + 3:7 * b + 7])
+                eta, etad, etadd = q[o:o + fx.nm], qd[o:o + fx.nm], qdd[o:o + fx.nm]
+                x = fx.x0[r["node"]] + Pt @ eta
+                w = s.omega(q, qd, b)
+                wb = A.T @ w
+                wdb = 2 * G_of(q[7 * b + 3:7 * b + 7]) @ qdd[7 * b + 3:7 * b + 7]
+                u, ud = Pt @ etad, Pt @ etadd
+                pos.append(((q[7 * b:7 * b + 3] + A @ x) * 1000).tolist())
+                vel.append(((qd[7 * b:7 * b + 3] + A @ (np.cross(wb, x) + u)) * 1000).tolist())
+                acc.append(((qdd[7 * b:7 * b + 3] + A @ (np.cross(wdb, x) + np.cross(wb, np.cross(wb, x))
+                                                           + 2 * np.cross(wb, u) + ud)) * 1000).tolist())
         reqs[r["id"]] = {"pos_mm": pos, "vel_mm_s": vel, "acc_mm_s2": acc}
     energy = {"kinetic_j": [e[0] for e in rec.energy], "potential_j": [e[1] for e in rec.energy]}
     meas = {}
@@ -77,11 +92,27 @@ def _series(rec, sysm):
                          "peak_n": max(normal) if normal else None}
         if kind == "contact":
             cont[f["id"]] |= {"friction_force_n": fric, "points": npts}
+    flex = {}
+    for k, bd in enumerate(s.bodies):
+        if bd.flex is None:
+            continue
+        fx, o = bd.flex, s.foff[k]
+        nodes = {}
+        for n in fx.interface:
+            nodes[str(n)] = [((q[7 * k:7 * k + 3] + A_of(q[7 * k + 3:7 * k + 7]) @ (fx.x0[n] + fx.Phit[n] @ q[o:o + fx.nm]))
+                              * 1000).tolist() for q in rec.q]
+        flex[bd.name] = {"modes": fx.nm, "frequencies_hz": (fx.freqs / (2 * math.pi)).tolist(),
+                         "eta": [q[o:o + fx.nm].tolist() for q in rec.q],
+                         "elastic_energy_j": [0.5 * float(q[o:o + fx.nm] @ fx.K @ q[o:o + fx.nm]) for q in rec.q],
+                         "interface_nodes_mm": nodes}
+    out_b["_flex"] = flex
     return out_b, joints, motions, reqs, energy, meas, cont
 
 
 def _conservative(sysm) -> bool:
     if sysm.motions:
+        return False
+    if any(b.flex is not None and b.flex.zeta > 0 for b in sysm.bodies):
         return False
     if any(info.get("friction") for info in sysm.joints.values()):
         return False
@@ -127,6 +158,7 @@ def run_model(model: dict):
         messages.append("删掉了 {} 条冗余约束（反力里这些方向的分量不唯一，标为不完整）：{}".format(
             len(info["redundant"]), "、".join(info["redundant"])))
     bodies, joints, motions, reqs, energy, meas, cont = _series(rec, sysm)
+    flex = bodies.pop("_flex")
     resid = max(rec.resid) if rec.resid else 0.0
     verification = [{"key": "constraint_residual", "name": "约束残差（全部约束，含删掉的冗余约束）", "value": resid,
                      "limit": RESID_LIMIT_M, "status": PASS if resid <= RESID_LIMIT_M else FAIL}]
@@ -146,7 +178,8 @@ def run_model(model: dict):
                          "status": PASS if info["dof"] == dof_g + len(info.get("redundant", [])) else UNKNOWN,
                          "note": "雅可比秩算出的自由度 = Grübler 自由度 + 冗余约束数时通过；不等说明有奇异位形，请检查模型"})
     data = {"model": model["name"], "analysis": typ, "dof": info["dof"], "redundant_constraints": info.get("redundant", []),
-            "times_s": rec.t, "bodies": bodies, "joints": joints, "motions": motions, "requests": reqs, "measures": meas, "contacts": cont, "energy": energy,
+            "times_s": rec.t, "bodies": bodies, "joints": joints, "motions": motions, "requests": reqs, "measures": meas,
+            "contacts": cont, "flex": flex, "energy": energy,
             "verification": verification,
             "solver": {k: info[k] for k in ("rhs", "segments", "repartitions") if k in info} | {"integrator": method, "rtol": rtol,
                                                                                                "atol": atol}}
@@ -197,6 +230,7 @@ def _run_linear(model, sysm, typ):
     qdd, lam = S.accel(sysm, q, qd, 0.0, rows)
     rec.add(0.0, q, qd, qdd, keep, lam)
     bodies, joints, motions, reqs, energy, meas, cont = _series(rec, sysm)
+    flex = bodies.pop("_flex")
     resid = max(rec.resid) if rec.resid else 0.0
     unstable = [m for m in lin["modes"] if m["eigenvalue"][0] > 1e-6 * max(1.0, abs(complex(*m["eigenvalue"])))]
     verification = [{"key": "constraint_residual", "name": "约束残差（工作点）", "value": resid, "limit": RESID_LIMIT_M,
@@ -208,6 +242,6 @@ def _run_linear(model, sysm, typ):
         messages.append("删掉了 {} 条冗余约束：{}".format(len(lin["redundant"]), "、".join(lin["redundant"])))
     data = {"model": model["name"], "analysis": typ, "dof": lin["dof"], "redundant_constraints": lin["redundant"],
             "times_s": rec.t, "bodies": bodies, "joints": joints, "motions": motions, "requests": reqs, "measures": meas,
-            "contacts": cont, "energy": energy, "linear": {k: v for k, v in lin.items() if k != "redundant"},
+            "contacts": cont, "flex": flex, "energy": energy, "linear": {k: v for k, v in lin.items() if k != "redundant"},
             "verification": verification, "solver": {"linearization": "中心差分（相对步长 1e-6），B 精确"}}
     return data, messages

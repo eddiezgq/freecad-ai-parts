@@ -44,7 +44,8 @@ def linearize(sysm, q, qd, t=0.0, inputs=(), outputs=(), n_modes=None):
     q = S.assemble(sysm, q, t, rows)
     crow = [r for r in rows if r.kind != "norm"]
     nb, n = sysm.nb, sysm.n
-    N6 = 6 * nb
+    nf = n - 7 * nb                       # D6：模态坐标（接在刚体坐标后面），扰动就是 δη
+    N6 = 6 * nb + nf
 
     def T_of(qq):
         T = np.zeros((n, N6))
@@ -52,6 +53,8 @@ def linearize(sysm, q, qd, t=0.0, inputs=(), outputs=(), n_modes=None):
             p = qq[7 * k + 3:7 * k + 7]
             T[7 * k:7 * k + 3, 6 * k:6 * k + 3] = np.eye(3)
             T[7 * k + 3:7 * k + 7, 6 * k + 3:6 * k + 6] = 0.5 * E_of(p).T
+        if nf:
+            T[7 * nb:, 6 * nb:] = np.eye(nf)
         return T
 
     def Jr(qq):
@@ -63,7 +66,9 @@ def linearize(sysm, q, qd, t=0.0, inputs=(), outputs=(), n_modes=None):
     if dof <= 0:
         raise S.SolveError("没有自由度，不能线性化")
     if m:
-        _, _, piv = sla.qr(J0, pivoting=True, mode="economic")
+        Jw = J0.copy()
+        Jw[:, 6 * nb:] *= S.FLEX_PIVOT_WEIGHT     # 与动力学一样：模态坐标留作独立坐标
+        _, _, piv = sla.qr(Jw, pivoting=True, mode="economic")
         dep = np.sort(piv[:m])
     else:
         dep = np.array([], int)
@@ -74,6 +79,8 @@ def linearize(sysm, q, qd, t=0.0, inputs=(), outputs=(), n_modes=None):
         for k in range(nb):
             qq[7 * k:7 * k + 3] = q[7 * k:7 * k + 3] + dy[6 * k:6 * k + 3]
             qq[7 * k + 3:7 * k + 7] = _qmul(_qexp(dy[6 * k + 3:6 * k + 6]), q[7 * k + 3:7 * k + 7])
+        if nf:
+            qq[7 * nb:] = q[7 * nb:] + dy[6 * nb:]
         return qq
 
     def complete(z, u):
@@ -103,6 +110,8 @@ def linearize(sysm, q, qd, t=0.0, inputs=(), outputs=(), n_modes=None):
         for k in range(nb):
             out[6 * k:6 * k + 3] = qdd[7 * k:7 * k + 3]
             out[6 * k + 3:6 * k + 6] = 2 * E_of(qq[7 * k + 3:7 * k + 7]) @ qdd[7 * k + 3:7 * k + 7]
+        if nf:
+            out[6 * nb:] = qdd[7 * nb:]
         return out
 
     ref = {"v": np.zeros(N6)}
@@ -125,6 +134,8 @@ def linearize(sysm, q, qd, t=0.0, inputs=(), outputs=(), n_modes=None):
     for k in range(nb):
         v0[6 * k:6 * k + 3] = qd[7 * k:7 * k + 3]
         v0[6 * k + 3:6 * k + 6] = 2 * E_of(q[7 * k + 3:7 * k + 7]) @ qd[7 * k + 3:7 * k + 7]
+    if nf:
+        v0[6 * nb:] = qd[7 * nb:]
     _, _, v0, qd = complete(np.zeros(dof), v0[ind])
     ref["v"] = v0.copy()
     x0 = np.concatenate([np.zeros(dof), v0[ind]])
@@ -154,7 +165,12 @@ def linearize(sysm, q, qd, t=0.0, inputs=(), outputs=(), n_modes=None):
 
     lam, V = np.linalg.eig(A)
     modes = []
+    big = max(1.0, float(np.abs(lam).max()))
+    zeros = [k for k in range(len(lam)) if abs(lam[k]) < 1e-8 * big]
+    skip = set(zeros[: len(zeros) // 2])          # 刚体模态的零特征值成对出现（位置、速度）：每对只报一个
     for k in np.argsort(np.abs(lam)):
+        if k in skip:
+            continue
         lk = lam[k]
         if lk.imag < -1e-9 * max(1.0, abs(lk)):
             continue                                 # 共轭对只留虚部为正的那个（重根各自保留）
@@ -165,7 +181,9 @@ def linearize(sysm, q, qd, t=0.0, inputs=(), outputs=(), n_modes=None):
                       "shape": _shape(sysm, J0, dep, ind, V[:dof, k])})
     if n_modes:
         modes = modes[:n_modes]
-    names = [f"{sysm.bodies[i // 6].name}.{['dx', 'dy', 'dz', 'rx', 'ry', 'rz'][i % 6]}" for i in ind]
+    fnames = [f"{b.name}.eta{m + 1}" for b in sysm.bodies if b.flex is not None for m in range(b.flex.nm)]
+    names = [f"{sysm.bodies[i // 6].name}.{['dx', 'dy', 'dz', 'rx', 'ry', 'rz'][i % 6]}" if i < 6 * nb
+             else fnames[i - 6 * nb] for i in ind]
     return {"dof": dof, "states": names + [s_ + "_dot" for s_ in names], "independent_coordinates": names,
             "A": A.tolist(), "B": B.tolist(), "C": C.tolist(), "D": D.tolist(),
             "inputs": [u["id"] for u in inputs], "outputs": list(outputs), "modes": modes,
@@ -187,7 +205,7 @@ def _jac(f, x0):
 def _shape(sysm, J, dep, ind, vz):
     """振型：各构件质心位移（mm）与转角（deg），最大分量归一为 1（相位转到最大分量为实数）"""
     vz = np.asarray(vz, complex)
-    dy = np.zeros(6 * sysm.nb, complex)
+    dy = np.zeros(J.shape[1], complex)
     dy[ind] = vz
     if len(dep):
         dy[dep] = -np.linalg.solve(J[:, dep], J[:, ind] @ vz)
