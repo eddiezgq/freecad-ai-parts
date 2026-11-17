@@ -1,0 +1,52 @@
+{
+ "why": "壳：中面 + 厚度；简支边（只约束平动）；面上压力；静力 + 模态",
+ "instance": {
+  "format": "fea-study/1",
+  "name": "plate",
+  "bodies": [
+   {
+    "id": "p",
+    "step_path": "plate.step",
+    "material": "S235",
+    "kind": "shell",
+    "thickness_mm": 2
+   }
+  ],
+  "supports": [
+   {
+    "type": "displacement",
+    "body": "p",
+    "edges": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "ux_mm": 0,
+    "uy_mm": 0,
+    "uz_mm": 0
+   }
+  ],
+  "loads": [
+   {
+    "type": "pressure",
+    "body": "p",
+    "faces": [
+     1
+    ],
+    "value_mpa": 0.01
+   }
+  ],
+  "steps": [
+   {
+    "id": "s1",
+    "type": "static"
+   },
+   {
+    "id": "m1",
+    "type": "modal",
+    "n_modes": 4
+   }
+  ]
+ }
+}

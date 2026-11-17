@@ -94,6 +94,91 @@
                 "additionalProperties": false
               }
             ]
+          },
+          "kind": {
+            "enum": [
+              "solid",
+              "shell",
+              "beam"
+            ],
+            "default": "solid",
+            "description": "solid：实体（STEP 是实体，四面体单元）；shell：壳（STEP 是中面，要写 thickness_mm）；beam：梁（STEP 是轴线，要写 section）。ADR-0095"
+          },
+          "thickness_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "壳厚度（mm），只用于 kind = shell"
+          },
+          "section": {
+            "description": "梁截面（只用于 kind = beam）",
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "shape": {
+                    "const": "rect"
+                  },
+                  "width_mm": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "height_mm": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "orientation": {
+                    "$ref": "#/$defs/vec3",
+                    "description": "截面局部 1 轴（width_mm 所沿的方向）的整体坐标方向，须与梁轴线垂直"
+                  }
+                },
+                "required": [
+                  "shape",
+                  "width_mm",
+                  "height_mm",
+                  "orientation"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "shape": {
+                    "const": "circle"
+                  },
+                  "diameter_mm": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  }
+                },
+                "required": [
+                  "shape",
+                  "diameter_mm"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "shape": {
+                    "const": "pipe"
+                  },
+                  "outer_diameter_mm": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "wall_mm": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  }
+                },
+                "required": [
+                  "shape",
+                  "outer_diameter_mm",
+                  "wall_mm"
+                ],
+                "additionalProperties": false
+              }
+            ]
           }
         },
         "required": [
@@ -101,7 +186,104 @@
           "step_path",
           "material"
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "shell"
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            },
+            "then": {
+              "required": [
+                "thickness_mm"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "section"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "plasticity"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "beam"
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            },
+            "then": {
+              "required": [
+                "section"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "thickness_mm"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "plasticity"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "not": {
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "shell",
+                      "beam"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              }
+            },
+            "then": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "thickness_mm"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "section"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
       }
     },
     "supports": {
@@ -507,7 +689,7 @@
     "fixed": {
       "allOf": [
         {
-          "$ref": "#/$defs/where"
+          "$ref": "#/$defs/where_any"
         }
       ],
       "properties": {
@@ -515,7 +697,9 @@
           "const": "fixed"
         },
         "body": true,
-        "faces": true
+        "faces": true,
+        "edges": true,
+        "vertices": true
       },
       "required": [
         "type"
@@ -563,7 +747,7 @@
     "force": {
       "allOf": [
         {
-          "$ref": "#/$defs/where"
+          "$ref": "#/$defs/where_any"
         }
       ],
       "properties": {
@@ -578,7 +762,9 @@
         "case": {
           "$ref": "#/$defs/id",
           "description": "所属工况（load_cases 里的 id）"
-        }
+        },
+        "edges": true,
+        "vertices": true
       },
       "required": [
         "type",
@@ -731,7 +917,7 @@
     },
     "displacement": {
       "type": "object",
-      "description": "强制位移（整体坐标，mm）；只写出的分量被限制，0 即该方向固定。作用在面上或边上（边编号见 analysis faces 的 edges）",
+      "description": "强制位移（整体坐标，mm）；只写出的分量被限制，0 即该方向固定。作用在面、边或顶点上（边、顶点编号见 analysis faces 的 edge_list、vertex_list；壳、梁只约束平动，转动自由，ADR-0095）",
       "properties": {
         "type": {
           "const": "displacement"
@@ -753,6 +939,9 @@
         },
         "uz_mm": {
           "type": "number"
+        },
+        "vertices": {
+          "$ref": "#/$defs/vertex_list"
         }
       },
       "required": [
@@ -770,6 +959,11 @@
             {
               "required": [
                 "edges"
+              ]
+            },
+            {
+              "required": [
+                "vertices"
               ]
             }
           ]
@@ -1335,6 +1529,54 @@
         "mass_kg"
       ],
       "additionalProperties": false
+    },
+    "vertex_list": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "uniqueItems": true,
+      "description": "顶点编号（analysis fea faces 的 vertex_list）；梁的端点（ADR-0095）"
+    },
+    "where_any": {
+      "description": "作用在哪个实体的面、边或顶点之一（ADR-0095：壳用边、梁用顶点）",
+      "type": "object",
+      "properties": {
+        "body": {
+          "$ref": "#/$defs/id"
+        },
+        "faces": {
+          "$ref": "#/$defs/face_list"
+        },
+        "edges": {
+          "$ref": "#/$defs/edge_list"
+        },
+        "vertices": {
+          "$ref": "#/$defs/vertex_list"
+        }
+      },
+      "required": [
+        "body"
+      ],
+      "oneOf": [
+        {
+          "required": [
+            "faces"
+          ]
+        },
+        {
+          "required": [
+            "edges"
+          ]
+        },
+        {
+          "required": [
+            "vertices"
+          ]
+        }
+      ]
     }
   }
 }
