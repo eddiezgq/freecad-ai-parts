@@ -163,6 +163,11 @@ class FemDraftCommand:
         return FreeCAD.ActiveDocument is not None
 
     def Activated(self):
+        try:
+            F._pro(feature="AI 一句话起草")          # 问渠有限元免费版：先说明，不让人白写一句话
+        except F.FlowError as exc:
+            _say("一句话起草", str(exc), warn=True)
+            return
         parts = [o for o in FreeCADGui.Selection.getSelection() if hasattr(o, "Shape") and o.Shape.Solids]
         if not parts:
             _say("一句话起草", "先在三维视图或模型树里选中要算的零件（实体）", warn=True)
@@ -213,6 +218,11 @@ class FemReportCommand:
 
         from assist import i18n
 
+        try:
+            F._pro(feature="正式报告")
+        except F.FlowError as exc:
+            _say("出报告", str(exc), warn=True)
+            return
         an = _analysis()
         title = T("出报告")
         langs = ["中文", "English"]
@@ -242,19 +252,22 @@ class FemReportCommand:
 
 
 class FemManipulator:
-    """把三个按钮插到 FEM 工作台“运行求解器”前面（工具栏与菜单）"""
+    """把三个按钮插到 FEM 工作台“运行求解器”前面（工具栏与菜单）；extra 只进菜单（问渠有限元版的热分析 · 疲劳）"""
+
+    def __init__(self, extra: tuple = ()):
+        self.extra = tuple(extra)
 
     def modifyToolBars(self):
         return [{"insert": c, "toolItem": ANCHOR} for c in CMDS]
 
     def modifyMenuBar(self):
-        return [{"insert": c, "menuItem": ANCHOR} for c in CMDS]
+        return [{"insert": c, "menuItem": ANCHOR} for c in (*CMDS, *self.extra)]
 
 
-def register() -> None:
+def register(extra_menu: tuple = ()) -> None:
     FreeCADGui.addCommand("FAP_FemDraft", FemDraftCommand())
     FreeCADGui.addCommand("FAP_FemRun", FemRunCommand())
     FreeCADGui.addCommand("FAP_FemReport", FemReportCommand())
     if not hasattr(FreeCADGui, "_fap_fem_manipulator"):
-        FreeCADGui._fap_fem_manipulator = FemManipulator()
+        FreeCADGui._fap_fem_manipulator = FemManipulator(extra_menu)
         FreeCADGui.addWorkbenchManipulator(FreeCADGui._fap_fem_manipulator)

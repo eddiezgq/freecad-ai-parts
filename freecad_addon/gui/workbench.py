@@ -574,6 +574,14 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
 
 
 def register() -> None:
+    from assist import fea_edition
+
+    if fea_edition.edition() == "fea":
+        # 问渠有限元版（ADR-0096 第 5 步）：不加零件库工作台，只在 FEM 工作台里加按钮与“帮助”菜单项
+        from freecad_addon.gui import fea_brand
+
+        fea_brand.register()
+        return
     FreeCADGui.addWorkbench(AiPartsWorkbench())
     # FEM 工作台里的起草、计算并核查、出报告（ADR-0093 补充十二）
     from freecad_addon.gui import fem_commands

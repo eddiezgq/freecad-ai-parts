@@ -14,7 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 MODULES = sorted([*ROOT.glob("analysis/fea/*.py"), ROOT / "assist/fea_report.py", ROOT / "assist/fea_draft.py",
                   ROOT / "assist/features.py", ROOT / "freecad_addon/fc/fem_flow.py", ROOT / "freecad_addon/fc/fem_bridge.py",
                   ROOT / "freecad_addon/fc/fem_results.py", ROOT / "freecad_addon/gui/fem_commands.py",
-                  ROOT / "freecad_addon/gui/fea_panel.py"])
+                  ROOT / "freecad_addon/gui/fea_panel.py", ROOT / "assist/fea_edition.py",
+                  ROOT / "freecad_addon/gui/fea_brand.py", ROOT / "licensing/license.py", ROOT / "licensing/runtime.py"])
 EXTRA = {"零件的温度场、热应力（本机 CalculiX）；按 FEM 分析的计算结果和载荷谱算疲劳寿命。强度、固有频率请在 FEM 工作台里“一句话起草 / 计算并核查 / 出报告”"}
 # 工作台其他命令不属于问渠有限元，只收“热分析 · 疲劳”这一条的说明
 

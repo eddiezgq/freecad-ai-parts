@@ -91,3 +91,45 @@ jobs:
           [ -f "$RUNNER_TEMP/build.log" ] || exit 0
           # 一个步骤最多显示 10 条注释，所以把尾部 40 行并成一条
           echo "::error::$(tail -n 40 "$RUNNER_TEMP/build.log" | tr -d '\r' | sed ':a;N;$!ba;s/\n/%0A/g')"
+
+  wenquest-fea:
+    # 问渠有限元安装包（ADR-0096 第 5 步）：验收用的测试版（-TestBuild，认 CI 临时生成的测试授权公钥），只作 CI 产物，不发布
+    needs: scope
+    if: needs.scope.outputs.windows == 'true'
+    runs-on: windows-2022
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - name: 缓存 FreeCAD 便携版
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}\fap-win\FreeCAD_1.0.2-conda-Windows-x86_64-py311.7z
+          key: freecad-win-1.0.2
+      - name: 生成问渠有限元安装包（测试版）
+        shell: cmd
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File installer\windows\build.ps1 -Work "%RUNNER_TEMP%\fap-win" -Out dist -Edition fea -TestBuild > "%RUNNER_TEMP%\build.log" 2>&1
+          set rc=%ERRORLEVEL%
+          type "%RUNNER_TEMP%\build.log"
+          exit /b %rc%
+      - name: 静默安装、免费版与专业版验收、卸载
+        shell: cmd
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File installer\windows\accept_fea.ps1 -Dist dist -Dir C:\wq-fea-test > "%RUNNER_TEMP%\build.log" 2>&1
+          set rc=%ERRORLEVEL%
+          type "%RUNNER_TEMP%\build.log"
+          exit /b %rc%
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wenquest-fea-installer-testbuild
+          path: dist\*.exe
+          retention-days: 7
+      - name: 失败时的输出（写成注释）
+        if: failure()
+        shell: bash
+        run: |
+          [ -f "$RUNNER_TEMP/build.log" ] || exit 0
+          echo "::error::$(tail -n 40 "$RUNNER_TEMP/build.log" | tr -d '\r' | sed ':a;N;$!ba;s/\n/%0A/g')"

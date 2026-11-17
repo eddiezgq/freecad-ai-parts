@@ -222,3 +222,88 @@ def test_beam_sentence_to_result(doc):
     assert res["status"] == "ok", res.get("messages")
     E = materials.get("45-QT")["elastic_modulus_mpa"]
     assert res["data"]["steps"][0]["u_max_mm"] == pytest.approx(1000 * 500 ** 3 / (3 * E * 20 * 40 ** 3 / 12), rel=0.025)
+
+
+FREE_RJ = {"format": "fea-study/1", "name": "RJ-201-free",
+           "bodies": [{"id": "b1", "step_path": str(RJ), "material": "45-QT"}],
+           "supports": [{"type": "fixed", "body": "b1", "faces": [3]}],
+           "loads": [{"type": "torque", "body": "b1", "faces": [8], "value_nm": 92.5,
+                      "axis": {"origin_mm": [0.0, 0.0, 76.453], "dir": [0.0, 0.0, 1.0]}}],
+           "steps": [{"id": "s1", "type": "static"}]}
+
+
+def test_free_tier_gates(doc, monkeypatch, tmp_path):
+    """问渠有限元免费版（ADR-0096 第 5 步）：手建的单实体静力能进计算；AI 起草、正式报告、专业版算例拒绝并说明"""
+    import copy
+
+    from assist import fea_edition
+    from freecad_addon.fc import fem_bridge as B
+    from freecad_addon.fc import fem_flow as F
+    from licensing import runtime
+
+    monkeypatch.setenv("FAP_EDITION", "fea")
+    monkeypatch.setenv("FAP_LICENSE_FILE", str(tmp_path / "none.json"))
+    monkeypatch.setattr(fea_edition, "EDITION_FILE", tmp_path / "none-edition.json")
+    monkeypatch.setattr(runtime, "EDITION_FILE", tmp_path / "none-edition.json")
+    part = _part(doc, RJ)
+    with pytest.raises(F.FlowError, match="专业版的功能：AI 一句话起草"):
+        F.draft_steps(doc, "随便一句话", [part])
+    an = B.study_to_fem(doc, copy.deepcopy(FREE_RJ), parts={"b1": part})
+    study, _ = F.prepare_run(an)                                    # 免费版能算
+    assert study["bodies"][0]["material"] == "45-QT"
+    with pytest.raises(F.FlowError, match="正式报告"):
+        F.make_report(an, number=None, revision="A", reason="首次出稿")
+    pro = copy.deepcopy(FREE_RJ)
+    pro["steps"] = [{"id": "s1", "type": "static", "large_deformation": True}]
+    an2 = B.study_to_fem(doc, pro, parts={"b1": part})
+    with pytest.raises(F.FlowError, match="大变形"):
+        F.prepare_run(an2)
+    with pytest.raises(F.FlowError, match="大变形"):
+        F.compute(pro, tmp_path)
+
+
+def test_fea_edition_menus_and_license(monkeypatch, tmp_path):
+    """问渠有限元版的界面：FEM 的“求解”菜单有三个按钮和热分析 · 疲劳，“帮助”菜单有授权、设置、关于；导入测试授权后变专业版"""
+    if not os.environ.get("DISPLAY"):
+        pytest.skip("没有显示环境")
+    import time
+
+    import FreeCADGui
+    from PySide import QtWidgets
+
+    from assist import fea_edition
+    from freecad_addon.gui import fea_brand
+    from licensing import runtime
+    from tests.test_fea_edition import _edition_file, _license
+
+    ed = _edition_file(tmp_path / "edition.json", True)
+    monkeypatch.setenv("FAP_EDITION", "fea")
+    monkeypatch.setattr(fea_edition, "EDITION_FILE", ed)
+    monkeypatch.setattr(runtime, "EDITION_FILE", ed)
+    monkeypatch.setenv("FAP_LICENSE_FILE", str(tmp_path / "installed" / "license.json"))
+    monkeypatch.setattr(fea_brand, "_start_in_fem", lambda: None)          # 不改本机 FreeCAD 的启动工作台
+    FreeCADGui.showMainWindow()
+    fea_brand.register()
+    try:
+        FreeCADGui.activateWorkbench("FemWorkbench")
+        app = QtWidgets.QApplication.instance()
+        for _ in range(50):
+            app.processEvents()
+            time.sleep(0.01)
+        menus = {a.text(): [x.text() for x in a.menu().actions()] for a in FreeCADGui.getMainWindow().menuBar().actions() if a.menu()}
+        assert {"一句话起草（AI）", "计算并核查（零件库）", "出报告（零件库）", "热分析 · 疲劳"} <= set(menus["&Solve"]), menus["&Solve"]
+        assert {"问渠有限元：授权…", "问渠有限元：设置 AI 密钥…", "关于问渠有限元"} <= set(menus["&Help"]), menus["&Help"]
+        assert "免费版" in fea_brand.tier_text() and "还没有导入" in fea_brand.tier_text()
+        lic, key = _license(tmp_path, [fea_edition.PRO])
+        monkeypatch.setenv("FAP_LICENSE_TEST_KEY", key)
+        dlg = fea_brand.LicenseDialog()
+        assert dlg.import_file(str(lic))
+        assert runtime.license_path().is_file() and fea_edition.pro_allowed()
+        assert fea_brand.tier_text().startswith("专业版：CI 验收")
+        assert "专业版" in fea_brand.about_text()
+    finally:
+        for name in ("_fap_fea_help", "_fap_fem_manipulator"):
+            if hasattr(FreeCADGui, name):
+                FreeCADGui.removeWorkbenchManipulator(getattr(FreeCADGui, name))
+                delattr(FreeCADGui, name)
+        FreeCADGui.activateWorkbench("NoneWorkbench")
