@@ -1,0 +1,39 @@
+{
+ "why": "既没有质量惯量也没有 flex",
+ "instance": {
+  "format": "mbd-model/1",
+  "name": "柔性单摆",
+  "gravity_mm_s2": [
+   0,
+   0,
+   -9810
+  ],
+  "bodies": [
+   {
+    "id": "rod"
+   }
+  ],
+  "joints": [
+   {
+    "id": "pin",
+    "type": "revolute",
+    "body_i": "ground",
+    "body_j": "rod",
+    "point_mm": [
+     0,
+     0,
+     0
+    ],
+    "axis": [
+     0,
+     1,
+     0
+    ]
+   }
+  ],
+  "analysis": {
+   "type": "dynamic",
+   "end_time_s": 0.1
+  }
+ }
+}

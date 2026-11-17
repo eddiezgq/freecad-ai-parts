@@ -1,0 +1,64 @@
+{
+ "why": "梁缺截面惯性矩",
+ "instance": {
+  "format": "mbd-model/1",
+  "name": "柔性单摆",
+  "gravity_mm_s2": [
+   0,
+   0,
+   -9810
+  ],
+  "bodies": [
+   {
+    "id": "rod",
+    "flex": {
+     "type": "beam",
+     "from_mm": [
+      0,
+      0,
+      0
+     ],
+     "to_mm": [
+      500,
+      0,
+      0
+     ],
+     "y_axis": [
+      0,
+      1,
+      0
+     ],
+     "youngs_modulus_mpa": 70000,
+     "shear_modulus_mpa": 26000,
+     "density_kg_m3": 2700,
+     "area_mm2": 100,
+     "iyy_mm4": 833.3,
+     "ixx_mm4": 1400,
+     "elements": 10
+    }
+   }
+  ],
+  "joints": [
+   {
+    "id": "pin",
+    "type": "revolute",
+    "body_i": "ground",
+    "body_j": "rod",
+    "point_mm": [
+     0,
+     0,
+     0
+    ],
+    "axis": [
+     0,
+     1,
+     0
+    ]
+   }
+  ],
+  "analysis": {
+   "type": "dynamic",
+   "end_time_s": 0.1
+  }
+ }
+}
