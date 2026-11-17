@@ -1,0 +1,275 @@
+{
+ "instance": {
+  "format": "mbd-model/1",
+  "name": "D2 全部",
+  "gravity_mm_s2": [
+   0,
+   0,
+   -9810
+  ],
+  "bodies": [
+   {
+    "id": "a",
+    "mass_kg": 1,
+    "cm_mm": [
+     0,
+     0,
+     0
+    ],
+    "inertia_kg_m2": {
+     "ixx": 0.001,
+     "iyy": 0.001,
+     "izz": 0.001
+    }
+   },
+   {
+    "id": "b",
+    "mass_kg": 1,
+    "cm_mm": [
+     100,
+     0,
+     0
+    ],
+    "inertia_kg_m2": {
+     "ixx": 0.001,
+     "iyy": 0.001,
+     "izz": 0.001
+    }
+   },
+   {
+    "id": "c",
+    "mass_kg": 1,
+    "cm_mm": [
+     200,
+     0,
+     0
+    ],
+    "inertia_kg_m2": {
+     "ixx": 0.001,
+     "iyy": 0.001,
+     "izz": 0.001
+    }
+   }
+  ],
+  "joints": [
+   {
+    "id": "r",
+    "type": "revolute",
+    "body_i": "ground",
+    "body_j": "a",
+    "point_mm": [
+     0,
+     0,
+     0
+    ],
+    "axis": [
+     0,
+     0,
+     1
+    ],
+    "friction": {
+     "mu_static": 0.15,
+     "mu_dynamic": 0.1,
+     "stiction_speed": 1,
+     "transition_speed": 2,
+     "pin_radius_mm": 5
+    }
+   },
+   {
+    "id": "t",
+    "type": "translational",
+    "body_i": "a",
+    "body_j": "b",
+    "point_mm": [
+     100,
+     0,
+     0
+    ],
+    "axis": [
+     1,
+     0,
+     0
+    ],
+    "friction": {
+     "mu_static": 0.3,
+     "mu_dynamic": 0.2,
+     "stiction_speed": 0.1,
+     "transition_speed": 0.5,
+     "preload_n": 2
+    }
+   },
+   {
+    "id": "cl",
+    "type": "revolute",
+    "body_i": "b",
+    "body_j": "c",
+    "point_mm": [
+     150,
+     0,
+     0
+    ],
+    "axis": [
+     0,
+     0,
+     1
+    ],
+    "clearance": {
+     "radial_mm": 0.05,
+     "stiffness_n_per_mm": 100000.0,
+     "exponent": 1.5,
+     "damping_n_s_per_mm": 10
+    }
+   }
+  ],
+  "measures": [
+   {
+    "id": "ang",
+    "type": "joint_angle",
+    "joint": "r"
+   },
+   {
+    "id": "w",
+    "type": "joint_speed",
+    "joint": "r"
+   },
+   {
+    "id": "gap",
+    "type": "point_distance",
+    "body_i": "ground",
+    "point_i_mm": [
+     300,
+     0,
+     0
+    ],
+    "body_j": "c",
+    "point_j_mm": [
+     250,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "gapd",
+    "type": "point_distance_rate",
+    "body_i": "ground",
+    "point_i_mm": [
+     300,
+     0,
+     0
+    ],
+    "body_j": "c",
+    "point_j_mm": [
+     250,
+     0,
+     0
+    ]
+   }
+  ],
+  "splines": [
+   {
+    "id": "cam",
+    "x": [
+     0,
+     90,
+     180,
+     270,
+     360
+    ],
+    "y": [
+     0,
+     5,
+     10,
+     5,
+     0
+    ],
+    "method": "akima"
+   }
+  ],
+  "forces": [
+   {
+    "id": "stop",
+    "type": "force",
+    "body": "c",
+    "point_mm": [
+     250,
+     0,
+     0
+    ],
+    "fx_n": "-IMPACT(gap, gapd, 40, 1e4, 1.5, 5, 0.1)"
+   },
+   {
+    "id": "tq",
+    "type": "torque",
+    "body": "a",
+    "tz_n_m": "SPLINE(cam, ang) - 0.01*w"
+   },
+   {
+    "id": "rs",
+    "type": "rotational_spring_damper",
+    "body_i": "ground",
+    "body_j": "a",
+    "axis": [
+     0,
+     0,
+     1
+    ],
+    "stiffness_n_m_per_deg": 0.1,
+    "damping_n_m_s_per_deg": 0.001
+   },
+   {
+    "id": "bu",
+    "type": "bushing",
+    "body_i": "ground",
+    "body_j": "c",
+    "point_mm": [
+     200,
+     0,
+     0
+    ],
+    "stiffness_n_per_mm": [
+     10,
+     10,
+     10
+    ],
+    "rot_stiffness_n_m_per_deg": [
+     1,
+     1,
+     1
+    ]
+   },
+   {
+    "id": "bm",
+    "type": "beam",
+    "body_i": "a",
+    "point_i_mm": [
+     0,
+     0,
+     0
+    ],
+    "body_j": "c",
+    "point_j_mm": [
+     200,
+     0,
+     0
+    ],
+    "y_axis": [
+     0,
+     1,
+     0
+    ],
+    "youngs_modulus_mpa": 206000,
+    "shear_modulus_mpa": 79000,
+    "area_mm2": 78.5,
+    "iyy_mm4": 490,
+    "izz_mm4": 490,
+    "ixx_mm4": 980,
+    "damping_ratio": 0.0001
+   }
+  ],
+  "analysis": {
+   "type": "dynamic",
+   "end_time_s": 0.1,
+   "integrator": "Radau"
+  }
+ }
+}
