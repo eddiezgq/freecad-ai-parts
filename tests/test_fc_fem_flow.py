@@ -134,4 +134,9 @@ def test_buttons_appear_in_fem_workbench():
     texts = {a.text() for tb in FreeCADGui.getMainWindow().findChildren(QtWidgets.QToolBar) for a in tb.actions()}
     for c in fem_commands.CMDS:
         assert FreeCADGui.Command.get(c) is not None
-    assert {"一句话起草（AI）", "计算并核查（零件库）", "出报告（零件库）"} <= texts, sorted(t for t in texts if t)[:60]
+    try:
+        assert {"一句话起草（AI）", "计算并核查（零件库）", "出报告（零件库）"} <= texts, sorted(t for t in texts if t)[:60]
+    finally:                                   # 测试进程退出时 Qt 先拆：先把改界面的对象撤掉，免得退出时崩
+        FreeCADGui.removeWorkbenchManipulator(FreeCADGui._fap_fem_manipulator)
+        del FreeCADGui._fap_fem_manipulator
+        FreeCADGui.activateWorkbench("NoneWorkbench")
