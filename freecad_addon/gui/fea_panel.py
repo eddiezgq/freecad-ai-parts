@@ -1,8 +1,11 @@
-"""有限元 · 疲劳窗口（ADR-0056，M10 第三步）：选零件 → 在三维视图中选面加约束与载荷 → 本机计算 → 应力云图着色 →
-安全系数、固有频率 → 用载荷谱（恒幅或多体动力学的关节力矩记录）算疲劳寿命。
+"""热分析 · 疲劳窗口（ADR-0056，M10 第三、四步；ADR-0096 第 1 步改）：
+- 热分析：选零件 → 在三维视图中选面加热边界（与热应力用的约束、载荷）→ 本机计算 → 按温度或应力着色；
+- 疲劳：参考应力取自 FEM 工作台“计算并核查”的结果（`fem_flow.fatigue_inputs`，可信度没判“通过”不给），
+  按载荷谱（恒幅或多体动力学的关节力矩记录）算寿命。
 
-计算在 analysis/fea、analysis/fatigue，后台线程中进行。零件按所选对象的形状导出 STEP；FreeCAD 中选的面按中心与面积对应到
-分析模块的面编号。表面、尺寸系数须按教材图表填写，不给缺省值。
+强度（静力）、固有频率已从本窗口退役，改在 FEM 工作台里用“一句话起草 / 计算并核查 / 出报告”（ADR-0093 补充十二）。
+计算在 analysis/thermal、analysis/fatigue，后台线程中进行。零件按所选对象的形状导出 STEP；FreeCAD 中选的面按中心与面积
+对应到分析模块的面编号。表面、尺寸系数须按教材图表填写，不给缺省值。
 """
 
 from __future__ import annotations
@@ -50,10 +53,12 @@ def colors(values, lo=None, hi=None):
 class FeaPanel(QtWidgets.QDockWidget):
     done = QtCore.Signal(object)
 
-    def __init__(self, parent=None, mbd_result=None):
-        super().__init__("有限元 · 疲劳", parent)
+    def __init__(self, parent=None, mbd_result=None, fem_analysis=None):
+        super().__init__("热分析 · 疲劳", parent)
         self.setObjectName("FapFeaPanel")
         self.mbd_result = mbd_result  # 可调用：返回多体动力学的最新结果（疲劳载荷谱用）
+        self.fem_analysis = fem_analysis or _active_fem_analysis  # 可调用：疲劳用的 FEM 分析节点
+        self.fatigue_ref: dict | None = None
         self.step_path: str | None = None
         self.obj = None
         self.faces: list[dict] = []
@@ -77,8 +82,6 @@ class FeaPanel(QtWidgets.QDockWidget):
         for m in materials.all_materials():
             self.material.addItem(m["name"], m["id"])
         self.kind = QtWidgets.QComboBox()
-        self.kind.addItem("强度（静力）", "static")
-        self.kind.addItem("固有频率", "modal")
         self.kind.addItem("温度场", "thermal")
         self.kind.addItem("热应力（温度 + 结构）", "thermo_mech")
         self.mesh = QtWidgets.QLineEdit()
@@ -110,7 +113,10 @@ class FeaPanel(QtWidgets.QDockWidget):
         self.summary = QtWidgets.QLabel("")
         self.summary.setWordWrap(True)
         lay.addWidget(self.summary)
-        fbox = QtWidgets.QGroupBox("疲劳寿命（用强度结果的最大应力）")
+        note = QtWidgets.QLabel("强度、固有频率：在 FEM 工作台里用“一句话起草 / 计算并核查 / 出报告”。")
+        note.setWordWrap(True)
+        lay.addWidget(note)
+        fbox = QtWidgets.QGroupBox("疲劳寿命（参考应力取自 FEM 分析“计算并核查”的结果）")
         ff = QtWidgets.QFormLayout(fbox)
         self.series_kind = QtWidgets.QComboBox()
         self.series_kind.addItem("起停：0 → 所加载荷 → 0", "startstop")
@@ -297,13 +303,6 @@ class FeaPanel(QtWidgets.QDockWidget):
         elif kind == "thermo_mech":
             self.summary.setText(f"最高 {d['t_max_c']:.1f} ℃；热应力最大 {d['vm_max_mpa']:.1f} MPa，"
                                  f"安全系数 {d['safety_factor']:.2f}，最大热变形 {d['u_max_mm']:.4f} mm")
-        elif kind == "modal":
-            self.summary.setText("固有频率：" + "，".join(f"{f['hz']:.1f} Hz" for f in d["freqs"]) +
-                                 f"（{d['elements']} 个单元）")
-        else:
-            self.summary.setText(f"最大 Von Mises 应力 {d['vm_max_mpa']:.1f} MPa（面 {d.get('vm_max_faces')}），"
-                                 f"安全系数 {d['safety_factor']:.2f}（按{d['strength_kind']} {d['strength_mpa']:g} MPa），"
-                                 f"最大位移 {d['u_max_mm']:.4f} mm；{d['elements']} 个单元、网格 {d['mesh_size_mm']} mm")
         self.show_surface(d["surface"], "temp" if kind == "thermal" else "vm")
         self.status.setText(f"算完（{out.get('elapsed_s', 0):.1f} s，CalculiX {out['solver']['version']}）。"
                             + "；".join(out["limitations"][:1]))
@@ -344,30 +343,30 @@ class FeaPanel(QtWidgets.QDockWidget):
 
     # ------------------------------------------------------------ 疲劳
 
-    def load_ref(self) -> float | None:
-        """强度计算中唯一一个非约束载荷的大小（扭矩 N·m、力 N、压力 MPa）。"""
-        active = [ld for ld in (self.result or {}).get("setup", {}).get("loads", []) if ld["type"] in ("force", "torque",
-                                                                                                         "pressure")]
-        if len(active) != 1:
+    def load_ref(self) -> dict | None:
+        """疲劳的参考应力、参考载荷（取自 FEM 分析这次“计算并核查”的结果）；取不到就把原因写在疲劳一栏、返回 None"""
+        from freecad_addon.fc import fem_flow
+
+        analysis = self.fem_analysis()
+        if analysis is None:
+            self.fatigue_label.setText("文档里没有 FEM 分析：先在 FEM 工作台里起草并“计算并核查”")
             return None
-        ld = active[0]
-        if ld["type"] == "force":
-            return math.sqrt(sum(x * x for x in ld["vector_n"]))
-        return abs(ld.get("value_nm", ld.get("value_mpa", 0)))
+        try:
+            self.fatigue_ref = fem_flow.fatigue_inputs(analysis)
+        except fem_flow.FlowError as e:
+            self.fatigue_label.setText(str(e))
+            return None
+        return self.fatigue_ref
 
     def compute_fatigue(self) -> bool:
-        if not self.result or self.result["setup"].get("analysis") != "static":
-            self.fatigue_label.setText("请先做强度计算")
-            return False
         ref = self.load_ref()
-        if not ref:
-            self.fatigue_label.setText("强度计算中须只有一个载荷（作为参考载荷）")
+        if ref is None:
             return False
         kind = self.series_kind.currentData()
         if kind == "startstop":
-            series = [0.0, ref]
+            series = [0.0, ref["load_ref"]]
         elif kind == "reversed":
-            series = [-ref, ref]
+            series = [-ref["load_ref"], ref["load_ref"]]
         else:
             mbd = self.mbd_result() if self.mbd_result else None
             joint = self.mbd_joint.text().strip()
@@ -377,8 +376,8 @@ class FeaPanel(QtWidgets.QDockWidget):
                 return False
             series = s["drive"]
         try:
-            setup = {"material": self.material.currentData(), "stress_ref_mpa": self.result["data"]["vm_max_mpa"],
-                     "load_ref": ref, "load_series": series, "block_seconds": float(self.block.text() or 0),
+            setup = {"material": ref["material"], "stress_ref_mpa": ref["stress_ref_mpa"],
+                     "load_ref": ref["load_ref"], "load_series": series, "block_seconds": float(self.block.text() or 0),
                      "surface_factor": float(self.surface.text()), "size_factor": float(self.size.text())}
         except ValueError:
             self.fatigue_label.setText("请填写 β、ε 与一块时长（数字）")
@@ -396,5 +395,23 @@ class FeaPanel(QtWidgets.QDockWidget):
         else:
             hours = f"，约 {d['life_hours']:.4g} 小时" if d["life_hours"] else ""
             text = f"寿命 {d['life_blocks']:.4g} 块{hours}"
-        self.fatigue_label.setText(f"{text}；修正后疲劳极限 {d['fatigue_strength_mpa']:.1f} MPa，每块 {d['cycles_per_block']} 个循环")
+        self.fatigue_label.setText(
+            f"{text}；修正后疲劳极限 {d['fatigue_strength_mpa']:.1f} MPa，每块 {d['cycles_per_block']} 个循环。"
+            f"参考应力 {ref['stress_ref_mpa']:.1f} MPa（FEM 分析步 {ref['step']}，避开约束面），"
+            f"对应参考载荷 {ref['load_ref']:g} {ref['load_unit']}；材料 {ref['material']}")
         return True
+
+
+def _active_fem_analysis():
+    """当前 FEM 分析：选中的分析节点，或文档里最后一个"""
+    try:
+        import FreeCAD
+        import FreeCADGui
+    except ImportError:
+        return None
+    sel = [o for o in FreeCADGui.Selection.getSelection() if o.TypeId == "Fem::FemAnalysis"]
+    if sel:
+        return sel[0]
+    doc = FreeCAD.ActiveDocument
+    found = [o for o in (doc.Objects if doc else []) if o.TypeId == "Fem::FemAnalysis"]
+    return found[-1] if found else None

@@ -202,10 +202,12 @@ class MbdCommand:
 
 
 class FeaCommand:
-    """有限元 · 疲劳窗口（ADR-0056）：选零件、选面加约束与载荷、本机计算、着色显示、疲劳寿命。"""
+    """热分析 · 疲劳窗口（ADR-0056；ADR-0096 第 1 步：强度、固有频率改在 FEM 工作台里算）。"""
 
     def GetResources(self):
-        return {"MenuText": "有限元 · 疲劳", "ToolTip": "零件的应力、安全系数、固有频率（本机 CalculiX），并按载荷谱算疲劳寿命"}
+        return {"MenuText": "热分析 · 疲劳",
+                "ToolTip": "零件的温度场、热应力（本机 CalculiX）；按 FEM 分析的计算结果和载荷谱算疲劳寿命。"
+                           "强度、固有频率请在 FEM 工作台里“一句话起草 / 计算并核查 / 出报告”"}
 
     def Activated(self):
         from PySide import QtCore
