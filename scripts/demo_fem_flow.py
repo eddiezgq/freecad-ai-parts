@@ -39,8 +39,9 @@ def main(out: str) -> int:
             time.sleep(0.01)
 
     cap = QtWidgets.QLabel(mw)
-    cap.setStyleSheet("background: rgba(20,40,80,220); color: white; font-size: 22px; padding: 10px;")
-    cap.setGeometry(380, 70, 900, 56)
+    cap.setStyleSheet("background: rgba(20,40,80,225); color: white; font-size: 21px; padding: 10px;")
+    cap.setWordWrap(True)
+    cap.setGeometry(400, 64, 1180, 84)
 
     def say(text, sec=2.5):
         cap.setText(text)
@@ -71,8 +72,10 @@ def main(out: str) -> int:
         part.FapStepPath = str(step)
         doc.recompute()
         FreeCADGui.activateWorkbench("FemWorkbench")
+        pump(1)
         v = FreeCADGui.activeDocument().activeView()
         v.viewIsometric()
+        pump(0.3)
         v.fitAll()
         say("FreeCAD 自带的 FEM 工作台；“一句话起草”“计算并核查”“出报告”三个按钮在“运行求解器”前面", 4)
 
@@ -90,11 +93,16 @@ def main(out: str) -> int:
         t0 = time.time()
         while panel.analysis is None and time.time() - t0 < 120:
             pump(0.2)
-        say("AI 起草、程序逐项核对：固定是 FEM 自带的约束，扭矩是零件库的对象；追问与未采用的提议列在面板里", 5)
+        v.viewIsometric()
+        v.fitAll()
+        say("AI 起草、程序逐项核对：端面固定用 FEM 自带的约束（红色符号），扭矩是零件库的对象；AI 拿不准的列成追问", 6)
+        panel.info.verticalScrollBar().setValue(panel.info.verticalScrollBar().maximum())
+        say("工程师看追问：扭矩正反向对线弹性应力大小无影响；花键段按光滑圆柱加扭矩可以；按线性静力算——都可以，勾选“已处理”", 7)
+        panel.handled.setChecked(True)
         panel.by.setText("演示工程师")
         pump(0.8)
         panel.ok.click()
-        say("工程师确认后才能算（不代签）", 3)
+        say("确认人与时间记进算例；没有确认的 AI 草稿不能算（程序不代签）", 4)
         FreeCADGui.Control.closeDialog()
         pump(0.5)
 
@@ -122,6 +130,7 @@ def main(out: str) -> int:
         for o in doc.Objects:
             if o.TypeId == "Part::Feature" and o.ViewObject:
                 o.ViewObject.Visibility = False
+        print("消息框：", boxes)
         pipe = next(o for o in doc.Objects if o.TypeId == "Fem::FemPostPipeline")
         pipe.ViewObject.Field = "von Mises Stress"
         pipe.ViewObject.DisplayMode = "Surface"
