@@ -1,0 +1,1552 @@
+{
+ "env": {
+  "code": "03020ccaa05ac1b6c288ee0a12c58cd04badbeec",
+  "date": "2026-11-17",
+  "solver": "CalculiX 2.21",
+  "gmsh": "4.13.1",
+  "python": "Python 3.13.18 / Linux 6.18.44-fc-v553"
+ },
+ "cases": [
+  {
+   "id": "VM-01",
+   "test": "tests/test_fea_bench.py::test_cantilever_balance_and_legacy_trust_block",
+   "category": "static",
+   "title": {
+    "zh": "悬臂块端部受力：支承反力平衡",
+    "en": "Cantilever block with tip force: support reaction balance"
+   },
+   "source": "静力平衡 / static equilibrium",
+   "rows": [
+    {
+     "case": "tests/test_fea_bench.py::test_cantilever_balance_and_legacy_trust_block",
+     "kind": "value",
+     "quantity": [
+      "支承竖向反力",
+      "vertical support reaction"
+     ],
+     "computed": 100.000054,
+     "reference": 100.0,
+     "tol": 0.0001,
+     "rel": true,
+     "error": 5.400000000577165e-07,
+     "unit": "N",
+     "formula": "ΣF = 0",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-02",
+   "test": "tests/test_fea_bench.py::test_lame_thick_cylinder",
+   "category": "static",
+   "title": {
+    "zh": "Lamé 厚壁圆筒受内压",
+    "en": "Lamé thick-walled cylinder under internal pressure"
+   },
+   "source": "Timoshenko & Goodier, Theory of Elasticity（厚壁圆筒 / thick-walled cylinder）",
+   "rows": [
+    {
+     "case": "tests/test_fea_bench.py::test_lame_thick_cylinder",
+     "kind": "value",
+     "quantity": [
+      "内壁 von Mises 应力",
+      "inner-wall von Mises stress"
+     ],
+     "computed": 235.214,
+     "reference": 233.33333333333331,
+     "tol": 0.02,
+     "rel": true,
+     "error": 0.008060000000000076,
+     "unit": "MPa",
+     "formula": "σθ = p(b² + a²)/(b² − a²), σr = −p, σz = 0",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_bench.py::test_lame_thick_cylinder",
+     "kind": "verdict",
+     "quantity": [
+      "可信度核查",
+      "trust check"
+     ],
+     "computed": "pass",
+     "reference": "pass",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-03",
+   "test": "tests/test_fea_bench.py::test_kirsch_plate_with_hole",
+   "category": "static",
+   "title": {
+    "zh": "带圆孔的板单向拉伸（Kirsch）",
+    "en": "Plate with a circular hole in uniaxial tension (Kirsch)"
+   },
+   "source": "Kirsch (1898); Heywood finite-width correction",
+   "rows": [
+    {
+     "case": "tests/test_fea_bench.py::test_kirsch_plate_with_hole",
+     "kind": "value",
+     "quantity": [
+      "孔边应力集中系数",
+      "stress concentration factor at the hole"
+     ],
+     "computed": 3.0556,
+     "reference": 3.0,
+     "tol": 0.03,
+     "rel": true,
+     "error": 0.018533333333333363,
+     "unit": "",
+     "formula": "Kt = 3 (Kirsch); W/d = 20",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_bench.py::test_kirsch_plate_with_hole",
+     "kind": "verdict",
+     "quantity": [
+      "可信度核查",
+      "trust check"
+     ],
+     "computed": "pass",
+     "reference": "pass",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-04",
+   "test": "tests/test_fea_bench.py::test_l_shape_reentrant_corner_is_flagged",
+   "category": "trust",
+   "title": {
+    "zh": "L 形板凹角：应力奇异点必须判不收敛",
+    "en": "L-shaped plate re-entrant corner: stress singularity must be flagged"
+   },
+   "source": "线弹性理论（凹角应力奇异）/ linear elasticity (re-entrant corner singularity)",
+   "rows": [
+    {
+     "case": "tests/test_fea_bench.py::test_l_shape_reentrant_corner_is_flagged",
+     "kind": "verdict",
+     "quantity": [
+      "凹角应力收敛核查（应判不收敛）",
+      "stress convergence at the re-entrant corner (must fail)"
+     ],
+     "computed": "fail",
+     "reference": "fail",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_bench.py::test_l_shape_reentrant_corner_is_flagged",
+     "kind": "verdict",
+     "quantity": [
+      "位移收敛核查",
+      "displacement convergence"
+     ],
+     "computed": "pass",
+     "reference": "pass",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-05",
+   "test": "tests/test_fea_f2.py::test_prescribed_displacement_bar_and_symmetry",
+   "category": "static",
+   "title": {
+    "zh": "强制位移拉杆（对称面）",
+    "en": "Bar with prescribed displacement (symmetry planes)"
+   },
+   "source": "材料力学 / strength of materials: σ = Eδ/L",
+   "rows": [
+    {
+     "case": "tests/test_fea_f2.py::test_prescribed_displacement_bar_and_symmetry",
+     "kind": "value",
+     "quantity": [
+      "杆中轴向应力",
+      "axial stress at mid-bar"
+     ],
+     "computed": 209.998,
+     "reference": 210.0,
+     "tol": 0.0001,
+     "rel": true,
+     "error": -9.523809523854999e-06,
+     "unit": "MPa",
+     "formula": "σ = Eδ/L",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-06",
+   "test": "tests/test_fea_f2.py::test_free_thermal_expansion",
+   "category": "static",
+   "title": {
+    "zh": "自由热膨胀",
+    "en": "Free thermal expansion"
+   },
+   "source": "u = αΔT·L",
+   "rows": [
+    {
+     "case": "tests/test_fea_f2.py::test_free_thermal_expansion",
+     "kind": "value",
+     "quantity": [
+      "角点 x 向位移",
+      "corner x displacement"
+     ],
+     "computed": 0.112,
+     "reference": 0.11199999999999999,
+     "tol": 1e-06,
+     "rel": true,
+     "error": 1.2390881971262908e-16,
+     "unit": "mm",
+     "formula": "u = αΔT·L",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-07",
+   "test": "tests/test_fea_f2.py::test_gravity_cantilever",
+   "category": "static",
+   "title": {
+    "zh": "自重悬臂梁",
+    "en": "Cantilever under self-weight"
+   },
+   "source": "材料力学 / strength of materials: δ = qL⁴/(8EI)",
+   "rows": [
+    {
+     "case": "tests/test_fea_f2.py::test_gravity_cantilever",
+     "kind": "value",
+     "quantity": [
+      "端部挠度",
+      "tip deflection"
+     ],
+     "computed": 2.20004,
+     "reference": 2.200242857142857,
+     "tol": 0.03,
+     "rel": true,
+     "error": -9.219761454895529e-05,
+     "unit": "mm",
+     "formula": "δ = qL⁴/(8EI)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-08",
+   "test": "tests/test_fea_f2.py::test_rotating_disk_centre_stress",
+   "category": "static",
+   "title": {
+    "zh": "旋转薄圆盘中心应力（离心载荷）",
+    "en": "Rotating thin disc, centre stress (centrifugal load)"
+   },
+   "source": "Timoshenko & Goodier, Theory of Elasticity（旋转圆盘 / rotating disc）",
+   "rows": [
+    {
+     "case": "tests/test_fea_f2.py::test_rotating_disk_centre_stress",
+     "kind": "value",
+     "quantity": [
+      "圆盘中心径向应力",
+      "radial stress at disc centre"
+     ],
+     "computed": 35.5113,
+     "reference": 35.51001416808609,
+     "tol": 0.02,
+     "rel": true,
+     "error": 3.621040272822281e-05,
+     "unit": "MPa",
+     "formula": "σr = σθ = (3 + ν)/8 · ρω²R²",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-09",
+   "test": "tests/test_fea_f2.py::test_block_on_elastic_foundation",
+   "category": "static",
+   "title": {
+    "zh": "弹性地基上的块",
+    "en": "Block on an elastic foundation"
+   },
+   "source": "p/k + pH/E",
+   "rows": [
+    {
+     "case": "tests/test_fea_f2.py::test_block_on_elastic_foundation",
+     "kind": "value",
+     "quantity": [
+      "顶面沉降",
+      "top-face settlement"
+     ],
+     "computed": 0.100095,
+     "reference": 0.1000952380952381,
+     "tol": 0.01,
+     "rel": true,
+     "error": -2.3786869647912096e-06,
+     "unit": "mm",
+     "formula": "p/k + pH/E",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-10",
+   "test": "tests/test_fea_f2.py::test_remote_load_equals_tip_force_plus_moment",
+   "category": "static",
+   "title": {
+    "zh": "远端载荷 = 端部力 + 力矩",
+    "en": "Remote load equals tip force plus moment"
+   },
+   "source": "材料力学 / strength of materials",
+   "rows": [
+    {
+     "case": "tests/test_fea_f2.py::test_remote_load_equals_tip_force_plus_moment",
+     "kind": "value",
+     "quantity": [
+      "端部挠度",
+      "tip deflection"
+     ],
+     "computed": 0.758915,
+     "reference": 0.7619047619047619,
+     "tol": 0.03,
+     "rel": true,
+     "error": -0.003924062499999936,
+     "unit": "mm",
+     "formula": "δ = FL³/(3EI) + ML²/(2EI)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-11",
+   "test": "tests/test_fea_f2.py::test_nafems_le1_elliptic_membrane",
+   "category": "static",
+   "title": {
+    "zh": "NAFEMS LE1 椭圆膜",
+    "en": "NAFEMS LE1 elliptic membrane"
+   },
+   "source": "NAFEMS TNSB Rev. 3 (1990) LE1; Davies, Fenner, Lewis, Background to Benchmarks (NAFEMS 1993)",
+   "rows": [
+    {
+     "case": "tests/test_fea_f2.py::test_nafems_le1_elliptic_membrane",
+     "kind": "value",
+     "quantity": [
+      "D 点 σyy",
+      "σyy at point D"
+     ],
+     "computed": 92.7575,
+     "reference": 92.7,
+     "tol": 0.01,
+     "rel": true,
+     "error": 0.0006202804746493025,
+     "unit": "MPa",
+     "formula": "NAFEMS LE1 target",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-12",
+   "test": "tests/test_fea_f2.py::test_nafems_le10_thick_plate",
+   "category": "static",
+   "title": {
+    "zh": "NAFEMS LE10 厚板受压",
+    "en": "NAFEMS LE10 thick plate under pressure"
+   },
+   "source": "NAFEMS TNSB Rev. 3 (1990) LE10",
+   "rows": [
+    {
+     "case": "tests/test_fea_f2.py::test_nafems_le10_thick_plate",
+     "kind": "value",
+     "quantity": [
+      "D 点 σyy",
+      "σyy at point D"
+     ],
+     "computed": -5.38373,
+     "reference": -5.38,
+     "tol": 0.02,
+     "rel": true,
+     "error": 0.0006933085501858757,
+     "unit": "MPa",
+     "formula": "NAFEMS LE10 target",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-13",
+   "test": "tests/test_fea_f2.py::test_le1_convergence_check_passes",
+   "category": "trust",
+   "title": {
+    "zh": "LE1 三层网格收敛核查应判通过",
+    "en": "LE1: three-level mesh convergence check must pass"
+   },
+   "source": "Roache (1998); Celik et al. (2008) GCI",
+   "rows": [
+    {
+     "case": "tests/test_fea_f2.py::test_le1_convergence_check_passes",
+     "kind": "verdict",
+     "quantity": [
+      "三层网格收敛等可信度核查",
+      "trust checks incl. three-level mesh convergence"
+     ],
+     "computed": "pass",
+     "reference": "pass",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-14",
+   "test": "tests/test_fea_f3.py::test_bonded_bars_with_mismatched_meshes",
+   "category": "contact",
+   "title": {
+    "zh": "网格不一致的两块杆绑定",
+    "en": "Two bars with mismatched meshes bonded together"
+   },
+   "source": "材料力学 / strength of materials: σ = F/A, ΔL = σL/E",
+   "rows": [
+    {
+     "case": "tests/test_fea_f3.py::test_bonded_bars_with_mismatched_meshes",
+     "kind": "value",
+     "quantity": [
+      "绑定后杆端伸长",
+      "elongation of the bonded bars"
+     ],
+     "computed": 0.023832,
+     "reference": 0.023809523809523808,
+     "tol": 0.005,
+     "rel": true,
+     "error": 0.0009440000000000143,
+     "unit": "mm",
+     "formula": "ΔL = σL/E",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-15",
+   "test": "tests/test_fea_f3.py::test_press_fit_contact_pressure",
+   "category": "contact",
+   "title": {
+    "zh": "过盈配合的接触压力（Lamé）",
+    "en": "Press-fit contact pressure (Lamé)"
+   },
+   "source": "Timoshenko & Goodier, Theory of Elasticity（厚壁圆筒 / thick-walled cylinder）",
+   "rows": [
+    {
+     "case": "tests/test_fea_f3.py::test_press_fit_contact_pressure",
+     "kind": "value",
+     "quantity": [
+      "内环内壁环向应力",
+      "hoop stress at inner ring bore"
+     ],
+     "computed": -165.21597112397274,
+     "reference": -168.0,
+     "tol": 0.03,
+     "rel": true,
+     "error": -0.016571600452543238,
+     "unit": "MPa",
+     "formula": "σθ = −2pb²/(b² − a²) (Lamé)",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_f3.py::test_press_fit_contact_pressure",
+     "kind": "value",
+     "quantity": [
+      "接触压力",
+      "contact pressure"
+     ],
+     "computed": 63.6768,
+     "reference": 63.0,
+     "tol": 0.05,
+     "rel": true,
+     "error": 0.010742857142857144,
+     "unit": "MPa",
+     "formula": "p = Eδ/b · (b² − a²)(c² − b²)/(2b²(c² − a²))",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-16",
+   "test": "tests/test_fea_f3.py::test_friction_sliding_force_is_mu_n",
+   "category": "contact",
+   "title": {
+    "zh": "摩擦滑动：切向力 = μN",
+    "en": "Frictional sliding: tangential force = μN"
+   },
+   "source": "Coulomb friction",
+   "rows": [
+    {
+     "case": "tests/test_fea_f3.py::test_friction_sliding_force_is_mu_n",
+     "kind": "value",
+     "quantity": [
+      "滑动摩擦力",
+      "sliding friction force"
+     ],
+     "computed": 2400.002162,
+     "reference": 2400.0,
+     "tol": 0.02,
+     "rel": true,
+     "error": 9.008333334274235e-07,
+     "unit": "N",
+     "formula": "F = μN (Coulomb)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-17",
+   "test": "tests/test_fea_f3.py::test_bolt_preload_in_fixed_bar",
+   "category": "contact",
+   "title": {
+    "zh": "螺栓预紧：截面拉力",
+    "en": "Bolt pretension: section force"
+   },
+   "source": "σ = F/A",
+   "rows": [
+    {
+     "case": "tests/test_fea_f3.py::test_bolt_preload_in_fixed_bar",
+     "kind": "value",
+     "quantity": [
+      "螺栓杆应力",
+      "bolt shank stress"
+     ],
+     "computed": 127.635,
+     "reference": 127.32395447351627,
+     "tol": 0.02,
+     "rel": true,
+     "error": 0.002442945852333205,
+     "unit": "MPa",
+     "formula": "σ = F/A",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-18",
+   "test": "tests/test_fea_f3.py::test_bolted_joint_load_factor",
+   "category": "contact",
+   "title": {
+    "zh": "螺栓连接受外载：载荷系数",
+    "en": "Bolted joint under external load: load factor"
+   },
+   "source": "VDI 2230",
+   "rows": [
+    {
+     "case": "tests/test_fea_f3.py::test_bolted_joint_load_factor",
+     "kind": "value",
+     "quantity": [
+      "外载使螺栓力增加的部分",
+      "bolt force increase from external load"
+     ],
+     "computed": 1355.0599999999995,
+     "reference": 1404.494382022472,
+     "tol": 0.05,
+     "rel": true,
+     "error": -0.0351972800000005,
+     "unit": "N",
+     "formula": "ΔF = Φ·P, Φ = kb/(kb + kc) (VDI 2230)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-19",
+   "test": "tests/test_fea_f4.py::test_euler_column_buckling",
+   "category": "buckling",
+   "title": {
+    "zh": "欧拉压杆（一端固定一端自由）",
+    "en": "Euler column (fixed–free)"
+   },
+   "source": "Timoshenko & Gere, Theory of Elastic Stability, ch. 2",
+   "rows": [
+    {
+     "case": "tests/test_fea_f4.py::test_euler_column_buckling",
+     "kind": "value",
+     "quantity": [
+      "临界载荷",
+      "critical load"
+     ],
+     "computed": 10806.380000000001,
+     "reference": 10794.879813691485,
+     "tol": 0.01,
+     "rel": true,
+     "error": 0.001065337132696024,
+     "unit": "N",
+     "formula": "P = π²EI/(4L²)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-20",
+   "test": "tests/test_fea_f4.py::test_simply_supported_plate_buckling",
+   "category": "buckling",
+   "title": {
+    "zh": "四边简支方板单向受压屈曲",
+    "en": "Simply supported square plate buckling under uniaxial compression"
+   },
+   "source": "Timoshenko & Gere, Theory of Elastic Stability, ch. 9",
+   "rows": [
+    {
+     "case": "tests/test_fea_f4.py::test_simply_supported_plate_buckling",
+     "kind": "value",
+     "quantity": [
+      "临界应力",
+      "critical stress"
+     ],
+     "computed": 1936.956,
+     "reference": 1898.0008463633385,
+     "tol": 0.03,
+     "rel": true,
+     "error": 0.02052430783226539,
+     "unit": "MPa",
+     "formula": "σ = kπ²E/(12(1 − ν²))·(t/b)², k = 4",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-21",
+   "test": "tests/test_fea_f4.py::test_perfectly_plastic_bar_plateau",
+   "category": "nonlinear",
+   "title": {
+    "zh": "理想弹塑性拉杆",
+    "en": "Elastic–perfectly plastic bar"
+   },
+   "source": "定义 / definition: F = σy·A, εp = ε − σy/E",
+   "rows": [
+    {
+     "case": "tests/test_fea_f4.py::test_perfectly_plastic_bar_plateau",
+     "kind": "value",
+     "quantity": [
+      "屈服后反力平台",
+      "reaction plateau after yield"
+     ],
+     "computed": 35500.0,
+     "reference": 35500.0,
+     "tol": 0.005,
+     "rel": true,
+     "error": 0.0,
+     "unit": "N",
+     "formula": "F = σy·A",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_f4.py::test_perfectly_plastic_bar_plateau",
+     "kind": "value",
+     "quantity": [
+      "等效塑性应变",
+      "equivalent plastic strain"
+     ],
+     "computed": 0.003309,
+     "reference": 0.00330952380952381,
+     "tol": 0.01,
+     "rel": true,
+     "error": -0.00015827338129512853,
+     "unit": "",
+     "formula": "εp = ε − σy/E",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-22",
+   "test": "tests/test_fea_f4.py::test_hardening_curve_bar",
+   "category": "nonlinear",
+   "title": {
+    "zh": "线性硬化拉杆",
+    "en": "Bar with linear hardening"
+   },
+   "source": "σ = σ0 + H·εp",
+   "rows": [
+    {
+     "case": "tests/test_fea_f4.py::test_hardening_curve_bar",
+     "kind": "value",
+     "quantity": [
+      "杆中应力",
+      "bar stress"
+     ],
+     "computed": 386.587,
+     "reference": 386.59090909090907,
+     "tol": 0.005,
+     "rel": true,
+     "error": -1.0111699000549286e-05,
+     "unit": "MPa",
+     "formula": "σ = σ0 + H·εp, εp = ε − σ/E",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-23",
+   "test": "tests/test_fea_f4.py::test_thick_cylinder_limit_pressure",
+   "category": "nonlinear",
+   "title": {
+    "zh": "厚壁筒极限压力（平面应变）",
+    "en": "Thick cylinder limit pressure (plane strain)"
+   },
+   "source": "Hill, The Mathematical Theory of Plasticity (1950), ch. 5",
+   "rows": [
+    {
+     "case": "tests/test_fea_f4.py::test_thick_cylinder_limit_pressure",
+     "kind": "value",
+     "quantity": [
+      "极限压力",
+      "limit pressure"
+     ],
+     "computed": 284.16464306884615,
+     "reference": 284.13398501186333,
+     "tol": 0.02,
+     "rel": true,
+     "error": 0.00010790000000012529,
+     "unit": "MPa",
+     "formula": "p = (2/√3)·σy·ln(b/a) (Hill)",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_f4.py::test_thick_cylinder_limit_pressure",
+     "kind": "verdict",
+     "quantity": [
+      "载荷加完（应判不通过）",
+      "full load reached (must fail)"
+     ],
+     "computed": "fail",
+     "reference": "fail",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-24",
+   "test": "tests/test_fea_f4.py::test_large_deflection_cantilever",
+   "category": "nonlinear",
+   "title": {
+    "zh": "大挠度悬臂梁",
+    "en": "Large-deflection cantilever"
+   },
+   "source": "Bisshopp & Drucker (1945), Quart. Appl. Math. 3; Mattiasson (1981)",
+   "rows": [
+    {
+     "case": "tests/test_fea_f4.py::test_large_deflection_cantilever",
+     "kind": "value",
+     "quantity": [
+      "端部竖向位移 / L",
+      "tip vertical displacement / L"
+     ],
+     "computed": 0.30137,
+     "reference": 0.30172,
+     "tol": 0.01,
+     "rel": true,
+     "error": -0.0011600159087894785,
+     "unit": "",
+     "formula": "Bisshopp & Drucker, PL²/EI = 1",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_f4.py::test_large_deflection_cantilever",
+     "kind": "value",
+     "quantity": [
+      "端部水平缩进 / L",
+      "tip horizontal shortening / L"
+     ],
+     "computed": 0.055830000000000005,
+     "reference": 0.05643,
+     "tol": 0.03,
+     "rel": true,
+     "error": -0.010632642211589516,
+     "unit": "",
+     "formula": "Bisshopp & Drucker, PL²/EI = 1",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-25",
+   "test": "tests/test_fea_f4.py::test_hertz_sphere_on_flat",
+   "category": "contact",
+   "title": {
+    "zh": "Hertz 接触：球压平面",
+    "en": "Hertz contact: sphere on flat"
+   },
+   "source": "Johnson, Contact Mechanics (1985), ch. 4",
+   "rows": [
+    {
+     "case": "tests/test_fea_f4.py::test_hertz_sphere_on_flat",
+     "kind": "value",
+     "quantity": [
+      "最大接触压力",
+      "max contact pressure"
+     ],
+     "computed": 7431.58,
+     "reference": 7516.606670719777,
+     "tol": 0.05,
+     "rel": true,
+     "error": -0.011311842490174496,
+     "unit": "MPa",
+     "formula": "p0 = 3F/(2πa²), a = (3FR/(4E*))^(1/3) (Hertz)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-26",
+   "test": "tests/test_fea_f5.py::test_sdof_frequency_and_effective_mass",
+   "category": "modal",
+   "title": {
+    "zh": "单自由度：弹性地基上的刚块",
+    "en": "Single degree of freedom: rigid block on elastic foundation"
+   },
+   "source": "ωn = √(k/m)",
+   "rows": [
+    {
+     "case": "tests/test_fea_f5.py::test_sdof_frequency_and_effective_mass",
+     "kind": "value",
+     "quantity": [
+      "竖向固有频率",
+      "vertical natural frequency"
+     ],
+     "computed": 100.0151,
+     "reference": 100.01523280338287,
+     "tol": 0.001,
+     "rel": true,
+     "error": -1.3278315627135344e-06,
+     "unit": "Hz",
+     "formula": "ωn = √(kA/m)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-27",
+   "test": "tests/test_fea_f5.py::test_sdof_harmonic_amplification",
+   "category": "dynamic",
+   "title": {
+    "zh": "单自由度谐响应",
+    "en": "Single degree of freedom: harmonic response"
+   },
+   "source": "Chopra, Dynamics of Structures, ch. 3",
+   "rows": [
+    {
+     "case": "tests/test_fea_f5.py::test_sdof_harmonic_amplification",
+     "kind": "value",
+     "quantity": [
+      "位移幅值（f/fn = 0.50）",
+      "displacement amplitude (f/fn = 0.50)"
+     ],
+     "computed": 5.381002747,
+     "reference": 5.380947374740032,
+     "tol": 0.005,
+     "rel": true,
+     "error": 1.0290429567897012e-05,
+     "unit": "mm",
+     "formula": "(F/k)/√((1 − r²)² + (2ζr)²)",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_f5.py::test_sdof_harmonic_amplification",
+     "kind": "value",
+     "quantity": [
+      "位移幅值（f/fn = 1.00）",
+      "displacement amplitude (f/fn = 1.00)"
+     ],
+     "computed": 100.807332396,
+     "reference": 100.80658524489911,
+     "tol": 0.005,
+     "rel": true,
+     "error": 7.4117290956808306e-06,
+     "unit": "mm",
+     "formula": "(F/k)/√((1 − r²)² + (2ζr)²)",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_f5.py::test_sdof_harmonic_amplification",
+     "kind": "value",
+     "quantity": [
+      "位移幅值（f/fn = 2.00）",
+      "displacement amplitude (f/fn = 2.00)"
+     ],
+     "computed": 1.344659191,
+     "reference": 1.3446557618205568,
+     "tol": 0.005,
+     "rel": true,
+     "error": 2.5502284976267532e-06,
+     "unit": "mm",
+     "formula": "(F/k)/√((1 − r²)² + (2ζr)²)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-28",
+   "test": "tests/test_fea_f5.py::test_sdof_random_miles",
+   "category": "dynamic",
+   "title": {
+    "zh": "单自由度白噪声随机振动（Miles）",
+    "en": "Single degree of freedom: white-noise random vibration (Miles)"
+   },
+   "source": "Miles (1954); Crandall & Mark, Random Vibration in Mechanical Systems",
+   "rows": [
+    {
+     "case": "tests/test_fea_f5.py::test_sdof_random_miles",
+     "kind": "value",
+     "quantity": [
+      "相对位移均方根",
+      "RMS relative displacement"
+     ],
+     "computed": 0.158588789,
+     "reference": 0.15869782726273873,
+     "tol": 0.01,
+     "rel": true,
+     "error": -0.0006870810055779945,
+     "unit": "mm",
+     "formula": "√(G/(8ζωn³)) (Miles)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-29",
+   "test": "tests/test_fea_f5.py::test_sdof_step_load",
+   "category": "dynamic",
+   "title": {
+    "zh": "单自由度阶跃载荷瞬态",
+    "en": "Single degree of freedom: step-load transient"
+   },
+   "source": "Chopra, Dynamics of Structures, ch. 4",
+   "rows": [
+    {
+     "case": "tests/test_fea_f5.py::test_sdof_step_load",
+     "kind": "value",
+     "quantity": [
+      "阶跃载荷峰值位移",
+      "peak displacement under step load"
+     ],
+     "computed": 8.051944955,
+     "reference": 8.064516129032258,
+     "tol": 0.01,
+     "rel": true,
+     "error": -0.0015588255800000254,
+     "unit": "mm",
+     "formula": "u_max ≈ 2F/k (Chopra)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-30",
+   "test": "tests/test_fea_f5.py::test_cantilever_harmonic_exact",
+   "category": "dynamic",
+   "title": {
+    "zh": "悬臂梁端部简谐力（连续梁精确解）",
+    "en": "Cantilever under tip harmonic force (exact continuous-beam solution)"
+   },
+   "source": "Bishop & Johnson, The Mechanics of Vibration",
+   "rows": [
+    {
+     "case": "tests/test_fea_f5.py::test_cantilever_harmonic_exact",
+     "kind": "value",
+     "quantity": [
+      "一阶固有频率",
+      "first natural frequency"
+     ],
+     "computed": 209.122,
+     "reference": 208.8791333025411,
+     "tol": 0.005,
+     "rel": true,
+     "error": 0.0011627140232678913,
+     "unit": "Hz",
+     "formula": "(1.875104²/2π)·√(EI/(ρAL⁴))",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_f5.py::test_cantilever_harmonic_exact",
+     "kind": "value",
+     "quantity": [
+      "端部位移 / 力（f = 0.2·f1）",
+      "tip receptance (f = 0.2·f1)"
+     ],
+     "computed": 0.015806773,
+     "reference": 0.015854795822822697,
+     "tol": 0.01,
+     "rel": true,
+     "error": -0.0030289146173405226,
+     "unit": "mm/N",
+     "formula": "Euler–Bernoulli beam exact receptance",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_f5.py::test_cantilever_harmonic_exact",
+     "kind": "value",
+     "quantity": [
+      "端部位移 / 力（f = 0.5·f1）",
+      "tip receptance (f = 0.5·f1)"
+     ],
+     "computed": 0.01980154,
+     "reference": 0.019874572249602672,
+     "tol": 0.01,
+     "rel": true,
+     "error": -0.0036746576824632066,
+     "unit": "mm/N",
+     "formula": "Euler–Bernoulli beam exact receptance",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_f5.py::test_cantilever_harmonic_exact",
+     "kind": "value",
+     "quantity": [
+      "端部位移 / 力（f = 2·f1）",
+      "tip receptance (f = 2·f1)"
+     ],
+     "computed": 0.004437056,
+     "reference": 0.004439462883675195,
+     "tol": 0.01,
+     "rel": true,
+     "error": -0.0005421565036719162,
+     "unit": "mm/N",
+     "formula": "Euler–Bernoulli beam exact receptance",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_f5.py::test_cantilever_harmonic_exact",
+     "kind": "value",
+     "quantity": [
+      "端部位移 / 力（f = 3·f1）",
+      "tip receptance (f = 3·f1)"
+     ],
+     "computed": 0.001206208,
+     "reference": 0.0012120333259018389,
+     "tol": 0.01,
+     "rel": true,
+     "error": -0.004806242351054467,
+     "unit": "mm/N",
+     "formula": "Euler–Bernoulli beam exact receptance",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-31",
+   "test": "tests/test_fea_f5.py::test_prestressed_pinned_beam",
+   "category": "modal",
+   "title": {
+    "zh": "受轴力的两端铰支梁（预应力模态）",
+    "en": "Pinned–pinned beam with axial force (prestressed modal)"
+   },
+   "source": "Blevins, Formulas for Natural Frequency and Mode Shape",
+   "rows": [
+    {
+     "case": "tests/test_fea_f5.py::test_prestressed_pinned_beam",
+     "kind": "value",
+     "quantity": [
+      "受拉（T = Pcr）频率比",
+      "frequency ratio in tension (T = Pcr)"
+     ],
+     "computed": 1.4184856703121687,
+     "reference": 1.4142135623730951,
+     "tol": 0.015,
+     "rel": true,
+     "error": 0.0030208364936797653,
+     "unit": "",
+     "formula": "fn/fn0 = √(1 + TL²/(π²EI))",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-32",
+   "test": "tests/test_fea_f5.py::test_bonded_bodies_modal_equals_single_bar",
+   "category": "modal",
+   "title": {
+    "zh": "两段绑定的杆与整根杆的模态",
+    "en": "Modal analysis: two bonded parts vs one bar"
+   },
+   "source": "同一结构 / same structure",
+   "rows": [
+    {
+     "case": "tests/test_fea_f5.py::test_bonded_bodies_modal_equals_single_bar",
+     "kind": "value",
+     "quantity": [
+      "两段绑定与整根杆的一阶频率",
+      "first frequency, two bonded parts vs one bar"
+     ],
+     "computed": 209.0625,
+     "reference": 209.1206,
+     "tol": 0.005,
+     "rel": true,
+     "error": -0.00027783011334127795,
+     "unit": "Hz",
+     "formula": "same structure",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-33",
+   "test": "tests/test_fea_mass.py::test_tip_mass_static_and_modal",
+   "category": "modal",
+   "title": {
+    "zh": "端部附加质量的悬臂梁（静力、模态）",
+    "en": "Cantilever with tip mass (static and modal)"
+   },
+   "source": "Thomson, Theory of Vibration with Applications, ch. 2 (Rayleigh)",
+   "rows": [
+    {
+     "case": "tests/test_fea_mass.py::test_tip_mass_static_and_modal",
+     "kind": "value",
+     "quantity": [
+      "端部挠度（端部质量 + 自重）",
+      "tip deflection (tip mass + self-weight)"
+     ],
+     "computed": 0.307023,
+     "reference": 0.3077724,
+     "tol": 0.01,
+     "rel": true,
+     "error": -0.0024349161913154367,
+     "unit": "mm",
+     "formula": "MgL³/(3EI) + qL⁴/(8EI)",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_mass.py::test_tip_mass_static_and_modal",
+     "kind": "value",
+     "quantity": [
+      "一阶固有频率（端部质量）",
+      "first natural frequency (tip mass)"
+     ],
+     "computed": 28.5942,
+     "reference": 28.56659738413117,
+     "tol": 0.01,
+     "rel": true,
+     "error": 0.0009662549409599252,
+     "unit": "Hz",
+     "formula": "(1/2π)·√(3EI/L³/(M + 33/140·m_beam)) (Rayleigh)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-34",
+   "test": "tests/test_fea_nafems_fv.py::test_nafems_fv52_flexural_modes",
+   "category": "modal",
+   "title": {
+    "zh": "NAFEMS FV52 简支厚方板：弯曲模态",
+    "en": "NAFEMS FV52 simply supported thick plate: flexural modes"
+   },
+   "source": "NAFEMS TNSB Rev. 3 (1990) FV52; Ansys VM Benchmark C5; Altair OS-V: 0455",
+   "rows": [
+    {
+     "case": "tests/test_fea_nafems_fv.py::test_nafems_fv52_flexural_modes",
+     "kind": "value",
+     "quantity": [
+      "第 4 阶（弯曲）固有频率",
+      "natural frequency, mode 4 (flexural)"
+     ],
+     "computed": 47.5849,
+     "reference": 47.4776390083681,
+     "tol": 0.01,
+     "rel": true,
+     "error": 0.002259189670594016,
+     "unit": "Hz",
+     "formula": "NAFEMS FV52 45.897 Hz × 1.03444",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_nafems_fv.py::test_nafems_fv52_flexural_modes",
+     "kind": "value",
+     "quantity": [
+      "第 5 阶（弯曲）固有频率",
+      "natural frequency, mode 5 (flexural)"
+     ],
+     "computed": 113.8081,
+     "reference": 113.2089856216268,
+     "tol": 0.01,
+     "rel": true,
+     "error": 0.0052921097656999936,
+     "unit": "Hz",
+     "formula": "NAFEMS FV52 109.44 Hz × 1.03444",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_nafems_fv.py::test_nafems_fv52_flexural_modes",
+     "kind": "value",
+     "quantity": [
+      "第 6 阶（弯曲）固有频率",
+      "natural frequency, mode 6 (flexural)"
+     ],
+     "computed": 113.8228,
+     "reference": 113.2089856216268,
+     "tol": 0.01,
+     "rel": true,
+     "error": 0.005421958115804781,
+     "unit": "Hz",
+     "formula": "NAFEMS FV52 109.44 Hz × 1.03444",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_nafems_fv.py::test_nafems_fv52_flexural_modes",
+     "kind": "value",
+     "quantity": [
+      "第 7 阶（弯曲）固有频率",
+      "natural frequency, mode 7 (flexural)"
+     ],
+     "computed": 175.0685,
+     "reference": 173.6719352706042,
+     "tol": 0.01,
+     "rel": true,
+     "error": 0.00804139556123314,
+     "unit": "Hz",
+     "formula": "NAFEMS FV52 167.89 Hz × 1.03444",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_nafems_fv.py::test_nafems_fv52_flexural_modes",
+     "kind": "value",
+     "quantity": [
+      "第 9 阶（弯曲）固有频率",
+      "natural frequency, mode 9 (flexural)"
+     ],
+     "computed": 213.5575,
+     "reference": 213.29094248285116,
+     "tol": 0.01,
+     "rel": true,
+     "error": 0.0012497366932037982,
+     "unit": "Hz",
+     "formula": "NAFEMS FV52 206.19 Hz × 1.03444",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_nafems_fv.py::test_nafems_fv52_flexural_modes",
+     "kind": "value",
+     "quantity": [
+      "第 10 阶（弯曲）固有频率",
+      "natural frequency, mode 10 (flexural)"
+     ],
+     "computed": 213.6338,
+     "reference": 213.29094248285116,
+     "tol": 0.01,
+     "rel": true,
+     "error": 0.0016074640261689002,
+     "unit": "Hz",
+     "formula": "NAFEMS FV52 206.19 Hz × 1.03444",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-35",
+   "test": "tests/test_fea_nafems_fv.py::test_nafems_fv52_inplane_mode",
+   "category": "modal",
+   "title": {
+    "zh": "NAFEMS FV52 简支厚方板：面内模态",
+    "en": "NAFEMS FV52 simply supported thick plate: in-plane mode"
+   },
+   "source": "NAFEMS TNSB Rev. 3 (1990) FV52; Ansys VM Benchmark C5; Altair OS-V: 0455",
+   "rows": [
+    {
+     "case": "tests/test_fea_nafems_fv.py::test_nafems_fv52_inplane_mode",
+     "kind": "value",
+     "quantity": [
+      "第 8 阶（面内）固有频率",
+      "natural frequency, mode 8 (in-plane)"
+     ],
+     "computed": 200.2595,
+     "reference": 200.25701321720334,
+     "tol": 0.005,
+     "rel": true,
+     "error": 1.2417956089101854e-05,
+     "unit": "Hz",
+     "formula": "NAFEMS FV52 193.59 Hz × 1.03444",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-36",
+   "test": "tests/test_fea_shell_beam.py::test_cantilever_tip_load[rect]",
+   "category": "shell_beam",
+   "title": {
+    "zh": "梁单元悬臂梁端部受力（矩形截面）",
+    "en": "Beam-element cantilever with tip force (rectangular section)"
+   },
+   "source": "Euler–Bernoulli beam theory",
+   "rows": [
+    {
+     "case": "tests/test_fea_shell_beam.py::test_cantilever_tip_load[rect]",
+     "kind": "value",
+     "quantity": [
+      "端部挠度（rect 截面）",
+      "tip deflection (rect section)"
+     ],
+     "computed": 0.191762,
+     "reference": 0.19047619047619047,
+     "tol": 0.025,
+     "rel": true,
+     "error": 0.006750499999999993,
+     "unit": "mm",
+     "formula": "PL³/(3EI) (Euler–Bernoulli)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-37",
+   "test": "tests/test_fea_shell_beam.py::test_cantilever_tip_load[circle]",
+   "category": "shell_beam",
+   "title": {
+    "zh": "梁单元悬臂梁端部受力（实心圆截面）",
+    "en": "Beam-element cantilever with tip force (solid round section)"
+   },
+   "source": "Euler–Bernoulli beam theory",
+   "rows": [
+    {
+     "case": "tests/test_fea_shell_beam.py::test_cantilever_tip_load[circle]",
+     "kind": "value",
+     "quantity": [
+      "端部挠度（circle 截面）",
+      "tip deflection (circle section)"
+     ],
+     "computed": 0.162604,
+     "reference": 0.16168121202986194,
+     "tol": 0.025,
+     "rel": true,
+     "error": 0.005707453318494581,
+     "unit": "mm",
+     "formula": "PL³/(3EI) (Euler–Bernoulli)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-38",
+   "test": "tests/test_fea_shell_beam.py::test_cantilever_tip_load[pipe]",
+   "category": "shell_beam",
+   "title": {
+    "zh": "梁单元悬臂梁端部受力（圆管截面）",
+    "en": "Beam-element cantilever with tip force (tube section)"
+   },
+   "source": "Euler–Bernoulli beam theory",
+   "rows": [
+    {
+     "case": "tests/test_fea_shell_beam.py::test_cantilever_tip_load[pipe]",
+     "kind": "value",
+     "quantity": [
+      "端部挠度（pipe 截面）",
+      "tip deflection (pipe section)"
+     ],
+     "computed": 0.055367,
+     "reference": 0.054093884716739246,
+     "tol": 0.025,
+     "rel": true,
+     "error": 0.023535290355414063,
+     "unit": "mm",
+     "formula": "PL³/(3EI) (Euler–Bernoulli)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-39",
+   "test": "tests/test_fea_shell_beam.py::test_cantilever_self_weight_and_first_frequency",
+   "category": "shell_beam",
+   "title": {
+    "zh": "梁单元悬臂梁自重与一阶频率",
+    "en": "Beam-element cantilever: self-weight and first frequency"
+   },
+   "source": "Euler–Bernoulli beam theory",
+   "rows": [
+    {
+     "case": "tests/test_fea_shell_beam.py::test_cantilever_self_weight_and_first_frequency",
+     "kind": "value",
+     "quantity": [
+      "自重端部挠度",
+      "tip deflection under self-weight"
+     ],
+     "computed": 1.373502,
+     "reference": 1.3746821874999997,
+     "tol": 0.01,
+     "rel": true,
+     "error": -0.0008585166162267653,
+     "unit": "mm",
+     "formula": "wL⁴/(8EI)",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_shell_beam.py::test_cantilever_self_weight_and_first_frequency",
+     "kind": "value",
+     "quantity": [
+      "梁一阶固有频率",
+      "beam first natural frequency"
+     ],
+     "computed": 8.3785,
+     "reference": 8.355165332101643,
+     "tol": 0.01,
+     "rel": true,
+     "error": 0.0027928433455053714,
+     "unit": "Hz",
+     "formula": "(1.875104²/L²)·√(EI/(ρA))/(2π)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-40",
+   "test": "tests/test_fea_shell_beam.py::test_simply_supported_plate",
+   "category": "shell_beam",
+   "title": {
+    "zh": "壳单元四边简支方板（均布压力、一阶频率）",
+    "en": "Shell-element simply supported square plate (uniform pressure, first frequency)"
+   },
+   "source": "Timoshenko & Woinowsky-Krieger, Theory of Plates and Shells, ch. 5",
+   "rows": [
+    {
+     "case": "tests/test_fea_shell_beam.py::test_simply_supported_plate",
+     "kind": "value",
+     "quantity": [
+      "方板中点挠度",
+      "plate centre deflection"
+     ],
+     "computed": 0.425257,
+     "reference": 0.42224000000000006,
+     "tol": 0.02,
+     "rel": true,
+     "error": 0.00714522546419083,
+     "unit": "mm",
+     "formula": "α·q·a⁴/D, α = 0.00406",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_shell_beam.py::test_simply_supported_plate",
+     "kind": "value",
+     "quantity": [
+      "方板一阶固有频率",
+      "plate first natural frequency"
+     ],
+     "computed": 246.1313,
+     "reference": 245.85745224999363,
+     "tol": 0.02,
+     "rel": true,
+     "error": 0.0011138476686398241,
+     "unit": "Hz",
+     "formula": "(π/2)·(2/a²)·√(D/(ρt))",
+     "ok": true
+    },
+    {
+     "case": "tests/test_fea_shell_beam.py::test_simply_supported_plate",
+     "kind": "verdict",
+     "quantity": [
+      "角点应力收敛核查（应判不收敛）",
+      "corner stress convergence (must fail)"
+     ],
+     "computed": "fail",
+     "reference": "fail",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-41",
+   "test": "tests/test_fea_shell_beam.py::test_frame_segments_are_joined",
+   "category": "shell_beam",
+   "title": {
+    "zh": "梁单元 L 形框架",
+    "en": "Beam-element L-frame"
+   },
+   "source": "材料力学 / strength of materials",
+   "rows": [
+    {
+     "case": "tests/test_fea_shell_beam.py::test_frame_segments_are_joined",
+     "kind": "value",
+     "quantity": [
+      "L 形框架端部合位移",
+      "L-frame tip resultant displacement"
+     ],
+     "computed": 5.28171,
+     "reference": 5.1727277260381905,
+     "tol": 0.03,
+     "rel": true,
+     "error": 0.02106862756630721,
+     "unit": "mm",
+     "formula": "√(v² + u²), v = Pa³/(3EI) + Pa²h/(EI), u = Pah²/(2EI)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "VM-42",
+   "test": "tests/test_fea_cases.py::test_combination_equals_superposition",
+   "category": "static",
+   "title": {
+    "zh": "工况组合等于按系数叠加",
+    "en": "Load combination equals factored superposition"
+   },
+   "source": "线弹性叠加原理 / linear superposition",
+   "rows": [
+    {
+     "case": "tests/test_fea_cases.py::test_combination_equals_superposition",
+     "kind": "value",
+     "quantity": [
+      "组合 C1 的竖向位移（与叠加比）",
+      "combination C1 vertical displacement (vs superposition)"
+     ],
+     "computed": -1.55401,
+     "reference": -1.5540120000000002,
+     "tol": 0.0001,
+     "rel": true,
+     "error": -1.286991349024046e-06,
+     "unit": "mm",
+     "formula": "1.35·u_g + 1.5·u_w",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  }
+ ],
+ "n": 42,
+ "ok": 42,
+ "bad": 0,
+ "skip": 0,
+ "rows": 64,
+ "rows_ok": 64
+}

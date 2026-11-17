@@ -13,6 +13,7 @@ import argparse
 import json
 import os
 import platform
+import re
 import subprocess
 import sys
 import tempfile
@@ -78,7 +79,8 @@ def _env() -> dict:
     if ccx:
         try:
             out = subprocess.run([ccx, "-v"], capture_output=True, text=True, timeout=30, check=False).stdout
-            ver = next((ln.strip() for ln in out.splitlines() if "Version" in ln), "")
+            m = re.search(r"Version\s+([0-9][0-9.]*)", out)
+            ver = m.group(1) if m else ""
         except (OSError, subprocess.SubprocessError):
             ver = ""
     return {"code": code_version(), "date": datetime.now(UTC).date().isoformat(), "solver": f"CalculiX {ver}".strip(),
@@ -130,8 +132,6 @@ def summarize(cases: list[dict], rows: list[dict], outcome: dict[str, str]) -> d
 
 def _source(src: str, lang: str) -> str:
     """出处里“中文 / English”的写法按语言取一边（文献名照原样）"""
-    import re
-
     from assist.i18n import has_cjk
 
     src = re.sub(r"（([^（）/]+?) / ([^（）]+?)）", lambda m: f"（{m.group(1)}）" if lang == "zh" else f" ({m.group(2)})", src)
