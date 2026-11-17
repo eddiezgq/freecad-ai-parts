@@ -186,6 +186,8 @@ class FemRunCommand:
 
     def Activated(self):
         an = _analysis()
+        if not F.adopted(an) and not _adopt(an):
+            return
         try:
             study, wd = F.prepare_run(an)
         except Exception as exc:  # noqa: BLE001
@@ -203,6 +205,28 @@ class FemRunCommand:
                  + ("\n".join(out["skipped"]) if out["skipped"] else ""))
 
         _in_background(lambda: F.compute(study, wd), done)
+
+
+def _adopt(an) -> bool:
+    """用 FEM 工具手建的分析：先选材料库的材料再接管（FEM 自己的材料卡不用：材料库的数值有出处，报告里列明）"""
+    from PySide import QtWidgets
+
+    from analysis.common import materials
+    from assist import i18n
+
+    mats = materials.all_materials()
+    items = [f"{m['id']} — {i18n.tr(m['name'])}" for m in mats]
+    pick, ok = QtWidgets.QInputDialog.getItem(
+        _mw(), T("计算并核查"), T("这个分析是用 FEM 工具手建的。选零件的材料（材料库，数值有出处，报告里列明；"
+                                  "FEM 自己的材料卡不用）："), items, 0, False)
+    if not ok:
+        return False
+    try:
+        F.adopt(an, mats[items.index(pick)]["id"])
+    except Exception as exc:  # noqa: BLE001 — 显示给人
+        _say("计算并核查", f"不能接管这个分析：{exc}", warn=True)
+        return False
+    return True
 
 
 class FemReportCommand:

@@ -307,3 +307,82 @@ def test_fea_edition_menus_and_license(monkeypatch, tmp_path):
                 FreeCADGui.removeWorkbenchManipulator(getattr(FreeCADGui, name))
                 delattr(FreeCADGui, name)
         FreeCADGui.activateWorkbench("NoneWorkbench")
+
+
+def _hand_built_cantilever(doc, tmp_path, solver_type="static"):
+    """像用户那样只用 FEM 工作台的工具建分析：悬臂方梁 100×10×10，x = 0 面固定，x = 100 面受 100 N 的力（-z）"""
+    import FreeCAD
+    import ObjectsFem
+    import Part
+
+    box = doc.addObject("Part::Feature", "Beam")
+    box.Shape = Part.makeBox(100, 10, 10)
+    doc.recompute()
+    faces = {round(f.CenterOfMass.x, 3): i + 1 for i, f in enumerate(box.Shape.Faces) if abs(f.normalAt(0, 0).x) > 0.99}
+    an = ObjectsFem.makeAnalysis(doc, "Analysis")
+    solver = ObjectsFem.makeSolverCalculiXCcxTools(doc) if hasattr(ObjectsFem, "makeSolverCalculiXCcxTools") \
+        else ObjectsFem.makeSolverCalculiX(doc)
+    solver.AnalysisType = solver_type
+    an.addObject(solver)
+    mat = ObjectsFem.makeMaterialSolid(doc, "SolidMaterial")      # FEM 自己的材料卡：接管时不用
+    mat.Material = {"Name": "Steel-Generic", "YoungsModulus": "200000 MPa", "PoissonRatio": "0.3", "Density": "7900 kg/m^3"}
+    an.addObject(mat)
+    fix = ObjectsFem.makeConstraintFixed(doc, "Fixed")
+    fix.References = [(box, f"Face{faces[0.0]}")]
+    an.addObject(fix)
+    force = ObjectsFem.makeConstraintForce(doc, "Force")
+    force.References = [(box, f"Face{faces[100.0]}")]
+    force.Force = FreeCAD.Units.Quantity("100 N")
+    line = doc.addObject("Part::Line", "Dir")
+    line.X1, line.Y1, line.Z1, line.X2, line.Y2, line.Z2 = 0, 0, 0, 0, 0, -10
+    doc.recompute()
+    force.Direction = (line, ["Edge1"])
+    force.Reversed = False
+    an.addObject(force)
+    doc.recompute()
+    return an
+
+
+def test_hand_built_analysis_is_adopted_and_solved(doc, monkeypatch, tmp_path):
+    """免费版的主路径（ADR-0096）：用户用 FEM 工具手建分析 → 选材料库材料接管 → 计算并核查 → 挠度对上 PL³/3EI"""
+    from analysis.common import materials
+    from assist import fea_edition
+    from freecad_addon.fc import fem_flow as F
+    from licensing import runtime
+
+    monkeypatch.setenv("FAP_EDITION", "fea")                          # 免费版也能走这条路
+    monkeypatch.setenv("FAP_LICENSE_FILE", str(tmp_path / "none.json"))
+    monkeypatch.setattr(fea_edition, "EDITION_FILE", tmp_path / "none-edition.json")
+    monkeypatch.setattr(runtime, "EDITION_FILE", tmp_path / "none-edition.json")
+    an = _hand_built_cantilever(doc, tmp_path)
+    assert not F.adopted(an)
+    with pytest.raises(F.FlowError, match="材料库"):
+        F.adopt(an, "no-such-steel")
+    study = F.adopt(an, "45-QT", tmp_path / "parts")
+    assert F.adopted(an) and study["steps"] == [{"id": "s1", "type": "static"}]
+    with pytest.raises(F.FlowError, match="接管过"):
+        F.adopt(an, "45-QT")
+    st, wd = F.prepare_run(an)
+    assert st["bodies"][0]["material"] == "45-QT"
+    assert [x["type"] for x in st["supports"]] == ["fixed"] and [x["type"] for x in st["loads"]] == ["force"]
+    assert st["loads"][0]["vector_n"] == pytest.approx([0, 0, -100], abs=1e-9)
+    st["mesh"] = {"size_mm": 2.5}
+    res = F.compute(st, wd)
+    assert res["status"] == "ok", res.get("messages")
+    e = materials.get("45-QT")["elastic_modulus_mpa"]
+    theory = 100 * 100 ** 3 / (3 * e * 10 * 10 ** 3 / 12)
+    assert res["data"]["steps"][0]["u_max_mm"] == pytest.approx(theory, rel=0.03)
+
+
+def test_hand_built_modal_and_unsupported_types(doc, tmp_path):
+    from freecad_addon.fc import fem_flow as F
+
+    an = _hand_built_cantilever(doc, tmp_path, "frequency")
+    next(o for o in an.Group if hasattr(o, "AnalysisType")).EigenmodesCount = 4
+    assert F.adopt(an, "45-QT", tmp_path / "p1")["steps"] == [{"id": "m1", "type": "modal", "n_modes": 4}]
+    an2 = _hand_built_cantilever(doc, tmp_path, "thermomech")
+    with pytest.raises(F.FlowError, match="thermomech"):
+        F.adopt(an2, "45-QT", tmp_path / "p2")
+    empty = __import__("ObjectsFem").makeAnalysis(doc, "Empty")
+    with pytest.raises(F.FlowError, match="约束或载荷"):
+        F.adopt(empty, "45-QT")
