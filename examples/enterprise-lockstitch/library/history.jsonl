@@ -1,0 +1,4 @@
+{"action": "register_document", "actor": "示范企业工程师（虚构）", "doc": "src-ent-ls-101", "time": "2026-11-18T20:33:11+00:00", "title": "LS-101 上轴 三维模型"}
+{"action": "save_component", "actor": "示范企业工程师（虚构）", "component": "custom_part.demo-sewing.ls-101", "new": true, "note": "从三维模型测量（LS-101.step）", "time": "2026-11-18T20:33:12+00:00"}
+{"action": "register_document", "actor": "示范企业工程师（虚构）", "doc": "src-ent-ls-hs", "time": "2026-11-18T20:33:12+00:00", "title": "LS-HS 控制箱散热器 三维模型"}
+{"action": "save_component", "actor": "示范企业工程师（虚构）", "component": "custom_part.demo-sewing.ls-hs", "new": true, "note": "从三维模型测量（LS-HS.step）", "time": "2026-11-18T20:33:12+00:00"}

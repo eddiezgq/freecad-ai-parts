@@ -1,0 +1,21 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "bom/1",
+  "request_key": "6e855b4d67885dc1facd0e5245f39274eb67819aeabdc370a23646b722863903",
+  "response": {
+    "id": "msg_011ChAqR64TZRGSxP12gixYq",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "columns": {
+        "code": "物料号",
+        "model": "规格型号",
+        "name": "品名",
+        "quantity": "单台用量",
+        "unit": "单位",
+        "vendor": "品牌/厂家"
+      }
+    }
+  }
+}
