@@ -70,3 +70,8 @@ jobs:
     category: drive
     pages: "62-65,67-70,80-83,90"
     targets: [SGD7S-R70A, SGD7S-R90A, SGD7S-1R6A, SGD7S-2R8A, SGD7S-3R8A, SGD7S-5R5A, SGD7S-7R6A, SGD7S-120A]
+  # NSK E1103c Part C 单列深沟球轴承表（第 11 页起，按内径分页）：示范缝纫机企业与上轴设计用（ADR-0099 41.6、ADR-0100）
+  - doc: src-nsk-e1103c-part-c
+    category: bearing
+    pages: "11-12"
+    targets: ["6000", "6001", "6200", "6201", "6202"]
