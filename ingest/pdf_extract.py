@@ -144,6 +144,16 @@ def _layout_rows(pg) -> list[list[str]]:
     return [[clean_cell(c) or "" for c in row] for rows in tables for row in rows if any((c or "").strip() for c in row)]
 
 
+def _dedupe(pg):
+    """“加粗”印法：同一个字在几乎同一位置印两遍（NSK 目录的表格），文字层读出来每个字重复（“6201”成“66220011”）。
+    只在这一页确有重复字时去重（同字、同字体字号、位置差 1 pt 以内）；没有重复的页原样不动，已有录制的请求不变"""
+    try:
+        dd = pg.dedupe_chars()
+    except Exception:  # noqa: BLE001 — 去重失败就按原样读
+        return pg
+    return dd if len(dd.chars) < len(pg.chars) else pg
+
+
 def extract(path: str | Path) -> Document:
     """提取 PDF 的逐页文本与表格。表格用 pdfplumber 的“线框”策略：只认有边框的表。"""
     import pdfplumber
@@ -159,6 +169,7 @@ def extract(path: str | Path) -> Document:
     try:
         with pdfplumber.open(path) as pdf:
             for n, pg in enumerate(pdf.pages, start=1):
+                pg = _dedupe(pg)
                 tables = []
                 for i, t in enumerate(pg.find_tables()):
                     rows = [[clean_cell(c) for c in row] for row in t.extract()]
