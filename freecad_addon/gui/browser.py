@@ -11,6 +11,7 @@ from PySide import QtCore, QtWidgets
 
 from freecad_addon.core import browser as core
 from freecad_addon.gui.host import ToolsHost, get_host
+from kb import completeness
 
 ALL = "全部品类"
 
@@ -49,6 +50,8 @@ class LibraryBrowser(QtWidgets.QDockWidget):
         self.table.verticalHeader().setVisible(False)
         self.detail = QtWidgets.QTextBrowser()
         self.place_button = QtWidgets.QPushButton("放入布局")
+        self.report_button = QtWidgets.QPushButton("完整度报告…")
+        self.report_button.setToolTip("全库每个零件缺哪些数据、缺了哪些校验会待确认、先补哪个；导出 Excel（ADR-0099）")
         self.status = QtWidgets.QLabel("")
         self.status.setWordWrap(True)
         for w in (self.header, self.category, self.text):
@@ -56,7 +59,10 @@ class LibraryBrowser(QtWidgets.QDockWidget):
         lay.addLayout(rng)
         lay.addWidget(self.table, 2)
         lay.addWidget(self.detail, 3)
-        lay.addWidget(self.place_button)
+        buttons = QtWidgets.QHBoxLayout()
+        buttons.addWidget(self.place_button)
+        buttons.addWidget(self.report_button)
+        lay.addLayout(buttons)
         lay.addWidget(self.status)
         self.setWidget(body)
 
@@ -66,6 +72,7 @@ class LibraryBrowser(QtWidgets.QDockWidget):
         self.param.currentIndexChanged.connect(lambda *_: self.refresh())
         self.table.itemSelectionChanged.connect(self._show_detail)
         self.place_button.clicked.connect(lambda *_: self.place_selected())
+        self.report_button.clicked.connect(lambda *_: self.export_report())
         self.placed.connect(self._placed, QtCore.Qt.QueuedConnection)
         self._rows: list[core.Row] = []
         self._category_changed()
@@ -124,7 +131,21 @@ class LibraryBrowser(QtWidgets.QDockWidget):
         where = getattr(lib, "origin", lambda _cid: None)(row.id)
         head = {"enterprise": "<p><b>来自企业库</b>（企业自己补充或新建的数据）</p>",
                 "public": "<p style='color:#666'>来自公共库</p>"}.get(where, "")
-        self.detail.setHtml(head + render_detail(core.detail(lib.get(row.id))))
+        comp = lib.get(row.id)
+        self.detail.setHtml(head + render_detail(core.detail(comp)) + render_gaps(completeness.component_gaps(comp)))
+
+    # ------------------------------------------------------------ 完整度报告
+
+    def export_report(self, path: str | None = None) -> str | None:
+        """全库的完整度报告导出 Excel；path 不给时让人选保存位置"""
+        if path is None:
+            path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "导出完整度报告", "零件库完整度.xlsx", "Excel (*.xlsx)")
+            if not path:
+                return None
+        rep = completeness.report(self.host.library().all())
+        completeness.to_excel(rep, path)
+        self.status.setText(f"完整度报告：{rep['count']} 个组件，{rep['complete']} 个数据齐全；已导出 {path}")
+        return path
 
     # ------------------------------------------------------------ 放入布局
 
@@ -180,3 +201,18 @@ def render_detail(d: dict) -> str:
         parts.append(f"<p><b>{esc(p['id'])}</b> {esc(p['kind'])} · {esc(p['type'])} · {esc(p['dir'])}{esc(extra)}</p>")
         parts.append(table(p["spec"]))
     return "".join(parts)
+
+
+def render_gaps(gaps: list[dict]) -> str:
+    """选中组件缺的数据：缺什么、缺了哪些校验会待确认、去哪找"""
+    esc = html.escape
+    if not gaps:
+        return "<h4>缺的数据</h4><p style='color:#666'>校验用到的数据齐全。</p>"
+
+    def checks(g):
+        names = "、".join(f"{c} {completeness.CHECK_NAMES.get(c, '')}".strip() for c in g["checks"])
+        return names or ("关键参数，入库复核要" if g["key"] else "—")
+
+    rows = "".join(f"<tr><td>{esc(g['field'])}</td><td>{esc(checks(g))}</td><td>{esc(g['hint'])}</td></tr>" for g in gaps)
+    return ("<h4>缺的数据</h4><table cellspacing='0' cellpadding='3' border='1'>"
+            "<tr><th>字段</th><th>缺了会待确认的校验</th><th>去哪找</th></tr>" + rows + "</table>")

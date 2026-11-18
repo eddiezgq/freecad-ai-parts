@@ -1133,3 +1133,23 @@ def test_fea_ui_in_english(gui, tmp_path, monkeypatch):
         panel.close()
     finally:
         FreeCAD.closeDocument(doc.Name)
+
+
+@pytest.mark.freecad
+def test_completeness_in_browser(gui, tmp_path):
+    """选中组件时详情里列缺的数据；“完整度报告…”导出 Excel（ADR-0099 41.3）"""
+    from freecad_addon.gui.browser import LibraryBrowser
+    from freecad_addon.gui.host import ToolsHost
+
+    host = ToolsHost(lambda: REAL, note="组件库：真实厂商组件（测试）")
+    dock = LibraryBrowser(host=host)
+    try:
+        dock.category.setCurrentIndex(dock.category.findData("reducer"))
+        dock.text.setText("csf 14 100")
+        dock.table.selectRow(0)
+        html = dock.detail.toHtml()
+        assert "缺的数据" in html and "C3" in html and "外形尺寸图" in html
+        out = dock.export_report(str(tmp_path / "r.xlsx"))
+        assert Path(out).is_file() and "完整度报告" in dock.status.text()
+    finally:
+        dock.close()
