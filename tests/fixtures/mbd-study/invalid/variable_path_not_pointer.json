@@ -1,0 +1,124 @@
+{
+ "why": "path 要是 JSON 指针",
+ "instance": {
+  "format": "mbd-study/1",
+  "name": "PD 微分增益优化",
+  "model": {
+   "format": "mbd-model/1",
+   "name": "转台位置闭环",
+   "gravity_mm_s2": [
+    0,
+    0,
+    0
+   ],
+   "bodies": [
+    {
+     "id": "table",
+     "mass_kg": 2,
+     "cm_mm": [
+      0,
+      0,
+      0
+     ],
+     "inertia_kg_m2": {
+      "ixx": 0.01,
+      "iyy": 0.01,
+      "izz": 0.02
+     }
+    }
+   ],
+   "joints": [
+    {
+     "id": "r",
+     "type": "revolute",
+     "body_i": "ground",
+     "body_j": "table",
+     "point_mm": [
+      0,
+      0,
+      0
+     ],
+     "axis": [
+      0,
+      0,
+      1
+     ]
+    }
+   ],
+   "forces": [
+    {
+     "id": "motor",
+     "type": "actuator",
+     "joint": "r"
+    }
+   ],
+   "measures": [
+    {
+     "id": "th",
+     "type": "joint_angle",
+     "joint": "r"
+    },
+    {
+     "id": "w",
+     "type": "joint_speed",
+     "joint": "r"
+    }
+   ],
+   "controllers": [
+    {
+     "id": "pos",
+     "type": "pid",
+     "sensor": "th",
+     "rate_sensor": "w",
+     "setpoint": "STEP(time,0,0,0.001,10)",
+     "actuator": "motor",
+     "kp": 0.5,
+     "kd": 0.01,
+     "ki": 0.0,
+     "output_min": -5,
+     "output_max": 5
+    }
+   ],
+   "analysis": {
+    "type": "dynamic",
+    "end_time_s": 0.5
+   }
+  },
+  "variables": [
+   {
+    "name": "kd",
+    "path": "controllers.0.kd",
+    "low": 0.001,
+    "high": 0.02
+   }
+  ],
+  "method": "optimize",
+  "optimizer": {
+   "algorithm": "nelder_mead",
+   "max_evaluations": 40
+  },
+  "metrics": [
+   {
+    "id": "ise",
+    "kind": "ise",
+    "series": "measures.th.values",
+    "reference": "10"
+   },
+   {
+    "id": "peak",
+    "kind": "max",
+    "series": "measures.th.values"
+   }
+  ],
+  "objective": {
+   "metric": "ise",
+   "sense": "minimize"
+  },
+  "constraints": [
+   {
+    "metric": "peak",
+    "max": 12
+   }
+  ]
+ }
+}

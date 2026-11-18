@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/mbd-study.schema.json",
+  "title": "多体动力学参数研究（mbd-study/1）",
+  "description": "ADR-0097 D7b（补充十九）：在一个多体模型上改参数做扫描、试验设计（全因子、拉丁超立方）或优化；每次评估都是一次真实的多体计算，指标从结果里算。",
+  "type": "object",
+  "properties": {
+    "format": {"const": "mbd-study/1"},
+    "name": {"type": "string", "minLength": 1},
+    "model": {"type": "object", "description": "mbd-model/1 模型（另按 mbd-model 校验）"},
+    "variables": {
+      "type": "array", "minItems": 1, "maxItems": 10,
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"$ref": "#/$defs/id"},
+          "path": {"type": "string", "pattern": "^(/[^/]+)+$", "description": "模型里要改的值的 JSON 指针，例如 /controllers/0/kd"},
+          "low": {"type": "number"},
+          "high": {"type": "number"},
+          "levels": {"type": "integer", "minimum": 2, "maximum": 50, "description": "grid 时每个变量取几个值，缺省 5"},
+          "log": {"type": "boolean", "description": "按对数均匀取值（low、high 要大于 0）"}
+        },
+        "required": ["name", "path", "low", "high"],
+        "additionalProperties": false
+      }
+    },
+    "method": {"enum": ["grid", "latin_hypercube", "optimize"]},
+    "samples": {"type": "integer", "minimum": 2, "maximum": 500, "description": "latin_hypercube 的样本数"},
+    "seed": {"type": "integer", "minimum": 0},
+    "optimizer": {
+      "type": "object",
+      "properties": {
+        "algorithm": {"enum": ["nelder_mead", "tpe"]},
+        "max_evaluations": {"type": "integer", "minimum": 3, "maximum": 300},
+        "x0": {"type": "object", "additionalProperties": {"type": "number"}, "description": "起点（变量名 → 值），缺省区间中点"}
+      },
+      "additionalProperties": false
+    },
+    "metrics": {
+      "type": "array", "minItems": 1, "maxItems": 30,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/$defs/id"},
+          "kind": {"enum": ["max", "min", "peak_abs", "rms", "mean", "final", "ise", "frequency"]},
+          "series": {"type": "string", "minLength": 1, "description": "结果里的时间序列，点号路径，例如 measures.th.values、motions.m.effort、actuators.motor"},
+          "reference": {"type": "string", "minLength": 1, "description": "ise：参考信号（时间 time 的表达式），算 ∫(参考 − 序列)² dt"},
+          "mode": {"type": "integer", "minimum": 1, "description": "frequency：线性化结果的第几阶（不含零频）"},
+          "from_time_s": {"type": "number", "minimum": 0, "description": "只看这个时刻以后"}
+        },
+        "required": ["id", "kind"],
+        "additionalProperties": false
+      }
+    },
+    "objective": {
+      "type": "object",
+      "properties": {"metric": {"$ref": "#/$defs/id"}, "sense": {"enum": ["minimize", "maximize"]}},
+      "required": ["metric"],
+      "additionalProperties": false
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {"metric": {"$ref": "#/$defs/id"}, "max": {"type": "number"}, "min": {"type": "number"}},
+        "required": ["metric"],
+        "anyOf": [{"required": ["max"]}, {"required": ["min"]}],
+        "additionalProperties": false
+      }
+    },
+    "source": {"type": "string", "minLength": 1}
+  },
+  "required": ["format", "name", "model", "variables", "method", "metrics"],
+  "additionalProperties": false,
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_\\-]{0,63}$"}
+  }
+}
