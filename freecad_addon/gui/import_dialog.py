@@ -15,10 +15,11 @@ from freecad_addon.core import fill, library_choice, new_part, spec_import
 
 
 def default_client():
-    """真实 LLM 客户端；密钥只从环境变量或本地 .env 读取。"""
-    from ingest.llm_extract import AnthropicClient
+    """真实 LLM 客户端，走模型网关（ADR-0099 41.5）：首选那一家出错时自动换另一家（国内只配 DeepSeek 也能用）；
+    密钥只从环境变量或本地 .env 读取。"""
+    from assist.llm import GatewayClient
 
-    return AnthropicClient()
+    return GatewayClient()
 
 
 class ImportDialog(QtWidgets.QDialog):
