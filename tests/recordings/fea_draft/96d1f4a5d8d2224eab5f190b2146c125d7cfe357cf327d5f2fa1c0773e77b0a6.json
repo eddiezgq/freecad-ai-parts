@@ -3,7 +3,9 @@
   "prompt_version": "fea-draft/2",
   "request_key": "96d1f4a5d8d2224eab5f190b2146c125d7cfe357cf327d5f2fa1c0773e77b0a6",
   "response": {
-    "id": "msg_011Ch82eSX9SAGMYqz73s78Y",
+    "id": "msg_011ChAgF7LH9DUuHc7h54ViB",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
     "simulated": false,
     "tool_input": {
       "bodies": [
@@ -43,9 +45,9 @@
           "type": "static"
         }
       ],
-      "name": "BRKT-L",
+      "name": "BRKT-L_static",
       "questions": [
-        "钣金壳的厚度原话没给，请问 BRKT-L 的板厚是多少（mm）？"
+        "钣金板厚是多少（含单位）？原话没有给出，壳单元必须有厚度。"
       ]
     }
   }

@@ -1,0 +1,45 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "fea-draft/2",
+  "request_key": "2e12ed29ca12c8d2cae08d040e77afdf33659bef5c4b5810db24efee08da4d9b",
+  "response": {
+    "id": "msg_011ChAgEEMBDMWcL3UL2o59W",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "bodies": [
+        {
+          "material": "40Cr-QT",
+          "material_quote": "40Cr quenched and tempered",
+          "part": 1
+        }
+      ],
+      "items": [
+        {
+          "features": [
+            "F6"
+          ],
+          "quote": "Fix the end face on the Ø70 flange end",
+          "type": "fixed"
+        },
+        {
+          "direction": null,
+          "direction_quote": null,
+          "features": [
+            "F2"
+          ],
+          "magnitude": null,
+          "quote": "Apply a radial bearing load on the Ø50 bearing seat",
+          "type": "bearing_load"
+        }
+      ],
+      "name": "RJ-201 hollow shaft",
+      "questions": [
+        "What is the magnitude of the bearing load on the Ø50 bearing seat (F2)? Your message says it is still being calculated, so I left it blank.",
+        "What is the direction of the radial bearing load? Please give it as ±x, ±y or ±z (the shaft axis is z). I did not guess a direction.",
+        "I read \"the end face on the Ø70 flange end\" as F6, the z=0 end face facing -z. Is that correct? The other candidate is the shoulder face F8 at z=10."
+      ]
+    }
+  }
+}

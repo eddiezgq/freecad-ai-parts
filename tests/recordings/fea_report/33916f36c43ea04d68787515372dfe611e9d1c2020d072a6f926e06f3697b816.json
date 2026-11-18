@@ -3,25 +3,25 @@
   "prompt_version": "fea-explain/1",
   "request_key": "33916f36c43ea04d68787515372dfe611e9d1c2020d072a6f926e06f3697b816",
   "response": {
-    "id": "msg_011Ch8dR6ufBFa9uzki2RftY",
+    "id": "msg_011ChAgJFHrCspGed7Q6w2YA",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
     "tool_input": {
       "paragraphs": [
-        "Overall credibility for step s_combo1 (static, combination combo1) is Fail, so the results must not be described as converged or reliable. The reaction balance check passed: applied loads and support reactions offset each other.",
-        "The maximum von Mises stress is {{s_combo1.vm_max_mpa}} (evaluated away from the constrained faces), against a material yield strength of {{s_combo1.strength_mpa}}. This stress did not converge under mesh refinement: it rose from {{s_combo1.conv2.level0}} on the first mesh to {{s_combo1.conv2.level1}} on the second and {{s_combo1.conv2.level2}} on the third. Continued growth with refinement suggests a stress singularity, such as a sharp corner or a point load. This stress value should not be used as a design basis.",
-        "The maximum displacement of {{s_combo1.u_max_mm}} passed the convergence check: values were {{s_combo1.conv3.level0}}, {{s_combo1.conv3.level1}} and {{s_combo1.conv3.level2}} across the three meshes. This only speaks to global stiffness, not to the local stress.",
-        "The mesh quality check is Unknown. Second-order elements on curved surfaces became too distorted after upgrading, so straight-edged second-order elements were used and the curved surfaces are approximated by chords. Stresses near curved surfaces may therefore deviate noticeably.",
-        "No safety factor is given, because the credibility checks did not pass (overall result: Fail).",
-        "Limitations: linear elastic, small deformation; no contact; residual stress and surface hardening are not considered. Stresses near constrained and loaded faces come from idealized boundary conditions and were excluded from the maximum stress evaluation. Stresses at sharp corners grow with mesh refinement (theoretical singularity) and are not suitable as a direct design basis."
+        "Overall credibility check result: not passed. For step s_combo1 (static, combo1), the maximum von Mises stress away from the constrained face is {{s_combo1.vm_max_mpa}} and the maximum displacement is {{s_combo1.u_max_mm}}. The material yield strength is {{s_combo1.strength_mpa}}. These values are given for reference only and should not be treated as credible results.",
+        "The reaction balance check passed, so the applied loads are balanced by the support reactions. The displacement mesh convergence check also passed: the maximum displacement is {{s_combo1.conv3.level0}}, {{s_combo1.conv3.level1}} and {{s_combo1.conv3.level2}} on the three mesh levels, and the levels differ very little.",
+        "The maximum-stress mesh convergence check did not pass. The peak stress rises with each refinement ({{s_combo1.conv2.level0}}, {{s_combo1.conv2.level1}}, {{s_combo1.conv2.level2}}) and does not converge. This pattern suggests a stress singularity, such as a sharp corner or a point load. The stress at this location should not be used as a design basis, and the result cannot be called converged.",
+        "The mesh quality check is unknown. Second-order elements on curved surfaces were too distorted after order elevation, so straight-edge second-order elements were used and the curved surfaces were approximated by chords. Stresses near curved surfaces may therefore deviate noticeably.",
+        "No safety factor is given, because the credibility checks did not pass (overall result: not passed).",
+        "Limitations: linear elastic, small deformation; no contact; no residual stress or surface hardening. Stresses near constrained and loaded faces come from idealized boundary conditions and were excluded when evaluating the maximum stress. Stress at sharp corners grows with mesh refinement (a theoretical singularity) and should not be used directly for design."
       ],
       "suggestions": [
-        "Locate the position of the maximum stress and have an engineer check whether it is a sharp corner or point load.",
-        "If the feature is a sharp corner, model the real fillet radius, or use a stress evaluation method that does not rely on the singular peak.",
-        "If the feature is a point load, replace it with a load distributed over the actual contact area.",
-        "Reduce the element size on curved surfaces so that there are several element layers across the curvature, then rerun the mesh quality check.",
-        "After remeshing, rerun the stress convergence study and confirm the maximum stress stabilizes before it is used for any assessment."
+        "Locate the position of the peak stress and have an engineer check whether it is a sharp corner or a point load.",
+        "If the location is a sharp corner, add a realistic fillet radius to the geometry and re-run the mesh convergence study.",
+        "If the location is a point load, replace it with a load distributed over the real contact area.",
+        "Reduce the mesh size on curved surfaces so that there are several element layers across them, then re-check mesh quality.",
+        "After remeshing, repeat the maximum-stress convergence check at a location away from singularities, and only consider a safety factor once all credibility checks pass."
       ]
     }
   }

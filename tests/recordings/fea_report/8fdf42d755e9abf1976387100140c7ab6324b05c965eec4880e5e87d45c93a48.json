@@ -3,24 +3,25 @@
   "prompt_version": "fea-explain/1",
   "request_key": "8fdf42d755e9abf1976387100140c7ab6324b05c965eec4880e5e87d45c93a48",
   "response": {
-    "id": "msg_011Ch8dRbC1Sw2gNzVpk22T7",
+    "id": "msg_011ChAgJkbxqkKZeoEZef8oP",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
     "tool_input": {
       "paragraphs": [
-        "Overall credibility for this report is unknown, so the results below are for reference only and should not be read as trustworthy or converged. The static step s1 is also unknown. The reaction balance check passed, meaning the applied load and the support reactions cancel.",
-        "The mesh quality check is unknown. Second-order elements on curved surfaces became too distorted when upgraded, so straight-edge second-order elements were used and the curved surfaces are approximated by chords. Stress near curved surfaces may therefore deviate noticeably.",
-        "In the static step, the maximum von Mises stress away from the constrained faces is {{s1.vm_max_mpa}} and the maximum displacement is {{s1.u_max_mm}}, against a material yield strength of {{s1.strength_mpa}}. Maximum stress over the three mesh levels is {{s1.conv2.level0}}, {{s1.conv2.level1}} and {{s1.conv2.level2}}. Maximum displacement over the same levels is {{s1.conv3.level0}}, {{s1.conv3.level1}} and {{s1.conv3.level2}}. Both mesh-convergence checks passed, but this does not remove the uncertainty from the mesh quality check. No safety factor is given because the credibility checks did not pass (conclusion: unknown).",
-        "In the modal step m1, the natural frequencies are {{m1.f1_hz}} ({{m1.f1_rpm}}), {{m1.f2_hz}} ({{m1.f2_rpm}}), {{m1.f3_hz}} ({{m1.f3_rpm}}) and {{m1.f4_hz}} ({{m1.f4_rpm}}). The supports are ideal constraints, so real bearing stiffness would lower these frequencies. Only the part's own mass and stiffness are included, so any attached mass is not represented.",
-        "Limitations: the model is linear elastic with small deformation, with no contact, residual stress or surface hardening. Stresses near constrained and loaded faces come from idealized boundary conditions and were excluded from the maximum stress. Stress at sharp corners grows with mesh refinement (a theoretical singularity) and should not be used directly as a design basis."
+        "Overall credibility is unknown, so the results must not be described as converged or reliable. The mesh quality check for step s1 is unknown: second-order elements on curved surfaces became too distorted after upgrading, so straight-edge second-order elements were used and the curved surfaces are approximated by chords. Stresses near curved surfaces may therefore deviate noticeably.",
+        "Two other checks for step s1 passed. Reaction force balance holds, with external loads cancelled by support reactions. Mesh convergence of both maximum stress and maximum displacement passed across the three mesh levels. However, these passes do not offset the unknown mesh quality result.",
+        "The maximum von Mises stress away from constrained faces is {{s1.vm_max_mpa}}, and the maximum displacement is {{s1.u_max_mm}}. The material yield strength is {{s1.strength_mpa}}. The maximum stress over the three mesh levels is {{s1.conv2.level0}}, {{s1.conv2.level1}} and {{s1.conv2.level2}}. The maximum displacement is {{s1.conv3.level0}}, {{s1.conv3.level1}} and {{s1.conv3.level2}}.",
+        "No safety factor is given. The credibility checks did not pass (the conclusion is unknown), so the program does not provide one.",
+        "Modal step m1 gives the first four natural frequencies: {{m1.f1_hz}} ({{m1.f1_rpm}}), {{m1.f2_hz}} ({{m1.f2_rpm}}), {{m1.f3_hz}} ({{m1.f3_rpm}}) and {{m1.f4_hz}} ({{m1.f4_rpm}}). The model includes only the part's own mass and stiffness, so added mass is not accounted for. Supports are treated as ideal constraints, and real bearing stiffness would lower the frequencies.",
+        "Other limitations: the analysis is linear elastic with small deformation, with no contact, residual stress or surface hardening. Stresses near constrained and loaded faces come from idealized boundary conditions and were excluded from the maximum stress. Stresses at sharp corners grow with mesh refinement (a theoretical singularity) and should not be used directly as a design basis."
       ],
       "suggestions": [
-        "Reduce the element size on the curved surfaces so that there are at least a few element layers across them, then rerun so that second-order elements can be upgraded without excessive distortion.",
-        "Recheck the stress near the curved surfaces after remeshing, because the current chord approximation may bias it.",
-        "Have an engineer review the sharp corners in the model and decide whether to add fillets or use a hot-spot or notch-stress method instead of the raw peak stress.",
-        "Provide the actual bearing stiffness and replace the ideal supports in the modal model to obtain more realistic frequencies.",
-        "Provide the attached masses and add them to the modal model before comparing frequencies with operating speeds."
+        "Reduce the mesh size on the curved surfaces so that there are at least several element layers across them, then rerun the mesh quality check.",
+        "Have an engineer review the stresses near curved surfaces, since they may be inaccurate with chord-approximated geometry.",
+        "Do not use the sharp-corner stresses directly; add a fillet or verify the local stress with a dedicated local model or hot-spot method.",
+        "Add any attached masses to the model, and supply bearing stiffness data to refine the natural frequencies.",
+        "Rerun the credibility check after remeshing and request a safety factor only if the overall conclusion becomes a pass."
       ]
     }
   }
