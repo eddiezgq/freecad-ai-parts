@@ -3,7 +3,7 @@
   "prompt_version": "fea-draft/2",
   "request_key": "922c01d0647ecc378c61cde7068934efcbdc4807d4130d4f0f83afa9e7eb0602",
   "response": {
-    "id": "msg_011ChAgDmo1C8Pn4L7QLdZBM",
+    "id": "msg_011ChAgX9v1MwCP2vSfesXFr",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -15,7 +15,6 @@
           "part": 1
         }
       ],
-      "combinations": [],
       "items": [
         {
           "features": [
@@ -35,18 +34,12 @@
           "part": 1,
           "quote": "Ø110 减速器座受减速器传来的径向力",
           "type": "bearing_load"
-        },
-        {
-          "quote": "受减速器传来的径向力",
-          "type": "static"
         }
       ],
-      "load_cases": [],
-      "name": "J2-HSG static",
+      "name": "J2-HSG_static",
       "questions": [
-        "径向力的大小是多少（原话说还在算，未给数值）？请给出数值和单位。",
-        "径向力的方向是什么（±x、±y、±z 之一）？径向力在垂直于孔轴线(z)的平面内，请指明具体方向。",
-        "径向力按轴承载荷（作用在 Ø110 孔面 F1 上）处理是否合适？"
+        "径向力的大小是多少（原话说还在算）？请给出数值和单位。",
+        "径向力的方向是什么（±x、±y、±z 之一）？原话只说是径向力，没有给出具体方向。"
       ]
     }
   }

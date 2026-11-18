@@ -3,7 +3,7 @@
   "prompt_version": "fea-draft/2",
   "request_key": "d170c2b876427d651a839a3cf621831768ea9ecc011212d631475d484ac74c5c",
   "response": {
-    "id": "msg_011ChAgBUvSP1ATRxzCFd3n2",
+    "id": "msg_011ChAgUsJ5N7PqVGYBTshx2",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -44,7 +44,7 @@
       ],
       "name": "RJ-201 hollow shaft torque",
       "questions": [
-        "扭矩的转向（绕轴 +z 还是 -z）原话没说，请确认；若只看应力大小，可不影响结果。"
+        "扭矩的转向（正/反）原话没有说明，按程序默认的轴线方向施加；如需指定转向请告知。"
       ]
     }
   }

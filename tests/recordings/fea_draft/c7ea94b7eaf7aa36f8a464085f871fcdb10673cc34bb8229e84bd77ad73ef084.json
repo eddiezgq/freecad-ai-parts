@@ -3,7 +3,7 @@
   "prompt_version": "fea-draft/2",
   "request_key": "c7ea94b7eaf7aa36f8a464085f871fcdb10673cc34bb8229e84bd77ad73ef084",
   "response": {
-    "id": "msg_011ChAgD3NMbbwqzyPuvcVm4",
+    "id": "msg_011ChAgWTzQwUdkG53R9xBjj",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -23,30 +23,25 @@
               "value": 1.35
             },
             {
-              "case": "op",
+              "case": "operating",
               "value": 1.5
             }
           ],
-          "id": "C1",
+          "id": "combo1",
           "name": "1.35自重+1.5工作",
           "quote": "1.35 × 自重 + 1.5 × 工作"
         }
       ],
       "items": [
         {
-          "quote": "组合校核",
-          "type": "static"
-        },
-        {
           "case": "dead",
           "direction": null,
           "direction_quote": null,
-          "part": 1,
           "quote": "重力竖直向下",
           "type": "gravity"
         },
         {
-          "case": "op",
+          "case": "operating",
           "features": [
             "F4"
           ],
@@ -60,12 +55,17 @@
           "type": "torque"
         },
         {
+          "case": null,
           "features": [
             "F6"
           ],
           "part": 1,
           "quote": "肩部 Ø138 减速器座固定",
           "type": "fixed"
+        },
+        {
+          "quote": "组合校核",
+          "type": "static"
         }
       ],
       "load_cases": [
@@ -76,18 +76,18 @@
           "quote": "自重"
         },
         {
-          "id": "op",
+          "id": "operating",
           "kind": "operating",
           "name": "工作载荷",
           "quote": "工作载荷"
         }
       ],
-      "name": "ARM-UPPER 组合工况校核",
+      "name": "ARM-UPPER_combo_check",
       "questions": [
-        "重力“竖直向下”对应零件坐标的哪个方向（-x、-y 还是 -z）？零件清单里没有说明竖直轴，请指明。",
-        "自重的重力加速度数值原话未给出，是否采用标准值？请确认。",
-        "扭矩的转向（绕轴正/负方向）原话未说明，请确认。",
-        "肩部 Ø138 减速器座固定：我选了孔 F6（Ø138 孔座面），请确认是该孔面固定，而不是其孔底台阶面 F12 等其他面。"
+        "“重力竖直向下”没有说明竖直方向对应零件坐标的哪个轴。竖直向下是 -x、-y 还是 -z?请告知。包围盒显示臂长沿 x,孔轴沿 y,所以我没有自己判断。",
+        "重力加速度的数值原话没给,是否使用标准重力加速度?请确认数值和单位。",
+        "扭矩作用在 F4(Ø107 孔/座,面 8)的圆柱面上。请确认扭矩加在这个面上,而不是 F11 孔底台阶面或 F8 端面上。",
+        "肩部固定选了 F6(Ø138 孔/座)。请确认是固定这个孔的圆柱面,而不是 F12 或 F13 台阶面。"
       ]
     }
   }

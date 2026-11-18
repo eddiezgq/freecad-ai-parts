@@ -3,7 +3,7 @@
   "prompt_version": "fea-draft/2",
   "request_key": "2e12ed29ca12c8d2cae08d040e77afdf33659bef5c4b5810db24efee08da4d9b",
   "response": {
-    "id": "msg_011ChAgEEMBDMWcL3UL2o59W",
+    "id": "msg_011ChAgXYMNqKs9qAd22nhem",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -20,6 +20,7 @@
           "features": [
             "F6"
           ],
+          "part": 1,
           "quote": "Fix the end face on the Ø70 flange end",
           "type": "fixed"
         },
@@ -30,15 +31,16 @@
             "F2"
           ],
           "magnitude": null,
+          "part": 1,
           "quote": "Apply a radial bearing load on the Ø50 bearing seat",
           "type": "bearing_load"
         }
       ],
-      "name": "RJ-201 hollow shaft",
+      "name": "RJ-201 shaft bearing load",
       "questions": [
-        "What is the magnitude of the bearing load on the Ø50 bearing seat (F2)? Your message says it is still being calculated, so I left it blank.",
-        "What is the direction of the radial bearing load? Please give it as ±x, ±y or ±z (the shaft axis is z). I did not guess a direction.",
-        "I read \"the end face on the Ø70 flange end\" as F6, the z=0 end face facing -z. Is that correct? The other candidate is the shoulder face F8 at z=10."
+        "轴承载荷的大小是多少（原话说还在计算中）？请给出数值和单位。",
+        "轴承载荷的径向作用方向是哪一个（+x、-x、+y、-y，还是其他方向）？",
+        "固定的端面我选了 F6（z=0、朝 -z、Ø70 法兰端面），请确认是否正确。"
       ]
     }
   }

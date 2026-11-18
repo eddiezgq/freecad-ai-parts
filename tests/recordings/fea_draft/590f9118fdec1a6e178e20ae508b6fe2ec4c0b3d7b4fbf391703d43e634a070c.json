@@ -3,7 +3,7 @@
   "prompt_version": "fea-draft/2",
   "request_key": "590f9118fdec1a6e178e20ae508b6fe2ec4c0b3d7b4fbf391703d43e634a070c",
   "response": {
-    "id": "msg_011ChAgCZsdHyZvts4tVooSJ",
+    "id": "msg_011ChAgVxDm3oCybq5Hhh955",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -44,8 +44,9 @@
       ],
       "name": "ARM-UPPER j3 peak torque",
       "questions": [
-        "肩部 Ø138 座固定：我只选了孔面 F6（Ø138 孔壁），是否还需要同时固定孔底台阶面 F12 或端面？",
-        "扭矩的转向（绕轴正/负方向）原话没有说明，请确认；扭矩轴线按 F4（Ø107 座）的轴线 -y 方向施加是否正确？"
+        "肩部固定选的是 Ø138 座孔的圆柱面 F6，是否也要包含孔底台阶面 F12？请确认固定面。",
+        "肘部扭矩施加在 Ø107 座孔面 F4 上，是否需要改为施加在孔底台阶面 F11 上？请确认。",
+        "未提到重力（自重），是否需要计入？"
       ]
     }
   }

@@ -3,26 +3,24 @@
   "prompt_version": "fea-explain/1",
   "request_key": "cf2aa9315b9b12bd7850abe5d040e7558c3d1abbb06bd06254204cad97f38576",
   "response": {
-    "id": "msg_011ChAgKGPcEbrbzaiaD9vMX",
+    "id": "msg_011ChAgdCGJsy9fgwYExe9mw",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
     "tool_input": {
       "paragraphs": [
-        "Overall credibility check result: not passed. For step s1 (static), the peak von Mises stress away from the constrained faces is {{s1.vm_max_mpa}} and the peak displacement is {{s1.u_max_mm}}. The material yield strength is {{s1.strength_mpa}}. The stress value is not reliable, as explained below.",
-        "Reaction balance passed: the applied load is balanced by the support reactions. Mesh quality passed: there are no inverted elements and very few badly shaped elements.",
-        "The mesh convergence check on peak stress did not pass. The peak stress rises with each refinement, from {{s1.conv2.level0}} on mesh level 1 to {{s1.conv2.level1}} on level 2 and {{s1.conv2.level2}} on level 3. This pattern suggests a stress singularity, such as a sharp corner or a point load. The stress at that location should not be used as a design basis, and the result cannot be described as converged or credible.",
-        "The mesh convergence check on peak displacement passed. The values are {{s1.conv3.level0}}, {{s1.conv3.level1}} and {{s1.conv3.level2}} on the three mesh levels, and the levels differ by no more than the check tolerance. This applies to displacement only and does not make the stress result credible.",
-        "No safety factor is given, because the credibility checks did not pass (overall result: not passed).",
-        "Limitations: linear elastic, small deformation; no contact; residual stress and surface hardening are not considered. Stresses near constrained and loaded faces come from idealized boundary conditions, and the peak stress evaluation has avoided those regions. Stress at sharp corners grows with mesh refinement (a theoretical singularity) and should not be used directly for design."
+        "Overall credibility check result: not passed. For step s1 (static), reaction balance passed, so the applied load is balanced by the support reactions. Mesh quality also passed, with no inverted elements and very few badly shaped ones.",
+        "The maximum von Mises stress convergence check did not pass. The peak stress rises with each refinement, from {{s1.conv2.level0}} on the first mesh to {{s1.conv2.level1}} on the second and {{s1.conv2.level2}} on the third. This points to a suspected stress singularity, such as a sharp corner or point load. The reported maximum von Mises stress of {{s1.vm_max_mpa}} (away from constrained faces) therefore cannot be used as a design basis, and the results cannot be called converged or reliable. For reference, the material yield strength is {{s1.strength_mpa}}, but no comparison is drawn because the stress check failed.",
+        "The maximum displacement convergence check passed. Values are {{s1.conv3.level0}}, {{s1.conv3.level1}} and {{s1.conv3.level2}} across the three meshes, giving a maximum displacement of {{s1.u_max_mm}}. This only describes displacement and does not offset the stress check failure.",
+        "No safety factor is given because the credibility checks did not pass (overall result: not passed).",
+        "Limitations: linear elastic, small deformation; no contact; residual stress and surface hardening are not considered. Stresses near constrained and loaded faces come from idealized boundary conditions and were excluded from the maximum stress evaluation. Stress at sharp corners grows with mesh refinement (theoretical singularity) and should not be used directly for design."
       ],
       "suggestions": [
-        "Have an engineer locate the position of the peak stress {{s1.vm_max_mpa}} and check whether it is at a sharp corner or a point load.",
-        "If the location is a sharp corner, model the real fillet radius in the geometry and refine the mesh there.",
-        "If the location is a point load, replace it with a load distributed over the actual contact area.",
-        "After the geometry or load changes, rerun the mesh convergence study on peak stress and confirm that the values stabilize before using any stress result.",
-        "Until then, evaluate stress at a location away from the singularity, such as a section a short distance from the corner, and have an engineer review it.",
-        "Provide the real fillet or corner detail and the actual load contact area, so that a safety factor can be calculated once the checks pass."
+        "Locate the point of maximum stress and check whether it lies at a sharp corner or point load in the geometry.",
+        "If the corner is a real feature, add a realistic fillet radius to the model and refine the mesh locally around it, then rerun the convergence study.",
+        "If the point load is an idealization, replace it with a distributed load over the actual contact area and rerun.",
+        "Evaluate stress away from the singular location, or use a method such as stress linearization along a section, and have an engineer review it before using it for design.",
+        "Rerun the mesh convergence check on maximum stress after these changes, and only consider a safety factor once all credibility checks have passed."
       ]
     }
   }
