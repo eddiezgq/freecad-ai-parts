@@ -1,0 +1,221 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "bom/1",
+  "request_key": "258bdc1d8e069386e228fa6c8310d16d754b69a4d3b6d21fc9373f7c4aa7d861",
+  "response": {
+    "id": "msg_011ChAqR9nCnGVxvm34WP38b",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "rows": [
+        {
+          "category": "custom_part",
+          "part_kind": "housing",
+          "row": 3
+        },
+        {
+          "category": "custom_part",
+          "part_kind": "shaft",
+          "row": 4
+        },
+        {
+          "category": "custom_part",
+          "part_kind": "crank",
+          "row": 5
+        },
+        {
+          "category": "custom_part",
+          "part_kind": "cam",
+          "row": 6
+        },
+        {
+          "category": "custom_part",
+          "part_kind": "eccentric_wheel",
+          "row": 7
+        },
+        {
+          "category": "custom_part",
+          "part_kind": "needle_bar",
+          "row": 8
+        },
+        {
+          "category": "custom_part",
+          "part_kind": "connecting_rod",
+          "row": 9
+        },
+        {
+          "category": "custom_part",
+          "part_kind": "shaft",
+          "row": 10
+        },
+        {
+          "category": "custom_part",
+          "part_kind": "shaft",
+          "row": 11
+        },
+        {
+          "category": "custom_part",
+          "part_kind": "presser_bar",
+          "row": 12
+        },
+        {
+          "category": "custom_part",
+          "part_kind": "feed_dog",
+          "row": 13
+        },
+        {
+          "category": "custom_part",
+          "part_kind": "heat_sink",
+          "row": 14
+        },
+        {
+          "category": "servo_motor",
+          "part_kind": "servo_motor",
+          "row": 15
+        },
+        {
+          "category": "drive",
+          "part_kind": "servo_drive",
+          "row": 16
+        },
+        {
+          "category": "bearing",
+          "part_kind": "deep_groove_ball_bearing",
+          "row": 17
+        },
+        {
+          "category": "bearing",
+          "part_kind": "deep_groove_ball_bearing",
+          "row": 18
+        },
+        {
+          "category": "bearing",
+          "part_kind": "deep_groove_ball_bearing",
+          "row": 19
+        },
+        {
+          "category": "bearing",
+          "part_kind": "deep_groove_ball_bearing",
+          "row": 20
+        },
+        {
+          "category": "bearing",
+          "part_kind": "deep_groove_ball_bearing",
+          "row": 21
+        },
+        {
+          "category": "bearing",
+          "part_kind": "deep_groove_ball_bearing",
+          "row": 22
+        },
+        {
+          "category": "purchased_part",
+          "part_kind": "timing_belt",
+          "row": 23
+        },
+        {
+          "category": "purchased_part",
+          "part_kind": "timing_pulley",
+          "row": 24
+        },
+        {
+          "category": "purchased_part",
+          "part_kind": "solenoid",
+          "row": 25
+        },
+        {
+          "category": "purchased_part",
+          "part_kind": "solenoid",
+          "row": 26
+        },
+        {
+          "category": "purchased_part",
+          "part_kind": "rotary_hook",
+          "row": 27
+        },
+        {
+          "category": "purchased_part",
+          "part_kind": "sewing_needle",
+          "row": 28
+        },
+        {
+          "category": "purchased_part",
+          "part_kind": "oil_pump",
+          "row": 29
+        },
+        {
+          "category": "purchased_part",
+          "part_kind": "power_switch",
+          "row": 30
+        },
+        {
+          "category": "purchased_part",
+          "part_kind": "control_board",
+          "row": 31
+        },
+        {
+          "category": "purchased_part",
+          "part_kind": "cooling_fan",
+          "row": 32
+        },
+        {
+          "category": "fastener",
+          "part_kind": "socket_head_cap_screw",
+          "row": 33
+        },
+        {
+          "category": "fastener",
+          "part_kind": "socket_head_cap_screw",
+          "row": 34
+        },
+        {
+          "category": "fastener",
+          "part_kind": "socket_head_cap_screw",
+          "row": 35
+        },
+        {
+          "category": "fastener",
+          "part_kind": "set_screw",
+          "row": 36
+        },
+        {
+          "category": "fastener",
+          "part_kind": "flat_washer",
+          "row": 37
+        },
+        {
+          "category": "fastener",
+          "part_kind": "spring_washer",
+          "row": 38
+        },
+        {
+          "category": "fastener",
+          "part_kind": "dowel_pin",
+          "row": 39
+        },
+        {
+          "category": "fastener",
+          "part_kind": "retaining_ring",
+          "row": 40
+        },
+        {
+          "category": "purchased_part",
+          "part_kind": "packaging_box",
+          "row": 41
+        },
+        {
+          "category": "unclassified",
+          "reason": "名称为“杂项”，没有规格型号，看不出是什么零件",
+          "row": 42
+        },
+        {
+          "category": "servo_motor",
+          "part_kind": "servo_motor",
+          "reason": "与第15行物料编码、型号相同，可能是重复行",
+          "row": 43
+        }
+      ]
+    }
+  }
+}
