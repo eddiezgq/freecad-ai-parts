@@ -138,3 +138,11 @@ def test_missing_fillet_is_unknown():
     rep = SD.evaluate(p, COND, get, kt=fake_kt)
     assert any(i["status"] == "unknown" and "没给过渡圆角" in i.get("note", "") for i in rep["items"])
     assert rep["overall"] in ("unknown", "fail") and not math.isnan(rep["mass_kg"])
+
+
+def test_fillet_larger_than_step_fails():
+    p = json.loads(json.dumps(LS101))
+    p["segments"][0]["fillet_mm"] = 2.0                      # Ø10→Ø12 台阶高 1 mm
+    rep = SD.evaluate(p, COND, get, kt=fake_kt)
+    bad = [i for i in rep["items"] if "圆角" in i["item"] and i["status"] == "fail" and "台阶高度" in i.get("note", "")]
+    assert bad and rep["overall"] == "fail"

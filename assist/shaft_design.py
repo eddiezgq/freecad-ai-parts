@@ -197,7 +197,16 @@ def evaluate(proposal, cond: dict, get: Callable[[str], dict | None], *, kt: Cal
             items.append(_item(f"台阶 Ø{st['d']:g}→Ø{st['D']:g}（z {st['z_mm']:g}）强度", "unknown",
                                note="方案没给过渡圆角，算不了应力集中"))
             continue
-        k = kt(st["d"], st["D"], st["r"])
+        if st["r"] > (st["D"] - st["d"]) / 2 + 1e-9:
+            items.append(_item(f"台阶 Ø{st['d']:g}→Ø{st['D']:g}（z {st['z_mm']:g}）圆角", "fail", st["r"],
+                               f"≤ {(st['D'] - st['d']) / 2:g}", "圆角大于台阶高度，做不出来"))
+            continue
+        try:
+            k = kt(st["d"], st["D"], st["r"])
+        except Exception as ex:  # noqa: BLE001 — 有限元算不出：这一台阶记为待确认，说明原因
+            items.append(_item(f"台阶 Ø{st['d']:g}→Ø{st['D']:g}（z {st['z_mm']:g}）强度", "unknown",
+                               note=f"应力集中系数没算出来：{ex}"))
+            continue
         sections.append({"name": f"台阶 Ø{st['d']:g}→Ø{st['D']:g}（z {st['z_mm']:g}）", "z_mm": st["z_mm"], "diameter_mm": st["d"],
                          "fillet_mm": st["r"], "kt_bending": k["kt_bending"], "kt_torsion": k["kt_torsion"],
                          "kt_source": k.get("method", ""), "surface": cond.get("surface", "machined")})
