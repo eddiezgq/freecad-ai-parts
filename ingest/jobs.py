@@ -196,8 +196,6 @@ def word_rows(pdf: Path, pages: list[int], target: str, header_lines: int = 8) -
             if not 1 <= n <= len(doc.pages):
                 continue
             pg = _dedupe(doc.pages[n - 1])
-            if pg.find_tables():
-                continue
             words = pg.extract_words(keep_blank_chars=False, x_tolerance=1.5, y_tolerance=2)
             lines: dict[int, list] = {}
             for w in words:
