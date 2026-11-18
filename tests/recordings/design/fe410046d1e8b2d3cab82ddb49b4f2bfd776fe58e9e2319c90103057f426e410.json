@@ -1,0 +1,82 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "shaft-design/1",
+  "request_key": "fe410046d1e8b2d3cab82ddb49b4f2bfd776fe58e9e2319c90103057f426e410",
+  "response": {
+    "id": "msg_011ChAwbjEL11wVodeunzv5H",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "reason": "选6201（C最大，内径12）。左端曲柄位φ12，轴承1从左端套入，靠φ18/φ20轴肩定位；轴承2从右端套入（右侧各段均φ12），靠φ20中段轴肩定位。中段加粗到φ20以提高刚度和临界转速。曲柄中心z=11、凸轮z=45、偏心轮z=150、带轮z=262、手轮z=282均落在对应轴段上；轴承位中心27与252。总长290mm，不超过300mm。轴承肩台圆角取0.5不超过ra max 0.6。",
+      "segments": [
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.5,
+          "length_mm": 22,
+          "role": "crank_seat"
+        },
+        {
+          "bearing": "bearing.nsk-ltd.6201",
+          "fillet_mm": 0.5,
+          "length_mm": 10,
+          "role": "bearing_seat"
+        },
+        {
+          "diameter_mm": 18,
+          "fillet_mm": 1.0,
+          "length_mm": 4,
+          "role": "shoulder"
+        },
+        {
+          "diameter_mm": 20,
+          "fillet_mm": 1.0,
+          "length_mm": 18,
+          "role": "cam_seat"
+        },
+        {
+          "diameter_mm": 20,
+          "fillet_mm": 1.0,
+          "length_mm": 89,
+          "role": "body"
+        },
+        {
+          "diameter_mm": 20,
+          "fillet_mm": 1.0,
+          "length_mm": 14,
+          "role": "gear_seat"
+        },
+        {
+          "diameter_mm": 20,
+          "fillet_mm": 0.5,
+          "length_mm": 90,
+          "role": "body"
+        },
+        {
+          "bearing": "bearing.nsk-ltd.6201",
+          "fillet_mm": 0.5,
+          "length_mm": 10,
+          "role": "bearing_seat"
+        },
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.5,
+          "length_mm": 10,
+          "role": "pulley_seat"
+        },
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.5,
+          "length_mm": 7,
+          "role": "body"
+        },
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.5,
+          "length_mm": 16,
+          "role": "end"
+        }
+      ]
+    }
+  }
+}
