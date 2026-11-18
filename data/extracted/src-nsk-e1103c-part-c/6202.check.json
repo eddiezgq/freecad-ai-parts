@@ -14,74 +14,167 @@
     "prompt_version": "extract/3",
     "response_id": "msg_011ChAWSSMuxntREFGAkfqNP"
   },
-  "items": [],
-  "rejected": [
+  "items": [
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/bearing_kind",
-      "page": 11,
+      "value": {
+        "value": "deep_groove",
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.95,
+        "reviewed": false
+      },
       "printed": {
         "text": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
         "unit": "",
         "label": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
         "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
-      }
+      },
+      "issues": [
+        "枚举映射：'SINGLE-ROW DEEP GROOVE BALL BEARINGS' → deep_groove，未自动核对"
+      ]
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/width_mm",
-      "page": 11,
+      "value": {
+        "value": 11.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "11",
         "unit": "mm",
         "label": "B",
         "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU N NR 2.06 1.35 33.17 0.4 0.5 39.7 1.12 19 20.5 31 0.6 40.5 2.9 0.045"
-      }
+      },
+      "issues": [
+        "叫法 'B' 在表头，须核对所在列",
+        "按版面对齐切出的行核对"
+      ]
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/outer/diameter_mm",
-      "page": 11,
+      "value": {
+        "value": 35.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "35",
         "unit": "mm",
         "label": "D",
         "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU N NR 2.06 1.35 33.17 0.4 0.5 39.7 1.12 19 20.5 31 0.6 40.5 2.9 0.045"
-      }
+      },
+      "issues": [
+        "按版面对齐切出的行核对"
+      ]
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "dims/outer_diameter_mm",
-      "page": 11,
+      "value": {
+        "value": 35.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "35",
         "unit": "mm",
         "label": "D",
         "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU N NR 2.06 1.35 33.17 0.4 0.5 39.7 1.12 19 20.5 31 0.6 40.5 2.9 0.045"
-      }
+      },
+      "issues": [
+        "按版面对齐切出的行核对"
+      ]
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/dynamic_load_rating_n",
-      "page": 11,
+      "value": {
+        "value": 8400.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "8 400",
         "unit": "N",
         "label": "Cr",
         "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU N NR 2.06 1.35 33.17 0.4 0.5 39.7 1.12 19 20.5 31 0.6 40.5 2.9 0.045"
-      }
+      },
+      "issues": [
+        "叫法 'Cr' 在表头，数值在该列",
+        "按版面对齐切出的行核对"
+      ]
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/static_load_rating_n",
-      "page": 11,
+      "value": {
+        "value": 3750.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "3 750",
         "unit": "N",
         "label": "C0r",
         "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU N NR 2.06 1.35 33.17 0.4 0.5 39.7 1.12 19 20.5 31 0.6 40.5 2.9 0.045"
-      }
+      },
+      "issues": [
+        "叫法 'C0r' 在表头，数值在该列",
+        "按版面对齐切出的行核对"
+      ]
     },
+    {
+      "target": "params/mass_kg",
+      "value": {
+        "value": 0.045,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "0.045",
+        "unit": "kg",
+        "label": "Mass approx.",
+        "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU N NR 2.06 1.35 33.17 0.4 0.5 39.7 1.12 19 20.5 31 0.6 40.5 2.9 0.045"
+      },
+      "issues": [
+        "叫法 'Mass approx.' 在表头，数值在该列",
+        "按版面对齐切出的行核对"
+      ]
+    }
+  ],
+  "rejected": [
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/limiting_speed_rpm",
@@ -117,17 +210,6 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/mass_kg",
-      "page": 11,
-      "printed": {
-        "text": "0.045",
-        "unit": "kg",
-        "label": "Mass approx.",
-        "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU N NR 2.06 1.35 33.17 0.4 0.5 39.7 1.12 19 20.5 31 0.6 40.5 2.9 0.045"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/seal",
       "page": 11,
       "printed": {
@@ -139,10 +221,6 @@
     }
   ],
   "missing_key_fields": [
-    "params/bearing_kind",
-    "params/width_mm",
-    "params/dynamic_load_rating_n",
-    "params/static_load_rating_n",
     "params/limiting_speed_rpm"
   ]
 }

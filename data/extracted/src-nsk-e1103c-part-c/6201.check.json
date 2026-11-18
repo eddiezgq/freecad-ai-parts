@@ -16,6 +16,51 @@
   },
   "items": [
     {
+      "target": "params/bearing_kind",
+      "value": {
+        "value": "deep_groove",
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.95,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+        "unit": "",
+        "label": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+        "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
+      },
+      "issues": [
+        "枚举映射：'SINGLE-ROW DEEP GROOVE BALL BEARINGS' → deep_groove，未自动核对"
+      ]
+    },
+    {
+      "target": "params/width_mm",
+      "value": {
+        "value": 10.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "10",
+        "unit": "mm",
+        "label": "B",
+        "quote": "32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037"
+      },
+      "issues": [
+        "叫法 'B' 在表头，须核对所在列",
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
       "target": "ports/outer/diameter_mm",
       "value": {
         "value": 32.0,
@@ -60,31 +105,78 @@
         "单位 mm 不在同一行，取自本页其他位置",
         "按版面对齐切出的行核对"
       ]
+    },
+    {
+      "target": "params/dynamic_load_rating_n",
+      "value": {
+        "value": 7500.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "7 500",
+        "unit": "N",
+        "label": "C r",
+        "quote": "32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037"
+      },
+      "issues": [
+        "叫法 'C r' 在表头，数值在该列",
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "params/static_load_rating_n",
+      "value": {
+        "value": 3050.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "3 050",
+        "unit": "N",
+        "label": "C 0r",
+        "quote": "32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037"
+      },
+      "issues": [
+        "叫法 'C 0r' 在表头，数值在该列",
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "params/mass_kg",
+      "value": {
+        "value": 0.037,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "0.037",
+        "unit": "kg",
+        "label": "Mass approx.",
+        "quote": "32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037"
+      },
+      "issues": [
+        "叫法 'Mass approx.' 在表头，数值在该列",
+        "按版面对齐切出的行核对"
+      ]
     }
   ],
   "rejected": [
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/bearing_kind",
-      "page": 11,
-      "printed": {
-        "text": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
-        "unit": "",
-        "label": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
-        "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/width_mm",
-      "page": 11,
-      "printed": {
-        "text": "10",
-        "unit": "mm",
-        "label": "B",
-        "quote": "32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037"
-      }
-    },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/inner/diameter_mm",
@@ -94,28 +186,6 @@
         "unit": "mm",
         "label": "d",
         "quote": "12 21 5 0.3 2 110 1 040 15.3 32 000 20 000 38 000 6801 ZZ VV DD — — — — — — — — — 14 14 19 0.3 — — 0.006"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/dynamic_load_rating_n",
-      "page": 11,
-      "printed": {
-        "text": "7 500",
-        "unit": "N",
-        "label": "C r",
-        "quote": "32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/static_load_rating_n",
-      "page": 11,
-      "printed": {
-        "text": "3 050",
-        "unit": "N",
-        "label": "C 0r",
-        "quote": "32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037"
       }
     },
     {
@@ -150,24 +220,9 @@
         "label": "Limiting Speeds Oil Open",
         "quote": "32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037"
       }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/mass_kg",
-      "page": 11,
-      "printed": {
-        "text": "0.037",
-        "unit": "kg",
-        "label": "Mass approx.",
-        "quote": "32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037"
-      }
     }
   ],
   "missing_key_fields": [
-    "params/bearing_kind",
-    "params/width_mm",
-    "params/dynamic_load_rating_n",
-    "params/static_load_rating_n",
     "params/limiting_speed_rpm"
   ]
 }

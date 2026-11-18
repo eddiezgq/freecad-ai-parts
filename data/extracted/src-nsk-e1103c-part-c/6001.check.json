@@ -16,6 +16,72 @@
   },
   "items": [
     {
+      "target": "params/bearing_kind",
+      "value": {
+        "value": "deep_groove",
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.95,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+        "unit": "",
+        "label": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+        "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
+      },
+      "issues": [
+        "枚举映射：'SINGLE-ROW DEEP GROOVE BALL BEARINGS' → deep_groove，未自动核对"
+      ]
+    },
+    {
+      "target": "ports/outer/diameter_mm",
+      "value": {
+        "value": 28.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "28",
+        "unit": "mm",
+        "label": "D",
+        "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
+      },
+      "issues": [
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "dims/outer_diameter_mm",
+      "value": {
+        "value": 28.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "28",
+        "unit": "mm",
+        "label": "D",
+        "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
+      },
+      "issues": [
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
       "target": "params/width_mm",
       "value": {
         "value": 8.0,
@@ -38,64 +104,80 @@
         "单位 mm 不在同一行，取自本页其他位置",
         "按版面对齐切出的行核对"
       ]
-    }
-  ],
-  "rejected": [
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/bearing_kind",
-      "page": 11,
-      "printed": {
-        "text": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
-        "unit": "",
-        "label": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
-        "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
-      }
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/outer/diameter_mm",
-      "page": 11,
-      "printed": {
-        "text": "28",
-        "unit": "mm",
-        "label": "D",
-        "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "dims/outer_diameter_mm",
-      "page": 11,
-      "printed": {
-        "text": "28",
-        "unit": "mm",
-        "label": "D",
-        "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/dynamic_load_rating_n",
-      "page": 11,
+      "value": {
+        "value": 5600.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "5 600",
         "unit": "N",
         "label": "Cr",
         "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
-      }
+      },
+      "issues": [
+        "叫法 'Cr' 在表头，数值在该列",
+        "单位 N 不在同一行，取自本页其他位置",
+        "按版面对齐切出的行核对"
+      ]
     },
     {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/static_load_rating_n",
-      "page": 11,
+      "value": {
+        "value": 2370.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
       "printed": {
         "text": "2 370",
         "unit": "N",
         "label": "C0r",
         "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
-      }
+      },
+      "issues": [
+        "叫法 'C0r' 在表头，数值在该列",
+        "单位 N 不在同一行，取自本页其他位置",
+        "按版面对齐切出的行核对"
+      ]
     },
+    {
+      "target": "params/mass_kg",
+      "value": {
+        "value": 0.022,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "0.022",
+        "unit": "kg",
+        "label": "Mass approx.",
+        "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
+      },
+      "issues": [
+        "叫法 'Mass approx.' 在表头，数值在该列",
+        "按版面对齐切出的行核对"
+      ]
+    }
+  ],
+  "rejected": [
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/limiting_speed_rpm",
@@ -131,17 +213,6 @@
     },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/mass_kg",
-      "page": 11,
-      "printed": {
-        "text": "0.022",
-        "unit": "kg",
-        "label": "Mass approx.",
-        "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "ports/inner/diameter_mm",
       "page": 11,
       "printed": {
@@ -153,9 +224,6 @@
     }
   ],
   "missing_key_fields": [
-    "params/bearing_kind",
-    "params/dynamic_load_rating_n",
-    "params/static_load_rating_n",
     "params/limiting_speed_rpm"
   ]
 }
