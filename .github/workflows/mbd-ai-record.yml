@@ -1,0 +1,56 @@
+name: AI 起草运动副录制（手动运行）
+
+# 问渠多体动力学安装包验收（ADR-0102 第 4 步）回放“AI 挑运动副”要一份真实回答的录制：
+# 在 demo 环境里用真实密钥问一次（只用指定的一家），录制推到新分支，再并进主线。
+on:
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: "用哪家模型（claude / deepseek）"
+        required: true
+        default: claude
+        type: choice
+        options: [claude, deepseek]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mbd-ai-record
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    environment: demo
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      PROVIDER: ${{ inputs.provider || 'claude' }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: 安装依赖
+        run: pip install -e ".[llm]"
+      - name: 问 AI 并录制
+        run: |
+          set +e
+          python scripts/mbd_ai_record.py --provider "$PROVIDER" > draft.json
+          code=$?
+          set -e
+          cat draft.json
+          echo "## AI 起草运动副（$PROVIDER）：$([ $code = 0 ] && echo 达标 || echo 未达标)" >> "$GITHUB_STEP_SUMMARY"
+          exit $code
+      - name: 推到新分支
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          branch="m42/mbd-ai-rec-${PROVIDER}-${GITHUB_RUN_ID}"
+          git checkout -b "$branch"
+          git add -A tests/recordings/mbd_mates
+          if git diff --cached --quiet; then echo "没有新录制"; exit 0; fi
+          git commit -m "M42: AI 起草运动副录制（运行 ${GITHUB_RUN_ID}）" -m "由 .github/workflows/mbd-ai-record.yml 生成"
+          git push origin "$branch"
+          echo "录制已推到分支 $branch" >> "$GITHUB_STEP_SUMMARY"
