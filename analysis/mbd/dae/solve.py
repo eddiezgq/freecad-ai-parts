@@ -6,6 +6,8 @@ import math
 
 import numpy as np
 import scipy.linalg as sla
+import scipy.sparse as sp
+import scipy.sparse.linalg as spla
 from scipy.integrate import solve_ivp
 from scipy.optimize import root
 
@@ -103,6 +105,16 @@ def initial_velocity(sysm: System, q, t, rows):
 
 # ---------------------------------------------------------------- 加速度与反力
 FRICTION_ITER = 30
+SPARSE_N = 120              # D8：坐标数到这个数以上，线性方程用稀疏 LU（雅可比、KKT 阵都很稀）
+
+
+def factor(A):
+    """方阵分解：大而稀用 splu，小用稠密 LU；返回 solve(rhs)"""
+    if A.shape[0] >= SPARSE_N:
+        lu = spla.splu(sp.csc_matrix(A))
+        return lu.solve
+    lu = sla.lu_factor(A)
+    return lambda r: sla.lu_solve(lu, r)
 FLEX_PIVOT_WEIGHT = 1e-6
 
 
@@ -124,18 +136,15 @@ def _joint_forces(sysm, q, J, lam, rows, jids):
     return out
 
 
-def accel(sysm: System, q, qd, t, rows):
+def accel(sysm: System, q, qd, t, rows, J=None):
     M = sysm.mass(q)
-    J = sysm.jac(q, t, rows)
+    J = sysm.jac(q, t, rows) if J is None else J
     gam = sysm.gamma(q, qd, t, rows)
     m = J.shape[0]
     K = np.block([[M, J.T], [J, np.zeros((m, m))]])
     try:
-        lu = sla.lu_factor(K)
-
-        def solve(r):
-            return sla.lu_solve(lu, r)
-    except (np.linalg.LinAlgError, ValueError):
+        solve = factor(K)
+    except (np.linalg.LinAlgError, ValueError, RuntimeError):
         def solve(r):
             return np.linalg.lstsq(K, r, rcond=None)[0]
     Q0 = sysm.Q(q, qd, t)
@@ -330,13 +339,23 @@ def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, 
     def full_state(t, y, dep, ind, need_acc=True):
         q = state["q"].copy()
         q[ind] = y[:dof]
-        # 积分器看到的右端要“干净”：牛顿迭代解到 1e-14（比积分容差小得多），否则紧容差时步长会被噪声拖小
+        # 积分器看到的右端要“干净”：牛顿迭代解到 1e-14（比积分容差小得多），否则紧容差时步长会被噪声拖小。
+        # D8：简化牛顿——起点的雅可比分解一次反复用（起点离解很近，几步就收敛）；收得慢时再重算
+        lu, prev = None, math.inf
         for _ in range(NEWTON_MAX):
             ph = sysm.phi(q, t, rows)
-            if np.max(np.abs(ph)) < 1e-14:
+            res = np.max(np.abs(ph))
+            if res < 1e-14:
                 break
-            J = sysm.jac(q, t, rows)
-            dx = np.linalg.solve(J[:, dep], -ph)
+            if lu is None or res > 0.05 * prev:          # 收敛变慢（起点远、或柔性构件）就重算雅可比
+                lu = None
+            prev = res
+            if lu is None:
+                try:
+                    lu = factor(sysm.jac(q, t, rows)[:, dep])
+                except (ValueError, np.linalg.LinAlgError, RuntimeError) as exc:
+                    raise SolveError("积分中约束雅可比奇异") from exc
+            dx = lu(-ph)
             q[dep] += dx
             if np.max(np.abs(dx)) < 1e-15:
                 break
@@ -347,11 +366,11 @@ def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, 
         J = sysm.jac(q, t, rows)
         qd = np.zeros(sysm.n)
         qd[ind] = y[dof:2 * dof]
-        qd[dep] = np.linalg.solve(J[:, dep], sysm.nu(q, t, rows) - J[:, ind] @ qd[ind])
+        qd[dep] = factor(J[:, dep])(sysm.nu(q, t, rows) - J[:, ind] @ qd[ind])
         if not need_acc:
             return q, qd, None, None
         set_actuators(t, q, qd, y[2 * dof:])
-        qdd, lam = accel(sysm, q, qd, t, rows)
+        qdd, lam = accel(sysm, q, qd, t, rows, J)
         return q, qd, qdd, lam
 
     t_cur, q_cur, qd_cur = t0, q, qd
