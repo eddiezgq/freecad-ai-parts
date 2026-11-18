@@ -53,7 +53,7 @@ class ImportDialog(QtWidgets.QDialog):
         self.target_model = QtWidgets.QLineEdit()
         self.target_model.setPlaceholderText("一份样本列了多个型号时填要导入的型号，否则留空")
         self.pages = QtWidgets.QLineEdit()
-        self.pages.setPlaceholderText("只看这些页，如 3,4（留空为全部）")
+        self.pages.setPlaceholderText("只看这些页，如 3,4 或 60-90（留空为全部）")
         self.actor = QtWidgets.QLineEdit(library_choice.read_settings().get("actor", ""))
         self.actor.setPlaceholderText("确认人姓名")
         form.addRow("规格书", pick)
@@ -94,10 +94,7 @@ class ImportDialog(QtWidgets.QDialog):
             self.file.setText(path)
 
     def _pages(self) -> list[int] | None:
-        text = self.pages.text().replace("，", ",").strip()
-        if not text:
-            return None
-        return [int(x) for x in text.split(",") if x.strip()]
+        return spec_import.parse_pages(self.pages.text())
 
     # ------------------------------------------------------------ 抽取（后台）
 
@@ -114,8 +111,8 @@ class ImportDialog(QtWidgets.QDialog):
         try:
             pages = self._pages()
             client = self.client_factory()
-        except ValueError:
-            self.status.setText("页码写成 3,4 这样的数字")
+        except ValueError as exc:
+            self.status.setText(str(exc))
             return False
         except Exception as exc:  # noqa: BLE001 — 没有密钥等，显示给用户
             self.status.setText(f"AI 不可用：{exc}")

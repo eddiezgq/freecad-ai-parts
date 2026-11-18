@@ -139,23 +139,29 @@ def register(mcp, lib: Callable[[], Any], info: Callable[[], dict], layout: Any 
     async def compose(request: Request):
         data = await _body(request)
         _only(data, {"requirement", "top_n", "include_unknown", "lang"}, {"requirement"})
-        return tools.compose_chain(lib(), data["requirement"], top_n=data.get("top_n", 5),
-                                   include_unknown=data.get("include_unknown", False), lang=data.get("lang", "zh"),
-                                   generate_adapters=data.get("generate_adapters"))
+        out = tools.compose_chain(lib(), data["requirement"], top_n=data.get("top_n", 5),
+                                  include_unknown=data.get("include_unknown", False), lang=data.get("lang", "zh"),
+                                  generate_adapters=data.get("generate_adapters"))
+        if layout:
+            layout.remember_requirement(data["requirement"])
+        return out
 
     @route("/api/verify", ["POST"])
     async def verify(request: Request):
         data = await _body(request)
         _only(data, {"system", "lang", "use_layout"}, {"system"})
         system = layout.with_layout(data["system"], data.get("use_layout", False)) if layout else data["system"]
-        return tools.verify_system(lib(), system, lang=data.get("lang", "zh"))
+        system, note = layout.complete_requirement(system) if layout else (system, {})
+        return tools.with_requirement_note(tools.verify_system(lib(), system, lang=data.get("lang", "zh")), note,
+                                           data.get("lang", "zh"))
 
     @route("/api/export", ["POST"])
     async def export(request: Request):
         data = await _body(request)
         _only(data, {"system", "format", "use_layout"}, {"system"})
         system = layout.with_layout(data["system"], data.get("use_layout", False)) if layout else data["system"]
-        return tools.export_system(lib(), system, format=data.get("format", "bom_csv"))
+        system, note = layout.complete_requirement(system) if layout else (system, {})
+        return tools.with_requirement_note(tools.export_system(lib(), system, format=data.get("format", "bom_csv")), note)
 
     if layout is None:
         return

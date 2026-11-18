@@ -157,6 +157,15 @@ def sheet_file(design, project, sheet, title, title_en, page, root_uuid, nc_nets
     return dump(body) + "\n"
 
 
+# Windows 保留的设备名（不论扩展名都不能当文件名）：整库在 Windows 上 git clone 会失败（2026-11-17 问渠 CAD 安装时发现）
+WINDOWS_RESERVED = {"con", "prn", "aux", "nul", *(f"com{i}" for i in range(1, 10)), *(f"lpt{i}" for i in range(1, 10))}
+
+
+def sheet_filename(key):
+    """分页原理图的文件名：一般是 <key>.kicad_sch；key 是 Windows 保留名（如 aux）时加 -sheet"""
+    return (key + "-sheet" if key.lower() in WINDOWS_RESERVED else key) + ".kicad_sch"
+
+
 def root_file(design, project, root_uuid, title):
     body = [Sym("kicad_sch"), [Sym("version"), 20230121], [Sym("generator"), Sym("eeschema")], [Sym("uuid"), root_uuid], [Sym("paper"), "A3"],
             [Sym("title_block"), [Sym("title"), title], [Sym("date"), _title_block(design)["date"]], [Sym("rev"), _title_block(design)["rev"]],
@@ -169,7 +178,7 @@ def root_file(design, project, root_uuid, title):
                      [Sym("uuid"), uid(project, "sheet", key)],
                      [Sym("property"), "Sheetname", "{} {}".format(i + 1, name), [Sym("at"), x, round(y - 0.7, 2), 0],
                       [Sym("effects"), [Sym("font"), [Sym("size"), 1.27, 1.27]], [Sym("justify"), Sym("left"), Sym("bottom")]]],
-                     [Sym("property"), "Sheetfile", key + ".kicad_sch", [Sym("at"), x, round(y + 30.6, 2), 0],
+                     [Sym("property"), "Sheetfile", sheet_filename(key), [Sym("at"), x, round(y + 30.6, 2), 0],
                       [Sym("effects"), [Sym("font"), [Sym("size"), 1.27, 1.27]], [Sym("justify"), Sym("left"), Sym("top")]]],
                      [Sym("instances"), [Sym("project"), project, [Sym("path"), "/" + root_uuid, [Sym("page"), str(i + 2)]]]]])
     body.append([Sym("text"), getattr(design, "ROOT_TEXT", "关节伺服驱动板 DRV-JOINT：48 V、三相、相电流采样 + 编码器接口 + CAN。示例设计，未经硬件验证。"),
@@ -185,7 +194,7 @@ def write(design, outdir, project="drv-joint"):
     notes = getattr(design, "SHEET_NOTES", {})
     files = {project + ".kicad_sch": root_file(design, project, root_uuid, getattr(design, "TITLE", "关节伺服驱动板 DRV-JOINT Joint servo drive board"))}
     for i, (key, name, name_en) in enumerate(design.SHEETS):
-        files[key + ".kicad_sch"] = sheet_file(design, project, key, name, name_en, i + 2, root_uuid, design.NC_NETS, notes.get(key, name))
+        files[sheet_filename(key)] = sheet_file(design, project, key, name, name_en, i + 2, root_uuid, design.NC_NETS, notes.get(key, name))
     for fn, txt in files.items():
         with open(os.path.join(outdir, fn), "w", encoding="utf-8") as f:
             f.write(txt)

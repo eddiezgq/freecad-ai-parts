@@ -184,6 +184,78 @@ def _lang(lang: str) -> str:
     return lang
 
 
+# ------------------------------------------------------------ 需求在一次会话里不丢条件（ADR-0099 41.0）
+
+REQ_CONDITIONS = ("output_torque_cont_nm", "output_torque_peak_nm", "output_speed_rpm", "safety_factor", "load_inertia_kgm2",
+                  "inertia_ratio_limit", "ambient_temp_c", "max_envelope_diameter_mm", "max_envelope_length_mm", "supply",
+                  "fieldbus_protocol")
+_COND_NAME = {"zh": {"supply": "供电", "ambient_temp_c": "环境温度", "max_envelope_diameter_mm": "外径上限",
+                     "max_envelope_length_mm": "长度上限", "fieldbus_protocol": "总线", "safety_factor": "安全系数",
+                     "output_torque_cont_nm": "连续扭矩", "output_torque_peak_nm": "峰值扭矩", "output_speed_rpm": "输出转速",
+                     "load_inertia_kgm2": "负载惯量", "inertia_ratio_limit": "惯量比上限"},
+              "en": {"supply": "supply", "ambient_temp_c": "ambient temperature", "max_envelope_diameter_mm": "max diameter",
+                     "max_envelope_length_mm": "max length", "fieldbus_protocol": "fieldbus", "safety_factor": "safety factor",
+                     "output_torque_cont_nm": "continuous torque", "output_torque_peak_nm": "peak torque",
+                     "output_speed_rpm": "output speed", "load_inertia_kgm2": "load inertia", "inertia_ratio_limit": "inertia ratio limit"}}
+
+
+def _same_ids(a: dict, b: dict) -> bool:
+    return bool((a.get("id") and a.get("id") == b.get("id")) or (a.get("statement") and a.get("statement") == b.get("statement")))
+
+
+def _same_requirement(a: dict, b: dict) -> bool:
+    """是不是同一个需求：id 或原话相同；或者 a 写了的条件都与 b 一致（只是漏了几项）"""
+    if _same_ids(a, b):
+        return True
+    return all(a[k] == b.get(k) for k in REQ_CONDITIONS if k in a)
+
+
+def complete_requirement(system: dict, remembered: dict | None) -> tuple[dict, dict]:
+    """系统里的需求少了这次会话确认过的条件（AI 组装系统时漏了，例如供电）就按原需求补上；同一需求而值不同的以原需求为准。
+    返回（系统, {"carried": [...], "kept": [...]}）。remembered 为空或不是同一需求时原样返回"""
+    note: dict[str, list] = {"carried": [], "kept": []}
+    req = system.get("requirement") if isinstance(system, dict) else None
+    if not remembered or not isinstance(req, dict) or not _same_requirement(req, remembered):
+        return system, note
+    new = dict(req)
+    for k in REQ_CONDITIONS:
+        if k not in remembered:
+            continue
+        if k not in new:
+            new[k] = remembered[k]
+            note["carried"].append(k)
+        elif new[k] != remembered[k]:
+            new[k] = remembered[k]
+            note["kept"].append(k)
+    if not note["carried"] and not note["kept"]:
+        return system, note
+    return {**system, "requirement": new}, note
+
+
+def requirement_note_text(note: dict, lang: str = "zh") -> str:
+    names = _COND_NAME["en" if lang == "en" else "zh"]
+    parts = []
+    if note.get("carried"):
+        items = "、".join(names.get(k, k) for k in note["carried"]) if lang != "en" else ", ".join(names.get(k, k) for k in note["carried"])
+        parts.append(("按原需求带入：" if lang != "en" else "Carried over from the confirmed requirement: ") + items)
+    if note.get("kept"):
+        items = "、".join(names.get(k, k) for k in note["kept"]) if lang != "en" else ", ".join(names.get(k, k) for k in note["kept"])
+        parts.append(("与原需求不一致，按原需求：" if lang != "en" else "Differed from the confirmed requirement; the confirmed value was used: ") + items)
+    return "；".join(parts) if lang != "en" else "; ".join(parts)
+
+
+def with_requirement_note(out: dict, note: dict, lang: str = "zh") -> dict:
+    """把“按原需求带入了哪些条件”写进工具结果（说明的开头也加一句，AI 和人都看得见）"""
+    if not note or not (note.get("carried") or note.get("kept")):
+        return out
+    text = requirement_note_text(note, lang)
+    out = {**out, "requirement_note": text, "requirement_carried": note.get("carried", []),
+           "requirement_kept": note.get("kept", [])}
+    if isinstance(out.get("explanation"), str):
+        out["explanation"] = text + "\n" + out["explanation"]
+    return out
+
+
 def verify_system(library: Library, system: dict, *, lang: str = "zh") -> dict:
     """对一个系统（schema/system.schema.json）做全部 11 项校验，返回结构化报告与说明。"""
     from engine.explain import explain

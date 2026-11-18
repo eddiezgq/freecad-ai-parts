@@ -192,3 +192,23 @@ def apply(enterprise, component_id: str, extraction: Mapping, chosen: Iterable[s
         enterprise.set_value(component_id, tgt, confirmed_pv(items[tgt], actor, today), actor, base)
         written.append(tgt)
     return written
+
+
+def parse_pages(text: str) -> list[int] | None:
+    """页码：“3,4”“60-90”“3, 10-12”（全角逗号、破折号也认）；留空为全部。写错时抛 ValueError 并说明"""
+    t = (text or "").replace("，", ",").replace("–", "-").replace("—", "-").replace("～", "-").replace("~", "-").strip()
+    if not t:
+        return None
+    out: list[int] = []
+    for part in (x.strip() for x in t.split(",")):
+        if not part:
+            continue
+        a, sep, b = part.partition("-")
+        try:
+            lo, hi = int(a), int(b) if sep else int(a)
+        except ValueError:
+            raise ValueError(f"页码写法不对：{part}（例：3,4 或 60-90）") from None
+        if lo < 1 or hi < lo or hi - lo > 2000:
+            raise ValueError(f"页码范围不对：{part}")
+        out.extend(range(lo, hi + 1))
+    return sorted(set(out)) or None
