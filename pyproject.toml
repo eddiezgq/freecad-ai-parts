@@ -59,7 +59,7 @@ freecad-ai-parts-mcp = "mcp_server.server:main"
 include = ["kb*", "ingest*", "engine*", "mcp_server*", "freecad_addon*", "analysis*", "llm_gateway*", "licensing*", "assist*"]
 
 [tool.setuptools.package-data]
-analysis = ["common/*.yaml"]
+analysis = ["common/*.yaml", "shaft/*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
