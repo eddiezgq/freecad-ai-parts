@@ -1,0 +1,18 @@
+# 轴的疲劳计算用修正系数（公式形式）。只收公式与出处里的系数，不收估计值。
+title: 轴的疲劳修正系数
+surface_factor:
+  source: "Budynas & Nisbett, Shigley's Mechanical Engineering Design, 10th ed., 疲劳一章 Marin 表面系数 k_a = a·S_ut^b（S_ut 以 MPa 计）"
+  rows:
+    ground: {a: 1.58, b: -0.085, zh: 磨削}
+    machined: {a: 4.51, b: -0.265, zh: 机加工或冷拔}
+    hot_rolled: {a: 57.7, b: -0.718, zh: 热轧}
+    forged: {a: 272.0, b: -0.995, zh: 锻造原表面}
+size_factor:
+  source: "同上 尺寸系数（旋转弯曲与扭转）k_b = 1.24·d^−0.107（2.79 ≤ d ≤ 51 mm），1.51·d^−0.157（51 < d ≤ 254 mm）"
+  ranges: [{d_min: 2.79, d_max: 51, c: 1.24, e: -0.107}, {d_min: 51, d_max: 254, c: 1.51, e: -0.157}]
+notch_sensitivity:
+  source: "同上 Neuber 式 q = 1/(1 + √a/√r)，钢的 √a 按 S_ut（kpsi）的三次拟合（弯曲、扭转各一式）"
+  bending_sqrt_a_inch: [0.246, -3.08e-3, 1.51e-5, -2.67e-8]
+  torsion_sqrt_a_inch: [0.190, -2.51e-3, 1.35e-5, -2.67e-8]
+  kpsi_per_mpa: 0.1450377
+  valid_kpsi: [50, 250]

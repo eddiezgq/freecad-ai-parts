@@ -640,7 +640,8 @@ class System:
         """每个构件受的外力（地面系）与对质心的力矩（地面系）——不含约束力"""
         F = np.zeros((self.nb, 3))
         N = np.zeros((self.nb, 3))
-        F += self.masses[:, None] * self.g[None, :]
+        ls = getattr(self, "load_scale", 1.0)               # 静平衡分步加载（ADR-0101）：只缩放重力和外加力、力矩
+        F += ls * self.masses[:, None] * self.g[None, :]
         env = self.measures(q, qd) if getattr(self, "needs_env", False) else None
         for kind, f in self.forces:
             if kind == "contact":
@@ -652,7 +653,7 @@ class System:
                 gear_wrenches(self, q, qd, f, F, N)
                 continue
             if kind == "force":
-                vec = np.array([fn(t, env) for fn in f["fn"]])
+                vec = ls * np.array([fn(t, env) for fn in f["fn"]])
                 b = f["body"]
                 if b < 0:
                     continue
@@ -661,7 +662,7 @@ class System:
                 F[b] += Fw
                 N[b] += np.cross(A @ f["s"], Fw)
             elif kind == "torque":
-                vec = np.array([fn(t, env) for fn in f["fn"]])
+                vec = ls * np.array([fn(t, env) for fn in f["fn"]])
                 b = f["body"]
                 if b < 0:
                     continue
@@ -703,6 +704,14 @@ class System:
                 Tq = -(f["k"] * math.remainder(ang - f["a0"], 2 * math.pi) + f["c"] * w) + f["pre"]
                 self._add(F, N, q, f["j"], None, T=Tq * h)
                 self._add(F, N, q, f["i"], None, T=-Tq * h)
+            elif kind == "nlbeam":
+                from analysis.mbd.dae.nlbeam import element
+
+                _, _, fj, Mi, Mj, _, _ = element(self, q, qd, f)
+                F[f["j"]] += fj
+                F[f["i"]] -= fj
+                N[f["j"]] += Mj
+                N[f["i"]] += Mi
             elif kind in ("bushing", "beam"):
                 i, j = f["i"], f["j"]
                 Ai = np.eye(3) if i < 0 else A_of(self.rp(q, i)[1])

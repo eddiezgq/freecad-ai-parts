@@ -119,11 +119,40 @@ def _series(rec, sysm):
                          "eta": [q[o:o + fx.nm].tolist() for q in rec.q],
                          "elastic_energy_j": [0.5 * float(q[o:o + fx.nm] @ fx.K @ q[o:o + fx.nm]) for q in rec.q],
                          "interface_nodes_mm": nodes}
+    flex.update(_nlbeam_out(s, rec))
     out_b["_flex"] = flex
     if getattr(rec, "ctrl", None):
         acts = sorted({a for d in rec.ctrl for a in d} | {f["id"] for kind, f in s.forces if kind == "actuator"})
         out_b["_act"] = {a: [float(d.get(a, 0.0)) for d in rec.ctrl] for a in acts}
     return out_b, joints, motions, reqs, energy, meas, cont
+
+
+def _nlbeam_out(s, rec):
+    """大变形梁（ADR-0101）：每帧每个单元的截面内力（轴力、两个剪力 N，扭矩、两个弯矩 N·m）、节点位置、最大正应力"""
+    from analysis.mbd.dae.nlbeam import element
+
+    out = {}
+    for name, info in (getattr(s, "nlbeams", None) or {}).items():
+        els = [f for kind, f in s.forces if kind == "nlbeam" and f["beam"] == name]
+        nodes = [next(k for k, b in enumerate(s.bodies) if b.name == nid) for nid in info["nodes"]]
+        A, (Iy, Iz) = info["area_m2"], info["I"]
+        fy, fz = info["fiber"]
+        frames = {"axial_n": [], "shear_y_n": [], "shear_z_n": [], "torque_n_m": [], "moment_y_n_m": [], "moment_z_n_m": [],
+                  "max_stress_mpa": [], "nodes_mm": []}
+        for q, qd in zip(rec.q, rec.qd, strict=True):
+            nm = np.array([element(s, q, qd, f)[:2] for f in els])            # 单元 × (n, m) × 3
+            n, m = nm[:, 0, :], nm[:, 1, :]
+            for key, col in (("axial_n", n[:, 0]), ("shear_y_n", n[:, 1]), ("shear_z_n", n[:, 2]), ("torque_n_m", m[:, 0]),
+                             ("moment_y_n_m", m[:, 1]), ("moment_z_n_m", m[:, 2])):
+                frames[key].append(col.tolist())
+            if fy and fz:
+                sig = np.abs(n[:, 0]) / A + np.abs(m[:, 1]) * fz * 1e-3 / Iy + np.abs(m[:, 2]) * fy * 1e-3 / Iz
+                frames["max_stress_mpa"].append(float(sig.max() / 1e6))
+            frames["nodes_mm"].append([(q[7 * k:7 * k + 3] * 1000).tolist() for k in nodes])
+        if not (fy and fz):
+            frames["max_stress_mpa"] = None
+        out[name] = {"type": "nonlinear_beam", "nodes": info["nodes"], "elements": len(els), **frames}
+    return out
 
 
 def _conservative(sysm) -> bool:
@@ -134,7 +163,7 @@ def _conservative(sysm) -> bool:
     if any(info.get("friction") for info in sysm.joints.values()):
         return False
     for kind, f in sysm.forces:
-        if kind in ("bushing", "beam", "clearance", "contact", "gear", "actuator"):
+        if kind in ("bushing", "beam", "clearance", "contact", "gear", "actuator", "nlbeam"):
             return False          # 衬套、梁的阻尼和间隙碰撞耗能；势能也没单独算
         if kind == "rspring" and (f["c"] > 0 or f["pre"]):
             return False
@@ -172,13 +201,13 @@ def run_model(model: dict, base_dir=None):
     if typ == "kinematic":
         rec, info = S.kinematic(sysm, t_end, steps)
     elif typ == "static":
-        rec, info = S.static(sysm)
+        rec, info = S.static(sysm, load_steps=int(an.get("load_steps", 1)))
     elif typ == "dynamic":
         rec, info = dyn(sysm, t_end, steps, method=method, rtol=rtol, atol=atol)
     elif typ in ("linear", "static_then_linear"):
         return _run_linear(model, sysm, typ)
     else:  # static_then_dynamic
-        st, info0 = S.static(sysm)
+        st, info0 = S.static(sysm, load_steps=int(an.get("load_steps", 1)))
         messages.append("先做静平衡（残差 {:.2g}），从平衡位置开始动力学".format(info0["residual"]))
         rec, info = dyn(sysm, t_end, steps, method=method, rtol=rtol, atol=atol, q=st.q[0], qd=np.zeros(sysm.n))
     if info.get("redundant"):
@@ -242,7 +271,7 @@ def _run_linear(model, sysm, typ):
             raise M.ModelError(f"状态空间输出 {o} 不在 measures 里")
     inputs = _plant_inputs(model, sysm)
     if typ == "static_then_linear":
-        st, info0 = S.static(sysm)
+        st, info0 = S.static(sysm, load_steps=int(an.get("load_steps", 1)))
         messages.append("先做静平衡（残差 {:.2g}），在平衡位置线性化".format(info0["residual"]))
         q, qd = st.q[0], np.zeros(sysm.n)
     else:

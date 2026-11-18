@@ -42,6 +42,12 @@ def build(model: dict, base_dir=None) -> System:
     errs = errors("mbd-model.schema.json", model)
     if errs:
         raise ModelError("模型不符合 schema：" + "；".join(errs[:5]))
+    from analysis.mbd.dae import nlbeam
+
+    try:
+        model, nl_elems, nl_info = nlbeam.expand(model)          # 大变形梁展开成节点构件（ADR-0101）
+    except nlbeam.NlBeamError as exc:
+        raise ModelError(str(exc)) from exc
     g = _v(model.get("gravity_mm_s2", [0, 0, 0]), "gravity_mm_s2") * MM
     bodies = []
     seen = set()
@@ -291,6 +297,9 @@ def build(model: dict, base_dir=None) -> System:
         raise ModelError(str(exc)) from exc
     sysm.act = {}
     sysm.model = model
+    for e in nl_elems:
+        sysm.forces.append(("nlbeam", {**e, "id": f"{e['beam']}.e{e['k']}", "i": idx[e["i_name"]], "j": idx[e["j_name"]]}))
+    sysm.nlbeams = nl_info
     return sysm
 
 

@@ -295,7 +295,7 @@ def coupling(sysm, ctrl=None):
     for r in sysm.rows:
         link(r.i, r.j)
     for kind, f in sysm.forces:
-        if kind in ("spring", "rspring", "bushing", "beam", "clearance"):
+        if kind in ("spring", "rspring", "bushing", "beam", "clearance", "nlbeam"):
             link(f["i"], f["j"])
         elif kind == "actuator":
             jt = sysm.joints[f["joint"]]

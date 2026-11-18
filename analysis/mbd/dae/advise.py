@@ -18,8 +18,9 @@ def suggest(model: dict) -> dict:
     an = model.get("analysis") or {}
     if an.get("type") not in DYNAMIC:
         return {}
-    flex = [b["id"] for b in model.get("bodies", []) if b.get("flex")]
+    flex = [b["id"] for b in model.get("bodies", []) if b.get("flex") and b["flex"].get("type") != "nonlinear_beam"]
     beams = [f["id"] for f in model.get("forces", []) if f.get("type") == "beam"]
+    beams += [b["id"] for b in model.get("bodies", []) if (b.get("flex") or {}).get("type") == "nonlinear_beam"]   # ADR-0101
     rough = []
     if model.get("contacts"):
         rough.append("接触")
@@ -34,7 +35,7 @@ def suggest(model: dict) -> dict:
     if flex:
         why.append(f"柔性构件 {'、'.join(flex[:3])}{' 等' if len(flex) > 3 else ''}")
     if beams:
-        why.append(f"{len(beams)} 个梁元件")
+        why.append(f"{len(beams)} 个梁元件或大变形梁")
     rtol = 1e-7 if beams else 1e-6
     if rough:
         rtol = 1e-8
