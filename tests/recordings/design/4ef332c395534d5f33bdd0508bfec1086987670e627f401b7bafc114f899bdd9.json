@@ -1,0 +1,84 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "shaft-design/1",
+  "request_key": "4ef332c395534d5f33bdd0508bfec1086987670e627f401b7bafc114f899bdd9",
+  "response": {
+    "id": "msg_011ChAwGdZV25w7TCNjFm3Bo",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "reason": "上一轮 Ø17→Ø18 台阶的半径差只有 0.5 mm,圆角 r=0.5 等于台阶高度,程序算不出应力集中系数。我把两个轴肩从 Ø17 改成 Ø16,这样 Ø16→Ø18 的台阶高度是 1 mm,圆角 0.5 mm 小于台阶高度,可以算。Ø16 仍不小于 6201 的 da min 16,能顶住轴承内圈。Ø16 到 Ø12 轴承位的台阶,圆角 0.5 不超过 ra max 0.6。各段长度没变:轴承中心在 27 和 252,凸轮在 45,偏心轮在 150,带轮座覆盖 262,手轮段覆盖 282。总长 292 mm,不超过 300 mm。",
+      "segments": [
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.6,
+          "length_mm": 22,
+          "role": "crank_seat"
+        },
+        {
+          "bearing": "bearing.nsk-ltd.6201",
+          "diameter_mm": 12,
+          "fillet_mm": 0.6,
+          "length_mm": 10,
+          "role": "bearing_seat"
+        },
+        {
+          "diameter_mm": 16,
+          "fillet_mm": 0.5,
+          "length_mm": 4,
+          "role": "shoulder"
+        },
+        {
+          "diameter_mm": 18,
+          "fillet_mm": 0.5,
+          "length_mm": 18,
+          "role": "cam_seat"
+        },
+        {
+          "diameter_mm": 18,
+          "fillet_mm": 0.5,
+          "length_mm": 87,
+          "role": "body"
+        },
+        {
+          "diameter_mm": 18,
+          "fillet_mm": 0.5,
+          "length_mm": 18,
+          "role": "cam_seat"
+        },
+        {
+          "diameter_mm": 18,
+          "fillet_mm": 0.5,
+          "length_mm": 84,
+          "role": "body"
+        },
+        {
+          "diameter_mm": 16,
+          "fillet_mm": 0.5,
+          "length_mm": 4,
+          "role": "shoulder"
+        },
+        {
+          "bearing": "bearing.nsk-ltd.6201",
+          "diameter_mm": 12,
+          "fillet_mm": 0.6,
+          "length_mm": 10,
+          "role": "bearing_seat"
+        },
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.6,
+          "length_mm": 15,
+          "role": "pulley_seat"
+        },
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.6,
+          "length_mm": 20,
+          "role": "end"
+        }
+      ]
+    }
+  }
+}

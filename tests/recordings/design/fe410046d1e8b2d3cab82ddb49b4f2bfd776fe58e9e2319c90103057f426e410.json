@@ -1,0 +1,84 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "shaft-design/1",
+  "request_key": "fe410046d1e8b2d3cab82ddb49b4f2bfd776fe58e9e2319c90103057f426e410",
+  "response": {
+    "id": "msg_011ChAw4fr4gn48642ZkWhTS",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "reason": "选用6201轴承（C=7500N最大，d=12）。总长292mm，不超过300，所有载荷和零件位置都在轴上。左端曲柄座22mm（z=11），轴承位22–32，中心27；右轴承位247–257，中心252。两端细段直径12，使轴承可从两端套入；中间主体直径18，既作轴承轴肩（大于da min 16），又提高中段刚度和临界转速。凸轮座中心z=45，送布偏心轮座中心z=150。右侧悬伸段：带轮座257–272（z=262），手轮与电机转子在272–292（z=282）。轴承轴肩圆角取0.6，不超过ra max；其余台阶圆角取1.0。这是首轮方案，尚无程序校核结果，按校核结果再调整。",
+      "segments": [
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.6,
+          "length_mm": 22,
+          "role": "crank_seat"
+        },
+        {
+          "bearing": "bearing.nsk-ltd.6201",
+          "diameter_mm": 12,
+          "fillet_mm": 0.6,
+          "length_mm": 10,
+          "role": "bearing_seat"
+        },
+        {
+          "diameter_mm": 18,
+          "fillet_mm": 0.6,
+          "length_mm": 4,
+          "role": "shoulder"
+        },
+        {
+          "diameter_mm": 18,
+          "fillet_mm": 1.0,
+          "length_mm": 18,
+          "role": "cam_seat"
+        },
+        {
+          "diameter_mm": 18,
+          "fillet_mm": 1.0,
+          "length_mm": 87,
+          "role": "body"
+        },
+        {
+          "diameter_mm": 18,
+          "fillet_mm": 1.0,
+          "length_mm": 18,
+          "role": "cam_seat"
+        },
+        {
+          "diameter_mm": 18,
+          "fillet_mm": 1.0,
+          "length_mm": 84,
+          "role": "body"
+        },
+        {
+          "diameter_mm": 18,
+          "fillet_mm": 0.6,
+          "length_mm": 4,
+          "role": "shoulder"
+        },
+        {
+          "bearing": "bearing.nsk-ltd.6201",
+          "diameter_mm": 12,
+          "fillet_mm": 0.6,
+          "length_mm": 10,
+          "role": "bearing_seat"
+        },
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.6,
+          "length_mm": 15,
+          "role": "pulley_seat"
+        },
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.6,
+          "length_mm": 20,
+          "role": "end"
+        }
+      ]
+    }
+  }
+}
