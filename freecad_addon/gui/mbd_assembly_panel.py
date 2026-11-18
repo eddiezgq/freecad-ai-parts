@@ -11,7 +11,38 @@ import threading
 import FreeCAD as App
 from PySide import QtCore, QtWidgets
 
+from assist.i18n import tr as T
 from freecad_addon.core import mbd_study as ST
+
+
+class _TrLabel(QtWidgets.QLabel):
+    """显示前按界面语言翻的标签（状态栏、核查结论；ADR-0102 第 2 步）"""
+
+    def __init__(self, text="", parent=None):
+        super().__init__(parent)
+        self.setText(text)
+
+    def setText(self, text):
+        super().setText(T(text))
+
+
+def _localize(root):
+    """窗口建好以后把固定文字按界面语言翻一遍：标题、按钮、勾选框、分组、标签、提示、表头、下拉项（数据不变）"""
+    if hasattr(root, "windowTitle"):
+        root.setWindowTitle(T(root.windowTitle()))
+    for w in root.findChildren(QtWidgets.QWidget):
+        if isinstance(w, QtWidgets.QGroupBox):
+            w.setTitle(T(w.title()))
+        elif isinstance(w, (QtWidgets.QPushButton, QtWidgets.QCheckBox)) or isinstance(w, QtWidgets.QLabel) and not isinstance(w, _TrLabel):
+            w.setText(T(w.text()))
+        elif isinstance(w, QtWidgets.QTableWidget):
+            w.setHorizontalHeaderLabels([T(w.horizontalHeaderItem(c).text()) for c in range(w.columnCount())
+                                         if w.horizontalHeaderItem(c) is not None])
+        elif isinstance(w, QtWidgets.QComboBox):
+            for k in range(w.count()):
+                w.setItemText(k, T(w.itemText(k)))
+        if w.toolTip():
+            w.setToolTip(T(w.toolTip()))
 
 
 class MbdAssemblyPanel(QtWidgets.QDockWidget):
@@ -95,7 +126,7 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         # 3 结果
         box3 = QtWidgets.QGroupBox("3 结果")
         l3 = QtWidgets.QVBoxLayout(box3)
-        self.verdict = QtWidgets.QLabel("")
+        self.verdict = _TrLabel("")
         self.verdict.setWordWrap(True)
         l3.addWidget(self.verdict)
         self.curve = QtWidgets.QComboBox()
@@ -120,11 +151,12 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         self.report_btn.setEnabled(False)
         l3.addWidget(self.report_btn)
         lay.addWidget(box3)
-        self.status = QtWidgets.QLabel("先选装配体：用当前文档的，或导入 STEP。")
+        self.status = _TrLabel("先选装配体：用当前文档的，或导入 STEP。")
         self.status.setWordWrap(True)
         lay.addWidget(self.status)
         self.setWidget(w)
         self._set_anim(False)
+        _localize(self)
 
         self.timer = QtCore.QTimer(self)
         self.timer.setInterval(40)
@@ -167,7 +199,7 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         return self.refresh_model()
 
     def _pick_step(self):
-        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "导入 STEP 装配", "", "STEP (*.step *.stp)")
+        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, T("导入 STEP 装配"), "", "STEP (*.step *.stp)")
         if path:
             self.load_step(path)
 
@@ -244,7 +276,7 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
             self.drives.setItem(i, 0, QtWidgets.QTableWidgetItem(j["id"]))
             kind = QtWidgets.QComboBox()
             for k, label in ST.DRIVE_KINDS:
-                kind.addItem(label, k)
+                kind.addItem(T(label), k)
             self.drives.setCellWidget(i, 1, kind)
             self.drives.setItem(i, 2, QtWidgets.QTableWidgetItem(""))
         self.drives.resizeColumnsToContents()
@@ -294,11 +326,11 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         for i, b in enumerate(self.model["bodies"]):
             self.flexparts.setItem(i, 0, QtWidgets.QTableWidgetItem(b["id"]))
             box = QtWidgets.QComboBox()
-            box.addItem("刚性", None)
+            box.addItem(T("刚性"), None)
             for m in mats:
-                box.addItem(m["name"], m["id"])
+                box.addItem(T(m["name"]), m["id"])
             for m in mats:                                    # ADR-0101 F3：细长等截面直杆可按大变形梁
-                box.addItem(f"大变形梁：{m['name']}", "beam:" + m["id"])
+                box.addItem(T(f"大变形梁：{m['name']}"), "beam:" + m["id"])
             self.flexparts.setCellWidget(i, 1, box)
         self.flexparts.resizeColumnsToContents()
 
@@ -375,7 +407,7 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         self.curve.blockSignals(True)
         self.curve.clear()
         for name in ST.curves(self.data):
-            self.curve.addItem(name)
+            self.curve.addItem(T(name), name)
         self.curve.blockSignals(False)
         lin = self.data.get("linear")
         self.modes.setVisible(bool(lin))
@@ -395,9 +427,9 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
     # ------------------------------------------------------------ 3 结果
 
     def _draw(self):
-        if self.plot is None or self.data is None or not self.curve.currentText():
+        if self.plot is None or self.data is None or not self.curve.currentData():
             return
-        unit, ys = ST.curves(self.data)[self.curve.currentText()]
+        unit, ys = ST.curves(self.data)[self.curve.currentData()]
         self.figure.clear()
         ax = self.figure.add_subplot(111)
         ax.plot(self.data["times_s"], ys)
@@ -416,10 +448,10 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
     def toggle_play(self):
         if self.timer.isActive():
             self.timer.stop()
-            self.play.setText("播放")
+            self.play.setText(T("播放"))
         else:
             self.timer.start()
-            self.play.setText("暂停")
+            self.play.setText(T("暂停"))
 
     def _tick(self):
         k = self.slider.value() + 1
@@ -433,11 +465,11 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
             self.time.setText("t = —")
 
     def _pick_report_dir(self):
-        d = QtWidgets.QFileDialog.getExistingDirectory(self, "报告存到哪个文件夹")
+        d = QtWidgets.QFileDialog.getExistingDirectory(self, T("报告存到哪个文件夹"))
         if d:
             self.write_report(d)
 
-    def write_report(self, out_dir, use_ai=None, lang="zh"):
+    def write_report(self, out_dir, use_ai=None, lang=None):
         """结果 → 正式报告（Word，有 LibreOffice 时另出 PDF）与出处账、改版记录（ADR-0102 第 1 步）；
         勾了“用 AI 起草”就让 AI 写解释段落（数字仍由程序填，不合规的段落退回）"""
         if self.data is None:
@@ -445,8 +477,9 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         import json
         from pathlib import Path
 
-        from assist import mbd_report
+        from assist import i18n, mbd_report
 
+        lang = lang or i18n.lang()                          # 缺省同界面语言（ADR-0102 第 2 步）
         out_dir = Path(out_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / "result.json").write_text(json.dumps(self.data, ensure_ascii=False), encoding="utf-8")

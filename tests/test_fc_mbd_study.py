@@ -174,3 +174,23 @@ def test_panel_imports_confirms_runs_and_animates(gui, step, tmp_path):
     finally:
         panel.close()
         App.closeDocument(doc.Name)
+
+
+def test_panel_follows_english_ui(gui, monkeypatch):
+    """ADR-0102 第 2 步：界面语言是英文时，窗口的固定文字、表头、下拉项、状态栏都是英文"""
+    from assist import i18n
+    from freecad_addon.gui.mbd_assembly_panel import MbdAssemblyPanel
+
+    monkeypatch.setenv("FAP_LANG", "en")
+    panel = MbdAssemblyPanel()
+    try:
+        assert panel.windowTitle() == "Assembly multibody dynamics"
+        assert panel.run_btn.text() == "Compute" and panel.report_btn.text() == "Write report…"
+        assert [panel.drives.horizontalHeaderItem(c).text() for c in range(3)] == ["Joints", "Drive", "Value"]
+        assert panel.integ.itemText(1) == "DOP853 explicit" and panel.integ.itemData(1) == "DOP853"
+        assert not i18n.has_cjk(panel.status.text())
+        panel.status.setText("算完。")
+        assert panel.status.text() == "Done."
+    finally:
+        panel.close()
+        panel.deleteLater()

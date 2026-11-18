@@ -15,7 +15,13 @@ MODULES = sorted([*ROOT.glob("analysis/fea/*.py"), ROOT / "assist/fea_report.py"
                   ROOT / "assist/features.py", ROOT / "freecad_addon/fc/fem_flow.py", ROOT / "freecad_addon/fc/fem_bridge.py",
                   ROOT / "freecad_addon/fc/fem_results.py", ROOT / "freecad_addon/gui/fem_commands.py",
                   ROOT / "freecad_addon/gui/fea_panel.py", ROOT / "assist/fea_edition.py",
-                  ROOT / "freecad_addon/gui/fea_brand.py", ROOT / "licensing/license.py", ROOT / "licensing/runtime.py"])
+                  ROOT / "freecad_addon/gui/fea_brand.py", ROOT / "licensing/license.py", ROOT / "licensing/runtime.py",
+                  # 问渠多体动力学（ADR-0102 第 2 步）
+                  *ROOT.glob("analysis/mbd/dae/*.py"), ROOT / "analysis/mbd/assembly.py", ROOT / "analysis/mbd/mates.py",
+                  ROOT / "analysis/mbd/flexsolid.py", ROOT / "analysis/mbd/flexview.py", ROOT / "analysis/mbd/study.py",
+                  ROOT / "analysis/mbd/loads.py", ROOT / "assist/mbd_report.py", ROOT / "assist/mbd_mates.py",
+                  ROOT / "freecad_addon/core/mbd_study.py", *ROOT.glob("freecad_addon/fc/mbd_*.py"),
+                  ROOT / "freecad_addon/gui/mbd_assembly_panel.py"])
 EXTRA = {"零件的温度场、热应力（本机 CalculiX）；按 FEM 分析的计算结果和载荷谱算疲劳寿命。强度、固有频率请在 FEM 工作台里“一句话起草 / 计算并核查 / 出报告”"}
 # 工作台其他命令不属于问渠有限元，只收“热分析 · 疲劳”这一条的说明
 

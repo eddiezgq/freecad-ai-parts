@@ -373,8 +373,8 @@ def build_docx(model: dict, data: dict, out, *, number: str | None = None, revis
     # 一、结论摘要
     h("一、结论摘要")
     bad = [v for v in data.get("verification", []) if v["status"] == "fail"]
-    p("程序核查：" + ("全部通过或不判。" if not bad else "有不通过的项（见第三节），结果须谨慎使用。")
-      + "本报告不作合格判定，由审核人按审核清单判断。")
+    p("程序核查：" + ("全部通过或不判。" if not bad else "有不通过的项（见第三节），结果须谨慎使用。"))
+    p("本报告不作合格判定，由审核人按审核清单判断。")
     keys = [k for k in Fx if not k.startswith("check_") and k not in ("dof", "t_end")]
     if keys:
         table(["项目", "数值"], [[Fx[k]["label"], L.op("result", Fx[k]["ptr"], Fx[k]["op"], Fx[k]["unit"])] for k in keys])
@@ -394,16 +394,16 @@ def build_docx(model: dict, data: dict, out, *, number: str | None = None, revis
         else:
             brows.append([L.txt("model", f"/bodies/{i}/id"), F("刚体"), L.num("model", f"/bodies/{i}/mass_kg", "kg"),
                           L.vec("model", f"/bodies/{i}/cm_mm", "mm")])
-    table(["构件", "类型", "质量", "质心"], brows)
+    table(["名称", "类型", "质量", "质心"], brows)
     if model.get("joints"):
         h("运动副", 2)
-        table(["运动副", "类型", "构件 i", "构件 j", "位置"], [
+        table(["名称", "类型", "构件 i", "构件 j", "运动副中心"], [
             [L.txt("model", f"/joints/{i}/id"), F(JOINT_ZH.get(j["type"], j["type"])), L.txt("model", f"/joints/{i}/body_i"),
              L.txt("model", f"/joints/{i}/body_j"), L.vec("model", f"/joints/{i}/point_mm", "mm")]
             for i, j in enumerate(model["joints"])])
     if data.get("redundant_constraints"):
-        p("删去的冗余约束（反力里这些方向的分量不唯一）：" + "、".join(
-            L.txt("result", f"/redundant_constraints/{k}") for k in range(len(data["redundant_constraints"]))))
+        names = "、".join(L.txt("result", f"/redundant_constraints/{k}") for k in range(len(data["redundant_constraints"])))
+        p(f"删去的冗余约束（反力里这些方向的分量不唯一）：{names}")
 
     # 三、可信度核查
     h("三、可信度核查")
