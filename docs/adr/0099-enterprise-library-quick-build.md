@@ -208,9 +208,14 @@
   物料表通道补了一条：物料号就是图号时对上企业库的自制件；待补清单改成可在人确认对应后重算（`ingest.bom.to_fill`）。
   录制工作流 `.github/workflows/enterprise-demo.yml`（约 4 次模型调用）；本步测试用模拟 AI（`tests/test_enterprise_demo.py`），
   合并后在 CI 上录制，录制与建好的 `library/`、`out/` 另一个 PR 提交。
-- **41.6 之三：轴承安装尺寸（2026-11-18，ADR-0102）**：bearing 加了 da min、da max、Da max、ra max 后重抽 NSK（字段清单随 schema 变，
+- **41.6 之三：轴承安装尺寸（2026-11-18，ADR-0103）**：bearing 加了 da min、da max、Da max、ra max 后重抽 NSK（字段清单随 schema 变，
   合成多型号目录的评测录制在 schema PR 里重录）。对齐行的表头补一条：组标题整段印在两列之间（不压在任一列上）时归到左右两列。
   ra max 两次抽取一致、核对通过；da 组标题的“d”压在 max 列上一点、“(2)”脚注又夹在中间，表头归不准，da min、da max、Da max
   两次抽取都读对了但核对没收，按第 11 页原页逐行确认（列序由排查日志的词坐标核对）。极限转速同样两次读对、AI 写的工况与原页写法对不上，
   按原页确认取第一列（脂润滑，开式与防尘盖），工况照原页写。试过“按组标题中心归列”的改法，会把
   “a”下标归错到 ra 列、ra max 反而对不上，撤回。结果：6000、6001、6200、6201 带安装尺寸入库（6201：da 16–17、Da max 28、ra max 0.6）。
+- **41.6 之四：示范企业用真实模型重建（2026-11-18）**：`enterprise-demo.yml`（运行 44365484063，Claude）录制物料表认列、分类与
+  两个自制件的类型提议，存 `tests/recordings/bom/`、`tests/recordings/part_kind/`；`tests/test_enterprise_demo.py` 回放全程（不联网）。
+  轴承带安装尺寸入库（ADR-0103）后重建 `examples/enterprise-lockstitch/library/` 与 `out/`：物料表 41 行 → 39 条物料，40 行分类、
+  只有“杂项”X-002 没分类（AI 写了原因）；对上已有组件 7 条，待人确认 1 条，待补 32 条；上轴 AI 提议“轴”，与人确认一致；
+  完整度 6/7（原来 3/7），只剩手轮 LS-HS 缺质量——材料没人确认，不按假设材料估；主轴选型 SGM7J-04A + SGD7S-2R8A 通过。

@@ -66,6 +66,7 @@ def draft(parts: list[dict], found: dict, client=None, *, note: str = "", model:
     AI 的回答逐条核对：不认识的候选、不允许的类型、不存在的机架都不采用，并在 notes 里写明；漏掉没表态的候选按规则收下。"""
     if client is None:
         return rule_draft(parts, found)
+    model = getattr(client, "model", None) or model          # 经网关时用那一家的模型名（录制按请求哈希存，两家各录各的）
     req = build_request(parts, found, model=model, note=note)
     resp = client.complete(req)
     ti = resp.get("tool_input") or {}

@@ -18,8 +18,12 @@ DRIVE_KINDS = [("none", "不驱动"), ("speed", "匀速 rpm（转动副）或 mm
 
 
 def draft_from_step(path, doc, client=None, note=""):
-    """STEP → (零件对象, 面摘要, 候选, 草稿)"""
+    """STEP → (零件对象, 面摘要, 候选, 草稿)。给了 client（用 AI 起草）时，问渠多体动力学免费版拒绝（ADR-0102 第 4 步）"""
+    from assist import mbd_edition
     from assist import mbd_mates as AM
+
+    if client is not None:
+        mbd_edition.gate(feature="AI 帮着挑运动副")
     from freecad_addon.fc import mbd_mates as MM
 
     objs = MM.import_step(path, doc)
@@ -70,9 +74,34 @@ def make_model(assembly, drives, analysis, *, gravity_mm_s2=None, mass_overrides
 
 
 def run(model):
+    """计算；问渠多体动力学免费版用到专业版功能（柔性体、接触、控制器、线性化……）时拒绝，说明是哪一项（ADR-0102 第 4 步）"""
     from analysis.mbd.dae import run as R
+    from assist import mbd_edition
 
+    mbd_edition.gate(model)
     return R.run_model(model)
+
+
+def write_report(model, data, out_dir, client=None, lang=None):
+    """结果 → 正式报告（Word，有 LibreOffice 时另出 PDF）与出处账、改版记录，另存 model.json、result.json（ADR-0102 第 1 步）；
+    给了 client 就让 AI 写解释段落（数字仍由程序填，不合规的段落退回）。问渠多体动力学免费版拒绝（第 4 步）。
+    返回 build_docx 的结果，另加 "explanation"：{"paragraphs", "rejected"}"""
+    import json
+    from pathlib import Path
+
+    from assist import i18n, mbd_edition, mbd_report
+
+    mbd_edition.gate(feature="正式报告")
+    lang = lang or i18n.lang()                          # 缺省同界面语言（ADR-0102 第 2 步）
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "result.json").write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    (out_dir / "model.json").write_text(json.dumps(model, ensure_ascii=False), encoding="utf-8")
+    data = json.loads(json.dumps(data))
+    ex = mbd_report.explain(data, mbd_report.facts(data), client) if client else None
+    got = mbd_report.build_docx(model, data, out_dir / "report.docx", explanation=ex, lang=lang)
+    got["explanation"] = ex or {"paragraphs": [], "rejected": []}
+    return got
 
 
 def body_objects(model, doc):

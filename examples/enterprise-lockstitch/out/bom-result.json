@@ -1,0 +1,820 @@
+{
+ "source": {
+  "file": "bom.csv",
+  "sha256": "44d9cf1f2717270c6a39cdc9b341919340979b1db3890267c1a70c08ec19df1b",
+  "note": "物料表不进企业库，只记文件名和 SHA-256"
+ },
+ "columns": {
+  "code": "物料号",
+  "model": "规格型号",
+  "name": "品名",
+  "quantity": "单台用量",
+  "unit": "单位",
+  "vendor": "品牌/厂家"
+ },
+ "items": [
+  {
+   "rows": [
+    3
+   ],
+   "code": "LS-001",
+   "name": "机壳",
+   "model": "HT200 铸件",
+   "vendor": "自制",
+   "category": "custom_part",
+   "confirm": [],
+   "part_kind": "housing"
+  },
+  {
+   "rows": [
+    4
+   ],
+   "code": "LS-101",
+   "name": "上轴",
+   "model": "Ø16×297",
+   "vendor": "自制",
+   "category": "custom_part",
+   "confirm": [],
+   "part_kind": "shaft",
+   "component": "custom_part.demo-sewing.ls-101"
+  },
+  {
+   "rows": [
+    5
+   ],
+   "code": "LS-102",
+   "name": "针杆曲柄",
+   "model": "",
+   "vendor": "自制",
+   "category": "custom_part",
+   "confirm": [],
+   "part_kind": "crank"
+  },
+  {
+   "rows": [
+    6
+   ],
+   "code": "LS-103",
+   "name": "挑线凸轮",
+   "model": "",
+   "vendor": "自制",
+   "category": "custom_part",
+   "confirm": [],
+   "part_kind": "cam"
+  },
+  {
+   "rows": [
+    7
+   ],
+   "code": "LS-104",
+   "name": "送布偏心轮",
+   "model": "",
+   "vendor": "自制",
+   "category": "custom_part",
+   "confirm": [],
+   "part_kind": "eccentric_wheel"
+  },
+  {
+   "rows": [
+    8
+   ],
+   "code": "LS-105",
+   "name": "针杆",
+   "model": "Ø7×180",
+   "vendor": "自制",
+   "category": "custom_part",
+   "confirm": [],
+   "part_kind": "needle_bar"
+  },
+  {
+   "rows": [
+    9
+   ],
+   "code": "LS-106",
+   "name": "针杆连杆",
+   "model": "",
+   "vendor": "自制",
+   "category": "custom_part",
+   "confirm": [],
+   "part_kind": "connecting_rod"
+  },
+  {
+   "rows": [
+    10
+   ],
+   "code": "LS-201",
+   "name": "下轴",
+   "model": "",
+   "vendor": "自制",
+   "category": "custom_part",
+   "confirm": [],
+   "part_kind": "shaft"
+  },
+  {
+   "rows": [
+    11
+   ],
+   "code": "LS-202",
+   "name": "旋梭轴",
+   "model": "",
+   "vendor": "自制",
+   "category": "custom_part",
+   "confirm": [],
+   "part_kind": "shaft"
+  },
+  {
+   "rows": [
+    12
+   ],
+   "code": "LS-301",
+   "name": "压脚杆",
+   "model": "",
+   "vendor": "自制",
+   "category": "custom_part",
+   "confirm": [],
+   "part_kind": "presser_bar"
+  },
+  {
+   "rows": [
+    13
+   ],
+   "code": "LS-302",
+   "name": "送布牙",
+   "model": "",
+   "vendor": "自制",
+   "category": "custom_part",
+   "confirm": [],
+   "part_kind": "feed_dog"
+  },
+  {
+   "rows": [
+    14
+   ],
+   "code": "LS-HS",
+   "name": "控制箱散热器",
+   "model": "铝 120×80",
+   "vendor": "自制",
+   "category": "custom_part",
+   "confirm": [],
+   "part_kind": "heat_sink",
+   "component": "custom_part.demo-sewing.ls-hs"
+  },
+  {
+   "rows": [
+    15,
+    43
+   ],
+   "code": "A-SM-04",
+   "name": "交流伺服电机",
+   "model": "SGM7J-04A",
+   "vendor": "安川",
+   "category": "servo_motor",
+   "confirm": [],
+   "part_kind": "servo_motor",
+   "duplicates": "第 15、43 行是同一物料（同厂商同型号或同编码），合并成一条；数量分别是 1、1",
+   "candidates": [
+    "servo_motor.yaskawa-electric-corporation.sgm7j-04a"
+   ],
+   "component": "servo_motor.yaskawa-electric-corporation.sgm7j-04a",
+   "confirmed_match": "示范企业工程师（虚构）确认（2026-11-18）"
+  },
+  {
+   "rows": [
+    16
+   ],
+   "code": "A-SD-2R8",
+   "name": "伺服驱动器",
+   "model": "SGD7S-2R8A",
+   "vendor": "YASKAWA AMERICA INC.",
+   "category": "drive",
+   "confirm": [],
+   "part_kind": "servo_drive",
+   "component": "drive.yaskawa-america-inc.sgd7s-2r8a"
+  },
+  {
+   "rows": [
+    17,
+    18
+   ],
+   "code": "B-6201",
+   "name": "深沟球轴承（上轴前）",
+   "model": "6201",
+   "vendor": "NSK",
+   "category": "bearing",
+   "confirm": [],
+   "part_kind": "deep_groove_ball_bearing",
+   "duplicates": "第 17、18 行是同一物料（同厂商同型号或同编码），合并成一条；数量分别是 1、1",
+   "component": "bearing.nsk-ltd.6201"
+  },
+  {
+   "rows": [
+    19
+   ],
+   "code": "B-6000",
+   "name": "深沟球轴承",
+   "model": "6000ZZ",
+   "vendor": "NSK",
+   "category": "bearing",
+   "confirm": [],
+   "part_kind": "deep_groove_ball_bearing"
+  },
+  {
+   "rows": [
+    20
+   ],
+   "code": "B-6200",
+   "name": "深沟球轴承",
+   "model": "6200",
+   "vendor": "NSK",
+   "category": "bearing",
+   "confirm": [],
+   "part_kind": "deep_groove_ball_bearing",
+   "component": "bearing.nsk-ltd.6200"
+  },
+  {
+   "rows": [
+    21
+   ],
+   "code": "B-6001",
+   "name": "深沟球轴承",
+   "model": "6001",
+   "vendor": "NSK",
+   "category": "bearing",
+   "confirm": [],
+   "part_kind": "deep_groove_ball_bearing",
+   "component": "bearing.nsk-ltd.6001"
+  },
+  {
+   "rows": [
+    22
+   ],
+   "code": "B-6202",
+   "name": "深沟球轴承",
+   "model": "6202",
+   "vendor": "NSK",
+   "category": "bearing",
+   "confirm": [],
+   "part_kind": "deep_groove_ball_bearing"
+  },
+  {
+   "rows": [
+    23
+   ],
+   "code": "P-BELT",
+   "name": "同步带",
+   "model": "100XL037",
+   "vendor": "示范皮带厂",
+   "category": "purchased_part",
+   "confirm": [],
+   "part_kind": "timing_belt"
+  },
+  {
+   "rows": [
+    24
+   ],
+   "code": "P-PUL",
+   "name": "同步带轮",
+   "model": "XL 20齿 孔Ø10",
+   "vendor": "示范传动件厂",
+   "category": "purchased_part",
+   "confirm": [],
+   "part_kind": "timing_pulley"
+  },
+  {
+   "rows": [
+    25
+   ],
+   "code": "P-SOL1",
+   "name": "倒缝电磁铁",
+   "model": "示范-SOL-24",
+   "vendor": "示范电磁厂",
+   "category": "purchased_part",
+   "confirm": [],
+   "part_kind": "solenoid"
+  },
+  {
+   "rows": [
+    26
+   ],
+   "code": "P-SOL2",
+   "name": "剪线电磁铁",
+   "model": "示范-SOL-12",
+   "vendor": "示范电磁厂",
+   "category": "purchased_part",
+   "confirm": [],
+   "part_kind": "solenoid"
+  },
+  {
+   "rows": [
+    27
+   ],
+   "code": "P-HOOK",
+   "name": "旋梭",
+   "model": "示范-HSH-7.94",
+   "vendor": "示范旋梭厂",
+   "category": "purchased_part",
+   "confirm": [],
+   "part_kind": "rotary_hook"
+  },
+  {
+   "rows": [
+    28
+   ],
+   "code": "P-NDL",
+   "name": "机针",
+   "model": "DB×1 #14",
+   "vendor": "示范机针厂",
+   "category": "purchased_part",
+   "confirm": [],
+   "part_kind": "sewing_needle"
+  },
+  {
+   "rows": [
+    29
+   ],
+   "code": "P-PUMP",
+   "name": "油泵",
+   "model": "示范-OP-1",
+   "vendor": "示范",
+   "category": "purchased_part",
+   "confirm": [],
+   "part_kind": "oil_pump"
+  },
+  {
+   "rows": [
+    30
+   ],
+   "code": "P-SW",
+   "name": "电源开关",
+   "model": "示范-SW-2",
+   "vendor": "示范电器",
+   "category": "purchased_part",
+   "confirm": [],
+   "part_kind": "power_switch"
+  },
+  {
+   "rows": [
+    31
+   ],
+   "code": "P-PCB",
+   "name": "控制板",
+   "model": "示范-CB-01",
+   "vendor": "示范电子",
+   "category": "purchased_part",
+   "confirm": [],
+   "part_kind": "control_board"
+  },
+  {
+   "rows": [
+    32
+   ],
+   "code": "P-FAN",
+   "name": "散热风扇",
+   "model": "示范-F4010",
+   "vendor": "示范电子",
+   "category": "purchased_part",
+   "confirm": [],
+   "part_kind": "cooling_fan"
+  },
+  {
+   "rows": [
+    33
+   ],
+   "code": "F-001",
+   "name": "内六角圆柱头螺钉",
+   "model": "GB/T 70.1 M5×12",
+   "vendor": "",
+   "category": "fastener",
+   "confirm": [],
+   "part_kind": "socket_head_cap_screw"
+  },
+  {
+   "rows": [
+    34
+   ],
+   "code": "F-002",
+   "name": "内六角螺钉",
+   "model": "M5X12",
+   "vendor": "",
+   "category": "fastener",
+   "confirm": [],
+   "part_kind": "socket_head_cap_screw"
+  },
+  {
+   "rows": [
+    35
+   ],
+   "code": "F-003",
+   "name": "内六角圆柱头螺钉",
+   "model": "GB/T 70.1 M4×10",
+   "vendor": "",
+   "category": "fastener",
+   "confirm": [],
+   "part_kind": "socket_head_cap_screw"
+  },
+  {
+   "rows": [
+    36
+   ],
+   "code": "F-004",
+   "name": "内六角紧定螺钉",
+   "model": "GB/T 78 M4×6",
+   "vendor": "",
+   "category": "fastener",
+   "confirm": [],
+   "part_kind": "set_screw"
+  },
+  {
+   "rows": [
+    37
+   ],
+   "code": "F-005",
+   "name": "平垫圈",
+   "model": "GB/T 97.1 5",
+   "vendor": "",
+   "category": "fastener",
+   "confirm": [],
+   "part_kind": "flat_washer"
+  },
+  {
+   "rows": [
+    38
+   ],
+   "code": "F-006",
+   "name": "弹簧垫圈",
+   "model": "GB/T 93 5",
+   "vendor": "",
+   "category": "fastener",
+   "confirm": [],
+   "part_kind": "spring_washer"
+  },
+  {
+   "rows": [
+    39
+   ],
+   "code": "F-007",
+   "name": "圆柱销",
+   "model": "GB/T 119.1 4×16",
+   "vendor": "",
+   "category": "fastener",
+   "confirm": [],
+   "part_kind": "dowel_pin"
+  },
+  {
+   "rows": [
+    40
+   ],
+   "code": "F-008",
+   "name": "孔用弹性挡圈",
+   "model": "GB/T 893 32",
+   "vendor": "",
+   "category": "fastener",
+   "confirm": [],
+   "part_kind": "retaining_ring"
+  },
+  {
+   "rows": [
+    41
+   ],
+   "code": "X-001",
+   "name": "包装箱",
+   "model": "",
+   "vendor": "示范",
+   "category": "purchased_part",
+   "confirm": [],
+   "part_kind": "packaging_box"
+  },
+  {
+   "rows": [
+    42
+   ],
+   "code": "X-002",
+   "name": "杂项",
+   "model": "",
+   "vendor": "",
+   "category": "unclassified",
+   "confirm": [
+    "未能分类：名称为“杂项”，没有规格型号，看不出是什么零件"
+   ],
+   "reason": "名称为“杂项”，没有规格型号，看不出是什么零件"
+  }
+ ],
+ "to_fill": [
+  {
+   "rows": [
+    3
+   ],
+   "category": "custom_part",
+   "model": "HT200 铸件",
+   "vendor": "自制",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    5
+   ],
+   "category": "custom_part",
+   "model": "",
+   "vendor": "自制",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    6
+   ],
+   "category": "custom_part",
+   "model": "",
+   "vendor": "自制",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    7
+   ],
+   "category": "custom_part",
+   "model": "",
+   "vendor": "自制",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    8
+   ],
+   "category": "custom_part",
+   "model": "Ø7×180",
+   "vendor": "自制",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    9
+   ],
+   "category": "custom_part",
+   "model": "",
+   "vendor": "自制",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    10
+   ],
+   "category": "custom_part",
+   "model": "",
+   "vendor": "自制",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    11
+   ],
+   "category": "custom_part",
+   "model": "",
+   "vendor": "自制",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    12
+   ],
+   "category": "custom_part",
+   "model": "",
+   "vendor": "自制",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    13
+   ],
+   "category": "custom_part",
+   "model": "",
+   "vendor": "自制",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    14
+   ],
+   "component": "custom_part.demo-sewing.ls-hs",
+   "missing": [
+    {
+     "field": "params.mass_kg",
+     "checks": [],
+     "key": true,
+     "hint": "按材料密度和三维模型体积算（自制件）"
+    }
+   ]
+  },
+  {
+   "rows": [
+    19
+   ],
+   "category": "bearing",
+   "model": "6000ZZ",
+   "vendor": "NSK",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    22
+   ],
+   "category": "bearing",
+   "model": "6202",
+   "vendor": "NSK",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    23
+   ],
+   "category": "purchased_part",
+   "model": "100XL037",
+   "vendor": "示范皮带厂",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    24
+   ],
+   "category": "purchased_part",
+   "model": "XL 20齿 孔Ø10",
+   "vendor": "示范传动件厂",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    25
+   ],
+   "category": "purchased_part",
+   "model": "示范-SOL-24",
+   "vendor": "示范电磁厂",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    26
+   ],
+   "category": "purchased_part",
+   "model": "示范-SOL-12",
+   "vendor": "示范电磁厂",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    27
+   ],
+   "category": "purchased_part",
+   "model": "示范-HSH-7.94",
+   "vendor": "示范旋梭厂",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    28
+   ],
+   "category": "purchased_part",
+   "model": "DB×1 #14",
+   "vendor": "示范机针厂",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    29
+   ],
+   "category": "purchased_part",
+   "model": "示范-OP-1",
+   "vendor": "示范",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    30
+   ],
+   "category": "purchased_part",
+   "model": "示范-SW-2",
+   "vendor": "示范电器",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    31
+   ],
+   "category": "purchased_part",
+   "model": "示范-CB-01",
+   "vendor": "示范电子",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    32
+   ],
+   "category": "purchased_part",
+   "model": "示范-F4010",
+   "vendor": "示范电子",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    33
+   ],
+   "category": "fastener",
+   "model": "GB/T 70.1 M5×12",
+   "vendor": "",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    34
+   ],
+   "category": "fastener",
+   "model": "M5X12",
+   "vendor": "",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    35
+   ],
+   "category": "fastener",
+   "model": "GB/T 70.1 M4×10",
+   "vendor": "",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    36
+   ],
+   "category": "fastener",
+   "model": "GB/T 78 M4×6",
+   "vendor": "",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    37
+   ],
+   "category": "fastener",
+   "model": "GB/T 97.1 5",
+   "vendor": "",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    38
+   ],
+   "category": "fastener",
+   "model": "GB/T 93 5",
+   "vendor": "",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    39
+   ],
+   "category": "fastener",
+   "model": "GB/T 119.1 4×16",
+   "vendor": "",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    40
+   ],
+   "category": "fastener",
+   "model": "GB/T 893 32",
+   "vendor": "",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  },
+  {
+   "rows": [
+    41
+   ],
+   "category": "purchased_part",
+   "model": "",
+   "vendor": "示范",
+   "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"
+  }
+ ],
+ "summary": {
+  "rows": 41,
+  "items": 39,
+  "classified": 40,
+  "matched": 7,
+  "confirm": 1
+ },
+ "notes": [],
+ "ai": [
+  {
+   "id": "msg_011ChAqR64TZRGSxP12gixYq",
+   "provider": "claude",
+   "model": "claude-sonnet-5-5",
+   "simulated": false
+  },
+  {
+   "id": "msg_011ChAqR9nCnGVxvm34WP38b",
+   "provider": "claude",
+   "model": "claude-sonnet-5-5",
+   "simulated": false
+  }
+ ],
+ "confirmed": false
+}

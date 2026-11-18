@@ -94,3 +94,22 @@ def test_ai_silence_and_bad_ground_fall_back_to_rules():
     assert d["ground"] == "frame"
     assert {a["id"] for a in d["accept"]} == {"c1", "c2"}
     assert AM.draft(parts, found)["by"].startswith("规则")
+
+
+def test_acceptance_fixture_and_recording():
+    """ADR-0102 第 4 步：安装包验收用的挑线机构候选；有录制时，回放的 AI 草稿逐条核对都通过（收全 4 个转动副、机架选机壳）"""
+    import json
+    from pathlib import Path
+
+    from ingest.llm_extract import RecordedClient
+
+    root = Path(__file__).resolve().parents[1]
+    fx = json.loads((root / "tests/fixtures/mbd-step/takeup.found.json").read_text(encoding="utf-8"))
+    assert [c["id"] for c in fx["found"]["candidates"]] == ["c1", "c2", "c3", "c4"]
+    rec = root / "tests/recordings/mbd_mates"
+    if not any(rec.glob("*.json")):
+        pytest.skip("还没有录制（由 .github/workflows/mbd-ai-record.yml 生成）")
+    c = RecordedClient(rec)
+    c.model = AM.DEFAULT_MODEL
+    d = AM.draft(fx["parts"], fx["found"], c)
+    assert not d["notes"] and {x["id"] for x in d["accept"]} == {"c1", "c2", "c3", "c4"} and d["ground"] == "Part__Feature"

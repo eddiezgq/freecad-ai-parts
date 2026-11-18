@@ -585,6 +585,12 @@ def register() -> None:
 
         fea_brand.register()
         return
+    if fea_edition.edition() == "mbd":
+        # 问渠多体动力学版（ADR-0102 第 4 步）：不加零件库工作台，只加“问渠多体动力学”工作台
+        from freecad_addon.gui import mbd_brand
+
+        mbd_brand.register()
+        return
     FreeCADGui.addWorkbench(AiPartsWorkbench())
     # FEM 工作台里的起草、计算并核查、出报告（ADR-0093 补充十二）
     from freecad_addon.gui import fem_commands

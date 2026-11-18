@@ -1,0 +1,41 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "mbd-mates/1",
+  "request_key": "c21a558a759596775c1811c54378b9e826f248616f513c2563e4053bdf1002ce",
+  "response": {
+    "id": "msg_011ChB8PEeowjwhMdW2F54Sn",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "accept": [
+        {
+          "id": "c1",
+          "name": "上轴挑线曲柄-机壳转动副",
+          "reason": "Ø12 轴孔同轴，上轴挑线曲柄绕机壳转动，是主动转动轴。轴向是否有窜动请核对，若可滑动改圆柱副。",
+          "type": "revolute"
+        },
+        {
+          "id": "c2",
+          "name": "挑线连杆-机壳转动副",
+          "reason": "Ø6 轴孔同轴，连杆绕机壳上的销轴摆动。轴向是否可滑动请核对。",
+          "type": "revolute"
+        },
+        {
+          "id": "c3",
+          "name": "挑线杆-曲柄转动副",
+          "reason": "Ø6 轴孔同轴，挑线杆绕曲柄上的销轴转动。轴向是否可滑动请核对。",
+          "type": "revolute"
+        },
+        {
+          "id": "c4",
+          "name": "挑线杆-连杆转动副",
+          "reason": "Ø4.4 轴孔同轴，连杆与挑线杆铰接。轴向是否可滑动请核对。",
+          "type": "revolute"
+        }
+      ],
+      "explanation": "机壳体积最大（27327 mm³），且和曲柄、连杆都有连接，选作机架。四个候选都是同轴的轴孔配合，按转动副收下，没有丢弃任何候选。这四个转动副构成机壳→曲柄→挑线杆→连杆→机壳的闭环，是四杆机构。四根轴必须严格平行，否则空间闭环会过约束，求解可能失败。请核对四根轴的方向是否平行，以及各销轴有没有轴向窜动，有的话把对应转动副改成圆柱副。",
+      "ground": "Part__Feature"
+    }
+  }
+}

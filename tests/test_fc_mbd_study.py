@@ -194,3 +194,93 @@ def test_panel_follows_english_ui(gui, monkeypatch):
     finally:
         panel.close()
         panel.deleteLater()
+
+
+@pytest.fixture
+def mbd_free(monkeypatch, tmp_path):
+    """问渠多体动力学版（验收用的测试版）、本机还没有授权文件（ADR-0102 第 4 步）"""
+    from assist import fea_edition
+    from licensing import runtime
+    from tests.test_mbd_edition import _edition_file
+
+    ed = _edition_file(tmp_path / "edition.json", True)
+    monkeypatch.delenv("FAP_EDITION", raising=False)
+    monkeypatch.setattr(fea_edition, "EDITION_FILE", ed)
+    monkeypatch.setattr(runtime, "EDITION_FILE", ed)
+    monkeypatch.setenv("FAP_LICENSE_FILE", str(tmp_path / "installed" / "license.json"))
+    monkeypatch.delenv("FAP_LICENSE_TEST_KEY", raising=False)
+    return tmp_path
+
+
+def test_free_edition_panel_refuses_pro_features(gui, step, mbd_free, monkeypatch):
+    """免费版：AI 挑运动副、柔性零件、线性化、正式报告拒绝并说明；规则草稿 + 刚体运动学照算；导入授权后都能用"""
+    import FreeCAD as App
+
+    from assist import mbd_edition
+    from assist.mbd_mates import FakeClient
+    from freecad_addon.core import mbd_study as ST
+    from freecad_addon.gui import mbd_brand
+    from freecad_addon.gui.mbd_assembly_panel import MbdAssemblyPanel
+    from tests.test_fea_edition import _license
+
+    doc = App.newDocument("free")
+    with pytest.raises(mbd_edition.NeedsPro, match="AI 帮着挑运动副"):
+        ST.draft_from_step(str(step), doc, FakeClient({}))
+    panel = MbdAssemblyPanel(client_factory=lambda: FakeClient({}))
+    try:
+        panel.use_ai.setChecked(True)
+        assert panel.load_step(str(step), doc) is False and "专业版的功能：AI 帮着挑运动副" in panel.status.text()
+        panel.use_ai.setChecked(False)
+        assert panel.load_step(str(step), doc) is True                      # 规则草稿是免费的
+        _steel(panel.objs)
+        assert panel.confirm() is True
+        lab = {o.Name: o.Label for o in panel.objs}
+        drive = next(j["id"] for j in panel.model["joints"] if j["body_i"] == "ground" and lab.get(j["body_j"]) == "上轴挑线曲柄")
+        panel.set_drive(drive, "speed", 600)
+        panel.kind.setCurrentIndex(panel.kind.findData("kinematic"))
+        panel.end.setText("0.1")
+        panel.steps.setText("20")
+        lever = next(o for o in panel.objs if o.Label == "挑线杆")
+        panel.set_flex(lever.Name, "45-QT")
+        assert panel.compute() is False and "柔性体" in panel.status.text()
+        panel.set_flex(lever.Name, None)
+        panel.kind.setCurrentIndex(panel.kind.findData("static_then_linear"))
+        assert panel.compute() is False and "线性化与模态" in panel.status.text()
+        panel.kind.setCurrentIndex(panel.kind.findData("kinematic"))
+        assert panel.compute() is True
+        _pump(gui, lambda: not panel.busy)
+        assert panel.data is not None and "通过" in panel.verdict.text(), panel.status.text()
+        assert panel.write_report(mbd_free / "rep", use_ai=False) is None and "正式报告" in panel.status.text()
+        assert not (mbd_free / "rep").exists()
+        assert "免费版" in mbd_brand.tier_text()
+        lic, key = _license(mbd_free, [mbd_edition.PRO])
+        monkeypatch.setenv("FAP_LICENSE_TEST_KEY", key)
+        from freecad_addon.gui import fea_brand
+
+        assert fea_brand.LicenseDialog(None, mbd_brand.Product).import_file(str(lic))
+        assert mbd_edition.pro_allowed() and mbd_brand.tier_text().startswith("专业版：CI 验收")
+        got = panel.write_report(mbd_free / "rep", use_ai=False)
+        assert got is not None and got["docx"].is_file()
+    finally:
+        panel.close()
+        App.closeDocument(doc.Name)
+
+
+def test_mbd_workbench_menu(gui, mbd_free, monkeypatch):
+    """问渠多体动力学版的界面：自己的工作台，菜单里有装配体多体动力学、授权、设置、关于；没有零件库工作台的命令"""
+    import FreeCADGui
+
+    from freecad_addon.gui import mbd_brand
+
+    monkeypatch.setattr(mbd_brand, "_start_here", lambda: None)          # 不改本机 FreeCAD 的启动工作台
+    mbd_brand.register()
+    try:
+        assert mbd_brand.WORKBENCH in FreeCADGui.listWorkbenches()
+        FreeCADGui.activateWorkbench(mbd_brand.WORKBENCH)
+        _pump(gui, lambda: True, 1)
+        menus = {a.text(): [x.text() for x in a.menu().actions()] for a in FreeCADGui.getMainWindow().menuBar().actions() if a.menu()}
+        got = set(menus.get("问渠多体动力学") or [])
+        assert {"装配体多体动力学", "授权…", "设置 AI 密钥…", "关于问渠多体动力学"} <= got, menus
+        assert "问渠多体动力学" in mbd_brand.about_text() and "免费版" in mbd_brand.about_text()
+    finally:
+        FreeCADGui.activateWorkbench("NoneWorkbench")

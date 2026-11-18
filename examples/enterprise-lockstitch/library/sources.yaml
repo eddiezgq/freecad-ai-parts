@@ -1,0 +1,13 @@
+documents:
+- id: src-ent-ls-101
+  title: LS-101 上轴 三维模型
+  file: src-ent-ls-101.step
+  sha256: b7c18ceff9dc76499edccfd677eed10316c5fa2942efd7d8847bb48d005cf8cc
+  added_by: 示范企业工程师（虚构）
+  date: '2026-11-18'
+- id: src-ent-ls-hs
+  title: LS-HS 控制箱散热器 三维模型
+  file: src-ent-ls-hs.step
+  sha256: 300d40862545510ab78eff2f5454a576ad8282dc253263d0b72f4b51b3fdb47f
+  added_by: 示范企业工程师（虚构）
+  date: '2026-11-18'
