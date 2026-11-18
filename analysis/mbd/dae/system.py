@@ -705,13 +705,7 @@ class System:
                 self._add(F, N, q, f["j"], None, T=Tq * h)
                 self._add(F, N, q, f["i"], None, T=-Tq * h)
             elif kind == "nlbeam":
-                from analysis.mbd.dae.nlbeam import element
-
-                _, _, fj, Mi, Mj, _, _ = element(self, q, qd, f)
-                F[f["j"]] += fj
-                F[f["i"]] -= fj
-                N[f["j"]] += Mj
-                N[f["i"]] += Mi
+                continue                                    # 循环后成批算（ADR-0101 F2）
             elif kind in ("bushing", "beam"):
                 i, j = f["i"], f["j"]
                 Ai = np.eye(3) if i < 0 else A_of(self.rp(q, i)[1])
@@ -754,7 +748,28 @@ class System:
                 Fn = max(0.0, f["k"] * pen ** f["e"] + damp * pend)
                 self._add(F, N, q, j, -Fn * u, Pj)
                 self._add(F, N, q, i, Fn * u, Pj)
+        nlb = self.nlbeam_batch()
+        if nlb is not None:
+            _, _, fj, Mi, Mj = nlb.eval(q, qd, self.nb)
+            np.add.at(F, nlb.j, fj)
+            np.add.at(F, nlb.i, -fj)
+            np.add.at(N, nlb.j, Mj)
+            np.add.at(N, nlb.i, Mi)
         return F, N
+
+    def nlbeam_batch(self):
+        """大变形梁单元的成批计算器（ADR-0101 F2），没有就返回 None；力元表变了就重建"""
+        fs = [f for kind, f in self.forces if kind == "nlbeam"]
+        if not fs:
+            return None
+        key = tuple(map(id, fs))
+        cache = getattr(self, "_nlb_cache", None)
+        if cache is None or cache[0] != key:
+            from analysis.mbd.dae.nlbeam import Batch
+
+            cache = (key, Batch(fs))
+            self._nlb_cache = cache
+        return cache[1]
 
     def friction_wrenches(self, q, qd, react):
         """运动副摩擦（D2）：react = {joint: (F_on_j, T_on_j about joint point)} 来自上一次迭代的约束力"""
