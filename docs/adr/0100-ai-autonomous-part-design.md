@@ -183,3 +183,19 @@
   录制回放测试接着生成模型并回读。偏差：ADR 原写“FreeCAD 生成”，这里用同一内核的 Gmsh 接口，CI 不装 FreeCAD 也能跑；
   键槽、平面、退刀槽不在方案格式里，模型没有（与书中 LS-101 的模型同样不含）；二维图是外形轮廓，不是 TechDraw 工程图——
   TechDraw 出图与自制件经人确认入企业库放在 42.4 的问渠 CAD 面板里做。
+- **42.4 问渠 CAD「AI 设计零件」面板（2026-11-18）**：按 §3.1 施工。
+  - 逻辑 `freecad_addon/core/ai_design.py`（设计与生成、三个页签的内容、入企业库），文档 `freecad_addon/fc/ai_design_doc.py`
+    （三维模型、TechDraw 工程图、BOM 表），界面 `freecad_addon/gui/ai_design_panel.py`；命令 `FAP_AiDesign` 放在工具栏和菜单
+    “新建零件”之后。
+  - 设计结果加了 `quotes`：核对通过的每个数和它的原话引用（条件页签用；不进提示词，录制不受影响）。
+  - 工程图：A3 图框，比例按总长取标准比例；直径、各段长度、总长 11 个尺寸由代码按设计数据找视图顶点加上，加完读回与设计核对
+    （差 > 0.01 mm 报错）；台阶圆角写在技术要求里；标题栏写名称、图号、材料、“AI 设计，代码校核”，批准人一栏入库确认后才填。
+    模板里自带的示例人名、公差都清空，不留假信息。
+  - 入企业库：图号、企业、确认人必填；三维模型与设计记录（design-record.json：条件、各轮方案与校核、AI 调用记录）登记为企业资料，
+    自制件由 41.4 的测量写成组件（零件类型 shaft，质量 = 回读体积 × 密度），出处写设计记录的资料号；录制回放的示例、回读不一致的
+    模型、图号重复都不入库。
+  - 中英两种：新加的显示文字全部进 `assist/i18n/en.json`，`tests/test_i18n.py` 把这三个文件和 shaft_design、shaft_model、design 纳入检查；
+    提示词、命令行输出、正则进 skip。AI 写的说明与问题、原话引用按规矩不翻。
+  - 打包：`tests/recordings/design` 与示例原话进工作台包（没有密钥也能“载入示例”回放）。
+  - 测试：`tests/test_ai_design_panel_core.py`（页签、入库规则）；`tests/test_fc_ai_design.py`（FreeCAD：模型、工程图 11 个尺寸与设计一致、
+    BOM 表、面板显示与确认入库）。问渠 CAD 仓库的 `tests-wqcad.ps1` 与固定提交随问渠 CAD 0.4 在那边改。
