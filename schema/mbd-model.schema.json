@@ -1230,9 +1230,16 @@
           "enum": [
             "DOP853",
             "Radau",
-            "BDF"
+            "BDF",
+            "HHT"
           ],
-          "description": "动力学积分器（缺省 DOP853；刚性问题用 Radau 或 BDF）"
+          "description": "动力学积分器（缺省 DOP853；硬系统——梁链、硬接触、柔性体高阶模态——用 HHT，ADR-0098）"
+        },
+        "hht_alpha": {
+          "type": "number",
+          "minimum": -0.3333333333333333,
+          "maximum": 0,
+          "description": "HHT 的 α：0 不耗散（梯形法），越负高频耗散越大；缺省 −0.1（ADR-0098）"
         },
         "rtol": {
           "type": "number",
