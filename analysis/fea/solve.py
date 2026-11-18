@@ -31,10 +31,13 @@ class TooBig(ValueError):
 
 
 def ccx_env(env=None) -> dict:
-    """CalculiX 子进程的环境：自身线程数 OMP_NUM_THREADS（FAP_CCX_THREADS 可另指定）；它调用的 BLAS 一律单线程
-    （issue #543：Linux CI 上同一算例连算两遍结果不同、屈曲差几倍。疑为 CalculiX 的多线程里再调多线程 OpenBLAS）"""
+    """CalculiX 子进程的环境：缺省单线程，BLAS 也单线程。
+
+    issue #543（2026-11-17 查清）：CalculiX 按机器核数开多线程时，4 核的 Linux CI 上同一算例连算两遍结果不同，
+    屈曲载荷能差十倍、模态与静力也会偏；只把 BLAS 设成单线程不够，CalculiX 自己单线程后全部测试稳定通过。
+    结果可复现比快重要，所以缺省单线程；确认过自己机器上多线程可靠的，可用环境变量 FAP_CCX_THREADS 另指定。"""
     env = dict(os.environ if env is None else env)
-    env["OMP_NUM_THREADS"] = env.get("FAP_CCX_THREADS", "1")       # #543 验证第二步：先全部单线程看 CI
+    env["OMP_NUM_THREADS"] = env.get("FAP_CCX_THREADS", "1")
     for k in ("OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "GOTO_NUM_THREADS"):
         env[k] = "1"
     return env

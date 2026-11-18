@@ -28,3 +28,12 @@ def test_keep_dir_leaves_frd_and_does_not_change_results(tmp_path):
         frd = tmp_path / "keep" / sid / "job.frd"
         assert frd.is_file() and frd.stat().st_size > 1000
         assert (tmp_path / "keep" / sid / "job.inp").is_file()
+
+
+def test_ccx_runs_single_threaded_by_default():
+    """issue #543：CalculiX 多线程时结果不可复现，缺省单线程；FAP_CCX_THREADS 可另指定；BLAS 一律单线程"""
+    from analysis.fea.solve import ccx_env
+
+    env = ccx_env({"PATH": "/usr/bin"})
+    assert env["OMP_NUM_THREADS"] == "1" and env["OPENBLAS_NUM_THREADS"] == "1"
+    assert ccx_env({"FAP_CCX_THREADS": "4"})["OMP_NUM_THREADS"] == "4"
