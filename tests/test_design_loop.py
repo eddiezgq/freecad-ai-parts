@@ -55,8 +55,8 @@ class Script:
 
 
 def test_conditions_checked_against_statement():
-    c, rej, asks = D.check_conditions(copy.deepcopy(CONDS), TEXT)
-    assert not rej and not asks
+    c, rej, missing = D.check_conditions(copy.deepcopy(CONDS), TEXT)
+    assert not rej and not missing
     assert c["speeds_rpm"] == [5000, 5500] and c["bearing_centers_mm"] == [27, 252]
     assert {"type": "force", "z_mm": 262, "fx_n": 0.0, "fy_n": -120} in c["loads"]
     assert c["material"] == "45-QT" and c["surface"] == "ground" and c["bearing_life_h"] == 20000
@@ -106,4 +106,11 @@ def test_missing_conditions_ask_first():
     c = copy.deepcopy(CONDS)
     del c["material"]
     out = D.design(TEXT, Script(conds=c), [get(B6201)], get, kt=fake_kt)
-    assert out["status"] == "needs_input" and any("材料" in q for q in out["questions"]) and not out["rounds"]
+    assert out["status"] == "needs_input" and any("材料" in q for q in out["missing"]) and not out["rounds"]
+
+
+def test_ai_questions_do_not_block():
+    c = copy.deepcopy(CONDS)
+    c["questions"] = ["挑线凸轮的工作载荷没有给出，是否忽略？"]
+    out = D.design(TEXT, Script(conds=c), [get(B6201)], get, kt=fake_kt)
+    assert out["status"] == "pass" and out["questions"] == c["questions"] and out["assumptions"]

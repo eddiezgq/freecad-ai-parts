@@ -165,13 +165,23 @@ def check_conditions(ti: Any, statement: str) -> tuple[dict, list[str], list[str
             x = _val(ti[key], statement, field, rej, name)
             if x is not None:
                 c[{"bearing_life": "bearing_life_h", "max_length": "max_length_mm"}.get(key, key)] = x
-    asks = [q for q in ti.get("questions") or [] if isinstance(q, str) and q.strip()]
+    missing = []
     for need, what in (("material", "材料"), ("speeds_rpm", "转速")):
         if not c.get(need):
-            asks.append(f"原话里没有核对得上的{what}")
+            missing.append(f"原话里没有核对得上的{what}")
     if len(c["bearing_centers_mm"]) != 2:
-        asks.append("要两个轴承中心的位置")
-    return c, rej, asks
+        missing.append("要两个轴承中心的位置")
+    return c, rej, missing
+
+
+def ai_questions(ti: Any) -> list[str]:
+    """AI 提的问题：交给工程师，但不挡设计（缺了算不了的条件由代码判断，见 check_conditions）"""
+    return [q.strip() for q in (ti.get("questions") if isinstance(ti, dict) else None) or [] if isinstance(q, str) and q.strip()]
+
+
+ASSUMPTIONS = ["轴承寿命按基本额定寿命 L10（可靠度 90 %）、载荷系数 1、当量载荷取一转之内径向支反力的立方平均",
+               "原话没有给的载荷（如凸轮、偏心轮的工作力）不计；挑线、送布机构的力要另给",
+               "强度按无限寿命安全系数，不计起停冲击"]
 
 
 # ---------------------------------------------------------------- 方案
@@ -226,10 +236,11 @@ def design(statement: str, client, bearings: list[dict], get: Callable[[str], di
            kt: Callable | None = None, max_rounds: int = MAX_ROUNDS) -> dict:
     """原话 → 条件 → 最多 max_rounds 轮方案与校核。返回全部记录"""
     r = client.complete(conditions_request(statement, model=model))
-    cond, rejected, asks = check_conditions(r["tool_input"], statement)
-    out: dict = {"statement": statement, "conditions": cond, "rejected": rejected, "questions": asks, "rounds": [],
+    cond, rejected, missing = check_conditions(r["tool_input"], statement)
+    out: dict = {"statement": statement, "conditions": cond, "rejected": rejected, "missing": missing,
+                 "questions": ai_questions(r["tool_input"]), "assumptions": ASSUMPTIONS, "rounds": [],
                  "ai": [{k: r[k] for k in ("id", "provider", "model", "simulated") if k in r}]}
-    if asks:
+    if missing:
         out["status"] = "needs_input"
         return out
     for _k in range(max_rounds):
@@ -283,6 +294,10 @@ def main(argv: list[str] | None = None) -> int:
     if a.out:
         a.out.write_text(text + "\n", encoding="utf-8")
     print(f"结论：{res['status']}；{len(res['rounds'])} 轮", file=sys.stderr)
+    for q in res.get("missing", []) + res.get("rejected", []):
+        print(f"  缺 / 退回：{q}", file=sys.stderr)
+    for q in res.get("questions", []):
+        print(f"  AI 的问题（待工程师答，不挡设计）：{q}", file=sys.stderr)
     for k, rd in enumerate(res["rounds"], 1):
         segs = "、".join(f"Ø{s['d']:g}×{s['L']:g}" for s in rd.get("segments") or [])
         print(f"第 {k} 轮：{rd['overall']}  {segs}\n{rd['feedback']}", file=sys.stderr)
