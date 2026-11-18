@@ -55,6 +55,7 @@ def dynamic(sysm, t_end, steps, *, alpha=-0.1, rtol=None, atol=None, q=None, qd=
     jids = S._friction_joints(sysm)
     rec = S.Recorder(sysm)
     rec.ctrl = []
+    last_fail = {}
     stats = {"steps": 0, "rejected": 0, "jacobians": 0, "factorizations": 0, "newton": 0}
 
     # 容差的权：位置按 atol + rtol·|q|；欧拉参数量级是 1，按 atol + rtol（不然转角接近 0 时要求修正到 1e-9 以下，牛顿永远收不住）
@@ -86,21 +87,12 @@ def dynamic(sysm, t_end, steps, *, alpha=-0.1, rtol=None, atol=None, q=None, qd=
         J = sysm.jac(q_, t, rows)
         return c_a * (sysm.mass(q_) @ a) + J.T @ lam - Qtot(q_, qd_, t, lam, J)
 
+    groups = color_groups(sysm, ctrl)
+
     def pieces(q_, qd_, t, a, lam):
-        """g 对 q、q̇ 的差分导数（列循环；E2 改成按耦合分组）"""
+        """g 对 q、q̇ 的差分导数：按构件耦合分组（E2），同组构件一起扰动，各行按耦合关系认领"""
         stats["jacobians"] += 1
-        g0 = g(q_, qd_, t, a, lam)
-        gq, gqd = np.empty((n, n)), np.empty((n, n))
-        for j in range(n):
-            d = 1e-7 * (1 + abs(q_[j]))
-            qq = q_.copy()
-            qq[j] += d
-            gq[:, j] = (g(qq, qd_, t, a, lam) - g0) / d
-            d = 1e-6 * (1 + abs(qd_[j]))
-            vv = qd_.copy()
-            vv[j] += d
-            gqd[:, j] = (g(q_, vv, t, a, lam) - g0) / d
-        return sysm.mass(q_), gq, gqd
+        return (sysm.mass(q_),) + grouped_fd(lambda qq, vv: g(qq, vv, t, a, lam), q_, qd_, groups)
 
     def kkt_factor(Mm, gq, gqd, J, h):
         stats["factorizations"] += 1
@@ -195,6 +187,7 @@ def dynamic(sysm, t_end, steps, *, alpha=-0.1, rtol=None, atol=None, q=None, qd=
                 r1 = c_a * (sysm.mass(q1) @ a1) + J1.T @ lam1 - Qtot(q1, qd1, t1, lam1, J1) - c_f * f_n
                 r2 = sysm.phi(q1, t1, rows) / (beta * h * h)
                 if not (np.all(np.isfinite(r1)) and np.all(np.isfinite(r2))):
+                    last_fail.update(why="力或约束算出 NaN", it=it)
                     break
                 dx = lu(-np.concatenate([r1, r2]))
                 a1 += dx[:n]
@@ -202,6 +195,8 @@ def dynamic(sysm, t_end, steps, *, alpha=-0.1, rtol=None, atol=None, q=None, qd=
                 dq = beta * h * h * dx[:n]
                 size = np.max(np.abs(dq) / weights(q1))
                 rate = size / prev if it >= 2 else 0.0     # 第一次修正多在硬方向、第二次在软方向，两者比不出收敛速率
+                last_fail.update(why=f"牛顿第 {it + 1} 次修正 {size:.3g} 个容差单位（速率 {rate:.2f}），最大在坐标 "
+                                     f"{int(np.argmax(np.abs(dq) / weights(q1)))}", it=it)
                 if it >= 2 and rate > 0.9 and size > NEWTON_FLOOR:
                     break                                  # 收敛太慢或发散
                 prev = size
@@ -211,9 +206,12 @@ def dynamic(sysm, t_end, steps, *, alpha=-0.1, rtol=None, atol=None, q=None, qd=
                 if ((size * r_ / (1 - r_) if it >= 2 else size) <= NEWTON_TOL or (it >= 2 and size <= NEWTON_FLOOR)
                         or np.max(np.abs(dq)) <= DQ_ROUNDOFF * (1 + np.max(np.abs(q1)))):
                     q1 = q + h * qd + h * h * ((0.5 - beta) * a + beta * a1)
-                    if np.max(np.abs(sysm.phi(q1, t1, rows)), initial=0.0) <= phi_tol:
+                    ph1 = sysm.phi(q1, t1, rows)
+                    if np.max(np.abs(ph1), initial=0.0) <= phi_tol:
                         conv = True
                         break
+                    kb = int(np.argmax(np.abs(ph1)))
+                    last_fail.update(why=f"修正量已收敛，约束“{rows[kb].label}”残差 {ph1[kb]:.3g} 仍超 {phi_tol:.0e}")
             if conv:
                 ok = True
                 slow = it >= 3                             # 用了 4 次以上：雅可比旧了，下一步开头换新的
@@ -225,13 +223,17 @@ def dynamic(sysm, t_end, steps, *, alpha=-0.1, rtol=None, atol=None, q=None, qd=
             break
         err = math.inf
         if ok:
-            err = float(np.max(h * h * est_c * np.abs(a1 - a) / weights(q1)))
+            ev = h * h * est_c * np.abs(a1 - a) / weights(q1)
+            err = float(np.max(ev))
+            if err > 1.0:
+                kk = int(np.argmax(ev))
+                last_fail.update(why=f"误差估计 {err:.3g} 超限（坐标 {kk}，步长 {h:.3g} s）")
         if not ok or err > 1.0:
             stats["rejected"] += 1
             stats["newton_fail" if not ok else "error_fail"] = stats.get("newton_fail" if not ok else "error_fail", 0) + 1
             h_free = h * (0.25 if not ok else max(0.2, 0.8 * err ** (-1 / 3)))
             if h_free < H_MIN:
-                raise S.SolveError(f"HHT 步长缩到 {h_free:.2g} s 仍不收敛（t = {t:.6g} s）")
+                raise S.SolveError(f"HHT 步长缩到 {h_free:.2g} s 仍不收敛（t = {t:.6g} s；最后一次：{last_fail.get('why', '误差超限')}）")
             fresh = False
             continue
         # 接受这一步
@@ -261,4 +263,108 @@ def dynamic(sysm, t_end, steps, *, alpha=-0.1, rtol=None, atol=None, q=None, qd=
     if ctrl:
         ctrl.close()
     return rec, {"dof": dof, "redundant": [sysm.rows[j].label for j in drop], **stats}
+
+
+# ---------------------------------------------------------------- E2：按耦合分组的差分雅可比
+def body_coords(sysm, k):
+    """构件 k 的坐标下标：7 个刚体坐标 + 柔性模态坐标"""
+    idx = list(range(7 * k, 7 * k + 7))
+    if sysm.bodies[k].flex is not None:
+        o = sysm.foff[k]
+        idx += list(range(o, o + sysm.bodies[k].flex.nm))
+    return idx
+
+
+def coupling(sysm, ctrl=None):
+    """构件之间谁的坐标会影响谁的力（含约束力 Φqᵀλ）：返回每个构件的闭邻域集合；遇到不认识的力元返回 None，退回逐列差分。
+    函数力用了测量量、执行器由控制器驱动时，这些力所在的构件与测量量涉及的全部构件算耦合"""
+    nb = sysm.nb
+    adj = [{k} for k in range(nb)]
+    env_bodies = []
+    for m in getattr(sysm, "measure_defs", []):
+        jt = sysm.joints[m["joint"]] if m["type"].startswith("joint_") else m
+        env_bodies += [jt["i"], jt["j"]]
+    uses_env = getattr(sysm, "needs_env", False)
+    ctrl_on = ctrl is not None
+
+    def link(*bs):
+        bs = [b for b in bs if b is not None and b >= 0]
+        for x in bs:
+            adj[x].update(bs)
+
+    for r in sysm.rows:
+        link(r.i, r.j)
+    for kind, f in sysm.forces:
+        if kind in ("spring", "rspring", "bushing", "beam", "clearance"):
+            link(f["i"], f["j"])
+        elif kind == "actuator":
+            jt = sysm.joints[f["joint"]]
+            link(jt["i"], jt["j"], *(env_bodies if ctrl_on else ()))
+        elif kind == "gear":
+            j1, j2 = sysm.joints[f["joint_i"]], sysm.joints[f["joint_j"]]
+            link(j1["i"], j1["j"], j2["i"], j2["j"])
+        elif kind == "contact":
+            link(f["ga"].body, f["gb"].body)
+        elif kind in ("force", "torque"):
+            if uses_env and any(fn.expr.uses_vars for fn in f["fn"]):
+                link(f["body"], *env_bodies)
+        else:
+            return None                                   # 不认识的力元：保守起见逐列
+    return adj
+
+
+def color_groups(sysm, ctrl=None):
+    """距离为 2 的着色：同组构件的闭邻域互不相交，扰动它们的坐标时各行只来自一个构件。
+    返回 [(组内构件, 各构件的坐标下标, 各构件认领的行下标)]；None 表示逐列"""
+    adj = coupling(sysm, ctrl)
+    if adj is None:
+        return None
+    colors = []
+    for k in sorted(range(sysm.nb), key=lambda b: -len(adj[b])):
+        for c in colors:
+            if all(not (adj[k] & adj[o]) for o in c):
+                c.append(k)
+                break
+        else:
+            colors.append([k])
+    out = []
+    for c in colors:
+        coords = {k: body_coords(sysm, k) for k in c}
+        rows = {k: [i for r in sorted(adj[k]) for i in body_coords(sysm, r)] for k in c}
+        out.append((c, coords, rows))
+    return out
+
+
+def grouped_fd(gfun, q, qd, groups):
+    """∂g/∂q、∂g/∂q̇ 的差分；groups 为 None 时逐列"""
+    n = len(q)
+    g0 = gfun(q, qd)
+    gq, gqd = np.zeros((n, n)), np.zeros((n, n))
+    if groups is None:
+        for j in range(n):
+            d = 1e-7 * (1 + abs(q[j]))
+            qq = q.copy()
+            qq[j] += d
+            gq[:, j] = (gfun(qq, qd) - g0) / d
+            d = 1e-6 * (1 + abs(qd[j]))
+            vv = qd.copy()
+            vv[j] += d
+            gqd[:, j] = (gfun(q, vv) - g0) / d
+        return gq, gqd
+    for members, coords, rows in groups:
+        width = max(len(c) for c in coords.values())
+        for slot in range(width):
+            for x, out, rel in ((q, gq, 1e-7), (qd, gqd, 1e-6)):
+                xx = x.copy()
+                cols = {}
+                for k in members:
+                    if slot < len(coords[k]):
+                        j = coords[k][slot]
+                        d = rel * (1 + abs(x[j]))
+                        xx[j] += d
+                        cols[k] = (j, d)
+                diff = (gfun(xx, qd) if out is gq else gfun(q, xx)) - g0
+                for k, (j, d) in cols.items():
+                    out[rows[k], j] = diff[rows[k]] / d
+    return gq, gqd
 
