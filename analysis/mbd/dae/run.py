@@ -158,19 +158,29 @@ def run_model(model: dict, base_dir=None):
     t_end = float(an.get("end_time_s", 1.0))
     method = an.get("integrator", "DOP853")
     rtol, atol = float(an.get("rtol", 1e-8)), float(an.get("atol", 1e-10))
+    if method == "HHT":                     # ADR-0098：二阶隐式，缺省容差放宽到它的精度档
+        from analysis.mbd.dae import hht
+
+        rtol, atol = float(an.get("rtol", 1e-6)), float(an.get("atol", 1e-9))
+
+        def dyn(sysm_, t_end_, steps_, **kw):
+            kw.pop("method")
+            return hht.dynamic(sysm_, t_end_, steps_, alpha=float(an.get("hht_alpha", -0.1)), **kw)
+    else:
+        dyn = S.dynamic
     messages = []
     if typ == "kinematic":
         rec, info = S.kinematic(sysm, t_end, steps)
     elif typ == "static":
         rec, info = S.static(sysm)
     elif typ == "dynamic":
-        rec, info = S.dynamic(sysm, t_end, steps, method=method, rtol=rtol, atol=atol)
+        rec, info = dyn(sysm, t_end, steps, method=method, rtol=rtol, atol=atol)
     elif typ in ("linear", "static_then_linear"):
         return _run_linear(model, sysm, typ)
     else:  # static_then_dynamic
         st, info0 = S.static(sysm)
         messages.append("先做静平衡（残差 {:.2g}），从平衡位置开始动力学".format(info0["residual"]))
-        rec, info = S.dynamic(sysm, t_end, steps, method=method, rtol=rtol, atol=atol, q=st.q[0], qd=np.zeros(sysm.n))
+        rec, info = dyn(sysm, t_end, steps, method=method, rtol=rtol, atol=atol, q=st.q[0], qd=np.zeros(sysm.n))
     if info.get("redundant"):
         messages.append("删掉了 {} 条冗余约束（反力里这些方向的分量不唯一，标为不完整）：{}".format(
             len(info["redundant"]), "、".join(info["redundant"])))
@@ -199,7 +209,9 @@ def run_model(model: dict, base_dir=None):
             "times_s": rec.t, "bodies": bodies, "joints": joints, "motions": motions, "requests": reqs, "measures": meas,
             "contacts": cont, "flex": flex, "actuators": act, "energy": energy,
             "verification": verification,
-            "solver": {k: info[k] for k in ("rhs", "segments", "repartitions") if k in info} | {"integrator": method, "rtol": rtol,
+            "solver": {k: info[k] for k in ("rhs", "segments", "repartitions", "steps", "rejected", "jacobians", "newton",
+                                                       "newton_fail", "error_fail", "h_min", "h_max")
+                       if k in info} | {"integrator": method, "rtol": rtol,
                                                                                                "atol": atol}}
     return data, messages
 
