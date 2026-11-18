@@ -90,3 +90,20 @@ def test_heading_names_the_kind(doc):
          "page": 1, "confidence": 0.8, "value": "deep_groove"}
     r = verify({"items": [p]}, doc, "bearing", DOC, target_model="9201")
     assert r["items"] and "枚举映射" in " ".join(r["items"][0].get("issues", []))
+
+
+def test_bore_from_first_row_of_group(doc):
+    """内径只印在同内径的第一行：引用第一行（另一型号）也算，因为目标型号那一行（补上内径后）同一列是同一个数"""
+    p = {"target": "ports/inner/diameter_mm", "printed_text": "12", "printed_unit": "mm", "printed_label": "d", "page": 1,
+         "quote": "12 28 8 0.3 5 600 2 370 9001 0.022", "confidence": 0.9, "value": 12}
+    assert verify({"items": [p]}, doc, "bearing", DOC, target_model="9201")["items"]
+    wrong = dict(p, printed_text="10", value=10, quote="10 26 8 0.3 5 050 1 970 9000 0.018")
+    assert not verify({"items": [wrong]}, doc, "bearing", DOC, target_model="9201")["items"]
+
+
+def test_confirmation_from_same_source_other_doc(monkeypatch):
+    """人工确认可以引用同一来源登记的另一份资料（如目录 Part A 的精度等级说明）；别的来源的资料不收"""
+    from ingest import crosscheck as C
+
+    assert C._same_source("src-nsk-e1103c-part-c", "src-nsk-e1103c-part-a")
+    assert not C._same_source("src-nsk-e1103c-part-c", "src-hd-csg-csf-gear-units")

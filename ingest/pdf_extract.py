@@ -149,6 +149,7 @@ def _layout_rows(pg) -> list[list[str]]:
 GRID_MIN_CELLS = 6          # 一行至少这么多格才算数据行
 GRID_HEAD_BAND_PT = 60      # 第一行数据之上多高范围内的文字算表头
 GRID_REPEAT_HEAD = 10       # 每隔几行数据重复一次合成表头（核对只往上找十几行表头）
+GRID_BLOCK_GAP_PT = 30      # 数据行之间超过这个间隔就算另一张表
 _THOUSANDS = re.compile(r"\d{1,3}(?: \d{3})*")
 
 
@@ -165,8 +166,8 @@ def _grid_cells(words: list[dict]) -> list[dict]:
 
 
 def _grid_rows(pg) -> list[list[str]]:
-    """无边框的数据表：数据行（≥ 6 格、以数字开头）的格区间并成列；第一行数据之上的文字按横坐标归到列，合成一行表头；
-    第一列为空的行（内径等跨行的格）取上一行的值。不是这种表的页返回空表"""
+    """无边框的数据表：数据行（≥ 6 格、以数字开头）按纵向间隔分成块；每块的格区间并成列，块上方（到上一块为止、
+    至多 60 pt）的文字按横坐标归到列，合成一行表头；第一列为空的行（内径等跨行的格）取上一行的值。没有这种表的页返回空表"""
     try:
         words = pg.extract_words(x_tolerance=1.5, y_tolerance=2)
     except Exception:  # noqa: BLE001 — 取词失败就不出对齐行
@@ -178,42 +179,53 @@ def _grid_rows(pg) -> list[list[str]]:
         else:
             lines.append([w["top"], [w]])
     rows = [(top, _grid_cells(ws)) for top, ws in lines]
-    data = [(top, cs) for top, cs in rows if len(cs) >= GRID_MIN_CELLS and cs[0]["text"][:1].isdigit()]
-    if len(data) < 2:
-        return []
-    spans = sorted([c["x0"], c["x1"]] for _, cs in data for c in cs)
-    cols: list[list[float]] = []
-    for a, b in spans:
-        if cols and a <= cols[-1][1] + 0.5:
-            cols[-1][1] = max(cols[-1][1], b)
+    is_data = [len(cs) >= GRID_MIN_CELLS and cs[0]["text"][:1].isdigit() for _, cs in rows]
+    blocks: list[list[int]] = []
+    for i, d in enumerate(is_data):
+        if not d:
+            continue
+        if blocks and rows[i][0] - rows[blocks[-1][-1]][0] <= GRID_BLOCK_GAP_PT:
+            blocks[-1].append(i)
         else:
-            cols.append([a, b])
-
-    def col_of(c):
-        hits = [j for j, (a, b) in enumerate(cols) if min(b, c["x1"]) - max(a, c["x0"]) > 0]
-        return hits
-
-    top0 = data[0][0]
-    head = [""] * len(cols)
-    for top, cs in rows:
-        if top0 - GRID_HEAD_BAND_PT <= top < top0 - 1:
-            for c in cs:
-                for j in col_of(c):
-                    head[j] = (head[j] + " " + c["text"]).strip()
+            blocks.append([i])
     out: list[list[str]] = []
-    prev: list[str] | None = None
-    for i, (_, cs) in enumerate(data):
-        cells = [""] * len(cols)
-        for c in cs:
-            js = col_of(c)
-            if js:
-                cells[js[0]] = (cells[js[0]] + " " + c["text"]).strip()
-        if prev is not None and not cells[0]:
-            cells[0] = prev[0]
-        if i % GRID_REPEAT_HEAD == 0 and any(head):
-            out.append(list(head))
-        out.append(cells)
-        prev = cells
+    prev_end = -1e9
+    for blk in blocks:
+        if len(blk) < 2:
+            prev_end = rows[blk[-1]][0]
+            continue
+        spans = sorted([c["x0"], c["x1"]] for i in blk for c in rows[i][1])
+        cols: list[list[float]] = []
+        for a, b in spans:
+            if cols and a <= cols[-1][1] + 0.5:
+                cols[-1][1] = max(cols[-1][1], b)
+            else:
+                cols.append([a, b])
+
+        def col_of(c, cols=cols):
+            return [j for j, (a, b) in enumerate(cols) if min(b, c["x1"]) - max(a, c["x0"]) > 0]
+
+        top0 = rows[blk[0]][0]
+        head = [""] * len(cols)
+        for top, cs in rows:
+            if max(prev_end, top0 - GRID_HEAD_BAND_PT) < top < top0 - 1:
+                for c in cs:
+                    for j in col_of(c):
+                        head[j] = (head[j] + " " + c["text"]).strip()
+        prev: list[str] | None = None
+        for k, i in enumerate(blk):
+            cells = [""] * len(cols)
+            for c in rows[i][1]:
+                js = col_of(c)
+                if js:
+                    cells[js[0]] = (cells[js[0]] + " " + c["text"]).strip()
+            if prev is not None and not cells[0]:
+                cells[0] = prev[0]
+            if k % GRID_REPEAT_HEAD == 0 and any(head):
+                out.append(list(head))
+            out.append(cells)
+            prev = cells
+        prev_end = rows[blk[-1]][0]
     return out
 
 

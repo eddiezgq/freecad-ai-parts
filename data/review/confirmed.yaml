@@ -4297,3 +4297,95 @@ confirmations:
   quote: Rated Torque at 2000rpm（表 127-1）
   confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
   date: '2026-11-15'
+# NSK 深沟球轴承的精度等级（2026-11-18）：Part C 的轴承表不印精度等级；Part A 表 6.6（第 62 页）精度等级一栏印“Omitted ISO Normal”，
+# 即代号不带精度符号为 ISO 普通级，按 schema 记 P0（ISO 492 Normal）。Claude 经 WebFetch 读 NSK 官网 PDF 原页核对（ADR-0040 授权）。
+- doc: src-nsk-e1103c-part-c
+  model: '6000'
+  target: ports/inner/fit
+  value: P0
+  source_doc: src-nsk-e1103c-part-a
+  page: 62
+  quote: Table 6.6 Tolerance Class Symbols：Omitted — ISO Normal（代号不带精度符号）
+  confirmed_by: Claude（经 WebFetch 读 NSK 官网 PDF 原页核对，按 ADR-0040 授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6000'
+  target: ports/outer/fit
+  value: P0
+  source_doc: src-nsk-e1103c-part-a
+  page: 62
+  quote: Table 6.6 Tolerance Class Symbols：Omitted — ISO Normal（代号不带精度符号）
+  confirmed_by: Claude（经 WebFetch 读 NSK 官网 PDF 原页核对，按 ADR-0040 授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6001'
+  target: ports/inner/fit
+  value: P0
+  source_doc: src-nsk-e1103c-part-a
+  page: 62
+  quote: Table 6.6 Tolerance Class Symbols：Omitted — ISO Normal（代号不带精度符号）
+  confirmed_by: Claude（经 WebFetch 读 NSK 官网 PDF 原页核对，按 ADR-0040 授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6001'
+  target: ports/outer/fit
+  value: P0
+  source_doc: src-nsk-e1103c-part-a
+  page: 62
+  quote: Table 6.6 Tolerance Class Symbols：Omitted — ISO Normal（代号不带精度符号）
+  confirmed_by: Claude（经 WebFetch 读 NSK 官网 PDF 原页核对，按 ADR-0040 授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6200'
+  target: ports/inner/fit
+  value: P0
+  source_doc: src-nsk-e1103c-part-a
+  page: 62
+  quote: Table 6.6 Tolerance Class Symbols：Omitted — ISO Normal（代号不带精度符号）
+  confirmed_by: Claude（经 WebFetch 读 NSK 官网 PDF 原页核对，按 ADR-0040 授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6200'
+  target: ports/outer/fit
+  value: P0
+  source_doc: src-nsk-e1103c-part-a
+  page: 62
+  quote: Table 6.6 Tolerance Class Symbols：Omitted — ISO Normal（代号不带精度符号）
+  confirmed_by: Claude（经 WebFetch 读 NSK 官网 PDF 原页核对，按 ADR-0040 授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6201'
+  target: ports/inner/fit
+  value: P0
+  source_doc: src-nsk-e1103c-part-a
+  page: 62
+  quote: Table 6.6 Tolerance Class Symbols：Omitted — ISO Normal（代号不带精度符号）
+  confirmed_by: Claude（经 WebFetch 读 NSK 官网 PDF 原页核对，按 ADR-0040 授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6201'
+  target: ports/outer/fit
+  value: P0
+  source_doc: src-nsk-e1103c-part-a
+  page: 62
+  quote: Table 6.6 Tolerance Class Symbols：Omitted — ISO Normal（代号不带精度符号）
+  confirmed_by: Claude（经 WebFetch 读 NSK 官网 PDF 原页核对，按 ADR-0040 授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6202'
+  target: ports/inner/fit
+  value: P0
+  source_doc: src-nsk-e1103c-part-a
+  page: 62
+  quote: Table 6.6 Tolerance Class Symbols：Omitted — ISO Normal（代号不带精度符号）
+  confirmed_by: Claude（经 WebFetch 读 NSK 官网 PDF 原页核对，按 ADR-0040 授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6202'
+  target: ports/outer/fit
+  value: P0
+  source_doc: src-nsk-e1103c-part-a
+  page: 62
+  quote: Table 6.6 Tolerance Class Symbols：Omitted — ISO Normal（代号不带精度符号）
+  confirmed_by: Claude（经 WebFetch 读 NSK 官网 PDF 原页核对，按 ADR-0040 授权）
+  date: '2026-11-18'

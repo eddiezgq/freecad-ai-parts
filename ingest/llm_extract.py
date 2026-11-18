@@ -1029,7 +1029,7 @@ def _check_lines(ctx: _Ctx, page: int, candidates: list[_Line], text: str, label
                 twin = col is not None and any(
                     r is not ln and r.is_row and r.head_rows == ln.head_rows and col < len(r.cells)
                     and _cell_is(r.cells[col], text, unit)
-                    and _row_key_is(r, ctx.target_raw)
+                    and (_row_key_is(r, ctx.target_raw) or any(_loose(c) == ctx.target_model for c in r.cells))
                     for r in pool) and ln.cells[0].isdigit() and not _row_key_is(ln, ctx.target_raw)
                 if not twin:
                     best = "数值不在目标型号所在的列"
