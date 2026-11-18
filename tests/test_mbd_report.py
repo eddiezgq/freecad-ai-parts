@@ -92,3 +92,83 @@ def test_nonlinear_beam_facts_trace_back(tmp_path):
     ledger = json.loads(got["ledger"].read_text(encoding="utf-8"))
     assert "大变形梁 rod 最大正应力" in md
     _trace(md, ledger, data)
+
+
+# ---------------------------------------------------------------- Word 正式报告（ADR-0102 第 1 步）
+def _docx_text(path):
+    from docx import Document
+
+    d = Document(str(path))
+    parts = [p_.text for p_ in d.paragraphs]
+    for t in d.tables:
+        for row in t.rows:
+            parts += [c.text for c in row.cells]
+    for s in d.sections:
+        parts += [p_.text for p_ in s.header.paragraphs]
+    return "\n".join(parts)
+
+
+def _trace_docx(text, ledger, sources):
+    from assist.fea_report import _ptr_get
+
+    for e in ledger["entries"]:
+        if e["kind"] == "op":
+            v = R.apply_op(sources[e["source"]], e["pointer"], e["op"])
+            assert e["text"] == R.fmt_num(v), e
+        else:
+            v = _ptr_get(sources[e["source"]], e["pointer"])
+            if e["kind"] == "number":
+                assert float(e["text"]) == pytest.approx(v, rel=5e-4, abs=1e-12), e
+            elif "original" not in e:
+                assert e["text"] == str(v), e
+    rest = text
+    for t in sorted({e["text"] for e in ledger["entries"]} | set(ledger["labels"]), key=len, reverse=True):
+        rest = rest.replace(t, "")
+    left = re.findall(r".{0,15}[0-9].{0,15}", rest)
+    assert not left, f"报告里有来路不明的数字：{left[:5]}"
+
+
+def _model(name):
+    doc = json.loads((FIX / name).read_text(encoding="utf-8"))
+    return doc.get("instance", doc)
+
+
+@pytest.mark.parametrize("name", ["slider_crank_all_d1.json", "d4_linear_plant.json", "d7_pid_turntable.json",
+                                  "d6_flex_pendulum.json"])
+def test_docx_every_number_traces_back(name, tmp_path):
+    pytest.importorskip("docx")
+    from datetime import date
+
+    model = _model(name)
+    data = _run(name)
+    got = R.build_docx(model, data, tmp_path / "r.docx", number="QR-MBD-0001", today=date(2026, 11, 18))
+    text = _docx_text(got["docx"])
+    ledger = json.loads(got["ledger"].read_text(encoding="utf-8"))
+    record = json.loads(got["record"].read_text(encoding="utf-8"))
+    assert "多体动力学计算报告" in text and R.DRAFT_MARK in text and "审核清单" in text
+    from assist.fea_report import code_version, fingerprint
+
+    sources = {"model": model, "result": data, "record": record,
+               "files": {"model": fingerprint(model), "result": fingerprint(R._strip_timing(data))},
+               "env": {"code": code_version(), "integrator": str(data["solver"].get("integrator", "—")), "company": ""},
+               "explain": {}}
+    _trace_docx(text, ledger, sources)
+
+
+def test_docx_explanation_and_revisions(tmp_path):
+    pytest.importorskip("docx")
+    from datetime import date
+
+    model, data = _model("d4_linear_plant.json"), _run("d4_linear_plant.json")
+    F = R.facts(data)
+    ex = R.explain(data, F, FakeClient(["一阶固有频率 {{mode1_hz}}。", "约 5 Hz。"]))
+    got = R.build_docx(model, data, tmp_path / "r.docx", explanation=ex, today=date(2026, 11, 18))
+    text = _docx_text(got["docx"])
+    assert "AI 起草" in text and "{{" not in text and "退回不用的 AI 段落" in text
+    R.build_docx(model, data, tmp_path / "r.docx", revision="A", reason="审核意见修改", today=date(2026, 11, 19))
+    rec = json.loads(got["record"].read_text(encoding="utf-8"))
+    assert [h["revision"] for h in rec["history"]] == ["草稿", "A"]
+    assert rec["history"][0]["result_fingerprint"] == rec["history"][1]["result_fingerprint"]   # 同一模型同一结果
+    bad = dict(data, model="别的模型")
+    with pytest.raises(ValueError, match="模型名不一致"):
+        R.build_docx(model, bad, tmp_path / "x.docx")
