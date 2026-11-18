@@ -143,7 +143,9 @@ def _source(src: str, lang: str) -> str:
     return src
 
 
-def build(summary: dict, env: dict, out: Path, lang: str) -> Path:
+def build(summary: dict, env: dict, out: Path, lang: str, *, text: dict | None = None, cats: dict | None = None,
+          notes: tuple[str, ...] = ("note_scale", "note_fv52"), env_rows: list[tuple[str, str]] | None = None) -> Path:
+    """text / cats / notes / env_rows 留给别的产品的验证手册（如多体动力学，assist/mbd_verification.py）换用自己的文字"""
     from docx import Document
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.oxml.ns import qn
@@ -151,8 +153,9 @@ def build(summary: dict, env: dict, out: Path, lang: str) -> Path:
 
     from assist import i18n
 
-    T = {k: (v[lang] if isinstance(v, dict) and lang in v else v) for k, v in TEXT.items()}
-    cats = load_cases()["categories"]
+    text = text or TEXT
+    T = {k: (v[lang] if isinstance(v, dict) and lang in v else v) for k, v in text.items()}
+    cats = cats or load_cases()["categories"]
     doc = Document()
     st = doc.styles["Normal"]
     st.font.name = "Noto Sans CJK SC"
@@ -183,16 +186,18 @@ def build(summary: dict, env: dict, out: Path, lang: str) -> Path:
     doc.add_heading(T["title"], 0)
     doc.add_paragraph(T["intro"])
     doc.add_heading(T["env"], 1)
-    table([T["item"], T["value"]], [[T["edition"], i18n.t(env["code"], lang)], [T["date"], env["date"]], [T["solver"], env["solver"]],
-                                     [T["mesher"], f"Gmsh {env['gmsh']}"], [T["python"], env["python"]]], [5, 12])
+    if env_rows is None:
+        env_rows = [("solver", env["solver"]), ("mesher", f"Gmsh {env['gmsh']}")]
+    table([T["item"], T["value"]], [[T["edition"], i18n.t(env["code"], lang)], [T["date"], env["date"]],
+                                     *[[T[k], v] for k, v in env_rows], [T["python"], env["python"]]], [5, 12])
     doc.add_heading(T["summary"], 1)
     doc.add_paragraph(T["sum_line"].format(**{k: summary[k] for k in ("n", "ok", "bad", "skip", "rows", "rows_ok")}))
     doc.add_heading(T["notes"], 2)
-    for k in ("note_scale", "note_fv52"):
+    for k in notes:
         doc.add_paragraph(T[k], style="List Bullet")
     doc.add_heading(T["list"], 1)
     table([T["id"], T["problem"], T["result"]], [[c["id"], c["title"][lang], T[c["result"]]] for c in summary["cases"]], [2, 13, 2.5])
-    vn = TEXT["verdict_names"][lang]
+    vn = text["verdict_names"][lang]
     for cat, name in cats.items():
         group = [c for c in summary["cases"] if c["category"] == cat]
         if not group:

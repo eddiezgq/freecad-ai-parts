@@ -15,6 +15,7 @@ import numpy as np
 import pytest
 
 from analysis.mbd.dae.run import run_model
+from tests.verification import record
 
 pytest.importorskip("scipy")
 L, D = 1000.0, 20.0
@@ -41,6 +42,8 @@ def test_small_deflection_matches_beam_theory():
     P = 1.0
     data, _ = run_model(cantilever([{"id": "p", "type": "force", "body": "rod", "point_mm": [L, 0, 0], "fy_n": -P}]))
     ref = (P * (L * 1e-3) ** 3 / (3 * EI) + P * L * 1e-3 / (5 / 6 * G * 1e6 * A * 1e-6)) * 1e3
+    record(("小挠度端部挠度", "Small-deflection tip"), -tip(data)[1], ref, tol=1e-2, unit="mm",
+           formula="PL³/3EI + PL/(κGA)")
     assert -tip(data)[1] == pytest.approx(ref, rel=1e-2)
     fl = data["flex"]["rod"]
     assert fl["moment_z_n_m"][-1][0] == pytest.approx(-P * L * 1e-3 * (1 - 0.5 / 20), rel=1e-6) or \
@@ -54,6 +57,8 @@ def test_end_moment_rolls_into_half_circle():
     data, _ = run_model(cantilever([{"id": "m", "type": "torque", "body": "rod__n40", "tz_n_m": M}],
                                       elements=40, steps=10))
     x, y, _ = tip(data)
+    record(("端弯矩卷成半圆：端点高度", "End moment half circle: tip height"), y, 2 * L / math.pi, tol=1e-2, unit="mm",
+           formula="M = πEI/L → y = 2L/π")
     assert abs(x) < 1e-2 * L and y == pytest.approx(2 * L / math.pi, rel=1e-2)
     mz = np.array(data["flex"]["rod"]["moment_z_n_m"][-1])
     assert np.allclose(np.abs(mz), M, rtol=1e-6)                       # 纯弯：每个单元弯矩都是 M
@@ -64,6 +69,10 @@ def test_elastica_matches_mattiasson():
     data, _ = run_model(cantilever([{"id": "p", "type": "force", "body": "rod", "point_mm": [L, 0, 0], "fy_n": -P}],
                                    elements=40, steps=5))
     x, y, _ = tip(data)
+    record(("弹性线 PL²/EI=1：竖向位移/L", "Elastica PL²/EI=1: vertical/L"), -y / L, 0.30172, tol=1e-2,
+           formula="Mattiasson (1981)")
+    record(("弹性线 PL²/EI=1：水平缩短/L", "Elastica PL²/EI=1: shortening/L"), (L - x) / L, 0.05643, tol=1e-2,
+           formula="Mattiasson (1981)")
     assert -y / L == pytest.approx(0.30172, rel=1e-2)
     assert (L - x) / L == pytest.approx(0.05643, rel=1e-2)
 
@@ -157,6 +166,8 @@ def test_buckling_load_from_frequency_vs_axial_force():
             fs.append(min(m["frequency_hz"] for m in d["linear"]["modes"] if m["frequency_hz"] > 1))
         out[kind] = fs
     k, b = np.polyfit(np.array([-0.4, 0.2, 0.6]) * pcr, np.array(out["nl"]) ** 2, 1)
+    record(("屈曲载荷（频率平方外推）", "Buckling load (f² extrapolation)"), -b / k, pcr, tol=2e-2, unit="N",
+           formula="P_cr = π²EI/L²")
     assert -b / k == pytest.approx(pcr, rel=2e-2)
     assert math.sqrt(b) == pytest.approx(f0, rel=1e-2)                  # 外推到零轴力的频率也对
     assert max(out["lin"]) - min(out["lin"]) < 1e-6 * out["lin"][0]
@@ -174,6 +185,8 @@ def test_nodes_at_points_nonuniform():
     assert len(sysm.nlbeams["rod"]["nodes"]) == 23                       # 21 个均分节点 + a 点（离均分节点 13 > 12.5 mm）+ 端部旁边一个
     data, _ = run_model(m)
     ref = 1.0 * (a * 1e-3) ** 2 * (3 * L * 1e-3 - a * 1e-3) / (6 * EI) * 1e3
+    record(("中间点受力端部挠度（不等长单元）", "Tip under mid-span load (non-uniform)"), -tip(data)[1], ref, tol=1e-2,
+           unit="mm", formula="Pa²(3L−a)/(6EI)")
     assert -tip(data)[1] == pytest.approx(ref, rel=1e-2)
     bad = cantilever(loads, nodes_at_mm=[[a, 5.0, 0]])
     from analysis.mbd.dae.model import ModelError

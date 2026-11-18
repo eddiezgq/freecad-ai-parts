@@ -21,6 +21,7 @@ from analysis.mbd.dae import expr as X
 from analysis.mbd.dae import model as M
 from analysis.mbd.dae import run as R
 from analysis.mbd.dae import solve as S
+from tests.verification import record
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "mbd_bench"))
 import andrews
@@ -119,6 +120,7 @@ def test_pendulum_large_amplitude_period():
     period = 2 * float(np.mean(np.diff(up)))
     i_o = m * L * L + iz
     theory = 4 * math.sqrt(i_o / (m * G * L)) * ellipk(math.sin(math.pi / 4) ** 2)
+    record(("周期", "period"), period, theory, tol=1e-5, unit="s", formula="4√(I_O/mgL)·K(sin²(θ₀/2))，θ₀ = 90°")
     assert period == pytest.approx(theory, rel=1e-5)
     v = {x["key"]: x for x in data["verification"]}
     assert v["energy_drift"]["status"] == "pass" and v["constraint_residual"]["status"] == "pass"
@@ -133,6 +135,7 @@ def test_double_pendulum_conserves_energy_and_matches_mujoco():
                                                  "atol": 1e-12})
     data, _ = R.run_model(md)
     v = {x["key"]: x for x in data["verification"]}
+    record(("能量相对漂移", "relative energy drift"), v["energy_drift"]["value"], 0.0, tol=1e-8, rel=False, formula="保守系统能量守恒 / energy conservation")
     assert v["energy_drift"]["value"] < 1e-8
     # 同一个双摆在 MuJoCo 里（质点挂在杆端，铰链绕 y）
     xml = (f'<mujoco><option timestep="0.00005" integrator="RK4" gravity="0 0 -9.81"/><worldbody>'
@@ -148,6 +151,8 @@ def test_double_pendulum_conserves_energy_and_matches_mujoco():
     pb = [np.r_[np.zeros(3), e] for e in data["bodies"]["b"]["euler_parameters"]]
     th1 = np.unwrap([2 * math.atan2(x[5], x[3]) for x in pa])[-1]
     th2 = np.unwrap([2 * math.atan2(x[5], x[3]) for x in pb])[-1]
+    record(("t = 0.6 s 时第一杆转角", "link 1 angle at t = 0.6 s"), th1, float(dd.qpos[0]), tol=1e-3, rel=False, unit="rad", formula="MuJoCo RK4，步长 5e-5 s")
+    record(("t = 0.6 s 时相对转角", "relative angle at t = 0.6 s"), th2 - th1, float(dd.qpos[1]), tol=1e-3, rel=False, unit="rad", formula="MuJoCo RK4，步长 5e-5 s")
     assert th1 == pytest.approx(dd.qpos[0], abs=1e-3)
     assert th2 - th1 == pytest.approx(dd.qpos[1], abs=1e-3)
 
@@ -159,6 +164,8 @@ def test_andrews_squeezing_mechanism_reference_solution():
     rec, info = S.dynamic(s, andrews.REF_T, 30, rtol=1e-8, atol=1e-10)
     assert info["dof"] == 1 and len(info["redundant"]) == 9
     got = andrews.angles(rec.q)
+    for n_, (g_, r_) in enumerate(zip(got, andrews.REF, strict=True)):
+        record((f"t = 0.03 s 时转角 {n_ + 1}", f"angle {n_ + 1} at t = 0.03 s"), g_, r_, tol=1e-6, unit="rad", formula="Hairer–Wanner 参考解")
     for g, r in zip(got, andrews.REF, strict=True):
         assert g == pytest.approx(r, rel=1e-6, abs=1e-7)
     assert max(rec.resid) < 1e-9
@@ -194,6 +201,7 @@ def test_slider_crank_position_and_power_balance():
     p_in = tau * w
     p_need = dke + F * v          # 外力 −F 沿 x：克服它要的功率 F·v
     err = np.abs(p_in - p_need)[5:-5]
+    record(("功率平衡误差 / 最大输入功率", "power balance error / max input power"), float(np.max(err) / np.max(np.abs(p_in))), 0.0, tol=1e-3, rel=False, formula="P_in = dKE/dt + F·v")
     assert np.max(err) < 1e-3 * np.max(np.abs(p_in))
     assert data["redundant_constraints"] and msgs   # 平面机构空间写法有冗余约束，结果里报出来
 
@@ -247,6 +255,8 @@ def test_universal_joint_speed_ratio_bounds():
     data, _ = R.run_model(md)
     w2 = np.array(data["bodies"]["out"]["w_deg_s"]) @ np.array(ax2)
     ratio = w2 / 360.0
+    record(("最大速比", "max speed ratio"), float(ratio.max()), 1 / math.cos(beta), tol=1e-4, formula="1/cos β，β = 30°")
+    record(("最小速比", "min speed ratio"), float(ratio.min()), math.cos(beta), tol=1e-4, formula="cos β")
     assert ratio.max() == pytest.approx(1 / math.cos(beta), rel=1e-4)
     assert ratio.min() == pytest.approx(math.cos(beta), rel=1e-4)
 
@@ -267,6 +277,7 @@ def test_static_spring_mass_and_pendulum_with_side_force():
                         "point_j_mm": [0, 0, 0], "stiffness_n_per_mm": k}],
                gravity=[0, 0, -9810], analysis_={"type": "static"})
     data, _ = R.run_model(md)
+    record(("弹簧静伸长", "spring static deflection"), -data["bodies"]["m"]["cm_mm"][0][2], m * G / k, tol=1e-9, unit="mm", formula="mg/k")
     assert data["bodies"]["m"]["cm_mm"][0][2] == pytest.approx(-m * G / k, rel=1e-9)
 
     L, F = 200.0, 4.0
@@ -275,6 +286,7 @@ def test_static_spring_mass_and_pendulum_with_side_force():
                gravity=[0, 0, -9810], analysis_={"type": "static"})
     data, _ = R.run_model(md)
     x, _, z = data["bodies"]["bob"]["cm_mm"][0]
+    record(("摆的偏角", "pendulum deflection angle"), math.atan2(x, -z), math.atan(F / (m * G)), tol=1e-9, unit="rad", formula="atan(F/mg)")
     assert math.atan2(x, -z) == pytest.approx(math.atan(F / (m * G)), rel=1e-9)
 
 

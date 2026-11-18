@@ -13,6 +13,7 @@ import numpy as np
 import pytest
 
 from analysis.mbd.dae import run as R
+from tests.verification import record
 
 L, H = 300.0, 12.0
 E, NU, RHO = 2e5, 0.3, 7850.0
@@ -69,6 +70,8 @@ def test_pinned_pinned_frequency(bar):
                                       {"id": "q", "type": "spherical", "body_i": "ground", "body_j": "bar", "point_mm": [L, 0, 0]}]})
     f = min(m["frequency_hz"] for m in data["linear"]["modes"] if m["frequency_hz"] > 1)
     ref = math.pi / 2 / (L / 1000) ** 2 * math.sqrt(EI / RA)
+    record(("两端铰支一阶频率", "Pinned-pinned 1st frequency"), f, ref, tol=1e-2, unit="Hz",
+           formula="f = π/(2L²)·√(EI/ρA)")
     assert f == pytest.approx(ref, rel=1e-2)
 
 
@@ -101,8 +104,13 @@ def test_cantilever_sag_matches_direct_fe_and_stress_replay(bar):
                            "joints": [{"id": "c", "type": "fixed", "body_i": "ground", "body_j": "bar", "point_mm": [0, 0, 0]}],
                            "requests": [{"id": "tip", "type": "point", "body": "bar", "point_mm": [L, 0, 0]}]})
     tip = data["requests"]["tip"]["pos_mm"][0][2]
-    assert tip == pytest.approx(_direct_ccx_tip(path), rel=1e-3)          # 与同一网格直接静力一致
+    ccx_tip = _direct_ccx_tip(path)
+    record(("自重端部挠度（对同一网格直接静力）", "Tip sag vs direct FE on same mesh"), tip, ccx_tip, tol=1e-3, unit="mm",
+           formula="CalculiX direct static")
+    assert tip == pytest.approx(ccx_tip, rel=1e-3)          # 与同一网格直接静力一致
     q = RA * 9.81
+    record(("自重端部挠度（梁公式）", "Tip sag vs beam formula"), -tip, q * (L / 1000) ** 4 / (8 * EI) * 1000, tol=2e-2,
+           unit="mm", formula="qL⁴/(8EI)")
     assert -tip == pytest.approx(q * (L / 1000) ** 4 / (8 * EI) * 1000, rel=2e-2)
     # 应力回放：跨中上表面中线的 σx = M·c/I（M = q(L − x)²/2）
     from analysis.mbd.flexsolid import von_mises
@@ -114,6 +122,8 @@ def test_cantilever_sag_matches_direct_fe_and_stress_replay(bar):
     assert abs(nodes[j][1]) < 1e-6 and abs(nodes[j][2] - H / 2) < 1e-6 and abs(x - L / 2) < 5
     sig = np.einsum("k,ki->i", eta, np.array(flex["stress_shapes_mpa"])[:, j, :])
     ref = q * ((L - x) / 1000) ** 2 / 2 * (H / 2000) / ((H / 1000) ** 4 / 12) / 1e6
+    record(("跨中上表面 σx（应力回放）", "Mid-span top σx (stress replay)"), sig[0], ref, tol=5e-2, unit="MPa",
+           formula="σ = Mc/I, M = q(L−x)²/2")
     assert sig[0] == pytest.approx(ref, rel=5e-2)                          # 上表面受拉
     assert von_mises(sig) == pytest.approx(ref, rel=5e-2)
     st = data["flex"]["bar"]["stress"]

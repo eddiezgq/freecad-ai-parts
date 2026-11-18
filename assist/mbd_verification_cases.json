@@ -1,0 +1,471 @@
+{
+ "about": "问渠多体动力学验证手册的题目清单（ADR-0102 第 3 步）：每题对应一个标准题测试；手册里的数字由这些测试在运行时记下（tests/verification.py）。",
+ "categories": {
+  "rigid": {
+   "zh": "刚体机构",
+   "en": "Rigid mechanisms"
+  },
+  "forces": {
+   "zh": "力元、摩擦、接触与间隙",
+   "en": "Force elements, friction, contact and clearance"
+  },
+  "control": {
+   "zh": "控制与联合仿真",
+   "en": "Control and co-simulation"
+  },
+  "linear": {
+   "zh": "线性化与模态",
+   "en": "Linearization and modes"
+  },
+  "flex": {
+   "zh": "柔性体与大变形梁",
+   "en": "Flexible bodies and large-deformation beams"
+  },
+  "implicit": {
+   "zh": "隐式积分与参数研究",
+   "en": "Implicit integration and parameter studies"
+  }
+ },
+ "cases": [
+  {
+   "id": "MB-01",
+   "test": "tests/test_mbd_dae.py::test_pendulum_large_amplitude_period",
+   "category": "rigid",
+   "title": {
+    "zh": "大摆角单摆周期",
+    "en": "Large-amplitude pendulum period"
+   },
+   "source": "第一类完全椭圆积分 / Complete elliptic integral of the first kind"
+  },
+  {
+   "id": "MB-02",
+   "test": "tests/test_mbd_dae.py::test_double_pendulum_conserves_energy_and_matches_mujoco",
+   "category": "rigid",
+   "title": {
+    "zh": "双摆：能量守恒与独立程序对照",
+    "en": "Double pendulum: energy conservation and independent code"
+   },
+   "source": "独立程序 MuJoCo 3 / independent code MuJoCo 3"
+  },
+  {
+   "id": "MB-03",
+   "test": "tests/test_mbd_dae.py::test_andrews_squeezing_mechanism_reference_solution",
+   "category": "rigid",
+   "title": {
+    "zh": "Andrews 挤压机构（7 构件）",
+    "en": "Andrews squeezing mechanism (7 bodies)"
+   },
+   "source": "Hairer & Wanner, Solving ODEs II, §VII.7（IFToMM 多体基准 / IFToMM multibody benchmark）"
+  },
+  {
+   "id": "MB-04",
+   "test": "tests/test_mbd_dae.py::test_slider_crank_position_and_power_balance",
+   "category": "rigid",
+   "title": {
+    "zh": "曲柄滑块：位置与功率平衡",
+    "en": "Slider-crank: position and power balance"
+   },
+   "source": "闭式运动学与虚功原理 / Closed-form kinematics and virtual work"
+  },
+  {
+   "id": "MB-05",
+   "test": "tests/test_mbd_dae.py::test_universal_joint_speed_ratio_bounds",
+   "category": "rigid",
+   "title": {
+    "zh": "万向节转速比上下限",
+    "en": "Universal joint speed-ratio bounds"
+   },
+   "source": "机械原理教材，cos β 与 1/cos β / theory of machines, cos β and 1/cos β"
+  },
+  {
+   "id": "MB-06",
+   "test": "tests/test_mbd_dae.py::test_static_spring_mass_and_pendulum_with_side_force",
+   "category": "rigid",
+   "title": {
+    "zh": "静平衡：弹簧挂重与侧向力摆",
+    "en": "Static equilibrium: hanging spring mass and pendulum with side force"
+   },
+   "source": "胡克定律与力矩平衡 / Hooke's law and moment balance"
+  },
+  {
+   "id": "MB-07",
+   "test": "tests/test_mbd_dae_d2.py::test_damped_spring_mass_matches_closed_form",
+   "category": "forces",
+   "title": {
+    "zh": "有阻尼弹簧质量自由振动",
+    "en": "Damped spring-mass free vibration"
+   },
+   "source": "二阶系统闭式解 / Closed-form second-order response"
+  },
+  {
+   "id": "MB-08",
+   "test": "tests/test_mbd_dae_d2.py::test_block_slides_on_steep_incline_with_dynamic_friction",
+   "category": "forces",
+   "title": {
+    "zh": "陡斜面滑块（动摩擦）",
+    "en": "Block on steep incline with dynamic friction"
+   },
+   "source": "a = g(sin θ − μ cos θ)"
+  },
+  {
+   "id": "MB-09",
+   "test": "tests/test_mbd_dae_d2.py::test_pin_friction_spins_flywheel_down_linearly",
+   "category": "forces",
+   "title": {
+    "zh": "销轴摩擦让飞轮线性减速",
+    "en": "Pin friction decelerates a flywheel linearly"
+   },
+   "source": "摩擦力矩 = μ·N·r / Friction torque μ·N·r"
+  },
+  {
+   "id": "MB-10",
+   "test": "tests/test_mbd_dae_d2.py::test_bushing_static_deflection_is_force_over_stiffness",
+   "category": "forces",
+   "title": {
+    "zh": "衬套静变形",
+    "en": "Bushing static deflection"
+   },
+   "source": "δ = F/k"
+  },
+  {
+   "id": "MB-11",
+   "test": "tests/test_mbd_dae_d2.py::test_cantilever_beam_matches_beam_theory[bend_z]",
+   "category": "forces",
+   "title": {
+    "zh": "梁元件悬臂：z 向弯曲",
+    "en": "Beam element cantilever: bending about z"
+   },
+   "source": "Timoshenko 梁公式 / Timoshenko beam formulas"
+  },
+  {
+   "id": "MB-12",
+   "test": "tests/test_mbd_dae_d2.py::test_cantilever_beam_matches_beam_theory[bend_y]",
+   "category": "forces",
+   "title": {
+    "zh": "梁元件悬臂：y 向弯曲",
+    "en": "Beam element cantilever: bending about y"
+   },
+   "source": "Timoshenko 梁公式 / Timoshenko beam formulas"
+  },
+  {
+   "id": "MB-13",
+   "test": "tests/test_mbd_dae_d2.py::test_cantilever_beam_matches_beam_theory[torsion]",
+   "category": "forces",
+   "title": {
+    "zh": "梁元件悬臂：扭转",
+    "en": "Beam element cantilever: torsion"
+   },
+   "source": "φ = TL/(GJ)"
+  },
+  {
+   "id": "MB-14",
+   "test": "tests/test_mbd_dae_d2.py::test_rotational_spring_frequency_and_energy",
+   "category": "forces",
+   "title": {
+    "zh": "扭簧振子频率与能量",
+    "en": "Torsional spring oscillator frequency and energy"
+   },
+   "source": "ω = √(k/I)"
+  },
+  {
+   "id": "MB-15",
+   "test": "tests/test_mbd_dae_d2.py::test_revolute_clearance_settles_at_gap_plus_hertz_penetration",
+   "category": "forces",
+   "title": {
+    "zh": "转动副间隙：落到间隙加赫兹压入",
+    "en": "Revolute clearance: settles at gap plus Hertz penetration"
+   },
+   "source": "赫兹接触 / Hertz contact"
+  },
+  {
+   "id": "MB-16",
+   "test": "tests/test_mbd_dae_d3.py::test_hertz_ball_impact_penetration_duration_and_rebound",
+   "category": "forces",
+   "title": {
+    "zh": "赫兹球撞平面：压入、接触时间、最大力",
+    "en": "Hertz ball impact: penetration, duration, peak force"
+   },
+   "source": "Johnson, Contact Mechanics, §11.4"
+  },
+  {
+   "id": "MB-17",
+   "test": "tests/test_mbd_dae_d3.py::test_sliding_ball_ends_rolling_at_five_sevenths",
+   "category": "forces",
+   "title": {
+    "zh": "滑动的球最终以 5/7 速度纯滚",
+    "en": "Sliding ball ends rolling at 5/7 speed"
+   },
+   "source": "动量矩守恒 / Angular-momentum balance"
+  },
+  {
+   "id": "MB-18",
+   "test": "tests/test_mbd_dae_d3.py::test_cam_follower_follows_below_critical_speed",
+   "category": "forces",
+   "title": {
+    "zh": "凸轮从动件：临界转速以下不脱离",
+    "en": "Cam follower stays in contact below critical speed"
+   },
+   "source": "弹簧力与惯性力 / Spring vs inertia force"
+  },
+  {
+   "id": "MB-19",
+   "test": "tests/test_mbd_dae_d3.py::test_gear_ratio_mesh_force_and_drive_torque",
+   "category": "forces",
+   "title": {
+    "zh": "齿轮啮合力与驱动力矩",
+    "en": "Gear mesh force and drive torque"
+   },
+   "source": "Fₜ = T/r，传动比 / Fₜ = T/r, gear ratio"
+  },
+  {
+   "id": "MB-20",
+   "test": "tests/test_mbd_dae_d3.py::test_gear_backlash_and_mesh_stiffness_lost_motion",
+   "category": "forces",
+   "title": {
+    "zh": "齿轮侧隙与啮合刚度造成的空回",
+    "en": "Lost motion from gear backlash and mesh stiffness"
+   },
+   "source": "空回 = 侧隙 + F/k / lost motion = backlash + F/k"
+  },
+  {
+   "id": "MB-21",
+   "test": "tests/test_mbd_control.py::test_pd_step_response_matches_second_order_solution",
+   "category": "control",
+   "title": {
+    "zh": "PD 控制阶跃响应",
+    "en": "PD step response"
+   },
+   "source": "二阶系统闭式解 / Closed-form second-order response"
+  },
+  {
+   "id": "MB-22",
+   "test": "tests/test_mbd_control.py::test_disturbance_pd_offset_and_pid_removes_it",
+   "category": "control",
+   "title": {
+    "zh": "扰动下 PD 稳态误差、PID 消除稳态误差",
+    "en": "PD steady-state offset under disturbance and its removal by PID"
+   },
+   "source": "终值定理 / Final-value theorem"
+  },
+  {
+   "id": "MB-23",
+   "test": "tests/test_mbd_control.py::test_fmu_cosimulation_matches_continuous_pd",
+   "category": "control",
+   "title": {
+    "zh": "FMU 联合仿真对照连续 PD",
+    "en": "FMU co-simulation vs continuous PD"
+   },
+   "source": "同一控制律的连续实现 / Same control law, continuous form"
+  },
+  {
+   "id": "MB-24",
+   "test": "tests/test_mbd_dae_d4.py::test_damped_spring_mass_eigenvalue_and_dc_gain",
+   "category": "linear",
+   "title": {
+    "zh": "有阻尼弹簧质量：特征值",
+    "en": "Damped spring-mass eigenvalues"
+   },
+   "source": "λ = −ζω ± iω√(1−ζ²)"
+  },
+  {
+   "id": "MB-25",
+   "test": "tests/test_mbd_dae_d4.py::test_simple_pendulum_and_inverted_pendulum",
+   "category": "linear",
+   "title": {
+    "zh": "单摆线性化频率",
+    "en": "Linearized pendulum frequency"
+   },
+   "source": "ω = √(mgd/I_O)"
+  },
+  {
+   "id": "MB-26",
+   "test": "tests/test_mbd_dae_d4.py::test_double_pendulum_two_frequencies",
+   "category": "linear",
+   "title": {
+    "zh": "双摆两阶频率",
+    "en": "Double pendulum two frequencies"
+   },
+   "source": "两自由度特征方程 / 2-DOF characteristic equation"
+  },
+  {
+   "id": "MB-27",
+   "test": "tests/test_mbd_dae_d4.py::test_cantilever_tip_mass_frequency",
+   "category": "linear",
+   "title": {
+    "zh": "悬臂端部质量频率",
+    "en": "Cantilever with tip mass frequency"
+   },
+   "source": "ω = √(3EI/(mL³))"
+  },
+  {
+   "id": "MB-28",
+   "test": "tests/test_mbd_dae_d4.py::test_spinning_rotor_forward_and_backward_whirl[0.0]",
+   "category": "linear",
+   "title": {
+    "zh": "转子涡动：不转",
+    "en": "Rotor whirl: not spinning"
+   },
+   "source": "Iₜω² ∓ IₚΩω − kᵣ = 0"
+  },
+  {
+   "id": "MB-29",
+   "test": "tests/test_mbd_dae_d4.py::test_spinning_rotor_forward_and_backward_whirl[3000.0]",
+   "category": "linear",
+   "title": {
+    "zh": "转子涡动：自转 3000 °/s",
+    "en": "Rotor whirl: spin 3000 °/s"
+   },
+   "source": "Iₜω² ∓ IₚΩω − kᵣ = 0"
+  },
+  {
+   "id": "MB-30",
+   "test": "tests/test_mbd_dae_d4.py::test_spinning_rotor_forward_and_backward_whirl[-6000.0]",
+   "category": "linear",
+   "title": {
+    "zh": "转子涡动：反向自转 6000 °/s",
+    "en": "Rotor whirl: reverse spin 6000 °/s"
+   },
+   "source": "Iₜω² ∓ IₚΩω − kᵣ = 0"
+  },
+  {
+   "id": "MB-31",
+   "test": "tests/test_mbd_flex.py::test_free_free_beam_modes_and_mass_orthogonality",
+   "category": "flex",
+   "title": {
+    "zh": "模态梁：自由–自由频率",
+    "en": "Modal beam: free-free frequencies"
+   },
+   "source": "欧拉梁 (λL)² / Euler beam (λL)²"
+  },
+  {
+   "id": "MB-32",
+   "test": "tests/test_mbd_flex.py::test_pinned_beam_linearization_gives_pinned_free_and_clamped_free_frequencies",
+   "category": "flex",
+   "title": {
+    "zh": "模态梁：一端铰支的频率",
+    "en": "Modal beam: pinned-free frequencies"
+   },
+   "source": "欧拉梁 (λL)² / Euler beam (λL)²"
+  },
+  {
+   "id": "MB-33",
+   "test": "tests/test_mbd_flex.py::test_cantilever_tip_deflection_under_own_weight",
+   "category": "flex",
+   "title": {
+    "zh": "模态梁：自重端部挠度",
+    "en": "Modal beam: tip sag under own weight"
+   },
+   "source": "qL⁴/(8EI)"
+  },
+  {
+   "id": "MB-34",
+   "test": "tests/test_mbd_flexsolid.py::test_pinned_pinned_frequency",
+   "category": "flex",
+   "title": {
+    "zh": "实体柔性体（CalculiX 缩减）：两端铰支频率",
+    "en": "Solid flexible body (CalculiX reduction): pinned-pinned frequency"
+   },
+   "source": "欧拉梁 / Euler beam"
+  },
+  {
+   "id": "MB-35",
+   "test": "tests/test_mbd_flexsolid.py::test_cantilever_sag_matches_direct_fe_and_stress_replay",
+   "category": "flex",
+   "title": {
+    "zh": "实体柔性体：自重挠度与应力回放",
+    "en": "Solid flexible body: sag and stress replay"
+   },
+   "source": "同一网格 CalculiX 直接静力；梁公式 / Direct CalculiX static on same mesh; beam formulas"
+  },
+  {
+   "id": "MB-36",
+   "test": "tests/test_mbd_nlbeam.py::test_small_deflection_matches_beam_theory",
+   "category": "flex",
+   "title": {
+    "zh": "大变形梁：小挠度",
+    "en": "Large-deformation beam: small deflection"
+   },
+   "source": "Timoshenko 梁公式 / Timoshenko beam formulas"
+  },
+  {
+   "id": "MB-37",
+   "test": "tests/test_mbd_nlbeam.py::test_end_moment_rolls_into_half_circle",
+   "category": "flex",
+   "title": {
+    "zh": "大变形梁：端弯矩卷成半圆",
+    "en": "Large-deformation beam: end moment rolls into a half circle"
+   },
+   "source": "纯弯 κ = M/EI / Pure bending κ = M/EI"
+  },
+  {
+   "id": "MB-38",
+   "test": "tests/test_mbd_nlbeam.py::test_elastica_matches_mattiasson",
+   "category": "flex",
+   "title": {
+    "zh": "大变形梁：悬臂弹性线",
+    "en": "Large-deformation beam: cantilever elastica"
+   },
+   "source": "Mattiasson, IJNME 17 (1981) 145–153"
+  },
+  {
+   "id": "MB-39",
+   "test": "tests/test_mbd_nlbeam.py::test_buckling_load_from_frequency_vs_axial_force",
+   "category": "flex",
+   "title": {
+    "zh": "大变形梁：屈曲载荷",
+    "en": "Large-deformation beam: buckling load"
+   },
+   "source": "欧拉临界载荷 / Euler critical load"
+  },
+  {
+   "id": "MB-40",
+   "test": "tests/test_mbd_nlbeam.py::test_nodes_at_points_nonuniform",
+   "category": "flex",
+   "title": {
+    "zh": "大变形梁：不等长单元",
+    "en": "Large-deformation beam: non-uniform elements"
+   },
+   "source": "Pa²(3L − a)/(6EI)"
+  },
+  {
+   "id": "MB-41",
+   "test": "tests/test_mbd_hht.py::test_large_swing_period_matches_elliptic_integral",
+   "category": "implicit",
+   "title": {
+    "zh": "HHT 积分器：60° 大摆角周期",
+    "en": "HHT integrator: 60° swing period"
+   },
+   "source": "第一类完全椭圆积分 / Complete elliptic integral of the first kind"
+  },
+  {
+   "id": "MB-42",
+   "test": "tests/test_mbd_hht.py::test_stiff_flexible_pendulum_is_fast",
+   "category": "implicit",
+   "title": {
+    "zh": "HHT 积分器：硬柔性摆对照显式积分",
+    "en": "HHT integrator: stiff flexible pendulum vs explicit"
+   },
+   "source": "DOP853, rtol 1e-10"
+  },
+  {
+   "id": "MB-43",
+   "test": "tests/test_mbd_study.py::test_ise_optimum_is_zeta_half",
+   "category": "implicit",
+   "title": {
+    "zh": "参数优化：ISE 最优阻尼比",
+    "en": "Optimization: ISE-optimal damping ratio"
+   },
+   "source": "ISE 最小时 ζ = 0.5 / ISE minimum at ζ = 0.5"
+  },
+  {
+   "id": "MB-44",
+   "test": "tests/test_mbd_study.py::test_grid_overshoot_matches_formula",
+   "category": "implicit",
+   "title": {
+    "zh": "参数研究：超调量对照公式",
+    "en": "Parameter study: overshoot vs formula"
+   },
+   "source": "Mp = exp(−πζ/√(1−ζ²))"
+  }
+ ]
+}

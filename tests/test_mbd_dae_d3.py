@@ -20,6 +20,7 @@ import pytest
 from analysis.mbd.dae import contact as C
 from analysis.mbd.dae import model as M
 from analysis.mbd.dae import run as R
+from tests.verification import record
 
 G = 9.81
 FIX = Path(__file__).resolve().parent / "fixtures" / "mbd-model" / "valid" / "d3_contacts.json"
@@ -104,12 +105,15 @@ def test_hertz_ball_impact_penetration_duration_and_rebound():
     z = np.array([p[2] for p in data["bodies"]["ball"]["cm_mm"]])
     k_si, v_si = k * 1000 ** 1.5, v / 1000
     dmax = (5 * m * v_si ** 2 / (4 * k_si)) ** 0.4
+    record(("最大压入量", "max penetration"), (R - z.min()) / 1000, dmax, tol=1e-3, unit="m", formula="赫兹接触 (5mv²/4k)^(2/5)")
     assert (R - z.min()) / 1000 == pytest.approx(dmax, rel=1e-3)
     t = np.array(data["times_s"])
     on = np.array(data["contacts"]["c"]["normal_force_n"]) > 0
     dt = t[1] - t[0]
+    record(("接触时长", "contact duration"), on.sum() * dt, 2.9432 * dmax / v_si, tol=1e-2, unit="s", formula="赫兹接触 2.9432·δmax/v")
     assert on.sum() * dt == pytest.approx(2.9432 * dmax / v_si, rel=1e-2)
     assert data["bodies"]["ball"]["v_mm_s"][-1][2] == pytest.approx(v, rel=1e-6)
+    record(("最大接触力", "max contact force"), max(data["contacts"]["c"]["normal_force_n"]), k_si * dmax ** 1.5, tol=2e-3, unit="N", formula="k·δmax^1.5")
     assert max(data["contacts"]["c"]["normal_force_n"]) == pytest.approx(k_si * dmax ** 1.5, rel=2e-3)
 
 
@@ -133,6 +137,7 @@ def test_sliding_ball_ends_rolling_at_five_sevenths():
         gravity=(0, 0, -G * 1000)))
     t_slip = 2 * v0 / 1000 / (7 * mu * G)
     vx = [v[0] for v in data["bodies"]["ball"]["v_mm_s"]]
+    record(("纯滚后速度", "velocity after pure rolling"), vx[-1], 5 / 7 * v0, tol=1e-3, unit="mm/s", formula="5/7·v₀")
     assert vx[-1] == pytest.approx(5 / 7 * v0, rel=1e-3)
     wy = data["bodies"]["ball"]["w_deg_s"][-1][1]
     assert math.radians(wy) * Rr == pytest.approx(vx[-1], rel=1e-3)          # 纯滚：v = ωR
@@ -181,6 +186,7 @@ def test_cam_follower_follows_below_critical_speed():
     late = t > 0.01
     assert np.max(np.abs(z[late] - lift[late])) < 1e-4
     n_min = MF * G + FMID - abs(KS * CAM_E - MF * CAM_E / 1000 * w * w)
+    record(("最小接触力", "min contact force"), float(N[late].min()), n_min, tol=2e-2, unit="N", formula="mg + F₀ − |k_s e − m e ω²|")
     assert N[late].min() == pytest.approx(n_min, rel=2e-2)
     assert N[late].min() > 0
 
@@ -229,8 +235,10 @@ def test_gear_ratio_mesh_force_and_drive_torque():
     assert np.max(np.abs(w2[late] / 360 + 0.5)) < 1e-4
     rb2 = 2 * 40 * math.cos(math.radians(20)) / 2 / 1000
     Fm = np.array(data["contacts"]["gm"]["normal_force_n"])
+    record(("啮合力", "mesh force"), float(np.mean(Fm[late])), T / rb2, tol=1e-3, unit="N", formula="T/r_b2")
     assert np.mean(Fm[late]) == pytest.approx(T / rb2, rel=1e-3)
     tau = np.array(data["motions"]["m1"]["effort"])
+    record(("驱动力矩", "drive torque"), float(np.mean(np.abs(tau[late]))), T * 20 / 40, tol=1e-3, unit="N·m", formula="T·z₁/z₂")
     assert np.mean(np.abs(tau[late])) == pytest.approx(T * 20 / 40, rel=1e-3)
 
 
@@ -242,6 +250,7 @@ def test_gear_backlash_and_mesh_stiffness_lost_motion():
         ang.append(zang(data["bodies"]["g2"]["euler_parameters"][0]))
     rb2 = 2 * 40 * math.cos(math.radians(20)) / 2
     F = T * 1000 / rb2                                     # N（T 单位 N·m → N·mm）
+    record(("空回角", "lost motion angle"), abs(ang[0] - ang[1]), (b + 2 * F / k) / rb2, tol=1e-4, unit="rad", formula="(侧隙 + 2F/k)/r_b2")
     assert abs(ang[0] - ang[1]) == pytest.approx((b + 2 * F / k) / rb2, rel=1e-4)
 
 

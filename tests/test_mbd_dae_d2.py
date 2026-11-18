@@ -21,6 +21,7 @@ from scipy.interpolate import CubicSpline
 from analysis.mbd.dae import expr as X
 from analysis.mbd.dae import model as M
 from analysis.mbd.dae import run as R
+from tests.verification import record
 
 G = 9.81
 FIX = Path(__file__).resolve().parent / "fixtures" / "mbd-model" / "valid" / "d2_force_elements.json"
@@ -73,6 +74,7 @@ def test_damped_spring_mass_matches_closed_form():
         {"type": "dynamic", "end_time_s": 0.5, "output_steps": 50, "rtol": 1e-10, "atol": 1e-12}))
     z = np.array([p[2] for p in data["bodies"]["m"]["cm_mm"]])
     ref = np.array([10 + damped(t, -10, k * 1000, c * 1000, m) for t in data["times_s"]])
+    record(("位移与闭式解的最大差", "max displacement difference from closed form"), float(np.max(np.abs(z - ref))), 0.0, tol=1e-6, rel=False, unit="mm", formula="欠阻尼单自由度自由振动闭式解")
     assert np.max(np.abs(z - ref)) < 1e-6
     assert ver(data, "energy_drift")["status"] == "unknown"
 
@@ -109,6 +111,7 @@ def test_block_slides_on_steep_incline_with_dynamic_friction():
     data, _ = R.run_model(incline(30, 0.5))
     a = G * (math.sin(th) - 0.2 * math.cos(th))
     v_end = data["measures"]["v"]["values"][-1] / 1000
+    record(("t = 0.5 s 时速度", "velocity at t = 0.5 s"), v_end, a * 0.5, tol=2e-4, unit="m/s", formula="g(sin θ − μ cos θ)·t，θ = 30°，μ = 0.2")
     assert v_end == pytest.approx(a * 0.5, rel=2e-4)
 
 
@@ -130,6 +133,7 @@ def test_pin_friction_spins_flywheel_down_linearly():
         gravity=(0, 0, -G * 1000)))
     alpha = mu * m * G * R_mm / 1000 / I
     w_end = math.radians(data["bodies"]["disc"]["w_deg_s"][-1][0])
+    record(("t = 1 s 时角速度", "angular velocity at t = 1 s"), w_end, math.radians(w0) - alpha * 1.0, tol=1e-6, unit="rad/s", formula="ω₀ − μmgR/I·t")
     assert w_end == pytest.approx(math.radians(w0) - alpha * 1.0, rel=1e-6)
 
 
@@ -142,6 +146,8 @@ def test_bushing_static_deflection_is_force_over_stiffness():
          {"id": "F", "type": "force", "body": "m", "point_mm": [0, 0, 0], "fx_n": 10}],
         {"type": "static"}, gravity=(0, 0, -G * 1000)))
     x, y, z = data["bodies"]["m"]["cm_mm"][0]
+    record(("x 向静变形", "static deflection x"), x, 1.0, tol=1e-6, unit="mm", formula="F/k")
+    record(("z 向静变形", "static deflection z"), z, -G / 50, tol=1e-6, unit="mm", formula="−mg/k")
     assert x == pytest.approx(1.0, rel=1e-6)
     assert z == pytest.approx(-G / 50, rel=1e-6)
     assert abs(y) < 1e-9
@@ -172,10 +178,13 @@ def test_cantilever_beam_matches_beam_theory(load):
     pos = data["bodies"]["tip"]["cm_mm"][0]
     p = np.array(data["bodies"]["tip"]["euler_parameters"][0])
     if load == "torsion":
+        record(("扭转角", "twist angle"), rot_angle(p), T * 1000 * L / (Gs * J), tol=1e-3, unit="rad", formula="TL/GJ")
         assert rot_angle(p) == pytest.approx(T * 1000 * L / (Gs * J), rel=1e-3)
         assert abs(pos[1]) + abs(pos[2]) < 1e-8
         return
     k = 2 if load == "bend_z" else 1
+    record((f"端部挠度（{load}）", f"tip deflection ({load})"), pos[k], P * L ** 3 / (3 * E * I), tol=1e-3, unit="mm", formula="PL³/3EI")
+    record((f"端部转角（{load}）", f"tip rotation ({load})"), rot_angle(p), P * L ** 2 / (2 * E * I), tol=1e-3, unit="rad", formula="PL²/2EI")
     assert pos[k] == pytest.approx(P * L ** 3 / (3 * E * I), rel=1e-3)
     assert rot_angle(p) == pytest.approx(P * L ** 2 / (2 * E * I), rel=1e-3)
 
@@ -193,6 +202,7 @@ def test_rotational_spring_frequency_and_energy():
     wn = math.sqrt(k_deg * 180 / math.pi / I)
     ang = np.array(data["measures"]["a"]["values"])
     ref = np.array([w0 / wn * math.sin(wn * t) for t in data["times_s"]])
+    record(("转角与解析解的最大差", "max angle difference from analytical"), float(np.max(np.abs(ang - ref))), 0.0, tol=1e-6, rel=False, unit="rad", formula="(ω₀/ωn) sin ωn t")
     assert np.max(np.abs(ang - ref)) < 1e-6
     assert ver(data, "energy_drift")["status"] == "pass"
 
@@ -208,6 +218,7 @@ def test_revolute_clearance_settles_at_gap_plus_hertz_penetration():
         {"type": "dynamic", "end_time_s": 0.1, "output_steps": 10, "integrator": "Radau", "rtol": 1e-7, "atol": 1e-11},
         gravity=(0, 0, -G * 1000)))
     z_end = data["bodies"]["w"]["cm_mm"][-1][2]
+    record(("静止时下沉量", "settled drop"), -z_end, c + (G / k) ** (1 / e), tol=1e-3, unit="mm", formula="间隙 + (mg/k)^(1/e)")
     assert z_end == pytest.approx(-(c + (G / k) ** (1 / e)), rel=1e-3)
 
 
