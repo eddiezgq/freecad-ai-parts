@@ -1,0 +1,32 @@
+# 示范企业（虚构）的工程师确认的事项。AI 只提议；这里写的是人确认后的结论，构建脚本照此写入企业库。
+confirmed_by: 示范企业工程师（虚构）
+date: "2026-11-18"
+# 三维模型测量出的自制件：零件类型、材料由人确认（材料是材料库 id；不知道材料就不写，只给体积）
+custom_parts:
+  LS-101:
+    name: 上轴
+    model_file: models/LS-101.step
+    part_kind: shaft
+    material: 45-QT
+    material_basis: 《机械设计》33.11：上轴材料 45 钢调质
+  LS-HS:
+    name: 控制箱散热器
+    model_file: models/LS-HS.step
+    part_kind: plate
+# 物料表里“型号对上、厂商写法不同”的候选，人确认对应关系（物料表写“安川”，公共库是 Yaskawa Electric Corporation）
+bom_matches:
+  A-SM-04: servo_motor.yaskawa-electric-corporation.sgm7j-04a
+# 平缝机主轴选型的需求（与 examples/apps/lockstitch.py 的“下限”同一份：惯量吸收惯性力矩，不含缝制阻力）
+selection:
+  motor_row: A-SM-04
+  drive_row: A-SD-2R8
+  requirement:
+    id: wq-ls
+    statement: 示范平缝机主轴直驱，下限：转速允许波动，惯量吸收惯性力矩；不含缝制阻力
+    output_torque_peak_nm: 3.078
+    output_torque_cont_nm: 0.06
+    output_speed_rpm: 5000
+    load_inertia_kgm2: 4.89e-05
+    safety_factor: 1.2
+    supply: {current_type: ac, voltage_v: 200, phases: 3}
+    ambient_temp_c: 25
