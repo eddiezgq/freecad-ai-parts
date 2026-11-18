@@ -172,3 +172,28 @@ def test_docx_explanation_and_revisions(tmp_path):
     bad = dict(data, model="别的模型")
     with pytest.raises(ValueError, match="模型名不一致"):
         R.build_docx(model, bad, tmp_path / "x.docx")
+
+
+@pytest.mark.parametrize("name", ["slider_crank_all_d1.json", "d4_linear_plant.json", "d7_pid_turntable.json",
+                                  "d6_flex_pendulum.json"])
+def test_docx_english_same_numbers_and_only_user_text_in_chinese(name, tmp_path):
+    """ADR-0102 第 2 步：同一计算出中英两份报告，数字、出处、结果指纹完全相同；英文报告里剩下的中文只能是用户写的（模型名、构件和运动副名）"""
+    pytest.importorskip("docx")
+    from datetime import date
+
+    from assist import i18n
+
+    model, data = _model(name), _run(name)
+    zh = R.build_docx(model, data, tmp_path / "zh.docx", number="QR-MBD-0001", today=date(2026, 11, 18))
+    en = R.build_docx(model, data, tmp_path / "en.docx", number="QR-MBD-0001", today=date(2026, 11, 18), lang="en")
+    lz, le = (json.loads(x["ledger"].read_text(encoding="utf-8")) for x in (zh, en))
+    nums = [[(e["source"], e["pointer"], e["text"]) for e in x["entries"] if e["kind"] in ("number", "op")] for x in (lz, le)]
+    assert nums[0] == nums[1] and lz["files"] == le["files"]
+    text = _docx_text(en["docx"])
+    user = {model["name"]} | {b["id"] for b in model["bodies"]} | {j["id"] for j in model.get("joints", [])} \
+        | {j[k] for j in model.get("joints", []) for k in ("body_i", "body_j")} | set(data.get("redundant_constraints") or [])
+    rest = text
+    for u in sorted(user, key=len, reverse=True):
+        rest = rest.replace(u, "")
+    left = [ln for ln in rest.splitlines() if i18n.has_cjk(ln)]
+    assert not left, f"英文报告里还有中文：{left[:5]}"
