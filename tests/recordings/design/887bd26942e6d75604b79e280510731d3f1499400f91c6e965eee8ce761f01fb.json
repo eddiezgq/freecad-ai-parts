@@ -3,7 +3,7 @@
   "prompt_version": "shaft-design/1",
   "request_key": "887bd26942e6d75604b79e280510731d3f1499400f91c6e965eee8ce761f01fb",
   "response": {
-    "id": "msg_011ChAvVvFaRFJCKRiX3oAQc",
+    "id": "msg_011ChAxRhpqasVS4gxzH3Vnq",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -21,7 +21,7 @@
         }
       ],
       "bearing_life": {
-        "quote": "轴承寿命不少于 20000 h",
+        "quote": "20000 h",
         "unit": "h",
         "value": 20000
       },
@@ -46,17 +46,18 @@
           "value": 55
         },
         "z": {
-          "quote": "针杆曲柄装在 z = 11 mm",
+          "quote": "z = 11 mm",
           "unit": "mm",
           "value": 11
         }
       },
       "critical_ratio": {
-        "quote": "最高转速的 1.3 倍",
+        "quote": "1.3 倍",
+        "unit": "倍",
         "value": 1.3
       },
       "drive_z": {
-        "quote": "电机转子在轴端 z = 282 mm",
+        "quote": "z = 282 mm",
         "unit": "mm",
         "value": 282
       },
@@ -65,12 +66,12 @@
           "direction": "-y",
           "direction_quote": "方向铅垂向下",
           "magnitude": {
-            "quote": "同步带两边张力之和 120 N",
+            "quote": "120 N",
             "unit": "N",
             "value": 120
           },
           "z": {
-            "quote": "同步带轮在 z = 262 mm",
+            "quote": "z = 262 mm",
             "unit": "mm",
             "value": 262
           }
@@ -79,7 +80,7 @@
       "masses": [
         {
           "mass": {
-            "quote": "曲柄与平衡块 0.15 kg",
+            "quote": "0.15 kg",
             "unit": "kg",
             "value": 0.15
           },
@@ -92,7 +93,7 @@
         },
         {
           "mass": {
-            "quote": "挑线凸轮 0.05 kg",
+            "quote": "0.05 kg",
             "unit": "kg",
             "value": 0.05
           },
@@ -105,7 +106,7 @@
         },
         {
           "mass": {
-            "quote": "送布偏心轮 0.08 kg",
+            "quote": "0.08 kg",
             "unit": "kg",
             "value": 0.08
           },
@@ -118,7 +119,7 @@
         },
         {
           "mass": {
-            "quote": "同步带轮 0.06 kg",
+            "quote": "0.06 kg",
             "unit": "kg",
             "value": 0.06
           },
@@ -131,7 +132,7 @@
         },
         {
           "mass": {
-            "quote": "手轮与电机转子 0.45 kg",
+            "quote": "0.45 kg",
             "unit": "kg",
             "value": 0.45
           },
@@ -165,11 +166,10 @@
         }
       },
       "questions": [
-        "挑线凸轮（z = 45 mm）和送布偏心轮（z = 150 mm）的工作载荷大小和方向没有给出，是否忽略，还是另行提供？",
-        "曲柄销的初始相位角（曲柄转角零位）和转向没有给出，如何取？",
-        "同步带两边张力之和 120 N 是否同时包含预紧力？有没有峰值或启停时的冲击系数？",
-        "轴承类型、可靠度和载荷系数没有给出，轴承寿命按什么条件算？",
-        "轴的总长起止位置（z = 0 到轴端 z = 282 mm 之外是否还有伸出段）没有说明。"
+        "轴承型号、类型和额定动载荷未给出，轴承寿命无法核算，请提供。",
+        "平衡块的相位和质心半径、曲柄的转向未给出，请说明。",
+        "各轴段直径和同步带轮节圆直径未给出，请说明是需要设计，还是已有限制。",
+        "加工功率产生的力的方向和作用半径未给出，请说明。"
       ],
       "required_safety": {
         "quote": "安全系数不小于 1.5",
