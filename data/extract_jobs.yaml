@@ -23,6 +23,8 @@ index:
     terms: [SGD7S, R70A, R90A, 1R6A, 2R8A, 3R8A, 5R5A, 7R6A, 120A, Ratings, Maximum Applicable Motor Capacity,
             Continuous Output Current, Instantaneous Maximum Output Current, Main Circuit, Single-phase, External Dimensions,
             Approx. mass, Safety, HWBB, EtherCAT]
+  - doc: src-nsk-e1103c-part-a
+    terms: [Table 6.6, Omitted, ISO Normal, Tolerance Class, Bearing Numbers]
   - doc: src-nsk-e1103c-part-c
     terms: [Single-Row Deep Groove Ball Bearings, "6000", "6001", "6200", "6201", "6202", "608", Boundary Dimensions,
             Basic Load Ratings, Limiting Speeds, Abutment and Fillet Dimensions, Mass]
