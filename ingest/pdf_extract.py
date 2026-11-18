@@ -223,10 +223,12 @@ def _grid_rows(pg) -> list[list[str]]:
             if max(prev_end, top0 - GRID_HEAD_BAND_PT) < top < top0 - 1:
                 for ph in _phrases(cs):                  # 跨几列的表头（“Limiting Speeds (min–1)”）归到它跨过的每一列
                     js = col_of(ph)
-                    if not js:                           # 印在两列之间的组标题（“da”下面分 min、max 两列）：归到左右两列
-                        left = [j for j, (a, b) in enumerate(cols) if b <= ph["x0"] and ph["x0"] - b <= GRID_GAP_HEAD_PT]
-                        right = [j for j, (a, b) in enumerate(cols) if a >= ph["x1"] and a - ph["x1"] <= GRID_GAP_HEAD_PT]
-                        js = ([left[-1]] if left else []) + ([right[0]] if right else [])
+                    mid = (ph["x0"] + ph["x1"]) / 2
+                    if len(js) <= 1 and not any(a <= mid <= b for a, b in cols):
+                        # 中心印在两列之间、最多压到一列的组标题（“da”下面分 min、max 两列）：归到中心左右最近的两列
+                        left = [j for j, (a, b) in enumerate(cols) if b < mid and mid - b <= GRID_GAP_HEAD_PT]
+                        right = [j for j, (a, b) in enumerate(cols) if a > mid and a - mid <= GRID_GAP_HEAD_PT]
+                        js = ([left[-1]] if left else []) + ([right[0]] if right else []) or js
                     for j in js:
                         head[j] = (head[j] + " " + ph["text"]).strip()
         prev: list[str] | None = None
