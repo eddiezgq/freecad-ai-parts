@@ -1,0 +1,91 @@
+{
+ "enterprise": "示范缝纫机有限公司（虚构）",
+ "custom_parts": [
+  {
+   "drawing": "LS-101",
+   "id": "custom_part.demo-sewing.ls-101",
+   "segments": [
+    {
+     "diameter_mm": 10.0,
+     "length_mm": 22.0,
+     "start_mm": 0.0
+    },
+    {
+     "diameter_mm": 12.0,
+     "length_mm": 10.0,
+     "start_mm": 22.0
+    },
+    {
+     "diameter_mm": 16.0,
+     "length_mm": 215.0,
+     "start_mm": 32.0
+    },
+    {
+     "diameter_mm": 12.0,
+     "length_mm": 10.0,
+     "start_mm": 247.0
+    },
+    {
+     "diameter_mm": 10.0,
+     "length_mm": 40.0,
+     "start_mm": 257.0
+    }
+   ],
+   "envelope_mm": {
+    "length": 297.0,
+    "width": 16.0,
+    "height": 16.0
+   },
+   "mass_kg": 0.3953,
+   "volume_mm3": 50359.7,
+   "ai_part_kind": "shaft",
+   "confirmed_part_kind": "shaft"
+  },
+  {
+   "drawing": "LS-HS",
+   "id": "custom_part.demo-sewing.ls-hs",
+   "segments": [],
+   "envelope_mm": {
+    "length": 120.0,
+    "width": 80.0,
+    "height": 36.0
+   },
+   "mass_kg": null,
+   "volume_mm3": 115200.0,
+   "ai_part_kind": "other",
+   "confirmed_part_kind": "plate"
+  }
+ ],
+ "notes": [],
+ "bom": {
+  "rows": 41,
+  "items": 39,
+  "classified": 40,
+  "matched": 7,
+  "confirm": 1
+ },
+ "to_fill": 32,
+ "completeness": {
+  "count": 7,
+  "complete": 6
+ },
+ "selection": {
+  "motor": "servo_motor.yaskawa-electric-corporation.sgm7j-04a",
+  "drive": "drive.yaskawa-america-inc.sgd7s-2r8a",
+  "overall": "pass",
+  "checks": {
+   "C1": "pass",
+   "C2": "not_applicable",
+   "C3": "not_applicable",
+   "C4": "pass",
+   "C5": "pass",
+   "C6": "not_applicable",
+   "C7": "pass",
+   "C8": "pass",
+   "C9": "pass",
+   "C10": "pass",
+   "C11": "not_applicable"
+  }
+ },
+ "confirm_items": 1
+}

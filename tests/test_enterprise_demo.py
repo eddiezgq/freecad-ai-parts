@@ -101,3 +101,23 @@ def test_completeness_and_selection(built):
     assert s["selection"]["motor"].endswith("sgm7j-04a") and s["selection"]["drive"].endswith("sgd7s-2r8a")
     assert s["selection"]["overall"] in ("pass", "warn")                           # 与 examples/apps/lockstitch 的下限选型一致
     assert (d / "out" / "completeness.xlsx").is_file() and (d / "out" / "bom-result.xlsx").is_file()
+
+
+def test_replay_real_model_recordings(tmp_path):
+    """真实模型（Claude）的录制回放：物料表每行都有结论，只有“杂项”未能分类；上轴的类型 AI 提议与人确认一致"""
+    mod = _module()
+    s = mod.build(tmp_path / "library", tmp_path / "out")
+    r = json.loads((tmp_path / "out" / "bom-result.json").read_text("utf-8"))
+    unc = [i["code"] for i in r["items"] if i["category"] == "unclassified"]
+    assert unc == ["X-002"] and r["summary"]["classified"] == 40
+    by = {i["code"]: i for i in r["items"]}
+    assert by["B-6201"]["category"] == "bearing" and by["F-007"]["category"] == "fastener"
+    assert by["P-HOOK"]["category"] == "purchased_part" and by["LS-104"]["category"] == "custom_part"
+    ls101 = next(c for c in s["custom_parts"] if c["drawing"] == "LS-101")
+    assert ls101["ai_part_kind"] == "shaft" == ls101["confirmed_part_kind"]
+    assert s["selection"]["overall"] == "pass"
+    # NSK 轴承带安装尺寸入库后，只剩手轮缺质量（材料没人确认，不估）
+    rep = json.loads((tmp_path / "out" / "completeness.json").read_text("utf-8"))
+    assert (rep["complete"], rep["count"]) == (6, 7)
+    bad = [c for c in rep["components"] if not c["complete"]]
+    assert [c["model"] for c in bad] == ["LS-HS"] and [m["field"] for m in bad[0]["missing"]] == ["params.mass_kg"]

@@ -1,0 +1,111 @@
+{
+  "category": "custom_part",
+  "envelope": {
+    "parts": [
+      {
+        "height_mm": {
+          "confidence": 1,
+          "method": "measured",
+          "reviewed": false,
+          "source": {
+            "doc": "src-ent-ls-hs",
+            "note": "从三维模型由代码测量（assist.measure，B-rep 面识别）：包围盒次长边；长度按 0.01 mm 舍入"
+          },
+          "value": 80.0
+        },
+        "label": "body",
+        "length_mm": {
+          "confidence": 1,
+          "method": "measured",
+          "reviewed": false,
+          "source": {
+            "doc": "src-ent-ls-hs",
+            "note": "从三维模型由代码测量（assist.measure，B-rep 面识别）：包围盒最短边；长度按 0.01 mm 舍入"
+          },
+          "value": 36.0
+        },
+        "shape": "box",
+        "width_mm": {
+          "confidence": 1,
+          "method": "measured",
+          "reviewed": false,
+          "source": {
+            "doc": "src-ent-ls-hs",
+            "note": "从三维模型由代码测量（assist.measure，B-rep 面识别）：包围盒最长边；长度按 0.01 mm 舍入"
+          },
+          "value": 120.0
+        },
+        "z_start_mm": 0
+      }
+    ]
+  },
+  "id": "custom_part.demo-sewing.ls-hs",
+  "license": "enterprise",
+  "model": "LS-HS",
+  "note": "模型 LS-HS.step（SHA-256 300d40862545510ab78eff2f5454a576ad8282dc253263d0b72f4b51b3fdb47f）；从三维模型由代码测量（assist.measure，B-rep 面识别）；名称：控制箱散热器",
+  "params": {
+    "envelope_height_mm": {
+      "confidence": 1,
+      "method": "measured",
+      "reviewed": false,
+      "source": {
+        "doc": "src-ent-ls-hs",
+        "note": "从三维模型由代码测量（assist.measure，B-rep 面识别）：包围盒最短边；长度按 0.01 mm 舍入"
+      },
+      "value": 36.0
+    },
+    "envelope_length_mm": {
+      "confidence": 1,
+      "method": "measured",
+      "reviewed": false,
+      "source": {
+        "doc": "src-ent-ls-hs",
+        "note": "从三维模型由代码测量（assist.measure，B-rep 面识别）：包围盒最长边；长度按 0.01 mm 舍入"
+      },
+      "value": 120.0
+    },
+    "envelope_width_mm": {
+      "confidence": 1,
+      "method": "measured",
+      "reviewed": false,
+      "source": {
+        "doc": "src-ent-ls-hs",
+        "note": "从三维模型由代码测量（assist.measure，B-rep 面识别）：包围盒次长边；长度按 0.01 mm 舍入"
+      },
+      "value": 80.0
+    },
+    "part_kind": {
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": false,
+      "source": {
+        "doc": "src-ent-ls-hs",
+        "note": "零件类型由 示范企业工程师（虚构） 确认（AI 提议 other）"
+      },
+      "value": "plate"
+    },
+    "surface_area_mm2": {
+      "confidence": 1,
+      "method": "measured",
+      "reviewed": false,
+      "source": {
+        "doc": "src-ent-ls-hs",
+        "note": "从三维模型由代码测量（assist.measure，B-rep 面识别）：全部面的面积之和；按 0.1 mm² 舍入"
+      },
+      "value": 80160.0
+    },
+    "volume_mm3": {
+      "confidence": 1,
+      "method": "measured",
+      "reviewed": false,
+      "source": {
+        "doc": "src-ent-ls-hs",
+        "note": "从三维模型由代码测量（assist.measure，B-rep 面识别）：实体体积；按 0.1 mm³ 舍入"
+      },
+      "value": 115200.0
+    }
+  },
+  "ports": [],
+  "status": "active",
+  "vendor": "示范缝纫机有限公司（虚构）"
+}

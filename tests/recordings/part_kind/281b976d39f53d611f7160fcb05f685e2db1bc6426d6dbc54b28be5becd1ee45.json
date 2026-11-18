@@ -1,0 +1,21 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "part-kind/1",
+  "request_key": "281b976d39f53d611f7160fcb05f685e2db1bc6426d6dbc54b28be5becd1ee45",
+  "response": {
+    "id": "msg_011ChAqQgMw79tHwYDmDgQ4P",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "part_kind": "other",
+      "ports": [
+        {
+          "feature": "端面 / 安装面：面 13，朝 -z，面积 9600 mm²",
+          "id": "mount_base"
+        }
+      ],
+      "reason": "零件名称是散热器，是带底板的翅片式结构，不属于给定类别里的轴、齿轮、杠杆等，也不是单纯的板或支架，所以归为 other。特征清单里朝 +z 的 8 个面大小相同且均匀排列，应是翅片顶面，作用是散热，不与别的零件配合。朝 -z 的大平面面积最大，是底面，应贴合控制箱壳体或发热元件，是主要配合面。四周的端面和侧面只是外轮廓，暂不设为端口。"
+    }
+  }
+}

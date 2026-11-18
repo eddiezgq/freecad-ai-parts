@@ -1,0 +1,49 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "part-kind/1",
+  "request_key": "2f67df2d0854d7ec9049069b96bcd9a5e72d08bb0f9faab1c4b52d161c326fe0",
+  "response": {
+    "id": "msg_011ChAqPur2LyH6FPaQGH6wm",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "part_kind": "shaft",
+      "ports": [
+        {
+          "feature": "外圆 / 轴段 Ø10，长 22.0，面 [5]",
+          "id": "journal_end_a"
+        },
+        {
+          "feature": "外圆 / 轴段 Ø10，长 40.0，面 [10]",
+          "id": "journal_end_b"
+        },
+        {
+          "feature": "外圆 / 轴段 Ø12，长 10.0，面 [1]",
+          "id": "seat_a"
+        },
+        {
+          "feature": "外圆 / 轴段 Ø12，长 10.0，面 [8]",
+          "id": "seat_b"
+        },
+        {
+          "feature": "台阶面（轴肩 / 孔底 / 法兰面）：面 2，面积 88 mm²",
+          "id": "shoulder_a"
+        },
+        {
+          "feature": "台阶面（轴肩 / 孔底 / 法兰面）：面 6，面积 88 mm²",
+          "id": "shoulder_b"
+        },
+        {
+          "feature": "端面 / 安装面：面 7，朝 -z，面积 79 mm²",
+          "id": "end_face_bottom"
+        },
+        {
+          "feature": "端面 / 安装面：面 11，朝 +z，面积 79 mm²",
+          "id": "end_face_top"
+        }
+      ],
+      "reason": "零件是沿 z 轴的阶梯回转体，长径比大，中间是最粗的轴段，两端依次变细。两端各有一个小径轴段和一个中径轴段，并带轴肩和端面。没有孔、齿、凸轮或偏心等特征，所以判为光轴类阶梯轴。两端的小径轴段适合装轮毂、联轴器或轴承。中径轴段适合作轴承位。靠中间粗段的两个轴肩用于轴向定位。两个端面可作轴向基准或安装面，粗径中间段只作承载主体，暂不设端口。"
+    }
+  }
+}
