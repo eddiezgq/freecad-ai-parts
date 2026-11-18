@@ -253,3 +253,31 @@ def test_full_d2_fixture_runs():
     data, _ = R.run_model(inst)
     assert ver(data, "constraint_residual")["status"] == "pass"
     assert data["measures"]
+
+
+def test_beam_and_bushing_no_force_under_rigid_rotation():
+    """ADR-0098 E2 修正：两构件一起整体转动、没有变形时，衬套和梁的阻尼力为零（变形速度要在 i 构件系里求导）"""
+    import numpy as np
+
+    from analysis.mbd.dae import model as MD
+    from analysis.mbd.dae.system import E_of
+
+    def body(k):
+        return {"id": f"b{k}", "mass_kg": 0.1, "cm_mm": [50.0 * k + 25, 0, 0], "inertia_kg_m2": {"ixx": 1e-5, "iyy": 1e-5, "izz": 1e-5}}
+
+    common = {"body_i": "b0", "point_i_mm": [25, 0, 0], "body_j": "b1", "point_j_mm": [75, 0, 0]}
+    m = {"format": "mbd-model/1", "name": "整体转动", "gravity_mm_s2": [0, 0, 0], "bodies": [body(0), body(1)],
+         "forces": [{"id": "bm", "type": "beam", **common, "y_axis": [0, 1, 0], "youngs_modulus_mpa": 2e5, "shear_modulus_mpa": 8e4,
+                     "area_mm2": 78.5, "iyy_mm4": 490, "izz_mm4": 490, "ixx_mm4": 980, "damping_ratio": 1e-3},
+                    {"id": "bu", "type": "bushing", "body_i": "b0", "body_j": "b1", "point_mm": [50, 0, 0],
+                     "stiffness_n_per_mm": [1e3, 1e3, 1e3], "damping_n_s_per_mm": [10, 10, 10],
+                     "rot_stiffness_n_m_per_deg": [1, 1, 1], "rot_damping_n_m_s_per_deg": [0.01, 0.01, 0.01]}],
+         "analysis": {"type": "dynamic", "end_time_s": 0.01}}
+    s = MD.build(m)
+    q, qd = s.q0(), np.zeros(s.n)
+    w = np.array([3.0, -20.0, 100.0])
+    for k in range(s.nb):
+        qd[7 * k:7 * k + 3] = np.cross(w, q[7 * k:7 * k + 3])
+        qd[7 * k + 3:7 * k + 7] = 0.5 * E_of(q[7 * k + 3:7 * k + 7]).T @ w
+    F, N = s.body_wrenches(q, qd, 0.0)
+    assert np.abs(F).max() < 1e-9 and np.abs(N).max() < 1e-9

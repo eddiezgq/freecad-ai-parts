@@ -709,9 +709,11 @@ class System:
                 Pi, Vi = self._pv(q, qd, i, f["s_i"])
                 Pj, Vj = self._pv(q, qd, j, f["s_j"])
                 d = Ai.T @ (Pj - Pi) - f["d0"]
-                dd = Ai.T @ (Vj - Vi)
                 th = self.rel_rotvec(q, i, j)
                 wi = self.omega(q, qd, i) if i >= 0 else np.zeros(3)
+                # 变形速度是 d 对时间的导数（在 i 构件系里看）：Aᵢᵀ(Vⱼ − Vᵢ − ωᵢ × (Pⱼ − Pᵢ))。
+                # ADR-0098 E2 发现：原来少了 −ωᵢ × (Pⱼ − Pᵢ)，整体转动时没有变形也会出阻尼力（i 是地面时不受影响）
+                dd = Ai.T @ (Vj - Vi - np.cross(wi, Pj - Pi))
                 wj = self.omega(q, qd, j) if j >= 0 else np.zeros(3)
                 wr = Ai.T @ (wj - wi)
                 if kind == "bushing":
