@@ -82,7 +82,7 @@ def run(enterprise, comp: Mapping, file: str | Path, actor: str, client: LLMClie
         raise SpecImportError("文件里读不到任何页面")
     doc = enterprise.register_document(file, title or Path(file).stem, actor)
     return extract_document(document, comp["category"], doc["id"], client, pages=pages or None,
-                            target_model=(target_model or "").strip() or None)
+                            target_model=(target_model or "").strip() or None, model=getattr(client, "model", None))
 
 
 # ---------------------------------------------------------------- 确认表
