@@ -1,0 +1,121 @@
+{
+  "why": "自制件：上轴，轴段与质量按模型测量 / 计算",
+  "instance": {
+    "id": "test.custom_part.demo-sewing.ls-101",
+    "category": "custom_part",
+    "vendor": "示范缝纫机（虚构）",
+    "model": "LS-101",
+    "status": "active",
+    "license": "enterprise",
+    "params": {
+      "part_kind": {
+        "value": "shaft",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "material": {
+        "value": "45-QT",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "segment_1_diameter_mm": {
+        "value": 10.0,
+        "source": {
+          "doc": "src-ent-test-model",
+          "note": "从模型测量：共轴圆柱面，容差 0.01 mm"
+        },
+        "method": "measured",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "segment_1_length_mm": {
+        "value": 22.0,
+        "source": {
+          "doc": "src-ent-test-model",
+          "note": "从模型测量：共轴圆柱面，容差 0.01 mm"
+        },
+        "method": "measured",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "segment_1_start_mm": {
+        "value": 0.0,
+        "source": {
+          "doc": "src-ent-test-model",
+          "note": "从模型测量：共轴圆柱面，容差 0.01 mm"
+        },
+        "method": "measured",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "holes_1_pcd_mm": {
+        "value": 30.0,
+        "source": {
+          "doc": "src-ent-test-model",
+          "note": "从模型测量：共轴圆柱面，容差 0.01 mm"
+        },
+        "method": "measured",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "holes_1_count": {
+        "value": 4,
+        "source": {
+          "doc": "src-ent-test-model",
+          "note": "从模型测量：共轴圆柱面，容差 0.01 mm"
+        },
+        "method": "measured",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "mass_kg": {
+        "value": 0.43,
+        "source": {
+          "formula": "体积 × 材料密度（材料库 45-QT）"
+        },
+        "method": "computed",
+        "confidence": 1,
+        "reviewed": true
+      }
+    },
+    "ports": [],
+    "envelope": {
+      "parts": [
+        {
+          "shape": "cylinder",
+          "z_start_mm": 0,
+          "length_mm": {
+            "value": 297.0,
+            "source": {
+              "doc": "src-ent-test-model",
+              "note": "从模型测量：共轴圆柱面，容差 0.01 mm"
+            },
+            "method": "measured",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "diameter_mm": {
+            "value": 16.0,
+            "source": {
+              "doc": "src-ent-test-model",
+              "note": "从模型测量：共轴圆柱面，容差 0.01 mm"
+            },
+            "method": "measured",
+            "confidence": 1,
+            "reviewed": true
+          }
+        }
+      ]
+    }
+  }
+}

@@ -21,7 +21,8 @@
     "tol_lower": {"type": "number", "description": "下偏差（与名义值同单位，带符号）"},
     "condition": {"type": "string", "minLength": 1, "description": "该值成立的工况，规格书有就必填；厂商叫法不同时注明原文名称"},
     "source": {"$ref": "#/$defs/source"},
-    "method": {"enum": ["extracted", "manual", "computed", "standard"]},
+    "method": {"enum": ["extracted", "manual", "computed", "standard", "measured"],
+               "description": "measured：从企业三维模型上由代码测量（source.doc 为登记的模型文件，note 写测量方法与容差，ADR-0099）"},
     "confidence": {"type": "number", "minimum": 0, "maximum": 1},
     "reviewed": {"type": "boolean"}
   },

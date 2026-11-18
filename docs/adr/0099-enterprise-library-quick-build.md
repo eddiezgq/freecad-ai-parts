@@ -66,6 +66,15 @@
 | `purchased_part` 通用外购件 | 同步带与带轮、电磁铁、传感器、机针、旋梭等 | 厂商、型号、外形包络 | 关键参数按需填；先能进 BOM、能做干涉检查，不参加 C1–C11 的性能校验 |
 | `stepper_motor` 步进电机 | 自动缝纫设备常用 | 与伺服电机同一套端口（轴、法兰、电源） | 保持转矩、额定电流、步距角、相数、法兰尺寸；与驱动器的匹配校验按现有规则扩充（相数、电流） |
 
+- 写法（41.2 schema PR，2026-11-17）：
+  - 自制件：`vendor` 写企业名、`model` 写图号、`license` 新增 `enterprise`（企业自有数据，只在企业库）；参数 `part_kind`（shaft、crank、cam、
+    eccentric、gear、pulley、lever、link、bracket、housing、plate、pin、bushing、other）、`material`（材料库 id）、`mass_kg`、`volume_mm3`、
+    `surface_area_mm2`、包络尺寸；回转件轴段 `segment_<n>_diameter_mm / _length_mm / _start_mm`，同轴孔组 `holes_<n>_pcd_mm / _diameter_mm / _count`。
+  - 通用外购件：`part_kind` 写通用叫法，其余参数按需（名称照全仓库规则带单位后缀，值仍是带依据的参数值对象）。
+  - 步进电机：`holding_torque_nm`、`rated_current_a`、`step_angle_deg`、`phases`、`rotor_inertia_kgm2`、`mass_kg` 等；端口轴、安装法兰、动力输入必有。
+  - 参数值的 `method` 新增 `measured`：从企业三维模型上由代码测量，`source.doc` 是登记的模型文件（企业库 `sources.yaml`，带 SHA-256），
+    `source.note` 写测量方法与容差。
+  - 端口：原来每个组件至少 1 个端口；自制件、通用外购件可以没有（先能进 BOM、做干涉检查），其余品类照旧至少 1 个。
 - 轴承已有品类，补数据即可。
 - 新品类的组件可以只在企业库里；公共库只收登记过、核过条款的公开目录数据（ADR-0040），自制件永远不进公共库。
 - 旧数据与 golden 题不受影响：新品类是新增，现有 6 个品类的 schema 不改。

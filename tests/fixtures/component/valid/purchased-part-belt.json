@@ -1,0 +1,82 @@
+{
+  "why": "通用外购件：同步带，关键参数按需填",
+  "instance": {
+    "id": "test.purchased_part.test-vendor.htd-3m-150",
+    "category": "purchased_part",
+    "vendor": "Test Vendor",
+    "model": "HTD-3M-150",
+    "status": "active",
+    "license": "params-only",
+    "params": {
+      "part_kind": {
+        "value": "timing_belt",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "pitch_mm": {
+        "value": 3.0,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "width_mm": {
+        "value": 15.0,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      }
+    },
+    "ports": [],
+    "envelope": {
+      "parts": [
+        {
+          "shape": "box",
+          "z_start_mm": 0,
+          "length_mm": {
+            "value": 150.0,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "width_mm": {
+            "value": 15.0,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "height_mm": {
+            "value": 2.4,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          }
+        }
+      ]
+    }
+  }
+}
