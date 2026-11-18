@@ -65,8 +65,8 @@ def stepped_bar(d: float, big: float, r: float) -> dict:
 
     if not 0 < d < big or r <= 0:
         raise KtError("要 0 < d < D、r > 0")
-    if r > (big - d) / 2 + 1e-9:
-        raise KtError(f"圆角 r {r:g} 大于台阶高度 {(big - d) / 2:g}，做不出来")
+    if r >= (big - d) / 2 - 1e-9:
+        raise KtError(f"圆角 r {r:g} 不小于台阶高度 {(big - d) / 2:g}，做不出来")
     ccx = find_ccx()
     if ccx is None:
         raise KtError("本机没有 CalculiX（ccx），算不了应力集中系数")

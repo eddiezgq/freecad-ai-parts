@@ -197,9 +197,9 @@ def evaluate(proposal, cond: dict, get: Callable[[str], dict | None], *, kt: Cal
             items.append(_item(f"台阶 Ø{st['d']:g}→Ø{st['D']:g}（z {st['z_mm']:g}）强度", "unknown",
                                note="方案没给过渡圆角，算不了应力集中"))
             continue
-        if st["r"] > (st["D"] - st["d"]) / 2 + 1e-9:
+        if st["r"] >= (st["D"] - st["d"]) / 2 - 1e-9:
             items.append(_item(f"台阶 Ø{st['d']:g}→Ø{st['D']:g}（z {st['z_mm']:g}）圆角", "fail", st["r"],
-                               f"≤ {(st['D'] - st['d']) / 2:g}", "圆角大于台阶高度，做不出来"))
+                               f"< {(st['D'] - st['d']) / 2:g}", "圆角不小于台阶高度，台阶端面没有平面，做不出来"))
             continue
         try:
             k = kt(st["d"], st["D"], st["r"])
