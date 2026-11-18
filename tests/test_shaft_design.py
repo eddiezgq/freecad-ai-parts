@@ -57,7 +57,22 @@ def test_bearing_seats_from_library(ls101):
     assert [(s["d"], s["L"]) for s in segs] == [(10, 22), (12, 10), (16, 215), (12, 10), (10, 40)]   # 与书中 LS-101 相同
     assert all(i["status"] == "pass" for i in by(ls101, "轴承中心"))
     assert all(i["status"] == "pass" for i in by(ls101, "能套进去")) and all(i["status"] == "pass" for i in by(ls101, "轴肩定位"))
-    assert all(i["status"] == "unknown" for i in by(ls101, "轴肩高度"))                      # 库里没有 da、倒角：不估
+    assert all(i["status"] == "unknown" for i in by(ls101, "轴肩高度"))                      # 库里没有 da、ra：不估
+    assert all(i["status"] == "unknown" for i in by(ls101, "轴肩圆角"))
+
+
+def test_shoulder_with_abutment_data():
+    """有安装尺寸时按 da min–da max、ra max 判（ADR-0102）；数是测试用的，不是哪家的目录"""
+    comp = json.loads(json.dumps(get(B6201)))
+    for k, v in (("abutment_shaft_min_mm", 16.0), ("abutment_shaft_max_mm", 17.0), ("fillet_max_mm", 0.6)):
+        comp["params"][k] = {"value": v}
+    lay = SD.layout(SD.check_proposal(LS101, lambda c: comp)[0])
+    items = SD.shoulder_checks(lay, 1, comp)
+    assert [i["status"] for i in items] == ["pass", "pass"]                  # 轴身 Ø16 在 16–17 之间，圆角 0.5 ≤ 0.6
+    low = json.loads(json.dumps(LS101))
+    low["segments"][2]["diameter_mm"] = 14
+    lay = SD.layout(SD.check_proposal(low, lambda c: comp)[0])
+    assert SD.shoulder_checks(lay, 1, comp)[0]["status"] == "fail"
 
 
 def test_ls101_strength_matches_book_and_passes(ls101):

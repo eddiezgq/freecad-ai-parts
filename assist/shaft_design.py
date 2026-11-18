@@ -128,11 +128,40 @@ def geometry_checks(segs: list[dict], cond: dict, get) -> list[dict]:
         located = any(x > d + 1e-9 for x in nb)
         items.append(_item(f"轴承 {s['bearing'].split('.')[-1]} 有轴肩定位", "pass" if located else "fail",
                            note="" if located else "相邻两段都不比轴承位粗"))
-        comp = get(s["bearing"]) or {}
-        has_da = any("abutment" in k_ or k_.startswith("da") for k_ in comp.get("params", {}))
-        items.append(_item(f"轴承 {s['bearing'].split('.')[-1]} 的轴肩高度与圆角", "unknown" if not has_da else "pass",
-                           note="零件库没有这个轴承的安装尺寸（da、倒角 r_s），轴肩高度与圆角查不了" if not has_da else ""))
+        items += shoulder_checks(lay, k, get(s["bearing"]) or {})
     return items
+
+
+def _param(comp: dict, name: str) -> float | None:
+    return _num((comp.get("params", {}).get(name) or {}).get("value"))
+
+
+def shoulder_checks(lay: list[dict], k: int, comp: dict) -> list[dict]:
+    """定位轴肩（比轴承位粗的相邻段）：直径在 da min–da max 之内，过渡圆角不大于 ra max（ADR-0102）；库里没有就待确认"""
+    seat, tag = lay[k], comp.get("id", "?").split(".")[-1]
+    out = []
+    for j, r_owner in ((k - 1, k - 1), (k + 1, k)):
+        if not 0 <= j < len(lay) or lay[j]["d"] <= seat["d"] + 1e-9:
+            continue
+        side = "左" if j < k else "右"
+        dmin, dmax, rmax = _param(comp, "abutment_shaft_min_mm"), _param(comp, "abutment_shaft_max_mm"), _param(comp, "fillet_max_mm")
+        big = lay[j]["d"]
+        if dmin is None:
+            out.append(_item(f"轴承 {tag} {side}侧轴肩高度", "unknown", big, None,
+                             "零件库没有这个轴承的安装尺寸（da min），轴肩高度查不了"))
+        else:
+            ok = big >= dmin - 1e-9 and (dmax is None or big <= dmax + 1e-9)
+            lim = f"{dmin:g}–{dmax:g}" if dmax is not None else f"≥ {dmin:g}"
+            out.append(_item(f"轴承 {tag} {side}侧轴肩直径", "pass" if ok else "fail", big, lim,
+                             "" if ok else ("轴肩太低，挡不住内圈" if big < dmin else "轴肩太高，碰保持架或密封、不好拆")))
+        r = lay[r_owner].get("r")
+        if rmax is None or r is None:
+            out.append(_item(f"轴承 {tag} {side}侧轴肩圆角", "unknown", r, rmax,
+                             "零件库没有这个轴承的安装尺寸（ra max），圆角查不了" if rmax is None else "方案没给这个台阶的圆角"))
+        else:
+            out.append(_item(f"轴承 {tag} {side}侧轴肩圆角", "pass" if r <= rmax + 1e-9 else "fail", r, f"≤ {rmax:g}",
+                             "" if r <= rmax + 1e-9 else "圆角大于 ra max，内圈靠不上轴肩"))
+    return out
 
 
 def steps(segs: list[dict]) -> list[dict]:
