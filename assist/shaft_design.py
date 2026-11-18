@@ -137,7 +137,7 @@ def _param(comp: dict, name: str) -> float | None:
 
 
 def shoulder_checks(lay: list[dict], k: int, comp: dict) -> list[dict]:
-    """定位轴肩（比轴承位粗的相邻段）：直径在 da min–da max 之内，过渡圆角不大于 ra max（ADR-0102）；库里没有就待确认"""
+    """定位轴肩（比轴承位粗的相邻段）：直径在 da min–da max 之内，过渡圆角不大于 ra max（ADR-0103）；库里没有就待确认"""
     seat, tag = lay[k], comp.get("id", "?").split(".")[-1]
     out = []
     for j, r_owner in ((k - 1, k - 1), (k + 1, k)):
