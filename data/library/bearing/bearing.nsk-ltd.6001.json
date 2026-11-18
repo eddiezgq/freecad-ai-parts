@@ -102,6 +102,18 @@
       },
       "value": 0.3
     },
+    "limiting_speed_rpm": {
+      "condition": "脂润滑（Grease），开式与防尘盖（Open、Z、ZZ、V、VV）",
+      "confidence": 1,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-nsk-e1103c-part-c",
+        "note": "人工录入：Claude（对照规格书原页核对，经张国庆授权）（2026-11-18），规格书第 11 页原文“28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022”",
+        "page": 11
+      },
+      "value": 32000
+    },
     "mass_kg": {
       "confidence": 0.85,
       "method": "extracted",
