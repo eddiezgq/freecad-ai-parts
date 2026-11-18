@@ -13,7 +13,78 @@
     "prompt_version": "extract/3",
     "response_id": "msg_011ChAW3u2tbz62c1WuuZTyA"
   },
-  "items": [],
+  "items": [
+    {
+      "target": "ports/outer/diameter_mm",
+      "value": {
+        "value": 30.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "30",
+        "unit": "mm",
+        "label": "D",
+        "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置",
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "dims/outer_diameter_mm",
+      "value": {
+        "value": 30.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "30",
+        "unit": "mm",
+        "label": "D",
+        "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置",
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "params/width_mm",
+      "value": {
+        "value": 9.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "9",
+        "unit": "mm",
+        "label": "B",
+        "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032"
+      },
+      "issues": [
+        "叫法 'B' 在表头，须核对所在列",
+        "单位 mm 不在同一行，取自本页其他位置",
+        "按版面对齐切出的行核对"
+      ]
+    }
+  ],
   "rejected": [
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
@@ -24,39 +95,6 @@
         "unit": "",
         "label": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
         "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/outer/diameter_mm",
-      "page": 11,
-      "printed": {
-        "text": "30",
-        "unit": "mm",
-        "label": "D",
-        "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "dims/outer_diameter_mm",
-      "page": 11,
-      "printed": {
-        "text": "30",
-        "unit": "mm",
-        "label": "D",
-        "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/width_mm",
-      "page": 11,
-      "printed": {
-        "text": "9",
-        "unit": "mm",
-        "label": "B",
-        "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032"
       }
     },
     {
@@ -106,7 +144,6 @@
   ],
   "missing_key_fields": [
     "params/bearing_kind",
-    "params/width_mm",
     "params/dynamic_load_rating_n",
     "params/static_load_rating_n",
     "params/limiting_speed_rpm"
