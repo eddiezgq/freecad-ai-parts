@@ -1,11 +1,21 @@
 {
-  "agreed": [],
+  "agreed": [
+    "dims/outer_diameter_mm",
+    "params/dynamic_load_rating_n",
+    "params/mass_kg",
+    "params/static_load_rating_n",
+    "params/width_mm",
+    "ports/inner/fit",
+    "ports/outer/diameter_mm",
+    "ports/outer/fit"
+  ],
   "pending": [],
   "problems": [
-    "包络缺少 params/width_mm",
-    "包络缺少 ports/outer/diameter_mm"
+    "schema：ports/0/spec: 'diameter_mm' is a required property"
   ],
   "notes": [
+    "ports/inner/fit = P0 由 Claude（经 WebFetch 读 NSK 官网 PDF 原页核对，按 ADR-0040 授权） 人工录入",
+    "ports/outer/fit = P0 由 Claude（经 WebFetch 读 NSK 官网 PDF 原页核对，按 ADR-0040 授权） 人工录入",
     "推导 ports/inner/feature = plain（按约定：轴承内外圈为圆柱光面（锥孔轴承须人工改正））",
     "推导 ports/inner/fit_system = bearing（滚动轴承内外圈按 ISO 492 精度等级）",
     "推导 ports/outer/feature = plain（按约定：轴承内外圈为圆柱光面（锥孔轴承须人工改正））",
