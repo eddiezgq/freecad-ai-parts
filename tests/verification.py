@@ -27,7 +27,7 @@ def record(quantity: tuple[str, str], computed: float, reference: float, *, tol:
     err = (computed - reference) / reference if rel and reference else computed - reference
     row = {"case": _case(), "kind": "value", "quantity": list(quantity), "computed": float(computed),
            "reference": float(reference), "tol": float(tol), "rel": rel, "error": float(err), "unit": unit,
-           "formula": formula, "ok": abs(err) <= tol}
+           "formula": formula, "ok": bool(abs(err) <= tol)}
     with open(out, "a", encoding="utf-8") as f:
         f.write(json.dumps(row, ensure_ascii=False) + "\n")
 

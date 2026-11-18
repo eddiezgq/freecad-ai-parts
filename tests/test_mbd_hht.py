@@ -19,6 +19,7 @@ import pytest
 from scipy.special import ellipk
 
 from analysis.mbd.dae.run import run_model
+from tests.verification import record
 
 pytest.importorskip("scipy")
 FIX = Path(__file__).parent / "fixtures" / "mbd-model" / "valid"
@@ -99,6 +100,8 @@ def test_large_swing_period_matches_elliptic_integral():
     T = up[1] - up[0]
     L = (ic + m_ * d * d) / (m_ * d)
     ref = 4 * math.sqrt(L / 9.81) * ellipk(math.sin(th0 / 2) ** 2)
+    record(("60° 大摆角周期（HHT）", "60° large-swing period (HHT)"), T, ref, tol=1e-4, unit="s",
+           formula="T = 4√(L/g)·K(sin(θ₀/2))")
     assert T == pytest.approx(ref, rel=1e-4)
 
 
@@ -111,6 +114,8 @@ def test_stiff_flexible_pendulum_is_fast():
     d1, _ = run_model(copy.deepcopy(m), FIX)
     t_dop = time.time() - t0
     err, scale = _cm_diff(d1, d2)
+    record(("硬柔性摆：HHT 与 DOP853 最大位置差/幅度", "Stiff flex pendulum: HHT vs DOP853 max diff/range"),
+           err / scale, 0.0, tol=1e-4, rel=False, formula="DOP853 rtol 1e-10")
     assert err <= 1e-4 * scale
     assert t_dop > 10 * t_hht, (t_dop, t_hht)
 

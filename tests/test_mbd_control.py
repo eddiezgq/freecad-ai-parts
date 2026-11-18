@@ -15,6 +15,7 @@ import pytest
 
 from analysis.mbd.dae import model as M
 from analysis.mbd.dae import run as R
+from tests.verification import record
 
 J = 0.02                     # kg·m²
 WN, ZETA = 20.0, 0.5
@@ -50,6 +51,7 @@ def test_pd_step_response_matches_second_order_solution():
     data, _ = R.run_model(table([pd()]))
     th = np.array(data["measures"]["th"]["values"])
     ref = np.array([step_ref(t) for t in data["times_s"]])
+    record(("转角与二阶系统阶跃响应的最大差", "max angle difference from second-order step response"), float(np.max(np.abs(th - ref))), 0.0, tol=1e-6, rel=False, unit="°", formula="二阶系统阶跃响应闭式解")
     assert np.max(np.abs(th - ref)) < 1e-6
     u0 = data["actuators"]["motor"][0]
     assert u0 == pytest.approx(KP * REF * DEG, rel=1e-9)                     # 初始误差 10°：u = kp·e
@@ -60,8 +62,10 @@ def test_disturbance_pd_offset_and_pid_removes_it():
     T = 0.5
     dist = [{"id": "load", "type": "torque", "body": "table", "tz_n_m": -T}]
     a, _ = R.run_model(table([pd()], end=1.5, steps=30, extra_forces=dist))
+    record(("PD 稳态转角", "PD steady-state angle"), a["measures"]["th"]["values"][-1], REF - T / KP / DEG, tol=1e-3, rel=False, unit="°", formula="θ_ref − T/kp")
     assert a["measures"]["th"]["values"][-1] == pytest.approx(REF - T / KP / DEG, abs=1e-3)
     b, _ = R.run_model(table([pd(ki=20.0 * DEG)], end=4.0, steps=40, extra_forces=dist))
+    record(("PID 稳态转角", "PID steady-state angle"), b["measures"]["th"]["values"][-1], REF, tol=1e-3, rel=False, unit="°", formula="积分项消除稳态误差")
     assert b["measures"]["th"]["values"][-1] == pytest.approx(REF, abs=1e-3)
     assert b["actuators"]["motor"][-1] == pytest.approx(T, rel=1e-3)          # 积分项顶住扰动
 
@@ -101,6 +105,7 @@ def test_fmu_cosimulation_matches_continuous_pd():
     th = np.array(data["measures"]["th"]["values"])
     ref = np.array([step_ref(t) for t in data["times_s"]])
     # 采样 0.5 ms、零阶保持：相当于约 h/2 的延迟
+    record(("转角与连续 PD 解的最大差", "max angle difference from continuous PD"), float(np.max(np.abs(th - ref))), 0.0, tol=0.01 * REF, rel=False, unit="°", formula="采样 0.5 ms 零阶保持")
     assert np.max(np.abs(th - ref)) < 0.01 * REF                              # 实测 0.03°（0.3 %）
     assert np.max(np.abs(th - ref)) > 0                                      # 真的是采样（不是连续）
     assert data["actuators"]["motor"][0] == pytest.approx(KP * REF * DEG, rel=1e-9)

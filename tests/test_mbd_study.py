@@ -14,6 +14,7 @@ import pytest
 from analysis.mbd import loads as LD
 from analysis.mbd import study as SY
 from analysis.mbd.dae import run as R
+from tests.verification import record
 
 J, WN = 0.02, 20.0
 KP = J * WN * WN
@@ -53,6 +54,8 @@ def test_ise_optimum_is_zeta_half():
     res = SY.run(study("optimize", optimizer={"algorithm": "nelder_mead", "max_evaluations": 25},
                        model_kw={"end": 1.0, "steps": 150}))
     best = res["best"][0]
+    record(("ISE 最优阻尼比", "ISE-optimal damping ratio"), zeta_of(best["variables"]["kd"]), 0.5, tol=2e-2,
+           formula="ζ* = 0.5")
     assert zeta_of(best["variables"]["kd"]) == pytest.approx(0.5, rel=2e-2)
     ise_ref = (1 + 4 * 0.25) / (4 * 0.5 * WN) * REF ** 2
     assert best["metrics"]["ise"] == pytest.approx(ise_ref, rel=1e-3)
@@ -68,6 +71,8 @@ def test_grid_overshoot_matches_formula():
             assert ev["metrics"]["peak"] <= REF
             continue
         mp = math.exp(-math.pi * z / math.sqrt(1 - z * z))
+        record((f"ζ={z:.3f} 超调量", f"Overshoot at ζ={z:.3f}"), (ev["metrics"]["peak"] - REF) / REF, mp, tol=1e-3,
+               rel=False, formula="Mp = exp(−πζ/√(1−ζ²))")
         assert (ev["metrics"]["peak"] - REF) / REF == pytest.approx(mp, abs=1e-3)
 
 

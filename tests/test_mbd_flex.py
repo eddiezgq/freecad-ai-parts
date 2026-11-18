@@ -16,6 +16,7 @@ import pytest
 from analysis.mbd.dae import flex as FX
 from analysis.mbd.dae import model as M
 from analysis.mbd.dae import run as R
+from tests.verification import record
 
 G = 9.81
 E_AL, G_AL, RHO_AL = 70000.0, 26000.0, 2700.0          # MPa、MPa、kg/m³
@@ -52,6 +53,8 @@ def test_free_free_beam_modes_and_mass_orthogonality():
     N = len(X)
     sh, w = FX.craig_bampton(Mm * 0 + K, Mm, list(range(6)) + list(range(6 * (N - 1), 6 * N)), 6)
     lam = np.sort(w) / c_beam()
+    record(("一阶 λ²", "mode 1 λ²"), float(lam[0]), 4.7300 ** 2, tol=3e-3, formula="自由–自由梁 βL = 4.7300")
+    record(("二阶 λ²", "mode 2 λ²"), float(lam[2]), 7.8532 ** 2, tol=3e-3, formula="自由–自由梁 βL = 7.8532")
     assert lam[:4] == pytest.approx([4.7300 ** 2] * 2 + [7.8532 ** 2] * 2, rel=3e-3)
     fx = FX.from_full(X, m, Jn, sh, w, (m @ X) / m.sum(), 0.0, [0, N - 1])
     assert np.abs(fx.Psi).max() < 1e-9 * np.abs(fx.Phit).max() * fx.mass       # 与平动刚体运动质量正交
@@ -63,6 +66,8 @@ def test_pinned_beam_linearization_gives_pinned_free_and_clamped_free_frequencie
     fs = sorted(m["frequency_hz"] * 2 * math.pi / c_beam() for m in data["linear"]["modes"])
     assert fs[0] < 1e-2                                               # 绕销的刚体转动
     # 绕 y 的铰支–自由弯曲（xz 平面）；xy 平面里转动副把它夹住了，是悬臂
+    for n_, (k_, r_, nm_) in enumerate(((1, 1.8751, "悬臂 / cantilever"), (2, 3.9266, "铰支–自由 / pinned–free"), (3, 4.6941, "悬臂 / cantilever"), (4, 7.0686, "铰支–自由 / pinned–free"))):
+        record((f"第 {n_ + 1} 阶 λ²", f"mode {n_ + 1} λ²"), float(fs[k_]), r_ ** 2, tol=3e-3, formula=f"{nm_} βL = {r_}")
     assert fs[1] == pytest.approx(1.8751 ** 2, rel=3e-3)
     assert fs[2] == pytest.approx(3.9266 ** 2, rel=3e-3)
     assert fs[3] == pytest.approx(4.6941 ** 2, rel=3e-3)
@@ -77,6 +82,7 @@ def test_cantilever_tip_deflection_under_own_weight():
     q = RHO_AL * d * d * 1e-6 * G
     I = (d / 1000) ** 4 / 12
     ref = q * (L / 1000) ** 4 / (8 * E_AL * 1e6 * I) * 1000
+    record(("自重下端部挠度", "tip deflection under own weight"), -data["requests"]["tip"]["pos_mm"][0][2], ref, tol=5e-3, unit="mm", formula="qL⁴/8EI")
     assert -data["requests"]["tip"]["pos_mm"][0][2] == pytest.approx(ref, rel=5e-3)
 
 
