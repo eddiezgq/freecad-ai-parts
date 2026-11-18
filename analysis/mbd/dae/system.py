@@ -49,6 +49,31 @@ def B_of(p, a):
     return 2 * np.column_stack([m @ a, np.outer(e, a) - m @ skew(a)])
 
 
+def _skew_b(a):
+    """N×3 → N×3×3"""
+    out = np.zeros((len(a), 3, 3))
+    out[:, 0, 1], out[:, 0, 2] = -a[:, 2], a[:, 1]
+    out[:, 1, 0], out[:, 1, 2] = a[:, 2], -a[:, 0]
+    out[:, 2, 0], out[:, 2, 1] = -a[:, 1], a[:, 0]
+    return out
+
+
+def A_batch(P):
+    """N×4 欧拉参数 → N×3×3（与 A_of 同一公式）"""
+    e0, e = P[:, 0], P[:, 1:]
+    return ((e0 * e0 - np.einsum("ni,ni->n", e, e))[:, None, None] * I3
+            + 2 * (np.einsum("ni,nj->nij", e, e) + e0[:, None, None] * _skew_b(e)))
+
+
+def B_batch(P, a):
+    """N×4、N×3 → N×3×4（与 B_of 同一公式）"""
+    e0, e = P[:, 0], P[:, 1:]
+    m = e0[:, None, None] * I3 + _skew_b(e)
+    col0 = np.einsum("nij,nj->ni", m, a)
+    rest = np.einsum("ni,nj->nij", e, a) - np.einsum("nij,njk->nik", m, _skew_b(a))
+    return 2 * np.concatenate([col0[:, :, None], rest], axis=2)
+
+
 # ---------------------------------------------------------------- 向量射流（值、一阶、二阶系数）
 class V:
     __slots__ = ("d", "dd", "v")
@@ -242,19 +267,200 @@ class System:
         return [self._row_jet(r, rs, ps, tj) for r in (self.rows if rows is None else rows)]
 
     def phi(self, q, t, rows=None):
-        return np.array([j.v for j in self.phi_jets(q, np.zeros(self.n), t, 0.0, rows)])
+        return self._phi3(q, None, t, 0.0, rows, need=1)[0]
 
     def nu(self, q, t, rows=None):
         """速度方程右端 ν = −Φ_t"""
-        return -np.array([j.d for j in self.phi_jets(q, np.zeros(self.n), t, 1.0, rows)])
+        return -self._phi3(q, None, t, 1.0, rows, need=2)[1]
 
     def gamma(self, q, qd, t, rows=None):
         """加速度方程右端 γ：Φ̈ = Φ_q q̈ − γ，射流二阶系数（q̈ = 0 时）就是 Φ̈ 的其余部分 = −γ；射流存的是 f″/2·2 = f″"""
-        return -np.array([j.dd for j in self.phi_jets(q, qd, t, 1.0, rows)])
+        return -self._phi3(q, qd, t, 1.0, rows, need=3)[2]
+
+    # ------------------------------------------------ D8：常见行（球铰三行、两种点积行，不在柔性节点上）成批算
+    VEC_KINDS = ("sph", "dot1", "dot2", "norm")
+
+    def _plan(self, rows):
+        key = tuple(map(id, rows))
+        cache = self.__dict__.setdefault("_plans", {})
+        if key in cache:
+            return cache[key]
+        nb = self.nb
+        vec, other = [], []
+        for n_, r in enumerate(rows):
+            if r.kind in self.VEC_KINDS and r.node_i is None and r.node_j is None:
+                vec.append(n_)
+            else:
+                other.append(n_)
+        rv = [rows[n_] for n_ in vec]
+
+        def body(b):
+            return nb if b < 0 else b                    # 地面：多放一个“构件”位置，A = I、r = 0
+
+        def arr(attr):
+            return np.array([np.zeros(3) if getattr(r, attr) is None else np.asarray(getattr(r, attr), float) for r in rv]
+                            ).reshape(len(rv), 3)
+
+        plan = {"vec": np.array(vec, int), "other": other, "kind": np.array([r.kind for r in rv]),
+                "i": np.array([body(r.i) for r in rv], int), "j": np.array([body(r.j) for r in rv], int),
+                "ri": np.array([r.i for r in rv], int), "rj": np.array([r.j for r in rv], int),
+                "si": arr("s_i"), "sj": arr("s_j"), "ai": arr("a_i"), "aj": arr("a_j"),
+                "k": np.array([r.k if r.kind == "sph" else 0 for r in rv], int)}
+        plan["sph"] = np.flatnonzero(plan["kind"] == "sph")
+        plan["dot1"] = np.flatnonzero(plan["kind"] == "dot1")
+        plan["dot2"] = np.flatnonzero(plan["kind"] == "dot2")
+        plan["norm"] = np.flatnonzero(plan["kind"] == "norm")
+        if len(cache) > 64:
+            cache.clear()
+        cache[key] = plan
+        return plan
+
+    def _bodies_b(self, q, qd):
+        """全部构件（+ 地面）的 r、ṙ 与 A 三件套，成批"""
+        nb = self.nb
+        P = q[:7 * nb].reshape(nb, 7)
+        R0 = np.vstack([P[:, :3], np.zeros(3)])
+        A0 = np.concatenate([A_batch(P[:, 3:]), I3[None]], 0)
+        if qd is None or not np.any(qd[:7 * nb]):
+            z = np.zeros((nb + 1, 3))
+            return R0, z, A0, None, None
+        Pd = qd[:7 * nb].reshape(nb, 7)
+        R1 = np.vstack([Pd[:, :3], np.zeros(3)])
+        p, pd = P[:, 3:], Pd[:, 3:]
+        A1 = np.concatenate([0.5 * (A_batch(p + pd) - A_batch(p - pd)), np.zeros((1, 3, 3))], 0)
+        A2 = np.concatenate([2 * A_batch(pd), np.zeros((1, 3, 3))], 0)
+        return R0, R1, A0, A1, A2
+
+    def _phi3(self, q, qd, t, td, rows, need):
+        rows = self.rows if rows is None else rows
+        m = len(rows)
+        out = np.zeros((3, m))
+        plan = self._plan(rows)
+        if plan["other"]:
+            sub = [rows[n_] for n_ in plan["other"]]
+            js = self.phi_jets(q, np.zeros(self.n) if qd is None else qd, t, td, sub)
+            out[:, plan["other"]] = np.array([[j.v, j.d, j.dd] for j in js]).T
+        if not len(plan["vec"]):
+            return out
+        R0, R1, A0, A1, A2 = self._bodies_b(q, qd)
+        moving = A1 is not None and need >= 2
+
+        def rot(b, a):
+            v = np.einsum("nij,nj->ni", A0[b], a)
+            if not moving:
+                return v, None, None
+            return v, np.einsum("nij,nj->ni", A1[b], a), np.einsum("nij,nj->ni", A2[b], a)
+
+        def pt(b, s):
+            v, d, dd = rot(b, s)
+            if not moving:
+                return R0[b] + v, None, None
+            return R0[b] + v, R1[b] + d, dd
+
+        def dot(x, y):
+            v = np.einsum("ni,ni->n", x[0], y[0])
+            if not moving:
+                return v, 0.0, 0.0
+            d = np.einsum("ni,ni->n", x[1], y[0]) + np.einsum("ni,ni->n", x[0], y[1])
+            dd = (np.einsum("ni,ni->n", x[2], y[0]) + 2 * np.einsum("ni,ni->n", x[1], y[1])
+                  + np.einsum("ni,ni->n", x[0], y[2]))
+            return v, d, dd
+
+        res = np.zeros((3, len(plan["vec"])))
+        g = plan["sph"]
+        if len(g):
+            Pj, Pi = pt(plan["j"][g], plan["sj"][g]), pt(plan["i"][g], plan["si"][g])
+            kk = plan["k"][g]
+            ar = np.arange(len(g))
+            res[0, g] = (Pj[0] - Pi[0])[ar, kk]
+            if moving:
+                res[1, g] = (Pj[1] - Pi[1])[ar, kk]
+                res[2, g] = (Pj[2] - Pi[2])[ar, kk]
+        g = plan["dot1"]
+        if len(g):
+            res[:, g] = np.vstack(np.broadcast_arrays(*dot(rot(plan["i"][g], plan["ai"][g]),
+                                                           rot(plan["j"][g], plan["aj"][g]))))
+        g = plan["dot2"]
+        if len(g):
+            Pj, Pi = pt(plan["j"][g], plan["sj"][g]), pt(plan["i"][g], plan["si"][g])
+            d = (Pj[0] - Pi[0], None if not moving else Pj[1] - Pi[1], None if not moving else Pj[2] - Pi[2])
+            res[:, g] = np.vstack(np.broadcast_arrays(*dot(rot(plan["i"][g], plan["ai"][g]), d)))
+        g = plan["norm"]
+        if len(g):
+            b = plan["ri"][g]
+            pp = q[:7 * self.nb].reshape(self.nb, 7)[b, 3:]
+            res[0, g] = np.einsum("ni,ni->n", pp, pp) - 1.0
+            if qd is not None and need >= 2:
+                pdd = qd[:7 * self.nb].reshape(self.nb, 7)[b, 3:]
+                res[1, g] = 2 * np.einsum("ni,ni->n", pp, pdd)
+                res[2, g] = 2 * np.einsum("ni,ni->n", pdd, pdd)
+        out[:, plan["vec"]] = res
+        return out
 
     # ------------------------------------------------ 雅可比（解析）
     def jac(self, q, t, rows=None):
         rows = self.rows if rows is None else rows
+        plan = self._plan(rows)
+        if not len(plan["vec"]):
+            return self._jac_rows(q, t, rows)
+        Jm = np.zeros((len(rows), self.n))
+        if plan["other"]:
+            Jm[plan["other"]] = self._jac_rows(q, t, [rows[n_] for n_ in plan["other"]])
+        nb = self.nb
+        P = q[:7 * nb].reshape(nb, 7)
+        Pp = np.vstack([P[:, 3:], [1.0, 0, 0, 0]])
+        R0, _, A0, _, _ = self._bodies_b(q, None)
+        vec = plan["vec"]
+        bi, bj, ri, rj = plan["i"], plan["j"], plan["ri"], plan["rj"]
+        r_cols = np.arange(3)
+        p_cols = np.arange(3, 7)
+
+        def add(rows_, b_real, coef, block):
+            """Jm[rows_, 7b + cols] += coef_row · block（b_real < 0 的行是地面，跳过）"""
+            ok = b_real >= 0
+            if not np.any(ok):
+                return
+            rr, bb = rows_[ok], b_real[ok]
+            vals = np.einsum("ni,nij->nj", coef[ok], block[ok])
+            ncol = vals.shape[1]
+            cols = 7 * bb[:, None] + (r_cols if ncol == 3 else p_cols)[None, :]
+            np.add.at(Jm, (np.repeat(rr, ncol), cols.ravel()), vals.ravel())
+
+        I3b = np.broadcast_to(I3, (len(vec), 3, 3))
+        g = plan["sph"]
+        if len(g):
+            c = np.eye(3)[plan["k"][g]]
+            rows_ = vec[g]
+            add(rows_, rj[g], c, I3b[g])
+            add(rows_, rj[g], c, B_batch(Pp[bj[g]], plan["sj"][g]))
+            add(rows_, ri[g], -c, I3b[g])
+            add(rows_, ri[g], -c, B_batch(Pp[bi[g]], plan["si"][g]))
+        g = plan["dot1"]
+        if len(g):
+            ai = np.einsum("nij,nj->ni", A0[bi[g]], plan["ai"][g])
+            aj = np.einsum("nij,nj->ni", A0[bj[g]], plan["aj"][g])
+            add(vec[g], ri[g], aj, B_batch(Pp[bi[g]], plan["ai"][g]))
+            add(vec[g], rj[g], ai, B_batch(Pp[bj[g]], plan["aj"][g]))
+        g = plan["dot2"]
+        if len(g):
+            ai = np.einsum("nij,nj->ni", A0[bi[g]], plan["ai"][g])
+            Pj = R0[bj[g]] + np.einsum("nij,nj->ni", A0[bj[g]], plan["sj"][g])
+            Pi = R0[bi[g]] + np.einsum("nij,nj->ni", A0[bi[g]], plan["si"][g])
+            d = Pj - Pi
+            rows_ = vec[g]
+            add(rows_, ri[g], d, B_batch(Pp[bi[g]], plan["ai"][g]))
+            add(rows_, rj[g], ai, I3b[g])
+            add(rows_, rj[g], ai, B_batch(Pp[bj[g]], plan["sj"][g]))
+            add(rows_, ri[g], -ai, I3b[g])
+            add(rows_, ri[g], -ai, B_batch(Pp[bi[g]], plan["si"][g]))
+        g = plan["norm"]
+        if len(g):
+            b = ri[g]
+            cols = 7 * b[:, None] + p_cols[None, :]
+            Jm[np.repeat(vec[g], 4), cols.ravel()] += (2 * P[b, 3:]).ravel()
+        return Jm
+
+    def _jac_rows(self, q, t, rows):
         Jm = np.zeros((len(rows), self.n))
         Ap = {}
 
