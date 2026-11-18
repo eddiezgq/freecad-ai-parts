@@ -30,10 +30,23 @@ class TooBig(ValueError):
     pass
 
 
+def ccx_env(env=None) -> dict:
+    """CalculiX 子进程的环境：缺省单线程，BLAS 也单线程。
+
+    issue #543（2026-11-17 查清）：CalculiX 按机器核数开多线程时，4 核的 Linux CI 上同一算例连算两遍结果不同，
+    屈曲载荷能差十倍、模态与静力也会偏；只把 BLAS 设成单线程不够，CalculiX 自己单线程后全部测试稳定通过。
+    结果可复现比快重要，所以缺省单线程；确认过自己机器上多线程可靠的，可用环境变量 FAP_CCX_THREADS 另指定。"""
+    env = dict(os.environ if env is None else env)
+    env["OMP_NUM_THREADS"] = env.get("FAP_CCX_THREADS", "1")
+    for k in ("OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "GOTO_NUM_THREADS"):
+        env[k] = "1"
+    return env
+
+
 def _ccx(ccx, tmp, limit):
     try:
         return subprocess.run([ccx, "-i", "job"], cwd=tmp, capture_output=True, text=True, timeout=limit, check=False,
-                              env=dict(os.environ, OMP_NUM_THREADS=os.environ.get("FAP_CCX_THREADS", str(os.cpu_count() or 2))))
+                              env=ccx_env())
     except subprocess.TimeoutExpired:
         raise TooBig(f"计算超过 {limit} 秒：请把网格尺寸调大") from None
 
