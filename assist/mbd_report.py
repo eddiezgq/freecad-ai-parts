@@ -89,6 +89,13 @@ def facts(data: dict) -> dict[str, dict]:
     for cid in (data.get("contacts") or {}):
         add(f"contact_{cid}_peak", f"接触 {cid} 最大法向力", f"/contacts/{cid}/normal_force_n", "max_abs", "N")
     for bid, f in (data.get("flex") or {}).items():
+        if f.get("type") == "nonlinear_beam":                 # 大变形梁（ADR-0101）：截面内力和应力
+            if f.get("max_stress_mpa"):
+                add(f"beam_{bid}_stress", f"大变形梁 {bid} 最大正应力", f"/flex/{bid}/max_stress_mpa", "max", "MPa")
+            add(f"beam_{bid}_axial", f"大变形梁 {bid} 最大轴力", f"/flex/{bid}/axial_n", "max_abs", "N")
+            add(f"beam_{bid}_my", f"大变形梁 {bid} 最大弯矩（y 轴）", f"/flex/{bid}/moment_y_n_m", "max_abs", "N·m")
+            add(f"beam_{bid}_mz", f"大变形梁 {bid} 最大弯矩（z 轴）", f"/flex/{bid}/moment_z_n_m", "max_abs", "N·m")
+            continue
         if f.get("stress"):
             add(f"flex_{bid}_stress", f"柔性构件 {bid} 最大 von Mises 应力", f"/flex/{bid}/stress/peak_mpa", "value", "MPa")
         add(f"flex_{bid}_elastic", f"柔性构件 {bid} 最大弹性能", f"/flex/{bid}/elastic_energy_j", "max", "J")

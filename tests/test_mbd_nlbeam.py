@@ -160,3 +160,23 @@ def test_buckling_load_from_frequency_vs_axial_force():
     assert -b / k == pytest.approx(pcr, rel=2e-2)
     assert math.sqrt(b) == pytest.approx(f0, rel=1e-2)                  # 外推到零轴力的频率也对
     assert max(out["lin"]) - min(out["lin"]) < 1e-6 * out["lin"][0]
+
+
+def test_nodes_at_points_nonuniform():
+    """ADR-0101 补充三：nodes_at_mm 把指定点变成节点（单元不等长）；总质量不变；中间点受力的端部挠度对 Pa²(3L − a)/6EI"""
+    from analysis.mbd.dae import model as MD
+
+    a = L / 2 + 13.0
+    loads = [{"id": "p", "type": "force", "body": "rod", "point_mm": [a, 0, 0], "fy_n": -1.0}]
+    m = cantilever(loads, nodes_at_mm=[[a, 0, 0], [L - 7.0, 0, 0]])
+    sysm = MD.build(m)
+    assert sum(b.mass for b in sysm.bodies) == pytest.approx(7850 * A * L * 1e-9, rel=1e-12)
+    assert len(sysm.nlbeams["rod"]["nodes"]) == 23                       # 21 个均分节点 + a 点（离均分节点 13 > 12.5 mm）+ 端部旁边一个
+    data, _ = run_model(m)
+    ref = 1.0 * (a * 1e-3) ** 2 * (3 * L * 1e-3 - a * 1e-3) / (6 * EI) * 1e3
+    assert -tip(data)[1] == pytest.approx(ref, rel=1e-2)
+    bad = cantilever(loads, nodes_at_mm=[[a, 5.0, 0]])
+    from analysis.mbd.dae.model import ModelError
+
+    with pytest.raises(ModelError, match="不在梁轴上"):
+        MD.build(bad)
