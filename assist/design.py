@@ -275,6 +275,7 @@ def main(argv: list[str] | None = None) -> int:
     mode.add_argument("--replay", type=Path)
     mode.add_argument("--record", action="store_true")
     ap.add_argument("--provider", choices=("claude", "deepseek"))
+    ap.add_argument("--model-dir", type=Path, help="通过后生成三维模型、回读核对、二维图与 BOM 的目录（42.3）")
     a = ap.parse_args(argv)
     from kb.library import JsonLibrary
 
@@ -301,6 +302,15 @@ def main(argv: list[str] | None = None) -> int:
     for k, rd in enumerate(res["rounds"], 1):
         segs = "、".join(f"Ø{s['d']:g}×{s['L']:g}" for s in rd.get("segments") or [])
         print(f"第 {k} 轮：{rd['overall']}  {segs}\n{rd['feedback']}", file=sys.stderr)
+    if a.model_dir and res.get("status", "").startswith("pass"):
+        from assist import shaft_model
+
+        g = shaft_model.generate(res, a.model_dir, lib.get)
+        print(f"模型回读：{g['readback']}" + ("；" + "；".join(g["problems"]) if g["problems"] else "")
+              + (f"；质量 {g['mass_kg']} kg；已出 {a.model_dir}/shaft.step、drawing.svg、bom.json" if g.get("delivered") else "；不交付"),
+              file=sys.stderr)
+        if not g.get("delivered"):
+            return 1
     return 0 if res.get("status", "").startswith("pass") else 1
 
 
