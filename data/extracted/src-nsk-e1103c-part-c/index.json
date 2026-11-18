@@ -34,7 +34,7 @@
  {
   "page": 4,
   "tables": 7,
-  "chars": 3772,
+  "chars": 2780,
   "head": [
    "BEARING TABLES",
    "■DEEP GROOVE BALL BEARINGS"
@@ -49,10 +49,10 @@
  {
   "page": 5,
   "tables": 5,
-  "chars": 3011,
+  "chars": 2251,
   "head": [
    "■DEEP GROOVE BALL BEARINGS",
-   "CCrreeeepp--FFrreeee BBeeaarriinnggssTTMM O-rings 700"
+   "Creep-Free BearingsTM O-rings 700"
   ],
   "terms": [
    "6202"
@@ -61,20 +61,21 @@
  {
   "page": 6,
   "tables": 5,
-  "chars": 3795,
+  "chars": 2655,
   "head": [
    "BEARING TABLES",
    "■DEEP GROOVE BALL BEARINGS"
   ],
   "terms": [
    "Single-Row Deep Groove Ball Bearings",
+   "Boundary Dimensions",
    "Limiting Speeds"
   ]
  },
  {
   "page": 7,
   "tables": 6,
-  "chars": 4733,
+  "chars": 3714,
   "head": [
    "BEARING TABLES",
    "■DEEP GROOVE BALL BEARINGS"
@@ -87,7 +88,7 @@
  {
   "page": 8,
   "tables": 5,
-  "chars": 1979,
+  "chars": 1711,
   "head": [
    "BEARING TABLES",
    "■DEEP GROOVE BALL BEARINGS"
@@ -99,7 +100,7 @@
  {
   "page": 9,
   "tables": 5,
-  "chars": 4328,
+  "chars": 3912,
   "head": [
    "BEARING TABLES",
    "■DEEP GROOVE BALL BEARINGS"
@@ -109,7 +110,7 @@
  {
   "page": 10,
   "tables": 5,
-  "chars": 2800,
+  "chars": 2644,
   "head": [
    "BEARING TABLES",
    "■DEEP GROOVE BALL BEARINGS"
@@ -121,7 +122,29 @@
  {
   "page": 11,
   "tables": 12,
-  "chars": 7389,
+  "chars": 4682,
+  "head": [
+   "BEARING TABLES",
+   "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
+  ],
+  "terms": [
+   "Single-Row Deep Groove Ball Bearings",
+   "6000",
+   "6001",
+   "6200",
+   "6201",
+   "6202",
+   "Boundary Dimensions",
+   "Basic Load Ratings",
+   "Limiting Speeds",
+   "Abutment and Fillet Dimensions",
+   "Mass"
+  ]
+ },
+ {
+  "page": 12,
+  "tables": 12,
+  "chars": 4817,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
@@ -138,27 +161,9 @@
   ]
  },
  {
-  "page": 12,
-  "tables": 12,
-  "chars": 7637,
-  "head": [
-   "BEARING TABLES",
-   "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
-  ],
-  "terms": [
-   "Single-Row Deep Groove Ball Bearings",
-   "6000",
-   "Boundary Dimensions",
-   "Basic Load Ratings",
-   "Limiting Speeds",
-   "Abutment and Fillet Dimensions",
-   "Mass"
-  ]
- },
- {
   "page": 13,
   "tables": 12,
-  "chars": 6692,
+  "chars": 4283,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
@@ -177,7 +182,7 @@
  {
   "page": 14,
   "tables": 12,
-  "chars": 6211,
+  "chars": 4002,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
@@ -186,6 +191,8 @@
    "Single-Row Deep Groove Ball Bearings",
    "6000",
    "6001",
+   "6200",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -196,7 +203,7 @@
  {
   "page": 15,
   "tables": 12,
-  "chars": 6269,
+  "chars": 4031,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
@@ -205,6 +212,7 @@
    "Single-Row Deep Groove Ball Bearings",
    "6000",
    "6001",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -215,7 +223,7 @@
  {
   "page": 16,
   "tables": 12,
-  "chars": 6315,
+  "chars": 4054,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
@@ -224,6 +232,7 @@
    "Single-Row Deep Groove Ball Bearings",
    "6000",
    "6001",
+   "6200",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -234,7 +243,7 @@
  {
   "page": 17,
   "tables": 12,
-  "chars": 6229,
+  "chars": 4011,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
@@ -242,7 +251,6 @@
   "terms": [
    "Single-Row Deep Groove Ball Bearings",
    "6000",
-   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -253,7 +261,7 @@
  {
   "page": 18,
   "tables": 12,
-  "chars": 8039,
+  "chars": 5112,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
@@ -262,6 +270,8 @@
    "Single-Row Deep Groove Ball Bearings",
    "6000",
    "6001",
+   "6200",
+   "6201",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -272,7 +282,7 @@
  {
   "page": 19,
   "tables": 12,
-  "chars": 3326,
+  "chars": 2348,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
@@ -280,6 +290,7 @@
   "terms": [
    "Single-Row Deep Groove Ball Bearings",
    "6000",
+   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -290,7 +301,7 @@
  {
   "page": 20,
   "tables": 13,
-  "chars": 6115,
+  "chars": 3871,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
@@ -298,87 +309,26 @@
   "terms": [
    "Single-Row Deep Groove Ball Bearings",
    "6000",
+   "6001",
+   "6200",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
+   "Abutment and Fillet Dimensions",
    "Mass"
   ]
  },
  {
   "page": 21,
   "tables": 8,
-  "chars": 4347,
+  "chars": 2769,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
   ],
   "terms": [
    "Single-Row Deep Groove Ball Bearings",
-   "6000",
-   "6001",
-   "Boundary Dimensions",
-   "Basic Load Ratings",
-   "Limiting Speeds",
-   "Mass"
-  ]
- },
- {
-  "page": 22,
-  "tables": 8,
-  "chars": 4309,
-  "head": [
-   "BEARING TABLES",
-   "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
-  ],
-  "terms": [
-   "Single-Row Deep Groove Ball Bearings",
-   "6000",
-   "Boundary Dimensions",
-   "Basic Load Ratings",
-   "Limiting Speeds",
-   "Mass"
-  ]
- },
- {
-  "page": 23,
-  "tables": 8,
-  "chars": 2414,
-  "head": [
-   "BEARING TABLES",
-   "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
-  ],
-  "terms": [
-   "Single-Row Deep Groove Ball Bearings",
-   "6000",
-   "6001",
-   "Boundary Dimensions",
-   "Basic Load Ratings",
-   "Limiting Speeds",
-   "Mass"
-  ]
- },
- {
-  "page": 24,
-  "tables": 6,
-  "chars": 4166,
-  "head": [
-   "BEARING TABLES",
-   "■CREEP-FREE BEARINGSTM"
-  ],
-  "terms": [
-   "6000",
-   "6001"
-  ]
- },
- {
-  "page": 25,
-  "tables": 8,
-  "chars": 5376,
-  "head": [
-   "BEARING TABLES",
-   "■MAXIMUM BALL BEARINGS"
-  ],
-  "terms": [
    "6000",
    "6001",
    "Boundary Dimensions",
@@ -389,18 +339,95 @@
   ]
  },
  {
+  "page": 22,
+  "tables": 8,
+  "chars": 2736,
+  "head": [
+   "BEARING TABLES",
+   "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
+  ],
+  "terms": [
+   "Single-Row Deep Groove Ball Bearings",
+   "6000",
+   "608",
+   "Boundary Dimensions",
+   "Basic Load Ratings",
+   "Limiting Speeds",
+   "Abutment and Fillet Dimensions",
+   "Mass"
+  ]
+ },
+ {
+  "page": 23,
+  "tables": 8,
+  "chars": 1647,
+  "head": [
+   "BEARING TABLES",
+   "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
+  ],
+  "terms": [
+   "Single-Row Deep Groove Ball Bearings",
+   "6000",
+   "6200",
+   "Boundary Dimensions",
+   "Basic Load Ratings",
+   "Limiting Speeds",
+   "Abutment and Fillet Dimensions",
+   "Mass"
+  ]
+ },
+ {
+  "page": 24,
+  "tables": 6,
+  "chars": 2445,
+  "head": [
+   "BEARING TABLES",
+   "■CREEP-FREE BEARINGSTM"
+  ],
+  "terms": [
+   "6000",
+   "6001",
+   "6200",
+   "6201",
+   "6202",
+   "Boundary Dimensions",
+   "Basic Load Ratings"
+  ]
+ },
+ {
+  "page": 25,
+  "tables": 8,
+  "chars": 3302,
+  "head": [
+   "BEARING TABLES",
+   "■MAXIMUM BALL BEARINGS"
+  ],
+  "terms": [
+   "6000",
+   "6200",
+   "608",
+   "Boundary Dimensions",
+   "Basic Load Ratings",
+   "Limiting Speeds",
+   "Abutment and Fillet Dimensions",
+   "Mass"
+  ]
+ },
+ {
   "page": 26,
   "tables": 9,
-  "chars": 3434,
+  "chars": 2239,
   "head": [
    "BEARING TABLES",
    "■MAGNETO BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
+   "Abutment and Fillet Dimensions",
    "Mass"
   ]
  },
@@ -427,7 +454,7 @@
  {
   "page": 29,
   "tables": 4,
-  "chars": 2878,
+  "chars": 2114,
   "head": [
    "BEARING TABLES",
    "■EXTRA SMALL BALL BEARINGS AND MINIATURE BALL BEARINGS"
@@ -439,14 +466,13 @@
  {
   "page": 30,
   "tables": 7,
-  "chars": 6375,
+  "chars": 3870,
   "head": [
    "BEARING TABLES",
    "■EXTRA SMALL BALL BEARINGS · MINIATURE BALL BEARINGS"
   ],
   "terms": [
    "6000",
-   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -457,13 +483,15 @@
  {
   "page": 31,
   "tables": 9,
-  "chars": 7979,
+  "chars": 4855,
   "head": [
    "BEARING TABLES",
    "■EXTRA SMALL BALL BEARINGS · MINIATURE BALL BEARINGS"
   ],
   "terms": [
    "6000",
+   "6200",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -474,16 +502,16 @@
  {
   "page": 32,
   "tables": 6,
-  "chars": 6749,
+  "chars": 4078,
   "head": [
    "BEARING TABLES",
    "■EXTRA SMALL BALL BEARINGS · MINIATURE BALL BEARINGS"
   ],
   "terms": [
    "6000",
-   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -491,16 +519,17 @@
  {
   "page": 33,
   "tables": 8,
-  "chars": 6995,
+  "chars": 4184,
   "head": [
    "BEARING TABLES",
    "■EXTRA SMALL BALL BEARINGS · MINIATURE BALL BEARINGS"
   ],
   "terms": [
    "6000",
-   "6001",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -508,14 +537,14 @@
  {
   "page": 34,
   "tables": 7,
-  "chars": 4545,
+  "chars": 2756,
   "head": [
    "BEARING TABLES",
    "■EXTRA SMALL BALL BEARINGS · MINIATURE BALL BEARINGS"
   ],
   "terms": [
    "6000",
-   "6001",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -526,15 +555,18 @@
  {
   "page": 35,
   "tables": 7,
-  "chars": 4499,
+  "chars": 2704,
   "head": [
    "BEARING TABLES",
    "■EXTRA SMALL BALL BEARINGS · MINIATURE BALL BEARINGS"
   ],
   "terms": [
    "6000",
-   "6001",
+   "6200",
+   "608",
    "Boundary Dimensions",
+   "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -552,19 +584,20 @@
  {
   "page": 37,
   "tables": 10,
-  "chars": 4274,
+  "chars": 3372,
   "head": [
    "BEARING TABLES",
    "■ANGULAR CONTACT BALL BEARINGS"
   ],
   "terms": [
+   "Basic Load Ratings",
    "Limiting Speeds"
   ]
  },
  {
   "page": 38,
   "tables": 9,
-  "chars": 5670,
+  "chars": 3617,
   "head": [
    "a",
    "0"
@@ -574,7 +607,7 @@
  {
   "page": 39,
   "tables": 3,
-  "chars": 5259,
+  "chars": 3551,
   "head": [
    "BEARING TABLES",
    "■ANGULAR CONTACT BALL BEARINGS"
@@ -586,7 +619,7 @@
  {
   "page": 40,
   "tables": 6,
-  "chars": 2531,
+  "chars": 2126,
   "head": [
    "BEARING TABLES",
    "■ANGULAR CONTACT BALL BEARINGS"
@@ -608,108 +641,101 @@
  {
   "page": 42,
   "tables": 4,
-  "chars": 2337,
+  "chars": 2113,
   "head": [
    "■ANGULAR CONTACT BALL BEARINGS",
-   "Angular Clearances in Double-Row Angular TThhee rreellaattii"
+   "Angular Clearances in Double-Row Angular The relationship be"
   ],
   "terms": []
  },
  {
   "page": 43,
   "tables": 4,
-  "chars": 4022,
+  "chars": 2855,
   "head": [
    "■ANGULAR CONTACT BALL BEARINGS",
-   "Relationship Between Radial and Axial Clearances TThhee ffoo"
+   "Relationship Between Radial and Axial Clearances The followi"
   ],
   "terms": []
  },
  {
   "page": 44,
   "tables": 14,
-  "chars": 6709,
+  "chars": 4309,
   "head": [
    "BEARING TABLES",
    "■ANGULAR CONTACT BALL BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
-   "Abutment and Fillet Dimensions"
+   "Abutment and Fillet Dimensions",
+   "Mass"
   ]
  },
  {
   "page": 45,
   "tables": 14,
-  "chars": 6642,
+  "chars": 4274,
   "head": [
    "BEARING TABLES",
    "■ANGULAR CONTACT BALL BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
-   "Abutment and Fillet Dimensions"
+   "Abutment and Fillet Dimensions",
+   "Mass"
   ]
  },
  {
   "page": 46,
   "tables": 14,
-  "chars": 6569,
+  "chars": 4240,
   "head": [
    "BEARING TABLES",
    "■ANGULAR CONTACT BALL BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
+   "6201",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
-   "Abutment and Fillet Dimensions"
+   "Abutment and Fillet Dimensions",
+   "Mass"
   ]
  },
  {
   "page": 47,
   "tables": 14,
-  "chars": 6516,
+  "chars": 4213,
   "head": [
    "BEARING TABLES",
    "■ANGULAR CONTACT BALL BEARINGS"
   ],
   "terms": [
    "6000",
-   "6001",
+   "6200",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
-   "Abutment and Fillet Dimensions"
+   "Abutment and Fillet Dimensions",
+   "Mass"
   ]
  },
  {
   "page": 48,
   "tables": 14,
-  "chars": 6811,
-  "head": [
-   "BEARING TABLES",
-   "■ANGULAR CONTACT BALL BEARINGS"
-  ],
-  "terms": [
-   "6000",
-   "Boundary Dimensions",
-   "Basic Load Ratings",
-   "Limiting Speeds",
-   "Abutment and Fillet Dimensions"
-  ]
- },
- {
-  "page": 49,
-  "tables": 14,
-  "chars": 7086,
+  "chars": 4379,
   "head": [
    "BEARING TABLES",
    "■ANGULAR CONTACT BALL BEARINGS"
@@ -717,80 +743,113 @@
   "terms": [
    "6000",
    "6001",
+   "6200",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
-   "Abutment and Fillet Dimensions"
+   "Abutment and Fillet Dimensions",
+   "Mass"
+  ]
+ },
+ {
+  "page": 49,
+  "tables": 14,
+  "chars": 4535,
+  "head": [
+   "BEARING TABLES",
+   "■ANGULAR CONTACT BALL BEARINGS"
+  ],
+  "terms": [
+   "6000",
+   "6001",
+   "6200",
+   "Boundary Dimensions",
+   "Basic Load Ratings",
+   "Limiting Speeds",
+   "Abutment and Fillet Dimensions",
+   "Mass"
   ]
  },
  {
   "page": 50,
   "tables": 14,
-  "chars": 7004,
+  "chars": 4501,
   "head": [
    "BEARING TABLES",
    "■ANGULAR CONTACT BALL BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
+   "6200",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
-   "Abutment and Fillet Dimensions"
+   "Abutment and Fillet Dimensions",
+   "Mass"
   ]
  },
  {
   "page": 51,
   "tables": 14,
-  "chars": 8151,
+  "chars": 5165,
   "head": [
    "BEARING TABLES",
    "■ANGULAR CONTACT BALL BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
+   "6200",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
-   "Abutment and Fillet Dimensions"
+   "Abutment and Fillet Dimensions",
+   "Mass"
   ]
  },
  {
   "page": 52,
   "tables": 13,
-  "chars": 7812,
+  "chars": 4978,
   "head": [
    "BEARING TABLES",
    "■ANGULAR CONTACT BALL BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
+   "6200",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
-   "Abutment and Fillet Dimensions"
+   "Abutment and Fillet Dimensions",
+   "Mass"
   ]
  },
  {
   "page": 53,
   "tables": 13,
-  "chars": 5478,
+  "chars": 3622,
   "head": [
    "BEARING TABLES",
    "■ANGULAR CONTACT BALL BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
+   "6200",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
-   "Abutment and Fillet Dimensions"
+   "Abutment and Fillet Dimensions",
+   "Mass"
   ]
  },
  {
   "page": 54,
   "tables": 10,
-  "chars": 5049,
+  "chars": 3195,
   "head": [
    "BEARING TABLES",
    "■DOUBLE-ROW ANGULAR CONTACT BALL BEARINGS"
@@ -808,10 +867,28 @@
  {
   "page": 55,
   "tables": 10,
-  "chars": 2503,
+  "chars": 1721,
   "head": [
    "BEARING TABLES",
    "■DOUBLE-ROW ANGULAR CONTACT BALL BEARINGS"
+  ],
+  "terms": [
+   "6000",
+   "6200",
+   "Boundary Dimensions",
+   "Basic Load Ratings",
+   "Limiting Speeds",
+   "Abutment and Fillet Dimensions",
+   "Mass"
+  ]
+ },
+ {
+  "page": 56,
+  "tables": 6,
+  "chars": 2607,
+  "head": [
+   "B 68",
+   "B 69"
   ],
   "terms": [
    "6000",
@@ -824,9 +901,9 @@
   ]
  },
  {
-  "page": 56,
+  "page": 57,
   "tables": 6,
-  "chars": 4220,
+  "chars": 2938,
   "head": [
    "B 68",
    "B 69"
@@ -834,24 +911,10 @@
   "terms": [
    "6000",
    "6001",
+   "6200",
    "Boundary Dimensions",
    "Basic Load Ratings",
-   "Abutment and Fillet Dimensions",
-   "Mass"
-  ]
- },
- {
-  "page": 57,
-  "tables": 6,
-  "chars": 4797,
-  "head": [
-   "B 68",
-   "B 69"
-  ],
-  "terms": [
-   "6000",
-   "Boundary Dimensions",
-   "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -879,7 +942,7 @@
  {
   "page": 60,
   "tables": 8,
-  "chars": 5323,
+  "chars": 3327,
   "head": [
    "BEARING TABLES",
    "■SELF-ALIGNING BALL BEARINGS"
@@ -887,6 +950,9 @@
   "terms": [
    "6000",
    "6001",
+   "6200",
+   "6201",
+   "6202",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -897,7 +963,7 @@
  {
   "page": 61,
   "tables": 8,
-  "chars": 5410,
+  "chars": 3370,
   "head": [
    "BEARING TABLES",
    "■SELF-ALIGNING BALL BEARINGS"
@@ -915,13 +981,15 @@
  {
   "page": 62,
   "tables": 8,
-  "chars": 5720,
+  "chars": 3546,
   "head": [
    "BEARING TABLES",
    "■SELF-ALIGNING BALL BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
+   "6200",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -942,7 +1010,7 @@
  {
   "page": 64,
   "tables": 14,
-  "chars": 5420,
+  "chars": 4034,
   "head": [
    "BEARING TABLES",
    "■CYLINDRICAL ROLLER BEARINGS"
@@ -952,7 +1020,7 @@
  {
   "page": 65,
   "tables": 5,
-  "chars": 4298,
+  "chars": 3337,
   "head": [
    "BEARING TABLES",
    "■CYLINDRICAL ROLLER BEARINGS"
@@ -964,7 +1032,7 @@
  {
   "page": 66,
   "tables": 7,
-  "chars": 2715,
+  "chars": 2256,
   "head": [
    "BEARING TABLES",
    "■CYLINDRICAL ROLLER BEARINGS"
@@ -974,13 +1042,14 @@
  {
   "page": 67,
   "tables": 14,
-  "chars": 6182,
+  "chars": 3876,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW CYLINDRICAL ROLLER BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -991,13 +1060,15 @@
  {
   "page": 68,
   "tables": 14,
-  "chars": 4811,
+  "chars": 3065,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW CYLINDRICAL ROLLER BEARINGS"
   ],
   "terms": [
    "6000",
+   "6200",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -1008,13 +1079,14 @@
  {
   "page": 69,
   "tables": 14,
-  "chars": 4774,
+  "chars": 3047,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW CYLINDRICAL ROLLER BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -1025,13 +1097,15 @@
  {
   "page": 70,
   "tables": 14,
-  "chars": 4952,
+  "chars": 3153,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW CYLINDRICAL ROLLER BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
+   "6200",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -1042,13 +1116,14 @@
  {
   "page": 71,
   "tables": 14,
-  "chars": 5200,
+  "chars": 3293,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW CYLINDRICAL ROLLER BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -1059,7 +1134,7 @@
  {
   "page": 72,
   "tables": 14,
-  "chars": 3577,
+  "chars": 2336,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW CYLINDRICAL ROLLER BEARINGS"
@@ -1076,13 +1151,14 @@
  {
   "page": 73,
   "tables": 14,
-  "chars": 6787,
+  "chars": 4260,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW CYLINDRICAL ROLLER BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -1093,13 +1169,14 @@
  {
   "page": 74,
   "tables": 14,
-  "chars": 6545,
+  "chars": 4097,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW CYLINDRICAL ROLLER BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -1110,13 +1187,16 @@
  {
   "page": 75,
   "tables": 14,
-  "chars": 6477,
+  "chars": 4062,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW CYLINDRICAL ROLLER BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
+   "6200",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -1127,13 +1207,14 @@
  {
   "page": 76,
   "tables": 14,
-  "chars": 6424,
+  "chars": 4040,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW CYLINDRICAL ROLLER BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -1144,7 +1225,7 @@
  {
   "page": 77,
   "tables": 14,
-  "chars": 7754,
+  "chars": 4849,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW CYLINDRICAL ROLLER BEARINGS"
@@ -1152,6 +1233,8 @@
   "terms": [
    "6000",
    "6001",
+   "6200",
+   "6202",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -1162,13 +1245,15 @@
  {
   "page": 78,
   "tables": 14,
-  "chars": 8932,
+  "chars": 5558,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW CYLINDRICAL ROLLER BEARINGS"
   ],
   "terms": [
    "6000",
+   "6001",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -1179,12 +1264,13 @@
  {
   "page": 79,
   "tables": 10,
-  "chars": 6889,
+  "chars": 5164,
   "head": [
    "BEARING TABLES",
    "■CYLINDRICAL ROLLER BEARINGS"
   ],
   "terms": [
+   "608",
    "Boundary Dimensions",
    "Mass"
   ]
@@ -1192,23 +1278,7 @@
  {
   "page": 80,
   "tables": 12,
-  "chars": 5484,
-  "head": [
-   "B 106",
-   "B 108 BEARING TABLES"
-  ],
-  "terms": [
-   "6000",
-   "Boundary Dimensions",
-   "Basic Load Ratings",
-   "Abutment and Fillet Dimensions",
-   "Mass"
-  ]
- },
- {
-  "page": 81,
-  "tables": 12,
-  "chars": 5446,
+  "chars": 3371,
   "head": [
    "B 106",
    "B 108 BEARING TABLES"
@@ -1218,6 +1288,25 @@
    "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
+   "Abutment and Fillet Dimensions",
+   "Mass"
+  ]
+ },
+ {
+  "page": 81,
+  "tables": 12,
+  "chars": 3351,
+  "head": [
+   "B 106",
+   "B 108 BEARING TABLES"
+  ],
+  "terms": [
+   "6000",
+   "6001",
+   "Boundary Dimensions",
+   "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1225,7 +1314,7 @@
  {
   "page": 82,
   "tables": 7,
-  "chars": 2719,
+  "chars": 1930,
   "head": [
    "BEARING TABLES",
    "■FULL COMPLEMENT CYLINDRICAL ROLLER BEARINGS"
@@ -1235,7 +1324,7 @@
  {
   "page": 83,
   "tables": 7,
-  "chars": 5720,
+  "chars": 3861,
   "head": [
    "BEARING TABLES",
    "■FULL COMPLEMENT CYLINDRICAL ROLLER BEARINGS FOR SHEAVES"
@@ -1245,14 +1334,12 @@
  {
   "page": 84,
   "tables": 7,
-  "chars": 3713,
+  "chars": 2192,
   "head": [
    "BEARING TABLES",
    "■FULL COMPLEMENT CYLINDRICAL ROLLER BEARINGS"
   ],
   "terms": [
-   "6000",
-   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Mass"
@@ -1261,14 +1348,15 @@
  {
   "page": 85,
   "tables": 7,
-  "chars": 4261,
+  "chars": 2517,
   "head": [
    "BEARING TABLES",
    "■FULL COMPLEMENT CYLINDRICAL ROLLER BEARINGS"
   ],
   "terms": [
-   "6000",
    "6001",
+   "6201",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Mass"
@@ -1277,13 +1365,13 @@
  {
   "page": 86,
   "tables": 7,
-  "chars": 3625,
+  "chars": 2139,
   "head": [
    "BEARING TABLES",
    "■FULL COMPLEMENT CYLINDRICAL ROLLER BEARINGS"
   ],
   "terms": [
-   "6001",
+   "6202",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Mass"
@@ -1292,14 +1380,16 @@
  {
   "page": 87,
   "tables": 7,
-  "chars": 3669,
+  "chars": 2177,
   "head": [
    "BEARING TABLES",
    "■FULL COMPLEMENT CYLINDRICAL ROLLER BEARINGS"
   ],
   "terms": [
-   "6000",
    "6001",
+   "6200",
+   "6201",
+   "6202",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Mass"
@@ -1308,7 +1398,7 @@
  {
   "page": 88,
   "tables": 9,
-  "chars": 5743,
+  "chars": 3424,
   "head": [
    "BEARING TABLES",
    "■FULL COMPLEMENT CYLINDRICAL ROLLER BEARINGS FOR SHEAVES"
@@ -1316,8 +1406,11 @@
   "terms": [
    "6000",
    "6001",
+   "6200",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1325,7 +1418,7 @@
  {
   "page": 89,
   "tables": 9,
-  "chars": 5406,
+  "chars": 3277,
   "head": [
    "BEARING TABLES",
    "■FULL COMPLEMENT CYLINDRICAL ROLLER BEARINGS FOR SHEAVES"
@@ -1333,8 +1426,10 @@
   "terms": [
    "6000",
    "6001",
+   "6201",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1342,7 +1437,7 @@
  {
   "page": 90,
   "tables": 7,
-  "chars": 6727,
+  "chars": 4014,
   "head": [
    "BEARING TABLES",
    "■FULL COMPLEMENT CYLINDRICAL ROLLER BEARINGS FOR SHEAVES"
@@ -1350,6 +1445,7 @@
   "terms": [
    "6000",
    "6001",
+   "6200",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Abutment and Fillet Dimensions",
@@ -1369,7 +1465,7 @@
  {
   "page": 92,
   "tables": 4,
-  "chars": 3261,
+  "chars": 3069,
   "head": [
    "B111",
    "BEARING TABLES"
@@ -1413,16 +1509,16 @@
  {
   "page": 96,
   "tables": 6,
-  "chars": 8960,
+  "chars": 5541,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS"
   ],
   "terms": [
    "6000",
-   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1430,16 +1526,16 @@
  {
   "page": 97,
   "tables": 6,
-  "chars": 7797,
+  "chars": 4814,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS"
   ],
   "terms": [
    "6000",
-   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1447,16 +1543,17 @@
  {
   "page": 98,
   "tables": 6,
-  "chars": 9361,
+  "chars": 5709,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS"
   ],
   "terms": [
    "6000",
-   "6001",
+   "6201",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1464,7 +1561,7 @@
  {
   "page": 99,
   "tables": 6,
-  "chars": 8504,
+  "chars": 5253,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS"
@@ -1472,8 +1569,11 @@
   "terms": [
    "6000",
    "6001",
+   "6200",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1481,7 +1581,7 @@
  {
   "page": 100,
   "tables": 6,
-  "chars": 8706,
+  "chars": 5318,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS"
@@ -1489,8 +1589,11 @@
   "terms": [
    "6000",
    "6001",
+   "6200",
+   "6202",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1498,23 +1601,7 @@
  {
   "page": 101,
   "tables": 6,
-  "chars": 10113,
-  "head": [
-   "BEARING TABLES",
-   "■SINGLE-ROW TAPERED ROLLER BEARINGS"
-  ],
-  "terms": [
-   "6000",
-   "Boundary Dimensions",
-   "Basic Load Ratings",
-   "Abutment and Fillet Dimensions",
-   "Mass"
-  ]
- },
- {
-  "page": 102,
-  "tables": 6,
-  "chars": 8455,
+  "chars": 6172,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS"
@@ -1522,6 +1609,26 @@
   "terms": [
    "6000",
    "6001",
+   "Boundary Dimensions",
+   "Basic Load Ratings",
+   "Limiting Speeds",
+   "Abutment and Fillet Dimensions",
+   "Mass"
+  ]
+ },
+ {
+  "page": 102,
+  "tables": 6,
+  "chars": 5325,
+  "head": [
+   "BEARING TABLES",
+   "■SINGLE-ROW TAPERED ROLLER BEARINGS"
+  ],
+  "terms": [
+   "6000",
+   "6001",
+   "6200",
+   "6201",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Abutment and Fillet Dimensions",
@@ -1531,7 +1638,7 @@
  {
   "page": 103,
   "tables": 6,
-  "chars": 7693,
+  "chars": 4795,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS"
@@ -1539,6 +1646,9 @@
   "terms": [
    "6000",
    "6001",
+   "6200",
+   "6202",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Abutment and Fillet Dimensions",
@@ -1548,7 +1658,7 @@
  {
   "page": 104,
   "tables": 6,
-  "chars": 7281,
+  "chars": 4600,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS"
@@ -1565,7 +1675,7 @@
  {
   "page": 105,
   "tables": 6,
-  "chars": 7226,
+  "chars": 4511,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS"
@@ -1573,6 +1683,8 @@
   "terms": [
    "6000",
    "6001",
+   "6201",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Abutment and Fillet Dimensions",
@@ -1582,16 +1694,17 @@
  {
   "page": 106,
   "tables": 6,
-  "chars": 10197,
+  "chars": 6116,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
   ],
   "terms": [
    "6000",
-   "6001",
+   "6200",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1599,16 +1712,17 @@
  {
   "page": 107,
   "tables": 6,
-  "chars": 9291,
+  "chars": 5499,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
   ],
   "terms": [
    "6000",
-   "6001",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1616,16 +1730,17 @@
  {
   "page": 108,
   "tables": 6,
-  "chars": 8848,
+  "chars": 5252,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
   ],
   "terms": [
    "6000",
-   "6001",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1633,16 +1748,17 @@
  {
   "page": 109,
   "tables": 6,
-  "chars": 9762,
+  "chars": 5806,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
   ],
   "terms": [
    "6000",
-   "6001",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1650,16 +1766,18 @@
  {
   "page": 110,
   "tables": 6,
-  "chars": 9187,
+  "chars": 5483,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
   ],
   "terms": [
    "6000",
-   "6001",
+   "6201",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1667,7 +1785,7 @@
  {
   "page": 111,
   "tables": 6,
-  "chars": 9130,
+  "chars": 5461,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
@@ -1677,6 +1795,7 @@
    "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1684,16 +1803,18 @@
  {
   "page": 112,
   "tables": 6,
-  "chars": 9054,
+  "chars": 5374,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
   ],
   "terms": [
    "6000",
-   "6001",
+   "6201",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1701,7 +1822,7 @@
  {
   "page": 113,
   "tables": 6,
-  "chars": 9223,
+  "chars": 5470,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
@@ -1709,8 +1830,10 @@
   "terms": [
    "6000",
    "6001",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1718,15 +1841,18 @@
  {
   "page": 114,
   "tables": 6,
-  "chars": 8739,
+  "chars": 5198,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
   ],
   "terms": [
    "6000",
+   "6001",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1734,15 +1860,17 @@
  {
   "page": 115,
   "tables": 6,
-  "chars": 8963,
+  "chars": 5313,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
   ],
   "terms": [
    "6000",
+   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1750,15 +1878,17 @@
  {
   "page": 116,
   "tables": 6,
-  "chars": 9326,
+  "chars": 5573,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
   ],
   "terms": [
    "6000",
+   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1766,15 +1896,18 @@
  {
   "page": 117,
   "tables": 6,
-  "chars": 9256,
+  "chars": 5547,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
   ],
   "terms": [
    "6000",
+   "6001",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1782,15 +1915,20 @@
  {
   "page": 118,
   "tables": 6,
-  "chars": 8468,
+  "chars": 5067,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
   ],
   "terms": [
    "6000",
+   "6001",
+   "6201",
+   "6202",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1798,15 +1936,18 @@
  {
   "page": 119,
   "tables": 6,
-  "chars": 8823,
+  "chars": 5238,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
   ],
   "terms": [
    "6000",
+   "6001",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1814,15 +1955,18 @@
  {
   "page": 120,
   "tables": 6,
-  "chars": 8485,
+  "chars": 5097,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
   ],
   "terms": [
    "6000",
+   "6001",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1830,7 +1974,7 @@
  {
   "page": 121,
   "tables": 6,
-  "chars": 8574,
+  "chars": 5144,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
@@ -1840,6 +1984,7 @@
    "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1847,7 +1992,7 @@
  {
   "page": 122,
   "tables": 6,
-  "chars": 8607,
+  "chars": 5102,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
@@ -1855,8 +2000,10 @@
   "terms": [
    "6000",
    "6001",
+   "6201",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1864,15 +2011,18 @@
  {
   "page": 123,
   "tables": 6,
-  "chars": 3679,
+  "chars": 2344,
   "head": [
    "BEARING TABLES",
    "■SINGLE-ROW TAPERED ROLLER BEARINGS (INCH SERIES)"
   ],
   "terms": [
    "6000",
+   "6001",
+   "6200",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1880,7 +2030,7 @@
  {
   "page": 124,
   "tables": 5,
-  "chars": 6728,
+  "chars": 4188,
   "head": [
    "B172",
    "B174"
@@ -1888,8 +2038,11 @@
   "terms": [
    "6000",
    "6001",
+   "6200",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1897,16 +2050,16 @@
  {
   "page": 125,
   "tables": 5,
-  "chars": 6326,
+  "chars": 3875,
   "head": [
    "B172",
    "B174"
   ],
   "terms": [
    "6000",
-   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1914,7 +2067,7 @@
  {
   "page": 126,
   "tables": 5,
-  "chars": 5680,
+  "chars": 3509,
   "head": [
    "B172",
    "B174"
@@ -1922,8 +2075,10 @@
   "terms": [
    "6000",
    "6001",
+   "6201",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1931,16 +2086,17 @@
  {
   "page": 127,
   "tables": 5,
-  "chars": 7148,
+  "chars": 4391,
   "head": [
    "B172",
    "B174"
   ],
   "terms": [
    "6000",
-   "6001",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1948,16 +2104,16 @@
  {
   "page": 128,
   "tables": 5,
-  "chars": 4010,
+  "chars": 2573,
   "head": [
    "B172",
    "B174"
   ],
   "terms": [
    "6000",
-   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -1975,7 +2131,7 @@
  {
   "page": 130,
   "tables": 8,
-  "chars": 5878,
+  "chars": 4894,
   "head": [
    "B179",
    "EA"
@@ -1987,7 +2143,7 @@
  {
   "page": 131,
   "tables": 5,
-  "chars": 2262,
+  "chars": 2093,
   "head": [
    "BEARING TABLES",
    "■SPHERICAL ROLLER BEARINGS"
@@ -1999,7 +2155,7 @@
  {
   "page": 132,
   "tables": 4,
-  "chars": 6616,
+  "chars": 4671,
   "head": [
    "BEARING TABLES",
    "■SPHERICAL ROLLER BEARINGS"
@@ -2009,7 +2165,7 @@
  {
   "page": 133,
   "tables": 5,
-  "chars": 8469,
+  "chars": 6466,
   "head": [
    "BEARING TABLES",
    "■SPHERICAL ROLLER BEARINGS"
@@ -2019,13 +2175,15 @@
  {
   "page": 134,
   "tables": 11,
-  "chars": 5384,
+  "chars": 3332,
   "head": [
    "B180",
    "B182 B181"
   ],
   "terms": [
    "6000",
+   "6001",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2036,13 +2194,14 @@
  {
   "page": 135,
   "tables": 11,
-  "chars": 6352,
+  "chars": 3872,
   "head": [
    "B180",
    "B182 B181"
   ],
   "terms": [
    "6000",
+   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2053,7 +2212,7 @@
  {
   "page": 136,
   "tables": 11,
-  "chars": 7099,
+  "chars": 4358,
   "head": [
    "B180",
    "B182 B181"
@@ -2071,13 +2230,15 @@
  {
   "page": 137,
   "tables": 11,
-  "chars": 6944,
+  "chars": 4275,
   "head": [
    "B180",
    "B182 B181"
   ],
   "terms": [
-   "6000",
+   "6001",
+   "6200",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2088,13 +2249,14 @@
  {
   "page": 138,
   "tables": 11,
-  "chars": 7308,
+  "chars": 4418,
   "head": [
    "B180",
    "B182 B181"
   ],
   "terms": [
    "6000",
+   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2105,7 +2267,7 @@
  {
   "page": 139,
   "tables": 10,
-  "chars": 7581,
+  "chars": 4581,
   "head": [
    "B189",
    "B188"
@@ -2123,13 +2285,15 @@
  {
   "page": 140,
   "tables": 10,
-  "chars": 7130,
+  "chars": 4321,
   "head": [
    "B189",
    "B188"
   ],
   "terms": [
    "6000",
+   "6001",
+   "6200",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2140,7 +2304,7 @@
  {
   "page": 141,
   "tables": 10,
-  "chars": 6682,
+  "chars": 4063,
   "head": [
    "B189",
    "B188"
@@ -2148,6 +2312,7 @@
   "terms": [
    "6000",
    "6001",
+   "6200",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2158,7 +2323,7 @@
  {
   "page": 142,
   "tables": 10,
-  "chars": 7209,
+  "chars": 4356,
   "head": [
    "B189",
    "B188"
@@ -2176,7 +2341,7 @@
  {
   "page": 143,
   "tables": 10,
-  "chars": 8111,
+  "chars": 4866,
   "head": [
    "B189",
    "B188"
@@ -2184,6 +2349,9 @@
   "terms": [
    "6000",
    "6001",
+   "6200",
+   "6201",
+   "6202",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2194,7 +2362,7 @@
  {
   "page": 144,
   "tables": 10,
-  "chars": 6403,
+  "chars": 3899,
   "head": [
    "B189",
    "B188"
@@ -2202,6 +2370,8 @@
   "terms": [
    "6000",
    "6001",
+   "6201",
+   "6202",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2212,13 +2382,14 @@
  {
   "page": 145,
   "tables": 10,
-  "chars": 5969,
+  "chars": 3653,
   "head": [
    "B189",
    "B188"
   ],
   "terms": [
    "6000",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2229,14 +2400,14 @@
  {
   "page": 146,
   "tables": 10,
-  "chars": 6579,
+  "chars": 3991,
   "head": [
    "B189",
    "B188"
   ],
   "terms": [
    "6000",
-   "6001",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2247,14 +2418,13 @@
  {
   "page": 147,
   "tables": 10,
-  "chars": 6288,
+  "chars": 3844,
   "head": [
    "B189",
    "B188"
   ],
   "terms": [
    "6000",
-   "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2275,17 +2445,19 @@
  {
   "page": 149,
   "tables": 3,
-  "chars": 3063,
+  "chars": 1864,
   "head": [
    "BEARING TABLES",
    "■THRUST BALL BEARINGS"
   ],
-  "terms": []
+  "terms": [
+   "Basic Load Ratings"
+  ]
  },
  {
   "page": 150,
   "tables": 9,
-  "chars": 6810,
+  "chars": 4274,
   "head": [
    "B206",
    "B208 BEARING TABLES"
@@ -2293,6 +2465,8 @@
   "terms": [
    "6000",
    "6001",
+   "6201",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2303,7 +2477,7 @@
  {
   "page": 151,
   "tables": 9,
-  "chars": 7768,
+  "chars": 4728,
   "head": [
    "B206",
    "B208 BEARING TABLES"
@@ -2311,6 +2485,8 @@
   "terms": [
    "6000",
    "6001",
+   "6200",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2321,7 +2497,7 @@
  {
   "page": 152,
   "tables": 9,
-  "chars": 7932,
+  "chars": 4813,
   "head": [
    "B206",
    "B208 BEARING TABLES"
@@ -2329,6 +2505,8 @@
   "terms": [
    "6000",
    "6001",
+   "6200",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2339,13 +2517,14 @@
  {
   "page": 153,
   "tables": 5,
-  "chars": 4574,
+  "chars": 2900,
   "head": [
    "BEARING TABLES",
    "■SINGLE-DIRECTION THRUST BALL BEARINGS"
   ],
   "terms": [
    "6000",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2356,7 +2535,7 @@
  {
   "page": 154,
   "tables": 3,
-  "chars": 8321,
+  "chars": 5094,
   "head": [
    "BEARING TABLES",
    "■DOUBLE-DIRECTION THRUST BALL BEARINGS"
@@ -2364,6 +2543,8 @@
   "terms": [
    "6000",
    "6001",
+   "6202",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2374,7 +2555,7 @@
  {
   "page": 155,
   "tables": 3,
-  "chars": 8228,
+  "chars": 5102,
   "head": [
    "BEARING TABLES",
    "■DOUBLE-DIRECTION THRUST BALL BEARINGS"
@@ -2382,6 +2563,8 @@
   "terms": [
    "6000",
    "6001",
+   "6200",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2392,14 +2575,15 @@
  {
   "page": 156,
   "tables": 3,
-  "chars": 3925,
+  "chars": 2552,
   "head": [
    "BEARING TABLES",
    "■DOUBLE-DIRECTION THRUST BALL BEARINGS"
   ],
   "terms": [
    "6000",
-   "6001",
+   "6200",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2420,7 +2604,7 @@
  {
   "page": 158,
   "tables": 2,
-  "chars": 1291,
+  "chars": 798,
   "head": [
    "BEARING TABLES",
    "■THRUST CYLINDRICAL ROLLER BEARINGS"
@@ -2430,7 +2614,7 @@
  {
   "page": 159,
   "tables": 6,
-  "chars": 4540,
+  "chars": 2770,
   "head": [
    "BEARING TABLES",
    "■THRUST CYLINDRICAL ROLLER BEARINGS"
@@ -2440,6 +2624,7 @@
    "6001",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -2447,16 +2632,18 @@
  {
   "page": 160,
   "tables": 6,
-  "chars": 4353,
+  "chars": 2666,
   "head": [
    "BEARING TABLES",
    "■THRUST CYLINDRICAL ROLLER BEARINGS"
   ],
   "terms": [
    "6000",
-   "6001",
+   "6200",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
+   "Limiting Speeds",
    "Abutment and Fillet Dimensions",
    "Mass"
   ]
@@ -2484,43 +2671,47 @@
  {
   "page": 163,
   "tables": 5,
-  "chars": 2498,
+  "chars": 1482,
   "head": [
    "BEARING TABLES",
    "■THRUST TAPERED ROLLER BEARINGS"
   ],
   "terms": [
-   "6000",
+   "6201",
    "Boundary Dimensions",
+   "Basic Load Ratings",
    "Mass"
   ]
  },
  {
   "page": 164,
   "tables": 5,
-  "chars": 2727,
+  "chars": 1603,
   "head": [
    "BEARING TABLES",
    "■THRUST TAPERED ROLLER BEARINGS"
   ],
   "terms": [
-   "6000",
+   "6001",
    "Boundary Dimensions",
+   "Basic Load Ratings",
    "Mass"
   ]
  },
  {
   "page": 165,
   "tables": 5,
-  "chars": 3579,
+  "chars": 2097,
   "head": [
    "BEARING TABLES",
    "■THRUST TAPERED ROLLER BEARINGS"
   ],
   "terms": [
-   "6000",
    "6001",
+   "6201",
+   "608",
    "Boundary Dimensions",
+   "Basic Load Ratings",
    "Mass"
   ]
  },
@@ -2537,7 +2728,7 @@
  {
   "page": 167,
   "tables": 2,
-  "chars": 2524,
+  "chars": 1677,
   "head": [
    "BEARING TABLES",
    "■THRUST SPHERICAL ROLLER BEARINGS"
@@ -2547,7 +2738,7 @@
  {
   "page": 168,
   "tables": 7,
-  "chars": 6052,
+  "chars": 3748,
   "head": [
    "BEARING TABLES",
    "■THRUST SPHERICAL ROLLER BEARINGS"
@@ -2565,7 +2756,7 @@
  {
   "page": 169,
   "tables": 5,
-  "chars": 5517,
+  "chars": 3409,
   "head": [
    "BEARING TABLES",
    "■THRUST SPHERICAL ROLLER BEARINGS"
@@ -2573,6 +2764,9 @@
   "terms": [
    "6000",
    "6001",
+   "6200",
+   "6201",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2583,13 +2777,14 @@
  {
   "page": 170,
   "tables": 5,
-  "chars": 2617,
+  "chars": 1723,
   "head": [
    "BEARING TABLES",
    "■THRUST SPHERICAL ROLLER BEARINGS"
   ],
   "terms": [
    "6000",
+   "608",
    "Boundary Dimensions",
    "Basic Load Ratings",
    "Limiting Speeds",
@@ -2600,7 +2795,7 @@
  {
   "page": 171,
   "tables": 3,
-  "chars": 1268,
+  "chars": 1009,
   "head": [
    "BEARING TABLES",
    "■NEEDLE ROLLER BEARINGS"
@@ -2620,7 +2815,7 @@
  {
   "page": 173,
   "tables": 2,
-  "chars": 1257,
+  "chars": 1214,
   "head": [
    "BEARING TABLES",
    "■PLUMMER BLOCKS"
@@ -2640,20 +2835,19 @@
  {
   "page": 175,
   "tables": 8,
-  "chars": 6860,
+  "chars": 4274,
   "head": [
    "BEARING TABLES",
    "■ADAPTERS FOR ROLLING BEARINGS"
   ],
   "terms": [
-   "6001",
    "Mass"
   ]
  },
  {
   "page": 176,
   "tables": 8,
-  "chars": 7401,
+  "chars": 4559,
   "head": [
    "BEARING TABLES",
    "■ADAPTERS FOR ROLLING BEARINGS"
@@ -2665,60 +2859,58 @@
  {
   "page": 177,
   "tables": 8,
-  "chars": 7718,
+  "chars": 4766,
   "head": [
    "BEARING TABLES",
    "■ADAPTERS FOR ROLLING BEARINGS"
   ],
   "terms": [
-   "6001",
+   "6201",
+   "608",
    "Mass"
   ]
  },
  {
   "page": 178,
   "tables": 8,
-  "chars": 5944,
+  "chars": 3675,
   "head": [
    "BEARING TABLES",
    "■ADAPTERS FOR ROLLING BEARINGS"
   ],
   "terms": [
-   "6000",
-   "6001",
+   "6200",
    "Mass"
   ]
  },
  {
   "page": 179,
   "tables": 6,
-  "chars": 6105,
+  "chars": 3720,
   "head": [
    "BEARING TABLES",
    "■WITHDRAWAL SLEEVES FOR ROLLING BEARINGS"
   ],
   "terms": [
-   "6001",
    "Mass"
   ]
  },
  {
   "page": 180,
   "tables": 6,
-  "chars": 6907,
+  "chars": 4154,
   "head": [
    "BEARING TABLES",
    "■WITHDRAWAL SLEEVES FOR ROLLING BEARINGS"
   ],
   "terms": [
-   "6001",
    "Mass"
   ]
  },
  {
   "page": 181,
   "tables": 6,
-  "chars": 6009,
+  "chars": 3622,
   "head": [
    "BEARING TABLES",
    "■WITHDRAWAL SLEEVES FOR ROLLING BEARINGS"
@@ -2730,38 +2922,35 @@
  {
   "page": 182,
   "tables": 7,
-  "chars": 6053,
+  "chars": 3825,
   "head": [
    "BEARING TABLES",
    "■NUTS FOR ROLLING BEARINGS"
   ],
   "terms": [
-   "6001",
    "Mass"
   ]
  },
  {
   "page": 183,
   "tables": 6,
-  "chars": 10051,
+  "chars": 6066,
   "head": [
    "BEARING TABLES",
    "■NUTS FOR ROLLING BEARINGS"
   ],
   "terms": [
-   "6000",
-   "6001",
-   "6202",
+   "6201",
    "Mass"
   ]
  },
  {
   "page": 184,
   "tables": 8,
-  "chars": 3734,
+  "chars": 2338,
   "head": [
    "BEARING TABLES",
-   "■NUTS FOR ROLLING BEARINGS ■■SSTTOOPPPPEERRSS FFOORR RROOLLL"
+   "■NUTS FOR ROLLING BEARINGS ■SSTTOOPPPPEERRSS FFOORR RROOLLLL"
   ],
   "terms": [
    "Mass"
@@ -2770,13 +2959,12 @@
  {
   "page": 185,
   "tables": 5,
-  "chars": 6775,
+  "chars": 4247,
   "head": [
    "BEARING TABLES",
    "■LOCK-WASHERS FOR ROLLING BEARINGS"
   ],
   "terms": [
-   "6001",
    "Mass"
   ]
  }

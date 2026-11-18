@@ -1,0 +1,17 @@
+{
+  "agreed": [],
+  "pending": [],
+  "problems": [
+    "包络缺少 params/width_mm",
+    "包络缺少 ports/outer/diameter_mm"
+  ],
+  "notes": [
+    "推导 ports/inner/feature = plain（按约定：轴承内外圈为圆柱光面（锥孔轴承须人工改正））",
+    "推导 ports/inner/fit_system = bearing（滚动轴承内外圈按 ISO 492 精度等级）",
+    "推导 ports/outer/feature = plain（按约定：轴承内外圈为圆柱光面（锥孔轴承须人工改正））",
+    "推导 ports/outer/fit_system = bearing（滚动轴承内外圈按 ISO 492 精度等级）"
+  ],
+  "reviewer": "claude（AI 复核）",
+  "primary_model": "claude-sonnet-5-5",
+  "check_model": "claude-opus-5-5"
+}
