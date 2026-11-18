@@ -106,6 +106,7 @@ sources:
         title: NSK Rolling Bearings, CAT. No. E1103c, Part C Bearing Tables
         version: E1103c Part C（版本日期以文件为准，下载时固定 SHA-256）
         url: https://www.nsk.com/content/dam/nsk/common/catalogs/ctrgPdf/bearings/e1103c_partc.pdf
+        sha256: "3c1acfda536bb6a77487d1fcf6812618e31c62582fb20089659d20b7af07a6e2"
   - id: leaderdrive
     vendor: 苏州绿的谐波传动科技股份有限公司（Leaderdrive）
     url: https://www.leaderdrive.com
