@@ -4389,3 +4389,37 @@ confirmations:
   quote: Table 6.6 Tolerance Class Symbols：Omitted — ISO Normal（代号不带精度符号）
   confirmed_by: Claude（经 WebFetch 读 NSK 官网 PDF 原页核对，按 ADR-0040 授权）
   date: '2026-11-18'
+# NSK 深沟球轴承的内径（2026-11-18）：Part C 第 11 页轴承表的内径 d 只印在同内径的第一行（6800、6801、6802 一行），
+# 6000、6200 在 d = 10 组，6001、6201 在 d = 12 组，6202 在 d = 15 组。按对齐行核对（排查日志）确认。
+- doc: src-nsk-e1103c-part-c
+  model: '6000'
+  target: ports/inner/diameter_mm
+  value: 10
+  page: 11
+  quote: 10 19 5 0.3 1 890 840 14.8 34 000 24 000 40 000 6800 ZZ VV DD
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6200'
+  target: ports/inner/diameter_mm
+  value: 10
+  page: 11
+  quote: 10 19 5 0.3 1 890 840 14.8 34 000 24 000 40 000 6800 ZZ VV DD
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6001'
+  target: ports/inner/diameter_mm
+  value: 12
+  page: 11
+  quote: 12 21 5 0.3 2 110 1 040 15.3 32 000 20 000 38 000 6801 ZZ VV DD
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6201'
+  target: ports/inner/diameter_mm
+  value: 12
+  page: 11
+  quote: 12 21 5 0.3 2 110 1 040 15.3 32 000 20 000 38 000 6801 ZZ VV DD
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'

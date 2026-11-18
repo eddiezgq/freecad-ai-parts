@@ -593,6 +593,8 @@ def _unit_in(spaced: str, unit: str) -> bool:
 
 def _value_in_line(line: _Line, text: str, label: str, unit: str) -> bool:
     if line.is_row:
+        if _loose(label) == _loose(text) and any(_loose(text) == _loose(c).lstrip("■●◆▪•□") for c in line.cells if c):
+            return True                              # 表格里的章节标题本身就是值（前面可有项目符号）
         return any(_cell_is(c, text, unit) for c in line.cells)
     # 正文行：数值紧跟在叫法之后，中间不夹其他数字（防止借用同一句里另一个参数的值）
     low = line.spaced.casefold()

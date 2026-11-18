@@ -58,6 +58,7 @@ def test_grid_rows(doc):
     assert data[3][4] == "7 500" and data[3][6] == "9201"
     head = rows[0]
     assert "C r" in head[4] and "0r" in head[5] and head[1] == "(mm) D"
+    assert "(N)" in head[4] and "(N)" in head[5]          # 跨两列的表头归到两列
 
 
 def _p(target, text, value, label, unit):

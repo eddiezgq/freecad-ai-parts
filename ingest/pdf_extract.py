@@ -165,6 +165,17 @@ def _grid_cells(words: list[dict]) -> list[dict]:
     return out
 
 
+def _phrases(cells: list[dict], gap: float = 4.0) -> list[dict]:
+    """表头一行里相距很近的词并成短语（词距 < 4 pt），短语的横向范围是它跨过的列"""
+    out: list[dict] = []
+    for c in sorted(cells, key=lambda c: c["x0"]):
+        if out and c["x0"] - out[-1]["x1"] < gap:
+            out[-1] = {"text": out[-1]["text"] + " " + c["text"], "x0": out[-1]["x0"], "x1": max(out[-1]["x1"], c["x1"])}
+        else:
+            out.append(dict(c))
+    return out
+
+
 def _grid_rows(pg) -> list[list[str]]:
     """无边框的数据表：数据行（≥ 6 格、以数字开头）按纵向间隔分成块；每块的格区间并成列，块上方（到上一块为止、
     至多 60 pt）的文字按横坐标归到列，合成一行表头；第一列为空的行（内径等跨行的格）取上一行的值。没有这种表的页返回空表"""
@@ -209,9 +220,9 @@ def _grid_rows(pg) -> list[list[str]]:
         head = [""] * len(cols)
         for top, cs in rows:
             if max(prev_end, top0 - GRID_HEAD_BAND_PT) < top < top0 - 1:
-                for c in cs:
-                    for j in col_of(c):
-                        head[j] = (head[j] + " " + c["text"]).strip()
+                for ph in _phrases(cs):                  # 跨几列的表头（“Limiting Speeds (min–1)”）归到它跨过的每一列
+                    for j in col_of(ph):
+                        head[j] = (head[j] + " " + ph["text"]).strip()
         prev: list[str] | None = None
         for k, i in enumerate(blk):
             cells = [""] * len(cols)
