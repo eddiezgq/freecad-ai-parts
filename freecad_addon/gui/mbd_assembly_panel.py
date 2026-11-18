@@ -67,7 +67,12 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
             self.kind.addItem(label, k)
         self.end = QtWidgets.QLineEdit("1")
         self.steps = QtWidgets.QLineEdit("100")
+        self.integ = QtWidgets.QComboBox()
+        for k, label in (("auto", "自动（按模型建议）"), ("DOP853", "DOP853 显式"), ("HHT", "HHT 隐式（硬系统）")):
+            self.integ.addItem(label, k)
+        self.integ.setToolTip("有柔性零件、梁元件的硬系统用 HHT；一般机构、冲击接触用 DOP853。自动时按模型建议（ADR-0098）")
         form.addRow("分析", self.kind)
+        form.addRow("积分器", self.integ)
         form.addRow("时长 s", self.end)
         form.addRow("输出点数", self.steps)
         l2.addLayout(form)
@@ -275,6 +280,8 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         except ValueError as exc:
             raise ValueError("时长、输出点数要是数字") from exc
         an = {"type": self.kind.currentData(), "end_time_s": end, "output_steps": steps}
+        if self.integ.currentData() != "auto":
+            an["integrator"] = self.integ.currentData()
         return drives, an
 
     def _fill_flexparts(self):
@@ -337,8 +344,13 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
                     from freecad_addon.fc import mbd_flex as MF
 
                     MF.make_flexible(model, objs, flex)
+                from analysis.mbd.dae import advise
+
+                why = advise.apply(model)                  # 柔性零件定下来以后再建议积分器
                 data, msgs = ST.run(model)
-                out = {"ok": True, "model": model, "data": data, "messages": msgs}
+                integ = model["analysis"].get("integrator")
+                note = [f"积分器 {integ}：{why}。"] if why else ([f"积分器 {integ}。"] if integ else [])
+                out = {"ok": True, "model": model, "data": data, "messages": note + list(msgs)}
             except Exception as exc:  # noqa: BLE001 — 交给界面显示
                 out = {"ok": False, "messages": [str(exc)]}
             self.done.emit(out)
