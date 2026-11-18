@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/categories/stepper_motor.schema.json",
+  "title": "品类：步进电机（stepper_motor）",
+  "description": "由 component.schema.json 按 category 引用（ADR-0099）。约束该品类的参数名和必须具备的标准端口；接口数据只放在端口里，不在参数表重复（ADR-0014）。x-key-fields 列出关键参数：缺失时组件仍可入库，但进入复核，相关校验结果为 unknown。 端口与伺服电机相同的一套（轴、安装法兰、动力输入；编码器可选，闭环步进才有）。",
+  "x-key-fields": [
+    "holding_torque_nm",
+    "rated_current_a",
+    "step_angle_deg",
+    "rotor_inertia_kgm2",
+    "mass_kg"
+  ],
+  "properties": {
+    "params": {
+      "type": "object",
+      "properties": {
+        "holding_torque_nm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "rated_current_a": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "每相额定电流（有效值）"
+        },
+        "step_angle_deg": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "phases": {
+          "$ref": "../common/param-value.schema.json#/$defs/integer"
+        },
+        "rotor_inertia_kgm2": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "mass_kg": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "phase_resistance_ohm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "frame_size_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "max_speed_rpm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ports": {
+      "allOf": [
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "shaft"
+              },
+              "type": {
+                "const": "mechanical.cyl_male"
+              },
+              "motion": {
+                "const": "rotating"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "motion"
+            ]
+          },
+          "description": "输出轴"
+        },
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "mount_flange"
+              },
+              "type": {
+                "const": "mechanical.flange"
+              },
+              "motion": {
+                "const": "stationary"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "motion"
+            ]
+          },
+          "description": "安装法兰"
+        },
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "power_in"
+              },
+              "type": {
+                "const": "electrical.motor_power"
+              }
+            },
+            "required": [
+              "id",
+              "type"
+            ]
+          },
+          "description": "动力输入"
+        }
+      ]
+    }
+  }
+}

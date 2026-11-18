@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/categories/purchased_part.schema.json",
+  "title": "品类：通用外购件（purchased_part）",
+  "description": "由 component.schema.json 按 category 引用（ADR-0099）。约束该品类的参数名和必须具备的标准端口；接口数据只放在端口里，不在参数表重复（ADR-0014）。x-key-fields 列出关键参数：缺失时组件仍可入库，但进入复核，相关校验结果为 unknown。 通用外购件是没有专门品类的买来件（同步带与带轮、电磁铁、传感器、机针、旋梭、弹簧……）：必填只有厂商、型号与外形包络，先能进 BOM、能做干涉检查；不参加 C1–C11 的性能校验。关键参数按需填，参数名照全仓库规则带单位后缀。",
+  "x-key-fields": [
+    "part_kind"
+  ],
+  "properties": {
+    "params": {
+      "type": "object",
+      "properties": {
+        "part_kind": {
+          "$ref": "../common/param-value.schema.json#/$defs/string",
+          "description": "零件种类（原文或通用叫法），如 timing_belt、timing_pulley、solenoid、proximity_sensor、needle、rotary_hook、spring"
+        },
+        "mass_kg": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "../common/param-value.schema.json"
+      }
+    }
+  }
+}

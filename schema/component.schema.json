@@ -2,23 +2,23 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/component.schema.json",
   "title": "组件",
-  "description": "一个厂商型号或一个标准件规格，以“端口 + 参数 + 包络”描述的黑箱。品类专属的参数与标准端口由 schema/categories/ 约束（fastener 在 V1 暂无品类约束）。端口 id 在组件内唯一、id 中的品类与 category 一致等跨字段关系由代码校验。",
+  "description": "一个厂商型号或一个标准件规格，以“端口 + 参数 + 包络”描述的黑箱。品类专属的参数与标准端口由 schema/categories/ 约束（fastener 在 V1 暂无品类约束；自制件、通用外购件、步进电机见 ADR-0099）。端口 id 在组件内唯一、id 中的品类与 category 一致等跨字段关系由代码校验。",
   "type": "object",
   "properties": {
     "id": {
       "type": "string",
       "description": "<品类>.<厂商>.<型号>，全小写；虚构测试组件以 test. 开头，永不进入正式库",
-      "pattern": "^(test\\.)?(servo_motor|reducer|drive|bearing|adapter|fastener)\\.[a-z0-9]+(-[a-z0-9]+)*\\.[a-z0-9]+([.-][a-z0-9]+)*$"
+      "pattern": "^(test\\.)?(servo_motor|reducer|drive|bearing|adapter|fastener|custom_part|purchased_part|stepper_motor)\\.[a-z0-9]+(-[a-z0-9]+)*\\.[a-z0-9]+([.-][a-z0-9]+)*$"
     },
-    "category": {"enum": ["servo_motor", "reducer", "drive", "bearing", "adapter", "fastener"]},
+    "category": {"enum": ["servo_motor", "reducer", "drive", "bearing", "adapter", "fastener", "custom_part", "purchased_part", "stepper_motor"]},
     "vendor": {"type": "string", "minLength": 1, "description": "厂商名称（原文）"},
     "model": {"type": "string", "minLength": 1, "description": "厂商完整型号（原文）"},
     "series": {"type": "string"},
     "status": {"enum": ["active", "discontinued"], "description": "停产或规格书改版时标记，不删除"},
     "superseded_by": {"type": "string", "description": "替代型号的组件 id"},
     "license": {
-      "enum": ["params-only", "open", "partner", "standard"],
-      "description": "数据使用依据：仅提取参数 / 开源许可 / 厂商授权 / 按标准生成（ADR-0005）"
+      "enum": ["params-only", "open", "partner", "standard", "enterprise"],
+      "description": "数据使用依据：仅提取参数 / 开源许可 / 厂商授权 / 按标准生成（ADR-0005）/ 企业自有数据，只在企业库（ADR-0099）"
     },
     "params": {
       "type": "object",
@@ -29,8 +29,8 @@
     },
     "ports": {
       "type": "array",
-      "minItems": 1,
-      "items": {"$ref": "port.schema.json"}
+      "items": {"$ref": "port.schema.json"},
+      "description": "至少 1 个端口；自制件、通用外购件可以没有（ADR-0099：先能进 BOM、做干涉检查，端口按需再加）"
     },
     "envelope": {"$ref": "#/$defs/envelope"},
     "vendor_cad_url": {"type": "string", "pattern": "^https?://", "description": "原厂 CAD 模型下载页，只保留链接"},
@@ -46,11 +46,19 @@
     {"if": {"properties": {"category": {"const": "bearing"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?bearing\\."}}}},
     {"if": {"properties": {"category": {"const": "adapter"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?adapter\\."}}}},
     {"if": {"properties": {"category": {"const": "fastener"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?fastener\\."}}}},
+    {"if": {"properties": {"category": {"const": "custom_part"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?custom_part\\."}}}},
+    {"if": {"properties": {"category": {"const": "purchased_part"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?purchased_part\\."}}}},
+    {"if": {"properties": {"category": {"const": "stepper_motor"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?stepper_motor\\."}}}},
     {"if": {"properties": {"category": {"const": "servo_motor"}}, "required": ["category"]}, "then": {"$ref": "categories/servo_motor.schema.json"}},
     {"if": {"properties": {"category": {"const": "reducer"}}, "required": ["category"]}, "then": {"$ref": "categories/reducer.schema.json"}},
     {"if": {"properties": {"category": {"const": "drive"}}, "required": ["category"]}, "then": {"$ref": "categories/drive.schema.json"}},
     {"if": {"properties": {"category": {"const": "bearing"}}, "required": ["category"]}, "then": {"$ref": "categories/bearing.schema.json"}},
-    {"if": {"properties": {"category": {"const": "adapter"}}, "required": ["category"]}, "then": {"$ref": "categories/adapter.schema.json"}}
+    {"if": {"properties": {"category": {"const": "adapter"}}, "required": ["category"]}, "then": {"$ref": "categories/adapter.schema.json"}},
+    {"if": {"not": {"properties": {"category": {"enum": ["custom_part", "purchased_part"]}}, "required": ["category"]}},
+     "then": {"properties": {"ports": {"minItems": 1}}}},
+    {"if": {"properties": {"category": {"const": "custom_part"}}, "required": ["category"]}, "then": {"$ref": "categories/custom_part.schema.json"}},
+    {"if": {"properties": {"category": {"const": "purchased_part"}}, "required": ["category"]}, "then": {"$ref": "categories/purchased_part.schema.json"}},
+    {"if": {"properties": {"category": {"const": "stepper_motor"}}, "required": ["category"]}, "then": {"$ref": "categories/stepper_motor.schema.json"}}
   ],
   "$defs": {
     "envelope": {

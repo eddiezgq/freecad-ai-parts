@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/categories/custom_part.schema.json",
+  "title": "品类：自制件（custom_part）",
+  "description": "由 component.schema.json 按 category 引用（ADR-0099）。约束该品类的参数名和必须具备的标准端口；接口数据只放在端口里，不在参数表重复（ADR-0014）。x-key-fields 列出关键参数：缺失时组件仍可入库，但进入复核，相关校验结果为 unknown。 自制件是企业自己设计加工的零件（轴、曲柄、凸轮、支架、壳体……）：vendor 写企业名，model 写图号；参数以企业三维模型上测量的结果为主（method = measured）。回转件的轴段按从一端起的顺序编号：segment_<n>_diameter_mm、segment_<n>_length_mm、segment_<n>_start_mm；同轴孔组：holes_<n>_pcd_mm、holes_<n>_diameter_mm、holes_<n>_count。自制件只进企业库，不进公共库。",
+  "x-key-fields": [
+    "part_kind",
+    "mass_kg"
+  ],
+  "properties": {
+    "params": {
+      "type": "object",
+      "properties": {
+        "part_kind": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string"
+            },
+            {
+              "properties": {
+                "value": {
+                  "enum": [
+                    "shaft",
+                    "crank",
+                    "cam",
+                    "eccentric",
+                    "gear",
+                    "pulley",
+                    "lever",
+                    "link",
+                    "bracket",
+                    "housing",
+                    "plate",
+                    "pin",
+                    "bushing",
+                    "other"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "material": {
+          "$ref": "../common/param-value.schema.json#/$defs/string",
+          "description": "材料：材料库 id（analysis/common/materials.yaml），有了才能按密度算质量"
+        },
+        "mass_kg": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "volume_mm3": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "surface_area_mm2": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "envelope_length_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "envelope_width_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "envelope_height_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "max_diameter_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        }
+      },
+      "patternProperties": {
+        "^segment_[1-9][0-9]?_(diameter|length|start)_mm$": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "^holes_[1-9][0-9]?_(pcd|diameter)_mm$": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "^holes_[1-9][0-9]?_count$": {
+          "$ref": "../common/param-value.schema.json#/$defs/integer"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
