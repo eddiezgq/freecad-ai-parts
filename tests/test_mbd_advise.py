@@ -44,3 +44,12 @@ def test_not_dynamic_no_advice_and_apply_respects_user_choice():
     m4 = beam_chain(5)
     m4["analysis"]["integrator"] = "DOP853"
     assert advise.apply(m4) is None and m4["analysis"]["integrator"] == "DOP853"
+
+
+def test_nonlinear_beam_counts_as_beam():
+    from tests.test_mbd_nlbeam import cantilever
+
+    m = cantilever([])
+    m["analysis"] = {"type": "dynamic", "end_time_s": 0.01}
+    s = advise.suggest(m)
+    assert s["integrator"] == "HHT" and s["rtol"] == 1e-7 and "大变形梁" in s["reason"]

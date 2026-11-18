@@ -259,7 +259,25 @@ def _nonsmooth(sysm):
     return any(kind in ("contact", "gear", "clearance") for kind, _ in sysm.forces)
 
 
-def static(sysm: System, t=0.0, q=None):
+def static(sysm: System, t=0.0, q=None, load_steps=1):
+    """静平衡。load_steps > 1 时外力和重力分步加（ADR-0101：大变形一步解不出来），每步从上一步的解起步。"""
+    if load_steps <= 1:
+        return _static_once(sysm, t, q)
+    try:
+        for k in range(1, load_steps + 1):
+            sysm.load_scale = k / load_steps
+            try:
+                rec, info = _static_once(sysm, t, q)
+            except SolveError as exc:
+                raise SolveError(f"分步加载第 {k}/{load_steps} 步：{exc}；加大 load_steps 试试") from exc
+            q = rec.q[-1]
+    finally:
+        sysm.load_scale = 1.0
+    info["load_steps"] = load_steps
+    return rec, info
+
+
+def _static_once(sysm: System, t=0.0, q=None):
     """静平衡。直接解不出来、且模型有接触 / 齿轮 / 间隙（力在间隙里为 0，牛顿法没有方向）时，
     先用重阻尼的动力学放松一段，再从放松后的位置解（ADR-0097 补充六）"""
     try:
@@ -292,15 +310,60 @@ def _static(sysm: System, t=0.0, q=None):
 
     J0 = sysm.jac(q, t, rows)
     lam0 = np.linalg.lstsq(J0.T, sysm.Q(q, zero, t), rcond=None)[0]
-    sol = root(F, np.concatenate([q, lam0]), method="hybr", options={"xtol": 1e-13, "maxfev": 20000})
-    x = sol.x
+    x0 = np.concatenate([q, lam0])
+    x = _static_newton(sysm, t, rows, x0) if getattr(sysm, "nlbeams", None) else None
+    if x is None:
+        sol = root(F, x0, method="hybr", options={"xtol": 1e-13, "maxfev": 20000})
+        x = sol.x
     res = F(x)
-    if not np.all(np.isfinite(res)) or np.max(np.abs(res)) > 1e-6:
+    # 力的残差按力的量级判（大变形梁内力上万牛，舍入噪声就有 1e-6 N 级）；约束残差按长度判
+    fscale = max(1.0, float(np.max(np.abs(sysm.Q(x[:sysm.n], zero, t)))))
+    if not np.all(np.isfinite(res)) or np.max(np.abs(res[:sysm.n])) > max(1e-6, 1e-8 * fscale) \
+            or np.max(np.abs(res[sysm.n:]), initial=0.0) > 1e-9:
         raise SolveError(f"静平衡没找到（残差 {np.max(np.abs(res)):.3g}）；可能是机构没有稳定的平衡位置")
     q, lam = x[:sysm.n], x[sysm.n:m + sysm.n]
     rec = Recorder(sysm)
     rec.add(t, q, zero, np.zeros(sysm.n), keep, lam)
     return rec, {"dof": sysm.n - m, "redundant": [sysm.rows[k].label for k in drop], "residual": float(np.max(np.abs(res)))}
+
+
+def _static_newton(sysm, t, rows, x0, iters=60):
+    """静平衡的牛顿法（ADR-0101）：雅可比 [[∂(Φqᵀλ − Q)/∂q, Φqᵀ], [Φq, 0]]，力的导数按构件耦合分组差分；回溯线搜索。
+    大变形梁这类坐标多、强非线性的问题，scipy 的 hybr（逐列差分、信赖域）既慢又常卡住。收不住返回 None。"""
+    from analysis.mbd.dae.hht import color_groups, grouped_fd
+
+    n = sysm.n
+    zero = np.zeros(n)
+    groups = color_groups(sysm)
+    x = x0.copy()
+
+    def resid(x_):
+        qq, lam = x_[:n], x_[n:]
+        return np.concatenate([sysm.jac(qq, t, rows).T @ lam - sysm.Q(qq, zero, t), sysm.phi(qq, t, rows)])
+
+    r = resid(x)
+    scale = max(1.0, float(np.max(np.abs(sysm.Q(x[:n], zero, t)))))
+    prev = math.inf
+    for _ in range(iters):
+        rf, rc = np.max(np.abs(r[:n])), np.max(np.abs(r[n:]), initial=0.0)
+        scale = max(1.0, float(np.max(np.abs(sysm.Q(x[:n], zero, t)))))     # 内力（梁的弹性力）也在 Q 里
+        if rc <= 1e-12 and (rf <= 1e-10 * scale or (rf <= 1e-8 * scale and rf > 0.5 * prev)):   # 到舍入噪声这一级就停
+            return x
+        prev = rf
+        qq, lam = x[:n], x[n:]
+        J = sysm.jac(qq, t, rows)
+        gq, _ = grouped_fd(lambda q_, v_, lam=lam: sysm.jac(q_, t, rows).T @ lam - sysm.Q(q_, v_, t), qq, zero, groups)
+        K = np.block([[gq, J.T], [J, np.zeros((len(rows), len(rows)))]])
+        try:
+            dx = factor(K)(-r)
+        except (np.linalg.LinAlgError, ValueError, RuntimeError):
+            return None
+        # 不做线搜索：大变形的第一步常把残差先放大（约束先满足、力再回来），完整牛顿步随后二次收敛
+        x = x + dx
+        r = resid(x)
+        if not np.all(np.isfinite(r)):
+            return None
+    return x if np.max(np.abs(r)) <= 1e-6 else None
 
 
 def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, q=None, qd=None, t0=0.0):
