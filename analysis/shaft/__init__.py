@@ -191,6 +191,9 @@ def section_safety(sec: dict, mat: dict, forces, za, zb, tau: np.ndarray, th: np
         if worst is None or s < worst["S"]:
             worst = {"S": s, "S_sigma": s_s, "phi_deg": math.degrees(phi), "sigma_a_mpa": sa, "sigma_m_mpa": sm,
                      "sigma_max_mpa": float(np.abs(sig).max())}
+    fin = {k: (v if math.isfinite(v) else None) for k, v in (("S", worst["S"]), ("S_sigma", worst["S_sigma"]), ("S_tau", s_t))}
+    worst.update(S=fin["S"], S_sigma=fin["S_sigma"])                 # 没有应力的一项为 None（无穷大，不进结果）
+    s_t = fin["S_tau"]
     return {**worst, "S_tau": s_t, "tau_a_mpa": ta, "tau_m_mpa": tm, "tau_max_mpa": float(np.abs(tau).max()),
             "q_bending": q_s, "q_torsion": q_t, "kf_bending": k_s, "kf_torsion": k_t, "size_factor": eps, "surface_factor": beta,
             "K_sigma": big_ks, "K_tau": big_kt, "psi_sigma": ps, "psi_tau": pt}
@@ -347,8 +350,8 @@ def run(setup: dict) -> dict:
     if req is not None:
         for sp in per_speed:
             for s in sp["sections"]:
-                ok = s["S"] >= float(req)
-                verdicts.append({"item": f"{s['name']} {sp['speed_rpm']:.0f} r/min 安全系数", "value": s["S"],
+                ok = s["S"] is None or s["S"] >= float(req)
+                verdicts.append({"item": f"{s['name']} {sp['speed_rpm']:.0f} r/min 安全系数", "value": s["S"] if s["S"] is not None else "无交变应力",
                                  "limit": float(req), "status": "pass" if ok else "fail"})
     cr = setup.get("critical_ratio")
     if cr is not None:
