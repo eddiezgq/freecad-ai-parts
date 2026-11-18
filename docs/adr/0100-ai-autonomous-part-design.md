@@ -110,3 +110,11 @@
   一阶临界转速 4.6 倍，前轴承寿命 4.9 万 h（5 000 r/min）、2.5 万 h（5 500 r/min），后轴承 60 万 h 以上；总体“待确认”只因轴肩高度。
   `analysis.shaft` 补：没有交变应力的一项安全系数记 None（不写无穷大）。
   下一步：轴承的安装尺寸（da min、ra max）进 bearing 品类 schema（单独 PR + ADR），NSK 表里有这几列。
+- **42.2 之二：设计循环（2026-11-18）**：`assist/design.py`。AI 先列设计条件（每个数附原话引用；代码核对引用在原话里、
+  数在引用里且紧跟单位并换算；材料要在材料库且原话里有；力的方向只认原话里的“向上 / 向下”），原话没有的不补、写成问题，
+  有问题就停下等人答。条件齐了，AI 按条件与库里的轴承表提方案，代码校核（42.2 之一）；没通过的项连同数字和要求交回 AI，
+  最多 4 轮。全部通过、或只剩“零件库缺数据”的待确认就停（status 为 pass / pass_pending_data），4 轮不通过为 stuck。
+  需求原话 `examples/ai-design/ls-upper-shaft/requirement.txt`（示意数据，不写 LS-101 的尺寸）。录制工作流
+  `.github/workflows/design-eval.yml`（合并后在 CI 上跑）；本步测试用脚本化的模拟 AI（第一轮轴身短 10 mm → 校核指出后轴承中心差 →
+  第二轮改对）。偏差：ADR 原写“代码查装得进去的规则放 engine/”，实际放在 `assist/shaft_design.py`（只这一处用，纯函数），
+  以后有第二种零件再搬进 engine。
