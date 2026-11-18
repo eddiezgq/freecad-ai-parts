@@ -182,3 +182,17 @@
     - `tests/test_i18n.py` 的模块清单加上多体模块：每句显示给人的中文都有英文，字段个数对得上，没有过时条目。
     - `tests/test_mbd_report.py`：四个样例中英两份报告，数字逐项相同、指纹相同，英文报告里只剩用户写的中文。
     - `tests/test_fc_mbd_study.py`（xvfb）：界面英文时标题、按钮、表头、下拉项、状态栏都是英文。
+- **第 3 步（2026-11-18，验证手册）**：
+  - 照问渠有限元验证手册的做法（ADR-0096 第 4 步）：多体标准题测试在断言之外用 `tests/verification.record` 记下计算值、参考值、容差。
+    `python -m assist.mbd_verification --out 目录` 按题目清单 `assist/mbd_verification_cases.json` 跑这些测试，出中英两版 Word / PDF
+    与 `verification.json`。跑测试、汇总、排版与有限元手册共用（`fea_verification.build` 加了换文字、分类、说明、环境栏的参数，有限元手册不变）。
+  - 题目：44 题、74 项对照，分六类：刚体机构；力元、摩擦、接触与间隙；控制与联合仿真；线性化与模态；柔性体与大变形梁；隐式积分与参数研究。
+    参考值来自解析解、教材公式、文献基准解（Andrews 挤压机构、Mattiasson 弹性线）和事先算好的独立程序结果（MuJoCo）。
+  - 旋转梁升速（Kane 1987）单次几分钟，不进自动测试；`scripts/mbd_spinup_check.py` 的结果（ADR-0101 补充二）写进手册“说明”。
+    另两条说明：接触、阶跃、限幅题用 HHT 时容差要收紧到 1e-8；独立程序的参考值是事先算好写进测试的。
+  - 施工中改的：
+    - 记录里的“是否在容差内”有时是 NumPy 布尔值，写不进 JSON，改成先转成 Python 布尔值（`tests/verification.py`）。
+    - 题目出处写成“中文 / English”，英文版按语言取一边；有几条写法让英文版漏了半句或带中文，改了写法，并在测试里检查英文版出处和题名不含中文。
+  - 验收：
+    - `tests/test_mbd_verification.py`：清单与记了对照数的 `tests/test_mbd_*.py` 一一对应（新题不会漏）；中英两版都能生成，英文版只剩样例题名里的中文。
+    - 从干净提交 `5ab4491` 生成第 1 版：44 题全部通过，74 项对照全部在容差内（约 4 分钟）。文件在 `docs/verification/mbd/`。
