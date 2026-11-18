@@ -79,7 +79,8 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         self.flexparts = QtWidgets.QTableWidget(0, 2)
         self.flexparts.setHorizontalHeaderLabels(["零件", "按柔性体算（选材料）"])
         self.flexparts.verticalHeader().setVisible(False)
-        self.flexparts.setToolTip("选了材料的零件用 gmsh + CalculiX 缩减成柔性体（要几十秒），结果里能看变形和应力云图")
+        self.flexparts.setToolTip("选材料：零件用 gmsh + CalculiX 缩减成实体柔性体（小变形，要几十秒），能看应力云图；"
+                                  "选“大变形梁：材料”：细长等截面直杆按大变形梁算（大挠度、屈曲、旋转刚化，ADR-0101）")
         l2.addWidget(self.flexparts)
         row = QtWidgets.QHBoxLayout()
         row.addWidget(QtWidgets.QLabel("变形放大倍数"))
@@ -296,14 +297,17 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
             box.addItem("刚性", None)
             for m in mats:
                 box.addItem(m["name"], m["id"])
+            for m in mats:                                    # ADR-0101 F3：细长等截面直杆可按大变形梁
+                box.addItem(f"大变形梁：{m['name']}", "beam:" + m["id"])
             self.flexparts.setCellWidget(i, 1, box)
         self.flexparts.resizeColumnsToContents()
 
-    def set_flex(self, body_id, material_id) -> bool:
+    def set_flex(self, body_id, material_id, kind="modal") -> bool:
+        key = ("beam:" + material_id) if kind == "nonlinear_beam" and material_id else material_id
         for i in range(self.flexparts.rowCount()):
             if self.flexparts.item(i, 0).text() == body_id:
                 w = self.flexparts.cellWidget(i, 1)
-                k = w.findData(material_id)
+                k = w.findData(key)
                 if k < 0:
                     return False
                 w.setCurrentIndex(k)
@@ -314,7 +318,9 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         out = {}
         for i in range(self.flexparts.rowCount()):
             mid = self.flexparts.cellWidget(i, 1).currentData()
-            if mid:
+            if mid and mid.startswith("beam:"):
+                out[self.flexparts.item(i, 0).text()] = {"material": mid[5:], "kind": "nonlinear_beam"}
+            elif mid:
                 out[self.flexparts.item(i, 0).text()] = {"material": mid}
         return out
 

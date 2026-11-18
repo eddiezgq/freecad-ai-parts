@@ -57,17 +57,18 @@ def expand(model: dict):
             continue
         a, ex, L, B = _frame(f)
         ne = int(f.get("elements", 20))
-        le = L / ne
+        st = _stations(f, a, ex, L, ne, b["id"])                # 节点沿梁轴的位置（mm），含 nodes_at_mm
+        ne = len(st) - 1
+        lens = np.diff(st)
         rho = f["density_kg_m3"]
         A = f["area_mm2"] * MM ** 2
         Iy, Iz, J = (f[k] * MM ** 4 for k in ("iyy_mm4", "izz_mm4", "ixx_mm4"))
         ids = [f"{b['id']}__n{k}" for k in range(ne + 1)]
-        nodes = [a + ex * le * k for k in range(ne + 1)]
+        nodes = [a + ex * x for x in st]
         for k in range(ne + 1):
-            share = (0.5 if k in (0, ne) else 1.0) * le * MM
+            share = 0.5 * ((lens[k - 1] if k > 0 else 0.0) + (lens[k] if k < ne else 0.0)) * MM   # 相邻单元各一半
             m = rho * A * share
             Js = B @ np.diag([rho * J * share, rho * Iy * share, rho * Iz * share]) @ B.T     # 地面轴
-            # 端节点只有半段：转动惯量也减半，太小会让节点自转频率很高，HHT 能扛
             new_bodies.append({"id": ids[k], "mass_kg": m, "cm_mm": nodes[k].tolist(),
                                "inertia_kg_m2": {"ixx": Js[0, 0], "iyy": Js[1, 1], "izz": Js[2, 2],
                                                  "ixy": Js[0, 1], "ixz": Js[0, 2], "iyz": Js[1, 2]},
@@ -77,13 +78,38 @@ def expand(model: dict):
         C = np.array([E * A, kap * G * A, kap * G * A])
         D = np.array([G * J, E * Iy, E * Iz])
         for k in range(ne):
-            elems.append({"beam": b["id"], "k": k, "i_name": ids[k], "j_name": ids[k + 1], "L0": le * MM, "B": B,
+            elems.append({"beam": b["id"], "k": k, "i_name": ids[k], "j_name": ids[k + 1], "L0": lens[k] * MM, "B": B,
                           "C": C, "D": D, "c": float(f.get("stiffness_damping_s", 0.0))})
         info[b["id"]] = {"nodes": ids, "nodes_mm": [n.tolist() for n in nodes], "L_mm": L, "B": B,
                          "area_m2": A, "I": (Iy, Iz), "fiber": (f.get("fiber_y_mm"), f.get("fiber_z_mm"))}
     model["bodies"] = new_bodies
     _remap(model, info)
     return model, elems, info
+
+
+def _stations(f, a, ex, L, ne, bid):
+    """均分节点 + nodes_at_mm 的投影（ADR-0101 补充三）。投影离均分节点不到 1/4 间距就挪那个节点，否则新加一个"""
+    st = list(np.linspace(0.0, L, ne + 1))
+    h = L / ne
+    for P in f.get("nodes_at_mm") or []:
+        v = np.asarray(P, float) - a
+        x = float(v @ ex)
+        off = float(np.linalg.norm(v - x * ex))
+        if off > 1e-3 * L or x < -1e-9 * L or x > L * (1 + 1e-9):
+            raise NlBeamError(f"大变形梁 {bid}：nodes_at_mm 里的点 {list(P)} 不在梁轴上（离轴 {off:.4g} mm，沿轴 {x:.4g} mm，梁长 {L:.4g} mm）")
+        x = min(max(x, 0.0), L)
+        k = int(np.argmin([abs(x - y) for y in st]))
+        if abs(st[k] - x) < 0.25 * h:
+            if k in (0, len(st) - 1) and abs(st[k] - x) > 1e-9 * L:
+                st.insert(k + (1 if k == 0 else 0), x)       # 端点不挪（梁长不变），在旁边加
+            else:
+                st[k] = x
+        else:
+            st.append(x)
+        st = sorted(st)
+    if min(np.diff(st)) <= 1e-9 * L:
+        raise NlBeamError(f"大变形梁 {bid}：nodes_at_mm 有重合的点")
+    return np.array(st)
 
 
 def _nearest(info, beam, P, where):
@@ -93,7 +119,7 @@ def _nearest(info, beam, P, where):
     tol = 1e-3 * info[beam]["L_mm"] + 1e-6
     if d[k] > tol:
         raise NlBeamError(f"{where}：点 {list(P)} 离大变形梁 {beam} 最近的节点还有 {d[k]:.4g} mm；"
-                          f"运动副、力要挂在节点上（节点间距 {info[beam]['L_mm'] / (len(nm) - 1):.4g} mm）")
+                          f"运动副、力要挂在节点上（平均节点间距 {info[beam]['L_mm'] / (len(nm) - 1):.4g} mm；可在 nodes_at_mm 里加这个点）")
     return info[beam]["nodes"][k]
 
 

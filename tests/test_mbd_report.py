@@ -76,3 +76,19 @@ def test_no_ai_no_explanation(tmp_path):
     got = R.build(_run("pendulum.json"), tmp_path)
     assert got["explanation"]["by"] == "没有用 AI"
     assert "AI 起草" not in got["markdown"].read_text(encoding="utf-8")
+
+
+def test_nonlinear_beam_facts_trace_back(tmp_path):
+    """ADR-0101 F3：大变形梁的截面内力、应力进报告，数字对得回结果"""
+    from tests.test_mbd_nlbeam import cantilever
+
+    data, _ = __import__("analysis.mbd.dae.run", fromlist=["run_model"]).run_model(
+        cantilever([{"id": "p", "type": "force", "body": "rod", "point_mm": [1000.0, 0, 0], "fy_n": -100.0}]))
+    data = json.loads(json.dumps(data))
+    F = R.facts(data)
+    assert {"beam_rod_stress", "beam_rod_axial", "beam_rod_mz"} <= set(F)
+    got = R.build(data, tmp_path)
+    md = got["markdown"].read_text(encoding="utf-8")
+    ledger = json.loads(got["ledger"].read_text(encoding="utf-8"))
+    assert "大变形梁 rod 最大正应力" in md
+    _trace(md, ledger, data)
