@@ -1,0 +1,21 @@
+[
+ {
+  "item": 1,
+  "kind": "custom_part",
+  "drawing_no": "AI-SHAFT-1",
+  "name": "上轴（AI 设计）",
+  "qty": 1,
+  "material": "45-QT",
+  "mass_kg": 0.5916,
+  "mass_source": "回读模型的体积 × 材料密度"
+ },
+ {
+  "item": 2,
+  "kind": "bearing",
+  "component": "bearing.nsk-ltd.6201",
+  "vendor": "NSK Ltd.",
+  "model": "6201",
+  "qty": 2,
+  "mass_kg": 0.037
+ }
+]

@@ -116,7 +116,7 @@ def test_ai_questions_do_not_block():
     assert out["status"] == "pass" and out["questions"] == c["questions"] and out["assumptions"]
 
 
-def test_recorded_real_model_run_passes():
+def test_recorded_real_model_run_passes(tmp_path):
     """回放 design-eval 用真实模型（Claude）的录制：条件 → 方案 → 有限元算应力集中 → 校核，几轮后全部通过。
     要本机有 gmsh 与 CalculiX；CI 中必须跑。"""
     import os
@@ -141,3 +141,10 @@ def test_recorded_real_model_run_passes():
     assert last["overall"] == "pass" and all(i["status"] == "pass" for i in last["items"])
     seats = [s for s in last["proposal"]["segments"] if s.get("bearing")]
     assert seats and all(s["bearing"].startswith("bearing.nsk-ltd.") for s in seats)
+    # 42.3：生成模型、回读逐段一致，出二维图与 BOM
+    from assist import shaft_model
+
+    g = shaft_model.generate(res, tmp_path, lib.get)
+    assert g["readback"] == "pass" and g["delivered"], g["problems"]
+    assert (tmp_path / "shaft.step").is_file() and (tmp_path / "drawing.svg").is_file()
+    assert [r["kind"] for r in g["bom"]] == ["custom_part", "bearing"] and g["bom"][1]["qty"] == 2
