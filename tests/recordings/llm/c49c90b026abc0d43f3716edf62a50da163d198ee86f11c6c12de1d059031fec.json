@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "c49c90b026abc0d43f3716edf62a50da163d198ee86f11c6c12de1d059031fec",
   "response": {
-    "id": "msg_011CfiQJHFUg1pGhtsusw5QT",
+    "id": "msg_011ChAnhvkk2PyAg4VzVHsMf",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -93,7 +93,7 @@
           "value": 4.1
         },
         {
-          "confidence": 0.95,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "Motor voltage class",
           "printed_text": "200",
@@ -103,7 +103,7 @@
           "value": 200
         },
         {
-          "confidence": 0.95,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "Continuous output current",
           "printed_text": "5",
@@ -113,7 +113,7 @@
           "value": 5
         },
         {
-          "confidence": 0.95,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "Peak output current",
           "printed_text": "15",
@@ -147,7 +147,7 @@
           "value": "profinet"
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.7,
           "page": 3,
           "printed_label": "Mounting hole pitch (horizontal)",
           "printed_text": "60",
@@ -157,7 +157,7 @@
           "value": 60
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.7,
           "page": 3,
           "printed_label": "Mounting hole pitch (vertical)",
           "printed_text": "150",
@@ -177,7 +177,7 @@
           "value": 2
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "Mounting hole diameter",
           "printed_text": "5.5",

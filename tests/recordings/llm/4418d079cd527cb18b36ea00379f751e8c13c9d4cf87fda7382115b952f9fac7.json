@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "4418d079cd527cb18b36ea00379f751e8c13c9d4cf87fda7382115b952f9fac7",
   "response": {
-    "id": "msg_011CfiPicLVUHepZ9UxsMdhF",
+    "id": "msg_011ChAn9KoekHXbNUuNunEzu",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -28,7 +28,7 @@
           "value": 50
         },
         {
-          "confidence": 0.7,
+          "confidence": 0.8,
           "page": 2,
           "printed_label": "Max. acceleration torque",
           "printed_text": "21",
@@ -38,7 +38,7 @@
           "value": 21
         },
         {
-          "confidence": 0.7,
+          "confidence": 0.75,
           "page": 2,
           "printed_label": "Emergency stop torque",
           "printed_text": "41",
@@ -58,28 +58,7 @@
           "value": 8000
         },
         {
-          "condition": "at rated torque, 25 °C",
-          "confidence": 0.92,
-          "page": 2,
-          "printed_label": "Efficiency (at rated torque, 25 °C)",
-          "printed_text": "0.62",
-          "printed_unit": "",
-          "quote": "| Efficiency (at rated torque, 25 °C) | — | 0.62 | 0.64 | 0.63 | 0.94 | 0.95 |",
-          "target": "params/efficiency_ratio",
-          "value": 0.62
-        },
-        {
-          "confidence": 0.93,
-          "page": 2,
-          "printed_label": "Mass",
-          "printed_text": "410",
-          "printed_unit": "g",
-          "quote": "| Mass | g | 410 | 620 | 970 | 1200 | 3200 |",
-          "target": "params/mass_kg",
-          "value": 410
-        },
-        {
-          "confidence": 0.93,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "Allowable average input speed",
           "printed_text": "3200",
@@ -87,6 +66,17 @@
           "quote": "| Allowable average input speed | rpm | 3200 | 3200 | 3200 | 3000 | — |",
           "target": "params/avg_input_speed_limit_rpm",
           "value": 3200
+        },
+        {
+          "condition": "at rated torque, 25 °C",
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Efficiency (at rated torque, 25 °C)",
+          "printed_text": "0.62",
+          "printed_unit": "",
+          "quote": "| Efficiency (at rated torque, 25 °C) | — | 0.62 | 0.64 | 0.63 | 0.94 | 0.95 |",
+          "target": "params/efficiency_ratio",
+          "value": 0.62
         },
         {
           "confidence": 0.95,
@@ -109,7 +99,7 @@
           "value": 1.6
         },
         {
-          "confidence": 0.93,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "Moment of inertia (input side)",
           "printed_text": "0.041",
@@ -117,6 +107,16 @@
           "quote": "| Moment of inertia (input side) | kg·cm² | 0.041 | 0.092 | 0.22 | 0.36 | — |",
           "target": "params/input_inertia_kgm2",
           "value": 0.041
+        },
+        {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "Mass",
+          "printed_text": "410",
+          "printed_unit": "g",
+          "quote": "| Mass | g | 410 | 620 | 970 | 1200 | 3200 |",
+          "target": "params/mass_kg",
+          "value": 410
         },
         {
           "confidence": 0.95,
@@ -129,7 +129,7 @@
           "value": 6
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "Input bore tolerance",
           "printed_text": "H7",
@@ -149,7 +149,7 @@
           "value": "d_cut"
         },
         {
-          "confidence": 0.92,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "Input shaft fastening",
           "printed_text": "Set screw",

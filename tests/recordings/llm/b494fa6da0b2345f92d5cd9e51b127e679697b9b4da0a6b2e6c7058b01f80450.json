@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "b494fa6da0b2345f92d5cd9e51b127e679697b9b4da0a6b2e6c7058b01f80450",
   "response": {
-    "id": "msg_011CfiQHBnYjRHpPqkFtu8ZW",
+    "id": "msg_011ChAngpnoCLnns816yQwAg",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -28,7 +28,7 @@
           "value": 900
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "Safety functions",
           "printed_text": "STO / SS1",
@@ -41,7 +41,7 @@
           ]
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "Power supply",
           "printed_text": "AC",
@@ -123,7 +123,7 @@
           "value": 10
         },
         {
-          "confidence": 0.85,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "Supported encoders",
           "printed_text": "BiSS-C / EnDat 2.2",
@@ -136,7 +136,7 @@
           ]
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "Fieldbus",
           "printed_text": "EtherCAT",

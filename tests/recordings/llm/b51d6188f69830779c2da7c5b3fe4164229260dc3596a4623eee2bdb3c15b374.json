@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "b51d6188f69830779c2da7c5b3fe4164229260dc3596a4623eee2bdb3c15b374",
   "response": {
-    "id": "msg_011CfiPo91q4Yp8YajLZKGi9",
+    "id": "msg_011ChAnDeZdJBzhuj7c8ZiZs",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -28,7 +28,7 @@
           "value": 10
         },
         {
-          "confidence": 0.8,
+          "confidence": 0.7,
           "page": 2,
           "printed_label": "Max. acceleration torque",
           "printed_text": "44",
@@ -38,7 +38,7 @@
           "value": 44
         },
         {
-          "confidence": 0.75,
+          "confidence": 0.7,
           "page": 2,
           "printed_label": "Emergency stop torque",
           "printed_text": "66",
@@ -129,17 +129,7 @@
           "value": 14
         },
         {
-          "confidence": 0.85,
-          "page": 3,
-          "printed_label": "Input bore tolerance",
-          "printed_text": "H7",
-          "printed_unit": "",
-          "quote": "| Input bore tolerance | — | H7 | H7 | H7 | H7 | H7 |",
-          "target": "ports/input_bore/fit_system",
-          "value": "iso286"
-        },
-        {
-          "confidence": 0.95,
+          "confidence": 0.9,
           "page": 3,
           "printed_label": "Input bore tolerance",
           "printed_text": "H7",
@@ -147,6 +137,16 @@
           "quote": "| Input bore tolerance | — | H7 | H7 | H7 | H7 | H7 |",
           "target": "ports/input_bore/fit",
           "value": "H7"
+        },
+        {
+          "confidence": 0.8,
+          "page": 3,
+          "printed_label": "Input bore tolerance",
+          "printed_text": "H7",
+          "printed_unit": "",
+          "quote": "| Input bore tolerance | — | H7 | H7 | H7 | H7 | H7 |",
+          "target": "ports/input_bore/fit_system",
+          "value": "iso286"
         },
         {
           "confidence": 0.95,
@@ -269,17 +269,7 @@
           "value": 5.5
         },
         {
-          "confidence": 0.7,
-          "page": 3,
-          "printed_label": "Housing size (square)",
-          "printed_text": "60",
-          "printed_unit": "mm",
-          "quote": "| Housing size (square) | mm | — | — | — | 60 | 90 |",
-          "target": "ports/housing_mount/square_size_mm",
-          "value": 60
-        },
-        {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "Housing size (square)",
           "printed_text": "60",

@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "64e413fb2f2c9189c03510008a4352243d0cf4d5f0372c04a1bf52314086eaf6",
   "response": {
-    "id": "msg_011CfiPsE4oBdNEjozGXHN99",
+    "id": "msg_011ChAnHWoRiByTgoF8u8mbb",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -48,7 +48,7 @@
           "value": "ac"
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "max": 240,
           "min": 200,
           "page": 2,
@@ -69,7 +69,7 @@
           "value": 1
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "max": 60,
           "min": 50,
           "page": 2,
@@ -100,7 +100,7 @@
           "value": 200
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "额定输出电流",
           "printed_text": "1.6",
@@ -110,7 +110,7 @@
           "value": 1.6
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "峰值输出电流",
           "printed_text": "5.8",
@@ -133,7 +133,7 @@
           ]
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "总线",
           "printed_text": "EtherCAT",
@@ -183,7 +183,7 @@
           "value": 2
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "安装孔直径",
           "printed_text": "5.5",
@@ -193,7 +193,7 @@
           "value": 5.5
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "宽度",
           "printed_text": "40",
@@ -203,7 +203,7 @@
           "value": 40
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "高度",
           "printed_text": "160",
@@ -213,7 +213,7 @@
           "value": 160
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "深度",
           "printed_text": "130",

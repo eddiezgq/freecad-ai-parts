@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "e63cbff4539a33996af35039cfa6def3fb347926367cefc2e86aa92f3d01bebd",
   "response": {
-    "id": "msg_011CfiPhUaeNU6hrtoJPRT9m",
+    "id": "msg_011ChAn8BhUPLzxvWBzG9iRu",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -68,7 +68,7 @@
           "value": 0.09
         },
         {
-          "confidence": 0.97,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "Torque constant",
           "printed_text": "0.08",
@@ -78,7 +78,7 @@
           "value": 0.08
         },
         {
-          "confidence": 0.97,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "Rated current",
           "printed_text": "6",
@@ -88,7 +88,7 @@
           "value": 6
         },
         {
-          "confidence": 0.97,
+          "confidence": 0.93,
           "page": 2,
           "printed_label": "Max. current",
           "printed_text": "18",
@@ -148,7 +148,7 @@
           "value": 8
         },
         {
-          "confidence": 0.95,
+          "confidence": 0.93,
           "page": 3,
           "printed_label": "Shaft tolerance",
           "printed_text": "h7",
@@ -218,7 +218,7 @@
           "value": "M3"
         },
         {
-          "confidence": 0.97,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "Spigot diameter",
           "printed_text": "22",

@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "5e07a190ce608c62ef99053a17566a9f5cb347f8fc699f4311d686e1651f4549",
   "response": {
-    "id": "msg_011CfiQDS1x755a3784W2XfQ",
+    "id": "msg_011ChAndJQMb34h2HCnWXDm5",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -18,7 +18,7 @@
           "value": "planetary"
         },
         {
-          "confidence": 0.8,
+          "confidence": 0.85,
           "page": 2,
           "printed_label": "减速比",
           "printed_text": "1:5",
@@ -59,7 +59,7 @@
         },
         {
           "condition": "额定扭矩、25 °C 时",
-          "confidence": 0.92,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "效率（额定扭矩、25 °C 时）",
           "printed_text": "95",
@@ -109,7 +109,7 @@
           "value": 19
         },
         {
-          "confidence": 0.85,
+          "confidence": 0.8,
           "page": 3,
           "printed_label": "输入孔公差",
           "printed_text": "H7",
@@ -139,7 +139,7 @@
           "value": "plain"
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.85,
           "page": 3,
           "printed_label": "输入轴紧固方式",
           "printed_text": "锁紧环",
@@ -249,17 +249,7 @@
           "value": 6.6
         },
         {
-          "confidence": 0.7,
-          "page": 3,
-          "printed_label": "壳体尺寸（方）",
-          "printed_text": "90",
-          "printed_unit": "mm",
-          "quote": "| 壳体尺寸（方） | mm | — | — | — | 60 | 90 |",
-          "target": "ports/housing_mount/square_size_mm",
-          "value": 90
-        },
-        {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "壳体尺寸（方）",
           "printed_text": "90",

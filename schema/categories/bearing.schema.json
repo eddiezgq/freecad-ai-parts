@@ -55,6 +55,22 @@
         },
         "mass_kg": {
           "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "abutment_shaft_min_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "安装尺寸 da min：轴肩直径的下限（轴肩低于它挡不住内圈）（ADR-0101）"
+        },
+        "abutment_shaft_max_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "安装尺寸 da max：轴肩直径的上限（高于它会碰到保持架或密封、拆卸困难）（ADR-0101）"
+        },
+        "abutment_housing_max_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "安装尺寸 Da max：座孔挡肩直径的上限（ADR-0101）"
+        },
+        "fillet_max_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "安装尺寸 ra max：轴肩、座孔挡肩的过渡圆角半径上限（大于它内外圈靠不上）（ADR-0101）"
         }
       },
       "additionalProperties": false
