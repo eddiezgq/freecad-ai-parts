@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "9ccbcb3786d7f9b3c6b2511de0b3b2567c21b87546b2d2201a9b919522080817",
   "response": {
-    "id": "msg_011CfiQ3Ww5fkgF3qdwejmnv",
+    "id": "msg_011ChAnTPvDFJrFphtqk7khR",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -158,7 +158,7 @@
           "value": "IP67"
         },
         {
-          "confidence": 0.95,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "保持制动器",
           "printed_text": "有",

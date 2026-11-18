@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "dde36c520c04dc67b60a5fb78dd763c4329a14a6175dfc1bf3d1f95e7b6bfa44",
   "response": {
-    "id": "msg_011CfiPpdkkDt3knxHejoMEV",
+    "id": "msg_011ChAnF62r4EdtdmX2bqd1z",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -28,7 +28,7 @@
           "value": 5
         },
         {
-          "confidence": 0.8,
+          "confidence": 0.7,
           "page": 2,
           "printed_label": "Max. acceleration torque",
           "printed_text": "110",
@@ -38,7 +38,7 @@
           "value": 110
         },
         {
-          "confidence": 0.75,
+          "confidence": 0.7,
           "page": 2,
           "printed_label": "Emergency stop torque",
           "printed_text": "165",
@@ -59,7 +59,7 @@
         },
         {
           "condition": "at rated torque, 25 °C",
-          "confidence": 0.95,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "Efficiency (at rated torque, 25 °C)",
           "printed_text": "0.95",
@@ -69,7 +69,7 @@
           "value": 0.95
         },
         {
-          "confidence": 0.95,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "Mass",
           "printed_text": "3200",
@@ -79,7 +79,7 @@
           "value": 3200
         },
         {
-          "confidence": 0.95,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "Backlash",
           "printed_text": "4",
@@ -89,7 +89,7 @@
           "value": 4
         },
         {
-          "confidence": 0.95,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "Torsional stiffness",
           "printed_text": "11",
@@ -117,16 +117,6 @@
           "quote": "| Input bore tolerance | — | H7 | H7 | H7 | H7 | H7 |",
           "target": "ports/input_bore/fit",
           "value": "H7"
-        },
-        {
-          "confidence": 0.8,
-          "page": 3,
-          "printed_label": "Input bore tolerance",
-          "printed_text": "H7",
-          "printed_unit": "",
-          "quote": "| Input bore tolerance | — | H7 | H7 | H7 | H7 | H7 |",
-          "target": "ports/input_bore/fit_system",
-          "value": "iso286"
         },
         {
           "confidence": 0.9,

@@ -3,12 +3,12 @@
   "prompt_version": "extract/3",
   "request_key": "0740fe52bd164249c1ad2290d380578954048078bd7a6fff2a7017555e472811",
   "response": {
-    "id": "msg_011CfiPr7vgN9hSDAyEBwYB3",
+    "id": "msg_011ChAnGSebs2yod3hw6VCTe",
     "simulated": false,
     "tool_input": {
       "items": [
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "额定输出功率",
           "printed_text": "0.1",
@@ -18,7 +18,7 @@
           "value": 0.1
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "重量",
           "printed_text": "600",
@@ -28,7 +28,7 @@
           "value": 600
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "安全功能",
           "printed_text": "STO",
@@ -48,7 +48,7 @@
           "value": "ac"
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "max": 240,
           "min": 200,
           "page": 2,
@@ -69,7 +69,7 @@
           "value": 1
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "max": 60,
           "min": 50,
           "page": 2,
@@ -80,7 +80,7 @@
           "target": "ports/power_in/frequency_hz"
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "额定输入电流",
           "printed_text": "1.2",
@@ -90,7 +90,7 @@
           "value": 1.2
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "适配电机电压等级",
           "printed_text": "200",
@@ -100,7 +100,7 @@
           "value": 200
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "额定输出电流",
           "printed_text": "1.1",
@@ -110,7 +110,7 @@
           "value": 1.1
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "峰值输出电流",
           "printed_text": "3.3",
@@ -120,7 +120,7 @@
           "value": 3.3
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.93,
           "page": 2,
           "printed_label": "支持的编码器",
           "printed_text": "BiSS-C",
@@ -142,17 +142,17 @@
           "value": "ethercat"
         },
         {
-          "confidence": 0.85,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "设备行规",
           "printed_text": "CiA 402",
           "printed_unit": "",
           "quote": "| 设备行规 | — | CiA 402 | CiA402 | CiA402 | — | CiA402 |",
           "target": "ports/bus/profile",
-          "value": "CiA 402"
+          "value": "cia402"
         },
         {
-          "confidence": 0.85,
+          "confidence": 0.93,
           "page": 3,
           "printed_label": "安装孔水平间距",
           "printed_text": "30",
@@ -162,7 +162,7 @@
           "value": 30
         },
         {
-          "confidence": 0.85,
+          "confidence": 0.93,
           "page": 3,
           "printed_label": "安装孔垂直间距",
           "printed_text": "150",
@@ -172,7 +172,7 @@
           "value": 150
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "安装孔数量",
           "printed_text": "2",
@@ -182,7 +182,7 @@
           "value": 2
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "安装孔直径",
           "printed_text": "5.5",
@@ -192,7 +192,7 @@
           "value": 5.5
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "宽度",
           "printed_text": "40",
@@ -202,7 +202,7 @@
           "value": 40
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "高度",
           "printed_text": "160",
@@ -212,7 +212,7 @@
           "value": 160
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "深度",
           "printed_text": "130",
@@ -223,6 +223,7 @@
         }
       ],
       "model": "SD100",
+      "series": "SD",
       "vendor": "Synth Motion"
     }
   }

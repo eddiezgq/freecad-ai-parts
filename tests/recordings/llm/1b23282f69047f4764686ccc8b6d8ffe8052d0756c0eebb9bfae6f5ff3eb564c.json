@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "1b23282f69047f4764686ccc8b6d8ffe8052d0756c0eebb9bfae6f5ff3eb564c",
   "response": {
-    "id": "msg_011CfiQEuhrUPHDhhJuYHTdh",
+    "id": "msg_011ChAnej2iZ6rfweLwZdfNx",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -38,7 +38,7 @@
           "value": "STO"
         },
         {
-          "confidence": 0.95,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "Power supply",
           "printed_text": "AC",
@@ -120,16 +120,14 @@
           "value": 3.3
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.85,
           "page": 2,
           "printed_label": "Supported encoders",
           "printed_text": "BiSS-C",
           "printed_unit": "",
           "quote": "| Supported encoders | — | BiSS-C | BiSS C, EnDat 2.2 | BiSS-C / EnDat 2.2 | BiSS-C, EnDat 2.2, SSI | A/B/Z incremental, BiSS-C |",
           "target": "ports/encoder_in/protocol",
-          "value": [
-            "biss_c"
-          ]
+          "value": "biss_c"
         },
         {
           "confidence": 0.9,
@@ -152,7 +150,7 @@
           "value": "cia402"
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.85,
           "page": 3,
           "printed_label": "Mounting hole pitch (horizontal)",
           "printed_text": "30",
@@ -162,7 +160,7 @@
           "value": 30
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.85,
           "page": 3,
           "printed_label": "Mounting hole pitch (vertical)",
           "printed_text": "150",

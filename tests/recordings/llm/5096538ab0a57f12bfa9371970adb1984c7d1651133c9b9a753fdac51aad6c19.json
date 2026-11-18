@@ -3,12 +3,12 @@
   "prompt_version": "extract/3",
   "request_key": "5096538ab0a57f12bfa9371970adb1984c7d1651133c9b9a753fdac51aad6c19",
   "response": {
-    "id": "msg_011CfiQ7QPnuoZvZHycSh8Pe",
+    "id": "msg_011ChAnXCk7E13jkVp9agZSL",
     "simulated": false,
     "tool_input": {
       "items": [
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "类型",
           "printed_text": "谐波",
@@ -139,7 +139,7 @@
           "value": "H7"
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "输入孔形式",
           "printed_text": "D 形孔",
@@ -149,7 +149,7 @@
           "value": "d_cut"
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "输入轴紧固方式",
           "printed_text": "紧定螺钉",
@@ -187,6 +187,16 @@
           "quote": "| 电机法兰螺纹 | — | M3 | M4 | M5 | M5 | M6 |",
           "target": "ports/motor_flange/thread",
           "value": "M3"
+        },
+        {
+          "confidence": 0.7,
+          "page": 3,
+          "printed_label": "电机法兰螺纹",
+          "printed_text": "M3",
+          "printed_unit": "",
+          "quote": "| 电机法兰螺纹 | — | M3 | M4 | M5 | M5 | M6 |",
+          "target": "ports/motor_flange/hole_kind",
+          "value": "threaded"
         },
         {
           "confidence": 0.95,
@@ -227,6 +237,16 @@
           "quote": "| 输出法兰螺纹 | — | M3 | M4 | M4 | M5 | M6 |",
           "target": "ports/output_flange/thread",
           "value": "M3"
+        },
+        {
+          "confidence": 0.7,
+          "page": 3,
+          "printed_label": "输出法兰螺纹",
+          "printed_text": "M3",
+          "printed_unit": "",
+          "quote": "| 输出法兰螺纹 | — | M3 | M4 | M4 | M5 | M6 |",
+          "target": "ports/output_flange/hole_kind",
+          "value": "threaded"
         },
         {
           "confidence": 0.95,

@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "d9be40b78e816b3ce18e701e5bc9ad3ca178fd961f7b2f7ebc556bdb87877faa",
   "response": {
-    "id": "msg_011CfiPtPJD7SgKAvY5fFiCL",
+    "id": "msg_011ChAnJZLk7bXSUwv6rxANg",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -28,7 +28,7 @@
           "value": 900
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "安全功能",
           "printed_text": "STO, SS1",
@@ -62,7 +62,7 @@
           "target": "ports/power_in/voltage_v"
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "输入相数",
           "printed_text": "单相",
@@ -136,7 +136,7 @@
           ]
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "总线",
           "printed_text": "EtherCAT",
@@ -153,7 +153,7 @@
           "printed_unit": "",
           "quote": "| 设备行规 | — | CiA 402 | CiA402 | CiA402 | — | CiA402 |",
           "target": "ports/bus/profile",
-          "value": "CiA402"
+          "value": "cia402"
         },
         {
           "confidence": 0.9,

@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "a597f1942a443d3efe1add27f6edea9caa180eaafec5f9deb41f7dab82ee46f4",
   "response": {
-    "id": "msg_011CfiPuXwdRaEzqD5GkAXMW",
+    "id": "msg_011ChAnKazEcBYm6kiVspTV2",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -217,8 +217,7 @@
           "value": 170
         }
       ],
-      "model": "SD750",
-      "vendor": "Synth Motion"
+      "model": "SD750"
     }
   }
 }
