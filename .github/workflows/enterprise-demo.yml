@@ -1,0 +1,63 @@
+name: 示范缝纫机企业录制（手动运行）
+
+# ADR-0099 41.6：用真实模型跑一遍示范企业的建库（物料表认列与分类、自制件类型提议），录制推到新分支
+# m41/enterprise-demo-rec-<provider>-<运行号>，由人或 Claude 开 PR 合并。密钥用仓库 demo 环境里已有的，不经过对话、不写进仓库。
+# 约 3 次模型调用（认列 1 次、分类 1 次、零件类型 2 次）。
+
+on:
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: "用哪家模型（claude / deepseek）"
+        required: true
+        default: claude
+        type: choice
+        options: [claude, deepseek]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: enterprise-demo
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    environment: demo
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      PROVIDER: ${{ inputs.provider || 'claude' }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: gmsh 所需系统库
+        run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends libglu1-mesa libxcursor1 libxft2 libxinerama1 libgomp1
+      - name: 安装依赖
+        run: pip install -e ".[dev,llm,fea]"
+      - name: 建库并录制
+        run: |
+          python examples/enterprise-lockstitch/build.py --record --provider "$PROVIDER" --library "$RUNNER_TEMP/lib" --out "$RUNNER_TEMP/out" | tee -a "$GITHUB_STEP_SUMMARY"
+          python - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import json, os
+          r = json.load(open(os.path.join(os.environ["RUNNER_TEMP"], "out", "bom-result.json")))
+          print("\n| 原表行 | 物料号 | 品名 | 品类 | 对应组件 | 待人确认 |\n|---|---|---|---|---|---|")
+          for it in r["items"]:
+              print(f"| {'、'.join(map(str, it['rows']))} | {it['code']} | {it['name']} | {it['category']} | "
+                    f"{it.get('component') or '、'.join(it.get('candidates', [])) or '—'} | {'；'.join(it['confirm']) or '—'} |")
+          print("\n说明：", "；".join(r["notes"]) or "无")
+          EOF
+      - name: 推到新分支
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          branch="m41/enterprise-demo-rec-${PROVIDER}-${GITHUB_RUN_ID}"
+          git checkout -b "$branch"
+          git add -A tests/recordings/bom tests/recordings/part_kind
+          if git diff --cached --quiet; then echo "没有新录制"; exit 0; fi
+          git commit -m "M41: 示范缝纫机企业录制（运行 ${GITHUB_RUN_ID}）" -m "由 .github/workflows/enterprise-demo.yml 生成"
+          git push origin "$branch"
+          echo "录制已推到分支 $branch" >> "$GITHUB_STEP_SUMMARY"

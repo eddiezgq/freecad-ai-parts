@@ -360,6 +360,10 @@ def build(table: dict, columns: dict[str, str], classes: dict[int, dict], compon
             item["duplicates"] = f"第 {'、'.join(map(str, group))} 行是同一物料（同厂商同型号或同编码），合并成一条" + (
                 f"；数量分别是 {'、'.join(x or '—' for x in q)}" if q else "")
         ids, how = match_library(item["vendor"], item["model"], components)
+        if not ids and item["code"]:                    # 自制件：物料编码就是图号，企业库里自制件的型号记的是图号
+            ids = [c["id"] for c in components if c.get("category") == "custom_part"
+                   and norm_model(c.get("model", "")) == norm_model(item["code"])]
+            how = "matched" if len(ids) == 1 else how
         if how == "matched" and len(ids) == 1:
             item["component"] = ids[0]
         elif ids:
@@ -375,7 +379,18 @@ def build(table: dict, columns: dict[str, str], classes: dict[int, dict], compon
         if item["category"] == UNCLASSIFIED:
             item["confirm"].append("未能分类：" + item.get("reason", "AI 没写原因"))
         items.append(item)
-    to_fill = []
+    fill = to_fill(items, by_id, gaps)
+    return {"source": {"file": table["file"], "sha256": table["sha256"], "note": "物料表不进企业库，只记文件名和 SHA-256"},
+            "columns": columns, "items": items, "to_fill": fill,
+            "summary": {"rows": len(table["rows"]), "items": len(items),
+                        "classified": sum(len(i["rows"]) for i in items if i["category"] != UNCLASSIFIED),
+                        "matched": sum("component" in i for i in items),
+                        "confirm": sum(bool(i["confirm"]) for i in items)}}
+
+
+def to_fill(items: list[dict], by_id: dict[str, dict], gaps: Callable[[dict], list[dict]] | None = None) -> list[dict]:
+    """待补清单：对上已有组件的按完整度报告列缺项；库里没有的列“新建”；未能分类的不列（先分类）"""
+    out = []
     for it in items:
         if it["category"] == UNCLASSIFIED:
             continue
@@ -383,16 +398,11 @@ def build(table: dict, columns: dict[str, str], classes: dict[int, dict], compon
             if gaps is not None:
                 miss = gaps(by_id[it["component"]])
                 if miss:
-                    to_fill.append({"rows": it["rows"], "component": it["component"], "missing": miss})
+                    out.append({"rows": it["rows"], "component": it["component"], "missing": miss})
         else:
-            to_fill.append({"rows": it["rows"], "category": it["category"], "model": it["model"], "vendor": it["vendor"],
-                            "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"})
-    return {"source": {"file": table["file"], "sha256": table["sha256"], "note": "物料表不进企业库，只记文件名和 SHA-256"},
-            "columns": columns, "items": items, "to_fill": to_fill,
-            "summary": {"rows": len(table["rows"]), "items": len(items),
-                        "classified": sum(len(i["rows"]) for i in items if i["category"] != UNCLASSIFIED),
-                        "matched": sum("component" in i for i in items),
-                        "confirm": sum(bool(i["confirm"]) for i in items)}}
+            out.append({"rows": it["rows"], "category": it["category"], "model": it["model"], "vendor": it["vendor"],
+                        "missing": "库里没有，新建组件：按通道 A（规格书 / 目录）或通道 C（三维模型）补数据"})
+    return out
 
 
 # ---------------------------------------------------------------- 流程
