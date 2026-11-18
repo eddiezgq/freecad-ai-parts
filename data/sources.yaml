@@ -106,6 +106,7 @@ sources:
         title: NSK Rolling Bearings, CAT. No. E1103c, Part A Technical Information
         version: E1103c Part A（版本日期以文件为准，下载时固定 SHA-256）
         url: https://www.nsk.com/content/dam/nsk/common/catalogs/ctrgPdf/bearings/e1103c_parta.pdf
+        sha256: "6ea513c7d0c12dfbc7dc4b5e5ec6827f7b99b3c57fab0edd35a365f4f0b1140c"
       - id: src-nsk-e1103c-part-c
         title: NSK Rolling Bearings, CAT. No. E1103c, Part C Bearing Tables
         version: E1103c Part C（版本日期以文件为准，下载时固定 SHA-256）
