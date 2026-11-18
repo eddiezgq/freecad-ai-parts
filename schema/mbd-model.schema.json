@@ -428,6 +428,19 @@
                   "source": {
                     "type": "string",
                     "minLength": 1
+                  },
+                  "nodes_at_mm": {
+                    "type": "array",
+                    "maxItems": 50,
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 3,
+                      "maxItems": 3
+                    },
+                    "description": "必须是节点的点（地面系 mm，例如运动副中心）：投影到梁轴上加进节点表，单元长度随之不等（ADR-0101 补充三）；点离梁轴不能超过梁长的千分之一"
                   }
                 },
                 "required": [
