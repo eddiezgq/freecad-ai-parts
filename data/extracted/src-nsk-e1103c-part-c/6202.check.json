@@ -175,30 +175,6 @@
       ]
     },
     {
-      "target": "params/fillet_max_mm",
-      "value": {
-        "value": 0.6,
-        "source": {
-          "doc": "src-nsk-e1103c-part-c",
-          "page": 11
-        },
-        "method": "extracted",
-        "confidence": 0.85,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "0.6",
-        "unit": "mm",
-        "label": "ra max.",
-        "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU N NR 2.06 1.35 33.17 0.4 0.5 39.7 1.12 19 20.5 31 0.6 40.5 2.9 0.045"
-      },
-      "issues": [
-        "叫法 'ra max.' 在表头，须核对所在列",
-        "单位 mm 不在同一行，取自本页其他位置",
-        "按版面对齐切出的行核对"
-      ]
-    },
-    {
       "target": "params/mass_kg",
       "value": {
         "value": 0.045,
@@ -275,6 +251,17 @@
         "text": "31",
         "unit": "mm",
         "label": "Da max.",
+        "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU N NR 2.06 1.35 33.17 0.4 0.5 39.7 1.12 19 20.5 31 0.6 40.5 2.9 0.045"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/fillet_max_mm",
+      "page": 11,
+      "printed": {
+        "text": "0.6",
+        "unit": "mm",
+        "label": "ra max.",
         "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU N NR 2.06 1.35 33.17 0.4 0.5 39.7 1.12 19 20.5 31 0.6 40.5 2.9 0.045"
       }
     }
