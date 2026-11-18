@@ -10,6 +10,8 @@ InitGui.py 指向这个 lib，装完可以删掉仓库。--from-bundle 目录：
 
 --edition fea（ADR-0096 第 5 步，隐含 --standalone）：装成问渠有限元版——不加零件库工作台，FEM 工作台里加起草、计算并核查、
 出报告与问渠有限元的授权、设置、关于；分免费 / 专业两档。版本写在 lib/edition.json。
+--edition mbd（ADR-0102 第 4 步，隐含 --standalone）：装成问渠多体动力学版——不加零件库工作台，只加“问渠多体动力学”工作台
+（装配体多体动力学、授权、设置、关于）；分免费 / 专业两档。
 --test-build：只给 CI 验收用的安装包，edition.json 里写 "test_build": true，才认环境变量里的测试授权公钥。
 """
 
@@ -93,11 +95,12 @@ def standalone_init_gui_source(lib: Path) -> str:
 
 
 EDITION_FILE = "edition.json"
+EDITIONS = ("full", "fea", "mbd")
 
 
 def edition_doc(edition: str, test_build: bool = False) -> dict:
-    if edition not in ("full", "fea"):
-        raise ValueError(f"版本只能是 full 或 fea：{edition}")
+    if edition not in EDITIONS:
+        raise ValueError(f"版本只能是 full、fea 或 mbd：{edition}")
     return {"edition": edition, "test_build": bool(test_build)}
 
 
@@ -105,7 +108,7 @@ def install(mod_dir: Path, standalone: bool = False, bundle: Path | None = None,
             test_build: bool = False) -> Path:
     doc = edition_doc(edition, test_build)
     if (edition != "full" or test_build) and not (standalone or bundle):
-        raise ValueError("--edition fea 与 --test-build 只用于自包含安装（--standalone）")
+        raise ValueError("--edition fea / mbd 与 --test-build 只用于自包含安装（--standalone）")
     target = mod_dir / MOD_NAME
     if target.is_dir():
         init = target / "InitGui.py"
@@ -152,11 +155,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--uninstall", action="store_true")
     parser.add_argument("--standalone", action="store_true", help="复制代码与数据进 Mod，不依赖仓库（ADR-0066）")
     parser.add_argument("--from-bundle", type=Path, default=None, help="用已生成的工作台包目录（隐含 --standalone）")
-    parser.add_argument("--edition", choices=("full", "fea"), default="full",
-                        help="full：零件库全功能版；fea：问渠有限元版（隐含 --standalone，ADR-0096）")
+    parser.add_argument("--edition", choices=EDITIONS, default="full",
+                        help="full：零件库全功能版；fea：问渠有限元版（ADR-0096）；mbd：问渠多体动力学版（ADR-0102）。fea、mbd 隐含 --standalone")
     parser.add_argument("--test-build", action="store_true", help="CI 验收用：认环境变量里的测试授权公钥（正式安装包不加）")
     args = parser.parse_args(argv)
-    if args.edition == "fea" or args.test_build:
+    if args.edition != "full" or args.test_build:
         args.standalone = args.standalone or not args.from_bundle
     mod_dirs = [args.mod_dir] if args.mod_dir else default_mod_dirs()
     if args.uninstall:
@@ -164,6 +167,11 @@ def main(argv: list[str] | None = None) -> int:
             print(f"已卸载：{mod_dir / MOD_NAME}" if uninstall(mod_dir) else f"未安装：{mod_dir / MOD_NAME}")
         return 0
     targets = [install(mod_dir, args.standalone, args.from_bundle, args.edition, args.test_build) for mod_dir in mod_dirs]
+    if args.edition == "mbd":
+        print("已安装问渠多体动力学版到：\n" + "\n".join(f"  {t}" for t in targets) + "\n"
+              "重启 FreeCAD 后在“问渠多体动力学”工作台里用（装配体多体动力学；授权、设置、关于在同名菜单里）。"
+              + ("\n注意：这是验收用的测试版（test_build），不得发给客户。" if args.test_build else ""))
+        return 0
     if args.edition == "fea":
         print("已安装问渠有限元版到：\n" + "\n".join(f"  {t}" for t in targets) + "\n"
               "重启 FreeCAD 后在 FEM 工作台里用（“求解”菜单与工具栏；授权、设置、关于在“帮助”菜单）。"

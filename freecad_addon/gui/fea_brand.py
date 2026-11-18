@@ -26,7 +26,21 @@ def _mw():
     return FreeCADGui.getMainWindow()
 
 
-def tier_text() -> str:
+class Product:
+    """一个单独安装的产品在授权、设置对话框里的不同之处（问渠多体动力学版复用这些对话框，见 mbd_brand）"""
+
+    pro = fea_edition.PRO
+    license_title = "问渠有限元：授权"
+    setup_title = "问渠有限元：设置 AI 密钥"
+    free = "免费版：单个实体零件的静力、模态、线性屈曲与可信度核查。"
+    missing = "授权文件里没有问渠有限元专业版（fea_pro）"
+    not_this = "这份授权里没有问渠有限元专业版（fea_pro）"
+    setup_note = ("AI 一句话起草和 AI 解释（专业版）要用 AI 服务的密钥：中国用 DeepSeek，其他地方用 Claude，"
+                  "出错自动换另一家。密钥只存在本机用户目录。调用 AI 时只发你写的那句话和程序识别出的零件特征清单，"
+                  "不发模型文件。")
+
+
+def tier_text(product=Product) -> str:
     """现在是哪一档、为什么（给界面与关于页）"""
     from licensing import runtime
 
@@ -34,10 +48,10 @@ def tier_text() -> str:
         why = "还没有导入专业版授权。"
     else:
         v = runtime.current()
-        if v.allows(fea_edition.PRO):
+        if v.allows(product.pro):
             return T(f"专业版：{v.licensee}，到 {v.expires}")
-        why = v.reason if not v.valid else "授权文件里没有问渠有限元专业版（fea_pro）"
-    return T("免费版：单个实体零件的静力、模态、线性屈曲与可信度核查。") + "\n" + T(why)
+        why = v.reason if not v.valid else product.missing
+    return T(product.free) + "\n" + T(why)
 
 
 def _version() -> str:
@@ -54,13 +68,14 @@ def _version() -> str:
 class LicenseDialog:
     """授权：现在的档位、本机激活码、导入授权文件"""
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, product=Product):
         from PySide import QtWidgets
 
         from licensing.fingerprint import activation_code
 
+        self.product = product
         self.dlg = QtWidgets.QDialog(parent)
-        self.dlg.setWindowTitle(T("问渠有限元：授权"))
+        self.dlg.setWindowTitle(T(product.license_title))
         self.dlg.setMinimumWidth(560)
         lay = QtWidgets.QVBoxLayout(self.dlg)
         self.status = QtWidgets.QLabel()
@@ -93,7 +108,7 @@ class LicenseDialog:
         self.refresh()
 
     def refresh(self) -> None:
-        self.status.setText(tier_text())
+        self.status.setText(tier_text(self.product))
 
     def import_file(self, path: str | None = None) -> bool:
         """导入授权文件（path 给了就不弹选择框，测试用）；校验通过才复制到本机用户目录"""
@@ -109,8 +124,8 @@ class LicenseDialog:
         if not path:
             return False
         v = runtime.current(Path(path))
-        if not v.allows(fea_edition.PRO):
-            why = v.reason if not v.valid else "这份授权里没有问渠有限元专业版（fea_pro）"
+        if not v.allows(self.product.pro):
+            why = v.reason if not v.valid else self.product.not_this
             QtWidgets.QMessageBox.warning(self.dlg, T("授权"), T(f"这个授权文件不能用：{why}"))
             return False
         dest = runtime.license_path()
@@ -123,7 +138,7 @@ class LicenseDialog:
 class SetupDialog:
     """设置：AI 服务的密钥（只存本机用户目录）。不填也能用免费版和专业版的计算、报告；AI 起草与解释要密钥"""
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, product=Product):
         from PySide import QtWidgets
 
         from freecad_addon.core import first_run
@@ -132,12 +147,10 @@ class SetupDialog:
         load_dotenv()
         status = first_run.key_status(os.environ)
         self.dlg = QtWidgets.QDialog(parent)
-        self.dlg.setWindowTitle(T("问渠有限元：设置 AI 密钥"))
+        self.dlg.setWindowTitle(T(product.setup_title))
         self.dlg.setMinimumWidth(520)
         lay = QtWidgets.QVBoxLayout(self.dlg)
-        note = QtWidgets.QLabel(T("AI 一句话起草和 AI 解释（专业版）要用 AI 服务的密钥：中国用 DeepSeek，其他地方用 Claude，"
-                                  "出错自动换另一家。密钥只存在本机用户目录。调用 AI 时只发你写的那句话和程序识别出的零件特征清单，"
-                                  "不发模型文件。"))
+        note = QtWidgets.QLabel(T(product.setup_note))
         note.setWordWrap(True)
         lay.addWidget(note)
         form = QtWidgets.QFormLayout()

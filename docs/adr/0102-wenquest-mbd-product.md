@@ -196,3 +196,43 @@
   - 验收：
     - `tests/test_mbd_verification.py`：清单与记了对照数的 `tests/test_mbd_*.py` 一一对应（新题不会漏）；中英两版都能生成，英文版只剩样例题名里的中文。
     - 从干净提交 `5ab4491` 生成第 1 版：44 题全部通过，74 项对照全部在容差内（约 4 分钟）。文件在 `docs/verification/mbd/`。
+- **第 4 步（2026-11-18，安装包与授权）**：
+  - 两档：`assist/mbd_edition.py`。版本沿用问渠有限元的 `edition.json`，新增 `mbd`；全功能版不分档。问渠多体动力学版按授权文件里有没有
+    `mbd_pro` 分免费 / 专业。`pro_needs(模型)` 列出用到的专业版功能：超过 15 个构件、柔性体、摩擦、间隙、接触、梁元件、齿轮啮合、
+    执行器、控制器、线性化与模态、HHT 隐式积分。
+  - 卡口三处（流程在 `freecad_addon/core/mbd_study.py`，窗口先查一遍、立刻说明）：
+    - STEP 导入时用 AI 起草；
+    - 计算（`run`）；窗口里选了柔性零件时，在缩减之前就拒绝；
+    - 正式报告（新的 `write_report`，窗口改为调它）。
+    规则起草、刚体运动学 / 静平衡 / 动力学、曲线、动画、核查结论都是免费的。
+  - 施工中改的：
+    - 免费版的积分器原写“只用 DOP853”。验证用的万向节样例用 Radau，且 Radau、BDF 本来很少用。
+      改为只有 HHT 算专业版，与决策 3 的表一致。
+    - 参数研究、优化、疲劳交接现在只有模型文件的用法，窗口里没有入口，所以没有卡口。使用说明照实写；以后加进窗口时算专业版。
+  - 界面：`freecad_addon/gui/mbd_brand.py` 加一个“问渠多体动力学”工作台。
+    - 工具栏和同名菜单：装配体多体动力学；菜单里另有授权、设置 AI 密钥、关于。
+    - 第一次启动设成启动工作台。
+    - 授权、设置对话框与问渠有限元共用：`fea_brand` 的对话框改成按产品取文字和授权功能。
+    - 一个授权文件可以同时开 `fea_pro` 和 `mbd_pro`。
+  - 安装包：
+    - `build.ps1 -Edition mbd`，用 `installer/windows/wenquest-mbd/wenquest-mbd.iss`（新 AppId），产物 `WenQuest-MBD-Setup-<版本>.exe`。
+    - 带中英验证手册、许可证说明（`NOTICES.txt`）、图标（`make_icon.py`，曲柄滑块）。
+    - 依赖：llm、fea（gmsh）、report，加 FMU 用的 fmpy；不装 mujoco 与优化。用户手册和入门例子在第 5 步加进来。
+  - AI 回放：验收要回放“AI 挑运动副”。
+    - 挑线机构 STEP 与候选清单放进 `tests/fixtures/mbd-step/`。
+    - 新增手动工作流 `mbd-ai-record.yml`，在 demo 环境用真实密钥问一次 Claude。
+    - 回答逐条核对通过：收全 4 个转动副，机架选机壳。录制在 `tests/recordings/mbd_mates/`（PR #585，运行 44404926357）。
+    - 顺带修了 `assist/mbd_mates.draft`：请求里的模型名改用客户端那一家的。以前固定写 Claude 的模型名，经网关用 DeepSeek 时录制对不上。
+  - 验收：
+    - `tests/test_mbd_edition.py`：各样例用到哪些专业版功能；免费版拒绝并说明；只有 `fea_pro` 的授权不开本版，套装都开；
+      正式安装包不认测试公钥；安装写 `edition.json`；依赖清单。
+    - `tests/test_fc_mbd_study.py`（xvfb）：
+      - 免费版窗口：AI 起草、柔性零件、线性化、正式报告拒绝并说明，规则起草加运动学照算；
+      - 从授权对话框导入后能出报告；
+      - 工作台菜单齐全。
+    - Windows CI 作业 `wenquest-mbd`：生成测试版安装包 → 静默安装 → `acceptance_mbd.py` → 静默卸载。验收内容：
+      - 版本与菜单；
+      - 免费版：挑线机构规则起草加运动学、曲柄滑块样例，四项拒绝；
+      - 专业版：导入测试授权，AI 回放挑运动副，铝杆摆按实体柔性体（gmsh + CalculiX）算动力学，出中英报告且指纹相同。
+    - 本机用安装后的包跑过免费、专业两段，全部通过（专业段约 1 分钟）。
+

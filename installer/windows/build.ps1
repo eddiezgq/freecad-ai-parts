@@ -1,13 +1,14 @@
 ﻿# 生成 Windows 单机安装包（ADR-0066 第 2 项）。在 Windows 上、仓库根目录运行：
-#   powershell -ExecutionPolicy Bypass -File installer\windows\build.ps1 [-Work 目录] [-Out 目录] [-Edition full|fea] [-TestBuild]
+#   powershell -ExecutionPolicy Bypass -File installer\windows\build.ps1 [-Work 目录] [-Out 目录] [-Edition full|fea|mbd] [-TestBuild]
 # -Edition fea：问渠有限元版（ADR-0096 第 5 步），用 wenquest-fea\wenquest-fea.iss，产物 WenQuest-FEA-Setup-<版本>.exe。
+# -Edition mbd：问渠多体动力学版（ADR-0102 第 4 步），用 wenquest-mbd\wenquest-mbd.iss，产物 WenQuest-MBD-Setup-<版本>.exe。
 # -TestBuild：只给 CI 验收用（认环境变量里的测试授权公钥），产物不得发布。
 # 步骤：取 FreeCAD 1.0.2 便携版（核对 SHA-256）→ 依赖装进它自带的 Python → 工作台自包含装进它的 Mod
 #      → 冒烟检查（从包导入、找到 CalculiX）→ Inno Setup 打包。需要 7z 与 Inno Setup 6（GitHub 的 Windows 机器都有）。
 param(
   [string]$Work = "$env:RUNNER_TEMP\fap-win",
   [string]$Out = "dist",
-  [ValidateSet("full", "fea")][string]$Edition = "full",
+  [ValidateSet("full", "fea", "mbd")][string]$Edition = "full",
   [switch]$TestBuild
 )
 # 外部程序（pip、7z、ISCC）往 stderr 写进度；Windows PowerShell 5.1 在输出被重定向时会把它当成错误。
@@ -81,8 +82,12 @@ mods = {m['id']: m for m in modules()}
 print('ccx', ccx)
 print('modules', {k: m['available'] for k, m in mods.items()})
 assert mods['fea']['available'], mods['fea']['missing']
-from assist import fea_edition
+from assist import fea_edition, mbd_edition
 import docx, matplotlib
+if sys.argv[2] == 'mbd':
+    import fmpy, scipy
+    from analysis.mbd.dae import run as R
+    print('mbd', R.__file__)
 print('edition', fea_edition.info())
 assert fea_edition.edition() == sys.argv[2], fea_edition.info()
 "@
@@ -103,6 +108,9 @@ $outAbs = (Resolve-Path $Out).Path
 if ($Edition -eq "fea") {
   & $iscc "/DAppVersion=$appVersion" "/DSourceDir=$app" "/DOutputDir=$outAbs" "/DDocsDir=$Repo\docs\verification" "/DHelpDir=$Repo\docs\wenquest-fea\help" "/DExamplesDir=$Repo\examples\wenquest-fea" "$PSScriptRoot\wenquest-fea\wenquest-fea.iss"
   $pattern = "WenQuest-FEA-Setup-*.exe"
+} elseif ($Edition -eq "mbd") {
+  & $iscc "/DAppVersion=$appVersion" "/DSourceDir=$app" "/DOutputDir=$outAbs" "/DDocsDir=$Repo\docs\verification\mbd" "$PSScriptRoot\wenquest-mbd\wenquest-mbd.iss"
+  $pattern = "WenQuest-MBD-Setup-*.exe"
 } else {
   & $iscc "/DAppVersion=$appVersion" "/DSourceDir=$app" "/DOutputDir=$outAbs" "$PSScriptRoot\fap.iss"
   $pattern = "FreeCAD-AI-Parts-Setup-*.exe"
