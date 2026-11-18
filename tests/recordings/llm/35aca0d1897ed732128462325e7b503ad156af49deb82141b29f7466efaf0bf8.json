@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "35aca0d1897ed732128462325e7b503ad156af49deb82141b29f7466efaf0bf8",
   "response": {
-    "id": "msg_011CfiQC1yYifukFuuhUBok5",
+    "id": "msg_011ChAnbkK25jMAPHMbxYpzS",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -79,7 +79,7 @@
           "value": 94
         },
         {
-          "confidence": 0.85,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "背隙",
           "printed_text": "240",
@@ -139,7 +139,7 @@
           "value": "H7"
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "输入孔形式",
           "printed_text": "光孔",
@@ -189,6 +189,16 @@
           "value": "M5"
         },
         {
+          "confidence": 0.8,
+          "page": 3,
+          "printed_label": "电机法兰螺纹",
+          "printed_text": "M5",
+          "printed_unit": "",
+          "quote": "| 电机法兰螺纹 | — | M3 | M4 | M5 | M5 | M6 |",
+          "target": "ports/motor_flange/hole_kind",
+          "value": "threaded"
+        },
+        {
           "confidence": 0.95,
           "page": 3,
           "printed_label": "电机法兰止口直径",
@@ -227,6 +237,16 @@
           "quote": "| 输出法兰螺纹 | — | M3 | M4 | M4 | M5 | M6 |",
           "target": "ports/output_flange/thread",
           "value": "M5"
+        },
+        {
+          "confidence": 0.8,
+          "page": 3,
+          "printed_label": "输出法兰螺纹",
+          "printed_text": "M5",
+          "printed_unit": "",
+          "quote": "| 输出法兰螺纹 | — | M3 | M4 | M4 | M5 | M6 |",
+          "target": "ports/output_flange/hole_kind",
+          "value": "threaded"
         },
         {
           "confidence": 0.95,

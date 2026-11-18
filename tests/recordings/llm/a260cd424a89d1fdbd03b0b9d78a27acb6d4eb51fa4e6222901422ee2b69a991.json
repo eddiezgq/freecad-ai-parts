@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "a260cd424a89d1fdbd03b0b9d78a27acb6d4eb51fa4e6222901422ee2b69a991",
   "response": {
-    "id": "msg_011CfiQ4ugbE2A7Jrr4PZw6b",
+    "id": "msg_011ChAnUnrdFRk1uQ4XVv3fQ",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -158,7 +158,7 @@
           "value": "IP65"
         },
         {
-          "confidence": 0.95,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "保持制动器",
           "printed_text": "无",

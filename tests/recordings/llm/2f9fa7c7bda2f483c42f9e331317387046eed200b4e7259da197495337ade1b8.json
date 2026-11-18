@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "2f9fa7c7bda2f483c42f9e331317387046eed200b4e7259da197495337ade1b8",
   "response": {
-    "id": "msg_011CfiQ65xzyXWCogxFp9NYF",
+    "id": "msg_011ChAnVxDxgK5rkaYuSxWj6",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -78,7 +78,7 @@
           "value": 0.08
         },
         {
-          "confidence": 0.95,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "额定电流",
           "printed_text": "6",
@@ -88,7 +88,7 @@
           "value": 6
         },
         {
-          "confidence": 0.95,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "瞬时最大电流",
           "printed_text": "18",
@@ -128,7 +128,7 @@
           "value": "incremental_abz"
         },
         {
-          "confidence": 0.92,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "编码器类型",
           "printed_text": "增量式",
@@ -148,7 +148,7 @@
           "value": 8
         },
         {
-          "confidence": 0.95,
+          "confidence": 0.9,
           "page": 3,
           "printed_label": "轴公差",
           "printed_text": "h7",
@@ -158,7 +158,7 @@
           "value": "h7"
         },
         {
-          "confidence": 0.93,
+          "confidence": 0.9,
           "page": 3,
           "printed_label": "轴端形式",
           "printed_text": "D 形切边",

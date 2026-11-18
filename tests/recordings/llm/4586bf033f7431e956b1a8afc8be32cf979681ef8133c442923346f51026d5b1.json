@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "4586bf033f7431e956b1a8afc8be32cf979681ef8133c442923346f51026d5b1",
   "response": {
-    "id": "msg_011CfiQALyVTsggfSs3NukVq",
+    "id": "msg_011ChAnaDveBvwCHngu66o7T",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -149,7 +149,7 @@
           "value": 11
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "输入孔公差",
           "printed_text": "H7",
@@ -159,7 +159,7 @@
           "value": "H7"
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 3,
           "printed_label": "输入孔形式",
           "printed_text": "带键槽",

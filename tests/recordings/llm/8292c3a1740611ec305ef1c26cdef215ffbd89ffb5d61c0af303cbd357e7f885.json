@@ -3,12 +3,12 @@
   "prompt_version": "extract/3",
   "request_key": "8292c3a1740611ec305ef1c26cdef215ffbd89ffb5d61c0af303cbd357e7f885",
   "response": {
-    "id": "msg_011CfiPmcvYc5vWwUc6kekJX",
+    "id": "msg_011ChAnCD6RQCq3WcrmKz5Nn",
     "simulated": false,
     "tool_input": {
       "items": [
         {
-          "confidence": 0.85,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "Type",
           "printed_text": "Strain wave gear",
@@ -28,7 +28,7 @@
           "value": 120
         },
         {
-          "confidence": 0.8,
+          "confidence": 0.6,
           "page": 2,
           "printed_label": "Max. acceleration torque",
           "printed_text": "69",
@@ -38,7 +38,7 @@
           "value": 69
         },
         {
-          "confidence": 0.75,
+          "confidence": 0.55,
           "page": 2,
           "printed_label": "Emergency stop torque",
           "printed_text": "121",
@@ -310,7 +310,6 @@
         }
       ],
       "model": "SGH-15-120",
-      "series": "SGH",
       "vendor": "Synth Gear"
     }
   }

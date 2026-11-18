@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "8187e40c1fb6ea9cd9f05bc006eabe0c3c001765d43d58e4d00b926da97c71cc",
   "response": {
-    "id": "msg_011CfiPk2t9VLDHDeQDSWBt6",
+    "id": "msg_011ChAnAhryrr542LfTreysn",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -38,7 +38,7 @@
           "value": 38
         },
         {
-          "confidence": 0.6,
+          "confidence": 0.7,
           "page": 2,
           "printed_label": "Emergency stop torque",
           "printed_text": "76",
@@ -69,7 +69,7 @@
         },
         {
           "condition": "at rated torque, 25 °C",
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "Efficiency (at rated torque, 25 °C)",
           "printed_text": "0.64",
@@ -300,7 +300,6 @@
         }
       ],
       "model": "SGH-13-100",
-      "series": "SGH",
       "vendor": "Synth Gear"
     }
   }

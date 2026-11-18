@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "9fcacd7e625e95219359339e36ffcc4f602c749cb6f069a2dd4fc408e83022b0",
   "response": {
-    "id": "msg_011CfiQ2AykrjXrf1q29Qfwm",
+    "id": "msg_011ChAnS464ugTRx4KLSuref",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -70,36 +70,6 @@
         {
           "confidence": 0.95,
           "page": 2,
-          "printed_label": "重量",
-          "printed_text": "0.82",
-          "printed_unit": "kg",
-          "quote": "| 重量 | kg | 0.45 | 0.82 | 1.6 | 2.3 | 0.6 |",
-          "target": "params/mass_kg",
-          "value": 0.82
-        },
-        {
-          "confidence": 0.9,
-          "page": 2,
-          "printed_label": "保持制动器",
-          "printed_text": "不带",
-          "printed_unit": "",
-          "quote": "| 保持制动器 | — | 无 | 不带 | 有 | 无 | — |",
-          "target": "params/brake",
-          "value": false
-        },
-        {
-          "confidence": 0.95,
-          "page": 2,
-          "printed_label": "防护等级",
-          "printed_text": "IP65",
-          "printed_unit": "",
-          "quote": "| 防护等级 | — | IP65 | IP65 | IP67 | IP65 | — |",
-          "target": "params/ip_rating",
-          "value": "IP65"
-        },
-        {
-          "confidence": 0.95,
-          "page": 2,
           "printed_label": "转矩常数",
           "printed_text": "0.4",
           "printed_unit": "Nm/A",
@@ -138,6 +108,16 @@
           "value": 200
         },
         {
+          "confidence": 0.95,
+          "page": 2,
+          "printed_label": "重量",
+          "printed_text": "0.82",
+          "printed_unit": "kg",
+          "quote": "| 重量 | kg | 0.45 | 0.82 | 1.6 | 2.3 | 0.6 |",
+          "target": "params/mass_kg",
+          "value": 0.82
+        },
+        {
           "confidence": 0.9,
           "page": 2,
           "printed_label": "编码器接口",
@@ -168,6 +148,26 @@
           "value": 23
         },
         {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "防护等级",
+          "printed_text": "IP65",
+          "printed_unit": "",
+          "quote": "| 防护等级 | — | IP65 | IP65 | IP67 | IP65 | — |",
+          "target": "params/ip_rating",
+          "value": "IP65"
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "保持制动器",
+          "printed_text": "不带",
+          "printed_unit": "",
+          "quote": "| 保持制动器 | — | 无 | 不带 | 有 | 无 | — |",
+          "target": "params/brake",
+          "value": false
+        },
+        {
           "confidence": 0.95,
           "page": 3,
           "printed_label": "输出轴直径",
@@ -186,6 +186,16 @@
           "quote": "| 轴公差 | — | h6 | h6 | h6 | h6 | h7 |",
           "target": "ports/shaft/fit",
           "value": "h6"
+        },
+        {
+          "confidence": 0.7,
+          "page": 3,
+          "printed_label": "轴公差",
+          "printed_text": "h6",
+          "printed_unit": "",
+          "quote": "| 轴公差 | — | h6 | h6 | h6 | h6 | h7 |",
+          "target": "ports/shaft/fit_system",
+          "value": "iso286"
         },
         {
           "confidence": 0.9,

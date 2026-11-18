@@ -3,12 +3,12 @@
   "prompt_version": "extract/3",
   "request_key": "2edb1c967cd1b3fefb3c6f3e899657b548322ec3bd98aa9e17d64df4958032f8",
   "response": {
-    "id": "msg_011CfiQKQYoHSweNNxzKtnTz",
+    "id": "msg_011ChAnj6YtQyhWGeuS1tfCR",
     "simulated": false,
     "tool_input": {
       "items": [
         {
-          "confidence": 0.9,
+          "confidence": 0.8,
           "page": 2,
           "printed_label": "Rated output power",
           "printed_text": "0.3",
@@ -18,7 +18,7 @@
           "value": 0.3
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.8,
           "page": 2,
           "printed_label": "Mass",
           "printed_text": "250",
@@ -38,7 +38,7 @@
           "value": "STO"
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "Power supply",
           "printed_text": "DC",
@@ -112,7 +112,7 @@
           ]
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.95,
           "page": 2,
           "printed_label": "Fieldbus",
           "printed_text": "CANopen",
@@ -122,14 +122,14 @@
           "value": "canopen"
         },
         {
-          "confidence": 0.85,
+          "confidence": 0.9,
           "page": 2,
           "printed_label": "Device profile",
           "printed_text": "CiA402",
           "printed_unit": "",
           "quote": "| Device profile | — | CiA 402 | CiA402 | CiA402 | — | CiA402 |",
           "target": "ports/bus/profile",
-          "value": "cia402"
+          "value": "CiA402"
         },
         {
           "confidence": 0.9,
@@ -203,7 +203,6 @@
         }
       ],
       "model": "SD48-20",
-      "series": "SD",
       "vendor": "Synth Motion"
     }
   }
