@@ -308,6 +308,15 @@ def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, 
     times = np.linspace(t0, t0 + t_end, steps + 1)
     stats = {"rhs": 0, "repartitions": 0, "segments": 0}
     state = {"q": q.copy()}
+    ctrl = getattr(sysm, "ctrl", None)
+    ctrl = ctrl if ctrl is not None and ctrl.any else None
+    nx = ctrl.nx if ctrl else 0
+    rec.ctrl = []                                   # D7：每个记录点的执行器值
+
+    def set_actuators(t, q, qd, xc):
+        if ctrl is None:
+            return
+        sysm.act = ctrl.outputs(t, sysm.measures(q, qd), xc)
 
     def partition(q, t):
         J = sysm.jac(q, t, rows)
@@ -337,26 +346,49 @@ def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, 
         state["q"] = q
         J = sysm.jac(q, t, rows)
         qd = np.zeros(sysm.n)
-        qd[ind] = y[dof:]
+        qd[ind] = y[dof:2 * dof]
         qd[dep] = np.linalg.solve(J[:, dep], sysm.nu(q, t, rows) - J[:, ind] @ qd[ind])
         if not need_acc:
             return q, qd, None, None
+        set_actuators(t, q, qd, y[2 * dof:])
         qdd, lam = accel(sysm, q, qd, t, rows)
         return q, qd, qdd, lam
 
     t_cur, q_cur, qd_cur = t0, q, qd
+    xc_cur = ctrl.x0.copy() if ctrl else np.zeros(0)
+    n_s, h_s = 0, (ctrl.sample if ctrl and ctrl.sample else None)
+    if h_s:
+        ctrl.start(t0, sysm.measures(q_cur, qd_cur))     # FMU：初始化并走第一拍
+    next_s = t0 + h_s if h_s else math.inf
+    set_actuators(t_cur, q_cur, qd_cur, xc_cur)
     qdd0, lam0 = accel(sysm, q_cur, qd_cur, t_cur, rows)
     rec.add(float(t_cur), q_cur, qd_cur, qdd0, keep, lam0)
+    rec.ctrl.append(dict(getattr(sysm, "act", {})))
     k = 0                                   # 已记录到 times[k]
     seg = max(1, steps // 50)               # 每段最多这么多个输出点就重新挑一次分块
+    try:
+        return _dynamic_loop(locals())
+    finally:
+        if ctrl:
+            ctrl.close()
+
+
+def _dynamic_loop(v):
+    """dynamic 的积分循环（拆出来是为了 FMU 用 try/finally 关掉）"""
+    sysm, rec, rows, keep, drop, steps, times, method, rtol, atol, stats, state = (
+        v[k] for k in ("sysm", "rec", "rows", "keep", "drop", "steps", "times", "method", "rtol", "atol", "stats", "state"))
+    partition, full_state, ctrl, dof, nx = (v[k] for k in ("partition", "full_state", "ctrl", "dof", "nx"))
+    t_cur, q_cur, qd_cur, xc_cur, k, seg = (v[k] for k in ("t_cur", "q_cur", "qd_cur", "xc_cur", "k", "seg"))
+    t0, h_s, n_s, next_s = v["t0"], v["h_s"], v["n_s"], v["next_s"]
     while k < steps:
         dep, ind = partition(q_cur, t_cur)
         stats["segments"] += 1
         state["q"] = q_cur.copy()
-        y0 = np.concatenate([q_cur[ind], qd_cur[ind]])
+        y0 = np.concatenate([q_cur[ind], qd_cur[ind], xc_cur])
         cond0 = np.linalg.cond(sysm.jac(q_cur, t_cur, rows)[:, dep])
         limit = max(1e3, 10 * cond0)
         k1 = min(steps, k + seg)
+        t_stop = min(float(times[k1]), next_s)
 
         def rhs(t, y, dep=dep, ind=ind):
             stats["rhs"] += 1
@@ -371,7 +403,10 @@ def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, 
                 # 积分器试的步太大、约束解不回来：退回原点、给 NaN，积分器会拒掉这一步、缩小步长（接触、齿轮这类硬力元会碰到）
                 state["q"] = keep_q
                 stats["rejected"] = stats.get("rejected", 0) + 1
-                return np.full(2 * dof, np.nan)
+                return np.full(2 * dof + nx, np.nan)
+            if nx:
+                xcd = ctrl.deriv(t, sysm.measures(state["q"], qd_), y[2 * dof:])
+                return np.concatenate([qd_[ind], qdd_[ind], xcd])
             return np.concatenate([qd_[ind], qdd_[ind]])
 
         def ill(t, y, dep=dep, ind=ind, limit=limit):
@@ -388,8 +423,8 @@ def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, 
 
         ill.terminal = True
         ill.direction = -1
-        t_eval = times[k + 1:k1 + 1]
-        sol = solve_ivp(rhs, (t_cur, times[k1]), y0, method=method, t_eval=t_eval, rtol=rtol, atol=atol,
+        t_eval = [tt for tt in times[k + 1:k1 + 1] if tt <= t_stop + 1e-12]
+        sol = solve_ivp(rhs, (t_cur, t_stop), y0, method=method, t_eval=t_eval, rtol=rtol, atol=atol,
                         events=ill, dense_output=True)
         if sol.status < 0:
             raise SolveError(f"积分失败：{sol.message}")
@@ -406,6 +441,7 @@ def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, 
                     full_state(ts, sol.sol(ts), dep, ind, need_acc=False)
                 qq, qqd, qqdd, lam = full_state(tt, sol.y[:, n_], dep, ind)
             rec.add(float(tt), qq, qqd, qqdd, keep, lam)
+            rec.ctrl.append(dict(getattr(sysm, "act", {})))
             k += 1
         if sol.status == 1:                 # 事件：换分块，从事件点接着积
             stats["repartitions"] += 1
@@ -420,6 +456,18 @@ def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, 
                     ts = rec.t[-1] + (te - rec.t[-1]) * s_ / 32
                     q_cur, qd_cur, _, _ = full_state(ts, sol.sol(ts), dep, ind, need_acc=False)
             t_cur = te
+            xc_cur = ye[2 * dof:]
         else:
-            t_cur, q_cur, qd_cur = float(sol.t[-1]), rec.q[-1].copy(), rec.qd[-1].copy()
+            if len(sol.t) and abs(sol.t[-1] - t_stop) < 1e-12:
+                t_cur, q_cur, qd_cur = float(sol.t[-1]), rec.q[-1].copy(), rec.qd[-1].copy()
+                xc_cur = sol.y[2 * dof:, -1]
+            else:                               # 停在采样时刻（不是输出点）
+                ys = sol.sol(t_stop)
+                state["q"] = (rec.q[-1] if len(sol.t) else q_cur).copy()
+                q_cur, qd_cur, _, _ = full_state(t_stop, ys, dep, ind, need_acc=False)
+                t_cur, xc_cur = t_stop, ys[2 * dof:]
+            if h_s and abs(t_cur - next_s) < 1e-12:      # FMU 采样：送入测量量、走一拍、保持输出
+                ctrl.sample_at(t_cur, sysm.measures(q_cur, qd_cur))
+                n_s += 1
+                next_s = t0 + h_s * (n_s + 1)
     return rec, {"dof": dof, "redundant": [sysm.rows[k].label for k in drop], **stats}

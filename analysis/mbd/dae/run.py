@@ -120,6 +120,9 @@ def _series(rec, sysm):
                          "elastic_energy_j": [0.5 * float(q[o:o + fx.nm] @ fx.K @ q[o:o + fx.nm]) for q in rec.q],
                          "interface_nodes_mm": nodes}
     out_b["_flex"] = flex
+    if getattr(rec, "ctrl", None):
+        acts = sorted({a for d in rec.ctrl for a in d} | {f["id"] for kind, f in s.forces if kind == "actuator"})
+        out_b["_act"] = {a: [float(d.get(a, 0.0)) for d in rec.ctrl] for a in acts}
     return out_b, joints, motions, reqs, energy, meas, cont
 
 
@@ -131,7 +134,7 @@ def _conservative(sysm) -> bool:
     if any(info.get("friction") for info in sysm.joints.values()):
         return False
     for kind, f in sysm.forces:
-        if kind in ("bushing", "beam", "clearance", "contact", "gear"):
+        if kind in ("bushing", "beam", "clearance", "contact", "gear", "actuator"):
             return False          # 衬套、梁的阻尼和间隙碰撞耗能；势能也没单独算
         if kind == "rspring" and (f["c"] > 0 or f["pre"]):
             return False
@@ -147,8 +150,8 @@ def _conservative(sysm) -> bool:
     return True
 
 
-def run_model(model: dict):
-    sysm = M.build(model)
+def run_model(model: dict, base_dir=None):
+    sysm = M.build(model, base_dir)
     an = model["analysis"]
     typ = an["type"]
     steps = int(an.get("output_steps", 100))
@@ -173,6 +176,7 @@ def run_model(model: dict):
             len(info["redundant"]), "、".join(info["redundant"])))
     bodies, joints, motions, reqs, energy, meas, cont = _series(rec, sysm)
     flex = bodies.pop("_flex")
+    act = bodies.pop("_act", {})
     resid = max(rec.resid) if rec.resid else 0.0
     verification = [{"key": "constraint_residual", "name": "约束残差（全部约束，含删掉的冗余约束）", "value": resid,
                      "limit": RESID_LIMIT_M, "status": PASS if resid <= RESID_LIMIT_M else FAIL}]
@@ -193,7 +197,7 @@ def run_model(model: dict):
                          "note": "雅可比秩算出的自由度 = Grübler 自由度 + 冗余约束数时通过；不等说明有奇异位形，请检查模型"})
     data = {"model": model["name"], "analysis": typ, "dof": info["dof"], "redundant_constraints": info.get("redundant", []),
             "times_s": rec.t, "bodies": bodies, "joints": joints, "motions": motions, "requests": reqs, "measures": meas,
-            "contacts": cont, "flex": flex, "energy": energy,
+            "contacts": cont, "flex": flex, "actuators": act, "energy": energy,
             "verification": verification,
             "solver": {k: info[k] for k in ("rhs", "segments", "repartitions") if k in info} | {"integrator": method, "rtol": rtol,
                                                                                                "atol": atol}}
@@ -245,6 +249,7 @@ def _run_linear(model, sysm, typ):
     rec.add(0.0, q, qd, qdd, keep, lam)
     bodies, joints, motions, reqs, energy, meas, cont = _series(rec, sysm)
     flex = bodies.pop("_flex")
+    act = bodies.pop("_act", {})
     resid = max(rec.resid) if rec.resid else 0.0
     unstable = [m for m in lin["modes"] if m["eigenvalue"][0] > 1e-6 * max(1.0, abs(complex(*m["eigenvalue"])))]
     verification = [{"key": "constraint_residual", "name": "约束残差（工作点）", "value": resid, "limit": RESID_LIMIT_M,
@@ -256,6 +261,6 @@ def _run_linear(model, sysm, typ):
         messages.append("删掉了 {} 条冗余约束：{}".format(len(lin["redundant"]), "、".join(lin["redundant"])))
     data = {"model": model["name"], "analysis": typ, "dof": lin["dof"], "redundant_constraints": lin["redundant"],
             "times_s": rec.t, "bodies": bodies, "joints": joints, "motions": motions, "requests": reqs, "measures": meas,
-            "contacts": cont, "flex": flex, "energy": energy, "linear": {k: v for k, v in lin.items() if k != "redundant"},
+            "contacts": cont, "flex": flex, "actuators": act, "energy": energy, "linear": {k: v for k, v in lin.items() if k != "redundant"},
             "verification": verification, "solver": {"linearization": "中心差分（相对步长 1e-6），B 精确"}}
     return data, messages

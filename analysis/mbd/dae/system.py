@@ -476,6 +476,20 @@ class System:
                     Fw = sign * T * u
                     F[b] += Fw
                     N[b] += np.cross(A_of(self.rp(q, b)[1]) @ s, Fw)
+            elif kind == "actuator":                   # D7：执行器，沿运动副轴，j 上 +、i 上 −
+                u = float(getattr(self, "act", {}).get(f["id"], 0.0))
+                if u == 0.0:
+                    continue
+                jt = self.joints[f["joint"]]
+                h = self.joint_frame(q, jt)[2]
+                if f["dof"] == "rotation":
+                    for b, sign in ((jt["j"], 1.0), (jt["i"], -1.0)):
+                        if b >= 0:
+                            N[b] += sign * u * h
+                else:
+                    P = self._pv(q, qd, jt["j"], jt["sj"])[0]
+                    self._add(F, N, q, jt["j"], u * h, P)
+                    self._add(F, N, q, jt["i"], -u * h, P)
             elif kind == "rspring":
                 info = {"i": f["i"], "j": f["j"], "f": f["f"], "g": f["g"], "h": f["h"], "si": np.zeros(3), "sj": np.zeros(3)}
                 ang, w, _, _ = self.joint_kin(q, qd, info)
