@@ -209,7 +209,7 @@ def proposal_request(cond: dict, bearings: list[dict], history: list[dict], *, m
     prev = ""
     if history:
         last = history[-1]
-        prev = (f"\n\n第 {len(history)} 轮你的方案：\n{json.dumps(last['proposal'], ensure_ascii=False)}\n"
+        prev = (f"\n\n第 {len(history)} 轮你的方案：\n{json.dumps(last['proposal'], ensure_ascii=False, sort_keys=True)}\n"
                 f"程序校核的结论（没通过和待确认的项）：\n{last['feedback']}")
     user = (f"设计条件（已核对，标准单位：mm、N、kg、r/min、W、h）：\n{_cond_text(cond)}\n\n"
             f"零件库里可用的轴承：\n{bearing_table(bearings)}{prev}")
