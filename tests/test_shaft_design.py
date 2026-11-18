@@ -57,14 +57,14 @@ def test_bearing_seats_from_library(ls101):
     assert [(s["d"], s["L"]) for s in segs] == [(10, 22), (12, 10), (16, 215), (12, 10), (10, 40)]   # 与书中 LS-101 相同
     assert all(i["status"] == "pass" for i in by(ls101, "轴承中心"))
     assert all(i["status"] == "pass" for i in by(ls101, "能套进去")) and all(i["status"] == "pass" for i in by(ls101, "轴肩定位"))
-    # NSK 6201 的安装尺寸（da 16–17、ra max 0.6，ADR-0102）：轴身 Ø16、圆角 0.5 合规
+    # NSK 6201 的安装尺寸（da 16–17、ra max 0.6，ADR-0103）：轴身 Ø16、圆角 0.5 合规
     assert [i["status"] for i in by(ls101, "轴肩直径")] == ["pass", "pass"]
     assert [i["status"] for i in by(ls101, "轴肩圆角")] == ["pass", "pass"]
     assert ls101["overall"] == "pass"
 
 
 def test_shoulder_with_abutment_data():
-    """有安装尺寸时按 da min–da max、ra max 判（ADR-0102）；数是测试用的，不是哪家的目录"""
+    """有安装尺寸时按 da min–da max、ra max 判（ADR-0103）；数是测试用的，不是哪家的目录"""
     comp = json.loads(json.dumps(get(B6201)))
     for k, v in (("abutment_shaft_min_mm", 16.0), ("abutment_shaft_max_mm", 17.0), ("fillet_max_mm", 0.6)):
         comp["params"][k] = {"value": v}

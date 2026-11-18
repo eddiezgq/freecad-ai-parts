@@ -4423,7 +4423,7 @@ confirmations:
   quote: 12 21 5 0.3 2 110 1 040 15.3 32 000 20 000 38 000 6801 ZZ VV DD
   confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
   date: '2026-11-18'
-# NSK 深沟球轴承的安装尺寸（2026-11-18，ADR-0102）：第 11 页轴承表“Abutment and Fillet Dimensions (mm)”一组四列依次为
+# NSK 深沟球轴承的安装尺寸（2026-11-18，ADR-0103）：第 11 页轴承表“Abutment and Fillet Dimensions (mm)”一组四列依次为
 # da min、da max、Da max、ra max（排查日志的词坐标核对过列序）。两次抽取都读到了这几个数，但“da”组标题印在两列之间、
 # 对齐行的表头归不准，核对程序没收；按原页逐行确认。ra max 已由核对通过的抽取收录。
 - doc: src-nsk-e1103c-part-c
