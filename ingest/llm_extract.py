@@ -497,8 +497,12 @@ def _context(document: Document, target_model: str | None = None) -> _Ctx:
     comma_dec = re.search(r"(?<![\d.,])\d+,\d{1,2}(?![\d.,])", text) is not None
     comma_k = re.search(r"(?<![\d.,])\d{1,3}(?:,\d{3})+\.\d+(?![\d,])", text) is not None
     comma = True if (dot or comma_k) and not comma_dec else False if comma_dec and not dot else None
-    layout = {p.page: _layout_lines(p.layout_rows) for p in document.pages}
+    layout = {p.page: _layout_lines(p.layout_rows) + _layout_lines(getattr(p, "grid_rows", None) or [])
+              for p in document.pages}
     return _Ctx(lines, spaced, comma, _loose(target_model or ""), (target_model or "").strip(), layout)
+
+
+_SPACE_THOUSANDS = re.compile(r"\d{1,3}(?:[ \u2009\u202f]\d{3})+(?:\.\d+)?")
 
 
 def _tokens(text: str, comma_thousands: bool | None = None) -> tuple[list[float], str | None]:
@@ -557,7 +561,10 @@ def _check_numbers(p: dict, keys: list[str], text: str, target: str, comma: bool
             return f"减速比写法无法核对：{text!r}"
         n = float(m.group(1) or m.group(2))
         return None if math.isclose(p["value"], n, rel_tol=1e-9) else f"value={p['value']} 与印出的减速比 {n} 不符"
-    slots, why = _tokens(text, comma)
+    if _SPACE_THOUSANDS.fullmatch(text.strip()):         # “7 500”：用（窄）空格分千位的一个数（NSK 等日欧目录）
+        slots, why = [float(re.sub(r"\s", "", text))], None
+    else:
+        slots, why = _tokens(text, comma)
     if why:
         return why
     if len(slots) != len(keys):
@@ -592,6 +599,8 @@ def _value_in_line(line: _Line, text: str, label: str, unit: str) -> bool:
     i = low.find(_spaced(label).casefold())
     if i < 0:
         return False
+    if _loose(label) == _loose(text):    # 标题本身就是值（如“SINGLE-ROW DEEP GROOVE BALL BEARINGS”说明轴承类型）
+        return re.search(_bounded(text), line.spaced) is not None
     rest = _FOOTNOTE.sub(" ", line.spaced[i + len(_spaced(label)):])
     m = re.search(_bounded(text), rest)
     return m is not None and not _tokens(rest[: m.start()])[0]
