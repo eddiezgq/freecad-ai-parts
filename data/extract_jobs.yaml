@@ -23,6 +23,11 @@ index:
     terms: [SGD7S, R70A, R90A, 1R6A, 2R8A, 3R8A, 5R5A, 7R6A, 120A, Ratings, Maximum Applicable Motor Capacity,
             Continuous Output Current, Instantaneous Maximum Output Current, Main Circuit, Single-phase, External Dimensions,
             Approx. mass, Safety, HWBB, EtherCAT]
+  - doc: src-nsk-e1103c-part-a
+    terms: [Table 6.6, Omitted, ISO Normal, Tolerance Class, Bearing Numbers]
+  - doc: src-nsk-e1103c-part-c
+    terms: [Single-Row Deep Groove Ball Bearings, "6000", "6001", "6200", "6201", "6202", "608", Boundary Dimensions,
+            Basic Load Ratings, Limiting Speeds, Abutment and Fillet Dimensions, Mass]
 
 jobs:
   # Harmonic Drive CSF-2UH 整机型：额定值表（Table 127-1）、外形尺寸与质量（Table 129-1）、回差与刚度
@@ -67,3 +72,8 @@ jobs:
     category: drive
     pages: "62-65,67-70,80-83,90"
     targets: [SGD7S-R70A, SGD7S-R90A, SGD7S-1R6A, SGD7S-2R8A, SGD7S-3R8A, SGD7S-5R5A, SGD7S-7R6A, SGD7S-120A]
+  # NSK E1103c Part C 单列深沟球轴承表（第 11 页起，按内径分页）：示范缝纫机企业与上轴设计用（ADR-0099 41.6、ADR-0100）
+  - doc: src-nsk-e1103c-part-c
+    category: bearing
+    pages: "11-12"
+    targets: ["6000", "6001", "6200", "6201", "6202"]

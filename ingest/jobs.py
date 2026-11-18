@@ -144,8 +144,8 @@ def diagnose(jobs: list[dict], *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_D
             if not pdf.is_file():
                 continue
             if job["doc"] not in loaded:
-                loaded[job["doc"]] = _context(extract(pdf))
-            ctx = loaded[job["doc"]]
+                loaded[job["doc"]] = extract(pdf)
+            ctx = _context(loaded[job["doc"]], job.get("target"))
             for r in json.loads(p.read_text(encoding="utf-8")).get("rejected", []):
                 quote, page = (r.get("printed") or {}).get("quote"), r.get("page")
                 if not quote or page not in ctx.lines or not any(k in r["reason"] for k in DIAGNOSE_REASONS):
@@ -170,6 +170,16 @@ def diagnose(jobs: list[dict], *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_D
                     pat = re.compile(r"(?<![A-Za-z0-9])" + re.escape(label.strip()) + r"(?![A-Za-z0-9])")
                     with_label = [ln for ln in ctx.lines[page] if not ln.is_row and pat.search(ln.spaced)][:2]
                     out += [f"- 含叫法 {label!r} 的正文行：`{ln.spaced}`" for ln in with_label]
+                pr = r.get("printed") or {}
+                lay = (ctx.layout or {}).get(page) or []
+                alt = [x for x in lay if q and q in x.joined]
+                if alt and pr.get("text") is not None:
+                    from ingest.llm_extract import _check_lines
+
+                    pool = lay + [x for x in ctx.lines[page] if not x.is_row]
+                    why, _ = _check_lines(ctx, page, alt, pr["text"], pr.get("label") or "", pr.get("unit") or "",
+                                          r["target"].rsplit("/", 1)[-1], "", pool, strict=True)
+                    out.append(f"- 按版面对齐的行再核对（{len(alt)} 行）：{why or '通过'}")
                 for ln in ranked[:per_item]:
                     layout_rows = (ctx.layout or {}).get(page) or []
                     kind = "版面行" if any(ln is x for x in layout_rows) else "表格行" if ln.is_row else "正文行"
@@ -178,7 +188,42 @@ def diagnose(jobs: list[dict], *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_D
                     if ln.is_row:
                         out.append(f"  - 表头前三行：`{' / '.join(' ¦ '.join(h) for h in ln.head_rows)}`")
                 out.append("")
+            if job.get("target") and (job["doc"], job["target"]) not in seen:
+                seen.add((job["doc"], job["target"]))
+                out += word_rows(pdf, job["pages"], job["target"])
     return "\n".join(out) + "\n"
+
+
+def word_rows(pdf: Path, pages: list[int], target: str, header_lines: int = 8) -> list[str]:
+    """无边框的表（按行列出型号）：列出目标型号所在行和它上方几行的词与横坐标，用来改进按列核对（只打印到运行日志）"""
+    import pdfplumber
+
+    from ingest.pdf_extract import _dedupe
+
+    out = []
+    with pdfplumber.open(pdf) as doc:
+        for n in pages:
+            if not 1 <= n <= len(doc.pages):
+                continue
+            pg = _dedupe(doc.pages[n - 1])
+            words = pg.extract_words(keep_blank_chars=False, x_tolerance=1.5, y_tolerance=2)
+            lines: dict[int, list] = {}
+            for w in words:
+                lines.setdefault(round(w["top"]), []).append(w)
+            ys = sorted(lines)
+            hit = [y for y in ys if any(w["text"] == target for w in lines[y])]
+            if not hit:
+                continue
+            first = next(i for i, y in enumerate(ys) if y == hit[0])
+            # 表头：页内第一行数据（以数字开头、词多于 8 个）之上的几行
+            data0 = next((i for i, y in enumerate(ys) if len(lines[y]) > 8 and lines[y][0]["text"][:1].isdigit()), first)
+            out.append(f"#### 第 {n} 页 · {target} 的词与横坐标（x0–x1，pt）")
+            for y in ys[max(0, data0 - header_lines):data0] + [ys[first]]:
+                ws = sorted(lines[y], key=lambda w: w["x0"])
+                out.append(f"- y={y}: " + " ".join(f"{w['text']}@{w['x0']:.1f}-{w['x1']:.1f}" for w in ws))
+            out.append("")
+            break
+    return out
 
 
 def page_index(document, terms: list[str]) -> list[dict]:

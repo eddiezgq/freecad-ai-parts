@@ -156,8 +156,12 @@ def apply_confirmations(primary: dict, check: dict, cmp: dict, confirms: list[di
                               "confidence": 1}
         quote = c.get("quote")
         manual = pv is None and isinstance(c.get("page"), int) and isinstance(quote, str) and quote.strip()
+        src_doc = c.get("source_doc") or doc
+        if src_doc != doc and not (manual and _same_source(doc, src_doc)):
+            notes.append(f"{t} 的依据 {src_doc} 不是与 {doc} 同一来源登记的文档，或没有给页码与原文，未采用")
+            continue
         if manual:
-            pv = {"value": v, "source": {"doc": doc, "page": c["page"]}, "method": "manual", "confidence": 1}
+            pv = {"value": v, "source": {"doc": src_doc, "page": c["page"]}, "method": "manual", "confidence": 1}
             if rng is not None:
                 pv.pop("value")
                 pv.update(min=rng[0], max=rng[1])
@@ -175,13 +179,24 @@ def apply_confirmations(primary: dict, check: dict, cmp: dict, confirms: list[di
         if manual and printed_unit:
             pv["value"] = v
             quote = f"{quote.strip()}”，原值 {printed_v:g} {printed_unit.strip()}，换算为标准单位“{v:.6g}"
-        how = f"人工录入：{who}（{day}），规格书第 {c['page']} 页原文“{quote.strip()}”" if manual else \
+        where = f"同一来源的另一份资料 {src_doc} " if src_doc != doc else "规格书"
+        how = f"人工录入：{who}（{day}），{where}第 {c['page']} 页原文“{quote.strip()}”" if manual else \
             f"人工确认：{who}（{day}），对照规格书第 {pv['source'].get('page')} 页"
         pv["source"]["note"] = how
         cmp["agreed"][t] = pv
         cmp["pending"] = [row for row in cmp["pending"] if row["target"] != t]
         notes.append(f"{t} = {v} 由 {who} {'人工录入' if manual else '人工确认'}")
     return notes
+
+
+def _same_source(a: str, b: str) -> bool:
+    """两份文档登记在 data/sources.yaml 的同一来源下（如同一厂商目录的 Part A 与 Part C），且该来源已核过条款"""
+    from ingest.fetch import SOURCES_FILE, registered_documents
+
+    data = yaml.safe_load(Path(SOURCES_FILE).read_text(encoding="utf-8"))
+    owner = {d["id"]: d["source"] for d in registered_documents(data)}
+    ok = {s["id"] for s in data.get("sources") or [] if s.get("terms_checked")}
+    return a in owner and owner.get(a) == owner.get(b) and owner[a] in ok
 
 
 def _curve(c: dict) -> dict | None:

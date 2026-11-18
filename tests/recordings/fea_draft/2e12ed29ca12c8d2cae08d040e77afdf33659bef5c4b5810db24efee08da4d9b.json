@@ -1,0 +1,47 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "fea-draft/2",
+  "request_key": "2e12ed29ca12c8d2cae08d040e77afdf33659bef5c4b5810db24efee08da4d9b",
+  "response": {
+    "id": "msg_011ChAgXYMNqKs9qAd22nhem",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "bodies": [
+        {
+          "material": "40Cr-QT",
+          "material_quote": "40Cr quenched and tempered",
+          "part": 1
+        }
+      ],
+      "items": [
+        {
+          "features": [
+            "F6"
+          ],
+          "part": 1,
+          "quote": "Fix the end face on the Ø70 flange end",
+          "type": "fixed"
+        },
+        {
+          "direction": null,
+          "direction_quote": null,
+          "features": [
+            "F2"
+          ],
+          "magnitude": null,
+          "part": 1,
+          "quote": "Apply a radial bearing load on the Ø50 bearing seat",
+          "type": "bearing_load"
+        }
+      ],
+      "name": "RJ-201 shaft bearing load",
+      "questions": [
+        "轴承载荷的大小是多少（原话说还在计算中）？请给出数值和单位。",
+        "轴承载荷的径向作用方向是哪一个（+x、-x、+y、-y，还是其他方向）？",
+        "固定的端面我选了 F6（z=0、朝 -z、Ø70 法兰端面），请确认是否正确。"
+      ]
+    }
+  }
+}
