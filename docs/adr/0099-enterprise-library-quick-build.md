@@ -168,3 +168,11 @@
      对上的按完整度报告列缺项。结果都是草稿（`confirmed: false`），物料表只记文件名和 SHA-256。
      模型走网关（`assist.llm.GatewayClient`）；录制与评测随 41.6 的示范物料表一起做（届时把 `tests/recordings/bom` 加进
      `freecad_addon/bundle.py` 的 DATA）。本步测试用模拟 AI（`tests/test_bom.py`、`tests/test_completeness.py`）。
+- **41.4（2026-11-18）**：模型测量 `assist/measure.py`（通道 C）。先查模型有效（能导入 FreeCAD 时用 Part 的 OCC 检查；否则至少要求是实体、
+  体积为正），无效的不测并说原因；复用 `assist.features.recognize` 的面识别，量包围盒长宽高、体积、表面积、主轴线上的轴段
+  （取总长最长的一组同轴外圆柱面当主轴线，从坐标小的一端排起：直径、长度、起点）、孔组（分布圆直径、孔数、孔径）；给了材料库 id
+  就按密度算质量（`method: computed`，公式写明），否则只给体积。成组件：`custom_part`、`license: enterprise`、`method: measured`、
+  `source.doc` 是企业库里登记的模型文件，`note` 写测量方法与舍入；包络回转件按段画圆柱，其他画一个长方体；全部 `reviewed: false`，
+  人复核后才算数。AI 只提议零件类型与端口名（`kind_request` / `check_kind`：类型在清单里，端口建议对应的特征必须原样在特征清单里），
+  录制随 41.6。LS-101 量出 Ø10×22、Ø12×10、Ø16×215、Ø12×10、Ø10×40，与 33.11 一致（测试 `tests/test_measure.py`，
+  另用 gmsh 现做一块 6 × Ø9 均布在 Ø70 上的法兰盘测孔组）。
