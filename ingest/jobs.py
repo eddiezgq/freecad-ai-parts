@@ -144,8 +144,8 @@ def diagnose(jobs: list[dict], *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_D
             if not pdf.is_file():
                 continue
             if job["doc"] not in loaded:
-                loaded[job["doc"]] = _context(extract(pdf))
-            ctx = loaded[job["doc"]]
+                loaded[job["doc"]] = extract(pdf)
+            ctx = _context(loaded[job["doc"]], job.get("target"))
             for r in json.loads(p.read_text(encoding="utf-8")).get("rejected", []):
                 quote, page = (r.get("printed") or {}).get("quote"), r.get("page")
                 if not quote or page not in ctx.lines or not any(k in r["reason"] for k in DIAGNOSE_REASONS):
@@ -170,6 +170,16 @@ def diagnose(jobs: list[dict], *, raw_dir: Path = RAW_DIR, out_dir: Path = OUT_D
                     pat = re.compile(r"(?<![A-Za-z0-9])" + re.escape(label.strip()) + r"(?![A-Za-z0-9])")
                     with_label = [ln for ln in ctx.lines[page] if not ln.is_row and pat.search(ln.spaced)][:2]
                     out += [f"- 含叫法 {label!r} 的正文行：`{ln.spaced}`" for ln in with_label]
+                pr = r.get("printed") or {}
+                lay = (ctx.layout or {}).get(page) or []
+                alt = [x for x in lay if q and q in x.joined]
+                if alt and pr.get("text") is not None:
+                    from ingest.llm_extract import _check_lines
+
+                    pool = lay + [x for x in ctx.lines[page] if not x.is_row]
+                    why, _ = _check_lines(ctx, page, alt, pr["text"], pr.get("label") or "", pr.get("unit") or "",
+                                          r["target"].rsplit("/", 1)[-1], "", pool, strict=True)
+                    out.append(f"- 按版面对齐的行再核对（{len(alt)} 行）：{why or '通过'}")
                 for ln in ranked[:per_item]:
                     layout_rows = (ctx.layout or {}).get(page) or []
                     kind = "版面行" if any(ln is x for x in layout_rows) else "表格行" if ln.is_row else "正文行"
