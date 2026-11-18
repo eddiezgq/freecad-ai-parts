@@ -119,6 +119,7 @@ TOP_LEVEL = {
     "extraction": "extraction.schema.json",
     "fea-study": "fea-study.schema.json",          # ADR-0093
     "mbd-model": "mbd-model.schema.json",          # ADR-0097
+    "mbd-study": "mbd-study.schema.json",          # ADR-0097 D7b
 }
 
 
