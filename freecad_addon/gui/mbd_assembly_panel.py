@@ -1,4 +1,5 @@
-"""装配体多体动力学窗口（ADR-0097 D5c，补充十二）：STEP 导入与运动副草稿确认、驱动与分析设置、计算、核查结论、曲线、动画。
+"""装配体多体动力学窗口（ADR-0097 D5c，补充十二；D8b 补充二十二）：STEP 导入与运动副草稿确认、驱动与分析设置、
+柔性零件、计算、核查结论、曲线、动画（柔性零件画变形与应力云图）、计算报告。
 
 流程逻辑在 freecad_addon/core/mbd_study.py；这里只管界面。计算在后台线程，不卡界面。
 """
@@ -70,6 +71,16 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         form.addRow("时长 s", self.end)
         form.addRow("输出点数", self.steps)
         l2.addLayout(form)
+        self.flexparts = QtWidgets.QTableWidget(0, 2)
+        self.flexparts.setHorizontalHeaderLabels(["零件", "按柔性体算（选材料）"])
+        self.flexparts.verticalHeader().setVisible(False)
+        self.flexparts.setToolTip("选了材料的零件用 gmsh + CalculiX 缩减成柔性体（要几十秒），结果里能看变形和应力云图")
+        l2.addWidget(self.flexparts)
+        row = QtWidgets.QHBoxLayout()
+        row.addWidget(QtWidgets.QLabel("变形放大倍数"))
+        self.flex_scale = QtWidgets.QLineEdit("1")
+        row.addWidget(self.flex_scale)
+        l2.addLayout(row)
         self.run_btn = QtWidgets.QPushButton("计算")
         self.run_btn.setEnabled(False)
         l2.addWidget(self.run_btn)
@@ -99,6 +110,9 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         for x in (self.play, self.slider, self.time, self.reset):
             row.addWidget(x, 1 if x is self.slider else 0)
         l3.addLayout(row)
+        self.report_btn = QtWidgets.QPushButton("写计算报告…")
+        self.report_btn.setEnabled(False)
+        l3.addWidget(self.report_btn)
         lay.addWidget(box3)
         self.status = QtWidgets.QLabel("先选装配体：用当前文档的，或导入 STEP。")
         self.status.setWordWrap(True)
@@ -117,6 +131,7 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         self.slider.valueChanged.connect(lambda v: self.show_frame(v))
         self.play.clicked.connect(lambda *_: self.toggle_play())
         self.reset.clicked.connect(lambda *_: self.restore())
+        self.report_btn.clicked.connect(lambda *_: self._pick_report_dir())
         self.done.connect(self._done, QtCore.Qt.QueuedConnection)
 
     def _make_plot(self):
@@ -227,6 +242,7 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
             self.drives.setCellWidget(i, 1, kind)
             self.drives.setItem(i, 2, QtWidgets.QTableWidgetItem(""))
         self.drives.resizeColumnsToContents()
+        self._fill_flexparts()
         self.run_btn.setEnabled(True)
         self.status.setText(f"装配体有 {len(self.model['bodies'])} 个运动零件、{len(self.model['joints'])} 个运动副。"
                             + " ".join(msgs) + " 设好驱动和分析后点“计算”。")
@@ -261,6 +277,40 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         an = {"type": self.kind.currentData(), "end_time_s": end, "output_steps": steps}
         return drives, an
 
+    def _fill_flexparts(self):
+        from analysis.common import materials
+
+        need = ("elastic_modulus_mpa", "poisson_ratio", "density_kg_m3")
+        mats = [m for m in materials.all_materials() if all(k in m for k in need)]
+        self.flexparts.setRowCount(len(self.model["bodies"]))
+        for i, b in enumerate(self.model["bodies"]):
+            self.flexparts.setItem(i, 0, QtWidgets.QTableWidgetItem(b["id"]))
+            box = QtWidgets.QComboBox()
+            box.addItem("刚性", None)
+            for m in mats:
+                box.addItem(m["name"], m["id"])
+            self.flexparts.setCellWidget(i, 1, box)
+        self.flexparts.resizeColumnsToContents()
+
+    def set_flex(self, body_id, material_id) -> bool:
+        for i in range(self.flexparts.rowCount()):
+            if self.flexparts.item(i, 0).text() == body_id:
+                w = self.flexparts.cellWidget(i, 1)
+                k = w.findData(material_id)
+                if k < 0:
+                    return False
+                w.setCurrentIndex(k)
+                return True
+        return False
+
+    def flex_settings(self) -> dict:
+        out = {}
+        for i in range(self.flexparts.rowCount()):
+            mid = self.flexparts.cellWidget(i, 1).currentData()
+            if mid:
+                out[self.flexparts.item(i, 0).text()] = {"material": mid}
+        return out
+
     def compute(self) -> bool:
         if self.busy or self.assembly is None:
             return False
@@ -268,6 +318,8 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
 
         try:
             drives, an = self.settings()
+            flex = self.flex_settings()
+            scale = float(self.flex_scale.text())
             model, _ = ST.make_model(self.assembly, drives, an)
         except (ValueError, AssemblyError) as exc:
             self.status.setText(str(exc))
@@ -275,10 +327,16 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         self.restore()
         self.busy = True
         self.run_btn.setEnabled(False)
-        self.status.setText("正在计算 …")
+        self.status.setText("正在缩减柔性零件、计算 …" if flex else "正在计算 …")
+        self.scale = scale
+        objs = ST.body_objects(model, self.doc)
 
         def work():
             try:
+                if flex:
+                    from freecad_addon.fc import mbd_flex as MF
+
+                    MF.make_flexible(model, objs, flex)
                 data, msgs = ST.run(model)
                 out = {"ok": True, "model": model, "data": data, "messages": msgs}
             except Exception as exc:  # noqa: BLE001 — 交给界面显示
@@ -309,7 +367,8 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
                 for j, text in enumerate([str(i + 1), f"{m['frequency_hz']:.4g}",
                                           "—" if m["damping_ratio"] is None else f"{m['damping_ratio']:.3g}"]):
                     self.modes.setItem(i, j, QtWidgets.QTableWidgetItem(text))
-        self.animator = ST.Animator(self.model, self.data, self.doc)
+        self.animator = ST.Animator(self.model, self.data, self.doc, flex_scale=getattr(self, "scale", 1.0))
+        self.report_btn.setEnabled(True)
         self.slider.setRange(0, self.animator.frames - 1)
         self._set_anim(self.animator.frames > 1)
         self._draw()
@@ -354,6 +413,34 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         if self.animator is not None:
             self.animator.restore()
             self.time.setText("t = —")
+
+    def _pick_report_dir(self):
+        d = QtWidgets.QFileDialog.getExistingDirectory(self, "报告存到哪个文件夹")
+        if d:
+            self.write_report(d)
+
+    def write_report(self, out_dir, use_ai=None):
+        """结果 → Markdown 报告、曲线、出处账；勾了“用 AI 起草”就让 AI 写解释段落（数字仍由程序填）"""
+        if self.data is None:
+            return None
+        import json
+        from pathlib import Path
+
+        from assist import mbd_report
+
+        Path(out_dir).mkdir(parents=True, exist_ok=True)
+        (Path(out_dir) / "result.json").write_text(json.dumps(self.data, ensure_ascii=False), encoding="utf-8")
+        ai = self.use_ai.isChecked() if use_ai is None else use_ai
+        client = self.client_factory() if ai and self.client_factory else None
+        try:
+            got = mbd_report.build(self.data, out_dir, client=client, title=self.model.get("name"))
+        except Exception as exc:  # noqa: BLE001 — 交给界面显示
+            self.status.setText(f"报告没写成：{exc}")
+            return None
+        rej = got["explanation"]["rejected"]
+        self.status.setText(f"报告写到 {got['markdown']}（草稿，须工程师审核）"
+                            + (f"；AI 有 {len(rej)} 段不合规，已退回" if rej else ""))
+        return got
 
     def closeEvent(self, ev):
         self.restore()

@@ -111,7 +111,7 @@ def _pump(app, cond, timeout=120):
     assert cond(), "超时"
 
 
-def test_panel_imports_confirms_runs_and_animates(gui, step):
+def test_panel_imports_confirms_runs_and_animates(gui, step, tmp_path):
     import FreeCAD as App
     from PySide import QtCore
 
@@ -143,6 +143,13 @@ def test_panel_imports_confirms_runs_and_animates(gui, step):
         assert not lever.Placement.isSame(orig, 1e-9) and panel.time.text().startswith("t = 0.05")
         panel.restore()
         assert lever.Placement.isSame(orig, 1e-12)
+        # D8b：柔性零件表列出全部零件、默认刚性；报告写出来（不用 AI）
+        assert panel.flexparts.rowCount() == len(panel.model["bodies"]) and panel.flex_settings() == {}
+        assert panel.set_flex(lever.Name, "45-QT") and panel.flex_settings() == {lever.Name: {"material": "45-QT"}}
+        assert panel.set_flex(lever.Name, None) and panel.flex_settings() == {}
+        got = panel.write_report(tmp_path / "rep", use_ai=False)
+        assert got is not None and got["markdown"].is_file() and (tmp_path / "rep" / "result.json").is_file()
+        assert "草稿" in panel.status.text()
         # 模态：不驱动，先静平衡再线性化（单自由度：一阶）
         panel.set_drive(drive, "none", "")
         panel.kind.setCurrentIndex(panel.kind.findData("static_then_linear"))
