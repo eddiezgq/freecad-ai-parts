@@ -155,7 +155,7 @@ def test_panel_imports_confirms_runs_and_animates(gui, step, tmp_path):
         assert panel.flex_settings() == {lever.Name: {"material": "45-QT", "kind": "nonlinear_beam"}}
         assert panel.set_flex(lever.Name, None) and panel.flex_settings() == {}
         got = panel.write_report(tmp_path / "rep", use_ai=False)
-        assert got is not None and got["markdown"].is_file() and (tmp_path / "rep" / "result.json").is_file()
+        assert got is not None and got["docx"].is_file() and (tmp_path / "rep" / "result.json").is_file()
         assert "草稿" in panel.status.text()
         # 模态：不驱动，先静平衡再线性化（单自由度：一阶）
         panel.set_drive(drive, "none", "")

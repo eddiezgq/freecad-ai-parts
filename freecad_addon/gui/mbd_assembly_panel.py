@@ -437,8 +437,9 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         if d:
             self.write_report(d)
 
-    def write_report(self, out_dir, use_ai=None):
-        """结果 → Markdown 报告、曲线、出处账；勾了“用 AI 起草”就让 AI 写解释段落（数字仍由程序填）"""
+    def write_report(self, out_dir, use_ai=None, lang="zh"):
+        """结果 → 正式报告（Word，有 LibreOffice 时另出 PDF）与出处账、改版记录（ADR-0102 第 1 步）；
+        勾了“用 AI 起草”就让 AI 写解释段落（数字仍由程序填，不合规的段落退回）"""
         if self.data is None:
             return None
         import json
@@ -446,17 +447,22 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
 
         from assist import mbd_report
 
-        Path(out_dir).mkdir(parents=True, exist_ok=True)
-        (Path(out_dir) / "result.json").write_text(json.dumps(self.data, ensure_ascii=False), encoding="utf-8")
+        out_dir = Path(out_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "result.json").write_text(json.dumps(self.data, ensure_ascii=False), encoding="utf-8")
+        (out_dir / "model.json").write_text(json.dumps(self.model, ensure_ascii=False), encoding="utf-8")
         ai = self.use_ai.isChecked() if use_ai is None else use_ai
         client = self.client_factory() if ai and self.client_factory else None
         try:
-            got = mbd_report.build(self.data, out_dir, client=client, title=self.model.get("name"))
+            data = json.loads(json.dumps(self.data))
+            ex = mbd_report.explain(data, mbd_report.facts(data), client) if client else None
+            got = mbd_report.build_docx(self.model, data, out_dir / "report.docx", explanation=ex, lang=lang)
         except Exception as exc:  # noqa: BLE001 — 交给界面显示
             self.status.setText(f"报告没写成：{exc}")
             return None
+        got["explanation"] = ex or {"paragraphs": [], "rejected": []}
         rej = got["explanation"]["rejected"]
-        self.status.setText(f"报告写到 {got['markdown']}（草稿，须工程师审核）"
+        self.status.setText(f"报告写到 {got['pdf'] or got['docx']}（草稿，须工程师审核）"
                             + (f"；AI 有 {len(rej)} 段不合规，已退回" if rej else ""))
         return got
 
