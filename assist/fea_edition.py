@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 PRO = "fea_pro"
-EDITIONS = ("full", "fea")
+EDITIONS = ("full", "fea", "mbd")                 # mbd：问渠多体动力学版（ADR-0102 第 4 步，分档见 mbd_edition）
 EDITION_FILE = Path(__file__).resolve().parents[1] / "edition.json"
 FREE_MAX_ELEMENTS = 200000
 FREE_STEPS = ("static", "modal", "buckling")
@@ -29,7 +29,7 @@ class NeedsPro(Exception):
 
 
 def info() -> dict:
-    """{"edition": full | fea, "test_build": bool}"""
+    """{"edition": full | fea | mbd, "test_build": bool}"""
     data: dict[str, Any] = {}
     try:
         data = json.loads(EDITION_FILE.read_text(encoding="utf-8"))

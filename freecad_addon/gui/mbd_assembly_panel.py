@@ -204,6 +204,14 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
             self.load_step(path)
 
     def load_step(self, path, doc=None) -> bool:
+        from assist import mbd_edition
+
+        if self.use_ai.isChecked() and self.client_factory:
+            try:                                          # 免费版：先说明，不导入（ADR-0102 第 4 步）
+                mbd_edition.gate(feature="AI 帮着挑运动副")
+            except mbd_edition.NeedsPro as exc:
+                self.status.setText(str(exc))
+                return False
         self.doc = doc or App.newDocument("MbdAssembly")
         client = self.client_factory() if (self.use_ai.isChecked() and self.client_factory) else None
         try:
@@ -360,13 +368,15 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         if self.busy or self.assembly is None:
             return False
         from analysis.mbd.assembly import AssemblyError
+        from assist import mbd_edition
 
         try:
             drives, an = self.settings()
             flex = self.flex_settings()
             scale = float(self.flex_scale.text())
             model, _ = ST.make_model(self.assembly, drives, an)
-        except (ValueError, AssemblyError) as exc:
+            mbd_edition.gate(model, flex_parts=flex)      # 免费版用了专业版功能：先说明，不算（ADR-0102 第 4 步）
+        except (ValueError, AssemblyError, mbd_edition.NeedsPro) as exc:
             self.status.setText(str(exc))
             return False
         self.restore()
@@ -474,26 +484,20 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         勾了“用 AI 起草”就让 AI 写解释段落（数字仍由程序填，不合规的段落退回）"""
         if self.data is None:
             return None
-        import json
-        from pathlib import Path
+        from assist import mbd_edition
 
-        from assist import i18n, mbd_report
-
-        lang = lang or i18n.lang()                          # 缺省同界面语言（ADR-0102 第 2 步）
-        out_dir = Path(out_dir)
-        out_dir.mkdir(parents=True, exist_ok=True)
-        (out_dir / "result.json").write_text(json.dumps(self.data, ensure_ascii=False), encoding="utf-8")
-        (out_dir / "model.json").write_text(json.dumps(self.model, ensure_ascii=False), encoding="utf-8")
+        try:
+            mbd_edition.gate(feature="正式报告")
+        except mbd_edition.NeedsPro as exc:
+            self.status.setText(str(exc))
+            return None
         ai = self.use_ai.isChecked() if use_ai is None else use_ai
         client = self.client_factory() if ai and self.client_factory else None
         try:
-            data = json.loads(json.dumps(self.data))
-            ex = mbd_report.explain(data, mbd_report.facts(data), client) if client else None
-            got = mbd_report.build_docx(self.model, data, out_dir / "report.docx", explanation=ex, lang=lang)
+            got = ST.write_report(self.model, self.data, out_dir, client=client, lang=lang)
         except Exception as exc:  # noqa: BLE001 — 交给界面显示
             self.status.setText(f"报告没写成：{exc}")
             return None
-        got["explanation"] = ex or {"paragraphs": [], "rejected": []}
         rej = got["explanation"]["rejected"]
         self.status.setText(f"报告写到 {got['pdf'] or got['docx']}（草稿，须工程师审核）"
                             + (f"；AI 有 {len(rej)} 段不合规，已退回" if rej else ""))
