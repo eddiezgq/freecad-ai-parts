@@ -3,6 +3,7 @@
     "dims/outer_diameter_mm",
     "params/bearing_kind",
     "params/dynamic_load_rating_n",
+    "params/fillet_max_mm",
     "params/mass_kg",
     "params/static_load_rating_n",
     "params/width_mm",

@@ -61,6 +61,28 @@ def test_grid_rows(doc):
     assert "(N)" in head[4] and "(N)" in head[5]          # 跨两列的表头归到两列
 
 
+def test_group_header_between_two_columns(tmp_path):
+    """“da”印在 min、max 两列之间（不压在任一列上）：归到左右两列"""
+    from reportlab.pdfgen import canvas
+
+    p = tmp_path / "da.pdf"
+    c = canvas.Canvas(str(p))
+    c.setFont("Helvetica", 9)
+    c.drawString(118, 730, "da")
+    for x, t in ((40, "Model"), (100, "min."), (140, "max.")):
+        c.drawString(x, 718, t)
+    for y, row in ((700, ("9201", "16", "17")), (688, ("9202", "19", "20.5"))):
+        for x, t in zip((40, 100, 140), row, strict=True):
+            c.drawString(x, y, t)
+    for y in (676, 664, 652):
+        for x, t in zip((40, 100, 140, 180, 220, 260), ("9300", "21", "23", "1", "2", "3"), strict=True):
+            c.drawString(x, y, t)
+    c.save()
+    rows = extract(p).pages[0].grid_rows
+    head = rows[0]
+    assert "da" in head[1] and "min." in head[1] and "da" in head[2] and "max." in head[2] and "da" not in head[0]
+
+
 def _p(target, text, value, label, unit):
     return {"target": target, "printed_text": text, "printed_unit": unit, "printed_label": label, "page": 1,
             "quote": "32 10 0.6 7 500 3 050 9201 0.037", "confidence": 0.9, "value": value}

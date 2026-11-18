@@ -58,8 +58,19 @@
       },
       "value": 7500.0
     },
+    "fillet_max_mm": {
+      "confidence": 0.6,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-nsk-e1103c-part-c",
+        "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
+        "page": 11
+      },
+      "value": 0.6
+    },
     "mass_kg": {
-      "confidence": 0.85,
+      "confidence": 0.8,
       "method": "extracted",
       "reviewed": true,
       "source": {

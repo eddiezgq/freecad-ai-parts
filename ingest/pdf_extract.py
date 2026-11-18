@@ -150,6 +150,7 @@ GRID_MIN_CELLS = 6          # 一行至少这么多格才算数据行
 GRID_HEAD_BAND_PT = 60      # 第一行数据之上多高范围内的文字算表头
 GRID_REPEAT_HEAD = 10       # 每隔几行数据重复一次合成表头（核对只往上找十几行表头）
 GRID_BLOCK_GAP_PT = 30      # 数据行之间超过这个间隔就算另一张表
+GRID_GAP_HEAD_PT = 20       # 印在两列之间的表头，离左右列不超过这么远才归过去
 _THOUSANDS = re.compile(r"\d{1,3}(?: \d{3})*")
 
 
@@ -221,7 +222,12 @@ def _grid_rows(pg) -> list[list[str]]:
         for top, cs in rows:
             if max(prev_end, top0 - GRID_HEAD_BAND_PT) < top < top0 - 1:
                 for ph in _phrases(cs):                  # 跨几列的表头（“Limiting Speeds (min–1)”）归到它跨过的每一列
-                    for j in col_of(ph):
+                    js = col_of(ph)
+                    if not js:                           # 印在两列之间的组标题（“da”下面分 min、max 两列）：归到左右两列
+                        left = [j for j, (a, b) in enumerate(cols) if b <= ph["x0"] and ph["x0"] - b <= GRID_GAP_HEAD_PT]
+                        right = [j for j, (a, b) in enumerate(cols) if a >= ph["x1"] and a - ph["x1"] <= GRID_GAP_HEAD_PT]
+                        js = ([left[-1]] if left else []) + ([right[0]] if right else [])
+                    for j in js:
                         head[j] = (head[j] + " " + ph["text"]).strip()
         prev: list[str] | None = None
         for k, i in enumerate(blk):
