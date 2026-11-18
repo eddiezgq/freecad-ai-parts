@@ -1,0 +1,126 @@
+{
+  "format": "extraction/1",
+  "document": {
+    "doc": "src-nsk-e1103c-part-c",
+    "sha256": "3c1acfda536bb6a77487d1fcf6812618e31c62582fb20089659d20b7af07a6e2",
+    "pages": 2
+  },
+  "category": "bearing",
+  "extractor": {
+    "model": "claude-sonnet-5-5",
+    "prompt_version": "extract/3",
+    "response_id": "msg_011ChAUpEiYxfTdoxoF3k1uY"
+  },
+  "items": [],
+  "rejected": [
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/bearing_kind",
+      "page": 11,
+      "printed": {
+        "text": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+        "unit": "",
+        "label": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+        "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/width_mm",
+      "page": 11,
+      "printed": {
+        "text": "99",
+        "unit": "mm",
+        "label": "B",
+        "quote": "3300 99 00..66 55 660000 22 339900 1133..22 2288 000000 1188 000000 3344 000000 66220000 ZZZZ VVVV DDDDUU"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/dynamic_load_rating_n",
+      "page": 11,
+      "printed": {
+        "text": "55 660000",
+        "unit": "N",
+        "label": "C r",
+        "quote": "3300 99 00..66 55 660000 22 339900 1133..22 2288 000000 1188 000000 3344 000000 66220000 ZZZZ VVVV DDDDUU"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/static_load_rating_n",
+      "page": 11,
+      "printed": {
+        "text": "22 339900",
+        "unit": "N",
+        "label": "C 0r",
+        "quote": "3300 99 00..66 55 660000 22 339900 1133..22 2288 000000 1188 000000 3344 000000 66220000 ZZZZ VVVV DDDDUU"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/limiting_speed_rpm",
+      "page": 11,
+      "printed": {
+        "text": "2288 000000",
+        "unit": "min–1",
+        "label": "Limiting Speeds (min–1) Grease Open",
+        "quote": "3300 99 00..66 55 660000 22 339900 1133..22 2288 000000 1188 000000 3344 000000 66220000 ZZZZ VVVV DDDDUU"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/mass_kg",
+      "page": 11,
+      "printed": {
+        "text": "00..003322",
+        "unit": "kg",
+        "label": "Mass (kg)",
+        "quote": "3300 99 00..66 55 660000 22 339900 1133..22 2288 000000 1188 000000 3344 000000 66220000 ZZZZ VVVV DDDDUU NN NNRR 22..0066 11..3355 2288..1177 00..44 00..55 3344..77 11..1122 1144 1166 2266 00..66 3355..55 22..99 00..003322"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/outer/diameter_mm",
+      "page": 11,
+      "printed": {
+        "text": "3300",
+        "unit": "mm",
+        "label": "D",
+        "quote": "3300 99 00..66 55 660000 22 339900 1133..22 2288 000000 1188 000000 3344 000000 66220000 ZZZZ VVVV DDDDUU"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "dims/outer_diameter_mm",
+      "page": 11,
+      "printed": {
+        "text": "3300",
+        "unit": "mm",
+        "label": "D",
+        "quote": "3300 99 00..66 55 660000 22 339900 1133..22 2288 000000 1188 000000 3344 000000 66220000 ZZZZ VVVV DDDDUU"
+      }
+    },
+    {
+      "target": "vendor",
+      "printed": {
+        "text": "NSK"
+      },
+      "reason": "vendor 在规格书中找不到"
+    },
+    {
+      "target": "model",
+      "printed": {
+        "text": "6200"
+      },
+      "reason": "model 在规格书中找不到"
+    }
+  ],
+  "missing_key_fields": [
+    "params/bearing_kind",
+    "params/width_mm",
+    "params/dynamic_load_rating_n",
+    "params/static_load_rating_n",
+    "params/limiting_speed_rpm"
+  ]
+}

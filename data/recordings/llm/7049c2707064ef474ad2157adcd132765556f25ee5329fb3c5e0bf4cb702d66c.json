@@ -1,0 +1,96 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "7049c2707064ef474ad2157adcd132765556f25ee5329fb3c5e0bf4cb702d66c",
+  "response": {
+    "id": "msg_011ChAUmeRjxY6GrsBoLS3nu",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.9,
+          "page": 11,
+          "printed_label": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "printed_text": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "printed_unit": "",
+          "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "target": "params/bearing_kind",
+          "value": "deep_groove"
+        },
+        {
+          "confidence": 0.6,
+          "page": 11,
+          "printed_label": "B",
+          "printed_text": "88",
+          "printed_unit": "mm",
+          "quote": "2266 88 00..33 55 005500 11 997700 1122..44 3300 000000 2222 000000 3366 000000 66000000 ZZZZ VVVV DDDDUU",
+          "target": "params/width_mm",
+          "value": 8
+        },
+        {
+          "confidence": 0.6,
+          "page": 11,
+          "printed_label": "C r",
+          "printed_text": "55 005500",
+          "printed_unit": "N",
+          "quote": "2266 88 00..33 55 005500 11 997700 1122..44 3300 000000 2222 000000 3366 000000 66000000 ZZZZ VVVV DDDDUU",
+          "target": "params/dynamic_load_rating_n",
+          "value": 5050
+        },
+        {
+          "confidence": 0.6,
+          "page": 11,
+          "printed_label": "C 0r",
+          "printed_text": "11 997700",
+          "printed_unit": "N",
+          "quote": "2266 88 00..33 55 005500 11 997700 1122..44 3300 000000 2222 000000 3366 000000 66000000 ZZZZ VVVV DDDDUU",
+          "target": "params/static_load_rating_n",
+          "value": 1970
+        },
+        {
+          "condition": "Grease, Open Z·ZZ",
+          "confidence": 0.4,
+          "page": 11,
+          "printed_label": "Limiting Speeds (min–1) Grease Open",
+          "printed_text": "3300 000000",
+          "printed_unit": "min–1",
+          "quote": "2266 88 00..33 55 005500 11 997700 1122..44 3300 000000 2222 000000 3366 000000 66000000 ZZZZ VVVV DDDDUU",
+          "target": "params/limiting_speed_rpm",
+          "value": 30000
+        },
+        {
+          "confidence": 0.5,
+          "page": 11,
+          "printed_label": "Mass (kg)",
+          "printed_text": "00..001188",
+          "printed_unit": "kg",
+          "quote": "2299..44 11..99 00..001188",
+          "target": "params/mass_kg",
+          "value": 0.018
+        },
+        {
+          "confidence": 0.6,
+          "page": 11,
+          "printed_label": "D",
+          "printed_text": "2266",
+          "printed_unit": "mm",
+          "quote": "2266 88 00..33 55 005500 11 997700 1122..44 3300 000000 2222 000000 3366 000000 66000000 ZZZZ VVVV DDDDUU",
+          "target": "ports/outer/diameter_mm",
+          "value": 26
+        },
+        {
+          "confidence": 0.6,
+          "page": 11,
+          "printed_label": "D",
+          "printed_text": "2266",
+          "printed_unit": "mm",
+          "quote": "2266 88 00..33 55 005500 11 997700 1122..44 3300 000000 2222 000000 3366 000000 66000000 ZZZZ VVVV DDDDUU",
+          "target": "dims/outer_diameter_mm",
+          "value": 26
+        }
+      ],
+      "model": "6000",
+      "vendor": "NSK"
+    }
+  }
+}

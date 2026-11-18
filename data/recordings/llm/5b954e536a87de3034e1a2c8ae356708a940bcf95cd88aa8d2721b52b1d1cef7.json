@@ -1,0 +1,106 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "5b954e536a87de3034e1a2c8ae356708a940bcf95cd88aa8d2721b52b1d1cef7",
+  "response": {
+    "id": "msg_011ChAUrbvKVHJTTypW9fr3T",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 11,
+          "printed_label": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "printed_text": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "printed_unit": "",
+          "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "target": "params/bearing_kind",
+          "value": "deep_groove"
+        },
+        {
+          "confidence": 0.6,
+          "page": 11,
+          "printed_label": "d",
+          "printed_text": "15",
+          "printed_unit": "mm",
+          "quote": "15 24 5 0.3 2 280 1 260 15.8 28 000 17 000 34 000 6802 ZZ VV DDU",
+          "target": "ports/inner/diameter_mm",
+          "value": 15
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "D",
+          "printed_text": "35",
+          "printed_unit": "mm",
+          "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU",
+          "target": "ports/outer/diameter_mm",
+          "value": 35
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "D",
+          "printed_text": "35",
+          "printed_unit": "mm",
+          "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU",
+          "target": "dims/outer_diameter_mm",
+          "value": 35
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "B",
+          "printed_text": "11",
+          "printed_unit": "mm",
+          "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU",
+          "target": "params/width_mm",
+          "value": 11
+        },
+        {
+          "confidence": 0.9,
+          "page": 11,
+          "printed_label": "C r",
+          "printed_text": "8 400",
+          "printed_unit": "N",
+          "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU",
+          "target": "params/dynamic_load_rating_n",
+          "value": 8400
+        },
+        {
+          "confidence": 0.9,
+          "page": 11,
+          "printed_label": "C 0r",
+          "printed_text": "3 750",
+          "printed_unit": "N",
+          "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU",
+          "target": "params/static_load_rating_n",
+          "value": 3750
+        },
+        {
+          "condition": "Grease, Open Z · ZZ",
+          "confidence": 0.6,
+          "page": 11,
+          "printed_label": "Limiting Speeds (min–1) Grease Open Z · ZZ",
+          "printed_text": "22 000",
+          "printed_unit": "min–1",
+          "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU",
+          "target": "params/limiting_speed_rpm",
+          "value": 22000
+        },
+        {
+          "confidence": 0.8,
+          "page": 11,
+          "printed_label": "Mass (kg) approx.",
+          "printed_text": "0.045",
+          "printed_unit": "kg",
+          "quote": "19 20.5 31 0.6 40.5 2.9 0.045",
+          "target": "params/mass_kg",
+          "value": 0.045
+        }
+      ],
+      "model": "6202",
+      "vendor": "NSK"
+    }
+  }
+}

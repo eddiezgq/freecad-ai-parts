@@ -1,0 +1,130 @@
+{
+  "model": "claude-opus-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "198706287c268189a2586d1248ff8d38d6cd15a35d13b48248eb4e7e475cb31d",
+  "response": {
+    "id": "msg_011ChAV6iHhU4NzisCBkoVgf",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 11,
+          "printed_label": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "printed_text": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "printed_unit": "",
+          "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "target": "params/bearing_kind",
+          "value": "deep_groove"
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "B",
+          "printed_text": "99",
+          "printed_unit": "mm",
+          "quote": "3300 99 00..66 55 660000 22 339900 1133..22 2288 000000 1188 000000 3344 000000 66220000 ZZZZ VVVV DDDDUU NN NNRR 22..0066 11..3355 2288..1177 00..44 00..55 3344..77 11..1122 1144 1166 2266 00..66 3355..55 22..99 00..003322",
+          "target": "params/width_mm",
+          "value": 9
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "D",
+          "printed_text": "3300",
+          "printed_unit": "mm",
+          "quote": "3300 99 00..66 55 660000 22 339900 1133..22 2288 000000 1188 000000 3344 000000 66220000 ZZZZ VVVV DDDDUU NN NNRR 22..0066 11..3355 2288..1177 00..44 00..55 3344..77 11..1122 1144 1166 2266 00..66 3355..55 22..99 00..003322",
+          "target": "dims/outer_diameter_mm",
+          "value": 30
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "D",
+          "printed_text": "3300",
+          "printed_unit": "mm",
+          "quote": "3300 99 00..66 55 660000 22 339900 1133..22 2288 000000 1188 000000 3344 000000 66220000 ZZZZ VVVV DDDDUU NN NNRR 22..0066 11..3355 2288..1177 00..44 00..55 3344..77 11..1122 1144 1166 2266 00..66 3355..55 22..99 00..003322",
+          "target": "ports/outer/diameter_mm",
+          "value": 30
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "C r",
+          "printed_text": "55 660000",
+          "printed_unit": "N",
+          "quote": "3300 99 00..66 55 660000 22 339900 1133..22 2288 000000 1188 000000 3344 000000 66220000 ZZZZ VVVV DDDDUU NN NNRR 22..0066 11..3355 2288..1177 00..44 00..55 3344..77 11..1122 1144 1166 2266 00..66 3355..55 22..99 00..003322",
+          "target": "params/dynamic_load_rating_n",
+          "value": 5600
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "C 0r",
+          "printed_text": "22 339900",
+          "printed_unit": "N",
+          "quote": "3300 99 00..66 55 660000 22 339900 1133..22 2288 000000 1188 000000 3344 000000 66220000 ZZZZ VVVV DDDDUU NN NNRR 22..0066 11..3355 2288..1177 00..44 00..55 3344..77 11..1122 1144 1166 2266 00..66 3355..55 22..99 00..003322",
+          "target": "params/static_load_rating_n",
+          "value": 2390
+        },
+        {
+          "condition": "Grease, Open Z · ZZ V · VV",
+          "confidence": 0.75,
+          "page": 11,
+          "printed_label": "Limiting Speeds Grease Open Z · ZZ V · VV",
+          "printed_text": "2288 000000",
+          "printed_unit": "min–1",
+          "quote": "3300 99 00..66 55 660000 22 339900 1133..22 2288 000000 1188 000000 3344 000000 66220000 ZZZZ VVVV DDDDUU NN NNRR 22..0066 11..3355 2288..1177 00..44 00..55 3344..77 11..1122 1144 1166 2266 00..66 3355..55 22..99 00..003322",
+          "target": "params/limiting_speed_rpm",
+          "value": 28000
+        },
+        {
+          "condition": "Grease, DU · DDU",
+          "confidence": 0.7,
+          "page": 11,
+          "printed_label": "Limiting Speeds Grease DU · DDU",
+          "printed_text": "1188 000000",
+          "printed_unit": "min–1",
+          "quote": "3300 99 00..66 55 660000 22 339900 1133..22 2288 000000 1188 000000 3344 000000 66220000 ZZZZ VVVV DDDDUU NN NNRR 22..0066 11..3355 2288..1177 00..44 00..55 3344..77 11..1122 1144 1166 2266 00..66 3355..55 22..99 00..003322",
+          "target": "params/limiting_speed_rpm",
+          "value": 18000
+        },
+        {
+          "condition": "Oil, Open Z",
+          "confidence": 0.75,
+          "page": 11,
+          "printed_label": "Limiting Speeds Oil Open Z",
+          "printed_text": "3344 000000",
+          "printed_unit": "min–1",
+          "quote": "3300 99 00..66 55 660000 22 339900 1133..22 2288 000000 1188 000000 3344 000000 66220000 ZZZZ VVVV DDDDUU NN NNRR 22..0066 11..3355 2288..1177 00..44 00..55 3344..77 11..1122 1144 1166 2266 00..66 3355..55 22..99 00..003322",
+          "target": "params/limiting_speed_rpm",
+          "value": 34000
+        },
+        {
+          "confidence": 0.8,
+          "page": 11,
+          "printed_label": "Mass approx.",
+          "printed_text": "00..003322",
+          "printed_unit": "kg",
+          "quote": "3300 99 00..66 55 660000 22 339900 1133..22 2288 000000 1188 000000 3344 000000 66220000 ZZZZ VVVV DDDDUU NN NNRR 22..0066 11..3355 2288..1177 00..44 00..55 3344..77 11..1122 1144 1166 2266 00..66 3355..55 22..99 00..003322",
+          "target": "params/mass_kg",
+          "value": 0.032
+        },
+        {
+          "condition": "d 列分组值，适用于 6800–6300 组（含 6200）",
+          "confidence": 0.7,
+          "page": 11,
+          "printed_label": "d",
+          "printed_text": "1100",
+          "printed_unit": "mm",
+          "quote": "1100 1199 55 00..33 11 889900 884400 1144..88 3344 000000 2244 000000 4400 000000 66880000 ZZZZ VVVV DDDD —— —— —— —— —— —— —— —— —— 1122 1122 1177 00..33 —— —— 00..000055",
+          "target": "ports/inner/diameter_mm",
+          "value": 10
+        }
+      ],
+      "model": "6200",
+      "series": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+      "vendor": "NSK"
+    }
+  }
+}
