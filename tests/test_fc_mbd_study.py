@@ -136,6 +136,11 @@ def test_panel_imports_confirms_runs_and_animates(gui, step, tmp_path):
         assert panel.compute() is True
         _pump(gui, lambda: not panel.busy)
         assert panel.data is not None, panel.status.text()
+        assert "积分器" not in panel.status.text()                            # 运动学不用积分器，不给建议（ADR-0098 E3）
+        panel.integ.setCurrentIndex(panel.integ.findData("HHT"))
+        assert panel.settings()[1]["integrator"] == "HHT"
+        panel.integ.setCurrentIndex(panel.integ.findData("auto"))
+        assert "integrator" not in panel.settings()[1]
         assert "通过" in panel.verdict.text() and panel.curve.count() > 5 and panel.slider.isEnabled()
         lever = next(o for o in panel.objs if o.Label == "挑线杆")
         orig = App.Placement(lever.Placement)
@@ -156,6 +161,13 @@ def test_panel_imports_confirms_runs_and_animates(gui, step, tmp_path):
         assert panel.compute() is True
         _pump(gui, lambda: not panel.busy)
         assert panel.modes.isVisible() or panel.modes.rowCount() >= 1, panel.status.text()
+        # 动力学（不驱动，自由摆）、积分器自动：普通机构建议 DOP853，状态栏写明理由（ADR-0098 E3）
+        panel.kind.setCurrentIndex(panel.kind.findData("dynamic"))
+        panel.end.setText("0.02")
+        panel.steps.setText("4")
+        assert panel.compute() is True
+        _pump(gui, lambda: not panel.busy)
+        assert "积分器 DOP853：" in panel.status.text(), panel.status.text()
         assert panel.modes.rowCount() >= 1
     finally:
         panel.close()
