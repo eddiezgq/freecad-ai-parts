@@ -41,6 +41,8 @@ class Page:
     tables: list[Table] = field(default_factory=list)
     # 按文字对齐切出的行与列（pdfplumber 的“文字”策略）：没有边框的表也能分出列；只用于核对引用，不交给 LLM
     layout_rows: list[list[str]] = field(default_factory=list)
+    # 按词的横坐标对齐的行（无边框、按行列出型号的表，如轴承目录）：列由数据行的词区间合成，表头合成一行；只用于核对
+    grid_rows: list[list[str]] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -144,6 +146,110 @@ def _layout_rows(pg) -> list[list[str]]:
     return [[clean_cell(c) or "" for c in row] for rows in tables for row in rows if any((c or "").strip() for c in row)]
 
 
+GRID_MIN_CELLS = 6          # 一行至少这么多格才算数据行
+GRID_HEAD_BAND_PT = 60      # 第一行数据之上多高范围内的文字算表头
+GRID_REPEAT_HEAD = 10       # 每隔几行数据重复一次合成表头（核对只往上找十几行表头）
+GRID_BLOCK_GAP_PT = 30      # 数据行之间超过这个间隔就算另一张表
+_THOUSANDS = re.compile(r"\d{1,3}(?: \d{3})*")
+
+
+def _grid_cells(words: list[dict]) -> list[dict]:
+    """一行的词 → 格：“5 050”这样用窄空格分千位的数并成一格（两段相距 < 3.5 pt，后段正好 3 位数字）"""
+    out: list[dict] = []
+    for w in sorted(words, key=lambda w: w["x0"]):
+        if (out and re.fullmatch(r"\d{3}", w["text"]) and _THOUSANDS.fullmatch(out[-1]["text"])
+                and w["x0"] - out[-1]["x1"] < 3.5):
+            out[-1] = {"text": out[-1]["text"] + " " + w["text"], "x0": out[-1]["x0"], "x1": w["x1"]}
+        else:
+            out.append({"text": w["text"], "x0": float(w["x0"]), "x1": float(w["x1"])})
+    return out
+
+
+def _phrases(cells: list[dict], gap: float = 4.0) -> list[dict]:
+    """表头一行里相距很近的词并成短语（词距 < 4 pt），短语的横向范围是它跨过的列"""
+    out: list[dict] = []
+    for c in sorted(cells, key=lambda c: c["x0"]):
+        if out and c["x0"] - out[-1]["x1"] < gap:
+            out[-1] = {"text": out[-1]["text"] + " " + c["text"], "x0": out[-1]["x0"], "x1": max(out[-1]["x1"], c["x1"])}
+        else:
+            out.append(dict(c))
+    return out
+
+
+def _grid_rows(pg) -> list[list[str]]:
+    """无边框的数据表：数据行（≥ 6 格、以数字开头）按纵向间隔分成块；每块的格区间并成列，块上方（到上一块为止、
+    至多 60 pt）的文字按横坐标归到列，合成一行表头；第一列为空的行（内径等跨行的格）取上一行的值。没有这种表的页返回空表"""
+    try:
+        words = pg.extract_words(x_tolerance=1.5, y_tolerance=2)
+    except Exception:  # noqa: BLE001 — 取词失败就不出对齐行
+        return []
+    lines: list[list] = []
+    for w in sorted(words, key=lambda w: (w["top"], w["x0"])):
+        if lines and abs(w["top"] - lines[-1][0]) <= 2:
+            lines[-1][1].append(w)
+        else:
+            lines.append([w["top"], [w]])
+    rows = [(top, _grid_cells(ws)) for top, ws in lines]
+    is_data = [len(cs) >= GRID_MIN_CELLS and cs[0]["text"][:1].isdigit() for _, cs in rows]
+    blocks: list[list[int]] = []
+    for i, d in enumerate(is_data):
+        if not d:
+            continue
+        if blocks and rows[i][0] - rows[blocks[-1][-1]][0] <= GRID_BLOCK_GAP_PT:
+            blocks[-1].append(i)
+        else:
+            blocks.append([i])
+    out: list[list[str]] = []
+    prev_end = -1e9
+    for blk in blocks:
+        if len(blk) < 2:
+            prev_end = rows[blk[-1]][0]
+            continue
+        spans = sorted([c["x0"], c["x1"]] for i in blk for c in rows[i][1])
+        cols: list[list[float]] = []
+        for a, b in spans:
+            if cols and a <= cols[-1][1] + 0.5:
+                cols[-1][1] = max(cols[-1][1], b)
+            else:
+                cols.append([a, b])
+
+        def col_of(c, cols=cols):
+            return [j for j, (a, b) in enumerate(cols) if min(b, c["x1"]) - max(a, c["x0"]) > 0]
+
+        top0 = rows[blk[0]][0]
+        head = [""] * len(cols)
+        for top, cs in rows:
+            if max(prev_end, top0 - GRID_HEAD_BAND_PT) < top < top0 - 1:
+                for ph in _phrases(cs):                  # 跨几列的表头（“Limiting Speeds (min–1)”）归到它跨过的每一列
+                    for j in col_of(ph):
+                        head[j] = (head[j] + " " + ph["text"]).strip()
+        prev: list[str] | None = None
+        for k, i in enumerate(blk):
+            cells = [""] * len(cols)
+            for c in rows[i][1]:
+                js = col_of(c)
+                if js:
+                    cells[js[0]] = (cells[js[0]] + " " + c["text"]).strip()
+            if prev is not None and not cells[0]:
+                cells[0] = prev[0]
+            if k % GRID_REPEAT_HEAD == 0 and any(head):
+                out.append(list(head))
+            out.append(cells)
+            prev = cells
+        prev_end = rows[blk[-1]][0]
+    return out
+
+
+def _dedupe(pg):
+    """“加粗”印法：同一个字在几乎同一位置印两遍（NSK 目录的表格），文字层读出来每个字重复（“6201”成“66220011”）。
+    只在这一页确有重复字时去重（同字、同字体字号、位置差 1 pt 以内）；没有重复的页原样不动，已有录制的请求不变"""
+    try:
+        dd = pg.dedupe_chars()
+    except Exception:  # noqa: BLE001 — 去重失败就按原样读
+        return pg
+    return dd if len(dd.chars) < len(pg.chars) else pg
+
+
 def extract(path: str | Path) -> Document:
     """提取 PDF 的逐页文本与表格。表格用 pdfplumber 的“线框”策略：只认有边框的表。"""
     import pdfplumber
@@ -159,13 +265,14 @@ def extract(path: str | Path) -> Document:
     try:
         with pdfplumber.open(path) as pdf:
             for n, pg in enumerate(pdf.pages, start=1):
+                pg = _dedupe(pg)
                 tables = []
                 for i, t in enumerate(pg.find_tables()):
                     rows = [[clean_cell(c) for c in row] for row in t.extract()]
                     tables.append(Table(page=n, index=i, rows=rows, bbox=tuple(round(v, 2) for v in t.bbox)))
                 text = "\n".join(clean_line for ln in (pg.extract_text() or "").splitlines()
                                  if (clean_line := _SPACES.sub(" ", ln).strip()))
-                pages.append(Page(page=n, text=text, tables=tables, layout_rows=_layout_rows(pg)))
+                pages.append(Page(page=n, text=text, tables=tables, layout_rows=_layout_rows(pg), grid_rows=_grid_rows(pg)))
     except PDFSyntaxError as exc:
         raise ExtractError(f"PDF 无法解析：{path}（{exc}）") from exc
     except Exception as exc:  # 加密、损坏等情况 pdfminer 抛出的异常类型很多

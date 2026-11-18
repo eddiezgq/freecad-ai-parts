@@ -101,6 +101,10 @@ class Animator:
                 from freecad_addon.fc.mbd_flex import FlexShow
 
                 self.flex[b["id"]] = FlexShow(doc, f, data, b["id"], scale=flex_scale, hide=objs.get(b["id"]))
+            elif f and f.get("type") == "nonlinear_beam" and b["id"] in (data.get("flex") or {}):
+                from freecad_addon.fc.mbd_flex import BeamShow
+
+                self.flex[b["id"]] = BeamShow(doc, data, b["id"], hide=objs.get(b["id"]))
         self.objs = {k: o for k, o in objs.items() if k not in self.flex}
         self.cm0 = {b["id"]: App.Vector(*b["cm_mm"]) for b in model["bodies"] if "cm_mm" in b}
         self.objs = {k: o for k, o in self.objs.items() if k in self.cm0}

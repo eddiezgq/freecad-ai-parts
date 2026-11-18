@@ -151,6 +151,8 @@ def test_panel_imports_confirms_runs_and_animates(gui, step, tmp_path):
         # D8b：柔性零件表列出全部零件、默认刚性；报告写出来（不用 AI）
         assert panel.flexparts.rowCount() == len(panel.model["bodies"]) and panel.flex_settings() == {}
         assert panel.set_flex(lever.Name, "45-QT") and panel.flex_settings() == {lever.Name: {"material": "45-QT"}}
+        assert panel.set_flex(lever.Name, "45-QT", "nonlinear_beam")                 # ADR-0101 F3
+        assert panel.flex_settings() == {lever.Name: {"material": "45-QT", "kind": "nonlinear_beam"}}
         assert panel.set_flex(lever.Name, None) and panel.flex_settings() == {}
         got = panel.write_report(tmp_path / "rep", use_ai=False)
         assert got is not None and got["markdown"].is_file() and (tmp_path / "rep" / "result.json").is_file()

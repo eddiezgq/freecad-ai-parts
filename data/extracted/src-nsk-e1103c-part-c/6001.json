@@ -1,0 +1,219 @@
+{
+  "format": "extraction/1",
+  "document": {
+    "doc": "src-nsk-e1103c-part-c",
+    "sha256": "3c1acfda536bb6a77487d1fcf6812618e31c62582fb20089659d20b7af07a6e2",
+    "pages": 2
+  },
+  "category": "bearing",
+  "vendor": "NSK",
+  "model": "6001",
+  "extractor": {
+    "model": "claude-sonnet-5-5",
+    "prompt_version": "extract/3",
+    "response_id": "msg_011ChAW2noZodsZawm7ZhU2p"
+  },
+  "items": [
+    {
+      "target": "params/bearing_kind",
+      "value": {
+        "value": "deep_groove",
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.95,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+        "unit": "",
+        "label": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+        "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
+      },
+      "issues": [
+        "枚举映射：'SINGLE-ROW DEEP GROOVE BALL BEARINGS' → deep_groove，未自动核对"
+      ]
+    },
+    {
+      "target": "ports/inner/diameter_mm",
+      "value": {
+        "value": 12.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.8,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "12",
+        "unit": "mm",
+        "label": "d",
+        "quote": "12 21 5 0.3 2 110 1 040 15.3 32 000 20 000 38 000 6801 ZZ VV DD — — — — — — — — — 14 14 19 0.3 — — 0.006"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置",
+        "引用的是同表另一行；目标型号所在行的同一列印着同一个数",
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "ports/outer/diameter_mm",
+      "value": {
+        "value": 28.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "28",
+        "unit": "mm",
+        "label": "D",
+        "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
+      },
+      "issues": [
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "dims/outer_diameter_mm",
+      "value": {
+        "value": 28.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "28",
+        "unit": "mm",
+        "label": "D",
+        "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
+      },
+      "issues": [
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "params/width_mm",
+      "value": {
+        "value": 8.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "8",
+        "unit": "mm",
+        "label": "B",
+        "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
+      },
+      "issues": [
+        "叫法 'B' 在表头，须核对所在列",
+        "单位 mm 不在同一行，取自本页其他位置",
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "params/dynamic_load_rating_n",
+      "value": {
+        "value": 5600.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "5 600",
+        "unit": "N",
+        "label": "C r",
+        "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
+      },
+      "issues": [
+        "叫法 'C r' 在表头，数值在该列",
+        "单位 N 不在同一行，取自本页其他位置",
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "params/static_load_rating_n",
+      "value": {
+        "value": 2370.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "2 370",
+        "unit": "N",
+        "label": "C 0r",
+        "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
+      },
+      "issues": [
+        "叫法 'C 0r' 在表头，数值在该列",
+        "单位 N 不在同一行，取自本页其他位置",
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "params/mass_kg",
+      "value": {
+        "value": 0.022,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "0.022",
+        "unit": "kg",
+        "label": "Mass (kg) approx.",
+        "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
+      },
+      "issues": [
+        "叫法 'Mass (kg) approx.' 在表头，数值在该列",
+        "按版面对齐切出的行核对"
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/limiting_speed_rpm",
+      "page": 11,
+      "printed": {
+        "text": "32 000",
+        "unit": "min–1",
+        "label": "Limiting Speeds (min–1) Grease Open Z·ZZ",
+        "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
+      }
+    }
+  ],
+  "missing_key_fields": [
+    "params/limiting_speed_rpm"
+  ]
+}
