@@ -4423,3 +4423,141 @@ confirmations:
   quote: 12 21 5 0.3 2 110 1 040 15.3 32 000 20 000 38 000 6801 ZZ VV DD
   confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
   date: '2026-11-18'
+# NSK 深沟球轴承的安装尺寸（2026-11-18，ADR-0102）：第 11 页轴承表“Abutment and Fillet Dimensions (mm)”一组四列依次为
+# da min、da max、Da max、ra max（排查日志的词坐标核对过列序）。两次抽取都读到了这几个数，但“da”组标题印在两列之间、
+# 对齐行的表头归不准，核对程序没收；按原页逐行确认。ra max 已由核对通过的抽取收录。
+- doc: src-nsk-e1103c-part-c
+  model: '6000'
+  target: params/abutment_shaft_min_mm
+  value: 12
+  page: 11
+  quote: 26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6000'
+  target: params/abutment_shaft_max_mm
+  value: 13
+  page: 11
+  quote: 26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6000'
+  target: params/abutment_housing_max_mm
+  value: 24
+  page: 11
+  quote: 26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6001'
+  target: params/abutment_shaft_min_mm
+  value: 14
+  page: 11
+  quote: 28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6001'
+  target: params/abutment_shaft_max_mm
+  value: 15.5
+  page: 11
+  quote: 28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6001'
+  target: params/abutment_housing_max_mm
+  value: 26
+  page: 11
+  quote: 28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6200'
+  target: params/abutment_shaft_min_mm
+  value: 14
+  page: 11
+  quote: 30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6200'
+  target: params/abutment_shaft_max_mm
+  value: 16
+  page: 11
+  quote: 30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6200'
+  target: params/abutment_housing_max_mm
+  value: 26
+  page: 11
+  quote: 30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6201'
+  target: params/abutment_shaft_min_mm
+  value: 16
+  page: 11
+  quote: 32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6201'
+  target: params/abutment_shaft_max_mm
+  value: 17
+  page: 11
+  quote: 32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6201'
+  target: params/abutment_housing_max_mm
+  value: 28
+  page: 11
+  quote: 32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+# NSK 深沟球轴承的极限转速（2026-11-18）：第 11 页“Limiting Speeds (min–1)”三列依次为脂润滑（开式、Z、ZZ、V、VV）、
+# 脂润滑（DU、DDU 接触式密封）、油润滑（开式、Z）。取第一列（开式与防尘盖），工况按原页写。两次抽取都读对，
+# 但 AI 写的工况与原页的写法对不上，核对没收；按原页确认。
+- doc: src-nsk-e1103c-part-c
+  model: '6000'
+  target: params/limiting_speed_rpm
+  value: 30000
+  page: 11
+  quote: 26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018
+  condition: 脂润滑（Grease），开式与防尘盖（Open、Z、ZZ、V、VV）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6001'
+  target: params/limiting_speed_rpm
+  value: 32000
+  page: 11
+  quote: 28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022
+  condition: 脂润滑（Grease），开式与防尘盖（Open、Z、ZZ、V、VV）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6200'
+  target: params/limiting_speed_rpm
+  value: 28000
+  page: 11
+  quote: 30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032
+  condition: 脂润滑（Grease），开式与防尘盖（Open、Z、ZZ、V、VV）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'
+- doc: src-nsk-e1103c-part-c
+  model: '6201'
+  target: params/limiting_speed_rpm
+  value: 26000
+  page: 11
+  quote: 32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037
+  condition: 脂润滑（Grease），开式与防尘盖（Open、Z、ZZ、V、VV）
+  confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
+  date: '2026-11-18'

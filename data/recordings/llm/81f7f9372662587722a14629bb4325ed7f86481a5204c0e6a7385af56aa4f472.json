@@ -1,0 +1,146 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "81f7f9372662587722a14629bb4325ed7f86481a5204c0e6a7385af56aa4f472",
+  "response": {
+    "id": "msg_011ChAmKbdL4bVXdn6PgmJVN",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 11,
+          "printed_label": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "printed_text": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "printed_unit": "",
+          "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "target": "params/bearing_kind",
+          "value": "deep_groove"
+        },
+        {
+          "confidence": 0.9,
+          "page": 11,
+          "printed_label": "B",
+          "printed_text": "9",
+          "printed_unit": "mm",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/width_mm",
+          "value": 9
+        },
+        {
+          "confidence": 0.9,
+          "page": 11,
+          "printed_label": "C r",
+          "printed_text": "5 600",
+          "printed_unit": "N",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/dynamic_load_rating_n",
+          "value": 5600
+        },
+        {
+          "confidence": 0.9,
+          "page": 11,
+          "printed_label": "C 0r",
+          "printed_text": "2 390",
+          "printed_unit": "N",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/static_load_rating_n",
+          "value": 2390
+        },
+        {
+          "condition": "Grease lubrication, Open",
+          "confidence": 0.6,
+          "page": 11,
+          "printed_label": "Limiting Speeds (min–1) Grease Open Z·ZZ",
+          "printed_text": "28 000",
+          "printed_unit": "min–1",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/limiting_speed_rpm",
+          "value": 28000
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "Mass (kg) approx.",
+          "printed_text": "0.032",
+          "printed_unit": "kg",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/mass_kg",
+          "value": 0.032
+        },
+        {
+          "confidence": 0.8,
+          "page": 11,
+          "printed_label": "d a min.",
+          "printed_text": "14",
+          "printed_unit": "mm",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/abutment_shaft_min_mm",
+          "value": 14
+        },
+        {
+          "confidence": 0.8,
+          "page": 11,
+          "printed_label": "d a max.",
+          "printed_text": "16",
+          "printed_unit": "mm",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/abutment_shaft_max_mm",
+          "value": 16
+        },
+        {
+          "confidence": 0.8,
+          "page": 11,
+          "printed_label": "D a max.",
+          "printed_text": "26",
+          "printed_unit": "mm",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/abutment_housing_max_mm",
+          "value": 26
+        },
+        {
+          "confidence": 0.75,
+          "page": 11,
+          "printed_label": "r a max.",
+          "printed_text": "0.6",
+          "printed_unit": "mm",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/fillet_max_mm",
+          "value": 0.6
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "d",
+          "printed_text": "10",
+          "printed_unit": "mm",
+          "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS Bore Diameter 10 – 17 mm",
+          "target": "ports/inner/diameter_mm",
+          "value": 10
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "D",
+          "printed_text": "30",
+          "printed_unit": "mm",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "ports/outer/diameter_mm",
+          "value": 30
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "D",
+          "printed_text": "30",
+          "printed_unit": "mm",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "dims/outer_diameter_mm",
+          "value": 30
+        }
+      ],
+      "model": "6200",
+      "vendor": "NSK"
+    }
+  }
+}

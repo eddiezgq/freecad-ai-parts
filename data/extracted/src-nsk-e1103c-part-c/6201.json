@@ -11,7 +11,7 @@
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011ChAW4qFTFvoT2QhkB7iYD"
+    "response_id": "msg_011ChAmLrK991EE9bqc4nRg6"
   },
   "items": [
     {
@@ -60,7 +60,7 @@
       ]
     },
     {
-      "target": "ports/outer/diameter_mm",
+      "target": "dims/outer_diameter_mm",
       "value": {
         "value": 32.0,
         "source": {
@@ -83,7 +83,7 @@
       ]
     },
     {
-      "target": "dims/outer_diameter_mm",
+      "target": "ports/outer/diameter_mm",
       "value": {
         "value": 32.0,
         "source": {
@@ -160,17 +160,41 @@
           "page": 11
         },
         "method": "extracted",
-        "confidence": 0.85,
+        "confidence": 0.8,
         "reviewed": false
       },
       "printed": {
         "text": "0.037",
         "unit": "kg",
-        "label": "Mass (kg) approx.",
+        "label": "Mass (kg)",
         "quote": "32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037"
       },
       "issues": [
-        "叫法 'Mass (kg) approx.' 在表头，数值在该列",
+        "叫法 'Mass (kg)' 在表头，数值在该列",
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "params/fillet_max_mm",
+      "value": {
+        "value": 0.6,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.6,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "0.6",
+        "unit": "mm",
+        "label": "r a max.",
+        "quote": "32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037"
+      },
+      "issues": [
+        "叫法 'r a max.' 在表头，须核对所在列",
+        "单位 mm 不在同一行，取自本页其他位置",
         "按版面对齐切出的行核对"
       ]
     }
@@ -182,8 +206,41 @@
       "page": 11,
       "printed": {
         "text": "26 000",
-        "unit": "min–1",
-        "label": "Limiting Speeds (min–1) Grease Open Z · ZZ",
+        "unit": "min-1",
+        "label": "Limiting Speeds (min–1) Grease",
+        "quote": "32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/abutment_shaft_min_mm",
+      "page": 11,
+      "printed": {
+        "text": "16",
+        "unit": "mm",
+        "label": "d a min.",
+        "quote": "32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/abutment_shaft_max_mm",
+      "page": 11,
+      "printed": {
+        "text": "17",
+        "unit": "mm",
+        "label": "d a max.",
+        "quote": "32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/abutment_housing_max_mm",
+      "page": 11,
+      "printed": {
+        "text": "28",
+        "unit": "mm",
+        "label": "D a max.",
         "quote": "32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037"
       }
     }

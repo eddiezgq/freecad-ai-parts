@@ -57,8 +57,10 @@ def test_bearing_seats_from_library(ls101):
     assert [(s["d"], s["L"]) for s in segs] == [(10, 22), (12, 10), (16, 215), (12, 10), (10, 40)]   # 与书中 LS-101 相同
     assert all(i["status"] == "pass" for i in by(ls101, "轴承中心"))
     assert all(i["status"] == "pass" for i in by(ls101, "能套进去")) and all(i["status"] == "pass" for i in by(ls101, "轴肩定位"))
-    assert all(i["status"] == "unknown" for i in by(ls101, "轴肩高度"))                      # 库里没有 da、ra：不估
-    assert all(i["status"] == "unknown" for i in by(ls101, "轴肩圆角"))
+    # NSK 6201 的安装尺寸（da 16–17、ra max 0.6，ADR-0102）：轴身 Ø16、圆角 0.5 合规
+    assert [i["status"] for i in by(ls101, "轴肩直径")] == ["pass", "pass"]
+    assert [i["status"] for i in by(ls101, "轴肩圆角")] == ["pass", "pass"]
+    assert ls101["overall"] == "pass"
 
 
 def test_shoulder_with_abutment_data():
@@ -136,3 +138,11 @@ def test_missing_fillet_is_unknown():
     rep = SD.evaluate(p, COND, get, kt=fake_kt)
     assert any(i["status"] == "unknown" and "没给过渡圆角" in i.get("note", "") for i in rep["items"])
     assert rep["overall"] in ("unknown", "fail") and not math.isnan(rep["mass_kg"])
+
+
+def test_fillet_larger_than_step_fails():
+    p = json.loads(json.dumps(LS101))
+    p["segments"][0]["fillet_mm"] = 1.0                      # Ø10→Ø12 台阶高 1 mm：圆角等于台阶高也做不出来
+    rep = SD.evaluate(p, COND, get, kt=fake_kt)
+    bad = [i for i in rep["items"] if "圆角" in i["item"] and i["status"] == "fail" and "台阶高度" in i.get("note", "")]
+    assert bad and rep["overall"] == "fail"

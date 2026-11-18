@@ -1,0 +1,146 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "1feca81d39519f04010efb200622c2c9b4d09a05605ec6218e5c0d7c1c042f0f",
+  "response": {
+    "id": "msg_011ChAmNWeGdcyVE8M1nwzM3",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 11,
+          "printed_label": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "printed_text": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "printed_unit": "",
+          "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "target": "params/bearing_kind",
+          "value": "deep_groove"
+        },
+        {
+          "confidence": 0.9,
+          "page": 11,
+          "printed_label": "d",
+          "printed_text": "15",
+          "printed_unit": "mm",
+          "quote": "15 35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU",
+          "target": "ports/inner/diameter_mm",
+          "value": 15
+        },
+        {
+          "confidence": 0.9,
+          "page": 11,
+          "printed_label": "D",
+          "printed_text": "35",
+          "printed_unit": "mm",
+          "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU",
+          "target": "ports/outer/diameter_mm",
+          "value": 35
+        },
+        {
+          "confidence": 0.9,
+          "page": 11,
+          "printed_label": "D",
+          "printed_text": "35",
+          "printed_unit": "mm",
+          "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU",
+          "target": "dims/outer_diameter_mm",
+          "value": 35
+        },
+        {
+          "confidence": 0.9,
+          "page": 11,
+          "printed_label": "B",
+          "printed_text": "11",
+          "printed_unit": "mm",
+          "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU",
+          "target": "params/width_mm",
+          "value": 11
+        },
+        {
+          "confidence": 0.9,
+          "page": 11,
+          "printed_label": "C r",
+          "printed_text": "8 400",
+          "printed_unit": "N",
+          "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU",
+          "target": "params/dynamic_load_rating_n",
+          "value": 8400
+        },
+        {
+          "confidence": 0.9,
+          "page": 11,
+          "printed_label": "C 0r",
+          "printed_text": "3 750",
+          "printed_unit": "N",
+          "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU",
+          "target": "params/static_load_rating_n",
+          "value": 3750
+        },
+        {
+          "condition": "Grease, Open",
+          "confidence": 0.7,
+          "page": 11,
+          "printed_label": "Limiting Speeds",
+          "printed_text": "22 000",
+          "printed_unit": "min–1",
+          "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU",
+          "target": "params/limiting_speed_rpm",
+          "value": 22000
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "Mass",
+          "printed_text": "0.045",
+          "printed_unit": "kg",
+          "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU N NR 2.06 1.35 33.17 0.4 0.5 39.7 1.12 19 20.5 31 0.6 40.5 2.9 0.045",
+          "target": "params/mass_kg",
+          "value": 0.045
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "d a min.",
+          "printed_text": "19",
+          "printed_unit": "mm",
+          "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU N NR 2.06 1.35 33.17 0.4 0.5 39.7 1.12 19 20.5 31 0.6 40.5 2.9 0.045",
+          "target": "params/abutment_shaft_min_mm",
+          "value": 19
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "d a max.",
+          "printed_text": "20.5",
+          "printed_unit": "mm",
+          "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU N NR 2.06 1.35 33.17 0.4 0.5 39.7 1.12 19 20.5 31 0.6 40.5 2.9 0.045",
+          "target": "params/abutment_shaft_max_mm",
+          "value": 20.5
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "D a max.",
+          "printed_text": "31",
+          "printed_unit": "mm",
+          "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU N NR 2.06 1.35 33.17 0.4 0.5 39.7 1.12 19 20.5 31 0.6 40.5 2.9 0.045",
+          "target": "params/abutment_housing_max_mm",
+          "value": 31
+        },
+        {
+          "confidence": 0.8,
+          "page": 11,
+          "printed_label": "r a max.",
+          "printed_text": "0.6",
+          "printed_unit": "mm",
+          "quote": "35 11 0.6 8 400 3 750 13.2 22 000 14 000 28 000 6202 ZZ VV DDU N NR 2.06 1.35 33.17 0.4 0.5 39.7 1.12 19 20.5 31 0.6 40.5 2.9 0.045",
+          "target": "params/fillet_max_mm",
+          "value": 0.6
+        }
+      ],
+      "model": "6202",
+      "vendor": "NSK"
+    }
+  }
+}

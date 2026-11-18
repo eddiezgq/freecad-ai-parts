@@ -55,8 +55,8 @@ class Script:
 
 
 def test_conditions_checked_against_statement():
-    c, rej, asks = D.check_conditions(copy.deepcopy(CONDS), TEXT)
-    assert not rej and not asks
+    c, rej, missing = D.check_conditions(copy.deepcopy(CONDS), TEXT)
+    assert not rej and not missing
     assert c["speeds_rpm"] == [5000, 5500] and c["bearing_centers_mm"] == [27, 252]
     assert {"type": "force", "z_mm": 262, "fx_n": 0.0, "fy_n": -120} in c["loads"]
     assert c["material"] == "45-QT" and c["surface"] == "ground" and c["bearing_life_h"] == 20000
@@ -91,7 +91,7 @@ def test_loop_fixes_with_feedback():
     assert len(out["rounds"]) == 2 and out["rounds"][0]["overall"] == "fail"
     assert "轴承中心 z = 252" in out["rounds"][0]["feedback"]
     assert "第 1 轮你的方案" in ai.requests[2]["user"] and "轴承中心 z = 252" in ai.requests[2]["user"]   # 结论交回 AI
-    assert out["status"] == "pass_pending_data"                       # 只剩库里缺轴承安装尺寸的待确认
+    assert out["status"] == "pass"                                    # 轴肩按 NSK 6201 的安装尺寸也合规
     segs = out["rounds"][-1]["segments"]
     assert [(s["d"], s["L"]) for s in segs] == [(10, 22), (12, 10), (16, 215), (12, 10), (10, 40)]
     assert "6201" in ai.requests[1]["user"]                            # 给 AI 的轴承表来自零件库
@@ -106,4 +106,38 @@ def test_missing_conditions_ask_first():
     c = copy.deepcopy(CONDS)
     del c["material"]
     out = D.design(TEXT, Script(conds=c), [get(B6201)], get, kt=fake_kt)
-    assert out["status"] == "needs_input" and any("材料" in q for q in out["questions"]) and not out["rounds"]
+    assert out["status"] == "needs_input" and any("材料" in q for q in out["missing"]) and not out["rounds"]
+
+
+def test_ai_questions_do_not_block():
+    c = copy.deepcopy(CONDS)
+    c["questions"] = ["挑线凸轮的工作载荷没有给出，是否忽略？"]
+    out = D.design(TEXT, Script(conds=c), [get(B6201)], get, kt=fake_kt)
+    assert out["status"] == "pass" and out["questions"] == c["questions"] and out["assumptions"]
+
+
+def test_recorded_real_model_run_passes():
+    """回放 design-eval 用真实模型（Claude）的录制：条件 → 方案 → 有限元算应力集中 → 校核，几轮后全部通过。
+    要本机有 gmsh 与 CalculiX；CI 中必须跑。"""
+    import os
+
+    from analysis.common.solvers import find_ccx
+    from ingest.llm_extract import RecordedClient
+    from kb.library import JsonLibrary
+
+    if os.environ.get("CI"):
+        import gmsh  # noqa: F401
+        assert find_ccx(), "CI 中没有 ccx"
+    else:
+        pytest.importorskip("gmsh")
+        if find_ccx() is None:
+            pytest.skip("本机没有 CalculiX")
+    lib = JsonLibrary(ROOT / "data" / "library")
+    bearings = [c for c in lib.all() if c["category"] == "bearing"]
+    res = D.design(TEXT, RecordedClient(D.RECORDINGS_DIR), bearings, lib.get)
+    assert res["status"] == "pass" and not res["missing"]
+    assert all(a.get("simulated") is False for a in res["ai"])
+    last = res["rounds"][-1]
+    assert last["overall"] == "pass" and all(i["status"] == "pass" for i in last["items"])
+    seats = [s for s in last["proposal"]["segments"] if s.get("bearing")]
+    assert seats and all(s["bearing"].startswith("bearing.nsk-ltd.") for s in seats)

@@ -1,0 +1,86 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "shaft-design/1",
+  "request_key": "0d0688a084f4feccf8e29638679daa07f97823a2de5a93a0c71015058c64622e",
+  "response": {
+    "id": "msg_011ChAxazvjqGg4QUczSdTXz",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "reason": "按校核意见修改:1) 两侧轴承定位轴肩直径由18改为16.5,落在要求的16–17范围内,也不小于da min 16;2) 轴肩16.5→中间Ø20的台阶高度变为1.75mm,圆角1mm小于台阶高度,满足\"圆角<台阶高度\";Ø20→16.5(z242)台阶同理。其余布置不变:轴承位中心27、252,轴承位22–32、247–257;凸轮z=45、偏心轮z=150在Ø20段上;带轮z=262、手轮z=282在Ø12端段上;总长292mm≤300。",
+      "segments": [
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.5,
+          "length_mm": 22,
+          "role": "crank_seat"
+        },
+        {
+          "bearing": "bearing.nsk-ltd.6201",
+          "fillet_mm": 0.5,
+          "role": "bearing_seat"
+        },
+        {
+          "diameter_mm": 16.5,
+          "fillet_mm": 0.5,
+          "length_mm": 4,
+          "role": "shoulder"
+        },
+        {
+          "diameter_mm": 20,
+          "fillet_mm": 1,
+          "length_mm": 18,
+          "role": "cam_seat"
+        },
+        {
+          "diameter_mm": 20,
+          "fillet_mm": 1,
+          "length_mm": 86,
+          "role": "body"
+        },
+        {
+          "diameter_mm": 20,
+          "fillet_mm": 1,
+          "length_mm": 20,
+          "role": "cam_seat"
+        },
+        {
+          "diameter_mm": 20,
+          "fillet_mm": 1,
+          "length_mm": 82,
+          "role": "body"
+        },
+        {
+          "diameter_mm": 16.5,
+          "fillet_mm": 0.5,
+          "length_mm": 5,
+          "role": "shoulder"
+        },
+        {
+          "bearing": "bearing.nsk-ltd.6201",
+          "fillet_mm": 0.5,
+          "role": "bearing_seat"
+        },
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.5,
+          "length_mm": 10,
+          "role": "pulley_seat"
+        },
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.5,
+          "length_mm": 5,
+          "role": "body"
+        },
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.5,
+          "length_mm": 20,
+          "role": "pulley_seat"
+        }
+      ]
+    }
+  }
+}

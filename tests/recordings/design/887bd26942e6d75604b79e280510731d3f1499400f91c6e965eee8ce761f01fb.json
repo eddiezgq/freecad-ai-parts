@@ -1,0 +1,196 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "shaft-design/1",
+  "request_key": "887bd26942e6d75604b79e280510731d3f1499400f91c6e965eee8ce761f01fb",
+  "response": {
+    "id": "msg_011ChAxRhpqasVS4gxzH3Vnq",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "bearing_centers": [
+        {
+          "quote": "z = 27 mm",
+          "unit": "mm",
+          "value": 27
+        },
+        {
+          "quote": "z = 252 mm",
+          "unit": "mm",
+          "value": 252
+        }
+      ],
+      "bearing_life": {
+        "quote": "20000 h",
+        "unit": "h",
+        "value": 20000
+      },
+      "crank_slider": {
+        "balance_ratio": {
+          "quote": "平衡率 0.45",
+          "value": 0.45
+        },
+        "crank_radius": {
+          "quote": "曲柄半径 15.5 mm",
+          "unit": "mm",
+          "value": 15.5
+        },
+        "reciprocating_mass": {
+          "quote": "往复质量 0.12 kg",
+          "unit": "kg",
+          "value": 0.12
+        },
+        "rod_length": {
+          "quote": "连杆长 55 mm",
+          "unit": "mm",
+          "value": 55
+        },
+        "z": {
+          "quote": "z = 11 mm",
+          "unit": "mm",
+          "value": 11
+        }
+      },
+      "critical_ratio": {
+        "quote": "1.3 倍",
+        "unit": "倍",
+        "value": 1.3
+      },
+      "drive_z": {
+        "quote": "z = 282 mm",
+        "unit": "mm",
+        "value": 282
+      },
+      "forces": [
+        {
+          "direction": "-y",
+          "direction_quote": "方向铅垂向下",
+          "magnitude": {
+            "quote": "120 N",
+            "unit": "N",
+            "value": 120
+          },
+          "z": {
+            "quote": "z = 262 mm",
+            "unit": "mm",
+            "value": 262
+          }
+        }
+      ],
+      "masses": [
+        {
+          "mass": {
+            "quote": "0.15 kg",
+            "unit": "kg",
+            "value": 0.15
+          },
+          "name": "曲柄与平衡块",
+          "z": {
+            "quote": "z = 11 mm",
+            "unit": "mm",
+            "value": 11
+          }
+        },
+        {
+          "mass": {
+            "quote": "0.05 kg",
+            "unit": "kg",
+            "value": 0.05
+          },
+          "name": "挑线凸轮",
+          "z": {
+            "quote": "z = 45 mm",
+            "unit": "mm",
+            "value": 45
+          }
+        },
+        {
+          "mass": {
+            "quote": "0.08 kg",
+            "unit": "kg",
+            "value": 0.08
+          },
+          "name": "送布偏心轮",
+          "z": {
+            "quote": "z = 150 mm",
+            "unit": "mm",
+            "value": 150
+          }
+        },
+        {
+          "mass": {
+            "quote": "0.06 kg",
+            "unit": "kg",
+            "value": 0.06
+          },
+          "name": "同步带轮",
+          "z": {
+            "quote": "z = 262 mm",
+            "unit": "mm",
+            "value": 262
+          }
+        },
+        {
+          "mass": {
+            "quote": "0.45 kg",
+            "unit": "kg",
+            "value": 0.45
+          },
+          "name": "手轮与电机转子",
+          "z": {
+            "quote": "z = 282 mm",
+            "unit": "mm",
+            "value": 282
+          }
+        }
+      ],
+      "material": {
+        "id": "45-QT",
+        "quote": "材料 45 钢调质"
+      },
+      "max_length": {
+        "quote": "总长不超过 300 mm",
+        "unit": "mm",
+        "value": 300
+      },
+      "process_power": {
+        "power": {
+          "quote": "平均功率 150 W",
+          "unit": "W",
+          "value": 150
+        },
+        "z": {
+          "quote": "作用在 z = 11 mm",
+          "unit": "mm",
+          "value": 11
+        }
+      },
+      "questions": [
+        "轴承型号、类型和额定动载荷未给出，轴承寿命无法核算，请提供。",
+        "平衡块的相位和质心半径、曲柄的转向未给出，请说明。",
+        "各轴段直径和同步带轮节圆直径未给出，请说明是需要设计，还是已有限制。",
+        "加工功率产生的力的方向和作用半径未给出，请说明。"
+      ],
+      "required_safety": {
+        "quote": "安全系数不小于 1.5",
+        "value": 1.5
+      },
+      "speeds": [
+        {
+          "quote": "最高转速 5000 r/min",
+          "unit": "r/min",
+          "value": 5000
+        },
+        {
+          "quote": "提速到 5500 r/min",
+          "unit": "r/min",
+          "value": 5500
+        }
+      ],
+      "surface": {
+        "finish": "ground",
+        "quote": "轴颈磨削"
+      }
+    }
+  }
+}
