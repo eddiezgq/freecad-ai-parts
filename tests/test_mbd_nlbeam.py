@@ -104,3 +104,59 @@ def test_joint_off_node_is_reported():
     m = cantilever([{"id": "p", "type": "force", "body": "rod", "point_mm": [L / 2 + 10, 0, 0], "fy_n": -1}])
     with pytest.raises(ModelError, match="节点"):
         MD.build(m)
+
+
+def test_batch_equals_element_by_element():
+    """成批计算（F2）与逐个单元一致，含阻尼、任意位形"""
+    from analysis.mbd.dae import model as MD
+    from analysis.mbd.dae.nlbeam import element
+
+    m = cantilever([], elements=6, stiffness_damping_s=2e-4)
+    sysm = MD.build(m)
+    rng = np.random.default_rng(3)
+    q = sysm.q0()
+    for k in range(sysm.nb):
+        q[7 * k:7 * k + 3] += 1e-3 * rng.standard_normal(3)
+        p = q[7 * k + 3:7 * k + 7] + 0.2 * rng.standard_normal(4)
+        q[7 * k + 3:7 * k + 7] = p / np.linalg.norm(p)
+    qd = rng.standard_normal(sysm.n)
+    nlb = sysm.nlbeam_batch()
+    n, mm, fj, Mi, Mj = nlb.eval(q, qd, sysm.nb)
+    for e, (kind, f) in enumerate(x for x in sysm.forces if x[0] == "nlbeam"):
+        ref = element(sysm, q, qd, f)
+        for a, b in zip((n[e], mm[e], fj[e], Mi[e], Mj[e]), ref[:5], strict=True):
+            assert np.allclose(a, b, rtol=1e-10, atol=1e-8 * max(1.0, np.abs(b).max()))
+
+
+def _column(P, kind):
+    """两端铰支（面内）的压杆：根部转动副（z），端部转动副连滑块，滑块沿 x 移动；P > 0 是压力"""
+    beam = {"from_mm": [0, 0, 0], "to_mm": [L, 0, 0], "y_axis": [0, 1, 0], "youngs_modulus_mpa": E, "shear_modulus_mpa": G,
+            "density_kg_m3": 7850, "area_mm2": A, "iyy_mm4": I, "izz_mm4": I, "ixx_mm4": 2 * I, "elements": 20}
+    flex = {"type": "nonlinear_beam", **beam} if kind == "nl" else {"type": "beam", **beam, "fixed_interface_modes": 6}
+    return {"format": "mbd-model/1", "name": "压杆", "gravity_mm_s2": [0, 0, 0],
+            "bodies": [{"id": "col", "flex": flex},
+                       {"id": "sl", "mass_kg": 0.01, "cm_mm": [L, 0, 0], "inertia_kg_m2": {"ixx": 1e-6, "iyy": 1e-6, "izz": 1e-6}}],
+            "joints": [{"id": "a", "type": "revolute", "body_i": "ground", "body_j": "col", "point_mm": [0, 0, 0], "axis": [0, 0, 1]},
+                       {"id": "b", "type": "revolute", "body_i": "col", "body_j": "sl", "point_mm": [L, 0, 0], "axis": [0, 0, 1]},
+                       {"id": "s", "type": "translational", "body_i": "ground", "body_j": "sl", "point_mm": [L, 0, 0],
+                        "axis": [1, 0, 0]}],
+            "forces": [{"id": "p", "type": "force", "body": "sl", "point_mm": [L, 0, 0], "fx_n": -P}],
+            "analysis": {"type": "static_then_linear", "load_steps": 2}}
+
+
+def test_buckling_load_from_frequency_vs_axial_force():
+    """F2：两端铰支杆，压力让一阶弯曲频率下降、拉力让它上升（几何刚度）：f² 对 P 是直线，外推到 0 得临界载荷。
+    大变形梁对欧拉公式 π²EI/L² 误差 < 2%；线性模态柔性体（D6）频率不随轴力变，算不出屈曲"""
+    pcr = math.pi ** 2 * EI / (L * 1e-3) ** 2
+    f0 = math.pi / 2 * math.sqrt(EI / (7850 * A * 1e-6)) / (L * 1e-3) ** 2
+    out = {}
+    for kind in ("nl", "lin"):
+        fs = []
+        for frac in (-0.4, 0.2, 0.6):
+            d, _ = run_model(_column(frac * pcr, kind))
+            fs.append(min(m["frequency_hz"] for m in d["linear"]["modes"] if m["frequency_hz"] > 1))
+        out[kind] = fs
+    k, b = np.polyfit(np.array([-0.4, 0.2, 0.6]) * pcr, np.array(out["nl"]) ** 2, 1)
+    assert -b / k == pytest.approx(pcr, rel=2e-2)
+    assert math.sqrt(b) == pytest.approx(f0, rel=1e-2)                  # 外推到零轴力的频率也对
+    assert max(out["lin"]) - min(out["lin"]) < 1e-6 * out["lin"][0]
