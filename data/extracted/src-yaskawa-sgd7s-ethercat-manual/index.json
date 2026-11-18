@@ -4310,7 +4310,7 @@
  {
   "page": 365,
   "tables": 0,
-  "chars": 1472,
+  "chars": 1469,
   "head": [
    "8.12 Additional Adjustment Functions",
    "8.12.8 Backlash Compensation"
@@ -4837,7 +4837,7 @@
  {
   "page": 415,
   "tables": 3,
-  "chars": 1611,
+  "chars": 1610,
   "head": [
    "10.4 Monitoring an External Encoder",
    "10.4.2 Block Diagrams"
@@ -5336,7 +5336,7 @@
  {
   "page": 456,
   "tables": 7,
-  "chars": 2446,
+  "chars": 2443,
   "head": [
    "13.3 Position Control Modes",
    "13.3.1 Profile Position Mode"
@@ -5366,7 +5366,7 @@
  {
   "page": 459,
   "tables": 5,
-  "chars": 2600,
+  "chars": 2597,
   "head": [
    "13.3 Position Control Modes",
    "13.3.2 Interpolated Position Mode"
@@ -5376,7 +5376,7 @@
  {
   "page": 460,
   "tables": 10,
-  "chars": 2629,
+  "chars": 2626,
   "head": [
    "13.3 Position Control Modes",
    "13.3.2 Interpolated Position Mode"
@@ -5396,7 +5396,7 @@
  {
   "page": 462,
   "tables": 6,
-  "chars": 2725,
+  "chars": 2721,
   "head": [
    "13.3 Position Control Modes",
    "13.3.3 Cyclic Synchronous Position Mode"
