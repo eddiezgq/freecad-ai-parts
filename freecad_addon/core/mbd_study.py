@@ -34,8 +34,9 @@ def build(doc, objs, found, accepted, ground):
     return MM.build_assembly(doc, objs, ground, MT.to_assembly_joints(found, accepted))
 
 
-def make_model(assembly, drives, analysis, *, gravity_mm_s2=None, mass_overrides=None):
-    """drives: [{"joint": 模型里的运动副 id, "kind": speed|function, "value": 数或表达式}]；有问题抛 AssemblyError"""
+def make_model(assembly, drives, analysis, *, gravity_mm_s2=None, mass_overrides=None, flex_parts=None):
+    """drives: [{"joint": 模型里的运动副 id, "kind": speed|function, "value": 数或表达式}]；有问题抛 AssemblyError。
+    flex_parts：构件 id → {"material": 材料库 id, "size_mm"?}，这些零件按实体柔性体算（ADR-0097 D8b，要 gmsh 和 CalculiX）"""
     from freecad_addon.fc import mbd_assembly as MA
 
     model, msgs = MA.model_from_assembly(assembly, gravity_mm_s2=gravity_mm_s2, mass_overrides=mass_overrides,
@@ -58,6 +59,13 @@ def make_model(assembly, drives, analysis, *, gravity_mm_s2=None, mass_overrides
             m["function"] = str(d["value"])
         motions.append(m)
     model["motions"] = motions
+    if flex_parts:
+        from freecad_addon.fc import mbd_flex as MF
+
+        try:
+            msgs = list(msgs) + MF.make_flexible(model, body_objects(model, assembly.Document), flex_parts)
+        except (MF.FlexSetupError, ValueError) as exc:
+            raise A.AssemblyError([str(exc)]) from exc
     return model, msgs
 
 
@@ -82,10 +90,20 @@ def body_objects(model, doc):
 class Animator:
     """把结果的第 k 帧摆到 FreeCAD 零件上：x(t) = r(t) + A(t)(x₀ − c₀)，新位姿 = T(t)·T₀⁻¹·原位姿"""
 
-    def __init__(self, model, data, doc):
+    def __init__(self, model, data, doc, *, flex_scale=1.0):
+        """柔性构件（实体，带表面网格）画成变形网格 + 应力云图，原零件隐藏；flex_scale 是变形放大倍数（ADR-0097 D8b）"""
         self.data = data
-        self.objs = body_objects(model, doc)
-        self.cm0 = {b["id"]: App.Vector(*b["cm_mm"]) for b in model["bodies"]}
+        objs = body_objects(model, doc)
+        self.flex = {}
+        for b in model["bodies"]:
+            f = b.get("flex")
+            if f and f.get("type") == "modal" and f.get("surface_triangles") and b["id"] in (data.get("flex") or {}):
+                from freecad_addon.fc.mbd_flex import FlexShow
+
+                self.flex[b["id"]] = FlexShow(doc, f, data, b["id"], scale=flex_scale, hide=objs.get(b["id"]))
+        self.objs = {k: o for k, o in objs.items() if k not in self.flex}
+        self.cm0 = {b["id"]: App.Vector(*b["cm_mm"]) for b in model["bodies"] if "cm_mm" in b}
+        self.objs = {k: o for k, o in self.objs.items() if k in self.cm0}
         self.orig = {bid: App.Placement(o.Placement) for bid, o in self.objs.items()}
         self.frames = len(data["times_s"])
 
@@ -102,11 +120,16 @@ class Animator:
         for bid, o in self.objs.items():
             if bid in self.data["bodies"]:
                 o.Placement = self.placement(bid, k)
+        for fs in self.flex.values():
+            fs.apply(k)
         return self.data["times_s"][k]
 
     def restore(self):
         for bid, o in self.objs.items():
             o.Placement = self.orig[bid]
+        for fs in self.flex.values():
+            fs.remove()
+        self.flex = {}
 
 
 def curves(data) -> dict:

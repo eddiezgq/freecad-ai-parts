@@ -118,3 +118,41 @@ def test_cantilever_sag_matches_direct_fe_and_stress_replay(bar):
     assert von_mises(sig) == pytest.approx(ref, rel=5e-2)
     st = data["flex"]["bar"]["stress"]
     assert st["peak_mpa"] >= von_mises(sig) and st["peak_node_mm"][0] < L / 4         # 最大在根部附近
+
+
+def test_flexview_matches_replay(bar):
+    """D8b 云图：表面点的位置与应力和多体结果一致；放大倍数只放大变形；姿态按结果转"""
+    import copy
+
+    from analysis.mbd.flexview import FlexView, colors
+
+    _, flex, _ = bar
+    data, _ = R.run_model({**body(flex), "gravity_mm_s2": [0, 0, -9810], "analysis": {"type": "static"},
+                           "joints": [{"id": "c", "type": "fixed", "body_i": "ground", "body_j": "bar", "point_mm": [0, 0, 0]}],
+                           "requests": [{"id": "tip", "type": "point", "body": "bar", "point_mm": [L, 0, 0]}]})
+    v = FlexView(flex, data, "bar")
+    X = np.array(flex["nodes_mm"])[v.used]
+    m = np.array(flex["node_mass_kg"])
+    d0 = copy.deepcopy(data)                               # 构件系回到初始位姿：不放大变形就是原网格
+    d0["bodies"]["bar"]["euler_parameters"][0] = [1.0, 0, 0, 0]
+    d0["bodies"]["bar"]["cm_mm"][0] = ((m @ np.array(flex["nodes_mm"])) / m.sum()).tolist()
+    assert np.allclose(FlexView(flex, d0, "bar").points(0, 0.0), X, atol=1e-9)
+    rigid = v.points(0, scale=0.0)
+    p1, p10 = v.points(0, 1.0), v.points(0, 10.0)
+    end = np.isclose(X[:, 0], L)
+    tip = data["requests"]["tip"]["pos_mm"][0][2]
+    assert np.mean(p1[end, 2]) == pytest.approx(tip, rel=2e-2)
+    assert np.allclose(p10 - rigid, 10 * (p1 - rigid), atol=1e-9)
+    vm = v.von_mises(0)
+    assert vm.max() == pytest.approx(data["flex"]["bar"]["stress"]["peak_mpa"], rel=1e-9)
+    assert v.stress_range() == (0.0, pytest.approx(vm.max()))
+    assert len(v.triangles) == len(flex["surface_triangles"]) and v.triangles.max() == len(v.used) - 1
+    c = colors([0, vm.max()], 0, vm.max())
+    assert c[0] == (0.0, 0.0, 1.0) and c[1] == (1.0, 0.0, 0.0)
+    d2 = copy.deepcopy(data)                               # 绕 z 转 90°、平移
+    s = math.sqrt(0.5)
+    d2["bodies"]["bar"]["euler_parameters"][0] = [s, 0, 0, s]
+    d2["bodies"]["bar"]["cm_mm"][0] = [10.0, 20.0, 30.0]
+    loc = v.x0
+    rot = FlexView(flex, d2, "bar").points(0, 0.0)
+    assert np.allclose(rot, np.c_[-loc[:, 1], loc[:, 0], loc[:, 2]] + [10, 20, 30], atol=1e-6)
