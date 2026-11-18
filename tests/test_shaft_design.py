@@ -57,8 +57,10 @@ def test_bearing_seats_from_library(ls101):
     assert [(s["d"], s["L"]) for s in segs] == [(10, 22), (12, 10), (16, 215), (12, 10), (10, 40)]   # 与书中 LS-101 相同
     assert all(i["status"] == "pass" for i in by(ls101, "轴承中心"))
     assert all(i["status"] == "pass" for i in by(ls101, "能套进去")) and all(i["status"] == "pass" for i in by(ls101, "轴肩定位"))
-    assert all(i["status"] == "unknown" for i in by(ls101, "轴肩高度"))                      # 库里没有 da、ra：不估
-    assert all(i["status"] == "unknown" for i in by(ls101, "轴肩圆角"))
+    # NSK 6201 的安装尺寸（da 16–17、ra max 0.6，ADR-0102）：轴身 Ø16、圆角 0.5 合规
+    assert [i["status"] for i in by(ls101, "轴肩直径")] == ["pass", "pass"]
+    assert [i["status"] for i in by(ls101, "轴肩圆角")] == ["pass", "pass"]
+    assert ls101["overall"] == "pass"
 
 
 def test_shoulder_with_abutment_data():

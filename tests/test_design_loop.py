@@ -91,7 +91,7 @@ def test_loop_fixes_with_feedback():
     assert len(out["rounds"]) == 2 and out["rounds"][0]["overall"] == "fail"
     assert "轴承中心 z = 252" in out["rounds"][0]["feedback"]
     assert "第 1 轮你的方案" in ai.requests[2]["user"] and "轴承中心 z = 252" in ai.requests[2]["user"]   # 结论交回 AI
-    assert out["status"] == "pass_pending_data"                       # 只剩库里缺轴承安装尺寸的待确认
+    assert out["status"] == "pass"                                    # 轴肩按 NSK 6201 的安装尺寸也合规
     segs = out["rounds"][-1]["segments"]
     assert [(s["d"], s["L"]) for s in segs] == [(10, 22), (12, 10), (16, 215), (12, 10), (10, 40)]
     assert "6201" in ai.requests[1]["user"]                            # 给 AI 的轴承表来自零件库
