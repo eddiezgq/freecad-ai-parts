@@ -155,8 +155,10 @@ def create_server(library_factory: Callable[[], Library] = default_library,
             description="库中没有合适的轴套或转接板时按端口尺寸生成（ADR-0041）；不填时组件库没有转接件就生成")] = None,
     ) -> dict:
         """按需求组合电机、减速器、驱动器（必要时加转接件），全部校验后排序返回候选方案与说明。"""
-        return tools.compose_chain(lib(), requirement, top_n=top_n, include_unknown=include_unknown, lang=lang,
-                                   generate_adapters=generate_adapters)
+        out = tools.compose_chain(lib(), requirement, top_n=top_n, include_unknown=include_unknown, lang=lang,
+                                  generate_adapters=generate_adapters)
+        session.remember_requirement(requirement)          # 之后校验、导出时不丢条件（ADR-0099 41.0）
+        return out
 
     @mcp.tool
     @_guard
@@ -167,7 +169,8 @@ def create_server(library_factory: Callable[[], Library] = default_library,
         = False,
     ) -> dict:
         """对一个系统做全部 11 项校验，返回逐项结果、整体结论与说明。"""
-        return tools.verify_system(lib(), session.with_layout(system, use_layout), lang=lang)
+        system, note = session.complete_requirement(session.with_layout(system, use_layout))
+        return tools.with_requirement_note(tools.verify_system(lib(), system, lang=lang), note, lang)
 
     @mcp.tool
     @_guard
@@ -177,7 +180,8 @@ def create_server(library_factory: Callable[[], Library] = default_library,
         use_layout: Annotated[bool, Field(description="为 true 时用当前布局场景中的位姿作为系统的 layout")] = False,
     ) -> dict:
         """导出方案的 BOM（含原厂模型链接与数据来源）、系统 JSON（含校验报告、组件数据与布局）或 URDF。"""
-        return tools.export_system(lib(), session.with_layout(system, use_layout), format=format)
+        system, note = session.complete_requirement(session.with_layout(system, use_layout))
+        return tools.with_requirement_note(tools.export_system(lib(), system, format=format), note)
 
     @mcp.tool
     @_guard

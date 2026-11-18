@@ -167,7 +167,7 @@
   "dfm.json": "22646ada870cc179",
   "drc.json": "f59ad1acc7a9dc7a",
   "gerber.zip": "f085b34eb05f817c",
-  "kicad-project.zip": "f2778e0feaf8972b",
+  "kicad-project.zip": "d8f8f53638139c8a",
   "pcb/B_Cu.svg": "a3811e06ba93058d",
   "pcb/B_Silk.svg": "1735fcc79725d054",
   "pcb/F_Cu.svg": "bc956c611c140977",
@@ -176,13 +176,13 @@
   "pcb/In2_Cu.svg": "5db20efcda44b05c",
   "pos.csv": "bd9d673e84d15466",
   "schematic/drv-joint-b-1 48 V 输入与母线.svg": "901163b021e3aca7",
-  "schematic/drv-joint-b-2 辅助电源 12 _ 5 _ 3.3 V.svg": "9327382841555faa",
+  "schematic/drv-joint-b-2 辅助电源 12 _ 5 _ 3.3 V.svg": "7c832e88cecfbfb2",
   "schematic/drv-joint-b-3 三相桥.svg": "019ead73e323a86d",
   "schematic/drv-joint-b-4 栅极驱动.svg": "468494d00c600e91",
   "schematic/drv-joint-b-5 相电流采样与电机输出.svg": "74f535bd42656ba9",
   "schematic/drv-joint-b-6 MCU 与烧录口.svg": "060ae819bc6efb85",
   "schematic/drv-joint-b-7 编码器接口与 CAN.svg": "11ae67ed57a54a2a",
-  "schematic/drv-joint-b.svg": "221d86f9d627c0ef"
+  "schematic/drv-joint-b.svg": "c2cd2875d566926e"
  },
  "firmware": [
   "SPI1：PA4 NSS / PA5 SCK / PA6 MISO / PA7 MOSI（AF5），模式 0，≤ 5 MHz（芯片要求 SCLK ≤ 时钟 / 10）",

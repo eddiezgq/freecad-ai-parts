@@ -71,6 +71,27 @@ class LayoutSession:
         self._backend_error: ToolBackendError | None = None
         self._lock = threading.RLock()
         self.scene = Scene()
+        self.requirement: dict | None = None      # 这次会话最近一次选型用的需求（ADR-0099 41.0）
+
+    def remember_requirement(self, requirement: dict) -> None:
+        """记下选型用的需求。同一需求（同 id 或同原话）再次选型时少了的条件照旧保留：AI 为了找到方案放宽条件重选，
+        原话里说过的条件（例如“220 V 单相供电”）在最后校验时仍要带上；换了原话就是新需求，重新记"""
+        if not isinstance(requirement, dict):
+            return
+        from mcp_server.tools import REQ_CONDITIONS, _same_ids
+
+        old = self.requirement
+        new = dict(requirement)
+        if old and _same_ids(new, old):
+            for k in REQ_CONDITIONS:
+                if k in old and k not in new:
+                    new[k] = old[k]
+        self.requirement = new
+
+    def complete_requirement(self, system: dict) -> tuple[dict, dict]:
+        from mcp_server.tools import complete_requirement
+
+        return complete_requirement(system, self.requirement)
 
     # ------------------------------------------------------------ 状态
 

@@ -51,7 +51,7 @@
         (font
           (size 1.27 1.27))
         (justify left bottom)))
-    (property "Sheetfile" "aux.kicad_sch"
+    (property "Sheetfile" "aux-sheet.kicad_sch"
       (at 130 90.6 0)
       (effects
         (font
