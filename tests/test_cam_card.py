@@ -8,10 +8,10 @@ import pytest
 
 pytest.importorskip("docx")
 
-from analysis import cam  # noqa: E402
-from assist import cam_card as CC  # noqa: E402
-from assist import cam_process as CP  # noqa: E402
-from assist.fea_report import _ptr_get  # noqa: E402
+from analysis import cam
+from assist import cam_card as CC
+from assist import cam_process as CP
+from assist.fea_report import _ptr_get
 
 TURN = {"mode": "turn", "machine": "EX-LATHE", "item": "带螺纹的阶梯轴（示例）", "segments": [[30, 40], [40, 60], [35, 25], [24, 30]],
         "chamfer_mm": 1, "kienzle": "C45E", "grooves": [{"z": -27, "width": 3, "d": 20}],
