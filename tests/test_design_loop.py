@@ -188,3 +188,14 @@ def test_after_pass_ai_is_asked_for_lighter_and_lighter_pass_is_chosen():
     else:
         assert out["chosen_round"] == 2
     assert D.chosen(out) is out["rounds"][out["chosen_round"] - 1]
+
+
+def test_lighter_attempt_that_fails_can_be_fixed_and_lightest_pass_is_kept():
+    """减重的方案没通过可以按校核结论再改，算在减重的 3 轮里；采用通过且最轻的（ADR-0100 42.2 之五）"""
+    bad = copy.deepcopy(SECOND)
+    bad["segments"][2]["length_mm"] = 201                          # 轴身长度不对：不通过
+    ai = Script(proposals=[FIRST, SECOND, bad, SECOND])
+    out = D.design(TEXT, ai, [get(B6201)], get, kt=fake_kt)
+    ov = [r["overall"] for r in out["rounds"]]
+    assert ov[:3] == ["fail", "pass", "fail"] and len(out["rounds"]) == 4      # 减重没通过之后还给了一轮
+    assert out["status"].startswith("pass") and out["chosen_round"] == 2

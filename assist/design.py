@@ -25,7 +25,8 @@ from assist.fea_draft import _in_statement, _material_ok, _value_with_unit
 
 PROMPT_VERSION = "shaft-design/1"
 DEFAULT_MODEL = "claude-sonnet-5-5"
-MAX_ROUNDS = 4
+MAX_ROUNDS = 4                     # 改到合格最多 4 轮
+LIGHTER_ROUNDS = 3                 # 通过之后减重另给最多 3 轮（减重的方案没通过可按校核结论再改，算在里面；ADR-0100 42.2 之五）
 ROOT = Path(__file__).resolve().parents[1]
 RECORDINGS_DIR = ROOT / "tests" / "recordings" / "design"
 
@@ -298,9 +299,9 @@ def extra_checks(report: dict, cond: dict) -> None:
 
 
 def design(statement: str, client, bearings: list[dict], get: Callable[[str], dict | None], *, model: str = DEFAULT_MODEL,
-           kt: Callable | None = None, max_rounds: int = MAX_ROUNDS,
+           kt: Callable | None = None, max_rounds: int = MAX_ROUNDS, lighter_rounds: int = LIGHTER_ROUNDS,
            progress: Callable[[str, int | None, int | None], None] | None = None) -> dict:
-    """原话 → 条件 → 最多 max_rounds 轮方案与校核。返回全部记录。
+    """原话 → 条件 → 改到合格最多 max_rounds 轮、通过后减重最多 lighter_rounds 轮。返回全部记录。
     progress(说明, 已做, 总数)：每一步开始时调用（给界面显示进度；总数不定时为 None）"""
     say = progress or (lambda *_: None)
     say("AI 列设计条件", None, None)
@@ -315,14 +316,24 @@ def design(statement: str, client, bearings: list[dict], get: Callable[[str], di
         return out
     best = None                                            # 已通过的方案里最轻的一轮
     lighter = None
-    for k in range(1, max_rounds + 1):
+    fix_left, light_left, k = max_rounds, lighter_rounds, 0
+    while True:
+        if best is None:
+            if fix_left == 0:
+                break
+            fix_left -= 1
+        else:
+            if light_left == 0:
+                break
+            light_left -= 1
+        k += 1
         if lighter:
-            say(f"第 {k} 轮（最多 {max_rounds} 轮）：AI 试更轻的方案", None, None)
+            say(f"第 {k} 轮：AI 试更轻的方案（减重最多 {lighter_rounds} 轮）", None, None)
         else:
             say(f"第 {k} 轮（最多 {max_rounds} 轮）：AI 提方案", None, None)
         req = proposal_request(cond, bearings, out["rounds"], model=model, lighter=lighter)
         r = client.complete(req)
-        out["ai"].append({k: r[k] for k in ("id", "provider", "model", "simulated") if k in r})
+        out["ai"].append({k_: r[k_] for k_ in ("id", "provider", "model", "simulated") if k_ in r})
         prop = r["tool_input"]
         last = out["rounds"][-1]["proposal"] if out["rounds"] else None
         if isinstance(prop, dict) and isinstance(last, dict) and prop.get("segments") == last.get("segments"):
@@ -330,7 +341,7 @@ def design(statement: str, client, bearings: list[dict], get: Callable[[str], di
             break                                          # AI 不再改方案：通过的就是最轻的；没通过的交给人
         try:
             rep = SD.evaluate(prop, cond, get, kt=kt,
-                              progress=lambda i, n, k=k: say(f"第 {k} 轮（最多 {max_rounds} 轮）：校核台阶强度（有限元）", i - 1, n))
+                              progress=lambda i, n, k=k: say(f"第 {k} 轮：校核台阶强度（有限元）", i - 1, n))
         except SD.ProposalInvalid as ex:
             rep = {"items": [SD._item("方案格式", "fail", note=str(ex))], "notes": [], "overall": "fail", "segments": []}
         else:
@@ -341,11 +352,12 @@ def design(statement: str, client, bearings: list[dict], get: Callable[[str], di
         out["rounds"].append(rd)
         ok = bool(rep.get("segments")) and _done(rep)
         if ok and (best is None or (rd["mass_kg"] or 1e9) < (best["mass_kg"] or 1e9) - 1e-6):
-            best = rd                                      # 通过、且比之前通过的更轻：再给 AI 一轮减重
+            best = rd                                      # 通过、且比之前通过的更轻：接着要更轻
             lighter = LIGHTER.format(mass=rd["mass_kg"] or 0.0, margins=_margins(rep["items"]))
             continue
-        if best is not None:
-            break                                          # 减重的方案没通过或没更轻：保留更轻的那一轮
+        if ok:
+            break                                          # 通过了但没更轻：保留更轻的那一轮
+        # 没通过：改到合格阶段照常再改；减重阶段按校核结论再改（仍在减重的轮数里）
     if best is None:
         out["status"] = "stuck"
     else:
