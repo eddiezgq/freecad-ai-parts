@@ -1,0 +1,80 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "shaft-design/1",
+  "request_key": "cebc5fb2ec726d8a0d478949c9c618ca0f5238d7346cc325276bc8a3cb60cf62",
+  "response": {
+    "id": "msg_011ChCTe2RjrabQkmRE7uFyK",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "reason": "两端轴承选 6008（d40，C=18400N），按曲柄滑块惯性力估算轴承寿命需 C 约 1.1 万 N 以上，6008 有余量，且较粗的轴有利于临界转速。轴承1(中心27，占19–35)从左端套入：曲柄段直径36小于40，右侧用直径48的轴肩定位(da min 45)；轴承2(中心252，占244–260)从右端套入：右侧带轮段36、手轮段32均小于40，左侧用直径48轴肩定位。曲柄段0–19覆盖z=11；挑线凸轮段38–52覆盖z=45；送布偏心轮段142–158覆盖z=150；带轮段260–274覆盖z=262；手轮段274–292覆盖z=282，总长292 mm≤300。中间轴身44 mm保证刚度，各台阶均给圆角，轴承肩处圆角1 mm不超过ra max。",
+      "segments": [
+        {
+          "diameter_mm": 36,
+          "fillet_mm": 1,
+          "length_mm": 19,
+          "role": "crank_seat"
+        },
+        {
+          "bearing": "bearing.nsk-ltd.6008",
+          "fillet_mm": 1,
+          "role": "bearing_seat"
+        },
+        {
+          "diameter_mm": 48,
+          "fillet_mm": 1,
+          "length_mm": 3,
+          "role": "shoulder"
+        },
+        {
+          "diameter_mm": 45,
+          "fillet_mm": 1,
+          "length_mm": 14,
+          "role": "cam_seat"
+        },
+        {
+          "diameter_mm": 44,
+          "fillet_mm": 2,
+          "length_mm": 90,
+          "role": "body"
+        },
+        {
+          "diameter_mm": 46,
+          "fillet_mm": 2,
+          "length_mm": 16,
+          "role": "cam_seat"
+        },
+        {
+          "diameter_mm": 44,
+          "fillet_mm": 2,
+          "length_mm": 82,
+          "role": "body"
+        },
+        {
+          "diameter_mm": 48,
+          "fillet_mm": 1,
+          "length_mm": 4,
+          "role": "shoulder"
+        },
+        {
+          "bearing": "bearing.nsk-ltd.6008",
+          "fillet_mm": 1,
+          "role": "bearing_seat"
+        },
+        {
+          "diameter_mm": 36,
+          "fillet_mm": 1,
+          "length_mm": 14,
+          "role": "pulley_seat"
+        },
+        {
+          "diameter_mm": 32,
+          "fillet_mm": 1,
+          "length_mm": 18,
+          "role": "journal"
+        }
+      ]
+    }
+  }
+}
