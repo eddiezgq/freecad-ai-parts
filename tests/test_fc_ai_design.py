@@ -126,3 +126,24 @@ def FreeCADGui_main():
     import FreeCADGui
 
     return FreeCADGui.getMainWindow()
+
+
+def test_start_replays_example_without_recording_miss(gui, lib, monkeypatch):
+    """“载入示例”后直接“开始设计”要能回放：面板里的文字去掉了末尾换行，回放要用示例原文（2026-11-18 问渠 CAD）"""
+    from freecad_addon.core import ai_design as C
+    from freecad_addon.gui import ai_design_panel as P
+
+    seen = {}
+    monkeypatch.setattr(P, "_in_background", lambda work, done: seen.setdefault("work", work))
+    p = P.AiDesignPanel(lib, None, client_factory=lambda: None)
+    p.load_example()
+    p.start()
+    req = {}
+
+    def fake_run(statement, client, library, replay=False):
+        req.update(statement=statement, replay=replay)
+        return statement
+
+    monkeypatch.setattr(C, "run", fake_run)
+    seen["work"]()
+    assert req["replay"] and req["statement"] == C.example_text()

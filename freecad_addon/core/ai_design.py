@@ -30,7 +30,8 @@ class ConfirmError(ValueError):
 
 
 def example_text() -> str:
-    return EXAMPLE.read_text(encoding="utf-8")
+    """示例原话。Windows 上 git 检出可能把换行变成 \\r\\n，录制是按 \\n 录的：统一成 \\n，否则回放对不上（2026-11-18）"""
+    return EXAMPLE.read_text(encoding="utf-8").replace("\r\n", "\n")
 
 
 def example_client():
@@ -52,6 +53,7 @@ def run(statement: str, client, library, out_dir: str | Path | None = None, *, r
     from assist import design as D
     from assist import shaft_model
 
+    statement = statement.replace("\r\n", "\n")
     model = getattr(client, "model", None) or D.DEFAULT_MODEL
     res = D.design(statement, client, bearings(library), library.get, model=model)
     out = Path(out_dir) if out_dir else Path(tempfile.mkdtemp(prefix="wq-ai-design-"))

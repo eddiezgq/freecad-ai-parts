@@ -96,6 +96,8 @@ class AiDesignPanel:
             self.progress.setText(T("先写需求原话"))
             return
         use_replay = self.replay and statement == C.example_text().strip()
+        if use_replay:
+            statement = C.example_text()           # 原样（含末尾换行）：录制按示例文件原文算请求键（2026-11-18）
         try:
             client = C.example_client() if use_replay else self.client_factory()
         except Exception as exc:  # noqa: BLE001 — 显示给人
