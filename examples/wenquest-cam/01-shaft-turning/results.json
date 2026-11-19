@@ -4,21 +4,21 @@
   "name": "示例数控车床（虚构）",
   "example": true
  },
- "total_time_s": 158.34,
+ "total_time_s": 158.48,
  "programs": [
   {
    "title": "右端（第一次装夹）",
    "number": 1001,
    "time_s": {
-    "cut_s": 98.91,
+    "cut_s": 99.01,
     "rapid_s": 11.82,
     "tool_s": 9.0,
-    "total_s": 119.73
+    "total_s": 119.84
    },
    "machine_sim": {
     "status": "unknown",
-    "fingerprint": "e26eecb76c21647d",
-    "samples": 1212
+    "fingerprint": "ab2375f081cdc51c",
+    "samples": 1302
    },
    "released": true,
    "errors": []
@@ -27,14 +27,14 @@
    "title": "左端（调头装夹）",
    "number": 1002,
    "time_s": {
-    "cut_s": 32.23,
+    "cut_s": 32.26,
     "rapid_s": 3.39,
     "tool_s": 3.0,
-    "total_s": 38.62
+    "total_s": 38.65
    },
    "machine_sim": {
     "status": "unknown",
-    "fingerprint": "6effe98616998041",
+    "fingerprint": "63347abf494baf86",
     "samples": 335
    },
    "released": true,

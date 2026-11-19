@@ -124,17 +124,63 @@ def z_reach(prof, d):
 
 
 # ---------------------------------------------------------------- 车削刀路
-def turn_face(stock_d, face_allow, ap, f):
-    """车端面：毛坯右端比成品多 face_allow，分层车到 Z0。"""
+def turn_face(stock_d, face_allow, ap, f, nose_r=0.0):
+    """车端面：毛坯右端比成品多 face_allow，分层车到 Z0。车过中心：假想刀尖到 X −max(1, 2rε + 0.2)，
+    刀尖圆弧才能把中心车平（否则中心留一个半径约 rε 的小凸台）。"""
+    x_end = -max(1.0, 2 * nose_r + 0.2)
     mv = [{"t": "comment", "text": f"车端面（余量 {face_allow:g}）"}]
     n = max(1, math.ceil(face_allow / ap - 1e-9)) if face_allow > 0 else 1
     xo = stock_d + 2 * CLEAR
     for k in range(n):
         z = max(0.0, face_allow - (k + 1) * ap)
         mv += [{"t": "rapid", "x": xo, "z": z + CLEAR}, {"t": "rapid", "x": xo, "z": z},
-               {"t": "feed", "x": -1.0, "z": z, "f": f}, {"t": "rapid", "x": -1.0, "z": z + CLEAR},
+               {"t": "feed", "x": x_end, "z": z, "f": f}, {"t": "rapid", "x": x_end, "z": z + CLEAR},
                {"t": "rapid", "x": xo, "z": z + CLEAR}]
     return mv
+
+
+def nose_comp(profile, r_eps, inner=False, seg_deg=10.0):
+    """刀尖圆弧补偿（ADR-0106 Q2 第 4 步）：轮廓 [(z, d), …] → 假想刀尖要走的点 [(z, d), …]。
+    外圆刀（刀尖方位 3）：刀尖圆弧中心沿轮廓外法向偏 rε 走，假想刀尖 = 圆心 − (rε, rε)（z、半径）；
+    内孔刀（方位 2）：圆心往孔中心一侧偏，假想刀尖 = 圆心 + (−rε, +rε)。
+    外圆、端面上假想刀尖就是接触点，路径不变；倒角、锥面上路径平移，外凸的拐角绕一段圆弧（每 seg_deg 一段直线）。"""
+    pts = [(z, d / 2) for z, d in simplify(profile)]
+    if r_eps <= 0 or len(pts) < 2:
+        return [(z, 2 * r) for z, r in pts]
+    sgn = -1.0 if inner else 1.0                       # 法向朝外（外圆：半径变大一侧；内孔：半径变小一侧）
+
+    def tn(a, b):
+        tz, tr = b[0] - a[0], b[1] - a[1]
+        L = math.hypot(tz, tr)
+        tz, tr = tz / L, tr / L
+        return (tz, tr), (sgn * tr, -sgn * tz)
+
+    segs = [tn(a, b) for a, b in itertools.pairwise(pts)]
+    out = []
+    for i, (a, b) in enumerate(itertools.pairwise(pts)):
+        (tz, tr), (nz, nr) = segs[i]
+        s0 = (a[0] + r_eps * nz, a[1] + r_eps * nr)
+        s1 = (b[0] + r_eps * nz, b[1] + r_eps * nr)
+        if i == 0:
+            out.append(s0)
+        else:
+            (pz, pr), (pnz, pnr) = segs[i - 1]
+            cross = pz * tr - pr * tz
+            if sgn * cross > 1e-12:                    # 外凸拐角：绕顶点画圆弧
+                a0, a1 = math.atan2(pnr, pnz), math.atan2(nr, nz)
+                da = (a1 - a0 + math.pi) % (2 * math.pi) - math.pi
+                n = max(1, math.ceil(abs(math.degrees(da)) / seg_deg))
+                out += [(a[0] + r_eps * math.cos(a0 + da * k / n), a[1] + r_eps * math.sin(a0 + da * k / n)) for k in range(1, n + 1)]
+            elif sgn * cross < -1e-12:                 # 内凹拐角：两条偏置线的交点
+                q0 = out[-1]
+                den = pz * tr - pr * tz
+                t = ((s0[0] - q0[0]) * tr - (s0[1] - q0[1]) * tz) / den
+                out[-1] = (q0[0] + t * pz, q0[1] + t * pr)
+            else:
+                out.append(s0)
+        out.append(s1)
+    shift = (-r_eps, -r_eps) if not inner else (-r_eps, r_eps)
+    return simplify([(z + shift[0], 2 * (r + shift[1])) for z, r in out])
 
 
 def _follow(prof, f, stock_d):
@@ -147,9 +193,9 @@ def _follow(prof, f, stock_d):
     return mv
 
 
-def turn_rough(profile, stock_d, ap, f, allow_r=0.3, allow_z=0.1, profile_pass=True):
+def turn_rough(profile, stock_d, ap, f, allow_r=0.3, allow_z=0.1, profile_pass=True, nose_r=0.0):
     """分层粗车（相当于 FANUC G71，展开成直线段）：每层直径减 2×ap，车到碰到留余量的轮廓为止；
-    最后（profile_pass）沿留余量的轮廓走一刀，去掉分层留下的台阶。"""
+    最后（profile_pass）沿留余量的轮廓走一刀，去掉分层留下的台阶（刀尖圆弧 nose_r 补偿）。"""
     tgt = with_allowance(profile, allow_r, allow_z)
     dmin = min(d for _, d in tgt)
     mv = [{"t": "comment", "text": f"分层粗车（每层 ap={ap:g}，留余量 径向 {allow_r:g} 轴向 {allow_z:g}）"}]
@@ -164,11 +210,12 @@ def turn_rough(profile, stock_d, ap, f, allow_r=0.3, allow_z=0.1, profile_pass=T
     if not profile_pass:
         return mv
     mv.append({"t": "comment", "text": "沿留余量的轮廓走一刀"})
-    return mv + _follow(tgt, f, stock_d)
+    return mv + _follow(nose_comp(tgt, nose_r), f, stock_d)
 
 
-def turn_finish(profile, stock_d, f):
-    return [{"t": "comment", "text": "精车轮廓"}, *_follow(simplify(profile), f, stock_d)]
+def turn_finish(profile, stock_d, f, nose_r=0.0):
+    text = "精车轮廓" + (f"（刀尖圆弧 R{nose_r:g} 已补偿）" if nose_r > 0 else "")
+    return [{"t": "comment", "text": text}, *_follow(nose_comp(profile, nose_r), f, stock_d)]
 
 
 def turn_groove(z, d_bottom, width, d_from, f, tool_width):
@@ -256,7 +303,7 @@ def z_reach_inner(prof, d):
     return last
 
 
-def turn_bore(inner, hole_d, ap, f, allow_r=0.3, f_finish=None):
+def turn_bore(inner, hole_d, ap, f, allow_r=0.3, f_finish=None, nose_r=0.0):
     """镗内孔：从已钻的孔 hole_d 起分层扩到留余量的内轮廓，再沿内轮廓精镗一刀。刀位点在镗刀刀尖，退刀往孔中心让 1 mm"""
     dmax = max(d for _, d in inner)
     if hole_d >= min(d for _, d in inner) - 1e-9:
@@ -273,7 +320,7 @@ def turn_bore(inner, hole_d, ap, f, allow_r=0.3, f_finish=None):
         d = d_new
     mv.append({"t": "comment", "text": "精镗内轮廓"})
     ff = f_finish or f
-    prof = simplify(inner)
+    prof = nose_comp(inner, nose_r, inner=True)
     mv += [{"t": "rapid", "x": prof[0][1], "z": CLEAR}]
     mv += [{"t": "feed", "x": dd, "z": z, "f": ff} for z, dd in prof]
     zl = prof[-1][0]
