@@ -1888,5 +1888,7 @@
 "每层切深在“切削参数”页；留了余量要再加一道精铣": "The depth per layer is on the \"Cutting data\" tab; with an allowance, add a finishing operation",
 "孔 Ø{}：刀具库里没有这个直径的钻头，也没有刀径在 Ø{} ~ Ø{} 之间的平底立铣刀，没编程": "Hole Ø{}: the tool library has no drill of this diameter and no flat end mill between Ø{} and Ø{}; not programmed",
 "螺旋铣孔 Ø{}": "Helical hole milling Ø{}",
-"螺旋铣孔": "Helical hole milling"
+"螺旋铣孔": "Helical hole milling",
+"毛坯顶面高出零件顶面多少；大于 0 时规则起草第一道是面铣": "How far the stock top is above the part top; above 0, the rule draft starts with face milling",
+"面铣余量 mm（0 = 不面铣）": "Face stock mm (0 = no face milling)"
 }

@@ -462,6 +462,26 @@
     "en": "Thread milling helix rises one pitch per turn"
    },
    "source": "Δz = P"
+  },
+  {
+   "id": "CAM-45",
+   "test": "tests/test_cam_mill_q3b.py::test_lead_arcs_are_tangent_and_outside[True]",
+   "category": "geom",
+   "title": {
+    "zh": "外轮廓圆弧切入的圆弧",
+    "en": "Arc lead-in on contours"
+   },
+   "source": "|p − c| = r"
+  },
+  {
+   "id": "CAM-46",
+   "test": "tests/test_cam_mill_q3b.py::test_adaptive_width_warning",
+   "category": "must",
+   "title": {
+    "zh": "自适应开粗切宽没保持住必须报出",
+    "en": "Adaptive roughing that does not hold its width of cut must be reported"
+   },
+   "source": "人工设定的错误程序 / deliberately wrong program"
   }
  ]
 }

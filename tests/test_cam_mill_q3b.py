@@ -8,7 +8,7 @@ import pytest
 
 from analysis import cam
 from analysis.cam import machines, sim
-from tests.verification import record
+from tests.verification import record, record_verdict
 
 VMC = machines.get("EX-VMC")
 MSIM = {"work_offset_mm": [0, 0, 40], "tools": {"1": {"tool": "EM10", "length_mm": 120}}}
@@ -45,6 +45,7 @@ def test_depth_of_cut_over_catalogue_withholds_program():
     assert p["release"] is not None
     # 开槽切宽 = 刀径 10 > 样本 ae 2.5：这几段的切深样本没给，报未知（不当通过）
     assert any(c["level"] == "unknown" and "切宽 ae 超过样本" in c["text"] for c in p["checks"])
+    record_verdict(("一刀切 8 mm、样本 ap ≤ 5 必须报出且不出程序", "8 mm cut with catalogue ap ≤ 5 is reported and withheld"), "fail", "fail")
 
 
 def test_no_catalogue_ap_is_unknown():
@@ -105,6 +106,7 @@ def test_tapping_without_drilled_hole_is_reported():
     s = sim.simulate_mill(sim.parse(cam.post.post(prog, VMC), VMC), {"box": [0, 0, 100, 60], "top": 0.0},
                           {4: {"kind": "drill", "d": 8.5}, 5: {"kind": "tap", "d": 10.0, "pitch": 1.5}})
     assert any("底孔没钻到位" in i["text"] for i in s["issues"])
+    record_verdict(("底孔只钻到 Z−10 却攻到 Z−15 必须报出", "tapping below the drilled depth is reported"), "fail", "fail")
     g = cam.post.post(_tap_prog(), VMC).replace("M29 S400", "M29 S500")
     s = sim.simulate_mill(sim.parse(g, VMC), {"box": [0, 0, 100, 60], "top": 0.0},
                           {4: {"kind": "drill", "d": 8.5}, 5: {"kind": "tap", "d": 10.0, "pitch": 1.5}})
@@ -188,6 +190,10 @@ def test_lead_arcs_are_tangent_and_outside(ccw):
         d = (arc[-1]["x"] - arc[-2]["x"], arc[-1]["y"] - arc[-2]["y"])
         t = (1.0, 0.0) if ccw else (-1.0, 0.0)
         assert abs(d[1]) / math.hypot(*d) < 0.05 and d[0] * t[0] > 0                   # 到 P 时与轮廓同向（相切）
+    if ccw:
+        dev = max(abs(math.dist((m["x"], m["y"]), (50, -10)) - 5.0) for m in out[plunges[0]:plunges[0] + 19])
+        record(("圆弧切入：各点到圆心 (50, −10) 的距离与 R5 之差（最大）", "arc lead-in: max deviation of points from R5 about (50, −10)"),
+               dev, 0.0, tol=1e-9, rel=False, unit="mm", formula="|p − c| = r")
     prog = {"number": 1, "title": "t", "ops": [{"tool": {"n": 1, "d": 10.0}, "spindle": {"rpm": 3000}, "safe": 5.0, "moves": out}]}
     s = sim.simulate_mill(sim.parse(cam.post.post(prog, VMC), VMC), {"box": [-20, -20, 120, 80], "top": 0.0},
                           {1: {"kind": "endmill", "d": 10.0}}, h=0.1)
@@ -203,7 +209,9 @@ def test_adaptive_width_warning():
     p = _run(prog)
     a = p["sim"]["adaptive"][0]
     assert a["ae_max"] > 9.0                    # 满刀宽（网格 0.2，弯月牙两头细、量出来略小于 10）
-    assert any(c["level"] == "warn" and "切宽没保持住" in c["text"] for c in p["checks"])
+    warned = any(c["level"] == "warn" and "切宽没保持住" in c["text"] for c in p["checks"])
+    record_verdict(("设定切宽 1 mm、满刀宽开槽必须提示", "set width 1 mm with a full-width slot is reported"), "fail" if warned else "pass", "fail")
+    assert warned
 
 
 def test_thread_milling_helix():

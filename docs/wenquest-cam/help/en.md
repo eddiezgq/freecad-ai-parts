@@ -9,7 +9,7 @@ lang: en-US
 WenQuest CAM is CNC programming software that runs inside FreeCAD. The first edition handles two kinds of parts:
 
 - **Turning**: parts of revolution with grooves, face grooves, internal and external threads (including taper and multi-start threads) and bores (including tapers and arcs), in two setups (right end first, then the part flipped for the left end); bar stock can be parted off;
-- **2.5-axis milling**: pockets, contours and drilling, with tool paths computed by FreeCAD's own CAM.
+- **2.5-axis milling**: face milling, pockets (zigzag or adaptive roughing, plus rest machining), contours (arc lead-in and lead-out), chamfers, and holes (drilling, helical hole milling, counterbores, countersinks, tapping, thread milling). Pocket, contour, facing and adaptive paths come from FreeCAD's own CAM; hole and chamfer paths are computed by WenQuest CAM directly from the model.
 
 Three principles run through everything:
 
@@ -17,7 +17,7 @@ Three principles run through everything:
 2. **Programs are output only after the whole-machine simulation passes.** Every tool path segment moves the machine model and checks the cutting edge, holder, spindle head, fixtures, table and remaining material for collisions, and the axes for overtravel. If anything fails, no program is output.
 3. **The written program is read back.** It is compared segment by segment with the simulated tool path; if they differ, no program is output. The program header carries the machine, post processor version, simulation fingerprint and "first part: dry run and single block".
 
-The accuracy of the algorithms is documented in the WenQuest CAM Verification Manual installed with the software: 37 benchmark problems and 44 comparisons (machining time, cutting power, five-axis kinematic round trips, collision tests, removed volume, nose radius, thread root and taper, face grooves, parting off, errors that must be reported, post read-back, canned-cycle expansion), all within the stated tolerances.
+The accuracy of the algorithms is documented in the WenQuest CAM Verification Manual installed with the software: 46 benchmark problems and 53 comparisons (machining time, cutting power, five-axis kinematic round trips, collision tests, removed volume, nose radius, thread root and taper, face grooves, parting off, width of cut, tapping, countersinks, counterbores, thread milling, arc lead-in, errors that must be reported, post read-back, canned-cycle expansion), all within the stated tolerances.
 
 # Installing and uninstalling
 
@@ -31,7 +31,7 @@ All programming data lives in the FreeCAD document, so it is saved with the file
 
 - **Job**: one programming job for one part. It holds the part, the machining type (turning / milling), machine, CNC control, workpiece material, tool library and fixture.
 - **Setup**: two for a turned part (right end, then flipped for the left end), one for a milled part.
-- **Operation**: rough and finish turning, grooving, face grooving, threading (internal and external), drilling, boring, parting off; pocket, contour, drilling. Each operation has its own tool, cutting data, geometry and tool path, drawn as a wireframe in the view.
+- **Operation**: rough and finish turning, grooving, face grooving, threading (internal and external), drilling, boring, parting off; face milling, pocket, adaptive roughing, rest machining, contour, chamfer, drilling, helical hole milling, counterbore, countersink, tapping, thread milling. Each operation has its own tool, cutting data, geometry and tool path, drawn as a wireframe in the view.
 
 An operation is either a **draft** (yellow dot on the icon; drafted or newly added) or **confirmed** (checked by a person, cutting data within the tool catalogue ranges). **While any operation is a draft, the job is only simulated; no program is released.**
 
@@ -78,6 +78,18 @@ Try again: on the toolbar choose "New operation" → "Contour milling", confirm 
 
 ![Contour hits the vise jaws: no program](img/en-clash.png)
 
+# Milling: holes, facing, chamfers, adaptive roughing, rest machining
+
+- **Holes**: holes along Z are read from the model — through and blind (with drill point), counterbores and countersinks. The rule draft orders them "drill → counterbore → countersink"; when the tool library has no drill of the diameter, the hole is milled helically with a flat end mill.
+- **Tapped holes**: threads are usually not modelled. When a hole diameter is exactly the tap drill of a coarse thread (e.g. Ø8.5 for M10, Ø6.8 for M8), the notes in the job panel say "presumably a tapped hole", and **no tapping is added automatically** — if it is to be tapped, add "Tapping" or "Thread milling" under "New operation". Blind holes are tapped to hole depth − 3 pitches, through holes 2 pitches past the bottom; tapping is output as rigid tapping (FANUC M29 + G84, Siemens G331 / G332), and the simulation checks that the core hole is drilled and that feed / speed equals the tap pitch.
+- **Face milling**: with a "Face stock" above 0 in the job panel (stock top above the part top), the rule draft starts with face milling: zigzag plus one pass along the edge, with the boundary extended by one tool radius so that the corners are cut.
+- **Chamfers**: chamfer faces on the top edges are read from the model; the chamfer mill's cone runs along the chamfer face (tip 0.5 mm below the chamfer bottom, so the tip does not cut). Chamfer mills in the tool library need the cone angle and tip diameter.
+- **Contours**: every layer enters and leaves on a quarter arc instead of plunging on the contour.
+- **Adaptive roughing** (New operation): FreeCAD's adaptive clearing — small width of cut, deep layers. The simulation measures the actual width of cut move by move and warns when it exceeds 1.5 times the setting.
+- **Rest machining** (New operation): an end mill one size smaller than the roughing tool cuts only the material the earlier operations left in the corners.
+- **Allowances and heights**: milling operation panels have "Allowance and layers" (wall and floor allowance) and "Heights and lead-in" (safe height and clearance height, both above the stock top).
+- **Depth-of-cut check**: the depth and width of cut of every move are measured in the simulation and compared with the tool catalogue: a depth over the catalogue is an error and no program is output; moves wider than the catalogue width (slotting, the first ring of a pocket) have no catalogue depth, so they are reported as "unknown".
+
 # Replay, program window and deviation map
 
 After calculation press "Replay…" in the job panel (or "Replay and program…" on the toolbar); the replay window opens below the view:
@@ -103,7 +115,7 @@ Tick "Deviation" to colour the finished stock by its deviation from the part mod
 
 # Reading the checks
 
-- **Error (red)**: collisions, overtravel, overcut, rapid moves into the stock, spindle speed over the limit, threading in constant surface speed… With a machine simulation error, no program is output.
+- **Error (red)**: collisions, overtravel, overcut, rapid moves into the stock, spindle speed over the limit, threading in constant surface speed, milling depth of cut over the tool catalogue, tapping without a core hole or with a feed that does not match the pitch, a thread insert of the wrong form… With a machine simulation error, no program is output.
 - **Warning (amber)**: post processor not yet verified on a real machine, cutting power close to the main motor power, etc.
 - **Unknown (grey)**: not checked for lack of data, e.g. turning-tool head shapes, holders without an ISO 5608 code or tip offset, missing tool lengths, imported tool paths without a target shape. They do not block the output, but you should know about them.
 - None of the three post processors of the first edition (FANUC, Siemens, GSK lathe) has been verified on a real machine yet; the program header says so; programs with canned cycles get an extra warning in the check list. **Always dry-run the first part and confirm it in single block.**

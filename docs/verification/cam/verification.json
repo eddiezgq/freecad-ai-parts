@@ -1,6 +1,6 @@
 {
  "env": {
-  "code": "067929c202cc3278ff57974142d00d3000dc19d5（有未提交的改动）",
+  "code": "7fa077bba63e44289ad8225b66c68151a502f929（有未提交的改动）",
   "date": "2026-11-19",
   "numerics": "NumPy 2.5.3",
   "python": "Python 3.13.18 / Linux 6.18.44-fc-v653"
@@ -1150,12 +1150,258 @@
     }
    ],
    "result": "pass"
+  },
+  {
+   "id": "CAM-38",
+   "test": "tests/test_cam_mill_q3b.py::test_measured_width_of_cut[2.5]",
+   "category": "geom",
+   "title": {
+    "zh": "侧铣切宽 ae 的仿真量值",
+    "en": "Simulated width of cut ae in side milling"
+   },
+   "source": "ae = 刀心偏移 / ae = tool-centre offset",
+   "rows": [
+    {
+     "case": "tests/test_cam_mill_q3b.py::test_measured_width_of_cut[2.5]",
+     "kind": "value",
+     "quantity": [
+      "侧铣切宽 ae = 2.5 mm 的仿真量值",
+      "side milling width of cut ae = 2.5 mm, simulated"
+     ],
+     "computed": 2.4499999999999984,
+     "reference": 2.5,
+     "tol": 0.1,
+     "rel": false,
+     "error": -0.0500000000000016,
+     "unit": "mm",
+     "formula": "ae（设定的刀心偏移）",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-39",
+   "test": "tests/test_cam_mill_q3b.py::test_rigid_tapping_output_and_read_back[fanuc]",
+   "category": "time",
+   "title": {
+    "zh": "刚性攻丝时间",
+    "en": "Rigid tapping time"
+   },
+   "source": "t = 2·L / (P·n)",
+   "rows": [
+    {
+     "case": "tests/test_cam_mill_q3b.py::test_rigid_tapping_output_and_read_back[fanuc]",
+     "kind": "value",
+     "quantity": [
+      "刚性攻丝时间（2 孔 M10×1.5，400 r/min）",
+      "rigid tapping time (2 holes M10×1.5, 400 rpm)"
+     ],
+     "computed": 7.199999999999999,
+     "reference": 7.199999999999999,
+     "tol": 1e-06,
+     "rel": true,
+     "error": 0.0,
+     "unit": "s",
+     "formula": "t = 2·L / (P·n)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-40",
+   "test": "tests/test_cam_mill_q3b.py::test_countersink_cone_matches_geometry",
+   "category": "geom",
+   "title": {
+    "zh": "倒角刀锪孔口的锥面",
+    "en": "Countersink cone surface"
+   },
+   "source": "z = −(h − ρ / tan(α/2))",
+   "rows": [
+    {
+     "case": "tests/test_cam_mill_q3b.py::test_countersink_cone_matches_geometry",
+     "kind": "value",
+     "quantity": [
+      "90° 倒角刀锪孔口：锥面高度与 z = −(5 − ρ) 之差（最大）",
+      "90° countersink: max deviation of cone from z = −(5 − ρ)"
+     ],
+     "computed": 1.7763568394002505e-15,
+     "reference": 0.0,
+     "tol": 0.05,
+     "rel": false,
+     "error": 1.7763568394002505e-15,
+     "unit": "mm",
+     "formula": "z = −(h − ρ / tan(α/2))",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-41",
+   "test": "tests/test_cam_mill_q3b.py::test_counterbore_helix_removed_volume",
+   "category": "geom",
+   "title": {
+    "zh": "螺旋铣沉孔的去除体积",
+    "en": "Helical counterbore removed volume"
+   },
+   "source": "V = π·(D/2)²·h",
+   "rows": [
+    {
+     "case": "tests/test_cam_mill_q3b.py::test_counterbore_helix_removed_volume",
+     "kind": "value",
+     "quantity": [
+      "铣沉孔 Ø11×6.5 去除体积",
+      "counterbore Ø11×6.5 removed volume"
+     ],
+     "computed": 617.7600000000001,
+     "reference": 617.7156555120931,
+     "tol": 0.01,
+     "rel": true,
+     "error": 7.178786470972782e-05,
+     "unit": "mm³",
+     "formula": "V = π·(D/2)²·h",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-42",
+   "test": "tests/test_cam_mill_q3b.py::test_depth_of_cut_over_catalogue_withholds_program",
+   "category": "must",
+   "title": {
+    "zh": "切深超出刀具样本必须报出、不出程序",
+    "en": "Depth of cut over the catalogue must be reported and withheld"
+   },
+   "source": "刀具样本 ap / catalogue ap",
+   "rows": [
+    {
+     "case": "tests/test_cam_mill_q3b.py::test_depth_of_cut_over_catalogue_withholds_program",
+     "kind": "verdict",
+     "quantity": [
+      "一刀切 8 mm、样本 ap ≤ 5 必须报出且不出程序",
+      "8 mm cut with catalogue ap ≤ 5 is reported and withheld"
+     ],
+     "computed": "fail",
+     "reference": "fail",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-43",
+   "test": "tests/test_cam_mill_q3b.py::test_tapping_without_drilled_hole_is_reported",
+   "category": "must",
+   "title": {
+    "zh": "攻丝前没钻底孔、螺距不符必须报出",
+    "en": "Tapping without a core hole or with wrong pitch must be reported"
+   },
+   "source": "人工设定的错误程序 / deliberately wrong programs",
+   "rows": [
+    {
+     "case": "tests/test_cam_mill_q3b.py::test_tapping_without_drilled_hole_is_reported",
+     "kind": "verdict",
+     "quantity": [
+      "底孔只钻到 Z−10 却攻到 Z−15 必须报出",
+      "tapping below the drilled depth is reported"
+     ],
+     "computed": "fail",
+     "reference": "fail",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-44",
+   "test": "tests/test_cam_mill_q3b.py::test_thread_milling_helix",
+   "category": "geom",
+   "title": {
+    "zh": "铣螺纹螺旋每圈上升一个螺距",
+    "en": "Thread milling helix rises one pitch per turn"
+   },
+   "source": "Δz = P",
+   "rows": [
+    {
+     "case": "tests/test_cam_mill_q3b.py::test_thread_milling_helix",
+     "kind": "value",
+     "quantity": [
+      "铣螺纹螺旋每圈上升（M10×1.5）",
+      "thread milling helix rise per turn (M10×1.5)"
+     ],
+     "computed": 1.4999999999999998,
+     "reference": 1.5,
+     "tol": 1e-09,
+     "rel": false,
+     "error": -2.220446049250313e-16,
+     "unit": "mm",
+     "formula": "Δz = P / 圈",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-45",
+   "test": "tests/test_cam_mill_q3b.py::test_lead_arcs_are_tangent_and_outside[True]",
+   "category": "geom",
+   "title": {
+    "zh": "外轮廓圆弧切入的圆弧",
+    "en": "Arc lead-in on contours"
+   },
+   "source": "|p − c| = r",
+   "rows": [
+    {
+     "case": "tests/test_cam_mill_q3b.py::test_lead_arcs_are_tangent_and_outside[True]",
+     "kind": "value",
+     "quantity": [
+      "圆弧切入：各点到圆心 (50, −10) 的距离与 R5 之差（最大）",
+      "arc lead-in: max deviation of points from R5 about (50, −10)"
+     ],
+     "computed": 2.6645352591003757e-15,
+     "reference": 0.0,
+     "tol": 1e-09,
+     "rel": false,
+     "error": 2.6645352591003757e-15,
+     "unit": "mm",
+     "formula": "|p − c| = r",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-46",
+   "test": "tests/test_cam_mill_q3b.py::test_adaptive_width_warning",
+   "category": "must",
+   "title": {
+    "zh": "自适应开粗切宽没保持住必须报出",
+    "en": "Adaptive roughing that does not hold its width of cut must be reported"
+   },
+   "source": "人工设定的错误程序 / deliberately wrong program",
+   "rows": [
+    {
+     "case": "tests/test_cam_mill_q3b.py::test_adaptive_width_warning",
+     "kind": "verdict",
+     "quantity": [
+      "设定切宽 1 mm、满刀宽开槽必须提示",
+      "set width 1 mm with a full-width slot is reported"
+     ],
+     "computed": "fail",
+     "reference": "fail",
+     "ok": true
+    }
+   ],
+   "result": "pass"
   }
  ],
- "n": 37,
- "ok": 37,
+ "n": 46,
+ "ok": 46,
  "bad": 0,
  "skip": 0,
- "rows": 44,
- "rows_ok": 44
+ "rows": 53,
+ "rows_ok": 53
 }

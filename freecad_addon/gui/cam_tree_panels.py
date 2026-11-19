@@ -103,6 +103,12 @@ class JobPanel:
             self.offset.setRange(-1000, 2000)
             self.offset.setValue(job.WorkOffsetZ)
             f.addRow(T("工件顶面离工作台 mm"), self.offset)
+            self.stock_top = QtWidgets.QDoubleSpinBox()
+            self.stock_top.setRange(0, 50)
+            self.stock_top.setDecimals(2)
+            self.stock_top.setValue(float(getattr(job, "StockTop", 0.0)))
+            self.stock_top.setToolTip(T("毛坯顶面高出零件顶面多少；大于 0 时规则起草第一道是面铣"))
+            f.addRow(T("面铣余量 mm（0 = 不面铣）"), self.stock_top)
         lay.addLayout(f)
         row = QtWidgets.QHBoxLayout()
         self.rule = QtWidgets.QPushButton(T("规则起草"))
@@ -154,6 +160,9 @@ class JobPanel:
                     lengths[k.strip()] = float(v)
             j.ToolLengths = json.dumps(lengths)
             j.WorkOffsetZ = self.offset.value()
+            if not hasattr(j, "StockTop"):           # Q3a 以前存的文档
+                j.Proxy.setup(j)
+            j.StockTop = self.stock_top.value()
 
     def do_draft(self, use_ai: bool):
         try:
