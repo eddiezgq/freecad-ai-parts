@@ -1,0 +1,19 @@
+{
+ "why": "圆鼻刀要写刀尖圆角",
+ "instance": {
+  "format": "cam-tool/1",
+  "name": "示例刀具库（虚构）",
+  "example": true,
+  "tools": [
+   {
+    "id": "B",
+    "kind": "bull_endmill",
+    "diameter_mm": 8,
+    "source": {
+     "kind": "example",
+     "ref": "x"
+    }
+   }
+  ]
+ }
+}

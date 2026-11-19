@@ -1,0 +1,21 @@
+{
+  "tools": [
+    {
+      "nr": 1,
+      "path": "em8.fctb"
+    },
+    {
+      "nr": 2,
+      "path": "bull10.fctb"
+    },
+    {
+      "nr": 5,
+      "path": "drill6.fctb"
+    },
+    {
+      "nr": 9,
+      "path": "probe.fctb"
+    }
+  ],
+  "version": 1
+}

@@ -1,0 +1,37 @@
+﻿问渠CAM WenQuest CAM —— 许可证与源码获取说明 / Licenses and source code
+
+本安装包由以下软件组成，各部分按各自的许可证分发。安装即表示你同意这些许可证。
+This installer contains the components below, each distributed under its own license. By installing you accept these licenses.
+
+1. 问渠CAM（工艺起草、切削仿真与整机仿真、后处理、工艺卡、授权等，安装目录 Mod\FreeCADAIParts\lib）
+   WenQuest CAM (process drafting, cutting and whole-machine simulation, post processors, process cards, licensing; folder Mod\FreeCADAIParts\lib)
+   著作权 © Guoqing Zhang. Copyright © Guoqing Zhang.
+   其中 2026-10-09 前公开发布过的代码按 Apache License 2.0（见 lib\LICENSE、lib\NOTICE）；其余部分按问渠CAM 的
+   商业许可使用：免费版可免费使用；专业版功能需要有效的授权文件。
+   Code published before 2026-10-09 is under the Apache License 2.0 (see lib\LICENSE and lib\NOTICE); everything else
+   is under the WenQuest CAM commercial license: the free edition is free to use; Pro features need a valid license file.
+
+2. FreeCAD 1.0.2（含其自带的 Python、Qt、OpenCASCADE、CAM 工作台、CalculiX、Gmsh 等）
+   FreeCAD 1.0.2 (with its bundled Python, Qt, OpenCASCADE, CAM workbench, CalculiX, Gmsh and others)
+   许可证：FreeCAD 为 GNU LGPL 2.1 或更新版本；CalculiX、Gmsh 为 GNU GPL；其余组件见各自许可证。
+   Licenses: FreeCAD is GNU LGPL 2.1 or later; CalculiX and Gmsh are GNU GPL; other components under their own licenses.
+   源码 / Source: https://github.com/FreeCAD/FreeCAD/releases/tag/1.0.2
+   CalculiX 源码 / source: http://www.dhondt.de/   Gmsh 源码 / source: https://gmsh.info/
+   这些组件未经修改；你可以按其许可证自由使用、复制和再分发它们。
+   These components are unmodified; you may use, copy and redistribute them under their licenses.
+
+3. 装进 FreeCAD 自带 Python 的第三方包（gmsh、numpy、scipy、python-docx、matplotlib、pint、jsonschema、pyyaml、
+   httpx、anthropic、cryptography 等及其依赖），许可证见 bin\Lib\site-packages 下各包的 dist-info 目录。
+   Third-party Python packages installed into FreeCAD's Python (gmsh, numpy, scipy, python-docx, matplotlib, pint,
+   jsonschema, pyyaml, httpx, anthropic, cryptography and their dependencies); see each package's dist-info folder under
+   bin\Lib\site-packages for its license.
+
+数据：零件模型、程序和工艺卡只在你的电脑上。使用 AI 起草工艺（专业版）时，只把零件特征（直径、长度、槽、螺纹、孔）、材料组和候选刀具的
+样本范围发给你选择的 AI 服务（DeepSeek 或 Claude），不发模型文件。
+Data: part models, programs and process cards stay on your computer. When AI process drafting (Pro) is used, only the part features
+(diameters, lengths, grooves, threads, holes), the material group and the catalogue ranges of the candidate tools are sent to the AI
+service you choose (DeepSeek or Claude), never the model file.
+
+安全：程序只在整台机床仿真通过后输出，但仿真用的是你填的机床、刀具和夹具数据；首件必须空运行、单段试切确认。
+Safety: programs are output only after the whole-machine simulation passes, but the simulation uses the machine, tool and fixture
+data you entered; always dry-run the first part and confirm it in single block.

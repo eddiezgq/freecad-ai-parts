@@ -5,7 +5,7 @@
 代码一律来自安装目录（FreeCAD 启动时由 Mod 里的 InitGui 加载）；仓库只提供挑线机构 STEP、模型样例和 AI 回答的录制（回放，不联网）。
 1. 安装：版本是问渠多体动力学（验收用的测试版），没有零件库工作台；有“问渠多体动力学”工作台，菜单里有装配体多体动力学、授权、设置、关于
 2. 免费版：导入挑线机构 STEP，规则起草 4 个转动副，建装配、给钢材，上轴 600 rpm 算运动学，约束残差核查通过；
-   曲柄滑块样例（模型文件）照算；AI 挑运动副、柔性体、线性化、正式报告拒绝并说明
+   曲柄滑块样例（模型文件）照算；装好的入门例子 1 打开就能算、与样张数字一致；AI 挑运动副、柔性体、线性化、正式报告拒绝并说明
 3. 专业版：CI 临时生成测试密钥、签发授权，从“授权”对话框导入 → AI 挑运动副（录制回放）收全 4 个、机架选机壳
    → 铝杆摆设成实体柔性体（gmsh + CalculiX 缩减）算动力学，有应力 → 出中文、英文两份 Word 报告，两份的结果指纹相同
 （文档里的工作在不开界面的子进程里做，见 core()）
@@ -22,7 +22,7 @@ import time
 import traceback
 from pathlib import Path
 
-STEEL = "06ae5c92-de7b-46c9-984d-4dd87964bc5c"          # FreeCAD 材料库的钢（Steel-Generic）
+STEEL = "06ae5c92-de7b-46c9-984d-4dd87964bc5c"          # FreeCAD 材料库的钢（Steel-C15，同 tests/test_fc_mbd_study.py）
 
 
 def pump(sec: float) -> None:
@@ -104,6 +104,28 @@ def flex_bar(doc):
     return model
 
 
+def example1(app: Path) -> dict:
+    """装好的入门例子 1（ADR-0102 第 5 步）：打开 slider-crank.FCStd，用文档里的装配体，曲柄 1200 rpm 算运动学；
+    驱动力矩峰值与例子目录里的 results.json 相差 < 1e-6"""
+    import FreeCAD
+
+    from freecad_addon.core import mbd_study as ST
+    from freecad_addon.fc import mbd_assembly as MA
+
+    ex = app / "examples" / "01-slider-crank-free"
+    doc = FreeCAD.openDocument(str(ex / "slider-crank.FCStd"))
+    asm = MA.find_assembly(doc)
+    lab = {o.Name: o.Label for o in doc.Objects}
+    m0, _ = ST.make_model(asm, [], {"type": "kinematic"})
+    drive = next(j["id"] for j in m0["joints"] if j["body_i"] == "ground" and lab.get(j["body_j"]) == "曲柄")
+    model, _ = ST.make_model(asm, [{"joint": drive, "kind": "speed", "value": 1200}],
+                             {"type": "kinematic", "end_time_s": 0.05, "output_steps": 200})
+    data, _ = ST.run(model)
+    peak = max(abs(x) for m in data["motions"].values() for x in m["effort"])
+    ref = json.loads((ex / "results.json").read_text(encoding="utf-8"))["drive_torque_peak_n_m"]
+    return {"peak_n_m": peak, "reference_n_m": ref, "ok": residual_ok(data) and abs(peak / ref - 1) < 1e-6}
+
+
 def core(phase: str, app: Path, repo: Path, work: Path) -> dict:
     """文档里的工作在不开界面的 FreeCAD 进程里做：GitHub 的 Windows 机器没有 OpenGL，开着界面新建文档会崩（问渠有限元验收发现）。
     代码照样来自安装目录。返回 {"results", "checks"}"""
@@ -128,6 +150,8 @@ def core(phase: str, app: Path, repo: Path, work: Path) -> dict:
         ok["free_kinematic"] = len(draft["accept"]) == 4 and residual_ok(data)
         sc, _ = ST.run(fixture(repo, "slider_crank_all_d1.json"))
         ok["free_slider_crank"] = residual_ok(sc)
+        R["example1"] = example1(app)
+        ok["free_example1"] = R["example1"]["ok"]
         lin = dict(model, analysis={"type": "static_then_linear"})
         R["refuse_flex"] = refused(lambda: ST.run(fixture(repo, "d6_flex_pendulum.json")), "柔性体")
         R["refuse_linear"] = refused(lambda: ST.run(lin), "线性化与模态")

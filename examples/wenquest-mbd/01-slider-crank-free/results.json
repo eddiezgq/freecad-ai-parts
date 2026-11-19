@@ -1,0 +1,40 @@
+{
+ "draft_by": "规则（没有用 AI）",
+ "joints": [
+  {
+   "name": "转动副：机架–曲柄",
+   "type": "revolute"
+  },
+  {
+   "name": "移动副：机架–滑块",
+   "type": "translational"
+  },
+  {
+   "name": "转动副：曲柄–连杆",
+   "type": "revolute"
+  },
+  {
+   "name": "转动副：连杆–滑块",
+   "type": "revolute"
+  }
+ ],
+ "drive_joint": "Joint",
+ "speed_rpm": 1200,
+ "drive_torque_peak_n_m": 1.705798691307196,
+ "reaction_peak_n": {
+  "机架–曲柄": 133.12309998343443,
+  "机架–滑块": 16.329879443931084,
+  "曲柄–连杆": 120.76843881759746,
+  "连杆–滑块": 89.05143067761898
+ },
+ "verification": {
+  "constraint_residual": "pass",
+  "dof": "pass"
+ },
+ "parts": {
+  "Part__Feature": "机架",
+  "Part__Feature001": "曲柄",
+  "Part__Feature002": "连杆",
+  "Part__Feature003": "滑块"
+ }
+}

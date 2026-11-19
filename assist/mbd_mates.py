@@ -55,8 +55,12 @@ class FakeClient:
 
 
 def rule_draft(parts: list[dict], found: dict) -> dict:
+    from assist.mbd_report import JOINT_ZH
+
+    label = {p["id"]: p.get("label") or p["id"] for p in parts}
     return {"ground": found["ground"]["part"] if found["ground"] else None,
-            "accept": [{"id": c["id"], "type": c["type"], "name": f"{c['type']}：{c['part1']}–{c['part2']}"}
+            "accept": [{"id": c["id"], "type": c["type"],
+                        "name": f"{JOINT_ZH.get(c['type'], c['type'])}副：{label.get(c['part1'], c['part1'])}–{label.get(c['part2'], c['part2'])}"}
                        for c in found["candidates"]],
             "notes": [], "by": "规则（没有用 AI）", "explanation": "全部候选按几何规则收下；机架取体积最大的零件"}
 

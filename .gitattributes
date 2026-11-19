@@ -1,0 +1,3 @@
+# 录制回放按原文的 \n 算请求键：示例原话与录制在 Windows 上也不转换换行（2026-11-18）
+examples/ai-design/** -text
+tests/recordings/** -text

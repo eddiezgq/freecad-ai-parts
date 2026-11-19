@@ -182,8 +182,10 @@ def bearing_life(cr_n: float, loads_n: np.ndarray, n_rpm: float) -> tuple[float,
     return p, (1e6 / (60 * n_rpm)) * (cr_n / p) ** 3 if p > 0 else math.inf
 
 
-def evaluate(proposal, cond: dict, get: Callable[[str], dict | None], *, kt: Callable | None = None) -> dict:
-    """全部校核。kt(d, D, r) → {"kt_bending", "kt_torsion", "method"}；缺省用有限元（analysis.shaft.kt）"""
+def evaluate(proposal, cond: dict, get: Callable[[str], dict | None], *, kt: Callable | None = None,
+             progress: Callable[[int, int], None] | None = None) -> dict:
+    """全部校核。kt(d, D, r) → {"kt_bending", "kt_torsion", "method"}；缺省用有限元（analysis.shaft.kt）。
+    progress(i, n)：算第 i 个台阶（共 n 个）之前调用，给界面显示进度"""
     from analysis import shaft
 
     segs, notes = check_proposal(proposal, get)
@@ -191,7 +193,10 @@ def evaluate(proposal, cond: dict, get: Callable[[str], dict | None], *, kt: Cal
     sections, unknown_steps = [], []
     if kt is None:
         from analysis.shaft.kt import stepped_bar as kt
-    for st in steps(segs):
+    all_steps = steps(segs)
+    for i, st in enumerate(all_steps, 1):
+        if progress is not None:
+            progress(i, len(all_steps))
         if st["r"] is None:
             unknown_steps.append(st)
             items.append(_item(f"台阶 Ø{st['d']:g}→Ø{st['D']:g}（z {st['z_mm']:g}）强度", "unknown",
