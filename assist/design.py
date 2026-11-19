@@ -300,6 +300,11 @@ def design(statement: str, client, bearings: list[dict], get: Callable[[str], di
         r = client.complete(req)
         out["ai"].append({k: r[k] for k in ("id", "provider", "model", "simulated") if k in r})
         prop = r["tool_input"]
+        last = out["rounds"][-1]["proposal"] if out["rounds"] else None
+        if isinstance(prop, dict) and isinstance(last, dict) and prop.get("segments") == last.get("segments"):
+            out["rounds"].append({**out["rounds"][-1], "proposal": prop, "unchanged": True})
+            out["status"] = "stuck"                        # AI 不再改方案（它判断改轴解决不了）：不再空转，交给人
+            return out
         try:
             rep = SD.evaluate(prop, cond, get, kt=kt,
                               progress=lambda i, n, k=k: say(f"第 {k} 轮（最多 {max_rounds} 轮）：校核台阶强度（有限元）", i - 1, n))

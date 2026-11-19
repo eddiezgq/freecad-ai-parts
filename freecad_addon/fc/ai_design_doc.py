@@ -70,6 +70,27 @@ def _find(verts, x, y, tol=1e-3) -> int:
     return best[0]
 
 
+def template_file() -> Path:
+    """A3 横向图框。各版本 FreeCAD 放模板的地方不同（1.0 在 Templates/ 下，1.1 有子目录），按文件名在模板目录里找；
+    找不到首选的，用 TechDraw 设置里的缺省模板，再不行用任意一个 A3 横向模板（2026-11-18 问渠 CAD 1.1.4 上找不到）"""
+    roots = [Path(FreeCAD.getResourceDir()) / "Mod" / "TechDraw" / "Templates",
+             Path(FreeCAD.getResourceDir()) / "share" / "Mod" / "TechDraw" / "Templates"]
+    roots = [r for r in roots if r.is_dir()]
+    for name in TEMPLATES:
+        for r in roots:
+            hit = sorted(r.rglob(name))
+            if hit:
+                return hit[0]
+    pref = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/Mod/TechDraw/Files").GetString("TemplateFile", "")
+    if pref and Path(pref).is_file():
+        return Path(pref)
+    for r in roots:
+        hit = sorted(f for f in r.rglob("*.svg") if "A3" in f.name and "Landscape" in f.name)
+        if hit:
+            return hit[0]
+    raise DrawingError(T(f"找不到 TechDraw 的图框模板（找过：{'；'.join(str(r) for r in roots) or FreeCAD.getResourceDir()}）"))
+
+
 def _scale(total: float) -> float:
     return next((s for s in SCALES if total * s <= 330), SCALES[-1])
 
@@ -86,8 +107,7 @@ def drawing(doc, part, segs: list[dict], *, name: str, drawing_no: str, material
     page = doc.addObject("TechDraw::DrawPage", "AiShaftDrawing")
     page.Label = T(f"{name} 工程图")
     tpl = doc.addObject("TechDraw::DrawSVGTemplate", "AiShaftTemplate")
-    res = Path(FreeCAD.getResourceDir()) / "Mod" / "TechDraw" / "Templates"
-    tpl.Template = str(next((res / t for t in TEMPLATES if (res / t).is_file()), res / TEMPLATES[0]))
+    tpl.Template = str(template_file())
     page.Template = tpl
     texts = dict(tpl.EditableTexts)
     want = {**TEXTS, "title": name, "identification_number": drawing_no or "—", "part_material": material or "",

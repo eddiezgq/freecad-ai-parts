@@ -21,7 +21,7 @@ EXAMPLE = ROOT / "examples" / "ai-design" / "ls-upper-shaft" / "requirement.txt"
 PART_TYPES = ("阶梯轴",)
 COLORS = {"pass": "#1b7f3b", "unknown": "#a26b00", "fail": "#b3261e"}
 STATUS = {"pass": "通过", "unknown": "待确认", "fail": "不通过"}
-RESULT = {"pass": "全部通过", "pass_pending_data": "通过，只剩零件库缺数据的待确认", "stuck": "4 轮仍没通过，停下交给人",
+RESULT = {"pass": "全部通过", "pass_pending_data": "通过，只剩零件库缺数据的待确认", "stuck": "没有通过，停下交给人（4 轮用完，或 AI 判断改轴解决不了、不再改方案）",
           "needs_input": "条件不齐，先补原话"}
 
 
