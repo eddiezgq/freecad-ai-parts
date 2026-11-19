@@ -179,6 +179,35 @@ def loads(cond: dict) -> dict:
     return joint_loads.conditions(cyc)
 
 
+LOADS_RECORD = "loads.json"       # 录制时动力学算的载荷（回放用，见 loads_recording / loads_replaying）
+
+
+def _loads_input(cond: dict) -> dict:
+    return {k: cond.get(k) for k in ("arm", "pose_a", "pose_b", "move_s", "dwell_s")}
+
+
+def loads_recording(path: Path) -> Callable[[dict], dict]:
+    """现算并记下。动力学（MuJoCo）在不同机器上末几位不同，载荷又写进提示词：回放要用录制时的数，提示词才对得上"""
+    def f(cond: dict) -> dict:
+        res = loads(cond)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"input": _loads_input(cond), "loads": res}, ensure_ascii=False, indent=1, sort_keys=True) + "\n",
+                        encoding="utf-8")
+        return res
+    return f
+
+
+def loads_replaying(path: Path) -> Callable[[dict], dict]:
+    """输入与录制相同就用录制的载荷，否则现算"""
+    def f(cond: dict) -> dict:
+        if path.is_file():
+            rec = json.loads(path.read_text(encoding="utf-8"))
+            if rec["input"] == json.loads(json.dumps(_loads_input(cond))):
+                return rec["loads"]
+        return loads(cond)
+    return f
+
+
 def proposal_request(cond: dict, bearings: list[dict], history: list[dict], *, model: str = DEFAULT_MODEL,
                      lighter: str | None = None) -> dict:
     shown = {k: v for k, v in cond.items() if k != "F_series_n"}
@@ -207,7 +236,7 @@ def _same(a: dict, b: dict) -> bool:
 
 def design(statement: str, client, bearings: list[dict], reducers: list[dict], get: Callable[[str], dict | None], *,
            model: str = DEFAULT_MODEL, kt: Callable | None = None, max_rounds: int = MAX_ROUNDS,
-           lighter_rounds: int = LIGHTER_ROUNDS, progress: Callable[[str, int | None, int | None], None] | None = None) -> dict:
+           lighter_rounds: int = LIGHTER_ROUNDS, loads_fn: Callable[[dict], dict] | None = None, progress: Callable[[str, int | None, int | None], None] | None = None) -> dict:
     from analysis.shaft import joint as J
     from assist import shaft_design as SD
 
@@ -222,7 +251,7 @@ def design(statement: str, client, bearings: list[dict], reducers: list[dict], g
         out["status"] = "needs_input"
         return out
     say("动力学算一个搬运节拍的载荷", None, None)
-    cond.update(loads(cond))
+    cond.update((loads_fn or loads)(cond))
     best = None
     lighter_text = None
     fix_left, light_left, k = max_rounds, lighter_rounds, 0
@@ -289,13 +318,15 @@ def main(argv: list[str] | None = None) -> int:
 
         client = GatewayClient(a.provider, record_dir=RECORDINGS_DIR)
         model, kt = client.model, kt_record.recording(RECORDINGS_DIR / "kt.json")
+        lf = loads_recording(RECORDINGS_DIR / LOADS_RECORD)
     else:
         from assist import kt_record
         from ingest.llm_extract import RecordedClient
 
         rec = Path(a.replay or RECORDINGS_DIR)
         client, model, kt = RecordedClient(rec), DEFAULT_MODEL, kt_record.replaying(rec / "kt.json")
-    res = design(a.statement.read_text(encoding="utf-8"), client, bearings, reducers, lib.get, model=model, kt=kt)
+        lf = loads_replaying(rec / LOADS_RECORD)
+    res = design(a.statement.read_text(encoding="utf-8"), client, bearings, reducers, lib.get, model=model, kt=kt, loads_fn=lf)
     text = json.dumps(res, ensure_ascii=False, indent=1, default=lambda x: None)
     if a.out:
         a.out.write_text(text + "\n", encoding="utf-8")
