@@ -11,7 +11,7 @@
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011ChAmJFPPHsmZW1E3iaSd6"
+    "response_id": "msg_011ChBauNR1SyQ5CjKcLDbDQ"
   },
   "items": [
     {
@@ -45,7 +45,7 @@
           "page": 11
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.85,
         "reviewed": false
       },
       "printed": {
@@ -57,6 +57,50 @@
       "issues": [
         "叫法 'B' 在表头，须核对所在列",
         "单位 mm 不在同一行，取自本页其他位置",
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "dims/outer_diameter_mm",
+      "value": {
+        "value": 28.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "28",
+        "unit": "mm",
+        "label": "D",
+        "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
+      },
+      "issues": [
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "ports/outer/diameter_mm",
+      "value": {
+        "value": 28.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "28",
+        "unit": "mm",
+        "label": "D",
+        "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
+      },
+      "issues": [
         "按版面对齐切出的行核对"
       ]
     },
@@ -138,7 +182,7 @@
           "page": 11
         },
         "method": "extracted",
-        "confidence": 0.8,
+        "confidence": 0.6,
         "reviewed": false
       },
       "printed": {
@@ -152,74 +196,6 @@
         "单位 mm 不在同一行，取自本页其他位置",
         "按版面对齐切出的行核对"
       ]
-    },
-    {
-      "target": "ports/outer/diameter_mm",
-      "value": {
-        "value": 28.0,
-        "source": {
-          "doc": "src-nsk-e1103c-part-c",
-          "page": 11
-        },
-        "method": "extracted",
-        "confidence": 0.9,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "28",
-        "unit": "mm",
-        "label": "D",
-        "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
-      },
-      "issues": [
-        "按版面对齐切出的行核对"
-      ]
-    },
-    {
-      "target": "dims/outer_diameter_mm",
-      "value": {
-        "value": 28.0,
-        "source": {
-          "doc": "src-nsk-e1103c-part-c",
-          "page": 11
-        },
-        "method": "extracted",
-        "confidence": 0.9,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "28",
-        "unit": "mm",
-        "label": "D",
-        "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
-      },
-      "issues": [
-        "按版面对齐切出的行核对"
-      ]
-    },
-    {
-      "target": "ports/inner/diameter_mm",
-      "value": {
-        "value": 12.0,
-        "source": {
-          "doc": "src-nsk-e1103c-part-c",
-          "page": 11
-        },
-        "method": "extracted",
-        "confidence": 0.75,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "12",
-        "unit": "mm",
-        "label": "d",
-        "quote": "12 21 5 0.3 2 110 1 040 15.3 32 000 20 000 38 000 6801 ZZ VV DD — — — — — — — — — 14 14 19 0.3 — — 0.006"
-      },
-      "issues": [
-        "单位 mm 不在同一行，取自本页其他位置",
-        "引用的是同表另一行；目标型号所在行的同一列印着同一个数",
-        "按版面对齐切出的行核对"
-      ]
     }
   ],
   "rejected": [
@@ -230,7 +206,7 @@
       "printed": {
         "text": "32 000",
         "unit": "min–1",
-        "label": "Limiting Speeds (min–1) Grease Open",
+        "label": "Limiting Speeds (min–1) Grease Open Z·ZZ",
         "quote": "28 8 0.3 5 600 2 370 13.0 32 000 18 000 38 000 6001 ZZ VV DDU N(4) NR(4) 1.35 0.87 26.5 0.2 0.3 30.7 0.84 14 15.5 26 0.3 31.4 1.9 0.022"
       }
     },

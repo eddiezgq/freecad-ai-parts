@@ -1,0 +1,48 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "fea-draft/2",
+  "request_key": "839d121ac745822b52aad21a1f2993640da48254d5775e9889bdaa41953d386c",
+  "response": {
+    "id": "msg_011ChBg3kYLLzQdKg1rq7HZ9",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "bodies": [
+        {
+          "material": "40Cr-QT",
+          "material_quote": "40Cr quenched and tempered",
+          "part": 1
+        }
+      ],
+      "items": [
+        {
+          "features": [
+            "F6"
+          ],
+          "part": 1,
+          "quote": "Fix the end face on the Ø70 flange end",
+          "type": "fixed"
+        },
+        {
+          "direction": null,
+          "direction_quote": null,
+          "features": [
+            "F2"
+          ],
+          "magnitude": null,
+          "part": 1,
+          "quote": "Apply a radial bearing load on the Ø50 bearing seat",
+          "type": "bearing_load"
+        }
+      ],
+      "name": "RJ-201 hollow shaft",
+      "questions": [
+        "轴承载荷的大小是多少（含单位）？原话说还在计算，未给数值，暂时留空。",
+        "轴承载荷的径向作用方向是 +x、-x、+y 还是 -y（垂直于轴线 z 的哪个方向）？原话只说“radial”，没有给出具体方向。",
+        "固定面我选了 F6（z=0 处 Ø70 法兰端面，朝 -z）。请确认是它，而不是 F8（法兰台阶面）。",
+        "原话没有明确要求分析类型，请确认是否做静力分析。"
+      ]
+    }
+  }
+}

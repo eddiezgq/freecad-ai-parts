@@ -204,7 +204,9 @@ def evaluate(proposal, cond: dict, get: Callable[[str], dict | None], *, kt: Cal
             continue
         if st["r"] >= (st["D"] - st["d"]) / 2 - 1e-9:
             items.append(_item(f"台阶 Ø{st['d']:g}→Ø{st['D']:g}（z {st['z_mm']:g}）圆角", "fail", st["r"],
-                               f"< {(st['D'] - st['d']) / 2:g}", "圆角不小于台阶高度，台阶端面没有平面，做不出来"))
+                               f"< {(st['D'] - st['d']) / 2:g}",
+                               "圆角不小于台阶高度，台阶端面没有平面，做不出来；把圆角取得比台阶高度小，"
+                               "或者这个台阶不定位零件时两段取同一直径、去掉台阶"))
             continue
         try:
             k = kt(st["d"], st["D"], st["r"])

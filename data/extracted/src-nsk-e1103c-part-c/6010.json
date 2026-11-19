@@ -1,0 +1,229 @@
+{
+  "format": "extraction/1",
+  "document": {
+    "doc": "src-nsk-e1103c-part-c",
+    "sha256": "3c1acfda536bb6a77487d1fcf6812618e31c62582fb20089659d20b7af07a6e2",
+    "pages": 2
+  },
+  "category": "bearing",
+  "vendor": "NSK",
+  "model": "6010",
+  "extractor": {
+    "model": "claude-sonnet-5-5",
+    "prompt_version": "extract/3",
+    "response_id": "msg_011ChBb3meifYzJBz47LvCti"
+  },
+  "items": [
+    {
+      "target": "params/bearing_kind",
+      "value": {
+        "value": "deep_groove",
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 14
+        },
+        "method": "extracted",
+        "confidence": 0.95,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+        "unit": "",
+        "label": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+        "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
+      },
+      "issues": [
+        "枚举映射：'SINGLE-ROW DEEP GROOVE BALL BEARINGS' → deep_groove，未自动核对"
+      ]
+    },
+    {
+      "target": "params/width_mm",
+      "value": {
+        "value": 16.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 14
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "16",
+        "unit": "mm",
+        "label": "B",
+        "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261"
+      },
+      "issues": [
+        "叫法 'B' 在表头，须核对所在列",
+        "单位 mm 不在同一行，取自本页其他位置",
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "params/fillet_max_mm",
+      "value": {
+        "value": 1.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 14
+        },
+        "method": "extracted",
+        "confidence": 0.75,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "1",
+        "unit": "mm",
+        "label": "r a max.",
+        "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261"
+      },
+      "issues": [
+        "叫法 'r a max.' 在表头，须核对所在列",
+        "单位 mm 不在同一行，取自本页其他位置",
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "ports/outer/diameter_mm",
+      "value": {
+        "value": 80.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 14
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "80",
+        "unit": "mm",
+        "label": "D",
+        "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置",
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "dims/outer_diameter_mm",
+      "value": {
+        "value": 80.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 14
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "80",
+        "unit": "mm",
+        "label": "D",
+        "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置",
+        "按版面对齐切出的行核对"
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/dynamic_load_rating_n",
+      "page": 14,
+      "printed": {
+        "text": "24 000",
+        "unit": "N",
+        "label": "C r",
+        "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/static_load_rating_n",
+      "page": 14,
+      "printed": {
+        "text": "16 600",
+        "unit": "N",
+        "label": "C 0r",
+        "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/limiting_speed_rpm",
+      "page": 14,
+      "printed": {
+        "text": "9 500",
+        "unit": "min–1",
+        "label": "Limiting Speeds (min–1) Grease Open",
+        "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/mass_kg",
+      "page": 14,
+      "printed": {
+        "text": "0.261",
+        "unit": "kg",
+        "label": "Mass (kg) approx.",
+        "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/abutment_shaft_min_mm",
+      "page": 14,
+      "printed": {
+        "text": "55",
+        "unit": "mm",
+        "label": "d a min.",
+        "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/abutment_shaft_max_mm",
+      "page": 14,
+      "printed": {
+        "text": "58.5",
+        "unit": "mm",
+        "label": "d a max.",
+        "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/abutment_housing_max_mm",
+      "page": 14,
+      "printed": {
+        "text": "75",
+        "unit": "mm",
+        "label": "D a max.",
+        "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/inner/diameter_mm",
+      "page": 14,
+      "printed": {
+        "text": "50",
+        "unit": "mm",
+        "label": "d",
+        "quote": "50 65 7 0.3 7 050 6 200 17.2 9 500 5 300 11 000 6810 ZZ VV DDU N NR 1.30 0.95 63.7 0.25 0.3 67.8 0.85 52 52.5 63 0.3 68.5 1.8 0.050"
+      }
+    }
+  ],
+  "missing_key_fields": [
+    "params/dynamic_load_rating_n",
+    "params/static_load_rating_n",
+    "params/limiting_speed_rpm"
+  ]
+}

@@ -4,7 +4,7 @@
     "parts": [
       {
         "diameter_mm": {
-          "confidence": 0.85,
+          "confidence": 0.9,
           "method": "extracted",
           "reviewed": true,
           "source": {
@@ -81,7 +81,7 @@
       "value": "deep_groove"
     },
     "dynamic_load_rating_n": {
-      "confidence": 0.9,
+      "confidence": 0.92,
       "method": "extracted",
       "reviewed": true,
       "source": {
@@ -92,7 +92,7 @@
       "value": 5600.0
     },
     "fillet_max_mm": {
-      "confidence": 0.75,
+      "confidence": 0.8,
       "method": "extracted",
       "reviewed": true,
       "source": {
@@ -126,7 +126,7 @@
       "value": 0.032
     },
     "static_load_rating_n": {
-      "confidence": 0.9,
+      "confidence": 0.92,
       "method": "extracted",
       "reviewed": true,
       "source": {
@@ -168,15 +168,15 @@
       "note": "坐标系按品类约定生成（ADR-0023），布局时核对",
       "spec": {
         "diameter_mm": {
-          "confidence": 0.75,
-          "method": "extracted",
+          "confidence": 1,
+          "method": "manual",
           "reviewed": true,
           "source": {
             "doc": "src-nsk-e1103c-part-c",
             "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-11-18），对照规格书第 11 页",
             "page": 11
           },
-          "value": 10.0
+          "value": 10
         },
         "feature": {
           "confidence": 1,
@@ -229,7 +229,7 @@
       "note": "坐标系按品类约定生成（ADR-0023），布局时核对",
       "spec": {
         "diameter_mm": {
-          "confidence": 0.85,
+          "confidence": 0.9,
           "method": "extracted",
           "reviewed": true,
           "source": {

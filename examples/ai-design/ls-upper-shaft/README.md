@@ -2,7 +2,7 @@
 
 `requirement.txt` 是需求原话（示意数据）。`python -m assist.design examples/ai-design/ls-upper-shaft/requirement.txt -o result.json`
 回放录制（录制在 CI 上用真实模型生成，`.github/workflows/design-eval.yml`）。AI 列条件、提方案；条件核对、轴承位尺寸、
-强度、临界转速、轴承寿命全由代码做，不通过的项交回 AI 改，最多 4 轮。验收对照《机械设计》33.11 的 LS-101。
+强度、临界转速、轴承寿命全由代码做，不通过的项交回 AI 改，改到合格最多 4 轮；通过后再交回 AI 减重，最多 3 轮，采用通过且最轻的一轮（42.2 之五）。验收对照《机械设计》33.11 的 LS-101。
 
 加 `--model-dir out` 时，设计通过后生成三维模型并回读核对（42.3）：
 

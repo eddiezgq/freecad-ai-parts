@@ -64,7 +64,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           branch="m42/design-rec-${PART}-${PROVIDER}-${GITHUB_RUN_ID}"
           git checkout -b "$branch"
-          git add -A tests/recordings/design tests/recordings/joint_design
+          for d in tests/recordings/design tests/recordings/joint_design; do [ -d "$d" ] && git add -A "$d"; done
           if git diff --cached --quiet; then echo "没有新录制"; exit 0; fi
           git commit -m "M42: AI 设计阶梯轴录制（运行 ${GITHUB_RUN_ID}）" -m "由 .github/workflows/design-eval.yml 生成"
           git push origin "$branch"

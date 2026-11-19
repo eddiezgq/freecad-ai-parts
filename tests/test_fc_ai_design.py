@@ -62,13 +62,15 @@ def test_place_model_drawing_bom(gui, doc, run_out, lib):
     out = D.place(doc, run_out, segs, name="上轴", drawing_no="AI-101")
     assert abs(out["part"].Shape.Volume - run_out["model"]["volume_mm3"]) < 1.0
     checks = out["dimension_checks"]
-    assert len(checks) == 5 + 5 + 1                                           # 5 个直径、5 段长度、总长
+    merged = [s["d"] for i, s in enumerate(segs) if i == 0 or abs(s["d"] - segs[i - 1]["d"]) > 1e-9]   # 相邻同径段合成一段
+    assert len(checks) == 2 * len(merged) + 1                                  # 每段直径、每段长度、总长
     assert all(abs(c["design"] - c["drawing"]) <= D.DIM_TOL_MM for c in checks)
-    assert {c["design"] for c in checks} >= {12.0, 16.5, 20.0, 292.0}
+    assert {c["design"] for c in checks} >= {*merged, sum(s["L"] for s in segs)}
     texts = dict(out["page"].Template.EditableTexts)
     assert texts.get("title") == "上轴" and texts.get("identification_number") == "AI-101" and texts.get("approval_person") == ""
     sheet = out["sheet"]
-    assert sheet.get("C3") == "bearing.nsk-ltd.6201" and str(sheet.get("E3")) in ("2", "2.0")
+    for row, item in enumerate(run_out["model"]["bom"][1:], 3):              # 第 2 行是自制件，之后是轴承（型号、数量按设计）
+        assert sheet.get(f"C{row}") == item["component"] and float(sheet.get(f"E{row}")) == item["qty"]
 
 
 def test_place_refuses_unread_model(gui, doc, run_out, lib):

@@ -3,7 +3,7 @@
   "prompt_version": "fea-draft/2",
   "request_key": "96d1f4a5d8d2224eab5f190b2146c125d7cfe357cf327d5f2fa1c0773e77b0a6",
   "response": {
-    "id": "msg_011ChAgYPoi5Uo6374QcJK3c",
+    "id": "msg_011ChBg4oafnRGAg2kNuntXK",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -43,7 +43,8 @@
       ],
       "name": "BRKT-L",
       "questions": [
-        "钣金壳的厚度原话没给，请问板厚是多少（数值和单位）？"
+        "钣金厚度原话没给，请问板厚是多少（mm）？",
+        "200 N 是作用在立板顶边（F8，长 80 mm）上的总力吗？我按总力处理，请确认。"
       ]
     }
   }
