@@ -1826,5 +1826,13 @@
 "仿真简化：车刀刀尖圆弧按刀具库刀片的 rε（没对应上刀具库的刀按尖刀），钻头按平底，不计刀具变形与让刀": "Simplified simulation: turning-tool nose radius taken from the insert rε in the tool library (tools not matched to the library are treated as sharp), flat-bottom drills, no tool deflection",
 "内螺纹 M{} 所在的这次装夹没有内孔（底孔要按小径镗出来，ISO 螺纹 D1 = D − 1.0825P）": "The setup of internal thread M{} has no bore (the core hole must be bored to the minor diameter; for ISO threads D1 = D − 1.0825P)",
 "螺纹第 {} 行的“{}”看不懂：可写 内、1:16、2 头、R、NPT": "Thread line {}: cannot read \"{}\"; you may write in (internal), 1:16, 2 starts, R, NPT",
-"每行：Z 起, Z 止, 大径, 螺距[, 内][, 1:16][, 2 头][, R | NPT]（起刀处要在端面或退刀槽）": "One per line: Z start, Z end, major diameter, pitch[, in][, 1:16][, 2 starts][, R | NPT] (the thread must start at the end face or a relief groove)"
+"每行：Z 起, Z 止, 大径, 螺距[, 内][, 1:16][, 2 头][, R | NPT]（起刀处要在端面或退刀槽）": "One per line: Z start, Z end, major diameter, pitch[, in][, 1:16][, 2 starts][, R | NPT] (the thread must start at the end face or a relief groove)",
+"Ø{} 棒料": "Ø{} bar stock",
+"切断前倒角 C{} 要给外径，且不能大于切断刀宽 {}": "Chamfer C{} before parting off needs the outer diameter and must not exceed the parting tool width {}",
+"螺纹牙型 {} 不认识：可用 iso、r、npt": "Unknown thread form {}: use iso, r or npt",
+"，{}": ", {}",
+"，Ø{} 以下进给减半": ", half feed below Ø{}",
+"，切断前倒角 C{}": ", chamfer C{} before parting off",
+"切断前倒角切多了：C{} 处最多 {} mm": "Chamfer C{} before parting off overcut by up to {} mm",
+"切断前倒角没倒到位：C{} 处最多留了 {} mm": "Chamfer C{} before parting off not cut to size: up to {} mm left"
 }

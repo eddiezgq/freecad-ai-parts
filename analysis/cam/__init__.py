@@ -202,7 +202,8 @@ def turn_context(setup, mach):
     max_rpm = min(float(setup.get("max_rpm", 3000)), mach["max_rpm"])
     # 第一次装夹最多车到哪里：毛坯左端要留够卡爪夹的长度（min_grip_mm，缺省 8）再加 2 mm 间隙；最大直径段太靠左时在中间分开
     ta, tb, _ = P.plateau(prof)
-    limit = total + e - float(setup.get("min_grip_mm", 8.0)) - 2.0
+    part_w = float((setup.get("parting") or {}).get("tool_w") or 0.0)     # 棒料切断：毛坯在零件左边多出刀宽 + 10 mm（与仿真毛坯一致）
+    limit = total + e + (part_w + 10.0 if part_w else 0.0) - float(setup.get("min_grip_mm", 8.0)) - 2.0
     split = None
     if total - ta > limit:
         split = total - limit
@@ -222,6 +223,15 @@ def turn_context(setup, mach):
                                        if fg.get("side", "right") == side],
                       "parting": setup.get("parting") if side == "right" else None,
                       "title": "右端（第一次装夹）" if side == "right" else "左端（调头装夹）"})
+    # 棒料切断、调头那边只剩左端一个 45° 倒角（没有别的特征）：倒角在切断前用切断刀倒，不再调头装夹
+    if setup.get("parting") and len(sides) == 2:
+        lf = sides[1]
+        tg = lf["tgt"]
+        only_chamfer = (len(tg) == 2 and abs(tg[0][0]) < 1e-9 and abs((tg[1][1] - tg[0][1]) / 2 - lf["reach"]) < 1e-6
+                        and not (lf["grooves"] or lf["threads"] or lf["bore"] or lf["face_grooves"]))
+        if only_chamfer and lf["reach"] <= float(setup["parting"].get("tool_w") or 3.0) + 1e-9:
+            sides[0]["parting"] = {**setup["parting"], "chamfer": lf["reach"], "d_part": tg[1][1]}
+            sides.pop()
     return {"segs": segs, "prof": prof, "total": total, "stock_d": stock_d, "e": e,
             "allow": float(setup.get("finish_allow_mm", 0.5)), "max_rpm": max_rpm, "sides": sides}
 
@@ -387,10 +397,12 @@ def turn_build_op(ctx, sc, spec, c):
                 "target": {"face_grooves": [{"d_in": float(fg["d_in"]), "d_out": float(fg["d_out"]), "depth": float(fg["depth"])}]}}
     if k == "part":
         w = float(sc["parting"].get("tool_w") or 3.0)
-        mv = P.turn_part(-ctx["total"], stock_d, c["f"], w, clear=_heights(c)["clear"])
+        ch = float(sc["parting"].get("chamfer") or 0.0)
+        mv = P.turn_part(-ctx["total"], stock_d, c["f"], w, clear=_heights(c)["clear"], chamfer=ch, d_part=sc["parting"].get("d_part"))
         return {"op": {"tool": {"n": 8, "name": f"切断刀 宽 {w:g}"}, "spindle": {"css": c["vc"], "max_rpm": max_rpm},
                        "moves": mv, "title": "切断"},
-                "tools": {8: {"kind": "groove", "w": w}}, "target": {"parted": [-ctx["total"]]}}
+                "tools": {8: {"kind": "groove", "w": w}}, "target": {"parted": [-ctx["total"]],
+                                                                    **({"part_chamfer": [[-ctx["total"], ch, float(sc["parting"]["d_part"])]]} if ch else {})}}
     b = sc["bore"]
     inner = (P.simplify([(float(z), float(d)) for z, d in b["profile"]]) if b.get("profile")
              else P.inner_profile([[float(d), float(L)] for d, L in b["segments"]]))      # profile：带锥面、倒角的内轮廓（Q3a 内孔仿形）
@@ -450,7 +462,7 @@ def _turn(setup, mach):
         side, k, tgt, reach, title = sc["side"], sc["k"], sc["tgt"], sc["reach"], sc["title"]
         specs = given.get(side) if side in given else turn_op_specs(sc)
         prog = {"number": 1001 + k, "title": f"{setup.get('item') or '阶梯轴'} 车削 {title}", "cycles": bool(setup.get("cycles")),
-                "header": {"item": setup.get("item"), "stock": f"Ø{stock_d:g}×{total + 2 * e:g}"}, "ops": []}
+                "header": {"item": setup.get("item"), "stock": f"Ø{stock_d:g} 棒料" if setup.get("parting") else f"Ø{stock_d:g}×{total + 2 * e:g}"}, "ops": []}
         tools_sim: dict = {}
         tg = {"outer": tgt, "grooves": [], "threads": []}
         cuts = {}

@@ -567,6 +567,15 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
             cut_zone = (zc < zp - h) & (zc > zp - h * 3)
             if cut_zone.any() and (r[cut_zone] - ri[cut_zone] > tol).any():
                 res["issues"].append({"line": None, "level": "error", "text": f"没切断：Z{zp:g} 处还连着（切断刀没走到中心）"})
+        for zp, ch, dp in tg.get("part_chamfer") or []:   # 切断前倒角：零件左端 Z zp ~ zp + ch，外径从 dp − 2ch 斜到 dp
+            zone = (zc > zp + h) & (zc < zp + ch - h)
+            if zone.any():
+                want = (dp / 2 - ch) + (zc[zone] - zp)
+                dv = r[zone] - want
+                if (dv < -tol).any():
+                    res["issues"].append({"line": None, "level": "error", "text": f"切断前倒角切多了：C{ch:g} 处最多 {-dv.min():.3f} mm"})
+                elif (dv > tol).any():
+                    res["issues"].append({"line": None, "level": "error", "text": f"切断前倒角没倒到位：C{ch:g} 处最多留了 {dv.max():.3f} mm"})
         for fg in tg.get("face_grooves") or []:     # 端面槽：Z −深 ~ 0 之间，空腔要盖住 [内径, 外径]，不能更宽更深
             a_in, a_out, dp = fg["d_in"] / 2, fg["d_out"] / 2, fg["depth"]
             zone = (zc <= 0.0) & (zc >= -dp + h / 2)

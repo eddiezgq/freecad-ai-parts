@@ -295,14 +295,27 @@ def g76_depths(k, dd, spring=1):
     return out + [k] * spring
 
 
-def turn_part(z, d_from, f, tool_width, clear=CLEAR, x_end=-1.0):
+def turn_part(z, d_from, f, tool_width, clear=CLEAR, x_end=-1.0, chamfer=0.0, d_part=None, slow_d=None):
     """切断：z 是零件左端面（刀位点在切断刀右刀尖，刀宽往左），从 d_from 外面直进到中心以下（x_end）。
-    切到中心时转速被 G50 限住，进给不变；零件掉下来。"""
+    - chamfer > 0：切断前用右刀尖倒零件左端的 45° 角（d_part 是倒角处的外径）：先在 z 处预切到倒角根部以下 0.4 mm
+      给刀让位，再从 z + chamfer 处切到 d_part，斜着走到 (d_part − 2·chamfer, z)，接着切断；倒角不能大于刀宽。
+    - slow_d：直径小于它以后进给减半（缺省 max(0.2·d_from, 4)）——快到中心时转速被 G50 限住、线速度下降，零件要掉，减小冲击。
+    零件掉下来。"""
     if tool_width <= 0:
         raise CamError("切断刀宽要大于 0")
-    return [{"t": "comment", "text": f"切断：Z{z:g}，刀宽 {tool_width:g}"},
-            {"t": "rapid", "x": d_from + 2 * clear, "z": z}, {"t": "feed", "x": x_end, "z": z, "f": f},
-            {"t": "rapid", "x": d_from + 2 * clear, "z": z}]
+    if chamfer > 0 and (d_part is None or chamfer > tool_width + 1e-9 or d_part - 2 * chamfer <= 0):
+        raise CamError(f"切断前倒角 C{chamfer:g} 要给外径，且不能大于切断刀宽 {tool_width:g}")
+    xo = d_from + 2 * clear
+    slow = min(max(0.2 * d_from, 4.0), d_from) if slow_d is None else slow_d
+    mv = [{"t": "comment", "text": f"切断：Z{z:g}，刀宽 {tool_width:g}" + (f"，切断前倒角 C{chamfer:g}" if chamfer > 0 else "")
+           + f"，Ø{slow:g} 以下进给减半"}, {"t": "rapid", "x": xo, "z": z}]
+    if chamfer > 0:
+        mv += [{"t": "feed", "x": d_part - 2 * chamfer - 0.4, "z": z, "f": f}, {"t": "rapid", "x": xo, "z": z},
+               {"t": "rapid", "x": xo, "z": z + chamfer}, {"t": "feed", "x": d_part, "z": z + chamfer, "f": f},
+               {"t": "feed", "x": d_part - 2 * chamfer, "z": z, "f": f}]
+    mv += [{"t": "feed", "x": slow, "z": z, "f": f}, {"t": "feed", "x": x_end, "z": z, "f": f / 2},
+           {"t": "rapid", "x": xo, "z": z}]
+    return mv
 
 
 def turn_face_groove(d_in, d_out, depth, f, tool_width, clear=CLEAR, peck=0.0):

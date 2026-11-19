@@ -182,6 +182,34 @@ CYC = {**BASE, "segments": [[30, 40], [40, 60], [24, 30]], "grooves": [{"z": -26
        "machine_sim": {"tools": {"1": {"tool": "TR-CNMG"}, "2": {"tool": "TR-VNMG"}, "3": {"tool": "GR3"}, "4": {"tool": "TH15"}}}}
 
 
+def test_parting_with_chamfer_replaces_the_flip():
+    """棒料切断、左端只有一个 C1 倒角：倒角在切断前用切断刀倒（不再调头装夹）；倒出来的倒角与设计差 ≤ 0.02 mm，快到中心进给减半"""
+    setup = {**BASE, "segments": [[40, 20], [30, 30]], "parting": {"tool_w": 3}}
+    progs = _run(setup)
+    assert len(progs) == 1, [p["title"] for p in progs]
+    p = progs[0]
+    assert not _errors(p), _errors(p)
+    assert "X38.0 Z-50.0" in p["gcode"]                                   # 斜着倒角走到 (Ø38, Z−50)
+    ctx = cam.turn_context(setup, LATHE)
+    b = cam.turn_build_op(ctx, ctx["sides"][0], {"kind": "part"}, cam.turn_default_cut(setup, ctx["sides"][0], {"kind": "part"}))
+    feeds = [m for m in b["op"]["moves"] if m["t"] == "feed"]
+    assert feeds[-1]["f"] == pytest.approx(feeds[-2]["f"] / 2)
+    from analysis.cam import post
+
+    prog = {"number": 1, "title": "t", "header": {}, "ops": [b["op"]]}
+    s = S.simulate_turn(S.parse(post.post(prog, LATHE), LATHE), {"d": 40, "z_right": 0, "z_left": -70}, b["tools"], target=b["target"])
+    zc, r = s["z"], s["r"]
+    zone = (zc > -50 + 0.05) & (zc < -49 - 0.05)
+    worst = float(np.abs(r[zone] - (19 + (zc[zone] + 50))).max())
+    record(("切断前倒角 C1 与设计的最大偏差（半径）", "chamfer before parting off C1: max deviation (radius)"),
+           worst, 0.0, tol=0.02, rel=False, unit="mm", formula="r = d/2 − c + (z − z0)")
+    assert worst <= 0.02
+    assert not [i for i in s["issues"] if i["level"] == "error"], s["issues"]
+    # 倒角大于刀宽：拒绝
+    with pytest.raises(P.CamError, match="倒角"):
+        P.turn_part(-50, 44, 0.05, 2, chamfer=3, d_part=40)
+
+
 @pytest.mark.parametrize("post", ["fanuc", "gsk"])
 def test_canned_cycles_are_output_and_read_back_identically(post):
     """选了固定循环：正式程序里是 G71 / G70 / G76；回读展开后与仿真用的刀路逐段一致（不一致就不会出程序）"""

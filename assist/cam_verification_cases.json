@@ -382,6 +382,16 @@
     "en": "NPT taper pipe thread root diameter"
    },
    "source": "ASME B1.20.1: h = 0.8P"
+  },
+  {
+   "id": "CAM-37",
+   "test": "tests/test_cam_turn_q3a.py::test_parting_with_chamfer_replaces_the_flip",
+   "category": "geom",
+   "title": {
+    "zh": "切断前倒角的尺寸",
+    "en": "Chamfer cut before parting off"
+   },
+   "source": "r = d/2 − c + (z − z0)"
   }
  ]
 }
