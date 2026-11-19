@@ -48,19 +48,22 @@ def bearings(library) -> list[dict]:
     return [c for c in library.all() if c.get("category") == "bearing"]
 
 
-def run(statement: str, client, library, out_dir: str | Path | None = None, *, replay: bool = False) -> dict:
+def run(statement: str, client, library, out_dir: str | Path | None = None, *, replay: bool = False,
+        progress=None) -> dict:
     """设计并（通过时）生成模型。返回 {"result", "model"（generate 的摘要或 None）, "out_dir", "replay"}"""
     from assist import design as D
     from assist import shaft_model
 
     statement = statement.replace("\r\n", "\n")
     model = getattr(client, "model", None) or D.DEFAULT_MODEL
-    res = D.design(statement, client, bearings(library), library.get, model=model)
+    res = D.design(statement, client, bearings(library), library.get, model=model, progress=progress)
     out = Path(out_dir) if out_dir else Path(tempfile.mkdtemp(prefix="wq-ai-design-"))
     out.mkdir(parents=True, exist_ok=True)
     (out / "design-record.json").write_text(json.dumps(res, ensure_ascii=False, indent=1, default=_finite) + "\n", encoding="utf-8")
     gen = None
     if str(res.get("status", "")).startswith("pass"):
+        if progress is not None:
+            progress("生成三维模型并测量回读", None, None)
         gen = shaft_model.generate(res, out, library.get)
     return {"result": res, "model": gen, "out_dir": str(out), "replay": replay}
 

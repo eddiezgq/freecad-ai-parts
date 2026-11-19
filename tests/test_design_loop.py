@@ -148,3 +148,14 @@ def test_recorded_real_model_run_passes(tmp_path):
     assert g["readback"] == "pass" and g["delivered"], g["problems"]
     assert (tmp_path / "shaft.step").is_file() and (tmp_path / "drawing.svg").is_file()
     assert [r["kind"] for r in g["bom"]] == ["custom_part", "bearing"] and g["bom"][1]["qty"] == 2
+
+
+def test_progress_reported_each_step():
+    """界面要知道做到哪一步：列条件、每一轮提方案、每个台阶的有限元（已做 / 总数）"""
+    seen = []
+    out = D.design(TEXT, Script(), [get(B6201)], get, kt=fake_kt, progress=lambda t, d, n: seen.append((t, d, n)))
+    assert out["status"] == "pass"
+    assert seen[0] == ("AI 列设计条件", None, None)
+    assert any(t.startswith("第 1 轮") and n is None for t, d, n in seen)
+    steps = [(d, n) for t, d, n in seen if n]
+    assert steps and steps[0][0] == 0 and all(0 <= d < n for d, n in steps)

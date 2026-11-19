@@ -140,10 +140,30 @@ def test_start_replays_example_without_recording_miss(gui, lib, monkeypatch):
     p.start()
     req = {}
 
-    def fake_run(statement, client, library, replay=False):
+    def fake_run(statement, client, library, replay=False, progress=None):
         req.update(statement=statement, replay=replay)
         return statement
 
     monkeypatch.setattr(C, "run", fake_run)
     seen["work"]()
     assert req["replay"] and req["statement"] == C.example_text()
+
+
+def test_progress_bar_and_elapsed_time(gui, lib, monkeypatch):
+    """进度：后台写（说明, 已做, 总数），界面每半秒显示当前一步、第几个台阶、已用时间；结束后写总用时"""
+    from freecad_addon.gui import ai_design_panel as P
+
+    monkeypatch.setattr(P, "_in_background", lambda work, done: None)
+    p = P.AiDesignPanel(lib, None, client_factory=lambda: None)
+    p.load_example()
+    p.start()
+    assert p.bar.isVisibleTo(p.form) and p.ticker.isActive()
+    p._status = ("第 1 轮（最多 4 轮）：校核台阶强度（有限元）", 1, 4)
+    p._tick()
+    assert "2 / 4" in p.progress.text() or "2 of 4" in p.progress.text()
+    assert (p.bar.minimum(), p.bar.maximum(), p.bar.value()) == (0, 4, 1)
+    p._status = ("AI 列设计条件", None, None)
+    p._tick()
+    assert p.bar.maximum() == 0                                                   # 步数不定：忙
+    p.done(RuntimeError("测试中断"))
+    assert not p.ticker.isActive() and not p.bar.isVisibleTo(p.form)

@@ -279,8 +279,12 @@ def extra_checks(report: dict, cond: dict) -> None:
 
 
 def design(statement: str, client, bearings: list[dict], get: Callable[[str], dict | None], *, model: str = DEFAULT_MODEL,
-           kt: Callable | None = None, max_rounds: int = MAX_ROUNDS) -> dict:
-    """原话 → 条件 → 最多 max_rounds 轮方案与校核。返回全部记录"""
+           kt: Callable | None = None, max_rounds: int = MAX_ROUNDS,
+           progress: Callable[[str, int | None, int | None], None] | None = None) -> dict:
+    """原话 → 条件 → 最多 max_rounds 轮方案与校核。返回全部记录。
+    progress(说明, 已做, 总数)：每一步开始时调用（给界面显示进度；总数不定时为 None）"""
+    say = progress or (lambda *_: None)
+    say("AI 列设计条件", None, None)
     r = client.complete(conditions_request(statement, model=model))
     cond, rejected, missing = check_conditions(r["tool_input"], statement)
     out: dict = {"statement": statement, "conditions": cond, "rejected": rejected, "missing": missing,
@@ -290,13 +294,15 @@ def design(statement: str, client, bearings: list[dict], get: Callable[[str], di
     if missing:
         out["status"] = "needs_input"
         return out
-    for _k in range(max_rounds):
+    for k in range(1, max_rounds + 1):
+        say(f"第 {k} 轮（最多 {max_rounds} 轮）：AI 提方案", None, None)
         req = proposal_request(cond, bearings, out["rounds"], model=model)
         r = client.complete(req)
         out["ai"].append({k: r[k] for k in ("id", "provider", "model", "simulated") if k in r})
         prop = r["tool_input"]
         try:
-            rep = SD.evaluate(prop, cond, get, kt=kt)
+            rep = SD.evaluate(prop, cond, get, kt=kt,
+                              progress=lambda i, n, k=k: say(f"第 {k} 轮（最多 {max_rounds} 轮）：校核台阶强度（有限元）", i - 1, n))
         except SD.ProposalInvalid as ex:
             rep = {"items": [SD._item("方案格式", "fail", note=str(ex))], "notes": [], "overall": "fail", "segments": []}
         else:
