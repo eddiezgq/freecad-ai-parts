@@ -274,8 +274,11 @@ def new_job(doc, model, kind: str, *, machine: str | None = None, post: str = "f
 
 
 def thread_text(t: dict) -> str:
-    extra = (["内"] if t.get("internal") else []) + ([f"1:{1 / t['taper']:g}"] if t.get("taper") else []) + \
-        ([f"{t['starts']} 头"] if int(t.get("starts") or 1) > 1 else [])
+    from assist import i18n
+
+    zh = i18n.lang() == "zh"
+    extra = ([("内" if zh else "in")] if t.get("internal") else []) + ([f"1:{1 / t['taper']:g}"] if t.get("taper") else []) + \
+        ([f"{t['starts']} " + ("头" if zh else "starts")] if int(t.get("starts") or 1) > 1 else [])
     return ", ".join([f"{t['z_start']:g}", f"{t['z_end']:g}", f"{t['d']:g}", f"{t['pitch']:g}", *extra])
 
 
