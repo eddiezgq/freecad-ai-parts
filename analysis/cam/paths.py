@@ -5,7 +5,8 @@
 车削坐标（FANUC 习惯）：X 是直径（mm），Z 沿轴线，Z0 在本次装夹的右端面，向左（卡盘方向）为负。
   轮廓 profile：[(z, d), …]，z 从 0 递减，d 为该处直径；轴肩是同一 z 上的两个点。
 铣削坐标：工件坐标系 G54，XY 在工件上表面，Z0 为上表面，向下为负。
-动作 move：{"t": "rapid" | "feed" | "drill" | "comment", …}
+动作 move：{"t": "rapid" | "feed" | "thread" | "drill" | "comment", …}
+  thread：车螺纹 x、z、pitch（G32，每转走一个螺距）
   rapid / feed：x, y（铣）, z；feed 带 f（车削 mm/r，铣削 mm/min）
   drill：x, y, z（孔底）, r（R 平面）, q（啄钻每次深度，0 = 一次钻到底）, f
 """
@@ -181,6 +182,102 @@ def turn_groove(z, d_bottom, width, d_from, f, tool_width):
         zk = z - (span * k / (n - 1) if n > 1 else 0.0)
         mv += [{"t": "rapid", "x": d_from + 2 * CLEAR, "z": zk}, {"t": "feed", "x": d_bottom, "z": zk, "f": f},
                {"t": "rapid", "x": d_from + 2 * CLEAR, "z": zk}]
+    return mv
+
+
+ISO_D3 = 1.22687  # ISO 965-1：普通外螺纹小径 d3 = d − 1.22687·P（车外螺纹的牙底直径）
+
+
+def thread_infeeds(depth, first_max=0.25, spring=1):
+    """螺纹各刀的累计径向切深：等切削面积递减 a_i = depth·√(i/n)，第一刀不超过 first_max；最后 spring 刀光刀（不进刀）"""
+    if depth <= 0:
+        raise CamError("螺纹牙深要大于 0")
+    n = max(3, math.ceil((depth / first_max) ** 2 - 1e-9))
+    return [depth * math.sqrt(i / n) for i in range(1, n + 1)] + [depth] * spring
+
+
+def turn_thread(z_start, z_end, d_major, pitch, first_max=0.25, spring=1, run_in=None):
+    """车外螺纹（G32 逐刀，各系统都认）：从 z_start 右边 run_in（缺省 2 个螺距、至少 CLEAR）起刀车到 z_end；
+    牙底直径按 ISO 965-1 的 d3。动作 thread：x（本刀直径）、z、pitch"""
+    if z_end >= z_start:
+        raise CamError("螺纹从右往左车：z_end 要小于 z_start")
+    if pitch <= 0 or d_major <= 0:
+        raise CamError("螺纹直径、螺距要大于 0")
+    depth = ISO_D3 * pitch / 2
+    zs = z_start + (run_in if run_in is not None else max(2 * pitch, CLEAR))
+    xo = d_major + 2 * CLEAR
+    mv = [{"t": "comment", "text": f"车螺纹 M{d_major:g}x{pitch:g}：Z{z_start:g} ~ Z{z_end:g}，牙底 Ø{d_major - 2 * depth:.3f}"}]
+    for a in thread_infeeds(depth, first_max, spring):
+        d = d_major - 2 * a
+        mv += [{"t": "rapid", "x": xo, "z": zs}, {"t": "rapid", "x": d, "z": zs},
+               {"t": "thread", "x": d, "z": z_end, "pitch": pitch}, {"t": "rapid", "x": xo, "z": z_end},
+               {"t": "rapid", "x": xo, "z": zs}]
+    return mv
+
+
+def lathe_drill(depth, d, f, peck=0.0, tip_angle=118.0):
+    """车床尾座方向钻中心孔（X0，沿 -Z）：depth 是全直径段深度，钻尖再往里 d/2/tan(顶角/2)；peck > 0 时每钻 peck 退到孔口排屑"""
+    if depth <= 0 or d <= 0:
+        raise CamError("钻孔直径、深度要大于 0")
+    z_tip = -(depth + d / 2 / math.tan(math.radians(tip_angle / 2)))
+    mv = [{"t": "comment", "text": f"钻孔 Ø{d:g} 深 {depth:g}（钻尖到 Z{z_tip:.3f}）"}, {"t": "rapid", "x": 0.0, "z": CLEAR}]
+    z = 0.0
+    while z > z_tip + 1e-9:
+        nz = max(z - peck, z_tip) if peck > 0 else z_tip
+        if z < 0:
+            mv.append({"t": "rapid", "x": 0.0, "z": z + 0.5})
+        mv += [{"t": "feed", "x": 0.0, "z": nz, "f": f}, {"t": "rapid", "x": 0.0, "z": CLEAR}]
+        z = nz
+    return mv
+
+
+def inner_profile(segments):
+    """内孔 [(直径, 深度), …]（从孔口往里）→ 内轮廓 [(z, d), …]，z 从 0 递减"""
+    pts, z = [], 0.0
+    for d, depth in segments:
+        if d <= 0 or depth <= 0:
+            raise CamError("内孔每段直径、深度要大于 0")
+        pts += [(z, d), (z - depth, d)]
+        z -= depth
+    return simplify(pts)
+
+
+def z_reach_inner(prof, d):
+    """从孔口往里沿内轮廓走，内径一直 ≥ d 的最深位置（镗孔每层镗到这里为止）"""
+    last = prof[0][0]
+    if prof[0][1] < d - 1e-9:
+        return 0.0
+    for (z0, d0), (z1, d1) in itertools.pairwise(prof):
+        if d1 < d - 1e-9:
+            if abs(z1 - z0) < 1e-12:
+                return z0
+            return z0 + (z1 - z0) * (d0 - d) / (d0 - d1)
+        last = z1
+    return last
+
+
+def turn_bore(inner, hole_d, ap, f, allow_r=0.3, f_finish=None):
+    """镗内孔：从已钻的孔 hole_d 起分层扩到留余量的内轮廓，再沿内轮廓精镗一刀。刀位点在镗刀刀尖，退刀往孔中心让 1 mm"""
+    dmax = max(d for _, d in inner)
+    if hole_d >= min(d for _, d in inner) - 1e-9:
+        raise CamError(f"预钻孔 Ø{hole_d:g} 不小于内孔最小直径")
+    tgt = [(z, d - 2 * allow_r) for z, d in inner]
+    mv = [{"t": "comment", "text": f"粗镗（每层 ap={ap:g}，留余量 {allow_r:g}）"}]
+    d = hole_d
+    while d < dmax - 2 * allow_r - 1e-6:
+        d_new = min(d + 2 * ap, dmax - 2 * allow_r)
+        zstop = z_reach_inner(tgt, d_new - 1e-6)
+        if zstop < -1e-6:
+            mv += [{"t": "rapid", "x": d_new, "z": CLEAR}, {"t": "feed", "x": d_new, "z": zstop, "f": f},
+                   {"t": "feed", "x": d_new - 1.0, "z": zstop + 0.5, "f": f}, {"t": "rapid", "x": d_new - 1.0, "z": CLEAR}]
+        d = d_new
+    mv.append({"t": "comment", "text": "精镗内轮廓"})
+    ff = f_finish or f
+    prof = simplify(inner)
+    mv += [{"t": "rapid", "x": prof[0][1], "z": CLEAR}]
+    mv += [{"t": "feed", "x": dd, "z": z, "f": ff} for z, dd in prof]
+    zl = prof[-1][0]
+    mv += [{"t": "feed", "x": hole_d, "z": zl, "f": ff}, {"t": "rapid", "x": hole_d, "z": CLEAR}]
     return mv
 
 

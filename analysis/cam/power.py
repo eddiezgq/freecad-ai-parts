@@ -56,6 +56,10 @@ def check(key: str | None, machine: dict, items: list[tuple[str, str, dict]]) ->
         return ([{"line": None, "level": "unknown", "text": "切削功率待确认：没有选 Kienzle 表中的材料行"}],
                 {"items": [], "status": "unknown"})
     k11, mc = float(r["kc11_mpa"]), float(r["mc"])
+    if "power_kw" not in machine or "eff" not in machine:
+        return ([{"line": None, "level": "unknown",
+                  "text": f"切削功率待确认：{machine['name']} 的机床文件没有写主电机功率或传动效率"}],
+                {"items": [], "status": "unknown"})
     out, detail = [], []
     for name, kind, x in items:
         if kind == "drill":
