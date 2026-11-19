@@ -251,15 +251,34 @@ def _cond_text(c: dict) -> str:
     return json.dumps(c, ensure_ascii=False, indent=1)
 
 
-def proposal_request(cond: dict, bearings: list[dict], history: list[dict], *, model: str = DEFAULT_MODEL) -> dict:
+LIGHTER = """全部校核已通过。现在轴的质量 {mass:.3f} kg；各项余量如下（数值 / 要求）：
+{margins}
+同样满足全部要求时，轴越轻越好（材料省、转动惯量小）。如果你认为还能更轻（例如选内径小一号的轴承、细一些的轴身），
+就提一个更轻的方案；如果认为已经是最轻的，原样交回现在的方案并说明理由。"""
+
+
+def _margins(rep_items: list[dict]) -> str:
+    return "\n".join(f"- {i['item']}：{i.get('value')} / {i.get('limit')}" for i in rep_items if i.get("limit") is not None)
+
+
+def proposal_request(cond: dict, bearings: list[dict], history: list[dict], *, model: str = DEFAULT_MODEL,
+                     lighter: str | None = None) -> dict:
     prev = ""
     if history:
         last = history[-1]
         prev = (f"\n\n第 {len(history)} 轮你的方案：\n{json.dumps(last['proposal'], ensure_ascii=False, sort_keys=True)}\n"
                 f"程序校核的结论（没通过和待确认的项）：\n{last['feedback']}")
+    if lighter:
+        prev += "\n\n" + lighter
     user = (f"设计条件（已核对，标准单位：mm、N、kg、r/min、W、h）：\n{_cond_text(cond)}\n\n"
             f"零件库里可用的轴承：\n{bearing_table(bearings)}{prev}")
     return {"model": model, "prompt_version": PROMPT_VERSION, "system": SYSTEM_PROPOSAL, "user": user, "tool": PROPOSAL_TOOL}
+
+
+def chosen(result: dict) -> dict:
+    """采用的那一轮（通过的里面最轻的；旧记录没有 chosen_round 时取最后一轮）"""
+    k = result.get("chosen_round")
+    return result["rounds"][k - 1] if k else result["rounds"][-1]
 
 
 def _done(report: dict) -> bool:
@@ -294,17 +313,21 @@ def design(statement: str, client, bearings: list[dict], get: Callable[[str], di
     if missing:
         out["status"] = "needs_input"
         return out
+    best = None                                            # 已通过的方案里最轻的一轮
+    lighter = None
     for k in range(1, max_rounds + 1):
-        say(f"第 {k} 轮（最多 {max_rounds} 轮）：AI 提方案", None, None)
-        req = proposal_request(cond, bearings, out["rounds"], model=model)
+        if lighter:
+            say(f"第 {k} 轮（最多 {max_rounds} 轮）：AI 试更轻的方案", None, None)
+        else:
+            say(f"第 {k} 轮（最多 {max_rounds} 轮）：AI 提方案", None, None)
+        req = proposal_request(cond, bearings, out["rounds"], model=model, lighter=lighter)
         r = client.complete(req)
         out["ai"].append({k: r[k] for k in ("id", "provider", "model", "simulated") if k in r})
         prop = r["tool_input"]
         last = out["rounds"][-1]["proposal"] if out["rounds"] else None
         if isinstance(prop, dict) and isinstance(last, dict) and prop.get("segments") == last.get("segments"):
             out["rounds"].append({**out["rounds"][-1], "proposal": prop, "unchanged": True})
-            out["status"] = "stuck"                        # AI 不再改方案（它判断改轴解决不了）：不再空转，交给人
-            return out
+            break                                          # AI 不再改方案：通过的就是最轻的；没通过的交给人
         try:
             rep = SD.evaluate(prop, cond, get, kt=kt,
                               progress=lambda i, n, k=k: say(f"第 {k} 轮（最多 {max_rounds} 轮）：校核台阶强度（有限元）", i - 1, n))
@@ -313,12 +336,21 @@ def design(statement: str, client, bearings: list[dict], get: Callable[[str], di
         else:
             extra_checks(rep, cond)
         fb = SD.feedback(rep)
-        out["rounds"].append({"proposal": prop, "overall": rep["overall"], "feedback": fb,
-                              "items": rep["items"], "segments": rep.get("segments"), "mass_kg": rep.get("mass_kg")})
-        if rep.get("segments") and _done(rep):
-            out["status"] = "pass" if rep["overall"] == "pass" else "pass_pending_data"
-            return out
-    out["status"] = "stuck"
+        rd = {"proposal": prop, "overall": rep["overall"], "feedback": fb, "items": rep["items"],
+              "segments": rep.get("segments"), "mass_kg": rep.get("mass_kg"), "lighter_round": lighter is not None}
+        out["rounds"].append(rd)
+        ok = bool(rep.get("segments")) and _done(rep)
+        if ok and (best is None or (rd["mass_kg"] or 1e9) < (best["mass_kg"] or 1e9) - 1e-6):
+            best = rd                                      # 通过、且比之前通过的更轻：再给 AI 一轮减重
+            lighter = LIGHTER.format(mass=rd["mass_kg"] or 0.0, margins=_margins(rep["items"]))
+            continue
+        if best is not None:
+            break                                          # 减重的方案没通过或没更轻：保留更轻的那一轮
+    if best is None:
+        out["status"] = "stuck"
+    else:
+        out["status"] = "pass" if best["overall"] == "pass" else "pass_pending_data"
+        out["chosen_round"] = out["rounds"].index(best) + 1
     return out
 
 

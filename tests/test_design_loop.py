@@ -51,7 +51,9 @@ class Script:
         self.requests.append(request)
         if request["tool"]["name"] == "list_conditions":
             return {"id": "sim", "tool_input": copy.deepcopy(self.conds), "simulated": True}
-        return {"id": "sim", "tool_input": copy.deepcopy(self.props.pop(0)), "simulated": True}
+        # 方案用完了：交回上一个方案（模拟 AI 说“已经是最轻的”）
+        prop = self.props.pop(0) if len(self.props) > 1 else self.props[0]
+        return {"id": "sim", "tool_input": copy.deepcopy(prop), "simulated": True}
 
 
 def test_conditions_checked_against_statement():
@@ -88,11 +90,12 @@ def test_direction_needs_words():
 def test_loop_fixes_with_feedback():
     ai = Script()
     out = D.design(TEXT, ai, [get(B6201)], get, kt=fake_kt)
-    assert len(out["rounds"]) == 2 and out["rounds"][0]["overall"] == "fail"
+    assert len(out["rounds"]) == 3 and out["rounds"][0]["overall"] == "fail"
+    assert out["rounds"][2].get("unchanged") and out["chosen_round"] == 2       # 通过后要更轻，AI 交回同一方案：采用第 2 轮
     assert "轴承中心 z = 252" in out["rounds"][0]["feedback"]
     assert "第 1 轮你的方案" in ai.requests[2]["user"] and "轴承中心 z = 252" in ai.requests[2]["user"]   # 结论交回 AI
     assert out["status"] == "pass"                                    # 轴肩按 NSK 6201 的安装尺寸也合规
-    segs = out["rounds"][-1]["segments"]
+    segs = D.chosen(out)["segments"]
     assert [(s["d"], s["L"]) for s in segs] == [(10, 22), (12, 10), (16, 215), (12, 10), (10, 40)]
     assert "6201" in ai.requests[1]["user"]                            # 给 AI 的轴承表来自零件库
 
@@ -170,3 +173,18 @@ def test_stops_when_ai_repeats_the_same_design():
     """AI 判断改轴解决不了、交回同一方案：不再空转校核，停下交给人（2026-11-18 问渠 CAD 里 6000 r/min 的那次）"""
     out = D.design(TEXT, Script(proposals=[FIRST] * 4), [get(B6201)], get, kt=fake_kt)
     assert out["status"] == "stuck" and len(out["rounds"]) == 2 and out["rounds"][-1].get("unchanged")
+
+
+def test_after_pass_ai_is_asked_for_lighter_and_lighter_pass_is_chosen():
+    """通过后交回 AI 要更轻：更轻且通过就采用；再交回同一方案就停（ADR-0100 §6.1“再要最轻”，平缝机上轴同样适用）"""
+    lighter = copy.deepcopy(SECOND)
+    lighter["segments"][2]["diameter_mm"] = 15.0
+    ai = Script(proposals=[FIRST, SECOND, lighter])
+    out = D.design(TEXT, ai, [get(B6201)], get, kt=fake_kt)
+    assert out["status"] == "pass"
+    assert "越轻越好" in ai.requests[3]["user"] and out["rounds"][2]["lighter_round"]
+    if out["rounds"][2]["overall"] == "pass":
+        assert out["chosen_round"] == 3 and out["rounds"][2]["mass_kg"] < out["rounds"][1]["mass_kg"]
+    else:
+        assert out["chosen_round"] == 2
+    assert D.chosen(out) is out["rounds"][out["chosen_round"] - 1]
