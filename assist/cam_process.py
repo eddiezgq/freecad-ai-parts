@@ -42,9 +42,9 @@ TEACH = {"rough": {"vc": 120.0, "f": 0.3, "ap": 2.5}, "finish": {"vc": 150.0, "f
          "groove": {"vc": 80.0, "f": 0.05}, "thread": {"vc": 60.0}, "drill": {"vc": 20.0, "f": 0.12},
          "bore": {"vc": 100.0, "f": 0.15, "ap": 1.0}, "pocket": {"vc": 100.0, "fz": 0.04, "ap": 5.0, "stepover": 0.45},
          "contour": {"vc": 100.0, "fz": 0.04, "ap": 5.0}, "slot": {"vc": 25.0, "fz": 0.03, "ap": 1.0},
-         "holes": {"vc": 20.0, "f": 0.12}}
+         "holes": {"vc": 20.0, "f": 0.12}, "face_groove": {"vc": 80.0, "f": 0.04}, "part": {"vc": 80.0, "f": 0.05}}
 FEED = {"rough": "f", "finish": "f", "groove": "f", "thread": None, "drill": "f", "bore": "f",
-        "pocket": "fz", "contour": "fz", "slot": "fz", "holes": "f"}
+        "pocket": "fz", "contour": "fz", "slot": "fz", "holes": "f", "face_groove": "f", "part": "f"}
 HAS_AP = {"rough", "bore", "pocket", "contour", "slot"}
 TEACH_Z = {"pocket": 4, "contour": 4, "slot": 2}   # 刀具库没写刃数时的教学示意值（标“待确认”）
 
@@ -73,6 +73,12 @@ def operations(part: dict, lib: dict) -> list[dict]:
             p = float(th["pitch"])
             ops.append({"id": f"thread{i}", "kind": "thread", "title": f"车螺纹 M{float(th['d']):g}×{p:g}", "geom": {"pitch": p},
                         "cands": _cands(lib, {"thread_turn"}, lambda t, p=p: abs(t.get("pitch_mm", -1) - p) < 1e-9)})
+        for i, fg in enumerate(part.get("face_grooves") or [], 1):
+            w = (float(fg["d_out"]) - float(fg["d_in"])) / 2
+            ops.append({"id": f"face_groove{i}", "kind": "face_groove", "title": f"端面槽 宽 {w:g}", "geom": {"width": w},
+                        "cands": _cands(lib, {"groove"}, lambda t, w=w: (t.get("insert") or {}).get("width_mm", 1e9) <= w + 1e-9)})
+        if part.get("parting"):
+            ops.append({"id": "part", "kind": "part", "title": "切断", "cands": _cands(lib, {"groove"})})
         b = part.get("bore")
         if b:
             dmin = min(float(d) for d, _ in b["segments"])
@@ -301,7 +307,17 @@ def _setup(part, by_op, lengths, notes):
         for i, th in enumerate(s.get("threads") or [], 1):
             v = by_op[f"thread{i}"]
             th["cut"] = {"vc": v["params"]["vc"]}
-            T(4, v["tool"])
+            T(7 if th.get("internal") else 4, v["tool"])
+        for i, fg in enumerate(s.get("face_grooves") or [], 1):
+            v = by_op[f"face_groove{i}"]
+            fg["cut"] = {k: v["params"][k] for k in ("vc", "f")}
+            fg["tool_w"] = float((v["tool"].get("insert") or {}).get("width_mm", (fg["d_out"] - fg["d_in"]) / 2))
+            T(9, v["tool"])
+        if s.get("parting"):
+            v = by_op["part"]
+            s["parting"]["cut"] = {k: v["params"][k] for k in ("vc", "f")}
+            s["parting"].setdefault("tool_w", float((v["tool"].get("insert") or {}).get("width_mm", 3.0)))
+            T(8, v["tool"])
         if s.get("bore"):
             d, b = by_op["drill"], by_op["bore"]
             s["bore"]["drill_d"] = float(d["tool"]["diameter_mm"])

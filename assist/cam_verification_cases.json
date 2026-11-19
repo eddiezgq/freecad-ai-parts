@@ -312,6 +312,86 @@
     "en": "Replay timeline equals program time (turning)"
    },
    "source": "逐段时间 + 换刀 / per-move time + tool changes"
+  },
+  {
+   "id": "CAM-30",
+   "test": "tests/test_cam_turn_q3a.py::test_two_start_thread_lead_and_time",
+   "category": "time",
+   "title": {
+    "zh": "双头螺纹车削时间（导程 = 头数 × 螺距）",
+    "en": "Two-start threading time (lead = starts × pitch)"
+   },
+   "source": "t = Σ L/(导程·n) / t = Σ L/(lead·n)"
+  },
+  {
+   "id": "CAM-31",
+   "test": "tests/test_cam_turn_q3a.py::test_face_groove_cut_to_size_and_removed_volume",
+   "category": "geom",
+   "title": {
+    "zh": "端面槽去除体积",
+    "en": "Face groove removed volume"
+   },
+   "source": "V = π(R² − r²)·深 / π(R² − r²)·depth"
+  },
+  {
+   "id": "CAM-32",
+   "test": "tests/test_cam_turn_q3a.py::test_internal_thread_reaches_major_diameter",
+   "category": "geom",
+   "title": {
+    "zh": "内螺纹车到大径",
+    "en": "Internal thread cut to the major diameter"
+   },
+   "source": "ISO 68-1: D1 = D − 1.0825P"
+  },
+  {
+   "id": "CAM-33",
+   "test": "tests/test_cam_turn_q3a.py::test_taper_thread_follows_1_to_16",
+   "category": "geom",
+   "title": {
+    "zh": "锥螺纹按 1:16 锥度走刀",
+    "en": "Taper thread follows the 1:16 taper"
+   },
+   "source": "Δd = ΔL / 16"
+  },
+  {
+   "id": "CAM-34",
+   "test": "tests/test_cam_turn_q3a.py::test_hand_written_g71_and_g76_expand_by_rule",
+   "category": "post",
+   "title": {
+    "zh": "手写 G71 固定循环按规则展开",
+    "en": "Hand-written G71 cycle expands by the rule"
+   },
+   "source": "FANUC G71 一型 / FANUC G71 type I"
+  },
+  {
+   "id": "CAM-35",
+   "test": "tests/test_cam_turn_q3a.py::test_taper_pipe_thread_depth_by_standard[r-0.640327]",
+   "category": "geom",
+   "title": {
+    "zh": "R 系列锥管螺纹牙底直径",
+    "en": "R-series taper pipe thread root diameter"
+   },
+   "source": "ISO 7-1: h = 0.640327P"
+  },
+  {
+   "id": "CAM-36",
+   "test": "tests/test_cam_turn_q3a.py::test_taper_pipe_thread_depth_by_standard[npt-0.8]",
+   "category": "geom",
+   "title": {
+    "zh": "NPT 锥管螺纹牙底直径",
+    "en": "NPT taper pipe thread root diameter"
+   },
+   "source": "ASME B1.20.1: h = 0.8P"
+  },
+  {
+   "id": "CAM-37",
+   "test": "tests/test_cam_turn_q3a.py::test_parting_with_chamfer_replaces_the_flip",
+   "category": "geom",
+   "title": {
+    "zh": "切断前倒角的尺寸",
+    "en": "Chamfer cut before parting off"
+   },
+   "source": "r = d/2 − c + (z − z0)"
   }
  ]
 }

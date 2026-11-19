@@ -83,9 +83,19 @@ class JobPanel:
         self.offset = QtWidgets.QDoubleSpinBox()
         if job.Kind == "turn":
             th = CO._js(job, "PartData", {}).get("threads") or []
-            self.threads.setPlainText("\n".join(f"{t['z_start']:g}, {t['z_end']:g}, {t['d']:g}, {t['pitch']:g}" for t in th))
-            self.threads.setPlaceholderText(T("每行：Z 起, Z 止, 大径, 螺距（外螺纹，起刀处要在端面或退刀槽）"))
+            self.threads.setPlainText("\n".join(CO.thread_text(t) for t in th))
+            self.threads.setPlaceholderText(T("每行：Z 起, Z 止, 大径, 螺距[, 内][, 1:16][, 2 头][, R | NPT]（起刀处要在端面或退刀槽）"))
             f.addRow(T("螺纹"), self.threads)
+            self.parting = QtWidgets.QDoubleSpinBox()
+            self.parting.setRange(0, 10)
+            self.parting.setDecimals(1)
+            self.parting.setValue(float((CO._js(job, "PartData", {}).get("parting") or {}).get("tool_w", 0.0)))
+            self.parting.setToolTip(T("棒料上车完切下来：切断刀宽 mm；0 = 不切断（毛坯是单件料）"))
+            f.addRow(T("切断刀宽 mm（0 = 不切断）"), self.parting)
+            self.cycles = QtWidgets.QCheckBox(T("正式程序用固定循环（G71 / G70 / G76）"))
+            self.cycles.setToolTip(T("FANUC、广数：粗精车、车螺纹写成循环，程序短；仿真按同样的展开规则走。西门子照样出直线段"))
+            self.cycles.setChecked(bool(getattr(job, "Cycles", False)))
+            f.addRow("", self.cycles)
         else:
             self.lengths.setText(", ".join(f"{k}={v:g}" for k, v in CO._js(job, "ToolLengths", {}).items()))
             self.lengths.setPlaceholderText(T("铣刀刀长：刀具 id=长度, …，如 EM10=120, DR8.5=140"))
@@ -121,16 +131,21 @@ class JobPanel:
         self.show_result()
 
     def apply(self):
-        from freecad_addon.core import cam_study as S
 
         j = self.job
         j.Machine, j.Post, j.Kienzle = self.machine.currentData(), self.post.currentData(), self.kienzle.currentData()
         j.ToolLibrary, j.Fixture = self.library.text().strip(), self.fixture.text().strip()
         if j.Kind == "turn":
             d = CO._js(j, "PartData", {})
-            d["threads"] = [{"z_start": a, "z_end": b, "d": dd, "pitch": p}
-                            for a, b, dd, p in S.parse_rows(self.threads.toPlainText(), 4, "螺纹")]
+            d["threads"] = CO.parse_threads(self.threads.toPlainText())
+            if self.parting.value() > 0:
+                d["parting"] = {"tool_w": self.parting.value()}
+            else:
+                d.pop("parting", None)
             j.PartData = json.dumps(d, ensure_ascii=False)
+            if not hasattr(j, "Cycles"):
+                j.Proxy.setup(j)
+            j.Cycles = self.cycles.isChecked()
         else:
             lengths = {}
             for piece in self.lengths.text().replace("，", ",").split(","):
@@ -316,6 +331,26 @@ class OpPanel:
         self.range.setWordWrap(True)
         cf.addRow("", self.range)
         self.tabs.addTab(c, T("切削参数"))
+        # 余量与分层、高度与进退刀（0 = 缺省值）
+        self.allow_r = spin(getattr(op, "AllowRadial", 0.0), 0, 10, 3)
+        self.allow_z = spin(getattr(op, "AllowAxial", 0.0), 0, 10, 3)
+        self.clear = spin(getattr(op, "Clearance", 0.0), 0, 100, 2)
+        self.retract = spin(getattr(op, "Retract", 0.0), 0, 20, 2)
+        if turn and op.OpKind in ("rough", "bore"):
+            a = QtWidgets.QWidget()
+            af = QtWidgets.QFormLayout(a)
+            af.addRow(T("径向余量 mm（0 = 缺省）"), self.allow_r)
+            if op.OpKind == "rough":
+                af.addRow(T("轴向余量 mm（0 = 缺省）"), self.allow_z)
+            af.addRow("", QtWidgets.QLabel(T("每层切深在“切削参数”页；精车按设计轮廓、不留余量")))
+            self.tabs.addTab(a, T("余量与分层"))
+        if turn and op.OpKind in ("rough", "finish", "groove", "bore"):
+            h = QtWidgets.QWidget()
+            hf = QtWidgets.QFormLayout(h)
+            hf.addRow(T("安全距离 mm（0 = 缺省 2）"), self.clear)
+            if op.OpKind in ("rough", "bore"):
+                hf.addRow(T("退刀量 mm（0 = 缺省 0.5）"), self.retract)
+            self.tabs.addTab(h, T("高度与进退刀"))
         self.status = QtWidgets.QLabel("")
         self.status.setWordWrap(True)
         lay.addWidget(self.status)
@@ -332,8 +367,8 @@ class OpPanel:
         if job.Kind == "turn":
             d = CO._js(job, "PartData", {})
             k = op.OpKind
-            if k in ("groove", "thread"):
-                x = (d.get("grooves") if k == "groove" else d.get("threads"))[op.FeatureIndex]
+            if k in CO.FEATURE_KINDS:
+                x = d.get({"groove": "grooves", "thread": "threads", "face_groove": "face_grooves"}[k])[op.FeatureIndex]
                 return T("本工序：{}").format(", ".join(f"{a}={v:g}" for a, v in x.items() if isinstance(v, (int, float))))
             if k in ("drill", "bore"):
                 return T("内孔：{}").format(", ".join(f"Ø{a:g}×{b:g}" for a, b in d.get("bore") or []))
@@ -389,6 +424,10 @@ class OpPanel:
         op = self.op
         op.ToolId, op.ToolNumber = self.tool.currentData() or "", self.tno.value()
         op.Vc, op.Feed, op.Ap, op.StepOver = self.vc.value(), self.feed.value(), self.ap.value(), self.stepover.value()
+        if not hasattr(op, "AllowRadial"):        # Q1、Q2 存的文档
+            op.Proxy.setup(op)
+        op.AllowRadial, op.AllowAxial = self.allow_r.value(), self.allow_z.value()
+        op.Clearance, op.Retract = self.clear.value(), self.retract.value()
         if op.Status == "已确认":
             op.Status = "草稿"                      # 改了就要重新确认
 

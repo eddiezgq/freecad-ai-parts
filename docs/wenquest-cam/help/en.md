@@ -8,7 +8,7 @@ lang: en-US
 
 WenQuest CAM is CNC programming software that runs inside FreeCAD. The first edition handles two kinds of parts:
 
-- **Turning**: stepped shafts with grooves, external threads and bores, in two setups (right end first, then the part flipped for the left end);
+- **Turning**: parts of revolution with grooves, face grooves, internal and external threads (including taper and multi-start threads) and bores (including tapers and arcs), in two setups (right end first, then the part flipped for the left end); bar stock can be parted off;
 - **2.5-axis milling**: pockets, contours and drilling, with tool paths computed by FreeCAD's own CAM.
 
 Three principles run through everything:
@@ -17,7 +17,7 @@ Three principles run through everything:
 2. **Programs are output only after the whole-machine simulation passes.** Every tool path segment moves the machine model and checks the cutting edge, holder, spindle head, fixtures, table and remaining material for collisions, and the axes for overtravel. If anything fails, no program is output.
 3. **The written program is read back.** It is compared segment by segment with the simulated tool path; if they differ, no program is output. The program header carries the machine, post processor version, simulation fingerprint and "first part: dry run and single block".
 
-The accuracy of the algorithms is documented in the WenQuest CAM Verification Manual installed with the software: 17 benchmark problems and 24 comparisons (machining time, cutting power, five-axis kinematic round trips, collision tests, removed volume, thread root, errors that must be reported, post read-back), all within the stated tolerances.
+The accuracy of the algorithms is documented in the WenQuest CAM Verification Manual installed with the software: 37 benchmark problems and 44 comparisons (machining time, cutting power, five-axis kinematic round trips, collision tests, removed volume, nose radius, thread root and taper, face grooves, parting off, errors that must be reported, post read-back, canned-cycle expansion), all within the stated tolerances.
 
 # Installing and uninstalling
 
@@ -31,7 +31,7 @@ All programming data lives in the FreeCAD document, so it is saved with the file
 
 - **Job**: one programming job for one part. It holds the part, the machining type (turning / milling), machine, CNC control, workpiece material, tool library and fixture.
 - **Setup**: two for a turned part (right end, then flipped for the left end), one for a milled part.
-- **Operation**: rough and finish turning, grooving, threading, drilling, boring; pocket, contour, drilling. Each operation has its own tool, cutting data, geometry and tool path, drawn as a wireframe in the view.
+- **Operation**: rough and finish turning, grooving, face grooving, threading (internal and external), drilling, boring, parting off; pocket, contour, drilling. Each operation has its own tool, cutting data, geometry and tool path, drawn as a wireframe in the view.
 
 An operation is either a **draft** (yellow dot on the icon; drafted or newly added) or **confirmed** (checked by a person, cutting data within the tool catalogue ranges). **While any operation is a draft, the job is only simulated; no program is released.**
 
@@ -41,11 +41,11 @@ Double-click the job to open the job panel (task panel on the left); double-clic
 
 Use `shaft.step` in `examples\01-shaft-turning` of the installation folder.
 
-1. Open `shaft.step`, select the part in the model tree and press "New turning job" on the toolbar. OD sections, grooves and bores are read, two setups are created and the job panel opens on the left. The part axis must lie along Z, with the right end at the high-Z end.
+1. Open `shaft.step`, select the part in the model tree and press "New turning job" on the toolbar. The outer profile (including tapers and arcs), grooves, face grooves and the bore profile are read, two setups are created and the job panel opens on the left. The part axis must lie along Z, with the right end at the high-Z end.
 2. **Threads**: threads are usually not modelled; in the job panel's "Threads" enter one line "Z start, Z end, major diameter, pitch", in the example `0, -26, 24, 1.5`. The thread must start at the end face or in a relief groove, otherwise the program is refused (the tool would hit the part when it starts).
-3. Choose the machine, CNC control and workpiece material (a row of the Kienzle table, which selects the group of cutting data in the tool catalogue). For the fixture enter the chuck jaws' "grip length, outer diameter".
+3. Choose the machine, CNC control and workpiece material (a row of the Kienzle table, which selects the group of cutting data in the tool catalogue). For the fixture enter the chuck jaws' "grip length, outer diameter"; the machine simulation checks the tools and holders against the jaws, and the first setup automatically leaves enough stock on the left for the jaws to grip.
 4. Press "Rule draft" (Pro also has "AI draft"): 6 operations for the right end and 2 for the left end appear in the model tree, all as drafts.
-5. **Confirm each operation**: double-click it; the panel has three tabs — Geometry (the profile read from the part, or picked faces), Tool (only tools usable for this operation), Cutting data (vc, f, ap, with the catalogue ranges beside them). After changing values press "Apply (regenerate toolpath)"; press "OK" to confirm. Values outside the catalogue ranges turn red and cannot be confirmed:
+5. **Confirm each operation**: double-click it; the panel has several tabs — Geometry (the profile read from the part, or picked faces), Tool (only tools usable for this operation), Cutting data (vc, f, ap, with the catalogue ranges beside them); turning operations also have "Allowance and layers" (radial and axial roughing allowance) and "Heights and lead-in" (clearance, retract); 0 means the default. After changing values press "Apply (regenerate toolpath)"; press "OK" to confirm. Values outside the catalogue ranges turn red and cannot be confirmed:
 
 ![Operation panel: vc outside the catalogue range turns red and cannot be confirmed](img/en-op.png)
 
@@ -54,6 +54,14 @@ Use `shaft.step` in `examples\01-shaft-turning` of the installation folder.
 ![Turning example after calculation](img/en-turn.png)
 
 7. Press "Save programs and process card…" and choose a folder: one `.nc` program per setup; Pro also writes the process card and program sheet (Word, PDF).
+
+# Turning: bores, face grooves, threads, parting off and canned cycles
+
+- **Bores**: bores with tapers, arcs and chamfers are bored layer by layer along the bore profile, not only by steps.
+- **Face grooves**: annular grooves cut axially into an end face are read from the model and get a "Face groove" operation with a face grooving tool.
+- **Threads**: each line of the thread table is "Z start, Z end, major diameter, pitch", optionally followed by `in` (internal), `1:16` (taper), `2 starts` (multi-start, indexed by the number of starts) and `R` or `NPT` (taper pipe threads; 1:16 if no taper is given). Examples: R1/2 pipe thread `0, -15, 20.955, 1.814, R`; M30×2 two-start `0, -30, 30, 2, 2 starts`. Thread depth: ISO 68-1 for metric threads, ISO 7-1 for R series (55°, h = 0.640P), ASME B1.20.1 for NPT (h = 0.8P); for taper threads give the major diameter at the start end (Z start).
+- **Parting off**: for bar stock enter the tool width in "Parting tool width" in the job panel; the last operation of the first setup parts the part off (half feed near the centre). The jaws grip the bar beyond the part, so the first setup need not leave grip length; if the flipped end would only need a chamfer, the parting tool cuts that chamfer before parting off and no second setup is needed. 0 means the stock is a single blank and is not parted off.
+- **Canned cycles**: tick "Use canned cycles in the released program (G71 / G70 / G76)" and FANUC and GSK programs write roughing, finishing and threading as cycles, so they are short; Siemens still gets the expanded moves. Simulation and read-back expand the cycles by the same rule, so what is simulated is what the program will run. Controls differ slightly in how they expand cycles, so the check list carries a warning that canned cycles are not verified on a real machine; run the first part in single block.
 
 # Milling a block
 
@@ -98,7 +106,7 @@ Tick "Deviation" to colour the finished stock by its deviation from the part mod
 - **Error (red)**: collisions, overtravel, overcut, rapid moves into the stock, spindle speed over the limit, threading in constant surface speed… With a machine simulation error, no program is output.
 - **Warning (amber)**: post processor not yet verified on a real machine, cutting power close to the main motor power, etc.
 - **Unknown (grey)**: not checked for lack of data, e.g. turning-tool head shapes, holders without an ISO 5608 code or tip offset, missing tool lengths, imported tool paths without a target shape. They do not block the output, but you should know about them.
-- None of the three post processors of the first edition (FANUC, Siemens, GSK lathe) has been verified on a real machine yet; the program header says so. **Always dry-run the first part and confirm it in single block.**
+- None of the three post processors of the first edition (FANUC, Siemens, GSK lathe) has been verified on a real machine yet; the program header says so; programs with canned cycles get an extra warning in the check list. **Always dry-run the first part and confirm it in single block.**
 
 # Free and Pro
 
