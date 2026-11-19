@@ -1,0 +1,24 @@
+{
+ "why": "刀柄既没有回转轮廓也没有 ISO 5608 代号",
+ "instance": {
+  "format": "cam-tool/1",
+  "name": "示例刀具库（虚构）",
+  "example": true,
+  "tools": [
+   {
+    "id": "T",
+    "kind": "turn",
+    "source": {
+     "kind": "example",
+     "ref": "x"
+    },
+    "insert": {
+     "nose_radius_mm": 0.8
+    },
+    "holder": {
+     "f_mm": 32
+    }
+   }
+  ]
+ }
+}
