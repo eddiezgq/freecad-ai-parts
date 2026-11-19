@@ -264,7 +264,9 @@ def new_job(doc, model, kind: str, *, machine: str | None = None, post: str = "f
         job.Fixture = "15, 80"
         names = (("right", "右端（第一次装夹）"), ("left", "左端（调头装夹）"))
     else:
-        bb = shape.BoundBox
+        from freecad_addon.fc import cam_fc
+
+        bb = cam_fc.exact_bbox(shape)
         data = {"stock": {"box": [bb.XMin, bb.YMin, bb.XMax, bb.YMax], "top": 0.0, "height": bb.ZLength}, "z_top": bb.ZMax}
         job.Fixture = "10"
         names = (("1", "装夹 1"),)

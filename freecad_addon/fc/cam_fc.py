@@ -145,6 +145,12 @@ def own_moves(spec: dict, shape=None) -> list[dict]:
     return mv
 
 
+def exact_bbox(shape):
+    """毛坯用的包围盒：按几何精确算（optimalBoundingBox）。shape.BoundBox 在形体已经三角化（有界面显示）时按三角网格算，
+    圆柱边上会往里缩（Ø120 的法兰缩 0.085），毛坯侧面落进零件里，三维比对就报过切（CI 里查出来的）"""
+    return shape.optimalBoundingBox(False, False) if hasattr(shape, "optimalBoundingBox") else shape.BoundBox
+
+
 def top_faces(shape, top: float) -> list[str]:
     """零件顶面（朝上、在最高处的平面）：面铣的几何"""
     out = []
@@ -263,7 +269,16 @@ def build_job(doc, model, ops: list[dict], stock_top: float = 0.0):
         doc.removeObject(tc.Name)
     for _spec, op in made:                       # 换了刀以后要重算（Deburr 不会自己重算，还用着缺省刀的锥角、刀尖和进给）
         op.touch()
-    doc.recompute()
+    import FreeCAD
+
+    gui = FreeCAD.GuiUp
+    try:
+        # Adaptive 有界面时边算边在当前视图里画进度、藏工序的显示；我们的临时文档不一定是当前文档、也可能没有视图，
+        # 测试里先跑了别的界面测试就会算不出来（CI 查出来的）。算刀路时按无界面算，算完恢复
+        FreeCAD.GuiUp = 0
+        doc.recompute()
+    finally:
+        FreeCAD.GuiUp = gui
     return job, made, top
 
 
@@ -332,7 +347,15 @@ def _reload_draft_for_gui() -> None:
     global _RELOADED
     import FreeCAD
 
-    if _RELOADED or not FreeCAD.GuiUp:
+    if not FreeCAD.GuiUp:
+        return
+    import Path.Op.Adaptive as _adaptive
+
+    if not hasattr(_adaptive, "FreeCADGui"):     # Adaptive 同样按导入时有没有界面决定 import FreeCADGui（CI 里先无界面导入、后起界面）
+        import FreeCADGui
+
+        _adaptive.FreeCADGui = FreeCADGui
+    if _RELOADED:
         return
     import importlib
     import sys
@@ -382,7 +405,7 @@ def program(shape, ops: list[dict], *, number: int = 6001, title: str = "2.5 轴
             prog_ops.append({**extra, "tool": st,
                              "spindle": {"rpm": float(spec["rpm"])}, "moves": mv, "title": label,
                              "safe": max((x["z"] for x in mv if x["t"] == "rapid"), default=5.0)})
-        bb = shape.BoundBox
+        bb = exact_bbox(shape)
         stock = {"box": [bb.XMin, bb.YMin, bb.XMax, bb.YMax], "top": float(stock_top), "height": bb.ZLength + float(stock_top)}
         return {"number": number, "title": title, "ops": prog_ops, "generator": "FreeCAD CAM"}, stock
     finally:
