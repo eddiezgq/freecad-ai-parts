@@ -56,6 +56,7 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         self.assembly = None
         self.objs, self.found, self.draft = [], None, None
         self.model, self.data, self.animator = None, None, None
+        self.model_file, self.model_dir = None, None         # 打开的模型文件（ADR-0102 第 5 步）
         self.busy = False
         w = QtWidgets.QWidget()
         lay = QtWidgets.QVBoxLayout(w)
@@ -66,9 +67,12 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         row = QtWidgets.QHBoxLayout()
         self.use_doc = QtWidgets.QPushButton("用当前文档的装配体")
         self.import_step = QtWidgets.QPushButton("导入 STEP 并起草运动副…")
+        self.open_model = QtWidgets.QPushButton("打开模型文件…")
+        self.open_model.setToolTip("mbd-model/1 的 JSON 模型文件：控制器、接触、大变形梁等窗口里没有入口的功能写在模型文件里，打开就能算、出报告")
         self.use_ai = QtWidgets.QCheckBox("用 AI 起草")
         row.addWidget(self.use_doc)
         row.addWidget(self.import_step)
+        row.addWidget(self.open_model)
         row.addWidget(self.use_ai)
         l1.addLayout(row)
         self.cands = QtWidgets.QTableWidget(0, 5)
@@ -163,6 +167,7 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         self.timer.timeout.connect(self._tick)
         self.use_doc.clicked.connect(lambda *_: self.load_document())
         self.import_step.clicked.connect(lambda *_: self._pick_step())
+        self.open_model.clicked.connect(lambda *_: self._pick_model())
         self.build_btn.clicked.connect(lambda *_: self.confirm())
         self.run_btn.clicked.connect(lambda *_: self.compute())
         self.curve.currentIndexChanged.connect(lambda *_: self._draw())
@@ -195,8 +200,51 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         if asm is None:
             self.status.setText("当前文档里没有 Assembly 工作台的装配体；可以导入 STEP 让程序起草运动副。")
             return False
-        self.doc, self.assembly = doc, asm
+        self.doc, self.assembly, self.model_file = doc, asm, None
+        self.cands.setRowCount(0)                         # 上一次导入 STEP 的候选表、机架不再适用
+        self.ground.clear()
+        self.build_btn.setEnabled(False)
         return self.refresh_model()
+
+    def _pick_model(self):
+        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, T("打开模型文件"), "", T("模型文件 (*.json)"))
+        if path:
+            self.load_model_file(path)
+
+    def load_model_file(self, path) -> bool:
+        """打开 mbd-model/1 模型文件（ADR-0102 第 5 步）：模型里的构件、运动副、力、控制器原样用；窗口里的分析类型、时长、输出点数、
+        积分器照模型文件填好，可以改。模型文件里相对路径（FMU 等）按文件所在目录找。没有 FreeCAD 零件，所以没有动画"""
+        import json
+        from pathlib import Path
+
+        try:
+            doc = json.loads(Path(path).read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            self.status.setText(f"打不开模型文件：{exc}")
+            return False
+        model = doc.get("instance", doc) if isinstance(doc, dict) else None
+        if not isinstance(model, dict) or model.get("format") != "mbd-model/1":
+            self.status.setText("这不是多体动力学模型文件（format 要是 mbd-model/1）")
+            return False
+        self.restore()
+        self.doc, self.assembly, self.animator, self.data = None, None, None, None
+        self.model_file, self.model_dir = model, Path(path).parent
+        self.model = model
+        an = model.get("analysis") or {}
+        self.kind.setCurrentIndex(max(self.kind.findData(an.get("type", "dynamic")), 0))
+        self.end.setText(f"{an.get('end_time_s', 1.0):g}")
+        self.steps.setText(str(an.get("output_steps", 100)))
+        self.integ.setCurrentIndex(max(self.integ.findData(an.get("integrator", "auto")), 0))
+        self.cands.setRowCount(0)
+        self.drives.setRowCount(0)
+        self.flexparts.setRowCount(0)
+        self.build_btn.setEnabled(False)
+        self.run_btn.setEnabled(True)
+        self.report_btn.setEnabled(False)
+        self._set_anim(False)
+        self.status.setText(f"已打开模型文件 {model.get('name', '')}：{len(model.get('bodies', []))} 个构件、"
+                            f"{len(model.get('joints', []))} 个运动副。分析设置可以改，点“计算”。")
+        return True
 
     def _pick_step(self):
         path, _ = QtWidgets.QFileDialog.getOpenFileName(self, T("导入 STEP 装配"), "", "STEP (*.step *.stp)")
@@ -205,6 +253,8 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
 
     def load_step(self, path, doc=None) -> bool:
         from assist import mbd_edition
+
+        self.model_file = None
 
         if self.use_ai.isChecked() and self.client_factory:
             try:                                          # 免费版：先说明，不导入（ADR-0102 第 4 步）
@@ -365,8 +415,10 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         return out
 
     def compute(self) -> bool:
-        if self.busy or self.assembly is None:
+        if self.busy or (self.assembly is None and self.model_file is None):
             return False
+        if self.model_file is not None:
+            return self._compute_file()
         from analysis.mbd.assembly import AssemblyError
         from assist import mbd_edition
 
@@ -406,6 +458,43 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         threading.Thread(target=work, name="fap-mbd-asm", daemon=True).start()
         return True
 
+    def _compute_file(self) -> bool:
+        """模型文件：窗口里的分析设置盖到模型的 analysis 上（其他键如 load_steps、modes 保留），后台计算"""
+        import copy
+
+        from assist import mbd_edition
+
+        try:
+            _drives, an = self.settings()
+            model = copy.deepcopy(self.model_file)
+            model["analysis"] = {**(model.get("analysis") or {}), **an}
+            if "integrator" not in an:
+                model["analysis"].pop("integrator", None)
+            mbd_edition.gate(model)
+        except (ValueError, mbd_edition.NeedsPro) as exc:
+            self.status.setText(str(exc))
+            return False
+        self.busy = True
+        self.run_btn.setEnabled(False)
+        self.status.setText("正在计算 …")
+        base = self.model_dir
+
+        def work():
+            try:
+                from analysis.mbd.dae import advise
+
+                why = advise.apply(model)
+                data, msgs = ST.run(model, base)
+                integ = model["analysis"].get("integrator")
+                note = [f"积分器 {integ}：{why}。"] if why else ([f"积分器 {integ}。"] if integ else [])
+                out = {"ok": True, "model": model, "data": data, "messages": note + list(msgs)}
+            except Exception as exc:  # noqa: BLE001 — 交给界面显示
+                out = {"ok": False, "messages": [str(exc)]}
+            self.done.emit(out)
+
+        threading.Thread(target=work, name="fap-mbd-file", daemon=True).start()
+        return True
+
     def _done(self, out):
         self.busy = False
         self.run_btn.setEnabled(True)
@@ -427,12 +516,17 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
                 for j, text in enumerate([str(i + 1), f"{m['frequency_hz']:.4g}",
                                           "—" if m["damping_ratio"] is None else f"{m['damping_ratio']:.3g}"]):
                     self.modes.setItem(i, j, QtWidgets.QTableWidgetItem(text))
-        self.animator = ST.Animator(self.model, self.data, self.doc, flex_scale=getattr(self, "scale", 1.0))
         self.report_btn.setEnabled(True)
-        self.slider.setRange(0, self.animator.frames - 1)
-        self._set_anim(self.animator.frames > 1)
+        if self.doc is None:                               # 模型文件：没有 FreeCAD 零件，不放动画
+            self.animator = None
+            self._set_anim(False)
+        else:
+            self.animator = ST.Animator(self.model, self.data, self.doc, flex_scale=getattr(self, "scale", 1.0))
+            self.slider.setRange(0, self.animator.frames - 1)
+            self._set_anim(self.animator.frames > 1)
         self._draw()
-        self.status.setText("算完。" + " ".join(out["messages"]) + (" 可以播放动画、换曲线看。" if self.animator.frames > 1 else ""))
+        anim = self.animator is not None and self.animator.frames > 1
+        self.status.setText("\n".join(["算完。", *out["messages"], *(["可以播放动画、换曲线看。"] if anim else [])]))
 
     # ------------------------------------------------------------ 3 结果
 
@@ -471,7 +565,10 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         if self.timer.isActive():
             self.toggle_play()
         if self.animator is not None:
-            self.animator.restore()
+            try:
+                self.animator.restore()
+            except ReferenceError:                        # 文档已经关了：零件不在了，不用复位
+                self.animator = None
             self.time.setText("t = —")
 
     def _pick_report_dir(self):

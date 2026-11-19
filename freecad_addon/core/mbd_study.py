@@ -73,13 +73,14 @@ def make_model(assembly, drives, analysis, *, gravity_mm_s2=None, mass_overrides
     return model, msgs
 
 
-def run(model):
-    """计算；问渠多体动力学免费版用到专业版功能（柔性体、接触、控制器、线性化……）时拒绝，说明是哪一项（ADR-0102 第 4 步）"""
+def run(model, base_dir=None):
+    """计算；问渠多体动力学免费版用到专业版功能（柔性体、接触、控制器、线性化……）时拒绝，说明是哪一项（ADR-0102 第 4 步）。
+    base_dir：模型文件里相对路径（FMU 等）的起点"""
     from analysis.mbd.dae import run as R
     from assist import mbd_edition
 
     mbd_edition.gate(model)
-    return R.run_model(model)
+    return R.run_model(model, base_dir)
 
 
 def write_report(model, data, out_dir, client=None, lang=None):

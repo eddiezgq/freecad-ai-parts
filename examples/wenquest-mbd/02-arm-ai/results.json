@@ -1,0 +1,23 @@
+{
+ "draft_by": "AI（claude claude-sonnet-5-5，提示词 mbd-mates/1，响应 msg_011ChBKe1MpFkSXF42zF1xgd）",
+ "ground": "Part__Feature",
+ "notes": [],
+ "joints": [
+  {
+   "name": "底座-大臂转动副(肩关节)",
+   "type": "revolute",
+   "reason": "Ø20 轴孔同轴，按转动副起草。请核对大臂轴向是否被限位；若可轴向滑动，应改为圆柱副。"
+  },
+  {
+   "name": "大臂-小臂转动副(肘关节)",
+   "type": "revolute",
+   "reason": "Ø16 轴孔同轴，按转动副起草。请核对小臂轴向是否被限位；若可轴向滑动，应改为圆柱副。"
+  }
+ ],
+ "shoulder_torque_peak_n_m": 1.7863170328024816,
+ "elbow_torque_peak_n_m": 0.2461407421997771,
+ "verification": {
+  "constraint_residual": "pass",
+  "dof": "pass"
+ }
+}
