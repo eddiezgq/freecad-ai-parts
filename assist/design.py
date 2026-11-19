@@ -252,14 +252,24 @@ def _cond_text(c: dict) -> str:
     return json.dumps(c, ensure_ascii=False, indent=1)
 
 
-LIGHTER = """全部校核已通过。现在轴的质量 {mass:.3f} kg；各项余量如下（数值 / 要求）：
+LIGHTER = """全部校核已通过。现在轴的质量 {mass:.3f} kg；各项余量如下（数值取两位有效数字 / 要求）：
 {margins}
 同样满足全部要求时，轴越轻越好（材料省、转动惯量小）。如果你认为还能更轻（例如选内径小一号的轴承、细一些的轴身），
 就提一个更轻的方案；如果认为已经是最轻的，原样交回现在的方案并说明理由。"""
 
 
+def _approx(v):
+    """余量给 AI 看，取两位有效数字：有限元算的数在不同机器上末几位不同，原样写进提示词会让录制回放对不上（2026-11-19）"""
+    if isinstance(v, bool) or not isinstance(v, (int, float)) or v == 0:
+        return v
+    from math import floor, log10
+
+    x = round(v, 1 - floor(log10(abs(v))))
+    return int(x) if abs(x) >= 10 else x
+
+
 def _margins(rep_items: list[dict]) -> str:
-    return "\n".join(f"- {i['item']}：{i.get('value')} / {i.get('limit')}" for i in rep_items if i.get("limit") is not None)
+    return "\n".join(f"- {i['item']}：约 {_approx(i.get('value'))} / {i.get('limit')}" for i in rep_items if i.get("limit") is not None)
 
 
 def proposal_request(cond: dict, bearings: list[dict], history: list[dict], *, model: str = DEFAULT_MODEL,
