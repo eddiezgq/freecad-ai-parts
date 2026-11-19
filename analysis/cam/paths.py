@@ -604,6 +604,130 @@ def spindle_rpm(vc_m_min, d_mm, max_rpm):
     return min(1000 * vc_m_min / (math.pi * max(d_mm, 1e-6)), max_rpm)
 
 
+def mill_csink(holes, d_cs, angle, f, tip_d=0.0, safe=5.0):
+    """锪孔口（倒角刀直进，同 G81）：holes [(x, y, z 孔口)]；锪到孔口直径 d_cs 的深度 = (d_cs − 刀尖直径) / 2 / tan(锥角/2)。"""
+    if not 0 < angle < 180 or d_cs <= tip_d:
+        raise CamError(f"锪孔口：孔口直径 Ø{d_cs:g} 要大于刀尖直径 Ø{tip_d:g}，锥角在 0 ~ 180°")
+    dz = (d_cs - tip_d) / 2 / math.tan(math.radians(angle / 2))
+    mv = [{"t": "comment", "text": f"锪孔口 Ø{d_cs:g}×{angle:g}°（锪深 {dz:.3f}）"}]
+    return mv + [{"t": "drill", "x": x, "y": y, "z": ze - dz, "r": ze + 2.0, "f": f, "safe": safe} for x, y, ze in holes]
+
+
+def mill_tap(holes, pitch, safe=5.0):
+    """刚性攻丝：holes [(x, y, z 孔口, z 攻到)]；R 平面在孔口上 3 个螺距（至少 2 mm）"""
+    r = max(3 * pitch, 2.0)
+    mv = [{"t": "comment", "text": f"攻丝 P{pitch:g}"}]
+    return mv + [{"t": "tap", "x": x, "y": y, "z": zb, "r": ze + r, "pitch": pitch, "safe": safe} for x, y, ze, zb in holes]
+
+
+def mill_cbore(x, y, d_cb, depth, z_entry, tool_d, step_down, f, safe=5.0, seg_deg=5.0):
+    """铣沉孔（螺旋下刀 + 到底整圈）：刀心走半径 (D − d)/2 的圆，每圈降一层切深；刀径要不小于 D/2，中间才不留料。
+    圆弧拆成每段不超过 seg_deg 的直线（与 FreeCAD 刀路换过来时一样）。"""
+    rc = (d_cb - tool_d) / 2
+    if rc < -1e-9:
+        raise CamError(f"沉孔 Ø{d_cb:g} 比刀 Ø{tool_d:g} 还小")
+    if tool_d < d_cb / 2 - 1e-9:
+        raise CamError(f"铣沉孔 Ø{d_cb:g}：刀径 Ø{tool_d:g} 小于沉孔直径一半，中间会留料")
+    n_turn = max(1, math.ceil(depth / step_down - 1e-9))
+    n_seg = math.ceil(360 / seg_deg)
+    mv = [{"t": "comment", "text": f"铣沉孔 Ø{d_cb:g} 深 {depth:g}：螺旋下刀 {n_turn} 圈"},
+          {"t": "rapid", "x": x + rc, "y": y, "z": safe}, {"t": "rapid", "x": x + rc, "y": y, "z": z_entry + 0.5},
+          {"t": "feed", "x": x + rc, "y": y, "z": z_entry, "f": f}]
+    total = n_turn * n_seg
+    for i in range(1, total + n_seg + 1):                         # 螺旋 n_turn 圈，再在底面走一整圈
+        a = 2 * math.pi * i / n_seg
+        z = z_entry - depth * min(i, total) / total
+        mv.append({"t": "feed", "x": x + rc * math.cos(a), "y": y + rc * math.sin(a), "z": z, "f": f})
+    mv += [{"t": "feed", "x": x, "y": y, "z": z_entry - depth, "f": f}, {"t": "rapid", "x": x, "y": y, "z": safe}]
+    return mv
+
+
+def mill_thread(holes, d_major, pitch, tool_d, f, teeth_len=0.0, safe=5.0, seg_deg=5.0):
+    """铣内螺纹（右旋，顺铣：从孔底往上、逆时针螺旋，每圈升一个螺距）：holes [(x, y, z 孔口, z 螺纹底)]。
+    刀心半径 rc = (D − 刀径)/2；从孔中心走半圆切入到 rc，螺旋到孔口以上半个螺距，再半圆切出回中心。
+    多齿螺纹铣刀（teeth_len：有齿的长度 ≥ 螺纹长）只走一圈；单齿（teeth_len = 0）走 螺纹长/P 圈。
+    f 是刀心进给（刀刃处的进给 × rc / (D/2) 由调用方换算）。"""
+    rc = (d_major - tool_d) / 2
+    if rc <= 0:
+        raise CamError(f"螺纹铣刀 Ø{tool_d:g} 不比螺纹大径 Ø{d_major:g} 小，进不了孔")
+    n_seg = math.ceil(360 / seg_deg)
+    mv = [{"t": "comment", "text": f"铣内螺纹 M{d_major:g}×{pitch:g}（刀 Ø{tool_d:g}，逆时针往上，顺铣）"}]
+    for x, y, ze, zb in holes:
+        length = ze - zb
+        turns = 1 if teeth_len >= length - 1e-9 else math.ceil((length + pitch / 2) / pitch - 1e-9)
+        mv += [{"t": "rapid", "x": x, "y": y, "z": safe}, {"t": "rapid", "x": x, "y": y, "z": ze + 1.0},
+               {"t": "feed", "x": x, "y": y, "z": zb, "f": f}]
+        # 半圆切入：圆心 (x + rc/2, y)，从中心转到 (x + rc, y)，同时升 1/4 螺距（与螺旋接上）
+        for q in range(1, n_seg // 2 + 1):
+            a = math.pi - math.pi * q / (n_seg // 2)
+            mv.append({"t": "feed", "x": x + rc / 2 + rc / 2 * math.cos(a), "y": y - rc / 2 * math.sin(a),
+                       "z": zb + pitch / 4 * q / (n_seg // 2), "f": f})
+        z0 = zb + pitch / 4
+        for q in range(1, turns * n_seg + 1):
+            a = 2 * math.pi * q / n_seg
+            mv.append({"t": "feed", "x": x + rc * math.cos(a), "y": y + rc * math.sin(a), "z": z0 + pitch * q / n_seg, "f": f})
+        z1 = mv[-1]["z"]
+        for q in range(1, n_seg // 2 + 1):                     # 半圆切出回中心
+            a = -math.pi * q / (n_seg // 2)
+            mv.append({"t": "feed", "x": x + rc / 2 + rc / 2 * math.cos(a), "y": y - rc / 2 * math.sin(a),
+                       "z": z1 + pitch / 4 * q / (n_seg // 2), "f": f})
+        mv.append({"t": "rapid", "x": x, "y": y, "z": safe})
+    return mv
+
+
+def lead_arcs(moves, r, safe=5.0, seg_deg=5.0):
+    """外轮廓加圆弧切入、切出（ADR-0106 Q3b）：每一层“在 P 直下刀 → 沿封闭轮廓走一圈回到 P”改成
+    安全高度移到 S → 下到上一层深度上方 0.5 → 进给下刀到本层 → 四分之一圆弧（半径 r、与轮廓相切）切到 P → 走一圈 →
+    四分之一圆弧切出到 Q → 抬到安全高度。圆弧在轮廓外侧（外轮廓：轮廓走向的另一侧是零件）。不是“下刀 + 封闭一圈”的段原样保留。"""
+    def xy(m):
+        return (m["x"], m["y"])
+
+    def unit(a, b):
+        d = math.dist(a, b)
+        return ((b[0] - a[0]) / d, (b[1] - a[1]) / d)
+
+    k = max(2, math.ceil(90 / seg_deg))
+    out, i, n = [], 0, len(moves)
+    while i < n:
+        m, pv = moves[i], (moves[i - 1] if i > 0 else None)
+        plunge = (m["t"] == "feed" and pv is not None and "x" in pv and math.dist(xy(pv), xy(m)) < 1e-6 and m["z"] < pv["z"] - 1e-6)
+        j = i + 1
+        while plunge and j < n and moves[j]["t"] == "feed" and abs(moves[j]["z"] - m["z"]) < 1e-6:
+            j += 1
+        loop = [xy(m)] + [xy(x) for x in moves[i + 1:j]] if plunge else []
+        if len(loop) < 4 or math.dist(loop[0], loop[-1]) > 1e-3:
+            out.append(m)
+            i += 1
+            continue
+        area = sum(a[0] * b[1] - b[0] * a[1] for a, b in itertools.pairwise(loop)) / 2
+        P, z, f = loop[0], m["z"], moves[i + 1]["f"]
+        t0 = unit(P, next(q for q in loop[1:] if math.dist(q, P) > 1e-6))
+        t1 = unit(next(q for q in reversed(loop[:-1]) if math.dist(q, loop[-1]) > 1e-6), loop[-1])
+        side = 1.0 if area > 0 else -1.0                # 逆时针走（面积为正）：零件在左，外侧在右
+        u0, u1 = (side * t0[1], -side * t0[0]), (side * t1[1], -side * t1[0])
+        c0 = (P[0] + r * u0[0], P[1] + r * u0[1])
+        S = (c0[0] - r * t0[0], c0[1] - r * t0[1])
+        z_up = min(pv["z"] + 0.5, safe)
+        if out and "x" in out[-1] and out[-1]["z"] < safe - 1e-9:
+            out.append({"t": "rapid", "x": out[-1]["x"], "y": out[-1]["y"], "z": safe})
+        out += [{"t": "rapid", "x": S[0], "y": S[1], "z": safe}, {"t": "rapid", "x": S[0], "y": S[1], "z": z_up},
+                {"t": "feed", "x": S[0], "y": S[1], "z": z, "f": m["f"]}]
+        for q in range(1, k + 1):                       # 切入：圆心 c0，从 −t0 方向（S）转到 −u0 方向（P）
+            a = (math.pi / 2) * q / k
+            out.append({"t": "feed", "x": c0[0] - r * (t0[0] * math.cos(a) + u0[0] * math.sin(a)),
+                        "y": c0[1] - r * (t0[1] * math.cos(a) + u0[1] * math.sin(a)), "z": z, "f": f})
+        out += [dict(x) for x in moves[i + 1:j]]
+        E = loop[-1]
+        c1 = (E[0] + r * u1[0], E[1] + r * u1[1])
+        for q in range(1, k + 1):                       # 切出：圆心 c1，从 −u1 方向（E）转到 +t1 方向（Q）
+            a = (math.pi / 2) * q / k
+            out.append({"t": "feed", "x": c1[0] + r * (-u1[0] * math.cos(a) + t1[0] * math.sin(a)),
+                        "y": c1[1] + r * (-u1[1] * math.cos(a) + t1[1] * math.sin(a)), "z": z, "f": f})
+        out.append({"t": "rapid", "x": out[-1]["x"], "y": out[-1]["y"], "z": safe})
+        i = j
+    return out
+
+
 def mill_feed(fz, z_teeth, rpm):
     """铣削进给速度 F = f_z·z·n（mm/min）。"""
     return fz * z_teeth * rpm

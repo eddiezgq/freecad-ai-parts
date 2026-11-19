@@ -103,6 +103,12 @@ class JobPanel:
             self.offset.setRange(-1000, 2000)
             self.offset.setValue(job.WorkOffsetZ)
             f.addRow(T("工件顶面离工作台 mm"), self.offset)
+            self.stock_top = QtWidgets.QDoubleSpinBox()
+            self.stock_top.setRange(0, 50)
+            self.stock_top.setDecimals(2)
+            self.stock_top.setValue(float(getattr(job, "StockTop", 0.0)))
+            self.stock_top.setToolTip(T("毛坯顶面高出零件顶面多少；大于 0 时规则起草第一道是面铣"))
+            f.addRow(T("面铣余量 mm（0 = 不面铣）"), self.stock_top)
         lay.addLayout(f)
         row = QtWidgets.QHBoxLayout()
         self.rule = QtWidgets.QPushButton(T("规则起草"))
@@ -154,6 +160,9 @@ class JobPanel:
                     lengths[k.strip()] = float(v)
             j.ToolLengths = json.dumps(lengths)
             j.WorkOffsetZ = self.offset.value()
+            if not hasattr(j, "StockTop"):           # Q3a 以前存的文档
+                j.Proxy.setup(j)
+            j.StockTop = self.stock_top.value()
 
     def do_draft(self, use_ai: bool):
         try:
@@ -350,6 +359,19 @@ class OpPanel:
             hf.addRow(T("安全距离 mm（0 = 缺省 2）"), self.clear)
             if op.OpKind in ("rough", "bore"):
                 hf.addRow(T("退刀量 mm（0 = 缺省 0.5）"), self.retract)
+            self.tabs.addTab(h, T("高度与进退刀"))
+        if not turn and op.OpKind in CO.MILL_ALLOW_KINDS:      # 铣：侧壁 / 底面余量（ADR-0106 Q3b）
+            a = QtWidgets.QWidget()
+            af = QtWidgets.QFormLayout(a)
+            af.addRow(T("侧壁余量 mm（0 = 不留）"), self.allow_r)
+            af.addRow(T("底面余量 mm（0 = 不留）"), self.allow_z)
+            af.addRow("", QtWidgets.QLabel(T("每层切深在“切削参数”页；留了余量要再加一道精铣")))
+            self.tabs.addTab(a, T("余量与分层"))
+        if not turn and op.OpKind in CO.MILL_FC_KINDS:
+            h = QtWidgets.QWidget()
+            hf = QtWidgets.QFormLayout(h)
+            hf.addRow(T("安全高度：毛坯顶面以上 mm（0 = FreeCAD 缺省）"), self.clear)
+            hf.addRow(T("快移高度：毛坯顶面以上 mm（0 = FreeCAD 缺省）"), self.retract)
             self.tabs.addTab(h, T("高度与进退刀"))
         self.status = QtWidgets.QLabel("")
         self.status.setWordWrap(True)

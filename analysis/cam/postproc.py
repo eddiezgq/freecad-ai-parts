@@ -205,7 +205,7 @@ def _mill_moves(op):
                 out += [{"t": "feed", "x": x, "y": y, "z": nd, "f": mv["f"]}, {"t": "rapid", "x": x, "y": y, "z": r}]
                 depth, first = nd, False
             out.append({"t": "rapid", "x": x, "y": y, "z": safe})
-        elif mv["t"] in ("rapid", "feed"):
+        elif mv["t"] in ("rapid", "feed", "tap"):    # 攻丝不能拆成 G01（主轴要与进给同步），照样写攻丝指令
             out.append(mv)
     return out
 
@@ -242,6 +242,19 @@ def _mill(prog, machine, sim_res, post, dialect):
         pos = {"x": x0["x"], "y": x0["y"], "z": safe}
         mode, last_f = None, None
         for mv in mvs:
+            if mv["t"] == "tap":                      # 刚性攻丝：FANUC M29 + G84（F = 螺距 × 转速），西门子 G331 / G332（K = 螺距）
+                sf = mv.get("safe", 5.0)
+                x, y = mv["x"], mv["y"]
+                if sie:
+                    L += [f"G0 Z{num(sf)}" if abs(pos["z"] - sf) > 5e-4 else "", f"G0 X{num(x)} Y{num(y)}", f"G0 Z{num(mv['r'])}", "SPOS=0",
+                          f"G331 Z{num(mv['z'])} K{num(mv['pitch'], 4)} S{round(rpm)}", f"G332 Z{num(mv['r'])} K{num(mv['pitch'], 4)}",
+                          f"G0 Z{num(sf)}", f"S{round(rpm)} M3"]
+                else:
+                    L += [f"G00 Z{num(sf)}" if abs(pos["z"] - sf) > 5e-4 else "", f"M29 S{round(rpm)}",
+                          f"G98 G84 X{num(x)} Y{num(y)} Z{num(mv['z'])} R{num(mv['r'])} F{num(mv['pitch'] * rpm, 1)}", "G80"]
+                pos = {"x": x, "y": y, "z": sf}
+                mode, last_f = None, None
+                continue
             g = ("G0" if sie else "G00") if mv["t"] == "rapid" else ("G1" if sie else "G01")
             ax = []
             for a in ("x", "y", "z"):
@@ -296,9 +309,16 @@ def to_fanuc(text: str, controller: str, lathe: bool) -> str:
         return text
     out = ["%", "O0001"]
     lims = None
+    spd = 0.0
     for raw in text.splitlines():
         line = raw.split(";")[0].strip()
-        if not line:
+        if not line or line.startswith("SPOS"):
+            continue
+        ws = line.split()
+        spd = next((float(w[1:]) for w in ws if w.startswith("S") and w[1:].replace(".", "").isdigit()), spd)
+        if ws[0] in ("G331", "G332"):             # 西门子刚性攻丝 → 进给直线（回读只比路径；进给 = 螺距 × 转速）
+            kk = next(float(w[1:]) for w in ws if w.startswith("K"))
+            out.append(" ".join(["G01"] + [w for w in ws[1:] if w[0] in "XYZ"] + [f"F{kk * spd:g}"]))
             continue
         if "SUPA" in line:                       # 回机床 Z 零点
             out += ["G91 G28 Z0.0", "G90"]

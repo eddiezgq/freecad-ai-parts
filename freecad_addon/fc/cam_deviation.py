@@ -1,7 +1,8 @@
 """色差图（ADR-0106 Q2 第 6 步）：加工完的在制毛坯与零件模型比。
 
 铣：零件形体三角化（FreeCAD tessellate），换到程序坐标（Z0 在零件顶面），按回放的同一套 dexel 网格算成射线区间，
-    与加工后的毛坯比（analysis.cam.dexel.compare：毛坯表面点在零件里为过切，在外为残留，距离按到零件表面采样点的最近距离，误差不超过半格）；
+    与加工后的毛坯比（analysis.cam.dexel.compare：毛坯表面点在零件里为过切，在外为残留，距离按到零件表面采样点的最近距离，误差不超过半格；
+    过切点再按到零件三角网格的精确距离重算）；
     画面按 Z 向射线：每格“毛坯顶面 − 零件顶面”上色（零件这一格没有材料时整根都是残留）。
 车：零件模型读出的轮廓（作业的零件数据）就是比对目标，按半径网格比（analysis.cam.replay.lathe_deviation）。
 """
@@ -15,9 +16,10 @@ from analysis.cam import replay as R
 from freecad_addon.fc import cam_objects as CO
 
 TOL = 0.02          # 色差图的公差带（mm）：在 ±TOL 内画绿
+TESS = 0.005        # 零件三角化的弦高（mm）：要比 TOL 小得多，曲面三角化的弦高不会被当成过切（ADR-0106 Q3b）
 
 
-def model_triangles(shape, z_shift: float, tol: float = 0.05) -> np.ndarray:
+def model_triangles(shape, z_shift: float, tol: float = TESS) -> np.ndarray:
     """FreeCAD 形体 → 三角形 (n, 3, 3)，z 减去 z_shift（换到程序坐标）"""
     pts, faces = shape.tessellate(tol)
     P = np.array([[p.x, p.y, p.z - z_shift] for p in pts], float)
@@ -31,7 +33,7 @@ def mill_deviation(rp: R.Replay, shape, z_top: float, tol: float = TOL) -> dict:
     tris = model_triangles(shape, z_top)
     for k in range(3):
         part._set_from_triangles(k, tris)
-    c = DX.compare(final, part, tol)
+    c = DX.compare(final, part, tol, tris=tris)
     # 画面：Z 向每格的顶面差
     top_s = np.fmax.reduce(np.nan_to_num(final.E[2], nan=-np.inf), -1)
     top_p = np.fmax.reduce(np.nan_to_num(part.E[2], nan=-np.inf), -1)

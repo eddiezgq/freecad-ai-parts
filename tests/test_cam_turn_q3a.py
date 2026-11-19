@@ -260,3 +260,26 @@ def test_thread_table_text():
     r = CO.parse_threads("0, -15, 20.955, 1.814, R")[0]                # R / NPT 不写锥度按 1:16
     assert r["form"] == "r" and r["taper"] == pytest.approx(1 / 16)
     assert CO.thread_text(r) == "0, -15, 20.955, 1.814, 1:16, R"
+
+
+def test_thread_insert_angle_is_checked():
+    """R 系列锥管螺纹要 55° 刀片（ADR-0108 thread_angle_deg）：60° 刀片报错误，55° 不报，没写牙型角报未知；普通螺纹 60° 不报"""
+    setup = {**BASE, "machine_sim": {"tools": {"4": {"tool": "TH-X"}}}}
+    lib = {"format": "cam-tool/1", "name": "t", "example": True, "tools": [
+        {"id": "TH-X", "kind": "thread_turn", "pitch_mm": 1.814, "insert": {"nose_radius_mm": 0.1}, "source": {"kind": "example", "ref": "x"}}]}
+    import json
+    import tempfile
+
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as fh:
+        for ang, form, want in ((60, "r", "error"), (55, "r", None), (None, "r", "unknown"), (60, "iso", None)):
+            t = lib["tools"][0]
+            t.pop("thread_angle_deg", None)
+            if ang:
+                t["thread_angle_deg"] = ang
+            fh.seek(0)
+            fh.truncate()
+            json.dump(lib, fh)
+            fh.flush()
+            setup["machine_sim"]["tool_library"] = fh.name
+            got = cam.thread_insert_checks(setup, [{"form": form}])
+            assert [c["level"] for c in got] == ([want] if want else []), (ang, form, got)

@@ -308,7 +308,145 @@ def draw_milled(doc, sim_res: dict, *, offset=(0.0, 0.0, 0.0), label: str = "仿
     return o
 
 
-def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, profile: bool = True, drill: bool = True,
+# ISO 261 粗牙螺纹的攻丝底孔直径（ISO 2306 / DIN 336 常用值）：底孔 → (公称直径, 螺距)
+TAP_DRILL = {2.5: (3, 0.5), 3.3: (4, 0.7), 4.2: (5, 0.8), 5.0: (6, 1.0), 6.8: (8, 1.25), 8.5: (10, 1.5),
+             10.2: (12, 1.75), 12.0: (14, 2.0), 14.0: (16, 2.0), 17.5: (20, 2.5)}
+
+
+def mill_holes(shape) -> list[dict]:
+    """铣削件上沿 Z 的孔（ADR-0106 Q3b 孔特征识别）：按孔轴（x, y）把内圆柱面、圆锥面归成一个孔，
+    → [{"x", "y", "d", "z_top", "z_bottom", "through", "cbore": {"d", "depth"} | None, "csink": {"d", "angle"} | None,
+        "tip": 钻尖锥（盲孔底）, "thread": {"d", "pitch", "guess": True} | None}]（Z 是模型坐标）。
+    - 主孔：最小直径的圆柱面；孔口 z_top 是这个孔最上面一个面的顶；通孔：主孔底到零件最低处；
+    - 沉孔：比主孔大、底在主孔顶的圆柱面；锪孔口：开口朝上的圆锥面（孔口直径、锥角）；
+    - 螺纹孔：主孔直径正好是粗牙螺纹的攻丝底孔（TAP_DRILL）时**推测**为螺纹孔，标 guess，要人确认（模型上一般不画螺纹）。"""
+    zmin = shape.BoundBox.ZMin
+    groups: dict = {}
+    for f in shape.Faces:
+        sf = f.Surface
+        kind = type(sf).__name__
+        if kind not in ("Cylinder", "Cone") or abs(abs(sf.Axis.z) - 1) > 1e-6:
+            continue
+        c = sf.Center if kind == "Cylinder" else sf.Apex
+        u = (f.ParameterRange[0] + f.ParameterRange[1]) / 2
+        v = (f.ParameterRange[2] + f.ParameterRange[3]) / 2
+        p, n = f.valueAt(u, v), f.normalAt(u, v)
+        if (p.x - c.x) * n.x + (p.y - c.y) * n.y >= 0:          # 法向背着轴线：外圆柱面（凸台），不是孔
+            continue
+        key = (round(c.x, 3), round(c.y, 3))
+        bb = f.BoundBox
+        if kind == "Cylinder":
+            groups.setdefault(key, {"cyl": [], "cone": []})["cyl"].append((2 * sf.Radius, bb.ZMin, bb.ZMax))
+        else:
+            r_lo = math.hypot(f.valueAt(u, f.ParameterRange[2]).x - c.x, f.valueAt(u, f.ParameterRange[2]).y - c.y)
+            r_hi = math.hypot(f.valueAt(u, f.ParameterRange[3]).x - c.x, f.valueAt(u, f.ParameterRange[3]).y - c.y)
+            z_lo, z_hi = f.valueAt(u, f.ParameterRange[2]).z, f.valueAt(u, f.ParameterRange[3]).z
+            (ra, za), (rb, zb) = sorted([(r_lo, z_lo), (r_hi, z_hi)], key=lambda t: t[1])   # a 在下、b 在上
+            groups.setdefault(key, {"cyl": [], "cone": []})["cone"].append({"r_bot": ra, "z_bot": za, "r_top": rb, "z_top": zb})
+    out = []
+    for (x, y), g in sorted(groups.items()):
+        if not g["cyl"]:
+            continue
+        d, zb, zt = min(g["cyl"])
+        h = {"x": x, "y": y, "d": round(d, 4), "z_bottom": zb, "z_top": max(t for _, _, t in g["cyl"]),
+             "through": zb <= zmin + 1e-6, "cbore": None, "csink": None, "tip": None, "thread": None}
+        big = [c for c in g["cyl"] if c[0] > d + 1e-6 and abs(c[1] - zt) < 1e-6]
+        if big:
+            cb = min(big)
+            h["cbore"] = {"d": round(cb[0], 4), "depth": round(cb[2] - cb[1], 4)}
+        for cn in g["cone"]:
+            if cn["r_top"] > cn["r_bot"] + 1e-6 and cn["z_bot"] >= zt - 1e-6:       # 开口朝上、在主孔（或沉孔）上面：锪孔口
+                ang = 2 * math.degrees(math.atan2(cn["r_top"] - cn["r_bot"], cn["z_top"] - cn["z_bot"]))
+                h["csink"] = {"d": round(2 * cn["r_top"], 4), "angle": round(ang, 2)}
+                h["z_top"] = max(h["z_top"], cn["z_top"])
+            elif cn["z_top"] <= zb + 1e-6:                                       # 盲孔底的钻尖锥（尖朝下）
+                h["tip"] = {"angle": round(2 * math.degrees(math.atan2(cn["r_top"] - cn["r_bot"], cn["z_top"] - cn["z_bot"])), 2)}
+        if h["cbore"]:
+            h["z_top"] = max(h["z_top"], zt + h["cbore"]["depth"])
+        m = next((v for k, v in TAP_DRILL.items() if abs(k - d) < 1e-3), None)
+        if m:
+            h["thread"] = {"d": float(m[0]), "pitch": m[1], "guess": True}
+        out.append(h)
+    return out
+
+
+TAP_RUNOUT_P = 3.0     # 攻丝：盲孔攻到孔深 − 3P（丝锥前端倒锥留空）；通孔攻出底面 2P（规则值，人确认）
+
+
+def hole_ops(shape, lib: dict) -> list[dict]:
+    """孔特征 → 孔工序（钻孔以外的）：[{"kind": "cbore" | "csink" | "tap", "title", "tool" | None, "d", "holes": 程序坐标, "note"}]。
+    同一种（直径、锥角、螺纹）的孔归一道工序；刀具库里没有合适的刀，tool 为 None、note 写明。"""
+    top = shape.BoundBox.ZMax
+    hs = mill_holes(shape)
+    out = []
+    ends = sorted((t for t in lib["tools"] if t["kind"] == "flat_endmill" and "diameter_mm" in t), key=lambda t: -t["diameter_mm"])
+    for D in sorted({h["cbore"]["d"] for h in hs if h["cbore"]}):
+        grp = [h for h in hs if h["cbore"] and h["cbore"]["d"] == D]
+        t = next((t for t in ends if D / 2 - 1e-9 <= t["diameter_mm"] < D - 1e-9), None)
+        out.append({"kind": "cbore", "title": f"铣沉孔 Ø{D:g}", "tool": t, "d": D,
+                    "holes": [(h["x"], h["y"], h["z_top"] - top, h["cbore"]["depth"]) for h in grp],
+                    "note": "" if t else f"沉孔 Ø{D:g}：刀具库里没有刀径在 Ø{D / 2:g} ~ Ø{D:g} 之间的平底立铣刀"})
+    for D, ang in sorted({(h["csink"]["d"], h["csink"]["angle"]) for h in hs if h["csink"]}):
+        grp = [h for h in hs if h["csink"] and (h["csink"]["d"], h["csink"]["angle"]) == (D, ang)]
+        t = next((t for t in lib["tools"] if t["kind"] == "chamfer_mill" and abs(float(t.get("tip_angle_deg", -1)) - ang) < 0.5
+                  and t.get("diameter_mm", 0) > D), None)
+        out.append({"kind": "csink", "title": f"锪孔口 Ø{D:g}×{ang:g}°", "tool": t, "d": D,
+                    "holes": [(h["x"], h["y"], h["z_top"] - top) for h in grp],
+                    "note": "" if t else f"锪孔口 Ø{D:g}×{ang:g}°：刀具库里没有锥角 {ang:g}°、直径大于 {D:g} 的倒角刀"})
+    for d, pch in sorted({(h["thread"]["d"], h["thread"]["pitch"]) for h in hs if h["thread"]}):
+        grp = [h for h in hs if h["thread"] and (h["thread"]["d"], h["thread"]["pitch"]) == (d, pch)]
+        t = next((t for t in lib["tools"] if t["kind"] == "tap" and abs(t.get("diameter_mm", -1) - d) < 1e-6
+                  and abs(t.get("pitch_mm", -1) - pch) < 1e-6), None)
+        holes = []
+        for h in grp:
+            ze = (h["z_top"] - (h["cbore"]["depth"] if h["cbore"] else 0.0)) - top
+            zb = (h["z_bottom"] - top) - 2 * pch if h["through"] else (h["z_bottom"] - top) + TAP_RUNOUT_P * pch
+            holes.append((h["x"], h["y"], ze, zb))
+        guess = f"Ø{grp[0]['d']:g} 是 M{d:g}×{pch:g} 的攻丝底孔，推测是螺纹孔（模型上没画螺纹），确认后再用"
+        rule = f"盲孔攻到孔深 − {TAP_RUNOUT_P:g}P，通孔攻出底面 2P"
+        miss = f"刀具库里没有 M{d:g}×{pch:g} 的丝锥"
+        out.append({"kind": "tap", "title": f"攻丝 M{d:g}×{pch:g}（推测）", "tool": t, "d": d, "pitch": pch, "holes": holes, "guess": guess,
+                    "note": "；".join([guess, rule] + ([] if t else [miss]))})
+        d1 = d - 1.0825 * pch                      # 螺纹铣刀要比小径小，留 0.5 mm 让刀
+        tm = sorted((t for t in lib["tools"] if t["kind"] == "thread_mill" and t.get("diameter_mm", 99) < d1 - 0.5
+                     and (not t.get("pitch_mm") or abs(t["pitch_mm"] - pch) < 1e-6)
+                     and abs(float(t.get("thread_angle_deg", 60)) - 60) < 0.5), key=lambda t: -t["diameter_mm"])
+        out.append({"kind": "thread_mill", "title": f"铣螺纹 M{d:g}×{pch:g}（推测）", "tool": tm[0] if tm else None, "d": d, "pitch": pch,
+                    "holes": holes, "guess": guess,
+                    "note": "；".join([guess, rule] + ([] if tm else [f"刀具库里没有能铣 M{d:g}×{pch:g} 的螺纹铣刀"]))})
+    return out
+
+
+def chamfer_faces(shape) -> list[dict]:
+    """零件顶部边上的倒角面（ADR-0106 Q3b）：斜面（平面或竖直轴的锥面），顶边在零件顶面；孔口的锥面归锪孔口，不算。
+    → [{"face": "FaceN", "width": 水平宽, "angle": 倒角刀锥角（= 2 ×（90° − 斜面与水平的夹角））}]，按宽、角归组前的逐面表"""
+    top = shape.BoundBox.ZMax
+    holes = [(h["x"], h["y"]) for h in mill_holes(shape)]
+    out = []
+    for i, f in enumerate(shape.Faces):
+        kind = type(f.Surface).__name__
+        if kind not in ("Plane", "Cone") or f.BoundBox.ZMax < top - 1e-6 or f.BoundBox.ZLength < 1e-6:
+            continue
+        if kind == "Cone":
+            ax = f.Surface.Axis
+            if abs(abs(ax.z) - 1) > 1e-6 or any(abs(f.Surface.Apex.x - x) < 1e-3 and abs(f.Surface.Apex.y - y) < 1e-3 for x, y in holes):
+                continue
+        u = (f.ParameterRange[0] + f.ParameterRange[1]) / 2
+        v = (f.ParameterRange[2] + f.ParameterRange[3]) / 2
+        nz = f.normalAt(u, v).z
+        if not 0.05 < nz < 0.995:                     # 朝上的斜面
+            continue
+        slope = math.degrees(math.acos(nz))           # 斜面与水平的夹角
+        dz = f.BoundBox.ZLength
+        out.append({"face": f"Face{i + 1}", "width": round(dz / math.tan(math.radians(slope)), 4), "depth": round(dz, 4),
+                    "angle": round(2 * (90.0 - slope), 2)})
+    return out
+
+
+def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, adaptive: bool = False, rest: bool = False, profile: bool = True,
+              drill: bool = True,
+              holes: bool = True, taps: bool = False, thread_mill: bool = False, face: bool = False, chamfer: bool = True,
+              stock_top: float = 0.0,
               max_rpm: float = 1e9) -> dict:
     """铣削件（零件实体）→ FreeCAD CAM 的工序（cam_fc.program 的 ops）与工艺卡的工序表。
     选刀：型腔取刀径不超过型腔底面窄边一半的最大平底刀；外轮廓取最大的平底刀；每种孔径取直径相同的钻头。
@@ -328,13 +466,27 @@ def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, profile: bool 
         if kind == "holes":
             feed = params["f"] * rpm
             spec = {"type": "drill", "tool": tool, "number": n, "rpm": round(rpm), "feed_mm_min": round(feed, 1)}
+        elif kind in ("csink", "tap"):
+            spec = {"type": kind, "tool": tool, "number": n, "rpm": round(rpm),
+                    "feed_mm_min": round(params["f"] * rpm, 1) if kind == "csink" else 0.0, **extra}
+        elif kind == "thread_mill":                # 刀心进给 = 刀刃处进给 × 刀心半径 / 螺纹半径
+            z = tool.get("flutes") or CP.TEACH_Z["thread_mill"]
+            rc = (extra["d"] - d) / 2
+            spec = {"type": kind, "tool": tool, "number": n, "rpm": round(rpm),
+                    "feed_mm_min": round(params["fz"] * z * rpm * rc / (extra["d"] / 2), 1), **extra}
+        elif kind == "chamfer":
+            z = tool.get("flutes") or CP.TEACH_Z["chamfer"]
+            feed = params["fz"] * z * rpm
+            spec = {"type": "chamfer", "tool": tool, "number": n, "rpm": round(rpm), "feed_mm_min": round(feed, 1),
+                    "plunge_mm_min": round(feed / 3, 1), **extra}
         else:
             z = tool.get("flutes")
             if z is None:
                 z = CP.TEACH_Z["pocket"]
                 notes.append(f"{title}：刀 {tool['id']} 没写刃数，按 {z} 刃算进给，待确认")
             feed = params["fz"] * z * rpm
-            spec = {"type": "pocket" if kind == "pocket" else "profile", "tool": tool, "number": n, "rpm": round(rpm),
+            spec = {"type": kind if kind in ("pocket", "cbore", "face", "adaptive", "rest", "helix") else "profile", "tool": tool, "number": n,
+                    "rpm": round(rpm),
                     "feed_mm_min": round(feed, 1), "plunge_mm_min": round(feed / 3, 1), "step_down_mm": params["ap"], **extra}
         if status == "unknown":
             notes.append(f"{title}：刀 {tool['id']} 的样本没有 {iso} 组的参数，用教学示意值，待确认")
@@ -342,7 +494,15 @@ def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, profile: bool 
         card.append({"id": f"f{n}", "title": title, "tool": tool["id"], "tool_name": tool.get("name", ""), "params": params,
                      "status": status, "reason": ""})
 
-    if pocket:
+    if face and stock_top > 0:                  # 面铣：面铣刀（没有就用最大的平底刀），分层铣掉面铣余量
+        fms = [t for t in lib["tools"] if t["kind"] == "face_mill" and "diameter_mm" in t] or ends
+        if not fms:
+            raise CamDocError("刀具库里没有面铣刀，也没有平底立铣刀，面铣不了")
+        t = max(fms, key=lambda t: t["diameter_mm"])
+        c = _cut(t, iso)
+        so = min(70.0, 100 * c["ae_max_mm"] / t["diameter_mm"]) if c and "ae_max_mm" in c else 70.0
+        add("face", "面铣", t, {"step_over_pct": so})
+    if pocket or adaptive or rest:
         floors = cam_fc.pocket_floors(shape, top)
         if floors:
             lim = min(min(shape.getElement(f).BoundBox.XLength, shape.getElement(f).BoundBox.YLength) for f in floors) / 2
@@ -352,7 +512,19 @@ def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, profile: bool 
             t = max(fit, key=lambda t: t["diameter_mm"])
             c = _cut(t, iso)
             so = min(45.0, 100 * c["ae_max_mm"] / t["diameter_mm"]) if c and "ae_max_mm" in c else 45.0
-            add("pocket", "铣型腔", t, {"step_over_pct": so})
+            if pocket:
+                add("pocket", "铣型腔", t, {"step_over_pct": so})
+            if adaptive:                        # 自适应开粗：切宽取样本 ae 上限与 20% 刀径的小者，每层切深可以大（样本 ap）
+                add("adaptive", "自适应开粗", t, {"step_over_pct": min(so, 20.0)})
+            if rest:                            # 残料清角：比开粗刀小一号的平底刀，只铣开粗留下的转角
+                small = [x for x in ends if x["diameter_mm"] < t["diameter_mm"] - 1e-9]
+                if not small:
+                    notes.append(f"残料清角：刀具库里没有比 Ø{t['diameter_mm']:g} 小的平底立铣刀")
+                else:
+                    t2 = max(small, key=lambda x: x["diameter_mm"])
+                    c2 = _cut(t2, iso)
+                    so2 = min(45.0, 100 * c2["ae_max_mm"] / t2["diameter_mm"]) if c2 and "ae_max_mm" in c2 else 45.0
+                    add("rest", "残料清角", t2, {"step_over_pct": so2})
     if profile:
         if not ends:
             raise CamDocError("刀具库里没有平底立铣刀，外轮廓铣不了")
@@ -369,12 +541,49 @@ def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, profile: bool 
             dias = sorted({round(2 * o.Shape.getElement(h[1]).Surface.Radius, 4) for h in Drillable.getDrillableTargets(o)})
         finally:
             FreeCAD.closeDocument(doc.Name)
+        hs = mill_holes(shape)
         for dd in dias:
             t = next((t for t in lib["tools"] if t["kind"] == "drill" and abs(t.get("diameter_mm", -1) - dd) < 1e-6), None)
-            if t is None:
-                notes.append(f"孔 Ø{dd:g}：刀具库里没有这个直径的钻头，没编程")
+            if t is None:                       # 没有这个直径的钻头：用平底立铣刀螺旋铣孔（刀径在孔径一半到孔径之间）
+                em = next((x for x in sorted(ends, key=lambda x: -x["diameter_mm"]) if dd / 2 - 1e-9 <= x["diameter_mm"] < dd - 1e-9), None)
+                grp = [h for h in hs if abs(h["d"] - dd) < 1e-3]
+                if em is None or not grp:
+                    notes.append(f"孔 Ø{dd:g}：刀具库里没有这个直径的钻头，也没有刀径在 Ø{dd / 2:g} ~ Ø{dd:g} 之间的平底立铣刀，没编程")
+                    continue
+                holes_h = []
+                for h in grp:                   # 孔口（有沉孔从沉孔底起）到孔底；通孔多铣 0.5 mm 铣透
+                    ze = h["z_top"] - (h["cbore"]["depth"] if h["cbore"] else 0.0) - top
+                    zb = h["z_bottom"] - top - (0.5 if h["through"] else 0.0)
+                    holes_h.append((h["x"], h["y"], ze, ze - zb))
+                add("helix", f"螺旋铣孔 Ø{dd:g}", em, {"holes": holes_h, "d": dd, "title": f"螺旋铣孔 Ø{dd:g}"})
                 continue
             add("holes", f"钻孔 Ø{dd:g}", t, {})
+    if holes:                                   # 钻孔以后：铣沉孔 → 锪孔口 → 攻丝（ADR-0106 Q3b）
+        for ho in hole_ops(shape, lib):
+            if ho["kind"] == "tap" and not taps:     # 螺纹孔是推测的：起草不自动加攻丝，写进说明，人确认后“新建工序 → 攻丝”
+                notes.append(ho["guess"] + "；" + "要攻丝就在“新建工序”里加“攻丝”")
+                continue
+            if ho["kind"] == "thread_mill" and not thread_mill:      # 铣螺纹同理：只在“新建工序 → 铣螺纹”时加
+                continue
+            if ho["tool"] is None:
+                notes.append(ho["note"])
+                continue
+            add(ho["kind"], ho["title"], ho["tool"], {"holes": ho["holes"], "d": ho["d"], "title": ho["title"],
+                                                      **({"pitch": ho["pitch"]} if "pitch" in ho else {})})
+            if ho["note"]:
+                card[-1]["reason"] = ho["note"]
+                if ho["kind"] in ("tap", "thread_mill"):
+                    card[-1]["status"] = "unknown"          # 推测的螺纹孔：一定要人确认
+    if chamfer:                                 # 顶边倒角：倒角刀沿边走（FreeCAD Deburr），同宽同角的一道工序
+        groups: dict = {}
+        for c in chamfer_faces(shape):
+            groups.setdefault((c["width"], c["angle"]), []).append(c["face"])
+        for (w, ang), faces in sorted(groups.items()):
+            t = next((t for t in lib["tools"] if t["kind"] == "chamfer_mill" and abs(float(t.get("tip_angle_deg", -1)) - ang) < 0.5), None)
+            if t is None:
+                notes.append(f"倒角 {w:g}×{ang / 2:g}°：刀具库里没有锥角 {ang:g}° 的倒角刀，没编程")
+                continue
+            add("chamfer", f"倒角 {w:g}×{90 - ang / 2:g}°", t, {"faces": faces, "width": w})
     if not ops:
         raise CamDocError("没有可以加工的：零件上没找到型腔、也没选外轮廓和钻孔")
     return {"ops": ops, "card": card, "notes": notes}

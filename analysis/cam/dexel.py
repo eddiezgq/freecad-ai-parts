@@ -37,8 +37,8 @@ class Tool:
 
     @classmethod
     def from_spec(cls, spec: dict) -> Tool:
-        """spec：{"kind": endmill | ballend | bullnose | drill, "d": 直径, "L": 刃长或伸出长（缺省 3d）,
-        "corner_r": 牛鼻圆角, "tip_angle": 钻头顶角（缺省 118°）}"""
+        """spec：{"kind": endmill | ballend | bullnose | drill | chamfer | tap, "d": 直径, "L": 刃长或伸出长（缺省 3d）,
+        "corner_r": 牛鼻圆角, "tip_angle": 钻头顶角（缺省 118°）, "tip_d"、"angle": 倒角刀刀尖直径与锥角, "pitch": 丝锥螺距}"""
         d = float(spec["d"])
         R = d / 2
         L = float(spec.get("L") or 3 * d)
@@ -58,6 +58,16 @@ class Tool:
             fr.append((0.0, _EPS, 0.0, R - rc))  # 刀底平面
             fr.append((rc, max(L, rc + _EPS), R, R))
             return cls(fr)
+        if kind == "chamfer":                    # 倒角刀：刀尖小端直径 tip_d、锥角 angle，锥面到刀径 d 为止，再往上是圆柱
+            r0 = float(spec.get("tip_d") or 0.0) / 2
+            hc = (R - r0) / math.tan(math.radians(float(spec.get("angle") or 90.0)) / 2)
+            return cls([(0.0, hc, r0, R), (hc, max(L, hc + _EPS), R, R)])
+        if kind == "thread_mill":                # 螺纹铣刀：牙不画，按齿根圆柱算
+            rc = float(spec.get("core_d") or d) / 2
+            return cls([(0.0, L, rc, rc)])
+        if kind == "tap":                        # 丝锥：螺纹不画，按小径的圆柱算（不切掉攻丝底孔以外的料）
+            rm = (d - 1.0825 * float(spec.get("pitch") or 0.0)) / 2
+            return cls([(0.0, L, rm, rm)])
         if kind == "drill":
             ang = math.radians(float(spec.get("tip_angle") or 118.0))
             hc = R / math.tan(ang / 2)
@@ -432,7 +442,42 @@ def _slerp(a, b, t):
 
 
 # ---------------------------------------------------------------- 比对
-def compare(stock: Dexel, part: Dexel, tol=0.01):
+def point_triangle_distance(p, tris, chunk=2_000_000):
+    """点 (P,3) 到三角形集合 (T,3,3) 的最近距离 (P,)（Ericson《Real-Time Collision Detection》5.1.5，逐对向量化）"""
+    p = np.asarray(p, float)
+    out = np.full(len(p), np.inf)
+    if not len(tris) or not len(p):
+        return out
+    a, b, c = tris[:, 0], tris[:, 1], tris[:, 2]
+    ab, ac = b - a, c - a
+    step = max(1, chunk // max(len(tris), 1))
+    for i0 in range(0, len(p), step):
+        q = p[i0:i0 + step, None, :]                                   # (n,1,3)
+        ap, bp, cp = q - a, q - b, q - c
+        d1, d2 = (ab * ap).sum(-1), (ac * ap).sum(-1)
+        d3, d4 = (ab * bp).sum(-1), (ac * bp).sum(-1)
+        d5, d6 = (ab * cp).sum(-1), (ac * cp).sum(-1)
+        va, vb, vc = d3 * d6 - d5 * d4, d5 * d2 - d1 * d6, d1 * d4 - d3 * d2
+        with np.errstate(divide="ignore", invalid="ignore"):
+            den = va + vb + vc
+            v = np.where(den != 0, vb / den, 0.0)
+            w = np.where(den != 0, vc / den, 0.0)
+            closest = a + v[..., None] * ab + w[..., None] * ac       # 面内
+            # 边与顶点
+            t_ab = np.clip(np.where((d1 - d3) != 0, d1 / (d1 - d3), 0.0), 0, 1)
+            t_ac = np.clip(np.where((d2 - d6) != 0, d2 / (d2 - d6), 0.0), 0, 1)
+            t_bc = np.clip(np.where(((d4 - d3) + (d5 - d6)) != 0, (d4 - d3) / ((d4 - d3) + (d5 - d6)), 0.0), 0, 1)
+        inside = (va >= 0) & (vb >= 0) & (vc >= 0)
+        e_ab = a + t_ab[..., None] * ab
+        e_ac = a + t_ac[..., None] * ac
+        e_bc = b + t_bc[..., None] * (c - b)
+        dist = np.minimum.reduce([np.linalg.norm(q - e, axis=-1) for e in (e_ab, e_ac, e_bc)])
+        dist = np.where(inside, np.linalg.norm(q - closest, axis=-1), dist)
+        out[i0:i0 + step] = dist.min(1)
+    return out
+
+
+def compare(stock: Dexel, part: Dexel, tol=0.01, tris=None):
     """加工后的毛坯与零件（同一网格）比：毛坯表面上每一点（射线区间端点）到零件表面的距离，
     点在零件里面为负（过切），在外面为正（残留）。距离按到零件表面采样点（零件的区间端点）的最近距离算，误差不超过半个网格。
     返回 {"over_max": 最深过切 mm, "under_max": 最厚残留 mm, "over": 是否超过 tol, "at": 最深过切的位置, "points": {"p", "dev"}}"""
@@ -440,6 +485,13 @@ def compare(stock: Dexel, part: Dexel, tol=0.01):
         raise ValueError("毛坯和零件的 dexel 网格要一样（同 lo、h、大小）")
     pts = surface_deviation(stock, part)
     dev = pts["dev"]
+    if tris is not None and len(tris):
+        # 过切点的深度按到零件三角网格的精确距离重算（采样点距离误差半格，斜面、锥面擦边的点会被夸大成过切；ADR-0106 Q3b）
+        bad = np.nonzero(dev < -tol)[0]
+        if len(bad):
+            dev = dev.copy()
+            dev[bad] = -point_triangle_distance(pts["p"][bad], np.asarray(tris, float))
+            pts = {**pts, "dev": dev}
     over = float(max(0.0, -dev.min())) if dev.size else 0.0
     under = float(max(0.0, dev.max())) if dev.size else 0.0
     at = pts["p"][int(dev.argmin())].tolist() if over > 0 else None

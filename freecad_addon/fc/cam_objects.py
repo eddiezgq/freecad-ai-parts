@@ -22,7 +22,11 @@ GROUP = "问渠CAM"
 STATUS = ["草稿", "已确认"]
 TURN_KINDS = {"rough": "粗车外圆", "finish": "精车外圆", "groove": "切槽", "thread": "车螺纹", "drill": "钻孔", "bore": "镗孔",
               "face_groove": "端面槽", "part": "切断"}
-MILL_KINDS = {"pocket": "铣型腔", "profile": "铣外轮廓", "drill": "钻孔"}
+MILL_KINDS = {"face": "面铣", "pocket": "铣型腔", "adaptive": "自适应开粗", "rest": "残料清角", "profile": "铣外轮廓", "drill": "钻孔", "cbore": "铣沉孔", "csink": "锪孔口", "tap": "攻丝",
+              "chamfer": "倒角", "thread_mill": "铣螺纹", "helix": "螺旋铣孔"}
+HOLE_KINDS = ("cbore", "csink", "tap", "thread_mill", "helix")
+MILL_ALLOW_KINDS = ("pocket", "adaptive", "rest", "profile")             # 铣：可留侧壁 / 底面余量
+MILL_FC_KINDS = ("face", "pocket", "adaptive", "rest", "profile", "drill")  # 铣：FreeCAD CAM 出刀路的（安全高度、快移高度可改）     # 按孔特征出刀路（ADR-0106 Q3b）：孔表存在工序的 HoleData 里
 TURN_TOOL_N = {"rough": 1, "finish": 2, "groove": 3, "thread": 4, "drill": 5, "bore": 6, "part": 8, "face_groove": 9}
 
 
@@ -65,6 +69,7 @@ class JobProxy:
         _add(obj, "App::PropertyString", "PartData", "零件数据（JSON）", hidden=True)
         _add(obj, "App::PropertyString", "Fixture", "夹具：车 = 卡爪夹持长度, 外径；铣 = 平口钳夹持高度", "")
         _add(obj, "App::PropertyFloat", "WorkOffsetZ", "铣：工件顶面离工作台 mm", 40.0)
+        _add(obj, "App::PropertyFloat", "StockTop", "铣：面铣余量——毛坯顶面高出零件顶面 mm（0 = 毛坯顶面就是零件顶面，不面铣）", 0.0)
         _add(obj, "App::PropertyString", "ToolLengths", "铣刀刀长 JSON（刀具 id → mm）", "{}")
         _add(obj, "App::PropertyString", "Result", "计算结果摘要（JSON）", hidden=True)
         _add(obj, "App::PropertyString", "Programs", "正式程序（JSON：文件名 → 文本）", hidden=True)
@@ -124,10 +129,11 @@ class OpProxy:
         _add(obj, "App::PropertyString", "Reason", "起草理由")
         _add(obj, "App::PropertyString", "Check", "参数核对结论")
         # 余量与分层、高度与进退刀（ADR-0106 Q3a；0 = 用缺省值）
-        _add(obj, "App::PropertyFloat", "AllowRadial", "粗加工留的径向余量 mm（0 = 缺省：车 0.5、镗 0.3）")
+        _add(obj, "App::PropertyFloat", "AllowRadial", "粗加工留的径向余量 mm（0 = 缺省：车 0.5、镗 0.3；铣：侧壁余量，0 = 不留）")
         _add(obj, "App::PropertyFloat", "AllowAxial", "粗车留的轴向余量 mm（0 = 缺省 0.1）")
         _add(obj, "App::PropertyFloat", "Clearance", "安全距离 mm：快移到离工件这么远再切（0 = 缺省 2）")
         _add(obj, "App::PropertyFloat", "Retract", "退刀量 mm：每层切完斜着退开（0 = 缺省 0.5）")
+        _add(obj, "App::PropertyString", "HoleData", "铣：这道孔工序加工哪些孔（JSON：直径、孔表，程序坐标）", "{}", hidden=True)
         _add(obj, "App::PropertyString", "Moves", "刀路（JSON，中间格式）", hidden=True)
         _add(obj, "App::PropertyString", "Spindle", "主轴（JSON：rpm 或 css）", hidden=True)
 
@@ -258,7 +264,9 @@ def new_job(doc, model, kind: str, *, machine: str | None = None, post: str = "f
         job.Fixture = "15, 80"
         names = (("right", "右端（第一次装夹）"), ("left", "左端（调头装夹）"))
     else:
-        bb = shape.BoundBox
+        from freecad_addon.fc import cam_fc
+
+        bb = cam_fc.exact_bbox(shape)
         data = {"stock": {"box": [bb.XMin, bb.YMin, bb.XMax, bb.YMax], "top": 0.0, "height": bb.ZLength}, "z_top": bb.ZMax}
         job.Fixture = "10"
         names = (("1", "装夹 1"),)
@@ -461,24 +469,60 @@ def _mill_spec(job, op):
     d = float(tool["diameter_mm"])
     rpm = min(1000.0 * op.Vc / (math.pi * d), float(machines.get(job.Machine)["max_rpm"]))
     faces = [sub for (_o, subs) in op.Geometry for sub in subs] if op.Geometry else []
+    if op.OpKind in HOLE_KINDS:
+        hd = _js(op, "HoleData", {})
+        if not hd.get("holes"):
+            raise CamObjError(f"{op.Label} 没有要加工的孔")
+        spec = {"type": op.OpKind, "tool": tool, "number": op.ToolNumber, "rpm": round(rpm), "d": float(hd["d"]),
+                "holes": [tuple(h) for h in hd["holes"]], "title": op.Label, **({"pitch": hd["pitch"]} if "pitch" in hd else {})}
+        if op.OpKind == "thread_mill":
+            rc = (float(hd["d"]) - d) / 2
+            spec["feed_mm_min"] = round(op.Feed * (tool.get("flutes") or 3) * rpm * rc / (float(hd["d"]) / 2), 1)
+        if op.OpKind == "csink":
+            spec["feed_mm_min"] = round(op.Feed * rpm, 1)
+        elif op.OpKind in ("cbore", "helix"):
+            spec["feed_mm_min"] = round(op.Feed * (tool.get("flutes") or 4) * rpm, 1)
+            spec["step_down_mm"] = op.Ap or 2.0
+        return spec
+    if op.OpKind == "chamfer":
+        hd = _js(op, "HoleData", {})
+        z = tool.get("flutes") or 2
+        return {"type": "chamfer", "tool": tool, "number": op.ToolNumber, "rpm": round(rpm), "feed_mm_min": round(op.Feed * z * rpm, 1),
+                "plunge_mm_min": round(op.Feed * z * rpm / 3, 1), "faces": faces or hd.get("faces") or [], "width": float(hd.get("width", 0.0))}
     if op.OpKind == "drill":
         return {"type": "drill", "tool": tool, "number": op.ToolNumber, "rpm": round(rpm), "feed_mm_min": round(op.Feed * rpm, 1),
-                "faces": faces}
+                "faces": faces, **_mill_heights(op)}
     z = tool.get("flutes") or 4
     feed = op.Feed * z * rpm
     spec = {"type": op.OpKind, "tool": tool, "number": op.ToolNumber, "rpm": round(rpm), "feed_mm_min": round(feed, 1),
             "plunge_mm_min": round(feed / 3, 1), "step_down_mm": op.Ap or 5.0, "faces": faces}
-    if op.OpKind == "pocket" and op.StepOver > 0:
+    if op.OpKind in ("pocket", "adaptive", "rest") and op.StepOver > 0:
         spec["step_over_pct"] = 100 * op.StepOver
-    return spec
+    return {**spec, **_mill_heights(op)}
+
+
+def _mill_heights(op) -> dict:
+    """铣工序的余量与高度（ADR-0106 Q3b）：0 = 不写（FreeCAD 缺省、不留余量）"""
+    out = {}
+    for prop, key, kinds in (("AllowRadial", "allow_side", MILL_ALLOW_KINDS), ("AllowAxial", "allow_floor", MILL_ALLOW_KINDS),
+                             ("Clearance", "safe_h", MILL_FC_KINDS), ("Retract", "clear_h", MILL_FC_KINDS)):
+        v = float(getattr(op, prop, 0.0) or 0.0)
+        if v > 0 and op.OpKind in kinds:
+            out[key] = v
+    return out
 
 
 def regenerate_mill(op) -> None:
     from freecad_addon.fc import cam_fc
 
     job = job_of(op)
-    prog, _stock = cam_fc.program(job.Model.Shape, [_mill_spec(job, op)])
-    o = prog["ops"][0]
+    specs = [_mill_spec(job, op)]
+    if op.OpKind == "rest":                       # 残料清角要知道前面工序铣到哪里：把本装夹里排在前面的去料工序一起算
+        before = ops(setup_of(op))
+        before = before[:before.index(op)]
+        specs = [_mill_spec(job, o) for o in before if o.OpKind in ("face", "pocket", "adaptive", "rest", "profile")] + specs
+    prog, _stock = cam_fc.program(job.Model.Shape, specs, stock_top=float(getattr(job, "StockTop", 0.0)))
+    o = prog["ops"][-1]
     op.Moves = json.dumps(o["moves"])
     op.Spindle = json.dumps(o["spindle"])
 
@@ -570,21 +614,30 @@ def draft(job, client=None, note: str = "") -> dict:
     from analysis.cam import machines
     from freecad_addon.fc import cam_doc
 
-    flags = {"pocket": True, "profile": False, "drill": True}
+    flags = {"face": float(getattr(job, "StockTop", 0.0)) > 0, "pocket": True, "profile": False, "drill": True, "holes": True,
+             "chamfer": True}
     plan = cam_doc.mill_plan(job.Model.Shape, _lib(job), S.iso_group(job.Kienzle), max_rpm=float(machines.get(job.Machine)["max_rpm"]),
-                             **flags)
+                             stock_top=float(getattr(job, "StockTop", 0.0)), **flags)
     s = setups(job)[0]
     for spec, row in zip(plan["ops"], plan["card"], strict=True):
-        p = row["params"]
-        kind = spec["type"] if spec["type"] != "drill" else "drill"
-        op = new_op(s, kind, tool_id=row["tool"], tool_n=spec["number"], vc=p["vc"], feed=p.get("fz", p.get("f", 0.0)),
-                    ap=p.get("ap", 0.0), stepover=p.get("stepover", 0.0))
-        op.Label = T(row["title"])
-        op.Check = "在样本范围内" if row["status"] == "pass" else "待确认"
-        regenerate(op)
+        _mill_op_from_plan(s, spec, row)
     doc.recompute()
     return {"setup": {"mode": "program", "machine": job.Machine, "item": job.Item, "kienzle": job.Kienzle}, "card": plan["card"],
             "notes": plan["notes"], "by": "规则（没有用 AI）", "explanation": "", "iso_group": S.iso_group(job.Kienzle)}
+
+
+def _mill_op_from_plan(setup, spec, row):
+    p = row["params"]
+    op = new_op(setup, spec["type"], tool_id=row["tool"], tool_n=spec["number"], vc=p["vc"], feed=p.get("fz", p.get("f", 0.0)),
+                ap=p.get("ap", 0.0), stepover=p.get("stepover", 0.0), reason=row.get("reason", ""))
+    op.Label = T(row["title"])
+    if spec["type"] in HOLE_KINDS:
+        op.HoleData = json.dumps({"d": spec["d"], "holes": [list(h) for h in spec["holes"]], **({"pitch": spec["pitch"]} if "pitch" in spec else {})})
+    if spec["type"] == "chamfer":                  # 倒角：哪些倒角面、多宽
+        op.HoleData = json.dumps({"faces": spec["faces"], "width": spec["width"]})
+    op.Check = "在样本范围内" if row["status"] == "pass" else "待确认"
+    regenerate(op)
+    return op
 
 
 # ---------------------------------------------------------------- 核对、确认
@@ -650,23 +703,34 @@ def add_op(setup, kind: str):
         p = row["params"]
         op = new_op(setup, kind, index=gi, tool_id=row["tool"], tool_n=TURN_TOOL_N[kind], vc=p["vc"], feed=p.get("f", 0.0),
                     ap=p.get("ap", 0.0), reason=row.get("reason", ""))
+        regenerate(op)
     else:
         if kind not in MILL_KINDS:
             raise CamObjError(f"铣削没有这种工序：{kind}")
         from freecad_addon.fc import cam_doc
 
-        flags = {k: k == kind for k in MILL_KINDS}
-        plan = cam_doc.mill_plan(job.Model.Shape, _lib(job), S.iso_group(job.Kienzle),
-                                 max_rpm=float(machines.get(job.Machine)["max_rpm"]), **flags)
-        if not plan["ops"]:
+        flags = {k: k == kind for k in ("face", "pocket", "adaptive", "rest", "profile", "drill", "chamfer")}
+        flags["holes"] = kind in HOLE_KINDS
+        flags["taps"] = kind == "tap"
+        flags["thread_mill"] = kind == "thread_mill"
+        try:
+            plan = cam_doc.mill_plan(job.Model.Shape, _lib(job), S.iso_group(job.Kienzle),
+                                     max_rpm=float(machines.get(job.Machine)["max_rpm"]), stock_top=float(getattr(job, "StockTop", 0.0)),
+                                     **flags)
+        except cam_doc.CamDocError as exc:
+            raise CamObjError(str(exc)) from exc
+        pairs = [(sp, r) for sp, r in zip(plan["ops"], plan["card"], strict=True) if sp["type"] == kind]
+        if not pairs:
             raise CamObjError("；".join(plan["notes"]) or f"零件上没有能{MILL_KINDS[kind]}的几何")
-        spec, row = plan["ops"][0], plan["card"][0]
-        p = row["params"]
-        op = new_op(setup, kind, tool_id=row["tool"], tool_n=spec["number"], vc=p["vc"], feed=p.get("fz", p.get("f", 0.0)),
-                    ap=p.get("ap", 0.0), stepover=p.get("stepover", 0.0))
-        op.Label = T(row["title"])
+        used = [_js(o, "HoleData", {}) for o in ops(setup) if o.OpKind == kind]
+        free = [pr for pr in pairs if not any(u.get("holes", []) == [list(h) for h in pr[0].get("holes", [])] and u.get("faces") == pr[0].get("faces")
+                                              for u in used)] or pairs   # 孔工序：先取还没加的那一组孔
+        spec, row = free[0]
+        same = [o.ToolNumber for s_ in setups(job) for o in ops(s_) if o.ToolId == row["tool"]]
+        taken = [o.ToolNumber for s_ in setups(job) for o in ops(s_)]
+        spec = {**spec, "number": same[0] if same else max(taken, default=0) + 1}   # 刀号：同一把刀沿用，新刀接着往后编
+        op = _mill_op_from_plan(setup, spec, row)
     op.Check = "待确认"
-    regenerate(op)
     return op
 
 
@@ -676,6 +740,8 @@ def copy_op(op):
     c = new_op(s, op.OpKind, index=op.FeatureIndex, tool_id=op.ToolId, tool_n=op.ToolNumber, vc=op.Vc, feed=op.Feed, ap=op.Ap,
                stepover=op.StepOver, reason=op.Reason)
     c.Geometry = op.Geometry
+    if hasattr(op, "HoleData"):
+        c.HoleData = op.HoleData
     c.Label = op.Label + T("（副本）")
     c.Moves, c.Spindle, c.Check = op.Moves, op.Spindle, "待确认"
     g = list(s.Group)
@@ -751,11 +817,22 @@ def build_setup(job) -> dict:
             from analysis.cam import tools as TL
 
             t = TL.get(_lib(job), o.ToolId)
-            prog_ops.append({"tool": {"n": o.ToolNumber, "name": t.get("name", t["id"]), "d": float(t["diameter_mm"]),
-                                      "kind": "drill" if t["kind"] == "drill" else "endmill"},
+            from freecad_addon.core import cam_study as _S
+
+            cc = TL.cutting_for(t, _S.iso_group(job.Kienzle)) or {}          # 刀具样本的 ap、ae 上限：仿真逐段核对（ADR-0106 Q3b）
+            from freecad_addon.fc import cam_fc
+
+            core = ({"core_d": float(t["diameter_mm"]) - 1.0825 * float(_js(o, "HoleData", {})["pitch"])}
+                    if o.OpKind == "thread_mill" else {})              # 螺纹铣刀按齿根圆柱去料
+            prog_ops.append({**({"ae_set": (o.StepOver or 0.2) * float(t["diameter_mm"])} if o.OpKind == "adaptive" else {}),
+                             "tool": {**cam_fc.sim_tool(t, o.ToolNumber), **core,
+                                      **({"ap_max": cc["ap_max_mm"]} if "ap_max_mm" in cc else {}),
+                                      **({"ae_max": cc["ae_max_mm"]} if "ae_max_mm" in cc else {})},
                              "spindle": _js(o, "Spindle", {}), "moves": mv, "title": o.Label,
                              "safe": max((x["z"] for x in mv if x.get("t") == "rapid"), default=5.0)})
-        setup = {"mode": "program", "machine": job.Machine, "item": job.Item, "stock": d["stock"],
+        st = float(getattr(job, "StockTop", 0.0))
+        stock = {**d["stock"], "top": st, "height": float(d["stock"]["height"]) + st}
+        setup = {"mode": "program", "machine": job.Machine, "item": job.Item, "stock": stock,
                  "program": {"number": 6001, "title": f"{job.Item} 铣削", "ops": prog_ops, "generator": "FreeCAD CAM"}}
         if job.Kienzle:
             setup["kienzle"] = job.Kienzle

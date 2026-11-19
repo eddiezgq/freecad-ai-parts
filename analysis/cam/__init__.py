@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import itertools
 import math
+import statistics
 import time
 
 from analysis.cam import machine_sim as MS
@@ -429,6 +430,41 @@ def _jsonable(v):
     return float(v) if hasattr(v, "dtype") else v
 
 
+def _lib_tools(setup) -> dict:
+    """整机仿真设置里 {刀号: 刀具库刀具}（没对应上的不写）"""
+    ms = setup.get("machine_sim") or {}
+    given = ms.get("tools") or {}
+    if not given:
+        return {}
+    from analysis.cam import tools as TL
+
+    lib = TL.load(ms["tool_library"]) if ms.get("tool_library") else TL.load()
+    ids = {t["id"]: t for t in lib["tools"]}
+    return {int(k): ids[v["tool"]] for k, v in given.items() if v.get("tool") in ids}
+
+
+THREAD_ANGLE = {"iso": 60.0, "npt": 60.0, "r": 55.0}
+
+
+def thread_insert_checks(setup, threads) -> list[dict]:
+    """车螺纹刀片的牙型角与螺纹标准对不对（ADR-0108 加了 thread_angle_deg）：不对 → 错误；没写 → 锥管螺纹报未知（普通螺纹默认 60° 刀片，不报）"""
+    lib = _lib_tools(setup)
+    out = []
+    for tv in threads:
+        form = tv.get("form") or "iso"
+        n = 7 if tv.get("internal") else 4
+        tool = lib.get(n)
+        want = THREAD_ANGLE[form]
+        ang = (tool or {}).get("thread_angle_deg")
+        if ang is not None and abs(float(ang) - want) > 0.5:
+            out.append({"line": None, "level": "error",
+                        "text": f"T{n} {tool['id']} 是 {float(ang):g}° 牙型的刀片，{P.THREAD_FORMS[form]} 螺纹要 {want:g}°"})
+        elif ang is None and form in ("r", "npt"):
+            out.append({"line": None, "level": "unknown",
+                        "text": f"{P.THREAD_FORMS[form]} 锥管螺纹要用这个牙型的刀片：刀具库里这把刀没写牙型角，刀片对不对没核对"})
+    return out
+
+
 def nose_radii(setup) -> dict:
     """车刀刀尖圆弧半径 {刀号: rε}：按整机仿真设置里刀号对应的刀具库刀具（刀片 nose_radius_mm）。
     没对应上的刀按尖刀算（与以前一样）；刀尖圆弧补偿与仿真都用这个值（ADR-0106 Q2 第 4 步）。"""
@@ -504,10 +540,7 @@ def _turn(setup, mach):
             if rr:
                 checks.append({"line": None, "level": "warn",
                                "text": f"{side_name}车出来是 R{rr:g} 的圆角（刀尖圆弧）；图纸要清角就要加退刀槽或换小圆弧刀片"})
-        for tv in sc["threads"]:                  # 刀具库没有牙型角这一项：锥管螺纹刀片对不对没法核对（ADR-0106 Q3a）
-            if tv.get("form") in ("r", "npt"):
-                checks.append({"line": None, "level": "unknown",
-                               "text": f"{P.THREAD_FORMS[tv['form']]} 锥管螺纹要用这个牙型的刀片：刀具库里没有牙型角，刀片对不对没核对"})
+        checks += thread_insert_checks(setup, sc["threads"])
         if s.get("under_mm", 0) > 0.05:
             checks.append({"line": None, "level": "error", "text": f"残留：最多 {s['under_mm']:.3f} mm（半径），Z{s['under_z'][0]:.2f} ~ Z{s['under_z'][1]:.2f}"})
         if s.get("face_left", 0) > 0.01:
@@ -671,7 +704,8 @@ def _mill(setup, mach):
 
 
 # ---------------------------------------------------------------- 外来刀路（FreeCAD CAM 等）
-MOVE_KEYS = {"rapid": ("x", "y", "z"), "feed": ("x", "y", "z", "f"), "drill": ("x", "y", "z", "r", "f")}
+MOVE_KEYS = {"rapid": ("x", "y", "z"), "feed": ("x", "y", "z", "f"), "drill": ("x", "y", "z", "r", "f"),
+             "tap": ("x", "y", "z", "r", "pitch"), "comment": ("text",)}
 
 
 def _program(setup, mach):
@@ -695,28 +729,103 @@ def _program(setup, mach):
                 raise SetupError(f"第 {k} 道工序有不认识的动作 {mv.get('t')!r}")
             if any(mv.get(x) is None for x in need):
                 raise SetupError(f"第 {k} 道工序的 {mv['t']} 动作缺 {', '.join(x for x in need if mv.get(x) is None)}")
-        tools[int(t["n"])] = {"kind": t.get("kind", "endmill"), "d": float(t["d"])}
+        tools[int(t["n"])] = {"kind": t.get("kind", "endmill"), "d": float(t["d"]),
+                              **{k: float(t[k]) for k in ("pitch", "tip_d", "angle", "core_d") if t.get(k) is not None}}
     stock = setup.get("stock") or {}
     if len(stock.get("box") or []) != 4:
         raise SetupError("要给毛坯 stock.box = [x0, y0, x1, y1]（上表面 Z0）")
     box = [float(v) for v in stock["box"]]
+    top = float(stock.get("top", 0.0))                # 毛坯顶面（程序 Z0 在零件顶面；有面铣余量时毛坯高出 Z0）
     g = post.post(prog, mach)
     parsed = sim.parse(g, mach)
     checks = sim.machine_checks(parsed, mach)
     tm = sim.timing(parsed, mach)
     hook, extra = _msim_hook(setup, mach, parsed)
-    s = sim.simulate_mill(parsed, {"box": box, "top": 0.0}, tools, on_move=hook)
+    s = sim.simulate_mill(parsed, {"box": box, "top": top, **({"height": float(stock["height"])} if stock.get("height") else {})},
+                          tools, on_move=hook)
     checks += s["issues"]
+    # 每段切深、切宽按刀具样本核对（外来刀路也查；超出 ap 是错误，经整机仿真结论扣下程序）
+    limits = {int(op["tool"]["n"]): {"name": op["tool"].get("name"), **{k: float(op["tool"][k]) for k in ("ap_max", "ae_max") if op["tool"].get(k)}}
+              for op in ops if (op.get("tool") or {}).get("kind", "endmill") not in ("drill", "tap", "chamfer", "thread_mill")}
+    adaptive = adaptive_width(parsed, ops, s["h"])
+    for a in adaptive:
+        if a["ae_max"] > a["ae_set"] * ADAPTIVE_OVER + s["h"]:
+            checks.append({"line": a["line"], "level": "warn",
+                           "text": f"{a['title']}：自适应开粗设定切宽 {a['ae_set']:.2f} mm，仿真量出最宽 {a['ae_max']:.2f} mm（第 {a['line']} 行），切宽没保持住"})
+    cl = cut_limit_checks(parsed, limits)
+    extra += [c for c in cl if c["level"] == "error"]
+    checks += [c for c in cl if c["level"] != "error"]
+    if not setup.get("machine_sim"):
+        checks += [c for c in cl if c["level"] == "error"]
     out = {"title": prog.get("title") or "外来刀路", "number": prog.get("number", 6001), "gcode": g, "time": tm, "checks": checks,
-           "power": {"status": "unknown"}, "sim": {"ap_max_mm": round(s["ap_max"], 3), "cell_mm": round(s["h"], 4)},
+           "power": {"status": "unknown"}, "sim": {"ap_max_mm": round(s["ap_max"], 3), "cell_mm": round(s["h"], 4),
+                                                   **({"adaptive": adaptive} if adaptive else {})},
            "tools": {str(k): v for k, v in tools.items()}, "generator": prog.get("generator", ""),
-           "replay_in": {"kind": "mill", "stock": {"box": box, "top": 0.0, "height": stock.get("height")},
+           "replay_in": {"kind": "mill", "stock": {"box": box, "top": top, "height": stock.get("height")},
                          "tools": {str(k): v for k, v in tools.items()}}}
     out["checks"].append({"line": None, "level": "unknown", "text": "外来刀路没有目标形状，过切 / 残留没有比对（看仿真结果确认）"})
-    _msim(setup, mach, parsed, g, {"box": box, "top": 0.0, "height": stock.get("height")}, extra, out, withhold=True,
+    _msim(setup, mach, parsed, g, {"box": box, "top": top, "height": stock.get("height")}, extra, out, withhold=True,
           expect_d={k: v["d"] for k, v in tools.items()})
     _release(setup, mach, prog, out)
     return [out], {}
+
+
+ADAPTIVE_OVER = 1.5      # 自适应开粗实测最宽超过设定切宽的 1.5 倍（加一格）才提示：FreeCAD Adaptive 按面积近似控制切入，转角处会超一些
+
+
+def adaptive_width(parsed, ops, h):
+    """自适应开粗（ADR-0106 Q3b）：工序带 "ae_set"（设定切宽 mm）的，按仿真逐段量出的切宽（只算平走的段）统计
+    → [{"title", "ae_set", "ae_median", "ae_max", "line": 最宽那段的行号, "n": 段数}]。工序的起止行由 post.post 记下（op["_line"]）"""
+    starts = [(op.get("_line") or 0, op) for op in ops]
+    out = []
+    for k, (l0, op) in enumerate(starts):
+        if not op.get("ae_set"):
+            continue
+        l1 = starts[k + 1][0] if k + 1 < len(starts) else 10 ** 9
+        ms = [m for m in parsed["moves"] if l0 <= m["line"] < l1 and m.get("ae") is not None and abs(m["b"][2] - m["a"][2]) < 1e-6]
+        ap_top = max((m.get("ap", 0.0) for m in ms), default=0.0)
+        ms = [m for m in ms if m.get("ap", 0.0) >= 0.5 * ap_top]   # 只看切到半层以上深的段：螺旋下刀到底那一圈切的是螺旋留下的斜坡，宽但很浅
+        if not ms:
+            continue
+        ae = [m["ae"] for m in ms]
+        worst = max(ms, key=lambda m: m["ae"])
+        out.append({"title": op.get("title", ""), "ae_set": float(op["ae_set"]), "ae_median": round(statistics.median(ae), 3),
+                    "ae_max": round(worst["ae"], 3), "line": worst["line"], "n": len(ms)})
+    return out
+
+
+def cut_limit_checks(parsed, limits, tol=0.05):
+    """逐段核对仿真量出的切深 ap、切宽 ae 与刀具样本（ADR-0106 Q3b）。limits：{刀号: {"ap_max", "ae_max", "name"}}，样本没给的项不写。
+    - ap 超过样本 ap_max：错误（不出程序），报第一段的行号和最大值；
+    - 样本没给 ap_max：未知；
+    - 切宽超过样本 ae_max 的段（开槽、型腔第一圈）：样本只给了这个切宽以内的 ap，这些段的 ap 对不对没核对，报未知。"""
+    out = []
+    by_tool: dict = {}
+    for mv in parsed["moves"]:
+        if mv.get("ap") is not None and mv["t"] != "rapid":
+            by_tool.setdefault(mv["tool"], []).append(mv)
+    for t, mvs in sorted(by_tool.items()):
+        if t not in limits:                       # 钻头等：不按 ap 核对
+            continue
+        lim = limits[t]
+        name = lim.get("name") or f"T{t}"
+        ap_max = lim.get("ap_max")
+        if ap_max is None:
+            out.append({"line": None, "level": "unknown", "text": f"T{t} {name}：刀具样本没给最大切深 ap，切深没核对"})
+            continue
+        over = [m for m in mvs if m["ap"] > ap_max + tol]
+        if over:
+            worst = max(over, key=lambda m: m["ap"])
+            out.append({"line": over[0]["line"], "level": "error",
+                        "text": f"T{t} {name}：切深 ap 最大 {worst['ap']:.2f} mm（第 {worst['line']} 行），超出刀具样本的 {ap_max:g} mm——分层切或换刀，程序不输出"})
+        ae_max = lim.get("ae_max")
+        if ae_max is not None:
+            wide = [m for m in mvs if (m.get("ae") or 0.0) > ae_max + tol]
+            if wide:
+                out.append({"line": wide[0]["line"], "level": "unknown",
+                            "text": f"T{t} {name}：{len(wide)} 段切宽 ae 超过样本的 {ae_max:g} mm（最宽 {max(m['ae'] for m in wide):.1f} mm，开槽或型腔第一圈），"
+                                    f"样本没给这种切宽下的切深，这些段的切深没核对"})
+    return out
 
 
 # ---------------------------------------------------------------- 检查已有程序
