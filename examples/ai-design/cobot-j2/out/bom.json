@@ -1,0 +1,21 @@
+[
+ {
+  "item": 1,
+  "kind": "custom_part",
+  "drawing_no": "AI-JOINT-1",
+  "name": "关节输出轴（AI 设计）",
+  "qty": 1,
+  "material": "40Cr-QT",
+  "mass_kg": 0.8753,
+  "mass_source": "回读模型的体积 × 材料密度（花键按大径圆柱，齿槽未去除）"
+ },
+ {
+  "item": 2,
+  "kind": "bearing",
+  "component": "bearing.nsk-ltd.6011",
+  "vendor": "NSK Ltd.",
+  "model": "6011",
+  "qty": 2,
+  "mass_kg": 0.381
+ }
+]

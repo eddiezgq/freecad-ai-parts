@@ -1,0 +1,122 @@
+{
+ "overall": "pass",
+ "tolerance_mm": {
+  "diameter": 0.01,
+  "length": 0.05
+ },
+ "rows": [
+  {
+   "segment": 1,
+   "design": {
+    "diameter_mm": 75.0,
+    "start_mm": 0.0,
+    "length_mm": 10.0
+   },
+   "measured": {
+    "diameter_mm": 75.0,
+    "length_mm": 10.0,
+    "start_mm": 0.0
+   },
+   "diff_mm": {
+    "diameter": 0.0,
+    "start": 0.0,
+    "length": 0.0
+   },
+   "ok": true
+  },
+  {
+   "segment": 2,
+   "design": {
+    "diameter_mm": 55.0,
+    "start_mm": 11.0,
+    "length_mm": 59.0
+   },
+   "measured": {
+    "diameter_mm": 55.0,
+    "length_mm": 59.0,
+    "start_mm": 11.0
+   },
+   "diff_mm": {
+    "diameter": 0.0,
+    "start": 0.0,
+    "length": 0.0
+   },
+   "ok": true
+  },
+  {
+   "segment": 3,
+   "design": {
+    "diameter_mm": 51.0,
+    "start_mm": 70.0,
+    "length_mm": 20.0
+   },
+   "measured": {
+    "diameter_mm": 51.0,
+    "length_mm": 20.0,
+    "start_mm": 70.0
+   },
+   "diff_mm": {
+    "diameter": 0.0,
+    "start": 0.0,
+    "length": 0.0
+   },
+   "ok": true
+  },
+  {
+   "segment": 4,
+   "design": {
+    "diameter_mm": 45.0,
+    "start_mm": 90.0,
+    "length_mm": 10.0
+   },
+   "measured": {
+    "diameter_mm": 45.0,
+    "length_mm": 10.0,
+    "start_mm": 90.0
+   },
+   "diff_mm": {
+    "diameter": 0.0,
+    "start": 0.0,
+    "length": 0.0
+   },
+   "ok": true
+  },
+  {
+   "segment": "内孔",
+   "design": {
+    "diameter_mm": 41.0,
+    "start_mm": 0.0,
+    "length_mm": 100.0
+   },
+   "measured": {
+    "diameter_mm": 41.0,
+    "length_mm": 100.0,
+    "start_mm": 0.0
+   },
+   "diff_mm": {
+    "diameter": 0.0,
+    "start": 0.0,
+    "length": 0.0
+   },
+   "ok": true
+  }
+ ],
+ "problems": [],
+ "measurement": {
+  "file": "shaft.step",
+  "sha256": "b86b71e0c135486027e597c1f51c2bb64b6a446e1f735400495d9895860822d3",
+  "envelope_mm": {
+   "length": 100.0,
+   "width": 75.0,
+   "height": 75.0
+  },
+  "volume_mm3": 111501.1,
+  "mass_kg": 0.8753,
+  "material": "40Cr-QT",
+  "density_kg_m3": 7850,
+  "geometry_check": {
+   "checked": false,
+   "note": "没有 FreeCAD：只做了“是实体、体积为正”的检查"
+  }
+ }
+}

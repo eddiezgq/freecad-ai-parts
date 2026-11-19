@@ -95,8 +95,9 @@ def _scale(total: float) -> float:
     return next((s for s in SCALES if total * s <= 330), SCALES[-1])
 
 
-def drawing(doc, part, segs: list[dict], *, name: str, drawing_no: str, material: str):
-    """建工程图页并加尺寸。返回 (page, [{"what", "design", "drawing"}])"""
+def drawing(doc, part, segs: list[dict], *, name: str, drawing_no: str, material: str, bore: float = 0.0,
+            notes: list[str] | None = None):
+    """建工程图页并加尺寸。bore > 0（空心轴）时加一个端视图标内孔直径；notes 写进技术要求。返回 (page, [{"what", "design", "drawing"}])"""
     import TechDraw  # noqa: F401 — 注册 TechDraw 的文档对象
 
     from assist import shaft_model
@@ -155,19 +156,52 @@ def drawing(doc, part, segs: list[dict], *, name: str, drawing_no: str, material
         rb = rs[i]["d"] / 2 if i == len(rs) - 1 else max(rs[i]["d"], rs[i + 1]["d"]) / 2
         dim("DistanceX", at(za, ra), at(zb, rb), zb - za, T(f"长度 {zb - za:g}"), x0 + k * (za + zb) / 2, -(k * rmax + 12 + 9 * (i % 2)))
     dim("DistanceX", at(0.0, rs[0]["d"] / 2), at(total, rs[-1]["d"] / 2), total, T(f"总长 {total:g}"), x0 + k * total / 2, -(k * rmax + 36))
+    if bore > 0:                                           # 内孔在主视图里是不可见轮廓，取不到顶点：加端视图，按圆标直径
+        end = doc.addObject("TechDraw::DrawViewPart", "AiShaftEndView")
+        page.addView(end)
+        end.Source = [part]
+        end.Direction = FreeCAD.Vector(0, 0, -1)
+        end.XDirection = FreeCAD.Vector(1, 0, 0)
+        end.Scale = scale
+        end.X, end.Y = min(390.0, 210.0 + scale * (total / 2 + rmax) + 30), 170.0
+        doc.recompute()
+        _wait(end)
+        edge = None
+        for i in range(64):
+            try:
+                e = end.getEdgeByIndex(i)
+            except Exception:  # noqa: BLE001 — 越界就是取完了
+                break
+            if e is None:
+                break
+            if abs(getattr(e.Curve, "Radius", -1.0) - scale * bore / 2) < 1e-3 * max(1.0, scale) or abs(getattr(e.Curve, "Radius", -1.0) - bore / 2) < 1e-3:
+                edge = i
+                break
+        if edge is None:
+            raise DrawingError(T(f"端视图上找不到内孔 Ø{bore:g} 的圆"))
+        d = doc.addObject("TechDraw::DrawViewDimension", "AiShaftDim")
+        d.Type = "Diameter"
+        d.MeasureType = "Projected"
+        d.References2D = [(end, f"Edge{edge}")]
+        page.addView(d)
+        dims.append((d, bore, T(f"内孔 Ø{bore:g}")))
     doc.recompute()
     for d, value, what in dims:
         got = float(d.getRawValue())                       # 模型尺寸（与比例无关）
         checks.append({"what": what, "design": value, "drawing": round(got, 4)})
         if abs(got - value) > DIM_TOL_MM:
             raise DrawingError(T(f"工程图尺寸与设计不符：{what}，图上 {got:g}"))
-    steps = [f"z {a['z1']:g}：R{(a['r_right'] or b['r_left']):g}" for a, b in pairwise(rs)]
+    steps = [f"z {a['z1']:g}：R{(a['r_right'] or b['r_left']):g}" for a, b in pairwise(rs) if (a["r_right"] or b["r_left"])]
+    if len(steps) < len(rs) - 1:
+        steps.append(T("其余台阶不倒圆"))
     note = doc.addObject("TechDraw::DrawViewAnnotation", "AiShaftNotes")
     lines = ["，".join(steps[i:i + 2]) for i in range(0, len(steps), 2)]   # 两个一行，免得注释超出图纸被缩小
+    extra = [f"{i}. {T(x)}" for i, x in enumerate(notes or [], 3)]
     note.Text = [T("技术要求："), T("1. 台阶圆角：") + (lines[0] if lines else ""), *["   " + x for x in lines[1:]],
-                 T("2. 尺寸由程序按设计数据标注，模型已回读核对")]
+                 T("2. 尺寸由程序按设计数据标注，模型已回读核对"), *extra]
     page.addView(note)
-    note.X, note.Y = 120.0, 75.0
+    width = max(sum(4.0 if ord(ch) > 255 else 2.3 for ch in str(x)) for x in note.Text)   # 注释按中心定位：左边留在图框里
+    note.X, note.Y = max(120.0, 30.0 + width / 2), 75.0
     if hasattr(note, "TextSize"):
         note.TextSize = 4.0
     doc.recompute()
@@ -190,7 +224,8 @@ def bom_sheet(doc, rows: list[dict]):
     return sheet
 
 
-def place(doc, run_out: dict, segs: list[dict], *, name: str, drawing_no: str = "") -> dict:
+def place(doc, run_out: dict, segs: list[dict], *, name: str, drawing_no: str = "", bore: float = 0.0,
+          notes: list[str] | None = None) -> dict:
     """三维模型 + 工程图 + BOM 放进 doc。返回 {"part", "page", "sheet", "dimension_checks"}"""
     import Part
 
@@ -203,6 +238,6 @@ def place(doc, run_out: dict, segs: list[dict], *, name: str, drawing_no: str = 
     part.Shape = Part.read(str(out / gen["step"]))
     doc.recompute()
     material = run_out["result"]["conditions"].get("material") or ""
-    page, checks = drawing(doc, part, segs, name=name, drawing_no=drawing_no, material=material)
+    page, checks = drawing(doc, part, segs, name=name, drawing_no=drawing_no, material=material, bore=bore, notes=notes)
     sheet = bom_sheet(doc, gen.get("bom") or [])
     return {"part": part, "page": page, "sheet": sheet, "dimension_checks": checks}

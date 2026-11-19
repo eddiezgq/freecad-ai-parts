@@ -22,6 +22,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 PACKAGES = ("freecad_addon", "engine", "kb", "analysis", "assist", "mcp_server", "llm_gateway", "ingest", "licensing")
 DATA = ("schema", "data/library", "data/sources.yaml", "tests/golden", "tests/recordings/requirement",
         "tests/recordings/design", "examples/ai-design/ls-upper-shaft/requirement.txt",   # AI 设计零件的示例与回放（ADR-0100 42.4）
+        "tests/recordings/joint_design", "examples/ai-design/cobot-j2/requirement.txt",    # 关节空心轴的示例与回放（42.5 第 7 步）
         "LICENSE", "NOTICE")
 MANIFEST = "BUNDLE.json"
 
