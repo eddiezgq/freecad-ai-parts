@@ -214,7 +214,7 @@ def test_mill_turn_radial_tool_solves_c():
 
 def test_tool_library_and_cutting_range():
     lib = TL.load()
-    assert lib["example"] is True and len(lib["tools"]) == 8
+    assert lib["example"] is True and {"EM10", "TR-CNMG", "GR3", "TH15"} <= {t["id"] for t in lib["tools"]}
     em = TL.get(lib, "EM10")
     ok = TL.check_cutting(em, "P", vc=120, fz=0.05, ap=10, ae=2)
     assert TL.verdict(ok) == "pass"
@@ -222,7 +222,7 @@ def test_tool_library_and_cutting_range():
     assert TL.verdict(bad) == "error" and "超出刀具样本范围" in bad[0]["text"]
     assert TL.verdict(TL.check_cutting(em, "S", vc=50)) == "unknown"          # 样本没有 S 组：未知，不算通过
     th = TL.get(lib, "TH15")
-    assert TL.verdict(TL.check_cutting(th, "P", vc=100)) == "unknown"
+    assert TL.verdict(TL.check_cutting(th, "M", vc=100)) == "unknown"
     with pytest.raises(TL.ToolError, match="id 重复"):
         TL.check({**lib, "tools": lib["tools"] + [lib["tools"][0]]})
 

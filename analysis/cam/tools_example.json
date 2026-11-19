@@ -90,7 +90,20 @@
    "source": {
     "kind": "example",
     "ref": "虚构示例"
-   }
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60,
+      "max": 90
+     },
+     "f_mm_rev": {
+      "min": 0.12,
+      "max": 0.2
+     }
+    }
+   ]
   },
   {
    "id": "TAP-M10",
@@ -144,7 +157,20 @@
    "source": {
     "kind": "example",
     "ref": "虚构示例"
-   }
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80,
+      "max": 150
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.08
+     }
+    }
+   ]
   },
   {
    "id": "TH15",
@@ -154,6 +180,134 @@
    "insert": {
     "nose_radius_mm": 0.1
    },
+   "source": {
+    "kind": "example",
+    "ref": "虚构示例"
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60,
+      "max": 120
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    }
+   ]
+  },
+  {
+   "id": "TR-VNMG",
+   "number": 14,
+   "name": "外圆精车刀 VNMG160404（虚构）",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG160404",
+    "nose_radius_mm": 0.4
+   },
+   "tool_material": "carbide",
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 180,
+      "max": 300
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.2
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "example",
+    "ref": "虚构示例"
+   }
+  },
+  {
+   "id": "DR10",
+   "number": 15,
+   "name": "Ø10 麻花钻（虚构）",
+   "kind": "drill",
+   "diameter_mm": 10.0,
+   "tip_angle_deg": 118,
+   "flute_length_mm": 60.0,
+   "tool_material": "carbide",
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60,
+      "max": 90
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "example",
+    "ref": "虚构示例"
+   }
+  },
+  {
+   "id": "BB12",
+   "number": 16,
+   "name": "镗刀 最小孔径 12（虚构）",
+   "kind": "bore",
+   "insert": {
+    "nose_radius_mm": 0.4
+   },
+   "tool_material": "carbide",
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120,
+      "max": 200
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "example",
+    "ref": "虚构示例"
+   }
+  },
+  {
+   "id": "EM6",
+   "number": 17,
+   "name": "Ø6 三刃平底立铣刀（虚构）",
+   "kind": "flat_endmill",
+   "diameter_mm": 6.0,
+   "flutes": 3,
+   "flute_length_mm": 13.0,
+   "stickout_mm": 25.0,
+   "shank_diameter_mm": 6.0,
+   "tool_material": "carbide",
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 90,
+      "max": 140
+     },
+     "fz_mm": {
+      "min": 0.02,
+      "max": 0.04
+     },
+     "ap_max_mm": 9.0,
+     "ae_max_mm": 1.5
+    }
+   ],
    "source": {
     "kind": "example",
     "ref": "虚构示例"
