@@ -15,6 +15,7 @@ FreeCAD 1.0 在没有界面时，作业里有多把刀会在新建工序时报�
 from __future__ import annotations
 
 import math
+from pathlib import Path
 
 SHAPES = {"flat_endmill": "endmill.fcstd", "bull_endmill": "bullnose.fcstd", "ball_endmill": "ballend.fcstd",
           "drill": "drill.fcstd", "chamfer_mill": "chamfer.fcstd"}
@@ -162,10 +163,36 @@ def commands_to_moves(cmds, top: float) -> list[dict]:
     return out
 
 
+_RELOADED = False
+
+
+def _reload_draft_for_gui() -> None:
+    """Draft 的一些模块按导入时有没有界面决定带不带显示部分（`if App.GuiUp:`）。同一进程里先无界面导入过、后来界面才起来
+    （例如测试），FreeCAD CAM 建作业时会报 Gui / ViewProviderClone 没定义：把这些模块按依赖顺序重新加载一次。
+    真实使用时界面总是先起来，不会走到这里。"""
+    global _RELOADED
+    import FreeCAD
+
+    if _RELOADED or not FreeCAD.GuiUp:
+        return
+    import importlib
+    import sys
+
+    names = [n for n, m in list(sys.modules.items())
+             if n.startswith(("draftutils", "draftmake", "draftobjects", "draftviewproviders", "draftfunctions"))
+             and getattr(m, "__file__", None) and "GuiUp" in Path(m.__file__).read_text(encoding="utf-8", errors="ignore")]
+    if names:
+        order = ("draftutils", "draftviewproviders", "draftobjects", "draftfunctions", "draftmake")
+        for n in sorted(names, key=lambda n: next(i for i, p in enumerate(order) if n.startswith(p))):
+            importlib.reload(sys.modules[n])
+    _RELOADED = True
+
+
 def program(shape, ops: list[dict], *, number: int = 6001, title: str = "2.5 轴铣（FreeCAD CAM 刀路）") -> dict:
     """零件（Part.Shape，Z 向上）+ 工序 → (中间格式程序, 毛坯)。毛坯取零件包围盒，顶面为程序 Z0"""
     import FreeCAD
 
+    _reload_draft_for_gui()
     doc = FreeCAD.newDocument("WenQuestCamTmp")
     try:
         m = doc.addObject("Part::Feature", "Part")
