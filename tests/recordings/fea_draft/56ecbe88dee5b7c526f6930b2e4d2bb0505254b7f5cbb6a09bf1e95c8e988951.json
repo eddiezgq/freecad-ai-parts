@@ -3,7 +3,7 @@
   "prompt_version": "fea-draft/2",
   "request_key": "56ecbe88dee5b7c526f6930b2e4d2bb0505254b7f5cbb6a09bf1e95c8e988951",
   "response": {
-    "id": "msg_011ChAgYkND8dnCvauvLqcTx",
+    "id": "msg_011ChBg5EfnhnnHTAe7bMVcQ",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -19,7 +19,7 @@
               "unit": "mm",
               "value": 60
             },
-            "section_quote": "Q235 圆管，外径 60 mm、壁厚 4 mm",
+            "section_quote": "圆管，外径 60 mm、壁厚 4 mm",
             "shape": "pipe",
             "wall": {
               "quote": "壁厚 4 mm",
@@ -61,14 +61,13 @@
         {
           "n_modes": {
             "quote": "前 4 阶",
-            "unit": "",
             "value": 4
           },
           "quote": "另算前 4 阶固有频率",
           "type": "modal"
         }
       ],
-      "name": "FRAME-2000 portal frame",
+      "name": "FRAME-2000",
       "questions": []
     }
   }

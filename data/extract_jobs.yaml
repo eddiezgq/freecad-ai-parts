@@ -77,3 +77,8 @@ jobs:
     category: bearing
     pages: "11-12"
     targets: ["6000", "6001", "6200", "6201", "6202"]
+  # 60 系列内径 40–55 mm：机器人关节空心轴（ADR-0100 42.5，对照《机械设计》33.10 的 6010 一对）
+  - doc: src-nsk-e1103c-part-c
+    category: bearing
+    pages: "13-14"
+    targets: ["6008", "6009", "6010", "6011"]

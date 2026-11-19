@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "2e173096b1fad0f1fbdc1665c8b30c01dfd9d39df5b3f911f19da07b9447fc62",
   "response": {
-    "id": "msg_011ChAmgP1tWkHqSbgMXUPXB",
+    "id": "msg_011ChBbNtqqSEEA1g8BUJ8mx",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -18,117 +18,15 @@
           "value": "deep_groove"
         },
         {
-          "confidence": 0.9,
-          "page": 11,
-          "printed_label": "B",
-          "printed_text": "9",
-          "printed_unit": "mm",
-          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
-          "target": "params/width_mm",
-          "value": 9
-        },
-        {
-          "confidence": 0.92,
-          "page": 11,
-          "printed_label": "Cr",
-          "printed_text": "5 600",
-          "printed_unit": "N",
-          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
-          "target": "params/dynamic_load_rating_n",
-          "value": 5600
-        },
-        {
-          "confidence": 0.92,
-          "page": 11,
-          "printed_label": "C0r",
-          "printed_text": "2 390",
-          "printed_unit": "N",
-          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
-          "target": "params/static_load_rating_n",
-          "value": 2390
-        },
-        {
-          "condition": "Grease, Open / Z·ZZ / V·VV",
-          "confidence": 0.85,
-          "page": 11,
-          "printed_label": "Limiting Speeds Grease Open Z·ZZ V·VV",
-          "printed_text": "28 000",
-          "printed_unit": "min–1",
-          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
-          "target": "params/limiting_speed_rpm",
-          "value": 28000
-        },
-        {
-          "condition": "Oil, Open / Z",
+          "condition": "d = 10 mm 分组（6800–6300），6200 行与 6800 行共用",
           "confidence": 0.8,
           "page": 11,
-          "printed_label": "Limiting Speeds Oil Open Z",
-          "printed_text": "34 000",
-          "printed_unit": "min–1",
-          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
-          "target": "params/limiting_speed_rpm",
-          "value": 34000
-        },
-        {
-          "condition": "Grease, DU·DDU",
-          "confidence": 0.8,
-          "page": 11,
-          "printed_label": "Limiting Speeds Grease DU·DDU",
-          "printed_text": "18 000",
-          "printed_unit": "min–1",
-          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
-          "target": "params/limiting_speed_rpm",
-          "value": 18000
-        },
-        {
-          "confidence": 0.9,
-          "page": 11,
-          "printed_label": "Mass approx.",
-          "printed_text": "0.032",
-          "printed_unit": "kg",
-          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
-          "target": "params/mass_kg",
-          "value": 0.032
-        },
-        {
-          "confidence": 0.88,
-          "page": 11,
-          "printed_label": "da min.",
-          "printed_text": "14",
+          "printed_label": "d",
+          "printed_text": "10",
           "printed_unit": "mm",
-          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
-          "target": "params/abutment_shaft_min_mm",
-          "value": 14
-        },
-        {
-          "confidence": 0.88,
-          "page": 11,
-          "printed_label": "da max.",
-          "printed_text": "16",
-          "printed_unit": "mm",
-          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
-          "target": "params/abutment_shaft_max_mm",
-          "value": 16
-        },
-        {
-          "confidence": 0.88,
-          "page": 11,
-          "printed_label": "Da max.",
-          "printed_text": "26",
-          "printed_unit": "mm",
-          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
-          "target": "params/abutment_housing_max_mm",
-          "value": 26
-        },
-        {
-          "confidence": 0.85,
-          "page": 11,
-          "printed_label": "ra max.",
-          "printed_text": "0.6",
-          "printed_unit": "mm",
-          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
-          "target": "params/fillet_max_mm",
-          "value": 0.6
+          "quote": "10 19 5 0.3 1 890 840 14.8 34 000 24 000 40 000 6800 ZZ VV DD — — — — — — — — — 12 12 17 0.3 — — 0.005",
+          "target": "ports/inner/diameter_mm",
+          "value": 10
         },
         {
           "confidence": 0.9,
@@ -151,14 +49,106 @@
           "value": 30
         },
         {
-          "confidence": 0.75,
+          "confidence": 0.9,
           "page": 11,
-          "printed_label": "d",
-          "printed_text": "10",
+          "printed_label": "B",
+          "printed_text": "9",
           "printed_unit": "mm",
-          "quote": "10 19 5 0.3 1 890 840 14.8 34 000 24 000 40 000 6800 ZZ VV DD — — — — — — — — — 12 12 17 0.3 — — 0.005",
-          "target": "ports/inner/diameter_mm",
-          "value": 10
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/width_mm",
+          "value": 9
+        },
+        {
+          "confidence": 0.9,
+          "page": 11,
+          "printed_label": "Cr",
+          "printed_text": "5 600",
+          "printed_unit": "N",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/dynamic_load_rating_n",
+          "value": 5600
+        },
+        {
+          "confidence": 0.9,
+          "page": 11,
+          "printed_label": "C0r",
+          "printed_text": "2 390",
+          "printed_unit": "N",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/static_load_rating_n",
+          "value": 2390
+        },
+        {
+          "condition": "Grease, Open / Z·ZZ",
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "Limiting Speeds Grease Open Z·ZZ",
+          "printed_text": "28 000",
+          "printed_unit": "min–1",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/limiting_speed_rpm",
+          "value": 28000
+        },
+        {
+          "condition": "Oil, Open / Z",
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "Limiting Speeds Oil Open Z",
+          "printed_text": "34 000",
+          "printed_unit": "min–1",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/limiting_speed_rpm",
+          "value": 34000
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "da min.",
+          "printed_text": "14",
+          "printed_unit": "mm",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/abutment_shaft_min_mm",
+          "value": 14
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "da max.",
+          "printed_text": "16",
+          "printed_unit": "mm",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/abutment_shaft_max_mm",
+          "value": 16
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "Da max.",
+          "printed_text": "26",
+          "printed_unit": "mm",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/abutment_housing_max_mm",
+          "value": 26
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "ra max.",
+          "printed_text": "0.6",
+          "printed_unit": "mm",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/fillet_max_mm",
+          "value": 0.6
+        },
+        {
+          "confidence": 0.85,
+          "page": 11,
+          "printed_label": "Mass approx.",
+          "printed_text": "0.032",
+          "printed_unit": "kg",
+          "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032",
+          "target": "params/mass_kg",
+          "value": 0.032
         }
       ],
       "model": "6200",

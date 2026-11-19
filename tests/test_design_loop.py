@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from assist import design as D
+from assist import shaft_design as SD
 from tests.test_shaft_design import B6201, LS101, fake_kt, get
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -51,7 +52,9 @@ class Script:
         self.requests.append(request)
         if request["tool"]["name"] == "list_conditions":
             return {"id": "sim", "tool_input": copy.deepcopy(self.conds), "simulated": True}
-        return {"id": "sim", "tool_input": copy.deepcopy(self.props.pop(0)), "simulated": True}
+        # 方案用完了：交回上一个方案（模拟 AI 说“已经是最轻的”）
+        prop = self.props.pop(0) if len(self.props) > 1 else self.props[0]
+        return {"id": "sim", "tool_input": copy.deepcopy(prop), "simulated": True}
 
 
 def test_conditions_checked_against_statement():
@@ -88,11 +91,12 @@ def test_direction_needs_words():
 def test_loop_fixes_with_feedback():
     ai = Script()
     out = D.design(TEXT, ai, [get(B6201)], get, kt=fake_kt)
-    assert len(out["rounds"]) == 2 and out["rounds"][0]["overall"] == "fail"
+    assert len(out["rounds"]) == 3 and out["rounds"][0]["overall"] == "fail"
+    assert out["rounds"][2].get("unchanged") and out["chosen_round"] == 2       # 通过后要更轻，AI 交回同一方案：采用第 2 轮
     assert "轴承中心 z = 252" in out["rounds"][0]["feedback"]
     assert "第 1 轮你的方案" in ai.requests[2]["user"] and "轴承中心 z = 252" in ai.requests[2]["user"]   # 结论交回 AI
     assert out["status"] == "pass"                                    # 轴肩按 NSK 6201 的安装尺寸也合规
-    segs = out["rounds"][-1]["segments"]
+    segs = D.chosen(out)["segments"]
     assert [(s["d"], s["L"]) for s in segs] == [(10, 22), (12, 10), (16, 215), (12, 10), (10, 40)]
     assert "6201" in ai.requests[1]["user"]                            # 给 AI 的轴承表来自零件库
 
@@ -139,20 +143,35 @@ def test_recorded_real_model_run_passes(tmp_path):
             pytest.skip("本机没有 CalculiX")
     lib = JsonLibrary(ROOT / "data" / "library")
     bearings = [c for c in lib.all() if c["category"] == "bearing"]
-    res = D.design(TEXT, RecordedClient(D.RECORDINGS_DIR), bearings, lib.get)
+    from assist import kt_record
+
+    res = D.design(TEXT, RecordedClient(D.RECORDINGS_DIR), bearings, lib.get, kt=kt_record.replaying(D.KT_RECORD))
     assert res["status"] == "pass" and not res["missing"]
     assert all(a.get("simulated") is False for a in res["ai"])
-    last = res["rounds"][-1]
+    last = D.chosen(res)                                            # 采用的一轮：通过且最轻
     assert last["overall"] == "pass" and all(i["status"] == "pass" for i in last["items"])
+    passed = [r for r in res["rounds"] if r["overall"] == "pass"]
+    assert all(last["mass_kg"] <= r["mass_kg"] + 1e-9 for r in passed)
+    assert sum(r["lighter_round"] for r in res["rounds"]) <= D.LIGHTER_ROUNDS   # 减重最多 3 轮（ADR-0100 42.2 之五）
     seats = [s for s in last["proposal"]["segments"] if s.get("bearing")]
     assert seats and all(s["bearing"].startswith("bearing.nsk-ltd.") for s in seats)
+    # 录下的 kt 不是凭空的：采用方案的每个台阶用本机有限元复算，与录制值差 ≤ 2 %（网格噪声，见 42.5）
+    from analysis.shaft.kt import stepped_bar
+
+    rec = kt_record.replaying(D.KT_RECORD, kt=lambda *a: pytest.fail(f"采用方案的台阶 {a} 没有录制的 kt"))
+    for st in SD.steps(last["segments"]):
+        k_rec, k_now = rec(st["d"], st["D"], st["r"]), stepped_bar(st["d"], st["D"], st["r"])
+        for name in ("kt_bending", "kt_torsion"):
+            assert k_now[name] == pytest.approx(k_rec[name], rel=0.02), (st, name)
     # 42.3：生成模型、回读逐段一致，出二维图与 BOM
     from assist import shaft_model
 
     g = shaft_model.generate(res, tmp_path, lib.get)
     assert g["readback"] == "pass" and g["delivered"], g["problems"]
     assert (tmp_path / "shaft.step").is_file() and (tmp_path / "drawing.svg").is_file()
-    assert [r["kind"] for r in g["bom"]] == ["custom_part", "bearing"] and g["bom"][1]["qty"] == 2
+    kinds = [r["kind"] for r in g["bom"]]
+    assert kinds[0] == "custom_part" and set(kinds[1:]) == {"bearing"}             # 两个轴承可以是不同型号（2026-11-19 录制：6201 + 6001）
+    assert sum(r["qty"] for r in g["bom"][1:]) == 2
 
 
 def test_progress_reported_each_step():
@@ -170,3 +189,29 @@ def test_stops_when_ai_repeats_the_same_design():
     """AI 判断改轴解决不了、交回同一方案：不再空转校核，停下交给人（2026-11-18 问渠 CAD 里 6000 r/min 的那次）"""
     out = D.design(TEXT, Script(proposals=[FIRST] * 4), [get(B6201)], get, kt=fake_kt)
     assert out["status"] == "stuck" and len(out["rounds"]) == 2 and out["rounds"][-1].get("unchanged")
+
+
+def test_after_pass_ai_is_asked_for_lighter_and_lighter_pass_is_chosen():
+    """通过后交回 AI 要更轻：更轻且通过就采用；再交回同一方案就停（ADR-0100 §6.1“再要最轻”，平缝机上轴同样适用）"""
+    lighter = copy.deepcopy(SECOND)
+    lighter["segments"][2]["diameter_mm"] = 15.0
+    ai = Script(proposals=[FIRST, SECOND, lighter])
+    out = D.design(TEXT, ai, [get(B6201)], get, kt=fake_kt)
+    assert out["status"] == "pass"
+    assert "越轻越好" in ai.requests[3]["user"] and out["rounds"][2]["lighter_round"]
+    if out["rounds"][2]["overall"] == "pass":
+        assert out["chosen_round"] == 3 and out["rounds"][2]["mass_kg"] < out["rounds"][1]["mass_kg"]
+    else:
+        assert out["chosen_round"] == 2
+    assert D.chosen(out) is out["rounds"][out["chosen_round"] - 1]
+
+
+def test_lighter_attempt_that_fails_can_be_fixed_and_lightest_pass_is_kept():
+    """减重的方案没通过可以按校核结论再改，算在减重的 3 轮里；采用通过且最轻的（ADR-0100 42.2 之五）"""
+    bad = copy.deepcopy(SECOND)
+    bad["segments"][2]["length_mm"] = 201                          # 轴身长度不对：不通过
+    ai = Script(proposals=[FIRST, SECOND, bad, SECOND])
+    out = D.design(TEXT, ai, [get(B6201)], get, kt=fake_kt)
+    ov = [r["overall"] for r in out["rounds"]]
+    assert ov[:3] == ["fail", "pass", "fail"] and len(out["rounds"]) == 4      # 减重没通过之后还给了一轮
+    assert out["status"].startswith("pass") and out["chosen_round"] == 2

@@ -27,13 +27,13 @@
   {
    "segment": 2,
    "design": {
-    "diameter_mm": 16.5,
+    "diameter_mm": 16.0,
     "start_mm": 32.0,
-    "length_mm": 3.5
+    "length_mm": 23.0
    },
    "measured": {
-    "diameter_mm": 16.5,
-    "length_mm": 3.5,
+    "diameter_mm": 16.0,
+    "length_mm": 23.0,
     "start_mm": 32.0
    },
    "diff_mm": {
@@ -46,14 +46,14 @@
   {
    "segment": 3,
    "design": {
-    "diameter_mm": 20.0,
-    "start_mm": 36.0,
-    "length_mm": 206.0
+    "diameter_mm": 12.0,
+    "start_mm": 55.5,
+    "length_mm": 186.2
    },
    "measured": {
-    "diameter_mm": 20.0,
-    "length_mm": 206.0,
-    "start_mm": 36.0
+    "diameter_mm": 12.0,
+    "length_mm": 186.2,
+    "start_mm": 55.5
    },
    "diff_mm": {
     "diameter": 0.0,
@@ -65,14 +65,14 @@
   {
    "segment": 4,
    "design": {
-    "diameter_mm": 16.5,
-    "start_mm": 243.0,
-    "length_mm": 4.0
+    "diameter_mm": 14.0,
+    "start_mm": 242.0,
+    "length_mm": 6.0
    },
    "measured": {
-    "diameter_mm": 16.5,
-    "length_mm": 4.0,
-    "start_mm": 243.0
+    "diameter_mm": 14.0,
+    "length_mm": 6.0,
+    "start_mm": 242.0
    },
    "diff_mm": {
     "diameter": 0.0,
@@ -85,13 +85,13 @@
    "segment": 5,
    "design": {
     "diameter_mm": 12.0,
-    "start_mm": 247.5,
-    "length_mm": 44.5
+    "start_mm": 248.3,
+    "length_mm": 51.7
    },
    "measured": {
     "diameter_mm": 12.0,
-    "length_mm": 44.5,
-    "start_mm": 247.5
+    "length_mm": 51.7,
+    "start_mm": 248.3
    },
    "diff_mm": {
     "diameter": 0.0,
@@ -104,14 +104,14 @@
  "problems": [],
  "measurement": {
   "file": "shaft.step",
-  "sha256": "afdb9f589179bda45ab124d04c097548b9cc68c07a7313f68b1948f76aa3d16f",
+  "sha256": "d68441f75b917b748daf764d474dc1b25ec086ac3102f3dc03c8c54c1b3d88f8",
   "envelope_mm": {
-   "length": 292.0,
-   "width": 20.02,
-   "height": 20.02
+   "length": 300.0,
+   "width": 16.0,
+   "height": 16.0
   },
-  "volume_mm3": 75368.1,
-  "mass_kg": 0.5916,
+  "volume_mm3": 36203.0,
+  "mass_kg": 0.2842,
   "material": "45-QT",
   "density_kg_m3": 7850,
   "geometry_check": {

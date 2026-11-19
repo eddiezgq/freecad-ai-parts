@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "0566b161f61e13f057313999df98580ee6e153b0c8406a3c46a4bad9be663997",
   "response": {
-    "id": "msg_011ChAmcGoiah6UYWtKujkks",
+    "id": "msg_011ChBbKDcqMRXNBj7ykkEKd",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -16,16 +16,6 @@
           "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS",
           "target": "params/bearing_kind",
           "value": "deep_groove"
-        },
-        {
-          "confidence": 0.9,
-          "page": 11,
-          "printed_label": "B",
-          "printed_text": "8",
-          "printed_unit": "mm",
-          "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018",
-          "target": "params/width_mm",
-          "value": 8
         },
         {
           "confidence": 0.9,
@@ -50,7 +40,17 @@
         {
           "confidence": 0.9,
           "page": 11,
-          "printed_label": "C r",
+          "printed_label": "B",
+          "printed_text": "8",
+          "printed_unit": "mm",
+          "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018",
+          "target": "params/width_mm",
+          "value": 8
+        },
+        {
+          "confidence": 0.9,
+          "page": 11,
+          "printed_label": "Cr",
           "printed_text": "5 050",
           "printed_unit": "N",
           "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018",
@@ -60,7 +60,7 @@
         {
           "confidence": 0.9,
           "page": 11,
-          "printed_label": "C 0r",
+          "printed_label": "C0r",
           "printed_text": "1 970",
           "printed_unit": "N",
           "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018",
@@ -79,17 +79,6 @@
           "value": 30000
         },
         {
-          "condition": "Grease, V·VV DDU",
-          "confidence": 0.75,
-          "page": 11,
-          "printed_label": "Limiting Speeds Grease VV·DDU",
-          "printed_text": "22 000",
-          "printed_unit": "min–1",
-          "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018",
-          "target": "params/limiting_speed_rpm",
-          "value": 22000
-        },
-        {
           "condition": "Oil, Open Z",
           "confidence": 0.8,
           "page": 11,
@@ -103,7 +92,7 @@
         {
           "confidence": 0.85,
           "page": 11,
-          "printed_label": "d a min.",
+          "printed_label": "da min.",
           "printed_text": "12",
           "printed_unit": "mm",
           "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018",
@@ -113,7 +102,7 @@
         {
           "confidence": 0.85,
           "page": 11,
-          "printed_label": "d a max.",
+          "printed_label": "da max.",
           "printed_text": "13",
           "printed_unit": "mm",
           "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018",
@@ -123,7 +112,7 @@
         {
           "confidence": 0.85,
           "page": 11,
-          "printed_label": "D a max.",
+          "printed_label": "Da max.",
           "printed_text": "24",
           "printed_unit": "mm",
           "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018",
@@ -133,7 +122,7 @@
         {
           "confidence": 0.8,
           "page": 11,
-          "printed_label": "r a max.",
+          "printed_label": "ra max.",
           "printed_text": "0.3",
           "printed_unit": "mm",
           "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018",
@@ -151,18 +140,14 @@
           "value": 0.018
         },
         {
-          "confidence": 0.6,
+          "confidence": 0.7,
           "page": 11,
-          "printed_label": "Bearing Designations Shielded Sealed",
-          "printed_text": "ZZ VV DDU",
-          "printed_unit": "",
-          "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018",
-          "target": "params/seal",
-          "value": [
-            "ZZ",
-            "VV",
-            "DDU"
-          ]
+          "printed_label": "d",
+          "printed_text": "10",
+          "printed_unit": "mm",
+          "quote": "10 19 5 0.3 1 890 840 14.8 34 000 24 000 40 000 6800 ZZ VV DD — — — — — — — — — 12 12 17 0.3 — — 0.005",
+          "target": "ports/inner/diameter_mm",
+          "value": 10
         }
       ],
       "model": "6000",
