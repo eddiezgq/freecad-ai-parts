@@ -279,10 +279,10 @@ def nose_radii(setup) -> dict:
 
     lib = TL.load(ms["tool_library"]) if ms.get("tool_library") else TL.load()
     out = {}
+    ids = {t["id"]: t for t in lib["tools"]}
     for k, v in given.items():
-        try:
-            tool = TL.get(lib, v["tool"])
-        except Exception:  # noqa: BLE001  刀具库里没有：整机仿真会报
+        tool = ids.get(v.get("tool"))
+        if tool is None:                     # 刀具库里没有：整机仿真会报
             continue
         r = (tool.get("insert") or {}).get("nose_radius_mm")
         if r is not None and tool.get("kind") in ("turn", "bore"):
