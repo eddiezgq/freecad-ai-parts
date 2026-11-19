@@ -87,6 +87,7 @@ Try again: on the toolbar choose "New operation" → "Contour milling", confirm 
 - **Contours**: every layer enters and leaves on a quarter arc instead of plunging on the contour.
 - **Adaptive roughing** (New operation): FreeCAD's adaptive clearing — small width of cut, deep layers. The simulation measures the actual width of cut move by move and warns when it exceeds 1.5 times the setting.
 - **Rest machining** (New operation): an end mill one size smaller than the roughing tool cuts only the material the earlier operations left in the corners.
+- **Surface finishing** (New operation): "Surface finishing (parallel)" and "Surface finishing (waterline)" with the largest ball end mill in the library, stepover set for a 0.01 mm scallop. Parallel suits shallow surfaces, waterline steep ones (it does not reach shallow areas). Surface programs are long and take a few minutes to calculate.
 - **Allowances and heights**: milling operation panels have "Allowance and layers" (wall and floor allowance) and "Heights and lead-in" (safe height and clearance height, both above the stock top).
 - **Depth-of-cut check**: the depth and width of cut of every move are measured in the simulation and compared with the tool catalogue: a depth over the catalogue is an error and no program is output; moves wider than the catalogue width (slotting, the first ring of a pocket) have no catalogue depth, so they are reported as "unknown".
 
