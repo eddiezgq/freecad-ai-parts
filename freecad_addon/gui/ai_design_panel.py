@@ -14,6 +14,7 @@ from freecad_addon.core import ai_design as C
 from freecad_addon.gui.fem_commands import _in_background
 
 _LAST_PANEL = None                # 最近打开的面板（测试、录屏用）
+_DOCK = None                      # 面板所在的停靠窗口（只建一个，再点按钮就把它调到前面）
 
 
 def _client():
@@ -159,24 +160,18 @@ class AiDesignPanel:
         self.model_info.setText(self.model_info.text() + "\n" + T(f"已入企业库：{comp['id']}（确认人 {self.by.text().strip()}）"))
         self.ok.setEnabled(False)
 
-    # ------------------------------------------------------------ 任务面板
-
-    def accept(self):
-        FreeCADGui.Control.closeDialog()
-        return True
-
-    def reject(self):
-        FreeCADGui.Control.closeDialog()
-        return True
-
-    def getStandardButtons(self):
-        from PySide import QtWidgets
-
-        return int(QtWidgets.QDialogButtonBox.Close)
 
 
 def open_panel(library=None, enterprise=None) -> AiDesignPanel:
-    global _LAST_PANEL
+    """放在主窗口右侧的停靠面板（与“零件库”“校验”同一种）。不用任务面板：
+    有的布局里任务面板是隐藏的，面板看不见、菜单却被锁住（Eddie 2026-11-18 在问渠 CAD 里遇到）"""
+    global _LAST_PANEL, _DOCK
+    from PySide import QtCore, QtWidgets
+
+    if _DOCK is not None and _LAST_PANEL is not None:
+        _DOCK.show()
+        _DOCK.raise_()
+        return _LAST_PANEL
     if library is None:
         from freecad_addon.gui.host import get_host
 
@@ -184,8 +179,17 @@ def open_panel(library=None, enterprise=None) -> AiDesignPanel:
     if enterprise is None:
         enterprise = getattr(library, "top", None)
     panel = AiDesignPanel(library, enterprise)
-    _LAST_PANEL = panel
-    FreeCADGui.Control.showDialog(panel)
+    mw = FreeCADGui.getMainWindow()
+    dock = QtWidgets.QDockWidget(T("AI 设计零件"), mw)
+    dock.setObjectName("FapAiDesignPanel")
+    scroll = QtWidgets.QScrollArea()
+    scroll.setWidgetResizable(True)
+    scroll.setWidget(panel.form)
+    dock.setWidget(scroll)
+    mw.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
+    dock.show()
+    dock.raise_()
+    _LAST_PANEL, _DOCK = panel, dock
     return panel
 
 
@@ -194,7 +198,18 @@ class AiDesignCommand:
         return {"MenuText": T("AI 设计零件…"), "ToolTip": T("写需求原话，AI 设计零件、代码逐项校核，通过后生成三维模型、工程图和 BOM，人确认后入企业库")}
 
     def Activated(self):
-        open_panel()
+        try:
+            open_panel()
+        except Exception as exc:  # noqa: BLE001 — 打不开就说原因，并把详情写进本机日志
+            import traceback
+            from pathlib import Path
+
+            from PySide import QtWidgets
+
+            log = Path.home() / ".freecad-ai-parts" / "ai-design.log"
+            log.parent.mkdir(parents=True, exist_ok=True)
+            log.write_text(traceback.format_exc(), encoding="utf-8")
+            QtWidgets.QMessageBox.warning(FreeCADGui.getMainWindow(), T("AI 设计零件"), T(f"打不开：{exc}（详情在 {log}）"))
 
     def IsActive(self):
         return True
