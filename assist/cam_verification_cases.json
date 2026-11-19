@@ -312,6 +312,16 @@
     "en": "Replay timeline equals program time (turning)"
    },
    "source": "逐段时间 + 换刀 / per-move time + tool changes"
+  },
+  {
+   "id": "CAM-30",
+   "test": "tests/test_cam_turn_q3a.py::test_two_start_thread_lead_and_time",
+   "category": "time",
+   "title": {
+    "zh": "双头螺纹车削时间（导程 = 头数 × 螺距）",
+    "en": "Two-start threading time (lead = starts × pitch)"
+   },
+   "source": "t = Σ L/(导程·n) / t = Σ L/(lead·n)"
   }
  ]
 }
