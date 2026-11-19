@@ -10,7 +10,7 @@ from analysis import cam
 from analysis.cam import machines
 from analysis.cam import paths as P
 from analysis.cam import sim as S
-from tests.verification import record
+from tests.verification import record, record_verdict
 
 LATHE = machines.get("EX-LATHE")
 BASE = {"mode": "turn", "machine": "EX-LATHE", "segments": [[30, 40], [40, 60]], "chamfer_mm": 1}
@@ -62,6 +62,8 @@ def test_internal_thread_reaches_major_diameter():
     p = _run(setup)[0]
     assert not _errors(p), _errors(p)
     th = _threads(p)
+    record(("内螺纹最后一刀直径（M24×1.5，应到大径）", "internal thread last pass diameter (M24×1.5, to major)"),
+           max(m["b"][0] for m in th), 24.0, tol=1e-6, rel=False, unit="mm", formula="D = 24；底孔 D1 = D − 1.0825P")
     assert max(m["b"][0] for m in th) == pytest.approx(24.0) and min(m["b"][0] for m in th) > D1
     # 没有内孔：不能车内螺纹
     bad = {k: v for k, v in setup.items() if k != "bore"}
@@ -75,6 +77,9 @@ def test_taper_thread_follows_1_to_16():
              "threads": [{"z_start": 0, "z_end": -16, "d": 24, "pitch": 1.814, "taper": 1 / 16}]}
     p = _run(setup)[0]
     th = _threads(p)
+    worst = max(abs(m["b"][0] - m["a"][0] - (m["a"][2] - m["b"][2]) / 16) for m in th)
+    record(("锥螺纹 1:16 每一刀直径变化与锥度之差（最大）", "taper thread 1:16: max deviation of diameter change from taper"),
+           worst, 0.0, tol=1e-3, rel=False, unit="mm", formula="Δd = ΔL / 16")
     for m in th:
         assert m["b"][0] - m["a"][0] == pytest.approx((m["a"][2] - m["b"][2]) / 16, abs=1e-3)
     assert not [e for e in _errors(p) if "螺纹" in e]
@@ -188,6 +193,8 @@ def test_hand_written_g71_and_g76_expand_by_rule():
     mv = S.parse("\n".join(lines), LATHE)["moves"]
     cuts = [m for m in mv if m["t"] == "feed" and abs(m["b"][2] - m["a"][2]) > 5 and m["tool"] == 1]
     # 层：Ø46、Ø42、Ø41（最后一层到留 U1 的轮廓为止），再沿留余量的轮廓走一刀
+    record_verdict(("G71 手写程序按规则展开：Ø46、Ø42、Ø41 三层 + 留余量轮廓一刀", "hand-written G71 expands to Ø46, Ø42, Ø41 + contour pass"),
+                   "pass" if [round(m["b"][0], 3) for m in cuts] == [46.0, 42.0, 41.0, 41.0] else "fail", "pass")
     assert [round(m["b"][0], 3) for m in cuts] == [46.0, 42.0, 41.0, 41.0]
     assert all(m["b"][2] == pytest.approx(-29.9) for m in cuts)
     th = [m for m in mv if m["t"] == "thread"]

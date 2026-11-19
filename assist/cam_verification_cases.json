@@ -332,6 +332,36 @@
     "en": "Face groove removed volume"
    },
    "source": "V = π(R² − r²)·深 / π(R² − r²)·depth"
+  },
+  {
+   "id": "CAM-32",
+   "test": "tests/test_cam_turn_q3a.py::test_internal_thread_reaches_major_diameter",
+   "category": "geom",
+   "title": {
+    "zh": "内螺纹车到大径",
+    "en": "Internal thread cut to the major diameter"
+   },
+   "source": "ISO 68-1: D1 = D − 1.0825P"
+  },
+  {
+   "id": "CAM-33",
+   "test": "tests/test_cam_turn_q3a.py::test_taper_thread_follows_1_to_16",
+   "category": "geom",
+   "title": {
+    "zh": "锥螺纹按 1:16 锥度走刀",
+    "en": "Taper thread follows the 1:16 taper"
+   },
+   "source": "Δd = ΔL / 16"
+  },
+  {
+   "id": "CAM-34",
+   "test": "tests/test_cam_turn_q3a.py::test_hand_written_g71_and_g76_expand_by_rule",
+   "category": "post",
+   "title": {
+    "zh": "手写 G71 固定循环按规则展开",
+    "en": "Hand-written G71 cycle expands by the rule"
+   },
+   "source": "FANUC G71 一型 / FANUC G71 type I"
   }
  ]
 }
