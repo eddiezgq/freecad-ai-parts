@@ -144,6 +144,10 @@
    "source": {
     "kind": "example",
     "ref": "虚构示例"
+   },
+   "holder": {
+    "iso5608": "PCLNR 2525 M 12",
+    "f_mm": 32
    }
   },
   {
@@ -225,6 +229,9 @@
    "source": {
     "kind": "example",
     "ref": "虚构示例"
+   },
+   "holder": {
+    "iso5608": "SVJBR 2525 M 16"
    }
   },
   {

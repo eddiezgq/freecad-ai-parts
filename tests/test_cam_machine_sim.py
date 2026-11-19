@@ -149,7 +149,7 @@ def test_lathe_tip_into_chuck_jaw():
     progs = r["data"]["programs"]
     assert any("卡爪" in e for p in progs for e in _errors(p))
     assert any(p["gcode"] is None for p in progs)
-    assert any("刀杆外形还没有数据" in c["text"] for p in progs for c in p["checks"])
+    assert any("刀头外形各家不同" in c["text"] for p in progs for c in p["checks"])   # Q2：刀杆按 ISO 5608 查了，刀头仍是未知
 
 
 def test_component_poses_follow_axis_chain():

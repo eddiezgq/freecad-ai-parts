@@ -70,17 +70,34 @@ Try again: on the toolbar choose "New operation" → "Contour milling", confirm 
 
 ![Contour hits the vise jaws: no program](img/en-clash.png)
 
+# Replay, program window and deviation map
+
+After calculation press "Replay…" in the job panel (or "Replay and program…" on the toolbar); the replay window opens below the view:
+
+- On the left is the program with the current line highlighted in yellow; click a line and the tool jumps to that move. Clicking a tool path in the view also jumps to the nearest line.
+- On the right are play / pause, previous / next move, speed and the timeline. Checks with a line number (collisions, rapid moves into the stock, overtravel…) are marked red on the timeline and listed as events below; click one to jump there, and the tool stops where it collides.
+- The in-process stock changes move by move: a height field seen from above for milling, a solid of revolution for turning. Programs that failed the machine simulation and were not output can still be replayed to see where they collide.
+
+![Replay: jumping to the line that hits the vise jaw](img/en-replay.png)
+
+Tick "Deviation" to colour the finished stock by its deviation from the part model: **red = overcut, green = within ±0.02 mm, blue = material left**. For milled parts the 3D comparison is also added to the check list: cutting into the part model is an error and no program is output; material left is a warning (for example the sharp inside corners of a pocket, which an end mill cannot reach).
+
+![Deviation: an end mill cannot reach the sharp pocket corners (blue)](img/en-deviation.png)
+
 # Machines and tools
 
 - **Machines**: the four example machines (lathe, vertical machining centre, trunnion five-axis, mill-turn) are fictional and for demonstration only. Before real machining, enter your own machines in `<user folder>\.freecad-ai-parts\machines.yaml` (or the file or folder given by the environment variable `FAP_MACHINES`). The earlier simple format still works; the new format (cam-machine/1) adds the axis chains, rotary centres and component shapes that the machine simulation needs.
 - **Tool library**: one JSON file (cam-tool/1); each tool has its kind, diameter or insert, flute length, stick-out, shank diameter, holder profile and the cutting data ranges from the tool catalogue. FreeCAD CAM tool tables (`.fctl`) can be imported; add the holder profile and cutting data afterwards.
+- **Turning holders**: give the ISO 5608 holder code (e.g. `PCLNR 2525 M 12`) and the tip offset f (from the maker's catalogue) in the tool library, and the machine simulation checks the holder shank against the chuck, tailstock and turret. The head within one insert edge length of the tip differs by maker and is reported as "unknown". Without f the holder is not checked.
+- **Nose radius**: the insert nose radius rε is included in the simulation; finish turning, the last roughing pass and finish boring are compensated for rε (computed in WenQuest CAM, without G41/G42, so it works on every control). Shoulder roots come out with an R rε fillet, noted in the check list; if the drawing needs a sharp corner, add a relief groove or use an insert with a smaller nose radius. Facing goes 2rε past the centre so no pip is left.
+- **Triangle meshes for machine components**: components in the machine file can be STL meshes (`"mesh": "column.stl"`, relative to the machine file); the machine simulation checks collisions against the mesh, and the simulation fingerprint changes when the mesh file changes.
 - Do not invent missing data: leave it out. The related checks then report "unknown" instead of "pass".
 
 # Reading the checks
 
 - **Error (red)**: collisions, overtravel, overcut, rapid moves into the stock, spindle speed over the limit, threading in constant surface speed… With a machine simulation error, no program is output.
 - **Warning (amber)**: post processor not yet verified on a real machine, cutting power close to the main motor power, etc.
-- **Unknown (grey)**: not checked for lack of data, e.g. turning-tool holder shapes, missing tool lengths, imported tool paths without a target shape. They do not block the output, but you should know about them.
+- **Unknown (grey)**: not checked for lack of data, e.g. turning-tool head shapes, holders without an ISO 5608 code or tip offset, missing tool lengths, imported tool paths without a target shape. They do not block the output, but you should know about them.
 - None of the three post processors of the first edition (FANUC, Siemens, GSK lathe) has been verified on a real machine yet; the program header says so. **Always dry-run the first part and confirm it in single block.**
 
 # Free and Pro

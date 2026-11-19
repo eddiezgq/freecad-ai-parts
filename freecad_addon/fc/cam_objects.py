@@ -67,6 +67,7 @@ class JobProxy:
         _add(obj, "App::PropertyString", "ToolLengths", "铣刀刀长 JSON（刀具 id → mm）", "{}")
         _add(obj, "App::PropertyString", "Result", "计算结果摘要（JSON）", hidden=True)
         _add(obj, "App::PropertyString", "Programs", "正式程序（JSON：文件名 → 文本）", hidden=True)
+        _add(obj, "App::PropertyString", "Replay", "回放数据（JSON：每个程序的仿真程序、毛坯、刀具、带行号的检查）", hidden=True)
 
     def onDocumentRestored(self, obj):
         self.setup(obj)
@@ -417,6 +418,19 @@ def regenerate(op) -> None:
 
 
 # ---------------------------------------------------------------- 刀路线框
+def to_model(job, side, x, y, z):
+    """程序坐标 → 零件模型坐标。铣：XY 不变，Z0 在零件顶面；车：(x 直径, z) → (半径, 0, z)，
+    右端装夹 Z0 在零件右端面，调头装夹 Z0 在原来的左端面、Z 方向反过来。"""
+    d = _js(job, "PartData", {})
+    if job.Kind != "turn":
+        return x, y, z + d.get("z_top", 0.0)
+    zr = d.get("z_right", 0.0)
+    if side == "left":
+        total = sum(float(L) for _, L in d.get("segments") or [])
+        return x / 2, 0.0, (zr - total) - z
+    return x / 2, 0.0, z + zr
+
+
 def path_shape(op):
     import FreeCAD
     import Part
@@ -425,20 +439,16 @@ def path_shape(op):
     job = job_of(op)
     if not mv or job is None:
         return Part.Shape()
-    turn = job.Kind == "turn"
-    d = _js(job, "PartData", {})
-    zoff = d.get("z_right", 0.0) if turn else d.get("z_top", 0.0)
+    s = setup_of(op)
+    side = getattr(s, "Side", "") if s is not None else ""
     pos = None
     edges = []
     for m in mv:
         if m.get("t") not in ("rapid", "feed", "thread", "drill"):
             continue
-        if turn:
-            p = FreeCAD.Vector(m["x"] / 2, 0, m["z"] + zoff)
-        else:
-            p = FreeCAD.Vector(m["x"], m["y"], m["z"] + zoff)
+        p = FreeCAD.Vector(*to_model(job, side, m["x"], m.get("y", 0.0), m["z"]))
         if m["t"] == "drill":
-            top = FreeCAD.Vector(m["x"], m["y"], m.get("safe", 5.0) + zoff)
+            top = FreeCAD.Vector(*to_model(job, side, m["x"], m.get("y", 0.0), m.get("safe", 5.0)))
             edges.append(Part.LineSegment(top, p).toShape())
             pos = top
             continue
@@ -696,10 +706,38 @@ def calculate(job) -> dict:
     progs = {f"O{int(p.get('number', 1)):04d}_{p['release']['controller']}.nc": p["release"]["text"]
              for p in r["data"]["programs"] if p.get("release")}
     job.Programs = json.dumps(progs, ensure_ascii=False)
+    if job.Kind == "mill" and job.Model is not None:   # 三维比对：加工完的毛坯与零件模型（ADR-0106 Q2 第 6 步）
+        _mill_deviation_checks(job, r, progs)
+        job.Programs = json.dumps(progs, ensure_ascii=False)
+    if not hasattr(job, "Replay"):                # Q1 存的文档没有这个属性
+        job.Proxy.setup(job)
+    job.Replay = json.dumps([{"title": p.get("title", ""), "side": p.get("side", ""), "gcode": p.get("gcode"),
+                              "replay_in": p.get("replay_in"),
+                              "checks": [c for c in p["checks"] if c.get("line") is not None]}
+                             for p in r["data"]["programs"] if p.get("replay_in")], ensure_ascii=False)
     job.Result = json.dumps({"summary": S.summary(r), "checks": S.checks(r),
                              "fingerprints": [(p.get("machine_sim") or {}).get("fingerprint") for p in r["data"]["programs"]]},
                             ensure_ascii=False)
     return r
+
+
+def _mill_deviation_checks(job, r, progs):
+    """铣削程序按回放的 dexel 切一遍，与零件模型比：过切 → 错误、不出正式程序；多留 → 提示"""
+    from analysis.cam import machines
+    from analysis.cam import replay as R
+    from freecad_addon.fc import cam_deviation as CD
+
+    mach = machines.get(job.Machine)
+    for p in r["data"]["programs"]:
+        if not p.get("replay_in"):
+            continue
+        rp = R.Replay(p.get("gcode"), mach, p["replay_in"])
+        extra = CD.checks_for(job, rp, p.get("side", ""))
+        p["checks"] += extra
+        if any(c["level"] == "error" for c in extra) and p.get("release"):
+            progs.pop(f"O{int(p.get('number', 1)):04d}_{p['release']['controller']}.nc", None)
+            p["release"] = None
+            p["checks"].append({"line": None, "level": "error", "text": "三维比对有过切，程序没有输出（改好再算）"})
 
 
 def card_doc(job) -> dict:

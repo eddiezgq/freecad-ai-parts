@@ -103,7 +103,10 @@ class JobPanel:
         self.calc.clicked.connect(self.do_calculate)
         self.save = QtWidgets.QPushButton(T("保存程序与工艺卡…"))
         self.save.clicked.connect(self.save_dialog)
-        for b in (self.rule, self.ai, self.calc, self.save):
+        self.replay = QtWidgets.QPushButton(T("回放…"))
+        self.replay.setToolTip(T("按程序回放：刀具怎么走、在哪一行撞；程序窗口与刀路联动；算完看色差"))
+        self.replay.clicked.connect(self.open_replay)
+        for b in (self.rule, self.ai, self.calc, self.replay, self.save):
             row.addWidget(b)
         lay.addLayout(row)
         self.summary = QtWidgets.QLabel("")
@@ -176,6 +179,13 @@ class JobPanel:
             it.setForeground(QtGui.QColor(COLORS.get(c["level"], "#000000")))
             self.checks.addItem(it)
         self.save.setEnabled(bool(json.loads(self.job.Programs or "{}")))
+        self.replay.setEnabled(bool(json.loads(getattr(self.job, "Replay", "") or "[]")))
+
+    def open_replay(self):
+        from freecad_addon.gui import cam_replay
+
+        cam_replay.install_observer()
+        return cam_replay.open_for(self.job)
 
     def save_to(self, folder, *, card: bool = True, lang: str = "zh"):
         from pathlib import Path
@@ -572,13 +582,20 @@ class OpEditCommand:
         FreeCAD.ActiveDocument.recompute()
 
 
+def _replay_cmd():
+    from freecad_addon.gui import cam_replay
+
+    return cam_replay.ReplayCommand()
+
+
 ADD_OPS = {**{f"FAP_CamAddTurn_{k}": AddOpCommand(k, True) for k in CO.TURN_KINDS},
            **{f"FAP_CamAddMill_{k}": AddOpCommand(k, False) for k in CO.MILL_KINDS}}
 
 COMMANDS = {"FAP_CamNewTurnJob": NewJobCommand("turn"), "FAP_CamNewMillJob": NewJobCommand("mill"),
             "FAP_CamJob": JobActionCommand("edit"), "FAP_CamOpRegen": OpCommand("regen"), "FAP_CamOpConfirm": OpCommand("confirm"),
             "FAP_CamOpUp": OpCommand("up"), "FAP_CamOpDown": OpCommand("down"), "FAP_CamOpCopy": OpEditCommand("copy"),
-            "FAP_CamOpHide": OpEditCommand("hide"), **ADD_OPS, "FAP_CamNewOp": AddOpGroup()}
+            "FAP_CamOpHide": OpEditCommand("hide"), **ADD_OPS, "FAP_CamNewOp": AddOpGroup(), "FAP_CamReplay": _replay_cmd()}
+
 
 
 def register():

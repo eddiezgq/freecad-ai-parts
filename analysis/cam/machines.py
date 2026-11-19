@@ -54,7 +54,8 @@ def _read_models(path: Path) -> list[dict]:
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     out = []
     for m in data.get("machines") or []:
-        out.append(MM.check(dict(m), str(path)) if m.get("format") == MM.FORMAT else _legacy_entry(path, m))
+        out.append(MM.with_dir(MM.check(dict(m), str(path)), path.parent) if m.get("format") == MM.FORMAT
+                   else _legacy_entry(path, m))
     return out
 
 

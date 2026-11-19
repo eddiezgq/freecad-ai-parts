@@ -334,9 +334,10 @@ def _seg_points(a, b, step):
     return np.outer(1 - t, a) + np.outer(t, b)
 
 
-def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01):
+def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=None):
     """stock：{"d": 毛坯直径, "z_right": 毛坯右端（端面余量）, "z_left": 毛坯左端（卡盘处，负数）}，可另给 "bore_d"（毛坯已有的内孔）
     tools：{刀号: {"kind": "turn"} | {"kind": "groove", "w": 刀宽} | {"kind": "thread"} | {"kind": "drill", "d": 直径} | {"kind": "bore"}}
+           外圆刀、镗刀可带 "nose_r"（刀尖圆弧半径）：程序点是假想刀尖（外圆刀方位 3、镗刀方位 2），按半径 nose_r 的圆扫过去切（ADR-0106 Q2）
     target：比对用轮廓 [(z, d), …]（成品或本工序尺寸），或 {"outer": 轮廓, "grooves": [(z 右边, 宽, 槽底直径)], "threads": [(z 起, z 止, 牙底直径)],
             "inner": 内轮廓 [(z, d), …]}。返回最终半径网格（外 r、内 ri）、碰撞、过切 / 残留。
     材料在 ri < 半径 < r 之间。螺纹按整圈切（不计螺旋线），比对时螺纹段看牙底直径；钻头按平底。"""
@@ -349,6 +350,8 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01):
         zmax = max(z for z, _ in stock["profile"])
         r = np.array([d_at(stock["profile"], z) / 2 if z <= zmax + 1e-9 else 0.0 for z in zc])
     issues, ap_max = [], 0.0
+    if history is not None:                       # 回放用：开始时和每段走完的 (z, r, ri)
+        history.append((zc, r.copy(), ri.copy()))
 
     def idx_of(zs):
         k = np.ceil((np.asarray(zs) - z0) / h - 0.5).astype(int)
@@ -359,7 +362,8 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01):
         kind = tl.get("kind", "turn")
         a = np.array([mv["a"][2], mv["a"][0] / 2])
         b = np.array([mv["b"][2], mv["b"][0] / 2])
-        pts = _seg_points(a, b, h / 4)
+        rn = float(tl.get("nose_r") or 0.0) if kind in ("turn", "bore") else 0.0
+        pts = _seg_points(a, b, h / 4 if rn <= 0 else h)
         solid = r > ri + 1e-12
         new_r, new_ri = r.copy(), ri.copy()
         if kind in ("bore", "drill"):
@@ -371,6 +375,9 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01):
                     zmax_p = pts[on_axis, 0].max()
                     sel = (zc >= zmin) & (zc <= max(zmax_p, z1))
                     grow[sel] = tl["d"] / 2
+            elif rn > 0:                                  # 镗刀刀尖圆弧：圆心 = 假想刀尖 + (rε, −rε)，切到圆的上半边
+                k, rr = _nose_envelope(pts[:, 0] + rn, pts[:, 1] - rn, rn, z0, h, n, upper=True)
+                np.maximum.at(grow, k, rr)
             else:
                 k = idx_of(pts[:, 0])
                 ok = (k >= 0) & (k < n)
@@ -386,6 +393,10 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01):
                     i1 = min(n, math.floor((zp - z0) / h - 0.5) + 1)
                     if i1 > i0:
                         np.minimum(cut[i0:i1], rp, out=cut[i0:i1])
+            elif rn > 0:                                  # 外圆刀刀尖圆弧：圆心 = 假想刀尖 + (rε, rε)，切到圆的下半边
+                k, rr = _nose_envelope(pts[:, 0] + rn, pts[:, 1] + rn, rn, z0, h, n, upper=False)
+                np.minimum.at(cut, k, rr)
+                cut = np.minimum.accumulate(cut)
             else:
                 k = idx_of(pts[:, 0])
                 ok = (k >= 0) & (k < n)
@@ -408,6 +419,8 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01):
                 ap_max = max(ap_max, ap)
                 mv["ap"] = ap
         r, ri = new_r, new_ri
+        if history is not None:
+            history.append((zc, r.copy(), ri.copy()))
     res = {"z": zc, "r": r, "ri": ri, "issues": issues, "ap_max": ap_max}
     if target:
         tg = target if isinstance(target, dict) else {"outer": target}
@@ -416,10 +429,19 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01):
             zt = min(z for z, _ in outer)
             sel = (zc <= 0.0) & (zc >= zt)
             rt = np.array([d_at(outer, z) / 2 for z in zc])
+            ra = rt                                   # 残留按“做得到的轮廓”比，过切按设计轮廓比
+            rn = float(tg.get("nose_outer") or 0.0)
+            if rn > 0:                                # 刀尖圆弧做得到的轮廓：凹拐角补成 R rε 圆角
+                d_end = max(d for z, d in outer if abs(z - zt) < 1e-9)      # 轮廓左端以外是最后那个轴肩的大直径
+                ext = np.where(zc < zt, d_end / 2, np.where(zc > 1e-9, 0.0, rt))   # 端面右边是空的
+                ra = np.where(zc > 1e-9, rt, achievable(zc, ext, rn, h))
+                if ((ra - rt)[sel] > tol).any():
+                    res["fillet_outer"] = rn
             skip = np.zeros(n, bool)
             for zr, w, db in tg.get("grooves") or []:
                 g = (zc <= zr + 1e-9) & (zc >= zr - w - 1e-9)
                 rt = np.where(g, db / 2, rt)
+                ra = np.where(g, db / 2, ra)
             for za, zb, droot in tg.get("threads") or []:
                 th = (zc <= za) & (zc >= zb)
                 skip |= th
@@ -429,13 +451,15 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01):
                                           "text": f"螺纹没车到牙底：Z{zc[left].max():.2f} 处直径 {2 * r[left].max():.3f}，牙底应为 {droot:.3f}"})
             sel &= ~skip
             dev = r[sel] - rt[sel]
+            dev_a = np.where(dev < 0, dev, np.maximum(r[sel] - ra[sel], 0.0))
             res["dev_min"] = float(dev.min()) if dev.size else 0.0
-            res["dev_max"] = float(dev.max()) if dev.size else 0.0
+            res["dev_max"] = float(dev_a.max()) if dev.size else 0.0
             over = np.nonzero(dev < -tol)[0]
             if len(over):
                 zs = zc[sel][over]
                 res["issues"].append({"line": None, "level": "error",
                                       "text": f"过切：Z{zs.max():.2f} ~ Z{zs.min():.2f}，最多切多了 {-dev.min():.3f} mm（半径）"})
+            dev = dev_a
             under = np.nonzero(dev > tol)[0]
             res["under_mm"] = float(dev[under].max()) if len(under) else 0.0
             res["under_z"] = [float(zc[sel][under].max()), float(zc[sel][under].min())] if len(under) else None
@@ -447,7 +471,13 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01):
             zt = min(z for z, _ in inner)
             sel = (zc <= 0.0) & (zc >= zt)
             rt = np.array([d_at(inner, z) / 2 for z in zc[sel]])
-            dev = rt - ri[sel]                     # 正：内孔还小（残留）；负：镗大了（过切）
+            rn = float(tg.get("nose_inner") or 0.0)
+            ra = rt
+            if rn > 0:
+                ra = -achievable(zc[sel], -rt, rn, h)        # 内孔：把半径取负，同一套算法
+                if (rt - ra > tol).any():
+                    res["fillet_inner"] = rn
+            dev = np.where(rt - ri[sel] < 0, rt - ri[sel], np.maximum(ra - ri[sel], 0.0))   # 镗大了按设计比，残留按做得到的比
             res["inner_dev_min"] = float(dev.min()) if dev.size else 0.0
             res["inner_dev_max"] = float(dev.max()) if dev.size else 0.0
             if dev.size and dev.min() < -tol:
@@ -457,6 +487,33 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01):
                 res["issues"].append({"line": None, "level": "error",
                                       "text": f"内孔残留：Z{zz.max():.2f} ~ Z{zz.min():.2f}，最多 {dev.max():.3f} mm（半径）"})
     return res
+
+
+def achievable(zc, rt, rn, h):
+    """外圆目标轮廓 rt(z)（网格 zc）→ 半径 rn 的刀尖圆弧从外面车得到的轮廓：圆心能到的最低位置
+    c(z) = max(rt(z′) + √(rn² − (z′ − z)²))，车出来的表面 = min(c(z′) − √(rn² − (z′ − z)²))（形态学开运算）。
+    凸的地方不变，凹拐角（轴肩根部）补成 R rn 的圆角。"""
+    m = max(1, math.ceil(rn / h))
+    dz = np.arange(-m, m + 1)
+    w = np.sqrt(np.clip(rn * rn - (dz * h) ** 2, 0.0, None))
+    n = len(rt)
+    pad = np.concatenate([np.full(m, rt[0]), rt, np.full(m, rt[-1])])
+    c = np.max(np.stack([pad[m + k: m + k + n] + w[i] for i, k in enumerate(dz)]), 0)
+    cp = np.concatenate([np.full(m, c[0]), c, np.full(m, c[-1])])
+    return np.min(np.stack([cp[m + k: m + k + n] - w[i] for i, k in enumerate(dz)]), 0)
+
+
+def _nose_envelope(cz, cr, rn, z0, h, n, upper):
+    """一串刀尖圆弧圆心 (cz, cr) → 圆在网格格心上的最低点（外圆，upper=False）或最高点（内孔）：(格号, r)。
+    按格心的 z 精确算（不能先在圆上取点再四舍五入到格：圆边上坡很陡，差半格就差好几丝）。"""
+    m = math.ceil(rn / h) + 1
+    kc = np.floor((cz - z0) / h).astype(int)
+    kk = kc[:, None] + np.arange(-m, m + 1)[None, :]
+    dz = z0 + (kk + 0.5) * h - cz[:, None]
+    ok = (np.abs(dz) <= rn) & (kk >= 0) & (kk < n)
+    dr = np.sqrt(np.clip(rn * rn - dz * dz, 0.0, None))
+    rr = cr[:, None] + (dr if upper else -dr)
+    return kk[ok], rr[ok]
 
 
 # ---------------------------------------------------------------- 铣削仿真

@@ -104,6 +104,8 @@ def _msim(setup, mach, parsed, gcode, stock, extra, prog, withhold, expect_d=Non
     prog["checks"] += res["checks"]
     prog["machine_sim"] = {"status": res["status"], "fingerprint": res["fingerprint"], "samples": res["samples"]}
     if withhold and res["status"] == "error":
+        if "replay_in" in prog:                  # 回放还要看是在哪里撞的：仿真用的程序留给回放，不当正式程序
+            prog["replay_in"]["gcode"] = prog["gcode"]
         prog["gcode"] = None
         prog["checks"].append({"line": None, "level": "error", "text": "整机仿真不通过，程序没有输出（改好再算）"})
 
@@ -226,13 +228,14 @@ def turn_build_op(ctx, sc, spec, c):
     k, max_rpm, stock_d, tgt = spec["kind"], ctx["max_rpm"], ctx["stock_d"], sc["tgt"]
     if k == "rough":
         e = ctx["e"]
-        mv = (P.turn_face(stock_d, e, max(min(c["ap"], 2.0), 0.2), c["f"]) if e > 1e-3 else []) + \
-            P.turn_rough(tgt, stock_d, c["ap"], c["f"], ctx["allow"], 0.1)
+        mv = (P.turn_face(stock_d, e, max(min(c["ap"], 2.0), 0.2), c["f"], nose_r=c.get("nose_r", 0.0)) if e > 1e-3 else []) + \
+            P.turn_rough(tgt, stock_d, c["ap"], c["f"], ctx["allow"], 0.1, nose_r=c.get("nose_r", 0.0))
         return {"op": {"tool": {"n": 1, "name": "外圆粗车刀"}, "spindle": {"css": c["vc"], "max_rpm": max_rpm}, "moves": mv,
-                       "title": "粗车"}, "tools": {1: {"kind": "turn"}}, "target": {}}
+                       "title": "粗车"}, "tools": {1: {"kind": "turn", "nose_r": c.get("nose_r", 0.0)}}, "target": {}}
     if k == "finish":
         return {"op": {"tool": {"n": 2, "name": "外圆精车刀"}, "spindle": {"css": c["vc"], "max_rpm": max_rpm},
-                       "moves": P.turn_finish(tgt, stock_d, c["f"]), "title": "精车"}, "tools": {2: {"kind": "turn"}}, "target": {}}
+                       "moves": P.turn_finish(tgt, stock_d, c["f"], nose_r=c.get("nose_r", 0.0)), "title": "精车"},
+                "tools": {2: {"kind": "turn", "nose_r": c.get("nose_r", 0.0)}}, "target": {}}
     if k == "groove":
         gv = sc["grooves"][spec["i"]]
         d_from = P.d_at(tgt, gv["z"] - gv["width"] / 2)
@@ -262,8 +265,40 @@ def turn_build_op(ctx, sc, spec, c):
                        "moves": P.lathe_drill(depth, dd, c["f"], c.get("peck", 0.0)), "title": "钻孔"},
                 "tools": {5: {"kind": "drill", "d": dd}}, "target": {}}
     return {"op": {"tool": {"n": 6, "name": "镗刀"}, "spindle": {"css": c["vc"], "max_rpm": max_rpm},
-                   "moves": P.turn_bore(inner, dd, c["ap"], c["f"], f_finish=c.get("f_finish")), "title": "镗孔"},
-            "tools": {6: {"kind": "bore"}}, "target": {"inner": inner}}
+                   "moves": P.turn_bore(inner, dd, c["ap"], c["f"], f_finish=c.get("f_finish"), nose_r=c.get("nose_r", 0.0)),
+                   "title": "镗孔"},
+            "tools": {6: {"kind": "bore", "nose_r": c.get("nose_r", 0.0)}}, "target": {"inner": inner}}
+
+
+def _jsonable(v):
+    """元组 → 列表（结果要能存成 JSON）"""
+    if isinstance(v, dict):
+        return {str(k): _jsonable(x) for k, x in v.items()}
+    if isinstance(v, (list, tuple)):
+        return [_jsonable(x) for x in v]
+    return float(v) if hasattr(v, "dtype") else v
+
+
+def nose_radii(setup) -> dict:
+    """车刀刀尖圆弧半径 {刀号: rε}：按整机仿真设置里刀号对应的刀具库刀具（刀片 nose_radius_mm）。
+    没对应上的刀按尖刀算（与以前一样）；刀尖圆弧补偿与仿真都用这个值（ADR-0106 Q2 第 4 步）。"""
+    ms = setup.get("machine_sim") or {}
+    given = ms.get("tools") or {}
+    if not given:
+        return {}
+    from analysis.cam import tools as TL
+
+    lib = TL.load(ms["tool_library"]) if ms.get("tool_library") else TL.load()
+    out = {}
+    ids = {t["id"]: t for t in lib["tools"]}
+    for k, v in given.items():
+        tool = ids.get(v.get("tool"))
+        if tool is None:                     # 刀具库里没有：整机仿真会报
+            continue
+        r = (tool.get("insert") or {}).get("nose_radius_mm")
+        if r is not None and tool.get("kind") in ("turn", "bore"):
+            out[int(k)] = float(r)
+    return out
 
 
 def _turn(setup, mach):
@@ -281,8 +316,12 @@ def _turn(setup, mach):
         tools_sim: dict = {}
         tg = {"outer": tgt, "grooves": [], "threads": []}
         cuts = {}
+        noses = nose_radii(setup)
         for spec in specs:
             c = _cut(spec.get("cut"), turn_default_cut(setup, sc, spec)) if spec.get("cut") else turn_default_cut(setup, sc, spec)
+            n_tool = {"rough": 1, "finish": 2, "bore": 6}.get(spec["kind"])
+            if n_tool in noses and "nose_r" not in c:
+                c = {**c, "nose_r": noses[n_tool]}
             b = turn_build_op(ctx, sc, spec, c)
             prog["ops"].append(b["op"])
             tools_sim.update(b["tools"])
@@ -290,12 +329,19 @@ def _turn(setup, mach):
                 tg[key] = (tg.get(key) or []) + v if isinstance(v, list) and key != "inner" else v
             cuts[spec["kind"]] = c
         stock = {"d": stock_d, "z_right": e, "z_left": -(total + e)}
+        # 精车（没有精车就粗车）、镗刀的刀尖圆弧：轴肩根部、内孔台阶根部车出来是 R rε 的圆角，按“做得到的轮廓”比
+        tg["nose_outer"] = (tools_sim.get(2) or tools_sim.get(1) or {}).get("nose_r", 0.0)
+        tg["nose_inner"] = (tools_sim.get(6) or {}).get("nose_r", 0.0)
         g = post.post(prog, mach)
         parsed = sim.parse(g, mach)
         checks = sim.machine_checks(parsed, mach)
         tm = sim.timing(parsed, mach)
         s = sim.simulate_turn(parsed, stock, tools_sim, target=tg)
         checks += s["issues"]
+        for side_name, rr in (("轴肩根部", s.get("fillet_outer")), ("内孔台阶根部", s.get("fillet_inner"))):
+            if rr:
+                checks.append({"line": None, "level": "warn",
+                               "text": f"{side_name}车出来是 R{rr:g} 的圆角（刀尖圆弧）；图纸要清角就要加退刀槽或换小圆弧刀片"})
         if s.get("under_mm", 0) > 0.05:
             checks.append({"line": None, "level": "error", "text": f"残留：最多 {s['under_mm']:.3f} mm（半径），Z{s['under_z'][0]:.2f} ~ Z{s['under_z'][1]:.2f}"})
         if s.get("face_left", 0) > 0.01:
@@ -314,7 +360,9 @@ def _turn(setup, mach):
                        "reach_mm": reach,
                        **({"inner_dev_min_mm": round(s["inner_dev_min"], 4), "inner_dev_max_mm": round(s["inner_dev_max"], 4)}
                           if "inner_dev_min" in s else {})},
-               "power": pdet, "target": [[float(z), float(d)] for z, d in tgt]}
+               "power": pdet, "target": [[float(z), float(d)] for z, d in tgt],
+               "replay_in": {"kind": "turn", "stock": stock, "tools": {str(k): v for k, v in tools_sim.items()},
+                             "target": _jsonable(tg)}}
         _msim(setup, mach, parsed, g, stock, [], out, withhold=True)
         _release(setup, mach, prog, out)
         progs.append(out)
@@ -447,7 +495,9 @@ def _mill(setup, mach):
     out = {"title": "铣削", "number": 5001, "gcode": g, "time": tm, "checks": checks, "power": pdet,
            "sim": {"over_cells": s.get("over", 0), "under_cells": under, "dev_min_mm": round(s.get("dev_min", 0.0), 4),
                    "dev_max_mm": round(s.get("dev_max", 0.0), 4), "ap_max_mm": round(s["ap_max"], 3), "cell_mm": round(s["h"], 4)},
-           "tools": {str(k): v for k, v in tools.items()}}
+           "tools": {str(k): v for k, v in tools.items()},
+           "replay_in": {"kind": "mill", "stock": {"box": box, "top": 0.0, "height": stock.get("height")},
+                         "tools": {str(k): v for k, v in tools.items()}}}
     _msim(setup, mach, parsed, g, {"box": box, "top": 0.0, "height": stock.get("height")}, extra, out, withhold=True,
           expect_d={k: v["d"] for k, v in tools.items()})
     _release(setup, mach, prog, out)
@@ -493,7 +543,9 @@ def _program(setup, mach):
     checks += s["issues"]
     out = {"title": prog.get("title") or "外来刀路", "number": prog.get("number", 6001), "gcode": g, "time": tm, "checks": checks,
            "power": {"status": "unknown"}, "sim": {"ap_max_mm": round(s["ap_max"], 3), "cell_mm": round(s["h"], 4)},
-           "tools": {str(k): v for k, v in tools.items()}, "generator": prog.get("generator", "")}
+           "tools": {str(k): v for k, v in tools.items()}, "generator": prog.get("generator", ""),
+           "replay_in": {"kind": "mill", "stock": {"box": box, "top": 0.0, "height": stock.get("height")},
+                         "tools": {str(k): v for k, v in tools.items()}}}
     out["checks"].append({"line": None, "level": "unknown", "text": "外来刀路没有目标形状，过切 / 残留没有比对（看仿真结果确认）"})
     _msim(setup, mach, parsed, g, {"box": box, "top": 0.0, "height": stock.get("height")}, extra, out, withhold=True,
           expect_d={k: v["d"] for k, v in tools.items()})
