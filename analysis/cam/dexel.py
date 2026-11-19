@@ -463,7 +463,7 @@ def surface_deviation(stock: Dexel, part: Dexel):
             t = arr[ii, jj, qq]
             ps, pe = PS[ii, jj], PE[ii, jj]
             with np.errstate(invalid="ignore"):
-                inside = ((t[:, None] > ps + 1e-9) & (t[:, None] < pe - 1e-9)).any(1)
+                inside = ((t[:, None] > ps + 1e-6) & (t[:, None] < pe - 1e-6)).any(1)
             p = np.zeros((len(ii), 3))
             p[:, u], p[:, v], p[:, k] = stock.c[u][ii], stock.c[v][jj], t
             P.append(p)

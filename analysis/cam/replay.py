@@ -54,6 +54,7 @@ class Replay:
         self.events.sort(key=lambda e: e["i"])
         self.keep_every = keep_every
         self._stock_in = replay_in.get("stock") or {}
+        self._target = replay_in.get("target") or {}
         self._h = h
         self._built = False
 
@@ -159,9 +160,10 @@ class Replay:
         return self._volume[n] if not self.lathe else float("nan")
 
 
-def height_mesh(dx: DX.Dexel, stride: int = 1):
+def height_mesh(dx: DX.Dexel, stride: int = 1, cells: bool = False):
     """铣削在制毛坯画面：Z 向 dexel 每根射线的最高点当顶面高度，画成“高度场方块”网格（顶面 + 相邻高度差处的侧面 + 外围侧面）。
-    返回 (顶点 (n,3), 三角形 (m,3))；没有材料的格不画。stride > 1 时隔格取（大网格时画得快）。"""
+    返回 (顶点 (n,3), 三角形 (m,3))；cells=True 时再加每个三角形属于哪一格 (m, 2)（色差上色用）。
+    没有材料的格不画。stride > 1 时隔格取（大网格时画得快）。"""
     E = dx.E[2][::stride, ::stride]
     S0 = dx.S[2][::stride, ::stride]
     top = np.where(np.isnan(E), np.nan, E)
@@ -171,9 +173,9 @@ def height_mesh(dx: DX.Dexel, stride: int = 1):
     h = dx.h * stride
     xs, ys = dx.c[0][::stride], dx.c[1][::stride]
     nx, ny = top.shape
-    V, T = [], []
+    V, T, C = [], [], []
 
-    def quads(p0, p1, p2, p3):
+    def quads(p0, p1, p2, p3, ci, cj):
         base = sum(len(v) for v in V)
         n = len(p0)
         if not n:
@@ -182,14 +184,16 @@ def height_mesh(dx: DX.Dexel, stride: int = 1):
         idx = np.arange(n)
         T.append(np.stack([base + idx, base + n + idx, base + 2 * n + idx], 1))
         T.append(np.stack([base + idx, base + 2 * n + idx, base + 3 * n + idx], 1))
+        cc = np.stack([ci, cj], 1) * stride
+        C.extend([cc, cc])
 
     I, J = np.nonzero(has)
     x0, x1 = xs[I] - h / 2, xs[I] + h / 2
     y0, y1 = ys[J] - h / 2, ys[J] + h / 2
     z = top[I, J]
-    quads(np.stack([x0, y0, z], 1), np.stack([x1, y0, z], 1), np.stack([x1, y1, z], 1), np.stack([x0, y1, z], 1))
+    quads(np.stack([x0, y0, z], 1), np.stack([x1, y0, z], 1), np.stack([x1, y1, z], 1), np.stack([x0, y1, z], 1), I, J)
     zb = bot[I, J]
-    quads(np.stack([x0, y0, zb], 1), np.stack([x0, y1, zb], 1), np.stack([x1, y1, zb], 1), np.stack([x1, y0, zb], 1))
+    quads(np.stack([x0, y0, zb], 1), np.stack([x0, y1, zb], 1), np.stack([x1, y1, zb], 1), np.stack([x1, y0, zb], 1), I, J)
     # 侧面：本格比邻格高的那一段
     for di, dj in ((1, 0), (-1, 0), (0, 1), (0, -1)):
         ni, nj = I + di, J + dj
@@ -209,9 +213,13 @@ def height_mesh(dx: DX.Dexel, stride: int = 1):
             xa_, xb_ = (x1[sel], x0[sel]) if dj == 1 else (x0[sel], x1[sel])
             pa, pb = np.stack([xa_, yy], 1), np.stack([xb_, yy], 1)
         lo, hi = nt[sel], z[sel]
-        quads(np.column_stack([pa, lo]), np.column_stack([pb, lo]), np.column_stack([pb, hi]), np.column_stack([pa, hi]))
+        quads(np.column_stack([pa, lo]), np.column_stack([pb, lo]), np.column_stack([pb, hi]), np.column_stack([pa, hi]),
+              I[sel], J[sel])
     if not V:
-        return np.zeros((0, 3)), np.zeros((0, 3), int)
+        empty = (np.zeros((0, 3)), np.zeros((0, 3), int))
+        return (*empty, np.zeros((0, 2), int)) if cells else empty
+    if cells:
+        return np.concatenate(V), np.concatenate(T), np.concatenate(C)
     return np.concatenate(V), np.concatenate(T)
 
 
@@ -247,3 +255,31 @@ def lathe_mesh(z, r, ri=None, seg=48, stride=5):
     if not V:
         return np.zeros((0, 3)), np.zeros((0, 3), int)
     return np.concatenate(V), (np.concatenate(T) if T else np.zeros((0, 3), int))
+
+
+def lathe_deviation(rp: Replay, tol=0.01, seg=48, stride=5):
+    """车削：加工完的半径网格与目标轮廓（replay_in 的 target，外圆与内孔）比，给色差图用。
+    返回 {"over_max", "under_max", "tol", "mesh": (顶点, 三角形, 每个三角形的偏差)}；偏差正 = 残留，负 = 过切（半径方向）"""
+    from analysis.cam.paths import d_at
+
+    z, r, ri = rp.stock_after(len(rp.frames))
+    tg = rp._target if hasattr(rp, "_target") else {}
+    outer = tg.get("outer")
+    if not outer:
+        return None
+    zt = min(zz for zz, _ in outer)
+    rt = np.array([d_at(outer, zz) / 2 for zz in z])
+    dev_o = np.where((z <= 0) & (z >= zt), r - rt, 0.0)
+    for zr, w, db in tg.get("grooves") or []:
+        g = (z <= zr + 1e-9) & (z >= zr - w - 1e-9)
+        dev_o = np.where(g, r - db / 2, dev_o)
+    for za, zb, _droot in tg.get("threads") or []:
+        dev_o = np.where((z <= za) & (z >= zb), 0.0, dev_o)          # 螺纹段按整圈切，不上色
+    v, t = lathe_mesh(z, r, ri, seg=seg, stride=stride)
+    zs = np.asarray(z)[::stride]
+    do = dev_o[::stride]
+    outer_tri = t.max(1) < len(zs) * seg                              # 外圆面的顶点在最前面
+    dev = np.zeros(len(t))
+    dev[outer_tri] = do[np.minimum(t[outer_tri].min(1) // seg, len(do) - 1)]
+    return {"over_max": float(max(0.0, -dev_o.min())), "under_max": float(max(0.0, dev_o.max())), "tol": tol,
+            "mesh": (v, t, dev)}
