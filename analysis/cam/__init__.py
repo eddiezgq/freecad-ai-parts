@@ -164,9 +164,14 @@ def _turn_features(setup, total, reach_right):
         if zb >= za:
             raise SetupError("螺纹 z_end 要在 z_start 左边（更负）")
         sd = side(za, zb)
+        taper = float(t.get("taper") or 0.0)
         if sd == "left":
+            # 调头：原来的左端变成起刀端；锥螺纹的大径换到新的起刀处（原来 z_end 处）
+            d = d + taper * (za - zb)
+            taper = -taper
             za, zb = -(zb + total), -(za + total)
-        out[sd]["threads"].append({"z_start": za, "z_end": zb, "d": d, "pitch": pch, "cut": t.get("cut"), "gi": ti})
+        out[sd]["threads"].append({"z_start": za, "z_end": zb, "d": d, "pitch": pch, "internal": bool(t.get("internal")),
+                                   "taper": taper, "starts": int(t.get("starts") or 1), "cut": t.get("cut"), "gi": ti})
     return out
 
 
@@ -254,16 +259,25 @@ def turn_build_op(ctx, sc, spec, c):
                 "tools": {3: {"kind": "groove", "w": gv["tool_w"]}}, "target": {"grooves": [(gv["z"], gv["width"], gv["d"])]}}
     if k == "thread":
         tv = sc["threads"][spec["i"]]
-        run_in = max(2 * tv["pitch"], P.CLEAR)
+        run_in = max(2 * tv.get("starts", 1) * tv["pitch"], _heights(c)["clear"])
         free = tv["z_start"] >= -1e-9 or any(gv["z"] >= tv["z_start"] + run_in - 1e-9 and gv["z"] - gv["width"] <= tv["z_start"] + 1e-9
                                              for gv in sc["grooves"])
         if not free:
             raise SetupError(f"螺纹起刀处（本次装夹 Z{tv['z_start']:g} 右边 {run_in:g} mm）没有退刀槽，也不在端面——起刀会撞工件")
         rpm = P.spindle_rpm(c["vc"], tv["d"], max_rpm)
-        mv = P.turn_thread(tv["z_start"], tv["z_end"], tv["d"], tv["pitch"])
-        return {"op": {"tool": {"n": 4, "name": f"外螺纹车刀 P{tv['pitch']:g}"}, "spindle": {"rpm": round(rpm)}, "moves": mv,
-                       "title": f"车螺纹 {spec['i'] + 1}"},
-                "tools": {4: {"kind": "thread"}}, "target": {"threads": [(tv["z_start"], tv["z_end"], tv["d"] - P.ISO_D3 * tv["pitch"])]}}
+        internal, taper, starts = tv.get("internal", False), tv.get("taper", 0.0), tv.get("starts", 1)
+        if internal and not sc["bore"]:
+            raise SetupError(f"内螺纹 M{tv['d']:g} 所在的这次装夹没有内孔（底孔要按小径 D1 = D − 1.0825P 镗出来）")
+        mv = P.turn_thread(tv["z_start"], tv["z_end"], tv["d"], tv["pitch"], run_in=run_in,
+                           internal=internal, taper=taper, starts=starts, clear=_heights(c)["clear"])
+        n_tool = 7 if internal else 4
+        root_a = tv["d"] + (0.0 if internal else -P.ISO_D3 * tv["pitch"])
+        root_b = root_a + taper * (tv["z_start"] - tv["z_end"])
+        return {"op": {"tool": {"n": n_tool, "name": f"{'内' if internal else '外'}螺纹车刀 P{tv['pitch']:g}"},
+                       "spindle": {"rpm": round(rpm)}, "moves": mv, "title": f"车螺纹 {spec['i'] + 1}"},
+                "tools": {n_tool: {"kind": "thread_in" if internal else "thread"}},
+                "target": {"threads": [{"za": tv["z_start"], "zb": tv["z_end"], "root_a": root_a, "root_b": root_b,
+                                        "internal": internal}]}}
     b = sc["bore"]
     inner = P.inner_profile([[float(d), float(L)] for d, L in b["segments"]])
     dd = float(b["drill_d"])

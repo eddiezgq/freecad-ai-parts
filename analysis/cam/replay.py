@@ -273,8 +273,10 @@ def lathe_deviation(rp: Replay, tol=0.01, seg=48, stride=5):
     for zr, w, db in tg.get("grooves") or []:
         g = (z <= zr + 1e-9) & (z >= zr - w - 1e-9)
         dev_o = np.where(g, r - db / 2, dev_o)
-    for za, zb, _droot in tg.get("threads") or []:
-        dev_o = np.where((z <= za) & (z >= zb), 0.0, dev_o)          # 螺纹段按整圈切，不上色
+    for t in tg.get("threads") or []:
+        t = S._thread_entry(t)
+        if not t["internal"]:
+            dev_o = np.where((z <= t["za"]) & (z >= t["zb"]), 0.0, dev_o)   # 螺纹段按整圈切，不上色
     v, t = lathe_mesh(z, r, ri, seg=seg, stride=stride)
     zs = np.asarray(z)[::stride]
     do = dev_o[::stride]

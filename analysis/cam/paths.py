@@ -244,22 +244,45 @@ def thread_infeeds(depth, first_max=0.25, spring=1):
     return [depth * math.sqrt(i / n) for i in range(1, n + 1)] + [depth] * spring
 
 
-def turn_thread(z_start, z_end, d_major, pitch, first_max=0.25, spring=1, run_in=None):
-    """车外螺纹（G32 逐刀，各系统都认）：从 z_start 右边 run_in（缺省 2 个螺距、至少 CLEAR）起刀车到 z_end；
-    牙底直径按 ISO 965-1 的 d3。动作 thread：x（本刀直径）、z、pitch"""
+ISO_D1 = 1.08253   # 内螺纹小径 D1 = D − 1.08253·P（ISO 68-1：D1 = D − 2·(5/8)·H，H = 0.866025·P）
+
+
+def turn_thread(z_start, z_end, d_major, pitch, first_max=0.25, spring=1, run_in=None, internal=False, taper=0.0, starts=1,
+                clear=CLEAR):
+    """车螺纹（G32 逐刀，各系统都认）：从 z_start 右边 run_in（缺省 2 个螺距、至少 clear）起刀车到 z_end。
+    - 外螺纹牙底按 ISO 965-1 的 d3（牙深 0.6134P），从大径往里进刀；
+    - internal=True 内螺纹：底孔是小径 D1 = D − 1.0825P，从小径往外进刀到大径 D（牙深 0.5413P），退刀往中心让；
+    - taper 锥螺纹：直径每毫米长度的变化（1:16 写 0.0625），d_major 是 z_start 处的大径，往左变大；
+    - starts 多头螺纹：导程 = 头数 × 螺距，每一刀按头数分度，起刀点依次往右挪一个螺距。
+    动作 thread：x（本刀直径）、z、pitch（导程，G32 的 F）"""
     if z_end >= z_start:
         raise CamError("螺纹从右往左车：z_end 要小于 z_start")
-    if pitch <= 0 or d_major <= 0:
-        raise CamError("螺纹直径、螺距要大于 0")
-    depth = ISO_D3 * pitch / 2
-    zs = z_start + (run_in if run_in is not None else max(2 * pitch, CLEAR))
-    xo = d_major + 2 * CLEAR
-    mv = [{"t": "comment", "text": f"车螺纹 M{d_major:g}x{pitch:g}：Z{z_start:g} ~ Z{z_end:g}，牙底 Ø{d_major - 2 * depth:.3f}"}]
+    if pitch <= 0 or d_major <= 0 or starts < 1:
+        raise CamError("螺纹直径、螺距要大于 0，头数至少 1")
+    depth = (ISO_D1 if internal else ISO_D3) * pitch / 2
+    lead = starts * pitch
+    run = run_in if run_in is not None else max(2 * lead, clear)
+    zs0 = z_start + run
+
+    def dia(z):                                     # 该 z 处的大径
+        return d_major + taper * (z_start - z)
+
+    kind = "内" if internal else "外"
+    extra = (f"，锥度 1:{1 / taper:g}" if taper else "") + (f"，{starts} 头（导程 {lead:g}）" if starts > 1 else "")
+    root = (f"大径 Ø{d_major:g}" if internal else f"牙底 Ø{d_major - 2 * depth:.3f}")
+    mv = [{"t": "comment", "text": f"车{kind}螺纹 M{d_major:g}x{pitch:g}{extra}：Z{z_start:g} ~ Z{z_end:g}，{root}"}]
     for a in thread_infeeds(depth, first_max, spring):
-        d = d_major - 2 * a
-        mv += [{"t": "rapid", "x": xo, "z": zs}, {"t": "rapid", "x": d, "z": zs},
-               {"t": "thread", "x": d, "z": z_end, "pitch": pitch}, {"t": "rapid", "x": xo, "z": z_end},
-               {"t": "rapid", "x": xo, "z": zs}]
+        for k in range(starts):
+            zs = zs0 + k * pitch
+            if internal:
+                xs, xe = dia(zs) - 2 * depth + 2 * a, dia(z_end) - 2 * depth + 2 * a
+                xo = max(min(xs, xe) - 2 * a - 2 * clear, 0.2 * (d_major - 2 * depth))
+            else:
+                xs, xe = dia(zs) - 2 * a, dia(z_end) - 2 * a
+                xo = max(dia(zs), dia(z_end)) + 2 * clear
+            mv += [{"t": "rapid", "x": xo, "z": zs}, {"t": "rapid", "x": xs, "z": zs},
+                   {"t": "thread", "x": xe, "z": z_end, "pitch": lead}, {"t": "rapid", "x": xo, "z": z_end},
+                   {"t": "rapid", "x": xo, "z": zs}]
     return mv
 
 

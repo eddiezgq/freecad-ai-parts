@@ -366,7 +366,7 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
         pts = _seg_points(a, b, h / 4 if rn <= 0 else h)
         solid = r > ri + 1e-12
         new_r, new_ri = r.copy(), ri.copy()
-        if kind in ("bore", "drill"):
+        if kind in ("bore", "drill", "thread_in"):
             grow = np.full(n, -np.inf)
             if kind == "drill":
                 on_axis = np.abs(pts[:, 1]) < 1e-6
@@ -442,13 +442,18 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
                 g = (zc <= zr + 1e-9) & (zc >= zr - w - 1e-9)
                 rt = np.where(g, db / 2, rt)
                 ra = np.where(g, db / 2, ra)
-            for za, zb, droot in tg.get("threads") or []:
-                th = (zc <= za) & (zc >= zb)
+            for t in tg.get("threads") or []:
+                t = _thread_entry(t)
+                th = (zc <= t["za"]) & (zc >= t["zb"])
+                if t["internal"]:
+                    continue                          # 内螺纹在内孔那边比
                 skip |= th
-                left = th & (r > droot / 2 + tol)
+                root = t["root_a"] + (t["root_b"] - t["root_a"]) * (t["za"] - zc) / max(t["za"] - t["zb"], 1e-12)
+                left = th & (r > root / 2 + tol)
                 if left.any():
+                    k = int(np.argmax(np.where(left, r - root / 2, -np.inf)))
                     res["issues"].append({"line": None, "level": "error",
-                                          "text": f"螺纹没车到牙底：Z{zc[left].max():.2f} 处直径 {2 * r[left].max():.3f}，牙底应为 {droot:.3f}"})
+                                          "text": f"螺纹没车到牙底：Z{zc[k]:.2f} 处直径 {2 * r[k]:.3f}，牙底应为 {root[k]:.3f}"})
             sel &= ~skip
             dev = r[sel] - rt[sel]
             dev_a = np.where(dev < 0, dev, np.maximum(r[sel] - ra[sel], 0.0))
@@ -478,6 +483,19 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
                 if (rt - ra > tol).any():
                     res["fillet_inner"] = rn
             dev = np.where(rt - ri[sel] < 0, rt - ri[sel], np.maximum(ra - ri[sel], 0.0))   # 镗大了按设计比，残留按做得到的比
+            zs_in = zc[sel]
+            for t in tg.get("threads") or []:
+                t = _thread_entry(t)
+                if not t["internal"]:
+                    continue
+                th = (zs_in <= t["za"]) & (zs_in >= t["zb"])
+                dev = np.where(th, 0.0, dev)              # 内螺纹段：小径按底孔比不适用，看是否车到大径
+                root = t["root_a"] + (t["root_b"] - t["root_a"]) * (t["za"] - zs_in) / max(t["za"] - t["zb"], 1e-12)
+                short = th & (ri[sel] < root / 2 - tol)
+                if short.any():
+                    k = int(np.argmax(np.where(short, root / 2 - ri[sel], -np.inf)))
+                    res["issues"].append({"line": None, "level": "error",
+                                          "text": f"内螺纹没车到大径：Z{zs_in[k]:.2f} 处直径 {2 * ri[sel][k]:.3f}，大径应为 {root[k]:.3f}"})
             res["inner_dev_min"] = float(dev.min()) if dev.size else 0.0
             res["inner_dev_max"] = float(dev.max()) if dev.size else 0.0
             if dev.size and dev.min() < -tol:
@@ -487,6 +505,15 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
                 res["issues"].append({"line": None, "level": "error",
                                       "text": f"内孔残留：Z{zz.max():.2f} ~ Z{zz.min():.2f}，最多 {dev.max():.3f} mm（半径）"})
     return res
+
+
+def _thread_entry(t):
+    """比对用的螺纹：旧格式 (z 起, z 止, 牙底直径) 或 {"za", "zb", "root_a", "root_b", "internal"}"""
+    if isinstance(t, dict):
+        return {"za": float(t["za"]), "zb": float(t["zb"]), "root_a": float(t["root_a"]),
+                "root_b": float(t.get("root_b", t["root_a"])), "internal": bool(t.get("internal"))}
+    za, zb, droot = t
+    return {"za": float(za), "zb": float(zb), "root_a": float(droot), "root_b": float(droot), "internal": False}
 
 
 def achievable(zc, rt, rn, h):
