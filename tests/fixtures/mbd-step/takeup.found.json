@@ -1,5 +1,6 @@
 {
  "about": "tests/fixtures/mbd-step/takeup.step 导入后程序找出的零件摘要与候选运动副（freecad_addon.fc.mbd_mates.find）；scripts/mbd_ai_record.py 用它向 AI 要运动副草稿并录制，安装包验收回放（ADR-0102 第 4 步）",
+ "step": "tests/fixtures/mbd-step/takeup.step",
  "parts": [
   {
    "id": "Part__Feature",
