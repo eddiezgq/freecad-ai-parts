@@ -1,9 +1,9 @@
 {
  "env": {
-  "code": "7fa077bba63e44289ad8225b66c68151a502f929（有未提交的改动）",
+  "code": "8233e5d949a97b011325afc9b0598607526f8382",
   "date": "2026-11-19",
   "numerics": "NumPy 2.5.3",
-  "python": "Python 3.13.18 / Linux 6.18.44-fc-v653"
+  "python": "Python 3.13.18 / Linux 6.18.44-fc-v726"
  },
  "cases": [
   {
@@ -1396,12 +1396,41 @@
     }
    ],
    "result": "pass"
+  },
+  {
+   "id": "CAM-47",
+   "test": "tests/test_cam_surface_q3c.py::test_ball_scallop_height_on_flat",
+   "category": "geom",
+   "title": {
+    "zh": "球头刀平行走刀的残留高度",
+    "en": "Ball end mill scallop height with parallel passes"
+   },
+   "source": "h = R − √(R² − (s/2)²)",
+   "rows": [
+    {
+     "case": "tests/test_cam_surface_q3c.py::test_ball_scallop_height_on_flat",
+     "kind": "value",
+     "quantity": [
+      "球头刀 R3 行距 2 的残留高度（平面）",
+      "ball R3, stepover 2: scallop height on a flat"
+     ],
+     "computed": 0.16805720396756652,
+     "reference": 0.1715728752538097,
+     "tol": 0.005,
+     "rel": false,
+     "error": -0.003515671286243194,
+     "unit": "mm",
+     "formula": "h = R − √(R² − (s/2)²)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
   }
  ],
- "n": 46,
- "ok": 46,
+ "n": 47,
+ "ok": 47,
  "bad": 0,
  "skip": 0,
- "rows": 53,
- "rows_ok": 53
+ "rows": 54,
+ "rows_ok": 54
 }
