@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import itertools
 import math
 
 GROUP = "WenQuestCAM"
@@ -22,7 +23,7 @@ def turn_features(shape) -> dict:
     """回转体 → {"segments": [[d, L], …]（从左到右）, "chamfer_mm", "grooves": [...], "bore": [[d, 深], …] 或 []}"""
     bb = shape.BoundBox
     z0, z1 = bb.ZMin, bb.ZMax
-    outer, inner, cones = [], [], []
+    outer, inner, cones, inner_cones = [], [], [], []
     for f in shape.Faces:
         s = f.Surface
         name = type(s).__name__
@@ -34,7 +35,10 @@ def turn_features(shape) -> dict:
             raise CamDocError("回转面的轴线不在 Z 轴上：车削件要让轴线沿 Z、过原点")
         fb = f.BoundBox
         if name == "Cone":
-            cones.append((fb.ZMin, fb.ZMax))
+            if _is_inner(f):
+                inner_cones.append((fb.ZMin, fb.ZMax))
+            else:
+                cones.append((fb.ZMin, fb.ZMax))
             continue
         r = s.Radius
         # 法向朝外（离开轴线）是外圆，朝里是内孔
@@ -47,7 +51,7 @@ def turn_features(shape) -> dict:
     segs = [[2 * r, za, zb] for za, zb, r in outer]
     # 倒角：两端的圆锥面，长度相同时当成 45° 倒角
     ch = 0.0
-    ends = [c for c in cones if abs(c[0] - z0) < 1e-6 or abs(c[1] - z1) < 1e-6]
+    ends = [c for c in cones if abs(c[0] - z0) < 1e-6 or abs(c[1] - z1) < 1e-6]      # 外圆两端的锥面（内孔口的倒角不算）
     if ends:
         ch = round(max(c[1] - c[0] for c in ends), 6)
         segs[0][1] = z0
@@ -66,12 +70,73 @@ def turn_features(shape) -> dict:
         keep.append([d, za, zb])
     segments = [[round(d, 6), round(zb - za, 6)] for d, za, zb in keep]
     bore = []
-    for za, zb, r in sorted(inner, key=lambda x: -x[1]):
-        if not bore and abs(zb - z1) > 1e-6:
-            break                     # 内孔要从右端开口
-        bore.append([round(2 * r, 6), round(zb - za, 6)])
-    return {"segments": segments, "chamfer_mm": ch, "grooves": grooves, "bore": bore, "length_mm": round(z1 - z0, 6),
-            "z_right": z1}
+    opens = any(abs(zb - z1) < 1e-6 for _za, zb, _r in inner) or any(abs(zb - z1) < 1e-6 for _za, zb in inner_cones)
+    out = {"segments": segments, "chamfer_mm": ch, "grooves": grooves, "bore": bore, "length_mm": round(z1 - z0, 6),
+           "z_right": z1}
+    if not opens:
+        return out                                          # 内孔要从右端开口
+    if not inner_cones:
+        for za, zb, r in sorted(inner, key=lambda x: -x[1]):
+            if not bore and abs(zb - z1) > 1e-6:
+                break
+            bore.append([round(2 * r, 6), round(zb - za, 6)])
+        return out
+    # 内孔有锥面、倒角：按截面轮廓仿形镗（ADR-0106 Q3a）；segments 按轮廓每一段的较大直径给（选刀、工艺卡用）
+    prof = bore_profile(shape)
+    out["bore_profile"] = prof
+    for (za, da), (zb, db) in itertools.pairwise(prof):
+        if za - zb > 1e-9:
+            bore.append([round(max(da, db), 6), round(za - zb, 6)])
+    return out
+
+
+def _is_inner(face) -> bool:
+    """回转面法向朝轴线 → 内孔一侧"""
+    u = (face.ParameterRange[0] + face.ParameterRange[1]) / 2
+    v = (face.ParameterRange[2] + face.ParameterRange[3]) / 2
+    p, n = face.valueAt(u, v), face.normalAt(u, v)
+    return (p.x * n.x + p.y * n.y) < 0
+
+
+def bore_profile(shape, step: float = 0.05) -> list[list[float]]:
+    """回转体在 XZ 半平面上的截面 → 内孔轮廓 [[z, d], …]（z 从右端孔口 0 往里为负，到孔底为止）。
+    截面边界离散成折线，每隔 step 取一条水平线求交：交点两个以上时最小的那个是内孔半径。共线的点并掉，锥面、倒角是直线段，圆弧按折线。"""
+    import FreeCAD
+
+    bb = shape.BoundBox
+    z1 = bb.ZMax
+    wires = shape.slice(FreeCAD.Vector(0, 1, 0), 0.0)
+    segs = []
+    for w in wires:
+        pts = w.discretize(Deflection=0.002)
+        for a, b in itertools.pairwise(pts):
+            if a.x >= -1e-9 and b.x >= -1e-9:
+                segs.append((a.x, a.z, b.x, b.z))
+
+    def inner_at(z):
+        xs = sorted(ax + (bx - ax) * (z - az) / (bz - az) for ax, az, bx, bz in segs
+                    if min(az, bz) <= z < max(az, bz) and abs(bz - az) > 1e-12)     # 半开区间：正好过顶点只算一次
+        xs = [x for x in xs if x > 1e-6]
+        return xs[0] if len(xs) >= 2 else None
+
+    n = math.ceil((z1 - bb.ZMin) / step)
+    prof, last = [], None
+    for k in range(n + 1):
+        z = z1 - max(min(k * step, z1 - bb.ZMin - 1e-6), 1e-6)
+        x = inner_at(z)
+        if x is None:
+            if last is not None:                            # 孔底：在最后一个有孔的位置和这里之间二分找准
+                lo, hi = z, last
+                for _ in range(40):
+                    mid = (lo + hi) / 2
+                    lo, hi = (mid, hi) if inner_at(mid) is None else (lo, mid)
+                prof.append((round(hi - z1, 4), round(2 * inner_at(hi), 4)))
+            break
+        prof.append((round(z - z1, 4), round(2 * x, 4)))
+        last = z
+    from analysis.cam import paths as P
+
+    return [list(p) for p in P.simplify(prof, tol=2e-3)]
 
 
 def _group(doc):

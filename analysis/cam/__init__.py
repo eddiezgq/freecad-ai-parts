@@ -306,7 +306,8 @@ def turn_build_op(ctx, sc, spec, c):
                        "moves": mv, "title": "切断"},
                 "tools": {8: {"kind": "groove", "w": w}}, "target": {"parted": [-ctx["total"]]}}
     b = sc["bore"]
-    inner = P.inner_profile([[float(d), float(L)] for d, L in b["segments"]])
+    inner = (P.simplify([(float(z), float(d)) for z, d in b["profile"]]) if b.get("profile")
+             else P.inner_profile([[float(d), float(L)] for d, L in b["segments"]]))      # profile：带锥面、倒角的内轮廓（Q3a 内孔仿形）
     dd = float(b["drill_d"])
     if k == "drill":
         depth = float(b.get("drill_depth") or -inner[-1][0])

@@ -300,7 +300,7 @@ def turn_thread(z_start, z_end, d_major, pitch, first_max=0.25, spring=1, run_in
     def dia(z):                                     # 该 z 处的大径
         return d_major + taper * (z_start - z)
 
-    kind = "内" if internal else "外"
+    kind = "内" if internal else ""
     extra = (f"，锥度 1:{1 / taper:g}" if taper else "") + (f"，{starts} 头（导程 {lead:g}）" if starts > 1 else "")
     root = (f"大径 Ø{d_major:g}" if internal else f"牙底 Ø{d_major - 2 * depth:.3f}")
     mv = [{"t": "comment", "text": f"车{kind}螺纹 M{d_major:g}x{pitch:g}{extra}：Z{z_start:g} ~ Z{z_end:g}，{root}"}]

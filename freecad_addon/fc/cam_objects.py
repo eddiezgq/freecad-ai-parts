@@ -250,6 +250,8 @@ def new_job(doc, model, kind: str, *, machine: str | None = None, post: str = "f
         ft = cam_doc.turn_features(shape)
         data = {"segments": ft["segments"], "chamfer_mm": ft["chamfer_mm"], "grooves": ft["grooves"],
                 "bore": ft["bore"], "threads": _threads(threads), "z_right": ft["z_right"]}
+        if ft.get("bore_profile"):
+            data["bore_profile"] = ft["bore_profile"]
         job.Fixture = "15, 80"
         names = (("right", "右端（第一次装夹）"), ("left", "左端（调头装夹）"))
     else:
@@ -302,6 +304,8 @@ def turn_setup(job) -> dict:
         s["threads"] = [dict(t) for t in d["threads"]]
     if d.get("bore"):
         s["bore"] = {"segments": d["bore"]}
+        if d.get("bore_profile"):
+            s["bore"]["profile"] = d["bore_profile"]
         drill = _drill_d(job)
         if drill:
             s["bore"]["drill_d"] = drill
@@ -486,7 +490,7 @@ def draft(job, client=None, note: str = "") -> dict:
     if job.Kind == "turn":
         part = turn_setup(job)
         if part.get("bore"):
-            part["bore"] = {"segments": part["bore"]["segments"]}
+            part["bore"] = {k: v for k, v in part["bore"].items() if k in ("segments", "profile")}
         d = S.draft(part, client=client, tool_library=job.ToolLibrary or None, note=note)
         from analysis import cam
         from analysis.cam import machines
@@ -573,7 +577,7 @@ def add_op(setup, kind: str):
 
         part = turn_setup(job)
         if part.get("bore"):
-            part["bore"] = {"segments": part["bore"]["segments"]}
+            part["bore"] = {k: v for k, v in part["bore"].items() if k in ("segments", "profile")}
         d = S.draft(part, tool_library=job.ToolLibrary or None)
         ctx = cam.turn_context(d["setup"], machines.get(job.Machine))
         sc = next((x for x in ctx["sides"] if x["side"] == setup.Side), None)
