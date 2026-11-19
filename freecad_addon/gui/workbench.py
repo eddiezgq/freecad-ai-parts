@@ -591,6 +591,12 @@ def register() -> None:
 
         mbd_brand.register()
         return
+    if fea_edition.edition() == "cam":
+        # 问渠CAM 版（ADR-0104 产品化第 2 步）：不加零件库工作台，只加“问渠CAM”工作台
+        from freecad_addon.gui import cam_brand
+
+        cam_brand.register()
+        return
     FreeCADGui.addWorkbench(AiPartsWorkbench())
     # FEM 工作台里的起草、计算并核查、出报告（ADR-0093 补充十二）
     from freecad_addon.gui import fem_commands
