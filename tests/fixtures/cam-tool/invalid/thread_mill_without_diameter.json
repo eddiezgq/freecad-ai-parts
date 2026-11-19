@@ -1,0 +1,19 @@
+{
+ "why": "螺纹铣刀要写直径",
+ "instance": {
+  "format": "cam-tool/1",
+  "name": "示例刀具库（虚构）",
+  "example": true,
+  "tools": [
+   {
+    "id": "T",
+    "kind": "thread_mill",
+    "pitch_mm": 1.5,
+    "source": {
+     "kind": "example",
+     "ref": "虚构示例"
+    }
+   }
+  ]
+ }
+}
