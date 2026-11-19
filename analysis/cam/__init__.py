@@ -104,6 +104,8 @@ def _msim(setup, mach, parsed, gcode, stock, extra, prog, withhold, expect_d=Non
     prog["checks"] += res["checks"]
     prog["machine_sim"] = {"status": res["status"], "fingerprint": res["fingerprint"], "samples": res["samples"]}
     if withhold and res["status"] == "error":
+        if "replay_in" in prog:                  # 回放还要看是在哪里撞的：仿真用的程序留给回放，不当正式程序
+            prog["replay_in"]["gcode"] = prog["gcode"]
         prog["gcode"] = None
         prog["checks"].append({"line": None, "level": "error", "text": "整机仿真不通过，程序没有输出（改好再算）"})
 
@@ -268,6 +270,15 @@ def turn_build_op(ctx, sc, spec, c):
             "tools": {6: {"kind": "bore", "nose_r": c.get("nose_r", 0.0)}}, "target": {"inner": inner}}
 
 
+def _jsonable(v):
+    """元组 → 列表（结果要能存成 JSON）"""
+    if isinstance(v, dict):
+        return {str(k): _jsonable(x) for k, x in v.items()}
+    if isinstance(v, (list, tuple)):
+        return [_jsonable(x) for x in v]
+    return float(v) if hasattr(v, "dtype") else v
+
+
 def nose_radii(setup) -> dict:
     """车刀刀尖圆弧半径 {刀号: rε}：按整机仿真设置里刀号对应的刀具库刀具（刀片 nose_radius_mm）。
     没对应上的刀按尖刀算（与以前一样）；刀尖圆弧补偿与仿真都用这个值（ADR-0106 Q2 第 4 步）。"""
@@ -349,7 +360,9 @@ def _turn(setup, mach):
                        "reach_mm": reach,
                        **({"inner_dev_min_mm": round(s["inner_dev_min"], 4), "inner_dev_max_mm": round(s["inner_dev_max"], 4)}
                           if "inner_dev_min" in s else {})},
-               "power": pdet, "target": [[float(z), float(d)] for z, d in tgt]}
+               "power": pdet, "target": [[float(z), float(d)] for z, d in tgt],
+               "replay_in": {"kind": "turn", "stock": stock, "tools": {str(k): v for k, v in tools_sim.items()},
+                             "target": _jsonable(tg)}}
         _msim(setup, mach, parsed, g, stock, [], out, withhold=True)
         _release(setup, mach, prog, out)
         progs.append(out)
@@ -482,7 +495,9 @@ def _mill(setup, mach):
     out = {"title": "铣削", "number": 5001, "gcode": g, "time": tm, "checks": checks, "power": pdet,
            "sim": {"over_cells": s.get("over", 0), "under_cells": under, "dev_min_mm": round(s.get("dev_min", 0.0), 4),
                    "dev_max_mm": round(s.get("dev_max", 0.0), 4), "ap_max_mm": round(s["ap_max"], 3), "cell_mm": round(s["h"], 4)},
-           "tools": {str(k): v for k, v in tools.items()}}
+           "tools": {str(k): v for k, v in tools.items()},
+           "replay_in": {"kind": "mill", "stock": {"box": box, "top": 0.0, "height": stock.get("height")},
+                         "tools": {str(k): v for k, v in tools.items()}}}
     _msim(setup, mach, parsed, g, {"box": box, "top": 0.0, "height": stock.get("height")}, extra, out, withhold=True,
           expect_d={k: v["d"] for k, v in tools.items()})
     _release(setup, mach, prog, out)
@@ -528,7 +543,9 @@ def _program(setup, mach):
     checks += s["issues"]
     out = {"title": prog.get("title") or "外来刀路", "number": prog.get("number", 6001), "gcode": g, "time": tm, "checks": checks,
            "power": {"status": "unknown"}, "sim": {"ap_max_mm": round(s["ap_max"], 3), "cell_mm": round(s["h"], 4)},
-           "tools": {str(k): v for k, v in tools.items()}, "generator": prog.get("generator", "")}
+           "tools": {str(k): v for k, v in tools.items()}, "generator": prog.get("generator", ""),
+           "replay_in": {"kind": "mill", "stock": {"box": box, "top": 0.0, "height": stock.get("height")},
+                         "tools": {str(k): v for k, v in tools.items()}}}
     out["checks"].append({"line": None, "level": "unknown", "text": "外来刀路没有目标形状，过切 / 残留没有比对（看仿真结果确认）"})
     _msim(setup, mach, parsed, g, {"box": box, "top": 0.0, "height": stock.get("height")}, extra, out, withhold=True,
           expect_d={k: v["d"] for k, v in tools.items()})

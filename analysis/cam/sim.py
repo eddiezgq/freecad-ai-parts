@@ -334,7 +334,7 @@ def _seg_points(a, b, step):
     return np.outer(1 - t, a) + np.outer(t, b)
 
 
-def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01):
+def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=None):
     """stock：{"d": 毛坯直径, "z_right": 毛坯右端（端面余量）, "z_left": 毛坯左端（卡盘处，负数）}，可另给 "bore_d"（毛坯已有的内孔）
     tools：{刀号: {"kind": "turn"} | {"kind": "groove", "w": 刀宽} | {"kind": "thread"} | {"kind": "drill", "d": 直径} | {"kind": "bore"}}
            外圆刀、镗刀可带 "nose_r"（刀尖圆弧半径）：程序点是假想刀尖（外圆刀方位 3、镗刀方位 2），按半径 nose_r 的圆扫过去切（ADR-0106 Q2）
@@ -350,6 +350,8 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01):
         zmax = max(z for z, _ in stock["profile"])
         r = np.array([d_at(stock["profile"], z) / 2 if z <= zmax + 1e-9 else 0.0 for z in zc])
     issues, ap_max = [], 0.0
+    if history is not None:                       # 回放用：开始时和每段走完的 (z, r, ri)
+        history.append((zc, r.copy(), ri.copy()))
 
     def idx_of(zs):
         k = np.ceil((np.asarray(zs) - z0) / h - 0.5).astype(int)
@@ -417,6 +419,8 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01):
                 ap_max = max(ap_max, ap)
                 mv["ap"] = ap
         r, ri = new_r, new_ri
+        if history is not None:
+            history.append((zc, r.copy(), ri.copy()))
     res = {"z": zc, "r": r, "ri": ri, "issues": issues, "ap_max": ap_max}
     if target:
         tg = target if isinstance(target, dict) else {"outer": target}
