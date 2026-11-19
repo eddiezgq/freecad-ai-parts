@@ -28,7 +28,7 @@ class KtError(RuntimeError):
     pass
 
 
-def _bar(d: float, big: float, r: float, path: Path) -> tuple[float, float]:
+def _bar(d: float, big: float, r: float, path: Path, bore: float = 0.0) -> tuple[float, float]:
     from analysis.fea.geometry import _LOCK, _gmsh
 
     ld, lb = 2.5 * d, 1.5 * big
@@ -48,6 +48,10 @@ def _bar(d: float, big: float, r: float, path: Path) -> tuple[float, float]:
                 edges.append(t)
         occ.fillet([out[0][1]], edges, [r])
         occ.synchronize()
+        if bore > 0:                                      # 空心轴：贯通内孔（机器人关节输出轴，ADR-0100 42.5）
+            body = g.model.getEntities(3)
+            occ.cut(body, [(3, occ.addCylinder(0, 0, -1, 0, 0, ld + lb + 2, bore / 2))])
+            occ.synchronize()
         g.write(str(path))
         g.clear()
     return ld, lb
@@ -59,12 +63,14 @@ def _principal(s: dict) -> np.ndarray:
 
 
 @lru_cache(maxsize=256)
-def stepped_bar(d: float, big: float, r: float) -> dict:
-    """返回 {"kt_bending", "kt_torsion", "method", "elements"}；d < big，0 < r"""
+def stepped_bar(d: float, big: float, r: float, bore: float = 0.0) -> dict:
+    """返回 {"kt_bending", "kt_torsion", "method", "elements"}；d < big，0 < r；bore > 0 为空心轴（名义应力按空心截面）"""
     from analysis.fea import geometry, solve
 
     if not 0 < d < big or r <= 0:
         raise KtError("要 0 < d < D、r > 0")
+    if not 0 <= bore < d - 2 * 1e-6:
+        raise KtError("内孔要小于小径")
     if r >= (big - d) / 2 - 1e-9:
         raise KtError(f"圆角 r {r:g} 不小于台阶高度 {(big - d) / 2:g}，做不出来")
     ccx = find_ccx()
@@ -72,18 +78,18 @@ def stepped_bar(d: float, big: float, r: float) -> dict:
         raise KtError("本机没有 CalculiX（ccx），算不了应力集中系数")
     with tempfile.TemporaryDirectory() as tmp:
         step = Path(tmp) / "bar.step"
-        ld, lb = _bar(d, big, r, step)
+        ld, lb = _bar(d, big, r, step, bore)
         faces, _ = geometry.faces(str(step))
         small = next(f["id"] for f in faces if f["kind"] == "plane" and abs(f["center"][2]) < 1e-6)
         end = next(f["id"] for f in faces if f["kind"] == "plane" and abs(f["center"][2] - (ld + lb)) < 1e-6)
         fil = [f["id"] for f in faces if f["kind"] not in ("plane", "cylinder")]
-        i_ = math.pi * d ** 4 / 64
+        i_ = math.pi * (d ** 4 - bore ** 4) / 64
         moment = 1.0e5                                                   # N·mm；线弹性，按比例
         probes = []
         for k in range(PROBES):
             a = math.radians(90 * k / (PROBES - 1))
             probes.append({"id": f"p{k}", "point_mm": [0.0, d / 2 + r - r * math.cos(a), ld - r + r * math.sin(a)]})
-        out = {"method": METHOD, "d_mm": d, "D_mm": big, "r_mm": r}
+        out = {"method": METHOD, "d_mm": d, "D_mm": big, "r_mm": r, **({"bore_mm": bore} if bore else {})}
         for case, vec in (("bending", [moment, 0, 0]), ("torsion", [0, 0, moment])):
             setup = {"material": materials.get("45-QT"),
                      "loads": [{"type": "fixed", "faces": [end]},
