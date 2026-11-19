@@ -1,0 +1,15 @@
+{
+ "why": "每把刀要写数据出处",
+ "instance": {
+  "format": "cam-tool/1",
+  "name": "示例刀具库（虚构）",
+  "example": true,
+  "tools": [
+   {
+    "id": "E",
+    "kind": "flat_endmill",
+    "diameter_mm": 8
+   }
+  ]
+ }
+}

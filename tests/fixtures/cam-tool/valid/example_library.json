@@ -1,0 +1,165 @@
+{
+ "instance": {
+  "format": "cam-tool/1",
+  "name": "示例刀具库（虚构）",
+  "example": true,
+  "tools": [
+   {
+    "id": "EM10",
+    "number": 1,
+    "name": "Ø10 四刃平底立铣刀",
+    "kind": "flat_endmill",
+    "diameter_mm": 10.0,
+    "flutes": 4,
+    "flute_length_mm": 22.0,
+    "overall_length_mm": 75.0,
+    "stickout_mm": 35.0,
+    "shank_diameter_mm": 10.0,
+    "holder": {
+     "id": "BT40-ER32",
+     "profile_mm": [
+      [
+       17.5,
+       35.0
+      ],
+      [
+       17.5,
+       70.0
+      ],
+      [
+       31.75,
+       70.0
+      ],
+      [
+       31.75,
+       110.0
+      ]
+     ]
+    },
+    "tool_material": "carbide",
+    "cutting": [
+     {
+      "iso_group": "P",
+      "kienzle": "C45",
+      "vc_m_min": {
+       "min": 100,
+       "max": 160
+      },
+      "fz_mm": {
+       "min": 0.03,
+       "max": 0.06
+      },
+      "ap_max_mm": 15.0,
+      "ae_max_mm": 2.5
+     }
+    ],
+    "source": {
+     "kind": "example",
+     "ref": "虚构示例"
+    }
+   },
+   {
+    "id": "BN6",
+    "number": 2,
+    "kind": "ball_endmill",
+    "diameter_mm": 6.0,
+    "flutes": 2,
+    "stickout_mm": 25.0,
+    "source": {
+     "kind": "example",
+     "ref": "虚构示例"
+    }
+   },
+   {
+    "id": "BL8R1",
+    "number": 3,
+    "kind": "bull_endmill",
+    "diameter_mm": 8.0,
+    "corner_radius_mm": 1.0,
+    "flutes": 4,
+    "source": {
+     "kind": "example",
+     "ref": "虚构示例"
+    }
+   },
+   {
+    "id": "DR8.5",
+    "number": 4,
+    "kind": "drill",
+    "diameter_mm": 8.5,
+    "tip_angle_deg": 140,
+    "source": {
+     "kind": "example",
+     "ref": "虚构示例"
+    }
+   },
+   {
+    "id": "TAP-M10",
+    "number": 5,
+    "kind": "tap",
+    "diameter_mm": 10.0,
+    "pitch_mm": 1.5,
+    "source": {
+     "kind": "example",
+     "ref": "虚构示例"
+    }
+   },
+   {
+    "id": "TR-CNMG",
+    "number": 11,
+    "kind": "turn",
+    "insert": {
+     "iso": "CNMG120408",
+     "nose_radius_mm": 0.8,
+     "cutting_edge_angle_deg": 95,
+     "inscribed_circle_mm": 12.7
+    },
+    "tool_material": "carbide",
+    "cutting": [
+     {
+      "iso_group": "P",
+      "vc_m_min": {
+       "min": 150,
+       "max": 250
+      },
+      "f_mm_rev": {
+       "min": 0.15,
+       "max": 0.4
+      },
+      "ap_max_mm": 4.0
+     }
+    ],
+    "source": {
+     "kind": "example",
+     "ref": "虚构示例"
+    }
+   },
+   {
+    "id": "GR3",
+    "number": 12,
+    "kind": "groove",
+    "insert": {
+     "nose_radius_mm": 0.2,
+     "width_mm": 3.0
+    },
+    "source": {
+     "kind": "example",
+     "ref": "虚构示例"
+    }
+   },
+   {
+    "id": "TH15",
+    "number": 13,
+    "kind": "thread_turn",
+    "pitch_mm": 1.5,
+    "insert": {
+     "nose_radius_mm": 0.1
+    },
+    "source": {
+     "kind": "example",
+     "ref": "虚构示例"
+    }
+   }
+  ]
+ }
+}

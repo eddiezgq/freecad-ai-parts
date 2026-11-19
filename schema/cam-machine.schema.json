@@ -1,0 +1,400 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/cam-machine.schema.json",
+ "title": "数控机床模型（cam-machine/1）",
+ "description": "ADR-0105：问渠CAM 的机床模型。轴链（哪些轴在刀具一侧、哪些在工件一侧，按从机床底座往外的顺序）、回转中心、行程、速度、主轴、数控系统与功能、碰撞部件。后处理与整机仿真共用这一个文件。长度 mm，角度 °，速度 mm/min 或 °/min。缺的数据不写。",
+ "type": "object",
+ "properties": {
+  "format": {
+   "const": "cam-machine/1"
+  },
+  "id": {
+   "type": "string",
+   "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+  },
+  "name": {
+   "type": "string",
+   "minLength": 1
+  },
+  "example": {
+   "type": "boolean",
+   "description": "true = 演示用的虚构机床，不是真实机床的参数"
+  },
+  "source": {
+   "type": "string",
+   "minLength": 1,
+   "description": "数据从哪里来：厂家资料（写明文件和页码）、合作厂测量（写明日期、谁测的）或“虚构示例”"
+  },
+  "kind": {
+   "enum": [
+    "lathe",
+    "mill",
+    "mill_turn"
+   ]
+  },
+  "controller": {
+   "type": "object",
+   "properties": {
+    "family": {
+     "enum": [
+      "fanuc",
+      "siemens",
+      "heidenhain",
+      "gsk",
+      "hnc",
+      "knd",
+      "other"
+     ]
+    },
+    "model": {
+     "type": "string",
+     "minLength": 1
+    },
+    "version": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "family",
+    "model"
+   ],
+   "additionalProperties": false
+  },
+  "features": {
+   "type": "object",
+   "description": "数控系统已开通的功能；没写的按没有",
+   "properties": {
+    "rtcp": {
+     "type": "boolean",
+     "description": "刀尖点跟随（FANUC G43.4、西门子 TRAORI、海德汉 M128 / FUNCTION TCPM）"
+    },
+    "tilted_plane": {
+     "type": "boolean",
+     "description": "倾斜面坐标系（FANUC G68.2、西门子 CYCLE800、海德汉 PLANE）"
+    },
+    "polar_interpolation": {
+     "type": "boolean",
+     "description": "极坐标插补（FANUC G12.1、西门子 TRANSMIT）"
+    },
+    "cylindrical_interpolation": {
+     "type": "boolean",
+     "description": "圆柱插补（FANUC G7.1、西门子 TRACYL）"
+    }
+   },
+   "additionalProperties": false
+  },
+  "spindle": {
+   "type": "object",
+   "properties": {
+    "max_rpm": {
+     "type": "number",
+     "exclusiveMinimum": 0
+    },
+    "power_kw": {
+     "type": "number",
+     "exclusiveMinimum": 0
+    },
+    "efficiency": {
+     "type": "number",
+     "exclusiveMinimum": 0,
+     "maximum": 1
+    },
+    "torque_n_m": {
+     "type": "number",
+     "exclusiveMinimum": 0
+    }
+   },
+   "required": [
+    "max_rpm"
+   ],
+   "additionalProperties": false
+  },
+  "axes": {
+   "type": "array",
+   "minItems": 2,
+   "maxItems": 12,
+   "description": "每个轴；同一 carrier 的轴按从机床底座往外的顺序写（例如摇篮式 AC：工件一侧先 A 后 C）",
+   "items": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "pattern": "^[XYZABCUVW][0-9]?$"
+     },
+     "type": {
+      "enum": [
+       "linear",
+       "rotary"
+      ]
+     },
+     "carrier": {
+      "enum": [
+       "tool",
+       "workpiece"
+      ],
+      "description": "这个轴带着刀具一侧动还是带着工件一侧动"
+     },
+     "direction": {
+      "type": "array",
+      "items": {
+       "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3,
+      "description": "正向指令时，这个轴带着的部件在机床坐标系里的实际运动：直线轴是运动方向（单位向量），回转轴是转轴（按右手定则绕它正转）。工件一侧的轴与刀具一侧方向相反时照实写（例如工作台带工件的 X 轴写 [-1, 0, 0]，刀具相对工件仍是 +X）"
+     },
+     "point_mm": {
+      "type": "array",
+      "items": {
+       "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3,
+      "description": "回转轴：所有轴在零位时，转轴上的一点（机床坐标）"
+     },
+     "min": {
+      "type": "number"
+     },
+     "max": {
+      "type": "number"
+     },
+     "continuous": {
+      "type": "boolean",
+      "description": "回转轴可以无限转（不写行程）"
+     },
+     "rapid": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "快移速度，mm/min 或 °/min"
+     },
+     "diameter_mode": {
+      "type": "boolean",
+      "description": "车床 X 轴按直径编程"
+     }
+    },
+    "required": [
+     "id",
+     "type",
+     "carrier",
+     "direction"
+    ],
+    "additionalProperties": false,
+    "allOf": [
+     {
+      "if": {
+       "properties": {
+        "type": {
+         "const": "rotary"
+        }
+       }
+      },
+      "then": {
+       "required": [
+        "point_mm"
+       ]
+      }
+     },
+     {
+      "if": {
+       "properties": {
+        "type": {
+         "const": "linear"
+        }
+       }
+      },
+      "then": {
+       "required": [
+        "min",
+        "max"
+       ],
+       "not": {
+        "required": [
+         "continuous"
+        ]
+       }
+      }
+     },
+     {
+      "if": {
+       "properties": {
+        "type": {
+         "const": "rotary"
+        }
+       },
+       "not": {
+        "required": [
+         "continuous"
+        ]
+       }
+      },
+      "then": {
+       "required": [
+        "min",
+        "max"
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "tool": {
+   "type": "object",
+   "description": "铣削主轴：所有轴在零位时的刀具方向与主轴端面基准点",
+   "properties": {
+    "direction": {
+     "type": "array",
+     "items": {
+      "type": "number"
+     },
+     "minItems": 3,
+     "maxItems": 3,
+     "description": "从刀尖指向主轴的单位向量（立式一般为 [0, 0, 1]）"
+    },
+    "gauge_point_mm": {
+     "type": "array",
+     "items": {
+      "type": "number"
+     },
+     "minItems": 3,
+     "maxItems": 3,
+     "description": "主轴端面基准点（刀长从这里量）的机床坐标"
+    }
+   },
+   "required": [
+    "direction",
+    "gauge_point_mm"
+   ],
+   "additionalProperties": false
+  },
+  "lathe_home_mm": {
+   "type": "array",
+   "items": {
+    "type": "number"
+   },
+   "minItems": 2,
+   "maxItems": 2,
+   "description": "车床换刀点 [X 直径, Z]"
+  },
+  "tool_change_s": {
+   "type": "number",
+   "minimum": 0
+  },
+  "components": {
+   "type": "array",
+   "description": "做碰撞检查的部件（立柱、工作台、转台、主轴头、卡盘、尾座……）",
+   "items": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+     },
+     "name": {
+      "type": "string"
+     },
+     "attached_to": {
+      "type": "string",
+      "description": "跟着哪个轴动（轴 id），或 base（不动）、spindle（跟着主轴头）"
+     },
+     "box_mm": {
+      "type": "array",
+      "items": {
+       "type": "number"
+      },
+      "minItems": 6,
+      "maxItems": 6,
+      "description": "[x0, y0, z0, x1, y1, z1]，零位时的机床坐标"
+     },
+     "cylinder_mm": {
+      "type": "object",
+      "properties": {
+       "p0": {
+        "type": "array",
+        "items": {
+         "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+       },
+       "p1": {
+        "type": "array",
+        "items": {
+         "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+       },
+       "r": {
+        "type": "number",
+        "exclusiveMinimum": 0
+       }
+      },
+      "required": [
+       "p0",
+       "p1",
+       "r"
+      ],
+      "additionalProperties": false
+     },
+     "mesh": {
+      "type": "string",
+      "pattern": "\\.(stl|STL)$",
+      "description": "三角网格文件，相对机床文件的路径，零位时的机床坐标"
+     }
+    },
+    "required": [
+     "id",
+     "attached_to"
+    ],
+    "additionalProperties": false,
+    "oneOf": [
+     {
+      "required": [
+       "box_mm"
+      ]
+     },
+     {
+      "required": [
+       "cylinder_mm"
+      ]
+     },
+     {
+      "required": [
+       "mesh"
+      ]
+     }
+    ]
+   }
+  }
+ },
+ "required": [
+  "format",
+  "id",
+  "name",
+  "source",
+  "kind",
+  "controller",
+  "spindle",
+  "axes"
+ ],
+ "additionalProperties": false,
+ "allOf": [
+  {
+   "if": {
+    "properties": {
+     "kind": {
+      "enum": [
+       "mill",
+       "mill_turn"
+      ]
+     }
+    }
+   },
+   "then": {
+    "required": [
+     "tool"
+    ]
+   }
+  }
+ ]
+}

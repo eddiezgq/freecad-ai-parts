@@ -1,0 +1,387 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/cam-tool.schema.json",
+ "title": "刀具库（cam-tool/1）",
+ "description": "ADR-0105：问渠CAM 的刀具库。刀具几何、刀柄外形（碰撞检查用）、刀片、推荐切削参数范围；每把刀写数据出处（厂家样本须在 data/sources.yaml 登记）。缺的数据不写。长度 mm，角度 °。",
+ "type": "object",
+ "properties": {
+  "format": {
+   "const": "cam-tool/1"
+  },
+  "name": {
+   "type": "string",
+   "minLength": 1
+  },
+  "example": {
+   "type": "boolean",
+   "description": "true = 演示用的虚构刀具"
+  },
+  "tools": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "$ref": "#/$defs/tool"
+   }
+  }
+ },
+ "required": [
+  "format",
+  "name",
+  "tools"
+ ],
+ "additionalProperties": false,
+ "$defs": {
+  "range": {
+   "type": "object",
+   "properties": {
+    "min": {
+     "type": "number",
+     "exclusiveMinimum": 0
+    },
+    "max": {
+     "type": "number",
+     "exclusiveMinimum": 0
+    }
+   },
+   "required": [
+    "min",
+    "max"
+   ],
+   "additionalProperties": false
+  },
+  "tool": {
+   "type": "object",
+   "properties": {
+    "id": {
+     "type": "string",
+     "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "number": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 9999,
+     "description": "刀号（T 号）"
+    },
+    "name": {
+     "type": "string"
+    },
+    "kind": {
+     "enum": [
+      "flat_endmill",
+      "ball_endmill",
+      "bull_endmill",
+      "drill",
+      "center_drill",
+      "chamfer_mill",
+      "face_mill",
+      "tap",
+      "reamer",
+      "turn",
+      "groove",
+      "thread_turn",
+      "bore"
+     ]
+    },
+    "diameter_mm": {
+     "type": "number",
+     "exclusiveMinimum": 0
+    },
+    "corner_radius_mm": {
+     "type": "number",
+     "minimum": 0
+    },
+    "flutes": {
+     "type": "integer",
+     "minimum": 1
+    },
+    "flute_length_mm": {
+     "type": "number",
+     "exclusiveMinimum": 0
+    },
+    "overall_length_mm": {
+     "type": "number",
+     "exclusiveMinimum": 0
+    },
+    "stickout_mm": {
+     "type": "number",
+     "exclusiveMinimum": 0,
+     "description": "装夹后从刀柄伸出的长度"
+    },
+    "shank_diameter_mm": {
+     "type": "number",
+     "exclusiveMinimum": 0
+    },
+    "tip_angle_deg": {
+     "type": "number",
+     "exclusiveMinimum": 0,
+     "exclusiveMaximum": 180
+    },
+    "pitch_mm": {
+     "type": "number",
+     "exclusiveMinimum": 0,
+     "description": "丝锥、螺纹车刀的螺距"
+    },
+    "insert": {
+     "type": "object",
+     "description": "车刀刀片",
+     "properties": {
+      "iso": {
+       "type": "string",
+       "description": "ISO 刀片代号，如 CNMG120408"
+      },
+      "nose_radius_mm": {
+       "type": "number",
+       "minimum": 0
+      },
+      "cutting_edge_angle_deg": {
+       "type": "number",
+       "exclusiveMinimum": 0,
+       "exclusiveMaximum": 180
+      },
+      "inscribed_circle_mm": {
+       "type": "number",
+       "exclusiveMinimum": 0
+      },
+      "width_mm": {
+       "type": "number",
+       "exclusiveMinimum": 0,
+       "description": "切槽刀宽"
+      }
+     },
+     "required": [
+      "nose_radius_mm"
+     ],
+     "additionalProperties": false
+    },
+    "holder": {
+     "type": "object",
+     "description": "刀柄外形：绕刀轴的回转轮廓 [[半径, 离刀尖的距离], ...]，碰撞检查用",
+     "properties": {
+      "id": {
+       "type": "string",
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+      },
+      "name": {
+       "type": "string"
+      },
+      "profile_mm": {
+       "type": "array",
+       "minItems": 2,
+       "items": {
+        "type": "array",
+        "items": {
+         "type": "number",
+         "minimum": 0
+        },
+        "minItems": 2,
+        "maxItems": 2
+       }
+      }
+     },
+     "required": [
+      "profile_mm"
+     ],
+     "additionalProperties": false
+    },
+    "tool_material": {
+     "enum": [
+      "hss",
+      "carbide",
+      "cermet",
+      "ceramic",
+      "cbn",
+      "pcd"
+     ]
+    },
+    "cutting": {
+     "type": "array",
+     "description": "按工件材料组给推荐范围（照厂家样本）；AI 和程序给的值不得超出",
+     "items": {
+      "type": "object",
+      "properties": {
+       "iso_group": {
+        "enum": [
+         "P",
+         "M",
+         "K",
+         "N",
+         "S",
+         "H"
+        ]
+       },
+       "kienzle": {
+        "type": "string",
+        "description": "analysis/common/kienzle.yaml 的材料行"
+       },
+       "vc_m_min": {
+        "$ref": "#/$defs/range"
+       },
+       "fz_mm": {
+        "$ref": "#/$defs/range"
+       },
+       "f_mm_rev": {
+        "$ref": "#/$defs/range"
+       },
+       "ap_max_mm": {
+        "type": "number",
+        "exclusiveMinimum": 0
+       },
+       "ae_max_mm": {
+        "type": "number",
+        "exclusiveMinimum": 0
+       }
+      },
+      "required": [
+       "iso_group",
+       "vc_m_min"
+      ],
+      "additionalProperties": false,
+      "anyOf": [
+       {
+        "required": [
+         "fz_mm"
+        ]
+       },
+       {
+        "required": [
+         "f_mm_rev"
+        ]
+       }
+      ]
+     }
+    },
+    "source": {
+     "type": "object",
+     "properties": {
+      "kind": {
+       "enum": [
+        "catalog",
+        "enterprise",
+        "measured",
+        "example"
+       ]
+      },
+      "ref": {
+       "type": "string",
+       "minLength": 1,
+       "description": "catalog：data/sources.yaml 的 id；enterprise / measured：谁、何时、依据什么"
+      },
+      "page": {
+       "type": "string"
+      }
+     },
+     "required": [
+      "kind",
+      "ref"
+     ],
+     "additionalProperties": false
+    }
+   },
+   "required": [
+    "id",
+    "kind",
+    "source"
+   ],
+   "additionalProperties": false,
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "enum": [
+         "flat_endmill",
+         "ball_endmill",
+         "bull_endmill",
+         "drill",
+         "center_drill",
+         "chamfer_mill",
+         "face_mill",
+         "tap",
+         "reamer"
+        ]
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "diameter_mm"
+      ],
+      "not": {
+       "required": [
+        "insert"
+       ]
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "enum": [
+         "turn",
+         "groove",
+         "thread_turn",
+         "bore"
+        ]
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "insert"
+      ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "enum": [
+         "ball_endmill"
+        ]
+       }
+      }
+     },
+     "then": {
+      "not": {
+       "required": [
+        "corner_radius_mm"
+       ]
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "bull_endmill"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "corner_radius_mm"
+      ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "enum": [
+         "tap",
+         "thread_turn"
+        ]
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "pitch_mm"
+      ]
+     }
+    }
+   ]
+  }
+ }
+}
