@@ -28,7 +28,8 @@ def rows() -> list[dict]:
     t = _table()
     src = {s["key"]: s["title"] for s in t["sources"]}
     return [{"key": r["key"], "material": r["material"], "material_cn": r.get("material_cn", ""), "kc11_mpa": r["kc11_MPa"],
-             "mc": r["mc"], "source": "；".join(src[k] for k in str(r["src"]).split("+") if k in src)} for r in t["rows"]]
+             "mc": r["mc"], "iso_group": r.get("iso_group", ""),
+             "source": "；".join(src[k] for k in str(r["src"]).split("+") if k in src)} for r in t["rows"]]
 
 
 def row(key: str) -> dict | None:
