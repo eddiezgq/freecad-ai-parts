@@ -153,6 +153,29 @@ def top_faces(shape, top: float) -> list[str]:
     return out
 
 
+def _apply_heights(op, spec: dict, stock_z: float) -> None:
+    """余量与高度（ADR-0106 Q3b）：allow_side 侧壁余量（型腔往里让、外轮廓往外让、自适应 StockToLeave），
+    allow_floor 底面余量（最终深度抬高），safe_h / clear_h 安全高度、快移高度（毛坯顶面以上）。没给的用 FreeCAD 缺省。"""
+    side = float(spec.get("allow_side") or 0.0)
+    if side > 0:
+        if hasattr(op, "StockToLeave"):
+            op.StockToLeave = side
+        elif hasattr(op, "OffsetExtra"):
+            op.OffsetExtra = side
+        elif hasattr(op, "ExtraOffset"):
+            op.ExtraOffset = side                 # PocketShape：正数是往里让（实测：−0.3 型腔反而大了 0.6）
+    floor = float(spec.get("allow_floor") or 0.0)
+    if floor > 0 and hasattr(op, "FinalDepth"):
+        op.recompute()                           # 先算出缺省的最终深度，再抬高
+        z = float(op.FinalDepth.Value) + floor
+        op.setExpression("FinalDepth", None)
+        op.FinalDepth = z
+    for key, prop in (("safe_h", "SafeHeight"), ("clear_h", "ClearanceHeight")):
+        if spec.get(key) and hasattr(op, prop):
+            op.setExpression(prop, None)
+            setattr(op, prop, stock_z + float(spec[key]))
+
+
 def build_job(doc, model, ops: list[dict], stock_top: float = 0.0):
     """ops：[{"type": "face" | "pocket" | "profile" | "drill", "tool": cam-tool/1 刀具, "number": 刀号, "rpm", "feed_mm_min",
              "plunge_mm_min", "step_down_mm", "step_over_pct", "faces": 点选的面（可选：型腔底面、孔的圆柱面；不给时自动找）}]。
@@ -217,6 +240,7 @@ def build_job(doc, model, ops: list[dict], stock_top: float = 0.0):
                 op.ExtraOffset = "Drill Tip"          # 通孔：多钻一个钻尖长，孔底整圈钻透（ADR-0106 Q2 色差图查出来的）
         else:
             raise CamFcError(f"工序类型 {k!r} 不认识：face、pocket、rest、adaptive、profile、drill")
+        _apply_heights(op, spec, top + float(stock_top))
         if "step_down_mm" in spec and hasattr(op, "StepDown"):
             op.setExpression("StepDown", None)      # FreeCAD 缺省按刀径的表达式，会盖掉我们给的每层切深
             op.StepDown = float(spec["step_down_mm"])

@@ -351,6 +351,19 @@ class OpPanel:
             if op.OpKind in ("rough", "bore"):
                 hf.addRow(T("退刀量 mm（0 = 缺省 0.5）"), self.retract)
             self.tabs.addTab(h, T("高度与进退刀"))
+        if not turn and op.OpKind in CO.MILL_ALLOW_KINDS:      # 铣：侧壁 / 底面余量（ADR-0106 Q3b）
+            a = QtWidgets.QWidget()
+            af = QtWidgets.QFormLayout(a)
+            af.addRow(T("侧壁余量 mm（0 = 不留）"), self.allow_r)
+            af.addRow(T("底面余量 mm（0 = 不留）"), self.allow_z)
+            af.addRow("", QtWidgets.QLabel(T("每层切深在“切削参数”页；留了余量要再加一道精铣")))
+            self.tabs.addTab(a, T("余量与分层"))
+        if not turn and op.OpKind in CO.MILL_FC_KINDS:
+            h = QtWidgets.QWidget()
+            hf = QtWidgets.QFormLayout(h)
+            hf.addRow(T("安全高度：毛坯顶面以上 mm（0 = FreeCAD 缺省）"), self.clear)
+            hf.addRow(T("快移高度：毛坯顶面以上 mm（0 = FreeCAD 缺省）"), self.retract)
+            self.tabs.addTab(h, T("高度与进退刀"))
         self.status = QtWidgets.QLabel("")
         self.status.setWordWrap(True)
         lay.addWidget(self.status)

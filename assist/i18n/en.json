@@ -1808,7 +1808,6 @@
 "端面槽没切到位：Ø{} ~ Ø{}、深 {} 里有没切的地方": "Face groove not fully cut: material left inside Ø{} ~ Ø{}, depth {}",
 "端面槽深要大于 0": "The face groove depth must be greater than 0",
 "端面槽：Ø{} ~ Ø{}，深 {}，刀宽 {}": "Face groove: Ø{} ~ Ø{}, depth {}, tool width {}",
-"粗加工留的径向余量 mm（0 = 缺省：车 0.5、镗 0.3）": "Radial allowance left by roughing mm (0 = default: turning 0.5, boring 0.3)",
 "粗车留的轴向余量 mm（0 = 缺省 0.1）": "Axial allowance left by rough turning mm (0 = default 0.1)",
 "螺纹直径、螺距要大于 0，头数至少 1": "Thread diameter and pitch must be greater than 0, and starts at least 1",
 "螺纹第 {} 行要先写 4 个数：Z 起, Z 止, 大径, 螺距": "Thread line {} must start with 4 numbers: Z start, Z end, major diameter, pitch",
@@ -1881,5 +1880,11 @@
 "铣螺纹 M{}×{}（推测）": "Thread milling M{}×{} (presumed)",
 "铣螺纹": "Thread milling",
 "{} 锥管螺纹要用这个牙型的刀片：刀具库里这把刀没写牙型角，刀片对不对没核对": "{} taper pipe threads need an insert of this form: this tool has no thread form angle in the library, so the insert was not checked",
-"T{} {} 是 {}° 牙型的刀片，{} 螺纹要 {}°": "T{} {} is a {}° insert; {} threads need {}°"
+"T{} {} 是 {}° 牙型的刀片，{} 螺纹要 {}°": "T{} {} is a {}° insert; {} threads need {}°",
+"粗加工留的径向余量 mm（0 = 缺省：车 0.5、镗 0.3；铣：侧壁余量，0 = 不留）": "Radial roughing allowance mm (0 = default: turning 0.5, boring 0.3; milling: wall allowance, 0 = none)",
+"侧壁余量 mm（0 = 不留）": "Wall allowance mm (0 = none)",
+"安全高度：毛坯顶面以上 mm（0 = FreeCAD 缺省）": "Safe height above the stock top mm (0 = FreeCAD default)",
+"底面余量 mm（0 = 不留）": "Floor allowance mm (0 = none)",
+"快移高度：毛坯顶面以上 mm（0 = FreeCAD 缺省）": "Clearance height above the stock top mm (0 = FreeCAD default)",
+"每层切深在“切削参数”页；留了余量要再加一道精铣": "The depth per layer is on the \"Cutting data\" tab; with an allowance, add a finishing operation"
 }

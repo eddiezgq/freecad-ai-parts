@@ -24,7 +24,9 @@ TURN_KINDS = {"rough": "粗车外圆", "finish": "精车外圆", "groove": "切�
               "face_groove": "端面槽", "part": "切断"}
 MILL_KINDS = {"face": "面铣", "pocket": "铣型腔", "adaptive": "自适应开粗", "rest": "残料清角", "profile": "铣外轮廓", "drill": "钻孔", "cbore": "铣沉孔", "csink": "锪孔口", "tap": "攻丝",
               "chamfer": "倒角", "thread_mill": "铣螺纹"}
-HOLE_KINDS = ("cbore", "csink", "tap", "thread_mill")     # 按孔特征出刀路（ADR-0106 Q3b）：孔表存在工序的 HoleData 里
+HOLE_KINDS = ("cbore", "csink", "tap", "thread_mill")
+MILL_ALLOW_KINDS = ("pocket", "adaptive", "rest", "profile")             # 铣：可留侧壁 / 底面余量
+MILL_FC_KINDS = ("face", "pocket", "adaptive", "rest", "profile", "drill")  # 铣：FreeCAD CAM 出刀路的（安全高度、快移高度可改）     # 按孔特征出刀路（ADR-0106 Q3b）：孔表存在工序的 HoleData 里
 TURN_TOOL_N = {"rough": 1, "finish": 2, "groove": 3, "thread": 4, "drill": 5, "bore": 6, "part": 8, "face_groove": 9}
 
 
@@ -127,7 +129,7 @@ class OpProxy:
         _add(obj, "App::PropertyString", "Reason", "起草理由")
         _add(obj, "App::PropertyString", "Check", "参数核对结论")
         # 余量与分层、高度与进退刀（ADR-0106 Q3a；0 = 用缺省值）
-        _add(obj, "App::PropertyFloat", "AllowRadial", "粗加工留的径向余量 mm（0 = 缺省：车 0.5、镗 0.3）")
+        _add(obj, "App::PropertyFloat", "AllowRadial", "粗加工留的径向余量 mm（0 = 缺省：车 0.5、镗 0.3；铣：侧壁余量，0 = 不留）")
         _add(obj, "App::PropertyFloat", "AllowAxial", "粗车留的轴向余量 mm（0 = 缺省 0.1）")
         _add(obj, "App::PropertyFloat", "Clearance", "安全距离 mm：快移到离工件这么远再切（0 = 缺省 2）")
         _add(obj, "App::PropertyFloat", "Retract", "退刀量 mm：每层切完斜着退开（0 = 缺省 0.5）")
@@ -487,14 +489,25 @@ def _mill_spec(job, op):
                 "plunge_mm_min": round(op.Feed * z * rpm / 3, 1), "faces": faces or hd.get("faces") or [], "width": float(hd.get("width", 0.0))}
     if op.OpKind == "drill":
         return {"type": "drill", "tool": tool, "number": op.ToolNumber, "rpm": round(rpm), "feed_mm_min": round(op.Feed * rpm, 1),
-                "faces": faces}
+                "faces": faces, **_mill_heights(op)}
     z = tool.get("flutes") or 4
     feed = op.Feed * z * rpm
     spec = {"type": op.OpKind, "tool": tool, "number": op.ToolNumber, "rpm": round(rpm), "feed_mm_min": round(feed, 1),
             "plunge_mm_min": round(feed / 3, 1), "step_down_mm": op.Ap or 5.0, "faces": faces}
     if op.OpKind in ("pocket", "adaptive", "rest") and op.StepOver > 0:
         spec["step_over_pct"] = 100 * op.StepOver
-    return spec
+    return {**spec, **_mill_heights(op)}
+
+
+def _mill_heights(op) -> dict:
+    """铣工序的余量与高度（ADR-0106 Q3b）：0 = 不写（FreeCAD 缺省、不留余量）"""
+    out = {}
+    for prop, key, kinds in (("AllowRadial", "allow_side", MILL_ALLOW_KINDS), ("AllowAxial", "allow_floor", MILL_ALLOW_KINDS),
+                             ("Clearance", "safe_h", MILL_FC_KINDS), ("Retract", "clear_h", MILL_FC_KINDS)):
+        v = float(getattr(op, prop, 0.0) or 0.0)
+        if v > 0 and op.OpKind in kinds:
+            out[key] = v
+    return out
 
 
 def regenerate_mill(op) -> None:

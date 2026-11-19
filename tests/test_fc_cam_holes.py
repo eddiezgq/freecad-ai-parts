@@ -252,3 +252,30 @@ def test_rest_machining_cleans_corners():
         assert length(rest) < 0.5 * length(full)
     finally:
         App.closeDocument(doc.Name)
+
+
+def test_pocket_allowances_and_heights():
+    """铣型腔留余量：底面余量 0.5 → 型腔底在 −7.5（设计 −8）；侧壁余量 0.3 → 型腔两壁之间 40 − 0.6；
+    安全高度设成毛坯顶面以上 12 → 快移最高到 Z12"""
+    import FreeCAD as App
+    import numpy as np
+    import Part
+
+    from analysis.cam import machines, post, sim
+    from analysis.cam import tools as TL
+    from freecad_addon.fc import cam_fc
+
+    shape = Part.makeBox(100, 60, 30).cut(Part.makeBox(40, 20, 8, App.Vector(30, 20, 22)))
+    em = TL.get(TL.load(), "EM10")
+    spec = {"type": "pocket", "tool": em, "number": 1, "rpm": 4000, "feed_mm_min": 600, "plunge_mm_min": 200, "step_down_mm": 4,
+            "allow_side": 0.3, "allow_floor": 0.5, "safe_h": 12.0, "clear_h": 15.0}
+    prog, stock = cam_fc.program(shape, [spec])
+    mv = prog["ops"][0]["moves"]
+    assert max(m["z"] for m in mv if m["t"] == "rapid") == pytest.approx(15.0)
+    vmc = machines.get("EX-VMC")
+    s = sim.simulate_mill(sim.parse(post.post(prog, vmc), vmc), {"box": stock["box"], "top": 0.0}, {1: {"kind": "endmill", "d": 10.0}}, h=0.05)
+    H, xs, ys = s["H"], s["x"], s["y"]
+    assert float(H[np.argmin(np.abs(xs - 50)), np.argmin(np.abs(ys - 30))]) == pytest.approx(-7.5)
+    j = np.argmin(np.abs(ys - 30))
+    cut = xs[s["inside"][:, j] & (H[:, j] < -1)]
+    assert cut.max() - cut.min() == pytest.approx(40 - 0.6, abs=0.1)
