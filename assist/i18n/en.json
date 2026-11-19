@@ -1923,7 +1923,6 @@
 "vc 上限": "vc max",
 "vc 下限": "vc min",
 "{} 轴行程下限 {} 不小于上限 {}": "{} axis: lower travel limit {} is not below the upper limit {}",
-"{} 轴（{}，装在{}一侧）：{} ~ {} {}，快移 {}": "{} axis ({}, on the {} side): {} to {} {}, rapid {}",
 "{}：{} 组 {} 的下限 {} 大于上限 {}": "{}: group {} {} minimum {} is above the maximum {}",
 "——虚构示例": " — fictional example",
 "不能保存：": "Cannot save: ",
@@ -1961,7 +1960,6 @@
 "厂家样本": "Maker's catalogue",
 "另存为": "Save as",
 "另存为…": "Save as…",
-"回转": "rotary",
 "圆角半径 mm": "Corner radius mm",
 "在视图里画出来": "Draw in the view",
 "基本": "Basic",
@@ -1970,7 +1968,6 @@
 "实测": "Measured",
 "导入 FreeCAD 刀具表…": "Import FreeCAD tool table…",
 "导入 {} 把刀；跳过：{}": "Imported {} tools; skipped: {}",
-"工件": "workpiece",
 "已保存：{}": "Saved: {}",
 "已复制到 {}：按实机改好行程、转速后保存": "Copied to {}: correct the travel and speeds to the real machine, then save",
 "平底立铣刀": "Flat end mill",
@@ -2024,5 +2021,10 @@
 "页码": "Page",
 "（只读）": " (read-only)",
 "（示例）": " (example)",
-"（读不了）": " (unreadable)"
+"（读不了）": " (unreadable)",
+"{} 轴（{}，{}）：{} ~ {} {}，快移 {}": "{} axis ({}, {}): {} to {} {}, rapid {}",
+"直线轴": "linear",
+"回转轴": "rotary",
+"带刀具动": "moves the tool",
+"带工件动": "moves the workpiece"
 }

@@ -452,8 +452,8 @@ def machine_text(m: dict) -> str:
              T("换刀时间：{} s").format(_fmt(m.get("tool_change_s")) or "—")]
     for a in m.get("axes") or []:
         unit = "°" if a["type"] == "rotary" else "mm"
-        lines.append(T("{} 轴（{}，装在{}一侧）：{} ~ {} {}，快移 {}").format(
-            a["id"], T("直线") if a["type"] == "linear" else T("回转"), T("刀具") if a.get("carrier") == "tool" else T("工件"),
+        lines.append(T("{} 轴（{}，{}）：{} ~ {} {}，快移 {}").format(
+            a["id"], T("直线轴") if a["type"] == "linear" else T("回转轴"), T("带刀具动") if a.get("carrier") == "tool" else T("带工件动"),
             _fmt(a.get("min")) or "—", _fmt(a.get("max")) or "—", unit, _fmt(a.get("rapid")) or "—"))
     lines.append(T("来源：{}").format(m.get("source", "—")))
     return "\n".join(lines)

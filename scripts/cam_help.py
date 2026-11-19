@@ -217,6 +217,23 @@ def shots(lang: str, out: Path) -> None:
     dlg.show()
     QtCore.QTimer.singleShot(1500, lambda: (_save(dlg, out / f"{lang}-license.png"), dlg.close()))
     _pump(3.0)
+    # 8 刀具库窗口、机床窗口（ADR-0106 Q4a）
+    from freecad_addon.gui import cam_library
+
+    tl = cam_library.ToolLibraryDialog(mw)
+    tl.show()
+    row = next(r for r in range(tl.table.rowCount()) if tl.table.item(r, 1).text() == "TR-CNMG")
+    tl.table.selectRow(row)
+    tl.tabs.setCurrentIndex(2)
+    _pump(0.8)
+    _save(tl, out / f"{lang}-tools.png")
+    tl.close()
+    md = cam_library.MachineDialog(mw)
+    md.show()
+    md.list.setCurrentRow(next(k for k, m in enumerate(md.models) if m["id"] == "EX-VMC"))
+    _pump(0.8)
+    _save(md, out / f"{lang}-machines.png")
+    md.close()
 
 
 def build_docs(out_dir: Path) -> list[Path]:
