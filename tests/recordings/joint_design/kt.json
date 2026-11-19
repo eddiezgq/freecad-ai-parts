@@ -1,0 +1,78 @@
+[
+ {
+  "args": [
+   55.0,
+   75.0,
+   1.0,
+   30.0
+  ],
+  "result": {
+   "method": "有限元：阶梯圆杆纯弯、纯扭，圆角弧上取主应力（analysis.shaft.kt，Gmsh 二阶四面体 + CalculiX）",
+   "d_mm": 55.0,
+   "D_mm": 75.0,
+   "r_mm": 1.0,
+   "bore_mm": 30.0,
+   "kt_bending": 3.146972052534278,
+   "elements_bending": 42120,
+   "kt_torsion": 2.0249124930407327,
+   "elements_torsion": 42120
+  }
+ },
+ {
+  "args": [
+   55.0,
+   75.0,
+   1.0,
+   38.0
+  ],
+  "result": {
+   "method": "有限元：阶梯圆杆纯弯、纯扭，圆角弧上取主应力（analysis.shaft.kt，Gmsh 二阶四面体 + CalculiX）",
+   "d_mm": 55.0,
+   "D_mm": 75.0,
+   "r_mm": 1.0,
+   "bore_mm": 38.0,
+   "kt_bending": 3.1347903822020573,
+   "elements_bending": 41512,
+   "kt_torsion": 1.9329401042946137,
+   "elements_torsion": 41512
+  }
+ },
+ {
+  "args": [
+   55.0,
+   75.0,
+   1.0,
+   40.0
+  ],
+  "result": {
+   "method": "有限元：阶梯圆杆纯弯、纯扭，圆角弧上取主应力（analysis.shaft.kt，Gmsh 二阶四面体 + CalculiX）",
+   "d_mm": 55.0,
+   "D_mm": 75.0,
+   "r_mm": 1.0,
+   "bore_mm": 40.0,
+   "kt_bending": 3.043232410773858,
+   "elements_bending": 42864,
+   "kt_torsion": 1.872457952913335,
+   "elements_torsion": 42864
+  }
+ },
+ {
+  "args": [
+   55.0,
+   75.0,
+   1.0,
+   41.0
+  ],
+  "result": {
+   "method": "有限元：阶梯圆杆纯弯、纯扭，圆角弧上取主应力（analysis.shaft.kt，Gmsh 二阶四面体 + CalculiX）",
+   "d_mm": 55.0,
+   "D_mm": 75.0,
+   "r_mm": 1.0,
+   "bore_mm": 41.0,
+   "kt_bending": 3.0468636824630173,
+   "elements_bending": 41749,
+   "kt_torsion": 1.8672880220395953,
+   "elements_torsion": 41749
+  }
+ }
+]
