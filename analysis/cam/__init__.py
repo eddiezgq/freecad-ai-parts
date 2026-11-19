@@ -707,6 +707,14 @@ def _program(setup, mach):
     hook, extra = _msim_hook(setup, mach, parsed)
     s = sim.simulate_mill(parsed, {"box": box, "top": 0.0}, tools, on_move=hook)
     checks += s["issues"]
+    # 每段切深、切宽按刀具样本核对（外来刀路也查；超出 ap 是错误，经整机仿真结论扣下程序）
+    limits = {int(op["tool"]["n"]): {"name": op["tool"].get("name"), **{k: float(op["tool"][k]) for k in ("ap_max", "ae_max") if op["tool"].get(k)}}
+              for op in ops if (op.get("tool") or {}).get("kind", "endmill") != "drill"}
+    cl = cut_limit_checks(parsed, limits)
+    extra += [c for c in cl if c["level"] == "error"]
+    checks += [c for c in cl if c["level"] != "error"]
+    if not setup.get("machine_sim"):
+        checks += [c for c in cl if c["level"] == "error"]
     out = {"title": prog.get("title") or "外来刀路", "number": prog.get("number", 6001), "gcode": g, "time": tm, "checks": checks,
            "power": {"status": "unknown"}, "sim": {"ap_max_mm": round(s["ap_max"], 3), "cell_mm": round(s["h"], 4)},
            "tools": {str(k): v for k, v in tools.items()}, "generator": prog.get("generator", ""),
@@ -717,6 +725,40 @@ def _program(setup, mach):
           expect_d={k: v["d"] for k, v in tools.items()})
     _release(setup, mach, prog, out)
     return [out], {}
+
+
+def cut_limit_checks(parsed, limits, tol=0.05):
+    """逐段核对仿真量出的切深 ap、切宽 ae 与刀具样本（ADR-0106 Q3b）。limits：{刀号: {"ap_max", "ae_max", "name"}}，样本没给的项不写。
+    - ap 超过样本 ap_max：错误（不出程序），报第一段的行号和最大值；
+    - 样本没给 ap_max：未知；
+    - 切宽超过样本 ae_max 的段（开槽、型腔第一圈）：样本只给了这个切宽以内的 ap，这些段的 ap 对不对没核对，报未知。"""
+    out = []
+    by_tool: dict = {}
+    for mv in parsed["moves"]:
+        if mv.get("ap") is not None and mv["t"] != "rapid":
+            by_tool.setdefault(mv["tool"], []).append(mv)
+    for t, mvs in sorted(by_tool.items()):
+        if t not in limits:                       # 钻头等：不按 ap 核对
+            continue
+        lim = limits[t]
+        name = lim.get("name") or f"T{t}"
+        ap_max = lim.get("ap_max")
+        if ap_max is None:
+            out.append({"line": None, "level": "unknown", "text": f"T{t} {name}：刀具样本没给最大切深 ap，切深没核对"})
+            continue
+        over = [m for m in mvs if m["ap"] > ap_max + tol]
+        if over:
+            worst = max(over, key=lambda m: m["ap"])
+            out.append({"line": over[0]["line"], "level": "error",
+                        "text": f"T{t} {name}：切深 ap 最大 {worst['ap']:.2f} mm（第 {worst['line']} 行），超出刀具样本的 {ap_max:g} mm——分层切或换刀，程序不输出"})
+        ae_max = lim.get("ae_max")
+        if ae_max is not None:
+            wide = [m for m in mvs if (m.get("ae") or 0.0) > ae_max + tol]
+            if wide:
+                out.append({"line": wide[0]["line"], "level": "unknown",
+                            "text": f"T{t} {name}：{len(wide)} 段切宽 ae 超过样本的 {ae_max:g} mm（最宽 {max(m['ae'] for m in wide):.1f} mm，开槽或型腔第一圈），"
+                                    f"样本没给这种切宽下的切深，这些段的切深没核对"})
+    return out
 
 
 # ---------------------------------------------------------------- 检查已有程序

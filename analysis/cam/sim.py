@@ -713,6 +713,11 @@ def simulate_mill(parsed, stock, tools, target=None, h=None, tol=0.01, on_move=N
         k = math.ceil(R / h) + 1
         pts = _seg_points(np.array(mv["a"]), np.array(mv["b"]), h / 2)
         worst = 0.0
+        # 切宽 ae：这段切掉的格在走刀方向的垂直方向上铺多宽（只算 XY 有走动的段；ADR-0106 Q3b）
+        dxy = np.array(mv["b"][:2], float) - np.array(mv["a"][:2], float)
+        lxy = float(np.hypot(*dxy))
+        nrm = np.array([-dxy[1], dxy[0]]) / lxy if lxy >= h else None
+        widths = []
         for x, y, z in pts:
             ix, iy = int((x - xmin) / h), int((y - ymin) / h)
             a0, a1 = max(ix - k, 0), min(ix + k + 1, nx)
@@ -724,6 +729,11 @@ def simulate_mill(parsed, stock, tools, target=None, h=None, tol=0.01, on_move=N
             hit = msk & (sub > z)
             if hit.any():
                 worst = max(worst, float((sub[hit] - z).max()))
+                if nrm is not None:
+                    ii, jj = np.nonzero(hit & (sub - z > 0.005))
+                    if ii.size:
+                        off = (xs[a0 + ii] - mv["a"][0]) * nrm[0] + (ys[b0 + jj] - mv["a"][1]) * nrm[1]
+                        widths.append(float(off.max() - off.min()) + h)
                 sub[hit] = z
         if worst > 0.005:
             if mv["t"] == "rapid":
@@ -731,6 +741,8 @@ def simulate_mill(parsed, stock, tools, target=None, h=None, tol=0.01, on_move=N
             else:
                 ap_max = max(ap_max, worst)
                 mv["ap"] = worst
+                if widths:                            # 每个刀位新切掉的那一弯月牙在垂直方向的宽度，取中位数（进出刀处的尖峰不算）
+                    mv["ae"] = min(float(np.median(widths)), 2 * R)
     res = {"x": xs, "y": ys, "H": H, "inside": inside, "issues": issues, "ap_max": ap_max, "h": h}
     if target is not None:
         T = target(X, Y)

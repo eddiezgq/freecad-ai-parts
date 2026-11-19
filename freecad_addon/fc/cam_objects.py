@@ -751,8 +751,13 @@ def build_setup(job) -> dict:
             from analysis.cam import tools as TL
 
             t = TL.get(_lib(job), o.ToolId)
+            from freecad_addon.core import cam_study as _S
+
+            cc = TL.cutting_for(t, _S.iso_group(job.Kienzle)) or {}          # 刀具样本的 ap、ae 上限：仿真逐段核对（ADR-0106 Q3b）
             prog_ops.append({"tool": {"n": o.ToolNumber, "name": t.get("name", t["id"]), "d": float(t["diameter_mm"]),
-                                      "kind": "drill" if t["kind"] == "drill" else "endmill"},
+                                      "kind": "drill" if t["kind"] == "drill" else "endmill",
+                                      **({"ap_max": cc["ap_max_mm"]} if "ap_max_mm" in cc else {}),
+                                      **({"ae_max": cc["ae_max_mm"]} if "ae_max_mm" in cc else {})},
                              "spindle": _js(o, "Spindle", {}), "moves": mv, "title": o.Label,
                              "safe": max((x["z"] for x in mv if x.get("t") == "rapid"), default=5.0)})
         setup = {"mode": "program", "machine": job.Machine, "item": job.Item, "stock": d["stock"],
