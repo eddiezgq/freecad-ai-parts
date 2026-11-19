@@ -1,5 +1,6 @@
 """回放（ADR-0106 Q2 第 5 步）：帧与程序行对得上、时间与程序时间一致、事件落在撞的那一帧、在制毛坯与整段仿真一致。"""
 
+import itertools
 import re
 
 import numpy as np
@@ -78,7 +79,7 @@ def test_mill_stock_checkpoints_match_full_simulation():
     rp = R.Replay(p["gcode"], VMC, p["replay_in"], h=0.5, keep_every=7)
     n = len(rp.frames)
     vols = [rp.removed_volume(k) for k in range(n + 1)]
-    assert all(b >= a - 1e-9 for a, b in zip(vols, vols[1:], strict=False))
+    assert all(b >= a - 1e-9 for a, b in itertools.pairwise(vols))
     mid = n // 2 + 3                                   # 不在检查点上：从最近的检查点补切
     d_mid = rp.stock_after(mid)
     v0 = rp.stock_after(0).volume()
@@ -99,7 +100,7 @@ def test_turn_stock_history_matches_simulation():
     st = {k: float(v) for k, v in p["replay_in"]["stock"].items()}
     s = S.simulate_turn(S.parse(p["gcode"], LATHE), st, {int(k): v for k, v in p["replay_in"]["tools"].items()}, h=0.05)
     assert np.allclose(r, s["r"])
-    z0, r0, _ = rp.stock_after(0)
+    _, r0, _ = rp.stock_after(0)
     assert r0.max() == pytest.approx(st["d"] / 2)
     v, t = R.lathe_mesh(z, r, ri)
     assert len(v) and t.max() < len(v)
