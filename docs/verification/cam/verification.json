@@ -1,6 +1,6 @@
 {
  "env": {
-  "code": "bacc73e766a85127b9362dfc95ee71b1b2e8d956",
+  "code": "49e276b84044cc726d65458fcdaccdbc0a2fc85d（有未提交的改动）",
   "date": "2026-11-19",
   "numerics": "NumPy 2.5.3",
   "python": "Python 3.13.18 / Linux 6.18.44-fc-v653"
@@ -580,12 +580,355 @@
     }
    ],
    "result": "pass"
+  },
+  {
+   "id": "CAM-18",
+   "test": "tests/test_cam_dexel.py::test_flat_endmill_slot_volume_converges[0.25]",
+   "category": "geom",
+   "title": {
+    "zh": "三向 dexel：平底刀铣直槽的去除体积",
+    "en": "Tri-dexel: flat end mill slot volume"
+   },
+   "source": "V = (L·D + πR²)·ap",
+   "rows": [
+    {
+     "case": "tests/test_cam_dexel.py::test_flat_endmill_slot_volume_converges[0.25]",
+     "kind": "value",
+     "quantity": [
+      "平底刀直槽去除体积（网格 0.25）",
+      "flat end mill slot volume (grid 0.25)"
+     ],
+     "computed": 2393.577516494327,
+     "reference": 2392.699081698724,
+     "tol": 0.01,
+     "rel": true,
+     "error": 0.00036713132976977435,
+     "unit": "mm³",
+     "formula": "V = (L·D + π·R²)·ap",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-19",
+   "test": "tests/test_cam_dexel.py::test_ball_endmill_slot_volume",
+   "category": "geom",
+   "title": {
+    "zh": "三向 dexel：球头刀铣直槽的去除体积",
+    "en": "Tri-dexel: ball end mill slot volume"
+   },
+   "source": "V = L·πR²/2 + 2πR³/3",
+   "rows": [
+    {
+     "case": "tests/test_cam_dexel.py::test_ball_endmill_slot_volume",
+     "kind": "value",
+     "quantity": [
+      "球头刀直槽去除体积",
+      "ball end mill slot volume"
+     ],
+     "computed": 1836.525800740309,
+     "reference": 1832.5957145940458,
+     "tol": 0.005,
+     "rel": true,
+     "error": 0.002144546183844908,
+     "unit": "mm³",
+     "formula": "V = L·πR²/2 + 2πR³/3",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-20",
+   "test": "tests/test_cam_dexel.py::test_drill_volume_with_cone_tip",
+   "category": "geom",
+   "title": {
+    "zh": "三向 dexel：钻头（锥形钻尖）的去除体积",
+    "en": "Tri-dexel: drill volume with conical point"
+   },
+   "source": "V = πR²(h − hc) + πR²hc/3",
+   "rows": [
+    {
+     "case": "tests/test_cam_dexel.py::test_drill_volume_with_cone_tip",
+     "kind": "value",
+     "quantity": [
+      "钻头（118° 顶角）去除体积",
+      "drill (118° point) volume"
+     ],
+     "computed": 423.7963444493613,
+     "reference": 422.11469416078194,
+     "tol": 0.01,
+     "rel": true,
+     "error": 0.003983870525812182,
+     "unit": "mm³",
+     "formula": "V = πR²(h − hc) + πR²hc/3",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-21",
+   "test": "tests/test_cam_dexel.py::test_bullnose_between_flat_and_ball",
+   "category": "geom",
+   "title": {
+    "zh": "三向 dexel：牛鼻刀铣直槽的去除体积",
+    "en": "Tri-dexel: bull nose slot volume"
+   },
+   "source": "古尔丁定理 / Pappus's theorem",
+   "rows": [
+    {
+     "case": "tests/test_cam_dexel.py::test_bullnose_between_flat_and_ball",
+     "kind": "value",
+     "quantity": [
+      "牛鼻刀直槽去除体积",
+      "bull nose end mill slot volume"
+     ],
+     "computed": 2302.5085413422275,
+     "reference": 2299.468316296716,
+     "tol": 0.005,
+     "rel": true,
+     "error": 0.0013221426118225587,
+     "unit": "mm³",
+     "formula": "截面减圆角缺口；两端按古尔丁定理 / cross-section minus corner gaps; ends by Pappus",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-22",
+   "test": "tests/test_cam_dexel.py::test_tilted_tool_matches_pointwise_check",
+   "category": "geom",
+   "title": {
+    "zh": "3+2 斜刀轴去除体积与逐点判断对照",
+    "en": "3+2 tilted tool volume vs point-by-point check"
+   },
+   "source": "随机撒点逐刀位判断 / random points, pose by pose",
+   "rows": [
+    {
+     "case": "tests/test_cam_dexel.py::test_tilted_tool_matches_pointwise_check",
+     "kind": "value",
+     "quantity": [
+      "3+2 斜刀轴（30°）去除体积与逐点判断",
+      "3+2 tilted axis (30°) volume vs point sampling"
+     ],
+     "computed": 969.96221332134,
+     "reference": 1004.8000000000001,
+     "tol": 0.13799283419432334,
+     "rel": true,
+     "error": -0.03467136413083211,
+     "unit": "mm³",
+     "formula": "4000 个随机点逐个刀位判断 / 4000 random points tested pose by pose",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-23",
+   "test": "tests/test_cam_dexel.py::test_matches_heightmap_for_three_axis_pocket",
+   "category": "geom",
+   "title": {
+    "zh": "三轴型腔：dexel 与高度图仿真一致",
+    "en": "3-axis pocket: dexel agrees with height map"
+   },
+   "source": "同一程序两种算法 / same program, two algorithms",
+   "rows": [
+    {
+     "case": "tests/test_cam_dexel.py::test_matches_heightmap_for_three_axis_pocket",
+     "kind": "value",
+     "quantity": [
+      "三轴型腔：dexel 与高度图的最大差",
+      "3-axis pocket: max difference dexel vs height map"
+     ],
+     "computed": 0.0,
+     "reference": 0.0,
+     "tol": 0.01,
+     "rel": false,
+     "error": 0.0,
+     "unit": "mm",
+     "formula": "同一程序两种算法 / same program, two algorithms",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-24",
+   "test": "tests/test_cam_dexel.py::test_known_overcut_is_found",
+   "category": "must",
+   "title": {
+    "zh": "三维比对查出已知 0.30 mm 过切",
+    "en": "3D comparison finds a known 0.30 mm overcut"
+   },
+   "source": "人工设定的过切 / deliberate overcut",
+   "rows": [
+    {
+     "case": "tests/test_cam_dexel.py::test_known_overcut_is_found",
+     "kind": "value",
+     "quantity": [
+      "已知过切 0.30 mm 的三维比对",
+      "3D comparison of a known 0.30 mm overcut"
+     ],
+     "computed": 0.2999999999999998,
+     "reference": 0.3,
+     "tol": 0.125,
+     "rel": false,
+     "error": -1.6653345369377348e-16,
+     "unit": "mm",
+     "formula": "程序比目标深 0.30 / program 0.30 deeper than target",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-25",
+   "test": "tests/test_cam_nose.py::test_chamfer_residual_without_comp_matches_analytic[False-0.4686291501015239]",
+   "category": "geom",
+   "title": {
+    "zh": "刀尖圆弧不补偿时倒角的残留",
+    "en": "Chamfer leftover without nose-radius compensation"
+   },
+   "source": "Δr = rε(2 − √2)",
+   "rows": [
+    {
+     "case": "tests/test_cam_nose.py::test_chamfer_residual_without_comp_matches_analytic[False-0.4686291501015239]",
+     "kind": "value",
+     "quantity": [
+      "倒角残留（R0.8，不补偿）",
+      "chamfer leftover (R0.8, uncompensated)"
+     ],
+     "computed": 0.468651185017098,
+     "reference": 0.4686291501015239,
+     "tol": 0.015,
+     "rel": false,
+     "error": 2.2034915574120628e-05,
+     "unit": "mm",
+     "formula": "Δr = rε(2 − √2)；补偿后 0 / 0 when compensated",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-26",
+   "test": "tests/test_cam_nose.py::test_chamfer_residual_without_comp_matches_analytic[True-0.0]",
+   "category": "geom",
+   "title": {
+    "zh": "刀尖圆弧补偿后倒角无残留",
+    "en": "No chamfer leftover with nose-radius compensation"
+   },
+   "source": "Δr = 0",
+   "rows": [
+    {
+     "case": "tests/test_cam_nose.py::test_chamfer_residual_without_comp_matches_analytic[True-0.0]",
+     "kind": "value",
+     "quantity": [
+      "倒角残留（R0.8，补偿）",
+      "chamfer leftover (R0.8, compensated)"
+     ],
+     "computed": 0.0,
+     "reference": 0.0,
+     "tol": 0.015,
+     "rel": false,
+     "error": 0.0,
+     "unit": "mm",
+     "formula": "Δr = rε(2 − √2)；补偿后 0 / 0 when compensated",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-27",
+   "test": "tests/test_cam_holders.py::test_shank_hits_tailstock_quill",
+   "category": "must",
+   "title": {
+    "zh": "车刀刀杆（ISO 5608）撞尾座套筒必须报出",
+    "en": "Turning holder (ISO 5608) into tailstock quill must be reported"
+   },
+   "source": "人工设定的碰撞 / deliberate collision",
+   "rows": [
+    {
+     "case": "tests/test_cam_holders.py::test_shank_hits_tailstock_quill",
+     "kind": "verdict",
+     "quantity": [
+      "车刀刀杆撞尾座套筒必须报出",
+      "turning holder into tailstock quill must be reported"
+     ],
+     "computed": "fail",
+     "reference": "fail",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-28",
+   "test": "tests/test_cam_replay.py::test_frames_match_program_lines_and_time[mill]",
+   "category": "time",
+   "title": {
+    "zh": "回放时间轴与程序时间一致（铣）",
+    "en": "Replay timeline equals program time (milling)"
+   },
+   "source": "逐段时间 + 换刀 / per-move time + tool changes",
+   "rows": [
+    {
+     "case": "tests/test_cam_replay.py::test_frames_match_program_lines_and_time[mill]",
+     "kind": "value",
+     "quantity": [
+      "回放时间轴总长与程序时间（mill）",
+      "replay timeline vs program time (mill)"
+     ],
+     "computed": 150.3319885875374,
+     "reference": 150.33198858753738,
+     "tol": 1e-09,
+     "rel": true,
+     "error": 1.890596252829731e-16,
+     "unit": "s",
+     "formula": "逐段 move_time + 换刀 / per-move time + tool changes",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-29",
+   "test": "tests/test_cam_replay.py::test_frames_match_program_lines_and_time[turn]",
+   "category": "time",
+   "title": {
+    "zh": "回放时间轴与程序时间一致（车）",
+    "en": "Replay timeline equals program time (turning)"
+   },
+   "source": "逐段时间 + 换刀 / per-move time + tool changes",
+   "rows": [
+    {
+     "case": "tests/test_cam_replay.py::test_frames_match_program_lines_and_time[turn]",
+     "kind": "value",
+     "quantity": [
+      "回放时间轴总长与程序时间（turn）",
+      "replay timeline vs program time (turn)"
+     ],
+     "computed": 45.81663370235627,
+     "reference": 45.81663370235627,
+     "tol": 1e-09,
+     "rel": true,
+     "error": 0.0,
+     "unit": "s",
+     "formula": "逐段 move_time + 换刀 / per-move time + tool changes",
+     "ok": true
+    }
+   ],
+   "result": "pass"
   }
  ],
- "n": 17,
- "ok": 17,
+ "n": 29,
+ "ok": 29,
  "bad": 0,
  "skip": 0,
- "rows": 24,
- "rows_ok": 24
+ "rows": 36,
+ "rows_ok": 36
 }

@@ -6,7 +6,7 @@ FreeCAD CAM 的 2.5 轴铣（型腔、外轮廓、钻孔）成熟，直接用它
 
 - 型腔：零件上所有朝上的、低于顶面的平面当型腔底（PocketShape）；
 - 外轮廓：整个零件外轮廓（Profile，外侧）；
-- 钻孔：FreeCAD 找出能钻的孔（Drillable），只取直径等于钻头直径的（Drilling，G81 / G83 换成我们的钻孔动作）。
+- 钻孔：FreeCAD 找出能钻的孔（Drillable），只取直径等于钻头直径的（Drilling，G81 / G83 换成我们的钻孔动作）；通孔多钻一个钻尖长。
 程序坐标：XY 与零件相同，Z0 在零件顶面（FreeCAD 里是零件的最高点）。
 刀具从 cam-tool/1 刀具库来：平底立铣刀用 FreeCAD 的 endmill 形状，钻头用 drill 形状，只把直径、刃长、柄径、总长、钻尖角传过去。
 FreeCAD 1.0 在没有界面时，作业里有多把刀会在新建工序时报错（findToolController 要弹窗问用户），所以先建工序、再加刀、最后指定。
@@ -76,6 +76,7 @@ def build_job(doc, model, ops: list[dict]):
             op = PocketShape.Create(f"Pocket{len(made) + 1}")
             op.Base = [(jm, floors)]
             op.StepOver = round(float(spec.get("step_over_pct", 40)))
+            op.OffsetPattern = "ZigZagOffset"      # 之字形清中间 + 最后贴壁一圈：直角转角铣到刀具够得着的地方（ADR-0106 Q2 色差图查出来的）
         elif k == "profile":
             op = Profile.Create(f"Profile{len(made) + 1}")
         elif k == "drill":
@@ -87,9 +88,13 @@ def build_job(doc, model, ops: list[dict]):
                 raise CamFcError(f"零件上没有直径 {d:g} 的孔")
             op = Drilling.Create(f"Drill{len(made) + 1}")
             op.Base = [(jm, [h[1] for h in holes])]
+            zmin = jm.Shape.BoundBox.ZMin
+            if all(jm.Shape.getElement(h[1]).BoundBox.ZMin <= zmin + 1e-6 for h in holes):
+                op.ExtraOffset = "Drill Tip"          # 通孔：多钻一个钻尖长，孔底整圈钻透（ADR-0106 Q2 色差图查出来的）
         else:
             raise CamFcError(f"工序类型 {k!r} 不认识：pocket、profile、drill")
         if "step_down_mm" in spec and hasattr(op, "StepDown"):
+            op.setExpression("StepDown", None)      # FreeCAD 缺省按刀径的表达式，会盖掉我们给的每层切深
             op.StepDown = float(spec["step_down_mm"])
         made.append((spec, op))
     default = list(job.Tools.Group)

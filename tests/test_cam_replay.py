@@ -11,6 +11,7 @@ from analysis.cam import dexel as DX
 from analysis.cam import machines
 from analysis.cam import replay as R
 from analysis.cam import sim as S
+from tests.verification import record
 
 VMC = machines.get("EX-VMC")
 LATHE = machines.get("EX-LATHE")
@@ -41,6 +42,8 @@ def test_frames_match_program_lines_and_time(which):
     else:
         p, mach = _prog({"mode": "turn", "machine": "EX-LATHE", "segments": [[30, 40], [40, 60]], "chamfer_mm": 1})[0], LATHE
     rp = _replay(p, mach)
+    record((f"回放时间轴总长与程序时间（{which}）", f"replay timeline vs program time ({which})"), rp.duration,
+           p["time"]["total_s"], tol=1e-9, unit="s", formula="逐段 move_time + 换刀 / per-move time + tool changes")
     assert rp.duration == pytest.approx(p["time"]["total_s"], rel=1e-9)
     assert rp.frames and all(f["t1"] >= f["t0"] for f in rp.frames)
     # 每一帧的终点就是那一行写的坐标（这一行写了的轴）

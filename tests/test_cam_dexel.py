@@ -9,6 +9,7 @@ from analysis.cam import dexel as D
 from analysis.cam import machines
 from analysis.cam import paths as P
 from analysis.cam import sim as S
+from tests.verification import record
 
 VMC = machines.get("EX-VMC")
 
@@ -27,6 +28,8 @@ def test_flat_endmill_slot_volume_converges(h):
     st = _box(h)
     r = st.cut(D.Tool.from_spec({"kind": "endmill", "d": 10, "L": 30}), [10, 20, -5], [50, 20, -5])
     exact = (40 * 10 + math.pi * 25) * 5
+    record((f"平底刀直槽去除体积（网格 {h:g}）", f"flat end mill slot volume (grid {h:g})"), r["volume"], exact,
+           tol=0.01 * h / 0.25, unit="mm³", formula="V = (L·D + π·R²)·ap")
     assert r["volume"] == pytest.approx(exact, rel=0.01 * h / 0.25)
     assert r["depth"] == pytest.approx(5.0, abs=1e-9)
     assert 60 * 40 * 20 - st.volume() == pytest.approx(r["volume"], rel=1e-9)
@@ -37,6 +40,8 @@ def test_ball_endmill_slot_volume():
     st = _box()
     r = st.cut(D.Tool.from_spec({"kind": "ballend", "d": 10, "L": 30}), [10, 20, -5], [50, 20, -5])
     exact = 40 * math.pi * 25 / 2 + 2 / 3 * math.pi * 125
+    record(("球头刀直槽去除体积", "ball end mill slot volume"), r["volume"], exact, tol=0.005, unit="mm³",
+           formula="V = L·πR²/2 + 2πR³/3")
     assert r["volume"] == pytest.approx(exact, rel=0.005)
 
 
@@ -46,6 +51,8 @@ def test_drill_volume_with_cone_tip():
     r = st.cut(D.Tool.from_spec({"kind": "drill", "d": 8, "L": 40}), [30, 20, 5], [30, 20, -10])
     hc = 4 / math.tan(math.radians(59))
     exact = math.pi * 16 * (10 - hc) + math.pi * 16 * hc / 3
+    record(("钻头（118° 顶角）去除体积", "drill (118° point) volume"), r["volume"], exact, tol=0.01, unit="mm³",
+           formula="V = πR²(h − hc) + πR²hc/3")
     assert r["volume"] == pytest.approx(exact, rel=0.01)
 
 
@@ -63,6 +70,8 @@ def test_bullnose_between_flat_and_ball():
     A = rc * rc * (1 - math.pi / 4)
     rbar = R - rc + rc ** 3 / (6 * A)
     exact = (2 * R * 5 - 2 * A) * 40 + (math.pi * R * R * 5 - 2 * math.pi * rbar * A)
+    record(("牛鼻刀直槽去除体积", "bull nose end mill slot volume"), vols["bullnose"], exact, tol=0.005, unit="mm³",
+           formula="截面减圆角缺口；两端按古尔丁定理 / cross-section minus corner gaps; ends by Pappus")
     assert vols["bullnose"] == pytest.approx(exact, rel=0.005)
 
 
@@ -89,6 +98,8 @@ def test_tilted_tool_matches_pointwise_check():
     frac = np.mean([_in_tilted_sweep(p, a, b, w, 5.0, 30.0, n=200) for p in pts])
     mc = frac * np.prod(hi - lo)
     se = np.prod(hi - lo) * math.sqrt(frac * (1 - frac) / len(pts))
+    record(("3+2 斜刀轴（30°）去除体积与逐点判断", "3+2 tilted axis (30°) volume vs point sampling"), r["volume"], mc,
+           tol=(4 * se + 0.01 * mc) / mc, unit="mm³", formula="4000 个随机点逐个刀位判断 / 4000 random points tested pose by pose")
     assert abs(r["volume"] - mc) < 4 * se + 0.01 * mc
 
 
@@ -135,6 +146,8 @@ def test_matches_heightmap_for_three_axis_pocket():
     top = np.fmax.reduce(np.nan_to_num(st.E[2], nan=-np.inf), -1)
     inside = hm["inside"]
     diff = np.abs(np.where(inside, top - hm["H"], 0.0))
+    record(("三轴型腔：dexel 与高度图的最大差", "3-axis pocket: max difference dexel vs height map"), float(diff.max()), 0.0,
+           tol=0.01, rel=False, unit="mm", formula="同一程序两种算法 / same program, two algorithms")
     assert diff.max() < 0.01
     # 型腔体积（圆角矩形 40×20、R6、深 4）
     exact = (40 * 20 - (4 - math.pi) * 36) * 4
@@ -168,6 +181,8 @@ def test_known_overcut_is_found():
     part.cut(tool, [10, 20, -5], [50, 20, -5])                     # 目标：5 深
     st.cut(tool, [10, 20, -5.3], [50, 20, -5.3])                   # 程序：5.3 深
     c = D.compare(st, part)
+    record(("已知过切 0.30 mm 的三维比对", "3D comparison of a known 0.30 mm overcut"), c["over_max"], 0.30, tol=h / 2,
+           rel=False, unit="mm", formula="程序比目标深 0.30 / program 0.30 deeper than target")
     assert c["over"] and c["over_max"] == pytest.approx(0.30, abs=h / 2)
     x, y, z = c["at"]
     assert 5 <= x <= 55 and 15 <= y <= 25 and z == pytest.approx(-5.3, abs=h)

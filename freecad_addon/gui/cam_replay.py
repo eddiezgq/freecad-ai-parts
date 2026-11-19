@@ -283,10 +283,15 @@ class ReplayDock:
         hints = coin.SoShapeHints()
         hints.vertexOrdering = coin.SoShapeHints.COUNTERCLOCKWISE
         hints.creaseAngle = 0.5
-        for n in (hints, self._stock_mat, self._stock_bind, self._stock_coords, self._stock_faces):
+        self._light = coin.SoLightModel()
+        self._light.model = coin.SoLightModel.PHONG
+        for n in (hints, self._light, self._stock_mat, self._stock_bind, self._stock_coords, self._stock_faces):
             self._stock_sep.addChild(n)
         root.addChild(self._stock_sep)
-        # 当前这一段
+        # 当前这一段、刀具（看色差时不画）
+        self._moving = coin.SoSwitch()
+        self._moving.whichChild = coin.SO_SWITCH_ALL
+        root.addChild(self._moving)
         seg = coin.SoSeparator()
         m = coin.SoMaterial()
         m.diffuseColor = (0.9, 0.1, 0.1)
@@ -297,7 +302,7 @@ class ReplayDock:
         self._seg_line = coin.SoLineSet()
         for n in (m, st, self._seg_coords, self._seg_line):
             seg.addChild(n)
-        root.addChild(seg)
+        self._moving.addChild(seg)
         # 刀具
         tool = coin.SoSeparator()
         self._tool_xf = coin.SoTransform()
@@ -307,7 +312,7 @@ class ReplayDock:
         self._tool_cyl = coin.SoCylinder()
         for n in (self._tool_xf, tm, self._tool_shape_xf, self._tool_cyl):
             tool.addChild(n)
-        root.addChild(tool)
+        self._moving.addChild(tool)
         view.getSceneGraph().addChild(root)
         self._root = root
         return root
@@ -356,6 +361,7 @@ class ReplayDock:
             return
         self._stock_bind.value = coin.SoMaterialBinding.OVERALL
         self._stock_mat.diffuseColor.setValue(0.55, 0.62, 0.70)
+        self._light.model = coin.SoLightModel.PHONG
         if self.rp.lathe:
             z, r, ri = self.rp.stock_after(n)
             v, t = R.lathe_mesh(z, r, ri, stride=max(1, len(z) // 400))
@@ -386,8 +392,11 @@ class ReplayDock:
 
     # ---- 色差
     def _toggle_dev(self, on):
+        coin = _coin()
         self.mode = "deviation" if on else "stock"
         self.legend.setVisible(on)
+        if self._scene() is not None:
+            self._moving.whichChild = coin.SO_SWITCH_NONE if on else coin.SO_SWITCH_ALL
         if on and self.rp:
             self.seek(self.rp.duration)
         elif self.rp:
@@ -415,7 +424,14 @@ class ReplayDock:
             if self.rp.lathe:
                 v = np.array([self._to_model_lathe(p) for p in v])
         self._set_mesh(v, t)
-        cols = [_dev_color(d, res["tol"]) for d in dev]
+        # 颜色里直接带上明暗（固定光源方向），看色差时不用场景灯光：每个面的颜色一定是它偏差的颜色，深浅只表示朝向
+        tri = np.asarray(v)[np.asarray(t)] if len(t) else np.zeros((0, 3, 3))
+        nrm = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0]) if len(tri) else np.zeros((0, 3))
+        nrm = nrm / np.maximum(np.linalg.norm(nrm, axis=1, keepdims=True), 1e-12)
+        light = np.array([0.35, -0.55, 0.76])
+        shade = 0.45 + 0.55 * np.abs(nrm @ light)
+        cols = [tuple(float(c) * float(k) for c in _dev_color(d, res["tol"])) for d, k in zip(dev, shade, strict=True)]
+        self._light.model = coin.SoLightModel.BASE_COLOR
         self._stock_bind.value = coin.SoMaterialBinding.PER_FACE
         self._stock_mat.diffuseColor.setNum(len(cols))
         if cols:

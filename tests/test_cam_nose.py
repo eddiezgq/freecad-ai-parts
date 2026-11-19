@@ -9,6 +9,7 @@ from analysis import cam
 from analysis.cam import machines, post
 from analysis.cam import paths as P
 from analysis.cam import sim as S
+from tests.verification import record
 
 LATHE = machines.get("EX-LATHE")
 
@@ -48,6 +49,8 @@ def test_chamfer_residual_without_comp_matches_analytic(comp, expect):
     parsed = S.parse(g, LATHE)
     stock = {"d": 40.6, "z_right": 0.0, "z_left": -40.0}       # 精车余量 0.3（半径）
     s = S.simulate_turn(parsed, stock, {2: {"kind": "turn", "nose_r": 0.8}}, target={"outer": prof, "nose_outer": 0.8}, h=0.01)
+    record(("倒角残留（R0.8，" + ("补偿" if comp else "不补偿") + "）", "chamfer leftover (R0.8, " + ("compensated" if comp else "uncompensated") + ")"),
+           s.get("under_mm", 0.0), expect, tol=0.015, rel=False, unit="mm", formula="Δr = rε(2 − √2)；补偿后 0 / 0 when compensated")
     assert s.get("under_mm", 0.0) == pytest.approx(expect, abs=0.015)
     assert not [i for i in s["issues"] if "过切" in i["text"]]
 

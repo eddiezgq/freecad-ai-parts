@@ -4,6 +4,7 @@ import pytest
 
 from analysis import cam
 from analysis.cam import holders as HD
+from tests.verification import record_verdict
 
 
 def test_parse_iso5608():
@@ -46,6 +47,8 @@ def test_shank_hits_tailstock_quill():
     """右手刀 PCLNR 2525 M 12、f = 32：刀杆在刀尖 +Z 一侧 7 ~ 32 mm、离轴至少（刀尖半径 + 12）。
     尾座套筒 Ø40 从 Z15 起：车端面车到中心时刀尖碰不到套筒，刀杆碰；套筒退到 Z45 就碰不到。"""
     errs = [c["text"] for c in _lathe(_quill(15))[0]["checks"] if c["level"] == "error"]       # 右端（第一次装夹）
+    record_verdict(("车刀刀杆撞尾座套筒必须报出", "turning holder into tailstock quill must be reported"),
+                   "fail" if any("刀杆碰到夹具“尾座套筒”" in e for e in errs) else "pass", "fail")
     assert any("刀杆碰到夹具“尾座套筒”" in e for e in errs), errs
     assert not any("刀具刃部碰到夹具“尾座套筒”" in e for e in errs)
     progs = _lathe(_quill(45))

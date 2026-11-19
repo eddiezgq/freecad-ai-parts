@@ -28,14 +28,16 @@ def model_triangles(shape, z_shift: float, tol: float = 0.05) -> np.ndarray:
 def mill_deviation(rp: R.Replay, shape, z_top: float, tol: float = TOL) -> dict:
     final = rp.stock_after(len(rp.frames))
     part = DX.Dexel(final.lo, final.hi, final.h)
+    tris = model_triangles(shape, z_top)
     for k in range(3):
-        part._set_from_triangles(k, model_triangles(shape, z_top))
+        part._set_from_triangles(k, tris)
     c = DX.compare(final, part, tol)
     # 画面：Z 向每格的顶面差
     top_s = np.fmax.reduce(np.nan_to_num(final.E[2], nan=-np.inf), -1)
     top_p = np.fmax.reduce(np.nan_to_num(part.E[2], nan=-np.inf), -1)
     bot_s = np.fmin.reduce(np.nan_to_num(final.S[2], nan=np.inf), -1)
-    cell_dev = np.where(np.isfinite(top_p), top_s - top_p, top_s - bot_s)
+    with np.errstate(invalid="ignore"):                          # 没有材料的格：inf − inf，画面里也不画
+        cell_dev = np.where(np.isfinite(top_p), top_s - top_p, top_s - bot_s)
     stride = max(1, int(max(final.n[0], final.n[1]) // 160))
     v, t, cells = R.height_mesh(final, stride=stride, cells=True)
     dev = cell_dev[cells[:, 0], cells[:, 1]] if len(cells) else np.zeros(0)

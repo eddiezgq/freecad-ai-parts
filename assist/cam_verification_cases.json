@@ -1,5 +1,5 @@
 {
- "about": "问渠CAM 验证手册的题目清单（ADR-0104 第 6 节，C1）：每题对应一个标准题测试；手册里的数字由这些测试在运行时记下（tests/verification.py）。",
+ "about": "问渠CAM 验证手册的题目清单（ADR-0104 第 6 节 C1；ADR-0106 Q2 加 CAM-18 起）：每题对应一个标准题测试；手册里的数字由这些测试在运行时记下（tests/verification.py）。",
  "categories": {
   "time": {
    "zh": "加工时间与切削功率",
@@ -192,6 +192,126 @@
     "en": "Post read-back: GSK"
    },
    "source": "整机仿真刀路 / Simulated tool path"
+  },
+  {
+   "id": "CAM-18",
+   "test": "tests/test_cam_dexel.py::test_flat_endmill_slot_volume_converges[0.25]",
+   "category": "geom",
+   "title": {
+    "zh": "三向 dexel：平底刀铣直槽的去除体积",
+    "en": "Tri-dexel: flat end mill slot volume"
+   },
+   "source": "V = (L·D + πR²)·ap"
+  },
+  {
+   "id": "CAM-19",
+   "test": "tests/test_cam_dexel.py::test_ball_endmill_slot_volume",
+   "category": "geom",
+   "title": {
+    "zh": "三向 dexel：球头刀铣直槽的去除体积",
+    "en": "Tri-dexel: ball end mill slot volume"
+   },
+   "source": "V = L·πR²/2 + 2πR³/3"
+  },
+  {
+   "id": "CAM-20",
+   "test": "tests/test_cam_dexel.py::test_drill_volume_with_cone_tip",
+   "category": "geom",
+   "title": {
+    "zh": "三向 dexel：钻头（锥形钻尖）的去除体积",
+    "en": "Tri-dexel: drill volume with conical point"
+   },
+   "source": "V = πR²(h − hc) + πR²hc/3"
+  },
+  {
+   "id": "CAM-21",
+   "test": "tests/test_cam_dexel.py::test_bullnose_between_flat_and_ball",
+   "category": "geom",
+   "title": {
+    "zh": "三向 dexel：牛鼻刀铣直槽的去除体积",
+    "en": "Tri-dexel: bull nose slot volume"
+   },
+   "source": "古尔丁定理 / Pappus's theorem"
+  },
+  {
+   "id": "CAM-22",
+   "test": "tests/test_cam_dexel.py::test_tilted_tool_matches_pointwise_check",
+   "category": "geom",
+   "title": {
+    "zh": "3+2 斜刀轴去除体积与逐点判断对照",
+    "en": "3+2 tilted tool volume vs point-by-point check"
+   },
+   "source": "随机撒点逐刀位判断 / random points, pose by pose"
+  },
+  {
+   "id": "CAM-23",
+   "test": "tests/test_cam_dexel.py::test_matches_heightmap_for_three_axis_pocket",
+   "category": "geom",
+   "title": {
+    "zh": "三轴型腔：dexel 与高度图仿真一致",
+    "en": "3-axis pocket: dexel agrees with height map"
+   },
+   "source": "同一程序两种算法 / same program, two algorithms"
+  },
+  {
+   "id": "CAM-24",
+   "test": "tests/test_cam_dexel.py::test_known_overcut_is_found",
+   "category": "must",
+   "title": {
+    "zh": "三维比对查出已知 0.30 mm 过切",
+    "en": "3D comparison finds a known 0.30 mm overcut"
+   },
+   "source": "人工设定的过切 / deliberate overcut"
+  },
+  {
+   "id": "CAM-25",
+   "test": "tests/test_cam_nose.py::test_chamfer_residual_without_comp_matches_analytic[False-0.4686291501015239]",
+   "category": "geom",
+   "title": {
+    "zh": "刀尖圆弧不补偿时倒角的残留",
+    "en": "Chamfer leftover without nose-radius compensation"
+   },
+   "source": "Δr = rε(2 − √2)"
+  },
+  {
+   "id": "CAM-26",
+   "test": "tests/test_cam_nose.py::test_chamfer_residual_without_comp_matches_analytic[True-0.0]",
+   "category": "geom",
+   "title": {
+    "zh": "刀尖圆弧补偿后倒角无残留",
+    "en": "No chamfer leftover with nose-radius compensation"
+   },
+   "source": "Δr = 0"
+  },
+  {
+   "id": "CAM-27",
+   "test": "tests/test_cam_holders.py::test_shank_hits_tailstock_quill",
+   "category": "must",
+   "title": {
+    "zh": "车刀刀杆（ISO 5608）撞尾座套筒必须报出",
+    "en": "Turning holder (ISO 5608) into tailstock quill must be reported"
+   },
+   "source": "人工设定的碰撞 / deliberate collision"
+  },
+  {
+   "id": "CAM-28",
+   "test": "tests/test_cam_replay.py::test_frames_match_program_lines_and_time[mill]",
+   "category": "time",
+   "title": {
+    "zh": "回放时间轴与程序时间一致（铣）",
+    "en": "Replay timeline equals program time (milling)"
+   },
+   "source": "逐段时间 + 换刀 / per-move time + tool changes"
+  },
+  {
+   "id": "CAM-29",
+   "test": "tests/test_cam_replay.py::test_frames_match_program_lines_and_time[turn]",
+   "category": "time",
+   "title": {
+    "zh": "回放时间轴与程序时间一致（车）",
+    "en": "Replay timeline equals program time (turning)"
+   },
+   "source": "逐段时间 + 换刀 / per-move time + tool changes"
   }
  ]
 }

@@ -37,9 +37,12 @@ TEXT = {
                            "serve only to check the algorithms; real machining needs the company's own machine and tool data. The post "
                            "processors have not yet been verified on real machines and say so in the program header; dry-run and "
                            "first-part results from the partner shop will be added after the C1 shop acceptance."},
-    "note_sim": {"zh": "材料去除按网格算（铣削高度图、车削半径网格），刀尖圆弧按 0、钻头按平底、螺纹按整圈切；体积与尺寸的容差按网格大小定。",
-                 "en": "Material removal is computed on grids (a height map for milling, a radius grid for turning), with zero nose "
-                       "radius, flat-bottom drills and threads cut as full revolutions; volume and size tolerances follow the grid size."},
+    "note_sim": {"zh": "材料去除按网格算：铣削三轴用高度图，任意刀轴与三维比对用三向 dexel（ADR-0106 Q2）；车削用半径网格，"
+                       "刀尖圆弧按刀片的 rε 计入（没有刀片数据时按 0），螺纹按整圈切。体积与尺寸的容差按网格大小定。",
+                 "en": "Material removal is computed on grids: a height map for 3-axis milling and a tri-dexel model for any tool "
+                       "axis and the 3D comparison (ADR-0106 Q2); a radius grid for turning, with the insert nose radius taken into "
+                       "account (zero when the insert has no data) and threads cut as full revolutions. Volume and size tolerances "
+                       "follow the grid size."},
 }
 NOTES = ("note_machine", "note_sim")
 

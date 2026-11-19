@@ -2,9 +2,9 @@
 
     python scripts/cam_help.py --freecad <FreeCAD 的 python> [--no-shots]
 
-- 截图：每种语言起一个 FreeCAD（xvfb 下），按问渠CAM 版（FAP_EDITION=cam）注册工作台，用加工树界面（ADR-0106 Q1）截五张：
+- 截图：每种语言起一个 FreeCAD（xvfb 下），按问渠CAM 版（FAP_EDITION=cam）注册工作台，用加工树界面（ADR-0106 Q1）截七张：
   车削例子算完（作业面板 + 视图里的刀路）；工序面板 vc 超范围变红；铣削例子算完（加工树）；
-  铣削例子新建“铣外轮廓”、撞平口钳（检查清单）；授权窗口。
+  铣削例子新建“铣外轮廓”、撞平口钳（检查清单）；回放跳到撞钳口的那一段；去掉外轮廓后的色差图；授权窗口。
   存到 docs/wenquest-cam/help/img/<zh|en>-*.png。截图进程里没有授权：免费版就能做这些。
 - 手册：help/zh.md、help/en.md → pandoc → Word（临时）→ LibreOffice → PDF，输出 docs/wenquest-cam/help/ 下的
   问渠CAM用户手册.pdf、WenQuest-CAM-User-Guide.pdf（随安装包放进 docs\\）。
@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 HELP = ROOT / "docs/wenquest-cam/help"
 EX = ROOT / "examples/wenquest-cam"
 PDF_NAME = {"zh": "问渠CAM用户手册", "en": "WenQuest-CAM-User-Guide"}
-SHOTS = ("turn", "op", "mill", "clash", "license")
+SHOTS = ("turn", "op", "mill", "clash", "replay", "deviation", "license")
 
 
 def _pump(sec: float) -> None:
@@ -85,6 +85,15 @@ def _confirm_all(CO, job) -> None:
                 CO.confirm(o)
 
 
+def _hide_report(mw) -> None:
+    """截图时关掉报告视图，回放窗口占满下方"""
+    from PySide import QtWidgets
+
+    for d in mw.findChildren(QtWidgets.QDockWidget):
+        if d.windowTitle().replace("&", "") in ("Report view", "报告视图"):
+            d.hide()
+
+
 def _expand_tree(mw) -> None:
     import FreeCADGui
     from PySide import QtCore, QtWidgets
@@ -109,6 +118,7 @@ def shots(lang: str, out: Path) -> None:
     """加工树界面（ADR-0106 Q1）：新建作业 → 作业面板起草 → 模型树里确认工序 → 计算并检查"""
     import FreeCAD
     import FreeCADGui
+    from PySide import QtCore
 
     FreeCADGui.showMainWindow()
     mw = FreeCADGui.getMainWindow()
@@ -167,11 +177,40 @@ def shots(lang: str, out: Path) -> None:
     jp.do_calculate()
     _pump(0.5)
     _save(mw, out / f"{lang}-clash.png")
-    P._close()
-    FreeCAD.closeDocument(doc.Name)
-    # 5 授权
-    from PySide import QtCore
+    # 5 回放：跳到撞钳口的那一段（程序窗口高亮那一行，视图里刀具在撞的位置）
+    from freecad_addon.gui import cam_replay
 
+    P._close()
+    _hide_report(mw)
+    dock = cam_replay.open_for(job)
+    mw.resizeDocks([dock.dock], [300], QtCore.Qt.Vertical)
+    ev = next((e for e in dock.rp.events if e["level"] == "error"), None)
+    if ev is not None:
+        dock.goto_frame(ev["i"])
+    job.Model.ViewObject.Visibility = False          # 看在制毛坯
+    _expand_tree(mw)
+    _fit()
+    _save(mw, out / f"{lang}-replay.png")
+    dock.close()
+    # 6 色差：去掉外轮廓，算完的铣削件与零件模型比
+    prof = [o for o in CO.ops(CO.setups(job)[0]) if o.OpKind == "profile"]
+    for o in prof:
+        doc.removeObject(o.Name)
+    CO.calculate(job)
+    job.Model.ViewObject.Visibility = True
+    dock = cam_replay.open_for(job)
+    mw.resizeDocks([dock.dock], [300], QtCore.Qt.Vertical)
+    dock.dev.setChecked(True)
+    _pump(0.5)
+    job.Model.ViewObject.Visibility = False
+    for s_ in CO.setups(job):
+        for o in CO.ops(s_):
+            o.ViewObject.Visibility = False
+    _fit()
+    _save(mw, out / f"{lang}-deviation.png")
+    dock.close()
+    FreeCAD.closeDocument(doc.Name)
+    # 7 授权
     from freecad_addon.gui import fea_brand
 
     dlg = fea_brand.LicenseDialog(mw, cam_brand.Product).dlg
