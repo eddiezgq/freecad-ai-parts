@@ -174,6 +174,52 @@ def check_conditions(ti: Any, statement: str) -> tuple[dict, list[str], list[str
     return c, rej, missing
 
 
+_QUOTED = (("speeds", "speed_rpm", "转速", "r/min"), ("bearing_centers", "z_mm", "轴承中心 z", "mm"), ("drive_z", "z_mm", "动力输入 z", "mm"),
+           ("required_safety", None, "安全系数要求", ""), ("critical_ratio", None, "临界转速倍数要求", ""),
+           ("bearing_life", "life_h", "轴承寿命要求", "h"), ("max_length", "length_mm", "轴长上限", "mm"))
+_SUB = {"crank_slider": ("曲柄滑块", {"z": ("z_mm", "位置 z", "mm"), "crank_radius": ("r_mm", "曲柄半径", "mm"),
+                                     "rod_length": ("l_mm", "连杆长", "mm"), "reciprocating_mass": ("mass_kg", "往复质量", "kg"),
+                                     "balance_ratio": (None, "平衡率", "")}),
+        "process_power": ("工作阻力", {"power": ("power_w", "平均功率", "W"), "z": ("z_mm", "位置 z", "mm")})}
+
+
+def accepted_quotes(ti: Any, statement: str, cond: dict) -> list[dict]:
+    """核对通过的每个数和它的原话引用（给人看：每个条件从原话哪里来）：[{what, value, unit, quote}]，值是标准单位"""
+    out: list[dict] = []
+    if not isinstance(ti, dict):
+        return out
+
+    def add(v, field, what, unit):
+        x, why = _value_with_unit(v, statement, field)
+        if why is None and x is not None:
+            out.append({"what": what, "value": x, "unit": unit, "quote": v["quote"]})
+
+    for key, field, what, unit in _QUOTED:
+        vals = ti.get(key)
+        for v in vals if isinstance(vals, list) else [vals] if vals else []:
+            add(v, field, what, unit)
+    for key, (head, parts) in _SUB.items():
+        sub = ti.get(key)
+        if isinstance(sub, dict):
+            for k, (field, what, unit) in parts.items():
+                if sub.get(k):
+                    add(sub[k], field, f"{head} {what}", unit)
+    for f in ti.get("forces") or []:
+        if isinstance(f, dict):
+            add(f.get("z"), "z_mm", "力的位置 z", "mm")
+            add(f.get("magnitude"), "force_n", "力的大小", "N")
+    for m in ti.get("masses") or []:
+        if isinstance(m, dict):
+            name = str(m.get("name") or "")[:40]
+            add(m.get("z"), "z_mm", f"{name} 位置 z", "mm")
+            add(m.get("mass"), "mass_kg", f"{name} 质量", "kg")
+    for key, ckey, what in (("material", "material", "材料"), ("surface", "surface", "表面")):
+        sub = ti.get(key)
+        if isinstance(sub, dict) and cond.get(ckey):
+            out.append({"what": what, "value": cond[ckey], "unit": "", "quote": sub.get("quote")})
+    return out
+
+
 def ai_questions(ti: Any) -> list[str]:
     """AI 提的问题：交给工程师，但不挡设计（缺了算不了的条件由代码判断，见 check_conditions）"""
     return [q.strip() for q in (ti.get("questions") if isinstance(ti, dict) else None) or [] if isinstance(q, str) and q.strip()]
@@ -239,6 +285,7 @@ def design(statement: str, client, bearings: list[dict], get: Callable[[str], di
     cond, rejected, missing = check_conditions(r["tool_input"], statement)
     out: dict = {"statement": statement, "conditions": cond, "rejected": rejected, "missing": missing,
                  "questions": ai_questions(r["tool_input"]), "assumptions": ASSUMPTIONS, "rounds": [],
+                 "quotes": accepted_quotes(r["tool_input"], statement, cond),
                  "ai": [{k: r[k] for k in ("id", "provider", "model", "simulated") if k in r}]}
     if missing:
         out["status"] = "needs_input"

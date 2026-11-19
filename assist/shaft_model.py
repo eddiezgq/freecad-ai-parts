@@ -209,7 +209,7 @@ def generate(result: dict, out_dir: str | Path, get, *, drawing_no: str = "AI-SH
     step = build_step(segs, out_dir / "shaft.step")
     rb = readback(segs, step, material)
     (out_dir / "readback.json").write_text(json.dumps(rb, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    summary = {"readback": rb["overall"], "problems": rb["problems"], "step": "shaft.step",
+    summary = {"readback": rb["overall"], "problems": rb["problems"], "step": "shaft.step", "readback_rows": len(rb["rows"]),
                "mass_kg": rb["measurement"].get("mass_kg"), "volume_mm3": rb["measurement"].get("volume_mm3")}
     if rb["overall"] != "pass":
         summary["delivered"] = False
