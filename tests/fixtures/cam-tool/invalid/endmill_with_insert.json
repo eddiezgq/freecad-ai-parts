@@ -1,0 +1,22 @@
+{
+ "why": "铣刀不写刀片",
+ "instance": {
+  "format": "cam-tool/1",
+  "name": "示例刀具库（虚构）",
+  "example": true,
+  "tools": [
+   {
+    "id": "E",
+    "kind": "flat_endmill",
+    "diameter_mm": 8,
+    "insert": {
+     "nose_radius_mm": 0.4
+    },
+    "source": {
+     "kind": "example",
+     "ref": "x"
+    }
+   }
+  ]
+ }
+}

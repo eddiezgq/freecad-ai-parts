@@ -126,3 +126,81 @@ def FreeCADGui_main():
     import FreeCADGui
 
     return FreeCADGui.getMainWindow()
+
+
+def test_start_replays_example_without_recording_miss(gui, lib, monkeypatch):
+    """“载入示例”后直接“开始设计”要能回放：面板里的文字去掉了末尾换行，回放要用示例原文（2026-11-18 问渠 CAD）"""
+    from freecad_addon.core import ai_design as C
+    from freecad_addon.gui import ai_design_panel as P
+
+    seen = {}
+    monkeypatch.setattr(P, "_in_background", lambda work, done: seen.setdefault("work", work))
+    p = P.AiDesignPanel(lib, None, client_factory=lambda: None)
+    p.load_example()
+    p.start()
+    req = {}
+
+    def fake_run(statement, client, library, replay=False, progress=None):
+        req.update(statement=statement, replay=replay)
+        return statement
+
+    monkeypatch.setattr(C, "run", fake_run)
+    seen["work"]()
+    assert req["replay"] and req["statement"] == C.example_text()
+
+
+def test_progress_bar_and_elapsed_time(gui, lib, monkeypatch):
+    """进度：后台写（说明, 已做, 总数），界面每半秒显示当前一步、第几个台阶、已用时间；结束后写总用时"""
+    from freecad_addon.gui import ai_design_panel as P
+
+    monkeypatch.setattr(P, "_in_background", lambda work, done: None)
+    p = P.AiDesignPanel(lib, None, client_factory=lambda: None)
+    p.load_example()
+    p.start()
+    assert p.bar.isVisibleTo(p.form) and p.ticker.isActive()
+    p._status = ("第 1 轮（最多 4 轮）：校核台阶强度（有限元）", 1, 4)
+    p._tick()
+    assert "2 / 4" in p.progress.text() or "2 of 4" in p.progress.text()
+    assert (p.bar.minimum(), p.bar.maximum(), p.bar.value()) == (0, 4, 1)
+    p._status = ("AI 列设计条件", None, None)
+    p._tick()
+    assert p.bar.maximum() == 0                                                   # 步数不定：忙
+    p.done(RuntimeError("测试中断"))
+    assert not p.ticker.isActive() and not p.bar.isVisibleTo(p.form)
+
+
+def test_confirm_refreshes_library_browser(gui, doc, run_out, lib, tmp_path):
+    """入库后零件库浏览器立刻刷新，标题里的企业库组件数跟着变（2026-11-18：入了库却在浏览器里看不到）"""
+    from PySide import QtWidgets
+
+    from freecad_addon.gui.ai_design_panel import AiDesignPanel
+    from kb.enterprise import EnterpriseLibrary
+
+    class FakeBrowser(QtWidgets.QDockWidget):
+        refreshed = 0
+
+        def refresh(self):
+            FakeBrowser.refreshed += 1
+
+    mw = gui.getMainWindow()
+    fake = FakeBrowser("AI Parts 零件库", mw)
+    fake.setObjectName("FapLibraryBrowser")
+    fake.header = QtWidgets.QLabel("企业库 0 个组件（X）叠加在 组件库")
+    try:
+        ent = EnterpriseLibrary(tmp_path / "ent", create=True)
+        p = AiDesignPanel(lib, ent, client_factory=lambda: None)
+        p.done(run_out)
+        p.drawing_no.setText("AI-102")
+        p.vendor.setText("示范（虚构）")
+        p.by.setText("张工")
+        p.confirm()
+        assert FakeBrowser.refreshed == 1 and fake.header.text().startswith("企业库 1 个组件")
+    finally:
+        fake.setObjectName("")
+        fake.deleteLater()
+
+
+def test_custom_parts_have_a_category_name():
+    from freecad_addon.core import browser as core
+
+    assert core.CATEGORIES["custom_part"] == "自制件"

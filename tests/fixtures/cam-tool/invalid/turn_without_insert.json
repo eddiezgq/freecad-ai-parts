@@ -1,0 +1,18 @@
+{
+ "why": "车刀要写刀片",
+ "instance": {
+  "format": "cam-tool/1",
+  "name": "示例刀具库（虚构）",
+  "example": true,
+  "tools": [
+   {
+    "id": "T",
+    "kind": "turn",
+    "source": {
+     "kind": "example",
+     "ref": "x"
+    }
+   }
+  ]
+ }
+}

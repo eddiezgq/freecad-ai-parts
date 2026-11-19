@@ -98,7 +98,12 @@ def test_loop_fixes_with_feedback():
 
 
 def test_stops_after_max_rounds():
-    out = D.design(TEXT, Script(proposals=[FIRST] * 4), [get(B6201)], get, kt=fake_kt)
+    tries = []
+    for n in range(4):                                            # 每轮都改了，但都没改对（轴身长度不对）
+        t = copy.deepcopy(FIRST)
+        t["segments"][2]["length_mm"] = 201 + n
+        tries.append(t)
+    out = D.design(TEXT, Script(proposals=tries), [get(B6201)], get, kt=fake_kt)
     assert out["status"] == "stuck" and len(out["rounds"]) == D.MAX_ROUNDS
 
 
@@ -148,3 +153,20 @@ def test_recorded_real_model_run_passes(tmp_path):
     assert g["readback"] == "pass" and g["delivered"], g["problems"]
     assert (tmp_path / "shaft.step").is_file() and (tmp_path / "drawing.svg").is_file()
     assert [r["kind"] for r in g["bom"]] == ["custom_part", "bearing"] and g["bom"][1]["qty"] == 2
+
+
+def test_progress_reported_each_step():
+    """界面要知道做到哪一步：列条件、每一轮提方案、每个台阶的有限元（已做 / 总数）"""
+    seen = []
+    out = D.design(TEXT, Script(), [get(B6201)], get, kt=fake_kt, progress=lambda t, d, n: seen.append((t, d, n)))
+    assert out["status"] == "pass"
+    assert seen[0] == ("AI 列设计条件", None, None)
+    assert any(t.startswith("第 1 轮") and n is None for t, d, n in seen)
+    steps = [(d, n) for t, d, n in seen if n]
+    assert steps and steps[0][0] == 0 and all(0 <= d < n for d, n in steps)
+
+
+def test_stops_when_ai_repeats_the_same_design():
+    """AI 判断改轴解决不了、交回同一方案：不再空转校核，停下交给人（2026-11-18 问渠 CAD 里 6000 r/min 的那次）"""
+    out = D.design(TEXT, Script(proposals=[FIRST] * 4), [get(B6201)], get, kt=fake_kt)
+    assert out["status"] == "stuck" and len(out["rounds"]) == 2 and out["rounds"][-1].get("unchanged")

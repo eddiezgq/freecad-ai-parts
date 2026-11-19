@@ -17,6 +17,7 @@ from freecad_addon.gui import fea_brand
 
 WORKBENCH = "WenQuestMbdWorkbench"
 PARAMS = fea_brand.PARAMS
+MENU = "WenQuest MBD"
 CMDS = ("FAP_MbdAssembly", "Separator", "FAP_MbdLicense", "FAP_MbdSetup", "FAP_MbdAbout")
 
 
@@ -86,18 +87,34 @@ class MbdWorkbench(FreeCADGui.Workbench):
     ToolTip = "WenQuest MBD"
 
     def Initialize(self):
-        name = T("问渠多体动力学")
-        self.appendToolbar(name, ["FAP_MbdAssembly"])
-        self.appendMenu(name, list(CMDS))
+        # 菜单内部名用 ASCII：FreeCAD 界面切成中文时，用中文名建的顶层菜单标题会显示成乱码（Qt 按 Latin-1 解码原文），
+        # 激活后再把显示的标题改成当前语言（_retitle）
+        self.appendToolbar(MENU, ["FAP_MbdAssembly"])
+        self.appendMenu(MENU, list(CMDS))
 
     def Activated(self):
-        return
+        from PySide import QtCore
+
+        QtCore.QTimer.singleShot(0, _retitle)
 
     def Deactivated(self):
         return
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"
+
+
+def _retitle() -> None:
+    """顶层菜单与工具栏的标题按界面语言显示（见 Initialize）"""
+    from PySide import QtWidgets
+
+    mw = FreeCADGui.getMainWindow()
+    for a in mw.menuBar().actions():
+        if a.menu() is not None and a.text() in (MENU, "&" + MENU):
+            a.setText(T("问渠多体动力学"))
+    for tb in mw.findChildren(QtWidgets.QToolBar):
+        if tb.windowTitle() == MENU:
+            tb.setWindowTitle(T("问渠多体动力学"))
 
 
 def _start_here() -> None:

@@ -1,8 +1,9 @@
 """安装包要装进 FreeCAD 自带 Python 的第三方依赖（ADR-0066）：pyproject 的基本依赖加 llm、mbd、fea、optimize、report（有限元的 Word 报告与云图）。
 
-    python installer/windows/deps.py [full|fea|mbd]     # 每行一个要求
+    python installer/windows/deps.py [full|fea|mbd|cam]     # 每行一个要求
 问渠有限元版（fea，ADR-0096）只要 llm、fea、report：不装多体（mujoco）与优化（optuna）。
 问渠多体动力学版（mbd，ADR-0102）要 llm、fea（实体柔性体的 gmsh）、report，加 FMU 联合仿真的 fmpy；不装 mujoco（旧的机械臂模块才用）与优化。
+问渠CAM 版（cam，ADR-0104）要 llm（AI 起草工艺）、fea（numpy）、report（工艺卡）。
 """
 
 import sys
@@ -13,12 +14,13 @@ EXTRAS = ("llm", "mbd", "fea", "optimize", "report")
 FEA_EXTRAS = ("llm", "fea", "report")
 MBD_EXTRAS = ("llm", "fea", "report")
 MBD_ONLY = ("fmpy",)
+CAM_EXTRAS = ("llm", "fea", "report")
 
 
 def requirements(pyproject: Path, edition: str = "full") -> list[str]:
     project = tomllib.loads(pyproject.read_text(encoding="utf-8"))["project"]
     reqs = list(project["dependencies"])
-    extras = {"fea": FEA_EXTRAS, "mbd": MBD_EXTRAS}.get(edition, EXTRAS)
+    extras = {"fea": FEA_EXTRAS, "mbd": MBD_EXTRAS, "cam": CAM_EXTRAS}.get(edition, EXTRAS)
     for extra in extras:
         reqs += project["optional-dependencies"][extra]
     if edition == "mbd":

@@ -387,19 +387,34 @@ def build_docx(model: dict, data: dict, out, *, number: str | None = None, revis
     if "dof" in data:
         p(f"自由度 {L.num('result', '/dof')}。")
     h("构件", 2)
+    bidx = {b["id"]: i for i, b in enumerate(model["bodies"])}
+
+    def bname(i):
+        """构件名：模型里写了显示名（如装配体零件的标签）时写“显示名（id）”"""
+        b = model["bodies"][i]
+        if b.get("name") and b["name"] != b["id"]:
+            lp, rp = ("（", "）") if lang == "zh" else (" (", ")")
+            return f"{L.txt('model', f'/bodies/{i}/name')}{lp}{L.txt('model', f'/bodies/{i}/id')}{rp}"
+        return L.txt("model", f"/bodies/{i}/id")
+
+    def jbody(i, side):
+        bid = model["joints"][i][side]
+        return L.txt("model", f"/bodies/{bidx[bid]}/name") if bid in bidx and model["bodies"][bidx[bid]].get("name") \
+            else L.txt("model", f"/joints/{i}/{side}")
+
     brows = []
     for i, b in enumerate(model["bodies"]):
         if b.get("flex"):
-            brows.append([L.txt("model", f"/bodies/{i}/id"), F(FLEX_ZH.get(b["flex"]["type"], b["flex"]["type"])), "—", "—"])
+            brows.append([bname(i), F(FLEX_ZH.get(b["flex"]["type"], b["flex"]["type"])), "—", "—"])
         else:
-            brows.append([L.txt("model", f"/bodies/{i}/id"), F("刚体"), L.num("model", f"/bodies/{i}/mass_kg", "kg"),
+            brows.append([bname(i), F("刚体"), L.num("model", f"/bodies/{i}/mass_kg", "kg"),
                           L.vec("model", f"/bodies/{i}/cm_mm", "mm")])
     table(["名称", "类型", "质量", "质心"], brows)
     if model.get("joints"):
         h("运动副", 2)
         table(["名称", "类型", "构件 i", "构件 j", "运动副中心"], [
-            [L.txt("model", f"/joints/{i}/id"), F(JOINT_ZH.get(j["type"], j["type"])), L.txt("model", f"/joints/{i}/body_i"),
-             L.txt("model", f"/joints/{i}/body_j"), L.vec("model", f"/joints/{i}/point_mm", "mm")]
+            [L.txt("model", f"/joints/{i}/id"), F(JOINT_ZH.get(j["type"], j["type"])), jbody(i, "body_i"),
+             jbody(i, "body_j"), L.vec("model", f"/joints/{i}/point_mm", "mm")]
             for i, j in enumerate(model["joints"])])
     if data.get("redundant_constraints"):
         names = "、".join(L.txt("result", f"/redundant_constraints/{k}") for k in range(len(data["redundant_constraints"])))
