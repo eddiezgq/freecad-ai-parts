@@ -1,0 +1,205 @@
+{
+  "format": "extraction/1",
+  "document": {
+    "doc": "src-nsk-e1103c-part-c",
+    "sha256": "3c1acfda536bb6a77487d1fcf6812618e31c62582fb20089659d20b7af07a6e2",
+    "pages": 2
+  },
+  "category": "bearing",
+  "vendor": "NSK",
+  "model": "6011",
+  "extractor": {
+    "model": "claude-sonnet-5-5",
+    "prompt_version": "extract/3",
+    "response_id": "msg_011ChBb4yiHBKagixyiJhg6A"
+  },
+  "items": [
+    {
+      "target": "params/bearing_kind",
+      "value": {
+        "value": "deep_groove",
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 14
+        },
+        "method": "extracted",
+        "confidence": 0.95,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+        "unit": "",
+        "label": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+        "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS"
+      },
+      "issues": [
+        "枚举映射：'SINGLE-ROW DEEP GROOVE BALL BEARINGS' → deep_groove，未自动核对"
+      ]
+    },
+    {
+      "target": "params/width_mm",
+      "value": {
+        "value": 18.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 14
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "18",
+        "unit": "mm",
+        "label": "B",
+        "quote": "90 18 1.1 31 000 21 200 15.3 8 500 4 500 10 000 6011 ZZ VV DDU N NR 2.87 2.7 86.79 0.6 0.5 96.5 2.46 61.5 64 83.5 1 98 5 0.381"
+      },
+      "issues": [
+        "叫法 'B' 在表头，须核对所在列",
+        "单位 mm 不在同一行，取自本页其他位置",
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "ports/outer/diameter_mm",
+      "value": {
+        "value": 90.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 14
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "90",
+        "unit": "mm",
+        "label": "D",
+        "quote": "90 18 1.1 31 000 21 200 15.3 8 500 4 500 10 000 6011 ZZ VV DDU N NR 2.87 2.7 86.79 0.6 0.5 96.5 2.46 61.5 64 83.5 1 98 5 0.381"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置",
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "dims/outer_diameter_mm",
+      "value": {
+        "value": 90.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 14
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "90",
+        "unit": "mm",
+        "label": "D",
+        "quote": "90 18 1.1 31 000 21 200 15.3 8 500 4 500 10 000 6011 ZZ VV DDU N NR 2.87 2.7 86.79 0.6 0.5 96.5 2.46 61.5 64 83.5 1 98 5 0.381"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置",
+        "按版面对齐切出的行核对"
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/dynamic_load_rating_n",
+      "page": 14,
+      "printed": {
+        "text": "31 000",
+        "unit": "N",
+        "label": "C r",
+        "quote": "90 18 1.1 31 000 21 200 15.3 8 500 4 500 10 000 6011 ZZ VV DDU N NR 2.87 2.7 86.79 0.6 0.5 96.5 2.46 61.5 64 83.5 1 98 5 0.381"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/static_load_rating_n",
+      "page": 14,
+      "printed": {
+        "text": "21 200",
+        "unit": "N",
+        "label": "C 0r",
+        "quote": "90 18 1.1 31 000 21 200 15.3 8 500 4 500 10 000 6011 ZZ VV DDU N NR 2.87 2.7 86.79 0.6 0.5 96.5 2.46 61.5 64 83.5 1 98 5 0.381"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/limiting_speed_rpm",
+      "page": 14,
+      "printed": {
+        "text": "8 500",
+        "unit": "min–1",
+        "label": "Limiting Speeds (min–1) Grease Open",
+        "quote": "90 18 1.1 31 000 21 200 15.3 8 500 4 500 10 000 6011 ZZ VV DDU N NR 2.87 2.7 86.79 0.6 0.5 96.5 2.46 61.5 64 83.5 1 98 5 0.381"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/mass_kg",
+      "page": 14,
+      "printed": {
+        "text": "0.381",
+        "unit": "kg",
+        "label": "Mass (kg) approx.",
+        "quote": "90 18 1.1 31 000 21 200 15.3 8 500 4 500 10 000 6011 ZZ VV DDU N NR 2.87 2.7 86.79 0.6 0.5 96.5 2.46 61.5 64 83.5 1 98 5 0.381"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/abutment_shaft_min_mm",
+      "page": 14,
+      "printed": {
+        "text": "61.5",
+        "unit": "mm",
+        "label": "d a min.",
+        "quote": "90 18 1.1 31 000 21 200 15.3 8 500 4 500 10 000 6011 ZZ VV DDU N NR 2.87 2.7 86.79 0.6 0.5 96.5 2.46 61.5 64 83.5 1 98 5 0.381"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/abutment_shaft_max_mm",
+      "page": 14,
+      "printed": {
+        "text": "64",
+        "unit": "mm",
+        "label": "d a max.",
+        "quote": "90 18 1.1 31 000 21 200 15.3 8 500 4 500 10 000 6011 ZZ VV DDU N NR 2.87 2.7 86.79 0.6 0.5 96.5 2.46 61.5 64 83.5 1 98 5 0.381"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/abutment_housing_max_mm",
+      "page": 14,
+      "printed": {
+        "text": "83.5",
+        "unit": "mm",
+        "label": "D a max.",
+        "quote": "90 18 1.1 31 000 21 200 15.3 8 500 4 500 10 000 6011 ZZ VV DDU N NR 2.87 2.7 86.79 0.6 0.5 96.5 2.46 61.5 64 83.5 1 98 5 0.381"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/fillet_max_mm",
+      "page": 14,
+      "printed": {
+        "text": "1",
+        "unit": "mm",
+        "label": "r a max.",
+        "quote": "90 18 1.1 31 000 21 200 15.3 8 500 4 500 10 000 6011 ZZ VV DDU N NR 2.87 2.7 86.79 0.6 0.5 96.5 2.46 61.5 64 83.5 1 98 5 0.381"
+      }
+    }
+  ],
+  "missing_key_fields": [
+    "params/dynamic_load_rating_n",
+    "params/static_load_rating_n",
+    "params/limiting_speed_rpm"
+  ]
+}

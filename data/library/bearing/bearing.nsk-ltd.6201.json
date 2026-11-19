@@ -16,7 +16,7 @@
         },
         "label": "body",
         "length_mm": {
-          "confidence": 0.85,
+          "confidence": 0.9,
           "method": "extracted",
           "reviewed": true,
           "source": {
@@ -81,7 +81,7 @@
       "value": "deep_groove"
     },
     "dynamic_load_rating_n": {
-      "confidence": 0.9,
+      "confidence": 0.92,
       "method": "extracted",
       "reviewed": true,
       "source": {
@@ -92,7 +92,7 @@
       "value": 7500.0
     },
     "fillet_max_mm": {
-      "confidence": 0.6,
+      "confidence": 0.7,
       "method": "extracted",
       "reviewed": true,
       "source": {
@@ -115,7 +115,7 @@
       "value": 26000
     },
     "mass_kg": {
-      "confidence": 0.8,
+      "confidence": 0.85,
       "method": "extracted",
       "reviewed": true,
       "source": {
@@ -126,7 +126,7 @@
       "value": 0.037
     },
     "static_load_rating_n": {
-      "confidence": 0.9,
+      "confidence": 0.92,
       "method": "extracted",
       "reviewed": true,
       "source": {
@@ -137,7 +137,7 @@
       "value": 3050.0
     },
     "width_mm": {
-      "confidence": 0.85,
+      "confidence": 0.9,
       "method": "extracted",
       "reviewed": true,
       "source": {
@@ -168,15 +168,15 @@
       "note": "坐标系按品类约定生成（ADR-0023），布局时核对",
       "spec": {
         "diameter_mm": {
-          "confidence": 1,
-          "method": "manual",
+          "confidence": 0.5,
+          "method": "extracted",
           "reviewed": true,
           "source": {
             "doc": "src-nsk-e1103c-part-c",
-            "note": "人工确认：Claude（对照规格书原页核对，经张国庆授权）（2026-11-18），对照规格书第 11 页",
+            "note": "claude（AI 复核）：claude-sonnet-5-5 与 claude-opus-5-5 两次独立抽取一致",
             "page": 11
           },
-          "value": 12
+          "value": 12.0
         },
         "feature": {
           "confidence": 1,

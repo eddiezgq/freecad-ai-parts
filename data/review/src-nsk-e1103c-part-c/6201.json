@@ -21,7 +21,6 @@
   "notes": [
     "ports/inner/fit = P0 由 Claude（经 WebFetch 读 NSK 官网 PDF 原页核对，按 ADR-0040 授权） 人工录入",
     "ports/outer/fit = P0 由 Claude（经 WebFetch 读 NSK 官网 PDF 原页核对，按 ADR-0040 授权） 人工录入",
-    "ports/inner/diameter_mm = 12 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
     "params/abutment_shaft_min_mm = 16 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
     "params/abutment_shaft_max_mm = 17 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",
     "params/abutment_housing_max_mm = 28 由 Claude（对照规格书原页核对，经张国庆授权） 人工确认",

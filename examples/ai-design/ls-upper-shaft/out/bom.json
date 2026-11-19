@@ -6,7 +6,7 @@
   "name": "上轴（AI 设计）",
   "qty": 1,
   "material": "45-QT",
-  "mass_kg": 0.5916,
+  "mass_kg": 0.2842,
   "mass_source": "回读模型的体积 × 材料密度"
  },
  {
@@ -15,7 +15,16 @@
   "component": "bearing.nsk-ltd.6201",
   "vendor": "NSK Ltd.",
   "model": "6201",
-  "qty": 2,
+  "qty": 1,
   "mass_kg": 0.037
+ },
+ {
+  "item": 3,
+  "kind": "bearing",
+  "component": "bearing.nsk-ltd.6001",
+  "vendor": "NSK Ltd.",
+  "model": "6001",
+  "qty": 1,
+  "mass_kg": 0.022
  }
 ]

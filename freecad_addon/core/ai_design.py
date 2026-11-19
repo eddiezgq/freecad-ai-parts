@@ -56,7 +56,12 @@ def run(statement: str, client, library, out_dir: str | Path | None = None, *, r
 
     statement = statement.replace("\r\n", "\n")
     model = getattr(client, "model", None) or D.DEFAULT_MODEL
-    res = D.design(statement, client, bearings(library), library.get, model=model, progress=progress)
+    kt = None
+    if replay:                                             # 回放：用录制时的有限元结果，提示词才对得上（assist.kt_record）
+        from assist import kt_record
+
+        kt = kt_record.replaying(D.KT_RECORD)
+    res = D.design(statement, client, bearings(library), library.get, model=model, kt=kt, progress=progress)
     out = Path(out_dir) if out_dir else Path(tempfile.mkdtemp(prefix="wq-ai-design-"))
     out.mkdir(parents=True, exist_ok=True)
     (out / "design-record.json").write_text(json.dumps(res, ensure_ascii=False, indent=1, default=_finite) + "\n", encoding="utf-8")
@@ -76,7 +81,7 @@ def segments(result: dict, get) -> list[dict]:
     """最后一轮方案经代码补齐后的轴段（直径、长度、圆角、轴承）"""
     from assist import shaft_design as SD
 
-    segs, _ = SD.check_proposal(result["rounds"][-1]["proposal"], get)
+    segs, _ = SD.check_proposal(_chosen(result)["proposal"], get)
     return segs
 
 
@@ -108,8 +113,10 @@ def rounds_html(result: dict) -> str:
     html = [f"<p><b>{escape(T('结论：'))}{escape(T(RESULT.get(result.get('status'), str(result.get('status')))))}</b></p>"]
     for k, rd in enumerate(result.get("rounds") or [], 1):
         st = rd.get("overall")
+        tag = T("（采用）") if result.get("chosen_round") == k else ""
+        mass = T(f"　质量 {rd['mass_kg']:.3f} kg") if isinstance(rd.get("mass_kg"), (int, float)) else ""
         html.append(f"<h3>{escape(T(f'第 {k} 轮') + T('：'))}<span style='color:{COLORS.get(st, '#000')}'>"
-                    f"{escape(T(STATUS.get(st, str(st))))}</span></h3>")
+                    f"{escape(T(STATUS.get(st, str(st))))}</span>{escape(tag + mass)}</h3>")
         segs = rd.get("segments") or []
         if segs:
             cells = "".join(f"<tr><td>{i}</td><td>{escape(T(s.get('role', '')))}</td><td>Ø{s['d']:g}</td><td>{s['L']:g}</td>"
@@ -175,3 +182,9 @@ def confirm(enterprise_lib, run_out: dict, *, drawing_no: str, name: str, enterp
         raise ConfirmError(f"企业库里已有 {comp['id']}，换一个图号")
     enterprise_lib.save_component(comp, actor, f"AI 设计零件，人确认入库（设计记录 {rec_doc['id']}）")
     return comp
+
+
+def _chosen(result: dict) -> dict:
+    from assist.design import chosen
+
+    return chosen(result)

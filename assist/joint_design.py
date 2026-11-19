@@ -18,7 +18,8 @@ from assist.fea_draft import _in_statement, _material_ok, _value_with_unit
 
 PROMPT_VERSION = "joint-shaft/1"
 DEFAULT_MODEL = "claude-sonnet-5-5"
-MAX_ROUNDS = 4
+MAX_ROUNDS = 4                     # 改到合格最多 4 轮
+LIGHTER_ROUNDS = 3                 # 通过之后减重另给最多 3 轮（ADR-0100 42.2 之五，与阶梯轴同一规则）
 ROOT = Path(__file__).resolve().parents[1]
 RECORDINGS_DIR = ROOT / "tests" / "recordings" / "joint_design"
 EXAMPLE = ROOT / "examples" / "ai-design" / "cobot-j2" / "requirement.txt"
@@ -60,7 +61,7 @@ SYSTEM_PROPOSAL = """你在设计机器人肩关节 J2 的输出空心轴。结�
 3. 刚度、强度、花键挤压、疲劳、轴承寿命都由程序算；上一轮没通过的项，按给出的数字和要求改，说清改了什么。
 4. 内孔取整到 1 mm，圆角取 0.5 或 1 mm 这样的常用值；不要编造条件里没有的东西。
 必须调用一次工具 propose_joint_shaft。"""
-LIGHTER = """全部校核已通过。原话要求“在满足要求的前提下越轻越好”。现在的质量 {mass:.3f} kg；各项余量如下（数值 / 要求）：
+LIGHTER = """全部校核已通过。原话要求“在满足要求的前提下越轻越好”。现在的质量 {mass:.3f} kg；各项余量如下（数值取三位有效数字 / 要求）：
 {margins}
 如果你认为还能更轻（例如换小一号的轴承或加大内孔）而仍全部满足，就提一个更轻的方案；如果认为已经是最轻的，原样交回现在的方案并说明理由。"""
 
@@ -194,12 +195,19 @@ def proposal_request(cond: dict, bearings: list[dict], history: list[dict], *, m
 
 
 def _margins(rep: dict) -> str:
-    return "\n".join(f"- {i['item']}：{i.get('value')} / {i.get('limit')}" for i in rep["items"] if i.get("limit") is not None)
+    from assist.design import _approx
+
+    return "\n".join(f"- {i['item']}：{_approx(i.get('value'))} / {i.get('limit')}" for i in rep["items"] if i.get("limit") is not None)
+
+
+def _same(a: dict, b: dict) -> bool:
+    """同一个方案（说明文字不算）"""
+    return {k: v for k, v in a.items() if k != "reason"} == {k: v for k, v in b.items() if k != "reason"}
 
 
 def design(statement: str, client, bearings: list[dict], reducers: list[dict], get: Callable[[str], dict | None], *,
            model: str = DEFAULT_MODEL, kt: Callable | None = None, max_rounds: int = MAX_ROUNDS,
-           progress: Callable[[str, int | None, int | None], None] | None = None) -> dict:
+           lighter_rounds: int = LIGHTER_ROUNDS, progress: Callable[[str, int | None, int | None], None] | None = None) -> dict:
     from analysis.shaft import joint as J
     from assist import shaft_design as SD
 
@@ -217,13 +225,28 @@ def design(statement: str, client, bearings: list[dict], reducers: list[dict], g
     cond.update(loads(cond))
     best = None
     lighter_text = None
-    for k in range(1, max_rounds + 1):
-        say(f"第 {k} 轮（最多 {max_rounds} 轮）：AI 提方案", None, None)
+    fix_left, light_left, k = max_rounds, lighter_rounds, 0
+    while True:
+        if best is None:
+            if fix_left == 0:
+                break
+            fix_left -= 1
+        else:
+            if light_left == 0:
+                break
+            light_left -= 1
+        k += 1
+        head = f"第 {k} 轮：AI 试更轻的方案（减重最多 {lighter_rounds} 轮）" if lighter_text else f"第 {k} 轮（最多 {max_rounds} 轮）：AI 提方案"
+        say(head, None, None)
         req = proposal_request(cond, bearings, out["rounds"], model=model, lighter=lighter_text)
         r = client.complete(req)
         out["ai"].append({k_: r[k_] for k_ in ("id", "provider", "model", "simulated") if k_ in r})
         prop = r["tool_input"]
-        say(f"第 {k} 轮（最多 {max_rounds} 轮）：校核（刚度、强度、花键、疲劳、轴承）", None, None)
+        last = out["rounds"][-1]["proposal"] if out["rounds"] else None
+        if isinstance(prop, dict) and isinstance(last, dict) and _same(prop, last):
+            out["rounds"].append({**out["rounds"][-1], "proposal": prop, "unchanged": True})
+            break                                                # AI 不再改方案
+        say(f"第 {k} 轮：校核（刚度、强度、花键、疲劳、轴承）", None, None)
         try:
             rep = J.evaluate(prop, cond, get, kt=kt)
         except J.JointProposalInvalid as ex:
@@ -236,11 +259,9 @@ def design(statement: str, client, bearings: list[dict], reducers: list[dict], g
             if best is None or (rd["mass_kg"] or 1e9) < (best["mass_kg"] or 1e9) - 1e-6:
                 best = rd
                 lighter_text = LIGHTER.format(mass=rd["mass_kg"] or 0.0, margins=_margins(rep))
-                if k < max_rounds:
-                    continue                                     # 通过了：再给一轮减重
-            break
-        if best is not None:                                     # 减重的方案没通过：保留原方案
-            break
+                continue                                         # 通过且更轻：接着要更轻
+            break                                                # 通过但没更轻：保留更轻的那轮
+        # 没通过：按校核结论再改（减重阶段算在减重轮数里）
     if best is not None:
         out["status"] = "pass"
         out["chosen_round"] = out["rounds"].index(best) + 1
@@ -263,15 +284,18 @@ def main(argv: list[str] | None = None) -> int:
     lib = JsonLibrary(ROOT / "data" / "library")
     bearings, reducers = lib.all("bearing"), lib.all("reducer")
     if a.record:
+        from assist import kt_record
         from assist.llm import GatewayClient
 
         client = GatewayClient(a.provider, record_dir=RECORDINGS_DIR)
-        model = client.model
+        model, kt = client.model, kt_record.recording(RECORDINGS_DIR / "kt.json")
     else:
+        from assist import kt_record
         from ingest.llm_extract import RecordedClient
 
-        client, model = RecordedClient(a.replay or RECORDINGS_DIR), DEFAULT_MODEL
-    res = design(a.statement.read_text(encoding="utf-8"), client, bearings, reducers, lib.get, model=model)
+        rec = Path(a.replay or RECORDINGS_DIR)
+        client, model, kt = RecordedClient(rec), DEFAULT_MODEL, kt_record.replaying(rec / "kt.json")
+    res = design(a.statement.read_text(encoding="utf-8"), client, bearings, reducers, lib.get, model=model, kt=kt)
     text = json.dumps(res, ensure_ascii=False, indent=1, default=lambda x: None)
     if a.out:
         a.out.write_text(text + "\n", encoding="utf-8")

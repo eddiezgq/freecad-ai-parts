@@ -3,12 +3,12 @@
   "prompt_version": "extract/3",
   "request_key": "f6943f3ff707b942d0e95e215e0addcdda14f860622bde4790dd61a1220d6f94",
   "response": {
-    "id": "msg_011ChAmGd44K72MtiwBkWf9V",
+    "id": "msg_011ChBasv5hb9ZiMuwYNtwos",
     "simulated": false,
     "tool_input": {
       "items": [
         {
-          "confidence": 0.97,
+          "confidence": 0.95,
           "page": 11,
           "printed_label": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
           "printed_text": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
@@ -16,6 +16,26 @@
           "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS",
           "target": "params/bearing_kind",
           "value": "deep_groove"
+        },
+        {
+          "confidence": 0.9,
+          "page": 11,
+          "printed_label": "D",
+          "printed_text": "26",
+          "printed_unit": "mm",
+          "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018",
+          "target": "ports/outer/diameter_mm",
+          "value": 26
+        },
+        {
+          "confidence": 0.9,
+          "page": 11,
+          "printed_label": "D",
+          "printed_text": "26",
+          "printed_unit": "mm",
+          "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018",
+          "target": "dims/outer_diameter_mm",
+          "value": 26
         },
         {
           "confidence": 0.9,
@@ -59,7 +79,7 @@
           "value": 30000
         },
         {
-          "confidence": 0.88,
+          "confidence": 0.9,
           "page": 11,
           "printed_label": "Mass (kg) approx.",
           "printed_text": "0.018",
@@ -69,7 +89,7 @@
           "value": 0.018
         },
         {
-          "confidence": 0.7,
+          "confidence": 0.85,
           "page": 11,
           "printed_label": "d a min.",
           "printed_text": "12",
@@ -79,7 +99,7 @@
           "value": 12
         },
         {
-          "confidence": 0.65,
+          "confidence": 0.85,
           "page": 11,
           "printed_label": "d a max.",
           "printed_text": "13",
@@ -89,7 +109,7 @@
           "value": 13
         },
         {
-          "confidence": 0.75,
+          "confidence": 0.85,
           "page": 11,
           "printed_label": "D a max.",
           "printed_text": "24",
@@ -99,7 +119,7 @@
           "value": 24
         },
         {
-          "confidence": 0.5,
+          "confidence": 0.8,
           "page": 11,
           "printed_label": "r a max.",
           "printed_text": "0.3",
@@ -107,36 +127,6 @@
           "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018",
           "target": "params/fillet_max_mm",
           "value": 0.3
-        },
-        {
-          "confidence": 0.7,
-          "page": 11,
-          "printed_label": "Bore Diameter",
-          "printed_text": "10",
-          "printed_unit": "mm",
-          "quote": "Bore Diameter 10 – 17 mm",
-          "target": "ports/inner/diameter_mm",
-          "value": 10
-        },
-        {
-          "confidence": 0.85,
-          "page": 11,
-          "printed_label": "D",
-          "printed_text": "26",
-          "printed_unit": "mm",
-          "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018",
-          "target": "ports/outer/diameter_mm",
-          "value": 26
-        },
-        {
-          "confidence": 0.85,
-          "page": 11,
-          "printed_label": "D",
-          "printed_text": "26",
-          "printed_unit": "mm",
-          "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018",
-          "target": "dims/outer_diameter_mm",
-          "value": 26
         }
       ],
       "model": "6000",

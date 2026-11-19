@@ -25,9 +25,11 @@ from assist.fea_draft import _in_statement, _material_ok, _value_with_unit
 
 PROMPT_VERSION = "shaft-design/1"
 DEFAULT_MODEL = "claude-sonnet-5-5"
-MAX_ROUNDS = 4
+MAX_ROUNDS = 4                     # 改到合格最多 4 轮
+LIGHTER_ROUNDS = 3                 # 通过之后减重另给最多 3 轮（减重的方案没通过可按校核结论再改，算在里面；ADR-0100 42.2 之五）
 ROOT = Path(__file__).resolve().parents[1]
 RECORDINGS_DIR = ROOT / "tests" / "recordings" / "design"
+KT_RECORD = RECORDINGS_DIR / "kt.json"          # 录制时有限元算的 kt（assist.kt_record）
 
 _V = {"type": "object", "properties": {"value": {"type": "number"}, "unit": {"type": "string"}, "quote": {"type": "string"}},
       "required": ["value", "quote"]}
@@ -69,6 +71,7 @@ SYSTEM_PROPOSAL = """你在设计一根阶梯轴。给你已核对的设计条�
 3. 轴承要能从某一端套进去（途经的轴段不比轴承内径粗），并靠一段更粗的轴肩定位。
 4. 强度、临界转速、轴承寿命由程序算；上一轮没通过的项，按给出的数字和要求改，说清改了什么。
 5. 直径、长度取整到 0.5 mm 或常用尺寸；不要编造条件里没有的东西。
+6. 台阶的过渡圆角必须小于台阶高度（(大径 − 小径)/2），否则台阶端面没有平面、做不出来；台阶高度不到 1 mm 又不定位零件的，两段取同一直径、去掉这个台阶。
 必须调用一次工具 propose_shaft。"""
 
 
@@ -251,15 +254,44 @@ def _cond_text(c: dict) -> str:
     return json.dumps(c, ensure_ascii=False, indent=1)
 
 
-def proposal_request(cond: dict, bearings: list[dict], history: list[dict], *, model: str = DEFAULT_MODEL) -> dict:
+LIGHTER = """全部校核已通过。现在轴的质量 {mass:.3f} kg；各项余量如下（数值取三位有效数字 / 要求）：
+{margins}
+同样满足全部要求时，轴越轻越好（材料省、转动惯量小）。如果你认为还能更轻（例如选内径小一号的轴承、细一些的轴身），
+就提一个更轻的方案；如果认为已经是最轻的，原样交回现在的方案并说明理由。"""
+
+
+def _approx(v):
+    """余量给 AI 看，取三位有效数字（够判断还有多少余地；多写的位数只是噪声）"""
+    if isinstance(v, bool) or not isinstance(v, (int, float)) or v == 0:
+        return v
+    from math import floor, log10
+
+    x = round(v, 2 - floor(log10(abs(v))))
+    return int(x) if abs(x) >= 100 or x == int(x) else x
+
+
+def _margins(rep_items: list[dict]) -> str:
+    return "\n".join(f"- {i['item']}：{_approx(i.get('value'))} / {i.get('limit')}" for i in rep_items if i.get("limit") is not None)
+
+
+def proposal_request(cond: dict, bearings: list[dict], history: list[dict], *, model: str = DEFAULT_MODEL,
+                     lighter: str | None = None) -> dict:
     prev = ""
     if history:
         last = history[-1]
         prev = (f"\n\n第 {len(history)} 轮你的方案：\n{json.dumps(last['proposal'], ensure_ascii=False, sort_keys=True)}\n"
                 f"程序校核的结论（没通过和待确认的项）：\n{last['feedback']}")
+    if lighter:
+        prev += "\n\n" + lighter
     user = (f"设计条件（已核对，标准单位：mm、N、kg、r/min、W、h）：\n{_cond_text(cond)}\n\n"
             f"零件库里可用的轴承：\n{bearing_table(bearings)}{prev}")
     return {"model": model, "prompt_version": PROMPT_VERSION, "system": SYSTEM_PROPOSAL, "user": user, "tool": PROPOSAL_TOOL}
+
+
+def chosen(result: dict) -> dict:
+    """采用的那一轮（通过的里面最轻的；旧记录没有 chosen_round 时取最后一轮）"""
+    k = result.get("chosen_round")
+    return result["rounds"][k - 1] if k else result["rounds"][-1]
 
 
 def _done(report: dict) -> bool:
@@ -279,9 +311,9 @@ def extra_checks(report: dict, cond: dict) -> None:
 
 
 def design(statement: str, client, bearings: list[dict], get: Callable[[str], dict | None], *, model: str = DEFAULT_MODEL,
-           kt: Callable | None = None, max_rounds: int = MAX_ROUNDS,
+           kt: Callable | None = None, max_rounds: int = MAX_ROUNDS, lighter_rounds: int = LIGHTER_ROUNDS,
            progress: Callable[[str, int | None, int | None], None] | None = None) -> dict:
-    """原话 → 条件 → 最多 max_rounds 轮方案与校核。返回全部记录。
+    """原话 → 条件 → 改到合格最多 max_rounds 轮、通过后减重最多 lighter_rounds 轮。返回全部记录。
     progress(说明, 已做, 总数)：每一步开始时调用（给界面显示进度；总数不定时为 None）"""
     say = progress or (lambda *_: None)
     say("AI 列设计条件", None, None)
@@ -294,31 +326,55 @@ def design(statement: str, client, bearings: list[dict], get: Callable[[str], di
     if missing:
         out["status"] = "needs_input"
         return out
-    for k in range(1, max_rounds + 1):
-        say(f"第 {k} 轮（最多 {max_rounds} 轮）：AI 提方案", None, None)
-        req = proposal_request(cond, bearings, out["rounds"], model=model)
+    best = None                                            # 已通过的方案里最轻的一轮
+    lighter = None
+    fix_left, light_left, k = max_rounds, lighter_rounds, 0
+    while True:
+        if best is None:
+            if fix_left == 0:
+                break
+            fix_left -= 1
+        else:
+            if light_left == 0:
+                break
+            light_left -= 1
+        k += 1
+        if lighter:
+            say(f"第 {k} 轮：AI 试更轻的方案（减重最多 {lighter_rounds} 轮）", None, None)
+        else:
+            say(f"第 {k} 轮（最多 {max_rounds} 轮）：AI 提方案", None, None)
+        req = proposal_request(cond, bearings, out["rounds"], model=model, lighter=lighter)
         r = client.complete(req)
-        out["ai"].append({k: r[k] for k in ("id", "provider", "model", "simulated") if k in r})
+        out["ai"].append({k_: r[k_] for k_ in ("id", "provider", "model", "simulated") if k_ in r})
         prop = r["tool_input"]
         last = out["rounds"][-1]["proposal"] if out["rounds"] else None
         if isinstance(prop, dict) and isinstance(last, dict) and prop.get("segments") == last.get("segments"):
             out["rounds"].append({**out["rounds"][-1], "proposal": prop, "unchanged": True})
-            out["status"] = "stuck"                        # AI 不再改方案（它判断改轴解决不了）：不再空转，交给人
-            return out
+            break                                          # AI 不再改方案：通过的就是最轻的；没通过的交给人
         try:
             rep = SD.evaluate(prop, cond, get, kt=kt,
-                              progress=lambda i, n, k=k: say(f"第 {k} 轮（最多 {max_rounds} 轮）：校核台阶强度（有限元）", i - 1, n))
+                              progress=lambda i, n, k=k: say(f"第 {k} 轮：校核台阶强度（有限元）", i - 1, n))
         except SD.ProposalInvalid as ex:
             rep = {"items": [SD._item("方案格式", "fail", note=str(ex))], "notes": [], "overall": "fail", "segments": []}
         else:
             extra_checks(rep, cond)
         fb = SD.feedback(rep)
-        out["rounds"].append({"proposal": prop, "overall": rep["overall"], "feedback": fb,
-                              "items": rep["items"], "segments": rep.get("segments"), "mass_kg": rep.get("mass_kg")})
-        if rep.get("segments") and _done(rep):
-            out["status"] = "pass" if rep["overall"] == "pass" else "pass_pending_data"
-            return out
-    out["status"] = "stuck"
+        rd = {"proposal": prop, "overall": rep["overall"], "feedback": fb, "items": rep["items"],
+              "segments": rep.get("segments"), "mass_kg": rep.get("mass_kg"), "lighter_round": lighter is not None}
+        out["rounds"].append(rd)
+        ok = bool(rep.get("segments")) and _done(rep)
+        if ok and (best is None or (rd["mass_kg"] or 1e9) < (best["mass_kg"] or 1e9) - 1e-6):
+            best = rd                                      # 通过、且比之前通过的更轻：接着要更轻
+            lighter = LIGHTER.format(mass=rd["mass_kg"] or 0.0, margins=_margins(rep["items"]))
+            continue
+        if ok:
+            break                                          # 通过了但没更轻：保留更轻的那一轮
+        # 没通过：改到合格阶段照常再改；减重阶段按校核结论再改（仍在减重的轮数里）
+    if best is None:
+        out["status"] = "stuck"
+    else:
+        out["status"] = "pass" if best["overall"] == "pass" else "pass_pending_data"
+        out["chosen_round"] = out["rounds"].index(best) + 1
     return out
 
 
@@ -340,15 +396,18 @@ def main(argv: list[str] | None = None) -> int:
     lib = JsonLibrary(ROOT / "data" / "library")
     bearings = [c for c in lib.all() if c["category"] == "bearing"]
     if a.record:
+        from assist import kt_record
         from assist.llm import GatewayClient
 
         client = GatewayClient(a.provider, record_dir=RECORDINGS_DIR)
-        model = client.model
+        model, kt = client.model, kt_record.recording(KT_RECORD)
     else:
+        from assist import kt_record
         from ingest.llm_extract import RecordedClient
 
-        client, model = RecordedClient(a.replay or RECORDINGS_DIR), DEFAULT_MODEL
-    res = design(a.statement.read_text(encoding="utf-8"), client, bearings, lib.get, model=model)
+        rec = a.replay or RECORDINGS_DIR
+        client, model, kt = RecordedClient(rec), DEFAULT_MODEL, kt_record.replaying(Path(rec) / "kt.json")
+    res = design(a.statement.read_text(encoding="utf-8"), client, bearings, lib.get, model=model, kt=kt)
     text = json.dumps(res, ensure_ascii=False, indent=1, default=lambda x: None if isinstance(x, float) and not math.isfinite(x) else str(x))
     if a.out:
         a.out.write_text(text + "\n", encoding="utf-8")

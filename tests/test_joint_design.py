@@ -75,12 +75,24 @@ def test_fail_then_pass_then_lighter_round():
     assert chosen["overall"] == "pass" and all(r["mass_kg"] >= chosen["mass_kg"] - 1e-9 for r in out["rounds"] if r["overall"] == "pass")
 
 
-def test_lighter_proposal_that_fails_keeps_previous():
-    ai = Script([P("bearing.test.6010", 30), P("bearing.test.6009", 34, why="减重")])
+def test_lighter_attempts_that_fail_use_up_three_rounds_and_keep_previous():
+    ai = Script([P("bearing.test.6010", 30), P("bearing.test.6009", 34, why="减重"), P("bearing.test.6009", 35, why="再试"),
+                 P("bearing.test.6009", 36, why="再试")])
     out = JD.design(TEXT, ai, [B6009, B6010], [RED], LIB.get, kt=fake_kt)
     if out["rounds"][0]["overall"] != "pass":
         pytest.skip("这组示意载荷下 6010/30 本身没通过刚度")
-    assert out["status"] == "pass" and out["chosen_round"] == 1 and out["rounds"][1]["overall"] == "fail"
+    assert [r["overall"] for r in out["rounds"]] == ["pass", "fail", "fail", "fail"]      # 减重最多 3 轮，没通过的可以再改
+    assert out["status"] == "pass" and out["chosen_round"] == 1 and not ai.props       # 3 轮用完停下，采用通过的第 1 轮
+
+
+def test_failed_lighter_attempt_can_be_fixed_within_three_rounds():
+    ai = Script([P("bearing.test.6010", 30), P("bearing.test.6009", 34, why="减重"), P("bearing.test.6010", 32, why="改回 6010、内孔加大"),
+                 P("bearing.test.6010", 32, why="已经最轻")])
+    out = JD.design(TEXT, ai, [B6009, B6010], [RED], LIB.get, kt=fake_kt)
+    if out["rounds"][0]["overall"] != "pass":
+        pytest.skip("这组示意载荷下 6010/30 本身没通过刚度")
+    assert [r["overall"] for r in out["rounds"]][:3] == ["pass", "fail", "pass"]
+    assert out["chosen_round"] == 3 and out["rounds"][-1].get("unchanged")          # 原样交回：停
 
 
 def test_missing_conditions_stop_before_design():
