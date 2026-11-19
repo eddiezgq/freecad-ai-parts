@@ -1,0 +1,145 @@
+{
+ "instance": {
+  "format": "cam-machine/1",
+  "id": "EX-5AX-AC",
+  "name": "示例摇篮式五轴加工中心 AC（虚构）",
+  "example": true,
+  "source": "虚构示例",
+  "kind": "mill",
+  "controller": {
+   "family": "siemens",
+   "model": "840D sl"
+  },
+  "features": {
+   "rtcp": true,
+   "tilted_plane": true
+  },
+  "spindle": {
+   "max_rpm": 12000,
+   "power_kw": 15.0,
+   "efficiency": 0.85
+  },
+  "axes": [
+   {
+    "id": "X",
+    "type": "linear",
+    "carrier": "tool",
+    "direction": [
+     1,
+     0,
+     0
+    ],
+    "min": -300.0,
+    "max": 300.0,
+    "rapid": 30000.0
+   },
+   {
+    "id": "Y",
+    "type": "linear",
+    "carrier": "tool",
+    "direction": [
+     0,
+     1,
+     0
+    ],
+    "min": -250.0,
+    "max": 250.0,
+    "rapid": 30000.0
+   },
+   {
+    "id": "Z",
+    "type": "linear",
+    "carrier": "tool",
+    "direction": [
+     0,
+     0,
+     1
+    ],
+    "min": -350.0,
+    "max": 150.0,
+    "rapid": 30000.0
+   },
+   {
+    "id": "A",
+    "type": "rotary",
+    "carrier": "workpiece",
+    "direction": [
+     1,
+     0,
+     0
+    ],
+    "point_mm": [
+     0,
+     0,
+     -100.0
+    ],
+    "min": -120.0,
+    "max": 30.0,
+    "rapid": 5400.0
+   },
+   {
+    "id": "C",
+    "type": "rotary",
+    "carrier": "workpiece",
+    "direction": [
+     0,
+     0,
+     1
+    ],
+    "point_mm": [
+     0,
+     0,
+     0
+    ],
+    "continuous": true,
+    "rapid": 10800.0
+   }
+  ],
+  "tool": {
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "gauge_point_mm": [
+    0,
+    0,
+    400.0
+   ]
+  },
+  "tool_change_s": 5.0,
+  "components": [
+   {
+    "id": "cradle",
+    "name": "摇篮",
+    "attached_to": "A",
+    "box_mm": [
+     -250,
+     -200,
+     -160,
+     250,
+     200,
+     -60
+    ]
+   },
+   {
+    "id": "rotary-table",
+    "name": "回转工作台",
+    "attached_to": "C",
+    "cylinder_mm": {
+     "p0": [
+      0,
+      0,
+      -60
+     ],
+     "p1": [
+      0,
+      0,
+      0
+     ],
+     "r": 160
+    }
+   }
+  ]
+ }
+}

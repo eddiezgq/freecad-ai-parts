@@ -1,0 +1,106 @@
+{
+ "why": "要写数据从哪里来",
+ "instance": {
+  "format": "cam-machine/1",
+  "id": "EX-VMC",
+  "name": "示例立式加工中心（虚构）",
+  "example": true,
+  "kind": "mill",
+  "controller": {
+   "family": "fanuc",
+   "model": "0i-MF"
+  },
+  "spindle": {
+   "max_rpm": 8000,
+   "power_kw": 15.0,
+   "efficiency": 0.8
+  },
+  "axes": [
+   {
+    "id": "X",
+    "type": "linear",
+    "carrier": "workpiece",
+    "direction": [
+     -1,
+     0,
+     0
+    ],
+    "min": -400.0,
+    "max": 400.0,
+    "rapid": 24000.0
+   },
+   {
+    "id": "Y",
+    "type": "linear",
+    "carrier": "workpiece",
+    "direction": [
+     0,
+     -1,
+     0
+    ],
+    "min": -250.0,
+    "max": 250.0,
+    "rapid": 24000.0
+   },
+   {
+    "id": "Z",
+    "type": "linear",
+    "carrier": "tool",
+    "direction": [
+     0,
+     0,
+     1
+    ],
+    "min": -400.0,
+    "max": 150.0,
+    "rapid": 20000.0
+   }
+  ],
+  "tool": {
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "gauge_point_mm": [
+    0,
+    0,
+    500.0
+   ]
+  },
+  "tool_change_s": 4.0,
+  "components": [
+   {
+    "id": "table",
+    "name": "工作台",
+    "attached_to": "Y",
+    "box_mm": [
+     -500,
+     -250,
+     -60,
+     500,
+     250,
+     0
+    ]
+   },
+   {
+    "id": "head",
+    "name": "主轴头",
+    "attached_to": "Z",
+    "cylinder_mm": {
+     "p0": [
+      0,
+      0,
+      500
+     ],
+     "p1": [
+      0,
+      0,
+      800
+     ],
+     "r": 90
+    }
+   }
+  ]
+ }
+}

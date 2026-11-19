@@ -1,0 +1,28 @@
+{
+ "why": "切削参数要写每齿进给或每转进给",
+ "instance": {
+  "format": "cam-tool/1",
+  "name": "示例刀具库（虚构）",
+  "example": true,
+  "tools": [
+   {
+    "id": "E",
+    "kind": "flat_endmill",
+    "diameter_mm": 8,
+    "cutting": [
+     {
+      "iso_group": "P",
+      "vc_m_min": {
+       "min": 100,
+       "max": 150
+      }
+     }
+    ],
+    "source": {
+     "kind": "example",
+     "ref": "x"
+    }
+   }
+  ]
+ }
+}
