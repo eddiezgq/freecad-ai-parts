@@ -1,0 +1,591 @@
+{
+ "env": {
+  "code": "bacc73e766a85127b9362dfc95ee71b1b2e8d956",
+  "date": "2026-11-19",
+  "numerics": "NumPy 2.5.3",
+  "python": "Python 3.13.18 / Linux 6.18.44-fc-v653"
+ },
+ "cases": [
+  {
+   "id": "CAM-01",
+   "test": "tests/test_cam_benchmarks.py::test_turning_time_g97_and_g96",
+   "category": "time",
+   "title": {
+    "zh": "车削基本时间（G97 定转速与 G96 恒线速）",
+    "en": "Turning time (G97 constant speed and G96 constant surface speed)"
+   },
+   "source": "t = L/(f·n)，n = 1000·vc/(π·d) / t = L/(f·n), n = 1000·vc/(π·d)",
+   "rows": [
+    {
+     "case": "tests/test_cam_benchmarks.py::test_turning_time_g97_and_g96",
+     "kind": "value",
+     "quantity": [
+      "纵车时间（G97）",
+      "turning time (G97)"
+     ],
+     "computed": 29.999999999999893,
+     "reference": 30.0,
+     "tol": 0.001,
+     "rel": true,
+     "error": -3.552713678800501e-15,
+     "unit": "s",
+     "formula": "t = L/(f·n)",
+     "ok": true
+    },
+    {
+     "case": "tests/test_cam_benchmarks.py::test_turning_time_g97_and_g96",
+     "kind": "value",
+     "quantity": [
+      "纵车时间（G96）",
+      "turning time (G96)"
+     ],
+     "computed": 29.999999999902418,
+     "reference": 30.0,
+     "tol": 0.001,
+     "rel": true,
+     "error": -3.2527462205204455e-12,
+     "unit": "s",
+     "formula": "t = L/(f·n)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-02",
+   "test": "tests/test_cam_benchmarks.py::test_kienzle_turning_power",
+   "category": "time",
+   "title": {
+    "zh": "Kienzle 车削切削功率",
+    "en": "Kienzle turning cutting power"
+   },
+   "source": "Kienzle–Victor 公式 / Kienzle–Victor formula",
+   "rows": [
+    {
+     "case": "tests/test_cam_benchmarks.py::test_kienzle_turning_power",
+     "kind": "value",
+     "quantity": [
+      "车削切削功率",
+      "turning cutting power"
+     ],
+     "computed": 3.1530963720376244,
+     "reference": 3.153096372037625,
+     "tol": 1e-09,
+     "rel": true,
+     "error": -1.4084225708682636e-16,
+     "unit": "kW",
+     "formula": "Fc = kc·ap·f; kc = kc1.1·h^−mc; P = Fc·vc",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-03",
+   "test": "tests/test_cam_benchmarks.py::test_milling_feed_time",
+   "category": "time",
+   "title": {
+    "zh": "铣削进给时间",
+    "en": "Milling feed time"
+   },
+   "source": "t = L/vf / t = L/vf",
+   "rows": [
+    {
+     "case": "tests/test_cam_benchmarks.py::test_milling_feed_time",
+     "kind": "value",
+     "quantity": [
+      "铣削进给时间",
+      "milling feed time"
+     ],
+     "computed": 12.0,
+     "reference": 12.0,
+     "tol": 1e-09,
+     "rel": true,
+     "error": 0.0,
+     "unit": "s",
+     "formula": "t = L/vf",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-04",
+   "test": "tests/test_cam_benchmarks.py::test_thread_time",
+   "category": "time",
+   "title": {
+    "zh": "车螺纹时间",
+    "en": "Threading time"
+   },
+   "source": "t = 刀数·L/(P·n) / t = passes·L/(P·n)",
+   "rows": [
+    {
+     "case": "tests/test_cam_benchmarks.py::test_thread_time",
+     "kind": "value",
+     "quantity": [
+      "车螺纹时间",
+      "threading time"
+     ],
+     "computed": 21.859296482412063,
+     "reference": 21.859296482412063,
+     "tol": 1e-06,
+     "rel": true,
+     "error": 0.0,
+     "unit": "s",
+     "formula": "t = N·L/(P·n)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-05",
+   "test": "tests/test_cam_benchmarks.py::test_inverse_round_trip[cradle-AC]",
+   "category": "kin",
+   "title": {
+    "zh": "逆解往返：摇篮式 AC",
+    "en": "Inverse round trip: trunnion AC"
+   },
+   "source": "正解(逆解) = 恒等 / forward(inverse) = identity",
+   "rows": [
+    {
+     "case": "tests/test_cam_benchmarks.py::test_inverse_round_trip[cradle-AC]",
+     "kind": "value",
+     "quantity": [
+      "逆解往返刀尖误差（摇篮 AC）",
+      "inverse round-trip tip error (cradle-AC)"
+     ],
+     "computed": 2.1903625139428193e-11,
+     "reference": 0.0,
+     "tol": 1e-09,
+     "rel": false,
+     "error": 2.1903625139428193e-11,
+     "unit": "mm",
+     "formula": "FK(IK(p, v)) = (p, v)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-06",
+   "test": "tests/test_cam_benchmarks.py::test_inverse_round_trip[head-BC]",
+   "category": "kin",
+   "title": {
+    "zh": "逆解往返：摆头 BC",
+    "en": "Inverse round trip: head-head BC"
+   },
+   "source": "正解(逆解) = 恒等 / forward(inverse) = identity",
+   "rows": [
+    {
+     "case": "tests/test_cam_benchmarks.py::test_inverse_round_trip[head-BC]",
+     "kind": "value",
+     "quantity": [
+      "逆解往返刀尖误差（摆头 BC）",
+      "inverse round-trip tip error (head-BC)"
+     ],
+     "computed": 7.503331289626658e-12,
+     "reference": 0.0,
+     "tol": 1e-09,
+     "rel": false,
+     "error": 7.503331289626658e-12,
+     "unit": "mm",
+     "formula": "FK(IK(p, v)) = (p, v)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-07",
+   "test": "tests/test_cam_benchmarks.py::test_inverse_round_trip[head-table]",
+   "category": "kin",
+   "title": {
+    "zh": "逆解往返：摆头 B + 转台 C",
+    "en": "Inverse round trip: head B + table C"
+   },
+   "source": "正解(逆解) = 恒等 / forward(inverse) = identity",
+   "rows": [
+    {
+     "case": "tests/test_cam_benchmarks.py::test_inverse_round_trip[head-table]",
+     "kind": "value",
+     "quantity": [
+      "逆解往返刀尖误差（摆头 B + 转台 C）",
+      "inverse round-trip tip error (head-table)"
+     ],
+     "computed": 4.069164040649615e-11,
+     "reference": 0.0,
+     "tol": 1e-09,
+     "rel": false,
+     "error": 4.069164040649615e-11,
+     "unit": "mm",
+     "formula": "FK(IK(p, v)) = (p, v)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-08",
+   "test": "tests/test_cam_benchmarks.py::test_forward_kinematics_by_hand",
+   "category": "kin",
+   "title": {
+    "zh": "正解与手算",
+    "en": "Forward kinematics vs hand calculation"
+   },
+   "source": "绕定点转动 / Rotation about a fixed point",
+   "rows": [
+    {
+     "case": "tests/test_cam_benchmarks.py::test_forward_kinematics_by_hand",
+     "kind": "value",
+     "quantity": [
+      "正解与手算之差",
+      "forward kinematics vs hand calculation"
+     ],
+     "computed": 1.432187701766452e-14,
+     "reference": 0.0,
+     "tol": 1e-12,
+     "rel": false,
+     "error": 1.432187701766452e-14,
+     "unit": "mm",
+     "formula": "p' = R(p − c) + c",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-09",
+   "test": "tests/test_cam_benchmarks.py::test_gjk_vs_separating_axis",
+   "category": "geom",
+   "title": {
+    "zh": "碰撞判断与分离轴定理",
+    "en": "Collision test vs separating-axis theorem"
+   },
+   "source": "分离轴定理 / Separating-axis theorem",
+   "rows": [
+    {
+     "case": "tests/test_cam_benchmarks.py::test_gjk_vs_separating_axis",
+     "kind": "value",
+     "quantity": [
+      "GJK 与分离轴定理不一致的对数",
+      "GJK vs separating-axis disagreements"
+     ],
+     "computed": 0.0,
+     "reference": 0.0,
+     "tol": 0.0,
+     "rel": false,
+     "error": 0.0,
+     "unit": "",
+     "formula": "SAT, 15 axes",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-10",
+   "test": "tests/test_cam_benchmarks.py::test_pocket_removed_volume",
+   "category": "geom",
+   "title": {
+    "zh": "型腔去除体积",
+    "en": "Pocket removed volume"
+   },
+   "source": "解析体积 / Analytical volume",
+   "rows": [
+    {
+     "case": "tests/test_cam_benchmarks.py::test_pocket_removed_volume",
+     "kind": "value",
+     "quantity": [
+      "型腔去除体积",
+      "pocket removed volume"
+     ],
+     "computed": 14154.8544,
+     "reference": 14152.778684233861,
+     "tol": 0.001,
+     "rel": true,
+     "error": 0.00014666489262999088,
+     "unit": "mm³",
+     "formula": "V = (ab − (4 − π)r²)·h",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-11",
+   "test": "tests/test_cam_benchmarks.py::test_turned_volume_matches_design",
+   "category": "geom",
+   "title": {
+    "zh": "车削后体积",
+    "en": "Turned part volume"
+   },
+   "source": "π∫r²dz / π∫r²dz",
+   "rows": [
+    {
+     "case": "tests/test_cam_benchmarks.py::test_turned_volume_matches_design",
+     "kind": "value",
+     "quantity": [
+      "车削后体积",
+      "turned volume"
+     ],
+     "computed": 112986.19814880271,
+     "reference": 112986.13662417835,
+     "tol": 0.001,
+     "rel": true,
+     "error": 5.445325080797579e-07,
+     "unit": "mm³",
+     "formula": "V = π∫r²dz",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-12",
+   "test": "tests/test_cam_benchmarks.py::test_thread_root_and_bore_diameters",
+   "category": "geom",
+   "title": {
+    "zh": "螺纹牙底与内孔直径",
+    "en": "Thread root and bore diameters"
+   },
+   "source": "ISO 965-1 / ISO 965-1",
+   "rows": [
+    {
+     "case": "tests/test_cam_benchmarks.py::test_thread_root_and_bore_diameters",
+     "kind": "value",
+     "quantity": [
+      "螺纹牙底直径",
+      "thread root diameter"
+     ],
+     "computed": 22.159999999999997,
+     "reference": 22.159695,
+     "tol": 0.02,
+     "rel": false,
+     "error": 0.0003049999999973352,
+     "unit": "mm",
+     "formula": "ISO 965-1: d3 = d − 1.22687P",
+     "ok": true
+    },
+    {
+     "case": "tests/test_cam_benchmarks.py::test_thread_root_and_bore_diameters",
+     "kind": "value",
+     "quantity": [
+      "内孔直径 Ø16",
+      "bore diameter Ø16"
+     ],
+     "computed": 16.0,
+     "reference": 16.0,
+     "tol": 0.02,
+     "rel": false,
+     "error": 0.0,
+     "unit": "mm",
+     "formula": "d = 16",
+     "ok": true
+    },
+    {
+     "case": "tests/test_cam_benchmarks.py::test_thread_root_and_bore_diameters",
+     "kind": "value",
+     "quantity": [
+      "内孔直径 Ø12",
+      "bore diameter Ø12"
+     ],
+     "computed": 12.0,
+     "reference": 12.0,
+     "tol": 0.02,
+     "rel": false,
+     "error": 0.0,
+     "unit": "mm",
+     "formula": "d = 12",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-13",
+   "test": "tests/test_cam_benchmarks.py::test_known_collisions_are_reported",
+   "category": "must",
+   "title": {
+    "zh": "已知会撞的必须报出",
+    "en": "Known collisions must be reported"
+   },
+   "source": "人工设定的碰撞 / Deliberately set-up collisions",
+   "rows": [
+    {
+     "case": "tests/test_cam_benchmarks.py::test_known_collisions_are_reported",
+     "kind": "verdict",
+     "quantity": [
+      "刀具碰压板必须报出且不出程序",
+      "cutter into clamp is reported and program withheld"
+     ],
+     "computed": "fail",
+     "reference": "fail",
+     "ok": true
+    },
+    {
+     "case": "tests/test_cam_benchmarks.py::test_known_collisions_are_reported",
+     "kind": "verdict",
+     "quantity": [
+      "刀具切进工作台必须报出",
+      "cutter into the table is reported"
+     ],
+     "computed": "fail",
+     "reference": "fail",
+     "ok": true
+    },
+    {
+     "case": "tests/test_cam_benchmarks.py::test_known_collisions_are_reported",
+     "kind": "verdict",
+     "quantity": [
+      "深型腔刀柄碰侧壁必须报出",
+      "holder hitting the pocket wall is reported"
+     ],
+     "computed": "fail",
+     "reference": "fail",
+     "ok": true
+    },
+    {
+     "case": "tests/test_cam_benchmarks.py::test_known_collisions_are_reported",
+     "kind": "verdict",
+     "quantity": [
+      "刀太短 Z 轴超程必须报出",
+      "Z overtravel with a short tool is reported"
+     ],
+     "computed": "fail",
+     "reference": "fail",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-14",
+   "test": "tests/test_cam_benchmarks.py::test_known_overcut_and_rapid_into_stock_are_reported",
+   "category": "must",
+   "title": {
+    "zh": "已知过切、快移撞料必须报出",
+    "en": "Known overcut and rapid into stock must be reported"
+   },
+   "source": "人工设定的错误程序 / Deliberately wrong programs",
+   "rows": [
+    {
+     "case": "tests/test_cam_benchmarks.py::test_known_overcut_and_rapid_into_stock_are_reported",
+     "kind": "verdict",
+     "quantity": [
+      "比目标深 1 mm 必须报过切",
+      "1 mm too deep is reported as overcut"
+     ],
+     "computed": "fail",
+     "reference": "fail",
+     "ok": true
+    },
+    {
+     "case": "tests/test_cam_benchmarks.py::test_known_overcut_and_rapid_into_stock_are_reported",
+     "kind": "verdict",
+     "quantity": [
+      "快移进材料必须报出",
+      "rapid into stock is reported"
+     ],
+     "computed": "fail",
+     "reference": "fail",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-15",
+   "test": "tests/test_cam_benchmarks.py::test_post_reproduces_simulated_path[fanuc]",
+   "category": "post",
+   "title": {
+    "zh": "后处理回读：FANUC",
+    "en": "Post read-back: FANUC"
+   },
+   "source": "整机仿真刀路 / Simulated tool path",
+   "rows": [
+    {
+     "case": "tests/test_cam_benchmarks.py::test_post_reproduces_simulated_path[fanuc]",
+     "kind": "value",
+     "quantity": [
+      "后处理回读刀路差（fanuc）",
+      "post read-back path difference (fanuc)"
+     ],
+     "computed": 0.0,
+     "reference": 0.0,
+     "tol": 0.001,
+     "rel": false,
+     "error": 0.0,
+     "unit": "mm",
+     "formula": "max |Δ| of end points",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-16",
+   "test": "tests/test_cam_benchmarks.py::test_post_reproduces_simulated_path[siemens]",
+   "category": "post",
+   "title": {
+    "zh": "后处理回读：西门子",
+    "en": "Post read-back: Siemens"
+   },
+   "source": "整机仿真刀路 / Simulated tool path",
+   "rows": [
+    {
+     "case": "tests/test_cam_benchmarks.py::test_post_reproduces_simulated_path[siemens]",
+     "kind": "value",
+     "quantity": [
+      "后处理回读刀路差（siemens）",
+      "post read-back path difference (siemens)"
+     ],
+     "computed": 0.0,
+     "reference": 0.0,
+     "tol": 0.001,
+     "rel": false,
+     "error": 0.0,
+     "unit": "mm",
+     "formula": "max |Δ| of end points",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-17",
+   "test": "tests/test_cam_benchmarks.py::test_post_reproduces_simulated_path[gsk]",
+   "category": "post",
+   "title": {
+    "zh": "后处理回读：广州数控",
+    "en": "Post read-back: GSK"
+   },
+   "source": "整机仿真刀路 / Simulated tool path",
+   "rows": [
+    {
+     "case": "tests/test_cam_benchmarks.py::test_post_reproduces_simulated_path[gsk]",
+     "kind": "value",
+     "quantity": [
+      "后处理回读刀路差（gsk）",
+      "post read-back path difference (gsk)"
+     ],
+     "computed": 0.0,
+     "reference": 0.0,
+     "tol": 0.001,
+     "rel": false,
+     "error": 0.0,
+     "unit": "mm",
+     "formula": "max |Δ| of end points",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  }
+ ],
+ "n": 17,
+ "ok": 17,
+ "bad": 0,
+ "skip": 0,
+ "rows": 24,
+ "rows_ok": 24
+}

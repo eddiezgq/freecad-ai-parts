@@ -86,3 +86,11 @@ def test_confirm_refuses_replay_and_bad_model(run_out, tmp_path):
         C.confirm(ent, {**run_out, "model": {**run_out["model"], "readback": "fail"}}, drawing_no="X", name="n", enterprise="e",
                   actor="a")
     assert ent.all() == []
+
+
+def test_example_text_has_unix_newlines(tmp_path, monkeypatch):
+    """Windows 检出的 \\r\\n 不能进提示词，否则录制回放对不上"""
+    f = tmp_path / "req.txt"
+    f.write_bytes(C.EXAMPLE.read_bytes().replace(b"\n", b"\r\n"))
+    monkeypatch.setattr(C, "EXAMPLE", f)
+    assert "\r" not in C.example_text() and C.example_text() == C.EXAMPLE.read_text(encoding="utf-8").replace("\r\n", "\n")

@@ -70,6 +70,27 @@ def _find(verts, x, y, tol=1e-3) -> int:
     return best[0]
 
 
+def template_file() -> Path:
+    """A3 横向图框。各版本 FreeCAD 放模板的地方不同（1.0 在 Templates/ 下，1.1 有子目录），按文件名在模板目录里找；
+    找不到首选的，用 TechDraw 设置里的缺省模板，再不行用任意一个 A3 横向模板（2026-11-18 问渠 CAD 1.1.4 上找不到）"""
+    roots = [Path(FreeCAD.getResourceDir()) / "Mod" / "TechDraw" / "Templates",
+             Path(FreeCAD.getResourceDir()) / "share" / "Mod" / "TechDraw" / "Templates"]
+    roots = [r for r in roots if r.is_dir()]
+    for name in TEMPLATES:
+        for r in roots:
+            hit = sorted(r.rglob(name))
+            if hit:
+                return hit[0]
+    pref = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/Mod/TechDraw/Files").GetString("TemplateFile", "")
+    if pref and Path(pref).is_file():
+        return Path(pref)
+    for r in roots:
+        hit = sorted(f for f in r.rglob("*.svg") if "A3" in f.name and "Landscape" in f.name)
+        if hit:
+            return hit[0]
+    raise DrawingError(T(f"找不到 TechDraw 的图框模板（找过：{'；'.join(str(r) for r in roots) or FreeCAD.getResourceDir()}）"))
+
+
 def _scale(total: float) -> float:
     return next((s for s in SCALES if total * s <= 330), SCALES[-1])
 
@@ -86,8 +107,7 @@ def drawing(doc, part, segs: list[dict], *, name: str, drawing_no: str, material
     page = doc.addObject("TechDraw::DrawPage", "AiShaftDrawing")
     page.Label = T(f"{name} 工程图")
     tpl = doc.addObject("TechDraw::DrawSVGTemplate", "AiShaftTemplate")
-    res = Path(FreeCAD.getResourceDir()) / "Mod" / "TechDraw" / "Templates"
-    tpl.Template = str(next((res / t for t in TEMPLATES if (res / t).is_file()), res / TEMPLATES[0]))
+    tpl.Template = str(template_file())
     page.Template = tpl
     texts = dict(tpl.EditableTexts)
     want = {**TEXTS, "title": name, "identification_number": drawing_no or "—", "part_material": material or "",
@@ -143,7 +163,9 @@ def drawing(doc, part, segs: list[dict], *, name: str, drawing_no: str, material
             raise DrawingError(T(f"工程图尺寸与设计不符：{what}，图上 {got:g}"))
     steps = [f"z {a['z1']:g}：R{(a['r_right'] or b['r_left']):g}" for a, b in pairwise(rs)]
     note = doc.addObject("TechDraw::DrawViewAnnotation", "AiShaftNotes")
-    note.Text = [T("技术要求："), T("1. 台阶圆角：") + "，".join(steps), T("2. 尺寸由程序按设计数据标注，模型已回读核对")]
+    lines = ["，".join(steps[i:i + 2]) for i in range(0, len(steps), 2)]   # 两个一行，免得注释超出图纸被缩小
+    note.Text = [T("技术要求："), T("1. 台阶圆角：") + (lines[0] if lines else ""), *["   " + x for x in lines[1:]],
+                 T("2. 尺寸由程序按设计数据标注，模型已回读核对")]
     page.addView(note)
     note.X, note.Y = 120.0, 75.0
     if hasattr(note, "TextSize"):

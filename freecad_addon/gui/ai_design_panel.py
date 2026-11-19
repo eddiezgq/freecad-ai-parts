@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+import time
+
 import FreeCAD
 import FreeCADGui
 
@@ -25,7 +27,7 @@ def _client():
 
 class AiDesignPanel:
     def __init__(self, library, enterprise=None, client_factory=_client):
-        from PySide import QtWidgets
+        from PySide import QtCore, QtWidgets
 
         self.library, self.enterprise, self.client_factory = library, enterprise, client_factory
         self.out: dict | None = None
@@ -55,6 +57,14 @@ class AiDesignPanel:
         self.progress = QtWidgets.QLabel("")
         self.progress.setWordWrap(True)
         lay.addWidget(self.progress)
+        self.bar = QtWidgets.QProgressBar()                # 当前这一步的进度；步数不定时来回走（忙）
+        self.bar.setTextVisible(False)
+        self.bar.hide()
+        lay.addWidget(self.bar)
+        self._status: tuple | None = None                  # 后台线程写（说明, 已做, 总数），界面定时读
+        self._t0 = 0.0
+        self.ticker = QtCore.QTimer(self.form)
+        self.ticker.timeout.connect(self._tick)
         self.tabs = QtWidgets.QTabWidget()
         self.views = {}
         for key, title in (("conditions", "条件"), ("rounds", "每一轮"), ("questions", "AI 的问题")):
@@ -84,6 +94,21 @@ class AiDesignPanel:
         names.discard(None)
         return next(iter(sorted(names)), "")
 
+    def _refresh_browser(self) -> None:
+        """入库后零件库浏览器立刻列出新零件，标题里的企业库组件数也跟着变（2026-11-18：入了库却看不到）"""
+        import re
+
+        from PySide import QtWidgets
+
+        dock = FreeCADGui.getMainWindow().findChild(QtWidgets.QDockWidget, "FapLibraryBrowser")
+        if dock is None:
+            return
+        if self.enterprise is not None and hasattr(dock, "header"):
+            n = len(self.enterprise.all())
+            dock.header.setText(re.sub(r"企业库 \d+ 个组件", f"企业库 {n} 个组件", dock.header.text()))
+        if hasattr(dock, "refresh"):
+            dock.refresh()
+
     # ------------------------------------------------------------ 动作
 
     def load_example(self):
@@ -96,6 +121,8 @@ class AiDesignPanel:
             self.progress.setText(T("先写需求原话"))
             return
         use_replay = self.replay and statement == C.example_text().strip()
+        if use_replay:
+            statement = C.example_text()           # 原样（含末尾换行）：录制按示例文件原文算请求键（2026-11-18）
         try:
             client = C.example_client() if use_replay else self.client_factory()
         except Exception as exc:  # noqa: BLE001 — 显示给人
@@ -103,10 +130,36 @@ class AiDesignPanel:
             return
         self.go.setEnabled(False)
         self.ok.setEnabled(False)
-        self.progress.setText(T("AI 列条件、提方案，代码逐项校核（强度要算有限元，每个新台阶约 40 秒）……"))
-        _in_background(lambda: C.run(statement, client, self.library, replay=use_replay), self.done)
+        self._status = (T("开始"), None, None)
+        self._t0 = time.monotonic()
+        self.bar.show()
+        self._tick()
+        self.ticker.start(500)
+
+        def report(text, done, total):
+            self._status = (text, done, total)
+
+        _in_background(lambda: C.run(statement, client, self.library, replay=use_replay, progress=report), self.done)
+
+    def _tick(self):
+        """每半秒刷新：当前一步、已用时间、这一步的进度（有限元一个台阶约 40 秒，见过的台阶直接用缓存）"""
+        if self._status is None:
+            return
+        text, done, total = self._status
+        sec = int(time.monotonic() - self._t0)
+        extra = T(f"（第 {done + 1} / {total} 个台阶）") if total else ""
+        self.progress.setText(T(text) + extra + T(f"　已用 {sec // 60} 分 {sec % 60:02d} 秒"))
+        if total:
+            self.bar.setRange(0, total)
+            self.bar.setValue(done)
+        else:
+            self.bar.setRange(0, 0)
 
     def done(self, out):
+        self.ticker.stop()
+        self.bar.hide()
+        self._status = None
+        sec = int(time.monotonic() - self._t0)
         self.go.setEnabled(True)
         if isinstance(out, Exception):
             self.progress.setText(T(f"设计中断：{out}"))
@@ -114,7 +167,8 @@ class AiDesignPanel:
         self.out = out
         res = out["result"]
         head = T("【录制回放，不是这次真实调用】") if out.get("replay") else ""
-        self.progress.setText(head + T(f"结论：{C.RESULT.get(res.get('status'), res.get('status'))}；{len(res.get('rounds') or [])} 轮"))
+        self.progress.setText(head + T(f"结论：{C.RESULT.get(res.get('status'), res.get('status'))}；{len(res.get('rounds') or [])} 轮")
+                              + T(f"；用时 {sec // 60} 分 {sec % 60:02d} 秒"))
         self.views["conditions"].setHtml(C.conditions_html(res))
         self.views["rounds"].setHtml(C.rounds_html(res))
         self.views["questions"].setHtml(C.questions_html(res))
@@ -124,7 +178,12 @@ class AiDesignPanel:
             self.place()
 
     def place(self):
+        from PySide import QtWidgets
+
         from freecad_addon.fc import ai_design_doc as D
+
+        self.model_info.setText(self.model_info.text() + "\n" + T("放进文档：三维模型、工程图、BOM……"))
+        QtWidgets.QApplication.processEvents()
 
         doc = FreeCAD.ActiveDocument or FreeCAD.newDocument("AiDesign")
         try:
@@ -159,6 +218,7 @@ class AiDesignPanel:
                 texts["identification_number"] = self.drawing_no.text().strip()
                 tpl.EditableTexts = texts
         self.model_info.setText(self.model_info.text() + "\n" + T(f"已入企业库：{comp['id']}（确认人 {self.by.text().strip()}）"))
+        self._refresh_browser()
         self.ok.setEnabled(False)
 
 

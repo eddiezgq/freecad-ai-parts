@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "name": "10mm Bull Nose",
+  "shape": "bullnose.fcstd",
+  "parameter": {
+    "CuttingEdgeHeight": "25.0000 mm",
+    "Diameter": "10.0000 mm",
+    "FlatRadius": "4.0000 mm",
+    "Length": "70.0000 mm",
+    "ShankDiameter": "10.0000 mm"
+  },
+  "attribute": {}
+}

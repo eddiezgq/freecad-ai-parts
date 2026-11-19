@@ -204,7 +204,7 @@ def generate(result: dict, out_dir: str | Path, get, *, drawing_no: str = "AI-SH
         raise ModelError(f"设计没有通过（{result.get('status')}），不生成模型")
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    segs, _ = SD.check_proposal(result["rounds"][-1]["proposal"], get)
+    segs, _ = SD.check_proposal(_chosen(result)["proposal"], get)
     material = result["conditions"].get("material")
     step = build_step(segs, out_dir / "shaft.step")
     rb = readback(segs, step, material)
@@ -220,3 +220,9 @@ def generate(result: dict, out_dir: str | Path, get, *, drawing_no: str = "AI-SH
     (out_dir / "bom.json").write_text(json.dumps(rows, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     summary.update(delivered=True, drawing="drawing.svg", bom=rows)
     return summary
+
+
+def _chosen(result: dict) -> dict:
+    from assist.design import chosen
+
+    return chosen(result)

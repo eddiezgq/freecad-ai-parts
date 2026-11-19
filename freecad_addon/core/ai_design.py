@@ -21,7 +21,7 @@ EXAMPLE = ROOT / "examples" / "ai-design" / "ls-upper-shaft" / "requirement.txt"
 PART_TYPES = ("阶梯轴",)
 COLORS = {"pass": "#1b7f3b", "unknown": "#a26b00", "fail": "#b3261e"}
 STATUS = {"pass": "通过", "unknown": "待确认", "fail": "不通过"}
-RESULT = {"pass": "全部通过", "pass_pending_data": "通过，只剩零件库缺数据的待确认", "stuck": "4 轮仍没通过，停下交给人",
+RESULT = {"pass": "全部通过", "pass_pending_data": "通过，只剩零件库缺数据的待确认", "stuck": "没有通过，停下交给人（4 轮用完，或 AI 判断改轴解决不了、不再改方案）",
           "needs_input": "条件不齐，先补原话"}
 
 
@@ -30,7 +30,8 @@ class ConfirmError(ValueError):
 
 
 def example_text() -> str:
-    return EXAMPLE.read_text(encoding="utf-8")
+    """示例原话。Windows 上 git 检出可能把换行变成 \\r\\n，录制是按 \\n 录的：统一成 \\n，否则回放对不上（2026-11-18）"""
+    return EXAMPLE.read_text(encoding="utf-8").replace("\r\n", "\n")
 
 
 def example_client():
@@ -47,18 +48,22 @@ def bearings(library) -> list[dict]:
     return [c for c in library.all() if c.get("category") == "bearing"]
 
 
-def run(statement: str, client, library, out_dir: str | Path | None = None, *, replay: bool = False) -> dict:
+def run(statement: str, client, library, out_dir: str | Path | None = None, *, replay: bool = False,
+        progress=None) -> dict:
     """设计并（通过时）生成模型。返回 {"result", "model"（generate 的摘要或 None）, "out_dir", "replay"}"""
     from assist import design as D
     from assist import shaft_model
 
+    statement = statement.replace("\r\n", "\n")
     model = getattr(client, "model", None) or D.DEFAULT_MODEL
-    res = D.design(statement, client, bearings(library), library.get, model=model)
+    res = D.design(statement, client, bearings(library), library.get, model=model, progress=progress)
     out = Path(out_dir) if out_dir else Path(tempfile.mkdtemp(prefix="wq-ai-design-"))
     out.mkdir(parents=True, exist_ok=True)
     (out / "design-record.json").write_text(json.dumps(res, ensure_ascii=False, indent=1, default=_finite) + "\n", encoding="utf-8")
     gen = None
     if str(res.get("status", "")).startswith("pass"):
+        if progress is not None:
+            progress("生成三维模型并测量回读", None, None)
         gen = shaft_model.generate(res, out, library.get)
     return {"result": res, "model": gen, "out_dir": str(out), "replay": replay}
 
@@ -71,7 +76,7 @@ def segments(result: dict, get) -> list[dict]:
     """最后一轮方案经代码补齐后的轴段（直径、长度、圆角、轴承）"""
     from assist import shaft_design as SD
 
-    segs, _ = SD.check_proposal(result["rounds"][-1]["proposal"], get)
+    segs, _ = SD.check_proposal(_chosen(result)["proposal"], get)
     return segs
 
 
@@ -103,8 +108,10 @@ def rounds_html(result: dict) -> str:
     html = [f"<p><b>{escape(T('结论：'))}{escape(T(RESULT.get(result.get('status'), str(result.get('status')))))}</b></p>"]
     for k, rd in enumerate(result.get("rounds") or [], 1):
         st = rd.get("overall")
+        tag = T("（采用）") if result.get("chosen_round") == k else ""
+        mass = T(f"　质量 {rd['mass_kg']:.3f} kg") if isinstance(rd.get("mass_kg"), (int, float)) else ""
         html.append(f"<h3>{escape(T(f'第 {k} 轮') + T('：'))}<span style='color:{COLORS.get(st, '#000')}'>"
-                    f"{escape(T(STATUS.get(st, str(st))))}</span></h3>")
+                    f"{escape(T(STATUS.get(st, str(st))))}</span>{escape(tag + mass)}</h3>")
         segs = rd.get("segments") or []
         if segs:
             cells = "".join(f"<tr><td>{i}</td><td>{escape(T(s.get('role', '')))}</td><td>Ø{s['d']:g}</td><td>{s['L']:g}</td>"
@@ -170,3 +177,9 @@ def confirm(enterprise_lib, run_out: dict, *, drawing_no: str, name: str, enterp
         raise ConfirmError(f"企业库里已有 {comp['id']}，换一个图号")
     enterprise_lib.save_component(comp, actor, f"AI 设计零件，人确认入库（设计记录 {rec_doc['id']}）")
     return comp
+
+
+def _chosen(result: dict) -> dict:
+    from assist.design import chosen
+
+    return chosen(result)
