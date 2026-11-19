@@ -430,6 +430,41 @@ def _jsonable(v):
     return float(v) if hasattr(v, "dtype") else v
 
 
+def _lib_tools(setup) -> dict:
+    """整机仿真设置里 {刀号: 刀具库刀具}（没对应上的不写）"""
+    ms = setup.get("machine_sim") or {}
+    given = ms.get("tools") or {}
+    if not given:
+        return {}
+    from analysis.cam import tools as TL
+
+    lib = TL.load(ms["tool_library"]) if ms.get("tool_library") else TL.load()
+    ids = {t["id"]: t for t in lib["tools"]}
+    return {int(k): ids[v["tool"]] for k, v in given.items() if v.get("tool") in ids}
+
+
+THREAD_ANGLE = {"iso": 60.0, "npt": 60.0, "r": 55.0}
+
+
+def thread_insert_checks(setup, threads) -> list[dict]:
+    """车螺纹刀片的牙型角与螺纹标准对不对（ADR-0108 加了 thread_angle_deg）：不对 → 错误；没写 → 锥管螺纹报未知（普通螺纹默认 60° 刀片，不报）"""
+    lib = _lib_tools(setup)
+    out = []
+    for tv in threads:
+        form = tv.get("form") or "iso"
+        n = 7 if tv.get("internal") else 4
+        tool = lib.get(n)
+        want = THREAD_ANGLE[form]
+        ang = (tool or {}).get("thread_angle_deg")
+        if ang is not None and abs(float(ang) - want) > 0.5:
+            out.append({"line": None, "level": "error",
+                        "text": f"T{n} {tool['id']} 是 {float(ang):g}° 牙型的刀片，{P.THREAD_FORMS[form]} 螺纹要 {want:g}°"})
+        elif ang is None and form in ("r", "npt"):
+            out.append({"line": None, "level": "unknown",
+                        "text": f"{P.THREAD_FORMS[form]} 锥管螺纹要用这个牙型的刀片：刀具库里这把刀没写牙型角，刀片对不对没核对"})
+    return out
+
+
 def nose_radii(setup) -> dict:
     """车刀刀尖圆弧半径 {刀号: rε}：按整机仿真设置里刀号对应的刀具库刀具（刀片 nose_radius_mm）。
     没对应上的刀按尖刀算（与以前一样）；刀尖圆弧补偿与仿真都用这个值（ADR-0106 Q2 第 4 步）。"""
@@ -505,10 +540,7 @@ def _turn(setup, mach):
             if rr:
                 checks.append({"line": None, "level": "warn",
                                "text": f"{side_name}车出来是 R{rr:g} 的圆角（刀尖圆弧）；图纸要清角就要加退刀槽或换小圆弧刀片"})
-        for tv in sc["threads"]:                  # 刀具库没有牙型角这一项：锥管螺纹刀片对不对没法核对（ADR-0106 Q3a）
-            if tv.get("form") in ("r", "npt"):
-                checks.append({"line": None, "level": "unknown",
-                               "text": f"{P.THREAD_FORMS[tv['form']]} 锥管螺纹要用这个牙型的刀片：刀具库里没有牙型角，刀片对不对没核对"})
+        checks += thread_insert_checks(setup, sc["threads"])
         if s.get("under_mm", 0) > 0.05:
             checks.append({"line": None, "level": "error", "text": f"残留：最多 {s['under_mm']:.3f} mm（半径），Z{s['under_z'][0]:.2f} ~ Z{s['under_z'][1]:.2f}"})
         if s.get("face_left", 0) > 0.01:

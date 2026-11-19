@@ -1834,7 +1834,6 @@
 "，切断前倒角 C{}": ", chamfer C{} before parting off",
 "切断前倒角切多了：C{} 处最多 {} mm": "Chamfer C{} before parting off overcut by up to {} mm",
 "切断前倒角没倒到位：C{} 处最多留了 {} mm": "Chamfer C{} before parting off not cut to size: up to {} mm left",
-"{} 锥管螺纹要用这个牙型的刀片：刀具库里没有牙型角，刀片对不对没核对": "{} taper pipe threads need an insert of this form: the tool library has no thread form angle, so the insert was not checked",
 "T{} {}：{} 段切宽 ae 超过样本的 {} mm（最宽 {} mm，开槽或型腔第一圈），样本没给这种切宽下的切深，这些段的切深没核对": "T{} {}: {} moves have a width of cut ae above the catalogue's {} mm (widest {} mm, slotting or the first pocket ring); the catalogue gives no depth of cut for such widths, so their depth of cut was not checked",
 "T{} {}：刀具样本没给最大切深 ap，切深没核对": "T{} {}: the tool catalogue gives no maximum depth of cut ap; depth of cut not checked",
 "T{} {}：切深 ap 最大 {} mm（第 {} 行），超出刀具样本的 {} mm——分层切或换刀，程序不输出": "T{} {}: depth of cut ap up to {} mm (line {}), above the catalogue's {} mm — cut in layers or change the tool; no program is output",
@@ -1880,5 +1879,7 @@
 "铣内螺纹 M{}×{}（刀 Ø{}，逆时针往上，顺铣）": "Thread milling M{}×{} (tool Ø{}, counter-clockwise upwards, climb milling)",
 "刀具库里没有能铣 M{}×{} 的螺纹铣刀": "the tool library has no thread mill for M{}×{}",
 "铣螺纹 M{}×{}（推测）": "Thread milling M{}×{} (presumed)",
-"铣螺纹": "Thread milling"
+"铣螺纹": "Thread milling",
+"{} 锥管螺纹要用这个牙型的刀片：刀具库里这把刀没写牙型角，刀片对不对没核对": "{} taper pipe threads need an insert of this form: this tool has no thread form angle in the library, so the insert was not checked",
+"T{} {} 是 {}° 牙型的刀片，{} 螺纹要 {}°": "T{} {} is a {}° insert; {} threads need {}°"
 }
