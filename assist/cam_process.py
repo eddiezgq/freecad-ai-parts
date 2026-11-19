@@ -44,12 +44,13 @@ TEACH = {"rough": {"vc": 120.0, "f": 0.3, "ap": 2.5}, "finish": {"vc": 150.0, "f
          "contour": {"vc": 100.0, "fz": 0.04, "ap": 5.0}, "slot": {"vc": 25.0, "fz": 0.03, "ap": 1.0},
          "holes": {"vc": 20.0, "f": 0.12}, "face_groove": {"vc": 80.0, "f": 0.04}, "part": {"vc": 80.0, "f": 0.05},
          "cbore": {"vc": 100.0, "fz": 0.03, "ap": 2.0}, "csink": {"vc": 60.0, "f": 0.05}, "tap": {"vc": 10.0},
-         "face": {"vc": 120.0, "fz": 0.08, "ap": 1.0}, "chamfer": {"vc": 80.0, "fz": 0.03}}
+         "face": {"vc": 120.0, "fz": 0.08, "ap": 1.0}, "chamfer": {"vc": 80.0, "fz": 0.03},
+         "adaptive": {"vc": 100.0, "fz": 0.04, "ap": 10.0, "stepover": 0.2}}
 FEED = {"rough": "f", "finish": "f", "groove": "f", "thread": None, "drill": "f", "bore": "f",
         "pocket": "fz", "contour": "fz", "slot": "fz", "holes": "f", "face_groove": "f", "part": "f",
-        "cbore": "fz", "csink": "f", "tap": None, "face": "fz", "chamfer": "fz"}
-HAS_AP = {"rough", "bore", "pocket", "contour", "slot", "cbore", "face"}
-TEACH_Z = {"pocket": 4, "contour": 4, "slot": 2, "face": 4, "cbore": 4, "chamfer": 2}   # 刀具库没写刃数时的教学示意值（标“待确认”）
+        "cbore": "fz", "csink": "f", "tap": None, "face": "fz", "chamfer": "fz", "adaptive": "fz"}
+HAS_AP = {"rough", "bore", "pocket", "contour", "slot", "cbore", "face", "adaptive"}
+TEACH_Z = {"pocket": 4, "contour": 4, "slot": 2, "face": 4, "cbore": 4, "chamfer": 2, "adaptive": 4}   # 刀具库没写刃数时的教学示意值（标“待确认”）
 
 
 class ProcessError(ValueError):
@@ -159,7 +160,7 @@ def _rule_params(op, tool, iso):
     if op["kind"] in HAS_AP:
         ap_t = teach["ap"]
         out["ap"] = min(ap_t, c["ap_max_mm"]) if "ap_max_mm" in c else ap_t
-    if op["kind"] == "pocket":
+    if op["kind"] in ("pocket", "adaptive"):
         d = tool["diameter_mm"]
         out["stepover"] = min(teach["stepover"], c["ae_max_mm"] / d) if "ae_max_mm" in c else teach["stepover"]
     return out, "pass"

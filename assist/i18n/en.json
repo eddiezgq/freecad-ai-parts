@@ -1862,7 +1862,6 @@
 "铣：这道孔工序加工哪些孔（JSON：直径、孔表，程序坐标）": "Milling: the holes this operation machines (JSON: diameter, hole list, program coordinates)",
 "刀具库里没有面铣刀，也没有平底立铣刀，面铣不了": "The tool library has no face mill and no flat end mill; face milling is not possible",
 "面铣": "Face milling",
-"工序类型 {} 不认识：face、pocket、profile、drill": "Unknown operation type {}: face, pocket, profile, drill",
 "面铣：毛坯顶面要高出零件顶面（作业的“面铣余量”大于 0）": "Face milling: the stock top must be above the part top (job \"Face stock\" greater than 0)",
 "铣：面铣余量——毛坯顶面高出零件顶面 mm（0 = 毛坯顶面就是零件顶面，不面铣）": "Milling: face stock — how far the stock top is above the part top, mm (0 = stock top is the part top, no face milling)",
 "倒角 {}×{}°": "Chamfer {}×{}°",
@@ -1871,5 +1870,8 @@
 "倒角面的下边不是封闭的一圈（只倒了一部分边），还不支持": "The lower edge of the chamfer faces is not a closed loop (only some edges chamfered); not supported yet",
 "倒角：倒角刀 {}°，刀尖低于倒角底边 {}": "Chamfer: {}° chamfer mill, tip {} below the chamfer bottom",
 "倒角：找不到倒角面的下边": "Chamfer: the lower edge of the chamfer faces was not found",
-"倒角": "Chamfer"
+"倒角": "Chamfer",
+"{}：自适应开粗设定切宽 {} mm，仿真量出最宽 {} mm（第 {} 行），切宽没保持住": "{}: adaptive roughing set width of cut {} mm, simulated up to {} mm (line {}); the width of cut was not held",
+"自适应开粗": "Adaptive roughing",
+"工序类型 {} 不认识：face、pocket、adaptive、profile、drill": "Unknown operation type {}: face, pocket, adaptive, profile, drill"
 }

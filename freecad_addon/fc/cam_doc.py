@@ -436,7 +436,7 @@ def chamfer_faces(shape) -> list[dict]:
     return out
 
 
-def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, profile: bool = True, drill: bool = True,
+def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, adaptive: bool = False, profile: bool = True, drill: bool = True,
               holes: bool = True, taps: bool = False, face: bool = False, chamfer: bool = True, stock_top: float = 0.0,
               max_rpm: float = 1e9) -> dict:
     """铣削件（零件实体）→ FreeCAD CAM 的工序（cam_fc.program 的 ops）与工艺卡的工序表。
@@ -471,7 +471,7 @@ def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, profile: bool 
                 z = CP.TEACH_Z["pocket"]
                 notes.append(f"{title}：刀 {tool['id']} 没写刃数，按 {z} 刃算进给，待确认")
             feed = params["fz"] * z * rpm
-            spec = {"type": kind if kind in ("pocket", "cbore", "face") else "profile", "tool": tool, "number": n, "rpm": round(rpm),
+            spec = {"type": kind if kind in ("pocket", "cbore", "face", "adaptive") else "profile", "tool": tool, "number": n, "rpm": round(rpm),
                     "feed_mm_min": round(feed, 1), "plunge_mm_min": round(feed / 3, 1), "step_down_mm": params["ap"], **extra}
         if status == "unknown":
             notes.append(f"{title}：刀 {tool['id']} 的样本没有 {iso} 组的参数，用教学示意值，待确认")
@@ -487,7 +487,7 @@ def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, profile: bool 
         c = _cut(t, iso)
         so = min(70.0, 100 * c["ae_max_mm"] / t["diameter_mm"]) if c and "ae_max_mm" in c else 70.0
         add("face", "面铣", t, {"step_over_pct": so})
-    if pocket:
+    if pocket or adaptive:
         floors = cam_fc.pocket_floors(shape, top)
         if floors:
             lim = min(min(shape.getElement(f).BoundBox.XLength, shape.getElement(f).BoundBox.YLength) for f in floors) / 2
@@ -497,7 +497,10 @@ def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, profile: bool 
             t = max(fit, key=lambda t: t["diameter_mm"])
             c = _cut(t, iso)
             so = min(45.0, 100 * c["ae_max_mm"] / t["diameter_mm"]) if c and "ae_max_mm" in c else 45.0
-            add("pocket", "铣型腔", t, {"step_over_pct": so})
+            if pocket:
+                add("pocket", "铣型腔", t, {"step_over_pct": so})
+            if adaptive:                        # 自适应开粗：切宽取样本 ae 上限与 20% 刀径的小者，每层切深可以大（样本 ap）
+                add("adaptive", "自适应开粗", t, {"step_over_pct": min(so, 20.0)})
     if profile:
         if not ends:
             raise CamDocError("刀具库里没有平底立铣刀，外轮廓铣不了")

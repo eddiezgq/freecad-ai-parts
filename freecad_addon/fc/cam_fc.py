@@ -157,7 +157,7 @@ def build_job(doc, model, ops: list[dict], stock_top: float = 0.0):
     import Path.Tool.Controller as PathToolController
     from Path.Base import Drillable
     from Path.Main import Job as PathJob
-    from Path.Op import Drilling, MillFace, PocketShape, Profile
+    from Path.Op import Adaptive, Drilling, MillFace, PocketShape, Profile
 
     job = PathJob.Create("Job", [model])
     if stock_top > 0:                            # 毛坯顶面高出零件顶面 stock_top（面铣余量；ADR-0106 Q3b）
@@ -176,6 +176,15 @@ def build_job(doc, model, ops: list[dict], stock_top: float = 0.0):
             op.Base = [(jm, floors)]
             op.StepOver = round(float(spec.get("step_over_pct", 40)))
             op.OffsetPattern = "ZigZagOffset"      # 之字形清中间 + 最后贴壁一圈：直角转角铣到刀具够得着的地方（ADR-0106 Q2 色差图查出来的）
+        elif k == "adaptive":                      # 自适应开粗（恒定切宽）：FreeCAD Adaptive，型腔底面内侧
+            floors = list(spec.get("faces") or []) or pocket_floors(jm.Shape, top)
+            if not floors:
+                raise CamFcError("零件上没有找到型腔底面（朝上、低于顶面的平面）")
+            op = Adaptive.Create(f"Adaptive{len(made) + 1}")
+            op.Base = [(jm, floors)]
+            op.Side = "Inside"
+            op.StepOver = round(float(spec.get("step_over_pct", 20)))
+            op.StockToLeave = float(spec.get("stock_to_leave", 0.0))
         elif k == "profile":
             op = Profile.Create(f"Profile{len(made) + 1}")
         elif k == "face":
@@ -202,7 +211,7 @@ def build_job(doc, model, ops: list[dict], stock_top: float = 0.0):
             if all(jm.Shape.getElement(h[1]).BoundBox.ZMin <= zmin + 1e-6 for h in holes):
                 op.ExtraOffset = "Drill Tip"          # 通孔：多钻一个钻尖长，孔底整圈钻透（ADR-0106 Q2 色差图查出来的）
         else:
-            raise CamFcError(f"工序类型 {k!r} 不认识：face、pocket、profile、drill")
+            raise CamFcError(f"工序类型 {k!r} 不认识：face、pocket、adaptive、profile、drill")
         if "step_down_mm" in spec and hasattr(op, "StepDown"):
             op.setExpression("StepDown", None)      # FreeCAD 缺省按刀径的表达式，会盖掉我们给的每层切深
             op.StepDown = float(spec["step_down_mm"])
@@ -335,7 +344,8 @@ def program(shape, ops: list[dict], *, number: int = 6001, title: str = "2.5 轴
             if not mv:
                 raise CamFcError(f"FreeCAD 的 {label} 没有出刀路")
             t = spec["tool"]
-            prog_ops.append({"tool": sim_tool(t, int(spec["number"])),
+            extra = {"ae_set": float(spec.get("step_over_pct", 20)) / 100 * float(t["diameter_mm"])} if spec["type"] == "adaptive" else {}
+            prog_ops.append({**extra, "tool": sim_tool(t, int(spec["number"])),
                              "spindle": {"rpm": float(spec["rpm"])}, "moves": mv, "title": label,
                              "safe": max((x["z"] for x in mv if x["t"] == "rapid"), default=5.0)})
         bb = shape.BoundBox

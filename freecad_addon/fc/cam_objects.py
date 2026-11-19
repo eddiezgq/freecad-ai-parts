@@ -22,7 +22,7 @@ GROUP = "问渠CAM"
 STATUS = ["草稿", "已确认"]
 TURN_KINDS = {"rough": "粗车外圆", "finish": "精车外圆", "groove": "切槽", "thread": "车螺纹", "drill": "钻孔", "bore": "镗孔",
               "face_groove": "端面槽", "part": "切断"}
-MILL_KINDS = {"face": "面铣", "pocket": "铣型腔", "profile": "铣外轮廓", "drill": "钻孔", "cbore": "铣沉孔", "csink": "锪孔口", "tap": "攻丝",
+MILL_KINDS = {"face": "面铣", "pocket": "铣型腔", "adaptive": "自适应开粗", "profile": "铣外轮廓", "drill": "钻孔", "cbore": "铣沉孔", "csink": "锪孔口", "tap": "攻丝",
               "chamfer": "倒角"}
 HOLE_KINDS = ("cbore", "csink", "tap")     # 按孔特征出刀路（ADR-0106 Q3b）：孔表存在工序的 HoleData 里
 TURN_TOOL_N = {"rough": 1, "finish": 2, "groove": 3, "thread": 4, "drill": 5, "bore": 6, "part": 8, "face_groove": 9}
@@ -489,7 +489,7 @@ def _mill_spec(job, op):
     feed = op.Feed * z * rpm
     spec = {"type": op.OpKind, "tool": tool, "number": op.ToolNumber, "rpm": round(rpm), "feed_mm_min": round(feed, 1),
             "plunge_mm_min": round(feed / 3, 1), "step_down_mm": op.Ap or 5.0, "faces": faces}
-    if op.OpKind == "pocket" and op.StepOver > 0:
+    if op.OpKind in ("pocket", "adaptive") and op.StepOver > 0:
         spec["step_over_pct"] = 100 * op.StepOver
     return spec
 
@@ -686,7 +686,7 @@ def add_op(setup, kind: str):
             raise CamObjError(f"铣削没有这种工序：{kind}")
         from freecad_addon.fc import cam_doc
 
-        flags = {k: k == kind for k in ("face", "pocket", "profile", "drill", "chamfer")}
+        flags = {k: k == kind for k in ("face", "pocket", "adaptive", "profile", "drill", "chamfer")}
         flags["holes"] = kind in HOLE_KINDS
         flags["taps"] = kind == "tap"
         try:
@@ -798,7 +798,8 @@ def build_setup(job) -> dict:
             cc = TL.cutting_for(t, _S.iso_group(job.Kienzle)) or {}          # 刀具样本的 ap、ae 上限：仿真逐段核对（ADR-0106 Q3b）
             from freecad_addon.fc import cam_fc
 
-            prog_ops.append({"tool": {**cam_fc.sim_tool(t, o.ToolNumber),
+            prog_ops.append({**({"ae_set": (o.StepOver or 0.2) * float(t["diameter_mm"])} if o.OpKind == "adaptive" else {}),
+                             "tool": {**cam_fc.sim_tool(t, o.ToolNumber),
                                       **({"ap_max": cc["ap_max_mm"]} if "ap_max_mm" in cc else {}),
                                       **({"ae_max": cc["ae_max_mm"]} if "ae_max_mm" in cc else {})},
                              "spindle": _js(o, "Spindle", {}), "moves": mv, "title": o.Label,

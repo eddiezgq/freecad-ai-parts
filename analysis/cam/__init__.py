@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import itertools
 import math
+import statistics
 import time
 
 from analysis.cam import machine_sim as MS
@@ -714,13 +715,19 @@ def _program(setup, mach):
     # 每段切深、切宽按刀具样本核对（外来刀路也查；超出 ap 是错误，经整机仿真结论扣下程序）
     limits = {int(op["tool"]["n"]): {"name": op["tool"].get("name"), **{k: float(op["tool"][k]) for k in ("ap_max", "ae_max") if op["tool"].get(k)}}
               for op in ops if (op.get("tool") or {}).get("kind", "endmill") not in ("drill", "tap", "chamfer")}
+    adaptive = adaptive_width(parsed, ops, s["h"])
+    for a in adaptive:
+        if a["ae_max"] > a["ae_set"] * ADAPTIVE_OVER + s["h"]:
+            checks.append({"line": a["line"], "level": "warn",
+                           "text": f"{a['title']}：自适应开粗设定切宽 {a['ae_set']:.2f} mm，仿真量出最宽 {a['ae_max']:.2f} mm（第 {a['line']} 行），切宽没保持住"})
     cl = cut_limit_checks(parsed, limits)
     extra += [c for c in cl if c["level"] == "error"]
     checks += [c for c in cl if c["level"] != "error"]
     if not setup.get("machine_sim"):
         checks += [c for c in cl if c["level"] == "error"]
     out = {"title": prog.get("title") or "外来刀路", "number": prog.get("number", 6001), "gcode": g, "time": tm, "checks": checks,
-           "power": {"status": "unknown"}, "sim": {"ap_max_mm": round(s["ap_max"], 3), "cell_mm": round(s["h"], 4)},
+           "power": {"status": "unknown"}, "sim": {"ap_max_mm": round(s["ap_max"], 3), "cell_mm": round(s["h"], 4),
+                                                   **({"adaptive": adaptive} if adaptive else {})},
            "tools": {str(k): v for k, v in tools.items()}, "generator": prog.get("generator", ""),
            "replay_in": {"kind": "mill", "stock": {"box": box, "top": top, "height": stock.get("height")},
                          "tools": {str(k): v for k, v in tools.items()}}}
@@ -729,6 +736,30 @@ def _program(setup, mach):
           expect_d={k: v["d"] for k, v in tools.items()})
     _release(setup, mach, prog, out)
     return [out], {}
+
+
+ADAPTIVE_OVER = 1.5      # 自适应开粗实测最宽超过设定切宽的 1.5 倍（加一格）才提示：FreeCAD Adaptive 按面积近似控制切入，转角处会超一些
+
+
+def adaptive_width(parsed, ops, h):
+    """自适应开粗（ADR-0106 Q3b）：工序带 "ae_set"（设定切宽 mm）的，按仿真逐段量出的切宽（只算平走的段）统计
+    → [{"title", "ae_set", "ae_median", "ae_max", "line": 最宽那段的行号, "n": 段数}]。工序的起止行由 post.post 记下（op["_line"]）"""
+    starts = [(op.get("_line") or 0, op) for op in ops]
+    out = []
+    for k, (l0, op) in enumerate(starts):
+        if not op.get("ae_set"):
+            continue
+        l1 = starts[k + 1][0] if k + 1 < len(starts) else 10 ** 9
+        ms = [m for m in parsed["moves"] if l0 <= m["line"] < l1 and m.get("ae") is not None and abs(m["b"][2] - m["a"][2]) < 1e-6]
+        ap_top = max((m.get("ap", 0.0) for m in ms), default=0.0)
+        ms = [m for m in ms if m.get("ap", 0.0) >= 0.5 * ap_top]   # 只看切到半层以上深的段：螺旋下刀到底那一圈切的是螺旋留下的斜坡，宽但很浅
+        if not ms:
+            continue
+        ae = [m["ae"] for m in ms]
+        worst = max(ms, key=lambda m: m["ae"])
+        out.append({"title": op.get("title", ""), "ae_set": float(op["ae_set"]), "ae_median": round(statistics.median(ae), 3),
+                    "ae_max": round(worst["ae"], 3), "line": worst["line"], "n": len(ms)})
+    return out
 
 
 def cut_limit_checks(parsed, limits, tol=0.05):

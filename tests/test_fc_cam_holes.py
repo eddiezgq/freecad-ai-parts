@@ -166,3 +166,37 @@ def test_chamfers_model_to_program():
         assert err <= 0.05
     finally:
         App.closeDocument(doc.Name)
+
+
+def test_adaptive_roughing_keeps_width_of_cut():
+    """自适应开粗（FreeCAD Adaptive，Ø10 刀、切宽 20% = 2 mm、一层 8 mm 到底）：仿真逐段量出的切宽中位数不超过设定值、
+    最宽不超过设定的 1.5 倍 + 一格（不报“切宽没保持住”；只看切到半层以上深的段）；切深 8 ≤ 样本 15，不报错；三维比对不过切"""
+    import json
+
+    import FreeCAD as App
+    import Part
+
+    from freecad_addon.fc import cam_objects as CO
+
+    doc = App.newDocument("camadaptive")
+    try:
+        m = doc.addObject("Part::Feature", "Block")
+        m.Shape = Part.makeBox(100, 60, 30).cut(Part.makeBox(40, 20, 8, App.Vector(30, 20, 22)))
+        doc.recompute()
+        job = CO.new_job(doc, m, "mill", post="fanuc")
+        job.ToolLengths = json.dumps({"EM10": 120})
+        s = CO.setups(job)[0]
+        op = CO.add_op(s, "adaptive")
+        assert op.ToolId == "EM10" and op.StepOver == pytest.approx(0.2)
+        CO.confirm(op)
+        r = CO.calculate(job)
+        p = r["data"]["programs"][0]
+        errs = [c["text"] for c in p["checks"] if c["level"] == "error"]
+        assert not errs, errs
+        a = p["sim"]["adaptive"][0]
+        h = p["sim"]["cell_mm"]
+        assert a["ae_set"] == pytest.approx(2.0) and a["ae_median"] <= 2.0 + h, a
+        assert a["ae_max"] <= 1.5 * 2.0 + h, a
+        assert not [c for c in p["checks"] if "切宽没保持住" in c["text"]]
+    finally:
+        App.closeDocument(doc.Name)

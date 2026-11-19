@@ -86,6 +86,7 @@ def post_mill(prog, machine):
     for op in prog["ops"]:
         t, sp = op["tool"], op["spindle"]
         safe = op.get("safe", 50.0)
+        op["_line"] = len(lines) + 1             # 这道工序从程序第几行起（仿真后按工序统计用，如自适应开粗的切宽）
         lines.append(comment(op.get("title", "")))
         lines += [f"T{t['n']} M06", "G54", f"S{round(sp['rpm'])} M03"]
         mvs = [mv for mv in op["moves"] if mv["t"] != "comment"]

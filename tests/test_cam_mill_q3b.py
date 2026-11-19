@@ -194,3 +194,13 @@ def test_lead_arcs_are_tangent_and_outside(ccw):
     X, Y = np.meshgrid(s["x"], s["y"], indexing="ij")
     part = (X > 0.1) & (X < 99.9) & (Y > 0.1) & (Y < 59.9)
     assert float(s["H"][part].min()) == pytest.approx(0.0)                             # 零件上没切到
+
+
+def test_adaptive_width_warning():
+    """自适应开粗设定切宽 1 mm，程序里却一刀满刀宽开槽（切宽 10）：提示“切宽没保持住”"""
+    prog = _prog(_slot(3))
+    prog["ops"][0]["ae_set"] = 1.0
+    p = _run(prog)
+    a = p["sim"]["adaptive"][0]
+    assert a["ae_max"] > 9.0                    # 满刀宽（网格 0.2，弯月牙两头细、量出来略小于 10）
+    assert any(c["level"] == "warn" and "切宽没保持住" in c["text"] for c in p["checks"])
