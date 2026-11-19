@@ -56,7 +56,12 @@ def run(statement: str, client, library, out_dir: str | Path | None = None, *, r
 
     statement = statement.replace("\r\n", "\n")
     model = getattr(client, "model", None) or D.DEFAULT_MODEL
-    res = D.design(statement, client, bearings(library), library.get, model=model, progress=progress)
+    kt = None
+    if replay:                                             # 回放：用录制时的有限元结果，提示词才对得上（assist.kt_record）
+        from assist import kt_record
+
+        kt = kt_record.replaying(D.KT_RECORD)
+    res = D.design(statement, client, bearings(library), library.get, model=model, kt=kt, progress=progress)
     out = Path(out_dir) if out_dir else Path(tempfile.mkdtemp(prefix="wq-ai-design-"))
     out.mkdir(parents=True, exist_ok=True)
     (out / "design-record.json").write_text(json.dumps(res, ensure_ascii=False, indent=1, default=_finite) + "\n", encoding="utf-8")

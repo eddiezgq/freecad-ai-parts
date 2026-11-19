@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from assist import design as D
+from assist import shaft_design as SD
 from tests.test_shaft_design import B6201, LS101, fake_kt, get
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -142,7 +143,9 @@ def test_recorded_real_model_run_passes(tmp_path):
             pytest.skip("本机没有 CalculiX")
     lib = JsonLibrary(ROOT / "data" / "library")
     bearings = [c for c in lib.all() if c["category"] == "bearing"]
-    res = D.design(TEXT, RecordedClient(D.RECORDINGS_DIR), bearings, lib.get)
+    from assist import kt_record
+
+    res = D.design(TEXT, RecordedClient(D.RECORDINGS_DIR), bearings, lib.get, kt=kt_record.replaying(D.KT_RECORD))
     assert res["status"] == "pass" and not res["missing"]
     assert all(a.get("simulated") is False for a in res["ai"])
     last = D.chosen(res)                                            # 采用的一轮：通过且最轻
@@ -152,6 +155,14 @@ def test_recorded_real_model_run_passes(tmp_path):
     assert sum(r["lighter_round"] for r in res["rounds"]) <= D.LIGHTER_ROUNDS   # 减重最多 3 轮（ADR-0100 42.2 之五）
     seats = [s for s in last["proposal"]["segments"] if s.get("bearing")]
     assert seats and all(s["bearing"].startswith("bearing.nsk-ltd.") for s in seats)
+    # 录下的 kt 不是凭空的：采用方案的每个台阶用本机有限元复算，与录制值差 ≤ 2 %（网格噪声，见 42.5）
+    from analysis.shaft.kt import stepped_bar
+
+    rec = kt_record.replaying(D.KT_RECORD, kt=lambda *a: pytest.fail(f"采用方案的台阶 {a} 没有录制的 kt"))
+    for st in SD.steps(last["segments"]):
+        k_rec, k_now = rec(st["d"], st["D"], st["r"]), stepped_bar(st["d"], st["D"], st["r"])
+        for name in ("kt_bending", "kt_torsion"):
+            assert k_now[name] == pytest.approx(k_rec[name], rel=0.02), (st, name)
     # 42.3：生成模型、回读逐段一致，出二维图与 BOM
     from assist import shaft_model
 

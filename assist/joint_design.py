@@ -61,7 +61,7 @@ SYSTEM_PROPOSAL = """你在设计机器人肩关节 J2 的输出空心轴。结�
 3. 刚度、强度、花键挤压、疲劳、轴承寿命都由程序算；上一轮没通过的项，按给出的数字和要求改，说清改了什么。
 4. 内孔取整到 1 mm，圆角取 0.5 或 1 mm 这样的常用值；不要编造条件里没有的东西。
 必须调用一次工具 propose_joint_shaft。"""
-LIGHTER = """全部校核已通过。原话要求“在满足要求的前提下越轻越好”。现在的质量 {mass:.3f} kg；各项余量如下（数值取两位有效数字 / 要求）：
+LIGHTER = """全部校核已通过。原话要求“在满足要求的前提下越轻越好”。现在的质量 {mass:.3f} kg；各项余量如下（数值取三位有效数字 / 要求）：
 {margins}
 如果你认为还能更轻（例如换小一号的轴承或加大内孔）而仍全部满足，就提一个更轻的方案；如果认为已经是最轻的，原样交回现在的方案并说明理由。"""
 
@@ -197,7 +197,7 @@ def proposal_request(cond: dict, bearings: list[dict], history: list[dict], *, m
 def _margins(rep: dict) -> str:
     from assist.design import _approx
 
-    return "\n".join(f"- {i['item']}：约 {_approx(i.get('value'))} / {i.get('limit')}" for i in rep["items"] if i.get("limit") is not None)
+    return "\n".join(f"- {i['item']}：{_approx(i.get('value'))} / {i.get('limit')}" for i in rep["items"] if i.get("limit") is not None)
 
 
 def _same(a: dict, b: dict) -> bool:
@@ -284,15 +284,18 @@ def main(argv: list[str] | None = None) -> int:
     lib = JsonLibrary(ROOT / "data" / "library")
     bearings, reducers = lib.all("bearing"), lib.all("reducer")
     if a.record:
+        from assist import kt_record
         from assist.llm import GatewayClient
 
         client = GatewayClient(a.provider, record_dir=RECORDINGS_DIR)
-        model = client.model
+        model, kt = client.model, kt_record.recording(RECORDINGS_DIR / "kt.json")
     else:
+        from assist import kt_record
         from ingest.llm_extract import RecordedClient
 
-        client, model = RecordedClient(a.replay or RECORDINGS_DIR), DEFAULT_MODEL
-    res = design(a.statement.read_text(encoding="utf-8"), client, bearings, reducers, lib.get, model=model)
+        rec = Path(a.replay or RECORDINGS_DIR)
+        client, model, kt = RecordedClient(rec), DEFAULT_MODEL, kt_record.replaying(rec / "kt.json")
+    res = design(a.statement.read_text(encoding="utf-8"), client, bearings, reducers, lib.get, model=model, kt=kt)
     text = json.dumps(res, ensure_ascii=False, indent=1, default=lambda x: None)
     if a.out:
         a.out.write_text(text + "\n", encoding="utf-8")

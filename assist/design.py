@@ -29,6 +29,7 @@ MAX_ROUNDS = 4                     # 改到合格最多 4 轮
 LIGHTER_ROUNDS = 3                 # 通过之后减重另给最多 3 轮（减重的方案没通过可按校核结论再改，算在里面；ADR-0100 42.2 之五）
 ROOT = Path(__file__).resolve().parents[1]
 RECORDINGS_DIR = ROOT / "tests" / "recordings" / "design"
+KT_RECORD = RECORDINGS_DIR / "kt.json"          # 录制时有限元算的 kt（assist.kt_record）
 
 _V = {"type": "object", "properties": {"value": {"type": "number"}, "unit": {"type": "string"}, "quote": {"type": "string"}},
       "required": ["value", "quote"]}
@@ -253,24 +254,24 @@ def _cond_text(c: dict) -> str:
     return json.dumps(c, ensure_ascii=False, indent=1)
 
 
-LIGHTER = """全部校核已通过。现在轴的质量 {mass:.3f} kg；各项余量如下（数值取两位有效数字 / 要求）：
+LIGHTER = """全部校核已通过。现在轴的质量 {mass:.3f} kg；各项余量如下（数值取三位有效数字 / 要求）：
 {margins}
 同样满足全部要求时，轴越轻越好（材料省、转动惯量小）。如果你认为还能更轻（例如选内径小一号的轴承、细一些的轴身），
 就提一个更轻的方案；如果认为已经是最轻的，原样交回现在的方案并说明理由。"""
 
 
 def _approx(v):
-    """余量给 AI 看，取两位有效数字：有限元算的数在不同机器上末几位不同，原样写进提示词会让录制回放对不上（2026-11-19）"""
+    """余量给 AI 看，取三位有效数字（够判断还有多少余地；多写的位数只是噪声）"""
     if isinstance(v, bool) or not isinstance(v, (int, float)) or v == 0:
         return v
     from math import floor, log10
 
-    x = round(v, 1 - floor(log10(abs(v))))
-    return int(x) if abs(x) >= 10 else x
+    x = round(v, 2 - floor(log10(abs(v))))
+    return int(x) if abs(x) >= 100 or x == int(x) else x
 
 
 def _margins(rep_items: list[dict]) -> str:
-    return "\n".join(f"- {i['item']}：约 {_approx(i.get('value'))} / {i.get('limit')}" for i in rep_items if i.get("limit") is not None)
+    return "\n".join(f"- {i['item']}：{_approx(i.get('value'))} / {i.get('limit')}" for i in rep_items if i.get("limit") is not None)
 
 
 def proposal_request(cond: dict, bearings: list[dict], history: list[dict], *, model: str = DEFAULT_MODEL,
@@ -395,15 +396,18 @@ def main(argv: list[str] | None = None) -> int:
     lib = JsonLibrary(ROOT / "data" / "library")
     bearings = [c for c in lib.all() if c["category"] == "bearing"]
     if a.record:
+        from assist import kt_record
         from assist.llm import GatewayClient
 
         client = GatewayClient(a.provider, record_dir=RECORDINGS_DIR)
-        model = client.model
+        model, kt = client.model, kt_record.recording(KT_RECORD)
     else:
+        from assist import kt_record
         from ingest.llm_extract import RecordedClient
 
-        client, model = RecordedClient(a.replay or RECORDINGS_DIR), DEFAULT_MODEL
-    res = design(a.statement.read_text(encoding="utf-8"), client, bearings, lib.get, model=model)
+        rec = a.replay or RECORDINGS_DIR
+        client, model, kt = RecordedClient(rec), DEFAULT_MODEL, kt_record.replaying(Path(rec) / "kt.json")
+    res = design(a.statement.read_text(encoding="utf-8"), client, bearings, lib.get, model=model, kt=kt)
     text = json.dumps(res, ensure_ascii=False, indent=1, default=lambda x: None if isinstance(x, float) and not math.isfinite(x) else str(x))
     if a.out:
         a.out.write_text(text + "\n", encoding="utf-8")
