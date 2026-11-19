@@ -45,11 +45,12 @@ class AiDesignPanel:
         row = QtWidgets.QHBoxLayout()
         self.example = QtWidgets.QPushButton(T("载入示例：平缝机上轴"))
         self.example.clicked.connect(self.load_example)
-        row.addWidget(self.example)
-        row.addStretch(1)
         self.go = QtWidgets.QPushButton(T("开始设计"))
         self.go.clicked.connect(self.start)
-        row.addWidget(self.go)
+        self.go.setDefault(True)
+        row.addWidget(self.go)                     # 紧挨着“载入示例”放在左边：面板窄时也看得见（2026-11-18）
+        row.addWidget(self.example)
+        row.addStretch(1)
         lay.addLayout(row)
         self.progress = QtWidgets.QLabel("")
         self.progress.setWordWrap(True)
@@ -187,6 +188,9 @@ def open_panel(library=None, enterprise=None) -> AiDesignPanel:
     scroll.setWidget(panel.form)
     dock.setWidget(scroll)
     mw.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
+    other = mw.findChild(QtWidgets.QDockWidget, "FapCheckPanel")
+    if other is not None and other.isVisible() and mw.dockWidgetArea(other) == QtCore.Qt.RightDockWidgetArea:
+        mw.tabifyDockWidget(other, dock)           # 与“校验”叠成页签、占满右侧高度，不挤在它下面
     dock.show()
     dock.raise_()
     _LAST_PANEL, _DOCK = panel, dock
