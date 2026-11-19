@@ -392,6 +392,66 @@
     "en": "Chamfer cut before parting off"
    },
    "source": "r = d/2 − c + (z − z0)"
+  },
+  {
+   "id": "CAM-38",
+   "test": "tests/test_cam_mill_q3b.py::test_measured_width_of_cut[2.5]",
+   "category": "geom",
+   "title": {
+    "zh": "侧铣切宽 ae 的仿真量值",
+    "en": "Simulated width of cut ae in side milling"
+   },
+   "source": "ae = 刀心偏移 / ae = tool-centre offset"
+  },
+  {
+   "id": "CAM-39",
+   "test": "tests/test_cam_mill_q3b.py::test_rigid_tapping_output_and_read_back[fanuc]",
+   "category": "time",
+   "title": {
+    "zh": "刚性攻丝时间",
+    "en": "Rigid tapping time"
+   },
+   "source": "t = 2·L / (P·n)"
+  },
+  {
+   "id": "CAM-40",
+   "test": "tests/test_cam_mill_q3b.py::test_countersink_cone_matches_geometry",
+   "category": "geom",
+   "title": {
+    "zh": "倒角刀锪孔口的锥面",
+    "en": "Countersink cone surface"
+   },
+   "source": "z = −(h − ρ / tan(α/2))"
+  },
+  {
+   "id": "CAM-41",
+   "test": "tests/test_cam_mill_q3b.py::test_counterbore_helix_removed_volume",
+   "category": "geom",
+   "title": {
+    "zh": "螺旋铣沉孔的去除体积",
+    "en": "Helical counterbore removed volume"
+   },
+   "source": "V = π·(D/2)²·h"
+  },
+  {
+   "id": "CAM-42",
+   "test": "tests/test_cam_mill_q3b.py::test_depth_of_cut_over_catalogue_withholds_program",
+   "category": "must",
+   "title": {
+    "zh": "切深超出刀具样本必须报出、不出程序",
+    "en": "Depth of cut over the catalogue must be reported and withheld"
+   },
+   "source": "刀具样本 ap / catalogue ap"
+  },
+  {
+   "id": "CAM-43",
+   "test": "tests/test_cam_mill_q3b.py::test_tapping_without_drilled_hole_is_reported",
+   "category": "must",
+   "title": {
+    "zh": "攻丝前没钻底孔、螺距不符必须报出",
+    "en": "Tapping without a core hole or with wrong pitch must be reported"
+   },
+   "source": "人工设定的错误程序 / deliberately wrong programs"
   }
  ]
 }

@@ -371,6 +371,143 @@
      }
     }
    ]
+  },
+  {
+   "id": "DR6.6",
+   "number": 20,
+   "name": "Ø6.6 麻花钻（虚构）",
+   "kind": "drill",
+   "diameter_mm": 6.6,
+   "tip_angle_deg": 118,
+   "flute_length_mm": 60.0,
+   "tool_material": "carbide",
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60,
+      "max": 90
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "example",
+    "ref": "虚构示例"
+   }
+  },
+  {
+   "id": "DR6.8",
+   "number": 21,
+   "name": "Ø6.8 麻花钻（虚构）",
+   "kind": "drill",
+   "diameter_mm": 6.8,
+   "tip_angle_deg": 118,
+   "flute_length_mm": 60.0,
+   "tool_material": "carbide",
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60,
+      "max": 90
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "example",
+    "ref": "虚构示例"
+   }
+  },
+  {
+   "id": "DR9",
+   "number": 22,
+   "name": "Ø9 麻花钻（虚构）",
+   "kind": "drill",
+   "diameter_mm": 9.0,
+   "tip_angle_deg": 118,
+   "flute_length_mm": 60.0,
+   "tool_material": "carbide",
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60,
+      "max": 90
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "example",
+    "ref": "虚构示例"
+   }
+  },
+  {
+   "id": "CM90",
+   "number": 23,
+   "name": "90° 倒角刀 Ø16（虚构）",
+   "kind": "chamfer_mill",
+   "diameter_mm": 16.0,
+   "tip_angle_deg": 90,
+   "tip_diameter_mm": 0.5,
+   "flutes": 2,
+   "flute_length_mm": 8.0,
+   "shank_diameter_mm": 16.0,
+   "tool_material": "carbide",
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60,
+      "max": 100
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.08
+     }
+    }
+   ],
+   "source": {
+    "kind": "example",
+    "ref": "虚构示例"
+   }
+  },
+  {
+   "id": "TAP-M8",
+   "number": 24,
+   "name": "M8×1.25 机用丝锥（虚构）",
+   "kind": "tap",
+   "diameter_mm": 8.0,
+   "pitch_mm": 1.25,
+   "thread_angle_deg": 60,
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 8,
+      "max": 15
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "example",
+    "ref": "虚构示例"
+   }
   }
  ]
 }

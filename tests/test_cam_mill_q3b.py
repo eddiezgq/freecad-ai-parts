@@ -129,3 +129,34 @@ def test_countersink_cone_matches_geometry():
            err, 0.0, tol=0.05, rel=False, unit="mm", formula="z = −(h − ρ / tan(α/2))")
     assert err <= 0.05
     assert float(s["H"][(rho > 5.1) & (rho < 6)].min()) == pytest.approx(0.0)       # 孔口直径 10 以外没动
+
+
+def _volume(s, top=0.0):
+    import numpy as np
+
+    H = s["H"][s["inside"]]
+    return float(np.sum(top - H)) * s["h"] ** 2
+
+
+def test_counterbore_helix_removed_volume():
+    """铣沉孔 Ø11 深 6.5（Ø6 立铣刀螺旋下刀、每圈 2 mm）：去除体积 = π·5.5²·6.5"""
+    from analysis.cam import paths as P
+
+    mv = P.mill_cbore(30, 30, 11.0, 6.5, 0.0, 6.0, 2.0, 300.0)
+    prog = {"number": 1, "title": "t", "ops": [{"tool": {"n": 1, "d": 6.0}, "spindle": {"rpm": 3000}, "safe": 5.0, "moves": mv}]}
+    s = sim.simulate_mill(sim.parse(cam.post.post(prog, VMC), VMC), {"box": [0, 0, 60, 60], "top": 0.0}, {1: {"kind": "endmill", "d": 6.0}},
+                          h=0.05)
+    want = math.pi * 5.5 ** 2 * 6.5
+    record(("铣沉孔 Ø11×6.5 去除体积", "counterbore Ø11×6.5 removed volume"), _volume(s), want, tol=0.01, rel=True, unit="mm³",
+           formula="V = π·(D/2)²·h")
+    assert _volume(s) == pytest.approx(want, rel=0.01)
+    with pytest.raises(P.CamError, match="中间会留料"):
+        P.mill_cbore(30, 30, 11.0, 6.5, 0.0, 5.0, 2.0, 300.0)
+
+
+def test_countersink_depth_with_tip_flat():
+    """倒角刀刀尖平头 Ø1、90°：锪到孔口 Ø12 的深度 = (12 − 1)/2 = 5.5"""
+    from analysis.cam import paths as P
+
+    mv = P.mill_csink([(20, 20, 0.0)], 12.0, 90.0, 100.0, tip_d=1.0)
+    assert mv[1]["z"] == pytest.approx(-5.5) and mv[1]["r"] == pytest.approx(2.0)

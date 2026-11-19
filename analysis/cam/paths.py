@@ -604,6 +604,44 @@ def spindle_rpm(vc_m_min, d_mm, max_rpm):
     return min(1000 * vc_m_min / (math.pi * max(d_mm, 1e-6)), max_rpm)
 
 
+def mill_csink(holes, d_cs, angle, f, tip_d=0.0, safe=5.0):
+    """锪孔口（倒角刀直进，同 G81）：holes [(x, y, z 孔口)]；锪到孔口直径 d_cs 的深度 = (d_cs − 刀尖直径) / 2 / tan(锥角/2)。"""
+    if not 0 < angle < 180 or d_cs <= tip_d:
+        raise CamError(f"锪孔口：孔口直径 Ø{d_cs:g} 要大于刀尖直径 Ø{tip_d:g}，锥角在 0 ~ 180°")
+    dz = (d_cs - tip_d) / 2 / math.tan(math.radians(angle / 2))
+    mv = [{"t": "comment", "text": f"锪孔口 Ø{d_cs:g}×{angle:g}°（锪深 {dz:.3f}）"}]
+    return mv + [{"t": "drill", "x": x, "y": y, "z": ze - dz, "r": ze + 2.0, "f": f, "safe": safe} for x, y, ze in holes]
+
+
+def mill_tap(holes, pitch, safe=5.0):
+    """刚性攻丝：holes [(x, y, z 孔口, z 攻到)]；R 平面在孔口上 3 个螺距（至少 2 mm）"""
+    r = max(3 * pitch, 2.0)
+    mv = [{"t": "comment", "text": f"攻丝 P{pitch:g}"}]
+    return mv + [{"t": "tap", "x": x, "y": y, "z": zb, "r": ze + r, "pitch": pitch, "safe": safe} for x, y, ze, zb in holes]
+
+
+def mill_cbore(x, y, d_cb, depth, z_entry, tool_d, step_down, f, safe=5.0, seg_deg=5.0):
+    """铣沉孔（螺旋下刀 + 到底整圈）：刀心走半径 (D − d)/2 的圆，每圈降一层切深；刀径要不小于 D/2，中间才不留料。
+    圆弧拆成每段不超过 seg_deg 的直线（与 FreeCAD 刀路换过来时一样）。"""
+    rc = (d_cb - tool_d) / 2
+    if rc < -1e-9:
+        raise CamError(f"沉孔 Ø{d_cb:g} 比刀 Ø{tool_d:g} 还小")
+    if tool_d < d_cb / 2 - 1e-9:
+        raise CamError(f"铣沉孔 Ø{d_cb:g}：刀径 Ø{tool_d:g} 小于沉孔直径一半，中间会留料")
+    n_turn = max(1, math.ceil(depth / step_down - 1e-9))
+    n_seg = math.ceil(360 / seg_deg)
+    mv = [{"t": "comment", "text": f"铣沉孔 Ø{d_cb:g} 深 {depth:g}：螺旋下刀 {n_turn} 圈"},
+          {"t": "rapid", "x": x + rc, "y": y, "z": safe}, {"t": "rapid", "x": x + rc, "y": y, "z": z_entry + 0.5},
+          {"t": "feed", "x": x + rc, "y": y, "z": z_entry, "f": f}]
+    total = n_turn * n_seg
+    for i in range(1, total + n_seg + 1):                         # 螺旋 n_turn 圈，再在底面走一整圈
+        a = 2 * math.pi * i / n_seg
+        z = z_entry - depth * min(i, total) / total
+        mv.append({"t": "feed", "x": x + rc * math.cos(a), "y": y + rc * math.sin(a), "z": z, "f": f})
+    mv += [{"t": "feed", "x": x, "y": y, "z": z_entry - depth, "f": f}, {"t": "rapid", "x": x, "y": y, "z": safe}]
+    return mv
+
+
 def mill_feed(fz, z_teeth, rpm):
     """铣削进给速度 F = f_z·z·n（mm/min）。"""
     return fz * z_teeth * rpm

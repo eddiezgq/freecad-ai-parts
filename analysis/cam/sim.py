@@ -735,7 +735,8 @@ def simulate_mill(parsed, stock, tools, target=None, h=None, tol=0.01, on_move=N
                 a0, a1, b0, b1 = max(ix - k, 0), min(ix + k + 1, nx), max(iy - k, 0), min(iy + k + 1, ny)
                 sub = H[a0:a1, b0:b1]
                 msk = ((xs[a0:a1, None] - x) ** 2 + (ys[None, b0:b1] - y) ** 2) <= r1 * r1
-                if (msk & (sub > z + 0.05)).any():
+                bottom = top - float(stock["height"]) if stock.get("height") else -math.inf   # 毛坯底面以下是空的
+                if (msk & (sub > max(z, bottom) + 0.05)).any():
                     issues.append({"line": mv["line"], "level": "error",
                                    "text": f"攻丝前底孔没钻到位：丝锥 M{tl['d']:g} 到 Z{z:.2f} 处还有材料（底孔至少要到小径、到攻丝深度）"})
             continue

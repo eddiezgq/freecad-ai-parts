@@ -44,14 +44,52 @@ def _bit(tool: dict):
 
 
 def pocket_floors(shape, top: float) -> list[str]:
+    """型腔底：朝上、低于顶面的平面；沉孔的环形底面不算（沉孔另有工序，ADR-0106 Q3b）"""
+    from freecad_addon.fc import cam_doc
+
+    cb = [(h["x"], h["y"], h["cbore"]["d"]) for h in cam_doc.mill_holes(shape) if h["cbore"]]
     out = []
     for i, f in enumerate(shape.Faces):
         if type(f.Surface).__name__ != "Plane":
             continue
         n = f.normalAt(*f.ParameterRange[0::2])
         if n.z > 1 - 1e-9 and shape.BoundBox.ZMin + 1e-6 < f.BoundBox.ZMax < top - 1e-6:
+            bb = f.BoundBox
+            if any(abs(bb.Center.x - x) < 1e-3 and abs(bb.Center.y - y) < 1e-3 and abs(bb.XLength - d) < 1e-3 for x, y, d in cb):
+                continue
             out.append(f"Face{i + 1}")
     return out
+
+
+OWN = ("csink", "tap", "cbore")     # 问渠自己出刀路的孔工序（FreeCAD CAM 1.0 没有攻丝；锪孔口、沉孔按孔特征直接算）
+
+
+def sim_tool(t: dict, n: int) -> dict:
+    """cam-tool/1 刀具 → 中间格式程序里的刀（仿真用的种类、直径；丝锥的螺距，倒角刀的锥角、刀尖直径）"""
+    kind = {"drill": "drill", "tap": "tap", "chamfer_mill": "chamfer"}.get(t["kind"], "endmill")
+    out = {"n": n, "name": t.get("name", t["id"]), "d": float(t["diameter_mm"]), "kind": kind}
+    if kind == "tap":
+        out["pitch"] = float(t["pitch_mm"])
+    if kind == "chamfer":
+        out["angle"] = float(t["tip_angle_deg"])
+        out["tip_d"] = float(t.get("tip_diameter_mm", 0.0))
+    return out
+
+
+def own_moves(spec: dict) -> list[dict]:
+    """spec["holes"]：程序坐标（Z0 在零件顶面）。csink [(x, y, 孔口 z)]；tap [(x, y, 孔口 z, 攻到 z)]；cbore [(x, y, 孔口 z, 深)]"""
+    from analysis.cam import paths as P
+
+    t, k = spec["tool"], spec["type"]
+    if k == "csink":
+        return P.mill_csink(spec["holes"], spec["d"], float(t["tip_angle_deg"]), spec["feed_mm_min"],
+                            tip_d=float(t.get("tip_diameter_mm", 0.0)))
+    if k == "tap":
+        return P.mill_tap(spec["holes"], float(t["pitch_mm"]))
+    mv = []
+    for x, y, ze, dp in spec["holes"]:
+        mv += P.mill_cbore(x, y, spec["d"], dp, ze, float(t["diameter_mm"]), spec["step_down_mm"], spec["feed_mm_min"])
+    return mv
 
 
 def build_job(doc, model, ops: list[dict]):
@@ -205,16 +243,21 @@ def program(shape, ops: list[dict], *, number: int = 6001, title: str = "2.5 轴
         m = doc.addObject("Part::Feature", "Part")
         m.Shape = shape
         doc.recompute()
-        _job, made, top = build_job(doc, m, ops)
+        fc_ops = [o for o in ops if o["type"] not in OWN]
+        _job, made, top = build_job(doc, m, fc_ops) if fc_ops else (None, [], shape.BoundBox.ZMax)
+        done = iter(made)
         prog_ops = []
-        for spec, op in made:
-            mv = commands_to_moves(op.Path.Commands, top)
+        for spec0 in ops:
+            if spec0["type"] in OWN:
+                spec, mv, label = spec0, own_moves(spec0), spec0.get("title", spec0["type"])
+            else:
+                spec, op = next(done)
+                mv, label = commands_to_moves(op.Path.Commands, top), op.Label
             if not mv:
-                raise CamFcError(f"FreeCAD 的 {op.Label} 没有出刀路")
+                raise CamFcError(f"FreeCAD 的 {label} 没有出刀路")
             t = spec["tool"]
-            prog_ops.append({"tool": {"n": int(spec["number"]), "name": t.get("name", t["id"]), "d": float(t["diameter_mm"]),
-                                      "kind": "drill" if t["kind"] == "drill" else "endmill"},
-                             "spindle": {"rpm": float(spec["rpm"])}, "moves": mv, "title": op.Label,
+            prog_ops.append({"tool": sim_tool(t, int(spec["number"])),
+                             "spindle": {"rpm": float(spec["rpm"])}, "moves": mv, "title": label,
                              "safe": max((x["z"] for x in mv if x["t"] == "rapid"), default=5.0)})
         bb = shape.BoundBox
         stock = {"box": [bb.XMin, bb.YMin, bb.XMax, bb.YMax], "top": 0.0, "height": bb.ZLength}

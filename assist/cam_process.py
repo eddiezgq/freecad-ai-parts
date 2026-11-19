@@ -42,10 +42,12 @@ TEACH = {"rough": {"vc": 120.0, "f": 0.3, "ap": 2.5}, "finish": {"vc": 150.0, "f
          "groove": {"vc": 80.0, "f": 0.05}, "thread": {"vc": 60.0}, "drill": {"vc": 20.0, "f": 0.12},
          "bore": {"vc": 100.0, "f": 0.15, "ap": 1.0}, "pocket": {"vc": 100.0, "fz": 0.04, "ap": 5.0, "stepover": 0.45},
          "contour": {"vc": 100.0, "fz": 0.04, "ap": 5.0}, "slot": {"vc": 25.0, "fz": 0.03, "ap": 1.0},
-         "holes": {"vc": 20.0, "f": 0.12}, "face_groove": {"vc": 80.0, "f": 0.04}, "part": {"vc": 80.0, "f": 0.05}}
+         "holes": {"vc": 20.0, "f": 0.12}, "face_groove": {"vc": 80.0, "f": 0.04}, "part": {"vc": 80.0, "f": 0.05},
+         "cbore": {"vc": 100.0, "fz": 0.03, "ap": 2.0}, "csink": {"vc": 60.0, "f": 0.05}, "tap": {"vc": 10.0}}
 FEED = {"rough": "f", "finish": "f", "groove": "f", "thread": None, "drill": "f", "bore": "f",
-        "pocket": "fz", "contour": "fz", "slot": "fz", "holes": "f", "face_groove": "f", "part": "f"}
-HAS_AP = {"rough", "bore", "pocket", "contour", "slot"}
+        "pocket": "fz", "contour": "fz", "slot": "fz", "holes": "f", "face_groove": "f", "part": "f",
+        "cbore": "fz", "csink": "f", "tap": None}
+HAS_AP = {"rough", "bore", "pocket", "contour", "slot", "cbore"}
 TEACH_Z = {"pocket": 4, "contour": 4, "slot": 2}   # 刀具库没写刃数时的教学示意值（标“待确认”）
 
 

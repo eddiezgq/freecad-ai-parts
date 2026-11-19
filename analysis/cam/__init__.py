@@ -672,7 +672,7 @@ def _mill(setup, mach):
 
 # ---------------------------------------------------------------- 外来刀路（FreeCAD CAM 等）
 MOVE_KEYS = {"rapid": ("x", "y", "z"), "feed": ("x", "y", "z", "f"), "drill": ("x", "y", "z", "r", "f"),
-             "tap": ("x", "y", "z", "r", "pitch")}
+             "tap": ("x", "y", "z", "r", "pitch"), "comment": ("text",)}
 
 
 def _program(setup, mach):
@@ -707,7 +707,8 @@ def _program(setup, mach):
     checks = sim.machine_checks(parsed, mach)
     tm = sim.timing(parsed, mach)
     hook, extra = _msim_hook(setup, mach, parsed)
-    s = sim.simulate_mill(parsed, {"box": box, "top": 0.0}, tools, on_move=hook)
+    s = sim.simulate_mill(parsed, {"box": box, "top": 0.0, **({"height": float(stock["height"])} if stock.get("height") else {})},
+                          tools, on_move=hook)
     checks += s["issues"]
     # 每段切深、切宽按刀具样本核对（外来刀路也查；超出 ap 是错误，经整机仿真结论扣下程序）
     limits = {int(op["tool"]["n"]): {"name": op["tool"].get("name"), **{k: float(op["tool"][k]) for k in ("ap_max", "ae_max") if op["tool"].get(k)}}
