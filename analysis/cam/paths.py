@@ -642,6 +642,39 @@ def mill_cbore(x, y, d_cb, depth, z_entry, tool_d, step_down, f, safe=5.0, seg_d
     return mv
 
 
+def mill_thread(holes, d_major, pitch, tool_d, f, teeth_len=0.0, safe=5.0, seg_deg=5.0):
+    """铣内螺纹（右旋，顺铣：从孔底往上、逆时针螺旋，每圈升一个螺距）：holes [(x, y, z 孔口, z 螺纹底)]。
+    刀心半径 rc = (D − 刀径)/2；从孔中心走半圆切入到 rc，螺旋到孔口以上半个螺距，再半圆切出回中心。
+    多齿螺纹铣刀（teeth_len：有齿的长度 ≥ 螺纹长）只走一圈；单齿（teeth_len = 0）走 螺纹长/P 圈。
+    f 是刀心进给（刀刃处的进给 × rc / (D/2) 由调用方换算）。"""
+    rc = (d_major - tool_d) / 2
+    if rc <= 0:
+        raise CamError(f"螺纹铣刀 Ø{tool_d:g} 不比螺纹大径 Ø{d_major:g} 小，进不了孔")
+    n_seg = math.ceil(360 / seg_deg)
+    mv = [{"t": "comment", "text": f"铣内螺纹 M{d_major:g}×{pitch:g}（刀 Ø{tool_d:g}，逆时针往上，顺铣）"}]
+    for x, y, ze, zb in holes:
+        length = ze - zb
+        turns = 1 if teeth_len >= length - 1e-9 else math.ceil((length + pitch / 2) / pitch - 1e-9)
+        mv += [{"t": "rapid", "x": x, "y": y, "z": safe}, {"t": "rapid", "x": x, "y": y, "z": ze + 1.0},
+               {"t": "feed", "x": x, "y": y, "z": zb, "f": f}]
+        # 半圆切入：圆心 (x + rc/2, y)，从中心转到 (x + rc, y)，同时升 1/4 螺距（与螺旋接上）
+        for q in range(1, n_seg // 2 + 1):
+            a = math.pi - math.pi * q / (n_seg // 2)
+            mv.append({"t": "feed", "x": x + rc / 2 + rc / 2 * math.cos(a), "y": y - rc / 2 * math.sin(a),
+                       "z": zb + pitch / 4 * q / (n_seg // 2), "f": f})
+        z0 = zb + pitch / 4
+        for q in range(1, turns * n_seg + 1):
+            a = 2 * math.pi * q / n_seg
+            mv.append({"t": "feed", "x": x + rc * math.cos(a), "y": y + rc * math.sin(a), "z": z0 + pitch * q / n_seg, "f": f})
+        z1 = mv[-1]["z"]
+        for q in range(1, n_seg // 2 + 1):                     # 半圆切出回中心
+            a = -math.pi * q / (n_seg // 2)
+            mv.append({"t": "feed", "x": x + rc / 2 + rc / 2 * math.cos(a), "y": y - rc / 2 * math.sin(a),
+                       "z": z1 + pitch / 4 * q / (n_seg // 2), "f": f})
+        mv.append({"t": "rapid", "x": x, "y": y, "z": safe})
+    return mv
+
+
 def lead_arcs(moves, r, safe=5.0, seg_deg=5.0):
     """外轮廓加圆弧切入、切出（ADR-0106 Q3b）：每一层“在 P 直下刀 → 沿封闭轮廓走一圈回到 P”改成
     安全高度移到 S → 下到上一层深度上方 0.5 → 进给下刀到本层 → 四分之一圆弧（半径 r、与轮廓相切）切到 P → 走一圈 →

@@ -508,6 +508,35 @@
     "kind": "example",
     "ref": "虚构示例"
    }
+  },
+  {
+   "id": "TM6",
+   "number": 25,
+   "name": "单齿螺纹铣刀 Ø6 60°（虚构）",
+   "kind": "thread_mill",
+   "diameter_mm": 6.0,
+   "thread_angle_deg": 60,
+   "flutes": 3,
+   "flute_length_mm": 20.0,
+   "shank_diameter_mm": 6.0,
+   "tool_material": "carbide",
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60,
+      "max": 120
+     },
+     "fz_mm": {
+      "min": 0.02,
+      "max": 0.05
+     }
+    }
+   ],
+   "source": {
+    "kind": "example",
+    "ref": "虚构示例"
+   }
   }
  ]
 }

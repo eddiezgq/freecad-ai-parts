@@ -64,14 +64,14 @@ def pocket_floors(shape, top: float) -> list[str]:
     return out
 
 
-OWN = ("csink", "tap", "cbore", "chamfer")   # 问渠自己出刀路的工序（FreeCAD CAM 1.0 没有攻丝；锪孔口、沉孔按孔特征直接算；
+OWN = ("csink", "tap", "cbore", "chamfer", "thread_mill")   # 问渠自己出刀路的工序（FreeCAD CAM 1.0 没有攻丝；锪孔口、沉孔按孔特征直接算；
                                              # 倒角 FreeCAD Deburr 遇到型腔口的倒角算不出来，改为按倒角面自己算）
 CHAMFER_EXTRA = 0.5      # 倒角刀刀尖比倒角底边再低 0.5 mm，不用刀尖切
 
 
 def sim_tool(t: dict, n: int) -> dict:
     """cam-tool/1 刀具 → 中间格式程序里的刀（仿真用的种类、直径；丝锥的螺距，倒角刀的锥角、刀尖直径）"""
-    kind = {"drill": "drill", "tap": "tap", "chamfer_mill": "chamfer"}.get(t["kind"], "endmill")
+    kind = {"drill": "drill", "tap": "tap", "chamfer_mill": "chamfer", "thread_mill": "thread_mill"}.get(t["kind"], "endmill")
     out = {"n": n, "name": t.get("name", t["id"]), "d": float(t["diameter_mm"]), "kind": kind}
     if kind == "tap":
         out["pitch"] = float(t["pitch_mm"])
@@ -135,6 +135,9 @@ def own_moves(spec: dict, shape=None) -> list[dict]:
                             tip_d=float(t.get("tip_diameter_mm", 0.0)))
     if k == "tap":
         return P.mill_tap(spec["holes"], float(t["pitch_mm"]))
+    if k == "thread_mill":
+        teeth = float(t.get("flute_length_mm", 0.0)) if t.get("pitch_mm") else 0.0     # 多齿（写了螺距）按有齿长度；单齿走多圈
+        return P.mill_thread(spec["holes"], spec["d"], spec["pitch"], float(t["diameter_mm"]), spec["feed_mm_min"], teeth_len=teeth)
     mv = []
     for x, y, ze, dp in spec["holes"]:
         mv += P.mill_cbore(x, y, spec["d"], dp, ze, float(t["diameter_mm"]), spec["step_down_mm"], spec["feed_mm_min"])
@@ -347,7 +350,10 @@ def program(shape, ops: list[dict], *, number: int = 6001, title: str = "2.5 轴
                 raise CamFcError(f"FreeCAD 的 {label} 没有出刀路")
             t = spec["tool"]
             extra = {"ae_set": float(spec.get("step_over_pct", 20)) / 100 * float(t["diameter_mm"])} if spec["type"] == "adaptive" else {}
-            prog_ops.append({**extra, "tool": sim_tool(t, int(spec["number"])),
+            st = sim_tool(t, int(spec["number"]))
+            if st["kind"] == "thread_mill":           # 齿根直径 = 刀径 − 2 × 内螺纹牙深（ISO 68-1：0.5413P）
+                st["core_d"] = float(t["diameter_mm"]) - 1.0825 * float(spec["pitch"])
+            prog_ops.append({**extra, "tool": st,
                              "spindle": {"rpm": float(spec["rpm"])}, "moves": mv, "title": label,
                              "safe": max((x["z"] for x in mv if x["t"] == "rapid"), default=5.0)})
         bb = shape.BoundBox

@@ -204,3 +204,26 @@ def test_adaptive_width_warning():
     a = p["sim"]["adaptive"][0]
     assert a["ae_max"] > 9.0                    # 满刀宽（网格 0.2，弯月牙两头细、量出来略小于 10）
     assert any(c["level"] == "warn" and "切宽没保持住" in c["text"] for c in p["checks"])
+
+
+def test_thread_milling_helix():
+    """铣 M10×1.5 内螺纹（单齿 Ø6 刀，螺纹长 15）：刀心走半径 (10 − 6)/2 = 2 的螺旋，每圈升 1.5（右旋、逆时针往上），
+    圈数 = ⌈(15 + 0.75)/1.5⌉ = 11；切入切出都与螺旋相切；去料按齿根圆柱算正好到小径 D1 = D − 1.0825P"""
+    import numpy as np
+
+    from analysis.cam import paths as P
+
+    mv = P.mill_thread([(30.0, 30.0, 0.0, -15.0)], 10.0, 1.5, 6.0, 120.0)
+    feeds = [m for m in mv if m["t"] == "feed"]
+    hel = [m for m in feeds if abs(math.hypot(m["x"] - 30, m["y"] - 30) - 2.0) < 1e-9]
+    zs = np.array([m["z"] for m in hel])
+    ang = np.unwrap(np.arctan2([m["y"] - 30 for m in hel], [m["x"] - 30 for m in hel]))
+    rise = np.polyfit(ang, zs, 1)[0] * 2 * math.pi                       # 每转一圈升多少
+    record(("铣螺纹螺旋每圈上升（M10×1.5）", "thread milling helix rise per turn (M10×1.5)"), rise, 1.5, tol=1e-9, rel=False, unit="mm",
+           formula="Δz = P / 圈")
+    assert rise == pytest.approx(1.5) and (ang[-1] - ang[0]) / (2 * math.pi) == pytest.approx(11, abs=0.05)
+    assert np.all(np.diff(ang) > 0)                                        # 逆时针
+    core = 6.0 - 1.0825 * 1.5
+    assert 2.0 + core / 2 == pytest.approx((10 - 1.0825 * 1.5) / 2)        # 去料到小径
+    with pytest.raises(P.CamError, match="进不了孔"):
+        P.mill_thread([(0, 0, 0, -5)], 10.0, 1.5, 10.0, 100.0)

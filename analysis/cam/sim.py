@@ -690,7 +690,8 @@ def _in_polygon(X, Y, poly):
 
 def simulate_mill(parsed, stock, tools, target=None, h=None, tol=0.01, on_move=None):
     """stock：{"box": (xmin, ymin, xmax, ymax), "top": 0} 或 {"polygon": [[x, y], ..], "top": 0}（轴上铣键槽另给 "cyl_r"）
-    tools：{刀号: {"kind": "endmill" | "drill" | "tap" | "chamfer", "d": 直径, "pitch": 丝锥螺距, "tip_d": 倒角刀刀尖直径, "angle": 倒角刀锥角}}
+    tools：{刀号: {"kind": "endmill" | "drill" | "tap" | "chamfer" | "thread_mill", "d": 直径, "pitch": 丝锥螺距, "tip_d": 倒角刀刀尖直径,
+           "angle": 倒角刀锥角, "core_d": 螺纹铣刀齿根直径}}
     target(x, y 网格) → 目标高度数组（None 表示不比对）。返回高度图、碰撞、过切 / 残留
     on_move(mv, H, xs, ys)：每段走刀切削之前调用（整机仿真查刀杆、刀柄碰剩下的材料，machine_sim.heightmap_hook）"""
     poly = np.asarray(stock["polygon"], float) if stock.get("polygon") else None
@@ -721,7 +722,7 @@ def simulate_mill(parsed, stock, tools, target=None, h=None, tol=0.01, on_move=N
         tl = tools.get(mv["tool"])
         if not tl:
             continue
-        R = tl["d"] / 2
+        R = (tl["core_d"] if tl.get("kind") == "thread_mill" else tl["d"]) / 2   # 螺纹铣刀：牙不画，按齿根圆柱去料（到小径）
         k = math.ceil(R / h) + 1
         if mv.get("tap") is not None or tl.get("kind") == "tap":   # 丝锥：不按切削去料；查底孔钻到位、螺距与丝锥一致（ADR-0106 Q3b）
             if mv["t"] != "rapid" and mv["b"][2] < mv["a"][2]:

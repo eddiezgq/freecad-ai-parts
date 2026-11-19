@@ -23,8 +23,8 @@ STATUS = ["草稿", "已确认"]
 TURN_KINDS = {"rough": "粗车外圆", "finish": "精车外圆", "groove": "切槽", "thread": "车螺纹", "drill": "钻孔", "bore": "镗孔",
               "face_groove": "端面槽", "part": "切断"}
 MILL_KINDS = {"face": "面铣", "pocket": "铣型腔", "adaptive": "自适应开粗", "rest": "残料清角", "profile": "铣外轮廓", "drill": "钻孔", "cbore": "铣沉孔", "csink": "锪孔口", "tap": "攻丝",
-              "chamfer": "倒角"}
-HOLE_KINDS = ("cbore", "csink", "tap")     # 按孔特征出刀路（ADR-0106 Q3b）：孔表存在工序的 HoleData 里
+              "chamfer": "倒角", "thread_mill": "铣螺纹"}
+HOLE_KINDS = ("cbore", "csink", "tap", "thread_mill")     # 按孔特征出刀路（ADR-0106 Q3b）：孔表存在工序的 HoleData 里
 TURN_TOOL_N = {"rough": 1, "finish": 2, "groove": 3, "thread": 4, "drill": 5, "bore": 6, "part": 8, "face_groove": 9}
 
 
@@ -470,7 +470,10 @@ def _mill_spec(job, op):
         if not hd.get("holes"):
             raise CamObjError(f"{op.Label} 没有要加工的孔")
         spec = {"type": op.OpKind, "tool": tool, "number": op.ToolNumber, "rpm": round(rpm), "d": float(hd["d"]),
-                "holes": [tuple(h) for h in hd["holes"]], "title": op.Label}
+                "holes": [tuple(h) for h in hd["holes"]], "title": op.Label, **({"pitch": hd["pitch"]} if "pitch" in hd else {})}
+        if op.OpKind == "thread_mill":
+            rc = (float(hd["d"]) - d) / 2
+            spec["feed_mm_min"] = round(op.Feed * (tool.get("flutes") or 3) * rpm * rc / (float(hd["d"]) / 2), 1)
         if op.OpKind == "csink":
             spec["feed_mm_min"] = round(op.Feed * rpm, 1)
         elif op.OpKind == "cbore":
@@ -614,7 +617,7 @@ def _mill_op_from_plan(setup, spec, row):
                 ap=p.get("ap", 0.0), stepover=p.get("stepover", 0.0), reason=row.get("reason", ""))
     op.Label = T(row["title"])
     if spec["type"] in HOLE_KINDS:
-        op.HoleData = json.dumps({"d": spec["d"], "holes": [list(h) for h in spec["holes"]]})
+        op.HoleData = json.dumps({"d": spec["d"], "holes": [list(h) for h in spec["holes"]], **({"pitch": spec["pitch"]} if "pitch" in spec else {})})
     if spec["type"] == "chamfer":                  # 倒角：哪些倒角面、多宽
         op.HoleData = json.dumps({"faces": spec["faces"], "width": spec["width"]})
     op.Check = "在样本范围内" if row["status"] == "pass" else "待确认"
@@ -694,6 +697,7 @@ def add_op(setup, kind: str):
         flags = {k: k == kind for k in ("face", "pocket", "adaptive", "rest", "profile", "drill", "chamfer")}
         flags["holes"] = kind in HOLE_KINDS
         flags["taps"] = kind == "tap"
+        flags["thread_mill"] = kind == "thread_mill"
         try:
             plan = cam_doc.mill_plan(job.Model.Shape, _lib(job), S.iso_group(job.Kienzle),
                                      max_rpm=float(machines.get(job.Machine)["max_rpm"]), stock_top=float(getattr(job, "StockTop", 0.0)),
@@ -803,8 +807,10 @@ def build_setup(job) -> dict:
             cc = TL.cutting_for(t, _S.iso_group(job.Kienzle)) or {}          # 刀具样本的 ap、ae 上限：仿真逐段核对（ADR-0106 Q3b）
             from freecad_addon.fc import cam_fc
 
+            core = ({"core_d": float(t["diameter_mm"]) - 1.0825 * float(_js(o, "HoleData", {})["pitch"])}
+                    if o.OpKind == "thread_mill" else {})              # 螺纹铣刀按齿根圆柱去料
             prog_ops.append({**({"ae_set": (o.StepOver or 0.2) * float(t["diameter_mm"])} if o.OpKind == "adaptive" else {}),
-                             "tool": {**cam_fc.sim_tool(t, o.ToolNumber),
+                             "tool": {**cam_fc.sim_tool(t, o.ToolNumber), **core,
                                       **({"ap_max": cc["ap_max_mm"]} if "ap_max_mm" in cc else {}),
                                       **({"ae_max": cc["ae_max_mm"]} if "ae_max_mm" in cc else {})},
                              "spindle": _js(o, "Spindle", {}), "moves": mv, "title": o.Label,

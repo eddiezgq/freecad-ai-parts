@@ -46,12 +46,12 @@ TEACH = {"rough": {"vc": 120.0, "f": 0.3, "ap": 2.5}, "finish": {"vc": 150.0, "f
          "cbore": {"vc": 100.0, "fz": 0.03, "ap": 2.0}, "csink": {"vc": 60.0, "f": 0.05}, "tap": {"vc": 10.0},
          "face": {"vc": 120.0, "fz": 0.08, "ap": 1.0}, "chamfer": {"vc": 80.0, "fz": 0.03},
          "adaptive": {"vc": 100.0, "fz": 0.04, "ap": 10.0, "stepover": 0.2},
-         "rest": {"vc": 100.0, "fz": 0.03, "ap": 4.0, "stepover": 0.4}}
+         "rest": {"vc": 100.0, "fz": 0.03, "ap": 4.0, "stepover": 0.4}, "thread_mill": {"vc": 80.0, "fz": 0.03}}
 FEED = {"rough": "f", "finish": "f", "groove": "f", "thread": None, "drill": "f", "bore": "f",
         "pocket": "fz", "contour": "fz", "slot": "fz", "holes": "f", "face_groove": "f", "part": "f",
-        "cbore": "fz", "csink": "f", "tap": None, "face": "fz", "chamfer": "fz", "adaptive": "fz", "rest": "fz"}
+        "cbore": "fz", "csink": "f", "tap": None, "face": "fz", "chamfer": "fz", "adaptive": "fz", "rest": "fz", "thread_mill": "fz"}
 HAS_AP = {"rough", "bore", "pocket", "contour", "slot", "cbore", "face", "adaptive", "rest"}
-TEACH_Z = {"pocket": 4, "contour": 4, "slot": 2, "face": 4, "cbore": 4, "chamfer": 2, "adaptive": 4, "rest": 4}   # 刀具库没写刃数时的教学示意值（标“待确认”）
+TEACH_Z = {"pocket": 4, "contour": 4, "slot": 2, "face": 4, "cbore": 4, "chamfer": 2, "adaptive": 4, "rest": 4, "thread_mill": 3}   # 刀具库没写刃数时的教学示意值（标“待确认”）
 
 
 class ProcessError(ValueError):

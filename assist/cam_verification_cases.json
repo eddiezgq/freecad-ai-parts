@@ -452,6 +452,16 @@
     "en": "Tapping without a core hole or with wrong pitch must be reported"
    },
    "source": "人工设定的错误程序 / deliberately wrong programs"
+  },
+  {
+   "id": "CAM-44",
+   "test": "tests/test_cam_mill_q3b.py::test_thread_milling_helix",
+   "category": "geom",
+   "title": {
+    "zh": "铣螺纹螺旋每圈上升一个螺距",
+    "en": "Thread milling helix rises one pitch per turn"
+   },
+   "source": "Δz = P"
   }
  ]
 }

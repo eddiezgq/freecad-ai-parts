@@ -62,6 +62,9 @@ class Tool:
             r0 = float(spec.get("tip_d") or 0.0) / 2
             hc = (R - r0) / math.tan(math.radians(float(spec.get("angle") or 90.0)) / 2)
             return cls([(0.0, hc, r0, R), (hc, max(L, hc + _EPS), R, R)])
+        if kind == "thread_mill":                # 螺纹铣刀：牙不画，按齿根圆柱算
+            rc = float(spec.get("core_d") or d) / 2
+            return cls([(0.0, L, rc, rc)])
         if kind == "tap":                        # 丝锥：螺纹不画，按小径的圆柱算（不切掉攻丝底孔以外的料）
             rm = (d - 1.0825 * float(spec.get("pitch") or 0.0)) / 2
             return cls([(0.0, L, rm, rm)])

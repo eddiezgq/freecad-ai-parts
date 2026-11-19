@@ -58,13 +58,16 @@ def test_hole_plate_model_to_program():
         m.Shape = hole_plate()
         doc.recompute()
         job = CO.new_job(doc, m, "mill", post="fanuc")
-        job.ToolLengths = json.dumps({k: 130 for k in ("EM6", "DR8.5", "DR6.6", "DR6.8", "DR9", "CM90", "TAP-M10", "TAP-M8")})
+        job.ToolLengths = json.dumps({k: 130 for k in ("EM6", "DR8.5", "DR6.6", "DR6.8", "DR9", "CM90", "TAP-M10", "TAP-M8", "TM6")})
         d = CO.draft(job)
         s = CO.setups(job)[0]
         kinds = [o.OpKind for o in CO.ops(s)]
         assert kinds.count("drill") == 4 and kinds[-2:] == ["cbore", "csink"], kinds
         # 螺纹孔是推测的：起草不加攻丝，只在说明里提；人确认后新建“攻丝”工序（同一种螺纹的孔一道）
         assert sum("推测是螺纹孔" in n for n in d["notes"]) == 2, d["notes"]
+        tm = CO.add_op(s, "thread_mill")                # 铣螺纹（M8：Ø6 单齿螺纹铣刀比小径 6.65 − 0.5 小；M10 同一把刀）
+        assert tm.ToolId == "TM6" and "推测" in tm.Reason and json.loads(tm.HoleData)["pitch"] == pytest.approx(1.25)
+        CO.confirm(tm)
         taps = [CO.add_op(s, "tap"), CO.add_op(s, "tap")]
         assert all(o.Check == "待确认" and "推测" in o.Reason for o in taps)
         assert sorted(json.loads(o.HoleData)["d"] for o in taps) == [8.0, 10.0]

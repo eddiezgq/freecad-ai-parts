@@ -405,8 +405,15 @@ def hole_ops(shape, lib: dict) -> list[dict]:
         guess = f"Ø{grp[0]['d']:g} 是 M{d:g}×{pch:g} 的攻丝底孔，推测是螺纹孔（模型上没画螺纹），确认后再用"
         rule = f"盲孔攻到孔深 − {TAP_RUNOUT_P:g}P，通孔攻出底面 2P"
         miss = f"刀具库里没有 M{d:g}×{pch:g} 的丝锥"
-        out.append({"kind": "tap", "title": f"攻丝 M{d:g}×{pch:g}（推测）", "tool": t, "d": d, "holes": holes, "guess": guess,
+        out.append({"kind": "tap", "title": f"攻丝 M{d:g}×{pch:g}（推测）", "tool": t, "d": d, "pitch": pch, "holes": holes, "guess": guess,
                     "note": "；".join([guess, rule] + ([] if t else [miss]))})
+        d1 = d - 1.0825 * pch                      # 螺纹铣刀要比小径小，留 0.5 mm 让刀
+        tm = sorted((t for t in lib["tools"] if t["kind"] == "thread_mill" and t.get("diameter_mm", 99) < d1 - 0.5
+                     and (not t.get("pitch_mm") or abs(t["pitch_mm"] - pch) < 1e-6)
+                     and abs(float(t.get("thread_angle_deg", 60)) - 60) < 0.5), key=lambda t: -t["diameter_mm"])
+        out.append({"kind": "thread_mill", "title": f"铣螺纹 M{d:g}×{pch:g}（推测）", "tool": tm[0] if tm else None, "d": d, "pitch": pch,
+                    "holes": holes, "guess": guess,
+                    "note": "；".join([guess, rule] + ([] if tm else [f"刀具库里没有能铣 M{d:g}×{pch:g} 的螺纹铣刀"]))})
     return out
 
 
@@ -438,7 +445,8 @@ def chamfer_faces(shape) -> list[dict]:
 
 def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, adaptive: bool = False, rest: bool = False, profile: bool = True,
               drill: bool = True,
-              holes: bool = True, taps: bool = False, face: bool = False, chamfer: bool = True, stock_top: float = 0.0,
+              holes: bool = True, taps: bool = False, thread_mill: bool = False, face: bool = False, chamfer: bool = True,
+              stock_top: float = 0.0,
               max_rpm: float = 1e9) -> dict:
     """铣削件（零件实体）→ FreeCAD CAM 的工序（cam_fc.program 的 ops）与工艺卡的工序表。
     选刀：型腔取刀径不超过型腔底面窄边一半的最大平底刀；外轮廓取最大的平底刀；每种孔径取直径相同的钻头。
@@ -461,6 +469,11 @@ def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, adaptive: bool
         elif kind in ("csink", "tap"):
             spec = {"type": kind, "tool": tool, "number": n, "rpm": round(rpm),
                     "feed_mm_min": round(params["f"] * rpm, 1) if kind == "csink" else 0.0, **extra}
+        elif kind == "thread_mill":                # 刀心进给 = 刀刃处进给 × 刀心半径 / 螺纹半径
+            z = tool.get("flutes") or CP.TEACH_Z["thread_mill"]
+            rc = (extra["d"] - d) / 2
+            spec = {"type": kind, "tool": tool, "number": n, "rpm": round(rpm),
+                    "feed_mm_min": round(params["fz"] * z * rpm * rc / (extra["d"] / 2), 1), **extra}
         elif kind == "chamfer":
             z = tool.get("flutes") or CP.TEACH_Z["chamfer"]
             feed = params["fz"] * z * rpm
@@ -539,13 +552,16 @@ def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, adaptive: bool
             if ho["kind"] == "tap" and not taps:     # 螺纹孔是推测的：起草不自动加攻丝，写进说明，人确认后“新建工序 → 攻丝”
                 notes.append(ho["guess"] + "；" + "要攻丝就在“新建工序”里加“攻丝”")
                 continue
+            if ho["kind"] == "thread_mill" and not thread_mill:      # 铣螺纹同理：只在“新建工序 → 铣螺纹”时加
+                continue
             if ho["tool"] is None:
                 notes.append(ho["note"])
                 continue
-            add(ho["kind"], ho["title"], ho["tool"], {"holes": ho["holes"], "d": ho["d"], "title": ho["title"]})
+            add(ho["kind"], ho["title"], ho["tool"], {"holes": ho["holes"], "d": ho["d"], "title": ho["title"],
+                                                      **({"pitch": ho["pitch"]} if "pitch" in ho else {})})
             if ho["note"]:
                 card[-1]["reason"] = ho["note"]
-                if ho["kind"] == "tap":
+                if ho["kind"] in ("tap", "thread_mill"):
                     card[-1]["status"] = "unknown"          # 推测的螺纹孔：一定要人确认
     if chamfer:                                 # 顶边倒角：倒角刀沿边走（FreeCAD Deburr），同宽同角的一道工序
         groups: dict = {}

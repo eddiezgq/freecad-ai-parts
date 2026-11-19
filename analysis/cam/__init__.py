@@ -698,7 +698,7 @@ def _program(setup, mach):
             if any(mv.get(x) is None for x in need):
                 raise SetupError(f"第 {k} 道工序的 {mv['t']} 动作缺 {', '.join(x for x in need if mv.get(x) is None)}")
         tools[int(t["n"])] = {"kind": t.get("kind", "endmill"), "d": float(t["d"]),
-                              **{k: float(t[k]) for k in ("pitch", "tip_d", "angle") if t.get(k) is not None}}
+                              **{k: float(t[k]) for k in ("pitch", "tip_d", "angle", "core_d") if t.get(k) is not None}}
     stock = setup.get("stock") or {}
     if len(stock.get("box") or []) != 4:
         raise SetupError("要给毛坯 stock.box = [x0, y0, x1, y1]（上表面 Z0）")
@@ -714,7 +714,7 @@ def _program(setup, mach):
     checks += s["issues"]
     # 每段切深、切宽按刀具样本核对（外来刀路也查；超出 ap 是错误，经整机仿真结论扣下程序）
     limits = {int(op["tool"]["n"]): {"name": op["tool"].get("name"), **{k: float(op["tool"][k]) for k in ("ap_max", "ae_max") if op["tool"].get(k)}}
-              for op in ops if (op.get("tool") or {}).get("kind", "endmill") not in ("drill", "tap", "chamfer")}
+              for op in ops if (op.get("tool") or {}).get("kind", "endmill") not in ("drill", "tap", "chamfer", "thread_mill")}
     adaptive = adaptive_width(parsed, ops, s["h"])
     for a in adaptive:
         if a["ae_max"] > a["ae_set"] * ADAPTIVE_OVER + s["h"]:

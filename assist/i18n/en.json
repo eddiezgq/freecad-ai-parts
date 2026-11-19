@@ -1875,5 +1875,10 @@
 "自适应开粗": "Adaptive roughing",
 "残料清角": "Rest machining",
 "残料清角：刀具库里没有比 Ø{} 小的平底立铣刀": "Rest machining: the tool library has no flat end mill smaller than Ø{}",
-"工序类型 {} 不认识：face、pocket、rest、adaptive、profile、drill": "Unknown operation type {}: face, pocket, rest, adaptive, profile, drill"
+"工序类型 {} 不认识：face、pocket、rest、adaptive、profile、drill": "Unknown operation type {}: face, pocket, rest, adaptive, profile, drill",
+"螺纹铣刀 Ø{} 不比螺纹大径 Ø{} 小，进不了孔": "Thread mill Ø{} is not smaller than the major diameter Ø{}; it does not fit in the hole",
+"铣内螺纹 M{}×{}（刀 Ø{}，逆时针往上，顺铣）": "Thread milling M{}×{} (tool Ø{}, counter-clockwise upwards, climb milling)",
+"刀具库里没有能铣 M{}×{} 的螺纹铣刀": "the tool library has no thread mill for M{}×{}",
+"铣螺纹 M{}×{}（推测）": "Thread milling M{}×{} (presumed)",
+"铣螺纹": "Thread milling"
 }
