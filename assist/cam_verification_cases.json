@@ -1,0 +1,197 @@
+{
+ "about": "问渠CAM 验证手册的题目清单（ADR-0104 第 6 节，C1）：每题对应一个标准题测试；手册里的数字由这些测试在运行时记下（tests/verification.py）。",
+ "categories": {
+  "time": {
+   "zh": "加工时间与切削功率",
+   "en": "Machining time and cutting power"
+  },
+  "kin": {
+   "zh": "机床运动学",
+   "en": "Machine kinematics"
+  },
+  "geom": {
+   "zh": "碰撞判断、材料去除与几何",
+   "en": "Collision tests, material removal and geometry"
+  },
+  "must": {
+   "zh": "必须报出的错误",
+   "en": "Errors that must be reported"
+  },
+  "post": {
+   "zh": "后处理",
+   "en": "Post processors"
+  }
+ },
+ "cases": [
+  {
+   "id": "CAM-01",
+   "test": "tests/test_cam_benchmarks.py::test_turning_time_g97_and_g96",
+   "category": "time",
+   "title": {
+    "zh": "车削基本时间（G97 定转速与 G96 恒线速）",
+    "en": "Turning time (G97 constant speed and G96 constant surface speed)"
+   },
+   "source": "t = L/(f·n)，n = 1000·vc/(π·d) / t = L/(f·n), n = 1000·vc/(π·d)"
+  },
+  {
+   "id": "CAM-02",
+   "test": "tests/test_cam_benchmarks.py::test_kienzle_turning_power",
+   "category": "time",
+   "title": {
+    "zh": "Kienzle 车削切削功率",
+    "en": "Kienzle turning cutting power"
+   },
+   "source": "Kienzle–Victor 公式 / Kienzle–Victor formula"
+  },
+  {
+   "id": "CAM-03",
+   "test": "tests/test_cam_benchmarks.py::test_milling_feed_time",
+   "category": "time",
+   "title": {
+    "zh": "铣削进给时间",
+    "en": "Milling feed time"
+   },
+   "source": "t = L/vf / t = L/vf"
+  },
+  {
+   "id": "CAM-04",
+   "test": "tests/test_cam_benchmarks.py::test_thread_time",
+   "category": "time",
+   "title": {
+    "zh": "车螺纹时间",
+    "en": "Threading time"
+   },
+   "source": "t = 刀数·L/(P·n) / t = passes·L/(P·n)"
+  },
+  {
+   "id": "CAM-05",
+   "test": "tests/test_cam_benchmarks.py::test_inverse_round_trip[cradle-AC]",
+   "category": "kin",
+   "title": {
+    "zh": "逆解往返：摇篮式 AC",
+    "en": "Inverse round trip: trunnion AC"
+   },
+   "source": "正解(逆解) = 恒等 / forward(inverse) = identity"
+  },
+  {
+   "id": "CAM-06",
+   "test": "tests/test_cam_benchmarks.py::test_inverse_round_trip[head-BC]",
+   "category": "kin",
+   "title": {
+    "zh": "逆解往返：摆头 BC",
+    "en": "Inverse round trip: head-head BC"
+   },
+   "source": "正解(逆解) = 恒等 / forward(inverse) = identity"
+  },
+  {
+   "id": "CAM-07",
+   "test": "tests/test_cam_benchmarks.py::test_inverse_round_trip[head-table]",
+   "category": "kin",
+   "title": {
+    "zh": "逆解往返：摆头 B + 转台 C",
+    "en": "Inverse round trip: head B + table C"
+   },
+   "source": "正解(逆解) = 恒等 / forward(inverse) = identity"
+  },
+  {
+   "id": "CAM-08",
+   "test": "tests/test_cam_benchmarks.py::test_forward_kinematics_by_hand",
+   "category": "kin",
+   "title": {
+    "zh": "正解与手算",
+    "en": "Forward kinematics vs hand calculation"
+   },
+   "source": "绕定点转动 / Rotation about a fixed point"
+  },
+  {
+   "id": "CAM-09",
+   "test": "tests/test_cam_benchmarks.py::test_gjk_vs_separating_axis",
+   "category": "geom",
+   "title": {
+    "zh": "碰撞判断与分离轴定理",
+    "en": "Collision test vs separating-axis theorem"
+   },
+   "source": "分离轴定理 / Separating-axis theorem"
+  },
+  {
+   "id": "CAM-10",
+   "test": "tests/test_cam_benchmarks.py::test_pocket_removed_volume",
+   "category": "geom",
+   "title": {
+    "zh": "型腔去除体积",
+    "en": "Pocket removed volume"
+   },
+   "source": "解析体积 / Analytical volume"
+  },
+  {
+   "id": "CAM-11",
+   "test": "tests/test_cam_benchmarks.py::test_turned_volume_matches_design",
+   "category": "geom",
+   "title": {
+    "zh": "车削后体积",
+    "en": "Turned part volume"
+   },
+   "source": "π∫r²dz / π∫r²dz"
+  },
+  {
+   "id": "CAM-12",
+   "test": "tests/test_cam_benchmarks.py::test_thread_root_and_bore_diameters",
+   "category": "geom",
+   "title": {
+    "zh": "螺纹牙底与内孔直径",
+    "en": "Thread root and bore diameters"
+   },
+   "source": "ISO 965-1 / ISO 965-1"
+  },
+  {
+   "id": "CAM-13",
+   "test": "tests/test_cam_benchmarks.py::test_known_collisions_are_reported",
+   "category": "must",
+   "title": {
+    "zh": "已知会撞的必须报出",
+    "en": "Known collisions must be reported"
+   },
+   "source": "人工设定的碰撞 / Deliberately set-up collisions"
+  },
+  {
+   "id": "CAM-14",
+   "test": "tests/test_cam_benchmarks.py::test_known_overcut_and_rapid_into_stock_are_reported",
+   "category": "must",
+   "title": {
+    "zh": "已知过切、快移撞料必须报出",
+    "en": "Known overcut and rapid into stock must be reported"
+   },
+   "source": "人工设定的错误程序 / Deliberately wrong programs"
+  },
+  {
+   "id": "CAM-15",
+   "test": "tests/test_cam_benchmarks.py::test_post_reproduces_simulated_path[fanuc]",
+   "category": "post",
+   "title": {
+    "zh": "后处理回读：FANUC",
+    "en": "Post read-back: FANUC"
+   },
+   "source": "整机仿真刀路 / Simulated tool path"
+  },
+  {
+   "id": "CAM-16",
+   "test": "tests/test_cam_benchmarks.py::test_post_reproduces_simulated_path[siemens]",
+   "category": "post",
+   "title": {
+    "zh": "后处理回读：西门子",
+    "en": "Post read-back: Siemens"
+   },
+   "source": "整机仿真刀路 / Simulated tool path"
+  },
+  {
+   "id": "CAM-17",
+   "test": "tests/test_cam_benchmarks.py::test_post_reproduces_simulated_path[gsk]",
+   "category": "post",
+   "title": {
+    "zh": "后处理回读：广州数控",
+    "en": "Post read-back: GSK"
+   },
+   "source": "整机仿真刀路 / Simulated tool path"
+  }
+ ]
+}

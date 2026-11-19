@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "name": "8mm Endmill",
+  "shape": "endmill.fcstd",
+  "parameter": {
+    "CuttingEdgeHeight": "20.0000 mm",
+    "Diameter": "8.0000 mm",
+    "Length": "60.0000 mm",
+    "ShankDiameter": "8.0000 mm",
+    "Flutes": "3"
+  },
+  "attribute": {}
+}

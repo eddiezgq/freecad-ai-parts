@@ -1,0 +1,111 @@
+---
+title: WenQuest CAM User Guide
+subtitle: "First edition (C1: turning, 2.5-axis milling)"
+lang: en-US
+---
+
+# What WenQuest CAM is
+
+WenQuest CAM is CNC programming software that runs inside FreeCAD. The first edition handles two kinds of parts:
+
+- **Turning**: stepped shafts with grooves, external threads and bores, in two setups (right end first, then the part flipped for the left end);
+- **2.5-axis milling**: pockets, contours and drilling, with tool paths computed by FreeCAD's own CAM.
+
+Three principles run through everything:
+
+1. **AI drafts, the software checks, a person confirms.** The operations and the usable tools are decided by the software from the geometry; the AI (Pro) only picks among the candidate tools and sets cutting data within the ranges of the tool catalogue. Anything outside the ranges is rejected, replaced by the rule value and noted.
+2. **Programs are output only after the whole-machine simulation passes.** Every tool path segment moves the machine model and checks the cutting edge, holder, spindle head, fixtures, table and remaining material for collisions, and the axes for overtravel. If anything fails, no program is output.
+3. **The written program is read back.** It is compared segment by segment with the simulated tool path; if they differ, no program is output. The program header carries the machine, post processor version, simulation fingerprint and "first part: dry run and single block".
+
+The accuracy of the algorithms is documented in the WenQuest CAM Verification Manual installed with the software: 17 benchmark problems and 24 comparisons (machining time, cutting power, five-axis kinematic round trips, collision tests, removed volume, thread root, errors that must be reported, post read-back), all within the stated tolerances.
+
+# Installing and uninstalling
+
+- Windows 10 / 11, 64-bit. Run `WenQuest-CAM-Setup-<version>.exe`. The installer contains FreeCAD 1.0.2 and the Python components it needs.
+- The Start menu has WenQuest CAM, this guide, the verification manual (Chinese and English), the getting-started examples and the license notices. The first start opens the "WenQuest CAM" workbench.
+- To uninstall, use Windows "Settings → Apps". Your parts, programs and license file are not in the installation folder and are kept.
+
+# The interface: the machining tree
+
+All programming data lives in the FreeCAD document, so it is saved with the file and is still there when you reopen it:
+
+- **Job**: one programming job for one part. It holds the part, the machining type (turning / milling), machine, CNC control, workpiece material, tool library and fixture.
+- **Setup**: two for a turned part (right end, then flipped for the left end), one for a milled part.
+- **Operation**: rough and finish turning, grooving, threading, drilling, boring; pocket, contour, drilling. Each operation has its own tool, cutting data, geometry and tool path, drawn as a wireframe in the view.
+
+An operation is either a **draft** (yellow dot on the icon; drafted or newly added) or **confirmed** (checked by a person, cutting data within the tool catalogue ranges). **While any operation is a draft, the job is only simulated; no program is released.**
+
+Double-click the job to open the job panel (task panel on the left); double-click an operation to open its panel. Right-click an operation for: regenerate tool path, confirm, copy, move up / down, hide tool path. "New operation" on the toolbar lists the operation types the current job can take.
+
+# First use: turning a stepped shaft
+
+Use `shaft.step` in `examples\01-shaft-turning` of the installation folder.
+
+1. Open `shaft.step`, select the part in the model tree and press "New turning job" on the toolbar. OD sections, grooves and bores are read, two setups are created and the job panel opens on the left. The part axis must lie along Z, with the right end at the high-Z end.
+2. **Threads**: threads are usually not modelled; in the job panel's "Threads" enter one line "Z start, Z end, major diameter, pitch", in the example `0, -26, 24, 1.5`. The thread must start at the end face or in a relief groove, otherwise the program is refused (the tool would hit the part when it starts).
+3. Choose the machine, CNC control and workpiece material (a row of the Kienzle table, which selects the group of cutting data in the tool catalogue). For the fixture enter the chuck jaws' "grip length, outer diameter".
+4. Press "Rule draft" (Pro also has "AI draft"): 6 operations for the right end and 2 for the left end appear in the model tree, all as drafts.
+5. **Confirm each operation**: double-click it; the panel has three tabs — Geometry (the profile read from the part, or picked faces), Tool (only tools usable for this operation), Cutting data (vc, f, ap, with the catalogue ranges beside them). After changing values press "Apply (regenerate toolpath)"; press "OK" to confirm. Values outside the catalogue ranges turn red and cannot be confirmed:
+
+![Operation panel: vc outside the catalogue range turns red and cannot be confirmed](img/en-op.png)
+
+6. Double-click the job and press "Calculate and check": the software runs the cutting simulation (material removal, overcut, leftover material, rapid moves into the stock), the machine simulation, the post processor and the read-back. The panel shows each program's time, the machine simulation result and fingerprint; in the check list red is an error, amber a warning and grey "unknown" (missing data, not checked).
+
+![Turning example after calculation](img/en-turn.png)
+
+7. Press "Save programs and process card…" and choose a folder: one `.nc` program per setup; Pro also writes the process card and program sheet (Word, PDF).
+
+# Milling a block
+
+Use `examples\02-block-milling\block.step`.
+
+1. Select the part and press "New milling job" (the part's bounding box is the stock).
+2. In the job panel enter the tool lengths (spindle gauge line to tool tip), e.g. `EM10=120, DR8.5=140`, the height of the workpiece top above the table, and the vise grip height as the fixture, e.g. `10`.
+3. Press "Rule draft": the pocket gets the largest end mill no larger than half the narrow side of the pocket, the hole a drill of the same diameter. To machine only certain faces, double-click the operation, pick pocket floors or hole walls in the view and press "Use the faces selected in the view"; with nothing picked they are found automatically.
+4. Confirm each operation, then press "Calculate and check".
+
+![Milling example after calculation](img/en-mill.png)
+
+Try again: on the toolbar choose "New operation" → "Contour milling", confirm it and recalculate. A contour milled to the bottom hits the vise jaws: the machine simulation fails, no program is output, and the check list says on which line it hits:
+
+![Contour hits the vise jaws: no program](img/en-clash.png)
+
+# Machines and tools
+
+- **Machines**: the four example machines (lathe, vertical machining centre, trunnion five-axis, mill-turn) are fictional and for demonstration only. Before real machining, enter your own machines in `<user folder>\.freecad-ai-parts\machines.yaml` (or the file or folder given by the environment variable `FAP_MACHINES`). The earlier simple format still works; the new format (cam-machine/1) adds the axis chains, rotary centres and component shapes that the machine simulation needs.
+- **Tool library**: one JSON file (cam-tool/1); each tool has its kind, diameter or insert, flute length, stick-out, shank diameter, holder profile and the cutting data ranges from the tool catalogue. FreeCAD CAM tool tables (`.fctl`) can be imported; add the holder profile and cutting data afterwards.
+- Do not invent missing data: leave it out. The related checks then report "unknown" instead of "pass".
+
+# Reading the checks
+
+- **Error (red)**: collisions, overtravel, overcut, rapid moves into the stock, spindle speed over the limit, threading in constant surface speed… With a machine simulation error, no program is output.
+- **Warning (amber)**: post processor not yet verified on a real machine, cutting power close to the main motor power, etc.
+- **Unknown (grey)**: not checked for lack of data, e.g. turning-tool holder shapes, missing tool lengths, imported tool paths without a target shape. They do not block the output, but you should know about them.
+- None of the three post processors of the first edition (FANUC, Siemens, GSK lathe) has been verified on a real machine yet; the program header says so. **Always dry-run the first part and confirm it in single block.**
+
+# Free and Pro
+
+| Free | Pro (license file with `cam_pro`) |
+| --- | --- |
+| G-code check (time, collisions with the stock, overcut, overtravel, power) | AI process drafting |
+| Turning and 2.5-axis milling programming | Post processors other than FANUC (Siemens, GSK) |
+| Machine simulation of two-axis lathes and three-axis machining centres | Five-axis and mill-turn machines (later editions) |
+| FANUC programs | Process card and program sheet (Word, PDF, Chinese and English) |
+
+The safety checks are identical in both tiers; the free edition does not skip any. To import a license: "WenQuest CAM" menu → "License…".
+
+![License window](img/en-license.png)
+
+# AI drafting (Pro)
+
+- "WenQuest CAM" menu → "Set AI key…": DeepSeek in China, Claude elsewhere, switching automatically on errors. The key is stored only on this computer.
+- Only part features (diameters, lengths, grooves, threads, holes), the material group and the catalogue ranges of the candidate tools are sent, never the model file.
+- The AI's answer is checked item by item: tools that are not candidates, cutting data outside the catalogue ranges, and data without a catalogue range are rejected and replaced by rule values, with a note under the job panel and in the operation's "Reason for the draft".
+
+# Troubleshooting
+
+- **"New turning job" says the axis is not on Z**: rotate the part so its axis lies along Z through the origin, then create the job again.
+- **"N operations are still drafts"**: double-click those operations (yellow dot on the icon), check them and press OK to confirm, then calculate again.
+- **"No relief groove at the thread start"**: start the thread at the end face, or add a relief groove at the start.
+- **"The machine cannot reach: overtravel"**: the tool is too short or the workpiece too low; check the tool lengths and "workpiece top above the table".
+- **Machine simulation "passed (with unknown items)"**: look at the grey items and add the missing data (tool lengths, holder profiles).

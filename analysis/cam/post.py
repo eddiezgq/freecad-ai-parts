@@ -52,7 +52,7 @@ def post_lathe(prog, machine):
             if mv["t"] == "comment":
                 lines.append(comment(mv["text"]))
                 continue
-            g = "G00" if mv["t"] == "rapid" else "G01"
+            g = {"rapid": "G00", "thread": "G32"}.get(mv["t"], "G01")
             ax = []
             for a in ("x", "z"):
                 if a not in pos or abs(pos[a] - mv[a]) > 5e-4:
@@ -63,7 +63,10 @@ def post_lathe(prog, machine):
             w = [g] if g != mode else []
             mode = g
             w += ax
-            if g == "G01" and mv.get("f") != last_f:
+            if g == "G32":
+                w.append("F" + num(mv["pitch"], 4))
+                last_f = None
+            elif g == "G01" and mv.get("f") != last_f:
                 w.append("F" + num(mv["f"], 3))
                 last_f = mv["f"]
             if first:

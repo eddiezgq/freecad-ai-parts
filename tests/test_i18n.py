@@ -26,7 +26,12 @@ MODULES = sorted([*ROOT.glob("analysis/fea/*.py"), ROOT / "assist/fea_report.py"
                   # 问渠 CAD「AI 设计零件」（ADR-0100 42.4）
                   ROOT / "freecad_addon/core/ai_design.py", ROOT / "freecad_addon/gui/ai_design_panel.py",
                   ROOT / "freecad_addon/fc/ai_design_doc.py", ROOT / "assist/shaft_design.py", ROOT / "assist/shaft_model.py",
-                  ROOT / "assist/design.py"])
+                  ROOT / "assist/design.py",
+                  # 问渠CAM（ADR-0104 产品化第 3 步）
+                  *ROOT.glob("analysis/cam/*.py"), ROOT / "assist/cam_process.py", ROOT / "assist/cam_edition.py",
+                  ROOT / "freecad_addon/core/cam_study.py", ROOT / "freecad_addon/fc/cam_doc.py", ROOT / "freecad_addon/fc/cam_fc.py",
+                  ROOT / "freecad_addon/gui/cam_tree_panels.py", ROOT / "freecad_addon/fc/cam_objects.py",
+                  ROOT / "freecad_addon/gui/cam_brand.py"])
 
 EXTRA = {"零件的温度场、热应力（本机 CalculiX）；按 FEM 分析的计算结果和载荷谱算疲劳寿命。强度、固有频率请在 FEM 工作台里“一句话起草 / 计算并核查 / 出报告”"}
 # 工作台其他命令不属于问渠有限元，只收“热分析 · 疲劳”这一条的说明
