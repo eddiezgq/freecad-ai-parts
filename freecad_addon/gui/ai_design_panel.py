@@ -94,6 +94,21 @@ class AiDesignPanel:
         names.discard(None)
         return next(iter(sorted(names)), "")
 
+    def _refresh_browser(self) -> None:
+        """入库后零件库浏览器立刻列出新零件，标题里的企业库组件数也跟着变（2026-11-18：入了库却看不到）"""
+        import re
+
+        from PySide import QtWidgets
+
+        dock = FreeCADGui.getMainWindow().findChild(QtWidgets.QDockWidget, "FapLibraryBrowser")
+        if dock is None:
+            return
+        if self.enterprise is not None and hasattr(dock, "header"):
+            n = len(self.enterprise.all())
+            dock.header.setText(re.sub(r"企业库 \d+ 个组件", f"企业库 {n} 个组件", dock.header.text()))
+        if hasattr(dock, "refresh"):
+            dock.refresh()
+
     # ------------------------------------------------------------ 动作
 
     def load_example(self):
@@ -203,6 +218,7 @@ class AiDesignPanel:
                 texts["identification_number"] = self.drawing_no.text().strip()
                 tpl.EditableTexts = texts
         self.model_info.setText(self.model_info.text() + "\n" + T(f"已入企业库：{comp['id']}（确认人 {self.by.text().strip()}）"))
+        self._refresh_browser()
         self.ok.setEnabled(False)
 
 

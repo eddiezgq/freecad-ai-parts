@@ -167,3 +167,40 @@ def test_progress_bar_and_elapsed_time(gui, lib, monkeypatch):
     assert p.bar.maximum() == 0                                                   # 步数不定：忙
     p.done(RuntimeError("测试中断"))
     assert not p.ticker.isActive() and not p.bar.isVisibleTo(p.form)
+
+
+def test_confirm_refreshes_library_browser(gui, doc, run_out, lib, tmp_path):
+    """入库后零件库浏览器立刻刷新，标题里的企业库组件数跟着变（2026-11-18：入了库却在浏览器里看不到）"""
+    from PySide import QtWidgets
+
+    from freecad_addon.gui.ai_design_panel import AiDesignPanel
+    from kb.enterprise import EnterpriseLibrary
+
+    class FakeBrowser(QtWidgets.QDockWidget):
+        refreshed = 0
+
+        def refresh(self):
+            FakeBrowser.refreshed += 1
+
+    mw = gui.getMainWindow()
+    fake = FakeBrowser("AI Parts 零件库", mw)
+    fake.setObjectName("FapLibraryBrowser")
+    fake.header = QtWidgets.QLabel("企业库 0 个组件（X）叠加在 组件库")
+    try:
+        ent = EnterpriseLibrary(tmp_path / "ent", create=True)
+        p = AiDesignPanel(lib, ent, client_factory=lambda: None)
+        p.done(run_out)
+        p.drawing_no.setText("AI-102")
+        p.vendor.setText("示范（虚构）")
+        p.by.setText("张工")
+        p.confirm()
+        assert FakeBrowser.refreshed == 1 and fake.header.text().startswith("企业库 1 个组件")
+    finally:
+        fake.setObjectName("")
+        fake.deleteLater()
+
+
+def test_custom_parts_have_a_category_name():
+    from freecad_addon.core import browser as core
+
+    assert core.CATEGORIES["custom_part"] == "自制件"

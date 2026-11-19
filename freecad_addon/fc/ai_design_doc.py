@@ -163,7 +163,9 @@ def drawing(doc, part, segs: list[dict], *, name: str, drawing_no: str, material
             raise DrawingError(T(f"工程图尺寸与设计不符：{what}，图上 {got:g}"))
     steps = [f"z {a['z1']:g}：R{(a['r_right'] or b['r_left']):g}" for a, b in pairwise(rs)]
     note = doc.addObject("TechDraw::DrawViewAnnotation", "AiShaftNotes")
-    note.Text = [T("技术要求："), T("1. 台阶圆角：") + "，".join(steps), T("2. 尺寸由程序按设计数据标注，模型已回读核对")]
+    lines = ["，".join(steps[i:i + 2]) for i in range(0, len(steps), 2)]   # 两个一行，免得注释超出图纸被缩小
+    note.Text = [T("技术要求："), T("1. 台阶圆角：") + (lines[0] if lines else ""), *["   " + x for x in lines[1:]],
+                 T("2. 尺寸由程序按设计数据标注，模型已回读核对")]
     page.addView(note)
     note.X, note.Y = 120.0, 75.0
     if hasattr(note, "TextSize"):

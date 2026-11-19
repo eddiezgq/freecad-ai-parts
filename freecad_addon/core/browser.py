@@ -10,7 +10,8 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 
-CATEGORIES = {"servo_motor": "电机", "reducer": "减速器", "drive": "驱动器", "bearing": "轴承", "adapter": "转接件"}
+CATEGORIES = {"servo_motor": "电机", "reducer": "减速器", "drive": "驱动器", "bearing": "轴承", "adapter": "转接件",
+              "custom_part": "自制件", "purchased_part": "外购件", "stepper_motor": "步进电机"}
 INSTANCE_BASE = {"servo_motor": "motor", "reducer": "reducer", "drive": "drive", "bearing": "bearing",
                  "adapter": "adapter"}
 
