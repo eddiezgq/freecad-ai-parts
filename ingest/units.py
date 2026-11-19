@@ -41,6 +41,7 @@ SUFFIX_UNITS: dict[str, str] = {
     "_v": "V",
     "_a": "A",
     "_n": "N",
+    "_s": "second",                # 时间（机器人搬运节拍，ADR-0100 42.5）
 }
 
 # 量纲有歧义的字段，只接受白名单中的写法（规范化后的形式）
@@ -48,8 +49,9 @@ _ANGLE = {"arcmin", "arcsec", "arc min", "arc-min", "arc sec", "arc-sec", "degre
 _RATIO = {"", "1", "dimensionless", "%", "percent"}
 _SPEED = {"rpm", "r/min", "rev/min", "min^-1", "min-1", "1/min", "rps", "r/s", "rev/s"}
 _FREQ = {"Hz", "kHz"}
+_TIME = {"s", "sec", "second", "seconds", "ms"}
 WHITELIST: dict[str, set[str]] = {
-    "_arcmin": _ANGLE, "_deg": _ANGLE, "_ratio": _RATIO, "_rpm": _SPEED, "_hz": _FREQ,
+    "_arcmin": _ANGLE, "_deg": _ANGLE, "_ratio": _RATIO, "_rpm": _SPEED, "_hz": _FREQ, "_s": _TIME,
 }
 
 # 规格书常见写法 → pint 写法

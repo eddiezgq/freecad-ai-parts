@@ -13,6 +13,12 @@ on:
         default: claude
         type: choice
         options: [claude, deepseek]
+      part:
+        description: "设计哪个零件（shaft = 平缝机上轴；joint = 机器人关节空心轴，ADR-0100 42.5）"
+        required: true
+        default: shaft
+        type: choice
+        options: [shaft, joint]
 
 permissions:
   contents: write
@@ -29,6 +35,7 @@ jobs:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
       PROVIDER: ${{ inputs.provider || 'claude' }}
+      PART: ${{ inputs.part || 'shaft' }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -37,23 +44,27 @@ jobs:
       - name: CalculiX 与 gmsh 所需系统库
         run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends calculix-ccx libglu1-mesa libxcursor1 libxft2 libxinerama1 libgomp1
       - name: 安装依赖
-        run: pip install -e ".[dev,llm,fea]"
+        run: pip install -e ".[dev,llm,fea,mbd]"
       - name: 设计并录制
         run: |
           set +e
-          python -m assist.design examples/ai-design/ls-upper-shaft/requirement.txt --record --provider "$PROVIDER" -o result.json 2> log.txt
+          if [ "$PART" = joint ]; then
+            python -m assist.joint_design examples/ai-design/cobot-j2/requirement.txt --record --provider "$PROVIDER" -o result.json 2> log.txt
+          else
+            python -m assist.design examples/ai-design/ls-upper-shaft/requirement.txt --record --provider "$PROVIDER" -o result.json 2> log.txt
+          fi
           code=$?
           set -e
-          { echo "## AI 设计平缝机上轴（$PROVIDER）"; echo; echo '```'; cat log.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          { echo "## AI 设计 $PART（$PROVIDER）"; echo; echo '```'; cat log.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
           cat log.txt
           echo "退出码 $code（1 = 没有通过；录制照样提交，便于分析）"
       - name: 推到新分支
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          branch="m42/design-rec-${PROVIDER}-${GITHUB_RUN_ID}"
+          branch="m42/design-rec-${PART}-${PROVIDER}-${GITHUB_RUN_ID}"
           git checkout -b "$branch"
-          git add -A tests/recordings/design
+          git add -A tests/recordings/design tests/recordings/joint_design
           if git diff --cached --quiet; then echo "没有新录制"; exit 0; fi
           git commit -m "M42: AI 设计阶梯轴录制（运行 ${GITHUB_RUN_ID}）" -m "由 .github/workflows/design-eval.yml 生成"
           git push origin "$branch"
