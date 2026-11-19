@@ -1,6 +1,6 @@
 {
  "env": {
-  "code": "49e276b84044cc726d65458fcdaccdbc0a2fc85d（有未提交的改动）",
+  "code": "067929c202cc3278ff57974142d00d3000dc19d5（有未提交的改动）",
   "date": "2026-11-19",
   "numerics": "NumPy 2.5.3",
   "python": "Python 3.13.18 / Linux 6.18.44-fc-v653"
@@ -923,12 +923,239 @@
     }
    ],
    "result": "pass"
+  },
+  {
+   "id": "CAM-30",
+   "test": "tests/test_cam_turn_q3a.py::test_two_start_thread_lead_and_time",
+   "category": "time",
+   "title": {
+    "zh": "双头螺纹车削时间（导程 = 头数 × 螺距）",
+    "en": "Two-start threading time (lead = starts × pitch)"
+   },
+   "source": "t = Σ L/(导程·n) / t = Σ L/(lead·n)",
+   "rows": [
+    {
+     "case": "tests/test_cam_turn_q3a.py::test_two_start_thread_lead_and_time",
+     "kind": "value",
+     "quantity": [
+      "双头螺纹车削时间",
+      "two-start threading time"
+     ],
+     "computed": 23.178391959798997,
+     "reference": 23.178391959798997,
+     "tol": 1e-06,
+     "rel": true,
+     "error": 0.0,
+     "unit": "s",
+     "formula": "t = Σ L/(导程·n)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-31",
+   "test": "tests/test_cam_turn_q3a.py::test_face_groove_cut_to_size_and_removed_volume",
+   "category": "geom",
+   "title": {
+    "zh": "端面槽去除体积",
+    "en": "Face groove removed volume"
+   },
+   "source": "V = π(R² − r²)·深 / π(R² − r²)·depth",
+   "rows": [
+    {
+     "case": "tests/test_cam_turn_q3a.py::test_face_groove_cut_to_size_and_removed_volume",
+     "kind": "value",
+     "quantity": [
+      "端面槽去除体积",
+      "face groove removed volume"
+     ],
+     "computed": 2375.0440461138874,
+     "reference": 2375.0440461138837,
+     "tol": 0.01,
+     "rel": true,
+     "error": 1.5317521428894254e-15,
+     "unit": "mm³",
+     "formula": "V = π(R² − r²)·深 / π(R² − r²)·depth",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-32",
+   "test": "tests/test_cam_turn_q3a.py::test_internal_thread_reaches_major_diameter",
+   "category": "geom",
+   "title": {
+    "zh": "内螺纹车到大径",
+    "en": "Internal thread cut to the major diameter"
+   },
+   "source": "ISO 68-1: D1 = D − 1.0825P",
+   "rows": [
+    {
+     "case": "tests/test_cam_turn_q3a.py::test_internal_thread_reaches_major_diameter",
+     "kind": "value",
+     "quantity": [
+      "内螺纹最后一刀直径（M24×1.5，应到大径）",
+      "internal thread last pass diameter (M24×1.5, to major)"
+     ],
+     "computed": 24.0,
+     "reference": 24.0,
+     "tol": 1e-06,
+     "rel": false,
+     "error": 0.0,
+     "unit": "mm",
+     "formula": "D = 24；底孔 D1 = D − 1.0825P",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-33",
+   "test": "tests/test_cam_turn_q3a.py::test_taper_thread_follows_1_to_16",
+   "category": "geom",
+   "title": {
+    "zh": "锥螺纹按 1:16 锥度走刀",
+    "en": "Taper thread follows the 1:16 taper"
+   },
+   "source": "Δd = ΔL / 16",
+   "rows": [
+    {
+     "case": "tests/test_cam_turn_q3a.py::test_taper_thread_follows_1_to_16",
+     "kind": "value",
+     "quantity": [
+      "锥螺纹 1:16 每一刀直径变化与锥度之差（最大）",
+      "taper thread 1:16: max deviation of diameter change from taper"
+     ],
+     "computed": 0.0007500000000009166,
+     "reference": 0.0,
+     "tol": 0.001,
+     "rel": false,
+     "error": 0.0007500000000009166,
+     "unit": "mm",
+     "formula": "Δd = ΔL / 16",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-34",
+   "test": "tests/test_cam_turn_q3a.py::test_hand_written_g71_and_g76_expand_by_rule",
+   "category": "post",
+   "title": {
+    "zh": "手写 G71 固定循环按规则展开",
+    "en": "Hand-written G71 cycle expands by the rule"
+   },
+   "source": "FANUC G71 一型 / FANUC G71 type I",
+   "rows": [
+    {
+     "case": "tests/test_cam_turn_q3a.py::test_hand_written_g71_and_g76_expand_by_rule",
+     "kind": "verdict",
+     "quantity": [
+      "G71 手写程序按规则展开：Ø46、Ø42、Ø41 三层 + 留余量轮廓一刀",
+      "hand-written G71 expands to Ø46, Ø42, Ø41 + contour pass"
+     ],
+     "computed": "pass",
+     "reference": "pass",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-35",
+   "test": "tests/test_cam_turn_q3a.py::test_taper_pipe_thread_depth_by_standard[r-0.640327]",
+   "category": "geom",
+   "title": {
+    "zh": "R 系列锥管螺纹牙底直径",
+    "en": "R-series taper pipe thread root diameter"
+   },
+   "source": "ISO 7-1: h = 0.640327P",
+   "rows": [
+    {
+     "case": "tests/test_cam_turn_q3a.py::test_taper_pipe_thread_depth_by_standard[r-0.640327]",
+     "kind": "value",
+     "quantity": [
+      "R 锥管螺纹牙底直径（Z0 处，d = 24，P = 1.814）",
+      "R taper pipe thread root diameter at Z0"
+     ],
+     "computed": 21.67675,
+     "reference": 21.676893644,
+     "tol": 0.001,
+     "rel": false,
+     "error": -0.0001436440000013306,
+     "unit": "mm",
+     "formula": "d − 2h，h = 0.640327P",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-36",
+   "test": "tests/test_cam_turn_q3a.py::test_taper_pipe_thread_depth_by_standard[npt-0.8]",
+   "category": "geom",
+   "title": {
+    "zh": "NPT 锥管螺纹牙底直径",
+    "en": "NPT taper pipe thread root diameter"
+   },
+   "source": "ASME B1.20.1: h = 0.8P",
+   "rows": [
+    {
+     "case": "tests/test_cam_turn_q3a.py::test_taper_pipe_thread_depth_by_standard[npt-0.8]",
+     "kind": "value",
+     "quantity": [
+      "NPT 锥管螺纹牙底直径（Z0 处，d = 24，P = 1.814）",
+      "NPT taper pipe thread root diameter at Z0"
+     ],
+     "computed": 21.097749999999998,
+     "reference": 21.0976,
+     "tol": 0.001,
+     "rel": false,
+     "error": 0.00014999999999787406,
+     "unit": "mm",
+     "formula": "d − 2h，h = 0.8P",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-37",
+   "test": "tests/test_cam_turn_q3a.py::test_parting_with_chamfer_replaces_the_flip",
+   "category": "geom",
+   "title": {
+    "zh": "切断前倒角的尺寸",
+    "en": "Chamfer cut before parting off"
+   },
+   "source": "r = d/2 − c + (z − z0)",
+   "rows": [
+    {
+     "case": "tests/test_cam_turn_q3a.py::test_parting_with_chamfer_replaces_the_flip",
+     "kind": "value",
+     "quantity": [
+      "切断前倒角 C1 与设计的最大偏差（半径）",
+      "chamfer before parting off C1: max deviation (radius)"
+     ],
+     "computed": 0.0034982332155486517,
+     "reference": 0.0,
+     "tol": 0.02,
+     "rel": false,
+     "error": 0.0034982332155486517,
+     "unit": "mm",
+     "formula": "r = d/2 − c + (z − z0)",
+     "ok": true
+    }
+   ],
+   "result": "pass"
   }
  ],
- "n": 29,
- "ok": 29,
+ "n": 37,
+ "ok": 37,
  "bad": 0,
  "skip": 0,
- "rows": 36,
- "rows_ok": 36
+ "rows": 44,
+ "rows_ok": 44
 }

@@ -147,7 +147,7 @@ def shots(lang: str, out: Path) -> None:
     # 2 工序面板：vc 超出刀具样本范围，变红、不能确认
     P._close()
     op_panel = P.edit(CO.ops(CO.setups(job)[0])[0])
-    op_panel.tabs.setCurrentIndex(op_panel.tabs.count() - 1)
+    op_panel.tabs.setCurrentIndex(2)                       # 切削参数页
     op_panel.vc.setValue(400)
     FreeCADGui.Selection.clearSelection()
     _pump(0.5)
