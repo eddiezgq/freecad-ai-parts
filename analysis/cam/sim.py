@@ -1,7 +1,7 @@
 """G 代码读取、加工时间、仿真与检查（ADR-0059，M11 第二步）。搬自问渠数字工厂第 13 轮 cae/cam_sim.py，机床参数改为传入，
 铣削毛坯为矩形或多边形（不依赖 shapely）。
 
-读 FANUC 风格程序（本模块生成的、FreeCAD CAM 工作台等输出的）：G00/G01/G02/G03、G90/G91、G17/G18、G20/G21、G28、G50（限速）、
+读 FANUC 风格程序（本模块生成的、FreeCAD CAM 工作台等输出的）：G00/G01/G02/G03、G32（车螺纹，西门子 G33 同样处理）、G90/G91、G17/G18、G20/G21、G28、G50（限速）、
 G96/G97、G94/G95、G98/G99（车：每分 / 每转进给；铣：钻孔循环返回平面）、G80/G81/G83、T、M03/M04/M05/M06/M08/M09/M30、S、F。
 
 仿真：
@@ -98,8 +98,8 @@ def parse(text, m):
                     st["per_rev"] = True
                 else:
                     st["ret98"] = False
-            elif gg in (0, 1, 2, 3):
-                st["motion"] = int(gg)
+            elif gg in (0, 1, 2, 3, 32, 33):
+                st["motion"] = 32 if gg in (32, 33) else int(gg)
                 cyc = None
             elif gg in (81, 83):
                 st["motion"] = int(gg)
@@ -185,6 +185,11 @@ def parse(text, m):
             elif mo in (2, 3):
                 for p in _arc(st, tgt, w, mo, lathe, sc):
                     emit("feed", p, ln, arc=True)
+            elif mo == 32:                                   # 车螺纹：F 是螺距（每转走一个螺距），与 G98 / G99 无关
+                n0 = len(moves)
+                emit("thread", tgt, ln, pitch=st["f"])
+                if len(moves) > n0:
+                    moves[-1]["per_rev"] = True
             else:
                 emit("rapid" if mo == 0 else "feed", tgt, ln)
                 if mo == 1 and st["f"] <= 0:
@@ -310,6 +315,9 @@ def machine_checks(parsed, m):
             out.append({"line": mv["line"], "level": "error", "text": "主轴没有转（缺 M03）就开始切削"})
     if parsed["rpm_req"] > m["max_rpm"]:
         out.append({"line": None, "level": "error", "text": "转速 S{:g} 超过机床最高转速 {}".format(parsed["rpm_req"], m["max_rpm"])})
+    th = next((mv for mv in parsed["moves"] if mv["t"] == "thread" and mv["css"]), None)
+    if th:
+        out.append({"line": th["line"], "level": "error", "text": "车螺纹时还是 G96 恒线速：转速会变、乱牙，车螺纹前要 G97 恒转速"})
     if lathe and any(mv["css"] and not mv["smax"] for mv in parsed["moves"]):
         out.append({"line": None, "level": "warn", "text": "用了 G96 恒线速却没有 G50 限速：车到小直径时转速会冲到机床最高转速"})
     for mv in parsed["moves"]:
@@ -327,38 +335,65 @@ def _seg_points(a, b, step):
 
 
 def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01):
-    """stock：{"d": 毛坯直径, "z_right": 毛坯右端（端面余量）, "z_left": 毛坯左端（卡盘处，负数）}
-    tools：{刀号: {"kind": "turn"} 或 {"kind": "groove", "w": 刀宽}}
-    target：比对用轮廓 [(z, d), …]（成品或本工序尺寸）。返回最终半径网格、碰撞、过切 / 残留"""
+    """stock：{"d": 毛坯直径, "z_right": 毛坯右端（端面余量）, "z_left": 毛坯左端（卡盘处，负数）}，可另给 "bore_d"（毛坯已有的内孔）
+    tools：{刀号: {"kind": "turn"} | {"kind": "groove", "w": 刀宽} | {"kind": "thread"} | {"kind": "drill", "d": 直径} | {"kind": "bore"}}
+    target：比对用轮廓 [(z, d), …]（成品或本工序尺寸），或 {"outer": 轮廓, "grooves": [(z 右边, 宽, 槽底直径)], "threads": [(z 起, z 止, 牙底直径)],
+            "inner": 内轮廓 [(z, d), …]}。返回最终半径网格（外 r、内 ri）、碰撞、过切 / 残留。
+    材料在 ri < 半径 < r 之间。螺纹按整圈切（不计螺旋线），比对时螺纹段看牙底直径；钻头按平底。"""
     z0, z1 = float(stock["z_left"]), float(stock["z_right"])
     n = round((z1 - z0) / h)
     zc = z0 + (np.arange(n) + 0.5) * h
     r = np.full(n, stock["d"] / 2.0)
+    ri = np.full(n, float(stock.get("bore_d", 0.0)) / 2.0)
     if stock.get("profile"):                     # 上一道工序留下的轮廓作毛坯（例如精车用粗车后的形状），z 超出轮廓右端是空的
         zmax = max(z for z, _ in stock["profile"])
         r = np.array([d_at(stock["profile"], z) / 2 if z <= zmax + 1e-9 else 0.0 for z in zc])
     issues, ap_max = [], 0.0
-    for k, mv in enumerate(parsed["moves"]):
+
+    def idx_of(zs):
+        k = np.ceil((np.asarray(zs) - z0) / h - 0.5).astype(int)
+        return k
+
+    for mv in parsed["moves"]:
         tl = tools.get(mv["tool"], {"kind": "turn"})
+        kind = tl.get("kind", "turn")
         a = np.array([mv["a"][2], mv["a"][0] / 2])
         b = np.array([mv["b"][2], mv["b"][0] / 2])
         pts = _seg_points(a, b, h / 4)
-        cut = np.full(n, np.inf)
-        if tl.get("kind") == "groove":
-            w = tl.get("w", 3.0)
-            for zp, rp in pts:
-                i0 = max(0, math.ceil((zp - w - z0) / h - 0.5))
-                i1 = min(n, math.floor((zp - z0) / h - 0.5) + 1)
-                if i1 > i0:
-                    np.minimum(cut[i0:i1], rp, out=cut[i0:i1])
+        solid = r > ri + 1e-12
+        new_r, new_ri = r.copy(), ri.copy()
+        if kind in ("bore", "drill"):
+            grow = np.full(n, -np.inf)
+            if kind == "drill":
+                on_axis = np.abs(pts[:, 1]) < 1e-6
+                if on_axis.any():
+                    zmin = pts[on_axis, 0].min()
+                    zmax_p = pts[on_axis, 0].max()
+                    sel = (zc >= zmin) & (zc <= max(zmax_p, z1))
+                    grow[sel] = tl["d"] / 2
+            else:
+                k = idx_of(pts[:, 0])
+                ok = (k >= 0) & (k < n)
+                np.maximum.at(grow, k[ok], pts[ok, 1])
+            new_ri = np.where(solid, np.maximum(ri, np.minimum(grow, r)), ri)
+            removed = np.where(solid, new_ri - ri, 0.0)
         else:
-            idx = np.ceil((pts[:, 0] - z0) / h - 0.5).astype(int)
-            ok = idx < n
-            idx = np.clip(idx[ok], 0, n - 1)
-            np.minimum.at(cut, idx, pts[ok, 1])
-            cut = np.minimum.accumulate(cut)
-        new = np.minimum(r, cut)
-        removed = r - new
+            cut = np.full(n, np.inf)
+            if kind == "groove":
+                w = tl.get("w", 3.0)
+                for zp, rp in pts:
+                    i0 = max(0, math.ceil((zp - w - z0) / h - 0.5))
+                    i1 = min(n, math.floor((zp - z0) / h - 0.5) + 1)
+                    if i1 > i0:
+                        np.minimum(cut[i0:i1], rp, out=cut[i0:i1])
+            else:
+                k = idx_of(pts[:, 0])
+                ok = (k >= 0) & (k < n)
+                np.minimum.at(cut, k[ok], pts[ok, 1])
+                if kind == "turn":
+                    cut = np.minimum.accumulate(cut)
+            new_r = np.where(solid, np.maximum(np.minimum(r, cut), ri), r)
+            removed = np.where(solid, r - new_r, 0.0)
         if removed.max() > 0.005:
             if mv["t"] == "rapid":
                 i = int(removed.argmax())
@@ -372,26 +407,55 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01):
                 ap = float(removed[hit].mean()) if axial else float(hit.sum() * h)
                 ap_max = max(ap_max, ap)
                 mv["ap"] = ap
-        r = new
-    res = {"z": zc, "r": r, "issues": issues, "ap_max": ap_max}
+        r, ri = new_r, new_ri
+    res = {"z": zc, "r": r, "ri": ri, "issues": issues, "ap_max": ap_max}
     if target:
-        zt = min(z for z, _ in target)
-        sel = (zc <= 0.0) & (zc >= zt)
-        rt = np.array([d_at(target, z) / 2 for z in zc[sel]])
-        dev = r[sel] - rt
-        res["dev_min"] = float(dev.min()) if dev.size else 0.0
-        res["dev_max"] = float(dev.max()) if dev.size else 0.0
-        over = np.nonzero(dev < -tol)[0]
-        if len(over):
-            zs = zc[sel][over]
-            res["issues"].append({"line": None, "level": "error",
-                                  "text": f"过切：Z{zs.max():.2f} ~ Z{zs.min():.2f}，最多切多了 {-dev.min():.3f} mm（半径）"})
-        under = np.nonzero(dev > tol)[0]
-        res["under_mm"] = float(dev[under].max()) if len(under) else 0.0
-        res["under_z"] = [float(zc[sel][under].max()), float(zc[sel][under].min())] if len(under) else None
-        # 端面（Z0 右边）应全部车掉
-        right = zc > 1e-9
-        res["face_left"] = max(0.0, float(r[right].max())) if right.any() else 0.0
+        tg = target if isinstance(target, dict) else {"outer": target}
+        outer = tg.get("outer")
+        if outer:
+            zt = min(z for z, _ in outer)
+            sel = (zc <= 0.0) & (zc >= zt)
+            rt = np.array([d_at(outer, z) / 2 for z in zc])
+            skip = np.zeros(n, bool)
+            for zr, w, db in tg.get("grooves") or []:
+                g = (zc <= zr + 1e-9) & (zc >= zr - w - 1e-9)
+                rt = np.where(g, db / 2, rt)
+            for za, zb, droot in tg.get("threads") or []:
+                th = (zc <= za) & (zc >= zb)
+                skip |= th
+                left = th & (r > droot / 2 + tol)
+                if left.any():
+                    res["issues"].append({"line": None, "level": "error",
+                                          "text": f"螺纹没车到牙底：Z{zc[left].max():.2f} 处直径 {2 * r[left].max():.3f}，牙底应为 {droot:.3f}"})
+            sel &= ~skip
+            dev = r[sel] - rt[sel]
+            res["dev_min"] = float(dev.min()) if dev.size else 0.0
+            res["dev_max"] = float(dev.max()) if dev.size else 0.0
+            over = np.nonzero(dev < -tol)[0]
+            if len(over):
+                zs = zc[sel][over]
+                res["issues"].append({"line": None, "level": "error",
+                                      "text": f"过切：Z{zs.max():.2f} ~ Z{zs.min():.2f}，最多切多了 {-dev.min():.3f} mm（半径）"})
+            under = np.nonzero(dev > tol)[0]
+            res["under_mm"] = float(dev[under].max()) if len(under) else 0.0
+            res["under_z"] = [float(zc[sel][under].max()), float(zc[sel][under].min())] if len(under) else None
+            # 端面（Z0 右边）应全部车掉
+            right = zc > 1e-9
+            res["face_left"] = max(0.0, float((r[right] - ri[right]).max())) if right.any() else 0.0
+        inner = tg.get("inner")
+        if inner:
+            zt = min(z for z, _ in inner)
+            sel = (zc <= 0.0) & (zc >= zt)
+            rt = np.array([d_at(inner, z) / 2 for z in zc[sel]])
+            dev = rt - ri[sel]                     # 正：内孔还小（残留）；负：镗大了（过切）
+            res["inner_dev_min"] = float(dev.min()) if dev.size else 0.0
+            res["inner_dev_max"] = float(dev.max()) if dev.size else 0.0
+            if dev.size and dev.min() < -tol:
+                res["issues"].append({"line": None, "level": "error", "text": f"内孔镗大了：最多 {-dev.min():.3f} mm（半径）"})
+            if dev.size and dev.max() > tol:
+                zz = zc[sel][dev > tol]
+                res["issues"].append({"line": None, "level": "error",
+                                      "text": f"内孔残留：Z{zz.max():.2f} ~ Z{zz.min():.2f}，最多 {dev.max():.3f} mm（半径）"})
     return res
 
 
