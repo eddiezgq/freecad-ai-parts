@@ -1,0 +1,21 @@
+{
+ "why": "牙型角在 0 ~ 180 之间（不含）",
+ "instance": {
+  "format": "cam-tool/1",
+  "name": "示例刀具库（虚构）",
+  "example": true,
+  "tools": [
+   {
+    "id": "T",
+    "kind": "tap",
+    "diameter_mm": 10,
+    "pitch_mm": 1.5,
+    "thread_angle_deg": 180,
+    "source": {
+     "kind": "example",
+     "ref": "虚构示例"
+    }
+   }
+  ]
+ }
+}

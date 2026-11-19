@@ -1,0 +1,20 @@
+{
+ "why": "刀尖直径不能是负数",
+ "instance": {
+  "format": "cam-tool/1",
+  "name": "示例刀具库（虚构）",
+  "example": true,
+  "tools": [
+   {
+    "id": "T",
+    "kind": "chamfer_mill",
+    "diameter_mm": 12,
+    "tip_diameter_mm": -1,
+    "source": {
+     "kind": "example",
+     "ref": "虚构示例"
+    }
+   }
+  ]
+ }
+}

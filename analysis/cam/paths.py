@@ -70,11 +70,19 @@ def plateau(prof):
     return min(ts), max(ts), dmax
 
 
-def setup_profile(prof, side="right"):
+def setup_profile(prof, side="right", split=None):
     """设计轮廓 → 一次装夹要车的轮廓 [(z, d), …]（Z0 在本次装夹的右端面，向左为负）。外圆车刀只能从右往左车到最大直径段：
-    side="right" 车右端到最大直径段（含）；"left" 是调头后车原来的左边，车到最大直径的轴肩为止。返回 (轮廓, 本次车到的长度)。"""
+    side="right" 车右端到最大直径段（含）；"left" 是调头后车原来的左边，车到最大直径的轴肩为止。返回 (轮廓, 本次车到的长度)。
+    split（从左端量的 t）给定且在最大直径段起点右边时，两次装夹在 split 处分开（最大直径段太靠左、第一次装夹会车进卡爪时用）。"""
     length = prof[-1][0]
     ta, _, dmax = plateau(prof)
+    if split is not None and split > ta + 1e-9:
+        ds = d_at(prof, split)
+        if side == "right":
+            pts = [(t - length, d) for t, d in reversed(prof) if t > split + 1e-9] + [(split - length, ds)]
+            return simplify(pts), length - split
+        pts = [(-t + 0.0, d) for t, d in prof if t < split - 1e-9] + [(-split, ds)]
+        return simplify(pts), split
     if side == "right":
         pts = [(t - length, d) for t, d in reversed(prof) if t > ta + 1e-9 or (t >= ta - 1e-9 and abs(d - dmax) < 1e-9)]
         return simplify(pts), length - ta
@@ -124,18 +132,18 @@ def z_reach(prof, d):
 
 
 # ---------------------------------------------------------------- 车削刀路
-def turn_face(stock_d, face_allow, ap, f, nose_r=0.0):
+def turn_face(stock_d, face_allow, ap, f, nose_r=0.0, clear=CLEAR):
     """车端面：毛坯右端比成品多 face_allow，分层车到 Z0。车过中心：假想刀尖到 X −max(1, 2rε + 0.2)，
     刀尖圆弧才能把中心车平（否则中心留一个半径约 rε 的小凸台）。"""
     x_end = -max(1.0, 2 * nose_r + 0.2)
     mv = [{"t": "comment", "text": f"车端面（余量 {face_allow:g}）"}]
     n = max(1, math.ceil(face_allow / ap - 1e-9)) if face_allow > 0 else 1
-    xo = stock_d + 2 * CLEAR
+    xo = stock_d + 2 * clear
     for k in range(n):
         z = max(0.0, face_allow - (k + 1) * ap)
-        mv += [{"t": "rapid", "x": xo, "z": z + CLEAR}, {"t": "rapid", "x": xo, "z": z},
-               {"t": "feed", "x": x_end, "z": z, "f": f}, {"t": "rapid", "x": x_end, "z": z + CLEAR},
-               {"t": "rapid", "x": xo, "z": z + CLEAR}]
+        mv += [{"t": "rapid", "x": xo, "z": z + clear}, {"t": "rapid", "x": xo, "z": z},
+               {"t": "feed", "x": x_end, "z": z, "f": f}, {"t": "rapid", "x": x_end, "z": z + clear},
+               {"t": "rapid", "x": xo, "z": z + clear}]
     return mv
 
 
@@ -183,17 +191,17 @@ def nose_comp(profile, r_eps, inner=False, seg_deg=10.0):
     return simplify([(z + shift[0], 2 * (r + shift[1])) for z, r in out])
 
 
-def _follow(prof, f, stock_d):
+def _follow(prof, f, stock_d, clear=CLEAR):
     z0, d0 = prof[0]
-    xo = max(stock_d, max(d for _, d in prof)) + 2 * CLEAR
-    mv = [{"t": "rapid", "x": d0, "z": CLEAR}, {"t": "feed", "x": d0, "z": z0, "f": f}]
+    xo = max(stock_d, max(d for _, d in prof)) + 2 * clear
+    mv = [{"t": "rapid", "x": d0, "z": clear}, {"t": "feed", "x": d0, "z": z0, "f": f}]
     mv += [{"t": "feed", "x": d, "z": z, "f": f} for z, d in prof[1:]]
     zl = prof[-1][0]
-    mv += [{"t": "feed", "x": xo, "z": zl, "f": f}, {"t": "rapid", "x": xo, "z": CLEAR}]
+    mv += [{"t": "feed", "x": xo, "z": zl, "f": f}, {"t": "rapid", "x": xo, "z": clear}]
     return mv
 
 
-def turn_rough(profile, stock_d, ap, f, allow_r=0.3, allow_z=0.1, profile_pass=True, nose_r=0.0):
+def turn_rough(profile, stock_d, ap, f, allow_r=0.3, allow_z=0.1, profile_pass=True, nose_r=0.0, clear=CLEAR, retract=0.5):
     """分层粗车（相当于 FANUC G71，展开成直线段）：每层直径减 2×ap，车到碰到留余量的轮廓为止；
     最后（profile_pass）沿留余量的轮廓走一刀，去掉分层留下的台阶（刀尖圆弧 nose_r 补偿）。"""
     tgt = with_allowance(profile, allow_r, allow_z)
@@ -204,21 +212,22 @@ def turn_rough(profile, stock_d, ap, f, allow_r=0.3, allow_z=0.1, profile_pass=T
         d_new = max(d - 2 * ap, dmin)
         zstop = z_reach(tgt, d_new + 1e-6)
         if zstop < -1e-6:
-            mv += [{"t": "rapid", "x": d_new, "z": CLEAR}, {"t": "feed", "x": d_new, "z": zstop, "f": f},
-                   {"t": "feed", "x": d_new + 1.0, "z": zstop + 0.5, "f": f}, {"t": "rapid", "x": d_new + 1.0, "z": CLEAR}]
+            mv += [{"t": "rapid", "x": d_new, "z": clear}, {"t": "feed", "x": d_new, "z": zstop, "f": f},
+                   {"t": "feed", "x": d_new + 2 * retract, "z": zstop + retract, "f": f},
+                   {"t": "rapid", "x": d_new + 2 * retract, "z": clear}]
         d = d_new
     if not profile_pass:
         return mv
     mv.append({"t": "comment", "text": "沿留余量的轮廓走一刀"})
-    return mv + _follow(nose_comp(tgt, nose_r), f, stock_d)
+    return mv + _follow(nose_comp(tgt, nose_r), f, stock_d, clear=clear)
 
 
-def turn_finish(profile, stock_d, f, nose_r=0.0):
+def turn_finish(profile, stock_d, f, nose_r=0.0, clear=CLEAR):
     text = "精车轮廓" + (f"（刀尖圆弧 R{nose_r:g} 已补偿）" if nose_r > 0 else "")
-    return [{"t": "comment", "text": text}, *_follow(nose_comp(profile, nose_r), f, stock_d)]
+    return [{"t": "comment", "text": text}, *_follow(nose_comp(profile, nose_r), f, stock_d, clear=clear)]
 
 
-def turn_groove(z, d_bottom, width, d_from, f, tool_width):
+def turn_groove(z, d_bottom, width, d_from, f, tool_width, clear=CLEAR):
     """切槽：z 是槽右侧位置，刀位点在刀的右刀尖；槽宽于刀时多刀并排，每刀重叠 20%。"""
     if width < tool_width - 1e-9:
         raise CamError(f"槽宽 {width:g} 小于刀宽 {tool_width:g}")
@@ -227,8 +236,8 @@ def turn_groove(z, d_bottom, width, d_from, f, tool_width):
     n = 1 if span < 1e-9 else math.ceil(span / (0.8 * tool_width) - 1e-9) + 1
     for k in range(n):
         zk = z - (span * k / (n - 1) if n > 1 else 0.0)
-        mv += [{"t": "rapid", "x": d_from + 2 * CLEAR, "z": zk}, {"t": "feed", "x": d_bottom, "z": zk, "f": f},
-               {"t": "rapid", "x": d_from + 2 * CLEAR, "z": zk}]
+        mv += [{"t": "rapid", "x": d_from + 2 * clear, "z": zk}, {"t": "feed", "x": d_bottom, "z": zk, "f": f},
+               {"t": "rapid", "x": d_from + 2 * clear, "z": zk}]
     return mv
 
 
@@ -243,22 +252,152 @@ def thread_infeeds(depth, first_max=0.25, spring=1):
     return [depth * math.sqrt(i / n) for i in range(1, n + 1)] + [depth] * spring
 
 
-def turn_thread(z_start, z_end, d_major, pitch, first_max=0.25, spring=1, run_in=None):
-    """车外螺纹（G32 逐刀，各系统都认）：从 z_start 右边 run_in（缺省 2 个螺距、至少 CLEAR）起刀车到 z_end；
-    牙底直径按 ISO 965-1 的 d3。动作 thread：x（本刀直径）、z、pitch"""
+# ---------------------------------------------------------------- 固定循环的展开规则（ADR-0106 Q3a）
+# 程序里写 G71 / G70 / G76 时，仿真、回读比对都按下面的规则展开；出刀路时（选了固定循环）也用同一套规则，
+# 所以仿真的就是程序里写的。数控系统自己的展开细节可能略有不同（各家、各版本），程序头写“未经实机验证”。
+def g71_expand(blocks, x0, z0, d, e, u, w, f):
+    """G71 外圆粗车循环（FANUC 一型）：blocks 是精车轮廓 [(x, z), …]（第一个点只动 X：(x_ns, z0)）。
+    从起点 (x0, z0) 起每层直径减 2d，车到碰到轮廓（偏移 U 直径、W 轴向）为止，45° 退 e，快移回 z0；最后沿偏移后的轮廓走一刀，回起点"""
+    prof = [(z + w, x + u) for x, z in blocks]                 # (z, d)
+    dmin = min(dd for _, dd in prof)
+    mv = []
+    x = x0
+    while x > dmin + 1e-6:
+        xn = max(x - 2 * d, dmin)
+        zstop = z_reach(prof, xn + 1e-6)
+        if zstop < z0 - 1e-6:
+            mv += [{"t": "rapid", "x": xn, "z": z0}, {"t": "feed", "x": xn, "z": zstop, "f": f},
+                   {"t": "feed", "x": xn + 2 * e, "z": zstop + e, "f": f}, {"t": "rapid", "x": xn + 2 * e, "z": z0}]
+        x = xn
+    mv += [{"t": "rapid", "x": prof[0][1], "z": z0}]
+    mv += [{"t": "feed", "x": dd, "z": z, "f": f} for z, dd in prof[1:]]
+    mv += [{"t": "feed", "x": x0, "z": prof[-1][0], "f": f}, {"t": "rapid", "x": x0, "z": z0}]
+    return mv
+
+
+def g70_expand(blocks, x0, z0, f):
+    """G70 精车循环：从起点沿 blocks 走一遍（第一个点快移），回起点"""
+    mv = [{"t": "rapid", "x": blocks[0][0], "z": z0}]
+    mv += [{"t": "feed", "x": x, "z": z, "f": f} for x, z in blocks[1:]]
+    mv += [{"t": "feed", "x": x0, "z": blocks[-1][1], "f": f}, {"t": "rapid", "x": x0, "z": z0}]
+    return mv
+
+
+def g76_depths(k, dd, spring=1):
+    """G76 各刀累计切深：dd·√i（i = 1, 2, …），到 k 为止，再光 spring 刀。k、dd 按程序里的微米取整后的值"""
+    out, i = [], 1
+    while True:
+        a = min(dd * math.sqrt(i), k)
+        out.append(a)
+        if a >= k - 1e-9:
+            break
+        i += 1
+    return out + [k] * spring
+
+
+def turn_part(z, d_from, f, tool_width, clear=CLEAR, x_end=-1.0, chamfer=0.0, d_part=None, slow_d=None):
+    """切断：z 是零件左端面（刀位点在切断刀右刀尖，刀宽往左），从 d_from 外面直进到中心以下（x_end）。
+    - chamfer > 0：切断前用右刀尖倒零件左端的 45° 角（d_part 是倒角处的外径）：先在 z 处预切到倒角根部以下 0.4 mm
+      给刀让位，再从 z + chamfer 处切到 d_part，斜着走到 (d_part − 2·chamfer, z)，接着切断；倒角不能大于刀宽。
+    - slow_d：直径小于它以后进给减半（缺省 max(0.2·d_from, 4)）——快到中心时转速被 G50 限住、线速度下降，零件要掉，减小冲击。
+    零件掉下来。"""
+    if tool_width <= 0:
+        raise CamError("切断刀宽要大于 0")
+    if chamfer > 0 and (d_part is None or chamfer > tool_width + 1e-9 or d_part - 2 * chamfer <= 0):
+        raise CamError(f"切断前倒角 C{chamfer:g} 要给外径，且不能大于切断刀宽 {tool_width:g}")
+    xo = d_from + 2 * clear
+    slow = min(max(0.2 * d_from, 4.0), d_from) if slow_d is None else slow_d
+    mv = [{"t": "comment", "text": f"切断：Z{z:g}，刀宽 {tool_width:g}" + (f"，切断前倒角 C{chamfer:g}" if chamfer > 0 else "")
+           + f"，Ø{slow:g} 以下进给减半"}, {"t": "rapid", "x": xo, "z": z}]
+    if chamfer > 0:
+        mv += [{"t": "feed", "x": d_part - 2 * chamfer - 0.4, "z": z, "f": f}, {"t": "rapid", "x": xo, "z": z},
+               {"t": "rapid", "x": xo, "z": z + chamfer}, {"t": "feed", "x": d_part, "z": z + chamfer, "f": f},
+               {"t": "feed", "x": d_part - 2 * chamfer, "z": z, "f": f}]
+    mv += [{"t": "feed", "x": slow, "z": z, "f": f}, {"t": "feed", "x": x_end, "z": z, "f": f / 2},
+           {"t": "rapid", "x": xo, "z": z}]
+    return mv
+
+
+def turn_face_groove(d_in, d_out, depth, f, tool_width, clear=CLEAR, peck=0.0):
+    """端面槽（沿 Z 切）：槽在端面上，内径 d_in、外径 d_out、深 depth。刀位点在端面切槽刀的外侧刀尖（半径大的一边），
+    刀宽沿半径往里；槽宽于刀时从外往里多刀并排，每刀重叠 20%。peck > 0 时分段啄进排屑。"""
+    w = (d_out - d_in) / 2
+    if w < tool_width - 1e-9:
+        raise CamError(f"端面槽宽 {w:g} 小于刀宽 {tool_width:g}")
+    if depth <= 0:
+        raise CamError("端面槽深要大于 0")
+    mv = [{"t": "comment", "text": f"端面槽：Ø{d_in:g} ~ Ø{d_out:g}，深 {depth:g}，刀宽 {tool_width:g}"}]
+    span = w - tool_width
+    n = 1 if span < 1e-9 else math.ceil(span / (0.8 * tool_width) - 1e-9) + 1
+    for k in range(n):
+        xk = d_out - 2 * (span * k / (n - 1) if n > 1 else 0.0)
+        mv.append({"t": "rapid", "x": xk, "z": clear})
+        stops = [-depth] if peck <= 0 else [max(-depth, -peck * (i + 1)) for i in range(math.ceil(depth / peck))]
+        for zt in stops:
+            mv += [{"t": "feed", "x": xk, "z": zt, "f": f}]
+            if peck > 0 and zt > -depth + 1e-9:
+                mv += [{"t": "rapid", "x": xk, "z": clear}, {"t": "rapid", "x": xk, "z": zt + 0.5}]
+        mv.append({"t": "rapid", "x": xk, "z": clear})
+    return mv
+
+
+ISO_D1 = 1.08253   # 内螺纹小径 D1 = D − 1.08253·P（ISO 68-1：D1 = D − 2·(5/8)·H，H = 0.866025·P）
+THREAD_H = {"r": 0.640327, "npt": 0.8}   # 锥管螺纹牙高 h / P：R 系列 ISO 7-1（55°），NPT ASME B1.20.1（60°）；内外相同
+THREAD_FORMS = {"iso": "ISO 68-1 60°", "r": "ISO 7-1 55°", "npt": "ASME B1.20.1 NPT 60°"}
+
+
+def thread_depth(pitch, internal=False, form="iso"):
+    """单边牙深：ISO 68-1 外螺纹按 d3（0.6134P）、内螺纹按 D1 到 D（0.5413P）；R、NPT 锥管螺纹按各自标准的牙高"""
+    if form in THREAD_H:
+        return THREAD_H[form] * pitch
+    return (ISO_D1 if internal else ISO_D3) * pitch / 2
+
+
+def turn_thread(z_start, z_end, d_major, pitch, first_max=0.25, spring=1, run_in=None, internal=False, taper=0.0, starts=1,
+                clear=CLEAR, g76=False, form="iso"):
+    """车螺纹（G32 逐刀，各系统都认）：从 z_start 右边 run_in（缺省 2 个螺距、至少 clear）起刀车到 z_end。
+    - 外螺纹牙底按 ISO 965-1 的 d3（牙深 0.6134P），从大径往里进刀；
+    - internal=True 内螺纹：底孔是小径 D1 = D − 1.0825P，从小径往外进刀到大径 D（牙深 0.5413P），退刀往中心让；
+    - taper 锥螺纹：直径每毫米长度的变化（1:16 写 0.0625），d_major 是 z_start 处的大径，往左变大；
+    - starts 多头螺纹：导程 = 头数 × 螺距，每一刀按头数分度，起刀点依次往右挪一个螺距；
+    - form 牙型：iso（缺省）、r（ISO 7-1 锥管螺纹，55°）、npt（ASME B1.20.1），牙深见 thread_depth。
+    动作 thread：x（本刀直径）、z、pitch（导程，G32 的 F）"""
     if z_end >= z_start:
         raise CamError("螺纹从右往左车：z_end 要小于 z_start")
-    if pitch <= 0 or d_major <= 0:
-        raise CamError("螺纹直径、螺距要大于 0")
-    depth = ISO_D3 * pitch / 2
-    zs = z_start + (run_in if run_in is not None else max(2 * pitch, CLEAR))
-    xo = d_major + 2 * CLEAR
-    mv = [{"t": "comment", "text": f"车螺纹 M{d_major:g}x{pitch:g}：Z{z_start:g} ~ Z{z_end:g}，牙底 Ø{d_major - 2 * depth:.3f}"}]
-    for a in thread_infeeds(depth, first_max, spring):
-        d = d_major - 2 * a
-        mv += [{"t": "rapid", "x": xo, "z": zs}, {"t": "rapid", "x": d, "z": zs},
-               {"t": "thread", "x": d, "z": z_end, "pitch": pitch}, {"t": "rapid", "x": xo, "z": z_end},
-               {"t": "rapid", "x": xo, "z": zs}]
+    if pitch <= 0 or d_major <= 0 or starts < 1:
+        raise CamError("螺纹直径、螺距要大于 0，头数至少 1")
+    if form not in THREAD_FORMS:
+        raise CamError(f"螺纹牙型 {form} 不认识：可用 iso、r、npt")
+    depth = thread_depth(pitch, internal, form)
+    lead = starts * pitch
+    run = run_in if run_in is not None else max(2 * lead, clear)
+    zs0 = z_start + run
+
+    def dia(z):                                     # 该 z 处的大径
+        return d_major + taper * (z_start - z)
+
+    kind = "内" if internal else ""
+    extra = (f"，{THREAD_FORMS[form]}" if form != "iso" else "") + (f"，锥度 1:{1 / taper:g}" if taper else "") + (f"，{starts} 头（导程 {lead:g}）" if starts > 1 else "")
+    root = (f"大径 Ø{d_major:g}" if internal else f"牙底 Ø{d_major - 2 * depth:.3f}")
+    mv = [{"t": "comment", "text": f"车{kind}螺纹 M{d_major:g}x{pitch:g}{extra}：Z{z_start:g} ~ Z{z_end:g}，{root}"}]
+    if g76:                                         # 出 G76：切深按程序里的微米值和 G76 的展开规则
+        n = max(3, math.ceil((depth / first_max) ** 2 - 1e-9))
+        k_um, dd_um = round(depth * 1000), round(depth / math.sqrt(n) * 1000)
+        infeeds = g76_depths(k_um / 1000, dd_um / 1000, spring)
+    else:
+        infeeds = thread_infeeds(depth, first_max, spring)
+    for k in range(starts):                        # 多头：一个头车完再车下一个（与 G76 每个头一段循环一致）
+        for a in infeeds:
+            zs = zs0 + k * pitch
+            if internal:
+                xs, xe = dia(zs) - 2 * depth + 2 * a, dia(z_end) - 2 * depth + 2 * a
+                xo = max(min(xs, xe) - 2 * a - 2 * clear, 0.2 * (d_major - 2 * depth))
+            else:
+                xs, xe = dia(zs) - 2 * a, dia(z_end) - 2 * a
+                xo = max(dia(zs), dia(z_end)) + 2 * clear
+            mv += [{"t": "rapid", "x": xo, "z": zs}, {"t": "rapid", "x": xs, "z": zs},
+                   {"t": "thread", "x": xe, "z": z_end, "pitch": lead}, {"t": "rapid", "x": xo, "z": z_end},
+                   {"t": "rapid", "x": xo, "z": zs}]
     return mv
 
 
@@ -303,7 +442,7 @@ def z_reach_inner(prof, d):
     return last
 
 
-def turn_bore(inner, hole_d, ap, f, allow_r=0.3, f_finish=None, nose_r=0.0):
+def turn_bore(inner, hole_d, ap, f, allow_r=0.3, f_finish=None, nose_r=0.0, clear=CLEAR, retract=0.5):
     """镗内孔：从已钻的孔 hole_d 起分层扩到留余量的内轮廓，再沿内轮廓精镗一刀。刀位点在镗刀刀尖，退刀往孔中心让 1 mm"""
     dmax = max(d for _, d in inner)
     if hole_d >= min(d for _, d in inner) - 1e-9:
@@ -315,16 +454,17 @@ def turn_bore(inner, hole_d, ap, f, allow_r=0.3, f_finish=None, nose_r=0.0):
         d_new = min(d + 2 * ap, dmax - 2 * allow_r)
         zstop = z_reach_inner(tgt, d_new - 1e-6)
         if zstop < -1e-6:
-            mv += [{"t": "rapid", "x": d_new, "z": CLEAR}, {"t": "feed", "x": d_new, "z": zstop, "f": f},
-                   {"t": "feed", "x": d_new - 1.0, "z": zstop + 0.5, "f": f}, {"t": "rapid", "x": d_new - 1.0, "z": CLEAR}]
+            mv += [{"t": "rapid", "x": d_new, "z": clear}, {"t": "feed", "x": d_new, "z": zstop, "f": f},
+                   {"t": "feed", "x": d_new - 2 * retract, "z": zstop + retract, "f": f},
+                   {"t": "rapid", "x": d_new - 2 * retract, "z": clear}]
         d = d_new
     mv.append({"t": "comment", "text": "精镗内轮廓"})
     ff = f_finish or f
     prof = nose_comp(inner, nose_r, inner=True)
-    mv += [{"t": "rapid", "x": prof[0][1], "z": CLEAR}]
+    mv += [{"t": "rapid", "x": prof[0][1], "z": clear}]
     mv += [{"t": "feed", "x": dd, "z": z, "f": ff} for z, dd in prof]
     zl = prof[-1][0]
-    mv += [{"t": "feed", "x": hole_d, "z": zl, "f": ff}, {"t": "rapid", "x": hole_d, "z": CLEAR}]
+    mv += [{"t": "feed", "x": hole_d, "z": zl, "f": ff}, {"t": "rapid", "x": hole_d, "z": clear}]
     return mv
 
 

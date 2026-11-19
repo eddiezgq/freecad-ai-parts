@@ -319,6 +319,58 @@
     "kind": "example",
     "ref": "虚构示例"
    }
+  },
+  {
+   "id": "TH30",
+   "number": 18,
+   "kind": "thread_turn",
+   "pitch_mm": 3.0,
+   "insert": {
+    "nose_radius_mm": 0.1
+   },
+   "source": {
+    "kind": "example",
+    "ref": "虚构示例"
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60,
+      "max": 120
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "TH2309",
+   "number": 19,
+   "kind": "thread_turn",
+   "pitch_mm": 2.309,
+   "insert": {
+    "nose_radius_mm": 0.1
+   },
+   "source": {
+    "kind": "example",
+    "ref": "虚构示例"
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60,
+      "max": 120
+     },
+     "f_mm_rev": {
+      "min": 2.309,
+      "max": 2.309
+     }
+    }
+   ]
   }
  ]
 }

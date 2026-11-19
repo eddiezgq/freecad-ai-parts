@@ -5,7 +5,7 @@
 G96/G97、G94/G95、G98/G99（车：每分 / 每转进给；铣：钻孔循环返回平面）、G80/G81/G83、T、M03/M04/M05/M06/M08/M09/M30、S、F。
 
 仿真：
-  车削——沿轴线的半径网格（每 0.02 mm 一格）。外圆车刀按“刀尖在左下角，刀体朝右上”处理；切槽刀刀宽 w，刀尖在右刀尖。刀尖圆弧按 0。
+  车削——沿轴线的半径网格（每 0.02 mm 一格）。外圆车刀按“刀尖在左下角，刀体朝右上”处理；切槽刀刀宽 w，刀尖在右刀尖。外圆刀、镗刀的刀尖圆弧按 rε 扫过（ADR-0106 Q2）。
   铣削——高度图（XY 网格，每格记录剩下材料的顶面高度）。平底立铣刀按圆柱扫过；钻头按平底处理。
 检查：快移碰到材料、与目标比对过切 / 残留、超程、转速超限、G96 没有 G50 限速、没开主轴就切削、G01 没有 F。
 """
@@ -17,6 +17,7 @@ import re
 
 import numpy as np
 
+from analysis.cam import paths as _P
 from analysis.cam.paths import d_at
 
 WORD = re.compile(r"([A-Z])\s*([-+]?(?:\d+\.?\d*|\.\d+))")
@@ -44,6 +45,29 @@ def parse(text, m):
     moves, warns, tools, tool_changes = [], [], [], []
     rpm_req = 0.0
     cyc = None
+    lines = text.splitlines()
+    nmap = {}                                       # 程序段号 N → 行号（G71 / G70 的 P、Q 找轮廓用）
+    for ln, raw in enumerate(lines, 1):
+        mm = re.match(r"N(\d+)", _strip(raw))
+        if mm:
+            nmap[int(mm.group(1))] = ln
+    skip = set()
+    g71p = g76p = None
+
+    def blocks(ns, nf, z_start):
+        """N ns ~ N nf 的轮廓段 → [(x, z), …] 与段里的 F（绝对坐标；第一段没写 Z 就是起点的 Z）"""
+        if ns not in nmap or nf not in nmap:
+            raise ValueError(f"固定循环的 P{ns} / Q{nf} 程序段找不到")
+        pts, x, z, f = [], None, z_start, None
+        for k in range(nmap[ns], nmap[nf] + 1):
+            ww = {kk: float(v) for kk, v in WORD.findall(_strip(lines[k - 1])) if kk in "XZF"}
+            x = ww.get("X", x)
+            z = ww.get("Z", z)
+            f = ww.get("F", f)
+            if "X" in ww or "Z" in ww:
+                pts.append((x, z))
+            skip.add(k)
+        return pts, f
 
     def emit(t, b, line, **kw):
         a = tuple(st["pos"])
@@ -53,7 +77,9 @@ def parse(text, m):
                               rpm=st["rpm"], smax=st["smax"], spin=st["spin"], **kw))
         st["pos"] = list(b)
 
-    for ln, raw in enumerate(text.splitlines(), 1):
+    for ln, raw in enumerate(lines, 1):
+        if ln in skip:
+            continue
         line = _strip(raw)
         if not line or line in ("%",) or line.startswith("O"):
             continue
@@ -143,6 +169,50 @@ def parse(text, m):
             st["spin"] = True
         if 5 in mc:
             st["spin"] = False
+        if lathe and any(x in g for x in (70, 71, 76)):     # 车削固定循环：按 paths 里的展开规则展开（与出刀路同一套）
+            P_ = int(w.get("P", 0))
+            x0, z0 = st["pos"][0], st["pos"][2]
+            try:
+                if 71 in g and "P" not in w:
+                    g71p = {"d": w.get("U", 1.0), "e": w.get("R", 0.5)}
+                    continue
+                if 71 in g:
+                    pts, f_fin = blocks(P_, int(w["Q"]), z0)
+                    exp = _P.g71_expand(pts, x0, z0, (g71p or {}).get("d", 1.0), (g71p or {}).get("e", 0.5),
+                                        w.get("U", 0.0), w.get("W", 0.0), w.get("F", st["f"]))
+                elif 70 in g:
+                    pts, f_fin = blocks(P_, int(w["Q"]), z0)
+                    exp = _P.g70_expand(pts, x0, z0, f_fin or st["f"])
+                elif "X" not in w and "Z" not in w:
+                    pp = f"{P_:06d}"
+                    g76p = {"m": int(pp[:2]), "a": int(pp[4:])}
+                    continue
+                else:
+                    xr, ze, lead = w["X"], w["Z"], w["F"]
+                    k, dd, ii = w.get("P", 0) / 1000.0, w.get("Q", 0) / 1000.0, w.get("R", 0.0)
+                    if (g76p or {}).get("a", 0):
+                        warns.append({"line": ln, "level": "unknown", "text": "G76 斜进（刀尖角 a ≠ 0）：仿真按径向进刀展开"})
+                    exp = []
+                    for a in _P.g76_depths(k, dd, (g76p or {}).get("m", 1)):
+                        xe = xr + 2 * (k - a) if xr < x0 else xr - 2 * (k - a)
+                        exp += [{"t": "rapid", "x": xe + 2 * ii, "z": z0}, {"t": "thread", "x": xe, "z": ze, "pitch": lead},
+                                {"t": "rapid", "x": x0, "z": ze}, {"t": "rapid", "x": x0, "z": z0}]
+            except (ValueError, KeyError) as exc:
+                warns.append({"line": ln, "level": "error", "text": f"固定循环读不懂：{exc}"})
+                continue
+            for e in exp:
+                if e["t"] == "thread":
+                    st["f"] = e["pitch"]
+                    n0 = len(moves)
+                    emit("thread", (e["x"], 0.0, e["z"]), ln, pitch=e["pitch"])
+                    if len(moves) > n0:
+                        moves[-1]["per_rev"] = True
+                else:
+                    if "f" in e:
+                        st["f"] = e["f"]
+                    emit(e["t"], (e["x"], 0.0, e["z"]), ln)
+            st["motion"] = 0
+            continue
         if 28 in g:
             if lathe:
                 st["pos"] = [hx, 0.0, hz]
@@ -336,7 +406,8 @@ def _seg_points(a, b, step):
 
 def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=None):
     """stock：{"d": 毛坯直径, "z_right": 毛坯右端（端面余量）, "z_left": 毛坯左端（卡盘处，负数）}，可另给 "bore_d"（毛坯已有的内孔）
-    tools：{刀号: {"kind": "turn"} | {"kind": "groove", "w": 刀宽} | {"kind": "thread"} | {"kind": "drill", "d": 直径} | {"kind": "bore"}}
+    tools：{刀号: {"kind": "turn"} | {"kind": "groove", "w": 刀宽} | {"kind": "thread"} | {"kind": "thread_in"} | {"kind": "drill", "d": 直径}
+           | {"kind": "bore"} | {"kind": "face_groove", "w": 刀宽（半径方向）}}
            外圆刀、镗刀可带 "nose_r"（刀尖圆弧半径）：程序点是假想刀尖（外圆刀方位 3、镗刀方位 2），按半径 nose_r 的圆扫过去切（ADR-0106 Q2）
     target：比对用轮廓 [(z, d), …]（成品或本工序尺寸），或 {"outer": 轮廓, "grooves": [(z 右边, 宽, 槽底直径)], "threads": [(z 起, z 止, 牙底直径)],
             "inner": 内轮廓 [(z, d), …]}。返回最终半径网格（外 r、内 ri）、碰撞、过切 / 残留。
@@ -350,6 +421,7 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
         zmax = max(z for z, _ in stock["profile"])
         r = np.array([d_at(stock["profile"], z) / 2 if z <= zmax + 1e-9 else 0.0 for z in zc])
     issues, ap_max = [], 0.0
+    void = np.full((n, 2), np.nan)                # 端面槽切出的环形空腔 [内半径, 外半径]（每个 Z 一个）
     if history is not None:                       # 回放用：开始时和每段走完的 (z, r, ri)
         history.append((zc, r.copy(), ri.copy()))
 
@@ -366,7 +438,27 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
         pts = _seg_points(a, b, h / 4 if rn <= 0 else h)
         solid = r > ri + 1e-12
         new_r, new_ri = r.copy(), ri.copy()
-        if kind in ("bore", "drill"):
+        if kind == "face_groove":                     # 端面槽：刀位点在外侧刀尖，刀宽沿半径往里，刀从这点往 +Z 一侧都占着
+            w = float(tl.get("w", 3.0))
+            for zp, rp in pts:
+                k0 = max(0, math.ceil((zp - z0) / h - 0.5))
+                if k0 >= n:
+                    continue
+                lo, hi = rp - w, rp
+                cur = void[k0:]
+                fresh = np.isnan(cur[:, 0])
+                touch = ~fresh & (lo <= cur[:, 1] + h) & (hi >= cur[:, 0] - h)
+                apart = ~fresh & ~touch & (r[k0:] > ri[k0:] + 1e-12)
+                if apart.any() and not any("每个 Z 只算一个端面槽" in i["text"] for i in issues):
+                    issues.append({"line": mv["line"], "level": "unknown",
+                                   "text": "两个端面槽在同一段 Z 上：仿真每个 Z 只算一个端面槽，这一段的比对没做"})
+                cur[fresh] = [lo, hi]
+                cur[touch, 0] = np.minimum(cur[touch, 0], lo)
+                cur[touch, 1] = np.maximum(cur[touch, 1], hi)
+            if history is not None:
+                history.append((zc, r.copy(), ri.copy()))
+            continue
+        if kind in ("bore", "drill", "thread_in"):
             grow = np.full(n, -np.inf)
             if kind == "drill":
                 on_axis = np.abs(pts[:, 1]) < 1e-6
@@ -421,7 +513,7 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
         r, ri = new_r, new_ri
         if history is not None:
             history.append((zc, r.copy(), ri.copy()))
-    res = {"z": zc, "r": r, "ri": ri, "issues": issues, "ap_max": ap_max}
+    res = {"z": zc, "r": r, "ri": ri, "issues": issues, "ap_max": ap_max, "void": void}
     if target:
         tg = target if isinstance(target, dict) else {"outer": target}
         outer = tg.get("outer")
@@ -442,13 +534,18 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
                 g = (zc <= zr + 1e-9) & (zc >= zr - w - 1e-9)
                 rt = np.where(g, db / 2, rt)
                 ra = np.where(g, db / 2, ra)
-            for za, zb, droot in tg.get("threads") or []:
-                th = (zc <= za) & (zc >= zb)
+            for t in tg.get("threads") or []:
+                t = _thread_entry(t)
+                th = (zc <= t["za"]) & (zc >= t["zb"])
+                if t["internal"]:
+                    continue                          # 内螺纹在内孔那边比
                 skip |= th
-                left = th & (r > droot / 2 + tol)
+                root = t["root_a"] + (t["root_b"] - t["root_a"]) * (t["za"] - zc) / max(t["za"] - t["zb"], 1e-12)
+                left = th & (r > root / 2 + tol)
                 if left.any():
+                    k = int(np.argmax(np.where(left, r - root / 2, -np.inf)))
                     res["issues"].append({"line": None, "level": "error",
-                                          "text": f"螺纹没车到牙底：Z{zc[left].max():.2f} 处直径 {2 * r[left].max():.3f}，牙底应为 {droot:.3f}"})
+                                          "text": f"螺纹没车到牙底：Z{zc[k]:.2f} 处直径 {2 * r[k]:.3f}，牙底应为 {root[k]:.3f}"})
             sel &= ~skip
             dev = r[sel] - rt[sel]
             dev_a = np.where(dev < 0, dev, np.maximum(r[sel] - ra[sel], 0.0))
@@ -466,6 +563,32 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
             # 端面（Z0 右边）应全部车掉
             right = zc > 1e-9
             res["face_left"] = max(0.0, float((r[right] - ri[right]).max())) if right.any() else 0.0
+        for zp in tg.get("parted") or []:          # 切断：零件左端面以左到中心都要切开
+            cut_zone = (zc < zp - h) & (zc > zp - h * 3)
+            if cut_zone.any() and (r[cut_zone] - ri[cut_zone] > tol).any():
+                res["issues"].append({"line": None, "level": "error", "text": f"没切断：Z{zp:g} 处还连着（切断刀没走到中心）"})
+        for zp, ch, dp in tg.get("part_chamfer") or []:   # 切断前倒角：零件左端 Z zp ~ zp + ch，外径从 dp − 2ch 斜到 dp
+            zone = (zc > zp + h) & (zc < zp + ch - h)
+            if zone.any():
+                want = (dp / 2 - ch) + (zc[zone] - zp)
+                dv = r[zone] - want
+                if (dv < -tol).any():
+                    res["issues"].append({"line": None, "level": "error", "text": f"切断前倒角切多了：C{ch:g} 处最多 {-dv.min():.3f} mm"})
+                elif (dv > tol).any():
+                    res["issues"].append({"line": None, "level": "error", "text": f"切断前倒角没倒到位：C{ch:g} 处最多留了 {dv.max():.3f} mm"})
+        for fg in tg.get("face_grooves") or []:     # 端面槽：Z −深 ~ 0 之间，空腔要盖住 [内径, 外径]，不能更宽更深
+            a_in, a_out, dp = fg["d_in"] / 2, fg["d_out"] / 2, fg["depth"]
+            zone = (zc <= 0.0) & (zc >= -dp + h / 2)
+            v = void[zone]
+            miss = np.isnan(v[:, 0]) | (v[:, 0] > a_in + tol) | (v[:, 1] < a_out - tol)
+            if miss.any():
+                res["issues"].append({"line": None, "level": "error",
+                                      "text": f"端面槽没切到位：Ø{fg['d_in']:g} ~ Ø{fg['d_out']:g}、深 {dp:g} 里有没切的地方"})
+            wide = ~np.isnan(v[:, 0]) & ((v[:, 0] < a_in - tol) | (v[:, 1] > a_out + tol))
+            deep = (zc < -dp - tol) & ~np.isnan(void[:, 0]) & (zc > -dp - 5)
+            if wide.any() or deep.any():
+                res["issues"].append({"line": None, "level": "error",
+                                      "text": f"端面槽切多了：Ø{fg['d_in']:g} ~ Ø{fg['d_out']:g}、深 {dp:g} 以外也切了"})
         inner = tg.get("inner")
         if inner:
             zt = min(z for z, _ in inner)
@@ -478,6 +601,19 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
                 if (rt - ra > tol).any():
                     res["fillet_inner"] = rn
             dev = np.where(rt - ri[sel] < 0, rt - ri[sel], np.maximum(ra - ri[sel], 0.0))   # 镗大了按设计比，残留按做得到的比
+            zs_in = zc[sel]
+            for t in tg.get("threads") or []:
+                t = _thread_entry(t)
+                if not t["internal"]:
+                    continue
+                th = (zs_in <= t["za"]) & (zs_in >= t["zb"])
+                dev = np.where(th, 0.0, dev)              # 内螺纹段：小径按底孔比不适用，看是否车到大径
+                root = t["root_a"] + (t["root_b"] - t["root_a"]) * (t["za"] - zs_in) / max(t["za"] - t["zb"], 1e-12)
+                short = th & (ri[sel] < root / 2 - tol)
+                if short.any():
+                    k = int(np.argmax(np.where(short, root / 2 - ri[sel], -np.inf)))
+                    res["issues"].append({"line": None, "level": "error",
+                                          "text": f"内螺纹没车到大径：Z{zs_in[k]:.2f} 处直径 {2 * ri[sel][k]:.3f}，大径应为 {root[k]:.3f}"})
             res["inner_dev_min"] = float(dev.min()) if dev.size else 0.0
             res["inner_dev_max"] = float(dev.max()) if dev.size else 0.0
             if dev.size and dev.min() < -tol:
@@ -487,6 +623,15 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
                 res["issues"].append({"line": None, "level": "error",
                                       "text": f"内孔残留：Z{zz.max():.2f} ~ Z{zz.min():.2f}，最多 {dev.max():.3f} mm（半径）"})
     return res
+
+
+def _thread_entry(t):
+    """比对用的螺纹：旧格式 (z 起, z 止, 牙底直径) 或 {"za", "zb", "root_a", "root_b", "internal"}"""
+    if isinstance(t, dict):
+        return {"za": float(t["za"]), "zb": float(t["zb"]), "root_a": float(t["root_a"]),
+                "root_b": float(t.get("root_b", t["root_a"])), "internal": bool(t.get("internal"))}
+    za, zb, droot = t
+    return {"za": float(za), "zb": float(zb), "root_a": float(droot), "root_b": float(droot), "internal": False}
 
 
 def achievable(zc, rt, rn, h):

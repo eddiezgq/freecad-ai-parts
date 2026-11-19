@@ -73,6 +73,9 @@ def _lathe(prog, machine, sim_res, post, dialect):
     max_rpm = float(machine["max_rpm"])
     L: list[str] = []
     sie = dialect == "siemens"
+    use_cycles = bool(prog.get("cycles")) and dialect in ("fanuc", "gsk")     # 西门子的 CYCLE95 / 97 还没做：照样出展开的直线段
+    g71_blocks: dict = {}
+    nblock = [100]
     if sie:
         L.append(_semi(f"程序 {prog.get('number', 1)} {prog.get('title', '')}"))
         for en, cn, v in _header_items(prog, machine, sim_res, post):
@@ -107,7 +110,27 @@ def _lathe(prog, machine, sim_res, post, dialect):
             L.append(f"G97 S{round(rpm)} M3" if sie else f"G97 S{round(rpm)} M03")
         pos = {"x": hx, "z": hz}
         mode, last_f, first = None, None, True
-        for mv in _lathe_moves(op):
+        segs = {c["i0"]: c for c in op.get("cycles") or []} if use_cycles else {}
+        moves = op["moves"]
+        i = 0
+        while i < len(moves):
+            if i in segs and (segs[i]["type"] != "G70" or _blocks_key(segs[i]) in g71_blocks):
+                seg = segs[i]
+                if first:
+                    L.append("M08")
+                    first = False
+                L += _cycle_lines(seg, g71_blocks, nblock)
+                if seg["type"] == "G71":
+                    nblock[0] += len(seg["blocks"]) + 10
+                last = next(m for m in reversed(moves[seg["i0"]:seg["i1"]]) if m["t"] in ("rapid", "feed", "thread"))
+                pos = {"x": last["x"], "z": last["z"]}
+                mode, last_f = None, None
+                i = seg["i1"]
+                continue
+            mv = moves[i]
+            i += 1
+            if mv["t"] not in ("rapid", "feed", "thread"):
+                continue
             g = {"rapid": "G0" if sie else "G00", "feed": "G1" if sie else "G01", "thread": "G33" if sie else "G32"}[mv["t"]]
             ax = []
             for a in ("x", "z"):
@@ -132,6 +155,33 @@ def _lathe(prog, machine, sim_res, post, dialect):
         L += [f"G0 X{num(hx)} Z{num(hz)} M9", "M5"] if sie else [f"G00 X{num(hx)} Z{num(hz)} M09", "M05"]
     L += ["M30"] if sie else ["M30", "%"]
     return "\n".join(x for x in L if x) + "\n"
+
+
+def _blocks_key(seg):
+    return tuple((round(x, 4), round(z, 4)) for x, z in seg["blocks"])
+
+
+def _cycle_lines(seg, g71_blocks, nblock):
+    """一段固定循环的程序行（FANUC / 广数写法）。G71 后面紧跟轮廓段 N ns ~ N nf，G70 引用同一组段号"""
+    t = seg["type"]
+    if t == "G71":
+        ns = nblock[0]
+        nf = ns + len(seg["blocks"]) - 1
+        g71_blocks[_blocks_key(seg)] = (ns, nf)
+        out = [f"G71 U{num(seg['d'])} R{num(seg['e'])}",
+               f"G71 P{ns} Q{nf} U{num(seg['u'])} W{num(seg['w'])} F{num(seg['f'], 3)}"]
+        x0, _z0 = seg["blocks"][0]
+        out.append(f"N{ns} G00 X{num(x0)}")
+        for j, (x, z) in enumerate(seg["blocks"][1:], 1):
+            out.append(f"N{ns + j} G01 X{num(x)} Z{num(z)}" + (f" F{num(seg['f_fin'], 3)}" if j == 1 else ""))
+        return out
+    if t == "G70":
+        ns, nf = g71_blocks[_blocks_key(seg)]
+        return [f"G70 P{ns} Q{nf}"]
+    # G76：P(m 精车次数)(r 倒角)(a 刀尖角 0 = 径向进刀) Q(最小切深 μm) R(精车余量)；X Z R(锥度 i) P(牙高 μm) Q(第一刀 μm) F(导程)
+    second = f"G76 X{num(seg['x'])} Z{num(seg['z'])}" + (f" R{num(seg['i'])}" if abs(seg["i"]) > 5e-4 else "") + \
+        f" P{int(seg['k_um'])} Q{int(seg['dd_um'])} F{num(seg['lead'], 4)}"
+    return [f"G76 P{int(seg['m']):02d}0000 Q1 R0", second]
 
 
 # ---------------------------------------------------------------- 铣

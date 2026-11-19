@@ -76,6 +76,7 @@
       "face_mill",
       "tap",
       "reamer",
+      "thread_mill",
       "turn",
       "groove",
       "thread_turn",
@@ -116,10 +117,21 @@
      "exclusiveMinimum": 0,
      "exclusiveMaximum": 180
     },
+    "tip_diameter_mm": {
+     "type": "number",
+     "minimum": 0,
+     "description": "倒角刀、中心钻刀尖小端直径（尖点写 0）；ADR-0108"
+    },
     "pitch_mm": {
      "type": "number",
      "exclusiveMinimum": 0,
-     "description": "丝锥、螺纹车刀的螺距"
+     "description": "丝锥、螺纹车刀、多齿螺纹铣刀的螺距（单齿螺纹铣刀不写，任意螺距都能铣）"
+    },
+    "thread_angle_deg": {
+     "type": "number",
+     "exclusiveMinimum": 0,
+     "exclusiveMaximum": 180,
+     "description": "螺纹牙型角（普通螺纹 60，R 系列管螺纹 55）；ADR-0108"
     },
     "insert": {
      "type": "object",
@@ -316,7 +328,8 @@
          "chamfer_mill",
          "face_mill",
          "tap",
-         "reamer"
+         "reamer",
+         "thread_mill"
         ]
        }
       }
