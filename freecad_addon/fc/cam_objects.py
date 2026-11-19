@@ -22,7 +22,7 @@ GROUP = "问渠CAM"
 STATUS = ["草稿", "已确认"]
 TURN_KINDS = {"rough": "粗车外圆", "finish": "精车外圆", "groove": "切槽", "thread": "车螺纹", "drill": "钻孔", "bore": "镗孔",
               "face_groove": "端面槽", "part": "切断"}
-MILL_KINDS = {"pocket": "铣型腔", "profile": "铣外轮廓", "drill": "钻孔", "cbore": "铣沉孔", "csink": "锪孔口", "tap": "攻丝"}
+MILL_KINDS = {"face": "面铣", "pocket": "铣型腔", "profile": "铣外轮廓", "drill": "钻孔", "cbore": "铣沉孔", "csink": "锪孔口", "tap": "攻丝"}
 HOLE_KINDS = ("cbore", "csink", "tap")     # 按孔特征出刀路（ADR-0106 Q3b）：孔表存在工序的 HoleData 里
 TURN_TOOL_N = {"rough": 1, "finish": 2, "groove": 3, "thread": 4, "drill": 5, "bore": 6, "part": 8, "face_groove": 9}
 
@@ -66,6 +66,7 @@ class JobProxy:
         _add(obj, "App::PropertyString", "PartData", "零件数据（JSON）", hidden=True)
         _add(obj, "App::PropertyString", "Fixture", "夹具：车 = 卡爪夹持长度, 外径；铣 = 平口钳夹持高度", "")
         _add(obj, "App::PropertyFloat", "WorkOffsetZ", "铣：工件顶面离工作台 mm", 40.0)
+        _add(obj, "App::PropertyFloat", "StockTop", "铣：面铣余量——毛坯顶面高出零件顶面 mm（0 = 毛坯顶面就是零件顶面，不面铣）", 0.0)
         _add(obj, "App::PropertyString", "ToolLengths", "铣刀刀长 JSON（刀具 id → mm）", "{}")
         _add(obj, "App::PropertyString", "Result", "计算结果摘要（JSON）", hidden=True)
         _add(obj, "App::PropertyString", "Programs", "正式程序（JSON：文件名 → 文本）", hidden=True)
@@ -491,7 +492,7 @@ def regenerate_mill(op) -> None:
     from freecad_addon.fc import cam_fc
 
     job = job_of(op)
-    prog, _stock = cam_fc.program(job.Model.Shape, [_mill_spec(job, op)])
+    prog, _stock = cam_fc.program(job.Model.Shape, [_mill_spec(job, op)], stock_top=float(getattr(job, "StockTop", 0.0)))
     o = prog["ops"][0]
     op.Moves = json.dumps(o["moves"])
     op.Spindle = json.dumps(o["spindle"])
@@ -584,9 +585,9 @@ def draft(job, client=None, note: str = "") -> dict:
     from analysis.cam import machines
     from freecad_addon.fc import cam_doc
 
-    flags = {"pocket": True, "profile": False, "drill": True, "holes": True}
+    flags = {"face": float(getattr(job, "StockTop", 0.0)) > 0, "pocket": True, "profile": False, "drill": True, "holes": True}
     plan = cam_doc.mill_plan(job.Model.Shape, _lib(job), S.iso_group(job.Kienzle), max_rpm=float(machines.get(job.Machine)["max_rpm"]),
-                             **flags)
+                             stock_top=float(getattr(job, "StockTop", 0.0)), **flags)
     s = setups(job)[0]
     for spec, row in zip(plan["ops"], plan["card"], strict=True):
         _mill_op_from_plan(s, spec, row)
@@ -676,12 +677,13 @@ def add_op(setup, kind: str):
             raise CamObjError(f"铣削没有这种工序：{kind}")
         from freecad_addon.fc import cam_doc
 
-        flags = {k: k == kind for k in ("pocket", "profile", "drill")}
+        flags = {k: k == kind for k in ("face", "pocket", "profile", "drill")}
         flags["holes"] = kind in HOLE_KINDS
         flags["taps"] = kind == "tap"
         try:
             plan = cam_doc.mill_plan(job.Model.Shape, _lib(job), S.iso_group(job.Kienzle),
-                                     max_rpm=float(machines.get(job.Machine)["max_rpm"]), **flags)
+                                     max_rpm=float(machines.get(job.Machine)["max_rpm"]), stock_top=float(getattr(job, "StockTop", 0.0)),
+                                     **flags)
         except cam_doc.CamDocError as exc:
             raise CamObjError(str(exc)) from exc
         pairs = [(sp, r) for sp, r in zip(plan["ops"], plan["card"], strict=True) if sp["type"] == kind]
@@ -791,7 +793,9 @@ def build_setup(job) -> dict:
                                       **({"ae_max": cc["ae_max_mm"]} if "ae_max_mm" in cc else {})},
                              "spindle": _js(o, "Spindle", {}), "moves": mv, "title": o.Label,
                              "safe": max((x["z"] for x in mv if x.get("t") == "rapid"), default=5.0)})
-        setup = {"mode": "program", "machine": job.Machine, "item": job.Item, "stock": d["stock"],
+        st = float(getattr(job, "StockTop", 0.0))
+        stock = {**d["stock"], "top": st, "height": float(d["stock"]["height"]) + st}
+        setup = {"mode": "program", "machine": job.Machine, "item": job.Item, "stock": stock,
                  "program": {"number": 6001, "title": f"{job.Item} 铣削", "ops": prog_ops, "generator": "FreeCAD CAM"}}
         if job.Kienzle:
             setup["kienzle"] = job.Kienzle

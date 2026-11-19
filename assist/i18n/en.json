@@ -670,7 +670,6 @@
 "工序 {} 没有转速": "Operation {} has no spindle speed",
 "工序 {} 转速 {} 超过机床最高转速 {}": "Operation {}: spindle speed {} exceeds the machine maximum {}",
 "工序 {}：{}": "Operation {}: {}",
-"工序类型 {} 不认识：pocket、profile、drill": "Unknown operation type {}: use pocket, profile or drill",
 "工序类型：车 rough / finish / groove / thread / drill / bore；铣 pocket / profile / drill": "Operation type: turning rough / finish / groove / thread / drill / bore; milling pocket / profile / drill",
 "工序：{}": "Operation: {}",
 "工程图尺寸与设计不符：{}，图上 {}": "Drawing dimension differs from the design: {}, drawing shows {}",
@@ -1860,5 +1859,10 @@
 "攻丝": "Tapping",
 "铣沉孔": "Counterbore",
 "锪孔口": "Countersink",
-"铣：这道孔工序加工哪些孔（JSON：直径、孔表，程序坐标）": "Milling: the holes this operation machines (JSON: diameter, hole list, program coordinates)"
+"铣：这道孔工序加工哪些孔（JSON：直径、孔表，程序坐标）": "Milling: the holes this operation machines (JSON: diameter, hole list, program coordinates)",
+"刀具库里没有面铣刀，也没有平底立铣刀，面铣不了": "The tool library has no face mill and no flat end mill; face milling is not possible",
+"面铣": "Face milling",
+"工序类型 {} 不认识：face、pocket、profile、drill": "Unknown operation type {}: face, pocket, profile, drill",
+"面铣：毛坯顶面要高出零件顶面（作业的“面铣余量”大于 0）": "Face milling: the stock top must be above the part top (job \"Face stock\" greater than 0)",
+"铣：面铣余量——毛坯顶面高出零件顶面 mm（0 = 毛坯顶面就是零件顶面，不面铣）": "Milling: face stock — how far the stock top is above the part top, mm (0 = stock top is the part top, no face milling)"
 }

@@ -79,3 +79,39 @@ def test_hole_plate_model_to_program():
         assert p["release"] is not None and "G84" in p["release"]["text"] and "M29" in p["release"]["text"]
     finally:
         App.closeDocument(doc.Name)
+
+
+def test_face_milling_removes_stock_allowance():
+    """面铣余量 2 mm：起草第一道是面铣（分两层），算完毛坯顶面整个落到零件顶面 Z0，去除体积 = 100 × 60 × 2"""
+    import json
+
+    import FreeCAD as App
+    import numpy as np
+    import Part
+
+    from analysis.cam import machines, sim
+    from freecad_addon.fc import cam_objects as CO
+
+    doc = App.newDocument("camface")
+    try:
+        m = doc.addObject("Part::Feature", "Block")
+        m.Shape = Part.makeBox(100, 60, 30)
+        doc.recompute()
+        job = CO.new_job(doc, m, "mill", post="fanuc")
+        job.StockTop = 2.0
+        job.ToolLengths = json.dumps({"EM10": 120})
+        CO.draft(job)
+        s = CO.setups(job)[0]
+        assert [o.OpKind for o in CO.ops(s)] == ["face"]
+        CO.confirm(CO.ops(s)[0])
+        r = CO.calculate(job)
+        p = r["data"]["programs"][0]
+        assert not [c for c in p["checks"] if c["level"] == "error"], [c["text"] for c in p["checks"] if c["level"] == "error"]
+        assert p["release"] is not None
+        vmc = machines.get(job.Machine)
+        tools = {int(k): v for k, v in p["tools"].items()}
+        res = sim.simulate_mill(sim.parse(p["gcode"], vmc), {"box": [0, 0, 100, 60], "top": 2.0}, tools)
+        H = res["H"][res["inside"]]
+        assert float(np.abs(H).max()) < 1e-9
+    finally:
+        App.closeDocument(doc.Name)

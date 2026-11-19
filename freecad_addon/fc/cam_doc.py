@@ -411,7 +411,7 @@ def hole_ops(shape, lib: dict) -> list[dict]:
 
 
 def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, profile: bool = True, drill: bool = True,
-              holes: bool = True, taps: bool = False, max_rpm: float = 1e9) -> dict:
+              holes: bool = True, taps: bool = False, face: bool = False, stock_top: float = 0.0, max_rpm: float = 1e9) -> dict:
     """铣削件（零件实体）→ FreeCAD CAM 的工序（cam_fc.program 的 ops）与工艺卡的工序表。
     选刀：型腔取刀径不超过型腔底面窄边一半的最大平底刀；外轮廓取最大的平底刀；每种孔径取直径相同的钻头。
     参数：刀具样本范围的中间值（assist.cam_process 的规则值）；转速 n = 1000·vc/(π·d)（不超过机床最高转速），进给 = fz·刃数·n。"""
@@ -439,7 +439,7 @@ def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, profile: bool 
                 z = CP.TEACH_Z["pocket"]
                 notes.append(f"{title}：刀 {tool['id']} 没写刃数，按 {z} 刃算进给，待确认")
             feed = params["fz"] * z * rpm
-            spec = {"type": kind if kind in ("pocket", "cbore") else "profile", "tool": tool, "number": n, "rpm": round(rpm),
+            spec = {"type": kind if kind in ("pocket", "cbore", "face") else "profile", "tool": tool, "number": n, "rpm": round(rpm),
                     "feed_mm_min": round(feed, 1), "plunge_mm_min": round(feed / 3, 1), "step_down_mm": params["ap"], **extra}
         if status == "unknown":
             notes.append(f"{title}：刀 {tool['id']} 的样本没有 {iso} 组的参数，用教学示意值，待确认")
@@ -447,6 +447,14 @@ def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, profile: bool 
         card.append({"id": f"f{n}", "title": title, "tool": tool["id"], "tool_name": tool.get("name", ""), "params": params,
                      "status": status, "reason": ""})
 
+    if face and stock_top > 0:                  # 面铣：面铣刀（没有就用最大的平底刀），分层铣掉面铣余量
+        fms = [t for t in lib["tools"] if t["kind"] == "face_mill" and "diameter_mm" in t] or ends
+        if not fms:
+            raise CamDocError("刀具库里没有面铣刀，也没有平底立铣刀，面铣不了")
+        t = max(fms, key=lambda t: t["diameter_mm"])
+        c = _cut(t, iso)
+        so = min(70.0, 100 * c["ae_max_mm"] / t["diameter_mm"]) if c and "ae_max_mm" in c else 70.0
+        add("face", "面铣", t, {"step_over_pct": so})
     if pocket:
         floors = cam_fc.pocket_floors(shape, top)
         if floors:

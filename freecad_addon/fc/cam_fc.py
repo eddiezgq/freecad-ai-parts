@@ -18,7 +18,7 @@ import math
 from pathlib import Path
 
 SHAPES = {"flat_endmill": "endmill.fcstd", "bull_endmill": "bullnose.fcstd", "ball_endmill": "ballend.fcstd",
-          "drill": "drill.fcstd", "chamfer_mill": "chamfer.fcstd"}
+          "drill": "drill.fcstd", "chamfer_mill": "chamfer.fcstd", "face_mill": "endmill.fcstd"}
 ARC_DEG = 5.0      # 圆弧拆成直线段，每段不超过 5°
 
 
@@ -92,16 +92,28 @@ def own_moves(spec: dict) -> list[dict]:
     return mv
 
 
-def build_job(doc, model, ops: list[dict]):
-    """ops：[{"type": "pocket" | "profile" | "drill", "tool": cam-tool/1 刀具, "number": 刀号, "rpm", "feed_mm_min",
+def top_faces(shape, top: float) -> list[str]:
+    """零件顶面（朝上、在最高处的平面）：面铣的几何"""
+    out = []
+    for i, f in enumerate(shape.Faces):
+        if type(f.Surface).__name__ == "Plane" and f.BoundBox.ZMin > top - 1e-6 and f.normalAt(*f.ParameterRange[0::2]).z > 1 - 1e-9:
+            out.append(f"Face{i + 1}")
+    return out
+
+
+def build_job(doc, model, ops: list[dict], stock_top: float = 0.0):
+    """ops：[{"type": "face" | "pocket" | "profile" | "drill", "tool": cam-tool/1 刀具, "number": 刀号, "rpm", "feed_mm_min",
              "plunge_mm_min", "step_down_mm", "step_over_pct", "faces": 点选的面（可选：型腔底面、孔的圆柱面；不给时自动找）}]。
     返回 (作业, [(op 设置, FreeCAD 工序)])"""
     import Path.Tool.Controller as PathToolController
     from Path.Base import Drillable
     from Path.Main import Job as PathJob
-    from Path.Op import Drilling, PocketShape, Profile
+    from Path.Op import Drilling, MillFace, PocketShape, Profile
 
     job = PathJob.Create("Job", [model])
+    if stock_top > 0:                            # 毛坯顶面高出零件顶面 stock_top（面铣余量；ADR-0106 Q3b）
+        job.Stock.ExtZpos = float(stock_top)
+        doc.recompute()
     jm = job.Model.Group[0]
     top = jm.Shape.BoundBox.ZMax
     made = []
@@ -117,6 +129,17 @@ def build_job(doc, model, ops: list[dict]):
             op.OffsetPattern = "ZigZagOffset"      # 之字形清中间 + 最后贴壁一圈：直角转角铣到刀具够得着的地方（ADR-0106 Q2 色差图查出来的）
         elif k == "profile":
             op = Profile.Create(f"Profile{len(made) + 1}")
+        elif k == "face":
+            faces = top_faces(jm.Shape, top)
+            if not faces or stock_top <= 0:
+                raise CamFcError("面铣：毛坯顶面要高出零件顶面（作业的“面铣余量”大于 0）")
+            op = MillFace.Create(f"Face{len(made) + 1}")
+            op.Base = [(jm, faces)]
+            op.BoundaryShape = "Stock"           # 整个毛坯顶面铣平
+            op.ClearEdges = True
+            op.StepOver = round(float(spec.get("step_over_pct", 70)))
+            op.OffsetPattern = "ZigZagOffset"    # 之字形 + 最后沿边一圈：只走之字形时边上每两行之间留三角形的料（色差查出来的）
+            op.ExtraOffset = float(spec["tool"]["diameter_mm"]) / 2   # 边界往外放一个刀具半径：刀心走到毛坯边上，四个角才铣得到
         elif k == "drill":
             d = float(spec["tool"]["diameter_mm"])
             picked = set(spec.get("faces") or [])
@@ -130,7 +153,7 @@ def build_job(doc, model, ops: list[dict]):
             if all(jm.Shape.getElement(h[1]).BoundBox.ZMin <= zmin + 1e-6 for h in holes):
                 op.ExtraOffset = "Drill Tip"          # 通孔：多钻一个钻尖长，孔底整圈钻透（ADR-0106 Q2 色差图查出来的）
         else:
-            raise CamFcError(f"工序类型 {k!r} 不认识：pocket、profile、drill")
+            raise CamFcError(f"工序类型 {k!r} 不认识：face、pocket、profile、drill")
         if "step_down_mm" in spec and hasattr(op, "StepDown"):
             op.setExpression("StepDown", None)      # FreeCAD 缺省按刀径的表达式，会盖掉我们给的每层切深
             op.StepDown = float(spec["step_down_mm"])
@@ -233,7 +256,7 @@ def _reload_draft_for_gui() -> None:
     _RELOADED = True
 
 
-def program(shape, ops: list[dict], *, number: int = 6001, title: str = "2.5 轴铣（FreeCAD CAM 刀路）") -> dict:
+def program(shape, ops: list[dict], *, number: int = 6001, title: str = "2.5 轴铣（FreeCAD CAM 刀路）", stock_top: float = 0.0) -> dict:
     """零件（Part.Shape，Z 向上）+ 工序 → (中间格式程序, 毛坯)。毛坯取零件包围盒，顶面为程序 Z0"""
     import FreeCAD
 
@@ -244,7 +267,7 @@ def program(shape, ops: list[dict], *, number: int = 6001, title: str = "2.5 轴
         m.Shape = shape
         doc.recompute()
         fc_ops = [o for o in ops if o["type"] not in OWN]
-        _job, made, top = build_job(doc, m, fc_ops) if fc_ops else (None, [], shape.BoundBox.ZMax)
+        _job, made, top = build_job(doc, m, fc_ops, stock_top) if fc_ops else (None, [], shape.BoundBox.ZMax)
         done = iter(made)
         prog_ops = []
         for spec0 in ops:
@@ -260,7 +283,7 @@ def program(shape, ops: list[dict], *, number: int = 6001, title: str = "2.5 轴
                              "spindle": {"rpm": float(spec["rpm"])}, "moves": mv, "title": label,
                              "safe": max((x["z"] for x in mv if x["t"] == "rapid"), default=5.0)})
         bb = shape.BoundBox
-        stock = {"box": [bb.XMin, bb.YMin, bb.XMax, bb.YMax], "top": 0.0, "height": bb.ZLength}
+        stock = {"box": [bb.XMin, bb.YMin, bb.XMax, bb.YMax], "top": float(stock_top), "height": bb.ZLength + float(stock_top)}
         return {"number": number, "title": title, "ops": prog_ops, "generator": "FreeCAD CAM"}, stock
     finally:
         FreeCAD.closeDocument(doc.Name)

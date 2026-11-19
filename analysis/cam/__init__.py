@@ -702,12 +702,13 @@ def _program(setup, mach):
     if len(stock.get("box") or []) != 4:
         raise SetupError("要给毛坯 stock.box = [x0, y0, x1, y1]（上表面 Z0）")
     box = [float(v) for v in stock["box"]]
+    top = float(stock.get("top", 0.0))                # 毛坯顶面（程序 Z0 在零件顶面；有面铣余量时毛坯高出 Z0）
     g = post.post(prog, mach)
     parsed = sim.parse(g, mach)
     checks = sim.machine_checks(parsed, mach)
     tm = sim.timing(parsed, mach)
     hook, extra = _msim_hook(setup, mach, parsed)
-    s = sim.simulate_mill(parsed, {"box": box, "top": 0.0, **({"height": float(stock["height"])} if stock.get("height") else {})},
+    s = sim.simulate_mill(parsed, {"box": box, "top": top, **({"height": float(stock["height"])} if stock.get("height") else {})},
                           tools, on_move=hook)
     checks += s["issues"]
     # 每段切深、切宽按刀具样本核对（外来刀路也查；超出 ap 是错误，经整机仿真结论扣下程序）
@@ -721,10 +722,10 @@ def _program(setup, mach):
     out = {"title": prog.get("title") or "外来刀路", "number": prog.get("number", 6001), "gcode": g, "time": tm, "checks": checks,
            "power": {"status": "unknown"}, "sim": {"ap_max_mm": round(s["ap_max"], 3), "cell_mm": round(s["h"], 4)},
            "tools": {str(k): v for k, v in tools.items()}, "generator": prog.get("generator", ""),
-           "replay_in": {"kind": "mill", "stock": {"box": box, "top": 0.0, "height": stock.get("height")},
+           "replay_in": {"kind": "mill", "stock": {"box": box, "top": top, "height": stock.get("height")},
                          "tools": {str(k): v for k, v in tools.items()}}}
     out["checks"].append({"line": None, "level": "unknown", "text": "外来刀路没有目标形状，过切 / 残留没有比对（看仿真结果确认）"})
-    _msim(setup, mach, parsed, g, {"box": box, "top": 0.0, "height": stock.get("height")}, extra, out, withhold=True,
+    _msim(setup, mach, parsed, g, {"box": box, "top": top, "height": stock.get("height")}, extra, out, withhold=True,
           expect_d={k: v["d"] for k, v in tools.items()})
     _release(setup, mach, prog, out)
     return [out], {}
