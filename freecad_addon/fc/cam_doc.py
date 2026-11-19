@@ -485,7 +485,7 @@ def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, adaptive: bool
                 z = CP.TEACH_Z["pocket"]
                 notes.append(f"{title}：刀 {tool['id']} 没写刃数，按 {z} 刃算进给，待确认")
             feed = params["fz"] * z * rpm
-            spec = {"type": kind if kind in ("pocket", "cbore", "face", "adaptive", "rest") else "profile", "tool": tool, "number": n,
+            spec = {"type": kind if kind in ("pocket", "cbore", "face", "adaptive", "rest", "helix") else "profile", "tool": tool, "number": n,
                     "rpm": round(rpm),
                     "feed_mm_min": round(feed, 1), "plunge_mm_min": round(feed / 3, 1), "step_down_mm": params["ap"], **extra}
         if status == "unknown":
@@ -541,10 +541,21 @@ def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, adaptive: bool
             dias = sorted({round(2 * o.Shape.getElement(h[1]).Surface.Radius, 4) for h in Drillable.getDrillableTargets(o)})
         finally:
             FreeCAD.closeDocument(doc.Name)
+        hs = mill_holes(shape)
         for dd in dias:
             t = next((t for t in lib["tools"] if t["kind"] == "drill" and abs(t.get("diameter_mm", -1) - dd) < 1e-6), None)
-            if t is None:
-                notes.append(f"孔 Ø{dd:g}：刀具库里没有这个直径的钻头，没编程")
+            if t is None:                       # 没有这个直径的钻头：用平底立铣刀螺旋铣孔（刀径在孔径一半到孔径之间）
+                em = next((x for x in sorted(ends, key=lambda x: -x["diameter_mm"]) if dd / 2 - 1e-9 <= x["diameter_mm"] < dd - 1e-9), None)
+                grp = [h for h in hs if abs(h["d"] - dd) < 1e-3]
+                if em is None or not grp:
+                    notes.append(f"孔 Ø{dd:g}：刀具库里没有这个直径的钻头，也没有刀径在 Ø{dd / 2:g} ~ Ø{dd:g} 之间的平底立铣刀，没编程")
+                    continue
+                holes_h = []
+                for h in grp:                   # 孔口（有沉孔从沉孔底起）到孔底；通孔多铣 0.5 mm 铣透
+                    ze = h["z_top"] - (h["cbore"]["depth"] if h["cbore"] else 0.0) - top
+                    zb = h["z_bottom"] - top - (0.5 if h["through"] else 0.0)
+                    holes_h.append((h["x"], h["y"], ze, ze - zb))
+                add("helix", f"螺旋铣孔 Ø{dd:g}", em, {"holes": holes_h, "d": dd, "title": f"螺旋铣孔 Ø{dd:g}"})
                 continue
             add("holes", f"钻孔 Ø{dd:g}", t, {})
     if holes:                                   # 钻孔以后：铣沉孔 → 锪孔口 → 攻丝（ADR-0106 Q3b）

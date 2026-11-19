@@ -612,7 +612,6 @@
 "奇异点处理（{}）": "Singularity handling ({})",
 "孔": "bore",
 "孔 / 座 Ø{}，深 {}，面 {}": "Bore / seat Ø{}, depth {}, faces {}",
-"孔 Ø{}：刀具库里没有这个直径的钻头，没编程": "Hole Ø{}: no drill of this diameter in the tool library; not programmed",
 "孔组：{} × Ø{}，分布圆 Ø{}": "Hole pattern: {} × Ø{}, pitch circle Ø{}",
 "安全系数": "safety factor",
 "安全系数 {}（按{} {}）。": "Safety factor {} (based on {} {}).",
@@ -1886,5 +1885,8 @@
 "安全高度：毛坯顶面以上 mm（0 = FreeCAD 缺省）": "Safe height above the stock top mm (0 = FreeCAD default)",
 "底面余量 mm（0 = 不留）": "Floor allowance mm (0 = none)",
 "快移高度：毛坯顶面以上 mm（0 = FreeCAD 缺省）": "Clearance height above the stock top mm (0 = FreeCAD default)",
-"每层切深在“切削参数”页；留了余量要再加一道精铣": "The depth per layer is on the \"Cutting data\" tab; with an allowance, add a finishing operation"
+"每层切深在“切削参数”页；留了余量要再加一道精铣": "The depth per layer is on the \"Cutting data\" tab; with an allowance, add a finishing operation",
+"孔 Ø{}：刀具库里没有这个直径的钻头，也没有刀径在 Ø{} ~ Ø{} 之间的平底立铣刀，没编程": "Hole Ø{}: the tool library has no drill of this diameter and no flat end mill between Ø{} and Ø{}; not programmed",
+"螺旋铣孔 Ø{}": "Helical hole milling Ø{}",
+"螺旋铣孔": "Helical hole milling"
 }

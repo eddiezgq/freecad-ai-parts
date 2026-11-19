@@ -20,6 +20,7 @@ from pathlib import Path
 SHAPES = {"flat_endmill": "endmill.fcstd", "bull_endmill": "bullnose.fcstd", "ball_endmill": "ballend.fcstd",
           "drill": "drill.fcstd", "chamfer_mill": "chamfer.fcstd", "face_mill": "endmill.fcstd"}
 ARC_DEG = 5.0      # 圆弧拆成直线段，每段不超过 5°
+ARC_SAG = 0.002    # 而且弦高不超过 0.002 mm：大半径的圆弧按 5° 拆，弦在圆弧里面最多 R·(1 − cos 2.5°)，R60 就切进 0.057（三维比对查出来的）
 
 
 class CamFcError(ValueError):
@@ -64,7 +65,7 @@ def pocket_floors(shape, top: float) -> list[str]:
     return out
 
 
-OWN = ("csink", "tap", "cbore", "chamfer", "thread_mill")   # 问渠自己出刀路的工序（FreeCAD CAM 1.0 没有攻丝；锪孔口、沉孔按孔特征直接算；
+OWN = ("csink", "tap", "cbore", "chamfer", "thread_mill", "helix")   # 问渠自己出刀路的工序（FreeCAD CAM 1.0 没有攻丝；锪孔口、沉孔按孔特征直接算；
                                              # 倒角 FreeCAD Deburr 遇到型腔口的倒角算不出来，改为按倒角面自己算）
 CHAMFER_EXTRA = 0.5      # 倒角刀刀尖比倒角底边再低 0.5 mm，不用刀尖切
 
@@ -81,7 +82,7 @@ def sim_tool(t: dict, n: int) -> dict:
     return out
 
 
-def chamfer_moves(shape, faces, tool: dict, f: float, f_plunge: float, safe: float = 5.0, seg: float = 0.05) -> list[dict]:
+def chamfer_moves(shape, faces, tool: dict, f: float, f_plunge: float, safe: float = 5.0, seg: float = ARC_SAG) -> list[dict]:
     """倒角（ADR-0106 Q3b）：倒角面的下边（与竖直壁相交的那圈）往空的一侧偏 (刀尖半径 + 多下的深度·tan(半锥角))，
     刀尖低于倒角底边 CHAMFER_EXTRA，锥面正好贴着倒角面。外轮廓往外偏，型腔口往里偏（按下边内侧是不是实体判断）。
     圆弧按弦高 seg 拆成直线。程序坐标 Z0 在零件顶面。"""
@@ -138,7 +139,7 @@ def own_moves(spec: dict, shape=None) -> list[dict]:
     if k == "thread_mill":
         teeth = float(t.get("flute_length_mm", 0.0)) if t.get("pitch_mm") else 0.0     # 多齿（写了螺距）按有齿长度；单齿走多圈
         return P.mill_thread(spec["holes"], spec["d"], spec["pitch"], float(t["diameter_mm"]), spec["feed_mm_min"], teeth_len=teeth)
-    mv = []
+    mv = []                                      # cbore 铣沉孔、helix 螺旋铣孔：同一个螺旋下刀 + 到底整圈
     for x, y, ze, dp in spec["holes"]:
         mv += P.mill_cbore(x, y, spec["d"], dp, ze, float(t["diameter_mm"]), spec["step_down_mm"], spec["feed_mm_min"])
     return mv
@@ -276,7 +277,8 @@ def _arc(p0, p1, c, cw, f):
         sweep -= 2 * math.pi
     if not cw and sweep <= 1e-12:
         sweep += 2 * math.pi
-    n = max(1, math.ceil(abs(math.degrees(sweep)) / ARC_DEG))
+    step = min(math.radians(ARC_DEG), 2 * math.acos(max(-1.0, 1 - ARC_SAG / r))) if r > ARC_SAG else math.radians(ARC_DEG)
+    n = max(1, math.ceil(abs(sweep) / step - 1e-9))
     out = []
     for i in range(1, n + 1):
         a = a0 + sweep * i / n

@@ -23,8 +23,8 @@ STATUS = ["草稿", "已确认"]
 TURN_KINDS = {"rough": "粗车外圆", "finish": "精车外圆", "groove": "切槽", "thread": "车螺纹", "drill": "钻孔", "bore": "镗孔",
               "face_groove": "端面槽", "part": "切断"}
 MILL_KINDS = {"face": "面铣", "pocket": "铣型腔", "adaptive": "自适应开粗", "rest": "残料清角", "profile": "铣外轮廓", "drill": "钻孔", "cbore": "铣沉孔", "csink": "锪孔口", "tap": "攻丝",
-              "chamfer": "倒角", "thread_mill": "铣螺纹"}
-HOLE_KINDS = ("cbore", "csink", "tap", "thread_mill")
+              "chamfer": "倒角", "thread_mill": "铣螺纹", "helix": "螺旋铣孔"}
+HOLE_KINDS = ("cbore", "csink", "tap", "thread_mill", "helix")
 MILL_ALLOW_KINDS = ("pocket", "adaptive", "rest", "profile")             # 铣：可留侧壁 / 底面余量
 MILL_FC_KINDS = ("face", "pocket", "adaptive", "rest", "profile", "drill")  # 铣：FreeCAD CAM 出刀路的（安全高度、快移高度可改）     # 按孔特征出刀路（ADR-0106 Q3b）：孔表存在工序的 HoleData 里
 TURN_TOOL_N = {"rough": 1, "finish": 2, "groove": 3, "thread": 4, "drill": 5, "bore": 6, "part": 8, "face_groove": 9}
@@ -478,7 +478,7 @@ def _mill_spec(job, op):
             spec["feed_mm_min"] = round(op.Feed * (tool.get("flutes") or 3) * rpm * rc / (float(hd["d"]) / 2), 1)
         if op.OpKind == "csink":
             spec["feed_mm_min"] = round(op.Feed * rpm, 1)
-        elif op.OpKind == "cbore":
+        elif op.OpKind in ("cbore", "helix"):
             spec["feed_mm_min"] = round(op.Feed * (tool.get("flutes") or 4) * rpm, 1)
             spec["step_down_mm"] = op.Ap or 2.0
         return spec
