@@ -339,6 +339,8 @@ def turn_setup(job) -> dict:
         s["profile"] = d["profile"]
     if d.get("face_grooves"):
         s["face_grooves"] = [dict(g) for g in d["face_grooves"]]
+    if d.get("parting"):
+        s["parting"] = dict(d["parting"])
     if d.get("threads"):
         s["threads"] = [dict(t) for t in d["threads"]]
     if d.get("bore"):

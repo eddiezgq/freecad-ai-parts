@@ -86,6 +86,12 @@ class JobPanel:
             self.threads.setPlainText("\n".join(CO.thread_text(t) for t in th))
             self.threads.setPlaceholderText(T("每行：Z 起, Z 止, 大径, 螺距[, 内][, 1:16][, 2 头]（起刀处要在端面或退刀槽）"))
             f.addRow(T("螺纹"), self.threads)
+            self.parting = QtWidgets.QDoubleSpinBox()
+            self.parting.setRange(0, 10)
+            self.parting.setDecimals(1)
+            self.parting.setValue(float((CO._js(job, "PartData", {}).get("parting") or {}).get("tool_w", 0.0)))
+            self.parting.setToolTip(T("棒料上车完切下来：切断刀宽 mm；0 = 不切断（毛坯是单件料）"))
+            f.addRow(T("切断刀宽 mm（0 = 不切断）"), self.parting)
             self.cycles = QtWidgets.QCheckBox(T("正式程序用固定循环（G71 / G70 / G76）"))
             self.cycles.setToolTip(T("FANUC、广数：粗精车、车螺纹写成循环，程序短；仿真按同样的展开规则走。西门子照样出直线段"))
             self.cycles.setChecked(bool(getattr(job, "Cycles", False)))
@@ -132,6 +138,10 @@ class JobPanel:
         if j.Kind == "turn":
             d = CO._js(j, "PartData", {})
             d["threads"] = CO.parse_threads(self.threads.toPlainText())
+            if self.parting.value() > 0:
+                d["parting"] = {"tool_w": self.parting.value()}
+            else:
+                d.pop("parting", None)
             j.PartData = json.dumps(d, ensure_ascii=False)
             if not hasattr(j, "Cycles"):
                 j.Proxy.setup(j)
