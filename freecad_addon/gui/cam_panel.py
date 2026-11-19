@@ -162,6 +162,13 @@ class CamPanel:
         self.status.setWordWrap(True)
         lay.addWidget(self.status)
         lay.addStretch(1)
+        # 停靠面板窄：下拉框按 14 个字算宽、输入框不撑宽，表格列按内容（2026-11-19）
+        for cb in self.form.findChildren(QtWidgets.QComboBox):
+            cb.setSizeAdjustPolicy(QtWidgets.QComboBox.AdjustToMinimumContentsLengthWithIcon)
+            cb.setMinimumContentsLength(14)
+        for le in self.form.findChildren(QtWidgets.QLineEdit):
+            le.setMinimumWidth(80)
+        self.table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
         self._kind_changed()
 
     # ---------------- 输入 ----------------
