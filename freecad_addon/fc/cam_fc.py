@@ -38,6 +38,9 @@ def _bit(tool: dict):
                     ("shank_diameter_mm", "ShankDiameter"), ("tip_angle_deg", "TipAngle")):
         if k in tool and hasattr(bit, prop):
             setattr(bit, prop, float(tool[k]))
+    if tool["kind"] == "chamfer_mill":           # 倒角刀：FreeCAD 的锥角叫 CuttingEdgeAngle、刀尖平头叫 TipDiameter（缺省 60° / Ø5，不能用缺省）
+        bit.CuttingEdgeAngle = float(tool["tip_angle_deg"])
+        bit.TipDiameter = float(tool.get("tip_diameter_mm", 0.0))
     if tool["kind"] == "bull_endmill" and "corner_radius_mm" in tool and hasattr(bit, "FlatRadius"):
         bit.FlatRadius = float(tool["diameter_mm"]) / 2 - float(tool["corner_radius_mm"])
     return bit
@@ -61,7 +64,9 @@ def pocket_floors(shape, top: float) -> list[str]:
     return out
 
 
-OWN = ("csink", "tap", "cbore")     # 问渠自己出刀路的孔工序（FreeCAD CAM 1.0 没有攻丝；锪孔口、沉孔按孔特征直接算）
+OWN = ("csink", "tap", "cbore", "chamfer")   # 问渠自己出刀路的工序（FreeCAD CAM 1.0 没有攻丝；锪孔口、沉孔按孔特征直接算；
+                                             # 倒角 FreeCAD Deburr 遇到型腔口的倒角算不出来，改为按倒角面自己算）
+CHAMFER_EXTRA = 0.5      # 倒角刀刀尖比倒角底边再低 0.5 mm，不用刀尖切
 
 
 def sim_tool(t: dict, n: int) -> dict:
@@ -76,11 +81,55 @@ def sim_tool(t: dict, n: int) -> dict:
     return out
 
 
-def own_moves(spec: dict) -> list[dict]:
-    """spec["holes"]：程序坐标（Z0 在零件顶面）。csink [(x, y, 孔口 z)]；tap [(x, y, 孔口 z, 攻到 z)]；cbore [(x, y, 孔口 z, 深)]"""
+def chamfer_moves(shape, faces, tool: dict, f: float, f_plunge: float, safe: float = 5.0, seg: float = 0.05) -> list[dict]:
+    """倒角（ADR-0106 Q3b）：倒角面的下边（与竖直壁相交的那圈）往空的一侧偏 (刀尖半径 + 多下的深度·tan(半锥角))，
+    刀尖低于倒角底边 CHAMFER_EXTRA，锥面正好贴着倒角面。外轮廓往外偏，型腔口往里偏（按下边内侧是不是实体判断）。
+    圆弧按弦高 seg 拆成直线。程序坐标 Z0 在零件顶面。"""
+    import FreeCAD
+    import Part
+
+    top = shape.BoundBox.ZMax
+    half = math.radians(float(tool["tip_angle_deg"]) / 2)
+    r0 = float(tool.get("tip_diameter_mm", 0.0)) / 2
+    fs = [shape.getElement(n) for n in faces]
+    zb = min(f_.BoundBox.ZMin for f_ in fs)
+    if float(tool["diameter_mm"]) / 2 < r0 + (CHAMFER_EXTRA + top - zb) * math.tan(half) - 1e-9:
+        raise CamFcError(f"倒角刀 Ø{tool['diameter_mm']:g} 不够大：锥面盖不住整个倒角")
+    low = [e for f_ in fs for e in f_.Edges if abs(e.BoundBox.ZMin - zb) < 1e-6 and abs(e.BoundBox.ZMax - zb) < 1e-6]
+    if not low:
+        raise CamFcError("倒角：找不到倒角面的下边")
+    off = r0 + CHAMFER_EXTRA * math.tan(half)
+    mv = [{"t": "comment", "text": f"倒角：倒角刀 {tool['tip_angle_deg']:g}°，刀尖低于倒角底边 {CHAMFER_EXTRA:g}"}]
+    for edges in Part.sortEdges(low):
+        w = Part.Wire(edges)
+        if not w.isClosed():
+            raise CamFcError("倒角面的下边不是封闭的一圈（只倒了一部分边），还不支持")
+        e0 = w.Edges[0]
+        p = e0.valueAt((e0.FirstParameter + e0.LastParameter) / 2)
+        t = e0.tangentAt((e0.FirstParameter + e0.LastParameter) / 2)
+        n = FreeCAD.Vector(-t.y, t.x, 0).normalize()
+        face = Part.Face(w)
+        inward = n if face.isInside(p + n * 0.01, 1e-6, True) else -n        # 指向这圈里面
+        solid_inside = shape.isInside(p + inward * 0.01 + FreeCAD.Vector(0, 0, -0.01), 1e-6, True)
+        ow = w.makeOffset2D(off if solid_inside else -off, 0, False, False, False)
+        pts = ow.discretize(Deflection=seg)
+        z = zb - CHAMFER_EXTRA - top
+        p0 = pts[0]
+        mv += [{"t": "rapid", "x": p0.x, "y": p0.y, "z": safe}, {"t": "rapid", "x": p0.x, "y": p0.y, "z": z + 2.0},
+               {"t": "feed", "x": p0.x, "y": p0.y, "z": z, "f": f_plunge}]
+        mv += [{"t": "feed", "x": q.x, "y": q.y, "z": z, "f": f} for q in pts[1:]]
+        mv += [{"t": "feed", "x": p0.x, "y": p0.y, "z": z, "f": f}, {"t": "rapid", "x": p0.x, "y": p0.y, "z": safe}]
+    return mv
+
+
+def own_moves(spec: dict, shape=None) -> list[dict]:
+    """spec["holes"]：程序坐标（Z0 在零件顶面）。csink [(x, y, 孔口 z)]；tap [(x, y, 孔口 z, 攻到 z)]；cbore [(x, y, 孔口 z, 深)]；
+    chamfer 按 spec["faces"]（要零件形体）"""
     from analysis.cam import paths as P
 
     t, k = spec["tool"], spec["type"]
+    if k == "chamfer":
+        return chamfer_moves(shape, spec["faces"], t, spec["feed_mm_min"], spec.get("plunge_mm_min", spec["feed_mm_min"]))
     if k == "csink":
         return P.mill_csink(spec["holes"], spec["d"], float(t["tip_angle_deg"]), spec["feed_mm_min"],
                             tip_d=float(t.get("tip_diameter_mm", 0.0)))
@@ -173,6 +222,8 @@ def build_job(doc, model, ops: list[dict], stock_top: float = 0.0):
     for tc in default:
         job.Tools.removeObject(tc)
         doc.removeObject(tc.Name)
+    for _spec, op in made:                       # 换了刀以后要重算（Deburr 不会自己重算，还用着缺省刀的锥角、刀尖和进给）
+        op.touch()
     doc.recompute()
     return job, made, top
 
@@ -272,7 +323,7 @@ def program(shape, ops: list[dict], *, number: int = 6001, title: str = "2.5 轴
         prog_ops = []
         for spec0 in ops:
             if spec0["type"] in OWN:
-                spec, mv, label = spec0, own_moves(spec0), spec0.get("title", spec0["type"])
+                spec, mv, label = spec0, own_moves(spec0, m.Shape), spec0.get("title", spec0["type"])
             else:
                 spec, op = next(done)
                 mv, label = commands_to_moves(op.Path.Commands, top), op.Label

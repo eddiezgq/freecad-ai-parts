@@ -22,7 +22,8 @@ GROUP = "问渠CAM"
 STATUS = ["草稿", "已确认"]
 TURN_KINDS = {"rough": "粗车外圆", "finish": "精车外圆", "groove": "切槽", "thread": "车螺纹", "drill": "钻孔", "bore": "镗孔",
               "face_groove": "端面槽", "part": "切断"}
-MILL_KINDS = {"face": "面铣", "pocket": "铣型腔", "profile": "铣外轮廓", "drill": "钻孔", "cbore": "铣沉孔", "csink": "锪孔口", "tap": "攻丝"}
+MILL_KINDS = {"face": "面铣", "pocket": "铣型腔", "profile": "铣外轮廓", "drill": "钻孔", "cbore": "铣沉孔", "csink": "锪孔口", "tap": "攻丝",
+              "chamfer": "倒角"}
 HOLE_KINDS = ("cbore", "csink", "tap")     # 按孔特征出刀路（ADR-0106 Q3b）：孔表存在工序的 HoleData 里
 TURN_TOOL_N = {"rough": 1, "finish": 2, "groove": 3, "thread": 4, "drill": 5, "bore": 6, "part": 8, "face_groove": 9}
 
@@ -476,6 +477,11 @@ def _mill_spec(job, op):
             spec["feed_mm_min"] = round(op.Feed * (tool.get("flutes") or 4) * rpm, 1)
             spec["step_down_mm"] = op.Ap or 2.0
         return spec
+    if op.OpKind == "chamfer":
+        hd = _js(op, "HoleData", {})
+        z = tool.get("flutes") or 2
+        return {"type": "chamfer", "tool": tool, "number": op.ToolNumber, "rpm": round(rpm), "feed_mm_min": round(op.Feed * z * rpm, 1),
+                "plunge_mm_min": round(op.Feed * z * rpm / 3, 1), "faces": faces or hd.get("faces") or [], "width": float(hd.get("width", 0.0))}
     if op.OpKind == "drill":
         return {"type": "drill", "tool": tool, "number": op.ToolNumber, "rpm": round(rpm), "feed_mm_min": round(op.Feed * rpm, 1),
                 "faces": faces}
@@ -585,7 +591,8 @@ def draft(job, client=None, note: str = "") -> dict:
     from analysis.cam import machines
     from freecad_addon.fc import cam_doc
 
-    flags = {"face": float(getattr(job, "StockTop", 0.0)) > 0, "pocket": True, "profile": False, "drill": True, "holes": True}
+    flags = {"face": float(getattr(job, "StockTop", 0.0)) > 0, "pocket": True, "profile": False, "drill": True, "holes": True,
+             "chamfer": True}
     plan = cam_doc.mill_plan(job.Model.Shape, _lib(job), S.iso_group(job.Kienzle), max_rpm=float(machines.get(job.Machine)["max_rpm"]),
                              stock_top=float(getattr(job, "StockTop", 0.0)), **flags)
     s = setups(job)[0]
@@ -603,6 +610,8 @@ def _mill_op_from_plan(setup, spec, row):
     op.Label = T(row["title"])
     if spec["type"] in HOLE_KINDS:
         op.HoleData = json.dumps({"d": spec["d"], "holes": [list(h) for h in spec["holes"]]})
+    if spec["type"] == "chamfer":                  # 倒角：哪些倒角面、多宽
+        op.HoleData = json.dumps({"faces": spec["faces"], "width": spec["width"]})
     op.Check = "在样本范围内" if row["status"] == "pass" else "待确认"
     regenerate(op)
     return op
@@ -677,7 +686,7 @@ def add_op(setup, kind: str):
             raise CamObjError(f"铣削没有这种工序：{kind}")
         from freecad_addon.fc import cam_doc
 
-        flags = {k: k == kind for k in ("face", "pocket", "profile", "drill")}
+        flags = {k: k == kind for k in ("face", "pocket", "profile", "drill", "chamfer")}
         flags["holes"] = kind in HOLE_KINDS
         flags["taps"] = kind == "tap"
         try:
@@ -689,8 +698,9 @@ def add_op(setup, kind: str):
         pairs = [(sp, r) for sp, r in zip(plan["ops"], plan["card"], strict=True) if sp["type"] == kind]
         if not pairs:
             raise CamObjError("；".join(plan["notes"]) or f"零件上没有能{MILL_KINDS[kind]}的几何")
-        used = [_js(o, "HoleData", {}).get("holes") for o in ops(setup) if o.OpKind == kind]
-        free = [pr for pr in pairs if [list(h) for h in pr[0].get("holes", [])] not in used] or pairs   # 孔工序：先取还没加的那一组孔
+        used = [_js(o, "HoleData", {}) for o in ops(setup) if o.OpKind == kind]
+        free = [pr for pr in pairs if not any(u.get("holes", []) == [list(h) for h in pr[0].get("holes", [])] and u.get("faces") == pr[0].get("faces")
+                                              for u in used)] or pairs   # 孔工序：先取还没加的那一组孔
         spec, row = free[0]
         same = [o.ToolNumber for s_ in setups(job) for o in ops(s_) if o.ToolId == row["tool"]]
         taken = [o.ToolNumber for s_ in setups(job) for o in ops(s_)]

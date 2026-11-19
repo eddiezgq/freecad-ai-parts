@@ -115,3 +115,54 @@ def test_face_milling_removes_stock_allowance():
         assert float(np.abs(H).max()) < 1e-9
     finally:
         App.closeDocument(doc.Name)
+
+
+def chamfer_block():
+    """100×60×20 的块，中间 40×20 深 8 的型腔；外轮廓顶边、型腔口都倒 1×45°"""
+    import FreeCAD as App
+    import Part
+
+    b = Part.makeBox(100, 60, 20).cut(Part.makeBox(40, 20, 8, App.Vector(30, 20, 12)))
+    return b.makeChamfer(1.0, [e for e in b.Edges if abs(e.BoundBox.ZMin - 20) < 1e-6 and abs(e.BoundBox.ZMax - 20) < 1e-6])
+
+
+def test_chamfers_model_to_program():
+    """顶边倒角从模型读出（8 个 1×45° 斜面），起草出“倒角”工序（90° 倒角刀）；算完三维比对不过切；
+    外轮廓边上的截面：离边 x 处的顶面高度 = −(1 − x)（仿真网格 0.05，差不超过一格）"""
+    import json
+
+    import FreeCAD as App
+
+    from freecad_addon.fc import cam_doc
+    from freecad_addon.fc import cam_objects as CO
+
+    cf = cam_doc.chamfer_faces(chamfer_block())
+    assert len(cf) == 8 and all(c["width"] == pytest.approx(1.0) and c["angle"] == pytest.approx(90.0) for c in cf)
+    doc = App.newDocument("camchamfer")
+    try:
+        m = doc.addObject("Part::Feature", "Block")
+        m.Shape = chamfer_block()
+        doc.recompute()
+        job = CO.new_job(doc, m, "mill", post="fanuc")
+        job.ToolLengths = json.dumps({"EM10": 120, "EM6": 110, "CM90": 100})
+        CO.draft(job)
+        s = CO.setups(job)[0]
+        assert [o.OpKind for o in CO.ops(s)] == ["pocket", "chamfer"]
+        for o in CO.ops(s):
+            CO.confirm(o)
+        r = CO.calculate(job)
+        p = r["data"]["programs"][0]
+        errs = [c["text"] for c in p["checks"] if c["level"] == "error"]
+        assert not errs, errs
+        assert p["release"] is not None
+        import numpy as np
+
+        from analysis.cam import machines, sim
+        tools = {int(k): v for k, v in p["tools"].items()}
+        res = sim.simulate_mill(sim.parse(p["gcode"], machines.get(job.Machine)), {"box": [0, 0, 100, 60], "top": 0.0}, tools, h=0.05)
+        ix = int(np.argmin(np.abs(res["y"] - 30.0)))
+        sel = (res["x"] > 0.05) & (res["x"] < 0.95)
+        err = float(np.abs(res["H"][sel, ix] - (-(1 - res["x"][sel]))).max())
+        assert err <= 0.05
+    finally:
+        App.closeDocument(doc.Name)

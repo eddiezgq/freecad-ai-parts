@@ -410,8 +410,35 @@ def hole_ops(shape, lib: dict) -> list[dict]:
     return out
 
 
+def chamfer_faces(shape) -> list[dict]:
+    """零件顶部边上的倒角面（ADR-0106 Q3b）：斜面（平面或竖直轴的锥面），顶边在零件顶面；孔口的锥面归锪孔口，不算。
+    → [{"face": "FaceN", "width": 水平宽, "angle": 倒角刀锥角（= 2 ×（90° − 斜面与水平的夹角））}]，按宽、角归组前的逐面表"""
+    top = shape.BoundBox.ZMax
+    holes = [(h["x"], h["y"]) for h in mill_holes(shape)]
+    out = []
+    for i, f in enumerate(shape.Faces):
+        kind = type(f.Surface).__name__
+        if kind not in ("Plane", "Cone") or f.BoundBox.ZMax < top - 1e-6 or f.BoundBox.ZLength < 1e-6:
+            continue
+        if kind == "Cone":
+            ax = f.Surface.Axis
+            if abs(abs(ax.z) - 1) > 1e-6 or any(abs(f.Surface.Apex.x - x) < 1e-3 and abs(f.Surface.Apex.y - y) < 1e-3 for x, y in holes):
+                continue
+        u = (f.ParameterRange[0] + f.ParameterRange[1]) / 2
+        v = (f.ParameterRange[2] + f.ParameterRange[3]) / 2
+        nz = f.normalAt(u, v).z
+        if not 0.05 < nz < 0.995:                     # 朝上的斜面
+            continue
+        slope = math.degrees(math.acos(nz))           # 斜面与水平的夹角
+        dz = f.BoundBox.ZLength
+        out.append({"face": f"Face{i + 1}", "width": round(dz / math.tan(math.radians(slope)), 4), "depth": round(dz, 4),
+                    "angle": round(2 * (90.0 - slope), 2)})
+    return out
+
+
 def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, profile: bool = True, drill: bool = True,
-              holes: bool = True, taps: bool = False, face: bool = False, stock_top: float = 0.0, max_rpm: float = 1e9) -> dict:
+              holes: bool = True, taps: bool = False, face: bool = False, chamfer: bool = True, stock_top: float = 0.0,
+              max_rpm: float = 1e9) -> dict:
     """铣削件（零件实体）→ FreeCAD CAM 的工序（cam_fc.program 的 ops）与工艺卡的工序表。
     选刀：型腔取刀径不超过型腔底面窄边一半的最大平底刀；外轮廓取最大的平底刀；每种孔径取直径相同的钻头。
     参数：刀具样本范围的中间值（assist.cam_process 的规则值）；转速 n = 1000·vc/(π·d)（不超过机床最高转速），进给 = fz·刃数·n。"""
@@ -433,6 +460,11 @@ def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, profile: bool 
         elif kind in ("csink", "tap"):
             spec = {"type": kind, "tool": tool, "number": n, "rpm": round(rpm),
                     "feed_mm_min": round(params["f"] * rpm, 1) if kind == "csink" else 0.0, **extra}
+        elif kind == "chamfer":
+            z = tool.get("flutes") or CP.TEACH_Z["chamfer"]
+            feed = params["fz"] * z * rpm
+            spec = {"type": "chamfer", "tool": tool, "number": n, "rpm": round(rpm), "feed_mm_min": round(feed, 1),
+                    "plunge_mm_min": round(feed / 3, 1), **extra}
         else:
             z = tool.get("flutes")
             if z is None:
@@ -501,6 +533,16 @@ def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, profile: bool 
                 card[-1]["reason"] = ho["note"]
                 if ho["kind"] == "tap":
                     card[-1]["status"] = "unknown"          # 推测的螺纹孔：一定要人确认
+    if chamfer:                                 # 顶边倒角：倒角刀沿边走（FreeCAD Deburr），同宽同角的一道工序
+        groups: dict = {}
+        for c in chamfer_faces(shape):
+            groups.setdefault((c["width"], c["angle"]), []).append(c["face"])
+        for (w, ang), faces in sorted(groups.items()):
+            t = next((t for t in lib["tools"] if t["kind"] == "chamfer_mill" and abs(float(t.get("tip_angle_deg", -1)) - ang) < 0.5), None)
+            if t is None:
+                notes.append(f"倒角 {w:g}×{ang / 2:g}°：刀具库里没有锥角 {ang:g}° 的倒角刀，没编程")
+                continue
+            add("chamfer", f"倒角 {w:g}×{90 - ang / 2:g}°", t, {"faces": faces, "width": w})
     if not ops:
         raise CamDocError("没有可以加工的：零件上没找到型腔、也没选外轮廓和钻孔")
     return {"ops": ops, "card": card, "notes": notes}
