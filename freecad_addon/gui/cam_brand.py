@@ -1,6 +1,6 @@
 """问渠CAM 版的界面（ADR-0104 产品化第 2 步）：不加零件库工作台，只加“问渠CAM”工作台。
 
-- 工具栏：数控编程（面板在 cam_panel）；菜单另有检查 G 代码（ADR-0059 的检查窗口）、授权、设置 AI 密钥、关于；
+- 工具栏：新建车削 / 铣削作业、新建工序（下拉列出工序类型）、作业设置与计算、工序的重算 / 确认 / 上下移（菜单和右键另有复制、隐藏刀路）（加工树，cam_tree_panels，ADR-0106 Q1）；菜单另有检查 G 代码（ADR-0059 的检查窗口）、授权、设置 AI 密钥、关于；
 - 授权、设置对话框与问渠有限元共用（fea_brand），换成本产品的文字和授权功能 cam_pro；
 - 第一次启动把 FreeCAD 的启动工作台设成本工作台（以后用户自己改了就不再动）；
 - 工作台内部名用 ASCII，激活后再改成本地化标题（同问渠多体动力学，避免中文菜单名乱码）。
@@ -19,7 +19,13 @@ from freecad_addon.gui import fea_brand
 WORKBENCH = "WenQuestCamWorkbench"
 PARAMS = fea_brand.PARAMS
 MENU = "WenQuest CAM"
-CMDS = ("FAP_CamPanel", "FAP_CamCheck", "Separator", "FAP_CamLicense", "FAP_CamSetup", "FAP_CamAbout")
+ADD_MENU = "New operation"
+TOOLBAR = ["FAP_CamNewTurnJob", "FAP_CamNewMillJob", "FAP_CamNewOp", "FAP_CamJob", "Separator", "FAP_CamOpRegen",
+           "FAP_CamOpConfirm", "FAP_CamOpUp", "FAP_CamOpDown"]
+CMDS = ("FAP_CamNewTurnJob", "FAP_CamNewMillJob", "FAP_CamJob", "Separator", "FAP_CamOpRegen", "FAP_CamOpConfirm",
+        "FAP_CamOpCopy", "FAP_CamOpUp", "FAP_CamOpDown", "FAP_CamOpHide", "Separator", "FAP_CamCheck", "Separator",
+        "FAP_CamLicense", "FAP_CamSetup", "FAP_CamAbout")
+OP_MENU = ["FAP_CamOpRegen", "FAP_CamOpConfirm", "FAP_CamOpCopy", "FAP_CamOpUp", "FAP_CamOpDown", "FAP_CamOpHide"]
 
 
 class Product(fea_brand.Product):
@@ -102,8 +108,17 @@ class CamWorkbench(FreeCADGui.Workbench):
 
     def Initialize(self):
         # 菜单内部名用 ASCII（中文名建的顶层菜单在中文界面里会乱码），激活后再改成当前语言的标题（_retitle）
-        self.appendToolbar(MENU, ["FAP_CamPanel"])
+        self.appendToolbar(MENU, list(TOOLBAR))
         self.appendMenu(MENU, list(CMDS))
+        from freecad_addon.gui import cam_tree_panels
+
+        self.appendMenu([MENU, ADD_MENU], list(cam_tree_panels.ADD_OPS))
+
+    def ContextMenu(self, recipient):
+        from freecad_addon.fc import cam_objects as CO
+
+        if any(CO.is_op(o) for o in FreeCADGui.Selection.getSelection()):
+            self.appendContextMenu("", list(OP_MENU))
 
     def Activated(self):
         from PySide import QtCore
@@ -124,6 +139,9 @@ def _retitle() -> None:
     for a in mw.menuBar().actions():
         if a.menu() is not None and a.text() in (MENU, "&" + MENU):
             a.setText(T("问渠CAM"))
+            for b in a.menu().actions():
+                if b.menu() is not None and b.text() in (ADD_MENU, "&" + ADD_MENU):
+                    b.setText(T("新建工序"))
     for tb in mw.findChildren(QtWidgets.QToolBar):
         if tb.windowTitle() == MENU:
             tb.setWindowTitle(T("问渠CAM"))
@@ -138,13 +156,14 @@ def _start_here() -> None:
 
 
 def register() -> None:
-    from freecad_addon.gui.cam_panel import CamPanelCommand
+    from freecad_addon.gui import cam_tree_panels
 
-    FreeCADGui.addCommand("FAP_CamPanel", CamPanelCommand())
+    cam_tree_panels.register()
     FreeCADGui.addCommand("FAP_CamCheck", CamCheckCommand())
     FreeCADGui.addCommand("FAP_CamLicense", CamLicenseCommand())
     FreeCADGui.addCommand("FAP_CamSetup", CamSetupCommand())
     FreeCADGui.addCommand("FAP_CamAbout", CamAboutCommand())
-    wb = type(WORKBENCH, (CamWorkbench,), {"MenuText": T("问渠CAM"), "ToolTip": T("问渠CAM")})
-    FreeCADGui.addWorkbench(wb())
+    if WORKBENCH not in FreeCADGui.listWorkbenches():
+        wb = type(WORKBENCH, (CamWorkbench,), {"MenuText": T("问渠CAM"), "ToolTip": T("问渠CAM")})
+        FreeCADGui.addWorkbench(wb())
     _start_here()

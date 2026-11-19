@@ -56,7 +56,8 @@ def pocket_floors(shape, top: float) -> list[str]:
 
 def build_job(doc, model, ops: list[dict]):
     """ops：[{"type": "pocket" | "profile" | "drill", "tool": cam-tool/1 刀具, "number": 刀号, "rpm", "feed_mm_min",
-             "plunge_mm_min", "step_down_mm", "step_over_pct"}]。返回 (作业, [(op 设置, FreeCAD 工序)])"""
+             "plunge_mm_min", "step_down_mm", "step_over_pct", "faces": 点选的面（可选：型腔底面、孔的圆柱面；不给时自动找）}]。
+    返回 (作业, [(op 设置, FreeCAD 工序)])"""
     import Path.Tool.Controller as PathToolController
     from Path.Base import Drillable
     from Path.Main import Job as PathJob
@@ -69,7 +70,7 @@ def build_job(doc, model, ops: list[dict]):
     for spec in ops:
         k = spec["type"]
         if k == "pocket":
-            floors = pocket_floors(jm.Shape, top)
+            floors = list(spec.get("faces") or []) or pocket_floors(jm.Shape, top)
             if not floors:
                 raise CamFcError("零件上没有找到型腔底面（朝上、低于顶面的平面）")
             op = PocketShape.Create(f"Pocket{len(made) + 1}")
@@ -79,8 +80,9 @@ def build_job(doc, model, ops: list[dict]):
             op = Profile.Create(f"Profile{len(made) + 1}")
         elif k == "drill":
             d = float(spec["tool"]["diameter_mm"])
+            picked = set(spec.get("faces") or [])
             holes = [h for h in Drillable.getDrillableTargets(jm)
-                     if abs(2 * jm.Shape.getElement(h[1]).Surface.Radius - d) < 1e-6]
+                     if abs(2 * jm.Shape.getElement(h[1]).Surface.Radius - d) < 1e-6 and (not picked or h[1] in picked)]
             if not holes:
                 raise CamFcError(f"零件上没有直径 {d:g} 的孔")
             op = Drilling.Create(f"Drill{len(made) + 1}")
