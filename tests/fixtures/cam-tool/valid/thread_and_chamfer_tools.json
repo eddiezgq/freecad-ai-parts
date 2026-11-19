@@ -1,0 +1,67 @@
+{
+ "why": "螺纹铣刀（多齿写螺距、单齿不写）、带刀尖直径的倒角刀、带牙型角的丝锥与螺纹车刀片（ADR-0108）",
+ "instance": {
+  "format": "cam-tool/1",
+  "name": "示例刀具库（虚构）",
+  "example": true,
+  "tools": [
+   {
+    "id": "TM10-15",
+    "kind": "thread_mill",
+    "diameter_mm": 8.0,
+    "pitch_mm": 1.5,
+    "thread_angle_deg": 60,
+    "flute_length_mm": 16.0,
+    "source": {
+     "kind": "example",
+     "ref": "虚构示例"
+    }
+   },
+   {
+    "id": "TM6-SP",
+    "kind": "thread_mill",
+    "diameter_mm": 6.0,
+    "thread_angle_deg": 60,
+    "source": {
+     "kind": "example",
+     "ref": "虚构示例"
+    }
+   },
+   {
+    "id": "CM90",
+    "kind": "chamfer_mill",
+    "diameter_mm": 12.0,
+    "tip_angle_deg": 90,
+    "tip_diameter_mm": 1.0,
+    "source": {
+     "kind": "example",
+     "ref": "虚构示例"
+    }
+   },
+   {
+    "id": "TAP-M10",
+    "kind": "tap",
+    "diameter_mm": 10.0,
+    "pitch_mm": 1.5,
+    "thread_angle_deg": 60,
+    "source": {
+     "kind": "example",
+     "ref": "虚构示例"
+    }
+   },
+   {
+    "id": "TH-R11",
+    "kind": "thread_turn",
+    "pitch_mm": 2.309,
+    "thread_angle_deg": 55,
+    "insert": {
+     "nose_radius_mm": 0.1
+    },
+    "source": {
+     "kind": "example",
+     "ref": "虚构示例"
+    }
+   }
+  ]
+ }
+}
