@@ -410,10 +410,11 @@ def _in_polygon(X, Y, poly):
     return inside
 
 
-def simulate_mill(parsed, stock, tools, target=None, h=None, tol=0.01):
+def simulate_mill(parsed, stock, tools, target=None, h=None, tol=0.01, on_move=None):
     """stock：{"box": (xmin, ymin, xmax, ymax), "top": 0} 或 {"polygon": [[x, y], ..], "top": 0}（轴上铣键槽另给 "cyl_r"）
     tools：{刀号: {"kind": "endmill" | "drill", "d": 直径}}
-    target(x, y 网格) → 目标高度数组（None 表示不比对）。返回高度图、碰撞、过切 / 残留"""
+    target(x, y 网格) → 目标高度数组（None 表示不比对）。返回高度图、碰撞、过切 / 残留
+    on_move(mv, H, xs, ys)：每段走刀切削之前调用（整机仿真查刀杆、刀柄碰剩下的材料，machine_sim.heightmap_hook）"""
     poly = np.asarray(stock["polygon"], float) if stock.get("polygon") else None
     if poly is not None:
         bx0, by0 = poly.min(0)
@@ -437,6 +438,8 @@ def simulate_mill(parsed, stock, tools, target=None, h=None, tol=0.01):
         H = np.where(inside & (np.abs(Y) < R0), np.sqrt(np.clip(R0 ** 2 - Y ** 2, 0, None)) - R0, AIR)
     issues, ap_max = [], 0.0
     for mv in parsed["moves"]:
+        if on_move is not None:
+            on_move(mv, H, xs, ys)
         tl = tools.get(mv["tool"])
         if not tl:
             continue

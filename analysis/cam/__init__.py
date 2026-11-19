@@ -15,6 +15,9 @@
           {"type": "holes", "d", "points": [[x, y], ..], "depth"}]，每项可给 tool_d 与 cut（缺省见 DEFAULT_CUT）
   check：gcode（程序文本）；可选 stock（车：{"d", "z_right", "z_left"}；铣：{"box"}）与 tools（{刀号: {"kind": "turn" | "groove" | "endmill" |
          "drill", "d" 或 "w"}}）——给了毛坯才仿真
+  machine_sim（可选，三种 mode 都认）：整机仿真（analysis/cam/machine_sim.py）——work_offset_mm、fixtures、tool_library、
+         tools {刀号: {"tool": 刀具库 id, "length_mm": 刀长}}、clearance_mm、step_mm；铣削毛坯另可给 stock.height。
+         turn、mill 生成的程序整机仿真不通过就不输出（gcode 为 null）；check 只报不扣。
 结果 data：programs [{title, gcode, time（cut_s、rapid_s、tool_s、total_s）, checks [{line, level, text}], sim, power}]、
   total_time_s、verdict（error / warn / unknown / ok：检查中最严重的一级）、machine（id、name、example）。
 """
@@ -24,6 +27,7 @@ from __future__ import annotations
 import math
 import time
 
+from analysis.cam import machine_sim as MS
 from analysis.cam import machines as M
 from analysis.cam import paths as P
 from analysis.cam import post, power, sim
@@ -61,6 +65,35 @@ def _verdict(progs):
 
 def _cut(given, default):
     return {**default, **(given or {})}
+
+
+def _msim_hook(setup, mach, parsed):
+    """整机仿真（ADR-0104 C1）：设置里有 machine_sim 才跑。返回 (高度图钩子, 钩子查出的问题列表)"""
+    cfg = setup.get("machine_sim")
+    if not cfg or parsed["lathe"]:
+        return None, []
+    specs, _ = MS.tool_specs(mach["model"], cfg, parsed)
+    extra: list = []
+    return MS.heightmap_hook(specs, extra), extra
+
+
+def _msim(setup, mach, parsed, gcode, stock, extra, prog, withhold, expect_d=None):
+    """跑整机仿真，结果并进程序的检查；withhold 时不通过就扣下程序（ADR-0104 安全底线第 1 条）。
+    expect_d：程序按什么刀径算的（{刀号: 直径}）——与刀具库里对应的刀不一样就报错"""
+    cfg = setup.get("machine_sim")
+    if not cfg:
+        return
+    res = MS.run(mach["model"], parsed, cfg, stock, gcode)
+    for t, d in (expect_d or {}).items():
+        got = res["tool_d"].get(t)
+        if got is not None and abs(got - d) > 1e-6:
+            extra.append({"line": None, "level": "error", "text": f"T{t}：程序按 Ø{d:g} 算，刀具库里对应的刀是 Ø{got:g}"})
+    res = MS.finish(res, extra)
+    prog["checks"] += res["checks"]
+    prog["machine_sim"] = {"status": res["status"], "fingerprint": res["fingerprint"], "samples": res["samples"]}
+    if withhold and res["status"] == "error":
+        prog["gcode"] = None
+        prog["checks"].append({"line": None, "level": "error", "text": "整机仿真不通过，程序没有输出（改好再算）"})
 
 
 # ---------------------------------------------------------------- 车削
@@ -110,11 +143,13 @@ def _turn(setup, mach):
             ("粗车", "turn", {"vc": rough["vc"], "f": rough["f"], "ap": max(ap[1], 1e-3)}),
             ("精车", "turn", {"vc": fin["vc"], "f": fin["f"], "ap": max(ap[2], 1e-3)})])
         checks += pw
-        progs.append({"title": title, "side": side, "number": prog["number"], "gcode": g, "time": tm, "checks": checks,
+        out = {"title": title, "side": side, "number": prog["number"], "gcode": g, "time": tm, "checks": checks,
                       "sim": {"dev_min_mm": round(s.get("dev_min", 0.0), 4), "dev_max_mm": round(s.get("dev_max", 0.0), 4),
                               "under_mm": round(s.get("under_mm", 0.0), 4), "ap_max_mm": {"rough": round(ap[1], 3), "finish": round(ap[2], 3)},
                               "reach_mm": reach},
-                      "power": pdet, "target": [[float(z), float(d)] for z, d in tgt]})
+                      "power": pdet, "target": [[float(z), float(d)] for z, d in tgt]}
+        _msim(setup, mach, parsed, g, stock, [], out, withhold=True)
+        progs.append(out)
     return progs, {"profile": [[float(t), float(d)] for t, d in prof], "stock_d_mm": stock_d, "length_mm": total}
 
 
@@ -231,7 +266,8 @@ def _mill(setup, mach):
     parsed = sim.parse(g, mach)
     checks = sim.machine_checks(parsed, mach)
     tm = sim.timing(parsed, mach)
-    s = sim.simulate_mill(parsed, {"box": box, "top": 0.0}, tools, _mill_target(feats))
+    hook, extra = _msim_hook(setup, mach, parsed)
+    s = sim.simulate_mill(parsed, {"box": box, "top": 0.0}, tools, _mill_target(feats), on_move=hook)
     checks += s["issues"]
     under = int(s["under_mask"].sum()) if "under_mask" in s else 0
     if under:
@@ -240,10 +276,13 @@ def _mill(setup, mach):
                                "（型腔转角圆角小于刀具半径时转角留料；外轮廓离毛坯角太远时一圈铣不到）"})
     pw, pdet = power.check(setup.get("kienzle"), mach, items)
     checks += pw
-    return [{"title": "铣削", "number": 5001, "gcode": g, "time": tm, "checks": checks, "power": pdet,
-             "sim": {"over_cells": s.get("over", 0), "under_cells": under, "dev_min_mm": round(s.get("dev_min", 0.0), 4),
-                     "dev_max_mm": round(s.get("dev_max", 0.0), 4), "ap_max_mm": round(s["ap_max"], 3), "cell_mm": round(s["h"], 4)},
-             "tools": {str(k): v for k, v in tools.items()}}], {}
+    out = {"title": "铣削", "number": 5001, "gcode": g, "time": tm, "checks": checks, "power": pdet,
+           "sim": {"over_cells": s.get("over", 0), "under_cells": under, "dev_min_mm": round(s.get("dev_min", 0.0), 4),
+                   "dev_max_mm": round(s.get("dev_max", 0.0), 4), "ap_max_mm": round(s["ap_max"], 3), "cell_mm": round(s["h"], 4)},
+           "tools": {str(k): v for k, v in tools.items()}}
+    _msim(setup, mach, parsed, g, {"box": box, "top": 0.0, "height": stock.get("height")}, extra, out, withhold=True,
+          expect_d={k: v["d"] for k, v in tools.items()})
+    return [out], {}
 
 
 # ---------------------------------------------------------------- 检查已有程序
@@ -259,6 +298,7 @@ def _check(setup, mach):
     out = {"title": "检查", "gcode": text, "time": tm, "checks": checks, "power": {"status": "unknown"},
            "tools_used": parsed["tools"], "moves": len(parsed["moves"])}
     stock = setup.get("stock")
+    extra: list = []
     if stock:
         tools = {int(k): v for k, v in (setup.get("tools") or {}).items()}
         if parsed["lathe"]:
@@ -267,9 +307,11 @@ def _check(setup, mach):
         else:
             if not tools:
                 raise SetupError("铣削仿真要给 tools（刀号 → 类型与直径）")
-            s = sim.simulate_mill(parsed, {"box": stock["box"], "top": 0.0}, tools)
+            hook, extra = _msim_hook(setup, mach, parsed)
+            s = sim.simulate_mill(parsed, {"box": stock["box"], "top": 0.0}, tools, on_move=hook)
             out["sim"] = {"ap_max_mm": round(s["ap_max"], 3), "cell_mm": round(s["h"], 4)}
         checks += s["issues"]
+    _msim(setup, mach, parsed, text, stock, extra, out, withhold=False)
     return [out], {}
 
 
@@ -282,7 +324,7 @@ def run(setup: dict) -> dict:
         if fn is None:
             raise SetupError(f"mode 要是 turn、mill 或 check：{mode!r}")
         progs, extra = fn(setup, mach)
-    except (SetupError, P.CamError, M.MachineError) as exc:
+    except (SetupError, P.CamError, M.MachineError, MS.SimSetupError) as exc:
         return result.failed("cam", MODULE["version"], setup, str(exc))
     msgs = []
     if mach.get("example"):
