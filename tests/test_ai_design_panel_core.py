@@ -50,7 +50,8 @@ def test_example_and_tabs(result):
     assert "曲柄半径 15.5 mm" in cond and "45-QT" in cond                     # 每个数带原话引用
     rounds = C.rounds_html(result)
     assert rounds.count("<h3>") == len(result["rounds"]) and "全部通过" in rounds
-    assert C.COLORS["fail"] in rounds and C.COLORS["pass"] in rounds        # 第 1 轮不通过、第 2 轮通过
+    assert all(C.COLORS[r["overall"]] in rounds for r in result["rounds"])  # 每轮按结论着色
+    assert rounds.count("（采用）") == 1 and "质量" in rounds                 # 标出采用的那一轮和每轮质量
     assert "bearing.nsk-ltd.6201" in rounds
     q = C.questions_html(result)
     assert all(a in q for a in result["assumptions"])

@@ -169,7 +169,9 @@ def test_recorded_real_model_run_passes(tmp_path):
     g = shaft_model.generate(res, tmp_path, lib.get)
     assert g["readback"] == "pass" and g["delivered"], g["problems"]
     assert (tmp_path / "shaft.step").is_file() and (tmp_path / "drawing.svg").is_file()
-    assert [r["kind"] for r in g["bom"]] == ["custom_part", "bearing"] and g["bom"][1]["qty"] == 2
+    kinds = [r["kind"] for r in g["bom"]]
+    assert kinds[0] == "custom_part" and set(kinds[1:]) == {"bearing"}             # 两个轴承可以是不同型号（2026-11-19 录制：6201 + 6001）
+    assert sum(r["qty"] for r in g["bom"][1:]) == 2
 
 
 def test_progress_reported_each_step():
