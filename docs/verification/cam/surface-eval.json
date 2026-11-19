@@ -1,0 +1,115 @@
+{
+ "tool": "ball R3",
+ "stepover_mm": 2.0,
+ "waterline_dz_mm": 0.5,
+ "rows": [
+  {
+   "op": "surface",
+   "moves": 109,
+   "gen_s": 0.1,
+   "over_mm": 0.0,
+   "scallop_max_mm": 0.1629,
+   "scallop_p95_mm": 0.147,
+   "cell_mm": 0.05,
+   "sample_mm": 0.05,
+   "part": "平面 / flat",
+   "theory_mm": 0.1716
+  },
+  {
+   "op": "surface",
+   "moves": 109,
+   "gen_s": 0.1,
+   "over_mm": 0.0005,
+   "scallop_max_mm": 0.2022,
+   "scallop_p95_mm": 0.1843,
+   "cell_mm": 0.05,
+   "sample_mm": 0.05,
+   "part": "斜面 20° / slope 20°",
+   "theory_mm": 0.2076
+  },
+  {
+   "op": "waterline",
+   "moves": 8843,
+   "gen_s": 1.0,
+   "over_mm": 0.0,
+   "scallop_max_mm": 0.1797,
+   "scallop_p95_mm": 0.1527,
+   "cell_mm": 0.05,
+   "sample_mm": 0.25,
+   "part": "斜面 20° / slope 20°",
+   "theory_mm": 0.0962
+  },
+  {
+   "op": "waterline",
+   "moves": 21803,
+   "gen_s": 6.3,
+   "over_mm": 0.0,
+   "scallop_max_mm": 0.1242,
+   "scallop_p95_mm": 0.1057,
+   "cell_mm": 0.05,
+   "sample_mm": 0.1,
+   "part": "斜面 20° / slope 20°",
+   "theory_mm": 0.0962
+  },
+  {
+   "op": "waterline",
+   "moves": 43403,
+   "gen_s": 27.7,
+   "over_mm": 0.0,
+   "scallop_max_mm": 0.1069,
+   "scallop_p95_mm": 0.0965,
+   "cell_mm": 0.05,
+   "sample_mm": 0.05,
+   "part": "斜面 20° / slope 20°",
+   "theory_mm": 0.0962
+  },
+  {
+   "op": "surface",
+   "moves": 2601,
+   "gen_s": 20.7,
+   "over_mm": 0.003,
+   "scallop_max_mm": 0.1615,
+   "scallop_p95_mm": 0.1443,
+   "cell_mm": 0.05,
+   "sample_mm": 0.05,
+   "part": "球冠顶部 / dome top",
+   "theory_mm": 0.1742
+  },
+  {
+   "op": "waterline",
+   "moves": 54153,
+   "gen_s": 213.0,
+   "over_mm": 0.0044,
+   "scallop_max_mm": 0.0768,
+   "scallop_p95_mm": 0.0583,
+   "cell_mm": 0.05,
+   "sample_mm": 0.05,
+   "part": "球冠侧面 / dome side",
+   "theory_mm": 0.0777
+  },
+  {
+   "op": "surface",
+   "moves": 1087,
+   "gen_s": 1.6,
+   "over_mm": 0.0021,
+   "scallop_max_mm": 0.1731,
+   "scallop_p95_mm": 0.1547,
+   "cell_mm": 0.05,
+   "sample_mm": 0.05,
+   "part": "自由曲面 / free-form",
+   "theory_mm": null
+  },
+  {
+   "op": "waterline",
+   "moves": 11162,
+   "gen_s": 48.0,
+   "over_mm": 0.0052,
+   "scallop_max_mm": 3.0647,
+   "scallop_p95_mm": 3.0161,
+   "cell_mm": 0.05,
+   "sample_mm": 0.05,
+   "part": "自由曲面 / free-form",
+   "theory_mm": null
+  }
+ ]
+}

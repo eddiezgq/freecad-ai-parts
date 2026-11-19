@@ -1872,7 +1872,6 @@
 "自适应开粗": "Adaptive roughing",
 "残料清角": "Rest machining",
 "残料清角：刀具库里没有比 Ø{} 小的平底立铣刀": "Rest machining: the tool library has no flat end mill smaller than Ø{}",
-"工序类型 {} 不认识：face、pocket、rest、adaptive、profile、drill": "Unknown operation type {}: face, pocket, rest, adaptive, profile, drill",
 "螺纹铣刀 Ø{} 不比螺纹大径 Ø{} 小，进不了孔": "Thread mill Ø{} is not smaller than the major diameter Ø{}; it does not fit in the hole",
 "铣内螺纹 M{}×{}（刀 Ø{}，逆时针往上，顺铣）": "Thread milling M{}×{} (tool Ø{}, counter-clockwise upwards, climb milling)",
 "刀具库里没有能铣 M{}×{} 的螺纹铣刀": "the tool library has no thread mill for M{}×{}",
@@ -1890,5 +1889,9 @@
 "螺旋铣孔 Ø{}": "Helical hole milling Ø{}",
 "螺旋铣孔": "Helical hole milling",
 "毛坯顶面高出零件顶面多少；大于 0 时规则起草第一道是面铣": "How far the stock top is above the part top; above 0, the rule draft starts with face milling",
-"面铣余量 mm（0 = 不面铣）": "Face stock mm (0 = no face milling)"
+"面铣余量 mm（0 = 不面铣）": "Face stock mm (0 = no face milling)",
+"曲面平行精铣": "Surface finishing (parallel)",
+"曲面等高精铣": "Surface finishing (waterline)",
+"曲面精铣：刀具库里没有球头刀": "Surface finishing: the tool library has no ball end mill",
+"工序类型 {} 不认识：face、pocket、rest、adaptive、profile、drill、surface、waterline": "Unknown operation type {}: face, pocket, rest, adaptive, profile, drill, surface, waterline"
 }

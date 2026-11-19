@@ -690,7 +690,7 @@ def _in_polygon(X, Y, poly):
 
 def simulate_mill(parsed, stock, tools, target=None, h=None, tol=0.01, on_move=None):
     """stock：{"box": (xmin, ymin, xmax, ymax), "top": 0} 或 {"polygon": [[x, y], ..], "top": 0}（轴上铣键槽另给 "cyl_r"）
-    tools：{刀号: {"kind": "endmill" | "drill" | "tap" | "chamfer" | "thread_mill", "d": 直径, "pitch": 丝锥螺距, "tip_d": 倒角刀刀尖直径,
+    tools：{刀号: {"kind": "endmill" | "ballend" | "drill" | "tap" | "chamfer" | "thread_mill", "d": 直径, "pitch": 丝锥螺距, "tip_d": 倒角刀刀尖直径,
            "angle": 倒角刀锥角, "core_d": 螺纹铣刀齿根直径}}
     target(x, y 网格) → 目标高度数组（None 表示不比对）。返回高度图、碰撞、过切 / 残留
     on_move(mv, H, xs, ys)：每段走刀切削之前调用（整机仿真查刀杆、刀柄碰剩下的材料，machine_sim.heightmap_hook）"""
@@ -741,6 +741,7 @@ def simulate_mill(parsed, stock, tools, target=None, h=None, tol=0.01, on_move=N
                     issues.append({"line": mv["line"], "level": "error",
                                    "text": f"攻丝前底孔没钻到位：丝锥 M{tl['d']:g} 到 Z{z:.2f} 处还有材料（底孔至少要到小径、到攻丝深度）"})
             continue
+        ball = tl.get("kind") == "ballend"            # 球头刀（ADR-0106 Q3c 曲面评估）
         cone = None                                   # 倒角刀（锥形）：刀尖小端半径、tan(半锥角)
         if tl.get("kind") == "chamfer":
             cone = (float(tl.get("tip_d", 0.0)) / 2, math.tan(math.radians(float(tl.get("angle", 90.0)) / 2)))
@@ -760,16 +761,19 @@ def simulate_mill(parsed, stock, tools, target=None, h=None, tol=0.01, on_move=N
             sub = H[a0:a1, b0:b1]
             rho2 = (xs[a0:a1, None] - x) ** 2 + (ys[None, b0:b1] - y) ** 2
             msk = rho2 <= R * R                                                          # 刀具圆盘盖住的格（按格中心）
-            zt = z if cone is None else z + np.maximum(np.sqrt(rho2) - cone[0], 0.0) / cone[1]   # 倒角刀：锥面
+            if ball:                                                                     # 球头刀：刀尖在球的最低点
+                zt = z + R - np.sqrt(np.clip(R * R - rho2, 0.0, None))
+            else:
+                zt = z if cone is None else z + np.maximum(np.sqrt(rho2) - cone[0], 0.0) / cone[1]   # 倒角刀：锥面
             hit = msk & (sub > zt)
             if hit.any():
-                worst = max(worst, float((sub[hit] - zt[hit] if cone is not None else sub[hit] - z).max()))
+                worst = max(worst, float((sub[hit] - zt[hit] if (cone is not None or ball) else sub[hit] - z).max()))
                 if nrm is not None:
                     ii, jj = np.nonzero(hit & (sub - z > 0.005))
                     if ii.size:
                         off = (xs[a0 + ii] - mv["a"][0]) * nrm[0] + (ys[b0 + jj] - mv["a"][1]) * nrm[1]
                         widths.append(float(off.max() - off.min()) + h)
-                sub[hit] = z if cone is None else zt[hit]
+                sub[hit] = zt[hit] if (cone is not None or ball) else z
         if worst > 0.005:
             if mv["t"] == "rapid":
                 issues.append({"line": mv["line"], "level": "error", "text": f"快移撞到工件：切进 {worst:.2f} mm（快移不能切削）"})

@@ -443,7 +443,16 @@ def chamfer_faces(shape) -> list[dict]:
     return out
 
 
+SCALLOP = 0.01      # 曲面精铣的目标残留高度（mm）：行距 s = 2√(2Rh − h²)，等高步距取 s·sin45°（ADR-0106 Q3c）
+
+
+def scallop_step(r: float, h: float = SCALLOP) -> float:
+    """球头刀半径 r、残留高度 h → 行距 s = 2√(2rh − h²)"""
+    return 2 * math.sqrt(max(2 * r * h - h * h, 0.0))
+
+
 def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, adaptive: bool = False, rest: bool = False, profile: bool = True,
+              surface: bool = False, waterline: bool = False,
               drill: bool = True,
               holes: bool = True, taps: bool = False, thread_mill: bool = False, face: bool = False, chamfer: bool = True,
               stock_top: float = 0.0,
@@ -485,8 +494,8 @@ def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, adaptive: bool
                 z = CP.TEACH_Z["pocket"]
                 notes.append(f"{title}：刀 {tool['id']} 没写刃数，按 {z} 刃算进给，待确认")
             feed = params["fz"] * z * rpm
-            spec = {"type": kind if kind in ("pocket", "cbore", "face", "adaptive", "rest", "helix") else "profile", "tool": tool, "number": n,
-                    "rpm": round(rpm),
+            spec = {"type": kind if kind in ("pocket", "cbore", "face", "adaptive", "rest", "helix", "surface", "waterline") else "profile",
+                    "tool": tool, "number": n, "rpm": round(rpm),
                     "feed_mm_min": round(feed, 1), "plunge_mm_min": round(feed / 3, 1), "step_down_mm": params["ap"], **extra}
         if status == "unknown":
             notes.append(f"{title}：刀 {tool['id']} 的样本没有 {iso} 组的参数，用教学示意值，待确认")
@@ -558,6 +567,17 @@ def mill_plan(shape, lib: dict, iso: str, *, pocket: bool = True, adaptive: bool
                 add("helix", f"螺旋铣孔 Ø{dd:g}", em, {"holes": holes_h, "d": dd, "title": f"螺旋铣孔 Ø{dd:g}"})
                 continue
             add("holes", f"钻孔 Ø{dd:g}", t, {})
+    if surface or waterline:                    # 曲面精铣：最大的球头刀，行距 / 等高步距按目标残留高度
+        balls = [t for t in lib["tools"] if t["kind"] == "ball_endmill" and "diameter_mm" in t]
+        if not balls:
+            notes.append("曲面精铣：刀具库里没有球头刀")
+        else:
+            t = max(balls, key=lambda t: t["diameter_mm"])
+            s_ = scallop_step(t["diameter_mm"] / 2)
+            if surface:
+                add("surface", "曲面平行精铣", t, {"step_over_pct": round(100 * s_ / t["diameter_mm"], 2)})
+            if waterline:
+                add("waterline", "曲面等高精铣", t, {"step_down_mm": round(s_ * math.sqrt(0.5), 3)})
     if holes:                                   # 钻孔以后：铣沉孔 → 锪孔口 → 攻丝（ADR-0106 Q3b）
         for ho in hole_ops(shape, lib):
             if ho["kind"] == "tap" and not taps:     # 螺纹孔是推测的：起草不自动加攻丝，写进说明，人确认后“新建工序 → 攻丝”
