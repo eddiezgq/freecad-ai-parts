@@ -150,25 +150,26 @@ def _turn_features(setup, total, reach_right):
         raise SetupError(f"Z{z_hi:g} ~ Z{z_lo:g} 跨在两次装夹之间（第一次装夹车到 Z{-reach_right:g}），放不进一次装夹")
 
     out = {"right": {"grooves": [], "threads": []}, "left": {"grooves": [], "threads": []}}
-    for g in setup.get("grooves") or []:
+    for gi, g in enumerate(setup.get("grooves") or []):
         z, w, d = float(g["z"]), float(g["width"]), float(g["d"])
         if w <= 0 or d <= 0:
             raise SetupError("槽宽、槽底直径要大于 0")
         sd = side(z, z - w)
         zz = z if sd == "right" else -(z - w + total)
-        out[sd]["grooves"].append({"z": zz, "width": w, "d": d, "tool_w": float(g.get("tool_w") or w), "cut": g.get("cut")})
-    for t in setup.get("threads") or []:
+        out[sd]["grooves"].append({"z": zz, "width": w, "d": d, "tool_w": float(g.get("tool_w") or w), "cut": g.get("cut"), "gi": gi})
+    for ti, t in enumerate(setup.get("threads") or []):
         za, zb, d, pch = float(t["z_start"]), float(t["z_end"]), float(t["d"]), float(t["pitch"])
         if zb >= za:
             raise SetupError("螺纹 z_end 要在 z_start 左边（更负）")
         sd = side(za, zb)
         if sd == "left":
             za, zb = -(zb + total), -(za + total)
-        out[sd]["threads"].append({"z_start": za, "z_end": zb, "d": d, "pitch": pch, "cut": t.get("cut")})
+        out[sd]["threads"].append({"z_start": za, "z_end": zb, "d": d, "pitch": pch, "cut": t.get("cut"), "gi": ti})
     return out
 
 
-def _turn(setup, mach):
+def turn_context(setup, mach):
+    """车削的公共数据：设计轮廓、毛坯、两次装夹各自的目标轮廓与槽 / 螺纹 / 内孔（ADR-0106 Q1：工序可以单独算）"""
     if mach["kind"] != "lathe":
         raise SetupError(f"{mach['name']} 不是车床")
     segs = [[float(d), float(seg_len)] for d, seg_len in setup.get("segments") or []]
@@ -179,66 +180,116 @@ def _turn(setup, mach):
     if stock_d < dmax:
         raise SetupError(f"毛坯直径 {stock_d:g} 小于零件最大直径 {dmax:g}")
     e = float(setup.get("face_allow_mm", 1.0))
-    allow = float(setup.get("finish_allow_mm", 0.5))
-    cut = setup.get("cut") or {}
-    rough, fin = _cut(cut.get("rough"), DEFAULT_CUT["turn_rough"]), _cut(cut.get("finish"), DEFAULT_CUT["turn_finish"])
     max_rpm = min(float(setup.get("max_rpm", 3000)), mach["max_rpm"])
-    progs = []
     _, reach_right = P.setup_profile(prof, "right")
     feats = _turn_features(setup, total, reach_right)
     bore = setup.get("bore")
+    sides = []
     for k, side in enumerate(("right", "left")):
         tgt, reach = P.setup_profile(prof, side)
         if not tgt:
             continue
-        mv_r = (P.turn_face(stock_d, e, max(min(rough["ap"], 2.0), 0.2), rough["f"]) if e > 1e-3 else []) + \
-            P.turn_rough(tgt, stock_d, rough["ap"], rough["f"], allow, 0.1)
-        mv_f = P.turn_finish(tgt, stock_d, fin["f"])
-        title = "右端（第一次装夹）" if side == "right" else "左端（调头装夹）"
+        sides.append({"side": side, "k": k, "tgt": tgt, "reach": reach, "grooves": feats[side]["grooves"],
+                      "threads": feats[side]["threads"], "bore": bore if bore and bore.get("from", "right") == side else None,
+                      "title": "右端（第一次装夹）" if side == "right" else "左端（调头装夹）"})
+    return {"segs": segs, "prof": prof, "total": total, "stock_d": stock_d, "e": e,
+            "allow": float(setup.get("finish_allow_mm", 0.5)), "max_rpm": max_rpm, "sides": sides}
+
+
+def turn_op_specs(sc):
+    """这次装夹的工序（缺省顺序）：[{"kind": rough | finish | groove | thread | drill | bore, "i": 第几个槽 / 螺纹}]"""
+    out = [{"kind": "rough"}, {"kind": "finish"}]
+    out += [{"kind": "groove", "i": i} for i in range(len(sc["grooves"]))]
+    out += [{"kind": "thread", "i": i} for i in range(len(sc["threads"]))]
+    if sc["bore"]:
+        out += [{"kind": "drill"}, {"kind": "bore"}]
+    return out
+
+
+def turn_default_cut(setup, sc, spec):
+    k = spec["kind"]
+    if k == "rough":
+        return _cut((setup.get("cut") or {}).get("rough"), DEFAULT_CUT["turn_rough"])
+    if k == "finish":
+        return _cut((setup.get("cut") or {}).get("finish"), DEFAULT_CUT["turn_finish"])
+    if k == "groove":
+        return _cut(sc["grooves"][spec["i"]]["cut"], DEFAULT_CUT["groove"])
+    if k == "thread":
+        return _cut(sc["threads"][spec["i"]]["cut"], DEFAULT_CUT["thread"])
+    if k == "drill":
+        return _cut(sc["bore"].get("drill_cut"), DEFAULT_CUT["lathe_drill"])
+    return _cut(sc["bore"].get("cut"), DEFAULT_CUT["bore"])
+
+
+def turn_build_op(ctx, sc, spec, c):
+    """一道车削工序 → {"op": 程序里的工序, "tools": {刀号: 仿真用的刀}, "target": 比对用的增量}"""
+    k, max_rpm, stock_d, tgt = spec["kind"], ctx["max_rpm"], ctx["stock_d"], sc["tgt"]
+    if k == "rough":
+        e = ctx["e"]
+        mv = (P.turn_face(stock_d, e, max(min(c["ap"], 2.0), 0.2), c["f"]) if e > 1e-3 else []) + \
+            P.turn_rough(tgt, stock_d, c["ap"], c["f"], ctx["allow"], 0.1)
+        return {"op": {"tool": {"n": 1, "name": "外圆粗车刀"}, "spindle": {"css": c["vc"], "max_rpm": max_rpm}, "moves": mv,
+                       "title": "粗车"}, "tools": {1: {"kind": "turn"}}, "target": {}}
+    if k == "finish":
+        return {"op": {"tool": {"n": 2, "name": "外圆精车刀"}, "spindle": {"css": c["vc"], "max_rpm": max_rpm},
+                       "moves": P.turn_finish(tgt, stock_d, c["f"]), "title": "精车"}, "tools": {2: {"kind": "turn"}}, "target": {}}
+    if k == "groove":
+        gv = sc["grooves"][spec["i"]]
+        d_from = P.d_at(tgt, gv["z"] - gv["width"] / 2)
+        mv = P.turn_groove(gv["z"], gv["d"], gv["width"], d_from, c["f"], gv["tool_w"])
+        return {"op": {"tool": {"n": 3, "name": f"切槽刀 宽 {gv['tool_w']:g}"}, "spindle": {"css": c["vc"], "max_rpm": max_rpm},
+                       "moves": mv, "title": f"切槽 {spec['i'] + 1}"},
+                "tools": {3: {"kind": "groove", "w": gv["tool_w"]}}, "target": {"grooves": [(gv["z"], gv["width"], gv["d"])]}}
+    if k == "thread":
+        tv = sc["threads"][spec["i"]]
+        run_in = max(2 * tv["pitch"], P.CLEAR)
+        free = tv["z_start"] >= -1e-9 or any(gv["z"] >= tv["z_start"] + run_in - 1e-9 and gv["z"] - gv["width"] <= tv["z_start"] + 1e-9
+                                             for gv in sc["grooves"])
+        if not free:
+            raise SetupError(f"螺纹起刀处（本次装夹 Z{tv['z_start']:g} 右边 {run_in:g} mm）没有退刀槽，也不在端面——起刀会撞工件")
+        rpm = P.spindle_rpm(c["vc"], tv["d"], max_rpm)
+        mv = P.turn_thread(tv["z_start"], tv["z_end"], tv["d"], tv["pitch"])
+        return {"op": {"tool": {"n": 4, "name": f"外螺纹车刀 P{tv['pitch']:g}"}, "spindle": {"rpm": round(rpm)}, "moves": mv,
+                       "title": f"车螺纹 {spec['i'] + 1}"},
+                "tools": {4: {"kind": "thread"}}, "target": {"threads": [(tv["z_start"], tv["z_end"], tv["d"] - P.ISO_D3 * tv["pitch"])]}}
+    b = sc["bore"]
+    inner = P.inner_profile([[float(d), float(L)] for d, L in b["segments"]])
+    dd = float(b["drill_d"])
+    if k == "drill":
+        depth = float(b.get("drill_depth") or -inner[-1][0])
+        rpm = P.spindle_rpm(c["vc"], dd, max_rpm)
+        return {"op": {"tool": {"n": 5, "name": f"麻花钻 Ø{dd:g}", "d": dd}, "spindle": {"rpm": round(rpm)},
+                       "moves": P.lathe_drill(depth, dd, c["f"], c.get("peck", 0.0)), "title": "钻孔"},
+                "tools": {5: {"kind": "drill", "d": dd}}, "target": {}}
+    return {"op": {"tool": {"n": 6, "name": "镗刀"}, "spindle": {"css": c["vc"], "max_rpm": max_rpm},
+                   "moves": P.turn_bore(inner, dd, c["ap"], c["f"], f_finish=c.get("f_finish")), "title": "镗孔"},
+            "tools": {6: {"kind": "bore"}}, "target": {"inner": inner}}
+
+
+def _turn(setup, mach):
+    """setup 可另给 ops：{"right" | "left": [{"kind", "i"?, "cut": {...}}, ...]}——按给的顺序和参数出这次装夹的工序（加工树里的工序，ADR-0106 Q1）；
+    不给时按缺省顺序，参数取 setup 的 cut 与各项自带的 cut"""
+    ctx = turn_context(setup, mach)
+    stock_d, e, total = ctx["stock_d"], ctx["e"], ctx["total"]
+    given = setup.get("ops") or {}
+    progs = []
+    for sc in ctx["sides"]:
+        side, k, tgt, reach, title = sc["side"], sc["k"], sc["tgt"], sc["reach"], sc["title"]
+        specs = given.get(side) if side in given else turn_op_specs(sc)
         prog = {"number": 1001 + k, "title": f"{setup.get('item') or '阶梯轴'} 车削 {title}",
-                "header": {"item": setup.get("item"), "stock": f"Ø{stock_d:g}×{total + 2 * e:g}"},
-                "ops": [{"tool": {"n": 1, "name": "外圆粗车刀"}, "spindle": {"css": rough["vc"], "max_rpm": max_rpm}, "moves": mv_r,
-                         "title": "粗车"},
-                        {"tool": {"n": 2, "name": "外圆精车刀"}, "spindle": {"css": fin["vc"], "max_rpm": max_rpm}, "moves": mv_f,
-                         "title": "精车"}]}
-        tools_sim = {1: {"kind": "turn"}, 2: {"kind": "turn"}}
+                "header": {"item": setup.get("item"), "stock": f"Ø{stock_d:g}×{total + 2 * e:g}"}, "ops": []}
+        tools_sim: dict = {}
         tg = {"outer": tgt, "grooves": [], "threads": []}
-        for gi, gv in enumerate(feats[side]["grooves"]):
-            c = _cut(gv["cut"], DEFAULT_CUT["groove"])
-            d_from = P.d_at(tgt, gv["z"] - gv["width"] / 2)
-            mv = P.turn_groove(gv["z"], gv["d"], gv["width"], d_from, c["f"], gv["tool_w"])
-            prog["ops"].append({"tool": {"n": 3, "name": f"切槽刀 宽 {gv['tool_w']:g}"},
-                                "spindle": {"css": c["vc"], "max_rpm": max_rpm}, "moves": mv, "title": f"切槽 {gi + 1}"})
-            tools_sim[3] = {"kind": "groove", "w": gv["tool_w"]}
-            tg["grooves"].append((gv["z"], gv["width"], gv["d"]))
-        for ti, tv in enumerate(feats[side]["threads"]):
-            run_in = max(2 * tv["pitch"], P.CLEAR)
-            free = tv["z_start"] >= -1e-9 or any(gv["z"] >= tv["z_start"] + run_in - 1e-9 and gv["z"] - gv["width"] <= tv["z_start"] + 1e-9
-                                                 for gv in feats[side]["grooves"])
-            if not free:
-                raise SetupError(f"螺纹起刀处（本次装夹 Z{tv['z_start']:g} 右边 {run_in:g} mm）没有退刀槽，也不在端面——起刀会撞工件")
-            c = _cut(tv["cut"], DEFAULT_CUT["thread"])
-            rpm = P.spindle_rpm(c["vc"], tv["d"], max_rpm)
-            mv = P.turn_thread(tv["z_start"], tv["z_end"], tv["d"], tv["pitch"])
-            prog["ops"].append({"tool": {"n": 4, "name": f"外螺纹车刀 P{tv['pitch']:g}"}, "spindle": {"rpm": round(rpm)},
-                                "moves": mv, "title": f"车螺纹 {ti + 1}"})
-            tools_sim[4] = {"kind": "thread"}
-            tg["threads"].append((tv["z_start"], tv["z_end"], tv["d"] - P.ISO_D3 * tv["pitch"]))
+        cuts = {}
+        for spec in specs:
+            c = _cut(spec.get("cut"), turn_default_cut(setup, sc, spec)) if spec.get("cut") else turn_default_cut(setup, sc, spec)
+            b = turn_build_op(ctx, sc, spec, c)
+            prog["ops"].append(b["op"])
+            tools_sim.update(b["tools"])
+            for key, v in b["target"].items():
+                tg[key] = (tg.get(key) or []) + v if isinstance(v, list) and key != "inner" else v
+            cuts[spec["kind"]] = c
         stock = {"d": stock_d, "z_right": e, "z_left": -(total + e)}
-        if bore and bore.get("from", "right") == side:
-            cb = _cut(bore.get("cut"), DEFAULT_CUT["bore"])
-            cd = _cut(bore.get("drill_cut"), DEFAULT_CUT["lathe_drill"])
-            inner = P.inner_profile([[float(d), float(L)] for d, L in bore["segments"]])
-            dd = float(bore["drill_d"])
-            depth = float(bore.get("drill_depth") or -inner[-1][0])
-            rpm = P.spindle_rpm(cd["vc"], dd, max_rpm)
-            prog["ops"].append({"tool": {"n": 5, "name": f"麻花钻 Ø{dd:g}", "d": dd}, "spindle": {"rpm": round(rpm)},
-                                "moves": P.lathe_drill(depth, dd, cd["f"], cd["peck"]), "title": "钻孔"})
-            prog["ops"].append({"tool": {"n": 6, "name": "镗刀"}, "spindle": {"css": cb["vc"], "max_rpm": max_rpm},
-                                "moves": P.turn_bore(inner, dd, cb["ap"], cb["f"], f_finish=cb["f_finish"]), "title": "镗孔"})
-            tools_sim[5] = {"kind": "drill", "d": dd}
-            tools_sim[6] = {"kind": "bore"}
-            tg["inner"] = inner
         g = post.post(prog, mach)
         parsed = sim.parse(g, mach)
         checks = sim.machine_checks(parsed, mach)
@@ -250,21 +301,24 @@ def _turn(setup, mach):
         if s.get("face_left", 0) > 0.01:
             checks.append({"line": None, "level": "error", "text": "端面没车干净"})
         ap = {t: max((m.get("ap", 0.0) for m in parsed["moves"] if m["tool"] == t), default=0.0) for t in (1, 2)}
-        pw, pdet = power.check(setup.get("kienzle"), mach, [
-            ("粗车", "turn", {"vc": rough["vc"], "f": rough["f"], "ap": max(ap[1], 1e-3)}),
-            ("精车", "turn", {"vc": fin["vc"], "f": fin["f"], "ap": max(ap[2], 1e-3)})])
+        items = []
+        if "rough" in cuts:
+            items.append(("粗车", "turn", {"vc": cuts["rough"]["vc"], "f": cuts["rough"]["f"], "ap": max(ap[1], 1e-3)}))
+        if "finish" in cuts:
+            items.append(("精车", "turn", {"vc": cuts["finish"]["vc"], "f": cuts["finish"]["f"], "ap": max(ap[2], 1e-3)}))
+        pw, pdet = power.check(setup.get("kienzle"), mach, items)
         checks += pw
         out = {"title": title, "side": side, "number": prog["number"], "gcode": g, "time": tm, "checks": checks,
-                      "sim": {"dev_min_mm": round(s.get("dev_min", 0.0), 4), "dev_max_mm": round(s.get("dev_max", 0.0), 4),
-                              "under_mm": round(s.get("under_mm", 0.0), 4), "ap_max_mm": {"rough": round(ap[1], 3), "finish": round(ap[2], 3)},
-                              "reach_mm": reach,
-                              **({"inner_dev_min_mm": round(s["inner_dev_min"], 4), "inner_dev_max_mm": round(s["inner_dev_max"], 4)}
-                                 if "inner_dev_min" in s else {})},
-                      "power": pdet, "target": [[float(z), float(d)] for z, d in tgt]}
+               "sim": {"dev_min_mm": round(s.get("dev_min", 0.0), 4), "dev_max_mm": round(s.get("dev_max", 0.0), 4),
+                       "under_mm": round(s.get("under_mm", 0.0), 4), "ap_max_mm": {"rough": round(ap[1], 3), "finish": round(ap[2], 3)},
+                       "reach_mm": reach,
+                       **({"inner_dev_min_mm": round(s["inner_dev_min"], 4), "inner_dev_max_mm": round(s["inner_dev_max"], 4)}
+                          if "inner_dev_min" in s else {})},
+               "power": pdet, "target": [[float(z), float(d)] for z, d in tgt]}
         _msim(setup, mach, parsed, g, stock, [], out, withhold=True)
         _release(setup, mach, prog, out)
         progs.append(out)
-    return progs, {"profile": [[float(t), float(d)] for t, d in prof], "stock_d_mm": stock_d, "length_mm": total}
+    return progs, {"profile": [[float(t), float(d)] for t, d in ctx["prof"]], "stock_d_mm": stock_d, "length_mm": total}
 
 
 # ---------------------------------------------------------------- 铣削

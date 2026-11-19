@@ -25,32 +25,48 @@ The accuracy of the algorithms is documented in the WenQuest CAM Verification Ma
 - The Start menu has WenQuest CAM, this guide, the verification manual (Chinese and English), the getting-started examples and the license notices. The first start opens the "WenQuest CAM" workbench.
 - To uninstall, use Windows "Settings → Apps". Your parts, programs and license file are not in the installation folder and are kept.
 
+# The interface: the machining tree
+
+All programming data lives in the FreeCAD document, so it is saved with the file and is still there when you reopen it:
+
+- **Job**: one programming job for one part. It holds the part, the machining type (turning / milling), machine, CNC control, workpiece material, tool library and fixture.
+- **Setup**: two for a turned part (right end, then flipped for the left end), one for a milled part.
+- **Operation**: rough and finish turning, grooving, threading, drilling, boring; pocket, contour, drilling. Each operation has its own tool, cutting data, geometry and tool path, drawn as a wireframe in the view.
+
+An operation is either a **draft** (yellow dot on the icon; drafted or newly added) or **confirmed** (checked by a person, cutting data within the tool catalogue ranges). **While any operation is a draft, the job is only simulated; no program is released.**
+
+Double-click the job to open the job panel (task panel on the left); double-click an operation to open its panel. Right-click an operation for: regenerate tool path, confirm, copy, move up / down, hide tool path. "New operation" on the toolbar lists the operation types the current job can take.
+
 # First use: turning a stepped shaft
 
 Use `shaft.step` in `examples\01-shaft-turning` of the installation folder.
 
-1. Open `shaft.step` and press "CNC programming" on the toolbar. A panel opens on the right with five blocks: Part, Machine and material, Process, Calculate and check, Output.
-2. **Part**: choose "Turning". Select the part in the model tree and press "Read from the selected part" — OD sections, grooves and bores are filled in. The part axis must lie along Z, with the right end at the high-Z end.
-3. **Threads**: threads are usually not modelled; enter one line "Z start, Z end, major diameter, pitch", in the example `0, -26, 24, 1.5`. The thread must start at the end face or in a relief groove, otherwise the program is refused (the tool would hit the part when it starts).
-4. **Machine and material**: choose the machine, CNC control and workpiece material (a row of the Kienzle table, which selects the group of cutting data in the tool catalogue). For the fixture enter the chuck jaws' "grip length, outer diameter".
-5. **Process**: press "Rule draft" (Pro also has "AI draft"). Each operation shows its tool, vc, f, ap and "within catalogue" or "to confirm".
-6. **Calculate and check**: the software runs the cutting simulation (material removal, overcut, leftover material, rapid moves into the stock), the machine simulation, the post processor and the read-back. The result area shows each program's time, the machine simulation result and fingerprint; in the check list red is an error, amber a warning and grey "unknown" (missing data, not checked). The view shows the tool path (dashed rapids, solid cuts) and the turned shape.
+1. Open `shaft.step`, select the part in the model tree and press "New turning job" on the toolbar. OD sections, grooves and bores are read, two setups are created and the job panel opens on the left. The part axis must lie along Z, with the right end at the high-Z end.
+2. **Threads**: threads are usually not modelled; in the job panel's "Threads" enter one line "Z start, Z end, major diameter, pitch", in the example `0, -26, 24, 1.5`. The thread must start at the end face or in a relief groove, otherwise the program is refused (the tool would hit the part when it starts).
+3. Choose the machine, CNC control and workpiece material (a row of the Kienzle table, which selects the group of cutting data in the tool catalogue). For the fixture enter the chuck jaws' "grip length, outer diameter".
+4. Press "Rule draft" (Pro also has "AI draft"): 6 operations for the right end and 2 for the left end appear in the model tree, all as drafts.
+5. **Confirm each operation**: double-click it; the panel has three tabs — Geometry (the profile read from the part, or picked faces), Tool (only tools usable for this operation), Cutting data (vc, f, ap, with the catalogue ranges beside them). After changing values press "Apply (regenerate toolpath)"; press "OK" to confirm. Values outside the catalogue ranges turn red and cannot be confirmed:
+
+![Operation panel: vc outside the catalogue range turns red and cannot be confirmed](img/en-op.png)
+
+6. Double-click the job and press "Calculate and check": the software runs the cutting simulation (material removal, overcut, leftover material, rapid moves into the stock), the machine simulation, the post processor and the read-back. The panel shows each program's time, the machine simulation result and fingerprint; in the check list red is an error, amber a warning and grey "unknown" (missing data, not checked).
 
 ![Turning example after calculation](img/en-turn.png)
 
-7. **Output**: press "Save programs and process card…" and choose a folder: one `.nc` program per setup; Pro also writes the process card and program sheet (Word, PDF).
+7. Press "Save programs and process card…" and choose a folder: one `.nc` program per setup; Pro also writes the process card and program sheet (Word, PDF).
 
 # Milling a block
 
 Use `examples\02-block-milling\block.step`.
 
-1. Choose "Milling", select the part and press "Read from the selected part". Tick "Pocket" and "Drilling" (the stock is the part outline, so no contour).
-2. Enter the tool lengths (spindle gauge line to tool tip), e.g. `EM10=120, DR8.5=140`, the height of the workpiece top above the table, and the vise grip height as the fixture, e.g. `10`.
-3. Press "Rule draft": the pocket gets the largest end mill no larger than half the narrow side of the pocket, the hole a drill of the same diameter. Then press "Calculate and check".
+1. Select the part and press "New milling job" (the part's bounding box is the stock).
+2. In the job panel enter the tool lengths (spindle gauge line to tool tip), e.g. `EM10=120, DR8.5=140`, the height of the workpiece top above the table, and the vise grip height as the fixture, e.g. `10`.
+3. Press "Rule draft": the pocket gets the largest end mill no larger than half the narrow side of the pocket, the hole a drill of the same diameter. To machine only certain faces, double-click the operation, pick pocket floors or hole walls in the view and press "Use the faces selected in the view"; with nothing picked they are found automatically.
+4. Confirm each operation, then press "Calculate and check".
 
 ![Milling example after calculation](img/en-mill.png)
 
-Try again with "Contour" ticked as well. A contour milled to the bottom hits the vise jaws: the machine simulation fails, no program is output, and the check list says on which line it hits:
+Try again: on the toolbar choose "New operation" → "Contour milling", confirm it and recalculate. A contour milled to the bottom hits the vise jaws: the machine simulation fails, no program is output, and the check list says on which line it hits:
 
 ![Contour hits the vise jaws: no program](img/en-clash.png)
 
@@ -84,11 +100,12 @@ The safety checks are identical in both tiers; the free edition does not skip an
 
 - "WenQuest CAM" menu → "Set AI key…": DeepSeek in China, Claude elsewhere, switching automatically on errors. The key is stored only on this computer.
 - Only part features (diameters, lengths, grooves, threads, holes), the material group and the catalogue ranges of the candidate tools are sent, never the model file.
-- The AI's answer is checked item by item: tools that are not candidates, cutting data outside the catalogue ranges, and data without a catalogue range are rejected and replaced by rule values, with a note under "Process".
+- The AI's answer is checked item by item: tools that are not candidates, cutting data outside the catalogue ranges, and data without a catalogue range are rejected and replaced by rule values, with a note under the job panel and in the operation's "Reason for the draft".
 
 # Troubleshooting
 
-- **"Read from the selected part" says the axis is not on Z**: rotate the part so its axis lies along Z through the origin, then read again.
+- **"New turning job" says the axis is not on Z**: rotate the part so its axis lies along Z through the origin, then create the job again.
+- **"N operations are still drafts"**: double-click those operations (yellow dot on the icon), check them and press OK to confirm, then calculate again.
 - **"No relief groove at the thread start"**: start the thread at the end face, or add a relief groove at the start.
 - **"The machine cannot reach: overtravel"**: the tool is too short or the workpiece too low; check the tool lengths and "workpiece top above the table".
 - **Machine simulation "passed (with unknown items)"**: look at the grey items and add the missing data (tool lengths, holder profiles).

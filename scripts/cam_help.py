@@ -2,8 +2,9 @@
 
     python scripts/cam_help.py --freecad <FreeCAD 的 python> [--no-shots]
 
-- 截图：每种语言起一个 FreeCAD（xvfb 下），按问渠CAM 版（FAP_EDITION=cam）注册工作台，截四张：
-  车削例子算完（面板 + 视图里的刀路与仿真结果）；铣削例子算完（网格）；铣削例子勾上外轮廓、撞平口钳（检查清单）；授权窗口。
+- 截图：每种语言起一个 FreeCAD（xvfb 下），按问渠CAM 版（FAP_EDITION=cam）注册工作台，用加工树界面（ADR-0106 Q1）截五张：
+  车削例子算完（作业面板 + 视图里的刀路）；工序面板 vc 超范围变红；铣削例子算完（加工树）；
+  铣削例子新建“铣外轮廓”、撞平口钳（检查清单）；授权窗口。
   存到 docs/wenquest-cam/help/img/<zh|en>-*.png。截图进程里没有授权：免费版就能做这些。
 - 手册：help/zh.md、help/en.md → pandoc → Word（临时）→ LibreOffice → PDF，输出 docs/wenquest-cam/help/ 下的
   问渠CAM用户手册.pdf、WenQuest-CAM-User-Guide.pdf（随安装包放进 docs\\）。
@@ -24,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 HELP = ROOT / "docs/wenquest-cam/help"
 EX = ROOT / "examples/wenquest-cam"
 PDF_NAME = {"zh": "问渠CAM用户手册", "en": "WenQuest-CAM-User-Guide"}
-SHOTS = ("turn", "mill", "clash", "license")
+SHOTS = ("turn", "op", "mill", "clash", "license")
 
 
 def _pump(sec: float) -> None:
@@ -77,7 +78,35 @@ def _fit() -> None:
     FreeCADGui.SendMsgToActiveView("ViewFit")
 
 
+def _confirm_all(CO, job) -> None:
+    for s in CO.setups(job):
+        for o in CO.ops(s):
+            if o.Status != "已确认":
+                CO.confirm(o)
+
+
+def _expand_tree(mw) -> None:
+    import FreeCADGui
+    from PySide import QtCore, QtWidgets
+
+    FreeCADGui.Selection.clearSelection()
+    for tw in mw.findChildren(QtWidgets.QTabWidget):                # 组合视图切到“模型”页
+        for i in range(tw.count()):
+            if tw.tabText(i).replace("&", "") in ("Model", "模型"):
+                tw.setCurrentIndex(i)
+    _pump(0.3)
+    for t in mw.findChildren(QtWidgets.QTreeWidget):
+        t.expandAll()
+        t.resizeColumnToContents(0)
+    for d in mw.findChildren(QtWidgets.QDockWidget):             # FreeCAD 1.0：“模型”“任务”是并排成页签的两个停靠窗
+        if d.windowTitle().replace("&", "") in ("Model", "模型") and d.isVisible() or d.windowTitle() == "Model":
+            d.raise_()
+            mw.resizeDocks([d], [420], QtCore.Qt.Horizontal)
+    _pump(0.3)
+
+
 def shots(lang: str, out: Path) -> None:
+    """加工树界面（ADR-0106 Q1）：新建作业 → 作业面板起草 → 模型树里确认工序 → 计算并检查"""
     import FreeCAD
     import FreeCADGui
 
@@ -85,53 +114,62 @@ def shots(lang: str, out: Path) -> None:
     mw = FreeCADGui.getMainWindow()
     mw.resize(1600, 1000)
     mw.show()
-    from freecad_addon.gui import cam_brand, cam_panel
+    from freecad_addon.fc import cam_objects as CO
+    from freecad_addon.gui import cam_brand
+    from freecad_addon.gui import cam_tree_panels as P
 
     cam_brand._start_here = lambda: None
     cam_brand.register()
     FreeCADGui.activateWorkbench(cam_brand.WORKBENCH)
     _pump(1.0)
-    # 1 车削
+    # 1 车削：新建车削作业 → 起草 → 确认 → 计算
     doc, _o = _open(EX / "01-shaft-turning/shaft.step", "Shaft")
-    p = cam_panel.open_panel()
-    cam_panel._DOCK.setMinimumWidth(500)
-    p.client_factory = lambda: None
-    p.read_selection()
-    p.threads.setPlainText("0, -26, 24, 1.5")
-    p.start_draft(False)
-    _wait(lambda: p.draft is not None)
-    p.start_run()
-    _wait(lambda: p.result is not None)
+    P.NewJobCommand("turn").Activated()
+    jp = P._LAST
+    jp.threads.setPlainText("0, -26, 24, 1.5")
+    jp.do_draft(False)
+    job = jp.job
+    _confirm_all(CO, job)
+    jp.do_calculate()
+    FreeCADGui.Selection.clearSelection()
     _fit()
     _save(mw, out / f"{lang}-turn.png")
+    # 2 工序面板：vc 超出刀具样本范围，变红、不能确认
+    P._close()
+    op_panel = P.edit(CO.ops(CO.setups(job)[0])[0])
+    op_panel.tabs.setCurrentIndex(op_panel.tabs.count() - 1)
+    op_panel.vc.setValue(400)
+    FreeCADGui.Selection.clearSelection()
+    _pump(0.5)
+    _save(mw, out / f"{lang}-op.png")
+    P._close()
     FreeCAD.closeDocument(doc.Name)
-    # 2 铣削
+    # 3 铣削
     doc, _o = _open(EX / "02-block-milling/block.step", "Block")
-    p.kind.setCurrentIndex(1)
-    p.read_selection()
-    p.mill_ops["profile"].setChecked(False)
-    p.lengths.setText("EM10=120, DR8.5=140")
-    p.offset.setText("40")
-    p.fixture.setText("10")
-    p.start_draft(False)
-    _wait(lambda: p.draft is not None)
-    p.start_run()
-    _wait(lambda: p.result is not None)
+    P.NewJobCommand("mill").Activated()
+    jp = P._LAST
+    jp.lengths.setText("EM10=120, DR8.5=140")
+    jp.offset.setValue(40)
+    jp.fixture.setText("10")
+    jp.do_draft(False)
+    job = jp.job
+    _confirm_all(CO, job)
+    jp.do_calculate()
+    P._close()                                                     # 关掉面板：截加工树（作业 → 装夹 → 工序）
+    _pump(0.5)
+    _expand_tree(mw)
     _fit()
     _save(mw, out / f"{lang}-mill.png")
-    # 3 勾上外轮廓：撞钳口
-    p.mill_ops["profile"].setChecked(True)
-    p.draft = p.result = None
-    p.start_draft(False)
-    _wait(lambda: p.draft is not None)
-    p.start_run()
-    _wait(lambda: p.result is not None)
-    sb = cam_panel._DOCK.widget().verticalScrollBar()
-    sb.setValue(sb.maximum())
+    # 4 新建工序“铣外轮廓”：铣到底撞平口钳，不出程序
+    CO.add_op(CO.setups(job)[0], "profile")
+    _confirm_all(CO, job)
+    jp = P.edit(job)
+    jp.do_calculate()
     _pump(0.5)
-    _save(cam_panel._DOCK, out / f"{lang}-clash.png")
+    _save(mw, out / f"{lang}-clash.png")
+    P._close()
     FreeCAD.closeDocument(doc.Name)
-    # 4 授权
+    # 5 授权
     from PySide import QtCore
 
     from freecad_addon.gui import fea_brand
