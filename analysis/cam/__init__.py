@@ -64,7 +64,7 @@ DEFAULT_CUT = {
 }
 ENDMILLS = (20.0, 16.0, 12.0, 10.0, 8.0, 6.0, 5.0, 4.0, 3.0)
 LEVEL = {"error": 3, "warn": 2, "unknown": 1}
-LIMITS = ["仿真按刀尖、平底刀简化：车刀刀尖圆弧按 0，钻头按平底，不计刀具变形与让刀",
+LIMITS = ["仿真简化：车刀刀尖圆弧按刀具库刀片的 rε（没对应上刀具库的刀按尖刀），钻头按平底，不计刀具变形与让刀",
           "缺省切削参数是教学示意值（45 钢），实际按刀具样本与材料改",
           "机床行程、功率按所选机床的参数；示例机床是虚构的"]
 
@@ -177,7 +177,8 @@ def _turn_features(setup, total, reach_right):
             taper = -taper
             za, zb = -(zb + total), -(za + total)
         out[sd]["threads"].append({"z_start": za, "z_end": zb, "d": d, "pitch": pch, "internal": bool(t.get("internal")),
-                                   "taper": taper, "starts": int(t.get("starts") or 1), "cut": t.get("cut"), "gi": ti})
+                                   "taper": taper, "starts": int(t.get("starts") or 1), "form": t.get("form") or "iso",
+                                   "cut": t.get("cut"), "gi": ti})
     return out
 
 
@@ -236,7 +237,7 @@ def _g76_segments(mv, tv, internal, taper, starts):
     thr = [i for i, m in enumerate(mv) if m["t"] == "thread"]
     per = len(thr) // starts
     out = []
-    depth = (P.ISO_D1 if internal else P.ISO_D3) * tv["pitch"] / 2
+    depth = P.thread_depth(tv["pitch"], internal, tv.get("form") or "iso")
     n = max(3, math.ceil((depth / 0.25) ** 2 - 1e-9))
     k_um, dd_um = round(depth * 1000), round(depth / math.sqrt(n) * 1000)
     for s in range(starts):
@@ -361,12 +362,13 @@ def turn_build_op(ctx, sc, spec, c):
         rpm = P.spindle_rpm(c["vc"], tv["d"], max_rpm)
         internal, taper, starts = tv.get("internal", False), tv.get("taper", 0.0), tv.get("starts", 1)
         if internal and not sc["bore"]:
-            raise SetupError(f"内螺纹 M{tv['d']:g} 所在的这次装夹没有内孔（底孔要按小径 D1 = D − 1.0825P 镗出来）")
+            raise SetupError(f"内螺纹 M{tv['d']:g} 所在的这次装夹没有内孔（底孔要按小径镗出来，ISO 螺纹 D1 = D − 1.0825P）")
         mv = P.turn_thread(tv["z_start"], tv["z_end"], tv["d"], tv["pitch"], run_in=run_in,
-                           internal=internal, taper=taper, starts=starts, clear=_heights(c)["clear"], g76=bool(c.get("cycles")))
+                           internal=internal, taper=taper, starts=starts, clear=_heights(c)["clear"], g76=bool(c.get("cycles")),
+                           form=tv.get("form") or "iso")
         cyc = _g76_segments(mv, tv, internal, taper, starts) if c.get("cycles") else None
         n_tool = 7 if internal else 4
-        root_a = tv["d"] + (0.0 if internal else -P.ISO_D3 * tv["pitch"])
+        root_a = tv["d"] + (0.0 if internal else -2 * P.thread_depth(tv["pitch"], False, tv.get("form") or "iso"))
         root_b = root_a + taper * (tv["z_start"] - tv["z_end"])
         return {"op": {"tool": {"n": n_tool, "name": f"{'内' if internal else '外'}螺纹车刀 P{tv['pitch']:g}"},
                        "spindle": {"rpm": round(rpm)}, "moves": mv, "title": f"车螺纹 {spec['i'] + 1}",

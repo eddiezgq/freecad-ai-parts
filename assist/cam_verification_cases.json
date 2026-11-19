@@ -362,6 +362,26 @@
     "en": "Hand-written G71 cycle expands by the rule"
    },
    "source": "FANUC G71 一型 / FANUC G71 type I"
+  },
+  {
+   "id": "CAM-35",
+   "test": "tests/test_cam_turn_q3a.py::test_taper_pipe_thread_depth_by_standard[r-0.640327]",
+   "category": "geom",
+   "title": {
+    "zh": "R 系列锥管螺纹牙底直径",
+    "en": "R-series taper pipe thread root diameter"
+   },
+   "source": "ISO 7-1: h = 0.640327P"
+  },
+  {
+   "id": "CAM-36",
+   "test": "tests/test_cam_turn_q3a.py::test_taper_pipe_thread_depth_by_standard[npt-0.8]",
+   "category": "geom",
+   "title": {
+    "zh": "NPT 锥管螺纹牙底直径",
+    "en": "NPT taper pipe thread root diameter"
+   },
+   "source": "ASME B1.20.1: h = 0.8P"
   }
  ]
 }

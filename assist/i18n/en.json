@@ -291,7 +291,6 @@
 "人工": "Manual",
 "以后再说": "Later",
 "仿真后的形状": "Simulated shape",
-"仿真按刀尖、平底刀简化：车刀刀尖圆弧按 0，钻头按平底，不计刀具变形与让刀": "Simplified simulation: zero nose radius for turning tools, flat-bottom drills, no tool deflection",
 "仿真时长": "Simulated time",
 "企业": "Enterprise",
 "企业库里已有 {}，换一个图号": "{} is already in the enterprise library; use another drawing number",
@@ -1781,7 +1780,6 @@
 "余量与分层": "Allowance and layers",
 "内": "internal ",
 "外": "external ",
-"内螺纹 M{} 所在的这次装夹没有内孔（底孔要按小径 D1 = D − 1.0825P 镗出来）": "The setup of internal thread M{} has no bore (the core hole must be bored to the minor diameter D1 = D − 1.0825P)",
 "内螺纹没车到大径：Z{} 处直径 {}，大径应为 {}": "Internal thread not cut to the major diameter: at Z{} the diameter is {}, the major should be {}",
 "切断": "Parting off",
 "切断刀 宽 {}": "Parting tool width {}",
@@ -1799,7 +1797,6 @@
 "棒料上车完切下来：切断刀宽 mm；0 = 不切断（毛坯是单件料）": "Cut the part off the bar after turning: parting tool width mm; 0 = no parting (single blank)",
 "正式程序用固定循环（G71 / G70 / G76）": "Use canned cycles in the released program (G71 / G70 / G76)",
 "每层切深在“切削参数”页；精车按设计轮廓、不留余量": "The depth per layer is on the \"Cutting data\" tab; finishing follows the design profile with no allowance",
-"每行：Z 起, Z 止, 大径, 螺距[, 内][, 1:16][, 2 头]（起刀处要在端面或退刀槽）": "One per line: Z start, Z end, major diameter, pitch[, in][, 1:16][, 2 starts] (the thread must start at the end face or a relief groove)",
 "没切断：Z{} 处还连着（切断刀没走到中心）": "Not parted off: still connected at Z{} (the parting tool did not reach the centre)",
 "牙底 Ø{}": "root Ø{}",
 "程序里用了固定循环（G71 / G70 / G76）：仿真按问渠的展开规则走，数控系统实际的分层、退刀可能略有不同，首件单段确认": "The program uses canned cycles (G71 / G70 / G76): the simulation follows WenQuest's expansion rule; the control's actual layers and retracts may differ slightly — confirm the first part in single block",
@@ -1815,7 +1812,6 @@
 "粗加工留的径向余量 mm（0 = 缺省：车 0.5、镗 0.3）": "Radial allowance left by roughing mm (0 = default: turning 0.5, boring 0.3)",
 "粗车留的轴向余量 mm（0 = 缺省 0.1）": "Axial allowance left by rough turning mm (0 = default 0.1)",
 "螺纹直径、螺距要大于 0，头数至少 1": "Thread diameter and pitch must be greater than 0, and starts at least 1",
-"螺纹第 {} 行的“{}”看不懂：可写 内、1:16、2 头": "Thread line {}: cannot read \"{}\"; you may write in (internal), 1:16, 2 starts",
 "螺纹第 {} 行要先写 4 个数：Z 起, Z 止, 大径, 螺距": "Thread line {} must start with 4 numbers: Z start, Z end, major diameter, pitch",
 "车{}螺纹 M{}x{}{}：Z{} ~ Z{}，{}": "Turn {}thread M{}x{}{}: Z{} ~ Z{}, {}",
 "车削正式程序用固定循环（G71 / G70 / G76；FANUC、广数）": "Turning: use canned cycles in the released program (G71 / G70 / G76; FANUC, GSK)",
@@ -1826,5 +1822,9 @@
 "零件太短或最大直径段太靠左：第一次装夹车到 Z{} 就会碰卡爪，调头后也接不上（最大直径段在离左端 {} ~ {}）": "The part is too short or its largest diameter is too far left: the first setup would hit the jaws beyond Z{}, and the flipped setup cannot join up (largest diameter {} ~ {} from the left end)",
 "高度与进退刀": "Heights and lead-in",
 "，{} 头（导程 {}）": ", {} starts (lead {})",
-"，锥度 1:{}": ", taper 1:{}"
+"，锥度 1:{}": ", taper 1:{}",
+"仿真简化：车刀刀尖圆弧按刀具库刀片的 rε（没对应上刀具库的刀按尖刀），钻头按平底，不计刀具变形与让刀": "Simplified simulation: turning-tool nose radius taken from the insert rε in the tool library (tools not matched to the library are treated as sharp), flat-bottom drills, no tool deflection",
+"内螺纹 M{} 所在的这次装夹没有内孔（底孔要按小径镗出来，ISO 螺纹 D1 = D − 1.0825P）": "The setup of internal thread M{} has no bore (the core hole must be bored to the minor diameter; for ISO threads D1 = D − 1.0825P)",
+"螺纹第 {} 行的“{}”看不懂：可写 内、1:16、2 头、R、NPT": "Thread line {}: cannot read \"{}\"; you may write in (internal), 1:16, 2 starts, R, NPT",
+"每行：Z 起, Z 止, 大径, 螺距[, 内][, 1:16][, 2 头][, R | NPT]（起刀处要在端面或退刀槽）": "One per line: Z start, Z end, major diameter, pitch[, in][, 1:16][, 2 starts][, R | NPT] (the thread must start at the end face or a relief groove)"
 }

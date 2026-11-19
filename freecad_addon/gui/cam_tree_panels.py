@@ -84,7 +84,7 @@ class JobPanel:
         if job.Kind == "turn":
             th = CO._js(job, "PartData", {}).get("threads") or []
             self.threads.setPlainText("\n".join(CO.thread_text(t) for t in th))
-            self.threads.setPlaceholderText(T("每行：Z 起, Z 止, 大径, 螺距[, 内][, 1:16][, 2 头]（起刀处要在端面或退刀槽）"))
+            self.threads.setPlaceholderText(T("每行：Z 起, Z 止, 大径, 螺距[, 内][, 1:16][, 2 头][, R | NPT]（起刀处要在端面或退刀槽）"))
             f.addRow(T("螺纹"), self.threads)
             self.parting = QtWidgets.QDoubleSpinBox()
             self.parting.setRange(0, 10)

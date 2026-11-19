@@ -278,12 +278,14 @@ def thread_text(t: dict) -> str:
 
     zh = i18n.lang() == "zh"
     extra = ([("内" if zh else "in")] if t.get("internal") else []) + ([f"1:{1 / t['taper']:g}"] if t.get("taper") else []) + \
-        ([f"{t['starts']} " + ("头" if zh else "starts")] if int(t.get("starts") or 1) > 1 else [])
+        ([f"{t['starts']} " + ("头" if zh else "starts")] if int(t.get("starts") or 1) > 1 else []) + \
+        ([t["form"].upper()] if t.get("form") in ("r", "npt") else [])
     return ", ".join([f"{t['z_start']:g}", f"{t['z_end']:g}", f"{t['d']:g}", f"{t['pitch']:g}", *extra])
 
 
 def parse_threads(text: str) -> list[dict]:
-    """螺纹表：每行 Z 起, Z 止, 大径, 螺距，后面可选“内”（内螺纹）、“1:16”（锥度）、“2 头”（多头）"""
+    """螺纹表：每行 Z 起, Z 止, 大径, 螺距，后面可选“内”（内螺纹）、“1:16”（锥度）、“2 头”（多头）、
+    “R” / “NPT”（锥管螺纹牙型：ISO 7-1 55°、ASME B1.20.1；不写锥度时按 1:16）"""
     import re
 
     out = []
@@ -303,8 +305,12 @@ def parse_threads(text: str) -> list[dict]:
                 t["taper"] = 1.0 / float(p.split(":")[1])
             elif re.fullmatch(r"\d+\s*(头|starts?)", p):
                 t["starts"] = int(re.match(r"\d+", p).group(0))
+            elif p.lower() in ("r", "npt"):
+                t["form"] = p.lower()
             else:
-                raise CamObjError(f"螺纹第 {n} 行的“{p}”看不懂：可写 内、1:16、2 头")
+                raise CamObjError(f"螺纹第 {n} 行的“{p}”看不懂：可写 内、1:16、2 头、R、NPT")
+        if t.get("form") and "taper" not in t:
+            t["taper"] = 1.0 / 16
         out.append(t)
     return out
 

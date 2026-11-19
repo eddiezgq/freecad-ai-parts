@@ -85,6 +85,23 @@ def test_taper_thread_follows_1_to_16():
     assert not [e for e in _errors(p) if "螺纹" in e]
 
 
+@pytest.mark.parametrize("form,h", [("r", 0.640327), ("npt", 0.8)])
+def test_taper_pipe_thread_depth_by_standard(form, h):
+    """锥管螺纹牙高按各自标准：R 系列 ISO 7-1（55°）h = 0.640327P，NPT ASME B1.20.1 h = 0.8P；最后一刀起点直径 = d − 2h"""
+    setup = {**BASE, "segments": [[30, 40], [26, 60]], "grooves": [{"z": -18, "width": 4, "d": 21}],
+             "threads": [{"z_start": 0, "z_end": -16, "d": 24, "pitch": 1.814, "taper": 1 / 16, "form": form}]}
+    p = _run(setup)[0]
+    th = _threads(p)
+    last = min(m["a"][0] + m["a"][2] / 16 for m in th)                # 起刀点在 Z0 右边，换算到 Z0 处的直径
+    want = 24 - 2 * h * 1.814
+    record((f"{form.upper()} 锥管螺纹牙底直径（Z0 处，d = 24，P = 1.814）", f"{form.upper()} taper pipe thread root diameter at Z0"),
+           last, want, tol=1e-3, rel=False, unit="mm", formula=f"d − 2h，h = {h}P")
+    assert last == pytest.approx(want, abs=1e-3)
+    assert not [e for e in _errors(p) if "螺纹" in e]
+    with pytest.raises(P.CamError, match="牙型"):
+        P.turn_thread(0, -10, 24, 1.5, form="bsp")
+
+
 def test_two_start_thread_lead_and_time():
     """双头 M24×1.5（导程 3）：G32 的 F = 3，两个头的起刀点差一个螺距；车螺纹时间 = 刀数 × 头数 × L / (导程 × n)"""
     setup = {**BASE, "segments": [[30, 40], [24, 60]], "grooves": [{"z": -26, "width": 4, "d": 20}],
@@ -212,3 +229,6 @@ def test_thread_table_text():
     assert [CO.thread_text(r) for r in rows] == ["0, -20, 24, 1.5, 内", "0, -16, 24, 1.814, 1:16", "0, -24, 24, 1.5, 2 头"]
     with pytest.raises(CO.CamObjError, match="看不懂"):
         CO.parse_threads("0, -20, 24, 1.5, 左旋")
+    r = CO.parse_threads("0, -15, 20.955, 1.814, R")[0]                # R / NPT 不写锥度按 1:16
+    assert r["form"] == "r" and r["taper"] == pytest.approx(1 / 16)
+    assert CO.thread_text(r) == "0, -15, 20.955, 1.814, 1:16, R"

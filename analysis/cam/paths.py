@@ -329,21 +329,33 @@ def turn_face_groove(d_in, d_out, depth, f, tool_width, clear=CLEAR, peck=0.0):
 
 
 ISO_D1 = 1.08253   # 内螺纹小径 D1 = D − 1.08253·P（ISO 68-1：D1 = D − 2·(5/8)·H，H = 0.866025·P）
+THREAD_H = {"r": 0.640327, "npt": 0.8}   # 锥管螺纹牙高 h / P：R 系列 ISO 7-1（55°），NPT ASME B1.20.1（60°）；内外相同
+THREAD_FORMS = {"iso": "ISO 68-1 60°", "r": "ISO 7-1 55°", "npt": "ASME B1.20.1 NPT 60°"}
+
+
+def thread_depth(pitch, internal=False, form="iso"):
+    """单边牙深：ISO 68-1 外螺纹按 d3（0.6134P）、内螺纹按 D1 到 D（0.5413P）；R、NPT 锥管螺纹按各自标准的牙高"""
+    if form in THREAD_H:
+        return THREAD_H[form] * pitch
+    return (ISO_D1 if internal else ISO_D3) * pitch / 2
 
 
 def turn_thread(z_start, z_end, d_major, pitch, first_max=0.25, spring=1, run_in=None, internal=False, taper=0.0, starts=1,
-                clear=CLEAR, g76=False):
+                clear=CLEAR, g76=False, form="iso"):
     """车螺纹（G32 逐刀，各系统都认）：从 z_start 右边 run_in（缺省 2 个螺距、至少 clear）起刀车到 z_end。
     - 外螺纹牙底按 ISO 965-1 的 d3（牙深 0.6134P），从大径往里进刀；
     - internal=True 内螺纹：底孔是小径 D1 = D − 1.0825P，从小径往外进刀到大径 D（牙深 0.5413P），退刀往中心让；
     - taper 锥螺纹：直径每毫米长度的变化（1:16 写 0.0625），d_major 是 z_start 处的大径，往左变大；
-    - starts 多头螺纹：导程 = 头数 × 螺距，每一刀按头数分度，起刀点依次往右挪一个螺距。
+    - starts 多头螺纹：导程 = 头数 × 螺距，每一刀按头数分度，起刀点依次往右挪一个螺距；
+    - form 牙型：iso（缺省）、r（ISO 7-1 锥管螺纹，55°）、npt（ASME B1.20.1），牙深见 thread_depth。
     动作 thread：x（本刀直径）、z、pitch（导程，G32 的 F）"""
     if z_end >= z_start:
         raise CamError("螺纹从右往左车：z_end 要小于 z_start")
     if pitch <= 0 or d_major <= 0 or starts < 1:
         raise CamError("螺纹直径、螺距要大于 0，头数至少 1")
-    depth = (ISO_D1 if internal else ISO_D3) * pitch / 2
+    if form not in THREAD_FORMS:
+        raise CamError(f"螺纹牙型 {form} 不认识：可用 iso、r、npt")
+    depth = thread_depth(pitch, internal, form)
     lead = starts * pitch
     run = run_in if run_in is not None else max(2 * lead, clear)
     zs0 = z_start + run
@@ -352,7 +364,7 @@ def turn_thread(z_start, z_end, d_major, pitch, first_max=0.25, spring=1, run_in
         return d_major + taper * (z_start - z)
 
     kind = "内" if internal else ""
-    extra = (f"，锥度 1:{1 / taper:g}" if taper else "") + (f"，{starts} 头（导程 {lead:g}）" if starts > 1 else "")
+    extra = (f"，{THREAD_FORMS[form]}" if form != "iso" else "") + (f"，锥度 1:{1 / taper:g}" if taper else "") + (f"，{starts} 头（导程 {lead:g}）" if starts > 1 else "")
     root = (f"大径 Ø{d_major:g}" if internal else f"牙底 Ø{d_major - 2 * depth:.3f}")
     mv = [{"t": "comment", "text": f"车{kind}螺纹 M{d_major:g}x{pitch:g}{extra}：Z{z_start:g} ~ Z{z_end:g}，{root}"}]
     if g76:                                         # 出 G76：切深按程序里的微米值和 G76 的展开规则
