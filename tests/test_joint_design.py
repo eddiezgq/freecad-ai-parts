@@ -111,3 +111,48 @@ def test_loads_recorded_and_replayed_only_for_same_input(tmp_path, monkeypatch):
     rep = JD.loads_replaying(path)
     assert rep(dict(cond)) == first and len(calls) == 1                  # 同一输入：用录制的数，不重算
     assert rep({**cond, "move_s": 2.0}) != first and len(calls) == 2      # 输入变了：现算
+
+
+def test_recorded_real_model_run_passes():
+    """回放 design-eval 用真实模型（Claude）设计关节空心轴的录制（运行 44566315726）：动力学载荷与有限元 kt 用录制时的数，
+    另用本机复算核对（载荷差 ≤ 1 %，采用方案法兰台阶的 kt 差 ≤ 2 %）。要 CalculiX 与 gmsh；CI 中必须跑。"""
+    import os
+
+    from analysis.common.solvers import find_ccx
+    from assist import kt_record
+    from ingest.llm_extract import RecordedClient
+    from kb.library import JsonLibrary
+
+    if os.environ.get("CI"):
+        import gmsh  # noqa: F401
+        assert find_ccx(), "CI 中没有 ccx"
+    else:
+        pytest.importorskip("gmsh")
+        if find_ccx() is None:
+            pytest.skip("本机没有 CalculiX")
+    lib = JsonLibrary(JD.ROOT / "data" / "library")
+    rec_dir = JD.RECORDINGS_DIR
+    res = JD.design(TEXT, RecordedClient(rec_dir), lib.all("bearing"), lib.all("reducer"), lib.get,
+                    kt=kt_record.replaying(rec_dir / "kt.json"), loads_fn=JD.loads_replaying(rec_dir / JD.LOADS_RECORD))
+    assert res["status"] == "pass" and not res["missing"] and not res["rejected"]
+    assert all(a.get("simulated") is False for a in res["ai"])
+    chosen = res["rounds"][res["chosen_round"] - 1]
+    passed = [r for r in res["rounds"] if r["overall"] == "pass"]
+    assert all(i["status"] == "pass" for i in chosen["items"])
+    assert all(chosen["mass_kg"] <= r["mass_kg"] + 1e-9 for r in passed)
+    assert sum(r["lighter_round"] for r in res["rounds"]) <= JD.LIGHTER_ROUNDS
+    assert chosen["proposal"]["bearing"].startswith("bearing.nsk-ltd.60")
+    # 录下的载荷不是凭空的：本机动力学复算
+    now = JD.loads(res["conditions"])
+    for k in ("T_peak_nm", "T_min_nm", "F_peak_n"):
+        assert now[k] == pytest.approx(res["conditions"][k], rel=0.01), k
+    # 采用方案法兰台阶的 kt：本机有限元复算
+    from analysis.shaft import joint as J
+    from analysis.shaft.kt import stepped_bar
+
+    p = chosen["proposal"]
+    seat = next(s["d"] for s in chosen["segments"] if s["name"].startswith("轴承位"))
+    args = (seat, seat + J.rules()["structure"]["flange_extra_mm"], p["fillet_mm"], p["bore_mm"])
+    k_rec = kt_record.replaying(rec_dir / "kt.json", kt=lambda *a: pytest.fail(f"{a} 没有录制的 kt"))(*args)
+    k_now = stepped_bar(*args)
+    assert k_now["kt_torsion"] == pytest.approx(k_rec["kt_torsion"], rel=0.02)

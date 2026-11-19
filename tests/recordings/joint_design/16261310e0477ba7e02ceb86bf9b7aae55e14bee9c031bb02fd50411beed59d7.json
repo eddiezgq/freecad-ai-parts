@@ -1,0 +1,17 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "joint-shaft/1",
+  "request_key": "16261310e0477ba7e02ceb86bf9b7aae55e14bee9c031bb02fd50411beed59d7",
+  "response": {
+    "id": "msg_011ChCcNtFVtJBVbdxpk3TDu",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "bearing": "bearing.nsk-ltd.6011",
+      "bore_mm": 30,
+      "fillet_mm": 1.0,
+      "reason": "首轮方案。这根轴按刚度设计，所以选库里最大的轴承 6011（内径 55 mm，C=31000 N），让轴承位直径尽量大，扭转刚度才最高。扭转刚度随直径的四次方增长，6011 比 6010 的轴承位大 5 mm，末端偏移明显更小，预算 0.2 mm 也更有把握。内孔取 30 mm。孔径比约 0.55，空心只让截面惯性矩减少约 9%，扭转刚度损失很小，同时比实心轴轻不少，孔也足够大，能走线或管路。圆角取 1.0 mm，比 0.5 mm 的应力集中小，对疲劳有利，又不超过 6011 轴承内圈倒角的常见范围，不会顶住轴承端面。此轮没有上一轮的结果可参照，刚度、强度、花键挤压、疲劳、轴承寿命都等程序算出数字后再按未通过的项调整。轴承载荷只有 F_peak 约 185 N，转速最高约 7.6 r/min，寿命 20000 h 预计富余很多。"
+    }
+  }
+}

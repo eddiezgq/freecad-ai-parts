@@ -1,0 +1,129 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "joint-shaft/1",
+  "request_key": "602fb51e1a30a390af1fc471300c1ad8ece0b23090d101071b295761d9a702a1",
+  "response": {
+    "id": "msg_011ChCcNMMNp4nYXQGrQ9EPx",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "bearing_life": {
+        "quote": "轴承寿命不少于 20000 h",
+        "unit": "h",
+        "value": 20000
+      },
+      "displacement_budget": {
+        "quote": "不超过 0.20 mm",
+        "unit": "mm",
+        "value": 0.2
+      },
+      "dwell_time": {
+        "quote": "停 0.5 s",
+        "unit": "s",
+        "value": 0.5
+      },
+      "links": [
+        {
+          "length": {
+            "quote": "大臂长 425 mm",
+            "unit": "mm",
+            "value": 425
+          },
+          "mass": {
+            "quote": "质量 8.393 kg",
+            "unit": "kg",
+            "value": 8.393
+          }
+        },
+        {
+          "length": {
+            "quote": "小臂长 392.25 mm",
+            "unit": "mm",
+            "value": 392.25
+          },
+          "mass": {
+            "quote": "质量 2.275 kg",
+            "unit": "kg",
+            "value": 2.275
+          }
+        }
+      ],
+      "material": {
+        "id": "40Cr-QT",
+        "quote": "材料 40Cr 调质"
+      },
+      "move_time": {
+        "quote": "用 1.0 s",
+        "unit": "s",
+        "value": 1.0
+      },
+      "pose_a": {
+        "j2": {
+          "quote": "j2 = 20°",
+          "unit": "°",
+          "value": 20
+        },
+        "j3": {
+          "quote": "j3 = -34°",
+          "unit": "°",
+          "value": -34
+        }
+      },
+      "pose_b": {
+        "j2": {
+          "quote": "j2 = 54°",
+          "unit": "°",
+          "value": 54
+        },
+        "j3": {
+          "quote": "j3 = -75°",
+          "unit": "°",
+          "value": -75
+        }
+      },
+      "questions": [
+        "轴承型号未给定（原话称由设计定），需设计时选取",
+        "未给出轴的几何约束（长度、安装空间、内外径上下限）",
+        "未给出轴承的载荷/转速工况以外的要求（如轴承间距、预紧），需确认",
+        "未给出疲劳安全系数所需的可靠度、应力集中/键槽等细节"
+      ],
+      "reach": {
+        "quote": "工作半径 850 mm",
+        "unit": "mm",
+        "value": 850
+      },
+      "reducer_model": {
+        "model": "CSF-25-100-2UH",
+        "quote": "谐波减速器 CSF-25-100-2UH"
+      },
+      "required_safety": {
+        "quote": "静强度和疲劳安全系数不小于 1.5",
+        "unit": "",
+        "value": 1.5
+      },
+      "surface": {
+        "finish": "machined",
+        "quote": "轴颈车削"
+      },
+      "tip_masses": [
+        {
+          "mass": {
+            "quote": "末端负载 4 kg",
+            "unit": "kg",
+            "value": 4
+          },
+          "name": "末端负载"
+        },
+        {
+          "mass": {
+            "quote": "腕部三个模组共 2.626 kg",
+            "unit": "kg",
+            "value": 2.626
+          },
+          "name": "腕部三个模组"
+        }
+      ]
+    }
+  }
+}
