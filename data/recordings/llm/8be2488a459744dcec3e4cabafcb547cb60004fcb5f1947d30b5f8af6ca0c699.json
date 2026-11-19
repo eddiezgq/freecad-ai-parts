@@ -1,0 +1,146 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "8be2488a459744dcec3e4cabafcb547cb60004fcb5f1947d30b5f8af6ca0c699",
+  "response": {
+    "id": "msg_011ChBb3meifYzJBz47LvCti",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 14,
+          "printed_label": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "printed_text": "SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "printed_unit": "",
+          "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS",
+          "target": "params/bearing_kind",
+          "value": "deep_groove"
+        },
+        {
+          "confidence": 0.9,
+          "page": 14,
+          "printed_label": "B",
+          "printed_text": "16",
+          "printed_unit": "mm",
+          "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261",
+          "target": "params/width_mm",
+          "value": 16
+        },
+        {
+          "confidence": 0.92,
+          "page": 14,
+          "printed_label": "C r",
+          "printed_text": "24 000",
+          "printed_unit": "N",
+          "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261",
+          "target": "params/dynamic_load_rating_n",
+          "value": 24000
+        },
+        {
+          "confidence": 0.92,
+          "page": 14,
+          "printed_label": "C 0r",
+          "printed_text": "16 600",
+          "printed_unit": "N",
+          "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261",
+          "target": "params/static_load_rating_n",
+          "value": 16600
+        },
+        {
+          "condition": "Grease, Open Z·ZZ",
+          "confidence": 0.5,
+          "page": 14,
+          "printed_label": "Limiting Speeds (min–1) Grease Open",
+          "printed_text": "9 500",
+          "printed_unit": "min–1",
+          "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261",
+          "target": "params/limiting_speed_rpm",
+          "value": 9500
+        },
+        {
+          "confidence": 0.9,
+          "page": 14,
+          "printed_label": "Mass (kg) approx.",
+          "printed_text": "0.261",
+          "printed_unit": "kg",
+          "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261",
+          "target": "params/mass_kg",
+          "value": 0.261
+        },
+        {
+          "confidence": 0.8,
+          "page": 14,
+          "printed_label": "d a min.",
+          "printed_text": "55",
+          "printed_unit": "mm",
+          "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261",
+          "target": "params/abutment_shaft_min_mm",
+          "value": 55
+        },
+        {
+          "confidence": 0.8,
+          "page": 14,
+          "printed_label": "d a max.",
+          "printed_text": "58.5",
+          "printed_unit": "mm",
+          "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261",
+          "target": "params/abutment_shaft_max_mm",
+          "value": 58.5
+        },
+        {
+          "confidence": 0.8,
+          "page": 14,
+          "printed_label": "D a max.",
+          "printed_text": "75",
+          "printed_unit": "mm",
+          "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261",
+          "target": "params/abutment_housing_max_mm",
+          "value": 75
+        },
+        {
+          "confidence": 0.75,
+          "page": 14,
+          "printed_label": "r a max.",
+          "printed_text": "1",
+          "printed_unit": "mm",
+          "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261",
+          "target": "params/fillet_max_mm",
+          "value": 1
+        },
+        {
+          "confidence": 0.6,
+          "page": 14,
+          "printed_label": "d",
+          "printed_text": "50",
+          "printed_unit": "mm",
+          "quote": "50 65 7 0.3 7 050 6 200 17.2 9 500 5 300 11 000 6810 ZZ VV DDU N NR 1.30 0.95 63.7 0.25 0.3 67.8 0.85 52 52.5 63 0.3 68.5 1.8 0.050",
+          "target": "ports/inner/diameter_mm",
+          "value": 50
+        },
+        {
+          "confidence": 0.85,
+          "page": 14,
+          "printed_label": "D",
+          "printed_text": "80",
+          "printed_unit": "mm",
+          "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261",
+          "target": "ports/outer/diameter_mm",
+          "value": 80
+        },
+        {
+          "confidence": 0.85,
+          "page": 14,
+          "printed_label": "D",
+          "printed_text": "80",
+          "printed_unit": "mm",
+          "quote": "80 16 1 24 000 16 600 15.6 9 500 4 800 11 000 6010 ZZ VV DDU N NR 2.49 1.9 76.81 0.6 0.5 86.6 1.7 55 58.5 75 1 88 3.8 0.261",
+          "target": "dims/outer_diameter_mm",
+          "value": 80
+        }
+      ],
+      "model": "6010",
+      "vendor": "NSK"
+    }
+  }
+}

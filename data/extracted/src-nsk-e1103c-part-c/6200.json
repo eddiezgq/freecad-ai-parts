@@ -11,7 +11,7 @@
   "extractor": {
     "model": "claude-sonnet-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011ChAmKbdL4bVXdn6PgmJVN"
+    "response_id": "msg_011ChBavxpz34CHk4zLJxDzf"
   },
   "items": [
     {
@@ -34,6 +34,50 @@
       },
       "issues": [
         "枚举映射：'SINGLE-ROW DEEP GROOVE BALL BEARINGS' → deep_groove，未自动核对"
+      ]
+    },
+    {
+      "target": "ports/outer/diameter_mm",
+      "value": {
+        "value": 30.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "30",
+        "unit": "mm",
+        "label": "D",
+        "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032"
+      },
+      "issues": [
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
+      "target": "dims/outer_diameter_mm",
+      "value": {
+        "value": 30.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "30",
+        "unit": "mm",
+        "label": "D",
+        "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032"
+      },
+      "issues": [
+        "按版面对齐切出的行核对"
       ]
     },
     {
@@ -68,7 +112,7 @@
           "page": 11
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.92,
         "reviewed": false
       },
       "printed": {
@@ -91,7 +135,7 @@
           "page": 11
         },
         "method": "extracted",
-        "confidence": 0.9,
+        "confidence": 0.92,
         "reviewed": false
       },
       "printed": {
@@ -137,7 +181,7 @@
           "page": 11
         },
         "method": "extracted",
-        "confidence": 0.75,
+        "confidence": 0.8,
         "reviewed": false
       },
       "printed": {
@@ -151,53 +195,20 @@
         "单位 mm 不在同一行，取自本页其他位置",
         "按版面对齐切出的行核对"
       ]
-    },
-    {
-      "target": "ports/outer/diameter_mm",
-      "value": {
-        "value": 30.0,
-        "source": {
-          "doc": "src-nsk-e1103c-part-c",
-          "page": 11
-        },
-        "method": "extracted",
-        "confidence": 0.85,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "30",
-        "unit": "mm",
-        "label": "D",
-        "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032"
-      },
-      "issues": [
-        "按版面对齐切出的行核对"
-      ]
-    },
-    {
-      "target": "dims/outer_diameter_mm",
-      "value": {
-        "value": 30.0,
-        "source": {
-          "doc": "src-nsk-e1103c-part-c",
-          "page": 11
-        },
-        "method": "extracted",
-        "confidence": 0.85,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "30",
-        "unit": "mm",
-        "label": "D",
-        "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032"
-      },
-      "issues": [
-        "按版面对齐切出的行核对"
-      ]
     }
   ],
   "rejected": [
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "ports/inner/diameter_mm",
+      "page": 11,
+      "printed": {
+        "text": "10",
+        "unit": "mm",
+        "label": "d",
+        "quote": "Bore Diameter 10 – 17 mm"
+      }
+    },
     {
       "reason": "引用所在行中找不到与印出文字完全一致的数值",
       "target": "params/limiting_speed_rpm",
@@ -205,7 +216,7 @@
       "printed": {
         "text": "28 000",
         "unit": "min–1",
-        "label": "Limiting Speeds (min–1) Grease Open Z·ZZ",
+        "label": "Limiting Speeds (min–1) Grease Open",
         "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032"
       }
     },
@@ -240,17 +251,6 @@
         "unit": "mm",
         "label": "D a max.",
         "quote": "30 9 0.6 5 600 2 390 13.2 28 000 18 000 34 000 6200 ZZ VV DDU N NR 2.06 1.35 28.17 0.4 0.5 34.7 1.12 14 16 26 0.6 35.5 2.9 0.032"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "ports/inner/diameter_mm",
-      "page": 11,
-      "printed": {
-        "text": "10",
-        "unit": "mm",
-        "label": "d",
-        "quote": "■SINGLE-ROW DEEP GROOVE BALL BEARINGS Bore Diameter 10 – 17 mm"
       }
     }
   ],

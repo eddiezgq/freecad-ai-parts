@@ -3,7 +3,7 @@
   "prompt_version": "extract/3",
   "request_key": "f92e31ecdcf5111407308dbcd441305c832cdea999e9b86175f49ae244fb98a7",
   "response": {
-    "id": "msg_011ChAmiNiq6iaYvPYGTg438",
+    "id": "msg_011ChBbQdKkasHe1Q9QLyVzW",
     "simulated": false,
     "tool_input": {
       "items": [
@@ -18,14 +18,14 @@
           "value": "deep_groove"
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.7,
           "page": 11,
-          "printed_label": "D",
-          "printed_text": "32",
+          "printed_label": "d",
+          "printed_text": "12",
           "printed_unit": "mm",
-          "quote": "32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037",
-          "target": "dims/outer_diameter_mm",
-          "value": 32
+          "quote": "12 21 5 0.3 2 110 1 040 15.3 32 000 20 000 38 000 6801 ZZ VV DD — — — — — — — — — 14 14 19 0.3 — — 0.006",
+          "target": "ports/inner/diameter_mm",
+          "value": 12
         },
         {
           "confidence": 0.9,
@@ -38,15 +38,14 @@
           "value": 32
         },
         {
-          "condition": "d=12 组（6801–6301 共用内径）",
-          "confidence": 0.6,
+          "confidence": 0.9,
           "page": 11,
-          "printed_label": "d",
-          "printed_text": "12",
+          "printed_label": "D",
+          "printed_text": "32",
           "printed_unit": "mm",
-          "quote": "12 21 5 0.3 2 110 1 040 15.3 32 000 20 000 38 000 6801 ZZ VV DD — — — — — — — — — 14 14 19 0.3 — — 0.006",
-          "target": "ports/inner/diameter_mm",
-          "value": 12
+          "quote": "32 10 0.6 7 500 3 050 12.3 26 000 17 000 32 000 6201 ZZ VV DDU N NR 2.06 1.35 30.15 0.4 0.5 36.7 1.12 16 17 28 0.6 37.5 2.9 0.037",
+          "target": "dims/outer_diameter_mm",
+          "value": 32
         },
         {
           "confidence": 0.9,
@@ -79,7 +78,7 @@
           "value": 3050
         },
         {
-          "condition": "Grease, Open/Z·ZZ",
+          "condition": "Grease, Open / Z·ZZ",
           "confidence": 0.85,
           "page": 11,
           "printed_label": "Limiting Speeds Grease Open Z·ZZ",
@@ -101,8 +100,8 @@
           "value": 17000
         },
         {
-          "condition": "Oil, Open/Z",
-          "confidence": 0.85,
+          "condition": "Oil, Open / Z",
+          "confidence": 0.8,
           "page": 11,
           "printed_label": "Limiting Speeds Oil Open Z",
           "printed_text": "32 000",
@@ -142,7 +141,7 @@
           "value": 28
         },
         {
-          "confidence": 0.85,
+          "confidence": 0.8,
           "page": 11,
           "printed_label": "ra max.",
           "printed_text": "0.6",
@@ -152,7 +151,7 @@
           "value": 0.6
         },
         {
-          "confidence": 0.9,
+          "confidence": 0.85,
           "page": 11,
           "printed_label": "Mass approx.",
           "printed_text": "0.037",

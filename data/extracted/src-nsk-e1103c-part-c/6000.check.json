@@ -12,7 +12,7 @@
   "extractor": {
     "model": "claude-opus-5-5",
     "prompt_version": "extract/3",
-    "response_id": "msg_011ChAmcGoiah6UYWtKujkks"
+    "response_id": "msg_011ChBbKDcqMRXNBj7ykkEKd"
   },
   "items": [
     {
@@ -35,29 +35,6 @@
       },
       "issues": [
         "枚举映射：'SINGLE-ROW DEEP GROOVE BALL BEARINGS' → deep_groove，未自动核对"
-      ]
-    },
-    {
-      "target": "params/width_mm",
-      "value": {
-        "value": 8.0,
-        "source": {
-          "doc": "src-nsk-e1103c-part-c",
-          "page": 11
-        },
-        "method": "extracted",
-        "confidence": 0.9,
-        "reviewed": false
-      },
-      "printed": {
-        "text": "8",
-        "unit": "mm",
-        "label": "B",
-        "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018"
-      },
-      "issues": [
-        "叫法 'B' 在表头，须核对所在列",
-        "按版面对齐切出的行核对"
       ]
     },
     {
@@ -105,6 +82,29 @@
       ]
     },
     {
+      "target": "params/width_mm",
+      "value": {
+        "value": 8.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "8",
+        "unit": "mm",
+        "label": "B",
+        "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018"
+      },
+      "issues": [
+        "叫法 'B' 在表头，须核对所在列",
+        "按版面对齐切出的行核对"
+      ]
+    },
+    {
       "target": "params/dynamic_load_rating_n",
       "value": {
         "value": 5050.0,
@@ -119,11 +119,11 @@
       "printed": {
         "text": "5 050",
         "unit": "N",
-        "label": "C r",
+        "label": "Cr",
         "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018"
       },
       "issues": [
-        "叫法 'C r' 在表头，数值在该列",
+        "叫法 'Cr' 在表头，数值在该列",
         "按版面对齐切出的行核对"
       ]
     },
@@ -142,11 +142,11 @@
       "printed": {
         "text": "1 970",
         "unit": "N",
-        "label": "C 0r",
+        "label": "C0r",
         "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018"
       },
       "issues": [
-        "叫法 'C 0r' 在表头，数值在该列",
+        "叫法 'C0r' 在表头，数值在该列",
         "按版面对齐切出的行核对"
       ]
     },
@@ -165,11 +165,11 @@
       "printed": {
         "text": "0.3",
         "unit": "mm",
-        "label": "r a max.",
+        "label": "ra max.",
         "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018"
       },
       "issues": [
-        "叫法 'r a max.' 在表头，须核对所在列",
+        "叫法 'ra max.' 在表头，须核对所在列",
         "单位 mm 不在同一行，取自本页其他位置",
         "按版面对齐切出的行核对"
       ]
@@ -196,6 +196,30 @@
         "叫法 'Mass approx.' 在表头，数值在该列",
         "按版面对齐切出的行核对"
       ]
+    },
+    {
+      "target": "ports/inner/diameter_mm",
+      "value": {
+        "value": 10.0,
+        "source": {
+          "doc": "src-nsk-e1103c-part-c",
+          "page": 11
+        },
+        "method": "extracted",
+        "confidence": 0.7,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "10",
+        "unit": "mm",
+        "label": "d",
+        "quote": "10 19 5 0.3 1 890 840 14.8 34 000 24 000 40 000 6800 ZZ VV DD — — — — — — — — — 12 12 17 0.3 — — 0.005"
+      },
+      "issues": [
+        "单位 mm 不在同一行，取自本页其他位置",
+        "引用的是同表另一行；目标型号所在行的同一列印着同一个数",
+        "按版面对齐切出的行核对"
+      ]
     }
   ],
   "rejected": [
@@ -207,17 +231,6 @@
         "text": "30 000",
         "unit": "min–1",
         "label": "Limiting Speeds Grease Open Z·ZZ",
-        "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/limiting_speed_rpm",
-      "page": 11,
-      "printed": {
-        "text": "22 000",
-        "unit": "min–1",
-        "label": "Limiting Speeds Grease VV·DDU",
         "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018"
       }
     },
@@ -239,7 +252,7 @@
       "printed": {
         "text": "12",
         "unit": "mm",
-        "label": "d a min.",
+        "label": "da min.",
         "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018"
       }
     },
@@ -250,7 +263,7 @@
       "printed": {
         "text": "13",
         "unit": "mm",
-        "label": "d a max.",
+        "label": "da max.",
         "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018"
       }
     },
@@ -261,18 +274,7 @@
       "printed": {
         "text": "24",
         "unit": "mm",
-        "label": "D a max.",
-        "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018"
-      }
-    },
-    {
-      "reason": "引用所在行中找不到与印出文字完全一致的数值",
-      "target": "params/seal",
-      "page": 11,
-      "printed": {
-        "text": "ZZ VV DDU",
-        "unit": "",
-        "label": "Bearing Designations Shielded Sealed",
+        "label": "Da max.",
         "quote": "26 8 0.3 5 050 1 970 12.4 30 000 22 000 36 000 6000 ZZ VV DDU N(4) NR(4) 1.35 0.87 24.5 0.2 0.3 28.7 0.84 12 13 24 0.3 29.4 1.9 0.018"
       }
     }
