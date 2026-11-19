@@ -5,7 +5,7 @@
 2. 主轴头等刀具一侧的部件 ↔ 工件一侧的部件、夹具、毛坯外形；
 3. 刀杆、刀柄 ↔ 剩下的材料（铣：高度图；刃部切材料是正常的，不算）；
 4. 轴位置由运动学逆解（`kinematics.inverse`）算，达不到或超程都报。
-查不了的（刀长没给、刀柄外形没写、三角网格部件）报“未知”，不当“通过”。
+查不了的（刀长没给、刀柄外形没写、网格文件读不到）报“未知”，不当“通过”。
 
 设置 `machine_sim`：
   work_offset_mm: [x, y, z]     工件零点（G54）在工件一侧零位坐标里的位置
@@ -24,6 +24,7 @@ import hashlib
 import json
 import math
 from itertools import pairwise
+from pathlib import Path
 
 import numpy as np
 
@@ -39,7 +40,15 @@ class SimSetupError(ValueError):
 
 
 def fingerprint(machine: dict, gcode: str, cfg: dict, stock: dict | None, tool_specs: dict) -> str:
-    blob = json.dumps({"v": VERSION, "machine": machine, "gcode": gcode, "cfg": cfg, "stock": stock, "tools": tool_specs},
+    data = {k: v for k, v in machine.items() if not k.startswith("_")}       # 机床文件放在哪里不影响指纹
+    meshes = {}
+    for c in machine.get("components") or []:                                # 网格部件按文件内容算
+        if "mesh" in c and machine.get("_dir"):
+            f = Path(machine["_dir"]) / c["mesh"]
+            meshes[c["mesh"]] = hashlib.sha256(f.read_bytes()).hexdigest() if f.is_file() else None
+    if meshes:
+        data["_meshes"] = meshes
+    blob = json.dumps({"v": VERSION, "machine": data, "gcode": gcode, "cfg": cfg, "stock": stock, "tools": tool_specs},
                       sort_keys=True, ensure_ascii=False, default=str)
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]
 
@@ -76,9 +85,9 @@ def _side(machine: dict, attached: str) -> str:
 def components(machine: dict) -> tuple[list[dict], list[str]]:
     out, notes = [], []
     for c in machine.get("components") or []:
-        s = CL.shape(c)
+        s = CL.shape(c, machine.get("_dir"))
         if s is None:
-            notes.append(f"部件 {c.get('name', c['id'])} 是三角网格，C1 还不查（C2 加）")
+            notes.append(f"部件 {c.get('name', c['id'])} 的网格文件 {c.get('mesh')} 读不到，没查")
             continue
         out.append({"id": c["id"], "name": c.get("name", c["id"]), "attached": c["attached_to"],
                     "side": _side(machine, c["attached_to"]), "shape": s})

@@ -31,7 +31,8 @@ def _validator():
 
 def validate(model: dict) -> list[str]:
     """schema 错误（中文前缀 + jsonschema 原文），空表示合格"""
-    errs = sorted(_validator().iter_errors(model), key=lambda e: list(e.absolute_path))
+    data = {k: v for k, v in model.items() if not k.startswith("_")}
+    errs = sorted(_validator().iter_errors(data), key=lambda e: list(e.absolute_path))
     return [f"{'/'.join(map(str, e.absolute_path)) or '（顶层）'}：{e.message}" for e in errs]
 
 
@@ -49,7 +50,12 @@ def load(path: str | Path) -> dict:
         data = json.loads(p.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise MachineError(f"{p}：读不了机床文件：{exc}") from exc
-    return check(data, str(p))
+    return with_dir(check(data, str(p)), p.parent)
+
+
+def with_dir(model: dict, folder) -> dict:
+    """记下机床文件所在目录（三角网格部件的文件相对它）。以 _ 开头的键不算机床数据：不进指纹、不进 schema 检查"""
+    return {**model, "_dir": str(Path(folder).resolve())}
 
 
 def from_legacy(m: dict) -> dict:
