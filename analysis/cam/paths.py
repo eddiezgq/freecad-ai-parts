@@ -70,11 +70,19 @@ def plateau(prof):
     return min(ts), max(ts), dmax
 
 
-def setup_profile(prof, side="right"):
+def setup_profile(prof, side="right", split=None):
     """设计轮廓 → 一次装夹要车的轮廓 [(z, d), …]（Z0 在本次装夹的右端面，向左为负）。外圆车刀只能从右往左车到最大直径段：
-    side="right" 车右端到最大直径段（含）；"left" 是调头后车原来的左边，车到最大直径的轴肩为止。返回 (轮廓, 本次车到的长度)。"""
+    side="right" 车右端到最大直径段（含）；"left" 是调头后车原来的左边，车到最大直径的轴肩为止。返回 (轮廓, 本次车到的长度)。
+    split（从左端量的 t）给定且在最大直径段起点右边时，两次装夹在 split 处分开（最大直径段太靠左、第一次装夹会车进卡爪时用）。"""
     length = prof[-1][0]
     ta, _, dmax = plateau(prof)
+    if split is not None and split > ta + 1e-9:
+        ds = d_at(prof, split)
+        if side == "right":
+            pts = [(t - length, d) for t, d in reversed(prof) if t > split + 1e-9] + [(split - length, ds)]
+            return simplify(pts), length - split
+        pts = [(-t + 0.0, d) for t, d in prof if t < split - 1e-9] + [(-split, ds)]
+        return simplify(pts), split
     if side == "right":
         pts = [(t - length, d) for t, d in reversed(prof) if t > ta + 1e-9 or (t >= ta - 1e-9 and abs(d - dmax) < 1e-9)]
         return simplify(pts), length - ta

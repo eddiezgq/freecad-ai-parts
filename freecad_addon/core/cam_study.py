@@ -77,7 +77,7 @@ def turn_part(*, item: str, segments: str, chamfer: float = 0.0, grooves: str = 
 
 def lathe_jaws(part: dict, jaw_len: float, jaw_d: float) -> list[dict]:
     """三爪卡盘的卡爪按圆柱算：夹住毛坯左端 jaw_len，外径 jaw_d；坐标同每次装夹（Z0 在右端面，毛坯左端在 −(全长 + 端面余量)）"""
-    total = sum(L for _, L in part["segments"])
+    total = float(part["profile"][-1][0]) if part.get("profile") else sum(L for _, L in part["segments"])
     e = float(part.get("face_allow_mm", 1.0))
     z_left = -(total + e)
     return [{"id": "jaws", "name": "卡爪", "cylinder_mm": {"p0": [0, 0, z_left - 40.0], "p1": [0, 0, z_left + jaw_len], "r": jaw_d / 2}}]

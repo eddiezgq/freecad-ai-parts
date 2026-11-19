@@ -32,6 +32,7 @@
 
 from __future__ import annotations
 
+import itertools
 import math
 import time
 
@@ -185,7 +186,12 @@ def turn_context(setup, mach):
     if mach["kind"] != "lathe":
         raise SetupError(f"{mach['name']} 不是车床")
     segs = [[float(d), float(seg_len)] for d, seg_len in setup.get("segments") or []]
-    prof = P.design_profile(segs, float(setup.get("chamfer_mm", 0)))
+    if setup.get("profile"):                          # 外圆轮廓（带锥面、圆弧；从模型截面读出，ADR-0106 Q3a）
+        prof = P.simplify([(float(t), float(d)) for t, d in setup["profile"]])
+        if prof[0][0] > 1e-9 or any(b[0] < a[0] - 1e-9 for a, b in itertools.pairwise(prof)):
+            raise SetupError("外圆轮廓要从左端 t = 0 开始、t 不减")
+    else:
+        prof = P.design_profile(segs, float(setup.get("chamfer_mm", 0)))
     total = prof[-1][0]
     dmax = max(d for _, d in prof)
     stock_d = float(setup.get("stock_d_mm") or math.ceil(dmax + 4))
@@ -193,12 +199,20 @@ def turn_context(setup, mach):
         raise SetupError(f"毛坯直径 {stock_d:g} 小于零件最大直径 {dmax:g}")
     e = float(setup.get("face_allow_mm", 1.0))
     max_rpm = min(float(setup.get("max_rpm", 3000)), mach["max_rpm"])
-    _, reach_right = P.setup_profile(prof, "right")
+    # 第一次装夹最多车到哪里：毛坯左端要留够卡爪夹的长度（min_grip_mm，缺省 8）再加 2 mm 间隙；最大直径段太靠左时在中间分开
+    ta, tb, _ = P.plateau(prof)
+    limit = total + e - float(setup.get("min_grip_mm", 8.0)) - 2.0
+    split = None
+    if total - ta > limit:
+        split = total - limit
+        if split > tb + 1e-9:
+            raise SetupError(f"零件太短或最大直径段太靠左：第一次装夹车到 Z{-limit:g} 就会碰卡爪，调头后也接不上（最大直径段在离左端 {ta:g} ~ {tb:g}）")
+    _, reach_right = P.setup_profile(prof, "right", split)
     feats = _turn_features(setup, total, reach_right)
     bore = setup.get("bore")
     sides = []
     for k, side in enumerate(("right", "left")):
-        tgt, reach = P.setup_profile(prof, side)
+        tgt, reach = P.setup_profile(prof, side, split)
         if not tgt:
             continue
         sides.append({"side": side, "k": k, "tgt": tgt, "reach": reach, "grooves": feats[side]["grooves"],
@@ -234,6 +248,27 @@ def _g76_segments(mv, tv, internal, taper, starts):
         out.append({"type": "G76", "i0": i_first + 1, "i1": i_last, "x0": xo, "z0": zs, "x": x_end_root, "z": tv["z_end"],
                     "i": (x_start_root - x_end_root) / 2, "k_um": k_um, "dd_um": dd_um, "m": 1, "lead": mv[thr[0]]["pitch"]})
     return out
+
+
+def _with_chuck(setup, stock_len, reach, checks, stock_d):
+    """整机仿真设置里写了 chuck {jaw_len, jaw_d}：每次装夹的卡爪夹持长度取 min(jaw_len, 这次没车的毛坯长度 − 2)。
+    卡爪转起来扫过的是毛坯外面的一圈（毛坯外径 ~ jaw_d），按 ±X 两侧各一个长方体包住（刀架在哪一侧都查得到）；
+    卡盘体是毛坯左端以外的圆柱。钻头、镗刀在毛坯里面，不会碰到卡爪。夹不到 3 mm 报错。"""
+    ms = setup.get("machine_sim") or {}
+    ch = ms.get("chuck")
+    if not ch:
+        return setup
+    free = stock_len - reach - 2.0
+    if free < 3.0:
+        checks.append({"line": None, "level": "error", "text": f"这次装夹夹不住：没车的部分只剩 {max(free + 2.0, 0):.1f} mm"})
+        return setup
+    jl = min(float(ch["jaw_len"]), free)
+    z_left = -stock_len
+    rj, rs = float(ch["jaw_d"]) / 2, stock_d / 2
+    jaws = [{"id": "jaws", "name": "卡爪", "box_mm": [rs, -rj, z_left, rj, rj, z_left + jl]},
+            {"id": "jaws2", "name": "卡爪", "box_mm": [-rj, -rj, z_left, -rs, rj, z_left + jl]},
+            {"id": "chuck", "name": "卡盘", "cylinder_mm": {"p0": [0, 0, z_left - 40.0], "p1": [0, 0, z_left], "r": rj}}]
+    return {**setup, "machine_sim": {**ms, "fixtures": [*(ms.get("fixtures") or []), *jaws]}}
 
 
 def _heights(c) -> dict:
@@ -476,7 +511,7 @@ def _turn(setup, mach):
                "power": pdet, "target": [[float(z), float(d)] for z, d in tgt],
                "replay_in": {"kind": "turn", "stock": stock, "tools": {str(k): v for k, v in tools_sim.items()},
                              "target": _jsonable(tg)}}
-        _msim(setup, mach, parsed, g, stock, [], out, withhold=True)
+        _msim(_with_chuck(setup, total + e, reach, checks, stock_d), mach, parsed, g, stock, [], out, withhold=True)
         _release(setup, mach, prog, out)
         progs.append(out)
     return progs, {"profile": [[float(t), float(d)] for t, d in ctx["prof"]], "stock_d_mm": stock_d, "length_mm": total}

@@ -357,8 +357,8 @@ class OpPanel:
         if job.Kind == "turn":
             d = CO._js(job, "PartData", {})
             k = op.OpKind
-            if k in ("groove", "thread"):
-                x = (d.get("grooves") if k == "groove" else d.get("threads"))[op.FeatureIndex]
+            if k in CO.FEATURE_KINDS:
+                x = d.get({"groove": "grooves", "thread": "threads", "face_groove": "face_grooves"}[k])[op.FeatureIndex]
                 return T("本工序：{}").format(", ".join(f"{a}={v:g}" for a, v in x.items() if isinstance(v, (int, float))))
             if k in ("drill", "bore"):
                 return T("内孔：{}").format(", ".join(f"Ø{a:g}×{b:g}" for a, b in d.get("bore") or []))

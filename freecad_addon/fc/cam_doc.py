@@ -23,11 +23,14 @@ def turn_features(shape) -> dict:
     """回转体 → {"segments": [[d, L], …]（从左到右）, "chamfer_mm", "grooves": [...], "bore": [[d, 深], …] 或 []}"""
     bb = shape.BoundBox
     z0, z1 = bb.ZMin, bb.ZMax
-    outer, inner, cones, inner_cones = [], [], [], []
+    outer, inner, cones, inner_cones, curved = [], [], [], [], []
+    face_grooves, fg_faces = _face_grooves(shape, z1)
     for f in shape.Faces:
         s = f.Surface
         name = type(s).__name__
-        if name not in ("Cylinder", "Cone"):
+        if name in ("Toroid", "Sphere", "BSplineSurface", "SurfaceOfRevolution") and not _is_inner(f):
+            curved.append(f)                                # 外圆上的圆弧过渡等：按截面轮廓车
+        if name not in ("Cylinder", "Cone") or any(f.isSame(g) for g in fg_faces):
             continue
         ax = s.Axis
         if abs(abs(ax.z) - 1) > 1e-6 or math.hypot(s.Center.x if name == "Cylinder" else s.Apex.x,
@@ -73,6 +76,12 @@ def turn_features(shape) -> dict:
     opens = any(abs(zb - z1) < 1e-6 for _za, zb, _r in inner) or any(abs(zb - z1) < 1e-6 for _za, zb in inner_cones)
     out = {"segments": segments, "chamfer_mm": ch, "grooves": grooves, "bore": bore, "length_mm": round(z1 - z0, 6),
            "z_right": z1}
+    if face_grooves:
+        out["face_grooves"] = face_grooves
+    mid_cones = [c for c in cones if not (abs(c[0] - z0) < 1e-6 or abs(c[1] - z1) < 1e-6)]
+    end_unequal = len({round(c[1] - c[0], 6) for c in ends}) > 1
+    if mid_cones or curved or end_unequal:               # 外圆有锥面、圆弧或两端倒角不一样：按截面轮廓车（ADR-0106 Q3a）
+        out["profile"] = outer_profile(shape, grooves)
     if not opens:
         return out                                          # 内孔要从右端开口
     if not inner_cones:
@@ -90,6 +99,79 @@ def turn_features(shape) -> dict:
     return out
 
 
+def _face_grooves(shape, z1):
+    """右端面上的端面槽：一个朝 +Z 的环形平面（槽底），内外各一圈圆柱面一直通到右端面。返回 ([{d_in, d_out, depth}], 这些面)"""
+    out, faces = [], []
+    cyls = [f for f in shape.Faces if type(f.Surface).__name__ == "Cylinder"]
+    for f in shape.Faces:
+        if type(f.Surface).__name__ != "Plane":
+            continue
+        n = f.normalAt(0, 0)
+        zp = f.BoundBox.ZMin
+        if abs(abs(n.z) - 1) > 1e-6 or n.z < 0 or zp >= z1 - 1e-6 or abs(f.BoundBox.ZMax - zp) > 1e-6:
+            continue
+        radii = sorted({round(e.Curve.Radius, 6) for e in f.Edges if type(e.Curve).__name__ == "Circle"})
+        if len(radii) != 2:
+            continue
+        r1, r2 = radii
+        walls = []
+        for c in cyls:
+            cb = c.BoundBox
+            if abs(cb.ZMin - zp) < 1e-6 and abs(cb.ZMax - z1) < 1e-6:
+                inner_side = _is_inner(c)
+                if abs(c.Surface.Radius - r1) < 1e-6 and not inner_side or abs(c.Surface.Radius - r2) < 1e-6 and inner_side:
+                    walls.append(c)
+        if len(walls) == 2:
+            out.append({"d_in": round(2 * r1, 6), "d_out": round(2 * r2, 6), "depth": round(z1 - zp, 6)})
+            faces += walls + [f]
+    return out, faces
+
+
+def _section_segments(shape):
+    import FreeCAD
+
+    segs = []
+    for w in shape.slice(FreeCAD.Vector(0, 1, 0), 0.0):
+        pts = w.discretize(Deflection=0.002)
+        for a, b in itertools.pairwise(pts):
+            if a.x >= -1e-9 and b.x >= -1e-9:
+                segs.append((a.x, a.z, b.x, b.z))
+    return segs
+
+
+def _crossings(segs, z):
+    xs = sorted(ax + (bx - ax) * (z - az) / (bz - az) for ax, az, bx, bz in segs
+                if min(az, bz) <= z < max(az, bz) and abs(bz - az) > 1e-12)
+    return [x for x in xs if x > 1e-6]
+
+
+def outer_profile(shape, grooves=(), step: float = 0.05) -> list[list[float]]:
+    """外圆轮廓 [[t, d], …]（t 从左端 0 起向右，d 直径）：截面边界在每条水平线上最外的交点。
+    退刀槽（单独切）按槽两边较小的那个直径填平，与 segments 的做法一致。"""
+    bb = shape.BoundBox
+    z0, z1 = bb.ZMin, bb.ZMax
+    segs = _section_segments(shape)
+    n = math.ceil((z1 - z0) / step)
+    zs = [z0 + min(k * step, z1 - z0) for k in range(n + 1)]
+    zs[0], zs[-1] = z0 + 1e-6, z1 - 1e-6
+    pts = []
+    for z in zs:
+        xs = _crossings(segs, z)
+        pts.append([z, 2 * xs[-1] if xs else 0.0])
+    for g in grooves:
+        zr = z1 + g["z"]
+        za, zb = zr - g["width"], zr
+        dl = next((d for z, d in reversed(pts) if z < za - 1e-6), None)
+        dr = next((d for z, d in pts if z > zb + 1e-6), None)
+        fill = min(x for x in (dl, dr) if x is not None)
+        for q in pts:
+            if za - 1e-6 <= q[0] <= zb + 1e-6:
+                q[1] = fill
+    from analysis.cam import paths as P
+
+    return [[round(z - z0, 4), round(d, 4)] for z, d in P.simplify([(z, d) for z, d in pts], tol=2e-3)]
+
+
 def _is_inner(face) -> bool:
     """回转面法向朝轴线 → 内孔一侧"""
     u = (face.ParameterRange[0] + face.ParameterRange[1]) / 2
@@ -101,22 +183,12 @@ def _is_inner(face) -> bool:
 def bore_profile(shape, step: float = 0.05) -> list[list[float]]:
     """回转体在 XZ 半平面上的截面 → 内孔轮廓 [[z, d], …]（z 从右端孔口 0 往里为负，到孔底为止）。
     截面边界离散成折线，每隔 step 取一条水平线求交：交点两个以上时最小的那个是内孔半径。共线的点并掉，锥面、倒角是直线段，圆弧按折线。"""
-    import FreeCAD
-
     bb = shape.BoundBox
     z1 = bb.ZMax
-    wires = shape.slice(FreeCAD.Vector(0, 1, 0), 0.0)
-    segs = []
-    for w in wires:
-        pts = w.discretize(Deflection=0.002)
-        for a, b in itertools.pairwise(pts):
-            if a.x >= -1e-9 and b.x >= -1e-9:
-                segs.append((a.x, a.z, b.x, b.z))
+    segs = _section_segments(shape)
 
     def inner_at(z):
-        xs = sorted(ax + (bx - ax) * (z - az) / (bz - az) for ax, az, bx, bz in segs
-                    if min(az, bz) <= z < max(az, bz) and abs(bz - az) > 1e-12)     # 半开区间：正好过顶点只算一次
-        xs = [x for x in xs if x > 1e-6]
+        xs = _crossings(segs, z)                            # 半开区间：正好过顶点只算一次
         return xs[0] if len(xs) >= 2 else None
 
     n = math.ceil((z1 - bb.ZMin) / step)

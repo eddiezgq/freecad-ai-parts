@@ -58,7 +58,7 @@ def example1():
                        chamfer=ft["chamfer_mm"], grooves="\n".join(f"{g['z']:g}, {g['width']:g}, {g['d']:g}" for g in ft["grooves"]),
                        threads="0, -26, 24, 1.5", bore=", ".join(f"{d:g}x{L:g}" for d, L in ft["bore"]), kienzle="C45E")
     d = S.draft(part)
-    d["setup"]["machine_sim"]["fixtures"] = S.lathe_jaws(part, 15, 80)
+    d["setup"]["machine_sim"]["chuck"] = {"jaw_len": 15.0, "jaw_d": 80.0}
     d["setup"]["post"] = "fanuc"
     return ft, d, S.run(d["setup"])
 

@@ -20,9 +20,10 @@ from assist.i18n import tr as T
 
 GROUP = "问渠CAM"
 STATUS = ["草稿", "已确认"]
-TURN_KINDS = {"rough": "粗车外圆", "finish": "精车外圆", "groove": "切槽", "thread": "车螺纹", "drill": "钻孔", "bore": "镗孔"}
+TURN_KINDS = {"rough": "粗车外圆", "finish": "精车外圆", "groove": "切槽", "thread": "车螺纹", "drill": "钻孔", "bore": "镗孔",
+              "face_groove": "端面槽", "part": "切断"}
 MILL_KINDS = {"pocket": "铣型腔", "profile": "铣外轮廓", "drill": "钻孔"}
-TURN_TOOL_N = {"rough": 1, "finish": 2, "groove": 3, "thread": 4, "drill": 5, "bore": 6}
+TURN_TOOL_N = {"rough": 1, "finish": 2, "groove": 3, "thread": 4, "drill": 5, "bore": 6, "part": 8, "face_groove": 9}
 
 
 class CamObjError(ValueError):
@@ -251,8 +252,9 @@ def new_job(doc, model, kind: str, *, machine: str | None = None, post: str = "f
         ft = cam_doc.turn_features(shape)
         data = {"segments": ft["segments"], "chamfer_mm": ft["chamfer_mm"], "grooves": ft["grooves"],
                 "bore": ft["bore"], "threads": _threads(threads), "z_right": ft["z_right"]}
-        if ft.get("bore_profile"):
-            data["bore_profile"] = ft["bore_profile"]
+        for key in ("bore_profile", "profile", "face_grooves"):
+            if ft.get(key):
+                data[key] = ft[key]
         job.Fixture = "15, 80"
         names = (("right", "右端（第一次装夹）"), ("left", "左端（调头装夹）"))
     else:
@@ -319,7 +321,7 @@ def new_op(setup, kind: str, *, index: int = -1, tool_id: str = "", tool_n: int 
     op.Reason, op.Status = reason, status
     job = job_of(setup) or next(p for p in setup.InList if is_job(p))
     names = TURN_KINDS if job.Kind == "turn" else MILL_KINDS
-    op.Label = T(names.get(kind, kind)) + (f" {index + 1}" if index >= 0 and kind in ("groove", "thread") else "")
+    op.Label = T(names.get(kind, kind)) + (f" {index + 1}" if index >= 0 and kind in FEATURE_KINDS else "")
     setup.addObject(op)
     return op
 
@@ -333,6 +335,10 @@ def turn_setup(job) -> dict:
         s["kienzle"] = job.Kienzle
     if d.get("grooves"):
         s["grooves"] = [dict(g) for g in d["grooves"]]
+    if d.get("profile"):
+        s["profile"] = d["profile"]
+    if d.get("face_grooves"):
+        s["face_grooves"] = [dict(g) for g in d["face_grooves"]]
     if d.get("threads"):
         s["threads"] = [dict(t) for t in d["threads"]]
     if d.get("bore"):
@@ -388,10 +394,14 @@ def _turn_cut(job, op) -> dict:
     return c
 
 
+FEATURE_KINDS = ("groove", "thread", "face_groove")      # 带序号（零件数据里第几个）的工序
+
+
 def _local_index(sc, kind, gi):
-    lst = sc["grooves"] if kind == "groove" else sc["threads"]
+    lst, key = {"groove": (sc["grooves"], "gi"), "thread": (sc["threads"], "gi"),
+                "face_groove": (sc.get("face_grooves") or [], "fi")}[kind]
     for i, x in enumerate(lst):
-        if x.get("gi") == gi:
+        if x.get(key) == gi:
             return i
     return None
 
@@ -399,7 +409,7 @@ def _local_index(sc, kind, gi):
 def _turn_spec(job, op, side):
     k = op.OpKind
     spec = {"kind": k, "cut": _turn_cut(job, op)}
-    if k in ("groove", "thread"):
+    if k in FEATURE_KINDS:
         spec["gi"] = op.FeatureIndex
     return spec
 
@@ -420,7 +430,7 @@ def regenerate_turn(op) -> None:
     if sc is None:
         raise CamObjError(f"{setup_of(op).Label} 没有要车的轮廓")
     spec = {"kind": op.OpKind}
-    if op.OpKind in ("groove", "thread"):
+    if op.OpKind in FEATURE_KINDS:
         i = _local_index(sc, op.OpKind, op.FeatureIndex)
         if i is None:
             raise CamObjError(f"{op.Label} 不在这次装夹里")
@@ -476,7 +486,7 @@ def to_model(job, side, x, y, z):
         return x, y, z + d.get("z_top", 0.0)
     zr = d.get("z_right", 0.0)
     if side == "left":
-        total = sum(float(L) for _, L in d.get("segments") or [])
+        total = float(d["profile"][-1][0]) if d.get("profile") else sum(float(L) for _, L in d.get("segments") or [])
         return x / 2, 0.0, (zr - total) - z
     return x / 2, 0.0, z + zr
 
@@ -535,8 +545,9 @@ def draft(job, client=None, note: str = "") -> dict:
             s = next(x for x in setups(job) if x.Side == sc["side"])
             for spec in cam.turn_op_specs(sc):
                 k = spec["kind"]
-                gi = sc["grooves"][spec["i"]]["gi"] if k == "groove" else sc["threads"][spec["i"]]["gi"] if k == "thread" else -1
-                cid = f"{k}{gi + 1}" if k in ("groove", "thread") else k
+                gi = (sc["grooves"][spec["i"]]["gi"] if k == "groove" else sc["threads"][spec["i"]]["gi"] if k == "thread"
+                      else sc["face_grooves"][spec["i"]]["fi"] if k == "face_groove" else -1)
+                cid = f"{k}{gi + 1}" if k in FEATURE_KINDS else k
                 row = card[cid]
                 p = row["params"]
                 op = new_op(s, k, index=gi, tool_id=row["tool"], tool_n=TURN_TOOL_N[k], vc=p["vc"], feed=p.get("f", 0.0),
@@ -619,10 +630,11 @@ def add_op(setup, kind: str):
             raise CamObjError(f"{setup.Label} 上没有能{TURN_KINDS[kind]}的地方")
         used = {o.FeatureIndex for o in ops(setup) if o.OpKind == kind}
         gi = -1
-        if kind in ("groove", "thread"):
-            lst = sc["grooves"] if kind == "groove" else sc["threads"]
-            free = [lst[s["i"]]["gi"] for s in specs if lst[s["i"]]["gi"] not in used]
-            gi = free[0] if free else lst[specs[0]["i"]]["gi"]
+        if kind in FEATURE_KINDS:
+            lst, key = {"groove": (sc["grooves"], "gi"), "thread": (sc["threads"], "gi"),
+                        "face_groove": (sc.get("face_grooves") or [], "fi")}[kind]
+            free = [lst[s["i"]][key] for s in specs if lst[s["i"]][key] not in used]
+            gi = free[0] if free else lst[specs[0]["i"]][key]
         row = {c["id"]: c for c in d["card"]}[f"{kind}{gi + 1}" if gi >= 0 else kind]
         p = row["params"]
         op = new_op(setup, kind, index=gi, tool_id=row["tool"], tool_n=TURN_TOOL_N[kind], vc=p["vc"], feed=p.get("f", 0.0),
@@ -688,7 +700,7 @@ def _ms(job, tool_rows) -> dict:
         ms["tools"][str(n)] = e
     nums = [float(x) for x in (job.Fixture or "").replace("，", ",").split(",") if x.strip()]
     if job.Kind == "turn" and len(nums) == 2:
-        ms["fixtures"] = S.lathe_jaws(turn_setup(job), nums[0], nums[1])
+        ms["chuck"] = {"jaw_len": nums[0], "jaw_d": nums[1]}    # 每次装夹的夹持长度在计算时按没车的部分取
     if job.Kind == "mill":
         ms["work_offset_mm"] = [0.0, 0.0, float(job.WorkOffsetZ)]
         if nums:
@@ -716,7 +728,7 @@ def build_setup(job) -> dict:
         ctx = cam.turn_context(setup, machines.get(job.Machine))
         for sc in ctx["sides"]:
             for spec in setup["ops"].get(sc["side"], []):
-                if spec["kind"] in ("groove", "thread"):
+                if spec["kind"] in FEATURE_KINDS:
                     spec["i"] = _local_index(sc, spec["kind"], spec.pop("gi"))
     else:
         d = _js(job, "PartData", {})
@@ -805,7 +817,7 @@ def card_doc(job) -> dict:
             if o.Ap > 0:
                 p["ap"] = o.Ap
             if job.Kind == "turn":
-                rid = f"{o.OpKind}{o.FeatureIndex + 1}" if o.OpKind in ("groove", "thread") else o.OpKind
+                rid = f"{o.OpKind}{o.FeatureIndex + 1}" if o.OpKind in FEATURE_KINDS else o.OpKind
             else:
                 rid = f"f{o.ToolNumber}"
             rows.append({"id": rid, "title": o.Label, "tool": o.ToolId, "tool_name": "", "params": p,
