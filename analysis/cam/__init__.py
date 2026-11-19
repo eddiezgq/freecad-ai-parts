@@ -22,6 +22,8 @@
   machine_sim（可选，三种 mode 都认）：整机仿真（analysis/cam/machine_sim.py）——work_offset_mm、fixtures、tool_library、
          tools {刀号: {"tool": 刀具库 id, "length_mm": 刀长}}、clearance_mm、step_mm；铣削毛坯另可给 stock.height。
          turn、mill 生成的程序整机仿真不通过就不输出（gcode 为 null）；check 只报不扣。
+  post（可选，turn、mill）：数控系统 fanuc | siemens | gsk（广数只有车）——出正式程序 programs[].release
+         {controller, post, version, verified, fingerprint, text}。没给 machine_sim、整机仿真不通过、回读刀路与仿真不一致，都不出（release 为 null）。
 结果 data：programs [{title, gcode, time（cut_s、rapid_s、tool_s、total_s）, checks [{line, level, text}], sim, power}]、
   total_time_s、verdict（error / warn / unknown / ok：检查中最严重的一级）、machine（id、name、example）。
 """
@@ -34,7 +36,7 @@ import time
 from analysis.cam import machine_sim as MS
 from analysis.cam import machines as M
 from analysis.cam import paths as P
-from analysis.cam import post, power, sim
+from analysis.cam import post, postproc, power, sim
 from analysis.common import result
 
 MODULE = {
@@ -102,6 +104,36 @@ def _msim(setup, mach, parsed, gcode, stock, extra, prog, withhold, expect_d=Non
     if withhold and res["status"] == "error":
         prog["gcode"] = None
         prog["checks"].append({"line": None, "level": "error", "text": "整机仿真不通过，程序没有输出（改好再算）"})
+
+
+def _same_path(a_text, b_text, mach):
+    """两份程序回读后的刀路是否一致（终点、类型；容差 1e-3 mm）"""
+    pa = [m for m in sim.parse(a_text, mach)["moves"] if not m.get("home")]
+    pb = [m for m in sim.parse(b_text, mach)["moves"] if not m.get("home")]
+    if len(pa) != len(pb):
+        return False
+    return all(x["t"] == y["t"] and max(abs(u - v) for u, v in zip(x["b"], y["b"], strict=True)) < 1e-3 for x, y in zip(pa, pb, strict=True))
+
+
+def _release(setup, mach, prog, out):
+    """正式程序（ADR-0104 第 4 节）：设置里 post 给了数控系统才出。没跑整机仿真或不通过不出；
+    出了以后回读一遍，与整机仿真用的刀路逐段比对，不一致也不出"""
+    ctl = setup.get("post")
+    if not ctl:
+        return
+    try:
+        rel = postproc.render(prog, mach, ctl, out.get("machine_sim"))
+        back = postproc.to_fanuc(rel["text"], ctl, mach["kind"] == "lathe")
+        if out.get("gcode") and not _same_path(out["gcode"], back, mach):
+            raise postproc.ReleaseError("后处理出的程序回读后与整机仿真用的刀路不一致，不输出")
+    except postproc.ReleaseError as exc:
+        out["release"] = None
+        out["checks"].append({"line": None, "level": "error", "text": f"正式程序没有输出：{exc}"})
+        return
+    out["release"] = rel
+    if not rel["verified"]:
+        out["checks"].append({"line": None, "level": "warn",
+                              "text": f"{rel['post']} 后处理还没在实机上验证过：首件空运行、单段试切确认"})
 
 
 # ---------------------------------------------------------------- 车削
@@ -228,6 +260,7 @@ def _turn(setup, mach):
                                  if "inner_dev_min" in s else {})},
                       "power": pdet, "target": [[float(z), float(d)] for z, d in tgt]}
         _msim(setup, mach, parsed, g, stock, [], out, withhold=True)
+        _release(setup, mach, prog, out)
         progs.append(out)
     return progs, {"profile": [[float(t), float(d)] for t, d in prof], "stock_d_mm": stock_d, "length_mm": total}
 
@@ -361,6 +394,7 @@ def _mill(setup, mach):
            "tools": {str(k): v for k, v in tools.items()}}
     _msim(setup, mach, parsed, g, {"box": box, "top": 0.0, "height": stock.get("height")}, extra, out, withhold=True,
           expect_d={k: v["d"] for k, v in tools.items()})
+    _release(setup, mach, prog, out)
     return [out], {}
 
 
