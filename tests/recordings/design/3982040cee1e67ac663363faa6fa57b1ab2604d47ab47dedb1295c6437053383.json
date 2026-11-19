@@ -1,0 +1,80 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "shaft-design/1",
+  "request_key": "3982040cee1e67ac663363faa6fa57b1ab2604d47ab47dedb1295c6437053383",
+  "response": {
+    "id": "msg_011ChCX6AfQzAffSxdchYgWj",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "reason": "方案已全部通过，且已是最轻：6201 是满足 20000 h 寿命的最小轴承（6001/6200 的 C 只有 5600 N，z=27、5500 r/min 寿命约 10000 h 不够）；6201 的 da min 是 16，定位轴肩只能取 Ø16–17，中间各段已取最小 Ø16；两端 Ø12 等于轴承内径，已是最小，且带轮、手轮位置要保留。安全系数（最低约 2.8）和临界转速（约 4.7）有余量，但再减材料会被轴承寿命和轴肩尺寸卡住，因此原样交回。",
+      "segments": [
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.5,
+          "length_mm": 22,
+          "role": "crank_seat"
+        },
+        {
+          "bearing": "bearing.nsk-ltd.6201",
+          "fillet_mm": 0.5,
+          "role": "bearing_seat"
+        },
+        {
+          "diameter_mm": 16,
+          "fillet_mm": 0.5,
+          "length_mm": 6,
+          "role": "body"
+        },
+        {
+          "diameter_mm": 16,
+          "fillet_mm": 0.5,
+          "length_mm": 14,
+          "role": "cam_seat"
+        },
+        {
+          "diameter_mm": 16,
+          "fillet_mm": 0.5,
+          "length_mm": 91,
+          "role": "body"
+        },
+        {
+          "diameter_mm": 16,
+          "fillet_mm": 0.5,
+          "length_mm": 14,
+          "role": "cam_seat"
+        },
+        {
+          "diameter_mm": 16,
+          "fillet_mm": 0.5,
+          "length_mm": 90,
+          "role": "body"
+        },
+        {
+          "bearing": "bearing.nsk-ltd.6201",
+          "fillet_mm": 0.5,
+          "role": "bearing_seat"
+        },
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.5,
+          "length_mm": 10,
+          "role": "pulley_seat"
+        },
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.5,
+          "length_mm": 8,
+          "role": "body"
+        },
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.5,
+          "length_mm": 14,
+          "role": "end"
+        }
+      ]
+    }
+  }
+}
