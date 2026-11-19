@@ -199,3 +199,8 @@
   - 打包：`tests/recordings/design` 与示例原话进工作台包（没有密钥也能“载入示例”回放）。
   - 测试：`tests/test_ai_design_panel_core.py`（页签、入库规则）；`tests/test_fc_ai_design.py`（FreeCAD：模型、工程图 11 个尺寸与设计一致、
     BOM 表、面板显示与确认入库）。问渠 CAD 仓库的 `tests-wqcad.ps1` 与固定提交随问渠 CAD 0.3c 在那边改（细则已写，待项目负责人确认）。
+- **42.5 第 2 步：空心轴扭转刚度与静强度（2026-11-18）**：`analysis/shaft/torsion.py`（空心截面 J、W，扭转角各段串联、两端段算一半，
+  末端偏移 δ = θR，质量，第四强度理论静强度）。标准题 `tests/test_shaft_torsion.py`：等截面空心轴解析解；书中 33.10 五个方案的扭转角、
+  末端偏移、质量与刚度结论、选定方案 Ø50/Ø30 是满足刚度里最轻的、轴承位与花键段的静强度——全部到 1e-6。书中结果由书的程序
+  ex33_10.py（问渠仓库 24c765b2，有限元之前的部分；载荷来自 MuJoCo Menagerie UR5e 4d038b3f）算出，记在 `tests/data/book_33_10.yaml`：
+  峰值力矩 96.26 N·m，选定方案扭转角 175.6 μrad、末端偏移 0.1492 mm、质量 0.913 kg。
