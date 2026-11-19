@@ -244,6 +244,39 @@ def thread_infeeds(depth, first_max=0.25, spring=1):
     return [depth * math.sqrt(i / n) for i in range(1, n + 1)] + [depth] * spring
 
 
+def turn_part(z, d_from, f, tool_width, clear=CLEAR, x_end=-1.0):
+    """切断：z 是零件左端面（刀位点在切断刀右刀尖，刀宽往左），从 d_from 外面直进到中心以下（x_end）。
+    切到中心时转速被 G50 限住，进给不变；零件掉下来。"""
+    if tool_width <= 0:
+        raise CamError("切断刀宽要大于 0")
+    return [{"t": "comment", "text": f"切断：Z{z:g}，刀宽 {tool_width:g}"},
+            {"t": "rapid", "x": d_from + 2 * clear, "z": z}, {"t": "feed", "x": x_end, "z": z, "f": f},
+            {"t": "rapid", "x": d_from + 2 * clear, "z": z}]
+
+
+def turn_face_groove(d_in, d_out, depth, f, tool_width, clear=CLEAR, peck=0.0):
+    """端面槽（沿 Z 切）：槽在端面上，内径 d_in、外径 d_out、深 depth。刀位点在端面切槽刀的外侧刀尖（半径大的一边），
+    刀宽沿半径往里；槽宽于刀时从外往里多刀并排，每刀重叠 20%。peck > 0 时分段啄进排屑。"""
+    w = (d_out - d_in) / 2
+    if w < tool_width - 1e-9:
+        raise CamError(f"端面槽宽 {w:g} 小于刀宽 {tool_width:g}")
+    if depth <= 0:
+        raise CamError("端面槽深要大于 0")
+    mv = [{"t": "comment", "text": f"端面槽：Ø{d_in:g} ~ Ø{d_out:g}，深 {depth:g}，刀宽 {tool_width:g}"}]
+    span = w - tool_width
+    n = 1 if span < 1e-9 else math.ceil(span / (0.8 * tool_width) - 1e-9) + 1
+    for k in range(n):
+        xk = d_out - 2 * (span * k / (n - 1) if n > 1 else 0.0)
+        mv.append({"t": "rapid", "x": xk, "z": clear})
+        stops = [-depth] if peck <= 0 else [max(-depth, -peck * (i + 1)) for i in range(math.ceil(depth / peck))]
+        for zt in stops:
+            mv += [{"t": "feed", "x": xk, "z": zt, "f": f}]
+            if peck > 0 and zt > -depth + 1e-9:
+                mv += [{"t": "rapid", "x": xk, "z": clear}, {"t": "rapid", "x": xk, "z": zt + 0.5}]
+        mv.append({"t": "rapid", "x": xk, "z": clear})
+    return mv
+
+
 ISO_D1 = 1.08253   # 内螺纹小径 D1 = D − 1.08253·P（ISO 68-1：D1 = D − 2·(5/8)·H，H = 0.866025·P）
 
 

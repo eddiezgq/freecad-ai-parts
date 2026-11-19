@@ -1,7 +1,9 @@
 """问渠CAM Q3a 车削刀路（ADR-0106）：余量与分层、高度与进退刀；内孔仿形、端面槽、切断、内螺纹、锥螺纹、多头螺纹、固定循环。"""
 
 import itertools
+import math
 
+import numpy as np
 import pytest
 
 from analysis import cam
@@ -94,3 +96,60 @@ def test_two_start_thread_lead_and_time():
     hand = sum(60 * (m["a"][2] - m["b"][2]) / (3.0 * rpm) for m in th)       # 第二个头起刀点多一个螺距，那几刀长 1.5
     assert t == pytest.approx(hand, rel=1e-6)
     record(("双头螺纹车削时间", "two-start threading time"), t, hand, tol=1e-6, unit="s", formula="t = Σ L/(导程·n)")
+
+
+FLANGE = {**BASE, "segments": [[30, 20], [60, 10]], "chamfer_mm": 0.5}
+
+
+def test_face_groove_cut_to_size_and_removed_volume():
+    """法兰右端面 Ø36 ~ Ø48、深 3 的端面槽（刀宽 3，分 3 刀）：仿真空腔正好盖住，不宽不深；去除体积 = π(R²−r²)·深"""
+    setup = {**FLANGE, "segments": [[60, 10], [30, 20]], "face_grooves": [{"d_in": 36, "d_out": 48, "depth": 3, "tool_w": 3}]}
+    p = _run(setup)[0]
+    assert not [e for e in _errors(p) if "端面槽" in e], _errors(p)
+    st = {k: float(v) for k, v in p["replay_in"]["stock"].items()}
+    s = S.simulate_turn(S.parse(p["gcode"], LATHE), st, {int(k): v for k, v in p["replay_in"]["tools"].items()}, h=0.01)
+    v = s["void"]
+    zc = s["z"]
+    zone = (zc <= 0) & (zc >= -3)
+    vol = float(np.nansum(np.where(zone, np.pi * (v[:, 1] ** 2 - v[:, 0] ** 2), 0.0)) * 0.01)
+    exact = math.pi * (24 ** 2 - 18 ** 2) * 3
+    record(("端面槽去除体积", "face groove removed volume"), vol, exact, tol=0.01, unit="mm³", formula="V = π(R² − r²)·深 / π(R² − r²)·depth")
+    assert vol == pytest.approx(exact, rel=0.01)
+    # 刀宽 3、槽宽 6：两刀；刀宽比槽宽还大不能做
+    mv = P.turn_face_groove(36, 48, 3, 0.05, 3)
+    assert sum(1 for m in mv if m["t"] == "feed") == 3
+    with pytest.raises(P.CamError):
+        P.turn_face_groove(36, 40, 3, 0.05, 3)
+
+
+def test_face_groove_too_shallow_is_reported():
+    setup = {**FLANGE, "segments": [[60, 10], [30, 20]], "face_grooves": [{"d_in": 36, "d_out": 48, "depth": 3, "tool_w": 3}]}
+    ctx = cam.turn_context(setup, LATHE)
+    sc = ctx["sides"][0]
+    b = cam.turn_build_op(ctx, sc, {"kind": "face_groove", "i": 0}, cam.turn_default_cut(setup, sc, {"kind": "face_groove", "i": 0}))
+    mv = [dict(m, z=-2.5) if m["t"] == "feed" else m for m in b["op"]["moves"]]
+    prog = {"number": 1, "title": "t", "header": {}, "ops": [{**b["op"], "moves": mv}]}
+    from analysis.cam import post
+
+    s = S.simulate_turn(S.parse(post.post(prog, LATHE), LATHE), {"d": 64, "z_right": 0, "z_left": -40}, b["tools"],
+                        target=b["target"])
+    assert any("端面槽没切到位" in i["text"] for i in s["issues"])
+
+
+def test_parting_off():
+    """棒料上车完切断：切断刀走到中心以下，零件掉下来；不切断（刀没到中心）要报"""
+    setup = {**BASE, "segments": [[30, 40], [40, 20]], "parting": {"tool_w": 3}}
+    progs = _run(setup)
+    p = progs[0]
+    assert "切断" in p["gcode"]
+    assert not [e for e in _errors(p) if "切断" in e], _errors(p)
+    ctx = cam.turn_context(setup, LATHE)
+    sc = ctx["sides"][0]
+    b = cam.turn_build_op(ctx, sc, {"kind": "part"}, cam.turn_default_cut(setup, sc, {"kind": "part"}))
+    assert min(m["x"] for m in b["op"]["moves"] if m["t"] == "feed") < 0
+    mv = [dict(m, x=6.0) if m["t"] == "feed" else m for m in b["op"]["moves"]]
+    from analysis.cam import post
+
+    prog = {"number": 1, "title": "t", "header": {}, "ops": [{**b["op"], "moves": mv}]}
+    s = S.simulate_turn(S.parse(post.post(prog, LATHE), LATHE), {"d": 44, "z_right": 0, "z_left": -80}, b["tools"], target=b["target"])
+    assert any("没切断" in i["text"] for i in s["issues"])

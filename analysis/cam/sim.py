@@ -336,7 +336,8 @@ def _seg_points(a, b, step):
 
 def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=None):
     """stock：{"d": 毛坯直径, "z_right": 毛坯右端（端面余量）, "z_left": 毛坯左端（卡盘处，负数）}，可另给 "bore_d"（毛坯已有的内孔）
-    tools：{刀号: {"kind": "turn"} | {"kind": "groove", "w": 刀宽} | {"kind": "thread"} | {"kind": "drill", "d": 直径} | {"kind": "bore"}}
+    tools：{刀号: {"kind": "turn"} | {"kind": "groove", "w": 刀宽} | {"kind": "thread"} | {"kind": "thread_in"} | {"kind": "drill", "d": 直径}
+           | {"kind": "bore"} | {"kind": "face_groove", "w": 刀宽（半径方向）}}
            外圆刀、镗刀可带 "nose_r"（刀尖圆弧半径）：程序点是假想刀尖（外圆刀方位 3、镗刀方位 2），按半径 nose_r 的圆扫过去切（ADR-0106 Q2）
     target：比对用轮廓 [(z, d), …]（成品或本工序尺寸），或 {"outer": 轮廓, "grooves": [(z 右边, 宽, 槽底直径)], "threads": [(z 起, z 止, 牙底直径)],
             "inner": 内轮廓 [(z, d), …]}。返回最终半径网格（外 r、内 ri）、碰撞、过切 / 残留。
@@ -350,6 +351,7 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
         zmax = max(z for z, _ in stock["profile"])
         r = np.array([d_at(stock["profile"], z) / 2 if z <= zmax + 1e-9 else 0.0 for z in zc])
     issues, ap_max = [], 0.0
+    void = np.full((n, 2), np.nan)                # 端面槽切出的环形空腔 [内半径, 外半径]（每个 Z 一个）
     if history is not None:                       # 回放用：开始时和每段走完的 (z, r, ri)
         history.append((zc, r.copy(), ri.copy()))
 
@@ -366,6 +368,26 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
         pts = _seg_points(a, b, h / 4 if rn <= 0 else h)
         solid = r > ri + 1e-12
         new_r, new_ri = r.copy(), ri.copy()
+        if kind == "face_groove":                     # 端面槽：刀位点在外侧刀尖，刀宽沿半径往里，刀从这点往 +Z 一侧都占着
+            w = float(tl.get("w", 3.0))
+            for zp, rp in pts:
+                k0 = max(0, math.ceil((zp - z0) / h - 0.5))
+                if k0 >= n:
+                    continue
+                lo, hi = rp - w, rp
+                cur = void[k0:]
+                fresh = np.isnan(cur[:, 0])
+                touch = ~fresh & (lo <= cur[:, 1] + h) & (hi >= cur[:, 0] - h)
+                apart = ~fresh & ~touch & (r[k0:] > ri[k0:] + 1e-12)
+                if apart.any() and not any("每个 Z 只算一个端面槽" in i["text"] for i in issues):
+                    issues.append({"line": mv["line"], "level": "unknown",
+                                   "text": "两个端面槽在同一段 Z 上：仿真每个 Z 只算一个端面槽，这一段的比对没做"})
+                cur[fresh] = [lo, hi]
+                cur[touch, 0] = np.minimum(cur[touch, 0], lo)
+                cur[touch, 1] = np.maximum(cur[touch, 1], hi)
+            if history is not None:
+                history.append((zc, r.copy(), ri.copy()))
+            continue
         if kind in ("bore", "drill", "thread_in"):
             grow = np.full(n, -np.inf)
             if kind == "drill":
@@ -421,7 +443,7 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
         r, ri = new_r, new_ri
         if history is not None:
             history.append((zc, r.copy(), ri.copy()))
-    res = {"z": zc, "r": r, "ri": ri, "issues": issues, "ap_max": ap_max}
+    res = {"z": zc, "r": r, "ri": ri, "issues": issues, "ap_max": ap_max, "void": void}
     if target:
         tg = target if isinstance(target, dict) else {"outer": target}
         outer = tg.get("outer")
@@ -471,6 +493,23 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
             # 端面（Z0 右边）应全部车掉
             right = zc > 1e-9
             res["face_left"] = max(0.0, float((r[right] - ri[right]).max())) if right.any() else 0.0
+        for zp in tg.get("parted") or []:          # 切断：零件左端面以左到中心都要切开
+            cut_zone = (zc < zp - h) & (zc > zp - h * 3)
+            if cut_zone.any() and (r[cut_zone] - ri[cut_zone] > tol).any():
+                res["issues"].append({"line": None, "level": "error", "text": f"没切断：Z{zp:g} 处还连着（切断刀没走到中心）"})
+        for fg in tg.get("face_grooves") or []:     # 端面槽：Z −深 ~ 0 之间，空腔要盖住 [内径, 外径]，不能更宽更深
+            a_in, a_out, dp = fg["d_in"] / 2, fg["d_out"] / 2, fg["depth"]
+            zone = (zc <= 0.0) & (zc >= -dp + h / 2)
+            v = void[zone]
+            miss = np.isnan(v[:, 0]) | (v[:, 0] > a_in + tol) | (v[:, 1] < a_out - tol)
+            if miss.any():
+                res["issues"].append({"line": None, "level": "error",
+                                      "text": f"端面槽没切到位：Ø{fg['d_in']:g} ~ Ø{fg['d_out']:g}、深 {dp:g} 里有没切的地方"})
+            wide = ~np.isnan(v[:, 0]) & ((v[:, 0] < a_in - tol) | (v[:, 1] > a_out + tol))
+            deep = (zc < -dp - tol) & ~np.isnan(void[:, 0]) & (zc > -dp - 5)
+            if wide.any() or deep.any():
+                res["issues"].append({"line": None, "level": "error",
+                                      "text": f"端面槽切多了：Ø{fg['d_in']:g} ~ Ø{fg['d_out']:g}、深 {dp:g} 以外也切了"})
         inner = tg.get("inner")
         if inner:
             zt = min(z for z, _ in inner)

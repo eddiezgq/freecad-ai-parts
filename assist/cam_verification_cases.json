@@ -322,6 +322,16 @@
     "en": "Two-start threading time (lead = starts × pitch)"
    },
    "source": "t = Σ L/(导程·n) / t = Σ L/(lead·n)"
+  },
+  {
+   "id": "CAM-31",
+   "test": "tests/test_cam_turn_q3a.py::test_face_groove_cut_to_size_and_removed_volume",
+   "category": "geom",
+   "title": {
+    "zh": "端面槽去除体积",
+    "en": "Face groove removed volume"
+   },
+   "source": "V = π(R² − r²)·深 / π(R² − r²)·depth"
   }
  ]
 }

@@ -58,6 +58,8 @@ DEFAULT_CUT = {
     "thread": {"vc": 60.0},
     "lathe_drill": {"vc": 20.0, "f": 0.1, "peck": 0.0},
     "bore": {"vc": 100.0, "f": 0.15, "ap": 1.0, "f_finish": 0.08},
+    "face_groove": {"vc": 80.0, "f": 0.04},
+    "part": {"vc": 80.0, "f": 0.05},
 }
 ENDMILLS = (20.0, 16.0, 12.0, 10.0, 8.0, 6.0, 5.0, 4.0, 3.0)
 LEVEL = {"error": 3, "warn": 2, "unknown": 1}
@@ -198,6 +200,9 @@ def turn_context(setup, mach):
             continue
         sides.append({"side": side, "k": k, "tgt": tgt, "reach": reach, "grooves": feats[side]["grooves"],
                       "threads": feats[side]["threads"], "bore": bore if bore and bore.get("from", "right") == side else None,
+                      "face_grooves": [{**fg, "fi": i} for i, fg in enumerate(setup.get("face_grooves") or [])
+                                       if fg.get("side", "right") == side],
+                      "parting": setup.get("parting") if side == "right" else None,
                       "title": "右端（第一次装夹）" if side == "right" else "左端（调头装夹）"})
     return {"segs": segs, "prof": prof, "total": total, "stock_d": stock_d, "e": e,
             "allow": float(setup.get("finish_allow_mm", 0.5)), "max_rpm": max_rpm, "sides": sides}
@@ -215,6 +220,9 @@ def turn_op_specs(sc):
     out += [{"kind": "thread", "i": i} for i in range(len(sc["threads"]))]
     if sc["bore"]:
         out += [{"kind": "drill"}, {"kind": "bore"}]
+    out += [{"kind": "face_groove", "i": i} for i in range(len(sc.get("face_grooves") or []))]
+    if sc.get("parting"):
+        out.append({"kind": "part"})
     return out
 
 
@@ -228,6 +236,10 @@ def turn_default_cut(setup, sc, spec):
         return _cut(sc["grooves"][spec["i"]]["cut"], DEFAULT_CUT["groove"])
     if k == "thread":
         return _cut(sc["threads"][spec["i"]]["cut"], DEFAULT_CUT["thread"])
+    if k == "face_groove":
+        return _cut(sc["face_grooves"][spec["i"]].get("cut"), DEFAULT_CUT["face_groove"])
+    if k == "part":
+        return _cut(sc["parting"].get("cut"), DEFAULT_CUT["part"])
     if k == "drill":
         return _cut(sc["bore"].get("drill_cut"), DEFAULT_CUT["lathe_drill"])
     return _cut(sc["bore"].get("cut"), DEFAULT_CUT["bore"])
@@ -278,6 +290,21 @@ def turn_build_op(ctx, sc, spec, c):
                 "tools": {n_tool: {"kind": "thread_in" if internal else "thread"}},
                 "target": {"threads": [{"za": tv["z_start"], "zb": tv["z_end"], "root_a": root_a, "root_b": root_b,
                                         "internal": internal}]}}
+    if k == "face_groove":
+        fg = sc["face_grooves"][spec["i"]]
+        w = float(fg.get("tool_w") or (float(fg["d_out"]) - float(fg["d_in"])) / 2)
+        mv = P.turn_face_groove(float(fg["d_in"]), float(fg["d_out"]), float(fg["depth"]), c["f"], w,
+                                clear=_heights(c)["clear"], peck=float(c.get("peck") or 0.0))
+        return {"op": {"tool": {"n": 9, "name": f"端面切槽刀 宽 {w:g}"}, "spindle": {"css": c["vc"], "max_rpm": max_rpm},
+                       "moves": mv, "title": f"端面槽 {spec['i'] + 1}"},
+                "tools": {9: {"kind": "face_groove", "w": w}},
+                "target": {"face_grooves": [{"d_in": float(fg["d_in"]), "d_out": float(fg["d_out"]), "depth": float(fg["depth"])}]}}
+    if k == "part":
+        w = float(sc["parting"].get("tool_w") or 3.0)
+        mv = P.turn_part(-ctx["total"], stock_d, c["f"], w, clear=_heights(c)["clear"])
+        return {"op": {"tool": {"n": 8, "name": f"切断刀 宽 {w:g}"}, "spindle": {"css": c["vc"], "max_rpm": max_rpm},
+                       "moves": mv, "title": "切断"},
+                "tools": {8: {"kind": "groove", "w": w}}, "target": {"parted": [-ctx["total"]]}}
     b = sc["bore"]
     inner = P.inner_profile([[float(d), float(L)] for d, L in b["segments"]])
     dd = float(b["drill_d"])
@@ -352,7 +379,8 @@ def _turn(setup, mach):
             for key, v in b["target"].items():
                 tg[key] = (tg.get(key) or []) + v if isinstance(v, list) and key != "inner" else v
             cuts[spec["kind"]] = c
-        stock = {"d": stock_d, "z_right": e, "z_left": -(total + e)}
+        part_w = float((sc.get("parting") or {}).get("tool_w") or 0.0)
+        stock = {"d": stock_d, "z_right": e, "z_left": -(total + e + (part_w + 10.0 if part_w else 0.0))}
         # 精车（没有精车就粗车）、镗刀的刀尖圆弧：轴肩根部、内孔台阶根部车出来是 R rε 的圆角，按“做得到的轮廓”比
         tg["nose_outer"] = (tools_sim.get(2) or tools_sim.get(1) or {}).get("nose_r", 0.0)
         tg["nose_inner"] = (tools_sim.get(6) or {}).get("nose_r", 0.0)
