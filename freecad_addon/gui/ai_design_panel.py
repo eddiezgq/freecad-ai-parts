@@ -39,13 +39,14 @@ class AiDesignPanel:
         row.addWidget(QtWidgets.QLabel(T("零件类型")))
         self.kind = QtWidgets.QComboBox()
         self.kind.addItems([T(k) for k in C.PART_TYPES])
+        self.kind.currentIndexChanged.connect(self._kind_changed)
         row.addWidget(self.kind, 1)
         lay.addLayout(row)
         lay.addWidget(QtWidgets.QLabel(T("需求原话（转速、电机、机构参数、轴向位置、材料……；轴承型号可以不指定）")))
         self.text = QtWidgets.QPlainTextEdit()
         lay.addWidget(self.text, 1)
         row = QtWidgets.QHBoxLayout()
-        self.example = QtWidgets.QPushButton(T("载入示例：平缝机上轴"))
+        self.example = QtWidgets.QPushButton(T("载入示例：") + T(C.EXAMPLE_NAMES[C.PART_TYPES[0]]))
         self.example.clicked.connect(self.load_example)
         self.go = QtWidgets.QPushButton(T("开始设计"))
         self.go.clicked.connect(self.start)
@@ -89,6 +90,19 @@ class AiDesignPanel:
         lay.addWidget(self.ok)
         self.replay = False
 
+    def part_type(self) -> str:
+        return C.PART_TYPES[max(0, self.kind.currentIndex())]
+
+    def _kind_changed(self, _index=None):
+        """换零件类型：示例按钮、默认名称跟着换；已经载入的示例原话清掉（示例只对本类型的录制有效）"""
+        k = self.part_type()
+        self.example.setText(T("载入示例：") + T(C.EXAMPLE_NAMES[k]))
+        if self.name.text().strip() in {T(n) for n in C.DEFAULT_NAMES.values()}:
+            self.name.setText(T(C.DEFAULT_NAMES[k]))
+        if self.replay:
+            self.text.setPlainText("")
+            self.replay = False
+
     def _enterprise_name(self) -> str:
         names = {c.get("vendor") for c in (self.enterprise.all("custom_part") if self.enterprise is not None else [])}
         names.discard(None)
@@ -112,7 +126,7 @@ class AiDesignPanel:
     # ------------------------------------------------------------ 动作
 
     def load_example(self):
-        self.text.setPlainText(C.example_text())
+        self.text.setPlainText(C.example_text(self.part_type()))
         self.replay = True
 
     def start(self):
@@ -120,11 +134,12 @@ class AiDesignPanel:
         if not statement:
             self.progress.setText(T("先写需求原话"))
             return
-        use_replay = self.replay and statement == C.example_text().strip()
+        kind = self.part_type()
+        use_replay = self.replay and statement == C.example_text(kind).strip()
         if use_replay:
-            statement = C.example_text()           # 原样（含末尾换行）：录制按示例文件原文算请求键（2026-11-18）
+            statement = C.example_text(kind)       # 原样（含末尾换行）：录制按示例文件原文算请求键（2026-11-18）
         try:
-            client = C.example_client() if use_replay else self.client_factory()
+            client = C.example_client(kind) if use_replay else self.client_factory()
         except Exception as exc:  # noqa: BLE001 — 显示给人
             self.progress.setText(T(f"没有开始：{exc}（没有密钥时可以“载入示例”回放录制）"))
             return
@@ -139,7 +154,7 @@ class AiDesignPanel:
         def report(text, done, total):
             self._status = (text, done, total)
 
-        _in_background(lambda: C.run(statement, client, self.library, replay=use_replay, progress=report), self.done)
+        _in_background(lambda: C.run(statement, client, self.library, kind=kind, replay=use_replay, progress=report), self.done)
 
     def _tick(self):
         """每半秒刷新：当前一步、已用时间、这一步的进度（有限元一个台阶约 40 秒，见过的台阶直接用缓存）"""
@@ -188,8 +203,9 @@ class AiDesignPanel:
         doc = FreeCAD.ActiveDocument or FreeCAD.newDocument("AiDesign")
         try:
             segs = C.segments(self.out["result"], self.library.get)
-            self.placed = D.place(doc, self.out, segs, name=self.name.text().strip() or T("上轴"),
-                                  drawing_no=self.drawing_no.text().strip())
+            kind = self.out.get("kind") or C.PART_TYPES[0]
+            self.placed = D.place(doc, self.out, segs, name=self.name.text().strip() or T(C.DEFAULT_NAMES[kind]),
+                                  drawing_no=self.drawing_no.text().strip(), **C.drawing_extras(self.out["result"]))
         except Exception as exc:  # noqa: BLE001 — 显示给人
             self.model_info.setText(self.model_info.text() + "\n" + T(f"没有放进文档：{exc}"))
             return

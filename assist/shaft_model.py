@@ -56,8 +56,8 @@ def runs(segs: list[dict]) -> list[dict]:
     return out
 
 
-def build_step(segs: list[dict], path: str | Path) -> str:
-    """写阶梯轴 STEP（单位 mm，轴线 z）"""
+def build_step(segs: list[dict], path: str | Path, bore: float = 0.0) -> str:
+    """写阶梯轴 STEP（单位 mm，轴线 z）；bore > 0 时开贯通内孔（关节空心轴，42.5）。圆角为 0 的台阶不倒圆"""
     from analysis.fea.geometry import _LOCK, _gmsh
 
     rs = runs(segs)
@@ -73,9 +73,18 @@ def build_step(segs: list[dict], path: str | Path) -> str:
         if len(out) != 1:
             g.clear()
             raise ModelError(f"轴段合成后不是一个实体（{len(out)} 个）")
+        if bore > 0:
+            if bore >= min(r["d"] for r in rs) - 1e-9:
+                g.clear()
+                raise ModelError(f"内孔 Ø{bore:g} 不小于最细的一段，做不出来")
+            hole = occ.addCylinder(0, 0, -1, 0, 0, rs[-1]["z1"] + 2, bore / 2)
+            out = occ.cut(out, [(3, hole)])[0]
+            occ.synchronize()
         edges, radii = [], []
         for a, b in pairwise(rs):
             small, r = (a["d"], a["r_right"]) if a["d"] < b["d"] else (b["d"], b["r_left"])
+            if r <= 0:
+                continue                                 # 不倒圆的台阶
             for _, t in g.model.getEntities(1):
                 bb = g.model.getBoundingBox(1, t)
                 if abs(bb[2] - a["z1"]) < 1e-6 and abs(bb[5] - a["z1"]) < 1e-6 and abs((bb[3] - bb[0]) / 2 - small / 2) < 1e-6:
@@ -131,8 +140,9 @@ def readback(segs: list[dict], step: str | Path, material: str | None) -> dict:
 # ---------------------------------------------------------------- 二维图（SVG）
 
 
-def drawing_svg(segs: list[dict], *, title: str, drawing_no: str, material: str, scale: float | None = None) -> str:
-    """轴的外形轮廓图：中心线、各段轮廓、直径与长度尺寸、总长；数字全部取设计数据"""
+def drawing_svg(segs: list[dict], *, title: str, drawing_no: str, material: str, scale: float | None = None,
+                bore: float = 0.0, notes: list[str] | None = None) -> str:
+    """轴的外形轮廓图：中心线、各段轮廓、直径与长度尺寸、总长；bore > 0 时画通孔（虚线）并标直径；数字全部取设计数据"""
     rs = runs(segs)
     total = rs[-1]["z1"]
     dmax = max(r["d"] for r in rs)
@@ -152,6 +162,11 @@ def drawing_svg(segs: list[dict], *, title: str, drawing_no: str, material: str,
         x = x0 + a["z1"] * k
         hi = max(a["d"], b["d"]) / 2 * k
         el.append(f'<line x1="{x:.1f}" y1="{yc - hi:.1f}" x2="{x:.1f}" y2="{yc + hi:.1f}" class="t"/>')
+    if bore > 0:                                         # 通孔：两条虚线（不可见轮廓）与直径
+        for sgn in (-1, 1):
+            y = yc + sgn * bore / 2 * k
+            el.append(f'<line x1="{x0:.1f}" y1="{y:.1f}" x2="{x0 + total * k:.1f}" y2="{y:.1f}" class="h"/>')
+        el.append(f'<text x="{x0 + 8:.1f}" y="{yc - 4:.1f}" class="l">Ø{bore:g} 通</text>')
     for i, r in enumerate(rs):                           # 直径（写在段中间）与长度（下方一排）
         xm = x0 + (r["z0"] + r["z1"]) / 2 * k
         el.append(f'<text x="{xm:.1f}" y="{yc - r["d"] / 2 * k - 8:.1f}" class="n">Ø{r["d"]:g}</text>')
@@ -162,12 +177,14 @@ def drawing_svg(segs: list[dict], *, title: str, drawing_no: str, material: str,
     y = yc + dmax / 2 * k + 80
     el.append(f'<line x1="{x0:.1f}" y1="{y:.1f}" x2="{x0 + total * k:.1f}" y2="{y:.1f}" class="d"/>')
     el.append(f'<text x="{x0 + total * k / 2:.1f}" y="{y - 3:.1f}" class="n">{total:g}</text>')
-    steps = [f"z {a['z1']:g} R{(a['r_right'] or b['r_left']):g}" for a, b in pairwise(rs)]
-    note = f"台阶圆角：{'，'.join(steps)}" if steps else ""
-    el.append(f'<text x="{x0:.1f}" y="{h - 30:.1f}" class="l">{escape(title)}　图号 {escape(drawing_no)}　材料 {escape(material)}'
-              f'　单位 mm　{escape(note)}</text>')
+    steps = [f"z {a['z1']:g} R{(a['r_right'] or b['r_left']):g}" for a, b in pairwise(rs) if (a["r_right"] or b["r_left"])]
+    lines = ([f"台阶圆角：{'，'.join(steps)}"] if steps else []) + list(notes or [])
+    h += 20 * max(0, len(lines) - 1)                     # 注释一条一行，免得超出图宽
+    el.append(f'<text x="{x0:.1f}" y="{h - 30 - 20 * len(lines):.1f}" class="l">{escape(title)}　图号 {escape(drawing_no)}'
+              f'　材料 {escape(material)}　单位 mm</text>')
+    el += [f'<text x="{x0:.1f}" y="{h - 30 - 20 * (len(lines) - 1 - i):.1f}" class="l">{escape(t)}</text>' for i, t in enumerate(lines)]
     style = ("<style>.c{stroke:#555;stroke-dasharray:12 3 2 3;stroke-width:.8}.o{fill:none;stroke:#000;stroke-width:1.6}"
-             ".t{stroke:#000;stroke-width:1}.d{stroke:#000;stroke-width:.6;marker-start:url(#a);marker-end:url(#a)}"
+             ".t{stroke:#000;stroke-width:1}.h{stroke:#000;stroke-width:.8;stroke-dasharray:6 3}.d{stroke:#000;stroke-width:.6;marker-start:url(#a);marker-end:url(#a)}"
              ".n{font:12px sans-serif;text-anchor:middle}.l{font:13px sans-serif}</style>")
     marker = ('<defs><marker id="a" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">'
               '<path d="M0,2 L10,5 L0,8 z"/></marker></defs>')

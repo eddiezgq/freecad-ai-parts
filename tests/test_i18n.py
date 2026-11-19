@@ -12,7 +12,7 @@ from assist import i18n
 
 ROOT = Path(__file__).resolve().parents[1]
 MODULES = sorted([*ROOT.glob("analysis/fea/*.py"), ROOT / "assist/fea_report.py", ROOT / "assist/fea_draft.py",
-                  ROOT / "assist/features.py", ROOT / "freecad_addon/fc/fem_flow.py", ROOT / "freecad_addon/fc/fem_bridge.py",
+                  ROOT / "assist/features.py", ROOT / "assist/joint_model.py", ROOT / "freecad_addon/fc/fem_flow.py", ROOT / "freecad_addon/fc/fem_bridge.py",
                   ROOT / "freecad_addon/fc/fem_results.py", ROOT / "freecad_addon/gui/fem_commands.py",
                   ROOT / "freecad_addon/gui/fea_panel.py", ROOT / "assist/fea_edition.py",
                   ROOT / "freecad_addon/gui/fea_brand.py", ROOT / "licensing/license.py", ROOT / "licensing/runtime.py",

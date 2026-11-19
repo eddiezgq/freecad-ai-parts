@@ -142,13 +142,13 @@ def test_start_replays_example_without_recording_miss(gui, lib, monkeypatch):
     p.start()
     req = {}
 
-    def fake_run(statement, client, library, replay=False, progress=None):
-        req.update(statement=statement, replay=replay)
+    def fake_run(statement, client, library, kind=None, replay=False, progress=None):
+        req.update(statement=statement, replay=replay, kind=kind)
         return statement
 
     monkeypatch.setattr(C, "run", fake_run)
     seen["work"]()
-    assert req["replay"] and req["statement"] == C.example_text()
+    assert req["replay"] and req["statement"] == C.example_text() and req["kind"] == "阶梯轴"
 
 
 def test_progress_bar_and_elapsed_time(gui, lib, monkeypatch):
@@ -206,3 +206,57 @@ def test_custom_parts_have_a_category_name():
     from freecad_addon.core import browser as core
 
     assert core.CATEGORIES["custom_part"] == "自制件"
+
+
+# ---------------------------------------------------------------- 关节空心轴（ADR-0100 42.5 第 7 步）
+
+JOINT = ROOT / "examples" / "ai-design" / "cobot-j2" / "out" / "result.json"
+
+
+@pytest.fixture
+def joint_out(tmp_path, lib):
+    from assist import joint_model
+
+    res = json.loads(JOINT.read_text(encoding="utf-8"))
+    (tmp_path / "design-record.json").write_text(json.dumps(res, ensure_ascii=False), encoding="utf-8")
+    return {"result": res, "model": joint_model.generate(res, tmp_path, lib.get), "out_dir": str(tmp_path), "replay": False,
+            "kind": "关节空心轴"}
+
+
+def test_place_joint_shaft_with_bore_and_notes(gui, doc, joint_out, lib):
+    from freecad_addon.core import ai_design as C
+    from freecad_addon.fc import ai_design_doc as D
+
+    res = joint_out["result"]
+    segs = C.segments(res, lib.get)
+    out = D.place(doc, joint_out, segs, name="关节输出轴", drawing_no="AI-J2-01", **C.drawing_extras(res))
+    assert abs(out["part"].Shape.Volume - joint_out["model"]["volume_mm3"]) < 1.0
+    checks = out["dimension_checks"]
+    bore = res["rounds"][res["chosen_round"] - 1]["proposal"]["bore_mm"]
+    assert any(c["design"] == bore and "Ø" in c["what"] for c in checks)                    # 端视图上标了内孔
+    assert all(abs(c["design"] - c["drawing"]) <= D.DIM_TOL_MM for c in checks)
+    note = "\n".join(doc.getObject("AiShaftNotes").Text)
+    assert "GB/T 3478.1" in note and "M45" in note
+    sheet = out["sheet"]
+    assert sheet.get("C3") == "bearing.nsk-ltd.6011" and float(sheet.get("E3")) == 2
+
+
+def test_panel_switches_part_type_and_example(gui, lib, monkeypatch):
+    from freecad_addon.core import ai_design as C
+    from freecad_addon.gui import ai_design_panel as P
+
+    seen = {}
+    monkeypatch.setattr(P, "_in_background", lambda work, done: seen.setdefault("work", work))
+    p = P.AiDesignPanel(lib, None, client_factory=lambda: None)
+    p.load_example()
+    p.kind.setCurrentIndex(1)
+    assert p.part_type() == "关节空心轴" and p.text.toPlainText() == ""                     # 换类型：上一类型的示例清掉
+    assert "J2" in p.example.text() and p.name.text() in ("关节输出轴", "Joint output shaft")
+    p.load_example()
+    assert "CSF-25-100-2UH" in p.text.toPlainText()
+    p.start()
+    req = {}
+    monkeypatch.setattr(C, "run", lambda statement, client, library, kind=None, replay=False, progress=None:
+                        req.update(kind=kind, replay=replay, statement=statement))
+    seen["work"]()
+    assert req == {"kind": "关节空心轴", "replay": True, "statement": C.example_text("关节空心轴")}
