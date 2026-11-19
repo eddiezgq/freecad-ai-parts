@@ -3,7 +3,7 @@
   "prompt_version": "shaft-design/1",
   "request_key": "887bd26942e6d75604b79e280510731d3f1499400f91c6e965eee8ce761f01fb",
   "response": {
-    "id": "msg_011ChAxRhpqasVS4gxzH3Vnq",
+    "id": "msg_011ChBfU9QZ21T5DTSYufgWH",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -21,7 +21,7 @@
         }
       ],
       "bearing_life": {
-        "quote": "20000 h",
+        "quote": "轴承寿命不少于 20000 h",
         "unit": "h",
         "value": 20000
       },
@@ -52,8 +52,7 @@
         }
       },
       "critical_ratio": {
-        "quote": "1.3 倍",
-        "unit": "倍",
+        "quote": "不低于最高转速的 1.3 倍",
         "value": 1.3
       },
       "drive_z": {
@@ -66,7 +65,7 @@
           "direction": "-y",
           "direction_quote": "方向铅垂向下",
           "magnitude": {
-            "quote": "120 N",
+            "quote": "同步带两边张力之和 120 N",
             "unit": "N",
             "value": 120
           },
@@ -160,16 +159,17 @@
           "value": 150
         },
         "z": {
-          "quote": "作用在 z = 11 mm",
+          "quote": "z = 11 mm",
           "unit": "mm",
           "value": 11
         }
       },
       "questions": [
-        "轴承型号、类型和额定动载荷未给出，轴承寿命无法核算，请提供。",
-        "平衡块的相位和质心半径、曲柄的转向未给出，请说明。",
-        "各轴段直径和同步带轮节圆直径未给出，请说明是需要设计，还是已有限制。",
-        "加工功率产生的力的方向和作用半径未给出，请说明。"
+        "轴承的类型和额定动载荷未给出，无法核算轴承寿命。",
+        "各轴段的直径和台阶位置未给出，需要确定或由工程师指定。",
+        "曲柄销的初始相位角，以及连杆力和平衡块惯性力的方向未给出。",
+        "轴的转向未给出。",
+        "轴承的内径限制和配合要求未给出。"
       ],
       "required_safety": {
         "quote": "安全系数不小于 1.5",
