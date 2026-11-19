@@ -482,6 +482,16 @@
     "en": "Adaptive roughing that does not hold its width of cut must be reported"
    },
    "source": "人工设定的错误程序 / deliberately wrong program"
+  },
+  {
+   "id": "CAM-47",
+   "test": "tests/test_cam_surface_q3c.py::test_ball_scallop_height_on_flat",
+   "category": "geom",
+   "title": {
+    "zh": "球头刀平行走刀的残留高度",
+    "en": "Ball end mill scallop height with parallel passes"
+   },
+   "source": "h = R − √(R² − (s/2)²)"
   }
  ]
 }

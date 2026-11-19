@@ -67,12 +67,13 @@ def pocket_floors(shape, top: float) -> list[str]:
 
 OWN = ("csink", "tap", "cbore", "chamfer", "thread_mill", "helix")   # 问渠自己出刀路的工序（FreeCAD CAM 1.0 没有攻丝；锪孔口、沉孔按孔特征直接算；
                                              # 倒角 FreeCAD Deburr 遇到型腔口的倒角算不出来，改为按倒角面自己算）
+SURF_SAMPLE = 0.05       # 曲面刀路的采样间距（mm）：等高线的位置按它取整，0.25 时 20° 斜面上多留 0.09（ADR-0106 Q3c 评估）
 CHAMFER_EXTRA = 0.5      # 倒角刀刀尖比倒角底边再低 0.5 mm，不用刀尖切
 
 
 def sim_tool(t: dict, n: int) -> dict:
     """cam-tool/1 刀具 → 中间格式程序里的刀（仿真用的种类、直径；丝锥的螺距，倒角刀的锥角、刀尖直径）"""
-    kind = {"drill": "drill", "tap": "tap", "chamfer_mill": "chamfer", "thread_mill": "thread_mill"}.get(t["kind"], "endmill")
+    kind = {"drill": "drill", "tap": "tap", "chamfer_mill": "chamfer", "thread_mill": "thread_mill", "ball_endmill": "ballend"}.get(t["kind"], "endmill")
     out = {"n": n, "name": t.get("name", t["id"]), "d": float(t["diameter_mm"]), "kind": kind}
     if kind == "tap":
         out["pitch"] = float(t["pitch_mm"])
@@ -190,7 +191,7 @@ def build_job(doc, model, ops: list[dict], stock_top: float = 0.0):
     import Path.Tool.Controller as PathToolController
     from Path.Base import Drillable
     from Path.Main import Job as PathJob
-    from Path.Op import Adaptive, Drilling, MillFace, PocketShape, Profile
+    from Path.Op import Adaptive, Drilling, MillFace, PocketShape, Profile, Surface, Waterline
 
     job = PathJob.Create("Job", [model])
     if stock_top > 0:                            # 毛坯顶面高出零件顶面 stock_top（面铣余量；ADR-0106 Q3b）
@@ -220,6 +221,14 @@ def build_job(doc, model, ops: list[dict], stock_top: float = 0.0):
             op.Side = "Inside"
             op.StepOver = round(float(spec.get("step_over_pct", 20)))
             op.StockToLeave = float(spec.get("stock_to_leave", 0.0))
+        elif k == "surface":                       # 曲面平行精铣（FreeCAD 3D Surface，OCL 投影）：整个零件，行距按残留高度定（ADR-0106 Q3c）
+            op = Surface.Create(f"Surface{len(made) + 1}")
+            op.StepOver = float(spec["step_over_pct"])
+            op.SampleInterval = SURF_SAMPLE
+        elif k == "waterline":                     # 曲面等高精铣（FreeCAD Waterline）：要多层模式，采样间距小，等高线才不偏（Q3c 评估）
+            op = Waterline.Create(f"Waterline{len(made) + 1}")
+            op.LayerMode = "Multi-pass"
+            op.SampleInterval = SURF_SAMPLE
         elif k == "profile":
             op = Profile.Create(f"Profile{len(made) + 1}")
         elif k == "face":
@@ -246,7 +255,7 @@ def build_job(doc, model, ops: list[dict], stock_top: float = 0.0):
             if all(jm.Shape.getElement(h[1]).BoundBox.ZMin <= zmin + 1e-6 for h in holes):
                 op.ExtraOffset = "Drill Tip"          # 通孔：多钻一个钻尖长，孔底整圈钻透（ADR-0106 Q2 色差图查出来的）
         else:
-            raise CamFcError(f"工序类型 {k!r} 不认识：face、pocket、rest、adaptive、profile、drill")
+            raise CamFcError(f"工序类型 {k!r} 不认识：face、pocket、rest、adaptive、profile、drill、surface、waterline")
         _apply_heights(op, spec, top + float(stock_top))
         if "step_down_mm" in spec and hasattr(op, "StepDown"):
             op.setExpression("StepDown", None)      # FreeCAD 缺省按刀径的表达式，会盖掉我们给的每层切深

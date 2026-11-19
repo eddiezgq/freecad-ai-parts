@@ -47,12 +47,13 @@ TEACH = {"rough": {"vc": 120.0, "f": 0.3, "ap": 2.5}, "finish": {"vc": 150.0, "f
          "face": {"vc": 120.0, "fz": 0.08, "ap": 1.0}, "chamfer": {"vc": 80.0, "fz": 0.03},
          "adaptive": {"vc": 100.0, "fz": 0.04, "ap": 10.0, "stepover": 0.2},
          "rest": {"vc": 100.0, "fz": 0.03, "ap": 4.0, "stepover": 0.4}, "thread_mill": {"vc": 80.0, "fz": 0.03},
-         "helix": {"vc": 100.0, "fz": 0.03, "ap": 1.0}}
+         "helix": {"vc": 100.0, "fz": 0.03, "ap": 1.0},
+         "surface": {"vc": 120.0, "fz": 0.03, "ap": 1.0}, "waterline": {"vc": 120.0, "fz": 0.03, "ap": 1.0}}
 FEED = {"rough": "f", "finish": "f", "groove": "f", "thread": None, "drill": "f", "bore": "f",
         "pocket": "fz", "contour": "fz", "slot": "fz", "holes": "f", "face_groove": "f", "part": "f",
-        "cbore": "fz", "csink": "f", "tap": None, "face": "fz", "chamfer": "fz", "adaptive": "fz", "rest": "fz", "thread_mill": "fz", "helix": "fz"}
-HAS_AP = {"rough", "bore", "pocket", "contour", "slot", "cbore", "face", "adaptive", "rest", "helix"}
-TEACH_Z = {"pocket": 4, "contour": 4, "slot": 2, "face": 4, "cbore": 4, "chamfer": 2, "adaptive": 4, "rest": 4, "thread_mill": 3, "helix": 4}   # 刀具库没写刃数时的教学示意值（标“待确认”）
+        "cbore": "fz", "csink": "f", "tap": None, "face": "fz", "chamfer": "fz", "adaptive": "fz", "rest": "fz", "thread_mill": "fz", "helix": "fz", "surface": "fz", "waterline": "fz"}
+HAS_AP = {"rough", "bore", "pocket", "contour", "slot", "cbore", "face", "adaptive", "rest", "helix", "surface", "waterline"}
+TEACH_Z = {"pocket": 4, "contour": 4, "slot": 2, "face": 4, "cbore": 4, "chamfer": 2, "adaptive": 4, "rest": 4, "thread_mill": 3, "helix": 4, "surface": 2, "waterline": 2}   # 刀具库没写刃数时的教学示意值（标“待确认”）
 
 
 class ProcessError(ValueError):

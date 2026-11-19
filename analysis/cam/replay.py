@@ -17,6 +17,8 @@ import numpy as np
 from analysis.cam import dexel as DX
 from analysis.cam import sim as S
 
+MAX_CKPT = 60
+
 
 class Replay:
     def __init__(self, gcode: str | None, machine: dict, replay_in: dict, checks=None, h=None, keep_every=20):
@@ -123,6 +125,7 @@ class Replay:
             dx = self._stock0.copy()
             built = {k: DX.Tool.from_spec(v) for k, v in self._specs.items()}
             self._volume = [0.0]
+            every = max(self.keep_every, math.ceil(len(self.frames) / MAX_CKPT))   # 检查点最多 MAX_CKPT 份（曲面程序十几万段，每 20 段存一份会耗尽内存）
             for f in self.frames:
                 tl = built.get(f["tool"])
                 if tl is not None and not f["home"]:
@@ -130,7 +133,7 @@ class Replay:
                     self._volume.append(self._volume[-1] + r["volume"])
                 else:
                     self._volume.append(self._volume[-1])
-                if (f["i"] + 1) % self.keep_every == 0:
+                if (f["i"] + 1) % every == 0:
                     self._ckpt[f["i"] + 1] = dx.copy()
             self._final = dx
         self._built = True

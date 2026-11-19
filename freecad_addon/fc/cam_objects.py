@@ -23,10 +23,10 @@ STATUS = ["草稿", "已确认"]
 TURN_KINDS = {"rough": "粗车外圆", "finish": "精车外圆", "groove": "切槽", "thread": "车螺纹", "drill": "钻孔", "bore": "镗孔",
               "face_groove": "端面槽", "part": "切断"}
 MILL_KINDS = {"face": "面铣", "pocket": "铣型腔", "adaptive": "自适应开粗", "rest": "残料清角", "profile": "铣外轮廓", "drill": "钻孔", "cbore": "铣沉孔", "csink": "锪孔口", "tap": "攻丝",
-              "chamfer": "倒角", "thread_mill": "铣螺纹", "helix": "螺旋铣孔"}
+              "chamfer": "倒角", "thread_mill": "铣螺纹", "helix": "螺旋铣孔", "surface": "曲面平行精铣", "waterline": "曲面等高精铣"}
 HOLE_KINDS = ("cbore", "csink", "tap", "thread_mill", "helix")
 MILL_ALLOW_KINDS = ("pocket", "adaptive", "rest", "profile")             # 铣：可留侧壁 / 底面余量
-MILL_FC_KINDS = ("face", "pocket", "adaptive", "rest", "profile", "drill")  # 铣：FreeCAD CAM 出刀路的（安全高度、快移高度可改）     # 按孔特征出刀路（ADR-0106 Q3b）：孔表存在工序的 HoleData 里
+MILL_FC_KINDS = ("face", "pocket", "adaptive", "rest", "profile", "drill", "surface", "waterline")  # 铣：FreeCAD CAM 出刀路的（安全高度、快移高度可改）     # 按孔特征出刀路（ADR-0106 Q3b）：孔表存在工序的 HoleData 里
 TURN_TOOL_N = {"rough": 1, "finish": 2, "groove": 3, "thread": 4, "drill": 5, "bore": 6, "part": 8, "face_groove": 9}
 
 
@@ -498,6 +498,12 @@ def _mill_spec(job, op):
             "plunge_mm_min": round(feed / 3, 1), "step_down_mm": op.Ap or 5.0, "faces": faces}
     if op.OpKind in ("pocket", "adaptive", "rest") and op.StepOver > 0:
         spec["step_over_pct"] = 100 * op.StepOver
+    if op.OpKind in ("surface", "waterline"):      # 曲面：行距 / 等高步距按目标残留高度（工序的 StepOver 存行距占刀径的比例）
+        from freecad_addon.fc import cam_doc
+
+        s_ = op.StepOver * d if op.StepOver > 0 else cam_doc.scallop_step(d / 2)
+        spec["step_over_pct"] = 100 * s_ / d
+        spec["step_down_mm"] = op.Ap or round(s_ * math.sqrt(0.5), 3)
     return {**spec, **_mill_heights(op)}
 
 
@@ -628,8 +634,9 @@ def draft(job, client=None, note: str = "") -> dict:
 
 def _mill_op_from_plan(setup, spec, row):
     p = row["params"]
+    ap = spec["step_down_mm"] if spec["type"] == "waterline" else p.get("ap", 0.0)     # 等高步距按残留高度算的，不用规则切深
     op = new_op(setup, spec["type"], tool_id=row["tool"], tool_n=spec["number"], vc=p["vc"], feed=p.get("fz", p.get("f", 0.0)),
-                ap=p.get("ap", 0.0), stepover=p.get("stepover", 0.0), reason=row.get("reason", ""))
+                ap=ap, stepover=p.get("stepover", 0.0), reason=row.get("reason", ""))
     op.Label = T(row["title"])
     if spec["type"] in HOLE_KINDS:
         op.HoleData = json.dumps({"d": spec["d"], "holes": [list(h) for h in spec["holes"]], **({"pitch": spec["pitch"]} if "pitch" in spec else {})})
@@ -709,7 +716,7 @@ def add_op(setup, kind: str):
             raise CamObjError(f"铣削没有这种工序：{kind}")
         from freecad_addon.fc import cam_doc
 
-        flags = {k: k == kind for k in ("face", "pocket", "adaptive", "rest", "profile", "drill", "chamfer")}
+        flags = {k: k == kind for k in ("face", "pocket", "adaptive", "rest", "profile", "drill", "chamfer", "surface", "waterline")}
         flags["holes"] = kind in HOLE_KINDS
         flags["taps"] = kind == "tap"
         flags["thread_mill"] = kind == "thread_mill"

@@ -279,3 +279,35 @@ def test_pocket_allowances_and_heights():
     j = np.argmin(np.abs(ys - 30))
     cut = xs[s["inside"][:, j] & (H[:, j] < -1)]
     assert cut.max() - cut.min() == pytest.approx(40 - 0.6, abs=0.1)
+
+
+def test_surface_finishing_on_dome():
+    """曲面平行精铣（R3 球头刀，残留高度 0.01 → 行距 0.49）：圆顶零件从模型到程序；三维比对不过切"""
+    import json
+
+    import FreeCAD as App
+    import Part
+
+    from freecad_addon.fc import cam_doc
+    from freecad_addon.fc import cam_objects as CO
+
+    V = App.Vector
+    shape = Part.makeBox(40, 40, 15).fuse(Part.makeSphere(35, V(20, 20, -15)).common(Part.makeBox(40, 40, 30, V(0, 0, 15)))).removeSplitter()
+    assert cam_doc.scallop_step(3.0) == pytest.approx(2 * (2 * 3 * 0.01 - 0.0001) ** 0.5)
+    doc = App.newDocument("camsurface")
+    try:
+        m = doc.addObject("Part::Feature", "Dome")
+        m.Shape = shape
+        doc.recompute()
+        job = CO.new_job(doc, m, "mill", post="fanuc")
+        job.ToolLengths = json.dumps({"BN6": 110})
+        op = CO.add_op(CO.setups(job)[0], "surface")
+        assert op.ToolId == "BN6"
+        CO.confirm(op)
+        r = CO.calculate(job)
+        p = r["data"]["programs"][0]
+        errs = [c["text"] for c in p["checks"] if c["level"] == "error"]
+        assert not errs, errs
+        assert p["release"] is not None
+    finally:
+        App.closeDocument(doc.Name)
