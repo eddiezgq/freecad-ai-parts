@@ -23,7 +23,8 @@ ADD_MENU = "New operation"
 TOOLBAR = ["FAP_CamNewTurnJob", "FAP_CamNewMillJob", "FAP_CamNewOp", "FAP_CamJob", "FAP_CamReplay", "Separator",
            "FAP_CamOpRegen", "FAP_CamOpConfirm", "FAP_CamOpUp", "FAP_CamOpDown"]
 CMDS = ("FAP_CamNewTurnJob", "FAP_CamNewMillJob", "FAP_CamJob", "FAP_CamReplay", "Separator", "FAP_CamOpRegen", "FAP_CamOpConfirm",
-        "FAP_CamOpCopy", "FAP_CamOpUp", "FAP_CamOpDown", "FAP_CamOpHide", "Separator", "FAP_CamCheck", "Separator",
+        "FAP_CamOpCopy", "FAP_CamOpUp", "FAP_CamOpDown", "FAP_CamOpHide", "Separator", "FAP_CamTools", "FAP_CamMachines", "Separator",
+        "FAP_CamCheck", "Separator",
         "FAP_CamLicense", "FAP_CamSetup", "FAP_CamAbout")
 OP_MENU = ["FAP_CamOpRegen", "FAP_CamOpConfirm", "FAP_CamOpCopy", "FAP_CamOpUp", "FAP_CamOpDown", "FAP_CamOpHide"]
 
@@ -159,6 +160,9 @@ def register() -> None:
     from freecad_addon.gui import cam_tree_panels
 
     cam_tree_panels.register()
+    from freecad_addon.gui import cam_library
+
+    cam_library.register()
     FreeCADGui.addCommand("FAP_CamCheck", CamCheckCommand())
     FreeCADGui.addCommand("FAP_CamLicense", CamLicenseCommand())
     FreeCADGui.addCommand("FAP_CamSetup", CamSetupCommand())

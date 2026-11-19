@@ -20,7 +20,7 @@ import yaml
 from analysis.cam import machine_model as MM
 from analysis.cam.machine_model import MachineError
 
-__all__ = ["EXAMPLE", "MachineError", "all_machines", "get", "model", "models", "user_file"]
+__all__ = ["EXAMPLE", "MachineError", "all_machines", "copy_model", "get", "model", "models", "save_model", "user_dir", "user_file"]
 
 EXAMPLE = Path(__file__).resolve().parent / "machines"
 NEED = {"lathe": ("max_rpm", "power_kw", "eff", "x", "z", "rapid", "home", "tool_change_s"),
@@ -32,6 +32,39 @@ VIEW_NEED = {"lathe": ("x", "z", "rapid", "home", "tool_change_s"), "mill": ("x"
 def user_file(env=None) -> Path:
     env = os.environ if env is None else env
     return Path(env["FAP_MACHINES"]) if env.get("FAP_MACHINES") else Path.home() / ".freecad-ai-parts" / "machines.yaml"
+
+
+def user_dir(env=None) -> Path:
+    """用户机床文件夹（每台一个 cam-machine/1 JSON；机床窗口存在这里，ADR-0106 Q4a）：~/.freecad-ai-parts/machines/，
+    环境变量 FAP_MACHINES_DIR 可改"""
+    env = os.environ if env is None else env
+    return Path(env["FAP_MACHINES_DIR"]) if env.get("FAP_MACHINES_DIR") else Path.home() / ".freecad-ai-parts" / "machines"
+
+
+def copy_model(machine_id: str, new_id: str, name: str, env=None) -> dict:
+    """复制一台机床（示例或已有的）做成自己的：改 id、名称，去掉“示例”标记，来源写“由 X 复制，待按实机改”"""
+    import copy as _copy
+
+    m = _copy.deepcopy(model(machine_id, env))
+    m.pop("_dir", None)
+    m.update({"id": new_id, "name": name, "example": False, "source": f"由 {machine_id} 复制，参数待按实机改"})
+    return m
+
+
+def save_model(m: dict, env=None) -> Path:
+    """核对后存到用户机床文件夹（不合格不存，MachineError 写明哪一项）"""
+    import json
+
+    m = {k: v for k, v in m.items() if k != "_dir"}
+    MM.check(m, m.get("id", ""))
+    for a in m.get("axes") or []:
+        if "min" in a and "max" in a and a["min"] >= a["max"]:
+            raise MachineError(f"{a['id']} 轴行程下限 {a['min']:g} 不小于上限 {a['max']:g}")
+    d = user_dir(env)
+    d.mkdir(parents=True, exist_ok=True)
+    p = d / f"{m['id']}.json"
+    p.write_text(json.dumps(m, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    return p
 
 
 def _legacy_entry(path: Path, m: dict) -> dict:
@@ -67,7 +100,7 @@ def _read(path: Path) -> list[dict]:
 def models(env=None) -> list[dict]:
     """示例在前；企业的同 id 覆盖示例"""
     by_id = {m["id"]: m for m in _read_models(EXAMPLE)}
-    for m in _read_models(user_file(env)):
+    for m in _read_models(user_file(env)) + _read_models(user_dir(env)):
         by_id[m["id"]] = {**m, "example": False}
     return list(by_id.values())
 
