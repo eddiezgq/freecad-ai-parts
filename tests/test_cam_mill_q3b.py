@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+
 import pytest
 
 from analysis import cam
@@ -65,3 +67,45 @@ def test_measured_width_of_cut(ae):
            got, ae, tol=0.1, rel=False, unit="mm", formula="ae（设定的刀心偏移）")
     assert got == pytest.approx(ae, abs=0.1)
     assert s["ap_max"] == pytest.approx(3.0, abs=1e-6)
+
+
+def _tap_prog(drill_depth=20.0):
+    holes = [(30, 30), (70, 30)]
+    drill = [{"t": "drill", "x": x, "y": y, "z": -drill_depth, "r": 2.0, "f": 300, "safe": 5.0} for x, y in holes]
+    tap = [{"t": "tap", "x": x, "y": y, "z": -15.0, "r": 3.0, "pitch": 1.5, "safe": 5.0} for x, y in holes]
+    return {"number": 6001, "title": "钻孔攻丝", "ops": [
+        {"tool": {"n": 4, "d": 8.5, "kind": "drill", "name": "DR8.5"}, "spindle": {"rpm": 2200}, "safe": 5.0, "moves": drill},
+        {"tool": {"n": 5, "d": 10.0, "kind": "tap", "pitch": 1.5, "name": "TAP-M10"}, "spindle": {"rpm": 400}, "safe": 5.0, "moves": tap}]}
+
+
+@pytest.mark.parametrize("post", ["fanuc", "siemens"])
+def test_rigid_tapping_output_and_read_back(post):
+    """M10×1.5 攻丝：FANUC 出 M29 + G84（F = 1.5 × 400 = 600），西门子出 G331 / G332（K1.5）；回读与仿真刀路一致才出；
+    攻丝时间 = 2 孔 ×（进 + 退）×（R3 到 Z−15 共 18 mm）/ 600 mm/min"""
+    msim = {"work_offset_mm": [0, 0, 40], "tools": {"4": {"tool": "DR8.5", "length_mm": 140}, "5": {"tool": "TAP-M10", "length_mm": 130}}}
+    r = cam.run({"mode": "program", "machine": "EX-VMC", "program": _tap_prog(), "stock": {"box": [0, 0, 100, 60], "height": 40},
+                 "machine_sim": msim, "post": post})
+    p = r["data"]["programs"][0]
+    assert not [c for c in p["checks"] if c["level"] == "error"], [c["text"] for c in p["checks"] if c["level"] == "error"]
+    assert p["release"] is not None
+    text = p["release"]["text"]
+    assert ("M29 S400" in text and "G84" in text and "F600.0" in text) if post == "fanuc" else ("G331 Z-15.0 K1.5" in text and "G332" in text)
+    parsed = sim.parse(p["gcode"], VMC)
+    tap = [m for m in parsed["moves"] if m.get("tap") is not None]
+    t = sum(math.dist(m["a"], m["b"]) / m["f"] * 60 for m in tap)
+    if post == "fanuc":
+        record(("刚性攻丝时间（2 孔 M10×1.5，400 r/min）", "rigid tapping time (2 holes M10×1.5, 400 rpm)"),
+               t, 2 * 2 * 18 / 600 * 60, tol=1e-6, rel=True, unit="s", formula="t = 2·L / (P·n)")
+    assert t == pytest.approx(2 * 2 * 18 / 600 * 60)
+
+
+def test_tapping_without_drilled_hole_is_reported():
+    """底孔只钻到 Z−10，攻丝到 Z−15：报错误；改了转速没改 F（F/S ≠ 螺距）也报"""
+    prog = _tap_prog(drill_depth=10.0)
+    s = sim.simulate_mill(sim.parse(cam.post.post(prog, VMC), VMC), {"box": [0, 0, 100, 60], "top": 0.0},
+                          {4: {"kind": "drill", "d": 8.5}, 5: {"kind": "tap", "d": 10.0, "pitch": 1.5}})
+    assert any("底孔没钻到位" in i["text"] for i in s["issues"])
+    g = cam.post.post(_tap_prog(), VMC).replace("M29 S400", "M29 S500")
+    s = sim.simulate_mill(sim.parse(g, VMC), {"box": [0, 0, 100, 60], "top": 0.0},
+                          {4: {"kind": "drill", "d": 8.5}, 5: {"kind": "tap", "d": 10.0, "pitch": 1.5}})
+    assert any("不等于丝锥螺距" in i["text"] for i in s["issues"])

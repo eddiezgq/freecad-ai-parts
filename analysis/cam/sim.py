@@ -2,7 +2,7 @@
 铣削毛坯为矩形或多边形（不依赖 shapely）。
 
 读 FANUC 风格程序（本模块生成的、FreeCAD CAM 工作台等输出的）：G00/G01/G02/G03、G32（车螺纹，西门子 G33 同样处理）、G90/G91、G17/G18、G20/G21、G28、G50（限速）、
-G96/G97、G94/G95、G98/G99（车：每分 / 每转进给；铣：钻孔循环返回平面）、G80/G81/G83、T、M03/M04/M05/M06/M08/M09/M30、S、F。
+G96/G97、G94/G95、G98/G99（车：每分 / 每转进给；铣：钻孔循环返回平面）、G80/G81/G83、G84（刚性攻丝，M29）、T、M03/M04/M05/M06/M08/M09/M30、S、F。
 
 仿真：
   车削——沿轴线的半径网格（每 0.02 mm 一格）。外圆车刀按“刀尖在左下角，刀体朝右上”处理；切槽刀刀宽 w，刀尖在右刀尖。外圆刀、镗刀的刀尖圆弧按 rε 扫过（ADR-0106 Q2）。
@@ -127,7 +127,7 @@ def parse(text, m):
             elif gg in (0, 1, 2, 3, 32, 33):
                 st["motion"] = 32 if gg in (32, 33) else int(gg)
                 cyc = None
-            elif gg in (81, 83):
+            elif gg in (81, 83, 84):
                 st["motion"] = int(gg)
             elif gg == 80:
                 cyc = None
@@ -231,7 +231,19 @@ def parse(text, m):
                 if "W" in w:
                     tgt[2] += w["W"] * sc
             mo = st["motion"]
-            if mo in (81, 83):
+            if mo == 84:                                     # 刚性攻丝：进到底、主轴反转按同样螺距退回 R 平面（ADR-0106 Q3b）
+                old = cyc or {}
+                cyc = {"z": w["Z"] * sc if "Z" in w else old.get("z", 0.0), "r": w["R"] * sc if "R" in w else old.get("r", 2.0),
+                       "init": old.get("init", st["pos"][2])}
+                x, y = tgt[0], tgt[1]
+                z0 = cyc["init"]
+                pitch = st["f"] / st["rpm"] if st["rpm"] > 0 else 0.0
+                emit("rapid", (x, y, z0), ln, cycle=True)
+                emit("rapid", (x, y, cyc["r"]), ln, cycle=True)
+                emit("feed", (x, y, cyc["z"]), ln, cycle=True, tap=pitch)
+                emit("feed", (x, y, cyc["r"]), ln, cycle=True, tap=pitch)
+                emit("rapid", (x, y, z0 if st["ret98"] else cyc["r"]), ln, cycle=True)
+            elif mo in (81, 83):
                 old = cyc or {}
                 cyc = {"z": w["Z"] * sc if "Z" in w else old.get("z", 0.0), "r": w["R"] * sc if "R" in w else old.get("r", 2.0),
                        "q": w["Q"] * sc if "Q" in w else old.get("q", 0.0), "init": old.get("init", st["pos"][2])}
@@ -678,7 +690,7 @@ def _in_polygon(X, Y, poly):
 
 def simulate_mill(parsed, stock, tools, target=None, h=None, tol=0.01, on_move=None):
     """stock：{"box": (xmin, ymin, xmax, ymax), "top": 0} 或 {"polygon": [[x, y], ..], "top": 0}（轴上铣键槽另给 "cyl_r"）
-    tools：{刀号: {"kind": "endmill" | "drill", "d": 直径}}
+    tools：{刀号: {"kind": "endmill" | "drill" | "tap", "d": 直径, "pitch": 丝锥螺距}}
     target(x, y 网格) → 目标高度数组（None 表示不比对）。返回高度图、碰撞、过切 / 残留
     on_move(mv, H, xs, ys)：每段走刀切削之前调用（整机仿真查刀杆、刀柄碰剩下的材料，machine_sim.heightmap_hook）"""
     poly = np.asarray(stock["polygon"], float) if stock.get("polygon") else None
@@ -711,6 +723,22 @@ def simulate_mill(parsed, stock, tools, target=None, h=None, tol=0.01, on_move=N
             continue
         R = tl["d"] / 2
         k = math.ceil(R / h) + 1
+        if mv.get("tap") is not None or tl.get("kind") == "tap":   # 丝锥：不按切削去料；查底孔钻到位、螺距与丝锥一致（ADR-0106 Q3b）
+            if mv["t"] != "rapid" and mv["b"][2] < mv["a"][2]:
+                pt = float(tl.get("pitch") or 0.0)
+                if pt and abs((mv.get("tap") or 0.0) - pt) > 1e-3:
+                    issues.append({"line": mv["line"], "level": "error",
+                                   "text": f"攻丝进给 F 与转速 S 之比 {mv.get('tap') or 0:.3f} mm 不等于丝锥螺距 {pt:g}（会乱牙、断丝锥）"})
+                r1 = (tl["d"] - 1.0825 * pt) / 2 - h if pt else R * 0.8
+                x, y, z = mv["b"]
+                ix, iy = int((x - xmin) / h), int((y - ymin) / h)
+                a0, a1, b0, b1 = max(ix - k, 0), min(ix + k + 1, nx), max(iy - k, 0), min(iy + k + 1, ny)
+                sub = H[a0:a1, b0:b1]
+                msk = ((xs[a0:a1, None] - x) ** 2 + (ys[None, b0:b1] - y) ** 2) <= r1 * r1
+                if (msk & (sub > z + 0.05)).any():
+                    issues.append({"line": mv["line"], "level": "error",
+                                   "text": f"攻丝前底孔没钻到位：丝锥 M{tl['d']:g} 到 Z{z:.2f} 处还有材料（底孔至少要到小径、到攻丝深度）"})
+            continue
         pts = _seg_points(np.array(mv["a"]), np.array(mv["b"]), h / 2)
         worst = 0.0
         # 切宽 ae：这段切掉的格在走刀方向的垂直方向上铺多宽（只算 XY 有走动的段；ADR-0106 Q3b）

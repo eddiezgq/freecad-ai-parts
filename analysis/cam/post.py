@@ -98,6 +98,19 @@ def post_mill(prog, machine):
             if mv["t"] == "comment":
                 lines.append(comment(mv["text"]))
                 continue
+            if mv["t"] == "tap":                          # 刚性攻丝 G84：F = 螺距 × 转速（G94）
+                f = mv["pitch"] * float(sp["rpm"])
+                key = ("tap", mv["z"], mv["r"], mv["pitch"])
+                if cyc != key:
+                    if cyc is not None:
+                        lines.append("G80")
+                    lines += [f"G00 Z{num(mv.get('safe', 5.0))}", f"M29 S{round(sp['rpm'])}",
+                              f"G98 G84 X{num(mv['x'])} Y{num(mv['y'])} Z{num(mv['z'])} R{num(mv['r'])} F{num(f, 1)}"]
+                    cyc, mode, last_f = key, None, f
+                else:
+                    lines.append(f"X{num(mv['x'])} Y{num(mv['y'])}")
+                pos = {"x": mv["x"], "y": mv["y"], "z": mv.get("safe", 5.0)}
+                continue
             if mv["t"] == "drill":
                 key = (mv["z"], mv["r"], mv.get("q") or 0, mv["f"])
                 if cyc != key:

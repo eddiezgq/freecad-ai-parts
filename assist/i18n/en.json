@@ -1838,5 +1838,7 @@
 "{} 锥管螺纹要用这个牙型的刀片：刀具库里没有牙型角，刀片对不对没核对": "{} taper pipe threads need an insert of this form: the tool library has no thread form angle, so the insert was not checked",
 "T{} {}：{} 段切宽 ae 超过样本的 {} mm（最宽 {} mm，开槽或型腔第一圈），样本没给这种切宽下的切深，这些段的切深没核对": "T{} {}: {} moves have a width of cut ae above the catalogue's {} mm (widest {} mm, slotting or the first pocket ring); the catalogue gives no depth of cut for such widths, so their depth of cut was not checked",
 "T{} {}：刀具样本没给最大切深 ap，切深没核对": "T{} {}: the tool catalogue gives no maximum depth of cut ap; depth of cut not checked",
-"T{} {}：切深 ap 最大 {} mm（第 {} 行），超出刀具样本的 {} mm——分层切或换刀，程序不输出": "T{} {}: depth of cut ap up to {} mm (line {}), above the catalogue's {} mm — cut in layers or change the tool; no program is output"
+"T{} {}：切深 ap 最大 {} mm（第 {} 行），超出刀具样本的 {} mm——分层切或换刀，程序不输出": "T{} {}: depth of cut ap up to {} mm (line {}), above the catalogue's {} mm — cut in layers or change the tool; no program is output",
+"攻丝前底孔没钻到位：丝锥 M{} 到 Z{} 处还有材料（底孔至少要到小径、到攻丝深度）": "Core hole not drilled before tapping: material left for tap M{} at Z{} (the hole must reach the minor diameter and the tapping depth)",
+"攻丝进给 F 与转速 S 之比 {} mm 不等于丝锥螺距 {}（会乱牙、断丝锥）": "Tapping feed F / speed S = {} mm differs from the tap pitch {} (stripped thread, broken tap)"
 }
