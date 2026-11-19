@@ -3,7 +3,7 @@
   "prompt_version": "shaft-design/1",
   "request_key": "887bd26942e6d75604b79e280510731d3f1499400f91c6e965eee8ce761f01fb",
   "response": {
-    "id": "msg_011ChCTcoaoTpkSuBksE7bV5",
+    "id": "msg_011ChCW5Tu6jS4wbfSuUGmM4",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -52,12 +52,11 @@
         }
       },
       "critical_ratio": {
-        "quote": "一阶临界转速不低于最高转速的 1.3 倍",
-        "unit": "倍",
+        "quote": "最高转速的 1.3 倍",
         "value": 1.3
       },
       "drive_z": {
-        "quote": "电机转子在轴端 z = 282 mm",
+        "quote": "z = 282 mm",
         "unit": "mm",
         "value": 282
       },
@@ -66,12 +65,12 @@
           "direction": "-y",
           "direction_quote": "方向铅垂向下",
           "magnitude": {
-            "quote": "同步带两边张力之和 120 N",
+            "quote": "120 N",
             "unit": "N",
             "value": 120
           },
           "z": {
-            "quote": "同步带轮在 z = 262 mm",
+            "quote": "z = 262 mm",
             "unit": "mm",
             "value": 262
           }
@@ -80,7 +79,7 @@
       "masses": [
         {
           "mass": {
-            "quote": "曲柄与平衡块 0.15 kg",
+            "quote": "0.15 kg",
             "unit": "kg",
             "value": 0.15
           },
@@ -93,7 +92,7 @@
         },
         {
           "mass": {
-            "quote": "挑线凸轮 0.05 kg",
+            "quote": "0.05 kg",
             "unit": "kg",
             "value": 0.05
           },
@@ -106,7 +105,7 @@
         },
         {
           "mass": {
-            "quote": "送布偏心轮 0.08 kg",
+            "quote": "0.08 kg",
             "unit": "kg",
             "value": 0.08
           },
@@ -119,7 +118,7 @@
         },
         {
           "mass": {
-            "quote": "同步带轮 0.06 kg",
+            "quote": "0.06 kg",
             "unit": "kg",
             "value": 0.06
           },
@@ -132,7 +131,7 @@
         },
         {
           "mass": {
-            "quote": "手轮与电机转子 0.45 kg",
+            "quote": "0.45 kg",
             "unit": "kg",
             "value": 0.45
           },
@@ -149,7 +148,7 @@
         "quote": "材料 45 钢调质"
       },
       "max_length": {
-        "quote": "轴的总长不超过 300 mm",
+        "quote": "总长不超过 300 mm",
         "unit": "mm",
         "value": 300
       },
@@ -160,30 +159,31 @@
           "value": 150
         },
         "z": {
-          "quote": "作用在 z = 11 mm",
+          "quote": "z = 11 mm",
           "unit": "mm",
           "value": 11
         }
       },
       "questions": [
-        "轴承的类型和额定动载荷未给出，无法核对 20000 h 寿命，请提供轴承型号或额定动载荷。",
-        "曲柄处除往复惯性力外，是否还有缝纫阻力（针杆负载）？它的大小和方向是什么？",
-        "各段轴径、轴肩圆角等结构尺寸未给出，需要先选定还是由我按经验初定？",
-        "轴的总长是否包含 z = 282 mm 之外的悬伸端？轴的起止 z 坐标是多少（起点是否为 z = 0）？",
-        "临界转速的判据对应哪个转速：5000 r/min 还是评估用的 5500 r/min？"
+        "轴承型号或额定动载荷未给出，轴承寿命无法核算，请提供。",
+        "各轴段直径、台阶位置和圆角半径未给出，是否由程序自行设计？",
+        "轴的转向以及曲柄、平衡块的相位角未给出。",
+        "曲柄处消耗功率对应的切向力方向未给出。",
+        "同步带张力的水平分量是否为零？原话只说铅垂向下。",
+        "5500 r/min 提速评估的校核项目（强度、临界转速还是轴承寿命）未说明。"
       ],
       "required_safety": {
-        "quote": "无限寿命安全系数不小于 1.5",
+        "quote": "安全系数不小于 1.5",
         "value": 1.5
       },
       "speeds": [
         {
-          "quote": "最高转速 5000 r/min",
+          "quote": "5000 r/min",
           "unit": "r/min",
           "value": 5000
         },
         {
-          "quote": "提速到 5500 r/min",
+          "quote": "5500 r/min",
           "unit": "r/min",
           "value": 5500
         }

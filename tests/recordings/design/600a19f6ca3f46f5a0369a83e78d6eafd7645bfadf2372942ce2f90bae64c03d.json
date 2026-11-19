@@ -1,0 +1,68 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "shaft-design/1",
+  "request_key": "600a19f6ca3f46f5a0369a83e78d6eafd7645bfadf2372942ce2f90bae64c03d",
+  "response": {
+    "id": "msg_011ChCWKcY9W6b6DpAyju7hz",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "reason": "上一轮所有余量都极大（安全系数 56~180、一阶临界转速比 19、寿命 3.7e5~9.9e6 h），轴重 3.35 kg，明显偏重，所以整体减小。由寿命余量反推，左轴承当量载荷约 370 N，右轴承约 130 N。左轴承换成 6201（d12，C=7500N），估算寿命约 2.5 万 h，仍超过 2 万 h。右轴承载荷小，换成 6001（d12，C=5600N），寿命远超要求。轴身由 d46 减到 d16：左右轴肩要求 6201 的 da min=16、6001 的 da min=14，d16 同时满足两者，并且不超过 da min+2.5 的范围。轴承中心不变：左 6201 宽 10，占 22–32，中心 27；右 6001 宽 8，占 248–256，中心 252。曲柄座 0–22 和右端 d12 都不比轴承内径粗，轴承能从两端套入。凸轮座 32–58 覆盖 z=45，偏心轮座 140–160 覆盖 z=150，带轮座 256–274 覆盖 z=262，手轮在 z=282 的 d12 端段（274–290）上。总长 290 mm，不超过 300 mm。圆角：6201 肩处 0.5（≤0.6），6001 肩处 0.3（≤0.3），其余 0.5–1。刚度按 d16 粗估，临界转速比仍有较大余量。",
+      "segments": [
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.5,
+          "length_mm": 22,
+          "role": "crank_seat"
+        },
+        {
+          "bearing": "bearing.nsk-ltd.6201",
+          "fillet_mm": 0.5,
+          "role": "bearing_seat"
+        },
+        {
+          "diameter_mm": 16,
+          "fillet_mm": 1,
+          "length_mm": 26,
+          "role": "cam_seat"
+        },
+        {
+          "diameter_mm": 16,
+          "fillet_mm": 1,
+          "length_mm": 82,
+          "role": "body"
+        },
+        {
+          "diameter_mm": 16,
+          "fillet_mm": 1,
+          "length_mm": 20,
+          "role": "cam_seat"
+        },
+        {
+          "diameter_mm": 16,
+          "fillet_mm": 0.3,
+          "length_mm": 88,
+          "role": "body"
+        },
+        {
+          "bearing": "bearing.nsk-ltd.6001",
+          "fillet_mm": 0.3,
+          "role": "bearing_seat"
+        },
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.5,
+          "length_mm": 18,
+          "role": "pulley_seat"
+        },
+        {
+          "diameter_mm": 12,
+          "fillet_mm": 0.5,
+          "length_mm": 16,
+          "role": "end"
+        }
+      ]
+    }
+  }
+}
