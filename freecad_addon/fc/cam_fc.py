@@ -168,7 +168,7 @@ def build_job(doc, model, ops: list[dict], stock_top: float = 0.0):
     made = []
     for spec in ops:
         k = spec["type"]
-        if k == "pocket":
+        if k in ("pocket", "rest"):
             floors = list(spec.get("faces") or []) or pocket_floors(jm.Shape, top)
             if not floors:
                 raise CamFcError("零件上没有找到型腔底面（朝上、低于顶面的平面）")
@@ -176,6 +176,8 @@ def build_job(doc, model, ops: list[dict], stock_top: float = 0.0):
             op.Base = [(jm, floors)]
             op.StepOver = round(float(spec.get("step_over_pct", 40)))
             op.OffsetPattern = "ZigZagOffset"      # 之字形清中间 + 最后贴壁一圈：直角转角铣到刀具够得着的地方（ADR-0106 Q2 色差图查出来的）
+            if k == "rest":                        # 残料清角：只铣前面工序（同一个 FreeCAD 作业里排在前面的）留下的料（ADR-0106 Q3b）
+                op.UseRestMachining = True
         elif k == "adaptive":                      # 自适应开粗（恒定切宽）：FreeCAD Adaptive，型腔底面内侧
             floors = list(spec.get("faces") or []) or pocket_floors(jm.Shape, top)
             if not floors:
@@ -211,7 +213,7 @@ def build_job(doc, model, ops: list[dict], stock_top: float = 0.0):
             if all(jm.Shape.getElement(h[1]).BoundBox.ZMin <= zmin + 1e-6 for h in holes):
                 op.ExtraOffset = "Drill Tip"          # 通孔：多钻一个钻尖长，孔底整圈钻透（ADR-0106 Q2 色差图查出来的）
         else:
-            raise CamFcError(f"工序类型 {k!r} 不认识：face、pocket、adaptive、profile、drill")
+            raise CamFcError(f"工序类型 {k!r} 不认识：face、pocket、rest、adaptive、profile、drill")
         if "step_down_mm" in spec and hasattr(op, "StepDown"):
             op.setExpression("StepDown", None)      # FreeCAD 缺省按刀径的表达式，会盖掉我们给的每层切深
             op.StepDown = float(spec["step_down_mm"])

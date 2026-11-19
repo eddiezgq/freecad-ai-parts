@@ -1873,5 +1873,7 @@
 "倒角": "Chamfer",
 "{}：自适应开粗设定切宽 {} mm，仿真量出最宽 {} mm（第 {} 行），切宽没保持住": "{}: adaptive roughing set width of cut {} mm, simulated up to {} mm (line {}); the width of cut was not held",
 "自适应开粗": "Adaptive roughing",
-"工序类型 {} 不认识：face、pocket、adaptive、profile、drill": "Unknown operation type {}: face, pocket, adaptive, profile, drill"
+"残料清角": "Rest machining",
+"残料清角：刀具库里没有比 Ø{} 小的平底立铣刀": "Rest machining: the tool library has no flat end mill smaller than Ø{}",
+"工序类型 {} 不认识：face、pocket、rest、adaptive、profile、drill": "Unknown operation type {}: face, pocket, rest, adaptive, profile, drill"
 }

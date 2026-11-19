@@ -200,3 +200,52 @@ def test_adaptive_roughing_keeps_width_of_cut():
         assert not [c for c in p["checks"] if "切宽没保持住" in c["text"]]
     finally:
         App.closeDocument(doc.Name)
+
+
+def test_rest_machining_cleans_corners():
+    """残料清角：Ø10 开粗后，直角转角圆弧上离两壁最远的点（45° 处）离壁 R5·(1 − √2/2) ≈ 1.46；加一道“残料清角”
+    （Ø6，FreeCAD 残料加工，只铣开粗留下的地方），降到 R3·(1 − √2/2) ≈ 0.88（三维比对网格误差半格）；
+    残料清角的刀路比整个型腔重铣一遍短得多"""
+    import itertools
+    import json
+    import math
+    import re
+
+    import FreeCAD as App
+    import Part
+
+    from freecad_addon.fc import cam_objects as CO
+
+    def left(r):
+        """三维比对的“多留最多”与网格"""
+        t = next(c["text"] for p in r["data"]["programs"] for c in p["checks"] if "多留最多" in c["text"])
+        return float(re.search(r"多留最多 ([\d.]+)", t).group(1)), float(re.search(r"网格 ([\d.]+)", t).group(1))
+
+    doc = App.newDocument("camrest")
+    try:
+        m = doc.addObject("Part::Feature", "Block")
+        m.Shape = Part.makeBox(100, 60, 30).cut(Part.makeBox(40, 20, 8, App.Vector(30, 20, 22)))
+        doc.recompute()
+        job = CO.new_job(doc, m, "mill", post="fanuc")
+        job.ToolLengths = json.dumps({"EM10": 120, "EM6": 110})
+        s = CO.setups(job)[0]
+        pk = CO.add_op(s, "pocket")
+        CO.confirm(pk)
+        r1 = CO.calculate(job)
+        rest = CO.add_op(s, "rest")
+        assert rest.ToolId == "EM6"
+        CO.confirm(rest)
+        r2 = CO.calculate(job)
+        (a1, h1), (a2, h2) = left(r1), left(r2)
+        assert a1 == pytest.approx(5 * (1 - math.sqrt(2) / 2), abs=h1 / 2)
+        assert a2 == pytest.approx(3 * (1 - math.sqrt(2) / 2), abs=h2 / 2)
+        full = CO.add_op(s, "pocket")                  # 同样 Ø6 整个型腔重铣一遍（对照）
+        full.ToolId, full.ToolNumber = "EM6", rest.ToolNumber
+        CO.regenerate(full)
+
+        def length(o):
+            mv = [x for x in json.loads(o.Moves) if "x" in x]
+            return sum(math.dist((a["x"], a["y"]), (b["x"], b["y"])) for a, b in itertools.pairwise(mv) if b["t"] == "feed")
+        assert length(rest) < 0.5 * length(full)
+    finally:
+        App.closeDocument(doc.Name)
