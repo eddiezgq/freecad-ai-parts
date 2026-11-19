@@ -279,3 +279,16 @@
   `workbench.register()` 在 `cam` 版本下只注册它。`analysis/cam/power.rows()` 带上 ISO 材料组。
 - 验收：`tests/test_cam_study.py`（不需要 FreeCAD）；`tests/test_fc_cam_panel.py`（FreeCAD 1.0.2 + Xvfb）：从回转体读出 4 段与槽、内孔；
   车削件在面板里读取、规则起草 6 道工序、计算、视图里画出刀路和仿真后的形状、保存 .nc 和工艺卡；铣削件走 FreeCAD CAM 出西门子程序并画出网格；工作台菜单齐全。
+
+### 产品化第 3 步：中英对照、入门例子、用户手册、安装包（2026-11-19）
+
+- 中英对照：CAM 的显示文字 323 条进 `assist/i18n/en.json`（给 AI 的提示词、正则、文件名 10 条进 `skip.json`）；`tests/test_i18n.py` 的覆盖检查加上全部 CAM 模块。
+  英文模板的字段顺序与中文一致（填回按位置）。
+- 入门例子 `examples/wenquest-cam/`（免费版就能做）：
+  1. 带螺纹的阶梯轴：从回转体读轮廓、手填螺纹、规则起草、卡爪、两次装夹，FANUC 程序合计 158.3 s；
+  2. 带型腔和孔的块：FreeCAD CAM 刀路、平口钳，FANUC 程序 29.7 s。勾上外轮廓再算，铣到底的外轮廓会撞钳口，整机仿真拦下——这是做例子时程序自己查出来的，写进了例子说明和手册。
+  每个例子带零件 STEP、正式程序、`results.json`、中英工艺卡样张；`tests/test_fc_cam_examples.py` 重算与样张一致（时间、仿真指纹，程序头里的指纹）。
+- 用户手册 `docs/wenquest-cam/help/`（中英各 6 页，`scripts/cam_help.py` 在 FreeCAD 里自动截 4 张图：车削结果、铣削结果、外轮廓撞钳口、授权窗口）。
+- 安装包：`install.py --edition cam`、`deps.py cam`（llm、fea、report）、`build.ps1 -Edition cam`、`wenquest-cam/wenquest-cam.iss`（AppId `{3E7B1C59-A402-4D86-9F31-6C8D2B5E0A77}`，
+  与另外三个产品可以装在同一台电脑上）、图标、许可证说明；`accept_cam.ps1` + `acceptance_cam.py`（静默安装 → 免费版例子与拒绝 → 导入测试授权 → 西门子、广数程序与中英工艺卡 → 卸载）；
+  `windows.yml` 加 `wenquest-cam` 作业。免费阶段的验收在本机用 FreeCAD 1.0.2 + 模拟安装目录跑过，全部通过；Windows 上的完整验收在 CI 跑。

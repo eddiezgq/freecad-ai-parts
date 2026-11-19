@@ -69,3 +69,28 @@ def test_license_opens_pro_only_with_cam_pro(cam, monkeypatch):
     E.gate({"post": "gsk"}, feature="card", machine_model=machines.model("EX-5AX-AC"))
     ed.write_text(json.dumps({"edition": "cam", "test_build": False}), encoding="utf-8")   # 正式安装包不认测试公钥
     assert not E.pro_allowed()
+
+
+def test_install_and_deps_for_cam(tmp_path):
+    from freecad_addon import install as I
+    from freecad_addon.bundle import MANIFEST
+    from installer.windows.deps import requirements
+
+    bundle = tmp_path / "bundle"
+    bundle.mkdir()
+    (bundle / MANIFEST).write_text("{}", encoding="utf-8")
+    t = I.install(tmp_path / "Mod", bundle=bundle, edition="cam", test_build=True)
+    assert json.loads((t / "lib" / "edition.json").read_text(encoding="utf-8")) == {"edition": "cam", "test_build": True}
+    with pytest.raises(ValueError):
+        I.install(tmp_path / "Mod2", edition="cam")                   # 只用于自包含安装
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    reqs = requirements(root / "pyproject.toml", "cam")
+    names = {r.split(">")[0].split("=")[0].split("[")[0].strip() for r in reqs}
+    assert {"numpy", "python-docx", "jsonschema"} <= names and "mujoco" not in names and "fmpy" not in names
+    iss = (root / "installer/windows/wenquest-cam/wenquest-cam.iss").read_text(encoding="utf-8-sig")
+    assert "3E7B1C59-A402-4D86-9F31-6C8D2B5E0A77" in iss and "问渠CAM用户手册.pdf" in iss
+    for f in ("docs/verification/cam/问渠CAM验证手册.pdf", "docs/wenquest-cam/help/WenQuest-CAM-User-Guide.pdf",
+              "examples/wenquest-cam/01-shaft-turning/shaft.step", "installer/windows/wenquest-cam/wenquest-cam.ico"):
+        assert (root / f).is_file(), f
