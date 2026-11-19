@@ -1,0 +1,52 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "fea-draft/2",
+  "request_key": "1197533b248b4afbd260a7d2a46ca0aaf9e605b2463a8256e7020e9e8ff13897",
+  "response": {
+    "id": "msg_011ChBfYHVLKrW3GwaDoS3QG",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "bodies": [
+        {
+          "material": "45-QT",
+          "material_quote": "45 钢调质",
+          "part": 1
+        }
+      ],
+      "items": [
+        {
+          "features": [
+            "F6"
+          ],
+          "part": 1,
+          "quote": "Ø70 法兰那一端的端面固定",
+          "type": "fixed"
+        },
+        {
+          "features": [
+            "F4"
+          ],
+          "magnitude": {
+            "quote": "92.5 N·m",
+            "unit": "N·m",
+            "value": 92.5
+          },
+          "part": 1,
+          "quote": "在 Ø42.75 花键段上加峰值扭矩 92.5 N·m",
+          "type": "torque"
+        },
+        {
+          "quote": "加峰值扭矩 92.5 N·m",
+          "type": "static"
+        }
+      ],
+      "name": "RJ-201 hollow shaft torque",
+      "questions": [
+        "扭矩的方向（绕轴正向或反向）原话未说明，目前未指定正负，请确认。",
+        "Ø70 法兰端的端面我选了 F6（z=0，朝 -z 的端面）。法兰另一侧的台阶面是 F8。请确认固定的是 F6。"
+      ]
+    }
+  }
+}

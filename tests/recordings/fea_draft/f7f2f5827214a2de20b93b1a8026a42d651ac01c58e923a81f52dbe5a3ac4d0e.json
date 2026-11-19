@@ -3,7 +3,7 @@
   "prompt_version": "fea-draft/2",
   "request_key": "f7f2f5827214a2de20b93b1a8026a42d651ac01c58e923a81f52dbe5a3ac4d0e",
   "response": {
-    "id": "msg_011ChAgVLszusCg1g7hkCRkd",
+    "id": "msg_011ChBfYafSfsRxset4svfVC",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -56,16 +56,17 @@
         {
           "n_modes": {
             "quote": "前 4 阶",
+            "unit": "阶",
             "value": 4
           },
           "quote": "另算前 4 阶固有频率",
           "type": "modal"
         }
       ],
-      "name": "LS-101_upper_shaft",
+      "name": "LS-101 upper shaft",
       "questions": [
-        "扭矩的转向（绕 +z 还是 -z）原话没有说明，请确认。",
-        "电机端 F7 端面固定后，两处 Ø12 轴承位（F1、F4）只限制径向，请确认这样的约束组合符合你的意图。"
+        "扭矩的转向（绕轴正向还是反向）原话未说明，请确认。",
+        "模态分析是否需要带扭矩预应力？默认按无预应力的自由约束模态计算，请确认。"
       ]
     }
   }

@@ -3,7 +3,7 @@
   "prompt_version": "fea-draft/2",
   "request_key": "e6062844709e08db047d4d7e6c575da98f20df66e0b516cc613ca6841925125e",
   "response": {
-    "id": "msg_011ChAgY1hAnBqZKJL5GFisK",
+    "id": "msg_011ChBfbW6gkx7ZMJXWPnmVv",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -50,9 +50,9 @@
           "type": "static"
         }
       ],
-      "name": "PLATE-400 simply supported uniform pressure",
+      "name": "PLATE-400 simply supported pressure",
       "questions": [
-        "均布压力的作用方向是沿 +z 还是 -z（指向板面还是背离板面）？原话没有说明，请确认。"
+        "压力作用方向（沿 +z 还是 -z，即指向板面还是背离板面）原话未说明，请确认。"
       ]
     }
   }

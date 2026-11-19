@@ -3,7 +3,7 @@
   "prompt_version": "fea-draft/2",
   "request_key": "922c01d0647ecc378c61cde7068934efcbdc4807d4130d4f0f83afa9e7eb0602",
   "response": {
-    "id": "msg_011ChAgX9v1MwCP2vSfesXFr",
+    "id": "msg_011ChBfaVEaYjNndek91Koho",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -36,10 +36,10 @@
           "type": "bearing_load"
         }
       ],
-      "name": "J2-HSG_static",
+      "name": "J2-HSG housing",
       "questions": [
-        "径向力的大小是多少（原话说还在算）？请给出数值和单位。",
-        "径向力的方向是什么（±x、±y、±z 之一）？原话只说是径向力，没有给出具体方向。"
+        "径向力的大小原话说“还在算”，没有给数值，请补充（数值和单位）。",
+        "径向力的方向没有说明（沿 ±x、±y 还是 ±z 方向？），请给出方向。"
       ]
     }
   }

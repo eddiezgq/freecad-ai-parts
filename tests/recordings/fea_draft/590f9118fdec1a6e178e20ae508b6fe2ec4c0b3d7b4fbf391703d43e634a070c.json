@@ -3,7 +3,7 @@
   "prompt_version": "fea-draft/2",
   "request_key": "590f9118fdec1a6e178e20ae508b6fe2ec4c0b3d7b4fbf391703d43e634a070c",
   "response": {
-    "id": "msg_011ChAgVxDm3oCybq5Hhh955",
+    "id": "msg_011ChBfZAGnBZv36cGHFXSY1",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -38,15 +38,15 @@
           "type": "torque"
         },
         {
-          "quote": "j3 峰值扭矩 46.4 N·m",
+          "quote": "加 j3 峰值扭矩 46.4 N·m",
           "type": "static"
         }
       ],
       "name": "ARM-UPPER j3 peak torque",
       "questions": [
-        "肩部固定选的是 Ø138 座孔的圆柱面 F6，是否也要包含孔底台阶面 F12？请确认固定面。",
-        "肘部扭矩施加在 Ø107 座孔面 F4 上，是否需要改为施加在孔底台阶面 F11 上？请确认。",
-        "未提到重力（自重），是否需要计入？"
+        "扭矩的转向（绕轴正向/反向）原话没说，程序按 F4 轴线施加，请确认符号是否有要求（对线弹性应力结果通常无影响）。",
+        "是否需要考虑大臂自重（重力）？原话未提，未加入。",
+        "肩部固定我选了 F6（Ø138 孔座圆柱面），如需同时/改为约束台阶面 F12 或 F13 请告知。"
       ]
     }
   }

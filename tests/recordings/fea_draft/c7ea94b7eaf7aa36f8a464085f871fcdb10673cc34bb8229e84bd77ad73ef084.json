@@ -3,7 +3,7 @@
   "prompt_version": "fea-draft/2",
   "request_key": "c7ea94b7eaf7aa36f8a464085f871fcdb10673cc34bb8229e84bd77ad73ef084",
   "response": {
-    "id": "msg_011ChAgWTzQwUdkG53R9xBjj",
+    "id": "msg_011ChBfZjgxQ63iNpzPSM9Zs",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -19,29 +19,39 @@
         {
           "factors": [
             {
-              "case": "dead",
+              "case": "LC_dead",
               "value": 1.35
             },
             {
-              "case": "operating",
+              "case": "LC_op",
               "value": 1.5
             }
           ],
-          "id": "combo1",
+          "id": "C1",
           "name": "1.35自重+1.5工作",
           "quote": "1.35 × 自重 + 1.5 × 工作"
         }
       ],
       "items": [
         {
-          "case": "dead",
+          "case": null,
+          "features": [
+            "F6"
+          ],
+          "part": 1,
+          "quote": "肩部 Ø138 减速器座固定",
+          "type": "fixed"
+        },
+        {
+          "case": "LC_dead",
           "direction": null,
           "direction_quote": null,
+          "part": 1,
           "quote": "重力竖直向下",
           "type": "gravity"
         },
         {
-          "case": "operating",
+          "case": "LC_op",
           "features": [
             "F4"
           ],
@@ -55,39 +65,29 @@
           "type": "torque"
         },
         {
-          "case": null,
-          "features": [
-            "F6"
-          ],
-          "part": 1,
-          "quote": "肩部 Ø138 减速器座固定",
-          "type": "fixed"
-        },
-        {
           "quote": "组合校核",
           "type": "static"
         }
       ],
       "load_cases": [
         {
-          "id": "dead",
+          "id": "LC_dead",
           "kind": "dead",
           "name": "自重",
           "quote": "自重"
         },
         {
-          "id": "operating",
+          "id": "LC_op",
           "kind": "operating",
           "name": "工作载荷",
           "quote": "工作载荷"
         }
       ],
-      "name": "ARM-UPPER_combo_check",
+      "name": "ARM-UPPER_combo",
       "questions": [
-        "“重力竖直向下”没有说明竖直方向对应零件坐标的哪个轴。竖直向下是 -x、-y 还是 -z?请告知。包围盒显示臂长沿 x,孔轴沿 y,所以我没有自己判断。",
-        "重力加速度的数值原话没给,是否使用标准重力加速度?请确认数值和单位。",
-        "扭矩作用在 F4(Ø107 孔/座,面 8)的圆柱面上。请确认扭矩加在这个面上,而不是 F11 孔底台阶面或 F8 端面上。",
-        "肩部固定选了 F6(Ø138 孔/座)。请确认是固定这个孔的圆柱面,而不是 F12 或 F13 台阶面。"
+        "“竖直向下”对应零件坐标系的哪个方向（-x、-y 还是 -z）？零件包围盒与特征清单里无法确定，请明确重力方向。",
+        "重力加速度的数值原话未给出，是否采用标准值？请确认。",
+        "扭矩的转向（绕轴线正/负方向）原话未说明，请确认。"
       ]
     }
   }
