@@ -133,3 +133,20 @@
 - `freecad_addon/` 加问渠CAM 的窗口；安装包加 `cam` 版本。
 - `docs/plan.md` 加 M43（问渠CAM）。
 - 不改 `engine/`，不碰 `tests/golden/`。
+
+## 施工记录
+
+### C1 第 1 步：机床模型、运动学、刀具库（2026-11-19）
+
+- `analysis/cam/machine_model.py`：读 cam-machine/1、按 schema 校验；旧格式（ADR-0059 的 machines.yaml）转新格式（数控系统写 `other`，旧格式没有的数不编）；
+  给现有车削、2.5 轴铣、程序检查的旧字段视图。
+- `analysis/cam/machines.py`：示例机床改为 `analysis/cam/machines/*.json`（车床、立加、摇篮 AC 五轴、车铣中心 C/Y，均虚构）；
+  企业文件可以是旧格式 yaml、新格式 yaml、或一个放 JSON 的文件夹。旧视图只列两轴车床、三轴加工中心，转换后与原 `machines_example.yaml` 的数逐项一致；
+  原文件删除。机床文件没写主电机功率或效率时，功率检查报“未知”。
+  车铣中心示例的主轴端面基准点改到原点（X 直径编程时，X 指令值 = 刀尖直径），schema 用的样例不变。
+- `analysis/cam/kinematics.py`：按 ADR-0105 的轴链约定（指数积）做正解；逆解先按刀轴方向解回转轴（Paden–Kahan 子问题，摇篮、摆头、一头一台三种都通），
+  再按刀尖点解直线轴；两组解先筛行程，再取离上一点最近的；奇异点（刀轴与回转轴平行）回转轴保持上一点的值；连续回转轴取最近的整圈。
+- `analysis/cam/tools.py`：读 cam-tool/1；切削参数按刀具样本范围核对（缺范围为“未知”）；FreeCAD CAM 刀具（.fctl / .fctb）导入，认不出的形状列出来不导入。
+- 验收（`tests/test_cam_machine_kinematics.py`）：五种机床（摇篮 AC、摆头 BC、摆头 B 加转台 C、三轴立加、车床）各随机 200 个位姿往返，
+  轴值回到原值（< 1e-7），刀尖误差 < 1e-9 mm；正解与手算对照 6 处；超程、达不到、奇异点、连续轴整圈、车铣中心径向刀各有用例。
+- schema 补一处：数控系统型号 `controller.model` 改为选填（旧格式转换来的没有），在 schema PR 里改。
