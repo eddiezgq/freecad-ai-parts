@@ -56,8 +56,8 @@ def pocket_floors(shape, top: float) -> list[str]:
 def build_job(doc, model, ops: list[dict]):
     """ops：[{"type": "pocket" | "profile" | "drill", "tool": cam-tool/1 刀具, "number": 刀号, "rpm", "feed_mm_min",
              "plunge_mm_min", "step_down_mm", "step_over_pct"}]。返回 (作业, [(op 设置, FreeCAD 工序)])"""
-    import Path.Base.Drillable as Drillable
     import Path.Tool.Controller as PathToolController
+    from Path.Base import Drillable
     from Path.Main import Job as PathJob
     from Path.Op import Drilling, PocketShape, Profile
 
@@ -73,7 +73,7 @@ def build_job(doc, model, ops: list[dict]):
                 raise CamFcError("零件上没有找到型腔底面（朝上、低于顶面的平面）")
             op = PocketShape.Create(f"Pocket{len(made) + 1}")
             op.Base = [(jm, floors)]
-            op.StepOver = int(round(float(spec.get("step_over_pct", 40))))
+            op.StepOver = round(float(spec.get("step_over_pct", 40)))
         elif k == "profile":
             op = Profile.Create(f"Profile{len(made) + 1}")
         elif k == "drill":
@@ -171,7 +171,7 @@ def program(shape, ops: list[dict], *, number: int = 6001, title: str = "2.5 轴
         m = doc.addObject("Part::Feature", "Part")
         m.Shape = shape
         doc.recompute()
-        job, made, top = build_job(doc, m, ops)
+        _job, made, top = build_job(doc, m, ops)
         prog_ops = []
         for spec, op in made:
             mv = commands_to_moves(op.Path.Commands, top)
