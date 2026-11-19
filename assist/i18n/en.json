@@ -1834,5 +1834,6 @@
 "，Ø{} 以下进给减半": ", half feed below Ø{}",
 "，切断前倒角 C{}": ", chamfer C{} before parting off",
 "切断前倒角切多了：C{} 处最多 {} mm": "Chamfer C{} before parting off overcut by up to {} mm",
-"切断前倒角没倒到位：C{} 处最多留了 {} mm": "Chamfer C{} before parting off not cut to size: up to {} mm left"
+"切断前倒角没倒到位：C{} 处最多留了 {} mm": "Chamfer C{} before parting off not cut to size: up to {} mm left",
+"{} 锥管螺纹要用这个牙型的刀片：刀具库里没有牙型角，刀片对不对没核对": "{} taper pipe threads need an insert of this form: the tool library has no thread form angle, so the insert was not checked"
 }

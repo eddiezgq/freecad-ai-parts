@@ -504,6 +504,10 @@ def _turn(setup, mach):
             if rr:
                 checks.append({"line": None, "level": "warn",
                                "text": f"{side_name}车出来是 R{rr:g} 的圆角（刀尖圆弧）；图纸要清角就要加退刀槽或换小圆弧刀片"})
+        for tv in sc["threads"]:                  # 刀具库没有牙型角这一项：锥管螺纹刀片对不对没法核对（ADR-0106 Q3a）
+            if tv.get("form") in ("r", "npt"):
+                checks.append({"line": None, "level": "unknown",
+                               "text": f"{P.THREAD_FORMS[tv['form']]} 锥管螺纹要用这个牙型的刀片：刀具库里没有牙型角，刀片对不对没核对"})
         if s.get("under_mm", 0) > 0.05:
             checks.append({"line": None, "level": "error", "text": f"残留：最多 {s['under_mm']:.3f} mm（半径），Z{s['under_z'][0]:.2f} ~ Z{s['under_z'][1]:.2f}"})
         if s.get("face_left", 0) > 0.01:
