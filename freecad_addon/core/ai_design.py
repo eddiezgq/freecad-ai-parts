@@ -18,7 +18,10 @@ from assist.i18n import tr as T
 
 ROOT = Path(__file__).resolve().parents[2]
 EXAMPLE = ROOT / "examples" / "ai-design" / "ls-upper-shaft" / "requirement.txt"
-PART_TYPES = ("阶梯轴",)
+PART_TYPES = ("阶梯轴", "关节空心轴")
+EXAMPLES = {"阶梯轴": EXAMPLE, "关节空心轴": ROOT / "examples" / "ai-design" / "cobot-j2" / "requirement.txt"}
+EXAMPLE_NAMES = {"阶梯轴": "平缝机上轴", "关节空心轴": "协作机器人 J2 输出轴"}
+DEFAULT_NAMES = {"阶梯轴": "上轴", "关节空心轴": "关节输出轴"}
 COLORS = {"pass": "#1b7f3b", "unknown": "#a26b00", "fail": "#b3261e"}
 STATUS = {"pass": "通过", "unknown": "待确认", "fail": "不通过"}
 RESULT = {"pass": "全部通过", "pass_pending_data": "通过，只剩零件库缺数据的待确认", "stuck": "没有通过，停下交给人（4 轮用完，或 AI 判断改轴解决不了、不再改方案）",
@@ -29,18 +32,33 @@ class ConfirmError(ValueError):
     pass
 
 
-def example_text() -> str:
+def _kind(kind: str | None) -> str:
+    kind = kind or PART_TYPES[0]
+    if kind not in PART_TYPES:
+        raise ValueError(f"不认识的零件类型：{kind}")
+    return kind
+
+
+def _module(kind: str):
+    if _kind(kind) == "关节空心轴":
+        from assist import joint_design as M
+    else:
+        from assist import design as M
+    return M
+
+
+def example_text(kind: str | None = None) -> str:
     """示例原话。Windows 上 git 检出可能把换行变成 \\r\\n，录制是按 \\n 录的：统一成 \\n，否则回放对不上（2026-11-18）"""
-    return EXAMPLE.read_text(encoding="utf-8").replace("\r\n", "\n")
+    return EXAMPLES[_kind(kind)].read_text(encoding="utf-8").replace("\r\n", "\n")
 
 
-def example_client():
+def example_client(kind: str | None = None):
     """没有密钥时用的录制回放（只对示例原话有效）"""
-    from assist import design as D
     from ingest.llm_extract import RecordedClient
 
-    c = RecordedClient(D.RECORDINGS_DIR)
-    c.model = D.DEFAULT_MODEL
+    M = _module(kind)
+    c = RecordedClient(M.RECORDINGS_DIR)
+    c.model = M.DEFAULT_MODEL
     return c
 
 
@@ -48,20 +66,22 @@ def bearings(library) -> list[dict]:
     return [c for c in library.all() if c.get("category") == "bearing"]
 
 
-def run(statement: str, client, library, out_dir: str | Path | None = None, *, replay: bool = False,
+def run(statement: str, client, library, out_dir: str | Path | None = None, *, kind: str | None = None, replay: bool = False,
         progress=None) -> dict:
-    """设计并（通过时）生成模型。返回 {"result", "model"（generate 的摘要或 None）, "out_dir", "replay"}"""
-    from assist import design as D
-    from assist import shaft_model
+    """设计并（通过时）生成模型。返回 {"result", "model"（generate 的摘要或 None）, "out_dir", "replay", "kind"}"""
+    from assist import kt_record
 
+    kind = _kind(kind)
+    M = _module(kind)
     statement = statement.replace("\r\n", "\n")
-    model = getattr(client, "model", None) or D.DEFAULT_MODEL
-    kt = None
-    if replay:                                             # 回放：用录制时的有限元结果，提示词才对得上（assist.kt_record）
-        from assist import kt_record
-
-        kt = kt_record.replaying(D.KT_RECORD)
-    res = D.design(statement, client, bearings(library), library.get, model=model, kt=kt, progress=progress)
+    model = getattr(client, "model", None) or M.DEFAULT_MODEL
+    kt = kt_record.replaying(M.RECORDINGS_DIR / "kt.json") if replay else None   # 回放：用录制时的有限元结果，提示词才对得上
+    if kind == "关节空心轴":
+        loads_fn = M.loads_replaying(M.RECORDINGS_DIR / M.LOADS_RECORD) if replay else None
+        res = M.design(statement, client, bearings(library), library.all("reducer"), library.get, model=model, kt=kt,
+                       loads_fn=loads_fn, progress=progress)
+    else:
+        res = M.design(statement, client, bearings(library), library.get, model=model, kt=kt, progress=progress)
     out = Path(out_dir) if out_dir else Path(tempfile.mkdtemp(prefix="wq-ai-design-"))
     out.mkdir(parents=True, exist_ok=True)
     (out / "design-record.json").write_text(json.dumps(res, ensure_ascii=False, indent=1, default=_finite) + "\n", encoding="utf-8")
@@ -69,8 +89,15 @@ def run(statement: str, client, library, out_dir: str | Path | None = None, *, r
     if str(res.get("status", "")).startswith("pass"):
         if progress is not None:
             progress("生成三维模型并测量回读", None, None)
-        gen = shaft_model.generate(res, out, library.get)
-    return {"result": res, "model": gen, "out_dir": str(out), "replay": replay}
+        if kind == "关节空心轴":
+            from assist import joint_model
+
+            gen = joint_model.generate(res, out, library.get)
+        else:
+            from assist import shaft_model
+
+            gen = shaft_model.generate(res, out, library.get)
+    return {"result": res, "model": gen, "out_dir": str(out), "replay": replay, "kind": kind}
 
 
 def _finite(x):
@@ -78,11 +105,25 @@ def _finite(x):
 
 
 def segments(result: dict, get) -> list[dict]:
-    """最后一轮方案经代码补齐后的轴段（直径、长度、圆角、轴承）"""
+    """采用那一轮方案的建模轴段（直径、长度、圆角；阶梯轴另有轴承）"""
+    if result.get("part_type") == "joint_shaft":
+        from assist import joint_model
+
+        return joint_model.model_segments(result)[0]
     from assist import shaft_design as SD
 
     segs, _ = SD.check_proposal(_chosen(result)["proposal"], get)
     return segs
+
+
+def drawing_extras(result: dict) -> dict:
+    """工程图的附加内容：空心轴的内孔直径与花键、螺纹的注"""
+    if result.get("part_type") != "joint_shaft":
+        return {}
+    from assist import joint_model
+
+    _, info = joint_model.model_segments(result)
+    return {"bore": info["bore_mm"], "notes": joint_model.notes(info)}
 
 
 # ---------------------------------------------------------------- 页签（HTML）
@@ -118,8 +159,13 @@ def rounds_html(result: dict) -> str:
         html.append(f"<h3>{escape(T(f'第 {k} 轮') + T('：'))}<span style='color:{COLORS.get(st, '#000')}'>"
                     f"{escape(T(STATUS.get(st, str(st))))}</span>{escape(tag + mass)}</h3>")
         segs = rd.get("segments") or []
+        p = rd.get("proposal") if isinstance(rd.get("proposal"), dict) else {}
+        if "bore_mm" in p:                                 # 关节空心轴：AI 选的是轴承、内孔、法兰圆角
+            dl = T(f"，末端偏移 {rd['delta_mm']:.3f} mm") if isinstance(rd.get("delta_mm"), (int, float)) else ""
+            b, bore, r = p.get("bearing", ""), p["bore_mm"], p.get("fillet_mm", 0)
+            html.append(f"<p>{escape(T(f'轴承 {b}，内孔 Ø{bore:g}，法兰圆角 R{r:g}') + dl)}</p>")
         if segs:
-            cells = "".join(f"<tr><td>{i}</td><td>{escape(T(s.get('role', '')))}</td><td>Ø{s['d']:g}</td><td>{s['L']:g}</td>"
+            cells = "".join(f"<tr><td>{i}</td><td>{escape(T(s.get('role') or s.get('name', '')))}</td><td>Ø{s['d']:g}</td><td>{s['L']:g}</td>"
                             f"<td>{_fillet(s)}</td><td>{escape(s.get('bearing', ''))}</td></tr>"
                             for i, s in enumerate(segs, 1))
             html.append(f"<table border='1' cellspacing='0' cellpadding='3'><tr><th>#</th><th>{escape(T('用途'))}</th>"
@@ -175,8 +221,9 @@ def confirm(enterprise_lib, run_out: dict, *, drawing_no: str, name: str, enterp
     step_doc = enterprise_lib.register_document(out / "shaft.step", f"{drawing_no} {name} 三维模型（AI 设计）", actor)
     rec_doc = enterprise_lib.register_document(out / "design-record.json", f"{drawing_no} {name} 设计记录（条件、各轮方案与校核）", actor)
     meas = measure.measure(out / "shaft.step", material=material)
+    kind = "关节空心轴" if run_out["result"].get("part_type") == "joint_shaft" else "阶梯轴"
     comp = measure.to_component(meas, enterprise=enterprise, drawing_no=drawing_no, doc=step_doc["id"], part_kind="shaft",
-                                kind_doc_note=f"零件类型：AI 设计阶梯轴，{actor} 确认")
+                                kind_doc_note=f"零件类型：AI 设计{kind}，{actor} 确认")
     comp["note"] += f"；名称：{name}；AI 设计、代码校核，设计记录见企业资料 {rec_doc['id']}"
     if enterprise_lib.get(comp["id"]) is not None:
         raise ConfirmError(f"企业库里已有 {comp['id']}，换一个图号")

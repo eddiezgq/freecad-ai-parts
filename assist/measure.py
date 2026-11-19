@@ -107,6 +107,27 @@ def segments(features: list[dict], faces: list[dict]) -> tuple[list[dict], dict 
     return out, {"axis": [round(float(x), 6) for x in axis], "origin_mm": round(origin, 3) + 0.0}
 
 
+def bores(features: list[dict], faces: list[dict], axis_info: dict | None) -> list[dict]:
+    """与主轴线同轴的内孔（空心轴的通孔、轴端孔）：[{diameter_mm, length_mm, start_mm}]，起点与轴段同一原点（纯函数）"""
+    from assist.features import _coaxial
+
+    shafts = [f for f in features if f.get("type") == "shaft_segment"]
+    if axis_info is None or not shafts:
+        return []
+    by_id = {f["id"]: f for f in faces}
+    axis = np.array(axis_info["axis"], float)
+    ref = max(shafts, key=lambda f: f["length_mm"])               # 主轴线上最长的一段外圆作参照
+    out = []
+    for b in (f for f in features if f.get("type") == "bore"):
+        if not _coaxial(by_id[ref["faces"][0]], by_id[b["faces"][0]]):
+            continue
+        lo = min(_span(by_id[i], axis)[0] for i in b["faces"])
+        hi = max(_span(by_id[i], axis)[1] for i in b["faces"])
+        out.append({"diameter_mm": round(b["diameter_mm"], 3), "length_mm": round(hi - lo, 2),
+                    "start_mm": round(lo - axis_info["origin_mm"], 2) + 0.0})
+    return sorted(out, key=lambda r: r["start_mm"])
+
+
 def measure(step_path: str | Path, material: str | None = None) -> dict:
     """量一个零件。返回尺寸、质量、轴段、孔组与检查结果；模型无效时抛 GeometryInvalid"""
     from assist.features import recognize
@@ -129,7 +150,7 @@ def measure(step_path: str | Path, material: str | None = None) -> dict:
         "envelope_mm": {"length": round(dims[0], 2), "width": round(dims[1], 2), "height": round(dims[2], 2)},
         "volume_mm3": round(r["volume_mm3"], 1),
         "surface_area_mm2": round(sum(f["area_mm2"] for f in r["faces"]), 1),
-        "segments": segs, "axis": axis,
+        "segments": segs, "axis": axis, "bores": bores(r["features"], r["faces"], axis),
         "hole_patterns": [{"count": f["count"], "diameter_mm": f["diameter_mm"], "pcd_mm": f["pcd_mm"]}
                           for f in r["features"] if f["type"] == "hole_pattern"],
         "features_text": r["text"],

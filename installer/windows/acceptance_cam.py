@@ -121,7 +121,8 @@ def main(app: Path, repo: Path) -> int:
     menus = {a.text(): [x.text() for x in a.menu().actions()]
              for a in FreeCADGui.getMainWindow().menuBar().actions() if a.menu()}
     R["cam_menu"] = menus.get("问渠CAM")
-    ok["menus"] = {"数控编程", "检查 G 代码…", "授权…", "设置 AI 密钥…", "关于问渠CAM"} <= set(R["cam_menu"] or [])
+    # Q1（ADR-0106，#611）起菜单是加工树的命令，“数控编程”对话框不在菜单里了
+    ok["menus"] = {"新建车削作业", "新建铣削作业", "检查 G 代码…", "授权…", "设置 AI 密钥…", "关于问渠CAM"} <= set(R["cam_menu"] or [])
 
     ok["free_tier"] = not cam_edition.pro_allowed() and "免费版" in cam_brand.tier_text()
     got = run_core("free", app, repo, work)

@@ -42,7 +42,11 @@ def test_bundle_contents(built):
     assert json.loads((dest / bundle.MANIFEST).read_text(encoding="utf-8")) == manifest
     for rel in ("engine/rules.py", "schema/rules", "schema/port-types", "data/sources.yaml",
                 "tests/golden/fixtures", "freecad_addon/gui/workbench.py", "analysis/common/materials.yaml",
-                "kb/migrations", "LICENSE", "NOTICE"):
+                "kb/migrations", "LICENSE", "NOTICE",
+                # AI 设计零件两个示例的原话与录制（含有限元 kt、动力学载荷），回放不调用 AI（ADR-0100 42.4、42.5 第 7 步）
+                "examples/ai-design/ls-upper-shaft/requirement.txt", "tests/recordings/design/kt.json",
+                "examples/ai-design/cobot-j2/requirement.txt", "tests/recordings/joint_design/kt.json",
+                "tests/recordings/joint_design/loads.json"):
         assert (dest / rel).exists(), rel
     assert any((dest / "data/library").glob("*/*.json"))
     assert not list(dest.rglob("__pycache__"))

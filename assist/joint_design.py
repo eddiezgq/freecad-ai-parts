@@ -179,6 +179,47 @@ def loads(cond: dict) -> dict:
     return joint_loads.conditions(cyc)
 
 
+_UNITS = {"length_mm": "mm", "mass_kg": "kg", "pose_deg": "°", "move_s": "s", "dwell_s": "s", "reach_mm": "mm", "budget_mm": "mm",
+          None: "", "bearing_life_h": "h"}
+
+
+def accepted_quotes(ti: Any, statement: str) -> list[dict]:
+    """核对通过的每个数和它的原话引用（给人看）：[{what, value, unit, quote}]，值是标准单位"""
+    out: list[dict] = []
+    if not isinstance(ti, dict):
+        return out
+
+    def add(v, field, what):
+        if not isinstance(v, dict):
+            return
+        x, why = _value_with_unit(v, statement, field)
+        if why is None and x is not None:
+            out.append({"what": what, "value": x, "unit": _UNITS.get(field, ""), "quote": v.get("quote")})
+
+    for i, lk in enumerate(ti.get("links") or []):
+        if isinstance(lk, dict):
+            name = ("大臂", "小臂")[i] if i < 2 else f"第 {i + 1} 根杆"
+            add(lk.get("length"), "length_mm", f"{name}长度")
+            add(lk.get("mass"), "mass_kg", f"{name}质量")
+    for m in ti.get("tip_masses") or []:
+        if isinstance(m, dict):
+            add(m.get("mass"), "mass_kg", f"末端质量 {m.get('name') or ''}".strip())
+    for key, head in (("pose_a", "姿态 A"), ("pose_b", "姿态 B")):
+        p = ti.get(key)
+        if isinstance(p, dict):
+            for j in ("j2", "j3"):
+                add(p.get(j), "pose_deg", f"{head} {j}")
+    for key, field, what in (("move_time", "move_s", "运动时间"), ("dwell_time", "dwell_s", "停顿时间"), ("reach", "reach_mm", "工作半径"),
+                             ("displacement_budget", "budget_mm", "末端偏移预算"), ("required_safety", None, "安全系数要求"),
+                             ("bearing_life", "bearing_life_h", "轴承寿命要求")):
+        add(ti.get(key), field, what)
+    for key, what in (("material", "材料"), ("surface", "表面状态"), ("reducer_model", "减速器")):
+        v = ti.get(key)
+        if isinstance(v, dict) and _in_statement(v.get("quote"), statement):
+            out.append({"what": what, "value": v.get("id") or v.get("finish") or v.get("model"), "unit": "", "quote": v.get("quote")})
+    return out
+
+
 LOADS_RECORD = "loads.json"       # 录制时动力学算的载荷（回放用，见 loads_recording / loads_replaying）
 
 
@@ -246,6 +287,7 @@ def design(statement: str, client, bearings: list[dict], reducers: list[dict], g
     cond, rejected, missing = check_conditions(r["tool_input"], statement, get, reducers)
     questions = [q for q in (r["tool_input"].get("questions") if isinstance(r["tool_input"], dict) else []) or [] if isinstance(q, str)]
     out: dict = {"part_type": "joint_shaft", "statement": statement, "conditions": cond, "rejected": rejected, "missing": missing,
+                 "quotes": accepted_quotes(r["tool_input"], statement),
                  "questions": questions, "rounds": [], "ai": [{k: r[k] for k in ("id", "provider", "model", "simulated") if k in r}]}
     if missing:
         out["status"] = "needs_input"
@@ -307,6 +349,7 @@ def main(argv: list[str] | None = None) -> int:
     mode.add_argument("--replay", type=Path)
     mode.add_argument("--record", action="store_true")
     ap.add_argument("--provider", choices=("claude", "deepseek"))
+    ap.add_argument("--model-dir", type=Path, help="通过后生成三维模型、回读核对、二维图与 BOM 的目录（42.5 第 7 步）")
     a = ap.parse_args(argv)
     from kb.library import JsonLibrary
 
@@ -338,6 +381,15 @@ def main(argv: list[str] | None = None) -> int:
         p = rd["proposal"] if isinstance(rd["proposal"], dict) else {}
         print(f"第 {k} 轮：{rd['overall']}  {p.get('bearing')} 内孔 {p.get('bore_mm')} 圆角 {p.get('fillet_mm')}  质量 {rd.get('mass_kg')}"
               f"  偏移 {rd.get('delta_mm')}\n{rd['feedback']}", file=sys.stderr)
+    if a.model_dir and res.get("status") == "pass":
+        from assist import joint_model
+
+        g = joint_model.generate(res, a.model_dir, lib.get)
+        print(f"模型回读：{g['readback']}" + ("；" + "；".join(g["problems"]) if g["problems"] else "")
+              + (f"；质量 {g['mass_kg']} kg；已出 {a.model_dir}/shaft.step、drawing.svg、bom.json" if g.get("delivered") else "；不交付"),
+              file=sys.stderr)
+        if not g.get("delivered"):
+            return 1
     return 0 if res.get("status") == "pass" else 1
 
 

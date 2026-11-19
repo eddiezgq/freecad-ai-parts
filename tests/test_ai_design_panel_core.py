@@ -95,3 +95,58 @@ def test_example_text_has_unix_newlines(tmp_path, monkeypatch):
     f.write_bytes(C.EXAMPLE.read_bytes().replace(b"\n", b"\r\n"))
     monkeypatch.setattr(C, "EXAMPLE", f)
     assert "\r" not in C.example_text() and C.example_text() == C.EXAMPLE.read_text(encoding="utf-8").replace("\r\n", "\n")
+
+
+# ---------------------------------------------------------------- 关节空心轴（42.5 第 7 步）
+
+JOINT = ROOT / "examples" / "ai-design" / "cobot-j2" / "out" / "result.json"
+
+
+def test_part_types_and_examples():
+    assert C.PART_TYPES == ("阶梯轴", "关节空心轴")
+    assert "5000 r/min" in C.example_text("阶梯轴") and "CSF-25-100-2UH" in C.example_text("关节空心轴")
+    with pytest.raises(ValueError):
+        C.example_text("齿轮")
+
+
+def test_joint_replay_designs_and_models(tmp_path, lib):
+    """回放关节空心轴的录制（有限元 kt 与动力学载荷都用录制的数）：通过、采用最轻的一轮、模型回读一致（含内孔）"""
+    _need_gmsh()
+    pytest.importorskip("mujoco")
+    kind = "关节空心轴"
+    out = C.run(C.example_text(kind), C.example_client(kind), lib, tmp_path, kind=kind, replay=True)
+    res = out["result"]
+    assert out["kind"] == kind and res["status"] == "pass" and res["chosen_round"] == len(res["rounds"])
+    ex = json.loads(JOINT.read_text(encoding="utf-8"))
+    assert [r["proposal"] for r in res["rounds"]] == [r["proposal"] for r in ex["rounds"]]               # 与示例输出同一个设计
+    gen = out["model"]
+    assert gen["readback"] == "pass" and gen["delivered"]
+    rb = json.loads((tmp_path / "readback.json").read_text(encoding="utf-8"))
+    bore = [r for r in rb["rows"] if r["segment"] == "内孔"]
+    assert bore and bore[0]["ok"] and bore[0]["design"]["diameter_mm"] == res["rounds"][-1]["proposal"]["bore_mm"]
+    assert [r["kind"] for r in gen["bom"]] == ["custom_part", "bearing"] and gen["bom"][1]["qty"] == 2
+    assert "花键齿槽未去除" in gen["bom"][0]["mass_source"] or "齿槽未去除" in gen["bom"][0]["mass_source"]
+
+
+def test_joint_tabs_show_quotes_and_rounds():
+    res = json.loads(JOINT.read_text(encoding="utf-8"))
+    cond = C.conditions_html(res)
+    assert "大臂长度" in cond and "CSF-25-100-2UH" in cond and "40Cr" in cond               # 每个数带原话引用
+    rounds = C.rounds_html(res)
+    assert rounds.count("<h3>") == len(res["rounds"]) and rounds.count("（采用）") == 1
+    assert "内孔 Ø41" in rounds and "末端偏移" in rounds and "花键段" in rounds
+    ex = C.drawing_extras(res)
+    assert ex["bore"] == 41 and any("GB/T 3478.1" in n for n in ex["notes"])
+    assert C.drawing_extras(json.loads(RESULT.read_text(encoding="utf-8"))) == {}
+
+
+def test_joint_confirm_note(tmp_path, lib):
+    _need_gmsh()
+    from assist import joint_model
+
+    res = json.loads(JOINT.read_text(encoding="utf-8"))
+    (tmp_path / "design-record.json").write_text(json.dumps(res, ensure_ascii=False), encoding="utf-8")
+    run_out = {"result": res, "model": joint_model.generate(res, tmp_path, lib.get), "out_dir": str(tmp_path), "replay": False}
+    ent = EnterpriseLibrary(tmp_path / "ent", create=True)
+    comp = C.confirm(ent, run_out, drawing_no="AI-J2-01", name="关节输出轴", enterprise="示范（虚构）", actor="张工")
+    assert "关节空心轴" in json.dumps(comp, ensure_ascii=False) and comp["params"]["part_kind"]["value"] == "shaft"
