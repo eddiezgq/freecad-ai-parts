@@ -17,6 +17,7 @@ import re
 
 import numpy as np
 
+from analysis.cam import paths as _P
 from analysis.cam.paths import d_at
 
 WORD = re.compile(r"([A-Z])\s*([-+]?(?:\d+\.?\d*|\.\d+))")
@@ -44,6 +45,29 @@ def parse(text, m):
     moves, warns, tools, tool_changes = [], [], [], []
     rpm_req = 0.0
     cyc = None
+    lines = text.splitlines()
+    nmap = {}                                       # 程序段号 N → 行号（G71 / G70 的 P、Q 找轮廓用）
+    for ln, raw in enumerate(lines, 1):
+        mm = re.match(r"N(\d+)", _strip(raw))
+        if mm:
+            nmap[int(mm.group(1))] = ln
+    skip = set()
+    g71p = g76p = None
+
+    def blocks(ns, nf, z_start):
+        """N ns ~ N nf 的轮廓段 → [(x, z), …] 与段里的 F（绝对坐标；第一段没写 Z 就是起点的 Z）"""
+        if ns not in nmap or nf not in nmap:
+            raise ValueError(f"固定循环的 P{ns} / Q{nf} 程序段找不到")
+        pts, x, z, f = [], None, z_start, None
+        for k in range(nmap[ns], nmap[nf] + 1):
+            ww = {kk: float(v) for kk, v in WORD.findall(_strip(lines[k - 1])) if kk in "XZF"}
+            x = ww.get("X", x)
+            z = ww.get("Z", z)
+            f = ww.get("F", f)
+            if "X" in ww or "Z" in ww:
+                pts.append((x, z))
+            skip.add(k)
+        return pts, f
 
     def emit(t, b, line, **kw):
         a = tuple(st["pos"])
@@ -53,7 +77,9 @@ def parse(text, m):
                               rpm=st["rpm"], smax=st["smax"], spin=st["spin"], **kw))
         st["pos"] = list(b)
 
-    for ln, raw in enumerate(text.splitlines(), 1):
+    for ln, raw in enumerate(lines, 1):
+        if ln in skip:
+            continue
         line = _strip(raw)
         if not line or line in ("%",) or line.startswith("O"):
             continue
@@ -143,6 +169,50 @@ def parse(text, m):
             st["spin"] = True
         if 5 in mc:
             st["spin"] = False
+        if lathe and any(x in g for x in (70, 71, 76)):     # 车削固定循环：按 paths 里的展开规则展开（与出刀路同一套）
+            P_ = int(w.get("P", 0))
+            x0, z0 = st["pos"][0], st["pos"][2]
+            try:
+                if 71 in g and "P" not in w:
+                    g71p = {"d": w.get("U", 1.0), "e": w.get("R", 0.5)}
+                    continue
+                if 71 in g:
+                    pts, f_fin = blocks(P_, int(w["Q"]), z0)
+                    exp = _P.g71_expand(pts, x0, z0, (g71p or {}).get("d", 1.0), (g71p or {}).get("e", 0.5),
+                                        w.get("U", 0.0), w.get("W", 0.0), w.get("F", st["f"]))
+                elif 70 in g:
+                    pts, f_fin = blocks(P_, int(w["Q"]), z0)
+                    exp = _P.g70_expand(pts, x0, z0, f_fin or st["f"])
+                elif "X" not in w and "Z" not in w:
+                    pp = f"{P_:06d}"
+                    g76p = {"m": int(pp[:2]), "a": int(pp[4:])}
+                    continue
+                else:
+                    xr, ze, lead = w["X"], w["Z"], w["F"]
+                    k, dd, ii = w.get("P", 0) / 1000.0, w.get("Q", 0) / 1000.0, w.get("R", 0.0)
+                    if (g76p or {}).get("a", 0):
+                        warns.append({"line": ln, "level": "unknown", "text": "G76 斜进（刀尖角 a ≠ 0）：仿真按径向进刀展开"})
+                    exp = []
+                    for a in _P.g76_depths(k, dd, (g76p or {}).get("m", 1)):
+                        xe = xr + 2 * (k - a) if xr < x0 else xr - 2 * (k - a)
+                        exp += [{"t": "rapid", "x": xe + 2 * ii, "z": z0}, {"t": "thread", "x": xe, "z": ze, "pitch": lead},
+                                {"t": "rapid", "x": x0, "z": ze}, {"t": "rapid", "x": x0, "z": z0}]
+            except (ValueError, KeyError) as exc:
+                warns.append({"line": ln, "level": "error", "text": f"固定循环读不懂：{exc}"})
+                continue
+            for e in exp:
+                if e["t"] == "thread":
+                    st["f"] = e["pitch"]
+                    n0 = len(moves)
+                    emit("thread", (e["x"], 0.0, e["z"]), ln, pitch=e["pitch"])
+                    if len(moves) > n0:
+                        moves[-1]["per_rev"] = True
+                else:
+                    if "f" in e:
+                        st["f"] = e["f"]
+                    emit(e["t"], (e["x"], 0.0, e["z"]), ln)
+            st["motion"] = 0
+            continue
         if 28 in g:
             if lathe:
                 st["pos"] = [hx, 0.0, hz]

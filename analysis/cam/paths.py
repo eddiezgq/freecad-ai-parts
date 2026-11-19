@@ -244,6 +244,49 @@ def thread_infeeds(depth, first_max=0.25, spring=1):
     return [depth * math.sqrt(i / n) for i in range(1, n + 1)] + [depth] * spring
 
 
+# ---------------------------------------------------------------- 固定循环的展开规则（ADR-0106 Q3a）
+# 程序里写 G71 / G70 / G76 时，仿真、回读比对都按下面的规则展开；出刀路时（选了固定循环）也用同一套规则，
+# 所以仿真的就是程序里写的。数控系统自己的展开细节可能略有不同（各家、各版本），程序头写“未经实机验证”。
+def g71_expand(blocks, x0, z0, d, e, u, w, f):
+    """G71 外圆粗车循环（FANUC 一型）：blocks 是精车轮廓 [(x, z), …]（第一个点只动 X：(x_ns, z0)）。
+    从起点 (x0, z0) 起每层直径减 2d，车到碰到轮廓（偏移 U 直径、W 轴向）为止，45° 退 e，快移回 z0；最后沿偏移后的轮廓走一刀，回起点"""
+    prof = [(z + w, x + u) for x, z in blocks]                 # (z, d)
+    dmin = min(dd for _, dd in prof)
+    mv = []
+    x = x0
+    while x > dmin + 1e-6:
+        xn = max(x - 2 * d, dmin)
+        zstop = z_reach(prof, xn + 1e-6)
+        if zstop < z0 - 1e-6:
+            mv += [{"t": "rapid", "x": xn, "z": z0}, {"t": "feed", "x": xn, "z": zstop, "f": f},
+                   {"t": "feed", "x": xn + 2 * e, "z": zstop + e, "f": f}, {"t": "rapid", "x": xn + 2 * e, "z": z0}]
+        x = xn
+    mv += [{"t": "rapid", "x": prof[0][1], "z": z0}]
+    mv += [{"t": "feed", "x": dd, "z": z, "f": f} for z, dd in prof[1:]]
+    mv += [{"t": "feed", "x": x0, "z": prof[-1][0], "f": f}, {"t": "rapid", "x": x0, "z": z0}]
+    return mv
+
+
+def g70_expand(blocks, x0, z0, f):
+    """G70 精车循环：从起点沿 blocks 走一遍（第一个点快移），回起点"""
+    mv = [{"t": "rapid", "x": blocks[0][0], "z": z0}]
+    mv += [{"t": "feed", "x": x, "z": z, "f": f} for x, z in blocks[1:]]
+    mv += [{"t": "feed", "x": x0, "z": blocks[-1][1], "f": f}, {"t": "rapid", "x": x0, "z": z0}]
+    return mv
+
+
+def g76_depths(k, dd, spring=1):
+    """G76 各刀累计切深：dd·√i（i = 1, 2, …），到 k 为止，再光 spring 刀。k、dd 按程序里的微米取整后的值"""
+    out, i = [], 1
+    while True:
+        a = min(dd * math.sqrt(i), k)
+        out.append(a)
+        if a >= k - 1e-9:
+            break
+        i += 1
+    return out + [k] * spring
+
+
 def turn_part(z, d_from, f, tool_width, clear=CLEAR, x_end=-1.0):
     """切断：z 是零件左端面（刀位点在切断刀右刀尖，刀宽往左），从 d_from 外面直进到中心以下（x_end）。
     切到中心时转速被 G50 限住，进给不变；零件掉下来。"""
@@ -281,7 +324,7 @@ ISO_D1 = 1.08253   # 内螺纹小径 D1 = D − 1.08253·P（ISO 68-1：D1 = D �
 
 
 def turn_thread(z_start, z_end, d_major, pitch, first_max=0.25, spring=1, run_in=None, internal=False, taper=0.0, starts=1,
-                clear=CLEAR):
+                clear=CLEAR, g76=False):
     """车螺纹（G32 逐刀，各系统都认）：从 z_start 右边 run_in（缺省 2 个螺距、至少 clear）起刀车到 z_end。
     - 外螺纹牙底按 ISO 965-1 的 d3（牙深 0.6134P），从大径往里进刀；
     - internal=True 内螺纹：底孔是小径 D1 = D − 1.0825P，从小径往外进刀到大径 D（牙深 0.5413P），退刀往中心让；
@@ -304,8 +347,14 @@ def turn_thread(z_start, z_end, d_major, pitch, first_max=0.25, spring=1, run_in
     extra = (f"，锥度 1:{1 / taper:g}" if taper else "") + (f"，{starts} 头（导程 {lead:g}）" if starts > 1 else "")
     root = (f"大径 Ø{d_major:g}" if internal else f"牙底 Ø{d_major - 2 * depth:.3f}")
     mv = [{"t": "comment", "text": f"车{kind}螺纹 M{d_major:g}x{pitch:g}{extra}：Z{z_start:g} ~ Z{z_end:g}，{root}"}]
-    for a in thread_infeeds(depth, first_max, spring):
-        for k in range(starts):
+    if g76:                                         # 出 G76：切深按程序里的微米值和 G76 的展开规则
+        n = max(3, math.ceil((depth / first_max) ** 2 - 1e-9))
+        k_um, dd_um = round(depth * 1000), round(depth / math.sqrt(n) * 1000)
+        infeeds = g76_depths(k_um / 1000, dd_um / 1000, spring)
+    else:
+        infeeds = thread_infeeds(depth, first_max, spring)
+    for k in range(starts):                        # 多头：一个头车完再车下一个（与 G76 每个头一段循环一致）
+        for a in infeeds:
             zs = zs0 + k * pitch
             if internal:
                 xs, xe = dia(zs) - 2 * depth + 2 * a, dia(z_end) - 2 * depth + 2 * a

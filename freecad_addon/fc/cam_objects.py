@@ -68,6 +68,7 @@ class JobProxy:
         _add(obj, "App::PropertyString", "Result", "计算结果摘要（JSON）", hidden=True)
         _add(obj, "App::PropertyString", "Programs", "正式程序（JSON：文件名 → 文本）", hidden=True)
         _add(obj, "App::PropertyString", "Replay", "回放数据（JSON：每个程序的仿真程序、毛坯、刀具、带行号的检查）", hidden=True)
+        _add(obj, "App::PropertyBool", "Cycles", "车削正式程序用固定循环（G71 / G70 / G76；FANUC、广数）", False)
 
     def onDocumentRestored(self, obj):
         self.setup(obj)
@@ -270,10 +271,41 @@ def new_job(doc, model, kind: str, *, machine: str | None = None, post: str = "f
     return job
 
 
-def _threads(text: str) -> list:
-    from freecad_addon.core import cam_study as S
+def thread_text(t: dict) -> str:
+    extra = (["内"] if t.get("internal") else []) + ([f"1:{1 / t['taper']:g}"] if t.get("taper") else []) + \
+        ([f"{t['starts']} 头"] if int(t.get("starts") or 1) > 1 else [])
+    return ", ".join([f"{t['z_start']:g}", f"{t['z_end']:g}", f"{t['d']:g}", f"{t['pitch']:g}", *extra])
 
-    return [{"z_start": a, "z_end": b, "d": d, "pitch": p} for a, b, d, p in S.parse_rows(text, 4, "螺纹")]
+
+def parse_threads(text: str) -> list[dict]:
+    """螺纹表：每行 Z 起, Z 止, 大径, 螺距，后面可选“内”（内螺纹）、“1:16”（锥度）、“2 头”（多头）"""
+    import re
+
+    out = []
+    for n, line in enumerate(text.replace("，", ",").splitlines(), 1):
+        parts = [p.strip() for p in line.split(",") if p.strip()]
+        if not parts:
+            continue
+        try:
+            za, zb, d, pch = (float(x) for x in parts[:4])
+        except ValueError as exc:
+            raise CamObjError(f"螺纹第 {n} 行要先写 4 个数：Z 起, Z 止, 大径, 螺距") from exc
+        t = {"z_start": za, "z_end": zb, "d": d, "pitch": pch}
+        for p in parts[4:]:
+            if p in ("内", "in", "internal"):
+                t["internal"] = True
+            elif re.fullmatch(r"1\s*:\s*[\d.]+", p):
+                t["taper"] = 1.0 / float(p.split(":")[1])
+            elif re.fullmatch(r"\d+\s*(头|starts?)", p):
+                t["starts"] = int(re.match(r"\d+", p).group(0))
+            else:
+                raise CamObjError(f"螺纹第 {n} 行的“{p}”看不懂：可写 内、1:16、2 头")
+        out.append(t)
+    return out
+
+
+def _threads(text: str) -> list:
+    return parse_threads(text)
 
 
 def new_op(setup, kind: str, *, index: int = -1, tool_id: str = "", tool_n: int = 1, vc=0.0, feed=0.0, ap=0.0, stepover=0.0,
@@ -295,7 +327,8 @@ def new_op(setup, kind: str, *, index: int = -1, tool_id: str = "", tool_n: int 
 # ---------------------------------------------------------------- 车削：零件数据 → analysis.cam 的设置
 def turn_setup(job) -> dict:
     d = _js(job, "PartData", {})
-    s = {"mode": "turn", "machine": job.Machine, "item": job.Item, "segments": d["segments"], "chamfer_mm": d.get("chamfer_mm", 0.0)}
+    s = {"mode": "turn", "machine": job.Machine, "item": job.Item, "segments": d["segments"], "chamfer_mm": d.get("chamfer_mm", 0.0),
+         "cycles": bool(getattr(job, "Cycles", False))}
     if job.Kienzle:
         s["kienzle"] = job.Kienzle
     if d.get("grooves"):

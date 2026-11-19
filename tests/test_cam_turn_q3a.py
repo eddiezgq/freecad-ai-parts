@@ -153,3 +153,55 @@ def test_parting_off():
     prog = {"number": 1, "title": "t", "header": {}, "ops": [{**b["op"], "moves": mv}]}
     s = S.simulate_turn(S.parse(post.post(prog, LATHE), LATHE), {"d": 44, "z_right": 0, "z_left": -80}, b["tools"], target=b["target"])
     assert any("没切断" in i["text"] for i in s["issues"])
+
+
+CYC = {**BASE, "segments": [[30, 40], [40, 60], [24, 30]], "grooves": [{"z": -26, "width": 4, "d": 20}],
+       "threads": [{"z_start": 0, "z_end": -24, "d": 24, "pitch": 1.5}],
+       "machine_sim": {"tools": {"1": {"tool": "TR-CNMG"}, "2": {"tool": "TR-VNMG"}, "3": {"tool": "GR3"}, "4": {"tool": "TH15"}}}}
+
+
+@pytest.mark.parametrize("post", ["fanuc", "gsk"])
+def test_canned_cycles_are_output_and_read_back_identically(post):
+    """选了固定循环：正式程序里是 G71 / G70 / G76；回读展开后与仿真用的刀路逐段一致（不一致就不会出程序）"""
+    progs = _run({**CYC, "post": post, "cycles": True})
+    right = progs[0]
+    text = right["release"]["text"]
+    assert "G71 P" in text and "G70 P" in text and "G76 X" in text
+    a = [(m["t"], tuple(round(v, 3) for v in m["b"])) for m in S.parse(text, LATHE)["moves"]]
+    b = [(m["t"], tuple(round(v, 3) for v in m["b"])) for m in S.parse(right["gcode"], LATHE)["moves"]]
+    assert a == b
+    assert len(text.splitlines()) < 0.6 * len(right["gcode"].splitlines())       # 程序短得多
+    assert not _errors(right)
+
+
+def test_siemens_keeps_expanded_moves():
+    p = _run({**CYC, "post": "siemens", "cycles": True})[0]
+    assert p["release"] is not None and "G71 P" not in p["release"]["text"] and "CYCLE95" not in p["release"]["text"]
+
+
+def test_hand_written_g71_and_g76_expand_by_rule():
+    """手写的 FANUC 程序：G71 从 Ø50 起每层 2（半径）车到 Ø40 段（U1 W0.1）；G76 M24×1.5 牙高 0.92、第一刀 0.25"""
+    lines = ["%", "O1", "G21 G18 G40 G97 G99", "T0101", "G97 S800 M03", "G00 X50 Z2",
+                      "G71 U2 R0.5", "G71 P10 Q20 U1 W0.1 F0.3", "N10 G00 X40", "N20 G01 Z-30 F0.15",
+                      "G00 X100 Z100", "T0404", "G97 S500 M03", "G00 X26 Z5",
+                      "G76 P010000 Q1 R0", "G76 X22.16 Z-20 P920 Q250 F1.5", "G00 X100 Z100", "M30", "%"]
+    mv = S.parse("\n".join(lines), LATHE)["moves"]
+    cuts = [m for m in mv if m["t"] == "feed" and abs(m["b"][2] - m["a"][2]) > 5 and m["tool"] == 1]
+    # 层：Ø46、Ø42、Ø41（最后一层到留 U1 的轮廓为止），再沿留余量的轮廓走一刀
+    assert [round(m["b"][0], 3) for m in cuts] == [46.0, 42.0, 41.0, 41.0]
+    assert all(m["b"][2] == pytest.approx(-29.9) for m in cuts)
+    th = [m for m in mv if m["t"] == "thread"]
+    depths = P.g76_depths(0.92, 0.25, 1)
+    assert len(th) == len(depths) and [round((22.16 + 2 * 0.92 - m["b"][0]) / 2, 4) for m in th] == [round(d, 4) for d in depths]
+    assert th[-1]["b"][0] == pytest.approx(22.16)
+
+
+def test_thread_table_text():
+    """作业面板的螺纹表：每行 4 个数，后面可写 内、1:16、2 头；写错要说清楚"""
+    from freecad_addon.fc import cam_objects as CO
+
+    rows = CO.parse_threads("0, -20, 24, 1.5, 内\n0，-16，24，1.814，1:16\n0, -24, 24, 1.5, 2 头")
+    assert rows[0]["internal"] and rows[1]["taper"] == pytest.approx(1 / 16) and rows[2]["starts"] == 2
+    assert [CO.thread_text(r) for r in rows] == ["0, -20, 24, 1.5, 内", "0, -16, 24, 1.814, 1:16", "0, -24, 24, 1.5, 2 头"]
+    with pytest.raises(CO.CamObjError, match="看不懂"):
+        CO.parse_threads("0, -20, 24, 1.5, 左旋")
