@@ -145,8 +145,11 @@ def test_recorded_real_model_run_passes(tmp_path):
     res = D.design(TEXT, RecordedClient(D.RECORDINGS_DIR), bearings, lib.get)
     assert res["status"] == "pass" and not res["missing"]
     assert all(a.get("simulated") is False for a in res["ai"])
-    last = res["rounds"][-1]
+    last = D.chosen(res)                                            # 采用的一轮：通过且最轻
     assert last["overall"] == "pass" and all(i["status"] == "pass" for i in last["items"])
+    passed = [r for r in res["rounds"] if r["overall"] == "pass"]
+    assert all(last["mass_kg"] <= r["mass_kg"] + 1e-9 for r in passed)
+    assert sum(r["lighter_round"] for r in res["rounds"]) <= D.LIGHTER_ROUNDS   # 减重最多 3 轮（ADR-0100 42.2 之五）
     seats = [s for s in last["proposal"]["segments"] if s.get("bearing")]
     assert seats and all(s["bearing"].startswith("bearing.nsk-ltd.") for s in seats)
     # 42.3：生成模型、回读逐段一致，出二维图与 BOM
