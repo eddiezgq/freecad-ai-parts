@@ -76,7 +76,7 @@ def segments(result: dict, get) -> list[dict]:
     """最后一轮方案经代码补齐后的轴段（直径、长度、圆角、轴承）"""
     from assist import shaft_design as SD
 
-    segs, _ = SD.check_proposal(result["rounds"][-1]["proposal"], get)
+    segs, _ = SD.check_proposal(_chosen(result)["proposal"], get)
     return segs
 
 
@@ -108,8 +108,10 @@ def rounds_html(result: dict) -> str:
     html = [f"<p><b>{escape(T('结论：'))}{escape(T(RESULT.get(result.get('status'), str(result.get('status')))))}</b></p>"]
     for k, rd in enumerate(result.get("rounds") or [], 1):
         st = rd.get("overall")
+        tag = T("（采用）") if result.get("chosen_round") == k else ""
+        mass = T(f"　质量 {rd['mass_kg']:.3f} kg") if isinstance(rd.get("mass_kg"), (int, float)) else ""
         html.append(f"<h3>{escape(T(f'第 {k} 轮') + T('：'))}<span style='color:{COLORS.get(st, '#000')}'>"
-                    f"{escape(T(STATUS.get(st, str(st))))}</span></h3>")
+                    f"{escape(T(STATUS.get(st, str(st))))}</span>{escape(tag + mass)}</h3>")
         segs = rd.get("segments") or []
         if segs:
             cells = "".join(f"<tr><td>{i}</td><td>{escape(T(s.get('role', '')))}</td><td>Ø{s['d']:g}</td><td>{s['L']:g}</td>"
@@ -175,3 +177,9 @@ def confirm(enterprise_lib, run_out: dict, *, drawing_no: str, name: str, enterp
         raise ConfirmError(f"企业库里已有 {comp['id']}，换一个图号")
     enterprise_lib.save_component(comp, actor, f"AI 设计零件，人确认入库（设计记录 {rec_doc['id']}）")
     return comp
+
+
+def _chosen(result: dict) -> dict:
+    from assist.design import chosen
+
+    return chosen(result)
