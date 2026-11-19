@@ -29,10 +29,11 @@ from pathlib import Path
 import numpy as np
 
 from analysis.cam import collide as CL
+from analysis.cam import holders as HD
 from analysis.cam import kinematics as K
 from analysis.cam import tools as TL
 
-VERSION = "c1.1"
+VERSION = "q2.1"                       # ADR-0106 Q2：车刀刀杆、网格部件
 
 
 class SimSetupError(ValueError):
@@ -233,6 +234,7 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
             tip0 = np.asarray((machine.get("tool") or {}).get("gauge_point_mm", [0, 0, 0]), float) - sp["L"] * d0
             tparts = [(pt, CL.Cylinder(tip0 + pt["z0"] * d0, tip0 + max(pt["z1"], pt["z0"] + 1e-6) * d0, pt["r"]).moved(Tt))
                       for pt in sp["parts"]]
+            tparts += [(bx, CL.Box.from_minmax(bx["box"]).moved(Tt @ _translate(tip0))) for bx in sp.get("boxes", [])]
             wobjs = [("夹具", f, f["shape"].moved(Tw)) for f in fixtures]
             if stock_shape is not None:
                 sobj = stock_shape.moved(Tw)
@@ -277,7 +279,8 @@ def _translate(v) -> np.ndarray:
 
 
 def _lathe_specs(cfg: dict, parsed: dict) -> tuple[dict, list[dict]]:
-    """车刀：只按刀尖圆弧（刀片 nose_radius）查；车刀刀杆的外形 cam-tool/1 还没有，报“未知”"""
+    """车刀：刀尖圆弧（刀片 nose_radius）；刀杆按 ISO 5608 代号与刀尖偏距 f 生成长方体（holders.py，ADR-0107），
+    没有代号或没有 f 的报“未知”"""
     lib_path = cfg.get("tool_library")
     lib = TL.load(lib_path) if lib_path else TL.load()
     specs, checks = {}, []
@@ -289,8 +292,18 @@ def _lathe_specs(cfg: dict, parsed: dict) -> tuple[dict, list[dict]]:
             continue
         tool = TL.get(lib, g["tool"])
         r = float((tool.get("insert") or {}).get("nose_radius_mm", 0.0))
-        specs[t] = {"tool": tool, "L": 0.0, "parts": [{"part": "cutter", "z0": 0.0, "z1": 0.0, "r": max(r, 1e-3)}]}
-        checks.append({"line": None, "level": "unknown", "text": f"T{t}（{tool['id']}）：车刀刀杆外形还没有数据，只查了刀尖"})
+        specs[t] = {"tool": tool, "L": 0.0, "parts": [{"part": "cutter", "z0": 0.0, "z1": 0.0, "r": max(r, 1e-3)}], "boxes": []}
+        holder = tool.get("holder") or {}
+        if not holder.get("iso5608"):
+            checks.append({"line": None, "level": "unknown", "text": f"T{t}（{tool['id']}）：刀具库里没写刀杆代号（ISO 5608），只查了刀尖"})
+            continue
+        try:
+            bx, notes = HD.boxes(holder)
+        except HD.HolderError as exc:
+            checks.append({"line": None, "level": "unknown", "text": f"T{t}（{tool['id']}）：{exc}，只查了刀尖"})
+            continue
+        specs[t]["boxes"] = [{"part": "shank", "box": b} for b in bx]
+        checks += [{"line": None, "level": "unknown", "text": f"T{t}（{tool['id']}）：{n}"} for n in notes]
     return specs, checks
 
 
