@@ -159,3 +159,20 @@ def test_kt_fea_matches_book_within_3pct():
     assert k["kt_bending"] == pytest.approx(KT_I[0], rel=0.03)
     assert k["kt_torsion"] == pytest.approx(KT_I[1], rel=0.03)
     assert k["kt_bending"] > k["kt_torsion"] > 1
+
+
+def test_kt_hollow_with_tiny_bore_equals_solid():
+    """空心台阶（ADR-0100 42.5）：Ø10 上开 Ø1 的内孔，截面惯性矩只变 1e-4，应力集中系数应与实心相同（同网格，≤ 1 %）"""
+    from analysis.common.solvers import find_ccx
+    from analysis.shaft import kt
+
+    if find_ccx() is None:
+        if __import__("os").environ.get("CI"):
+            raise AssertionError("CI 中没有 ccx")
+        pytest.skip("本机没有 CalculiX")
+    solid, hollow = kt.stepped_bar(10.0, 12.0, 0.5), kt.stepped_bar(10.0, 12.0, 0.5, 1.0)
+    assert hollow["bore_mm"] == 1.0
+    assert hollow["kt_bending"] == pytest.approx(solid["kt_bending"], rel=0.01)
+    assert hollow["kt_torsion"] == pytest.approx(solid["kt_torsion"], rel=0.01)
+    with pytest.raises(kt.KtError):
+        kt.stepped_bar(10.0, 12.0, 0.5, 10.0)
