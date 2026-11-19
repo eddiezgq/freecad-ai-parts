@@ -100,3 +100,14 @@ def test_missing_conditions_stop_before_design():
     c.pop("pose_b")
     out = JD.design(TEXT, Script([], conds=c), [B6010], [RED], LIB.get, kt=fake_kt)
     assert out["status"] == "needs_input" and not out["rounds"]
+
+
+def test_loads_recorded_and_replayed_only_for_same_input(tmp_path, monkeypatch):
+    calls = []
+    monkeypatch.setattr(JD, "loads", lambda c: calls.append(c) or {"T_peak_nm": 89.4 + len(calls)})
+    path = tmp_path / "rec" / "loads.json"
+    cond = {"arm": {"payload_kg": 5}, "pose_a": {"j2": 0}, "pose_b": {"j2": 90}, "move_s": 1.0, "dwell_s": 0.5}
+    first = JD.loads_recording(path)(cond)
+    rep = JD.loads_replaying(path)
+    assert rep(dict(cond)) == first and len(calls) == 1                  # 同一输入：用录制的数，不重算
+    assert rep({**cond, "move_s": 2.0}) != first and len(calls) == 2      # 输入变了：现算
