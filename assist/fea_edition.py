@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 PRO = "fea_pro"
-EDITIONS = ("full", "fea", "mbd")                 # mbd：问渠多体动力学版（ADR-0102 第 4 步，分档见 mbd_edition）
+EDITIONS = ("full", "fea", "mbd", "cam")          # mbd：问渠多体动力学版（ADR-0102 第 4 步，分档见 mbd_edition）；cam：问渠CAM（ADR-0104，cam_edition）
 EDITION_FILE = Path(__file__).resolve().parents[1] / "edition.json"
 FREE_MAX_ELEMENTS = 200000
 FREE_STEPS = ("static", "modal", "buckling")
