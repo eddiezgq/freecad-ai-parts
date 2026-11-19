@@ -120,6 +120,8 @@ TOP_LEVEL = {
     "fea-study": "fea-study.schema.json",          # ADR-0093
     "mbd-model": "mbd-model.schema.json",          # ADR-0097
     "mbd-study": "mbd-study.schema.json",          # ADR-0097 D7b
+    "cam-machine": "cam-machine.schema.json",      # ADR-0105
+    "cam-tool": "cam-tool.schema.json",            # ADR-0105
 }
 
 
