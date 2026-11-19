@@ -538,7 +538,7 @@
 "圆柱面支承选的不是圆柱面": "The cylindrical support is not on a cylindrical face",
 "圆角": "Fillet",
 "圆角 {} 处": "{} fillets",
-"圆角不小于台阶高度，台阶端面没有平面，做不出来": "The fillet is not smaller than the step height; no flat face remains, so it cannot be made",
+"圆角不小于台阶高度，台阶端面没有平面，做不出来；把圆角取得比台阶高度小，或者这个台阶不定位零件时两段取同一直径、去掉台阶": "The fillet is not smaller than the step height; no flat face remains, so it cannot be made; make the fillet smaller than the step height, or, if the step locates nothing, give both segments the same diameter and remove the step",
 "圆角做不出来：{}": "The fillet cannot be made: {}",
 "圆角大于 ra max，内圈靠不上轴肩": "Fillet larger than ra max; the inner ring cannot seat against the shoulder",
 "在 FreeCAD 里人手加的": "added by hand in FreeCAD",
