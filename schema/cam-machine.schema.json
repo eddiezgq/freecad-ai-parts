@@ -55,8 +55,7 @@
     }
    },
    "required": [
-    "family",
-    "model"
+    "family"
    ],
    "additionalProperties": false
   },

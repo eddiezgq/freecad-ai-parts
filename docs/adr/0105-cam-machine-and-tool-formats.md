@@ -16,7 +16,7 @@ ADR-0104 要做 3+2、车铣复合、五轴联动和整台机床仿真，后处�
 一台机床一个 JSON 文件，后处理和整机仿真共用：
 
 - 基本：`id`、`name`、`example`（虚构示例为 true）、`source`（数据出处，必填）、`kind`（lathe / mill / mill_turn）。
-- 数控系统 `controller`：`family`（fanuc / siemens / heidenhain / gsk / hnc / knd / other）、`model`、`version`；
+- 数控系统 `controller`：`family`（fanuc / siemens / heidenhain / gsk / hnc / knd / other，必填）、`model`、`version`（知道就写；旧格式转换过来的没有这两项）；
   已开通的功能 `features`：RTCP、倾斜面坐标系、极坐标插补、圆柱插补（没写的按没有，后处理就不用）。
 - 主轴 `spindle`：最高转速（必填）、功率、传动效率、扭矩。
 - 轴 `axes`：每个轴写 `type`（直线 / 回转）、`carrier`（带刀具一侧还是带工件一侧）、`direction`、回转轴的 `point_mm`、行程（回转轴可写 `continuous`）、快移速度、车床 X 的直径编程。
