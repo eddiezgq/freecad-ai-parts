@@ -160,3 +160,37 @@ def test_countersink_depth_with_tip_flat():
 
     mv = P.mill_csink([(20, 20, 0.0)], 12.0, 90.0, 100.0, tip_d=1.0)
     assert mv[1]["z"] == pytest.approx(-5.5) and mv[1]["r"] == pytest.approx(2.0)
+
+
+@pytest.mark.parametrize("ccw", [True, False])
+def test_lead_arcs_are_tangent_and_outside(ccw):
+    """外轮廓（Ø10 刀心走 100×60 外偏 5 的矩形）加 R5 圆弧切入切出：圆弧与轮廓相切、全在轮廓外侧；
+    两层（−5、−10）各切入切出一次；仿真结果零件区域不过切（零件内的高度不低于 −10 以下）"""
+    import numpy as np
+
+    from analysis.cam import paths as P
+
+    loop = [(50, -5), (105, -5), (105, 65), (-5, 65), (-5, -5), (50, -5)]
+    if not ccw:
+        loop = loop[::-1]
+    mv = [{"t": "rapid", "x": 50, "y": -5, "z": 5.0}, {"t": "rapid", "x": 50, "y": -5, "z": 2.0}]
+    for z in (-5.0, -10.0):
+        mv.append({"t": "feed", "x": 50, "y": -5, "z": z, "f": 200.0})
+        mv += [{"t": "feed", "x": x, "y": y, "z": z, "f": 600.0} for x, y in loop[1:]]
+    out = P.lead_arcs(mv, 5.0)
+    plunges = [k for k, m in enumerate(out) if m["t"] == "feed" and m["f"] == 200.0]
+    assert len(plunges) == 2
+    for k in plunges:
+        S = out[k]
+        assert S["y"] < -5 - 1e-6 and math.dist((S["x"], S["y"]), (50, -5)) == pytest.approx(5 * math.sqrt(2))   # 在外侧
+        arc = out[k + 1:k + 1 + 18]
+        assert math.dist((arc[-1]["x"], arc[-1]["y"]), (50, -5)) < 1e-9              # 切到 P
+        d = (arc[-1]["x"] - arc[-2]["x"], arc[-1]["y"] - arc[-2]["y"])
+        t = (1.0, 0.0) if ccw else (-1.0, 0.0)
+        assert abs(d[1]) / math.hypot(*d) < 0.05 and d[0] * t[0] > 0                   # 到 P 时与轮廓同向（相切）
+    prog = {"number": 1, "title": "t", "ops": [{"tool": {"n": 1, "d": 10.0}, "spindle": {"rpm": 3000}, "safe": 5.0, "moves": out}]}
+    s = sim.simulate_mill(sim.parse(cam.post.post(prog, VMC), VMC), {"box": [-20, -20, 120, 80], "top": 0.0},
+                          {1: {"kind": "endmill", "d": 10.0}}, h=0.1)
+    X, Y = np.meshgrid(s["x"], s["y"], indexing="ij")
+    part = (X > 0.1) & (X < 99.9) & (Y > 0.1) & (Y < 59.9)
+    assert float(s["H"][part].min()) == pytest.approx(0.0)                             # 零件上没切到

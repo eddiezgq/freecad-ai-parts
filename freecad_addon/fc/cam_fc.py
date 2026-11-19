@@ -327,6 +327,11 @@ def program(shape, ops: list[dict], *, number: int = 6001, title: str = "2.5 轴
             else:
                 spec, op = next(done)
                 mv, label = commands_to_moves(op.Path.Commands, top), op.Label
+                if spec["type"] == "profile" and spec.get("lead", True):      # 外轮廓：圆弧切入切出（半径 = 刀具半径）
+                    from analysis.cam import paths as P
+
+                    mv = P.lead_arcs(mv, float(spec["tool"]["diameter_mm"]) / 2,
+                                     safe=max((x["z"] for x in mv if x["t"] == "rapid"), default=5.0))
             if not mv:
                 raise CamFcError(f"FreeCAD 的 {label} 没有出刀路")
             t = spec["tool"]
