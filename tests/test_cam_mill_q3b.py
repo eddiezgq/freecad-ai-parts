@@ -109,3 +109,23 @@ def test_tapping_without_drilled_hole_is_reported():
     s = sim.simulate_mill(sim.parse(g, VMC), {"box": [0, 0, 100, 60], "top": 0.0},
                           {4: {"kind": "drill", "d": 8.5}, 5: {"kind": "tap", "d": 10.0, "pitch": 1.5}})
     assert any("不等于丝锥螺距" in i["text"] for i in s["issues"])
+
+
+def test_countersink_cone_matches_geometry():
+    """90° 倒角刀（刀尖直径 0）在 Ø8.5 孔口锪到 Z−5：孔口直径 = 2·5·tan45° = 10；锥面上每一点 z = −(5 − ρ)"""
+    import numpy as np
+
+    prog = _tap_prog()
+    prog["ops"] = prog["ops"][:1] + [{"tool": {"n": 6, "d": 16.0, "kind": "chamfer", "tip_d": 0.0, "angle": 90.0, "name": "CM90"},
+                                      "spindle": {"rpm": 1500}, "safe": 5.0,
+                                      "moves": [{"t": "drill", "x": 30, "y": 30, "z": -5.0, "r": 2.0, "f": 100, "safe": 5.0}]}]
+    s = sim.simulate_mill(sim.parse(cam.post.post(prog, VMC), VMC), {"box": [0, 0, 100, 60], "top": 0.0},
+                          {4: {"kind": "drill", "d": 8.5}, 6: {"kind": "chamfer", "d": 16.0, "tip_d": 0.0, "angle": 90.0}}, h=0.05)
+    X, Y = np.meshgrid(s["x"], s["y"], indexing="ij")
+    rho = np.hypot(X - 30, Y - 30)
+    ring = (rho > 4.4) & (rho < 4.9)
+    err = float(np.abs(s["H"][ring] - (-(5 - rho[ring]))).max())
+    record(("90° 倒角刀锪孔口：锥面高度与 z = −(5 − ρ) 之差（最大）", "90° countersink: max deviation of cone from z = −(5 − ρ)"),
+           err, 0.0, tol=0.05, rel=False, unit="mm", formula="z = −(h − ρ / tan(α/2))")
+    assert err <= 0.05
+    assert float(s["H"][(rho > 5.1) & (rho < 6)].min()) == pytest.approx(0.0)       # 孔口直径 10 以外没动
