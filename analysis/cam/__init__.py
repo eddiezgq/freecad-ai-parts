@@ -198,6 +198,11 @@ def turn_context(setup, mach):
             "allow": float(setup.get("finish_allow_mm", 0.5)), "max_rpm": max_rpm, "sides": sides}
 
 
+def _heights(c) -> dict:
+    """工序的“高度与进退刀”：安全距离 clear（离端面 / 外圆，mm）、退刀量 retract（每层车完斜退，半径方向 mm）"""
+    return {"clear": float(c.get("clear") or P.CLEAR), "retract": float(c.get("retract") or 0.5)}
+
+
 def turn_op_specs(sc):
     """这次装夹的工序（缺省顺序）：[{"kind": rough | finish | groove | thread | drill | bore, "i": 第几个槽 / 螺纹}]"""
     out = [{"kind": "rough"}, {"kind": "finish"}]
@@ -228,18 +233,22 @@ def turn_build_op(ctx, sc, spec, c):
     k, max_rpm, stock_d, tgt = spec["kind"], ctx["max_rpm"], ctx["stock_d"], sc["tgt"]
     if k == "rough":
         e = ctx["e"]
-        mv = (P.turn_face(stock_d, e, max(min(c["ap"], 2.0), 0.2), c["f"], nose_r=c.get("nose_r", 0.0)) if e > 1e-3 else []) + \
-            P.turn_rough(tgt, stock_d, c["ap"], c["f"], ctx["allow"], 0.1, nose_r=c.get("nose_r", 0.0))
+        hz = _heights(c)
+        mv = (P.turn_face(stock_d, e, max(min(c["ap"], 2.0), 0.2), c["f"], nose_r=c.get("nose_r", 0.0), clear=hz["clear"])
+              if e > 1e-3 else []) + \
+            P.turn_rough(tgt, stock_d, c["ap"], c["f"], c.get("allow_r", ctx["allow"]), c.get("allow_z", 0.1),
+                         nose_r=c.get("nose_r", 0.0), **hz)
         return {"op": {"tool": {"n": 1, "name": "外圆粗车刀"}, "spindle": {"css": c["vc"], "max_rpm": max_rpm}, "moves": mv,
                        "title": "粗车"}, "tools": {1: {"kind": "turn", "nose_r": c.get("nose_r", 0.0)}}, "target": {}}
     if k == "finish":
         return {"op": {"tool": {"n": 2, "name": "外圆精车刀"}, "spindle": {"css": c["vc"], "max_rpm": max_rpm},
-                       "moves": P.turn_finish(tgt, stock_d, c["f"], nose_r=c.get("nose_r", 0.0)), "title": "精车"},
+                       "moves": P.turn_finish(tgt, stock_d, c["f"], nose_r=c.get("nose_r", 0.0), clear=_heights(c)["clear"]),
+                       "title": "精车"},
                 "tools": {2: {"kind": "turn", "nose_r": c.get("nose_r", 0.0)}}, "target": {}}
     if k == "groove":
         gv = sc["grooves"][spec["i"]]
         d_from = P.d_at(tgt, gv["z"] - gv["width"] / 2)
-        mv = P.turn_groove(gv["z"], gv["d"], gv["width"], d_from, c["f"], gv["tool_w"])
+        mv = P.turn_groove(gv["z"], gv["d"], gv["width"], d_from, c["f"], gv["tool_w"], clear=_heights(c)["clear"])
         return {"op": {"tool": {"n": 3, "name": f"切槽刀 宽 {gv['tool_w']:g}"}, "spindle": {"css": c["vc"], "max_rpm": max_rpm},
                        "moves": mv, "title": f"切槽 {spec['i'] + 1}"},
                 "tools": {3: {"kind": "groove", "w": gv["tool_w"]}}, "target": {"grooves": [(gv["z"], gv["width"], gv["d"])]}}
@@ -265,7 +274,8 @@ def turn_build_op(ctx, sc, spec, c):
                        "moves": P.lathe_drill(depth, dd, c["f"], c.get("peck", 0.0)), "title": "钻孔"},
                 "tools": {5: {"kind": "drill", "d": dd}}, "target": {}}
     return {"op": {"tool": {"n": 6, "name": "镗刀"}, "spindle": {"css": c["vc"], "max_rpm": max_rpm},
-                   "moves": P.turn_bore(inner, dd, c["ap"], c["f"], f_finish=c.get("f_finish"), nose_r=c.get("nose_r", 0.0)),
+                   "moves": P.turn_bore(inner, dd, c["ap"], c["f"], c.get("allow_r", 0.3), f_finish=c.get("f_finish"),
+                                        nose_r=c.get("nose_r", 0.0), **_heights(c)),
                    "title": "镗孔"},
             "tools": {6: {"kind": "bore", "nose_r": c.get("nose_r", 0.0)}}, "target": {"inner": inner}}
 

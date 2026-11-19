@@ -124,18 +124,18 @@ def z_reach(prof, d):
 
 
 # ---------------------------------------------------------------- 车削刀路
-def turn_face(stock_d, face_allow, ap, f, nose_r=0.0):
+def turn_face(stock_d, face_allow, ap, f, nose_r=0.0, clear=CLEAR):
     """车端面：毛坯右端比成品多 face_allow，分层车到 Z0。车过中心：假想刀尖到 X −max(1, 2rε + 0.2)，
     刀尖圆弧才能把中心车平（否则中心留一个半径约 rε 的小凸台）。"""
     x_end = -max(1.0, 2 * nose_r + 0.2)
     mv = [{"t": "comment", "text": f"车端面（余量 {face_allow:g}）"}]
     n = max(1, math.ceil(face_allow / ap - 1e-9)) if face_allow > 0 else 1
-    xo = stock_d + 2 * CLEAR
+    xo = stock_d + 2 * clear
     for k in range(n):
         z = max(0.0, face_allow - (k + 1) * ap)
-        mv += [{"t": "rapid", "x": xo, "z": z + CLEAR}, {"t": "rapid", "x": xo, "z": z},
-               {"t": "feed", "x": x_end, "z": z, "f": f}, {"t": "rapid", "x": x_end, "z": z + CLEAR},
-               {"t": "rapid", "x": xo, "z": z + CLEAR}]
+        mv += [{"t": "rapid", "x": xo, "z": z + clear}, {"t": "rapid", "x": xo, "z": z},
+               {"t": "feed", "x": x_end, "z": z, "f": f}, {"t": "rapid", "x": x_end, "z": z + clear},
+               {"t": "rapid", "x": xo, "z": z + clear}]
     return mv
 
 
@@ -183,17 +183,17 @@ def nose_comp(profile, r_eps, inner=False, seg_deg=10.0):
     return simplify([(z + shift[0], 2 * (r + shift[1])) for z, r in out])
 
 
-def _follow(prof, f, stock_d):
+def _follow(prof, f, stock_d, clear=CLEAR):
     z0, d0 = prof[0]
-    xo = max(stock_d, max(d for _, d in prof)) + 2 * CLEAR
-    mv = [{"t": "rapid", "x": d0, "z": CLEAR}, {"t": "feed", "x": d0, "z": z0, "f": f}]
+    xo = max(stock_d, max(d for _, d in prof)) + 2 * clear
+    mv = [{"t": "rapid", "x": d0, "z": clear}, {"t": "feed", "x": d0, "z": z0, "f": f}]
     mv += [{"t": "feed", "x": d, "z": z, "f": f} for z, d in prof[1:]]
     zl = prof[-1][0]
-    mv += [{"t": "feed", "x": xo, "z": zl, "f": f}, {"t": "rapid", "x": xo, "z": CLEAR}]
+    mv += [{"t": "feed", "x": xo, "z": zl, "f": f}, {"t": "rapid", "x": xo, "z": clear}]
     return mv
 
 
-def turn_rough(profile, stock_d, ap, f, allow_r=0.3, allow_z=0.1, profile_pass=True, nose_r=0.0):
+def turn_rough(profile, stock_d, ap, f, allow_r=0.3, allow_z=0.1, profile_pass=True, nose_r=0.0, clear=CLEAR, retract=0.5):
     """分层粗车（相当于 FANUC G71，展开成直线段）：每层直径减 2×ap，车到碰到留余量的轮廓为止；
     最后（profile_pass）沿留余量的轮廓走一刀，去掉分层留下的台阶（刀尖圆弧 nose_r 补偿）。"""
     tgt = with_allowance(profile, allow_r, allow_z)
@@ -204,21 +204,22 @@ def turn_rough(profile, stock_d, ap, f, allow_r=0.3, allow_z=0.1, profile_pass=T
         d_new = max(d - 2 * ap, dmin)
         zstop = z_reach(tgt, d_new + 1e-6)
         if zstop < -1e-6:
-            mv += [{"t": "rapid", "x": d_new, "z": CLEAR}, {"t": "feed", "x": d_new, "z": zstop, "f": f},
-                   {"t": "feed", "x": d_new + 1.0, "z": zstop + 0.5, "f": f}, {"t": "rapid", "x": d_new + 1.0, "z": CLEAR}]
+            mv += [{"t": "rapid", "x": d_new, "z": clear}, {"t": "feed", "x": d_new, "z": zstop, "f": f},
+                   {"t": "feed", "x": d_new + 2 * retract, "z": zstop + retract, "f": f},
+                   {"t": "rapid", "x": d_new + 2 * retract, "z": clear}]
         d = d_new
     if not profile_pass:
         return mv
     mv.append({"t": "comment", "text": "沿留余量的轮廓走一刀"})
-    return mv + _follow(nose_comp(tgt, nose_r), f, stock_d)
+    return mv + _follow(nose_comp(tgt, nose_r), f, stock_d, clear=clear)
 
 
-def turn_finish(profile, stock_d, f, nose_r=0.0):
+def turn_finish(profile, stock_d, f, nose_r=0.0, clear=CLEAR):
     text = "精车轮廓" + (f"（刀尖圆弧 R{nose_r:g} 已补偿）" if nose_r > 0 else "")
-    return [{"t": "comment", "text": text}, *_follow(nose_comp(profile, nose_r), f, stock_d)]
+    return [{"t": "comment", "text": text}, *_follow(nose_comp(profile, nose_r), f, stock_d, clear=clear)]
 
 
-def turn_groove(z, d_bottom, width, d_from, f, tool_width):
+def turn_groove(z, d_bottom, width, d_from, f, tool_width, clear=CLEAR):
     """切槽：z 是槽右侧位置，刀位点在刀的右刀尖；槽宽于刀时多刀并排，每刀重叠 20%。"""
     if width < tool_width - 1e-9:
         raise CamError(f"槽宽 {width:g} 小于刀宽 {tool_width:g}")
@@ -227,8 +228,8 @@ def turn_groove(z, d_bottom, width, d_from, f, tool_width):
     n = 1 if span < 1e-9 else math.ceil(span / (0.8 * tool_width) - 1e-9) + 1
     for k in range(n):
         zk = z - (span * k / (n - 1) if n > 1 else 0.0)
-        mv += [{"t": "rapid", "x": d_from + 2 * CLEAR, "z": zk}, {"t": "feed", "x": d_bottom, "z": zk, "f": f},
-               {"t": "rapid", "x": d_from + 2 * CLEAR, "z": zk}]
+        mv += [{"t": "rapid", "x": d_from + 2 * clear, "z": zk}, {"t": "feed", "x": d_bottom, "z": zk, "f": f},
+               {"t": "rapid", "x": d_from + 2 * clear, "z": zk}]
     return mv
 
 
@@ -303,7 +304,7 @@ def z_reach_inner(prof, d):
     return last
 
 
-def turn_bore(inner, hole_d, ap, f, allow_r=0.3, f_finish=None, nose_r=0.0):
+def turn_bore(inner, hole_d, ap, f, allow_r=0.3, f_finish=None, nose_r=0.0, clear=CLEAR, retract=0.5):
     """镗内孔：从已钻的孔 hole_d 起分层扩到留余量的内轮廓，再沿内轮廓精镗一刀。刀位点在镗刀刀尖，退刀往孔中心让 1 mm"""
     dmax = max(d for _, d in inner)
     if hole_d >= min(d for _, d in inner) - 1e-9:
@@ -315,16 +316,17 @@ def turn_bore(inner, hole_d, ap, f, allow_r=0.3, f_finish=None, nose_r=0.0):
         d_new = min(d + 2 * ap, dmax - 2 * allow_r)
         zstop = z_reach_inner(tgt, d_new - 1e-6)
         if zstop < -1e-6:
-            mv += [{"t": "rapid", "x": d_new, "z": CLEAR}, {"t": "feed", "x": d_new, "z": zstop, "f": f},
-                   {"t": "feed", "x": d_new - 1.0, "z": zstop + 0.5, "f": f}, {"t": "rapid", "x": d_new - 1.0, "z": CLEAR}]
+            mv += [{"t": "rapid", "x": d_new, "z": clear}, {"t": "feed", "x": d_new, "z": zstop, "f": f},
+                   {"t": "feed", "x": d_new - 2 * retract, "z": zstop + retract, "f": f},
+                   {"t": "rapid", "x": d_new - 2 * retract, "z": clear}]
         d = d_new
     mv.append({"t": "comment", "text": "精镗内轮廓"})
     ff = f_finish or f
     prof = nose_comp(inner, nose_r, inner=True)
-    mv += [{"t": "rapid", "x": prof[0][1], "z": CLEAR}]
+    mv += [{"t": "rapid", "x": prof[0][1], "z": clear}]
     mv += [{"t": "feed", "x": dd, "z": z, "f": ff} for z, dd in prof]
     zl = prof[-1][0]
-    mv += [{"t": "feed", "x": hole_d, "z": zl, "f": ff}, {"t": "rapid", "x": hole_d, "z": CLEAR}]
+    mv += [{"t": "feed", "x": hole_d, "z": zl, "f": ff}, {"t": "rapid", "x": hole_d, "z": clear}]
     return mv
 
 

@@ -121,6 +121,11 @@ class OpProxy:
             obj.Status = STATUS
         _add(obj, "App::PropertyString", "Reason", "起草理由")
         _add(obj, "App::PropertyString", "Check", "参数核对结论")
+        # 余量与分层、高度与进退刀（ADR-0106 Q3a；0 = 用缺省值）
+        _add(obj, "App::PropertyFloat", "AllowRadial", "粗加工留的径向余量 mm（0 = 缺省：车 0.5、镗 0.3）")
+        _add(obj, "App::PropertyFloat", "AllowAxial", "粗车留的轴向余量 mm（0 = 缺省 0.1）")
+        _add(obj, "App::PropertyFloat", "Clearance", "安全距离 mm：快移到离工件这么远再切（0 = 缺省 2）")
+        _add(obj, "App::PropertyFloat", "Retract", "退刀量 mm：每层切完斜着退开（0 = 缺省 0.5）")
         _add(obj, "App::PropertyString", "Moves", "刀路（JSON，中间格式）", hidden=True)
         _add(obj, "App::PropertyString", "Spindle", "主轴（JSON：rpm 或 css）", hidden=True)
 
@@ -335,6 +340,14 @@ def _turn_cut(job, op) -> dict:
         w = (TL.get(_lib(job), op.ToolId).get("insert") or {}).get("width_mm")
         if w:
             c["tool_w"] = float(w)
+    if k in ("rough", "finish", "bore") and op.ToolId:
+        r = (TL.get(_lib(job), op.ToolId).get("insert") or {}).get("nose_radius_mm")
+        if r is not None:
+            c["nose_r"] = float(r)
+    for prop, key in (("AllowRadial", "allow_r"), ("AllowAxial", "allow_z"), ("Clearance", "clear"), ("Retract", "retract")):
+        v = float(getattr(op, prop, 0.0) or 0.0)
+        if v > 0:
+            c[key] = v
     return c
 
 
