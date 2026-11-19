@@ -109,7 +109,7 @@ if ($Edition -eq "fea") {
   & $iscc "/DAppVersion=$appVersion" "/DSourceDir=$app" "/DOutputDir=$outAbs" "/DDocsDir=$Repo\docs\verification" "/DHelpDir=$Repo\docs\wenquest-fea\help" "/DExamplesDir=$Repo\examples\wenquest-fea" "$PSScriptRoot\wenquest-fea\wenquest-fea.iss"
   $pattern = "WenQuest-FEA-Setup-*.exe"
 } elseif ($Edition -eq "mbd") {
-  & $iscc "/DAppVersion=$appVersion" "/DSourceDir=$app" "/DOutputDir=$outAbs" "/DDocsDir=$Repo\docs\verification\mbd" "$PSScriptRoot\wenquest-mbd\wenquest-mbd.iss"
+  & $iscc "/DAppVersion=$appVersion" "/DSourceDir=$app" "/DOutputDir=$outAbs" "/DDocsDir=$Repo\docs\verification\mbd" "/DHelpDir=$Repo\docs\wenquest-mbd\help" "/DExamplesDir=$Repo\examples\wenquest-mbd" "$PSScriptRoot\wenquest-mbd\wenquest-mbd.iss"
   $pattern = "WenQuest-MBD-Setup-*.exe"
 } else {
   & $iscc "/DAppVersion=$appVersion" "/DSourceDir=$app" "/DOutputDir=$outAbs" "$PSScriptRoot\fap.iss"

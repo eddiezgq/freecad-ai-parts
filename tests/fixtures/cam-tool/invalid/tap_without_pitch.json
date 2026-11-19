@@ -1,0 +1,19 @@
+{
+ "why": "丝锥要写螺距",
+ "instance": {
+  "format": "cam-tool/1",
+  "name": "示例刀具库（虚构）",
+  "example": true,
+  "tools": [
+   {
+    "id": "T",
+    "kind": "tap",
+    "diameter_mm": 10,
+    "source": {
+     "kind": "example",
+     "ref": "x"
+    }
+   }
+  ]
+ }
+}

@@ -128,7 +128,10 @@ def t(text, lang: str = "en"):
     """翻成 lang（zh 原样返回）。整句对不上表时按模板拆开、按句断开逐段翻；仍对不上的原样保留（记进 MISSES）"""
     if lang != "en" or not isinstance(text, str) or not has_cjk(text):
         return text
-    return _tr(text)
+    out = _tr(text)
+    if out.count("\n") < text.count("\n"):            # 拆句时把换行丢了（多行的核查结论）：逐行翻
+        out = "\n".join(_tr(x) if has_cjk(x) else x for x in text.split("\n"))
+    return out
 
 
 RAW_L, RAW_R = "\ue000", "\ue001"          # 原样保留的一段（用户写的话、文献出处）：翻译时当成一个整体，不动

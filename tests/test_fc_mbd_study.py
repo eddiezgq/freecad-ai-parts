@@ -277,10 +277,43 @@ def test_mbd_workbench_menu(gui, mbd_free, monkeypatch):
     try:
         assert mbd_brand.WORKBENCH in FreeCADGui.listWorkbenches()
         FreeCADGui.activateWorkbench(mbd_brand.WORKBENCH)
-        _pump(gui, lambda: True, 1)
+        end = time.time() + 1.0
+        _pump(gui, lambda: time.time() > end, 5)                       # 菜单标题在激活后的下一轮事件里改成当前语言
         menus = {a.text(): [x.text() for x in a.menu().actions()] for a in FreeCADGui.getMainWindow().menuBar().actions() if a.menu()}
         got = set(menus.get("问渠多体动力学") or [])
         assert {"装配体多体动力学", "授权…", "设置 AI 密钥…", "关于问渠多体动力学"} <= got, menus
         assert "问渠多体动力学" in mbd_brand.about_text() and "免费版" in mbd_brand.about_text()
     finally:
         FreeCADGui.activateWorkbench("NoneWorkbench")
+
+
+def test_panel_opens_model_file(gui, mbd_free, monkeypatch):
+    """ADR-0102 第 5 步：“打开模型文件…”——窗口的分析设置照文件填好；免费版拒绝线性化；专业版算出模态表、能出报告"""
+    from pathlib import Path
+
+    from freecad_addon.gui.mbd_assembly_panel import MbdAssemblyPanel
+    from tests.test_fea_edition import _license
+
+    ex = Path(__file__).resolve().parents[1] / "examples/wenquest-mbd/03-pushrod-buckling"
+    panel = MbdAssemblyPanel()
+    try:
+        bad = mbd_free / "bad.json"
+        bad.write_text('{"format": "fea-study/1"}', encoding="utf-8")
+        assert panel.load_model_file(bad) is False and "mbd-model/1" in panel.status.text()
+        assert panel.load_model_file(ex / "pushrod-push60.json") is True
+        assert panel.kind.currentData() == "static_then_linear" and panel.run_btn.isEnabled()
+        assert panel.compute() is False and "线性化与模态" in panel.status.text()          # 免费版
+        from assist import mbd_edition
+
+        lic, key = _license(mbd_free, [mbd_edition.PRO])
+        monkeypatch.setenv("FAP_LICENSE_FILE", str(lic))
+        monkeypatch.setenv("FAP_LICENSE_TEST_KEY", key)
+        assert panel.compute() is True
+        _pump(gui, lambda: not panel.busy)
+        assert panel.data is not None and panel.modes.rowCount() >= 1, panel.status.text()
+        assert float(panel.modes.item(0, 1).text()) == pytest.approx(25.53, rel=1e-3)
+        assert panel.animator is None and not panel.slider.isEnabled()
+        got = panel.write_report(mbd_free / "rep", use_ai=False)
+        assert got is not None and got["docx"].is_file()
+    finally:
+        panel.close()

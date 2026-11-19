@@ -1,0 +1,26 @@
+# 《机械设计》33.10 协作机器人肩关节空心轴 RJ-201 的书中结果（标准题用）。
+# 由书的程序 textbook/mechdesign/ch33/code/ex33_10.py（eddiezgq/wenquest 24c765b2，有限元之前的部分）算出：
+# 载荷来自 MuJoCo Menagerie 的 UR5e 模型（4d038b3f），负载 4 kg，节拍 A→B 1.0 s、停 0.5 s、B→A 1.0 s、停 0.5 s。
+# 材料 40Cr 调质：E 210 000 MPa、μ 0.3（G = 80 769.23 MPa）、σs 540 MPa、密度 7.85 g/cm³。
+T_peak_nm: 96.25510770091962
+F_peak_n: 201.87374482171685
+reach_mm: 850.0
+budget_mm: 0.20
+hand_margin: 1.2
+G_mpa: 80769.23076923077
+sigma_s_mpa: 540
+density_g_cm3: 7.85
+arm_offset_mm: 28.0
+# 方案：(轴承位, 内孔, 轴承)；轴段 = (轴承位+20, 10)、(轴承位, 16)、(轴承位, 24)、(轴承位, 16)、(花键小径, 20)
+schemes:
+  - {seat: 45, bore: 25, bearing: "6009", hub: 38.25, theta_rad: 0.0002560721033640941, delta_mm: 0.21766128785948, mass_kg: 0.8086583681424714, ok: false}
+  - {seat: 45, bore: 30, bearing: "6009", hub: 38.25, theta_rad: 0.0003013731870512587, delta_mm: 0.25616720899356993, mass_kg: 0.6628472356123267, ok: false}
+  - {seat: 50, bore: 30, bearing: "6010", hub: 42.75, theta_rad: 0.00017555497704867983, delta_mm: 0.14922173049137785, mass_kg: 0.9134080992920343, ok: true}
+  - {seat: 50, bore: 34, bearing: "6010", hub: 42.75, theta_rad: 0.00020160470271416738, delta_mm: 0.17136399730704227, mass_kg: 0.7776711904639722, ok: false}
+  - {seat: 50, bore: 38, bearing: "6010", hub: 42.75, theta_rad: 0.0002627208502907564, delta_mm: 0.22331272274714295, mass_kg: 0.6249671680324024, ok: false}
+picked: {seat: 50, bore: 30}
+# 选定方案的静强度（M = F_peak × arm_offset，T = T_peak）
+S_static_seat: 69.03542195713237
+S_static_hub: 37.55129014368674
+sigma_seat_mpa: 0.5291868954869107
+tau_seat_mpa: 4.505728290718859
