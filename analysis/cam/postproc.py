@@ -145,6 +145,9 @@ def _mill_moves(op):
             out += [{"t": "rapid", "x": x, "y": y, "z": safe}, {"t": "rapid", "x": x, "y": y, "z": r}]
             depth, first = r, True
             q = mv.get("q") or 0.0
+            if q <= 0:                               # 一次钻到底（同 G81）：钻到底直接快退到安全高度
+                out += [{"t": "feed", "x": x, "y": y, "z": zb, "f": mv["f"]}, {"t": "rapid", "x": x, "y": y, "z": safe}]
+                continue
             while depth > zb + 1e-9:
                 nd = max(depth - q, zb) if q > 0 else zb
                 if not first:

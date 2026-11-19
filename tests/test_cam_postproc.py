@@ -47,8 +47,10 @@ def test_lathe_posts_reproduce_simulated_path(ctl):
 
 
 @pytest.mark.parametrize("ctl", ["fanuc", "siemens"])
-def test_mill_posts_reproduce_simulated_path_with_expanded_drilling(ctl):
-    p = _progs({**ML, "post": ctl})[0]
+@pytest.mark.parametrize("depth", [30, 20], ids=["peck-G83", "single-G81"])
+def test_mill_posts_reproduce_simulated_path_with_expanded_drilling(ctl, depth):
+    feats = [ML["features"][0], {**ML["features"][1], "depth": depth}]   # 深 30 > 3d 啄钻；深 20 一次钻到底
+    p = _progs({**ML, "features": feats, "post": ctl})[0]
     rel = p["release"]
     assert rel, [c["text"] for c in p["checks"]]
     assert "G81" not in rel["text"] and "G83" not in rel["text"]       # 钻孔展开成 G00 / G01
