@@ -235,3 +235,13 @@
   - 后处理：FANUC、西门子、广数的正式程序回读后与仿真刀路的最大差 0。
 - `assist/cam_verification.py`、`assist/cam_verification_cases.json`：照有限元、多体动力学的验证手册，生成中英两版；`tests/test_cam_verification.py` 核对清单不漏题。
 - 手册在 `docs/verification/cam/`。实机记录在合作厂验收后加。
+
+### C1 第 8 步：2.5 轴铣接 FreeCAD CAM（2026-11-19）
+
+- `freecad_addon/fc/cam_fc.py`：在 FreeCAD 里建 CAM 作业，型腔（零件上朝上、低于顶面的平面当型腔底）、外轮廓、钻孔（FreeCAD 找出的孔里取直径等于钻头的）
+  由 FreeCAD CAM 算刀路；刀具从 cam-tool/1 刀具库换成 FreeCAD 的 ToolBit（直径、刃长、柄径、总长、钻尖角）。
+- **不用 FreeCAD 的后处理**：它的刀路命令换成问渠CAM 的中间格式（进给 mm/s → mm/min；G2 / G3 圆弧每 5° 拆成直线段；G81 / G83 换成我们的钻孔动作；
+  程序 Z0 在零件顶面），交给 `analysis.cam.run` 新加的 `program` 模式，走同一套切削仿真、整机仿真、后处理与回读比对。外来刀路没有目标形状，过切 / 残留比对报“未知”。
+- FreeCAD 1.0 没有界面时，作业里有多把刀会在新建工序时报错（`findToolController` 要弹窗问用户），所以先建工序、再加刀、最后指定；默认刀删掉。
+- 验收：`tests/test_cam_freecad25d.py`——program 模式的输入检查、手写刀路的时间与手算一致；FreeCAD 里型腔 + 外轮廓 + 钻孔一件，
+  外轮廓转角离零件角点正好一个刀具半径，西门子正式程序出得来，仿真后型腔底在 Z-8、孔打穿、轮廓外的材料不动。

@@ -17,6 +17,8 @@
           {"type": "pocket", "rect": [x0, y0, x1, y1], "corner_r", "depth"},
           {"type": "contour", "rect": [..], "corner_r", "depth"},
           {"type": "holes", "d", "points": [[x, y], ..], "depth"}]，每项可给 tool_d 与 cut（缺省见 DEFAULT_CUT）
+  program：中间格式程序 program {number, title, ops: [{tool: {n, d, kind}, spindle: {rpm}, moves: [...]}]}（FreeCAD CAM 的 2.5 轴刀路换过来的，
+         freecad_addon/fc/cam_fc.py）+ stock {box, height}；同样做切削仿真、整机仿真（machine_sim）、正式程序（post）
   check：gcode（程序文本）；可选 stock（车：{"d", "z_right", "z_left"}；铣：{"box"}）与 tools（{刀号: {"kind": "turn" | "groove" | "endmill" |
          "drill", "d" 或 "w"}}）——给了毛坯才仿真
   machine_sim（可选，三种 mode 都认）：整机仿真（analysis/cam/machine_sim.py）——work_offset_mm、fixtures、tool_library、
@@ -398,6 +400,53 @@ def _mill(setup, mach):
     return [out], {}
 
 
+# ---------------------------------------------------------------- 外来刀路（FreeCAD CAM 等）
+MOVE_KEYS = {"rapid": ("x", "y", "z"), "feed": ("x", "y", "z", "f"), "drill": ("x", "y", "z", "r", "f")}
+
+
+def _program(setup, mach):
+    """中间格式程序（ADR-0104：FreeCAD CAM 的 2.5 轴刀路换过来，freecad_addon/fc/cam_fc.py）→ 同一套仿真、整机仿真、后处理"""
+    if mach["kind"] != "mill":
+        raise SetupError(f"{mach['name']} 不是铣床 / 加工中心")
+    prog = setup.get("program") or {}
+    ops = prog.get("ops") or []
+    if not ops:
+        raise SetupError("program 里没有工序")
+    tools = {}
+    for k, op in enumerate(ops, 1):
+        t = op.get("tool") or {}
+        if "n" not in t or not t.get("d"):
+            raise SetupError(f"第 {k} 道工序要写刀号 tool.n 和刀径 tool.d")
+        if not (op.get("spindle") or {}).get("rpm"):
+            raise SetupError(f"第 {k} 道工序没有转速")
+        for mv in op.get("moves") or []:
+            need = MOVE_KEYS.get(mv.get("t"))
+            if need is None:
+                raise SetupError(f"第 {k} 道工序有不认识的动作 {mv.get('t')!r}")
+            if any(mv.get(x) is None for x in need):
+                raise SetupError(f"第 {k} 道工序的 {mv['t']} 动作缺 {', '.join(x for x in need if mv.get(x) is None)}")
+        tools[int(t["n"])] = {"kind": t.get("kind", "endmill"), "d": float(t["d"])}
+    stock = setup.get("stock") or {}
+    if len(stock.get("box") or []) != 4:
+        raise SetupError("要给毛坯 stock.box = [x0, y0, x1, y1]（上表面 Z0）")
+    box = [float(v) for v in stock["box"]]
+    g = post.post(prog, mach)
+    parsed = sim.parse(g, mach)
+    checks = sim.machine_checks(parsed, mach)
+    tm = sim.timing(parsed, mach)
+    hook, extra = _msim_hook(setup, mach, parsed)
+    s = sim.simulate_mill(parsed, {"box": box, "top": 0.0}, tools, on_move=hook)
+    checks += s["issues"]
+    out = {"title": prog.get("title") or "外来刀路", "number": prog.get("number", 6001), "gcode": g, "time": tm, "checks": checks,
+           "power": {"status": "unknown"}, "sim": {"ap_max_mm": round(s["ap_max"], 3), "cell_mm": round(s["h"], 4)},
+           "tools": {str(k): v for k, v in tools.items()}, "generator": prog.get("generator", "")}
+    out["checks"].append({"line": None, "level": "unknown", "text": "外来刀路没有目标形状，过切 / 残留没有比对（看仿真结果确认）"})
+    _msim(setup, mach, parsed, g, {"box": box, "top": 0.0, "height": stock.get("height")}, extra, out, withhold=True,
+          expect_d={k: v["d"] for k, v in tools.items()})
+    _release(setup, mach, prog, out)
+    return [out], {}
+
+
 # ---------------------------------------------------------------- 检查已有程序
 def _check(setup, mach):
     text = setup.get("gcode") or ""
@@ -433,9 +482,9 @@ def run(setup: dict) -> dict:
     mode = setup.get("mode")
     try:
         mach = M.get(setup.get("machine", ""))
-        fn = {"turn": _turn, "mill": _mill, "check": _check}.get(mode)
+        fn = {"turn": _turn, "mill": _mill, "check": _check, "program": _program}.get(mode)
         if fn is None:
-            raise SetupError(f"mode 要是 turn、mill 或 check：{mode!r}")
+            raise SetupError(f"mode 要是 turn、mill、check 或 program：{mode!r}")
         progs, extra = fn(setup, mach)
     except (SetupError, P.CamError, M.MachineError, MS.SimSetupError) as exc:
         return result.failed("cam", MODULE["version"], setup, str(exc))
