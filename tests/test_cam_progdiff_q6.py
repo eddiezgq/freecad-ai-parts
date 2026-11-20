@@ -17,7 +17,6 @@ from tests.test_cam_post_q5 import (  # noqa: F401  （fixture）
     _turn,
     posts_dir,
 )
-from tests.verification import record_verdict
 
 VMC = machines.get("EX-VMC")
 LATHE = machines.get("EX-LATHE")
@@ -37,8 +36,6 @@ def test_same_path_different_writing(post, posts_dir):  # noqa: F811
     r = progdiff.compare(a, b, VMC)
     assert r["same"], progdiff.report(r)
     assert "刀路相同" in progdiff.report(r) and "identical" in progdiff.report(r, "en")
-    record_verdict((f"程序对比：换写法（{post}）报刀路相同", f"program comparison: rewritten ({post}) reported identical"), "pass", "pass")
-
 
 def test_lathe_same_path_with_cycles_and_sequence(posts_dir):  # noqa: F811
     """车：固定循环、顺序号（G71 P / Q 改号）换成展开写法，刀路相同"""
@@ -98,8 +95,6 @@ def test_tool_swapped_and_op_added():
     t = progdiff.report(r)
     assert "新版加了：T6" in t and "新版去了：T4" in t and "同样的刀路换了刀 T4 → T6" in t
     assert r["tools"]["a"] == [1, 4, 5] and r["tools"]["b"] == [1, 6, 5, 1]
-    record_verdict(("程序对比：换刀、加工序准确报出", "program comparison: tool swap and added operation reported"), "pass", "pass")
-
 
 def test_detect_and_cli(tmp_path):
     a = _mill("fanuc")["release"]["text"]

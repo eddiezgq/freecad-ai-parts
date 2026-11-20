@@ -14,7 +14,6 @@ from assist import cam_process as CP
 from assist.fea_report import _ptr_get, fmt
 from tests.test_cam_card import TURN
 from tests.test_cam_post_q5 import MSIM_MILL, _mill_prog
-from tests.verification import record_verdict
 
 
 def _images(docx):
@@ -54,8 +53,6 @@ def test_turn_card_has_three_kinds_of_drawings(tmp_path, lang):
         c = p["clamp"]
         assert fmt(-(c["z_left"] + c["jaw_len"])) in texts
     assert any(e["source"] == "library" and e["pointer"].endswith("/insert/nose_radius_mm") for e in figs)
-    record_verdict(("工艺卡三种图：图上的数与计算结果、刀具库一致", "process card drawings: numbers match result and library"), "pass", "pass")
-
 
 def test_mill_card_without_model_says_so_and_with_views_draws_part(tmp_path):
     prog = _mill_prog()
