@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import itertools
 import math
+import re
 import statistics
 import time
 
@@ -158,6 +159,10 @@ def _release(setup, mach, prog, out):
     if prog.get("cycles") and ctl in ("fanuc", "gsk") and any(op.get("cycles") for op in prog["ops"]):
         out["checks"].append({"line": None, "level": "warn",
                               "text": "程序里用了固定循环（G71 / G70 / G76）：仿真按问渠的展开规则走，数控系统实际的分层、退刀可能略有不同，首件单段确认"})
+    if re.search(r"\bG8[13]\b|CYCL DEF 200", rel["text"]):
+        out["checks"].append({"line": None, "level": "warn",
+                              "text": "程序里用了钻孔循环：仿真按啄钻每次退到 R 平面、再快移到上次深度上方 0.5 mm 算，"
+                                      "数控系统实际的提前停止距离由系统参数定，首件单段确认"})
     if not rel["verified"]:
         out["checks"].append({"line": None, "level": "warn",
                               "text": f"{rel['post']} 后处理还没在实机上验证过：首件空运行、单段试切确认"})

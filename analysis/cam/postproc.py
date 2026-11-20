@@ -16,7 +16,7 @@ from __future__ import annotations
 import contextvars
 import math
 
-from analysis.cam import postcfg
+from analysis.cam import klartext, postcfg
 from analysis.cam.post import num as _num
 
 # 按后处理配置的小数位、注释写法（ADR-0106 Q5a）：render 时设，写法函数里读
@@ -314,6 +314,80 @@ def _mill(prog, machine, sim_res, post, dialect):
     return "\n".join(x for x in L if x) + "\n"
 
 
+def _kl_comment(text: str) -> str:
+    t = " ".join(str(text).split()) if _fmt()["utf8"] else " ".join(_ascii(text).split())
+    return f"; {t}" if t else ""
+
+
+def _heidenhain_mill(prog, machine, sim_res, post):
+    """海德汉 TNC 对话格式（ADR-0106 Q5b）→ (程序头注释, 程序段)；段号、BEGIN / END PGM、配置开关由 klartext.finish 加"""
+    max_rpm = float(machine["max_rpm"])
+    h = klartext.hnum
+    head = [_kl_comment(f"WENQUEST CAM {prog.get('title_en') or ''}")]
+    for en, _cn, v in _header_items(prog, machine, sim_res, post):
+        head.append(_kl_comment(f"{en} {v}" if en else v))
+    body: list[str] = []
+    for k, op in enumerate(prog["ops"], 1):
+        t, sp = op["tool"], op["spindle"]
+        safe = op.get("safe", 50.0)
+        rpm = float(sp["rpm"])
+        if rpm > max_rpm + 1e-9:
+            raise ReleaseError(f"工序 {k} 转速 {rpm:.0f} 超过机床最高转速 {max_rpm:g}")
+        mvs = _mill_moves(op)
+        x0 = next((mv for mv in mvs if "x" in mv), {"x": 0.0, "y": 0.0})
+        body += [_kl_comment(f"OP{k} T{t['n']:02d}" + (f" D{num(t['d'])}" if t.get("d") else "")), f"TOOL CALL {t['n']} Z S{round(rpm)}",
+                 f"L X{h(num(x0['x']))} Y{h(num(x0['y']))} R0 FMAX M3", f"L Z{h(num(safe))} R0 FMAX M8"]
+        pos = {"x": x0["x"], "y": x0["y"], "z": safe}
+        last_f, last_def = None, None
+        for mv in mvs:
+            if mv["t"] in ("drill", "tap"):           # CYCL DEF 200 / 207：表面 = R 平面 − 2，第二安全距离回到安全高度
+                sf = mv.get("safe", 5.0)
+                if sf < mv["r"] - 1e-9:
+                    raise ReleaseError(f"工序 {k}：安全高度 Z{sf:g} 低于 R 平面 Z{mv['r']:g}")
+                if abs(pos["z"] - sf) > 5e-4:
+                    body.append(f"L Z{h(num(sf))} R0 FMAX")
+                top = mv["r"] - 2.0
+                if mv["t"] == "drill":
+                    depth = top - mv["z"]
+                    q = mv.get("q") or 0.0
+                    qs = [("200", 2.0, "SET-UP CLEARANCE"), ("201", mv["z"] - top, "DEPTH"), ("206", mv["f"], "FEED RATE FOR PLNGNG"),
+                          ("202", q if q > 0 else depth, "PLUNGING DEPTH"), ("210", 0.0, "DWELL TIME AT TOP"),
+                          ("203", top, "SURFACE COORDINATE"), ("204", sf - top, "2ND SET-UP CLEARANCE"), ("211", 0.0, "DWELL TIME AT DEPTH")]
+                    title = "200 DRILLING"
+                else:
+                    qs = [("200", 2.0, "SET-UP CLEARANCE"), ("201", mv["z"] - top, "DEPTH OF THREAD"), ("239", mv["pitch"], "THREAD PITCH"),
+                          ("203", top, "SURFACE COORDINATE"), ("204", sf - top, "2ND SET-UP CLEARANCE")]
+                    title = "207 RIGID TAPPING"
+                vals = tuple((n, num(v) if n != "206" else fnum(v, 1)) for n, v, _d in qs)
+                if (title, vals) != last_def:
+                    body.append(f"CYCL DEF {title} ~")
+                    for j, ((n, v), (_n, _v, d)) in enumerate(zip(vals, qs, strict=True)):
+                        body.append(f"  Q{n}={h(v)} ;{d}" + (" ~" if j < len(qs) - 1 else ""))
+                    last_def = (title, vals)
+                body.append(f"L X{h(num(mv['x']))} Y{h(num(mv['y']))} R0 FMAX M99")
+                pos = {"x": mv["x"], "y": mv["y"], "z": sf}
+                last_f = None
+                continue
+            ax = []
+            for a in ("x", "y", "z"):
+                if a in mv and abs(pos[a] - mv[a]) > 5e-4:
+                    ax.append(a.upper() + h(num(mv[a])))
+                    pos[a] = mv[a]
+            if not ax:
+                continue
+            if mv["t"] == "rapid":
+                body.append(f"L {' '.join(ax)} R0 FMAX")
+            else:
+                fw = ""
+                if mv.get("f") != last_f:
+                    fw = " F" + fnum(mv["f"], 1)
+                    last_f = mv["f"]
+                body.append(f"L {' '.join(ax)} R0{fw}")
+        body += [f"L Z{h(num(safe))} R0 FMAX M9", "M5"]
+    body += ["M140 MB MAX", "M30"]
+    return [x for x in head if x], [x for x in body if x]
+
+
 def posts() -> dict:
     """可选的后处理：{id: {"name", "lathe", "mill", "verified", "family", "cfg"}}（内置配置 + 用户配置，ADR-0109）"""
     out = {}
@@ -347,13 +421,17 @@ def render(prog: dict, machine: dict, controller: str, sim_res: dict | None) -> 
     fam = cfg["family"]
     dialect = "fanuc" if fam == "hnc" else fam                  # 华中按 FANUC 写法，程序头另改
     tok = _FMT.set({"coord": cfg["decimals"]["coord"], "feed": cfg["decimals"]["feed"],
-                    "utf8": cfg["comments"] == "utf8" and fam in postcfg.ISO,
-                    "turn_cycles": cfg["cycles"]["turn"], "drill_cycles": cfg["cycles"]["drill"] and fam in postcfg.ISO})
+                    "utf8": cfg["comments"] == "utf8" and fam != "siemens",
+                    "turn_cycles": cfg["cycles"]["turn"], "drill_cycles": cfg["cycles"]["drill"] and fam != "siemens"})
     try:
+        if fam == "heidenhain":
+            text = klartext.finish(*_heidenhain_mill(prog, machine, sim_res, post), cfg, int(prog.get("number", 1)))
+            return {"controller": controller, "post": post["name"], "version": VERSION, "verified": post["verified"],
+                    "fingerprint": sim_res["fingerprint"], "text": text}
         fn = _lathe if kind == "lathe" else _mill
         text = fn(prog, machine, sim_res, post, dialect)
         text = postcfg.finish(text, cfg, kind == "lathe", int(prog.get("number", 1)))
-    except postcfg.PostConfigError as exc:
+    except (postcfg.PostConfigError, klartext.KlartextError) as exc:
         raise ReleaseError(str(exc)) from exc
     finally:
         _FMT.reset(tok)
@@ -367,6 +445,11 @@ def to_fanuc(text: str, controller: str, lathe: bool) -> str:
     西门子再换写法；ISO 家族其余原样"""
     post = posts().get(controller)
     fam = post["family"] if post else controller
+    if fam == "heidenhain":
+        try:
+            return klartext.to_iso(text)
+        except klartext.KlartextError as exc:
+            raise ReleaseError(f"海德汉程序回读不了：{exc}") from exc
     if post:
         text = postcfg.expand(text, postcfg.resolved(post["cfg"]))
     if fam in postcfg.ISO:

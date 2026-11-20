@@ -27,6 +27,10 @@ DEFAULTS = {
                 "decimals": {"coord": 3, "feed": None}, "comments": "utf8", "tool_change": {"before": [], "after": [], "optional_stop": False},
                 "coolant": "flood", "cycles": {"drill": False, "turn": False}, "subprograms": False},
 }
+DEFAULTS["heidenhain"] = {"program": {"number_digits": 8, "percent": False, "end": "M30"}, "sequence": {"enabled": False, "start": 0, "step": 1},
+                          "decimals": {"coord": 3, "feed": None}, "comments": "ascii",
+                          "tool_change": {"before": [], "after": [], "optional_stop": False},
+                          "coolant": "flood", "cycles": {"drill": False, "turn": False}, "subprograms": False}
 DEFAULTS["gsk"] = DEFAULTS["fanuc"]
 DEFAULTS["hnc"] = DEFAULTS["fanuc"]
 
@@ -49,7 +53,22 @@ def check(cfg: dict, where: str = "") -> dict:
                               "；".join(f"{'/'.join(map(str, e.absolute_path)) or '（顶层）'}：{e.message}" for e in errs[:5]))
     fam = cfg["family"]
     if fam == "heidenhain":
-        raise PostConfigError(f"{where}：海德汉后处理还没做（ADR-0106 Q5b）")
+        from analysis.cam import klartext
+
+        if "lathe" in cfg["kinds"]:
+            raise PostConfigError(f"{where}：海德汉后处理只有铣（ADR-0106 Q5b）")
+        if (cfg.get("sequence") or {}).get("enabled"):
+            raise PostConfigError(f"{where}：海德汉对话格式每段都有段号（从 0 起步长 1），请关掉 sequence")
+        if (cfg.get("program") or {}).get("percent"):
+            raise PostConfigError(f"{where}：海德汉程序用 BEGIN PGM / END PGM，不写 %，请关掉 program.percent")
+        if (cfg.get("cycles") or {}).get("turn"):
+            raise PostConfigError(f"{where}：海德汉后处理只有铣，请关掉 cycles.turn")
+        tc = cfg.get("tool_change") or {}
+        for a in (tc.get("before") or []) + (tc.get("after") or []):
+            try:
+                klartext.action_iso(a)
+            except klartext.KlartextError as exc:
+                raise PostConfigError(f"{where}：{exc}") from exc
     if fam == "siemens":
         tc = cfg.get("tool_change") or {}
         if tc.get("before") or tc.get("after"):
@@ -190,6 +209,12 @@ def tool_change_actions(gcode: str, cfg: dict, lathe: bool) -> str:
     """仿真用的程序（post.post 写的 FANUC 写法）里加上配置的换刀前后动作和选择停：这些动作会动机床（如 G91 G28 Z0），
     要和正式程序一样进整机仿真，回读才对得上（ADR-0106 Q5a）"""
     lines = gcode.rstrip("\n").split("\n")
+    if cfg["family"] == "heidenhain":                # 对话格式的动作换成 ISO 再进仿真
+        from analysis.cam import klartext
+
+        tc = cfg["tool_change"]
+        cfg = {**cfg, "family": "fanuc", "tool_change": {**tc, "before": [x for a in tc["before"] for x in klartext.action_iso(a)],
+                                                         "after": [x for a in tc["after"] for x in klartext.action_iso(a)]}}
     return "\n".join(_actions(lines, cfg, "iso_" + ("lathe" if lathe else "mill"))) + "\n"
 
 

@@ -502,6 +502,16 @@
     "en": "All post switches on: read-back matches the simulated path"
    },
    "source": "整机仿真刀路 / Simulated tool path"
+  },
+  {
+   "id": "CAM-49",
+   "test": "tests/test_cam_post_q5b.py::test_heidenhain_every_switch_reads_back[all]",
+   "category": "post",
+   "title": {
+    "zh": "海德汉对话格式（子程序、钻孔循环、换刀退刀全开）：回读与仿真刀路一致",
+    "en": "Heidenhain conversational (labels, drilling cycle, retract on tool change): read-back matches the simulated path"
+   },
+   "source": "整机仿真刀路 / Simulated tool path"
   }
  ]
 }

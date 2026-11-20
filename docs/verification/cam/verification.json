@@ -1,6 +1,6 @@
 {
  "env": {
-  "code": "b8f4b6893084d836c0d897d2c9ab13860a73b5a0（有未提交的改动）",
+  "code": "404ec6345e2019bd376ddd32c90cf8990d29591e（有未提交的改动）",
   "date": "2026-11-20",
   "numerics": "NumPy 2.5.3",
   "python": "Python 3.13.18 / Linux 6.18.44-fc-v726"
@@ -1449,12 +1449,36 @@
     }
    ],
    "result": "pass"
+  },
+  {
+   "id": "CAM-49",
+   "test": "tests/test_cam_post_q5b.py::test_heidenhain_every_switch_reads_back[all]",
+   "category": "post",
+   "title": {
+    "zh": "海德汉对话格式（子程序、钻孔循环、换刀退刀全开）：回读与仿真刀路一致",
+    "en": "Heidenhain conversational (labels, drilling cycle, retract on tool change): read-back matches the simulated path"
+   },
+   "source": "整机仿真刀路 / Simulated tool path",
+   "rows": [
+    {
+     "case": "tests/test_cam_post_q5b.py::test_heidenhain_every_switch_reads_back[all]",
+     "kind": "verdict",
+     "quantity": [
+      "海德汉后处理开关 all：回读与仿真刀路一致",
+      "Heidenhain post switch all: read-back matches"
+     ],
+     "computed": "pass",
+     "reference": "pass",
+     "ok": true
+    }
+   ],
+   "result": "pass"
   }
  ],
- "n": 48,
- "ok": 48,
+ "n": 49,
+ "ok": 49,
  "bad": 0,
  "skip": 0,
- "rows": 55,
- "rows_ok": 55
+ "rows": 56,
+ "rows_ok": 56
 }
