@@ -1,0 +1,14 @@
+{
+ "why": "数控系统家族只认 fanuc、siemens、gsk、hnc、heidenhain",
+ "instance": {
+  "format": "cam-post/1",
+  "id": "fanuc-0i",
+  "name": "FANUC 0i-TF / 0i-MF",
+  "family": "mazak",
+  "kinds": [
+   "lathe",
+   "mill"
+  ],
+  "source": "问渠CAM 内置（ADR-0104 C1 的写法）"
+ }
+}

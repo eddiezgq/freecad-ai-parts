@@ -1,0 +1,13 @@
+{
+ "why": "要写配置从哪里来",
+ "instance": {
+  "format": "cam-post/1",
+  "id": "fanuc-0i",
+  "name": "FANUC 0i-TF / 0i-MF",
+  "family": "fanuc",
+  "kinds": [
+   "lathe",
+   "mill"
+  ]
+ }
+}

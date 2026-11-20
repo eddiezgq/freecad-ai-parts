@@ -1,0 +1,193 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/cam-post.schema.json",
+ "title": "问渠CAM 后处理配置（cam-post/1）",
+ "description": "ADR-0109：一个数控系统（家族）的程序写法开关。刀路、安全底线（没仿真不出、回读一致才出、未经实机验证要写明）不在这里，改不了。",
+ "type": "object",
+ "properties": {
+  "format": {
+   "const": "cam-post/1"
+  },
+  "id": {
+   "type": "string",
+   "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+  },
+  "name": {
+   "type": "string",
+   "minLength": 1
+  },
+  "family": {
+   "enum": [
+    "fanuc",
+    "siemens",
+    "gsk",
+    "hnc",
+    "heidenhain"
+   ],
+   "description": "数控系统家族：决定基本语法（G 代码写法、注释符号、子程序、回读规则）"
+  },
+  "kinds": {
+   "type": "array",
+   "items": {
+    "enum": [
+     "lathe",
+     "mill"
+    ]
+   },
+   "minItems": 1,
+   "uniqueItems": true
+  },
+  "source": {
+   "type": "string",
+   "minLength": 1,
+   "description": "配置从哪里来：机床说明书哪一册哪一页、哪个厂的习惯、谁定的"
+  },
+  "verified": {
+   "type": "object",
+   "description": "实机验证记录（ADR-0106 Q5c）：没有这一项就是“未经实机验证”",
+   "properties": {
+    "date": {
+     "type": "string",
+     "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "machine": {
+     "type": "string",
+     "minLength": 1
+    },
+    "by": {
+     "type": "string",
+     "minLength": 1
+    },
+    "note": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "date",
+    "machine",
+    "by"
+   ],
+   "additionalProperties": false
+  },
+  "program": {
+   "type": "object",
+   "properties": {
+    "number_digits": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 8
+    },
+    "percent": {
+     "type": "boolean",
+     "description": "程序前后写 %"
+    },
+    "end": {
+     "enum": [
+      "M30",
+      "M02"
+     ]
+    }
+   },
+   "additionalProperties": false
+  },
+  "sequence": {
+   "type": "object",
+   "properties": {
+    "enabled": {
+     "type": "boolean"
+    },
+    "start": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "step": {
+     "type": "integer",
+     "minimum": 1
+    }
+   },
+   "additionalProperties": false
+  },
+  "decimals": {
+   "type": "object",
+   "properties": {
+    "coord": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 5
+    },
+    "feed": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 4
+    }
+   },
+   "additionalProperties": false
+  },
+  "comments": {
+   "enum": [
+    "ascii",
+    "utf8",
+    "none"
+   ]
+  },
+  "tool_change": {
+   "type": "object",
+   "properties": {
+    "before": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+-]*$"
+     }
+    },
+    "after": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+-]*$"
+     }
+    },
+    "optional_stop": {
+     "type": "boolean",
+     "description": "工序之间写 M01 选择停"
+    }
+   },
+   "additionalProperties": false
+  },
+  "coolant": {
+   "enum": [
+    "flood",
+    "mist",
+    "through",
+    "off"
+   ]
+  },
+  "cycles": {
+   "type": "object",
+   "properties": {
+    "drill": {
+     "type": "boolean",
+     "description": "铣：钻孔用固定循环（G81 / G83 或对应写法）；false 展开成直线段"
+    },
+    "turn": {
+     "type": "boolean",
+     "description": "车：粗精车、车螺纹用固定循环（G71 / G70 / G76）"
+    }
+   },
+   "additionalProperties": false
+  },
+  "subprograms": {
+   "type": "boolean",
+   "description": "每道工序写成一个子程序，主程序按顺序调用"
+  }
+ },
+ "required": [
+  "format",
+  "id",
+  "name",
+  "family",
+  "kinds",
+  "source"
+ ],
+ "additionalProperties": false
+}
