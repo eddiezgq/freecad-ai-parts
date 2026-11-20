@@ -492,6 +492,16 @@
     "en": "Ball end mill scallop height with parallel passes"
    },
    "source": "h = R − √(R² − (s/2)²)"
+  },
+  {
+   "id": "CAM-48",
+   "test": "tests/test_cam_post_q5.py::test_every_switch_reads_back_identically[all]",
+   "category": "post",
+   "title": {
+    "zh": "后处理开关全开：回读与仿真刀路一致",
+    "en": "All post switches on: read-back matches the simulated path"
+   },
+   "source": "整机仿真刀路 / Simulated tool path"
   }
  ]
 }

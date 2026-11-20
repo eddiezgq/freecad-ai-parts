@@ -1,0 +1,11 @@
+{
+ "format": "cam-post/1",
+ "id": "siemens",
+ "name": "SINUMERIK 828D / 840D sl",
+ "family": "siemens",
+ "kinds": [
+  "lathe",
+  "mill"
+ ],
+ "source": "问渠CAM 内置（ADR-0104 C1 的写法：SINUMERIK 828D / 840D sl）"
+}

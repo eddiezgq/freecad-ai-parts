@@ -62,8 +62,14 @@ class JobPanel:
         self.machine.setCurrentIndex(max(self.machine.findData(job.Machine), 0))
         f.addRow(T("机床"), self.machine)
         self.post = QtWidgets.QComboBox()
+        posts = postproc.posts()                   # 内置 + 用户后处理配置（ADR-0109）
         for c in postproc.available(kind):
-            self.post.addItem(postproc.POSTS[c]["name"], c)
+            self.post.addItem(posts[c]["name"] + ("" if posts[c]["verified"] else T("（未经实机验证）")), c)
+        from analysis.cam import postcfg
+
+        bad = postcfg.problems()
+        if bad:                                     # 不合格的用户配置：不列进来，提示写明哪个文件、哪一项
+            self.post.setToolTip(T("这些后处理配置没列进来：") + "\n" + "\n".join(bad))
         self.post.setCurrentIndex(max(self.post.findData(job.Post), 0))
         f.addRow(T("数控系统"), self.post)
         self.kienzle = QtWidgets.QComboBox()
