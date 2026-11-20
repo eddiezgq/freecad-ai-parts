@@ -169,6 +169,14 @@ In the machining tree: choose a five-axis machine for the milling job (e.g. EX-5
 that plane, FreeCAD computes the paths in plane coordinates, and the stock is the real stock turned into plane coordinates (a tilted box) — so face
 the slope first, then machine the pocket in it. Calculation, replay, 3D comparison and program output work as usual.
 
+# Mill-turn (in progress)
+
+On mill-turn centres (such as the example EX-MT-CY: X, Y, Z, C axes, live tools) one program can hold turning operations and live-tool milling:
+face milling with polar interpolation `G12.1 … G13.1` (program X is a diameter, C in mm) and cylinder milling with cylindrical interpolation
+`G7.1 C radius … G7.1 C0` (C in degrees). The simulation first computes the turned shape, then mills it along the tool axis; times follow the path on
+the workpiece. Live-tool and C-axis M codes differ between builders and must be written into the post configuration as `millturn` (from the machine
+manual); without them programs with milling are not output. Machine simulation of live tools and the mill-turn job interface are still being built.
+
 # Feedback
 
 If something goes wrong, choose "Feedback…" in the WenQuest CAM menu: write a few words about what you did and what went wrong, press "Make feedback package…" and choose a folder. A zip is created (your description, versions, a copy of the current document, your tool library / machine / post configurations, the error text; no license file) for you to send to us (WeChat or e-mail). The software never uploads anything by itself.

@@ -147,3 +147,54 @@ M30
     r2 = MT.mill_on_turned(p2, [(0.0, 25.0), (-40.0, 25.0)], {6: {"kind": "endmill", "d": 6.0}})
     assert r2["removed_mm3"] == pytest.approx(_axial_slot_volume(), rel=0.02) and not r2["issues"]
     record_verdict(("车铣：端面槽、圆柱面槽的去除体积", "mill-turn: face slot and cylinder slot removed volume"), "pass", "pass")
+
+
+# ---------------------------------------------------------------- 第 4 步：车铣程序进计算、后处理（ADR-0110）
+from analysis import cam
+
+
+def _mt_prog():
+    turn = [{"t": "rapid", "x": 60, "z": 2}, {"t": "rapid", "x": 50, "z": 2}, {"t": "feed", "x": 50, "z": -40, "f": 0.2},
+            {"t": "rapid", "x": 60, "z": -40}, {"t": "rapid", "x": 60, "z": 2}]
+    face = [{"t": "rapid", "x": 20, "c": -10, "z": 2}, {"t": "feed", "x": 20, "c": -10, "z": -3, "f": 100},
+            {"t": "feed", "x": 20, "c": 10, "z": -3, "f": 200}, {"t": "rapid", "x": 20, "c": 10, "z": 2}]
+    cyl = [{"t": "rapid", "x": 60, "c": 0, "z": -10}, {"t": "feed", "x": 44, "c": 0, "z": -10, "f": 100},
+           {"t": "feed", "x": 44, "c": 0, "z": -30, "f": 200}, {"t": "rapid", "x": 60, "c": 0, "z": -30}]
+    return {"number": 3001, "title": "车铣", "ops": [
+        {"tool": {"n": 1, "kind": "turn"}, "spindle": {"rpm": 1000}, "title": "车外圆", "moves": turn},
+        {"tool": {"n": 5, "d": 6.0}, "spindle": {"rpm": 2000}, "title": "端面槽", "interp": "polar", "moves": face},
+        {"tool": {"n": 6, "d": 6.0}, "spindle": {"rpm": 2000}, "title": "圆柱面槽", "interp": {"cyl": 25.0}, "moves": cyl}]}
+
+
+def _run_mt(post):
+    r = cam.run({"mode": "millturn", "machine": "EX-MT-CY", "program": _mt_prog(), "stock": {"d": 52, "z_right": 0.5, "z_left": -60},
+                 "post": post, "machine_sim": {"tools": {}}})
+    assert r["status"] == "ok", r["messages"]
+    return r["data"]["programs"][0]
+
+
+def test_millturn_program_release_with_post_config(tmp_path, monkeypatch):
+    """后处理配置写了动力刀、C 轴的 M 代码：正式程序按它写（G98、M18 C 轴、M13 动力刀、S、G12.1 … G13.1、G7.1 C25 … G7.1 C0），
+    回读与仿真刀路一致才出；车完 Ø50 后铣掉的体积 = 端面槽 + 圆柱面槽"""
+    import json as _json
+
+    d = tmp_path / "posts"
+    d.mkdir()
+    (d / "mt.json").write_text(_json.dumps({"format": "cam-post/1", "id": "mt", "name": "FANUC mill-turn", "family": "fanuc", "kinds": ["lathe"],
+                                            "source": "测试", "millturn": {"live_on": ["M13"], "live_off": ["M15"], "c_on": ["M18"],
+                                                                         "c_off": ["M19"]}}), encoding="utf-8")
+    monkeypatch.setenv("FAP_POSTS", str(d))
+    p = _run_mt("mt")
+    assert p["release"] is not None, [c["text"] for c in p["checks"] if c["level"] == "error"]
+    t = p["release"]["text"]
+    for frag in ("G98\nM05\nM18\nM13\nS2000\nG12.1", "G13.1\nM15\nM19\nG99", "G07.1 C25.0", "G07.1 C0"):
+        assert frag in t, frag
+    exact = 3.5 * (20 * 6 + math.pi * 9) + _axial_slot_volume()       # 毛坯端面在 Z0.5（没车端面），端面槽深 3.5
+    assert p["sim"]["mill_removed_mm3"] == pytest.approx(exact, rel=0.02)
+    assert any("C 轴、动力刀的整机仿真还没做" in c["text"] for c in p["checks"])
+
+
+def test_millturn_without_post_config_is_withheld():
+    """内置 FANUC 配置没写车铣 M 代码：带铣削段的车铣程序不出，写明原因（不猜 M 代码）"""
+    p = _run_mt("fanuc")
+    assert p["release"] is None and any("millturn" in c["text"] and c["level"] == "error" for c in p["checks"])

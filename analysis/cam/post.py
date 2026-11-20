@@ -38,6 +38,9 @@ def post_lathe(prog, machine):
     hx, hz = machine["home"]
     for op in prog["ops"]:
         t, sp = op["tool"], op["spindle"]
+        if op.get("interp"):                       # 车铣：动力刀铣削工序（ADR-0106 C2b），仿真用的写法
+            lines += millturn_lines(op, (hx, hz), None)
+            continue
         lines.append(comment(op.get("title", "")))
         lines.append(f"G00 X{num(hx)} Z{num(hz)}")
         lines.append(f"T{t['n']:02d}{t.get('offset', t['n']):02d}")
@@ -90,6 +93,48 @@ def tilt_lines(op) -> list[str]:
     o = fr["origin"]
     # 转工作台前先把 Z 退到机床原点（刀具离开工件），再定倾斜面、转回转轴
     return ["G91 G28 Z0.0", "G90", f"G68.2 X{num(o[0])} Y{num(o[1])} Z{num(o[2])} I{num(i, 4)} J{num(j, 4)} K{num(k, 4)}", "G53.1"]
+
+
+def millturn_lines(op, home, cfg_mt, nd=3, fnd=1, cm=comment) -> list[str]:
+    """车铣的铣削工序：极坐标插补 interp = "polar"（G12.1 … G13.1，程序 X 直径、C 毫米）或圆柱插补 interp = {"cyl": 半径}
+    （G7.1 C 半径 … G7.1 C0，程序 C 角度）；每分进给 G98，完了回 G99。
+    cfg_mt：后处理配置的 millturn（开 / 关动力刀、C 轴的程序行）；None 时是仿真用的程序：主轴写 G97 S M03 代替动力刀（仿真只认“主轴在转”）"""
+    hx, hz = home
+    t, sp = op["tool"], op["spindle"]
+    rpm = round(float(sp["rpm"]))
+    out = [cm(op.get("title", "")), f"G00 X{num(hx, nd)} Z{num(hz, nd)}", f"T{t['n']:02d}{t.get('offset', t['n']):02d}"]
+    if cfg_mt is None:
+        out += ["G98", f"G97 S{rpm} M03"]
+    else:
+        out += ["G98", "M05", *cfg_mt.get("c_on", []), *cfg_mt.get("live_on", []), f"S{rpm}"]
+    cyl = op["interp"].get("cyl") if isinstance(op["interp"], dict) else None
+    out.append(f"G07.1 C{num(cyl, nd)}" if cyl else "G12.1")
+    pos, mode, last_f = {}, None, None
+    for mv in op["moves"]:
+        if mv["t"] == "comment":
+            out.append(cm(mv["text"]))
+            continue
+        g = "G00" if mv["t"] == "rapid" else "G01"
+        ax = []
+        for a in ("x", "c", "z"):
+            if a in mv and (a not in pos or abs(pos[a] - mv[a]) > 5e-4):
+                ax.append(a.upper() + num(mv[a], nd))
+                pos[a] = mv[a]
+        if not ax:
+            continue
+        w = [g] if g != mode else []
+        mode = g
+        w += ax
+        if g == "G01" and mv.get("f") != last_f:
+            w.append("F" + num(mv["f"], fnd))
+            last_f = mv["f"]
+        out.append(" ".join(w))
+    out.append("G07.1 C0" if cyl else "G13.1")
+    if cfg_mt is None:
+        out += ["M05", "G99", f"G00 X{num(hx, nd)} Z{num(hz, nd)}"]
+    else:
+        out += [*cfg_mt.get("live_off", []), *cfg_mt.get("c_off", []), "G99", f"G00 X{num(hx, nd)} Z{num(hz, nd)}"]
+    return out
 
 
 def post_mill(prog, machine):
@@ -172,4 +217,4 @@ def post_mill(prog, machine):
 
 
 def post(prog, machine):
-    return post_lathe(prog, machine) if machine["kind"] == "lathe" else post_mill(prog, machine)
+    return post_lathe(prog, machine) if machine["kind"] in ("lathe", "mill_turn") else post_mill(prog, machine)
