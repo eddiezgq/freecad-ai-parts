@@ -129,7 +129,7 @@ def test_machines_file(tmp_path):
     env = {"FAP_MACHINES": str(f)}
     m = machines.get("EX-LATHE", env)
     assert m["name"] == "我的车床" and m["example"] is False
-    assert {x["id"] for x in machines.all_machines(env)} == {"EX-LATHE", "EX-VMC"}
+    assert {x["id"] for x in machines.all_machines(env)} == {"EX-LATHE", "EX-VMC", "EX-5AX-AC"}      # 3+2 五轴也进旧视图（ADR-0106 C2a）
     f.write_text("machines:\n  - {id: X, kind: mill, name: 缺参数}\n", encoding="utf-8")
     with pytest.raises(machines.MachineError):
         machines.all_machines(env)
