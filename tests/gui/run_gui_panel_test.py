@@ -56,7 +56,7 @@ def run():
         QtWidgets.QApplication.processEvents()        # 主窗口还在处理事件
         res["responsive_ms"] = round((time.time() - t) * 1000)
         finish(res["panel"] and res["inside_screen"])
-    except Exception:
+    except Exception:  # noqa: BLE001 — 任何错误都写进结果、判不通过
         res["error"] = traceback.format_exc()
         finish(False)
 
