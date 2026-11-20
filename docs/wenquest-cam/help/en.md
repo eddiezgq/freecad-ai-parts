@@ -169,13 +169,13 @@ In the machining tree: choose a five-axis machine for the milling job (e.g. EX-5
 that plane, FreeCAD computes the paths in plane coordinates, and the stock is the real stock turned into plane coordinates (a tilted box) — so face
 the slope first, then machine the pocket in it. Calculation, replay, 3D comparison and program output work as usual.
 
-# Mill-turn (in progress)
+# Mill-turn
 
 On mill-turn centres (such as the example EX-MT-CY: X, Y, Z, C axes, live tools) one program can hold turning operations and live-tool milling:
 face milling with polar interpolation `G12.1 … G13.1` (program X is a diameter, C in mm) and cylinder milling with cylindrical interpolation
 `G7.1 C radius … G7.1 C0` (C in degrees). The simulation first computes the turned shape, then mills it along the tool axis; times follow the path on
 the workpiece. Live-tool and C-axis M codes differ between builders and must be written into the post configuration as `millturn` (from the machine
-manual); without them programs with milling are not output. Machine simulation solves the C axis from the live-tool directions in the machine file (`live_tools`) and checks collisions; without them it reports "unknown". The mill-turn job interface is still being built.
+manual); without them programs with milling are not output. For SINUMERIK the post writes `TRANSMIT` (face; radius programming DIAMOF, X and Y are Cartesian face coordinates) and `TRACYL(working diameter)` (cylinder; Y is the arc length in mm on the working diameter), then `TRAFOOF`, `DIAMON`. Machine simulation solves the C axis from the live-tool directions in the machine file (`live_tools`) and checks collisions; without them it reports "unknown". When a turning job's machine is a mill-turn centre, the "New operation" menu has "Face milling (live tool)" and "Cylinder keyway (live tool)": first pick, in the 3D view, a slot or pocket bottom on the right end face (slot or rounded-rectangle pocket) or the bottom of a keyway on the cylinder (semicircular ends, along the axis), then run the command; the operation goes into the right-end setup. The cutter comes from the tool library by slot width or corner radius, with parameters at the middle of the catalogue range. Calculation appends the live-tool milling after turning and outputs one mill-turn program. The second (left-end) setup, flat slots wider than the cutter and slanted slots are not done yet.
 
 # Feedback
 

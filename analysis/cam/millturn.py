@@ -106,3 +106,73 @@ def mill_on_turned(parsed, profile, tools: dict, h: float = 0.25):
         if mv["t"] == "rapid" and cut > h ** 3:
             issues.append({"line": mv["line"], "level": "error", "text": f"快移撞到工件：切掉 {cut:.1f} mm³（快移不能切削）"})
     return {"removed_mm3": v0 - st.volume(), "dexel": st, "issues": issues}
+
+
+# ---------------------------------------------------------------- 车铣作业的动力刀工序（ADR-0106 C2b 界面）
+def to_polar_moves(moves: list[dict], z0: float = 0.0) -> list[dict]:
+    """端面坐标里的铣削刀路（x, y, z，z 从端面量）→ 极坐标插补程序（x 直径、c = y 毫米、z = z0 + z）"""
+    out = []
+    for m in moves:
+        if m.get("t") == "comment":
+            out.append(dict(m))
+            continue
+        q = {"t": m["t"], "x": 2.0 * float(m["x"]), "c": float(m["y"]), "z": z0 + float(m["z"])}
+        if "f" in m:
+            q["f"] = m["f"]
+        out.append(q)
+    return out
+
+
+def face_moves(feature: dict, tool_d: float, step_down: float, f: float, f_plunge: float, stepover: float = 0.5,
+               safe: float = 5.0) -> list[dict]:
+    """端面上的槽 / 型腔 → 极坐标插补刀路。feature：{"type": "slot", "a", "b", "width", "depth", "z0"} 或
+    {"type": "pocket", "rect", "corner_r", "depth", "z0"}（端面坐标 mm；z0 = 槽口所在端面的 Z，深度往 −Z 量）"""
+    from analysis.cam import paths as P
+
+    if feature["type"] == "slot":
+        mv = P.mill_slot(feature["a"], feature["b"], feature["width"], feature["depth"], tool_d, step_down, f, f_plunge, safe=safe)
+    elif feature["type"] == "pocket":
+        mv = P.mill_pocket(feature["rect"], feature.get("corner_r", 0.0), feature["depth"], tool_d, stepover, step_down, f, f_plunge,
+                           safe=safe)
+    else:
+        raise ValueError(f"端面动力刀工序只做槽和型腔：{feature['type']!r}")
+    return to_polar_moves(mv, float(feature.get("z0", 0.0)))
+
+
+def keyway_moves(angle_deg: float, r_outer: float, depth: float, za: float, zb: float, tool_d: float, step_down: float,
+                 f: float, f_plunge: float, safe: float = 2.0) -> list[dict]:
+    """圆柱面上沿 Z 的键槽（槽宽 = 刀径，两端圆心 za、zb）→ 圆柱插补刀路（x 直径、c 度、z）。
+    每层在 za 处下到这一层，走到 zb、再回 za；最后退到外圆以外 safe。"""
+    if depth <= 0 or tool_d <= 0:
+        raise ValueError("键槽深度、刀径要大于 0")
+    layers = max(1, math.ceil(depth / step_down - 1e-9))
+    x_out = 2.0 * (r_outer + safe)
+    mv = [{"t": "comment", "text": f"圆柱面键槽：宽 {tool_d:g} 深 {depth:g}，分 {layers} 层"},
+          {"t": "rapid", "x": x_out, "c": angle_deg, "z": za}]
+    for k in range(layers):
+        x = 2.0 * (r_outer - depth * (k + 1) / layers)
+        mv += [{"t": "feed", "x": x, "c": angle_deg, "z": za, "f": f_plunge},
+               {"t": "feed", "x": x, "c": angle_deg, "z": zb, "f": f},
+               {"t": "feed", "x": x, "c": angle_deg, "z": za, "f": f}]
+    mv.append({"t": "rapid", "x": x_out, "c": angle_deg, "z": za})
+    return mv
+
+
+def classify_face(area: float, xmin: float, ymin: float, xmax: float, ymax: float, tol: float = 0.01) -> dict | None:
+    """端面上一个平底面（槽底 / 型腔底）的外形：按包围盒和面积认长圆槽或圆角矩形；都对不上返回 None。
+    长圆：短边 w，面积 (L − w)·w + π·w²/4；圆角矩形：面积 W·H − (4 − π)·r²，r 由面积反算（0 ≤ r ≤ 短边一半）。"""
+    W, H = xmax - xmin, ymax - ymin
+    w, L = min(W, H), max(W, H)
+    if w <= 0:
+        return None
+    st = (L - w) * w + math.pi * w * w / 4
+    if abs(area - st) <= tol * area:
+        cx, cy = (xmin + xmax) / 2, (ymin + ymax) / 2
+        h = (L - w) / 2
+        a, b = ((cx - h, cy), (cx + h, cy)) if W >= H else ((cx, cy - h), (cx, cy + h))
+        return {"type": "slot", "a": [a[0], a[1]], "b": [b[0], b[1]], "width": w}
+    r2 = (W * H - area) / (4 - math.pi)
+    if r2 >= -tol * area and r2 <= (w / 2) ** 2 * (1 + tol):
+        r = math.sqrt(max(r2, 0.0))
+        return {"type": "pocket", "rect": [xmin, ymin, xmax, ymax], "corner_r": min(r, w / 2)}
+    return None

@@ -232,3 +232,82 @@ def test_live_tool_machine_sim_checks_milling_moves():
     bad = _run_live({"work_offset_mm": [0, 0, 0], "tools": {k: tools[k] for k in ("5", "6")}})
     hit = [c for c in bad["checks"] if c["level"] == "error" and "T5" in c["text"] and "卡盘" in c["text"]]
     assert hit and hit[0]["line"] == 27, [c["text"] for c in bad["checks"]]
+
+
+# ---------------------------------------------------------------- 西门子 TRANSMIT / TRACYL（ADR-0106 C2b）
+def test_siemens_transmit_tracyl_release(tmp_path, monkeypatch):
+    """西门子后处理：端面 TRANSMIT（DIAMOF 半径：X = 20/2、Y = C）、圆柱面 TRACYL(50)（Y = 30°·π·50/360 = 13.09 mm 弧长），
+    TRAFOOF、DIAMON 收尾；回读换回 G12.1 / G7.1 与仿真程序一致才出"""
+    import json as _json
+
+    d = tmp_path / "posts"
+    d.mkdir()
+    (d / "smt.json").write_text(_json.dumps({"format": "cam-post/1", "id": "smt", "name": "SINUMERIK mill-turn", "family": "siemens",
+                                             "kinds": ["lathe"], "source": "测试", "millturn": {"live_on": ["SETMS(2)", "M3"],
+                                                                                              "live_off": ["M5", "SETMS"],
+                                                                                              "c_on": ["SPOS[1]=0"], "c_off": ["M15"]}}),
+                                encoding="utf-8")
+    monkeypatch.setenv("FAP_POSTS", str(d))
+    prog = _mt_prog()
+    prog["ops"][2]["moves"].insert(3, {"t": "feed", "x": 44, "c": 30, "z": -30, "f": 200})
+    r = cam.run({"mode": "millturn", "machine": "EX-MT-CY", "program": prog, "stock": {"d": 52, "z_right": 0.5, "z_left": -60},
+                 "post": "smt", "machine_sim": {"tools": {}}})
+    p = r["data"]["programs"][0]
+    assert p["release"] is not None, [c["text"] for c in p["checks"] if c["level"] == "error"]
+    t = p["release"]["text"]
+    y = 30 * math.pi * 50 / 360
+    for frag in ("G94\nDIAMOF\nTRANSMIT\nG17\nG0 X10.0 Y-10.0 Z2.0", "Y10.0 F200.0", "TRACYL(50.0)\nG19\nG0 X30.0 Y0.0 Z-10.0",
+                 f"Y{y:.3f}".rstrip("0"), "SPOS[1]=0\nSETMS(2)\nM3\nS2000", "TRAFOOF\nDIAMON\nG18\nM5\nSETMS\nM15\nG95"):
+        assert frag in t, frag
+    assert "G12.1" not in t and "G07.1" not in t
+
+
+def test_fanuc_millturn_lines_reject_brackets():
+    """ADR-0111：括号只给西门子用；FANUC 系的车铣程序行带括号（FANUC 里是注释）报错"""
+    from analysis.cam import postcfg
+
+    cfg = {"format": "cam-post/1", "id": "f", "name": "F", "family": "fanuc", "kinds": ["lathe"], "source": "测试",
+           "millturn": {"live_on": ["M13 (LIVE)"]}}
+    with pytest.raises(postcfg.PostConfigError, match="ADR-0111"):
+        postcfg.check(cfg, "f.json")
+    postcfg.check({**cfg, "family": "siemens", "millturn": {"live_on": ["SETMS(2)"]}}, "s.json")
+
+
+# ---------------------------------------------------------------- 车铣作业（ADR-0106 C2b 界面）：动力刀工序接在车削后面
+def _keyway_volume(r=25.0, r_bot=22.0, w=6.0, L=20.0, n=4000):
+    """平底键槽（宽 w、两端圆心距 L，底面离轴 r_bot）从 R r 的圆柱上去掉的体积：中点法积分 ∫(√(r² − x²) − r_bot)·长度(x) dx"""
+    h = w / n
+    s = 0.0
+    for i in range(n):
+        x = -w / 2 + (i + 0.5) * h
+        s += (math.sqrt(r * r - x * x) - r_bot) * (L + 2 * math.sqrt(w * w / 4 - x * x)) * h
+    return s
+
+
+def test_classify_end_face_feature():
+    st = MT.classify_face((20 - 6) * 6 + math.pi * 9, -10, -3, 10, 3)       # 长圆：包围盒 20×6
+    assert st == {"type": "slot", "a": [-7.0, 0.0], "b": [7.0, 0.0], "width": 6}
+    pk = MT.classify_face(30 * 20 - (4 - math.pi) * 16, 0, 0, 30, 20)       # R4 圆角矩形
+    assert pk["type"] == "pocket" and pk["corner_r"] == pytest.approx(4.0)
+    assert MT.classify_face(30 * 20 * 0.5, 0, 0, 30, 20) is None              # L 形之类：面积对不上
+
+
+def test_turn_job_with_live_ops_removes_slot_and_keyway():
+    """车削作业（车铣中心）：右端车完 Ø50 后接端面长圆槽（宽 6、圆心距 20、深 3）与 90° 方向的键槽（宽 6、深 3、z −10 ~ −30）；
+    铣掉的体积 = 3·(20·6 + π·3²) + 键槽积分（< 1%）；动力刀整机仿真无碰撞、无超程"""
+    face = MT.face_moves({"type": "slot", "a": [-10, 0], "b": [10, 0], "width": 6, "depth": 3, "z0": 0.0}, 6, 3, 200, 100)
+    key = MT.keyway_moves(90.0, 25.0, 3.0, -10.0, -30.0, 6, 3, 200, 100)
+    assert key[2] == {"t": "feed", "x": 44.0, "c": 90.0, "z": -10.0, "f": 100}
+    live = {"right": [{"tool": {"n": 10, "d": 6.0}, "spindle": {"rpm": 3000}, "title": "端面槽", "interp": "polar", "moves": face},
+                      {"tool": {"n": 10, "d": 6.0}, "spindle": {"rpm": 3000}, "title": "键槽", "interp": {"cyl": 25.0}, "moves": key}]}
+    r = cam.run({"mode": "turn", "machine": "EX-MT-CY", "segments": [[40, 30], [50, 40]], "live_ops": live,
+                 "machine_sim": {"tools": {"10": {"tool": "EM6", "length_mm": 40}}, "chuck": {"jaw_len": 15, "jaw_d": 80}}})
+    assert r["status"] == "ok", r["messages"]
+    right, left = r["data"]["programs"]
+    exact = 3 * (20 * 6 + math.pi * 9) + _keyway_volume()
+    assert right["sim"]["mill_removed_mm3"] == pytest.approx(exact, rel=0.01)
+    texts = [c["text"] for c in right["checks"]]
+    assert not any("碰到" in t or "走不到" in t or "还没做" in t for t in texts), texts
+    assert "G12.1" in right["gcode"] and "G07.1 C25.0" in right["gcode"] and "G12.1" not in left["gcode"]
+    bad = cam.run({"mode": "turn", "machine": "EX-LATHE", "segments": [[40, 30], [50, 40]], "live_ops": live})
+    assert bad["status"] == "failed" and "不是车铣中心" in bad["messages"][0]
