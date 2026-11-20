@@ -198,3 +198,37 @@ def test_millturn_without_post_config_is_withheld():
     """内置 FANUC 配置没写车铣 M 代码：带铣削段的车铣程序不出，写明原因（不猜 M 代码）"""
     p = _run_mt("fanuc")
     assert p["release"] is None and any("millturn" in c["text"] and c["level"] == "error" for c in p["checks"])
+
+
+# ---------------------------------------------------------------- 第 5 步：动力刀的整机仿真（ADR-0106 C2b）
+def test_live_tool_inverse_matches_hand_values():
+    """轴向动力刀在 (10, −10, −3)、刀长 40：C 转 45° 把点转到 +X，X = 2·√200 = 28.284（直径值），Y = 0，Z = −3 + 40；
+    径向动力刀在 (0, 22, −10)、刀轴 +Y：C = −90°，X = 2·(22 + 40) = 124"""
+    from analysis.cam import kinematics as K
+    from analysis.cam import machines
+
+    m = machines.get("EX-MT-CY")["model"]
+    q = K.inverse({**m, "tool": m["live_tools"]["axial"]}, [10, -10, -3], (0, 0, 1), 40, prefer={"C": 45})
+    assert (q["C"], q["X"], q["Y"], q["Z"]) == pytest.approx((45.0, 2 * math.sqrt(200), 0.0, 37.0), abs=1e-9)
+    q = K.inverse({**m, "tool": m["live_tools"]["radial"]}, [0, 22, -10], (0, 1, 0), 40)
+    assert (q["C"], q["X"], q["Y"], q["Z"]) == pytest.approx((-90.0, 124.0, 0.0, -10.0), abs=1e-9)
+
+
+def _run_live(ms):
+    r = cam.run({"mode": "millturn", "machine": "EX-MT-CY", "program": _mt_prog(), "stock": {"d": 52, "z_right": 0.5, "z_left": -60},
+                 "post": "fanuc", "machine_sim": ms})
+    assert r["status"] == "ok", r["messages"]
+    return r["data"]["programs"][0]
+
+
+def test_live_tool_machine_sim_checks_milling_moves():
+    """机床文件写了 live_tools：铣削段按动力刀朝向逆解、查碰撞，不再报“还没做”；
+    工件零点放在卡盘端面（work_offset 0）时，端面槽下到 Z−3 就是刀伸进卡盘，要报错"""
+    tools = {"1": {"tool": "TR-CNMG"}, "5": {"tool": "EM6", "length_mm": 40}, "6": {"tool": "EM6", "length_mm": 40}}
+    p = _run_live({"work_offset_mm": [0, 0, 70], "tools": tools})
+    texts = [c["text"] for c in p["checks"]]
+    assert not any("还没做" in t for t in texts) and not any("碰到" in t or "走不到" in t for t in texts), texts
+    assert p["machine_sim"]["samples"] > 200
+    bad = _run_live({"work_offset_mm": [0, 0, 0], "tools": {k: tools[k] for k in ("5", "6")}})
+    hit = [c for c in bad["checks"] if c["level"] == "error" and "T5" in c["text"] and "卡盘" in c["text"]]
+    assert hit and hit[0]["line"] == 27, [c["text"] for c in bad["checks"]]

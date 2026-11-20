@@ -839,7 +839,7 @@ def _dexel_mill(parsed, box, top, stock, tools):
 def _millturn(setup, mach):
     """车铣复合程序（ADR-0106 C2b 第 4 步）：车削工序（x 直径、z）与动力刀铣削工序（interp = "polar" 极坐标插补，
     或 {"cyl": 半径} 圆柱插补；动作 x 直径、c、z、f 每分进给）在同一个程序里。
-    毛坯 stock = {"d", "z_right", "z_left"}。车削按车削仿真；铣削在车完的外形上用 dexel 切；整机仿真对铣削段报“未知”。"""
+    毛坯 stock = {"d", "z_right", "z_left"}。车削按车削仿真；铣削在车完的外形上用 dexel 切；整机仿真按机床文件的 live_tools 逆解 C 轴（没写就报“未知”）。"""
     from analysis.cam import millturn as MTN
 
     if mach["kind"] != "mill_turn":

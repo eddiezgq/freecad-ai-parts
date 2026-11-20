@@ -29,7 +29,7 @@
     0
    ],
    "min": -5.0,
-   "max": 300.0,
+   "max": 400.0,
    "rapid": 24000.0,
    "diameter_mode": true
   },
@@ -56,7 +56,7 @@
     1
    ],
    "min": -500.0,
-   "max": 200.0,
+   "max": 300.0,
    "rapid": 30000.0
   },
   {
@@ -88,6 +88,32 @@
    0,
    0
   ]
+ },
+ "live_tools": {
+  "axial": {
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "gauge_point_mm": [
+    0,
+    0,
+    0
+   ]
+  },
+  "radial": {
+   "direction": [
+    1,
+    0,
+    0
+   ],
+   "gauge_point_mm": [
+    0,
+    0,
+    0
+   ]
+  }
  },
  "lathe_home_mm": [
   250.0,
