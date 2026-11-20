@@ -9,6 +9,7 @@
 
 from __future__ import annotations
 
+import itertools
 import math
 
 MAX_STEP_DEG = 2.0
@@ -51,3 +52,57 @@ def cyl_segment(a: tuple[float, float, float], b: tuple[float, float, float]) ->
         t = k / n
         out.append(cyl_to_work(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t))
     return out
+
+
+# ---------------------------------------------------------------- 第 3 步：车完的形状上切铣削段（ADR-0106 C2b）
+def revolved_triangles(profile, n: int = 256):
+    """车削外形 [(z, r), …]（z 从右往左，首尾 r 可为 0 或不为 0）→ 绕 Z 轴回转的封闭三角网格 (m, 3, 3)，两端补端面"""
+    import numpy as np
+
+    prof = [(float(z), float(r)) for z, r in profile]
+    ang = np.linspace(0.0, 2 * math.pi, n + 1)
+    cs, sn = np.cos(ang), np.sin(ang)
+    tris = []
+    for (z0, r0), (z1, r1) in itertools.pairwise(prof):
+        for k in range(n):
+            p00 = (r0 * cs[k], r0 * sn[k], z0)
+            p01 = (r0 * cs[k + 1], r0 * sn[k + 1], z0)
+            p10 = (r1 * cs[k], r1 * sn[k], z1)
+            p11 = (r1 * cs[k + 1], r1 * sn[k + 1], z1)
+            if r0 > 0:
+                tris.append((p00, p01, p11))
+            if r1 > 0:
+                tris.append((p00, p11, p10))
+    for z, r in (prof[0], prof[-1]):                  # 端面
+        if r <= 0:
+            continue
+        for k in range(n):
+            tris.append(((0.0, 0.0, z), (r * cs[k], r * sn[k], z), (r * cs[k + 1], r * sn[k + 1], z)))
+    return np.asarray(tris, float)
+
+
+def mill_on_turned(parsed, profile, tools: dict, h: float = 0.25):
+    """车铣程序的铣削段在车完的外形上切（三向 dexel，按每小段的刀轴）。tools：{刀号: dexel.Tool.from_spec 的 spec}。
+    → {"removed_mm3", "dexel", "issues"}：快移切到材料报错"""
+    from analysis.cam import dexel as DX
+
+    rmax = max(r for _z, r in profile)
+    zs = [z for z, _r in profile]
+    pad = max([float(s["d"]) for s in tools.values()] + [1.0]) + 2 * h
+    tri = revolved_triangles(profile)
+    st = DX.Dexel.from_triangles(tri, h, lo=[-rmax - pad, -rmax - pad, min(zs) - pad], hi=[rmax + pad, rmax + pad, max(zs) + pad])
+    built = {t: DX.Tool.from_spec(s) for t, s in tools.items()}
+    v0 = st.volume()
+    issues = []
+    for mv in parsed["moves"]:
+        if not mv.get("mill"):
+            continue
+        tl = built.get(mv["tool"])
+        if tl is None:
+            continue
+        cut = 0.0
+        for p0, p1, w in mv["pieces"]:
+            cut += st.cut(tl, p0, p1, w=w)["volume"]
+        if mv["t"] == "rapid" and cut > h ** 3:
+            issues.append({"line": mv["line"], "level": "error", "text": f"快移撞到工件：切掉 {cut:.1f} mm³（快移不能切削）"})
+    return {"removed_mm3": v0 - st.volume(), "dexel": st, "issues": issues}

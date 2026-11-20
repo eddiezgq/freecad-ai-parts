@@ -542,6 +542,26 @@
     "en": "3+2 tilted plane G68.2 program read-back matches the simulated path"
    },
    "source": "整机仿真刀路 / Simulated tool path"
+  },
+  {
+   "id": "CAM-53",
+   "test": "tests/test_cam_millturn_c2b.py::test_millturn_cutting_time",
+   "category": "time",
+   "title": {
+    "zh": "车铣复合：端面槽、圆柱面螺旋槽的切削时间",
+    "en": "Mill-turn: face slot and cylindrical helix cutting time"
+   },
+   "source": "t = L/vf"
+  },
+  {
+   "id": "CAM-54",
+   "test": "tests/test_cam_millturn_c2b.py::test_face_slot_and_cylinder_slot_volume_on_turned_part",
+   "category": "geom",
+   "title": {
+    "zh": "车铣复合：端面槽、圆柱面槽的去除体积",
+    "en": "Mill-turn: face slot and cylinder slot removed volume"
+   },
+   "source": "V = ap·(L·D + πD²/4); ∫∫(√(R² − y²) − r) dy dz"
   }
  ]
 }
