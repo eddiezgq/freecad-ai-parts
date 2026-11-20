@@ -2124,5 +2124,6 @@
 "车铣": "Mill-turn",
 "车铣的铣削段在车完的外形上按三向 dexel 算去料：每段切深、切宽没量，刀杆与剩余材料的碰撞没查": "Mill-turn milling moves: material removal computed with tri-dexel on the turned shape; depth and width of cut not measured, shank collisions with the remaining material not checked",
 "车铣要给毛坯 stock = {d, z_right, z_left}": "Mill-turn needs stock = {d, z_right, z_left}",
-"后处理配置没写动力刀、C 轴的 M 代码（millturn，按机床说明书填，ADR-0110），带铣削段的车铣程序不出": "The post configuration has no live-tool / C-axis M codes (millturn; fill in from the machine manual, ADR-0110); mill-turn programs with milling are not output"
+"后处理配置没写动力刀、C 轴的 M 代码（millturn，按机床说明书填，ADR-0110），带铣削段的车铣程序不出": "The post configuration has no live-tool / C-axis M codes (millturn; fill in from the machine manual, ADR-0110); mill-turn programs with milling are not output",
+"{}：FANUC 写法的车铣程序行（millturn.{}）不该带括号或逗号（ADR-0111）": "{}: FANUC-style mill-turn program lines (millturn.{}) must not contain brackets or commas (ADR-0111)"
 }

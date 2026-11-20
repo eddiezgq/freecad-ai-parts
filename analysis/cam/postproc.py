@@ -532,7 +532,7 @@ def to_fanuc(text: str, controller: str, lathe: bool, *, tags: bool = False) -> 
             out[mark:] = [f"{x} {tag(prev)}" for x in out[mark:]]
             mark, prev = len(out), i
         line = raw.split(";")[0].strip()
-        if not line or line.startswith("SPOS"):
+        if not line or line.startswith("SPOS") or re.fullmatch(r"SETMS(\(\s*\d+\s*\))?", line):   # 主轴定位、切主主轴：不影响刀路
             continue
         ws = line.split()
         spd = next((float(w[1:]) for w in ws if w.startswith("S") and w[1:].replace(".", "").isdigit()), spd)

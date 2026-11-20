@@ -243,8 +243,9 @@ def test_siemens_transmit_tracyl_release(tmp_path, monkeypatch):
     d = tmp_path / "posts"
     d.mkdir()
     (d / "smt.json").write_text(_json.dumps({"format": "cam-post/1", "id": "smt", "name": "SINUMERIK mill-turn", "family": "siemens",
-                                             "kinds": ["lathe"], "source": "测试", "millturn": {"live_on": ["M34"], "live_off": ["M35"],
-                                                                                              "c_on": ["SPOS=0"], "c_off": ["M15"]}}),
+                                             "kinds": ["lathe"], "source": "测试", "millturn": {"live_on": ["SETMS(2)", "M3"],
+                                                                                              "live_off": ["M5", "SETMS"],
+                                                                                              "c_on": ["SPOS[1]=0"], "c_off": ["M15"]}}),
                                 encoding="utf-8")
     monkeypatch.setenv("FAP_POSTS", str(d))
     prog = _mt_prog()
@@ -256,6 +257,17 @@ def test_siemens_transmit_tracyl_release(tmp_path, monkeypatch):
     t = p["release"]["text"]
     y = 30 * math.pi * 50 / 360
     for frag in ("G94\nDIAMOF\nTRANSMIT\nG17\nG0 X10.0 Y-10.0 Z2.0", "Y10.0 F200.0", "TRACYL(50.0)\nG19\nG0 X30.0 Y0.0 Z-10.0",
-                 f"Y{y:.3f}".rstrip("0"), "TRAFOOF\nDIAMON\nG18\nM35\nM15\nG95"):
+                 f"Y{y:.3f}".rstrip("0"), "SPOS[1]=0\nSETMS(2)\nM3\nS2000", "TRAFOOF\nDIAMON\nG18\nM5\nSETMS\nM15\nG95"):
         assert frag in t, frag
     assert "G12.1" not in t and "G07.1" not in t
+
+
+def test_fanuc_millturn_lines_reject_brackets():
+    """ADR-0111：括号只给西门子用；FANUC 系的车铣程序行带括号（FANUC 里是注释）报错"""
+    from analysis.cam import postcfg
+
+    cfg = {"format": "cam-post/1", "id": "f", "name": "F", "family": "fanuc", "kinds": ["lathe"], "source": "测试",
+           "millturn": {"live_on": ["M13 (LIVE)"]}}
+    with pytest.raises(postcfg.PostConfigError, match="ADR-0111"):
+        postcfg.check(cfg, "f.json")
+    postcfg.check({**cfg, "family": "siemens", "millturn": {"live_on": ["SETMS(2)"]}}, "s.json")
