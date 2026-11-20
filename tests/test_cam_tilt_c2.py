@@ -130,3 +130,12 @@ def test_siemens_cycle800_release_and_readback():
     t = p["release"]["text"]
     assert TT.axis_xyz(TT.matrix(SIDE)) == pytest.approx((90.0, 90.0, 0.0))
     assert 'CYCLE800(1,"",0,57,100.0,0.0,-20.0,90.0,90.0,0.0,0,0,0,-1,0,0)' in t and t.index("CYCLE800(1") < t.index("CYCLE800()")
+
+
+def test_bc_head_runs_the_same_tilted_program():
+    """摆头 BC（ADR-0106 C2c）：同一个侧面槽程序，工件够高时整机仿真通过、出 G68.2 程序；
+    工件太低时横着的摆头碰到工作台，报错、不出程序"""
+    p = _run(machine="EX-5AX-BC", z_off=120.0)
+    assert p["release"] is not None and "G68.2" in p["release"]["text"]
+    low = _run(machine="EX-5AX-BC", z_off=100.0)
+    assert low["release"] is None and any("机床的摆头碰到工作台" in c["text"] for c in low["checks"])
