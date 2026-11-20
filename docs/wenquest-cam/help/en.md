@@ -17,7 +17,7 @@ Three principles run through everything:
 2. **Programs are output only after the whole-machine simulation passes.** Every tool path segment moves the machine model and checks the cutting edge, holder, spindle head, fixtures, table and remaining material for collisions, and the axes for overtravel. If anything fails, no program is output.
 3. **The written program is read back.** It is compared segment by segment with the simulated tool path; if they differ, no program is output. The program header carries the machine, post processor version, simulation fingerprint and "first part: dry run and single block".
 
-The accuracy of the algorithms is documented in the WenQuest CAM Verification Manual installed with the software: 49 benchmark problems and 56 comparisons (machining time, cutting power, five-axis kinematic round trips, collision tests, removed volume, nose radius, thread root and taper, face grooves, parting off, width of cut, tapping, countersinks, counterbores, thread milling, arc lead-in, ball end mill scallop height, errors that must be reported, post read-back, canned-cycle expansion), all within the stated tolerances.
+The accuracy of the algorithms is documented in the WenQuest CAM Verification Manual installed with the software: 52 benchmark problems and 59 comparisons (machining time, cutting power, five-axis kinematic round trips, collision tests, removed volume, nose radius, thread root and taper, face grooves, parting off, width of cut, tapping, countersinks, counterbores, thread milling, arc lead-in, ball end mill scallop height, errors that must be reported, post read-back, canned-cycle expansion), all within the stated tolerances.
 
 # Installing and uninstalling
 
@@ -152,6 +152,17 @@ Tick "Deviation" to colour the finished stock by its deviation from the part mod
   sequence numbers, % and turning items do not apply and are rejected. For read-back the program is converted back to ISO and compared with the
   simulated path. Tool paths contain no arcs (arcs are split into lines at 0.002 mm chord height), so no CC / C blocks are written.
 - None of the post processors (FANUC, Siemens, GSK lathe, Huazhong, Heidenhain) has been verified on a real machine yet; the program header says so; programs with canned cycles (turning or drilling) get an extra warning in the check list. **Always dry-run the first part and confirm it in single block.**
+
+# 3+2 tilted planes (in progress)
+
+On five-axis machining centres (such as the example EX-5AX-AC, trunnion A and C axes) an operation can work on a tilted working plane: plane origin,
+normal (tool axis) and X direction are given in work coordinates, and the operation's tool path uses plane coordinates. Simulation: material removal
+uses tri-dexel (any tool axis), and the machine simulation solves the rotary axes from the tool axis and checks overtravel and collisions. Before the
+rotary axes turn, Z retracts to machine home; the moves from there to the first plunge follow the control's tilted-plane function and are not
+checked by the machine simulation (an "unknown" item in the check list). Posts: FANUC / Huazhong write `G68.2` (plane origin + Z-X-Z Euler angles)
+and `G53.1`, cancelled with `G69`; Siemens writes `CYCLE800` (axis-by-axis X, Y, Z, _MODE = 57), cancelled with `CYCLE800()`; Heidenhain writes a
+`CYCL DEF 7` datum shift and `PLANE SPATIAL … TURN`, cancelled with `PLANE RESET STAY`. For read-back all three are converted to the same rotation and
+compared move by move with the simulated path. Three-axis machines report an error for tilted operations. Picking the plane from a face in the 3D view is still being built.
 
 # Feedback
 

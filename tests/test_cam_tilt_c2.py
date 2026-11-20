@@ -13,7 +13,8 @@ from tests.verification import record_verdict
 ANGLES = [-170.0, -90.0, -45.0, -12.5, 0.0, 30.0, 90.0, 135.0, 180.0]
 
 
-@pytest.mark.parametrize(("dec", "rec"), [(TT.euler_zxz, TT.from_zxz), (TT.spatial_abc, TT.from_spatial), (TT.axis_xyz, TT.from_axis_xyz)])
+@pytest.mark.parametrize(("dec", "rec"), [(TT.euler_zxz, TT.from_zxz), (TT.spatial_abc, TT.from_spatial), (TT.axis_xyz, TT.from_axis_xyz)],
+                         ids=["G68.2", "PLANE-SPATIAL", "CYCLE800"])
 def test_round_trip(dec, rec):
     worst = 0.0
     for a, b, c in itertools.product(ANGLES, repeat=3):
@@ -105,3 +106,27 @@ def test_holder_hits_table_when_part_is_low():
 def test_three_axis_machine_cannot_tilt():
     p = _run(machine="EX-VMC", msim=False)
     assert any("没有回转轴" in c["text"] and c["level"] == "error" for c in p["checks"])
+
+
+def test_heidenhain_plane_spatial_release_and_readback():
+    """海德汉：M140 MB MAX 退刀、CYCL DEF 7 零点平移到平面原点、PLANE SPATIAL（外旋 A、B、C）TURN；回读换成 G68.2 与仿真刀路一致"""
+    st = {"mode": "program", "machine": "EX-5AX-AC", "program": _side_prog(), "stock": {"box": [0, 0, 100, 60], "height": 40},
+          "post": "heidenhain", "machine_sim": {"work_offset_mm": [-50, -30, 100], "tools": {"1": {"tool": "EM10", "length_mm": 120}}}}
+    p = cam.run(st)["data"]["programs"][0]
+    assert p["release"] is not None
+    t = p["release"]["text"]
+    a, b, c = TT.spatial_abc(TT.matrix(SIDE))
+    assert (a, b, c) == pytest.approx((90.0, 0.0, 90.0))
+    assert "PLANE SPATIAL SPA+90.0 SPB+0.0 SPC+90.0 TURN MB MAX FMAX" in t and "CYCL DEF 7.1 X+100.0" in t and "CYCL DEF 7.3 Z-20.0" in t
+    assert t.index("M140 MB MAX") < t.index("PLANE SPATIAL") < t.index("PLANE RESET STAY")
+
+
+def test_siemens_cycle800_release_and_readback():
+    """西门子：CYCLE800(1, "", 0, 57, 平面原点, 逐轴 X-Y-Z 角, …)；工序结束 CYCLE800()；回读换成 G68.2 与仿真刀路一致"""
+    st = {"mode": "program", "machine": "EX-5AX-AC", "program": _side_prog(), "stock": {"box": [0, 0, 100, 60], "height": 40},
+          "post": "siemens", "machine_sim": {"work_offset_mm": [-50, -30, 100], "tools": {"1": {"tool": "EM10", "length_mm": 120}}}}
+    p = cam.run(st)["data"]["programs"][0]
+    assert p["release"] is not None
+    t = p["release"]["text"]
+    assert TT.axis_xyz(TT.matrix(SIDE)) == pytest.approx((90.0, 90.0, 0.0))
+    assert 'CYCLE800(1,"",0,57,100.0,0.0,-20.0,90.0,90.0,0.0,0,0,0,-1,0,0)' in t and t.index("CYCLE800(1") < t.index("CYCLE800()")

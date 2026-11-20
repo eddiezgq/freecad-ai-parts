@@ -515,7 +515,7 @@
   },
   {
    "id": "CAM-50",
-   "test": "tests/test_cam_tilt_c2.py::test_round_trip",
+   "test": "tests/test_cam_tilt_c2.py::test_round_trip[G68.2]",
    "category": "kin",
    "title": {
     "zh": "倾斜面角度（G68.2 欧拉角、PLANE SPATIAL、CYCLE800）往返",
