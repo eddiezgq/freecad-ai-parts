@@ -55,6 +55,7 @@ class JobPanel:
         lay = QtWidgets.QVBoxLayout(self.form)
         f = QtWidgets.QFormLayout()
         self.machine = QtWidgets.QComboBox()
+        kind = "lathe" if job.Kind == "turn" else "mill"
         kinds = ("lathe", "mill_turn") if job.Kind == "turn" else ("mill",)      # 3+2 五轴、车铣中心也能选（ADR-0106 C2a、C2b）
         for m in machines.all_machines():
             if m["kind"] in kinds:
