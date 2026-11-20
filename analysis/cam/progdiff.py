@@ -35,7 +35,7 @@ def detect(text: str) -> str:
 def load(text: str, mach: dict, controller: str | None = None) -> dict:
     """程序 → {"moves", "parsed", "controller"}：每段刀路带原程序行号 src"""
     ctl = controller or detect(text)
-    lathe = mach["kind"] == "lathe"
+    lathe = mach["kind"] in ("lathe", "mill_turn")
     iso = postproc.to_fanuc(text, ctl, lathe, tags=True)
     lines = iso.splitlines()
     parsed = sim.parse(iso, mach)

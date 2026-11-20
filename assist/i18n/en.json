@@ -107,7 +107,6 @@
 "h_i·d（间隙副只约束轴向）": "h_i·d (clearance joint constrains the axial direction only)",
 "log 的参数要大于 0": "The argument of log must be greater than 0",
 "mbd-model/1 的 JSON 模型文件：控制器、接触、大变形梁等窗口里没有入口的功能写在模型文件里，打开就能算、出报告": "A JSON model file (mbd-model/1): features without a control in this window, such as controllers, contact and large-deformation beams, are written in the model file; open it to compute and write reports",
-"mode 要是 turn、mill、check 或 program：{}": "mode must be turn, mill, check or program: {}",
 "node_mass_kg 的个数与节点数不同": "The number of node_mass_kg entries differs from the number of nodes",
 "program 里没有工序": "program has no operations",
 "sqrt 的参数要大于 0": "The argument of sqrt must be greater than 0",
@@ -2115,5 +2114,16 @@
 "新建倾斜面装夹": "New tilted-plane setup",
 "点零件上的一个平面：建一个倾斜面装夹（3+2 定位），这个装夹里的工序在这个平面上加工": "Click a planar face of the part: creates a tilted-plane setup (3+2 positioning); its operations machine on that plane",
 "车铣插补（G12.1 / G7.1）里的圆弧还读不了（ADR-0106 C2b）": "Arcs inside mill-turn interpolation (G12.1 / G7.1) cannot be read yet (ADR-0106 C2b)",
-"车铣的铣削段（极坐标、圆柱插补）：C 轴、动力刀的整机仿真还没做（ADR-0106 C2b），碰撞和超程没查": "Milling moves on the mill-turn (polar / cylindrical interpolation): machine simulation with the C axis and live tools is not done yet (ADR-0106 C2b); collisions and overtravel not checked"
+"车铣的铣削段（极坐标、圆柱插补）：C 轴、动力刀的整机仿真还没做（ADR-0106 C2b），碰撞和超程没查": "Milling moves on the mill-turn (polar / cylindrical interpolation): machine simulation with the C axis and live tools is not done yet (ADR-0106 C2b); collisions and overtravel not checked",
+"mode 要是 turn、mill、check、program 或 millturn：{}": "mode must be turn, mill, check, program or millturn: {}",
+"{} 不是车铣中心": "{} is not a mill-turn centre",
+"第 {} 道工序的 interp 要是 \"polar\" 或 {{\"cyl\": 半径}}": "Operation {}: interp must be \"polar\" or {{\"cyl\": radius}}",
+"第 {} 道工序的动作要有 {}（切削还要 f）：{}": "Operation {}: moves need {} (cutting moves also f): {}",
+"第 {} 道工序要写刀号 tool.n": "Operation {} needs a tool number tool.n",
+"第 {} 道工序（动力刀）要写刀径 tool.d": "Operation {} (live tool) needs the tool diameter tool.d",
+"车铣": "Mill-turn",
+"车铣的铣削段在车完的外形上按三向 dexel 算去料：每段切深、切宽没量，刀杆与剩余材料的碰撞没查": "Mill-turn milling moves: material removal computed with tri-dexel on the turned shape; depth and width of cut not measured, shank collisions with the remaining material not checked",
+"车铣要给毛坯 stock = {d, z_right, z_left}": "Mill-turn needs stock = {d, z_right, z_left}",
+"后处理配置没写动力刀、C 轴的 M 代码（millturn，按机床说明书填，ADR-0110），带铣削段的车铣程序不出": "The post configuration has no live-tool / C-axis M codes (millturn; fill in from the machine manual, ADR-0110); mill-turn programs with milling are not output",
+"西门子的车铣（TRANSMIT / TRACYL）还没做（ADR-0106 C2b）；车铣程序先用 FANUC 写法的后处理": "Siemens mill-turn (TRANSMIT / TRACYL) is not done yet (ADR-0106 C2b); use a FANUC-style post for mill-turn programs"
 }

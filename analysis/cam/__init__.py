@@ -126,7 +126,7 @@ def _sim_gcode(prog, mach, setup):
             pc = postproc.posts().get(ctl)
         except postcfg.PostConfigError:
             pc = None
-        if pc and (mach["kind"] == "lathe" and pc["lathe"] or mach["kind"] != "lathe" and pc["mill"]):
+        if pc and (_lathe(mach) and pc["lathe"] or not _lathe(mach) and pc["mill"]):
             g = postcfg.tool_change_actions(g, postcfg.resolved(pc["cfg"]), mach["kind"] == "lathe")
     return g
 
@@ -148,7 +148,7 @@ def _release(setup, mach, prog, out):
         return
     try:
         rel = postproc.render(prog, mach, ctl, out.get("machine_sim"))
-        back = postproc.to_fanuc(rel["text"], ctl, mach["kind"] == "lathe")
+        back = postproc.to_fanuc(rel["text"], ctl, _lathe(mach))
         if out.get("gcode") and not _same_path(out["gcode"], back, mach):
             raise postproc.ReleaseError("后处理出的程序回读后与整机仿真用的刀路不一致，不输出")
     except postproc.ReleaseError as exc:
@@ -206,7 +206,7 @@ def _turn_features(setup, total, reach_right):
 
 def turn_context(setup, mach):
     """车削的公共数据：设计轮廓、毛坯、两次装夹各自的目标轮廓与槽 / 螺纹 / 内孔（ADR-0106 Q1：工序可以单独算）"""
-    if mach["kind"] != "lathe":
+    if not _lathe(mach):
         raise SetupError(f"{mach['name']} 不是车床")
     segs = [[float(d), float(seg_len)] for d, seg_len in setup.get("segments") or []]
     if setup.get("profile"):                          # 外圆轮廓（带锥面、圆弧；从模型截面读出，ADR-0106 Q3a）
@@ -281,6 +281,11 @@ def _g76_segments(mv, tv, internal, taper, starts):
         out.append({"type": "G76", "i0": i_first + 1, "i1": i_last, "x0": xo, "z0": zs, "x": x_end_root, "z": tv["z_end"],
                     "i": (x_start_root - x_end_root) / 2, "k_um": k_um, "dd_um": dd_um, "m": 1, "lead": mv[thr[0]]["pitch"]})
     return out
+
+
+def _lathe(mach) -> bool:
+    """车床或车铣中心（车削、车铣按车床读程序）"""
+    return mach["kind"] in ("lathe", "mill_turn")
 
 
 def _with_chuck(setup, stock_len, reach, checks, stock_d, info=None):
@@ -831,6 +836,77 @@ def _dexel_mill(parsed, box, top, stock, tools):
     return {"issues": issues, "ap_max": 0.0, "h": h, "removed_mm3": r["removed"], "ae": {}}
 
 
+def _millturn(setup, mach):
+    """车铣复合程序（ADR-0106 C2b 第 4 步）：车削工序（x 直径、z）与动力刀铣削工序（interp = "polar" 极坐标插补，
+    或 {"cyl": 半径} 圆柱插补；动作 x 直径、c、z、f 每分进给）在同一个程序里。
+    毛坯 stock = {"d", "z_right", "z_left"}。车削按车削仿真；铣削在车完的外形上用 dexel 切；整机仿真对铣削段报“未知”。"""
+    from analysis.cam import millturn as MTN
+
+    if mach["kind"] != "mill_turn":
+        raise SetupError(f"{mach['name']} 不是车铣中心")
+    prog = setup.get("program") or {}
+    ops = prog.get("ops") or []
+    if not ops:
+        raise SetupError("program 里没有工序")
+    stock = setup.get("stock") or {}
+    if not all(k in stock for k in ("d", "z_right", "z_left")):
+        raise SetupError("车铣要给毛坯 stock = {d, z_right, z_left}")
+    turn_tools, mill_tools = {}, {}
+    for k, op in enumerate(ops, 1):
+        t = op.get("tool") or {}
+        if "n" not in t:
+            raise SetupError(f"第 {k} 道工序要写刀号 tool.n")
+        if not ((op.get("spindle") or {}).get("rpm") or (op.get("spindle") or {}).get("css")):
+            raise SetupError(f"第 {k} 道工序没有转速")
+        it = op.get("interp")
+        need = ("x", "c", "z") if it else ("x", "z")
+        for mv in op.get("moves") or []:
+            if mv.get("t") == "comment":
+                continue
+            if mv.get("t") not in ("rapid", "feed") or any(mv.get(x) is None for x in need) or (mv["t"] == "feed" and not mv.get("f")):
+                raise SetupError(f"第 {k} 道工序的动作要有 {', '.join(need)}（切削还要 f）：{mv}")
+        if it:
+            if it != "polar" and not (isinstance(it, dict) and float(it.get("cyl", 0)) > 0):
+                raise SetupError(f"第 {k} 道工序的 interp 要是 \"polar\" 或 {{\"cyl\": 半径}}")
+            if not t.get("d"):
+                raise SetupError(f"第 {k} 道工序（动力刀）要写刀径 tool.d")
+            mill_tools[int(t["n"])] = {"kind": t.get("kind", "endmill"), "d": float(t["d"])}
+        else:
+            turn_tools[int(t["n"])] = {"kind": t.get("kind", "turn"), **({"w": float(t["w"])} if t.get("w") else {}),
+                                       **({"nose_r": float(t["nose_r"])} if t.get("nose_r") else {})}
+    g = _sim_gcode(prog, mach, setup)
+    parsed = sim.parse(g, mach)
+    checks = sim.machine_checks(parsed, mach)
+    tm = sim.timing(parsed, mach)
+    st = {"d": float(stock["d"]), "z_right": float(stock["z_right"]), "z_left": float(stock["z_left"])}
+    ts = sim.simulate_turn(parsed, st, turn_tools)
+    checks += ts["issues"]
+    # 车完的外形：半径网格压成折线（半径变了才记点），回转成 dexel 毛坯再铣
+    zc, rr = ts["z"], ts["r"]
+    prof = [(float(st["z_right"]), float(rr[-1]))]
+    for i in range(len(zc) - 2, -1, -1):
+        if abs(rr[i] - prof[-1][1]) > 1e-6:
+            prof.append((float(zc[i + 1] - (zc[1] - zc[0]) / 2), prof[-1][1]))
+            prof.append((float(zc[i + 1] - (zc[1] - zc[0]) / 2), float(rr[i])))
+    prof.append((float(st["z_left"]), float(rr[0])))
+    extra: list = []
+    mres = {"removed_mm3": 0.0, "issues": []}
+    if mill_tools:
+        mres = MTN.mill_on_turned(parsed, prof, mill_tools)
+        extra += [c for c in mres["issues"] if c["level"] == "error"]
+        checks.append({"line": None, "level": "unknown",
+                       "text": "车铣的铣削段在车完的外形上按三向 dexel 算去料：每段切深、切宽没量，刀杆与剩余材料的碰撞没查"})
+    out = {"title": prog.get("title") or "车铣", "number": prog.get("number", 3001), "gcode": g, "time": tm, "checks": checks,
+           "power": {"status": "unknown"}, "sim": {"mill_removed_mm3": round(mres["removed_mm3"], 1), "profile": prof},
+           "replay_in": {"kind": "turn", "stock": st, "tools": {str(k): v for k, v in turn_tools.items()}}}
+    if setup.get("machine_sim"):
+        _msim(setup, mach, parsed, g, st, extra, out, withhold=True)
+    elif extra:
+        out["checks"] += extra
+    _release(setup, mach, prog, out)
+    return [out], {}
+
+
 ADAPTIVE_OVER = 1.5      # 自适应开粗实测最宽超过设定切宽的 1.5 倍（加一格）才提示：FreeCAD Adaptive 按面积近似控制切入，转角处会超一些
 
 
@@ -924,9 +1000,9 @@ def run(setup: dict) -> dict:
     mode = setup.get("mode")
     try:
         mach = M.get(setup.get("machine", ""))
-        fn = {"turn": _turn, "mill": _mill, "check": _check, "program": _program}.get(mode)
+        fn = {"turn": _turn, "mill": _mill, "check": _check, "program": _program, "millturn": _millturn}.get(mode)
         if fn is None:
-            raise SetupError(f"mode 要是 turn、mill、check 或 program：{mode!r}")
+            raise SetupError(f"mode 要是 turn、mill、check、program 或 millturn：{mode!r}")
         progs, extra = fn(setup, mach)
     except (SetupError, P.CamError, M.MachineError, MS.SimSetupError) as exc:
         return result.failed("cam", MODULE["version"], setup, str(exc))

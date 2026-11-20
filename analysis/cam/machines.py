@@ -26,7 +26,8 @@ EXAMPLE = Path(__file__).resolve().parent / "machines"
 NEED = {"lathe": ("max_rpm", "power_kw", "eff", "x", "z", "rapid", "home", "tool_change_s"),
         "mill": ("max_rpm", "power_kw", "eff", "x", "y", "z", "rapid", "tool_change_s")}
 # 旧视图里这几项必须有（仿真和时间要用）；功率、效率缺了只让功率检查报“未知”
-VIEW_NEED = {"lathe": ("x", "z", "rapid", "home", "tool_change_s"), "mill": ("x", "y", "z", "rapid", "tool_change_s")}
+VIEW_NEED = {"lathe": ("x", "z", "rapid", "home", "tool_change_s"), "mill": ("x", "y", "z", "rapid", "tool_change_s"),
+             "mill_turn": ("x", "z", "rapid", "home", "tool_change_s")}
 
 
 def user_file(env=None) -> Path:
@@ -113,7 +114,8 @@ def model(machine_id: str, env=None) -> dict:
 
 
 def _view_ok(v: dict) -> bool:
-    return (MM.is_three_axis(v["model"]) or MM.is_three_plus_two(v["model"])) and all(k in v for k in VIEW_NEED[v["kind"]])
+    return (MM.is_three_axis(v["model"]) or MM.is_three_plus_two(v["model"]) or MM.is_mill_turn(v["model"])) \
+        and all(k in v for k in VIEW_NEED[v["kind"]])
 
 
 def all_machines(env=None) -> list[dict]:

@@ -113,6 +113,17 @@ def _lathe(prog, machine, sim_res, post, dialect):
             L.append(_paren(f"{en} {v}" if en else v))
         L.append("G21 G18 G40 G97 G99")
     for k, op in enumerate(prog["ops"], 1):
+        if op.get("interp"):                        # 车铣的铣削工序（ADR-0106 C2b、ADR-0110）：开 / 关动力刀、C 轴的程序行按后处理配置
+            if sie:
+                raise ReleaseError("西门子的车铣（TRANSMIT / TRACYL）还没做（ADR-0106 C2b）；车铣程序先用 FANUC 写法的后处理")
+            mt = _fmt().get("millturn")
+            if not mt:
+                raise ReleaseError("后处理配置没写动力刀、C 轴的 M 代码（millturn，按机床说明书填，ADR-0110），带铣削段的车铣程序不出")
+            from analysis.cam import post as _post
+
+            L += _post.millturn_lines(op, (hx, hz), mt, nd=_fmt()["coord"], fnd=_fmt()["feed"] if _fmt()["feed"] is not None else 1,
+                                      cm=_paren)
+            continue
         t, sp = op["tool"], op["spindle"]
         L.append(_semi(f"工序 {k}：{op.get('title', '')}") if sie else _paren(f"OP{k} T{t['n']:02d}"))
         L.append(f"G0 X{num(hx)} Z{num(hz)}" if sie else f"G00 X{num(hx)} Z{num(hz)}")
@@ -456,7 +467,7 @@ def render(prog: dict, machine: dict, controller: str, sim_res: dict | None) -> 
         post = posts().get(controller)
     except postcfg.PostConfigError as exc:
         raise ReleaseError(str(exc)) from exc
-    kind = "lathe" if machine["kind"] == "lathe" else "mill"
+    kind = "lathe" if machine["kind"] in ("lathe", "mill_turn") else "mill"
     if post is None or not post[kind]:
         raise ReleaseError(f"没有 {controller!r} 的{'车床' if kind == 'lathe' else '铣床'}后处理；可选：{', '.join(available(kind))}")
     if not sim_res:
@@ -468,7 +479,8 @@ def render(prog: dict, machine: dict, controller: str, sim_res: dict | None) -> 
     dialect = "fanuc" if fam == "hnc" else fam                  # 华中按 FANUC 写法，程序头另改
     tok = _FMT.set({"coord": cfg["decimals"]["coord"], "feed": cfg["decimals"]["feed"],
                     "utf8": cfg["comments"] == "utf8" and fam != "siemens",
-                    "turn_cycles": cfg["cycles"]["turn"], "drill_cycles": cfg["cycles"]["drill"] and fam != "siemens"})
+                    "turn_cycles": cfg["cycles"]["turn"], "drill_cycles": cfg["cycles"]["drill"] and fam != "siemens",
+                    "millturn": cfg.get("millturn")})
     try:
         if fam == "heidenhain":
             text = klartext.finish(*_heidenhain_mill(prog, machine, sim_res, post), cfg, int(prog.get("number", 1)))

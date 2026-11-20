@@ -180,7 +180,7 @@ def _samples(a, b, step):
 
 def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode: str = "") -> dict:
     """parsed 来自 sim.parse；stock 同 sim.simulate_mill 的毛坯，另可给 "height"（毛坯高度，没给就不查主轴头碰毛坯外形）"""
-    lathe = machine["kind"] == "lathe"
+    lathe = machine["kind"] in ("lathe", "mill_turn")
     off = np.asarray(cfg.get("work_offset_mm") or [0, 0, 0], float)
     margin = float(cfg.get("clearance_mm", 1.0))
     step = float(cfg.get("step_mm", 5.0))

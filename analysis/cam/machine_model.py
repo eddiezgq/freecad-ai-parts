@@ -107,6 +107,12 @@ def is_three_plus_two(model: dict) -> bool:
     return model["kind"] == "mill" and t.count("linear") == 3 and t.count("rotary") == 2
 
 
+def is_mill_turn(model: dict) -> bool:
+    """车铣中心：X、Z（可带 Y）直线轴 + C 轴（ADR-0106 C2b）"""
+    t = [a["type"] for a in model["axes"]]
+    return model["kind"] == "mill_turn" and t.count("rotary") == 1 and t.count("linear") in (2, 3)
+
+
 def legacy_view(model: dict) -> dict:
     """旧代码用的字段；行程按工件坐标（刀具相对工件）给，带工件一侧的直线轴把方向翻过来"""
     v = {"id": model["id"], "name": model["name"], "kind": model["kind"], "max_rpm": float(model["spindle"]["max_rpm"]),
