@@ -6,7 +6,7 @@
 #   id:             来源唯一标识，如 harmonic-drive
 #   vendor:         厂商或组织名称
 #   url:            产品目录或下载页
-#   categories:     覆盖的品类：servo_motor | reducer | drive | bearing | fastener
+#   categories:     覆盖的品类：servo_motor | reducer | drive | bearing | fastener | electronic | cutting_tool
 #   license:        params-only（仅提取公开目录参数，ADR-0040） | open（开源许可，注明许可证） | partner（厂商授权）
 #                   | pending（待定） | withdrawn（厂商异议后撤回，数据已删除）
 #   terms_url:      使用条款页面
@@ -149,3 +149,27 @@ sources:
     terms_note: >-
       2026-11-05 核实：项目说明写明 “The SkyWater Open Source PDK is released under the Apache 2.0 license”，
       标准单元文件头 SPDX-License-Identifier: Apache-2.0。编码器接口芯片 WQ-ENCIF 的 GDS 含 sky130_fd_sc_hd 标准单元版图；不入零件参数库。
+
+  # 2026-11-19（ADR-0106 Q4b）：问渠CAM 刀具库的厂商样本数据。按 ADR-0040 只收公开样本里的参数（尺寸、刀片、切削参数范围），
+  # 不转存样本文档、图片；样本 PDF 放 data/raw/，与样本页并排的核对表只在本地生成、不入库。条款核实前不得入库。
+  - id: zcc-ct
+    vendor: 株洲钻石切削刀具股份有限公司（ZCC Cutting Tools）
+    url: https://www.zccct.com
+    categories: [cutting_tool]
+    license: pending
+    terms_checked: false
+    terms_note: 2026-11-19 网站本会话访问不到，未取得法律声明，待人工查看；项目负责人另定常用品牌后按品牌补。
+  - id: golden-egret
+    vendor: 厦门金鹭特种合金有限公司（Golden Egret）
+    url: https://www.gesac.com.cn
+    categories: [cutting_tool]
+    license: pending
+    terms_checked: false
+    terms_note: 2026-11-19 未核实，待人工查看。
+  - id: sandvik-coromant
+    vendor: Sandvik Coromant
+    url: https://www.sandvik.coromant.com
+    categories: [cutting_tool]
+    license: pending
+    terms_checked: false
+    terms_note: 2026-11-19 条款页面由脚本渲染，本会话读不到正文，待人工查看。

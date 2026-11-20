@@ -59,6 +59,73 @@ def load(path: str | Path = EXAMPLE) -> dict:
     return check(data, str(p))
 
 
+# ---------------- 刀具库窗口用（ADR-0106 Q4a）----------------
+TOOL_KINDS = ("flat_endmill", "ball_endmill", "bull_endmill", "drill", "center_drill", "chamfer_mill", "face_mill", "tap", "reamer",
+              "thread_mill", "turn", "groove", "thread_turn", "bore")
+
+
+def user_dir(env=None) -> Path:
+    """用户刀具库所在文件夹（FAP_TOOLS 可改）"""
+    import os
+
+    env = os.environ if env is None else env
+    return Path(env["FAP_TOOLS"]) if env.get("FAP_TOOLS") else Path.home() / ".freecad-ai-parts" / "tools"
+
+
+def libraries(env=None) -> list[dict]:
+    """可选的刀具库：示例库（只读）在前，用户文件夹里的 *.json 在后 → [{"name", "path", "readonly", "error"}]"""
+    out = [{"name": json.loads(EXAMPLE.read_text(encoding="utf-8"))["name"], "path": str(EXAMPLE), "readonly": True, "error": ""}]
+    d = user_dir(env)
+    for p in sorted(d.glob("*.json")) if d.is_dir() else []:
+        try:
+            out.append({"name": load(p)["name"], "path": str(p), "readonly": False, "error": ""})
+        except ToolError as exc:
+            out.append({"name": p.stem, "path": str(p), "readonly": False, "error": str(exc)})
+    return out
+
+
+def engineering_errors(lib: dict) -> list[str]:
+    """schema 管不到的工程规则：范围下限不大于上限、刀号不重复"""
+    out = []
+    nums = [t["number"] for t in lib.get("tools") or [] if "number" in t]
+    dup = sorted({n for n in nums if nums.count(n) > 1})
+    if dup:
+        out.append(f"刀号重复：{', '.join(map(str, dup))}")
+    for t in lib.get("tools") or []:
+        for c in t.get("cutting") or []:
+            for k, v in c.items():
+                if isinstance(v, dict) and "min" in v and "max" in v and v["min"] > v["max"]:
+                    out.append(f"{t.get('id')}：{c.get('iso_group')} 组 {k} 的下限 {v['min']:g} 大于上限 {v['max']:g}")
+    return out
+
+
+def save(lib: dict, path: str | Path) -> Path:
+    """核对后保存（不合格不存，ToolError 写明哪一项）；示例库不能覆盖"""
+    p = Path(path)
+    if p.resolve() == EXAMPLE.resolve():
+        raise ToolError("示例刀具库是只读的：另存为自己的刀具库")
+    errs = validate(lib) + engineering_errors(lib)
+    if not errs:
+        ids = [t["id"] for t in lib["tools"]]
+        dup = sorted({i for i in ids if ids.count(i) > 1})
+        errs = [f"刀具 id 重复：{', '.join(dup)}"] if dup else []
+    if errs:
+        raise ToolError("不能保存：" + "；".join(errs[:8]))
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(lib, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    return p
+
+
+def template(kind: str, tool_id: str, number: int) -> dict:
+    """新建刀具的空模板：只写种类必需的字段（数值留给用户填，不编）"""
+    if kind not in TOOL_KINDS:
+        raise ToolError(f"没有这种刀具：{kind}")
+    t = {"id": tool_id, "number": int(number), "kind": kind, "source": {"kind": "enterprise", "ref": "企业自己的刀具（出处待写明）"}}
+    if kind in TURNING:
+        t["insert"] = {}
+    return t
+
+
 def get(lib: dict, tool_id: str) -> dict:
     for t in lib["tools"]:
         if t["id"] == tool_id:

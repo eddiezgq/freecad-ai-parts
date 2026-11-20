@@ -107,6 +107,14 @@ Tick "Deviation" to colour the finished stock by its deviation from the part mod
 
 # Machines and tools
 
+- **Tool library window** ("WenQuest CAM" menu → "Tool library…"): view and edit tool libraries. The example library is fictional and read-only; start with "New tool library" or "Save as". A new tool gets an empty template for its kind; insert and holder, cutting data (one row per material group) and source (catalogue and page) are on separate tabs, and empty cells are not written. FreeCAD tool tables can be imported. The library is checked against the format before saving; if something is wrong it is not saved and the field is named. The library then appears in the job panel's "Tool library" list.
+
+![Tool library window](img/en-tools.png)
+
+- **Machine window** ("WenQuest CAM" menu → "Machines…"): view travel, speeds, tool change time, axis chain and source, and draw the machine in the view; "Copy as my machine", then correct travel, rapids, speed, power and tool change time to the real machine and state the source (maker's document and page, or who measured it and when).
+
+![Machine window](img/en-machines.png)
+
 - **Machines**: the four example machines (lathe, vertical machining centre, trunnion five-axis, mill-turn) are fictional and for demonstration only. Before real machining, enter your own machines in `<user folder>\.freecad-ai-parts\machines.yaml` (or the file or folder given by the environment variable `FAP_MACHINES`). The earlier simple format still works; the new format (cam-machine/1) adds the axis chains, rotary centres and component shapes that the machine simulation needs.
 - **Tool library**: one JSON file (cam-tool/1); each tool has its kind, diameter or insert, flute length, stick-out, shank diameter, holder profile and the cutting data ranges from the tool catalogue. FreeCAD CAM tool tables (`.fctl`) can be imported; add the holder profile and cutting data afterwards.
 - **Turning holders**: give the ISO 5608 holder code (e.g. `PCLNR 2525 M 12`) and the tip offset f (from the maker's catalogue) in the tool library, and the machine simulation checks the holder shank against the chuck, tailstock and turret. The head within one insert edge length of the tip differs by maker and is reported as "unknown". Without f the holder is not checked.

@@ -71,8 +71,18 @@ class JobPanel:
             self.kienzle.addItem(f"{r['key']} · {r['material_cn'] or r['material']}（ISO {r['iso_group'] or '—'}）", r["key"])
         self.kienzle.setCurrentIndex(max(self.kienzle.findData(job.Kienzle), 0))
         f.addRow(T("工件材料"), self.kienzle)
-        self.library = QtWidgets.QLineEdit(job.ToolLibrary)
-        self.library.setPlaceholderText(T("刀具库文件（空 = 示例刀具库，虚构）"))
+        self.library = QtWidgets.QComboBox()            # 示例库 + 用户刀具库（刀具库窗口建的）；也可以直接填别处的文件路径
+        self.library.setEditable(True)
+        from freecad_addon.gui import cam_library
+
+        for name, path in cam_library.library_choices():
+            self.library.addItem(name, path)
+        i = self.library.findData(job.ToolLibrary)
+        if i >= 0:
+            self.library.setCurrentIndex(i)
+        else:
+            self.library.setEditText(job.ToolLibrary)
+        self.library.setToolTip(T("刀具库：示例刀具库（虚构）或“刀具库…”窗口里建的；也可以填刀具库文件的路径"))
         f.addRow(T("刀具库"), self.library)
         self.fixture = QtWidgets.QLineEdit(job.Fixture)
         self.fixture.setPlaceholderText(T("卡爪：夹持长度, 外径 mm") if job.Kind == "turn" else T("平口钳：夹持高度 mm（空 = 不画钳口）"))
@@ -140,7 +150,9 @@ class JobPanel:
 
         j = self.job
         j.Machine, j.Post, j.Kienzle = self.machine.currentData(), self.post.currentData(), self.kienzle.currentData()
-        j.ToolLibrary, j.Fixture = self.library.text().strip(), self.fixture.text().strip()
+        i = self.library.findText(self.library.currentText())
+        j.ToolLibrary = self.library.itemData(i) if i >= 0 else self.library.currentText().strip()
+        j.Fixture = self.fixture.text().strip()
         if j.Kind == "turn":
             d = CO._js(j, "PartData", {})
             d["threads"] = CO.parse_threads(self.threads.toPlainText())
