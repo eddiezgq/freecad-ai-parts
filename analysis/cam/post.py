@@ -78,6 +78,20 @@ def post_lathe(prog, machine):
     return "\n".join(lines) + "\n"
 
 
+def tilt_lines(op) -> list[str]:
+    """3+2 倾斜面（ADR-0106 C2a）：工序带 frame 时写 G68.2（平面原点 + Z-X-Z 欧拉角）和 G53.1（刀轴转到平面法向）；
+    这道工序的坐标都是平面坐标，工序结束 G69 取消"""
+    fr = op.get("frame")
+    if not fr:
+        return []
+    from analysis.cam import tilt
+
+    i, j, k = tilt.euler_zxz(tilt.matrix(fr))
+    o = fr["origin"]
+    # 转工作台前先把 Z 退到机床原点（刀具离开工件），再定倾斜面、转回转轴
+    return ["G91 G28 Z0.0", "G90", f"G68.2 X{num(o[0])} Y{num(o[1])} Z{num(o[2])} I{num(i, 4)} J{num(j, 4)} K{num(k, 4)}", "G53.1"]
+
+
 def post_mill(prog, machine):
     """2.5 轴铣：G17、G90 绝对、G94 每分进给、G54、M06 换刀、G43 长度补偿、G81 / G83 钻孔循环。"""
     lines: list[str] = []
@@ -89,6 +103,7 @@ def post_mill(prog, machine):
         op["_line"] = len(lines) + 1             # 这道工序从程序第几行起（仿真后按工序统计用，如自适应开粗的切宽）
         lines.append(comment(op.get("title", "")))
         lines += [f"T{t['n']} M06", "G54", f"S{round(sp['rpm'])} M03"]
+        lines += tilt_lines(op)
         mvs = [mv for mv in op["moves"] if mv["t"] != "comment"]
         x0 = next((mv for mv in mvs if "x" in mv), {"x": 0, "y": 0})
         lines.append(f"G00 X{num(x0['x'])} Y{num(x0['y'])}")
@@ -150,6 +165,8 @@ def post_mill(prog, machine):
         if cyc is not None:
             lines.append("G80")
         lines += [f"G00 Z{num(safe)} M09", "M05"]
+        if op.get("frame"):
+            lines.append("G69")
     lines += ["G91 G28 Z0.0", "G90", "M30", "%"]
     return "\n".join(lines) + "\n"
 

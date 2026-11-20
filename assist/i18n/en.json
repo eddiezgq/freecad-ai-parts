@@ -922,7 +922,6 @@
 "机床": "Machine",
 "机床 ": "Machine ",
 "机床 id": "Machine id",
-"机床 {} 不是两轴车床或三轴加工中心（或机床文件缺行程、快移、换刀点），现有的车削、2.5 轴铣编程和程序检查用不了它": "Machine {} is not a two-axis lathe or three-axis machining centre (or the machine file lacks travel, rapid rates or a tool-change point); the existing turning, 2.5-axis milling and program check cannot use it",
 "机床、数控系统、材料、夹具；起草、计算并检查、保存程序": "Machine, control, material, fixture; draft, calculate and check, save programs",
 "机床文件没写车床换刀点 lathe_home_mm": "The machine file has no lathe tool-change point lathe_home_mm",
 "机床的{}碰到{}“{}”（第 {} 行）": "The machine {} hits {} “{}” (line {})",
@@ -2096,5 +2095,14 @@
 "生成反馈包…": "Make feedback package…",
 "问题反馈": "Feedback",
 "问题反馈…": "Feedback…",
-"厂商样本刀具库只读：要改先“另存为”": "Vendor catalogue tool libraries are read-only: use “Save as” first"
+"厂商样本刀具库只读：要改先“另存为”": "Vendor catalogue tool libraries are read-only: use “Save as” first",
+"倾斜面上的移动：直线轴超程、碰撞要按回转后的机床坐标查，没跑整机仿真就没查": "Moves on a tilted plane: overtravel and collisions of the linear axes must be checked in machine coordinates after the rotary axes turn; not checked without machine simulation",
+"倾斜面程序按三向 dexel（网格 {} mm）算材料去除：每段切深、切宽没量，刀杆、刀柄与剩余材料的碰撞没查": "Tilted-plane program: material removal computed with tri-dexel (grid {} mm); depth and width of cut per move not measured, shank and holder collisions with the remaining material not checked",
+"倾斜面：转回转轴后到第一次下刀那几段，刀具在机床 Z 原点，实际走法由数控系统的倾斜面功能定，整机仿真没查；首件单段确认": "Tilted plane: the moves between turning the rotary axes and the first plunge (tool at machine Z home) follow the control's tilted-plane function and are not checked by the machine simulation; confirm the first part in single block",
+"机床 {} 不是两轴车床、三轴或 3+2 五轴加工中心（或机床文件缺行程、快移、换刀点），现有的车削、2.5 轴铣编程和程序检查用不了它": "Machine {} is not a two-axis lathe, a three-axis or a 3+2 five-axis machining centre (or the machine file lacks travels, rapid rates or the tool change point); turning, 2.5-axis milling and program checking cannot use it",
+"海德汉的倾斜面（PLANE SPATIAL）还没做（ADR-0106 C2a 下一步）；倾斜面工序先用 FANUC / 华中后处理": "Heidenhain tilted planes (PLANE SPATIAL) are not done yet (ADR-0106 C2a next step); use the FANUC / Huazhong post for tilted-plane operations",
+"西门子的倾斜面（CYCLE800）还没做（ADR-0106 C2a 下一步）；倾斜面工序先用 FANUC / 华中后处理": "Siemens tilted planes (CYCLE800) are not done yet (ADR-0106 C2a next step); use the FANUC / Huazhong post for tilted-plane operations",
+"{} 没有回转轴，做不了倾斜面加工（G68.2）": "{} has no rotary axes and cannot machine tilted planes (G68.2)",
+"工作平面的 X 方向与法向平行": "The X direction of the working plane is parallel to its normal",
+"工作平面的法向是零向量": "The normal of the working plane is a zero vector"
 }

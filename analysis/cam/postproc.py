@@ -237,8 +237,23 @@ def _mill_moves(op):
     return out
 
 
+def _tilt(op) -> list[str]:
+    """倾斜面（ADR-0106 C2a）：FANUC 写法 G68.2 + G53.1，坐标位数按配置"""
+    fr = op.get("frame")
+    if not fr:
+        return []
+    from analysis.cam import tilt
+
+    i, j, k = tilt.euler_zxz(tilt.matrix(fr))
+    o = fr["origin"]
+    # 转工作台前先把 Z 退到机床原点（刀具离开工件），再定倾斜面、转回转轴
+    return ["G91 G28 Z0.0", "G90", f"G68.2 X{num(o[0])} Y{num(o[1])} Z{num(o[2])} I{num(i, 4)} J{num(j, 4)} K{num(k, 4)}", "G53.1"]
+
+
 def _mill(prog, machine, sim_res, post, dialect):
     sie = dialect == "siemens"
+    if sie and any(op.get("frame") for op in prog["ops"]):
+        raise ReleaseError("西门子的倾斜面（CYCLE800）还没做（ADR-0106 C2a 下一步）；倾斜面工序先用 FANUC / 华中后处理")
     max_rpm = float(machine["max_rpm"])
     L: list[str] = []
     if sie:
@@ -265,7 +280,7 @@ def _mill(prog, machine, sim_res, post, dialect):
                   f"G0 X{num(x0['x'])} Y{num(x0['y'])}", f"G0 Z{num(safe)} M8"]
         else:
             L += [_paren(f"OP{k} T{t['n']:02d}" + (f" D{num(t['d'])}" if t.get("d") else "")), f"T{t['n']} M06", "G54",
-                  f"S{round(rpm)} M03", f"G00 X{num(x0['x'])} Y{num(x0['y'])}", f"G43 Z{num(safe)} H{t.get('offset', t['n']):02d} M08"]
+                  f"S{round(rpm)} M03", *_tilt(op), f"G00 X{num(x0['x'])} Y{num(x0['y'])}", f"G43 Z{num(safe)} H{t.get('offset', t['n']):02d} M08"]
         pos = {"x": x0["x"], "y": x0["y"], "z": safe}
         mode, last_f = None, None
         for mv in mvs:
@@ -310,6 +325,8 @@ def _mill(prog, machine, sim_res, post, dialect):
                 last_f = mv["f"]
             L.append(" ".join(w))
         L += [f"G0 Z{num(safe)} M9", "M5"] if sie else [f"G00 Z{num(safe)} M09", "M05"]
+        if op.get("frame"):
+            L.append("G69")
     L += ["G0 SUPA Z0 D0", "M30"] if sie else ["G91 G28 Z0.0", "G90", "M30", "%"]
     return "\n".join(x for x in L if x) + "\n"
 
@@ -321,6 +338,8 @@ def _kl_comment(text: str) -> str:
 
 def _heidenhain_mill(prog, machine, sim_res, post):
     """海德汉 TNC 对话格式（ADR-0106 Q5b）→ (程序头注释, 程序段)；段号、BEGIN / END PGM、配置开关由 klartext.finish 加"""
+    if any(op.get("frame") for op in prog["ops"]):
+        raise ReleaseError("海德汉的倾斜面（PLANE SPATIAL）还没做（ADR-0106 C2a 下一步）；倾斜面工序先用 FANUC / 华中后处理")
     max_rpm = float(machine["max_rpm"])
     h = klartext.hnum
     head = [_kl_comment(f"WENQUEST CAM {prog.get('title_en') or ''}")]

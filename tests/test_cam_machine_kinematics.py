@@ -63,10 +63,11 @@ def test_example_machines_load_and_legacy_view_matches_old_yaml():
         v = machines.get(mid)
         for k, val in o.items():
             assert v[k] == val, (mid, k)
-    # 五轴、车铣中心不进旧视图（现有车削、2.5 轴铣用不了），取的时候说清楚
-    assert {m["id"] for m in machines.all_machines()} == {"EX-LATHE", "EX-VMC"}
-    with pytest.raises(machines.MachineError, match="不是两轴车床或三轴加工中心"):
-        machines.get("EX-5AX-AC")
+    # 3+2 五轴进旧视图（ADR-0106 C2a：倾斜面铣，带回转轴列表）；车铣中心还不进，取的时候说清楚
+    assert {m["id"] for m in machines.all_machines()} == {"EX-LATHE", "EX-VMC", "EX-5AX-AC"}
+    assert machines.get("EX-5AX-AC")["rotary"] == ["A", "C"]
+    with pytest.raises(machines.MachineError, match="不是两轴车床、三轴或 3\\+2 五轴加工中心"):
+        machines.get("EX-MT-CY")
 
 
 def test_legacy_yaml_converts_and_new_format_in_yaml_and_folder(tmp_path):

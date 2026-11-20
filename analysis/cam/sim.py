@@ -36,7 +36,8 @@ def parse(text, m):
     车床的 x 是直径，y 恒为 0。"""
     lathe = m["kind"] == "lathe"
     st = {"pos": [0.0, 0.0, 0.0], "abs": True, "motion": 0, "f": 0.0, "per_rev": lathe, "css": None, "rpm": 0.0,
-          "smax": None, "tool": 0, "scale": 1.0, "ret98": True, "plane": 18 if lathe else 17, "spin": False, "pending_tool": 0}
+          "smax": None, "tool": 0, "scale": 1.0, "ret98": True, "plane": 18 if lathe else 17, "spin": False, "pending_tool": 0,
+          "frame": None}
     hx, hz = m.get("home", (m["x"][1], m["z"][1]))
     if lathe:
         st["pos"] = [hx, 0.0, hz]
@@ -70,10 +71,22 @@ def parse(text, m):
         return pts, f
 
     def emit(t, b, line, **kw):
+        if not kw.get("home"):
+            st["homed"] = False
+        if st.get("approach"):
+            kw = {**kw, "approach": True}
+            if abs(float(b[2]) - st["pos"][2]) > 1e-9:
+                st["approach"] = False
         a = tuple(st["pos"])
         b = tuple(float(v) for v in b)
         if max(abs(b[i] - a[i]) for i in range(3)) > 1e-9:
-            moves.append(dict(t=t, a=a, b=b, line=line, tool=st["tool"], f=st["f"], per_rev=st["per_rev"], css=st["css"],
+            if st["frame"] is not None:              # 倾斜面（G68.2）：程序坐标是平面坐标，刀路记工件坐标和刀轴方向
+                o, R = st["frame"]
+                kw = {**kw, "axis": tuple(float(v) for v in R[:, 2])}
+                aw, bw = tuple(float(v) for v in o + R @ np.array(a)), tuple(float(v) for v in o + R @ np.array(b))
+            else:
+                aw, bw = a, b
+            moves.append(dict(t=t, a=aw, b=bw, line=line, tool=st["tool"], f=st["f"], per_rev=st["per_rev"], css=st["css"],
                               rpm=st["rpm"], smax=st["smax"], spin=st["spin"], **kw))
         st["pos"] = list(b)
 
@@ -92,6 +105,7 @@ def parse(text, m):
         for k, v in words:
             if k not in "GMN":
                 w[k] = float(v)
+        tilt_line = False
         for gg in g:
             if gg == 20:
                 st["scale"] = 25.4
@@ -132,6 +146,28 @@ def parse(text, m):
             elif gg == 80:
                 cyc = None
                 st["motion"] = 0
+            elif gg == 68.2 and not lathe:            # 倾斜面：X Y Z 是平面原点（当前坐标），I J K 是 Z-X-Z 欧拉角（ADR-0106 C2a）
+                from analysis.cam import tilt as _TT
+
+                o0, R0 = st["frame"] if st["frame"] is not None else (np.zeros(3), np.eye(3))
+                pw = o0 + R0 @ np.array(st["pos"])
+                org = o0 + R0 @ np.array([w.get("X", 0.0), w.get("Y", 0.0), w.get("Z", 0.0)])
+                R = R0 @ _TT.from_zxz(w.get("I", 0.0), w.get("J", 0.0), w.get("K", 0.0))
+                st["frame"] = (org, R)
+                st["pos"] = [float(v) for v in R.T @ (pw - org)]
+                tilt_line = True
+            elif gg == 69 and not lathe:
+                if st["frame"] is not None:
+                    o0, R0 = st["frame"]
+                    st["pos"] = [float(v) for v in o0 + R0 @ np.array(st["pos"])]
+                st["frame"] = None
+            elif gg == 53.1:                         # 刀轴转到平面法向：刀具在机床 Z 原点（G28 退过）时，转完仍在刀轴方向的最高处
+                if st["frame"] is not None and st.get("homed"):
+                    st["pos"][2] = max(st["pos"][2], float(m["z"][1]))
+                    st["approach"] = True                # 到第一次 Z 下刀为止：机床 Z 在原点，实际位置由数控系统的倾斜面功能定
+                tilt_line = True
+        if tilt_line:                                # G68.2 / G53.1 这一行的 X Y Z I J K 不是移动
+            continue
         sc = st["scale"]
         if "F" in w:
             st["f"] = w["F"] * sc
@@ -216,8 +252,16 @@ def parse(text, m):
         if 28 in g:
             if lathe:
                 st["pos"] = [hx, 0.0, hz]
+            elif st["frame"] is not None:            # 倾斜面里回参考点：机床 Z 退到顶（按工件坐标算终点）
+                o0, R0 = st["frame"]
+                pw = o0 + R0 @ np.array(st["pos"])
+                st["frame"], st["pos"] = None, list(pw)
+                emit("rapid", (pw[0], pw[1], m["z"][1]), ln, home=True)
+                st["frame"] = (o0, R0)
+                st["pos"] = list(R0.T @ (np.array(st["pos"]) - o0))
             else:
                 emit("rapid", (st["pos"][0], st["pos"][1], m["z"][1]), ln, home=True)
+            st["homed"] = True
             continue
         if any(k in w for k in "XYZUW") and not (lathe and 28 in g):
             tgt = list(st["pos"])
@@ -383,9 +427,16 @@ def machine_checks(parsed, m):
     lathe = parsed["lathe"]
     axes = (("X", 0, m["x"]), ("Z", 2, m["z"])) if lathe else (("X", 0, m["x"]), ("Y", 1, m["y"]), ("Z", 2, m["z"]))
     seen = set()
+    tilted = False
     for mv in parsed["moves"]:
         if mv.get("home"):
             continue
+        if mv.get("axis") is not None and abs(mv["axis"][2] - 1.0) > 1e-9:
+            if not m.get("rotary") and ("tilt", 0) not in seen:      # 三轴机床转不了刀轴
+                seen.add(("tilt", 0))
+                out.append({"line": mv["line"], "level": "error", "text": f"{m['name']} 没有回转轴，做不了倾斜面加工（G68.2）"})
+            tilted = True
+            continue                                     # 倾斜面上的移动：直线轴超程由整机仿真按回转后的机床坐标查
         for name, i, (lo, hi) in axes:
             v = mv["b"][i]
             if (v < lo - 1e-6 or v > hi + 1e-6) and (name, mv["line"]) not in seen:
@@ -395,6 +446,7 @@ def machine_checks(parsed, m):
         if mv["t"] == "feed" and not mv["spin"] and ("spin", 0) not in seen:
             seen.add(("spin", 0))
             out.append({"line": mv["line"], "level": "error", "text": "主轴没有转（缺 M03）就开始切削"})
+    parsed["tilted"] = tilted
     if parsed["rpm_req"] > m["max_rpm"]:
         out.append({"line": None, "level": "error", "text": "转速 S{:g} 超过机床最高转速 {}".format(parsed["rpm_req"], m["max_rpm"])})
     th = next((mv for mv in parsed["moves"] if mv["t"] == "thread" and mv["css"]), None)

@@ -113,7 +113,7 @@ def model(machine_id: str, env=None) -> dict:
 
 
 def _view_ok(v: dict) -> bool:
-    return MM.is_three_axis(v["model"]) and all(k in v for k in VIEW_NEED[v["kind"]])
+    return (MM.is_three_axis(v["model"]) or MM.is_three_plus_two(v["model"])) and all(k in v for k in VIEW_NEED[v["kind"]])
 
 
 def all_machines(env=None) -> list[dict]:
@@ -131,6 +131,6 @@ def get(machine_id: str, env=None) -> dict:
         if m["id"] == machine_id:
             return m
     if any(m["id"] == machine_id for m in models(env)):
-        raise MachineError(f"机床 {machine_id!r} 不是两轴车床或三轴加工中心（或机床文件缺行程、快移、换刀点），"
+        raise MachineError(f"机床 {machine_id!r} 不是两轴车床、三轴或 3+2 五轴加工中心（或机床文件缺行程、快移、换刀点），"
                            "现有的车削、2.5 轴铣编程和程序检查用不了它")
     raise MachineError(f"没有机床 {machine_id!r}；可选：{', '.join(m['id'] for m in all_machines(env))}")
