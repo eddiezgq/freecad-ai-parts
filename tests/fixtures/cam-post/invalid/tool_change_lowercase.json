@@ -1,0 +1,19 @@
+{
+ "why": "换刀前后动作只能是大写的程序字（防止写进注释、宏或别的字符）",
+ "instance": {
+  "format": "cam-post/1",
+  "id": "fanuc-0i",
+  "name": "FANUC 0i-TF / 0i-MF",
+  "family": "fanuc",
+  "kinds": [
+   "lathe",
+   "mill"
+  ],
+  "source": "问渠CAM 内置（ADR-0104 C1 的写法）",
+  "tool_change": {
+   "before": [
+    "g91 g28 z0; (x)"
+   ]
+  }
+ }
+}
