@@ -1,0 +1,10 @@
+{
+ "format": "cam-post/1",
+ "id": "heidenhain",
+ "name": "HEIDENHAIN TNC 640 / 620 / 530（对话格式）",
+ "family": "heidenhain",
+ "kinds": [
+  "mill"
+ ],
+ "source": "问渠CAM 内置（ADR-0106 Q5b：HEIDENHAIN TNC 对话格式，公制；CYCL DEF 200 / 207 参数按 TNC 640 用户手册）"
+}
