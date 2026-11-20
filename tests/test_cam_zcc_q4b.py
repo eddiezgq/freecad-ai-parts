@@ -13,7 +13,6 @@ from analysis import cam
 from analysis.cam import tools as TL
 from assist import cam_process as CP
 from ingest import cam_zcc
-from tests.verification import record_verdict
 
 LIB_PATH = TL.BUILTIN / "zcc-ct.json"
 LIB = TL.load(LIB_PATH)
@@ -59,7 +58,6 @@ def test_spot_values_match_catalogue(code):
         assert rows[g]["vc_m_min"]["min"] == rows[g]["vc_m_min"]["max"] == pytest.approx(math.pi * D * n / 1000, abs=0.05)
         assert rows[g]["fz_mm"]["min"] == pytest.approx(F / (n * Z), abs=5e-5)
         assert rows[g]["ap_max_mm"] == pytest.approx(ap * D) and rows[g]["ae_max_mm"] == pytest.approx(0.1 * D)
-    record_verdict((f"株洲钻石 {code} 与样本 {page}、{ppage} 一致", f"ZCC {code} matches catalogue {page}, {ppage}"), "pass", "pass")
 
 
 @pytest.mark.parametrize("code", list(BALL))
