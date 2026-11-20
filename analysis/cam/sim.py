@@ -12,6 +12,7 @@ G96/G97、G94/G95、G98/G99（车：每分 / 每转进给；铣：钻孔循环�
 
 from __future__ import annotations
 
+import itertools
 import math
 import re
 
@@ -34,10 +35,10 @@ def parse(text, m):
     move：{"t": "rapid"|"feed", "a": (x, y, z), "b": (x, y, z), "line": 行号, "tool": 刀号, "f": 进给, "per_rev": bool,
            "css": 恒线速 m/min 或 None, "rpm": 转速, "smax": G50 限速, "home": 回参考点, "cycle": 钻孔循环}
     车床的 x 是直径，y 恒为 0。"""
-    lathe = m["kind"] == "lathe"
+    lathe = m["kind"] in ("lathe", "mill_turn")          # 车铣中心：车削按车床读，铣削（G12.1 / G7.1）另记工件坐标（ADR-0106 C2b）
     st = {"pos": [0.0, 0.0, 0.0], "abs": True, "motion": 0, "f": 0.0, "per_rev": lathe, "css": None, "rpm": 0.0,
           "smax": None, "tool": 0, "scale": 1.0, "ret98": True, "plane": 18 if lathe else 17, "spin": False, "pending_tool": 0,
-          "frame": None}
+          "frame": None, "mt": None}
     hx, hz = m.get("home", (m["x"][1], m["z"][1]))
     if lathe:
         st["pos"] = [hx, 0.0, hz]
@@ -71,6 +72,28 @@ def parse(text, m):
         return pts, f
 
     def emit(t, b, line, **kw):
+        if st["mt"] is not None and not kw.get("home"):   # 车铣：程序坐标（极坐标插补 X C Z / 圆柱插补 X C° Z）→ 工件坐标小段
+            from analysis.cam import millturn as _MT
+
+            a0, b0 = tuple(st["pos"]), tuple(float(v) for v in b)
+            if max(abs(b0[i] - a0[i]) for i in range(3)) <= 1e-9:
+                return
+            if st["mt"] == "polar":
+                pa, pb = _MT.polar_to_work(*a0), _MT.polar_to_work(*b0)
+                pieces = [(pa, pb, (0.0, 0.0, 1.0))]
+                da, db = 2 * math.hypot(pa[0], pa[1]), 2 * math.hypot(pb[0], pb[1])
+            else:
+                pts = [_MT.cyl_to_work(*a0)] + _MT.cyl_segment(a0, b0)
+                pieces = []
+                for p0, p1 in itertools.pairwise(pts):
+                    r = math.hypot(p1[0], p1[1]) or 1.0
+                    pieces.append((p0, p1, (p1[0] / r, p1[1] / r, 0.0)))
+                da, db = a0[0], b0[0]
+            moves.append(dict(t=t, a=(da, 0.0, a0[2]), b=(db, 0.0, b0[2]), line=line, tool=st["tool"], f=st["f"], per_rev=st["per_rev"],
+                              css=None, rpm=st["rpm"], smax=st["smax"], spin=st["spin"], mill=st["mt"] if st["mt"] == "polar" else "cyl",
+                              pieces=pieces, **kw))
+            st["pos"] = list(b0)
+            return
         if not kw.get("home"):
             st["homed"] = False
         if st.get("approach"):
@@ -161,6 +184,21 @@ def parse(text, m):
                     o0, R0 = st["frame"]
                     st["pos"] = [float(v) for v in o0 + R0 @ np.array(st["pos"])]
                 st["frame"] = None
+            elif gg == 12.1 and lathe:               # 极坐标插补开：程序 X 直径、C 毫米（虚拟轴）
+                st["mt"] = "polar"
+                st["pos"] = [st["pos"][0], 0.0, st["pos"][2]]
+            elif gg == 13.1 and lathe:
+                if st["mt"] == "polar":
+                    st["pos"] = [2 * math.hypot(st["pos"][0] / 2, st["pos"][1]), 0.0, st["pos"][2]]
+                st["mt"] = None
+            elif gg == 7.1 and lathe:                # 圆柱插补：G7.1 C 半径 开，G7.1 C0 关；程序 C 是角度（度）
+                if w.get("C", 0.0) > 0:
+                    st["mt"] = ("cyl", w["C"])
+                    st["pos"] = [st["pos"][0], 0.0, st["pos"][2]]
+                else:
+                    st["mt"] = None
+                    st["pos"] = [st["pos"][0], 0.0, st["pos"][2]]
+                tilt_line = True
             elif gg == 53.1:                         # 刀轴转到平面法向：刀具在机床 Z 原点（G28 退过）时，转完仍在刀轴方向的最高处
                 if st["frame"] is not None and st.get("homed"):
                     st["pos"][2] = max(st["pos"][2], float(m["z"][1]))
@@ -263,6 +301,10 @@ def parse(text, m):
                 emit("rapid", (st["pos"][0], st["pos"][1], m["z"][1]), ln, home=True)
             st["homed"] = True
             continue
+        if st["mt"] is not None and "C" in w and not any(k in w for k in "XYZUW"):
+            w["Y"] = w["C"]                         # 车铣插补里只写 C 的段：C 是第二个坐标
+        if st["mt"] is not None and "C" in w:
+            w["Y"] = w["C"]
         if any(k in w for k in "XYZUW") and not (lathe and 28 in g):
             tgt = list(st["pos"])
             for i, a in enumerate("XYZ"):
@@ -308,6 +350,9 @@ def parse(text, m):
                 else:
                     emit("feed", (x, y, cyc["z"]), ln, cycle=True)
                 emit("rapid", (x, y, z0 if st["ret98"] else cyc["r"]), ln, cycle=True)
+            elif mo in (2, 3) and st["mt"] is not None:
+                warns.append({"line": ln, "level": "error", "text": "车铣插补（G12.1 / G7.1）里的圆弧还读不了（ADR-0106 C2b）"})
+                st["pos"] = list(tgt)
             elif mo in (2, 3):
                 for p in _arc(st, tgt, w, mo, lathe, sc):
                     emit("feed", p, ln, arc=True)
@@ -380,7 +425,14 @@ def _rpm(mv, x_diam, m):
 
 
 def move_time(mv, m, lathe):
-    """一段的时间（秒）。快移各轴同时走，取最慢的轴；切削按进给速度，每转进给按当时转速（G96 时随直径变）分段积分"""
+    """一段的时间（秒）。快移各轴同时走，取最慢的轴；切削按进给速度，每转进给按当时转速（G96 时随直径变）分段积分。
+    车铣的铣削段（极坐标、圆柱插补）按工件坐标里的路程算：快移取最慢的直线轴，切削按每分进给（每转进给时乘主轴转速）"""
+    if mv.get("pieces"):
+        L = sum(math.dist(p0, p1) for p0, p1, _w in mv["pieces"])
+        if mv["t"] == "rapid":
+            return 60.0 * L / min(m["rapid"].values())
+        f = mv["f"] * (mv["rpm"] if mv["per_rev"] else 1.0)
+        return 60.0 * L / max(f, 1e-9)
     a, b = mv["a"], mv["b"]
     if lathe:
         d = (abs(b[0] - a[0]) / 2, 0.0, abs(b[2] - a[2]))
@@ -494,6 +546,8 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
         return k
 
     for mv in parsed["moves"]:
+        if mv.get("mill"):                         # 车铣的铣削段（动力刀）不是车削：车削仿真不算它（ADR-0106 C2b）
+            continue
         tl = tools.get(mv["tool"], {"kind": "turn"})
         kind = tl.get("kind", "turn")
         a = np.array([mv["a"][2], mv["a"][0] / 2])

@@ -2113,5 +2113,7 @@
 "先在三维视图里点零件上的一个平面": "First click a planar face of the part in the 3D view",
 "先给这个零件建铣削作业，再点它上面的平面": "First create a milling job for this part, then click a face on it",
 "新建倾斜面装夹": "New tilted-plane setup",
-"点零件上的一个平面：建一个倾斜面装夹（3+2 定位），这个装夹里的工序在这个平面上加工": "Click a planar face of the part: creates a tilted-plane setup (3+2 positioning); its operations machine on that plane"
+"点零件上的一个平面：建一个倾斜面装夹（3+2 定位），这个装夹里的工序在这个平面上加工": "Click a planar face of the part: creates a tilted-plane setup (3+2 positioning); its operations machine on that plane",
+"车铣插补（G12.1 / G7.1）里的圆弧还读不了（ADR-0106 C2b）": "Arcs inside mill-turn interpolation (G12.1 / G7.1) cannot be read yet (ADR-0106 C2b)",
+"车铣的铣削段（极坐标、圆柱插补）：C 轴、动力刀的整机仿真还没做（ADR-0106 C2b），碰撞和超程没查": "Milling moves on the mill-turn (polar / cylindrical interpolation): machine simulation with the C axis and live tools is not done yet (ADR-0106 C2b); collisions and overtravel not checked"
 }
