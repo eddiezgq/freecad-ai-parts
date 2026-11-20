@@ -2086,5 +2086,14 @@
 "新版程序": "New program",
 "旧版程序": "Old program",
 "程序对比…": "Compare programs…",
-"程序对比没做成：{}": "Program comparison failed: {}"
+"程序对比没做成：{}": "Program comparison failed: {}",
+"文档副本没找到：{}": "Document copy not found: {}",
+"请先写几句：做了什么、哪里不对": "Please first write a few words: what you did and what went wrong",
+"写几句：做了什么、哪里不对、本来应该是什么样。反馈包里会放当前文档的副本、你的刀具库 / 机床 / 后处理配置、报告视图里的文字；不放授权文件。生成后请自己发给我们（微信或邮件）。": "Write a few words: what you did, what went wrong and what you expected. The package contains a copy of the current document, your tool library / machine / post configurations and the report view text; no license file. Please send it to us yourself (WeChat or e-mail).",
+"出了问题：写几句话，生成一个反馈包（当前文档、配置、报错），自己发给我们": "Something went wrong: write a few words and make a feedback package (current document, configurations, errors) to send to us",
+"反馈包存到哪个文件夹": "Folder for the feedback package",
+"反馈包已生成：{}。请发给我们（微信或邮件）。": "Feedback package created: {}. Please send it to us (WeChat or e-mail).",
+"生成反馈包…": "Make feedback package…",
+"问题反馈": "Feedback",
+"问题反馈…": "Feedback…"
 }

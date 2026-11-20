@@ -25,7 +25,7 @@ TOOLBAR = ["FAP_CamNewTurnJob", "FAP_CamNewMillJob", "FAP_CamNewOp", "FAP_CamJob
 CMDS = ("FAP_CamNewTurnJob", "FAP_CamNewMillJob", "FAP_CamJob", "FAP_CamReplay", "Separator", "FAP_CamOpRegen", "FAP_CamOpConfirm",
         "FAP_CamOpCopy", "FAP_CamOpUp", "FAP_CamOpDown", "FAP_CamOpHide", "Separator", "FAP_CamTools", "FAP_CamMachines", "Separator",
         "FAP_CamCheck", "Separator",
-        "FAP_CamLicense", "FAP_CamSetup", "FAP_CamAbout")
+        "FAP_CamLicense", "FAP_CamSetup", "FAP_CamFeedback", "FAP_CamAbout")
 OP_MENU = ["FAP_CamOpRegen", "FAP_CamOpConfirm", "FAP_CamOpCopy", "FAP_CamOpUp", "FAP_CamOpDown", "FAP_CamOpHide"]
 
 
@@ -103,6 +103,93 @@ class CamAboutCommand:
         QtWidgets.QMessageBox.about(fea_brand._mw(), T("关于问渠CAM"), about_text())
 
 
+class CamFeedbackCommand:
+    def GetResources(self):
+        return {"MenuText": T("问题反馈…"), "ToolTip": T("出了问题：写几句话，生成一个反馈包（当前文档、配置、报错），自己发给我们")}
+
+    def IsActive(self):
+        return True
+
+    def Activated(self):
+        return FeedbackDialog(fea_brand._mw()).show()
+
+
+def report_text() -> str:
+    """FreeCAD 报告视图里的文字（报错在这里）"""
+    from PySide import QtWidgets
+
+    mw = FreeCADGui.getMainWindow()
+    for w in mw.findChildren(QtWidgets.QTextEdit) + mw.findChildren(QtWidgets.QPlainTextEdit):
+        if w.objectName() in ("Report view", "ReportView") or "Report" in w.objectName():
+            return w.toPlainText()
+    return ""
+
+
+class FeedbackDialog:
+    """问题反馈（ADR-0106 Q7a）：写几句话 → 选文件夹 → 生成 zip（不自动上传）"""
+
+    def __init__(self, parent=None):
+        from PySide import QtWidgets
+
+        self.dlg = QtWidgets.QDialog(parent)
+        self.dlg.setWindowTitle(T("问题反馈"))
+        lay = QtWidgets.QVBoxLayout(self.dlg)
+        tip = QtWidgets.QLabel(T("写几句：做了什么、哪里不对、本来应该是什么样。反馈包里会放当前文档的副本、你的刀具库 / 机床 / 后处理配置、"
+                                 "报告视图里的文字；不放授权文件。生成后请自己发给我们（微信或邮件）。"))
+        tip.setWordWrap(True)
+        lay.addWidget(tip)
+        self.text = QtWidgets.QPlainTextEdit()
+        lay.addWidget(self.text)
+        self.status = QtWidgets.QLabel("")
+        self.status.setWordWrap(True)
+        lay.addWidget(self.status)
+        row = QtWidgets.QHBoxLayout()
+        go = QtWidgets.QPushButton(T("生成反馈包…"))
+        go.clicked.connect(self.ask_and_generate)
+        close = QtWidgets.QPushButton(T("关闭"))
+        close.clicked.connect(self.dlg.accept)
+        row.addStretch(1)
+        row.addWidget(go)
+        row.addWidget(close)
+        lay.addLayout(row)
+        self.dlg.resize(560, 380)
+
+    def show(self):
+        self.dlg.show()
+        return self
+
+    def generate(self, folder):
+        import tempfile
+        from pathlib import Path
+
+        from assist import cam_edition, i18n
+        from freecad_addon.core import cam_feedback
+
+        env = {"wenquest_cam": fea_brand._version() or "dev", "freecad": ".".join(FreeCAD.Version()[:3]),
+               "edition": cam_edition.edition()}
+        with tempfile.TemporaryDirectory() as td:
+            doc = FreeCAD.ActiveDocument
+            copy = None
+            if doc is not None:
+                copy = Path(td) / ((doc.Label or doc.Name) + ".FCStd")
+                doc.saveCopy(str(copy))
+            zp = cam_feedback.build(folder, self.text.toPlainText(), document=copy, environment=env, log=report_text(), lang=i18n.lang())
+        self.status.setText(T("反馈包已生成：{}。请发给我们（微信或邮件）。").format(zp))
+        return zp
+
+    def ask_and_generate(self):
+        from PySide import QtWidgets
+
+        folder = QtWidgets.QFileDialog.getExistingDirectory(self.dlg, T("反馈包存到哪个文件夹"))
+        if not folder:
+            return None
+        try:
+            return self.generate(folder)
+        except Exception as exc:  # noqa: BLE001
+            self.status.setText(T(str(exc)))
+            return None
+
+
 class CamWorkbench(FreeCADGui.Workbench):
     MenuText = "WenQuest CAM"
     ToolTip = "WenQuest CAM"
@@ -167,6 +254,7 @@ def register() -> None:
     FreeCADGui.addCommand("FAP_CamLicense", CamLicenseCommand())
     FreeCADGui.addCommand("FAP_CamSetup", CamSetupCommand())
     FreeCADGui.addCommand("FAP_CamAbout", CamAboutCommand())
+    FreeCADGui.addCommand("FAP_CamFeedback", CamFeedbackCommand())
     if WORKBENCH not in FreeCADGui.listWorkbenches():
         wb = type(WORKBENCH, (CamWorkbench,), {"MenuText": T("问渠CAM"), "ToolTip": T("问渠CAM")})
         FreeCADGui.addWorkbench(wb())
