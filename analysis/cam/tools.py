@@ -18,6 +18,7 @@ FORMAT = "cam-tool/1"
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA = ROOT / "schema" / "cam-tool.schema.json"
 EXAMPLE = Path(__file__).resolve().parent / "tools_example.json"
+BUILTIN = Path(__file__).resolve().parent / "libraries"          # 厂商样本刀具库（只读，ADR-0106 Q4b）
 MILLING = {"flat_endmill", "ball_endmill", "bull_endmill", "drill", "center_drill", "chamfer_mill", "face_mill", "tap", "reamer"}
 TURNING = {"turn", "groove", "thread_turn", "bore"}
 
@@ -75,6 +76,8 @@ def user_dir(env=None) -> Path:
 def libraries(env=None) -> list[dict]:
     """可选的刀具库：示例库（只读）在前，用户文件夹里的 *.json 在后 → [{"name", "path", "readonly", "error"}]"""
     out = [{"name": json.loads(EXAMPLE.read_text(encoding="utf-8"))["name"], "path": str(EXAMPLE), "readonly": True, "error": ""}]
+    for p in sorted(BUILTIN.glob("*.json")):
+        out.append({"name": json.loads(p.read_text(encoding="utf-8"))["name"], "path": str(p), "readonly": True, "error": ""})
     d = user_dir(env)
     for p in sorted(d.glob("*.json")) if d.is_dir() else []:
         try:
@@ -99,10 +102,16 @@ def engineering_errors(lib: dict) -> list[str]:
     return out
 
 
+def readonly(path: str | Path) -> bool:
+    """示例库和厂商样本库只读"""
+    p = Path(path).resolve()
+    return p == EXAMPLE.resolve() or p.parent == BUILTIN.resolve()
+
+
 def save(lib: dict, path: str | Path) -> Path:
     """核对后保存（不合格不存，ToolError 写明哪一项）；示例库不能覆盖"""
     p = Path(path)
-    if p.resolve() == EXAMPLE.resolve():
+    if readonly(p):
         raise ToolError("示例刀具库是只读的：另存为自己的刀具库")
     errs = validate(lib) + engineering_errors(lib)
     if not errs:

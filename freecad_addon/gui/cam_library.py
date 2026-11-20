@@ -287,10 +287,11 @@ class ToolLibraryDialog(QtWidgets.QDialog):
     def _open_lib(self):
         path = self.libs.currentData()
         self.path = path
-        self.readonly = Path(path).resolve() == TL.EXAMPLE.resolve()
+        self.readonly = TL.readonly(path)
         try:
             self.lib = TL.load(path)
-            self.status.setText(T("示例刀具库是虚构的、只读：要改先“另存为”") if self.readonly else "")
+            self.status.setText((T("示例刀具库是虚构的、只读：要改先“另存为”") if Path(path).resolve() == TL.EXAMPLE.resolve()
+                                 else T("厂商样本刀具库只读：要改先“另存为”")) if self.readonly else "")
         except TL.ToolError as exc:
             self.lib = {"format": TL.FORMAT, "name": Path(path).stem, "tools": []}
             self.status.setText(str(exc))
