@@ -1,0 +1,48 @@
+{
+ "why": "所有开关都写，带实机验证记录",
+ "instance": {
+  "format": "cam-post/1",
+  "id": "shop-vmc",
+  "name": "车间立加",
+  "family": "fanuc",
+  "kinds": [
+   "mill"
+  ],
+  "source": "问渠CAM 内置（ADR-0104 C1 的写法）",
+  "verified": {
+   "date": "2026-12-01",
+   "machine": "车间 1 号立加",
+   "by": "张工",
+   "note": "空走、试切各一件"
+  },
+  "program": {
+   "number_digits": 4,
+   "percent": true,
+   "end": "M30"
+  },
+  "sequence": {
+   "enabled": true,
+   "start": 10,
+   "step": 10
+  },
+  "decimals": {
+   "coord": 3,
+   "feed": 1
+  },
+  "comments": "ascii",
+  "tool_change": {
+   "before": [
+    "G91 G28 Z0",
+    "G90"
+   ],
+   "after": [],
+   "optional_stop": true
+  },
+  "coolant": "flood",
+  "cycles": {
+   "drill": true,
+   "turn": false
+  },
+  "subprograms": false
+ }
+}
