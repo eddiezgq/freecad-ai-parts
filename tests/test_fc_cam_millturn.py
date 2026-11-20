@@ -63,7 +63,7 @@ def test_mill_turn_job_face_slot_and_keyway(tmp_path, monkeypatch):
         assert json.loads(b.HoleData)["feature"] == {"type": "keyway", "angle": 90.0, "width": 6.0, "za": -10.0, "zb": -30.0,
                                                      "r_outer": 25.0, "depth": 3.0}
         assert a.ToolId == b.ToolId == "EM6" and a.ToolNumber == b.ToolNumber
-        with pytest.raises(CO.CamObjError, match="右端"):
+        with pytest.raises(CO.CamObjError, match="不朝左端"):           # 右端面上的槽不能放进调头装夹
             CO.add_live_op(left, "live_face", s_face)
         job.ToolLengths = json.dumps({"EM6": 40})
         for s in (right, left):
@@ -81,5 +81,61 @@ def test_mill_turn_job_face_slot_and_keyway(tmp_path, monkeypatch):
         job.Machine = "EX-LATHE"
         with pytest.raises(CO.CamObjError, match="车铣中心"):
             CO.add_live_op(right, "live_face", s_face)
+    finally:
+        App.closeDocument(doc.Name)
+
+
+def test_mill_turn_live_ops_on_flipped_setup(tmp_path, monkeypatch):
+    """调头装夹（左端）的动力刀工序：左端面长圆槽（模型圆心 (±5, 5)、宽 6、深 3）、Ø40 上 +X 方向键槽（宽 6、深 3、模型圆心 z −50、−60）。
+    调头绕 Y 轴转 180°：x → −x、z → z_left − z；键槽角度 180°；体积与解析值差 < 1%"""
+    import FreeCAD as App
+    import Part
+
+    from freecad_addon.fc import cam_objects as CO
+
+    d = tmp_path / "posts"
+    d.mkdir()
+    (d / "mt.json").write_text(json.dumps({"format": "cam-post/1", "id": "mt", "name": "FANUC mill-turn", "family": "fanuc", "kinds": ["lathe"],
+                                           "source": "测试", "millturn": {"live_on": ["M13"], "live_off": ["M15"], "c_on": ["M18"],
+                                                                        "c_off": ["M19"]}}), encoding="utf-8")
+    monkeypatch.setenv("FAP_POSTS", str(d))
+    v = App.Vector
+    shaft = Part.makeCylinder(25, 40, v(0, 0, -40)).fuse(Part.makeCylinder(20, 30, v(0, 0, -70)))
+    slot = Part.makeBox(10, 6, 3, v(-5, 2, -70)).fuse(Part.makeCylinder(3, 3, v(-5, 5, -70))).fuse(Part.makeCylinder(3, 3, v(5, 5, -70)))
+    kw = Part.makeBox(10, 6, 10, v(17, -3, -60)).fuse(Part.makeCylinder(3, 10, v(17, 0, -50), v(1, 0, 0))).fuse(
+        Part.makeCylinder(3, 10, v(17, 0, -60), v(1, 0, 0)))
+    part = shaft.cut(slot).cut(kw).removeSplitter()
+    doc = App.newDocument("mtl")
+    try:
+        m = doc.addObject("Part::Feature", "Shaft")
+        m.Shape = part
+        doc.recompute()
+
+        def plane(pred):
+            return next(f"Face{i + 1}" for i, f in enumerate(part.Faces) if type(f.Surface).__name__ == "Plane" and pred(f))
+
+        s_face = plane(lambda f: f.normalAt(0, 0).z < -0.99 and abs(f.BoundBox.ZMax + 67) < 1e-6)
+        s_kw = plane(lambda f: f.normalAt(0, 0).x > 0.99 and abs(f.BoundBox.XMin - 17) < 1e-6)
+        job = CO.new_job(doc, m, "turn", machine="EX-MT-CY", post="mt")
+        CO.draft(job)
+        right, left = CO.setups(job)
+        assert CO.live_side(job, s_face, "live_face") == CO.live_side(job, s_kw, "live_keyway") == "left"
+        a = CO.add_live_op(left, "live_face", s_face)
+        b = CO.add_live_op(left, "live_keyway", s_kw)
+        assert json.loads(a.HoleData)["feature"] == {"type": "slot", "a": [-5.0, 5.0], "b": [5.0, 5.0], "width": 6.0, "z0": 0.0, "depth": 3.0}
+        assert json.loads(b.HoleData)["feature"] == {"type": "keyway", "angle": 180.0, "width": 6.0, "za": -10.0, "zb": -20.0,
+                                                     "r_outer": 20.0, "depth": 3.0}
+        with pytest.raises(CO.CamObjError, match="不朝右端"):
+            CO.add_live_op(right, "live_face", s_face)
+        job.ToolLengths = json.dumps({"EM6": 40})
+        for s in (right, left):
+            for o in CO.ops(s):
+                CO.confirm(o)
+        r = CO.calculate(job)
+        p = next(p for p in r["data"]["programs"] if p["side"] == "left")
+        assert p["release"] is not None, [c["text"] for c in p["checks"] if c["level"] == "error"]
+        exact = 3 * (10 * 6 + math.pi * 9) + _keyway_volume(r=20.0, r_bot=17.0, L=10.0)
+        assert p["sim"]["mill_removed_mm3"] == pytest.approx(exact, rel=0.01)
+        assert "G12.1" in p["release"]["text"] and "G07.1 C20.0" in p["release"]["text"]
     finally:
         App.closeDocument(doc.Name)
