@@ -605,13 +605,13 @@ class TiltSetupCommand:
 
 
 class LiveOpCommand:
-    """车铣中心的动力刀工序（ADR-0106 C2b）：在三维视图里点槽底 / 型腔底 → 车削作业右端装夹加一道端面铣或圆柱面键槽"""
+    """车铣中心的动力刀工序（ADR-0106 C2b）：在三维视图里点槽底 / 型腔底 → 车削作业对应的装夹（右端或调头）加一道端面铣或圆柱面键槽"""
 
     def __init__(self, kind):
         self.kind = kind
 
     def GetResources(self):
-        tip = {"live_face": "点零件右端面上的槽底或型腔底：用轴向动力刀、极坐标插补铣（车铣中心）",
+        tip = {"live_face": "点零件端面上的槽底或型腔底：用轴向动力刀、极坐标插补铣（车铣中心）",
                "live_keyway": "点圆柱面上键槽的底面：用径向动力刀、圆柱插补铣（车铣中心）"}[self.kind]
         return {"MenuText": T(CO.LIVE_KINDS[self.kind]), "ToolTip": T(tip)}
 
@@ -624,8 +624,8 @@ class LiveOpCommand:
         jobs = [j for j in FreeCAD.ActiveDocument.Objects if CO.is_job(j) and j.Model == obj and j.Kind == "turn"]
         if not jobs:
             raise CO.CamObjError("先给这个零件建车削作业（机床选车铣中心），再点它上面的面")
-        right = next(s for s in CO.setups(jobs[0]) if s.Side == "right")
-        return CO.add_live_op(right, self.kind, sub)
+        side = CO.live_side(jobs[0], sub, self.kind)
+        return CO.add_live_op(next(s for s in CO.setups(jobs[0]) if s.Side == side), self.kind, sub)
 
     def Activated(self):
         from PySide import QtWidgets
