@@ -1,0 +1,10 @@
+{
+ "format": "cam-post/1",
+ "id": "gsk",
+ "name": "GSK 980TDc / 980TDi",
+ "family": "gsk",
+ "kinds": [
+  "lathe"
+ ],
+ "source": "问渠CAM 内置（ADR-0104 C1 的写法：广州数控 980TD 系列）"
+}

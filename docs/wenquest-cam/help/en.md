@@ -17,7 +17,7 @@ Three principles run through everything:
 2. **Programs are output only after the whole-machine simulation passes.** Every tool path segment moves the machine model and checks the cutting edge, holder, spindle head, fixtures, table and remaining material for collisions, and the axes for overtravel. If anything fails, no program is output.
 3. **The written program is read back.** It is compared segment by segment with the simulated tool path; if they differ, no program is output. The program header carries the machine, post processor version, simulation fingerprint and "first part: dry run and single block".
 
-The accuracy of the algorithms is documented in the WenQuest CAM Verification Manual installed with the software: 47 benchmark problems and 54 comparisons (machining time, cutting power, five-axis kinematic round trips, collision tests, removed volume, nose radius, thread root and taper, face grooves, parting off, width of cut, tapping, countersinks, counterbores, thread milling, arc lead-in, ball end mill scallop height, errors that must be reported, post read-back, canned-cycle expansion), all within the stated tolerances.
+The accuracy of the algorithms is documented in the WenQuest CAM Verification Manual installed with the software: 48 benchmark problems and 55 comparisons (machining time, cutting power, five-axis kinematic round trips, collision tests, removed volume, nose radius, thread root and taper, face grooves, parting off, width of cut, tapping, countersinks, counterbores, thread milling, arc lead-in, ball end mill scallop height, errors that must be reported, post read-back, canned-cycle expansion), all within the stated tolerances.
 
 # Installing and uninstalling
 
@@ -127,6 +127,14 @@ Tick "Deviation" to colour the finished stock by its deviation from the part mod
 - **Error (red)**: collisions, overtravel, overcut, rapid moves into the stock, spindle speed over the limit, threading in constant surface speed, milling depth of cut over the tool catalogue, tapping without a core hole or with a feed that does not match the pitch, a thread insert of the wrong form… With a machine simulation error, no program is output.
 - **Warning (amber)**: post processor not yet verified on a real machine, cutting power close to the main motor power, etc.
 - **Unknown (grey)**: not checked for lack of data, e.g. turning-tool head shapes, holders without an ISO 5608 code or tip offset, missing tool lengths, imported tool paths without a target shape. They do not block the output, but you should know about them.
+- **Post configurations**: four are built in — FANUC, Siemens, GSK (lathe) and Huazhong HNC-8. Your shop's own style goes into a
+  configuration file (JSON, format cam-post/1) in `<user folder>\.freecad-ai-parts\posts\`; it then appears in the job panel's "CNC control" list.
+  Switches: program number digits, % before and after, M30 or M02, sequence numbers (start, step), coordinate and feed decimals,
+  comments (English, Chinese, none), tool change actions before and after (e.g. `G91 G28 Z0`), M01 between operations, coolant (M08, M07, off),
+  G81 / G83 drilling, G71 / G70 / G76 turning, one subprogram per operation. Tool change actions move the machine, so they are included in the
+  machine simulation. Whatever the configuration, no program is output without simulation or when the read-back differs from the simulated path,
+  and the header still carries "first part: dry run" and "not verified on a real machine" — also with comments set to none. Configurations with
+  errors are not listed; hover over the list to see which file and which item.
 - None of the three post processors of the first edition (FANUC, Siemens, GSK lathe) has been verified on a real machine yet; the program header says so; programs with canned cycles get an extra warning in the check list. **Always dry-run the first part and confirm it in single block.**
 
 # Free and Pro

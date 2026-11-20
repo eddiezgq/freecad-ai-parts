@@ -1,0 +1,11 @@
+{
+ "format": "cam-post/1",
+ "id": "hnc",
+ "name": "华中数控 HNC-8",
+ "family": "hnc",
+ "kinds": [
+  "lathe",
+  "mill"
+ ],
+ "source": "问渠CAM 内置（ADR-0106 Q5a：华中 HNC-8 的 ISO 代码，按 FANUC 写法，程序头 %程序号）"
+}

@@ -114,6 +114,22 @@ def _msim(setup, mach, parsed, gcode, stock, extra, prog, withhold, expect_d=Non
         prog["checks"].append({"line": None, "level": "error", "text": "整机仿真不通过，程序没有输出（改好再算）"})
 
 
+def _sim_gcode(prog, mach, setup):
+    """仿真用的程序：post.post 的 FANUC 写法；选了后处理时加上配置里会动机床的换刀前后动作、选择停（与正式程序一致，ADR-0106 Q5a）"""
+    g = post.post(prog, mach)
+    ctl = setup.get("post")
+    if ctl:
+        from analysis.cam import postcfg
+
+        try:
+            pc = postproc.posts().get(ctl)
+        except postcfg.PostConfigError:
+            pc = None
+        if pc and (mach["kind"] == "lathe" and pc["lathe"] or mach["kind"] != "lathe" and pc["mill"]):
+            g = postcfg.tool_change_actions(g, postcfg.resolved(pc["cfg"]), mach["kind"] == "lathe")
+    return g
+
+
 def _same_path(a_text, b_text, mach):
     """两份程序回读后的刀路是否一致（终点、类型；容差 1e-3 mm）"""
     pa = [m for m in sim.parse(a_text, mach)["moves"] if not m.get("home")]
@@ -530,7 +546,7 @@ def _turn(setup, mach):
         # 精车（没有精车就粗车）、镗刀的刀尖圆弧：轴肩根部、内孔台阶根部车出来是 R rε 的圆角，按“做得到的轮廓”比
         tg["nose_outer"] = (tools_sim.get(2) or tools_sim.get(1) or {}).get("nose_r", 0.0)
         tg["nose_inner"] = (tools_sim.get(6) or {}).get("nose_r", 0.0)
-        g = post.post(prog, mach)
+        g = _sim_gcode(prog, mach, setup)
         parsed = sim.parse(g, mach)
         checks = sim.machine_checks(parsed, mach)
         tm = sim.timing(parsed, mach)
@@ -677,7 +693,7 @@ def _mill(setup, mach):
         ops.append({"tool": {"n": n, "name": ("麻花钻" if kind == "holes" else "立铣刀") + f" Ø{d:g}", "d": d},
                     "spindle": {"rpm": round(rpm)}, "moves": mv, "title": name})
     prog = {"number": 5001, "title": f"{setup.get('item') or '零件'} 铣削", "header": {"item": setup.get("item")}, "ops": ops}
-    g = post.post(prog, mach)
+    g = _sim_gcode(prog, mach, setup)
     parsed = sim.parse(g, mach)
     checks = sim.machine_checks(parsed, mach)
     tm = sim.timing(parsed, mach)
@@ -736,7 +752,7 @@ def _program(setup, mach):
         raise SetupError("要给毛坯 stock.box = [x0, y0, x1, y1]（上表面 Z0）")
     box = [float(v) for v in stock["box"]]
     top = float(stock.get("top", 0.0))                # 毛坯顶面（程序 Z0 在零件顶面；有面铣余量时毛坯高出 Z0）
-    g = post.post(prog, mach)
+    g = _sim_gcode(prog, mach, setup)
     parsed = sim.parse(g, mach)
     checks = sim.machine_checks(parsed, mach)
     tm = sim.timing(parsed, mach)

@@ -2026,5 +2026,17 @@
 "直线轴": "linear",
 "回转轴": "rotary",
 "带刀具动": "moves the tool",
-"带工件动": "moves the workpiece"
+"带工件动": "moves the workpiece",
+"{}后处理配置不符合 cam-post/1：": "{}post configuration does not conform to cam-post/1: ",
+"{}：内冷的 M 代码各厂不同，请把它写进 tool_change 的换刀后动作，coolant 写 flood 或 off": "{}: through-spindle coolant M codes differ by maker; put it in the tool_change after actions and set coolant to flood or off",
+"{}：广数后处理只有车床": "{}: the GSK post is for lathes only",
+"{}：海德汉后处理还没做（ADR-0106 Q5b）": "{}: the Heidenhain post is not done yet (ADR-0106 Q5b)",
+"{}：西门子的固定循环（CYCLE81 / 95 等）还没做；请关掉 cycles": "{}: Siemens cycles (CYCLE81 / 95 etc.) are not done yet; switch cycles off",
+"{}：西门子的子程序要单独存文件，还没做；请关掉 subprograms": "{}: Siemens subprograms need separate files and are not done yet; switch subprograms off",
+"{}：西门子的换刀前后动作还没做（仿真按 ISO 写法读）；请先不写": "{}: Siemens tool change actions are not done yet (the simulation reads ISO code); leave them out for now",
+"{}：读不了后处理配置：{}": "{}: cannot read the post configuration: {}",
+"子程序 O{} 找不到": "Subprogram O{} not found",
+"程序号 {} 超过 {} 位": "Program number {} has more than {} digits",
+"（未经实机验证）": " (not verified on a real machine)",
+"这些后处理配置没列进来：": "These post configurations are not listed:"
 }

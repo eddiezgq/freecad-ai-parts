@@ -13,9 +13,30 @@
 
 from __future__ import annotations
 
+import contextvars
 import math
 
-from analysis.cam.post import num
+from analysis.cam import postcfg
+from analysis.cam.post import num as _num
+
+# 按后处理配置的小数位、注释写法（ADR-0106 Q5a）：render 时设，写法函数里读
+_FMT_DEFAULT = {"coord": 3, "feed": None, "utf8": False, "turn_cycles": True, "drill_cycles": False}
+_FMT: contextvars.ContextVar = contextvars.ContextVar("fmt", default=None)
+
+
+def _fmt() -> dict:
+    return _FMT.get() or _FMT_DEFAULT
+
+
+def num(v, nd=None):
+    """坐标按配置的小数位（缺省 3）；明确给了位数的（螺距等）照给的"""
+    return _num(v, _fmt()["coord"] if nd is None else nd)
+
+
+def fnum(v, nd):
+    """进给：配置给了进给小数位就用配置的，否则用写法里的缺省（车 3 位、铣 1 位）"""
+    f = _fmt()["feed"]
+    return _num(v, nd if f is None else f)
 
 VERSION = "c1.1"
 FIRST_PART_CN = "首件须空运行、单段试切确认"
@@ -32,7 +53,10 @@ def _ascii(text: str) -> str:
 
 
 def _paren(text: str) -> str:
-    t = _ascii(text)
+    if _fmt()["utf8"]:                       # 配置要中文注释（ISO 家族）：只去掉括号和 %
+        t = " ".join(str(text).replace("(", "[").replace(")", "]").replace("（", "[").replace("）", "]").replace("%", " pct").split())
+    else:
+        t = _ascii(text)
     return f"({t})" if t else ""
 
 
@@ -73,7 +97,7 @@ def _lathe(prog, machine, sim_res, post, dialect):
     max_rpm = float(machine["max_rpm"])
     L: list[str] = []
     sie = dialect == "siemens"
-    use_cycles = bool(prog.get("cycles")) and dialect in ("fanuc", "gsk")     # 西门子的 CYCLE95 / 97 还没做：照样出展开的直线段
+    use_cycles = bool(prog.get("cycles")) and dialect in ("fanuc", "gsk") and _fmt()["turn_cycles"]   # 西门子 CYCLE95 / 97 还没做
     g71_blocks: dict = {}
     nblock = [100]
     if sie:
@@ -146,7 +170,7 @@ def _lathe(prog, machine, sim_res, post, dialect):
                 w.append(("K" if sie else "F") + num(mv["pitch"], 4))
                 last_f = None
             elif mv["t"] == "feed" and mv.get("f") != last_f:
-                w.append("F" + num(mv["f"], 3))
+                w.append("F" + fnum(mv["f"], 3))
                 last_f = mv["f"]
             if first:
                 w.append("M8" if sie else "M08")
@@ -169,11 +193,11 @@ def _cycle_lines(seg, g71_blocks, nblock):
         nf = ns + len(seg["blocks"]) - 1
         g71_blocks[_blocks_key(seg)] = (ns, nf)
         out = [f"G71 U{num(seg['d'])} R{num(seg['e'])}",
-               f"G71 P{ns} Q{nf} U{num(seg['u'])} W{num(seg['w'])} F{num(seg['f'], 3)}"]
+               f"G71 P{ns} Q{nf} U{num(seg['u'])} W{num(seg['w'])} F{fnum(seg['f'], 3)}"]
         x0, _z0 = seg["blocks"][0]
         out.append(f"N{ns} G00 X{num(x0)}")
         for j, (x, z) in enumerate(seg["blocks"][1:], 1):
-            out.append(f"N{ns + j} G01 X{num(x)} Z{num(z)}" + (f" F{num(seg['f_fin'], 3)}" if j == 1 else ""))
+            out.append(f"N{ns + j} G01 X{num(x)} Z{num(z)}" + (f" F{fnum(seg['f_fin'], 3)}" if j == 1 else ""))
         return out
     if t == "G70":
         ns, nf = g71_blocks[_blocks_key(seg)]
@@ -186,10 +210,13 @@ def _cycle_lines(seg, g71_blocks, nblock):
 
 # ---------------------------------------------------------------- 铣
 def _mill_moves(op):
-    """钻孔展开成 G00 / G01（安全高度 → R 平面 → 逐次钻到底，每次退到 R → 回安全高度）"""
+    """钻孔展开成 G00 / G01（安全高度 → R 平面 → 逐次钻到底，每次退到 R → 回安全高度）；配置要钻孔循环时原样留着（写 G81 / G83）"""
     out = []
+    keep = _fmt()["drill_cycles"]
     for mv in op["moves"]:
-        if mv["t"] == "drill":
+        if mv["t"] == "drill" and keep:
+            out.append(mv)
+        elif mv["t"] == "drill":
             safe = mv.get("safe", 5.0)
             x, y, r, zb = mv["x"], mv["y"], mv["r"], mv["z"]
             out += [{"t": "rapid", "x": x, "y": y, "z": safe}, {"t": "rapid", "x": x, "y": y, "z": r}]
@@ -242,6 +269,18 @@ def _mill(prog, machine, sim_res, post, dialect):
         pos = {"x": x0["x"], "y": x0["y"], "z": safe}
         mode, last_f = None, None
         for mv in mvs:
+            if mv["t"] == "drill":                    # 钻孔循环（配置打开，ISO 家族）：G98 回初始平面，一孔一段，G80 取消
+                sf = mv.get("safe", 5.0)
+                if abs(pos["z"] - sf) > 5e-4:
+                    L.append(f"G00 Z{num(sf)}")
+                q = mv.get("q") or 0.0
+                w = ["G98", "G83" if q else "G81", f"X{num(mv['x'])}", f"Y{num(mv['y'])}", f"Z{num(mv['z'])}", f"R{num(mv['r'])}"]
+                if q:
+                    w.append(f"Q{num(q)}")
+                L += [" ".join(w + [f"F{fnum(mv['f'], 1)}"]), "G80"]
+                pos = {"x": mv["x"], "y": mv["y"], "z": sf}
+                mode, last_f = None, None
+                continue
             if mv["t"] == "tap":                      # 刚性攻丝：FANUC M29 + G84（F = 螺距 × 转速），西门子 G331 / G332（K = 螺距）
                 sf = mv.get("safe", 5.0)
                 x, y = mv["x"], mv["y"]
@@ -251,7 +290,7 @@ def _mill(prog, machine, sim_res, post, dialect):
                           f"G0 Z{num(sf)}", f"S{round(rpm)} M3"]
                 else:
                     L += [f"G00 Z{num(sf)}" if abs(pos["z"] - sf) > 5e-4 else "", f"M29 S{round(rpm)}",
-                          f"G98 G84 X{num(x)} Y{num(y)} Z{num(mv['z'])} R{num(mv['r'])} F{num(mv['pitch'] * rpm, 1)}", "G80"]
+                          f"G98 G84 X{num(x)} Y{num(y)} Z{num(mv['z'])} R{num(mv['r'])} F{fnum(mv['pitch'] * rpm, 1)}", "G80"]
                 pos = {"x": x, "y": y, "z": sf}
                 mode, last_f = None, None
                 continue
@@ -267,7 +306,7 @@ def _mill(prog, machine, sim_res, post, dialect):
             mode = g
             w += ax
             if mv["t"] == "feed" and mv.get("f") != last_f:
-                w.append("F" + num(mv["f"], 1))
+                w.append("F" + fnum(mv["f"], 1))
                 last_f = mv["f"]
             L.append(" ".join(w))
         L += [f"G0 Z{num(safe)} M9", "M5"] if sie else [f"G00 Z{num(safe)} M09", "M05"]
@@ -275,20 +314,28 @@ def _mill(prog, machine, sim_res, post, dialect):
     return "\n".join(x for x in L if x) + "\n"
 
 
-POSTS = {
-    "fanuc": {"name": "FANUC 0i-TF / 0i-MF", "lathe": True, "mill": True, "verified": False},
-    "siemens": {"name": "SINUMERIK 828D / 840D sl", "lathe": True, "mill": True, "verified": False},
-    "gsk": {"name": "GSK 980TDc / 980TDi", "lathe": True, "mill": False, "verified": False},
-}
+def posts() -> dict:
+    """可选的后处理：{id: {"name", "lathe", "mill", "verified", "family", "cfg"}}（内置配置 + 用户配置，ADR-0109）"""
+    out = {}
+    for k, c in postcfg.configs().items():
+        out[k] = {"name": c["name"], "lathe": "lathe" in c["kinds"], "mill": "mill" in c["kinds"], "verified": bool(c.get("verified")),
+                  "family": c["family"], "cfg": c}
+    return out
+
+
+POSTS = {k: {kk: vv for kk, vv in v.items() if kk != "cfg"} for k, v in posts().items()}   # 内置的（兼容以前的调用）
 
 
 def available(kind: str) -> list[str]:
-    return [k for k, v in POSTS.items() if v["lathe" if kind == "lathe" else "mill"]]
+    return [k for k, v in posts().items() if v["lathe" if kind == "lathe" else "mill"]]
 
 
 def render(prog: dict, machine: dict, controller: str, sim_res: dict | None) -> dict:
-    """按数控系统写程序。machine 是旧字段视图（machines.get），带 model；sim_res 是 machine_sim.run 的结果"""
-    post = POSTS.get(controller)
+    """按后处理配置写程序。machine 是旧字段视图（machines.get），带 model；sim_res 是 machine_sim.run 的结果"""
+    try:
+        post = posts().get(controller)
+    except postcfg.PostConfigError as exc:
+        raise ReleaseError(str(exc)) from exc
     kind = "lathe" if machine["kind"] == "lathe" else "mill"
     if post is None or not post[kind]:
         raise ReleaseError(f"没有 {controller!r} 的{'车床' if kind == 'lathe' else '铣床'}后处理；可选：{', '.join(available(kind))}")
@@ -296,16 +343,33 @@ def render(prog: dict, machine: dict, controller: str, sim_res: dict | None) -> 
         raise ReleaseError("没有跑整机仿真，不输出程序（ADR-0104 安全底线第 1 条）")
     if sim_res.get("status") == "error":
         raise ReleaseError("整机仿真不通过，不输出程序（ADR-0104 安全底线第 1 条）")
-    fn = _lathe if kind == "lathe" else _mill
-    text = fn(prog, machine, sim_res, post, controller)
+    cfg = postcfg.resolved(post["cfg"])
+    fam = cfg["family"]
+    dialect = "fanuc" if fam == "hnc" else fam                  # 华中按 FANUC 写法，程序头另改
+    tok = _FMT.set({"coord": cfg["decimals"]["coord"], "feed": cfg["decimals"]["feed"],
+                    "utf8": cfg["comments"] == "utf8" and fam in postcfg.ISO,
+                    "turn_cycles": cfg["cycles"]["turn"], "drill_cycles": cfg["cycles"]["drill"] and fam in postcfg.ISO})
+    try:
+        fn = _lathe if kind == "lathe" else _mill
+        text = fn(prog, machine, sim_res, post, dialect)
+        text = postcfg.finish(text, cfg, kind == "lathe", int(prog.get("number", 1)))
+    except postcfg.PostConfigError as exc:
+        raise ReleaseError(str(exc)) from exc
+    finally:
+        _FMT.reset(tok)
     return {"controller": controller, "post": post["name"], "version": VERSION, "verified": post["verified"],
             "fingerprint": sim_res["fingerprint"], "text": text}
 
 
 # ---------------------------------------------------------------- 回读（验证用）
 def to_fanuc(text: str, controller: str, lathe: bool) -> str:
-    """把西门子的程序换回 FANUC 写法，交给 sim.parse 回读（验证后处理与中间格式一致）；FANUC、广数原样返回"""
-    if controller in ("fanuc", "gsk"):
+    """把程序换回 FANUC 写法，交给 sim.parse 回读（验证后处理与中间格式一致）：先按配置还原（子程序展开、华中程序头），
+    西门子再换写法；ISO 家族其余原样"""
+    post = posts().get(controller)
+    fam = post["family"] if post else controller
+    if post:
+        text = postcfg.expand(text, postcfg.resolved(post["cfg"]))
+    if fam in postcfg.ISO:
         return text
     out = ["%", "O0001"]
     lims = None
