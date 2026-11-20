@@ -1,0 +1,146 @@
+{
+ "why": "车铣中心带轴向、径向动力刀（ADR-0110）",
+ "instance": {
+  "format": "cam-machine/1",
+  "id": "EX-MT-CY",
+  "name": "示例车铣中心 C/Y 轴动力刀（虚构）",
+  "example": true,
+  "source": "虚构示例",
+  "kind": "mill_turn",
+  "controller": {
+   "family": "fanuc",
+   "model": "0i-TF Plus"
+  },
+  "features": {
+   "polar_interpolation": true,
+   "cylindrical_interpolation": true
+  },
+  "spindle": {
+   "max_rpm": 5000,
+   "power_kw": 15.0,
+   "efficiency": 0.8
+  },
+  "axes": [
+   {
+    "id": "X",
+    "type": "linear",
+    "carrier": "tool",
+    "direction": [
+     1,
+     0,
+     0
+    ],
+    "min": -5.0,
+    "max": 300.0,
+    "rapid": 24000.0,
+    "diameter_mode": true
+   },
+   {
+    "id": "Y",
+    "type": "linear",
+    "carrier": "tool",
+    "direction": [
+     0,
+     1,
+     0
+    ],
+    "min": -50.0,
+    "max": 50.0,
+    "rapid": 10000.0
+   },
+   {
+    "id": "Z",
+    "type": "linear",
+    "carrier": "tool",
+    "direction": [
+     0,
+     0,
+     1
+    ],
+    "min": -500.0,
+    "max": 200.0,
+    "rapid": 30000.0
+   },
+   {
+    "id": "C",
+    "type": "rotary",
+    "carrier": "workpiece",
+    "direction": [
+     0,
+     0,
+     1
+    ],
+    "point_mm": [
+     0,
+     0,
+     0
+    ],
+    "continuous": true,
+    "rapid": 36000.0
+   }
+  ],
+  "tool": {
+   "direction": [
+    1,
+    0,
+    0
+   ],
+   "gauge_point_mm": [
+    350.0,
+    0,
+    0
+   ]
+  },
+  "lathe_home_mm": [
+   250.0,
+   150.0
+  ],
+  "tool_change_s": 1.0,
+  "components": [
+   {
+    "id": "chuck",
+    "name": "卡盘",
+    "attached_to": "C",
+    "cylinder_mm": {
+     "p0": [
+      0,
+      0,
+      -80
+     ],
+     "p1": [
+      0,
+      0,
+      0
+     ],
+     "r": 105
+    }
+   }
+  ],
+  "live_tools": {
+   "axial": {
+    "direction": [
+     0,
+     0,
+     1
+    ],
+    "gauge_point_mm": [
+     0,
+     0,
+     0
+    ]
+   },
+   "radial": {
+    "direction": [
+     1,
+     0,
+     0
+    ],
+    "gauge_point_mm": [
+     0,
+     0,
+     0
+    ]
+   }
+  }
+ }
+}

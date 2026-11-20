@@ -1,0 +1,28 @@
+{
+ "why": "车铣中心的动力刀、C 轴 M 代码（ADR-0110）",
+ "instance": {
+  "format": "cam-post/1",
+  "id": "fanuc-0i",
+  "name": "FANUC 0i-TF / 0i-MF",
+  "family": "fanuc",
+  "kinds": [
+   "lathe",
+   "mill"
+  ],
+  "source": "问渠CAM 内置（ADR-0104 C1 的写法）",
+  "millturn": {
+   "live_on": [
+    "M13"
+   ],
+   "live_off": [
+    "M15"
+   ],
+   "c_on": [
+    "M18"
+   ],
+   "c_off": [
+    "M19"
+   ]
+  }
+ }
+}
