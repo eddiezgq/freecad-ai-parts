@@ -141,6 +141,22 @@ jobs:
         run: |
           micromamba run -n fc11 python -m pip install -q ".[llm]"
           foreach ($m in @("$env:APPDATA\FreeCAD\Mod", "$env:APPDATA\FreeCAD\v1-1\Mod")) { micromamba run -n fc11 python -m freecad_addon.install --mod-dir $m }
+      - name: 软件 OpenGL（Mesa llvmpipe）
+        # GitHub 的 Windows 机器只有 OpenGL 1.1，FreeCAD 一开界面就弹“OpenGL 版本不够”的模态框、什么都做不了（第一次跑时截屏发现）；
+        # 把 Mesa 的软件 OpenGL 放到 freecad.exe 旁边
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $prefix = (micromamba run -n fc11 python -c "import sys; print(sys.prefix)").Trim()
+          $bin = Join-Path $prefix "Library\bin"
+          gh release download -R pal1000/mesa-dist-win --pattern "mesa3d-*-release-msvc.7z" -D "$env:RUNNER_TEMP\mesa"
+          7z x -y -o"$env:RUNNER_TEMP\mesa\x" (Get-ChildItem "$env:RUNNER_TEMP\mesa\*.7z").FullName | Out-Null
+          foreach ($d in @("opengl32.dll", "libgallium_wgl.dll", "libglapi.dll", "dxil.dll")) {
+            $f = Join-Path "$env:RUNNER_TEMP\mesa\x\x64" $d
+            if (Test-Path $f) { Copy-Item $f $bin -Force; Write-Host "copied $d" }
+          }
+          "GALLIUM_DRIVER=llvmpipe" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
       - name: 打开 AI 设计面板（中、英文 × 普通 / 比屏幕宽）
         shell: pwsh
         run: |
