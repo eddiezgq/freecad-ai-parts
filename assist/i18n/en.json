@@ -2095,5 +2095,6 @@
 "反馈包已生成：{}。请发给我们（微信或邮件）。": "Feedback package created: {}. Please send it to us (WeChat or e-mail).",
 "生成反馈包…": "Make feedback package…",
 "问题反馈": "Feedback",
-"问题反馈…": "Feedback…"
+"问题反馈…": "Feedback…",
+"厂商样本刀具库只读：要改先“另存为”": "Vendor catalogue tool libraries are read-only: use “Save as” first"
 }

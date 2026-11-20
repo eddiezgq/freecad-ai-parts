@@ -27,7 +27,8 @@ def test_tool_library_save_checks_and_lists(tmp_path):
         TL.save({**lib, "tools": [t, dup]}, TL.user_dir(env) / "mine.json")
     p = TL.save({**lib, "tools": [t]}, TL.user_dir(env) / "mine.json")
     libs = TL.libraries(env)
-    assert libs[0]["readonly"] and libs[1] == {"name": "我的刀具库", "path": str(p), "readonly": False, "error": ""}
+    assert libs[0]["readonly"] and libs[-1] == {"name": "我的刀具库", "path": str(p), "readonly": False, "error": ""}
+    assert all(x["readonly"] for x in libs[:-1])                  # 示例库、厂商样本库只读（Q4b）
     assert TL.get(TL.load(p), "EM12")["diameter_mm"] == 12.0
     with pytest.raises(TL.ToolError, match="只读"):
         TL.save(TL.load(), TL.EXAMPLE)

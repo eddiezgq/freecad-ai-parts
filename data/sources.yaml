@@ -156,9 +156,48 @@ sources:
     vendor: 株洲钻石切削刀具股份有限公司（ZCC Cutting Tools）
     url: https://www.zccct.com
     categories: [cutting_tool]
-    license: pending
-    terms_checked: false
-    terms_note: 2026-11-19 网站本会话访问不到，未取得法律声明，待人工查看；项目负责人另定常用品牌后按品牌补。
+    license: params-only
+    terms_checked: true
+    terms_note: >-
+      2026-11-19 按 ADR-0040 与项目负责人当日决定：刀具样本是厂家为选刀公开发放的产品资料（经销商网站、展会到处发放），
+      只收录样本里的事实参数（尺寸、刃数、切削参数推荐值），逐把注明样本页码；不转存样本文档、图片与文字。
+      所用样本 PDF 由经销商网站（sakusakuec.com）转载的株洲钻石英文版样本页，内容与印刷样本页码（B 页）一致。
+    documents:
+      - id: src-zcc-gm-series-end-mills
+        title: ZCC-CT Solid Carbide End Mills - GM series for general machining（样本 B353–B394）
+        version: 未印版本号，以 SHA-256 标识（2026-11-19 登记）
+        url: https://sakusakuec.com/download/ZCC-CT_GMseries.pdf
+        sha256: "e89980025cb877cabd379762381f4aac8f8bbfb5bc677f217d45d077a33edd49"
+      - id: src-zcc-gm-cutting-b500-501
+        title: ZCC-CT Cutting parameters for GM series end mills（样本 B500–B501）
+        version: 未印版本号，以 SHA-256 标识（2026-11-19 登记）
+        url: https://sakusakuec.com/download/ZCC_B500-501.pdf
+        sha256: "cc25922848034d5d267cdd67c8a66285d27fa50d901dce93e842815dbbc16f19"
+      - id: src-zcc-gm-cutting-b504-505
+        title: ZCC-CT Cutting parameters for GM series end mills（样本 B504–B505）
+        version: 未印版本号，以 SHA-256 标识（2026-11-19 登记）
+        url: https://sakusakuec.com/download/ZCC_B504-505.pdf
+        sha256: "71cb94dcd69d1001ca5afb95f851d94681b7b4efb00b901c163c8603635f0a2b"
+      - id: src-zcc-gm-cutting-b508
+        title: ZCC-CT Cutting parameters for GM series end mills（样本 B508、B505）
+        version: 未印版本号，以 SHA-256 标识（2026-11-19 登记）
+        url: https://sakusakuec.com/download/ZCC_B508,505.pdf
+        sha256: "a0ae6ec0148615d06b6e401b4e1b979e03a694abf60682f65e3a80eff5fb776b"
+      - id: src-zcc-gm-cutting-b514-515
+        title: ZCC-CT Cutting parameters for GM series end mills（样本 B514–B515，球头 GM-2B）
+        version: 未印版本号，以 SHA-256 标识（2026-11-19 登记）
+        url: https://sakusakuec.com/download/ZCC_B514-515.pdf
+        sha256: "ea694c5028a9345428e6075ae391ce9907024b1f0a2de3aec220cef84ef50b56"
+      - id: src-zcc-gm-cutting-b516-517
+        title: ZCC-CT Cutting parameters for GM series end mills（样本 B516–B517，球头 GM-4B）
+        version: 未印版本号，以 SHA-256 标识（2026-11-19 登记）
+        url: https://sakusakuec.com/download/ZCC_B516-517.pdf
+        sha256: "cf286156825d88eca69b6cb63a2de763a40af8279d6c4e79b2063da243af5a67"
+      - id: src-zcc-catalog-2022-2023-holemaking
+        title: ZCC-CT Catalog 2022–2023（钻、铰、螺纹刀具部分，样本 C 页）
+        version: 2022–2023（文件名），以 SHA-256 标识（2026-11-19 登记）
+        url: https://sakusakuec.com/download/zcc_catalog_2022-2023_Indexable.pdf
+        sha256: "c5879b146055b99b7928cf5491173f0c65232b17506ee85721c2afd1fae4fd09"
   - id: golden-egret
     vendor: 厦门金鹭特种合金有限公司（Golden Egret）
     url: https://www.gesac.com.cn
