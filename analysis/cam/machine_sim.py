@@ -211,12 +211,15 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
         else:
             seen[key]["lines"].add(line)
 
-    approach = False
+    approach = millturn = False
     for mv in parsed["moves"]:
         if mv.get("home"):
             continue
         if mv.get("approach"):                   # 倾斜后机床 Z 还在原点的那几段：位置由数控系统的倾斜面功能定，不按工件坐标逆解
             approach = True
+            continue
+        if mv.get("mill"):                       # 车铣的铣削段：C 轴逆解还没接（ADR-0106 C2b 第 4 步），报“未知”
+            millturn = True
             continue
         sp = specs.get(mv["tool"])
         if sp is None:
@@ -265,6 +268,9 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
                         report(("cf", c["id"], f["id"]), mv["line"], f"机床的{c['name']}碰到{kind}“{f['name']}”（第 {mv['line']} 行）")
                 if stock_shape is not None and CL.hit(cs, sobj, margin):
                     report(("cs", c["id"]), mv["line"], f"机床的{c['name']}碰到毛坯（第 {mv['line']} 行）")
+    if millturn:
+        checks.append({"line": None, "level": "unknown",
+                       "text": "车铣的铣削段（极坐标、圆柱插补）：C 轴、动力刀的整机仿真还没做（ADR-0106 C2b），碰撞和超程没查"})
     if approach:
         checks.append({"line": None, "level": "unknown",
                        "text": "倾斜面：转回转轴后到第一次下刀那几段，刀具在机床 Z 原点，实际走法由数控系统的倾斜面功能定，整机仿真没查；首件单段确认"})

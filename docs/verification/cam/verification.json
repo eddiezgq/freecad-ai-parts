@@ -1,6 +1,6 @@
 {
  "env": {
-  "code": "18d20e88a430ca99f6eed42a3b0f65bd2beb6cc1（有未提交的改动）",
+  "code": "f119b0c1d7441664ac72d04b9301ebc52448056c（有未提交的改动）",
   "date": "2026-11-20",
   "numerics": "NumPy 2.5.3",
   "python": "Python 3.13.18 / Linux 6.18.44-fc-v726"
@@ -1545,12 +1545,60 @@
     }
    ],
    "result": "pass"
+  },
+  {
+   "id": "CAM-53",
+   "test": "tests/test_cam_millturn_c2b.py::test_millturn_cutting_time",
+   "category": "time",
+   "title": {
+    "zh": "车铣复合：端面槽、圆柱面螺旋槽的切削时间",
+    "en": "Mill-turn: face slot and cylindrical helix cutting time"
+   },
+   "source": "t = L/vf",
+   "rows": [
+    {
+     "case": "tests/test_cam_millturn_c2b.py::test_millturn_cutting_time",
+     "kind": "verdict",
+     "quantity": [
+      "车铣：端面槽、圆柱面螺旋槽的切削时间",
+      "mill-turn: face slot and cylindrical helix cutting time"
+     ],
+     "computed": "pass",
+     "reference": "pass",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-54",
+   "test": "tests/test_cam_millturn_c2b.py::test_face_slot_and_cylinder_slot_volume_on_turned_part",
+   "category": "geom",
+   "title": {
+    "zh": "车铣复合：端面槽、圆柱面槽的去除体积",
+    "en": "Mill-turn: face slot and cylinder slot removed volume"
+   },
+   "source": "V = ap·(L·D + πD²/4); ∫∫(√(R² − y²) − r) dy dz",
+   "rows": [
+    {
+     "case": "tests/test_cam_millturn_c2b.py::test_face_slot_and_cylinder_slot_volume_on_turned_part",
+     "kind": "verdict",
+     "quantity": [
+      "车铣：端面槽、圆柱面槽的去除体积",
+      "mill-turn: face slot and cylinder slot removed volume"
+     ],
+     "computed": "pass",
+     "reference": "pass",
+     "ok": true
+    }
+   ],
+   "result": "pass"
   }
  ],
- "n": 52,
- "ok": 52,
+ "n": 54,
+ "ok": 54,
  "bad": 0,
  "skip": 0,
- "rows": 59,
- "rows_ok": 59
+ "rows": 61,
+ "rows_ok": 61
 }
