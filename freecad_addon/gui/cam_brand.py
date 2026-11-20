@@ -20,9 +20,9 @@ WORKBENCH = "WenQuestCamWorkbench"
 PARAMS = fea_brand.PARAMS
 MENU = "WenQuest CAM"
 ADD_MENU = "New operation"
-TOOLBAR = ["FAP_CamNewTurnJob", "FAP_CamNewMillJob", "FAP_CamNewOp", "FAP_CamJob", "FAP_CamReplay", "Separator",
+TOOLBAR = ["FAP_CamNewTurnJob", "FAP_CamNewMillJob", "FAP_CamTiltSetup", "FAP_CamNewOp", "FAP_CamJob", "FAP_CamReplay", "Separator",
            "FAP_CamOpRegen", "FAP_CamOpConfirm", "FAP_CamOpUp", "FAP_CamOpDown"]
-CMDS = ("FAP_CamNewTurnJob", "FAP_CamNewMillJob", "FAP_CamJob", "FAP_CamReplay", "Separator", "FAP_CamOpRegen", "FAP_CamOpConfirm",
+CMDS = ("FAP_CamNewTurnJob", "FAP_CamNewMillJob", "FAP_CamTiltSetup", "FAP_CamJob", "FAP_CamReplay", "Separator", "FAP_CamOpRegen", "FAP_CamOpConfirm",
         "FAP_CamOpCopy", "FAP_CamOpUp", "FAP_CamOpDown", "FAP_CamOpHide", "Separator", "FAP_CamTools", "FAP_CamMachines", "Separator",
         "FAP_CamCheck", "Separator",
         "FAP_CamLicense", "FAP_CamSetup", "FAP_CamFeedback", "FAP_CamAbout")

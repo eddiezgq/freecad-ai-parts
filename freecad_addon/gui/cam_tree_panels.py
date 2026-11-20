@@ -567,6 +567,38 @@ class NewJobCommand:
         edit(job)
 
 
+class TiltSetupCommand:
+    """3+2 倾斜面（ADR-0106 C2a）：在三维视图里点零件上的一个平面 → 铣削作业加一个倾斜面装夹，以后在这个装夹里加工序"""
+
+    def GetResources(self):
+        return {"MenuText": T("新建倾斜面装夹"), "ToolTip": T("点零件上的一个平面：建一个倾斜面装夹（3+2 定位），这个装夹里的工序在这个平面上加工")}
+
+    def IsActive(self):
+        return FreeCAD.ActiveDocument is not None
+
+    def run(self, obj, sub):
+        """选中的 obj（零件）、sub（FaceN）→ 新装夹；找不到作业或面不对时抛 CamObjError"""
+        jobs = [j for j in FreeCAD.ActiveDocument.Objects if CO.is_job(j) and j.Model == obj and j.Kind == "mill"]
+        if not jobs:
+            raise CO.CamObjError("先给这个零件建铣削作业，再点它上面的平面")
+        return CO.new_tilt_setup(jobs[0], sub)
+
+    def Activated(self):
+        from PySide import QtWidgets
+
+        sel = [(s.Object, n) for s in FreeCADGui.Selection.getSelectionEx() for n in s.SubElementNames if n.startswith("Face")]
+        if not sel:
+            QtWidgets.QMessageBox.information(None, T("问渠CAM"), T("先在三维视图里点零件上的一个平面"))
+            return
+        try:
+            s = self.run(*sel[0])
+        except Exception as exc:  # noqa: BLE001
+            QtWidgets.QMessageBox.warning(None, T("问渠CAM"), T(str(exc)))
+            return
+        FreeCADGui.Selection.clearSelection()
+        FreeCADGui.Selection.addSelection(s)
+
+
 class OpCommand:
     """对选中的工序：重算刀路 / 确认 / 上移 / 下移"""
 
@@ -705,7 +737,8 @@ ADD_OPS = {**{f"FAP_CamAddTurn_{k}": AddOpCommand(k, True) for k in CO.TURN_KIND
 COMMANDS = {"FAP_CamNewTurnJob": NewJobCommand("turn"), "FAP_CamNewMillJob": NewJobCommand("mill"),
             "FAP_CamJob": JobActionCommand("edit"), "FAP_CamOpRegen": OpCommand("regen"), "FAP_CamOpConfirm": OpCommand("confirm"),
             "FAP_CamOpUp": OpCommand("up"), "FAP_CamOpDown": OpCommand("down"), "FAP_CamOpCopy": OpEditCommand("copy"),
-            "FAP_CamOpHide": OpEditCommand("hide"), **ADD_OPS, "FAP_CamNewOp": AddOpGroup(), "FAP_CamReplay": _replay_cmd()}
+            "FAP_CamOpHide": OpEditCommand("hide"), **ADD_OPS, "FAP_CamNewOp": AddOpGroup(), "FAP_CamReplay": _replay_cmd(),
+            "FAP_CamTiltSetup": TiltSetupCommand()}
 
 
 

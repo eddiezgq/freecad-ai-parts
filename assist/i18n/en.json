@@ -2103,5 +2103,15 @@
 "{} 没有回转轴，做不了倾斜面加工（G68.2）": "{} has no rotary axes and cannot machine tilted planes (G68.2)",
 "工作平面的 X 方向与法向平行": "The X direction of the working plane is parallel to its normal",
 "工作平面的法向是零向量": "The normal of the working plane is a zero vector",
-"CYCLE800 回读只认 _MODE = 57：{}": "CYCLE800 read-back only supports _MODE = 57: {}"
+"CYCLE800 回读只认 _MODE = 57：{}": "CYCLE800 read-back only supports _MODE = 57: {}",
+"3+2 倾斜面（JSON：工件坐标的原点、X、Z 方向；空 = 不倾斜，ADR-0106 C2a）": "3+2 tilted plane (JSON: origin, X and Z directions in work coordinates; empty = not tilted, ADR-0106 C2a)",
+"{} 不是平面，定不了倾斜面": "{} is not planar; it cannot define a tilted plane",
+"{} 朝上，不用倾斜：直接在装夹 1 里加工序": "{} faces up and needs no tilting: add the operations to setup 1",
+"倾斜面 {}（{}）": "Tilted plane {} ({})",
+"倾斜面工序的工作平面（JSON，刀路是平面坐标；重算刀路时按装夹的倾斜面定，平面 Z0 在零件沿法向的最高处）": "Working plane of a tilted operation (JSON; the tool path is in plane coordinates; set from the setup's tilted plane when the path is regenerated, plane Z0 at the highest point of the part along the normal)",
+"车削作业没有倾斜面": "Turning jobs have no tilted planes",
+"先在三维视图里点零件上的一个平面": "First click a planar face of the part in the 3D view",
+"先给这个零件建铣削作业，再点它上面的平面": "First create a milling job for this part, then click a face on it",
+"新建倾斜面装夹": "New tilted-plane setup",
+"点零件上的一个平面：建一个倾斜面装夹（3+2 定位），这个装夹里的工序在这个平面上加工": "Click a planar face of the part: creates a tilted-plane setup (3+2 positioning); its operations machine on that plane"
 }

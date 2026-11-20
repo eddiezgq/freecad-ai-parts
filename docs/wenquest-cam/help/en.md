@@ -153,7 +153,7 @@ Tick "Deviation" to colour the finished stock by its deviation from the part mod
   simulated path. Tool paths contain no arcs (arcs are split into lines at 0.002 mm chord height), so no CC / C blocks are written.
 - None of the post processors (FANUC, Siemens, GSK lathe, Huazhong, Heidenhain) has been verified on a real machine yet; the program header says so; programs with canned cycles (turning or drilling) get an extra warning in the check list. **Always dry-run the first part and confirm it in single block.**
 
-# 3+2 tilted planes (in progress)
+# 3+2 tilted planes
 
 On five-axis machining centres (such as the example EX-5AX-AC, trunnion A and C axes) an operation can work on a tilted working plane: plane origin,
 normal (tool axis) and X direction are given in work coordinates, and the operation's tool path uses plane coordinates. Simulation: material removal
@@ -162,7 +162,12 @@ rotary axes turn, Z retracts to machine home; the moves from there to the first 
 checked by the machine simulation (an "unknown" item in the check list). Posts: FANUC / Huazhong write `G68.2` (plane origin + Z-X-Z Euler angles)
 and `G53.1`, cancelled with `G69`; Siemens writes `CYCLE800` (axis-by-axis X, Y, Z, _MODE = 57), cancelled with `CYCLE800()`; Heidenhain writes a
 `CYCL DEF 7` datum shift and `PLANE SPATIAL … TURN`, cancelled with `PLANE RESET STAY`. For read-back all three are converted to the same rotation and
-compared move by move with the simulated path. Three-axis machines report an error for tilted operations. Picking the plane from a face in the 3D view is still being built.
+compared move by move with the simulated path. Three-axis machines report an error for tilted operations.
+
+In the machining tree: choose a five-axis machine for the milling job (e.g. EX-5AX-AC), click a sloped face of the part in the 3D view and press
+"New tilted-plane setup"; a "Tilted plane N" setup appears. Operations added to it (facing, pocket, contour, drilling, holes …) find their features on
+that plane, FreeCAD computes the paths in plane coordinates, and the stock is the real stock turned into plane coordinates (a tilted box) — so face
+the slope first, then machine the pocket in it. Calculation, replay, 3D comparison and program output work as usual.
 
 # Feedback
 

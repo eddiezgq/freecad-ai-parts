@@ -42,7 +42,8 @@ class Replay:
                 k += 1
             dt = S.move_time(mv, machine, self.lathe)
             self.frames.append({"i": i, "line": mv["line"], "t0": t, "t1": t + dt, "a": tuple(mv["a"]), "b": tuple(mv["b"]),
-                                "tool": mv["tool"], "rapid": mv["t"] == "rapid", "home": bool(mv.get("home"))})
+                                "tool": mv["tool"], "rapid": mv["t"] == "rapid", "home": bool(mv.get("home")),
+                                "axis": tuple(mv["axis"]) if mv.get("axis") is not None else (0.0, 0.0, 1.0)})
             t += dt
         self.duration = t + tc * (len(changes) - k)
         self._t0 = [f["t0"] for f in self.frames]
@@ -129,7 +130,7 @@ class Replay:
             for f in self.frames:
                 tl = built.get(f["tool"])
                 if tl is not None and not f["home"]:
-                    r = dx.cut(tl, f["a"], f["b"])
+                    r = dx.cut(tl, f["a"], f["b"], w=f["axis"])
                     self._volume.append(self._volume[-1] + r["volume"])
                 else:
                     self._volume.append(self._volume[-1])
@@ -154,7 +155,7 @@ class Replay:
         for f in self.frames[k:n]:
             tl = built.get(f["tool"])
             if tl is not None and not f["home"]:
-                dx.cut(tl, f["a"], f["b"])
+                dx.cut(tl, f["a"], f["b"], w=f["axis"])
         return dx
 
     def removed_volume(self, n: int) -> float:
