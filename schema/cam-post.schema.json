@@ -182,13 +182,13 @@
   },
   "millturn": {
    "type": "object",
-   "description": "车铣中心：开 / 关动力刀、切入 / 切出 C 轴的程序行（ADR-0110；按机床说明书填，不写则带铣削段的车铣程序不出）",
+   "description": "车铣中心：开 / 关动力刀、切入 / 切出 C 轴的程序行（ADR-0110；按机床说明书填，不写则带铣削段的车铣程序不出）；程序行另可带圆括号、方括号和逗号，用来写西门子的 SETMS(2)、SPOS[2]=0（ADR-0111）",
    "properties": {
     "live_on": {
      "type": "array",
      "items": {
       "type": "string",
-      "pattern": "^[A-Z0-9 .=+-]*$"
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],]*$"
      },
      "description": "开动力刀（动力刀转速 S 由后处理写在这之后）"
     },
@@ -196,14 +196,14 @@
      "type": "array",
      "items": {
       "type": "string",
-      "pattern": "^[A-Z0-9 .=+-]*$"
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],]*$"
      }
     },
     "c_on": {
      "type": "array",
      "items": {
       "type": "string",
-      "pattern": "^[A-Z0-9 .=+-]*$"
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],]*$"
      },
      "description": "切入 C 轴（主轴变 C 轴）"
     },
@@ -211,7 +211,7 @@
      "type": "array",
      "items": {
       "type": "string",
-      "pattern": "^[A-Z0-9 .=+-]*$"
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],]*$"
      }
     }
    },
