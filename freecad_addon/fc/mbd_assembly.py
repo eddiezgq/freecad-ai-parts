@@ -71,23 +71,38 @@ def _solid_props(assembly, top, sub, leaf):
             "material": mat, "density_kg_m3": rho}
 
 
+def _members(assembly):
+    """装配体下面所有对象（含关节组里的关节）。不用 OutListRecursive：FreeCAD 1.1 里关节反过来引用装配体，
+    OutListRecursive 报“cyclic dependency detected”"""
+    seen, out, stack = {assembly.Name}, [], list(getattr(assembly, "Group", []))
+    while stack:
+        o = stack.pop(0)
+        if o is None or o.Name in seen:
+            continue
+        seen.add(o.Name)
+        out.append(o)
+        if o.TypeId.startswith("Assembly::") or o.isDerivedFrom("App::DocumentObjectGroup"):
+            stack.extend(getattr(o, "Group", []))
+    return out
+
+
 def describe(assembly, mass_overrides=None) -> dict:
     """装配体 → 中性描述（见 analysis/mbd/assembly.py）"""
-    from freecad_addon.fc.assembly_modules import load
+    from freecad_addon.fc.assembly_modules import load, moving_part
 
     JointObject, UtilsAssembly = load()
 
     mass_overrides = mass_overrides or {}
     grounded, joints = set(), []
-    for o in assembly.OutListRecursive:
+    for o in _members(assembly):
         proxy = getattr(o, "Proxy", None)
         if isinstance(proxy, JointObject.GroundedJoint) and o.ObjectToGround is not None:
             grounded.add(o.ObjectToGround.Name)
         elif isinstance(proxy, JointObject.Joint):
             if getattr(o, "Suppressed", False) or getattr(o, "Activated", True) is False:
                 continue
-            p1 = UtilsAssembly.getMovingPart(assembly, o.Reference1)
-            p2 = UtilsAssembly.getMovingPart(assembly, o.Reference2)
+            p1 = moving_part(UtilsAssembly, assembly, o.Reference1)
+            p2 = moving_part(UtilsAssembly, assembly, o.Reference2)
             g1 = UtilsAssembly.getJcsGlobalPlc(o.Placement1, o.Reference1)
             g2 = UtilsAssembly.getJcsGlobalPlc(o.Placement2, o.Reference2)
             joints.append({"id": o.Name, "label": o.Label, "type": o.JointType,
