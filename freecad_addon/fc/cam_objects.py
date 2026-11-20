@@ -30,6 +30,7 @@ HOLE_KINDS = ("cbore", "csink", "tap", "thread_mill", "helix")
 MILL_ALLOW_KINDS = ("pocket", "adaptive", "rest", "profile")             # 铣：可留侧壁 / 底面余量
 MILL_FC_KINDS = ("face", "pocket", "adaptive", "rest", "profile", "drill", "surface", "waterline")  # 铣：FreeCAD CAM 出刀路的（安全高度、快移高度可改）     # 按孔特征出刀路（ADR-0106 Q3b）：孔表存在工序的 HoleData 里
 TURN_TOOL_N = {"rough": 1, "finish": 2, "groove": 3, "thread": 4, "drill": 5, "bore": 6, "part": 8, "face_groove": 9}
+LIVE_KINDS = {"live_face": "端面铣（动力刀）", "live_keyway": "圆柱面键槽（动力刀）"}     # 车铣中心（ADR-0106 C2b 界面）
 
 
 class CamObjError(ValueError):
@@ -342,7 +343,7 @@ def new_op(setup, kind: str, *, index: int = -1, tool_id: str = "", tool_n: int 
     op.Vc, op.Feed, op.Ap, op.StepOver = float(vc), float(feed or 0.0), float(ap or 0.0), float(stepover or 0.0)
     op.Reason, op.Status = reason, status
     job = job_of(setup) or next(p for p in setup.InList if is_job(p))
-    names = TURN_KINDS if job.Kind == "turn" else MILL_KINDS
+    names = {**TURN_KINDS, **LIVE_KINDS} if job.Kind == "turn" else MILL_KINDS
     op.Label = T(names.get(kind, kind)) + (f" {index + 1}" if index >= 0 and kind in FEATURE_KINDS else "")
     setup.addObject(op)
     return op
@@ -633,8 +634,192 @@ def new_tilt_setup(job, sub: str):
 
 
 def regenerate(op) -> None:
-    (regenerate_turn if job_of(op).Kind == "turn" else regenerate_mill)(op)
+    if op.OpKind in LIVE_KINDS:
+        regenerate_live(op)
+    else:
+        (regenerate_turn if job_of(op).Kind == "turn" else regenerate_mill)(op)
     op.recompute()
+
+
+# ---------------------------------------------------------------- 车铣中心的动力刀工序（ADR-0106 C2b 界面）
+def _is_mill_turn(job) -> bool:
+    from analysis.cam import machines
+
+    return job.Kind == "turn" and machines.get(job.Machine)["kind"] == "mill_turn"
+
+
+def _turned_r(job, z_work: float) -> float:
+    """车完的外圆半径（右端装夹的工件坐标 z）"""
+    from analysis.cam import paths as P
+
+    d = _js(job, "PartData", {})
+    prof = d.get("profile") or P.design_profile(d["segments"], d.get("chamfer_mm", 0.0))   # t 从左端 0 起向右
+    length = float(prof[-1][0])
+    return P.d_at(prof, z_work + length) / 2.0
+
+
+def _exact_box(face):
+    """面的精确包围盒（顶点 + 圆弧在轴向极值处的点；BoundBox 按三角化算，有时偏松）：[xmin, ymin, zmin, xmax, ymax, zmax]"""
+    import math as _m
+
+    pts = [v.Point for v in face.Vertexes]
+    for e in face.Edges:
+        if type(e.Curve).__name__ != "Circle":
+            continue
+        a0, a1 = e.ParameterRange
+        if a1 - a0 >= 2 * _m.pi - 1e-9:
+            pts += [e.valueAt(a0 + k * _m.pi / 2) for k in range(4)]
+            continue
+        k0 = _m.ceil((a0 - 1e-12) / (_m.pi / 2))
+        k = k0
+        while k * _m.pi / 2 <= a1 + 1e-12:              # 圆弧参数里每过 90° 一个极值点（圆弧在坐标平面里时）
+            pts.append(e.valueAt(k * _m.pi / 2))
+            k += 1
+        pts += [e.valueAt(a0), e.valueAt(a1)]
+    xs, ys, zs = [p.x for p in pts], [p.y for p in pts], [p.z for p in pts]
+    return [min(xs), min(ys), min(zs), max(xs), max(ys), max(zs)]
+
+
+def live_feature(job, sub: str, kind: str) -> dict:
+    """点的面 → 动力刀工序的特征（右端装夹的工件坐标：Z0 在零件右端面，向左为负）。
+    端面铣：法向 +Z 的平底面（长圆槽或圆角矩形型腔的底）；圆柱面键槽：法向径向的平底面（沿 Z 的长圆）"""
+    from analysis.cam import millturn as MT
+
+    d = _js(job, "PartData", {})
+    zr = float(d["z_right"])
+    face = job.Model.Shape.getElement(sub)
+    if type(face.Surface).__name__ != "Plane":
+        raise CamObjError(f"{sub} 不是平面：点槽底或型腔底")
+    n = face.normalAt(0, 0)
+    x0, y0, z0, x1, y1, _z1 = (round(v, 6) for v in _exact_box(face))
+    if kind == "live_face":
+        if n.z < 1 - 1e-6:
+            raise CamObjError(f"{sub} 不朝右端（+Z）：端面铣点端面上的槽底、型腔底")
+        if not all(type(e.Curve).__name__ in ("Line", "LineSegment", "Circle") for e in face.OuterWire.Edges):
+            raise CamObjError(f"{sub} 的外形不是直线和圆弧：只做长圆槽、圆角矩形型腔")
+        ft = MT.classify_face(face.Area, x0, y0, x1, y1)
+        if ft is None or len(face.Wires) > 1:
+            raise CamObjError(f"{sub} 认不出是长圆槽还是圆角矩形型腔：别的形状还没做")
+        z_bot = z0 - zr
+        # 槽口：槽底正上方车完的端面（右端面 Z0；落在台阶上的按那一段的端面算不了，先只做右端面）
+        ft.update({"z0": 0.0, "depth": round(-z_bot, 6)})
+        if ft["depth"] <= 0:
+            raise CamObjError(f"{sub} 不在右端面以下")
+        return ft
+    if abs(n.z) > 1e-6:
+        raise CamObjError(f"{sub} 不是沿轴向的平面：圆柱面键槽点键槽底")
+    c = face.CenterOfMass
+    r_bot = c.x * n.x + c.y * n.y                         # 槽底到轴线的距离（法向朝外）
+    if r_bot <= 0:
+        raise CamObjError(f"{sub} 的法向朝里：点键槽底面")
+    import math as _m
+
+    ang = _m.degrees(_m.atan2(n.y, n.x))
+    ends: dict = {}                                       # 圆弧按圆心归并（一段半圆有时被切成两条边）
+    for e in face.Edges:
+        if type(e.Curve).__name__ == "Circle":
+            c = e.Curve.Center
+            ends.setdefault((round(c.x, 6), round(c.y, 6), round(c.z, 6)), set()).add(round(e.Curve.Radius, 6))
+    radii = {r for rs in ends.values() for r in rs}
+    if len(ends) != 2 or len(radii) != 1:
+        raise CamObjError(f"{sub} 不是两端半圆的键槽底：别的形状还没做")
+    w = 2 * radii.pop()                                   # 两端半圆：槽宽 = 直径，圆心定两端
+    zc = sorted(k[2] for k in ends)
+    za, zb = zc[1] - zr, zc[0] - zr
+    st = (zc[1] - zc[0]) * w + _m.pi * w * w / 4
+    if abs(face.Area - st) > 0.01 * face.Area:
+        raise CamObjError(f"{sub} 不是两端半圆的键槽底：别的形状还没做")
+    r_out = _turned_r(job, (za + zb) / 2)
+    return {"type": "keyway", "angle": round(ang, 6), "width": round(w, 6), "za": round(za, 6), "zb": round(zb, 6),
+            "r_outer": round(r_out, 6), "depth": round(r_out - r_bot, 6)}
+
+
+def _endmills(job, d_max: float, exact: float | None = None):
+    lib = _lib(job)
+    em = [t for t in lib["tools"] if t.get("kind") in ("endmill", "flat_endmill") and t.get("diameter_mm")]
+    if exact is not None:
+        return [t for t in em if abs(float(t["diameter_mm"]) - exact) < 1e-6]
+    return sorted([t for t in em if float(t["diameter_mm"]) <= d_max + 1e-9], key=lambda t: -float(t["diameter_mm"]))
+
+
+def add_live_op(setup, kind: str, sub: str):
+    """车铣中心的车削作业：右端装夹加一道动力刀工序（点的面定特征；刀从刀具库里按槽宽 / 圆角挑；参数取样本的中间值）"""
+    from freecad_addon.core import cam_study as S
+
+    job = job_of(setup) or next(p for p in setup.InList if is_job(p))
+    if kind not in LIVE_KINDS:
+        raise CamObjError(f"没有这种动力刀工序：{kind}")
+    if not _is_mill_turn(job):
+        raise CamObjError("动力刀工序要在车铣中心上：作业的机床选车铣中心")
+    if setup.Side != "right":
+        raise CamObjError("动力刀工序先只做右端（第一次装夹）")
+    ft = live_feature(job, sub, kind)
+    if kind == "live_keyway" or ft["type"] == "slot":
+        tools = _endmills(job, 0, exact=ft["width"])
+        if not tools:
+            raise CamObjError(f"刀具库里没有 Ø{ft['width']:g} 的立铣刀：键槽、端面槽按槽宽选刀，请先在刀具库里加")
+    else:
+        w = min(ft["rect"][2] - ft["rect"][0], ft["rect"][3] - ft["rect"][1])
+        lim = min(2 * ft["corner_r"], w) if ft["corner_r"] > 0 else w / 2
+        tools = _endmills(job, lim)
+        if not tools:
+            raise CamObjError(f"刀具库里没有不大于 Ø{lim:g} 的立铣刀")
+    t = tools[0]
+    from analysis.cam import tools as TL
+
+    cc = TL.cutting_for(t, S.iso_group(job.Kienzle)) or {}
+    mid = lambda r: (r.get("min", 0.0) + r.get("max", 0.0)) / 2 if r and r.get("min") is not None and r.get("max") is not None else 0.0
+    vc, fz = mid(cc.get("vc_m_min")), mid(cc.get("fz_mm"))
+    taken = [o.ToolNumber for s_ in setups(job) for o in ops(s_)] + list(TURN_TOOL_N.values())
+    same = [o.ToolNumber for s_ in setups(job) for o in ops(s_) if o.ToolId == t["id"] and o.OpKind in LIVE_KINDS]
+    op = new_op(setup, kind, tool_id=t["id"], tool_n=same[0] if same else max(taken) + 1, vc=vc, feed=fz,
+                ap=min(ft["depth"], float(t["diameter_mm"]) / 2),
+                reason=("刀具样本没有这个材料组的参数，vc、fz 待填" if not (vc and fz) else "槽宽 / 圆角定刀径；参数取样本范围的中间值"))
+
+    op.Geometry = [(job.Model, sub)]
+    op.HoleData = json.dumps({"feature": ft}, ensure_ascii=False)
+    if vc and fz:
+        regenerate(op)
+    op.Check = "待确认"
+    return op
+
+
+def live_program_op(job, op) -> dict:
+    """动力刀工序 → 车铣程序里的工序（analysis.cam 的 live_ops）"""
+    mv = _js(op, "Moves", [])
+    if not mv:
+        raise CamObjError(f"{op.Label} 还没有刀路：填好 vc、fz 后右键“重算刀路”")
+    ft = _js(op, "HoleData", {})["feature"]
+    from analysis.cam import tools as TL
+
+    d = float(TL.get(_lib(job), op.ToolId)["diameter_mm"])
+    interp = {"cyl": ft["r_outer"]} if ft["type"] == "keyway" else "polar"
+    return {"tool": {"n": op.ToolNumber, "d": d}, "spindle": _js(op, "Spindle", {}), "title": op.Label, "interp": interp, "moves": mv}
+
+
+def regenerate_live(op) -> None:
+    from analysis.cam import millturn as MT
+    from analysis.cam import paths as P
+    from analysis.cam import tools as TL
+
+    job = job_of(op)
+    ft = _js(op, "HoleData", {})["feature"]
+    t = TL.get(_lib(job), op.ToolId)
+    d = float(t["diameter_mm"])
+    z_teeth = int(t.get("flutes") or t.get("teeth") or 0)
+    if op.Vc <= 0 or op.Feed <= 0 or z_teeth <= 0:
+        raise CamObjError(f"{op.Label}：vc、fz 要大于 0，刀具要写刃数")
+    from analysis.cam import machines
+
+    rpm = P.spindle_rpm(op.Vc, d, float(machines.get(job.Machine)["max_rpm"]))
+    f = P.mill_feed(op.Feed, z_teeth, rpm)
+    ap = op.Ap if op.Ap > 0 else d / 2
+    if ft["type"] == "keyway":
+        mv = MT.keyway_moves(ft["angle"], ft["r_outer"], ft["depth"], ft["za"], ft["zb"], d, ap, f, f / 2)
+    else:
+        mv = MT.face_moves(ft, d, ap, f, f / 2, stepover=op.StepOver or 0.5)
+    op.Moves = json.dumps(mv)
+    op.Spindle = json.dumps({"rpm": round(rpm)})
 
 
 # ---------------------------------------------------------------- 刀路线框
@@ -768,7 +953,7 @@ def check_op(op) -> list[dict]:
     tool = TL.get(_lib(job), op.ToolId)
     iso = S.iso_group(job.Kienzle)
     kw = {"vc": op.Vc}
-    turn = job.Kind == "turn"
+    turn = job.Kind == "turn" and op.OpKind not in LIVE_KINDS          # 动力刀工序按铣刀核对每齿进给（ADR-0106 C2b）
     if op.OpKind != "thread":
         kw["f" if (turn or op.OpKind == "drill") else "fz"] = op.Feed
     if op.Ap > 0:
@@ -911,7 +1096,10 @@ def build_setup(job) -> dict:
     tool_rows = sorted({(o.ToolNumber, o.ToolId) for _s, o in all_ops if o.ToolId})
     if job.Kind == "turn":
         setup = turn_setup(job)
-        setup["ops"] = {s.Side: [_turn_spec(job, o, s.Side) for o in ops(s)] for s in setups(job)}
+        setup["ops"] = {s.Side: [_turn_spec(job, o, s.Side) for o in ops(s) if o.OpKind not in LIVE_KINDS] for s in setups(job)}
+        live = {s.Side: [live_program_op(job, o) for o in ops(s) if o.OpKind in LIVE_KINDS] for s in setups(job)}
+        if any(live.values()):
+            setup["live_ops"] = {k: v for k, v in live.items() if v}
         for g in setup.get("grooves") or []:
             gop = next((o for _s, o in all_ops if o.OpKind == "groove" and o.FeatureIndex == setup["grooves"].index(g)), None)
             if gop is not None and _turn_cut(job, gop).get("tool_w"):
@@ -1019,11 +1207,14 @@ def card_doc(job) -> dict:
         for o in ops(s):
             n += 1
             p = {"vc": o.Vc}
+            turn = job.Kind == "turn" and o.OpKind not in LIVE_KINDS
             if o.OpKind != "thread":
-                p["f" if (job.Kind == "turn" or o.OpKind == "drill") else "fz"] = o.Feed
+                p["f" if (turn or o.OpKind == "drill") else "fz"] = o.Feed
             if o.Ap > 0:
                 p["ap"] = o.Ap
-            if job.Kind == "turn":
+            if o.OpKind in LIVE_KINDS:
+                rid = f"{o.OpKind}{n}"
+            elif job.Kind == "turn":
                 rid = f"{o.OpKind}{o.FeatureIndex + 1}" if o.OpKind in FEATURE_KINDS else o.OpKind
             else:
                 rid = f"f{o.ToolNumber}"

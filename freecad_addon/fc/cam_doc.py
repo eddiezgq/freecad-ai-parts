@@ -24,6 +24,7 @@ def turn_features(shape) -> dict:
     bb = shape.BoundBox
     z0, z1 = bb.ZMin, bb.ZMax
     outer, inner, cones, inner_cones, curved = [], [], [], [], []
+    off_axis = 0                                            # 轴线不在 Z 轴上的回转面：动力刀铣的键槽、端面槽两端（ADR-0106 C2b）
     face_grooves, fg_faces = _face_grooves(shape, z1)
     for f in shape.Faces:
         s = f.Surface
@@ -35,7 +36,8 @@ def turn_features(shape) -> dict:
         ax = s.Axis
         if abs(abs(ax.z) - 1) > 1e-6 or math.hypot(s.Center.x if name == "Cylinder" else s.Apex.x,
                                                       s.Center.y if name == "Cylinder" else s.Apex.y) > 1e-6:
-            raise CamDocError("回转面的轴线不在 Z 轴上：车削件要让轴线沿 Z、过原点")
+            off_axis += 1
+            continue
         fb = f.BoundBox
         if name == "Cone":
             if _is_inner(f):
@@ -49,6 +51,8 @@ def turn_features(shape) -> dict:
         p, n = f.valueAt(u, v), f.normalAt(u, v)
         (outer if (p.x * n.x + p.y * n.y) > 0 else inner).append((fb.ZMin, fb.ZMax, r))
     if not outer:
+        if off_axis:
+            raise CamDocError("回转面的轴线不在 Z 轴上：车削件要让轴线沿 Z、过原点")
         raise CamDocError("没有找到外圆柱面：选中的不是回转体零件")
     outer.sort()
     segs = [[2 * r, za, zb] for za, zb, r in outer]
@@ -76,6 +80,8 @@ def turn_features(shape) -> dict:
     opens = any(abs(zb - z1) < 1e-6 for _za, zb, _r in inner) or any(abs(zb - z1) < 1e-6 for _za, zb in inner_cones)
     out = {"segments": segments, "chamfer_mm": ch, "grooves": grooves, "bore": bore, "length_mm": round(z1 - z0, 6),
            "z_right": z1}
+    if off_axis:
+        out["off_axis_faces"] = off_axis                    # 有不是车出来的面：车铣中心上用动力刀工序点选加工
     if face_grooves:
         out["face_grooves"] = face_grooves
     mid_cones = [c for c in cones if not (abs(c[0] - z0) < 1e-6 or abs(c[1] - z1) < 1e-6)]
