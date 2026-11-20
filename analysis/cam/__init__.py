@@ -766,9 +766,16 @@ def _program(setup, mach):
     parsed = sim.parse(g, mach)
     checks = sim.machine_checks(parsed, mach)
     tm = sim.timing(parsed, mach)
-    hook, extra = _msim_hook(setup, mach, parsed)
-    s = sim.simulate_mill(parsed, {"box": box, "top": top, **({"height": float(stock["height"])} if stock.get("height") else {})},
-                          tools, on_move=hook)
+    tilted = any(mv.get("axis") is not None and abs(mv["axis"][2] - 1.0) > 1e-9 for mv in parsed["moves"])
+    if tilted:                                   # 3+2 倾斜面（ADR-0106 C2a）：高度图只能竖着切，改用三向 dexel 算材料去除
+        hook = None
+        s = _dexel_mill(parsed, box, top, stock, tools)
+        extra = [c for c in s["issues"] if c["level"] == "error"]      # 快移切到材料：扣下程序（经整机仿真结论报出）
+        s = {**s, "issues": [c for c in s["issues"] if c["level"] != "error"]}
+    else:
+        hook, extra = _msim_hook(setup, mach, parsed)
+        s = sim.simulate_mill(parsed, {"box": box, "top": top, **({"height": float(stock["height"])} if stock.get("height") else {})},
+                              tools, on_move=hook)
     checks += s["issues"]
     # 每段切深、切宽按刀具样本核对（外来刀路也查；超出 ap 是错误，经整机仿真结论扣下程序）
     limits = {int(op["tool"]["n"]): {"name": op["tool"].get("name"), **{k: float(op["tool"][k]) for k in ("ap_max", "ae_max") if op["tool"].get(k)}}
@@ -785,15 +792,43 @@ def _program(setup, mach):
         checks += [c for c in cl if c["level"] == "error"]
     out = {"title": prog.get("title") or "外来刀路", "number": prog.get("number", 6001), "gcode": g, "time": tm, "checks": checks,
            "power": {"status": "unknown"}, "sim": {"ap_max_mm": round(s["ap_max"], 3), "cell_mm": round(s["h"], 4),
+                                                   **({"removed_mm3": round(s["removed_mm3"], 1)} if "removed_mm3" in s else {}),
                                                    **({"adaptive": adaptive} if adaptive else {})},
            "tools": {str(k): v for k, v in tools.items()}, "generator": prog.get("generator", ""),
            "replay_in": {"kind": "mill", "stock": {"box": box, "top": top, "height": stock.get("height")},
                          "tools": {str(k): v for k, v in tools.items()}}}
     out["checks"].append({"line": None, "level": "unknown", "text": "外来刀路没有目标形状，过切 / 残留没有比对（看仿真结果确认）"})
+    if tilted and not setup.get("machine_sim"):
+        out["checks"].append({"line": None, "level": "unknown",
+                              "text": "倾斜面上的移动：直线轴超程、碰撞要按回转后的机床坐标查，没跑整机仿真就没查"})
     _msim(setup, mach, parsed, g, {"box": box, "top": top, "height": stock.get("height")}, extra, out, withhold=True,
           expect_d={k: v["d"] for k, v in tools.items()})
     _release(setup, mach, prog, out)
     return [out], {}
+
+
+def _dexel_mill(parsed, box, top, stock, tools):
+    """倾斜面程序的材料去除：三向 dexel（任意刀轴）。快移切到材料报错；每段切深、切宽、刀杆刀柄与剩余材料的碰撞这里不量，报“未知”"""
+    from analysis.cam import dexel as DX
+
+    h_st = float(stock.get("height") or 50.0)
+    lo, hi = [box[0], box[1], top - h_st], [box[2], box[3], top]
+    h = max(0.5, max(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]) / 200.0)
+    kinds = {"endmill": "endmill", "ballend": "ballend", "drill": "drill", "chamfer": "chamfer", "tap": "tap"}
+    specs = {}
+    for t, v in tools.items():
+        sp = {"kind": kinds.get(v.get("kind", "endmill"), "endmill"), "d": v["d"]}
+        if v.get("tip_d") is not None:
+            sp["tip_d"] = v["tip_d"]
+        if v.get("angle") is not None:
+            sp["angle"] = v["angle"]
+        specs[t] = sp
+    st = DX.Dexel.box(lo, hi, h, pad=max(v["d"] for v in tools.values()) + 2 * h)
+    r = DX.simulate(parsed, st, specs)
+    issues = list(r["issues"])
+    issues.append({"line": None, "level": "unknown",
+                   "text": f"倾斜面程序按三向 dexel（网格 {h:.2f} mm）算材料去除：每段切深、切宽没量，刀杆、刀柄与剩余材料的碰撞没查"})
+    return {"issues": issues, "ap_max": 0.0, "h": h, "removed_mm3": r["removed"], "ae": {}}
 
 
 ADAPTIVE_OVER = 1.5      # 自适应开粗实测最宽超过设定切宽的 1.5 倍（加一格）才提示：FreeCAD Adaptive 按面积近似控制切入，转角处会超一些

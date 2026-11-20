@@ -211,8 +211,12 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
         else:
             seen[key]["lines"].add(line)
 
+    approach = False
     for mv in parsed["moves"]:
         if mv.get("home"):
+            continue
+        if mv.get("approach"):                   # 倾斜后机床 Z 还在原点的那几段：位置由数控系统的倾斜面功能定，不按工件坐标逆解
+            approach = True
             continue
         sp = specs.get(mv["tool"])
         if sp is None:
@@ -222,7 +226,7 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
             tip = np.array([p[0] / 2, 0.0, p[2]]) if lathe else p
             tip = tip + off
             try:
-                q = K.inverse(machine, tip, None, sp["L"], prefer=prefer)
+                q = K.inverse(machine, tip, mv.get("axis"), sp["L"], prefer=prefer)
             except K.KinematicsError as exc:
                 report(("reach",), mv["line"], f"机床走不到：{exc}")
                 break
@@ -261,6 +265,9 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
                         report(("cf", c["id"], f["id"]), mv["line"], f"机床的{c['name']}碰到{kind}“{f['name']}”（第 {mv['line']} 行）")
                 if stock_shape is not None and CL.hit(cs, sobj, margin):
                     report(("cs", c["id"]), mv["line"], f"机床的{c['name']}碰到毛坯（第 {mv['line']} 行）")
+    if approach:
+        checks.append({"line": None, "level": "unknown",
+                       "text": "倾斜面：转回转轴后到第一次下刀那几段，刀具在机床 Z 原点，实际走法由数控系统的倾斜面功能定，整机仿真没查；首件单段确认"})
     for c in checks:
         lines = c.pop("lines", None)
         if lines and len(lines) > 1:

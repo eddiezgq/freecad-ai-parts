@@ -1,6 +1,6 @@
 {
  "env": {
-  "code": "404ec6345e2019bd376ddd32c90cf8990d29591e（有未提交的改动）",
+  "code": "18d20e88a430ca99f6eed42a3b0f65bd2beb6cc1（有未提交的改动）",
   "date": "2026-11-20",
   "numerics": "NumPy 2.5.3",
   "python": "Python 3.13.18 / Linux 6.18.44-fc-v726"
@@ -1473,12 +1473,84 @@
     }
    ],
    "result": "pass"
+  },
+  {
+   "id": "CAM-50",
+   "test": "tests/test_cam_tilt_c2.py::test_round_trip[G68.2]",
+   "category": "kin",
+   "title": {
+    "zh": "倾斜面角度（G68.2 欧拉角、PLANE SPATIAL、CYCLE800）往返",
+    "en": "Tilted plane angles (G68.2 Euler, PLANE SPATIAL, CYCLE800) round trip"
+   },
+   "source": "R = Rz·Rx·Rz 等 / R = Rz·Rx·Rz etc.",
+   "rows": [
+    {
+     "case": "tests/test_cam_tilt_c2.py::test_round_trip[G68.2]",
+     "kind": "verdict",
+     "quantity": [
+      "倾斜面角度往返（euler_zxz）",
+      "tilted plane angle round trip (euler_zxz)"
+     ],
+     "computed": "pass",
+     "reference": "pass",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-51",
+   "test": "tests/test_cam_tilt_c2.py::test_side_slot_volume_and_time",
+   "category": "geom",
+   "title": {
+    "zh": "3+2 侧面槽的去除体积与切削时间",
+    "en": "3+2 side slot removed volume and cutting time"
+   },
+   "source": "V = ap·(L·D + πD²/4); t = L/F",
+   "rows": [
+    {
+     "case": "tests/test_cam_tilt_c2.py::test_side_slot_volume_and_time",
+     "kind": "verdict",
+     "quantity": [
+      "3+2 侧面槽去除体积（dexel）与解析值",
+      "3+2 side slot removed volume (dexel) vs analytic"
+     ],
+     "computed": "pass",
+     "reference": "pass",
+     "ok": true
+    }
+   ],
+   "result": "pass"
+  },
+  {
+   "id": "CAM-52",
+   "test": "tests/test_cam_tilt_c2.py::test_g68_2_release_and_readback",
+   "category": "post",
+   "title": {
+    "zh": "3+2 倾斜面 G68.2 程序回读与仿真刀路一致",
+    "en": "3+2 tilted plane G68.2 program read-back matches the simulated path"
+   },
+   "source": "整机仿真刀路 / Simulated tool path",
+   "rows": [
+    {
+     "case": "tests/test_cam_tilt_c2.py::test_g68_2_release_and_readback",
+     "kind": "verdict",
+     "quantity": [
+      "3+2 倾斜面 G68.2 后处理回读一致",
+      "3+2 tilted plane G68.2 post read-back matches"
+     ],
+     "computed": "pass",
+     "reference": "pass",
+     "ok": true
+    }
+   ],
+   "result": "pass"
   }
  ],
- "n": 49,
- "ok": 49,
+ "n": 52,
+ "ok": 52,
  "bad": 0,
  "skip": 0,
- "rows": 56,
- "rows_ok": 56
+ "rows": 59,
+ "rows_ok": 59
 }

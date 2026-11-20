@@ -184,7 +184,7 @@ def _apply_heights(op, spec: dict, stock_z: float) -> None:
             setattr(op, prop, stock_z + float(spec[key]))
 
 
-def build_job(doc, model, ops: list[dict], stock_top: float = 0.0):
+def build_job(doc, model, ops: list[dict], stock_top: float = 0.0, stock_box: dict | None = None):
     """ops：[{"type": "face" | "pocket" | "profile" | "drill", "tool": cam-tool/1 刀具, "number": 刀号, "rpm", "feed_mm_min",
              "plunge_mm_min", "step_down_mm", "step_over_pct", "faces": 点选的面（可选：型腔底面、孔的圆柱面；不给时自动找）}]。
     返回 (作业, [(op 设置, FreeCAD 工序)])"""
@@ -194,7 +194,18 @@ def build_job(doc, model, ops: list[dict], stock_top: float = 0.0):
     from Path.Op import Adaptive, Drilling, MillFace, PocketShape, Profile, Surface, Waterline
 
     job = PathJob.Create("Job", [model])
-    if stock_top > 0:                            # 毛坯顶面高出零件顶面 stock_top（面铣余量；ADR-0106 Q3b）
+    if stock_box:                                # 倾斜面（ADR-0106 C2a）：真实毛坯（长方体）转到平面坐标里，是斜放的长方体
+        import FreeCAD
+        from Path.Main import Stock as PathStock
+
+        old = job.Stock
+        R = stock_box["rotation"]
+        m = FreeCAD.Matrix(R[0][0], R[0][1], R[0][2], 0, R[1][0], R[1][1], R[1][2], 0, R[2][0], R[2][1], R[2][2], 0, 0, 0, 0, 1)
+        job.Stock = PathStock.CreateBox(job, FreeCAD.Vector(*stock_box["extent"]),
+                                        FreeCAD.Placement(FreeCAD.Vector(*stock_box["corner"]), FreeCAD.Rotation(m)))
+        doc.removeObject(old.Name)
+        doc.recompute()
+    elif stock_top > 0:                          # 毛坯顶面高出零件顶面 stock_top（面铣余量；ADR-0106 Q3b）
         job.Stock.ExtZpos = float(stock_top)
         doc.recompute()
     jm = job.Model.Group[0]
@@ -379,7 +390,8 @@ def _reload_draft_for_gui() -> None:
     _RELOADED = True
 
 
-def program(shape, ops: list[dict], *, number: int = 6001, title: str = "2.5 轴铣（FreeCAD CAM 刀路）", stock_top: float = 0.0) -> dict:
+def program(shape, ops: list[dict], *, number: int = 6001, title: str = "2.5 轴铣（FreeCAD CAM 刀路）", stock_top: float = 0.0,
+            stock_box: dict | None = None) -> dict:
     """零件（Part.Shape，Z 向上）+ 工序 → (中间格式程序, 毛坯)。毛坯取零件包围盒，顶面为程序 Z0"""
     import FreeCAD
 
@@ -390,7 +402,7 @@ def program(shape, ops: list[dict], *, number: int = 6001, title: str = "2.5 轴
         m.Shape = shape
         doc.recompute()
         fc_ops = [o for o in ops if o["type"] not in OWN]
-        _job, made, top = build_job(doc, m, fc_ops, stock_top) if fc_ops else (None, [], shape.BoundBox.ZMax)
+        _job, made, top = build_job(doc, m, fc_ops, stock_top, stock_box) if fc_ops else (None, [], shape.BoundBox.ZMax)
         done = iter(made)
         prog_ops = []
         for spec0 in ops:

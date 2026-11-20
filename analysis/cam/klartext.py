@@ -170,7 +170,7 @@ def to_iso(text: str, *, tags: bool = False) -> str:
                 flat.append(ib)
     put(main)
     out = ["%", "O0001"]
-    st = {"z": None, "rpm": 0.0, "cyc": None}
+    st = {"z": None, "rpm": 0.0, "cyc": None, "datum": [0.0, 0.0, 0.0]}
     mark, prev = len(out), 0
     for ln, b in flat:
         if tags:                                 # 上一段换出来的行记上它的原行号
@@ -186,6 +186,22 @@ def to_iso(text: str, *, tags: bool = False) -> str:
             if tm.group(2):
                 st["rpm"] = float(tm.group(2))
                 out.append(f"S{_f(float(tm.group(2)))}")
+            continue
+        m7 = re.fullmatch(rf"CYCL DEF 7\.([0-3])(?: DATUM SHIFT| ([XYZ])({_NUM}))", b)
+        if m7:                                       # 零点平移（倾斜面的平面原点）
+            if m7.group(2):
+                st["datum"]["XYZ".index(m7.group(2))] = float(m7.group(3))
+            continue
+        mp = re.fullmatch(rf"PLANE SPATIAL SPA({_NUM}) SPB({_NUM}) SPC({_NUM})(?: TURN)?(?: MB MAX)?(?: FMAX)?", b)
+        if mp:                                       # PLANE SPATIAL → G68.2（同一个旋转换成 Z-X-Z 欧拉角）+ G53.1
+            from analysis.cam import tilt
+
+            i, j, k = tilt.euler_zxz(tilt.from_spatial(*(float(x) for x in mp.groups())))
+            d = st["datum"]
+            out += [f"G68.2 X{_f(d[0])} Y{_f(d[1])} Z{_f(d[2])} I{_f(i)} J{_f(j)} K{_f(k)}", "G53.1"]
+            continue
+        if b in ("PLANE RESET STAY", "PLANE RESET TURN", "PLANE RESET"):
+            out.append("G69")
             continue
         if b.startswith("CYCL DEF"):
             q = {int(k): float(v) for k, v in (_Q.match(w).groups() for w in b.split() if _Q.match(w))}

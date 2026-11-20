@@ -16,6 +16,8 @@ from __future__ import annotations
 import json
 import math
 
+import numpy as np
+
 from assist.i18n import tr as T
 
 GROUP = "问渠CAM"
@@ -95,6 +97,7 @@ class SetupProxy:
 
     def setup(self, obj):
         _add(obj, "App::PropertyString", "Side", "车：right 第一次装夹 / left 调头；铣：1、2…")
+        _add(obj, "App::PropertyString", "Frame", "3+2 倾斜面（JSON：工件坐标的原点、X、Z 方向；空 = 不倾斜，ADR-0106 C2a）", "", hidden=True)
 
     def onDocumentRestored(self, obj):
         self.setup(obj)
@@ -136,6 +139,8 @@ class OpProxy:
         _add(obj, "App::PropertyString", "HoleData", "铣：这道孔工序加工哪些孔（JSON：直径、孔表，程序坐标）", "{}", hidden=True)
         _add(obj, "App::PropertyString", "Moves", "刀路（JSON，中间格式）", hidden=True)
         _add(obj, "App::PropertyString", "Spindle", "主轴（JSON：rpm 或 css）", hidden=True)
+        _add(obj, "App::PropertyString", "Frame", "倾斜面工序的工作平面（JSON，刀路是平面坐标；重算刀路时按装夹的倾斜面定，平面 Z0 在零件沿法向的最高处）",
+             "", hidden=True)
 
     def onDocumentRestored(self, obj):
         self.setup(obj)
@@ -527,10 +532,104 @@ def regenerate_mill(op) -> None:
         before = ops(setup_of(op))
         before = before[:before.index(op)]
         specs = [_mill_spec(job, o) for o in before if o.OpKind in ("face", "pocket", "adaptive", "rest", "profile")] + specs
-    prog, _stock = cam_fc.program(job.Model.Shape, specs, stock_top=float(getattr(job, "StockTop", 0.0)))
+    fr = _js(setup_of(op), "Frame", None) if setup_of(op) is not None else None
+    if fr:                                        # 倾斜面（ADR-0106 C2a）：零件转到平面坐标里算刀路，平面 Z0 取零件沿法向的最高处
+        shape = plane_shape(job, fr)
+        prog, _stock = cam_fc.program(shape, specs, stock_top=plane_stock_top(job, fr), stock_box=plane_stock(job, fr))
+        top = cam_fc.exact_bbox(shape).ZMax
+        from analysis.cam import tilt
+
+        origin = tilt.to_work(fr, [0.0, 0.0, top])
+        op.Frame = json.dumps({"origin": [float(v) for v in origin], "x": fr.get("x"), "z": fr["z"]})
+    else:
+        prog, _stock = cam_fc.program(job.Model.Shape, specs, stock_top=float(getattr(job, "StockTop", 0.0)))
+        if getattr(op, "Frame", ""):
+            op.Frame = ""
     o = prog["ops"][-1]
     op.Moves = json.dumps(o["moves"])
     op.Spindle = json.dumps(o["spindle"])
+
+
+def plane_shape(job, fr):
+    """零件模型 → 倾斜面的平面坐标（工件坐标 = 模型坐标减去零件顶面高 z_top；平面坐标 = Rᵀ·(工件坐标 − 原点)）"""
+    import FreeCAD
+
+    from analysis.cam import tilt
+
+    z_top = _js(job, "PartData", {}).get("z_top", 0.0)
+    R = tilt.matrix(fr)
+    o = fr["origin"]
+    m = FreeCAD.Matrix()
+    for i in range(3):
+        for j in range(3):
+            setattr(m, f"A{i + 1}{j + 1}", float(R[j, i]))
+    t = -(R.T @ [o[0], o[1], o[2] + z_top])
+    m.A14, m.A24, m.A34 = (float(v) for v in t)
+    sh = job.Model.Shape.copy()
+    sh.transformShape(m)
+    return sh
+
+
+def plane_stock(job, fr) -> dict:
+    """作业的毛坯（工件坐标的长方体，顶面高出零件 StockTop）→ 平面坐标里斜放的长方体：{"extent", "corner", "rotation"}（FreeCAD 模型坐标同平面坐标）"""
+    from analysis.cam import tilt
+
+    d = _js(job, "PartData", {})
+    st = d["stock"]
+    top = float(getattr(job, "StockTop", 0.0))
+    x0, y0, x1, y1 = st["box"]
+    corner_w = [x0, y0, top - float(st["height"])]
+    R = tilt.matrix(fr)
+    corner_p = R.T @ (np.asarray(corner_w, float) - np.asarray(fr["origin"], float))
+    return {"extent": [x1 - x0, y1 - y0, float(st["height"]) + top], "corner": [float(v) for v in corner_p],
+            "rotation": [[float(v) for v in row] for row in R.T]}
+
+
+def plane_stock_top(job, fr) -> float:
+    """平面坐标里毛坯最高处比零件最高处高多少（倾斜面上要不要面铣、铣多深）"""
+    from itertools import product
+
+    sb = plane_stock(job, fr)
+    R = np.asarray(sb["rotation"], float)                  # 平面坐标 = corner + R·(长方体局部坐标)，R = 倾斜面旋转的转置
+    c = np.asarray(sb["corner"], float)
+    zs = [float((c + R @ (np.asarray(e, float) * sb["extent"]))[2]) for e in product((0, 1), repeat=3)]
+    return max(0.0, max(zs) - plane_shape(job, fr).BoundBox.ZMax)
+
+
+def face_frame(job, sub: str) -> dict:
+    """零件上的一个平面 → 倾斜面（工件坐标）：原点在面的形心，Z = 面朝外的法向，X = 工件 X 在面上的投影（法向是 ±X 时取工件 Y）"""
+    face = job.Model.Shape.getElement(sub)
+    surf = face.Surface
+    if not hasattr(surf, "Axis") or type(surf).__name__ != "Plane":
+        raise CamObjError(f"{sub} 不是平面，定不了倾斜面")
+    n = surf.Axis * (1 if face.Orientation == "Forward" else -1)
+    c = face.CenterOfMass
+    z_top = _js(job, "PartData", {}).get("z_top", 0.0)
+    from analysis.cam import tilt
+
+    fr = {"origin": [c.x, c.y, c.z - z_top], "z": [n.x, n.y, n.z]}
+    R = tilt.matrix(fr)
+    return {"origin": fr["origin"], "x": [float(v) for v in R[:, 0]], "z": [float(v) for v in R[:, 2]]}
+
+
+def new_tilt_setup(job, sub: str):
+    """铣削作业加一个倾斜面装夹（3+2，ADR-0106 C2a）：点的面定工作平面；面朝上（法向 +Z）的不用倾斜"""
+    if job.Kind == "turn":
+        raise CamObjError("车削作业没有倾斜面")
+    fr = face_frame(job, sub)
+    if abs(fr["z"][2] - 1.0) < 1e-9:
+        raise CamObjError(f"{sub} 朝上，不用倾斜：直接在装夹 1 里加工序")
+    doc = job.Document
+    s = doc.addObject("App::DocumentObjectGroupPython", "WqCamSetup")
+    SetupProxy(s)
+    _attach_vp(s, SetupVP)
+    n = len(setups(job)) + 1
+    s.Side = str(n)
+    s.Label = T("倾斜面 {}（{}）").format(n, sub)
+    s.Frame = json.dumps(fr)
+    job.addObject(s)
+    doc.recompute()
+    return s
 
 
 def regenerate(op) -> None:
@@ -552,6 +651,15 @@ def to_model(job, side, x, y, z):
     return x / 2, 0.0, z + zr
 
 
+def _unframe(fr, x, y, z):
+    """倾斜面工序的平面坐标 → 工件坐标"""
+    if not fr:
+        return x, y, z
+    from analysis.cam import tilt
+
+    return tuple(float(v) for v in tilt.to_work(fr, [x, y, z]))
+
+
 def path_shape(op):
     import FreeCAD
     import Part
@@ -562,14 +670,15 @@ def path_shape(op):
         return Part.Shape()
     s = setup_of(op)
     side = getattr(s, "Side", "") if s is not None else ""
+    fr = _js(op, "Frame", None) if getattr(op, "Frame", "") else None
     pos = None
     edges = []
     for m in mv:
         if m.get("t") not in ("rapid", "feed", "thread", "drill"):
             continue
-        p = FreeCAD.Vector(*to_model(job, side, m["x"], m.get("y", 0.0), m["z"]))
+        p = FreeCAD.Vector(*to_model(job, side, *_unframe(fr, m["x"], m.get("y", 0.0), m["z"])))
         if m["t"] == "drill":
-            top = FreeCAD.Vector(*to_model(job, side, m["x"], m.get("y", 0.0), m.get("safe", 5.0)))
+            top = FreeCAD.Vector(*to_model(job, side, *_unframe(fr, m["x"], m.get("y", 0.0), m.get("safe", 5.0))))
             edges.append(Part.LineSegment(top, p).toShape())
             pos = top
             continue
@@ -720,10 +829,12 @@ def add_op(setup, kind: str):
         flags["holes"] = kind in HOLE_KINDS
         flags["taps"] = kind == "tap"
         flags["thread_mill"] = kind == "thread_mill"
+        fr = _js(setup, "Frame", None) if getattr(setup, "Frame", "") else None
+        shape = plane_shape(job, fr) if fr else job.Model.Shape           # 倾斜面：在平面坐标里找特征（ADR-0106 C2a）
         try:
-            plan = cam_doc.mill_plan(job.Model.Shape, _lib(job), S.iso_group(job.Kienzle),
-                                     max_rpm=float(machines.get(job.Machine)["max_rpm"]), stock_top=float(getattr(job, "StockTop", 0.0)),
-                                     **flags)
+            plan = cam_doc.mill_plan(shape, _lib(job), S.iso_group(job.Kienzle),
+                                     max_rpm=float(machines.get(job.Machine)["max_rpm"]),
+                                     stock_top=plane_stock_top(job, fr) if fr else float(getattr(job, "StockTop", 0.0)), **flags)
         except cam_doc.CamDocError as exc:
             raise CamObjError(str(exc)) from exc
         pairs = [(sp, r) for sp, r in zip(plan["ops"], plan["card"], strict=True) if sp["type"] == kind]
@@ -836,7 +947,8 @@ def build_setup(job) -> dict:
                                       **({"ap_max": cc["ap_max_mm"]} if "ap_max_mm" in cc else {}),
                                       **({"ae_max": cc["ae_max_mm"]} if "ae_max_mm" in cc else {})},
                              "spindle": _js(o, "Spindle", {}), "moves": mv, "title": o.Label,
-                             "safe": max((x["z"] for x in mv if x.get("t") == "rapid"), default=5.0)})
+                             "safe": max((x["z"] for x in mv if x.get("t") == "rapid"), default=5.0),
+                             **({"frame": _js(o, "Frame", None)} if getattr(o, "Frame", "") else {})})
         st = float(getattr(job, "StockTop", 0.0))
         stock = {**d["stock"], "top": st, "height": float(d["stock"]["height"]) + st}
         setup = {"mode": "program", "machine": job.Machine, "item": job.Item, "stock": stock,
