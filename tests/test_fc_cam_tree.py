@@ -239,6 +239,19 @@ def test_panels_edit_confirm_calculate_save(gui, tmp_path):
         files = jp.save_to(tmp_path)
         names = {f.name for f in files}
         assert {"O1001_fanuc.nc", "O1002_fanuc.nc", "工艺卡与程序单.docx"} <= names
+        # 程序对比（Q6b）：同一个程序报“刀路相同”；改一个进给报出来，报告窗口能打开
+        a = tmp_path / "O1001_fanuc.nc"
+        assert "刀路相同" in jp.compare_files(a, a)
+        txt = a.read_text(encoding="utf-8")
+        import re as _re
+
+        f0 = _re.search(r"F(\d+\.\d+)", txt).group(0)
+        (tmp_path / "b.nc").write_text(txt.replace(f0, "F0.123", 1), encoding="utf-8")
+        rep = jp.compare_files(a, tmp_path / "b.nc")
+        assert "两版程序有差别" in rep and "F0.123" in rep
+        dlg = P.show_report(jp.form, "程序对比", rep)
+        assert "F0.123" in dlg.view.toPlainText()
+        dlg.close()
         P._close()
     finally:
         App.closeDocument(doc.Name)

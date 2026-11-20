@@ -104,6 +104,10 @@ def save_samples(n, part_shape, d, r) -> list[Path]:
     files = [step, *S.save(r, out, draft_doc=None)]
     (out / "results.json").write_text(json.dumps(_summary(r), ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     files.append(out / "results.json")
+    if n == 2:                                   # 铣：零件图、装夹图里的零件外形（ADR-0106 Q6a）
+        from freecad_addon.fc import cam_figures_fc as FF
+
+        d = {**d, "figures": {"part_views": FF.part_views(part_shape, -part_shape.BoundBox.ZMax)}}
     for lang in ("zh", "en"):
         o = cam_card.build_docx(d, r, out / f"sample-card.{lang}.docx", lang=lang, number=f"EX-{n:02d}")
         p = to_pdf(o["docx"])

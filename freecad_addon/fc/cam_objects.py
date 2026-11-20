@@ -917,5 +917,11 @@ def card_doc(job) -> dict:
                 rid = f"f{o.ToolNumber}"
             rows.append({"id": rid, "title": o.Label, "tool": o.ToolId, "tool_name": "", "params": p,
                          "status": "pass" if o.Check == "在样本范围内" else "unknown", "reason": o.Reason})
-    return {"setup": build_setup(job), "card": rows, "notes": [], "by": "加工树（人已确认）", "explanation": "",
-            "iso_group": S.iso_group(job.Kienzle)}
+    out = {"setup": build_setup(job), "card": rows, "notes": [], "by": "加工树（人已确认）", "explanation": "",
+           "iso_group": S.iso_group(job.Kienzle)}
+    if job.Kind == "mill" and job.Model is not None:   # 零件图、装夹图里的零件外形（ADR-0106 Q6a）：程序 Z0 在零件顶面
+        from freecad_addon.fc import cam_figures_fc as FF
+
+        shape = job.Model.Shape
+        out["figures"] = {"part_views": FF.part_views(shape, -shape.BoundBox.ZMax)}
+    return out

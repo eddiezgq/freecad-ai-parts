@@ -138,7 +138,10 @@ class JobPanel:
         self.replay = QtWidgets.QPushButton(T("回放…"))
         self.replay.setToolTip(T("按程序回放：刀具怎么走、在哪一行撞；程序窗口与刀路联动；算完看色差"))
         self.replay.clicked.connect(self.open_replay)
-        for b in (self.rule, self.ai, self.calc, self.replay, self.save):
+        self.diff = QtWidgets.QPushButton(T("程序对比…"))
+        self.diff.setToolTip(T("两版程序差在哪：刀具、转速、进给、哪几行刀路不同、时间差（顺序号、注释、写法不同不算差别）"))
+        self.diff.clicked.connect(self.compare_dialog)
+        for b in (self.rule, self.ai, self.calc, self.replay, self.diff, self.save):
             row.addWidget(b)
         lay.addLayout(row)
         self.summary = QtWidgets.QLabel("")
@@ -246,6 +249,35 @@ class JobPanel:
         if card and self.result is not None:
             files += [f for f in S.save(self.result, out, draft_doc=CO.card_doc(self.job), lang=lang) if f.suffix != ".nc"]
         return files
+
+    def compare_files(self, path_a, path_b) -> str:
+        """两版程序（按本作业的机床读）→ 对比报告（Markdown，界面语言）"""
+        from pathlib import Path
+
+        from analysis.cam import machines, progdiff
+        from assist import i18n
+
+        self.apply()
+        mach = machines.get(self.job.Machine)
+        res = progdiff.compare(Path(path_a).read_text(encoding="utf-8"), Path(path_b).read_text(encoding="utf-8"), mach)
+        self.diff_result = res
+        return progdiff.report(res, "en" if i18n.lang() == "en" else "zh")
+
+    def compare_dialog(self):
+        from PySide import QtWidgets
+
+        a, _ = QtWidgets.QFileDialog.getOpenFileName(self.form, T("旧版程序"), "", T("数控程序 (*.nc *.txt *.h *.mpf *.tap);;所有文件 (*)"))
+        if not a:
+            return None
+        b, _ = QtWidgets.QFileDialog.getOpenFileName(self.form, T("新版程序"), "", T("数控程序 (*.nc *.txt *.h *.mpf *.tap);;所有文件 (*)"))
+        if not b:
+            return None
+        try:
+            text = self.compare_files(a, b)
+        except Exception as exc:  # noqa: BLE001
+            self.status.setText(T("程序对比没做成：{}").format(T(str(exc))))
+            return None
+        return show_report(self.form, T("程序对比"), text)
 
     def save_dialog(self):
         from PySide import QtWidgets
@@ -680,3 +712,34 @@ COMMANDS = {"FAP_CamNewTurnJob": NewJobCommand("turn"), "FAP_CamNewMillJob": New
 def register():
     for name, cmd in COMMANDS.items():
         FreeCADGui.addCommand(name, cmd)
+
+
+def show_report(parent, title, markdown):
+    """Markdown 报告窗口：看、存成文件"""
+    from PySide import QtWidgets
+
+    dlg = QtWidgets.QDialog(parent)
+    dlg.setWindowTitle(title)
+    lay = QtWidgets.QVBoxLayout(dlg)
+    view = QtWidgets.QTextBrowser()
+    view.setMarkdown(markdown)
+    lay.addWidget(view)
+    row = QtWidgets.QHBoxLayout()
+    save = QtWidgets.QPushButton(T("存成文件…"))
+
+    def do_save():
+        path, _ = QtWidgets.QFileDialog.getSaveFileName(dlg, T("存成文件"), "program-diff.md", "Markdown (*.md)")
+        if path:
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(markdown)
+    save.clicked.connect(do_save)
+    close = QtWidgets.QPushButton(T("关闭"))
+    close.clicked.connect(dlg.accept)
+    row.addStretch(1)
+    row.addWidget(save)
+    row.addWidget(close)
+    lay.addLayout(row)
+    dlg.resize(760, 560)
+    dlg.show()
+    dlg.view = view
+    return dlg

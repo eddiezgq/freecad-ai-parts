@@ -51,7 +51,8 @@ def test_card_numbers_all_come_from_sources(tmp_path, lang):
             from assist.fea_report import fmt
             assert fmt(v) == e["text"], e
             n += 1
-        assert e["text"] in text
+        if e.get("in") != "figure":                    # 图上的数印在图片里（Q6a），也逐个对了来源
+            assert e["text"] in text
     assert n >= 6 * 2 + 2 * 4                         # 每道工序 vc 和进给，每个程序 4 个时间
     # 转速 S = 1000·vc/(π·d)：粗车按最大直径 40
     rough = d["card"][0]["params"]["vc"]

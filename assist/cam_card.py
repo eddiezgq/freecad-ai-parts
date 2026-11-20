@@ -44,6 +44,17 @@ TXT = {
     "no_release": ("没有出正式程序", "no released program"), "first": ("首件须空运行、单段试切确认", "First part: dry run and single block"),
     "sim_pass": ("通过", "pass"), "sim_unknown": ("通过，有未知项", "pass with unknown items"), "sim_error": ("不通过", "FAIL"),
     "none": ("无", "none"),
+    "figs": ("图", "Drawings"), "fig_part": ("零件图", "Part drawing"), "fig_setup": ("装夹图", "Setup drawing"),
+    "fig_tools": ("刀具图", "Tool drawings"),
+    "no_model": ("没有零件模型，零件图没出。", "No part model; no part drawing."),
+    "part_note": ("第一角画法：A 主视、B 左视、C 俯视；尺寸 mm，零件坐标与程序坐标相同。",
+                  "First-angle projection: A front, B left side, C top; dimensions in mm, part coordinates = program coordinates."),
+    "turn_note": ("零件外形（Z0 在右端面）；尺寸 mm；螺纹的小径线为示意。",
+                  "Part outline (Z0 at the right face); dimensions in mm; thread minor diameter lines are schematic."),
+    "setup_note": ("灰：毛坯；蓝：卡爪 / 夹具；红：零件（本次装夹车成的外形）；绿：工件零点。",
+                   "Grey: stock; blue: jaws / fixtures; red: part (outline after this setup); green: work zero."),
+    "tools_note": ("刀具外形按刀具库的尺寸画，L 是机床设置里的刀长；缺的尺寸不画不标。",
+                   "Tools drawn from the tool library; L is the tool length in the machine setup; missing dimensions are not drawn."),
 }
 KIND = {"flat_endmill": ("平底立铣刀", "flat end mill"), "ball_endmill": ("球头立铣刀", "ball end mill"),
         "bull_endmill": ("圆鼻立铣刀", "bull nose end mill"), "drill": ("钻头", "drill"), "turn": ("外圆车刀", "turning tool"),
@@ -159,6 +170,8 @@ def build_docx(draft: dict, result: dict, out, *, lang: str = "zh", number: str 
         L.labels.append(v)
     doc.add_heading(_x("head", lang), level=1)
     table(["", ""], head)
+    # 1b. 图（ADR-0106 Q6a）
+    _figures(doc, draft, data, lib, L, lang, out)
     # 2. 工序
     doc.add_heading(_x("ops", lang), level=1)
     from analysis.cam import machines as Mc
@@ -244,6 +257,82 @@ def build_docx(draft: dict, result: dict, out, *, lang: str = "zh", number: str 
     lp = out.with_suffix(".ledger.json")
     lp.write_text(json.dumps(ledger, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     return {"docx": out, "ledger": lp, "ops": len(rows), "programs": len(prow)}
+
+
+def _figures(doc, draft, data, lib, L, lang, out):
+    """零件图、装夹图、刀具图插进工艺卡；图上的数记进出处账"""
+    import tempfile
+
+    from docx.shared import Cm
+
+    from assist import cam_figures as CF
+    from assist.fea_report import fmt
+
+    def num(sp):                               # 图上的数：照样记账，标明印在图里（in: figure）
+        s = L.num(*sp)
+        L.entries[-1]["in"] = "figure"
+        return s
+
+    def derived(v, formula):
+        s = fmt(v)
+        L.entries.append({"text": s, "source": "derived", "pointer": "/figures", "kind": "formula", "formula": formula, "in": "figure"})
+        return s
+
+    setup = draft["setup"]
+    views = (draft.get("figures") or {}).get("part_views")
+    progs = data["programs"]
+    doc.add_heading(_x("figs", lang), level=1)
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td)
+        doc.add_heading(_x("fig_part", lang), level=2)
+        if setup["mode"] == "turn" and data.get("profile"):
+            doc.add_picture(str(CF.turn_part_png(data["profile"], setup.get("grooves"), setup.get("threads"), td / "part.png", num)),
+                            width=Cm(17))
+            doc.add_paragraph(_x("turn_note", lang))
+        elif views:
+            doc.add_picture(str(CF.part_views_png(views, td / "part.png", derived)), width=Cm(15))
+            doc.add_paragraph(_x("part_note", lang))
+        else:
+            doc.add_paragraph(_x("no_model", lang))
+        doc.add_heading(_x("fig_setup", lang), level=2)
+        fixtures = (setup.get("machine_sim") or {}).get("fixtures") or []
+        for pi, p in enumerate(progs):
+            ri = p.get("replay_in") or {}
+            st = ri.get("stock")
+            if not st:
+                continue
+            f = td / f"setup{pi}.png"
+            if ri.get("kind") == "turn":
+                CF.turn_setup_png(st, p.get("target") or [], p.get("clamp"), f, num, derived, f"/programs/{pi}")
+            else:
+                CF.mill_setup_png(st, fixtures, views, f, num, derived, f"/programs/{pi}/replay_in/stock")
+            doc.add_paragraph(f"O{p.get('number', pi + 1)} {_tr(p.get('title', ''), lang)}")
+            L.labels.append(f"O{p.get('number', pi + 1)}")
+            doc.add_picture(str(f), width=Cm(15 if ri.get("kind") == "turn" else 12))
+        doc.add_paragraph(_x("setup_note", lang))
+        doc.add_heading(_x("fig_tools", lang), level=2)
+        mtools = (setup.get("machine_sim") or {}).get("tools") or {}
+        items = []
+        for tno in sorted(mtools, key=int):
+            e = mtools[tno]
+            t = TL.get(lib, e["tool"])
+            items.append({"tno": int(tno), "tool": t, "ti": lib["tools"].index(t), "length": e.get("length_mm"),
+                          "lptr": f"/setup/machine_sim/tools/{tno}/length_mm"})
+            L.labels.append(f"T{int(tno):02d} {t['id']}")
+        if items:
+            def miss(tno, what):
+                return f"T{tno:02d}：没写{what}" if lang == "zh" else f"T{tno:02d}: no {MISS_EN.get(what, what)} given"
+            png, notes = CF.tools_png(items, td / "tools.png", num, missing_text=miss)
+            doc.add_picture(str(png), width=Cm(min(17, 4.3 * min(4, len(items)))))
+            doc.add_paragraph(_x("tools_note", lang))
+            for n in notes:
+                doc.add_paragraph(n, style="List Bullet")
+                L.labels.append(n)
+        else:
+            doc.add_paragraph(_x("none", lang))
+
+
+MISS_EN = {"刃长": "flute length", "伸出长": "stick-out", "刃宽": "insert width", "刀尖圆弧": "nose radius"}
 
 
 def _op_diameter(setup, op_id):
