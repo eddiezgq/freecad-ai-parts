@@ -311,3 +311,35 @@ def test_turn_job_with_live_ops_removes_slot_and_keyway():
     assert "G12.1" in right["gcode"] and "G07.1 C25.0" in right["gcode"] and "G12.1" not in left["gcode"]
     bad = cam.run({"mode": "turn", "machine": "EX-LATHE", "segments": [[40, 30], [50, 40]], "live_ops": live})
     assert bad["status"] == "failed" and "不是车铣中心" in bad["messages"][0]
+
+
+# ---------------------------------------------------------------- 宽于刀径的平底槽：C 轴分度 + Y 轴铣（ADR-0106 C2b）
+def test_index_to_work_and_axis():
+    assert MT.index_to_work((50.0, 3.0, -10.0), 90.0) == pytest.approx((-3.0, 25.0, -10.0), abs=1e-12)
+    assert MT.index_axis(90.0) == pytest.approx((0.0, 1.0, 0.0), abs=1e-12)
+
+
+@pytest.mark.parametrize("family", ["fanuc", "siemens"])
+def test_wide_flat_slot_by_y_axis(tmp_path, monkeypatch, family):
+    """Ø50 上 90° 方向宽 12、深 3、圆心距 20 的长圆平底槽，Ø6 刀 C 分度 + Y 轴铣：去料与积分值差 < 1%；
+    正式程序 G00 C90 / G19 … G18（西门子 G0 C90 / G19 … G18），回读一致才出"""
+    import json as _json
+
+    d = tmp_path / "posts"
+    d.mkdir()
+    mt = {"live_on": ["M13"], "live_off": ["M15"], "c_on": ["M18"], "c_off": ["M19"]}
+    (d / "p.json").write_text(_json.dumps({"format": "cam-post/1", "id": "p", "name": "mill-turn", "family": family, "kinds": ["lathe"],
+                                           "source": "测试", "millturn": mt}), encoding="utf-8")
+    monkeypatch.setenv("FAP_POSTS", str(d))
+    mv = MT.flat_moves({"angle": 90.0, "r_outer": 25.0, "depth": 3.0,
+                        "shape": {"type": "slot", "a": [0.0, -10.0], "b": [0.0, -30.0], "width": 12.0}}, 6.0, 3.0, 200.0, 100.0)
+    live = {"right": [{"tool": {"n": 10, "d": 6.0}, "spindle": {"rpm": 3000}, "title": "平底槽", "interp": {"index": 90.0}, "moves": mv}]}
+    r = cam.run({"mode": "turn", "machine": "EX-MT-CY", "segments": [[40, 30], [50, 40]], "live_ops": live, "post": "p",
+                 "machine_sim": {"tools": {"10": {"tool": "EM6", "length_mm": 40}}, "chuck": {"jaw_len": 15, "jaw_d": 80}}})
+    p = r["data"]["programs"][0]
+    assert p["sim"]["mill_removed_mm3"] == pytest.approx(_keyway_volume(w=12.0), rel=0.01)
+    assert p["release"] is not None, [c["text"] for c in p["checks"] if c["level"] == "error"]
+    t = p["release"]["text"]
+    frag = ("G00 C90.0\nG19", "G00 Y0.0\nG18") if family == "fanuc" else ("G94\nG0 C90.0\nG19", "G0 Y0.0\nG18")
+    assert all(f in t for f in frag), t
+    assert not any("碰到" in c["text"] or "走不到" in c["text"] for c in p["checks"])

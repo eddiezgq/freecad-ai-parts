@@ -882,15 +882,15 @@ def _millturn(setup, mach):
         if not ((op.get("spindle") or {}).get("rpm") or (op.get("spindle") or {}).get("css")):
             raise SetupError(f"第 {k} 道工序没有转速")
         it = op.get("interp")
-        need = ("x", "c", "z") if it else ("x", "z")
+        need = ("x", "y", "z") if isinstance(it, dict) and "index" in it else ("x", "c", "z") if it else ("x", "z")
         for mv in op.get("moves") or []:
             if mv.get("t") == "comment" or (not it and setup.get("turn_tools") and mv.get("t") in ("thread", "cycle")):
                 continue                         # 车削作业带过来的车削工序（螺纹、循环）已在车削里查过
             if mv.get("t") not in ("rapid", "feed") or any(mv.get(x) is None for x in need) or (mv["t"] == "feed" and not mv.get("f")):
                 raise SetupError(f"第 {k} 道工序的动作要有 {', '.join(need)}（切削还要 f）：{mv}")
         if it:
-            if it != "polar" and not (isinstance(it, dict) and float(it.get("cyl", 0)) > 0):
-                raise SetupError(f"第 {k} 道工序的 interp 要是 \"polar\" 或 {{\"cyl\": 半径}}")
+            if it != "polar" and not (isinstance(it, dict) and (float(it.get("cyl", 0)) > 0 or isinstance(it.get("index"), (int, float)))):
+                raise SetupError(f"第 {k} 道工序的 interp 要是 \"polar\"、{{\"cyl\": 半径}} 或 {{\"index\": 角度}}")
             if not t.get("d"):
                 raise SetupError(f"第 {k} 道工序（动力刀）要写刀径 tool.d")
             mill_tools[int(t["n"])] = {"kind": t.get("kind", "endmill"), "d": float(t["d"])}

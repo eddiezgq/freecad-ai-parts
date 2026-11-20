@@ -19,7 +19,7 @@ from freecad_addon.fc import cam_objects as CO
 COLORS = {"error": "#c62828", "warn": "#b26a00", "unknown": "#6b6b6b", "pass": "#2e7d32"}
 TOOL_KINDS = {"rough": ("turn",), "finish": ("turn",), "groove": ("groove",), "thread": ("thread_turn",), "bore": ("bore",),
               "drill": ("drill",), "pocket": ("flat_endmill", "bull_endmill"), "profile": ("flat_endmill", "bull_endmill"),
-              "live_face": ("flat_endmill",), "live_keyway": ("flat_endmill",)}
+              "live_face": ("flat_endmill",), "live_keyway": ("flat_endmill",), "live_flat": ("flat_endmill",)}
 _LAST = None                  # 最近打开的面板（测试用）
 
 
@@ -612,7 +612,8 @@ class LiveOpCommand:
 
     def GetResources(self):
         tip = {"live_face": "点零件端面上的槽底或型腔底：用轴向动力刀、极坐标插补铣（车铣中心）",
-               "live_keyway": "点圆柱面上键槽的底面：用径向动力刀、圆柱插补铣（车铣中心）"}[self.kind]
+               "live_keyway": "点圆柱面上键槽的底面：用径向动力刀、圆柱插补铣（车铣中心）",
+               "live_flat": "点圆柱面上平底槽的底面（可宽于刀径）：C 轴分度、径向动力刀 Y 轴铣（车铣中心）"}[self.kind]
         return {"MenuText": T(CO.LIVE_KINDS[self.kind]), "ToolTip": T(tip)}
 
     def IsActive(self):

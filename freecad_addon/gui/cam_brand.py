@@ -200,7 +200,7 @@ class CamWorkbench(FreeCADGui.Workbench):
         self.appendMenu(MENU, list(CMDS))
         from freecad_addon.gui import cam_tree_panels
 
-        self.appendMenu([MENU, ADD_MENU], list(cam_tree_panels.ADD_OPS) + ["Separator", "FAP_CamLive_live_face", "FAP_CamLive_live_keyway"])
+        self.appendMenu([MENU, ADD_MENU], list(cam_tree_panels.ADD_OPS) + ["Separator", "FAP_CamLive_live_face", "FAP_CamLive_live_keyway", "FAP_CamLive_live_flat"])
 
     def ContextMenu(self, recipient):
         from freecad_addon.fc import cam_objects as CO

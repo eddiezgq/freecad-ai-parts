@@ -139,3 +139,49 @@ def test_mill_turn_live_ops_on_flipped_setup(tmp_path, monkeypatch):
         assert "G12.1" in p["release"]["text"] and "G07.1 C20.0" in p["release"]["text"]
     finally:
         App.closeDocument(doc.Name)
+
+
+def test_mill_turn_wide_flat_slot_y_axis(tmp_path, monkeypatch):
+    """Ø50 上 +Y 方向宽 12、深 3 的长圆平底槽（圆心 z −10、−30）：“圆柱面平底槽（Y 轴）”认出分度角 90°、槽底平面坐标里的长圆；
+    选不大于槽宽的立铣刀（Ø10），出 G00 C90 / G19 程序；去料与积分值差 < 1%"""
+    import FreeCAD as App
+    import Part
+
+    from freecad_addon.fc import cam_objects as CO
+
+    d = tmp_path / "posts"
+    d.mkdir()
+    (d / "mt.json").write_text(json.dumps({"format": "cam-post/1", "id": "mt", "name": "FANUC mill-turn", "family": "fanuc", "kinds": ["lathe"],
+                                           "source": "测试", "millturn": {"live_on": ["M13"], "live_off": ["M15"], "c_on": ["M18"],
+                                                                        "c_off": ["M19"]}}), encoding="utf-8")
+    monkeypatch.setenv("FAP_POSTS", str(d))
+    v = App.Vector
+    shaft = Part.makeCylinder(25, 40, v(0, 0, -40)).fuse(Part.makeCylinder(20, 30, v(0, 0, -70)))
+    fl = Part.makeBox(12, 10, 20, v(-6, 22, -30)).fuse(Part.makeCylinder(6, 10, v(0, 22, -10), v(0, 1, 0))).fuse(
+        Part.makeCylinder(6, 10, v(0, 22, -30), v(0, 1, 0)))
+    part = shaft.cut(fl).removeSplitter()
+    doc = App.newDocument("mtf")
+    try:
+        m = doc.addObject("Part::Feature", "Shaft")
+        m.Shape = part
+        doc.recompute()
+        sub = next(f"Face{i + 1}" for i, f in enumerate(part.Faces)
+                   if type(f.Surface).__name__ == "Plane" and f.normalAt(0, 0).y > 0.99 and abs(f.BoundBox.YMin - 22) < 1e-6)
+        job = CO.new_job(doc, m, "turn", machine="EX-MT-CY", post="mt")
+        CO.draft(job)
+        right, left = CO.setups(job)
+        op = CO.add_live_op(right, "live_flat", sub)
+        assert json.loads(op.HoleData)["feature"] == {"type": "flat", "angle": 90.0, "r_outer": 25.0, "depth": 3.0,
+                                                      "shape": {"type": "slot", "a": [0.0, -30.0], "b": [0.0, -10.0], "width": 12.0}}
+        assert op.ToolId == "EM10"
+        job.ToolLengths = json.dumps({"EM6": 40, "EM10": 40})
+        for s in (right, left):
+            for o in CO.ops(s):
+                CO.confirm(o)
+        r = CO.calculate(job)
+        p = next(p for p in r["data"]["programs"] if p["side"] == "right")
+        assert p["release"] is not None, [c["text"] for c in p["checks"] if c["level"] == "error"]
+        assert p["sim"]["mill_removed_mm3"] == pytest.approx(_keyway_volume(w=12.0), rel=0.01)
+        assert "G00 C90.0\nG19" in p["release"]["text"]
+    finally:
+        App.closeDocument(doc.Name)

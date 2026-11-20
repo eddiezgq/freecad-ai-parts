@@ -82,6 +82,11 @@ def parse(text, m):
                 pa, pb = _MT.polar_to_work(*a0), _MT.polar_to_work(*b0)
                 pieces = [(pa, pb, (0.0, 0.0, 1.0))]
                 da, db = 2 * math.hypot(pa[0], pa[1]), 2 * math.hypot(pb[0], pb[1])
+            elif st["mt"][0] == "index":
+                th = st["mt"][1]
+                pa, pb = _MT.index_to_work(a0, th), _MT.index_to_work(b0, th)
+                pieces = [(pa, pb, _MT.index_axis(th))]
+                da, db = 2 * math.hypot(pa[0], pa[1]), 2 * math.hypot(pb[0], pb[1])
             else:
                 pts = [_MT.cyl_to_work(*a0)] + _MT.cyl_segment(a0, b0)
                 pieces = []
@@ -90,7 +95,7 @@ def parse(text, m):
                     pieces.append((p0, p1, (p1[0] / r, p1[1] / r, 0.0)))
                 da, db = a0[0], b0[0]
             moves.append(dict(t=t, a=(da, 0.0, a0[2]), b=(db, 0.0, b0[2]), line=line, tool=st["tool"], f=st["f"], per_rev=st["per_rev"],
-                              css=None, rpm=st["rpm"], smax=st["smax"], spin=st["spin"], mill=st["mt"] if st["mt"] == "polar" else "cyl",
+                              css=None, rpm=st["rpm"], smax=st["smax"], spin=st["spin"], mill=_mill_kind(st["mt"]),
                               pieces=pieces, **kw))
             st["pos"] = list(b0)
             return
@@ -141,6 +146,9 @@ def parse(text, m):
                 st["abs"] = False
             elif gg in (17, 18, 19):
                 st["plane"] = int(gg)
+                if m["kind"] == "mill_turn" and (st["mt"] is None or st["mt"][0] == "index"):
+                    # 车铣中心：G19 = C 轴分度后 Y 轴铣（ADR-0106 C2b），程序 X 直径、Y、Z，C 锁在分度角；G18 回车削
+                    st["mt"] = ("index", st.get("c", 0.0)) if gg == 19 else None
             elif gg == 96:
                 st["css"] = w.get("S", st["css"])
             elif gg == 97:
@@ -301,6 +309,10 @@ def parse(text, m):
                 emit("rapid", (st["pos"][0], st["pos"][1], m["z"][1]), ln, home=True)
             st["homed"] = True
             continue
+        if m["kind"] == "mill_turn" and "C" in w and (st["mt"] is None or st["mt"][0] == "index"):
+            st["c"] = w.pop("C")                    # C 轴分度（不在插补里）：记下角度，分度铣按它换工件坐标
+            if st["mt"] is not None:
+                st["mt"] = ("index", st["c"])
         if st["mt"] is not None and "C" in w and not any(k in w for k in "XYZUW"):
             w["Y"] = w["C"]                         # 车铣插补里只写 C 的段：C 是第二个坐标
         if st["mt"] is not None and "C" in w:
@@ -369,6 +381,11 @@ def parse(text, m):
             break
     return {"moves": moves, "tools": sorted(set(tools)), "tool_changes": tool_changes, "warnings": warns, "rpm_req": rpm_req,
             "lathe": lathe}
+
+
+def _mill_kind(mt) -> str:
+    """车铣铣削段的种类：polar（极坐标插补）、cyl（圆柱插补）、index（C 轴分度 + Y 轴铣）"""
+    return "polar" if mt == "polar" else "index" if mt[0] == "index" else "cyl"
 
 
 def _arc(st, tgt, w, mo, lathe, sc):

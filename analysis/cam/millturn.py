@@ -39,6 +39,19 @@ def work_to_cyl(x: float, y: float, z: float) -> tuple[float, float, float]:
     return (2.0 * math.hypot(x, y), math.degrees(math.atan2(y, x)), z)
 
 
+def index_to_work(p, theta_deg: float) -> tuple[float, float, float]:
+    """C 轴分度 θ 后的 Y 轴铣（G19，ADR-0106 C2b）：程序 (X 直径, Y, Z) → 工件坐标 Rz(θ)·(X/2, Y, Z)（θ 同圆柱插补的 C：刀在工件上的角度）"""
+    a = math.radians(theta_deg)
+    u, v = p[0] / 2.0, p[1]
+    return (u * math.cos(a) - v * math.sin(a), u * math.sin(a) + v * math.cos(a), p[2])
+
+
+def index_axis(theta_deg: float) -> tuple[float, float, float]:
+    """分度铣的刀轴（径向动力刀，从刀尖指向刀座）：Rz(θ)·(1, 0, 0)"""
+    a = math.radians(theta_deg)
+    return (math.cos(a), math.sin(a), 0.0)
+
+
 def arc_length(c_deg: float, r: float) -> float:
     """圆柱插补展开图上的长度（mm）"""
     return math.radians(c_deg) * r
@@ -176,3 +189,29 @@ def classify_face(area: float, xmin: float, ymin: float, xmax: float, ymax: floa
         r = math.sqrt(max(r2, 0.0))
         return {"type": "pocket", "rect": [xmin, ymin, xmax, ymax], "corner_r": min(r, w / 2)}
     return None
+
+
+def flat_moves(feature: dict, tool_d: float, step_down: float, f: float, f_plunge: float, stepover: float = 0.5,
+               safe: float = 2.0) -> list[dict]:
+    """圆柱面上的平底槽（C 轴分度 + Y 轴铣，ADR-0106 C2b）→ 程序动作（x 直径、y、z）。feature：{"type": "flat", "angle", "r_outer",
+    "depth", "shape": {"type": "slot", "a", "b", "width"} 或 {"type": "pocket", "rect", "corner_r"}}；形状在槽底平面坐标里给
+    （u = 切向 = 分度后的机床 Y，v = Z）。铣槽、型腔刀路的深度坐标 z（0 在外圆最高处，向下为负）换成 X = 2·(r_外 + z)。"""
+    from analysis.cam import paths as P
+
+    sh, depth, r = feature["shape"], float(feature["depth"]), float(feature["r_outer"])
+    if sh["type"] == "slot":
+        mv = P.mill_slot(sh["a"], sh["b"], sh["width"], depth, tool_d, step_down, f, f_plunge, safe=safe)
+    elif sh["type"] == "pocket":
+        mv = P.mill_pocket(sh["rect"], sh.get("corner_r", 0.0), depth, tool_d, stepover, step_down, f, f_plunge, safe=safe)
+    else:
+        raise ValueError(f"圆柱面平底槽只做长圆和圆角矩形：{sh['type']!r}")
+    out = []
+    for m in mv:
+        if m.get("t") == "comment":
+            out.append(dict(m))
+            continue
+        q = {"t": m["t"], "x": 2.0 * (r + float(m["z"])), "y": float(m["x"]), "z": float(m["y"])}
+        if "f" in m:
+            q["f"] = m["f"]
+        out.append(q)
+    return out
