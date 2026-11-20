@@ -179,6 +179,43 @@
   "subprograms": {
    "type": "boolean",
    "description": "每道工序写成一个子程序，主程序按顺序调用"
+  },
+  "millturn": {
+   "type": "object",
+   "description": "车铣中心：开 / 关动力刀、切入 / 切出 C 轴的程序行（ADR-0110；按机床说明书填，不写则带铣削段的车铣程序不出）",
+   "properties": {
+    "live_on": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+-]*$"
+     },
+     "description": "开动力刀（动力刀转速 S 由后处理写在这之后）"
+    },
+    "live_off": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+-]*$"
+     }
+    },
+    "c_on": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+-]*$"
+     },
+     "description": "切入 C 轴（主轴变 C 轴）"
+    },
+    "c_off": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+-]*$"
+     }
+    }
+   },
+   "additionalProperties": false
   }
  },
  "required": [

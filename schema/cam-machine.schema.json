@@ -364,6 +364,71 @@
      }
     ]
    }
+  },
+  "live_tools": {
+   "type": "object",
+   "description": "车铣中心的动力刀（ADR-0110）：轴向（刀轴沿 Z）、径向（刀轴沿 X）两种朝向，意义同 tool",
+   "properties": {
+    "axial": {
+     "type": "object",
+     "description": "轴向动力刀：零位时从刀尖指向刀座的单位向量、刀长基准点",
+     "properties": {
+      "direction": {
+       "type": "array",
+       "items": {
+        "type": "number"
+       },
+       "minItems": 3,
+       "maxItems": 3,
+       "description": "从刀尖指向主轴的单位向量（立式一般为 [0, 0, 1]）"
+      },
+      "gauge_point_mm": {
+       "type": "array",
+       "items": {
+        "type": "number"
+       },
+       "minItems": 3,
+       "maxItems": 3,
+       "description": "主轴端面基准点（刀长从这里量）的机床坐标"
+      }
+     },
+     "required": [
+      "direction",
+      "gauge_point_mm"
+     ],
+     "additionalProperties": false
+    },
+    "radial": {
+     "type": "object",
+     "description": "径向动力刀：零位时从刀尖指向刀座的单位向量、刀长基准点",
+     "properties": {
+      "direction": {
+       "type": "array",
+       "items": {
+        "type": "number"
+       },
+       "minItems": 3,
+       "maxItems": 3,
+       "description": "从刀尖指向主轴的单位向量（立式一般为 [0, 0, 1]）"
+      },
+      "gauge_point_mm": {
+       "type": "array",
+       "items": {
+        "type": "number"
+       },
+       "minItems": 3,
+       "maxItems": 3,
+       "description": "主轴端面基准点（刀长从这里量）的机床坐标"
+      }
+     },
+     "required": [
+      "direction",
+      "gauge_point_mm"
+     ],
+     "additionalProperties": false
+    }
+   },
+   "additionalProperties": false
   }
  },
  "required": [
