@@ -283,7 +283,7 @@ def _g76_segments(mv, tv, internal, taper, starts):
     return out
 
 
-def _with_chuck(setup, stock_len, reach, checks, stock_d):
+def _with_chuck(setup, stock_len, reach, checks, stock_d, info=None):
     """整机仿真设置里写了 chuck {jaw_len, jaw_d}：每次装夹的卡爪夹持长度取 min(jaw_len, 这次没车的毛坯长度 − 2)。
     卡爪转起来扫过的是毛坯外面的一圈（毛坯外径 ~ jaw_d），按 ±X 两侧各一个长方体包住（刀架在哪一侧都查得到）；
     卡盘体是毛坯左端以外的圆柱。钻头、镗刀在毛坯里面，不会碰到卡爪。夹不到 3 mm 报错。"""
@@ -298,6 +298,8 @@ def _with_chuck(setup, stock_len, reach, checks, stock_d):
     jl = min(float(ch["jaw_len"]), free)
     z_left = -stock_len
     rj, rs = float(ch["jaw_d"]) / 2, stock_d / 2
+    if info is not None:                      # 装夹图用（ADR-0106 Q6a）：卡爪从 z_left 起夹 jaw_len
+        info.update({"jaw_len": jl, "jaw_d": float(ch["jaw_d"]), "z_left": z_left})
     jaws = [{"id": "jaws", "name": "卡爪", "box_mm": [rs, -rj, z_left, rj, rj, z_left + jl]},
             {"id": "jaws2", "name": "卡爪", "box_mm": [-rj, -rj, z_left, -rs, rj, z_left + jl]},
             {"id": "chuck", "name": "卡盘", "cylinder_mm": {"p0": [0, 0, z_left - 40.0], "p1": [0, 0, z_left], "r": rj}}]
@@ -583,7 +585,10 @@ def _turn(setup, mach):
                "power": pdet, "target": [[float(z), float(d)] for z, d in tgt],
                "replay_in": {"kind": "turn", "stock": stock, "tools": {str(k): v for k, v in tools_sim.items()},
                              "target": _jsonable(tg)}}
-        _msim(_with_chuck(setup, total + e, reach, checks, stock_d), mach, parsed, g, stock, [], out, withhold=True)
+        clamp: dict = {}
+        _msim(_with_chuck(setup, total + e, reach, checks, stock_d, clamp), mach, parsed, g, stock, [], out, withhold=True)
+        if clamp:
+            out["clamp"] = clamp
         _release(setup, mach, prog, out)
         progs.append(out)
     return progs, {"profile": [[float(t), float(d)] for t, d in ctx["prof"]], "stock_d_mm": stock_d, "length_mm": total}

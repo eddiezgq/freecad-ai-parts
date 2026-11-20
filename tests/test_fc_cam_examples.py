@@ -32,3 +32,30 @@ def test_examples_reproduce(n):
         assert a["machine_sim"]["fingerprint"] == b["machine_sim"]["fingerprint"]
         nc = EX / B.DIRS[n] / f"O{a['number']:04d}_fanuc.nc"
         assert a["machine_sim"]["fingerprint"] in nc.read_text(encoding="utf-8")
+
+
+def test_example2_card_has_part_and_setup_drawings(tmp_path):
+    """Q6a：铣的例子——零件三视图（TechDraw 投影，看不见的线另列）、装夹图、刀具图都进工艺卡；总长、总宽、总高 = 零件包围盒"""
+    pytest.importorskip("FreeCAD")
+    import zipfile
+
+    from assist import cam_card
+    from freecad_addon.fc import cam_figures_fc as FF
+
+    B = _builder()
+    _, d, r = B.example2()
+    shape = B.block()
+    v = FF.part_views(shape, -shape.BoundBox.ZMax)
+    bb = shape.BoundBox
+    assert v["bbox"][5] == pytest.approx(0.0) and v["bbox"][2] == pytest.approx(-bb.ZLength)
+    assert v["top"] and v["front"] and v["left"] and v["front_hidden"]      # 型腔、孔在主视里是虚线
+    us = [p[0] for pl in v["front"] for p in pl]
+    assert min(us) == pytest.approx(bb.XMin, abs=1e-3) and max(us) == pytest.approx(bb.XMax, abs=1e-3)
+    o = cam_card.build_docx({**d, "figures": {"part_views": v}}, r, tmp_path / "card.docx", lang="zh")
+    with zipfile.ZipFile(o["docx"]) as z:
+        assert sum(n.startswith("word/media/") for n in z.namelist()) == 3
+    led = json.loads(o["ledger"].read_text(encoding="utf-8"))
+    der = {(e["text"], e["formula"].split(" =")[0]) for e in led["numbers"] if e["source"] == "derived" and e.get("in") == "figure"}
+    from assist.fea_report import fmt
+
+    assert {(fmt(bb.XLength), "总长"), (fmt(bb.YLength), "总宽"), (fmt(bb.ZLength), "总高")} <= der

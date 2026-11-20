@@ -440,24 +440,37 @@ def render(prog: dict, machine: dict, controller: str, sim_res: dict | None) -> 
 
 
 # ---------------------------------------------------------------- 回读（验证用）
-def to_fanuc(text: str, controller: str, lathe: bool) -> str:
+def tag(i: int) -> str:
+    """回读后的程序行末尾记原程序的行号（括号注释，sim.parse 不读），程序对比用它找回原来的行"""
+    return f"(#L{i})"
+
+
+def to_fanuc(text: str, controller: str, lathe: bool, *, tags: bool = False) -> str:
     """把程序换回 FANUC 写法，交给 sim.parse 回读（验证后处理与中间格式一致）：先按配置还原（子程序展开、华中程序头），
-    西门子再换写法；ISO 家族其余原样"""
+    西门子再换写法；ISO 家族其余原样。tags：每行末尾记原程序行号（tag）"""
     post = posts().get(controller)
     fam = post["family"] if post else controller
     if fam == "heidenhain":
         try:
-            return klartext.to_iso(text)
+            return klartext.to_iso(text, tags=tags)
         except klartext.KlartextError as exc:
             raise ReleaseError(f"海德汉程序回读不了：{exc}") from exc
+    if tags and fam in postcfg.ISO:
+        text = "\n".join(f"{ln} {tag(i)}" if ln.strip() else ln for i, ln in enumerate(text.split("\n"), 1))
     if post:
         text = postcfg.expand(text, postcfg.resolved(post["cfg"]))
+    elif fam in postcfg.ISO:
+        text = postcfg.expand(text, postcfg.resolved({"family": fam}))
     if fam in postcfg.ISO:
         return text
     out = ["%", "O0001"]
     lims = None
     spd = 0.0
-    for raw in text.splitlines():
+    mark, prev = len(out), 0
+    for i, raw in enumerate(text.splitlines(), 1):
+        if tags:
+            out[mark:] = [f"{x} {tag(prev)}" for x in out[mark:]]
+            mark, prev = len(out), i
         line = raw.split(";")[0].strip()
         if not line or line.startswith("SPOS"):
             continue
@@ -493,5 +506,7 @@ def to_fanuc(text: str, controller: str, lathe: bool) -> str:
             lims = None
         if conv:
             out.append(" ".join(conv))
+    if tags:
+        out[mark:] = [f"{x} {tag(prev)}" for x in out[mark:]]
     out.append("%")
     return "\n".join(out) + "\n"

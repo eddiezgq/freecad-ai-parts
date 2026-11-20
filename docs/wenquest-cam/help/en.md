@@ -54,6 +54,16 @@ Use `shaft.step` in `examples\01-shaft-turning` of the installation folder.
 ![Turning example after calculation](img/en-turn.png)
 
 7. Press "Save programs and process card…" and choose a folder: one `.nc` program per setup; Pro also writes the process card and program sheet (Word, PDF).
+   The process card has three kinds of drawings: **part drawing** (milling: front, left and top views projected from the part model, hidden lines dashed,
+   overall length, width and height; turning: the part outline with step diameters, shoulder positions, overall length, grooves and threads),
+   **setup drawing** (one per setup: stock, jaws or fixtures, part, work zero; turning shows clamping length and stick-out) and **tool drawings**
+   (each tool drawn from the tool library; turning tools show the insert shape and nose radius). Numbers on the drawings go into the source ledger like
+   the numbers in the tables; dimensions missing from the tool library are not drawn, and the card says so (e.g. "T05: no flute length given").
+8. **Program comparison**: press "Compare programs…" in the job panel, choose the old and then the new program. The report shows tools added or removed,
+   the same path cut with another tool, speed and feed changes per tool (with line numbers), which lines of the tool path differ (maximum deviation,
+   first difference) and the time difference. When the two programs only differ in formatting (sequence numbers, comments, decimals, subprograms,
+   another control) the report says the tool paths are identical. The report can be saved. Command line:
+   `python -m analysis.cam.progdiff old.nc new.nc --machine <machine id>`.
 
 # Turning: bores, face grooves, threads, parting off and canned cycles
 
