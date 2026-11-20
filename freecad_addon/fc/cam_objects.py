@@ -922,6 +922,16 @@ def to_model(job, side, x, y, z):
     return x / 2, 0.0, z + zr
 
 
+def to_model_3d(job, side, x, y, z):
+    """车削作业的工件坐标（x, y 是真实坐标，不是直径；车铣的铣削段、dexel 网格用）→ 零件模型坐标；调头装夹绕 Y 轴转回来"""
+    d = _js(job, "PartData", {})
+    zr = d.get("z_right", 0.0)
+    if side == "left":
+        total = float(d["profile"][-1][0]) if d.get("profile") else sum(float(L) for _, L in d.get("segments") or [])
+        return -x, y, (zr - total) - z
+    return x, y, z + zr
+
+
 def _unframe(fr, x, y, z):
     """倾斜面工序的平面坐标 → 工件坐标"""
     if not fr:

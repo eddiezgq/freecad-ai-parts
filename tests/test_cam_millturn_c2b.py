@@ -343,3 +343,30 @@ def test_wide_flat_slot_by_y_axis(tmp_path, monkeypatch, family):
     frag = ("G00 C90.0\nG19", "G00 Y0.0\nG18") if family == "fanuc" else ("G94\nG0 C90.0\nG19", "G0 Y0.0\nG18")
     assert all(f in t for f in frag), t
     assert not any("碰到" in c["text"] or "走不到" in c["text"] for c in p["checks"])
+
+
+# ---------------------------------------------------------------- 回放：车铣的铣削段（ADR-0106 C2b）
+def test_replay_mill_turn_frames_and_stock():
+    """车削 + 端面槽 + 键槽的回放：铣削帧的刀尖是工件坐标（端面槽中点 (0, 0, −3)）；过了第一段铣削，在制毛坯换成 dexel，
+    走完后比车完的外形少掉的体积 = 去料体积（< 2%，回放网格 0.5 mm）"""
+    from analysis.cam import machines
+    from analysis.cam import replay as R
+
+    face = MT.face_moves({"type": "slot", "a": [-10, 0], "b": [10, 0], "width": 6, "depth": 3, "z0": 0.0}, 6, 3, 200, 100)
+    key = MT.keyway_moves(90.0, 25.0, 3.0, -10.0, -30.0, 6, 3, 200, 100)
+    live = {"right": [{"tool": {"n": 10, "d": 6.0}, "spindle": {"rpm": 3000}, "title": "端面槽", "interp": "polar", "moves": face},
+                      {"tool": {"n": 10, "d": 6.0}, "spindle": {"rpm": 3000}, "title": "键槽", "interp": {"cyl": 25.0}, "moves": key}]}
+    r = cam.run({"mode": "turn", "machine": "EX-MT-CY", "segments": [[40, 30], [50, 40]], "live_ops": live})
+    p = r["data"]["programs"][0]
+    rp = R.Replay(p["gcode"], machines.get("EX-MT-CY"), p["replay_in"])
+    assert rp.mill0 is not None
+    i = next(f["i"] for f in rp.frames if rp.is_mill(f["i"]) and f["a"][2] == f["b"][2] and not f["rapid"])
+    assert rp.tip(i, 0.5)[2] == pytest.approx(-3.0) and abs(rp.tip(i, 0.5)[1]) < 1e-9
+    z, rr, _ri = rp.stock_after(rp.mill0)
+    assert max(r_ for z_, r_ in zip(z, rr, strict=True) if -39 < z_ < -1) == pytest.approx(25.0, abs=0.05)   # 车完的 Ø50 段
+    before = MT.turned_dexel(MT.grid_profile(z, rr, rp._stock_in["z_right"], rp._stock_in["z_left"]), rp._mspecs, h=0.5).volume()
+    after = rp.stock_after(len(rp.frames))
+    exact = 3 * (20 * 6 + math.pi * 9) + _keyway_volume()
+    assert before - after.volume() == pytest.approx(exact, rel=0.02)
+    _v, t = after.z_mesh()
+    assert len(t) > 0

@@ -564,6 +564,8 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
 
     for mv in parsed["moves"]:
         if mv.get("mill"):                         # 车铣的铣削段（动力刀）不是车削：车削仿真不算它（ADR-0106 C2b）
+            if history is not None:                 # 回放的帧与历史一一对应：铣削段记一份没变的
+                history.append((zc, r.copy(), ri.copy()))
             continue
         tl = tools.get(mv["tool"], {"kind": "turn"})
         kind = tl.get("kind", "turn")

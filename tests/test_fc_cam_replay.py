@@ -174,3 +174,48 @@ def test_turn_replay_and_deviation(gui):
         dock.close()
     finally:
         App.closeDocument(doc.Name)
+
+
+def test_mill_turn_replay_shows_live_tool(gui, tmp_path, monkeypatch):
+    """车铣作业的回放（ADR-0106 C2b）：铣削段的刀尖按工件坐标画在键槽那里（模型 +Y 一侧）；走完后在制毛坯是 dexel 网格；色差仍按车削比"""
+    import FreeCAD as App
+    import Part
+
+    from freecad_addon.fc import cam_objects as CO
+    from freecad_addon.gui import cam_replay
+
+    v = App.Vector
+    shaft = Part.makeCylinder(25, 40, v(0, 0, -40)).fuse(Part.makeCylinder(20, 30, v(0, 0, -70)))
+    kw = Part.makeBox(6, 10, 20, v(-3, 22, -30)).fuse(Part.makeCylinder(3, 10, v(0, 22, -10), v(0, 1, 0))).fuse(
+        Part.makeCylinder(3, 10, v(0, 22, -30), v(0, 1, 0)))
+    part = shaft.cut(kw).removeSplitter()
+    doc = App.newDocument("camreplaymt")
+    try:
+        m = doc.addObject("Part::Feature", "Shaft")
+        m.Shape = part
+        doc.recompute()
+        sub = next(f"Face{i + 1}" for i, f in enumerate(part.Faces)
+                   if type(f.Surface).__name__ == "Plane" and f.normalAt(0, 0).y > 0.99 and abs(f.BoundBox.YMin - 22) < 1e-6)
+        job = CO.new_job(doc, m, "turn", machine="EX-MT-CY")
+        CO.draft(job)
+        right = CO.setups(job)[0]
+        CO.add_live_op(right, "live_keyway", sub)
+        for s in CO.setups(job):
+            for o in CO.ops(s):
+                CO.confirm(o)
+        CO.calculate(job)
+        dock = cam_replay.open_for(job)
+        gui.processEvents()
+        rp = dock.rp
+        i = next(f["i"] for f in rp.frames if rp.is_mill(f["i"]) and not f["rapid"] and f["a"][2] != f["b"][2])
+        dock.goto_frame(i)
+        gui.processEvents()
+        x, y, z = dock.tool_position()
+        assert y == pytest.approx(22.0, abs=0.01) and abs(x) < 1e-3 and -30.01 <= z <= -9.99    # 键槽底，模型坐标
+        dock.seek(rp.duration)
+        gui.processEvents()
+        assert dock._last_mesh[1] > 0 and not isinstance(rp.stock_after(len(rp.frames)), tuple)
+        assert dock.deviation() is not None
+        dock.close()
+    finally:
+        App.closeDocument(doc.Name)

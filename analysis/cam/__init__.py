@@ -854,6 +854,7 @@ def _live_join(setup, mach, prog, live, stock, tools_sim, chuck_setup, out):
     out["checks"] += [c for c in mo["checks"] if c["text"] not in have]
     out["gcode"], out["time"] = mo["gcode"], mo["time"]
     out["sim"]["mill_removed_mm3"] = mo["sim"]["mill_removed_mm3"]
+    out["replay_in"] = {**out["replay_in"], "mill_tools": mo["replay_in"]["mill_tools"]}   # 回放：车削段照旧，铣削段在 dexel 上切
     for k in ("machine_sim", "release"):
         if k in mo:
             out[k] = mo[k]
@@ -907,13 +908,7 @@ def _millturn(setup, mach):
     ts = sim.simulate_turn(parsed, st, turn_tools)
     checks += ts["issues"]
     # 车完的外形：半径网格压成折线（半径变了才记点），回转成 dexel 毛坯再铣
-    zc, rr = ts["z"], ts["r"]
-    prof = [(float(st["z_right"]), float(rr[-1]))]
-    for i in range(len(zc) - 2, -1, -1):
-        if abs(rr[i] - prof[-1][1]) > 1e-6:
-            prof.append((float(zc[i + 1] - (zc[1] - zc[0]) / 2), prof[-1][1]))
-            prof.append((float(zc[i + 1] - (zc[1] - zc[0]) / 2), float(rr[i])))
-    prof.append((float(st["z_left"]), float(rr[0])))
+    prof = MTN.grid_profile(ts["z"], ts["r"], st["z_right"], st["z_left"])
     extra: list = []
     mres = {"removed_mm3": 0.0, "issues": []}
     if mill_tools:
@@ -923,7 +918,8 @@ def _millturn(setup, mach):
                        "text": "车铣的铣削段在车完的外形上按三向 dexel 算去料：每段切深、切宽没量，刀杆与剩余材料的碰撞没查"})
     out = {"title": prog.get("title") or "车铣", "number": prog.get("number", 3001), "gcode": g, "time": tm, "checks": checks,
            "power": {"status": "unknown"}, "sim": {"mill_removed_mm3": round(mres["removed_mm3"], 1), "profile": prof},
-           "replay_in": {"kind": "turn", "stock": st, "tools": {str(k): v for k, v in turn_tools.items()}}}
+           "replay_in": {"kind": "turn", "stock": st, "tools": {str(k): v for k, v in turn_tools.items()},
+                         "mill_tools": {str(k): v for k, v in mill_tools.items()}}}
     if setup.get("machine_sim"):
         _msim(setup, mach, parsed, g, st, extra, out, withhold=True)
     elif extra:
