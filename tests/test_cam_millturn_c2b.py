@@ -232,3 +232,30 @@ def test_live_tool_machine_sim_checks_milling_moves():
     bad = _run_live({"work_offset_mm": [0, 0, 0], "tools": {k: tools[k] for k in ("5", "6")}})
     hit = [c for c in bad["checks"] if c["level"] == "error" and "T5" in c["text"] and "卡盘" in c["text"]]
     assert hit and hit[0]["line"] == 27, [c["text"] for c in bad["checks"]]
+
+
+# ---------------------------------------------------------------- 西门子 TRANSMIT / TRACYL（ADR-0106 C2b）
+def test_siemens_transmit_tracyl_release(tmp_path, monkeypatch):
+    """西门子后处理：端面 TRANSMIT（DIAMOF 半径：X = 20/2、Y = C）、圆柱面 TRACYL(50)（Y = 30°·π·50/360 = 13.09 mm 弧长），
+    TRAFOOF、DIAMON 收尾；回读换回 G12.1 / G7.1 与仿真程序一致才出"""
+    import json as _json
+
+    d = tmp_path / "posts"
+    d.mkdir()
+    (d / "smt.json").write_text(_json.dumps({"format": "cam-post/1", "id": "smt", "name": "SINUMERIK mill-turn", "family": "siemens",
+                                             "kinds": ["lathe"], "source": "测试", "millturn": {"live_on": ["M34"], "live_off": ["M35"],
+                                                                                              "c_on": ["SPOS=0"], "c_off": ["M15"]}}),
+                                encoding="utf-8")
+    monkeypatch.setenv("FAP_POSTS", str(d))
+    prog = _mt_prog()
+    prog["ops"][2]["moves"].insert(3, {"t": "feed", "x": 44, "c": 30, "z": -30, "f": 200})
+    r = cam.run({"mode": "millturn", "machine": "EX-MT-CY", "program": prog, "stock": {"d": 52, "z_right": 0.5, "z_left": -60},
+                 "post": "smt", "machine_sim": {"tools": {}}})
+    p = r["data"]["programs"][0]
+    assert p["release"] is not None, [c["text"] for c in p["checks"] if c["level"] == "error"]
+    t = p["release"]["text"]
+    y = 30 * math.pi * 50 / 360
+    for frag in ("G94\nDIAMOF\nTRANSMIT\nG17\nG0 X10.0 Y-10.0 Z2.0", "Y10.0 F200.0", "TRACYL(50.0)\nG19\nG0 X30.0 Y0.0 Z-10.0",
+                 f"Y{y:.3f}".rstrip("0"), "TRAFOOF\nDIAMON\nG18\nM35\nM15\nG95"):
+        assert frag in t, frag
+    assert "G12.1" not in t and "G07.1" not in t

@@ -114,15 +114,16 @@ def _lathe(prog, machine, sim_res, post, dialect):
         L.append("G21 G18 G40 G97 G99")
     for k, op in enumerate(prog["ops"], 1):
         if op.get("interp"):                        # 车铣的铣削工序（ADR-0106 C2b、ADR-0110）：开 / 关动力刀、C 轴的程序行按后处理配置
-            if sie:
-                raise ReleaseError("西门子的车铣（TRANSMIT / TRACYL）还没做（ADR-0106 C2b）；车铣程序先用 FANUC 写法的后处理")
             mt = _fmt().get("millturn")
             if not mt:
                 raise ReleaseError("后处理配置没写动力刀、C 轴的 M 代码（millturn，按机床说明书填，ADR-0110），带铣削段的车铣程序不出")
             from analysis.cam import post as _post
 
-            L += _post.millturn_lines(op, (hx, hz), mt, nd=_fmt()["coord"], fnd=_fmt()["feed"] if _fmt()["feed"] is not None else 1,
-                                      cm=_paren)
+            fnd = _fmt()["feed"] if _fmt()["feed"] is not None else 1
+            if sie:
+                L += _post.millturn_lines_siemens(op, (hx, hz), mt, nd=_fmt()["coord"], fnd=fnd, cm=_semi)
+            else:
+                L += _post.millturn_lines(op, (hx, hz), mt, nd=_fmt()["coord"], fnd=fnd, cm=_paren)
             continue
         t, sp = op["tool"], op["spindle"]
         L.append(_semi(f"工序 {k}：{op.get('title', '')}") if sie else _paren(f"OP{k} T{t['n']:02d}"))
@@ -523,6 +524,7 @@ def to_fanuc(text: str, controller: str, lathe: bool, *, tags: bool = False) -> 
         return text
     out = ["%", "O0001"]
     lims = None
+    trafo = None
     spd = 0.0
     mark, prev = len(out), 0
     for i, raw in enumerate(text.splitlines(), 1):
@@ -553,6 +555,22 @@ def to_fanuc(text: str, controller: str, lathe: bool, *, tags: bool = False) -> 
                 out += ["G91 G28 Z0.0", "G90"]
             out += [f"G68.2 X{v[4]:g} Y{v[5]:g} Z{v[6]:g} I{i:.9f} J{j:.9f} K{k:.9f}", "G53.1"]
             continue
+        if line == "TRANSMIT":                   # 车铣（ADR-0106 C2b）：端面、圆柱面变换 → FANUC G12.1 / G7.1；坐标在下面换
+            trafo = ("transmit", None)
+            out.append("G12.1")
+            continue
+        mtc = re.fullmatch(r"TRACYL\(\s*([-+]?\d+(?:\.\d*)?)\s*\)", line)
+        if mtc:
+            trafo = ("tracyl", float(mtc.group(1)))
+            out.append(f"G07.1 C{float(mtc.group(1)) / 2:g}")
+            continue
+        if line == "TRAFOOF":
+            if trafo:
+                out.append("G13.1" if trafo[0] == "transmit" else "G07.1 C0")
+            trafo = None
+            continue
+        if line in ("DIAMOF", "G17", "G18", "G19"):
+            continue
         if "SUPA" in line:                       # 回机床 Z 零点
             out += ["G91 G28 Z0.0", "G90"]
             continue
@@ -569,6 +587,14 @@ def to_fanuc(text: str, controller: str, lathe: bool, *, tags: bool = False) -> 
                 w = "G32"
             elif w.startswith("K"):
                 w = "F" + w[1:]
+            elif trafo and w[0] in "XY" and re.fullmatch(r"[-+]?\d+(?:\.\d*)?", w[1:]):
+                v = float(w[1:])
+                if w[0] == "X":                  # DIAMOF 下的半径 → 直径
+                    w = f"X{2 * v:.6f}"
+                else:                            # TRANSMIT：Y 就是虚拟 C（mm）；TRACYL：展开弧长 → 角度
+                    w = f"C{v:.6f}" if trafo[0] == "transmit" else f"C{v * 360.0 / (math.pi * trafo[1]):.6f}"
+            elif w in ("G94", "G95") and lathe:              # 车床：西门子 G94 / G95 = FANUC 车床 G98 / G99
+                w = "G98" if w == "G94" else "G99"
             elif w.startswith("T") and w[1:].isdigit() and lathe:
                 w = f"T{int(w[1:]):02d}{int(w[1:]):02d}"
             elif w in ("M3", "M5", "M6", "M8", "M9"):

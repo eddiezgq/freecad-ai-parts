@@ -175,7 +175,7 @@ On mill-turn centres (such as the example EX-MT-CY: X, Y, Z, C axes, live tools)
 face milling with polar interpolation `G12.1 … G13.1` (program X is a diameter, C in mm) and cylinder milling with cylindrical interpolation
 `G7.1 C radius … G7.1 C0` (C in degrees). The simulation first computes the turned shape, then mills it along the tool axis; times follow the path on
 the workpiece. Live-tool and C-axis M codes differ between builders and must be written into the post configuration as `millturn` (from the machine
-manual); without them programs with milling are not output. Machine simulation solves the C axis from the live-tool directions in the machine file (`live_tools`) and checks collisions; without them it reports "unknown". The mill-turn job interface is still being built.
+manual); without them programs with milling are not output. For SINUMERIK the post writes `TRANSMIT` (face; radius programming DIAMOF, X and Y are Cartesian face coordinates) and `TRACYL(working diameter)` (cylinder; Y is the arc length in mm on the working diameter), then `TRAFOOF`, `DIAMON`. Machine simulation solves the C axis from the live-tool directions in the machine file (`live_tools`) and checks collisions; without them it reports "unknown". The mill-turn job interface is still being built.
 
 # Feedback
 

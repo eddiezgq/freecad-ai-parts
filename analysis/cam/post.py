@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+
 
 def num(v, nd=3):
     """FANUC 数字：一定带小数点（不带小数点的 X200 在很多 FANUC 系统里是 0.2 mm），去掉多余的 0。"""
@@ -134,6 +136,44 @@ def millturn_lines(op, home, cfg_mt, nd=3, fnd=1, cm=comment) -> list[str]:
         out += ["M05", "G99", f"G00 X{num(hx, nd)} Z{num(hz, nd)}"]
     else:
         out += [*cfg_mt.get("live_off", []), *cfg_mt.get("c_off", []), "G99", f"G00 X{num(hx, nd)} Z{num(hz, nd)}"]
+    return out
+
+
+def millturn_lines_siemens(op, home, cfg_mt, nd=3, fnd=1, cm=comment) -> list[str]:
+    """西门子的车铣铣削工序（ADR-0106 C2b）：端面 TRANSMIT、圆柱面 TRACYL(d)，都在半径编程 DIAMOF 下写，完了 TRAFOOF、DIAMON。
+    中间格式与 FANUC 写法相同（极坐标：x 直径、c 毫米；圆柱：x 直径、c 度），这里换成：
+    TRANSMIT：X = x/2、Y = c（端面上的直角坐标，mm）；TRACYL(d)：X = x/2（半径，下刀深度）、Y = c·π·d/360（工作直径 d 上展开的弧长 mm）。
+    每分进给 G94，完了回 G95。开 / 关动力刀、C 轴的程序行按后处理配置（例如切主主轴 SETMS(2) 由配置写）。"""
+    hx, hz = home
+    t, sp = op["tool"], op["spindle"]
+    rpm = round(float(sp["rpm"]))
+    cyl = op["interp"].get("cyl") if isinstance(op["interp"], dict) else None
+    d = 2.0 * float(cyl) if cyl else None
+    out = [cm(op.get("title", "")), f"G0 X{num(hx, nd)} Z{num(hz, nd)}", f"T{t['n']} D1", "M5",
+           *cfg_mt.get("c_on", []), *cfg_mt.get("live_on", []), f"S{rpm}", "G94", "DIAMOF"]
+    out += [f"TRACYL({num(d, nd)})", "G19"] if cyl else ["TRANSMIT", "G17"]
+    pos, mode, last_f = {}, None, None
+    for mv in op["moves"]:
+        if mv["t"] == "comment":
+            out.append(cm(mv["text"]))
+            continue
+        g = "G0" if mv["t"] == "rapid" else "G1"
+        v = {"X": mv["x"] / 2.0, "Y": (mv["c"] * math.pi * d / 360.0) if cyl else mv["c"], "Z": mv["z"]}
+        ax = []
+        for a in ("X", "Y", "Z"):
+            if a not in pos or abs(pos[a] - v[a]) > 5e-4:
+                ax.append(a + num(v[a], nd))
+                pos[a] = v[a]
+        if not ax:
+            continue
+        w = [g] if g != mode else []
+        mode = g
+        w += ax
+        if g == "G1" and mv.get("f") != last_f:
+            w.append("F" + num(mv["f"], fnd))
+            last_f = mv["f"]
+        out.append(" ".join(w))
+    out += ["TRAFOOF", "DIAMON", "G18", *cfg_mt.get("live_off", []), *cfg_mt.get("c_off", []), "G95", f"G0 X{num(hx, nd)} Z{num(hz, nd)}"]
     return out
 
 
