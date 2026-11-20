@@ -326,15 +326,27 @@ class ReplayDock:
         coin = _coin()
         if self._scene() is None:
             return
-        tip = self._to_model(*self.rp.tip(i, s))
+        conv = (lambda x, y, z: CO.to_model_3d(self.job, self.side, x, y, z)) if self.rp.is_mill(i) else self._to_model
+        tip = conv(*self.rp.tip(i, s))
         f = self.rp.frames[i]
-        a = self._to_model(*self.rp.tip(i, 0.0))
-        b = self._to_model(*self.rp.tip(i, 1.0))
+        a = conv(*self.rp.tip(i, 0.0))
+        b = conv(*self.rp.tip(i, 1.0))
         self._seg_coords.point.setValues(0, 2, [a, b])
         self._seg_line.numVertices.setValue(2)
         self._tool_xf.translation.setValue(*tip)
         spec = self.rp.tools.get(f["tool"]) or {}
-        if self.job.Kind == "turn":
+        if self.rp.is_mill(i):                     # 车铣的动力刀：圆柱沿这一小段的刀轴（ADR-0106 C2b）
+            mspec = self.rp.mill_tools.get(f["tool"]) or {}
+            d = float(mspec.get("d") or 6.0)
+            L = 3 * d
+            w = np.asarray(f["pieces"][0][2], float)
+            if self.side == "left":
+                w = np.array([-w[0], w[1], -w[2]])
+            self._tool_cyl.radius = d / 2
+            self._tool_cyl.height = L
+            self._tool_shape_xf.rotation.setValue(coin.SbRotation(coin.SbVec3f(0, 1, 0), coin.SbVec3f(*map(float, w))))
+            self._tool_shape_xf.translation.setValue(*map(float, w * L / 2))
+        elif self.job.Kind == "turn":
             r = max(float(spec.get("nose_r") or 0.4), 0.4)
             self._tool_cyl.radius = r
             self._tool_cyl.height = 2 * r
@@ -362,12 +374,16 @@ class ReplayDock:
         self._stock_bind.value = coin.SoMaterialBinding.OVERALL
         self._stock_mat.diffuseColor.setValue(0.55, 0.62, 0.70)
         self._light.model = coin.SoLightModel.PHONG
-        if self.rp.lathe:
-            z, r, ri = self.rp.stock_after(n)
+        st = self.rp.stock_after(n)
+        if self.rp.lathe and not isinstance(st, tuple):   # 车铣：铣削段以后是 dexel（Z 组方柱网格）
+            v, t = st.z_mesh()
+            v = np.array([CO.to_model_3d(self.job, self.side, *p) for p in v]) if len(v) else v
+        elif self.rp.lathe:
+            z, r, ri = st
             v, t = R.lathe_mesh(z, r, ri, stride=max(1, len(z) // 400))
             v = np.array([self._to_model_lathe(p) for p in v]) if len(v) else v
         else:
-            dx = self.rp.stock_after(n)
+            dx = st
             stride = max(1, int(max(dx.n[0], dx.n[1]) // 160))
             v, t = R.height_mesh(dx, stride=stride)
             if len(v):

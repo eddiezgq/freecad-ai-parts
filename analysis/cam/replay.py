@@ -43,7 +43,9 @@ class Replay:
             dt = S.move_time(mv, machine, self.lathe)
             self.frames.append({"i": i, "line": mv["line"], "t0": t, "t1": t + dt, "a": tuple(mv["a"]), "b": tuple(mv["b"]),
                                 "tool": mv["tool"], "rapid": mv["t"] == "rapid", "home": bool(mv.get("home")),
-                                "axis": tuple(mv["axis"]) if mv.get("axis") is not None else (0.0, 0.0, 1.0)})
+                                "axis": tuple(mv["axis"]) if mv.get("axis") is not None else (0.0, 0.0, 1.0),
+                                **({"pieces": [(tuple(map(float, p0)), tuple(map(float, p1)), tuple(map(float, w)))
+                                               for p0, p1, w in mv["pieces"]]} if mv.get("mill") else {})})
             t += dt
         self.duration = t + tc * (len(changes) - k)
         self._t0 = [f["t0"] for f in self.frames]
@@ -56,6 +58,8 @@ class Replay:
                 self.events.append({"i": by_line[c["line"]], "line": c["line"], "level": c["level"], "text": c["text"]})
         self.events.sort(key=lambda e: e["i"])
         self.keep_every = keep_every
+        self.mill_tools = {int(k): v for k, v in (replay_in.get("mill_tools") or {}).items()}   # 车铣的动力刀（ADR-0106 C2b）
+        self.mill0 = next((f["i"] for f in self.frames if "pieces" in f), None) if self.lathe and self.mill_tools else None
         self._stock_in = replay_in.get("stock") or {}
         self._target = replay_in.get("target") or {}
         self._h = h
@@ -71,9 +75,22 @@ class Replay:
     def frames_of_line(self, line: int) -> list[int]:
         return [f["i"] for f in self.frames if f["line"] == line]
 
+    def is_mill(self, i: int) -> bool:
+        """第 i 帧是车铣的铣削段（tip 返回工件坐标 x, y, z，不是 (半径, 0, z)）"""
+        return "pieces" in self.frames[i]
+
     def tip(self, i: int, s: float = 1.0) -> tuple[float, float, float]:
-        """第 i 帧走到 s（0–1）时刀尖在工件坐标里的位置；车床返回 (半径, 0, z)"""
+        """第 i 帧走到 s（0–1）时刀尖在工件坐标里的位置；车床返回 (半径, 0, z)，车铣的铣削段返回工件坐标 (x, y, z)"""
         f = self.frames[i]
+        if "pieces" in f:
+            pcs = f["pieces"]
+            want = s * sum(math.dist(p0, p1) for p0, p1, _w in pcs)       # 沿各小段走过的路程
+            for j, (p0, p1, _w) in enumerate(pcs):
+                li = math.dist(p0, p1)
+                if want <= li or j == len(pcs) - 1:
+                    u = 0.0 if li <= 0 else min(1.0, want / li)
+                    return tuple(float(a + (b - a) * u) for a, b in zip(p0, p1, strict=True))
+                want -= li
         a, b = np.asarray(f["a"], float), np.asarray(f["b"], float)
         p = a + (b - a) * s
         if self.lathe:
@@ -112,6 +129,21 @@ class Replay:
             stock = {k: float(v) for k, v in st.items() if k in ("d", "z_right", "z_left", "bore_d")}
             self._hist = []
             S.simulate_turn(self.parsed, stock, self.tools, h=self._h or 0.05, history=self._hist)
+            if self.mill0 is not None:                # 车铣：第一段铣削之前车完的外形回转成 dexel，铣削段在上面切（画面用 Z 组方柱）
+                from analysis.cam import millturn as MT
+
+                z, r, _ri = self._hist[self.mill0]
+                prof = MT.grid_profile(z, r, stock["z_right"], stock["z_left"])
+                self._mspecs = {k: {**v, "L": v.get("L") or 3 * float(v["d"])} for k, v in self.mill_tools.items()}
+                dx = MT.turned_dexel(prof, self._mspecs, h=self._h or 0.5)
+                self._mckpt = {self.mill0: dx.copy()}
+                built = {k: DX.Tool.from_spec(v) for k, v in self._mspecs.items()}
+                every = max(self.keep_every, math.ceil(len(self.frames) / MAX_CKPT))
+                for f in self.frames[self.mill0:]:
+                    self._mill_cut(dx, built, f)
+                    if (f["i"] + 1) % every == 0:
+                        self._mckpt[f["i"] + 1] = dx.copy()
+                self._mfinal = dx
         else:
             st = self._stock_in
             x0, y0, x1, y1 = (float(v) for v in st["box"])
@@ -139,14 +171,28 @@ class Replay:
             self._final = dx
         self._built = True
 
+    @staticmethod
+    def _mill_cut(dx, built, f):
+        tl = built.get(f["tool"])
+        if tl is not None and "pieces" in f:
+            for p0, p1, w in f["pieces"]:
+                dx.cut(tl, p0, p1, w=w)
+
     def stock_after(self, n: int):
-        """前 n 段走完以后的在制毛坯：铣 → Dexel；车 → (z, r, ri)"""
+        """前 n 段走完以后的在制毛坯：铣 → Dexel；车 → (z, r, ri)；车铣过了第一段铣削 → Dexel"""
         self._build()
         n = max(0, min(n, len(self.frames)))
+        if self.lathe and self.mill0 is not None and n > self.mill0:
+            if n == len(self.frames):
+                return self._mfinal
+            k = max(c for c in self._mckpt if c <= n)
+            dx = self._mckpt[k].copy()
+            built = {t: DX.Tool.from_spec(v) for t, v in self._mspecs.items()}
+            for f in self.frames[k:n]:
+                self._mill_cut(dx, built, f)
+            return dx
         if self.lathe:
-            if n == 0:
-                return self._hist[0][0], self._hist[0][1], self._hist[0][2]
-            return self._hist[n]
+            return self.turned_after(n)
         if n == len(self.frames):
             return self._final
         k = max(c for c in self._ckpt if c <= n)
@@ -157,6 +203,12 @@ class Replay:
             if tl is not None and not f["home"]:
                 dx.cut(tl, f["a"], f["b"], w=f["axis"])
         return dx
+
+    def turned_after(self, n: int):
+        """车：前 n 段走完以后车出来的半径网格 (z, r, ri)（车铣的铣削段不算，色差比对按这个）"""
+        self._build()
+        n = max(0, min(n, len(self.frames)))
+        return self._hist[n]
 
     def removed_volume(self, n: int) -> float:
         """铣：前 n 段一共切掉的体积（mm³）"""
@@ -266,7 +318,7 @@ def lathe_deviation(rp: Replay, tol=0.01, seg=48, stride=5):
     返回 {"over_max", "under_max", "tol", "mesh": (顶点, 三角形, 每个三角形的偏差)}；偏差正 = 残留，负 = 过切（半径方向）"""
     from analysis.cam.paths import d_at
 
-    z, r, ri = rp.stock_after(len(rp.frames))
+    z, r, ri = rp.turned_after(len(rp.frames))
     tg = rp._target if hasattr(rp, "_target") else {}
     outer = tg.get("outer")
     if not outer:

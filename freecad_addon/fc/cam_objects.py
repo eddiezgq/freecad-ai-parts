@@ -30,7 +30,7 @@ HOLE_KINDS = ("cbore", "csink", "tap", "thread_mill", "helix")
 MILL_ALLOW_KINDS = ("pocket", "adaptive", "rest", "profile")             # 铣：可留侧壁 / 底面余量
 MILL_FC_KINDS = ("face", "pocket", "adaptive", "rest", "profile", "drill", "surface", "waterline")  # 铣：FreeCAD CAM 出刀路的（安全高度、快移高度可改）     # 按孔特征出刀路（ADR-0106 Q3b）：孔表存在工序的 HoleData 里
 TURN_TOOL_N = {"rough": 1, "finish": 2, "groove": 3, "thread": 4, "drill": 5, "bore": 6, "part": 8, "face_groove": 9}
-LIVE_KINDS = {"live_face": "端面铣（动力刀）", "live_keyway": "圆柱面键槽（动力刀）"}     # 车铣中心（ADR-0106 C2b 界面）
+LIVE_KINDS = {"live_face": "端面铣（动力刀）", "live_keyway": "圆柱面键槽（动力刀）", "live_flat": "圆柱面平底槽（Y 轴）"}     # 车铣中心（ADR-0106 C2b 界面）
 
 
 class CamObjError(ValueError):
@@ -729,6 +729,8 @@ def live_feature(job, sub: str, kind: str, side: str = "right") -> dict:
         return ft
     if abs(n[2]) > 1e-6:
         raise CamObjError(f"{sub} 不是沿轴向的平面：圆柱面键槽点键槽底")
+    if kind == "live_flat":
+        return _flat_feature(job, face, sub, tw, n, side)
     c0 = face.CenterOfMass
     c = tw(c0.x, c0.y, c0.z)
     r_bot = c[0] * n[0] + c[1] * n[1]                     # 槽底到轴线的距离（法向朝外）
@@ -760,9 +762,52 @@ def live_side(job, sub: str, kind: str) -> str:
     face = job.Model.Shape.getElement(sub)
     if kind == "live_face":
         return "right" if face.normalAt(0, 0).z > 0 else "left"
+    # 键槽、平底槽：按所在的轴段
     zr = float(_js(job, "PartData", {})["z_right"])
     reach = P.setup_profile(_design_prof(job), "right")[1]
     return "right" if face.CenterOfMass.z - zr >= -reach - 1e-9 else "left"
+
+
+def _flat_feature(job, face, sub, tw, n, side):
+    """圆柱面上的平底槽（C 分度 + Y 轴铣）：槽底平面坐标 u = 切向（分度后的机床 Y）、v = Z；外形按圆弧认长圆或圆角矩形"""
+    import math as _m
+
+    ang = _m.degrees(_m.atan2(n[1], n[0]))
+    tu = (-n[1], n[0])
+    c0 = face.CenterOfMass
+    c = tw(c0.x, c0.y, c0.z)
+    r_bot = c[0] * n[0] + c[1] * n[1]
+    if r_bot <= 0:
+        raise CamObjError(f"{sub} 的法向朝里：点平底槽的底面")
+    uv = lambda p: (round(p[0] * tu[0] + p[1] * tu[1], 6), round(p[2], 6))
+    arcs: dict = {}
+    for e in face.Edges:
+        if type(e.Curve).__name__ == "Circle":
+            k = uv(tw(e.Curve.Center.x, e.Curve.Center.y, e.Curve.Center.z))
+            arcs.setdefault(k, set()).add(round(e.Curve.Radius, 6))
+        elif type(e.Curve).__name__ not in ("Line", "LineSegment"):
+            raise CamObjError(f"{sub} 的外形不是直线和圆弧：只做长圆、圆角矩形平底槽")
+    radii = {r for rs in arcs.values() for r in rs}
+    if len(radii) > 1 or len(face.Wires) > 1:
+        raise CamObjError(f"{sub} 认不出是长圆还是圆角矩形平底槽：别的形状还没做")
+    if len(arcs) == 2:
+        (a, b), r = sorted(arcs), radii.pop()
+        shape = {"type": "slot", "a": [a[0], a[1]], "b": [b[0], b[1]], "width": round(2 * r, 6)}
+        area = _m.dist(a, b) * 2 * r + _m.pi * r * r
+    elif len(arcs) in (0, 4):
+        r = radii.pop() if radii else 0.0
+        pts = [uv(tw(v.Point.x, v.Point.y, v.Point.z)) for v in face.Vertexes] if not arcs else \
+            [(cu + su * r, cv + sv * r) for cu, cv in arcs for su in (-1, 1) for sv in (-1, 1)]
+        u0, v0 = min(p[0] for p in pts), min(p[1] for p in pts)
+        u1, v1 = max(p[0] for p in pts), max(p[1] for p in pts)
+        shape = {"type": "pocket", "rect": [u0, v0, u1, v1], "corner_r": round(r, 6)}
+        area = (u1 - u0) * (v1 - v0) - (4 - _m.pi) * r * r
+    else:
+        raise CamObjError(f"{sub} 认不出是长圆还是圆角矩形平底槽：别的形状还没做")
+    if abs(face.Area - area) > 0.01 * face.Area:
+        raise CamObjError(f"{sub} 认不出是长圆还是圆角矩形平底槽：别的形状还没做")
+    r_out = _turned_r(job, c[2], side)
+    return {"type": "flat", "angle": round(ang, 6) + 0.0, "r_outer": round(r_out, 6), "depth": round(r_out - r_bot, 6), "shape": shape}
 
 
 def _endmills(job, d_max: float, exact: float | None = None):
@@ -783,7 +828,17 @@ def add_live_op(setup, kind: str, sub: str):
     if not _is_mill_turn(job):
         raise CamObjError("动力刀工序要在车铣中心上：作业的机床选车铣中心")
     ft = live_feature(job, sub, kind, setup.Side)
-    if kind == "live_keyway" or ft["type"] == "slot":
+    if ft["type"] == "flat":                              # 平底槽：刀不大于槽宽（长圆）或 2× 圆角（圆角矩形）
+        sh = ft["shape"]
+        if sh["type"] == "slot":
+            lim = sh["width"]
+        else:
+            w = min(sh["rect"][2] - sh["rect"][0], sh["rect"][3] - sh["rect"][1])
+            lim = min(2 * sh["corner_r"], w) if sh["corner_r"] > 0 else w / 2
+        tools = _endmills(job, lim)
+        if not tools:
+            raise CamObjError(f"刀具库里没有不大于 Ø{lim:g} 的立铣刀")
+    elif kind == "live_keyway" or ft["type"] == "slot":
         tools = _endmills(job, 0, exact=ft["width"])
         if not tools:
             raise CamObjError(f"刀具库里没有 Ø{ft['width']:g} 的立铣刀：键槽、端面槽按槽宽选刀，请先在刀具库里加")
@@ -822,7 +877,7 @@ def live_program_op(job, op) -> dict:
     from analysis.cam import tools as TL
 
     d = float(TL.get(_lib(job), op.ToolId)["diameter_mm"])
-    interp = {"cyl": ft["r_outer"]} if ft["type"] == "keyway" else "polar"
+    interp = {"cyl": ft["r_outer"]} if ft["type"] == "keyway" else {"index": ft["angle"]} if ft["type"] == "flat" else "polar"
     return {"tool": {"n": op.ToolNumber, "d": d}, "spindle": _js(op, "Spindle", {}), "title": op.Label, "interp": interp, "moves": mv}
 
 
@@ -845,6 +900,8 @@ def regenerate_live(op) -> None:
     ap = op.Ap if op.Ap > 0 else d / 2
     if ft["type"] == "keyway":
         mv = MT.keyway_moves(ft["angle"], ft["r_outer"], ft["depth"], ft["za"], ft["zb"], d, ap, f, f / 2)
+    elif ft["type"] == "flat":
+        mv = MT.flat_moves(ft, d, ap, f, f / 2, stepover=op.StepOver or 0.5)
     else:
         mv = MT.face_moves(ft, d, ap, f, f / 2, stepover=op.StepOver or 0.5)
     op.Moves = json.dumps(mv)
@@ -863,6 +920,16 @@ def to_model(job, side, x, y, z):
         total = float(d["profile"][-1][0]) if d.get("profile") else sum(float(L) for _, L in d.get("segments") or [])
         return x / 2, 0.0, (zr - total) - z
     return x / 2, 0.0, z + zr
+
+
+def to_model_3d(job, side, x, y, z):
+    """车削作业的工件坐标（x, y 是真实坐标，不是直径；车铣的铣削段、dexel 网格用）→ 零件模型坐标；调头装夹绕 Y 轴转回来"""
+    d = _js(job, "PartData", {})
+    zr = d.get("z_right", 0.0)
+    if side == "left":
+        total = float(d["profile"][-1][0]) if d.get("profile") else sum(float(L) for _, L in d.get("segments") or [])
+        return -x, y, (zr - total) - z
+    return x, y, z + zr
 
 
 def _unframe(fr, x, y, z):

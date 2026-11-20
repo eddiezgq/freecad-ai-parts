@@ -854,6 +854,7 @@ def _live_join(setup, mach, prog, live, stock, tools_sim, chuck_setup, out):
     out["checks"] += [c for c in mo["checks"] if c["text"] not in have]
     out["gcode"], out["time"] = mo["gcode"], mo["time"]
     out["sim"]["mill_removed_mm3"] = mo["sim"]["mill_removed_mm3"]
+    out["replay_in"] = {**out["replay_in"], "mill_tools": mo["replay_in"]["mill_tools"]}   # 回放：车削段照旧，铣削段在 dexel 上切
     for k in ("machine_sim", "release"):
         if k in mo:
             out[k] = mo[k]
@@ -882,15 +883,15 @@ def _millturn(setup, mach):
         if not ((op.get("spindle") or {}).get("rpm") or (op.get("spindle") or {}).get("css")):
             raise SetupError(f"第 {k} 道工序没有转速")
         it = op.get("interp")
-        need = ("x", "c", "z") if it else ("x", "z")
+        need = ("x", "y", "z") if isinstance(it, dict) and "index" in it else ("x", "c", "z") if it else ("x", "z")
         for mv in op.get("moves") or []:
             if mv.get("t") == "comment" or (not it and setup.get("turn_tools") and mv.get("t") in ("thread", "cycle")):
                 continue                         # 车削作业带过来的车削工序（螺纹、循环）已在车削里查过
             if mv.get("t") not in ("rapid", "feed") or any(mv.get(x) is None for x in need) or (mv["t"] == "feed" and not mv.get("f")):
                 raise SetupError(f"第 {k} 道工序的动作要有 {', '.join(need)}（切削还要 f）：{mv}")
         if it:
-            if it != "polar" and not (isinstance(it, dict) and float(it.get("cyl", 0)) > 0):
-                raise SetupError(f"第 {k} 道工序的 interp 要是 \"polar\" 或 {{\"cyl\": 半径}}")
+            if it != "polar" and not (isinstance(it, dict) and (float(it.get("cyl", 0)) > 0 or isinstance(it.get("index"), (int, float)))):
+                raise SetupError(f"第 {k} 道工序的 interp 要是 \"polar\"、{{\"cyl\": 半径}} 或 {{\"index\": 角度}}")
             if not t.get("d"):
                 raise SetupError(f"第 {k} 道工序（动力刀）要写刀径 tool.d")
             mill_tools[int(t["n"])] = {"kind": t.get("kind", "endmill"), "d": float(t["d"])}
@@ -907,13 +908,7 @@ def _millturn(setup, mach):
     ts = sim.simulate_turn(parsed, st, turn_tools)
     checks += ts["issues"]
     # 车完的外形：半径网格压成折线（半径变了才记点），回转成 dexel 毛坯再铣
-    zc, rr = ts["z"], ts["r"]
-    prof = [(float(st["z_right"]), float(rr[-1]))]
-    for i in range(len(zc) - 2, -1, -1):
-        if abs(rr[i] - prof[-1][1]) > 1e-6:
-            prof.append((float(zc[i + 1] - (zc[1] - zc[0]) / 2), prof[-1][1]))
-            prof.append((float(zc[i + 1] - (zc[1] - zc[0]) / 2), float(rr[i])))
-    prof.append((float(st["z_left"]), float(rr[0])))
+    prof = MTN.grid_profile(ts["z"], ts["r"], st["z_right"], st["z_left"])
     extra: list = []
     mres = {"removed_mm3": 0.0, "issues": []}
     if mill_tools:
@@ -923,7 +918,8 @@ def _millturn(setup, mach):
                        "text": "车铣的铣削段在车完的外形上按三向 dexel 算去料：每段切深、切宽没量，刀杆与剩余材料的碰撞没查"})
     out = {"title": prog.get("title") or "车铣", "number": prog.get("number", 3001), "gcode": g, "time": tm, "checks": checks,
            "power": {"status": "unknown"}, "sim": {"mill_removed_mm3": round(mres["removed_mm3"], 1), "profile": prof},
-           "replay_in": {"kind": "turn", "stock": st, "tools": {str(k): v for k, v in turn_tools.items()}}}
+           "replay_in": {"kind": "turn", "stock": st, "tools": {str(k): v for k, v in turn_tools.items()},
+                         "mill_tools": {str(k): v for k, v in mill_tools.items()}}}
     if setup.get("machine_sim"):
         _msim(setup, mach, parsed, g, st, extra, out, withhold=True)
     elif extra:

@@ -110,7 +110,11 @@ def millturn_lines(op, home, cfg_mt, nd=3, fnd=1, cm=comment) -> list[str]:
     else:
         out += ["G98", "M05", *cfg_mt.get("c_on", []), *cfg_mt.get("live_on", []), f"S{rpm}"]
     cyl = op["interp"].get("cyl") if isinstance(op["interp"], dict) else None
-    out.append(f"G07.1 C{num(cyl, nd)}" if cyl else "G12.1")
+    idx = op["interp"].get("index") if isinstance(op["interp"], dict) else None
+    if idx is not None:                       # C 轴分度 + Y 轴铣（G19，ADR-0106 C2b）
+        out += [f"G00 C{num(idx, nd)}", "G19"]
+    else:
+        out.append(f"G07.1 C{num(cyl, nd)}" if cyl else "G12.1")
     pos, mode, last_f = {}, None, None
     for mv in op["moves"]:
         if mv["t"] == "comment":
@@ -118,7 +122,7 @@ def millturn_lines(op, home, cfg_mt, nd=3, fnd=1, cm=comment) -> list[str]:
             continue
         g = "G00" if mv["t"] == "rapid" else "G01"
         ax = []
-        for a in ("x", "c", "z"):
+        for a in (("x", "y", "z") if idx is not None else ("x", "c", "z")):
             if a in mv and (a not in pos or abs(pos[a] - mv[a]) > 5e-4):
                 ax.append(a.upper() + num(mv[a], nd))
                 pos[a] = mv[a]
@@ -131,7 +135,7 @@ def millturn_lines(op, home, cfg_mt, nd=3, fnd=1, cm=comment) -> list[str]:
             w.append("F" + num(mv["f"], fnd))
             last_f = mv["f"]
         out.append(" ".join(w))
-    out.append("G07.1 C0" if cyl else "G13.1")
+    out += ["G00 Y0.0", "G18"] if idx is not None else ["G07.1 C0" if cyl else "G13.1"]
     if cfg_mt is None:
         out += ["M05", "G99", f"G00 X{num(hx, nd)} Z{num(hz, nd)}"]
     else:
@@ -148,17 +152,22 @@ def millturn_lines_siemens(op, home, cfg_mt, nd=3, fnd=1, cm=comment) -> list[st
     t, sp = op["tool"], op["spindle"]
     rpm = round(float(sp["rpm"]))
     cyl = op["interp"].get("cyl") if isinstance(op["interp"], dict) else None
+    idx = op["interp"].get("index") if isinstance(op["interp"], dict) else None
     d = 2.0 * float(cyl) if cyl else None
     out = [cm(op.get("title", "")), f"G0 X{num(hx, nd)} Z{num(hz, nd)}", f"T{t['n']} D1", "M5",
-           *cfg_mt.get("c_on", []), *cfg_mt.get("live_on", []), f"S{rpm}", "G94", "DIAMOF"]
-    out += [f"TRACYL({num(d, nd)})", "G19"] if cyl else ["TRANSMIT", "G17"]
+           *cfg_mt.get("c_on", []), *cfg_mt.get("live_on", []), f"S{rpm}", "G94"]
+    if idx is not None:                       # C 轴分度 + Y 轴铣：直径编程照旧，G19 平面
+        out += [f"G0 C{num(idx, nd)}", "G19"]
+    else:
+        out += ["DIAMOF", *([f"TRACYL({num(d, nd)})", "G19"] if cyl else ["TRANSMIT", "G17"])]
     pos, mode, last_f = {}, None, None
     for mv in op["moves"]:
         if mv["t"] == "comment":
             out.append(cm(mv["text"]))
             continue
         g = "G0" if mv["t"] == "rapid" else "G1"
-        v = {"X": mv["x"] / 2.0, "Y": (mv["c"] * math.pi * d / 360.0) if cyl else mv["c"], "Z": mv["z"]}
+        v = ({"X": mv["x"], "Y": mv["y"], "Z": mv["z"]} if idx is not None else
+             {"X": mv["x"] / 2.0, "Y": (mv["c"] * math.pi * d / 360.0) if cyl else mv["c"], "Z": mv["z"]})
         ax = []
         for a in ("X", "Y", "Z"):
             if a not in pos or abs(pos[a] - v[a]) > 5e-4:
@@ -173,7 +182,8 @@ def millturn_lines_siemens(op, home, cfg_mt, nd=3, fnd=1, cm=comment) -> list[st
             w.append("F" + num(mv["f"], fnd))
             last_f = mv["f"]
         out.append(" ".join(w))
-    out += ["TRAFOOF", "DIAMON", "G18", *cfg_mt.get("live_off", []), *cfg_mt.get("c_off", []), "G95", f"G0 X{num(hx, nd)} Z{num(hz, nd)}"]
+    out += ["G0 Y0.0", "G18"] if idx is not None else ["TRAFOOF", "DIAMON", "G18"]
+    out += [*cfg_mt.get("live_off", []), *cfg_mt.get("c_off", []), "G95", f"G0 X{num(hx, nd)} Z{num(hz, nd)}"]
     return out
 
 

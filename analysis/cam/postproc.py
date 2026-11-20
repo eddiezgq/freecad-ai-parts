@@ -569,7 +569,7 @@ def to_fanuc(text: str, controller: str, lathe: bool, *, tags: bool = False) -> 
                 out.append("G13.1" if trafo[0] == "transmit" else "G07.1 C0")
             trafo = None
             continue
-        if line in ("DIAMOF", "G17", "G18", "G19"):
+        if line == "DIAMOF" or (line in ("G17", "G19") and trafo):   # TRANSMIT / TRACYL 里的平面；外面的 G19 / G18 是分度铣，照留
             continue
         if "SUPA" in line:                       # 回机床 Z 零点
             out += ["G91 G28 Z0.0", "G90"]

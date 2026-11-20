@@ -2117,7 +2117,6 @@
 "车铣的铣削段（极坐标、圆柱插补）：C 轴、动力刀的整机仿真还没做（ADR-0106 C2b），碰撞和超程没查": "Milling moves on the mill-turn (polar / cylindrical interpolation): machine simulation with the C axis and live tools is not done yet (ADR-0106 C2b); collisions and overtravel not checked",
 "mode 要是 turn、mill、check、program 或 millturn：{}": "mode must be turn, mill, check, program or millturn: {}",
 "{} 不是车铣中心": "{} is not a mill-turn centre",
-"第 {} 道工序的 interp 要是 \"polar\" 或 {{\"cyl\": 半径}}": "Operation {}: interp must be \"polar\" or {{\"cyl\": radius}}",
 "第 {} 道工序的动作要有 {}（切削还要 f）：{}": "Operation {}: moves need {} (cutting moves also f): {}",
 "第 {} 道工序要写刀号 tool.n": "Operation {} needs a tool number tool.n",
 "第 {} 道工序（动力刀）要写刀径 tool.d": "Operation {} (live tool) needs the tool diameter tool.d",
@@ -2153,5 +2152,12 @@
 "{} 不朝{}：端面铣点{}端面上的槽底、型腔底": "{} does not face the {}: for face milling pick a slot or pocket bottom on the {} face",
 "右端": "right end",
 "左端": "left end",
-"点零件端面上的槽底或型腔底：用轴向动力刀、极坐标插补铣（车铣中心）": "Pick a slot or pocket bottom on an end face of the part: milled with an axial live tool and polar interpolation (mill-turn centre)"
+"点零件端面上的槽底或型腔底：用轴向动力刀、极坐标插补铣（车铣中心）": "Pick a slot or pocket bottom on an end face of the part: milled with an axial live tool and polar interpolation (mill-turn centre)",
+"第 {} 道工序的 interp 要是 \"polar\"、{{\"cyl\": 半径}} 或 {{\"index\": 角度}}": "Operation {}: interp must be \"polar\", {{\"cyl\": radius}} or {{\"index\": angle}}",
+"圆柱面平底槽只做长圆和圆角矩形：{}": "Flat-bottom slots on the cylinder are only slots and rounded rectangles: {}",
+"{} 的外形不是直线和圆弧：只做长圆、圆角矩形平底槽": "{} is not bounded by lines and arcs: only slot-shaped and rounded-rectangle flat slots are handled",
+"{} 的法向朝里：点平底槽的底面": "{} faces inwards: pick the bottom face of the flat slot",
+"{} 认不出是长圆还是圆角矩形平底槽：别的形状还没做": "{} is neither a slot-shaped nor a rounded-rectangle flat slot; other shapes are not done yet",
+"圆柱面平底槽（Y 轴）": "Flat slot on cylinder (Y axis)",
+"点圆柱面上平底槽的底面（可宽于刀径）：C 轴分度、径向动力刀 Y 轴铣（车铣中心）": "Pick the bottom of a flat slot on the cylinder (may be wider than the cutter): C-axis indexing, radial live tool milling with the Y axis (mill-turn centre)"
 }
