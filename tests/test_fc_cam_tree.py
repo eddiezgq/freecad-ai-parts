@@ -285,3 +285,26 @@ def test_cam_workbench_has_tree_commands(gui, monkeypatch):
                 "隐藏 / 显示刀路", "新建工序"} <= got, got
     finally:
         FreeCADGui.activateWorkbench("NoneWorkbench")
+
+
+def test_feedback_dialog_makes_package(gui, tmp_path, monkeypatch):
+    """Q7a：问题反馈窗口生成反馈包，里面有当前文档副本；菜单里有这一项"""
+    import FreeCAD as App
+
+    from freecad_addon.core import cam_feedback as FB
+    from freecad_addon.gui import cam_brand
+
+    for k in ("FAP_TOOLS", "FAP_MACHINES_DIR", "FAP_POSTS"):
+        monkeypatch.setenv(k, str(tmp_path / k))
+    assert "FAP_CamFeedback" in cam_brand.CMDS
+    doc = App.newDocument("fbdoc")
+    try:
+        dlg = cam_brand.FeedbackDialog()
+        dlg.text.setPlainText("回放到第 3 行卡住")
+        zp = dlg.generate(tmp_path / "out")
+        names = FB.contents(zp)
+        assert "description.txt" in names and any(n.startswith("document/") and n.endswith(".FCStd") for n in names)
+        assert str(zp) in dlg.status.text()
+        dlg.dlg.close()
+    finally:
+        App.closeDocument(doc.Name)

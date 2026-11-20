@@ -153,6 +153,10 @@ Tick "Deviation" to colour the finished stock by its deviation from the part mod
   simulated path. Tool paths contain no arcs (arcs are split into lines at 0.002 mm chord height), so no CC / C blocks are written.
 - None of the post processors (FANUC, Siemens, GSK lathe, Huazhong, Heidenhain) has been verified on a real machine yet; the program header says so; programs with canned cycles (turning or drilling) get an extra warning in the check list. **Always dry-run the first part and confirm it in single block.**
 
+# Feedback
+
+If something goes wrong, choose "Feedback…" in the WenQuest CAM menu: write a few words about what you did and what went wrong, press "Make feedback package…" and choose a folder. A zip is created (your description, versions, a copy of the current document, your tool library / machine / post configurations, the error text; no license file) for you to send to us (WeChat or e-mail). The software never uploads anything by itself.
+
 # Free and Pro
 
 | Free | Pro (license file with `cam_pro`) |
