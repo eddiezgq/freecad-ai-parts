@@ -110,16 +110,22 @@ def test_command_in_workbench(gui):
     assert r["MenuText"] and r["ToolTip"]
 
 
-def test_open_panel_is_a_visible_dock_not_a_task_dialog(gui, lib):
-    """任务面板在有的布局里是隐藏的：面板看不见、菜单被锁（2026-11-18 问渠 CAD）。改成右侧停靠面板，再点只调到前面"""
-    from PySide import QtWidgets
+def test_open_panel_is_a_tool_window_not_a_dock_or_task_dialog(gui, lib):
+    """任务面板在有的布局里是隐藏的：面板看不见、菜单被锁（2026-11-18）；放进右侧停靠区在问渠 CAD 1.1.4 里卡死（2026-11-19）。
+    改成挂在主窗口上的单独工具窗口：在屏幕内、不进主窗口的停靠区，再点只调到前面"""
+    from PySide import QtCore, QtWidgets
 
     from freecad_addon.gui import ai_design_panel as P
 
     P._LAST_PANEL = P._DOCK = None
+    mw = FreeCADGui_main()
     p = P.open_panel(lib, None)
-    dock = FreeCADGui_main().findChild(QtWidgets.QDockWidget, "FapAiDesignPanel")
-    assert dock is not None and dock.isVisible() and P._DOCK is dock
+    win = P._DOCK
+    assert win.isVisible() and win.objectName() == "FapAiDesignPanel" and win.parent() is mw
+    assert win.windowFlags() & QtCore.Qt.Tool and not isinstance(win, QtWidgets.QDockWidget)
+    assert mw.findChild(QtWidgets.QDockWidget, "FapAiDesignPanel") is None
+    area = QtWidgets.QApplication.primaryScreen().availableGeometry()
+    assert area.contains(win.frameGeometry().topLeft()) and win.width() <= area.width()   # 整个在屏幕里
     assert gui.Control.activeDialog() is False
     assert P.open_panel(lib, None) is p                                          # 只建一个
 
