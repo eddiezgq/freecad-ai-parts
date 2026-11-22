@@ -1,0 +1,31 @@
+{
+ "why": "内孔镗杆：ISO 6261 代号、杆径、最小孔径（ADR-0114）",
+ "instance": {
+  "format": "cam-holder/1",
+  "name": "测试",
+  "holders": [
+   {
+    "id": "TG-A25R-PCLNR12",
+    "iso6261": "A25R-PCLNR12",
+    "use": "internal",
+    "insert": {
+     "codes": [
+      "CN"
+     ],
+     "size": "1204"
+    },
+    "f_mm": 17,
+    "l1_mm": 200,
+    "head_mm": 45,
+    "bar_d_mm": 25,
+    "min_bore_mm": 32,
+    "nose_radius_mm": 0.8,
+    "source": {
+     "kind": "catalog",
+     "ref": "tungaloy",
+     "page": "D010"
+    }
+   }
+  ]
+ }
+}

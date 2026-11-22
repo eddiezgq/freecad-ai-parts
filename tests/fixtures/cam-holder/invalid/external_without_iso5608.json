@@ -1,0 +1,28 @@
+{
+ "why": "外圆刀杆要写 ISO 5608 代号（ADR-0114）",
+ "instance": {
+  "format": "cam-holder/1",
+  "name": "测试",
+  "holders": [
+   {
+    "id": "TG-A25R-PCLNR12",
+    "use": "external",
+    "insert": {
+     "codes": [
+      "CN"
+     ],
+     "size": "1204"
+    },
+    "f_mm": 17,
+    "l1_mm": 200,
+    "head_mm": 45,
+    "nose_radius_mm": 0.8,
+    "source": {
+     "kind": "catalog",
+     "ref": "tungaloy",
+     "page": "D010"
+    }
+   }
+  ]
+ }
+}
