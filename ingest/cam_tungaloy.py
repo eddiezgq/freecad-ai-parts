@@ -15,6 +15,10 @@
 代号（R/L 拆成两把）、能装的刀片（“CN/GN**1204” → 前两位 CN、GN，尺寸位 1204）、h、b、l1、刀头长 LH、刀尖高 HF、刀尖偏距 WF、标准刀尖圆弧 RE。
 代号不合 ISO 5608 写法（缺长度字母或刀片位）的行不收；页码按样本印的 C 页。
 
+螺纹刀片（综合样本 2023–2024 E 部分 TungThread，ISO 米制 60°）：外螺纹右手刀片（代号 ..ER..ISO，含 -B、-M），收 IC、RE、螺距（表里螺距一栏，
+与代号里的螺距位核对）、牙型角 60°；切削速度照 E067 TungThread 表，按材料组取各材质、各硬度行的合集（不收 CBN 牌号 BX330，这些刀片没有），
+每转进给 = 螺距。内螺纹刀片（IR）刀具库没有“内 / 外”这一项，先不收；左手刀片不收。
+
 命令：python -m ingest.cam_tungaloy data/raw/cam/tungaloy --out analysis/cam/libraries/tungaloy.json \
       --holders-out analysis/cam/libraries/tungaloy-holders.json
 """
@@ -46,6 +50,14 @@ _N = r"(\d+(?:\.\d+)?)"
 HOLDER_ROW = re.compile(r"\b([A-Z]{4})(R/L|R|L|N)(\d{4}[A-Z]\d{2}(?:\d{2})?[A-Z]?(?:-[A-Z0-9]+)?)\s+" + r"\s+".join([_N] * 7)
                         + r"\s+([A-Z]{2}(?:/[A-Z]{2})*)\*\*(\d{4})")
 HOLDER_HEAD = re.compile(r"\bH\s+B\s+LF\s+LH\s+HF\s+WF\s+RE")
+
+
+THREAD_PDF = "GC_2023-2024_CN_E_ThreadingTool.pdf"
+THREAD_ROW = re.compile(r"(?:^|\s)(\d{1,2})\s+(\d+(?:\.\d+)?)\s+R\s+((\d{1,2})ER(\d{2,3})ISO(?:-[A-Z]+)?)(?![-A-Z0-9])[^\n]*?\s"
+                        r"(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)", re.MULTILINE)
+# E067 TungThread 切削速度（m/min）：各材料组取各材质、各硬度行的合集（BX330 是 CBN，ISO 米制刀片表里没有，不算）
+THREAD_VC = {"P": (60.0, 200.0), "M": (50.0, 130.0), "K": (50.0, 150.0), "N": (100.0, 500.0), "S": (10.0, 80.0), "H": (10.0, 30.0)}
+THREAD_VC_PAGE = "E067"
 
 
 class TungaloyError(ValueError):
@@ -137,7 +149,9 @@ def build(raw: Path) -> dict:
             tools.append(t)
     if not tools:
         raise TungaloyError("尺寸表读不出来")
-    return {"format": "cam-tool/1", "name": "泰珂洛 ISO-EcoTurn 车刀片（样本参数）", "tools": tools}
+    if (raw / THREAD_PDF).exists():
+        tools += build_threads(raw)
+    return {"format": "cam-tool/1", "name": "泰珂洛 车刀片、螺纹刀片（样本参数）", "tools": tools}
 
 
 def holder_rows(text: str) -> list[dict]:
@@ -184,6 +198,45 @@ def build_holders(raw: Path) -> dict:
     if skipped:
         print("代号与表对不上、没收：" + "；".join(skipped), file=sys.stderr)
     return {"format": "cam-holder/1", "name": "泰珂洛 外圆车刀杆（样本参数）", "holders": out}
+
+
+def _pitch_code(d: str) -> float:
+    """代号里的螺距位：两位按 0.1 mm（15 → 1.5），三位按 0.01 mm（175 → 1.75）"""
+    return int(d) / (10.0 if len(d) == 2 else 100.0)
+
+
+def thread_rows(text: str) -> list[dict]:
+    out = []
+    for m in THREAD_ROW.finditer(text):
+        g = m.groups()
+        pitch = float(g[1])
+        if abs(pitch - _pitch_code(g[4])) > 1e-9:
+            raise TungaloyError(f"{g[2]}：螺距栏 {pitch:g} 与代号 {g[4]} 对不上")
+        out.append({"code": g[2], "pitch": pitch, "ic": float(g[5]), "re": float(g[8])})
+    return out
+
+
+def build_threads(raw: Path) -> list[dict]:
+    pdf = raw / THREAD_PDF
+    if not pdf.exists():
+        raise TungaloyError(f"没有样本 {pdf}")
+    tools, seen = [], set()
+    for page in range(1, page_count(pdf) + 1):
+        for r in thread_rows(page_text(pdf, page)):
+            if r["code"] in seen:
+                continue
+            seen.add(r["code"])
+            p = r["pitch"]
+            tools.append({"id": "TG-" + r["code"], "name": f"泰珂洛 {r['code']} 外螺纹刀片（ISO 米制 60°，螺距 {p:g}）",
+                          "kind": "thread_turn", "pitch_mm": p, "thread_angle_deg": 60,
+                          "insert": {"iso": r["code"], "nose_radius_mm": r["re"], "inscribed_circle_mm": r["ic"]},
+                          "cutting": [{"iso_group": g, "vc_m_min": {"min": lo, "max": hi}, "f_mm_rev": {"min": p, "max": p}}
+                                      for g, (lo, hi) in THREAD_VC.items()],
+                          "source": {"kind": "catalog", "ref": SOURCE,
+                                     "page": f"尺寸 E{page:03d}；切削速度 {THREAD_VC_PAGE}（各材质合集，具体材质按样本另选；每转进给 = 螺距）"}})
+    if not tools:
+        raise TungaloyError("螺纹刀片表读不出来")
+    return tools
 
 
 def main(argv=None) -> int:

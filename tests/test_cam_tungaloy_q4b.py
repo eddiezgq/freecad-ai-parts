@@ -49,9 +49,11 @@ def test_spot_check_against_catalog_pages():
 
 
 def test_library_shape_and_sources():
-    assert len(LIB["tools"]) == 176 and TL.readonly(LIB_PATH)
+    assert len(LIB["tools"]) == 217 and TL.readonly(LIB_PATH)          # 176 片车刀片 + 41 片螺纹刀片
     for t in LIB["tools"]:
-        assert t["kind"] == "turn" and t["id"] == "TG-" + t["insert"]["iso"]
+        assert t["kind"] in ("turn", "thread_turn") and t["id"] == "TG-" + t["insert"]["iso"]
+        if t["kind"] == "thread_turn":
+            continue
         assert "tool_material" not in t and "holder" not in t and "cutting_edge_angle_deg" not in t["insert"]   # 样本按刀杆、材质分，不写
         assert t["source"]["ref"] == "tungaloy" and re.match(r"尺寸 \d{1,2}(；切削条件 58–59)?", t["source"]["page"])
     from pathlib import Path
@@ -147,3 +149,39 @@ def test_draft_pairs_holders_and_checks_shank():
     for prog in r["data"]["programs"]:
         texts = [c["text"] for c in prog["checks"]]
         assert not any("没写刀杆代号" in t for t in texts) and any("刀头外形各家不同" in t for t in texts)
+
+
+# ---------------------------------------------------------------- 螺纹刀片（综合样本 E 部分 TungThread，ISO 米制 60°）
+def test_thread_inserts_spot_check():
+    """E018、E019、E067 看样本页图抄的：16ER15ISO IC 9.525 RE 0.19；22ER40ISO-B RE 0.52；27ER60ISO IC 15.875 RE 0.75；
+    TungThread 切削速度：P 各材质两档硬度合集 60–200，M 50–130，K 50–150（AH725 50–100、T313V 70–150 等）"""
+    for tid, ic, re_, pitch, page in (("TG-16ER15ISO", 9.525, 0.19, 1.5, "E018"), ("TG-22ER40ISO-B", 12.7, 0.52, 4.0, "E019"),
+                                      ("TG-27ER60ISO", 15.875, 0.75, 6.0, "E018")):
+        t = BY_ID[tid]
+        assert (t["kind"], t["pitch_mm"], t["thread_angle_deg"]) == ("thread_turn", pitch, 60)
+        assert (t["insert"]["inscribed_circle_mm"], t["insert"]["nose_radius_mm"]) == (ic, re_) and t["source"]["page"].startswith(f"尺寸 {page}")
+        c = {x["iso_group"]: x for x in t["cutting"]}
+        assert c["P"]["vc_m_min"] == {"min": 60, "max": 200} and c["M"]["vc_m_min"] == {"min": 50, "max": 130}
+        assert c["K"]["vc_m_min"] == {"min": 50, "max": 150} and c["P"]["f_mm_rev"] == {"min": pitch, "max": pitch}
+    assert not any("IR" in t["id"] or "EL" in t["id"] for t in LIB["tools"] if t["kind"] == "thread_turn")   # 内螺纹、左手不收
+
+
+def test_thread_row_parser():
+    line = "        55°                   16   1.5    R   16ER15ISO          9.525 0.9    0.7   0.19 16IR15ISO    9.525 0.9 0.7 0.11\n"
+    assert TG.thread_rows(line) == [{"code": "16ER15ISO", "pitch": 1.5, "ic": 9.525, "re": 0.19}]
+    assert TG._pitch_code("175") == 1.75 and TG._pitch_code("60") == 6.0
+    with pytest.raises(TG.TungaloyError, match="螺距栏"):
+        TG.thread_rows(" 16   2    R   16ER15ISO   9.525 0.9 0.7 0.19\n")
+
+
+def test_draft_threaded_shaft_with_tungaloy():
+    """M24×1.5 外螺纹：螺纹刀按螺距从泰珂洛库里挑，算通、出程序"""
+    part = {"mode": "turn", "machine": "EX-LATHE", "kienzle": "C45E", "segments": [[24, 30], [40, 60]], "chamfer_mm": 1,
+            "threads": [{"z_start": 0, "z_end": -26, "d": 24, "pitch": 1.5}]}
+    d = CP.draft(part, "P", LIB)
+    card = {r["id"]: r for r in d["card"]}
+    assert BY_ID[card["thread1"]["tool"]]["pitch_mm"] == 1.5 and card["thread1"]["status"] == "pass"
+    s = d["setup"]
+    s["machine_sim"]["tool_library"] = str(LIB_PATH)
+    r = cam.run({**s, "post": "fanuc"})
+    assert all(p["release"] is not None for p in r["data"]["programs"])
