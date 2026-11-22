@@ -12,10 +12,10 @@
     "id": "chassis",
     "length_mm": 500,
     "shape": "box",
-    "section_mm": [
-     400,
-     120
-    ]
+    "section": {
+     "width_mm": 400,
+     "height_mm": 120
+    }
    },
    {
     "id": "wheel_l",
@@ -31,10 +31,10 @@
     "id": "tray",
     "length_mm": 0,
     "shape": "box",
-    "section_mm": [
-     350,
-     300
-    ]
+    "section": {
+     "width_mm": 350,
+     "height_mm": 300
+    }
    }
   ],
   "joints": [

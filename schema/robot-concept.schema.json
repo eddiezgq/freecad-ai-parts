@@ -95,16 +95,6 @@
               "custom"
             ]
           },
-          "section_mm": {
-            "type": "array",
-            "items": {
-              "type": "number",
-              "exclusiveMinimum": 0
-            },
-            "minItems": 1,
-            "maxItems": 3,
-            "description": "截面外形尺寸：tube [外径] 或 [外径, 内径]；box、profile [宽, 高]；plate [宽, 厚]"
-          },
           "material": {
             "type": "string",
             "maxLength": 60,
@@ -113,8 +103,147 @@
           "note": {
             "type": "string",
             "maxLength": 500
+          },
+          "section": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "截面外形尺寸（按 shape 写对应的字段）：tube 外径 od_mm、内径 id_mm（空心时写，不是壁厚）；box 宽 width_mm、高 height_mm、壁厚 wall_mm（空心时写）；plate 宽 width_mm、厚 thickness_mm；profile 宽 width_mm、高 height_mm",
+            "properties": {
+              "od_mm": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "id_mm": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "width_mm": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "height_mm": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "wall_mm": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "thickness_mm": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            }
           }
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "shape": {
+                  "const": "tube"
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            "then": {
+              "properties": {
+                "section": {
+                  "required": [
+                    "od_mm"
+                  ],
+                  "properties": {
+                    "width_mm": false,
+                    "height_mm": false,
+                    "wall_mm": false,
+                    "thickness_mm": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "shape": {
+                  "enum": [
+                    "box",
+                    "profile"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            "then": {
+              "properties": {
+                "section": {
+                  "required": [
+                    "width_mm",
+                    "height_mm"
+                  ],
+                  "properties": {
+                    "od_mm": false,
+                    "id_mm": false,
+                    "thickness_mm": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "shape": {
+                  "const": "profile"
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            "then": {
+              "properties": {
+                "section": {
+                  "properties": {
+                    "wall_mm": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "shape": {
+                  "const": "plate"
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            "then": {
+              "properties": {
+                "section": {
+                  "required": [
+                    "width_mm",
+                    "thickness_mm"
+                  ],
+                  "properties": {
+                    "od_mm": false,
+                    "id_mm": false,
+                    "height_mm": false,
+                    "wall_mm": false
+                  }
+                }
+              }
+            }
+          }
+        ]
       }
     },
     "joints": {

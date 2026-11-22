@@ -19,7 +19,7 @@ AI 照它填，代码照它核、照它建多体模型。现有格式都不合�
 | `kind` | `serial_arm`（串联臂）、`gantry`（直角坐标 / 龙门）、`mobile_base`（移动底盘）、`other` |
 | `reason` | AI 提这个构型的理由（给人看，代码不用） |
 | `base` | 安装方式：`floor`、`table`、`ceiling`、`wall`、`mobile`；底座高度 |
-| `links` | 杆件：id、长度、外形（`tube`、`box`、`plate`、`profile`、`custom`）、截面外形尺寸（可选）、材料 id（可选）。**不写质量**——质量在选件、设计自制件之后由代码算 |
+| `links` | 杆件：id、长度、外形（`tube`、`box`、`plate`、`profile`、`custom`）、截面（按外形写带名字的尺寸：圆管外径 `od_mm`、内径 `id_mm`；方管 / 方块宽 `width_mm`、高 `height_mm`、壁厚 `wall_mm`；板宽、厚 `thickness_mm`；型材宽、高）、材料 id（可选）。**不写质量**——质量在选件、设计自制件之后由代码算 |
 | `joints` | 关节：id、类型（`revolute`、`prismatic`、`wheel`）、父件（`base` 或杆件 id）、子件、零位时在父件坐标系里的原点与轴线、行程、轮子半径；传动（`direct`、`reducer`、`belt`、`ballscrew`、`rack_pinion`、`belt_linear`）与传动比 / 导程；`module_group`：同一组的关节用同一种关节模组 |
 | `end_effector` | 末端：类型（`gripper`、`vacuum`、`needle`、`tray`、`none`、`custom`）、相对最后一根杆末端的偏移、说明 |
 | `tasks` | 典型动作：`joint_move`（各关节从哪到哪、用时、停顿）、`cartesian_move`（末端从哪点到哪点）、`drive`（移动底盘：速度、加速度、坡度、门槛高度） |
@@ -44,3 +44,6 @@ AI 照它填，代码照它核、照它建多体模型。现有格式都不合�
 
 - schema 单独成 PR（本 ADR）；样例放 `tests/fixtures/robot-concept/`，合法、非法各几份；
 - 下一步 44.1 的 `analysis/robot/` 读这个格式。
+
+补充（2026-11-22，合并前）：截面原写成数组 `section_mm`（圆管 [外径, 内径]），真实 AI 运行（design-eval 45057334760）把圆管写成 [外径, 壁厚]、板写了三个数；
+改成按外形写带名字的字段，不会再看错。
