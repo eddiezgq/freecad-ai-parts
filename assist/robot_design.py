@@ -146,6 +146,12 @@ def _cond_text(c: dict) -> str:
     return "\n".join(f"- {names.get(k, k)}：{v if not isinstance(v, list) else '；'.join(v)}" for k, v in c.items())
 
 
+def _materials() -> str:
+    from analysis.common import materials
+
+    return "\n".join(f"- {m['id']}：{m['name']}" for m in materials.all_materials())
+
+
 def proposal_request(cond: dict, history: list[dict], *, model: str = DEFAULT_MODEL) -> dict:
     prev = ""
     if history:
@@ -153,7 +159,8 @@ def proposal_request(cond: dict, history: list[dict], *, model: str = DEFAULT_MO
         prev = (f"\n\n第 {len(history)} 轮你的构型：\n{json.dumps(last['proposal'], ensure_ascii=False, sort_keys=True)}\n"
                 f"程序初筛的结论（每个构型没通过和待确认的项）：\n{last['feedback']}")
     return {"model": model, "prompt_version": PROMPT_VERSION, "system": SYSTEM_PROPOSAL,
-            "user": f"设计条件（已核对，标准单位）：\n{_cond_text(cond)}{prev}", "tool": PROPOSAL_TOOL}
+            "user": f"设计条件（已核对，标准单位）：\n{_cond_text(cond)}\n\n杆件材料只能从材料库里选（写 id）：\n{_materials()}{prev}",
+            "tool": PROPOSAL_TOOL}
 
 
 def _item(name, status, value=None, limit=None, note=""):
@@ -196,6 +203,12 @@ def evaluate(concept: Any, cond: dict) -> dict:
         best = max(groups.values(), default=0)
         items.append(_item("关节模组复用", "pass" if best >= 2 else "fail", best, "≥ 2",
                            "同一个 module_group 的关节数" if best >= 2 else "没有两个关节用同一种模组"))
+    from analysis.common import materials
+
+    known = {x["id"] for x in materials.all_materials()}
+    bad_mat = sorted({lk["material"] for lk in c.get("links") or [] if lk.get("material") and lk["material"] not in known})
+    if bad_mat:
+        items.append(_item("杆件材料", "fail", "、".join(bad_mat), None, "材料库里没有；请从给出的材料 id 里选"))
     if "repeatability" in cond:
         items.append(_item("重复定位精度", "unknown", None, f"± {cond['repeatability']:g} mm",
                            "选件后按编码器分辨率与减速器回差算（这一步判不了）"))

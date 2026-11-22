@@ -104,3 +104,12 @@ def test_missing_conditions_stop_before_design():
     ai = Script([], conds={"kind": "serial_arm", "kind_quote": "教学用桌面机械臂"})
     res = RD.design(TEXT, ai)
     assert res["status"] == "needs_input" and set(res["missing"]) == {"自由度", "末端负载", "臂展"} and len(ai.requests) == 1
+
+
+def test_unknown_link_material_fails():
+    cond, *_ = RD.check_conditions(copy.deepcopy(CONDS), TEXT)
+    c = arm()
+    c["links"][1]["material"] = "aluminum_6061"
+    ev = RD.evaluate(c, cond)
+    assert next(i for i in ev["items"] if i["item"] == "杆件材料")["status"] == "fail"
+    assert "6061-T6" in RD.proposal_request(cond, [])["user"]                     # 材料库的 id 交给 AI 选
