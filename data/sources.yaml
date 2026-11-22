@@ -218,6 +218,11 @@ sources:
         version: 2020–2021（文件名），以 SHA-256 标识（2026-11-22 登记）
         url: https://tungaloy.com/wpdata/wp-content/uploads/GC_2020-2021_CN_C_Ex.Turning.pdf
         sha256: "4765a567c908c41946f791dddc606cf8414cc7667ff155f106eaa8f772b4c5b6"
+      - id: src-tungaloy-gc-2023-2024-e-threading
+        title: 泰珂洛 综合样本 2023–2024 E 部分 螺纹车削（中文，70 页；收 TungThread ISO 米制外螺纹刀片与 E067 切削速度）
+        version: 2023–2024（文件名），以 SHA-256 标识（2026-11-22 登记）
+        url: https://tungaloy.com/wpdata/wp-content/uploads/GC_2023-2024_CN_E_ThreadingTool.pdf
+        sha256: "eb661a7ed00056a8b49341673286d58422aefc9b6c6d6a321eeba5546e278b84"
   - id: golden-egret
     vendor: 厦门金鹭特种合金有限公司（Golden Egret）
     url: https://www.gesac.com.cn
