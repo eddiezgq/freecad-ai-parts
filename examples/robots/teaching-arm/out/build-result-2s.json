@@ -243,6 +243,7 @@
      "candidates": 10
     }
    },
+   "smart_shortfall": null,
    "joints": [
     "j1",
     "j2",
@@ -428,6 +429,46 @@
   "notes": [
    "一体化关节模组还要一个总线控制器（如 U2D2 一类的总线转接）与直流电源；库里没有这两类，未列入"
   ]
+ },
+ "repeatability": {
+  "pose": "水平伸直（力臂最大）",
+  "rows": [
+   {
+    "joint": "j1",
+    "lever_mm": 479.7,
+    "counts_per_rev": 4096,
+    "error_mm": 0.368
+   },
+   {
+    "joint": "j2",
+    "lever_mm": 479.7,
+    "counts_per_rev": 4096,
+    "error_mm": 0.368
+   },
+   {
+    "joint": "j3",
+    "lever_mm": 279.9,
+    "counts_per_rev": 4096,
+    "error_mm": 0.215
+   },
+   {
+    "joint": "j4",
+    "lever_mm": 100.0,
+    "counts_per_rev": 4096,
+    "error_mm": 0.077
+   },
+   {
+    "joint": "j5",
+    "lever_mm": 0.0,
+    "counts_per_rev": 4096,
+    "error_mm": 0.0
+   }
+  ],
+  "worst_mm": 1.027,
+  "target_mm": 0.5,
+  "backlash_lost_motion_mm": 5.84,
+  "status": "fail",
+  "note": "分辨率一项最坏 ±1.03 mm，要求 ±0.5 mm；反向趋近时回差最坏再多 5.8 mm"
  },
  "cost": {
   "status": "unknown",

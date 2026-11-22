@@ -952,6 +952,15 @@
   "made_mass_kg": 0.635,
   "notes": []
  },
+ "repeatability": {
+  "pose": "水平伸直（力臂最大）",
+  "rows": [],
+  "worst_mm": 0.0,
+  "target_mm": 0.5,
+  "backlash_lost_motion_mm": null,
+  "status": "unknown",
+  "note": "缺数据：j1（伺服链：库里没有编码器位数）、j2（伺服链：库里没有编码器位数）、j3（伺服链：库里没有编码器位数）、j4（伺服链：库里没有编码器位数）、j5（伺服链：库里没有编码器位数）"
+ },
  "cost": {
   "status": "unknown",
   "note": "零件库没有价格数据；“外购件成本尽量低”要等登记了有价格的公开目录才判得了"

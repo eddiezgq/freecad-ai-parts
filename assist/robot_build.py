@@ -11,6 +11,7 @@
     同样轻时优先方案里写的减速比；一体化关节模组——engine.smart_actuator 逐个校验，取没有“不通过”里最轻的。
     两条链取装在臂上的质量轻的（伺服链的驱动器不在臂上，不计），另一条并列在报告里。
   5 模组质量回代到第 1 步，重复到选型不再变（最多 MAX_ROUNDS 轮）。
+  6 重复定位精度：位置测量分辨率一项，在水平伸直姿态上逐关节最坏相加，与需求比（repeatability()）。
 成本：零件库没有价格数据，“外购件成本尽量低”判不了，结论记待确认并写明缺什么。
 """
 
@@ -219,7 +220,8 @@ def choose(lib, req: Mapping, ratio: float | None, points=None) -> dict:
                 smart_shortfall=shortfall)
 
 
-def build(concept: Mapping, payload_kg: float, *, base: Mapping | None = None, move_s: float = MOVE_S) -> dict:
+def build(concept: Mapping, payload_kg: float, *, base: Mapping | None = None, move_s: float = MOVE_S,
+          repeatability_mm: float | None = None) -> dict:
     lib = _library()
     base = dict(base or BASE_REQ)
     dt = duty(concept, move_s)
@@ -252,7 +254,55 @@ def build(concept: Mapping, payload_kg: float, *, base: Mapping | None = None, m
     return {"status": "pass", "rounds": rounds, "picks": picks, "duty": dt, "result": res,
             "module_masses_kg": mods, "link_masses_kg": _link_masses(concept), "assumptions": [duty_text(move_s), *ASSUMPTIONS],
             "open_items": open_items, "bom": bom(lib, concept, picks),
+            "repeatability": repeatability(lib, concept, dt, picks, repeatability_mm),
             "cost": {"status": "unknown", "note": "零件库没有价格数据；“外购件成本尽量低”要等登记了有价格的公开目录才判得了"}}
+
+
+def repeatability(lib, concept: Mapping, dt: Mapping, picks: Mapping, target_mm: float | None) -> dict:
+    """末端重复定位精度（只算位置测量的分辨率这一项，最坏情况线性相加）：
+    每个转动关节的角度不确定 ±½ 个计数 = ±π / 每转计数（rad），乘以该关节轴线到工具点的距离，在水平伸直姿态（力臂最大）上逐关节相加。
+    一体化模组：规格表的分辨率是输出端每转计数（位置控制 0–360°），直接用；回差另报（同方向趋近时不计，反向时最坏会多出这么多）。
+    伺服链：编码器在电机端，每转计数 = 2^位数 × 减速比；库里没有编码器位数 → 待确认；减速器的空回也不在这里算。
+    """
+    from analysis.robot import kinematics as K
+
+    m = K.build(concept)
+    q = dt["initial"]
+    T = K.fk(m, q)
+    tip = K.tool_point(m, q)
+    group_of = {j: g for g, pk in picks.items() for j in pk["joints"]}
+    rows, total, lost, missing = [], 0.0, 0.0, []
+    for j in K.chain(m):
+        if j.type == "prismatic":
+            missing.append(f"{j.id}（移动关节）")
+            continue
+        o = (T[j.parent] @ np.append(j.origin, 1.0))[:3]
+        a = T[j.parent][:3, :3] @ j.axis
+        lever = float(np.linalg.norm(np.cross(a, tip - o)))
+        pk = picks[group_of[j.id]]
+        counts = backlash = None
+        if pk["chain"] == "smart":
+            comp = lib.get(pk["components"][0])
+            counts = _pv(comp, "resolution_counts_per_rev")
+            backlash = _pv(comp, "backlash_arcmin")
+        if not counts:
+            missing.append(f"{j.id}（{'伺服链：库里没有编码器位数' if pk['chain'] == 'servo' else '模组没给分辨率'}）")
+            continue
+        e = math.pi / counts * lever
+        total += e
+        if backlash:
+            lost += math.radians(backlash / 60) * lever
+        rows.append({"joint": j.id, "lever_mm": round(lever, 1), "counts_per_rev": counts, "error_mm": round(e, 3)})
+    out = {"pose": "水平伸直（力臂最大）", "rows": rows, "worst_mm": round(total, 3), "target_mm": target_mm,
+           "backlash_lost_motion_mm": round(lost, 2) if lost else None}
+    if missing or target_mm is None:
+        out["status"] = "unknown"
+        out["note"] = "缺数据：" + "、".join(missing) if missing else "需求没给重复定位精度"
+    else:
+        out["status"] = "pass" if total <= target_mm + 1e-9 else "fail"
+        out["note"] = (f"分辨率一项最坏 ±{total:.2f} mm，要求 ±{target_mm:g} mm"
+                       + (f"；反向趋近时回差最坏再多 {lost:.1f} mm" if lost else ""))
+    return out
 
 
 def _link_masses(concept: Mapping) -> dict:
@@ -296,6 +346,9 @@ def summary(out: Mapping) -> str:
                                     for c, o in p["options"].items())
                          + (f"；{p['smart_shortfall']}" if p.get("smart_shortfall") else ""))
         lines.append(f"外购件 {b['purchased_mass_kg']} kg；自制杆件 {b['made_mass_kg']} kg")
+        r = out.get("repeatability")
+        if r:
+            lines.append(f"重复定位精度：{r['status']}（{r['note']}）")
         lines += [f"待确认：{x}" for x in out.get("open_items", [])]
         lines.append(f"成本：{out['cost']['note']}")
     return "\n".join(lines)
@@ -317,7 +370,9 @@ def main(argv: list[str] | None = None) -> int:
     if isinstance(payload, bool) or not isinstance(payload, (int, float)) or not math.isfinite(payload):
         print("需求里没有末端负载：载荷算不了", file=sys.stderr)
         return 1
-    out = build(copy.deepcopy(cr["chosen"]), float(payload), move_s=a.move_s)
+    rep = (cr.get("conditions") or {}).get("repeatability")
+    out = build(copy.deepcopy(cr["chosen"]), float(payload), move_s=a.move_s,
+                repeatability_mm=float(rep) if isinstance(rep, (int, float)) and not isinstance(rep, bool) else None)
     print(summary(out), file=sys.stderr)
     if a.out:
         keep = {k: v for k, v in out.items() if k != "result"}
