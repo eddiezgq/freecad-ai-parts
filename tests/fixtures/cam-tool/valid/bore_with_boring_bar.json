@@ -1,0 +1,26 @@
+{
+ "why": "车刀配内孔镗杆（ADR-0114）",
+ "instance": {
+  "format": "cam-tool/1",
+  "name": "测试",
+  "tools": [
+   {
+    "id": "B",
+    "kind": "bore",
+    "insert": {
+     "nose_radius_mm": 0.8
+    },
+    "holder": {
+     "iso6261": "A25R-PCLNR12",
+     "f_mm": 17,
+     "bar_d_mm": 25,
+     "min_bore_mm": 32
+    },
+    "source": {
+     "kind": "example",
+     "ref": "x"
+    }
+   }
+  ]
+ }
+}
