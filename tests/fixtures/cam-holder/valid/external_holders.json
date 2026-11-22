@@ -1,0 +1,56 @@
+{
+ "why": "外圆刀杆：代号、能装的刀片、f、刀头长（ADR-0112）",
+ "instance": {
+  "format": "cam-holder/1",
+  "name": "测试刀杆库",
+  "holders": [
+   {
+    "id": "TG-PCLNR2525M12",
+    "iso5608": "PCLNR2525M12",
+    "use": "external",
+    "insert": {
+     "codes": [
+      "CN"
+     ],
+     "size": "1204"
+    },
+    "f_mm": 32,
+    "h_mm": 25,
+    "b_mm": 25,
+    "l1_mm": 150,
+    "h1_mm": 25,
+    "head_mm": 30,
+    "nose_radius_mm": 0.8,
+    "source": {
+     "kind": "catalog",
+     "ref": "tungaloy",
+     "page": "C017"
+    }
+   },
+   {
+    "id": "TG-ACLNL2020K0904-A",
+    "iso5608": "ACLNL2020K0904-A",
+    "use": "external",
+    "insert": {
+     "codes": [
+      "CN",
+      "GN"
+     ],
+     "size": "0904"
+    },
+    "f_mm": 32,
+    "h_mm": 25,
+    "b_mm": 25,
+    "l1_mm": 150,
+    "h1_mm": 25,
+    "head_mm": 30,
+    "nose_radius_mm": 0.8,
+    "source": {
+     "kind": "catalog",
+     "ref": "tungaloy",
+     "page": "C017"
+    }
+   }
+  ]
+ }
+}

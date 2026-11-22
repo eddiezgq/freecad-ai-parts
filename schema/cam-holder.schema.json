@@ -1,0 +1,148 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/cam-holder.schema.json",
+ "title": "车刀刀杆库（cam-holder/1）",
+ "description": "ADR-0112：问渠CAM 的车刀刀杆目录（厂商样本）。起草工艺时按刀片代号给没写刀杆的车刀配刀杆，整机仿真按刀杆外形查碰撞。长度 mm。缺的数据不写。",
+ "type": "object",
+ "properties": {
+  "format": {
+   "const": "cam-holder/1"
+  },
+  "name": {
+   "type": "string",
+   "minLength": 1
+  },
+  "example": {
+   "type": "boolean"
+  },
+  "holders": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "$ref": "#/$defs/holder"
+   }
+  }
+ },
+ "required": [
+  "format",
+  "name",
+  "holders"
+ ],
+ "additionalProperties": false,
+ "$defs": {
+  "holder": {
+   "type": "object",
+   "properties": {
+    "id": {
+     "type": "string",
+     "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "name": {
+     "type": "string"
+    },
+    "iso5608": {
+     "type": "string",
+     "pattern": "^[A-Z][A-Z][A-Z][A-Z][RLN] ?[0-9]{4} ?[A-Z] ?[0-9]{2}.*$",
+     "description": "刀杆代号（ISO 5608 写法；厂家在第 11–12 位后面接的字符照抄，如 PCLNR2525M12、ACLNR2020K0904-A）"
+    },
+    "use": {
+     "enum": [
+      "external"
+     ],
+     "description": "外圆车刀杆（内孔刀杆另定）"
+    },
+    "insert": {
+     "type": "object",
+     "description": "能装的刀片：ISO 1832 代号前两位（形状 + 法后角，可多个）与尺寸位（刃长 2 位 + 厚度 2 位）",
+     "properties": {
+      "codes": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z]$"
+       }
+      },
+      "size": {
+       "type": "string",
+       "pattern": "^[0-9]{4}$"
+      }
+     },
+     "required": [
+      "codes",
+      "size"
+     ],
+     "additionalProperties": false
+    },
+    "f_mm": {
+     "type": "number",
+     "exclusiveMinimum": 0,
+     "description": "刀尖到刀杆基准侧面的距离（样本 f / WF）"
+    },
+    "h_mm": {
+     "type": "number",
+     "exclusiveMinimum": 0
+    },
+    "b_mm": {
+     "type": "number",
+     "exclusiveMinimum": 0
+    },
+    "l1_mm": {
+     "type": "number",
+     "exclusiveMinimum": 0,
+     "description": "全长（样本 l1 / LF）"
+    },
+    "h1_mm": {
+     "type": "number",
+     "exclusiveMinimum": 0,
+     "description": "刀尖高（样本 h1 / HF）"
+    },
+    "head_mm": {
+     "type": "number",
+     "exclusiveMinimum": 0,
+     "description": "刀头长（样本 l2 / LH）：刀头这一段各家形状不同，碰撞报“未知”的范围"
+    },
+    "nose_radius_mm": {
+     "type": "number",
+     "minimum": 0,
+     "description": "样本标的标准刀片刀尖圆弧"
+    },
+    "source": {
+     "type": "object",
+     "properties": {
+      "kind": {
+       "enum": [
+        "catalog",
+        "enterprise",
+        "measured",
+        "example"
+       ]
+      },
+      "ref": {
+       "type": "string",
+       "minLength": 1,
+       "description": "catalog：data/sources.yaml 的 id；enterprise / measured：谁、何时、依据什么"
+      },
+      "page": {
+       "type": "string"
+      }
+     },
+     "required": [
+      "kind",
+      "ref"
+     ],
+     "additionalProperties": false
+    }
+   },
+   "required": [
+    "id",
+    "iso5608",
+    "use",
+    "insert",
+    "f_mm",
+    "source"
+   ],
+   "additionalProperties": false
+  }
+ }
+}

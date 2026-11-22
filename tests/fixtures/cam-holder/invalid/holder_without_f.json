@@ -1,0 +1,31 @@
+{
+ "why": "没有刀尖偏距 f 的刀杆放不下，不收（ADR-0112）",
+ "instance": {
+  "format": "cam-holder/1",
+  "name": "测试刀杆库",
+  "holders": [
+   {
+    "id": "TG-PCLNR2525M12",
+    "iso5608": "PCLNR2525M12",
+    "use": "external",
+    "insert": {
+     "codes": [
+      "CN"
+     ],
+     "size": "1204"
+    },
+    "h_mm": 25,
+    "b_mm": 25,
+    "l1_mm": 150,
+    "h1_mm": 25,
+    "head_mm": 30,
+    "nose_radius_mm": 0.8,
+    "source": {
+     "kind": "catalog",
+     "ref": "tungaloy",
+     "page": "C017"
+    }
+   }
+  ]
+ }
+}

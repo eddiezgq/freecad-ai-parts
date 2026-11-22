@@ -123,6 +123,7 @@ TOP_LEVEL = {
     "cam-machine": "cam-machine.schema.json",      # ADR-0105
     "cam-tool": "cam-tool.schema.json",            # ADR-0105
     "cam-post": "cam-post.schema.json",            # ADR-0109
+    "cam-holder": "cam-holder.schema.json",        # ADR-0112
 }
 
 

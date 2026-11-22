@@ -198,6 +198,11 @@
        "type": "number",
        "exclusiveMinimum": 0,
        "description": "刀尖到刀杆基准侧面的距离（厂家样本的 f）；各家不同，没有就不写，刀头一段碰撞报“未知”"
+      },
+      "head_mm": {
+       "type": "number",
+       "exclusiveMinimum": 0,
+       "description": "刀头长（样本 l2 / LH）；没写时按刀片刃长（ISO 5608 第 11–12 位）算（ADR-0112）"
       }
      },
      "additionalProperties": false,
