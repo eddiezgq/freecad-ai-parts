@@ -71,7 +71,9 @@ robot-concept/1 格式（单位 mm、°、s、kg；右手坐标系、z 向上）
 每个构型都是一个完整对象，必须有 format、name、kind、base、links、joints。
 - format: "robot-concept/1"（每个构型都要写）；name；kind: serial_arm | gantry | mobile_base | other；reason：这个构型的理由
 - base: {mount: table | floor | ceiling | wall | mobile, height_mm}
-- links: [{id, length_mm, shape: tube | box | plate | profile | custom, section_mm: [..], material}]——不写质量（质量由程序在选件后算）
+- links: [{id, length_mm, shape: tube | box | plate | profile | custom, section: {...}, material}]——不写质量（质量由程序在选件后算）
+  section 按外形写：tube {od_mm 外径, id_mm 内径（空心时写，不是壁厚）}；box {width_mm, height_mm, wall_mm（空心时写壁厚）}；
+  plate {width_mm, thickness_mm}；profile {width_mm, height_mm}
 - joints: [{id, type: revolute | prismatic | wheel, parent: "base" 或杆件 id, child: 杆件 id, origin_mm: [x,y,z], axis: [x,y,z],
            range_deg（转动） | range_mm（移动） | radius_mm（轮子）, transmission: direct | reducer | belt | ballscrew | rack_pinion | belt_linear,
            ratio（reducer、belt）, lead_mm（ballscrew、rack_pinion、belt_linear）, module_group（同组的关节用同一种关节模组）}]
