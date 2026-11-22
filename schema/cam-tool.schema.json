@@ -83,6 +83,15 @@
       "bore"
      ]
     },
+    "internal": {
+     "type": "boolean",
+     "description": "内孔用（内螺纹刀片、内孔车刀、内槽刀）；不写 = 外圆用。起草时内孔工序只挑 true 的，外圆工序不挑 true 的（ADR-0113）"
+    },
+    "min_bore_mm": {
+     "type": "number",
+     "exclusiveMinimum": 0,
+     "description": "内孔刀能进的最小孔径（样本的 Dmin / DMIN）；孔比它小报错（ADR-0113）"
+    },
     "diameter_mm": {
      "type": "number",
      "exclusiveMinimum": 0
