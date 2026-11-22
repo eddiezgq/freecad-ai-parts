@@ -1169,10 +1169,21 @@ def _ms(job, tool_rows) -> dict:
     if job.ToolLibrary:
         ms["tool_library"] = job.ToolLibrary
     lengths = _js(job, "ToolLengths", {})
+    lib = _lib(job) if job.Kind == "turn" else None
     for n, tid in tool_rows:
         e = {"tool": tid}
         if tid in lengths:
             e["length_mm"] = float(lengths[tid])
+        if lib is not None:                                   # 外圆车刀没写刀杆：按刀片配一把（ADR-0112）
+            from analysis.cam import tools as TL
+            from assist import cam_process as CP
+
+            try:
+                hd = CP.turn_holder(TL.get(lib, tid))
+            except Exception:  # noqa: BLE001
+                hd = None
+            if hd:
+                e["holder"] = hd
         ms["tools"][str(n)] = e
     nums = [float(x) for x in (job.Fixture or "").replace("，", ",").split(",") if x.strip()]
     if job.Kind == "turn" and len(nums) == 2:

@@ -45,7 +45,8 @@ def boxes(holder: dict) -> tuple[list[list[float]], list[str]]:
     f = holder.get("f_mm")
     if f is None:
         return [], [f"刀杆 {p['code']} 没写刀尖偏距 f（厂家样本里查），刀杆没查"]
-    f, b, h, l1, head = float(f), p["b_mm"], p["h_mm"], p["l1_mm"], p["edge_mm"]
+    f, b, h, l1 = float(f), p["b_mm"], p["h_mm"], p["l1_mm"]
+    head = float(holder.get("head_mm") or p["edge_mm"])        # 刀头长：样本的 LH（ADR-0112），没写按刀片刃长
     if p["hand"] == "R":
         z0, z1 = f - b, f
     elif p["hand"] == "L":
@@ -54,3 +55,50 @@ def boxes(holder: dict) -> tuple[list[list[float]], list[str]]:
         z0, z1 = -b / 2, b / 2
     notes.append(f"刀杆 {p['code']}：离刀尖 {head:g} mm 以内的刀头外形各家不同，没查")
     return [[head, -h, z0, l1, 0.0, z1]], notes
+
+
+# ---------------------------------------------------------------- 刀杆库（cam-holder/1，ADR-0112）：起草时给车刀片配刀杆
+STYLE = {"C": "L", "W": "L", "D": "J", "V": "J", "T": "G", "S": "B"}   # 刀片形状 → 首选刀杆形式（L 95°、J 93°、G 90°、B 75°）
+
+
+def insert_key(iso: str) -> tuple[str, str] | None:
+    """ISO 1832 刀片代号 → (前两位 形状 + 法后角, 尺寸位 刃长 2 位 + 厚度 2 位)：CNMG120408-TM → ("CN", "1204")"""
+    m = re.match(r"^([A-Z]{2})[A-Z]{2}(\d{4})", (iso or "").strip().upper())
+    return (m.group(1), m.group(2)) if m else None
+
+
+def catalogs(root=None) -> list[dict]:
+    """厂商刀杆库（analysis/cam/libraries/*.json 里 format = cam-holder/1 的）"""
+    import json
+    from pathlib import Path
+
+    d = Path(root) if root else Path(__file__).resolve().parent / "libraries"
+    out = []
+    for f in sorted(d.glob("*.json")):
+        try:
+            j = json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if j.get("format") == "cam-holder/1":
+            out.append(j)
+    return out
+
+
+def pick(insert_iso: str, hand: str = "R", cats: list[dict] | None = None) -> dict | None:
+    """按刀片代号从刀杆库里挑一把外圆刀杆：前两位、尺寸位都对上，手向对上；按刀片形状挑刀杆形式（C、W → L，D、V → J，T → G，S → B），
+    截面优先 25×25，再按代号排序取第一把。没有对得上的返回 None"""
+    key = insert_key(insert_iso)
+    if key is None:
+        return None
+    want = STYLE.get(key[0][0])
+    cands = [h for c in (catalogs() if cats is None else cats) for h in c["holders"]
+             if h.get("use") == "external" and key[0] in h["insert"]["codes"] and h["insert"]["size"] == key[1]
+             and h["iso5608"][4] == hand]
+    if not cands:
+        return None
+    return min(cands, key=lambda h: (h["iso5608"][2] != want, abs(h.get("h_mm", 25) - 25) + abs(h.get("b_mm", 25) - 25), h["id"]))
+
+
+def as_tool_holder(h: dict) -> dict:
+    """刀杆库的一条 → 刀具的 holder（cam-tool/1）"""
+    return {"id": h["id"], "iso5608": h["iso5608"], "f_mm": h["f_mm"], **({"head_mm": h["head_mm"]} if "head_mm" in h else {})}
