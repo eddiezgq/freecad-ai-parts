@@ -223,6 +223,11 @@ sources:
         version: 2023–2024（文件名），以 SHA-256 标识（2026-11-22 登记）
         url: https://tungaloy.com/wpdata/wp-content/uploads/GC_2023-2024_CN_E_ThreadingTool.pdf
         sha256: "eb661a7ed00056a8b49341673286d58422aefc9b6c6d6a321eeba5546e278b84"
+      - id: src-tungaloy-gc-2020-2021-d-internal-turning
+        title: 泰珂洛 综合样本 2020–2021 D 部分 内孔车削（中文，96 页；收内孔镗杆表，ADR-0114）
+        version: 2020–2021（文件名），以 SHA-256 标识（2026-11-22 登记）
+        url: https://tungaloy.com/wpdata/wp-content/uploads/GC_2020-2021_CN_D_Int.Turning.pdf
+        sha256: "d367eceb02de5b443f41ad14d999d1660330c92039a51e4eb8b2d5cca942b42a"
   - id: golden-egret
     vendor: 厦门金鹭特种合金有限公司（Golden Egret）
     url: https://www.gesac.com.cn

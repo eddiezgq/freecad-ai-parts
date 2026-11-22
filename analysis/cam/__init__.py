@@ -496,6 +496,51 @@ def thread_insert_checks(setup, threads) -> list[dict]:
     return out
 
 
+def _lib_has_internal(setup) -> bool:
+    from analysis.cam import tools as TL
+
+    ms = setup.get("machine_sim") or {}
+    lib = TL.load(ms["tool_library"]) if ms.get("tool_library") else TL.load()
+    return any(t.get("internal") for t in lib["tools"])
+
+
+def inner_tool_checks(setup, sc) -> list[dict]:
+    """内孔刀（ADR-0113）：内螺纹（T7）、镗孔（T6）用的刀要是内孔刀（internal，镗刀种类本身算），外圆工序（T1、T2、T4）不用内孔刀；
+    孔比刀的最小孔径 min_bore_mm 小 → 错误（内螺纹按小径 D1 = D − 1.0825·P，镗孔按最小的一段孔径）"""
+    lib = _lib_tools(setup)
+    out = []
+
+    def inner(t):
+        return bool(t.get("internal")) or t.get("kind") == "bore"
+
+    holes = []
+    for tv in sc["threads"]:
+        if tv.get("internal"):
+            holes.append((7, float(tv["d"]) - 1.0825 * float(tv["pitch"]), "内螺纹",
+                          f"内螺纹 M{float(tv['d']):g}×{float(tv['pitch']):g} 的小径"))
+    if sc.get("bore"):
+        b = sc["bore"]
+        holes.append((6, min([float(d) for d, _ in b["segments"]] + ([float(b["drill_d"])] if b.get("drill_d") else [])), "内孔",
+                      "钻孔与内孔里最小的"))
+    for n, dia, short, what in holes:
+        t = lib.get(n)
+        if t is None:
+            continue
+        if not inner(t):
+            if _lib_has_internal(setup):                        # 库里分了内外才报（ADR-0113 以前的库没分）
+                out.append({"line": None, "level": "error", "text": f"T{n} {t['id']} 是外圆刀，不能车{short}"})
+        else:
+            hd = ((setup.get("machine_sim") or {}).get("tools") or {}).get(str(n), {}).get("holder") or t.get("holder") or {}
+            for mb, who in ((t.get("min_bore_mm"), f"T{n} {t['id']}"), (hd.get("min_bore_mm"), f"T{n} 的镗杆 {hd.get('iso6261', '')}")):
+                if mb and dia < float(mb) - 1e-9:
+                    out.append({"line": None, "level": "error", "text": f"{who} 最小能进 Ø{float(mb):g} 的孔，{what} Ø{dia:.3f} 进不去"})
+    for n in (1, 2, 4):
+        t = lib.get(n)
+        if t is not None and t.get("internal"):
+            out.append({"line": None, "level": "error", "text": f"T{n} {t['id']} 是内孔刀，不能车外圆"})
+    return out
+
+
 def nose_radii(setup) -> dict:
     """车刀刀尖圆弧半径 {刀号: rε}：按整机仿真设置里刀号对应的刀具库刀具（刀片 nose_radius_mm）。
     没对应上的刀按尖刀算（与以前一样）；刀尖圆弧补偿与仿真都用这个值（ADR-0106 Q2 第 4 步）。"""
@@ -572,6 +617,7 @@ def _turn(setup, mach):
                 checks.append({"line": None, "level": "warn",
                                "text": f"{side_name}车出来是 R{rr:g} 的圆角（刀尖圆弧）；图纸要清角就要加退刀槽或换小圆弧刀片"})
         checks += thread_insert_checks(setup, sc["threads"])
+        checks += inner_tool_checks(setup, sc)
         if s.get("under_mm", 0) > 0.05:
             checks.append({"line": None, "level": "error", "text": f"残留：最多 {s['under_mm']:.3f} mm（半径），Z{s['under_z'][0]:.2f} ~ Z{s['under_z'][1]:.2f}"})
         if s.get("face_left", 0) > 0.01:

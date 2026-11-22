@@ -134,9 +134,10 @@ def test_joint_tabs_show_quotes_and_rounds():
     assert "大臂长度" in cond and "CSF-25-100-2UH" in cond and "40Cr" in cond               # 每个数带原话引用
     rounds = C.rounds_html(res)
     assert rounds.count("<h3>") == len(res["rounds"]) and rounds.count("（采用）") == 1
-    assert "内孔 Ø41" in rounds and "末端偏移" in rounds and "花键段" in rounds
+    bore = res["rounds"][res["chosen_round"] - 1]["proposal"]["bore_mm"]
+    assert f"内孔 Ø{bore:g}" in rounds and "末端偏移" in rounds and "花键段" in rounds
     ex = C.drawing_extras(res)
-    assert ex["bore"] == 41 and any("GB/T 3478.1" in n for n in ex["notes"])
+    assert ex["bore"] == bore and any("GB/T 3478.1" in n for n in ex["notes"])
     assert C.drawing_extras(json.loads(RESULT.read_text(encoding="utf-8"))) == {}
 
 

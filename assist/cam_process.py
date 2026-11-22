@@ -62,8 +62,12 @@ class ProcessError(ValueError):
 
 # ---------------- 工序与候选刀 ----------------
 
-def _cands(lib, kinds, ok=lambda t: True):
-    return [t for t in lib["tools"] if t["kind"] in kinds and ok(t)]
+def _cands(lib, kinds, ok=lambda t: True, internal=False):
+    """候选刀：种类对、条件对；内孔工序只要内孔刀（internal，镗刀种类本身算），外圆工序不要内孔刀（ADR-0113）"""
+    def side_ok(t):
+        inner = bool(t.get("internal")) or t["kind"] == "bore"
+        return inner == internal
+    return [t for t in lib["tools"] if t["kind"] in kinds and ok(t) and side_ok(t)]
 
 
 def _rough_shape(t) -> bool:
@@ -84,8 +88,15 @@ def operations(part: dict, lib: dict) -> list[dict]:
                         "cands": _cands(lib, {"groove"}, lambda t, w=w: (t.get("insert") or {}).get("width_mm", 1e9) <= w + 1e-9)})
         for i, th in enumerate(part.get("threads") or [], 1):
             p = float(th["pitch"])
-            ops.append({"id": f"thread{i}", "kind": "thread", "title": f"车螺纹 M{float(th['d']):g}×{p:g}", "geom": {"pitch": p},
-                        "cands": _cands(lib, {"thread_turn"}, lambda t, p=p: abs(t.get("pitch_mm", -1) - p) < 1e-9)})
+            inner = bool(th.get("internal"))
+            d1 = float(th["d"]) - 1.0825 * p                     # 内螺纹小径：刀要进得去
+            ops.append({"id": f"thread{i}", "kind": "thread", "title": (f"车内螺纹 M{float(th['d']):g}×{p:g}" if inner else f"车螺纹 M{float(th['d']):g}×{p:g}"),
+                        "geom": {"pitch": p},
+                        "cands": _cands(lib, {"thread_turn"}, lambda t, p=p, d1=d1, inner=inner: abs(t.get("pitch_mm", -1) - p) < 1e-9
+                                        and (not inner or t.get("min_bore_mm", 0) <= d1 + 1e-9), internal=inner)
+                        # 刀具库里的螺纹刀都没分内外（ADR-0113 以前的库）：照旧按螺距挑，算的时候不报内外
+                        or (_cands(lib, {"thread_turn"}, lambda t, p=p: abs(t.get("pitch_mm", -1) - p) < 1e-9)
+                            if inner and not any(t.get("internal") for t in lib["tools"] if t["kind"] == "thread_turn") else [])})
         for i, fg in enumerate(part.get("face_grooves") or [], 1):
             w = (float(fg["d_out"]) - float(fg["d_in"])) / 2
             ops.append({"id": f"face_groove{i}", "kind": "face_groove", "title": f"端面槽 宽 {w:g}", "geom": {"width": w},
@@ -97,7 +108,8 @@ def operations(part: dict, lib: dict) -> list[dict]:
             dmin = min(float(d) for d, _ in b["segments"])
             ops.append({"id": "drill", "kind": "drill", "title": "钻孔", "geom": {"max_d": dmin},
                         "cands": _cands(lib, {"drill"}, lambda t, dmin=dmin: t.get("diameter_mm", 1e9) <= dmin - 1.0)})
-            ops.append({"id": "bore", "kind": "bore", "title": "镗孔", "cands": _cands(lib, {"bore"})})
+            ops.append({"id": "bore", "kind": "bore", "title": "镗孔",
+                        "cands": _cands(lib, {"bore", "turn"}, lambda t, dmin=dmin: t.get("min_bore_mm", 0) <= dmin + 1e-9, internal=True)})
     elif part["mode"] == "mill":
         for i, f in enumerate(part.get("features") or [], 1):
             k = f["type"]
@@ -331,13 +343,22 @@ def draft(part: dict, iso: str, lib: dict | None = None, client=None, *, note: s
     return {"setup": setup, "card": card, "notes": notes, "by": by, "explanation": explanation, "iso_group": iso}
 
 
-def turn_holder(tool) -> dict | None:
-    """外圆车刀没写刀杆：按刀片代号从刀杆库配一把（ADR-0112）；铣刀、切槽刀、螺纹刀、镗刀不配"""
+def turn_holder(tool, bore_d=None) -> dict | None:
+    """车刀没写刀杆：按刀片代号从刀杆库配一把——外圆车刀配外圆刀杆（ADR-0112）；内孔刀（镗刀种类或 internal）给了孔径就配镗杆（ADR-0114）。
+    切槽刀、螺纹刀、铣刀不配"""
     from analysis.cam import holders as HD
 
-    if tool.get("kind") != "turn" or (tool.get("holder") or {}).get("iso5608"):
+    h0 = tool.get("holder") or {}
+    if h0.get("iso5608") or h0.get("iso6261") or h0.get("profile_mm"):
         return None
-    h = HD.pick((tool.get("insert") or {}).get("iso") or "")
+    inner = bool(tool.get("internal")) or tool.get("kind") == "bore"
+    iso = (tool.get("insert") or {}).get("iso") or ""
+    if inner and tool.get("kind") in ("bore", "turn") and bore_d:
+        h = HD.pick(iso, bore_d=float(bore_d))
+    elif not inner and tool.get("kind") == "turn":
+        h = HD.pick(iso)
+    else:
+        return None
     return HD.as_tool_holder(h) if h else None
 
 
@@ -346,14 +367,16 @@ def _setup(part, by_op, lengths, notes):
     ms = s.setdefault("machine_sim", {})
     mtools = ms.setdefault("tools", {})
 
-    def T(n, tool):
+    def T(n, tool, bore_d=None):
         e = {"tool": tool["id"]}
         if tool["id"] in lengths:
             e["length_mm"] = float(lengths[tool["id"]])
-        hd = turn_holder(tool)
+        hd = turn_holder(tool, bore_d)
         if hd:
             e["holder"] = hd
-            notes.append(f"T{n}（{tool['id']}）没写刀杆，按刀片配 {hd['iso5608']}（刀杆库，起草配的，ADR-0112）")
+            notes.append(f"T{n}（{tool['id']}）没写刀杆，按刀片配 {hd.get('iso5608') or hd.get('iso6261')}（刀杆库，起草配的，ADR-0112）")
+        elif bore_d and not (tool.get("holder") or {}) and (tool.get("insert") or {}).get("iso"):
+            notes.append(f"T{n}（{tool['id']}）：刀杆库里没有能进 Ø{float(bore_d):g} 孔的镗杆，镗杆没配（ADR-0114）")
         mtools[str(n)] = e
 
     if part["mode"] == "turn":
@@ -369,7 +392,8 @@ def _setup(part, by_op, lengths, notes):
         for i, th in enumerate(s.get("threads") or [], 1):
             v = by_op[f"thread{i}"]
             th["cut"] = {"vc": v["params"]["vc"]}
-            T(7 if th.get("internal") else 4, v["tool"])
+            T(7 if th.get("internal") else 4, v["tool"],
+              float(th["d"]) - 1.0825 * float(th["pitch"]) if th.get("internal") else None)   # 内螺纹：镗杆要进得了小径
         for i, fg in enumerate(s.get("face_grooves") or [], 1):
             v = by_op[f"face_groove{i}"]
             fg["cut"] = {k: v["params"][k] for k in ("vc", "f")}
@@ -386,7 +410,7 @@ def _setup(part, by_op, lengths, notes):
             s["bore"]["drill_cut"] = {"vc": d["params"]["vc"], "f": d["params"]["f"], "peck": 0.0}
             s["bore"]["cut"] = {"vc": b["params"]["vc"], "f": b["params"]["f"], "ap": b["params"]["ap"], "f_finish": b["params"]["f"]}
             T(5, d["tool"])
-            T(6, b["tool"])
+            T(6, b["tool"], s["bore"]["drill_d"])                # 镗刀先伸进钻出来的孔：镗杆最小孔径不大于钻头直径
     else:
         for i, f in enumerate(s["features"], 1):
             v = by_op[f"f{i}"]

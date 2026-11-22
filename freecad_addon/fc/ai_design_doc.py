@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import re
 import time
 from itertools import pairwise
 from pathlib import Path
@@ -93,6 +94,36 @@ def template_file() -> Path:
 
 def _scale(total: float) -> float:
     return next((s for s in SCALES if total * s <= 330), SCALES[-1])
+
+
+NOTE_MAX_MM = 170.0                                   # 技术要求一行最宽（A3 图框左下）；超出 TechDraw 会把整段缩小（2026-11-22 问渠 CAD 英文界面）
+
+
+def text_width_mm(text: str, size: float = 4.0) -> float:
+    """注释文字的大致宽度：汉字按字高、其余按 0.58 倍字高"""
+    return sum(size if ord(ch) > 255 else 0.58 * size for ch in str(text))
+
+
+def wrap_note(text: str, max_mm: float = NOTE_MAX_MM, indent: str = "   ") -> list[str]:
+    """按宽度断行：优先断在空格、逗号、分号后面；续行缩进"""
+    out, cur = [], ""
+    for tok in re.findall(r"[^\s，,；;]*[\s，,；;]?", str(text)):
+        if not tok:
+            continue
+        if cur and text_width_mm(cur + tok) > max_mm:
+            out.append(cur.rstrip())
+            cur = indent + tok.lstrip()
+        else:
+            cur += tok
+        while text_width_mm(cur) > max_mm:             # 一个词本身就太长：硬断
+            k = len(cur)
+            while k > 1 and text_width_mm(cur[:k]) > max_mm:
+                k -= 1
+            out.append(cur[:k])
+            cur = indent + cur[k:]
+    if cur.strip():
+        out.append(cur.rstrip())
+    return out or [""]
 
 
 def drawing(doc, part, segs: list[dict], *, name: str, drawing_no: str, material: str, bore: float = 0.0,
@@ -197,10 +228,11 @@ def drawing(doc, part, segs: list[dict], *, name: str, drawing_no: str, material
     note = doc.addObject("TechDraw::DrawViewAnnotation", "AiShaftNotes")
     lines = ["，".join(steps[i:i + 2]) for i in range(0, len(steps), 2)]   # 两个一行，免得注释超出图纸被缩小
     extra = [f"{i}. {T(x)}" for i, x in enumerate(notes or [], 3)]
-    note.Text = [T("技术要求："), T("1. 台阶圆角：") + (lines[0] if lines else ""), *["   " + x for x in lines[1:]],
-                 T("2. 尺寸由程序按设计数据标注，模型已回读核对"), *extra]
+    raw = [T("技术要求："), T("1. 台阶圆角：") + (lines[0] if lines else ""), *["   " + x for x in lines[1:]],
+           T("2. 尺寸由程序按设计数据标注，模型已回读核对"), *extra]
+    note.Text = [w for x in raw for w in wrap_note(x)]
     page.addView(note)
-    width = max(sum(4.0 if ord(ch) > 255 else 2.3 for ch in str(x)) for x in note.Text)   # 注释按中心定位：左边留在图框里
+    width = max(text_width_mm(x) for x in note.Text)    # 注释按中心定位：左边留在图框里
     note.X, note.Y = max(120.0, 30.0 + width / 2), 75.0
     if hasattr(note, "TextSize"):
         note.TextSize = 4.0

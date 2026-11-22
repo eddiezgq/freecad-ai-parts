@@ -2161,5 +2161,18 @@
 "圆柱面平底槽（Y 轴）": "Flat slot on cylinder (Y axis)",
 "点圆柱面上平底槽的底面（可宽于刀径）：C 轴分度、径向动力刀 Y 轴铣（车铣中心）": "Pick the bottom of a flat slot on the cylinder (may be wider than the cutter): C-axis indexing, radial live tool milling with the Y axis (mill-turn centre)",
 "粗车：按 {} 主电机 {} kW 的 80% 把 vc {} → {}、f {} → {}（不低于样本下限）": "Roughing: to stay within 80% of the {} spindle motor ({} kW), vc {} \u2192 {}, f {} \u2192 {} (not below the catalogue minimum)",
-"T{}（{}）没写刀杆，按刀片配 {}（刀杆库，起草配的，ADR-0112）": "T{} ({}) has no holder; paired {} by insert code (holder library, chosen by the draft, ADR-0112)"
+"T{}（{}）没写刀杆，按刀片配 {}（刀杆库，起草配的，ADR-0112）": "T{} ({}) has no holder; paired {} by insert code (holder library, chosen by the draft, ADR-0112)",
+"T{} {} 是内孔刀，不能车外圆": "T{} {} is an internal tool and cannot turn the outside",
+"T{} {} 是外圆刀，不能车{}": "T{} {} is an external tool and cannot cut the {}",
+"内螺纹 M{}×{} 的小径": "minor diameter of internal thread M{}\u00d7{}",
+"内螺纹": "internal thread",
+"车内螺纹 M{}×{}": "Internal threading M{}\u00d7{}",
+"T{} 的镗杆 {}": "T{}'s boring bar {}",
+"{} 最小能进 Ø{} 的孔，{} Ø{} 进不去": "{} needs a bore of at least Ø{}; the {} Ø{} is too small",
+"钻孔与内孔里最小的": "smallest of the drilled hole and bore",
+"ISO 6261 镗杆代号看不懂：{}（例：A25R-PCLNR12）": "Cannot read ISO 6261 boring bar code: {} (e.g. A25R-PCLNR12)",
+"镗杆 {} 没写刀尖到杆轴线的距离 f，镗杆没查": "Boring bar {} has no tip-to-axis distance f; bar not checked",
+"镗杆 {}：离刀尖 {} mm 以内的刀头外形各家不同，没查；圆杆按外接方柱查（偏保守）": "Boring bar {}: the head within {} mm of the tip differs by maker and is not checked; the round bar is checked as its bounding square (conservative)",
+"镗杆 {}：长度字母 {} 不在长度表里，镗杆没查": "Boring bar {}: length letter {} is not in the length table; bar not checked",
+"T{}（{}）：刀杆库里没有能进 Ø{} 孔的镗杆，镗杆没配（ADR-0114）": "T{} ({}): no boring bar in the holder library fits a Ø{} bore; no bar paired (ADR-0114)"
 }

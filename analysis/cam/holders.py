@@ -38,8 +38,35 @@ def parse(code: str) -> dict:
             "h_mm": float(h), "b_mm": float(b), "l1_mm": float(LENGTH[ln]), "edge_mm": float(size), "extra": rest.strip()}
 
 
+_RE6261 = re.compile(r"^([A-Z])(\d{2})([A-Z])-([A-Z])([A-Z])([A-Z])([A-Z])([RLN])(\d{2})(.*)$")
+
+
+def parse6261(code: str) -> dict:
+    """ISO 6261 镗杆代号（例 A25R-PCLNR12）：1 杆的材料 / 内冷  2–3 杆径  4 全长字母（ISO 6261 与 5608 同一张长度表）  - 后：夹紧方式、刀片形状、
+    刀杆形式、法后角、左右手、刀片刃长；之后厂家自定，不解析"""
+    m = _RE6261.match(code.strip().upper())
+    if not m:
+        raise HolderError(f"ISO 6261 镗杆代号看不懂：{code!r}（例：A25R-PCLNR12）")
+    kind, d, ln, clamp, shape, style, clear, hand, size, rest = m.groups()
+    return {"code": code.strip(), "bar": kind, "bar_d_mm": float(d), "length_letter": ln, "clamp": clamp, "insert_shape": shape,
+            "style": style, "clearance": clear, "hand": hand, "edge_mm": float(size), "extra": rest.strip()}
+
+
 def boxes(holder: dict) -> tuple[list[list[float]], list[str]]:
-    """刀具库里的 holder（iso5608、f_mm）→ 刀尖坐标系里的长方体 [[x0, y0, z0, x1, y1, z1], …] 与说明（查不了的部分）"""
+    """刀具库里的 holder（iso5608、f_mm）→ 刀尖坐标系里的长方体 [[x0, y0, z0, x1, y1, z1], …] 与说明（查不了的部分）。
+    镗杆（iso6261，ADR-0114）：圆杆沿 +Z 从刀头到全长，轴线在刀尖往里 f 处，按外接方柱查"""
+    if holder.get("iso6261"):
+        p6 = parse6261(holder["iso6261"])
+        f, bd = holder.get("f_mm"), float(holder.get("bar_d_mm") or p6["bar_d_mm"])
+        if f is None:
+            return [], [f"镗杆 {p6['code']} 没写刀尖到杆轴线的距离 f，镗杆没查"]
+        head = float(holder.get("head_mm") or p6["edge_mm"])
+        l1 = holder.get("l1_mm") or LENGTH.get(p6["length_letter"])
+        if l1 is None:
+            return [], [f"镗杆 {p6['code']}：长度字母 {p6['length_letter']} 不在长度表里，镗杆没查"]
+        r, f = bd / 2.0, float(f)
+        return ([[-f - r, -r, head, -f + r, r, float(l1)]],
+                [f"镗杆 {p6['code']}：离刀尖 {head:g} mm 以内的刀头外形各家不同，没查；圆杆按外接方柱查（偏保守）"])
     p = parse(holder["iso5608"])
     notes = []
     f = holder.get("f_mm")
@@ -84,21 +111,32 @@ def catalogs(root=None) -> list[dict]:
     return out
 
 
-def pick(insert_iso: str, hand: str = "R", cats: list[dict] | None = None) -> dict | None:
-    """按刀片代号从刀杆库里挑一把外圆刀杆：前两位、尺寸位都对上，手向对上；按刀片形状挑刀杆形式（C、W → L，D、V → J，T → G，S → B），
-    截面优先 25×25，再按代号排序取第一把。没有对得上的返回 None"""
+def pick(insert_iso: str, hand: str = "R", cats: list[dict] | None = None, bore_d: float | None = None) -> dict | None:
+    """按刀片代号从刀杆库里挑刀杆：前两位、尺寸位都对上，手向对上。
+    外圆（bore_d 不给）：按刀片形状挑刀杆形式（C、W → L，D、V → J，T → G，S → B），截面优先 25×25，再按代号排序。
+    内孔（给孔径 bore_d，ADR-0114）：镗杆的最小孔径不大于孔径，取杆最粗的（刚性好），同样粗的按刀杆形式、代号排序。没有对得上的返回 None"""
     key = insert_key(insert_iso)
     if key is None:
         return None
     want = STYLE.get(key[0][0])
+    use = "external" if bore_d is None else "internal"
+
+    def code(h):
+        return h["iso5608"] if use == "external" else h["iso6261"].split("-", 1)[1]
+
     cands = [h for c in (catalogs() if cats is None else cats) for h in c["holders"]
-             if h.get("use") == "external" and key[0] in h["insert"]["codes"] and h["insert"]["size"] == key[1]
-             and h["iso5608"][4] == hand]
+             if h.get("use") == use and key[0] in h["insert"]["codes"] and h["insert"]["size"] == key[1] and code(h)[4] == hand
+             and (use == "external" or h["min_bore_mm"] <= bore_d + 1e-9)]
     if not cands:
         return None
-    return min(cands, key=lambda h: (h["iso5608"][2] != want, abs(h.get("h_mm", 25) - 25) + abs(h.get("b_mm", 25) - 25), h["id"]))
+    if use == "internal":
+        return min(cands, key=lambda h: (-h["bar_d_mm"], code(h)[2] != want, h["id"]))
+    return min(cands, key=lambda h: (code(h)[2] != want, abs(h.get("h_mm", 25) - 25) + abs(h.get("b_mm", 25) - 25), h["id"]))
 
 
 def as_tool_holder(h: dict) -> dict:
     """刀杆库的一条 → 刀具的 holder（cam-tool/1）"""
+    if h.get("use") == "internal":
+        return {"id": h["id"], "iso6261": h["iso6261"], "f_mm": h["f_mm"], "bar_d_mm": h["bar_d_mm"], "min_bore_mm": h["min_bore_mm"],
+                **({"head_mm": h["head_mm"]} if "head_mm" in h else {})}
     return {"id": h["id"], "iso5608": h["iso5608"], "f_mm": h["f_mm"], **({"head_mm": h["head_mm"]} if "head_mm" in h else {})}
