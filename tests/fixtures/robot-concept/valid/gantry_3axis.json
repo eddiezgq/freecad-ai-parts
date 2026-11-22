@@ -1,0 +1,130 @@
+{
+ "description": "示例：三轴龙门（测试样例）",
+ "instance": {
+  "format": "robot-concept/1",
+  "name": "示例：三轴龙门（测试样例）",
+  "kind": "gantry",
+  "base": {
+   "mount": "floor",
+   "height_mm": 1200
+  },
+  "links": [
+   {
+    "id": "bridge",
+    "length_mm": 900,
+    "shape": "profile",
+    "section_mm": [
+     80,
+     80
+    ]
+   },
+   {
+    "id": "carriage",
+    "length_mm": 0,
+    "shape": "plate",
+    "section_mm": [
+     200,
+     15
+    ]
+   },
+   {
+    "id": "ram",
+    "length_mm": 400,
+    "shape": "profile",
+    "section_mm": [
+     45,
+     45
+    ]
+   }
+  ],
+  "joints": [
+   {
+    "id": "x",
+    "type": "prismatic",
+    "parent": "base",
+    "child": "bridge",
+    "origin_mm": [
+     0,
+     0,
+     1200
+    ],
+    "axis": [
+     1,
+     0,
+     0
+    ],
+    "range_mm": [
+     0,
+     800
+    ],
+    "transmission": "belt_linear",
+    "lead_mm": 150
+   },
+   {
+    "id": "y",
+    "type": "prismatic",
+    "parent": "bridge",
+    "child": "carriage",
+    "origin_mm": [
+     0,
+     0,
+     0
+    ],
+    "axis": [
+     0,
+     1,
+     0
+    ],
+    "range_mm": [
+     0,
+     600
+    ],
+    "transmission": "rack_pinion",
+    "lead_mm": 120
+   },
+   {
+    "id": "z",
+    "type": "prismatic",
+    "parent": "carriage",
+    "child": "ram",
+    "origin_mm": [
+     0,
+     0,
+     0
+    ],
+    "axis": [
+     0,
+     0,
+     -1
+    ],
+    "range_mm": [
+     0,
+     200
+    ],
+    "transmission": "ballscrew",
+    "lead_mm": 10
+   }
+  ],
+  "end_effector": {
+   "type": "vacuum"
+  },
+  "tasks": [
+   {
+    "name": "搬运",
+    "type": "cartesian_move",
+    "from_mm": [
+     0,
+     0,
+     1000
+    ],
+    "to_mm": [
+     800,
+     600,
+     1000
+    ],
+    "move_s": 1.5,
+    "dwell_s": 0.5
+   }
+  ]
+ }
+}

@@ -1,0 +1,552 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/robot-concept.schema.json",
+  "title": "整机方案（还没选件的机器人构型）",
+  "description": "ADR-0116：AI 提的整机构型——杆件、关节（父件—子件树，零位时的原点与轴线）、传动、末端、典型动作、要够得着的点。只写构型与设计取值，不写零件数据与质量（选件、设计自制件之后由代码算）。单位 mm、°、s、kg、m/s、m/s²；坐标系右手、z 向上。树结构、id 引用等 schema 表达不了的检查在 analysis/robot/concept.py。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "name",
+    "kind",
+    "base",
+    "links",
+    "joints"
+  ],
+  "properties": {
+    "format": {
+      "const": "robot-concept/1"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "kind": {
+      "enum": [
+        "serial_arm",
+        "gantry",
+        "mobile_base",
+        "other"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "maxLength": 4000,
+      "description": "AI 提这个构型的理由（给人看）"
+    },
+    "base": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mount"
+      ],
+      "properties": {
+        "mount": {
+          "enum": [
+            "floor",
+            "table",
+            "ceiling",
+            "wall",
+            "mobile"
+          ]
+        },
+        "height_mm": {
+          "type": "number",
+          "minimum": 0
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 500
+        }
+      }
+    },
+    "links": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 30,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "length_mm",
+          "shape"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "length_mm": {
+            "type": "number",
+            "minimum": 0,
+            "description": "从本杆件的关节到下一关节（或末端）的距离"
+          },
+          "shape": {
+            "enum": [
+              "tube",
+              "box",
+              "plate",
+              "profile",
+              "custom"
+            ]
+          },
+          "section_mm": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "minItems": 1,
+            "maxItems": 3,
+            "description": "截面外形尺寸：tube [外径] 或 [外径, 内径]；box、profile [宽, 高]；plate [宽, 厚]"
+          },
+          "material": {
+            "type": "string",
+            "maxLength": 60,
+            "description": "材料 id（analysis/common/materials.yaml）"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 500
+          }
+        }
+      }
+    },
+    "joints": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 30,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "parent",
+          "child",
+          "origin_mm",
+          "axis"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "type": {
+            "enum": [
+              "revolute",
+              "prismatic",
+              "wheel"
+            ]
+          },
+          "parent": {
+            "type": "string",
+            "description": "父件：base 或 links 里的杆件 id"
+          },
+          "child": {
+            "$ref": "#/$defs/id",
+            "description": "子件：links 里的杆件 id"
+          },
+          "origin_mm": {
+            "$ref": "#/$defs/vec3",
+            "description": "零位时关节在父件坐标系里的位置"
+          },
+          "axis": {
+            "$ref": "#/$defs/vec3",
+            "description": "零位时关节轴线在父件坐标系里的方向（不必单位化，不能为零向量）"
+          },
+          "range_deg": {
+            "$ref": "#/$defs/range",
+            "description": "转动关节的角度行程 [最小, 最大]"
+          },
+          "range_mm": {
+            "$ref": "#/$defs/range",
+            "description": "移动关节的直线行程 [最小, 最大]"
+          },
+          "radius_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "轮子半径"
+          },
+          "transmission": {
+            "enum": [
+              "direct",
+              "reducer",
+              "belt",
+              "ballscrew",
+              "rack_pinion",
+              "belt_linear"
+            ]
+          },
+          "ratio": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "减速比（reducer、belt）"
+          },
+          "lead_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "导程（ballscrew）或每转行程（rack_pinion、belt_linear）"
+          },
+          "module_group": {
+            "$ref": "#/$defs/id",
+            "description": "同一组的关节用同一种关节模组"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "revolute"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "range_deg"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "range_mm"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "radius_mm"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "prismatic"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "range_mm"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "range_deg"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "radius_mm"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "wheel"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "radius_mm"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "range_deg"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "range_mm"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "ratio"
+              ]
+            },
+            "then": {
+              "required": [
+                "transmission"
+              ],
+              "properties": {
+                "transmission": {
+                  "enum": [
+                    "reducer",
+                    "belt"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "lead_mm"
+              ]
+            },
+            "then": {
+              "required": [
+                "transmission"
+              ],
+              "properties": {
+                "transmission": {
+                  "enum": [
+                    "ballscrew",
+                    "rack_pinion",
+                    "belt_linear"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "transmission": {
+                  "enum": [
+                    "ballscrew",
+                    "rack_pinion",
+                    "belt_linear"
+                  ]
+                }
+              },
+              "required": [
+                "transmission"
+              ]
+            },
+            "then": {
+              "properties": {
+                "type": {
+                  "const": "prismatic"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "end_effector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "gripper",
+            "vacuum",
+            "needle",
+            "tray",
+            "none",
+            "custom"
+          ]
+        },
+        "parent": {
+          "$ref": "#/$defs/id",
+          "description": "装在哪根杆件上；不写就是运动链最末一根"
+        },
+        "offset_mm": {
+          "$ref": "#/$defs/vec3",
+          "description": "工具点相对该杆件末端的偏移"
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "type",
+              "from",
+              "to",
+              "move_s"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "type": {
+                "const": "joint_move"
+              },
+              "from": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "minProperties": 1,
+                "description": "各关节起点：转动关节 °、移动关节 mm"
+              },
+              "to": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "minProperties": 1
+              },
+              "move_s": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "dwell_s": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "type",
+              "from_mm",
+              "to_mm",
+              "move_s"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "type": {
+                "const": "cartesian_move"
+              },
+              "from_mm": {
+                "$ref": "#/$defs/vec3"
+              },
+              "to_mm": {
+                "$ref": "#/$defs/vec3"
+              },
+              "move_s": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "dwell_s": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "type",
+              "speed_m_s"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "type": {
+                "const": "drive"
+              },
+              "speed_m_s": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "accel_m_s2": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "slope_deg": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 45
+              },
+              "step_mm": {
+                "type": "number",
+                "minimum": 0
+              },
+              "duration_s": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            }
+          }
+        ]
+      }
+    },
+    "workspace": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "points_mm": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/vec3"
+          },
+          "minItems": 1,
+          "maxItems": 200,
+          "description": "需求要求末端够得着的点（基座坐标系）"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{0,39}$"
+    },
+    "vec3": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "range": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 2,
+      "maxItems": 2
+    }
+  }
+}
