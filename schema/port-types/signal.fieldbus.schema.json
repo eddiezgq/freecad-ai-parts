@@ -37,7 +37,8 @@
                         "modbus_rtu",
                         "profinet",
                         "ethernet_ip",
-                        "pulse_dir"
+                        "pulse_dir",
+                        "dynamixel_2"
                       ]
                     },
                     {
@@ -49,7 +50,8 @@
                           "modbus_rtu",
                           "profinet",
                           "ethernet_ip",
-                          "pulse_dir"
+                          "pulse_dir",
+                          "dynamixel_2"
                         ]
                       }
                     }

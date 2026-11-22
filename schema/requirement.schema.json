@@ -28,7 +28,7 @@
       "additionalProperties": false
     },
     "fieldbus_protocol": {
-      "enum": ["ethercat", "canopen", "modbus_rtu", "profinet", "ethernet_ip", "pulse_dir"],
+      "enum": ["ethercat", "canopen", "modbus_rtu", "profinet", "ethernet_ip", "pulse_dir", "dynamixel_2"],
       "description": "控制器使用的总线（C10）；须与 signal.fieldbus 端口类型的枚举一致（测试检查）"
     },
     "note": {"type": "string"}
