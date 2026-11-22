@@ -19,31 +19,31 @@
     "id": "upper",
     "length_mm": 160,
     "shape": "tube",
-    "section_mm": [
-     40,
-     34
-    ],
     "material": "6061-T6",
-    "mass_kg": 0.4
+    "mass_kg": 0.4,
+    "section": {
+     "od_mm": 40,
+     "id_mm": 34
+    }
    },
    {
     "id": "fore",
     "length_mm": 150,
     "shape": "tube",
-    "section_mm": [
-     32,
-     27
-    ],
-    "material": "6061-T6"
+    "material": "6061-T6",
+    "section": {
+     "od_mm": 32,
+     "id_mm": 27
+    }
    },
    {
     "id": "wrist",
     "length_mm": 40,
     "shape": "box",
-    "section_mm": [
-     30,
-     30
-    ]
+    "section": {
+     "width_mm": 30,
+     "height_mm": 30
+    }
    },
    {
     "id": "flange",

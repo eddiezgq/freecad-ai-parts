@@ -13,28 +13,28 @@
     "id": "bridge",
     "length_mm": 900,
     "shape": "profile",
-    "section_mm": [
-     80,
-     80
-    ]
+    "section": {
+     "width_mm": 80,
+     "height_mm": 80
+    }
    },
    {
     "id": "carriage",
     "length_mm": 0,
     "shape": "plate",
-    "section_mm": [
-     200,
-     15
-    ]
+    "section": {
+     "width_mm": 200,
+     "thickness_mm": 15
+    }
    },
    {
     "id": "ram",
     "length_mm": 400,
     "shape": "profile",
-    "section_mm": [
-     45,
-     45
-    ]
+    "section": {
+     "width_mm": 45,
+     "height_mm": 45
+    }
    }
   ],
   "joints": [
