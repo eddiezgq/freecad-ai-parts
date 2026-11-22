@@ -69,3 +69,13 @@ def test_bad_proposals():
     assert rep["overall"] == "fail"                                             # 内孔比花键小径还大
     rep = J.evaluate({"bearing": "bearing.test.6010", "bore_mm": 30, "fillet_mm": 10}, COND, LIB.get, kt=fake_kt)
     assert any(i["item"] == "法兰台阶圆角" and i["status"] == "fail" for i in rep["items"])
+
+
+def test_bore_compared_with_thread_minor_diameter():
+    """螺纹段按基本小径 d1 = d − 1.0825P 比（GB/T 196）：M42×1.5 的 d1 = 40.376；内孔 40.5 比公称 42 小，但比小径大，不通过"""
+    assert J.thread_minor(42) == pytest.approx(40.376) and J.thread_minor(45) == pytest.approx(43.376)
+    item = lambda rep: next(i for i in rep["items"] if i["item"].startswith("内孔小于最细的一段"))
+    rep = J.evaluate({"bearing": "bearing.test.6010", "bore_mm": 40.5, "fillet_mm": 1}, COND, LIB.get, kt=fake_kt)
+    assert item(rep)["status"] == "fail" and item(rep)["limit"] == "< 40.376"
+    rep = J.evaluate({"bearing": "bearing.test.6010", "bore_mm": 40, "fillet_mm": 1}, COND, LIB.get, kt=fake_kt)
+    assert item(rep)["status"] == "pass"

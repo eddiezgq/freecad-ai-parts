@@ -208,6 +208,16 @@
        "pattern": "^[A-Z][0-9]{2}[A-Z]-[A-Z]{4}[RLN][0-9]{2}.*$",
        "description": "内孔镗杆代号（ISO 6261，如 A25R-PCLNR12）；ADR-0114"
       },
+      "vendor_code": {
+       "type": "string",
+       "pattern": "^[A-Z0-9][A-Z0-9/._-]{1,63}$",
+       "description": "厂家自己的镗杆代号（ADR-0115），这时写 l1_mm"
+      },
+      "l1_mm": {
+       "type": "number",
+       "exclusiveMinimum": 0,
+       "description": "刀杆全长（厂家代号的镗杆用，ADR-0115）"
+      },
       "bar_d_mm": {
        "type": "number",
        "exclusiveMinimum": 0,
@@ -244,6 +254,13 @@
       {
        "required": [
         "iso6261"
+       ]
+      },
+      {
+       "required": [
+        "vendor_code",
+        "bar_d_mm",
+        "l1_mm"
        ]
       }
      ]
