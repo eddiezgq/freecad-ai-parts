@@ -113,3 +113,19 @@ def test_unknown_link_material_fails():
     ev = RD.evaluate(c, cond)
     assert next(i for i in ev["items"] if i["item"] == "杆件材料")["status"] == "fail"
     assert "6061-T6" in RD.proposal_request(cond, [])["user"]                     # 材料库的 id 交给 AI 选
+
+
+def test_teaching_arm_recording_replays_to_pass():
+    """案例 A 的真实 AI 录制（design-eval run 45057651041）：重放得同一结论，采用的构型重新初筛也通过；不调用真实模型"""
+    from analysis.robot import screen
+    from ingest.llm_extract import RecordedClient
+
+    res = RD.design(TEXT, RecordedClient(RD.RECORDINGS_DIR), model=RD.DEFAULT_MODEL)
+    assert res["status"] == "pass"
+    c = res["chosen"]
+    assert c["kind"] == "serial_arm" and len(c["joints"]) == 5
+    assert screen(c, 0.5)["overall"] in ("pass", "unknown")
+    assert RD._passes(RD.evaluate(c, res["conditions"]))
+    saved = json.loads((Path(__file__).parents[1] / "examples" / "robots" / "teaching-arm" / "out"
+                        / "concept-result.json").read_text(encoding="utf-8"))
+    assert saved["chosen"] == c
