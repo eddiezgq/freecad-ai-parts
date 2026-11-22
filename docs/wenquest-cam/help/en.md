@@ -118,6 +118,7 @@ Tick "Deviation" to colour the finished stock by its deviation from the part mod
 # Machines and tools
 
 - **Tool library window** ("WenQuest CAM" menu → "Tool library…"): view and edit tool libraries. The example library is fictional and read-only; start with "New tool library" or "Save as". A new tool gets an empty template for its kind; insert and holder, cutting data (one row per material group) and source (catalogue and page) are on separate tabs, and empty cells are not written. FreeCAD tool tables can be imported. The library is checked against the format before saving; if something is wrong it is not saved and the field is named. The library then appears in the job panel's "Tool library" list.
+  Two vendor catalogue libraries are included (read-only, values as in the catalogue with page numbers): ZCC-CT end mills, taps and thread mills; Tungaloy ISO-EcoTurn turning inserts (176, with vc, f and ap ranges per chipbreaker and material group, no holders — save a copy and add holder codes to check holder collisions). When drafting turning with a vendor library, roughing picks a chipbreaker with a large catalogue depth of cut and an 80° insert with nose radius up to R0.8; parameters above 80% of the machine power are lowered, not below the catalogue minimum.
 
 ![Tool library window](img/en-tools.png)
 
