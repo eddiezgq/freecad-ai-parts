@@ -17,7 +17,7 @@
 
 螺纹刀片（综合样本 2023–2024 E 部分 TungThread，ISO 米制 60°）：外螺纹右手刀片（代号 ..ER..ISO，含 -B、-M），收 IC、RE、螺距（表里螺距一栏，
 与代号里的螺距位核对）、牙型角 60°；切削速度照 E067 TungThread 表，按材料组取各材质、各硬度行的合集（不收 CBN 牌号 BX330，这些刀片没有），
-每转进给 = 螺距。内螺纹刀片（IR）刀具库没有“内 / 外”这一项，先不收；左手刀片不收。
+每转进给 = 螺距。内螺纹右手刀片（..IR..ISO）按 ADR-0113 标 internal（最小孔径看刀杆，刀片表里没有，不写）；左手刀片不收。
 
 命令：python -m ingest.cam_tungaloy data/raw/cam/tungaloy --out analysis/cam/libraries/tungaloy.json \
       --holders-out analysis/cam/libraries/tungaloy-holders.json
@@ -55,6 +55,9 @@ HOLDER_HEAD = re.compile(r"\bH\s+B\s+LF\s+LH\s+HF\s+WF\s+RE")
 THREAD_PDF = "GC_2023-2024_CN_E_ThreadingTool.pdf"
 THREAD_ROW = re.compile(r"(?:^|\s)(\d{1,2})\s+(\d+(?:\.\d+)?)\s+R\s+((\d{1,2})ER(\d{2,3})ISO(?:-[A-Z]+)?)(?![-A-Z0-9])[^\n]*?\s"
                         r"(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)", re.MULTILINE)
+IR_CODE = re.compile(r"\b((\d{1,2})IR(\d{2,3})ISO(?:-[A-Z]+)?)(?![-A-Z0-9])[^\n]*?\s(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)\s+"
+                     r"(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)")
+ROW_HEAD = re.compile(r"(?:^|\s)(\d{1,2})\s+(\d+(?:\.\d+)?)\s+R\s")
 # E067 TungThread 切削速度（m/min）：各材料组取各材质、各硬度行的合集（BX330 是 CBN，ISO 米制刀片表里没有，不算）
 THREAD_VC = {"P": (60.0, 200.0), "M": (50.0, 130.0), "K": (50.0, 150.0), "N": (100.0, 500.0), "S": (10.0, 80.0), "H": (10.0, 30.0)}
 THREAD_VC_PAGE = "E067"
@@ -216,19 +219,37 @@ def thread_rows(text: str) -> list[dict]:
     return out
 
 
+def ir_rows(text: str) -> list[dict]:
+    """内螺纹右手刀片：行首“尺寸 螺距 R”，同一行里的 ..IR..ISO 代号和后面的 IC PDX PDY RE（IC 印“-”的小刀片不收）"""
+    out = []
+    for line in text.splitlines():
+        h = ROW_HEAD.search(line)
+        if not h:
+            continue
+        for m in IR_CODE.finditer(line, h.end()):
+            g = m.groups()
+            pitch = float(h.group(2))
+            if abs(pitch - _pitch_code(g[2])) > 1e-9:
+                raise TungaloyError(f"{g[0]}：螺距栏 {pitch:g} 与代号 {g[2]} 对不上")
+            out.append({"code": g[0], "pitch": pitch, "ic": float(g[3]), "re": float(g[6])})
+    return out
+
+
 def build_threads(raw: Path) -> list[dict]:
     pdf = raw / THREAD_PDF
     if not pdf.exists():
         raise TungaloyError(f"没有样本 {pdf}")
     tools, seen = [], set()
     for page in range(1, page_count(pdf) + 1):
-        for r in thread_rows(page_text(pdf, page)):
+        txt = page_text(pdf, page)
+        for r in [*thread_rows(txt), *({**x, "internal": True} for x in ir_rows(txt))]:
             if r["code"] in seen:
                 continue
             seen.add(r["code"])
             p = r["pitch"]
-            tools.append({"id": "TG-" + r["code"], "name": f"泰珂洛 {r['code']} 外螺纹刀片（ISO 米制 60°，螺距 {p:g}）",
-                          "kind": "thread_turn", "pitch_mm": p, "thread_angle_deg": 60,
+            inner = r.get("internal", False)
+            tools.append({"id": "TG-" + r["code"], "name": f"泰珂洛 {r['code']} {'内' if inner else '外'}螺纹刀片（ISO 米制 60°，螺距 {p:g}）",
+                          "kind": "thread_turn", **({"internal": True} if inner else {}), "pitch_mm": p, "thread_angle_deg": 60,
                           "insert": {"iso": r["code"], "nose_radius_mm": r["re"], "inscribed_circle_mm": r["ic"]},
                           "cutting": [{"iso_group": g, "vc_m_min": {"min": lo, "max": hi}, "f_mm_rev": {"min": p, "max": p}}
                                       for g, (lo, hi) in THREAD_VC.items()],

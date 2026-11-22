@@ -1,0 +1,25 @@
+{
+ "why": "刀片要写 codes+size 或 thread_size（ADR-0115）",
+ "instance": {
+  "format": "cam-holder/1",
+  "name": "测试",
+  "holders": [
+   {
+    "id": "TG-SNR0016M16",
+    "vendor_code": "SNR0016M16",
+    "use": "internal",
+    "insert": {},
+    "f_mm": 10.6,
+    "l1_mm": 150,
+    "head_mm": 40,
+    "bar_d_mm": 16,
+    "min_bore_mm": 19,
+    "source": {
+     "kind": "catalog",
+     "ref": "tungaloy",
+     "page": "E047"
+    }
+   }
+  ]
+ }
+}

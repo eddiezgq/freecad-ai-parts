@@ -9027,6 +9027,1296 @@
    }
   },
   {
+   "id": "TG-06IR05ISO",
+   "name": "泰珂洛 06IR05ISO 内螺纹刀片（ISO 米制 60°，螺距 0.5）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 0.5,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "06IR05ISO",
+    "nose_radius_mm": 0.04,
+    "inscribed_circle_mm": 4.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E017；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-06IR075ISO",
+   "name": "泰珂洛 06IR075ISO 内螺纹刀片（ISO 米制 60°，螺距 0.75）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 0.75,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "06IR075ISO",
+    "nose_radius_mm": 0.06,
+    "inscribed_circle_mm": 4.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E017；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-06IR10ISO",
+   "name": "泰珂洛 06IR10ISO 内螺纹刀片（ISO 米制 60°，螺距 1）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "06IR10ISO",
+    "nose_radius_mm": 0.05,
+    "inscribed_circle_mm": 4.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E017；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-06IR125ISO",
+   "name": "泰珂洛 06IR125ISO 内螺纹刀片（ISO 米制 60°，螺距 1.25）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.25,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "06IR125ISO",
+    "nose_radius_mm": 0.07,
+    "inscribed_circle_mm": 4.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E017；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-08IR10ISO",
+   "name": "泰珂洛 08IR10ISO 内螺纹刀片（ISO 米制 60°，螺距 1）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "08IR10ISO",
+    "nose_radius_mm": 0.07,
+    "inscribed_circle_mm": 5.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E017；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-08IR125ISO",
+   "name": "泰珂洛 08IR125ISO 内螺纹刀片（ISO 米制 60°，螺距 1.25）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.25,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "08IR125ISO",
+    "nose_radius_mm": 0.09,
+    "inscribed_circle_mm": 5.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E017；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-08IR15ISO",
+   "name": "泰珂洛 08IR15ISO 内螺纹刀片（ISO 米制 60°，螺距 1.5）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.5,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "08IR15ISO",
+    "nose_radius_mm": 0.1,
+    "inscribed_circle_mm": 5.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E017；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-08IR175ISO",
+   "name": "泰珂洛 08IR175ISO 内螺纹刀片（ISO 米制 60°，螺距 1.75）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.75,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "08IR175ISO",
+    "nose_radius_mm": 0.15,
+    "inscribed_circle_mm": 5.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E017；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR05ISO",
+   "name": "泰珂洛 11IR05ISO 内螺纹刀片（ISO 米制 60°，螺距 0.5）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 0.5,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR05ISO",
+    "nose_radius_mm": 0.04,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E017；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR075ISO",
+   "name": "泰珂洛 11IR075ISO 内螺纹刀片（ISO 米制 60°，螺距 0.75）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 0.75,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR075ISO",
+    "nose_radius_mm": 0.05,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E017；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR10ISO",
+   "name": "泰珂洛 11IR10ISO 内螺纹刀片（ISO 米制 60°，螺距 1）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR10ISO",
+    "nose_radius_mm": 0.07,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E017；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR125ISO",
+   "name": "泰珂洛 11IR125ISO 内螺纹刀片（ISO 米制 60°，螺距 1.25）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.25,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR125ISO",
+    "nose_radius_mm": 0.09,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E017；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR15ISO",
+   "name": "泰珂洛 11IR15ISO 内螺纹刀片（ISO 米制 60°，螺距 1.5）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.5,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR15ISO",
+    "nose_radius_mm": 0.11,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E017；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR175ISO",
+   "name": "泰珂洛 11IR175ISO 内螺纹刀片（ISO 米制 60°，螺距 1.75）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.75,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR175ISO",
+    "nose_radius_mm": 0.12,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E017；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR20ISO",
+   "name": "泰珂洛 11IR20ISO 内螺纹刀片（ISO 米制 60°，螺距 2）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 2.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR20ISO",
+    "nose_radius_mm": 0.14,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E017；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
    "id": "TG-16ER05ISO",
    "name": "泰珂洛 16ER05ISO 外螺纹刀片（ISO 米制 60°，螺距 0.5）",
    "kind": "thread_turn",
@@ -10140,6 +11430,1210 @@
    "insert": {
     "iso": "27ER60ISO",
     "nose_radius_mm": 0.75,
+    "inscribed_circle_mm": 15.875
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 6.0,
+      "max": 6.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 6.0,
+      "max": 6.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 6.0,
+      "max": 6.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 6.0,
+      "max": 6.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 6.0,
+      "max": 6.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 6.0,
+      "max": 6.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E018；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR05ISO",
+   "name": "泰珂洛 16IR05ISO 内螺纹刀片（ISO 米制 60°，螺距 0.5）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 0.5,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR05ISO",
+    "nose_radius_mm": 0.04,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 0.5,
+      "max": 0.5
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E018；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR075ISO",
+   "name": "泰珂洛 16IR075ISO 内螺纹刀片（ISO 米制 60°，螺距 0.75）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 0.75,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR075ISO",
+    "nose_radius_mm": 0.05,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E018；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR10ISO",
+   "name": "泰珂洛 16IR10ISO 内螺纹刀片（ISO 米制 60°，螺距 1）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR10ISO",
+    "nose_radius_mm": 0.07,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E018；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR125ISO",
+   "name": "泰珂洛 16IR125ISO 内螺纹刀片（ISO 米制 60°，螺距 1.25）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.25,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR125ISO",
+    "nose_radius_mm": 0.09,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E018；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR15ISO",
+   "name": "泰珂洛 16IR15ISO 内螺纹刀片（ISO 米制 60°，螺距 1.5）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.5,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR15ISO",
+    "nose_radius_mm": 0.11,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E018；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR175ISO",
+   "name": "泰珂洛 16IR175ISO 内螺纹刀片（ISO 米制 60°，螺距 1.75）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.75,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR175ISO",
+    "nose_radius_mm": 0.12,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E018；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR20ISO",
+   "name": "泰珂洛 16IR20ISO 内螺纹刀片（ISO 米制 60°，螺距 2）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 2.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR20ISO",
+    "nose_radius_mm": 0.14,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E018；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR25ISO",
+   "name": "泰珂洛 16IR25ISO 内螺纹刀片（ISO 米制 60°，螺距 2.5）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 2.5,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR25ISO",
+    "nose_radius_mm": 0.18,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E018；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR30ISO",
+   "name": "泰珂洛 16IR30ISO 内螺纹刀片（ISO 米制 60°，螺距 3）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 3.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR30ISO",
+    "nose_radius_mm": 0.21,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E018；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-22IR35ISO",
+   "name": "泰珂洛 22IR35ISO 内螺纹刀片（ISO 米制 60°，螺距 3.5）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 3.5,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "22IR35ISO",
+    "nose_radius_mm": 0.25,
+    "inscribed_circle_mm": 12.7
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 3.5,
+      "max": 3.5
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 3.5,
+      "max": 3.5
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 3.5,
+      "max": 3.5
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 3.5,
+      "max": 3.5
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 3.5,
+      "max": 3.5
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 3.5,
+      "max": 3.5
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E018；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-22IR40ISO",
+   "name": "泰珂洛 22IR40ISO 内螺纹刀片（ISO 米制 60°，螺距 4）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 4.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "22IR40ISO",
+    "nose_radius_mm": 0.28,
+    "inscribed_circle_mm": 12.7
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 4.0,
+      "max": 4.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 4.0,
+      "max": 4.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 4.0,
+      "max": 4.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 4.0,
+      "max": 4.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 4.0,
+      "max": 4.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 4.0,
+      "max": 4.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E018；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-22IR45ISO",
+   "name": "泰珂洛 22IR45ISO 内螺纹刀片（ISO 米制 60°，螺距 4.5）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 4.5,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "22IR45ISO",
+    "nose_radius_mm": 0.32,
+    "inscribed_circle_mm": 12.7
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 4.5,
+      "max": 4.5
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 4.5,
+      "max": 4.5
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 4.5,
+      "max": 4.5
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 4.5,
+      "max": 4.5
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 4.5,
+      "max": 4.5
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 4.5,
+      "max": 4.5
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E018；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-22IR50ISO",
+   "name": "泰珂洛 22IR50ISO 内螺纹刀片（ISO 米制 60°，螺距 5）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 5.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "22IR50ISO",
+    "nose_radius_mm": 0.35,
+    "inscribed_circle_mm": 12.7
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 5.0,
+      "max": 5.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 5.0,
+      "max": 5.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 5.0,
+      "max": 5.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 5.0,
+      "max": 5.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 5.0,
+      "max": 5.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 5.0,
+      "max": 5.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E018；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-27IR60ISO",
+   "name": "泰珂洛 27IR60ISO 内螺纹刀片（ISO 米制 60°，螺距 6）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 6.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "27IR60ISO",
+    "nose_radius_mm": 0.42,
     "inscribed_circle_mm": 15.875
    },
    "cutting": [
@@ -11822,6 +14316,2156 @@
      "f_mm_rev": {
       "min": 4.0,
       "max": 4.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR075ISO-M",
+   "name": "泰珂洛 11IR075ISO-M 内螺纹刀片（ISO 米制 60°，螺距 0.75）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 0.75,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR075ISO-M",
+    "nose_radius_mm": 0.05,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 0.75,
+      "max": 0.75
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR10ISO-B",
+   "name": "泰珂洛 11IR10ISO-B 内螺纹刀片（ISO 米制 60°，螺距 1）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR10ISO-B",
+    "nose_radius_mm": 0.08,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR10ISO-M",
+   "name": "泰珂洛 11IR10ISO-M 内螺纹刀片（ISO 米制 60°，螺距 1）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR10ISO-M",
+    "nose_radius_mm": 0.08,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR125ISO-B",
+   "name": "泰珂洛 11IR125ISO-B 内螺纹刀片（ISO 米制 60°，螺距 1.25）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.25,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR125ISO-B",
+    "nose_radius_mm": 0.1,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR125ISO-M",
+   "name": "泰珂洛 11IR125ISO-M 内螺纹刀片（ISO 米制 60°，螺距 1.25）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.25,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR125ISO-M",
+    "nose_radius_mm": 0.1,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR15ISO-B",
+   "name": "泰珂洛 11IR15ISO-B 内螺纹刀片（ISO 米制 60°，螺距 1.5）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.5,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR15ISO-B",
+    "nose_radius_mm": 0.12,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR15ISO-M",
+   "name": "泰珂洛 11IR15ISO-M 内螺纹刀片（ISO 米制 60°，螺距 1.5）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.5,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR15ISO-M",
+    "nose_radius_mm": 0.12,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR175ISO-B",
+   "name": "泰珂洛 11IR175ISO-B 内螺纹刀片（ISO 米制 60°，螺距 1.75）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.75,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR175ISO-B",
+    "nose_radius_mm": 0.12,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR175ISO-M",
+   "name": "泰珂洛 11IR175ISO-M 内螺纹刀片（ISO 米制 60°，螺距 1.75）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.75,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR175ISO-M",
+    "nose_radius_mm": 0.12,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR20ISO-B",
+   "name": "泰珂洛 11IR20ISO-B 内螺纹刀片（ISO 米制 60°，螺距 2）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 2.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR20ISO-B",
+    "nose_radius_mm": 0.14,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-11IR20ISO-M",
+   "name": "泰珂洛 11IR20ISO-M 内螺纹刀片（ISO 米制 60°，螺距 2）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 2.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "11IR20ISO-M",
+    "nose_radius_mm": 0.14,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR10ISO-B",
+   "name": "泰珂洛 16IR10ISO-B 内螺纹刀片（ISO 米制 60°，螺距 1）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR10ISO-B",
+    "nose_radius_mm": 0.05,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR10ISO-M",
+   "name": "泰珂洛 16IR10ISO-M 内螺纹刀片（ISO 米制 60°，螺距 1）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR10ISO-M",
+    "nose_radius_mm": 0.08,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.0,
+      "max": 1.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR125ISO-B",
+   "name": "泰珂洛 16IR125ISO-B 内螺纹刀片（ISO 米制 60°，螺距 1.25）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.25,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR125ISO-B",
+    "nose_radius_mm": 0.06,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR125ISO-M",
+   "name": "泰珂洛 16IR125ISO-M 内螺纹刀片（ISO 米制 60°，螺距 1.25）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.25,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR125ISO-M",
+    "nose_radius_mm": 0.1,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.25,
+      "max": 1.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR15ISO-B",
+   "name": "泰珂洛 16IR15ISO-B 内螺纹刀片（ISO 米制 60°，螺距 1.5）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.5,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR15ISO-B",
+    "nose_radius_mm": 0.08,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR15ISO-M",
+   "name": "泰珂洛 16IR15ISO-M 内螺纹刀片（ISO 米制 60°，螺距 1.5）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.5,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR15ISO-M",
+    "nose_radius_mm": 0.12,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.5,
+      "max": 1.5
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR175ISO-B",
+   "name": "泰珂洛 16IR175ISO-B 内螺纹刀片（ISO 米制 60°，螺距 1.75）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.75,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR175ISO-B",
+    "nose_radius_mm": 0.1,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR175ISO-M",
+   "name": "泰珂洛 16IR175ISO-M 内螺纹刀片（ISO 米制 60°，螺距 1.75）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 1.75,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR175ISO-M",
+    "nose_radius_mm": 0.14,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 1.75,
+      "max": 1.75
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR20ISO-B",
+   "name": "泰珂洛 16IR20ISO-B 内螺纹刀片（ISO 米制 60°，螺距 2）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 2.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR20ISO-B",
+    "nose_radius_mm": 0.11,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR20ISO-M",
+   "name": "泰珂洛 16IR20ISO-M 内螺纹刀片（ISO 米制 60°，螺距 2）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 2.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR20ISO-M",
+    "nose_radius_mm": 0.14,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 2.0,
+      "max": 2.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR25ISO-B",
+   "name": "泰珂洛 16IR25ISO-B 内螺纹刀片（ISO 米制 60°，螺距 2.5）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 2.5,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR25ISO-B",
+    "nose_radius_mm": 0.14,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR25ISO-M",
+   "name": "泰珂洛 16IR25ISO-M 内螺纹刀片（ISO 米制 60°，螺距 2.5）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 2.5,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR25ISO-M",
+    "nose_radius_mm": 0.18,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 2.5,
+      "max": 2.5
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR30ISO-B",
+   "name": "泰珂洛 16IR30ISO-B 内螺纹刀片（ISO 米制 60°，螺距 3）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 3.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR30ISO-B",
+    "nose_radius_mm": 0.22,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 E019；切削速度 E067（各材质合集，具体材质按样本另选；每转进给 = 螺距）"
+   }
+  },
+  {
+   "id": "TG-16IR30ISO-M",
+   "name": "泰珂洛 16IR30ISO-M 内螺纹刀片（ISO 米制 60°，螺距 3）",
+   "kind": "thread_turn",
+   "internal": true,
+   "pitch_mm": 3.0,
+   "thread_angle_deg": 60,
+   "insert": {
+    "iso": "16IR30ISO-M",
+    "nose_radius_mm": 0.21,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 130.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 80.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
+     }
+    },
+    {
+     "iso_group": "H",
+     "vc_m_min": {
+      "min": 10.0,
+      "max": 30.0
+     },
+     "f_mm_rev": {
+      "min": 3.0,
+      "max": 3.0
      }
     }
    ],
