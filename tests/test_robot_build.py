@@ -124,3 +124,20 @@ def test_case_a_builds_and_converges():
     assert p["requirement"]["output_torque_peak_nm"] == pytest.approx(max(x["peak"] for x in d.values()), rel=1e-3)
     assert out["cost"]["status"] == "unknown"
     assert all(r["qty"] == 5 for r in out["bom"]["purchased"])
+    # 默认检验动作（最高 120°/s）：一体化模组一个都不行，选伺服链，并写明卡在哪（ADR-0117）
+    assert p["chain"] == "servo" and "smart" not in p["options"]
+    assert "都不通过" in p["smart_shortfall"] and "S1" in p["smart_shortfall"]
+
+
+def test_case_a_slower_duty_picks_smart_actuators_and_flags_continuous_torque():
+    """检验动作放慢到每 90° 用 2 s（最高 60°/s）：一体化模组通过峰值与转速，轻得多；连续力矩判待确认（厂商没给连续额定）"""
+    cr = json.loads(CASE_A.read_text(encoding="utf-8"))
+    out = RB.build(copy.deepcopy(cr["chosen"]), cr["conditions"]["payload"], move_s=2.0)
+    assert out["status"] == "pass", out.get("note")
+    p = out["picks"]["mod_all"]
+    assert p["chain"] == "smart" and set(p["options"]) == {"servo", "smart"}
+    assert p["module_mass_kg"] < p["options"]["servo"]["module_mass_kg"] / 4
+    s2 = next(c for c in p["report"]["checks"] if c["check"] == "S2")
+    assert s2["status"] == "unknown" and any("S2" in x for x in out["open_items"])
+    assert "60°/s" in out["assumptions"][0]
+    assert out["bom"]["notes"]                                           # 总线控制器与直流电源库里没有：写明
