@@ -1,6 +1,6 @@
 # AI part design panel GUI check (plan 0.3d). Run inside the WenQuest CAD GUI, with the user's own settings and layout:
 #   set WQCAD_OUT=...\logs\gui-panel.json
-#   FreeCAD.exe run_gui_panel_test.py
+#   FreeCAD.exe gui_panel_check.py
 # Activates the AI Parts workbench (library and check panels), clicks "AI part design", keeps the event loop running for
 # a few seconds and checks that the panel window is visible, inside the screen and the main window still responds.
 # If the UI freezes, this script never writes its result and tests-wqcad.ps1 stops the process after the time limit

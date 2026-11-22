@@ -1,12 +1,12 @@
 ﻿# 在 Windows + FreeCAD 1.1（Qt 6）里真的打开 AI 设计面板（ADR-0100 42.4 之三）：中、英文界面 × 普通 / 比屏幕宽的主窗口。
-# 每次限时；卡住就截屏、停掉、判不通过。CI（windows.yml 的 windows-gui）与问渠 CAD 的 tests-wqcad.ps1 都用 tests/gui/run_gui_panel_test.py。
+# 每次限时；卡住就截屏、停掉、判不通过。CI（windows.yml 的 windows-gui）与问渠 CAD 的 tests-wqcad.ps1 都用 tests/gui/gui_panel_check.py。
 # -Wrapper / -WrapperArgs：经环境激活程序启动（例如 micromamba run -n fc11），否则 PySide6 等找不到（CI 第二次跑时截屏发现）
 param([Parameter(Mandatory = $true)][string]$FreeCAD, [string]$Out = "gui-out", [int]$Seconds = 150,
       [string]$Wrapper = "", [string]$WrapperArgs = "")
 
 $ErrorActionPreference = "Stop"
 New-Item -ItemType Directory -Force $Out | Out-Null
-$script = (Resolve-Path (Join-Path $PSScriptRoot "run_gui_panel_test.py")).Path
+$script = (Resolve-Path (Join-Path $PSScriptRoot "gui_panel_check.py")).Path
 Add-Type -AssemblyName System.Windows.Forms, System.Drawing
 function Shot($path) {
     $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
