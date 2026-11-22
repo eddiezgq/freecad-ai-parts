@@ -49,8 +49,10 @@ def test_spot_check_against_catalog_pages():
 
 
 def test_library_shape_and_sources():
-    assert len(LIB["tools"]) == 271 and TL.readonly(LIB_PATH)          # 176 片车刀片 + 41 片外螺纹 + 54 片内螺纹刀片
+    assert len(LIB["tools"]) == 615 and TL.readonly(LIB_PATH)          # 176 片车刀片 + 41 片外螺纹 + 54 片内螺纹刀片 + 344 支整体钻头
     for t in LIB["tools"]:
+        if t["kind"] == "drill":
+            continue
         assert t["kind"] in ("turn", "thread_turn") and t["id"] == "TG-" + t["insert"]["iso"]
         if t["kind"] == "thread_turn":
             continue
@@ -272,10 +274,11 @@ def test_draft_pairs_boring_bar_and_checks_min_bore(tmp_path):
     drill10 = next(t for t in TL.load()["tools"] if t["kind"] == "drill" and t["diameter_mm"] == 10)
     part = {"mode": "turn", "machine": "EX-LATHE", "kienzle": "C45E", "segments": [[60, 40]], "chamfer_mm": 1,
             "bore": {"segments": [[40, 30]], "drill_d": 34}}
-    d0 = CP.draft(part, "P", {**LIB, "tools": [*LIB["tools"], bore, drill10]})       # 只有 Ø10 钻头：没有进得去的镗杆
+    turn_only = [t for t in LIB["tools"] if t["kind"] != "drill"]
+    d0 = CP.draft(part, "P", {**LIB, "tools": [*turn_only, bore, drill10]})          # 只有 Ø10 钻头：没有进得去的镗杆
     assert "holder" not in d0["setup"]["machine_sim"]["tools"]["6"] and any("没有能进 Ø10" in n for n in d0["notes"])
     drill34 = {**drill10, "id": "DR34", "diameter_mm": 34.0}
-    lib = {**LIB, "tools": [*LIB["tools"], bore, drill34]}
+    lib = {**LIB, "tools": [*turn_only, bore, drill34]}
     d = CP.draft(part, "P", lib)
     assert {r["id"]: r for r in d["card"]}["bore"]["tool"] == "IB-CN12"
     hd = d["setup"]["machine_sim"]["tools"]["6"]["holder"]
@@ -321,3 +324,39 @@ def test_draft_internal_thread_pairs_thread_bar():
     bar = next(h for h in HOLDERS["holders"] if h.get("vendor_code") == t7["holder"]["vendor_code"])
     assert BY_ID[t7["tool"]].get("internal") and bar["insert"]["thread_size"] == ts and t7["holder"]["min_bore_mm"] <= 22.376
     assert any(t7["holder"]["vendor_code"] in n for n in d["notes"])
+
+
+# ---------------------------------------------------------------- 整体钻头（SolidDrill DSW）
+def test_drills_spot_check():
+    """J044、J047（看样本页图抄的）：DSW030-014-06DE3 DC 3、柄 6、LCF 20、OAL 62；DSW100-080-10DI8 DC 10、柄 10、LCF 95、OAL 142；
+    DSW 样本标准切削条件：外冷 C45 ø3–6 vc 40–90、f 0.15–0.3；内冷 ø6–10 vc 70–160、ø10–16 vc 80–170（ø10 取两段合集 70–170，f 0.15–0.4）"""
+    t = BY_ID["TG-DSW030-014-06DE3"]
+    assert (t["diameter_mm"], t["shank_diameter_mm"], t["flute_length_mm"], t["overall_length_mm"], t["tip_angle_deg"]) == (3, 6, 20, 62, 140)
+    c = {x["iso_group"]: x for x in t["cutting"]}
+    assert c["P"]["vc_m_min"] == {"min": 40, "max": 90} and c["P"]["f_mm_rev"] == {"min": 0.15, "max": 0.3}
+    t = BY_ID["TG-DSW100-080-10DI8"]
+    assert (t["diameter_mm"], t["shank_diameter_mm"], t["flute_length_mm"], t["overall_length_mm"]) == (10, 10, 95, 142)
+    c = {x["iso_group"]: x for x in t["cutting"]}
+    assert c["P"]["vc_m_min"] == {"min": 70, "max": 170} and c["P"]["f_mm_rev"] == {"min": 0.15, "max": 0.4}
+    assert sum(1 for t in LIB["tools"] if t["kind"] == "drill") == 344 and t["source"]["page"].startswith("尺寸 J047")
+
+
+def test_drill_parsers():
+    row = "     DSW030-014-06DE3        3        七   6             14          20    62      DSW076-029-08DE3   7.6   七   8   29   41   79\n"
+    rs = TG.drill_rows(row)
+    assert [(r["code"], r["cool"], r["ld"], r["dc"], r["lcf"], r["oal"]) for r in rs] == \
+        [("DSW030-014-06DE3", "E", 3, 3.0, 20.0, 62.0), ("DSW076-029-08DE3", "E", 3, 7.6, 41.0, 79.0)]
+    k = {c["iso_group"]: c for c in TG.drill_cutting("E", 6.0)}
+    assert k["P"]["vc_m_min"] == {"min": 40.0, "max": 120.0}                    # ø6 在段界：两段合集
+
+
+def test_draft_holes_pick_drill_by_depth():
+    """铣削件钻 Ø6.6 深 20 的孔：刃长够 20 的里面挑最短的（DE3 刃长 34 > 20，DE5 更长）；孔深 60 时只剩刃长够的"""
+    part = {"mode": "mill", "machine": "EX-VMC", "kienzle": "C45E", "stock": {"box": [0, 0, 60, 40], "height": 30},
+            "features": [{"type": "holes", "d": 6.6, "points": [[20, 20]], "depth": 20}]}
+    t = BY_ID[{r["id"]: r for r in CP.draft(part, "P", LIB)["card"]}["f1"]["tool"]]
+    assert t["diameter_mm"] == 6.6 and t["flute_length_mm"] >= 20
+    assert t["flute_length_mm"] == min(x["flute_length_mm"] for x in LIB["tools"] if x["kind"] == "drill" and x["diameter_mm"] == 6.6)
+    part["features"][0]["depth"] = 60
+    t2 = BY_ID[{r["id"]: r for r in CP.draft(part, "P", LIB)["card"]}["f1"]["tool"]]
+    assert t2["flute_length_mm"] >= 60
