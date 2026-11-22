@@ -375,6 +375,34 @@ def test_hand_built_analysis_is_adopted_and_solved(doc, monkeypatch, tmp_path):
     assert res["data"]["steps"][0]["u_max_mm"] == pytest.approx(theory, rel=0.03)
 
 
+def test_hand_built_centrifugal_and_gravity_are_adopted(doc, tmp_path):
+    """FEM 工作台手加的离心载荷（引用实体、给转轴）和重力（不引用实体）：分析里只有一个零件，就算在它上面"""
+    import FreeCAD
+    import ObjectsFem
+
+    from freecad_addon.fc import fem_flow as F
+
+    an = _hand_built_cantilever(doc, tmp_path)
+    beam = doc.getObject("Beam")
+    axis = doc.addObject("Part::Line", "Axis")
+    axis.X1, axis.Y1, axis.Z1, axis.X2, axis.Y2, axis.Z2 = 0, 5, 5, 10, 5, 5
+    doc.recompute()
+    c = ObjectsFem.makeConstraintCentrif(doc, "Centrif")
+    c.References = [(beam, "Solid1")]
+    c.RotationAxis = [(axis, "Edge1")]
+    c.RotationFrequency = FreeCAD.Units.Quantity("50 1/s")
+    an.addObject(c)
+    an.addObject(ObjectsFem.makeConstraintSelfWeight(doc, "Gravity"))
+    doc.recompute()
+    F.adopt(an, "45-QT", tmp_path / "parts")
+    study, _wd = F.prepare_run(an)
+    loads = {x["type"]: x for x in study["loads"]}
+    body = study["bodies"][0]["id"]
+    assert loads["centrifugal"]["body"] == body and loads["centrifugal"]["speed_rpm"] == pytest.approx(3000)
+    assert loads["centrifugal"]["axis"]["dir"] == pytest.approx([1, 0, 0])
+    assert loads["gravity"]["body"] == body
+
+
 def test_hand_built_modal_and_unsupported_types(doc, tmp_path):
     from freecad_addon.fc import fem_flow as F
 

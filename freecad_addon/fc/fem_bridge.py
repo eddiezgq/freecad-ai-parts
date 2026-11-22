@@ -466,6 +466,15 @@ def fem_to_study(analysis, *, tables: dict[str, list] | None = None) -> tuple[di
             out.append((by_name[obj.Name], ids, keys.pop()))
         return out
 
+    def body_of(o):
+        """手建的重力、离心载荷作用在哪个实体：References 里引用的那个零件；没引用而分析里只有一个零件时就是它"""
+        ids = {by_name[r[0].Name] for r in (getattr(o, "References", None) or []) if r and r[0] is not None and r[0].Name in by_name}
+        if len(ids) == 1:
+            return ids.pop()
+        if not ids and len(set(by_name.values())) == 1:
+            return next(iter(by_name.values()))
+        return None
+
     groups: dict[str, list[tuple[int, dict, str]]] = {"supports": [], "loads": [], "connections": []}
     transforms = {o.FapPartOf for o in analysis.Group if "FapPartOf" in o.PropertiesList}
     for o in analysis.Group:
@@ -492,7 +501,7 @@ def fem_to_study(analysis, *, tables: dict[str, list] | None = None) -> tuple[di
             note["unsupported"].append(f"{o.Label}（{o.TypeId}）：本仓库的求解链不支持，不计算")
             continue
         try:
-            item = _read_native(o, kind_type, faces_of, stored, o.Name in transforms)
+            item = _read_native(o, kind_type, faces_of, stored, o.Name in transforms, body_of(o))
         except BridgeError as e:
             note["unsupported"].append(f"{o.Label}：{e}")
             continue
@@ -568,16 +577,16 @@ def _core(it: dict) -> dict:
     return {k: v for k, v in it.items() if k not in ("case", "band_mm", "tolerance_mm", "id", "axis")}
 
 
-def _read_native(o, t: str, faces_of, stored: dict | None, has_transform: bool) -> dict:
+def _read_native(o, t: str, faces_of, stored: dict | None, has_transform: bool, native_body=None) -> dict:
     if t == "gravity":
         g = _q(o.GravityAcceleration, "m/s^2")
         d = o.GravityDirection
-        body = (stored or {}).get("body")
+        body = (stored or {}).get("body") or native_body
         if body is None:
             raise BridgeError("重力在本仓库按实体加：人手加的重力请用起草或在算例里指明实体")
         return {"type": "gravity", "body": body, "acceleration_m_s2": [g * d.x, g * d.y, g * d.z]}
     if t == "centrifugal":
-        body = (stored or {}).get("body")
+        body = (stored or {}).get("body") or native_body
         if body is None or not o.RotationAxis:
             raise BridgeError("离心载荷要指明实体与转轴")
         e = o.RotationAxis[0][0].Shape.Edges[0]
