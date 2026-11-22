@@ -512,6 +512,56 @@
     "en": "Heidenhain conversational (labels, drilling cycle, retract on tool change): read-back matches the simulated path"
    },
    "source": "整机仿真刀路 / Simulated tool path"
+  },
+  {
+   "id": "CAM-50",
+   "test": "tests/test_cam_tilt_c2.py::test_round_trip[G68.2]",
+   "category": "kin",
+   "title": {
+    "zh": "倾斜面角度（G68.2 欧拉角、PLANE SPATIAL、CYCLE800）往返",
+    "en": "Tilted plane angles (G68.2 Euler, PLANE SPATIAL, CYCLE800) round trip"
+   },
+   "source": "R = Rz·Rx·Rz 等 / R = Rz·Rx·Rz etc."
+  },
+  {
+   "id": "CAM-51",
+   "test": "tests/test_cam_tilt_c2.py::test_side_slot_volume_and_time",
+   "category": "geom",
+   "title": {
+    "zh": "3+2 侧面槽的去除体积与切削时间",
+    "en": "3+2 side slot removed volume and cutting time"
+   },
+   "source": "V = ap·(L·D + πD²/4); t = L/F"
+  },
+  {
+   "id": "CAM-52",
+   "test": "tests/test_cam_tilt_c2.py::test_g68_2_release_and_readback",
+   "category": "post",
+   "title": {
+    "zh": "3+2 倾斜面 G68.2 程序回读与仿真刀路一致",
+    "en": "3+2 tilted plane G68.2 program read-back matches the simulated path"
+   },
+   "source": "整机仿真刀路 / Simulated tool path"
+  },
+  {
+   "id": "CAM-53",
+   "test": "tests/test_cam_millturn_c2b.py::test_millturn_cutting_time",
+   "category": "time",
+   "title": {
+    "zh": "车铣复合：端面槽、圆柱面螺旋槽的切削时间",
+    "en": "Mill-turn: face slot and cylindrical helix cutting time"
+   },
+   "source": "t = L/vf"
+  },
+  {
+   "id": "CAM-54",
+   "test": "tests/test_cam_millturn_c2b.py::test_face_slot_and_cylinder_slot_volume_on_turned_part",
+   "category": "geom",
+   "title": {
+    "zh": "车铣复合：端面槽、圆柱面槽的去除体积",
+    "en": "Mill-turn: face slot and cylinder slot removed volume"
+   },
+   "source": "V = ap·(L·D + πD²/4); ∫∫(√(R² − y²) − r) dy dz"
   }
  ]
 }

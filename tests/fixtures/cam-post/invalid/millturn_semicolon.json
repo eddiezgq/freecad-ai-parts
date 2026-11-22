@@ -1,0 +1,18 @@
+{
+ "why": "车铣程序行不能带分号（西门子注释）、小写和问号等别的字符（ADR-0111）",
+ "instance": {
+  "format": "cam-post/1",
+  "id": "sinumerik-mt",
+  "name": "SINUMERIK 828D mill-turn",
+  "family": "siemens",
+  "kinds": [
+   "lathe"
+  ],
+  "source": "测试夹具",
+  "millturn": {
+   "live_on": [
+    "SETMS(2) ; live tool"
+   ]
+  }
+ }
+}

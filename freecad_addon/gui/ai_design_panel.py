@@ -42,7 +42,9 @@ class AiDesignPanel:
         self.kind.currentIndexChanged.connect(self._kind_changed)
         row.addWidget(self.kind, 1)
         lay.addLayout(row)
-        lay.addWidget(QtWidgets.QLabel(T("需求原话（转速、电机、机构参数、轴向位置、材料……；轴承型号可以不指定）")))
+        need = QtWidgets.QLabel(T("需求原话（转速、电机、机构参数、轴向位置、材料……；轴承型号可以不指定）"))
+        need.setWordWrap(True)
+        lay.addWidget(need)
         self.text = QtWidgets.QPlainTextEdit()
         lay.addWidget(self.text, 1)
         row = QtWidgets.QHBoxLayout()
@@ -240,14 +242,17 @@ class AiDesignPanel:
 
 
 def open_panel(library=None, enterprise=None) -> AiDesignPanel:
-    """放在主窗口右侧的停靠面板（与“零件库”“校验”同一种）。不用任务面板：
-    有的布局里任务面板是隐藏的，面板看不见、菜单却被锁住（Eddie 2026-11-18 在问渠 CAD 里遇到）"""
+    """单独的工具窗口（挂在主窗口上、始终在它前面，可拖动、可缩放）。
+    - 不用任务面板：有的布局里任务面板是隐藏的，面板看不见、菜单却被锁住（2026-11-18）；
+    - 不用右侧停靠：问渠 CAD 1.1.4（Qt 6、英文界面、主窗口比屏幕宽）里放进右侧停靠区、与“校验”叠成页签时界面卡死（2026-11-19），
+      而同一个面板单独开窗正常。单独的窗口不参与主窗口的布局，不会再把主窗口拖住。"""
     global _LAST_PANEL, _DOCK
     from PySide import QtCore, QtWidgets
 
     if _DOCK is not None and _LAST_PANEL is not None:
         _DOCK.show()
         _DOCK.raise_()
+        _DOCK.activateWindow()
         return _LAST_PANEL
     if library is None:
         from freecad_addon.gui.host import get_host
@@ -257,19 +262,25 @@ def open_panel(library=None, enterprise=None) -> AiDesignPanel:
         enterprise = getattr(library, "top", None)
     panel = AiDesignPanel(library, enterprise)
     mw = FreeCADGui.getMainWindow()
-    dock = QtWidgets.QDockWidget(T("AI 设计零件"), mw)
-    dock.setObjectName("FapAiDesignPanel")
+    win = QtWidgets.QWidget(mw, QtCore.Qt.Tool)
+    win.setObjectName("FapAiDesignPanel")
+    win.setWindowTitle(T("AI 设计零件"))
     scroll = QtWidgets.QScrollArea()
     scroll.setWidgetResizable(True)
+    scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)   # 滚动条不来回出现、消失（换行文字的高度随宽度变）
     scroll.setWidget(panel.form)
-    dock.setWidget(scroll)
-    mw.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
-    other = mw.findChild(QtWidgets.QDockWidget, "FapCheckPanel")
-    if other is not None and other.isVisible() and mw.dockWidgetArea(other) == QtCore.Qt.RightDockWidgetArea:
-        mw.tabifyDockWidget(other, dock)           # 与“校验”叠成页签、占满右侧高度，不挤在它下面
-    dock.show()
-    dock.raise_()
-    _LAST_PANEL, _DOCK = panel, dock
+    lay = QtWidgets.QVBoxLayout(win)
+    lay.setContentsMargins(0, 0, 0, 0)
+    lay.addWidget(scroll)
+    screen = (mw.screen() if hasattr(mw, "screen") else None) or QtWidgets.QApplication.primaryScreen()
+    area = screen.availableGeometry()                  # 按屏幕而不是主窗口定大小、位置：主窗口可能比屏幕宽
+    w, h = min(640, area.width() - 40), min(900, area.height() - 80)
+    win.resize(w, h)
+    win.move(area.right() - w - 20, area.top() + 40)
+    win.show()
+    win.raise_()
+    win.activateWindow()
+    _LAST_PANEL, _DOCK = panel, win
     return panel
 
 

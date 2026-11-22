@@ -111,36 +111,38 @@ def _labels(body, end):
 
 
 # ---------------------------------------------------------------- 回读：换回 ISO
-def _blocks(text: str) -> list[str]:
-    """去掉段号、注释，续行（~）并成一段"""
-    out, cur = [], None
-    for raw in text.splitlines():
+def _blocks(text: str) -> list[tuple[int, str]]:
+    """去掉段号、注释，续行（~）并成一段 → [(原程序行号, 程序段)]"""
+    out, cur, at = [], None, 0
+    for i, raw in enumerate(text.splitlines(), 1):
         s = raw.strip()
         if not s:
             continue
         if cur is not None:                      # 续行：Q 参数，分号后是说明
             cur += " " + s.split(";")[0].strip().rstrip("~").strip()
             if not s.rstrip().endswith("~"):
-                out.append(cur)
+                out.append((at, cur))
                 cur = None
             continue
         s = re.sub(r"^\d+\s+", "", s)
         if s.startswith(";"):
             continue
         if s.endswith("~"):
-            cur = s.rstrip("~").strip()
+            cur, at = s.rstrip("~").strip(), i
             continue
-        out.append(s.split(";")[0].strip())
+        out.append((i, s.split(";")[0].strip()))
     if cur is not None:
-        out.append(cur)
+        out.append((at, cur))
     return out
 
 
-def to_iso(text: str) -> str:
-    """对话格式 → FANUC 写法（回读用）。子程序展开；钻孔、攻丝循环按 G98 G81 / G83 / G84 写（与 sim.parse 的展开规则相同）"""
+def to_iso(text: str, *, tags: bool = False) -> str:
+    """对话格式 → FANUC 写法（回读用）。子程序展开；钻孔、攻丝循环按 G98 G81 / G83 / G84 写（与 sim.parse 的展开规则相同）。
+    tags：每行末尾记原程序行号 (#L行号)"""
     blocks = _blocks(text)
     main, labels, cur = [], {}, None
-    for b in blocks:
+    for ib in blocks:
+        b = ib[1]
         if b.startswith(("BEGIN PGM", "END PGM")):
             continue
         m = re.fullmatch(r"LBL (\d+)", b)
@@ -152,24 +154,29 @@ def to_iso(text: str) -> str:
                 cur = k
                 labels[k] = []
             continue
-        (labels[cur] if cur is not None else main).append(b)
+        (labels[cur] if cur is not None else main).append(ib)
     flat = []
 
     def put(bs, depth=0):
         if depth > 8:
             raise KlartextError("子程序调用层数太多")
-        for b in bs:
-            m = re.fullmatch(r"CALL LBL (\d+)", b)
+        for ib in bs:
+            m = re.fullmatch(r"CALL LBL (\d+)", ib[1])
             if m:
                 if int(m.group(1)) not in labels:
                     raise KlartextError(f"LBL {m.group(1)} 找不到")
                 put(labels[int(m.group(1))], depth + 1)
             else:
-                flat.append(b)
+                flat.append(ib)
     put(main)
     out = ["%", "O0001"]
-    st = {"z": None, "rpm": 0.0, "cyc": None}
-    for b in flat:
+    st = {"z": None, "rpm": 0.0, "cyc": None, "datum": [0.0, 0.0, 0.0]}
+    mark, prev = len(out), 0
+    for ln, b in flat:
+        if tags:                                 # 上一段换出来的行记上它的原行号
+            out[mark:] = [f"{x} (#L{prev})" for x in out[mark:]]
+            mark, prev = len(out), ln
+
         if b in ("M30", "M2"):
             out.append("M30")
             break
@@ -179,6 +186,22 @@ def to_iso(text: str) -> str:
             if tm.group(2):
                 st["rpm"] = float(tm.group(2))
                 out.append(f"S{_f(float(tm.group(2)))}")
+            continue
+        m7 = re.fullmatch(rf"CYCL DEF 7\.([0-3])(?: DATUM SHIFT| ([XYZ])({_NUM}))", b)
+        if m7:                                       # 零点平移（倾斜面的平面原点）
+            if m7.group(2):
+                st["datum"]["XYZ".index(m7.group(2))] = float(m7.group(3))
+            continue
+        mp = re.fullmatch(rf"PLANE SPATIAL SPA({_NUM}) SPB({_NUM}) SPC({_NUM})(?: TURN)?(?: MB MAX)?(?: FMAX)?", b)
+        if mp:                                       # PLANE SPATIAL → G68.2（同一个旋转换成 Z-X-Z 欧拉角）+ G53.1
+            from analysis.cam import tilt
+
+            i, j, k = tilt.euler_zxz(tilt.from_spatial(*(float(x) for x in mp.groups())))
+            d = st["datum"]
+            out += [f"G68.2 X{_f(d[0])} Y{_f(d[1])} Z{_f(d[2])} I{_f(i)} J{_f(j)} K{_f(k)}", "G53.1"]
+            continue
+        if b in ("PLANE RESET STAY", "PLANE RESET TURN", "PLANE RESET"):
+            out.append("G69")
             continue
         if b.startswith("CYCL DEF"):
             q = {int(k): float(v) for k, v in (_Q.match(w).groups() for w in b.split() if _Q.match(w))}
@@ -209,6 +232,8 @@ def to_iso(text: str) -> str:
         for a, v in _LAX.findall(m.group(1)):
             if a == "Z":
                 st["z"] = float(v)
+    if tags:
+        out[mark:] = [f"{x} (#L{prev})" for x in out[mark:]]
     out.append("%")
     return "\n".join(x for x in out if x) + "\n"
 

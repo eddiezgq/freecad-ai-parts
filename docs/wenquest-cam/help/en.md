@@ -17,7 +17,7 @@ Three principles run through everything:
 2. **Programs are output only after the whole-machine simulation passes.** Every tool path segment moves the machine model and checks the cutting edge, holder, spindle head, fixtures, table and remaining material for collisions, and the axes for overtravel. If anything fails, no program is output.
 3. **The written program is read back.** It is compared segment by segment with the simulated tool path; if they differ, no program is output. The program header carries the machine, post processor version, simulation fingerprint and "first part: dry run and single block".
 
-The accuracy of the algorithms is documented in the WenQuest CAM Verification Manual installed with the software: 49 benchmark problems and 56 comparisons (machining time, cutting power, five-axis kinematic round trips, collision tests, removed volume, nose radius, thread root and taper, face grooves, parting off, width of cut, tapping, countersinks, counterbores, thread milling, arc lead-in, ball end mill scallop height, errors that must be reported, post read-back, canned-cycle expansion), all within the stated tolerances.
+The accuracy of the algorithms is documented in the WenQuest CAM Verification Manual installed with the software: 54 benchmark problems and 61 comparisons (machining time, cutting power, five-axis kinematic round trips, collision tests, removed volume, nose radius, thread root and taper, face grooves, parting off, width of cut, tapping, countersinks, counterbores, thread milling, arc lead-in, ball end mill scallop height, errors that must be reported, post read-back, canned-cycle expansion), all within the stated tolerances.
 
 # Installing and uninstalling
 
@@ -54,6 +54,16 @@ Use `shaft.step` in `examples\01-shaft-turning` of the installation folder.
 ![Turning example after calculation](img/en-turn.png)
 
 7. Press "Save programs and process card…" and choose a folder: one `.nc` program per setup; Pro also writes the process card and program sheet (Word, PDF).
+   The process card has three kinds of drawings: **part drawing** (milling: front, left and top views projected from the part model, hidden lines dashed,
+   overall length, width and height; turning: the part outline with step diameters, shoulder positions, overall length, grooves and threads),
+   **setup drawing** (one per setup: stock, jaws or fixtures, part, work zero; turning shows clamping length and stick-out) and **tool drawings**
+   (each tool drawn from the tool library; turning tools show the insert shape and nose radius). Numbers on the drawings go into the source ledger like
+   the numbers in the tables; dimensions missing from the tool library are not drawn, and the card says so (e.g. "T05: no flute length given").
+8. **Program comparison**: press "Compare programs…" in the job panel, choose the old and then the new program. The report shows tools added or removed,
+   the same path cut with another tool, speed and feed changes per tool (with line numbers), which lines of the tool path differ (maximum deviation,
+   first difference) and the time difference. When the two programs only differ in formatting (sequence numbers, comments, decimals, subprograms,
+   another control) the report says the tool paths are identical. The report can be saved. Command line:
+   `python -m analysis.cam.progdiff old.nc new.nc --machine <machine id>`.
 
 # Turning: bores, face grooves, threads, parting off and canned cycles
 
@@ -142,6 +152,34 @@ Tick "Deviation" to colour the finished stock by its deviation from the part mod
   sequence numbers, % and turning items do not apply and are rejected. For read-back the program is converted back to ISO and compared with the
   simulated path. Tool paths contain no arcs (arcs are split into lines at 0.002 mm chord height), so no CC / C blocks are written.
 - None of the post processors (FANUC, Siemens, GSK lathe, Huazhong, Heidenhain) has been verified on a real machine yet; the program header says so; programs with canned cycles (turning or drilling) get an extra warning in the check list. **Always dry-run the first part and confirm it in single block.**
+
+# 3+2 tilted planes
+
+On five-axis machining centres (such as the example EX-5AX-AC, trunnion A and C axes) an operation can work on a tilted working plane: plane origin,
+normal (tool axis) and X direction are given in work coordinates, and the operation's tool path uses plane coordinates. Simulation: material removal
+uses tri-dexel (any tool axis), and the machine simulation solves the rotary axes from the tool axis and checks overtravel and collisions. Before the
+rotary axes turn, Z retracts to machine home; the moves from there to the first plunge follow the control's tilted-plane function and are not
+checked by the machine simulation (an "unknown" item in the check list). Posts: FANUC / Huazhong write `G68.2` (plane origin + Z-X-Z Euler angles)
+and `G53.1`, cancelled with `G69`; Siemens writes `CYCLE800` (axis-by-axis X, Y, Z, _MODE = 57), cancelled with `CYCLE800()`; Heidenhain writes a
+`CYCL DEF 7` datum shift and `PLANE SPATIAL … TURN`, cancelled with `PLANE RESET STAY`. For read-back all three are converted to the same rotation and
+compared move by move with the simulated path. Three-axis machines report an error for tilted operations.
+
+In the machining tree: choose a five-axis machine for the milling job (e.g. EX-5AX-AC), click a sloped face of the part in the 3D view and press
+"New tilted-plane setup"; a "Tilted plane N" setup appears. Operations added to it (facing, pocket, contour, drilling, holes …) find their features on
+that plane, FreeCAD computes the paths in plane coordinates, and the stock is the real stock turned into plane coordinates (a tilted box) — so face
+the slope first, then machine the pocket in it. Calculation, replay, 3D comparison and program output work as usual.
+
+# Mill-turn
+
+On mill-turn centres (such as the example EX-MT-CY: X, Y, Z, C axes, live tools) one program can hold turning operations and live-tool milling:
+face milling with polar interpolation `G12.1 … G13.1` (program X is a diameter, C in mm) and cylinder milling with cylindrical interpolation
+`G7.1 C radius … G7.1 C0` (C in degrees). The simulation first computes the turned shape, then mills it along the tool axis; times follow the path on
+the workpiece. Live-tool and C-axis M codes differ between builders and must be written into the post configuration as `millturn` (from the machine
+manual); without them programs with milling are not output. For SINUMERIK the post writes `TRANSMIT` (face; radius programming DIAMOF, X and Y are Cartesian face coordinates) and `TRACYL(working diameter)` (cylinder; Y is the arc length in mm on the working diameter), then `TRAFOOF`, `DIAMON`. Machine simulation solves the C axis from the live-tool directions in the machine file (`live_tools`) and checks collisions; without them it reports "unknown". When a turning job's machine is a mill-turn centre, the "New operation" menu has "Face milling (live tool)" "Cylinder keyway (live tool)" and "Flat slot on cylinder (Y axis)": first pick, in the 3D view, a slot or pocket bottom on an end face (slot or rounded-rectangle pocket) or the bottom of a keyway on the cylinder (semicircular ends, along the axis), then run the command; the operation goes into the right-end or flipped setup according to where the face is. The cutter comes from the tool library by slot width or corner radius, with parameters at the middle of the catalogue range. Calculation appends the live-tool milling after turning and outputs one mill-turn program. Flat slots wider than the cutter use "Flat slot on cylinder (Y axis)": the C axis indexes to the slot and the Y axis mills it (`G00 C angle`, `G19` … `G18`). Slanted slots are not done yet. In the replay the live tool moves at its real position on the workpiece and the in-process stock shows the milled slots.
+
+# Feedback
+
+If something goes wrong, choose "Feedback…" in the WenQuest CAM menu: write a few words about what you did and what went wrong, press "Make feedback package…" and choose a folder. A zip is created (your description, versions, a copy of the current document, your tool library / machine / post configurations, the error text; no license file) for you to send to us (WeChat or e-mail). The software never uploads anything by itself.
 
 # Free and Pro
 

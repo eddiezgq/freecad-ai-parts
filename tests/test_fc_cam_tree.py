@@ -239,6 +239,19 @@ def test_panels_edit_confirm_calculate_save(gui, tmp_path):
         files = jp.save_to(tmp_path)
         names = {f.name for f in files}
         assert {"O1001_fanuc.nc", "O1002_fanuc.nc", "工艺卡与程序单.docx"} <= names
+        # 程序对比（Q6b）：同一个程序报“刀路相同”；改一个进给报出来，报告窗口能打开
+        a = tmp_path / "O1001_fanuc.nc"
+        assert "刀路相同" in jp.compare_files(a, a)
+        txt = a.read_text(encoding="utf-8")
+        import re as _re
+
+        f0 = _re.search(r"F(\d+\.\d+)", txt).group(0)
+        (tmp_path / "b.nc").write_text(txt.replace(f0, "F0.123", 1), encoding="utf-8")
+        rep = jp.compare_files(a, tmp_path / "b.nc")
+        assert "两版程序有差别" in rep and "F0.123" in rep
+        dlg = P.show_report(jp.form, "程序对比", rep)
+        assert "F0.123" in dlg.view.toPlainText()
+        dlg.close()
         P._close()
     finally:
         App.closeDocument(doc.Name)
@@ -272,3 +285,26 @@ def test_cam_workbench_has_tree_commands(gui, monkeypatch):
                 "隐藏 / 显示刀路", "新建工序"} <= got, got
     finally:
         FreeCADGui.activateWorkbench("NoneWorkbench")
+
+
+def test_feedback_dialog_makes_package(gui, tmp_path, monkeypatch):
+    """Q7a：问题反馈窗口生成反馈包，里面有当前文档副本；菜单里有这一项"""
+    import FreeCAD as App
+
+    from freecad_addon.core import cam_feedback as FB
+    from freecad_addon.gui import cam_brand
+
+    for k in ("FAP_TOOLS", "FAP_MACHINES_DIR", "FAP_POSTS"):
+        monkeypatch.setenv(k, str(tmp_path / k))
+    assert "FAP_CamFeedback" in cam_brand.CMDS
+    doc = App.newDocument("fbdoc")
+    try:
+        dlg = cam_brand.FeedbackDialog()
+        dlg.text.setPlainText("回放到第 3 行卡住")
+        zp = dlg.generate(tmp_path / "out")
+        names = FB.contents(zp)
+        assert "description.txt" in names and any(n.startswith("document/") and n.endswith(".FCStd") for n in names)
+        assert str(zp) in dlg.status.text()
+        dlg.dlg.close()
+    finally:
+        App.closeDocument(doc.Name)

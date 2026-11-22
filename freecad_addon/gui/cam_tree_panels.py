@@ -18,7 +18,8 @@ from freecad_addon.fc import cam_objects as CO
 
 COLORS = {"error": "#c62828", "warn": "#b26a00", "unknown": "#6b6b6b", "pass": "#2e7d32"}
 TOOL_KINDS = {"rough": ("turn",), "finish": ("turn",), "groove": ("groove",), "thread": ("thread_turn",), "bore": ("bore",),
-              "drill": ("drill",), "pocket": ("flat_endmill", "bull_endmill"), "profile": ("flat_endmill", "bull_endmill")}
+              "drill": ("drill",), "pocket": ("flat_endmill", "bull_endmill"), "profile": ("flat_endmill", "bull_endmill"),
+              "live_face": ("flat_endmill",), "live_keyway": ("flat_endmill",), "live_flat": ("flat_endmill",)}
 _LAST = None                  # 最近打开的面板（测试用）
 
 
@@ -56,8 +57,9 @@ class JobPanel:
         f = QtWidgets.QFormLayout()
         self.machine = QtWidgets.QComboBox()
         kind = "lathe" if job.Kind == "turn" else "mill"
-        for m in machines.models():
-            if m["kind"] == kind and all(a["type"] == "linear" for a in m["axes"]):
+        kinds = ("lathe", "mill_turn") if job.Kind == "turn" else ("mill",)      # 3+2 五轴、车铣中心也能选（ADR-0106 C2a、C2b）
+        for m in machines.all_machines():
+            if m["kind"] in kinds:
                 self.machine.addItem(m["name"], m["id"])
         self.machine.setCurrentIndex(max(self.machine.findData(job.Machine), 0))
         f.addRow(T("机床"), self.machine)
@@ -138,7 +140,10 @@ class JobPanel:
         self.replay = QtWidgets.QPushButton(T("回放…"))
         self.replay.setToolTip(T("按程序回放：刀具怎么走、在哪一行撞；程序窗口与刀路联动；算完看色差"))
         self.replay.clicked.connect(self.open_replay)
-        for b in (self.rule, self.ai, self.calc, self.replay, self.save):
+        self.diff = QtWidgets.QPushButton(T("程序对比…"))
+        self.diff.setToolTip(T("两版程序差在哪：刀具、转速、进给、哪几行刀路不同、时间差（顺序号、注释、写法不同不算差别）"))
+        self.diff.clicked.connect(self.compare_dialog)
+        for b in (self.rule, self.ai, self.calc, self.replay, self.diff, self.save):
             row.addWidget(b)
         lay.addLayout(row)
         self.summary = QtWidgets.QLabel("")
@@ -247,6 +252,35 @@ class JobPanel:
             files += [f for f in S.save(self.result, out, draft_doc=CO.card_doc(self.job), lang=lang) if f.suffix != ".nc"]
         return files
 
+    def compare_files(self, path_a, path_b) -> str:
+        """两版程序（按本作业的机床读）→ 对比报告（Markdown，界面语言）"""
+        from pathlib import Path
+
+        from analysis.cam import machines, progdiff
+        from assist import i18n
+
+        self.apply()
+        mach = machines.get(self.job.Machine)
+        res = progdiff.compare(Path(path_a).read_text(encoding="utf-8"), Path(path_b).read_text(encoding="utf-8"), mach)
+        self.diff_result = res
+        return progdiff.report(res, "en" if i18n.lang() == "en" else "zh")
+
+    def compare_dialog(self):
+        from PySide import QtWidgets
+
+        a, _ = QtWidgets.QFileDialog.getOpenFileName(self.form, T("旧版程序"), "", T("数控程序 (*.nc *.txt *.h *.mpf *.tap);;所有文件 (*)"))
+        if not a:
+            return None
+        b, _ = QtWidgets.QFileDialog.getOpenFileName(self.form, T("新版程序"), "", T("数控程序 (*.nc *.txt *.h *.mpf *.tap);;所有文件 (*)"))
+        if not b:
+            return None
+        try:
+            text = self.compare_files(a, b)
+        except Exception as exc:  # noqa: BLE001
+            self.status.setText(T("程序对比没做成：{}").format(T(str(exc))))
+            return None
+        return show_report(self.form, T("程序对比"), text)
+
     def save_dialog(self):
         from PySide import QtWidgets
 
@@ -288,7 +322,7 @@ class OpPanel:
         self.op = op
         self.job = CO.job_of(op)
         self.lib = CO._lib(self.job)
-        turn = self.job.Kind == "turn"
+        turn = self.job.Kind == "turn" and op.OpKind not in CO.LIVE_KINDS     # 动力刀工序（ADR-0106 C2b）按铣刀：每齿进给
         self.form = QtWidgets.QWidget()
         self.form.setWindowTitle(T("工序：{}").format(op.Label))
         lay = QtWidgets.QVBoxLayout(self.form)
@@ -404,6 +438,9 @@ class OpPanel:
 
     def _geometry_text(self):
         op, job = self.op, self.job
+        if op.OpKind in CO.LIVE_KINDS:
+            ft = CO._js(op, "HoleData", {}).get("feature") or {}
+            return T("本工序：{}").format(", ".join(f"{a}={v:g}" for a, v in ft.items() if isinstance(v, (int, float))))
         if job.Kind == "turn":
             d = CO._js(job, "PartData", {})
             k = op.OpKind
@@ -436,7 +473,7 @@ class OpPanel:
         except S.StudyError as exc:
             self.range.setText(T(str(exc)))
             return
-        turn = self.job.Kind == "turn"
+        turn = self.job.Kind == "turn" and self.op.OpKind not in CO.LIVE_KINDS
         kw = {"vc": self.vc.value()}
         if self.op.OpKind != "thread":
             kw["f" if (turn or self.op.OpKind == "drill") else "fz"] = self.feed.value()
@@ -533,6 +570,78 @@ class NewJobCommand:
             QtWidgets.QMessageBox.warning(None, T("问渠CAM"), T(str(exc)))
             return
         edit(job)
+
+
+class TiltSetupCommand:
+    """3+2 倾斜面（ADR-0106 C2a）：在三维视图里点零件上的一个平面 → 铣削作业加一个倾斜面装夹，以后在这个装夹里加工序"""
+
+    def GetResources(self):
+        return {"MenuText": T("新建倾斜面装夹"), "ToolTip": T("点零件上的一个平面：建一个倾斜面装夹（3+2 定位），这个装夹里的工序在这个平面上加工")}
+
+    def IsActive(self):
+        return FreeCAD.ActiveDocument is not None
+
+    def run(self, obj, sub):
+        """选中的 obj（零件）、sub（FaceN）→ 新装夹；找不到作业或面不对时抛 CamObjError"""
+        jobs = [j for j in FreeCAD.ActiveDocument.Objects if CO.is_job(j) and j.Model == obj and j.Kind == "mill"]
+        if not jobs:
+            raise CO.CamObjError("先给这个零件建铣削作业，再点它上面的平面")
+        return CO.new_tilt_setup(jobs[0], sub)
+
+    def Activated(self):
+        from PySide import QtWidgets
+
+        sel = [(s.Object, n) for s in FreeCADGui.Selection.getSelectionEx() for n in s.SubElementNames if n.startswith("Face")]
+        if not sel:
+            QtWidgets.QMessageBox.information(None, T("问渠CAM"), T("先在三维视图里点零件上的一个平面"))
+            return
+        try:
+            s = self.run(*sel[0])
+        except Exception as exc:  # noqa: BLE001
+            QtWidgets.QMessageBox.warning(None, T("问渠CAM"), T(str(exc)))
+            return
+        FreeCADGui.Selection.clearSelection()
+        FreeCADGui.Selection.addSelection(s)
+
+
+class LiveOpCommand:
+    """车铣中心的动力刀工序（ADR-0106 C2b）：在三维视图里点槽底 / 型腔底 → 车削作业对应的装夹（右端或调头）加一道端面铣或圆柱面键槽"""
+
+    def __init__(self, kind):
+        self.kind = kind
+
+    def GetResources(self):
+        tip = {"live_face": "点零件端面上的槽底或型腔底：用轴向动力刀、极坐标插补铣（车铣中心）",
+               "live_keyway": "点圆柱面上键槽的底面：用径向动力刀、圆柱插补铣（车铣中心）",
+               "live_flat": "点圆柱面上平底槽的底面（可宽于刀径）：C 轴分度、径向动力刀 Y 轴铣（车铣中心）"}[self.kind]
+        return {"MenuText": T(CO.LIVE_KINDS[self.kind]), "ToolTip": T(tip)}
+
+    def IsActive(self):
+        s = _target_setup()
+        return FreeCAD.ActiveDocument is not None and (s is None or CO.job_of(s).Kind == "turn")
+
+    def run(self, obj, sub):
+        """选中的 obj（零件）、sub（FaceN）→ 新工序；找不到作业或面不对时抛 CamObjError"""
+        jobs = [j for j in FreeCAD.ActiveDocument.Objects if CO.is_job(j) and j.Model == obj and j.Kind == "turn"]
+        if not jobs:
+            raise CO.CamObjError("先给这个零件建车削作业（机床选车铣中心），再点它上面的面")
+        side = CO.live_side(jobs[0], sub, self.kind)
+        return CO.add_live_op(next(s for s in CO.setups(jobs[0]) if s.Side == side), self.kind, sub)
+
+    def Activated(self):
+        from PySide import QtWidgets
+
+        sel = [(s.Object, n) for s in FreeCADGui.Selection.getSelectionEx() for n in s.SubElementNames if n.startswith("Face")]
+        if not sel:
+            QtWidgets.QMessageBox.information(None, T("问渠CAM"), T("先在三维视图里点槽底或型腔底（一个平面）"))
+            return
+        try:
+            op = self.run(*sel[0])
+        except Exception as exc:  # noqa: BLE001
+            QtWidgets.QMessageBox.warning(None, T("问渠CAM"), T(str(exc)))
+            return
+        FreeCAD.ActiveDocument.recompute()
+        edit(op)
 
 
 class OpCommand:
@@ -673,10 +782,43 @@ ADD_OPS = {**{f"FAP_CamAddTurn_{k}": AddOpCommand(k, True) for k in CO.TURN_KIND
 COMMANDS = {"FAP_CamNewTurnJob": NewJobCommand("turn"), "FAP_CamNewMillJob": NewJobCommand("mill"),
             "FAP_CamJob": JobActionCommand("edit"), "FAP_CamOpRegen": OpCommand("regen"), "FAP_CamOpConfirm": OpCommand("confirm"),
             "FAP_CamOpUp": OpCommand("up"), "FAP_CamOpDown": OpCommand("down"), "FAP_CamOpCopy": OpEditCommand("copy"),
-            "FAP_CamOpHide": OpEditCommand("hide"), **ADD_OPS, "FAP_CamNewOp": AddOpGroup(), "FAP_CamReplay": _replay_cmd()}
+            "FAP_CamOpHide": OpEditCommand("hide"), **ADD_OPS, "FAP_CamNewOp": AddOpGroup(), "FAP_CamReplay": _replay_cmd(),
+            "FAP_CamTiltSetup": TiltSetupCommand(),
+            **{f"FAP_CamLive_{k}": LiveOpCommand(k) for k in CO.LIVE_KINDS}}
 
 
 
 def register():
     for name, cmd in COMMANDS.items():
         FreeCADGui.addCommand(name, cmd)
+
+
+def show_report(parent, title, markdown):
+    """Markdown 报告窗口：看、存成文件"""
+    from PySide import QtWidgets
+
+    dlg = QtWidgets.QDialog(parent)
+    dlg.setWindowTitle(title)
+    lay = QtWidgets.QVBoxLayout(dlg)
+    view = QtWidgets.QTextBrowser()
+    view.setMarkdown(markdown)
+    lay.addWidget(view)
+    row = QtWidgets.QHBoxLayout()
+    save = QtWidgets.QPushButton(T("存成文件…"))
+
+    def do_save():
+        path, _ = QtWidgets.QFileDialog.getSaveFileName(dlg, T("存成文件"), "program-diff.md", "Markdown (*.md)")
+        if path:
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(markdown)
+    save.clicked.connect(do_save)
+    close = QtWidgets.QPushButton(T("关闭"))
+    close.clicked.connect(dlg.accept)
+    row.addStretch(1)
+    row.addWidget(save)
+    row.addWidget(close)
+    lay.addLayout(row)
+    dlg.resize(760, 560)
+    dlg.show()
+    dlg.view = view
+    return dlg

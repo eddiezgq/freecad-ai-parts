@@ -158,6 +158,13 @@ def _tool_specs(cfg: dict, parsed: dict) -> tuple[dict, list[dict]]:
 def tool_specs(machine: dict, cfg: dict, parsed: dict) -> tuple[dict, list[dict]]:
     """刀号 → {tool, L, parts}，以及查不了的说明（“未知”）"""
     try:
+        if machine["kind"] == "mill_turn":       # 车铣：车削段的刀按车刀查，铣削段（动力刀）按铣刀查（ADR-0106 C2b）
+            mill = {mv["tool"] for mv in parsed["moves"] if mv.get("mill")}
+            part = lambda keep: {"tools": [t for t in parsed["tools"] if keep(t)],
+                                 "moves": [mv for mv in parsed["moves"] if keep(mv["tool"])]}
+            s1, c1 = _lathe_specs(cfg, part(lambda t: t not in mill))
+            s2, c2 = _tool_specs(cfg, part(lambda t: t in mill))
+            return {**s1, **s2}, c1 + c2
         return _lathe_specs(cfg, parsed) if machine["kind"] == "lathe" else _tool_specs(cfg, parsed)
     except TL.ToolError as exc:
         raise SimSetupError(str(exc)) from exc
@@ -180,7 +187,7 @@ def _samples(a, b, step):
 
 def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode: str = "") -> dict:
     """parsed 来自 sim.parse；stock 同 sim.simulate_mill 的毛坯，另可给 "height"（毛坯高度，没给就不查主轴头碰毛坯外形）"""
-    lathe = machine["kind"] == "lathe"
+    lathe = machine["kind"] in ("lathe", "mill_turn")
     off = np.asarray(cfg.get("work_offset_mm") or [0, 0, 0], float)
     margin = float(cfg.get("clearance_mm", 1.0))
     step = float(cfg.get("step_mm", 5.0))
@@ -199,7 +206,6 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
         x0, y0, x1, y1 = stock["box"]
         top = float(stock.get("top", 0.0))
         stock_shape = CL.Box.from_minmax([x0, y0, top - float(stock["height"]), x1, y1, top]).moved(_translate(off))
-    d0 = np.asarray((machine.get("tool") or {}).get("direction", [0, 0, 1]), float)
     seen: dict = {}
     prefer, n = {}, 0
 
@@ -211,27 +217,51 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
         else:
             seen[key]["lines"].add(line)
 
+    approach = millturn = False
+    live_pre = _live_by_tool(machine, parsed)
     for mv in parsed["moves"]:
         if mv.get("home"):
             continue
-        sp = specs.get(mv["tool"])
-        if sp is None:
+        if mv.get("approach"):                   # 倾斜后机床 Z 还在原点的那几段：位置由数控系统的倾斜面功能定，不按工件坐标逆解
+            approach = True
             continue
-        for p in _samples(mv["a"], mv["b"], step):
+        sp = specs.get(mv["tool"])
+        if mv.get("mill"):                       # 车铣的铣削段（ADR-0106 C2b、ADR-0110）：按机床文件的动力刀朝向逆解 C 轴
+            live = (machine.get("live_tools") or {}).get("axial" if mv["mill"] == "polar" else "radial")
+            if live is None or sp is None:
+                millturn = True
+                continue
+            mach_u = {**machine, "tool": live}
+            pts = []
+            for p0, p1, w in mv["pieces"]:
+                pts += [(np.asarray(p, float), w) for p in _samples(p0, p1, step)]
+        else:
+            if sp is None:
+                continue
+            live = live_pre.get(mv["tool"])
+            mach_u = {**machine, "tool": live} if live else machine   # 动力刀在插补前后的定位段：刀还是那把动力刀，朝向照旧
+            w = _unit3(live["direction"]) if live else mv.get("axis")
+            pts = [((np.array([p[0] / 2, 0.0, p[2]]) if lathe else p), w) for p in _samples(mv["a"], mv["b"], step)]
+        d0 = np.asarray((mach_u.get("tool") or {}).get("direction", [0, 0, 1]), float)
+        for tip, axis in pts:
             n += 1
-            tip = np.array([p[0] / 2, 0.0, p[2]]) if lathe else p
             tip = tip + off
+            pref = prefer
+            if mv.get("mill") == "polar":            # 极坐标插补：转 C 把点转到 +X 一侧（Y 不动）；刀轴沿 C 轴是奇异点，C 取这个值
+                pref = {**prefer, "C": -math.degrees(math.atan2(tip[1] - off[1], tip[0] - off[0]))}
+            elif lathe and not mv.get("mill") and any(a["id"] == "C" for a in machine["axes"]):
+                pref = {**prefer, "C": 0.0}              # 车削、定位段：程序里 Y = 0，C 停在哪不影响回转体的碰撞，按 C0 算
             try:
-                q = K.inverse(machine, tip, None, sp["L"], prefer=prefer)
+                q = K.inverse(mach_u, tip, axis, sp["L"], prefer=pref)
             except K.KinematicsError as exc:
                 report(("reach",), mv["line"], f"机床走不到：{exc}")
                 break
             prefer = q
-            Tt = _prefix_pose(machine, "spindle", q)
+            Tt = _prefix_pose(mach_u, "spindle", q)
             Tw = np.eye(4)
-            for a in K.chains(machine)[1]:
+            for a in K.chains(mach_u)[1]:
                 Tw = Tw @ K._motion(a, float(q.get(a["id"], 0.0)))
-            tip0 = np.asarray((machine.get("tool") or {}).get("gauge_point_mm", [0, 0, 0]), float) - sp["L"] * d0
+            tip0 = np.asarray((mach_u.get("tool") or {}).get("gauge_point_mm", [0, 0, 0]), float) - sp["L"] * d0
             tparts = [(pt, CL.Cylinder(tip0 + pt["z0"] * d0, tip0 + max(pt["z1"], pt["z0"] + 1e-6) * d0, pt["r"]).moved(Tt))
                       for pt in sp["parts"]]
             tparts += [(bx, CL.Box.from_minmax(bx["box"]).moved(Tt @ _translate(tip0))) for bx in sp.get("boxes", [])]
@@ -261,6 +291,12 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
                         report(("cf", c["id"], f["id"]), mv["line"], f"机床的{c['name']}碰到{kind}“{f['name']}”（第 {mv['line']} 行）")
                 if stock_shape is not None and CL.hit(cs, sobj, margin):
                     report(("cs", c["id"]), mv["line"], f"机床的{c['name']}碰到毛坯（第 {mv['line']} 行）")
+    if millturn:
+        checks.append({"line": None, "level": "unknown",
+                       "text": "车铣的铣削段（极坐标、圆柱插补）：C 轴、动力刀的整机仿真还没做（ADR-0106 C2b），碰撞和超程没查"})
+    if approach:
+        checks.append({"line": None, "level": "unknown",
+                       "text": "倾斜面：转回转轴后到第一次下刀那几段，刀具在机床 Z 原点，实际走法由数控系统的倾斜面功能定，整机仿真没查；首件单段确认"})
     for c in checks:
         lines = c.pop("lines", None)
         if lines and len(lines) > 1:
@@ -270,6 +306,23 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
     return {"status": status, "checks": checks, "samples": n,
             "tool_d": {t: v["tool"].get("diameter_mm") for t, v in specs.items()},
             "fingerprint": fingerprint(machine, gcode, cfg, stock, tool_fp)}
+
+
+def _unit3(v) -> tuple:
+    v = np.asarray(v, float)
+    return tuple(v / np.linalg.norm(v))
+
+
+def _live_by_tool(machine: dict, parsed: dict) -> dict:
+    """车铣：每把动力刀第一次插补用的朝向（轴向 / 径向），插补前的定位段也按这个朝向算"""
+    lt = machine.get("live_tools") or {}
+    out: dict = {}
+    for mv in parsed["moves"]:
+        if mv.get("mill") and mv["tool"] not in out:
+            o = lt.get("axial" if mv["mill"] == "polar" else "radial")
+            if o is not None:
+                out[mv["tool"]] = o
+    return out
 
 
 def _translate(v) -> np.ndarray:

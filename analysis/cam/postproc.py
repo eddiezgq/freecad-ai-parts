@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import contextvars
 import math
+import re
 
 from analysis.cam import klartext, postcfg
 from analysis.cam.post import num as _num
@@ -112,6 +113,18 @@ def _lathe(prog, machine, sim_res, post, dialect):
             L.append(_paren(f"{en} {v}" if en else v))
         L.append("G21 G18 G40 G97 G99")
     for k, op in enumerate(prog["ops"], 1):
+        if op.get("interp"):                        # 车铣的铣削工序（ADR-0106 C2b、ADR-0110）：开 / 关动力刀、C 轴的程序行按后处理配置
+            mt = _fmt().get("millturn")
+            if not mt:
+                raise ReleaseError("后处理配置没写动力刀、C 轴的 M 代码（millturn，按机床说明书填，ADR-0110），带铣削段的车铣程序不出")
+            from analysis.cam import post as _post
+
+            fnd = _fmt()["feed"] if _fmt()["feed"] is not None else 1
+            if sie:
+                L += _post.millturn_lines_siemens(op, (hx, hz), mt, nd=_fmt()["coord"], fnd=fnd, cm=_semi)
+            else:
+                L += _post.millturn_lines(op, (hx, hz), mt, nd=_fmt()["coord"], fnd=fnd, cm=_paren)
+            continue
         t, sp = op["tool"], op["spindle"]
         L.append(_semi(f"工序 {k}：{op.get('title', '')}") if sie else _paren(f"OP{k} T{t['n']:02d}"))
         L.append(f"G0 X{num(hx)} Z{num(hz)}" if sie else f"G00 X{num(hx)} Z{num(hz)}")
@@ -237,6 +250,33 @@ def _mill_moves(op):
     return out
 
 
+def _tilt(op) -> list[str]:
+    """倾斜面（ADR-0106 C2a）：FANUC 写法 G68.2 + G53.1，坐标位数按配置"""
+    fr = op.get("frame")
+    if not fr:
+        return []
+    from analysis.cam import tilt
+
+    i, j, k = tilt.euler_zxz(tilt.matrix(fr))
+    o = fr["origin"]
+    # 转工作台前先把 Z 退到机床原点（刀具离开工件），再定倾斜面、转回转轴
+    return ["G91 G28 Z0.0", "G90", f"G68.2 X{num(o[0])} Y{num(o[1])} Z{num(o[2])} I{num(i, 4)} J{num(j, 4)} K{num(k, 4)}", "G53.1"]
+
+
+def _sie_tilt(op) -> list[str]:
+    """西门子倾斜面（ADR-0106 C2a）：CYCLE800(_FR, _TC, _ST, _MODE, _X0, _Y0, _Z0, _A, _B, _C, _X1, _Y1, _Z1, _DIR, _FR_I, _DMODE)。
+    _FR = 1 先退 Z；_TC = "" 用机床当前的回转数据组；_ST = 0 新平面；_MODE = 57 逐轴旋转、顺序 X、Y、Z（内旋）；
+    _X0 _Y0 _Z0 平面原点；_DIR = −1 回转轴取较小的解。取消：CYCLE800()"""
+    fr = op.get("frame")
+    if not fr:
+        return []
+    from analysis.cam import tilt
+
+    a, b, c = tilt.axis_xyz(tilt.matrix(fr))
+    o = fr["origin"]
+    return [f'CYCLE800(1,"",0,57,{num(o[0])},{num(o[1])},{num(o[2])},{num(a, 4)},{num(b, 4)},{num(c, 4)},0,0,0,-1,0,0)']
+
+
 def _mill(prog, machine, sim_res, post, dialect):
     sie = dialect == "siemens"
     max_rpm = float(machine["max_rpm"])
@@ -261,11 +301,11 @@ def _mill(prog, machine, sim_res, post, dialect):
         mvs = _mill_moves(op)
         x0 = next((mv for mv in mvs if "x" in mv), {"x": 0.0, "y": 0.0})
         if sie:
-            L += [_semi(f"工序 {k}：{op.get('title', '')}"), f"T{t['n']} M6", "D1", "G54", f"S{round(rpm)} M3",
+            L += [_semi(f"工序 {k}：{op.get('title', '')}"), f"T{t['n']} M6", "D1", "G54", f"S{round(rpm)} M3", *_sie_tilt(op),
                   f"G0 X{num(x0['x'])} Y{num(x0['y'])}", f"G0 Z{num(safe)} M8"]
         else:
             L += [_paren(f"OP{k} T{t['n']:02d}" + (f" D{num(t['d'])}" if t.get("d") else "")), f"T{t['n']} M06", "G54",
-                  f"S{round(rpm)} M03", f"G00 X{num(x0['x'])} Y{num(x0['y'])}", f"G43 Z{num(safe)} H{t.get('offset', t['n']):02d} M08"]
+                  f"S{round(rpm)} M03", *_tilt(op), f"G00 X{num(x0['x'])} Y{num(x0['y'])}", f"G43 Z{num(safe)} H{t.get('offset', t['n']):02d} M08"]
         pos = {"x": x0["x"], "y": x0["y"], "z": safe}
         mode, last_f = None, None
         for mv in mvs:
@@ -310,6 +350,8 @@ def _mill(prog, machine, sim_res, post, dialect):
                 last_f = mv["f"]
             L.append(" ".join(w))
         L += [f"G0 Z{num(safe)} M9", "M5"] if sie else [f"G00 Z{num(safe)} M09", "M05"]
+        if op.get("frame"):
+            L.append("CYCLE800()" if sie else "G69")
     L += ["G0 SUPA Z0 D0", "M30"] if sie else ["G91 G28 Z0.0", "G90", "M30", "%"]
     return "\n".join(x for x in L if x) + "\n"
 
@@ -317,6 +359,20 @@ def _mill(prog, machine, sim_res, post, dialect):
 def _kl_comment(text: str) -> str:
     t = " ".join(str(text).split()) if _fmt()["utf8"] else " ".join(_ascii(text).split())
     return f"; {t}" if t else ""
+
+
+def _kl_tilt(op) -> list[str]:
+    """海德汉倾斜面（ADR-0106 C2a）：先沿刀轴退到行程尽头，零点平移到平面原点（CYCL DEF 7），再 PLANE SPATIAL（外旋 A、B、C）转回转轴"""
+    fr = op.get("frame")
+    if not fr:
+        return []
+    from analysis.cam import tilt
+
+    a, b, c = tilt.spatial_abc(tilt.matrix(fr))
+    o = fr["origin"]
+    h = klartext.hnum
+    return ["M140 MB MAX", "CYCL DEF 7.0 DATUM SHIFT", f"CYCL DEF 7.1 X{h(num(o[0]))}", f"CYCL DEF 7.2 Y{h(num(o[1]))}",
+            f"CYCL DEF 7.3 Z{h(num(o[2]))}", f"PLANE SPATIAL SPA{h(num(a, 4))} SPB{h(num(b, 4))} SPC{h(num(c, 4))} TURN MB MAX FMAX"]
 
 
 def _heidenhain_mill(prog, machine, sim_res, post):
@@ -336,7 +392,7 @@ def _heidenhain_mill(prog, machine, sim_res, post):
         mvs = _mill_moves(op)
         x0 = next((mv for mv in mvs if "x" in mv), {"x": 0.0, "y": 0.0})
         body += [_kl_comment(f"OP{k} T{t['n']:02d}" + (f" D{num(t['d'])}" if t.get("d") else "")), f"TOOL CALL {t['n']} Z S{round(rpm)}",
-                 f"L X{h(num(x0['x']))} Y{h(num(x0['y']))} R0 FMAX M3", f"L Z{h(num(safe))} R0 FMAX M8"]
+                 *_kl_tilt(op), f"L X{h(num(x0['x']))} Y{h(num(x0['y']))} R0 FMAX M3", f"L Z{h(num(safe))} R0 FMAX M8"]
         pos = {"x": x0["x"], "y": x0["y"], "z": safe}
         last_f, last_def = None, None
         for mv in mvs:
@@ -384,6 +440,8 @@ def _heidenhain_mill(prog, machine, sim_res, post):
                     last_f = mv["f"]
                 body.append(f"L {' '.join(ax)} R0{fw}")
         body += [f"L Z{h(num(safe))} R0 FMAX M9", "M5"]
+        if op.get("frame"):                        # 取消倾斜面与零点平移（回转轴留在原处：STAY）
+            body += ["PLANE RESET STAY", "CYCL DEF 7.0 DATUM SHIFT", "CYCL DEF 7.1 X+0", "CYCL DEF 7.2 Y+0", "CYCL DEF 7.3 Z+0"]
     body += ["M140 MB MAX", "M30"]
     return [x for x in head if x], [x for x in body if x]
 
@@ -410,7 +468,7 @@ def render(prog: dict, machine: dict, controller: str, sim_res: dict | None) -> 
         post = posts().get(controller)
     except postcfg.PostConfigError as exc:
         raise ReleaseError(str(exc)) from exc
-    kind = "lathe" if machine["kind"] == "lathe" else "mill"
+    kind = "lathe" if machine["kind"] in ("lathe", "mill_turn") else "mill"
     if post is None or not post[kind]:
         raise ReleaseError(f"没有 {controller!r} 的{'车床' if kind == 'lathe' else '铣床'}后处理；可选：{', '.join(available(kind))}")
     if not sim_res:
@@ -422,7 +480,8 @@ def render(prog: dict, machine: dict, controller: str, sim_res: dict | None) -> 
     dialect = "fanuc" if fam == "hnc" else fam                  # 华中按 FANUC 写法，程序头另改
     tok = _FMT.set({"coord": cfg["decimals"]["coord"], "feed": cfg["decimals"]["feed"],
                     "utf8": cfg["comments"] == "utf8" and fam != "siemens",
-                    "turn_cycles": cfg["cycles"]["turn"], "drill_cycles": cfg["cycles"]["drill"] and fam != "siemens"})
+                    "turn_cycles": cfg["cycles"]["turn"], "drill_cycles": cfg["cycles"]["drill"] and fam != "siemens",
+                    "millturn": cfg.get("millturn")})
     try:
         if fam == "heidenhain":
             text = klartext.finish(*_heidenhain_mill(prog, machine, sim_res, post), cfg, int(prog.get("number", 1)))
@@ -440,32 +499,77 @@ def render(prog: dict, machine: dict, controller: str, sim_res: dict | None) -> 
 
 
 # ---------------------------------------------------------------- 回读（验证用）
-def to_fanuc(text: str, controller: str, lathe: bool) -> str:
+def tag(i: int) -> str:
+    """回读后的程序行末尾记原程序的行号（括号注释，sim.parse 不读），程序对比用它找回原来的行"""
+    return f"(#L{i})"
+
+
+def to_fanuc(text: str, controller: str, lathe: bool, *, tags: bool = False) -> str:
     """把程序换回 FANUC 写法，交给 sim.parse 回读（验证后处理与中间格式一致）：先按配置还原（子程序展开、华中程序头），
-    西门子再换写法；ISO 家族其余原样"""
+    西门子再换写法；ISO 家族其余原样。tags：每行末尾记原程序行号（tag）"""
     post = posts().get(controller)
     fam = post["family"] if post else controller
     if fam == "heidenhain":
         try:
-            return klartext.to_iso(text)
+            return klartext.to_iso(text, tags=tags)
         except klartext.KlartextError as exc:
             raise ReleaseError(f"海德汉程序回读不了：{exc}") from exc
+    if tags and fam in postcfg.ISO:
+        text = "\n".join(f"{ln} {tag(i)}" if ln.strip() else ln for i, ln in enumerate(text.split("\n"), 1))
     if post:
         text = postcfg.expand(text, postcfg.resolved(post["cfg"]))
+    elif fam in postcfg.ISO:
+        text = postcfg.expand(text, postcfg.resolved({"family": fam}))
     if fam in postcfg.ISO:
         return text
     out = ["%", "O0001"]
     lims = None
+    trafo = None
     spd = 0.0
-    for raw in text.splitlines():
+    mark, prev = len(out), 0
+    for i, raw in enumerate(text.splitlines(), 1):
+        if tags:
+            out[mark:] = [f"{x} {tag(prev)}" for x in out[mark:]]
+            mark, prev = len(out), i
         line = raw.split(";")[0].strip()
-        if not line or line.startswith("SPOS"):
+        if not line or line.startswith("SPOS") or re.fullmatch(r"SETMS(\(\s*\d+\s*\))?", line):   # 主轴定位、切主主轴：不影响刀路
             continue
         ws = line.split()
         spd = next((float(w[1:]) for w in ws if w.startswith("S") and w[1:].replace(".", "").isdigit()), spd)
         if ws[0] in ("G331", "G332"):             # 西门子刚性攻丝 → 进给直线（回读只比路径；进给 = 螺距 × 转速）
             kk = next(float(w[1:]) for w in ws if w.startswith("K"))
             out.append(" ".join(["G01"] + [w for w in ws[1:] if w[0] in "XYZ"] + [f"F{kk * spd:g}"]))
+            continue
+        if line.startswith("CYCLE800("):         # 倾斜面：退 Z、平面原点 + 逐轴 X-Y-Z 角 → G68.2（Z-X-Z 欧拉角）+ G53.1；空参数是取消
+            args = [x.strip() for x in line[len("CYCLE800("):-1].split(",")] if line.endswith(")") else []
+            if not args or args == [""]:
+                out.append("G69")
+                continue
+            from analysis.cam import tilt
+
+            v = [float(x) if re.fullmatch(r"[-+]?\d+(?:\.\d*)?", x) else None for x in args]
+            if args[3] != "57" or any(v[i] is None for i in (4, 5, 6, 7, 8, 9)):
+                raise ReleaseError(f"CYCLE800 回读只认 _MODE = 57：{line}")
+            i, j, k = tilt.euler_zxz(tilt.from_axis_xyz(v[7], v[8], v[9]))
+            if args[0] == "1":
+                out += ["G91 G28 Z0.0", "G90"]
+            out += [f"G68.2 X{v[4]:g} Y{v[5]:g} Z{v[6]:g} I{i:.9f} J{j:.9f} K{k:.9f}", "G53.1"]
+            continue
+        if line == "TRANSMIT":                   # 车铣（ADR-0106 C2b）：端面、圆柱面变换 → FANUC G12.1 / G7.1；坐标在下面换
+            trafo = ("transmit", None)
+            out.append("G12.1")
+            continue
+        mtc = re.fullmatch(r"TRACYL\(\s*([-+]?\d+(?:\.\d*)?)\s*\)", line)
+        if mtc:
+            trafo = ("tracyl", float(mtc.group(1)))
+            out.append(f"G07.1 C{float(mtc.group(1)) / 2:g}")
+            continue
+        if line == "TRAFOOF":
+            if trafo:
+                out.append("G13.1" if trafo[0] == "transmit" else "G07.1 C0")
+            trafo = None
+            continue
+        if line == "DIAMOF" or (line in ("G17", "G19") and trafo):   # TRANSMIT / TRACYL 里的平面；外面的 G19 / G18 是分度铣，照留
             continue
         if "SUPA" in line:                       # 回机床 Z 零点
             out += ["G91 G28 Z0.0", "G90"]
@@ -483,6 +587,14 @@ def to_fanuc(text: str, controller: str, lathe: bool) -> str:
                 w = "G32"
             elif w.startswith("K"):
                 w = "F" + w[1:]
+            elif trafo and w[0] in "XY" and re.fullmatch(r"[-+]?\d+(?:\.\d*)?", w[1:]):
+                v = float(w[1:])
+                if w[0] == "X":                  # DIAMOF 下的半径 → 直径
+                    w = f"X{2 * v:.6f}"
+                else:                            # TRANSMIT：Y 就是虚拟 C（mm）；TRACYL：展开弧长 → 角度
+                    w = f"C{v:.6f}" if trafo[0] == "transmit" else f"C{v * 360.0 / (math.pi * trafo[1]):.6f}"
+            elif w in ("G94", "G95") and lathe:              # 车床：西门子 G94 / G95 = FANUC 车床 G98 / G99
+                w = "G98" if w == "G94" else "G99"
             elif w.startswith("T") and w[1:].isdigit() and lathe:
                 w = f"T{int(w[1:]):02d}{int(w[1:]):02d}"
             elif w in ("M3", "M5", "M6", "M8", "M9"):
@@ -493,5 +605,7 @@ def to_fanuc(text: str, controller: str, lathe: bool) -> str:
             lims = None
         if conv:
             out.append(" ".join(conv))
+    if tags:
+        out[mark:] = [f"{x} {tag(prev)}" for x in out[mark:]]
     out.append("%")
     return "\n".join(out) + "\n"

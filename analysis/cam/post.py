@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+
 
 def num(v, nd=3):
     """FANUC 数字：一定带小数点（不带小数点的 X200 在很多 FANUC 系统里是 0.2 mm），去掉多余的 0。"""
@@ -38,6 +40,9 @@ def post_lathe(prog, machine):
     hx, hz = machine["home"]
     for op in prog["ops"]:
         t, sp = op["tool"], op["spindle"]
+        if op.get("interp"):                       # 车铣：动力刀铣削工序（ADR-0106 C2b），仿真用的写法
+            lines += millturn_lines(op, (hx, hz), None)
+            continue
         lines.append(comment(op.get("title", "")))
         lines.append(f"G00 X{num(hx)} Z{num(hz)}")
         lines.append(f"T{t['n']:02d}{t.get('offset', t['n']):02d}")
@@ -78,6 +83,110 @@ def post_lathe(prog, machine):
     return "\n".join(lines) + "\n"
 
 
+def tilt_lines(op) -> list[str]:
+    """3+2 倾斜面（ADR-0106 C2a）：工序带 frame 时写 G68.2（平面原点 + Z-X-Z 欧拉角）和 G53.1（刀轴转到平面法向）；
+    这道工序的坐标都是平面坐标，工序结束 G69 取消"""
+    fr = op.get("frame")
+    if not fr:
+        return []
+    from analysis.cam import tilt
+
+    i, j, k = tilt.euler_zxz(tilt.matrix(fr))
+    o = fr["origin"]
+    # 转工作台前先把 Z 退到机床原点（刀具离开工件），再定倾斜面、转回转轴
+    return ["G91 G28 Z0.0", "G90", f"G68.2 X{num(o[0])} Y{num(o[1])} Z{num(o[2])} I{num(i, 4)} J{num(j, 4)} K{num(k, 4)}", "G53.1"]
+
+
+def millturn_lines(op, home, cfg_mt, nd=3, fnd=1, cm=comment) -> list[str]:
+    """车铣的铣削工序：极坐标插补 interp = "polar"（G12.1 … G13.1，程序 X 直径、C 毫米）或圆柱插补 interp = {"cyl": 半径}
+    （G7.1 C 半径 … G7.1 C0，程序 C 角度）；每分进给 G98，完了回 G99。
+    cfg_mt：后处理配置的 millturn（开 / 关动力刀、C 轴的程序行）；None 时是仿真用的程序：主轴写 G97 S M03 代替动力刀（仿真只认“主轴在转”）"""
+    hx, hz = home
+    t, sp = op["tool"], op["spindle"]
+    rpm = round(float(sp["rpm"]))
+    out = [cm(op.get("title", "")), f"G00 X{num(hx, nd)} Z{num(hz, nd)}", f"T{t['n']:02d}{t.get('offset', t['n']):02d}"]
+    if cfg_mt is None:
+        out += ["G98", f"G97 S{rpm} M03"]
+    else:
+        out += ["G98", "M05", *cfg_mt.get("c_on", []), *cfg_mt.get("live_on", []), f"S{rpm}"]
+    cyl = op["interp"].get("cyl") if isinstance(op["interp"], dict) else None
+    idx = op["interp"].get("index") if isinstance(op["interp"], dict) else None
+    if idx is not None:                       # C 轴分度 + Y 轴铣（G19，ADR-0106 C2b）
+        out += [f"G00 C{num(idx, nd)}", "G19"]
+    else:
+        out.append(f"G07.1 C{num(cyl, nd)}" if cyl else "G12.1")
+    pos, mode, last_f = {}, None, None
+    for mv in op["moves"]:
+        if mv["t"] == "comment":
+            out.append(cm(mv["text"]))
+            continue
+        g = "G00" if mv["t"] == "rapid" else "G01"
+        ax = []
+        for a in (("x", "y", "z") if idx is not None else ("x", "c", "z")):
+            if a in mv and (a not in pos or abs(pos[a] - mv[a]) > 5e-4):
+                ax.append(a.upper() + num(mv[a], nd))
+                pos[a] = mv[a]
+        if not ax:
+            continue
+        w = [g] if g != mode else []
+        mode = g
+        w += ax
+        if g == "G01" and mv.get("f") != last_f:
+            w.append("F" + num(mv["f"], fnd))
+            last_f = mv["f"]
+        out.append(" ".join(w))
+    out += ["G00 Y0.0", "G18"] if idx is not None else ["G07.1 C0" if cyl else "G13.1"]
+    if cfg_mt is None:
+        out += ["M05", "G99", f"G00 X{num(hx, nd)} Z{num(hz, nd)}"]
+    else:
+        out += [*cfg_mt.get("live_off", []), *cfg_mt.get("c_off", []), "G99", f"G00 X{num(hx, nd)} Z{num(hz, nd)}"]
+    return out
+
+
+def millturn_lines_siemens(op, home, cfg_mt, nd=3, fnd=1, cm=comment) -> list[str]:
+    """西门子的车铣铣削工序（ADR-0106 C2b）：端面 TRANSMIT、圆柱面 TRACYL(d)，都在半径编程 DIAMOF 下写，完了 TRAFOOF、DIAMON。
+    中间格式与 FANUC 写法相同（极坐标：x 直径、c 毫米；圆柱：x 直径、c 度），这里换成：
+    TRANSMIT：X = x/2、Y = c（端面上的直角坐标，mm）；TRACYL(d)：X = x/2（半径，下刀深度）、Y = c·π·d/360（工作直径 d 上展开的弧长 mm）。
+    每分进给 G94，完了回 G95。开 / 关动力刀、C 轴的程序行按后处理配置（例如切主主轴 SETMS(2) 由配置写）。"""
+    hx, hz = home
+    t, sp = op["tool"], op["spindle"]
+    rpm = round(float(sp["rpm"]))
+    cyl = op["interp"].get("cyl") if isinstance(op["interp"], dict) else None
+    idx = op["interp"].get("index") if isinstance(op["interp"], dict) else None
+    d = 2.0 * float(cyl) if cyl else None
+    out = [cm(op.get("title", "")), f"G0 X{num(hx, nd)} Z{num(hz, nd)}", f"T{t['n']} D1", "M5",
+           *cfg_mt.get("c_on", []), *cfg_mt.get("live_on", []), f"S{rpm}", "G94"]
+    if idx is not None:                       # C 轴分度 + Y 轴铣：直径编程照旧，G19 平面
+        out += [f"G0 C{num(idx, nd)}", "G19"]
+    else:
+        out += ["DIAMOF", *([f"TRACYL({num(d, nd)})", "G19"] if cyl else ["TRANSMIT", "G17"])]
+    pos, mode, last_f = {}, None, None
+    for mv in op["moves"]:
+        if mv["t"] == "comment":
+            out.append(cm(mv["text"]))
+            continue
+        g = "G0" if mv["t"] == "rapid" else "G1"
+        v = ({"X": mv["x"], "Y": mv["y"], "Z": mv["z"]} if idx is not None else
+             {"X": mv["x"] / 2.0, "Y": (mv["c"] * math.pi * d / 360.0) if cyl else mv["c"], "Z": mv["z"]})
+        ax = []
+        for a in ("X", "Y", "Z"):
+            if a not in pos or abs(pos[a] - v[a]) > 5e-4:
+                ax.append(a + num(v[a], nd))
+                pos[a] = v[a]
+        if not ax:
+            continue
+        w = [g] if g != mode else []
+        mode = g
+        w += ax
+        if g == "G1" and mv.get("f") != last_f:
+            w.append("F" + num(mv["f"], fnd))
+            last_f = mv["f"]
+        out.append(" ".join(w))
+    out += ["G0 Y0.0", "G18"] if idx is not None else ["TRAFOOF", "DIAMON", "G18"]
+    out += [*cfg_mt.get("live_off", []), *cfg_mt.get("c_off", []), "G95", f"G0 X{num(hx, nd)} Z{num(hz, nd)}"]
+    return out
+
+
 def post_mill(prog, machine):
     """2.5 轴铣：G17、G90 绝对、G94 每分进给、G54、M06 换刀、G43 长度补偿、G81 / G83 钻孔循环。"""
     lines: list[str] = []
@@ -89,6 +198,7 @@ def post_mill(prog, machine):
         op["_line"] = len(lines) + 1             # 这道工序从程序第几行起（仿真后按工序统计用，如自适应开粗的切宽）
         lines.append(comment(op.get("title", "")))
         lines += [f"T{t['n']} M06", "G54", f"S{round(sp['rpm'])} M03"]
+        lines += tilt_lines(op)
         mvs = [mv for mv in op["moves"] if mv["t"] != "comment"]
         x0 = next((mv for mv in mvs if "x" in mv), {"x": 0, "y": 0})
         lines.append(f"G00 X{num(x0['x'])} Y{num(x0['y'])}")
@@ -150,9 +260,11 @@ def post_mill(prog, machine):
         if cyc is not None:
             lines.append("G80")
         lines += [f"G00 Z{num(safe)} M09", "M05"]
+        if op.get("frame"):
+            lines.append("G69")
     lines += ["G91 G28 Z0.0", "G90", "M30", "%"]
     return "\n".join(lines) + "\n"
 
 
 def post(prog, machine):
-    return post_lathe(prog, machine) if machine["kind"] == "lathe" else post_mill(prog, machine)
+    return post_lathe(prog, machine) if machine["kind"] in ("lathe", "mill_turn") else post_mill(prog, machine)

@@ -1,0 +1,28 @@
+{
+ "why": "动力刀动作只能是大写的程序字",
+ "instance": {
+  "format": "cam-post/1",
+  "id": "fanuc-0i",
+  "name": "FANUC 0i-TF / 0i-MF",
+  "family": "fanuc",
+  "kinds": [
+   "lathe",
+   "mill"
+  ],
+  "source": "问渠CAM 内置（ADR-0104 C1 的写法）",
+  "millturn": {
+   "live_on": [
+    "m13 (live)"
+   ],
+   "live_off": [
+    "M15"
+   ],
+   "c_on": [
+    "M18"
+   ],
+   "c_off": [
+    "M19"
+   ]
+  }
+ }
+}
