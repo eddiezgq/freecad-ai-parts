@@ -2161,5 +2161,12 @@
 "圆柱面平底槽（Y 轴）": "Flat slot on cylinder (Y axis)",
 "点圆柱面上平底槽的底面（可宽于刀径）：C 轴分度、径向动力刀 Y 轴铣（车铣中心）": "Pick the bottom of a flat slot on the cylinder (may be wider than the cutter): C-axis indexing, radial live tool milling with the Y axis (mill-turn centre)",
 "粗车：按 {} 主电机 {} kW 的 80% 把 vc {} → {}、f {} → {}（不低于样本下限）": "Roughing: to stay within 80% of the {} spindle motor ({} kW), vc {} \u2192 {}, f {} \u2192 {} (not below the catalogue minimum)",
-"T{}（{}）没写刀杆，按刀片配 {}（刀杆库，起草配的，ADR-0112）": "T{} ({}) has no holder; paired {} by insert code (holder library, chosen by the draft, ADR-0112)"
+"T{}（{}）没写刀杆，按刀片配 {}（刀杆库，起草配的，ADR-0112）": "T{} ({}) has no holder; paired {} by insert code (holder library, chosen by the draft, ADR-0112)",
+"T{} {} 是内孔刀，不能车外圆": "T{} {} is an internal tool and cannot turn the outside",
+"T{} {} 是外圆刀，不能车{}": "T{} {} is an external tool and cannot cut the {}",
+"T{} {} 最小能进 Ø{} 的孔，{} Ø{} 进不去": "T{} {} needs a bore of at least \u00d8{}; the {} \u00d8{} is too small",
+"内孔最小一段": "smallest bore section",
+"内螺纹 M{}×{} 的小径": "minor diameter of internal thread M{}\u00d7{}",
+"内螺纹": "internal thread",
+"车内螺纹 M{}×{}": "Internal threading M{}\u00d7{}"
 }

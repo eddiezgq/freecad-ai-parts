@@ -243,8 +243,21 @@ def test_place_joint_shaft_with_bore_and_notes(gui, doc, joint_out, lib):
     assert all(abs(c["design"] - c["drawing"]) <= D.DIM_TOL_MM for c in checks)
     note = "\n".join(doc.getObject("AiShaftNotes").Text)
     assert "GB/T 3478.1" in note and "M45" in note
+    # 每行不超出图框，否则 TechDraw 把整段注释缩小（2026-11-22 问渠 CAD 英文界面报“AiShaftNotes is larger than page”）
+    assert max(D.text_width_mm(x) for x in doc.getObject("AiShaftNotes").Text) <= D.NOTE_MAX_MM
     sheet = out["sheet"]
     assert sheet.get("C3") == "bearing.nsk-ltd.6011" and float(sheet.get("E3")) == 2
+
+
+def test_wrap_note_breaks_long_lines_at_word_boundaries():
+    from freecad_addon.fc import ai_design_doc as D
+
+    t = "2. Dimensions placed by the program from the design data; the model was checked by read-back"
+    lines = D.wrap_note(t, max_mm=120)
+    assert len(lines) > 1 and all(D.text_width_mm(x) <= 120 for x in lines)
+    assert " ".join(x.strip() for x in lines) == t                      # 只断行，不丢字
+    assert D.wrap_note("短的一行") == ["短的一行"]
+    assert all(D.text_width_mm(x) <= 40 for x in D.wrap_note("没有空格也没有逗号的很长很长很长的一行中文字", max_mm=40))
 
 
 def test_panel_switches_part_type_and_example(gui, lib, monkeypatch):

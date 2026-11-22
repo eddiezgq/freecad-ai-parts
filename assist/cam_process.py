@@ -62,8 +62,12 @@ class ProcessError(ValueError):
 
 # ---------------- 工序与候选刀 ----------------
 
-def _cands(lib, kinds, ok=lambda t: True):
-    return [t for t in lib["tools"] if t["kind"] in kinds and ok(t)]
+def _cands(lib, kinds, ok=lambda t: True, internal=False):
+    """候选刀：种类对、条件对；内孔工序只要内孔刀（internal，镗刀种类本身算），外圆工序不要内孔刀（ADR-0113）"""
+    def side_ok(t):
+        inner = bool(t.get("internal")) or t["kind"] == "bore"
+        return inner == internal
+    return [t for t in lib["tools"] if t["kind"] in kinds and ok(t) and side_ok(t)]
 
 
 def _rough_shape(t) -> bool:
@@ -84,8 +88,15 @@ def operations(part: dict, lib: dict) -> list[dict]:
                         "cands": _cands(lib, {"groove"}, lambda t, w=w: (t.get("insert") or {}).get("width_mm", 1e9) <= w + 1e-9)})
         for i, th in enumerate(part.get("threads") or [], 1):
             p = float(th["pitch"])
-            ops.append({"id": f"thread{i}", "kind": "thread", "title": f"车螺纹 M{float(th['d']):g}×{p:g}", "geom": {"pitch": p},
-                        "cands": _cands(lib, {"thread_turn"}, lambda t, p=p: abs(t.get("pitch_mm", -1) - p) < 1e-9)})
+            inner = bool(th.get("internal"))
+            d1 = float(th["d"]) - 1.0825 * p                     # 内螺纹小径：刀要进得去
+            ops.append({"id": f"thread{i}", "kind": "thread", "title": (f"车内螺纹 M{float(th['d']):g}×{p:g}" if inner else f"车螺纹 M{float(th['d']):g}×{p:g}"),
+                        "geom": {"pitch": p},
+                        "cands": _cands(lib, {"thread_turn"}, lambda t, p=p, d1=d1, inner=inner: abs(t.get("pitch_mm", -1) - p) < 1e-9
+                                        and (not inner or t.get("min_bore_mm", 0) <= d1 + 1e-9), internal=inner)
+                        # 刀具库里的螺纹刀都没分内外（ADR-0113 以前的库）：照旧按螺距挑，算的时候不报内外
+                        or (_cands(lib, {"thread_turn"}, lambda t, p=p: abs(t.get("pitch_mm", -1) - p) < 1e-9)
+                            if inner and not any(t.get("internal") for t in lib["tools"] if t["kind"] == "thread_turn") else [])})
         for i, fg in enumerate(part.get("face_grooves") or [], 1):
             w = (float(fg["d_out"]) - float(fg["d_in"])) / 2
             ops.append({"id": f"face_groove{i}", "kind": "face_groove", "title": f"端面槽 宽 {w:g}", "geom": {"width": w},
@@ -97,7 +108,8 @@ def operations(part: dict, lib: dict) -> list[dict]:
             dmin = min(float(d) for d, _ in b["segments"])
             ops.append({"id": "drill", "kind": "drill", "title": "钻孔", "geom": {"max_d": dmin},
                         "cands": _cands(lib, {"drill"}, lambda t, dmin=dmin: t.get("diameter_mm", 1e9) <= dmin - 1.0)})
-            ops.append({"id": "bore", "kind": "bore", "title": "镗孔", "cands": _cands(lib, {"bore"})})
+            ops.append({"id": "bore", "kind": "bore", "title": "镗孔",
+                        "cands": _cands(lib, {"bore", "turn"}, lambda t, dmin=dmin: t.get("min_bore_mm", 0) <= dmin + 1e-9, internal=True)})
     elif part["mode"] == "mill":
         for i, f in enumerate(part.get("features") or [], 1):
             k = f["type"]

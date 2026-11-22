@@ -1,0 +1,26 @@
+{
+ "why": "厂家代号的镗杆要写全长 l1_mm（ADR-0115）",
+ "instance": {
+  "format": "cam-holder/1",
+  "name": "测试",
+  "holders": [
+   {
+    "id": "TG-SNR0016M16",
+    "vendor_code": "SNR0016M16",
+    "use": "internal",
+    "insert": {
+     "thread_size": "16"
+    },
+    "f_mm": 10.6,
+    "head_mm": 40,
+    "bar_d_mm": 16,
+    "min_bore_mm": 19,
+    "source": {
+     "kind": "catalog",
+     "ref": "tungaloy",
+     "page": "E047"
+    }
+   }
+  ]
+ }
+}
