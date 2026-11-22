@@ -1,0 +1,839 @@
+{
+ "status": "pass",
+ "rounds": [
+  {
+   "module_masses_kg": {},
+   "drives": [
+    {
+     "joint": "j1",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 1.5401324430666334,
+     "rms": 0.5704043000907066,
+     "speed_max": 20.128300104838775,
+     "unit_speed": "rpm",
+     "power_peak_w": 1.9460855070223122,
+     "power_mean_w": -0.1756312792174434,
+     "inertia_max_kgm2": 0.1442078993485631
+    },
+    {
+     "joint": "j2",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 3.629605670496759,
+     "rms": 2.569359722689397,
+     "speed_max": 20.008020142736935,
+     "unit_speed": "rpm",
+     "power_peak_w": 7.2435569759642995,
+     "power_mean_w": 2.7996247312862996,
+     "inertia_max_kgm2": 0.14408858639552818
+    },
+    {
+     "joint": "j3",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 1.840779933396429,
+     "rms": 1.4491629146904237,
+     "speed_max": 20.00773204067887,
+     "unit_speed": "rpm",
+     "power_peak_w": 3.5029791848502265,
+     "power_mean_w": -1.5732892658443558,
+     "inertia_max_kgm2": 0.044757564447140824
+    },
+    {
+     "joint": "j4",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 0.5756035177030977,
+     "rms": 0.3565714464855941,
+     "speed_max": 20.00751614433388,
+     "unit_speed": "rpm",
+     "power_peak_w": 1.0149846939617548,
+     "power_mean_w": -0.3271582625547382,
+     "inertia_max_kgm2": 0.005250922023164361
+    },
+    {
+     "joint": "j5",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 4.63871442347442e-05,
+     "rms": 1.7971633361664982e-05,
+     "speed_max": 20.008004749532585,
+     "unit_speed": "rpm",
+     "power_peak_w": 5.032040128810112e-05,
+     "power_mean_w": -7.3078516139356416e-06,
+     "inertia_max_kgm2": 5.405815000002705e-06
+    }
+   ],
+   "static": {
+    "gravity_torque_nm": {
+     "j1": -0.0,
+     "j2": -3.264814233056857,
+     "j3": -1.6647685839163964,
+     "j4": -0.5245891455991221,
+     "j5": -0.0
+    }
+   },
+   "picks": {
+    "mod_all": [
+     "servo_motor.yaskawa-electric-corporation.sgm7j-a5a",
+     "reducer.harmonic-drive-llc.csf-17-50-2uh",
+     "drive.yaskawa-america-inc.sgd7s-1r6a"
+    ]
+   }
+  },
+  {
+   "module_masses_kg": {
+    "j1": 0.98,
+    "j2": 0.98,
+    "j3": 0.98,
+    "j4": 0.98,
+    "j5": 0.98
+   },
+   "drives": [
+    {
+     "joint": "j1",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 6.554466666429923,
+     "rms": 1.989648830750872,
+     "speed_max": 20.286833892394196,
+     "unit_speed": "rpm",
+     "power_peak_w": 6.735552139607446,
+     "power_mean_w": -0.5910494364459193,
+     "inertia_max_kgm2": 0.49726915035719604
+    },
+    {
+     "joint": "j2",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 14.752604696647804,
+     "rms": 10.277708165775543,
+     "speed_max": 20.00800724058783,
+     "unit_speed": "rpm",
+     "power_peak_w": 29.68721025703693,
+     "power_mean_w": 11.134531338851433,
+     "inertia_max_kgm2": 0.49720060336872973
+    },
+    {
+     "joint": "j3",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 6.268402387363326,
+     "rms": 5.128258082830219,
+     "speed_max": 20.007945942621582,
+     "unit_speed": "rpm",
+     "power_peak_w": 12.178311066622737,
+     "power_mean_w": -5.56999913139156,
+     "inertia_max_kgm2": 0.12394356151199568
+    },
+    {
+     "joint": "j4",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 1.0102004386253622,
+     "rms": 0.6236371224780922,
+     "speed_max": 20.007908016867628,
+     "unit_speed": "rpm",
+     "power_peak_w": 1.8000816435157092,
+     "power_mean_w": -0.5705147861831609,
+     "inertia_max_kgm2": 0.0068199220231643844
+    },
+    {
+     "joint": "j5",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 4.622967766119441e-05,
+     "rms": 1.8038346855735305e-05,
+     "speed_max": 20.008004747963202,
+     "unit_speed": "rpm",
+     "power_peak_w": 5.724022810734827e-05,
+     "power_mean_w": -7.256898804153173e-06,
+     "inertia_max_kgm2": 5.405815000006493e-06
+    }
+   ],
+   "static": {
+    "gravity_torque_nm": {
+     "j1": -0.0,
+     "j2": -12.871524751631222,
+     "j3": -5.506968324458466,
+     "j4": -0.9091331662695648,
+     "j5": -0.0
+    }
+   },
+   "picks": {
+    "mod_all": [
+     "servo_motor.yaskawa-electric-corporation.sgm7j-01a",
+     "reducer.harmonic-drive-llc.csf-17-100-2uh",
+     "drive.yaskawa-america-inc.sgd7s-1r6a"
+    ]
+   }
+  },
+  {
+   "module_masses_kg": {
+    "j1": 1.08,
+    "j2": 1.08,
+    "j3": 1.08,
+    "j4": 1.08,
+    "j5": 1.08
+   },
+   "drives": [
+    {
+     "joint": "j1",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 7.098530467819355,
+     "rms": 2.1366334457306797,
+     "speed_max": 20.294282340508698,
+     "unit_speed": "rpm",
+     "power_peak_w": 7.224087289884608,
+     "power_mean_w": -0.63347751303862,
+     "inertia_max_kgm2": 0.5332954004601177
+    },
+    {
+     "joint": "j2",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 15.889443549531023,
+     "rms": 11.064282237560047,
+     "speed_max": 20.00800711538139,
+     "unit_speed": "rpm",
+     "power_peak_w": 31.977397255242995,
+     "power_mean_w": 11.985036809070841,
+     "inertia_max_kgm2": 0.5332321357129339
+    },
+    {
+     "joint": "j3",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 6.721254949355862,
+     "rms": 5.503907298174256,
+     "speed_max": 20.007947393701834,
+     "unit_speed": "rpm",
+     "power_peak_w": 13.063628621553931,
+     "power_mean_w": -5.977813788172423,
+     "inertia_max_kgm2": 0.13202356118844358
+    },
+    {
+     "joint": "j4",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 1.0549170529805467,
+     "rms": 0.6508741216737561,
+     "speed_max": 20.007908824015594,
+     "unit_speed": "rpm",
+     "power_peak_w": 1.8803582939370163,
+     "power_mean_w": -0.5953393651219003,
+     "inertia_max_kgm2": 0.006979922023164383
+    },
+    {
+     "joint": "j5",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 4.6220209008428696e-05,
+     "rms": 1.8044164131366442e-05,
+     "speed_max": 20.008004754539282,
+     "unit_speed": "rpm",
+     "power_peak_w": 5.811999714767459e-05,
+     "power_mean_w": -7.254772118409865e-06,
+     "inertia_max_kgm2": 5.4058150000055e-06
+    }
+   ],
+   "static": {
+    "gravity_torque_nm": {
+     "j1": -0.0,
+     "j2": -13.851801335159218,
+     "j3": -5.899029522472963,
+     "j4": -0.9483723520522631,
+     "j5": -0.0
+    }
+   },
+   "picks": {
+    "mod_all": [
+     "servo_motor.yaskawa-electric-corporation.sgm7j-01a",
+     "reducer.harmonic-drive-llc.csf-17-100-2uh",
+     "drive.yaskawa-america-inc.sgd7s-1r6a"
+    ]
+   }
+  }
+ ],
+ "picks": {
+  "mod_all": {
+   "joints": [
+    "j1",
+    "j2",
+    "j3",
+    "j4",
+    "j5"
+   ],
+   "requirement": {
+    "safety_factor": 1.2,
+    "supply": {
+     "current_type": "ac",
+     "voltage_v": 200,
+     "phases": 3
+    },
+    "fieldbus_protocol": "ethercat",
+    "ambient_temp_c": 25,
+    "output_torque_cont_nm": 11.064,
+    "output_torque_peak_nm": 15.889,
+    "output_speed_rpm": 20.294,
+    "load_inertia_kgm2": 0.533295,
+    "statement": "关节 j1、j2、j3、j4、j5 共用一种模组：连续 11.06 N·m（j2）、峰值 15.89 N·m（j2）、20.3 rpm（j1）",
+    "id": "group-mod_all"
+   },
+   "report": {
+    "system": "candidate-4",
+    "overall": "unknown",
+    "checks": [
+     {
+      "check": "C1",
+      "status": "pass",
+      "message": "motor.shaft — reducer.input_bore：类型、方向、运动方式匹配",
+      "ports": [
+       "motor.shaft",
+       "reducer.input_bore"
+      ],
+      "findings": [
+       {
+        "status": "pass",
+        "message": "motor.shaft — reducer.input_bore：类型、方向、运动方式匹配",
+        "ports": [
+         "motor.shaft",
+         "reducer.input_bore"
+        ]
+       },
+       {
+        "status": "pass",
+        "message": "motor.mount_flange — reducer.motor_flange：类型、方向、运动方式匹配",
+        "ports": [
+         "motor.mount_flange",
+         "reducer.motor_flange"
+        ]
+       },
+       {
+        "status": "pass",
+        "message": "drive.motor_out — motor.power_in：类型、方向、运动方式匹配",
+        "ports": [
+         "drive.motor_out",
+         "motor.power_in"
+        ]
+       },
+       {
+        "status": "pass",
+        "message": "motor.encoder — drive.encoder_in：类型、方向、运动方式匹配",
+        "ports": [
+         "motor.encoder",
+         "drive.encoder_in"
+        ]
+       }
+      ]
+     },
+     {
+      "check": "C2",
+      "status": "warn",
+      "message": "轴 plain / 孔 plain / 紧固 set_screw：紧定螺钉直接压在圆轴上，传扭能力有限（草稿规则表）",
+      "ports": [
+       "motor.shaft",
+       "reducer.input_bore"
+      ],
+      "findings": [
+       {
+        "status": "pass",
+        "message": "直径 8 mm 相等",
+        "ports": [
+         "motor.shaft",
+         "reducer.input_bore"
+        ]
+       },
+       {
+        "status": "pass",
+        "message": "H7/h6 为 clearance 配合（草稿规则表）",
+        "ports": [
+         "motor.shaft",
+         "reducer.input_bore"
+        ]
+       },
+       {
+        "status": "warn",
+        "message": "轴 plain / 孔 plain / 紧固 set_screw：紧定螺钉直接压在圆轴上，传扭能力有限（草稿规则表）",
+        "ports": [
+         "motor.shaft",
+         "reducer.input_bore"
+        ]
+       }
+      ]
+     },
+     {
+      "check": "C3",
+      "status": "unknown",
+      "message": "缺少分度圆直径",
+      "ports": [
+       "motor.mount_flange",
+       "reducer.motor_flange"
+      ],
+      "findings": [
+       {
+        "status": "unknown",
+        "message": "缺少分度圆直径",
+        "ports": [
+         "motor.mount_flange",
+         "reducer.motor_flange"
+        ]
+       },
+       {
+        "status": "unknown",
+        "message": "缺少孔数",
+        "ports": [
+         "motor.mount_flange",
+         "reducer.motor_flange"
+        ]
+       },
+       {
+        "status": "unknown",
+        "message": "缺少孔的形式（通孔 / 螺纹孔）",
+        "ports": [
+         "motor.mount_flange",
+         "reducer.motor_flange"
+        ]
+       },
+       {
+        "status": "warn",
+        "message": "只有一侧有止口，无法止口定位",
+        "ports": [
+         "motor.mount_flange",
+         "reducer.motor_flange"
+        ]
+       }
+      ]
+     },
+     {
+      "check": "C4",
+      "status": "pass",
+      "message": "连续扭矩折算到电机侧（效率按曲线取（ADR-0047）：3500 rpm 曲线，环境温度 25 °C，取 0.69；未计轻载效率补偿系数） 0.1924 ≤ 电机额定扭矩 0.318 N·m",
+      "ports": [
+       "motor.shaft",
+       "reducer.input_bore"
+      ],
+      "measured": 0.19241739130434782,
+      "limit": 0.318,
+      "unit": "N*m",
+      "margin_ratio": 0.39491386382280563,
+      "findings": [
+       {
+        "status": "pass",
+        "message": "连续扭矩折算到电机侧（效率按曲线取（ADR-0047）：3500 rpm 曲线，环境温度 25 °C，取 0.69；未计轻载效率补偿系数） 0.1924 ≤ 电机额定扭矩 0.318 N·m",
+        "ports": [
+         "motor.shaft",
+         "reducer.input_bore"
+        ],
+        "measured": 0.19241739130434782,
+        "limit": 0.318,
+        "unit": "N*m",
+        "margin_ratio": 0.39491386382280563
+       },
+       {
+        "status": "pass",
+        "message": "含安全系数的连续扭矩 13.28 ≤ 减速器额定扭矩 24 N·m",
+        "ports": [
+         "motor.shaft",
+         "reducer.input_bore"
+        ],
+        "measured": 13.2768,
+        "limit": 24.0,
+        "unit": "N*m",
+        "margin_ratio": 0.44680000000000003
+       }
+      ]
+     },
+     {
+      "check": "C5",
+      "status": "pass",
+      "message": "峰值扭矩折算到电机侧（效率按曲线取（ADR-0047）：3500 rpm 曲线，环境温度 25 °C，取 0.69；未计轻载效率补偿系数） 0.2303 ≤ 电机峰值扭矩 1.11 N·m",
+      "ports": [
+       "motor.shaft",
+       "reducer.input_bore"
+      ],
+      "measured": 0.23027536231884058,
+      "limit": 1.11,
+      "unit": "N*m",
+      "margin_ratio": 0.7925447186316752,
+      "findings": [
+       {
+        "status": "pass",
+        "message": "峰值扭矩折算到电机侧（效率按曲线取（ADR-0047）：3500 rpm 曲线，环境温度 25 °C，取 0.69；未计轻载效率补偿系数） 0.2303 ≤ 电机峰值扭矩 1.11 N·m",
+        "ports": [
+         "motor.shaft",
+         "reducer.input_bore"
+        ],
+        "measured": 0.23027536231884058,
+        "limit": 1.11,
+        "unit": "N*m",
+        "margin_ratio": 0.7925447186316752
+       },
+       {
+        "status": "pass",
+        "message": "峰值扭矩 15.89 ≤ 减速器启停允许峰值扭矩 54 N·m",
+        "ports": [
+         "motor.shaft",
+         "reducer.input_bore"
+        ],
+        "measured": 15.889,
+        "limit": 54.0,
+        "unit": "N*m",
+        "margin_ratio": 0.7057592592592593
+       }
+      ]
+     },
+     {
+      "check": "C6",
+      "status": "pass",
+      "message": "电机峰值扭矩经减速后 76.59 N·m ≤ 减速器瞬间允许最大 108 N·m（效率按曲线取（ADR-0047）：3500 rpm 曲线，环境温度 25 °C，取 0.69）",
+      "ports": [
+       "motor.shaft",
+       "reducer.input_bore"
+      ],
+      "measured": 76.59,
+      "limit": 108.0,
+      "unit": "N*m",
+      "margin_ratio": 0.2908333333333333
+     },
+     {
+      "check": "C7",
+      "status": "pass",
+      "message": "所需电机转速 2029 ≤ 电机最高转速 6000 rpm",
+      "ports": [
+       "motor.shaft",
+       "reducer.input_bore"
+      ],
+      "measured": 2029.4,
+      "limit": 6000.0,
+      "unit": "rpm",
+      "margin_ratio": 0.6617666666666666,
+      "findings": [
+       {
+        "status": "pass",
+        "message": "所需电机转速 2029 ≤ 电机最高转速 6000 rpm",
+        "ports": [
+         "motor.shaft",
+         "reducer.input_bore"
+        ],
+        "measured": 2029.4,
+        "limit": 6000.0,
+        "unit": "rpm",
+        "margin_ratio": 0.6617666666666666
+       },
+       {
+        "status": "pass",
+        "message": "所需输入转速 2029 ≤ 减速器最高输入转速 7300 rpm",
+        "ports": [
+         "motor.shaft",
+         "reducer.input_bore"
+        ],
+        "measured": 2029.4,
+        "limit": 7300.0,
+        "unit": "rpm",
+        "margin_ratio": 0.7220000000000001
+       }
+      ]
+     },
+     {
+      "check": "C8",
+      "status": "unknown",
+      "message": "惯量比：缺少电机转子惯量",
+      "ports": [
+       "motor.shaft",
+       "reducer.input_bore"
+      ]
+     },
+     {
+      "check": "C9",
+      "status": "pass",
+      "message": "供电类型 ac 一致",
+      "ports": [
+       "drive.power_in"
+      ],
+      "findings": [
+       {
+        "status": "pass",
+        "message": "供电类型 ac 一致",
+        "ports": [
+         "drive.power_in"
+        ]
+       },
+       {
+        "status": "pass",
+        "message": "供电 200 V 在驱动器输入范围 200–240 V 内",
+        "ports": [
+         "drive.power_in"
+        ]
+       },
+       {
+        "status": "pass",
+        "message": "相数 3 一致",
+        "ports": [
+         "drive.power_in"
+        ]
+       },
+       {
+        "status": "pass",
+        "message": "电压等级 200 V 一致",
+        "ports": [
+         "drive.motor_out",
+         "motor.power_in"
+        ]
+       },
+       {
+        "status": "pass",
+        "message": "驱动器额定电流 1.6 A ≥ 电机 0.85 A",
+        "ports": [
+         "drive.motor_out",
+         "motor.power_in"
+        ],
+        "measured": 0.85,
+        "limit": 1.6,
+        "unit": "A",
+        "margin_ratio": 0.46875000000000006
+       },
+       {
+        "status": "pass",
+        "message": "驱动器峰值电流 5.9 A ≥ 电机 3.1 A",
+        "ports": [
+         "drive.motor_out",
+         "motor.power_in"
+        ],
+        "measured": 3.1,
+        "limit": 5.9,
+        "unit": "A",
+        "margin_ratio": 0.4745762711864407
+       }
+      ]
+     },
+     {
+      "check": "C10",
+      "status": "pass",
+      "message": "私有编码器协议，厂商一致（Yaskawa）",
+      "ports": [
+       "motor.encoder",
+       "drive.encoder_in"
+      ],
+      "findings": [
+       {
+        "status": "pass",
+        "message": "私有编码器协议，厂商一致（Yaskawa）",
+        "ports": [
+         "motor.encoder",
+         "drive.encoder_in"
+        ]
+       },
+       {
+        "status": "pass",
+        "message": "总线 ethercat 一致",
+        "ports": [
+         "drive.bus"
+        ]
+       }
+      ]
+     },
+     {
+      "check": "C11",
+      "status": "not_applicable",
+      "message": "系统中没有轴承，需求也未给包络外径限值"
+     }
+    ]
+   },
+   "candidates": 10,
+   "module_mass_kg": 1.08,
+   "components": [
+    "servo_motor.yaskawa-electric-corporation.sgm7j-01a",
+    "reducer.harmonic-drive-llc.csf-17-100-2uh",
+    "drive.yaskawa-america-inc.sgd7s-1r6a"
+   ]
+  }
+ },
+ "duty": {
+  "initial": {
+   "j1": 0.0,
+   "j2": 87.9286,
+   "j3": 4.5783,
+   "j4": -2.876,
+   "j5": 0.0
+  },
+  "drives": [
+   {
+    "joint": "j1",
+    "kind": "move",
+    "to": 90.0,
+    "t0_s": 0.2,
+    "t1_s": 1.2,
+    "accel_ratio": 0.25
+   },
+   {
+    "joint": "j2",
+    "kind": "move",
+    "to": -2.0714,
+    "t0_s": 0.2,
+    "t1_s": 1.2,
+    "accel_ratio": 0.25
+   },
+   {
+    "joint": "j3",
+    "kind": "move",
+    "to": 94.5783,
+    "t0_s": 0.2,
+    "t1_s": 1.2,
+    "accel_ratio": 0.25
+   },
+   {
+    "joint": "j4",
+    "kind": "move",
+    "to": 87.124,
+    "t0_s": 0.2,
+    "t1_s": 1.2,
+    "accel_ratio": 0.25
+   },
+   {
+    "joint": "j5",
+    "kind": "move",
+    "to": 90.0,
+    "t0_s": 0.2,
+    "t1_s": 1.2,
+    "accel_ratio": 0.25
+   }
+  ],
+  "pose_mm": [
+   479.736328125,
+   0.0,
+   100.0
+  ]
+ },
+ "module_masses_kg": {
+  "j1": 1.08,
+  "j2": 1.08,
+  "j3": 1.08,
+  "j4": 1.08,
+  "j5": 1.08
+ },
+ "link_masses_kg": {
+  "turret": 0.2244,
+  "upper_arm": 0.1883,
+  "forearm": 0.1512,
+  "wrist": 0.0295,
+  "flange": 0.0412
+ },
+ "assumptions": [
+  "检验动作（需求没给速度，设计取值）：从水平伸直姿态出发，各转动关节同时转 90°，用时 1 s，加减速各占 25%（最高 120°/s）；末端带满载",
+  "供电按 200 V 三相交流、EtherCAT（零件库里的伺服与驱动器是这一类）；安全系数 1.2；环境 25 ℃",
+  "关节模组（电机 + 减速器）按样本质量集中在关节处；电缆、壳体、轴承座、夹爪本身的质量不计（夹爪质量方案里没有）",
+  "杆件质量按方案的截面、长度与材料密度，均布在本关节到下一关节之间"
+ ],
+ "bom": {
+  "purchased": [
+   {
+    "component": "servo_motor.yaskawa-electric-corporation.sgm7j-01a",
+    "role": "motor",
+    "name": null,
+    "qty": 5,
+    "joints": [
+     "j1",
+     "j2",
+     "j3",
+     "j4",
+     "j5"
+    ],
+    "mass_kg_each": 0.4
+   },
+   {
+    "component": "reducer.harmonic-drive-llc.csf-17-100-2uh",
+    "role": "reducer",
+    "name": null,
+    "qty": 5,
+    "joints": [
+     "j1",
+     "j2",
+     "j3",
+     "j4",
+     "j5"
+    ],
+    "mass_kg_each": 0.68
+   },
+   {
+    "component": "drive.yaskawa-america-inc.sgd7s-1r6a",
+    "role": "drive",
+    "name": null,
+    "qty": 5,
+    "joints": [
+     "j1",
+     "j2",
+     "j3",
+     "j4",
+     "j5"
+    ],
+    "mass_kg_each": 0.9
+   }
+  ],
+  "purchased_mass_kg": 9.9,
+  "made": [
+   {
+    "link": "turret",
+    "shape": "tube",
+    "section": {
+     "id_mm": 56,
+     "od_mm": 70
+    },
+    "length_mm": 60,
+    "material": "6061-T6",
+    "mass_kg": 0.2244
+   },
+   {
+    "link": "upper_arm",
+    "shape": "tube",
+    "section": {
+     "id_mm": 34,
+     "od_mm": 40
+    },
+    "length_mm": 200,
+    "material": "6061-T6",
+    "mass_kg": 0.1883
+   },
+   {
+    "link": "forearm",
+    "shape": "tube",
+    "section": {
+     "id_mm": 30,
+     "od_mm": 36
+    },
+    "length_mm": 180,
+    "material": "6061-T6",
+    "mass_kg": 0.1512
+   },
+   {
+    "link": "wrist",
+    "shape": "tube",
+    "section": {
+     "id_mm": 26,
+     "od_mm": 32
+    },
+    "length_mm": 40,
+    "material": "6061-T6",
+    "mass_kg": 0.0295
+   },
+   {
+    "link": "flange",
+    "shape": "tube",
+    "section": {
+     "id_mm": 24,
+     "od_mm": 30
+    },
+    "length_mm": 60,
+    "material": "6061-T6",
+    "mass_kg": 0.0412
+   }
+  ],
+  "made_mass_kg": 0.635
+ },
+ "cost": {
+  "status": "unknown",
+  "note": "零件库没有价格数据；“外购件成本尽量低”要等登记了有价格的公开目录才判得了"
+ }
+}
