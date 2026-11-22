@@ -1,0 +1,24 @@
+{
+ "why": "internal 只能是 true / false",
+ "instance": {
+  "format": "cam-tool/1",
+  "name": "测试",
+  "tools": [
+   {
+    "id": "T",
+    "kind": "thread_turn",
+    "internal": "yes",
+    "min_bore_mm": 12.0,
+    "pitch_mm": 1.5,
+    "thread_angle_deg": 60,
+    "insert": {
+     "nose_radius_mm": 0.11
+    },
+    "source": {
+     "kind": "example",
+     "ref": "x"
+    }
+   }
+  ]
+ }
+}

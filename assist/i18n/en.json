@@ -2160,5 +2160,6 @@
 "{} 认不出是长圆还是圆角矩形平底槽：别的形状还没做": "{} is neither a slot-shaped nor a rounded-rectangle flat slot; other shapes are not done yet",
 "圆柱面平底槽（Y 轴）": "Flat slot on cylinder (Y axis)",
 "点圆柱面上平底槽的底面（可宽于刀径）：C 轴分度、径向动力刀 Y 轴铣（车铣中心）": "Pick the bottom of a flat slot on the cylinder (may be wider than the cutter): C-axis indexing, radial live tool milling with the Y axis (mill-turn centre)",
-"粗车：按 {} 主电机 {} kW 的 80% 把 vc {} → {}、f {} → {}（不低于样本下限）": "Roughing: to stay within 80% of the {} spindle motor ({} kW), vc {} \u2192 {}, f {} \u2192 {} (not below the catalogue minimum)"
+"粗车：按 {} 主电机 {} kW 的 80% 把 vc {} → {}、f {} → {}（不低于样本下限）": "Roughing: to stay within 80% of the {} spindle motor ({} kW), vc {} \u2192 {}, f {} \u2192 {} (not below the catalogue minimum)",
+"T{}（{}）没写刀杆，按刀片配 {}（刀杆库，起草配的，ADR-0112）": "T{} ({}) has no holder; paired {} by insert code (holder library, chosen by the draft, ADR-0112)"
 }

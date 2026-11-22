@@ -346,7 +346,7 @@ def _lathe_specs(cfg: dict, parsed: dict) -> tuple[dict, list[dict]]:
         tool = TL.get(lib, g["tool"])
         r = float((tool.get("insert") or {}).get("nose_radius_mm", 0.0))
         specs[t] = {"tool": tool, "L": 0.0, "parts": [{"part": "cutter", "z0": 0.0, "z1": 0.0, "r": max(r, 1e-3)}], "boxes": []}
-        holder = tool.get("holder") or {}
+        holder = g.get("holder") or tool.get("holder") or {}   # 起草时配的刀杆（ADR-0112）优先
         if not holder.get("iso5608"):
             checks.append({"line": None, "level": "unknown", "text": f"T{t}（{tool['id']}）：刀具库里没写刀杆代号（ISO 5608），只查了刀尖"})
             continue

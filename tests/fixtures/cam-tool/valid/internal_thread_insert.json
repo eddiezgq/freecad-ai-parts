@@ -1,0 +1,24 @@
+{
+ "why": "内螺纹刀片：internal、最小孔径（ADR-0113）",
+ "instance": {
+  "format": "cam-tool/1",
+  "name": "测试",
+  "tools": [
+   {
+    "id": "T",
+    "kind": "thread_turn",
+    "internal": true,
+    "min_bore_mm": 12.0,
+    "pitch_mm": 1.5,
+    "thread_angle_deg": 60,
+    "insert": {
+     "nose_radius_mm": 0.11
+    },
+    "source": {
+     "kind": "example",
+     "ref": "x"
+    }
+   }
+  ]
+ }
+}

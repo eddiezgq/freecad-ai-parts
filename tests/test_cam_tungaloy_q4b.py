@@ -94,3 +94,56 @@ def test_draft_turning_with_tungaloy_library():
     assert r["status"] == "ok"
     for prog in r["data"]["programs"]:
         assert prog["release"] is not None and not [c for c in prog["checks"] if c["level"] == "error"]
+
+
+# ---------------------------------------------------------------- 刀杆库（ADR-0112）：综合样本 C 部分外圆刀杆
+HOLDERS_PATH = TL.BUILTIN / "tungaloy-holders.json"
+HOLDERS = json.loads(HOLDERS_PATH.read_text(encoding="utf-8"))
+H_BY = {h["iso5608"]: h for h in HOLDERS["holders"]}
+
+
+def test_holder_spot_check_and_schema():
+    """C020（看样本页图抄的）：PCLNR/L2525M12E 25 25 150 28 25 32 0.8 CN/GN**1204；PCLNR/L3225P16E 代号 P = 170 与表里 LF 150 对不上，不收"""
+    import jsonschema
+
+    jsonschema.validate(HOLDERS, json.loads((TL.BUILTIN.parents[2] / "schema" / "cam-holder.schema.json").read_text(encoding="utf-8")))
+    for code in ("PCLNR2525M12E", "PCLNL2525M12E"):
+        h = H_BY[code]
+        assert (h["h_mm"], h["b_mm"], h["l1_mm"], h["head_mm"], h["h1_mm"], h["f_mm"], h["nose_radius_mm"]) == (25, 25, 150, 28, 25, 32, 0.8)
+        assert h["insert"] == {"codes": ["CN", "GN"], "size": "1204"} and h["source"]["page"] == "C020"
+    assert "PCLNR3225P16E" not in H_BY and len(HOLDERS["holders"]) == 293
+
+
+def test_holder_rows_parser():
+    head = "        H          B              LF              LH                 HF           WF           RE**\n"
+    row = "  PCLNR/L2525M12E        25     25     150     28     25     32     0.8     CN/GN**1204...\n"
+    assert TG.holder_rows(row) == []                                                # 这一页没有表头：不认
+    r = TG.holder_rows(head + row)[0]
+    assert (r["base"], r["rest"], r["hands"], r["wf"], r["lh"], r["codes"], r["size"]) == \
+        ("PCLN", "2525M12E", ["R", "L"], 32.0, 28.0, ["CN", "GN"], "1204")
+
+
+def test_pick_holder_for_insert():
+    from analysis.cam import holders as HD
+
+    assert HD.insert_key("CNMG120408-TM") == ("CN", "1204") and HD.insert_key("WNMA060416E") == ("WN", "0604")
+    assert HD.pick("CNMG120408-TM")["iso5608"][2] == "L"                           # C 形 → L 形 95°
+    assert HD.pick("DNMG110404E-TSF")["iso5608"][:3] in ("PDJ", "ADJ", "DDJ")      # D 形 → J 形 93°
+    h = HD.pick("CNMG090408E-TM")
+    assert h["insert"]["size"] == "0904" and (h["h_mm"], h["b_mm"]) == (25, 25) and h["iso5608"][4] == "R"
+    assert HD.pick("XXMG120408") is None
+    bx, notes = HD.boxes(HD.as_tool_holder(h))
+    assert bx[0][0] == h["head_mm"] and f"离刀尖 {h['head_mm']:g} mm" in notes[0]   # 刀头长按样本 LH
+
+
+def test_draft_pairs_holders_and_checks_shank():
+    part = {"mode": "turn", "machine": "EX-LATHE", "kienzle": "C45E", "segments": [[30, 40], [40, 60], [35, 25], [30, 30]], "chamfer_mm": 1}
+    d = CP.draft(part, "P", LIB)
+    s = d["setup"]
+    assert s["machine_sim"]["tools"]["1"]["holder"]["iso5608"] == "ACLNR2525M0904-A"
+    assert any("起草配的" in n for n in d["notes"])
+    s["machine_sim"]["tool_library"] = str(LIB_PATH)
+    r = cam.run({**s, "post": "fanuc"})
+    for prog in r["data"]["programs"]:
+        texts = [c["text"] for c in prog["checks"]]
+        assert not any("没写刀杆代号" in t for t in texts) and any("刀头外形各家不同" in t for t in texts)
