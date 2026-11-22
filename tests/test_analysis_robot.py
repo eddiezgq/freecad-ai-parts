@@ -70,10 +70,18 @@ def test_payload_torque_on_shoulder_is_mgl():
     assert rep["payload_torque_nm"]["j2"] == pytest.approx(m_kg * 9.80665 * L2 * math.cos(math.radians(t1 + t2)) / 1000, abs=1e-4)
 
 
-def test_fully_stretched_pose_is_singular():
+def test_singularity_judged_only_where_the_tool_point_is_controlled():
+    m = K.build(two_link())
+    assert min(K.singular_values(m, {"j1": 10, "j2": 0})) == pytest.approx(0, abs=1e-9)   # 伸直：少一个方向
     rep = screen(two_link(tasks=[{"name": "伸直", "type": "joint_move", "from": {"j1": 10, "j2": 0}, "to": {"j1": 40, "j2": 30},
                                   "move_s": 1}]))
-    assert [i["item"] for i in rep["items"] if i["item"].startswith("奇异") and i["status"] == "fail"] == ["奇异：伸直（from）"]
+    assert not [i for i in rep["items"] if i["item"].startswith("奇异")]          # 关节动作经过伸直位：不判
+    assert rep["sigma_ratio_min"] == pytest.approx(0, abs=1e-9)                    # 但报数
+    c = two_link(points=[(0, 0, 500)])
+    c["joints"][1]["range_deg"] = [0, 0]                                        # 肘锁在伸直位：工作空间点只能在奇异位置到
+    rep = screen(c)
+    bad = [i for i in rep["items"] if i["status"] == "fail"]
+    assert [i["item"] for i in bad] == ["奇异：工作空间点 1 (0, 0, 500)"]            # 要按末端位置控制的地方：判
 
 
 def test_gantry_inverse_kinematics_is_exact():
