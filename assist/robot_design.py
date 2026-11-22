@@ -74,11 +74,12 @@ robot-concept/1 格式（单位 mm、°、s、kg；右手坐标系、z 向上）
 - joints: [{id, type: revolute | prismatic | wheel, parent: "base" 或杆件 id, child: 杆件 id, origin_mm: [x,y,z], axis: [x,y,z],
            range_deg（转动） | range_mm（移动） | radius_mm（轮子）, transmission: direct | reducer | belt | ballscrew | rack_pinion | belt_linear,
            ratio（reducer、belt）, lead_mm（ballscrew、rack_pinion、belt_linear）, module_group（同组的关节用同一种关节模组）}]
-  每根杆件由一个关节带动；杆件坐标系原点在带动它的关节处、零位时与父件同向；origin_mm、axis 写零位时在父件坐标系里的值。
+  id 一律用小写字母开头，只含小写字母、数字、下划线（如 j1、upper_arm）。每根杆件由一个关节带动；杆件坐标系原点在带动它的关节处、零位时与父件同向；origin_mm、axis 写零位时在父件坐标系里的值。
 - end_effector: {type: gripper | vacuum | needle | tray | none | custom, parent: 杆件 id, offset_mm: 工具点在该杆件坐标系里的位置}
 - tasks（可选）: joint_move {name, from: {关节: 值}, to: {...}, move_s, dwell_s} 或 cartesian_move {name, from_mm, to_mm, move_s}
 - workspace（可选）: {points_mm: [[x,y,z], ...]}——基座坐标系，原点在安装面上、底座转轴处
 程序会检查：格式；结构（树、引用）；自由度、安装方式与条件一致；臂展点（安装面上 x = 臂展、y = 0、z = 0）在关节行程内够得着且不在奇异位置；
+工作空间点、直线动作沿途不在奇异位置（关节动作的起点终点不判）；
 要求模组复用时至少两个关节同一个 module_group；末端负载的静力矩（只作参考）。
 关节行程、传动方式、减速比是你的设计取值；不要编造零件型号与零件参数。
 必须调用一次工具 propose_robots。"""

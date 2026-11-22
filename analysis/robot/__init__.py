@@ -4,7 +4,8 @@
   结构：schema 之外的结构问题（kinematics.structure_problems）
   工作空间：需求要求够得着的点，在关节行程内有没有逆解
   动作：关节动作在行程内；直线动作沿途（等分 20 段）每点都有逆解、相邻两点关节变化连续，沿途不奇异
-  奇异：位置雅可比的最小 / 最大奇异值之比；数值上秩亏（< SINGULAR_RATIO）才判奇异，其余只报数
+  奇异：位置雅可比的最小 / 最大奇异值之比；数值上秩亏（< SINGULAR_RATIO）才判奇异，其余只报数。
+        只在要按末端位置控制的地方判（工作空间点、直线动作沿途）；关节动作的起点终点经过奇异位置不碍事，只报数
   粗载荷（下限）：只计末端负载的重力，对每个转动关节轴的静力矩，在各动作姿态与工作空间点上取最大；
                   自重、惯性在选件、设计自制件之后由多体动力学算（这里不估质量）
 移动底盘：工作空间与载荷在选件后按整车质量算，这一步只查结构与升降等关节行程。
@@ -77,12 +78,12 @@ def screen(concept: dict, payload_kg: float | None = None) -> dict:
     poses: list[tuple[str, dict]] = []
     ratios: list[float] = []
 
-    def sing(name: str, q: dict):
+    def sing(name: str, q: dict, judge: bool = True):
         sv = K.singular_values(m, q)
         r = float(sv.min() / sv.max()) if sv.size and sv.max() > 0 else 0.0
         rank = int((sv > K.SINGULAR_RATIO * (sv.max() if sv.size else 1)).sum())
         ratios.append(r)
-        if rank < min(3, len(K.chain(m))):
+        if judge and rank < min(3, len(K.chain(m))):
             items.append(_item(f"奇异：{name}", "fail", round(r, 6), f"> {K.SINGULAR_RATIO:g}",
                                "末端位置在这里少了一个方向的运动能力"))
 
@@ -103,7 +104,7 @@ def screen(concept: dict, payload_kg: float | None = None) -> dict:
             for side in ("from", "to"):
                 q = {j.id: float(t[side].get(j.id, 0.0)) for j in K.chain(m)}
                 poses.append((f"{t['name']}（{'起点' if side == 'from' else '终点'}）", q))
-                sing(f"{t['name']}（{side}）", q)
+                sing(f"{t['name']}（{side}）", q, judge=False)   # 关节空间的动作经过奇异位置不碍事：只报数
             items.append(_item(f"动作：{t['name']}", "pass", note="关节值都在行程内"))
         elif t["type"] == "cartesian_move":
             a, b = np.array(t["from_mm"], float), np.array(t["to_mm"], float)
