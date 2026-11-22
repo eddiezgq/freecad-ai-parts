@@ -14,11 +14,11 @@ on:
         type: choice
         options: [claude, deepseek]
       part:
-        description: "设计哪个零件（shaft = 平缝机上轴；joint = 机器人关节空心轴，ADR-0100 42.5）"
+        description: "设计哪个零件（shaft = 平缝机上轴；joint = 机器人关节空心轴，ADR-0100 42.5；robot = 整机构型，ADR-0115 44.2）"
         required: true
         default: shaft
         type: choice
-        options: [shaft, joint]
+        options: [shaft, joint, robot]
 
 permissions:
   contents: write
@@ -48,7 +48,9 @@ jobs:
       - name: 设计并录制
         run: |
           set +e
-          if [ "$PART" = joint ]; then
+          if [ "$PART" = robot ]; then
+            python -m assist.robot_design examples/robots/teaching-arm/requirement.txt --record --provider "$PROVIDER" -o result.json 2> log.txt
+          elif [ "$PART" = joint ]; then
             python -m assist.joint_design examples/ai-design/cobot-j2/requirement.txt --record --provider "$PROVIDER" -o result.json 2> log.txt
           else
             python -m assist.design examples/ai-design/ls-upper-shaft/requirement.txt --record --provider "$PROVIDER" -o result.json 2> log.txt
@@ -64,7 +66,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           branch="m42/design-rec-${PART}-${PROVIDER}-${GITHUB_RUN_ID}"
           git checkout -b "$branch"
-          for d in tests/recordings/design tests/recordings/joint_design; do [ -d "$d" ] && git add -A "$d"; done
+          for d in tests/recordings/design tests/recordings/joint_design tests/recordings/robot_design; do [ -d "$d" ] && git add -A "$d"; done
           if git diff --cached --quiet; then echo "没有新录制"; exit 0; fi
           git commit -m "M42: AI 设计阶梯轴录制（运行 ${GITHUB_RUN_ID}）" -m "由 .github/workflows/design-eval.yml 生成"
           git push origin "$branch"

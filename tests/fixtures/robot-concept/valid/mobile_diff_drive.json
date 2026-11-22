@@ -1,0 +1,142 @@
+{
+ "description": "示例：差速底盘（测试样例）",
+ "instance": {
+  "format": "robot-concept/1",
+  "name": "示例：差速底盘（测试样例）",
+  "kind": "mobile_base",
+  "base": {
+   "mount": "mobile"
+  },
+  "links": [
+   {
+    "id": "chassis",
+    "length_mm": 500,
+    "shape": "box",
+    "section": {
+     "width_mm": 400,
+     "height_mm": 120
+    }
+   },
+   {
+    "id": "wheel_l",
+    "length_mm": 0,
+    "shape": "custom"
+   },
+   {
+    "id": "wheel_r",
+    "length_mm": 0,
+    "shape": "custom"
+   },
+   {
+    "id": "tray",
+    "length_mm": 0,
+    "shape": "box",
+    "section": {
+     "width_mm": 350,
+     "height_mm": 300
+    }
+   }
+  ],
+  "joints": [
+   {
+    "id": "base_float",
+    "type": "prismatic",
+    "parent": "base",
+    "child": "chassis",
+    "origin_mm": [
+     0,
+     0,
+     0
+    ],
+    "axis": [
+     1,
+     0,
+     0
+    ],
+    "range_mm": [
+     -100000,
+     100000
+    ],
+    "note": "底盘在地面上的平动（仿真时换成自由体）"
+   },
+   {
+    "id": "wl",
+    "type": "wheel",
+    "parent": "chassis",
+    "child": "wheel_l",
+    "origin_mm": [
+     0,
+     180,
+     80
+    ],
+    "axis": [
+     0,
+     1,
+     0
+    ],
+    "radius_mm": 80,
+    "transmission": "reducer",
+    "ratio": 20
+   },
+   {
+    "id": "wr",
+    "type": "wheel",
+    "parent": "chassis",
+    "child": "wheel_r",
+    "origin_mm": [
+     0,
+     -180,
+     80
+    ],
+    "axis": [
+     0,
+     1,
+     0
+    ],
+    "radius_mm": 80,
+    "transmission": "reducer",
+    "ratio": 20
+   },
+   {
+    "id": "lift",
+    "type": "prismatic",
+    "parent": "chassis",
+    "child": "tray",
+    "origin_mm": [
+     0,
+     0,
+     200
+    ],
+    "axis": [
+     0,
+     0,
+     1
+    ],
+    "range_mm": [
+     0,
+     300
+    ],
+    "transmission": "ballscrew",
+    "lead_mm": 5
+   }
+  ],
+  "end_effector": {
+   "type": "tray"
+  },
+  "tasks": [
+   {
+    "name": "走廊",
+    "type": "drive",
+    "speed_m_s": 1.0,
+    "accel_m_s2": 0.5,
+    "duration_s": 30
+   },
+   {
+    "name": "过门槛",
+    "type": "drive",
+    "speed_m_s": 0.3,
+    "step_mm": 15
+   }
+  ]
+ }
+}
