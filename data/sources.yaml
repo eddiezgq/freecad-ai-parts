@@ -198,6 +198,21 @@ sources:
         version: 2022–2023（文件名），以 SHA-256 标识（2026-11-19 登记）
         url: https://sakusakuec.com/download/zcc_catalog_2022-2023_Indexable.pdf
         sha256: "c5879b146055b99b7928cf5491173f0c65232b17506ee85721c2afd1fae4fd09"
+  - id: tungaloy
+    vendor: 泰珂洛（Tungaloy Corporation）
+    url: https://tungaloy.com/cn/
+    categories: [cutting_tool]
+    license: params-only
+    terms_checked: true
+    terms_note: >-
+      2026-11-22 按 ADR-0040 与项目负责人 2026-11-19 的决定（刀具样本是厂家为卖刀公开发放的资料，只收事实参数、注明页码）：
+      收录 ISO-EcoTurn 样本里的刀片尺寸（RE、IC）与标准切削条件（ap、f、vc 范围），逐把注明样本页码；不转存样本文档、图片与文字。
+    documents:
+      - id: src-tungaloy-tr426-c-isoecoturn
+        title: 泰珂洛 TR426-C ISO-EcoTurn 车刀片（中文，60 页）
+        version: 2026 年 4 月（文件名 Apr.2026-0423），以 SHA-256 标识（2026-11-22 登记）
+        url: https://tungaloy.com/wpdata/wp-content/uploads/2014/10/TR426-C_IsoEcoTurn_Apr.2026-0423.pdf
+        sha256: "8e3525af7c65c459be845327057133911e92e6101ab6ce571e71e72f50c3a7b0"
   - id: golden-egret
     vendor: 厦门金鹭特种合金有限公司（Golden Egret）
     url: https://www.gesac.com.cn

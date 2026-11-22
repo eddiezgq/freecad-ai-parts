@@ -1,0 +1,8350 @@
+{
+ "format": "cam-tool/1",
+ "name": "泰珂洛 ISO-EcoTurn 车刀片（样本参数）",
+ "tools": [
+  {
+   "id": "TG-CNMG090402E-TF",
+   "name": "泰珂洛 CNMG090402E-TF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090402E-TF",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 12；切削条件 58–59（断屑槽 TF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090404E-TF",
+   "name": "泰珂洛 CNMG090404E-TF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090404E-TF",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 12；切削条件 58–59（断屑槽 TF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090408E-TF",
+   "name": "泰珂洛 CNMG090408E-TF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090408E-TF",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 12；切削条件 58–59（断屑槽 TF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090402E-TSF",
+   "name": "泰珂洛 CNMG090402E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090402E-TSF",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 12；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090404E-TSF",
+   "name": "泰珂洛 CNMG090404E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090404E-TSF",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 12；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090408E-TSF",
+   "name": "泰珂洛 CNMG090408E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090408E-TSF",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 12；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090402E-PS",
+   "name": "泰珂洛 CNMG090402E-PS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090402E-PS",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 12；切削条件 58–59（断屑槽 PS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090404E-PS",
+   "name": "泰珂洛 CNMG090404E-PS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090404E-PS",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 12；切削条件 58–59（断屑槽 PS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090408E-PS",
+   "name": "泰珂洛 CNMG090408E-PS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090408E-PS",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 12；切削条件 58–59（断屑槽 PS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090402E-ZF",
+   "name": "泰珂洛 CNMG090402E-ZF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090402E-ZF",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 12；切削条件 58–59（断屑槽 ZF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090404E-ZF",
+   "name": "泰珂洛 CNMG090404E-ZF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090404E-ZF",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 12；切削条件 58–59（断屑槽 ZF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090408E-ZF",
+   "name": "泰珂洛 CNMG090408E-ZF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090408E-ZF",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 12；切削条件 58–59（断屑槽 ZF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090402E-TS",
+   "name": "泰珂洛 CNMG090402E-TS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090402E-TS",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 12；切削条件 58–59（断屑槽 TS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090404E-TS",
+   "name": "泰珂洛 CNMG090404E-TS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090404E-TS",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 12；切削条件 58–59（断屑槽 TS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090408E-TS",
+   "name": "泰珂洛 CNMG090408E-TS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090408E-TS",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 12；切削条件 58–59（断屑槽 TS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090408E-SS",
+   "name": "泰珂洛 CNMG090408E-SS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090408E-SS",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 240.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.2
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 12；切削条件 58–59（断屑槽 SS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090404E-FW",
+   "name": "泰珂洛 CNMG090404E-FW 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090404E-FW",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 13；切削条件 58–59（断屑槽 FW 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090404E-TM",
+   "name": "泰珂洛 CNMG090404E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090404E-TM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 13；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090408E-TM",
+   "name": "泰珂洛 CNMG090408E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090408E-TM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 13；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090412E-TM",
+   "name": "泰珂洛 CNMG090412E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090412E-TM",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 13；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090404E-PM",
+   "name": "泰珂洛 CNMG090404E-PM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090404E-PM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 13；切削条件 58–59（断屑槽 PM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090408E-PM",
+   "name": "泰珂洛 CNMG090408E-PM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090408E-PM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 13；切削条件 58–59（断屑槽 PM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090412E-PM",
+   "name": "泰珂洛 CNMG090412E-PM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090412E-PM",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 13；切削条件 58–59（断屑槽 PM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090404E-ZM",
+   "name": "泰珂洛 CNMG090404E-ZM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090404E-ZM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 13；切削条件 58–59（断屑槽 ZM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090408E-ZM",
+   "name": "泰珂洛 CNMG090408E-ZM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090408E-ZM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 13；切削条件 58–59（断屑槽 ZM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090404E-SM",
+   "name": "泰珂洛 CNMG090404E-SM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090404E-SM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 13；切削条件 58–59（断屑槽 SM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090408E-SM",
+   "name": "泰珂洛 CNMG090408E-SM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090408E-SM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 13；切削条件 58–59（断屑槽 SM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090412E-SM",
+   "name": "泰珂洛 CNMG090412E-SM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090412E-SM",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 13；切削条件 58–59（断屑槽 SM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090408E-SW",
+   "name": "泰珂洛 CNMG090408E-SW 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090408E-SW",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.3,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 13；切削条件 58–59（断屑槽 SW 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMG090412E-SW",
+   "name": "泰珂洛 CNMG090412E-SW 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMG090412E-SW",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.3,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 13；切削条件 58–59（断屑槽 SW 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMA090404E",
+   "name": "泰珂洛 CNMA090404E 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMA090404E",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 14；切削条件 58–59（断屑槽 无断屑槽 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMA090408E",
+   "name": "泰珂洛 CNMA090408E 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMA090408E",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 14；切削条件 58–59（断屑槽 无断屑槽 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMA090412E",
+   "name": "泰珂洛 CNMA090412E 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMA090412E",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 14；切削条件 58–59（断屑槽 无断屑槽 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-CNMA090416E",
+   "name": "泰珂洛 CNMA090416E 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "CNMA090416E",
+    "nose_radius_mm": 1.6,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 14；切削条件 58–59（断屑槽 无断屑槽 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-FNMG110402E-TSF",
+   "name": "泰珂洛 FNMG110402E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "FNMG110402E-TSF",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 15；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-FNMG110404E-TSF",
+   "name": "泰珂洛 FNMG110404E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "FNMG110404E-TSF",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 15；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-FNMG110408E-TSF",
+   "name": "泰珂洛 FNMG110408E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "FNMG110408E-TSF",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 15；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-FNMG110412E-TSF",
+   "name": "泰珂洛 FNMG110412E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "FNMG110412E-TSF",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 15；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-FNMG110404E-TM",
+   "name": "泰珂洛 FNMG110404E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "FNMG110404E-TM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 15；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-FNMG110408E-TM",
+   "name": "泰珂洛 FNMG110408E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "FNMG110408E-TM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 15；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-GNMG090402E-TSF",
+   "name": "泰珂洛 GNMG090402E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "GNMG090402E-TSF",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 15；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-GNMG090404E-TSF",
+   "name": "泰珂洛 GNMG090404E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "GNMG090404E-TSF",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 15；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-GNMG090408E-TSF",
+   "name": "泰珂洛 GNMG090408E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "GNMG090408E-TSF",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 15；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-GNMG090404E-TM",
+   "name": "泰珂洛 GNMG090404E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "GNMG090404E-TM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 15；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-GNMG090408E-TM",
+   "name": "泰珂洛 GNMG090408E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "GNMG090408E-TM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 15；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-GNMG090412E-TM",
+   "name": "泰珂洛 GNMG090412E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "GNMG090412E-TM",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 15；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110402E-TF",
+   "name": "泰珂洛 DNMG110402E-TF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110402E-TF",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 16；切削条件 58–59（断屑槽 TF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110404E-TF",
+   "name": "泰珂洛 DNMG110404E-TF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110404E-TF",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 16；切削条件 58–59（断屑槽 TF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110408E-TF",
+   "name": "泰珂洛 DNMG110408E-TF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110408E-TF",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 16；切削条件 58–59（断屑槽 TF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110402E-TSF",
+   "name": "泰珂洛 DNMG110402E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110402E-TSF",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 16；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110404E-TSF",
+   "name": "泰珂洛 DNMG110404E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110404E-TSF",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 16；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110408E-TSF",
+   "name": "泰珂洛 DNMG110408E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110408E-TSF",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 16；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110412E-TSF",
+   "name": "泰珂洛 DNMG110412E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110412E-TSF",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 16；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110402E-PS",
+   "name": "泰珂洛 DNMG110402E-PS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110402E-PS",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 16；切削条件 58–59（断屑槽 PS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110404E-PS",
+   "name": "泰珂洛 DNMG110404E-PS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110404E-PS",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 16；切削条件 58–59（断屑槽 PS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110408E-PS",
+   "name": "泰珂洛 DNMG110408E-PS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110408E-PS",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 16；切削条件 58–59（断屑槽 PS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110404E-ZF",
+   "name": "泰珂洛 DNMG110404E-ZF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110404E-ZF",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 16；切削条件 58–59（断屑槽 ZF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110408E-ZF",
+   "name": "泰珂洛 DNMG110408E-ZF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110408E-ZF",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 16；切削条件 58–59（断屑槽 ZF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110402E-TS",
+   "name": "泰珂洛 DNMG110402E-TS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110402E-TS",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 16；切削条件 58–59（断屑槽 TS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110404E-TS",
+   "name": "泰珂洛 DNMG110404E-TS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110404E-TS",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 16；切削条件 58–59（断屑槽 TS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110408E-TS",
+   "name": "泰珂洛 DNMG110408E-TS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110408E-TS",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 16；切削条件 58–59（断屑槽 TS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110404E-SS",
+   "name": "泰珂洛 DNMG110404E-SS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110404E-SS",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 240.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.2
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 16；切削条件 58–59（断屑槽 SS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110408E-SS",
+   "name": "泰珂洛 DNMG110408E-SS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110408E-SS",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 240.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.2
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 16；切削条件 58–59（断屑槽 SS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110404E-FW",
+   "name": "泰珂洛 DNMG110404E-FW 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110404E-FW",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 17；切削条件 58–59（断屑槽 FW 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110404E-TM",
+   "name": "泰珂洛 DNMG110404E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110404E-TM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 17；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110408E-TM",
+   "name": "泰珂洛 DNMG110408E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110408E-TM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 17；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110412E-TM",
+   "name": "泰珂洛 DNMG110412E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110412E-TM",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 17；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110404E-PM",
+   "name": "泰珂洛 DNMG110404E-PM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110404E-PM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 17；切削条件 58–59（断屑槽 PM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110408E-PM",
+   "name": "泰珂洛 DNMG110408E-PM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110408E-PM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 17；切削条件 58–59（断屑槽 PM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110412E-PM",
+   "name": "泰珂洛 DNMG110412E-PM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110412E-PM",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 17；切削条件 58–59（断屑槽 PM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110404E-ZM",
+   "name": "泰珂洛 DNMG110404E-ZM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110404E-ZM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 17；切削条件 58–59（断屑槽 ZM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110408E-ZM",
+   "name": "泰珂洛 DNMG110408E-ZM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110408E-ZM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 17；切削条件 58–59（断屑槽 ZM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110404E-SM",
+   "name": "泰珂洛 DNMG110404E-SM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110404E-SM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 17；切削条件 58–59（断屑槽 SM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110408E-SM",
+   "name": "泰珂洛 DNMG110408E-SM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110408E-SM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 17；切削条件 58–59（断屑槽 SM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110408E-SW",
+   "name": "泰珂洛 DNMG110408E-SW 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110408E-SW",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.3,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 18；切削条件 58–59（断屑槽 SW 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMG110412E-SW",
+   "name": "泰珂洛 DNMG110412E-SW 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMG110412E-SW",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.3,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 18；切削条件 58–59（断屑槽 SW 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMA110404E",
+   "name": "泰珂洛 DNMA110404E 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMA110404E",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 18；切削条件 58–59（断屑槽 无断屑槽 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMA110408E",
+   "name": "泰珂洛 DNMA110408E 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMA110408E",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 18；切削条件 58–59（断屑槽 无断屑槽 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-DNMA110412E",
+   "name": "泰珂洛 DNMA110412E 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "DNMA110412E",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 18；切削条件 58–59（断屑槽 无断屑槽 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110402E-TF",
+   "name": "泰珂洛 TNMG110402E-TF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110402E-TF",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 19；切削条件 58–59（断屑槽 TF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110404E-TF",
+   "name": "泰珂洛 TNMG110404E-TF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110404E-TF",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 19；切削条件 58–59（断屑槽 TF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110408E-TF",
+   "name": "泰珂洛 TNMG110408E-TF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110408E-TF",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 19；切削条件 58–59（断屑槽 TF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110402E-TSF",
+   "name": "泰珂洛 TNMG110402E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110402E-TSF",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 19；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110404E-TSF",
+   "name": "泰珂洛 TNMG110404E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110404E-TSF",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 19；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110408E-TSF",
+   "name": "泰珂洛 TNMG110408E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110408E-TSF",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 19；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110402E-PS",
+   "name": "泰珂洛 TNMG110402E-PS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110402E-PS",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 19；切削条件 58–59（断屑槽 PS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110404E-PS",
+   "name": "泰珂洛 TNMG110404E-PS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110404E-PS",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 19；切削条件 58–59（断屑槽 PS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110408E-PS",
+   "name": "泰珂洛 TNMG110408E-PS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110408E-PS",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 19；切削条件 58–59（断屑槽 PS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110402E-ZF",
+   "name": "泰珂洛 TNMG110402E-ZF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110402E-ZF",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 19；切削条件 58–59（断屑槽 ZF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110404E-ZF",
+   "name": "泰珂洛 TNMG110404E-ZF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110404E-ZF",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 19；切削条件 58–59（断屑槽 ZF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110408E-ZF",
+   "name": "泰珂洛 TNMG110408E-ZF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110408E-ZF",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 19；切削条件 58–59（断屑槽 ZF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110402E-TS",
+   "name": "泰珂洛 TNMG110402E-TS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110402E-TS",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 19；切削条件 58–59（断屑槽 TS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110404E-TS",
+   "name": "泰珂洛 TNMG110404E-TS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110404E-TS",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 19；切削条件 58–59（断屑槽 TS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110408E-TS",
+   "name": "泰珂洛 TNMG110408E-TS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110408E-TS",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 19；切削条件 58–59（断屑槽 TS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110404E-SS",
+   "name": "泰珂洛 TNMG110404E-SS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110404E-SS",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 240.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.2
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 20；切削条件 58–59（断屑槽 SS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110408E-SS",
+   "name": "泰珂洛 TNMG110408E-SS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110408E-SS",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 240.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.2
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 20；切削条件 58–59（断屑槽 SS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110404E-FW",
+   "name": "泰珂洛 TNMG110404E-FW 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110404E-FW",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 20；切削条件 58–59（断屑槽 FW 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110408E-FW",
+   "name": "泰珂洛 TNMG110408E-FW 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110408E-FW",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 20；切削条件 58–59（断屑槽 FW 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110404E-TM",
+   "name": "泰珂洛 TNMG110404E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110404E-TM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 20；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110408E-TM",
+   "name": "泰珂洛 TNMG110408E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110408E-TM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 20；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110412E-TM",
+   "name": "泰珂洛 TNMG110412E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110412E-TM",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 20；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110408E-PM",
+   "name": "泰珂洛 TNMG110408E-PM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110408E-PM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 20；切削条件 58–59（断屑槽 PM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110412E-PM",
+   "name": "泰珂洛 TNMG110412E-PM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110412E-PM",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 20；切削条件 58–59（断屑槽 PM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110404E-ZM",
+   "name": "泰珂洛 TNMG110404E-ZM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110404E-ZM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 20；切削条件 58–59（断屑槽 ZM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110408E-ZM",
+   "name": "泰珂洛 TNMG110408E-ZM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110408E-ZM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 20；切削条件 58–59（断屑槽 ZM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110404E-SM",
+   "name": "泰珂洛 TNMG110404E-SM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110404E-SM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 21；切削条件 58–59（断屑槽 SM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110408E-SM",
+   "name": "泰珂洛 TNMG110408E-SM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110408E-SM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 21；切削条件 58–59（断屑槽 SM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110408E-SW",
+   "name": "泰珂洛 TNMG110408E-SW 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110408E-SW",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.3,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 21；切削条件 58–59（断屑槽 SW 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMG110412E-SW",
+   "name": "泰珂洛 TNMG110412E-SW 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMG110412E-SW",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.3,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 21；切削条件 58–59（断屑槽 SW 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMA110404E",
+   "name": "泰珂洛 TNMA110404E 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMA110404E",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 21；切削条件 58–59（断屑槽 无断屑槽 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMA110408E",
+   "name": "泰珂洛 TNMA110408E 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMA110408E",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 21；切削条件 58–59（断屑槽 无断屑槽 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-TNMA110412E",
+   "name": "泰珂洛 TNMA110412E 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "TNMA110412E",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 6.35
+   },
+   "cutting": [
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 21；切削条件 58–59（断屑槽 无断屑槽 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120402E-TF",
+   "name": "泰珂洛 VNMG120402E-TF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120402E-TF",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 22；切削条件 58–59（断屑槽 TF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120404E-TF",
+   "name": "泰珂洛 VNMG120404E-TF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120404E-TF",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 22；切削条件 58–59（断屑槽 TF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120408E-TF",
+   "name": "泰珂洛 VNMG120408E-TF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120408E-TF",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 22；切削条件 58–59（断屑槽 TF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120402E-TSF",
+   "name": "泰珂洛 VNMG120402E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120402E-TSF",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 22；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120404E-TSF",
+   "name": "泰珂洛 VNMG120404E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120404E-TSF",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 22；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120408E-TSF",
+   "name": "泰珂洛 VNMG120408E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120408E-TSF",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 22；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120402E-PS",
+   "name": "泰珂洛 VNMG120402E-PS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120402E-PS",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 22；切削条件 58–59（断屑槽 PS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120404E-PS",
+   "name": "泰珂洛 VNMG120404E-PS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120404E-PS",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 22；切削条件 58–59（断屑槽 PS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120408E-PS",
+   "name": "泰珂洛 VNMG120408E-PS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120408E-PS",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 22；切削条件 58–59（断屑槽 PS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120402E-ZF",
+   "name": "泰珂洛 VNMG120402E-ZF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120402E-ZF",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 22；切削条件 58–59（断屑槽 ZF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120404E-ZF",
+   "name": "泰珂洛 VNMG120404E-ZF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120404E-ZF",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 22；切削条件 58–59（断屑槽 ZF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120408E-ZF",
+   "name": "泰珂洛 VNMG120408E-ZF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120408E-ZF",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 22；切削条件 58–59（断屑槽 ZF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120402E-TS",
+   "name": "泰珂洛 VNMG120402E-TS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120402E-TS",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 22；切削条件 58–59（断屑槽 TS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120404E-TS",
+   "name": "泰珂洛 VNMG120404E-TS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120404E-TS",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 22；切削条件 58–59（断屑槽 TS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120408E-TS",
+   "name": "泰珂洛 VNMG120408E-TS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120408E-TS",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 22；切削条件 58–59（断屑槽 TS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120404E-SS",
+   "name": "泰珂洛 VNMG120404E-SS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120404E-SS",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 240.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.2
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 22；切削条件 58–59（断屑槽 SS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120408E-SS",
+   "name": "泰珂洛 VNMG120408E-SS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120408E-SS",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 240.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.2
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 22；切削条件 58–59（断屑槽 SS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120404E-TM",
+   "name": "泰珂洛 VNMG120404E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120404E-TM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 23；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120408E-TM",
+   "name": "泰珂洛 VNMG120408E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120408E-TM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 23；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120412E-TM",
+   "name": "泰珂洛 VNMG120412E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120412E-TM",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 23；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120404E-PM",
+   "name": "泰珂洛 VNMG120404E-PM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120404E-PM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 23；切削条件 58–59（断屑槽 PM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120408E-PM",
+   "name": "泰珂洛 VNMG120408E-PM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120408E-PM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 23；切削条件 58–59（断屑槽 PM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120412E-PM",
+   "name": "泰珂洛 VNMG120412E-PM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120412E-PM",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 23；切削条件 58–59（断屑槽 PM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120404E-ZM",
+   "name": "泰珂洛 VNMG120404E-ZM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120404E-ZM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 23；切削条件 58–59（断屑槽 ZM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120408E-ZM",
+   "name": "泰珂洛 VNMG120408E-ZM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120408E-ZM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 23；切削条件 58–59（断屑槽 ZM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120404E-SM",
+   "name": "泰珂洛 VNMG120404E-SM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120404E-SM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 23；切削条件 58–59（断屑槽 SM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMG120408E-SM",
+   "name": "泰珂洛 VNMG120408E-SM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMG120408E-SM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 23；切削条件 58–59（断屑槽 SM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-VNMA120404E",
+   "name": "泰珂洛 VNMA120404E 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "VNMA120404E",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 7.15
+   },
+   "cutting": [
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 23；切削条件 58–59（断屑槽 无断屑槽 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060402E-TF",
+   "name": "泰珂洛 WNMG060402E-TF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060402E-TF",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 TF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060404E-TF",
+   "name": "泰珂洛 WNMG060404E-TF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060404E-TF",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 TF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060408E-TF",
+   "name": "泰珂洛 WNMG060408E-TF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060408E-TF",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.03,
+      "max": 0.15
+     },
+     "ap_max_mm": 0.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 TF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060402E-TSF",
+   "name": "泰珂洛 WNMG060402E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060402E-TSF",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060408E-TSF",
+   "name": "泰珂洛 WNMG060408E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060408E-TSF",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060412E-TSF",
+   "name": "泰珂洛 WNMG060412E-TSF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060412E-TSF",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 TSF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060402E-PS",
+   "name": "泰珂洛 WNMG060402E-PS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060402E-PS",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 PS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060404E-PS",
+   "name": "泰珂洛 WNMG060404E-PS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060404E-PS",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 PS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060408E-PS",
+   "name": "泰珂洛 WNMG060408E-PS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060408E-PS",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 PS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060402E-ZF",
+   "name": "泰珂洛 WNMG060402E-ZF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060402E-ZF",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 ZF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060404E-ZF",
+   "name": "泰珂洛 WNMG060404E-ZF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060404E-ZF",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 ZF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060408E-ZF",
+   "name": "泰珂洛 WNMG060408E-ZF 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060408E-ZF",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.07,
+      "max": 0.2
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 ZF 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060402E-TS",
+   "name": "泰珂洛 WNMG060402E-TS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060402E-TS",
+    "nose_radius_mm": 0.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 TS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060404E-TS",
+   "name": "泰珂洛 WNMG060404E-TS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060404E-TS",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 TS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060408E-TS",
+   "name": "泰珂洛 WNMG060408E-TS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060408E-TS",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     },
+     "ap_max_mm": 2.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 TS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060404E-SS",
+   "name": "泰珂洛 WNMG060404E-SS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060404E-SS",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 240.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.2
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 SS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060408E-SS",
+   "name": "泰珂洛 WNMG060408E-SS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060408E-SS",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 240.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.2
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 SS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060412E-SS",
+   "name": "泰珂洛 WNMG060412E-SS 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060412E-SS",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 50.0,
+      "max": 240.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.2
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 24；切削条件 58–59（断屑槽 SS 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060404E-FW",
+   "name": "泰珂洛 WNMG060404E-FW 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060404E-FW",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 25；切削条件 58–59（断屑槽 FW 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060408E-FW",
+   "name": "泰珂洛 WNMG060408E-FW 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060408E-FW",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 80.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.4
+     },
+     "ap_max_mm": 1.5
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 25；切削条件 58–59（断屑槽 FW 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060404E-TM",
+   "name": "泰珂洛 WNMG060404E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060404E-TM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 25；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060408E-TM",
+   "name": "泰珂洛 WNMG060408E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060408E-TM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 25；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060412E-TM",
+   "name": "泰珂洛 WNMG060412E-TM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060412E-TM",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 25；切削条件 58–59（断屑槽 TM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060408E-PM",
+   "name": "泰珂洛 WNMG060408E-PM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060408E-PM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 25；切削条件 58–59（断屑槽 PM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060412E-PM",
+   "name": "泰珂洛 WNMG060412E-PM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060412E-PM",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 25；切削条件 58–59（断屑槽 PM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060404E-ZM",
+   "name": "泰珂洛 WNMG060404E-ZM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060404E-ZM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 25；切削条件 58–59（断屑槽 ZM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060408E-ZM",
+   "name": "泰珂洛 WNMG060408E-ZM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060408E-ZM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    },
+    {
+     "iso_group": "S",
+     "vc_m_min": {
+      "min": 20.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 25；切削条件 58–59（断屑槽 ZM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060412E-NM",
+   "name": "泰珂洛 WNMG060412E-NM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060412E-NM",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 300.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 25；切削条件 58–59（断屑槽 NM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060404E-SM",
+   "name": "泰珂洛 WNMG060404E-SM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060404E-SM",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 26；切削条件 58–59（断屑槽 SM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060408E-SM",
+   "name": "泰珂洛 WNMG060408E-SM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060408E-SM",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 26；切削条件 58–59（断屑槽 SM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060412E-SM",
+   "name": "泰珂洛 WNMG060412E-SM 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060412E-SM",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 280.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.5
+     },
+     "ap_max_mm": 3.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 26；切削条件 58–59（断屑槽 SM 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060408E-SW",
+   "name": "泰珂洛 WNMG060408E-SW 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060408E-SW",
+    "nose_radius_mm": 0.8,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.3,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 26；切削条件 58–59（断屑槽 SW 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMG060412E-SW",
+   "name": "泰珂洛 WNMG060412E-SW 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMG060412E-SW",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 120.0,
+      "max": 400.0
+     },
+     "f_mm_rev": {
+      "min": 0.3,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 26；切削条件 58–59（断屑槽 SW 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMA060404E",
+   "name": "泰珂洛 WNMA060404E 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMA060404E",
+    "nose_radius_mm": 0.4,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 26；切削条件 58–59（断屑槽 无断屑槽 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMA060412E",
+   "name": "泰珂洛 WNMA060412E 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMA060412E",
+    "nose_radius_mm": 1.2,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 26；切削条件 58–59（断屑槽 无断屑槽 各材质合集，具体材质按样本另选）"
+   }
+  },
+  {
+   "id": "TG-WNMA060416E",
+   "name": "泰珂洛 WNMA060416E 车刀片",
+   "kind": "turn",
+   "insert": {
+    "iso": "WNMA060416E",
+    "nose_radius_mm": 1.6,
+    "inscribed_circle_mm": 9.525
+   },
+   "cutting": [
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 150.0,
+      "max": 700.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.6
+     },
+     "ap_max_mm": 2.0
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "尺寸 26；切削条件 58–59（断屑槽 无断屑槽 各材质合集，具体材质按样本另选）"
+   }
+  }
+ ]
+}
