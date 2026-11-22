@@ -164,7 +164,8 @@ jobs:
           $exe = Join-Path $prefix "Library\bin\freecad.exe"
           if (-not (Test-Path $exe)) { $exe = (Get-ChildItem -Recurse $prefix -Filter freecad.exe | Select-Object -First 1).FullName }
           Write-Host "FreeCAD：$exe"
-          powershell -NoProfile -ExecutionPolicy Bypass -File tests\gui\run_gui_matrix.ps1 -FreeCAD $exe -Out gui-out
+          $mm = (Get-Command micromamba).Source
+          powershell -NoProfile -ExecutionPolicy Bypass -File tests\gui\run_gui_matrix.ps1 -FreeCAD $exe -Out gui-out -Wrapper $mm -WrapperArgs "run -n fc11"
           exit $LASTEXITCODE
       - uses: actions/upload-artifact@v4
         if: always()
