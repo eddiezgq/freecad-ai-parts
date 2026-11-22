@@ -66,11 +66,17 @@ def _cands(lib, kinds, ok=lambda t: True):
     return [t for t in lib["tools"] if t["kind"] in kinds and ok(t)]
 
 
+def _rough_shape(t) -> bool:
+    """粗车用刀尖角大的刀片：ISO 代号第一个字母 C（80°）、W（80°）、S（90°）；没写代号的（自建、示例）不限"""
+    iso = (t.get("insert") or {}).get("iso") or ""
+    return not iso or iso[0] in "CWS"
+
+
 def operations(part: dict, lib: dict) -> list[dict]:
     """part：analysis.cam.run 的 turn 或 mill 设置（不含切削参数）。→ [{id, kind, title, cands: [刀具], geom}]"""
     ops = []
     if part["mode"] == "turn":
-        ops += [{"id": "rough", "kind": "rough", "title": "粗车外圆", "cands": _cands(lib, {"turn"})},
+        ops += [{"id": "rough", "kind": "rough", "title": "粗车外圆", "cands": _cands(lib, {"turn"}, _rough_shape) or _cands(lib, {"turn"})},
                 {"id": "finish", "kind": "finish", "title": "精车外圆", "cands": _cands(lib, {"turn"})}]
         for i, g in enumerate(part.get("grooves") or [], 1):
             w = float(g["width"])
@@ -135,14 +141,17 @@ def _nose(t):
 
 
 def _rule_pick(op):
-    """铣刀、钻头取允许的最大直径；粗车取刀尖圆角最大的（刀尖强），精车取最小的（表面好、让刀小）"""
+    """铣刀、钻头取允许的最大直径；粗车取刀尖圆角 ≤ 0.8 里最大的（刀尖强），精车取最小的（表面好、让刀小）"""
     c = op["cands"]
     if not c:
         return None
     if op["kind"] in ("pocket", "contour", "drill"):
         return max(c, key=lambda t: t.get("diameter_mm", 0))
     if op["kind"] == "rough":
-        return max(c, key=_nose)
+        # 先挑样本最大切深大的（粗车断屑槽），再取刀尖圆弧 ≤ 0.8 里最大的（通用粗车；太大的车端面过中心要多走 2r，小车床 X 负向行程不够）
+        def ap_max(t):
+            return max([c_.get("ap_max_mm", 0.0) for c_ in t.get("cutting") or [] if c_.get("iso_group") == op.get("iso")] or [0.0])
+        return max(c, key=lambda t: (ap_max(t), _nose(t) <= 0.8 + 1e-9, _nose(t) if _nose(t) <= 0.8 + 1e-9 else -_nose(t)))
     if op["kind"] == "finish":
         return min(c, key=_nose)
     return c[0]
@@ -167,6 +176,31 @@ def _rule_params(op, tool, iso):
         d = tool["diameter_mm"]
         out["stepover"] = min(teach["stepover"], c["ae_max_mm"] / d) if "ae_max_mm" in c else teach["stepover"]
     return out, "pass"
+
+
+def _fit_power(part, tool, iso, p):
+    """粗车参数按机床主电机降到 80% 以内（Kienzle，ADR-0059）：先降 vc、再降 f，都不低于样本下限；够不着就照原样，算的时候报出来"""
+    from analysis.cam import machines
+    from analysis.cam import power as PW
+
+    r = PW.row(part.get("kienzle")) if part.get("kienzle") else None
+    try:
+        m = machines.get(part["machine"])
+    except Exception:  # noqa: BLE001
+        return p, []
+    c = TL.cutting_for(tool, iso) or {}
+    if r is None or "power_kw" not in m or "eff" not in m or not c.get("vc_m_min") or not c.get("f_mm_rev"):
+        return p, []
+    k11, mc = float(r["kc11_mpa"]), float(r["mc"])
+    lim = 0.8 * m["power_kw"] * m["eff"]                       # 允许的切削功率
+    q = dict(p)
+    if PW.turning_kw(k11, mc, q["ap"], q["f"], q["vc"]) <= lim:
+        return p, []
+    q["vc"] = round(max(c["vc_m_min"]["min"], lim * 60000.0 / (k11 * q["ap"] * q["f"] ** (1 - mc))), 1)
+    if PW.turning_kw(k11, mc, q["ap"], q["f"], q["vc"]) > lim:
+        q["f"] = round(max(c["f_mm_rev"]["min"], (lim * 60000.0 / (k11 * q["ap"] * q["vc"])) ** (1 / (1 - mc))), 3)
+    return q, [(f"粗车：按 {m['name']} 主电机 {m['power_kw']:g} kW 的 80% 把 vc {p['vc']:g} → {q['vc']:g}、"
+                f"f {p['f']:g} → {q['f']:g}（不低于样本下限）")]
 
 
 def _check(op, tool, iso, p):
@@ -247,6 +281,10 @@ def draft(part: dict, iso: str, lib: dict | None = None, client=None, *, note: s
     """→ {"setup": 交给 analysis.cam.run 的设置, "card": [工序表], "notes": [...], "by", "explanation"}"""
     lib = lib or TL.load()
     ops = operations(part, lib)
+    for op in ops:                                     # 有这个材料组样本参数的刀优先（厂商库里同一类刀片按断屑槽分材料组）
+        has = [t for t in op["cands"] if any(c.get("iso_group") == iso for c in t.get("cutting") or [])]
+        op["cands"] = has or op["cands"]
+        op["iso"] = iso
     missing = [op["title"] for op in ops if not op["cands"]]
     if missing:
         raise ProcessError("刀具库里没有能用的刀：" + "、".join(missing) + "——先在刀具库里加刀")
@@ -283,6 +321,9 @@ def draft(part: dict, iso: str, lib: dict | None = None, client=None, *, note: s
             notes += n2
         elif status == "unknown":
             notes.append(f"{op['title']}：刀 {tool['id']} 的样本没有 {iso} 组的参数，用教学示意值，待确认")
+        if op["kind"] == "rough" and part["mode"] == "turn" and status == "pass" and a is None:   # AI 给的参数照用，算的时候查功率
+            params, n3 = _fit_power(part, tool, iso, params)
+            notes += n3
         by_op[op["id"]] = {"op": op, "tool": tool, "params": params, "status": status, "reason": reason}
     setup = _setup(part, by_op, tool_lengths or {}, notes)
     card = [{"id": v["op"]["id"], "title": v["op"]["title"], "tool": v["tool"]["id"], "tool_name": v["tool"].get("name", ""),
