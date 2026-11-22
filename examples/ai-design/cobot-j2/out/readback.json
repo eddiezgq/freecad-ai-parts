@@ -84,12 +84,12 @@
   {
    "segment": "内孔",
    "design": {
-    "diameter_mm": 41.0,
+    "diameter_mm": 39.0,
     "start_mm": 0.0,
     "length_mm": 100.0
    },
    "measured": {
-    "diameter_mm": 41.0,
+    "diameter_mm": 39.0,
     "length_mm": 100.0,
     "start_mm": 0.0
    },
@@ -104,14 +104,14 @@
  "problems": [],
  "measurement": {
   "file": "shaft.step",
-  "sha256": "b86b71e0c135486027e597c1f51c2bb64b6a446e1f735400495d9895860822d3",
+  "sha256": "b400e0309c5b5854f1b8280e78c43d866afb36bb4938678e5f8faa3501bb3143",
   "envelope_mm": {
    "length": 100.0,
    "width": 75.0,
    "height": 75.0
   },
-  "volume_mm3": 111501.1,
-  "mass_kg": 0.8753,
+  "volume_mm3": 124067.5,
+  "mass_kg": 0.9739,
   "material": "40Cr-QT",
   "density_kg_m3": 7850,
   "geometry_check": {
