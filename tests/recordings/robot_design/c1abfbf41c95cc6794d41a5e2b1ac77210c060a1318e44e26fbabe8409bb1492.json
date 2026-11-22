@@ -1,0 +1,58 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-design/1",
+  "request_key": "c1abfbf41c95cc6794d41a5e2b1ac77210c060a1318e44e26fbabe8409bb1492",
+  "response": {
+    "id": "msg_011ChJUFBt1p3xvXzJGhnPPa",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "dof": {
+        "quote": "5 轴",
+        "value": 5
+      },
+      "for_people": [
+        {
+          "quote": "学生能自己装拆"
+        },
+        {
+          "quote": "全部自制件能在普通数控车床、铣床上加工"
+        },
+        {
+          "quote": "外购件成本尽量低"
+        }
+      ],
+      "kind": "serial_arm",
+      "kind_quote": "教学用桌面机械臂",
+      "module_reuse": {
+        "quote": "同一种关节模组重复使用"
+      },
+      "mount": {
+        "quote": "装在桌面上",
+        "where": "桌面"
+      },
+      "payload": {
+        "quote": "末端负载 0.5 kg",
+        "unit": "kg",
+        "value": 0.5
+      },
+      "questions": [
+        "外购件成本“尽量低”没有给出具体预算或单价上限，是否有目标金额？",
+        "5 轴的具体构型（如腕部是俯仰+滚转还是其他）未说明，是否有偏好？",
+        "0.5 kg 负载是否包含夹爪/工具自重？",
+        "同一种关节模组要覆盖所有 5 个轴吗？腕部小关节是否允许用缩小版？"
+      ],
+      "reach": {
+        "quote": "臂展 350 mm（工具点在桌面高度上能到的最远水平距离）",
+        "unit": "mm",
+        "value": 350
+      },
+      "repeatability": {
+        "quote": "末端重复定位精度 ±0.5 mm",
+        "unit": "mm",
+        "value": 0.5
+      }
+    }
+  }
+}

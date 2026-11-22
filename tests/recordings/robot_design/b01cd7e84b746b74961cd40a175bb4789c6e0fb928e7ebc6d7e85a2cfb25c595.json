@@ -1,0 +1,207 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-design/1",
+  "request_key": "b01cd7e84b746b74961cd40a175bb4789c6e0fb928e7ebc6d7e85a2cfb25c595",
+  "response": {
+    "id": "msg_011ChJUFYdgeCQdEsuw92KVF",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "candidates": [
+        {
+          "base": {
+            "height_mm": 0,
+            "mount": "table"
+          },
+          "end_effector": {
+            "offset_mm": [
+              0,
+              0,
+              90
+            ],
+            "parent": "tool",
+            "type": "gripper"
+          },
+          "format": "robot-concept/1",
+          "joints": [
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "turret",
+              "id": "j1",
+              "module_group": "mod_large",
+              "origin_mm": [
+                0,
+                0,
+                0
+              ],
+              "parent": "base",
+              "range_deg": [
+                -170,
+                170
+              ],
+              "ratio": 50,
+              "transmission": "reducer",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                1,
+                0
+              ],
+              "child": "upper_arm",
+              "id": "j2",
+              "module_group": "mod_large",
+              "origin_mm": [
+                0,
+                0,
+                90
+              ],
+              "parent": "turret",
+              "range_deg": [
+                -30,
+                120
+              ],
+              "ratio": 50,
+              "transmission": "reducer",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                1,
+                0
+              ],
+              "child": "forearm",
+              "id": "j3",
+              "module_group": "mod_large",
+              "origin_mm": [
+                0,
+                0,
+                170
+              ],
+              "parent": "upper_arm",
+              "range_deg": [
+                15,
+                150
+              ],
+              "ratio": 50,
+              "transmission": "reducer",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                1,
+                0
+              ],
+              "child": "wrist",
+              "id": "j4",
+              "module_group": "mod_small",
+              "origin_mm": [
+                0,
+                0,
+                150
+              ],
+              "parent": "forearm",
+              "range_deg": [
+                -120,
+                120
+              ],
+              "ratio": 20,
+              "transmission": "reducer",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "tool",
+              "id": "j5",
+              "module_group": "mod_small",
+              "origin_mm": [
+                0,
+                0,
+                40
+              ],
+              "parent": "wrist",
+              "range_deg": [
+                -170,
+                170
+              ],
+              "ratio": 20,
+              "transmission": "reducer",
+              "type": "revolute"
+            }
+          ],
+          "kind": "serial_arm",
+          "links": [
+            {
+              "id": "turret",
+              "length_mm": 90,
+              "material": "6061-T6",
+              "section_mm": [
+                90,
+                90,
+                8
+              ],
+              "shape": "plate"
+            },
+            {
+              "id": "upper_arm",
+              "length_mm": 170,
+              "material": "6061-T6",
+              "section_mm": [
+                40,
+                3
+              ],
+              "shape": "tube"
+            },
+            {
+              "id": "forearm",
+              "length_mm": 150,
+              "material": "6061-T6",
+              "section_mm": [
+                34,
+                3
+              ],
+              "shape": "tube"
+            },
+            {
+              "id": "wrist",
+              "length_mm": 40,
+              "material": "6061-T6",
+              "section_mm": [
+                40,
+                40,
+                40
+              ],
+              "shape": "box"
+            },
+            {
+              "id": "tool",
+              "length_mm": 90,
+              "material": "6061-T6",
+              "section_mm": [
+                28,
+                3
+              ],
+              "shape": "tube"
+            }
+          ],
+          "name": "5R 立式关节臂（统一步进模组）",
+          "reason": "经典 5 转动关节：底座回转 + 肩/肘/腕三个俯仰 + 腕部滚转。结构简单，所有自制件都是管件、板件，用普通车铣床即可加工。零位姿态为整臂竖直向上。肩/肘/腕按 j1–j3 一组、j4–j5 一组选用两种规格的关节模组。"
+        }
+      ],
+      "reason": "我只提了一个构型。它的几何按臂展点核算过：肩高 90 mm，上臂 170 mm，前臂 150 mm，腕到工具尖 130 mm。工具水平指向 +x 时，j2 约 73°，j3 约 84°，j4 约 −67°，三者之和为 90°。肘部没有伸直，远离奇异位置，j3 行程下限取 15° 也避开了伸直点。这个构型有三点好处。一是全部自制件是铝管、板和方块，普通车床、铣床能加工，学生拆装方便。二是关节只用两种模组，j1–j3 为大号、j4–j5 为小号，同组减速比相同，外购件种类少、成本低。三是 0.5 kg 负载加上约 350 mm 的力臂，肩部静力矩很小，步进电机加减速器就够用。主要风险是 ±0.5 mm 的重复定位精度，换算到 350 mm 处约 0.08°。所以减速器必须选低回差的，肩、肘关节建议加机械零位挡块。我没有再给 SCARA 加丝杠的方案：它多一根丝杠，装拆和加工都更复杂，成本也更高。",
+      "recommend": 0
+    }
+  }
+}
