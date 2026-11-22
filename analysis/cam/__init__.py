@@ -531,7 +531,7 @@ def inner_tool_checks(setup, sc) -> list[dict]:
                 out.append({"line": None, "level": "error", "text": f"T{n} {t['id']} 是外圆刀，不能车{short}"})
         else:
             hd = ((setup.get("machine_sim") or {}).get("tools") or {}).get(str(n), {}).get("holder") or t.get("holder") or {}
-            for mb, who in ((t.get("min_bore_mm"), f"T{n} {t['id']}"), (hd.get("min_bore_mm"), f"T{n} 的镗杆 {hd.get('iso6261', '')}")):
+            for mb, who in ((t.get("min_bore_mm"), f"T{n} {t['id']}"), (hd.get("min_bore_mm"), f"T{n} 的镗杆 {hd.get('iso6261') or hd.get('vendor_code', '')}")):
                 if mb and dia < float(mb) - 1e-9:
                     out.append({"line": None, "level": "error", "text": f"{who} 最小能进 Ø{float(mb):g} 的孔，{what} Ø{dia:.3f} 进不去"})
     for n in (1, 2, 4):

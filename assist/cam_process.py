@@ -349,11 +349,13 @@ def turn_holder(tool, bore_d=None) -> dict | None:
     from analysis.cam import holders as HD
 
     h0 = tool.get("holder") or {}
-    if h0.get("iso5608") or h0.get("iso6261") or h0.get("profile_mm"):
+    if h0.get("iso5608") or h0.get("iso6261") or h0.get("vendor_code") or h0.get("profile_mm"):
         return None
     inner = bool(tool.get("internal")) or tool.get("kind") == "bore"
     iso = (tool.get("insert") or {}).get("iso") or ""
-    if inner and tool.get("kind") in ("bore", "turn") and bore_d:
+    if inner and tool.get("kind") == "thread_turn" and bore_d:   # 内螺纹刀片配螺纹镗杆（ADR-0115）
+        h = HD.pick_thread_bar(iso, float(bore_d))
+    elif inner and tool.get("kind") in ("bore", "turn") and bore_d:
         h = HD.pick(iso, bore_d=float(bore_d))
     elif not inner and tool.get("kind") == "turn":
         h = HD.pick(iso)
@@ -374,7 +376,8 @@ def _setup(part, by_op, lengths, notes):
         hd = turn_holder(tool, bore_d)
         if hd:
             e["holder"] = hd
-            notes.append(f"T{n}（{tool['id']}）没写刀杆，按刀片配 {hd.get('iso5608') or hd.get('iso6261')}（刀杆库，起草配的，ADR-0112）")
+            notes.append(f"T{n}（{tool['id']}）没写刀杆，按刀片配 {hd.get('iso5608') or hd.get('iso6261') or hd.get('vendor_code')}"
+                         "（刀杆库，起草配的，ADR-0112）")
         elif bore_d and not (tool.get("holder") or {}) and (tool.get("insert") or {}).get("iso"):
             notes.append(f"T{n}（{tool['id']}）：刀杆库里没有能进 Ø{float(bore_d):g} 孔的镗杆，镗杆没配（ADR-0114）")
         mtools[str(n)] = e

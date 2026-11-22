@@ -55,13 +55,17 @@ def parse6261(code: str) -> dict:
 def boxes(holder: dict) -> tuple[list[list[float]], list[str]]:
     """刀具库里的 holder（iso5608、f_mm）→ 刀尖坐标系里的长方体 [[x0, y0, z0, x1, y1, z1], …] 与说明（查不了的部分）。
     镗杆（iso6261，ADR-0114）：圆杆沿 +Z 从刀头到全长，轴线在刀尖往里 f 处，按外接方柱查"""
-    if holder.get("iso6261"):
-        p6 = parse6261(holder["iso6261"])
+    if holder.get("iso6261") or holder.get("vendor_code"):
+        if holder.get("iso6261"):
+            p6 = parse6261(holder["iso6261"])
+        else:                                                    # 厂家代号（ADR-0115）：杆径、全长、刀头长照刀杆库
+            p6 = {"code": holder["vendor_code"], "bar_d_mm": holder.get("bar_d_mm"), "edge_mm": holder.get("head_mm") or 0.0,
+                  "length_letter": None}
         f, bd = holder.get("f_mm"), float(holder.get("bar_d_mm") or p6["bar_d_mm"])
         if f is None:
             return [], [f"镗杆 {p6['code']} 没写刀尖到杆轴线的距离 f，镗杆没查"]
         head = float(holder.get("head_mm") or p6["edge_mm"])
-        l1 = holder.get("l1_mm") or LENGTH.get(p6["length_letter"])
+        l1 = holder.get("l1_mm") or LENGTH.get(p6["length_letter"] or "")
         if l1 is None:
             return [], [f"镗杆 {p6['code']}：长度字母 {p6['length_letter']} 不在长度表里，镗杆没查"]
         r, f = bd / 2.0, float(f)
@@ -125,7 +129,8 @@ def pick(insert_iso: str, hand: str = "R", cats: list[dict] | None = None, bore_
         return h["iso5608"] if use == "external" else h["iso6261"].split("-", 1)[1]
 
     cands = [h for c in (catalogs() if cats is None else cats) for h in c["holders"]
-             if h.get("use") == use and key[0] in h["insert"]["codes"] and h["insert"]["size"] == key[1] and code(h)[4] == hand
+             if h.get("use") == use and h.get("iso5608" if use == "external" else "iso6261")
+             and key[0] in h["insert"].get("codes", []) and h["insert"].get("size") == key[1] and code(h)[4] == hand
              and (use == "external" or h["min_bore_mm"] <= bore_d + 1e-9)]
     if not cands:
         return None
@@ -136,7 +141,34 @@ def pick(insert_iso: str, hand: str = "R", cats: list[dict] | None = None, bore_
 
 def as_tool_holder(h: dict) -> dict:
     """刀杆库的一条 → 刀具的 holder（cam-tool/1）"""
+    if h.get("use") == "internal" and h.get("vendor_code"):
+        return {"id": h["id"], "vendor_code": h["vendor_code"], "f_mm": h["f_mm"], "bar_d_mm": h["bar_d_mm"], "l1_mm": h["l1_mm"],
+                "min_bore_mm": h["min_bore_mm"], **({"head_mm": h["head_mm"]} if "head_mm" in h else {})}
     if h.get("use") == "internal":
         return {"id": h["id"], "iso6261": h["iso6261"], "f_mm": h["f_mm"], "bar_d_mm": h["bar_d_mm"], "min_bore_mm": h["min_bore_mm"],
                 **({"head_mm": h["head_mm"]} if "head_mm" in h else {})}
     return {"id": h["id"], "iso5608": h["iso5608"], "f_mm": h["f_mm"], **({"head_mm": h["head_mm"]} if "head_mm" in h else {})}
+
+
+def thread_size(insert_iso: str) -> str | None:
+    """平装螺纹刀片的尺寸位：16IR15ISO → "16"，06IR10ISO → "06"（ADR-0115）"""
+    m = re.match(r"^(\d{2})[EI][RL]", (insert_iso or "").strip().upper())
+    return m.group(1) if m else None
+
+
+def pick_thread_bar(insert_iso: str, bore_d: float, cats: list[dict] | None = None) -> dict | None:
+    """内螺纹刀片配螺纹镗杆（ADR-0115）：刀片尺寸位对上、手向对上（IR → 右手杆）、最小孔径 ≤ 孔径（小径），取杆最粗的"""
+    ts = thread_size(insert_iso)
+    if ts is None:
+        return None
+    hand = (insert_iso.strip().upper()[3] if len(insert_iso) > 3 else "R")
+    cands = [h for c in (catalogs() if cats is None else cats) for h in c["holders"]
+             if h.get("use") == "internal" and h["insert"].get("thread_size") == ts and h["min_bore_mm"] <= bore_d + 1e-9
+             and _bar_hand(h) == hand]
+    return min(cands, key=lambda h: (-h["bar_d_mm"], h["id"])) if cands else None
+
+
+def _bar_hand(h: dict) -> str:
+    code = h.get("vendor_code") or h.get("iso6261", "")
+    m = re.match(r"^[A-Z]*?([RL])\d", code.split("-", 1)[1] if h.get("iso6261") else code)
+    return m.group(1) if m else "R"

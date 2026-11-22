@@ -23,6 +23,9 @@
 ISO 6261 代号（R/L 拆开）、杆径 DCONMS、最小孔径 DMIN、刀尖到杆轴线 WF、全长 LF、刀头长 LH、能装的刀片、标准刀尖圆弧 RE；
 刀片尺寸位带字母的（如 09T3）、代号里的杆径与 DCONMS 对不上的不收；页码按样本印的 D 页。
 
+螺纹镗杆（ADR-0115，E 部分）：表头带 DMIN DCONMS WF LF LH 的页里“代号 DMIN DCONMS WF LF LH … nnIR…”的行，代号是厂家写法（vendor_code，R/L 拆开），
+按螺纹刀片尺寸位（行尾 nnIR 的 nn）配。
+
 命令：python -m ingest.cam_tungaloy data/raw/cam/tungaloy --out analysis/cam/libraries/tungaloy.json \
       --holders-out analysis/cam/libraries/tungaloy-holders.json
 """
@@ -71,6 +74,9 @@ BAR_PDF = "GC_2020-2021_CN_D_Int.Turning.pdf"
 BAR_HEAD = re.compile(r"DMIN\s+DCONMS\s+WF\s+LF\s+LH")
 BAR_ROW = re.compile(r"\b([A-Z]\d{2}[A-Z])-([A-Z]{4})(R/L|R|L)(\d{2}(?:\d{2})?(?:-[A-Z0-9]+)?)\s+" + r"\s+".join([_N] * 5)
                      + r"[^\n]*?\s(\d+(?:\.\d+)?)\s+([A-Z]{2}(?:/[A-Z]{2})*)\*\*(\d{4})")
+
+
+TBAR_ROW = re.compile(r"\b([A-Z]{2,5})(R/L|R|L)(\d{3,4}[A-Z]\d{2}[A-Z0-9-]*)\s+" + r"\s+".join([_N] * 5) + r"[^\n]*?\s(\d{2})I[RL]")
 
 
 class TungaloyError(ValueError):
@@ -221,6 +227,35 @@ def build_bars(raw: Path) -> list[dict]:
     return out
 
 
+def thread_bar_rows(text: str) -> list[dict]:
+    if "DMIN" not in text:
+        return []
+    out = []
+    for m in TBAR_ROW.finditer(text):
+        g = m.groups()
+        out.append({"head": g[0], "hands": ["R", "L"] if g[1] == "R/L" else [g[1]], "rest": g[2], "dmin": float(g[3]),
+                    "dcon": float(g[4]), "wf": float(g[5]), "lf": float(g[6]), "lh": float(g[7]), "ts": g[8]})
+    return out
+
+
+def build_thread_bars(raw: Path) -> list[dict]:
+    pdf = raw / THREAD_PDF
+    if not pdf.exists():
+        return []
+    out, seen = [], set()
+    for page in range(1, page_count(pdf) + 1):
+        for r in thread_bar_rows(page_text(pdf, page)):
+            for hand in r["hands"]:
+                code = f"{r['head']}{hand}{r['rest']}"
+                if code in seen:
+                    continue
+                seen.add(code)
+                out.append({"id": "TG-" + code, "name": f"泰珂洛 {code} 螺纹镗杆", "vendor_code": code, "use": "internal",
+                            "insert": {"thread_size": r["ts"]}, "f_mm": r["wf"], "l1_mm": r["lf"], "head_mm": r["lh"],
+                            "bar_d_mm": r["dcon"], "min_bore_mm": r["dmin"], "source": {"kind": "catalog", "ref": SOURCE, "page": f"E{page:03d}"}})
+    return out
+
+
 def build_holders(raw: Path) -> dict:
     from analysis.cam import holders as HD
 
@@ -250,7 +285,7 @@ def build_holders(raw: Path) -> dict:
         raise TungaloyError("刀杆表读不出来")
     if skipped:
         print("代号与表对不上、没收：" + "；".join(skipped), file=sys.stderr)
-    out += build_bars(raw)
+    out += build_bars(raw) + build_thread_bars(raw)
     return {"format": "cam-holder/1", "name": "泰珂洛 外圆车刀杆、内孔镗杆（样本参数）", "holders": out}
 
 

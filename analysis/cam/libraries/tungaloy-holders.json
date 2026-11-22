@@ -18361,6 +18361,861 @@
     "ref": "tungaloy",
     "page": "D090"
    }
+  },
+  {
+   "id": "TG-SIR0005H06",
+   "name": "泰珂洛 SIR0005H06 螺纹镗杆",
+   "vendor_code": "SIR0005H06",
+   "use": "internal",
+   "insert": {
+    "thread_size": "06"
+   },
+   "f_mm": 4.3,
+   "l1_mm": 100.0,
+   "head_mm": 12.0,
+   "bar_d_mm": 12.0,
+   "min_bore_mm": 6.4,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E054"
+   }
+  },
+  {
+   "id": "TG-SIR0007K08",
+   "name": "泰珂洛 SIR0007K08 螺纹镗杆",
+   "vendor_code": "SIR0007K08",
+   "use": "internal",
+   "insert": {
+    "thread_size": "08"
+   },
+   "f_mm": 5.3,
+   "l1_mm": 125.0,
+   "head_mm": 18.0,
+   "bar_d_mm": 16.0,
+   "min_bore_mm": 8.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E054"
+   }
+  },
+  {
+   "id": "TG-SIR0005H06CB",
+   "name": "泰珂洛 SIR0005H06CB 螺纹镗杆",
+   "vendor_code": "SIR0005H06CB",
+   "use": "internal",
+   "insert": {
+    "thread_size": "06"
+   },
+   "f_mm": 4.3,
+   "l1_mm": 100.0,
+   "head_mm": 25.0,
+   "bar_d_mm": 6.0,
+   "min_bore_mm": 6.4,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E054"
+   }
+  },
+  {
+   "id": "TG-SIR0007K08CB",
+   "name": "泰珂洛 SIR0007K08CB 螺纹镗杆",
+   "vendor_code": "SIR0007K08CB",
+   "use": "internal",
+   "insert": {
+    "thread_size": "08"
+   },
+   "f_mm": 5.3,
+   "l1_mm": 125.0,
+   "head_mm": 30.0,
+   "bar_d_mm": 8.0,
+   "min_bore_mm": 7.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E054"
+   }
+  },
+  {
+   "id": "TG-TSNR0016Q16",
+   "name": "泰珂洛 TSNR0016Q16 螺纹镗杆",
+   "vendor_code": "TSNR0016Q16",
+   "use": "internal",
+   "insert": {
+    "thread_size": "16"
+   },
+   "f_mm": 10.6,
+   "l1_mm": 180.0,
+   "head_mm": 40.0,
+   "bar_d_mm": 16.0,
+   "min_bore_mm": 19.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-TSNR0020R22",
+   "name": "泰珂洛 TSNR0020R22 螺纹镗杆",
+   "vendor_code": "TSNR0020R22",
+   "use": "internal",
+   "insert": {
+    "thread_size": "22"
+   },
+   "f_mm": 13.9,
+   "l1_mm": 200.0,
+   "head_mm": 50.0,
+   "bar_d_mm": 20.0,
+   "min_bore_mm": 24.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0010K11",
+   "name": "泰珂洛 SNR0010K11 螺纹镗杆",
+   "vendor_code": "SNR0010K11",
+   "use": "internal",
+   "insert": {
+    "thread_size": "11"
+   },
+   "f_mm": 6.6,
+   "l1_mm": 125.0,
+   "head_mm": 25.0,
+   "bar_d_mm": 16.0,
+   "min_bore_mm": 12.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNL0010K11",
+   "name": "泰珂洛 SNL0010K11 螺纹镗杆",
+   "vendor_code": "SNL0010K11",
+   "use": "internal",
+   "insert": {
+    "thread_size": "11"
+   },
+   "f_mm": 6.6,
+   "l1_mm": 125.0,
+   "head_mm": 25.0,
+   "bar_d_mm": 16.0,
+   "min_bore_mm": 12.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0010K11-2",
+   "name": "泰珂洛 SNR0010K11-2 螺纹镗杆",
+   "vendor_code": "SNR0010K11-2",
+   "use": "internal",
+   "insert": {
+    "thread_size": "11"
+   },
+   "f_mm": 6.6,
+   "l1_mm": 125.0,
+   "head_mm": 25.0,
+   "bar_d_mm": 16.0,
+   "min_bore_mm": 12.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0010K11-3",
+   "name": "泰珂洛 SNR0010K11-3 螺纹镗杆",
+   "vendor_code": "SNR0010K11-3",
+   "use": "internal",
+   "insert": {
+    "thread_size": "11"
+   },
+   "f_mm": 6.6,
+   "l1_mm": 125.0,
+   "head_mm": 25.0,
+   "bar_d_mm": 16.0,
+   "min_bore_mm": 12.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0013L11",
+   "name": "泰珂洛 SNR0013L11 螺纹镗杆",
+   "vendor_code": "SNR0013L11",
+   "use": "internal",
+   "insert": {
+    "thread_size": "11"
+   },
+   "f_mm": 8.2,
+   "l1_mm": 140.0,
+   "head_mm": 32.5,
+   "bar_d_mm": 16.0,
+   "min_bore_mm": 15.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNL0013L11",
+   "name": "泰珂洛 SNL0013L11 螺纹镗杆",
+   "vendor_code": "SNL0013L11",
+   "use": "internal",
+   "insert": {
+    "thread_size": "11"
+   },
+   "f_mm": 8.2,
+   "l1_mm": 140.0,
+   "head_mm": 32.5,
+   "bar_d_mm": 16.0,
+   "min_bore_mm": 15.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0013L11-2",
+   "name": "泰珂洛 SNR0013L11-2 螺纹镗杆",
+   "vendor_code": "SNR0013L11-2",
+   "use": "internal",
+   "insert": {
+    "thread_size": "11"
+   },
+   "f_mm": 8.2,
+   "l1_mm": 140.0,
+   "head_mm": 32.5,
+   "bar_d_mm": 16.0,
+   "min_bore_mm": 15.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0013L11-3",
+   "name": "泰珂洛 SNR0013L11-3 螺纹镗杆",
+   "vendor_code": "SNR0013L11-3",
+   "use": "internal",
+   "insert": {
+    "thread_size": "11"
+   },
+   "f_mm": 8.2,
+   "l1_mm": 140.0,
+   "head_mm": 32.5,
+   "bar_d_mm": 16.0,
+   "min_bore_mm": 15.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0016M16",
+   "name": "泰珂洛 SNR0016M16 螺纹镗杆",
+   "vendor_code": "SNR0016M16",
+   "use": "internal",
+   "insert": {
+    "thread_size": "16"
+   },
+   "f_mm": 10.6,
+   "l1_mm": 150.0,
+   "head_mm": 40.0,
+   "bar_d_mm": 16.0,
+   "min_bore_mm": 19.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNL0016M16",
+   "name": "泰珂洛 SNL0016M16 螺纹镗杆",
+   "vendor_code": "SNL0016M16",
+   "use": "internal",
+   "insert": {
+    "thread_size": "16"
+   },
+   "f_mm": 10.6,
+   "l1_mm": 150.0,
+   "head_mm": 40.0,
+   "bar_d_mm": 16.0,
+   "min_bore_mm": 19.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0016M16-2",
+   "name": "泰珂洛 SNR0016M16-2 螺纹镗杆",
+   "vendor_code": "SNR0016M16-2",
+   "use": "internal",
+   "insert": {
+    "thread_size": "16"
+   },
+   "f_mm": 10.6,
+   "l1_mm": 150.0,
+   "head_mm": 40.0,
+   "bar_d_mm": 16.0,
+   "min_bore_mm": 19.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0016M16-3",
+   "name": "泰珂洛 SNR0016M16-3 螺纹镗杆",
+   "vendor_code": "SNR0016M16-3",
+   "use": "internal",
+   "insert": {
+    "thread_size": "16"
+   },
+   "f_mm": 10.6,
+   "l1_mm": 150.0,
+   "head_mm": 40.0,
+   "bar_d_mm": 16.0,
+   "min_bore_mm": 19.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0020Q22",
+   "name": "泰珂洛 SNR0020Q22 螺纹镗杆",
+   "vendor_code": "SNR0020Q22",
+   "use": "internal",
+   "insert": {
+    "thread_size": "22"
+   },
+   "f_mm": 13.9,
+   "l1_mm": 180.0,
+   "head_mm": 50.0,
+   "bar_d_mm": 20.0,
+   "min_bore_mm": 24.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNL0020Q22",
+   "name": "泰珂洛 SNL0020Q22 螺纹镗杆",
+   "vendor_code": "SNL0020Q22",
+   "use": "internal",
+   "insert": {
+    "thread_size": "22"
+   },
+   "f_mm": 13.9,
+   "l1_mm": 180.0,
+   "head_mm": 50.0,
+   "bar_d_mm": 20.0,
+   "min_bore_mm": 24.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0020Q22-2",
+   "name": "泰珂洛 SNR0020Q22-2 螺纹镗杆",
+   "vendor_code": "SNR0020Q22-2",
+   "use": "internal",
+   "insert": {
+    "thread_size": "22"
+   },
+   "f_mm": 13.9,
+   "l1_mm": 180.0,
+   "head_mm": 50.0,
+   "bar_d_mm": 20.0,
+   "min_bore_mm": 24.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0020Q22-3",
+   "name": "泰珂洛 SNR0020Q22-3 螺纹镗杆",
+   "vendor_code": "SNR0020Q22-3",
+   "use": "internal",
+   "insert": {
+    "thread_size": "22"
+   },
+   "f_mm": 13.9,
+   "l1_mm": 180.0,
+   "head_mm": 50.0,
+   "bar_d_mm": 20.0,
+   "min_bore_mm": 24.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0010M11SC",
+   "name": "泰珂洛 SNR0010M11SC 螺纹镗杆",
+   "vendor_code": "SNR0010M11SC",
+   "use": "internal",
+   "insert": {
+    "thread_size": "11"
+   },
+   "f_mm": 7.4,
+   "l1_mm": 150.0,
+   "head_mm": 24.0,
+   "bar_d_mm": 10.0,
+   "min_bore_mm": 13.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0010M11SC-2",
+   "name": "泰珂洛 SNR0010M11SC-2 螺纹镗杆",
+   "vendor_code": "SNR0010M11SC-2",
+   "use": "internal",
+   "insert": {
+    "thread_size": "11"
+   },
+   "f_mm": 7.4,
+   "l1_mm": 150.0,
+   "head_mm": 24.0,
+   "bar_d_mm": 10.0,
+   "min_bore_mm": 13.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0010M11SC-3",
+   "name": "泰珂洛 SNR0010M11SC-3 螺纹镗杆",
+   "vendor_code": "SNR0010M11SC-3",
+   "use": "internal",
+   "insert": {
+    "thread_size": "11"
+   },
+   "f_mm": 7.4,
+   "l1_mm": 150.0,
+   "head_mm": 24.0,
+   "bar_d_mm": 10.0,
+   "min_bore_mm": 13.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0012P11SC",
+   "name": "泰珂洛 SNR0012P11SC 螺纹镗杆",
+   "vendor_code": "SNR0012P11SC",
+   "use": "internal",
+   "insert": {
+    "thread_size": "11"
+   },
+   "f_mm": 8.5,
+   "l1_mm": 170.0,
+   "head_mm": 28.0,
+   "bar_d_mm": 12.0,
+   "min_bore_mm": 15.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0012P11SC-2",
+   "name": "泰珂洛 SNR0012P11SC-2 螺纹镗杆",
+   "vendor_code": "SNR0012P11SC-2",
+   "use": "internal",
+   "insert": {
+    "thread_size": "11"
+   },
+   "f_mm": 8.5,
+   "l1_mm": 170.0,
+   "head_mm": 28.0,
+   "bar_d_mm": 12.0,
+   "min_bore_mm": 15.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0012P11SC-3",
+   "name": "泰珂洛 SNR0012P11SC-3 螺纹镗杆",
+   "vendor_code": "SNR0012P11SC-3",
+   "use": "internal",
+   "insert": {
+    "thread_size": "11"
+   },
+   "f_mm": 8.5,
+   "l1_mm": 170.0,
+   "head_mm": 28.0,
+   "bar_d_mm": 12.0,
+   "min_bore_mm": 15.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0016R16SC",
+   "name": "泰珂洛 SNR0016R16SC 螺纹镗杆",
+   "vendor_code": "SNR0016R16SC",
+   "use": "internal",
+   "insert": {
+    "thread_size": "16"
+   },
+   "f_mm": 11.9,
+   "l1_mm": 200.0,
+   "head_mm": 35.0,
+   "bar_d_mm": 16.0,
+   "min_bore_mm": 20.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNL0016R16SC",
+   "name": "泰珂洛 SNL0016R16SC 螺纹镗杆",
+   "vendor_code": "SNL0016R16SC",
+   "use": "internal",
+   "insert": {
+    "thread_size": "16"
+   },
+   "f_mm": 11.9,
+   "l1_mm": 200.0,
+   "head_mm": 35.0,
+   "bar_d_mm": 16.0,
+   "min_bore_mm": 20.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-SNR0016R16SC-2",
+   "name": "泰珂洛 SNR0016R16SC-2 螺纹镗杆",
+   "vendor_code": "SNR0016R16SC-2",
+   "use": "internal",
+   "insert": {
+    "thread_size": "16"
+   },
+   "f_mm": 11.9,
+   "l1_mm": 200.0,
+   "head_mm": 35.0,
+   "bar_d_mm": 16.0,
+   "min_bore_mm": 20.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E055"
+   }
+  },
+  {
+   "id": "TG-TCNR0020R16DT",
+   "name": "泰珂洛 TCNR0020R16DT 螺纹镗杆",
+   "vendor_code": "TCNR0020R16DT",
+   "use": "internal",
+   "insert": {
+    "thread_size": "16"
+   },
+   "f_mm": 14.0,
+   "l1_mm": 200.0,
+   "head_mm": 30.0,
+   "bar_d_mm": 20.0,
+   "min_bore_mm": 24.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E056"
+   }
+  },
+  {
+   "id": "TG-TCNR0025S16DT",
+   "name": "泰珂洛 TCNR0025S16DT 螺纹镗杆",
+   "vendor_code": "TCNR0025S16DT",
+   "use": "internal",
+   "insert": {
+    "thread_size": "16"
+   },
+   "f_mm": 16.5,
+   "l1_mm": 250.0,
+   "head_mm": 38.0,
+   "bar_d_mm": 25.0,
+   "min_bore_mm": 29.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E056"
+   }
+  },
+  {
+   "id": "TG-TCNR0025S22DT",
+   "name": "泰珂洛 TCNR0025S22DT 螺纹镗杆",
+   "vendor_code": "TCNR0025S22DT",
+   "use": "internal",
+   "insert": {
+    "thread_size": "22"
+   },
+   "f_mm": 18.2,
+   "l1_mm": 250.0,
+   "head_mm": 38.0,
+   "bar_d_mm": 25.0,
+   "min_bore_mm": 30.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E056"
+   }
+  },
+  {
+   "id": "TG-CNR0020P16",
+   "name": "泰珂洛 CNR0020P16 螺纹镗杆",
+   "vendor_code": "CNR0020P16",
+   "use": "internal",
+   "insert": {
+    "thread_size": "16"
+   },
+   "f_mm": 14.0,
+   "l1_mm": 170.0,
+   "head_mm": 30.0,
+   "bar_d_mm": 20.0,
+   "min_bore_mm": 24.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E056"
+   }
+  },
+  {
+   "id": "TG-CNL0020P16",
+   "name": "泰珂洛 CNL0020P16 螺纹镗杆",
+   "vendor_code": "CNL0020P16",
+   "use": "internal",
+   "insert": {
+    "thread_size": "16"
+   },
+   "f_mm": 14.0,
+   "l1_mm": 170.0,
+   "head_mm": 30.0,
+   "bar_d_mm": 20.0,
+   "min_bore_mm": 24.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E056"
+   }
+  },
+  {
+   "id": "TG-CNR0025R16",
+   "name": "泰珂洛 CNR0025R16 螺纹镗杆",
+   "vendor_code": "CNR0025R16",
+   "use": "internal",
+   "insert": {
+    "thread_size": "16"
+   },
+   "f_mm": 16.5,
+   "l1_mm": 200.0,
+   "head_mm": 38.0,
+   "bar_d_mm": 25.0,
+   "min_bore_mm": 29.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E056"
+   }
+  },
+  {
+   "id": "TG-CNL0025R16",
+   "name": "泰珂洛 CNL0025R16 螺纹镗杆",
+   "vendor_code": "CNL0025R16",
+   "use": "internal",
+   "insert": {
+    "thread_size": "16"
+   },
+   "f_mm": 16.5,
+   "l1_mm": 200.0,
+   "head_mm": 38.0,
+   "bar_d_mm": 25.0,
+   "min_bore_mm": 29.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E056"
+   }
+  },
+  {
+   "id": "TG-CNR0032S16",
+   "name": "泰珂洛 CNR0032S16 螺纹镗杆",
+   "vendor_code": "CNR0032S16",
+   "use": "internal",
+   "insert": {
+    "thread_size": "16"
+   },
+   "f_mm": 20.1,
+   "l1_mm": 250.0,
+   "head_mm": 48.0,
+   "bar_d_mm": 32.0,
+   "min_bore_mm": 37.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E056"
+   }
+  },
+  {
+   "id": "TG-CNL0032S16",
+   "name": "泰珂洛 CNL0032S16 螺纹镗杆",
+   "vendor_code": "CNL0032S16",
+   "use": "internal",
+   "insert": {
+    "thread_size": "16"
+   },
+   "f_mm": 20.1,
+   "l1_mm": 250.0,
+   "head_mm": 48.0,
+   "bar_d_mm": 32.0,
+   "min_bore_mm": 37.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E056"
+   }
+  },
+  {
+   "id": "TG-CNR0025R22",
+   "name": "泰珂洛 CNR0025R22 螺纹镗杆",
+   "vendor_code": "CNR0025R22",
+   "use": "internal",
+   "insert": {
+    "thread_size": "22"
+   },
+   "f_mm": 18.2,
+   "l1_mm": 200.0,
+   "head_mm": 38.0,
+   "bar_d_mm": 25.0,
+   "min_bore_mm": 30.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E056"
+   }
+  },
+  {
+   "id": "TG-CNL0025R22",
+   "name": "泰珂洛 CNL0025R22 螺纹镗杆",
+   "vendor_code": "CNL0025R22",
+   "use": "internal",
+   "insert": {
+    "thread_size": "22"
+   },
+   "f_mm": 18.2,
+   "l1_mm": 200.0,
+   "head_mm": 38.0,
+   "bar_d_mm": 25.0,
+   "min_bore_mm": 30.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E056"
+   }
+  },
+  {
+   "id": "TG-CNR0032S22",
+   "name": "泰珂洛 CNR0032S22 螺纹镗杆",
+   "vendor_code": "CNR0032S22",
+   "use": "internal",
+   "insert": {
+    "thread_size": "22"
+   },
+   "f_mm": 21.9,
+   "l1_mm": 250.0,
+   "head_mm": 48.0,
+   "bar_d_mm": 32.0,
+   "min_bore_mm": 38.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E056"
+   }
+  },
+  {
+   "id": "TG-CNL0032S22",
+   "name": "泰珂洛 CNL0032S22 螺纹镗杆",
+   "vendor_code": "CNL0032S22",
+   "use": "internal",
+   "insert": {
+    "thread_size": "22"
+   },
+   "f_mm": 21.9,
+   "l1_mm": 250.0,
+   "head_mm": 48.0,
+   "bar_d_mm": 32.0,
+   "min_bore_mm": 38.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E056"
+   }
+  },
+  {
+   "id": "TG-CNR0040T27",
+   "name": "泰珂洛 CNR0040T27 螺纹镗杆",
+   "vendor_code": "CNR0040T27",
+   "use": "internal",
+   "insert": {
+    "thread_size": "27"
+   },
+   "f_mm": 26.9,
+   "l1_mm": 300.0,
+   "head_mm": 60.0,
+   "bar_d_mm": 40.0,
+   "min_bore_mm": 46.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "E056"
+   }
   }
  ]
 }
