@@ -22,6 +22,7 @@
 | `fea-study.schema.json` | 有限元算例：实体与材料、支承与载荷、分析步、网格、可信度核查、起草来源；见 [ADR-0093](../docs/adr/0093-fea-industrial.md) | M37 F1 |
 | `mbd-model.schema.json` | 多体动力学模型：构件、运动副、驱动、力元、测量、分析；见 [ADR-0097](../docs/adr/0097-mbd-industrial.md) | M39 D1 |
 | `cam-machine.schema.json` | 数控机床模型：轴链、回转中心、行程、数控系统与功能、碰撞部件；后处理与整机仿真共用；见 [ADR-0105](../docs/adr/0105-cam-machine-and-tool-formats.md) | M43 |
+| `robot-concept.schema.json` | 整机方案：还没选件的机器人构型（杆件、关节树、传动、末端、典型动作、要够得着的点）；见 [ADR-0116](../docs/adr/0116-robot-concept-format.md) | M44 |
 | `cam-tool.schema.json` | 刀具库：刀具几何、刀柄外形、刀片、推荐切削参数与出处；见 ADR-0105 | M43 |
 
 ## 约定
