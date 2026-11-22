@@ -44,6 +44,12 @@ def spline(seat: float) -> dict:
     return {"module_mm": m, "z": z, "d_mm": m * z, "D_ee_mm": m * (z + 1), "D_ie_mm": m * (z - 1.5)}
 
 
+def thread_minor(d: float) -> float:
+    """圆螺母螺纹的基本小径 d1 = d − 1.0825·P（GB/T 196）"""
+    ln = rules()["lock_nut"]
+    return round(d - ln["minor_factor"] * ln["pitch_mm"], 3)
+
+
 def thread(seat: float) -> float | None:
     """圆螺母螺纹（大径）：比花键小径小 0.5 mm 以上的最大一档；没有就 None"""
     ok = [t for t in rules()["lock_nut"]["threads_mm"] if t < spline(seat)["D_ie_mm"] - 0.5]
@@ -127,8 +133,9 @@ def evaluate(proposal, cond: dict, get: Callable[[str], dict | None], *, kt: Cal
     items.append(_item("两个轴承从大臂一端装入（花键大径 < 轴承内径）", "pass" if ok else "fail", sp["D_ee_mm"], f"< {seat:g}"))
     items.append(_item("锁紧圆螺母螺纹", "pass" if th is not None else "fail", th, None,
                        "" if th is not None else "规则表里没有比花键小径小的螺纹"))
-    thinnest = min(s["d"] for s in segs)
-    items.append(_item("内孔小于最细的一段", "pass" if bore < thinnest - 1e-9 else "fail", bore, f"< {thinnest:g}"))
+    # 螺纹段按小径比（2026-11-19 关节轴录制时发现按公称直径比偏松）
+    thinnest = min(thread_minor(s["d"]) if s["name"].startswith("螺纹段") else s["d"] for s in segs)
+    items.append(_item("内孔小于最细的一段（螺纹按小径，GB/T 196）", "pass" if bore < thinnest - 1e-9 else "fail", bore, f"< {thinnest:g}"))
     if bore >= thinnest - 1e-9:
         return {"segments": segs, "items": items, "overall": "fail"}
 
