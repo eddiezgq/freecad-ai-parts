@@ -331,6 +331,16 @@ def draft(part: dict, iso: str, lib: dict | None = None, client=None, *, note: s
     return {"setup": setup, "card": card, "notes": notes, "by": by, "explanation": explanation, "iso_group": iso}
 
 
+def turn_holder(tool) -> dict | None:
+    """外圆车刀没写刀杆：按刀片代号从刀杆库配一把（ADR-0112）；铣刀、切槽刀、螺纹刀、镗刀不配"""
+    from analysis.cam import holders as HD
+
+    if tool.get("kind") != "turn" or (tool.get("holder") or {}).get("iso5608"):
+        return None
+    h = HD.pick((tool.get("insert") or {}).get("iso") or "")
+    return HD.as_tool_holder(h) if h else None
+
+
 def _setup(part, by_op, lengths, notes):
     s = copy.deepcopy(part)
     ms = s.setdefault("machine_sim", {})
@@ -340,6 +350,10 @@ def _setup(part, by_op, lengths, notes):
         e = {"tool": tool["id"]}
         if tool["id"] in lengths:
             e["length_mm"] = float(lengths[tool["id"]])
+        hd = turn_holder(tool)
+        if hd:
+            e["holder"] = hd
+            notes.append(f"T{n}（{tool['id']}）没写刀杆，按刀片配 {hd['iso5608']}（刀杆库，起草配的，ADR-0112）")
         mtools[str(n)] = e
 
     if part["mode"] == "turn":

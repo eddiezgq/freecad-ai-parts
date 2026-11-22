@@ -1,0 +1,7050 @@
+{
+ "format": "cam-holder/1",
+ "name": "泰珂洛 外圆车刀杆（样本参数）",
+ "holders": [
+  {
+   "id": "TG-ACLNR2020K0904-A",
+   "name": "泰珂洛 ACLNR2020K0904-A 外圆车刀杆",
+   "iso5608": "ACLNR2020K0904-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0904"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 25.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C002"
+   }
+  },
+  {
+   "id": "TG-ACLNL2020K0904-A",
+   "name": "泰珂洛 ACLNL2020K0904-A 外圆车刀杆",
+   "iso5608": "ACLNL2020K0904-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0904"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 25.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C002"
+   }
+  },
+  {
+   "id": "TG-PCLNR2020K0904",
+   "name": "泰珂洛 PCLNR2020K0904 外圆车刀杆",
+   "iso5608": "PCLNR2020K0904",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0904"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 20.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C002"
+   }
+  },
+  {
+   "id": "TG-PCLNL2020K0904",
+   "name": "泰珂洛 PCLNL2020K0904 外圆车刀杆",
+   "iso5608": "PCLNL2020K0904",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0904"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 20.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C002"
+   }
+  },
+  {
+   "id": "TG-ACLNR2525M0904-A",
+   "name": "泰珂洛 ACLNR2525M0904-A 外圆车刀杆",
+   "iso5608": "ACLNR2525M0904-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0904"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 25.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C002"
+   }
+  },
+  {
+   "id": "TG-ACLNL2525M0904-A",
+   "name": "泰珂洛 ACLNL2525M0904-A 外圆车刀杆",
+   "iso5608": "ACLNL2525M0904-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0904"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 25.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C002"
+   }
+  },
+  {
+   "id": "TG-PCLNR2525M0904",
+   "name": "泰珂洛 PCLNR2525M0904 外圆车刀杆",
+   "iso5608": "PCLNR2525M0904",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0904"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 25.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C002"
+   }
+  },
+  {
+   "id": "TG-PCLNL2525M0904",
+   "name": "泰珂洛 PCLNL2525M0904 外圆车刀杆",
+   "iso5608": "PCLNL2525M0904",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0904"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 25.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C002"
+   }
+  },
+  {
+   "id": "TG-PCLNR2020K0904-CHP",
+   "name": "泰珂洛 PCLNR2020K0904-CHP 外圆车刀杆",
+   "iso5608": "PCLNR2020K0904-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0904"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 33.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C002"
+   }
+  },
+  {
+   "id": "TG-PCLNL2020K0904-CHP",
+   "name": "泰珂洛 PCLNL2020K0904-CHP 外圆车刀杆",
+   "iso5608": "PCLNL2020K0904-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0904"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 33.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C002"
+   }
+  },
+  {
+   "id": "TG-PCLNR2525M0904-CHP",
+   "name": "泰珂洛 PCLNR2525M0904-CHP 外圆车刀杆",
+   "iso5608": "PCLNR2525M0904-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0904"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 33.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C002"
+   }
+  },
+  {
+   "id": "TG-PCLNL2525M0904-CHP",
+   "name": "泰珂洛 PCLNL2525M0904-CHP 外圆车刀杆",
+   "iso5608": "PCLNL2525M0904-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0904"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 33.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C002"
+   }
+  },
+  {
+   "id": "TG-ACLNR2020H12-A",
+   "name": "泰珂洛 ACLNR2020H12-A 外圆车刀杆",
+   "iso5608": "ACLNR2020H12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 100.0,
+   "h1_mm": 20.0,
+   "head_mm": 26.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNL2020H12-A",
+   "name": "泰珂洛 ACLNL2020H12-A 外圆车刀杆",
+   "iso5608": "ACLNL2020H12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 100.0,
+   "h1_mm": 20.0,
+   "head_mm": 26.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNR2020K12-A",
+   "name": "泰珂洛 ACLNR2020K12-A 外圆车刀杆",
+   "iso5608": "ACLNR2020K12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 26.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNL2020K12-A",
+   "name": "泰珂洛 ACLNL2020K12-A 外圆车刀杆",
+   "iso5608": "ACLNL2020K12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 26.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNR2525K12-A",
+   "name": "泰珂洛 ACLNR2525K12-A 外圆车刀杆",
+   "iso5608": "ACLNR2525K12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 125.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNL2525K12-A",
+   "name": "泰珂洛 ACLNL2525K12-A 外圆车刀杆",
+   "iso5608": "ACLNL2525K12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 125.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNR2525M12-A",
+   "name": "泰珂洛 ACLNR2525M12-A 外圆车刀杆",
+   "iso5608": "ACLNR2525M12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNL2525M12-A",
+   "name": "泰珂洛 ACLNL2525M12-A 外圆车刀杆",
+   "iso5608": "ACLNL2525M12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNR3225P12-A",
+   "name": "泰珂洛 ACLNR3225P12-A 外圆车刀杆",
+   "iso5608": "ACLNR3225P12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNL3225P12-A",
+   "name": "泰珂洛 ACLNL3225P12-A 外圆车刀杆",
+   "iso5608": "ACLNL3225P12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNR2525M16-A",
+   "name": "泰珂洛 ACLNR2525M16-A 外圆车刀杆",
+   "iso5608": "ACLNR2525M16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1606"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNL2525M16-A",
+   "name": "泰珂洛 ACLNL2525M16-A 外圆车刀杆",
+   "iso5608": "ACLNL2525M16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1606"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNR3225P16-A",
+   "name": "泰珂洛 ACLNR3225P16-A 外圆车刀杆",
+   "iso5608": "ACLNR3225P16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1606"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNL3225P16-A",
+   "name": "泰珂洛 ACLNL3225P16-A 外圆车刀杆",
+   "iso5608": "ACLNL3225P16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1606"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNR3232P16-A",
+   "name": "泰珂洛 ACLNR3232P16-A 外圆车刀杆",
+   "iso5608": "ACLNR3232P16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1606"
+   },
+   "f_mm": 40.0,
+   "h_mm": 32.0,
+   "b_mm": 32.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNL3232P16-A",
+   "name": "泰珂洛 ACLNL3232P16-A 外圆车刀杆",
+   "iso5608": "ACLNL3232P16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1606"
+   },
+   "f_mm": 40.0,
+   "h_mm": 32.0,
+   "b_mm": 32.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNR3232P19-A",
+   "name": "泰珂洛 ACLNR3232P19-A 外圆车刀杆",
+   "iso5608": "ACLNR3232P19-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1906"
+   },
+   "f_mm": 40.0,
+   "h_mm": 32.0,
+   "b_mm": 32.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 40.0,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNL3232P19-A",
+   "name": "泰珂洛 ACLNL3232P19-A 外圆车刀杆",
+   "iso5608": "ACLNL3232P19-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1906"
+   },
+   "f_mm": 40.0,
+   "h_mm": 32.0,
+   "b_mm": 32.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 40.0,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNR4040S19-A",
+   "name": "泰珂洛 ACLNR4040S19-A 外圆车刀杆",
+   "iso5608": "ACLNR4040S19-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1906"
+   },
+   "f_mm": 50.0,
+   "h_mm": 40.0,
+   "b_mm": 40.0,
+   "l1_mm": 250.0,
+   "h1_mm": 40.0,
+   "head_mm": 40.0,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-ACLNL4040S19-A",
+   "name": "泰珂洛 ACLNL4040S19-A 外圆车刀杆",
+   "iso5608": "ACLNL4040S19-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1906"
+   },
+   "f_mm": 50.0,
+   "h_mm": 40.0,
+   "b_mm": 40.0,
+   "l1_mm": 250.0,
+   "h1_mm": 40.0,
+   "head_mm": 40.0,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C018"
+   }
+  },
+  {
+   "id": "TG-PCLNR2020K12-CHP",
+   "name": "泰珂洛 PCLNR2020K12-CHP 外圆车刀杆",
+   "iso5608": "PCLNR2020K12-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN",
+     "GN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 33.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C019"
+   }
+  },
+  {
+   "id": "TG-PCLNL2020K12-CHP",
+   "name": "泰珂洛 PCLNL2020K12-CHP 外圆车刀杆",
+   "iso5608": "PCLNL2020K12-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN",
+     "GN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 33.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C019"
+   }
+  },
+  {
+   "id": "TG-PCLNR2525M12-CHP",
+   "name": "泰珂洛 PCLNR2525M12-CHP 外圆车刀杆",
+   "iso5608": "PCLNR2525M12-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN",
+     "GN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 33.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C019"
+   }
+  },
+  {
+   "id": "TG-PCLNL2525M12-CHP",
+   "name": "泰珂洛 PCLNL2525M12-CHP 外圆车刀杆",
+   "iso5608": "PCLNL2525M12-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN",
+     "GN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 33.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C019"
+   }
+  },
+  {
+   "id": "TG-PCLNR1616H09",
+   "name": "泰珂洛 PCLNR1616H09 外圆车刀杆",
+   "iso5608": "PCLNR1616H09",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0903"
+   },
+   "f_mm": 20.0,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 20.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNL1616H09",
+   "name": "泰珂洛 PCLNL1616H09 外圆车刀杆",
+   "iso5608": "PCLNL1616H09",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0903"
+   },
+   "f_mm": 20.0,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 20.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNR2020K09",
+   "name": "泰珂洛 PCLNR2020K09 外圆车刀杆",
+   "iso5608": "PCLNR2020K09",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0903"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 20.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNL2020K09",
+   "name": "泰珂洛 PCLNL2020K09 外圆车刀杆",
+   "iso5608": "PCLNL2020K09",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0903"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 20.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNR2525M09",
+   "name": "泰珂洛 PCLNR2525M09 外圆车刀杆",
+   "iso5608": "PCLNR2525M09",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0903"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 20.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNL2525M09",
+   "name": "泰珂洛 PCLNL2525M09 外圆车刀杆",
+   "iso5608": "PCLNL2525M09",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "0903"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 20.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNR1616H12E",
+   "name": "泰珂洛 PCLNR1616H12E 外圆车刀杆",
+   "iso5608": "PCLNR1616H12E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN",
+     "GN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 20.0,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 26.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNL1616H12E",
+   "name": "泰珂洛 PCLNL1616H12E 外圆车刀杆",
+   "iso5608": "PCLNL1616H12E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN",
+     "GN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 20.0,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 26.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNR2020K12E",
+   "name": "泰珂洛 PCLNR2020K12E 外圆车刀杆",
+   "iso5608": "PCLNR2020K12E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN",
+     "GN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 28.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNL2020K12E",
+   "name": "泰珂洛 PCLNL2020K12E 外圆车刀杆",
+   "iso5608": "PCLNL2020K12E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN",
+     "GN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 28.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNR2525M12E",
+   "name": "泰珂洛 PCLNR2525M12E 外圆车刀杆",
+   "iso5608": "PCLNR2525M12E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN",
+     "GN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 28.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNL2525M12E",
+   "name": "泰珂洛 PCLNL2525M12E 外圆车刀杆",
+   "iso5608": "PCLNL2525M12E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN",
+     "GN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 28.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNR3225P12E",
+   "name": "泰珂洛 PCLNR3225P12E 外圆车刀杆",
+   "iso5608": "PCLNR3225P12E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN",
+     "GN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 28.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNL3225P12E",
+   "name": "泰珂洛 PCLNL3225P12E 外圆车刀杆",
+   "iso5608": "PCLNL3225P12E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN",
+     "GN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 28.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNR2525M16E",
+   "name": "泰珂洛 PCLNR2525M16E 外圆车刀杆",
+   "iso5608": "PCLNR2525M16E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1606"
+   },
+   "f_mm": 25.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNL2525M16E",
+   "name": "泰珂洛 PCLNL2525M16E 外圆车刀杆",
+   "iso5608": "PCLNL2525M16E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1606"
+   },
+   "f_mm": 25.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNR3232P16E",
+   "name": "泰珂洛 PCLNR3232P16E 外圆车刀杆",
+   "iso5608": "PCLNR3232P16E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1606"
+   },
+   "f_mm": 40.0,
+   "h_mm": 32.0,
+   "b_mm": 32.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNR3232P19E",
+   "name": "泰珂洛 PCLNR3232P19E 外圆车刀杆",
+   "iso5608": "PCLNR3232P19E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1906"
+   },
+   "f_mm": 40.0,
+   "h_mm": 32.0,
+   "b_mm": 32.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 40.0,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-PCLNL3232P19E",
+   "name": "泰珂洛 PCLNL3232P19E 外圆车刀杆",
+   "iso5608": "PCLNL3232P19E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1906"
+   },
+   "f_mm": 40.0,
+   "h_mm": 32.0,
+   "b_mm": 32.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 40.0,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C020"
+   }
+  },
+  {
+   "id": "TG-DCLNR2020K12",
+   "name": "泰珂洛 DCLNR2020K12 外圆车刀杆",
+   "iso5608": "DCLNR2020K12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C023"
+   }
+  },
+  {
+   "id": "TG-DCLNL2020K12",
+   "name": "泰珂洛 DCLNL2020K12 外圆车刀杆",
+   "iso5608": "DCLNL2020K12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C023"
+   }
+  },
+  {
+   "id": "TG-DCLNR2525M12",
+   "name": "泰珂洛 DCLNR2525M12 外圆车刀杆",
+   "iso5608": "DCLNR2525M12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C023"
+   }
+  },
+  {
+   "id": "TG-DCLNL2525M12",
+   "name": "泰珂洛 DCLNL2525M12 外圆车刀杆",
+   "iso5608": "DCLNL2525M12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C023"
+   }
+  },
+  {
+   "id": "TG-DCLNR3225P12",
+   "name": "泰珂洛 DCLNR3225P12 外圆车刀杆",
+   "iso5608": "DCLNR3225P12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C023"
+   }
+  },
+  {
+   "id": "TG-DCLNL3225P12",
+   "name": "泰珂洛 DCLNL3225P12 外圆车刀杆",
+   "iso5608": "DCLNL3225P12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C023"
+   }
+  },
+  {
+   "id": "TG-SCLCR2020K12",
+   "name": "泰珂洛 SCLCR2020K12 外圆车刀杆",
+   "iso5608": "SCLCR2020K12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CC"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 20.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C026"
+   }
+  },
+  {
+   "id": "TG-SCLCL2020K12",
+   "name": "泰珂洛 SCLCL2020K12 外圆车刀杆",
+   "iso5608": "SCLCL2020K12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "CC"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 20.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C026"
+   }
+  },
+  {
+   "id": "TG-AWLNR2020K0604-A",
+   "name": "泰珂洛 AWLNR2020K0604-A 外圆车刀杆",
+   "iso5608": "AWLNR2020K0604-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 27.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C029"
+   }
+  },
+  {
+   "id": "TG-AWLNL2020K0604-A",
+   "name": "泰珂洛 AWLNL2020K0604-A 外圆车刀杆",
+   "iso5608": "AWLNL2020K0604-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 27.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C029"
+   }
+  },
+  {
+   "id": "TG-AWLNR2525M0604-A",
+   "name": "泰珂洛 AWLNR2525M0604-A 外圆车刀杆",
+   "iso5608": "AWLNR2525M0604-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 27.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C029"
+   }
+  },
+  {
+   "id": "TG-AWLNL2525M0604-A",
+   "name": "泰珂洛 AWLNL2525M0604-A 外圆车刀杆",
+   "iso5608": "AWLNL2525M0604-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 27.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C029"
+   }
+  },
+  {
+   "id": "TG-PWLNR2020K0604-CHP",
+   "name": "泰珂洛 PWLNR2020K0604-CHP 外圆车刀杆",
+   "iso5608": "PWLNR2020K0604-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 34.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C029"
+   }
+  },
+  {
+   "id": "TG-PWLNL2020K0604-CHP",
+   "name": "泰珂洛 PWLNL2020K0604-CHP 外圆车刀杆",
+   "iso5608": "PWLNL2020K0604-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 34.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C029"
+   }
+  },
+  {
+   "id": "TG-PWLNR2525M0604-CHP",
+   "name": "泰珂洛 PWLNR2525M0604-CHP 外圆车刀杆",
+   "iso5608": "PWLNR2525M0604-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 34.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C029"
+   }
+  },
+  {
+   "id": "TG-PWLNL2525M0604-CHP",
+   "name": "泰珂洛 PWLNL2525M0604-CHP 外圆车刀杆",
+   "iso5608": "PWLNL2525M0604-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 34.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C029"
+   }
+  },
+  {
+   "id": "TG-PWLNR2020K0604",
+   "name": "泰珂洛 PWLNR2020K0604 外圆车刀杆",
+   "iso5608": "PWLNR2020K0604",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 15.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C030"
+   }
+  },
+  {
+   "id": "TG-PWLNL2020K0604",
+   "name": "泰珂洛 PWLNL2020K0604 外圆车刀杆",
+   "iso5608": "PWLNL2020K0604",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 15.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C030"
+   }
+  },
+  {
+   "id": "TG-PWLNR2525M0604",
+   "name": "泰珂洛 PWLNR2525M0604 外圆车刀杆",
+   "iso5608": "PWLNR2525M0604",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 19.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C030"
+   }
+  },
+  {
+   "id": "TG-PWLNL2525M0604",
+   "name": "泰珂洛 PWLNL2525M0604 外圆车刀杆",
+   "iso5608": "PWLNL2525M0604",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 19.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C030"
+   }
+  },
+  {
+   "id": "TG-AWLNR2020H08-A",
+   "name": "泰珂洛 AWLNR2020H08-A 外圆车刀杆",
+   "iso5608": "AWLNR2020H08-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 100.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C034"
+   }
+  },
+  {
+   "id": "TG-AWLNL2020H08-A",
+   "name": "泰珂洛 AWLNL2020H08-A 外圆车刀杆",
+   "iso5608": "AWLNL2020H08-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 100.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C034"
+   }
+  },
+  {
+   "id": "TG-AWLNR2020K08-A",
+   "name": "泰珂洛 AWLNR2020K08-A 外圆车刀杆",
+   "iso5608": "AWLNR2020K08-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C034"
+   }
+  },
+  {
+   "id": "TG-AWLNL2020K08-A",
+   "name": "泰珂洛 AWLNL2020K08-A 外圆车刀杆",
+   "iso5608": "AWLNL2020K08-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C034"
+   }
+  },
+  {
+   "id": "TG-AWLNR2525K08-A",
+   "name": "泰珂洛 AWLNR2525K08-A 外圆车刀杆",
+   "iso5608": "AWLNR2525K08-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 125.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C034"
+   }
+  },
+  {
+   "id": "TG-AWLNL2525K08-A",
+   "name": "泰珂洛 AWLNL2525K08-A 外圆车刀杆",
+   "iso5608": "AWLNL2525K08-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 125.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C034"
+   }
+  },
+  {
+   "id": "TG-AWLNR2525M08-A",
+   "name": "泰珂洛 AWLNR2525M08-A 外圆车刀杆",
+   "iso5608": "AWLNR2525M08-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C034"
+   }
+  },
+  {
+   "id": "TG-AWLNL2525M08-A",
+   "name": "泰珂洛 AWLNL2525M08-A 外圆车刀杆",
+   "iso5608": "AWLNL2525M08-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C034"
+   }
+  },
+  {
+   "id": "TG-AWLNR3225P08-A",
+   "name": "泰珂洛 AWLNR3225P08-A 外圆车刀杆",
+   "iso5608": "AWLNR3225P08-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C034"
+   }
+  },
+  {
+   "id": "TG-AWLNL3225P08-A",
+   "name": "泰珂洛 AWLNL3225P08-A 外圆车刀杆",
+   "iso5608": "AWLNL3225P08-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C034"
+   }
+  },
+  {
+   "id": "TG-PWLNR2020K08-CHP",
+   "name": "泰珂洛 PWLNR2020K08-CHP 外圆车刀杆",
+   "iso5608": "PWLNR2020K08-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 34.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C034"
+   }
+  },
+  {
+   "id": "TG-PWLNL2020K08-CHP",
+   "name": "泰珂洛 PWLNL2020K08-CHP 外圆车刀杆",
+   "iso5608": "PWLNL2020K08-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 34.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C034"
+   }
+  },
+  {
+   "id": "TG-PWLNR2525M08-CHP",
+   "name": "泰珂洛 PWLNR2525M08-CHP 外圆车刀杆",
+   "iso5608": "PWLNR2525M08-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 34.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C034"
+   }
+  },
+  {
+   "id": "TG-PWLNL2525M08-CHP",
+   "name": "泰珂洛 PWLNL2525M08-CHP 外圆车刀杆",
+   "iso5608": "PWLNL2525M08-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 34.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C034"
+   }
+  },
+  {
+   "id": "TG-DWLNR2020K06",
+   "name": "泰珂洛 DWLNR2020K06 外圆车刀杆",
+   "iso5608": "DWLNR2020K06",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 25.5,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C036"
+   }
+  },
+  {
+   "id": "TG-DWLNL2020K06",
+   "name": "泰珂洛 DWLNL2020K06 外圆车刀杆",
+   "iso5608": "DWLNL2020K06",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 25.5,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C036"
+   }
+  },
+  {
+   "id": "TG-DWLNR2020K08",
+   "name": "泰珂洛 DWLNR2020K08 外圆车刀杆",
+   "iso5608": "DWLNR2020K08",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C036"
+   }
+  },
+  {
+   "id": "TG-DWLNL2020K08",
+   "name": "泰珂洛 DWLNL2020K08 外圆车刀杆",
+   "iso5608": "DWLNL2020K08",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C036"
+   }
+  },
+  {
+   "id": "TG-DWLNR2525M06",
+   "name": "泰珂洛 DWLNR2525M06 外圆车刀杆",
+   "iso5608": "DWLNR2525M06",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 26.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C036"
+   }
+  },
+  {
+   "id": "TG-DWLNL2525M06",
+   "name": "泰珂洛 DWLNL2525M06 外圆车刀杆",
+   "iso5608": "DWLNL2525M06",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 26.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C036"
+   }
+  },
+  {
+   "id": "TG-DWLNR2525M08",
+   "name": "泰珂洛 DWLNR2525M08 外圆车刀杆",
+   "iso5608": "DWLNR2525M08",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C036"
+   }
+  },
+  {
+   "id": "TG-DWLNL2525M08",
+   "name": "泰珂洛 DWLNL2525M08 外圆车刀杆",
+   "iso5608": "DWLNL2525M08",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C036"
+   }
+  },
+  {
+   "id": "TG-DWLNR3225P08",
+   "name": "泰珂洛 DWLNR3225P08 外圆车刀杆",
+   "iso5608": "DWLNR3225P08",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C036"
+   }
+  },
+  {
+   "id": "TG-DWLNL3225P08",
+   "name": "泰珂洛 DWLNL3225P08 外圆车刀杆",
+   "iso5608": "DWLNL3225P08",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "WN"
+    ],
+    "size": "0804"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C036"
+   }
+  },
+  {
+   "id": "TG-ADJNR2020K1104-A",
+   "name": "泰珂洛 ADJNR2020K1104-A 外圆车刀杆",
+   "iso5608": "ADJNR2020K1104-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C037"
+   }
+  },
+  {
+   "id": "TG-ADJNL2020K1104-A",
+   "name": "泰珂洛 ADJNL2020K1104-A 外圆车刀杆",
+   "iso5608": "ADJNL2020K1104-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C037"
+   }
+  },
+  {
+   "id": "TG-ADJNR2525M1104-A",
+   "name": "泰珂洛 ADJNR2525M1104-A 外圆车刀杆",
+   "iso5608": "ADJNR2525M1104-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C037"
+   }
+  },
+  {
+   "id": "TG-ADJNL2525M1104-A",
+   "name": "泰珂洛 ADJNL2525M1104-A 外圆车刀杆",
+   "iso5608": "ADJNL2525M1104-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C037"
+   }
+  },
+  {
+   "id": "TG-PDJNR2020K1104-CHP",
+   "name": "泰珂洛 PDJNR2020K1104-CHP 外圆车刀杆",
+   "iso5608": "PDJNR2020K1104-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C037"
+   }
+  },
+  {
+   "id": "TG-PDJNL2020K1104-CHP",
+   "name": "泰珂洛 PDJNL2020K1104-CHP 外圆车刀杆",
+   "iso5608": "PDJNL2020K1104-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C037"
+   }
+  },
+  {
+   "id": "TG-PDJNR2525M1104-CHP",
+   "name": "泰珂洛 PDJNR2525M1104-CHP 外圆车刀杆",
+   "iso5608": "PDJNR2525M1104-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C037"
+   }
+  },
+  {
+   "id": "TG-PDJNL2525M1104-CHP",
+   "name": "泰珂洛 PDJNL2525M1104-CHP 外圆车刀杆",
+   "iso5608": "PDJNL2525M1104-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C037"
+   }
+  },
+  {
+   "id": "TG-PDJNR1616H1104",
+   "name": "泰珂洛 PDJNR1616H1104 外圆车刀杆",
+   "iso5608": "PDJNR1616H1104",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 20.0,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 27.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C038"
+   }
+  },
+  {
+   "id": "TG-PDJNL1616H1104",
+   "name": "泰珂洛 PDJNL1616H1104 外圆车刀杆",
+   "iso5608": "PDJNL1616H1104",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 20.0,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 27.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C038"
+   }
+  },
+  {
+   "id": "TG-PDJNR2020K1104",
+   "name": "泰珂洛 PDJNR2020K1104 外圆车刀杆",
+   "iso5608": "PDJNR2020K1104",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 27.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C038"
+   }
+  },
+  {
+   "id": "TG-PDJNL2020K1104",
+   "name": "泰珂洛 PDJNL2020K1104 外圆车刀杆",
+   "iso5608": "PDJNL2020K1104",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 27.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C038"
+   }
+  },
+  {
+   "id": "TG-PDJNR2525M1104",
+   "name": "泰珂洛 PDJNR2525M1104 外圆车刀杆",
+   "iso5608": "PDJNR2525M1104",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 27.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C038"
+   }
+  },
+  {
+   "id": "TG-PDJNL2525M1104",
+   "name": "泰珂洛 PDJNL2525M1104 外圆车刀杆",
+   "iso5608": "PDJNL2525M1104",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 27.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C038"
+   }
+  },
+  {
+   "id": "TG-ADJNR2020K15-A",
+   "name": "泰珂洛 ADJNR2020K15-A 外圆车刀杆",
+   "iso5608": "ADJNR2020K15-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C042"
+   }
+  },
+  {
+   "id": "TG-ADJNL2020K15-A",
+   "name": "泰珂洛 ADJNL2020K15-A 外圆车刀杆",
+   "iso5608": "ADJNL2020K15-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C042"
+   }
+  },
+  {
+   "id": "TG-ADJNR2020K1506-A",
+   "name": "泰珂洛 ADJNR2020K1506-A 外圆车刀杆",
+   "iso5608": "ADJNR2020K1506-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C042"
+   }
+  },
+  {
+   "id": "TG-ADJNL2020K1506-A",
+   "name": "泰珂洛 ADJNL2020K1506-A 外圆车刀杆",
+   "iso5608": "ADJNL2020K1506-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C042"
+   }
+  },
+  {
+   "id": "TG-ADJNR2525M15-A",
+   "name": "泰珂洛 ADJNR2525M15-A 外圆车刀杆",
+   "iso5608": "ADJNR2525M15-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C042"
+   }
+  },
+  {
+   "id": "TG-ADJNL2525M15-A",
+   "name": "泰珂洛 ADJNL2525M15-A 外圆车刀杆",
+   "iso5608": "ADJNL2525M15-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C042"
+   }
+  },
+  {
+   "id": "TG-ADJNR2525M1506-A",
+   "name": "泰珂洛 ADJNR2525M1506-A 外圆车刀杆",
+   "iso5608": "ADJNR2525M1506-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C042"
+   }
+  },
+  {
+   "id": "TG-ADJNL2525M1506-A",
+   "name": "泰珂洛 ADJNL2525M1506-A 外圆车刀杆",
+   "iso5608": "ADJNL2525M1506-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C042"
+   }
+  },
+  {
+   "id": "TG-ADJNR3225P15-A",
+   "name": "泰珂洛 ADJNR3225P15-A 外圆车刀杆",
+   "iso5608": "ADJNR3225P15-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C042"
+   }
+  },
+  {
+   "id": "TG-ADJNL3225P15-A",
+   "name": "泰珂洛 ADJNL3225P15-A 外圆车刀杆",
+   "iso5608": "ADJNL3225P15-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C042"
+   }
+  },
+  {
+   "id": "TG-PDJNR2020K15-CHP",
+   "name": "泰珂洛 PDJNR2020K15-CHP 外圆车刀杆",
+   "iso5608": "PDJNR2020K15-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C043"
+   }
+  },
+  {
+   "id": "TG-PDJNL2020K15-CHP",
+   "name": "泰珂洛 PDJNL2020K15-CHP 外圆车刀杆",
+   "iso5608": "PDJNL2020K15-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C043"
+   }
+  },
+  {
+   "id": "TG-PDJNR2525M15-CHP",
+   "name": "泰珂洛 PDJNR2525M15-CHP 外圆车刀杆",
+   "iso5608": "PDJNR2525M15-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C043"
+   }
+  },
+  {
+   "id": "TG-PDJNL2525M15-CHP",
+   "name": "泰珂洛 PDJNL2525M15-CHP 外圆车刀杆",
+   "iso5608": "PDJNL2525M15-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C043"
+   }
+  },
+  {
+   "id": "TG-PDJNR1616H11",
+   "name": "泰珂洛 PDJNR1616H11 外圆车刀杆",
+   "iso5608": "PDJNR1616H11",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 20.0,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 27.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C044"
+   }
+  },
+  {
+   "id": "TG-PDJNL1616H11",
+   "name": "泰珂洛 PDJNL1616H11 外圆车刀杆",
+   "iso5608": "PDJNL1616H11",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 20.0,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 27.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C044"
+   }
+  },
+  {
+   "id": "TG-PDJNR2020K11",
+   "name": "泰珂洛 PDJNR2020K11 外圆车刀杆",
+   "iso5608": "PDJNR2020K11",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 27.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C044"
+   }
+  },
+  {
+   "id": "TG-PDJNL2020K11",
+   "name": "泰珂洛 PDJNL2020K11 外圆车刀杆",
+   "iso5608": "PDJNL2020K11",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 27.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C044"
+   }
+  },
+  {
+   "id": "TG-PDJNR2020K15E",
+   "name": "泰珂洛 PDJNR2020K15E 外圆车刀杆",
+   "iso5608": "PDJNR2020K15E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C044"
+   }
+  },
+  {
+   "id": "TG-PDJNR2525M11",
+   "name": "泰珂洛 PDJNR2525M11 外圆车刀杆",
+   "iso5608": "PDJNR2525M11",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 27.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C044"
+   }
+  },
+  {
+   "id": "TG-PDJNL2525M11",
+   "name": "泰珂洛 PDJNL2525M11 外圆车刀杆",
+   "iso5608": "PDJNL2525M11",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 27.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C044"
+   }
+  },
+  {
+   "id": "TG-PDJNR2525M15E",
+   "name": "泰珂洛 PDJNR2525M15E 外圆车刀杆",
+   "iso5608": "PDJNR2525M15E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C044"
+   }
+  },
+  {
+   "id": "TG-PDJNL2525M15E",
+   "name": "泰珂洛 PDJNL2525M15E 外圆车刀杆",
+   "iso5608": "PDJNL2525M15E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C044"
+   }
+  },
+  {
+   "id": "TG-PDJNR3225P15E",
+   "name": "泰珂洛 PDJNR3225P15E 外圆车刀杆",
+   "iso5608": "PDJNR3225P15E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 34.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C044"
+   }
+  },
+  {
+   "id": "TG-DDJNR2020K15",
+   "name": "泰珂洛 DDJNR2020K15 外圆车刀杆",
+   "iso5608": "DDJNR2020K15",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C047"
+   }
+  },
+  {
+   "id": "TG-DDJNL2020K15",
+   "name": "泰珂洛 DDJNL2020K15 外圆车刀杆",
+   "iso5608": "DDJNL2020K15",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C047"
+   }
+  },
+  {
+   "id": "TG-DDJNR2020K1506",
+   "name": "泰珂洛 DDJNR2020K1506 外圆车刀杆",
+   "iso5608": "DDJNR2020K1506",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C047"
+   }
+  },
+  {
+   "id": "TG-DDJNL2020K1506",
+   "name": "泰珂洛 DDJNL2020K1506 外圆车刀杆",
+   "iso5608": "DDJNL2020K1506",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C047"
+   }
+  },
+  {
+   "id": "TG-DDJNR2525M15",
+   "name": "泰珂洛 DDJNR2525M15 外圆车刀杆",
+   "iso5608": "DDJNR2525M15",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C047"
+   }
+  },
+  {
+   "id": "TG-DDJNL2525M15",
+   "name": "泰珂洛 DDJNL2525M15 外圆车刀杆",
+   "iso5608": "DDJNL2525M15",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C047"
+   }
+  },
+  {
+   "id": "TG-DDJNR2525M1506",
+   "name": "泰珂洛 DDJNR2525M1506 外圆车刀杆",
+   "iso5608": "DDJNR2525M1506",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C047"
+   }
+  },
+  {
+   "id": "TG-DDJNL2525M1506",
+   "name": "泰珂洛 DDJNL2525M1506 外圆车刀杆",
+   "iso5608": "DDJNL2525M1506",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C047"
+   }
+  },
+  {
+   "id": "TG-DDJNR3225P15",
+   "name": "泰珂洛 DDJNR3225P15 外圆车刀杆",
+   "iso5608": "DDJNR3225P15",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C047"
+   }
+  },
+  {
+   "id": "TG-DDJNL3225P15",
+   "name": "泰珂洛 DDJNL3225P15 外圆车刀杆",
+   "iso5608": "DDJNL3225P15",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C047"
+   }
+  },
+  {
+   "id": "TG-DDJNR3225P1506",
+   "name": "泰珂洛 DDJNR3225P1506 外圆车刀杆",
+   "iso5608": "DDJNR3225P1506",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C047"
+   }
+  },
+  {
+   "id": "TG-DDJNL3225P1506",
+   "name": "泰珂洛 DDJNL3225P1506 外圆车刀杆",
+   "iso5608": "DDJNL3225P1506",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C047"
+   }
+  },
+  {
+   "id": "TG-PTJNR2525M1104",
+   "name": "泰珂洛 PTJNR2525M1104 外圆车刀杆",
+   "iso5608": "PTJNR2525M1104",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 18.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C052"
+   }
+  },
+  {
+   "id": "TG-PTJNL2525M1104",
+   "name": "泰珂洛 PTJNL2525M1104 外圆车刀杆",
+   "iso5608": "PTJNL2525M1104",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 18.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C052"
+   }
+  },
+  {
+   "id": "TG-ATJNR2020K16-A",
+   "name": "泰珂洛 ATJNR2020K16-A 外圆车刀杆",
+   "iso5608": "ATJNR2020K16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 22.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C053"
+   }
+  },
+  {
+   "id": "TG-ATJNL2020K16-A",
+   "name": "泰珂洛 ATJNL2020K16-A 外圆车刀杆",
+   "iso5608": "ATJNL2020K16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 22.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C053"
+   }
+  },
+  {
+   "id": "TG-ATJNR2525M16-A",
+   "name": "泰珂洛 ATJNR2525M16-A 外圆车刀杆",
+   "iso5608": "ATJNR2525M16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 22.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C053"
+   }
+  },
+  {
+   "id": "TG-ATJNL2525M16-A",
+   "name": "泰珂洛 ATJNL2525M16-A 外圆车刀杆",
+   "iso5608": "ATJNL2525M16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 22.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C053"
+   }
+  },
+  {
+   "id": "TG-AVJNR2020K1204-A",
+   "name": "泰珂洛 AVJNR2020K1204-A 外圆车刀杆",
+   "iso5608": "AVJNR2020K1204-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 37.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C054"
+   }
+  },
+  {
+   "id": "TG-AVJNL2020K1204-A",
+   "name": "泰珂洛 AVJNL2020K1204-A 外圆车刀杆",
+   "iso5608": "AVJNL2020K1204-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 37.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C054"
+   }
+  },
+  {
+   "id": "TG-AVJNR2525M1204-A",
+   "name": "泰珂洛 AVJNR2525M1204-A 外圆车刀杆",
+   "iso5608": "AVJNR2525M1204-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 37.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C054"
+   }
+  },
+  {
+   "id": "TG-AVJNL2525M1204-A",
+   "name": "泰珂洛 AVJNL2525M1204-A 外圆车刀杆",
+   "iso5608": "AVJNL2525M1204-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 37.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C054"
+   }
+  },
+  {
+   "id": "TG-PVJNR2020K1204-CHP",
+   "name": "泰珂洛 PVJNR2020K1204-CHP 外圆车刀杆",
+   "iso5608": "PVJNR2020K1204-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 50.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C054"
+   }
+  },
+  {
+   "id": "TG-PVJNL2020K1204-CHP",
+   "name": "泰珂洛 PVJNL2020K1204-CHP 外圆车刀杆",
+   "iso5608": "PVJNL2020K1204-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 50.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C054"
+   }
+  },
+  {
+   "id": "TG-PVJNR2525M1204-CHP",
+   "name": "泰珂洛 PVJNR2525M1204-CHP 外圆车刀杆",
+   "iso5608": "PVJNR2525M1204-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 50.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C054"
+   }
+  },
+  {
+   "id": "TG-PVJNL2525M1204-CHP",
+   "name": "泰珂洛 PVJNL2525M1204-CHP 外圆车刀杆",
+   "iso5608": "PVJNL2525M1204-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 50.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C054"
+   }
+  },
+  {
+   "id": "TG-PVJNR2020K1204",
+   "name": "泰珂洛 PVJNR2020K1204 外圆车刀杆",
+   "iso5608": "PVJNR2020K1204",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C055"
+   }
+  },
+  {
+   "id": "TG-PVJNL2020K1204",
+   "name": "泰珂洛 PVJNL2020K1204 外圆车刀杆",
+   "iso5608": "PVJNL2020K1204",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C055"
+   }
+  },
+  {
+   "id": "TG-PVJNR2525M1204",
+   "name": "泰珂洛 PVJNR2525M1204 外圆车刀杆",
+   "iso5608": "PVJNR2525M1204",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C055"
+   }
+  },
+  {
+   "id": "TG-PVJNL2525M1204",
+   "name": "泰珂洛 PVJNL2525M1204 外圆车刀杆",
+   "iso5608": "PVJNL2525M1204",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C055"
+   }
+  },
+  {
+   "id": "TG-SVJCR1616H16",
+   "name": "泰珂洛 SVJCR1616H16 外圆车刀杆",
+   "iso5608": "SVJCR1616H16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VC"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 20.0,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 32.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C063"
+   }
+  },
+  {
+   "id": "TG-SVJCL1616H16",
+   "name": "泰珂洛 SVJCL1616H16 外圆车刀杆",
+   "iso5608": "SVJCL1616H16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VC"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 20.0,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 32.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C063"
+   }
+  },
+  {
+   "id": "TG-SVJCR2020K16",
+   "name": "泰珂洛 SVJCR2020K16 外圆车刀杆",
+   "iso5608": "SVJCR2020K16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VC"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 32.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C063"
+   }
+  },
+  {
+   "id": "TG-SVJCL2020K16",
+   "name": "泰珂洛 SVJCL2020K16 外圆车刀杆",
+   "iso5608": "SVJCL2020K16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VC"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 32.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C063"
+   }
+  },
+  {
+   "id": "TG-SVJCR2525M16",
+   "name": "泰珂洛 SVJCR2525M16 外圆车刀杆",
+   "iso5608": "SVJCR2525M16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VC"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 40.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C063"
+   }
+  },
+  {
+   "id": "TG-SVJCL2525M16",
+   "name": "泰珂洛 SVJCL2525M16 外圆车刀杆",
+   "iso5608": "SVJCL2525M16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VC"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 40.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C063"
+   }
+  },
+  {
+   "id": "TG-AVVNN2020K1204-A",
+   "name": "泰珂洛 AVVNN2020K1204-A 外圆车刀杆",
+   "iso5608": "AVVNN2020K1204-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 10.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C067"
+   }
+  },
+  {
+   "id": "TG-AVVNN2525M1204-A",
+   "name": "泰珂洛 AVVNN2525M1204-A 外圆车刀杆",
+   "iso5608": "AVVNN2525M1204-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 13.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C067"
+   }
+  },
+  {
+   "id": "TG-PVVNN2020K1204",
+   "name": "泰珂洛 PVVNN2020K1204 外圆车刀杆",
+   "iso5608": "PVVNN2020K1204",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 10.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C068"
+   }
+  },
+  {
+   "id": "TG-PVVNN2525M1204",
+   "name": "泰珂洛 PVVNN2525M1204 外圆车刀杆",
+   "iso5608": "PVVNN2525M1204",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 12.5,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C068"
+   }
+  },
+  {
+   "id": "TG-ADPNN2020K15-A",
+   "name": "泰珂洛 ADPNN2020K15-A 外圆车刀杆",
+   "iso5608": "ADPNN2020K15-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 7.5,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C072"
+   }
+  },
+  {
+   "id": "TG-ADPNN2525M15-A",
+   "name": "泰珂洛 ADPNN2525M15-A 外圆车刀杆",
+   "iso5608": "ADPNN2525M15-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 12.5,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C072"
+   }
+  },
+  {
+   "id": "TG-PDPNN2525M15E",
+   "name": "泰珂洛 PDPNN2525M15E 外圆车刀杆",
+   "iso5608": "PDPNN2525M15E",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 12.5,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C073"
+   }
+  },
+  {
+   "id": "TG-ARGNR2525M12-A",
+   "name": "泰珂洛 ARGNR2525M12-A 外圆车刀杆",
+   "iso5608": "ARGNR2525M12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "RN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 28.0,
+   "nose_radius_mm": 6.35,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C080"
+   }
+  },
+  {
+   "id": "TG-ARGNL2525M12-A",
+   "name": "泰珂洛 ARGNL2525M12-A 外圆车刀杆",
+   "iso5608": "ARGNL2525M12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "RN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 28.0,
+   "nose_radius_mm": 6.35,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C080"
+   }
+  },
+  {
+   "id": "TG-DRGNR2525M12",
+   "name": "泰珂洛 DRGNR2525M12 外圆车刀杆",
+   "iso5608": "DRGNR2525M12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "RN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 28.0,
+   "nose_radius_mm": 6.35,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C082"
+   }
+  },
+  {
+   "id": "TG-DRGNL2525M12",
+   "name": "泰珂洛 DRGNL2525M12 外圆车刀杆",
+   "iso5608": "DRGNL2525M12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "RN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 28.0,
+   "nose_radius_mm": 6.35,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C082"
+   }
+  },
+  {
+   "id": "TG-PTGNR2020K1104",
+   "name": "泰珂洛 PTGNR2020K1104 外圆车刀杆",
+   "iso5608": "PTGNR2020K1104",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 20.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C086"
+   }
+  },
+  {
+   "id": "TG-PTGNL2020K1104",
+   "name": "泰珂洛 PTGNL2020K1104 外圆车刀杆",
+   "iso5608": "PTGNL2020K1104",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 20.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C086"
+   }
+  },
+  {
+   "id": "TG-PTGNR2525M1104",
+   "name": "泰珂洛 PTGNR2525M1104 外圆车刀杆",
+   "iso5608": "PTGNR2525M1104",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 20.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C086"
+   }
+  },
+  {
+   "id": "TG-PTGNL2525M1104",
+   "name": "泰珂洛 PTGNL2525M1104 外圆车刀杆",
+   "iso5608": "PTGNL2525M1104",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 20.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C086"
+   }
+  },
+  {
+   "id": "TG-ATGNR2020K16-A",
+   "name": "泰珂洛 ATGNR2020K16-A 外圆车刀杆",
+   "iso5608": "ATGNR2020K16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 22.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C087"
+   }
+  },
+  {
+   "id": "TG-ATGNL2020K16-A",
+   "name": "泰珂洛 ATGNL2020K16-A 外圆车刀杆",
+   "iso5608": "ATGNL2020K16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 22.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C087"
+   }
+  },
+  {
+   "id": "TG-ATGNR2525M16-A",
+   "name": "泰珂洛 ATGNR2525M16-A 外圆车刀杆",
+   "iso5608": "ATGNR2525M16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 22.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C087"
+   }
+  },
+  {
+   "id": "TG-ATGNL2525M16-A",
+   "name": "泰珂洛 ATGNL2525M16-A 外圆车刀杆",
+   "iso5608": "ATGNL2525M16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 22.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C087"
+   }
+  },
+  {
+   "id": "TG-ATGNR2525M22-A",
+   "name": "泰珂洛 ATGNR2525M22-A 外圆车刀杆",
+   "iso5608": "ATGNR2525M22-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "2204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 26.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C087"
+   }
+  },
+  {
+   "id": "TG-ATGNL2525M22-A",
+   "name": "泰珂洛 ATGNL2525M22-A 外圆车刀杆",
+   "iso5608": "ATGNL2525M22-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "2204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 26.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C087"
+   }
+  },
+  {
+   "id": "TG-PTGNR2020K1104-CHP",
+   "name": "泰珂洛 PTGNR2020K1104-CHP 外圆车刀杆",
+   "iso5608": "PTGNR2020K1104-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C088"
+   }
+  },
+  {
+   "id": "TG-PTGNL2020K1104-CHP",
+   "name": "泰珂洛 PTGNL2020K1104-CHP 外圆车刀杆",
+   "iso5608": "PTGNL2020K1104-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C088"
+   }
+  },
+  {
+   "id": "TG-PTGNR2020K16-CHP",
+   "name": "泰珂洛 PTGNR2020K16-CHP 外圆车刀杆",
+   "iso5608": "PTGNR2020K16-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C088"
+   }
+  },
+  {
+   "id": "TG-PTGNL2020K16-CHP",
+   "name": "泰珂洛 PTGNL2020K16-CHP 外圆车刀杆",
+   "iso5608": "PTGNL2020K16-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C088"
+   }
+  },
+  {
+   "id": "TG-PTGNR2525M1104-CHP",
+   "name": "泰珂洛 PTGNR2525M1104-CHP 外圆车刀杆",
+   "iso5608": "PTGNR2525M1104-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C088"
+   }
+  },
+  {
+   "id": "TG-PTGNL2525M1104-CHP",
+   "name": "泰珂洛 PTGNL2525M1104-CHP 外圆车刀杆",
+   "iso5608": "PTGNL2525M1104-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C088"
+   }
+  },
+  {
+   "id": "TG-PTGNR2525M16-CHP",
+   "name": "泰珂洛 PTGNR2525M16-CHP 外圆车刀杆",
+   "iso5608": "PTGNR2525M16-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C088"
+   }
+  },
+  {
+   "id": "TG-PTGNL2525M16-CHP",
+   "name": "泰珂洛 PTGNL2525M16-CHP 外圆车刀杆",
+   "iso5608": "PTGNL2525M16-CHP",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 38.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C088"
+   }
+  },
+  {
+   "id": "TG-DTGNR2020K16",
+   "name": "泰珂洛 DTGNR2020K16 外圆车刀杆",
+   "iso5608": "DTGNR2020K16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 21.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C090"
+   }
+  },
+  {
+   "id": "TG-DTGNL2020K16",
+   "name": "泰珂洛 DTGNL2020K16 外圆车刀杆",
+   "iso5608": "DTGNL2020K16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 21.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C090"
+   }
+  },
+  {
+   "id": "TG-DTGNR2525M16",
+   "name": "泰珂洛 DTGNR2525M16 外圆车刀杆",
+   "iso5608": "DTGNR2525M16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 21.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C090"
+   }
+  },
+  {
+   "id": "TG-DTGNL2525M16",
+   "name": "泰珂洛 DTGNL2525M16 外圆车刀杆",
+   "iso5608": "DTGNL2525M16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 21.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C090"
+   }
+  },
+  {
+   "id": "TG-DTGNR2525M22",
+   "name": "泰珂洛 DTGNR2525M22 外圆车刀杆",
+   "iso5608": "DTGNR2525M22",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "2204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 28.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C090"
+   }
+  },
+  {
+   "id": "TG-DTGNL2525M22",
+   "name": "泰珂洛 DTGNL2525M22 外圆车刀杆",
+   "iso5608": "DTGNL2525M22",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "2204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 28.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C090"
+   }
+  },
+  {
+   "id": "TG-ASBNR2020K12-A",
+   "name": "泰珂洛 ASBNR2020K12-A 外圆车刀杆",
+   "iso5608": "ASBNR2020K12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 17.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C093"
+   }
+  },
+  {
+   "id": "TG-ASBNL2020K12-A",
+   "name": "泰珂洛 ASBNL2020K12-A 外圆车刀杆",
+   "iso5608": "ASBNL2020K12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 17.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C093"
+   }
+  },
+  {
+   "id": "TG-ASBNR2525M12-A",
+   "name": "泰珂洛 ASBNR2525M12-A 外圆车刀杆",
+   "iso5608": "ASBNR2525M12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 22.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C093"
+   }
+  },
+  {
+   "id": "TG-ASBNL2525M12-A",
+   "name": "泰珂洛 ASBNL2525M12-A 外圆车刀杆",
+   "iso5608": "ASBNL2525M12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 22.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C093"
+   }
+  },
+  {
+   "id": "TG-ASBNR2525M15-A",
+   "name": "泰珂洛 ASBNR2525M15-A 外圆车刀杆",
+   "iso5608": "ASBNR2525M15-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 22.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 42.5,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C093"
+   }
+  },
+  {
+   "id": "TG-ASBNL2525M15-A",
+   "name": "泰珂洛 ASBNL2525M15-A 外圆车刀杆",
+   "iso5608": "ASBNL2525M15-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 22.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 42.5,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C093"
+   }
+  },
+  {
+   "id": "TG-ASBNR3232P15-A",
+   "name": "泰珂洛 ASBNR3232P15-A 外圆车刀杆",
+   "iso5608": "ASBNR3232P15-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 27.0,
+   "h_mm": 32.0,
+   "b_mm": 32.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 42.5,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C093"
+   }
+  },
+  {
+   "id": "TG-ASBNL3232P15-A",
+   "name": "泰珂洛 ASBNL3232P15-A 外圆车刀杆",
+   "iso5608": "ASBNL3232P15-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 27.0,
+   "h_mm": 32.0,
+   "b_mm": 32.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 42.5,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C093"
+   }
+  },
+  {
+   "id": "TG-ASBNR3232P19-A",
+   "name": "泰珂洛 ASBNR3232P19-A 外圆车刀杆",
+   "iso5608": "ASBNR3232P19-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1906"
+   },
+   "f_mm": 27.0,
+   "h_mm": 32.0,
+   "b_mm": 32.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 47.5,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C093"
+   }
+  },
+  {
+   "id": "TG-ASBNL3232P19-A",
+   "name": "泰珂洛 ASBNL3232P19-A 外圆车刀杆",
+   "iso5608": "ASBNL3232P19-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1906"
+   },
+   "f_mm": 27.0,
+   "h_mm": 32.0,
+   "b_mm": 32.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 47.5,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C093"
+   }
+  },
+  {
+   "id": "TG-ASBNR4040S19-A",
+   "name": "泰珂洛 ASBNR4040S19-A 外圆车刀杆",
+   "iso5608": "ASBNR4040S19-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1906"
+   },
+   "f_mm": 35.0,
+   "h_mm": 40.0,
+   "b_mm": 40.0,
+   "l1_mm": 250.0,
+   "h1_mm": 40.0,
+   "head_mm": 47.5,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C093"
+   }
+  },
+  {
+   "id": "TG-ASBNL4040S19-A",
+   "name": "泰珂洛 ASBNL4040S19-A 外圆车刀杆",
+   "iso5608": "ASBNL4040S19-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1906"
+   },
+   "f_mm": 35.0,
+   "h_mm": 40.0,
+   "b_mm": 40.0,
+   "l1_mm": 250.0,
+   "h1_mm": 40.0,
+   "head_mm": 47.5,
+   "nose_radius_mm": 1.2,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C093"
+   }
+  },
+  {
+   "id": "TG-DSBNR2020K12",
+   "name": "泰珂洛 DSBNR2020K12 外圆车刀杆",
+   "iso5608": "DSBNR2020K12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 17.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C095"
+   }
+  },
+  {
+   "id": "TG-DSBNL2020K12",
+   "name": "泰珂洛 DSBNL2020K12 外圆车刀杆",
+   "iso5608": "DSBNL2020K12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 17.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C095"
+   }
+  },
+  {
+   "id": "TG-DSBNR2525M12",
+   "name": "泰珂洛 DSBNR2525M12 外圆车刀杆",
+   "iso5608": "DSBNR2525M12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 22.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C095"
+   }
+  },
+  {
+   "id": "TG-DSBNL2525M12",
+   "name": "泰珂洛 DSBNL2525M12 外圆车刀杆",
+   "iso5608": "DSBNL2525M12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 22.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C095"
+   }
+  },
+  {
+   "id": "TG-ASDNN2020K12-A",
+   "name": "泰珂洛 ASDNN2020K12-A 外圆车刀杆",
+   "iso5608": "ASDNN2020K12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 10.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C102"
+   }
+  },
+  {
+   "id": "TG-ASDNN2525M12-A",
+   "name": "泰珂洛 ASDNN2525M12-A 外圆车刀杆",
+   "iso5608": "ASDNN2525M12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 12.5,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C102"
+   }
+  },
+  {
+   "id": "TG-DSDNN2020K12",
+   "name": "泰珂洛 DSDNN2020K12 外圆车刀杆",
+   "iso5608": "DSDNN2020K12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 10.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C103"
+   }
+  },
+  {
+   "id": "TG-DSDNN2525M12",
+   "name": "泰珂洛 DSDNN2525M12 外圆车刀杆",
+   "iso5608": "DSDNN2525M12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 12.5,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C103"
+   }
+  },
+  {
+   "id": "TG-SSDCN1010K07",
+   "name": "泰珂洛 SSDCN1010K07 外圆车刀杆",
+   "iso5608": "SSDCN1010K07",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SC"
+    ],
+    "size": "0702"
+   },
+   "f_mm": 5.0,
+   "h_mm": 10.0,
+   "b_mm": 10.0,
+   "l1_mm": 125.0,
+   "h1_mm": 10.0,
+   "head_mm": 12.0,
+   "nose_radius_mm": 0.4,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C104"
+   }
+  },
+  {
+   "id": "TG-ASKNR2020K12-A",
+   "name": "泰珂洛 ASKNR2020K12-A 外圆车刀杆",
+   "iso5608": "ASKNR2020K12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 20.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C109"
+   }
+  },
+  {
+   "id": "TG-ASKNL2020K12-A",
+   "name": "泰珂洛 ASKNL2020K12-A 外圆车刀杆",
+   "iso5608": "ASKNL2020K12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 20.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C109"
+   }
+  },
+  {
+   "id": "TG-ASKNR2525M12-A",
+   "name": "泰珂洛 ASKNR2525M12-A 外圆车刀杆",
+   "iso5608": "ASKNR2525M12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 22.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C109"
+   }
+  },
+  {
+   "id": "TG-ASKNL2525M12-A",
+   "name": "泰珂洛 ASKNL2525M12-A 外圆车刀杆",
+   "iso5608": "ASKNL2525M12-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 22.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C109"
+   }
+  },
+  {
+   "id": "TG-DSKNR2020K12",
+   "name": "泰珂洛 DSKNR2020K12 外圆车刀杆",
+   "iso5608": "DSKNR2020K12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C111"
+   }
+  },
+  {
+   "id": "TG-DSKNL2020K12",
+   "name": "泰珂洛 DSKNL2020K12 外圆车刀杆",
+   "iso5608": "DSKNL2020K12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C111"
+   }
+  },
+  {
+   "id": "TG-DSKNR2525M12",
+   "name": "泰珂洛 DSKNR2525M12 外圆车刀杆",
+   "iso5608": "DSKNR2525M12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C111"
+   }
+  },
+  {
+   "id": "TG-DSKNL2525M12",
+   "name": "泰珂洛 DSKNL2525M12 外圆车刀杆",
+   "iso5608": "DSKNL2525M12",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "SN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C111"
+   }
+  },
+  {
+   "id": "TG-PTFNR2020K1104",
+   "name": "泰珂洛 PTFNR2020K1104 外圆车刀杆",
+   "iso5608": "PTFNR2020K1104",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 16.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C114"
+   }
+  },
+  {
+   "id": "TG-PTFNL2020K1104",
+   "name": "泰珂洛 PTFNL2020K1104 外圆车刀杆",
+   "iso5608": "PTFNL2020K1104",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 16.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C114"
+   }
+  },
+  {
+   "id": "TG-PTFNR2525M1104",
+   "name": "泰珂洛 PTFNR2525M1104 外圆车刀杆",
+   "iso5608": "PTFNR2525M1104",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 22.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C114"
+   }
+  },
+  {
+   "id": "TG-PTFNL2525M1104",
+   "name": "泰珂洛 PTFNL2525M1104 外圆车刀杆",
+   "iso5608": "PTFNL2525M1104",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 22.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C114"
+   }
+  },
+  {
+   "id": "TG-ATFNR2020K16-A",
+   "name": "泰珂洛 ATFNR2020K16-A 外圆车刀杆",
+   "iso5608": "ATFNR2020K16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 25.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C115"
+   }
+  },
+  {
+   "id": "TG-ATFNL2020K16-A",
+   "name": "泰珂洛 ATFNL2020K16-A 外圆车刀杆",
+   "iso5608": "ATFNL2020K16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 25.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C115"
+   }
+  },
+  {
+   "id": "TG-ATFNR2525M16-A",
+   "name": "泰珂洛 ATFNR2525M16-A 外圆车刀杆",
+   "iso5608": "ATFNR2525M16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 25.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C115"
+   }
+  },
+  {
+   "id": "TG-ATFNL2525M16-A",
+   "name": "泰珂洛 ATFNL2525M16-A 外圆车刀杆",
+   "iso5608": "ATFNL2525M16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 25.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C115"
+   }
+  },
+  {
+   "id": "TG-ATFNR2525M22-A",
+   "name": "泰珂洛 ATFNR2525M22-A 外圆车刀杆",
+   "iso5608": "ATFNR2525M22-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "2204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 29.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C115"
+   }
+  },
+  {
+   "id": "TG-ATFNL2525M22-A",
+   "name": "泰珂洛 ATFNL2525M22-A 外圆车刀杆",
+   "iso5608": "ATFNL2525M22-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "2204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 29.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C115"
+   }
+  },
+  {
+   "id": "TG-DTFNR2020K16",
+   "name": "泰珂洛 DTFNR2020K16 外圆车刀杆",
+   "iso5608": "DTFNR2020K16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 23.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C117"
+   }
+  },
+  {
+   "id": "TG-DTFNL2020K16",
+   "name": "泰珂洛 DTFNL2020K16 外圆车刀杆",
+   "iso5608": "DTFNL2020K16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 23.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C117"
+   }
+  },
+  {
+   "id": "TG-DTFNR2525M16",
+   "name": "泰珂洛 DTFNR2525M16 外圆车刀杆",
+   "iso5608": "DTFNR2525M16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 23.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C117"
+   }
+  },
+  {
+   "id": "TG-DTFNL2525M16",
+   "name": "泰珂洛 DTFNL2525M16 外圆车刀杆",
+   "iso5608": "DTFNL2525M16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 23.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C117"
+   }
+  },
+  {
+   "id": "TG-DTFNR2525M22",
+   "name": "泰珂洛 DTFNR2525M22 外圆车刀杆",
+   "iso5608": "DTFNR2525M22",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "2204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C117"
+   }
+  },
+  {
+   "id": "TG-DTFNL2525M22",
+   "name": "泰珂洛 DTFNL2525M22 外圆车刀杆",
+   "iso5608": "DTFNL2525M22",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "2204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 31.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C117"
+   }
+  },
+  {
+   "id": "TG-ADQNR2020K1104-A",
+   "name": "泰珂洛 ADQNR2020K1104-A 外圆车刀杆",
+   "iso5608": "ADQNR2020K1104-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C118"
+   }
+  },
+  {
+   "id": "TG-ADQNL2020K1104-A",
+   "name": "泰珂洛 ADQNL2020K1104-A 外圆车刀杆",
+   "iso5608": "ADQNL2020K1104-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C118"
+   }
+  },
+  {
+   "id": "TG-ADQNR2525M1104-A",
+   "name": "泰珂洛 ADQNR2525M1104-A 外圆车刀杆",
+   "iso5608": "ADQNR2525M1104-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C118"
+   }
+  },
+  {
+   "id": "TG-ADQNL2525M1104-A",
+   "name": "泰珂洛 ADQNL2525M1104-A 外圆车刀杆",
+   "iso5608": "ADQNL2525M1104-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1104"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C118"
+   }
+  },
+  {
+   "id": "TG-ADQNR2020K15-A",
+   "name": "泰珂洛 ADQNR2020K15-A 外圆车刀杆",
+   "iso5608": "ADQNR2020K15-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 32.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C119"
+   }
+  },
+  {
+   "id": "TG-ADQNL2020K15-A",
+   "name": "泰珂洛 ADQNL2020K15-A 外圆车刀杆",
+   "iso5608": "ADQNL2020K15-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 32.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C119"
+   }
+  },
+  {
+   "id": "TG-ADQNR2020K1506-A",
+   "name": "泰珂洛 ADQNR2020K1506-A 外圆车刀杆",
+   "iso5608": "ADQNR2020K1506-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 32.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C119"
+   }
+  },
+  {
+   "id": "TG-ADQNL2020K1506-A",
+   "name": "泰珂洛 ADQNL2020K1506-A 外圆车刀杆",
+   "iso5608": "ADQNL2020K1506-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 32.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C119"
+   }
+  },
+  {
+   "id": "TG-ADQNR2525M15-A",
+   "name": "泰珂洛 ADQNR2525M15-A 外圆车刀杆",
+   "iso5608": "ADQNR2525M15-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C119"
+   }
+  },
+  {
+   "id": "TG-ADQNL2525M15-A",
+   "name": "泰珂洛 ADQNL2525M15-A 外圆车刀杆",
+   "iso5608": "ADQNL2525M15-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C119"
+   }
+  },
+  {
+   "id": "TG-ADQNR2525M1506-A",
+   "name": "泰珂洛 ADQNR2525M1506-A 外圆车刀杆",
+   "iso5608": "ADQNR2525M1506-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C119"
+   }
+  },
+  {
+   "id": "TG-ADQNL2525M1506-A",
+   "name": "泰珂洛 ADQNL2525M1506-A 外圆车刀杆",
+   "iso5608": "ADQNL2525M1506-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 36.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C119"
+   }
+  },
+  {
+   "id": "TG-DDQNR2020K15",
+   "name": "泰珂洛 DDQNR2020K15 外圆车刀杆",
+   "iso5608": "DDQNR2020K15",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C120"
+   }
+  },
+  {
+   "id": "TG-DDQNL2020K15",
+   "name": "泰珂洛 DDQNL2020K15 外圆车刀杆",
+   "iso5608": "DDQNL2020K15",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C120"
+   }
+  },
+  {
+   "id": "TG-DDQNR2020K1506",
+   "name": "泰珂洛 DDQNR2020K1506 外圆车刀杆",
+   "iso5608": "DDQNR2020K1506",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C120"
+   }
+  },
+  {
+   "id": "TG-DDQNL2020K1506",
+   "name": "泰珂洛 DDQNL2020K1506 外圆车刀杆",
+   "iso5608": "DDQNL2020K1506",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C120"
+   }
+  },
+  {
+   "id": "TG-DDQNR2525M15",
+   "name": "泰珂洛 DDQNR2525M15 外圆车刀杆",
+   "iso5608": "DDQNR2525M15",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C120"
+   }
+  },
+  {
+   "id": "TG-DDQNL2525M15",
+   "name": "泰珂洛 DDQNL2525M15 外圆车刀杆",
+   "iso5608": "DDQNL2525M15",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C120"
+   }
+  },
+  {
+   "id": "TG-DDQNR2525M1506",
+   "name": "泰珂洛 DDQNR2525M1506 外圆车刀杆",
+   "iso5608": "DDQNR2525M1506",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C120"
+   }
+  },
+  {
+   "id": "TG-DDQNL2525M1506",
+   "name": "泰珂洛 DDQNL2525M1506 外圆车刀杆",
+   "iso5608": "DDQNL2525M1506",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C120"
+   }
+  },
+  {
+   "id": "TG-DDQNR3225P15",
+   "name": "泰珂洛 DDQNR3225P15 外圆车刀杆",
+   "iso5608": "DDQNR3225P15",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C120"
+   }
+  },
+  {
+   "id": "TG-DDQNL3225P15",
+   "name": "泰珂洛 DDQNL3225P15 外圆车刀杆",
+   "iso5608": "DDQNL3225P15",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1504"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C120"
+   }
+  },
+  {
+   "id": "TG-DDQNR3225P1506",
+   "name": "泰珂洛 DDQNR3225P1506 外圆车刀杆",
+   "iso5608": "DDQNR3225P1506",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C120"
+   }
+  },
+  {
+   "id": "TG-DDQNL3225P1506",
+   "name": "泰珂洛 DDQNL3225P1506 外圆车刀杆",
+   "iso5608": "DDQNL3225P1506",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "DN"
+    ],
+    "size": "1506"
+   },
+   "f_mm": 32.0,
+   "h_mm": 32.0,
+   "b_mm": 25.0,
+   "l1_mm": 170.0,
+   "h1_mm": 32.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C120"
+   }
+  },
+  {
+   "id": "TG-ATQNR2020K16-A",
+   "name": "泰珂洛 ATQNR2020K16-A 外圆车刀杆",
+   "iso5608": "ATQNR2020K16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 28.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C122"
+   }
+  },
+  {
+   "id": "TG-ATQNL2020K16-A",
+   "name": "泰珂洛 ATQNL2020K16-A 外圆车刀杆",
+   "iso5608": "ATQNL2020K16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 28.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C122"
+   }
+  },
+  {
+   "id": "TG-ATQNR2525M16-A",
+   "name": "泰珂洛 ATQNR2525M16-A 外圆车刀杆",
+   "iso5608": "ATQNR2525M16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 28.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C122"
+   }
+  },
+  {
+   "id": "TG-ATQNL2525M16-A",
+   "name": "泰珂洛 ATQNL2525M16-A 外圆车刀杆",
+   "iso5608": "ATQNL2525M16-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "TN"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 28.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C122"
+   }
+  },
+  {
+   "id": "TG-AVQNR2020K1204-A",
+   "name": "泰珂洛 AVQNR2020K1204-A 外圆车刀杆",
+   "iso5608": "AVQNR2020K1204-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 32.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C123"
+   }
+  },
+  {
+   "id": "TG-AVQNL2020K1204-A",
+   "name": "泰珂洛 AVQNL2020K1204-A 外圆车刀杆",
+   "iso5608": "AVQNL2020K1204-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 32.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C123"
+   }
+  },
+  {
+   "id": "TG-AVQNR2525M1204-A",
+   "name": "泰珂洛 AVQNR2525M1204-A 外圆车刀杆",
+   "iso5608": "AVQNR2525M1204-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 32.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C123"
+   }
+  },
+  {
+   "id": "TG-AVQNL2525M1204-A",
+   "name": "泰珂洛 AVQNL2525M1204-A 外圆车刀杆",
+   "iso5608": "AVQNL2525M1204-A",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 32.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C123"
+   }
+  },
+  {
+   "id": "TG-PVQNR2020K1204",
+   "name": "泰珂洛 PVQNR2020K1204 外圆车刀杆",
+   "iso5608": "PVQNR2020K1204",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C123"
+   }
+  },
+  {
+   "id": "TG-PVQNL2020K1204",
+   "name": "泰珂洛 PVQNL2020K1204 外圆车刀杆",
+   "iso5608": "PVQNL2020K1204",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 25.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C123"
+   }
+  },
+  {
+   "id": "TG-PVQNR2525M1204",
+   "name": "泰珂洛 PVQNR2525M1204 外圆车刀杆",
+   "iso5608": "PVQNR2525M1204",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C123"
+   }
+  },
+  {
+   "id": "TG-PVQNL2525M1204",
+   "name": "泰珂洛 PVQNL2525M1204 外圆车刀杆",
+   "iso5608": "PVQNL2525M1204",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VN"
+    ],
+    "size": "1204"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C123"
+   }
+  },
+  {
+   "id": "TG-SVQCR2020K16",
+   "name": "泰珂洛 SVQCR2020K16 外圆车刀杆",
+   "iso5608": "SVQCR2020K16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VC"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 27.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C126"
+   }
+  },
+  {
+   "id": "TG-SVQCL2020K16",
+   "name": "泰珂洛 SVQCL2020K16 外圆车刀杆",
+   "iso5608": "SVQCL2020K16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VC"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 27.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C126"
+   }
+  },
+  {
+   "id": "TG-SVQCR2525M16",
+   "name": "泰珂洛 SVQCR2525M16 外圆车刀杆",
+   "iso5608": "SVQCR2525M16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VC"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C126"
+   }
+  },
+  {
+   "id": "TG-SVQCL2525M16",
+   "name": "泰珂洛 SVQCL2525M16 外圆车刀杆",
+   "iso5608": "SVQCL2525M16",
+   "use": "external",
+   "insert": {
+    "codes": [
+     "VC"
+    ],
+    "size": "1604"
+   },
+   "f_mm": 32.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 35.0,
+   "nose_radius_mm": 0.8,
+   "source": {
+    "kind": "catalog",
+    "ref": "tungaloy",
+    "page": "C126"
+   }
+  }
+ ]
+}

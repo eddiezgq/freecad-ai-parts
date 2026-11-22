@@ -11,7 +11,12 @@
   P：取“中碳钢、合金钢”一栏；M：三栏全范围（样本子标题照印为碳钢）；K：灰铸铁一栏；S：钛合金、镍基合金两栏全范围。
 - 不写刀具材料（同一断屑槽有硬质合金也有金属陶瓷）、不写主偏角和刀杆（取决于刀杆，样本没有刀杆表）。
 
-命令：python -m ingest.cam_tungaloy data/raw/cam/tungaloy --out analysis/cam/libraries/tungaloy.json
+刀杆（ADR-0112，综合样本 2020–2021 C 部分“外圆车削”）：表头 H B LF LH HF WF RE 的行收进 cam-holder/1——
+代号（R/L 拆成两把）、能装的刀片（“CN/GN**1204” → 前两位 CN、GN，尺寸位 1204）、h、b、l1、刀头长 LH、刀尖高 HF、刀尖偏距 WF、标准刀尖圆弧 RE。
+代号不合 ISO 5608 写法（缺长度字母或刀片位）的行不收；页码按样本印的 C 页。
+
+命令：python -m ingest.cam_tungaloy data/raw/cam/tungaloy --out analysis/cam/libraries/tungaloy.json \
+      --holders-out analysis/cam/libraries/tungaloy-holders.json
 """
 
 from __future__ import annotations
@@ -34,6 +39,13 @@ ROW = re.compile(r"\b([A-Z]{4}\d{6}[A-Z]?-[A-Z0-9]+|[A-Z]{3}A\d{6}[A-Z]?)(?![-A-
 _R = r"(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)"
 COND = re.compile(r"(?:^|\s)([A-Z]{2,3}|无断屑槽)\s+([A-Z]{1,2}\d{3,4})\s+" + _R + r"\s+" + _R + r"\s+" + _R
                   + r"(?:\s+(?:" + _R + r"|-))?(?:\s+(?:" + _R + r"|-))?\s*$", re.MULTILINE)
+
+
+HOLDER_PDF = "GC_2020-2021_CN_C_Ex.Turning.pdf"
+_N = r"(\d+(?:\.\d+)?)"
+HOLDER_ROW = re.compile(r"\b([A-Z]{4})(R/L|R|L|N)(\d{4}[A-Z]\d{2}(?:\d{2})?[A-Z]?(?:-[A-Z0-9]+)?)\s+" + r"\s+".join([_N] * 7)
+                        + r"\s+([A-Z]{2}(?:/[A-Z]{2})*)\*\*(\d{4})")
+HOLDER_HEAD = re.compile(r"\bH\s+B\s+LF\s+LH\s+HF\s+WF\s+RE")
 
 
 class TungaloyError(ValueError):
@@ -128,11 +140,62 @@ def build(raw: Path) -> dict:
     return {"format": "cam-tool/1", "name": "泰珂洛 ISO-EcoTurn 车刀片（样本参数）", "tools": tools}
 
 
+def holder_rows(text: str) -> list[dict]:
+    """外圆刀杆表的行（这一页要有 H B LF LH HF WF RE 表头）→ [{code, hands, h, b, lf, lh, hf, wf, re, codes, size}]"""
+    if not HOLDER_HEAD.search(text):
+        return []
+    out = []
+    for m in HOLDER_ROW.finditer(text):
+        g = m.groups()
+        h, b, lf, lh, hf, wf, re_ = (float(v) for v in g[3:10])
+        hands = ["R", "L"] if g[1] == "R/L" else [g[1]]
+        out.append({"base": g[0], "rest": g[2], "hands": hands, "h": h, "b": b, "lf": lf, "lh": lh, "hf": hf, "wf": wf, "re": re_,
+                    "codes": g[10].split("/"), "size": g[11]})
+    return out
+
+
+def build_holders(raw: Path) -> dict:
+    from analysis.cam import holders as HD
+
+    pdf = raw / HOLDER_PDF
+    if not pdf.exists():
+        raise TungaloyError(f"没有样本 {pdf}")
+    out, seen, skipped = [], set(), []
+    for page in range(1, page_count(pdf) + 1):
+        for r in holder_rows(page_text(pdf, page)):
+            for hand in r["hands"]:
+                code = f"{r['base']}{hand}{r['rest']}"
+                if code in seen:
+                    continue
+                try:
+                    p = HD.parse(code)
+                except HD.HolderError:
+                    continue                                     # 代号不合 ISO 5608 写法（缺长度字母等），不收
+                seen.add(code)
+                if (p["h_mm"], p["b_mm"], p["l1_mm"]) != (r["h"], r["b"], r["lf"]):
+                    skipped.append(f"{code}（代号 {p['h_mm']:g}×{p['b_mm']:g}×{p['l1_mm']:g}，表 {r['h']:g}×{r['b']:g}×{r['lf']:g}，C{page:03d}）")
+                    continue                                     # 代号与表对不上：哪个对说不准，不收
+                out.append({"id": "TG-" + code, "name": f"泰珂洛 {code} 外圆车刀杆", "iso5608": code, "use": "external",
+                            "insert": {"codes": r["codes"], "size": r["size"]}, "f_mm": r["wf"], "h_mm": r["h"], "b_mm": r["b"],
+                            "l1_mm": r["lf"], "h1_mm": r["hf"], "head_mm": r["lh"], "nose_radius_mm": r["re"],
+                            "source": {"kind": "catalog", "ref": SOURCE, "page": f"C{page:03d}"}})
+    if not out:
+        raise TungaloyError("刀杆表读不出来")
+    if skipped:
+        print("代号与表对不上、没收：" + "；".join(skipped), file=sys.stderr)
+    return {"format": "cam-holder/1", "name": "泰珂洛 外圆车刀杆（样本参数）", "holders": out}
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="泰珂洛 ISO-EcoTurn 样本 → 问渠CAM 刀具库")
     ap.add_argument("raw", type=Path)
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--holders-out", type=Path)
     a = ap.parse_args(argv)
+    if a.holders_out:
+        hl = build_holders(a.raw)
+        a.holders_out.write_text(json.dumps(hl, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        print(f"{len(hl['holders'])} 把刀杆 → {a.holders_out}", file=sys.stderr)
     lib = build(a.raw)
     a.out.parent.mkdir(parents=True, exist_ok=True)
     a.out.write_text(json.dumps(lib, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
