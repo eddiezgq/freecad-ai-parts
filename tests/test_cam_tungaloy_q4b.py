@@ -101,7 +101,7 @@ def test_draft_turning_with_tungaloy_library():
 # ---------------------------------------------------------------- 刀杆库（ADR-0112）：综合样本 C 部分外圆刀杆
 HOLDERS_PATH = TL.BUILTIN / "tungaloy-holders.json"
 HOLDERS = json.loads(HOLDERS_PATH.read_text(encoding="utf-8"))
-H_BY = {h["iso5608"]: h for h in HOLDERS["holders"]}
+H_BY = {h["iso5608"]: h for h in HOLDERS["holders"] if h["use"] == "external"}
 
 
 def test_holder_spot_check_and_schema():
@@ -113,7 +113,7 @@ def test_holder_spot_check_and_schema():
         h = H_BY[code]
         assert (h["h_mm"], h["b_mm"], h["l1_mm"], h["head_mm"], h["h1_mm"], h["f_mm"], h["nose_radius_mm"]) == (25, 25, 150, 28, 25, 32, 0.8)
         assert h["insert"] == {"codes": ["CN", "GN"], "size": "1204"} and h["source"]["page"] == "C020"
-    assert "PCLNR3225P16E" not in H_BY and len(HOLDERS["holders"]) == 293
+    assert "PCLNR3225P16E" not in H_BY and len(H_BY) == 293
 
 
 def test_holder_rows_parser():
@@ -223,3 +223,67 @@ def test_inner_tool_checks(tmp_path):
     st2 = {"machine_sim": {"tool_library": str(f), "tools": {"7": {"tool": "TG-16IR15ISO"}}}}
     texts = [c["text"] for c in C.inner_tool_checks(st2, sc)]
     assert any("最小能进 Ø30" in t and "22.376" in t for t in texts)
+
+
+# ---------------------------------------------------------------- 内孔镗杆（ADR-0114）：综合样本 D 部分
+def test_boring_bar_spot_check():
+    """D023（看样本页图抄的）A25R-PCLNR/L12-D320：DMIN 32、DCONMS 25、WF 17、LF 200、LH 45、CN**1204"""
+    bars = [h for h in HOLDERS["holders"] if h["use"] == "internal"]
+    assert len(bars) == 492
+    h = next(b for b in bars if b["iso6261"] == "A25R-PCLNR12-D320")
+    assert (h["min_bore_mm"], h["bar_d_mm"], h["f_mm"], h["l1_mm"], h["head_mm"]) == (32, 25, 17, 200, 45)
+    assert h["insert"] == {"codes": ["CN"], "size": "1204"}
+    assert any(b["iso6261"] == "A25R-PCLNL12-D320" for b in bars)                 # R/L 拆开
+
+
+def test_bar_rows_parser_and_6261():
+    from analysis.cam import holders as HD
+
+    txt = ("   DMIN DCONMS   WF   LF   LH   H   f2   GAMP GAMF RE**\n"
+           "   A25R-PCLNR/L12-D320   32   25   17   200   45   23   4.5   -6°   -11°   0.8   CN**1204...   2.7\n")
+    r = TG.bar_rows(txt)[0]
+    assert (r["head"], r["style"], r["hands"], r["dmin"], r["dcon"], r["wf"], r["lh"], r["size"]) == \
+        ("A25R", "PCLN", ["R", "L"], 32, 25, 17, 45, "1204")
+    p = HD.parse6261("A25R-PCLNR12-D320")
+    assert (p["bar_d_mm"], p["style"], p["hand"], p["edge_mm"]) == (25, "L", "R", 12)
+    with pytest.raises(HD.HolderError):
+        HD.parse6261("PCLNR2525M12")
+
+
+def test_pick_boring_bar_and_box():
+    from analysis.cam import holders as HD
+
+    h = HD.pick("CNMG120408", bore_d=32.0)
+    assert h["min_bore_mm"] <= 32 and h["bar_d_mm"] == 25                         # 进得去里面最粗的
+    assert HD.pick("CNMG120408", bore_d=30.0) is None                              # Ø30 的孔没有进得去的 CN12 镗杆
+    bx, notes = HD.boxes(HD.as_tool_holder(h))
+    f, r = h["f_mm"], h["bar_d_mm"] / 2
+    assert bx == [[-f - r, -r, h["head_mm"], -f + r, r, h["l1_mm"]]] and "外接方柱" in notes[0]
+
+
+def test_draft_pairs_boring_bar_and_checks_min_bore(tmp_path):
+    """自建刀具库里一把 CNMG1204 的内孔刀（没写刀杆）：钻 Ø34 后镗 Ø40，起草按钻孔直径配镗杆（最小孔径 ≤ 34）；
+    把钻头换成 Ø30 的，配不上镗杆，计算时镗刀的检查不报镗杆（没有配）；手动给一把最小孔径 Ø40 的镗杆 → 报“进不去”"""
+    import analysis.cam as C
+
+    bore = {"id": "IB-CN12", "kind": "turn", "internal": True, "insert": {"iso": "CNMG120408", "nose_radius_mm": 0.8},
+            "cutting": [{"iso_group": "P", "vc_m_min": {"min": 120, "max": 200}, "f_mm_rev": {"min": 0.1, "max": 0.3}, "ap_max_mm": 2}],
+            "source": {"kind": "example", "ref": "测试"}}
+    drill10 = next(t for t in TL.load()["tools"] if t["kind"] == "drill" and t["diameter_mm"] == 10)
+    part = {"mode": "turn", "machine": "EX-LATHE", "kienzle": "C45E", "segments": [[60, 40]], "chamfer_mm": 1,
+            "bore": {"segments": [[40, 30]], "drill_d": 34}}
+    d0 = CP.draft(part, "P", {**LIB, "tools": [*LIB["tools"], bore, drill10]})       # 只有 Ø10 钻头：没有进得去的镗杆
+    assert "holder" not in d0["setup"]["machine_sim"]["tools"]["6"] and any("没有能进 Ø10" in n for n in d0["notes"])
+    drill34 = {**drill10, "id": "DR34", "diameter_mm": 34.0}
+    lib = {**LIB, "tools": [*LIB["tools"], bore, drill34]}
+    d = CP.draft(part, "P", lib)
+    assert {r["id"]: r for r in d["card"]}["bore"]["tool"] == "IB-CN12"
+    hd = d["setup"]["machine_sim"]["tools"]["6"]["holder"]
+    drill = d["setup"]["bore"]["drill_d"]
+    assert hd["iso6261"] and hd["min_bore_mm"] <= drill
+    sc = {"threads": [], "bore": {"segments": [[40, 30]], "drill_d": drill}}
+    f = tmp_path / "lib.json"
+    f.write_text(json.dumps(lib, ensure_ascii=False), encoding="utf-8")
+    st = {"machine_sim": {"tool_library": str(f), "tools": {"6": {"tool": "IB-CN12", "holder": {**hd, "min_bore_mm": 40.0}}}}}
+    texts = [c["text"] for c in C.inner_tool_checks(st, sc)]
+    assert any("的镗杆" in t and "最小能进 Ø40" in t for t in texts)

@@ -519,7 +519,9 @@ def inner_tool_checks(setup, sc) -> list[dict]:
             holes.append((7, float(tv["d"]) - 1.0825 * float(tv["pitch"]), "内螺纹",
                           f"内螺纹 M{float(tv['d']):g}×{float(tv['pitch']):g} 的小径"))
     if sc.get("bore"):
-        holes.append((6, min(float(d) for d, _ in sc["bore"]["segments"]), "内孔", "内孔最小一段"))
+        b = sc["bore"]
+        holes.append((6, min([float(d) for d, _ in b["segments"]] + ([float(b["drill_d"])] if b.get("drill_d") else [])), "内孔",
+                      "钻孔与内孔里最小的"))
     for n, dia, short, what in holes:
         t = lib.get(n)
         if t is None:
@@ -527,9 +529,11 @@ def inner_tool_checks(setup, sc) -> list[dict]:
         if not inner(t):
             if _lib_has_internal(setup):                        # 库里分了内外才报（ADR-0113 以前的库没分）
                 out.append({"line": None, "level": "error", "text": f"T{n} {t['id']} 是外圆刀，不能车{short}"})
-        elif t.get("min_bore_mm") and dia < float(t["min_bore_mm"]) - 1e-9:
-            out.append({"line": None, "level": "error",
-                        "text": f"T{n} {t['id']} 最小能进 Ø{float(t['min_bore_mm']):g} 的孔，{what} Ø{dia:.3f} 进不去"})
+        else:
+            hd = ((setup.get("machine_sim") or {}).get("tools") or {}).get(str(n), {}).get("holder") or t.get("holder") or {}
+            for mb, who in ((t.get("min_bore_mm"), f"T{n} {t['id']}"), (hd.get("min_bore_mm"), f"T{n} 的镗杆 {hd.get('iso6261', '')}")):
+                if mb and dia < float(mb) - 1e-9:
+                    out.append({"line": None, "level": "error", "text": f"{who} 最小能进 Ø{float(mb):g} 的孔，{what} Ø{dia:.3f} 进不去"})
     for n in (1, 2, 4):
         t = lib.get(n)
         if t is not None and t.get("internal"):
