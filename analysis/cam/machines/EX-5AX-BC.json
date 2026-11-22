@@ -1,0 +1,139 @@
+{
+ "format": "cam-machine/1",
+ "id": "EX-5AX-BC",
+ "name": "示例摆头式五轴加工中心 BC（虚构）",
+ "example": true,
+ "source": "虚构示例",
+ "kind": "mill",
+ "controller": {
+  "family": "fanuc",
+  "model": "30i-B"
+ },
+ "features": {
+  "rtcp": true,
+  "tilted_plane": true
+ },
+ "spindle": {
+  "max_rpm": 15000,
+  "power_kw": 18.0,
+  "efficiency": 0.85
+ },
+ "axes": [
+  {
+   "id": "X",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    1,
+    0,
+    0
+   ],
+   "min": -400.0,
+   "max": 400.0,
+   "rapid": 30000.0
+  },
+  {
+   "id": "Y",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    0,
+    1,
+    0
+   ],
+   "min": -300.0,
+   "max": 300.0,
+   "rapid": 30000.0
+  },
+  {
+   "id": "Z",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "min": -550.0,
+   "max": 300.0,
+   "rapid": 30000.0
+  },
+  {
+   "id": "C",
+   "type": "rotary",
+   "carrier": "tool",
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "point_mm": [
+    0,
+    0,
+    0
+   ],
+   "min": -220.0,
+   "max": 220.0,
+   "rapid": 7200.0
+  },
+  {
+   "id": "B",
+   "type": "rotary",
+   "carrier": "tool",
+   "direction": [
+    0,
+    1,
+    0
+   ],
+   "point_mm": [
+    0,
+    0,
+    350.0
+   ],
+   "min": -110.0,
+   "max": 110.0,
+   "rapid": 5400.0
+  }
+ ],
+ "tool": {
+  "direction": [
+   0,
+   0,
+   1
+  ],
+  "gauge_point_mm": [
+   0,
+   0,
+   200.0
+  ]
+ },
+ "tool_change_s": 6.0,
+ "components": [
+  {
+   "id": "table",
+   "name": "工作台",
+   "attached_to": "base",
+   "box_mm": [
+    -450,
+    -350,
+    -80,
+    450,
+    350,
+    0
+   ]
+  },
+  {
+   "id": "head",
+   "name": "摆头",
+   "attached_to": "B",
+   "box_mm": [
+    -90,
+    -90,
+    230,
+    90,
+    90,
+    420
+   ]
+  }
+ ]
+}

@@ -156,7 +156,7 @@ Tick "Deviation" to colour the finished stock by its deviation from the part mod
 
 # 3+2 tilted planes
 
-On five-axis machining centres (such as the example EX-5AX-AC, trunnion A and C axes) an operation can work on a tilted working plane: plane origin,
+On five-axis machining centres (such as the examples EX-5AX-AC, trunnion A and C axes, and EX-5AX-BC, swivel head B and C axes) an operation can work on a tilted working plane: plane origin,
 normal (tool axis) and X direction are given in work coordinates, and the operation's tool path uses plane coordinates. Simulation: material removal
 uses tri-dexel (any tool axis), and the machine simulation solves the rotary axes from the tool axis and checks overtravel and collisions. Before the
 rotary axes turn, Z retracts to machine home; the moves from there to the first plunge follow the control's tilted-plane function and are not
