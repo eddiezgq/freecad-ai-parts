@@ -49,7 +49,7 @@ def test_spot_check_against_catalog_pages():
 
 
 def test_library_shape_and_sources():
-    assert len(LIB["tools"]) == 217 and TL.readonly(LIB_PATH)          # 176 片车刀片 + 41 片螺纹刀片
+    assert len(LIB["tools"]) == 271 and TL.readonly(LIB_PATH)          # 176 片车刀片 + 41 片外螺纹 + 54 片内螺纹刀片
     for t in LIB["tools"]:
         assert t["kind"] in ("turn", "thread_turn") and t["id"] == "TG-" + t["insert"]["iso"]
         if t["kind"] == "thread_turn":
@@ -163,7 +163,7 @@ def test_thread_inserts_spot_check():
         c = {x["iso_group"]: x for x in t["cutting"]}
         assert c["P"]["vc_m_min"] == {"min": 60, "max": 200} and c["M"]["vc_m_min"] == {"min": 50, "max": 130}
         assert c["K"]["vc_m_min"] == {"min": 50, "max": 150} and c["P"]["f_mm_rev"] == {"min": pitch, "max": pitch}
-    assert not any("IR" in t["id"] or "EL" in t["id"] for t in LIB["tools"] if t["kind"] == "thread_turn")   # 内螺纹、左手不收
+    assert not any("EL" in t["id"] or "IL" in t["id"] for t in LIB["tools"] if t["kind"] == "thread_turn")   # 左手不收
 
 
 def test_thread_row_parser():
@@ -185,3 +185,41 @@ def test_draft_threaded_shaft_with_tungaloy():
     s["machine_sim"]["tool_library"] = str(LIB_PATH)
     r = cam.run({**s, "post": "fanuc"})
     assert all(p["release"] is not None for p in r["data"]["programs"])
+
+
+# ---------------------------------------------------------------- 内孔刀（ADR-0113）：内螺纹刀片、内外挑刀、最小孔径
+def test_internal_thread_inserts_spot_check():
+    """E017、E018 图抄的：06IR10ISO IC 4 RE 0.05；16IR15ISO IC 9.525 RE 0.11；都标 internal"""
+    for tid, ic, re_ in (("TG-06IR10ISO", 4.0, 0.05), ("TG-16IR15ISO", 9.525, 0.11)):
+        t = BY_ID[tid]
+        assert t["internal"] is True and (t["insert"]["inscribed_circle_mm"], t["insert"]["nose_radius_mm"]) == (ic, re_)
+    assert sum(1 for t in LIB["tools"] if t.get("internal")) == 54
+
+
+def test_operations_pick_by_internal_flag():
+    part = {"mode": "turn", "machine": "EX-LATHE", "segments": [[40, 30]], "bore": {"segments": [[26, 20]], "drill_d": 20},
+            "threads": [{"z_start": 0, "z_end": -10, "d": 30, "pitch": 1.5, "internal": True},
+                        {"z_start": 0, "z_end": -10, "d": 40, "pitch": 1.5}]}
+    ops = {o["id"]: o for o in CP.operations(part, LIB)}
+    assert ops["thread1"]["cands"] and all(t.get("internal") for t in ops["thread1"]["cands"])
+    assert ops["thread2"]["cands"] and not any(t.get("internal") for t in ops["thread2"]["cands"])
+    assert not any(t.get("internal") for o in ("rough", "finish") for t in ops[o]["cands"])
+    # 没分内外的老刀具库（示例库）：内螺纹照旧按螺距挑
+    old = CP.operations(part, TL.load())
+    assert next(o for o in old if o["id"] == "thread1")["cands"]
+
+
+def test_inner_tool_checks(tmp_path):
+    """内螺纹用了外螺纹刀片、外圆用了内螺纹刀片 → 错误；内孔刀最小孔径 Ø30 进不了 M24×1.5 的小径 Ø22.376 → 错误"""
+    import analysis.cam as C
+
+    sc = {"threads": [{"d": 24, "pitch": 1.5, "internal": True}], "bore": None}
+    st = {"machine_sim": {"tool_library": str(LIB_PATH), "tools": {"7": {"tool": "TG-16ER15ISO"}, "4": {"tool": "TG-16IR15ISO"}}}}
+    texts = [c["text"] for c in C.inner_tool_checks(st, sc)]
+    assert any("是外圆刀" in t for t in texts) and any("是内孔刀，不能车外圆" in t for t in texts)
+    lib = {"format": "cam-tool/1", "name": "测试", "tools": [{**BY_ID["TG-16IR15ISO"], "min_bore_mm": 30.0}]}
+    f = tmp_path / "lib.json"
+    f.write_text(json.dumps(lib, ensure_ascii=False), encoding="utf-8")
+    st2 = {"machine_sim": {"tool_library": str(f), "tools": {"7": {"tool": "TG-16IR15ISO"}}}}
+    texts = [c["text"] for c in C.inner_tool_checks(st2, sc)]
+    assert any("最小能进 Ø30" in t and "22.376" in t for t in texts)
