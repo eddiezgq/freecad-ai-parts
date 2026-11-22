@@ -228,7 +228,7 @@ def test_inner_tool_checks(tmp_path):
 # ---------------------------------------------------------------- 内孔镗杆（ADR-0114）：综合样本 D 部分
 def test_boring_bar_spot_check():
     """D023（看样本页图抄的）A25R-PCLNR/L12-D320：DMIN 32、DCONMS 25、WF 17、LF 200、LH 45、CN**1204"""
-    bars = [h for h in HOLDERS["holders"] if h["use"] == "internal"]
+    bars = [h for h in HOLDERS["holders"] if h["use"] == "internal" and h.get("iso6261")]
     assert len(bars) == 492
     h = next(b for b in bars if b["iso6261"] == "A25R-PCLNR12-D320")
     assert (h["min_bore_mm"], h["bar_d_mm"], h["f_mm"], h["l1_mm"], h["head_mm"]) == (32, 25, 17, 200, 45)
@@ -287,3 +287,37 @@ def test_draft_pairs_boring_bar_and_checks_min_bore(tmp_path):
     st = {"machine_sim": {"tool_library": str(f), "tools": {"6": {"tool": "IB-CN12", "holder": {**hd, "min_bore_mm": 40.0}}}}}
     texts = [c["text"] for c in C.inner_tool_checks(st, sc)]
     assert any("的镗杆" in t and "最小能进 Ø40" in t for t in texts)
+
+
+# ---------------------------------------------------------------- 螺纹镗杆（ADR-0115）：厂家代号、按螺纹刀片尺寸位配
+def test_thread_bar_spot_check_and_pick():
+    """E055（看样本页图抄的）SNR/L0016M16：DMIN 19、DCONMS 16、WF 10.6、LF 150、LH 40，装 16IR/L；
+    M24×1.5 内螺纹（小径 22.376）配 16IR15ISO → SNR0016M16（1° 的那把）；小径 18 配不上"""
+    from analysis.cam import holders as HD
+
+    bars = {h["vendor_code"]: h for h in HOLDERS["holders"] if h.get("vendor_code")}
+    assert len(bars) == 45
+    h = bars["SNR0016M16"]
+    assert (h["min_bore_mm"], h["bar_d_mm"], h["f_mm"], h["l1_mm"], h["head_mm"], h["insert"]) == (19, 16, 10.6, 150, 40, {"thread_size": "16"})
+    assert "SNL0016M16" in bars and h["source"]["page"] == "E055"
+    assert HD.thread_size("16IR15ISO-M") == "16" and HD.thread_size("CNMG120408") is None
+    assert HD.pick_thread_bar("16IR15ISO", 22.376)["vendor_code"] == "SNR0016M16"
+    assert HD.pick_thread_bar("16IR15ISO", 18.0) is None
+    bx, notes = HD.boxes(HD.as_tool_holder(h))
+    assert bx == [[-10.6 - 8, -8, 40, -10.6 + 8, 8, 150]] and "SNR0016M16" in notes[0]
+
+
+def test_draft_internal_thread_pairs_thread_bar():
+    """起草带 M24×1.5 内螺纹的件（钻 Ø20、镗到 Ø22.376）：内螺纹刀片配螺纹镗杆、写进说明"""
+    drills = [t for t in TL.load()["tools"] if t["kind"] == "drill"]
+    bore = next(t for t in TL.load()["tools"] if t["kind"] == "bore")
+    lib = {**LIB, "tools": [*LIB["tools"], *drills, bore]}
+    part = {"mode": "turn", "machine": "EX-LATHE", "kienzle": "C45E", "segments": [[50, 40]], "chamfer_mm": 1,
+            "bore": {"segments": [[24, 30]], "drill_d": 10},
+            "threads": [{"z_start": 0, "z_end": -20, "d": 24, "pitch": 1.5, "internal": True}]}
+    d = CP.draft(part, "P", lib)
+    t7 = d["setup"]["machine_sim"]["tools"]["7"]
+    ts = BY_ID[t7["tool"]]["insert"]["iso"][:2]
+    bar = next(h for h in HOLDERS["holders"] if h.get("vendor_code") == t7["holder"]["vendor_code"])
+    assert BY_ID[t7["tool"]].get("internal") and bar["insert"]["thread_size"] == ts and t7["holder"]["min_bore_mm"] <= 22.376
+    assert any(t7["holder"]["vendor_code"] in n for n in d["notes"])
