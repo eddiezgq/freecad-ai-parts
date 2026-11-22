@@ -25,7 +25,8 @@ def _chamfer_block():
     return part.cut(pk).removeSplitter()
 
 
-def test_tilted_setup_face_and_pocket_to_g68_2():
+@pytest.mark.parametrize("machine", ["EX-5AX-AC", "EX-5AX-BC"])      # 摇篮 AC、摆头 BC 同一套（ADR-0106 C2a、C2c）
+def test_tilted_setup_face_and_pocket_to_g68_2(machine):
     import FreeCAD as App
 
     from freecad_addon.fc import cam_objects as CO
@@ -42,7 +43,7 @@ def test_tilted_setup_face_and_pocket_to_g68_2():
         cmd = P.TiltSetupCommand()
         with pytest.raises(CO.CamObjError, match="先给这个零件建铣削作业"):
             cmd.run(m, slope)
-        job = CO.new_job(doc, m, "mill", machine="EX-5AX-AC", post="fanuc")
+        job = CO.new_job(doc, m, "mill", machine=machine, post="fanuc")
         job.ToolLengths = json.dumps({"EM10": 120, "EM6": 110})
         with pytest.raises(CO.CamObjError, match="朝上"):
             cmd.run(m, top)

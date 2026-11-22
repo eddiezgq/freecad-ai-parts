@@ -51,7 +51,7 @@ def _head_table() -> dict:
 # ---------------- 机床文件 ----------------
 
 def test_example_machines_load_and_legacy_view_matches_old_yaml():
-    assert {m["id"] for m in machines.models()} >= {"EX-LATHE", "EX-VMC", "EX-5AX-AC", "EX-MT-CY"}
+    assert {m["id"] for m in machines.models()} >= {"EX-LATHE", "EX-VMC", "EX-5AX-AC", "EX-5AX-BC", "EX-MT-CY"}
     for m in machines.models():
         assert MM.validate(m) == [] and m["example"] is True and "虚构" in m["name"]
     # 旧格式 machines_example.yaml 里的数，转换后一个不差（ADR-0105 第 3 节：旧数据不作废）
@@ -64,7 +64,7 @@ def test_example_machines_load_and_legacy_view_matches_old_yaml():
         for k, val in o.items():
             assert v[k] == val, (mid, k)
     # 3+2 五轴、车铣中心进旧视图（ADR-0106 C2a、C2b：带回转轴列表）
-    assert {m["id"] for m in machines.all_machines()} == {"EX-LATHE", "EX-VMC", "EX-5AX-AC", "EX-MT-CY"}
+    assert {m["id"] for m in machines.all_machines()} == {"EX-LATHE", "EX-VMC", "EX-5AX-AC", "EX-5AX-BC", "EX-MT-CY"}
     assert machines.get("EX-5AX-AC")["rotary"] == ["A", "C"] and machines.get("EX-MT-CY")["rotary"] == ["C"]
 
 
@@ -234,3 +234,17 @@ def test_freecad_tool_import():
     assert by[2]["kind"] == "bull_endmill" and by[2]["corner_radius_mm"] == pytest.approx(1.0)
     assert by[5]["kind"] == "drill" and by[5]["tip_angle_deg"] == 118.0
     assert all("cutting" not in t and "holder" not in t for t in lib["tools"])   # FreeCAD 里没有的不编
+
+
+def test_bc_head_inverse_matches_hand_values():
+    """摆头 BC（ADR-0106 C2c，EX-5AX-BC：B 绕 Y、摆动中心在 Z350，刀长基准点 Z200）：刀尖 (10, 20, −5)、刀长 100。
+    竖直刀：B0 C0、Z = −5 + 100 − 200；刀轴 +X：B 转 90°、刀尖到摆动中心 100 + 150，X = 10 + 250、Z = −5 − 350；
+    刀轴 (0, √½, √½)：B −45°、C −90°"""
+    bc = machines.model("EX-5AX-BC")
+    q = K.inverse(bc, [10, 20, -5], (0, 0, 1), 100)
+    assert (q["B"], q["C"], q["X"], q["Y"], q["Z"]) == pytest.approx((0, 0, 10, 20, -105), abs=1e-9)
+    q = K.inverse(bc, [10, 20, -5], (1, 0, 0), 100)
+    assert abs(q["B"]) == pytest.approx(90) and (q["X"], q["Y"], q["Z"]) == pytest.approx((260, 20, -355), abs=1e-9)
+    q = K.inverse(bc, [10, 20, -5], (0, math.sqrt(0.5), math.sqrt(0.5)), 100)
+    assert (q["B"], q["C"]) == pytest.approx((-45, -90), abs=1e-9)
+    assert machines.get("EX-5AX-BC")["rotary"] == ["C", "B"]
