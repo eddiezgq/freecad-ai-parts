@@ -84,7 +84,7 @@
           "length_mm": {
             "type": "number",
             "minimum": 0,
-            "description": "从本杆件的关节到下一关节（或末端）的距离"
+            "description": "杆件长度（外形、质量用）；关节、工具点的位置以 joints 的 origin_mm 与 end_effector 的 offset_mm 为准"
           },
           "shape": {
             "enum": [
@@ -153,7 +153,7 @@
           },
           "origin_mm": {
             "$ref": "#/$defs/vec3",
-            "description": "零位时关节在父件坐标系里的位置"
+            "description": "零位时关节在父件坐标系里的位置（父件是 base 时为基座坐标系；杆件坐标系原点在带动它的关节处，零位时与父件同向）"
           },
           "axis": {
             "$ref": "#/$defs/vec3",
@@ -376,7 +376,7 @@
         },
         "offset_mm": {
           "$ref": "#/$defs/vec3",
-          "description": "工具点相对该杆件末端的偏移"
+          "description": "工具点在该杆件坐标系里的位置（杆件坐标系原点在带动它的关节处，零位时与父件同向）"
         },
         "note": {
           "type": "string",
