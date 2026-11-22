@@ -1,0 +1,452 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-design/1",
+  "request_key": "0161650a19bf55e577f90cd7d417e449c3ba3da03fa722fa7fd1163b2afab9df",
+  "response": {
+    "id": "msg_011ChJThRBa7BhcV7PQvsaKC",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "candidates": [
+        {
+          "base": {
+            "height_mm": 0,
+            "mount": "table"
+          },
+          "end_effector": {
+            "offset_mm": [
+              0,
+              0,
+              35
+            ],
+            "parent": "hand",
+            "type": "gripper"
+          },
+          "format": "robot-concept/1",
+          "joints": [
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "turret",
+              "id": "j1",
+              "module_group": "mod_l",
+              "origin_mm": [
+                0,
+                0,
+                0
+              ],
+              "parent": "base",
+              "range_deg": [
+                -170,
+                170
+              ],
+              "ratio": 50,
+              "transmission": "reducer",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                1,
+                0
+              ],
+              "child": "upper_arm",
+              "id": "j2",
+              "module_group": "mod_l",
+              "origin_mm": [
+                0,
+                0,
+                100
+              ],
+              "parent": "turret",
+              "range_deg": [
+                -90,
+                120
+              ],
+              "ratio": 50,
+              "transmission": "reducer",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                1,
+                0
+              ],
+              "child": "forearm",
+              "id": "j3",
+              "module_group": "mod_l",
+              "origin_mm": [
+                0,
+                0,
+                180
+              ],
+              "parent": "upper_arm",
+              "range_deg": [
+                -10,
+                140
+              ],
+              "ratio": 50,
+              "transmission": "reducer",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                1,
+                0
+              ],
+              "child": "wrist",
+              "id": "j4",
+              "module_group": "mod_s",
+              "origin_mm": [
+                0,
+                0,
+                170
+              ],
+              "parent": "forearm",
+              "range_deg": [
+                -110,
+                110
+              ],
+              "ratio": 30,
+              "transmission": "reducer",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "hand",
+              "id": "j5",
+              "module_group": "mod_s",
+              "origin_mm": [
+                0,
+                0,
+                25
+              ],
+              "parent": "wrist",
+              "range_deg": [
+                -180,
+                180
+              ],
+              "ratio": 30,
+              "transmission": "reducer",
+              "type": "revolute"
+            }
+          ],
+          "kind": "serial_arm",
+          "links": [
+            {
+              "id": "turret",
+              "length_mm": 100,
+              "material": "aluminum_6061",
+              "section_mm": [
+                80,
+                80
+              ],
+              "shape": "box"
+            },
+            {
+              "id": "upper_arm",
+              "length_mm": 180,
+              "material": "aluminum_6061",
+              "section_mm": [
+                32,
+                28
+              ],
+              "shape": "tube"
+            },
+            {
+              "id": "forearm",
+              "length_mm": 170,
+              "material": "aluminum_6061",
+              "section_mm": [
+                28,
+                24
+              ],
+              "shape": "tube"
+            },
+            {
+              "id": "wrist",
+              "length_mm": 25,
+              "material": "aluminum_6061",
+              "section_mm": [
+                30,
+                30
+              ],
+              "shape": "box"
+            },
+            {
+              "id": "hand",
+              "length_mm": 35,
+              "material": "aluminum_6061",
+              "section_mm": [
+                26,
+                20
+              ],
+              "shape": "tube"
+            }
+          ],
+          "name": "5R 立柱式五轴臂(双模组)",
+          "reason": "全转动关节的经典 5R:底座回转 + 肩/肘/腕俯仰 + 腕滚转。肩高 100 mm,大臂 180、小臂 170、腕到工具点 60,伸直总长 410 mm,够到 350 mm 时肘角约 58°,离开伸直奇异位。关节分两种模组:j1~j3 用大模组,j4~j5 用小模组,零件种类少,学生好装拆。杆件均为铝管加端部车/铣件,可在普通车床、铣床上加工。",
+          "tasks": [
+            {
+              "dwell_s": 0.5,
+              "from": {
+                "j1": 0,
+                "j2": 0,
+                "j3": 0,
+                "j4": 0,
+                "j5": 0
+              },
+              "move_s": 2,
+              "name": "reach_out",
+              "to": {
+                "j1": 0,
+                "j2": 81,
+                "j3": 58,
+                "j4": -49,
+                "j5": 0
+              }
+            }
+          ],
+          "workspace": {
+            "points_mm": [
+              [
+                350,
+                0,
+                0
+              ]
+            ]
+          }
+        },
+        {
+          "base": {
+            "height_mm": 0,
+            "mount": "table"
+          },
+          "end_effector": {
+            "offset_mm": [
+              30,
+              0,
+              0
+            ],
+            "parent": "hand",
+            "type": "gripper"
+          },
+          "format": "robot-concept/1",
+          "joints": [
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "slider",
+              "id": "j1",
+              "lead_mm": 8,
+              "origin_mm": [
+                0,
+                0,
+                20
+              ],
+              "parent": "base",
+              "range_mm": [
+                -20,
+                250
+              ],
+              "transmission": "ballscrew",
+              "type": "prismatic"
+            },
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "arm1",
+              "id": "j2",
+              "module_group": "mod_l",
+              "origin_mm": [
+                0,
+                0,
+                0
+              ],
+              "parent": "slider",
+              "range_deg": [
+                -150,
+                150
+              ],
+              "ratio": 50,
+              "transmission": "reducer",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "arm2",
+              "id": "j3",
+              "module_group": "mod_l",
+              "origin_mm": [
+                210,
+                0,
+                0
+              ],
+              "parent": "arm1",
+              "range_deg": [
+                -140,
+                140
+              ],
+              "ratio": 50,
+              "transmission": "reducer",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                1,
+                0
+              ],
+              "child": "wrist",
+              "id": "j4",
+              "module_group": "mod_s",
+              "origin_mm": [
+                200,
+                0,
+                0
+              ],
+              "parent": "arm2",
+              "range_deg": [
+                -110,
+                110
+              ],
+              "ratio": 30,
+              "transmission": "reducer",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                1,
+                0,
+                0
+              ],
+              "child": "hand",
+              "id": "j5",
+              "module_group": "mod_s",
+              "origin_mm": [
+                30,
+                0,
+                0
+              ],
+              "parent": "wrist",
+              "range_deg": [
+                -180,
+                180
+              ],
+              "ratio": 30,
+              "transmission": "reducer",
+              "type": "revolute"
+            }
+          ],
+          "kind": "serial_arm",
+          "links": [
+            {
+              "id": "slider",
+              "length_mm": 20,
+              "material": "aluminum_6061",
+              "section_mm": [
+                80,
+                60
+              ],
+              "shape": "plate"
+            },
+            {
+              "id": "arm1",
+              "length_mm": 210,
+              "material": "aluminum_6061",
+              "section_mm": [
+                30,
+                20
+              ],
+              "shape": "profile"
+            },
+            {
+              "id": "arm2",
+              "length_mm": 200,
+              "material": "aluminum_6061",
+              "section_mm": [
+                28,
+                20
+              ],
+              "shape": "profile"
+            },
+            {
+              "id": "wrist",
+              "length_mm": 30,
+              "material": "aluminum_6061",
+              "section_mm": [
+                30,
+                30
+              ],
+              "shape": "box"
+            },
+            {
+              "id": "hand",
+              "length_mm": 30,
+              "material": "aluminum_6061",
+              "section_mm": [
+                26,
+                20
+              ],
+              "shape": "tube"
+            }
+          ],
+          "name": "升降+SCARA式五轴臂",
+          "reason": "丝杠升降 + 两个水平回转(大臂210、小臂200)+ 腕俯仰 + 腕滚转。工具高度由丝杠直接定,重复定位好,水平臂不用抬重力矩。代价是要加工丝杠立柱与导轨,外购件(丝杠、直线导向)更多,成本和装配难度高于方案0。",
+          "tasks": [
+            {
+              "dwell_s": 0.5,
+              "from": {
+                "j1": 0,
+                "j2": 0,
+                "j3": 0,
+                "j4": 0,
+                "j5": 0
+              },
+              "move_s": 2,
+              "name": "reach_out",
+              "to": {
+                "j1": -20,
+                "j2": -40,
+                "j3": 90,
+                "j4": 0,
+                "j5": 0
+              }
+            }
+          ],
+          "workspace": {
+            "points_mm": [
+              [
+                350,
+                0,
+                0
+              ]
+            ]
+          }
+        }
+      ],
+      "reason": "推荐方案0(5R 立柱式)。条件是 0.5 kg、350 mm、±0.5 mm,低成本,学生自己装拆,自制件只用普通车铣。方案0 只有转动关节,只需要两种模组(j1~j3 大、j4~j5 小),外购件最少、最便宜,装拆也最简单;杆件是铝管加端件,好加工。受力上 0.5 kg 在 350 mm 处约 1.7 N·m,加上臂自重,由 50:1 减速的大模组承担可以接受。精度方面,转动串联臂误差随臂长累积,±0.5 mm 要靠减速器背隙和刚度把关,这是方案0的主要风险。方案1 的 z 向精度更好,但丝杠、导向、立柱的外购和加工成本高,装拆也复杂,与本条件的低成本要求不符,只作备选。",
+      "recommend": 0
+    }
+  }
+}
