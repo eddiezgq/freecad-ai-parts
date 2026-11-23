@@ -157,3 +157,12 @@ def test_min_spare_for_brackets():
     c["joints"][0]["origin_mm"] = [0, 0, 50]
     links = {x["link"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]}, min_spare_mm=200)["links"]}
     assert links["upper"]["status"] == "fail" and "放不下" in links["upper"]["note"]
+
+
+def test_child_origin_offset_along_the_axis_is_a_design_error():
+    """侧摆关节的下一关节原点沿本关节轴线偏了（AI 把轴转关节的 24.5 mm 用到了侧摆关节上）：做不了，判不通过并说明改法"""
+    c = _arm()
+    c["joints"][0]["origin_mm"] = [0, 0, 50]
+    c["joints"][2]["origin_mm"] = [0, 24.5, 170]                # j3 原点沿 j2 的轴线（y）偏 24.5
+    j2 = {x["joint"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["joints"]}["j2"]
+    assert j2["status"] == "fail" and "24.5" in j2["note"] and "沿轴偏移为 0" in j2["note"]
