@@ -23,7 +23,7 @@ from analysis.robot import kinematics as K
 from analysis.robot import screen
 from assist.fea_draft import _in_statement, _value_with_unit
 
-PROMPT_VERSION = "robot-design/2"            # /2：提示里给出一体化模组的装配要点（ADR-0115 44.3 之二）
+PROMPT_VERSION = "robot-design/3"            # /2：提示里给出一体化模组的装配要点（ADR-0115 44.3 之二）；/3：按装法分开的留长（沉头孔后的板厚）
 DEFAULT_MODEL = "claude-sonnet-5-5"
 MAX_ROUNDS = 6                                  # 初筛与选件、装配、复核共用（ADR-0115 44.3 之二）
 MAX_CANDIDATES = 3
@@ -183,6 +183,7 @@ def actuator_notes() -> str:
     back = -min(pt["z_start_mm"] for pt in comps[0]["envelope"]["parts"])
     corner = (g["half_width"] ** 2 + g["axis_to_bottom"] ** 2) ** 0.5            # 壳体离轴线最远的角
     reach = fit.clevis_reach(fit.D_MAX_MM, 2 * g["half_width"], g, 2 * g["half_width"])
+    sp = min_spare_mm()
     rows = []
     for c in sorted(comps, key=lambda c: c["id"]):
         pp = c["params"]
@@ -195,7 +196,8 @@ def actuator_notes() -> str:
             f"1. 装在基座上的关节：输出舵盘在关节原点，壳体在它后面 {back:g} mm，原点要离安装面至少这么高（再加底座板厚）。\n"
             "2. 子杆沿关节轴转（轴转）时，父杆不能也沿这个轴（共线装不上）；要让壳体底面装在父杆上，轴线偏开。\n"
             f"3. 子杆垂直于关节轴（侧摆）时，子杆由跨在前后舵盘上的 U 形支架带动：U 底板离轴线至少 {corner:.0f} mm（行程越大越远），"
-            f"杆件在 U 底板和下一壳体之间至少要留 {min_spare_mm():g} mm 放支架板、套管与管子。\n"
+            f"杆件在 U 底板和下一壳体之间至少要留 {sp['clevis']:g} mm 放支架板、套管与管子"
+            f"（轴转关节的舵盘法兰与下一壳体之间至少 {sp['flange']:g} mm）。\n"
             "4. 杆件都做直管：下一关节的轴线要垂直于“本关节到它壳体中心”的连线。侧摆关节的原点就是壳体中心（前后两舵盘中间），"
             "子杆上下一关节的原点要在垂直于本关节轴线、过本关节原点的平面里（沿本关节轴线不要偏）；"
             "轴转关节的原点在输出舵盘端面，壳体中心在它后面 24.5 mm（只有轴转关节有这个偏移）。\n"

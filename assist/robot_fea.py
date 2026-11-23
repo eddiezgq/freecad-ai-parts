@@ -258,7 +258,9 @@ def judge(res: Mapping, material: str, required: float | None) -> dict:
 
 
 def analyse(concept: Mapping, build_result: Mapping, cad_result: Mapping, verify_result: Mapping, assembly_step: str | Path,
-            payload_kg: float, *, joints=None, work_dir: str | Path | None = None, convergence: bool = True) -> dict:
+            payload_kg: float, *, joints=None, work_dir: str | Path | None = None, convergence: bool = True,
+            on_item=None) -> dict:
+    """on_item：每算完一件回调一次（命令行用它边算边打印，一件要几分钟）"""
     import analysis
 
     factor = dynamic_factor(verify_result)
@@ -279,9 +281,16 @@ def analyse(concept: Mapping, build_result: Mapping, cad_result: Mapping, verify
                 continue
             ld = load_on(concept, p, parts, payload_kg, q, factor)
             step = wd / f"bracket-{k:02d}.step"
-            extract(assembly_step, p, step)
-            res = analysis.run("fea", study(p, step, ld, convergence=convergence))
+            try:
+                extract(assembly_step, p, step)
+                st_ = study(p, step, ld, convergence=convergence)
+            except FeaError as ex:                     # 取不出零件、选不到接口面：这一件判不了，其余照算
+                items.append(dict(row, load=ld, status="unknown", note=f"建不成算例：{ex}"))
+                continue
+            res = analysis.run("fea", st_)
             items.append(dict(row, load=ld, **judge(res, p.get("material") or "6061-T6", required)))
+            if on_item:
+                on_item(items[-1])
     st = {i["status"] for i in items}
     status = "fail" if "fail" in st else "unknown" if ("unknown" in st or not items) else "pass"
     return {"status": status, "items": items, "dynamic_factor": round(factor, 3), "pose_deg": q,
@@ -311,7 +320,8 @@ def main(argv: list[str] | None = None) -> int:
     r = analyse(cr["chosen"], json.loads((d / "build-result.json").read_text(encoding="utf-8")),
                 json.loads((d / "cad" / "cad-result.json").read_text(encoding="utf-8")),
                 json.loads((d / "verify-result.json").read_text(encoding="utf-8")), d / "cad" / "assembly.step",
-                float(cr["conditions"]["payload"]), joints=a.joints.split(",") if a.joints else None)
+                float(cr["conditions"]["payload"]), joints=a.joints.split(",") if a.joints else None,
+                on_item=lambda i: print(f"  {i['part']}：{i['status']}；{i.get('note', '')}", file=sys.stderr, flush=True))
     print(summary(r), file=sys.stderr)
     if a.out:
         a.out.write_text(json.dumps(r, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
