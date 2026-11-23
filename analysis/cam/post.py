@@ -187,6 +187,100 @@ def millturn_lines_siemens(op, home, cfg_mt, nd=3, fnd=1, cm=comment) -> list[st
     return out
 
 
+def simul5_lines(op, machine, safe) -> list[str]:
+    """五轴联动（刀尖跟随 RTCP，ADR-0106 C3a）：FANUC 写法。先退 Z 到机床原点、转回转轴到第一个刀轴，再 G43.4 开刀尖跟随，
+    每段写刀尖工件坐标 + 回转轴角度；完了 G49 关、退 Z。走刀点都要带刀轴 axis"""
+    from analysis.cam import fiveaxis as FA
+
+    model = machine.get("model") or {}
+    mvs = [mv for mv in op["moves"] if mv["t"] in ("rapid", "feed")]
+    if not mvs or any(mv.get("axis") is None for mv in mvs):
+        raise ValueError("五轴联动工序的每个走刀点都要带刀轴 axis")
+    rots = FA.rotary_path(model, [mv["axis"] for mv in mvs], breaks=[i for i, mv in enumerate(mvs) if mv["t"] == "rapid"])
+    t = op["tool"]
+    if op.get("_nonrtcp"):
+        return nonrtcp_lines(op, machine, mvs, rots, "fanuc")
+    L = ["G91 G28 Z0.0", "G90", "G00 " + " ".join(f"{k}{num(v)}" for k, v in FA.rotary_words(model, rots[0])),
+         f"G43.4 H{t.get('offset', t['n']):02d}"]
+    pos, rprev, mode, last_f = {}, {}, None, None
+    for k, (mv, q) in enumerate(zip(mvs, rots)):
+        g = "G00" if mv["t"] == "rapid" else "G01"
+        w = []
+        for a in ("x", "y", "z"):
+            if a in mv and (a not in pos or abs(pos[a] - mv[a]) > 5e-4):
+                w.append(a.upper() + num(mv[a]))
+                pos[a] = mv[a]
+        for a, v in FA.rotary_words(model, q):
+            if a not in rprev or abs(rprev[a] - v) > 5e-4:
+                w.append(a + num(v))
+                rprev[a] = v
+        if not w:
+            continue
+        line = ([g] if g != mode else []) + w
+        mode = g
+        if g == "G01" and mv.get("f") != last_f:
+            line.append("F" + num(mv["f"], 1))
+            last_f = mv["f"]
+        if k == 0:
+            line.append("M08")
+        lines_ok = " ".join(line)
+        L.append(lines_ok)
+    L += ["G49", "G91 G28 Z0.0", "G90", "M09", "M05"]
+    return L
+
+
+def nonrtcp_lines(op, machine, mvs, rots, dialect, h=None, fmt=None, ffmt=None) -> list[str]:
+    """五轴联动、机床没开刀尖跟随（ADR-0106 C3c-2）：写机床各轴位置（按刀长、工件零点在机床坐标里的位置逐点逆解；
+    机床直线插补时刀尖走弯超过 0.01 mm 就插点）。不加长度补偿，G54 要设为 0；换刀长、换装夹要重出程序（程序头写明）。
+    dialect：fanuc / siemens / heidenhain（h 是海德汉的数字写法）"""
+    from analysis.cam import fiveaxis as FA
+
+    model = machine.get("model") or {}
+    nr = op["_nonrtcp"]
+    L0, off = float(nr["L"]), [float(v) for v in nr["off"]]
+    pts = FA.machine_points(model, [[mv["x"], mv["y"], mv["z"]] for mv in mvs], [mv["axis"] for mv in mvs], rots, L0, off)
+    h = h or (lambda v: v)
+    nm = fmt or num
+    kl, sie = dialect == "heidenhain", dialect == "siemens"
+    note = f"NON-RTCP T{op['tool']['n']} L{L0:.3f} WORK ZERO X{off[0]:g} Y{off[1]:g} Z{off[2]:g} G54=0 NO LENGTH OFFSET"
+    order = [a["id"] for a in model["axes"]]
+    first = pts[0][0]
+    rot0 = " ".join(f"{a}{h(nm(first[a]))}" for a in order if a in first and any(x["id"] == a and x["type"] == "rotary" for x in model["axes"]))
+    if kl:
+        L = [f"; {note}", "M140 MB MAX", f"L {rot0} R0 FMAX"]
+    elif sie:
+        L = [f"; {note}", "G0 SUPA Z0", f"G0 {rot0}"]
+    else:
+        L = [f"({note})", "G49", "G91 G28 Z0.0", "G90", f"G00 {rot0}"]
+    prev, mode, last_f = {}, None, None
+    for k, (q, _tip, _w, i) in enumerate(pts):
+        mv = mvs[i]
+        w = []
+        for a in order:
+            if a in q and (a not in prev or abs(prev[a] - q[a]) > 5e-4):
+                w.append(a + h(nm(q[a])))
+                prev[a] = q[a]
+        if not w:
+            continue
+        fw = ""
+        if mv["t"] == "feed" and mv.get("f") != last_f:
+            fw = ffmt(mv["f"], 1) if ffmt else num(mv["f"], 1)
+            last_f = mv["f"]
+        if kl:
+            L.append(" ".join(f"L {' '.join(w)} R0 {'FMAX' if mv['t'] == 'rapid' else (f'F{fw}' if fw else '')}".split()))
+            continue
+        g = ("G0" if sie else "G00") if mv["t"] == "rapid" else ("G1" if sie else "G01")
+        L.append(" ".join(([g] if g != mode else []) + w + ([f"F{fw}"] if fw else [])))
+        mode = g
+    if kl:
+        L += ["M140 MB MAX", "M9", "M5"]
+    elif sie:
+        L += ["G0 SUPA Z0", "M9", "M5"]
+    else:
+        L += ["G91 G28 Z0.0", "G90", "M09", "M05"]
+    return L
+
+
 def post_mill(prog, machine):
     """2.5 轴铣：G17、G90 绝对、G94 每分进给、G54、M06 换刀、G43 长度补偿、G81 / G83 钻孔循环。"""
     lines: list[str] = []
@@ -198,6 +292,9 @@ def post_mill(prog, machine):
         op["_line"] = len(lines) + 1             # 这道工序从程序第几行起（仿真后按工序统计用，如自适应开粗的切宽）
         lines.append(comment(op.get("title", "")))
         lines += [f"T{t['n']} M06", "G54", f"S{round(sp['rpm'])} M03"]
+        if op.get("simul5"):
+            lines += simul5_lines(op, machine, safe)
+            continue
         lines += tilt_lines(op)
         mvs = [mv for mv in op["moves"] if mv["t"] != "comment"]
         x0 = next((mv for mv in mvs if "x" in mv), {"x": 0, "y": 0})

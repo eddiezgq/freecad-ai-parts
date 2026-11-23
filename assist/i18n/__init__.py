@@ -184,3 +184,38 @@ def lang() -> str:
 def tr(text):
     """按当前界面语言翻（界面用）"""
     return t(text, lang())
+
+
+_BULLET = re.compile(r"^(\s*(?:[-·]\s*)?)(.*)$", re.DOTALL)
+_CMP = re.compile(r"^(.*) (-?[\d.]+(?:e[-+]?\d+)?) ([≤≥<>]) (.*) (-?[\d.]+(?:e[-+]?\d+)?)((?: \S+)?)$", re.DOTALL)
+
+
+def _t_line(line: str) -> str:
+    """一行：保留行首的缩进和“- ”“· ”；“甲 1.2 ≤ 乙 3 N·m”这类比较两边各自翻（#679）"""
+    pre, s = _BULLET.match(line).groups()
+    out = t(s, "en")
+    if has_cjk(out):
+        m = _CMP.match(s)
+        if m:
+            out = f"{t(m[1], 'en')} {m[2]} {m[3]} {t(m[4], 'en')} {m[5]}{m[6]}"
+    if has_cjk(out) and "；" in s:                      # 规则表里用“；”连起来的几条原因：逐条翻
+        out = "; ".join(t(x, "en") for x in s.split("；"))
+    return pre + out
+
+
+def t_block(text, lang: str = "en"):
+    """多段、多行的说明（选型方案说明、校验细项）：按空行分段，整段对不上表时逐行翻（#679）"""
+    if lang != "en" or not isinstance(text, str) or not has_cjk(text):
+        return text
+    out = []
+    for blk in text.split("\n\n"):
+        y = t(blk, "en")
+        if has_cjk(y):
+            y = "\n".join(_t_line(x) for x in blk.split("\n"))
+        out.append(y)
+    return "\n\n".join(out)
+
+
+def tr_block(text):
+    """按当前界面语言翻多段说明（界面用）"""
+    return t_block(text, lang())

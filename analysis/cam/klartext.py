@@ -12,8 +12,8 @@ import re
 
 TOOL_CALL = re.compile(r"^TOOL CALL (\d+) Z(?: S([\d.]+))?$")
 _NUM = r"[+-]?\d+(?:\.\d*)?"
-_L = re.compile(rf"^L((?: [XYZ]{_NUM})*) R0(?: (FMAX|F({_NUM})))?((?: M\d+)*)$")
-_LAX = re.compile(rf"([XYZ])({_NUM})")
+_L = re.compile(rf"^L((?: [XYZABC]{_NUM})*) R0(?: (FMAX|F({_NUM})))?((?: M\d+)*)$")
+_LAX = re.compile(rf"([XYZABC])({_NUM})")
 _Q = re.compile(rf"^Q(\d+)=({_NUM})")
 
 
@@ -182,6 +182,7 @@ def to_iso(text: str, *, tags: bool = False) -> str:
             break
         tm = TOOL_CALL.match(b)
         if tm:
+            st["tool"] = int(tm.group(1))
             out.append(f"T{int(tm.group(1))} M06")
             if tm.group(2):
                 st["rpm"] = float(tm.group(2))
@@ -212,6 +213,12 @@ def to_iso(text: str, *, tags: bool = False) -> str:
             continue
         if b == "M140 MB MAX":
             out += ["G91 G28 Z0.0", "G90"]
+            continue
+        if b in ("FUNCTION TCPM F TCP AXIS POS PATHCTRL AXIS", "M128"):   # 刀尖跟随（ADR-0106 C3a）→ G43.4
+            out.append(f"G43.4 H{st.get('tool', 0):02d}")
+            continue
+        if b in ("FUNCTION RESET TCPM", "M129"):
+            out.append("G49")
             continue
         if re.fullmatch(r"M\d+", b):
             out.append(f"M{int(b[1:]):02d}")

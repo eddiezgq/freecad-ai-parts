@@ -223,7 +223,7 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
         if mv.get("home"):
             continue
         if mv.get("approach"):                   # 倾斜后机床 Z 还在原点的那几段：位置由数控系统的倾斜面功能定，不按工件坐标逆解
-            approach = True
+            approach = "rtcp" if mv.get("rtcp") else (approach or "tilt")
             continue
         sp = specs.get(mv["tool"])
         if mv.get("mill"):                       # 车铣的铣削段（ADR-0106 C2b、ADR-0110）：按机床文件的动力刀朝向逆解 C 轴
@@ -241,12 +241,24 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
             live = live_pre.get(mv["tool"])
             mach_u = {**machine, "tool": live} if live else machine   # 动力刀在插补前后的定位段：刀还是那把动力刀，朝向照旧
             w = _unit3(live["direction"]) if live else mv.get("axis")
-            pts = [((np.array([p[0] / 2, 0.0, p[2]]) if lathe else p), w) for p in _samples(mv["a"], mv["b"], step)]
+            smp = _samples(mv["a"], mv["b"], step)
+            if mv.get("axis_b") is not None and not live:        # 五轴联动：刀轴在一段里从 axis 转到 axis_b（球面插值），按转角加密
+                from analysis.cam import fiveaxis as FA
+
+                k = max(len(smp) - 1, math.ceil(FA.angle_deg(mv["axis"], mv["axis_b"]) / 2.0), 1)
+                a_, b_ = np.asarray(mv["a"], float), np.asarray(mv["b"], float)
+                pts = [(a_ + (b_ - a_) * (j / k), FA.slerp(mv["axis"], mv["axis_b"], j / k)) for j in range(k + 1)]
+                if mv.get("rot_a") is not None:          # 刀尖跟随：回转轴按程序里写的角度走（几组解里取程序那一组）
+                    ra, rb = mv["rot_a"], mv["rot_b"]
+                    rot_pref = [{kk: ra.get(kk, 0.0) + (rb.get(kk, 0.0) - ra.get(kk, 0.0)) * (j / k) for kk in rb} for j in range(k + 1)]
+            else:
+                pts = [((np.array([p[0] / 2, 0.0, p[2]]) if lathe else p), w) for p in smp]
         d0 = np.asarray((mach_u.get("tool") or {}).get("direction", [0, 0, 1]), float)
-        for tip, axis in pts:
+        rp = rot_pref if (mv.get("rot_a") is not None and mv.get("axis_b") is not None and not live) else None
+        for jj, (tip, axis) in enumerate(pts):
             n += 1
             tip = tip + off
-            pref = prefer
+            pref = prefer if rp is None else {**prefer, **rp[jj]}
             if mv.get("mill") == "polar":            # 极坐标插补：转 C 把点转到 +X 一侧（Y 不动）；刀轴沿 C 轴是奇异点，C 取这个值
                 pref = {**prefer, "C": -math.degrees(math.atan2(tip[1] - off[1], tip[0] - off[0]))}
             elif lathe and not mv.get("mill") and any(a["id"] == "C" for a in machine["axes"]):
@@ -294,9 +306,12 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
     if millturn:
         checks.append({"line": None, "level": "unknown",
                        "text": "车铣的铣削段（极坐标、圆柱插补）：C 轴、动力刀的整机仿真还没做（ADR-0106 C2b），碰撞和超程没查"})
-    if approach:
+    if approach == "tilt":
         checks.append({"line": None, "level": "unknown",
                        "text": "倾斜面：转回转轴后到第一次下刀那几段，刀具在机床 Z 原点，实际走法由数控系统的倾斜面功能定，整机仿真没查；首件单段确认"})
+    elif approach == "rtcp":
+        checks.append({"line": None, "level": "unknown",
+                       "text": "五轴联动：开刀尖跟随后从机床 Z 原点到第一个刀位那一段，实际走法由数控系统定，整机仿真没查；首件单段确认"})
     for c in checks:
         lines = c.pop("lines", None)
         if lines and len(lines) > 1:

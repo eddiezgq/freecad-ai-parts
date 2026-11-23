@@ -102,7 +102,8 @@ def operations(part: dict, lib: dict) -> list[dict]:
             ops.append({"id": f"face_groove{i}", "kind": "face_groove", "title": f"端面槽 宽 {w:g}", "geom": {"width": w},
                         "cands": _cands(lib, {"groove"}, lambda t, w=w: (t.get("insert") or {}).get("width_mm", 1e9) <= w + 1e-9)})
         if part.get("parting"):
-            ops.append({"id": "part", "kind": "part", "title": "切断", "cands": _cands(lib, {"groove"})})
+            ops.append({"id": "part", "kind": "part", "title": "切断", "cands": _cands(lib, {"groove"}),
+                        "depth": _groove_depths(part).get("part")})
         b = part.get("bore")
         if b:
             dmin = min(float(d) for d, _ in b["segments"])
@@ -179,6 +180,15 @@ def _rule_pick(op):
         def w(t):
             return (t.get("insert") or {}).get("width_mm", 0.0)
         sq = [t for t in c if not (w(t) > 0 and abs(2 * _nose(t) - w(t)) < 1e-9)] or c
+        if op["kind"] == "part":
+            # 切断（ADR-0119）：先挑能配上切深够的同家刀杆的，再挑切断专用的
+            dep = op.get("depth")
+            if dep is not None:
+                sq = [t for t in sq if _groove_holder(t, dep) is not None] or sq
+            sq = [t for t in sq if (t.get("insert") or {}).get("cutoff_only")] or sq
+        else:
+            # 切槽：切断专用的刀片槽底切不平，有别的就不挑（ADR-0119）
+            sq = [t for t in sq if not (t.get("insert") or {}).get("cutoff_only")] or sq
         best = (min if op["kind"] == "part" else max)(w(t) for t in sq)
         return min((t for t in sq if w(t) == best), key=lambda t: (_nose(t), t["id"]))
     return c[0]
@@ -358,6 +368,17 @@ def draft(part: dict, iso: str, lib: dict | None = None, client=None, *, note: s
     return {"setup": setup, "card": card, "notes": notes, "by": by, "explanation": explanation, "iso_group": iso}
 
 
+def _groove_holder(tool, depth):
+    """厂商样本的切槽、切断刀片配同一家、能装这个系列、切深够的切槽刀杆（ADR-0118、0119）；配不上返回 None"""
+    from analysis.cam import holders as HD
+
+    ins = tool.get("insert") or {}
+    src = tool.get("source") or {}
+    if tool.get("kind") != "groove" or tool.get("internal") or not ins.get("width_mm") or src.get("kind") != "catalog":
+        return None
+    return HD.pick_groove(float(ins["width_mm"]), depth, ref=src.get("ref"), code=ins.get("iso"), edges=ins.get("edges"))
+
+
 def turn_holder(tool, bore_d=None, depth=None) -> dict | None:
     """车刀没写刀杆：按刀片代号从刀杆库配一把——外圆车刀配外圆刀杆（ADR-0112）；内孔刀（镗刀种类或 internal）给了孔径就配镗杆（ADR-0114）；
     外圆切槽刀（厂商样本的）给了槽深就按刃宽和槽深配同一家的切槽刀杆（ADR-0118）。外螺纹刀、铣刀不配"""
@@ -377,7 +398,7 @@ def turn_holder(tool, bore_d=None, depth=None) -> dict | None:
     elif (not inner and tool.get("kind") == "groove" and (tool.get("insert") or {}).get("width_mm") and depth is not None
           and (tool.get("source") or {}).get("kind") == "catalog"):
         # 不知道槽深（如 FreeCAD 面板里按刀号配）不配：配错了槽深不够的刀杆反而报错；刀座各家不通用，只配同一家样本的刀杆
-        h = HD.pick_groove(float(tool["insert"]["width_mm"]), depth, ref=tool["source"]["ref"])
+        h = _groove_holder(tool, depth)
     else:
         return None
     return HD.as_tool_holder(h) if h else None
@@ -413,11 +434,10 @@ def _setup(part, by_op, lengths, notes):
         elif bore_d and not (tool.get("holder") or {}) and (tool.get("insert") or {}).get("iso"):
             notes.append(f"T{n}（{tool['id']}）：刀杆库里没有能进 Ø{float(bore_d):g} 孔的镗杆，镗杆没配（ADR-0114）")
         elif depth is not None and tool.get("kind") == "groove" and not (tool.get("holder") or {}) and not tool.get("internal"):
-            from analysis.cam import holders as HD
 
             w = (tool.get("insert") or {}).get("width_mm")
             ref = (tool.get("source") or {}).get("ref")
-            if w and ref and HD.pick_groove(float(w), ref=ref) is not None:   # 有装得上的刀杆，只是槽深都不够
+            if w and ref and _groove_holder(tool, None) is not None:   # 有装得上的刀杆，只是槽深都不够
                 notes.append(f"T{n}（{tool['id']}）：刀杆库里装得上刃宽 {float(w):g} 的切槽刀杆最大槽深都不到 {depth:.3f} mm，刀杆没配（ADR-0118）")
         mtools[str(n)] = e
 

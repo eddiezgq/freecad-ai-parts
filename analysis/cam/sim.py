@@ -38,7 +38,9 @@ def parse(text, m):
     lathe = m["kind"] in ("lathe", "mill_turn")          # 车铣中心：车削按车床读，铣削（G12.1 / G7.1）另记工件坐标（ADR-0106 C2b）
     st = {"pos": [0.0, 0.0, 0.0], "abs": True, "motion": 0, "f": 0.0, "per_rev": lathe, "css": None, "rpm": 0.0,
           "smax": None, "tool": 0, "scale": 1.0, "ret98": True, "plane": 18 if lathe else 17, "spin": False, "pending_tool": 0,
-          "frame": None, "mt": None}
+          "frame": None, "mt": None, "rtcp": False, "rot": {}}
+    rot_ids = [] if lathe else list(m.get("rotary") or [])     # 五轴：程序里的回转轴字（ADR-0106 C3a）
+    model = m.get("model") or {}
     hx, hz = m.get("home", (m["x"][1], m["z"][1]))
     if lathe:
         st["pos"] = [hx, 0.0, hz]
@@ -107,7 +109,8 @@ def parse(text, m):
                 st["approach"] = False
         a = tuple(st["pos"])
         b = tuple(float(v) for v in b)
-        if max(abs(b[i] - a[i]) for i in range(3)) > 1e-9:
+        turned = kw.get("axis_b") is not None and float(np.linalg.norm(np.subtract(kw["axis_b"], kw["axis"]))) > 1e-12
+        if max(abs(b[i] - a[i]) for i in range(3)) > 1e-9 or turned:
             if st["frame"] is not None:              # 倾斜面（G68.2）：程序坐标是平面坐标，刀路记工件坐标和刀轴方向
                 o, R = st["frame"]
                 kw = {**kw, "axis": tuple(float(v) for v in R[:, 2])}
@@ -187,6 +190,11 @@ def parse(text, m):
                 st["frame"] = (org, R)
                 st["pos"] = [float(v) for v in R.T @ (pw - org)]
                 tilt_line = True
+            elif gg == 43.4 and not lathe:           # 刀尖跟随（RTCP，ADR-0106 C3a）：X Y Z 是刀尖的工件坐标，回转轴字定刀轴
+                st["rtcp"] = True
+                st["approach"] = True                    # 从机床 Z 原点到第一个刀位：数控系统按刀尖跟随走，整机仿真不逐点查
+            elif gg == 49 and not lathe:
+                st["rtcp"] = False
             elif gg == 69 and not lathe:
                 if st["frame"] is not None:
                     o0, R0 = st["frame"]
@@ -317,7 +325,53 @@ def parse(text, m):
             w["Y"] = w["C"]                         # 车铣插补里只写 C 的段：C 是第二个坐标
         if st["mt"] is not None and "C" in w:
             w["Y"] = w["C"]
-        if any(k in w for k in "XYZUW") and not (lathe and 28 in g):
+        rws = [k for k in rot_ids if k in w]
+        rot_b = None
+        if rws:
+            rot_b = dict(st["rot"])
+            for k in rws:
+                rot_b[k] = w[k] if st["abs"] else rot_b.get(k, 0.0) + w[k]
+        nr = None if st["rtcp"] or lathe else (m.get("nonrtcp") or {}).get(st["tool"])
+        if nr is not None and (rot_b is not None or any(k in w for k in "XYZ")) and 28 not in g:
+            # 非 RTCP 的五轴联动（ADR-0106 C3c-2）：程序是机床各轴位置，按刀长、工件零点正解成工件坐标里的刀尖与刀轴；
+            # 机床直线插补时刀尖走弯，按回转轴每 1° 拆一小段
+            from analysis.cam import fiveaxis as _FA
+            from analysis.cam import kinematics as _K
+
+            rb = rot_b if rot_b is not None else dict(st["rot"])
+            if not any(k in w for k in "XYZ"):
+                st["rot"] = rb                           # 只转回转轴（刀具在机床 Z 原点）：定位
+                continue
+            lin = [a["id"] for a in model["axes"] if a["type"] == "linear"]
+            qa = {**dict(zip(lin, st["pos"])), **st["rot"]}
+            tgt = list(st["pos"])
+            for i, a in enumerate("XYZ"):
+                if a in w:
+                    tgt[i] = w[a] * sc if st["abs"] else tgt[i] + w[a] * sc
+            qb = {**dict(zip(lin, tgt)), **rb}
+            k = max(1, math.ceil(max([abs(qb[r] - qa.get(r, 0.0)) for r in rb] + [0.0]) / 1.0))
+            off = np.asarray(nr["off"], float)
+            prev = None
+            for j in range(k + 1):
+                q = {x: qa.get(x, 0.0) + (qb[x] - qa.get(x, 0.0)) * j / k for x in qb}
+                tip, ax = _K.forward(model, q, float(nr["L"]))
+                cur = (tuple(float(v) for v in tip - off), tuple(float(v) for v in ax), {r: q[r] for r in rb})
+                if prev is not None:
+                    moves.append({"t": "rapid" if st["motion"] == 0 else "feed", "a": prev[0], "b": cur[0], "line": ln, "tool": st["tool"],
+                                  "f": st["f"], "per_rev": False, "css": None, "rpm": st["rpm"], "smax": st["smax"], "spin": st["spin"],
+                                  "axis": prev[1], "axis_b": cur[1], "rot_a": prev[2], "rot_b": cur[2], "nonrtcp": True})
+                prev = cur
+            st["pos"], st["rot"] = tgt, rb
+            if st["motion"] == 1 and st["f"] <= 0:
+                warns.append({"line": ln, "level": "error", "text": "G01 没有进给速度 F"})
+            continue
+        if rws and not st["rtcp"]:
+            if any(k in w for k in "XYZ"):
+                warns.append({"line": ln, "level": "error",
+                              "text": "回转轴和直线轴同一段、没开刀尖跟随（G43.4），也没给这把刀的刀长和工件零点：非 RTCP 的五轴程序读不了"})
+            st["rot"] = rot_b                            # 刀尖跟随外单写回转轴：定位（刀具在机床 Z 原点），不算走刀
+            continue
+        if (any(k in w for k in "XYZUW") or rot_b is not None) and not (lathe and 28 in g):
             tgt = list(st["pos"])
             for i, a in enumerate("XYZ"):
                 if a in w:
@@ -365,6 +419,9 @@ def parse(text, m):
             elif mo in (2, 3) and st["mt"] is not None:
                 warns.append({"line": ln, "level": "error", "text": "车铣插补（G12.1 / G7.1）里的圆弧还读不了（ADR-0106 C2b）"})
                 st["pos"] = list(tgt)
+            elif mo in (2, 3) and st["rtcp"]:
+                warns.append({"line": ln, "level": "error", "text": "刀尖跟随（G43.4）里的圆弧还读不了（五轴联动刀路都是直线段，ADR-0106 C3a）"})
+                st["pos"] = list(tgt)
             elif mo in (2, 3):
                 for p in _arc(st, tgt, w, mo, lathe, sc):
                     emit("feed", p, ln, arc=True)
@@ -373,6 +430,16 @@ def parse(text, m):
                 emit("thread", tgt, ln, pitch=st["f"])
                 if len(moves) > n0:
                     moves[-1]["per_rev"] = True
+            elif st["rtcp"]:                                 # 刀尖跟随：刀尖直线走，刀轴按回转轴角度从起点转到终点
+                from analysis.cam import fiveaxis as _FA
+
+                ra, rb = dict(st["rot"]), (rot_b if rot_b is not None else dict(st["rot"]))
+                emit("rapid" if mo == 0 else "feed", tgt, ln, rtcp=True, rot_a=ra, rot_b=rb,
+                     axis=tuple(float(v) for v in _FA.axis_from_rotary(model, ra)),
+                     axis_b=tuple(float(v) for v in _FA.axis_from_rotary(model, rb)))
+                st["rot"] = rb
+                if mo == 1 and st["f"] <= 0:
+                    warns.append({"line": ln, "level": "error", "text": "G01 没有进给速度 F"})
             else:
                 emit("rapid" if mo == 0 else "feed", tgt, ln)
                 if mo == 1 and st["f"] <= 0:
@@ -491,14 +558,58 @@ def timing(parsed, m):
 
 
 # ---------------------------------------------------------------- 检查（机床）
+FLIP_DEG = 30.0          # 五轴联动切削中回转轴一段转过这么多度就算突变（ADR-0106 C3a）
+SINGULAR_DEG = 1.0       # 刀轴离某根回转轴不到这么多度：奇异点附近
+
+
 def machine_checks(parsed, m):
     out = list(parsed["warnings"])
     lathe = parsed["lathe"]
     axes = (("X", 0, m["x"]), ("Z", 2, m["z"])) if lathe else (("X", 0, m["x"]), ("Y", 1, m["y"]), ("Z", 2, m["z"]))
     seen = set()
-    tilted = False
+    tilted = sing_on = False
     for mv in parsed["moves"]:
         if mv.get("home"):
+            continue
+        if mv.get("rot_b") is not None:                 # 五轴联动（ADR-0106 C3a / C3c-2）：刀尖跟随要机床开了；回转轴角速度看机床能力
+            feats = (m.get("model") or {}).get("features") or {}
+            if mv.get("rtcp") and not feats.get("rtcp") and ("rtcp", 0) not in seen:
+                seen.add(("rtcp", 0))
+                out.append({"line": mv["line"], "level": "error", "simul5": True,
+                            "text": f"{m['name']} 没开刀尖跟随（RTCP），五轴联动程序（G43.4）不能用"})
+            from analysis.cam import fiveaxis as _FA
+
+            marg, which = _FA.singular_margin(m.get("model") or {}, mv["rot_b"])
+            if marg < SINGULAR_DEG:
+                if not sing_on:
+                    out.append({"line": mv["line"], "level": "warn",
+                                "text": f"第 {mv['line']} 行刀轴离回转轴 {which} 只有 {marg:.2f}°（奇异点附近）：{which} 转多少刀轴都差不多，"
+                                        "机床可能在这里猛转；刀轴别贴着回转轴"})
+                sing_on = True
+            else:
+                sing_on = False
+            jumps = [(k, mv["rot_b"].get(k, 0.0) - mv["rot_a"].get(k, 0.0)) for k in mv["rot_b"]]
+            big = max(jumps, key=lambda x: abs(x[1]), default=(None, 0.0))
+            if mv["t"] == "feed" and abs(big[1]) > FLIP_DEG and ("flip", mv["line"]) not in seen:
+                seen.add(("flip", mv["line"]))
+                out.append({"line": mv["line"], "level": "error", "simul5": True,
+                            "text": f"第 {mv['line']} 行回转轴 {big[0]} 一步转了 {big[1]:+.1f}°（切削中超过 {FLIP_DEG:g}°）：多半是过了奇异点或回转轴到了行程头换了一组解，"
+                                    "刀尖会在工件上乱走；改刀轴或装夹位置"})
+            if mv["t"] == "feed" and mv.get("f") and abs(big[1]) <= FLIP_DEG:
+                L = math.dist(mv["a"], mv["b"])
+                for ax in (m.get("model") or {}).get("axes") or []:
+                    if ax["type"] != "rotary" or not ax.get("rapid"):
+                        continue
+                    dq = abs(mv["rot_b"].get(ax["id"], 0.0) - mv["rot_a"].get(ax["id"], 0.0))
+                    if dq < 1e-9:
+                        continue
+                    need = dq * mv["f"] / max(L, 1e-9)            # 刀尖按 F 走完这段时回转轴要转多快（度/分）
+                    if need > float(ax["rapid"]) + 1e-6 and ("rate", ax["id"]) not in seen:
+                        seen.add(("rate", ax["id"]))
+                        out.append({"line": mv["line"], "level": "warn",
+                                    "text": f"第 {mv['line']} 行起回转轴 {ax['id']} 要转 {need:.0f}°/分，超过机床能力 {float(ax['rapid']):g}°/分："
+                                            "数控系统会降进给，实际时间比算的长"})
+            tilted = True
             continue
         if mv.get("axis") is not None and abs(mv["axis"][2] - 1.0) > 1e-9:
             if not m.get("rotary") and ("tilt", 0) not in seen:      # 三轴机床转不了刀轴
