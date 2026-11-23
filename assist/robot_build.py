@@ -355,6 +355,11 @@ def build_check(concept: Mapping, cond: Mapping) -> dict:
     items = []
     if out["status"] != "pass":
         items.append(f"选件：{out.get('note', '')}")
+    if out["status"] == "pass" and (out.get("fit") or {}).get("overall") == "unknown":
+        why = "；".join(f"模组组 {g} 选了{'伺服三件套' if p.get('chain') == 'servo' else '没有接口数据的模组'}"
+                       for g, p in out["picks"].items()) + "；" + smart_gap(concept, float(payload), out)
+        items.append("装配：选中的模组没有整套安装接口数据，装不装得下判不了，不能采用。" + why
+                     + "。改法：减轻负载力矩（缩短杆件、减小杆件截面），让有接口数据的一体化模组扛得住")
     for key, name in (("fit", "装配"), ("links", "杆件强度")):
         part = out.get(key) or {}
         rows = (part.get("joints") or []) + (part.get("links") or []) if key == "fit" else part.get("items") or []
@@ -364,6 +369,11 @@ def build_check(concept: Mapping, cond: Mapping) -> dict:
     if r.get("status") == "fail":
         items.append(f"重复定位精度：{r.get('note', '')}")
     lib = _library()
+    cad = cad_check(lib, concept, out)
+    if cad is not None:
+        out["cad"] = cad
+        items += [f"三维装配：{h['a']} 与 {h['b']} 干涉 {h['volume_mm3']:g} mm³" for h in cad.get("interferences", [])]
+        items += [f"三维装配：{x}" for x in cad.get("problems", [])]
     summ = []
     for g, p in (out.get("picks") or {}).items():
         if not p.get("components"):
@@ -381,6 +391,48 @@ def build_check(concept: Mapping, cond: Mapping) -> dict:
     return {"ok": not items, "items": items, "summary": "；".join(summ), "result": out}
 
 
+def smart_gap(concept: Mapping, payload_kg: float, out: Mapping) -> str:
+    """全部关节换成有接口数据、力矩最大的一体化模组时（按它的质量重算载荷），差在哪——给 AI 改构型用"""
+    from analysis.robot import fit
+    from engine import smart_actuator
+    from engine.values import nominal
+
+    lib = _library()
+    comps = [c for c in lib.all() if c.get("category") == "smart_actuator" and fit.housing_geometry(c) is not None]
+    if not comps:
+        return "库里没有带机械接口数据的一体化关节模组"
+    top = max(comps, key=lambda c: nominal((c.get("params") or {}).get("stall_torque_nm")) or 0.0)
+    mass = nominal(top["params"].get("mass_kg")) or 0.0
+    dt = out["duty"]
+    res = dynamics(concept, payload_kg, {j["id"]: mass for j in concept["joints"]}, dt)
+    worst = []
+    for g, js in groups(concept).items():
+        req = group_requirement(res, js, BASE_REQ)
+        r = smart_actuator.check(req, top, operating_points(res, js))
+        bad = [f"{x['check']} {x.get('message', '')}" for x in r["checks"] if x["status"] == "fail"]
+        if bad:
+            worst.append(f"模组组 {g}：" + "；".join(bad))
+    if not worst:
+        return f"全部换成 {top['model']} 时载荷扛得住（选件循环停在了伺服链，请检查）"
+    return (f"即使全部关节都用力矩最大的 {top['model']}（{mass:g} kg，按它的质量重算载荷）也不够——" + "；".join(worst))
+
+
+def cad_check(lib, concept: Mapping, out: Mapping) -> dict | None:
+    """装配校核通过、全部关节同一种一体化模组时，生成三维装配查干涉（assist/robot_cad.py）；其余情况不做（返回 None）"""
+    picks = out.get("picks") or {}
+    ft = out.get("fit") or {}
+    if ft.get("overall") != "pass" or len(picks) != 1 or next(iter(picks.values())).get("chain") != "smart":
+        return None
+    from assist import robot_cad
+
+    comp = lib.get(next(iter(picks.values()))["components"][0])
+    try:
+        res = robot_cad.build(concept, ft, comp)
+    except robot_cad.CadError as ex:
+        return {"status": "fail", "interferences": [], "problems": [str(ex)]}
+    return {k: res[k] for k in ("status", "interferences", "problems", "mass_kg", "cog_mm")}
+
+
 def fit_check(lib, concept: Mapping, picks: Mapping) -> dict:
     """装不装得下（analysis/robot/fit.py）：一体化模组按它的机械接口算；伺服链没有整体外形与接口，判不了"""
     from analysis.robot import fit
@@ -390,7 +442,9 @@ def fit_check(lib, concept: Mapping, picks: Mapping) -> dict:
         if p.get("chain") == "smart":
             comp = lib.get(p["components"][0])
             acts.update({j: comp for j in p["joints"]})
-    return fit.check(concept, acts)
+    from assist.robot_cad import min_spare_mm
+
+    return fit.check(concept, acts, min_spare_mm=min_spare_mm())
 
 
 def dynamic_factor(res: Mapping) -> float:
