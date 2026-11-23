@@ -513,6 +513,27 @@ class FirstRunCommand:
         first_run.show(_main_window())
 
 
+class HelpCommand:
+    """帮助与培训（issue #687）：问渠 CAD 课程网页；有安装包放的本机副本就开本机的。"""
+
+    def GetResources(self):
+        return {"MenuText": T("帮助与培训"), "ToolTip": T("问渠 CAD 培训课程与帮助（21 课，录屏、练习、小测）")}
+
+    def IsActive(self):
+        return True
+
+    def Activated(self):
+        from PySide import QtCore, QtGui
+
+        from assist.i18n import lang
+        from freecad_addon.core import help_link
+        from llm_gateway import region_of
+
+        kind, where = help_link.help_target(lang(), region_of(), help_link.addon_dir())
+        url = QtCore.QUrl.fromLocalFile(where) if kind == "file" else QtCore.QUrl(where)
+        QtGui.QDesktopServices.openUrl(url)
+
+
 class LicenseCommand:
     """授权与席位（ADR-0066）。"""
 
@@ -560,10 +581,11 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         FreeCADGui.addCommand("FAP_RecordVideo", RecordVideoCommand())
         FreeCADGui.addCommand("FAP_FirstRun", FirstRunCommand())
         FreeCADGui.addCommand("FAP_License", LicenseCommand())
+        FreeCADGui.addCommand("FAP_Help", HelpCommand())
         tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bom",
                  "FAP_Restore", "FAP_Bridge", "FAP_Record", "FAP_AiDesign"]
         self.appendToolbar("AI Parts", tools)
-        self.appendMenu("AI Parts", [*[t for t in tools if t != "FAP_AiDesign"], "FAP_Enterprise", "FAP_NewPart", "FAP_AiDesign", "FAP_Analyses", "FAP_Mbd", "FAP_MbdAssembly", "FAP_Fea", "FAP_Optimize", "FAP_Topo", "FAP_Cam", "FAP_Cfd", "FAP_Twin", "FAP_Publish", "FAP_RecordVideo", "FAP_FirstRun", "FAP_License"])
+        self.appendMenu("AI Parts", [*[t for t in tools if t != "FAP_AiDesign"], "FAP_Enterprise", "FAP_NewPart", "FAP_AiDesign", "FAP_Analyses", "FAP_Mbd", "FAP_MbdAssembly", "FAP_Fea", "FAP_Optimize", "FAP_Topo", "FAP_Cam", "FAP_Cfd", "FAP_Twin", "FAP_Publish", "FAP_RecordVideo", "FAP_FirstRun", "FAP_License", "FAP_Help"])
 
     def Activated(self):
         """第一次打开工作台时弹出首次设置（ADR-0066）；以后从菜单再打开。"""
