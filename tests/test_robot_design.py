@@ -15,7 +15,8 @@ FIX = Path(__file__).parent / "fixtures" / "robot-concept" / "valid"
 CONDS = {"kind": "serial_arm", "kind_quote": "教学用桌面机械臂",
          "dof": {"value": 5, "quote": "5 轴"}, "payload": {"value": 0.5, "unit": "kg", "quote": "末端负载 0.5 kg"},
          "reach": {"value": 350, "unit": "mm", "quote": "臂展 350 mm"},
-         "repeatability": {"value": 0.5, "unit": "mm", "quote": "末端重复定位精度 ±0.5 mm"},
+         "repeatability": {"value": 1, "unit": "mm", "quote": "末端重复定位精度 ±1 mm"},
+         "joint_speed": {"value": 60, "unit": "°/s", "quote": "关节最高角速度 60°/s"},
          "mount": {"where": "桌面", "quote": "装在桌面上"}, "module_reuse": {"quote": "同一种关节模组重复使用"},
          "for_people": [{"quote": "全部自制件能在普通数控车床、铣床上加工"}, {"quote": "外购件成本尽量低"}],
          "questions": ["臂展是否包含夹爪？"]}
@@ -46,9 +47,10 @@ class Script:
 def test_conditions_checked_against_statement():
     c, rej, miss, quotes = RD.check_conditions(copy.deepcopy(CONDS), TEXT)
     assert not rej and not miss
-    assert c == {"kind": "serial_arm", "dof": 5, "payload": 0.5, "reach": 350, "repeatability": 0.5, "mount": "table",
-                 "module_reuse": True, "for_people": ["全部自制件能在普通数控车床、铣床上加工", "外购件成本尽量低"]}
-    assert len(quotes) == 7
+    assert c == {"kind": "serial_arm", "dof": 5, "payload": 0.5, "reach": 350, "repeatability": 1, "mount": "table",
+                 "module_reuse": True, "for_people": ["全部自制件能在普通数控车床、铣床上加工", "外购件成本尽量低"],
+                 "joint_speed": pytest.approx(10.0)}                                   # 60°/s = 10 rpm
+    assert len(quotes) == 8
 
 
 @pytest.mark.parametrize("key,bad", [("payload", {"value": 5, "unit": "kg", "quote": "末端负载 5 kg"}),

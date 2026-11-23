@@ -43,6 +43,7 @@ CONDITIONS_TOOL = {"name": "list_conditions", "description": "列出整机的设
         "payload": {**_V, "description": "末端负载（kg）"},
         "reach": {**_V, "description": "臂展：工具点在安装面高度上能到的最远水平距离（mm）"},
         "repeatability": {**_V, "description": "重复定位精度（mm，写 ± 后面的数）"},
+        "joint_speed": {**_V, "description": "关节最高角速度（原话的单位，如 °/s）"},
         "mount": {"type": "object", "properties": {"where": {"type": "string", "description": "原话里的安装位置词，如 桌面、地面、吊装"},
                                                    "quote": {"type": "string"}}, "required": ["where", "quote"]},
         "module_reuse": {**_Q, "description": "原话要求同一种关节模组重复使用时，给出引用"},
@@ -108,7 +109,8 @@ def check_conditions(ti: Any, statement: str) -> tuple[dict, list[str], list[str
         cond["kind"] = ti["kind"]
         quotes.append({"what": "机器人类型", "value": ti["kind"], "unit": "", "quote": ti["kind_quote"]})
     for key, field, what, unit in (("dof", None, "自由度", ""), ("payload", "mass_kg", "末端负载", "kg"),
-                                   ("reach", "length_mm", "臂展", "mm"), ("repeatability", "length_mm", "重复定位精度", "mm")):
+                                   ("reach", "length_mm", "臂展", "mm"), ("repeatability", "length_mm", "重复定位精度", "mm"),
+                                   ("joint_speed", "speed_rpm", "关节最高角速度", "rpm")):
         v = ti.get(key)
         if v is None:
             continue
@@ -143,7 +145,7 @@ def check_conditions(ti: Any, statement: str) -> tuple[dict, list[str], list[str
 
 
 def _cond_text(c: dict) -> str:
-    names = {"kind": "机器人类型", "dof": "自由度", "payload": "末端负载 kg", "reach": "臂展 mm", "repeatability": "重复定位精度 ± mm",
+    names = {"kind": "机器人类型", "dof": "自由度", "payload": "末端负载 kg", "reach": "臂展 mm", "repeatability": "重复定位精度 ± mm", "joint_speed": "关节最高角速度 rpm",
              "mount": "安装", "module_reuse": "同一种关节模组重复使用", "for_people": "交给人看的要求（代码不判）"}
     return "\n".join(f"- {names.get(k, k)}：{v if not isinstance(v, list) else '；'.join(v)}" for k, v in c.items())
 

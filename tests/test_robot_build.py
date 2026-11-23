@@ -111,39 +111,42 @@ def test_group_requirement_takes_the_max_in_group():
     assert "a、b" in r["statement"]
 
 
-def test_case_a_builds_and_converges():
-    """案例 A（教学桌面臂，构型循环采用的“单一模组五轴臂”）：载荷 → 选件，模组质量回代到选型不再变"""
+def test_case_a_builds_from_the_requirement():
+    """案例 A（需求：60°/s、±1 mm，项目负责人 2026-11-22 定）：检验动作按需求的关节最高角速度；选一体化模组，比伺服链轻得多；
+    重复定位在臂展点上算、满足 ±1 mm；连续力矩判待确认（厂商没给连续额定）"""
     cr = json.loads(CASE_A.read_text(encoding="utf-8"))
-    out = RB.build(copy.deepcopy(cr["chosen"]), cr["conditions"]["payload"])
+    cond = cr["conditions"]
+    move_s = RB.move_s_for(cond["joint_speed"])
+    assert move_s == pytest.approx(2.0)                                  # 60°/s：每 90° 用 2 s（加减速各 25%）
+    out = RB.build(copy.deepcopy(cr["chosen"]), cond["payload"], move_s=move_s, repeatability_mm=cond["repeatability"],
+                   points_mm=[[cond["reach"], 0.0, 0.0]])
     assert out["status"] == "pass", out.get("note")
     assert 2 <= len(out["rounds"]) <= RB.MAX_ROUNDS
     assert out["rounds"][-1]["picks"] == out["rounds"][-2]["picks"]
-    p = out["picks"]["mod_all"]
+    (_g, p), = out["picks"].items()
     assert p["joints"] == ["j1", "j2", "j3", "j4", "j5"] and p["report"]["overall"] != "fail"
     d = {x["joint"]: x for x in out["rounds"][-1]["drives"]}
     assert p["requirement"]["output_torque_peak_nm"] == pytest.approx(max(x["peak"] for x in d.values()), rel=1e-3)
-    assert out["cost"]["status"] == "unknown"
-    assert all(r["qty"] == 5 for r in out["bom"]["purchased"])
-    # 默认检验动作（最高 120°/s）：一体化模组一个都不行，选伺服链，并写明卡在哪（ADR-0117）
-    assert p["chain"] == "servo" and "smart" not in p["options"]
-    assert "都不通过" in p["smart_shortfall"] and "S1" in p["smart_shortfall"]
-
-
-def test_case_a_slower_duty_picks_smart_actuators_and_flags_continuous_torque():
-    """检验动作放慢到每 90° 用 2 s（最高 60°/s）：一体化模组通过峰值与转速，轻得多；连续力矩判待确认（厂商没给连续额定）"""
-    cr = json.loads(CASE_A.read_text(encoding="utf-8"))
-    out = RB.build(copy.deepcopy(cr["chosen"]), cr["conditions"]["payload"], move_s=2.0,
-                   repeatability_mm=cr["conditions"]["repeatability"])
-    assert out["status"] == "pass", out.get("note")
-    p = out["picks"]["mod_all"]
+    assert max(x["speed_max"] for x in d.values()) == pytest.approx(10.0, rel=0.02)
     assert p["chain"] == "smart" and set(p["options"]) == {"servo", "smart"}
     assert p["module_mass_kg"] < p["options"]["servo"]["module_mass_kg"] / 4
     s2 = next(c for c in p["report"]["checks"] if c["check"] == "S2")
     assert s2["status"] == "unknown" and any("S2" in x for x in out["open_items"])
-    assert "60°/s" in out["assumptions"][0]
-    assert out["repeatability"]["status"] == "fail"                     # 输出端 12 位编码器：±0.5 mm 做不到
-    assert out["repeatability"]["worst_mm"] > cr["conditions"]["repeatability"]
-    assert out["bom"]["notes"]                                           # 总线控制器与直流电源库里没有：写明
+    r = out["repeatability"]
+    assert r["status"] == "pass" and r["worst_mm"] <= cond["repeatability"] and "350" in r["pose"]
+    assert out["cost"]["status"] == "unknown"
+    assert all(r["qty"] == 5 for r in out["bom"]["purchased"]) and out["bom"]["notes"]
+
+
+def test_case_a_faster_duty_rules_out_smart_actuators():
+    """检验动作加快到 120°/s：一体化模组一个都不行，选伺服链，并写明卡在哪（ADR-0117）"""
+    cr = json.loads(CASE_A.read_text(encoding="utf-8"))
+    out = RB.build(copy.deepcopy(cr["chosen"]), cr["conditions"]["payload"], move_s=1.0)
+    assert out["status"] == "pass", out.get("note")
+    (_g, p), = out["picks"].items()
+    assert p["chain"] == "servo" and "smart" not in p["options"]
+    assert "都不通过" in p["smart_shortfall"] and "S1" in p["smart_shortfall"]
+    assert "120°/s" in out["assumptions"][0]
 
 
 def test_repeatability_from_output_resolution_hand_calculation():
@@ -158,3 +161,6 @@ def test_repeatability_from_output_resolution_hand_calculation():
     assert r["status"] == "fail" and r["backlash_lost_motion_mm"] == pytest.approx(math.radians(0.25) * 1200, rel=1e-2)
     picks["g"]["chain"], picks["g"]["components"] = "servo", ["servo_motor.yaskawa-electric-corporation.sgm7j-01a"]
     assert RB.repeatability(RB._library(), c, dt, picks, 0.5)["status"] == "unknown"   # 编码器位数库里没有：不判
+    picks["g"]["chain"], picks["g"]["components"] = "smart", ["smart_actuator.robotis.xm430-w350"]
+    near = RB.repeatability(RB._library(), c, dt, picks, 0.5, points_mm=[[300, 0, 50]])  # 需求点上算：力臂小
+    assert "需求点" in near["pose"] and near["worst_mm"] < r["worst_mm"]
