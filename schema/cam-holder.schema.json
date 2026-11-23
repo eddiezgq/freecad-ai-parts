@@ -167,6 +167,11 @@
      "exclusiveMinimum": 0,
      "description": "切槽刀杆能切的最大槽深（样本 CDX）；槽更深刀杆撞工件。ADR-0118"
     },
+    "max_depth_two_edge_mm": {
+     "type": "number",
+     "exclusiveMinimum": 0,
+     "description": "装两刃刀片时的最大切深（样本另注时才写，如京瓷 KGD 的 CDX ≥ 20 时两刃刀片最深 18）；ADR-0119"
+    },
     "nose_radius_mm": {
      "type": "number",
      "minimum": 0,
