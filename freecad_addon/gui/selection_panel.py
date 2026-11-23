@@ -7,14 +7,24 @@ connect_ports，与人工、AI 的改动走同一套工具。候选整理与调�
 from __future__ import annotations
 
 import html
+import re
 import threading
 
 from PySide import QtCore, QtWidgets
 
-from assist.i18n import final, lang
+from assist.i18n import final, lang, raw, tr_block
 from assist.i18n import tr as T
 from freecad_addon.core import requirement_form, selection
 from freecad_addon.gui.host import ToolsHost, _parse, get_host
+
+
+def _mark(line: str) -> str:
+    """说明行里的原话引用、AI 写的“不清楚”照录不翻（英文界面时其余部分翻成英文）"""
+    if line.startswith("依据 · "):
+        return re.sub(r"“(.*)”$", lambda m: f"“{raw(m.group(1))}”", line, flags=re.DOTALL)
+    if line.startswith("不清楚 · "):
+        return "不清楚 · " + raw(line[len("不清楚 · "):])
+    return line
 
 
 def _carried(shown: dict) -> str:
@@ -148,7 +158,7 @@ class SelectionPanel(QtWidgets.QDockWidget):
         if shown:
             lines.append(_carried(shown))
         head = "解析完成，请核对下表后点“查找方案”" if out.get("status") == "ok" else "还缺必填项，请补充后再查找"
-        self.parse_note.setText(final(head + ("\n" + "\n".join(lines) if lines else ""), lang()))
+        self.parse_note.setText(final(head + ("\n" + "\n".join(_mark(x) for x in lines) if lines else ""), lang()))
 
     def clear(self) -> None:
         self.extra = {}
@@ -212,10 +222,10 @@ class SelectionPanel(QtWidgets.QDockWidget):
         row = self.selected()
         self.place_button.setEnabled(row is not None)
         if row is None:
-            self.detail.setHtml("<p style='color:#666'>" + html.escape(T(self.summary or "选一个方案查看说明。")) + "</p>")
+            self.detail.setHtml("<p style='color:#666'>" + html.escape(tr_block(self.summary or "选一个方案查看说明。")) + "</p>")
             return
         self.detail.setHtml(f"<p><b>{html.escape(T(f'方案 {row.rank}：{row.status}'))}</b></p>"
-                            f"<pre style='white-space:pre-wrap'>{html.escape(T(row.explanation))}</pre>")
+                            f"<pre style='white-space:pre-wrap'>{html.escape(tr_block(row.explanation))}</pre>")
 
     # ------------------------------------------------------------ 放入布局
 

@@ -81,7 +81,7 @@ def _with_pack(base: LibraryChoice, env: Mapping[str, str], settings: Mapping, p
         info = verify_pack(Path(raw), keys.PUBLIC_KEYS if public_keys is None else public_keys)
     except PackError as exc:
         return LibraryChoice(base.kind, base.path, base.note + f"；零件库订阅包不能用：{exc}")
-    return LibraryChoice(base.kind, base.path, f"订阅零件库 {info['count']} 个组件（{info['version']}）叠加在 " + base.note,
+    return LibraryChoice(base.kind, base.path, f"订阅零件库 {info['count']} 个组件（{info['version']}）叠加在 {base.note}",
                          pack=Path(raw))
 
 
@@ -96,7 +96,7 @@ def choose(env: Mapping[str, str], repo_root: Path = REPO_ROOT, settings: Mappin
         return LibraryChoice(base.kind, base.path, base.note + f"；企业库目录无效（缺 components/）：{ent}，未使用",
                              pack=base.pack)
     n = _count(ent / "components")
-    return LibraryChoice(base.kind, base.path, f"企业库 {n} 个组件（{ent}）叠加在 " + base.note, ent, base.pack)
+    return LibraryChoice(base.kind, base.path, f"企业库 {n} 个组件（{ent}）叠加在 {base.note}", ent, base.pack)
 
 
 def _choose_public(env: Mapping[str, str], repo_root: Path) -> LibraryChoice:

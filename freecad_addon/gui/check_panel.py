@@ -12,6 +12,7 @@ import html
 from PySide import QtCore, QtWidgets
 
 from assist.i18n import tr as T
+from assist.i18n import tr_block
 from freecad_addon.core import live_check, requirement_form
 from freecad_addon.gui.host import ToolsHost, get_host
 
@@ -300,7 +301,7 @@ def render(r: dict) -> str:
                      f"{esc(T(live_check.STATUS_TEXT.get(st, st)))}</b><br>")
         finds = c.get("findings") or []
         if finds:
-            parts.append("<br>".join(f"&nbsp;&nbsp;· {esc(T(f['message']))}" for f in finds))
+            parts.append("<br>".join(f"&nbsp;&nbsp;· {esc(tr_block(f['message']))}" for f in finds))
         else:
             parts.append(f"&nbsp;&nbsp;{esc(T(c.get('message', '')))}")
         parts.append("</p>")
