@@ -364,6 +364,11 @@ def build_check(concept: Mapping, cond: Mapping) -> dict:
     if r.get("status") == "fail":
         items.append(f"重复定位精度：{r.get('note', '')}")
     lib = _library()
+    cad = cad_check(lib, concept, out)
+    if cad is not None:
+        out["cad"] = cad
+        items += [f"三维装配：{h['a']} 与 {h['b']} 干涉 {h['volume_mm3']:g} mm³" for h in cad.get("interferences", [])]
+        items += [f"三维装配：{x}" for x in cad.get("problems", [])]
     summ = []
     for g, p in (out.get("picks") or {}).items():
         if not p.get("components"):
@@ -381,6 +386,22 @@ def build_check(concept: Mapping, cond: Mapping) -> dict:
     return {"ok": not items, "items": items, "summary": "；".join(summ), "result": out}
 
 
+def cad_check(lib, concept: Mapping, out: Mapping) -> dict | None:
+    """装配校核通过、全部关节同一种一体化模组时，生成三维装配查干涉（assist/robot_cad.py）；其余情况不做（返回 None）"""
+    picks = out.get("picks") or {}
+    ft = out.get("fit") or {}
+    if ft.get("overall") != "pass" or len(picks) != 1 or next(iter(picks.values())).get("chain") != "smart":
+        return None
+    from assist import robot_cad
+
+    comp = lib.get(next(iter(picks.values()))["components"][0])
+    try:
+        res = robot_cad.build(concept, ft, comp)
+    except robot_cad.CadError as ex:
+        return {"status": "fail", "interferences": [], "problems": [str(ex)]}
+    return {k: res[k] for k in ("status", "interferences", "problems", "mass_kg", "cog_mm")}
+
+
 def fit_check(lib, concept: Mapping, picks: Mapping) -> dict:
     """装不装得下（analysis/robot/fit.py）：一体化模组按它的机械接口算；伺服链没有整体外形与接口，判不了"""
     from analysis.robot import fit
@@ -390,7 +411,9 @@ def fit_check(lib, concept: Mapping, picks: Mapping) -> dict:
         if p.get("chain") == "smart":
             comp = lib.get(p["components"][0])
             acts.update({j: comp for j in p["joints"]})
-    return fit.check(concept, acts)
+    from assist.robot_cad import min_spare_mm
+
+    return fit.check(concept, acts, min_spare_mm=min_spare_mm())
 
 
 def dynamic_factor(res: Mapping) -> float:
