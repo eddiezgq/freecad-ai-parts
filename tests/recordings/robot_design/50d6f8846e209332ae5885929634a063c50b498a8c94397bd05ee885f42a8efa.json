@@ -1,0 +1,63 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-design/2",
+  "request_key": "50d6f8846e209332ae5885929634a063c50b498a8c94397bd05ee885f42a8efa",
+  "response": {
+    "id": "msg_011ChL1DT6sBWtDXiEgnRM82",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "dof": {
+        "quote": "5 轴",
+        "value": 5
+      },
+      "for_people": [
+        {
+          "quote": "学生能自己装拆"
+        },
+        {
+          "quote": "全部自制件能在普通数控车床、铣床上加工"
+        },
+        {
+          "quote": "外购件成本尽量低"
+        }
+      ],
+      "joint_speed": {
+        "quote": "关节最高角速度 60°/s",
+        "unit": "°/s",
+        "value": 60
+      },
+      "kind": "serial_arm",
+      "kind_quote": "教学用桌面机械臂",
+      "module_reuse": {
+        "quote": "同一种关节模组重复使用"
+      },
+      "mount": {
+        "quote": "装在桌面上",
+        "where": "桌面"
+      },
+      "payload": {
+        "quote": "末端负载 0.5 kg",
+        "unit": "kg",
+        "value": 0.5
+      },
+      "questions": [
+        "5 轴的具体构型（各轴是旋转还是其他，轴线如何排布）原话没说，是否有偏好？",
+        "“外购件成本尽量低”没有给出具体预算上限，是否有目标价格？",
+        "0.5 kg 负载是否包含末端夹具/工具自重？",
+        "关节最高角速度 60°/s 是否对所有关节都适用？"
+      ],
+      "reach": {
+        "quote": "臂展 350 mm",
+        "unit": "mm",
+        "value": 350
+      },
+      "repeatability": {
+        "quote": "末端重复定位精度 ±1 mm",
+        "unit": "mm",
+        "value": 1
+      }
+    }
+  }
+}
