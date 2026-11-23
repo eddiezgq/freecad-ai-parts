@@ -143,3 +143,56 @@ def mjcf(concept: Mapping, *, module_masses_kg: Mapping[str, float] | None = Non
             f'<option timestep="0.0005"/><worldbody><body name="base" quat="{BASE_QUAT[mount]}">'
             f'<geom type="cylinder" size="0.04 0.01" mass="0" rgba="0.3 0.3 0.3 1"/>{modules("base")}{roots}'
             '</body></worldbody></mujoco>')
+
+
+def mjcf_parts(concept: Mapping, parts, *, payload_kg: float = 0.0) -> str:
+    """按三维装配的零件生成 MJCF（ADR-0115 44.3 之二第 5 步）：每个零件按它的质量集中在重心（零位、世界坐标 mm），
+    归到它装在的杆件（body）上；每根杆件的质量、重心与点质量的转动惯量合成一个 inertial。装在基座上的零件不进模型。
+    关节、坐标与 mjcf() 相同；零件自身绕重心的转动惯量不计（点质量），偏小一点。"""
+    m = K.build(concept)
+    mount = concept["base"]["mount"]
+    if concept["kind"] == "mobile_base" or mount not in BASE_QUAT:
+        raise K.ConceptError(f"{concept['kind']} / 安装方式 {mount}：这一步不建动力学模型")
+    T = K.fk(m)
+    by_body: dict[str, list[tuple[float, np.ndarray]]] = {}
+    for p in parts:
+        b = p.get("body")
+        if b in (None, "base") or not p.get("mass_kg"):
+            continue
+        if b not in m.links:
+            raise K.ConceptError(f"零件 {p.get('name')} 装在不存在的杆件 {b} 上")
+        Ti = np.linalg.inv(T[b])
+        local = (Ti @ np.append(np.asarray(p["cog_mm"], float), 1.0))[:3] / 1000.0
+        by_body.setdefault(b, []).append((float(p["mass_kg"]), local))
+
+    def inertial(link: str) -> str:
+        pts = by_body.get(link) or []
+        mass = sum(q for q, _ in pts)
+        if mass <= 0:
+            return '<inertial pos="0 0 0" mass="1e-6" diaginertia="1e-9 1e-9 1e-9"/>'
+        c = sum(q * r for q, r in pts) / mass
+        inertia = np.zeros((3, 3))
+        for q, r in pts:
+            d = r - c
+            inertia += q * ((d @ d) * np.eye(3) - np.outer(d, d))
+        inertia += np.eye(3) * 1e-7                                   # 全在一条线上时避免奇异
+        return (f'<inertial pos="{_f(c)}" mass="{mass:.6g}" fullinertia="{inertia[0, 0]:.6g} {inertia[1, 1]:.6g} '
+                f'{inertia[2, 2]:.6g} {inertia[0, 1]:.6g} {inertia[0, 2]:.6g} {inertia[1, 2]:.6g}"/>')
+
+    def body(j: K.Joint) -> str:
+        jt = (f'<joint name="{j.id}" type="slide" axis="{_f(j.axis)}"/>' if j.type == "prismatic"
+              else f'<joint name="{j.id}" type="hinge" axis="{_f(j.axis)}"/>')
+        inner = "".join(body(c) for c in m.joints if c.parent == j.child)
+        if j.child == m.tool_link:
+            tp = m.tool_offset / 1000
+            inner += f'<site name="tool" pos="{_f(tp)}"/>'
+            if payload_kg > 0:
+                inner += (f'<body name="payload" pos="{_f(tp)}"><inertial pos="0 0 0" mass="{payload_kg:.6g}" '
+                          'diaginertia="1e-6 1e-6 1e-6"/></body>')
+        return f'<body name="{j.child}" pos="{_f(j.origin / 1000)}">{jt}{inertial(j.child)}{inner}</body>'
+
+    roots = "".join(body(j) for j in m.joints if j.parent == "base")
+    return ('<mujoco model="robot-assembly"><compiler angle="radian" autolimits="true"/>'
+            f'<option timestep="0.0005"/><worldbody><body name="base" quat="{BASE_QUAT[mount]}">'
+            f'<geom type="cylinder" size="0.04 0.01" mass="0" rgba="0.3 0.3 0.3 1"/>{roots}'
+            '</body></worldbody></mujoco>')
