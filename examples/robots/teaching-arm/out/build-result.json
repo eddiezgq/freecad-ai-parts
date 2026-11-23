@@ -8,69 +8,69 @@
      "joint": "j1",
      "kind": "move",
      "unit_force": "N·m",
-     "peak": 0.27626252497202347,
-     "rms": 0.13689497771258186,
-     "speed_max": 10.002011910621318,
+     "peak": 0.325455112673904,
+     "rms": 0.16137857479053802,
+     "speed_max": 10.002011429204394,
      "unit_speed": "rpm",
-     "power_peak_w": 0.21874019456934654,
-     "power_mean_w": -0.023594312193832782,
-     "inertia_max_kgm2": 0.12826988136847717
+     "power_peak_w": 0.25769982346577947,
+     "power_mean_w": -0.027861420112085266,
+     "inertia_max_kgm2": 0.15121408575742004
     },
     {
      "joint": "j2",
      "kind": "move",
      "unit_force": "N·m",
-     "peak": 3.5606824256295875,
-     "rms": 2.1611650750478066,
-     "speed_max": 10.002049901676338,
+     "peak": 3.792084654671228,
+     "rms": 2.3061264316867667,
+     "speed_max": 10.002043115519974,
      "unit_speed": "rpm",
-     "power_peak_w": 2.8804446419188148,
-     "power_mean_w": 1.3844008071244855,
-     "inertia_max_kgm2": 0.12833381852231723
+     "power_peak_w": 3.0770963599222885,
+     "power_mean_w": 1.477065258805274,
+     "inertia_max_kgm2": 0.1512881459683037
     },
     {
      "joint": "j3",
      "kind": "move",
      "unit_force": "N·m",
-     "peak": 2.322733335876271,
-     "rms": 1.4951625771640893,
-     "speed_max": 10.001826981677494,
+     "peak": 2.476293896287251,
+     "rms": 1.5882960623188482,
+     "speed_max": 10.0018393035333,
      "unit_speed": "rpm",
-     "power_peak_w": 1.8630602181624834,
-     "power_mean_w": -0.9743890210072645,
-     "inertia_max_kgm2": 0.05779096539789028
+     "power_peak_w": 1.9867077822499493,
+     "power_mean_w": -1.033240308369559,
+     "inertia_max_kgm2": 0.06832497337096644
     },
     {
      "joint": "j4",
      "kind": "move",
      "unit_force": "N·m",
-     "peak": 1.1831696399230909,
-     "rms": 0.6500784034076071,
-     "speed_max": 10.00192422011952,
+     "peak": 1.2709755443222144,
+     "rms": 0.6945317339585326,
+     "speed_max": 10.001926977000755,
      "unit_speed": "rpm",
-     "power_peak_w": 0.9252692598836432,
-     "power_mean_w": -0.3883851602593895,
-     "inertia_max_kgm2": 0.015952007163169163
+     "power_peak_w": 0.9907894116967593,
+     "power_mean_w": -0.411644267584976,
+     "inertia_max_kgm2": 0.019031412228294523
     },
     {
      "joint": "j5",
      "kind": "move",
      "unit_force": "N·m",
-     "peak": 9.907523196277974e-06,
-     "rms": 5.635866295038587e-06,
-     "speed_max": 10.001999936124413,
+     "peak": 1.5700157264583777e-06,
+     "rms": 6.445812465787175e-07,
+     "speed_max": 10.002000062958311,
      "unit_speed": "rpm",
-     "power_peak_w": 1.02734576449644e-05,
-     "power_mean_w": -1.5192475179455828e-07,
-     "inertia_max_kgm2": 2.2505976363658166e-06
+     "power_peak_w": 1.2175939070535848e-06,
+     "power_mean_w": 1.0538170008694396e-07,
+     "inertia_max_kgm2": 1.517939924629688e-06
     }
    ],
    "static": {
     "gravity_torque_nm": {
      "j1": -0.0,
-     "j2": -2.816991150609498,
-     "j3": -1.8228253610736123,
-     "j4": -0.9231682556305162,
+     "j2": -3.0079984919450133,
+     "j3": -1.9480983959476663,
+     "j4": -0.9947172825409151,
      "j5": -0.0
     }
    },
@@ -93,69 +93,69 @@
      "joint": "j1",
      "kind": "move",
      "unit_force": "N·m",
-     "peak": 0.38779184579961334,
-     "rms": 0.19264654243359391,
-     "speed_max": 10.002015061076163,
+     "peak": 0.45994453039702016,
+     "rms": 0.22897968699675905,
+     "speed_max": 10.002014486538018,
      "unit_speed": "rpm",
-     "power_peak_w": 0.31630706870715386,
-     "power_mean_w": -0.03195195389524946,
-     "inertia_max_kgm2": 0.1790209828498599
+     "power_peak_w": 0.37711445888183137,
+     "power_mean_w": -0.03786589754346384,
+     "inertia_max_kgm2": 0.21253796845753775
     },
     {
      "joint": "j2",
      "kind": "move",
      "unit_force": "N·m",
-     "peak": 4.5333371871343875,
-     "rms": 3.3061656943811117,
-     "speed_max": 10.002014315128676,
+     "peak": 4.87963841369637,
+     "rms": 3.5720772595792125,
+     "speed_max": 10.002012313029402,
      "unit_speed": "rpm",
-     "power_peak_w": 4.387379766735674,
-     "power_mean_w": 2.1277243909659034,
-     "inertia_max_kgm2": 0.17955331092213161
+     "power_peak_w": 4.739051349435562,
+     "power_mean_w": 2.3006180251417265,
+     "inertia_max_kgm2": 0.21324595435567578
     },
     {
      "joint": "j3",
      "kind": "move",
      "unit_force": "N·m",
-     "peak": 2.7168131242418014,
-     "rms": 2.1632937805771673,
-     "speed_max": 10.001958839724702,
+     "peak": 2.9203747869026873,
+     "rms": 2.32412491386065,
+     "speed_max": 10.001961707739211,
      "unit_speed": "rpm",
-     "power_peak_w": 2.6196839821202142,
-     "power_mean_w": -1.4197927572269495,
-     "inertia_max_kgm2": 0.07623394021284913
+     "power_peak_w": 2.8190313374293288,
+     "power_mean_w": -1.5240447479352524,
+     "inertia_max_kgm2": 0.09053896344763017
     },
     {
      "joint": "j4",
      "kind": "move",
      "unit_force": "N·m",
-     "peak": 1.241026864474484,
-     "rms": 0.8399702250893321,
-     "speed_max": 10.001974492107486,
+     "peak": 1.3379468109532104,
+     "rms": 0.902736452675395,
+     "speed_max": 10.00197543284737,
      "unit_speed": "rpm",
-     "power_peak_w": 1.1806787598605124,
-     "power_mean_w": -0.5189878792616515,
-     "inertia_max_kgm2": 0.01976454841316917
+     "power_peak_w": 1.2709100874413768,
+     "power_mean_w": -0.5556651013813375,
+     "inertia_max_kgm2": 0.02362357847829452
     },
     {
      "joint": "j5",
      "kind": "move",
      "unit_force": "N·m",
-     "peak": 9.907628104725886e-06,
-     "rms": 5.63607519856655e-06,
-     "speed_max": 10.001999936071254,
+     "peak": 1.569978239625279e-06,
+     "rms": 6.447042401362355e-07,
+     "speed_max": 10.002000063005012,
      "unit_speed": "rpm",
-     "power_peak_w": 1.0273566428151375e-05,
-     "power_mean_w": -1.5158118895300305e-07,
-     "inertia_max_kgm2": 2.2505976363708577e-06
+     "power_peak_w": 1.2175976753494053e-06,
+     "power_mean_w": 1.0514622235208009e-07,
+     "inertia_max_kgm2": 1.5179399246353978e-06
     }
    ],
    "static": {
     "gravity_torque_nm": {
      "j1": -0.0,
-     "j2": -4.2589455138592935,
-     "j3": -2.536902947955641,
-     "j4": -1.152513078928084,
+     "j2": -4.593183354901522,
+     "j3": -2.7323006955906086,
+     "j4": -1.2451327607569234,
      "j5": -0.0
     }
    },
@@ -182,25 +182,25 @@
      {
       "check": "S1",
       "status": "pass",
-      "message": "峰值力矩 × 安全系数 ≤ 堵转力矩：需要 5.44 N·m，能力 10.6 N·m",
-      "measured": 5.4396,
+      "message": "峰值力矩 × 安全系数 ≤ 堵转力矩：需要 5.86 N·m，能力 10.6 N·m",
+      "measured": 5.856,
       "limit": 10.6,
       "unit": "N·m",
-      "margin_ratio": 0.4868301886792452
+      "margin_ratio": 0.44754716981132076
      },
      {
       "check": "S2",
       "status": "unknown",
-      "message": "厂商没给连续额定力矩（堵转力矩不能当连续值用），连续力矩判待确认；连续需求 × 安全系数 3.97 N·m，是堵转力矩的 37%"
+      "message": "厂商没给连续额定力矩（堵转力矩不能当连续值用），连续力矩判待确认；连续需求 × 安全系数 4.29 N·m，是堵转力矩的 40%"
      },
      {
       "check": "S3",
       "status": "pass",
-      "message": "动作过程 2405 个工作点里最紧的一点（4.19 N·m）：转速 ≤ n₀(1 − T·SF/Tₛ)：需要 10 rpm，能力 15.8 rpm",
-      "measured": 10.002014315128676,
-      "limit": 15.773902730236058,
+      "message": "动作过程 2405 个工作点里最紧的一点（4.52 N·m）：转速 ≤ n₀(1 − T·SF/Tₛ)：需要 10 rpm，能力 14.6 rpm",
+      "measured": 10.002012313029402,
+      "limit": 14.63360307450301,
       "unit": "rpm",
-      "margin_ratio": 0.36591378264578694
+      "margin_ratio": 0.3165037850140614
      },
      {
       "check": "S4",
@@ -212,7 +212,7 @@
    },
    "overall": "unknown",
    "module_mass_kg": 0.165,
-   "candidates": 8,
+   "candidates": 7,
    "options": {
     "servo": {
      "chain": "servo",
@@ -240,7 +240,7 @@
      },
      "overall": "unknown",
      "module_mass_kg": 0.165,
-     "candidates": 8
+     "candidates": 7
     }
    },
    "smart_shortfall": null,
@@ -260,11 +260,11 @@
     },
     "fieldbus_protocol": "ethercat",
     "ambient_temp_c": 25,
-    "output_torque_cont_nm": 3.306,
-    "output_torque_peak_nm": 4.533,
+    "output_torque_cont_nm": 3.572,
+    "output_torque_peak_nm": 4.88,
     "output_speed_rpm": 10.002,
-    "load_inertia_kgm2": 0.179553,
-    "statement": "关节 j1、j2、j3、j4、j5 共用一种模组：连续 3.31 N·m（j2）、峰值 4.53 N·m（j2）、10.0 rpm（j1）",
+    "load_inertia_kgm2": 0.213246,
+    "statement": "关节 j1、j2、j3、j4、j5 共用一种模组：连续 3.57 N·m（j2）、峰值 4.88 N·m（j2）、10.0 rpm（j1）",
     "id": "group-m540"
    }
   }
@@ -272,10 +272,10 @@
  "duty": {
   "initial": {
    "j1": 0.0,
-   "j2": 87.8438,
-   "j3": 5.5711,
-   "j4": -33.9046,
-   "j5": 121.6359
+   "j2": 88.571,
+   "j3": 3.555,
+   "j4": -32.5317,
+   "j5": 0.0
   },
   "drives": [
    {
@@ -289,7 +289,7 @@
    {
     "joint": "j2",
     "kind": "move",
-    "to": -2.1562,
+    "to": -1.429,
     "t0_s": 0.2,
     "t1_s": 2.1999999999999993,
     "accel_ratio": 0.25
@@ -297,7 +297,7 @@
    {
     "joint": "j3",
     "kind": "move",
-    "to": 95.5711,
+    "to": 93.555,
     "t0_s": 0.2,
     "t1_s": 2.1999999999999993,
     "accel_ratio": 0.25
@@ -305,7 +305,7 @@
    {
     "joint": "j4",
     "kind": "move",
-    "to": 56.0954,
+    "to": 57.4683,
     "t0_s": 0.2,
     "t1_s": 2.1999999999999993,
     "accel_ratio": 0.25
@@ -313,16 +313,16 @@
    {
     "joint": "j5",
     "kind": "move",
-    "to": 31.6359,
+    "to": 90.0,
     "t0_s": 0.2,
     "t1_s": 2.1999999999999993,
     "accel_ratio": 0.25
    }
   ],
   "pose_mm": [
-   471.8017578125,
+   520.01953125,
    0.0,
-   165.0
+   163.0
   ],
   "move_s": 1.9999999999999993
  },
@@ -334,11 +334,11 @@
   "j5": 0.165
  },
  "link_masses_kg": {
-  "turret": 0.084,
-  "upper_arm": 0.0662,
-  "forearm": 0.0611,
-  "wrist": 0.056,
-  "tool_link": 0.026
+  "turret": 0.0479,
+  "upper_arm": 0.0752,
+  "forearm": 0.056,
+  "wrist": 0.0448,
+  "gripper_link": 0.0166
  },
  "assumptions": [
   "检验动作（需求没给速度，设计取值）：从水平伸直姿态出发，各转动关节同时转 90°，用时 2 s，加减速各占 25%（最高 60°/s）；末端带满载",
@@ -347,7 +347,7 @@
   "杆件质量按方案的截面、长度与材料密度，均布在本关节到下一关节之间"
  ],
  "open_items": [
-  "模组组 m540（smart）：S2 厂商没给连续额定力矩（堵转力矩不能当连续值用），连续力矩判待确认；连续需求 × 安全系数 3.97 N·m，是堵转力矩的 37%"
+  "模组组 m540（smart）：S2 厂商没给连续额定力矩（堵转力矩不能当连续值用），连续力矩判待确认；连续需求 × 安全系数 4.29 N·m，是堵转力矩的 40%"
  ],
  "bom": {
   "purchased": [
@@ -373,59 +373,59 @@
     "link": "turret",
     "shape": "tube",
     "section": {
-     "id_mm": 30,
-     "od_mm": 36
+     "id_mm": 19,
+     "od_mm": 24
     },
-    "length_mm": 100,
+    "length_mm": 105,
     "material": "6061-T6",
-    "mass_kg": 0.084
+    "mass_kg": 0.0479
    },
    {
     "link": "upper_arm",
     "shape": "tube",
     "section": {
-     "id_mm": 24,
-     "od_mm": 28
+     "id_mm": 19,
+     "od_mm": 24
     },
-    "length_mm": 150,
+    "length_mm": 165,
     "material": "6061-T6",
-    "mass_kg": 0.0662
+    "mass_kg": 0.0752
    },
    {
     "link": "forearm",
     "shape": "tube",
     "section": {
-     "id_mm": 22,
-     "od_mm": 26
+     "id_mm": 18,
+     "od_mm": 22
     },
-    "length_mm": 150,
+    "length_mm": 165,
     "material": "6061-T6",
-    "mass_kg": 0.0611
+    "mass_kg": 0.056
    },
    {
     "link": "wrist",
     "shape": "tube",
     "section": {
-     "id_mm": 20,
-     "od_mm": 24
+     "id_mm": 14,
+     "od_mm": 18
     },
-    "length_mm": 150,
+    "length_mm": 165,
     "material": "6061-T6",
-    "mass_kg": 0.056
+    "mass_kg": 0.0448
    },
    {
-    "link": "tool_link",
+    "link": "gripper_link",
     "shape": "tube",
     "section": {
-     "id_mm": 14,
-     "od_mm": 20
+     "id_mm": 12,
+     "od_mm": 16
     },
-    "length_mm": 60,
+    "length_mm": 70,
     "material": "6061-T6",
-    "mass_kg": 0.026
+    "mass_kg": 0.0166
    }
   ],
-  "made_mass_kg": 0.293,
+  "made_mass_kg": 0.24,
   "notes": [
    "一体化关节模组还要一个总线控制器（如 U2D2 一类的总线转接）与直流电源；库里没有这两类，未列入"
   ]
@@ -440,21 +440,21 @@
    },
    {
     "joint": "j2",
-    "lever_mm": 386.9,
+    "lever_mm": 386.0,
     "counts_per_rev": 4096,
-    "error_mm": 0.297
+    "error_mm": 0.296
    },
    {
     "joint": "j3",
-    "lever_mm": 317.7,
+    "lever_mm": 329.7,
     "counts_per_rev": 4096,
-    "error_mm": 0.244
+    "error_mm": 0.253
    },
    {
     "joint": "j4",
-    "lever_mm": 172.2,
+    "lever_mm": 190.1,
     "counts_per_rev": 4096,
-    "error_mm": 0.132
+    "error_mm": 0.146
    },
    {
     "joint": "j5",
@@ -463,69 +463,69 @@
     "error_mm": 0.0
    }
   ],
-  "worst_mm": 0.941,
-  "backlash_lost_motion_mm": 5.35,
+  "worst_mm": 0.963,
+  "backlash_lost_motion_mm": 5.48,
   "pose": "需求点 (350.0, 0.0, 0.0)",
   "target_mm": 1.0,
   "status": "pass",
-  "note": "需求点 (350.0, 0.0, 0.0)：分辨率一项最坏 ±0.94 mm，要求 ±1 mm；反向趋近时回差最坏再多 5.3 mm"
+  "note": "需求点 (350.0, 0.0, 0.0)：分辨率一项最坏 ±0.96 mm，要求 ±1 mm；反向趋近时回差最坏再多 5.5 mm"
  },
  "links": {
   "items": [
    {
     "item": "杆件 turret",
-    "bending_nm": 4.2589,
+    "bending_nm": 4.5932,
     "torsion_nm": 0.0,
-    "sigma_eq_mpa": 1.934,
-    "safety_yield": 142.72,
-    "safety_fatigue": 49.9,
+    "sigma_eq_mpa": 5.989,
+    "safety_yield": 46.08,
+    "safety_fatigue": 16.11,
     "status": "pass",
-    "note": "当量应力 1.93 MPa（含动载系数 1.08）；对屈服 142.7、对弯曲疲劳 49.9，要求 ≥ 1.2"
+    "note": "当量应力 5.99 MPa（含动载系数 1.07）；对屈服 46.1、对弯曲疲劳 16.1，要求 ≥ 1.2"
    },
    {
     "item": "杆件 upper_arm",
-    "bending_nm": 4.2589,
+    "bending_nm": 4.5932,
     "torsion_nm": 0.0,
-    "sigma_eq_mpa": 4.624,
-    "safety_yield": 59.69,
-    "safety_fatigue": 20.87,
+    "sigma_eq_mpa": 5.989,
+    "safety_yield": 46.08,
+    "safety_fatigue": 16.11,
     "status": "pass",
-    "note": "当量应力 4.62 MPa（含动载系数 1.08）；对屈服 59.7、对弯曲疲劳 20.9，要求 ≥ 1.2"
+    "note": "当量应力 5.99 MPa（含动载系数 1.07）；对屈服 46.1、对弯曲疲劳 16.1，要求 ≥ 1.2"
    },
    {
     "item": "杆件 forearm",
-    "bending_nm": 2.5369,
+    "bending_nm": 2.7323,
     "torsion_nm": 0.0,
-    "sigma_eq_mpa": 3.248,
-    "safety_yield": 84.97,
-    "safety_fatigue": 29.71,
+    "sigma_eq_mpa": 5.089,
+    "safety_yield": 54.23,
+    "safety_fatigue": 18.96,
     "status": "pass",
-    "note": "当量应力 3.25 MPa（含动载系数 1.08）；对屈服 85.0、对弯曲疲劳 29.7，要求 ≥ 1.2"
+    "note": "当量应力 5.09 MPa（含动载系数 1.07）；对屈服 54.2、对弯曲疲劳 19.0，要求 ≥ 1.2"
    },
    {
     "item": "杆件 wrist",
-    "bending_nm": 1.1525,
+    "bending_nm": 1.2451,
     "torsion_nm": 0.0,
-    "sigma_eq_mpa": 1.766,
-    "safety_yield": 156.27,
-    "safety_fatigue": 54.64,
+    "sigma_eq_mpa": 3.686,
+    "safety_yield": 74.89,
+    "safety_fatigue": 26.18,
     "status": "pass",
-    "note": "当量应力 1.77 MPa（含动载系数 1.08）；对屈服 156.3、对弯曲疲劳 54.6，要求 ≥ 1.2"
+    "note": "当量应力 3.69 MPa（含动载系数 1.07）；对屈服 74.9、对弯曲疲劳 26.2，要求 ≥ 1.2"
    },
    {
-    "item": "杆件 tool_link",
-    "bending_nm": 0.1532,
+    "item": "杆件 gripper_link",
+    "bending_nm": 0.1767,
     "torsion_nm": 0.0,
-    "sigma_eq_mpa": 0.276,
-    "safety_yield": 998.54,
-    "safety_fatigue": 349.13,
+    "sigma_eq_mpa": 0.691,
+    "safety_yield": 399.66,
+    "safety_fatigue": 139.74,
     "status": "pass",
-    "note": "当量应力 0.28 MPa（含动载系数 1.08）；对屈服 998.5、对弯曲疲劳 349.1，要求 ≥ 1.2"
+    "note": "当量应力 0.69 MPa（含动载系数 1.07）；对屈服 399.7、对弯曲疲劳 139.7，要求 ≥ 1.2"
    }
   ],
   "overall": "pass",
-  "tool_sag_mm": 0.2734,
-  "dynamic_factor": 1.077,
+  "tool_sag_mm": 0.7077,
+  "dynamic_factor": 1.075,
   "notes": [
    "末端下垂只算杆件弯曲；关节模组的刚度厂商没给，不计"
   ]
@@ -538,14 +538,14 @@
     "type": "轴转（法兰）",
     "status": "pass",
     "note": "子杆接在输出舵盘法兰上；壳体底面装在父件上（轴线与父件偏开）",
-    "base_clear_mm": 18.5
+    "base_clear_mm": 11.5
    },
    {
     "joint": "j2",
     "actuator": "smart_actuator.robotis.xm540-w270",
     "type": "侧摆（U 形支架）",
     "required_deg": 100.0,
-    "parent_width_mm": 36.0,
+    "parent_width_mm": 33.5,
     "plate_width_mm": 33.5,
     "zero_offset_deg": 0.0,
     "status": "pass",
@@ -556,6 +556,18 @@
     "joint": "j3",
     "actuator": "smart_actuator.robotis.xm540-w270",
     "type": "侧摆（U 形支架）",
+    "required_deg": 150.0,
+    "parent_width_mm": 33.5,
+    "plate_width_mm": 33.5,
+    "zero_offset_deg": 0.0,
+    "status": "pass",
+    "d_min_mm": 62.5,
+    "note": "U 底板离轴线至少 62.5 mm 才能转到 ±150°"
+   },
+   {
+    "joint": "j4",
+    "actuator": "smart_actuator.robotis.xm540-w270",
+    "type": "侧摆（U 形支架）",
     "required_deg": 120.0,
     "parent_width_mm": 33.5,
     "plate_width_mm": 33.5,
@@ -563,18 +575,6 @@
     "status": "pass",
     "d_min_mm": 47.8,
     "note": "U 底板离轴线至少 47.8 mm 才能转到 ±120°"
-   },
-   {
-    "joint": "j4",
-    "actuator": "smart_actuator.robotis.xm540-w270",
-    "type": "侧摆（U 形支架）",
-    "required_deg": 110.0,
-    "parent_width_mm": 33.5,
-    "plate_width_mm": 33.5,
-    "zero_offset_deg": 0.0,
-    "status": "pass",
-    "d_min_mm": 47.8,
-    "note": "U 底板离轴线至少 47.8 mm 才能转到 ±110°"
    },
    {
     "joint": "j5",
@@ -589,45 +589,45 @@
     "link": "turret",
     "from": "j1",
     "to": "j2",
-    "length_mm": 100.0,
+    "length_mm": 105.0,
     "min_mm": 0.0,
-    "body_near_mm": 55.2,
-    "spare_mm": 55.2,
+    "body_near_mm": 60.2,
+    "spare_mm": 60.2,
     "status": "pass",
-    "note": "j2 的壳体离 j1 最近 55.2 mm（沿杆向），j1 的 U 底板要 0 mm；余 55.2 mm 给支架板厚、杆套与管子"
+    "note": "j2 的壳体离 j1 最近 60.2 mm（沿杆向），j1 的 U 底板要 0 mm；余 60.2 mm 给支架板厚、杆套与管子"
    },
    {
     "link": "upper_arm",
     "from": "j2",
     "to": "j3",
-    "length_mm": 150.0,
+    "length_mm": 165.0,
     "min_mm": 47.8,
-    "body_near_mm": 105.2,
-    "spare_mm": 57.5,
+    "body_near_mm": 120.2,
+    "spare_mm": 72.5,
     "status": "pass",
-    "note": "j3 的壳体离 j2 最近 105.2 mm（沿杆向），j2 的 U 底板要 47.8 mm；余 57.5 mm 给支架板厚、杆套与管子"
+    "note": "j3 的壳体离 j2 最近 120.2 mm（沿杆向），j2 的 U 底板要 47.8 mm；余 72.5 mm 给支架板厚、杆套与管子"
    },
    {
     "link": "forearm",
     "from": "j3",
     "to": "j4",
-    "length_mm": 150.0,
-    "min_mm": 47.8,
-    "body_near_mm": 105.2,
-    "spare_mm": 57.5,
+    "length_mm": 165.0,
+    "min_mm": 62.5,
+    "body_near_mm": 120.2,
+    "spare_mm": 57.8,
     "status": "pass",
-    "note": "j4 的壳体离 j3 最近 105.2 mm（沿杆向），j3 的 U 底板要 47.8 mm；余 57.5 mm 给支架板厚、杆套与管子"
+    "note": "j4 的壳体离 j3 最近 120.2 mm（沿杆向），j3 的 U 底板要 62.5 mm；余 57.8 mm 给支架板厚、杆套与管子"
    },
    {
     "link": "wrist",
     "from": "j4",
     "to": "j5",
-    "length_mm": 152.0,
+    "length_mm": 166.8,
     "min_mm": 47.8,
-    "body_near_mm": 100.3,
-    "spare_mm": 52.5,
+    "body_near_mm": 115.7,
+    "spare_mm": 67.9,
     "status": "pass",
-    "note": "j5 的壳体离 j4 最近 100.3 mm（沿杆向），j4 的 U 底板要 47.8 mm；余 52.5 mm 给支架板厚、杆套与管子"
+    "note": "j5 的壳体离 j4 最近 115.7 mm（沿杆向），j4 的 U 底板要 47.8 mm；余 67.9 mm 给支架板厚、杆套与管子"
    }
   ],
   "overall": "pass"

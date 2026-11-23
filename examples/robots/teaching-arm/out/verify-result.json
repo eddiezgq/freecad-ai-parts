@@ -3,35 +3,35 @@
  "compare": [
   {
    "joint": "j1",
-   "peak_est_nm": 0.388,
-   "peak_nm": 0.42,
-   "rms_est_nm": 0.193,
-   "rms_nm": 0.209,
-   "change": 0.082
+   "peak_est_nm": 0.46,
+   "peak_nm": 0.5,
+   "rms_est_nm": 0.229,
+   "rms_nm": 0.249,
+   "change": 0.086
   },
   {
    "joint": "j2",
-   "peak_est_nm": 4.533,
-   "peak_nm": 5.042,
-   "rms_est_nm": 3.306,
-   "rms_nm": 3.738,
-   "change": 0.112
+   "peak_est_nm": 4.88,
+   "peak_nm": 5.459,
+   "rms_est_nm": 3.572,
+   "rms_nm": 4.058,
+   "change": 0.119
   },
   {
    "joint": "j3",
-   "peak_est_nm": 2.717,
-   "peak_nm": 2.922,
-   "rms_est_nm": 2.163,
-   "rms_nm": 2.399,
-   "change": 0.076
+   "peak_est_nm": 2.92,
+   "peak_nm": 3.161,
+   "rms_est_nm": 2.324,
+   "rms_nm": 2.59,
+   "change": 0.082
   },
   {
    "joint": "j4",
-   "peak_est_nm": 1.241,
-   "peak_nm": 1.269,
-   "rms_est_nm": 0.84,
-   "rms_nm": 0.89,
-   "change": 0.022
+   "peak_est_nm": 1.338,
+   "peak_nm": 1.372,
+   "rms_est_nm": 0.903,
+   "rms_nm": 0.957,
+   "change": 0.026
   },
   {
    "joint": "j5",
@@ -45,8 +45,8 @@
  "checks": {
   "m540": {
    "requirement": {
-    "output_torque_cont_nm": 3.738,
-    "output_torque_peak_nm": 5.042,
+    "output_torque_cont_nm": 4.058,
+    "output_torque_peak_nm": 5.459,
     "output_speed_rpm": 10.002
    },
    "overall": "unknown",
@@ -54,25 +54,25 @@
     {
      "check": "S1",
      "status": "pass",
-     "message": "峰值力矩 × 安全系数 ≤ 堵转力矩：需要 6.05 N·m，能力 10.6 N·m",
-     "measured": 6.0504,
+     "message": "峰值力矩 × 安全系数 ≤ 堵转力矩：需要 6.55 N·m，能力 10.6 N·m",
+     "measured": 6.5508,
      "limit": 10.6,
      "unit": "N·m",
-     "margin_ratio": 0.4292075471698113
+     "margin_ratio": 0.382
     },
     {
      "check": "S2",
      "status": "unknown",
-     "message": "厂商没给连续额定力矩（堵转力矩不能当连续值用），连续力矩判待确认；连续需求 × 安全系数 4.49 N·m，是堵转力矩的 42%"
+     "message": "厂商没给连续额定力矩（堵转力矩不能当连续值用），连续力矩判待确认；连续需求 × 安全系数 4.87 N·m，是堵转力矩的 46%"
     },
     {
      "check": "S3",
      "status": "pass",
-     "message": "动作过程 2405 个工作点里最紧的一点（4.72 N·m）：转速 ≤ n₀(1 − T·SF/Tₛ)：需要 10 rpm，能力 14 rpm",
-     "measured": 10.002012446106587,
-     "limit": 13.955179841871491,
+     "message": "动作过程 2405 个工作点里最紧的一点（5.13 N·m）：转速 ≤ n₀(1 − T·SF/Tₛ)：需要 10 rpm，能力 12.6 rpm",
+     "measured": 10.002010813883714,
+     "limit": 12.587476876136149,
      "unit": "rpm",
-     "margin_ratio": 0.2832759907474439
+     "margin_ratio": 0.20539986589004713
     },
     {
      "check": "S4",
@@ -82,23 +82,23 @@
    ]
   }
  },
- "moving_mass_kg": 1.2677,
+ "moving_mass_kg": 1.21,
  "static": {
   "gravity_torque_nm": {
    "j1": -0.0,
-   "j2": -4.78099133076355,
-   "j3": -2.753299134187576,
-   "j4": -1.1873898693304783,
-   "j5": -5.3520551319513e-07
+   "j2": -5.179438713565991,
+   "j3": -2.979613189713045,
+   "j4": -1.2852767143973938,
+   "j5": -0.0
   }
  },
  "duty": {
   "initial": {
    "j1": 0.0,
-   "j2": 87.8438,
-   "j3": 5.5711,
-   "j4": -33.9046,
-   "j5": 121.6359
+   "j2": 88.571,
+   "j3": 3.555,
+   "j4": -32.5317,
+   "j5": 0.0
   },
   "drives": [
    {
@@ -112,7 +112,7 @@
    {
     "joint": "j2",
     "kind": "move",
-    "to": -2.1562,
+    "to": -1.429,
     "t0_s": 0.2,
     "t1_s": 2.1999999999999993,
     "accel_ratio": 0.25
@@ -120,7 +120,7 @@
    {
     "joint": "j3",
     "kind": "move",
-    "to": 95.5711,
+    "to": 93.555,
     "t0_s": 0.2,
     "t1_s": 2.1999999999999993,
     "accel_ratio": 0.25
@@ -128,7 +128,7 @@
    {
     "joint": "j4",
     "kind": "move",
-    "to": 56.0954,
+    "to": 57.4683,
     "t0_s": 0.2,
     "t1_s": 2.1999999999999993,
     "accel_ratio": 0.25
@@ -136,16 +136,16 @@
    {
     "joint": "j5",
     "kind": "move",
-    "to": 31.6359,
+    "to": 90.0,
     "t0_s": 0.2,
     "t1_s": 2.1999999999999993,
     "accel_ratio": 0.25
    }
   ],
   "pose_mm": [
-   471.8017578125,
+   520.01953125,
    0.0,
-   165.0
+   163.0
   ],
   "move_s": 1.9999999999999993
  }
