@@ -12,7 +12,10 @@
      "groove_width_mm": {
       "min": 3,
       "max": 4
-     }
+     },
+     "series": [
+      "GD"
+     ]
     },
     "f_mm": 23.8,
     "h_mm": 25,
