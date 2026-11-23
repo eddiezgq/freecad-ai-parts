@@ -1,0 +1,31 @@
+{
+ "why": "刃宽范围缺上限",
+ "instance": {
+  "format": "cam-holder/1",
+  "name": "测试",
+  "holders": [
+   {
+    "id": "KY-KGMR2525M-3",
+    "vendor_code": "KGMR2525M-3",
+    "use": "groove",
+    "insert": {
+     "groove_width_mm": {
+      "min": 3
+     }
+    },
+    "f_mm": 23.8,
+    "h_mm": 25,
+    "b_mm": 25,
+    "l1_mm": 150,
+    "head_mm": 27,
+    "h1_mm": 25,
+    "max_depth_mm": 9,
+    "source": {
+     "kind": "catalog",
+     "ref": "kyocera",
+     "page": "G056"
+    }
+   }
+  ]
+ }
+}
