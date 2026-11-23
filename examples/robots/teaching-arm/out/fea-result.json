@@ -1,0 +1,519 @@
+{
+ "status": "unknown",
+ "items": [
+  {
+   "part": "j1 舵盘法兰",
+   "joint": "j1",
+   "role": "output",
+   "load": {
+    "point_mm": [
+     0.0,
+     0.0,
+     76.0
+    ],
+    "force_n": [
+     0.0,
+     0.0,
+     -20.17737
+    ],
+    "moment_nm": [
+     -0.000352,
+     5.705128,
+     0.0
+    ],
+    "mass_kg": 1.9227,
+    "gravity_m_s2": [
+     0.0,
+     0.0,
+     -10.49429
+    ]
+   },
+   "vm_max_mpa": 7.97,
+   "u_max_mm": 0.003822,
+   "trust": "pass",
+   "safety_yield": 34.626,
+   "safety_fatigue": 12.11,
+   "balance": {
+    "available": true,
+    "applied_n": [
+     -0.0,
+     -0.0,
+     -20.690803
+    ],
+    "reaction_n": [
+     0.000359,
+     -0.001274,
+     20.690744
+    ],
+    "force_error_ratio": 6.400951393641041e-05,
+    "moment_error_ratio": 2.6205015556854494e-05
+   },
+   "status": "pass",
+   "note": "最大当量应力 8.0 MPa；对屈服 34.6、对弯曲疲劳 12.1，要求 ≥ 1.2"
+  },
+  {
+   "part": "j1 基座",
+   "joint": "j1",
+   "role": "housing",
+   "load": {
+    "point_mm": [
+     -48.75,
+     0.0,
+     35.5
+    ],
+    "force_n": [
+     0.0,
+     0.0,
+     -22.4263
+    ],
+    "moment_nm": [
+     -0.000341,
+     6.79841,
+     0.0
+    ],
+    "mass_kg": 2.137,
+    "gravity_m_s2": [
+     0.0,
+     0.0,
+     -10.49429
+    ]
+   },
+   "vm_max_mpa": 25.95,
+   "u_max_mm": 0.052119,
+   "trust": "pass",
+   "safety_yield": 10.638,
+   "safety_fatigue": 3.72,
+   "balance": {
+    "available": true,
+    "applied_n": [
+     -0.0,
+     -0.0,
+     -26.059673
+    ],
+    "reaction_n": [
+     1.7e-05,
+     0.000425,
+     26.059417
+    ],
+    "force_error_ratio": 1.906674310924045e-05,
+    "moment_error_ratio": 7.134424457372603e-06
+   },
+   "status": "pass",
+   "note": "最大当量应力 25.9 MPa；对屈服 10.6、对弯曲疲劳 3.7，要求 ≥ 1.2"
+  },
+  {
+   "part": "j2 U 形支架",
+   "joint": "j2",
+   "role": "output",
+   "load": {
+    "point_mm": [
+     0.0,
+     0.0,
+     222.8
+    ],
+    "force_n": [
+     16.34006,
+     0.0,
+     -0.14012
+    ],
+    "moment_nm": [
+     -2e-06,
+     4.636186,
+     -0.000237
+    ],
+    "mass_kg": 1.5571,
+    "gravity_m_s2": [
+     10.4939,
+     0.0,
+     -0.08999
+    ]
+   },
+   "vm_max_mpa": 7.94,
+   "u_max_mm": 0.011845,
+   "trust": "pass",
+   "safety_yield": 34.761,
+   "safety_fatigue": 12.15,
+   "balance": {
+    "available": true,
+    "applied_n": [
+     17.548802,
+     -0.0,
+     -0.150486
+    ],
+    "reaction_n": [
+     -17.548575,
+     1.7e-05,
+     0.150533
+    ],
+    "force_error_ratio": 1.323755121608971e-05,
+    "moment_error_ratio": 4.034754122935272e-06
+   },
+   "status": "pass",
+   "note": "最大当量应力 7.9 MPa；对屈服 34.8、对弯曲疲劳 12.2，要求 ≥ 1.2"
+  },
+  {
+   "part": "j2 壳体底座",
+   "joint": "j2",
+   "role": "housing",
+   "load": {
+    "point_mm": [
+     0.0,
+     0.0,
+     113.75
+    ],
+    "force_n": [
+     0.0,
+     0.0,
+     -19.28536
+    ],
+    "moment_nm": [
+     -0.000352,
+     5.705128,
+     0.0
+    ],
+    "mass_kg": 1.8377,
+    "gravity_m_s2": [
+     0.0,
+     0.0,
+     -10.49429
+    ]
+   },
+   "vm_max_mpa": 2.61,
+   "u_max_mm": 0.001009,
+   "trust": "unknown",
+   "safety_yield": null,
+   "safety_fatigue": 36.97,
+   "balance": {
+    "available": true,
+    "applied_n": [
+     0.0,
+     0.0,
+     -19.916483
+    ],
+    "reaction_n": [
+     0.003256,
+     -0.00166,
+     19.918848
+    ],
+    "force_error_ratio": 0.00021858907464373858,
+    "moment_error_ratio": 7.623230289632424e-05
+   },
+   "status": "unknown",
+   "note": "有限元可信度 unknown：网格收敛（最大应力）：加密后的变化不规则，估计不出网格误差"
+  },
+  {
+   "part": "j3 U 形支架",
+   "joint": "j3",
+   "role": "output",
+   "load": {
+    "point_mm": [
+     0.0,
+     0.0,
+     372.8
+    ],
+    "force_n": [
+     12.48407,
+     0.0,
+     0.15717
+    ],
+    "moment_nm": [
+     2e-06,
+     2.438081,
+     -0.000123
+    ],
+    "mass_kg": 1.1897,
+    "gravity_m_s2": [
+     10.49346,
+     0.0,
+     0.13211
+    ]
+   },
+   "vm_max_mpa": 4.26,
+   "u_max_mm": 0.006437,
+   "trust": "pass",
+   "safety_yield": 64.774,
+   "safety_fatigue": 22.65,
+   "balance": {
+    "available": true,
+    "applied_n": [
+     13.692761,
+     -0.0,
+     0.172387
+    ],
+    "reaction_n": [
+     -13.692652,
+     2.1e-05,
+     -0.17233
+    ],
+    "force_error_ratio": 9.078992229780525e-06,
+    "moment_error_ratio": 4.5761321189867484e-06
+   },
+   "status": "pass",
+   "note": "最大当量应力 4.3 MPa；对屈服 64.8、对弯曲疲劳 22.6，要求 ≥ 1.2"
+  },
+  {
+   "part": "j3 壳体底座",
+   "joint": "j3",
+   "role": "housing",
+   "load": {
+    "point_mm": [
+     0.0,
+     0.0,
+     263.75
+    ],
+    "force_n": [
+     15.42919,
+     0.0,
+     -0.13231
+    ],
+    "moment_nm": [
+     -2e-06,
+     3.978465,
+     -0.000237
+    ],
+    "mass_kg": 1.4703,
+    "gravity_m_s2": [
+     10.4939,
+     0.0,
+     -0.08999
+    ]
+   },
+   "vm_max_mpa": 1.75,
+   "u_max_mm": 0.000695,
+   "trust": "pass",
+   "safety_yield": 157.804,
+   "safety_fatigue": 55.17,
+   "balance": {
+    "available": true,
+    "applied_n": [
+     16.060289,
+     -0.0,
+     -0.137722
+    ],
+    "reaction_n": [
+     -16.060243,
+     0.000786,
+     0.13613
+    ],
+    "force_error_ratio": 0.00011057195842462373,
+    "moment_error_ratio": 2.5086689163231863e-05
+   },
+   "status": "pass",
+   "note": "最大当量应力 1.7 MPa；对屈服 157.8、对弯曲疲劳 55.2，要求 ≥ 1.2"
+  },
+  {
+   "part": "j4 U 形支架",
+   "joint": "j4",
+   "role": "output",
+   "load": {
+    "point_mm": [
+     0.0,
+     0.0,
+     522.8
+    ],
+    "force_n": [
+     7.35311,
+     0.0,
+     -4.51655
+    ],
+    "moment_nm": [
+     -5e-06,
+     0.904766,
+     -8e-06
+    ],
+    "mass_kg": 0.8223,
+    "gravity_m_s2": [
+     8.94213,
+     0.0,
+     -5.49259
+    ]
+   },
+   "vm_max_mpa": 1.72,
+   "u_max_mm": 0.002658,
+   "trust": "unknown",
+   "safety_yield": null,
+   "safety_fatigue": 56.24,
+   "balance": {
+    "available": true,
+    "applied_n": [
+     8.383111,
+     0.0,
+     -5.149215
+    ],
+    "reaction_n": [
+     -8.383118,
+     -1e-06,
+     5.149208
+    ],
+    "force_error_ratio": 1.0033181419284314e-06,
+    "moment_error_ratio": 6.207981521983911e-07
+   },
+   "status": "unknown",
+   "note": "有限元可信度 unknown：网格收敛（最大应力）：加密后的变化不规则，估计不出网格误差"
+  },
+  {
+   "part": "j4 壳体底座",
+   "joint": "j4",
+   "role": "housing",
+   "load": {
+    "point_mm": [
+     0.0,
+     0.0,
+     413.75
+    ],
+    "force_n": [
+     11.57324,
+     0.0,
+     0.1457
+    ],
+    "moment_nm": [
+     2e-06,
+     1.938262,
+     -0.000123
+    ],
+    "mass_kg": 1.1029,
+    "gravity_m_s2": [
+     10.49346,
+     0.0,
+     0.13211
+    ]
+   },
+   "vm_max_mpa": 0.86,
+   "u_max_mm": 0.000342,
+   "trust": "pass",
+   "safety_yield": 319.075,
+   "safety_fatigue": 111.56,
+   "balance": {
+    "available": true,
+    "applied_n": [
+     12.204313,
+     0.0,
+     0.153645
+    ],
+    "reaction_n": [
+     -12.20418,
+     -0.000377,
+     -0.154149
+    ],
+    "force_error_ratio": 5.270902916768979e-05,
+    "moment_error_ratio": 2.361928144064541e-05
+   },
+   "status": "pass",
+   "note": "最大当量应力 0.9 MPa；对屈服 319.1、对弯曲疲劳 111.6，要求 ≥ 1.2"
+  },
+  {
+   "part": "j5 舵盘法兰",
+   "joint": "j5",
+   "role": "output",
+   "load": {
+    "point_mm": [
+     40.5,
+     0.0,
+     615.0
+    ],
+    "force_n": [
+     4.6973,
+     0.0,
+     -2.88526
+    ],
+    "moment_nm": [
+     0.0,
+     0.150401,
+     0.0
+    ],
+    "mass_kg": 0.5253,
+    "gravity_m_s2": [
+     8.94213,
+     0.0,
+     -5.49259
+    ]
+   },
+   "vm_max_mpa": 0.27,
+   "u_max_mm": 0.000118,
+   "trust": "pass",
+   "safety_yield": 1014.706,
+   "safety_fatigue": 354.78,
+   "balance": {
+    "available": true,
+    "applied_n": [
+     5.072249,
+     -0.0,
+     -3.115568
+    ],
+    "reaction_n": [
+     -5.072248,
+     -2.9e-05,
+     3.115577
+    ],
+    "force_error_ratio": 5.178613959689341e-06,
+    "moment_error_ratio": 5.437503063160504e-06
+   },
+   "status": "pass",
+   "note": "最大当量应力 0.3 MPa；对屈服 1014.7、对弯曲疲劳 354.8，要求 ≥ 1.2"
+  },
+  {
+   "part": "j5 壳体底座",
+   "joint": "j5",
+   "role": "housing",
+   "load": {
+    "point_mm": [
+     0.0,
+     0.0,
+     568.75
+    ],
+    "force_n": [
+     6.551,
+     0.0,
+     -4.02387
+    ],
+    "moment_nm": [
+     -5e-06,
+     0.577984,
+     -8e-06
+    ],
+    "mass_kg": 0.7326,
+    "gravity_m_s2": [
+     8.94213,
+     0.0,
+     -5.49259
+    ]
+   },
+   "vm_max_mpa": 0.29,
+   "u_max_mm": 0.000113,
+   "trust": "pass",
+   "safety_yield": 958.333,
+   "safety_fatigue": 335.07,
+   "balance": {
+    "available": true,
+    "applied_n": [
+     7.088777,
+     -0.0,
+     -4.354192
+    ],
+    "reaction_n": [
+     -7.088714,
+     0.000141,
+     4.354191
+    ],
+    "force_error_ratio": 1.8495633374357924e-05,
+    "moment_error_ratio": 1.8971031956099918e-05
+   },
+   "status": "pass",
+   "note": "最大当量应力 0.3 MPa；对屈服 958.3、对弯曲疲劳 335.1，要求 ≥ 1.2"
+  }
+ ],
+ "dynamic_factor": 1.07,
+ "pose_deg": {
+  "j1": 0.0,
+  "j2": 89.5087,
+  "j3": 1.2126,
+  "j4": -32.2811,
+  "j5": 0.0
+ },
+ "required_safety": 1.2,
+ "limits": [
+  "载荷取检验动作起点的静重乘动载系数，不是逐时刻的动载荷；起点是水平伸直，弯矩最大",
+  "零件按点质量挂在重心上；螺钉按孔壁全固定（不计螺钉预紧、接触与孔边滑移），孔边应力的峰值已由收敛核查判断",
+  "模组壳体当刚体（支架装在上面的那一面不变形），实际壳体有弹性，支架受力会更均匀"
+ ]
+}
