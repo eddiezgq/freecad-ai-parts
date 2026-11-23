@@ -8,6 +8,7 @@ from pathlib import Path
 
 from PySide import QtCore, QtWidgets
 
+from assist.i18n import tr as T
 from freecad_addon.core import bom_view
 from freecad_addon.gui.host import ToolsHost, get_host
 
@@ -16,7 +17,7 @@ class BomPanel(QtWidgets.QDockWidget):
     changed = QtCore.Signal()  # 后台线程中布局变化后，排队回到界面线程刷新
 
     def __init__(self, parent: QtWidgets.QWidget | None = None, host: ToolsHost | None = None):
-        super().__init__("AI Parts BOM", parent)
+        super().__init__(T("AI Parts BOM"), parent)
         self.setObjectName("FapBomPanel")
         self.host = host or get_host()
         self.layout_state: dict = dict(self.host.layout)
@@ -26,7 +27,7 @@ class BomPanel(QtWidgets.QDockWidget):
         body = QtWidgets.QWidget()
         lay = QtWidgets.QVBoxLayout(body)
         self.table = QtWidgets.QTableWidget(0, len(bom_view.HEADERS))
-        self.table.setHorizontalHeaderLabels(bom_view.HEADERS)
+        self.table.setHorizontalHeaderLabels([T(h) for h in bom_view.HEADERS])
         self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.table.verticalHeader().setVisible(False)
         self.total = QtWidgets.QLabel("")
@@ -34,10 +35,10 @@ class BomPanel(QtWidgets.QDockWidget):
         self.custom.setReadOnly(True)
         self.custom.setMaximumHeight(120)
         self.custom.setVisible(False)
-        self.note = QtWidgets.QLabel("价格、交期等采购信息尚未收录。")
+        self.note = QtWidgets.QLabel(T("价格、交期等采购信息尚未收录。"))
         self.note.setWordWrap(True)
-        self.csv_button = QtWidgets.QPushButton("导出 CSV")
-        self.json_button = QtWidgets.QPushButton("导出 JSON")
+        self.csv_button = QtWidgets.QPushButton(T("导出 CSV"))
+        self.json_button = QtWidgets.QPushButton(T("导出 JSON"))
         row = QtWidgets.QHBoxLayout()
         row.addWidget(self.csv_button)
         row.addWidget(self.json_button)
@@ -68,16 +69,16 @@ class BomPanel(QtWidgets.QDockWidget):
             self.status.setText("")
         except Exception as exc:  # noqa: BLE001 — 显示给用户
             self.result = {"rows": [], "total_mass_kg": None, "count": 0, "custom_requirements": []}
-            self.status.setText(f"不能生成 BOM：{exc}")
+            self.status.setText(T(f"不能生成 BOM：{exc}"))
         rows = self.result["rows"]
         self.table.setRowCount(len(rows))
         for i, r in enumerate(rows):
             for j, text in enumerate(bom_view.cells(r, getattr(self.host.library(), "origin", None))):
-                self.table.setItem(i, j, QtWidgets.QTableWidgetItem(text))
+                self.table.setItem(i, j, QtWidgets.QTableWidgetItem(T(text)))
         self.table.resizeColumnsToContents()
-        self.total.setText(bom_view.total_text(self.result) if rows or not self.status.text() else "")
+        self.total.setText(T(bom_view.total_text(self.result) if rows or not self.status.text() else ""))
         text = bom_view.custom_text(self.result)
-        self.custom.setPlainText(("定制要求（订货时提供给厂商）：\n" + text) if text else "")
+        self.custom.setPlainText((T("定制要求（订货时提供给厂商）：\n") + T(text)) if text else "")
         self.custom.setVisible(bool(text))
         enabled = bool(rows)
         self.csv_button.setEnabled(enabled)
@@ -89,15 +90,15 @@ class BomPanel(QtWidgets.QDockWidget):
         try:
             name, text = bom_view.export_text(self.layout_state, self.host.library().get, fmt)
         except Exception as exc:  # noqa: BLE001 — 显示给用户
-            self.status.setText(f"不能导出：{exc}")
+            self.status.setText(T(f"不能导出：{exc}"))
             return None
         if path is None:
-            path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "导出 BOM", str(Path.home() / name),
-                                                            "CSV (*.csv)" if fmt == "csv" else "JSON (*.json)")
+            path, _ = QtWidgets.QFileDialog.getSaveFileName(self, T("导出 BOM"), str(Path.home() / name),
+                                                            T("CSV (*.csv)" if fmt == "csv" else "JSON (*.json)"))
             if not path:
                 return None
         Path(path).write_text(text, encoding="utf-8", newline="")
-        self.status.setText(f"已导出：{path}")
+        self.status.setText(T(f"已导出：{path}"))
         return path
 
     def closeEvent(self, event) -> None:

@@ -5,6 +5,9 @@ from __future__ import annotations
 import FreeCAD
 import FreeCADGui
 
+from assist.i18n import lang
+from assist.i18n import tr as T
+
 _state: dict = {}
 
 
@@ -14,7 +17,7 @@ def _main_window():
 
 class ChatPanelCommand:
     def GetResources(self):
-        return {"MenuText": "AI 对话面板", "ToolTip": "用自然语言完成关节模组的选型、校验与布局"}
+        return {"MenuText": T("AI 对话面板"), "ToolTip": T("用自然语言完成关节模组的选型、校验与布局")}
 
     def Activated(self):
         from PySide import QtCore
@@ -38,7 +41,8 @@ class LibraryBrowserCommand:
     """零件库浏览器（ADR-0048）：搜零件、看参数出处与复核状态、放入布局；与对话面板共用一个场景。"""
 
     def GetResources(self):
-        return {"MenuText": "零件库", "ToolTip": "按品类、型号与参数搜零件，查看出处与复核状态，放入布局"}
+        return {"MenuText": "零件库" if lang() == "zh" else "Parts library",   # en.json 里“零件库”是句中用的小写 library
+                "ToolTip": T("按品类、型号与参数搜零件，查看出处与复核状态，放入布局")}
 
     def Activated(self):
         from PySide import QtCore
@@ -62,7 +66,7 @@ class SelectionCommand:
     """选型面板（ADR-0051）：填需求、查找方案、一键放入布局；不经过对话。"""
 
     def GetResources(self):
-        return {"MenuText": "选型", "ToolTip": "填扭矩、转速等需求，列出校验过的电机 + 减速器 + 驱动器方案，一键放入布局"}
+        return {"MenuText": T("选型"), "ToolTip": T("填扭矩、转速等需求，列出校验过的电机 + 减速器 + 驱动器方案，一键放入布局")}
 
     def Activated(self):
         from PySide import QtCore
@@ -86,7 +90,7 @@ class BomCommand:
     """BOM 面板（ADR-0051）：由当前场景列出物料清单，随场景刷新，可导出 CSV / JSON。"""
 
     def GetResources(self):
-        return {"MenuText": "BOM", "ToolTip": "当前场景的物料清单：厂商、型号、数量、质量、数据出处与复核状态；可导出"}
+        return {"MenuText": "BOM", "ToolTip": T("当前场景的物料清单：厂商、型号、数量、质量、数据出处与复核状态；可导出")}
 
     def Activated(self):
         from PySide import QtCore
@@ -109,7 +113,7 @@ class EnterpriseLibraryCommand:
     """企业库（ADR-0055）：选择企业自己的零件库文件夹，叠加在公共库上；重启 FreeCAD 后生效。"""
 
     def GetResources(self):
-        return {"MenuText": "企业库", "ToolTip": "选择或新建企业自己的零件库文件夹（数据只存在企业那边），叠加在公共库上"}
+        return {"MenuText": T("企业库"), "ToolTip": T("选择或新建企业自己的零件库文件夹（数据只存在企业那边），叠加在公共库上")}
 
     def Activated(self):
         from PySide import QtWidgets
@@ -117,7 +121,7 @@ class EnterpriseLibraryCommand:
         from freecad_addon.core import library_choice
 
         current = library_choice.enterprise_dir({}, library_choice.read_settings())
-        path = QtWidgets.QFileDialog.getExistingDirectory(_main_window(), "选择企业库文件夹（空文件夹将新建企业库）",
+        path = QtWidgets.QFileDialog.getExistingDirectory(_main_window(), T("选择企业库文件夹（空文件夹将新建企业库）"),
                                                           str(current or ""))
         if not path:
             return
@@ -128,11 +132,11 @@ class EnterpriseLibraryCommand:
         try:
             EnterpriseLibrary(Path(path), create=True)
         except Exception as exc:  # noqa: BLE001 — 显示给用户
-            QtWidgets.QMessageBox.warning(_main_window(), "企业库", f"不能使用这个文件夹：{exc}")
+            QtWidgets.QMessageBox.warning(_main_window(), T("企业库"), T(f"不能使用这个文件夹：{exc}"))
             return
         library_choice.write_setting("enterprise_library", path)
-        QtWidgets.QMessageBox.information(_main_window(), "企业库",
-                                          f"企业库已设为：\n{path}\n\n重启 FreeCAD 后生效。企业库的数据只存在这个文件夹里。")
+        QtWidgets.QMessageBox.information(_main_window(), T("企业库"),
+                                          T(f"企业库已设为：\n{path}\n\n重启 FreeCAD 后生效。企业库的数据只存在这个文件夹里。"))
 
     def IsActive(self):
         return True
@@ -142,7 +146,7 @@ class NewPartCommand:
     """新建零件向导（M9 第四步）：从厂商规格书建企业自己的零件，存入企业库后可选型、放入、出 BOM。"""
 
     def GetResources(self):
-        return {"MenuText": "新建零件", "ToolTip": "选品类与厂商规格书（PDF / Excel），AI 抽取、代码核对、逐项确认，生成新零件存入企业库"}
+        return {"MenuText": T("新建零件"), "ToolTip": T("选品类与厂商规格书（PDF / Excel），AI 抽取、代码核对、逐项确认，生成新零件存入企业库")}
 
     def Activated(self):
         from freecad_addon.gui.host import get_host
@@ -152,8 +156,8 @@ class NewPartCommand:
         if dlg.exec() and dlg.saved:
             from PySide import QtWidgets
 
-            QtWidgets.QMessageBox.information(_main_window(), "新建零件",
-                                              f"已存入企业库：{dlg.saved['id']}\n可在库浏览器、选型窗口中使用。")
+            QtWidgets.QMessageBox.information(_main_window(), T("新建零件"),
+                                              T(f"已存入企业库：{dlg.saved['id']}\n可在库浏览器、选型窗口中使用。"))
 
     def IsActive(self):
         return True
@@ -163,7 +167,7 @@ class AnalysesCommand:
     """分析模块一览（ADR-0056）：本机各分析模块是否可用、缺什么。"""
 
     def GetResources(self):
-        return {"MenuText": "分析模块", "ToolTip": "多体动力学、有限元、疲劳、热分析、设计优化、数字孪生：本机运行，查看可用状态"}
+        return {"MenuText": T("分析模块"), "ToolTip": T("多体动力学、有限元、疲劳、热分析、设计优化、数字孪生：本机运行，查看可用状态")}
 
     def Activated(self):
         from freecad_addon.gui.analysis_list import AnalysisListDialog
@@ -178,7 +182,7 @@ class MbdCommand:
     """多体动力学窗口（ADR-0056）：机械臂或机构的关节力矩、转速、功率，结果送去选型。"""
 
     def GetResources(self):
-        return {"MenuText": "多体动力学", "ToolTip": "机械臂或常用机构在给定运动下各关节需要的力矩、转速、功率（本机 MuJoCo），可直接送去选型"}
+        return {"MenuText": T("多体动力学"), "ToolTip": T("机械臂或常用机构在给定运动下各关节需要的力矩、转速、功率（本机 MuJoCo），可直接送去选型")}
 
     def Activated(self):
         from PySide import QtCore
@@ -205,8 +209,8 @@ class MbdAssemblyCommand:
     """装配体多体动力学（ADR-0097 D5c）：从 Assembly 工作台装配体或 STEP 装配建模，驱动、计算、核查、曲线、动画。"""
 
     def GetResources(self):
-        return {"MenuText": "装配体多体动力学",
-                "ToolTip": "用当前装配体（或导入 STEP、程序起草运动副）算运动、反力、驱动力矩、模态，播放动画"}
+        return {"MenuText": T("装配体多体动力学"),
+                "ToolTip": T("用当前装配体（或导入 STEP、程序起草运动副）算运动、反力、驱动力矩、模态，播放动画")}
 
     def Activated(self):
         from PySide import QtCore
@@ -258,7 +262,7 @@ class OptimizeCommand:
     """设计优化（ADR-0056）：阶梯轴在安全系数与疲劳要求下最轻的直径，可生成到 FreeCAD。"""
 
     def GetResources(self):
-        return {"MenuText": "设计优化", "ToolTip": "阶梯轴各段直径自动寻优：满足安全系数与疲劳要求下最轻（Optuna 驱动本机有限元）"}
+        return {"MenuText": T("设计优化"), "ToolTip": T("阶梯轴各段直径自动寻优：满足安全系数与疲劳要求下最轻（Optuna 驱动本机有限元）")}
 
     def Activated(self):
         from freecad_addon.gui.optimize_dialog import OptimizeDialog
@@ -278,7 +282,7 @@ class TopoCommand:
     """拓扑优化（ADR-0059）：平面件给定材料用量下刚度最大的构形，结果拉伸成板件放进 FreeCAD。"""
 
     def GetResources(self):
-        return {"MenuText": "拓扑优化", "ToolTip": "平面件给定材料用量下刚度最大的构形（SIMP，本机计算），可生成板件做有限元校核"}
+        return {"MenuText": T("拓扑优化"), "ToolTip": T("平面件给定材料用量下刚度最大的构形（SIMP，本机计算），可生成板件做有限元校核")}
 
     def Activated(self):
         from freecad_addon.gui.topo_dialog import TopoDialog
@@ -298,7 +302,7 @@ class CamCommand:
     """数控编程（ADR-0059）：阶梯轴车削、2.5 轴铣削生成 G 代码；检查任意 FANUC 风格程序。"""
 
     def GetResources(self):
-        return {"MenuText": "数控编程", "ToolTip": "生成车削、铣削 G 代码；检查任意程序（含 FreeCAD CAM 输出）的时间、撞料、过切、超程与切削功率"}
+        return {"MenuText": T("数控编程"), "ToolTip": T("生成车削、铣削 G 代码；检查任意程序（含 FreeCAD CAM 输出）的时间、撞料、过切、超程与切削功率")}
 
     def Activated(self):
         from freecad_addon.gui.cam_dialog import CamDialog
@@ -318,7 +322,7 @@ class CfdCommand:
     """流体分析（ADR-0059）：选中零件进虚拟风洞，算阻力与散热（本机 OpenFOAM）。"""
 
     def GetResources(self):
-        return {"MenuText": "流体分析", "ToolTip": "虚拟风洞：阻力、各面压力，强制对流散热量与散热系数（需本机装 OpenFOAM）"}
+        return {"MenuText": T("流体分析"), "ToolTip": T("虚拟风洞：阻力、各面压力，强制对流散热量与散热系数（需本机装 OpenFOAM）")}
 
     def Activated(self):
         from freecad_addon.gui.cfd_dialog import CfdDialog
@@ -338,7 +342,7 @@ class TwinCommand:
     """数字孪生（ADR-0057）：当前布局的减速器、轴承 + 运行记录 → 已用寿命、剩余寿命、报警、假如。"""
 
     def GetResources(self):
-        return {"MenuText": "数字孪生", "ToolTip": "按零件样本参数与运行记录算已用寿命、剩余寿命与报警，可做“假如”分析"}
+        return {"MenuText": T("数字孪生"), "ToolTip": T("按零件样本参数与运行记录算已用寿命、剩余寿命与报警，可做“假如”分析")}
 
     def Activated(self):
         from PySide import QtCore
@@ -361,7 +365,7 @@ class PublishCommand:
     """发布到工厂（ADR-0058）：当前方案的 BOM、需求、校验结论与布局 STEP 发到本地工厂。"""
 
     def GetResources(self):
-        return {"MenuText": "发布到工厂", "ToolTip": "把当前方案（BOM、需求、校验结论、布局 STEP）发到本地数字工厂"}
+        return {"MenuText": T("发布到工厂"), "ToolTip": T("把当前方案（BOM、需求、校验结论、布局 STEP）发到本地数字工厂")}
 
     def Activated(self):
         from freecad_addon.gui.host import get_host
@@ -377,7 +381,7 @@ class CheckPanelCommand:
     """校验窗口（ADR-0048）：场景每次改动后自动校验，接口标记按结论着色。"""
 
     def GetResources(self):
-        return {"MenuText": "校验", "ToolTip": "装配即校验：逐项列出结论；接口标记按结论着色（红不通过、黄待确认、绿通过）"}
+        return {"MenuText": T("校验"), "ToolTip": T("装配即校验：逐项列出结论；接口标记按结论着色（红不通过、黄待确认、绿通过）")}
 
     def Activated(self):
         _check_panel(show=True)
@@ -406,13 +410,13 @@ class RestoreProjectCommand:
     """恢复方案（ADR-0049）：从打开的 .FCStd 中的方案记录重建场景，之后的改动显示在这个文档中。"""
 
     def GetResources(self):
-        return {"MenuText": "恢复方案", "ToolTip": "从当前文档保存的 AI Parts 方案记录恢复零件、连接与需求"}
+        return {"MenuText": T("恢复方案"), "ToolTip": T("从当前文档保存的 AI Parts 方案记录恢复零件、连接与需求")}
 
     def Activated(self):
         panel = _check_panel(show=True)
-        err = panel.restore(lambda notes: [FreeCAD.Console.PrintMessage(f"AI Parts 恢复方案：{n}\n") for n in notes])
+        err = panel.restore(lambda notes: [FreeCAD.Console.PrintMessage(T(f"AI Parts 恢复方案：{n}\n")) for n in notes])
         if err:
-            FreeCAD.Console.PrintWarning(f"AI Parts：{err}\n")
+            FreeCAD.Console.PrintWarning(T(f"AI Parts：{err}\n"))
 
     def IsActive(self):
         return FreeCAD.ActiveDocument is not None
@@ -422,7 +426,7 @@ class ConnectPortsCommand:
     """连接接口（ADR-0048）：选两个接口标记，按端口坐标系对接；与 AI 用同一个 connect_ports。"""
 
     def GetResources(self):
-        return {"MenuText": "连接接口", "ToolTip": "在 3D 视图中按住 Ctrl 选两个接口标记（先选的不动），对接这两个接口"}
+        return {"MenuText": T("连接接口"), "ToolTip": T("在 3D 视图中按住 Ctrl 选两个接口标记（先选的不动），对接这两个接口")}
 
     def Activated(self):
         from freecad_addon.gui.check_panel import PortConnector
@@ -437,8 +441,8 @@ class ConnectPortsCommand:
 
 class BridgeCommand:
     def GetResources(self):
-        return {"MenuText": "启用 / 停止桥接",
-                "ToolTip": "让外部 MCP 客户端（FAP_FREECAD=gui）驱动当前 FreeCAD：只监听本机，令牌写在桥接文件中"}
+        return {"MenuText": T("启用 / 停止桥接"),
+                "ToolTip": T("让外部 MCP 客户端（FAP_FREECAD=gui）驱动当前 FreeCAD：只监听本机，令牌写在桥接文件中")}
 
     def Activated(self):
         from freecad_addon.fc.bridge import Bridge
@@ -448,11 +452,11 @@ class BridgeCommand:
             bridge = Bridge()
             port = bridge.start()
             _state["bridge"] = bridge
-            FreeCAD.Console.PrintMessage(f"AI Parts 桥接已启用：127.0.0.1:{port}，连接信息在 {bridge.path}\n")
+            FreeCAD.Console.PrintMessage(T(f"AI Parts 桥接已启用：127.0.0.1:{port}，连接信息在 {bridge.path}\n"))
         else:
             bridge.stop()
             _state.pop("bridge")
-            FreeCAD.Console.PrintMessage("AI Parts 桥接已停止\n")
+            FreeCAD.Console.PrintMessage(T("AI Parts 桥接已停止\n"))
 
     def IsActive(self):
         return True
@@ -464,8 +468,8 @@ class RecordCommand:
     video = False
 
     def GetResources(self):
-        return {"MenuText": "开始 / 停止录制",
-                "ToolTip": "录下操作过程（命令、文档改动、对话、截图）供 AI 学习；只存本机，去掉密钥"}
+        return {"MenuText": T("开始 / 停止录制"),
+                "ToolTip": T("录下操作过程（命令、文档改动、对话、截图）供 AI 学习；只存本机，去掉密钥")}
 
     def Activated(self):
         from freecad_addon.gui import recording
@@ -473,12 +477,12 @@ class RecordCommand:
         if recording.recorder().active:
             rating, note = recording.ask_rating()
             path = recording.stop(rating, note)
-            FreeCAD.Console.PrintMessage(f"AI Parts 录制已保存：{path}\n")
+            FreeCAD.Console.PrintMessage(T(f"AI Parts 录制已保存：{path}\n"))
         else:
             path = recording.start(video=self.video)
-            FreeCAD.Console.PrintMessage(f"AI Parts 开始录制：{path}\n")
+            FreeCAD.Console.PrintMessage(T(f"AI Parts 开始录制：{path}\n"))
             if recording._video_note:
-                FreeCAD.Console.PrintWarning(f"AI Parts 未录视频：{recording._video_note}；其他内容照常录制\n")
+                FreeCAD.Console.PrintWarning(T(f"AI Parts 未录视频：{recording._video_note}；其他内容照常录制\n"))
 
 
 class RecordVideoCommand(RecordCommand):
@@ -487,8 +491,8 @@ class RecordVideoCommand(RecordCommand):
     video = True
 
     def GetResources(self):
-        return {"MenuText": "开始 / 停止录制（含视频）",
-                "ToolTip": "同“开始 / 停止录制”，另用 ffmpeg 录下 FreeCAD 主窗口的视频（需要 ffmpeg；Linux X11 与 Windows）"}
+        return {"MenuText": T("开始 / 停止录制（含视频）"),
+                "ToolTip": T("同“开始 / 停止录制”，另用 ffmpeg 录下 FreeCAD 主窗口的视频（需要 ffmpeg；Linux X11 与 Windows）")}
 
     def IsActive(self):
         return True
@@ -498,7 +502,7 @@ class FirstRunCommand:
     """首次设置（ADR-0066）：AI 密钥、企业数字工厂地址。"""
 
     def GetResources(self):
-        return {"MenuText": "首次设置", "ToolTip": "填 AI 密钥（只存本机用户目录）、企业数字工厂地址并测试连接"}
+        return {"MenuText": T("首次设置"), "ToolTip": T("填 AI 密钥（只存本机用户目录）、企业数字工厂地址并测试连接")}
 
     def IsActive(self):
         return True
@@ -513,7 +517,7 @@ class LicenseCommand:
     """授权与席位（ADR-0066）。"""
 
     def GetResources(self):
-        return {"MenuText": "授权与席位", "ToolTip": "本机授权、激活码、导入授权文件、向企业数字工厂租浮动席位"}
+        return {"MenuText": T("授权与席位"), "ToolTip": T("本机授权、激活码、导入授权文件、向企业数字工厂租浮动席位")}
 
     def IsActive(self):
         return True
@@ -526,7 +530,7 @@ class LicenseCommand:
 
 class AiPartsWorkbench(FreeCADGui.Workbench):
     MenuText = "AI Parts"
-    ToolTip = "AI 原生零件选型、校验与布局"
+    ToolTip = T("AI 原生零件选型、校验与布局")
 
     def Initialize(self):
         FreeCADGui.addCommand("FAP_ChatPanel", ChatPanelCommand())

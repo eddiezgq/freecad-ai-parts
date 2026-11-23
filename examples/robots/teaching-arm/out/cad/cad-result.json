@@ -1,0 +1,307 @@
+{
+ "status": "pass",
+ "parts": [
+  {
+   "name": "j1 模组 XM540-W270",
+   "kind": "actuator",
+   "joint": "j1",
+   "body": "base",
+   "mass_kg": 0.165,
+   "component": "smart_actuator.robotis.xm540-w270",
+   "cog_mm": [
+    -0.0,
+    -0.0,
+    40.58
+   ]
+  },
+  {
+   "name": "j1 舵盘法兰",
+   "kind": "bracket",
+   "joint": "j1",
+   "material": "6061-T6",
+   "body": "turret",
+   "volume_mm3": 13514.3,
+   "mass_kg": 0.0365,
+   "cog_mm": [
+    0.0,
+    -0.03,
+    73.57
+   ]
+  },
+  {
+   "name": "j1 基座",
+   "kind": "bracket",
+   "joint": "j1",
+   "material": "6061-T6",
+   "body": "base",
+   "volume_mm3": 65337.7,
+   "mass_kg": 0.1764,
+   "cog_mm": [
+    -97.88,
+    -0.0,
+    5.69
+   ]
+  },
+  {
+   "name": "j2 模组 XM540-W270",
+   "kind": "actuator",
+   "joint": "j2",
+   "body": "turret",
+   "mass_kg": 0.165,
+   "component": "smart_actuator.robotis.xm540-w270",
+   "cog_mm": [
+    -0.0,
+    0.08,
+    165.0
+   ]
+  },
+  {
+   "name": "j2 U 形支架",
+   "kind": "bracket",
+   "joint": "j2",
+   "material": "6061-T6",
+   "body": "upper_arm",
+   "volume_mm3": 29260.0,
+   "mass_kg": 0.079,
+   "cog_mm": [
+    0.0,
+    -0.01,
+    201.36
+   ]
+  },
+  {
+   "name": "j2 壳体底座",
+   "kind": "bracket",
+   "joint": "j2",
+   "material": "6061-T6",
+   "body": "turret",
+   "volume_mm3": 14696.5,
+   "mass_kg": 0.0397,
+   "cog_mm": [
+    0.0,
+    0.0,
+    112.21
+   ]
+  },
+  {
+   "name": "j3 模组 XM540-W270",
+   "kind": "actuator",
+   "joint": "j3",
+   "body": "upper_arm",
+   "mass_kg": 0.165,
+   "component": "smart_actuator.robotis.xm540-w270",
+   "cog_mm": [
+    -0.0,
+    0.08,
+    315.0
+   ]
+  },
+  {
+   "name": "j3 U 形支架",
+   "kind": "bracket",
+   "joint": "j3",
+   "material": "6061-T6",
+   "body": "forearm",
+   "volume_mm3": 28551.3,
+   "mass_kg": 0.0771,
+   "cog_mm": [
+    0.0,
+    -0.02,
+    351.12
+   ]
+  },
+  {
+   "name": "j3 壳体底座",
+   "kind": "bracket",
+   "joint": "j3",
+   "material": "6061-T6",
+   "body": "upper_arm",
+   "volume_mm3": 11766.2,
+   "mass_kg": 0.0318,
+   "cog_mm": [
+    -0.0,
+    0.01,
+    262.25
+   ]
+  },
+  {
+   "name": "j4 模组 XM540-W270",
+   "kind": "actuator",
+   "joint": "j4",
+   "body": "forearm",
+   "mass_kg": 0.165,
+   "component": "smart_actuator.robotis.xm540-w270",
+   "cog_mm": [
+    -0.0,
+    0.08,
+    465.0
+   ]
+  },
+  {
+   "name": "j4 U 形支架",
+   "kind": "bracket",
+   "joint": "j4",
+   "material": "6061-T6",
+   "body": "wrist",
+   "volume_mm3": 28171.3,
+   "mass_kg": 0.0761,
+   "cog_mm": [
+    0.0,
+    -0.02,
+    500.76
+   ]
+  },
+  {
+   "name": "j4 壳体底座",
+   "kind": "bracket",
+   "joint": "j4",
+   "material": "6061-T6",
+   "body": "forearm",
+   "volume_mm3": 11289.4,
+   "mass_kg": 0.0305,
+   "cog_mm": [
+    -0.0,
+    0.0,
+    412.41
+   ]
+  },
+  {
+   "name": "j5 模组 XM540-W270",
+   "kind": "actuator",
+   "joint": "j5",
+   "body": "wrist",
+   "mass_kg": 0.165,
+   "component": "smart_actuator.robotis.xm540-w270",
+   "cog_mm": [
+    0.08,
+    0.0,
+    615.0
+   ]
+  },
+  {
+   "name": "j5 舵盘法兰",
+   "kind": "bracket",
+   "joint": "j5",
+   "material": "6061-T6",
+   "body": "tool_link",
+   "volume_mm3": 6623.8,
+   "mass_kg": 0.0179,
+   "cog_mm": [
+    34.4,
+    0.0,
+    615.0
+   ]
+  },
+  {
+   "name": "j5 壳体底座",
+   "kind": "bracket",
+   "joint": "j5",
+   "material": "6061-T6",
+   "body": "wrist",
+   "volume_mm3": 10897.4,
+   "mass_kg": 0.0294,
+   "cog_mm": [
+    0.0,
+    0.0,
+    562.62
+   ]
+  },
+  {
+   "name": "杆件 turret（tube，长 47.2 mm）",
+   "kind": "link",
+   "link": "turret",
+   "material": "6061-T6",
+   "length_mm": 47.2,
+   "body": "turret",
+   "volume_mm3": 14695.6,
+   "mass_kg": 0.0397,
+   "cog_mm": [
+    0.0,
+    0.0,
+    92.62
+   ]
+  },
+  {
+   "name": "杆件 upper_arm（tube，长 48.4 mm）",
+   "kind": "link",
+   "link": "upper_arm",
+   "material": "6061-T6",
+   "length_mm": 48.4,
+   "body": "upper_arm",
+   "volume_mm3": 7914.9,
+   "mass_kg": 0.0214,
+   "cog_mm": [
+    0.0,
+    -0.0,
+    242.02
+   ]
+  },
+  {
+   "name": "杆件 forearm（tube，长 48.4 mm）",
+   "kind": "link",
+   "link": "forearm",
+   "material": "6061-T6",
+   "length_mm": 48.4,
+   "body": "forearm",
+   "volume_mm3": 7306.1,
+   "mass_kg": 0.0197,
+   "cog_mm": [
+    -0.0,
+    -0.0,
+    392.02
+   ]
+  },
+  {
+   "name": "杆件 wrist（tube，长 48.5 mm）",
+   "kind": "link",
+   "link": "wrist",
+   "material": "6061-T6",
+   "length_mm": 48.5,
+   "body": "wrist",
+   "volume_mm3": 6697.2,
+   "mass_kg": 0.0181,
+   "cog_mm": [
+    -0.0,
+    -0.0,
+    542.02
+   ]
+  },
+  {
+   "name": "杆件 tool_link（tube，长 60.0 mm）",
+   "kind": "link",
+   "link": "tool_link",
+   "material": "6061-T6",
+   "length_mm": 60.0,
+   "body": "tool_link",
+   "volume_mm3": 9613.3,
+   "mass_kg": 0.026,
+   "cog_mm": [
+    58.5,
+    0.0,
+    615.0
+   ]
+  }
+ ],
+ "interferences": [],
+ "problems": [],
+ "mass_kg": 1.5443,
+ "cog_mm": [
+  -9.8,
+  0.0,
+  287.6
+ ],
+ "design": {
+  "plate_mm": 4.0,
+  "socket_wall_mm": 3.0,
+  "socket_len_mm": 20.0,
+  "clearance_mm": 1.0,
+  "bolt_hole_mm": 2.9,
+  "boss_hole_mm": 11.0,
+  "foot_mm": 120.0
+ },
+ "step": "assembly.step",
+ "notes": [
+  "模组外形用零件库的保守包络，干涉检查偏保守",
+  "支架、套管尺寸是第一版设计值（DESIGN），之后由 AI 按载荷与工艺改"
+ ]
+}

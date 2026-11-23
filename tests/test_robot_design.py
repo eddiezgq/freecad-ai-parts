@@ -94,11 +94,12 @@ def test_recommended_candidate_that_fails_is_not_adopted():
     assert res["chosen_candidate"] == 0 and "没通过初筛" in res["chosen_note"]
 
 
-def test_stuck_after_four_rounds_and_bad_formats():
-    ai = Script([{"candidates": [{"format": "robot-concept/1"}], "recommend": 0, "reason": "x"}] * 2
-                + [{"candidates": [], "recommend": 0, "reason": "x"}, {"candidates": [arm(reach_scale=0.6)], "recommend": 0, "reason": "x"}])
+def test_stuck_after_the_round_budget_and_bad_formats():
+    bad = ([{"candidates": [{"format": "robot-concept/1"}], "recommend": 0, "reason": "x"}] * 2
+           + [{"candidates": [], "recommend": 0, "reason": "x"}, {"candidates": [arm(reach_scale=0.6)], "recommend": 0, "reason": "x"}])
+    ai = Script((bad * 2)[:RD.MAX_ROUNDS])
     res = RD.design(TEXT, ai)
-    assert res["status"] == "stuck" and len(res["rounds"]) == 4
+    assert res["status"] == "stuck" and len(res["rounds"]) == RD.MAX_ROUNDS
     assert "格式" in res["rounds"][0]["feedback"] or "结构" in res["rounds"][0]["feedback"]
 
 
@@ -118,7 +119,7 @@ def test_unknown_link_material_fails():
 
 
 def test_teaching_arm_recording_replays_to_pass():
-    """案例 A 的真实 AI 录制（design-eval run 45177125467，4 轮）：重放得同一结论；不调用真实模型。
+    """案例 A 的真实 AI 录制（design-eval run 45192126945，2 轮）：重放得同一结论；不调用真实模型。
     选件与装配校核每轮约半分钟，这里按保存的结果逐轮回放（真正重算采用构型的在 test_case_a_loop_fixed_the_wrist_with_build_feedback）"""
     from analysis.robot import screen
     from ingest.llm_extract import RecordedClient
@@ -131,7 +132,7 @@ def test_teaching_arm_recording_replays_to_pass():
         return dict(verdicts.pop(0))
 
     res = RD.design(TEXT, RecordedClient(RD.RECORDINGS_DIR), model=RD.DEFAULT_MODEL, after_screen=after)
-    assert res["status"] == "pass" and res["chosen_round"] == 4 and not verdicts
+    assert res["status"] == "pass" and res["chosen_round"] == 2 and not verdicts
     c = res["chosen"]
     assert c["kind"] == "serial_arm" and len(c["joints"]) == 5
     assert screen(c, 0.5)["overall"] in ("pass", "unknown")
@@ -158,13 +159,14 @@ def test_build_check_failure_goes_back_to_ai():
 
 
 def test_case_a_loop_fixed_the_wrist_with_build_feedback():
+    """真实 AI 第 1 轮：转台、腕杆太短，放不下支架与套管 → 交回 AI；第 2 轮采用的构型重新算一遍（选件、装配、三维、真实质量复核）也通过"""
     from assist.robot_build import build_check
 
     res = json.loads((Path(__file__).parents[1] / "examples" / "robots" / "teaching-arm" / "out" / "concept-result.json")
                      .read_text(encoding="utf-8"))
-    first = res["rounds"][0]["build"]                                  # 真实 AI 第 1 轮：腕部共线轴转装不上，交回 AI
-    assert first["ok"] is False and any("j5" in x and "共线" in x for x in first["items"])
-    assert "XM540-W270" in first["summary"] and "能固定的面" in first["summary"]
-    assert res["rounds"][1]["build"]["ok"] is False and any("伸进" in x for x in res["rounds"][1]["build"]["items"])
-    bc = build_check(res["chosen"], res["conditions"])                 # 第 3 轮采用的构型：重新算一遍也通过
+    first = res["rounds"][0]["build"]
+    assert first["ok"] is False and any("放不下" in x for x in first["items"])
+    assert "XM540" in first["summary"] or "XH540" in first["summary"] or "XD540" in first["summary"]
+    bc = build_check(res["chosen"], res["conditions"])
     assert bc["ok"] is True and not bc["items"]
+    assert bc["result"]["cad"]["status"] == "pass" and bc["result"]["verify"]["status"] != "fail"

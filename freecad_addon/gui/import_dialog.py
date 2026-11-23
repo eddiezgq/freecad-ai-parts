@@ -11,6 +11,7 @@ from pathlib import Path
 
 from PySide import QtCore, QtWidgets
 
+from assist.i18n import tr as T
 from freecad_addon.core import fill, library_choice, new_part, spec_import
 
 
@@ -29,7 +30,7 @@ class ImportDialog(QtWidgets.QDialog):
                  category: str | None = None):
         super().__init__(parent)
         self.new = component_id is None  # 新建零件向导（NewPartDialog）
-        self.setWindowTitle("新建零件（存入企业库）" if self.new else "导入规格书（写入企业库）")
+        self.setWindowTitle(T("新建零件（存入企业库）" if self.new else "导入规格书（写入企业库）"))
         self.resize(980, 640)
         self.library, self.component_id, self.client_factory = library, component_id, client_factory
         self.enterprise = getattr(library, "top", None)
@@ -47,22 +48,22 @@ class ImportDialog(QtWidgets.QDialog):
         form = self.form = QtWidgets.QFormLayout()
         pick = QtWidgets.QHBoxLayout()
         self.file = QtWidgets.QLineEdit()
-        self.file.setPlaceholderText("厂商规格书 PDF，或选型表 Excel（.xlsx）")
-        browse = QtWidgets.QPushButton("选择文件…")
+        self.file.setPlaceholderText(T("厂商规格书 PDF，或选型表 Excel（.xlsx）"))
+        browse = QtWidgets.QPushButton(T("选择文件…"))
         pick.addWidget(self.file, 1)
         pick.addWidget(browse)
         self.target_model = QtWidgets.QLineEdit()
-        self.target_model.setPlaceholderText("一份样本列了多个型号时填要导入的型号，否则留空")
+        self.target_model.setPlaceholderText(T("一份样本列了多个型号时填要导入的型号，否则留空"))
         self.pages = QtWidgets.QLineEdit()
-        self.pages.setPlaceholderText("只看这些页，如 3,4 或 60-90（留空为全部）")
+        self.pages.setPlaceholderText(T("只看这些页，如 3,4 或 60-90（留空为全部）"))
         self.actor = QtWidgets.QLineEdit(library_choice.read_settings().get("actor", ""))
-        self.actor.setPlaceholderText("确认人姓名")
+        self.actor.setPlaceholderText(T("确认人姓名"))
         form.addRow("规格书", pick)
         form.addRow("目标型号", self.target_model)
         form.addRow("页码", self.pages)
         form.addRow("确认人", self.actor)
         lay.addLayout(form)
-        self.extract_button = QtWidgets.QPushButton("AI 抽取并核对")
+        self.extract_button = QtWidgets.QPushButton(T("AI 抽取并核对"))
         lay.addWidget(self.extract_button)
         self.note = QtWidgets.QLabel("")
         self.note.setWordWrap(True)
@@ -86,11 +87,11 @@ class ImportDialog(QtWidgets.QDialog):
         self.extract_button.clicked.connect(lambda *_: self.extract())
         self.extracted.connect(self._extracted, QtCore.Qt.QueuedConnection)
         if self.enterprise is None:
-            self.status.setText("还没有企业库：请先在菜单“AI Parts → 企业库”中选择企业库文件夹，重启 FreeCAD 后再导入。")
+            self.status.setText(T("还没有企业库：请先在菜单“AI Parts → 企业库”中选择企业库文件夹，重启 FreeCAD 后再导入。"))
             self.extract_button.setEnabled(False)
 
     def _browse(self) -> None:
-        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "选择规格书", "", "规格书 (*.pdf *.xlsx *.xlsm)")
+        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, T("选择规格书"), "", T("规格书 (*.pdf *.xlsx *.xlsm)"))
         if path:
             self.file.setText(path)
 
@@ -104,24 +105,24 @@ class ImportDialog(QtWidgets.QDialog):
             return False
         path, actor = self.file.text().strip(), self.actor.text().strip()
         if not path or not Path(path).is_file():
-            self.status.setText("请先选择规格书文件")
+            self.status.setText(T("请先选择规格书文件"))
             return False
         if not actor:
-            self.status.setText("请先填确认人")
+            self.status.setText(T("请先填确认人"))
             return False
         try:
             pages = self._pages()
             client = self.client_factory()
         except ValueError as exc:
-            self.status.setText(str(exc))
+            self.status.setText(T(str(exc)))
             return False
         except Exception as exc:  # noqa: BLE001 — 没有密钥等，显示给用户
-            self.status.setText(f"AI 不可用：{exc}")
+            self.status.setText(T(f"AI 不可用：{exc}"))
             return False
         self.busy = True
         self.extract_button.setEnabled(False)
         self.save_button.setEnabled(False)
-        self.status.setText("AI 正在读规格书，代码逐项核对原文……")
+        self.status.setText(T("AI 正在读规格书，代码逐项核对原文……"))
         target = self.target_model.text()
 
         def work() -> None:
@@ -138,7 +139,7 @@ class ImportDialog(QtWidgets.QDialog):
         self.busy = False
         self.extract_button.setEnabled(True)
         if isinstance(out, str):
-            self.status.setText(out)
+            self.status.setText(T(out))
             return
         self.extraction = out
         self.rows = spec_import.rows(out, None if self.new else self.comp)
@@ -149,10 +150,10 @@ class ImportDialog(QtWidgets.QDialog):
             notes.append(f"另有 {len(out['rejected'])} 项与原文对不上，已由代码拒绝，不会写入")
         if out.get("extractor", {}).get("simulated"):
             notes.append("（模拟响应，仅供测试）")
-        self.note.setText("；".join(n for n in notes if n))
+        self.note.setText(T("；".join(n for n in notes if n)))
         n = sum(r.default_checked for r in self.rows)
-        self.status.setText(f"核对通过 {len(self.rows)} 项，默认勾选 {n} 项（与现有值不同、无须特别核对）。"
-                            "请逐项对照原文，确认后写入企业库。")
+        self.status.setText(T(f"核对通过 {len(self.rows)} 项，默认勾选 {n} 项（与现有值不同、无须特别核对）。"
+                            "请逐项对照原文，确认后写入企业库。"))
         self.save_button.setEnabled(any(r.writable for r in self.rows))
 
     def _fill_table(self) -> None:
@@ -163,13 +164,13 @@ class ImportDialog(QtWidgets.QDialog):
             box.setFlags(flags)
             box.setCheckState(QtCore.Qt.Checked if r.default_checked else QtCore.Qt.Unchecked)
             self.table.setItem(i, 0, box)
-            label = r.label + (f"（{r.unit}）" if r.unit else "")
-            cells = [label, r.value, r.current or "（缺）", r.printed, str(r.page)]
+            label = T(r.label) + (f"（{r.unit}）" if r.unit else "")
+            cells = [label, r.value, r.current or T("（缺）"), r.printed, str(r.page)]   # 值、原文照录
             tips = list(r.attention) + ([r.why_not] if r.why_not else [])
             for j, text in enumerate(cells, start=1):
                 item = QtWidgets.QTableWidgetItem(text)
                 item.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
-                item.setToolTip("\n".join([f"原文：{r.quote}"] + list(r.issues) + ([r.why_not] if r.why_not else [])))
+                item.setToolTip(T("\n".join([f"原文：{r.quote}"] + list(r.issues) + ([r.why_not] if r.why_not else []))))
                 if tips and j == 1:
                     item.setText("⚠ " + text)
                 self.table.setItem(i, j, item)
@@ -193,7 +194,7 @@ class ImportDialog(QtWidgets.QDialog):
             return False
         chosen = self.chosen()
         if not chosen:
-            self.status.setText("没有勾选任何一项")
+            self.status.setText(T("没有勾选任何一项"))
             return False
         actor = self.actor.text().strip()
         try:
@@ -201,7 +202,7 @@ class ImportDialog(QtWidgets.QDialog):
             self.written = spec_import.apply(self.enterprise, self.component_id, self.extraction, chosen, actor,
                                              base.get)
         except Exception as exc:  # noqa: BLE001 — 显示给用户
-            self.status.setText(f"没有写入：{exc}")
+            self.status.setText(T(f"没有写入：{exc}"))
             return False
         library_choice.write_setting("actor", actor)
         self.accept()
@@ -217,30 +218,30 @@ class NewPartDialog(ImportDialog):
         self.saved: dict | None = None
         self.category = QtWidgets.QComboBox()
         for cat in new_part.CATEGORY_NAMES:
-            self.category.addItem(new_part.CATEGORY_NAMES[cat], cat)
+            self.category.addItem(T(new_part.CATEGORY_NAMES[cat]), cat)
         self.category.setCurrentIndex(self.category.findData(category))
         self.vendor, self.model = QtWidgets.QLineEdit(), QtWidgets.QLineEdit()
-        self.vendor.setPlaceholderText("厂商（拉丁字母写法，用于零件 id）")
-        self.model.setPlaceholderText("完整型号")
-        self.open_ports = QtWidgets.QCheckBox("规格书没给规格的端口按配套件定制（如谐波减速器的电机法兰）")
+        self.vendor.setPlaceholderText(T("厂商（拉丁字母写法，用于零件 id）"))
+        self.model.setPlaceholderText(T("完整型号"))
+        self.open_ports = QtWidgets.QCheckBox(T("规格书没给规格的端口按配套件定制（如谐波减速器的电机法兰）"))
         self.form.insertRow(0, "品类", self.category)
         self.form.addRow("厂商", self.vendor)
         self.form.addRow("型号", self.model)
         self.form.addRow("", self.open_ports)
         # 人工补录：规格书上有、但 AI 没抽到的值（同样要资料、页码、原文）
-        box = QtWidgets.QGroupBox("补录（规格书上有、AI 没抽到的值）")
+        box = QtWidgets.QGroupBox(T("补录（规格书上有、AI 没抽到的值）"))
         grid = QtWidgets.QHBoxLayout(box)
         self.m_field, self.m_value, self.m_page, self.m_quote = (QtWidgets.QComboBox(), QtWidgets.QLineEdit(),
                                                                  QtWidgets.QSpinBox(), QtWidgets.QLineEdit())
         self.m_page.setRange(0, 9999)
         self.m_page.setSpecialValueText("（页码）")
-        self.m_value.setPlaceholderText("值（标准单位）")
-        self.m_quote.setPlaceholderText("规格书原文")
-        add = QtWidgets.QPushButton("补录")
+        self.m_value.setPlaceholderText(T("值（标准单位）"))
+        self.m_quote.setPlaceholderText(T("规格书原文"))
+        add = QtWidgets.QPushButton(T("补录"))
         for w, k in ((self.m_field, 3), (self.m_value, 1), (self.m_page, 0), (self.m_quote, 2), (add, 0)):
             grid.addWidget(w, k)
         self.layout().insertWidget(self.layout().indexOf(self.table) + 1, box)
-        self.save_button.setText("生成零件并存入企业库")
+        self.save_button.setText(T("生成零件并存入企业库"))
         self.category.currentIndexChanged.connect(lambda *_: self._category_changed())
         add.clicked.connect(lambda *_: self.add_manual())
         self._category_changed()
@@ -251,7 +252,7 @@ class NewPartDialog(ImportDialog):
         self.m_rows = new_part.field_rows(cat)
         self.m_field.clear()
         for r in self.m_rows:
-            self.m_field.addItem(r.title().replace("缺 · ", ""), r.target)
+            self.m_field.addItem(T(r.title().replace("缺 · ", "")), r.target)
         self.extraction, self.rows, self.manual = None, [], {}
         self.table.setRowCount(0)
         self.save_button.setEnabled(False)
@@ -266,21 +267,21 @@ class NewPartDialog(ImportDialog):
         docs = self.enterprise.documents() if self.enterprise is not None else []
         doc = (self.extraction or {}).get("document", {}).get("doc") or (docs[-1]["id"] if docs else None)
         if doc is None:
-            self.status.setText("请先导入规格书（补录的值也要注明出自哪份资料）")
+            self.status.setText(T("请先导入规格书（补录的值也要注明出自哪份资料）"))
             return False
         i = self.m_field.currentIndex()
         if not 0 <= i < len(self.m_rows):
-            self.status.setText("请选择要补录的字段")
+            self.status.setText(T("请选择要补录的字段"))
             return False
         row = self.m_rows[i]
         try:
             pv = fill.build_pv(row, self.m_value.text(), doc=doc, page=self.m_page.value() or None,
                                quote=self.m_quote.text(), actor=self.actor.text())
         except ValueError as exc:
-            self.status.setText(f"没有补录：{exc}")
+            self.status.setText(T(f"没有补录：{exc}"))
             return False
         self.manual[row.target] = pv
-        self.status.setText(f"已补录 {row.label}；共补录 {len(self.manual)} 项")
+        self.status.setText(T(f"已补录 {row.label}；共补录 {len(self.manual)} 项"))
         self.save_button.setEnabled(True)
         for w in (self.m_value, self.m_quote):
             w.clear()
@@ -297,11 +298,11 @@ class NewPartDialog(ImportDialog):
             comp, problems, _notes = new_part.draft(cat, self.vendor.text(), self.model.text(), vals,
                                                     open_ports=self.open_ports.isChecked())
             if comp is None:
-                self.status.setText("还不能生成零件：" + "；".join(problems[:6]))
+                self.status.setText(T("还不能生成零件：" + "；".join(problems[:6])))
                 return False
             new_part.save(self.enterprise, comp, actor, base.get)
         except Exception as exc:  # noqa: BLE001 — 显示给用户
-            self.status.setText(f"没有存入：{exc}")
+            self.status.setText(T(f"没有存入：{exc}"))
             return False
         library_choice.write_setting("actor", actor)
         self.saved = comp

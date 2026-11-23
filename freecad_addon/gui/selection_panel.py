@@ -7,12 +7,30 @@ connect_ports，与人工、AI 的改动走同一套工具。候选整理与调�
 from __future__ import annotations
 
 import html
+import re
 import threading
 
 from PySide import QtCore, QtWidgets
 
+from assist.i18n import final, lang, raw, tr_block
+from assist.i18n import tr as T
 from freecad_addon.core import requirement_form, selection
 from freecad_addon.gui.host import ToolsHost, _parse, get_host
+
+
+def _mark(line: str) -> str:
+    """说明行里的原话引用、AI 写的“不清楚”照录不翻（英文界面时其余部分翻成英文）"""
+    if line.startswith("依据 · "):
+        return re.sub(r"“(.*)”$", lambda m: f"“{raw(m.group(1))}”", line, flags=re.DOTALL)
+    if line.startswith("不清楚 · "):
+        return "不清楚 · " + raw(line[len("不清楚 · "):])
+    return line
+
+
+def _carried(shown: dict) -> str:
+    """“表单外一并带入：总线 ethercat，安全系数 1.2”（英文界面用英文）"""
+    sep = "，" if lang() == "zh" else ", "
+    return T("表单外一并带入：") + sep.join(f"{T(requirement_form.FIELD_NAMES.get(k, k))} {v}" for k, v in shown.items())
 
 
 class SelectionPanel(QtWidgets.QDockWidget):
@@ -23,7 +41,7 @@ class SelectionPanel(QtWidgets.QDockWidget):
 
     def __init__(self, parent: QtWidgets.QWidget | None = None, host: ToolsHost | None = None,
                  client_factory=None):
-        super().__init__("AI Parts 选型", parent)
+        super().__init__(T("AI Parts 选型"), parent)
         self.setObjectName("FapSelectionPanel")
         self.host = host or get_host()
         self.rows: list[selection.CandidateRow] = []
@@ -35,13 +53,13 @@ class SelectionPanel(QtWidgets.QDockWidget):
         lay = QtWidgets.QVBoxLayout(body)
         # 一句话需求（ADR-0054）：LLM 解析、代码核对，只填表单
         self.sentence = QtWidgets.QPlainTextEdit()
-        self.sentence.setPlaceholderText("一句话需求，例如：六轴机械臂第 2 关节，连续 25 N·m、峰值 50 N·m，30 rpm，200 V 三相")
+        self.sentence.setPlaceholderText(T("一句话需求，例如：六轴机械臂第 2 关节，连续 25 N·m、峰值 50 N·m，30 rpm，200 V 三相"))
         self.sentence.setMaximumHeight(60)
-        self.parse_button = QtWidgets.QPushButton("解析（填入下表，核对后再查找）")
+        self.parse_button = QtWidgets.QPushButton(T("解析（填入下表，核对后再查找）"))
         self.parse_note = QtWidgets.QLabel("")
         self.parse_note.setWordWrap(True)
         self.parse_note.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
-        self.clear_button = QtWidgets.QPushButton("清除")
+        self.clear_button = QtWidgets.QPushButton(T("清除"))
         prow = QtWidgets.QHBoxLayout()
         prow.addWidget(self.parse_button, 1)
         prow.addWidget(self.clear_button)
@@ -52,22 +70,22 @@ class SelectionPanel(QtWidgets.QDockWidget):
         self.inputs: dict[str, QtWidgets.QLineEdit] = {}
         for key, label in requirement_form.FIELDS:
             edit = QtWidgets.QLineEdit()
-            edit.setPlaceholderText("必填" if key in requirement_form.REQUIRED else "可空")
-            form.addRow(label, edit)
+            edit.setPlaceholderText(T("必填" if key in requirement_form.REQUIRED else "可空"))
+            form.addRow(T(label), edit)
             self.inputs[key] = edit
-        self.include_unknown = QtWidgets.QCheckBox("包含待确认的方案（数据缺失或接口可配置）")
+        self.include_unknown = QtWidgets.QCheckBox(T("包含待确认的方案（数据缺失或接口可配置）"))
         self.include_unknown.setChecked(True)
-        self.find_button = QtWidgets.QPushButton("查找方案")
+        self.find_button = QtWidgets.QPushButton(T("查找方案"))
         self.table = QtWidgets.QTableWidget(0, len(selection.HEADERS))
-        self.table.setHorizontalHeaderLabels(selection.HEADERS)
+        self.table.setHorizontalHeaderLabels([T(h) for h in selection.HEADERS])
         self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.table.verticalHeader().setVisible(False)
         self.detail = QtWidgets.QTextBrowser()
-        self.place_button = QtWidgets.QPushButton("放入布局")
+        self.place_button = QtWidgets.QPushButton(T("放入布局"))
         self.place_button.setEnabled(False)
-        self.status = QtWidgets.QLabel("填连续扭矩与输出转速，点“查找方案”。")
+        self.status = QtWidgets.QLabel(T("填连续扭矩与输出转速，点“查找方案”。"))
         self.status.setWordWrap(True)
         lay.addLayout(form)
         lay.addWidget(self.include_unknown)
@@ -110,11 +128,11 @@ class SelectionPanel(QtWidgets.QDockWidget):
 
                 client = Gateway()
         except Exception as exc:  # noqa: BLE001 — 缺密钥、缺依赖等
-            self.parse_note.setText(f"不能解析：{exc}。可以直接在下表填数。")
+            self.parse_note.setText(T(f"不能解析：{exc}。可以直接在下表填数。"))
             return False
         self.parsing = True
         self.parse_button.setEnabled(False)
-        self.parse_note.setText("正在解析 …")
+        self.parse_note.setText(T("正在解析 …"))
 
         def work() -> None:
             from engine import requirement_parse
@@ -131,17 +149,16 @@ class SelectionPanel(QtWidgets.QDockWidget):
         self.parsing = False
         self.parse_button.setEnabled(True)
         if isinstance(out, Exception):
-            self.parse_note.setText(f"解析失败：{out}。可以直接在下表填数。")
+            self.parse_note.setText(T(f"解析失败：{out}。可以直接在下表填数。"))
             return
         texts, self.extra, lines = requirement_form.merge_parsed(out)
         for key, text in texts.items():
             self.inputs[key].setText(text)
         shown = {k: v for k, v in self.extra.items() if k != "statement"}
         if shown:
-            lines.append("表单外一并带入：" + "，".join(
-                f"{requirement_form.FIELD_NAMES.get(k, k)} {v}" for k, v in shown.items()))
+            lines.append(_carried(shown))
         head = "解析完成，请核对下表后点“查找方案”" if out.get("status") == "ok" else "还缺必填项，请补充后再查找"
-        self.parse_note.setText(head + ("\n" + "\n".join(lines) if lines else ""))
+        self.parse_note.setText(final(head + ("\n" + "\n".join(_mark(x) for x in lines) if lines else ""), lang()))
 
     def clear(self) -> None:
         self.extra = {}
@@ -158,9 +175,8 @@ class SelectionPanel(QtWidgets.QDockWidget):
             self.inputs[key].setText(text)
         self.extra = {k: v for k, v in req.items() if k not in texts and k not in ("supply",)}
         shown = {k: v for k, v in self.extra.items() if k != "statement"}
-        lines = [note] + (["表单外一并带入：" + "，".join(
-            f"{requirement_form.FIELD_NAMES.get(k, k)} {v}" for k, v in shown.items())] if shown else [])
-        self.parse_note.setText("\n".join(lines))
+        lines = [note] + ([_carried(shown)] if shown else [])
+        self.parse_note.setText(final("\n".join(lines), lang()))
 
     def set_requirement(self, req: dict | None) -> None:
         for key, text in requirement_form.to_texts(req).items():
@@ -169,11 +185,11 @@ class SelectionPanel(QtWidgets.QDockWidget):
     def find(self) -> bool:
         req, err = self.requirement()
         if err:
-            self.status.setText(err)
+            self.status.setText(T(err))
             return False
         self.find_button.setEnabled(False)
         self.place_button.setEnabled(False)
-        self.status.setText("正在查找 …")
+        self.status.setText(T("正在查找 …"))
         args = {"requirement": req, "top_n": 5, "include_unknown": self.include_unknown.isChecked()}
         self.host.call_in_background("compose_chain", args, self.found.emit)
         return True
@@ -182,17 +198,17 @@ class SelectionPanel(QtWidgets.QDockWidget):
         self.find_button.setEnabled(True)
         if isinstance(out, Exception) or out.is_error:
             self.rows, self.summary = [], ""
-            self.status.setText(f"查找失败：{out if isinstance(out, Exception) else '；'.join(out.texts)}")
+            self.status.setText(T(f"查找失败：{out if isinstance(out, Exception) else '；'.join(out.texts)}"))
         else:
             result = _parse(out) or {}
             self.rows = selection.candidate_rows(result, self.host.library().get)
             self.summary = result.get("explanation", "")
-            self.status.setText(f"找到 {len(self.rows)} 个方案" if self.rows else
-                                "没有满足需求的方案；可勾选“包含待确认的方案”或放宽需求")
+            self.status.setText(T(f"找到 {len(self.rows)} 个方案" if self.rows else
+                                "没有满足需求的方案；可勾选“包含待确认的方案”或放宽需求"))
         self.table.setRowCount(len(self.rows))
         for i, row in enumerate(self.rows):
             for j, text in enumerate(selection.cells(row)):
-                self.table.setItem(i, j, QtWidgets.QTableWidgetItem(text))
+                self.table.setItem(i, j, QtWidgets.QTableWidgetItem(T(text)))
         self.table.resizeColumnsToContents()
         if self.rows:
             self.table.selectRow(0)
@@ -206,10 +222,10 @@ class SelectionPanel(QtWidgets.QDockWidget):
         row = self.selected()
         self.place_button.setEnabled(row is not None)
         if row is None:
-            self.detail.setHtml("<p style='color:#666'>" + html.escape(self.summary or "选一个方案查看说明。") + "</p>")
+            self.detail.setHtml("<p style='color:#666'>" + html.escape(tr_block(self.summary or "选一个方案查看说明。")) + "</p>")
             return
-        self.detail.setHtml(f"<p><b>方案 {row.rank}：{html.escape(row.status)}</b></p>"
-                            f"<pre style='white-space:pre-wrap'>{html.escape(row.explanation)}</pre>")
+        self.detail.setHtml(f"<p><b>{html.escape(T(f'方案 {row.rank}：{row.status}'))}</b></p>"
+                            f"<pre style='white-space:pre-wrap'>{html.escape(tr_block(row.explanation))}</pre>")
 
     # ------------------------------------------------------------ 放入布局
 
@@ -219,17 +235,17 @@ class SelectionPanel(QtWidgets.QDockWidget):
             return False
         current = self.host.layout
         if confirm and current.get("instances"):
-            ans = QtWidgets.QMessageBox.question(self, "放入布局", "放入前会清空当前场景中的零件和连接，继续吗？")
+            ans = QtWidgets.QMessageBox.question(self, T("放入布局"), T("放入前会清空当前场景中的零件和连接，继续吗？"))
             if ans != QtWidgets.QMessageBox.Yes:
                 return False
         try:
             calls, unmated = selection.place_calls(row.system, current, self.host.library().get)
         except Exception as exc:  # noqa: BLE001 — 显示给用户
-            self.status.setText(f"不能放入：{exc}")
+            self.status.setText(T(f"不能放入：{exc}"))
             return False
         self.place_button.setEnabled(False)
         self.find_button.setEnabled(False)
-        self.status.setText(f"正在放入方案 {row.rank} …")
+        self.status.setText(T(f"正在放入方案 {row.rank} …"))
 
         def work() -> None:
             try:
@@ -251,4 +267,4 @@ class SelectionPanel(QtWidgets.QDockWidget):
     def _placed(self, err) -> None:
         self.find_button.setEnabled(True)
         self.place_button.setEnabled(self.selected() is not None)
-        self.status.setText(f"放入中断：{err}" if err else "已放入布局；结论见“校验”窗口，清单见“BOM”窗口")
+        self.status.setText(T(f"放入中断：{err}" if err else "已放入布局；结论见“校验”窗口，清单见“BOM”窗口"))
