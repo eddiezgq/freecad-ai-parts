@@ -130,8 +130,11 @@ def test_dexel_no_overcut_no_leftover():
 
 
 def test_full_loop_on_bc_flips_and_is_refused():
-    """BC 摆头 C 只有 ±220°：锥面绕一整圈中途换一组解，回转轴突变报错，不出程序"""
-    prog, _t, _a = _prog()
+    """BC 摆头 C 只有 ±220°：锥面绕一整圈从合适的一组解起步正好够（ADR-0106 C3c 起步时整段看过再挑）；
+    绕 1⅓ 圈（480°）怎么起步都不够，中途换一组解，回转轴突变报错，不出程序"""
+    ok, _t, _a = _prog()
+    assert _run("EX-5AX-BC", "fanuc", ok)["release"] is not None
+    prog, _t, _a = _prog(a1=480.0, n=160)
     p = _run("EX-5AX-BC", "fanuc", prog)
     assert p["release"] is None
     assert any(c["level"] == "error" and "一步转了" in c["text"] for c in p["checks"])

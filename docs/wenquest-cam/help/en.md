@@ -177,8 +177,10 @@ On five-axis machining centres an operation can be simultaneous 5-axis (`simul5`
 along the cut. Three kinds of tool positions are available (`analysis/cam/fiveaxis.py`): swarf `swarf` (the tool axis follows the rulings and the side of a flat end
 mill lies on the surface); ball-end multi-axis surface finishing `ball_surface` (tool axis = surface normal plus lead and tilt angles; the ball stays tangent
 to the surface); curve following `curve_follow` (tool axis = surface normal). Functions that take rulings, contact points and normals from FreeCAD faces and
-edges are in `freecad_addon/fc/cam_5axis.py`; creating 5-axis operations by picking faces in the machining tree comes in a later version. Finishing
-with a lead angle runs one way with lifts between rows: in a zigzag the lead reverses at each row turn and the tool axis would swing through the normal.
+edges are in `freecad_addon/fc/cam_5axis.py`; creating 5-axis operations by picking faces in the machining tree comes in a later version. Zigzag finishing
+with a lead angle takes a fixed lead direction (`lead_dir`) so the axis does not reverse at row turns; otherwise run one way with lifts between rows.
+Rotary angles are chosen per segment after looking along the whole segment (no switching branch at a travel limit halfway); `avoid_pole` moves the
+tool axis a few degrees away from a rotary axis (singularity), and `avoid_collision` tilts it further when the shank or holder would hit the part.
 Programs use tool-tip control (RTCP): FANUC / Huazhong write `G43.4 H..` … `G49`, Siemens `TRAORI` … `TRAFOOF`, Heidenhain
 `FUNCTION TCPM F TCP AXIS POS PATHCTRL AXIS` … `FUNCTION RESET TCPM`; each block has the tool-tip work coordinates and the rotary angles. Rotary angles
 follow a continuous solution along the path (a continuous C axis keeps turning instead of wrapping). Machines without tool-tip control and GSK controls get

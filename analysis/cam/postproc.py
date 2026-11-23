@@ -287,7 +287,7 @@ def _simul5(op, machine, dialect: str) -> list[str]:
         raise ReleaseError(f"{machine['name']} 没开刀尖跟随（RTCP），五轴联动程序不输出（非 RTCP 输出在 ADR-0106 C3c）")
     mvs = [mv for mv in op["moves"] if mv["t"] in ("rapid", "feed")]
     try:
-        rots = FA.rotary_path(model, [mv["axis"] for mv in mvs])
+        rots = FA.rotary_path(model, [mv["axis"] for mv in mvs], breaks=[i for i, mv in enumerate(mvs) if mv["t"] == "rapid"])
     except FA.FiveAxisError as exc:
         raise ReleaseError(str(exc)) from exc
     t = op["tool"]

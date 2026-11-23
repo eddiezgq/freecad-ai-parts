@@ -196,7 +196,7 @@ def simul5_lines(op, machine, safe) -> list[str]:
     mvs = [mv for mv in op["moves"] if mv["t"] in ("rapid", "feed")]
     if not mvs or any(mv.get("axis") is None for mv in mvs):
         raise ValueError("五轴联动工序的每个走刀点都要带刀轴 axis")
-    rots = FA.rotary_path(model, [mv["axis"] for mv in mvs])
+    rots = FA.rotary_path(model, [mv["axis"] for mv in mvs], breaks=[i for i, mv in enumerate(mvs) if mv["t"] == "rapid"])
     t = op["tool"]
     L = ["G91 G28 Z0.0", "G90", "G00 " + " ".join(f"{k}{num(v)}" for k, v in FA.rotary_words(model, rots[0])),
          f"G43.4 H{t.get('offset', t['n']):02d}"]

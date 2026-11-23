@@ -2925,5 +2925,6 @@
 "刀路至少要 2 个点": "A toolpath needs at least 2 points",
 "接触点和法向的个数要一样": "Contact points and normals must have the same count",
 "曲线点和法向的个数要一样": "Curve points and normals must have the same count",
-"走刀方向与曲面法向平行，定不了前倾、侧倾": "The feed direction is parallel to the surface normal; lead and tilt are undefined"
+"走刀方向与曲面法向平行，定不了前倾、侧倾": "The feed direction is parallel to the surface normal; lead and tilt are undefined",
+"第 {} 个刀位刀轴倒到 {}° 刀杆、刀柄还碰零件：换更长、更细的刀，或改刀路": "Tool position {}: with the tool axis tilted to {}° the shank or holder still hits the part; use a longer, slimmer tool or change the path"
 }

@@ -632,6 +632,26 @@
     "en": "5-axis: sphere cap multi-axis finishing dexel no overcut"
    },
    "source": "z_s = −Rs + √(Rs² − x² − y²)"
+  },
+  {
+   "id": "CAM-62",
+   "test": "tests/test_cam_fiveaxis_c3c.py::test_near_pole_branch_choice_and_avoidance",
+   "category": "must",
+   "title": {
+    "zh": "五轴联动：起步挑对解、让开奇异点后回转轴不突变、不过切",
+    "en": "5-axis: branch choice and pole avoidance give no rotary flip and no overcut"
+   },
+   "source": "angle(w, C) ≥ 3°; |ΔC| ≤ 30°"
+  },
+  {
+   "id": "CAM-63",
+   "test": "tests/test_cam_fiveaxis_c3c.py::test_holder_hits_wall_and_tilts_away",
+   "category": "geom",
+   "title": {
+    "zh": "五轴联动：刀柄碰壁时自动加大倾角、留够间隙",
+    "en": "5-axis: holder hitting a wall tilts away with clearance"
+   },
+   "source": "d(shank, part) − r ≥ 1 mm; |Δtilt| ≤ 2°"
   }
  ]
 }
