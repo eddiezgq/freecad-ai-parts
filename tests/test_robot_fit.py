@@ -86,9 +86,12 @@ def test_offset_wrist_roll_too_close_to_the_wrist_pitch():
     w = {x["link"]: x for x in r["links"]}["wrist"]
     assert {x["joint"]: x for x in r["joints"]}["j5"]["status"] == "pass"
     assert w["status"] == "fail" and "伸进" in w["note"]
-    c["joints"][4]["origin_mm"] = [50, 0, 160]                    # 往前推到 U 底板之外
+    c["joints"][4]["origin_mm"] = [24.5, 0, 160]                  # 横置滚转、往前推到 U 底板之外，壳体中心落在杆轴上
+    c["joints"][4]["axis"] = [1, 0, 0]
+    c["end_effector"]["offset_mm"] = [0, 0, 0]
+    c["links"][3]["length_mm"] = 160
     w = {x["link"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["links"]}["wrist"]
-    assert w["status"] == "pass"
+    assert w["status"] == "pass", w["note"]
 
 
 def test_short_link_fails_and_missing_interfaces_unknown():
@@ -114,3 +117,22 @@ def test_base_mounted_housing_must_stay_above_the_table():
     assert j1["status"] == "fail"
     c["base"]["mount"] = "wall"
     assert {x["joint"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["joints"]}["j1"]["status"] == "unknown"
+
+
+def test_links_are_straight_tubes():
+    """下一关节的壳体底面要正对本杆：轴转关节的轴线斜着（偏开又沿杆向）就接不上直管；轴线垂直于杆、壳体中心落在杆轴上才行"""
+    c = _arm(wrist=[0, 0, 40])
+    c["joints"][0]["origin_mm"] = [0, 0, 50]
+    c["joints"][4]["origin_mm"] = [-45, 0, 100]                  # 真实 AI 一轮的改法：偏开 45 mm、轴线仍沿 z（与腕杆斜交）
+    r = fit.check(c, {j["id"]: _comp() for j in c["joints"]})
+    w = {x["link"]: x for x in r["links"]}["wrist"]
+    assert w["status"] == "fail" and "不垂直" in w["note"]
+    c["joints"][4]["axis"] = [1, 0, 0]                           # 横置滚转：轴线沿 x，垂直于腕杆（z）
+    c["joints"][4]["origin_mm"] = [0, 0, 100]                    # 原点在舵盘端面，壳体中心在它后面 24.5：偏出杆轴
+    c["end_effector"]["offset_mm"] = [0, 0, 0]
+    c["links"][4]["length_mm"] = 60
+    w = {x["link"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["links"]}["wrist"]
+    assert w["status"] == "fail" and "24.5" in w["note"]           # 壳体中心偏出杆轴：杆向斜了
+    c["joints"][4]["origin_mm"] = [24.5, 0, 100]                 # 壳体中心回到杆轴上
+    w = {x["link"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["links"]}["wrist"]
+    assert w["status"] == "pass", w["note"]
