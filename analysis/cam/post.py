@@ -198,6 +198,8 @@ def simul5_lines(op, machine, safe) -> list[str]:
         raise ValueError("五轴联动工序的每个走刀点都要带刀轴 axis")
     rots = FA.rotary_path(model, [mv["axis"] for mv in mvs], breaks=[i for i, mv in enumerate(mvs) if mv["t"] == "rapid"])
     t = op["tool"]
+    if op.get("_nonrtcp"):
+        return nonrtcp_lines(op, machine, mvs, rots, "fanuc")
     L = ["G91 G28 Z0.0", "G90", "G00 " + " ".join(f"{k}{num(v)}" for k, v in FA.rotary_words(model, rots[0])),
          f"G43.4 H{t.get('offset', t['n']):02d}"]
     pos, rprev, mode, last_f = {}, {}, None, None
@@ -224,6 +226,58 @@ def simul5_lines(op, machine, safe) -> list[str]:
         lines_ok = " ".join(line)
         L.append(lines_ok)
     L += ["G49", "G91 G28 Z0.0", "G90", "M09", "M05"]
+    return L
+
+
+def nonrtcp_lines(op, machine, mvs, rots, dialect, h=None, fmt=None, ffmt=None) -> list[str]:
+    """五轴联动、机床没开刀尖跟随（ADR-0106 C3c-2）：写机床各轴位置（按刀长、工件零点在机床坐标里的位置逐点逆解；
+    机床直线插补时刀尖走弯超过 0.01 mm 就插点）。不加长度补偿，G54 要设为 0；换刀长、换装夹要重出程序（程序头写明）。
+    dialect：fanuc / siemens / heidenhain（h 是海德汉的数字写法）"""
+    from analysis.cam import fiveaxis as FA
+
+    model = machine.get("model") or {}
+    nr = op["_nonrtcp"]
+    L0, off = float(nr["L"]), [float(v) for v in nr["off"]]
+    pts = FA.machine_points(model, [[mv["x"], mv["y"], mv["z"]] for mv in mvs], [mv["axis"] for mv in mvs], rots, L0, off)
+    h = h or (lambda v: v)
+    nm = fmt or num
+    kl, sie = dialect == "heidenhain", dialect == "siemens"
+    note = f"NON-RTCP T{op['tool']['n']} L{L0:.3f} WORK ZERO X{off[0]:g} Y{off[1]:g} Z{off[2]:g} G54=0 NO LENGTH OFFSET"
+    order = [a["id"] for a in model["axes"]]
+    first = pts[0][0]
+    rot0 = " ".join(f"{a}{h(nm(first[a]))}" for a in order if a in first and any(x["id"] == a and x["type"] == "rotary" for x in model["axes"]))
+    if kl:
+        L = [f"; {note}", "M140 MB MAX", f"L {rot0} R0 FMAX"]
+    elif sie:
+        L = [f"; {note}", "G0 SUPA Z0", f"G0 {rot0}"]
+    else:
+        L = [f"({note})", "G49", "G91 G28 Z0.0", "G90", f"G00 {rot0}"]
+    prev, mode, last_f = {}, None, None
+    for k, (q, _tip, _w, i) in enumerate(pts):
+        mv = mvs[i]
+        w = []
+        for a in order:
+            if a in q and (a not in prev or abs(prev[a] - q[a]) > 5e-4):
+                w.append(a + h(nm(q[a])))
+                prev[a] = q[a]
+        if not w:
+            continue
+        fw = ""
+        if mv["t"] == "feed" and mv.get("f") != last_f:
+            fw = ffmt(mv["f"], 1) if ffmt else num(mv["f"], 1)
+            last_f = mv["f"]
+        if kl:
+            L.append(" ".join(f"L {' '.join(w)} R0 {'FMAX' if mv['t'] == 'rapid' else (f'F{fw}' if fw else '')}".split()))
+            continue
+        g = ("G0" if sie else "G00") if mv["t"] == "rapid" else ("G1" if sie else "G01")
+        L.append(" ".join(([g] if g != mode else []) + w + ([f"F{fw}"] if fw else [])))
+        mode = g
+    if kl:
+        L += ["M140 MB MAX", "M9", "M5"]
+    elif sie:
+        L += ["G0 SUPA Z0", "M9", "M5"]
+    else:
+        L += ["G91 G28 Z0.0", "G90", "M09", "M05"]
     return L
 
 

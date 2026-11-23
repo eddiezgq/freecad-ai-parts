@@ -283,11 +283,15 @@ def _simul5(op, machine, dialect: str) -> list[str]:
     from analysis.cam import fiveaxis as FA
 
     model = machine.get("model") or {}
-    if not (model.get("features") or {}).get("rtcp"):
-        raise ReleaseError(f"{machine['name']} 没开刀尖跟随（RTCP），五轴联动程序不输出（非 RTCP 输出在 ADR-0106 C3c）")
     mvs = [mv for mv in op["moves"] if mv["t"] in ("rapid", "feed")]
     try:
         rots = FA.rotary_path(model, [mv["axis"] for mv in mvs], breaks=[i for i, mv in enumerate(mvs) if mv["t"] == "rapid"])
+        if not (model.get("features") or {}).get("rtcp"):         # 没开刀尖跟随：写机床各轴位置（ADR-0106 C3c-2）
+            if not op.get("_nonrtcp"):
+                raise ReleaseError(f"{machine['name']} 没开刀尖跟随（RTCP），非 RTCP 输出要给刀长和工件零点（machine_sim）")
+            from analysis.cam import post as _PO
+
+            return _PO.nonrtcp_lines(op, machine, mvs, rots, dialect, h=klartext.hnum if dialect == "heidenhain" else None, fmt=num, ffmt=fnum)
     except FA.FiveAxisError as exc:
         raise ReleaseError(str(exc)) from exc
     t = op["tool"]

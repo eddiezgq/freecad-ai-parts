@@ -878,6 +878,23 @@ def _program(setup, mach):
                 raise SetupError(f"第 {k} 道工序的 {mv['t']} 动作缺 {', '.join(x for x in need if mv.get(x) is None)}")
         tools[int(t["n"])] = {"kind": t.get("kind", "endmill"), "d": float(t["d"]),
                               **{k: float(t[k]) for k in ("pitch", "tip_d", "angle", "core_d") if t.get(k) is not None}}
+    s5 = [op for op in ops if op.get("simul5")]
+    if s5 and not ((mach.get("model") or {}).get("features") or {}).get("rtcp"):
+        # 机床没开刀尖跟随：五轴联动写机床各轴位置（ADR-0106 C3c-2），要刀长和工件零点在机床坐标里的位置
+        cfg = setup.get("machine_sim") or {}
+        n5 = {int(op["tool"]["n"]) for op in s5}
+        if {int(op["tool"]["n"]) for op in ops if not op.get("simul5")} & n5:
+            raise SetupError("机床没开刀尖跟随：五轴联动工序的刀号不能再用在别的工序上（非 RTCP 程序按刀号认刀长）")
+        nr = {}
+        for t in sorted(n5):
+            Lt = ((cfg.get("tools") or {}).get(str(t)) or {}).get("length_mm")
+            if not cfg or Lt is None:
+                raise SetupError(f"{mach['name']} 没开刀尖跟随（RTCP）：五轴联动要按刀长、工件零点算机床各轴位置，"
+                                 f"machine_sim 里要写 T{t} 的 length_mm 和 work_offset_mm")
+            nr[t] = {"L": float(Lt), "off": [float(v) for v in (cfg.get("work_offset_mm") or [0, 0, 0])]}
+        mach = {**mach, "nonrtcp": nr}
+        prog = {**prog, "ops": [dict(op, _nonrtcp=nr[int(op["tool"]["n"])]) if op.get("simul5") else op for op in ops]}
+        ops = prog["ops"]
     stock = setup.get("stock") or {}
     if len(stock.get("box") or []) != 4:
         raise SetupError("要给毛坯 stock.box = [x0, y0, x1, y1]（上表面 Z0）")

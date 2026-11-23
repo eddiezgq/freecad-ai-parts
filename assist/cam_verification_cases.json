@@ -652,6 +652,16 @@
     "en": "5-axis: holder hitting a wall tilts away with clearance"
    },
    "source": "d(shank, part) − r ≥ 1 mm; |Δtilt| ≤ 2°"
+  },
+  {
+   "id": "CAM-64",
+   "test": "tests/test_cam_fiveaxis_c3c2.py::test_nonrtcp_release_and_readback",
+   "category": "post",
+   "title": {
+    "zh": "五轴联动：非 RTCP 程序（FANUC / 西门子 / 海德汉）回读与刀位一致（弦差 0.01）",
+    "en": "5-axis: non-RTCP programs (FANUC / Siemens / Heidenhain) read back to the tool positions (chord 0.01)"
+   },
+   "source": "tip = forward(q, L) − offset; |mid deviation| ≤ 0.01"
   }
  ]
 }

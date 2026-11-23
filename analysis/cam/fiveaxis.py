@@ -442,3 +442,49 @@ def avoid_collision(tips, axes, radius: float, parts, dist_fn, clearance: float 
     newA = np.array([_rotate_toward(A[i], side[i], min(tilt[i], max_tilt)) if side[i] is not None and tilt[i] > 0 else A[i]
                      for i in range(n)])
     return {"tips": C - radius * newA, "axes": newA, "tilt": tilt, "issues": issues}
+
+
+# ---------------------------------------------------------------- 非 RTCP 输出（ADR-0106 C3c-2）
+def machine_points(machine: dict, tips, axes, rots, tool_length: float, offset, chord: float = 0.01,
+                   max_depth: int = 8) -> list[tuple[dict, np.ndarray, np.ndarray, int]]:
+    """刀位 → 机床轴位置（逐点逆解，回转轴取 rots 那一组）。机床各轴直线插补时刀尖在两点间走弯：
+    中点处刀尖离两点连线超过 chord 就在中间插一个刀位（刀尖直线插值、刀轴球面插值），一直分到不超过为止。
+    返回 [(各轴位置, 刀尖, 刀轴, 原来第几个刀位)]"""
+    off = np.asarray(offset, float)
+    T, A = np.asarray(tips, float), np.array([_unit(a) for a in axes])
+
+    def q_of(p, w, pref):
+        try:
+            return K.inverse(machine, p + off, w, tool_length, prefer=pref)
+        except K.KinematicsError as exc:
+            raise FiveAxisError(f"机床走不到：{exc}") from exc
+
+    def mid_dev(qa, qb, pa, pb):
+        qm = {k: 0.5 * (qa[k] + qb[k]) for k in qa}
+        tm, _ = K.forward(machine, qm, tool_length)
+        return float(np.linalg.norm(tm - off - 0.5 * (pa + pb)))
+
+    out = []
+    q_prev = None
+    for i in range(len(T)):
+        q = q_of(T[i], A[i], {**(q_prev or {}), **rots[i]})
+        if q_prev is not None:
+            stack = [(0.0, 1.0, q_prev, q, 0)]
+            ins = []
+            while stack:
+                s0, s1, qa, qb, d = stack.pop()
+                pa = T[i - 1] + s0 * (T[i] - T[i - 1])
+                pb = T[i - 1] + s1 * (T[i] - T[i - 1])
+                if d < max_depth and mid_dev(qa, qb, pa, pb) > chord:
+                    sm = 0.5 * (s0 + s1)
+                    pm, wm = T[i - 1] + sm * (T[i] - T[i - 1]), slerp(A[i - 1], A[i], sm)
+                    qm = q_of(pm, wm, {k: 0.5 * (qa[k] + qb[k]) for k in qa})
+                    stack.append((sm, s1, qm, qb, d + 1))
+                    stack.append((s0, sm, qa, qm, d + 1))
+                    continue
+                if s1 < 1.0:
+                    ins.append((qb, T[i - 1] + s1 * (T[i] - T[i - 1]), slerp(A[i - 1], A[i], s1), i))
+            out += ins
+        out.append((q, T[i], A[i], i))
+        q_prev = q
+    return out
