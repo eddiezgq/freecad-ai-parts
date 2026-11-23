@@ -183,8 +183,10 @@ Rotary angles are chosen per segment after looking along the whole segment (no s
 tool axis a few degrees away from a rotary axis (singularity), and `avoid_collision` tilts it further when the shank or holder would hit the part.
 Programs use tool-tip control (RTCP): FANUC / Huazhong write `G43.4 H..` … `G49`, Siemens `TRAORI` … `TRAFOOF`, Heidenhain
 `FUNCTION TCPM F TCP AXIS POS PATHCTRL AXIS` … `FUNCTION RESET TCPM`; each block has the tool-tip work coordinates and the rotary angles. Rotary angles
-follow a continuous solution along the path (a continuous C axis keeps turning instead of wrapping). Machines without tool-tip control and GSK controls get
-no program. Simulation: material removal by tri-dexel (a move whose axis changes is split every 2°), and the machine simulation solves every sample for
+follow a continuous solution along the path (a continuous C axis keeps turning instead of wrapping). GSK controls get no program. Machines without tool-tip control
+get machine axis positions (computed point by point from the tool length and work zero, with points inserted where the tip would stray more than 0.01 mm);
+the tool length and work zero come from the machine simulation settings and are written in the header: set G54 to 0, no length offset, and post again after
+changing the tool length or the setup. Simulation: material removal by tri-dexel (a move whose axis changes is split every 2°), and the machine simulation solves every sample for
 overtravel and collisions. The check list may show: a rotary axis turning more than 30° in one cutting move (a singularity was crossed or an axis hit its
 travel limit and switched solution) — an error, no program; a tool axis within 1° of a rotary axis (near a singularity) — a warning; a rotary axis needing
 more speed than the machine has — a warning that the feed will drop. The move from machine Z home to the first tool position after switching on tool-tip

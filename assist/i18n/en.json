@@ -2197,11 +2197,9 @@
 "第 {} 点：底边走向与直纹线平行，定不了曲面法向": "Point {}: the bottom edge runs parallel to the ruling, the surface normal is undefined",
 "五轴联动：开刀尖跟随后从机床 Z 原点到第一个刀位那一段，实际走法由数控系统定，整机仿真没查；首件单段确认": "5-axis: the move from machine Z home to the first tool position after switching on tool-tip control is decided by the control and was not checked in the machine simulation; confirm on the first part in single block",
 "五轴联动工序的每个走刀点都要带刀轴 axis": "Every move of a 5-axis operation needs a tool axis",
-"{} 没开刀尖跟随（RTCP），五轴联动程序不输出（非 RTCP 输出在 ADR-0106 C3c）": "{} has no tool-tip control (RTCP); no 5-axis program is output (non-RTCP output comes in ADR-0106 C3c)",
 "广数系统没有刀尖跟随（RTCP），五轴联动程序不输出（ADR-0106 C3a）": "GSK controls have no tool-tip control (RTCP); no 5-axis program is output (ADR-0106 C3a)",
 "{} 没开刀尖跟随（RTCP），五轴联动程序（G43.4）不能用": "{} has no tool-tip control (RTCP); a 5-axis program (G43.4) cannot run on it",
 "刀尖跟随（G43.4）里的圆弧还读不了（五轴联动刀路都是直线段，ADR-0106 C3a）": "Arcs under tool-tip control (G43.4) cannot be read yet (5-axis toolpaths are straight segments, ADR-0106 C3a)",
-"回转轴和直线轴同一段、没开刀尖跟随（G43.4）：非 RTCP 的五轴程序还读不了（ADR-0106 C3c）": "Rotary and linear axes in one block without tool-tip control (G43.4): non-RTCP 5-axis programs cannot be read yet (ADR-0106 C3c)",
 "第 {} 行刀轴离回转轴 {} 只有 {}°（奇异点附近）：{} 转多少刀轴都差不多，机床可能在这里猛转；刀轴别贴着回转轴": "Line {}: the tool axis is near rotary axis {}, only {}° away (near a singularity): turning {} barely changes the tool axis, the machine may swing hard here; keep the tool axis away from the rotary axis",
 "第 {} 行回转轴 {} 一步转了 {}°（切削中超过 {}°）：多半是过了奇异点或回转轴到了行程头换了一组解，刀尖会在工件上乱走；改刀轴或装夹位置": "Line {}: rotary axis {} turns {}° in one move while cutting (more than {}°): most likely a singularity was crossed or the axis hit its travel limit and switched solution branch, the tool tip will wander over the work; change the tool axis or the setup position",
 "第 {} 行起回转轴 {} 要转 {}°/分，超过机床能力 {}°/分：数控系统会降进给，实际时间比算的长": "From line {} rotary axis {} needs {}°/min, more than the machine's {}°/min: the control will slow the feed, the real time is longer than calculated",
@@ -2209,5 +2207,9 @@
 "接触点和法向的个数要一样": "Contact points and normals must have the same count",
 "曲线点和法向的个数要一样": "Curve points and normals must have the same count",
 "走刀方向与曲面法向平行，定不了前倾、侧倾": "The feed direction is parallel to the surface normal; lead and tilt are undefined",
-"第 {} 个刀位刀轴倒到 {}° 刀杆、刀柄还碰零件：换更长、更细的刀，或改刀路": "Tool position {}: with the tool axis tilted to {}° the shank or holder still hits the part; use a longer, slimmer tool or change the path"
+"第 {} 个刀位刀轴倒到 {}° 刀杆、刀柄还碰零件：换更长、更细的刀，或改刀路": "Tool position {}: with the tool axis tilted to {}° the shank or holder still hits the part; use a longer, slimmer tool or change the path",
+"{} 没开刀尖跟随（RTCP）：五轴联动要按刀长、工件零点算机床各轴位置，machine_sim 里要写 T{} 的 length_mm 和 work_offset_mm": "{} has no tool-tip control (RTCP): 5-axis moves are computed as machine axis positions from the tool length and the work zero; give T{} length_mm and work_offset_mm in machine_sim",
+"机床没开刀尖跟随：五轴联动工序的刀号不能再用在别的工序上（非 RTCP 程序按刀号认刀长）": "The machine has no tool-tip control: a 5-axis operation's tool number cannot be used by other operations (non-RTCP programs take the tool length by tool number)",
+"{} 没开刀尖跟随（RTCP），非 RTCP 输出要给刀长和工件零点（machine_sim）": "{} has no tool-tip control (RTCP); non-RTCP output needs the tool length and work zero (machine_sim)",
+"回转轴和直线轴同一段、没开刀尖跟随（G43.4），也没给这把刀的刀长和工件零点：非 RTCP 的五轴程序读不了": "Rotary and linear axes in one block without tool-tip control (G43.4), and no tool length and work zero for this tool: the non-RTCP 5-axis program cannot be read"
 }
