@@ -176,7 +176,7 @@
     },
     "holder": {
      "type": "object",
-     "description": "刀柄 / 刀杆外形，碰撞检查用。铣刀、钻头：绕刀轴的回转轮廓 profile_mm；车刀：ISO 5608 刀杆代号 iso5608（刀杆高、宽、全长由代号给出）加刀尖偏距 f_mm（ADR-0107）；内孔镗杆：ISO 6261 代号 iso6261、杆径 bar_d_mm、最小孔径 min_bore_mm、刀尖到杆轴线的距离 f_mm（ADR-0114）",
+     "description": "刀柄 / 刀杆外形，碰撞检查用。铣刀、钻头：绕刀轴的回转轮廓 profile_mm；车刀：ISO 5608 刀杆代号 iso5608（刀杆高、宽、全长由代号给出）加刀尖偏距 f_mm（ADR-0107）；内孔镗杆：ISO 6261 代号 iso6261、杆径 bar_d_mm、最小孔径 min_bore_mm、刀尖到杆轴线的距离 f_mm（ADR-0114）；外圆切槽刀杆：厂家代号 vendor_code、刀杆高 h_mm、宽 b_mm、全长 l1_mm、最大槽深 max_depth_mm（ADR-0118）",
      "properties": {
       "id": {
        "type": "string",
@@ -211,7 +211,7 @@
       "vendor_code": {
        "type": "string",
        "pattern": "^[A-Z0-9][A-Z0-9/._-]{1,63}$",
-       "description": "厂家自己的镗杆代号（ADR-0115），这时写 l1_mm"
+       "description": "厂家自己的刀杆代号（镗杆 ADR-0115；方柄切槽刀杆 ADR-0118），这时写 l1_mm"
       },
       "l1_mm": {
        "type": "number",
@@ -227,6 +227,21 @@
        "type": "number",
        "exclusiveMinimum": 0,
        "description": "镗杆能进的最小孔径；ADR-0114"
+      },
+      "h_mm": {
+       "type": "number",
+       "exclusiveMinimum": 0,
+       "description": "方柄刀杆高（厂家代号的切槽刀杆用，ADR-0118）"
+      },
+      "b_mm": {
+       "type": "number",
+       "exclusiveMinimum": 0,
+       "description": "方柄刀杆宽（厂家代号的切槽刀杆用，ADR-0118）"
+      },
+      "max_depth_mm": {
+       "type": "number",
+       "exclusiveMinimum": 0,
+       "description": "切槽刀杆能切的最大槽深（样本 CDX）；ADR-0118"
       },
       "f_mm": {
        "type": "number",
@@ -260,6 +275,14 @@
        "required": [
         "vendor_code",
         "bar_d_mm",
+        "l1_mm"
+       ]
+      },
+      {
+       "required": [
+        "vendor_code",
+        "h_mm",
+        "b_mm",
         "l1_mm"
        ]
       }
