@@ -3,13 +3,14 @@
   "prompt_version": "robot-design/1",
   "request_key": "52db520b841aa635f1e5d192ab4f69affed924cd763118a6bcc9ef20a236e86c",
   "response": {
-    "id": "msg_011ChKvBnHtK7YZDrTQhKGiV",
+    "id": "msg_011ChKvoh85dMZLsjCAtcMFu",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
     "tool_input": {
       "dof": {
         "quote": "5 轴",
+        "unit": "轴",
         "value": 5
       },
       "for_people": [
@@ -43,11 +44,10 @@
         "value": 0.5
       },
       "questions": [
-        "“5 轴”是否指5个旋转关节（不含夹爪/末端工具的自由度）？",
-        "关节模组“同一种”是否要求5个关节完全相同规格（含尺寸、扭矩），还是同一系列即可？",
-        "外购件成本“尽量低”有无具体预算上限？",
-        "末端负载0.5 kg是否包含夹爪/工具自重？",
-        "关节最高角速度60°/s是否对所有关节均适用？"
+        "“5 轴”是否包含末端夹爪/工具的开合轴，还是仅指5个旋转关节？",
+        "0.5 kg 负载是否包含夹爪/工具自身重量？",
+        "“外购件成本尽量低”是否有具体预算上限？",
+        "关节最高角速度 60°/s 是对每个关节都要求，还是仅对末端/主要关节？"
       ],
       "reach": {
         "quote": "臂展 350 mm",
